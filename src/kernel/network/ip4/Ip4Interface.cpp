@@ -27,16 +27,11 @@
 
 namespace Kernel::Network::Ip4 {
 
-Ip4Interface::Ip4Interface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4Address &networkAddress,
-                           const Util::Network::Ip4::Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device) :
-        address(address), networkAddress(networkAddress), networkMask(networkMask), device(device) {}
+Ip4Interface::Ip4Interface(const Util::Network::Ip4::Ip4Address &address,  const Util::Network::Ip4::Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device) :
+        address(address), networkMask(networkMask), device(device) {}
 
 Util::String Ip4Interface::getDeviceIdentifier() const {
     return device.getIdentifier();
-}
-
-void Ip4Interface::sendPacket(uint8_t *packet, uint32_t length) {
-    device.sendPacket(packet, length);
 }
 
 const Util::Network::Ip4::Ip4Address& Ip4Interface::getAddress() const {
@@ -44,7 +39,7 @@ const Util::Network::Ip4::Ip4Address& Ip4Interface::getAddress() const {
 }
 
 bool Ip4Interface::isTargetOf(const Util::Network::Ip4::Ip4Address &targetAddress) {
-    if (targetAddress == address || networkMask.createBroadcastAddress(networkAddress) == targetAddress || targetAddress.isBroadcastAddress()) {
+    if (targetAddress == address || networkMask.createBroadcastAddress(address) == targetAddress || targetAddress.isBroadcastAddress()) {
         return true;
     }
 

@@ -151,11 +151,24 @@ Ip4Interface& Ip4Module::getInterface(const Util::String &deviceIdentifier) {
     Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ip4Module: Device not found!");
 }
 
-void Ip4Module::registerInterface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4Address &networkAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device) {
-    interfaces.add(new Ip4Interface(address, networkAddress, networkMask, device));
+void Ip4Module::registerInterface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device) {
+    interfaces.add(new Ip4Interface(address, networkMask, device));
 
     auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
     arpModule.setEntry(address, device.getMacAddress());
+}
+
+void Ip4Module::removeInterface(const Util::Network::Ip4::Ip4Address &address, const Util::String &deviceIdentifier) {
+    for (auto *interface : interfaces) {
+        if (interface->getAddress() == address && interface->getDeviceIdentifier() == deviceIdentifier) {
+            auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
+            arpModule.removeEntry(interface->getAddress());
+
+            interfaces.remove(interface);
+            delete interface;
+            return;
+        }
+    }
 }
 
 uint16_t Ip4Module::calculateChecksum(const uint8_t *buffer, uint32_t offset, uint32_t length) {

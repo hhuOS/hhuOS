@@ -33,15 +33,7 @@ void printDeviceInfo(const Util::String &deviceName) {
     }
 
     auto macStream = Util::Io::FileInputStream(macFile);
-    auto macString = macStream.readLine();
-    auto macSplit = macString.split(":");
-    uint8_t macBytes[6]{static_cast<uint8_t>(Util::String::parseHexInt(macSplit[0])),
-                        static_cast<uint8_t>(Util::String::parseHexInt(macSplit[1])),
-                        static_cast<uint8_t>(Util::String::parseHexInt(macSplit[2])),
-                        static_cast<uint8_t>(Util::String::parseHexInt(macSplit[3])),
-                        static_cast<uint8_t>(Util::String::parseHexInt(macSplit[4])),
-                        static_cast<uint8_t>(Util::String::parseHexInt(macSplit[5]))};
-    auto macAddress = Util::Network::MacAddress(macBytes);
+    auto macAddress = Util::Network::MacAddress(macStream.readLine());
 
     auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::ETHERNET);
     if (!socket.bind(macAddress)) {
@@ -53,16 +45,18 @@ void printDeviceInfo(const Util::String &deviceName) {
     bool ip4 = socket.getIp4Address(ipAddress);
 
     Util::System::out << deviceName << ":" << Util::Io::PrintStream::endl
-                      << "    MAC: " << macString << Util::Io::PrintStream::endl;
+                      << "    MAC: " << macAddress.toString() << Util::Io::PrintStream::endl;
     if (ip4) Util::System::out << "    IPv4: " << ipAddress.toString() << Util::Io::PrintStream::endl;
     Util::System::out << Util::Io::PrintStream::flush;
 }
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
+    argumentParser.addArgument("remove", false, "r");
     argumentParser.setHelpText("Print IP addresses of network devices.\n"
-                               "Usage: hexdump [DEVICE...]\n"
+                               "Usage: hexdump [OPTIONS...] [DEVICE...]\n"
                                "Options:\n"
+                               "  -r, --remove: Remove the IPv4 address of a given device"
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
@@ -70,16 +64,47 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto devices = Util::ArrayList<Util::String>(argumentParser.getUnnamedArguments());
-    if (devices.size() == 0) {
+    auto arguments = Util::ArrayList<Util::String>(argumentParser.getUnnamedArguments());
+
+    if (argumentParser.hasArgument("remove")) {
+        if (arguments.size() == 0) {
+            Util::System::error << "ip: No device given!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            return -1;
+        }
+
+        auto deviceName = arguments.get(0);
+        auto ip4Address = Util::Network::Ip4::Ip4Address(argumentParser.getArgument("remove"));
+        auto macFile = Util::Io::File("/device/" + deviceName + "/mac");
+        if (!macFile.exists()) {
+            Util::System::error << "ip: Device '" << deviceName << "' not found!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            return -1;
+        }
+
+        auto macStream = Util::Io::FileInputStream(macFile);
+        auto macAddress = Util::Network::MacAddress(macStream.readLine());
+
+        auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::ETHERNET);
+        if (!socket.bind(macAddress)) {
+            Util::System::error << "ip: Unable to bind ethernet socket to device '" << deviceName << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            return -1;
+        }
+
+        if (!socket.removeIp4Address(ip4Address)) {
+            Util::System::error << "ip: Failed to remove IPv4 address '" << ip4Address.toString() << "' from device '" << deviceName << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        }
+
+        return 0;
+    }
+
+    if (arguments.size() == 0) {
         for (const auto &file: Util::Io::File("/device").getChildren()) {
             if (file.beginsWith("eth") || file.beginsWith("loopback")) {
-                devices.add(file);
+                arguments.add(file);
             }
         }
     }
 
-    for (const auto &deviceName : devices) {
+    for (const auto &deviceName : arguments) {
         printDeviceInfo(deviceName);
     }
 

@@ -87,6 +87,8 @@ public:
 
     void setEntry(const Util::Network::Ip4::Ip4Address &protocolAddress, const Util::Network::MacAddress &hardwareAddress);
 
+    void removeEntry(const Util::Network::Ip4::Ip4Address &protocolAddress);
+
 private:
 
     Util::Network::MacAddress getHardwareAddress(const Util::Network::Ip4::Ip4Address &protocolAddress);

@@ -41,7 +41,7 @@ public:
     /**
      * Constructor.
      */
-    Ip4Interface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4Address &networkAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device);
+    Ip4Interface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device);
 
     /**
      * Copy Constructor.
@@ -60,8 +60,6 @@ public:
 
     [[nodiscard]] Util::String getDeviceIdentifier() const;
 
-    void sendPacket(uint8_t *packet, uint32_t length);
-
     [[nodiscard]] const Util::Network::Ip4::Ip4Address& getAddress() const;
 
     bool isTargetOf(const Util::Network::Ip4::Ip4Address &targetAddress);
@@ -71,7 +69,6 @@ public:
 private:
 
     Util::Network::Ip4::Ip4Address address;
-    Util::Network::Ip4::Ip4Address networkAddress;
     Util::Network::Ip4::Ip4NetworkMask networkMask;
 
     Device::Network::NetworkDevice &device;

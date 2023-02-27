@@ -45,6 +45,11 @@ public:
     explicit MacAddress(const uint8_t *buffer);
 
     /**
+     * Constructor.
+     */
+    explicit MacAddress(const Util::String &string);
+
+    /**
      * Copy Constructor.
      */
     MacAddress(const MacAddress &other) = default;
