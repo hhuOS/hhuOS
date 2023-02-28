@@ -237,7 +237,6 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
  * Merge all free blocks of free memory if possible
  */
 FreeListMemoryManager::FreeListHeader *FreeListMemoryManager::merge(FreeListHeader *origin) {
-
     if (firstChunk == nullptr) {
         return nullptr;
     }

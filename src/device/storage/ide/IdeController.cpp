@@ -55,6 +55,10 @@ IdeController::IdeController(const PciDevice &pciDevice) {
         log.info("Controller supports DMA");
         supportsDma = true;
         dmaBaseAddress = pciDevice.readDoubleWord(Pci::Register::BASE_ADDRESS_4) & 0xfffffffc;
+
+        uint16_t command = pciDevice.readWord(Pci::COMMAND);
+        command |= Pci::BUS_MASTER | Pci::IO_SPACE;
+        pciDevice.writeWord(Pci::COMMAND, command);
     }
 
     for (uint32_t i = 0; i < CHANNELS_PER_CONTROLLER; i++) {
@@ -440,16 +444,12 @@ uint16_t IdeController::performIO(const IdeController::DeviceInfo &info, IdeCont
         uint32_t start = startSector + processedSectors;
         uint32_t count = sectorsLeft > maxSectorCount ? maxSectorCount : sectorsLeft;
 
-        // TODO: DMA is currently disable for two reasons:
-        //      1. There seems to be an error with unmapping the pages used for DMA, causing the system to crash.
-        //      2. DMA transfers do not work on BIOS systems (Interrupts get fired, but the memory is untouched)
-        /*uint16_t sectors;
+        uint16_t sectors;
         if (supportsDma && info.supportsDma()) {
             sectors = performDmaIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
         } else {
             sectors = performProgrammedIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
-        }*/
-        auto sectors = performProgrammedIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
+        }
 
         processedSectors += sectors;
         if (sectors == 0) {

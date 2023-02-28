@@ -382,6 +382,22 @@ void GatesOfHell::initializePowerManagement() {
 void GatesOfHell::initializeStorage() {
     Device::Storage::IdeController::initializeAvailableControllers();
 
+    /*auto &hdd = Kernel::System::getService<Kernel::StorageService>().getDevice("ide0");
+    auto *buffer = new uint8_t[1024 * 1024];
+    for (uint32_t i = 0; i < 1024 * 1024; i++) {
+        buffer[i] = static_cast<uint8_t>(i);
+    }
+
+    hdd.write(buffer, 1337, (1024 * 1024) / hdd.getSectorSize());
+    Util::Address<uint32_t>(buffer).setRange(0, 1024 * 1024);
+
+    hdd.read(buffer, 1337, (1024 * 1024) / hdd.getSectorSize());
+    for (uint32_t i = 0; i < 1024 * 1024; i++) {
+        if (buffer[i] != static_cast<uint8_t>(i)) {
+            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "IDE: Test failed!");
+        }
+    }*/
+
     if (Device::Storage::FloppyController::isAvailable()) {
         auto *floppyController = new Device::Storage::FloppyController();
         floppyController->initializeAvailableDrives();
