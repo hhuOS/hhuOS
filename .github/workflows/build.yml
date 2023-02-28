@@ -1,0 +1,26 @@
+name: build
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - uses: awalsh128/cache-apt-pkgs-action@v1
+        with:
+          packages: cmake make nasm gcc-multilib g++-multilib mtools dosfstools
+
+      - name: Build towboot image
+        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target towboot --type Debug
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: towboot image
+          path: |
+            hhuOS.img
+            hdd0.img
+            floppy0.img

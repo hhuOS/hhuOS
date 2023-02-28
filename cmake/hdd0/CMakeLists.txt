@@ -21,6 +21,7 @@ message(STATUS "Project " ${PROJECT_NAME})
 
 add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/mkdir -p "${HHUOS_ROOT_DIR}/hdd0/img/bin"
+        COMMAND /bin/mkdir -p "${HHUOS_ROOT_DIR}/hdd0/img/user"
         COMMAND /bin/mkdir -p "${HHUOS_ROOT_DIR}/hdd0/img/media/floppy"
         COMMAND /bin/cp "$<TARGET_FILE:hello>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/hello"
         COMMAND /bin/cp "$<TARGET_FILE:shell>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/shell"
@@ -59,7 +60,8 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cp "$<TARGET_FILE:uptime>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/uptime"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/beep" "${HHUOS_ROOT_DIR}/hdd0/img/user"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/asciimation" "${HHUOS_ROOT_DIR}/hdd0/img/user"
+        COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/books" "${HHUOS_ROOT_DIR}/hdd0/img/user"
         WORKING_DIRECTORY ${HHUOS_ROOT_DIR}/hdd0 COMMAND ${HHUOS_ROOT_DIR}/hdd0/build.sh
-        DEPENDS asciimation music shell ant beep cat color cp cube date dino echo fault head hello hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping polygon ps pwd rm rmdir shutdown touch tree uecho unmount uptime)
+        DEPENDS asciimation music books shell ant beep cat color cp cube date dino echo fault head hello hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping polygon ps pwd rm rmdir shutdown touch tree uecho unmount uptime)
 
-add_custom_target(${PROJECT_NAME} DEPENDS asciimation music shell ant beep cat color cp cube date dino echo fault head hello hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping polygon ps  pwd rm rmdir shutdown touch tree uecho unmount uptime "${HHUOS_ROOT_DIR}/hdd0.img")
+add_custom_target(${PROJECT_NAME} DEPENDS asciimation music books shell ant beep cat color cp cube date dino echo fault head hello hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping polygon ps  pwd rm rmdir shutdown touch tree uecho unmount uptime "${HHUOS_ROOT_DIR}/hdd0.img")

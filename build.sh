@@ -104,11 +104,14 @@ cleanup() {
     remove "loader/towboot/hhuOS.initrd"
     remove "loader/towboot/towboot-ia32.efi"
     remove "loader/towboot/towboot-x64.efi"
+    remove "initrd/asciimation/"
     remove "initrd/beep/"
     remove "initrd/bin/"
-    remove "hdd0/img/bin"
-    remove "hdd0/img/user/beep"
-    remove "hdd0/img/media"
+    remove "floppy0/img/bin/"
+    remove "floppy0/img/books/"
+    remove "hdd0/img/bin/"
+    remove "hdd0/img/user/"
+    remove "hdd0/img/media/"
 
     local builddirs="";
 
@@ -194,10 +197,6 @@ parse_args() {
     done
 }
 
-notify() {
-  if [ "$1" -eq "0" ]; then ./rocket notify build-success; else ./rocket notify build-failure; fi
-}
-
 build() {
     echo "Creating build-directory ${BUILD_DIR}"
     mkdir -p ${BUILD_DIR}
@@ -207,15 +206,6 @@ build() {
 
     cmake .. -DCMAKE_BUILD_TYPE="${BUILD_TYPE}"
     make -j "${CORE_COUNT}" "${TARGET}"
-    exit_code=$?
-
-    cd ..
-
-    if [ "${CI}" = "true" ]; then
-      notify "$exit_code"
-    fi
-
-    exit "$exit_code";
 }
 
 parse_args "$@"
