@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://travis-ci.com/hhuOS/hhuOS"><img src="https://api.travis-ci.com/hhuOS/hhuOS.svg?branch=refactor/minimize"></a>
+  <a href="https://github.com/hhuOS/hhuOS/actions/workflows/build.yml"><img src="https://github.com/hhuOS/hhuOS/actions/workflows/build.yml/badge.svg"></a>
   <img src="https://img.shields.io/badge/C%2B%2B-17-blue.svg">
   <img src="https://img.shields.io/badge/license-GPLv3-orange.svg">
 </p>

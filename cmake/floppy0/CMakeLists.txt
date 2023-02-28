@@ -22,6 +22,7 @@ message(STATUS "Project " ${PROJECT_NAME})
 add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/floppy0.img"
         COMMAND /bin/mkdir -p "${HHUOS_ROOT_DIR}/floppy0/img/bin"
         COMMAND /bin/cp "$<TARGET_FILE:hello>" "${HHUOS_ROOT_DIR}/floppy0/img/bin/hello"
+        COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/books" "${HHUOS_ROOT_DIR}/floppy0/img/"
         WORKING_DIRECTORY ${HHUOS_ROOT_DIR}/floppy0 COMMAND ${HHUOS_ROOT_DIR}/floppy0/build.sh
         DEPENDS hello)
 
