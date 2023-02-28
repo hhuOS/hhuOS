@@ -38,7 +38,7 @@ bool Ip4NetworkMask::operator!=(const Ip4NetworkMask &other) const {
 
 Util::Network::Ip4::Ip4Address Ip4NetworkMask::extractSubnet(const Util::Network::Ip4::Ip4Address &address) const {
     // Create bitmask
-    uint32_t base = 0xffffffff << (32 - bitCount);
+    uint32_t base = 0xffffffff >> (32 - bitCount);
     auto *mask = reinterpret_cast<uint8_t*>(&base);
 
     // Get address for bitwise and with bitmask

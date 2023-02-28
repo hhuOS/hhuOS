@@ -100,8 +100,7 @@ void Ip4Module::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformat
     invokeNextLayerModule(header.getProtocol(), {header.getSourceAddress(), header.getDestinationAddress(), header.getPayloadLength()}, stream, device);
 }
 
-const Ip4Interface & Ip4Module::writeHeader(Util::Io::ByteArrayOutputStream &stream, const Util::Network::Ip4::Ip4Address &sourceAddress,
-                                            const Util::Network::Ip4::Ip4Address &destinationAddress, Util::Network::Ip4::Ip4Header::Protocol protocol, uint16_t payloadLength) {
+const Ip4Interface& Ip4Module::writeHeader(Util::Io::ByteArrayOutputStream &stream, const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &destinationAddress, Util::Network::Ip4::Ip4Header::Protocol protocol, uint16_t payloadLength) {
     auto &networkService = Kernel::System::getService<Kernel::NetworkService>();
     auto &arpModule = networkService.getNetworkStack().getArpModule();
     auto &ip4Module = networkService.getNetworkStack().getIp4Module();
@@ -159,8 +158,10 @@ Ip4Interface& Ip4Module::getInterface(const Util::String &deviceIdentifier) {
 
 void Ip4Module::registerInterface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device) {
     lock.acquire();
+    auto *interface = new Ip4Interface(address, networkMask, device);
     removeInterface(device.getIdentifier());
-    interfaces.add(new Ip4Interface(address, networkMask, device));
+    interfaces.add(interface);
+    routingModule.addRoute(Ip4Route(address, networkMask, device.getIdentifier()));
     lock.release();
 
     auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
@@ -174,6 +175,7 @@ bool Ip4Module::removeInterface(const Util::Network::Ip4::Ip4Address &address, c
             auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
             arpModule.removeEntry(interface->getAddress());
 
+            routingModule.removeRoute(address, mask, deviceIdentifier);
             interfaces.remove(interface);
             delete interface;
 
@@ -193,6 +195,7 @@ bool Ip4Module::removeInterface(const Util::String &deviceIdentifier) {
             auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
             arpModule.removeEntry(interface->getAddress());
 
+            routingModule.removeRoute(interface->getAddress(), interface->getNetworkMask(), deviceIdentifier);
             interfaces.remove(interface);
             delete interface;
 
@@ -224,10 +227,6 @@ uint16_t Ip4Module::calculateChecksum(const uint8_t *buffer, uint32_t offset, ui
 
     // Complement result
     return ~checksum;
-}
-
-Ip4RoutingModule& Ip4Module::getRoutingModule() {
-    return routingModule;
 }
 
 }

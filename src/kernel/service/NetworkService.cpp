@@ -43,6 +43,7 @@
 #include "kernel/network/Socket.h"
 #include "kernel/log/Logger.h"
 #include "device/network/NetworkFilesystemDriver.h"
+#include "device/network/loopback/Loopback.h"
 
 namespace Filesystem {
 class Node;
@@ -115,6 +116,19 @@ NetworkService::NetworkService() {
     });
 }
 
+void NetworkService::initializeLoopback() {
+    auto *loopback = new Device::Network::Loopback();
+    loopback->identifier = "loopback";
+
+    lock.acquire();
+    deviceMap.put(loopback->identifier, loopback);
+    log.info("Registered device [%s]",static_cast<char*>(loopback->identifier));
+    lock.release();
+
+    Device::Network::NetworkFilesystemDriver::mount(*loopback);
+    networkStack.getIp4Module().registerInterface(Util::Network::Ip4::Ip4Address("127.0.0.1"), Util::Network::Ip4::Ip4NetworkMask(8), *loopback);
+}
+
 Util::String NetworkService::registerNetworkDevice(Device::Network::NetworkDevice *device, const Util::String &deviceClass) {
     lock.acquire();
     if (!nameMap.containsKey(deviceClass)) {
@@ -158,14 +172,6 @@ Device::Network::NetworkDevice &NetworkService::getNetworkDevice(const Util::Net
 
 Network::NetworkStack &NetworkService::getNetworkStack() {
     return networkStack;
-}
-
-void NetworkService::registerIp4Route(const Network::Ip4::Ip4Route &route) {
-    networkStack.getIp4Module().getRoutingModule().addRoute(route);
-}
-
-void NetworkService::setDefaultRoute(const Network::Ip4::Ip4Route &route) {
-    networkStack.getIp4Module().getRoutingModule().setDefaultRoute(route);
 }
 
 int32_t NetworkService::createSocket(Util::Network::Socket::Type socketType) {

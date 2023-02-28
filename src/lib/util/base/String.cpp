@@ -389,7 +389,7 @@ String String::strip() const {
     for (startIndex = 0; startIndex < len; startIndex++) {
         element = buffer[startIndex];
 
-        if (element != '\t' && element != ' ') {
+        if (element != '\t' && element != '\n' && element != ' ') {
             break;
         }
     }
@@ -398,7 +398,7 @@ String String::strip() const {
     for (endIndex = len - 1; endIndex > startIndex; endIndex--) {
         element = buffer[endIndex];
 
-        if (element != '\t' && element != ' ') {
+        if (element != '\t' && element != '\n' && element != ' ') {
             break;
         }
     }

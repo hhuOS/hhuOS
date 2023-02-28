@@ -31,11 +31,11 @@
 
 namespace Kernel::Network::Ip4 {
 
-Ip4Route::Ip4Route(const Util::Network::Ip4::Ip4Address &localAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, const Util::Network::Ip4::Ip4Address &nextHop, const Util::String &device) :
-        address(localAddress), networkMask(networkMask), nextHop(nextHop), interface(&Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getIp4Module().getInterface(device)), nextHopValid(false) {}
+Ip4Route::Ip4Route(const Util::Network::Ip4::Ip4Address &localAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, const Util::Network::Ip4::Ip4Address &nextHop, const Util::String &deviceIdentifier) :
+        address(localAddress), networkMask(networkMask), nextHop(nextHop), interface(&Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getIp4Module().getInterface(deviceIdentifier)), nextHopValid(false) {}
 
-Ip4Route::Ip4Route(const Util::Network::Ip4::Ip4Address &localAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, const Util::String &device) :
-        address(localAddress), networkMask(networkMask), nextHop(), interface(&Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getIp4Module().getInterface(device)), nextHopValid(false) {}
+Ip4Route::Ip4Route(const Util::Network::Ip4::Ip4Address &localAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, const Util::String &deviceIdentifier) :
+        address(localAddress), networkMask(networkMask), nextHop(), interface(&Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getIp4Module().getInterface(deviceIdentifier)), nextHopValid(false) {}
 
 bool Ip4Route::operator==(const Ip4Route &other) const {
     return address == other.address && networkMask == other.networkMask;
