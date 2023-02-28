@@ -81,18 +81,18 @@ int32_t PipedInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t 
 
         offset += toCopy;
         remaining -= toCopy;
-        outPosition += toCopy;
         ret += toCopy;
-
 
         if (outPosition == BUFFER_SIZE) {
             outPosition = 0;
         }
 
         // Wrap around, if we have reached the buffer's end
-        if (outPosition == inPosition) {
+        if (static_cast<int32_t>(outPosition + toCopy) == inPosition) {
             inPosition = -1;
             outPosition = 0;
+        } else {
+            outPosition += toCopy;
         }
 
         // Check if we have copied the requested amount of bytes or if the internal buffer is empty
