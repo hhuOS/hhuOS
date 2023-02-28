@@ -56,10 +56,10 @@ int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.addArgument("remove", false, "r");
     argumentParser.addArgument("set", false, "s");
-    argumentParser.setHelpText("Print IP addresses of network devices.\n"
-                               "Usage: hexdump [OPTIONS...] [DEVICE...]\n"
+    argumentParser.setHelpText("Show and edit IPv4 addresses of network devices.\n"
+                               "Usage: ip [OPTIONS...] [DEVICE...]\n"
                                "Options:\n"
-                               "  -r, --remove: Remove the IPv4 address of a given device"
+                               "  -d, --remove: remove the IPv4 address of a given device"
                                "  -s, --set: Set the IPv4 address of a given device"
                                "  -h, --help: Show this help message");
 

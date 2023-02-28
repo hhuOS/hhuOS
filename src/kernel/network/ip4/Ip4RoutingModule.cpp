@@ -31,39 +31,41 @@
 
 namespace Kernel::Network::Ip4 {
 
-void Ip4RoutingModule::setDefaultRoute(const Ip4Route &route) {
-    defaultRoute = route;
-}
-
 void Ip4RoutingModule::addRoute(const Ip4Route &route) {
+    lock.acquire();
     if (!routes.contains(route)) {
         routes.add(route);
     }
+    lock.release();
 }
 
 void Ip4RoutingModule::removeRoute(const Ip4Route &route) {
+    lock.acquire();
     routes.remove(route);
+    lock.release();
 }
 
-const Ip4Route& Ip4RoutingModule::findRoute(const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &address) const {
+void Ip4RoutingModule::removeRoute(const Util::Network::Ip4::Ip4Address &localAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, const Util::String &device) {
+    removeRoute(Ip4Route(localAddress, networkMask, device));
+}
+
+const Ip4Route& Ip4RoutingModule::findRoute(const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &address) {
     uint8_t longestPrefix = 0;
     const Ip4Route *bestRoute = nullptr;
     bool anySource = sourceAddress == Util::Network::Ip4::Ip4Address::ANY;
 
+    lock.acquire();
     for (const auto &route : routes) {
-        if (anySource || sourceAddress == route.getInterface().getAddress()) {
+        if (anySource || sourceAddress == route.getSourceAddress()) {
             auto subnetAddress = route.getNetworkMask().extractSubnet(route.getDestinationAddress());
             if (address.compareTo(subnetAddress) > longestPrefix) {
                 bestRoute = &route;
             }
         }
     }
+    lock.release();
 
     if (bestRoute == nullptr) {
-        if (anySource || sourceAddress == defaultRoute.getInterface().getAddress()) {
-            return defaultRoute;
-        }
-
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ip4RoutingModule: No route to host!");
     }
 

@@ -26,6 +26,7 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/Collection.h"
 #include "lib/util/collection/Iterator.h"
+#include "lib/util/async/ReentrantSpinlock.h"
 
 namespace Util {
 namespace Network {
@@ -60,19 +61,18 @@ public:
      */
     ~Ip4RoutingModule() = default;
 
-    void setDefaultRoute(const Ip4Route &route);
-
     void addRoute(const Ip4Route &route);
 
     void removeRoute(const Ip4Route &route);
 
-    [[nodiscard]] const Ip4Route &
-    findRoute(const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &address) const;
+    void removeRoute(const Util::Network::Ip4::Ip4Address &localAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, const Util::String &device);
+
+    [[nodiscard]] const Ip4Route& findRoute(const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &address);
 
 private:
 
-    Ip4Route defaultRoute;
     Util::ArrayList<Ip4Route> routes;
+    Util::Async::ReentrantSpinlock lock;
 };
 
 }

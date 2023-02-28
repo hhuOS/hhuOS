@@ -72,11 +72,9 @@ public:
      */
     ~NetworkService() override = default;
 
+    void initializeLoopback();
+
     Util::String registerNetworkDevice(Device::Network::NetworkDevice *device, const Util::String &deviceClass);
-
-    void registerIp4Route(const Network::Ip4::Ip4Route &route);
-
-    void setDefaultRoute(const Network::Ip4::Ip4Route &route);
 
     bool isNetworkDeviceRegistered(const Util::String &identifier);
 

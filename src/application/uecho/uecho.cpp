@@ -49,7 +49,7 @@ int32_t server(Util::Network::Socket &socket) {
             return -1;
         }
 
-        if (Util::String(receivedDatagram.getData(), receivedDatagram.getLength()) == "exit") {
+        if (Util::String(receivedDatagram.getData(), receivedDatagram.getLength()).strip() == "exit") {
             break;
         }
     }

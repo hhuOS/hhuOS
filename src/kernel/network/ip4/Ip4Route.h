@@ -44,12 +44,12 @@ public:
     /**
      * Constructor.
      */
-    Ip4Route(const Util::Network::Ip4::Ip4Address &localAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, const Util::Network::Ip4::Ip4Address &nextHop, const Util::String &device);
+    Ip4Route(const Util::Network::Ip4::Ip4Address &localAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, const Util::Network::Ip4::Ip4Address &nextHop, const Util::String &deviceIdentifier);
 
     /**
      * Constructor.
      */
-    Ip4Route(const Util::Network::Ip4::Ip4Address &localAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, const Util::String &device);
+    Ip4Route(const Util::Network::Ip4::Ip4Address &localAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, const Util::String &deviceIdentifier);
 
     /**
      * Copy Constructor.
@@ -87,7 +87,7 @@ private:
     Util::Network::Ip4::Ip4Address address{};
     Util::Network::Ip4::Ip4NetworkMask networkMask{};
     Util::Network::Ip4::Ip4Address nextHop{};
-    Ip4Interface *interface{};
+    Ip4Interface *interface = nullptr;
 
     bool nextHopValid{};
 };

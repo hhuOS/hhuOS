@@ -45,7 +45,7 @@ void Socket::bind(const Util::Network::NetworkAddress &address) {
     /*
      * We cannot use createCopy() here, because the given address may be a user space object.
      * Since it is a reference of an abstract type, the object's vtable is used to perform the call to createCopy().
-     * This will result in a call the user space variant of this function, which will allocate memory on the user space heap.
+     * This will result in a call to the user space variant of this function, which will allocate memory on the user space heap.
      */
 
     auto addressStream = Util::Io::ByteArrayOutputStream();

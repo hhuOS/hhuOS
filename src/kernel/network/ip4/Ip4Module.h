@@ -85,8 +85,6 @@ public:
 
     Ip4Interface& getInterface(const Util::String &deviceIdentifier);
 
-    Ip4RoutingModule& getRoutingModule();
-
     void registerInterface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device);
 
     bool removeInterface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4NetworkMask &mask, const Util::String &deviceIdentifier);
@@ -95,7 +93,7 @@ public:
 
     void readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
-    static const Ip4Interface & writeHeader(Util::Io::ByteArrayOutputStream &stream, const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &destinationAddress, Util::Network::Ip4::Ip4Header::Protocol protocol, uint16_t payloadLength);
+    static const Ip4Interface& writeHeader(Util::Io::ByteArrayOutputStream &stream, const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &destinationAddress, Util::Network::Ip4::Ip4Header::Protocol protocol, uint16_t payloadLength);
 
     static uint16_t calculateChecksum(const uint8_t *buffer, uint32_t offset, uint32_t length);
 
