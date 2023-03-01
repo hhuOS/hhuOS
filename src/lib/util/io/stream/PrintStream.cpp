@@ -19,6 +19,7 @@
 
 #include "ByteArrayOutputStream.h"
 #include "lib/util/io/stream/OutputStream.h"
+#include "lib/util/base/Address.h"
 
 namespace Util::Io {
 
@@ -45,13 +46,11 @@ void PrintStream::setNumberPadding(uint8_t padding) {
 }
 
 void PrintStream::print(const char *string) {
-    for (uint32_t i = 0; string[i] != 0; i++) {
-        write(string[i]);
-    }
+    write(reinterpret_cast<const uint8_t*>(string), 0, Address<uint32_t>(string).stringLength());
 }
 
 void PrintStream::print(const String &string) {
-    print(static_cast<const char*>(string));
+    write(static_cast<const uint8_t*>(string), 0, string.length());
 }
 
 void PrintStream::print(bool boolean) {
