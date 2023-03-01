@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -42,14 +42,7 @@
 #include "kernel/network/ip4/Ip4Route.h"
 #include "kernel/network/ip4/Ip4RoutingModule.h"
 #include "kernel/network/ip4/Ip4Socket.h"
-
-namespace Util {
-namespace Network {
-namespace Ip4 {
-class Ip4NetworkMask;
-}  // namespace Ip4
-}  // namespace Network
-}  // namespace Util
+#include "lib/util/network/ip4/Ip4NetworkMask.h"
 
 namespace Kernel::Network::Ip4 {
 

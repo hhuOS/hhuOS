@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -39,9 +39,7 @@ add_subdirectory(cube)
 add_subdirectory(date)
 add_subdirectory(dino)
 add_subdirectory(echo)
-add_subdirectory(fault)
 add_subdirectory(head)
-add_subdirectory(hello)
 add_subdirectory(hexdump)
 add_subdirectory(ip)
 add_subdirectory(kill)

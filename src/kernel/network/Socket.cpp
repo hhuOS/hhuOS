@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -25,13 +25,17 @@
 #include "lib/util/network/Socket.h"
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/io/stream/ByteArrayOutputStream.h"
-#include "lib/util/network/Socket.h"
 #include "lib/util/network/MacAddress.h"
 #include "lib/util/network/ip4/Ip4PortAddress.h"
 #include "kernel/network/NetworkModule.h"
-#include "kernel/network/ethernet/EthernetSocket.h"
 #include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
+#include "device/network/NetworkDevice.h"
+#include "kernel/network/NetworkStack.h"
+#include "kernel/network/ip4/Ip4Interface.h"
+#include "kernel/network/ip4/Ip4Module.h"
+#include "lib/util/network/NetworkMask.h"
+#include "lib/util/network/ip4/Ip4NetworkMask.h"
 
 namespace Kernel::Network {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -21,11 +21,12 @@
 #ifndef HHUOS_IP4INTERFACE_H
 #define HHUOS_IP4INTERFACE_H
 
-#include <cstdint>
-
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/network/ip4/Ip4NetworkMask.h"
-#include "lib/util/base/String.h"
+
+namespace Util {
+class String;
+}  // namespace Util
 
 namespace Device {
 namespace Network {

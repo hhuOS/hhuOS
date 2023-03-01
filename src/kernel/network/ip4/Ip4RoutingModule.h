@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -27,11 +27,13 @@
 #include "lib/util/collection/Collection.h"
 #include "lib/util/collection/Iterator.h"
 #include "lib/util/async/ReentrantSpinlock.h"
+#include "lib/util/base/String.h"
 
 namespace Util {
 namespace Network {
 namespace Ip4 {
 class Ip4Address;
+class Ip4NetworkMask;
 }  // namespace Ip4
 }  // namespace Network
 }  // namespace Util
