@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -26,6 +26,7 @@
 #include "lib/util/network/Datagram.h"
 #include "kernel/network/NetworkStack.h"
 #include "lib/util/network/ip4/Ip4PortAddress.h"
+#include "lib/util/network/Socket.h"
 
 namespace Kernel::Network::Udp {
 

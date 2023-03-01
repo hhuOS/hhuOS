@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -28,7 +28,7 @@ readonly CONST_QEMU_BIOS_IA32_EFI="bios/ovmf/ia32/OVMF.fd"
 readonly CONST_QEMU_BIOS_X64_EFI="bios/ovmf/x64/OVMF.fd"
 readonly CONST_QEMU_DEFAULT_BOOT_DEVICE="-drive driver=raw,node-name=boot,file.driver=file,file.filename=hhuOS.img"
 readonly CONST_QEMU_STORAGE_ARGS="-drive driver=raw,index=0,if=floppy,file=floppy0.img -drive driver=raw,node-name=hdd0,file.driver=file,file.filename=hdd0.img"
-readonly CONST_QEMU_FIRMWARE_CONFIGURATION_ARGS="-fw_cfg name=opt/bin/hello,file=initrd/bin/hello"
+readonly CONST_QEMU_FIRMWARE_CONFIGURATION_ARGS="-fw_cfg name=opt/bin/echo,file=initrd/bin/echo"
 readonly CONST_QEMU_NETWORK_ARGS="-nic model=rtl8139,id=eth0,hostfwd=udp::1797-:1797 -object filter-dump,id=filter0,netdev=eth0,file=eth0.dump"
 readonly CONST_QEMU_ARGS="-boot d -vga std -monitor stdio -rtc base=localtime -device isa-debug-exit"
 readonly CONST_QEMU_OLD_AUDIO_ARGS="-soundhw pcspk"

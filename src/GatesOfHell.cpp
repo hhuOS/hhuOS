@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -58,7 +58,6 @@
 #include "filesystem/memory/MountsNode.h"
 #include "device/debug/FirmwareConfiguration.h"
 #include "filesystem/qemu/FirmwareConfigurationDriver.h"
-#include "device/network/loopback/Loopback.h"
 #include "kernel/service/NetworkService.h"
 #include "BuildConfig.h"
 #include "GatesOfHell.h"
@@ -79,10 +78,7 @@
 #include "lib/util/network/ip4/Ip4NetworkMask.h"
 #include "kernel/network/ip4/Ip4Module.h"
 #include "kernel/network/NetworkStack.h"
-#include "kernel/network/ip4/Ip4Route.h"
 #include "device/network/rtl8139/Rtl8139.h"
-#include "device/network/NetworkDevice.h"
-#include "kernel/network/ip4/Ip4RoutingModule.h"
 
 namespace Device {
 class Machine;
@@ -381,22 +377,6 @@ void GatesOfHell::initializePowerManagement() {
 
 void GatesOfHell::initializeStorage() {
     Device::Storage::IdeController::initializeAvailableControllers();
-
-    /*auto &hdd = Kernel::System::getService<Kernel::StorageService>().getDevice("ide0");
-    auto *buffer = new uint8_t[1024 * 1024];
-    for (uint32_t i = 0; i < 1024 * 1024; i++) {
-        buffer[i] = static_cast<uint8_t>(i);
-    }
-
-    hdd.write(buffer, 1337, (1024 * 1024) / hdd.getSectorSize());
-    Util::Address<uint32_t>(buffer).setRange(0, 1024 * 1024);
-
-    hdd.read(buffer, 1337, (1024 * 1024) / hdd.getSectorSize());
-    for (uint32_t i = 0; i < 1024 * 1024; i++) {
-        if (buffer[i] != static_cast<uint8_t>(i)) {
-            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "IDE: Test failed!");
-        }
-    }*/
 
     if (Device::Storage::FloppyController::isAvailable()) {
         auto *floppyController = new Device::Storage::FloppyController();

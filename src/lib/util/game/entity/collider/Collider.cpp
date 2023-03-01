@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Malte Sehmer.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-maseh100
  */
 
 #include "Collider.h"

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -25,6 +25,12 @@
 #include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/network/ip4/Ip4NetworkMask.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/network/ip4/Ip4Address.h"
 
 void printDeviceInfo(const Util::String &deviceName) {
     auto macFile = Util::Io::File("/device/" + deviceName + "/mac");

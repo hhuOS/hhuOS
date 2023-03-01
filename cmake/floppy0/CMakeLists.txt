@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -21,9 +21,9 @@ message(STATUS "Project " ${PROJECT_NAME})
 
 add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/floppy0.img"
         COMMAND /bin/mkdir -p "${HHUOS_ROOT_DIR}/floppy0/img/bin"
-        COMMAND /bin/cp "$<TARGET_FILE:hello>" "${HHUOS_ROOT_DIR}/floppy0/img/bin/hello"
+        COMMAND /bin/cp "$<TARGET_FILE:echo>" "${HHUOS_ROOT_DIR}/floppy0/img/bin/echo"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/books" "${HHUOS_ROOT_DIR}/floppy0/img/"
         WORKING_DIRECTORY ${HHUOS_ROOT_DIR}/floppy0 COMMAND ${HHUOS_ROOT_DIR}/floppy0/build.sh
-        DEPENDS hello)
+        DEPENDS echo)
 
-add_custom_target(${PROJECT_NAME} DEPENDS hello "${HHUOS_ROOT_DIR}/floppy0.img")
+add_custom_target(${PROJECT_NAME} DEPENDS echo "${HHUOS_ROOT_DIR}/floppy0.img")

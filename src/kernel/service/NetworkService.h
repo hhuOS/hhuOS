@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -42,12 +42,6 @@ class MacAddress;
 
 namespace Kernel {
 class Logger;
-
-namespace Network {
-namespace Ip4 {
-class Ip4Route;
-}  // namespace Ip4
-}  // namespace Network
 
 class NetworkService : public Service {
 
