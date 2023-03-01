@@ -10,6 +10,8 @@
 
 # Introduction
 
+#### Note: Development on this branch has been halted! Check out the <a href=https://github.com/hhuOS/hhuOS/tree/experimental>**experimental**</a> branch for a current version of hhuOS.
+
 Welcome to hhuOS, a **small operating system** written in C++ and Assembler for the
 x86-architecture. The main purpose of this project is to show how different
 aspects of operating systems theory can be implemented and linked together.
