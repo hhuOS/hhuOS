@@ -300,8 +300,9 @@ void *MemoryService::mapIO(uint32_t size, bool mapToKernelHeap) {
 
     for (uint32_t i = 0; i < pageCnt; i++) {
         uint32_t virtualAddress = reinterpret_cast<uint32_t>(virtualStartAddress) + i * Kernel::Paging::PAGESIZE;
+        uint32_t physicalAddress = reinterpret_cast<uint32_t>(physicalStartAddress) + i * Kernel::Paging::PAGESIZE;
         unmap(virtualAddress);
-        currentAddressSpace->getPageDirectory().map(reinterpret_cast<uint32_t>(physicalStartAddress), virtualAddress, Paging::PRESENT | Paging::READ_WRITE | Paging::CACHE_DISABLE | (virtualAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESS : 0));
+        currentAddressSpace->getPageDirectory().map(physicalAddress, virtualAddress, Paging::PRESENT | Paging::READ_WRITE | Paging::CACHE_DISABLE | (virtualAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESS : 0));
     }
 
     return virtualStartAddress;
