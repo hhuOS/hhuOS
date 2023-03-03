@@ -35,7 +35,7 @@ class System {
 
 public:
 
-    enum Code : uint16_t {
+    enum Code : uint8_t {
         YIELD,
         EXIT_PROCESS,
         EXECUTE_BINARY,
@@ -72,14 +72,6 @@ public:
         SHUTDOWN
     };
 
-    enum Result : uint16_t {
-        OK,
-        INVALID_ARGUMENT,
-        OUT_OF_BOUNDS,
-        ILLEGAL_STATE,
-        NOT_INITIALIZED
-    };
-
     /**
      * Default Constructor.
      * Deleted, as this class has only static members.
@@ -101,7 +93,7 @@ public:
      */
     ~System() = default;
 
-    static Result call(Code code, uint32_t paramCount...);
+    static bool call(Code code, uint32_t paramCount...);
 
     static Io::InputStream &in;
     static Io::PrintStream out;
@@ -111,7 +103,7 @@ public:
 
 private:
 
-    static void call(Code code, Result &result, uint32_t paramCount, va_list args);
+    static void call(Code code, bool &result, uint32_t paramCount, va_list args);
 
     static Io::FileInputStream inStream;
     static Io::BufferedInputStream bufferedInStream;

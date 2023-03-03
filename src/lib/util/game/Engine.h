@@ -246,6 +246,8 @@ private:
         Engine &engine;
     };
 
+    void initializeNextScene();
+
     void updateStatus();
 
     void drawStatus();

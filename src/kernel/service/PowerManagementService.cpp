@@ -28,24 +28,22 @@
 namespace Kernel {
 
 PowerManagementService::PowerManagementService(Device::Machine *machine) : machine(*machine) {
-    SystemCall::registerSystemCall(Util::System::SHUTDOWN, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::SHUTDOWN, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
-        auto type = static_cast<Util::Hardware::Machine::ShutdownType>(va_arg(arguments, uint32_t));
         auto &powerManagementService = System::getService<PowerManagementService>();
+        auto type = static_cast<Util::Hardware::Machine::ShutdownType>(va_arg(arguments, uint32_t));
 
         if (type == Util::Hardware::Machine::SHUTDOWN) {
             powerManagementService.shutdownMachine();
         } else if (type == Util::Hardware::Machine::REBOOT) {
             powerManagementService.rebootMachine();
-        } else {
-            return Util::System::INVALID_ARGUMENT;
         }
 
         // Should never be executed
-        return Util::System::Result::ILLEGAL_STATE;
+        return false;
     });
 }
 

@@ -93,7 +93,7 @@ public:
 
     void drawImage(const Math::Vector2D &position, const Graphic::Image &image, bool flipX = false) const;
 
-    void clear(const Graphic::Color &color);
+    void clear(const Graphic::Color &color = Util::Graphic::Colors::BLACK);
 
     void show() const;
 
