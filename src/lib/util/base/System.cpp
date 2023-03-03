@@ -36,10 +36,10 @@ Io::BufferedOutputStream System::bufferedErrorStream(errorStream);
 Io::PrintStream System::error(bufferedErrorStream);
 const char *System::errorMessage = "";
 
-System::Result System::call(System::Code code, uint32_t paramCount...) {
+bool System::call(System::Code code, uint32_t paramCount...) {
     va_list args;
     va_start(args, paramCount);
-    Result result;
+    bool result;
 
     call(code, result, paramCount, args);
 
@@ -47,8 +47,8 @@ System::Result System::call(System::Code code, uint32_t paramCount...) {
     return result;
 }
 
-void System::call(Code code, Result &result, uint32_t paramCount, va_list args) {
-    auto eaxValue = static_cast<uint32_t>(code | (paramCount << 16u));
+void System::call(Code code, bool &result, uint32_t paramCount, va_list args) {
+    auto eaxValue = static_cast<uint32_t>(code | (paramCount << 8));
     auto ebxValue = reinterpret_cast<uint32_t>(args);
     auto ecxValue = reinterpret_cast<uint32_t>(&result);
 
@@ -68,7 +68,8 @@ void System::call(Code code, Result &result, uint32_t paramCount, va_list args) 
             : :
             "r"(eaxValue),
             "r"(ebxValue),
-            "r"(ecxValue));
+            "r"(ecxValue)
+            : "eax", "ebx", "ecx");
 }
 
 }

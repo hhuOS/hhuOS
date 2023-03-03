@@ -56,44 +56,41 @@ Logger NetworkService::log = Logger::get("Network");
 Util::HashMap<Util::String, uint32_t> NetworkService::nameMap;
 
 NetworkService::NetworkService() {
-    SystemCall::registerSystemCall(Util::System::CREATE_SOCKET, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::CREATE_SOCKET, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 2) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
-
-        auto socketType = static_cast<Util::Network::Socket::Type>(va_arg(arguments, int));
-        auto *fileDescriptor = va_arg(arguments, int32_t*);
 
         auto &networkService = System::getService<NetworkService>();
-        *fileDescriptor = networkService.createSocket(socketType);
+        auto socketType = static_cast<Util::Network::Socket::Type>(va_arg(arguments, int));
+        auto &fileDescriptor = *va_arg(arguments, int32_t*);
 
-        return Util::System::OK;
+        fileDescriptor = networkService.createSocket(socketType);
+        return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::SEND_DATAGRAM, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::SEND_DATAGRAM, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 2) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
-
-        auto fileDescriptor = va_arg(arguments, int32_t);
-        auto *datagram = va_arg(arguments, Util::Network::Datagram*);
 
         auto &filesystemService = System::getService<FilesystemService>();
-        auto &socket = reinterpret_cast<Network::Socket &>(filesystemService.getNode(fileDescriptor));
-
-        return socket.send(*datagram) ? Util::System::OK : Util::System::ILLEGAL_STATE;
-    });
-
-    SystemCall::registerSystemCall(Util::System::RECEIVE_DATAGRAM, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
-        if (paramCount < 2) {
-            return Util::System::INVALID_ARGUMENT;
-        }
-
         auto fileDescriptor = va_arg(arguments, int32_t);
         auto *datagram = va_arg(arguments, Util::Network::Datagram*);
+
+        auto &socket = reinterpret_cast<Network::Socket&>(filesystemService.getNode(fileDescriptor));
+        return socket.send(*datagram);
+    });
+
+    SystemCall::registerSystemCall(Util::System::RECEIVE_DATAGRAM, [](uint32_t paramCount, va_list arguments) -> bool {
+        if (paramCount < 2) {
+            return false;
+        }
 
         auto &filesystemService = System::getService<FilesystemService>();
         auto &memoryService = System::getService<MemoryService>();
+        auto fileDescriptor = va_arg(arguments, int32_t);
+        auto &datagram = *va_arg(arguments, Util::Network::Datagram*);
         auto &socket = reinterpret_cast<Network::Socket &>(filesystemService.getNode(fileDescriptor));
 
         auto *kernelDatagram = socket.receive();
@@ -103,12 +100,12 @@ NetworkService::NetworkService() {
         auto target = Util::Address<uint32_t>(datagramBuffer);
         target.copyRange(source, kernelDatagram->getLength());
 
-        datagram->setData(datagramBuffer, kernelDatagram->getLength());
-        datagram->setRemoteAddress(kernelDatagram->getRemoteAddress());
-        datagram->setAttributes(*kernelDatagram);
+        datagram.setData(datagramBuffer, kernelDatagram->getLength());
+        datagram.setRemoteAddress(kernelDatagram->getRemoteAddress());
+        datagram.setAttributes(*kernelDatagram);
 
         delete kernelDatagram;
-        return Util::System::OK;
+        return true;
     });
 }
 
@@ -186,7 +183,7 @@ int32_t NetworkService::createSocket(Util::Network::Socket::Type socketType) {
             socket = reinterpret_cast<Filesystem::Node*>(new Network::Udp::UdpSocket());
             break;
         default:
-            return Util::System::INVALID_ARGUMENT;
+            return false;
     }
 
     auto &filesystemService = System::getService<FilesystemService>();

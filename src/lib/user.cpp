@@ -74,25 +74,25 @@ void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t br
 }
 
 bool mount(const Util::String &deviceName, const Util::String &targetPath, const Util::String &driverName) {
-    return Util::System::call(Util::System::MOUNT, 3, static_cast<const char*>(deviceName), static_cast<const char*>(targetPath), static_cast<const char*>(driverName)) == Util::System::OK;
+    return Util::System::call(Util::System::MOUNT, 3, static_cast<const char*>(deviceName), static_cast<const char*>(targetPath), static_cast<const char*>(driverName)) ;
 }
 
 bool unmount(const Util::String &path) {
-    return Util::System::call(Util::System::UNMOUNT, 1, static_cast<const char*>(path)) == Util::System::OK;
+    return Util::System::call(Util::System::UNMOUNT, 1, static_cast<const char*>(path)) ;
 }
 
 bool createFile(const Util::String &path, Util::Io::File::Type type) {
-    return Util::System::call(Util::System::CREATE_FILE, 2, static_cast<const char*>(path), type) == Util::System::OK;
+    return Util::System::call(Util::System::CREATE_FILE, 2, static_cast<const char*>(path), type);
 }
 
 bool deleteFile(const Util::String &path) {
-    return Util::System::call(Util::System::DELETE_FILE, 1, static_cast<const char*>(path)) == Util::System::OK;
+    return Util::System::call(Util::System::DELETE_FILE, 1, static_cast<const char*>(path));
 }
 
 int32_t openFile(const Util::String &path) {
     int32_t fileDescriptor;
     auto result = Util::System::call(Util::System::OPEN_FILE, 2, static_cast<const char*>(path), &fileDescriptor);
-    return result == Util::System::OK ? fileDescriptor : -1;
+    return result ? fileDescriptor : -1;
 }
 
 void closeFile(int32_t fileDescriptor) {
@@ -139,11 +139,11 @@ uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t
 }
 
 bool controlFile(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters) {
-    return Util::System::call(Util::System::CONTROL_FILE, 3, fileDescriptor, request, &parameters) == Util::System::OK;
+    return Util::System::call(Util::System::CONTROL_FILE, 3, fileDescriptor, request, &parameters);
 }
 
 bool changeDirectory(const Util::String &path) {
-    return Util::System::call(Util::System::CHANGE_DIRECTORY, 1, static_cast<const char*>(path)) == Util::System::OK;
+    return Util::System::call(Util::System::CHANGE_DIRECTORY, 1, static_cast<const char*>(path));
 }
 
 Util::Io::File getCurrentWorkingDirectory() {
@@ -155,17 +155,15 @@ Util::Io::File getCurrentWorkingDirectory() {
 int32_t createSocket(Util::Network::Socket::Type socketType) {
     int32_t fileDescriptor;
     auto result = Util::System::call(Util::System::CREATE_SOCKET, 2, socketType, &fileDescriptor);
-    return result == Util::System::OK ? fileDescriptor : -1;
+    return result ? fileDescriptor : -1;
 }
 
 bool sendDatagram(int32_t fileDescriptor, const Util::Network::Datagram &datagram) {
-    auto result = Util::System::call(Util::System::SEND_DATAGRAM, 2, fileDescriptor, &datagram);
-    return result == Util::System::OK;
+    return Util::System::call(Util::System::SEND_DATAGRAM, 2, fileDescriptor, &datagram);
 }
 
 bool receiveDatagram(int32_t fileDescriptor, Util::Network::Datagram &datagram){
-    auto result = Util::System::call(Util::System::RECEIVE_DATAGRAM, 2, fileDescriptor, &datagram);
-    return result == Util::System::OK;
+    return Util::System::call(Util::System::RECEIVE_DATAGRAM, 2, fileDescriptor, &datagram);
 }
 
 Util::Async::Process executeBinary(const Util::Io::File &binaryFile, const Util::Io::File &inputFile, const Util::Io::File &outputFile, const Util::Io::File &errorFile, const Util::String &command, const Util::Array<Util::String> &arguments) {
@@ -236,7 +234,7 @@ void setDate(const Util::Time::Date &date) {
 
 bool shutdown(Util::Hardware::Machine::ShutdownType type) {
     auto result = Util::System::call(Util::System::SHUTDOWN, 1, type);
-    if (result == Util::System::OK) {
+    if (result) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Shutdown system call returned successful!");
     }
 

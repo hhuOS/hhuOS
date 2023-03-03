@@ -30,6 +30,7 @@ class Datagram;
 namespace Ip4 {
 class Ip4Address;
 class Ip4NetworkMask;
+class Ip4Route;
 }  // namespace Ip4
 }  // namespace Network
 }  // namespace Util

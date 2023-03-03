@@ -29,37 +29,40 @@
 namespace Kernel {
 
 TimeService::TimeService(Device::TimeProvider *timeProvider, Device::DateProvider *dateProvider) : timeProvider(timeProvider), dateProvider(dateProvider) {
-    SystemCall::registerSystemCall(Util::System::GET_SYSTEM_TIME, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::GET_SYSTEM_TIME, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
-        Util::Time::Timestamp *targetTime = va_arg(arguments, Util::Time::Timestamp*);
+        auto &timeService = System::getService<TimeService>();
+        auto &targetTime = *va_arg(arguments, Util::Time::Timestamp*);
 
-        *targetTime = System::getService<TimeService>().getSystemTime();
-        return Util::System::Result::OK;
+        targetTime = timeService.getSystemTime();
+        return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::GET_CURRENT_DATE, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::GET_CURRENT_DATE, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
-        Util::Time::Date *targetDate = va_arg(arguments, Util::Time::Date*);
+        auto &timeService = System::getService<TimeService>();
+        auto &targetDate = *va_arg(arguments, Util::Time::Date*);
 
-        *targetDate = System::getService<TimeService>().getCurrentDate();
-        return Util::System::Result::OK;
+        targetDate = timeService.getCurrentDate();
+        return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::SET_DATE, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::SET_DATE, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
-        Util::Time::Date *date = va_arg(arguments, Util::Time::Date*);
+        auto &timeService = System::getService<TimeService>();
+        auto &date = *va_arg(arguments, Util::Time::Date*);
 
-        System::getService<TimeService>().setCurrentDate(*date);
-        return Util::System::Result::OK;
+        timeService.setCurrentDate(date);
+        return true;
     });
 }
 

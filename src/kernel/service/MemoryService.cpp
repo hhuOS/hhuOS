@@ -43,38 +43,35 @@ MemoryService::MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaM
     lowerMemoryManager.initialize(MemoryLayout::BIOS_CODE_MEMORY.toVirtual().endAddress + 1, MemoryLayout::USABLE_LOWER_MEMORY.toVirtual().endAddress);
     lowerMemoryManager.disableAutomaticUnmapping();
 
-    SystemCall::registerSystemCall(Util::System::UNMAP, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::UNMAP, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 2) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
-        uint32_t virtualStartAddress = va_arg(arguments, uint32_t);
-        uint32_t virtualEndAddress = va_arg(arguments, uint32_t);
-        uint32_t breakCount = va_arg(arguments, uint32_t);
+        auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+        auto virtualStartAddress = va_arg(arguments, uint32_t);
+        auto virtualEndAddress = va_arg(arguments, uint32_t);
+        auto breakCount = va_arg(arguments, uint32_t);
 
         if (virtualStartAddress > MemoryLayout::KERNEL_START || virtualEndAddress > MemoryLayout::KERNEL_START) {
-            return Util::System::OUT_OF_BOUNDS;
+            return false;
         }
 
-        auto status = Kernel::System::getService<Kernel::MemoryService>().unmap(virtualStartAddress, virtualEndAddress, breakCount);
-        if (status == 0) {
-            return Util::System::INVALID_ARGUMENT;
-        }
-
-        return Util::System::Result::OK;
+        return memoryService.unmap(virtualStartAddress, virtualEndAddress, breakCount) != 0;
     });
 
-    SystemCall::registerSystemCall(Util::System::MAP_IO, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::MAP_IO, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 3) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
-        uint32_t physicalAddress = va_arg(arguments, uint32_t);
-        uint32_t size = va_arg(arguments, uint32_t);
-        void **mappedAddress = va_arg(arguments, void**);
+        auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+        auto physicalAddress = va_arg(arguments, uint32_t);
+        auto size = va_arg(arguments, uint32_t);
+        void *&mappedAddress = *va_arg(arguments, void**);
 
-        *mappedAddress = Kernel::System::getService<Kernel::MemoryService>().mapIO(physicalAddress, size, false);
-        return Util::System::Result::OK;
+        mappedAddress = memoryService.mapIO(physicalAddress, size, false);
+        return true;
     });
 }
 

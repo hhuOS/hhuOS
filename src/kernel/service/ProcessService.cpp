@@ -36,82 +36,77 @@ namespace Kernel {
 class VirtualAddressSpace;
 
 ProcessService::ProcessService() : kernelProcess(createProcess(System::getService<MemoryService>().getKernelAddressSpace(), "Kernel", Util::Io::File("/"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"))) {
-    SystemCall::registerSystemCall(Util::System::EXIT_PROCESS, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
-        int32_t exitCode = 0;
-        if (paramCount >= 1) {
-            exitCode = va_arg(arguments, int32_t);
-        }
-
+    SystemCall::registerSystemCall(Util::System::EXIT_PROCESS, [](uint32_t paramCount, va_list arguments) -> bool {
         auto &processService = System::getService<ProcessService>();
+        int32_t exitCode = paramCount >=1 ? va_arg(arguments, int32_t) : 0;
+
         processService.exitCurrentProcess(exitCode);
     });
 
-    SystemCall::registerSystemCall(Util::System::EXECUTE_BINARY, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::EXECUTE_BINARY, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 7) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
+        auto &processService = System::getService<ProcessService>();
         auto *binaryFile = va_arg(arguments, Util::Io::File*);
         auto *inputFile = va_arg(arguments, Util::Io::File*);
         auto *outputFile = va_arg(arguments, Util::Io::File*);
         auto *errorFile = va_arg(arguments, Util::Io::File*);
         auto *command = va_arg(arguments, const Util::String*);
         auto *commandArguments = va_arg(arguments, Util::Array<Util::String>*);
-        auto *processId = va_arg(arguments, uint32_t*);
+        auto &processId = *va_arg(arguments, uint32_t*);
 
-        auto &processService = System::getService<ProcessService>();
         auto &process = processService.loadBinary(*binaryFile, *inputFile, *outputFile, *errorFile, *command, *commandArguments);
 
-        *processId = process.getId();
-        return Util::System::Result::OK;
+        processId = process.getId();
+        return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::GET_CURRENT_PROCESS, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::GET_CURRENT_PROCESS, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
-
-        auto *processId = va_arg(arguments, uint32_t*);
 
         auto &processService = System::getService<ProcessService>();
-        *processId = processService.getCurrentProcess().getId();
+        auto &processId = *va_arg(arguments, uint32_t*);
 
-        return Util::System::Result::OK;
+        processId = processService.getCurrentProcess().getId();
+        return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::JOIN_PROCESS, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::JOIN_PROCESS, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
+        auto &processService = System::getService<ProcessService>();
         auto processId = va_arg(arguments, uint32_t);
 
-        auto &processService = System::getService<ProcessService>();
         auto *process = processService.getProcess(processId);
-
         if (process == nullptr) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
         process->join();
-        return Util::System::Result::OK;
+        return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::KILL_PROCESS, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::KILL_PROCESS, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
-        int32_t processId = va_arg(arguments, int32_t);
-
         auto &processService = System::getService<ProcessService>();
+        auto processId = va_arg(arguments, int32_t);
+
         auto *process = processService.getProcess(processId);
         if (process == nullptr) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
         processService.killProcess(*process);
-        return Util::System::OK;
+        return true;
     });
 }
 

@@ -50,7 +50,7 @@ public:
      */
     ~SystemCall() override = default;
 
-    static void registerSystemCall(Util::System::Code code, Util::System::Result(*func)(uint32_t paramCount, va_list params));
+    static void registerSystemCall(Util::System::Code code, bool(*func)(uint32_t paramCount, va_list params));
 
     void plugin() override;
 
@@ -58,7 +58,7 @@ public:
 
 private:
 
-    static Util::System::Result(*systemCalls[256])(uint32_t paramCount, va_list params);
+    static bool(*systemCalls[256])(uint32_t paramCount, va_list params);
 
 };
 

@@ -32,197 +32,204 @@
 namespace Kernel {
 
 FilesystemService::FilesystemService() {
-    SystemCall::registerSystemCall(Util::System::MOUNT, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::MOUNT, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 3) {
-            return Util::System::INVALID_ARGUMENT;
-        }
-
-        const char *deviceName = va_arg(arguments, const char*);
-        const char *targetPath = va_arg(arguments, const char*);
-        const char *driverName = va_arg(arguments, const char*);
-
-        auto success = System::getService<FilesystemService>().mount(deviceName, targetPath, driverName);
-        return success ? Util::System::Result::OK : Util::System::INVALID_ARGUMENT;
-    });
-
-    SystemCall::registerSystemCall(Util::System::UNMOUNT, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
-        if (paramCount < 1) {
-            return Util::System::INVALID_ARGUMENT;
-        }
-
-        const char *path = va_arg(arguments, const char*);
-
-        auto success = System::getService<FilesystemService>().unmount(path);
-        return success ? Util::System::Result::OK : Util::System::INVALID_ARGUMENT;
-    });
-
-    SystemCall::registerSystemCall(Util::System::OPEN_FILE, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
-        if (paramCount < 2) {
-            return Util::System::INVALID_ARGUMENT;
-        }
-
-        const char *path = va_arg(arguments, const char*);
-        int32_t *fileDescriptor = va_arg(arguments, int32_t*);
-
-        *fileDescriptor = System::getService<FilesystemService>().openFile(path);
-        return Util::System::Result::OK;
-    });
-
-    SystemCall::registerSystemCall(Util::System::CLOSE_FILE, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
-        if (paramCount < 1) {
-            return Util::System::INVALID_ARGUMENT;
-        }
-
-        int32_t fileDescriptor = va_arg(arguments, int32_t);
-
-        System::getService<FilesystemService>().closeFile(fileDescriptor);
-        return Util::System::Result::OK;
-    });
-
-    SystemCall::registerSystemCall(Util::System::CREATE_FILE, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
-        if (paramCount < 2) {
-            return Util::System::INVALID_ARGUMENT;
-        }
-
-        const char *path = va_arg(arguments, const char*);
-        auto type = static_cast<Util::Io::File::Type>(va_arg(arguments, uint32_t));
-
-        if (type != Util::Io::File::REGULAR && type != Util::Io::File::DIRECTORY) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
         auto &filesystemService = System::getService<FilesystemService>();
-        auto success = type == Util::Io::File::REGULAR ? filesystemService.createFile(path) : filesystemService.createDirectory(path);
-        return success ? Util::System::Result::OK : Util::System::Result::INVALID_ARGUMENT;
+        auto *deviceName = va_arg(arguments, const char*);
+        auto *targetPath = va_arg(arguments, const char*);
+        auto *driverName = va_arg(arguments, const char*);
+
+        return filesystemService.mount(deviceName, targetPath, driverName);
     });
 
-    SystemCall::registerSystemCall(Util::System::DELETE_FILE, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::UNMOUNT, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
-        const char *path = va_arg(arguments, const char*);
+        auto &filesystemService = System::getService<FilesystemService>();
+        auto *path = va_arg(arguments, const char*);
 
-        return System::getService<FilesystemService>().deleteFile(path) ? Util::System::Result::OK : Util::System::Result::INVALID_ARGUMENT;
+        return filesystemService.unmount(path);
     });
 
-    SystemCall::registerSystemCall(Util::System::FILE_TYPE, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::OPEN_FILE, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 2) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
-        int32_t fileDescriptor = va_arg(arguments, int32_t);
-        Util::Io::File::Type *type = va_arg(arguments, Util::Io::File::Type*);
+        auto &filesystemService = System::getService<FilesystemService>();
+        auto *path = va_arg(arguments, const char*);
+        auto &fileDescriptor = *va_arg(arguments, int32_t*);
 
-        *type = System::getService<FilesystemService>().getNode(fileDescriptor).getType();
-        return Util::System::Result::OK;
+        fileDescriptor = filesystemService.openFile(path);
+        return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::FILE_LENGTH, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::CLOSE_FILE, [](uint32_t paramCount, va_list arguments) -> bool {
+        if (paramCount < 1) {
+            return false;
+        }
+
+        auto &filesystemService = System::getService<FilesystemService>();
+        auto fileDescriptor = va_arg(arguments, int32_t);
+
+        filesystemService.closeFile(fileDescriptor);
+        return true;
+    });
+
+    SystemCall::registerSystemCall(Util::System::CREATE_FILE, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 2) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
-        int32_t fileDescriptor = va_arg(arguments, int32_t);
-        uint64_t *length = va_arg(arguments, uint64_t*);
+        auto *path = va_arg(arguments, const char*);
+        auto type = static_cast<Util::Io::File::Type>(va_arg(arguments, uint32_t));
 
-        *length = System::getService<FilesystemService>().getNode(fileDescriptor).getLength();
-        return Util::System::Result::OK;
+        if (type != Util::Io::File::REGULAR && type != Util::Io::File::DIRECTORY) {
+            return false;
+        }
+
+        auto &filesystemService = System::getService<FilesystemService>();
+        return type == Util::Io::File::REGULAR ? filesystemService.createFile(path) : filesystemService.createDirectory(path);
     });
 
-    SystemCall::registerSystemCall(Util::System::FILE_CHILDREN, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::DELETE_FILE, [](uint32_t paramCount, va_list arguments) -> bool {
+        if (paramCount < 1) {
+            return false;
+        }
+
+        auto &filesystemService = System::getService<FilesystemService>();
+        auto *path = va_arg(arguments, const char*);
+
+        return filesystemService.deleteFile(path);
+    });
+
+    SystemCall::registerSystemCall(Util::System::FILE_TYPE, [](uint32_t paramCount, va_list arguments) -> bool {
+        if (paramCount < 2) {
+            return false;
+        }
+
+        auto fileDescriptor = va_arg(arguments, int32_t);
+        auto &type = *va_arg(arguments, Util::Io::File::Type*);
+
+        type = System::getService<FilesystemService>().getNode(fileDescriptor).getType();
+        return true;
+    });
+
+    SystemCall::registerSystemCall(Util::System::FILE_LENGTH, [](uint32_t paramCount, va_list arguments) -> bool {
+        if (paramCount < 2) {
+            return false;
+        }
+
+        auto &filesystemService = System::getService<FilesystemService>();
+        auto fileDescriptor = va_arg(arguments, int32_t);
+        auto &length = *va_arg(arguments, uint64_t*);
+
+        length = filesystemService.getNode(fileDescriptor).getLength();
+        return true;
+    });
+
+    SystemCall::registerSystemCall(Util::System::FILE_CHILDREN, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 3) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
-        int32_t fileDescriptor = va_arg(arguments, int32_t);
-        char ***targetChildren = va_arg(arguments, char***);
-        uint32_t *count = va_arg(arguments, uint32_t*);
-
+        auto &filesystemService = System::getService<FilesystemService>();
         auto &memoryService = System::getService<MemoryService>();
-        auto children = System::getService<FilesystemService>().getNode(fileDescriptor).getChildren();
-        *count = children.length();
-        *targetChildren = static_cast<char**>(memoryService.allocateUserMemory(children.length() * sizeof(char*)));
+        auto fileDescriptor = va_arg(arguments, int32_t);
+        auto **&targetChildren = *va_arg(arguments, char***);
+        auto &count = *va_arg(arguments, uint32_t*);
+
+        auto children = filesystemService.getNode(fileDescriptor).getChildren();
+        count = children.length();
+        targetChildren = static_cast<char**>(memoryService.allocateUserMemory(children.length() * sizeof(char*)));
 
         for (uint32_t i = 0; i < children.length(); i++) {
-            (*targetChildren)[i] = static_cast<char*>(memoryService.allocateUserMemory((children[i].length() + 1) * sizeof(char)));
+            targetChildren[i] = static_cast<char*>(memoryService.allocateUserMemory((children[i].length() + 1) * sizeof(char)));
             auto source = Util::Address<uint32_t>(static_cast<char *>(children[i]));
-            auto target = Util::Address<uint32_t>((*targetChildren)[i]);
+            auto target = Util::Address<uint32_t>(targetChildren[i]);
             target.copyString(source);
         }
 
-        return Util::System::Result::OK;
+        return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::WRITE_FILE, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::WRITE_FILE, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 5) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
-        int32_t fileDescriptor = va_arg(arguments, int32_t);
-        uint8_t *sourceBuffer = va_arg(arguments, uint8_t*);
-        uint64_t pos = va_arg(arguments, uint64_t);
-        uint64_t length = va_arg(arguments, uint64_t);
-        uint64_t *written = va_arg(arguments, uint64_t*);
+        auto &filesystemService = System::getService<FilesystemService>();
+        auto fileDescriptor = va_arg(arguments, int32_t);
+        auto *sourceBuffer = va_arg(arguments, uint8_t*);
+        auto pos = va_arg(arguments, uint64_t);
+        auto length = va_arg(arguments, uint64_t);
+        auto &written = *va_arg(arguments, uint64_t*);
 
-        *written = System::getService<FilesystemService>().getNode(fileDescriptor).writeData(sourceBuffer, pos, length);
-        return Util::System::Result::OK;
+        written = filesystemService.getNode(fileDescriptor).writeData(sourceBuffer, pos, length);
+        return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::READ_FILE, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::READ_FILE, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 5) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
-        int32_t fileDescriptor = va_arg(arguments, int32_t);
-        uint8_t *targetBuffer = va_arg(arguments, uint8_t*);
-        uint64_t pos = va_arg(arguments, uint64_t);
-        uint64_t length = va_arg(arguments, uint64_t);
-        uint64_t *read = va_arg(arguments, uint64_t*);
+        auto &filesystemService = System::getService<FilesystemService>();
+        auto fileDescriptor = va_arg(arguments, int32_t);
+        auto *targetBuffer = va_arg(arguments, uint8_t*);
+        auto pos = va_arg(arguments, uint64_t);
+        auto length = va_arg(arguments, uint64_t);
+        auto &read = *va_arg(arguments, uint64_t*);
 
-        *read = System::getService<FilesystemService>().getNode(fileDescriptor).readData(targetBuffer, pos, length);
-        return Util::System::Result::OK;
+        read = filesystemService.getNode(fileDescriptor).readData(targetBuffer, pos, length);
+        return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::CONTROL_FILE, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::CONTROL_FILE, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 3) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
-        int32_t fileDescriptor = va_arg(arguments, int32_t);
-        uint32_t request = va_arg(arguments, uint32_t);
-        Util::Array<uint32_t> *parameters = va_arg(arguments, Util::Array<uint32_t>*);
+        auto &filesystemService = System::getService<FilesystemService>();
+        auto fileDescriptor = va_arg(arguments, int32_t);
+        auto request = va_arg(arguments, uint32_t);
+        auto &parameters = *va_arg(arguments, const Util::Array<uint32_t>*);
 
-        auto success = System::getService<FilesystemService>().getNode(fileDescriptor).control(request, *parameters);
-        return success ? Util::System::Result::OK : Util::System::Result::INVALID_ARGUMENT;
+        return filesystemService.getNode(fileDescriptor).control(request, parameters);
     });
 
-    SystemCall::registerSystemCall(Util::System::CHANGE_DIRECTORY, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::CHANGE_DIRECTORY, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
-        const char *path = va_arg(arguments, const char*);
+        auto &processService = System::getService<ProcessService>();
+        auto *path = va_arg(arguments, const char*);
 
-        auto result = System::getService<ProcessService>().getCurrentProcess().setWorkingDirectory(path);
-        return result ? Util::System::Result::OK : Util::System::Result::INVALID_ARGUMENT;
+        return processService.getCurrentProcess().setWorkingDirectory(path);
     });
 
-    SystemCall::registerSystemCall(Util::System::GET_CURRENT_WORKING_DIRECTORY, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::GET_CURRENT_WORKING_DIRECTORY, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
 
-        char **targetPath = va_arg(arguments, char**);
-        auto path = System::getService<ProcessService>().getCurrentProcess().getWorkingDirectory().getCanonicalPath();
-
+        auto &processService = System::getService<ProcessService>();
         auto &memoryService = System::getService<MemoryService>();
-        *targetPath = static_cast<char*>(memoryService.allocateUserMemory((path.length() + 1) * sizeof(char)));
+        auto *&targetPath = *va_arg(arguments, char**);
+        auto path = processService.getCurrentProcess().getWorkingDirectory().getCanonicalPath();
+
+        targetPath = static_cast<char*>(memoryService.allocateUserMemory((path.length() + 1) * sizeof(char)));
         auto source = Util::Address<uint32_t>(static_cast<char*>(path));
-        auto target = Util::Address<uint32_t>(*targetPath);
+        auto target = Util::Address<uint32_t>(targetPath);
         target.copyString(source);
 
-        return Util::System::Result::OK;
+        return true;
     });
 }
 

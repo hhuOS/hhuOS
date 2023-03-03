@@ -57,74 +57,73 @@ SchedulerService::SchedulerService() {
         log.warn("No FPU present");
     }
 
-    SystemCall::registerSystemCall(Util::System::YIELD, [](uint32_t, va_list) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::YIELD, [](uint32_t, va_list) -> bool {
         System::getService<SchedulerService>().yield();
-        return Util::System::Result::OK;
+        return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::GET_CURRENT_THREAD, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::GET_CURRENT_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
-
-        auto *threadId = va_arg(arguments, uint32_t*);
 
         auto &schedulerService = System::getService<SchedulerService>();
-        *threadId = schedulerService.getCurrentThread().getId();
+        auto &threadId = *va_arg(arguments, uint32_t*);
 
-        return Util::System::Result::OK;
+        threadId = schedulerService.getCurrentThread().getId();
+        return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::CREATE_THREAD, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::CREATE_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 4) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
-
-        auto *name = va_arg(arguments, const char*);
-        auto *runnable = va_arg(arguments, Util::Async::Runnable*);
-        auto eip = va_arg(arguments, uint32_t);
-        auto *threadId = va_arg(arguments, uint32_t*);
 
         auto &processService = System::getService<ProcessService>();
         auto &schedulerService = System::getService<SchedulerService>();
+        auto *name = va_arg(arguments, const char*);
+        auto *runnable = va_arg(arguments, Util::Async::Runnable*);
+        auto eip = va_arg(arguments, uint32_t);
+        auto &threadId = *va_arg(arguments, uint32_t*);
+
         auto &thread = Kernel::Thread::createUserThread(name, processService.getCurrentProcess(), eip, runnable);
 
-        *threadId = thread.getId();
+        threadId = thread.getId();
         schedulerService.ready(thread);
-
-        return Util::System::Result::OK;
+        return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::SLEEP, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::SLEEP, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
-            return Util::System::INVALID_ARGUMENT;
+            return false;
         }
-
-        auto *time = va_arg(arguments, Util::Time::Timestamp*);
-
-        System::getService<SchedulerService>().sleep(*time);
-        return Util::System::Result::OK;
-    });
-
-    SystemCall::registerSystemCall(Util::System::JOIN_THREAD, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
-        if (paramCount < 1) {
-            return Util::System::INVALID_ARGUMENT;
-        }
-
-        auto threadId = va_arg(arguments, uint32_t);
 
         auto &schedulerService = System::getService<SchedulerService>();
+        auto &time = *va_arg(arguments, Util::Time::Timestamp*);
+
+        schedulerService.sleep(time);
+        return true;
+    });
+
+    SystemCall::registerSystemCall(Util::System::JOIN_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
+        if (paramCount < 1) {
+            return false;
+        }
+
+        auto &schedulerService = System::getService<SchedulerService>();
+        auto threadId = va_arg(arguments, uint32_t);
+
         auto *thread = schedulerService.getThread(threadId);
         if (thread != nullptr) {
             thread->join();
         }
 
-        return Util::System::Result::OK;
+        return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::EXIT_THREAD, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::EXIT_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
         System::getService<SchedulerService>().exitCurrentThread();
-        return Util::System::Result::OK;
+        return true;
     });
 }
 

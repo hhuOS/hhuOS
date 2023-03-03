@@ -54,15 +54,10 @@ void Engine::run() {
     const auto deltaMilliseconds = static_cast<uint32_t>(delta * 1000);
 
     Graphic::Ansi::prepareGraphicalApplication(true);
-    graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawString(Math::Vector2D(-0.075, 0), "Loading...");
-    graphics.show();
+    initializeNextScene();
 
     Async::Thread::createThread("Key-Listener", new KeyListenerRunnable(*this));
     Async::Thread::createThread("Mouse-Listener", new MouseListenerRunnable(*this));
-
-    game.initializeNextScene(graphics);
-    game.getCurrentScene().applyChanges();
 
     while (game.isRunning()) {
         statistics.startFrameTime();
@@ -74,7 +69,7 @@ void Engine::run() {
 
         updateLock.acquire();
         if (game.sceneSwitched) {
-            game.initializeNextScene(graphics);
+            initializeNextScene();
         }
 
         auto &scene = game.getCurrentScene();
@@ -105,6 +100,21 @@ void Engine::run() {
     }
 
     Graphic::Ansi::cleanupGraphicalApplication();
+}
+
+void Engine::initializeNextScene() {
+    if (!game.firstScene) {
+        game.getCurrentScene().getCamera().setPosition(Math::Vector2D(0, 0));
+    }
+
+    auto charWidth = ((Graphic::Fonts::TERMINAL_FONT.getCharWidth()) / graphics.getAbsoluteResolution().getX()) * 2;
+    graphics.clear();
+    graphics.setColor(Graphic::Colors::WHITE);
+    graphics.drawString(Math::Vector2D(-(10 * charWidth) / 2, 0), "Loading...");
+    graphics.show();
+
+    game.initializeNextScene(graphics);
+    game.getCurrentScene().applyChanges();
 }
 
 void Engine::updateStatus() {

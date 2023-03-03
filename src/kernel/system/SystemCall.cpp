@@ -24,9 +24,9 @@
 
 namespace Kernel {
 
-Util::System::Result(*SystemCall::systemCalls[256])(uint32_t paramCount, va_list params){};
+bool(*SystemCall::systemCalls[256])(uint32_t paramCount, va_list params){};
 
-void SystemCall::registerSystemCall(Util::System::Code code, Util::System::Result (*func)(uint32_t, va_list)) {
+void SystemCall::registerSystemCall(Util::System::Code code, bool(*func)(uint32_t, va_list)) {
     if (systemCalls[code] != nullptr) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "SystemCall: Code is already assigned");
     }
@@ -39,10 +39,10 @@ void SystemCall::plugin() {
 }
 
 void SystemCall::trigger(const Kernel::InterruptFrame &frame) {
-    uint16_t code = frame.eax & 0x0000ffffu;
-    uint16_t paramCount = frame.eax >> 16;
+    uint16_t code = frame.eax & 0x000000ff;
+    uint16_t paramCount = frame.eax >> 8;
     auto params = reinterpret_cast<va_list>(frame.ebx);
-    auto &result = *reinterpret_cast<Util::System::Result*>(frame.ecx);
+    auto &result = *reinterpret_cast<bool*>(frame.ecx);
 
     result = systemCalls[code](paramCount, params);
 }
