@@ -39,7 +39,7 @@ class NetworkAddress {
 public:
 
     enum Type {
-        MAC, IP4, IP6, IP4_PORT, IP6_PORT
+        MAC, IP4, IP4_PORT, IP4_SUBNET
     };
 
     /**
@@ -77,8 +77,6 @@ public:
 
     void setAddress(const uint8_t *buffer);
 
-    void setAddress(const NetworkAddress &other);
-
     void getAddress(uint8_t *buffer) const;
 
     [[nodiscard]] uint8_t getLength() const;
@@ -88,8 +86,6 @@ public:
     [[nodiscard]] uint8_t compareTo(const NetworkAddress &other) const;
 
     [[nodiscard]] virtual NetworkAddress* createCopy() const = 0;
-
-    virtual void setAddress(const Util::String &string) = 0;
 
     [[nodiscard]] virtual Util::String toString() const = 0;
 

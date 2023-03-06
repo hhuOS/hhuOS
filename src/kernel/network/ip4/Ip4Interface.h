@@ -22,7 +22,7 @@
 #define HHUOS_IP4INTERFACE_H
 
 #include "lib/util/network/ip4/Ip4Address.h"
-#include "lib/util/network/ip4/Ip4NetworkMask.h"
+#include "lib/util/network/ip4/Ip4SubnetAddress.h"
 
 namespace Util {
 class String;
@@ -40,41 +40,48 @@ class Ip4Interface {
 
 public:
     /**
+     * Default Constructor.
+     */
+    Ip4Interface() = default;
+
+    /**
      * Constructor.
      */
-    Ip4Interface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device);
+    Ip4Interface(const Util::Network::Ip4::Ip4SubnetAddress &address, Device::Network::NetworkDevice &device);
 
     /**
      * Copy Constructor.
      */
-    Ip4Interface(const Ip4Interface &other) = delete;
+    Ip4Interface(const Ip4Interface &other) = default;
 
     /**
      * Assignment operator.
      */
-    Ip4Interface &operator=(const Ip4Interface &other) = delete;
+    Ip4Interface &operator=(const Ip4Interface &other) = default;
 
     /**
      * Destructor.
      */
     ~Ip4Interface() = default;
 
+    bool operator==(const Ip4Interface &other);
+
+    bool operator!=(const Ip4Interface &other);
+
     [[nodiscard]] const Util::String& getDeviceIdentifier() const;
 
-    [[nodiscard]] const Util::Network::Ip4::Ip4Address& getAddress() const;
+    [[nodiscard]] const Util::Network::Ip4::Ip4SubnetAddress& getSubnetAddress() const;
 
-    [[nodiscard]] const Util::Network::Ip4::Ip4NetworkMask& getNetworkMask() const;
+    [[nodiscard]] Util::Network::Ip4::Ip4Address getIp4Address() const;
 
     [[nodiscard]] Device::Network::NetworkDevice& getDevice() const;
 
-    bool isTargetOf(const Util::Network::Ip4::Ip4Address &targetAddress);
+    [[nodiscard]] bool isTargetOf(const Util::Network::Ip4::Ip4Address &targetAddress) const;
 
 private:
 
-    Util::Network::Ip4::Ip4Address address;
-    Util::Network::Ip4::Ip4NetworkMask networkMask;
-
-    Device::Network::NetworkDevice &device;
+    Util::Network::Ip4::Ip4SubnetAddress address{};
+    Device::Network::NetworkDevice *device{};
 };
 
 }

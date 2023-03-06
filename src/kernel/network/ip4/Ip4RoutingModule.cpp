@@ -22,49 +22,95 @@
 
 #include "Ip4RoutingModule.h"
 #include "lib/util/network/ip4/Ip4Address.h"
-#include "lib/util/network/ip4/Ip4NetworkMask.h"
-#include "kernel/network/ip4/Ip4Route.h"
-#include "kernel/network/ip4/Ip4Interface.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/network/NetworkAddress.h"
+#include "kernel/system/System.h"
+#include "kernel/service/NetworkService.h"
+#include "kernel/network/NetworkStack.h"
+#include "kernel/network/ip4/Ip4Module.h"
+#include "lib/util/network/ip4/Ip4SubnetAddress.h"
 
 namespace Kernel::Network::Ip4 {
 
-void Ip4RoutingModule::setDefaultRoute(const Ip4Route &route) {
-    defaultRoute = route;
+bool Ip4RoutingModule::addRoute(const Util::Network::Ip4::Ip4Route &route) {
+    auto &ip4Module = System::getService<NetworkService>().getNetworkStack().getIp4Module();
+    if (ip4Module.getTargetInterfaces(route.getSourceAddress()).length() == 0) {
+        return false;
+    }
+
+    bool ret = false;
+    lock.acquire();
+
+    if (route.getAddress().getBitCount() == 0) {
+        routes.remove(route);
+        defaultRoute = route;
+        ret = true;
+    } else if (!routes.contains(route)) {
+        ret = routes.add(route);
+    }
+
+    lock.release();
+    return ret;
 }
 
-void Ip4RoutingModule::addRoute(const Ip4Route &route) {
+bool Ip4RoutingModule::removeRoute(const Util::Network::Ip4::Ip4Route &route) {
+    bool ret;
     lock.acquire();
-    if (!routes.contains(route)) {
-        routes.add(route);
+
+    if (route == defaultRoute) {
+        defaultRoute = Util::Network::Ip4::Ip4Route();
+        ret = true;
+    } else {
+        ret = routes.remove(route);
+    }
+
+    lock.release();
+    return ret;
+}
+
+void Ip4RoutingModule::removeRoute(const Util::Network::Ip4::Ip4SubnetAddress &localAddress, const Util::String &device) {
+    auto route = Util::Network::Ip4::Ip4Route(localAddress, device);
+    removeRoute(route);
+}
+
+const Util::Network::Ip4::Ip4Route &Ip4RoutingModule::getDefaultRoute() const {
+    return defaultRoute;
+}
+
+Util::Array<Util::Network::Ip4::Ip4Route> Ip4RoutingModule::getRoutes(const Util::Network::Ip4::Ip4Address &sourceAddress) {
+    auto ret = Util::ArrayList<Util::Network::Ip4::Ip4Route>();
+    bool anySource = sourceAddress == Util::Network::Ip4::Ip4Address::ANY;
+
+    lock.acquire();
+
+    for (const auto &route : routes) {
+        if (anySource || route.getSourceAddress() == sourceAddress) {
+            ret.add(route);
+        }
+    }
+
+    if (anySource || defaultRoute.getSourceAddress() == sourceAddress) {
+        ret.add(defaultRoute);
     }
     lock.release();
+
+    return ret.toArray();
 }
 
-void Ip4RoutingModule::removeRoute(const Ip4Route &route) {
-    lock.acquire();
-    routes.remove(route);
-    lock.release();
-}
-
-void Ip4RoutingModule::removeRoute(const Util::Network::Ip4::Ip4Address &localAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, const Util::String &device) {
-    removeRoute(Ip4Route(localAddress, networkMask, device));
-}
-
-const Ip4Route& Ip4RoutingModule::findRoute(const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &address) {
+const Util::Network::Ip4::Ip4Route& Ip4RoutingModule::findRoute(const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &address) {
     uint8_t longestPrefix = 0;
-    const Ip4Route *bestRoute = nullptr;
+    const Util::Network::Ip4::Ip4Route *bestRoute = nullptr;
     bool anySource = sourceAddress == Util::Network::Ip4::Ip4Address::ANY;
 
     lock.acquire();
     for (const auto &route : routes) {
+        auto routeAddress = route.getSourceAddress();
+
         if (anySource || sourceAddress == route.getSourceAddress()) {
-            auto subnetMask = route.getNetworkMask();
-            auto subnetAddress = subnetMask.extractSubnet(route.getDestinationAddress());
+            auto subnetAddress = route.getTargetAddress();
             auto prefix = address.compareTo(subnetAddress);
 
-            if (prefix >= subnetMask.getBitCount() && prefix > longestPrefix) {
+            if (prefix >= subnetAddress.getBitCount() && prefix > longestPrefix) {
                 bestRoute = &route;
             }
         }
@@ -72,7 +118,7 @@ const Ip4Route& Ip4RoutingModule::findRoute(const Util::Network::Ip4::Ip4Address
     lock.release();
 
     if (bestRoute == nullptr) {
-        if (anySource || sourceAddress == defaultRoute.getInterface().getAddress()) {
+        if (defaultRoute.isValid() && (anySource || sourceAddress == defaultRoute.getSourceAddress())) {
             return defaultRoute;
         }
 

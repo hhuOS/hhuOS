@@ -75,10 +75,12 @@
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/base/System.h"
 #include "lib/util/network/ip4/Ip4Address.h"
-#include "lib/util/network/ip4/Ip4NetworkMask.h"
 #include "kernel/network/ip4/Ip4Module.h"
 #include "kernel/network/NetworkStack.h"
 #include "device/network/rtl8139/Rtl8139.h"
+#include "kernel/network/ip4/Ip4RoutingModule.h"
+#include "lib/util/network/ip4/Ip4Route.h"
+#include "lib/util/network/ip4/Ip4SubnetAddress.h"
 
 namespace Device {
 class Machine;
@@ -394,10 +396,12 @@ void GatesOfHell::initializeNetwork() {
         auto &eth0 = networkService.getNetworkDevice("eth0");
         auto &ip4Module = networkService.getNetworkStack().getIp4Module();
 
-        auto address = Util::Network::Ip4::Ip4Address("10.0.2.15");
-        auto mask = Util::Network::Ip4::Ip4NetworkMask(24);
-        ip4Module.registerInterface(address, mask, eth0);
-        ip4Module.getRoutingModule().setDefaultRoute(Kernel::Network::Ip4::Ip4Route(address, mask, Util::Network::Ip4::Ip4Address("10.0.2.2"), "eth0"));
+        if (Device::FirmwareConfiguration::isAvailable()) {
+            auto address = Util::Network::Ip4::Ip4SubnetAddress("10.0.2.15/24");
+            ip4Module.registerInterface(address, eth0);
+            ip4Module.getRoutingModule().addRoute(Util::Network::Ip4::Ip4Route(address, "eth0"));
+            ip4Module.getRoutingModule().addRoute(Util::Network::Ip4::Ip4Route(Util::Network::Ip4::Ip4SubnetAddress("10.0.2.15/0"), Util::Network::Ip4::Ip4Address("10.0.2.2"), "eth0"));
+        }
     }
 }
 

@@ -102,7 +102,7 @@ void UdpModule::writePacket(const Util::Network::Ip4::Ip4PortAddress &sourceAddr
     auto datagramLength = length + Util::Network::Udp::UdpHeader::HEADER_SIZE;
 
     // Write IPv4 and Ethernet headers
-    auto &sourceInterface = Ip4::Ip4Module::writeHeader(packet, sourceAddress.getIp4Address(), destinationAddress.getIp4Address(), Util::Network::Ip4::Ip4Header::UDP, datagramLength);
+    auto sourceInterface = Ip4::Ip4Module::writeHeader(packet, sourceAddress.getIp4Address(), destinationAddress.getIp4Address(), Util::Network::Ip4::Ip4Header::UDP, datagramLength);
 
     // Write UDP header
     auto udpHeader = Util::Network::Udp::UdpHeader();
@@ -116,7 +116,7 @@ void UdpModule::writePacket(const Util::Network::Ip4::Ip4PortAddress &sourceAddr
     packet.write(buffer, 0, length);
 
     // Calculate and write checksum
-    auto pseudoHeader = Ip4PseudoHeader(sourceInterface.getAddress(), destinationAddress.getIp4Address(), datagramLength);
+    auto pseudoHeader = Ip4PseudoHeader(sourceInterface.getIp4Address(), destinationAddress.getIp4Address(), datagramLength);
     auto pseudoHeaderStream = Util::Io::ByteArrayOutputStream();
     pseudoHeader.write(pseudoHeaderStream);
 

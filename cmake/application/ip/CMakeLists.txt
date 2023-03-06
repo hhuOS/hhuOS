@@ -23,7 +23,9 @@ include_directories(${HHUOS_SRC_DIR})
 
 # Set source files
 set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/ip/ip.cpp)
+        ${HHUOS_SRC_DIR}/application/ip/ip.cpp
+        ${HHUOS_SRC_DIR}/application/ip/Address.cpp
+        ${HHUOS_SRC_DIR}/application/ip/Route.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 

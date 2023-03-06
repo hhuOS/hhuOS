@@ -21,8 +21,6 @@
 #include "ArpModule.h"
 
 #include "lib/util/async/Thread.h"
-#include "kernel/system/System.h"
-#include "kernel/service/NetworkService.h"
 #include "device/network/NetworkDevice.h"
 #include "kernel/log/Logger.h"
 #include "lib/util/base/Exception.h"
@@ -30,14 +28,12 @@
 #include "lib/util/io/stream/ByteArrayOutputStream.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/network/NetworkAddress.h"
-#include "kernel/network/NetworkStack.h"
 #include "kernel/network/arp/ArpEntry.h"
 #include "kernel/network/arp/ArpHeader.h"
 #include "lib/util/network/ethernet/EthernetHeader.h"
 #include "kernel/network/ethernet/EthernetModule.h"
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "kernel/network/ip4/Ip4Interface.h"
-#include "kernel/network/ip4/Ip4Module.h"
 
 namespace Util {
 namespace Io {
@@ -85,7 +81,7 @@ void ArpModule::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformat
     }
 }
 
-bool ArpModule::resolveAddress(const Util::Network::Ip4::Ip4Address &protocolAddress, Util::Network::MacAddress &hardwareAddress, Device::Network::NetworkDevice &device) {
+bool ArpModule::resolveAddress(const Util::Network::Ip4::Ip4Address &protocolAddress, Util::Network::MacAddress &hardwareAddress, const Ip4::Ip4Interface &interface) {
     for (uint32_t i = 0; i < MAX_REQUEST_RETRIES; i++) {
         lock.acquire();
         if (hasHardwareAddress(protocolAddress)) {
@@ -94,12 +90,13 @@ bool ArpModule::resolveAddress(const Util::Network::Ip4::Ip4Address &protocolAdd
         }
         lock.release();
 
-        auto &ip4Module = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getIp4Module();
+        auto &device = interface.getDevice();
+        auto ipAddress = interface.getIp4Address();
         auto packet = Util::Io::ByteArrayOutputStream();
-        writeHeader(packet, ArpHeader::REQUEST, device, Util::Network::MacAddress::createBroadcastAddress());
+        writeHeader(packet, ArpHeader::REQUEST, interface.getDevice(), Util::Network::MacAddress::createBroadcastAddress());
 
         device.getMacAddress().write(packet);
-        ip4Module.getInterface(device.getIdentifier()).getAddress().write(packet);
+        interface.getIp4Address().write(packet);
         Util::Network::MacAddress().write(packet);
         protocolAddress.write(packet);
 

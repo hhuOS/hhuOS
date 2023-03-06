@@ -24,9 +24,9 @@
 #include <stress/lv_demo_stress.h>
 #include <widgets/lv_demo_widgets.h>
 
-#include "lib/util/io/file/File.h" // IWYU pragma: keep
-#include "lib/util/io/stream/PrintStream.h" // IWYU pragma: keep
-#include "lib/util/graphic/Ansi.h" // IWYU pragma: keep
+#include "lib/util/io/file/File.h"
+#include "lib/util/io/stream/PrintStream.h"
+#include "lib/util/graphic/Ansi.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/async/Thread.h"

@@ -22,16 +22,10 @@
 #define HHUOS_IP4ROUTE_H
 
 #include "lib/util/network/ip4/Ip4Address.h"
-#include "lib/util/network/ip4/Ip4NetworkMask.h"
 #include "lib/util/base/String.h"
+#include "Ip4SubnetAddress.h"
 
-namespace Kernel::Network {
-namespace Ip4 {
-class Ip4Interface;
-}  // namespace Ip4
-}  // namespace Network
-
-namespace Kernel::Network::Ip4 {
+namespace Util::Network::Ip4 {
 
 class Ip4Route {
 
@@ -44,12 +38,12 @@ public:
     /**
      * Constructor.
      */
-    Ip4Route(const Util::Network::Ip4::Ip4Address &localAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, const Util::Network::Ip4::Ip4Address &nextHop, const Util::String &deviceIdentifier);
+    Ip4Route(const Util::Network::Ip4::Ip4SubnetAddress &localAddress, const Util::Network::Ip4::Ip4Address &nextHop, const Util::String &deviceIdentifier);
 
     /**
      * Constructor.
      */
-    Ip4Route(const Util::Network::Ip4::Ip4Address &localAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, const Util::String &deviceIdentifier);
+    Ip4Route(const Util::Network::Ip4::Ip4SubnetAddress &localAddress, const Util::String &deviceIdentifier);
 
     /**
      * Copy Constructor.
@@ -70,24 +64,25 @@ public:
 
     bool operator!=(const Ip4Route &other) const;
 
-    [[nodiscard]] const Util::Network::Ip4::Ip4Address& getSourceAddress() const;
+    [[nodiscard]] const Ip4SubnetAddress & getAddress() const;
 
-    [[nodiscard]] const Util::Network::Ip4::Ip4Address& getDestinationAddress() const;
+    [[nodiscard]] Ip4Address getSourceAddress() const;
 
-    [[nodiscard]] const Util::Network::Ip4::Ip4NetworkMask& getNetworkMask() const;
+    [[nodiscard]] Ip4SubnetAddress getTargetAddress() const;
 
-    [[nodiscard]] const Ip4Interface& getInterface() const;
+    [[nodiscard]] const String& getDeviceIdentifier() const;
 
     [[nodiscard]] bool hasNextHop() const;
 
-    [[nodiscard]] const Util::Network::Ip4::Ip4Address& getNextHop() const;
+    [[nodiscard]] const Ip4Address& getNextHop() const;
+
+    [[nodiscard]] bool isValid();
 
 private:
 
-    Util::Network::Ip4::Ip4Address address{};
-    Util::Network::Ip4::Ip4NetworkMask networkMask{};
-    Util::Network::Ip4::Ip4Address nextHop{};
-    Ip4Interface *interface = nullptr;
+    Ip4SubnetAddress address{};
+    Ip4Address nextHop{};
+    String deviceIdentifier{};
 
     bool nextHopValid{};
 };

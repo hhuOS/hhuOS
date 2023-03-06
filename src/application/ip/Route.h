@@ -13,58 +13,67 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The network stack is based on a bachelor's thesis, written by Hannes Feil.
- * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#ifndef HHUOS_IP4NETWORKMASK_H
-#define HHUOS_IP4NETWORKMASK_H
+#ifndef HHUOS_ROUTE_H
+#define HHUOS_ROUTE_H
 
 #include <cstdint>
 
-#include "lib/util/network/NetworkMask.h"
-#include "lib/util/network/ip4/Ip4Address.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/base/String.h"
 
-namespace Util::Network::Ip4 {
+namespace Util {
+namespace Network {
+namespace Ip4 {
+class Ip4Address;
+}  // namespace Ip4
+}  // namespace Network
+}  // namespace Util
 
-class Ip4NetworkMask : public NetworkMask {
+class Route {
 
 public:
     /**
-     * Default Constructor.
-     */
-    explicit Ip4NetworkMask();
-
-    /**
      * Constructor.
      */
-    explicit Ip4NetworkMask(uint8_t bitCount);
+    explicit Route(const Util::Array<Util::String> &arguments);
 
     /**
      * Copy Constructor.
      */
-    Ip4NetworkMask(const Ip4NetworkMask &other) = default;
+    Route(const Route &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Ip4NetworkMask &operator=(const Ip4NetworkMask &other) = default;
+    Route &operator=(const Route &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Ip4NetworkMask() = default;
+    ~Route() = default;
 
-    bool operator==(const Ip4NetworkMask &other) const;
+    int32_t parse();
 
-    bool operator!=(const Ip4NetworkMask &other) const;
+    int32_t show();
 
-    [[nodiscard]] Util::Network::Ip4::Ip4Address extractSubnet(const Util::Network::Ip4::Ip4Address &address) const;
+    int32_t remove();
 
-    [[nodiscard]] Util::Network::Ip4::Ip4Address createBroadcastAddress(const Util::Network::Ip4::Ip4Address &networkAddress) const;
+    int32_t add();
+
+    static const constexpr char *COMMAND = "route";
+
+private:
+
+    static int32_t printRoutes(const Util::Network::Ip4::Ip4Address &address);
+
+    const Util::Array<Util::String> arguments;
+
+    static const constexpr char *COMMAND_SHOW = "show";
+    static const constexpr char *COMMAND_REMOVE = "delete";
+    static const constexpr char *COMMAND_ADD = "add";
 };
 
-}
 
 #endif

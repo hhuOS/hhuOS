@@ -83,12 +83,6 @@ void NetworkAddress::setAddress(const uint8_t *buffer) {
     destination.copyRange(source, length);
 }
 
-void NetworkAddress::setAddress(const NetworkAddress &other) {
-    auto source = Util::Address<uint32_t>(other.buffer);
-    auto destination = Util::Address<uint32_t>(buffer);
-    destination.copyRange(source, length < other.length ? length : other.length);
-}
-
 void NetworkAddress::getAddress(uint8_t *buffer) const {
     auto source = Util::Address<uint32_t>(NetworkAddress::buffer);
     auto destination = Util::Address<uint32_t>(buffer);

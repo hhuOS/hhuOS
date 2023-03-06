@@ -34,8 +34,12 @@
 #include "kernel/network/NetworkStack.h"
 #include "kernel/network/ip4/Ip4Interface.h"
 #include "kernel/network/ip4/Ip4Module.h"
-#include "lib/util/network/NetworkMask.h"
-#include "lib/util/network/ip4/Ip4NetworkMask.h"
+#include "kernel/service/MemoryService.h"
+#include "lib/util/base/Address.h"
+#include "lib/util/network/ip4/Ip4SubnetAddress.h"
+#include "kernel/network/ip4/Ip4RoutingModule.h"
+#include "lib/util/base/String.h"
+#include "lib/util/network/ip4/Ip4Route.h"
 
 namespace Kernel::Network {
 
@@ -98,64 +102,118 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
             }
 
             auto &address = *reinterpret_cast<Util::Network::NetworkAddress*>(parameters[0]);
-            address.setAddress(*bindAddress);
+            address = *bindAddress;
             return true;
         }
-        case Util::Network::Socket::Request::GET_IP4_ADDRESS: {
+        case Util::Network::Socket::Request::GET_IP4_ADDRESSES: {
             if (type != Util::Network::Socket::ETHERNET) {
                 Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not an ethernet socket!");
             }
-            if (parameters.length() < 2) {
-                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Missing parameters!");
+            if (parameters.length() < 1) {
+                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
             }
 
             auto &networkService = System::getService<NetworkService>();
             auto &ip4Module = networkService.getNetworkStack().getIp4Module();
             auto &device = networkService.getNetworkDevice(reinterpret_cast<Util::Network::MacAddress&>(*bindAddress));
-            if (!ip4Module.hasInterface(device.getIdentifier())) {
-                return false;
+
+            auto interfaces = ip4Module.getInterfaces(device.getIdentifier());
+            auto &addresses = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4SubnetAddress>*>(parameters[0]);
+
+            for (uint32_t i = 0; i < interfaces.length() && i < addresses.length(); i++) {
+                addresses[i] = interfaces[i].getSubnetAddress();
             }
 
-            auto &ip4Interface = ip4Module.getInterface(device.getIdentifier());
-            auto &address = *reinterpret_cast<Util::Network::NetworkAddress*>(parameters[0]);
-            auto &mask = *reinterpret_cast<Util::Network::NetworkMask*>(parameters[1]);
-            address.setAddress(ip4Interface.getAddress());
-            mask.setBitCount(ip4Interface.getNetworkMask().getBitCount());
             return true;
         }
         case Util::Network::Socket::Request::REMOVE_IP4_ADDRESS: {
             if (type != Util::Network::Socket::ETHERNET) {
                 Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not an ethernet socket!");
             }
-            if (parameters.length() < 2) {
-                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Missing parameters!");
+            if (parameters.length() < 1) {
+                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
             }
 
             auto &networkService = System::getService<NetworkService>();
             auto &ip4Module = networkService.getNetworkStack().getIp4Module();
             auto &device = networkService.getNetworkDevice(reinterpret_cast<Util::Network::MacAddress&>(*bindAddress));
-            auto &address = *reinterpret_cast<Util::Network::Ip4::Ip4Address*>(parameters[0]);
-            auto &mask = *reinterpret_cast<Util::Network::Ip4::Ip4NetworkMask*>(parameters[1]);
+            auto &address = *reinterpret_cast<Util::Network::Ip4::Ip4SubnetAddress*>(parameters[0]);
 
-            return ip4Module.removeInterface(address, mask, device.getIdentifier());
+            return ip4Module.removeInterface(address, device.getIdentifier());
         }
-        case Util::Network::Socket::Request::SET_IP4_ADDRESS: {
+        case Util::Network::Socket::Request::ADD_IP4_ADDRESS: {
             if (type != Util::Network::Socket::ETHERNET) {
                 Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not an ethernet socket!");
             }
-            if (parameters.length() < 2) {
-                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Missing parameters!");
+            if (parameters.length() < 1) {
+                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
             }
 
             auto &networkService = System::getService<NetworkService>();
             auto &ip4Module = networkService.getNetworkStack().getIp4Module();
             auto &device = networkService.getNetworkDevice(reinterpret_cast<Util::Network::MacAddress&>(*bindAddress));
-            auto &address = *reinterpret_cast<Util::Network::Ip4::Ip4Address*>(parameters[0]);
-            auto &mask = *reinterpret_cast<Util::Network::Ip4::Ip4NetworkMask*>(parameters[1]);
+            auto &address = *reinterpret_cast<Util::Network::Ip4::Ip4SubnetAddress*>(parameters[0]);
 
-            ip4Module.removeInterface(device.getIdentifier());
-            ip4Module.registerInterface(address, mask, device);
+            ip4Module.registerInterface(address, device);
             return true;
+        }
+        case Util::Network::Socket::Request::GET_ROUTES: {
+            if (type != Util::Network::Socket::IP4) {
+                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not an IPv4 socket!");
+            }
+            if (parameters.length() < 3) {
+                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Missing parameters!");
+            }
+
+            auto &memoryService = System::getService<MemoryService>();
+            auto &networkService = System::getService<NetworkService>();
+            auto &routingModule = networkService.getNetworkStack().getIp4Module().getRoutingModule();
+            auto &targetAddresses = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4SubnetAddress>*>(parameters[0]);
+            auto &targetNextHops = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4Address>*>(parameters[1]);
+            auto &targetDevices = *reinterpret_cast<Util::Array<char*>*>(parameters[2]);
+
+            auto routes = routingModule.getRoutes(*reinterpret_cast<Util::Network::Ip4::Ip4Address*>(bindAddress));
+            for (uint32_t i = 0; i < routes.length() && i < targetAddresses.length(); i++) {
+                auto route = routes[i];
+
+                targetAddresses[i] = route.getAddress();
+                targetNextHops[i] = route.hasNextHop() ? route.getNextHop() : Util::Network::Ip4::Ip4Address::ANY;
+
+                targetDevices[i] = static_cast<char*>(memoryService.allocateUserMemory((route.getDeviceIdentifier().length() + 1) * sizeof(char)));
+                auto source = Util::Address<uint32_t>(static_cast<const char*>(route.getDeviceIdentifier()));
+                auto target = Util::Address<uint32_t>(targetDevices[i]);
+                target.copyString(source);
+            }
+
+            return true;
+        }
+        case Util::Network::Socket::Request::REMOVE_ROUTE: {
+            if (type != Util::Network::Socket::IP4) {
+                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not an IPv4 socket!");
+            }
+            if (parameters.length() < 1) {
+                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
+            }
+
+            auto &networkService = System::getService<NetworkService>();
+            auto &routingModule = networkService.getNetworkStack().getIp4Module().getRoutingModule();
+            auto route = *reinterpret_cast<Util::Network::Ip4::Ip4Route*>(parameters[0]);
+
+            return routingModule.removeRoute(route);
+        }
+        case Util::Network::Socket::Request::ADD_ROUTE: {
+            if (type != Util::Network::Socket::IP4) {
+                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not an IPv4 socket!");
+            }
+            if (parameters.length() < 1) {
+                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
+            }
+
+            auto &networkService = System::getService<NetworkService>();
+            auto &routingModule = networkService.getNetworkStack().getIp4Module().getRoutingModule();
+            auto route = *reinterpret_cast<Util::Network::Ip4::Ip4Route*>(parameters[0]);
+
+            return routingModule.addRoute(route);
         }
         default:
             return false;

@@ -20,5 +20,6 @@ target_sources(lib.network PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/network/ip4/Ip4Address.cpp
         ${HHUOS_SRC_DIR}/lib/util/network/ip4/Ip4Datagram.cpp
         ${HHUOS_SRC_DIR}/lib/util/network/ip4/Ip4Header.cpp
-        ${HHUOS_SRC_DIR}/lib/util/network/ip4/Ip4NetworkMask.cpp
-        ${HHUOS_SRC_DIR}/lib/util/network/ip4/Ip4PortAddress.cpp)
+        ${HHUOS_SRC_DIR}/lib/util/network/ip4/Ip4PortAddress.cpp
+        ${HHUOS_SRC_DIR}/lib/util/network/ip4/Ip4Route.cpp
+        ${HHUOS_SRC_DIR}/lib/util/network/ip4/Ip4SubnetAddress.cpp)

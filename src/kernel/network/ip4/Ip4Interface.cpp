@@ -23,7 +23,6 @@
 #include "device/network/NetworkDevice.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "lib/util/network/ip4/Ip4Address.h"
-#include "lib/util/network/ip4/Ip4NetworkMask.h"
 
 namespace Util {
 class String;
@@ -31,31 +30,39 @@ class String;
 
 namespace Kernel::Network::Ip4 {
 
-Ip4Interface::Ip4Interface(const Util::Network::Ip4::Ip4Address &address,  const Util::Network::Ip4::Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device) :
-        address(address), networkMask(networkMask), device(device) {}
+Ip4Interface::Ip4Interface(const Util::Network::Ip4::Ip4SubnetAddress &address, Device::Network::NetworkDevice &device) :
+        address(address), device(&device) {}
 
-const Util::Network::Ip4::Ip4Address& Ip4Interface::getAddress() const {
+const Util::Network::Ip4::Ip4SubnetAddress& Ip4Interface::getSubnetAddress() const {
     return address;
 }
 
-const Util::Network::Ip4::Ip4NetworkMask& Ip4Interface::getNetworkMask() const {
-    return networkMask;
+Util::Network::Ip4::Ip4Address Ip4Interface::getIp4Address() const {
+    return address.getIp4Address();
 }
 
-Device::Network::NetworkDevice &Ip4Interface::getDevice() const {
-    return device;
+Device::Network::NetworkDevice& Ip4Interface::getDevice() const {
+    return *device;
 }
 
 const Util::String& Ip4Interface::getDeviceIdentifier() const {
-    return device.getIdentifier();
+    return device->getIdentifier();
 }
 
-bool Ip4Interface::isTargetOf(const Util::Network::Ip4::Ip4Address &targetAddress) {
-    if (targetAddress == address || networkMask.createBroadcastAddress(address) == targetAddress || targetAddress.isBroadcastAddress()) {
+bool Ip4Interface::isTargetOf(const Util::Network::Ip4::Ip4Address &targetAddress) const {
+    if (targetAddress == address.getIp4Address() || address.getBroadcastAddress() == targetAddress || targetAddress.isBroadcastAddress()) {
         return true;
     }
 
     return false;
+}
+
+bool Ip4Interface::operator==(const Ip4Interface &other) {
+    return address == other.address;
+}
+
+bool Ip4Interface::operator!=(const Ip4Interface &other) {
+    return address != other.address;
 }
 
 }

@@ -24,13 +24,15 @@
 #include <cstdint>
 
 namespace Util {
+template <typename T> class Array;
+
 namespace Network {
 class NetworkAddress;
 class Datagram;
+
 namespace Ip4 {
-class Ip4Address;
-class Ip4NetworkMask;
 class Ip4Route;
+class Ip4SubnetAddress;
 }  // namespace Ip4
 }  // namespace Network
 }  // namespace Util
@@ -46,7 +48,7 @@ public:
     };
 
     enum Request {
-        BIND, GET_LOCAL_ADDRESS, GET_IP4_ADDRESS, REMOVE_IP4_ADDRESS, SET_IP4_ADDRESS
+        BIND, GET_LOCAL_ADDRESS, GET_IP4_ADDRESSES, REMOVE_IP4_ADDRESS, ADD_IP4_ADDRESS, GET_ROUTES, REMOVE_ROUTE, ADD_ROUTE
     };
 
     /**
@@ -74,11 +76,17 @@ public:
 
     [[nodiscard]] bool receive(Util::Network::Datagram &datagram) const;
 
-    [[nodiscard]] bool getIp4Address(Ip4::Ip4Address &address, Ip4::Ip4NetworkMask &mask) const;
+    [[nodiscard]] bool getIp4Addresses(Array<Ip4::Ip4SubnetAddress> &addresses) const;
 
-    [[nodiscard]] bool removeIp4Address(const Ip4::Ip4Address &address, const Ip4::Ip4NetworkMask &mask) const;
+    [[nodiscard]] bool removeIp4Address(const Ip4::Ip4SubnetAddress &address) const;
 
-    [[nodiscard]] bool setIp4Address(const Ip4::Ip4Address &address, const Ip4::Ip4NetworkMask &mask) const;
+    [[nodiscard]] bool addIp4Address(const Ip4::Ip4SubnetAddress &address) const;
+
+    [[nodiscard]] bool getRoutes(Array<Ip4::Ip4Route> &routes) const;
+
+    [[nodiscard]] bool removeRoute(const Ip4::Ip4Route &route) const;
+
+    [[nodiscard]] bool addRoute(const Ip4::Ip4Route &route) const;
 
 private:
     /**

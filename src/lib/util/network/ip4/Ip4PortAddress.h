@@ -85,8 +85,6 @@ public:
 
     [[nodiscard]] NetworkAddress* createCopy() const override;
 
-    void setAddress(const Util::String &string) override;
-
     [[nodiscard]] Util::String toString() const override;
 
     static const uint32_t ADDRESS_LENGTH = Ip4Address::ADDRESS_LENGTH + sizeof(uint16_t);
