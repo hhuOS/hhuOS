@@ -46,7 +46,7 @@ Kernel::Logger IcmpModule::log = Kernel::Logger::get("ICMP");
 
 void IcmpModule::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
     auto *buffer = stream.getBuffer() + stream.getPosition();
-    auto calculatedChecksum = Ip4::Ip4Module::calculateChecksum(buffer, Util::Network::Icmp::IcmpHeader::CHECKSUM_OFFSET, stream.getRemaining());
+    auto calculatedChecksum = Ip4::Ip4Module::calculateChecksum(buffer, Util::Network::Icmp::IcmpHeader::CHECKSUM_OFFSET, information.payloadLength);
     auto receivedChecksum = (buffer[Util::Network::Icmp::IcmpHeader::CHECKSUM_OFFSET] << 8) | buffer[Util::Network::Icmp::IcmpHeader::CHECKSUM_OFFSET + 1];
 
     if (receivedChecksum != calculatedChecksum) {

@@ -32,6 +32,7 @@
 #include "kernel/system/System.h"
 #include "kernel/network/ethernet/EthernetSocket.h"
 #include "kernel/network/ip4/Ip4Socket.h"
+#include "kernel/network/ip4/Ip4Route.h"
 #include "kernel/network/icmp/IcmpSocket.h"
 #include "kernel/network/udp/UdpSocket.h"
 #include "lib/util/base/System.h"
@@ -76,10 +77,10 @@ NetworkService::NetworkService() {
 
         auto &filesystemService = System::getService<FilesystemService>();
         auto fileDescriptor = va_arg(arguments, int32_t);
-        auto *datagram = va_arg(arguments, Util::Network::Datagram*);
+        auto &datagram = *va_arg(arguments, Util::Network::Datagram*);
 
         auto &socket = reinterpret_cast<Network::Socket&>(filesystemService.getNode(fileDescriptor));
-        return socket.send(*datagram);
+        return socket.send(datagram);
     });
 
     SystemCall::registerSystemCall(Util::System::RECEIVE_DATAGRAM, [](uint32_t paramCount, va_list arguments) -> bool {
@@ -94,7 +95,7 @@ NetworkService::NetworkService() {
         auto &socket = reinterpret_cast<Network::Socket &>(filesystemService.getNode(fileDescriptor));
 
         auto *kernelDatagram = socket.receive();
-        auto *datagramBuffer = reinterpret_cast<uint8_t *>(memoryService.allocateUserMemory(kernelDatagram->getLength()));
+        auto *datagramBuffer = reinterpret_cast<uint8_t*>(memoryService.allocateUserMemory(kernelDatagram->getLength()));
 
         auto source = Util::Address<uint32_t>(kernelDatagram->getData());
         auto target = Util::Address<uint32_t>(datagramBuffer);
@@ -119,7 +120,12 @@ void NetworkService::initializeLoopback() {
     lock.release();
 
     Device::Network::NetworkFilesystemDriver::mount(*loopback);
-    networkStack.getIp4Module().registerInterface(Util::Network::Ip4::Ip4Address("127.0.0.1"), Util::Network::Ip4::Ip4NetworkMask(8), *loopback);
+
+    auto address = Util::Network::Ip4::Ip4Address("127.0.0.1");
+    auto mask = Util::Network::Ip4::Ip4NetworkMask(8);
+    networkStack.getIp4Module().registerInterface(address, mask, *loopback);
+    networkStack.getIp4Module().getRoutingModule().setDefaultRoute(Kernel::Network::Ip4::Ip4Route(address, mask, loopback->getIdentifier()));
+    networkStack.getArpModule().setEntry(address, loopback->getMacAddress());
 }
 
 Util::String NetworkService::registerNetworkDevice(Device::Network::NetworkDevice *device, const Util::String &deviceClass) {

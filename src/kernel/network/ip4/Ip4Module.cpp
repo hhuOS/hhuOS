@@ -101,7 +101,7 @@ const Ip4Interface& Ip4Module::writeHeader(Util::Io::ByteArrayOutputStream &stre
 
     auto destinationMacAddress = Util::Network::MacAddress();
     if (!arpModule.resolveAddress(route.hasNextHop() ? route.getNextHop() : destinationAddress, destinationMacAddress, route.getInterface().getDevice())) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Discarding packet, because the destination IPv4 address could not resolved");
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Discarding packet, because the destination IPv4 address could not be resolved");
     }
 
     Ethernet::EthernetModule::writeHeader(stream, route.getInterface().getDevice(), destinationMacAddress, Util::Network::Ethernet::EthernetHeader::IP4);
@@ -199,6 +199,10 @@ bool Ip4Module::removeInterface(const Util::String &deviceIdentifier) {
 
     lock.release();
     return false;
+}
+
+Ip4RoutingModule &Ip4Module::getRoutingModule() {
+    return routingModule;
 }
 
 uint16_t Ip4Module::calculateChecksum(const uint8_t *buffer, uint32_t offset, uint32_t length) {
