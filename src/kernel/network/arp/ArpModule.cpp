@@ -106,7 +106,7 @@ bool ArpModule::resolveAddress(const Util::Network::Ip4::Ip4Address &protocolAdd
         Ethernet::EthernetModule::finalizePacket(packet);
         device.sendPacket(packet.getBuffer(), packet.getLength());
 
-        Util::Async::Thread::sleep(Util::Time::Timestamp(1, 0));
+        Util::Async::Thread::sleep(Util::Time::Timestamp(0, 100));
     }
 
     return false;

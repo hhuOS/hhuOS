@@ -392,7 +392,12 @@ void GatesOfHell::initializeNetwork() {
     Device::Network::Rtl8139::initializeAvailableCards();
     if (networkService.isNetworkDeviceRegistered("eth0")) {
         auto &eth0 = networkService.getNetworkDevice("eth0");
-        networkService.getNetworkStack().getIp4Module().registerInterface(Util::Network::Ip4::Ip4Address("10.0.2.15"), Util::Network::Ip4::Ip4NetworkMask(24), eth0);
+        auto &ip4Module = networkService.getNetworkStack().getIp4Module();
+
+        auto address = Util::Network::Ip4::Ip4Address("10.0.2.15");
+        auto mask = Util::Network::Ip4::Ip4NetworkMask(24);
+        ip4Module.registerInterface(address, mask, eth0);
+        ip4Module.getRoutingModule().setDefaultRoute(Kernel::Network::Ip4::Ip4Route(address, mask, Util::Network::Ip4::Ip4Address("10.0.2.2"), "eth0"));
     }
 }
 

@@ -63,6 +63,8 @@ public:
      */
     ~Ip4RoutingModule() = default;
 
+    void setDefaultRoute(const Ip4Route &route);
+
     void addRoute(const Ip4Route &route);
 
     void removeRoute(const Ip4Route &route);
@@ -73,6 +75,7 @@ public:
 
 private:
 
+    Ip4Route defaultRoute;
     Util::ArrayList<Ip4Route> routes;
     Util::Async::ReentrantSpinlock lock;
 };

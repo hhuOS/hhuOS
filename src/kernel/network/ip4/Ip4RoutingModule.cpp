@@ -18,17 +18,21 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "Ip4RoutingModule.h"
-
 #include <cstdint>
 
+#include "Ip4RoutingModule.h"
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/network/ip4/Ip4NetworkMask.h"
 #include "kernel/network/ip4/Ip4Route.h"
+#include "kernel/network/ip4/Ip4Interface.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/network/NetworkAddress.h"
 
 namespace Kernel::Network::Ip4 {
+
+void Ip4RoutingModule::setDefaultRoute(const Ip4Route &route) {
+    defaultRoute = route;
+}
 
 void Ip4RoutingModule::addRoute(const Ip4Route &route) {
     lock.acquire();
@@ -56,8 +60,11 @@ const Ip4Route& Ip4RoutingModule::findRoute(const Util::Network::Ip4::Ip4Address
     lock.acquire();
     for (const auto &route : routes) {
         if (anySource || sourceAddress == route.getSourceAddress()) {
-            auto subnetAddress = route.getNetworkMask().extractSubnet(route.getDestinationAddress());
-            if (address.compareTo(subnetAddress) > longestPrefix) {
+            auto subnetMask = route.getNetworkMask();
+            auto subnetAddress = subnetMask.extractSubnet(route.getDestinationAddress());
+            auto prefix = address.compareTo(subnetAddress);
+
+            if (prefix >= subnetMask.getBitCount() && prefix > longestPrefix) {
                 bestRoute = &route;
             }
         }
@@ -65,6 +72,10 @@ const Ip4Route& Ip4RoutingModule::findRoute(const Util::Network::Ip4::Ip4Address
     lock.release();
 
     if (bestRoute == nullptr) {
+        if (anySource || sourceAddress == defaultRoute.getInterface().getAddress()) {
+            return defaultRoute;
+        }
+
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ip4RoutingModule: No route to host!");
     }
 
