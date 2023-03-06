@@ -37,7 +37,6 @@ class Ps2Controller;
 class Mouse : public Ps2Device, public Util::Io::FilterInputStream, public Kernel::InterruptHandler {
 
 public:
-
     /**
      * Copy Constructor.
      */

@@ -22,18 +22,18 @@
 #define HHUOS_IP4ROUTINGMODULE_H
 
 #include "lib/util/collection/ArrayList.h"
-#include "Ip4Route.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/Collection.h"
 #include "lib/util/collection/Iterator.h"
 #include "lib/util/async/ReentrantSpinlock.h"
 #include "lib/util/base/String.h"
+#include "lib/util/network/ip4/Ip4Route.h"
 
 namespace Util {
 namespace Network {
 namespace Ip4 {
 class Ip4Address;
-class Ip4NetworkMask;
+class Ip4SubnetAddress;
 }  // namespace Ip4
 }  // namespace Network
 }  // namespace Util
@@ -63,20 +63,22 @@ public:
      */
     ~Ip4RoutingModule() = default;
 
-    void setDefaultRoute(const Ip4Route &route);
+    bool addRoute(const Util::Network::Ip4::Ip4Route &route);
 
-    void addRoute(const Ip4Route &route);
+    bool removeRoute(const Util::Network::Ip4::Ip4Route &route);
 
-    void removeRoute(const Ip4Route &route);
+    void removeRoute(const Util::Network::Ip4::Ip4SubnetAddress &localAddress, const Util::String &device);
 
-    void removeRoute(const Util::Network::Ip4::Ip4Address &localAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, const Util::String &device);
+    [[nodiscard]] const Util::Network::Ip4::Ip4Route& getDefaultRoute() const;
 
-    [[nodiscard]] const Ip4Route& findRoute(const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &address);
+    [[nodiscard]] Util::Array<Util::Network::Ip4::Ip4Route> getRoutes(const Util::Network::Ip4::Ip4Address &sourceAddress);
+
+    [[nodiscard]] const Util::Network::Ip4::Ip4Route& findRoute(const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &address);
 
 private:
 
-    Ip4Route defaultRoute;
-    Util::ArrayList<Ip4Route> routes;
+    Util::Network::Ip4::Ip4Route defaultRoute;
+    Util::ArrayList<Util::Network::Ip4::Ip4Route> routes;
     Util::Async::ReentrantSpinlock lock;
 };
 

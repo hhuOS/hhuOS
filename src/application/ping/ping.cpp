@@ -99,7 +99,9 @@ int32_t main(int32_t argc, char *argv[]) {
             }
         } while (!validReply);
 
-        Util::Async::Thread::sleep(Util::Time::Timestamp(1, 0));
+        if (i < count - 1) {
+            Util::Async::Thread::sleep(Util::Time::Timestamp(1, 0));
+        }
     }
 
     return 0;

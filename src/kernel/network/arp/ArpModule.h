@@ -40,6 +40,11 @@ class NetworkDevice;
 }  // namespace Device
 namespace Kernel {
 class Logger;
+namespace Network {
+namespace Ip4 {
+class Ip4Interface;
+}  // namespace Ip4
+}  // namespace Network
 }  // namespace Kernel
 namespace Util {
 namespace Network {
@@ -81,7 +86,7 @@ public:
 
     void readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
-    bool resolveAddress(const Util::Network::Ip4::Ip4Address &protocolAddress, Util::Network::MacAddress &hardwareAddress, Device::Network::NetworkDevice &device);
+    bool resolveAddress(const Util::Network::Ip4::Ip4Address &protocolAddress, Util::Network::MacAddress &hardwareAddress, const Kernel::Network::Ip4::Ip4Interface &interface);
 
     static void writeHeader(Util::Io::OutputStream &stream, ArpHeader::Operation operation, Device::Network::NetworkDevice &device, const Util::Network::MacAddress &destinationAddress);
 

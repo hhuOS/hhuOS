@@ -21,14 +21,15 @@
 #include <cstdint>
 #include <cstdarg>
 
+#include "lib/util/io/stream/InputStream.h" // IWYU pragma: keep
+#include "lib/util/io/stream/PrintStream.h" // IWYU pragma: keep
+
 namespace Util {
 namespace Io {
-class InputStream;
 class BufferedInputStream;
 class BufferedOutputStream;
 class FileInputStream;
 class FileOutputStream;
-class PrintStream;
 }  // namespace Stream
 
 class System {

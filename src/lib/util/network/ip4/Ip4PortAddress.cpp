@@ -20,7 +20,6 @@
 
 #include "Ip4PortAddress.h"
 
-#include "lib/util/base/Exception.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/base/Address.h"
@@ -33,16 +32,16 @@ Ip4PortAddress::Ip4PortAddress(uint8_t *buffer) : NetworkAddress(buffer, ADDRESS
 
 Ip4PortAddress::Ip4PortAddress(const String &string) : NetworkAddress(ADDRESS_LENGTH, IP4_PORT) {
     auto bufferAddress = Util::Address<uint32_t>(buffer);
-    auto ip4Address = Ip4Address("0.0.0.0");
+    auto ip4Address = Ip4Address();
     uint16_t port = 0;
 
     if (string.beginsWith(":")) {
-        port = Util::String::parseInt(string.substring(1));
+        port = String::parseInt(string.substring(1));
     } else {
         auto split = string.split(":");
         ip4Address = Ip4Address(split[0]);
         if (split.length() > 1) {
-            port = Util::String::parseInt(split[1]);
+            port = String::parseInt(split[1]);
         }
     }
 
@@ -54,14 +53,14 @@ Ip4PortAddress::Ip4PortAddress(const Ip4Address &address, uint16_t port) : Netwo
     uint8_t addressBuffer[Ip4Address::ADDRESS_LENGTH];
     address.getAddress(addressBuffer);
 
-    auto bufferAddress = Util::Address<uint32_t>(buffer);
-    bufferAddress.copyRange(Util::Address<uint32_t>(addressBuffer), Ip4Address::ADDRESS_LENGTH);
+    auto bufferAddress = Address<uint32_t>(buffer);
+    bufferAddress.copyRange(Address<uint32_t>(addressBuffer), Ip4Address::ADDRESS_LENGTH);
     bufferAddress.setShort(port, Ip4Address::ADDRESS_LENGTH);
 }
 
 Ip4PortAddress::Ip4PortAddress(const Ip4Address &address) : Ip4PortAddress(address, 0) {}
 
-Ip4PortAddress::Ip4PortAddress(uint16_t port) : Ip4PortAddress(Ip4Address("0.0.0.0"), port) {}
+Ip4PortAddress::Ip4PortAddress(uint16_t port) : Ip4PortAddress(Ip4Address::ANY, port) {}
 
 Ip4Address Ip4PortAddress::getIp4Address() const {
     return Ip4Address(buffer);
@@ -79,28 +78,8 @@ NetworkAddress* Ip4PortAddress::createCopy() const {
     return new Ip4PortAddress(*this);
 }
 
-void Ip4PortAddress::setAddress(const Util::String &string) {
-    auto split = string.split(":");
-    if (split.length() != 2) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ip4SocketAddress: Invalid address string given!");
-    }
-
-    uint16_t port = Util::String::parseInt(split[1]);
-
-    split = split[0].split(".");
-    if (split.length() != 4) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ip4Address: Invalid address string given!");
-    }
-
-    for (uint8_t i = 0; i < Ip4Address::ADDRESS_LENGTH; i++) {
-        buffer[i] = Util::String::parseInt(split[i]);
-    }
-
-    Util::Address<uint32_t>(buffer).setShort(port, Ip4Address::ADDRESS_LENGTH);
-}
-
 Util::String Ip4PortAddress::toString() const {
-    return Util::String::format("%u.%u.%u.%u:%d", buffer[0], buffer[1], buffer[2], buffer[3], getPort());
+    return Util::String::format("%u.%u.%u.%u:%u", buffer[0], buffer[1], buffer[2], buffer[3], getPort());
 }
 
 }

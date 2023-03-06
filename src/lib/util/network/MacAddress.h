@@ -70,8 +70,6 @@ public:
 
     [[nodiscard]] NetworkAddress* createCopy() const override;
 
-    void setAddress(const Util::String &string) override;
-
     [[nodiscard]] Util::String toString() const override;
 };
 

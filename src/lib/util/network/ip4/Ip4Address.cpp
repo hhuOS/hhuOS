@@ -20,7 +20,6 @@
 
 #include "lib/util/network/ip4/Ip4Address.h"
 
-#include "lib/util/base/Exception.h"
 #include "lib/util/collection/Array.h"
 
 namespace Util::Network::Ip4 {
@@ -44,17 +43,6 @@ Ip4Address::Ip4Address(const Util::String &string) : NetworkAddress(ADDRESS_LENG
 
 NetworkAddress* Ip4Address::createCopy() const {
     return new Ip4Address(*this);
-}
-
-void Ip4Address::setAddress(const Util::String &string) {
-    auto split = string.split(".");
-    if (split.length() != 4) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ip4Address: Invalid address string given!");
-    }
-
-    for (uint8_t i = 0; i < ADDRESS_LENGTH; i++) {
-        buffer[i] = Util::String::parseInt(split[i]);
-    }
 }
 
 Util::String Ip4Address::toString() const {

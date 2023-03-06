@@ -20,7 +20,6 @@
 
 #include "MacAddress.h"
 
-#include "lib/util/base/Exception.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "lib/util/collection/Array.h"
 
@@ -60,17 +59,6 @@ NetworkAddress *MacAddress::createCopy() const {
 
 Util::String MacAddress::toString() const {
     return Util::String::format("%02x:%02x:%02x:%02x:%02x:%02x", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
-}
-
-void MacAddress::setAddress(const Util::String &string) {
-    auto split = string.split(":");
-    if (split.length() != 6) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "MacAddress: Invalid address string given!");
-    }
-
-    for (uint8_t i = 0; i < ADDRESS_LENGTH; i++) {
-        buffer[i] = Util::String::parseInt(split[i]);
-    }
 }
 
 }

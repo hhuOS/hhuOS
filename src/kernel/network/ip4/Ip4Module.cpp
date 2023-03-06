@@ -39,17 +39,17 @@
 #include "kernel/network/ethernet/EthernetModule.h"
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "kernel/network/ip4/Ip4Interface.h"
-#include "kernel/network/ip4/Ip4Route.h"
 #include "kernel/network/ip4/Ip4RoutingModule.h"
 #include "kernel/network/ip4/Ip4Socket.h"
-#include "lib/util/network/ip4/Ip4NetworkMask.h"
+#include "lib/util/network/ip4/Ip4Route.h"
+#include "lib/util/network/ip4/Ip4SubnetAddress.h"
 
 namespace Kernel::Network::Ip4 {
 
 Kernel::Logger Ip4Module::log = Kernel::Logger::get("IPv4");
 
 void Ip4Module::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
-    auto &tmpStream = reinterpret_cast<Util::Io::ByteArrayInputStream &>(stream);
+    auto &tmpStream = reinterpret_cast<Util::Io::ByteArrayInputStream&>(stream);
     auto *buffer = tmpStream.getBuffer() + tmpStream.getPosition();
     uint8_t headerLength = (buffer[0] & 0x0f) * sizeof(uint32_t);
     auto calculatedChecksum = calculateChecksum(buffer, Util::Network::Ip4::Ip4Header::CHECKSUM_OFFSET, headerLength);
@@ -72,8 +72,7 @@ void Ip4Module::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformat
         log.warn("Discarding packet, because its time to live has expired");
     }
 
-    auto &interface = getInterface(device.getIdentifier());
-    if (!interface.isTargetOf(header.getDestinationAddress())) {
+    if (getTargetInterfaces(header.getDestinationAddress()).length() == 0) {
         log.warn("Discarding packet, because of wrong destination address!");
         return;
     }
@@ -85,7 +84,7 @@ void Ip4Module::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformat
     for (auto *socket : socketList) {
         if (socket->getAddress() == Util::Network::Ip4::Ip4Address::ANY || socket->getAddress() == header.getDestinationAddress()) {
             auto *datagram = new Util::Network::Ip4::Ip4Datagram(datagramBuffer, payloadLength, header.getSourceAddress(), header.getProtocol());
-            reinterpret_cast<Ip4Socket *>(socket)->handleIncomingDatagram(datagram);
+            reinterpret_cast<Ip4Socket*>(socket)->handleIncomingDatagram(datagram);
         }
     }
     socketLock.release();
@@ -93,21 +92,22 @@ void Ip4Module::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformat
     invokeNextLayerModule(header.getProtocol(), {header.getSourceAddress(), header.getDestinationAddress(), header.getPayloadLength()}, stream, device);
 }
 
-const Ip4Interface& Ip4Module::writeHeader(Util::Io::ByteArrayOutputStream &stream, const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &destinationAddress, Util::Network::Ip4::Ip4Header::Protocol protocol, uint16_t payloadLength) {
+Ip4Interface Ip4Module::writeHeader(Util::Io::ByteArrayOutputStream &stream, const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &destinationAddress, Util::Network::Ip4::Ip4Header::Protocol protocol, uint16_t payloadLength) {
     auto &networkService = Kernel::System::getService<Kernel::NetworkService>();
     auto &arpModule = networkService.getNetworkStack().getArpModule();
     auto &ip4Module = networkService.getNetworkStack().getIp4Module();
     auto route = ip4Module.routingModule.findRoute(sourceAddress, destinationAddress);
+    auto interface = ip4Module.getTargetInterfaces(route.getSourceAddress())[0];
 
     auto destinationMacAddress = Util::Network::MacAddress();
-    if (!arpModule.resolveAddress(route.hasNextHop() ? route.getNextHop() : destinationAddress, destinationMacAddress, route.getInterface().getDevice())) {
+    if (!arpModule.resolveAddress(route.hasNextHop() ? route.getNextHop() : destinationAddress, destinationMacAddress, interface)) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Discarding packet, because the destination IPv4 address could not be resolved");
     }
 
-    Ethernet::EthernetModule::writeHeader(stream, route.getInterface().getDevice(), destinationMacAddress, Util::Network::Ethernet::EthernetHeader::IP4);
+    Ethernet::EthernetModule::writeHeader(stream, interface.getDevice(), destinationMacAddress, Util::Network::Ethernet::EthernetHeader::IP4);
 
     auto header = Util::Network::Ip4::Ip4Header();
-    header.setSourceAddress(route.getInterface().getAddress());
+    header.setSourceAddress(route.getSourceAddress());
     header.setDestinationAddress(destinationAddress);
     header.setProtocol(protocol);
     header.setPayloadLength(payloadLength);
@@ -120,77 +120,58 @@ const Ip4Interface& Ip4Module::writeHeader(Util::Io::ByteArrayOutputStream &stre
     buffer[Util::Network::Ip4::Ip4Header::CHECKSUM_OFFSET] = checksum >> 8;
     buffer[Util::Network::Ip4::Ip4Header::CHECKSUM_OFFSET + 1] = checksum;
 
-    return route.getInterface();
+    return interface;
 }
 
-bool Ip4Module::hasInterface(const Util::String &deviceIdentifier) {
+Util::Array<Ip4Interface> Ip4Module::getInterfaces(const Util::String &deviceIdentifier) {
+    auto ret = Util::ArrayList<Ip4Interface>();
+
     lock.acquire();
-    for (auto *interface : interfaces) {
-        if (interface->getDeviceIdentifier() == deviceIdentifier) {
-            lock.release();
-            return true;
+    for (auto interface : interfaces) {
+        if (interface.getDeviceIdentifier() == deviceIdentifier) {
+            ret.add(interface);
         }
     }
-
     lock.release();
-    return false;
+
+    return ret.toArray();
 }
 
-Ip4Interface& Ip4Module::getInterface(const Util::String &deviceIdentifier) {
+Util::Array<Ip4Interface> Ip4Module::getTargetInterfaces(const Util::Network::Ip4::Ip4Address &address) {
+    auto ret = Util::ArrayList<Ip4Interface>();
+
     lock.acquire();
-    for (auto *interface : interfaces) {
-        if (interface->getDeviceIdentifier() == deviceIdentifier) {
-            lock.release();
-            return *interface;
+    for (const auto &interface : interfaces) {
+        if (interface.isTargetOf(address)) {
+            ret.add(interface);
         }
     }
-
     lock.release();
-    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ip4Module: Device not found!");
+
+    return ret.toArray();
 }
 
-void Ip4Module::registerInterface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device) {
+void Ip4Module::registerInterface(const Util::Network::Ip4::Ip4SubnetAddress &address, Device::Network::NetworkDevice &device) {
     lock.acquire();
-    auto *interface = new Ip4Interface(address, networkMask, device);
-    removeInterface(device.getIdentifier());
-    interfaces.add(interface);
-    routingModule.addRoute(Ip4Route(address, networkMask, device.getIdentifier()));
+    auto interface = Ip4Interface(address, device);
+    if (!interfaces.contains(interface) && interface.getIp4Address() != Util::Network::Ip4::Ip4Address::ANY) {
+        interfaces.add(interface);
+    }
     lock.release();
 
     auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
-    arpModule.setEntry(address, device.getMacAddress());
+    arpModule.setEntry(address.getIp4Address(), device.getMacAddress());
 }
 
-bool Ip4Module::removeInterface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4NetworkMask &mask, const Util::String &deviceIdentifier) {
+bool Ip4Module::removeInterface(const Util::Network::Ip4::Ip4SubnetAddress &address, const Util::String &deviceIdentifier) {
     lock.acquire();
-    for (auto *interface : interfaces) {
-        if (interface->getAddress() == address && interface->getNetworkMask() == mask && interface->getDeviceIdentifier() == deviceIdentifier) {
+    for (const auto &interface : interfaces) {
+        if (interface.getSubnetAddress() == address && interface.getDeviceIdentifier() == deviceIdentifier) {
             auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
-            arpModule.removeEntry(interface->getAddress());
+            arpModule.removeEntry(interface.getIp4Address());
 
-            routingModule.removeRoute(address, mask, deviceIdentifier);
+            routingModule.removeRoute(address, deviceIdentifier);
             interfaces.remove(interface);
-            delete interface;
-
-            lock.release();
-            return true;
-        }
-    }
-
-    lock.release();
-    return false;
-}
-
-bool Ip4Module::removeInterface(const Util::String &deviceIdentifier) {
-    lock.acquire();
-    for (auto *interface : interfaces) {
-        if (interface->getDeviceIdentifier() == deviceIdentifier) {
-            auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
-            arpModule.removeEntry(interface->getAddress());
-
-            routingModule.removeRoute(interface->getAddress(), interface->getNetworkMask(), deviceIdentifier);
-            interfaces.remove(interface);
-            delete interface;
 
             lock.release();
             return true;

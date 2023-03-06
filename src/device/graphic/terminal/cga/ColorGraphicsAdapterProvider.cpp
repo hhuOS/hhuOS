@@ -91,7 +91,7 @@ Util::String ColorGraphicsAdapterProvider::getVideoCardTypeAsString(VideoCardTyp
         case MCGA_COLOR:
             return "Multi-Color Graphics Array";
         default:
-            return UNKNOWN;
+            return "Unknown";
     }
 }
 

@@ -32,7 +32,6 @@
 #include "kernel/system/System.h"
 #include "kernel/network/ethernet/EthernetSocket.h"
 #include "kernel/network/ip4/Ip4Socket.h"
-#include "kernel/network/ip4/Ip4Route.h"
 #include "kernel/network/icmp/IcmpSocket.h"
 #include "kernel/network/udp/UdpSocket.h"
 #include "lib/util/base/System.h"
@@ -44,8 +43,10 @@
 #include "kernel/log/Logger.h"
 #include "device/network/NetworkFilesystemDriver.h"
 #include "device/network/loopback/Loopback.h"
-#include "lib/util/network/ip4/Ip4Address.h"
-#include "lib/util/network/ip4/Ip4NetworkMask.h"
+#include "kernel/network/arp/ArpModule.h"
+#include "kernel/network/ip4/Ip4RoutingModule.h"
+#include "lib/util/network/ip4/Ip4Route.h"
+#include "lib/util/network/ip4/Ip4SubnetAddress.h"
 
 namespace Filesystem {
 class Node;
@@ -121,11 +122,10 @@ void NetworkService::initializeLoopback() {
 
     Device::Network::NetworkFilesystemDriver::mount(*loopback);
 
-    auto address = Util::Network::Ip4::Ip4Address("127.0.0.1");
-    auto mask = Util::Network::Ip4::Ip4NetworkMask(8);
-    networkStack.getIp4Module().registerInterface(address, mask, *loopback);
-    networkStack.getIp4Module().getRoutingModule().setDefaultRoute(Kernel::Network::Ip4::Ip4Route(address, mask, loopback->getIdentifier()));
-    networkStack.getArpModule().setEntry(address, loopback->getMacAddress());
+    auto address = Util::Network::Ip4::Ip4SubnetAddress("127.0.0.1/8");
+    networkStack.getIp4Module().registerInterface(address, *loopback);
+    networkStack.getIp4Module().getRoutingModule().addRoute(Util::Network::Ip4::Ip4Route(address, loopback->getIdentifier()));
+    networkStack.getArpModule().setEntry(address.getIp4Address(), loopback->getMacAddress());
 }
 
 Util::String NetworkService::registerNetworkDevice(Device::Network::NetworkDevice *device, const Util::String &deviceClass) {

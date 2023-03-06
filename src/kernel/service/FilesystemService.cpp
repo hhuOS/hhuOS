@@ -150,7 +150,7 @@ FilesystemService::FilesystemService() {
 
         for (uint32_t i = 0; i < children.length(); i++) {
             targetChildren[i] = static_cast<char*>(memoryService.allocateUserMemory((children[i].length() + 1) * sizeof(char)));
-            auto source = Util::Address<uint32_t>(static_cast<char *>(children[i]));
+            auto source = Util::Address<uint32_t>(static_cast<const char*>(children[i]));
             auto target = Util::Address<uint32_t>(targetChildren[i]);
             target.copyString(source);
         }

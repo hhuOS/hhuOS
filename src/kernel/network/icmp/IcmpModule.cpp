@@ -62,9 +62,10 @@ void IcmpModule::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInforma
 
     switch (header.getType()) {
         case Util::Network::Icmp::IcmpHeader::ECHO_REQUEST: {
+            auto payloadLength = information.payloadLength - Util::Network::Icmp::IcmpHeader::HEADER_LENGTH - Util::Network::Icmp::EchoHeader::HEADER_LENGTH;
             auto requestHeader = Util::Network::Icmp::EchoHeader();
             requestHeader.read(stream);
-            sendEchoReply(destinationAddress, sourceAddress, requestHeader, stream.getBuffer() + stream.getPosition(), stream.getRemaining(), device);
+            sendEchoReply(destinationAddress, sourceAddress, requestHeader, stream.getBuffer() + stream.getPosition(), payloadLength);
             break;
         }
         default: {
@@ -89,7 +90,7 @@ void IcmpModule::writePacket(Util::Network::Icmp::IcmpHeader::Type type, uint8_t
     auto datagramLength = length + Util::Network::Icmp::IcmpHeader::HEADER_LENGTH;
 
     // Write IPv4 and Ethernet headers
-    auto &sourceInterface = Ip4::Ip4Module::writeHeader(packet, sourceAddress, destinationAddress, Util::Network::Ip4::Ip4Header::ICMP, datagramLength);
+    auto sourceInterface = Ip4::Ip4Module::writeHeader(packet, sourceAddress, destinationAddress, Util::Network::Ip4::Ip4Header::ICMP, datagramLength);
 
     // Write ICMP header
     auto header = Util::Network::Icmp::IcmpHeader();
@@ -114,9 +115,8 @@ void IcmpModule::writePacket(Util::Network::Icmp::IcmpHeader::Type type, uint8_t
     sourceInterface.getDevice().sendPacket(packet.getBuffer(), packet.getLength());
 }
 
-void
-IcmpModule::sendEchoReply(const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &destinationAddress,
-                          const Util::Network::Icmp::EchoHeader &requestHeader, const uint8_t *buffer, uint16_t length, Device::Network::NetworkDevice &device) {
+void IcmpModule::sendEchoReply(const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &destinationAddress,
+                               const Util::Network::Icmp::EchoHeader &requestHeader, const uint8_t *buffer, uint16_t length) {
     auto packet = Util::Io::ByteArrayOutputStream();
     auto replyHeader = Util::Network::Icmp::EchoHeader();
     replyHeader.setIdentifier(requestHeader.getIdentifier());

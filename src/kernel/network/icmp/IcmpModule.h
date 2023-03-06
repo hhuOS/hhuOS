@@ -80,10 +80,8 @@ public:
     static void writePacket(Util::Network::Icmp::IcmpHeader::Type type, uint8_t code, const Util::Network::Ip4::Ip4Address &sourceAddress,
                             const Util::Network::Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length);
 
-    static void
-    sendEchoReply(const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &destinationAddress,
-                  const Util::Network::Icmp::EchoHeader &requestHeader, const uint8_t *buffer, uint16_t length,
-                  Device::Network::NetworkDevice &device);
+    static void sendEchoReply(const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &destinationAddress,
+                  const Util::Network::Icmp::EchoHeader &requestHeader, const uint8_t *buffer, uint16_t length);
 
 private:
 
