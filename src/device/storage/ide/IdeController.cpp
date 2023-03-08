@@ -55,6 +55,7 @@ IdeController::IdeController(const PciDevice &pciDevice) {
         log.info("Controller supports DMA");
         supportsDma = true;
         dmaBaseAddress = pciDevice.readDoubleWord(Pci::Register::BASE_ADDRESS_4) & 0xfffffffc;
+        log.info("DMA address: %08x", dmaBaseAddress);
 
         uint16_t command = pciDevice.readWord(Pci::COMMAND);
         command |= Pci::BUS_MASTER | Pci::IO_SPACE;
@@ -122,12 +123,20 @@ IdeController::ChannelRegisters::ChannelRegisters()
         : command(0), control(0), dma(0) {}
 
 void IdeController::initializeDrives() {
+    auto devices = Util::ArrayList<IdeDevice*>();
     for (uint32_t i = 0; i < CHANNELS_PER_CONTROLLER; i++) {
         for (uint32_t j = 0; j < DEVICES_PER_CHANNEL; j++) {
             if (resetDrive(i, j)) {
-                identifyDrive(i, j);
+                auto *device = identifyDrive(i, j);
+                if (device != nullptr) {
+                    devices.add(device);
+                }
             }
         }
+    }
+
+    for (auto *device : devices) {
+        Kernel::System::getService<Kernel::StorageService>().registerDevice(device, "ide");
     }
 }
 
@@ -195,7 +204,7 @@ bool IdeController::resetDrive(uint8_t channel, uint8_t drive) {
     }
 }
 
-bool IdeController::identifyDrive(uint8_t channel, uint8_t drive) {
+IdeDevice* IdeController::identifyDrive(uint8_t channel, uint8_t drive) {
     auto &registers = channels[channel];
     registers.control.deviceControl.writeByte(0x02);
     registers.interruptsDisabled = true;
@@ -203,11 +212,11 @@ bool IdeController::identifyDrive(uint8_t channel, uint8_t drive) {
     const auto type = registers.driveType[drive];
     if (type != ATA && type != ATAPI) {
         // Drive does not exist or has a type we cannot handle
-        return false;
+        return nullptr;
     }
 
     if (!selectDrive(channel, drive)) {
-        return false;
+        return nullptr;
     }
 
     DeviceInfo info{};
@@ -217,7 +226,7 @@ bool IdeController::identifyDrive(uint8_t channel, uint8_t drive) {
         if (!readAtaIdentity(channel, buffer)) {
             log.error("Error while identifying ATA drive [%u] on channel[%u]", drive, channel);
             delete[] buffer;
-            return false;
+            return nullptr;
         }
 
         info.type = ATA;
@@ -226,7 +235,7 @@ bool IdeController::identifyDrive(uint8_t channel, uint8_t drive) {
         if (!readAtapiIdentity(channel, buffer)) {
             log.error("Error while identifying ATAPI drive [%u] on channel[%u]", drive, channel);
             delete[] buffer;
-            return false;
+            return nullptr;
         }
 
         info.type = ATAPI;
@@ -263,9 +272,9 @@ bool IdeController::identifyDrive(uint8_t channel, uint8_t drive) {
 
     info.sectorSize = determineSectorSize(info);
 
-    copyByteSwappedString(reinterpret_cast<const char *>(buffer + MODEL), info.model, sizeof(info.model));
-    copyByteSwappedString(reinterpret_cast<const char *>(buffer + SERIAL), info.serial, sizeof(info.serial));
-    copyByteSwappedString(reinterpret_cast<const char *>(buffer + FIRMWARE), info.firmware, sizeof(info.firmware));
+    copyByteSwappedString(reinterpret_cast<const char*>(buffer + MODEL), info.model, sizeof(info.model));
+    copyByteSwappedString(reinterpret_cast<const char*>(buffer + SERIAL), info.serial, sizeof(info.serial));
+    copyByteSwappedString(reinterpret_cast<const char*>(buffer + FIRMWARE), info.firmware, sizeof(info.firmware));
 
     auto model = Util::String(reinterpret_cast<const uint8_t*>(info.model), sizeof(info.model)).strip();
     auto serial = Util::String(reinterpret_cast<const uint8_t*>(info.serial), sizeof(info.serial)).strip();
@@ -273,13 +282,13 @@ bool IdeController::identifyDrive(uint8_t channel, uint8_t drive) {
     log.info("Found %s drive on channel [%u]: %s %s (Firmware: [%s])", info.type == ATA ? "ATA" : "ATAPI", info.channel,
              static_cast<const char*>(model), static_cast<const char*>(serial), static_cast<const char*>(firmware));
 
+    IdeDevice *device = nullptr;
     if (info.type == ATA) {
-        auto *device = new IdeDevice(*this, info);
-        Kernel::System::getService<Kernel::StorageService>().registerDevice(device, "ide");
+        device = new IdeDevice(*this, info);
     }
 
     delete[] buffer;
-    return true;
+    return device;
 }
 
 bool IdeController::readAtaIdentity(uint8_t channel, uint16_t *buffer) {
@@ -446,7 +455,9 @@ uint16_t IdeController::performIO(const IdeController::DeviceInfo &info, IdeCont
 
         uint16_t sectors;
         if (supportsDma && info.supportsDma()) {
-            sectors = performDmaIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
+            // TODO: Reactivate DMA once issues on real hardware have been fixed
+            // sectors = performDmaIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
+            sectors = performProgrammedIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
         } else {
             sectors = performProgrammedIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
         }
@@ -583,23 +594,32 @@ uint16_t IdeController::performDmaIO(const IdeController::DeviceInfo &info, IdeC
     prdVirtual[2 * i] = dmaMemoryPhysical + (Util::PAGESIZE * i);
     prdVirtual[(2 * i) + 1] = (size % Util::PAGESIZE) | PRD_END_OF_TRANSMISSION;
 
-    // Prepare DMA transfer
-    prepareIO(info, startSector, sectorCount);
+    // Prepare DMA transfer to physical address
     registers.dma.address.writeDoubleWord(prdPhysical);
+
+    // Set DMA direction
+    registers.dma.command.writeByte(mode == READ ? 0x00 : DmaCommand::DIRECTION);
+
+    // Clear interrupt and error bits
     registers.dma.status.writeByte(~(DmaStatus::DMA_ERROR | DmaStatus::INTERRUPT));
+
+    // Select drive and sector
+    prepareIO(info, startSector, sectorCount);
 
     // Send command
     registers.command.command.writeByte(command);
     if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST)) {
         log.error("Failed to %s sectors on drive [%u] on channel [%u] via DMA", mode == READ ? "read" : "write", info.drive, info.channel);
+
+        delete prdVirtual;
+        delete dmaMemoryVirtual;
+        return 0;
     }
 
+    // Start DMA transfer
+    registers.dma.command.writeByte(DmaCommand::ENABLE);
+
     registers.receivedInterrupt = false;
-
-    // Set DMA direction and enable bus master
-    auto dmaCommand = (mode == READ ? 0x00 : DmaCommand::DIRECTION) | DmaCommand::ENABLE;
-    registers.dma.command.writeByte(dmaCommand);
-
     uint32_t timeout = Util::Time::getSystemTime().toMilliseconds() + DMA_TIMEOUT;
     do {
         if (registers.receivedInterrupt) {
@@ -612,7 +632,7 @@ uint16_t IdeController::performDmaIO(const IdeController::DeviceInfo &info, IdeC
                 if ((dmaStatus & DmaStatus::BUS_MASTER_ACTIVE) == DmaStatus::BUS_MASTER_ACTIVE) {
                     // Continue DMA transfer
                     registers.receivedInterrupt = false;
-                    registers.dma.command.writeByte(dmaCommand);
+                    registers.dma.command.writeByte(DmaCommand::ENABLE);
                 } else {
                     // DMA transfer is finished
                     break;
@@ -623,6 +643,7 @@ uint16_t IdeController::performDmaIO(const IdeController::DeviceInfo &info, IdeC
 
     if (Util::Time::getSystemTime().toMilliseconds() >= timeout) {
         log.error("Timeout while %s sectors on drive [%u] on channel [%u] via DMA", mode == READ ? "reading" : "writing", info.drive, info.channel);
+
         delete prdVirtual;
         delete dmaMemoryVirtual;
         return 0;

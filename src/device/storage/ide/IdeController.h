@@ -29,6 +29,9 @@
 
 namespace Device {
 class PciDevice;
+namespace Storage {
+class IdeDevice;
+}  // namespace Storage
 }  // namespace Device
 namespace Kernel {
 class Logger;
@@ -267,7 +270,7 @@ private:
 
     bool resetDrive(uint8_t channel, uint8_t drive);
 
-    bool identifyDrive(uint8_t channel, uint8_t drive);
+    IdeDevice* identifyDrive(uint8_t channel, uint8_t drive);
 
     bool readAtaIdentity(uint8_t channel, uint16_t *buffer);
 
