@@ -85,7 +85,7 @@ public:
 
     Util::Array<Ip4Interface> getTargetInterfaces(const Util::Network::Ip4::Ip4Address &address);
 
-    void registerInterface(const Util::Network::Ip4::Ip4SubnetAddress &address, Device::Network::NetworkDevice &device);
+    bool registerInterface(const Util::Network::Ip4::Ip4SubnetAddress &address, Device::Network::NetworkDevice &device);
 
     bool removeInterface(const Util::Network::Ip4::Ip4SubnetAddress &address, const Util::String &deviceIdentifier);
 

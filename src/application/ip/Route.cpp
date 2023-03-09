@@ -122,14 +122,9 @@ int32_t Route::printRoutes(const Util::Network::Ip4::Ip4Address &address) {
         return -1;
     }
 
-    auto routes = Util::Array<Util::Network::Ip4::Ip4Route>(16);
-    if (!ipSocket.getRoutes(routes)) {
-        Util::System::error << "ip: Unable to get routes via address '" << address.toString() << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-        return -1;
-    }
+    auto routes = ipSocket.getRoutes();
 
-    for (uint32_t i = 0; i < routes.length() && routes[i].isValid(); i++) {
-        const auto &route = routes[i];
+    for (const auto &route : routes) {
         Util::System::out << (route.getAddress().getBitCount() == 0 ? "default" : route.getTargetAddress().toString());
         if (route.hasNextHop()) Util::System::out << " via " << route.getNextHop().toString();
         Util::System::out << " device " << route.getDeviceIdentifier()

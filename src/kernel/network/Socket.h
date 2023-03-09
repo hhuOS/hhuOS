@@ -69,11 +69,15 @@ public:
 
     [[nodiscard]] const Util::Network::NetworkAddress& getAddress() const;
 
+    [[nodiscard]] bool isBound() const;
+
     bool control(uint32_t request, const Util::Array<uint32_t> &parameters) override;
 
     virtual bool send(const Util::Network::Datagram &datagram) = 0;
 
     virtual Util::Network::Datagram* receive() = 0;
+
+protected:
 
     Util::Network::NetworkAddress *bindAddress{};
 

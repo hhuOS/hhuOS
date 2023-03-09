@@ -134,17 +134,13 @@ void Address::printDeviceInfo(const Util::String &deviceName) {
         return;
     }
 
-    auto ipAddresses = Util::Array<Util::Network::Ip4::Ip4SubnetAddress>(16);
-    if (!ethernetSocket.getIp4Addresses(ipAddresses)) {
-        Util::System::error << "ip: Failed to get IPv4 addresses of device '" << deviceName << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-        return;
-    }
+    auto ipAddresses = ethernetSocket.getIp4Addresses();
 
     Util::System::out << deviceName << ":" << Util::Io::PrintStream::endl
                       << "    MAC: " << macAddress.toString() << Util::Io::PrintStream::endl;
 
-    for (uint32_t i = 0; i < ipAddresses.length() && ipAddresses[i].getIp4Address() != Util::Network::Ip4::Ip4Address::ANY; i++) {
-        Util::System::out << "    IPv4: " << ipAddresses[i].toString() << Util::Io::PrintStream::endl;
+    for (const auto &address : ipAddresses) {
+        Util::System::out << "    IPv4: " << address.toString() << Util::Io::PrintStream::endl;
     }
 
     Util::System::out << Util::Io::PrintStream::flush;

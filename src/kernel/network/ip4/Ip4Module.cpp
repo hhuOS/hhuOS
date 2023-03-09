@@ -151,16 +151,23 @@ Util::Array<Ip4Interface> Ip4Module::getTargetInterfaces(const Util::Network::Ip
     return ret.toArray();
 }
 
-void Ip4Module::registerInterface(const Util::Network::Ip4::Ip4SubnetAddress &address, Device::Network::NetworkDevice &device) {
+bool Ip4Module::registerInterface(const Util::Network::Ip4::Ip4SubnetAddress &address, Device::Network::NetworkDevice &device) {
     lock.acquire();
     auto interface = Ip4Interface(address, device);
-    if (!interfaces.contains(interface) && interface.getIp4Address() != Util::Network::Ip4::Ip4Address::ANY) {
-        interfaces.add(interface);
+    if (interfaces.contains(interface) || interface.getIp4Address() == Util::Network::Ip4::Ip4Address::ANY) {
+        lock.release();
+        return false;
     }
+
+    auto ret = interfaces.add(interface);
     lock.release();
 
-    auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
-    arpModule.setEntry(address.getIp4Address(), device.getMacAddress());
+    if (ret) {
+        auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
+        arpModule.setEntry(address.getIp4Address(), device.getMacAddress());
+    }
+
+    return ret;
 }
 
 bool Ip4Module::removeInterface(const Util::Network::Ip4::Ip4SubnetAddress &address, const Util::String &deviceIdentifier) {
