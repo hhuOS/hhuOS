@@ -27,6 +27,7 @@
 #include "lib/util/network/NetworkAddress.h"
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/network/ip4/Ip4SubnetAddress.h"
+#include "lib/util/collection/ArrayList.h"
 
 namespace Util {
 namespace Network {
@@ -36,19 +37,19 @@ class Datagram;
 
 namespace Util::Network {
 
-Socket::Socket(int32_t fileDescriptor) : fileDescriptor(fileDescriptor) {}
+Socket::Socket(int32_t fileDescriptor, Type type) : fileDescriptor(fileDescriptor), type(type) {}
 
 Socket::~Socket() {
     ::closeFile(fileDescriptor);
 }
 
-Socket Socket::createSocket(Socket::Type socketType) {
-    auto fileDescriptor = ::createSocket(socketType);
+Socket Socket::createSocket(Socket::Type type) {
+    auto fileDescriptor = ::createSocket(type);
     if (fileDescriptor == -1) {
         Util::Exception::throwException(Exception::ILLEGAL_STATE, "Failed to open socket!");
     }
 
-    return Socket(fileDescriptor);
+    return Socket(fileDescriptor, type);
 }
 
 bool Socket::bind(const NetworkAddress &address) const {
@@ -67,8 +68,27 @@ bool Socket::receive(Util::Network::Datagram &datagram) const {
     return ::receiveDatagram(fileDescriptor, datagram);
 }
 
-bool Socket::getIp4Addresses(Array<Ip4::Ip4SubnetAddress> &addresses) const {
-    return ::controlFile(fileDescriptor, GET_IP4_ADDRESSES, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&addresses)}));
+Array<Ip4::Ip4SubnetAddress> Socket::getIp4Addresses() const {
+    uint32_t size = 1;
+    auto addresses = Array<Ip4::Ip4SubnetAddress>(size);
+    if (!::controlFile(fileDescriptor, GET_IP4_ADDRESSES, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&addresses)}))) {
+        return Array<Ip4::Ip4SubnetAddress>(0);
+    }
+
+    while (addresses[size - 1].getIp4Address() != Ip4::Ip4Address::ANY) {
+        size *= 2;
+        addresses = Array<Ip4::Ip4SubnetAddress>(size);
+        if (!::controlFile(fileDescriptor, GET_IP4_ADDRESSES, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&addresses)}))) {
+            return Array<Ip4::Ip4SubnetAddress>(0);
+        }
+    }
+
+    auto ret = ArrayList<Ip4::Ip4SubnetAddress>();
+    for (uint32_t i = 0; i < addresses.length() && addresses[i].getIp4Address() != Ip4::Ip4Address::ANY; i++) {
+        ret.add(addresses[i]);
+    }
+
+    return ret.toArray();
 }
 
 bool Socket::removeIp4Address(const Ip4::Ip4SubnetAddress &address) const {
@@ -79,29 +99,49 @@ bool Socket::addIp4Address(const Ip4::Ip4SubnetAddress &address) const {
     return ::controlFile(fileDescriptor, ADD_IP4_ADDRESS, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&address)}));
 }
 
-bool Socket::getRoutes(Array<Ip4::Ip4Route> &routes) const {
-    Array<Ip4::Ip4SubnetAddress> sourceAddresses(routes.length());
-    Array<Ip4::Ip4Address> nextHops(routes.length());
-    Array<char*> devices(routes.length());
-
+Array<Ip4::Ip4Route> Socket::getRoutes() const {
+    uint32_t size = 1;
+    auto sourceAddresses = Array<Ip4::Ip4SubnetAddress>(size);
+    auto nextHops = Array<Ip4::Ip4Address>(size);
+    auto devices = Array<char*>(size);
     for (auto &string : devices) {
         string = nullptr;
     }
 
-    bool ret = ::controlFile(fileDescriptor, GET_ROUTES, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&sourceAddresses), reinterpret_cast<uint32_t>(&nextHops), reinterpret_cast<uint32_t>(&devices)}));
-    if (ret) {
-        for (uint32_t i = 0; i < routes.length() && devices[i] != nullptr; i++) {
-            if (nextHops[i] == Ip4::Ip4Address::ANY) {
-                routes[i] = Ip4::Ip4Route(sourceAddresses[i], devices[i]);
-            } else {
-                routes[i] = Ip4::Ip4Route(sourceAddresses[i], nextHops[i], devices[i]);
-            }
+    if (!::controlFile(fileDescriptor, GET_ROUTES, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&sourceAddresses), reinterpret_cast<uint32_t>(&nextHops), reinterpret_cast<uint32_t>(&devices)}))) {
+        return Array<Ip4::Ip4Route>(0);
+    }
 
-            delete devices[i];
+    while (!String(devices[size - 1]).isEmpty()) {
+        for (auto *string : devices) {
+            delete string;
+        }
+
+        size *= 2;
+        sourceAddresses = Array<Ip4::Ip4SubnetAddress>(size);
+        nextHops = Array<Ip4::Ip4Address>(size);
+        devices = Array<char*>(size);
+        for (auto &string : devices) {
+            string = nullptr;
+        }
+
+        if (!::controlFile(fileDescriptor, GET_ROUTES, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&sourceAddresses), reinterpret_cast<uint32_t>(&nextHops), reinterpret_cast<uint32_t>(&devices)}))) {
+            return Array<Ip4::Ip4Route>(0);
         }
     }
 
-    return ret;
+    auto ret = Util::ArrayList<Ip4::Ip4Route>(sourceAddresses.length());
+    for (uint32_t i = 0; i < sourceAddresses.length() && !String(devices[i]).isEmpty(); i++) {
+        if (nextHops[i] == Ip4::Ip4Address::ANY) {
+            ret.add(Ip4::Ip4Route(sourceAddresses[i], devices[i]));
+        } else {
+            ret.add(Ip4::Ip4Route(sourceAddresses[i], nextHops[i], devices[i]));
+        }
+
+        delete devices[i];
+    }
+
+    return ret.toArray();
 }
 
 bool Socket::removeRoute(const Ip4::Ip4Route &route) const {

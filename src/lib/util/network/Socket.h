@@ -66,7 +66,7 @@ public:
      */
     ~Socket();
 
-    static Socket createSocket(Type socketType);
+    static Socket createSocket(Type type);
 
     [[nodiscard]] bool bind(const NetworkAddress &address) const;
 
@@ -76,13 +76,13 @@ public:
 
     [[nodiscard]] bool receive(Util::Network::Datagram &datagram) const;
 
-    [[nodiscard]] bool getIp4Addresses(Array<Ip4::Ip4SubnetAddress> &addresses) const;
+    [[nodiscard]] Array<Ip4::Ip4SubnetAddress> getIp4Addresses() const;
 
     [[nodiscard]] bool removeIp4Address(const Ip4::Ip4SubnetAddress &address) const;
 
     [[nodiscard]] bool addIp4Address(const Ip4::Ip4SubnetAddress &address) const;
 
-    [[nodiscard]] bool getRoutes(Array<Ip4::Ip4Route> &routes) const;
+    [[nodiscard]] Array<Ip4::Ip4Route> getRoutes() const;
 
     [[nodiscard]] bool removeRoute(const Ip4::Ip4Route &route) const;
 
@@ -92,9 +92,10 @@ private:
     /**
      * Default Constructor.
      */
-    explicit Socket(int32_t fileDescriptor);
+    Socket(int32_t fileDescriptor, Type type);
 
     int32_t fileDescriptor;
+    Type type;
 };
 
 }

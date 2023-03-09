@@ -81,6 +81,10 @@ NetworkService::NetworkService() {
         auto &datagram = *va_arg(arguments, Util::Network::Datagram*);
 
         auto &socket = reinterpret_cast<Network::Socket&>(filesystemService.getNode(fileDescriptor));
+        if (!socket.isBound()) {
+            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
+        }
+
         return socket.send(datagram);
     });
 
@@ -93,7 +97,11 @@ NetworkService::NetworkService() {
         auto &memoryService = System::getService<MemoryService>();
         auto fileDescriptor = va_arg(arguments, int32_t);
         auto &datagram = *va_arg(arguments, Util::Network::Datagram*);
+
         auto &socket = reinterpret_cast<Network::Socket &>(filesystemService.getNode(fileDescriptor));
+        if (!socket.isBound()) {
+            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
+        }
 
         auto *kernelDatagram = socket.receive();
         auto *datagramBuffer = reinterpret_cast<uint8_t*>(memoryService.allocateUserMemory(kernelDatagram->getLength()));
