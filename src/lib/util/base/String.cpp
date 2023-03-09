@@ -89,7 +89,7 @@ uint32_t String::hashCode() const {
 }
 
 String String::substring(uint32_t begin) const {
-    return substring(0, length());
+    return substring(begin, length());
 }
 
 String String::substring(uint32_t begin, uint32_t end) const {
