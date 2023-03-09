@@ -144,7 +144,7 @@ Util::Network::MacAddress ArpModule::getHardwareAddress(const Util::Network::Ip4
     }
 
     lock.release();
-    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "ARP: Protocol address not found!");
+    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "ArpModule: Protocol address not found!");
 }
 
 bool ArpModule::hasHardwareAddress(const Util::Network::Ip4::Ip4Address &protocolAddress) {
