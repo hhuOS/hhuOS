@@ -133,6 +133,8 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::UDP);
+    socket.setTimeout(5000);
+
     if (!socket.bind(bindAddress)) {
         Util::System::error << "uecho: Failed to bind socket!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     }

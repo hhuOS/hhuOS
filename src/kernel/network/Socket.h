@@ -71,6 +71,8 @@ public:
 
     [[nodiscard]] bool isBound() const;
 
+    void setTimeout(uint32_t timeout);
+
     bool control(uint32_t request, const Util::Array<uint32_t> &parameters) override;
 
     virtual bool send(const Util::Network::Datagram &datagram) = 0;
@@ -80,6 +82,7 @@ public:
 protected:
 
     Util::Network::NetworkAddress *bindAddress{};
+    uint32_t timeout = 0;
 
 private:
 

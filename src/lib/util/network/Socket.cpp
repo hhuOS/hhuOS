@@ -52,6 +52,10 @@ Socket Socket::createSocket(Socket::Type type) {
     return Socket(fileDescriptor, type);
 }
 
+void Socket::setTimeout(uint32_t timeout) const {
+    ::controlFile(fileDescriptor, SET_TIMEOUT, Util::Array<uint32_t>({timeout}));
+}
+
 bool Socket::bind(const NetworkAddress &address) const {
     return ::controlFile(fileDescriptor, BIND, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&address)}));
 }

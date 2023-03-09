@@ -58,6 +58,8 @@ int32_t main(int32_t argc, char *argv[]) {
     auto destinationAddress = Util::Network::Ip4::Ip4Address(arguments[0]);
 
     auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::ICMP);
+    socket.setTimeout(5000);
+
     if (!socket.bind(Util::Network::Ip4::Ip4Address::ANY)) {
         Util::System::error << "ping: Failed to bind socket!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     }

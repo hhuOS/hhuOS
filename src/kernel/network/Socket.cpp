@@ -95,9 +95,25 @@ bool Socket::isBound() const {
     return bindAddress != nullptr;
 }
 
+void Socket::setTimeout(uint32_t timeout) {
+    Socket::timeout = timeout;
+}
+
 bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) {
     switch (request) {
+        case Util::Network::Socket::Request::SET_TIMEOUT: {
+            if (parameters.length() < 1) {
+                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Missing parameters!");
+            }
+
+            timeout = parameters[0];
+            return true;
+        }
         case Util::Network::Socket::Request::BIND: {
+            if (parameters.length() < 1) {
+                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Missing parameters!");
+            }
+
             bind(*reinterpret_cast<Util::Network::NetworkAddress*>(parameters[0]));
             return true;
         }

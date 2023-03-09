@@ -48,7 +48,10 @@ public:
     };
 
     enum Request {
-        BIND, GET_LOCAL_ADDRESS, GET_IP4_ADDRESSES, REMOVE_IP4_ADDRESS, ADD_IP4_ADDRESS, GET_ROUTES, REMOVE_ROUTE, ADD_ROUTE
+        SET_TIMEOUT,
+        BIND, GET_LOCAL_ADDRESS,
+        GET_IP4_ADDRESSES, REMOVE_IP4_ADDRESS, ADD_IP4_ADDRESS,
+        GET_ROUTES, REMOVE_ROUTE, ADD_ROUTE
     };
 
     /**
@@ -67,6 +70,8 @@ public:
     ~Socket();
 
     static Socket createSocket(Type type);
+
+    void setTimeout(uint32_t timeout) const;
 
     [[nodiscard]] bool bind(const NetworkAddress &address) const;
 

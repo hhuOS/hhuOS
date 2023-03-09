@@ -104,6 +104,10 @@ NetworkService::NetworkService() {
         }
 
         auto *kernelDatagram = socket.receive();
+        if (kernelDatagram == nullptr) {
+            return false;
+        }
+
         auto *datagramBuffer = reinterpret_cast<uint8_t*>(memoryService.allocateUserMemory(kernelDatagram->getLength()));
 
         auto source = Util::Address<uint32_t>(kernelDatagram->getData());

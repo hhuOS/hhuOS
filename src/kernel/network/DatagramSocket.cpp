@@ -24,6 +24,7 @@
 #include "lib/util/network/NetworkAddress.h"
 #include "lib/util/network/Datagram.h"
 #include "kernel/network/Socket.h"
+#include "lib/util/time/Timestamp.h"
 
 namespace Kernel {
 namespace Network {
@@ -36,8 +37,16 @@ namespace Kernel::Network {
 DatagramSocket::DatagramSocket(NetworkModule &networkModule, Util::Network::Socket::Type type) : Socket(networkModule, type) {}
 
 Util::Network::Datagram *DatagramSocket::receive() {
+    uint32_t startTime = Util::Time::getSystemTime().toMilliseconds();
     while (incomingDatagramQueue.isEmpty()) {
         Util::Async::Thread::yield();
+
+        if (timeout > 0) {
+            auto currentTime = Util::Time::getSystemTime().toMilliseconds();
+            if (currentTime - startTime >= timeout) {
+                return nullptr;
+            }
+        }
     }
 
     lock.acquire();
