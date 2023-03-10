@@ -26,5 +26,6 @@ jobs:
             hhuOS.img
             hdd0.img
             floppy0.img
-          env:
-            GITHUB_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
+            run.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.PUBLISH_TOKEN }}

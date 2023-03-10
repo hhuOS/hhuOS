@@ -24,3 +24,5 @@ jobs:
             hhuOS.img
             hdd0.img
             floppy0.img
+            run.sh
+            bios/ovmf/build.sh
