@@ -20,4 +20,6 @@ target_sources(device PUBLIC
         ${HHUOS_SRC_DIR}/device/cpu/Cpu.cpp
         ${HHUOS_SRC_DIR}/device/cpu/Fpu.cpp
         ${HHUOS_SRC_DIR}/device/cpu/IoPort.cpp
-        ${HHUOS_SRC_DIR}/device/cpu/ModelSpecificRegister.cpp)
+        ${HHUOS_SRC_DIR}/device/cpu/ModelSpecificRegister.cpp
+        ${HHUOS_SRC_DIR}/device/cpu/symmetric_multiprocessing.cpp
+        ${HHUOS_SRC_DIR}/device/cpu/symmetric_multiprocessing.asm)
