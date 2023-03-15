@@ -65,13 +65,29 @@ void Pit::plugin() {
 
 void Pit::trigger(const Kernel::InterruptFrame &frame) {
     time.addNanoseconds(timerInterval);
-    if (time.toMilliseconds() % yieldInterval == 0) {
+
+    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    if (!interruptService.usesApic() && time.toMilliseconds() % yieldInterval == 0) {
         Kernel::System::getService<Kernel::SchedulerService>().yield();
     }
 }
 
 Util::Time::Timestamp Pit::getTime() {
     return time;
+}
+
+void Pit::earlyDelay(uint16_t us) {
+    auto controlPort = IoPort(0x43);
+    auto dataPort0 = IoPort(0x40);
+    auto counter = static_cast<uint32_t>((static_cast<double>(BASE_FREQUENCY) / 1000000) * us);
+
+    controlPort.writeByte(0b110000); // Channel 0, mode 0, low-/high byte access mode
+    dataPort0.writeByte(static_cast<uint8_t>(counter & 0xFF)); // Low byte
+    dataPort0.writeByte(static_cast<uint8_t>((counter >> 8) & 0xFF)); // High byte
+
+    do {
+        controlPort.writeByte(0b11100010); // Read back channel 0, don't latch (deasserts line again)
+    } while (!(dataPort0.readByte() & (1 << 7))); // Bit 7 is the output pin state
 }
 
 }

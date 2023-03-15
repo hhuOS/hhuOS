@@ -80,4 +80,8 @@ bool InterruptService::checkSpuriousInterrupt(InterruptVector interrupt) {
 
 }
 
+bool InterruptService::isValidApicInterrupt(InterruptVector interrupt) {
+    return usesApic() && (apic->isLocalInterrupt(interrupt) || apic->isExternalInterrupt(interrupt));
+}
+
 }

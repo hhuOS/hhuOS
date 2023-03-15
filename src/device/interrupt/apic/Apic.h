@@ -27,6 +27,7 @@
 #include "LocalApicErrorHandler.h"
 #include "device/interrupt/InterruptRequest.h"
 #include "lib/util/collection/ArrayList.h"
+#include "device/time/ApicTimer.h"
 
 namespace Device {
 
@@ -102,12 +103,27 @@ public:
     /**
      * Check if an interrupt vector belongs to a local interrupt (Local APIC).
      */
-    static bool isLocalInterrupt(Kernel::InterruptVector vector);
+    bool isLocalInterrupt(Kernel::InterruptVector vector);
 
     /**
      * Check if an interrupt vector belongs to an external hardware interrupt (I/O APIC).
      */
     bool isExternalInterrupt(Kernel::InterruptVector vector);
+
+    /**
+     * Check if this core's local APIC timer has been initialized.
+     */
+    bool isCurrentTimerRunning();
+
+    /**
+     * Initialize the current processor's local APIC timer.
+     */
+    void startCurrentTimer();
+
+    /**
+     * Get the ApicTimer instance that belongs to the current CPU.
+     */
+    ApicTimer &getCurrentTimer();
     
 private:
 
@@ -121,6 +137,7 @@ private:
     // this implementation doesn't support disabling the APIC at all.
     // Once the switch from PIC to APIC is done, it can't be switched back.
     Util::Array<LocalApic*> localApics;  // All LocalApic instances.
+    Util::Array<ApicTimer*> localTimers; // All ApicTimer instances.
     IoApic *ioApic;                      // The IoApic instance responsible for the external interrupts.
     LocalApicErrorHandler errorHandler;  // The interrupt handler that gets triggered on an internal APIC error.
 

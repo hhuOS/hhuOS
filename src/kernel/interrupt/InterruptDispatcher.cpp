@@ -89,6 +89,13 @@ uint32_t InterruptDispatcher::getInterruptDepth() const {
 }
 
 bool InterruptDispatcher::isUnrecoverableException(InterruptVector slot) {
+    // APIC interrupts
+    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    if (interruptService.isValidApicInterrupt(slot)) {
+        return false;
+    }
+
+    // PIC interrupts
     // Hardware interrupts
     if (slot - 32 <= SECONDARY_ATA) {
         return false;

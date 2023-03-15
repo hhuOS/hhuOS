@@ -18,6 +18,7 @@ cmake_minimum_required(VERSION 3.14)
  
 target_sources(device PUBLIC
         ${HHUOS_SRC_DIR}/device/time/AlarmRunnable.cpp
+        ${HHUOS_SRC_DIR}/device/time/ApicTimer.cpp
         ${HHUOS_SRC_DIR}/device/time/Cmos.cpp
         ${HHUOS_SRC_DIR}/device/time/Pit.cpp
         ${HHUOS_SRC_DIR}/device/time/Rtc.cpp)
