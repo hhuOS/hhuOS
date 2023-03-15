@@ -70,6 +70,8 @@ public:
 
     [[nodiscard]] bool checkSpuriousInterrupt(InterruptVector interrupt);
 
+    [[nodiscard]] bool isValidApicInterrupt(InterruptVector interrupt);
+
     static const constexpr uint8_t SERVICE_ID = 1;
 
 private:

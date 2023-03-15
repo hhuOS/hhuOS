@@ -25,7 +25,11 @@ namespace Device {
 
 Kernel::Logger Apic::log = Kernel::Logger::get("APIC");
 
-Apic::Apic(const Util::Array<LocalApic*> &localApics, IoApic * ioApic) : localApics(localApics), ioApic(ioApic) {}
+Apic::Apic(const Util::Array<LocalApic*> &localApics, IoApic *ioApic) : localApics(localApics), localTimers(localApics.length()), ioApic(ioApic) {
+    for (auto *&localTimer : localTimers) {
+        localTimer = nullptr;
+    }
+}
 
 bool Apic::isAvailable() {
     return LocalApic::supportsXApic() && Acpi::isAvailable() && Acpi::hasTable("APIC");
@@ -34,7 +38,7 @@ bool Apic::isAvailable() {
 Apic* Apic::initialize() {
     if (!LocalApic::readBaseModelSpecificRegister().isBootstrapProcessor) {
         // IA32_APIC_BASE_MSR is unique (every core has its own)
-        log.error("Apic: enable() may only be called by the bootstrap processor!");
+        log.error("Apic may only be initialized by the bootstrap processor!");
         return nullptr;
     }
 
@@ -64,6 +68,9 @@ Apic* Apic::initialize() {
     // We only require one error handler, as every AP can only access its own local APIC's error register
     apic->errorHandler.plugin();
     enableCurrentErrorHandler();
+
+    ApicTimer::calibrate();
+    apic->startCurrentTimer();
 
     return apic;
 }
@@ -237,6 +244,29 @@ IoApic *Apic::getIoApic() {
 
 Kernel::GlobalSystemInterrupt Apic::getIrqOverride(InterruptRequest interruptRequest) {
     return ioApic->hasOverride(interruptRequest) ? ioApic->getOverride(interruptRequest).target : static_cast<Kernel::GlobalSystemInterrupt>(interruptRequest);
+}
+
+bool Apic::isCurrentTimerRunning() {
+    return localTimers[LocalApic::getId()] != nullptr;
+}
+
+void Apic::startCurrentTimer() {
+    if (isCurrentTimerRunning()) {
+        log.warn("Trying to start an already running APIC timer");
+        return;
+    }
+
+    auto *apicTimer = new Device::ApicTimer();
+    apicTimer->plugin();
+    localTimers[LocalApic::getId()] = apicTimer;
+}
+
+ApicTimer& Apic::getCurrentTimer() {
+    if (!isCurrentTimerRunning()) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Timer for the current CPU has not been initialized yet!");
+    }
+
+    return *localTimers[LocalApic::getId()];
 }
 
 }

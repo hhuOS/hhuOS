@@ -45,15 +45,15 @@ enum InterruptVector : uint8_t {
     SYSTEM_CALL = 0x86,
 
     // Local APIC interrupts (247 - 254)
-    CMCI = 0xF8,
-    APICTIMER = 0xF9,
-    THERMAL = 0xFA,
-    PERFORMANCE = 0xFB,
-    LINT0 = 0xFC,
-    LINT1 = 0xFD,
-    ERROR = 0xFE,
+    CMCI = 0xf8,
+    APICTIMER = 0xf9,
+    THERMAL = 0xfa,
+    PERFORMANCE = 0xfb,
+    LINT0 = 0xfc,
+    LINT1 = 0xfd,
+    ERROR = 0xfe,
 
-    SPURIOUS = 0xFF
+    SPURIOUS = 0xff
 };
 
 }

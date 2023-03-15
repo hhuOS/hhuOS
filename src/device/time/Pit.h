@@ -72,6 +72,16 @@ public:
      */
     [[nodiscard]] Util::Time::Timestamp getTime() override;
 
+    /**
+     * Wait for a specified amount of time.
+     *
+     * Intended for usage before interrupts are enabled and the PIT has been initialized to
+     * rate-generator mode. It may not be used afterwards!
+     *
+     * @param us The delay in microseconds
+     */
+    static void earlyDelay(uint16_t us);
+
     static const constexpr uint32_t BASE_FREQUENCY = 1193182;
 
 private:
