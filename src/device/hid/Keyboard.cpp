@@ -161,8 +161,8 @@ void Keyboard::setLed(Led led, bool on) {
 
 void Keyboard::plugin() {
     auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
-    interruptService.assignInterrupt(Kernel::InterruptDispatcher::KEYBOARD, *this);
-    interruptService.allowHardwareInterrupt(Pic::Interrupt::KEYBOARD);
+    interruptService.assignInterrupt(Kernel::InterruptVector::KEYBOARD, *this);
+    interruptService.allowHardwareInterrupt(Device::InterruptRequest::KEYBOARD);
 }
 
 void Keyboard::trigger(const Kernel::InterruptFrame &frame) {

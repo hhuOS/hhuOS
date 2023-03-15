@@ -17,4 +17,8 @@
 cmake_minimum_required(VERSION 3.14)
 
 target_sources(device PUBLIC
-        ${HHUOS_SRC_DIR}/device/interrupt/Pic.cpp)
+        ${HHUOS_SRC_DIR}/device/interrupt/Pic.cpp
+        ${HHUOS_SRC_DIR}/device/interrupt/apic/Apic.cpp
+        ${HHUOS_SRC_DIR}/device/interrupt/apic/IoApic.cpp
+        ${HHUOS_SRC_DIR}/device/interrupt/apic/LocalApic.cpp
+        ${HHUOS_SRC_DIR}/device/interrupt/apic/LocalApicErrorHandler.cpp)

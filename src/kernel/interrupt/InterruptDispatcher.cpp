@@ -38,7 +38,7 @@ InterruptDispatcher::InterruptDispatcher() : handler(new Util::List<InterruptHan
 
 void InterruptDispatcher::dispatch(const InterruptFrame &frame) {
     auto &interruptService = System::getService<InterruptService>();
-    auto slot = static_cast<Interrupt>(frame.interrupt);
+    auto slot = static_cast<InterruptVector>(frame.interrupt);
 
     // Handle exceptions (except page fault and device not available)
     if (isUnrecoverableException(slot)) {
@@ -88,9 +88,9 @@ uint32_t InterruptDispatcher::getInterruptDepth() const {
     return interruptDepth;
 }
 
-bool InterruptDispatcher::isUnrecoverableException(InterruptDispatcher::Interrupt slot) {
+bool InterruptDispatcher::isUnrecoverableException(InterruptVector slot) {
     // Hardware interrupts
-    if (slot >= PIT && slot <= SECONDARY_ATA) {
+    if (slot - 32 <= SECONDARY_ATA) {
         return false;
     }
 

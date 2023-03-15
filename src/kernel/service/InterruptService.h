@@ -23,6 +23,9 @@
 #include "device/interrupt/Pic.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/service/Service.h"
+#include "device/interrupt/InterruptRequest.h"
+#include "kernel/interrupt/InterruptVector.h"
+#include "device/interrupt/apic/Apic.h"
 
 namespace Kernel {
 class InterruptHandler;
@@ -49,26 +52,33 @@ public:
     /**
      * Destructor.
      */
-    ~InterruptService() override = default;
+    ~InterruptService() override;
 
-    void assignInterrupt(InterruptDispatcher::Interrupt slot, InterruptHandler &handler);
+    void useApic(Device::Apic *apic);
+
+    [[nodiscard]] bool usesApic() const;
+
+    void assignInterrupt(InterruptVector slot, InterruptHandler &handler);
 
     void dispatchInterrupt(const InterruptFrame &frame);
 
-    void allowHardwareInterrupt(Device::Pic::Interrupt interrupt);
+    void allowHardwareInterrupt(Device::InterruptRequest interrupt);
 
-    void forbidHardwareInterrupt(Device::Pic::Interrupt interrupt);
+    void forbidHardwareInterrupt(Device::InterruptRequest interrupt);
 
-    void sendEndOfInterrupt(InterruptDispatcher::Interrupt interrupt);
+    void sendEndOfInterrupt(InterruptVector interrupt);
 
-    bool checkSpuriousInterrupt(InterruptDispatcher::Interrupt interrupt);
+    [[nodiscard]] bool checkSpuriousInterrupt(InterruptVector interrupt);
 
     static const constexpr uint8_t SERVICE_ID = 1;
 
 private:
 
     Device::Pic pic;
+    Device::Apic *apic = nullptr;
     InterruptDispatcher dispatcher;
+
+    static Kernel::Logger log;
 };
 
 }

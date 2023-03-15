@@ -126,8 +126,8 @@ Mouse* Mouse::initialize(Ps2Controller &controller) {
 
 void Mouse::plugin() {
     auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
-    interruptService.assignInterrupt(Kernel::InterruptDispatcher::MOUSE, *this);
-    interruptService.allowHardwareInterrupt(Pic::Interrupt::MOUSE);
+    interruptService.assignInterrupt(Kernel::InterruptVector::MOUSE, *this);
+    interruptService.allowHardwareInterrupt(Device::InterruptRequest::MOUSE);
 }
 
 void Mouse::trigger(const Kernel::InterruptFrame &frame) {

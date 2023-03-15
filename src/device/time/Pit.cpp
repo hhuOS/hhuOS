@@ -23,6 +23,7 @@
 #include "kernel/log/Logger.h"
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/base/Exception.h"
+#include "device/debug/FirmwareConfiguration.h"
 
 namespace Kernel {
 struct InterruptFrame;
@@ -44,6 +45,12 @@ void Pit::setInterruptRate(uint16_t divisor) {
     auto interval = 1000000000 / (BASE_FREQUENCY / divisor);
     log.info("Setting PIT interval to [%uns] (Divisor: [%u])", interval, divisor);
 
+    // For some reason, the PIT interrupt rate is doubled, when it is attached to an IO APIC
+    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    if (FirmwareConfiguration::isAvailable() && interruptService.usesApic()) {
+        divisor *= 2;
+    }
+
     controlPort.writeByte(0x36); // Select channel 0, Use low-/high byte access mode, Set operating mode to rate generator
     dataPort0.writeByte((uint8_t) (divisor & 0xff)); // Low byte
     dataPort0.writeByte((uint8_t) (divisor >> 8)); // High byte
@@ -52,8 +59,8 @@ void Pit::setInterruptRate(uint16_t divisor) {
 
 void Pit::plugin() {
     auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
-    interruptService.assignInterrupt(Kernel::InterruptDispatcher::PIT, *this);
-    interruptService.allowHardwareInterrupt(Pic::Interrupt::PIT);
+    interruptService.assignInterrupt(Kernel::InterruptVector::PIT, *this);
+    interruptService.allowHardwareInterrupt(Device::InterruptRequest::PIT);
 }
 
 void Pit::trigger(const Kernel::InterruptFrame &frame) {

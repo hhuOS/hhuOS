@@ -337,14 +337,14 @@ void* MemoryService::getPhysicalAddress(void *virtualAddress) {
 }
 
 void MemoryService::plugin() {
-    System::getService<Kernel::InterruptService>().assignInterrupt(InterruptDispatcher::PAGEFAULT, *this);
+    System::getService<Kernel::InterruptService>().assignInterrupt(InterruptVector::PAGEFAULT, *this);
 }
 
 void MemoryService::trigger(const Kernel::InterruptFrame &frame) {
     // Get page fault address and flags
     uint32_t faultAddress = 0;
     // The faulted linear address is loaded in the cr2 register
-    asm ("mov %%cr2, %0" : "=r" (faultAddress));
+    asm volatile ("mov %%cr2, %0" : "=r" (faultAddress));
 
     // There should be no access to the first page (address 0)
     if (faultAddress == 0) {

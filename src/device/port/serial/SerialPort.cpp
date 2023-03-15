@@ -129,11 +129,11 @@ const char* SerialPort::portToString(const ComPort port) {
 void SerialPort::plugin() {
     auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
     if (port == COM1 || port == COM3) {
-        interruptService.assignInterrupt(Kernel::InterruptDispatcher::COM1, *this);
-        interruptService.allowHardwareInterrupt(Pic::Interrupt::COM1);
+        interruptService.assignInterrupt(Kernel::InterruptVector::COM1, *this);
+        interruptService.allowHardwareInterrupt(Device::InterruptRequest::COM1);
     } else {
-        Kernel::System::getService<Kernel::InterruptService>().assignInterrupt(Kernel::InterruptDispatcher::COM2, *this);
-        interruptService.allowHardwareInterrupt(Pic::Interrupt::COM2);
+        Kernel::System::getService<Kernel::InterruptService>().assignInterrupt(Kernel::InterruptVector::COM2, *this);
+        interruptService.allowHardwareInterrupt(Device::InterruptRequest::COM2);
     }
 
     interruptRegister.writeByte(0x01);

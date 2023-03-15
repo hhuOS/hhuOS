@@ -21,6 +21,8 @@
 #include <cstdint>
 
 #include "lib/util/collection/Array.h"
+#include "lib/util/base/Address.h"
+#include "lib/util/collection/ArrayList.h"
 
 namespace Util {
 
@@ -139,6 +141,70 @@ public:
         uint32_t flags;
     } __attribute__ ((packed));
 
+    // Only ACPI 1.0, later versions have more stuff that needs to be accounted for
+    enum ApicStructureType : uint8_t {
+        PROCESSOR_LOCAL_APIC = 0x0,
+        IO_APIC = 0x1,
+        INTERRUPT_SOURCE_OVERRIDE = 0x2,
+        NON_MASKABLE_INTERRUPT_SOURCE = 0x3,
+        LOCAL_APIC_NMI = 0x4,
+    };
+
+    enum IntiFlag : uint8_t {
+        ACTIVE_HIGH = 0x1,
+        ACTIVE_LOW = 0x3,
+        EDGE_TRIGGERED = 0x4,
+        LEVEL_TRIGGERED = 0xc
+    };
+
+    struct ApicStructureHeader {
+        ApicStructureType type;
+        uint8_t length;
+    } __attribute__ ((packed));
+
+    struct ProcessorLocalApic {
+        ApicStructureHeader header;
+        uint8_t acpiProcessorId;
+        uint8_t apicId;
+        uint32_t flags; // "Enabled" flag
+    } __attribute__ ((packed));
+
+    struct IoApic {
+        ApicStructureHeader header;
+        uint8_t ioApicId;
+        uint8_t reserved;
+        uint32_t ioApicAddress;
+        uint32_t globalSystemInterruptBase;
+    } __attribute__ ((packed));
+
+    struct InterruptSourceOverride {
+        ApicStructureHeader header;
+        uint8_t bus; // "0 - Constant, meaning ISA"
+        uint8_t source; // ISA IRQ relative if bus = 0
+        uint32_t globalSystemInterrupt;
+        uint16_t flags; // INTI Flags
+    } __attribute__ ((packed));
+
+    struct NmiSource {
+        ApicStructureHeader header;
+        uint16_t flags; // INTI Flags
+        uint32_t globalSystemInterrupt;
+    } __attribute__ ((packed));
+
+    struct LocalApicNmi {
+        ApicStructureHeader header;
+        uint8_t acpiProcessorId;
+        uint16_t flags; // INTI Flags
+        uint8_t localApicLint;
+    } __attribute__ ((packed));
+
+    struct Madt {
+        SdtHeader header;
+        uint32_t localApicAddress;
+        uint32_t flags; // PCAT compat flag
+        ApicStructureHeader apicStructure; // Is a list
+    } __attribute__ ((packed));
+
     /**
      * Default Constructor.
      * Deleted, as this class has only static members.
@@ -173,9 +239,13 @@ public:
 
     static bool hasTable(const char *signature);
 
-    static const SdtHeader& getTable(const char *signature);
-
     static Util::Array<Util::String> getAvailableTables();
+
+    template<typename T>
+    static const T& getTable(const char *signature);
+
+    template<typename T>
+    static Util::Array<const T*> getMadtStructures(ApicStructureType type);
 
 private:
 
@@ -192,6 +262,44 @@ private:
     static const SdtHeader **tables;
     static uint32_t numTables;
 };
+
+template<typename T>
+const T& Acpi::getTable(const char *signature) {
+    for (uint32_t i = 0; i < numTables; i++) {
+        if (Util::Address<uint32_t>(tables[i]->signature).compareRange(Util::Address<uint32_t>(signature), sizeof(SdtHeader::signature)) == 0) {
+            return reinterpret_cast<const T&>(*tables[i]);
+        }
+    }
+
+    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Acpi: Table not found!");
+}
+
+template<typename T>
+Util::Array<const T*> Acpi::getMadtStructures(ApicStructureType type) {
+    auto structures = Util::ArrayList<const T*>();
+
+    const auto &madt = getTable<Madt>("APIC");
+    const auto *madtEndAddress = reinterpret_cast<const uint8_t*>(&madt) + madt.header.length;
+
+    const auto *pos = reinterpret_cast<const uint8_t*>(&madt.apicStructure);
+    const ApicStructureHeader *header;
+    while (pos < madtEndAddress) {
+        header = reinterpret_cast<const ApicStructureHeader*>(pos);
+
+        if (header->length == 0) {
+            // If this happens there is a bug in this function o_O
+            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Header length must not be 0!");
+        }
+
+        if (header->type == type) {
+            structures.add(reinterpret_cast<const T*>(header));
+        }
+
+        pos += header->length;
+    }
+
+    return structures.toArray();
+}
 
 }
 
