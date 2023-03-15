@@ -49,6 +49,12 @@ public:
         PAGING = 0x80000000
     };
 
+    // Descriptor for either GDT or IDT
+    struct Descriptor {
+        uint16_t limit;
+        uint32_t address;
+    } __attribute__((packed));
+
     /**
      * Default Constructor.
      * Deleted, as this class has only static members.

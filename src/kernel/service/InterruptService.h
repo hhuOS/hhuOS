@@ -72,6 +72,8 @@ public:
 
     [[nodiscard]] bool isValidApicInterrupt(InterruptVector interrupt);
 
+    [[nodiscard]] Device::Apic& getApic();
+
     static const constexpr uint8_t SERVICE_ID = 1;
 
 private:

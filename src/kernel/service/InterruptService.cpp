@@ -84,4 +84,8 @@ bool InterruptService::isValidApicInterrupt(InterruptVector interrupt) {
     return usesApic() && (apic->isLocalInterrupt(interrupt) || apic->isExternalInterrupt(interrupt));
 }
 
+Device::Apic &InterruptService::getApic() {
+    return *apic;
+}
+
 }

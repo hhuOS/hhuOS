@@ -103,12 +103,16 @@ void System::initializeSystem() {
     memoryService->plugin();
 
     if (Device::Apic::isAvailable()) {
-        log.info("APIC");
+        log.info("APIC detected");
         auto *apic = Device::Apic::initialize();
         if (apic == nullptr) {
             log.warn("Failed to initialize APIC -> Falling back to PIC");
         } else {
             interruptService->useApic(apic);
+        }
+
+        if (apic->isSymmetricMultiprocessingSupported()) {
+            apic->startupApplicationProcessors();
         }
     } else {
         log.info("APIC not available -> Falling back to PIC");

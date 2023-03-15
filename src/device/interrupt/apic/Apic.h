@@ -28,6 +28,7 @@
 #include "device/interrupt/InterruptRequest.h"
 #include "lib/util/collection/ArrayList.h"
 #include "device/time/ApicTimer.h"
+#include "device/cpu/Cpu.h"
 
 namespace Device {
 
@@ -76,7 +77,7 @@ public:
     /**
      * Create an ErrorHandler instance (if it hasn't been created yet) and allow the local ERROR interrupt.
      */
-    static void enableCurrentErrorHandler();
+    void enableCurrentErrorHandler();
 
     /**
      * Unmask an external interrupt for the current CPU.
@@ -124,8 +125,46 @@ public:
      * Get the ApicTimer instance that belongs to the current CPU.
      */
     ApicTimer &getCurrentTimer();
+
+    [[nodiscard]] bool isSymmetricMultiprocessingSupported() const;
+    
+    void startupApplicationProcessors();
     
 private:
+
+    /**
+     * Prepare the memory regions used by the AP's stacks.
+     *
+     * @return The virtual address of the stackpointer array
+     */
+    void* prepareApplicationProcessorStacks();
+
+    /**
+     * Copy the AP startup routine to lower physical memory.
+     *
+     * Because this memory is identity-mapped, the physical address can be used to free the memory again.
+     *
+     * @return The virtual/physical address at which the startup routine is located
+     */
+    void* prepareApplicationProcessorStartupCode(void *gdts, void *stacks);
+
+    /**
+     * Place the AP startup routine address into the warm reset vector and prepare CMOS for warm reset.
+     *
+     * @return The virtual address of the allocated memory used to write the warm-reset vector
+     */
+    void* prepareApplicationProcessorWarmReset();
+
+    void* prepareApplicationProcessorGdts();
+
+    /**
+     * Sets up the GDT for the AP.
+     *
+     * The memory is allocated by MemoryService::AllocateKernelMemory with enabled paging, so its a virtual address.
+     * This is basically a shorter and slightly modified version of System::InitializeGlobalDescriptorTables.
+     * The main difference is that only a single GDT is used and its memory is allocated by this function.
+     */
+    Cpu::Descriptor* allocateApplicationProcessorGdt();
 
     Kernel::GlobalSystemInterrupt getIrqOverride(InterruptRequest interruptRequest);
 
