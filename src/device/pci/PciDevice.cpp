@@ -28,7 +28,7 @@ PciDevice::PciDevice(uint8_t bus, uint8_t device, uint8_t function) : bus(bus), 
         vendorId(readWord(Pci::VENDOR_ID)), deviceId(readWord(Pci::DEVICE_ID)), revision(readByte(Pci::REVISION)),
         programmingInterface(readByte(Pci::PROGRAMMING_INTERFACE)), baseClass(readByte(Pci::CLASS)), subclass(readByte(Pci::SUBCLASS)),
         subsystemVendorId(readWord(Pci::SUBSYSTEM_VENDOR_ID)), subsystemId(readWord(Pci::SUBSYSTEM_ID)), capabilitiesPointer(readByte(Pci::CAPABILITIES_POINTER)),
-        interruptLine(static_cast<Pic::Interrupt>(readByte(Pci::INTERRUPT_LINE))) {}
+        interruptLine(static_cast<Device::InterruptRequest>(readByte(Pci::INTERRUPT_LINE))) {}
 
 bool PciDevice::operator!=(const PciDevice &other) const {
     return vendorId != other.vendorId && deviceId != other.deviceId;
@@ -150,7 +150,7 @@ uint16_t PciDevice::getSubsystemId() const {
     return subsystemId;
 }
 
-Pic::Interrupt PciDevice::getInterruptLine() const {
+Device::InterruptRequest PciDevice::getInterruptLine() const {
     return interruptLine;
 }
 

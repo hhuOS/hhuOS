@@ -94,7 +94,7 @@ public:
 
     [[nodiscard]] uint16_t getSubsystemId() const;
 
-    [[nodiscard]] Pic::Interrupt getInterruptLine() const;
+    [[nodiscard]] Device::InterruptRequest getInterruptLine() const;
 
 private:
 
@@ -110,7 +110,7 @@ private:
     uint16_t subsystemVendorId{};
     uint16_t subsystemId{};
     uint8_t capabilitiesPointer{};
-    Pic::Interrupt interruptLine{};
+    Device::InterruptRequest interruptLine{};
 };
 
 }

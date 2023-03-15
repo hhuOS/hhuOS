@@ -20,59 +20,59 @@
 
 namespace Device {
 
-void Pic::allow(Pic::Interrupt interrupt) {
+void Pic::allow(InterruptRequest interrupt) {
     auto &port = getDataPort(interrupt);
     uint8_t mask = getMask(interrupt);
 
     port.writeByte(port.readByte() & ~mask);
 }
 
-void Pic::forbid(Pic::Interrupt interrupt) {
+void Pic::forbid(InterruptRequest interrupt) {
     auto &port = getDataPort(interrupt);
     uint8_t mask = getMask(interrupt);
 
     port.writeByte(port.readByte() | mask);
 }
 
-bool Pic::status(Pic::Interrupt interrupt) {
+bool Pic::status(InterruptRequest interrupt) {
     const IoPort &port = getDataPort(interrupt);
     uint8_t mask = getMask(interrupt);
 
     return port.readByte() & mask;
 }
 
-void Pic::sendEndOfInterrupt(Pic::Interrupt interrupt) {
-    if (interrupt >= Interrupt::RTC) {
+void Pic::sendEndOfInterrupt(InterruptRequest interrupt) {
+    if (interrupt >= InterruptRequest::RTC) {
         slaveCommandPort.writeByte(EOI);
     }
 
     masterCommandPort.writeByte(EOI);
 }
 
-const IoPort &Pic::getDataPort(Pic::Interrupt interrupt) {
-    if (interrupt >= Interrupt::RTC) {
+const IoPort &Pic::getDataPort(InterruptRequest interrupt) {
+    if (interrupt >= InterruptRequest::RTC) {
         return slaveDataPort;
     }
 
     return masterDataPort;
 }
 
-uint8_t Pic::getMask(Pic::Interrupt interrupt) {
-    if (interrupt >= Interrupt::RTC) {
+uint8_t Pic::getMask(InterruptRequest interrupt) {
+    if (interrupt >= InterruptRequest::RTC) {
         return (uint8_t) (1 << ((uint8_t) interrupt - 8));
     }
 
     return (uint8_t) (1 << (uint8_t) interrupt);
 }
 
-bool Pic::isSpurious(Pic::Interrupt interrupt) {
-    if (interrupt == Interrupt::LPT1) {
+bool Pic::isSpurious(InterruptRequest interrupt) {
+    if (interrupt == InterruptRequest::LPT1) {
         masterCommandPort.writeByte(READ_ISR);
         return (masterCommandPort.readByte() & SPURIOUS_INTERRUPT) == 0;
-    } else if (interrupt == Interrupt::SECONDARY_ATA) {
+    } else if (interrupt == InterruptRequest::SECONDARY_ATA) {
         slaveCommandPort.writeByte(READ_ISR);
         if ((slaveCommandPort.readByte() & SPURIOUS_INTERRUPT) == 0) {
-            sendEndOfInterrupt(Interrupt::CASCADE);
+            sendEndOfInterrupt(InterruptRequest::CASCADE);
             return true;
         }
     }

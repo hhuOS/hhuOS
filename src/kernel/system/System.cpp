@@ -49,6 +49,7 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/FreeListMemoryManager.h"
 #include "lib/util/base/HeapMemoryManager.h"
+#include "device/interrupt/apic/Apic.h"
 
 namespace Kernel {
 class Service;
@@ -93,12 +94,25 @@ void System::initializeSystem() {
     _init();
 
     // Register services after _init(), since the static objects serviceMap and serviceLock have now been initialized
-    auto *interruptService = new InterruptService();
-    registerService(InterruptService::SERVICE_ID, interruptService);
     registerService(MemoryService::SERVICE_ID, memoryService);
-    memoryService->plugin();
     log.info("Welcome to hhuOS!");
     log.info("Memory management has been initialized");
+
+    auto *interruptService = new InterruptService();
+    registerService(InterruptService::SERVICE_ID, interruptService);
+    memoryService->plugin();
+
+    if (Device::Apic::isAvailable()) {
+        log.info("APIC");
+        auto *apic = Device::Apic::initialize();
+        if (apic == nullptr) {
+            log.warn("Failed to initialize APIC -> Falling back to PIC");
+        } else {
+            interruptService->useApic(apic);
+        }
+    } else {
+        log.info("APIC not available -> Falling back to PIC");
+    }
 
     // Create scheduler service and register kernel process
     log.info("Initializing scheduler");
@@ -241,7 +255,6 @@ void System::initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t *bio
     // prepared BIOS-call segment (contains 16-bit code etc...)
     System::createGlobalDescriptorTableEntry(biosGdt, 3, MemoryLayout::BIOS_CODE_MEMORY.startAddress, 0xFFFFFFFF, 0x9A, 0x8);
 
-
     // set up descriptor for BIOS-GDT
     *((uint16_t *) biosGdtDescriptor) = 4 * 8;
     // the descriptor should contain physical address of BIOS-GDT because paging is not enabled during BIOS-calls
@@ -316,7 +329,7 @@ TaskStateSegment &System::getTaskStateSegment() {
 }
 
 void System::handleEarlyInterrupt(const InterruptFrame &frame) {
-    if (frame.interrupt == InterruptDispatcher::PAGEFAULT) {
+    if (frame.interrupt == InterruptVector::PAGEFAULT) {
         pagefaultHandler->trigger(frame);
     }
 }

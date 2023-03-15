@@ -81,6 +81,8 @@
 #include "kernel/network/ip4/Ip4RoutingModule.h"
 #include "lib/util/network/ip4/Ip4Route.h"
 #include "lib/util/network/ip4/Ip4SubnetAddress.h"
+#include "lib/util/time/Timestamp.h"
+#include "lib/util/async/Thread.h"
 
 namespace Device {
 class Machine;

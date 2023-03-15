@@ -357,16 +357,16 @@ void IdeController::initializeAvailableControllers() {
 
 void IdeController::plugin() {
     auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
-    interruptService.assignInterrupt(Kernel::InterruptDispatcher::PRIMARY_ATA, *this);
-    interruptService.allowHardwareInterrupt(Pic::Interrupt::PRIMARY_ATA);
-    interruptService.assignInterrupt(Kernel::InterruptDispatcher::SECONDARY_ATA, *this);
-    interruptService.allowHardwareInterrupt(Pic::Interrupt::SECONDARY_ATA);
+    interruptService.assignInterrupt(Kernel::InterruptVector::PRIMARY_ATA, *this);
+    interruptService.allowHardwareInterrupt(Device::InterruptRequest::PRIMARY_ATA);
+    interruptService.assignInterrupt(Kernel::InterruptVector::SECONDARY_ATA, *this);
+    interruptService.allowHardwareInterrupt(Device::InterruptRequest::SECONDARY_ATA);
 }
 
 void IdeController::trigger(const Kernel::InterruptFrame &frame) {
-    if (frame.interrupt == Kernel::InterruptDispatcher::PRIMARY_ATA) {
+    if (frame.interrupt == Kernel::InterruptVector::PRIMARY_ATA) {
         channels[0].receivedInterrupt = true;
-    } else if (frame.interrupt == Kernel::InterruptDispatcher::SECONDARY_ATA) {
+    } else if (frame.interrupt == Kernel::InterruptVector::SECONDARY_ATA) {
         channels[1].receivedInterrupt = true;
     }
 }

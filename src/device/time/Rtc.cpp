@@ -40,7 +40,7 @@ Kernel::Logger Rtc::log = Kernel::Logger::get("Rtc");
 
 Rtc::Rtc(uint8_t interruptRateDivisor) {
     if (Acpi::isAvailable() && Acpi::hasTable("FADT")) {
-        const auto &fadt = reinterpret_cast<const Acpi::Fadt&>(Acpi::getTable("FADT"));
+        const auto &fadt = Acpi::getTable<Acpi::Fadt>("FADT");
         centuryRegister = fadt.century;
     }
 
@@ -69,8 +69,8 @@ void Rtc::plugin() {
     Cmos::read(STATUS_REGISTER_C);
 
     auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
-    interruptService.assignInterrupt(Kernel::InterruptDispatcher::RTC, *this);
-    interruptService.allowHardwareInterrupt(Pic::Interrupt::RTC);
+    interruptService.assignInterrupt(Kernel::InterruptVector::RTC, *this);
+    interruptService.allowHardwareInterrupt(Device::InterruptRequest::RTC);
 
     Cmos::enableNmi();
     Cpu::enableInterrupts();

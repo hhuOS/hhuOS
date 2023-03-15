@@ -21,7 +21,21 @@ namespace Kernel {
 class InterruptHandler;
 struct InterruptFrame;
 
-void InterruptService::assignInterrupt(InterruptDispatcher::Interrupt slot, InterruptHandler &handler) {
+Kernel::Logger InterruptService::log = Kernel::Logger::get("Interrupt");
+
+void InterruptService::useApic(Device::Apic *apic) {
+    InterruptService::apic = apic;
+}
+
+bool InterruptService::usesApic() const {
+    return apic != nullptr;
+}
+
+InterruptService::~InterruptService() {
+    delete apic;
+}
+
+void InterruptService::assignInterrupt(InterruptVector slot, InterruptHandler &handler) {
     dispatcher.assign(slot, handler);
 }
 
@@ -29,26 +43,41 @@ void InterruptService::dispatchInterrupt(const InterruptFrame &frame) {
     dispatcher.dispatch(frame);
 }
 
-void InterruptService::allowHardwareInterrupt(Device::Pic::Interrupt interrupt) {
-    pic.allow(interrupt);
-}
-
-void InterruptService::forbidHardwareInterrupt(Device::Pic::Interrupt interrupt) {
-    pic.forbid(interrupt);
-}
-
-void InterruptService::sendEndOfInterrupt(InterruptDispatcher::Interrupt interrupt) {
-    if (interrupt >= InterruptDispatcher::PIT && interrupt <= InterruptDispatcher::SECONDARY_ATA) {
-        pic.sendEndOfInterrupt(static_cast<Device::Pic::Interrupt>(interrupt - InterruptDispatcher::PIT));
+void InterruptService::allowHardwareInterrupt(Device::InterruptRequest interrupt) {
+    if (usesApic()) {
+        apic->allow(interrupt);
+    } else {
+        pic.allow(interrupt);
     }
 }
 
-bool InterruptService::checkSpuriousInterrupt(InterruptDispatcher::Interrupt interrupt) {
-    if (interrupt != InterruptDispatcher::LPT1 && interrupt != InterruptDispatcher::SECONDARY_ATA) {
+void InterruptService::forbidHardwareInterrupt(Device::InterruptRequest interrupt) {
+    if (usesApic()) {
+        apic->forbid(interrupt);
+    } else {
+        pic.forbid(interrupt);
+    }
+}
+
+void InterruptService::sendEndOfInterrupt(InterruptVector interrupt) {
+    if (usesApic()) {
+        apic->sendEndOfInterrupt(interrupt);
+    } else if (interrupt - 32 <= Device::InterruptRequest::SECONDARY_ATA) {
+        pic.sendEndOfInterrupt(static_cast<Device::InterruptRequest>(interrupt - 32));
+    }
+}
+
+bool InterruptService::checkSpuriousInterrupt(InterruptVector interrupt) {
+    if (usesApic()) {
+        return interrupt == InterruptVector::SPURIOUS;
+    }
+
+    if (interrupt != InterruptVector::LPT1 && interrupt != InterruptVector::SECONDARY_ATA) {
         return false;
     }
 
-    return pic.isSpurious(static_cast<Device::Pic::Interrupt>(interrupt - InterruptDispatcher::PIT));
+    return pic.isSpurious(static_cast<Device::InterruptRequest>(interrupt - 32));
+
 }
 
 }

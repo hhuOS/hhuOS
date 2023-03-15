@@ -85,7 +85,7 @@ Fpu::Fpu(const uint8_t *defaultFpuContext) {
 }
 
 void Fpu::plugin() {
-    Kernel::System::getService<Kernel::InterruptService>().assignInterrupt(Kernel::InterruptDispatcher::DEVICE_NOT_AVAILABLE, *this);
+    Kernel::System::getService<Kernel::InterruptService>().assignInterrupt(Kernel::InterruptVector::DEVICE_NOT_AVAILABLE, *this);
 }
 
 void Fpu::trigger(const Kernel::InterruptFrame &frame) {
