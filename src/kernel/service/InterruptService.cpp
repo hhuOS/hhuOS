@@ -46,7 +46,7 @@ void InterruptService::dispatchInterrupt(const InterruptFrame &frame) {
 void InterruptService::allowHardwareInterrupt(Device::InterruptRequest interrupt) {
     if (usesApic()) {
         apic->allow(interrupt);
-    } else {
+    } else if (interrupt - 32 <= Device::InterruptRequest::SECONDARY_ATA) {
         pic.allow(interrupt);
     }
 }
@@ -54,7 +54,7 @@ void InterruptService::allowHardwareInterrupt(Device::InterruptRequest interrupt
 void InterruptService::forbidHardwareInterrupt(Device::InterruptRequest interrupt) {
     if (usesApic()) {
         apic->forbid(interrupt);
-    } else {
+    } else if (interrupt - 32 <= Device::InterruptRequest::SECONDARY_ATA) {
         pic.forbid(interrupt);
     }
 }

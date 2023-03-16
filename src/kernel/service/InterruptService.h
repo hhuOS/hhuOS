@@ -62,6 +62,8 @@ public:
 
     void dispatchInterrupt(const InterruptFrame &frame);
 
+    [[nodiscard]] bool isHardwareInterrupt(InterruptVector interrupt);
+
     void allowHardwareInterrupt(Device::InterruptRequest interrupt);
 
     void forbidHardwareInterrupt(Device::InterruptRequest interrupt);
