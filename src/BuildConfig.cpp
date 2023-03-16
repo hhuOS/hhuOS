@@ -9,6 +9,12 @@ const char *BuildConfig::VERSION = XSTRINGIFY(HHUOS_VERSION);
 const char *BuildConfig::VERSION = "v0.0.0";
 #endif
 
+#ifdef HHUOS_CODENAME
+const char *BuildConfig::CODENAME = XSTRINGIFY(HHUOS_CODENAME);
+#else
+const char *BuildConfig::CODENAME = "Unknown";
+#endif
+
 #ifdef HHUOS_GIT_REV
 const char *BuildConfig::GIT_REV = XSTRINGIFY(HHUOS_GIT_REV);
 #else

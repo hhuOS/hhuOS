@@ -32,6 +32,14 @@ public:
     static inline const char* getVersion() {
         return VERSION;
     }
+    /**
+     * Get the version codename.
+     *
+     * @return The version codename
+     */
+    static inline const char* getCodename() {
+        return CODENAME;
+    }
 
     /**
      * Get the git revision.
@@ -63,6 +71,7 @@ public:
 private:
 
     static const char *VERSION;
+    static const char *CODENAME;
     static const char *GIT_REV;
     static const char *GIT_BRANCH;
     static const char *BUILD_DATE;

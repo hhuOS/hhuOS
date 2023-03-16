@@ -25,6 +25,16 @@ if (HHUOS_VERSION STREQUAL "")
     set(HHUOS_VERSION "v0.0.0")
 endif ()
 
+# Set codename
+execute_process(COMMAND git show ${HHUOS_VERSION} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMAND sed -n 5p WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMAND cut -d " " -f 3 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE HHUOS_CODENAME ERROR_QUIET)
+string(STRIP "${HHUOS_CODENAME}" HHUOS_CODENAME)
+if (HHUOS_CODENAME STREQUAL "")
+    set(HHUOS_CODENAME "Unknown")
+endif ()
+
 # Set git revision
 execute_process(COMMAND git log -1 --format=%h --date=short HEAD WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         OUTPUT_VARIABLE HHUOS_GIT_REV ERROR_QUIET)
@@ -45,7 +55,7 @@ endif ()
 string(TIMESTAMP HHUOS_BUILD_DATE "%Y-%m-%d %H:%M:%S")
 
 # Print build information
-message("hhuOS ${HHUOS_VERSION} - git ${HHUOS_GIT_REV}, build date: ${HHUOS_BUILD_DATE}")
+message("hhuOS ${HHUOS_VERSION} (${HHUOS_CODENAME}) - git ${HHUOS_GIT_REV}, build date: ${HHUOS_BUILD_DATE}")
 
 # Set source directory variables
 set(HHUOS_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}/..")
@@ -78,6 +88,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wl,--build-id=none -Wno-non-virtual-dtor 
 # Set preprocessor defines
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
     -DHHUOS_VERSION='${HHUOS_VERSION}'\
+    -DHHUOS_CODENAME='${HHUOS_CODENAME}'\
     -DHHUOS_GIT_REV='${HHUOS_GIT_REV}'\
     -DHHUOS_GIT_BRANCH='${HHUOS_GIT_BRANCH}'\
     -DHHUOS_BUILD_DATE='${HHUOS_BUILD_DATE}'")
