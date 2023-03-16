@@ -55,7 +55,6 @@ IdeController::IdeController(const PciDevice &pciDevice) {
         log.info("Controller supports DMA");
         supportsDma = true;
         dmaBaseAddress = pciDevice.readDoubleWord(Pci::Register::BASE_ADDRESS_4) & 0xfffffffc;
-        log.info("DMA address: %08x", dmaBaseAddress);
 
         uint16_t command = pciDevice.readWord(Pci::COMMAND);
         command |= Pci::BUS_MASTER | Pci::IO_SPACE;

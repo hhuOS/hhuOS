@@ -350,10 +350,8 @@ void GatesOfHell::printBanner() {
 
         auto banner = bufferedStream.readString(bannerFile.getLength());
         Util::System::out << Util::String::format(static_cast<const char*>(banner),
-                                               BuildConfig::getVersion(),
-                                               BuildConfig::getBuildDate(),
-                                               BuildConfig::getGitBranch(),
-                                               BuildConfig::getGitRevision()) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+               BuildConfig::getVersion(), BuildConfig::getCodename(), BuildConfig::getBuildDate(),
+               BuildConfig::getGitBranch(), BuildConfig::getGitRevision()) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     } else {
         printDefaultBanner();
     }
