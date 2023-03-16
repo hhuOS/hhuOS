@@ -205,8 +205,8 @@ idt_entry i
 ; Create system call entry
 dw (wrapper_134 - wrapper_0) & 0xffff
 dw    0x0008
-dw    0xee00
-dw ((wrapper_134 - wrapper_0) & 0xffff) >> 16
+dw    0xef00
+dw ((wrapper_134 - wrapper_0) & 0xffff0000) >> 16
 
 ; Create remaining entries
 %assign i 135

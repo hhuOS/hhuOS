@@ -34,8 +34,6 @@
 
 namespace Kernel {
 
-InterruptDispatcher::InterruptDispatcher() : handler(new Util::List<InterruptHandler*>*[256]{}) {}
-
 void InterruptDispatcher::dispatch(const InterruptFrame &frame) {
     auto &interruptService = System::getService<InterruptService>();
     auto slot = static_cast<InterruptVector>(frame.interrupt);
@@ -53,27 +51,21 @@ void InterruptDispatcher::dispatch(const InterruptFrame &frame) {
 
     // Ignore spurious interrupts
     if (interruptService.checkSpuriousInterrupt(slot)) {
-        spuriousCounterWrapper.inc();
         return;
     }
 
-    // Throw exception interrupt, if there is no handler registered
+    // Throw exception, if there is no handler registered
     auto *handlerList = handler[slot];
     if (handlerList == nullptr) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "No handler registered!");
     }
-
-    interruptDepthWrapper.inc();
-    interruptService.sendEndOfInterrupt(slot);
-    asm volatile("sti");
 
     uint32_t size = handlerList->size();
     for (uint32_t i = 0; i < size; i++) {
         handlerList->get(i)->trigger(frame);
     }
 
-    asm volatile("cli");
-    interruptDepthWrapper.dec();
+    interruptService.sendEndOfInterrupt(slot);
 }
 
 void InterruptDispatcher::assign(uint8_t slot, InterruptHandler &isr) {
@@ -82,10 +74,6 @@ void InterruptDispatcher::assign(uint8_t slot, InterruptHandler &isr) {
     }
 
     handler[slot]->add(&isr);
-}
-
-uint32_t InterruptDispatcher::getInterruptDepth() const {
-    return interruptDepth;
 }
 
 bool InterruptDispatcher::isUnrecoverableException(InterruptVector slot) {

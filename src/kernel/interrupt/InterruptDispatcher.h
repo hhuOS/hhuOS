@@ -47,7 +47,7 @@ public:
     /**
      * Default Constructor.
      */
-    InterruptDispatcher();
+    InterruptDispatcher() = default;
 
     InterruptDispatcher(const InterruptDispatcher &other) = delete;
 
@@ -70,18 +70,11 @@ public:
      */
     void dispatch(const InterruptFrame &frame);
 
-    [[nodiscard]] uint32_t getInterruptDepth() const;
-
 private:
 
     static bool isUnrecoverableException(Kernel::InterruptVector slot);
 
-    uint32_t interruptDepth = 0;
-    uint32_t spuriousCounter = 0;
-    Util::Async::Atomic<uint32_t> interruptDepthWrapper = Util::Async::Atomic<uint32_t>(interruptDepth);
-    Util::Async::Atomic<uint32_t> spuriousCounterWrapper = Util::Async::Atomic<uint32_t>(spuriousCounter);
-
-    Util::List<InterruptHandler*>** handler;
+    Util::List<InterruptHandler*>* handler[256];
 
 };
 

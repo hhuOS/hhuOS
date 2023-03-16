@@ -103,7 +103,8 @@ void Rtl8139::handleOutgoingPacket(const uint8_t *packet, uint32_t length) {
     }
 
     auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    setTransmitAddress(memoryService.getPhysicalAddress(const_cast<uint8_t*>(packet)));
+    auto physicalAddress = memoryService.getPhysicalAddress(const_cast<uint8_t*>(packet));
+    setTransmitAddress(physicalAddress);
     setPacketSize(length);
 
     transmitDescriptor = (transmitDescriptor + 1) % TRANSMIT_DESCRIPTOR_COUNT;
@@ -112,7 +113,7 @@ void Rtl8139::handleOutgoingPacket(const uint8_t *packet, uint32_t length) {
 void Rtl8139::plugin() {
     auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
     interruptService.allowHardwareInterrupt(pciDevice.getInterruptLine());
-    interruptService.assignInterrupt(static_cast<Kernel::InterruptVector>(pciDevice.getInterruptLine()+ 32), *this);
+    interruptService.assignInterrupt(static_cast<Kernel::InterruptVector>(pciDevice.getInterruptLine() + 32), *this);
 }
 
 void Rtl8139::trigger(const Kernel::InterruptFrame &frame) {
