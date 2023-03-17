@@ -20,7 +20,7 @@ BUILD_TYPE="Default"
 TARGET="towboot"
 BUILD_DIR="build"
 CORE_COUNT=$(nproc)
-VALID_TARGETS="grub towboot"
+VALID_TARGETS="grub limine towboot"
 FORBIDDEN_DIR_NAMES="cmake loader media src"
 
 parse_target() {
@@ -33,7 +33,7 @@ parse_target() {
         fi
     done
     
-    printf "Invalid target '%s'!" "${target}"
+    printf "Invalid target '%s'!\\n" "${target}"
     exit 1
 }
 
@@ -84,22 +84,29 @@ parse_build_type() {
 remove() {
     local path=$1
 
-    if [ -f ${path} ]; then
-        printf "Removing '${path}'\\n"
-        rm ${path}
-    elif [ -d ${path} ]; then
-        printf "Removing '${path}'\\n"
-        rm -r ${path}
+    if [ -f "${path}" ]; then
+        printf "Removing '%s'\\n" "${path}"
+        rm -f "${path}"
+    elif [ -d "${path}" ]; then
+        printf "Removing '%s'\\n" "${path}"
+        rm -rf "${path}"
     fi
 }
 
 cleanup() {
-    remove "hhuOS.iso"
-    remove "hhuOS.img"
+    remove "hhuOS-grub.iso"
+    remove "hhuOS-limine.iso"
+    remove "hhuOS-towboot.img"
     remove "floppy0.img"
     remove "hdd0.img"
     remove "loader/grub/boot/hhuOS.bin"
     remove "loader/grub/boot/hhuOS.initrd"
+    remove "loader/limine/limine-deploy"
+    remove "loader/limine/iso/hhuOS.bin"
+    remove "loader/limine/iso/hhuOS.initrd"
+    remove "loader/limine/iso/limine-cd-efi.bin"
+    remove "loader/limine/iso/limine-cd.bin"
+    remove "loader/limine/iso/limine.sys"
     remove "loader/towboot/hhuOS.bin"
     remove "loader/towboot/hhuOS.initrd"
     remove "loader/towboot/towboot-ia32.efi"

@@ -16,12 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-readonly CONST_TOWBOOT_VERSION="0.4.0"
+readonly TOWBOOT_VERSION="0.4.0"
 readonly FILE_LIST=("towboot-ia32.efi" "towboot-x64.efi" "hhuOS.bin" "hhuOS.initrd" "towboot.toml")
 
 if [[ ! -f "towboot-ia32.efi" || ! -f "towboot-x64.efi" ]]; then
-  wget -O towboot-ia32.efi "https://github.com/hhuOS/towboot/releases/download/v${CONST_TOWBOOT_VERSION}/towboot-v${CONST_TOWBOOT_VERSION}-i686.efi"
-  wget -O towboot-x64.efi "https://github.com/hhuOS/towboot/releases/download/v${CONST_TOWBOOT_VERSION}/towboot-v${CONST_TOWBOOT_VERSION}-x86_64.efi"
+  wget -O towboot-ia32.efi "https://github.com/hhuOS/towboot/releases/download/v${TOWBOOT_VERSION}/towboot-v${TOWBOOT_VERSION}-i686.efi" || exit 1
+  wget -O towboot-x64.efi "https://github.com/hhuOS/towboot/releases/download/v${TOWBOOT_VERSION}/towboot-v${TOWBOOT_VERSION}-x86_64.efi" || exit 1
 fi
 
 SIZE=0;
@@ -31,17 +31,17 @@ done
 
 readonly SECTORS=$(((${SIZE} / 512) + 2048))
 
-mformat -i part.img -C -T ${SECTORS}
-mmd -i part.img efi
-mmd -i part.img efi/boot
-mcopy -i part.img towboot-ia32.efi ::efi/boot/bootia32.efi
-mcopy -i part.img towboot-x64.efi ::efi/boot/bootx64.efi
-mcopy -i part.img towboot.toml ::
-mcopy -i part.img hhuOS.bin ::
-mcopy -i part.img hhuOS.initrd ::
+mformat -i part.img -C -T ${SECTORS} || exit 1
+mmd -i part.img efi || exit 1
+mmd -i part.img efi/boot || exit 1
+mcopy -i part.img towboot-ia32.efi ::efi/boot/bootia32.efi || exit 1
+mcopy -i part.img towboot-x64.efi ::efi/boot/bootx64.efi || exit 1
+mcopy -i part.img towboot.toml :: || exit 1
+mcopy -i part.img hhuOS.bin :: || exit 1
+mcopy -i part.img hhuOS.initrd :: || exit 1
 
-fallocate -l 1M fill.img
-cat fill.img part.img fill.img > hhuOS.img
-echo -e "g\\nn\\n1\\n2048\\n+${SECTORS}\\nt\\n1\\nw\\n" | fdisk hhuOS.img
+fallocate -l 1M fill.img || exit 1
+cat fill.img part.img fill.img > hhuOS-towboot.img || exit 1
+echo -e "g\\nn\\n1\\n2048\\n+${SECTORS}\\nt\\n1\\nw\\n" | fdisk hhuOS-towboot.img || exit 1
 
-rm -f fill.img part.img
+rm -f fill.img part.img || exit 1

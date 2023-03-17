@@ -3,7 +3,7 @@
     <option name="SCRIPT_TEXT" value="" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="$PROJECT_DIR$/run.sh" />
-    <option name="SCRIPT_OPTIONS" value="--machine pc-kvm --bios true --file hhuOS.iso" />
+    <option name="SCRIPT_OPTIONS" value="--machine pc-kvm --bios true --file hhuOS-limine.iso" />
     <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
     <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$" />
     <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />

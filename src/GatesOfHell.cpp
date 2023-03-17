@@ -106,7 +106,7 @@ void GatesOfHell::enter() {
         log.info("CPU vendor: %s", static_cast<const char*>(Util::Hardware::CpuId::getVendorString()));
 
         const auto info = Util::Hardware::CpuId::getCpuInfo();
-        log.info("CPU info: Family [%u], Model [%u], Stepping [%u], type [%u]", info.family, info.model, info.stepping, info.type);
+        log.info("CPU info: Family [%u], Model [%u], Stepping [%u], Type [%u]", info.family, info.model, info.stepping, info.type);
 
         const auto features = Util::Hardware::CpuId::getCpuFeatures();
         Util::String featureString;
@@ -165,11 +165,6 @@ void GatesOfHell::enter() {
     mountDevices();
 
     printBanner();
-
-    /*while (true) {
-        auto systemTime = Kernel::System::getService<Kernel::TimeService>().getRtc()->getTime().toMilliseconds();
-        Util::System::out << systemTime << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-    }*/
 
     Util::Async::Process::execute(Util::Io::File("/initrd/bin/shell"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), "shell", Util::Array<Util::String>(0));
 
