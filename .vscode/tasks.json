@@ -22,7 +22,7 @@
                     "quoting": "escape"
                 },
                 {
-                    "value": "hhuOS.iso",
+                    "value": "hhuOS-limine.iso",
                     "quoting": "escape"
                 },
                 {
@@ -60,7 +60,7 @@
                     "quoting": "escape"
                 },
                 {
-                    "value": "hhuOS.img",
+                    "value": "hhuOS-towboot.img",
                     "quoting": "escape"
                 },
                 {
@@ -85,91 +85,6 @@
                 "reveal": "always",
                 "focus": false
             },
-            "problemMatcher": []
-        },
-        {
-            "label": "build (GRUB)",
-            "type": "shell",
-            "command": "${workspaceRoot}/build.sh",
-            "args": [
-                "--target",
-                "grub",
-                "--type",
-                "Debug"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "build (towboot)",
-            "type": "shell",
-            "command": "${workspaceRoot}/build.sh",
-            "args": [
-                "--target",
-                "towboot",
-                "--type",
-                "Debug"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "clean",
-            "type": "shell",
-            "command": "${workspaceRoot}/build.sh",
-            "args": [
-                "--clean"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "qemu (BIOS)",
-            "type": "process",
-            "command": "${workspaceRoot}/run.sh",
-            "args": [
-                "--bios",
-                "true",
-                "--file",
-                "hhuOS.iso",
-                "--machine",
-                "pc"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "qemu (UEFI)",
-            "type": "process",
-            "command": "${workspaceRoot}/run.sh",
-            "args": [
-                "--file",
-                "hhuOS.img",
-                "--machine",
-                "pc"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "qemu-kvm (BIOS)",
-            "type": "shell",
-            "command": "${workspaceRoot}/run.sh",
-            "args": [
-                "--bios",
-                "true",
-                "--file",
-                "hhuOS.iso",
-                "--machine",
-                "pc-kvm"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "qemu-kvm (UEFI)",
-            "type": "shell",
-            "command": "${workspaceRoot}/run.sh",
-            "args": [
-                "--file",
-                "hhuOS.img",
-                "--machine",
-                "pc-kvm"
-            ],
             "problemMatcher": []
         }
     ]

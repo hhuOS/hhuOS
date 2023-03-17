@@ -22,11 +22,10 @@ readonly CONST_QEMU_MACHINE_PC="pc"
 readonly CONST_QEMU_MACHINE_PC_KVM="pc,accel=kvm,kernel-irqchip=split"
 readonly CONST_QEMU_CPU_I386="base,+fpu,+tsc,+cmov,+fxsr,+mmx,+sse,+apic"
 readonly CONST_QEMU_CPU_X86_64="qemu64"
-readonly CONST_QEMU_DEFAULT_RAM="128M"
+readonly CONST_QEMU_DEFAULT_RAM="256M"
 readonly CONST_QEMU_BIOS_PC=""
 readonly CONST_QEMU_BIOS_IA32_EFI="bios/ovmf/ia32/OVMF.fd"
 readonly CONST_QEMU_BIOS_X64_EFI="bios/ovmf/x64/OVMF.fd"
-readonly CONST_QEMU_DEFAULT_BOOT_DEVICE="-drive driver=raw,node-name=boot,file.driver=file,file.filename=hhuOS.img"
 readonly CONST_QEMU_STORAGE_ARGS="-drive driver=raw,index=0,if=floppy,file=floppy0.img -drive driver=raw,node-name=hdd0,file.driver=file,file.filename=hdd0.img"
 readonly CONST_QEMU_NETWORK_ARGS="-nic model=rtl8139,id=eth0,hostfwd=udp::1797-:1797 -object filter-dump,id=filter0,netdev=eth0,file=eth0.dump"
 readonly CONST_QEMU_ARGS="-boot d -vga std -monitor stdio -rtc base=localtime -device isa-debug-exit -smp 2"
@@ -39,13 +38,20 @@ QEMU_BIOS="${CONST_QEMU_BIOS_IA32_EFI}"
 QEMU_RAM="${CONST_QEMU_DEFAULT_RAM}"
 QEMU_CPU="${CONST_QEMU_CPU_I386}"
 QEMU_CPU_OVERWRITE="false"
-QEMU_BOOT_DEVICE="${CONST_QEMU_DEFAULT_BOOT_DEVICE}"
 QEMU_STORAGE_ARGS="${CONST_QEMU_STORAGE_ARGS}"
 QEMU_AUDIO_ARGS="${CONST_QEMU_NEW_AUDIO_ARGS}"
 QEMU_NETWORK_ARGS="${CONST_QEMU_NETWORK_ARGS}"
 QEMU_ARGS="${CONST_QEMU_ARGS}"
 
 QEMU_GDB_PORT=""
+
+if [ -f "hhuOS-towboot.img" ]; then
+  QEMU_BOOT_DEVICE="-drive driver=raw,node-name=boot,file.driver=file,file.filename=hhuOS-towboot.img"
+elif [ -f "hhuOS-limine.iso" ]; then
+  QEMU_BOOT_DEVICE="-boot d -cdrom hhuOS-limine.iso"
+elif [ -f "hhuOS-grub.iso" ]; then
+  QEMU_BOOT_DEVICE="-boot d -cdrom hhuOS-grub.iso"
+fi
 
 version_lt() {
   test "$(printf "%s\n" "$@" | sort -V | tr ' ' '\n' | head -n 1)" != "${2}"
@@ -262,6 +268,11 @@ run_qemu() {
 }
 
 parse_args "$@"
+
+if [ "${QEMU_BOOT_DEVICE}" == "" ]; then
+  printf "No bootable image found!\\n"
+  exit 1
+fi
 
 get_ovmf
 

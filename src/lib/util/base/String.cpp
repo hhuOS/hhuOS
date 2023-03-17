@@ -426,7 +426,7 @@ String String::vformat(const char *format, va_list args) {
 
     for (uint32_t i = 0; format[i] != '\0'; i++) {
         uint32_t j;
-        for (j = 0; format[i + j] != '%' && format[i + j] != '\0'; j++);
+        for (j = 0; format[i + j] != '%' && format[i + j] != '\0'; j++) {}
 
         printStream.write(reinterpret_cast<const uint8_t*>(format), i, j);
 
