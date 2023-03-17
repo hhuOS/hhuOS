@@ -65,7 +65,7 @@ public:
      * @param timerInterval The tick interval in milliseconds (10 milliseconds by default)
      * @param yieldInterval The preemption interval in milliseconds (10 milliseconds by default)
      */
-    explicit ApicTimer(uint32_t timerInterval = 10, uint32_t yieldInterval = 10);
+    ApicTimer(uint32_t timerInterval, uint32_t yieldInterval);
 
     /**
      * Copy Constructor.

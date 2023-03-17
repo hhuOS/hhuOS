@@ -133,13 +133,13 @@ void System::initializeSystem() {
 
     // Setup time and date devices
     log.info("Initializing PIT");
-    auto *pit = new Device::Pit();
+    auto *pit = new Device::Pit(1, 10);
     pit->plugin();
 
     Device::Rtc *rtc = nullptr;
     if (Device::Rtc::isAvailable()) {
         log.info("Initializing RTC");
-        rtc = new Device::Rtc();
+        rtc = new Device::Rtc(250);
         rtc->plugin();
 
         if (!Device::Rtc::isValid()) {
