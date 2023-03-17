@@ -42,9 +42,9 @@ public:
     /**
      * Constructor.
      *
-     * @param interruptRateDivisor Divisor, determining interrupt rate (14 -> 250ms)
+     * @param timerInterval The interval (in milliseconds), at which RTC shall trigger interrupts
      */
-    explicit Rtc(uint8_t interruptRateDivisor = 14);
+    explicit Rtc(uint32_t timerInterval);
 
     /**
      * Copy Constructor.
@@ -165,9 +165,9 @@ private:
     /**
      * Set the rate at which the RTC fires periodic interrupts.
      *
-     * @param ns The interval in nanoseconds
+     * @param interval The interval in milliseconds
      */
-    void setInterruptRate(uint8_t divisor);
+    void setInterruptRate(uint32_t interval);
 
     Util::Time::Timestamp time{};
     Util::Time::Date currentDate{};

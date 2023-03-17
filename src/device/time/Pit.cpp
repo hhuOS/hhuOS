@@ -31,21 +31,20 @@ struct InterruptFrame;
 
 namespace Device {
 
-Kernel::Logger Pit::log = Kernel::Logger::get("Pit");
+Kernel::Logger Pit::log = Kernel::Logger::get("PIT");
 
-Pit::Pit(uint16_t interruptRateDivisor, uint32_t yieldInterval) : yieldInterval(yieldInterval) {
-    setInterruptRate(interruptRateDivisor);
+Pit::Pit(uint32_t timerInterval, uint32_t yieldInterval) : yieldInterval(yieldInterval) {
+    setInterruptRate(timerInterval);
 }
 
-void Pit::setInterruptRate(uint16_t divisor) {
-    if (divisor == 0) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "PIT: Divisor may not be set to 0!");
-    }
+void Pit::setInterruptRate(uint32_t interval) {
+    auto divisor = static_cast<uint32_t>(BASE_FREQUENCY * (interval / 1000.0));
+    if (divisor > UINT16_MAX) divisor = UINT16_MAX;
 
-    auto interval = 1000000000 / (BASE_FREQUENCY / divisor);
-    log.info("Setting PIT interval to [%uns] (Divisor: [%u])", interval, divisor);
+    timerInterval = static_cast<uint32_t>(1000000000 / (static_cast<double>(BASE_FREQUENCY) / divisor));
+    log.info("Setting PIT interval to [%ums] (Divisor: [%u])", timerInterval / 1000000 < 1 ? 1 : timerInterval / 1000000, divisor);
 
-    // For some reason, the PIT interrupt rate is doubled, when it is attached to an IO APIC
+    // For some reason, the PIT interrupt rate is doubled, when it is attached to an IO APIC (only in QEMU)
     auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
     if (FirmwareConfiguration::isAvailable() && interruptService.usesApic()) {
         divisor *= 2;
@@ -54,7 +53,6 @@ void Pit::setInterruptRate(uint16_t divisor) {
     controlPort.writeByte(0x36); // Select channel 0, Use low-/high byte access mode, Set operating mode to rate generator
     dataPort0.writeByte((uint8_t) (divisor & 0xff)); // Low byte
     dataPort0.writeByte((uint8_t) (divisor >> 8)); // High byte
-    timerInterval = interval;
 }
 
 void Pit::plugin() {

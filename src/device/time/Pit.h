@@ -38,9 +38,10 @@ public:
     /**
      * Constructor.
      *
-     * @param timerInterval The interval, at which the PIT shall trigger interrupts.
+     * @param timerInterval The interval (in milliseconds), at which the PIT shall trigger interrupts.
+     * @param yieldInterval The interval (in milliseconds), at which the scheduler shall be yielded.
      */
-    explicit Pit(uint16_t interruptRateDivisor = 1193, uint32_t yieldInterval = 10);
+    Pit(uint32_t timerInterval, uint32_t yieldInterval);
 
     /**
      * Copy Constructor.
@@ -89,9 +90,9 @@ private:
     /**
      * Sets the interval at which the PIT fires interrupts.
      *
-     * @param ns The interval in nanoseconds
+     * @param interval The interval in milliseconds
      */
-    void setInterruptRate(uint16_t divisor);
+    void setInterruptRate(uint32_t interval);
 
     Util::Time::Timestamp time{};
     uint32_t timerInterval = 0;

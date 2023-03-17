@@ -83,6 +83,7 @@
 #include "lib/util/network/ip4/Ip4SubnetAddress.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/async/Thread.h"
+#include "kernel/service/TimeService.h"
 
 namespace Device {
 class Machine;
@@ -164,6 +165,11 @@ void GatesOfHell::enter() {
     mountDevices();
 
     printBanner();
+
+    /*while (true) {
+        auto systemTime = Kernel::System::getService<Kernel::TimeService>().getRtc()->getTime().toMilliseconds();
+        Util::System::out << systemTime << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    }*/
 
     Util::Async::Process::execute(Util::Io::File("/initrd/bin/shell"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), "shell", Util::Array<Util::String>(0));
 

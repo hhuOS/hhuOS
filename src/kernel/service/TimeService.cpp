@@ -103,4 +103,8 @@ void TimeService::busyWait(const Util::Time::Timestamp &time) const {
     }
 }
 
+Device::Rtc *TimeService::getRtc() {
+    return reinterpret_cast<Device::Rtc *>(dateProvider);
+}
+
 }

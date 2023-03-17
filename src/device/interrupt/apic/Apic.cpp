@@ -265,7 +265,7 @@ void Apic::startCurrentTimer() {
         return;
     }
 
-    auto *apicTimer = new Device::ApicTimer();
+    auto *apicTimer = new Device::ApicTimer(10, 10);
     apicTimer->plugin();
     localTimers[LocalApic::getId()] = apicTimer;
 }

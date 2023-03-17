@@ -23,6 +23,7 @@
 #include "Service.h"
 #include "lib/util/time/Date.h"
 #include "lib/util/time/Timestamp.h"
+#include "device/time/Rtc.h"
 
 namespace Device {
 class DateProvider;
@@ -63,6 +64,8 @@ public:
     void busyWait(const Util::Time::Timestamp &time) const;
 
     static const constexpr uint8_t SERVICE_ID = 6;
+
+    Device::Rtc* getRtc();
 
 private:
 

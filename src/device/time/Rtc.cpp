@@ -29,6 +29,7 @@
 #include "kernel/process/Thread.h"
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/base/Exception.h"
+#include "kernel/service/TimeService.h"
 
 namespace Kernel {
 struct InterruptFrame;
@@ -36,9 +37,9 @@ struct InterruptFrame;
 
 namespace Device {
 
-Kernel::Logger Rtc::log = Kernel::Logger::get("Rtc");
+Kernel::Logger Rtc::log = Kernel::Logger::get("RTC");
 
-Rtc::Rtc(uint8_t interruptRateDivisor) {
+Rtc::Rtc(uint32_t timerInterval) {
     if (Acpi::isAvailable() && Acpi::hasTable("FADT")) {
         const auto &fadt = Acpi::getTable<Acpi::Fadt>("FADT");
         centuryRegister = fadt.century;
@@ -52,7 +53,7 @@ Rtc::Rtc(uint8_t interruptRateDivisor) {
              currentDate.getYear(), currentDate.getMonth(), currentDate.getDayOfMonth(),
              currentDate.getHours(), currentDate.getMinutes(), currentDate.getSeconds());
 
-    setInterruptRate(interruptRateDivisor);
+    setInterruptRate(timerInterval);
 }
 
 void Rtc::plugin() {
@@ -226,18 +227,27 @@ void Rtc::alarm() {
     Kernel::System::getService<Kernel::SchedulerService>().ready(alarmThread);
 }
 
-void Rtc::setInterruptRate(uint8_t divisor) {
-    if (divisor < 3 || divisor > 15) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "RTC: Interrupt rate divisor must be between 3 and 15");
+void Rtc::setInterruptRate(uint32_t interval) {
+    Cpu::disableInterrupts();
+    Cmos::disableNmi();
+
+    auto divisor = static_cast<uint32_t>(BASE_FREQUENCY * (interval / 1000.0));
+    uint32_t divisorLog;
+    for (divisorLog = 1; divisor >= 2; divisorLog++) {
+        divisor /= 2;
     }
 
-    // Frequency is divided by 2^divisor
-    auto interval = 1000000000 / (BASE_FREQUENCY / (1 << (divisor - 1)));
-    log.info("Setting RTC interval to [%uns] (Divisor: [%u])", interval, divisor);
+    if (divisorLog < 3) divisorLog = 3;
+    if (divisorLog > 15) divisorLog = 15;
+
+    timerInterval = static_cast<uint32_t>(1000000000 / (static_cast<double>(BASE_FREQUENCY) / (1 << (divisorLog - 1))));
+    log.info("Setting RTC interval to [%ums] (Divisor: [%u])", timerInterval / 1000000 < 1 ? 1 : timerInterval / 1000000, divisorLog);
 
     uint8_t oldValue = Cmos::read(STATUS_REGISTER_A);
-    Cmos::write(STATUS_REGISTER_A, (oldValue & 0xf0) | divisor);
-    timerInterval = interval;
+    Cmos::write(STATUS_REGISTER_A, (oldValue & 0xf0) | divisorLog);
+
+    Cmos::enableNmi();
+    Cpu::enableInterrupts();
 }
 
 Util::Time::Timestamp Rtc::getTime() {
