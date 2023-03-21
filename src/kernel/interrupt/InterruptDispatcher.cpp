@@ -95,7 +95,7 @@ bool InterruptDispatcher::isUnrecoverableException(InterruptVector slot) {
     }
 
     // Recoverable faults
-    return slot != PAGEFAULT && slot != DEVICE_NOT_AVAILABLE;
+    return slot != PAGE_FAULT && slot != DEVICE_NOT_AVAILABLE;
 }
 
 }

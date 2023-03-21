@@ -27,6 +27,7 @@
 #include "filesystem/memory/MemoryDriver.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "lib/util/base/Exception.h"
+#include "kernel/multiboot/Multiboot.h"
 
 namespace Kernel {
 struct InterruptFrame;
@@ -67,6 +68,13 @@ bool SerialPort::checkPort(ComPort port) {
 }
 
 void SerialPort::initializePort(ComPort port) {
+    if (Kernel::Multiboot::hasKernelOption("debug_port")) {
+        auto portName = Kernel::Multiboot::getKernelOption("debug_port");
+        if (portFromString(portName) == port) {
+            return;
+        }
+    }
+
     if (!checkPort(port)) {
         return;
     }
@@ -187,6 +195,15 @@ void SerialPort::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t le
     for (uint32_t i = 0; i < length; i++) {
         write(sourceBuffer[offset + i]);
     }
+}
+
+uint8_t SerialPort::readDirect() {
+    bool hasData = (lineStatusRegister.readByte() & 0x01) == 0x01;
+    while (!hasData) {
+        hasData = (lineStatusRegister.readByte() & 0x01) == 0x01;
+    }
+
+    return dataRegister.readByte();
 }
 
 }

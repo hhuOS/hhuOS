@@ -131,6 +131,12 @@ void System::initializeSystem() {
     log.info("Enabling interrupts");
     Device::Cpu::enableInterrupts();
 
+    if (Multiboot::hasKernelOption("debug_port")) {
+        auto portName = Multiboot::getKernelOption("debug_port");
+        auto port = Device::SerialPort::portFromString(portName);
+        interruptService->startGdbServer(port);
+    }
+
     // Setup time and date devices
     log.info("Initializing PIT");
     auto *pit = new Device::Pit(1, 10);
@@ -166,7 +172,9 @@ void System::initializeSystem() {
     systemCall.plugin();
 
     // Protect kernel code
-    kernelAddressSpace->getPageDirectory().unsetPageFlags(___WRITE_PROTECTED_START__, ___WRITE_PROTECTED_END__, Paging::READ_WRITE);
+    if (!Multiboot::hasKernelOption("debug_port")) {
+        kernelAddressSpace->getPageDirectory().unsetPageFlags(___WRITE_PROTECTED_START__, ___WRITE_PROTECTED_END__, Paging::READ_WRITE);
+    }
 }
 
 void *System::allocateEarlyMemory(uint32_t size) {
@@ -333,7 +341,7 @@ TaskStateSegment &System::getTaskStateSegment() {
 }
 
 void System::handleEarlyInterrupt(const InterruptFrame &frame) {
-    if (frame.interrupt == InterruptVector::PAGEFAULT) {
+    if (frame.interrupt == InterruptVector::PAGE_FAULT) {
         pagefaultHandler->trigger(frame);
     }
 }

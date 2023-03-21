@@ -67,6 +67,11 @@ void InterruptService::sendEndOfInterrupt(InterruptVector interrupt) {
     }
 }
 
+void InterruptService::startGdbServer(Device::SerialPort::ComPort port) {
+    gdbServer.plugin();
+    gdbServer.start(port);
+}
+
 bool InterruptService::checkSpuriousInterrupt(InterruptVector interrupt) {
     if (usesApic()) {
         return interrupt == InterruptVector::SPURIOUS;
