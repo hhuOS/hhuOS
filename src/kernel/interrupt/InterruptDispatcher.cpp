@@ -38,7 +38,7 @@ void InterruptDispatcher::dispatch(const InterruptFrame &frame) {
     auto &interruptService = System::getService<InterruptService>();
     auto slot = static_cast<InterruptVector>(frame.interrupt);
 
-    // Handle exceptions (except page fault and device not available)
+    // Handle exceptions
     if (isUnrecoverableException(slot)) {
         auto &processService = System::getService<ProcessService>();
         if (processService.getCurrentProcess().isKernelProcess()) {
@@ -60,8 +60,8 @@ void InterruptDispatcher::dispatch(const InterruptFrame &frame) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "No handler registered!");
     }
 
-    uint32_t size = handlerList->size();
-    for (uint32_t i = 0; i < size; i++) {
+    // Call installed interrupt handlers
+    for (uint32_t i = 0; i < handlerList->size(); i++) {
         handlerList->get(i)->trigger(frame);
     }
 
@@ -77,25 +77,7 @@ void InterruptDispatcher::assign(uint8_t slot, InterruptHandler &isr) {
 }
 
 bool InterruptDispatcher::isUnrecoverableException(InterruptVector slot) {
-    // APIC interrupts
-    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
-    if (interruptService.isValidApicInterrupt(slot)) {
-        return false;
-    }
-
-    // PIC interrupts
-    // Hardware interrupts
-    if (slot - 32 <= SECONDARY_ATA) {
-        return false;
-    }
-
-    // Software interrupts
-    if (slot == SYSTEM_CALL) {
-        return false;
-    }
-
-    // Recoverable faults
-    return slot != PAGEFAULT && slot != DEVICE_NOT_AVAILABLE;
+    return slot < PIT && handler[slot] == nullptr;
 }
 
 }

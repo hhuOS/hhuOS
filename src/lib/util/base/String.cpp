@@ -510,10 +510,6 @@ int32_t String::parseInt(const String &string) {
 }
 
 int32_t String::parseHexInt(const char *string) {
-    return 0;
-}
-
-int32_t String::parseHexInt(const String &string) {
     int32_t length;
     for (length = 0; string[length] != '\0'; length ++) {}
 
@@ -533,6 +529,10 @@ int32_t String::parseHexInt(const String &string) {
     }
 
     return result;
+}
+
+int32_t String::parseHexInt(const String &string) {
+    return parseHexInt(static_cast<const char*>(string));
 }
 
 }

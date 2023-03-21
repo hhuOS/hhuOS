@@ -72,7 +72,7 @@ public:
 
 private:
 
-    static bool isUnrecoverableException(Kernel::InterruptVector slot);
+    bool isUnrecoverableException(Kernel::InterruptVector slot);
 
     Util::List<InterruptHandler*>* handler[256];
 

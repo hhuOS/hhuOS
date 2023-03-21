@@ -202,6 +202,8 @@ public:
 
     void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
 
+    uint8_t readDirect();
+
 private:
 
     static void initializePort(ComPort port);

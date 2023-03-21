@@ -104,12 +104,12 @@ public:
     /**
      * Check if an interrupt vector belongs to a local interrupt (Local APIC).
      */
-    bool isLocalInterrupt(Kernel::InterruptVector vector);
+    bool isLocalInterrupt(Kernel::InterruptVector vector) const;
 
     /**
      * Check if an interrupt vector belongs to an external hardware interrupt (I/O APIC).
      */
-    bool isExternalInterrupt(Kernel::InterruptVector vector);
+    bool isExternalInterrupt(Kernel::InterruptVector vector) const;
 
     /**
      * Check if this core's local APIC timer has been initialized.

@@ -141,11 +141,11 @@ void Apic::sendEndOfInterrupt(Kernel::InterruptVector vector) {
     }
 }
 
-bool Apic::isLocalInterrupt(Kernel::InterruptVector vector) {
+bool Apic::isLocalInterrupt(Kernel::InterruptVector vector) const {
     return vector >= Kernel::InterruptVector::CMCI && vector <= Kernel::InterruptVector::ERROR;
 }
 
-bool Apic::isExternalInterrupt(Kernel::InterruptVector vector) {
+bool Apic::isExternalInterrupt(Kernel::InterruptVector vector) const {
     // Remapping can be ignored here, as all GSIs are contiguous anyway
     return static_cast<Kernel::GlobalSystemInterrupt>(vector - 32) <= ioApic->getMaxGlobalSystemInterruptNumber();
 }

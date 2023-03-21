@@ -26,6 +26,7 @@
 #include "device/interrupt/InterruptRequest.h"
 #include "kernel/interrupt/InterruptVector.h"
 #include "device/interrupt/apic/Apic.h"
+#include "device/debug/GdbServer.h"
 
 namespace Kernel {
 class InterruptHandler;
@@ -62,17 +63,15 @@ public:
 
     void dispatchInterrupt(const InterruptFrame &frame);
 
-    [[nodiscard]] bool isHardwareInterrupt(InterruptVector interrupt);
-
     void allowHardwareInterrupt(Device::InterruptRequest interrupt);
 
     void forbidHardwareInterrupt(Device::InterruptRequest interrupt);
 
     void sendEndOfInterrupt(InterruptVector interrupt);
 
-    [[nodiscard]] bool checkSpuriousInterrupt(InterruptVector interrupt);
+    void startGdbServer(Device::SerialPort::ComPort port);
 
-    [[nodiscard]] bool isValidApicInterrupt(InterruptVector interrupt);
+    [[nodiscard]] bool checkSpuriousInterrupt(InterruptVector interrupt);
 
     [[nodiscard]] Device::Apic& getApic();
 
@@ -82,7 +81,9 @@ private:
 
     Device::Pic pic;
     Device::Apic *apic = nullptr;
+
     InterruptDispatcher dispatcher;
+    Device::GdbServer gdbServer = Device::GdbServer();
 
     static Kernel::Logger log;
 };

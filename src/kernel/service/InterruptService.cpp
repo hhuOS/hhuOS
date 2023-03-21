@@ -67,6 +67,11 @@ void InterruptService::sendEndOfInterrupt(InterruptVector interrupt) {
     }
 }
 
+void InterruptService::startGdbServer(Device::SerialPort::ComPort port) {
+    gdbServer.plugin();
+    gdbServer.start(port);
+}
+
 bool InterruptService::checkSpuriousInterrupt(InterruptVector interrupt) {
     if (usesApic()) {
         return interrupt == InterruptVector::SPURIOUS;
@@ -78,10 +83,6 @@ bool InterruptService::checkSpuriousInterrupt(InterruptVector interrupt) {
 
     return pic.isSpurious(static_cast<Device::InterruptRequest>(interrupt - 32));
 
-}
-
-bool InterruptService::isValidApicInterrupt(InterruptVector interrupt) {
-    return usesApic() && (apic->isLocalInterrupt(interrupt) || apic->isExternalInterrupt(interrupt));
 }
 
 Device::Apic &InterruptService::getApic() {
