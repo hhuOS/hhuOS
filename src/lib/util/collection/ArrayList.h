@@ -151,7 +151,7 @@ void ArrayList<T>::add(uint32_t index, const T &element) {
 
     ensureCapacity(length + 1);
 
-    for(uint32_t i = length == 0 ? 0 : length - 1; i > index; i--) {
+    for(uint32_t i = length; i > index; i--) {
         elements[i] = elements[i - 1];
     }
 
