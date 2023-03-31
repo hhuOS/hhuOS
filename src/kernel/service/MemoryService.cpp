@@ -40,7 +40,8 @@ namespace Kernel {
 MemoryService::MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaManager *pagingAreaManager, VirtualAddressSpace *kernelAddressSpace)
         : pageFrameAllocator(*pageFrameAllocator), pagingAreaManager(*pagingAreaManager), currentAddressSpace(kernelAddressSpace), kernelAddressSpace(*kernelAddressSpace) {
     addressSpaces.add(kernelAddressSpace);
-    lowerMemoryManager.initialize(MemoryLayout::BIOS_CODE_MEMORY.toVirtual().endAddress + 1, MemoryLayout::USABLE_LOWER_MEMORY.toVirtual().endAddress);
+
+    lowerMemoryManager.initialize(MemoryLayout::USABLE_LOWER_MEMORY.toVirtual().startAddress, MemoryLayout::USABLE_LOWER_MEMORY.toVirtual().endAddress);
     lowerMemoryManager.disableAutomaticUnmapping();
 
     SystemCall::registerSystemCall(Util::System::UNMAP, [](uint32_t paramCount, va_list arguments) -> bool {

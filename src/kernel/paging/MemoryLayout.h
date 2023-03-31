@@ -26,6 +26,7 @@
 #define __MEMLAYOUT_include__
 
 #include "lib/util/base/Address.h"
+#include "device/bios/Bios.h"
 
 namespace Kernel {
 
@@ -55,7 +56,7 @@ public:
             if (type == PHYSICAL) {
                 return { startAddress, endAddress, PHYSICAL };
             } else {
-                return {VIRTUAL_TO_PHYSICAL(startAddress), VIRTUAL_TO_PHYSICAL(endAddress), PHYSICAL};
+                return { VIRTUAL_TO_PHYSICAL(startAddress), VIRTUAL_TO_PHYSICAL(endAddress), PHYSICAL };
             }
         }
 
@@ -63,7 +64,7 @@ public:
             if (type == VIRTUAL) {
                 return { startAddress, endAddress, VIRTUAL };
             } else {
-                return {PHYSICAL_TO_VIRTUAL(startAddress), PHYSICAL_TO_VIRTUAL(endAddress), VIRTUAL };
+                return { PHYSICAL_TO_VIRTUAL(startAddress), PHYSICAL_TO_VIRTUAL(endAddress), VIRTUAL };
             }
         }
     };
@@ -80,23 +81,17 @@ public:
     static const constexpr uint32_t KERNEL_START = 0xc0000000;
     static const constexpr uint32_t MEMORY_END = 0xffffffff;
 
-    // Real mode address space (https://wiki.osdev.org/Memory_Map_%28x86%29)
-    static const constexpr MemoryArea REAL_MODE_INTERRUPT_VECTOR_TABLE = { 0x00000000, 0x000003ff, MemoryArea::PHYSICAL };
-    static const constexpr MemoryArea BIOS_DATA_AREA = { 0x00000400, 0x000004ff, MemoryArea::PHYSICAL };
-    static const constexpr MemoryArea USABLE_LOWER_MEMORY = {0x00000500, 0x0007ffff, MemoryArea::PHYSICAL };
-    static const constexpr MemoryArea EXTENDED_BIOS_DATA_AREA = { 0x00080000, 0x0009ffff, MemoryArea::PHYSICAL };
-    static const constexpr MemoryArea VIDEO_DISPLAY_MEMORY = { 0x000a0000, 0x000bffff, MemoryArea::PHYSICAL };
-    static const constexpr MemoryArea VIDEO_BIOS = { 0x000c0000, 0x000c7fff, MemoryArea::PHYSICAL };
-    static const constexpr MemoryArea BIOS_EXPANSIONS = { 0x000c8000, 0x000effff, MemoryArea::PHYSICAL };
-    static const constexpr MemoryArea MOTHERBOARD_BIOS = { 0x000f0000, 0x000fffff, MemoryArea::PHYSICAL };
+    // Look into boot.asm for corresponding GDT-Entry
+    static const constexpr MemoryArea BIOS_CALL_CODE_AREA = { 0x00004000, 0x00007fff, MemoryArea::PHYSICAL };
+    static const constexpr MemoryArea BIOS_CALL_ESP_BACKUP = { 0x00005000, 0x00005000 + sizeof(uint32_t), MemoryArea::PHYSICAL };
+    static const constexpr MemoryArea BIOS_CALL_STACK = { 0x00006000, 0x00006000 + sizeof(Device::Bios::RealModeContext) - 1, MemoryArea::PHYSICAL };
+    static const constexpr MemoryArea BIOS_CALL_IDT = { 0x00007000, 0x00007000 + sizeof(uint16_t) + sizeof(uint32_t), MemoryArea::PHYSICAL };
+    static const constexpr MemoryArea USABLE_LOWER_MEMORY = { 0x00010000, 0x0007ffff, MemoryArea::PHYSICAL };
     
     // start of virtual area for page tables and directories (128 MB)
-    static const constexpr MemoryArea PAGING_AREA = {0xf8000000, MEMORY_END, MemoryArea::VIRTUAL };
+    static const constexpr MemoryArea PAGING_AREA = { 0xf8000000, MEMORY_END, MemoryArea::VIRTUAL };
     // end of virtual kernel memory for heap
     static const constexpr uint32_t KERNEL_HEAP_END_ADDRESS = PAGING_AREA.startAddress - 1;
-    
-    // Look into boot.asm for corresponding GDT-Entry
-    static const constexpr MemoryArea BIOS_CODE_MEMORY = {USABLE_LOWER_MEMORY.startAddress, 0x00000fff, MemoryArea::PHYSICAL };
 };
 
 }

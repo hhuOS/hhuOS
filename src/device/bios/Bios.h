@@ -19,6 +19,7 @@
 #define HHUOS_DEVICE_BIOS_H
 
 #include <cstdint>
+#include "asm_interface.h"
 
 namespace Util {
 namespace Async {
@@ -107,9 +108,6 @@ public:
 private:
 
     static Util::Async::Spinlock interruptLock;
-
-    static const constexpr uint32_t STACK_SEGMENT_ADDRESS_OFFSET = 23;
-    static const constexpr uint32_t BIOS_INTERRUPT_NUMBER_ADDRESS_OFFSET = 41;
 };
 
 }

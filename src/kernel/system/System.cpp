@@ -105,7 +105,7 @@ void System::initializeSystem() {
     registerService(InterruptService::SERVICE_ID, interruptService);
     memoryService->plugin();
 
-    if (Device::Apic::isAvailable()) {
+    /*if (Device::Apic::isAvailable()) {
         log.info("APIC detected");
         auto *apic = Device::Apic::initialize();
         if (apic == nullptr) {
@@ -119,7 +119,7 @@ void System::initializeSystem() {
         }
     } else {
         log.info("APIC not available -> Falling back to PIC");
-    }
+    }*/
 
     // Create scheduler service and register kernel process
     log.info("Initializing scheduler");
@@ -240,13 +240,13 @@ void System::initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t *bio
     // first entry has to be null
     System::createGlobalDescriptorTableEntry(systemGdt, 0, 0, 0, 0, 0);
     // kernel code segment
-    System::createGlobalDescriptorTableEntry(systemGdt, 1, 0, 0xFFFFFFFF, 0x9A, 0xC);
+    System::createGlobalDescriptorTableEntry(systemGdt, 1, 0, 0xFFFFFFFF, 0x9A, 0x0C);
     // kernel data segment
-    System::createGlobalDescriptorTableEntry(systemGdt, 2, 0, 0xFFFFFFFF, 0x92, 0xC);
+    System::createGlobalDescriptorTableEntry(systemGdt, 2, 0, 0xFFFFFFFF, 0x92, 0x0C);
     // user code segment
-    System::createGlobalDescriptorTableEntry(systemGdt, 3, 0, 0xFFFFFFFF, 0xFA, 0xC);
+    System::createGlobalDescriptorTableEntry(systemGdt, 3, 0, 0xFFFFFFFF, 0xFA, 0x0C);
     // user data segment
-    System::createGlobalDescriptorTableEntry(systemGdt, 4, 0, 0xFFFFFFFF, 0xF2, 0xC);
+    System::createGlobalDescriptorTableEntry(systemGdt, 4, 0, 0xFFFFFFFF, 0xF2, 0x0C);
     // tss segment
     System::createGlobalDescriptorTableEntry(systemGdt, 5, reinterpret_cast<uint32_t>(&System::taskStateSegment), sizeof(Kernel::TaskStateSegment), 0x89, 0x4);
 
@@ -263,15 +263,17 @@ void System::initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t *bio
     // now set up GDT for BIOS-calls (notice that no userspace entries are necessary here)
     // first entry has to be null
     System::createGlobalDescriptorTableEntry(biosGdt, 0, 0, 0, 0, 0);
-    // kernel code segment
-    System::createGlobalDescriptorTableEntry(biosGdt, 1, 0, 0xFFFFFFFF, 0x9A, 0xC);
-    // kernel data segment
-    System::createGlobalDescriptorTableEntry(biosGdt, 2, 0, 0xFFFFFFFF, 0x92, 0xC);
-    // prepared BIOS-call segment (contains 16-bit code etc...)
-    System::createGlobalDescriptorTableEntry(biosGdt, 3, MemoryLayout::BIOS_CODE_MEMORY.startAddress, 0xFFFFFFFF, 0x9A, 0x8);
+    // kernel code segment (32-bit, BIOS-Call preparation and cleanup)
+    System::createGlobalDescriptorTableEntry(biosGdt, 1, 0, 0xFFFFFFFF, 0x9A, 0x0C);
+    // kernel data segment (32-bit, BIOS-Call preparation and cleanup)
+    System::createGlobalDescriptorTableEntry(biosGdt, 2, 0, 0xFFFFFFFF, 0x92, 0x0C);
+    // BIOS-Call code segment (16-bit)
+    System::createGlobalDescriptorTableEntry(biosGdt, 3, 0, 0xFFFFF, 0x9A, 0x00);
+    // BIOS-Call data segment (16-bit)
+    System::createGlobalDescriptorTableEntry(biosGdt, 4, 0, 0xFFFFF, 0x92, 0x00);
 
     // set up descriptor for BIOS-GDT
-    *((uint16_t *) biosGdtDescriptor) = 4 * 8;
+    *((uint16_t *) biosGdtDescriptor) = 5 * 8;
     // the descriptor should contain physical address of BIOS-GDT because paging is not enabled during BIOS-calls
     *((uint32_t *) (biosGdtDescriptor + 1)) = (uint32_t) biosGdt;
 }

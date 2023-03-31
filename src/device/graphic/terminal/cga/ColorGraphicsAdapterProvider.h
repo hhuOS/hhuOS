@@ -104,8 +104,7 @@ private:
 
     static Util::String getVideoCardTypeAsString(VideoCardType cardType);
 
-    Util::Array<ModeInfo> supportedModes{{40, 25, 4, 0x01},
-                                               {80, 25, 4, 0x03}};
+    Util::Array<ModeInfo> supportedModes{{40, 25, 4, 0x01}, {80, 25, 4, 0x03}};
 
     static Kernel::Logger log;
 

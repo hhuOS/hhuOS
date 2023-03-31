@@ -62,7 +62,7 @@ ApmMachine::ApmMachine() {
     log.info("Enabling power management");
     if (!enablePowerManagement()) {
         callApmFunction(DISCONNECT, SYSTEM, DEVICE_ID_APM_BIOS);
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "APM: Unable to enable power management");
+        log.error("APM: Unable to enable power management");
     }
 }
 
@@ -72,10 +72,6 @@ bool ApmMachine::isAvailable() {
     }
 
     auto biosReturn = callApmFunction(INSTALLATION_CHECK, SYSTEM, DEVICE_ID_APM_BIOS);
-    if ((biosReturn.flags & CARRY_FLAG) != 0) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "APM: No APM compatible BIOS available!");
-    }
-
     if ((biosReturn.flags & CARRY_FLAG) != 0) {
         return false;
     }

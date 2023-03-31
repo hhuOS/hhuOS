@@ -50,6 +50,9 @@ void start_first_thread(Kernel::Context *thread);
 void switch_context(Kernel::Context **current, Kernel::Context **next);
 [[noreturn]] void on_exception(uint32_t);
 [[nodiscard]] int32_t is_cpuid_available();
+void bios_call_16_start();
+void bios_call_16_end();
+void bios_call_16_interrupt();
 void _init();
 void _fini();
 }
