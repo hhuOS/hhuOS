@@ -84,17 +84,20 @@ Apic* Apic::initialize() {
 }
 
 void Apic::initializeCurrentLocalApic() {
-    LocalApic &localApic = getCurrentLocalApic();
-
-    if (localApic.getCpuId() != LocalApic::getId()) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Apic: AP can only enable itself!");
-    }
-
-    localApic.initialize();
+    getCurrentLocalApic().initialize();
 }
 
 LocalApic& Apic::getCurrentLocalApic() {
-    return *localApics[LocalApic::getId()];
+    // Instead of indexing the local APIC by their IDs, search the full array.
+    // This is required, as local APIC IDs might not be sequential or 0-based.
+    const auto currentCpuId = LocalApic::getId();
+    for (auto *localApic : localApics) {
+        if (localApic->getCpuId() == currentCpuId) {
+            return *localApic;
+        }
+    }
+
+    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Apic: No local APIC found for current CPU.");
 }
 
 void Apic::enableCurrentErrorHandler() {
@@ -167,7 +170,6 @@ Util::Array<LocalApic*> Apic::getLocalApics() {
             // When ACPI reports this local APIC as disabled, it may not be used by the OS.
             // ACPI 1.0 specification, sec. 5.2.8.1
             log.info("Local APIC [%u] is marked as disabled", localInfo->apicId);
-            localApics.add(localInfo->apicId, nullptr);
             continue;
         }
 
@@ -189,8 +191,10 @@ Util::Array<LocalApic*> Apic::getLocalApics() {
         auto *localApic = new LocalApic(localInfo->apicId, nmiInfo->localApicLint == 0 ? LocalApic::LINT0 : LocalApic::LINT1,
                 nmiInfo->flags & Acpi::IntiFlag::ACTIVE_HIGH ? LocalApic::LocalVectorTableEntry::PinPolarity::HIGH : LocalApic::LocalVectorTableEntry::PinPolarity::LOW,
                 nmiInfo->flags & Acpi::IntiFlag::EDGE_TRIGGERED ? LocalApic::LocalVectorTableEntry::TriggerMode::EDGE : LocalApic::LocalVectorTableEntry::TriggerMode::LEVEL);
-        localApics.add(localInfo->apicId, localApic);
+        localApics.add(localApic);
     }
+
+    log.info("[%u] local %s are usable", localApics.size(), localApics.size() == 1 ? "APIC" : "APICs");
 
     return localApics.toArray();
 }
