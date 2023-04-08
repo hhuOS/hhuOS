@@ -34,7 +34,7 @@ namespace Device {
 Kernel::Logger Apic::log = Kernel::Logger::get("APIC");
 
 uint8_t initializedTimersCounter = 0; // Used to determine the array index where a new timer is inserted
-// uint8_t initializedApplicationProcessorsCounter = 0; // Used to determine AP GDT/Stack slot
+uint8_t initializedApplicationProcessorsCounter = 0; // Used to determine AP GDT/Stack slot
 
 Apic::Apic(const Util::Array<LocalApic*> &localApics, IoApic *ioApic) : localApics(localApics), localTimers(localApics.length()), ioApic(ioApic) {
     for (auto *&localTimer : localTimers) {
@@ -311,10 +311,9 @@ void Apic::startupApplicationProcessors() {
     Cmos::disableNmi();
 
     // Call the startup code on each AP using the INIT-SIPI-SIPI Universal Startup Algorithm
-    for (uint32_t i = 0; i < localApics.length(); ++i) {
-        const LocalApic *localApic = localApics[i];
-        if (localApic == nullptr || localApic->getCpuId() == LocalApic::getId()) {
-            // Skip this AP if it's the BSP or disabled
+    for (const auto *localApic : localApics) {
+        if (localApic->getCpuId() == LocalApic::getId()) {
+            // Skip this AP if it's the BSP
             continue;
         }
 
@@ -350,10 +349,10 @@ void Apic::startupApplicationProcessors() {
         // the same will happen if the SIPI does not reach its target. That's why we abort.
         // Because the system time is not yet functional, we delay to measure the time.
         uint32_t readCount = 0;
-        while (!runningApplicationProcessors[localApic->getCpuId()]) {
+        while (!runningApplicationProcessors[initializedApplicationProcessorsCounter]) {
             if (readCount > 10) {
                 // Waited 10 * 10 ms = 0.1 s in total (pretty arbitrarily chosen by me)
-                log.error("CPU [%u] did not mark itself as running, it could be in undefined state!", i);
+                log.error("CPU [%u] did not mark itself as running, it could be in undefined state!", localApic->getCpuId());
                 break;
             }
 
@@ -361,7 +360,8 @@ void Apic::startupApplicationProcessors() {
             readCount++;
         }
 
-        log.info("CPU [%u] is now online!", i);
+        initializedApplicationProcessorsCounter++;
+        log.info("CPU [%u] is now online!", localApic->getCpuId());
     }
 
     Cmos::enableNmi();
@@ -377,16 +377,10 @@ void Apic::startupApplicationProcessors() {
 
 void* Apic::prepareApplicationProcessorStacks() {
     // Allocate the stack pointer array
-    auto **stacks = reinterpret_cast<uint32_t**>(new uint8_t*[localApics.length()]);
+    auto **stacks = reinterpret_cast<uint32_t**>(new uint8_t*[localApics.length() - 1]); // Exclude BSP
 
     // Allocate the stacks
-    for (uint32_t i = 0; i < localApics.length(); ++i) {
-        if (i == LocalApic::getId() || localApics[i] == nullptr) {
-            // Skip BSP or disabled processors
-            stacks[i] = nullptr;
-            continue;
-        }
-
+    for (uint32_t i = 0; i < localApics.length() - 1; ++i) {
         stacks[i] = reinterpret_cast<uint32_t*>(new uint8_t[applicationProcessorStackSize]);
     }
 
@@ -407,6 +401,7 @@ void* Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
             : "=a"(boot_ap_cr3));
     asm volatile("mov %%cr4, %%eax;"
             : "=a"(boot_ap_cr4));
+    boot_ap_counter = reinterpret_cast<uint32_t>(&initializedApplicationProcessorsCounter);
     boot_ap_gdts = reinterpret_cast<uint32_t>(gdts);
     boot_ap_stacks = reinterpret_cast<uint32_t>(stacks);
     boot_ap_entry = reinterpret_cast<uint32_t>(&applicationProcessorEntry);
@@ -444,15 +439,9 @@ void *Apic::prepareApplicationProcessorWarmReset() {
 
 void *Apic::prepareApplicationProcessorGdts() {
     // Allocate descriptor pointer array
-    auto **gdts = reinterpret_cast<Cpu::Descriptor**>(new Cpu::Descriptor *[localApics.length()]);
+    auto **gdts = reinterpret_cast<Cpu::Descriptor**>(new Cpu::Descriptor *[localApics.length() - 1]); // Skip BSP
 
-    for (uint32_t i = 0; i < localApics.length(); ++i) {
-        if (i == LocalApic::getId() || localApics[i] == nullptr) {
-            // Skip BSP or disabled processors
-            gdts[i] = nullptr;
-            continue;
-        }
-
+    for (uint32_t i = 0; i < localApics.length() - 1; ++i) {
         gdts[i] = allocateApplicationProcessorGdt();
     }
 

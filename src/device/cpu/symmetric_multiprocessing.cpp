@@ -30,7 +30,7 @@ volatile bool runningApplicationProcessors[256]{}; // Once an AP is running it s
 
 Kernel::Logger log = Kernel::Logger::get("SMP");
 
-[[noreturn]] void applicationProcessorEntry(uint8_t apicId) {
+[[noreturn]] void applicationProcessorEntry(uint8_t initializedApplicationProcessorsCounter) {
     // Initialize this AP's APIC
     auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
     auto &apic = interruptService.getApic();
@@ -39,7 +39,7 @@ Kernel::Logger log = Kernel::Logger::get("SMP");
     // Disabled, since it causes a memory allocation
     // apic.startCurrentTimer();
 
-    runningApplicationProcessors[apicId] = true; // Mark this AP as running
+    runningApplicationProcessors[initializedApplicationProcessorsCounter] = true; // Mark this AP as running
 
     // Enable interrupts for this AP (usually results in a crash)
     // asm volatile ("sti");
