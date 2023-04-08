@@ -286,7 +286,7 @@ void Apic::startupApplicationProcessors() {
     void *gdtPointers = prepareApplicationProcessorGdts();
     void *stackPointers = prepareApplicationProcessorStacks();
     void *startupCodeRegion = prepareApplicationProcessorStartupCode(gdtPointers, stackPointers);
-    void *warmResetVectorRegion = prepareApplicationProcessorStacks(); // This is technically only required for discrete APIC, see below
+    void *warmResetVectorRegion = prepareApplicationProcessorWarmReset(); // This is technically only required for discrete APIC, see below
 
     // Universal Startup Algorithm requires all interrupts disabled (they should be disabled anyway, but disabling them a second time is twice as good)
     Cpu::disableInterrupts();
