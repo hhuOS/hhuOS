@@ -33,6 +33,9 @@ namespace Device {
 
 Kernel::Logger Apic::log = Kernel::Logger::get("APIC");
 
+uint8_t initializedTimersCounter = 0; // Used to determine the array index where a new timer is inserted
+// uint8_t initializedApplicationProcessorsCounter = 0; // Used to determine AP GDT/Stack slot
+
 Apic::Apic(const Util::Array<LocalApic*> &localApics, IoApic *ioApic) : localApics(localApics), localTimers(localApics.length()), ioApic(ioApic) {
     for (auto *&localTimer : localTimers) {
         localTimer = nullptr;
@@ -260,7 +263,13 @@ Kernel::GlobalSystemInterrupt Apic::getIrqOverride(InterruptRequest interruptReq
 }
 
 bool Apic::isCurrentTimerRunning() {
-    return localTimers[LocalApic::getId()] != nullptr;
+    const auto currentCpuId = LocalApic::getId();
+    for (auto *apicTimer : localTimers) {
+        if (apicTimer->getCpuId() == currentCpuId) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void Apic::startCurrentTimer() {
@@ -271,15 +280,20 @@ void Apic::startCurrentTimer() {
 
     auto *apicTimer = new Device::ApicTimer(10, 10);
     apicTimer->plugin();
-    localTimers[LocalApic::getId()] = apicTimer;
+    localTimers[initializedTimersCounter++] = apicTimer;
 }
 
 ApicTimer& Apic::getCurrentTimer() {
-    if (!isCurrentTimerRunning()) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Timer for the current CPU has not been initialized yet!");
+    // Instead of indexing the local timers by their IDs, search the full array.
+    // This is required, as local timer IDs might not be sequential or 0-based.
+    const auto currentCpuId = LocalApic::getId();
+    for (auto *apicTimer : localTimers) {
+        if (apicTimer->getCpuId() == currentCpuId) {
+            return *apicTimer;
+        }
     }
 
-    return *localTimers[LocalApic::getId()];
+    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Timer for the current CPU has not been initialized yet!");
 }
 
 bool Apic::isSymmetricMultiprocessingSupported() const {
