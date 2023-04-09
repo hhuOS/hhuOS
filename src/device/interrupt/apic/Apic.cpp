@@ -176,24 +176,44 @@ Util::Array<LocalApic*> Apic::getLocalApics() {
             continue;
         }
 
-        // Find the NMI belonging to the current localInfo, every local APIC should have exactly one
-        const Acpi::LocalApicNmi *nmiInfo = nullptr;
-        for (const auto *localNmi : acpiLocalApicNmis) {
-            // 0xff means all APs
-            if ((localNmi->acpiProcessorId == localInfo->acpiProcessorId) | (localNmi->acpiProcessorId == 0xff)) {
-                nmiInfo = localNmi;
-                break;
-            }
+        auto *localApic = new LocalApic(localInfo->apicId);
+
+        // Find the NMI belonging to the current localInfo
+        // const Acpi::LocalApicNmi *nmiInfo = nullptr;
+        // for (const auto *localNmi : acpiLocalApicNmis) {
+        //     // 0xff means all APs
+        //     if ((localNmi->acpiProcessorId == localInfo->acpiProcessorId) || (localNmi->acpiProcessorId == 0xff)) {
+        //         nmiInfo = localNmi;
+        //         break;
+        //     }
+        // }
+        // if (nmiInfo == nullptr) {
+        //     log.error("Couldn't find NMI info for local APIC [%u]!", localInfo->apicId);
+        //     return Util::Array<LocalApic*>(0);
+        // }
+        // localApic->addNonMaskableInterrupt(nmiInfo->localApicLint == 0 ? LocalApic::LINT0 : LocalApic::LINT1,
+        //                                    nmiInfo->flags & Acpi::IntiFlag::ACTIVE_HIGH ? LocalApic::LocalVectorTableEntry::PinPolarity::HIGH : LocalApic::LocalVectorTableEntry::PinPolarity::LOW,
+        //                                    nmiInfo->flags & Acpi::IntiFlag::EDGE_TRIGGERED ? LocalApic::LocalVectorTableEntry::TriggerMode::EDGE : LocalApic::LocalVectorTableEntry::TriggerMode::LEVEL);
+
+        // The above way of assigning NMIs is too strict:
+        // - Some firmwares (e.g. Lenovo T440s) report wrong values for the NMI's acpiProcessorId
+        //   that don't match with the local APIC's acpiProcessorId, so they can't be assigned
+        // - Not every core has to handle the NMI, the BSP suffices, done in Linux:
+        //   https://github.com/torvalds/linux/commit/b7c4948e9881fb38b048269f376fb4bf194ce24a
+        // - CPUs with hyperthreading report local APICs also for logical cores, but those don't
+        //   get NMI definitions
+        // It is also not necessary to configure the NMI depending on ACPI, as LINT1/edge-triggered
+        // is specified in the MultiProcessor Specification (sec. 5.2) and IA-32 manual (3.11.5.1).
+        // - I couldn't find information on the pin-polarity, but Linux uses active-high:
+        //   https://github.com/torvalds/linux/blob/master/arch/x86/include/asm/apicdef.h#L86
+        // The NMI implementation is kept very general still (similar to IoApic), because I can't
+        // find definitive information on what configurations are theoretically valid
+        if (localApic->getCpuId() == 0) {
+            localApic->addNonMaskableInterrupt(LocalApic::LINT1,
+                                               LocalApic::LocalVectorTableEntry::PinPolarity::HIGH,
+                                               LocalApic::LocalVectorTableEntry::TriggerMode::EDGE);
         }
 
-        if (nmiInfo == nullptr) {
-            log.error("Couldn't find NMI info for local APIC [%u]!", localInfo->apicId);
-            return Util::Array<LocalApic*>(0);
-        }
-
-        auto *localApic = new LocalApic(localInfo->apicId, nmiInfo->localApicLint == 0 ? LocalApic::LINT0 : LocalApic::LINT1,
-                nmiInfo->flags & Acpi::IntiFlag::ACTIVE_HIGH ? LocalApic::LocalVectorTableEntry::PinPolarity::HIGH : LocalApic::LocalVectorTableEntry::PinPolarity::LOW,
-                nmiInfo->flags & Acpi::IntiFlag::EDGE_TRIGGERED ? LocalApic::LocalVectorTableEntry::TriggerMode::EDGE : LocalApic::LocalVectorTableEntry::TriggerMode::LEVEL);
         localApics.add(localApic);
     }
 
