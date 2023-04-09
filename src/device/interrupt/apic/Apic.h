@@ -29,6 +29,7 @@
 #include "lib/util/collection/ArrayList.h"
 #include "device/time/ApicTimer.h"
 #include "device/cpu/Cpu.h"
+#include "lib/util/collection/HashMap.h"
 
 namespace Device {
 
@@ -38,7 +39,7 @@ public:
     /**
      * Constructor.
      */
-    Apic(const Util::Array<LocalApic*> &localApics, IoApic *ioApic);
+    Apic(const Util::Array<LocalApic*> &localApicsArray, IoApic *ioApic);
 
     /**
      * Copy Constructor.
@@ -175,8 +176,8 @@ private:
     // Memory allocated for or by instances contained in these lists is never freed,
     // this implementation doesn't support disabling the APIC at all.
     // Once the switch from PIC to APIC is done, it can't be switched back.
-    Util::Array<LocalApic*> localApics;  // All LocalApic instances.
-    Util::Array<ApicTimer*> localTimers; // All ApicTimer instances.
+    Util::HashMap<uint8_t, LocalApic*> localApics;  // All LocalApic instances.
+    Util::HashMap<uint8_t, ApicTimer*> localTimers; // All ApicTimer instances.
     IoApic *ioApic;                      // The IoApic instance responsible for the external interrupts.
     LocalApicErrorHandler errorHandler;  // The interrupt handler that gets triggered on an internal APIC error.
 
