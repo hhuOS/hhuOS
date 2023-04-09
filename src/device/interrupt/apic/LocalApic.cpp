@@ -39,8 +39,7 @@ Util::Array<LocalApic::Register> LocalApic::lintRegs = Util::Array<Register>({  
 
 Util::Async::Spinlock LocalApic::commandLock = Util::Async::Spinlock();
 
-LocalApic::LocalApic(uint8_t cpuId, LocalApic::LocalInterrupt nmiLint, LocalApic::LocalVectorTableEntry::PinPolarity nmiPolarity, LocalApic::LocalVectorTableEntry::TriggerMode nmiTrigger) :
-    cpuId(cpuId), nmiLint(nmiLint), nmiPolarity(nmiPolarity), nmiTrigger(nmiTrigger) {}
+LocalApic::LocalApic(uint8_t cpuId) : cpuId(cpuId) {}
 
 bool LocalApic::supportsXApic() {
     return (Util::Hardware::CpuId::getCpuFeatureBits() & Util::Hardware::CpuId::APIC) != 0;
@@ -64,13 +63,15 @@ void LocalApic::initialize() {
 
     // Configure the non maskable interrupt pin.
     // This is usually LINT1, edge-triggered and active-high, but ACPI reports this in case of deviations.
-    LocalVectorTableEntry lvtEntry{};
-    lvtEntry.vector = static_cast<Kernel::InterruptVector>(0); // NMI doesn't have vector
-    lvtEntry.deliveryMode = LocalVectorTableEntry::DeliveryMode::NMI;
-    lvtEntry.pinPolarity = nmiPolarity;
-    lvtEntry.triggerMode = nmiTrigger;
-    lvtEntry.isMasked = false;
-    writeLocalVectorTable(nmiLint, lvtEntry);
+    for (const auto &nmiSource : nmiSources) {
+        LocalVectorTableEntry lvtEntry{};
+        lvtEntry.vector = static_cast<Kernel::InterruptVector>(0); // NMI doesn't have vector
+        lvtEntry.deliveryMode = LocalVectorTableEntry::DeliveryMode::NMI;
+        lvtEntry.pinPolarity = nmiSource.polarity;
+        lvtEntry.triggerMode = nmiSource.trigger;
+        lvtEntry.isMasked = false;
+        writeLocalVectorTable(nmiSource.source, lvtEntry);
+    }
 
     // SW Enable APIC by setting the Spurious Interrupt Vector Register with spurious vector number 0xFF
     // and the SW ENABLE flag.
@@ -163,6 +164,10 @@ void LocalApic::initializeLocalVectorTable() {
     writeLocalVectorTable(LINT1, lvtEntry);
     lvtEntry.vector = Kernel::InterruptVector::ERROR;
     writeLocalVectorTable(ERROR, lvtEntry);
+}
+
+void LocalApic::addNonMaskableInterrupt(Device::LocalApic::LocalInterrupt nmiLint, LocalVectorTableEntry::PinPolarity nmiPolarity, LocalVectorTableEntry::TriggerMode nmiTrigger) {
+    nmiSources.add({nmiLint, nmiPolarity, nmiTrigger});
 }
 
 LocalApic::BaseModelSpecificRegisterEntry LocalApic::readBaseModelSpecificRegister() {
@@ -323,6 +328,10 @@ LocalApic::InterruptCommandRegisterEntry::InterruptCommandRegisterEntry(uint64_t
 
 LocalApic::InterruptCommandRegisterEntry::operator uint64_t() const {
     return static_cast<uint64_t>(vector) | static_cast<uint64_t>(deliveryMode) << 8 | static_cast<uint64_t>(destinationMode) << 11 | static_cast<uint64_t>(deliveryStatus) << 12 | static_cast<uint64_t>(level) << 14 | static_cast<uint64_t>(triggerMode) << 15 | static_cast<uint64_t>(destinationShorthand) << 18 | static_cast<uint64_t>(destination) << 56;
+}
+
+bool LocalApic::NmiSource::operator!=(const LocalApic::NmiSource &other) const {
+    return source != other.source || polarity != other.polarity || trigger != other.trigger;
 }
 
 }

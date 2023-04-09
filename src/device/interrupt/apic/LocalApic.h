@@ -28,6 +28,7 @@
 #include "lib/util/async/Spinlock.h"
 #include "kernel/log/Logger.h"
 #include "device/cpu/ModelSpecificRegister.h"
+#include "lib/util/collection/ArrayList.h"
 
 namespace Device {
 
@@ -209,10 +210,18 @@ public:
         explicit operator uint64_t() const;
     };
 
+    struct NmiSource {
+        LocalInterrupt source;                       // The local interrupt pin that acts as NMI source.
+        LocalVectorTableEntry::PinPolarity polarity; // The NMI source's pin polarity.
+        LocalVectorTableEntry::TriggerMode trigger;  // The NMI source's trigger mode.
+
+        bool operator!=(const NmiSource &other) const;
+    };
+
     /**
      * Constructor.
      */
-    LocalApic(uint8_t cpuId, LocalApic::LocalInterrupt nmiLint, LocalApic::LocalVectorTableEntry::PinPolarity nmiPolarity, LocalApic::LocalVectorTableEntry::TriggerMode nmiTrigger);
+    explicit LocalApic(uint8_t cpuId);
 
     /**
      * Copy Constructor.
@@ -345,6 +354,8 @@ public:
      */
     static void initializeLocalVectorTable();
 
+    void addNonMaskableInterrupt(LocalInterrupt nmiLint, LocalVectorTableEntry::PinPolarity nmiPolarity, LocalVectorTableEntry::TriggerMode nmiTrigger);
+
     /**
      * Read the IA32_APIC_BASE_MSR.
      *
@@ -426,10 +437,8 @@ public:
 
 private:
 
-    uint8_t cpuId;                                  // The CPU core this instance belongs to, LocalApic::getId() only returns the current AP's id!
-    LocalInterrupt nmiLint;                         // The local interrupt pin that acts as NMI source.
-    LocalVectorTableEntry::PinPolarity nmiPolarity; // The NMI source's pin polarity.
-    LocalVectorTableEntry::TriggerMode nmiTrigger;  // The NMI source's trigger mode.
+    uint8_t cpuId; // The CPU core this instance belongs to, LocalApic::getId() only returns the current AP's id!
+    Util::ArrayList<NmiSource> nmiSources;
 
     static uint32_t mmioAddress; // The virtual address used to access registers in xApic mode.
 
