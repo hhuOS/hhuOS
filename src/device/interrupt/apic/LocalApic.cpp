@@ -43,25 +43,11 @@ LocalApic::LocalApic(uint8_t cpuId, LocalApic::LocalInterrupt nmiLint, LocalApic
     cpuId(cpuId), nmiLint(nmiLint), nmiPolarity(nmiPolarity), nmiTrigger(nmiTrigger) {}
 
 bool LocalApic::supportsXApic() {
-    auto features = Util::Hardware::CpuId::getCpuFeatures();
-    for (auto feature : features) {
-        if (feature == Util::Hardware::CpuId::CpuFeature::APIC) {
-            return true;
-        }
-    }
-
-    return false;
+    return (Util::Hardware::CpuId::getCpuFeatureBits() & Util::Hardware::CpuId::APIC) != 0;
 }
 
 bool LocalApic::supportsX2Apic() {
-    auto features = Util::Hardware::CpuId::getCpuFeatures();
-    for (auto feature : features) {
-        if (feature == Util::Hardware::CpuId::CpuFeature::X2APIC) {
-            return true;
-        }
-    }
-
-    return false;
+    return (Util::Hardware::CpuId::getCpuFeatureBits() & Util::Hardware::CpuId::X2APIC) != 0;
 }
 
 uint8_t LocalApic::getId() {
