@@ -23,14 +23,22 @@
 
 #include <cstdint>
 
-#include "kernel/interrupt/InterruptVector.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/async/Spinlock.h"
-#include "kernel/log/Logger.h"
-#include "device/cpu/ModelSpecificRegister.h"
 #include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+
+namespace Kernel {
+enum InterruptVector : uint8_t;
+}  // namespace Kernel
+namespace Util {
+namespace Async {
+class Spinlock;
+}  // namespace Async
+}  // namespace Util
 
 namespace Device {
+class ModelSpecificRegister;
 
 class LocalApic {
 

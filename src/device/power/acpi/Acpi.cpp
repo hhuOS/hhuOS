@@ -23,6 +23,7 @@
 #include "lib/util/base/Address.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/ArrayList.h"
+#include "kernel/multiboot/Multiboot.h"
 
 namespace Device {
 
@@ -31,7 +32,7 @@ const Acpi::Rsdp *Acpi::rsdp{};
 const Acpi::SdtHeader **Acpi::tables{};
 uint32_t Acpi::numTables{};
 
-void Acpi::copyAcpiTables(uint8_t *destination, uint32_t maxBytes) {
+void Acpi::copyAcpiTables(const void *multibootInfo, uint8_t *destination, uint32_t maxBytes) {
     auto *copyInfo = reinterpret_cast<CopyInformation*>(destination);
     copyInfo->sourceAddress = 0;
     copyInfo->targetAreaSize = maxBytes;
@@ -40,8 +41,7 @@ void Acpi::copyAcpiTables(uint8_t *destination, uint32_t maxBytes) {
 
     auto destinationAddress = Util::Address<uint32_t>(destination + sizeof(CopyInformation));
 
-    // Find RSDP and copy its address to determine whether the RSDP has been found
-    auto *rsdp = findRsdp();
+    Rsdp *rsdp = findRsdp(multibootInfo);
     copyInfo->sourceAddress = reinterpret_cast<uint32_t>(rsdp);
     if (rsdp == nullptr) {
         return;
@@ -89,7 +89,32 @@ void Acpi::copyAcpiTables(uint8_t *destination, uint32_t maxBytes) {
     copyInfo->success = true;
 }
 
-Acpi::Rsdp* Acpi::findRsdp() {
+Acpi::Rsdp* Acpi::findRsdp(const void *multibootInfo) {
+    // Search for RSDP in Multiboot tags
+    Rsdp *oldRsdp = nullptr;
+    Rsdp *newRsdp = nullptr;
+
+    auto currentAddress = reinterpret_cast<uint32_t>(multibootInfo) + sizeof(Kernel::Multiboot::Info);
+    auto *currentTag = reinterpret_cast<const Kernel::Multiboot::TagHeader*>(currentAddress);
+    while (currentTag->type != Kernel::Multiboot::TERMINATE) {
+        if (currentTag->type == Kernel::Multiboot::ACPI_OLD_RSDP) {
+            oldRsdp = const_cast<Rsdp*>(&reinterpret_cast<const Kernel::Multiboot::AcpiRsdp*>(currentTag)->rsdp);
+        } else if (currentTag->type == Kernel::Multiboot::ACPI_NEW_RSDP) {
+            newRsdp = const_cast<Rsdp*>(&reinterpret_cast<const Kernel::Multiboot::AcpiRsdp*>(currentTag)->rsdp);
+        }
+
+        currentAddress += currentTag->size;
+        currentAddress = currentAddress % 8 == 0 ? currentAddress : (currentAddress / 8) * 8 + 8;
+        currentTag = reinterpret_cast<const Kernel::Multiboot::TagHeader*>(currentAddress);
+    }
+
+    if (oldRsdp != nullptr) {
+        return oldRsdp;
+    } else if (newRsdp != nullptr) {
+        return newRsdp;
+    }
+
+    // Search for RSDP the "traditional" way
     auto ebdaStartAddress = *reinterpret_cast<uint16_t*>(0x0000040e) << 4;
     auto rsdpAddress = searchRsdp(ebdaStartAddress, ebdaStartAddress + 1023);
     if (rsdpAddress != nullptr) {

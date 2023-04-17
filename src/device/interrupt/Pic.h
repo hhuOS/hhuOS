@@ -19,10 +19,11 @@
 #define __PIC_include__
 
 #include <cstdint>
+
 #include "device/cpu/IoPort.h"
-#include "InterruptRequest.h"
 
 namespace Device {
+enum InterruptRequest : uint8_t;
 
 /**
  * PIC - programmable interrupt controller. In this hardware device the different

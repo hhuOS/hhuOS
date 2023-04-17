@@ -21,6 +21,7 @@
 namespace Kernel {
 
 enum InterruptVector : uint8_t {
+    // Hardware exceptions
     DIVISION_BY_ZERO = 0,
     DEBUG = 1,
     NON_MASKABLE_INTERRUPT = 2,
@@ -65,6 +66,20 @@ enum InterruptVector : uint8_t {
     // Possibly some other interrupts supported by IO APICs
 
     SYSTEM_CALL = 0x86,
+
+    // Software exceptions
+    NULL_POINTER = 0xc8,
+    OUT_OF_BOUNDS = 0xc9,
+    INVALID_ARGUMENT = 0xca,
+    KEY_NOT_FOUND = 0xcb,
+    ILLEGAL_STATE = 0xcc,
+    OUT_OF_MEMORY = 0Xcd,
+    OUT_OF_PHYSICAL_MEMORY = 0xce,
+    OUT_OF_PAGING_MEMORY = 0xcf,
+    ILLEGAL_PAGE_ACCESS = 0xd0,
+    CLASS_NOT_FOUND = 0xd1,
+    PAGING_ERROR = 0xd2,
+    UNSUPPORTED_OPERATION = 0xd3,
 
     // Local APIC interrupts (247 - 254)
     CMCI = 0xf8,

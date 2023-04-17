@@ -22,15 +22,20 @@
 #define HHUOS_IOAPIC_H
 
 #include <cstdint>
-#include "kernel/interrupt/GlobalSystemInterrupt.h"
-#include "kernel/interrupt/InterruptVector.h"
-#include "device/interrupt/InterruptRequest.h"
+
 #include "lib/util/collection/Array.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/collection/ArrayList.h"
-#include "kernel/log/Logger.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+
+namespace Kernel {
+enum GlobalSystemInterrupt : uint32_t;
+enum InterruptVector : uint8_t;
+}  // namespace Kernel
 
 namespace Device {
+enum InterruptRequest : uint8_t;
 
 class IoApic {
 

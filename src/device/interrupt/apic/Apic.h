@@ -30,6 +30,7 @@
 #include "device/time/ApicTimer.h"
 #include "device/cpu/Cpu.h"
 #include "lib/util/collection/HashMap.h"
+#include "kernel/log/Logger.h"
 
 namespace Device {
 

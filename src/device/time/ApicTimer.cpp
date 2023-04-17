@@ -19,11 +19,18 @@
  */
 
 #include "ApicTimer.h"
+
 #include "device/interrupt/apic/LocalApic.h"
 #include "Pit.h"
 #include "kernel/service/SchedulerService.h"
 #include "kernel/system/System.h"
 #include "kernel/service/InterruptService.h"
+#include "kernel/interrupt/InterruptVector.h"
+#include "kernel/log/Logger.h"
+
+namespace Kernel {
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device {
 

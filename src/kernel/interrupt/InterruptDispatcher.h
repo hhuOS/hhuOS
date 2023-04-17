@@ -20,9 +20,6 @@
 
 #include <cstdint>
 
-#include "lib/util/async/Atomic.h"
-#include "InterruptVector.h"
-
 namespace Util {
 
 template <typename T> class List;
@@ -32,6 +29,7 @@ template <typename T> class List;
 namespace Kernel {
 class InterruptHandler;
 struct InterruptFrame;
+enum InterruptVector : uint8_t;
 
 /**
  * InterruptDispatcher - responsible for registering and dispatching interrupts to the

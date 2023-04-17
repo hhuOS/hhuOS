@@ -57,6 +57,12 @@ public:
 
 private:
 
+    static void printMultibootInformation();
+
+    static void printCpuInformation();
+
+    static void printAcpiInformation();
+
     static void enablePortLogging();
 
     static void initializeFilesystem();

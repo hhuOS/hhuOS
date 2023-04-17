@@ -21,12 +21,12 @@
 #include "Cpu.h"
 #include "Fpu.h"
 #include "device/cpu/Fpu.h"
-#include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/log/Logger.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/async/Atomic.h"
 #include "lib/util/collection/Array.h"
+#include "kernel/interrupt/InterruptVector.h"
 
 namespace Kernel {
 struct InterruptFrame;

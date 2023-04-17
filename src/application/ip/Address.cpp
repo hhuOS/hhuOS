@@ -22,9 +22,7 @@
 #include "lib/util/network/MacAddress.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/network/Socket.h"
-#include "lib/util/network/NetworkAddress.h"
 #include "lib/util/network/ip4/Ip4SubnetAddress.h"
 
 Address::Address(const Util::Array<Util::String> &arguments) : arguments(arguments) {}

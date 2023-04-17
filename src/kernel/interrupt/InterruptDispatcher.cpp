@@ -31,6 +31,7 @@
 #include "lib/util/collection/List.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/base/System.h"
+#include "kernel/interrupt/InterruptVector.h"
 
 namespace Kernel {
 
@@ -77,7 +78,7 @@ void InterruptDispatcher::assign(uint8_t slot, InterruptHandler &isr) {
 }
 
 bool InterruptDispatcher::isUnrecoverableException(InterruptVector slot) {
-    return slot < PIT && handler[slot] == nullptr;
+    return (slot < PIT || (slot >= NULL_POINTER && slot <= UNSUPPORTED_OPERATION)) && handler[slot] == nullptr;
 }
 
 }

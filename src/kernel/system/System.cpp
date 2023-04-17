@@ -33,6 +33,7 @@
 #include "device/power/acpi/Acpi.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/interrupt/InterruptHandler.h"
+#include "kernel/interrupt/InterruptVector.h"
 #include "kernel/log/Logger.h"
 #include "kernel/memory/PageFrameAllocator.h"
 #include "kernel/memory/PagingAreaManager.h"

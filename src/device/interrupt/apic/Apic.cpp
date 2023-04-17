@@ -23,6 +23,7 @@
 #include "device/time/Cmos.h"
 #include "device/time/Pit.h"
 #include "device/cpu/symmetric_multiprocessing.h"
+#include "kernel/interrupt/InterruptVector.h"
 #include "kernel/system/System.h"
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/Constants.h"

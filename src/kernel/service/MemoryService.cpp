@@ -24,7 +24,6 @@
 #include "asm_interface.h"
 #include "MemoryService.h"
 #include "kernel/service/MemoryService.h"
-#include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/memory/PageFrameAllocator.h"
 #include "kernel/memory/PagingAreaManager.h"
 #include "kernel/paging/PageDirectory.h"
@@ -34,6 +33,7 @@
 #include "lib/util/base/Exception.h"
 #include "lib/util/base/HeapMemoryManager.h"
 #include "lib/util/base/System.h"
+#include "kernel/interrupt/InterruptVector.h"
 
 namespace Kernel {
 

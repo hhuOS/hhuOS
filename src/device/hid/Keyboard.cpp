@@ -22,11 +22,11 @@
 #include "Keyboard.h"
 #include "device/hid/Ps2Controller.h"
 #include "device/hid/Ps2Device.h"
-#include "device/interrupt/Pic.h"
 #include "filesystem/core/Filesystem.h"
 #include "filesystem/memory/MemoryDriver.h"
-#include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/log/Logger.h"
+#include "device/interrupt/InterruptRequest.h"
+#include "kernel/interrupt/InterruptVector.h"
 
 namespace Kernel {
 struct InterruptFrame;

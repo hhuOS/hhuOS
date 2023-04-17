@@ -23,6 +23,7 @@
 #include "lib/util/collection/Iterator.h"
 
 namespace Device {
+enum InterruptRequest : uint8_t;
 
 PciDevice::PciDevice(uint8_t bus, uint8_t device, uint8_t function) : bus(bus), device(device), function(function),
         vendorId(readWord(Pci::VENDOR_ID)), deviceId(readWord(Pci::DEVICE_ID)), revision(readByte(Pci::REVISION)),

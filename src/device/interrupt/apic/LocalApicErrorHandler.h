@@ -23,6 +23,10 @@
 
 #include "kernel/interrupt/InterruptHandler.h"
 
+namespace Kernel {
+struct InterruptFrame;
+}  // namespace Kernel
+
 namespace Device {
 
 class LocalApicErrorHandler : public Kernel::InterruptHandler {

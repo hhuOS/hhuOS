@@ -92,51 +92,16 @@ class Machine;
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
 void GatesOfHell::enter() {
-    const auto logLevel = Kernel::Multiboot::hasKernelOption("log_level") ? Kernel::Multiboot::getKernelOption("log_level") : "info";
+    const auto logLevel = Kernel::Multiboot::hasKernelOption("log_level") ? Kernel::Multiboot::getKernelOption("log_level") : "inf";
     Kernel::Logger::setLevel(logLevel);
 
-    auto &bootloaderCopyInformation = Kernel::Multiboot::getCopyInformation();
-    if (!bootloaderCopyInformation.success) {
-        log.error("Bootloader information has not been copied successfully -> Undefined behaviour may occur...");
-    }
-    log.info("Bootloader: [%s], Multiboot info size: [%u/%u Byte]", static_cast<const char*>(Kernel::Multiboot::getBootloaderName()), bootloaderCopyInformation.copiedBytes, bootloaderCopyInformation.targetAreaSize);
     log.info("%u MiB of physical memory detected", Kernel::System::getService<Kernel::MemoryService>().getMemoryStatus().totalPhysicalMemory / 1024 / 1024);
 
-    if (Util::Hardware::CpuId::isAvailable()) {
-        log.info("CPU vendor: %s", static_cast<const char*>(Util::Hardware::CpuId::getVendorString()));
+    printCpuInformation();
 
-        const auto info = Util::Hardware::CpuId::getCpuInfo();
-        log.info("CPU info: Family [%u], Model [%u], Stepping [%u], Type [%u]", info.family, info.model, info.stepping, info.type);
+    printMultibootInformation();
 
-        const auto features = Util::Hardware::CpuId::getCpuFeatures();
-        Util::String featureString;
-        for (uint32_t i = 0; i < features.length(); i++) {
-            featureString += Util::Hardware::CpuId::getFeatureAsString(features[i]);
-            if (i < features.length() - 1) {
-                featureString += ",";
-            }
-        }
-        log.info("CPU features: %s", static_cast<const char*>(featureString));
-    }
-
-    if (Device::Acpi::isAvailable()) {
-        const auto &acpiCopyInformation = Device::Acpi::getCopyInformation();
-        log.info("ACPI support detected (Table size: [%u/%u Byte])", acpiCopyInformation.copiedBytes, acpiCopyInformation.targetAreaSize);
-
-        const auto &rsdp = Device::Acpi::getRsdp();
-        const auto vendor = Util::String(reinterpret_cast<const uint8_t*>(rsdp.oemId), sizeof(Device::Acpi::Rsdp::oemId));
-        log.info("ACPI vendor: [%s], ACPI version: [%s]", static_cast<const char*>(vendor), rsdp.revision == 0 ? "1.0" : ">=2.0");
-
-        const auto tables = Device::Acpi::getAvailableTables();
-        Util::String featureString;
-        for (uint32_t i = 0; i < tables.length(); i++) {
-            featureString += tables[i];
-            if (i < tables.length() - 1) {
-                featureString += ",";
-            }
-        }
-        log.info("ACPI tables: %s", static_cast<const char*>(featureString));
-    }
+    printAcpiInformation();
 
     if (Device::Bios::isAvailable()) {
         log.info("BIOS detected");
@@ -172,6 +137,72 @@ void GatesOfHell::enter() {
     Kernel::System::getService<Kernel::SchedulerService>().startScheduler();
 
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Once you entered the gates of hell, you are not allowed to leave!");
+}
+
+void GatesOfHell::printMultibootInformation() {
+    auto &bootloaderCopyInformation = Kernel::Multiboot::getCopyInformation();
+    if (!bootloaderCopyInformation.success) {
+        log.warn("Bootloader information has not been copied successfully -> Undefined behaviour may occur...");
+    }
+
+    log.info("Bootloader: [%s], Multiboot info size: [%u/%u Byte]", static_cast<const char*>(Kernel::Multiboot::getBootloaderName()), bootloaderCopyInformation.copiedBytes, bootloaderCopyInformation.targetAreaSize);
+
+    const auto tagTypes = Kernel::Multiboot::getAvailableTagTypes();
+    Util::String tagString;
+    for (uint32_t i = 0; i < tagTypes.length(); i++) {
+        tagString += Util::String::format("%u", tagTypes[i]);
+        if (i < tagTypes.length() - 1) {
+            tagString += ",";
+        }
+    }
+
+    log.info("Multiboot tags: %s", static_cast<const char*>(tagString));
+}
+
+void GatesOfHell::printCpuInformation() {
+    if (!Util::Hardware::CpuId::isAvailable()) {
+        return;
+    }
+
+    log.info("CPU vendor: %s", static_cast<const char*>(Util::Hardware::CpuId::getVendorString()));
+
+    const auto info = Util::Hardware::CpuId::getCpuInfo();
+    log.info("CPU info: Family [%u], Model [%u], Stepping [%u], Type [%u]", info.family, info.model, info.stepping, info.type);
+
+    const auto features = Util::Hardware::CpuId::getCpuFeatures();
+    Util::String featureString;
+    for (uint32_t i = 0; i < features.length(); i++) {
+        featureString += Util::Hardware::CpuId::getFeatureAsString(features[i]);
+        if (i < features.length() - 1) {
+            featureString += ",";
+        }
+    }
+
+    log.info("CPU features: %s", static_cast<const char*>(featureString));
+}
+
+void GatesOfHell::printAcpiInformation() {
+    if (!Device::Acpi::isAvailable()) {
+        return;
+    }
+
+    const auto &acpiCopyInformation = Device::Acpi::getCopyInformation();
+    log.info("ACPI support detected (Table size: [%u/%u Byte])", acpiCopyInformation.copiedBytes, acpiCopyInformation.targetAreaSize);
+
+    const auto &rsdp = Device::Acpi::getRsdp();
+    const auto vendor = Util::String(reinterpret_cast<const uint8_t*>(rsdp.oemId), sizeof(Device::Acpi::Rsdp::oemId));
+    log.info("ACPI vendor: [%s], ACPI version: [%s]", static_cast<const char*>(vendor), rsdp.revision == 0 ? "1.0" : ">=2.0");
+
+    const auto tables = Device::Acpi::getAvailableTables();
+    Util::String featureString;
+    for (uint32_t i = 0; i < tables.length(); i++) {
+        featureString += tables[i];
+        if (i < tables.length() - 1) {
+            featureString += ",";
+        }
+    }
+
+    log.info("ACPI tables: %s", static_cast<const char*>(featureString));
 }
 
 void GatesOfHell::initializeTerminal() {
@@ -303,7 +334,7 @@ void GatesOfHell::initializeFilesystem() {
     if (Kernel::Multiboot::isModuleLoaded("initrd")) {
         log.info("Initial ramdisk detected -> Mounting [%s]", "/initrd");
         auto module = Kernel::Multiboot::getModule("initrd");
-        auto *tarArchive = new Util::Io::Tar::Archive(module.start);
+        auto *tarArchive = new Util::Io::Tar::Archive(module.startAddress);
         auto *tarDriver = new Filesystem::Tar::ArchiveDriver(*tarArchive);
 
         filesystemService.createDirectory("/initrd");

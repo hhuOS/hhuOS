@@ -21,10 +21,10 @@
 #include <cstdint>
 
 #include "Pci.h"
-#include "device/interrupt/Pic.h"
 #include "lib/util/collection/Array.h"
 
 namespace Device {
+enum InterruptRequest : uint8_t;
 
 class PciDevice {
 

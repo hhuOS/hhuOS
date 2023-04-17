@@ -17,6 +17,11 @@
 
 #include "InterruptService.h"
 
+#include "device/interrupt/InterruptRequest.h"
+#include "device/interrupt/apic/Apic.h"
+#include "kernel/interrupt/InterruptVector.h"
+#include "kernel/log/Logger.h"
+
 namespace Kernel {
 class InterruptHandler;
 struct InterruptFrame;

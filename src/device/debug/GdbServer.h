@@ -18,7 +18,14 @@
 #ifndef HHUOS_GDBSERVER_H
 #define HHUOS_GDBSERVER_H
 
+#include <stdint.h>
+
 #include "device/port/serial/SerialPort.h"
+#include "kernel/interrupt/InterruptHandler.h"
+
+namespace Kernel {
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device {
 

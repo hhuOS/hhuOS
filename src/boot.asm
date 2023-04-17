@@ -19,25 +19,11 @@
 
 %include "constants.asm"
 
-; Multiboot Constants
-MULTIBOOT_PAGE_ALIGN equ 1<<0
-MULTIBOOT_MEMORY_INFO equ 1<<1
-MULTIBOOT_GRAPHICS_INFO equ 1<<2
-MULTIBOOT_ADDRESS_INFO equ 1<<16
-
-; Multiboot Magic
-MULTIBOOT_HEADER_MAGIC equ 0x1badb002
-MUTLIBOOT_EAX_MAGIC equ 0x2badb002
-
-; Multiboot Flags
-MULTIBOOT_HEADER_FLAGS equ MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO | MULTIBOOT_GRAPHICS_INFO
-MULTIBOOT_HEADER_CHKSUM equ -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
-
-; Multiboot options
-GRAPHICS_MODE equ 0
-GRAPHICS_WIDTH equ 800
-GRAPHICS_HEIGHT equ 600
-GRAPHICS_BPP equ 32
+; Multiboot header
+MULTIBOOT_HEADER_MAGIC equ 0xe85250d6
+MULTIBOOT_HEADER_ARCHITECTURE equ 0
+MULTIBOOT_HEADER_LENGTH equ (boot - multiboot_header)
+MULTIBOOT_HEADER_CHECKSUM equ -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_ARCHITECTURE + MULTIBOOT_HEADER_LENGTH)
 
 ; Export variables
 global initial_kernel_stack
@@ -58,7 +44,7 @@ extern main
 extern init_gdt
 extern copy_multiboot_info
 extern copy_acpi_tables
-extern read_memory_map
+extern initialize_memory_block_map
 extern initialize_system
 extern finish_system
 extern setup_idt
@@ -87,19 +73,76 @@ ___PHYS_BSS_END__   equ (___BSS_END__ - KERNEL_START)
 section .text
 
 multiboot_header:
-    align 4
+    ; Header
+    align 8
     dd MULTIBOOT_HEADER_MAGIC
-    dd MULTIBOOT_HEADER_FLAGS
-    dd MULTIBOOT_HEADER_CHKSUM
+    dd MULTIBOOT_HEADER_ARCHITECTURE
+    dd MULTIBOOT_HEADER_LENGTH
+    dd MULTIBOOT_HEADER_CHECKSUM
+
+    ; Address tag
+    align 8
+    dw MULTIBOOT_TAG_ADDRESS
+    dw MULTIBOOT_TAG_FLAG_OPTIONAL
+    dd 24
     dd (multiboot_header - KERNEL_START)
     dd (___KERNEL_DATA_START__ - KERNEL_START)
     dd (___KERNEL_DATA_END__ - KERNEL_START)
     dd (___BSS_END__ - KERNEL_START)
+
+    ; Entry address tag
+    align 8
+    dw MULTIBOOT_TAG_ENTRY_ADDRESS
+    dw MULTIBOOT_TAG_FLAG_OPTIONAL
+    dd 12
     dd (boot - KERNEL_START)
-    dd GRAPHICS_MODE
+
+    ; Information request tag (required)
+    align 8
+    dw MULTIBOOT_TAG_INFORMATION_REQUEST
+    dw 0
+    dd 24
+    dd MULTIBOOT_REQUEST_BOOT_COMMAND_LINE
+    dd MULTIBOOT_REQUEST_MODULE
+    dd MULTIBOOT_REQUEST_MEMORY_MAP
+    dd MULTIBOOT_REQUEST_FRAMEBUFFER_INFO
+
+    ; Information request tag (optional)
+    align 8
+    dw MULTIBOOT_TAG_INFORMATION_REQUEST
+    dw MULTIBOOT_TAG_FLAG_OPTIONAL
+    dd 20
+    dd MULTIBOOT_REQUEST_BOOT_LOADER_NAME
+    dd MULTIBOOT_REQUEST_ACPI_OLD_RSDP
+    dd MULTIBOOT_REQUEST_ACPI_NEW_RSDP
+
+    ; Flags tag
+    align 8
+    dw MULTIBOOT_TAG_FLAGS
+    dw MULTIBOOT_TAG_FLAG_OPTIONAL
+    dd 12
+    dd MULTIBOOT_CONSOLE_FLAG_SUPPORT_TEXT_MODE
+
+    ; Framebuffer tag
+    align 8
+    dw MULTIBOOT_TAG_FRAMEBUFFER
+    dw MULTIBOOT_TAG_FLAG_OPTIONAL
+    dd 20
     dd GRAPHICS_WIDTH
     dd GRAPHICS_HEIGHT
     dd GRAPHICS_BPP
+
+    ; Module alignment tag
+    align 8
+    dw MULTIBOOT_TAG_MODULE_ALIGNMENT
+    dw MULTIBOOT_TAG_FLAG_OPTIONAL
+    dd 8
+
+    ; Termination tag
+    align 8
+    dw MULTIBOOT_TAG_TERMINATE
+    dw 0
+    dd 8
 
 boot:
     ; Save multiboot structure address
@@ -152,11 +195,12 @@ clear_bss_done:
     ; Copy the ACPI structures into bss
     push dword ACPI_SIZE
     push dword (acpi_data - KERNEL_START)
+    push dword [multiboot_physical_addr - KERNEL_START]
     call copy_acpi_tables
 
     ; Read memory map from multiboot info struct
     push dword [multiboot_physical_addr - KERNEL_START]
-    call read_memory_map
+    call initialize_memory_block_map
 
     ; Jump into paging.asm to enable 4MB paging
     call enable_bootstrap_paging

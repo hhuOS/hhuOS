@@ -73,8 +73,8 @@ protected:
 
 private:
 
-    Multiboot::FrameBufferInfo frameBufferInfo;
     Util::Array<ModeInfo> supportedModes;
+    Multiboot::FramebufferInfo frameBufferInfo;
 
     static Kernel::Logger log;
 };

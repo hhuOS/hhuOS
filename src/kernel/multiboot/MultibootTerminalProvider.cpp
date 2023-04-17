@@ -26,7 +26,7 @@
 
 namespace Kernel {
 
-MultibootTerminalProvider::MultibootTerminalProvider() : frameBufferInfo(Multiboot::getFrameBufferInfo()), supportedModes(1) {
+MultibootTerminalProvider::MultibootTerminalProvider() : supportedModes(1), frameBufferInfo(Multiboot::getFrameBufferInfo()) {
     supportedModes[0] = {static_cast<uint16_t>(frameBufferInfo.width), static_cast<uint16_t>(frameBufferInfo.height), frameBufferInfo.bpp, 0};
 }
 

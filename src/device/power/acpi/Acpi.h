@@ -25,9 +25,7 @@
 #include "lib/util/collection/ArrayList.h"
 
 namespace Util {
-
 class String;
-
 }  // namespace Util
 struct CopyInformation;
 
@@ -227,7 +225,7 @@ public:
      */
     ~Acpi() = delete;
 
-    static void copyAcpiTables(uint8_t *destination, uint32_t maxBytes);
+    static void copyAcpiTables(const void *multibootInfo, uint8_t *destination, uint32_t maxBytes);
 
     static void initialize();
 
@@ -249,7 +247,7 @@ public:
 
 private:
 
-    static Rsdp* findRsdp();
+    static Rsdp* findRsdp(const void *multibootInfo);
 
     static Rsdp* searchRsdp(uint32_t startAddress, uint32_t endAddress);
 
@@ -267,7 +265,7 @@ template<typename T>
 const T& Acpi::getTable(const char *signature) {
     for (uint32_t i = 0; i < numTables; i++) {
         if (Util::Address<uint32_t>(tables[i]->signature).compareRange(Util::Address<uint32_t>(signature), sizeof(SdtHeader::signature)) == 0) {
-            return reinterpret_cast<const T&>(*tables[i]);
+            return *reinterpret_cast<const T*>(tables[i]);
         }
     }
 

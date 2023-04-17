@@ -27,18 +27,18 @@ class Exception {
 public:
 
     enum Error : uint32_t {
-        NULL_POINTER = 0xC8,
-        OUT_OF_BOUNDS = 0xC9,
-        INVALID_ARGUMENT = 0xCA,
-        KEY_NOT_FOUND = 0xCB,
-        ILLEGAL_STATE = 0xCC,
-        OUT_OF_MEMORY = 0XCD,
-        OUT_OF_PHYSICAL_MEMORY = 0xCE,
-        OUT_OF_PAGING_MEMORY = 0xCF,
-        ILLEGAL_PAGE_ACCESS = 0xD0,
-        CLASS_NOT_FOUND = 0xD1,
-        PAGING_ERROR = 0xD2,
-        UNSUPPORTED_OPERATION = 0xD3
+        NULL_POINTER = 0xc8,
+        OUT_OF_BOUNDS = 0xc9,
+        INVALID_ARGUMENT = 0xca,
+        KEY_NOT_FOUND = 0xcb,
+        ILLEGAL_STATE = 0xcc,
+        OUT_OF_MEMORY = 0Xcd,
+        OUT_OF_PHYSICAL_MEMORY = 0xce,
+        OUT_OF_PAGING_MEMORY = 0xcf,
+        ILLEGAL_PAGE_ACCESS = 0xd0,
+        CLASS_NOT_FOUND = 0xd1,
+        PAGING_ERROR = 0xd2,
+        UNSUPPORTED_OPERATION = 0xd3
     };
 
     [[noreturn]] static void throwException(Error error, const char *message = "");

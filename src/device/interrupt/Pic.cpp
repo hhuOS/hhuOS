@@ -16,7 +16,9 @@
  */
 
 #include "Pic.h"
+
 #include "device/cpu/IoPort.h"
+#include "device/interrupt/InterruptRequest.h"
 
 namespace Device {
 

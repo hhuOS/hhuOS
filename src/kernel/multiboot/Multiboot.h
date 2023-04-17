@@ -22,6 +22,7 @@
 
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
+#include "device/power/acpi/Acpi.h"
 
 struct CopyInformation;
 
@@ -31,26 +32,29 @@ class Multiboot {
 
 public:
 
-    enum FrameBufferType : uint8_t {
-        INDEXED = 0,
-        RGB = 1,
-        EGA_TEXT = 2
-    };
-
-    enum MultibootInfoFlag : uint32_t {
-        MEMORY = 0x00000001,
-        BOOT_DEVICE = 0x00000002,
-        COMMAND_LINE = 0x00000004,
-        MODULES = 0x00000008,
-        AOUT_SYMBOL = 0x00000010,
-        ELF_SECTION_HEADER = 0x00000020,
-        MEMORY_MAP = 0x00000040,
-        DRIVE_INFO = 0x00000080,
-        CONFIGURATION_TABLE = 0x00000100,
-        BOOT_LOADER_NAME = 0x00000200,
-        APM_TABLE = 0x00000400,
-        VBE_INFO = 0x00000800,
-        FRAMEBUFFER_INFO = 0x00001000
+    enum TagType : uint32_t {
+        TERMINATE = 0,
+        BOOT_COMMAND_LINE = 1,
+        BOOT_LOADER_NAME = 2,
+        MODULE = 3,
+        BASIC_MEMORY_INFORMATION = 4,
+        BIOS_BOOT_DEVICE = 5,
+        MEMORY_MAP = 6,
+        VBE_INFO = 7,
+        FRAMEBUFFER_INFO = 8,
+        ELF_SYMBOLS = 9,
+        APM_TABLE = 10,
+        EFI_32_BIT_SYSTEM_TABLE_POINTER = 11,
+        EFI_64_BIT_SYSTEM_TABLE_POINTER = 12,
+        SMBIOS_TABLES = 13,
+        ACPI_OLD_RSDP = 14,
+        ACPI_NEW_RSDP = 15,
+        NETWORKING_INFORMATION = 16,
+        EFI_MEMORY_MAP = 17,
+        EFI_BOOT_SERVICES_NOT_TERMINATED = 18,
+        EFI_32_BIT_IMAGE_HANDLE_POINTER = 19,
+        EFI_64_BIT_IMAGE_HANDLE_POINTER = 20,
+        IMAGE_LOAD_BASE_PHYSICAL_ADDRESS = 21
     };
 
     enum MemoryType : uint32_t {
@@ -61,120 +65,165 @@ public:
         BAD_RAM = 0x05
     };
 
-    struct AoutInfo {
-        uint32_t tabSize;
-        uint32_t strsize;
-        uint32_t address;
+    enum FrameBufferType : uint8_t {
+        INDEXED = 0,
+        RGB = 1,
+        EGA_TEXT = 2
+    };
+
+    struct Info {
+        uint32_t size;
         uint32_t reserved;
     };
 
-    struct ElfInfo {
-        uint32_t sectionCount;
-        uint32_t sectionSize;
-        uint32_t address;
-        uint32_t stringSectionIndex;
+    struct TagHeader {
+        TagType type;
+        uint32_t size;
     };
 
-    struct ModuleInfo {
-        uint32_t start;
-        uint32_t end;
-        const char *string;
-        uint32_t reserved;
-
-        bool operator!=(const ModuleInfo &other) {
-
-            return start != other.start;
-        }
+    struct BootCommandLine {
+        TagHeader header;
+        const char string[];
     };
 
-    struct FrameBufferInfo {
-        uint64_t address;
-        uint32_t pitch;
-        uint32_t width;
-        uint32_t height;
-        uint8_t bpp;
-        FrameBufferType type;
+    struct BootLoaderName {
+        TagHeader header;
+        const char string[];
+    };
+
+    struct Module {
+        TagHeader header;
+        uint32_t startAddress;
+        uint32_t endAddress;
+        const char name[];
+    };
+
+    struct BasicMemoryInformation {
+        TagHeader header;
+        uint32_t lowerMemory;
+        uint32_t upperMemory;
+    };
+
+    struct BiosBootDevice {
+        TagHeader header;
+        uint32_t biosDevice;
+        uint32_t partition;
+        uint32_t subPartition;
+    };
+
+    struct MemoryMapHeader {
+        TagHeader tagHeader;
+        uint32_t entrySize;
+        uint32_t entryVersion;
     };
 
     struct MemoryMapEntry {
-        uint32_t size;
         uint64_t address;
         uint64_t length;
         MemoryType type;
+        uint32_t reserved;
 
         bool operator!=(const MemoryMapEntry &other) const {
             return address != other.address;
         }
     };
 
-    struct Info {
-        /* Multiboot info version number */
-        uint32_t flags;
+    struct VbeInfo {
+        TagHeader header;
+        uint16_t mode;
+        uint16_t interfaceSegment;
+        uint16_t interfaceOffset;
+        uint16_t interfaceLength;
+        uint8_t controlInfo[512];
+        uint8_t modeInfo[256];
+    };
 
-        /* Available memory from BIOS */
-        uint32_t memoryLower;
-        uint32_t memoryUpper;
+    struct FramebufferPalette {
+        uint8_t red;
+        uint8_t green;
+        uint8_t blue;
+    };
 
-        /* "root" partition */
-        uint32_t bootDevice;
+    struct IndexedColorInfo {
+        uint32_t numColors;
+        FramebufferPalette colors[];
+    };
 
-        /* Kernel command line */
-        uint32_t commandLine;
+    struct RgbColorInfo {
+        uint8_t redFieldPosition;
+        uint8_t redMaskSize;
+        uint8_t greenFieldPosition;
+        uint8_t greenMaskSize;
+        uint8_t blueFieldPosition;
+        uint8_t blueMaskSize;
+    };
 
-        /* Boot-Module list */
-        uint32_t moduleCount;
-        uint32_t moduleAddress;
+    union ColorInfo {
+        IndexedColorInfo indexInfo;
+        RgbColorInfo rgbInfo;
+    };
 
-        /* Symbol information */
-        union {
-            AoutInfo aout;
-            ElfInfo elf;
-        } symbols;
+    struct FramebufferInfo {
+        TagHeader header;
+        uint64_t address;
+        uint32_t pitch;
+        uint32_t width;
+        uint32_t height;
+        uint8_t bpp;
+        FrameBufferType type;
+        uint8_t reserved;
+        ColorInfo colorInfo;
+    };
 
-        /* Memory Mapping buffer */
-        uint32_t memoryMapLength;
-        uint32_t memoryMapAddress;
+    struct ApmTable {
+        TagHeader header;
+        uint16_t version;
+        uint16_t codeSegment;
+        uint32_t offset;
+        uint16_t codeSegment16;
+        uint16_t dataSegment;
+        uint16_t flags;
+        uint16_t codeSegmentLength;
+        uint16_t codeSegment16Length;
+        uint16_t dataSegmentLength;
+    };
 
-        /* Drive Info buffer */
-        uint32_t driveLength;
-        uint32_t driveAddress;
+    struct Efi32BitSystemTablePointer {
+        TagHeader header;
+        uint32_t address;
+    };
 
-        /* ROM configuration table */
-        uint32_t configTable;
+    struct Efi64BitSystemTablePointer {
+        TagHeader header;
+        uint64_t address;
+    };
 
-        /* Boot Loader Name */
-        uint32_t bootloaderName;
+    struct SystemManagementBiosTables {
+        TagHeader header;
+        uint8_t majorVersion;
+        uint8_t minorVersion;
+        uint8_t reserved[6];
+        uint8_t tables[];
+    };
 
-        /* APM table */
-        uint32_t apmTable;
+    struct AcpiRsdp {
+        TagHeader header;
+        Device::Acpi::Rsdp rsdp;
+    };
 
-        /* Video */
-        uint32_t vbeControlInfo;
-        uint32_t vbeModeInfo;
-        uint16_t vbeMode;
-        uint16_t vbeInterfaceSegment;
-        uint16_t vbeInterfaceOffset;
-        uint16_t vbeInterfaceLength;
+    struct Efi32BitImageHandlePointer {
+        TagHeader header;
+        uint32_t pointer;
+    };
 
-        FrameBufferInfo frameBufferInfo;
+    struct Efi64BitImageHandlePointer {
+        TagHeader header;
+        uint64_t pointer;
+    };
 
-        union {
-
-            struct {
-                uint32_t address;
-                uint16_t colors;
-            } palette;
-
-            struct {
-                uint8_t redFieldPosition;
-                uint8_t redMaskSize;
-                uint8_t greenFieldPosition;
-                uint8_t greenMaskSize;
-                uint8_t blueFieldPosition;
-                uint8_t blueMaskSize;
-            } color;
-
-        } framebuffer;
+    struct ImageLoadBasePhysicalAddress {
+        TagHeader header;
+        uint32_t address;
     };
 
     enum BlockType : uint8_t {
@@ -219,25 +268,34 @@ public:
 
     static Util::String getBootloaderName();
 
-    static FrameBufferInfo getFrameBufferInfo();
+    static FramebufferInfo getFrameBufferInfo();
 
     static Util::Array<MemoryMapEntry> getMemoryMap();
-
-    static const MemoryBlock * getBlockMap();
 
     static bool hasKernelOption(const Util::String &key);
 
     static Util::String getKernelOption(const Util::String &key);
 
-    static bool isModuleLoaded(const Util::String &module);
+    static bool isModuleLoaded(const Util::String &moduleName);
 
-    static ModuleInfo getModule(const Util::String &module);
+    static const Module& getModule(const Util::String &moduleName);
+
+    static const MemoryBlock* getBlockMap();
 
     // Used during the bootstrap process
 
     static void copyMultibootInfo(const Info *source, uint8_t *destination, uint32_t maxBytes);
 
-    static void readMemoryMap(const Info *multibootInfo);
+    static void initializeMemoryBlockMap(const Info *multibootInfo);
+
+    static bool hasTag(TagType type);
+
+    template<typename T>
+    static const T& getTag(TagType type);
+
+    static Util::Array<TagType> getAvailableTagTypes();
+
+    static const char* getTagTypeAsString(TagType type);
 
 private:
 
@@ -246,6 +304,24 @@ private:
 
     static const MemoryBlock blockMap[256];
 };
+
+template<typename T>
+const T& Multiboot::getTag(Multiboot::TagType type) {
+    auto currentAddress = reinterpret_cast<uint32_t>(info) + sizeof(Info);
+    auto *currentTag = reinterpret_cast<const TagHeader*>(currentAddress);
+
+    while (currentTag->type != TERMINATE) {
+        if (currentTag->type == type) {
+            return *reinterpret_cast<const T*>(currentTag);
+        }
+
+        currentAddress += currentTag->size;
+        currentAddress = currentAddress % 8 == 0 ? currentAddress : (currentAddress / 8) * 8 + 8;
+        currentTag = reinterpret_cast<const TagHeader*>(currentAddress);
+    }
+
+    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Multiboot: Tag not found!");
+}
 
 }
 

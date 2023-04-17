@@ -16,14 +16,13 @@
  */
 
 #include "kernel/service/InterruptService.h"
-#include "device/interrupt/Pic.h"
 #include "Pit.h"
 #include "kernel/system/System.h"
-#include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/log/Logger.h"
 #include "kernel/service/SchedulerService.h"
-#include "lib/util/base/Exception.h"
 #include "device/debug/FirmwareConfiguration.h"
+#include "device/interrupt/InterruptRequest.h"
+#include "kernel/interrupt/InterruptVector.h"
 
 namespace Kernel {
 struct InterruptFrame;

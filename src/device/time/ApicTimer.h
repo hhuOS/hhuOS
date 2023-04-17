@@ -21,9 +21,16 @@
 #ifndef HHUOS_APICTIMER_H
 #define HHUOS_APICTIMER_H
 
+#include <stdint.h>
+
 #include "kernel/interrupt/InterruptHandler.h"
 #include "TimeProvider.h"
-#include "kernel/log/Logger.h"
+#include "lib/util/time/Timestamp.h"
+
+namespace Kernel {
+class Logger;
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device {
 

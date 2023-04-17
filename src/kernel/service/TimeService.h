@@ -23,11 +23,11 @@
 #include "Service.h"
 #include "lib/util/time/Date.h"
 #include "lib/util/time/Timestamp.h"
-#include "device/time/Rtc.h"
 
 namespace Device {
 class DateProvider;
 class TimeProvider;
+class Rtc;
 }  // namespace Device
 
 namespace Kernel {

@@ -27,7 +27,7 @@ namespace Kernel {
 
 Kernel::Logger MultibootLinearFrameBufferProvider::log = Kernel::Logger::get("Multiboot");
 
-MultibootLinearFrameBufferProvider::MultibootLinearFrameBufferProvider() : frameBufferInfo(Multiboot::getFrameBufferInfo()), supportedModes(1) {
+MultibootLinearFrameBufferProvider::MultibootLinearFrameBufferProvider() : supportedModes(1), frameBufferInfo(Multiboot::getFrameBufferInfo()) {
     supportedModes[0] = {static_cast<uint16_t>(frameBufferInfo.width), static_cast<uint16_t>(frameBufferInfo.height), frameBufferInfo.bpp, static_cast<uint16_t>(frameBufferInfo.pitch), 0};
 }
 

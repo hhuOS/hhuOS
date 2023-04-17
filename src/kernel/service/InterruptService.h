@@ -23,14 +23,19 @@
 #include "device/interrupt/Pic.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/service/Service.h"
-#include "device/interrupt/InterruptRequest.h"
-#include "kernel/interrupt/InterruptVector.h"
-#include "device/interrupt/apic/Apic.h"
 #include "device/debug/GdbServer.h"
+#include "device/port/serial/SerialPort.h"
+
+namespace Device {
+class Apic;
+enum InterruptRequest : uint8_t;
+}  // namespace Device
 
 namespace Kernel {
 class InterruptHandler;
 struct InterruptFrame;
+class Logger;
+enum InterruptVector : uint8_t;
 
 class InterruptService : public Service {
 

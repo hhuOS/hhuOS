@@ -26,6 +26,10 @@
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/base/System.h"
 
+namespace Device {
+class Rtc;
+}  // namespace Device
+
 namespace Kernel {
 
 TimeService::TimeService(Device::TimeProvider *timeProvider, Device::DateProvider *dateProvider) : timeProvider(timeProvider), dateProvider(dateProvider) {

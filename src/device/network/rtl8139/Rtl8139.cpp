@@ -28,13 +28,13 @@
 #include "lib/util/async/Thread.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/InterruptService.h"
-#include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/log/Logger.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/Address.h"
 
 namespace Kernel {
 struct InterruptFrame;
+enum InterruptVector : uint8_t;
 }  // namespace Kernel
 
 namespace Device::Network {

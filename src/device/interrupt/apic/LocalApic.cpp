@@ -19,14 +19,19 @@
  */
 
 #include "LocalApic.h"
-#include "device/interrupt/InterruptRequest.h"
+
 #include "lib/util/hardware/CpuId.h"
 #include "kernel/system/System.h"
 #include "kernel/service/InterruptService.h"
 #include "lib/util/base/Constants.h"
 #include "kernel/service/MemoryService.h"
+#include "device/cpu/IoPort.h"
+#include "device/cpu/ModelSpecificRegister.h"
+#include "kernel/interrupt/InterruptVector.h"
+#include "lib/util/async/Spinlock.h"
 
 namespace Device {
+enum InterruptRequest : uint8_t;
 
 uint32_t LocalApic::mmioAddress = 0;
 

@@ -15,10 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstring>
 #include "GdbServer.h"
 #include "kernel/system/System.h"
 #include "kernel/service/InterruptService.h"
+#include "kernel/interrupt/InterruptVector.h"
+#include "kernel/process/ThreadState.h"
 
 namespace Device {
 

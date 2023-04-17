@@ -115,7 +115,7 @@ CpuId::CpuInfo CpuId::getCpuInfo() {
     return { family, model, stepping, static_cast<CpuType>(type) };
 }
 
-const char *CpuId::getFeatureAsString(CpuId::CpuFeature feature) {
+const char* CpuId::getFeatureAsString(CpuId::CpuFeature feature) {
     switch (feature) {
         case FPU:
             return "FPU";

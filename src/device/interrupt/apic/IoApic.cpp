@@ -19,12 +19,20 @@
  */
 
 #include "IoApic.h"
+
 #include "kernel/system/System.h"
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/Constants.h"
 #include "LocalApic.h"
+#include "lib/util/base/Exception.h"
+
+namespace Kernel {
+enum GlobalSystemInterrupt : uint32_t;
+enum InterruptVector : uint8_t;
+}  // namespace Kernel
 
 namespace Device {
+enum InterruptRequest : uint8_t;
 
 IoApic::IoApic(uint8_t ioId, uint32_t baseAddress, Kernel::GlobalSystemInterrupt gsiBase) : ioId(ioId), gsiBase(gsiBase) {
     auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();

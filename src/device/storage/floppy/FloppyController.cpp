@@ -21,16 +21,16 @@
 #include "device/time/Cmos.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/system/System.h"
-#include "device/interrupt/Pic.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/service/StorageService.h"
 #include "lib/util/async/Thread.h"
-#include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/log/Logger.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/base/Constants.h"
 #include "lib/util/time/Timestamp.h"
+#include "device/interrupt/InterruptRequest.h"
+#include "kernel/interrupt/InterruptVector.h"
 
 namespace Kernel {
 struct InterruptFrame;

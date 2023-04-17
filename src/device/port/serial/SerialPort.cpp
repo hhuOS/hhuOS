@@ -17,6 +17,7 @@
 
 #include "kernel/service/InterruptService.h"
 #include "device/interrupt/Pic.h"
+#include "device/interrupt/InterruptRequest.h"
 #include "kernel/log/Logger.h"
 #include "filesystem/memory/StreamNode.h"
 #include "kernel/service/FilesystemService.h"
@@ -26,6 +27,7 @@
 #include "filesystem/core/Filesystem.h"
 #include "filesystem/memory/MemoryDriver.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
+#include "kernel/interrupt/InterruptVector.h"
 #include "lib/util/base/Exception.h"
 #include "kernel/multiboot/Multiboot.h"
 

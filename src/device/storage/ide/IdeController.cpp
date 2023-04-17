@@ -25,9 +25,7 @@
 #include "IdeDevice.h"
 #include "kernel/system/System.h"
 #include "kernel/service/StorageService.h"
-#include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/service/InterruptService.h"
-#include "device/interrupt/Pic.h"
 #include "device/pci/Pci.h"
 #include "device/pci/PciDevice.h"
 #include "kernel/log/Logger.h"
@@ -39,6 +37,11 @@
 #include "lib/util/base/Constants.h"
 #include "lib/util/base/String.h"
 #include "lib/util/time/Timestamp.h"
+#include "device/interrupt/InterruptRequest.h"
+#include "kernel/interrupt/InterruptVector.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Device::Storage {
 

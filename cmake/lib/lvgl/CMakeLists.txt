@@ -33,7 +33,7 @@ set(LV_CONF_PATH
         ${HHUOS_SRC_DIR}/lib/lvgl/lv_conf.h
         CACHE STRING "" FORCE)
 
-FetchContent_Declare(lvgl GIT_REPOSITORY https://github.com/lvgl/lvgl.git GIT_TAG v8.3.4)
+FetchContent_Declare(lvgl GIT_REPOSITORY https://github.com/lvgl/lvgl.git GIT_TAG v8.3.6)
 FetchContent_MakeAvailable(lvgl)
 
 target_link_libraries(${PROJECT_NAME} lib.user.graphic lib.user.io lvgl::lvgl)
