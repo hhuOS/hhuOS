@@ -91,4 +91,8 @@ void ApicTimer::calibrate() {
     log.info("Apic Timer ticks per millisecond: [%u]", ticksPerMilliseconds);
 }
 
+uint8_t ApicTimer::getCpuId() const {
+    return cpuId;
+}
+
 }

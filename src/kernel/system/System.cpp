@@ -111,7 +111,7 @@ void System::initializeSystem() {
             interruptService->useApic(apic);
         }
 
-        if (apic->isSymmetricMultiprocessingSupported()) {
+        if (apic != nullptr && apic->isSymmetricMultiprocessingSupported()) {
             apic->startupApplicationProcessors();
         }
     } else {

@@ -33,9 +33,12 @@ namespace Device {
 
 Kernel::Logger Apic::log = Kernel::Logger::get("APIC");
 
-Apic::Apic(const Util::Array<LocalApic*> &localApics, IoApic *ioApic) : localApics(localApics), localTimers(localApics.length()), ioApic(ioApic) {
-    for (auto *&localTimer : localTimers) {
-        localTimer = nullptr;
+uint8_t initializedApplicationProcessorsCounter = 0; // Used to determine AP GDT/Stack slot
+
+Apic::Apic(const Util::Array<LocalApic*> &localApicsArray, IoApic *ioApic) : localApics(localApicsArray.length()), localTimers(localApicsArray.length()), ioApic(ioApic) {
+    for (auto localApic : localApicsArray) {
+        localApics.put(localApic->getCpuId(), localApic);
+        localTimers.put(localApic->getCpuId(), nullptr);
     }
 }
 
@@ -84,17 +87,11 @@ Apic* Apic::initialize() {
 }
 
 void Apic::initializeCurrentLocalApic() {
-    LocalApic &localApic = getCurrentLocalApic();
-
-    if (localApic.getCpuId() != LocalApic::getId()) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Apic: AP can only enable itself!");
-    }
-
-    localApic.initialize();
+    getCurrentLocalApic().initialize();
 }
 
 LocalApic& Apic::getCurrentLocalApic() {
-    return *localApics[LocalApic::getId()];
+    return *localApics.get(LocalApic::getId());
 }
 
 void Apic::enableCurrentErrorHandler() {
@@ -167,30 +164,51 @@ Util::Array<LocalApic*> Apic::getLocalApics() {
             // When ACPI reports this local APIC as disabled, it may not be used by the OS.
             // ACPI 1.0 specification, sec. 5.2.8.1
             log.info("Local APIC [%u] is marked as disabled", localInfo->apicId);
-            localApics.add(localInfo->apicId, nullptr);
             continue;
         }
 
-        // Find the NMI belonging to the current localInfo, every local APIC should have exactly one
-        const Acpi::LocalApicNmi *nmiInfo = nullptr;
-        for (const auto *localNmi : acpiLocalApicNmis) {
-            // 0xff means all APs
-            if ((localNmi->acpiProcessorId == localInfo->acpiProcessorId) | (localNmi->acpiProcessorId == 0xff)) {
-                nmiInfo = localNmi;
-                break;
-            }
+        auto *localApic = new LocalApic(localInfo->apicId);
+
+        // Find the NMI belonging to the current localInfo
+        // const Acpi::LocalApicNmi *nmiInfo = nullptr;
+        // for (const auto *localNmi : acpiLocalApicNmis) {
+        //     // 0xff means all APs
+        //     if ((localNmi->acpiProcessorId == localInfo->acpiProcessorId) || (localNmi->acpiProcessorId == 0xff)) {
+        //         nmiInfo = localNmi;
+        //         break;
+        //     }
+        // }
+        // if (nmiInfo == nullptr) {
+        //     log.error("Couldn't find NMI info for local APIC [%u]!", localInfo->apicId);
+        //     return Util::Array<LocalApic*>(0);
+        // }
+        // localApic->addNonMaskableInterrupt(nmiInfo->localApicLint == 0 ? LocalApic::LINT0 : LocalApic::LINT1,
+        //                                    nmiInfo->flags & Acpi::IntiFlag::ACTIVE_HIGH ? LocalApic::LocalVectorTableEntry::PinPolarity::HIGH : LocalApic::LocalVectorTableEntry::PinPolarity::LOW,
+        //                                    nmiInfo->flags & Acpi::IntiFlag::EDGE_TRIGGERED ? LocalApic::LocalVectorTableEntry::TriggerMode::EDGE : LocalApic::LocalVectorTableEntry::TriggerMode::LEVEL);
+
+        // The above way of assigning NMIs is too strict:
+        // - Some firmwares (e.g. Lenovo T440s) report wrong values for the NMI's acpiProcessorId
+        //   that don't match with the local APIC's acpiProcessorId, so they can't be assigned
+        // - Not every core has to handle the NMI, the BSP suffices, done in Linux:
+        //   https://github.com/torvalds/linux/commit/b7c4948e9881fb38b048269f376fb4bf194ce24a
+        // - CPUs with hyperthreading report local APICs also for logical cores, but those don't
+        //   get NMI definitions
+        // It is also not necessary to configure the NMI depending on ACPI, as LINT1/edge-triggered
+        // is specified in the MultiProcessor Specification (sec. 5.2) and IA-32 manual (3.11.5.1).
+        // - I couldn't find information on the pin-polarity, but Linux uses active-high:
+        //   https://github.com/torvalds/linux/blob/master/arch/x86/include/asm/apicdef.h#L86
+        // The NMI implementation is kept very general still (similar to IoApic), because I can't
+        // find definitive information on what configurations are theoretically valid
+        if (localApic->getCpuId() == 0) {
+            localApic->addNonMaskableInterrupt(LocalApic::LINT1,
+                                               LocalApic::LocalVectorTableEntry::PinPolarity::HIGH,
+                                               LocalApic::LocalVectorTableEntry::TriggerMode::EDGE);
         }
 
-        if (nmiInfo == nullptr) {
-            log.error("Couldn't find NMI info for local APIC [%u]!", localInfo->apicId);
-            return Util::Array<LocalApic*>(0);
-        }
-
-        auto *localApic = new LocalApic(localInfo->apicId, nmiInfo->localApicLint == 0 ? LocalApic::LINT0 : LocalApic::LINT1,
-                nmiInfo->flags & Acpi::IntiFlag::ACTIVE_HIGH ? LocalApic::LocalVectorTableEntry::PinPolarity::HIGH : LocalApic::LocalVectorTableEntry::PinPolarity::LOW,
-                nmiInfo->flags & Acpi::IntiFlag::EDGE_TRIGGERED ? LocalApic::LocalVectorTableEntry::TriggerMode::EDGE : LocalApic::LocalVectorTableEntry::TriggerMode::LEVEL);
-        localApics.add(localInfo->apicId, localApic);
+        localApics.add(localApic);
     }
+
+    log.info("[%u] local %s are usable", localApics.size(), localApics.size() == 1 ? "APIC" : "APICs");
 
     return localApics.toArray();
 }
@@ -256,7 +274,7 @@ Kernel::GlobalSystemInterrupt Apic::getIrqOverride(InterruptRequest interruptReq
 }
 
 bool Apic::isCurrentTimerRunning() {
-    return localTimers[LocalApic::getId()] != nullptr;
+    return localTimers.get(LocalApic::getId()) != nullptr;
 }
 
 void Apic::startCurrentTimer() {
@@ -267,36 +285,31 @@ void Apic::startCurrentTimer() {
 
     auto *apicTimer = new Device::ApicTimer(10, 10);
     apicTimer->plugin();
-    localTimers[LocalApic::getId()] = apicTimer;
+    localTimers.put(LocalApic::getId(), apicTimer);
 }
 
 ApicTimer& Apic::getCurrentTimer() {
-    if (!isCurrentTimerRunning()) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Timer for the current CPU has not been initialized yet!");
-    }
-
-    return *localTimers[LocalApic::getId()];
+    return *localTimers.get(LocalApic::getId());
 }
 
 bool Apic::isSymmetricMultiprocessingSupported() const {
-    return localApics.length() > 1;
+    return localApics.size() > 1;
 }
 
 void Apic::startupApplicationProcessors() {
     void *gdtPointers = prepareApplicationProcessorGdts();
     void *stackPointers = prepareApplicationProcessorStacks();
     void *startupCodeRegion = prepareApplicationProcessorStartupCode(gdtPointers, stackPointers);
-    void *warmResetVectorRegion = prepareApplicationProcessorStacks(); // This is technically only required for discrete APIC, see below
+    void *warmResetVectorRegion = prepareApplicationProcessorWarmReset(); // This is technically only required for discrete APIC, see below
 
     // Universal Startup Algorithm requires all interrupts disabled (they should be disabled anyway, but disabling them a second time is twice as good)
     Cpu::disableInterrupts();
     Cmos::disableNmi();
 
     // Call the startup code on each AP using the INIT-SIPI-SIPI Universal Startup Algorithm
-    for (uint32_t i = 0; i < localApics.length(); ++i) {
-        const LocalApic *localApic = localApics[i];
-        if (localApic == nullptr || localApic->getCpuId() == LocalApic::getId()) {
-            // Skip this AP if it's the BSP or disabled
+    for (const auto *localApic : localApics.values()) {
+        if (localApic->getCpuId() == LocalApic::getId()) {
+            // Skip this AP if it's the BSP
             continue;
         }
 
@@ -332,10 +345,10 @@ void Apic::startupApplicationProcessors() {
         // the same will happen if the SIPI does not reach its target. That's why we abort.
         // Because the system time is not yet functional, we delay to measure the time.
         uint32_t readCount = 0;
-        while (!runningApplicationProcessors[localApic->getCpuId()]) {
+        while (!runningApplicationProcessors[initializedApplicationProcessorsCounter]) {
             if (readCount > 10) {
                 // Waited 10 * 10 ms = 0.1 s in total (pretty arbitrarily chosen by me)
-                log.error("CPU [%u] did not mark itself as running, it could be in undefined state!", i);
+                log.error("CPU [%u] did not mark itself as running, it could be in undefined state!", localApic->getCpuId());
                 break;
             }
 
@@ -343,7 +356,8 @@ void Apic::startupApplicationProcessors() {
             readCount++;
         }
 
-        log.info("CPU [%u] is now online!", i);
+        initializedApplicationProcessorsCounter++;
+        log.info("CPU [%u] is now online!", localApic->getCpuId());
     }
 
     Cmos::enableNmi();
@@ -359,16 +373,10 @@ void Apic::startupApplicationProcessors() {
 
 void* Apic::prepareApplicationProcessorStacks() {
     // Allocate the stack pointer array
-    auto **stacks = reinterpret_cast<uint32_t**>(new uint8_t*[localApics.length()]);
+    auto **stacks = reinterpret_cast<uint32_t**>(new uint8_t*[localApics.size() - 1]); // Exclude BSP
 
     // Allocate the stacks
-    for (uint32_t i = 0; i < localApics.length(); ++i) {
-        if (i == LocalApic::getId() || localApics[i] == nullptr) {
-            // Skip BSP or disabled processors
-            stacks[i] = nullptr;
-            continue;
-        }
-
+    for (uint32_t i = 0; i < localApics.size() - 1; ++i) {
         stacks[i] = reinterpret_cast<uint32_t*>(new uint8_t[applicationProcessorStackSize]);
     }
 
@@ -389,6 +397,7 @@ void* Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
             : "=a"(boot_ap_cr3));
     asm volatile("mov %%cr4, %%eax;"
             : "=a"(boot_ap_cr4));
+    boot_ap_counter = reinterpret_cast<uint32_t>(&initializedApplicationProcessorsCounter);
     boot_ap_gdts = reinterpret_cast<uint32_t>(gdts);
     boot_ap_stacks = reinterpret_cast<uint32_t>(stacks);
     boot_ap_entry = reinterpret_cast<uint32_t>(&applicationProcessorEntry);
@@ -426,15 +435,9 @@ void *Apic::prepareApplicationProcessorWarmReset() {
 
 void *Apic::prepareApplicationProcessorGdts() {
     // Allocate descriptor pointer array
-    auto **gdts = reinterpret_cast<Cpu::Descriptor**>(new Cpu::Descriptor *[localApics.length()]);
+    auto **gdts = reinterpret_cast<Cpu::Descriptor**>(new Cpu::Descriptor *[localApics.size() - 1]); // Skip BSP
 
-    for (uint32_t i = 0; i < localApics.length(); ++i) {
-        if (i == LocalApic::getId() || localApics[i] == nullptr) {
-            // Skip BSP or disabled processors
-            gdts[i] = nullptr;
-            continue;
-        }
-
+    for (uint32_t i = 0; i < localApics.size() - 1; ++i) {
         gdts[i] = allocateApplicationProcessorGdt();
     }
 

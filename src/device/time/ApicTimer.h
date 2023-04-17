@@ -105,6 +105,8 @@ public:
      */
     static void calibrate();
 
+    [[nodiscard]] uint8_t getCpuId() const;
+
 private:
     uint8_t cpuId;          // The id of the CPU that uses this timer.
     uint32_t timerInterval; // The interrupt trigger interval in milliseconds.

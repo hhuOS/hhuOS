@@ -31,6 +31,7 @@ global boot_ap_idtr
 global boot_ap_cr0
 global boot_ap_cr3
 global boot_ap_cr4
+global boot_ap_counter ; This is used to identify an APs GDT/Stack and "runningAPs" entry
 global boot_ap_gdts
 global boot_ap_stacks
 global boot_ap_entry
@@ -108,6 +109,9 @@ align 8
 boot_ap_cr4:
     dd 0x0
 align 8
+boot_ap_counter:
+    dd 0x0
+align 8
 boot_ap_gdts:
     dd 0x0
 align 8
@@ -137,10 +141,14 @@ boot_ap_32:
     ; lgdt [boot_ap_gdtr - boot_ap + startup_address]
 
     ; Get the local APIC ID of this AP, to locate GDT and stack
-    mov eax, 0x1
-    cpuid
-    shr ebx, 0x18
-    mov edi, ebx ; Now the ID is in EDI
+    ; mov eax, 0x1
+    ; cpuid
+    ; shr ebx, 0x18
+    ; mov edi, ebx ; Now the ID is in EDI
+
+    ; Get the initializedApplicationProcessorsCounter value to identify GDT and Stack
+    mov eax, [boot_ap_counter - boot_ap + startup_address]
+    mov edi, [eax]
 
     ; Load the AP's prepared GDT and TSS
     mov ebx, [boot_ap_gdts - boot_ap + startup_address] ; GDT descriptor array
