@@ -101,7 +101,7 @@ uint64_t Device::FirmwareConfiguration::readTraditional(Device::FirmwareConfigur
     }
 
     // Read wanted data
-    uint64_t max = pos + numBytes > file.size ? file.size : pos + numBytes;
+    uint64_t max = pos + numBytes > file.size ? (file.size - pos) : (numBytes);
     uint64_t read;
     for (read = 0; read < max; read++) {
         targetBuffer[read] = dataPort.readByte();
@@ -157,7 +157,7 @@ uint64_t Device::FirmwareConfiguration::performDmaAccess(Device::FirmwareConfigu
     // Read/Write data
     void *virtualAddress = memoryService.mapIO(numBytes);
     void *physicalAddress = memoryService.getPhysicalAddress(virtualAddress);
-    uint64_t max = pos + numBytes > file.size ? file.size : pos + numBytes;
+    uint64_t max = pos + numBytes > file.size ? (file.size - pos) : (numBytes);
 
     if (command == WRITE) {
         auto source = Util::Address<uint32_t>(targetBuffer);
