@@ -22,16 +22,11 @@ jobs:
       - name: Build grub image
         run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target grub --type Debug
 
-      - name: Upload Artifact
+      - name: Create artifact
+        run: tar -czvf hhuOS.tar.gz hhuOS-limine.iso hhuOS-towboot.img hdd0.img floppy0.img run.sh bios/ovmf/build.sh limine-licence.txt lvgl-licence.txt README.md
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: hhuOS
-          path: |
-            hhuOS-towboot.img
-            hhuOS-limine.iso
-            hdd0.img
-            floppy0.img
-            run.sh
-            bios/ovmf/build.sh
-            limine-licence.txt
-            lvgl-licence.txt
+          path: hhuOS.tar.gz
