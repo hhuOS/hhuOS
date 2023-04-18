@@ -82,11 +82,13 @@ void MouseCursor::keyReleased(Key key) {
 }
 
 void MouseCursor::mouseMoved(const Util::Math::Vector2D &relativeMovement) {
-    translate(relativeMovement);
+    const auto &oldPosition = getPosition();
+    setPositionX(oldPosition.getX() + relativeMovement.getX());
+    setPositionY(oldPosition.getY() + relativeMovement.getY());
 
-    const auto &position = getPosition();
-    if (position.getX() < -1) setPosition({-1, position.getY()});
-    if (position.getX() > 1) setPosition({1, position.getY()});
-    if (position.getY() < -1) setPosition({position.getX(), -1});
-    if (position.getY() > 1) setPosition({position.getX(), 1});
+    const auto &newPosition = getPosition();
+    if (newPosition.getX() < -1) setPosition({-1, newPosition.getY()});
+    if (newPosition.getX() > 1) setPosition({1, newPosition.getY()});
+    if (newPosition.getY() < -1) setPosition({newPosition.getX(), -1});
+    if (newPosition.getY() > 1) setPosition({newPosition.getX(), 1});
 }
