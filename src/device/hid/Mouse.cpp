@@ -38,7 +38,7 @@ namespace Device {
 
 Kernel::Logger Mouse::log = Kernel::Logger::get("Mouse");
 
-Mouse::Mouse(Ps2Controller &controller) : Ps2Device(controller, Ps2Controller::SECOND), Util::Io::FilterInputStream(inputStream), qemuMode(FirmwareConfiguration::isAvailable()) {
+Mouse::Mouse(Ps2Controller &controller) : Ps2Device(controller, Ps2Controller::SECOND), Util::Io::FilterInputStream(inputStream) {
     outputStream.connect(inputStream);
 }
 
@@ -176,14 +176,8 @@ void Mouse::trigger(const Kernel::InterruptFrame &frame) {
 
             // Write data: 1. button mask, 2. relative x-movement, 3. relative y-movement (inverted)
             outputStream.write(flags & 0x07);
-
-            if (qemuMode) {
-                outputStream.write(dy);
-                outputStream.write(-dx);
-            } else {
-                outputStream.write(dx);
-                outputStream.write(-dy);
-            }
+            outputStream.write(dx);
+            outputStream.write(-dy);
 
             // Reset cycle
             cycle = 1;

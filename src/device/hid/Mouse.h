@@ -93,7 +93,6 @@ private:
 
     bool writeMouseCommand(Command command, uint8_t data);
 
-    bool qemuMode; // QEMU inverts axes for some reason...
     uint32_t cycle = 1;
     uint32_t flags = 0;
     int32_t dx = 0;
