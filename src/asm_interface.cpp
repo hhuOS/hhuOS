@@ -28,6 +28,7 @@
 #include "kernel/process/ThreadState.h"
 #include "kernel/service/SchedulerService.h"
 #include "kernel/system/TaskStateSegment.h"
+#include "device/bios/SmBios.h"
 
 // Import functions
 extern "C" {
@@ -40,6 +41,7 @@ void main();
 void init_gdt(uint16_t*, uint16_t*, uint16_t*, uint16_t*, uint16_t*);
 void copy_multiboot_info(const Kernel::Multiboot::Info*, uint8_t*, uint32_t);
 void copy_acpi_tables(const Kernel::Multiboot::Info*, uint8_t*, uint32_t);
+void copy_smbios_tables(const Kernel::Multiboot::Info*, uint8_t*, uint32_t);
 void initialize_memory_block_map(const Kernel::Multiboot::Info*);
 void initialize_system();
 void finish_system();
@@ -67,7 +69,11 @@ void copy_multiboot_info(const Kernel::Multiboot::Info *source, uint8_t *destina
 }
 
 void copy_acpi_tables(const Kernel::Multiboot::Info *multibootInfo, uint8_t *destination, uint32_t maxBytes) {
-    Device::Acpi::copyAcpiTables(multibootInfo, destination, maxBytes);
+    Device::Acpi::copyTables(multibootInfo, destination, maxBytes);
+}
+
+void copy_smbios_tables(const Kernel::Multiboot::Info *multibootInfo, uint8_t *destination, uint32_t maxBytes) {
+    Device::SmBios::copyTables(multibootInfo, destination, maxBytes);
 }
 
 void initialize_memory_block_map(const Kernel::Multiboot::Info *multibootInfo) {

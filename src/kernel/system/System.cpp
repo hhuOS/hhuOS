@@ -51,6 +51,7 @@
 #include "lib/util/base/FreeListMemoryManager.h"
 #include "lib/util/base/HeapMemoryManager.h"
 #include "device/interrupt/apic/Apic.h"
+#include "device/bios/SmBios.h"
 
 namespace Kernel {
 class Service;
@@ -71,6 +72,7 @@ Logger System::log = Logger::get("System");
 void System::initializeSystem() {
     Multiboot::initialize();
     Device::Acpi::initialize();
+    Device::SmBios::initialize();
 
     kernelHeapMemoryManager = &initializeKernelHeap();
 

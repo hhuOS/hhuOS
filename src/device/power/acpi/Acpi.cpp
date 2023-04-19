@@ -32,7 +32,7 @@ const Acpi::Rsdp *Acpi::rsdp{};
 const Acpi::SdtHeader **Acpi::tables{};
 uint32_t Acpi::numTables{};
 
-void Acpi::copyAcpiTables(const void *multibootInfo, uint8_t *destination, uint32_t maxBytes) {
+void Acpi::copyTables(const void *multibootInfo, uint8_t *destination, uint32_t maxBytes) {
     auto *copyInfo = reinterpret_cast<CopyInformation*>(destination);
     copyInfo->sourceAddress = 0;
     copyInfo->targetAreaSize = maxBytes;
@@ -41,7 +41,7 @@ void Acpi::copyAcpiTables(const void *multibootInfo, uint8_t *destination, uint3
 
     auto destinationAddress = Util::Address<uint32_t>(destination + sizeof(CopyInformation));
 
-    Rsdp *rsdp = findRsdp(multibootInfo);
+    auto *rsdp = findRsdp(multibootInfo);
     copyInfo->sourceAddress = reinterpret_cast<uint32_t>(rsdp);
     if (rsdp == nullptr) {
         return;

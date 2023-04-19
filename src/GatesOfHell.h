@@ -63,6 +63,8 @@ private:
 
     static void printAcpiInformation();
 
+    static void printSmBiosInformation();
+
     static void enablePortLogging();
 
     static void initializeFilesystem();

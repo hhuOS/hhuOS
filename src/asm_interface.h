@@ -38,6 +38,7 @@ extern const uint32_t ___KERNEL_DATA_START__;
 extern const uint32_t ___KERNEL_DATA_END__;
 extern const uint8_t multiboot_data;
 extern const uint8_t acpi_data;
+extern const uint8_t smbios_data;
 
 // Import asm functions
 extern "C" {

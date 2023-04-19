@@ -31,6 +31,7 @@ global gdt_descriptor
 global gdt_bios_descriptor
 extern multiboot_data
 extern acpi_data
+extern smbios_data
 
 ; Export functions
 global boot
@@ -44,6 +45,7 @@ extern main
 extern init_gdt
 extern copy_multiboot_info
 extern copy_acpi_tables
+extern copy_smbios_tables
 extern initialize_memory_block_map
 extern initialize_system
 extern finish_system
@@ -198,6 +200,12 @@ clear_bss_done:
     push dword [multiboot_physical_addr - KERNEL_START]
     call copy_acpi_tables
 
+    ; Copy the SMBIOS structures into bss
+    push dword SMBIOS_SIZE
+    push dword (smbios_data - KERNEL_START)
+    push dword [multiboot_physical_addr - KERNEL_START]
+    call copy_smbios_tables
+
     ; Read memory map from multiboot info struct
     push dword [multiboot_physical_addr - KERNEL_START]
     call initialize_memory_block_map
@@ -301,3 +309,7 @@ multiboot_data:
 ; Reserve space for a copy of the ACPI tables
 acpi_data:
     resb ACPI_SIZE
+
+; Reserve space for a copy of the SMBIOS tables
+smbios_data:
+    resb SMBIOS_SIZE

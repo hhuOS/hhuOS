@@ -225,7 +225,7 @@ public:
      */
     ~Acpi() = delete;
 
-    static void copyAcpiTables(const void *multibootInfo, uint8_t *destination, uint32_t maxBytes);
+    static void copyTables(const void *multibootInfo, uint8_t *destination, uint32_t maxBytes);
 
     static void initialize();
 

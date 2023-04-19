@@ -26,7 +26,8 @@ add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/hardware/cpuid.asm
         ${HHUOS_SRC_DIR}/lib/util/hardware/CpuId.cpp
-        ${HHUOS_SRC_DIR}/lib/util/hardware/Machine.cpp)
+        ${HHUOS_SRC_DIR}/lib/util/hardware/Machine.cpp
+        ${HHUOS_SRC_DIR}/lib/util/hardware/SmBios.cpp)
 
 # Kernel space version
 project(lib.kernel.hardware)

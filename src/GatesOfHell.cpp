@@ -84,6 +84,7 @@
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/async/Thread.h"
 #include "kernel/service/TimeService.h"
+#include "device/bios/SmBios.h"
 
 namespace Device {
 class Machine;
@@ -102,6 +103,8 @@ void GatesOfHell::enter() {
     printMultibootInformation();
 
     printAcpiInformation();
+
+    printSmBiosInformation();
 
     if (Device::Bios::isAvailable()) {
         log.info("BIOS detected");
@@ -140,12 +143,12 @@ void GatesOfHell::enter() {
 }
 
 void GatesOfHell::printMultibootInformation() {
-    auto &bootloaderCopyInformation = Kernel::Multiboot::getCopyInformation();
-    if (!bootloaderCopyInformation.success) {
+    auto &copyInformation = Kernel::Multiboot::getCopyInformation();
+    if (!copyInformation.success) {
         log.warn("Bootloader information has not been copied successfully -> Undefined behaviour may occur...");
     }
 
-    log.info("Bootloader: [%s], Multiboot info size: [%u/%u Byte]", static_cast<const char*>(Kernel::Multiboot::getBootloaderName()), bootloaderCopyInformation.copiedBytes, bootloaderCopyInformation.targetAreaSize);
+    log.info("Bootloader: [%s], Multiboot info size: [%u/%u Byte]", static_cast<const char*>(Kernel::Multiboot::getBootloaderName()), copyInformation.copiedBytes, copyInformation.targetAreaSize);
 
     const auto tagTypes = Kernel::Multiboot::getAvailableTagTypes();
     Util::String tagString;
@@ -177,7 +180,6 @@ void GatesOfHell::printCpuInformation() {
             featureString += ",";
         }
     }
-
     log.info("CPU features: %s", static_cast<const char*>(featureString));
 }
 
@@ -186,23 +188,45 @@ void GatesOfHell::printAcpiInformation() {
         return;
     }
 
-    const auto &acpiCopyInformation = Device::Acpi::getCopyInformation();
-    log.info("ACPI support detected (Table size: [%u/%u Byte])", acpiCopyInformation.copiedBytes, acpiCopyInformation.targetAreaSize);
+    const auto &copyInformation = Device::Acpi::getCopyInformation();
+    log.info("ACPI support detected (Table size: [%u/%u Byte])", copyInformation.copiedBytes, copyInformation.targetAreaSize);
 
     const auto &rsdp = Device::Acpi::getRsdp();
     const auto vendor = Util::String(reinterpret_cast<const uint8_t*>(rsdp.oemId), sizeof(Device::Acpi::Rsdp::oemId));
     log.info("ACPI vendor: [%s], ACPI version: [%s]", static_cast<const char*>(vendor), rsdp.revision == 0 ? "1.0" : ">=2.0");
 
     const auto tables = Device::Acpi::getAvailableTables();
-    Util::String featureString;
+    Util::String tableString;
     for (uint32_t i = 0; i < tables.length(); i++) {
-        featureString += tables[i];
+        tableString += tables[i];
         if (i < tables.length() - 1) {
-            featureString += ",";
+            tableString += ",";
         }
     }
+    log.info("ACPI tables: %s", static_cast<const char*>(tableString));
+}
 
-    log.info("ACPI tables: %s", static_cast<const char*>(featureString));
+void GatesOfHell::printSmBiosInformation() {
+    if (!Device::SmBios::isAvailable()) {
+        return;
+    }
+
+    const auto &copyInformation = Device::SmBios::getCopyInformation();
+    const auto &smBiosInfo = Device::SmBios::getSmBiosInformation();
+    log.info("SMBIOS %u.%u support detected (Table size: [%u/%u Byte])", smBiosInfo.majorVersion, smBiosInfo.minorVersion, copyInformation.copiedBytes, copyInformation.targetAreaSize);
+
+    const auto tableTypes = Device::SmBios::getAvailableTables();
+    Util::String tableString;
+    for (uint32_t i = 0; i < tableTypes.length(); i++) {
+        tableString += Util::String::format("%u", tableTypes[i]);
+        if (i < tableTypes.length() - 1) {
+            tableString += ",";
+        }
+    }
+    log.info("SMBIOS tables: %s", static_cast<const char*>(tableString));
+
+    const auto &biosInformation = Device::SmBios::getTable<Util::Hardware::SmBios::BiosInformation>(Util::Hardware::SmBios::BIOS_INFORMATION);
+    log.info("BIOS info: Vendor [%s], Version [%s], Date [%s]", biosInformation.getVendorName(), biosInformation.getVersion(), biosInformation.getReleaseDate());
 }
 
 void GatesOfHell::initializeTerminal() {
