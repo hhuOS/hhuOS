@@ -28,6 +28,26 @@ uint16_t SmBios::TableHeader::calculateFullLength() const {
     return length + i + 1;
 }
 
+uint8_t SmBios::TableHeader::calculateStringCount() const {
+    const char *stringTable = reinterpret_cast<const char*>(this) + length;
+
+    uint8_t index = 0;
+    uint8_t i;
+    for (i = 1;; i++) {
+        while (stringTable[index] != 0) {
+            index++;
+        }
+
+        if (stringTable[index + 1] == 0) {
+            break;
+        }
+
+        index++;
+    }
+
+    return index == 0 ? 0 : i;
+}
+
 const char* SmBios::TableHeader::getString(uint8_t number) const {
     const char *stringTable = reinterpret_cast<const char*>(this) + length;
 

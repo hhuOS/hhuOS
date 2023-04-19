@@ -28,8 +28,84 @@
 
 double version = 0;
 
+static const constexpr char *tableNames[]{
+    "BIOS Information",
+    "System Information",
+    "Baseboard (or Module) Information",
+    "System Enclosure or Chassis",
+    "Processor Information",
+    "Memory Controller Information",
+    "Memory Module Information",
+    "Cache Information",
+    "Port Connector Information",
+    "System Slots",
+    "Onboard Devices Information",
+    "OEM Strings",
+    "System Configuration Options",
+    "BIOS Language Information",
+    "Group Associations",
+    "System Event Log",
+    "Physical Memory Array",
+    "Memory Device",
+    "32-Bit Memory Error Information",
+    "Memory Array Mapped Address",
+    "Memory Device Mapped Address",
+    "Built-in Pointing Device",
+    "Portable Battery",
+    "System Reset",
+    "Hardware Security",
+    "System Power Controls",
+    "Voltage Probe",
+    "Cooling Device",
+    "Temperature Probe",
+    "Electrical Current Probe",
+    "Out-of-Band Remote Access",
+    "Boot Integrity Services (BIS) Entry Point",
+    "System Boot Information",
+    "64-Bit Memory Error Information",
+    "Management Device",
+    "Management Device Component",
+    "Management Device Threshold Data",
+    "Memory Channel",
+    "IPMI Device Information",
+    "System Power Supply",
+    "Additional Information",
+    "Onboard Devices Extended Information",
+    "Management Controller Host Interface",
+    "TPM Device",
+    "Processor Additional Information",
+    "Firmware Inventory Information",
+    "String Property",
+};
+
+void dumpTable(const Util::Hardware::SmBios::TableHeader &table) {
+    Util::System::out << "\tHeader and Data:";
+    Util::System::out << Util::Io::PrintStream::hex;
+    for (uint32_t i = 0; i < table.length; i++) {
+        if (i % 16 == 0) {
+            Util::System::out << Util::Io::PrintStream::endl << "\t\t";
+        }
+
+        auto currentByte = reinterpret_cast<const uint8_t*>(&table)[i];
+        if (currentByte < 0x10) {
+            Util::System::out << 0;
+        }
+        Util::System::out << reinterpret_cast<const uint8_t*>(&table)[i] << " ";
+    }
+    Util::System::out << Util::Io::PrintStream::dec << Util::Io::PrintStream::endl;
+
+    auto stringCount = table.calculateStringCount();
+    if (stringCount == 0) {
+        return;
+    }
+
+    Util::System::out << "\tStrings:" << Util::Io::PrintStream::endl;
+    for (uint32_t i = 0; i < stringCount; i++) {
+        Util::System::out << "\t\t" << table.getString(i + 1) << Util::Io::PrintStream::endl;
+    }
+}
+
 void decodeBiosInformation(const Util::Hardware::SmBios::BiosInformation &table) {
-    Util::System::out << "BIOS Information" << Util::Io::PrintStream::endl;
     Util::System::out << "\tVendor: " << table.getVendorName() << Util::Io::PrintStream::endl;
     Util::System::out << "\tVersion: " << table.getVersion() << Util::Io::PrintStream::endl;
     Util::System::out << "\tRelease Date: " << table.getReleaseDate() << Util::Io::PrintStream::endl;
@@ -199,7 +275,7 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto targetType = Util::Hardware::SmBios::TERMINATE;
+    auto targetType = Util::Hardware::SmBios::END_OF_TABLE;
     if (argumentParser.hasArgument("type")) {
         targetType = static_cast<Util::Hardware::SmBios::HeaderType>(Util::String::parseInt(argumentParser.getArgument("type")));
     }
@@ -216,7 +292,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto tableDirectory = Util::Io::File("/device/smbios/tables");
     for (const auto &tableId : tableDirectory.getChildren()) {
         auto tableType = Util::String::parseInt(tableId.split("-")[0]);
-        if (targetType != Util::Hardware::SmBios::TERMINATE && targetType != tableType) {
+        if (targetType != Util::Hardware::SmBios::END_OF_TABLE && targetType != tableType) {
             continue;
         }
 
@@ -232,15 +308,23 @@ int32_t main(int32_t argc, char *argv[]) {
                         << ", DMI type " << tableHeader->type
                         << ", " << tableHeader->length << " bytes" << Util::Io::PrintStream::endl;
 
+        if (tableHeader->type < sizeof(tableNames)) {
+            Util::System::out << tableNames[tableHeader->type] << Util::Io::PrintStream::endl;
+        } else if (tableHeader->type == Util::Hardware::SmBios::INACTIVE) {
+            Util::System::out << "Inactive" << Util::Io::PrintStream::endl;
+        } else {
+            Util::System::out << "OEM-specific Type" << Util::Io::PrintStream::endl;
+        }
+
         switch (tableHeader->type) {
             case Util::Hardware::SmBios::BIOS_INFORMATION:
                 decodeBiosInformation(*reinterpret_cast<const Util::Hardware::SmBios::BiosInformation*>(tableHeader));
                 break;
             default:
-                break;
+                dumpTable(*tableHeader);
         }
 
-        Util::System::out << Util::Io::PrintStream::flush;
+        Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     }
 
     return 0;

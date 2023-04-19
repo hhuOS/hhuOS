@@ -82,7 +82,7 @@ const SmBios::Info &SmBios::getSmBiosInformation() {
 
 bool SmBios::hasTable(Util::Hardware::SmBios::HeaderType headerType) {
     auto *currentTable = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(smBiosInformation->tableAddress);
-    while (currentTable->type != Util::Hardware::SmBios::TERMINATE) {
+    while (currentTable->type != Util::Hardware::SmBios::END_OF_TABLE) {
         if (currentTable->type == headerType) {
             return true;
         }
@@ -100,7 +100,7 @@ Util::Array<Util::Hardware::SmBios::HeaderType> SmBios::getAvailableTables() {
 
     auto typeList = Util::ArrayList<Util::Hardware::SmBios::HeaderType>();
     auto *currentTable = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(smBiosInformation->tableAddress);
-    while (currentTable->type != Util::Hardware::SmBios::TERMINATE) {
+    while (currentTable->type != Util::Hardware::SmBios::END_OF_TABLE) {
         typeList.add(currentTable->type);
         currentTable = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(reinterpret_cast<uint32_t>(currentTable) + currentTable->calculateFullLength());
     }

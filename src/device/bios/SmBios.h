@@ -108,7 +108,7 @@ private:
 template<typename T>
 const T& SmBios::getTable(Util::Hardware::SmBios::HeaderType headerType) {
     auto *currentTable = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(smBiosInformation->tableAddress);
-    while (currentTable->type != Util::Hardware::SmBios::TERMINATE) {
+    while (currentTable->type != Util::Hardware::SmBios::END_OF_TABLE) {
         if (currentTable->type == headerType) {
             return *reinterpret_cast<const T*>(currentTable);
         }

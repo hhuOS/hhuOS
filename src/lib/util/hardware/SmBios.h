@@ -30,17 +30,53 @@ public:
     enum HeaderType : uint8_t {
         BIOS_INFORMATION = 0,
         SYSTEM_INFORMATION = 1,
-        MAINBOARD_INFORMATION = 2,
+        BASEBOARD_INFORMATION = 2,
         CHASSIS_INFORMATION = 3,
         PROCESSOR_INFORMATION = 4,
+        MEMORY_CONTROLLER_INFORMATION = 5,
+        MEMORY_MODULE_INFORMATION = 6,
         CACHE_INFORMATION = 7,
+        PORT_CONNECTOR_INFORMATION = 8,
         SYSTEM_SLOTS_INFORMATION = 9,
+        ONBOARD_DEVICES_INFORMATION = 10,
+        OEM_STRINGS = 11,
+        SYSTEM_CONFIGURATION_OPTIONS = 12,
+        BIOS_LANGUAGE_INFORMATION = 13,
+        GROUP_ASSOCIATIONS = 14,
+        SYSTEM_EVENT_LOG = 15,
         PHYSICAL_MEMORY_ARRAY = 16,
         MEMORY_DEVICE_INFORMATION = 17,
+        MEMORY_ERROR_INFORMATION_32_BIT = 18,
         MEMORY_ARRAY_MAPPED_ADDRESS = 19,
         MEMORY_DEVICE_MAPPED_ADDRESS = 20,
+        BUILT_IN_POINTING_DEVICE = 21,
+        PORTABLE_BATTERY = 22,
+        SYSTEM_RESET = 23,
+        HARDWARE_SECURITY = 24,
+        SYSTEM_POWER_CONTROLS = 25,
+        VOLTAGE_PROBE = 26,
+        COOLING_DEVICE = 27,
+        TEMPERATURE_PROBE = 28,
+        ELECTRICAL_CURRENT_PROBE = 29,
+        OUT_OF_BAND_REMOTE_ACCESS = 30,
+        BOOT_INTEGRITY_SERVICES_ENTRY_POINT = 31,
         SYSTEM_BOOT_INFORMATION = 32,
-        TERMINATE = 127
+        MEMORY_ERROR_INFORMATION_64_BIT = 33,
+        MANAGEMENT_DEVICE = 34,
+        MANAGEMENT_DEVICE_COMPONENT_DATA = 35,
+        MANAGEMENT_DEVICE_THRESHOLD_DATA = 36,
+        MEMORY_CHANNEL = 37,
+        IPMI_DEVICE_INFORMATION = 38,
+        SYSTEM_POWER_SUPPLY = 39,
+        ADDITIONAL_INFORMATION = 40,
+        ONBOARD_DEVICES_EXTENDED_INFORMATION = 41,
+        MANAGEMENT_CONTROLLER_HOST_INTERFACE = 42,
+        TPM_DEVICE = 43,
+        PROCESSOR_ADDITIONAL_INFORMATION = 44,
+        FIRMWARE_INVENTORY_INFORMATION = 45,
+        STRING_PROPERTY = 46,
+        INACTIVE = 126,
+        END_OF_TABLE = 127
     };
 
     struct Info {
@@ -56,6 +92,7 @@ public:
         uint16_t handle;
 
         [[nodiscard]] uint16_t calculateFullLength() const;
+        [[nodiscard]] uint8_t calculateStringCount() const;
         [[nodiscard]] const char* getString(uint8_t number) const;
     } __attribute__ ((packed));
 
