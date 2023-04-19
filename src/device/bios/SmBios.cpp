@@ -16,10 +16,14 @@
  */
 
 #include "SmBios.h"
+
 #include "asm_interface.h"
 #include "lib/util/base/Address.h"
 #include "kernel/paging/MemoryLayout.h"
 #include "kernel/multiboot/Multiboot.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Device {
 

@@ -59,6 +59,7 @@ else()
             COMMAND /bin/cp "$<TARGET_FILE:rm>" "${HHUOS_ROOT_DIR}/initrd/bin/rm"
             COMMAND /bin/cp "$<TARGET_FILE:rmdir>" "${HHUOS_ROOT_DIR}/initrd/bin/rmdir"
             COMMAND /bin/cp "$<TARGET_FILE:shutdown>" "${HHUOS_ROOT_DIR}/initrd/bin/shutdown"
+            COMMAND /bin/cp "$<TARGET_FILE:smbios>" "${HHUOS_ROOT_DIR}/initrd/bin/smbios"
             COMMAND /bin/cp "$<TARGET_FILE:touch>" "${HHUOS_ROOT_DIR}/initrd/bin/touch"
             COMMAND /bin/cp "$<TARGET_FILE:tree>" "${HHUOS_ROOT_DIR}/initrd/bin/tree"
             COMMAND /bin/cp "$<TARGET_FILE:uecho>" "${HHUOS_ROOT_DIR}/initrd/bin/uecho"
@@ -68,7 +69,7 @@ else()
             COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/asciimation" "${HHUOS_ROOT_DIR}/initrd"
             COMMAND /bin/tar -C "${HHUOS_ROOT_DIR}/initrd/" --xform s:'./':: -cf "${CMAKE_BINARY_DIR}/hhuOS.initrd" ./
             COMMAND /bin/rm -f "${HHUOS_ROOT_DIR}/hhuOS.img" "${HHUOS_ROOT_DIR}/hhuOS.iso"
-            DEPENDS asciimation music shell ant asciimate beep cat color cp cube date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping polygon ps pwd rm rmdir shutdown touch tree uecho unmount uptime)
+            DEPENDS asciimation music shell ant asciimate beep cat color cp cube date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping polygon ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime)
 
-    add_custom_target(${PROJECT_NAME} DEPENDS music asciimation shell ant asciimate beep cat color cp cube date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping polygon ps pwd rm rmdir shutdown touch tree uecho unmount uptime "${CMAKE_BINARY_DIR}/hhuOS.initrd")
+    add_custom_target(${PROJECT_NAME} DEPENDS music asciimation shell ant asciimate beep cat color cp cube date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping polygon ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime "${CMAKE_BINARY_DIR}/hhuOS.initrd")
 endif()

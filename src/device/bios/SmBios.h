@@ -19,10 +19,12 @@
 #define HHUOS_SMBIOS_H
 
 #include <cstdint>
-#include "asm_interface.h"
-#include "lib/util/base/String.h"
+
 #include "lib/util/collection/Array.h"
 #include "lib/util/hardware/SmBios.h"
+#include "lib/util/base/Exception.h"
+
+struct CopyInformation;
 
 namespace Device {
 

@@ -31,7 +31,6 @@
 #include "kernel/service/ProcessService.h"
 #include "BlueScreen.h"
 #include "device/power/acpi/Acpi.h"
-#include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/interrupt/InterruptHandler.h"
 #include "kernel/interrupt/InterruptVector.h"
 #include "kernel/log/Logger.h"
@@ -52,6 +51,7 @@
 #include "lib/util/base/HeapMemoryManager.h"
 #include "device/interrupt/apic/Apic.h"
 #include "device/bios/SmBios.h"
+#include "device/port/serial/SerialPort.h"
 
 namespace Kernel {
 class Service;

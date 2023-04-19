@@ -22,17 +22,25 @@
 #define HHUOS_APIC_H
 
 #include <cstdint>
+
 #include "LocalApic.h"
-#include "IoApic.h"
 #include "LocalApicErrorHandler.h"
-#include "device/interrupt/InterruptRequest.h"
-#include "lib/util/collection/ArrayList.h"
 #include "device/time/ApicTimer.h"
 #include "device/cpu/Cpu.h"
 #include "lib/util/collection/HashMap.h"
-#include "kernel/log/Logger.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+
+namespace Kernel {
+class Logger;
+enum GlobalSystemInterrupt : uint32_t;
+enum InterruptVector : uint8_t;
+}  // namespace Kernel
 
 namespace Device {
+class IoApic;
+enum InterruptRequest : uint8_t;
 
 class Apic {
 

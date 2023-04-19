@@ -15,51 +15,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_FIRMWARECONFIGURATIONDRIVER_H
-#define HHUOS_FIRMWARECONFIGURATIONDRIVER_H
+#ifndef HHUOS_SMBIOSVERSIONNODE_H
+#define HHUOS_SMBIOSVERSIONNODE_H
 
-#include "filesystem/memory/MemoryDriver.h"
+#include "filesystem/memory/StringNode.h"
 #include "lib/util/base/String.h"
-#include "lib/util/io/file/File.h"
 
-namespace Device {
-class FirmwareConfiguration;
-}  // namespace Device
+namespace Filesystem::SmBios {
 
-namespace Filesystem::Qemu {
-
-class FirmwareConfigurationDriver : public Memory::MemoryDriver {
+class SmBiosVersionNode : public Memory::StringNode {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    explicit FirmwareConfigurationDriver(Device::FirmwareConfiguration &device);
+    SmBiosVersionNode();
 
     /**
      * Copy Constructor.
      */
-    FirmwareConfigurationDriver(const FirmwareConfigurationDriver &other) = delete;
+    SmBiosVersionNode(const SmBiosVersionNode &other) = delete;
 
     /**
      * Assignment operator.
      */
-    FirmwareConfigurationDriver &operator=(const FirmwareConfigurationDriver &other) = delete;
+    SmBiosVersionNode &operator=(const SmBiosVersionNode &other) = delete;
 
     /**
      * Destructor.
      */
-    ~FirmwareConfigurationDriver() override = default;
+    ~SmBiosVersionNode() override = default;
 
     /**
-     * Overriding virtual function from VirtualDriver.
+     * Overriding function from StringNode.
      */
-    bool createNode(const Util::String &path, Util::Io::File::Type type) override;
+    Util::String getString() override;
 
-    /**
-     * Overriding virtual function from VirtualDriver.
-     */
-    bool deleteNode(const Util::String &path) override;
+private:
+
+    const Util::String versionString;
 };
 
 }

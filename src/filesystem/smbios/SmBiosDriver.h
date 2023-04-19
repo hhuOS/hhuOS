@@ -15,41 +15,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_FIRMWARECONFIGURATIONDRIVER_H
-#define HHUOS_FIRMWARECONFIGURATIONDRIVER_H
+#ifndef HHUOS_SMBIOSDRIVER_H
+#define HHUOS_SMBIOSDRIVER_H
 
 #include "filesystem/memory/MemoryDriver.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/file/File.h"
 
-namespace Device {
-class FirmwareConfiguration;
-}  // namespace Device
+namespace Filesystem::SmBios {
 
-namespace Filesystem::Qemu {
-
-class FirmwareConfigurationDriver : public Memory::MemoryDriver {
+class SmBiosDriver : public Memory::MemoryDriver {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    explicit FirmwareConfigurationDriver(Device::FirmwareConfiguration &device);
+    SmBiosDriver();
 
     /**
      * Copy Constructor.
      */
-    FirmwareConfigurationDriver(const FirmwareConfigurationDriver &other) = delete;
+    SmBiosDriver(const SmBiosDriver &other) = delete;
 
     /**
      * Assignment operator.
      */
-    FirmwareConfigurationDriver &operator=(const FirmwareConfigurationDriver &other) = delete;
+    SmBiosDriver &operator=(const SmBiosDriver &other) = delete;
 
     /**
      * Destructor.
      */
-    ~FirmwareConfigurationDriver() override = default;
+    ~SmBiosDriver() override = default;
 
     /**
      * Overriding virtual function from VirtualDriver.

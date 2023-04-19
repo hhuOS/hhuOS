@@ -23,6 +23,8 @@ include_directories(${HHUOS_SRC_DIR})
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
+target_link_libraries(${PROJECT_NAME} lib.math)
+
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/hardware/cpuid.asm
         ${HHUOS_SRC_DIR}/lib/util/hardware/CpuId.cpp

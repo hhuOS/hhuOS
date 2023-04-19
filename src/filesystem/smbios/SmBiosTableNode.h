@@ -15,39 +15,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_FIRMWARECONFIGURATIONNODE_H
-#define HHUOS_FIRMWARECONFIGURATIONNODE_H
+#ifndef HHUOS_SMBIOSTABLENODE_H
+#define HHUOS_SMBIOSTABLENODE_H
 
-#include <cstdint>
+#include <stdint.h>
 
+#include "lib/util/hardware/SmBios.h"
 #include "filesystem/memory/MemoryNode.h"
-#include "device/debug/FirmwareConfiguration.h"
-#include "lib/util/base/String.h"
 
-namespace Filesystem::Qemu {
+namespace Filesystem::SmBios {
 
-class FirmwareConfigurationNode : public Memory::MemoryNode {
+class SmBiosTableNode : public Memory::MemoryNode {
 
 public:
     /**
      * Constructor.
      */
-    explicit FirmwareConfigurationNode(const Util::String &name, const Device::FirmwareConfiguration::File &file, Device::FirmwareConfiguration &device);
+    SmBiosTableNode(const Util::Hardware::SmBios::TableHeader &tableHeader);
 
     /**
      * Copy Constructor.
      */
-    FirmwareConfigurationNode(const FirmwareConfigurationNode &other) = delete;
+    SmBiosTableNode(const SmBiosTableNode &other) = delete;
 
     /**
      * Assignment operator.
      */
-    FirmwareConfigurationNode &operator=(const FirmwareConfigurationNode &other) = delete;
+    SmBiosTableNode &operator=(const SmBiosTableNode &other) = delete;
 
     /**
      * Destructor.
      */
-    ~FirmwareConfigurationNode() override = default;
+    ~SmBiosTableNode() override = default;
 
     /**
      * Overriding function from MemoryNode.
@@ -59,15 +58,12 @@ public:
      */
     uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
 
-    /**
-     * Overriding function from MemoryNode.
-     */
-    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
-
 private:
 
-    Device::FirmwareConfiguration::File file{};
-    Device::FirmwareConfiguration &device;
+    const Util::Hardware::SmBios::TableHeader &tableHeader;
+    uint8_t length;
+
+    static uint8_t typeCounter[256];
 };
 
 }

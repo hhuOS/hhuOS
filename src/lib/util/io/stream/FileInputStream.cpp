@@ -24,19 +24,19 @@ namespace Util::Io {
 
 FileInputStream::FileInputStream(const Io::File &file) : fileDescriptor(Io::File::open(file.getCanonicalPath())) {
     if (fileDescriptor < 0) {
-        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileInputStream: Unable to open file!");
+        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "FileInputStream: Unable to open file!");
     }
 }
 
 FileInputStream::FileInputStream(const String &path) : fileDescriptor(Io::File::open(path)) {
     if (fileDescriptor < 0) {
-        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileInputStream: Unable to open file!");
+        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "FileInputStream: Unable to open file!");
     }
 }
 
 FileInputStream::FileInputStream(int32_t fileDescriptor) : fileDescriptor(fileDescriptor) {
     if (fileDescriptor < 0) {
-        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileInputStream: Unable to open file!");
+        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "FileInputStream: Unable to open file!");
     }
 }
 

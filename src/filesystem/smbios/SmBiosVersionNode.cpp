@@ -15,12 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
+#include "SmBiosVersionNode.h"
 
-#include "lib/util/base/System.h"
-#include "lib/util/io/stream/PrintStream.h"
+#include "device/bios/SmBios.h"
 
-int32_t main(int32_t argc, char *argv[]) {
-    Util::System::out << "Hello, world!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-    return 0;
+namespace Filesystem::SmBios {
+
+SmBiosVersionNode::SmBiosVersionNode() : Memory::StringNode("version"), versionString(Util::String::format("%u.%u", Device::SmBios::getSmBiosInformation().majorVersion, Device::SmBios::getSmBiosInformation().minorVersion)) {}
+
+Util::String SmBiosVersionNode::getString() {
+    return versionString;
+}
+
 }

@@ -21,7 +21,6 @@
 #include "kernel/service/InterruptService.h"
 #include "filesystem/memory/StreamNode.h"
 #include "kernel/service/FilesystemService.h"
-#include "device/debug/FirmwareConfiguration.h"
 #include "device/hid/Ps2Controller.h"
 #include "device/hid/Ps2Device.h"
 #include "filesystem/core/Filesystem.h"

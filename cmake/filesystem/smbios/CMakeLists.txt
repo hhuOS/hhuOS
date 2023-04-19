@@ -15,19 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 cmake_minimum_required(VERSION 3.14)
-
-project(filesystem)
-message(STATUS "Project " ${PROJECT_NAME})
-
-include_directories(${HHUOS_SRC_DIR})
-
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-
-# Add subdirectories
-add_subdirectory(core)
-add_subdirectory(fat)
-add_subdirectory(memory)
-add_subdirectory(process)
-add_subdirectory(qemu)
-add_subdirectory(smbios)
-add_subdirectory(tar)
+ 
+target_sources(filesystem PUBLIC
+        ${HHUOS_SRC_DIR}/filesystem/smbios/SmBiosDriver.cpp
+        ${HHUOS_SRC_DIR}/filesystem/smbios/SmBiosTableNode.cpp
+        ${HHUOS_SRC_DIR}/filesystem/smbios/SmBiosVersionNode.cpp)

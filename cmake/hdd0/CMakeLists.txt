@@ -50,6 +50,7 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cp "$<TARGET_FILE:rm>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/rm"
         COMMAND /bin/cp "$<TARGET_FILE:rmdir>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/rmdir"
         COMMAND /bin/cp "$<TARGET_FILE:shutdown>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/shutdown"
+        COMMAND /bin/cp "$<TARGET_FILE:smbios>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/smbios"
         COMMAND /bin/cp "$<TARGET_FILE:touch>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/touch"
         COMMAND /bin/cp "$<TARGET_FILE:tree>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/tree"
         COMMAND /bin/cp "$<TARGET_FILE:uecho>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/uecho"
@@ -59,6 +60,6 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/asciimation" "${HHUOS_ROOT_DIR}/hdd0/img/user"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/books" "${HHUOS_ROOT_DIR}/hdd0/img/user"
         WORKING_DIRECTORY ${HHUOS_ROOT_DIR}/hdd0 COMMAND ${HHUOS_ROOT_DIR}/hdd0/build.sh
-        DEPENDS asciimation music books shell ant beep cat color cp cube date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping polygon ps pwd rm rmdir shutdown touch tree uecho unmount uptime)
+        DEPENDS asciimation music books shell ant beep cat color cp cube date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping polygon ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime)
 
-add_custom_target(${PROJECT_NAME} DEPENDS asciimation music books shell ant beep cat color cp cube date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping polygon ps  pwd rm rmdir shutdown touch tree uecho unmount uptime "${HHUOS_ROOT_DIR}/hdd0.img")
+add_custom_target(${PROJECT_NAME} DEPENDS asciimation music books shell ant beep cat color cp cube date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping polygon ps  pwd rm rmdir shutdown smbios touch tree uecho unmount uptime "${HHUOS_ROOT_DIR}/hdd0.img")

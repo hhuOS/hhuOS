@@ -23,6 +23,7 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/collection/ArrayList.h"
+#include "lib/util/base/Exception.h"
 
 namespace Util {
 class String;

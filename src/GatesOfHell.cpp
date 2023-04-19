@@ -81,10 +81,8 @@
 #include "kernel/network/ip4/Ip4RoutingModule.h"
 #include "lib/util/network/ip4/Ip4Route.h"
 #include "lib/util/network/ip4/Ip4SubnetAddress.h"
-#include "lib/util/time/Timestamp.h"
-#include "lib/util/async/Thread.h"
-#include "kernel/service/TimeService.h"
 #include "device/bios/SmBios.h"
+#include "filesystem/smbios/SmBiosDriver.h"
 
 namespace Device {
 class Machine;
@@ -103,8 +101,6 @@ void GatesOfHell::enter() {
     printMultibootInformation();
 
     printAcpiInformation();
-
-    printSmBiosInformation();
 
     if (Device::Bios::isAvailable()) {
         log.info("BIOS detected");
@@ -204,29 +200,6 @@ void GatesOfHell::printAcpiInformation() {
         }
     }
     log.info("ACPI tables: %s", static_cast<const char*>(tableString));
-}
-
-void GatesOfHell::printSmBiosInformation() {
-    if (!Device::SmBios::isAvailable()) {
-        return;
-    }
-
-    const auto &copyInformation = Device::SmBios::getCopyInformation();
-    const auto &smBiosInfo = Device::SmBios::getSmBiosInformation();
-    log.info("SMBIOS %u.%u support detected (Table size: [%u/%u Byte])", smBiosInfo.majorVersion, smBiosInfo.minorVersion, copyInformation.copiedBytes, copyInformation.targetAreaSize);
-
-    const auto tableTypes = Device::SmBios::getAvailableTables();
-    Util::String tableString;
-    for (uint32_t i = 0; i < tableTypes.length(); i++) {
-        tableString += Util::String::format("%u", tableTypes[i]);
-        if (i < tableTypes.length() - 1) {
-            tableString += ",";
-        }
-    }
-    log.info("SMBIOS tables: %s", static_cast<const char*>(tableString));
-
-    const auto &biosInformation = Device::SmBios::getTable<Util::Hardware::SmBios::BiosInformation>(Util::Hardware::SmBios::BIOS_INFORMATION);
-    log.info("BIOS info: Vendor [%s], Version [%s], Date [%s]", biosInformation.getVendorName(), biosInformation.getVersion(), biosInformation.getReleaseDate());
 }
 
 void GatesOfHell::initializeTerminal() {
@@ -368,8 +341,14 @@ void GatesOfHell::initializeFilesystem() {
     if (Device::FirmwareConfiguration::isAvailable()) {
         auto *fwCfg = new Device::FirmwareConfiguration();
         auto *qemuDriver = new Filesystem::Qemu::FirmwareConfigurationDriver(*fwCfg);
-        filesystemService.createDirectory("/qemu");
-        filesystemService.getFilesystem().mountVirtualDriver("/qemu", qemuDriver);
+        filesystemService.createDirectory("/device/qemu");
+        filesystemService.getFilesystem().mountVirtualDriver("/device/qemu", qemuDriver);
+    }
+
+    if (Device::SmBios::isAvailable()) {
+        auto *smBiosDriver = new Filesystem::SmBios::SmBiosDriver();
+        filesystemService.createDirectory("/device/smbios");
+        filesystemService.getFilesystem().mountVirtualDriver("/device/smbios", smBiosDriver);
     }
 }
 

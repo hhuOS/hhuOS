@@ -19,6 +19,7 @@
  */
 
 #include "Apic.h"
+
 #include "device/power/acpi/Acpi.h"
 #include "device/time/Cmos.h"
 #include "device/time/Pit.h"
@@ -29,8 +30,20 @@
 #include "lib/util/base/Constants.h"
 #include "kernel/paging/Paging.h"
 #include "kernel/system/TaskStateSegment.h"
+#include "device/interrupt/apic/IoApic.h"
+#include "device/interrupt/apic/LocalApic.h"
+#include "device/interrupt/apic/LocalApicErrorHandler.h"
+#include "kernel/log/Logger.h"
+#include "lib/util/base/Address.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/collection/ArrayList.h"
+
+namespace Kernel {
+enum GlobalSystemInterrupt : uint32_t;
+}  // namespace Kernel
 
 namespace Device {
+enum InterruptRequest : uint8_t;
 
 Kernel::Logger Apic::log = Kernel::Logger::get("APIC");
 

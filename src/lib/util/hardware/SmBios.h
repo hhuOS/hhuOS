@@ -19,6 +19,7 @@
 #define HHUOS_UTIL_SMBIOS_H
 
 #include <cstdint>
+#include "lib/util/math/Math.h"
 
 namespace Util::Hardware {
 
@@ -66,7 +67,8 @@ public:
         uint8_t releaseDateString;
         uint8_t romSize;
         uint64_t characteristics;
-        uint16_t characteristicsExtension;
+        uint8_t characteristicsExtension1;
+        uint8_t characteristicsExtension2;
         uint8_t majorVersion;
         uint8_t minorVersion;
         uint8_t embeddedControllerMajorVersion;
@@ -83,6 +85,14 @@ public:
 
         [[nodiscard]] const char* getReleaseDate() const {
             return header.getString(releaseDateString);
+        }
+
+        [[nodiscard]] uint32_t calculateRuntimeSize() const {
+            return (0x10000 - startAddressSegment) * 16;
+        }
+
+        [[nodiscard]] uint32_t calculateRomSize() const {
+            return static_cast<uint32_t>(Math::pow(65536, romSize + 1));
         }
     } __attribute__ ((packed));
 
