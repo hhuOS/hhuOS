@@ -114,7 +114,7 @@ boot:
     push dword (gdt_descriptor - KERNEL_START)
     push dword (gdt_bios - KERNEL_START)
     push dword (gdt - KERNEL_START)
-    call_physical_function init_gdt
+    call init_gdt
 
     ; Load GDT from physical address
     lgdt [gdt_phys_descriptor - KERNEL_START]
@@ -147,19 +147,19 @@ clear_bss_done:
     push dword MULTIBOOT_SIZE
     push dword (multiboot_data - KERNEL_START)
     push dword [multiboot_physical_addr - KERNEL_START]
-    call_physical_function copy_multiboot_info
+    call copy_multiboot_info
 
     ; Copy the ACPI structures into bss
     push dword ACPI_SIZE
     push dword (acpi_data - KERNEL_START)
-    call_physical_function copy_acpi_tables
+    call copy_acpi_tables
 
     ; Read memory map from multiboot info struct
     push dword [multiboot_physical_addr - KERNEL_START]
-    call_physical_function read_memory_map
+    call read_memory_map
 
     ; Jump into paging.asm to enable 4MB paging
-    call_physical_function enable_bootstrap_paging
+    call enable_bootstrap_paging
 
 ; We return here from paging.asm after 4MB paging is enabled
 on_paging_enabled:

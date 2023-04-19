@@ -21,10 +21,4 @@
 %define MULTIBOOT_SIZE      0x00001000
 %define ACPI_SIZE           0x00010000
 
-%macro  call_physical_function 1
-    mov eax, %1
-    sub eax, KERNEL_START
-    call eax
-%endmacro
-
 %endif
