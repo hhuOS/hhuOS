@@ -23,6 +23,7 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/hardware/SmBios.h"
 #include "lib/util/base/Exception.h"
+#include "kernel/multiboot/Multiboot.h"
 
 struct CopyInformation;
 
@@ -95,7 +96,7 @@ private:
         uint8_t bcdRevision;
     } __attribute__ ((packed));
 
-    static SmBios::Info findTables(const void *multibootInfo);
+    static const Kernel::Multiboot::SmBiosTables* findTables(const void *multibootInfo);
 
     static const EntryPoint* searchEntryPoint(uint32_t startAddress, uint32_t endAddress);
 

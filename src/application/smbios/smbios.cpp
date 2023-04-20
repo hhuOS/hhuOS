@@ -307,8 +307,9 @@ int32_t main(int32_t argc, char *argv[]) {
         Util::System::out << "Handle 0x" << Util::Io::PrintStream::hex << tableHeader->handle << Util::Io::PrintStream::dec;
         Util::System::out.setNumberPadding(2);
         Util::System::out << ", DMI type " << tableHeader->type << ", " << tableHeader->length << " bytes" << Util::Io::PrintStream::endl;
+        Util::System::out.setNumberPadding(0);
 
-        if (tableHeader->type < sizeof(tableNames)) {
+        if (tableHeader->type <= Util::Hardware::SmBios::STRING_PROPERTY) {
             Util::System::out << tableNames[tableHeader->type] << Util::Io::PrintStream::endl;
         } else if (tableHeader->type == Util::Hardware::SmBios::INACTIVE) {
             Util::System::out << "Inactive" << Util::Io::PrintStream::endl;

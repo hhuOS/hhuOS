@@ -38,14 +38,32 @@ void SmBios::copyTables(const void *multibootInfo, uint8_t *destination, uint32_
     copyInfo->success = false;
 
     auto destinationAddress = Util::Address<uint32_t>(destination + sizeof(CopyInformation));
+    Info info{};
 
-    auto info = findTables(multibootInfo);
+    // Search for SMBIOS tables in Multiboot tags
+    auto *smBiosTag = findTables(multibootInfo);
+    if (smBiosTag != nullptr) {
+        auto tableSize = static_cast<uint16_t>(smBiosTag->header.size - 16);
+        auto tableAddress = tableSize == 0 ? 0 : reinterpret_cast<uint32_t>(smBiosTag->tables);
+        info = { smBiosTag->majorVersion, smBiosTag->minorVersion, tableAddress, tableSize };
+    }
+
+    if (info.tableAddress == 0) {
+        // Search for entry point the "traditional" way
+        auto *entryPoint = searchEntryPoint(0xf0000, 0xfffff);
+        if (entryPoint == nullptr) {
+            return;
+        }
+
+        info = { entryPoint->majorVersion, entryPoint->minorVersion, entryPoint->tableAddress, entryPoint->tableLength };
+    }
+
     copyInfo->sourceAddress = reinterpret_cast<uint32_t>(info.tableAddress);
     if (info.tableAddress == 0) {
         return;
     }
 
-    // Copy entry point
+    // Copy information struct
     if (copyInfo->copiedBytes + sizeof(Info) > maxBytes) return;
     destinationAddress.copyRange(Util::Address<uint32_t>(&info), sizeof(Info));
     auto *copiedInfo = reinterpret_cast<Info*>(destinationAddress.get());
@@ -108,14 +126,12 @@ Util::Array<Util::Hardware::SmBios::HeaderType> SmBios::getAvailableTables() {
     return typeList.toArray();
 }
 
-SmBios::Info SmBios::findTables(const void *multibootInfo) {
-    // Search for SMBIOS tables in Multiboot tags
+const Kernel::Multiboot::SmBiosTables* SmBios::findTables(const void *multibootInfo) {
     auto currentAddress = reinterpret_cast<uint32_t>(multibootInfo) + sizeof(Kernel::Multiboot::Info);
     auto *currentTag = reinterpret_cast<const Kernel::Multiboot::TagHeader*>(currentAddress);
     while (currentTag->type != Kernel::Multiboot::TERMINATE) {
         if (currentTag->type == Kernel::Multiboot::SMBIOS_TABLES) {
-            auto *smBiosTag = reinterpret_cast<const Kernel::Multiboot::SystemManagementBiosTables*>(currentTag);
-            return { smBiosTag->majorVersion, smBiosTag->minorVersion, reinterpret_cast<uint32_t>(smBiosTag->tables), static_cast<uint16_t>(smBiosTag->header.size - 16) };
+            return reinterpret_cast<const Kernel::Multiboot::SmBiosTables*>(currentTag);
         }
 
         currentAddress += currentTag->size;
@@ -123,13 +139,7 @@ SmBios::Info SmBios::findTables(const void *multibootInfo) {
         currentTag = reinterpret_cast<const Kernel::Multiboot::TagHeader*>(currentAddress);
     }
 
-    // Search for SMBIOS tables the "traditional" way
-    auto *entryPoint = searchEntryPoint(0xf0000, 0xfffff);
-    if (entryPoint == nullptr) {
-        return {};
-    }
-
-    return { entryPoint->majorVersion, entryPoint->minorVersion, entryPoint->tableAddress, entryPoint->tableLength };
+    return nullptr;
 }
 
 const SmBios::EntryPoint* SmBios::searchEntryPoint(uint32_t startAddress, uint32_t endAddress) {

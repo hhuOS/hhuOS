@@ -199,7 +199,7 @@ public:
         uint64_t address;
     };
 
-    struct SystemManagementBiosTables {
+    struct SmBiosTables {
         TagHeader header;
         uint8_t majorVersion;
         uint8_t minorVersion;
