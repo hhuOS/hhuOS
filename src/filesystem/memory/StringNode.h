@@ -29,7 +29,7 @@ class StringNode : public MemoryNode {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
     explicit StringNode(const Util::String &name);
 

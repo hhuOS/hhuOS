@@ -39,7 +39,7 @@ public:
     /**
      * Assignment operator.
      */
-    SmBiosVersionNode &operator=(const SmBiosVersionNode &other) = delete;
+    SmBiosVersionNode& operator=(const SmBiosVersionNode &other) = delete;
 
     /**
      * Destructor.

@@ -15,33 +15,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SmBiosDriver.h"
+#include "BufferNode.h"
+#include "lib/util/base/Address.h"
 
-#include "SmBiosVersionNode.h"
-#include "SmBiosTableNode.h"
-#include "filesystem/memory/MemoryDirectoryNode.h"
-#include "device/bios/SmBios.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/hardware/SmBios.h"
+Filesystem::Memory::BufferNode::BufferNode(const Util::String &name, const uint8_t *buffer, uint32_t length) : MemoryNode(name), buffer(buffer), length(length) {}
 
-namespace Filesystem::SmBios {
+uint64_t Filesystem::Memory::BufferNode::getLength() {
+    return length;
+}
 
-SmBiosDriver::SmBiosDriver() {
-    addNode("/", new SmBiosVersionNode());
-    addNode("/", new Memory::MemoryDirectoryNode("tables"));
-
-    for (const auto type : Device::SmBios::getAvailableTables()) {
-        const auto &table = Device::SmBios::getTable<Util::Hardware::SmBios::TableHeader>(type);
-        addNode("/tables", new SmBiosTableNode(table));
+uint64_t Filesystem::Memory::BufferNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
+    if (pos >= length) {
+        return 0;
     }
-}
 
-bool SmBiosDriver::createNode(const Util::String &path, Util::Io::File::Type type) {
-    return false;
-}
+    if (pos + numBytes > length) {
+        numBytes = length - pos;
+    }
 
-bool SmBiosDriver::deleteNode(const Util::String &path) {
-    return false;
-}
+    auto sourceAddress = Util::Address<uint32_t>(buffer).add(pos);
+    auto targetAddress = Util::Address<uint32_t>(targetBuffer);
+    targetAddress.copyRange(sourceAddress, numBytes);
 
+    return numBytes;
 }

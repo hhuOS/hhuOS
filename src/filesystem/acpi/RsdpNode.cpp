@@ -15,33 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SmBiosDriver.h"
+#include "RsdpNode.h"
+#include "device/power/acpi/Acpi.h"
 
-#include "SmBiosVersionNode.h"
-#include "SmBiosTableNode.h"
-#include "filesystem/memory/MemoryDirectoryNode.h"
-#include "device/bios/SmBios.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/hardware/SmBios.h"
+namespace Filesystem::Acpi {
 
-namespace Filesystem::SmBios {
-
-SmBiosDriver::SmBiosDriver() {
-    addNode("/", new SmBiosVersionNode());
-    addNode("/", new Memory::MemoryDirectoryNode("tables"));
-
-    for (const auto type : Device::SmBios::getAvailableTables()) {
-        const auto &table = Device::SmBios::getTable<Util::Hardware::SmBios::TableHeader>(type);
-        addNode("/tables", new SmBiosTableNode(table));
-    }
-}
-
-bool SmBiosDriver::createNode(const Util::String &path, Util::Io::File::Type type) {
-    return false;
-}
-
-bool SmBiosDriver::deleteNode(const Util::String &path) {
-    return false;
-}
+RsdpNode::RsdpNode() : Memory::BufferNode("rsdp", reinterpret_cast<const uint8_t *>(&Device::Acpi::getRsdp()), sizeof(Util::Hardware::Acpi::Rsdp)) {}
 
 }

@@ -15,33 +15,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SmBiosDriver.h"
-
-#include "SmBiosVersionNode.h"
-#include "SmBiosTableNode.h"
+#include "AcpiDriver.h"
+#include "RsdpNode.h"
 #include "filesystem/memory/MemoryDirectoryNode.h"
-#include "device/bios/SmBios.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/hardware/SmBios.h"
+#include "device/power/acpi/Acpi.h"
+#include "AcpiTableNode.h"
 
-namespace Filesystem::SmBios {
+namespace Filesystem::Acpi {
 
-SmBiosDriver::SmBiosDriver() {
-    addNode("/", new SmBiosVersionNode());
+AcpiDriver::AcpiDriver() {
+    addNode("/", new RsdpNode());
     addNode("/", new Memory::MemoryDirectoryNode("tables"));
 
-    for (const auto type : Device::SmBios::getAvailableTables()) {
-        const auto &table = Device::SmBios::getTable<Util::Hardware::SmBios::TableHeader>(type);
-        addNode("/tables", new SmBiosTableNode(table));
+    for (const auto &tableSignature : Device::Acpi::getAvailableTables()) {
+        const auto &table = Device::Acpi::getTable<Util::Hardware::Acpi::SdtHeader>(static_cast<const char*>(tableSignature));
+        addNode("/tables", new AcpiTableNode(table));
     }
-}
-
-bool SmBiosDriver::createNode(const Util::String &path, Util::Io::File::Type type) {
-    return false;
-}
-
-bool SmBiosDriver::deleteNode(const Util::String &path) {
-    return false;
 }
 
 }

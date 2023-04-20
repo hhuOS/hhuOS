@@ -36,7 +36,7 @@ uint64_t StringNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numB
     }
 
     if (pos + numBytes > buffer.length()) {
-        numBytes = (buffer.length() - pos);
+        numBytes = buffer.length() - pos;
     }
 
     auto sourceAddress = Util::Address<uint32_t>(static_cast<const char*>(buffer)).add(pos);

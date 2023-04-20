@@ -105,7 +105,7 @@ int32_t main(int32_t argc, char *argv[]) {
         char line[LINE_LENGTH];
         uint8_t i;
         for (i = 0; i < LINE_LENGTH && (length == -1 || readBytes < length); i++) {
-            int16_t c = bufferedStream.read();
+            auto c = bufferedStream.read();
             if (c == -1) {
                 break;
             }

@@ -83,6 +83,7 @@
 #include "lib/util/network/ip4/Ip4SubnetAddress.h"
 #include "device/bios/SmBios.h"
 #include "filesystem/smbios/SmBiosDriver.h"
+#include "filesystem/acpi/AcpiDriver.h"
 
 namespace Device {
 class Machine;
@@ -101,6 +102,8 @@ void GatesOfHell::enter() {
     printMultibootInformation();
 
     printAcpiInformation();
+
+    printSmBiosInformation();
 
     if (Device::Bios::isAvailable()) {
         log.info("BIOS detected");
@@ -154,7 +157,6 @@ void GatesOfHell::printMultibootInformation() {
             tagString += ",";
         }
     }
-
     log.info("Multiboot tags: %s", static_cast<const char*>(tagString));
 }
 
@@ -163,7 +165,7 @@ void GatesOfHell::printCpuInformation() {
         return;
     }
 
-    log.info("CPU vendor: %s", static_cast<const char*>(Util::Hardware::CpuId::getVendorString()));
+    log.info("CPU vendor: [%s]", static_cast<const char*>(Util::Hardware::CpuId::getVendorString()));
 
     const auto info = Util::Hardware::CpuId::getCpuInfo();
     log.info("CPU info: Family [%u], Model [%u], Stepping [%u], Type [%u]", info.family, info.model, info.stepping, info.type);
@@ -188,7 +190,7 @@ void GatesOfHell::printAcpiInformation() {
     log.info("ACPI support detected (Table size: [%u/%u Byte])", copyInformation.copiedBytes, copyInformation.targetAreaSize);
 
     const auto &rsdp = Device::Acpi::getRsdp();
-    const auto vendor = Util::String(reinterpret_cast<const uint8_t*>(rsdp.oemId), sizeof(Device::Acpi::Rsdp::oemId));
+    const auto vendor = Util::String(reinterpret_cast<const uint8_t*>(rsdp.oemId), sizeof(Util::Hardware::Acpi::Rsdp::oemId));
     log.info("ACPI vendor: [%s], ACPI version: [%s]", static_cast<const char*>(vendor), rsdp.revision == 0 ? "1.0" : ">=2.0");
 
     const auto tables = Device::Acpi::getAvailableTables();
@@ -200,6 +202,19 @@ void GatesOfHell::printAcpiInformation() {
         }
     }
     log.info("ACPI tables: %s", static_cast<const char*>(tableString));
+}
+
+void GatesOfHell::printSmBiosInformation() {
+    if (!Device::SmBios::isAvailable()) {
+        return;
+    }
+
+    const auto &copyInformation = Device::SmBios::getCopyInformation();
+    const auto &smBiosInfo = Device::SmBios::getSmBiosInformation();
+    log.info("SMBIOS %u.%u support detected (Table size: [%u/%u Byte])", smBiosInfo.majorVersion, smBiosInfo.minorVersion, copyInformation.copiedBytes, copyInformation.targetAreaSize);
+
+    const auto &biosInformation = Device::SmBios::getTable<Util::Hardware::SmBios::BiosInformation>(Util::Hardware::SmBios::BIOS_INFORMATION);
+    log.info("BIOS vendor: [%s], BIOS version: [%s]", biosInformation.getVendorName(), biosInformation.getVersion());
 }
 
 void GatesOfHell::initializeTerminal() {
@@ -343,6 +358,12 @@ void GatesOfHell::initializeFilesystem() {
         auto *qemuDriver = new Filesystem::Qemu::FirmwareConfigurationDriver(*fwCfg);
         filesystemService.createDirectory("/device/qemu");
         filesystemService.getFilesystem().mountVirtualDriver("/device/qemu", qemuDriver);
+    }
+
+    if (Device::Acpi::isAvailable()) {
+        auto *acpiDriver = new Filesystem::Acpi::AcpiDriver();
+        filesystemService.createDirectory("/device/acpi");
+        filesystemService.getFilesystem().mountVirtualDriver("/device/acpi", acpiDriver);
     }
 
     if (Device::SmBios::isAvailable()) {

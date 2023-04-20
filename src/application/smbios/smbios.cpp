@@ -79,17 +79,14 @@ static const constexpr char *tableNames[]{
 };
 
 void dumpTable(const Util::Hardware::SmBios::TableHeader &table) {
-    Util::System::out << "\tHeader and Data:";
-    Util::System::out << Util::Io::PrintStream::hex;
+    Util::System::out.setNumberPadding(2);
+    Util::System::out << "\tHeader and Data:" << Util::Io::PrintStream::hex;
+
     for (uint32_t i = 0; i < table.length; i++) {
         if (i % 16 == 0) {
             Util::System::out << Util::Io::PrintStream::endl << "\t\t";
         }
 
-        auto currentByte = reinterpret_cast<const uint8_t*>(&table)[i];
-        if (currentByte < 0x10) {
-            Util::System::out << 0;
-        }
         Util::System::out << reinterpret_cast<const uint8_t*>(&table)[i] << " ";
     }
     Util::System::out << Util::Io::PrintStream::dec << Util::Io::PrintStream::endl;
@@ -103,6 +100,8 @@ void dumpTable(const Util::Hardware::SmBios::TableHeader &table) {
     for (uint32_t i = 0; i < stringCount; i++) {
         Util::System::out << "\t\t" << table.getString(i + 1) << Util::Io::PrintStream::endl;
     }
+
+    Util::System::out.setNumberPadding(0);
 }
 
 void decodeBiosInformation(const Util::Hardware::SmBios::BiosInformation &table) {
@@ -304,9 +303,10 @@ int32_t main(int32_t argc, char *argv[]) {
         tableStream.read(tableBuffer, 0, length);
 
         auto *tableHeader = reinterpret_cast<Util::Hardware::SmBios::TableHeader*>(tableBuffer);
-        Util::System::out << "Handle " << Util::String::format("0x%04x", tableHeader->handle)
-                        << ", DMI type " << tableHeader->type
-                        << ", " << tableHeader->length << " bytes" << Util::Io::PrintStream::endl;
+        Util::System::out.setNumberPadding(4);
+        Util::System::out << "Handle 0x" << Util::Io::PrintStream::hex << tableHeader->handle << Util::Io::PrintStream::dec;
+        Util::System::out.setNumberPadding(2);
+        Util::System::out << ", DMI type " << tableHeader->type << ", " << tableHeader->length << " bytes" << Util::Io::PrintStream::endl;
 
         if (tableHeader->type < sizeof(tableNames)) {
             Util::System::out << tableNames[tableHeader->type] << Util::Io::PrintStream::endl;

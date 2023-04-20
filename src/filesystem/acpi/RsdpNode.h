@@ -15,33 +15,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SmBiosDriver.h"
+#ifndef HHUOS_RSDPNODE_H
+#define HHUOS_RSDPNODE_H
 
-#include "SmBiosVersionNode.h"
-#include "SmBiosTableNode.h"
-#include "filesystem/memory/MemoryDirectoryNode.h"
-#include "device/bios/SmBios.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/hardware/SmBios.h"
+#include "filesystem/memory/BufferNode.h"
 
-namespace Filesystem::SmBios {
+namespace Filesystem::Acpi {
 
-SmBiosDriver::SmBiosDriver() {
-    addNode("/", new SmBiosVersionNode());
-    addNode("/", new Memory::MemoryDirectoryNode("tables"));
+class RsdpNode : public Memory::BufferNode {
 
-    for (const auto type : Device::SmBios::getAvailableTables()) {
-        const auto &table = Device::SmBios::getTable<Util::Hardware::SmBios::TableHeader>(type);
-        addNode("/tables", new SmBiosTableNode(table));
-    }
+public:
+    /**
+     * Default Constructor.
+     */
+    RsdpNode();
+
+    /**
+     * Copy Constructor.
+     */
+    RsdpNode(const RsdpNode &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    RsdpNode &operator=(const RsdpNode &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~RsdpNode() override = default;
+};
+
 }
 
-bool SmBiosDriver::createNode(const Util::String &path, Util::Io::File::Type type) {
-    return false;
-}
-
-bool SmBiosDriver::deleteNode(const Util::String &path) {
-    return false;
-}
-
-}
+#endif

@@ -15,33 +15,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SmBiosDriver.h"
+#ifndef HHUOS_ACPIDRIVER_H
+#define HHUOS_ACPIDRIVER_H
 
-#include "SmBiosVersionNode.h"
-#include "SmBiosTableNode.h"
-#include "filesystem/memory/MemoryDirectoryNode.h"
-#include "device/bios/SmBios.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/hardware/SmBios.h"
+#include "filesystem/memory/MemoryDriver.h"
 
-namespace Filesystem::SmBios {
+namespace Filesystem::Acpi {
 
-SmBiosDriver::SmBiosDriver() {
-    addNode("/", new SmBiosVersionNode());
-    addNode("/", new Memory::MemoryDirectoryNode("tables"));
+class AcpiDriver : public Memory::MemoryDriver {
 
-    for (const auto type : Device::SmBios::getAvailableTables()) {
-        const auto &table = Device::SmBios::getTable<Util::Hardware::SmBios::TableHeader>(type);
-        addNode("/tables", new SmBiosTableNode(table));
-    }
+public:
+    /**
+     * Default Constructor.
+     */
+    AcpiDriver();
+
+    /**
+     * Copy Constructor.
+     */
+    AcpiDriver(const AcpiDriver &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    AcpiDriver& operator=(const AcpiDriver &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~AcpiDriver() override = default;
+};
+
 }
 
-bool SmBiosDriver::createNode(const Util::String &path, Util::Io::File::Type type) {
-    return false;
-}
-
-bool SmBiosDriver::deleteNode(const Util::String &path) {
-    return false;
-}
-
-}
+#endif

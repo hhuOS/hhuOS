@@ -17,34 +17,12 @@
 
 #include "SmBiosTableNode.h"
 
-#include "lib/util/base/Address.h"
-#include "lib/util/base/String.h"
-
 namespace Filesystem::SmBios {
 
 uint8_t SmBiosTableNode::typeCounter[256]{};
 
-SmBiosTableNode::SmBiosTableNode(const Util::Hardware::SmBios::TableHeader &tableHeader) : Memory::MemoryNode(Util::String::format("%u-%u", tableHeader.type, typeCounter[tableHeader.type]++)),
-        tableHeader(tableHeader), length(tableHeader.calculateFullLength()) {}
-
-uint64_t SmBiosTableNode::getLength() {
-    return length;
-}
-
-uint64_t SmBiosTableNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
-    if (pos >= length) {
-        return 0;
-    }
-
-    if (pos + numBytes > length) {
-        numBytes = (length - pos);
-    }
-
-    auto sourceAddress = Util::Address<uint32_t>(&tableHeader).add(pos);
-    auto targetAddress = Util::Address<uint32_t>(targetBuffer);
-    targetAddress.copyRange(sourceAddress, numBytes);
-
-    return numBytes;
-}
+SmBiosTableNode::SmBiosTableNode(const Util::Hardware::SmBios::TableHeader &tableHeader) :
+        Memory::BufferNode(Util::String::format("%u-%u", tableHeader.type, typeCounter[tableHeader.type]++),
+                           reinterpret_cast<const uint8_t *>(&tableHeader), tableHeader.calculateFullLength()) {}
 
 };

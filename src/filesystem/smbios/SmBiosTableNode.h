@@ -22,16 +22,17 @@
 
 #include "lib/util/hardware/SmBios.h"
 #include "filesystem/memory/MemoryNode.h"
+#include "filesystem/memory/BufferNode.h"
 
 namespace Filesystem::SmBios {
 
-class SmBiosTableNode : public Memory::MemoryNode {
+class SmBiosTableNode : public Memory::BufferNode {
 
 public:
     /**
      * Constructor.
      */
-    SmBiosTableNode(const Util::Hardware::SmBios::TableHeader &tableHeader);
+    explicit SmBiosTableNode(const Util::Hardware::SmBios::TableHeader &tableHeader);
 
     /**
      * Copy Constructor.
@@ -41,27 +42,14 @@ public:
     /**
      * Assignment operator.
      */
-    SmBiosTableNode &operator=(const SmBiosTableNode &other) = delete;
+    SmBiosTableNode& operator=(const SmBiosTableNode &other) = delete;
 
     /**
      * Destructor.
      */
     ~SmBiosTableNode() override = default;
 
-    /**
-     * Overriding function from MemoryNode.
-     */
-    uint64_t getLength() override;
-
-    /**
-     * Overriding function from MemoryNode.
-     */
-    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
-
 private:
-
-    const Util::Hardware::SmBios::TableHeader &tableHeader;
-    uint8_t length;
 
     static uint8_t typeCounter[256];
 };

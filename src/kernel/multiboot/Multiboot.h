@@ -209,7 +209,7 @@ public:
 
     struct AcpiRsdp {
         TagHeader header;
-        Device::Acpi::Rsdp rsdp;
+        Util::Hardware::Acpi::Rsdp rsdp;
     };
 
     struct Efi32BitImageHandlePointer {

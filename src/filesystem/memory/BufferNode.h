@@ -15,47 +15,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_SMBIOSDRIVER_H
-#define HHUOS_SMBIOSDRIVER_H
+#ifndef HHUOS_BUFFERNODE_H
+#define HHUOS_BUFFERNODE_H
 
-#include "filesystem/memory/MemoryDriver.h"
 #include "lib/util/base/String.h"
-#include "lib/util/io/file/File.h"
+#include "MemoryNode.h"
 
-namespace Filesystem::SmBios {
+namespace Filesystem::Memory {
 
-class SmBiosDriver : public Memory::MemoryDriver {
+class BufferNode : public MemoryNode {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    SmBiosDriver();
+    BufferNode(const Util::String &name, const uint8_t *buffer, uint32_t length);
 
     /**
      * Copy Constructor.
      */
-    SmBiosDriver(const SmBiosDriver &other) = delete;
+    BufferNode(const BufferNode &other) = delete;
 
     /**
      * Assignment operator.
      */
-    SmBiosDriver& operator=(const SmBiosDriver &other) = delete;
+    BufferNode &operator=(const BufferNode &other) = delete;
 
     /**
      * Destructor.
      */
-    ~SmBiosDriver() override = default;
+    ~BufferNode() override = default;
 
     /**
-     * Overriding virtual function from VirtualDriver.
+     * Overriding function from MemoryNode.
      */
-    bool createNode(const Util::String &path, Util::Io::File::Type type) override;
+    uint64_t getLength() override;
 
     /**
-     * Overriding virtual function from VirtualDriver.
+     * Overriding function from MemoryNode.
      */
-    bool deleteNode(const Util::String &path) override;
+    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
+
+private:
+
+    const uint8_t *buffer;
+    uint32_t length;
 };
 
 }

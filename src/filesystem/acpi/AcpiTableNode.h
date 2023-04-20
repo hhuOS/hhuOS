@@ -15,33 +15,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SmBiosDriver.h"
+#ifndef HHUOS_ACPITABLENODE_H
+#define HHUOS_ACPITABLENODE_H
 
-#include "SmBiosVersionNode.h"
-#include "SmBiosTableNode.h"
-#include "filesystem/memory/MemoryDirectoryNode.h"
-#include "device/bios/SmBios.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/hardware/SmBios.h"
+#include "filesystem/memory/BufferNode.h"
+#include "lib/util/hardware/Acpi.h"
 
-namespace Filesystem::SmBios {
+namespace Filesystem::Acpi {
 
-SmBiosDriver::SmBiosDriver() {
-    addNode("/", new SmBiosVersionNode());
-    addNode("/", new Memory::MemoryDirectoryNode("tables"));
+class AcpiTableNode : public Memory::BufferNode {
 
-    for (const auto type : Device::SmBios::getAvailableTables()) {
-        const auto &table = Device::SmBios::getTable<Util::Hardware::SmBios::TableHeader>(type);
-        addNode("/tables", new SmBiosTableNode(table));
-    }
+public:
+    /**
+     * Constructor.
+     */
+    AcpiTableNode(const Util::Hardware::Acpi::SdtHeader &table);
+
+    /**
+     * Copy Constructor.
+     */
+    AcpiTableNode(const AcpiTableNode &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    AcpiTableNode& operator =(const AcpiTableNode &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~AcpiTableNode() override = default;
+};
+
 }
 
-bool SmBiosDriver::createNode(const Util::String &path, Util::Io::File::Type type) {
-    return false;
-}
-
-bool SmBiosDriver::deleteNode(const Util::String &path) {
-    return false;
-}
-
-}
+#endif

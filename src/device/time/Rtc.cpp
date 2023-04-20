@@ -39,7 +39,7 @@ Kernel::Logger Rtc::log = Kernel::Logger::get("RTC");
 
 Rtc::Rtc(uint32_t timerInterval) {
     if (Acpi::isAvailable() && Acpi::hasTable("FADT")) {
-        const auto &fadt = Acpi::getTable<Acpi::Fadt>("FADT");
+        const auto &fadt = Acpi::getTable<Util::Hardware::Acpi::Fadt>("FADT");
         centuryRegister = fadt.century;
     }
 

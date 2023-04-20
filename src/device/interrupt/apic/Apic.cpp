@@ -80,7 +80,7 @@ Apic* Apic::initialize() {
     auto *apic = new Apic(localApics, ioApic);
 
     // Initialize our local APIC, all others are only initialized when SMP is started up
-    const auto &madt = Acpi::getTable<Acpi::Madt>("APIC");
+    const auto &madt = Acpi::getTable<Util::Hardware::Acpi::Madt>("APIC");
     log.info("Enabling xAPIC mode");
     LocalApic::enableXApicMode(madt.localApicAddress);
     log.info("Initializing local APIC [%u]", apic->getCurrentLocalApic().getCpuId());
@@ -163,8 +163,8 @@ bool Apic::isExternalInterrupt(Kernel::InterruptVector vector) const {
 
 Util::Array<LocalApic*> Apic::getLocalApics() {
     auto localApics = Util::ArrayList<LocalApic*>();
-    auto acpiLocalApics = Acpi::getMadtStructures<Acpi::ProcessorLocalApic>(Acpi::PROCESSOR_LOCAL_APIC);
-    auto acpiLocalApicNmis = Acpi::getMadtStructures<Acpi::LocalApicNmi>(Acpi::LOCAL_APIC_NMI);
+    auto acpiLocalApics = Acpi::getMadtStructures<Util::Hardware::Acpi::ProcessorLocalApic>(Util::Hardware::Acpi::PROCESSOR_LOCAL_APIC);
+    auto acpiLocalApicNmis = Acpi::getMadtStructures<Util::Hardware::Acpi::LocalApicNmi>(Util::Hardware::Acpi::LOCAL_APIC_NMI);
 
     if (acpiLocalApics.length() == 0) {
         log.error("No local APIC detected");
@@ -228,9 +228,9 @@ Util::Array<LocalApic*> Apic::getLocalApics() {
 }
 
 IoApic *Apic::getIoApic() {
-    auto acpiIoApics = Acpi::getMadtStructures<Acpi::IoApic>(Acpi::IO_APIC);
-    auto acpiNmiSources = Acpi::getMadtStructures<Acpi::NmiSource>(Acpi::NON_MASKABLE_INTERRUPT_SOURCE);
-    auto acpiInterruptSourceOverrides = Acpi::getMadtStructures<Acpi::InterruptSourceOverride>(Acpi::INTERRUPT_SOURCE_OVERRIDE);
+    auto acpiIoApics = Acpi::getMadtStructures<Util::Hardware::Acpi::IoApic>(Util::Hardware::Acpi::IO_APIC);
+    auto acpiNmiSources = Acpi::getMadtStructures<Util::Hardware::Acpi::NmiSource>(Util::Hardware::Acpi::NON_MASKABLE_INTERRUPT_SOURCE);
+    auto acpiInterruptSourceOverrides = Acpi::getMadtStructures<Util::Hardware::Acpi::InterruptSourceOverride>(Util::Hardware::Acpi::INTERRUPT_SOURCE_OVERRIDE);
 
     if (acpiIoApics.length() == 0) {
         // This is illegal, because this implementation does not support virtual wire mode
@@ -253,8 +253,8 @@ IoApic *Apic::getIoApic() {
     // Add all NMIs that belong to this I/O APIC
     for (const auto *nmi : acpiNmiSources) {
         ioApic->addNonMaskableInterrupt(static_cast<Kernel::GlobalSystemInterrupt>(nmi->globalSystemInterrupt),
-                nmi->flags & Acpi::IntiFlag::ACTIVE_HIGH ? IoApic::RedirectionTableEntry::PinPolarity::HIGH : IoApic::RedirectionTableEntry::PinPolarity::LOW,
-                nmi->flags & Acpi::IntiFlag::EDGE_TRIGGERED ? IoApic::RedirectionTableEntry::TriggerMode::EDGE : IoApic::RedirectionTableEntry::TriggerMode::LEVEL);
+                nmi->flags & Util::Hardware::Acpi::IntiFlag::ACTIVE_HIGH ? IoApic::RedirectionTableEntry::PinPolarity::HIGH : IoApic::RedirectionTableEntry::PinPolarity::LOW,
+                nmi->flags & Util::Hardware::Acpi::IntiFlag::EDGE_TRIGGERED ? IoApic::RedirectionTableEntry::TriggerMode::EDGE : IoApic::RedirectionTableEntry::TriggerMode::LEVEL);
     }
 
     // Add the IRQ overrides
@@ -264,13 +264,13 @@ IoApic *Apic::getIoApic() {
         auto trigger = IoApic::RedirectionTableEntry::TriggerMode::EDGE;
 
         // If flags[0:1] is 0, the bus default is used
-        if ((override->flags & 0x3) != 0 && (override->flags & Acpi::IntiFlag::ACTIVE_LOW)) {
+        if ((override->flags & 0x3) != 0 && (override->flags & Util::Hardware::Acpi::IntiFlag::ACTIVE_LOW)) {
             // Use override instead of bus default (HIGH)
             polarity = IoApic::RedirectionTableEntry::PinPolarity::LOW;
         }
 
         // If flags[2:3] is 0, the bus default is used
-        if ((override->flags & 0xc) != 0 && (override->flags & Acpi::IntiFlag::LEVEL_TRIGGERED)) {
+        if ((override->flags & 0xc) != 0 && (override->flags & Util::Hardware::Acpi::IntiFlag::LEVEL_TRIGGERED)) {
             // Use override instead of bus default (EDGE)
             trigger = IoApic::RedirectionTableEntry::TriggerMode::LEVEL;
         }

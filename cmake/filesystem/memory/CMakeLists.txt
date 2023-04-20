@@ -17,6 +17,7 @@
 cmake_minimum_required(VERSION 3.14)
  
 target_sources(filesystem PUBLIC
+        ${HHUOS_SRC_DIR}/filesystem/memory/BufferNode.cpp
         ${HHUOS_SRC_DIR}/filesystem/memory/MemoryDirectoryNode.cpp
         ${HHUOS_SRC_DIR}/filesystem/memory/MemoryDriver.cpp
         ${HHUOS_SRC_DIR}/filesystem/memory/MemoryFileNode.cpp
