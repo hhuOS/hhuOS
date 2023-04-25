@@ -37,6 +37,7 @@
 #include "lib/util/base/Address.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/collection/ArrayList.h"
+#include "kernel/paging/MemoryLayout.h"
 
 namespace Kernel {
 enum GlobalSystemInterrupt : uint32_t;
@@ -416,12 +417,8 @@ void* Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
     boot_ap_stacks = reinterpret_cast<uint32_t>(stacks);
     boot_ap_entry = reinterpret_cast<uint32_t>(&applicationProcessorEntry);
 
-    // Allocate physical memory for copying the startup routine
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    void *startupCodeMemory = memoryService.mapIO(applicationProcessorStartupAddress, Util::PAGESIZE);
-
     // Identity map the allocated physical memory to the kernel address space (So addresses don't change after enabling paging)
-    memoryService.unmap(reinterpret_cast<uint32_t>(startupCodeMemory));
+    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
     memoryService.mapPhysicalAddress(applicationProcessorStartupAddress, applicationProcessorStartupAddress, Kernel::Paging::PRESENT | Kernel::Paging::READ_WRITE);
 
     // Copy the startup routine and prepared variables to the identity mapped page
@@ -435,21 +432,16 @@ void* Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
 void *Apic::prepareApplicationProcessorWarmReset() {
     Cmos::write(0xF, 0x0A); // Shutdown status byte (MPSpec, sec. B.4)
 
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    const uint32_t warmResetVectorPhysical = 0x40 << 4 | 0x67;                     // MPSpec, sec. B.4
-    void *warmResetVector = memoryService.mapIO(warmResetVectorPhysical, 2, true); // Warm reset vector is DWORD
+    const uint32_t warmResetVectorPhysical = 0x40 << 4 | 0x67; // MPSpec, sec. B.4
+    const uint32_t warmResetVectorVirtual = Kernel::MemoryLayout::PHYSICAL_TO_VIRTUAL(warmResetVectorPhysical); // Warm reset vector is DWORD
 
-    // Account for possible misalignment, as mapIO returns a page-aligned pointer
-    const uint32_t pageOffset = warmResetVectorPhysical % Util::PAGESIZE;
-    const uint32_t warmResetVectorVirtual = reinterpret_cast<uint32_t>(warmResetVector) + pageOffset;
-
-    *reinterpret_cast<volatile uint16_t *>(warmResetVectorVirtual) = applicationProcessorStartupAddress;
-    return reinterpret_cast<void *>(warmResetVectorVirtual);
+    *reinterpret_cast<volatile uint16_t*>(warmResetVectorVirtual) = applicationProcessorStartupAddress;
+    return reinterpret_cast<void*>(warmResetVectorVirtual);
 }
 
 void *Apic::prepareApplicationProcessorGdts() {
     // Allocate descriptor pointer array
-    auto **gdts = reinterpret_cast<Cpu::Descriptor**>(new Cpu::Descriptor *[localApics.size() - 1]); // Skip BSP
+    auto **gdts = reinterpret_cast<Cpu::Descriptor**>(new Cpu::Descriptor*[localApics.size() - 1]); // Skip BSP
 
     for (uint32_t i = 0; i < localApics.size() - 1; ++i) {
         gdts[i] = allocateApplicationProcessorGdt();
