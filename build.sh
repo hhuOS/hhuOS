@@ -40,7 +40,7 @@ parse_target() {
 parse_directory() {
     local directory=$1
 
-    # check if dir-name is already used by this project
+    # Check if dir-name is already used by this project
     for name in $FORBIDDEN_DIR_NAMES; do
         if [[ "${directory}" == *"${name}"* ]]; then
             printf "Please use another name than '%s' for the build directory!\n" "${name}"
@@ -50,7 +50,7 @@ parse_directory() {
 
     BUILD_DIR=${directory}
 
-    # add name of directory to local git ignore list
+    # Add name of directory to local git ignore list
     if [ ! "${directory}" == "build" ] && [ "$(grep -w ${directory} .git/info/exclude)" == "" ]; then
         echo "${directory}/" >> .git/info/exclude
         printf "Added '%s' to .git/info/exclude\n" "${directory}"
@@ -60,7 +60,7 @@ parse_directory() {
         touch .builddirs
     fi
 
-    # add name of directory to list of used build-dirs
+    # Add name of directory to list of used build-dirs
     if [ ! "${directory}" == "build" ] && [ "$(grep -w ${directory} .builddirs)" == "" ]; then
         echo "${directory}" >> .builddirs
         printf "Added '%s' to .builddirs\n" "${directory}"
@@ -122,16 +122,15 @@ cleanup() {
 
     local builddirs="";
 
-    # get all names of used build directories
+    # Get all names of used build directories
     if [ -f .builddirs ]; then
         builddirs=$(cat .builddirs)
     fi
 
-    # remove build directories and remove their names from .git/info/exclude
+    # Remove build directories and remove their names from .git/info/exclude
     for dir in ${builddirs}; do
         if [ "$(echo ${FORBIDDEN_DIR_NAMES} | grep -w ${dir})" == "" ] && [ -d $dir ]; then
-            printf "Removing build directory '${dir}'\n"
-            rm -r $dir
+            remove ${dir}
         fi
 
         if [ ! "$(grep -w ${dir}/ .git/info/exclude)" == "" ]; then
@@ -139,16 +138,15 @@ cleanup() {
         fi
     done
 
-    # remove default directory
+    # Remove default directory
+    remove "build"
     if [ -d build ]; then
         printf "Removing build directory 'build'\n"
         rm -r "build"
     fi
 
-    # remove list of build directories
-    if [ -f .builddirs ]; then
-        rm .builddirs
-    fi
+    # Remove list of build directories
+      remove .builddirs
 }
 
 print_usage() {
