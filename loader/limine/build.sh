@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-readonly LIMINE_VERSION="4.20230422.0"
+readonly LIMINE_VERSION="4.20230503.0"
 
 if [[ ! -f "iso/limine-cd-efi.bin" || ! -f "iso/limine-cd.bin" || ! -f "iso/limine.sys" || ! -f "limine-deploy" ]]; then
   wget -O limine.zip "https://github.com/limine-bootloader/limine/archive/refs/tags/v${LIMINE_VERSION}-binary.zip" || exit 1

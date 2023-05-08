@@ -407,7 +407,8 @@ void GatesOfHell::printBanner() {
         auto banner = bufferedStream.readString(bannerFile.getLength());
         Util::System::out << Util::String::format(static_cast<const char*>(banner),
                BuildConfig::getVersion(), BuildConfig::getCodename(), BuildConfig::getBuildDate(),
-               BuildConfig::getGitBranch(), BuildConfig::getGitRevision()) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+               BuildConfig::getGitBranch(), BuildConfig::getGitRevision(), static_cast<const char*>(Kernel::Multiboot::getBootloaderName()))
+               << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     } else {
         printDefaultBanner();
     }
