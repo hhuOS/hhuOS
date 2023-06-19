@@ -36,7 +36,7 @@ global boot_ap_gdts
 global boot_ap_stacks
 global boot_ap_entry
 
-%define startup_address 0x8000
+%define startup_address 0x1000
 %define stack_size 0x1000
 
 [SECTION .text]

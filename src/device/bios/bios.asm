@@ -99,7 +99,7 @@ bios_call_2:
     mov ebp, ecx
 
     ; Jump into bios segment
-    call  0x18:0x4000
+    call  0x18:BIOS_CALL_CODE
 
 bios_call_16_return:
     ; We return here from 16-bit bios code
@@ -160,10 +160,10 @@ bios_call_16_start:
     mov ss,dx
 
     ; Load real mode IDT
-    lidt [0x7000]
+    lidt [BIOS_CALL_IDT]
 
     ; Save esp to 0x0ffc (last 4 bytes of memory reserved for the 16-bit code code)
-    mov eax,0x5000
+    mov eax,BIOS_CALL_ESP_BACKUP
     mov [eax],esp
 
     ; Turn of protected mode via cr0 (also disable write protection)
@@ -173,7 +173,7 @@ bios_call_16_start:
 
     ; Flush pipeline and switch decoding unit to real mode by performing a far jump to the next instruction
     ; 0x0400:0x001b = (0x0400 << 4) + 0x001b = 0x4000 + 0x401b = 0x401b
-    jmp 0x0000:(0x4000 + bios_call_16_real_mode_enter - bios_call_16_start)
+    jmp 0x0000:(BIOS_CALL_CODE + bios_call_16_real_mode_enter - bios_call_16_start)
 
 bios_call_16_real_mode_enter:
     ; Setup segment registers
@@ -185,7 +185,7 @@ bios_call_16_real_mode_enter:
     mov ss,dx
 
     ; Set esp to point directly to the context struct at address 0x6000
-    mov esp,0x6000
+    mov esp,BIOS_CALL_STACK
 
     ; Enable interrupts
     sti
@@ -218,7 +218,7 @@ bios_call_16_interrupt:
 
     ; Flush pipeline and switch decoding unit to protected mode by performing a far jump to the next instruction
     ; 0x0018:0x0049 = GDT[0x0018] + 0x0049 = 0x4000 + 0x0049 = 0x4049
-    jmp 0x0018:(0x4000 + (bios_call_16_real_mode_leave - bios_call_16_start))
+    jmp 0x0018:(BIOS_CALL_CODE + (bios_call_16_real_mode_leave - bios_call_16_start))
 
     ; Restore segment registers
 bios_call_16_real_mode_leave:
@@ -230,7 +230,7 @@ bios_call_16_real_mode_leave:
     mov ss,dx
 
     ; Restore esp from 0x5000
-    mov eax,0x5000
+    mov eax,BIOS_CALL_ESP_BACKUP
     mov esp,[eax]
 
     ; Far return to bios.asm

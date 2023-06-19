@@ -29,6 +29,7 @@
 #include "kernel/service/SchedulerService.h"
 #include "kernel/system/TaskStateSegment.h"
 #include "device/bios/SmBios.h"
+#include "kernel/paging/MemoryLayout.h"
 
 // Import functions
 extern "C" {

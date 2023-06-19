@@ -33,7 +33,7 @@ SECTIONS
         ___TEXT_END__   = .;
     }
 
-    .rodata ALIGN (4K) : AT(ADDR(.rodata)-0xC0000000)
+    .rodata ALIGN (4K) : AT(ADDR(.rodata) - 0xC0000000)
     {
         ___RODATA_START__ = .;
         *(.rodata)

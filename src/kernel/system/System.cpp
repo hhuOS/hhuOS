@@ -105,7 +105,7 @@ void System::initializeSystem() {
     registerService(InterruptService::SERVICE_ID, interruptService);
     memoryService->plugin();
 
-    /*if (Device::Apic::isAvailable()) {
+    if (Device::Apic::isAvailable()) {
         log.info("APIC detected");
         auto *apic = Device::Apic::initialize();
         if (apic == nullptr) {
@@ -119,7 +119,7 @@ void System::initializeSystem() {
         }
     } else {
         log.info("APIC not available -> Falling back to PIC");
-    }*/
+    }
 
     // Create scheduler service and register kernel process
     log.info("Initializing scheduler");

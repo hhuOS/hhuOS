@@ -44,7 +44,6 @@ extern "C" volatile bool runningApplicationProcessors[256];
 
 // If any of these two are changed, smp.asm has to be changed too (the %defines at the top)!
 const constexpr uint32_t applicationProcessorStackSize = 0x1000;      // Size of the stack allocated for each AP.
-const constexpr uint16_t applicationProcessorStartupAddress = 0x8000; // Physical address the AP startup routine is copied to.
 
 }
 

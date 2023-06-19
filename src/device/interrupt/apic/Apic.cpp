@@ -349,7 +349,7 @@ void Apic::startupApplicationProcessors() {
         // Issue the SIPI twice (for xApic):
         for (uint8_t j = 0; j < 2; ++j) {
             LocalApic::clearErrors();
-            LocalApic::sendStartupInterProcessorInterrupt(localApic->getCpuId(), applicationProcessorStartupAddress);
+            LocalApic::sendStartupInterProcessorInterrupt(localApic->getCpuId(), Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress);
             LocalApic::waitForInterProcessorInterruptDispatch();
             Pit::earlyDelay(200); // 200 us
         }
@@ -419,11 +419,11 @@ void* Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
 
     // Identity map the allocated physical memory to the kernel address space (So addresses don't change after enabling paging)
     auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    memoryService.mapPhysicalAddress(applicationProcessorStartupAddress, applicationProcessorStartupAddress, Kernel::Paging::PRESENT | Kernel::Paging::READ_WRITE);
+    memoryService.mapPhysicalAddress(Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress, Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress, Kernel::Paging::PRESENT | Kernel::Paging::READ_WRITE);
 
     // Copy the startup routine and prepared variables to the identity mapped page
     const auto startupCode = Util::Address<uint32_t>(reinterpret_cast<uint32_t>(&boot_ap));
-    const auto destination = Util::Address<uint32_t>(applicationProcessorStartupAddress);
+    const auto destination = Util::Address<uint32_t>(Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress);
     destination.copyRange(startupCode, boot_ap_size);
 
     return reinterpret_cast<void*>(destination.get());
@@ -435,7 +435,7 @@ void *Apic::prepareApplicationProcessorWarmReset() {
     const uint32_t warmResetVectorPhysical = 0x40 << 4 | 0x67; // MPSpec, sec. B.4
     const uint32_t warmResetVectorVirtual = Kernel::MemoryLayout::PHYSICAL_TO_VIRTUAL(warmResetVectorPhysical); // Warm reset vector is DWORD
 
-    *reinterpret_cast<volatile uint16_t*>(warmResetVectorVirtual) = applicationProcessorStartupAddress;
+    *reinterpret_cast<volatile uint16_t*>(warmResetVectorVirtual) = Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress;
     return reinterpret_cast<void*>(warmResetVectorVirtual);
 }
 
