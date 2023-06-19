@@ -87,7 +87,8 @@ void IoApic::forbid(Kernel::GlobalSystemInterrupt gsi) {
 }
 
 bool IoApic::status(Kernel::GlobalSystemInterrupt gsi) {
-    return readRedirectionTableEntry(gsi).isMasked;
+    auto entry = readRedirectionTableEntry(gsi);
+    return entry.isMasked;
 }
 
 void IoApic::initializeRedirectionTable() {

@@ -43,7 +43,7 @@ Util::Graphic::LinearFrameBuffer* MultibootLinearFrameBufferProvider::initialize
     }
 
     log.info("Framebuffer information is valid (Resolution: [%ux%u@%u])", frameBufferInfo.width, frameBufferInfo.height, frameBufferInfo.bpp);
-    return new Util::Graphic::LinearFrameBuffer(reinterpret_cast<void*>(frameBufferInfo.address), frameBufferInfo.width, frameBufferInfo.height, frameBufferInfo.bpp, frameBufferInfo.pitch);
+    return new Util::Graphic::LinearFrameBuffer(reinterpret_cast<void*>(frameBufferInfo.address), frameBufferInfo.width, frameBufferInfo.height, frameBufferInfo.bpp, frameBufferInfo.pitch, false);
 }
 
 Util::Array<MultibootLinearFrameBufferProvider::ModeInfo> MultibootLinearFrameBufferProvider::getAvailableModes() const {

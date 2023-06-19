@@ -28,6 +28,8 @@
 #include "lib/util/base/String.h"
 #include "lib/util/math/Random.h"
 #include "device/time/Cmos.h"
+#include "kernel/service/InterruptService.h"
+#include "device/interrupt/InterruptRequest.h"
 
 namespace Device {
 
@@ -48,7 +50,7 @@ uint8_t Bios::get8BitRegister(uint16_t value, Bios::RegisterHalf half) {
 }
 
 bool Bios::isAvailable() {
-    return Kernel::Multiboot::hasKernelOption("bios") && Kernel::Multiboot::getKernelOption("bios") == "true";
+    return Kernel::Multiboot::hasKernelOption("bios") && Kernel::Multiboot::getKernelOption("bios") == "true" && !Kernel::System::getService<Kernel::InterruptService>().usesApic();
 }
 
 void Bios::init() {
@@ -82,11 +84,21 @@ Bios::RealModeContext Bios::interrupt(int interruptNumber, const RealModeContext
     auto interruptNumberAddress = Kernel::MemoryLayout::BIOS_CALL_CODE_AREA.toVirtual().toAddress().add(reinterpret_cast<uint32_t>(&bios_call_16_interrupt) - reinterpret_cast<uint32_t>(&bios_call_16_start));
     interruptNumberAddress.setByte(interruptNumber, 1);
 
+    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+
     // Disable interrupts during the bios call, since our protected mode handler cannot be called
     Cpu::disableInterrupts();
     Cmos::disableNmi();
+
+    // Save interrupt mask
+    auto interruptMask = interruptService.getInterruptMask();
+
     // Call assembly code
     bios_call();
+
+    // Restore interrupt mask
+    interruptService.setInterruptMask(interruptMask);
+
     // Bios call has returned -> Enable interrupts
     Cmos::enableNmi();
     Cpu::enableInterrupts();

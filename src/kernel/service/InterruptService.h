@@ -72,6 +72,12 @@ public:
 
     void forbidHardwareInterrupt(Device::InterruptRequest interrupt);
 
+    bool status(Device::InterruptRequest interrupt);
+
+    uint16_t getInterruptMask();
+
+    void setInterruptMask(uint16_t mask);
+
     void sendEndOfInterrupt(InterruptVector interrupt);
 
     void startGdbServer(Device::SerialPort::ComPort port);

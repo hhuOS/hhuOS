@@ -94,4 +94,30 @@ Device::Apic &InterruptService::getApic() {
     return *apic;
 }
 
+bool InterruptService::status(Device::InterruptRequest interrupt) {
+    return !(usesApic() ? apic->status(interrupt) : pic.status(interrupt));
+}
+
+uint16_t InterruptService::getInterruptMask() {
+    uint16_t mask = 0;
+
+    for (uint32_t i = Device::InterruptRequest::PIT; i <= Device::InterruptRequest::SECONDARY_ATA; i++) {
+        auto interruptStatus = status(static_cast<Device::InterruptRequest>(i));
+        mask |= (interruptStatus ? 1 : 0) << i;
+    }
+
+    return mask;
+}
+
+void InterruptService::setInterruptMask(uint16_t mask) {
+    for (uint32_t i = Device::InterruptRequest::PIT; i <= Device::InterruptRequest::SECONDARY_ATA; i++) {
+        auto interruptStatus = ((mask >> i) & 0x0001) == 0x0001;
+        if (interruptStatus) {
+            allowHardwareInterrupt(static_cast<Device::InterruptRequest>(i));
+        } else {
+            forbidHardwareInterrupt(static_cast<Device::InterruptRequest>(i));
+        }
+    }
+}
+
 }
