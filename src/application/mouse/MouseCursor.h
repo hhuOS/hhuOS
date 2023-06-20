@@ -20,6 +20,7 @@
 
 #include "lib/util/game/MouseListener.h"
 #include "lib/util/game/entity/Entity.h"
+#include "lib/util/game/Sprite.h"
 
 namespace Util {
 namespace Math {
@@ -74,9 +75,12 @@ public:
 
 private:
 
-    bool leftPressed = false;
-    bool rightPressed = false;
-    bool middlePressed = false;
+    Util::Game::Sprite defaultSprite = Util::Game::Sprite("/initrd/mouse/mouse_default.bmp", 0.2, 0.2);
+    Util::Game::Sprite leftClickSprite = Util::Game::Sprite("/initrd/mouse/mouse_left_click.bmp", 0.2, 0.2);
+    Util::Game::Sprite rightClickSprite = Util::Game::Sprite("/initrd/mouse/mouse_right_click.bmp", 0.2, 0.2);
+    Util::Game::Sprite middleClickSprite = Util::Game::Sprite("/initrd/mouse/mouse_scroll.bmp", 0.2, 0.2);
+
+    Util::Game::Sprite *currentSprite = &defaultSprite;
 };
 
 #endif

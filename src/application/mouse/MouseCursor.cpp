@@ -41,24 +41,19 @@ void MouseCursor::onTranslationEvent(Util::Game::TranslationEvent &event) {
 void MouseCursor::onCollisionEvent(Util::Game::CollisionEvent &event) {}
 
 void MouseCursor::draw(Util::Game::Graphics2D &graphics) {
-    auto string = Util::String();
-    if (leftPressed) string += "l";
-    if (middlePressed) string += "m";
-    if (rightPressed) string += "r";
-
-    graphics.drawString(getPosition(), string.isEmpty() ? "@" : string);
+    graphics.drawImage(getPosition(), currentSprite->getImage());
 }
 
 void MouseCursor::keyPressed(Key key) {
     switch (key) {
         case Util::Game::MouseListener::LEFT:
-            leftPressed = true;
+            currentSprite = &leftClickSprite;
             break;
         case Util::Game::MouseListener::RIGHT:
-            rightPressed = true;
+            currentSprite = &rightClickSprite;
             break;
         case Util::Game::MouseListener::MIDDLE:
-            middlePressed = true;
+            currentSprite = &middleClickSprite;
             break;
         default:
             break;
@@ -66,19 +61,7 @@ void MouseCursor::keyPressed(Key key) {
 }
 
 void MouseCursor::keyReleased(Key key) {
-    switch (key) {
-        case Util::Game::MouseListener::LEFT:
-            leftPressed = false;
-            break;
-        case Util::Game::MouseListener::RIGHT:
-            rightPressed = false;
-            break;
-        case Util::Game::MouseListener::MIDDLE:
-            middlePressed = false;
-            break;
-        default:
-            break;
-    }
+    currentSprite = &defaultSprite;
 }
 
 void MouseCursor::mouseMoved(const Util::Math::Vector2D &relativeMovement) {
@@ -89,6 +72,6 @@ void MouseCursor::mouseMoved(const Util::Math::Vector2D &relativeMovement) {
     const auto &newPosition = getPosition();
     if (newPosition.getX() < -1) setPosition({-1, newPosition.getY()});
     if (newPosition.getX() > 1) setPosition({1, newPosition.getY()});
-    if (newPosition.getY() < -1) setPosition({newPosition.getX(), -1});
-    if (newPosition.getY() > 1) setPosition({newPosition.getX(), 1});
+    if (newPosition.getY() < -1 - currentSprite->getHeight()) setPosition({newPosition.getX(), -1 - currentSprite->getHeight()});
+    if (newPosition.getY() > 1 - currentSprite->getHeight()) setPosition({newPosition.getX(), 1 - currentSprite->getHeight()});
 }

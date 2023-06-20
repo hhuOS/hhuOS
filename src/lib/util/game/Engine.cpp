@@ -87,13 +87,13 @@ void Engine::run() {
         graphics.show();
         statistics.stopDrawTime();
 
+        statistics.startIdleTime();
         const auto drawTime = statistics.getLastDrawTime();
         const auto updateTime = statistics.getLastUpdateTime();
         if (drawTime + updateTime < deltaMilliseconds) {
-            statistics.startIdleTime();
             Async::Thread::sleep(Time::Timestamp::ofMilliseconds(deltaMilliseconds - (drawTime + updateTime)));
-            statistics.stopIdleTime();
         }
+        statistics.stopIdleTime();
 
         statistics.incFrames();
         statistics.stopFrameTime();

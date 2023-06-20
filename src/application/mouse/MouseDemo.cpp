@@ -21,6 +21,7 @@
 #include "lib/util/io/key/Key.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
+#include "lib/util/game/Sprite.h"
 
 namespace Util {
 namespace Game {
@@ -44,4 +45,9 @@ void MouseDemo::keyPressed(Util::Io::Key key) {
 
 void MouseDemo::keyReleased(Util::Io::Key key) {}
 
-void MouseDemo::initializeBackground(Util::Game::Graphics2D &graphics) {}
+void MouseDemo::initializeBackground(Util::Game::Graphics2D &graphics) {
+    auto background = Util::Game::Sprite("/initrd/mouse/logo.bmp", 1, 0.626);
+
+    graphics.clear(Util::Graphic::Colors::HHU_BLUE_30);
+    graphics.drawImage(Util::Math::Vector2D(-0.5, -0.313), background.getImage());
+}

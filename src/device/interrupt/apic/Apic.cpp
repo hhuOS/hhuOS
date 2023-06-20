@@ -223,7 +223,7 @@ Util::Array<LocalApic*> Apic::getLocalApics() {
         localApics.add(localApic);
     }
 
-    log.info("[%u] local %s are usable", localApics.size(), localApics.size() == 1 ? "APIC" : "APICs");
+    log.info("[%u] local %s usable", localApics.size(), localApics.size() == 1 ? "APIC is" : "APICs are");
 
     return localApics.toArray();
 }
@@ -246,7 +246,7 @@ IoApic *Apic::getIoApic() {
     }
 
     log.info("[%u] IO %s detected", acpiIoApics.length(), acpiIoApics.length() == 1 ? "APIC" : "APICs");
-    log.info("[%u] interrupt source overrides found", acpiInterruptSourceOverrides.length());
+    log.info("[%u] interrupt source %s found", acpiInterruptSourceOverrides.length(), acpiInterruptSourceOverrides.length() == 1 ? "override" : "overrides");
 
     const auto *ioInfo = acpiIoApics[0];
     auto *ioApic = new IoApic(ioInfo->ioApicId, ioInfo->ioApicAddress, static_cast<Kernel::GlobalSystemInterrupt>(ioInfo->globalSystemInterruptBase));
@@ -321,6 +321,8 @@ void Apic::startupApplicationProcessors() {
     Cpu::disableInterrupts();
     Cmos::disableNmi();
 
+    log.info("CPU [%u] is the bootstrap processor", LocalApic::getId());
+
     // Call the startup code on each AP using the INIT-SIPI-SIPI Universal Startup Algorithm
     for (const auto *localApic : localApics.values()) {
         if (localApic->getCpuId() == LocalApic::getId()) {
@@ -363,7 +365,7 @@ void Apic::startupApplicationProcessors() {
         while (!runningApplicationProcessors[initializedApplicationProcessorsCounter]) {
             if (readCount > 10) {
                 // Waited 10 * 10 ms = 0.1 s in total (pretty arbitrarily chosen by me)
-                log.error("CPU [%u] did not mark itself as running, it could be in undefined state!", localApic->getCpuId());
+                log.error("CPU [%u] did not mark itself as running, it could be in undefined state", localApic->getCpuId());
                 break;
             }
 
@@ -372,7 +374,7 @@ void Apic::startupApplicationProcessors() {
         }
 
         initializedApplicationProcessorsCounter++;
-        log.info("CPU [%u] is now online!", localApic->getCpuId());
+        log.info("CPU [%u] is now online", localApic->getCpuId());
     }
 
     Cmos::enableNmi();
