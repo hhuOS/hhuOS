@@ -41,6 +41,20 @@ namespace Util::Math {
 
     double cosine(double value);
 
+    float tangent(float value);
+
+    double tangent(double value);
+
+    float cotangent(float value);
+
+    double cotangent(double value);
+
+    float arctangent(float value, float divisor = 1);
+
+    double arctangent(double value, double divisor = 1);
+
+    float sqrt(float value);
+
     double sqrt(double value);
 
     double pow(double value, int exponent);

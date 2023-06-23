@@ -91,6 +91,103 @@ double cosine(double value) {
     return ret;
 }
 
+float tangent(float value) {
+    float ret = 0;
+    asm volatile (
+            "flds (%0);"
+            "fptan;"
+            "fstps (%1);"
+            "fstps (%1);" // Pop twice, because fptan pushes the result and 1.0 onto the stack
+            : :
+            "r"(&value), "r"(&ret)
+            );
+
+    return ret;
+}
+
+double tangent(double value) {
+    double ret = 0;
+    asm volatile (
+            "fldl (%0);"
+            "fptan;"
+            "fstpl (%1);"
+            "fstpl (%1);" // Pop twice, because fptan pushes the result and 1.0 onto the stack
+            : :
+            "r"(&value), "r"(&ret)
+            );
+
+    return ret;
+}
+
+float cotangent(float value) {
+    float ret = 0;
+    asm volatile (
+            "flds (%0);"
+            "fptan;"
+            "fdivp;" // fptan pushes the result and 1.0 onto the stack
+            "fstps (%1);"
+            : :
+            "r"(&value), "r"(&ret)
+            );
+
+    return ret;
+}
+
+double cotangent(double value) {
+    double ret = 0;
+    asm volatile (
+            "fldl (%0);"
+            "fptan;"
+            "fdivp;" // fptan pushes the result and 1.0 onto the stack
+            "fstpl (%1);"
+            : :
+            "r"(&value), "r"(&ret)
+            );
+
+    return ret;
+}
+
+float arctangent(float value, float divisor) {
+    float ret = 0;
+    asm volatile (
+            "flds (%0);"
+            "flds (%1);"
+            "fpatan;"
+            "fstps (%2);"
+            : :
+            "r"(&value), "r"(&divisor), "r"(&ret)
+            );
+
+    return ret;
+}
+
+double arctangent(double value, double divisor) {
+    double ret = 0;
+    asm volatile (
+            "fldl (%0);"
+            "fldl (%1);"
+            "fpatan;"
+            "fstpl (%2);"
+            : :
+            "r"(&value), "r"(&divisor), "r"(&ret)
+            );
+
+    return ret;
+}
+
+float sqrt(float value) {
+    float ret = 0;
+    asm volatile(
+            "flds (%0);"
+            "fsqrt;"
+            "fstps (%1)"
+            : :
+            "r"(&value), "r"(&ret)
+            );
+
+    return ret;
+}
+
 double sqrt(double value) {
     double ret = 0;
     asm volatile(
@@ -100,6 +197,7 @@ double sqrt(double value) {
             : :
             "r"(&value), "r"(&ret)
             );
+
     return ret;
 }
 
