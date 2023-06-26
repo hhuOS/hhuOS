@@ -24,6 +24,9 @@
 #include "MemoryLayout.h"
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/Exception.h"
+#include "device/interrupt/apic/LocalApic.h"
+#include "kernel/service/InterruptService.h"
+#include "lib/util/async/Thread.h"
 
 namespace Kernel {
 
@@ -83,6 +86,11 @@ PageDirectory::PageDirectory() {
     // Kernel code and data loaded by the bootloader are placed at KERNEL_START, the initial heap is placed
     // afterwards and the first 4 KiB page tables and directories are placed at VIRT_PAGE_MEM_START
 
+    // Initialize lock array
+    for (uint32_t i = 0; i < lockArray.getSize(); i++) {
+        lockArray.access(i).set(lockFree);
+    }
+
     // Load the Page Directory into cr3 and enable 4 KiB paging via assembly code
     load_page_directory(pageDirectoryPhysicalAddress);
     enable_system_paging();
@@ -114,6 +122,11 @@ PageDirectory::PageDirectory(PageDirectory &basePageDirectory) {
         pageDirectory[index] = basePageDirectoryVirtualAddress[index];
         virtualTableAddresses[index] = basePageDirectoryVirtualTableAddress[index];
     }
+
+    // Initialize lock array
+    for (uint32_t i = 0; i < lockArray.getSize(); i++) {
+        lockArray.access(i).set(lockFree);
+    }
 }
 
 PageDirectory::~PageDirectory() {
@@ -130,12 +143,27 @@ PageDirectory::~PageDirectory() {
     memoryService.freePageTable((void *) pageDirectory);
 }
 
-void PageDirectory::map(uint32_t physicalAddress, uint32_t virtualAddress, uint16_t flags) {
+void PageDirectory::map(uint32_t physicalAddress, uint32_t virtualAddress, uint16_t flags, bool interrupt) {
     auto &memoryService = System::getService<Kernel::MemoryService>();
 
     // Calculate indices into page table and directory
     uint32_t pageDirectoryIndex = Paging::GET_PD_IDX(virtualAddress);
     uint32_t pageTableIndex = Paging::GET_PT_IDX(virtualAddress);
+
+    // Get lock for page table
+    auto lock = lockArray.access(pageDirectoryIndex);
+    auto &interruptService = System::getService<InterruptService>();
+    // Check if CPU already has lock (re-entrance for createPageTable())
+    if (!lock.compareAndSet(interruptService.getCpuId(), interruptService.getCpuId())) {
+        // Get lock for current CPU
+        while (!lock.compareAndSet(lockFree, interruptService.getCpuId())) {
+            // Abort if the fault handler does not get the lock.
+            // The fault will occur again, until we get the lock.
+            if (interrupt) {
+                return;
+            }
+        }
+    }
 
     // If the requested page table is not present, initialize it
     if ((pageDirectory[pageDirectoryIndex] & Paging::PRESENT) == 0) {
@@ -149,12 +177,20 @@ void PageDirectory::map(uint32_t physicalAddress, uint32_t virtualAddress, uint1
 
     // Initialize the entry in the corresponding page table
     *((uint32_t *) virtualTableAddresses[pageDirectoryIndex] + pageTableIndex) = physicalAddress | flags;
+
+    lock.set(lockFree);
 }
 
 uint32_t PageDirectory::unmap(uint32_t virtualAddress) {
     // Get indices into page table and directory
     uint32_t pageDirectoryIndex = Paging::GET_PD_IDX(virtualAddress);
     uint32_t pageTableIndex = Paging::GET_PT_IDX(virtualAddress);
+
+    // Get lock for current CPU
+    auto lock = lockArray.access(pageDirectoryIndex);
+    while (!lock.compareAndSet(lockFree, System::getService<InterruptService>().getCpuId())) {
+        Util::Async::Thread::yield();
+    }
 
     // If the requested page table is not present, the page cannot be unmapped
     if ((pageDirectory[pageDirectoryIndex] & Paging::PRESENT) == 0) {
@@ -163,6 +199,7 @@ uint32_t PageDirectory::unmap(uint32_t virtualAddress) {
 
     // If the page is not mapped, it cannot be unmapped
     if ((*((uint32_t *) virtualTableAddresses[pageDirectoryIndex] + pageTableIndex) & Paging::PRESENT) == 0) {
+        lock.set(lockFree);
         return 0;
     }
 
@@ -171,6 +208,7 @@ uint32_t PageDirectory::unmap(uint32_t virtualAddress) {
 
     // do not unmap if page is protected
     if (vTableAddress[pageTableIndex] & Paging::DO_NOT_UNMAP) {
+        lock.set(lockFree);
         return 0;
     }
 
@@ -178,6 +216,7 @@ uint32_t PageDirectory::unmap(uint32_t virtualAddress) {
     vTableAddress[pageTableIndex] = 0;
 
     // TODO: Unmap page directory if page table is empty (counter array?)
+    lock.set(lockFree);
     return physAddress;
 }
 
@@ -193,13 +232,21 @@ void *PageDirectory::getPhysicalAddress(void *virtualAddress) {
     uint32_t pageDirectoryIndex = Paging::GET_PD_IDX((uint32_t) virtualAddress);
     uint32_t pageTableIndex = Paging::GET_PT_IDX((uint32_t) virtualAddress);
 
+    // Get lock for current CPU
+    auto lock = lockArray.access(pageDirectoryIndex);
+    while (!lock.compareAndSet(lockFree, System::getService<InterruptService>().getCpuId())) {
+        Util::Async::Thread::yield();
+    }
+
     // Check if the requested page table is present
     if ((pageDirectory[pageDirectoryIndex] & Paging::PRESENT) == 0) {
+        lock.set(lockFree);
         return nullptr;
     }
 
     // Check if the requested page is present
     if ((*((uint32_t *) virtualTableAddresses[pageDirectoryIndex] + pageTableIndex) & Paging::PRESENT) == 0) {
+        lock.set(lockFree);
         return nullptr;
     }
 
@@ -207,6 +254,7 @@ void *PageDirectory::getPhysicalAddress(void *virtualAddress) {
     auto *vTableAddress = reinterpret_cast<uint32_t *>(virtualTableAddresses[pageDirectoryIndex]);
     auto physAddress = (vTableAddress[pageTableIndex] & 0xFFFFF000) | (reinterpret_cast<uint32_t>(virtualAddress) & 0x00000FFF);
 
+    lock.set(lockFree);
     return reinterpret_cast<void*>(physAddress);
 }
 
@@ -218,12 +266,19 @@ void PageDirectory::setPageFlags(uint32_t virtualStartAddress, uint32_t flags) {
     uint32_t pageDirectoryIndex = Paging::GET_PD_IDX(alignedAddress);
     uint32_t pageTableIndex = Paging::GET_PT_IDX(alignedAddress);
 
+    auto lock = lockArray.access(pageDirectoryIndex);
+    while (!lock.compareAndSet(lockFree, System::getService<InterruptService>().getCpuId())) {
+        Util::Async::Thread::yield();
+    }
+
     // If the requested page table is not present, the page cannot be protected
     if ((pageDirectory[pageDirectoryIndex] & Paging::PRESENT) == 0) {
+        lock.set(lockFree);
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PageDirectory: Requested page table is not present!");
     }
     // if the page is not mapped, it cannot be protected
     if ((*((uint32_t *) virtualTableAddresses[pageDirectoryIndex] + pageTableIndex) & Paging::PRESENT) == 0) {
+        lock.set(lockFree);
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PageDirectory: Trying to protect an unmapped page!");
     }
 
@@ -231,6 +286,8 @@ void PageDirectory::setPageFlags(uint32_t virtualStartAddress, uint32_t flags) {
     auto *vTableAddress = reinterpret_cast<uint32_t*>(virtualTableAddresses[pageDirectoryIndex]);
     // Set protected bit in corresponding entry
     vTableAddress[pageTableIndex] |= flags;
+
+    lock.set(lockFree);
 }
 
 void PageDirectory::setPageFlags(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t flags) {
@@ -252,6 +309,11 @@ void PageDirectory::unsetPageFlags(uint32_t virtualAddress, uint32_t flags) {
     uint32_t pageDirectoryIndex = Paging::GET_PD_IDX(vaddr);
     uint32_t pageTableIndex = Paging::GET_PT_IDX(vaddr);
 
+    auto lock = lockArray.access(pageDirectoryIndex);
+    while (!lock.compareAndSet(lockFree, System::getService<InterruptService>().getCpuId())) {
+        Util::Async::Thread::yield();
+    }
+
     // If the requested page table is not present, the page cannot be unprotected
     if ((pageDirectory[pageDirectoryIndex] & Paging::PRESENT) == 0) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PageDirectory: Requested page table is not present!");
@@ -265,6 +327,8 @@ void PageDirectory::unsetPageFlags(uint32_t virtualAddress, uint32_t flags) {
     auto *vTableAddress = reinterpret_cast<uint32_t *>(virtualTableAddresses[pageDirectoryIndex]);
     // Clear protected bit in corresponding entry
     vTableAddress[pageTableIndex] &= ~flags;
+
+    lock.set(lockFree);
 }
 
 void PageDirectory::unsetPageFlags(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t flags) {

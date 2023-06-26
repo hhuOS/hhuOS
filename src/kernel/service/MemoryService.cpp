@@ -34,6 +34,7 @@
 #include "lib/util/base/HeapMemoryManager.h"
 #include "lib/util/base/System.h"
 #include "kernel/interrupt/InterruptVector.h"
+#include "device/cpu/Cpu.h"
 
 namespace Kernel {
 
@@ -168,11 +169,11 @@ void Kernel::MemoryService::mapRange(uint32_t virtualStartAddress, uint32_t virt
     }
 }
 
-void Kernel::MemoryService::map(uint32_t virtualAddress, uint16_t flags) {
+void Kernel::MemoryService::map(uint32_t virtualAddress, uint16_t flags, bool interrupt) {
     // Allocate a physical page frame where the page should be mapped
     const auto physicalAddress = reinterpret_cast<uint32_t>(pageFrameAllocator.allocateBlock());
     // Map the page into the directory
-    currentAddressSpace->getPageDirectory().map(physicalAddress, virtualAddress, flags);
+    currentAddressSpace->getPageDirectory().map(physicalAddress, virtualAddress, flags, interrupt);
 }
 
 uint32_t Kernel::MemoryService::unmap(uint32_t virtualAddress) {
@@ -300,7 +301,9 @@ void *MemoryService::mapIO(uint32_t size, bool mapToKernelHeap) {
         uint32_t virtualAddress = reinterpret_cast<uint32_t>(virtualStartAddress) + i * Kernel::Paging::PAGESIZE;
         uint32_t physicalAddress = reinterpret_cast<uint32_t>(physicalStartAddress) + i * Kernel::Paging::PAGESIZE;
         unmap(virtualAddress);
-        currentAddressSpace->getPageDirectory().map(physicalAddress, virtualAddress, Paging::PRESENT | Paging::READ_WRITE | Paging::CACHE_DISABLE | (virtualAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESS : 0));
+        currentAddressSpace->getPageDirectory().map(physicalAddress, virtualAddress,
+                                                    Paging::PRESENT | Paging::READ_WRITE | Paging::CACHE_DISABLE |
+                                                    (virtualAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESS : 0));
     }
 
     return virtualStartAddress;
@@ -358,7 +361,7 @@ void MemoryService::trigger(const Kernel::InterruptFrame &frame) {
     }
 
     // Map the faulted Page
-    map(faultAddress, Paging::PRESENT | Paging::READ_WRITE | (faultAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESS : 0));
+    map(faultAddress, Paging::PRESENT | Paging::READ_WRITE | (faultAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESS : 0), true);
     // TODO: Check other Faults
 }
 

@@ -25,6 +25,7 @@ add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/async/Atomic.cpp
+        ${HHUOS_SRC_DIR}/lib/util/async/AtomicArray.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/AtomicBitmap.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/FunctionPointerRunnable.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/IdGenerator.cpp

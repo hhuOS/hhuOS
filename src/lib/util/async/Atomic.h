@@ -8,18 +8,6 @@ namespace Util::Async {
 template<typename T>
 class Atomic {
 
-private:
-
-    T &value;
-
-private:
-
-    static T compareAndExchange(volatile void *ptr, T oldValue, T newValue);
-
-    static void exchange(volatile void *ptr, T newValue);
-
-    static T fetchAndAdd(volatile void *ptr, T addend);
-
 public:
 
     explicit Atomic(T &value);
@@ -65,6 +53,18 @@ public:
     [[nodiscard]] bool bitTestAndSet(T index);
 
     [[nodiscard]] bool bitTestAndReset(T index);
+
+private:
+
+    T &value;
+
+private:
+
+    static T compareAndExchange(volatile void *ptr, T oldValue, T newValue);
+
+    static void exchange(volatile void *ptr, T newValue);
+
+    static T fetchAndAdd(volatile void *ptr, T addend);
 
 };
 

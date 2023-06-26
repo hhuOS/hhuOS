@@ -120,4 +120,16 @@ void InterruptService::setInterruptMask(uint16_t mask) {
     }
 }
 
+uint8_t InterruptService::getCpuId() const {
+    return usesApic() ? Device::LocalApic::getId() : 0;
+}
+
+bool InterruptService::isParallelComputingAllowed() const {
+    return parallelComputingAllowed;
+}
+
+void InterruptService::allowParallelComputing() {
+    InterruptService::parallelComputingAllowed = true;
+}
+
 }

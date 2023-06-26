@@ -84,6 +84,9 @@
 #include "device/bios/SmBios.h"
 #include "filesystem/smbios/SmBiosDriver.h"
 #include "filesystem/acpi/AcpiDriver.h"
+#include "device/cpu/symmetric_multiprocessing.h"
+#include "kernel/service/InterruptService.h"
+#include "kernel/service/TimeService.h"
 
 namespace Device {
 class Machine;
@@ -136,6 +139,7 @@ void GatesOfHell::enter() {
     Util::Async::Process::execute(Util::Io::File("/initrd/bin/shell"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), "shell", Util::Array<Util::String>(0));
 
     log.info("Starting scheduler!");
+    Kernel::System::getService<Kernel::InterruptService>().allowParallelComputing();
     Kernel::System::getService<Kernel::SchedulerService>().startScheduler();
 
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Once you entered the gates of hell, you are not allowed to leave!");

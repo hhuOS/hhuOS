@@ -23,6 +23,7 @@
 #include "device/interrupt/apic/Apic.h"
 #include "kernel/system/System.h"
 #include "kernel/service/InterruptService.h"
+#include "kernel/service/TimeService.h"
 
 namespace Device {
 
@@ -36,16 +37,21 @@ Kernel::Logger log = Kernel::Logger::get("SMP");
     auto &apic = interruptService.getApic();
     apic.initializeCurrentLocalApic();
     apic.enableCurrentErrorHandler();
-    // Disabled, since it causes a memory allocation
-    // apic.startCurrentTimer();
 
     runningApplicationProcessors[initializedApplicationProcessorsCounter] = true; // Mark this AP as running
 
-    // Enable interrupts for this AP (usually results in a crash)
+    while (!interruptService.isParallelComputingAllowed()) {}
+
+    // apic.startCurrentTimer();
     // asm volatile ("sti");
 
-    // Bore the AP to death. Sadly we can't do anything here, as the paging is not designed to work with multiple CPUs.
-    while (true) {}
+    // auto &timeService = Kernel::System::getService<Kernel::TimeService>();
+
+    while (true) {
+        /*log.info("Hello from CPU [%u]", interruptService.getCpuId());
+        auto end = timeService.getSystemTime().toMilliseconds() + 100 / (interruptService.getCpuId() + 1);
+        while (timeService.getSystemTime().toMilliseconds() < end) {}*/
+    }
 }
 
 }

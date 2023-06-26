@@ -138,7 +138,7 @@ public:
      * @param virtualAddress Virtual address where a page should be mapped
      * @param flags Flags for Page Table Entry
      */
-    void map(uint32_t virtualAddress, uint16_t flags);
+    void map(uint32_t virtualAddress, uint16_t flags, bool interrupt = false);
 
     /**
      * Map a physical address into the current address space's heap.

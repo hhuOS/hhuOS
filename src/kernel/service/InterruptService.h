@@ -86,6 +86,12 @@ public:
 
     [[nodiscard]] Device::Apic& getApic();
 
+    [[nodiscard]] uint8_t getCpuId() const;
+
+    [[nodiscard]] bool isParallelComputingAllowed() const;
+
+    void allowParallelComputing();
+
     static const constexpr uint8_t SERVICE_ID = 1;
 
 private:
@@ -95,6 +101,8 @@ private:
 
     InterruptDispatcher dispatcher;
     Device::GdbServer gdbServer = Device::GdbServer();
+
+    bool parallelComputingAllowed = false;
 
     static Kernel::Logger log;
 };

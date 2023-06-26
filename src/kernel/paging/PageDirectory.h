@@ -19,6 +19,7 @@
 #define __PAGEDIRECTORY_H__
 
 #include <cstdint>
+#include "lib/util/async/AtomicArray.h"
 
 namespace Kernel {
 
@@ -42,7 +43,7 @@ public:
     /**
      * Constructor for process Page Directories.
      *
-     * @param basePageDirectory The Page Directory with kernel mappgins.
+     * @param basePageDirectory The Page Directory with kernel mappings.
      */
     explicit PageDirectory(PageDirectory &basePageDirectory);
 
@@ -68,7 +69,7 @@ public:
      * @param virtualAddress Virtual address to be mapped
      * @param flags Flags for entry in Page Table
      */
-    void map(uint32_t physicalAddress, uint32_t virtualAddress, uint16_t flags);
+    void map(uint32_t physicalAddress, uint32_t virtualAddress, uint16_t flags, bool interrupt = false);
 
     /**
      * Unmap a given virtual address from this directory.
@@ -159,6 +160,9 @@ private:
     uint32_t *pageDirectoryPhysicalAddress;
     // array with virtual page table addresses
     uint32_t *virtualTableAddresses;
+
+    Util::Async::AtomicArray<uint8_t> lockArray = Util::Async::AtomicArray<uint8_t>(1024);
+    uint32_t lockFree = 0xff;
 };
 
 }
