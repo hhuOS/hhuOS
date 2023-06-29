@@ -35,7 +35,7 @@
 #include "lib/util/graphic/Color.h"
 #include "lib/util/math/Vector2D.h"
 
-DinoGame::DinoGame() : dino(new Dino(Util::Math::Vector2D(-0.8, 0))), pointText(new Util::Game::Text(Util::Math::Vector2D(-1, 0.9), "Points: 0")), ground(4) {
+DinoGame::DinoGame() {
     dino->addComponent(new Util::Game::LinearMovementComponent(*dino));
     dino->addComponent(new Util::Game::GravityComponent(*dino, 2, 0.0025));
 

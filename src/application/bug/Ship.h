@@ -13,63 +13,60 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_GAMEMANAGER_H
-#define HHUOS_GAMEMANAGER_H
+#ifndef HHUOS_SHIP_H
+#define HHUOS_SHIP_H
 
-#include <cstdint>
-#include "Scene.h"
+#include "lib/util/game/entity/Entity.h"
+#include "lib/util/game/Sprite.h"
+#include "lib/util/game/GameManager.h"
 
-namespace Util {
-namespace Game {
-class Game;
-}  // namespace Game
-}  // namespace Util
-
-namespace Util::Game {
-
-class GameManager {
-
-friend class Engine;
+class Ship : public Util::Game::Entity {
 
 public:
     /**
-     * Default Constructor.
-     * Deleted, as this class has only static members.
+     * Constructor.
      */
-    GameManager() = delete;
+    explicit Ship(const Util::Math::Vector2D &position);
 
     /**
      * Copy Constructor.
      */
-    GameManager(const GameManager &other) = delete;
+    Ship(const Ship &other) = delete;
 
     /**
      * Assignment operator.
      */
-    GameManager &operator=(const GameManager &other) = delete;
+    Ship &operator=(const Ship &other) = delete;
 
     /**
      * Destructor.
      */
-    ~GameManager() = default;
+    ~Ship() override = default;
 
-    [[nodiscard]] static uint16_t getTransformation();
+    void initialize() override;
 
-    [[nodiscard]] static Game& getGame();
+    void onUpdate(double delta) override;
 
-    [[nodiscard]] static Scene& getCurrentScene();
+    void onTranslationEvent(Util::Game::TranslationEvent &event) override;
+
+    void onCollisionEvent(Util::Game::CollisionEvent &event) override;
+
+    void draw(Util::Game::Graphics2D &graphics) override;
+
+    void fireMissile();
+
+    void allowFireMissile();
+
+    static const constexpr uint32_t TAG = 0;
+    static const constexpr double SIZE_X = 0.2828;
+    static const constexpr double SIZE_Y = 0.2;
 
 private:
 
-    static Game *game;
-    static uint16_t transformation;
+    Util::Game::Sprite sprite;
+    bool mayFireMissile = true;
 };
-
-}
 
 #endif

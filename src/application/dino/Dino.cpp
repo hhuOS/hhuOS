@@ -27,7 +27,7 @@
 #include "lib/util/game/entity/collider/RectangleCollider.h"
 #include "lib/util/game/entity/event/TranslationEvent.h"
 
-Dino::Dino(const Util::Math::Vector2D &position) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(Util::Math::Vector2D(-0.8, 0), Util::Game::Collider::DYNAMIC, 0.2, 0.2)) {}
+Dino::Dino(const Util::Math::Vector2D &position) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::DYNAMIC, 0.2, 0.2)) {}
 
 void Dino::initialize() {
     runAnimation = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({

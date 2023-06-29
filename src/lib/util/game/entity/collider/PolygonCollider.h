@@ -60,7 +60,7 @@ private:
 
     static Pair<double, double> projectPolygonOnAxis(Util::Array<Math::Vector2D> vertices, const Math::Vector2D &axis);
 
-    static Math::Vector2D getAxes(Util::Array<Math::Vector2D> vertices, int index);
+    static Math::Vector2D getAxes(Util::Array<Math::Vector2D> vertices, uint32_t index);
 
     static double getOverlap(Util::Pair<double, double> range, Util::Pair<double, double> rangeOther);
 

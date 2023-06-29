@@ -19,12 +19,7 @@
  */
 
 #include "GameManager.h"
-
-namespace Util {
-namespace Game {
-class Game;
-}  // namespace Game
-}  // namespace Util
+#include "Game.h"
 
 namespace Util::Game {
 
@@ -37,6 +32,10 @@ uint16_t GameManager::getTransformation() {
 
 Game &GameManager::getGame() {
     return *game;
+}
+
+Scene &GameManager::getCurrentScene() {
+    return game->getCurrentScene();
 }
 
 }

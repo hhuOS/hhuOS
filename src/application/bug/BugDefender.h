@@ -13,63 +13,52 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_GAMEMANAGER_H
-#define HHUOS_GAMEMANAGER_H
+#ifndef HHUOS_BUGDEFENDER_H
+#define HHUOS_BUGDEFENDER_H
 
-#include <cstdint>
-#include "Scene.h"
+#include "lib/util/game/Scene.h"
+#include "lib/util/game/KeyListener.h"
+#include "Ship.h"
 
-namespace Util {
-namespace Game {
-class Game;
-}  // namespace Game
-}  // namespace Util
-
-namespace Util::Game {
-
-class GameManager {
-
-friend class Engine;
+class BugDefender : public Util::Game::Scene, public Util::Game::KeyListener {
 
 public:
     /**
      * Default Constructor.
-     * Deleted, as this class has only static members.
      */
-    GameManager() = delete;
+    BugDefender();
 
     /**
      * Copy Constructor.
      */
-    GameManager(const GameManager &other) = delete;
+    BugDefender(const BugDefender &other) = delete;
 
     /**
      * Assignment operator.
      */
-    GameManager &operator=(const GameManager &other) = delete;
+    BugDefender &operator=(const BugDefender &other) = delete;
 
     /**
      * Destructor.
      */
-    ~GameManager() = default;
+    ~BugDefender() override = default;
 
-    [[nodiscard]] static uint16_t getTransformation();
+    void update(double delta) override;
 
-    [[nodiscard]] static Game& getGame();
+    void initializeBackground(Util::Game::Graphics2D &graphics) override;
 
-    [[nodiscard]] static Scene& getCurrentScene();
+    void keyPressed(Util::Io::Key key) override;
+
+    void keyReleased(Util::Io::Key key) override;
 
 private:
 
-    static Game *game;
-    static uint16_t transformation;
-};
+    Ship *ship = new Ship(Util::Math::Vector2D(-0.1414, -0.8));
 
-}
+    static const constexpr double BACKGROUND_TILE_SIZE = 0.1;
+    static const constexpr uint32_t BACKGROUND_TILE_COUNT = 7;
+};
 
 #endif

@@ -161,20 +161,18 @@ void Engine::KeyListenerRunnable::run() {
             auto key = keyDecoder.getCurrentKey();
             auto &scene = engine.game.getCurrentScene();
 
-            if (scene.keyListener != nullptr) {
                 engine.updateLock.acquire();
-
                 switch (key.getScancode()) {
                     case Io::Key::F1 :
                         if (key.isPressed()) engine.showStatus = !engine.showStatus;
                         break;
                     default:
-                        key.isPressed() ? scene.keyListener->keyPressed(key) : scene.keyListener->keyReleased(key);
+                        if (scene.keyListener != nullptr) {
+                            key.isPressed() ? scene.keyListener->keyPressed(key) : scene.keyListener->keyReleased(key);
+                        }
                 }
-
                 engine.updateLock.release();
             }
-        }
 
         scancode = System::in.read();
     }

@@ -67,6 +67,10 @@ public:
 
     void initialize(Graphics2D &graphics);
 
+    void addObject(Entity *object);
+
+    void removeObject(Entity *object);
+
     [[nodiscard]] uint32_t getObjectCount() const;
 
     [[nodiscard]] Camera& getCamera();
@@ -82,10 +86,6 @@ public:
     virtual void initializeBackground(Graphics2D &graphics) = 0;
 
 protected:
-
-    void addObject(Entity *object);
-
-    void removeObject(Entity *object);
 
     void setKeyListener(KeyListener &listener);
 

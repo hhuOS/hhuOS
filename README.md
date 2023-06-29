@@ -48,10 +48,13 @@ See the [wiki](https://github.com/hhuOS/hhuOS/wiki/Build-and-run-hhuOS) for more
 
 ## Notes
 
-Assets for the mouse demo haven been taken unaltered from [Icons8](https://icons8.com/).
+Assets for the mouse demo haven been taken from [Icons8](https://icons8.com/).
 
-Assets for the dino game have been taken unaltered from [itch.io](https://itch.io):
+Assets for the dino game have been taken from [itch.io](https://itch.io):
  - [Dino Characters](https://arks.itch.io/dino-characters) by [*@ScissorMarks*](https://twitter.com/ScissorMarks) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
- - [Dino Family](https://demching.itch.io/dino-family) by *DemChing* ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
- - [Pixel Adventure](https://pixelfrog-assets.itch.io/pixel-adventure-1) by *Pixel Frog* ([CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/legalcode))
- - [Retro Cloud Tileset](https://ohnoponogames.itch.io/retro-cloud-tileset) by *ohnoponogames*
+ - [Dino Family](https://demching.itch.io/dino-family) by [*DemChing*](https://demching.itch.io/) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
+ - [Pixel Adventure](https://pixelfrog-assets.itch.io/pixel-adventure-1) by [*Pixel Frog*](https://pixelfrog-assets.itch.io/) ([CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/legalcode))
+ - [Retro Cloud Tileset](https://ohnoponogames.itch.io/retro-cloud-tileset) by [*ohnoponogames*](https://ohnoponogames.itch.io/)
+
+Assets for the bug defender game have been taken from [itch.io](https://itch.io):
+ - [Lunar Battle Pack](https://mattwalkden.itch.io/lunar-battle-pack) by [*MattWalkden*](https://mattwalkden.itch.io/) ([CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/legalcode))

@@ -112,7 +112,7 @@ void Scene::checkCollisions() {
             const auto &collider = entity->getCollider();
 
             for (auto *otherEntity : entities) {
-                if (entity == otherEntity || !otherEntity->hasCollider() || detectedCollisions.contains(Pair(entity, otherEntity))) {
+                if (entity == otherEntity || !otherEntity->hasCollider() || detectedCollisions.contains(Pair(otherEntity, entity))) {
                     continue;
                 }
 

@@ -21,20 +21,19 @@
 #include "lib/util/game/KeyListener.h"
 #include "lib/util/collection/ArrayBlockingQueue.h"
 #include "Ground.h"
-#include "lib/util/math/Random.h"
 #include "Saw.h"
+#include "Dino.h"
+#include "lib/util/math/Random.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/collection/Collection.h"
 #include "lib/util/collection/Iterator.h"
 #include "lib/util/game/Scene.h"
-
-class Dino;
+#include "lib/util/game/Text.h"
 
 namespace Util {
 namespace Game {
 class Graphics2D;
-class Text;
 }  // namespace Game
 
 namespace Io {
@@ -75,10 +74,10 @@ public:
 
 private:
 
-    Dino *dino;
-    Util::Game::Text *pointText;
+    Dino *dino = new Dino(Util::Math::Vector2D(-0.8, 0));
+    Util::Game::Text *pointText = new Util::Game::Text(Util::Math::Vector2D(-1, 0.9), "Points: 0");
 
-    Util::ArrayBlockingQueue<Ground*> ground;
+    Util::ArrayBlockingQueue<Ground*> ground = Util::ArrayBlockingQueue<Ground*>(4);
 
     Util::ArrayList<Saw*> obstacles;
     Util::Math::Random random;

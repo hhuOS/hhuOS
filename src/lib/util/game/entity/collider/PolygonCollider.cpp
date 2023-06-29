@@ -25,7 +25,7 @@ PolygonCollider::PolygonCollider(Polygon &polygon, Collider::Type colliderType) 
 Collision PolygonCollider::isColliding(PolygonCollider &other) {
     Collision smallestOverlap = { INT16_MAX, Math::Vector2D() };
 
-    for (auto i = 0; i < polygon.getVertices().length(); i++) {
+    for (uint32_t i = 0; i < polygon.getVertices().length(); i++) {
         auto axis = getAxes(polygon.getVertices(), i);
 
         auto range = projectPolygonOnAxis(polygon.getVertices(), axis);
@@ -62,7 +62,7 @@ Pair<double, double> PolygonCollider::projectPolygonOnAxis(Util::Array<Math::Vec
     return {pMin, pMax};
 }
 
-Math::Vector2D PolygonCollider::getAxes(Util::Array<Math::Vector2D> vertices, int index) {
+Math::Vector2D PolygonCollider::getAxes(Util::Array<Math::Vector2D> vertices, uint32_t index) {
     auto point1 = vertices[index];
     auto point2 = index >= vertices.length() - 1 ? vertices[0] : vertices[index + 1];
     auto axis = Math::Vector2D(-(point2.getY() - point1.getY()), point2.getX() - point1.getX());

@@ -22,15 +22,15 @@
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/io/file/File.h"
-#include "DinoGame.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
+#include "BugDefender.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Endless runner game.\n"
-                               "Usage: dino\n"
+    argumentParser.setHelpText("Bug Defender - A space invaders clone.\n"
+                               "Usage: bug\n"
                                "Options:\n"
                                "  -h, --help: Show this help message");
 
@@ -43,7 +43,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto engine = Util::Game::Engine(lfb, 60);
 
-    Util::Game::GameManager::getGame().pushScene(new DinoGame());
+    Util::Game::GameManager::getGame().pushScene(new BugDefender());
     engine.run();
 
     return 0;
