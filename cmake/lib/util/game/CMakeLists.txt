@@ -27,6 +27,7 @@ target_link_libraries(${PROJECT_NAME} lib.graphic)
 
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/game/entity/collider/Collider.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/entity/collider/PolygonCollider.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/entity/collider/RectangleCollider.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/entity/component/Component.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/entity/component/GravityComponent.cpp

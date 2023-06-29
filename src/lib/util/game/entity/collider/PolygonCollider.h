@@ -15,61 +15,56 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_VECTOR2D_H
-#define HHUOS_VECTOR2D_H
+#ifndef HHUOS_POLYGONCOLLIDER_H
+#define HHUOS_POLYGONCOLLIDER_H
 
-namespace Util::Math {
+#include "lib/util/math/Vector2D.h"
+#include "lib/util/game/Polygon.h"
+#include "lib/util/collection/Pair.h"
 
-class Vector2D {
+namespace Util::Game {
+
+struct Collision {
+    double overlap;
+    Math::Vector2D axis;
+};
+
+class PolygonCollider : public Collider {
 
 public:
     /**
-     * Default Constructor.
-     */
-    Vector2D() = default;
-
-    /**
      * Constructor.
      */
-    Vector2D(double x, double y);
+    PolygonCollider(Polygon &polygon, Collider::Type colliderType = Collider::DYNAMIC);
 
     /**
      * Copy Constructor.
      */
-    Vector2D(const Vector2D &other) = default;
+    PolygonCollider(const PolygonCollider &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Vector2D &operator=(const Vector2D &other) = default;
+    PolygonCollider &operator=(const PolygonCollider &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Vector2D() = default;
+    ~PolygonCollider() = default;
 
-    Vector2D operator*(double value) const;
+    Collision isColliding(PolygonCollider &other);
 
-    Vector2D operator/(double value) const;
-
-    Vector2D operator+(const Vector2D &other) const;
-
-    Vector2D operator-(const Vector2D &other) const;
-
-    [[nodiscard]] Vector2D normalize() const;
-
-    [[nodiscard]] double dotProduct(const Vector2D &other) const;
-
-    [[nodiscard]] double length() const;
-
-    [[nodiscard]] double getX() const;
-
-    [[nodiscard]] double getY() const;
+    Polygon &getPolygon();
 
 private:
 
-    double x = 0;
-    double y = 0;
+    static Pair<double, double> projectPolygonOnAxis(Util::Array<Math::Vector2D> vertices, const Math::Vector2D &axis);
+
+    static Math::Vector2D getAxes(Util::Array<Math::Vector2D> vertices, int index);
+
+    static double getOverlap(Util::Pair<double, double> range, Util::Pair<double, double> rangeOther);
+
+    Polygon &polygon;
 };
 
 }

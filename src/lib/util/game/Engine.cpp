@@ -136,8 +136,8 @@ void Engine::drawStatus() {
     auto heapUsedM = heapUsed / 1000 / 1000;
     auto heapUsedK = (heapUsed - heapUsedM * 1000 * 1000) / 1000;
 
-    graphics.setColor(Graphic::Color(50, 50, 50, 100));
-    graphics.fillRectangle(Math::Vector2D(cameraPosition.getX() - 1, cameraPosition.getY() + 1 - charHeight / 2), charWidth * 41.5, charHeight * 4.5);
+    // graphics.setColor(Graphic::Color(50, 50, 50, 100));
+    // graphics.fillRectangle(Math::Vector2D(cameraPosition.getX() - 1, cameraPosition.getY() + 1 - charHeight / 2), charWidth * 41.5, charHeight * 4.5);
 
     auto x = cameraPosition.getX() - 1 + charWidth;
     auto y = 1 - charHeight;

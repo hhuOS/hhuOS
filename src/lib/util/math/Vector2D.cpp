@@ -39,7 +39,12 @@ Vector2D Vector2D::operator-(const Vector2D &other) const {
 }
 
 Vector2D Vector2D::normalize() const {
-    return *this * (1 / length());
+    auto len = length();
+    return len == 0 ? *this : *this / len;
+}
+
+double Vector2D::dotProduct(const Vector2D &other) const {
+    return (x * other.x) + (y * other.y);
 }
 
 double Vector2D::length() const {

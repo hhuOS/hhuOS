@@ -34,7 +34,7 @@ class TranslationEvent;
 }  // namespace Game
 }  // namespace Util
 
-class DemoPolygon : public Util::Game::Polygon {
+class DemoPolygon : public Util::Game::Entity {
 
 public:
     /**
@@ -45,7 +45,7 @@ public:
     /**
      * Constructor.
      */
-    DemoPolygon(const Util::Array<Util::Math::Vector2D> &vertices, const Util::Graphic::Color &color, double rotationSpeed, double scaleSpeed);
+    DemoPolygon(const Util::Array<Util::Math::Vector2D> &vertices, const Util::Math::Vector2D &position, const Util::Graphic::Color &color, double initialScaleFactor, double scaleSpeed, double rotationSpeed);
 
     /**
      * Copy Constructor.
@@ -62,9 +62,9 @@ public:
      */
     ~DemoPolygon() override = default;
 
-    void initialize();
+    void initialize() override;
 
-    void update(double delta);
+    void onUpdate(double delta) override;
 
     void onTranslationEvent(Util::Game::TranslationEvent &event) override;
 
@@ -74,6 +74,7 @@ public:
 
 private:
 
+    Util::Game::Polygon polygon;
     Util::Graphic::Color color;
     double rotationSpeed;
     double scaleSpeed;

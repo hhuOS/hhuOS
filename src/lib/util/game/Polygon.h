@@ -35,7 +35,7 @@ class Graphics2D;
 
 namespace Util::Game {
 
-class Polygon : public Entity {
+class Polygon : public Drawable {
 
 public:
     /**
@@ -58,13 +58,17 @@ public:
      */
     ~Polygon() override = default;
 
+    [[nodiscard]] const Math::Vector2D& getCenter() const;
+
+    [[nodiscard]] const Util::Array<Math::Vector2D>& getVertices() const;
+
     void scale(double factor);
 
     void rotate(double angle);
 
     void translate(Math::Vector2D translation);
 
-    void onUpdate(double delta) override;
+    void setPosition(const Math::Vector2D &newPosition);
 
     void draw(Graphics2D &graphics) override;
 
@@ -72,7 +76,10 @@ private:
 
     void calculateCenter();
 
+    Math::Vector2D getTopLeft();
+
     Array<Math::Vector2D> vertices;
+    Math::Vector2D center;
 };
 
 }

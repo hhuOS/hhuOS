@@ -39,11 +39,7 @@ PolygonDemo::PolygonDemo(uint32_t count) {
     setKeyListener(*this);
 }
 
-void PolygonDemo::update(double delta) {
-    for (auto &polygon : polygons) {
-        polygon->update(delta);
-    }
-}
+void PolygonDemo::update(double delta) {}
 
 void PolygonDemo::keyPressed(Util::Io::Key key) {
     if (key.getScancode() == Util::Io::Key::ESC) {

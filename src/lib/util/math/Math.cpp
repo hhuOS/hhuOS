@@ -39,6 +39,14 @@ double absolute(double value) {
     return value < 0 ? value * -1 : value;
 }
 
+double min(double first, double second) {
+    return first < second ? first : second;
+}
+
+double max(double first, double second) {
+    return first > second ? first : second;
+}
+
 float sine(float value) {
     float ret = 0;
     asm volatile (

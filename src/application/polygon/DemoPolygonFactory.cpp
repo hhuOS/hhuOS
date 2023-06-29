@@ -19,16 +19,14 @@ const Util::Array<const Util::Array<Util::Math::Vector2D>*> DemoPolygonFactory::
 
 DemoPolygon* DemoPolygonFactory::createPolygon() {
     const auto shape = static_cast<uint32_t>(random.nextRandomNumber() * shapes.length());
-    const auto scaleFactor = random.nextRandomNumber() * 0.5 + 0.1;
+    const auto initialScaleFactor = random.nextRandomNumber() * 0.5 + 0.1;
     const auto rotationSpeed = random.nextRandomNumber() * 2 - 1.0;
     const auto scaleSpeed = random.nextRandomNumber();
-    const auto translation = Util::Math::Vector2D(random.nextRandomNumber() * 2 - 1.0, random.nextRandomNumber() * 2 - 1.0);
+    const auto position = Util::Math::Vector2D(random.nextRandomNumber() * 2 - 1.0 - initialScaleFactor * 2, random.nextRandomNumber() * 2 - 1.0 - initialScaleFactor * 2);
     const auto color = Util::Graphic::Color(static_cast<uint8_t>(random.nextRandomNumber() * 256),
                                             static_cast<uint8_t>(random.nextRandomNumber() * 256),
                                             static_cast<uint8_t>(random.nextRandomNumber() * 256));
 
-    auto *polygon = new DemoPolygon(*shapes[shape], color, rotationSpeed, scaleSpeed);
-    polygon->scale(scaleFactor);
-    polygon->translate(translation);
+    auto *polygon = new DemoPolygon(*shapes[shape], position, color, initialScaleFactor, scaleSpeed, rotationSpeed);
     return polygon;
 }

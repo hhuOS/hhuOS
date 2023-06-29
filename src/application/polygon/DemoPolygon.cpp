@@ -27,14 +27,18 @@ class CollisionEvent;
 }  // namespace Game
 }  // namespace Util
 
-DemoPolygon::DemoPolygon() : Util::Game::Polygon(0, Util::Array<Util::Math::Vector2D>(0)), color(0, 0, 0), rotationSpeed(0), scaleSpeed(0) {}
+DemoPolygon::DemoPolygon() : Util::Game::Entity(0, Util::Math::Vector2D(0, 0)), polygon(0, Util::Array<Util::Math::Vector2D>(0)), color(0, 0, 0), rotationSpeed(0), scaleSpeed(0) {}
 
-DemoPolygon::DemoPolygon(const Util::Array<Util::Math::Vector2D> &vertices, const Util::Graphic::Color &color, double rotationSpeed, double scaleSpeed) :
-        Util::Game::Polygon(0, vertices), color(color), rotationSpeed(rotationSpeed), scaleSpeed(scaleSpeed) {}
+DemoPolygon::DemoPolygon(const Util::Array<Util::Math::Vector2D> &vertices, const Util::Math::Vector2D &position, const Util::Graphic::Color &color, double initialScaleFactor, double scaleSpeed, double rotationSpeed) :
+        Util::Game::Entity(0, Util::Math::Vector2D(0, 0)), polygon(0, vertices), color(color), rotationSpeed(rotationSpeed), scaleSpeed(scaleSpeed) {
+    setPosition(position);
+    polygon.setPosition(getPosition());
+    polygon.scale(initialScaleFactor);
+}
 
 void DemoPolygon::initialize() {}
 
-void DemoPolygon::update(double delta) {
+void DemoPolygon::onUpdate(double delta) {
     const double rotationAngle = delta * rotationSpeed;
     const double scaleFactor = scaleUp ? 1 + (delta * scaleSpeed) : 1 - (delta * scaleSpeed);
     currentScale *= scaleFactor;
@@ -44,17 +48,17 @@ void DemoPolygon::update(double delta) {
         scaleUp = true;
     }
 
-    rotate(rotationAngle);
-    scale(scaleFactor);
+    polygon.rotate(rotationAngle);
+    polygon.scale(scaleFactor);
 }
 
 void DemoPolygon::draw(Util::Game::Graphics2D &graphics) {
     graphics.setColor(color);
-    Polygon::draw(graphics);
+    polygon.draw(graphics);
 }
 
 void DemoPolygon::onTranslationEvent(Util::Game::TranslationEvent &event) {
-    event.cancel();
+    polygon.setPosition(event.getTargetPosition());
 }
 
 void DemoPolygon::onCollisionEvent(Util::Game::CollisionEvent &event) {}
