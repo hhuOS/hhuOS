@@ -26,33 +26,53 @@
 BugDefender::BugDefender() {
     addObject(ship);
 
-    addObject(new Bug(Util::Math::Vector2D(-0.3, 0.8)));
-    addObject(new Bug(Util::Math::Vector2D(0, 0.8)));
-    addObject(new Bug(Util::Math::Vector2D(0.3, 0.8)));
+    for (uint32_t i = 0; i < BUGS_PER_COLUMN; i++) {
+        for (uint32_t j = 0; j < BUGS_PER_ROW; j++) {
+            addObject(new Bug(Util::Math::Vector2D(-1.0 + j * (Bug::SIZE_X + 0.05), 0.8 - i * (Bug::SIZE_Y + 0.05)), enemyFleet));
+        }
+    }
 
     setKeyListener(*this);
 }
 
 void BugDefender::update(double delta) {
-
+    enemyFleet.applyChanges();
 }
 
 void BugDefender::initializeBackground(Util::Game::Graphics2D &graphics) {
-    auto sprites = Util::Array<Util::Game::Sprite>(BACKGROUND_TILE_COUNT);
+    auto backgroundSprites = Util::Array<Util::Game::Sprite>(BACKGROUND_TILE_COUNT);
     for (uint32_t i = 0; i < BACKGROUND_TILE_COUNT; i++) {
-        sprites[i] = Util::Game::Sprite(Util::String::format("/initrd/bug/background%u.bmp", i + 1), BACKGROUND_TILE_SIZE, BACKGROUND_TILE_SIZE);
+        backgroundSprites[i] = Util::Game::Sprite(Util::String::format("/initrd/bug/background%u.bmp", i + 1), BACKGROUND_TILE_WIDTH, BACKGROUND_TILE_HEIGHT);
     }
 
-    auto random = Util::Math::Random();
-    auto resolution = graphics.getAbsoluteResolution();
-    auto defaultTilesPerRow = (1 / BACKGROUND_TILE_SIZE) + 1;
-    auto tilesPerRow = static_cast<int32_t>(resolution.getX() > resolution.getY() ? (resolution.getX() / resolution.getY()) * defaultTilesPerRow : defaultTilesPerRow);
-    auto tilesPerColumn = static_cast<int32_t>(resolution.getY() > resolution.getX() ? (resolution.getY() / resolution.getX()) * defaultTilesPerRow : defaultTilesPerRow);
+    auto planetSprites = Util::Array<Util::Game::Sprite>(PLANET_TILE_COUNT);
+    for (uint32_t i = 0; i < PLANET_TILE_COUNT; i++) {
+        planetSprites[i] = Util::Game::Sprite(Util::String::format("/initrd/bug/planet%u.bmp", i + 1), PLANET_TILE_WIDTH, PLANET_TILE_HEIGHT);
+    }
+
+    auto surfaceSprite = Util::Game::Sprite(Util::String::format("/initrd/bug/surface.bmp"), PLANET_TILE_WIDTH, PLANET_TILE_HEIGHT);
+
+    auto resolution = Util::Game::GameManager::getRelativeResolution();
+    auto defaultTilesPerRow = (1 / BACKGROUND_TILE_WIDTH) + 1;
+    auto defaultTilePerColumn = (1 / BACKGROUND_TILE_HEIGHT) + 1;
+    auto tilesPerRow = static_cast<int32_t>(resolution.getX() > resolution.getY() ? resolution.getX() * defaultTilesPerRow : defaultTilesPerRow);
+    auto tilesPerColumn = static_cast<int32_t>(resolution.getY() > resolution.getX() ? resolution.getY() * defaultTilePerColumn : defaultTilePerColumn);
 
     for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
         for (int32_t y = -tilesPerColumn; y < tilesPerColumn; y++) {
-            graphics.drawImage(Util::Math::Vector2D(x * BACKGROUND_TILE_SIZE, y * BACKGROUND_TILE_SIZE), sprites[static_cast<uint32_t>(random.nextRandomNumber() * BACKGROUND_TILE_COUNT)].getImage());
+            graphics.drawImage(Util::Math::Vector2D(x * BACKGROUND_TILE_WIDTH, y * BACKGROUND_TILE_HEIGHT), backgroundSprites[static_cast<uint32_t>(random.nextRandomNumber() * BACKGROUND_TILE_COUNT)].getImage());
         }
+    }
+
+    defaultTilesPerRow = (1 / PLANET_TILE_WIDTH) + 1;
+    tilesPerRow = static_cast<int32_t>(resolution.getX() > resolution.getY() ? resolution.getX() * defaultTilesPerRow : defaultTilesPerRow);
+
+    for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
+        graphics.drawImage(Util::Math::Vector2D(x * PLANET_TILE_WIDTH, -1 + PLANET_TILE_HEIGHT), surfaceSprite.getImage());
+    }
+
+    for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
+        graphics.drawImage(Util::Math::Vector2D(x * PLANET_TILE_WIDTH, -1), planetSprites[static_cast<uint32_t>(random.nextRandomNumber() * PLANET_TILE_COUNT)].getImage());
     }
 }
 
@@ -80,6 +100,7 @@ void BugDefender::keyReleased(Util::Io::Key key) {
             if (ship->getVelocity().getX() < 0) {
                 ship->setVelocityX(0);
             }
+            break;
         case Util::Io::Key::RIGHT:
             if (ship->getVelocity().getX() > 0) {
                 ship->setVelocityX(0);

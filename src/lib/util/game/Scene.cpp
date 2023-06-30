@@ -59,7 +59,9 @@ void Scene::addObject(Entity *object) {
 }
 
 void Scene::removeObject(Entity *object) {
-    removeList.add(object);
+    if (!removeList.contains(object)) {
+        removeList.add(object);
+    }
 }
 
 void Scene::applyChanges() {
@@ -69,7 +71,11 @@ void Scene::applyChanges() {
     }
 
     for (auto *object : removeList) {
-        entities.remove(object);
+        bool removed;
+        do {
+            removed = entities.remove(object);
+        } while (removed);
+
         delete object;
     }
 
@@ -112,7 +118,7 @@ void Scene::checkCollisions() {
             const auto &collider = entity->getCollider();
 
             for (auto *otherEntity : entities) {
-                if (entity == otherEntity || !otherEntity->hasCollider() || detectedCollisions.contains(Pair(otherEntity, entity))) {
+                if (entity == otherEntity || !otherEntity->hasCollider() || detectedCollisions.contains(Pair(entity, otherEntity)) || detectedCollisions.contains(Pair(otherEntity, entity))) {
                     continue;
                 }
 

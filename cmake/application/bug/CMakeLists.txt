@@ -27,6 +27,8 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/bug/Bug.cpp
         ${HHUOS_SRC_DIR}/application/bug/BugDefender.cpp
         ${HHUOS_SRC_DIR}/application/bug/EnemyMissile.cpp
+        ${HHUOS_SRC_DIR}/application/bug/Fleet.cpp
+        ${HHUOS_SRC_DIR}/application/bug/GameOverScreen.cpp
         ${HHUOS_SRC_DIR}/application/bug/PlayerMissile.cpp
         ${HHUOS_SRC_DIR}/application/bug/Ship.cpp)
 

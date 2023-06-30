@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -15,55 +15,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_ENEMYMISSILE_H
-#define HHUOS_ENEMYMISSILE_H
+#ifndef HHUOS_GAMEOVERSCREEN_H
+#define HHUOS_GAMEOVERSCREEN_H
 
-#include "lib/util/game/entity/Entity.h"
-#include "lib/util/game/Sprite.h"
-#include "Ship.h"
-#include "Bug.h"
+#include "lib/util/game/Scene.h"
+#include "lib/util/game/KeyListener.h"
 
-class EnemyMissile : public Util::Game::Entity {
+class GameOverScreen : public Util::Game::Scene, public Util::Game::KeyListener {
 
 public:
     /**
      * Constructor.
      */
-    explicit EnemyMissile(const Util::Math::Vector2D &position, Bug &bug);
+    GameOverScreen(bool won);
 
     /**
      * Copy Constructor.
      */
-    EnemyMissile(const EnemyMissile &other) = delete;
+    GameOverScreen(const GameOverScreen &other) = delete;
 
     /**
      * Assignment operator.
      */
-    EnemyMissile &operator=(const EnemyMissile &other) = delete;
+    GameOverScreen &operator=(const GameOverScreen &other) = delete;
 
     /**
      * Destructor.
      */
-    ~EnemyMissile() override = default;
+    ~GameOverScreen() override = default;
 
-    void initialize() override;
+    void update(double delta) override;
 
-    void onUpdate(double delta) override;
+    void initializeBackground(Util::Game::Graphics2D &graphics) override;
 
-    void onTranslationEvent(Util::Game::TranslationEvent &event) override;
+    void keyPressed(Util::Io::Key key) override;
 
-    void onCollisionEvent(Util::Game::CollisionEvent &event) override;
-
-    void draw(Util::Game::Graphics2D &graphics) override;
-
-    static const constexpr uint32_t TAG = 2;
-    static const constexpr double SIZE_X = 0.02;
-    static const constexpr double SIZE_Y = 0.065;
+    void keyReleased(Util::Io::Key key) override;
 
 private:
 
-    Util::Game::Sprite sprite;
-    Bug &bug;
+    const bool won;
 };
 
 #endif

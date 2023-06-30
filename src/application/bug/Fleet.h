@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -15,55 +15,58 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_ENEMYMISSILE_H
-#define HHUOS_ENEMYMISSILE_H
+#ifndef HHUOS_FLEET_H
+#define HHUOS_FLEET_H
 
-#include "lib/util/game/entity/Entity.h"
-#include "lib/util/game/Sprite.h"
-#include "Ship.h"
-#include "Bug.h"
+#include "lib/util/math/Random.h"
 
-class EnemyMissile : public Util::Game::Entity {
+class Fleet {
 
 public:
     /**
      * Constructor.
      */
-    explicit EnemyMissile(const Util::Math::Vector2D &position, Bug &bug);
+    explicit Fleet(uint32_t size, double initialSpeed);
 
     /**
      * Copy Constructor.
      */
-    EnemyMissile(const EnemyMissile &other) = delete;
+    Fleet(const Fleet &other) = delete;
 
     /**
      * Assignment operator.
      */
-    EnemyMissile &operator=(const EnemyMissile &other) = delete;
+    Fleet &operator=(const Fleet &other) = delete;
 
     /**
      * Destructor.
      */
-    ~EnemyMissile() override = default;
+    ~Fleet() = default;
 
-    void initialize() override;
+    void changeDirection();
 
-    void onUpdate(double delta) override;
+    void increaseVelocity();
 
-    void onTranslationEvent(Util::Game::TranslationEvent &event) override;
+    void moveDown();
 
-    void onCollisionEvent(Util::Game::CollisionEvent &event) override;
+    void decreaseSize();
 
-    void draw(Util::Game::Graphics2D &graphics) override;
+    void applyChanges();
 
-    static const constexpr uint32_t TAG = 2;
-    static const constexpr double SIZE_X = 0.02;
-    static const constexpr double SIZE_Y = 0.065;
+    [[nodiscard]] double getVelocity() const;
+
+    [[nodiscard]] bool isMovingDown() const;
+
+    [[nodiscard]] double getRandomNumber();
 
 private:
 
-    Util::Game::Sprite sprite;
-    Bug &bug;
+    uint32_t size;
+    double velocity = 1.0;
+    double moveDownCounter = 0;
+    Util::Math::Random random;
+
+    double nextVelocity = velocity;
 };
 
 #endif

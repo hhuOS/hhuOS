@@ -21,6 +21,9 @@
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/KeyListener.h"
 #include "Ship.h"
+#include "Fleet.h"
+#include "lib/util/math/Random.h"
+#include "Bug.h"
 
 class BugDefender : public Util::Game::Scene, public Util::Game::KeyListener {
 
@@ -53,12 +56,23 @@ public:
 
     void keyReleased(Util::Io::Key key) override;
 
+    static const constexpr uint32_t BUGS_PER_ROW = 8;
+    static const constexpr uint32_t BUGS_PER_COLUMN = 6;
+
 private:
 
+    Fleet enemyFleet = Fleet(BUGS_PER_ROW * BUGS_PER_COLUMN, 0.25);
     Ship *ship = new Ship(Util::Math::Vector2D(-0.1414, -0.8));
 
-    static const constexpr double BACKGROUND_TILE_SIZE = 0.1;
+    Util::Math::Random random;
+
+    static const constexpr double BACKGROUND_TILE_WIDTH = 0.1;
+    static const constexpr double BACKGROUND_TILE_HEIGHT = 0.1;
     static const constexpr uint32_t BACKGROUND_TILE_COUNT = 7;
+
+    static const constexpr double PLANET_TILE_WIDTH = 0.8;
+    static const constexpr double PLANET_TILE_HEIGHT = 0.2;
+    static const constexpr uint32_t PLANET_TILE_COUNT = 2;
 };
 
 #endif

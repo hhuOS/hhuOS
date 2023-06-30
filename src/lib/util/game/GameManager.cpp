@@ -24,10 +24,20 @@
 namespace Util::Game {
 
 Game* GameManager::game = nullptr;
+Math::Vector2D GameManager::absoluteResolution = Math::Vector2D();
+Math::Vector2D GameManager::relativeResolution = Math::Vector2D();
 uint16_t GameManager::transformation = 0;
 
 uint16_t GameManager::getTransformation() {
     return transformation;
+}
+
+const Math::Vector2D &GameManager::getAbsoluteResolution() {
+    return absoluteResolution;
+}
+
+const Math::Vector2D &GameManager::getRelativeResolution() {
+    return relativeResolution;
 }
 
 Game &GameManager::getGame() {

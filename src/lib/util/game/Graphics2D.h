@@ -103,8 +103,6 @@ public:
 
     void saveCurrentStateAsBackground();
 
-    [[nodiscard]] Math::Vector2D getAbsoluteResolution() const;
-
 private:
 
     void drawString(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const;

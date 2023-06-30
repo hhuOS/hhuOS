@@ -271,7 +271,6 @@ FreeListMemoryManager::FreeListHeader *FreeListMemoryManager::merge(FreeListHead
     }
 
     return origin;
-
 }
 
 void *FreeListMemoryManager::reallocateMemory(void *ptr, uint32_t size, uint32_t alignment) {

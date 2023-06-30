@@ -56,8 +56,8 @@ public:
     void draw(Util::Game::Graphics2D &graphics) override;
 
     static const constexpr uint32_t TAG = 1;
-    static const constexpr double SIZE_X = 0.05;
-    static const constexpr double SIZE_Y = 0.1083;
+    static const constexpr double SIZE_X = 0.03;
+    static const constexpr double SIZE_Y = 0.065;
 
 private:
 

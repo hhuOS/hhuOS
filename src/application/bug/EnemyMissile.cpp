@@ -20,8 +20,10 @@
 #include "lib/util/game/Game.h"
 #include "lib/util/game/entity/component/LinearMovementComponent.h"
 #include "lib/util/game/entity/event/TranslationEvent.h"
+#include "lib/util/game/entity/event/CollisionEvent.h"
+#include "PlayerMissile.h"
 
-EnemyMissile::EnemyMissile(const Util::Math::Vector2D &position) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)) {
+EnemyMissile::EnemyMissile(const Util::Math::Vector2D &position, Bug &bug) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)), bug(bug) {
     addComponent(new Util::Game::LinearMovementComponent(*this));
 }
 
@@ -40,6 +42,10 @@ void EnemyMissile::onTranslationEvent(Util::Game::TranslationEvent &event) {
 }
 
 void EnemyMissile::onCollisionEvent(Util::Game::CollisionEvent &event) {
+    auto tag = event.getCollidedWidth().getTag();
+    if (tag == PlayerMissile::TAG || tag == Ship::TAG) {
+        Util::Game::GameManager::getGame().getCurrentScene().removeObject(this);
+    }
 }
 
 void EnemyMissile::draw(Util::Game::Graphics2D &graphics) {

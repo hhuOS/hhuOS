@@ -60,6 +60,10 @@ public:
 
     [[nodiscard]] static uint16_t getTransformation();
 
+    [[nodiscard]] static const Math::Vector2D& getAbsoluteResolution();
+
+    [[nodiscard]] static const Math::Vector2D& getRelativeResolution();
+
     [[nodiscard]] static Game& getGame();
 
     [[nodiscard]] static Scene& getCurrentScene();
@@ -67,6 +71,8 @@ public:
 private:
 
     static Game *game;
+    static Math::Vector2D absoluteResolution;
+    static Math::Vector2D relativeResolution;
     static uint16_t transformation;
 };
 

@@ -21,6 +21,7 @@
 #include "lib/util/game/entity/Entity.h"
 #include "lib/util/game/Sprite.h"
 #include "lib/util/game/SpriteAnimation.h"
+#include "Fleet.h"
 
 class Bug : public Util::Game::Entity {
 
@@ -28,7 +29,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Bug(const Util::Math::Vector2D &position);
+    explicit Bug(const Util::Math::Vector2D &position, Fleet &fleet);
 
     /**
      * Copy Constructor.
@@ -57,16 +58,21 @@ public:
 
     void fireMissile();
 
-    void allowFireMissile();
+    void explode();
 
     static const constexpr uint32_t TAG = 3;
-    static const constexpr double SIZE_X = 0.225;
-    static const constexpr double SIZE_Y = 0.15;
+    static const constexpr double SIZE_X = 0.15;
+    static const constexpr double SIZE_Y = 0.1;
 
 private:
 
+    Util::Game::SpriteAnimation *currentAnimation = &animation;
     Util::Game::SpriteAnimation animation;
-    bool mayFireMissile = true;
+    Util::Game::SpriteAnimation explosion;
+    Fleet &fleet;
+
+    bool isExploding = false;
+    double explosionTimer = 0;
 };
 
 #endif

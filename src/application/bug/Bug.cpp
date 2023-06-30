@@ -17,9 +17,16 @@
 
 #include "Bug.h"
 #include "lib/util/game/entity/component/LinearMovementComponent.h"
+#include "lib/util/game/entity/event/CollisionEvent.h"
+#include "lib/util/game/entity/event/TranslationEvent.h"
 #include "lib/util/game/GameManager.h"
+#include "lib/util/game/Game.h"
+#include "EnemyMissile.h"
+#include "PlayerMissile.h"
+#include "BugDefender.h"
+#include "GameOverScreen.h"
 
-Bug::Bug(const Util::Math::Vector2D &position) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)) {
+Bug::Bug(const Util::Math::Vector2D &position, Fleet &fleet) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)), fleet(fleet) {
     addComponent(new Util::Game::LinearMovementComponent(*this));
 }
 
@@ -27,26 +34,84 @@ void Bug::initialize() {
     animation = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
         Util::Game::Sprite("/initrd/bug/bug1.bmp", SIZE_X, SIZE_Y),
         Util::Game::Sprite("/initrd/bug/bug2.bmp", SIZE_X, SIZE_Y)}), 0.5);
+
+    explosion = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
+        Util::Game::Sprite("/initrd/bug/explosion1.bmp", SIZE_Y, SIZE_Y),
+        Util::Game::Sprite("/initrd/bug/explosion2.bmp", SIZE_Y, SIZE_Y),
+        Util::Game::Sprite("/initrd/bug/explosion3.bmp", SIZE_Y, SIZE_Y),
+        Util::Game::Sprite("/initrd/bug/explosion4.bmp", SIZE_Y, SIZE_Y),
+        Util::Game::Sprite("/initrd/bug/explosion5.bmp", SIZE_Y, SIZE_Y),
+        Util::Game::Sprite("/initrd/bug/explosion6.bmp", SIZE_Y, SIZE_Y),
+        Util::Game::Sprite("/initrd/bug/explosion7.bmp", SIZE_Y, SIZE_Y),
+        Util::Game::Sprite("/initrd/bug/explosion8.bmp", SIZE_X, SIZE_Y)}), 0.5);
 }
 
 void Bug::onUpdate(double delta) {
-    animation.update(delta);
+    if (isExploding) {
+        explosionTimer += delta;
+
+        if (explosionTimer >= explosion.getAnimationTime()) {
+            Util::Game::GameManager::getCurrentScene().removeObject(this);
+            fleet.decreaseSize();
+            return;
+        }
+
+        currentAnimation->update(delta);
+        return;
+    }
+
+    currentAnimation->update(delta);
+
+    if (fleet.isMovingDown()) {
+        translateY(getPosition().getY() -0.1);
+    }
+
+    if (getPosition().getY() < -0.8 + Ship::SIZE_Y) {
+        auto &game = Util::Game::GameManager::getGame();
+        game.pushScene(new GameOverScreen(false));
+        game.switchToNextScene();
+    }
+
+    setVelocityX(fleet.getVelocity());
+
+    if (fleet.getRandomNumber() < delta * 0.01) {
+        fireMissile();
+    }
 }
 
-void Bug::onTranslationEvent(Util::Game::TranslationEvent &event) {}
+void Bug::onTranslationEvent(Util::Game::TranslationEvent &event) {
+    if (isExploding) {
+        event.cancel();
+        return;
+    }
+
+    const auto targetX = event.getTargetPosition().getX();
+    const auto maxX = Util::Game::GameManager::getRelativeResolution().getX() - SIZE_X;
+
+    if ((fleet.getVelocity() > 0 && targetX > maxX - SIZE_X) || (fleet.getVelocity() < 0 && targetX < -maxX)) {
+        fleet.moveDown();
+        fleet.increaseVelocity();
+        fleet.changeDirection();
+    }
+}
 
 void Bug::onCollisionEvent(Util::Game::CollisionEvent &event) {
-    Util::Game::GameManager::getCurrentScene().removeObject(this);
+    if (event.getCollidedWidth().getTag() == PlayerMissile::TAG) {
+        explode();
+    }
 }
 
 void Bug::draw(Util::Game::Graphics2D &graphics) {
-    graphics.drawImage(getPosition(), animation.getCurrentSprite().getImage());
+    graphics.drawImage(getPosition(), currentAnimation->getCurrentSprite().getImage());
 }
 
 void Bug::fireMissile() {
-    mayFireMissile = false;
+    auto *missile = new EnemyMissile(getPosition() + Util::Math::Vector2D((SIZE_X / 2) - (EnemyMissile::SIZE_X / 2), -SIZE_Y), *this);
+    Util::Game::GameManager::getCurrentScene().addObject(missile);
+    missile->setVelocityY(-1);
 }
 
-void Bug::allowFireMissile() {
-    mayFireMissile = true;
+void Bug::explode() {
+    isExploding = true;
+    currentAnimation = &explosion;
 }

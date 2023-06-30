@@ -21,6 +21,7 @@
 #include "PlayerMissile.h"
 #include "lib/util/game/entity/component/LinearMovementComponent.h"
 #include "lib/util/game/entity/event//TranslationEvent.h"
+#include "GameOverScreen.h"
 
 Ship::Ship(const Util::Math::Vector2D &position) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)) {
     addComponent(new Util::Game::LinearMovementComponent(*this));
@@ -28,18 +29,69 @@ Ship::Ship(const Util::Math::Vector2D &position) : Util::Game::Entity(TAG, posit
 
 void Ship::initialize() {
     sprite = Util::Game::Sprite("/initrd/bug/ship.bmp", SIZE_X, SIZE_Y);
+    heart = Util::Game::Sprite("/initrd/bug/heart.bmp", 0.05, 0.05);
+
+    explosion = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
+        Util::Game::Sprite("/initrd/bug/explosion1.bmp", SIZE_Y, SIZE_Y),
+        Util::Game::Sprite("/initrd/bug/explosion2.bmp", SIZE_Y, SIZE_Y),
+        Util::Game::Sprite("/initrd/bug/explosion3.bmp", SIZE_Y, SIZE_Y),
+        Util::Game::Sprite("/initrd/bug/explosion4.bmp", SIZE_Y, SIZE_Y),
+        Util::Game::Sprite("/initrd/bug/explosion5.bmp", SIZE_Y, SIZE_Y),
+        Util::Game::Sprite("/initrd/bug/explosion6.bmp", SIZE_Y, SIZE_Y),
+        Util::Game::Sprite("/initrd/bug/explosion7.bmp", SIZE_Y, SIZE_Y),
+        Util::Game::Sprite("/initrd/bug/explosion8.bmp", SIZE_X, SIZE_Y)}), 1.0);
 }
 
-void Ship::onUpdate(double delta) {}
+void Ship::onUpdate(double delta) {
+    if (lives == 0 && !isExploding) {
+        explode();
+    }
 
-void Ship::onTranslationEvent(Util::Game::TranslationEvent &event) {}
+    if (isExploding) {
+        explosionTimer += delta;
+
+        if (explosionTimer >= explosion.getAnimationTime()) {
+            auto &game = Util::Game::GameManager::getGame();
+            game.pushScene(new GameOverScreen(false));
+            game.switchToNextScene();
+            return;
+        }
+
+        explosion.update(delta);
+    }
+}
+
+void Ship::onTranslationEvent(Util::Game::TranslationEvent &event) {
+    if (isExploding) {
+        event.cancel();
+        return;
+    }
+
+    const auto targetX = event.getTargetPosition().getX();
+    const auto maxX = Util::Game::GameManager::getRelativeResolution().getX();
+
+    if (targetX > maxX - SIZE_X || targetX < -maxX) {
+        event.cancel();
+    }
+}
 
 void Ship::onCollisionEvent(Util::Game::CollisionEvent &event) {
-
+    if (lives > 0) {
+        lives--;
+    }
 }
 
 void Ship::draw(Util::Game::Graphics2D &graphics) {
+    if (isExploding) {
+        graphics.drawImage(getPosition(), explosion.getCurrentSprite().getImage());
+        return;
+    }
+
     graphics.drawImage(getPosition(), sprite.getImage());
+
+    for (uint32_t i = 0; i < lives; i++) {
+        graphics.drawImage(Util::Math::Vector2D(-0.9 + i * 1.5 * heart.getWidth(), -0.9), heart.getImage());
+    }
 }
 
 void Ship::fireMissile() {
@@ -48,11 +100,15 @@ void Ship::fireMissile() {
     }
 
     mayFireMissile = false;
-    auto *missile = new PlayerMissile(getPosition() + Util::Math::Vector2D((SIZE_X / 2) + (PlayerMissile::SIZE_X / 2), SIZE_Y), *this);
+    auto *missile = new PlayerMissile(getPosition() + Util::Math::Vector2D((SIZE_X / 2) - (PlayerMissile::SIZE_X / 2), SIZE_Y), *this);
     Util::Game::GameManager::getCurrentScene().addObject(missile);
-    missile->setVelocityY(2.5);
+    missile->setVelocityY(2);
 }
 
 void Ship::allowFireMissile() {
     mayFireMissile = true;
+}
+
+void Ship::explode() {
+    isExploding = true;
 }

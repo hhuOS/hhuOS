@@ -21,6 +21,7 @@
 #include "lib/util/game/entity/Entity.h"
 #include "lib/util/game/Sprite.h"
 #include "lib/util/game/GameManager.h"
+#include "lib/util/game/SpriteAnimation.h"
 
 class Ship : public Util::Game::Entity {
 
@@ -59,6 +60,8 @@ public:
 
     void allowFireMissile();
 
+    void explode();
+
     static const constexpr uint32_t TAG = 0;
     static const constexpr double SIZE_X = 0.2828;
     static const constexpr double SIZE_Y = 0.2;
@@ -66,6 +69,12 @@ public:
 private:
 
     Util::Game::Sprite sprite;
+    Util::Game::Sprite heart;
+    Util::Game::SpriteAnimation explosion;
+
+    uint32_t lives = 3;
+    double explosionTimer = 0;
+    bool isExploding = false;
     bool mayFireMissile = true;
 };
 

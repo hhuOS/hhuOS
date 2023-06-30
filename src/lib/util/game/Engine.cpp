@@ -45,6 +45,9 @@
 namespace Util::Game {
 
 Engine::Engine(const Util::Graphic::LinearFrameBuffer &lfb, const uint8_t targetFrameRate) : graphics(lfb, game), targetFrameRate(targetFrameRate) {
+    GameManager::absoluteResolution = Math::Vector2D(lfb.getResolutionX(), lfb.getResolutionY());
+    GameManager::relativeResolution = Math::Vector2D(lfb.getResolutionX() > lfb.getResolutionY() ? (double) lfb.getResolutionX() / lfb.getResolutionY() : 1,
+                                                     lfb.getResolutionY() > lfb.getResolutionX() ? (double) lfb.getResolutionY() / lfb.getResolutionX() : 1);
     GameManager::transformation = (lfb.getResolutionX() > lfb.getResolutionY() ? lfb.getResolutionY() : lfb.getResolutionX()) / 2;
     GameManager::game = &game;
 }
@@ -107,7 +110,7 @@ void Engine::initializeNextScene() {
         game.getCurrentScene().getCamera().setPosition(Math::Vector2D(0, 0));
     }
 
-    auto charWidth = ((Graphic::Fonts::TERMINAL_FONT.getCharWidth()) / graphics.getAbsoluteResolution().getX()) * 2;
+    auto charWidth = ((Graphic::Fonts::TERMINAL_FONT.getCharWidth()) / GameManager::getAbsoluteResolution().getX()) * 2;
     graphics.clear();
     graphics.setColor(Graphic::Colors::WHITE);
     graphics.drawString(Math::Vector2D(-(10 * charWidth) / 2, 0), "Loading...");
@@ -126,9 +129,10 @@ void Engine::updateStatus() {
 }
 
 void Engine::drawStatus() {
+    auto &absoluteResolution = GameManager::getAbsoluteResolution();
     auto cameraPosition = game.getCurrentScene().getCamera().getPosition();
-    auto charHeight = ((Graphic::Fonts::TERMINAL_FONT_SMALL.getCharHeight() + 2) / graphics.getAbsoluteResolution().getY()) * 2;
-    auto charWidth = ((Graphic::Fonts::TERMINAL_FONT_SMALL.getCharWidth()) / graphics.getAbsoluteResolution().getX()) * 2;
+    auto charHeight = ((Graphic::Fonts::TERMINAL_FONT_SMALL.getCharHeight() + 2) / absoluteResolution.getY()) * 2;
+    auto charWidth = ((Graphic::Fonts::TERMINAL_FONT_SMALL.getCharWidth()) / absoluteResolution.getX()) * 2;
     auto color = graphics.getColor();
 
     const auto &memoryManager = *reinterpret_cast<HeapMemoryManager*>(USER_SPACE_MEMORY_MANAGER_ADDRESS);

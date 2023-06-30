@@ -60,7 +60,7 @@ void Graphics2D::drawPolygon(const Array<Math::Vector2D> &vertices) const {
 
 void Graphics2D::drawString(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const {
     auto &camera = game.getCurrentScene().getCamera().getPosition();
-    stringDrawer.drawString(font, static_cast<int32_t>((position.getX() - camera.getX()) * transformation + offsetX), static_cast<int32_t>((-position.getY() + camera.getY()) * transformation + offsetY), string, color, Util::Graphic::Colors::INVISIBLE);
+    stringDrawer.drawString(font, static_cast<int32_t>((position.getX() - camera.getX()) * lfb.getResolutionX() / 2 + offsetX), static_cast<int32_t>((-position.getY() + camera.getY()) * lfb.getResolutionY() / 2 + offsetY), string, color, Util::Graphic::Colors::INVISIBLE);
 }
 
 void Graphics2D::drawString(const Math::Vector2D &position, const char *string) const {
@@ -149,10 +149,6 @@ void Graphics2D::clear(const Graphic::Color &color) {
             }
         }
     }
-}
-
-Math::Vector2D Graphics2D::getAbsoluteResolution() const {
-    return Math::Vector2D(lfb.getResolutionX(), lfb.getResolutionY());
 }
 
 void Graphics2D::drawSquare(const Math::Vector2D &position, double size) const {

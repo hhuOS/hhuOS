@@ -40,7 +40,7 @@ void Entity::translateX(double x) {
 }
 
 void Entity::translateY(double y) {
-    position = Math::Vector2D(velocity.getX(), y);
+    position = Math::Vector2D(position.getX(), y);
 }
 
 void Entity::setPosition(const Math::Vector2D &position) {
