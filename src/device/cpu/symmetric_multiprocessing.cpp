@@ -32,6 +32,8 @@ volatile bool runningApplicationProcessors[256]{}; // Once an AP is running it s
 Kernel::Logger log = Kernel::Logger::get("SMP");
 
 [[noreturn]] void applicationProcessorEntry(uint8_t initializedApplicationProcessorsCounter) {
+    while (true) {}
+
     // Initialize this AP's APIC
     auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
     auto &apic = interruptService.getApic();
@@ -41,17 +43,6 @@ Kernel::Logger log = Kernel::Logger::get("SMP");
     runningApplicationProcessors[initializedApplicationProcessorsCounter] = true; // Mark this AP as running
 
     while (!interruptService.isParallelComputingAllowed()) {}
-
-    // apic.startCurrentTimer();
-    // asm volatile ("sti");
-
-    // auto &timeService = Kernel::System::getService<Kernel::TimeService>();
-
-    while (true) {
-        /*log.info("Hello from CPU [%u]", interruptService.getCpuId());
-        auto end = timeService.getSystemTime().toMilliseconds() + 100 / (interruptService.getCpuId() + 1);
-        while (timeService.getSystemTime().toMilliseconds() < end) {}*/
-    }
 }
 
 }
