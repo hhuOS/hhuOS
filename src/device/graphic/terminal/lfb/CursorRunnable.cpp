@@ -23,6 +23,7 @@
 #include "lib/util/graphic/Font.h"
 #include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/time/Timestamp.h"
+#include "kernel/system/System.h"
 
 namespace Device::Graphic {
 
@@ -45,7 +46,9 @@ void CursorRunnable::run() {
 
 void CursorRunnable::stop() {
     isRunning = false;
-    while (!finished) {}
+    while (!finished) {
+        Util::Async::Thread::yield();
+    }
 }
 
 void CursorRunnable::draw() {
