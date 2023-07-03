@@ -46,6 +46,10 @@ void *FreeListMemoryManager::allocateMemory(uint32_t size, uint32_t alignment) {
     void *ret = allocAlgorithm(size, alignment, firstChunk);
     lock.release();
 
+    if (ret != nullptr && (reinterpret_cast<uint32_t>(ret) < getStartAddress() || reinterpret_cast<uint32_t>(ret) > getEndAddress())) {
+        Util::Exception::throwException(Exception::OUT_OF_BOUNDS, "alloc: Allocated memory outside of heap boundaries");
+    }
+
     return ret;
 }
 
@@ -276,12 +280,16 @@ FreeListMemoryManager::FreeListHeader *FreeListMemoryManager::merge(FreeListHead
 void *FreeListMemoryManager::reallocateMemory(void *ptr, uint32_t size, uint32_t alignment) {
     lock.acquire();
     auto oldHeader = reinterpret_cast<FreeListHeader*>((uint32_t) ptr - HEADER_SIZE);
-    auto *allocated = allocAlgorithm(size, alignment, firstChunk);
-    Util::Address<uint32_t>(allocated).copyRange(Util::Address<uint32_t>(ptr), (size < oldHeader->size) ? size : oldHeader->size);
+    auto *ret = allocAlgorithm(size, alignment, firstChunk);
+    Util::Address<uint32_t>(ret).copyRange(Util::Address<uint32_t>(ptr), (size < oldHeader->size) ? size : oldHeader->size);
     freeAlgorithm(ptr);
     lock.release();
 
-    return allocated;
+    if (ret != nullptr && (reinterpret_cast<uint32_t>(ret) < getStartAddress() || reinterpret_cast<uint32_t>(ret) > getEndAddress())) {
+        Util::Exception::throwException(Exception::OUT_OF_BOUNDS, "realloc: Allocated memory outside of heap boundaries");
+    }
+
+    return ret;
 
     /*void *ret = nullptr;
 
