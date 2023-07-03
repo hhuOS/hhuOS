@@ -30,6 +30,7 @@
 #include "lib/util/collection/Iterator.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/Text.h"
+#include "lib/util/math/Vector2D.h"
 
 namespace Util {
 namespace Game {

@@ -16,12 +16,21 @@
  */
 
 #include "Ship.h"
+
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "PlayerMissile.h"
 #include "lib/util/game/entity/component/LinearMovementComponent.h"
-#include "lib/util/game/entity/event//TranslationEvent.h"
+#include "lib/util/game/entity/event/TranslationEvent.h"
+#include "lib/util/game/entity/event/CollisionEvent.h"
 #include "GameOverScreen.h"
+#include "EnemyMissile.h"
+#include "Explosion.h"
+#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Scene.h"
+#include "lib/util/game/entity/collider/Collider.h"
+#include "lib/util/game/entity/collider/RectangleCollider.h"
+#include "lib/util/math/Vector2D.h"
 
 Ship::Ship(const Util::Math::Vector2D &position) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)) {
     addComponent(new Util::Game::LinearMovementComponent(*this));
@@ -31,15 +40,7 @@ void Ship::initialize() {
     sprite = Util::Game::Sprite("/initrd/bug/ship.bmp", SIZE_X, SIZE_Y);
     heart = Util::Game::Sprite("/initrd/bug/heart.bmp", 0.05, 0.05);
 
-    explosion = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
-        Util::Game::Sprite("/initrd/bug/explosion1.bmp", SIZE_Y, SIZE_Y),
-        Util::Game::Sprite("/initrd/bug/explosion2.bmp", SIZE_Y, SIZE_Y),
-        Util::Game::Sprite("/initrd/bug/explosion3.bmp", SIZE_Y, SIZE_Y),
-        Util::Game::Sprite("/initrd/bug/explosion4.bmp", SIZE_Y, SIZE_Y),
-        Util::Game::Sprite("/initrd/bug/explosion5.bmp", SIZE_Y, SIZE_Y),
-        Util::Game::Sprite("/initrd/bug/explosion6.bmp", SIZE_Y, SIZE_Y),
-        Util::Game::Sprite("/initrd/bug/explosion7.bmp", SIZE_Y, SIZE_Y),
-        Util::Game::Sprite("/initrd/bug/explosion8.bmp", SIZE_X, SIZE_Y)}), 1.0);
+    explosion = Explosion(SIZE_Y, 1.0);
 }
 
 void Ship::onUpdate(double delta) {
@@ -76,6 +77,15 @@ void Ship::onTranslationEvent(Util::Game::TranslationEvent &event) {
 }
 
 void Ship::onCollisionEvent(Util::Game::CollisionEvent &event) {
+    if (event.getCollidedWidth().getTag() != EnemyMissile::TAG) {
+        return;
+    }
+
+    const auto &missile = event.getCollidedWidth<const EnemyMissile>();
+    if (!missile.isAlive()) {
+        return;
+    }
+
     if (lives > 0) {
         lives--;
     }
@@ -111,4 +121,8 @@ void Ship::allowFireMissile() {
 
 void Ship::explode() {
     isExploding = true;
+}
+
+bool Ship::isAlive() const {
+    return !isExploding;
 }

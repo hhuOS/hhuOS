@@ -39,8 +39,8 @@
 #include "lib/util/base/String.h"
 #include "lib/util/game/Camera.h"
 #include "lib/util/game/Scene.h"
-#include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/Font.h"
+#include "lib/util/base/Address.h"
 
 namespace Util::Game {
 
@@ -110,10 +110,10 @@ void Engine::initializeNextScene() {
         game.getCurrentScene().getCamera().setPosition(Math::Vector2D(0, 0));
     }
 
-    auto charWidth = ((Graphic::Fonts::TERMINAL_FONT.getCharWidth()) / GameManager::getAbsoluteResolution().getX()) * 2;
+    auto charWidth = Graphic::Fonts::TERMINAL_FONT.getCharWidth() / static_cast<double>(GameManager::getTransformation());
     graphics.clear();
     graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawString(Math::Vector2D(-(10 * charWidth) / 2, 0), "Loading...");
+    graphics.drawString(Util::Math::Vector2D((Util::Address<uint32_t>(LOADING).stringLength() * -charWidth) / 2, 0), LOADING);
     graphics.show();
 
     game.initializeNextScene(graphics);
@@ -129,19 +129,16 @@ void Engine::updateStatus() {
 }
 
 void Engine::drawStatus() {
-    auto &absoluteResolution = GameManager::getAbsoluteResolution();
+    double transformation = GameManager::getTransformation();
     auto cameraPosition = game.getCurrentScene().getCamera().getPosition();
-    auto charHeight = ((Graphic::Fonts::TERMINAL_FONT_SMALL.getCharHeight() + 2) / absoluteResolution.getY()) * 2;
-    auto charWidth = ((Graphic::Fonts::TERMINAL_FONT_SMALL.getCharWidth()) / absoluteResolution.getX()) * 2;
+    auto charHeight = (Graphic::Fonts::TERMINAL_FONT_SMALL.getCharHeight() + 2) / transformation;
+    auto charWidth = Graphic::Fonts::TERMINAL_FONT_SMALL.getCharWidth() / transformation;
     auto color = graphics.getColor();
 
     const auto &memoryManager = *reinterpret_cast<HeapMemoryManager*>(USER_SPACE_MEMORY_MANAGER_ADDRESS);
     auto heapUsed = (memoryManager.getTotalMemory() - memoryManager.getFreeMemory());
     auto heapUsedM = heapUsed / 1000 / 1000;
     auto heapUsedK = (heapUsed - heapUsedM * 1000 * 1000) / 1000;
-
-    // graphics.setColor(Graphic::Color(50, 50, 50, 100));
-    // graphics.fillRectangle(Math::Vector2D(cameraPosition.getX() - 1, cameraPosition.getY() + 1 - charHeight / 2), charWidth * 41.5, charHeight * 4.5);
 
     auto x = cameraPosition.getX() - 1 + charWidth;
     auto y = 1 - charHeight;

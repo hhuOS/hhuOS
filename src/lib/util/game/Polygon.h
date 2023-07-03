@@ -24,8 +24,8 @@
 #include <cstdint>
 
 #include "lib/util/collection/Array.h"
-#include "lib/util/game/entity/Entity.h"
 #include "lib/util/math/Vector2D.h"
+#include "lib/util/game/Drawable.h"
 
 namespace Util {
 namespace Game {

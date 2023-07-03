@@ -17,6 +17,8 @@
 
 #include "SmBiosTableNode.h"
 
+#include "lib/util/base/String.h"
+
 namespace Filesystem::SmBios {
 
 uint8_t SmBiosTableNode::typeCounter[256]{};

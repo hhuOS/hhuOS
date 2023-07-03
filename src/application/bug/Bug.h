@@ -18,10 +18,22 @@
 #ifndef HHUOS_BUG_H
 #define HHUOS_BUG_H
 
+#include <cstdint>
+
 #include "lib/util/game/entity/Entity.h"
-#include "lib/util/game/Sprite.h"
 #include "lib/util/game/SpriteAnimation.h"
-#include "Fleet.h"
+
+class Fleet;
+namespace Util {
+namespace Game {
+class CollisionEvent;
+class Graphics2D;
+class TranslationEvent;
+}  // namespace Game
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
 
 class Bug : public Util::Game::Entity {
 

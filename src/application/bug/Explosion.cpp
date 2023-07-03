@@ -15,15 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "RsdpNode.h"
+#include "Explosion.h"
 
-#include <cstdint>
+#include "lib/util/collection/Array.h"
+#include "lib/util/game/Sprite.h"
 
-#include "device/power/acpi/Acpi.h"
-#include "lib/util/hardware/Acpi.h"
-
-namespace Filesystem::Acpi {
-
-RsdpNode::RsdpNode() : Memory::BufferNode("rsdp", reinterpret_cast<const uint8_t *>(&Device::Acpi::getRsdp()), sizeof(Util::Hardware::Acpi::Rsdp)) {}
-
-}
+Explosion::Explosion(double size, double time) : Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
+     Util::Game::Sprite("/initrd/bug/explosion1.bmp", size, size),
+     Util::Game::Sprite("/initrd/bug/explosion2.bmp", size, size),
+     Util::Game::Sprite("/initrd/bug/explosion3.bmp", size, size),
+     Util::Game::Sprite("/initrd/bug/explosion4.bmp", size, size),
+     Util::Game::Sprite("/initrd/bug/explosion5.bmp", size, size),
+     Util::Game::Sprite("/initrd/bug/explosion6.bmp", size, size),
+     Util::Game::Sprite("/initrd/bug/explosion7.bmp", size, size),
+     Util::Game::Sprite("/initrd/bug/explosion8.bmp", size, size)}), time) {}

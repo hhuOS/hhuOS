@@ -84,9 +84,9 @@
 #include "device/bios/SmBios.h"
 #include "filesystem/smbios/SmBiosDriver.h"
 #include "filesystem/acpi/AcpiDriver.h"
-#include "device/cpu/symmetric_multiprocessing.h"
 #include "kernel/service/InterruptService.h"
-#include "kernel/service/TimeService.h"
+#include "lib/util/hardware/Acpi.h"
+#include "lib/util/hardware/SmBios.h"
 
 namespace Device {
 class Machine;

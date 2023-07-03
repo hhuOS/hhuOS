@@ -18,7 +18,7 @@
 #ifndef HHUOS_ADDRESS_H
 #define HHUOS_ADDRESS_H
 
-#include <stdint.h>
+#include <cstdint>
 
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/String.h"

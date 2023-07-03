@@ -264,6 +264,8 @@ private:
     Util::ArrayList<Io::Key> pressedKeys;
 
     const uint8_t targetFrameRate;
+
+    static const constexpr char *LOADING = "Loading...";
 };
 
 }

@@ -21,13 +21,22 @@
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/KeyListener.h"
 
+namespace Util {
+namespace Game {
+class Graphics2D;
+}  // namespace Game
+namespace Io {
+class Key;
+}  // namespace Io
+}  // namespace Util
+
 class GameOverScreen : public Util::Game::Scene, public Util::Game::KeyListener {
 
 public:
     /**
      * Constructor.
      */
-    GameOverScreen(bool won);
+    explicit GameOverScreen(bool won);
 
     /**
      * Copy Constructor.
@@ -55,6 +64,12 @@ public:
 private:
 
     const bool won;
+
+    static const constexpr char *CONGRATULATIONS = "Congratulations!";
+    static const constexpr char *INVASION_STOPPED = "You have stopped the alien invasion!";
+    static const constexpr char *LOST = "Oh noooooo!";
+    static const constexpr char *PLANET_INVADED = "Your planet has been invaded by aliens!";
+    static const constexpr char *NEW_GAME = "Press SPACE to fight the next invasion, or ESC to run like a coward...";
 };
 
 #endif

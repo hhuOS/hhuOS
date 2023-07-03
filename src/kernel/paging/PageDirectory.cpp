@@ -24,9 +24,9 @@
 #include "MemoryLayout.h"
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/Exception.h"
-#include "device/interrupt/apic/LocalApic.h"
 #include "kernel/service/InterruptService.h"
 #include "lib/util/async/Thread.h"
+#include "lib/util/async/Atomic.h"
 
 namespace Kernel {
 

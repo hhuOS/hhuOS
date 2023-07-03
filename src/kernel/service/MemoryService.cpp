@@ -34,7 +34,6 @@
 #include "lib/util/base/HeapMemoryManager.h"
 #include "lib/util/base/System.h"
 #include "kernel/interrupt/InterruptVector.h"
-#include "device/cpu/Cpu.h"
 
 namespace Kernel {
 

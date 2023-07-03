@@ -23,19 +23,27 @@ namespace Util::Math {
 Vector2D::Vector2D(double x, double y) : x(x), y(y) {}
 
 Vector2D Vector2D::operator*(double value) const {
-    return {x * value, y * value};
+    return { x * value, y * value };
 }
 
 Vector2D Vector2D::operator/(double value) const {
-    return {x / value, y / value};
+    return { x / value, y / value};
 }
 
 Vector2D Vector2D::operator+(const Vector2D &other) const {
-    return {x + other.x, y + other.y};
+    return { x + other.x, y + other.y };
 }
 
 Vector2D Vector2D::operator-(const Vector2D &other) const {
-    return {x - other.x, y - other.y};
+    return { x - other.x, y - other.y };
+}
+
+bool Vector2D::operator==(const Vector2D &other) const {
+    return x == other.x && y == other.y;
+}
+
+bool Vector2D::operator!=(const Vector2D &other) const {
+    return x != other.x || y != other.y;
 }
 
 Vector2D Vector2D::normalize() const {

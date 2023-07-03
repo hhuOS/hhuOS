@@ -22,12 +22,9 @@
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/Sprite.h"
-
-namespace Util {
-namespace Game {
-class Graphics2D;
-}  // namespace Game
-}  // namespace Util
+#include "lib/util/game/Graphics2D.h"
+#include "lib/util/graphic/Colors.h"
+#include "lib/util/math/Vector2D.h"
 
 void MouseDemo::update(double delta) {}
 

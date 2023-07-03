@@ -18,12 +18,23 @@
 #ifndef HHUOS_BUGDEFENDER_H
 #define HHUOS_BUGDEFENDER_H
 
+#include <cstdint>
+
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/KeyListener.h"
 #include "Ship.h"
 #include "Fleet.h"
 #include "lib/util/math/Random.h"
-#include "Bug.h"
+#include "lib/util/math/Vector2D.h"
+
+namespace Util {
+namespace Game {
+class Graphics2D;
+}  // namespace Game
+namespace Io {
+class Key;
+}  // namespace Io
+}  // namespace Util
 
 class BugDefender : public Util::Game::Scene, public Util::Game::KeyListener {
 

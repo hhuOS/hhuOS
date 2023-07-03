@@ -16,7 +16,9 @@
  */
 
 #include "PolygonCollider.h"
+
 #include "lib/util/math/Math.h"
+#include "lib/util/game/Polygon.h"
 
 namespace Util::Game {
 

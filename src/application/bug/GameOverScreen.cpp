@@ -16,10 +16,19 @@
  */
 
 #include "GameOverScreen.h"
+
+#include <cstdint>
+
 #include "lib/util/graphic/Fonts.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/GameManager.h"
 #include "BugDefender.h"
+#include "lib/util/base/Address.h"
+#include "lib/util/game/Graphics2D.h"
+#include "lib/util/graphic/Colors.h"
+#include "lib/util/graphic/Font.h"
+#include "lib/util/io/key/Key.h"
+#include "lib/util/math/Vector2D.h"
 
 GameOverScreen::GameOverScreen(bool won) : won(won) {
     setKeyListener(*this);
@@ -28,19 +37,19 @@ GameOverScreen::GameOverScreen(bool won) : won(won) {
 void GameOverScreen::update(double delta) {}
 
 void GameOverScreen::initializeBackground(Util::Game::Graphics2D &graphics) {
-    auto charWidth = ((Util::Graphic::Fonts::TERMINAL_FONT.getCharWidth()) / Util::Game::GameManager::getAbsoluteResolution().getX()) * 2;
+    auto charWidth = Util::Graphic::Fonts::TERMINAL_FONT.getCharWidth() / static_cast<double>(Util::Game::GameManager::getTransformation());
     graphics.clear();
     graphics.setColor(Util::Graphic::Colors::WHITE);
 
     if (won) {
-        graphics.drawString(Util::Math::Vector2D(-(16 * charWidth) / 2, 0.1), "Congratulations!");
-        graphics.drawString(Util::Math::Vector2D(-(36 * charWidth) / 2, 0), "You have stopped the alien invasion!");
+        graphics.drawString(Util::Math::Vector2D((Util::Address<uint32_t>(CONGRATULATIONS).stringLength() * -charWidth) / 2, 0.1), CONGRATULATIONS);
+        graphics.drawString(Util::Math::Vector2D((Util::Address<uint32_t>(INVASION_STOPPED).stringLength() * -charWidth) / 2, 0), INVASION_STOPPED);
     } else {
-        graphics.drawString(Util::Math::Vector2D(-(16 * charWidth) / 2, 0.1), "Oh noooooo!");
-        graphics.drawString(Util::Math::Vector2D(-(39 * charWidth) / 2, 0), "Your planet has been invaded by aliens!");
+        graphics.drawString(Util::Math::Vector2D((Util::Address<uint32_t>(LOST).stringLength() * -charWidth) / 2, 0.1), LOST);
+        graphics.drawString(Util::Math::Vector2D((Util::Address<uint32_t>(PLANET_INVADED).stringLength() * -charWidth) / 2, 0), PLANET_INVADED);
     }
 
-    graphics.drawString(Util::Math::Vector2D(-(70 * charWidth) / 2, -0.75), "Press SPACE to fight the next invasion, or ESC to run like a coward...");
+    graphics.drawString(Util::Math::Vector2D((Util::Address<uint32_t>(NEW_GAME).stringLength() * -charWidth) / 2, -0.75), NEW_GAME);
 }
 
 void GameOverScreen::keyPressed(Util::Io::Key key) {

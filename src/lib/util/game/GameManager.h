@@ -22,11 +22,15 @@
 #define HHUOS_GAMEMANAGER_H
 
 #include <cstdint>
-#include "Scene.h"
 
 namespace Util {
+namespace Math {
+class Vector2D;
+}  // namespace Math
+
 namespace Game {
 class Game;
+class Scene;
 }  // namespace Game
 }  // namespace Util
 

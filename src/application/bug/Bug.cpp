@@ -16,6 +16,7 @@
  */
 
 #include "Bug.h"
+
 #include "lib/util/game/entity/component/LinearMovementComponent.h"
 #include "lib/util/game/entity/event/CollisionEvent.h"
 #include "lib/util/game/entity/event/TranslationEvent.h"
@@ -23,8 +24,17 @@
 #include "lib/util/game/Game.h"
 #include "EnemyMissile.h"
 #include "PlayerMissile.h"
-#include "BugDefender.h"
 #include "GameOverScreen.h"
+#include "Explosion.h"
+#include "application/bug/Fleet.h"
+#include "application/bug/Ship.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Scene.h"
+#include "lib/util/game/Sprite.h"
+#include "lib/util/game/entity/collider/Collider.h"
+#include "lib/util/game/entity/collider/RectangleCollider.h"
+#include "lib/util/math/Vector2D.h"
 
 Bug::Bug(const Util::Math::Vector2D &position, Fleet &fleet) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)), fleet(fleet) {
     addComponent(new Util::Game::LinearMovementComponent(*this));
@@ -35,15 +45,7 @@ void Bug::initialize() {
         Util::Game::Sprite("/initrd/bug/bug1.bmp", SIZE_X, SIZE_Y),
         Util::Game::Sprite("/initrd/bug/bug2.bmp", SIZE_X, SIZE_Y)}), 0.5);
 
-    explosion = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
-        Util::Game::Sprite("/initrd/bug/explosion1.bmp", SIZE_Y, SIZE_Y),
-        Util::Game::Sprite("/initrd/bug/explosion2.bmp", SIZE_Y, SIZE_Y),
-        Util::Game::Sprite("/initrd/bug/explosion3.bmp", SIZE_Y, SIZE_Y),
-        Util::Game::Sprite("/initrd/bug/explosion4.bmp", SIZE_Y, SIZE_Y),
-        Util::Game::Sprite("/initrd/bug/explosion5.bmp", SIZE_Y, SIZE_Y),
-        Util::Game::Sprite("/initrd/bug/explosion6.bmp", SIZE_Y, SIZE_Y),
-        Util::Game::Sprite("/initrd/bug/explosion7.bmp", SIZE_Y, SIZE_Y),
-        Util::Game::Sprite("/initrd/bug/explosion8.bmp", SIZE_X, SIZE_Y)}), 0.5);
+    explosion = Explosion(SIZE_Y, 0.5);
 }
 
 void Bug::onUpdate(double delta) {

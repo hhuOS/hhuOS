@@ -18,9 +18,22 @@
 #ifndef HHUOS_PLAYERMISSILE_H
 #define HHUOS_PLAYERMISSILE_H
 
+#include <cstdint>
+
 #include "lib/util/game/entity/Entity.h"
 #include "lib/util/game/Sprite.h"
-#include "Ship.h"
+
+class Ship;
+namespace Util {
+namespace Game {
+class CollisionEvent;
+class Graphics2D;
+class TranslationEvent;
+}  // namespace Game
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
 
 class PlayerMissile : public Util::Game::Entity {
 

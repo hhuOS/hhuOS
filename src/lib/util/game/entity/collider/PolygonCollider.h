@@ -18,9 +18,18 @@
 #ifndef HHUOS_POLYGONCOLLIDER_H
 #define HHUOS_POLYGONCOLLIDER_H
 
+#include <cstdint>
+
 #include "lib/util/math/Vector2D.h"
-#include "lib/util/game/Polygon.h"
 #include "lib/util/collection/Pair.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/game/entity/collider/Collider.h"
+
+namespace Util {
+namespace Game {
+class Polygon;
+}  // namespace Game
+}  // namespace Util
 
 namespace Util::Game {
 

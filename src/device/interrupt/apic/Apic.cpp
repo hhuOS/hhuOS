@@ -38,6 +38,7 @@
 #include "lib/util/base/Exception.h"
 #include "lib/util/collection/ArrayList.h"
 #include "kernel/paging/MemoryLayout.h"
+#include "lib/util/hardware/Acpi.h"
 
 namespace Kernel {
 enum GlobalSystemInterrupt : uint32_t;

@@ -18,10 +18,22 @@
 #ifndef HHUOS_SHIP_H
 #define HHUOS_SHIP_H
 
+#include <cstdint>
+
 #include "lib/util/game/entity/Entity.h"
 #include "lib/util/game/Sprite.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/SpriteAnimation.h"
+
+namespace Util {
+namespace Game {
+class CollisionEvent;
+class Graphics2D;
+class TranslationEvent;
+}  // namespace Game
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
 
 class Ship : public Util::Game::Entity {
 
@@ -61,6 +73,8 @@ public:
     void allowFireMissile();
 
     void explode();
+
+    [[nodiscard]] bool isAlive() const;
 
     static const constexpr uint32_t TAG = 0;
     static const constexpr double SIZE_X = 0.2828;

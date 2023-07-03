@@ -57,6 +57,9 @@ public:
 
     [[nodiscard]] Entity& getCollidedWidth();
 
+    template<typename T>
+    [[nodiscard]] T& getCollidedWidth();
+
     [[nodiscard]] RectangleCollider::Side getSide() const;
 
 private:
@@ -64,6 +67,11 @@ private:
     Entity &other;
     const RectangleCollider::Side side;
 };
+
+template<typename T>
+T& Util::Game::CollisionEvent::getCollidedWidth() {
+    return reinterpret_cast<T&>(other);
+}
 
 }
 

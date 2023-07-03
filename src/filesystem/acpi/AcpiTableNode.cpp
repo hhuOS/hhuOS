@@ -17,6 +17,10 @@
 
 #include "AcpiTableNode.h"
 
+#include <cstdint>
+
+#include "lib/util/base/String.h"
+
 namespace Filesystem::Acpi {
 
 AcpiTableNode::AcpiTableNode(const Util::Hardware::Acpi::SdtHeader &table) :

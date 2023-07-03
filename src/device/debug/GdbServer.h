@@ -18,7 +18,7 @@
 #ifndef HHUOS_GDBSERVER_H
 #define HHUOS_GDBSERVER_H
 
-#include <stdint.h>
+#include <cstdint>
 
 #include "device/port/serial/SerialPort.h"
 #include "kernel/interrupt/InterruptHandler.h"

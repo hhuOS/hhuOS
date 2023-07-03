@@ -16,12 +16,18 @@
  */
 
 #include "BugDefender.h"
+
 #include "lib/util/game/Sprite.h"
 #include "lib/util/math/Random.h"
-#include "lib/util/game/entity/component/LinearMovementComponent.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "Bug.h"
+#include "application/bug/Fleet.h"
+#include "application/bug/Ship.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/game/Graphics2D.h"
+#include "lib/util/io/key/Key.h"
 
 BugDefender::BugDefender() {
     addObject(ship);

@@ -21,6 +21,7 @@
 #include "lib/util/game/Polygon.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Color.h"
+#include "lib/util/game/entity/Entity.h"
 
 namespace Util {
 namespace Math {

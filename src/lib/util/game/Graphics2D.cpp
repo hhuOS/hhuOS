@@ -60,7 +60,7 @@ void Graphics2D::drawPolygon(const Array<Math::Vector2D> &vertices) const {
 
 void Graphics2D::drawString(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const {
     auto &camera = game.getCurrentScene().getCamera().getPosition();
-    stringDrawer.drawString(font, static_cast<int32_t>((position.getX() - camera.getX()) * lfb.getResolutionX() / 2 + offsetX), static_cast<int32_t>((-position.getY() + camera.getY()) * lfb.getResolutionY() / 2 + offsetY), string, color, Util::Graphic::Colors::INVISIBLE);
+    stringDrawer.drawString(font, static_cast<int32_t>((position.getX() - camera.getX()) * transformation + offsetX), static_cast<int32_t>((-position.getY() + camera.getY()) * transformation + offsetY), string, color, Util::Graphic::Colors::INVISIBLE);
 }
 
 void Graphics2D::drawString(const Math::Vector2D &position, const char *string) const {
@@ -103,6 +103,9 @@ void Graphics2D::show() const {
 
     if (backgroundBuffer == nullptr) {
         lfb.clear();
+    } else if (game.getCurrentScene().getCamera().getPosition() == Math::Vector2D(0, 0)) {
+        auto source = Address<uint32_t>(backgroundBuffer);
+        lfb.getBuffer().copyRange(source, lfb.getResolutionY() * lfb.getPitch());
     } else {
         auto pitch = lfb.getPitch();
         auto colorDepthDivisor = (lfb.getColorDepth() == 15 ? 16 : lfb.getColorDepth()) / 8;

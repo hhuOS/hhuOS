@@ -16,10 +16,14 @@
  */
 
 #include "AcpiDriver.h"
+
 #include "RsdpNode.h"
 #include "filesystem/memory/MemoryDirectoryNode.h"
 #include "device/power/acpi/Acpi.h"
 #include "AcpiTableNode.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/hardware/Acpi.h"
 
 namespace Filesystem::Acpi {
 

@@ -18,10 +18,9 @@
 #ifndef HHUOS_SMBIOSTABLENODE_H
 #define HHUOS_SMBIOSTABLENODE_H
 
-#include <stdint.h>
+#include <cstdint>
 
 #include "lib/util/hardware/SmBios.h"
-#include "filesystem/memory/MemoryNode.h"
 #include "filesystem/memory/BufferNode.h"
 
 namespace Filesystem::SmBios {

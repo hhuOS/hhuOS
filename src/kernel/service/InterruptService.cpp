@@ -21,6 +21,7 @@
 #include "device/interrupt/apic/Apic.h"
 #include "kernel/interrupt/InterruptVector.h"
 #include "kernel/log/Logger.h"
+#include "device/interrupt/apic/LocalApic.h"
 
 namespace Kernel {
 class InterruptHandler;

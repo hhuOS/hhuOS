@@ -18,7 +18,6 @@
 #include "MouseCursor.h"
 
 #include "lib/util/game/Graphics2D.h"
-#include "lib/util/base/String.h"
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/game/entity/event/TranslationEvent.h"
 

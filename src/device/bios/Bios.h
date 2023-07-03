@@ -19,7 +19,6 @@
 #define HHUOS_DEVICE_BIOS_H
 
 #include <cstdint>
-#include "asm_interface.h"
 
 namespace Util {
 namespace Async {

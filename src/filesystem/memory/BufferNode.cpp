@@ -16,7 +16,9 @@
  */
 
 #include "BufferNode.h"
+
 #include "lib/util/base/Address.h"
+#include "filesystem/memory/MemoryNode.h"
 
 Filesystem::Memory::BufferNode::BufferNode(const Util::String &name, const uint8_t *buffer, uint32_t length) : MemoryNode(name), buffer(buffer), length(length) {}
 

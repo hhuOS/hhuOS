@@ -19,11 +19,11 @@
  */
 
 #include "symmetric_multiprocessing.h"
+
 #include "kernel/log/Logger.h"
 #include "device/interrupt/apic/Apic.h"
 #include "kernel/system/System.h"
 #include "kernel/service/InterruptService.h"
-#include "kernel/service/TimeService.h"
 
 namespace Device {
 

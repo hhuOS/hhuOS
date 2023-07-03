@@ -19,7 +19,15 @@
  */
 
 #include "GameManager.h"
+
 #include "Game.h"
+#include "lib/util/math/Vector2D.h"
+
+namespace Util {
+namespace Game {
+class Scene;
+}  // namespace Game
+}  // namespace Util
 
 namespace Util::Game {
 

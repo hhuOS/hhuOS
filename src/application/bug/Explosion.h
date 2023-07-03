@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -15,60 +15,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_FLEET_H
-#define HHUOS_FLEET_H
+#ifndef HHUOS_EXPLOSION_H
+#define HHUOS_EXPLOSION_H
 
-#include <cstdint>
+#include "lib/util/game/SpriteAnimation.h"
 
-#include "lib/util/math/Random.h"
-
-class Fleet {
+class Explosion : public Util::Game::SpriteAnimation {
 
 public:
     /**
      * Constructor.
      */
-    explicit Fleet(uint32_t size, double initialSpeed);
+    explicit Explosion(double size, double time);
 
     /**
      * Copy Constructor.
      */
-    Fleet(const Fleet &other) = delete;
+    Explosion(const Explosion &other) = default;
 
     /**
      * Assignment operator.
      */
-    Fleet &operator=(const Fleet &other) = delete;
+    Explosion &operator=(const Explosion &other) = default;
 
     /**
      * Destructor.
      */
-    ~Fleet() = default;
-
-    void changeDirection();
-
-    void increaseVelocity();
-
-    void moveDown();
-
-    void decreaseSize();
-
-    void applyChanges();
-
-    [[nodiscard]] double getVelocity() const;
-
-    [[nodiscard]] bool isMovingDown() const;
-
-    [[nodiscard]] double getRandomNumber();
-
-private:
-
-    uint32_t size;
-    double velocity = 1.0;
-    double moveDownCounter = 0;
-    Util::Math::Random random;
-
-    double nextVelocity = velocity;
+    ~Explosion() = default;
 };
 
 #endif

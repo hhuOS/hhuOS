@@ -17,6 +17,8 @@
 
 #include "AtomicArray.h"
 
+#include "lib/util/async/Atomic.h"
+
 namespace Util::Async {
 
 template<typename T>

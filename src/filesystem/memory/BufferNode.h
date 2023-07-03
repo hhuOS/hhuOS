@@ -18,6 +18,8 @@
 #ifndef HHUOS_BUFFERNODE_H
 #define HHUOS_BUFFERNODE_H
 
+#include <cstdint>
+
 #include "lib/util/base/String.h"
 #include "MemoryNode.h"
 
