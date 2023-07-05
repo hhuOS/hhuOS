@@ -18,11 +18,22 @@
 #ifndef HHUOS_MOUSECURSOR_H
 #define HHUOS_MOUSECURSOR_H
 
+#include <stdint.h>
+
 #include "lib/util/game/MouseListener.h"
 #include "lib/util/game/entity/Entity.h"
 #include "lib/util/game/Sprite.h"
 
+class Logo;
+
 namespace Util {
+namespace Io {
+namespace Mouse {
+enum Button : uint8_t;
+enum ScrollDirection : uint8_t;
+}  // namespace Mouse
+}  // namespace Io
+
 namespace Math {
 class Vector2D;
 }  // namespace Math
@@ -40,7 +51,7 @@ public:
     /**
      * Default Constructor.
      */
-    MouseCursor();
+    explicit MouseCursor(Logo &logo);
 
     /**
      * Copy Constructor.
@@ -67,11 +78,13 @@ public:
 
     void draw(Util::Game::Graphics2D &graphics) override;
 
-    void keyPressed(Key key) override;
+    void buttonPressed(Util::Io::Mouse::Button key) override;
 
-    void keyReleased(Key key) override;
+    void buttonReleased(Util::Io::Mouse::Button key) override;
 
     void mouseMoved(const Util::Math::Vector2D &relativeMovement) override;
+
+    void mouseScrolled(Util::Io::Mouse::ScrollDirection direction) override;
 
 private:
 
@@ -80,7 +93,11 @@ private:
     Util::Game::Sprite rightClickSprite = Util::Game::Sprite("/initrd/mouse/mouse_right_click.bmp", 0.2, 0.2);
     Util::Game::Sprite middleClickSprite = Util::Game::Sprite("/initrd/mouse/mouse_scroll.bmp", 0.2, 0.2);
 
+    bool button4Pressed = false;
+    bool button5Pressed = false;
+
     Util::Game::Sprite *currentSprite = &defaultSprite;
+    Logo &logo;
 };
 
 #endif

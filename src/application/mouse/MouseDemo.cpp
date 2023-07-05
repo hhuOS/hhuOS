@@ -21,14 +21,13 @@
 #include "lib/util/io/key/Key.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
-#include "lib/util/game/Sprite.h"
 #include "lib/util/game/Graphics2D.h"
 #include "lib/util/graphic/Colors.h"
-#include "lib/util/math/Vector2D.h"
 
 void MouseDemo::update(double delta) {}
 
 MouseDemo::MouseDemo() {
+    addObject(logo);
     addObject(cursor);
     setKeyListener(*this);
     setMouseListener(*cursor);
@@ -43,8 +42,5 @@ void MouseDemo::keyPressed(Util::Io::Key key) {
 void MouseDemo::keyReleased(Util::Io::Key key) {}
 
 void MouseDemo::initializeBackground(Util::Game::Graphics2D &graphics) {
-    auto background = Util::Game::Sprite("/initrd/mouse/logo.bmp", 1, 0.626);
-
     graphics.clear(Util::Graphic::Colors::HHU_BLUE_30);
-    graphics.drawImage(Util::Math::Vector2D(-0.5, -0.313), background.getImage());
 }

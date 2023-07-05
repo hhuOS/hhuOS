@@ -49,7 +49,7 @@ void Key::setScancode(uint8_t s)  {
 }
 
 
-uint8_t Key::getAscii() const {
+char Key::getAscii() const {
     return ascii;
 }
 

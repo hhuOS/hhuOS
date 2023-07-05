@@ -13,52 +13,58 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_MOUSELISTENER_H
-#define HHUOS_MOUSELISTENER_H
+#ifndef HHUOS_LOGO_H
+#define HHUOS_LOGO_H
 
-#include <cstdint>
-#include "lib/util/math/Vector2D.h"
-#include "lib/util/io/key/MouseDecoder.h"
+#include "lib/util/game/entity/Entity.h"
+#include "lib/util/game/Sprite.h"
 
-namespace Util::Game {
+namespace Util {
+namespace Game {
+class CollisionEvent;
+class Graphics2D;
+class TranslationEvent;
+}  // namespace Game
+}  // namespace Util
 
-class MouseListener {
+class Logo : public Util::Game::Entity {
 
 public:
     /**
      * Default Constructor.
      */
-    MouseListener() = default;
+    Logo();
 
     /**
      * Copy Constructor.
      */
-    MouseListener(const MouseListener &other) = delete;
+    Logo(const Logo &other) = delete;
 
     /**
      * Assignment operator.
      */
-    MouseListener &operator=(const MouseListener &other) = delete;
+    Logo &operator=(const Logo &other) = delete;
 
     /**
      * Destructor.
      */
-    ~MouseListener() = default;
+    ~Logo() override = default;
 
-    virtual void buttonPressed(Io::Mouse::Button key) = 0;
+    void initialize() override;
 
-    virtual void buttonReleased(Io::Mouse::Button key) = 0;
+    void onUpdate(double delta) override;
 
-    virtual void mouseMoved(const Math::Vector2D &relativeMovement) = 0;
+    void onTranslationEvent(Util::Game::TranslationEvent &event) override;
 
-    virtual void mouseScrolled(Io::Mouse::ScrollDirection direction) = 0;
+    void onCollisionEvent(Util::Game::CollisionEvent &event) override;
+
+    void draw(Util::Game::Graphics2D &graphics) override;
+
+private:
+
+    Util::Game::Sprite sprite;
 };
-
-}
 
 #endif

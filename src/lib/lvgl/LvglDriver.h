@@ -72,9 +72,7 @@ public:
 private:
 
     struct MouseState {
-        bool leftPressed = false;
-        bool rightPressed = false;
-        bool middlePressed = false;
+        uint8_t buttons;
         int16_t x = 0;
         int16_t y = 0;
     };

@@ -29,6 +29,10 @@
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/io/stream/InputStream.h"
+#include "lib/util/io/key/MouseDecoder.h"
+#include "lib/util/io/key/KeyDecoder.h"
+#include "lib/util/graphic/Ansi.h"
+#include "lib/util/io/key/Key.h"
 
 extern "C" {
 uint64_t __udivdi3(uint64_t first, uint64_t second) {
@@ -88,6 +92,8 @@ LvglDriver::~LvglDriver() {
 }
 
 void LvglDriver::initialize() {
+    Util::Graphic::Ansi::prepareGraphicalApplication(true);
+
     lv_disp_draw_buf_init(&displayBuffer, colorBuffer, nullptr, lfb.getResolutionX() * lfb.getResolutionY());
     lv_disp_drv_init(&displayDriver);
     displayDriver.draw_buf = &displayBuffer;
@@ -143,7 +149,7 @@ void LvglDriver::readMouseInput(lv_indev_drv_t *mouseDriver, lv_indev_data_t *da
     driver.mouseLock.acquire();
     data->point.x = driver.mouseState.x;
     data->point.y = driver.mouseState.y;
-    data->state = driver.mouseState.leftPressed ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
+    data->state = driver.mouseState.buttons & Util::Io::Mouse::LEFT_BUTTON ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
     driver.mouseLock.release();
 }
 
@@ -175,20 +181,21 @@ void LvglDriver::MouseRunnable::run() {
         return;
     }
 
+    uint8_t values[4]{};
     auto stream = Util::Io::FileInputStream(file);
 
-    while (true) {
-        auto buttons = stream.read();
-        auto xMovement = static_cast<int8_t>(stream.read());
-        auto yMovement = static_cast<int8_t>(stream.read());
+    while (driver.running) {
+        values[0] = stream.read();
+        values[1] = stream.read();
+        values[2] = stream.read();
+        values[3] = stream.read();
+
+        auto mouseUpdate = Util::Io::MouseDecoder::decode(values);
 
         driver.mouseLock.acquire();
-        driver.mouseState.leftPressed = (buttons & 0x01) == 0x01;
-        driver.mouseState.rightPressed = (buttons & 0x02) == 0x02;
-        driver.mouseState.middlePressed = (buttons & 0x04) == 0x04;
-
-        driver.mouseState.x += xMovement;
-        driver.mouseState.y += yMovement;
+        driver.mouseState.buttons = mouseUpdate.buttons;
+        driver.mouseState.x += mouseUpdate.xMovement;
+        driver.mouseState.y -= mouseUpdate.yMovement;
 
         if (driver.mouseState.x < 0) driver.mouseState.x = 0;
         if (driver.mouseState.y < 0) driver.mouseState.y = 0;
@@ -201,17 +208,25 @@ void LvglDriver::MouseRunnable::run() {
 LvglDriver::KeyboardRunnable::KeyboardRunnable(LvglDriver &driver) : driver(driver) {}
 
 void LvglDriver::KeyboardRunnable::run() {
-    while (true) {
-        char c = static_cast<char>(Util::System::in.read());
+    auto keyDecoder = Util::Io::KeyDecoder();
+    int16_t scancode = Util::System::in.read();
 
-        if (c == '\n') {
-            driver.running = false;
+    while (driver.running && scancode != -1) {
+        if (keyDecoder.parseScancode(scancode)) {
+            auto key = keyDecoder.getCurrentKey();
+
+            driver.keyboardLock.acquire();
+            switch (key.getScancode()) {
+                case Util::Io::Key::ESC :
+                    if (key.isPressed()) driver.running = false;
+                    break;
+                default:
+                    driver.keyboardEventQueue.offer(KeyboardEvent{key.getAscii(), key.isPressed()});
+            }
+            driver.keyboardLock.release();
         }
 
-        driver.keyboardLock.acquire();
-        driver.keyboardEventQueue.offer(KeyboardEvent{c, true});
-        driver.keyboardEventQueue.offer(KeyboardEvent{c, false});
-        driver.keyboardLock.release();
+        scancode = Util::System::in.read();
     }
 }
 

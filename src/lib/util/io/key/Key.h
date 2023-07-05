@@ -86,7 +86,7 @@ public:
     /**
      * Get the setAscii-code.
      */
-    [[nodiscard]] uint8_t getAscii() const;
+    [[nodiscard]] char getAscii() const;
 
     /**
      * Check, if a key is being pressed.

@@ -55,7 +55,6 @@ int32_t main(int32_t argc, char *argv[]) {
     auto lfbFile = Util::Io::File("/device/lfb");
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto driver = LvglDriver(lfb);
-    Util::Graphic::Ansi::prepareGraphicalApplication(false);
 
     lv_init();
     driver.initialize();

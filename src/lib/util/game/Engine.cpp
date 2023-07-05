@@ -41,6 +41,7 @@
 #include "lib/util/game/Scene.h"
 #include "lib/util/graphic/Font.h"
 #include "lib/util/base/Address.h"
+#include "lib/util/io/key/MouseDecoder.h"
 
 namespace Util::Game {
 
@@ -187,38 +188,49 @@ void Engine::MouseListenerRunnable::run() {
         return;
     }
 
+    uint8_t values[4]{};
     uint8_t lastButtons = 0;
 
     auto stream = Io::FileInputStream(file);
     while (engine.game.isRunning()) {
-        auto buttons = stream.read();
-        auto xMovement = static_cast<int8_t>(stream.read());
-        auto yMovement = static_cast<int8_t>(stream.read());
-        auto &scene = engine.game.getCurrentScene();
+        values[0] = stream.read();
+        values[1] = stream.read();
+        values[2] = stream.read();
+        values[3] = stream.read();
 
+        auto mouseUpdate = Io::MouseDecoder::decode(values);
+
+        auto &scene = engine.game.getCurrentScene();
         if (scene.mouseListener == nullptr) {
             continue;
         }
 
         engine.updateLock.acquire();
-        checkKey(MouseListener::LEFT, lastButtons, buttons);
-        checkKey(MouseListener::RIGHT, lastButtons, buttons);
-        checkKey(MouseListener::MIDDLE, lastButtons, buttons);
-        lastButtons = buttons;
+        checkKey(Io::Mouse::LEFT_BUTTON, lastButtons, mouseUpdate.buttons);
+        checkKey(Io::Mouse::RIGHT_BUTTON, lastButtons, mouseUpdate.buttons);
+        checkKey(Io::Mouse::MIDDLE_BUTTON, lastButtons, mouseUpdate.buttons);
+        checkKey(Io::Mouse::BUTTON_4, lastButtons, mouseUpdate.buttons);
+        checkKey(Io::Mouse::BUTTON_5, lastButtons, mouseUpdate.buttons);
+        lastButtons = mouseUpdate.buttons;
 
-        if (xMovement != 0 || yMovement != 0) {
-            scene.mouseListener->mouseMoved(Util::Math::Vector2D(xMovement / static_cast<double>(INT8_MAX), -yMovement / static_cast<double>(INT8_MAX)));
+        if (mouseUpdate.xMovement != 0 || mouseUpdate.yMovement != 0) {
+            scene.mouseListener->mouseMoved(Util::Math::Vector2D(mouseUpdate.xMovement / static_cast<double>(UINT8_MAX), mouseUpdate.yMovement / static_cast<double>(UINT8_MAX)));
         }
+
+        if (mouseUpdate.scroll != 0) {
+            scene.mouseListener->mouseScrolled(mouseUpdate.scroll);
+        }
+
         engine.updateLock.release();
     }
 }
 
-void Engine::MouseListenerRunnable::checkKey(MouseListener::Key key, uint8_t lastButtonState, uint8_t currentButtonState) {
+void Engine::MouseListenerRunnable::checkKey(Io::Mouse::Button key, uint8_t lastButtonState, uint8_t currentButtonState) {
     auto &scene = engine.game.getCurrentScene();
     if (!(lastButtonState & key) && (currentButtonState & key)) {
-        scene.mouseListener->keyPressed(key);
+        scene.mouseListener->buttonPressed(key);
     } else if ((lastButtonState & key) && !(currentButtonState & key)) {
-        scene.mouseListener->keyReleased(key);
+        scene.mouseListener->buttonReleased(key);
     }
 }
 

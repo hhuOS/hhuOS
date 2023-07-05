@@ -93,10 +93,18 @@ private:
 
     bool writeMouseCommand(Command command, uint8_t data);
 
+    DeviceType identify();
+
+    void activateScrollWheel();
+
+    void activeAdditionalButtons();
+
     uint32_t cycle = 1;
     uint32_t flags = 0;
     int32_t dx = 0;
     int32_t dy = 0;
+
+    DeviceType type = STANDARD_MOUSE;
 
     Util::Io::PipedOutputStream outputStream;
     Util::Io::PipedInputStream inputStream;

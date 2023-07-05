@@ -74,25 +74,6 @@ Mouse* Mouse::initialize(Ps2Controller &controller) {
 
     mouse->readByte(); // The mouse seems to send another byte afterwards, which is 0x00 and can be discarded
 
-    // Identify mouse
-    if (!mouse->writeMouseCommand(DISABLE_DATA_REPORTING) || !mouse->writeMouseCommand(IDENTIFY)) {
-        log.warn("Failed to identify mouse -> Assuming standard 3-button mouse");
-    } else {
-        auto type = mouse->readByte();
-        auto subtype = mouse->readByte();
-        if (type == STANDARD_MOUSE) {
-            log.info("Detected standard 3-button mouse");
-        } else if (type == MOUSE_WITH_SCROLL_WHEEL) {
-            log.info("Detected mouse with scroll wheel");
-        } else if (type == FIVE_BUTTON_MOUSE) {
-            log.info("Detected 5-button mouse");
-        } else {
-            log.error("Device connected to second PS/2 port reports as [0x%02x:0x%02x], which is not a valid mouse", type, subtype);
-            delete mouse;
-            return nullptr;
-        }
-    }
-
     // Setup mouse
     if (!mouse->writeMouseCommand(SET_DEFAULT_PARAMETERS)) {
         log.warn("Failed to set default parameters");
@@ -103,11 +84,25 @@ Mouse* Mouse::initialize(Ps2Controller &controller) {
     if (!mouse->writeMouseCommand(SET_SAMPLING_RATE, 80)) {
         log.warn("Failed to set sampling rate");
     }
+
     if (!mouse->writeMouseCommand(ENABLE_DATA_REPORTING)) {
         log.warn("Failed to enable data reporting -> Mouse might not be working");
     }
 
     controller.flushOutputBuffer();
+
+    mouse->activateScrollWheel();
+    if (mouse->type == MOUSE_WITH_SCROLL_WHEEL) {
+        mouse->activeAdditionalButtons();
+    }
+
+    if (mouse->type == STANDARD_MOUSE) {
+        log.info("Detected standard 3-button mouse without scroll wheel");
+    } else if (mouse->type == MOUSE_WITH_SCROLL_WHEEL) {
+        log.info("Detected 3-button mouse with scroll wheel");
+    } else if (mouse->type == FIVE_BUTTON_MOUSE) {
+        log.info("Detected 5-button mouse with scroll wheel");
+    }
 
     auto *streamNode = new Filesystem::Memory::StreamNode("mouse", mouse);
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
@@ -148,35 +143,32 @@ void Mouse::trigger(const Kernel::InterruptFrame &frame) {
 
             break;
         case 2:
-            // Check if signed
-            if (flags & 0x20) {
-                // Extend unsigned 8-bit data value to unsigned 16-bit in twos complement
-                dx = static_cast<int16_t>(data | 0xff00);
-            } else {
-                dx = data;
-            }
-
+            dx = data;
             cycle++;
             break;
         case 3:
-            // Check if signed
-            if(flags & 0x10) {
-                // Extend unsigned 8-bit data value to unsigned 16-bit in twos complement
-                dy = static_cast<int16_t>(data | 0xff00);
-            } else {
-                dy = data;
-            }
+            dy = data;
 
-            // If there was an x or y overflow, discard this 'event'
-            if (flags & 0x40 || flags & 0x80) {
+            if (type == STANDARD_MOUSE) {
+                // Write data: 1. button mask, 2. relative x-movement, 3. relative y-movement, 4. placeholder
+                outputStream.write(flags);
+                outputStream.write(dx);
+                outputStream.write(dy);
+                outputStream.write(0);
+
+                // Reset cycle
                 cycle = 1;
-                return;
+            } else {
+                cycle++;
             }
 
-            // Write data: 1. button mask, 2. relative x-movement, 3. relative y-movement (inverted)
-            outputStream.write(flags & 0x07);
+            break;
+        case 4:
+            // Write data: 1. button mask, 2. relative x-movement, 3. relative y-movement, 4. scroll wheel and additional button mask
+            outputStream.write(flags);
             outputStream.write(dx);
-            outputStream.write(-dy);
+            outputStream.write(dy);
+            outputStream.write(data);
 
             // Reset cycle
             cycle = 1;
@@ -192,6 +184,58 @@ bool Mouse::writeMouseCommand(Mouse::Command command) {
 bool Mouse::writeMouseCommand(Mouse::Command command, uint8_t data) {
     auto reply = writeCommand(command, data);
     return reply == ACK;
+}
+
+void Mouse::activateScrollWheel() {
+    // Magic sequence to activate scroll wheel
+    if (!writeMouseCommand(SET_SAMPLING_RATE, 200)) {
+        log.warn("Failed to set sampling rate");
+    }
+    if (!writeMouseCommand(SET_SAMPLING_RATE, 100)) {
+        log.warn("Failed to set sampling rate");
+    }
+    if (!writeMouseCommand(SET_SAMPLING_RATE, 80)) {
+        log.warn("Failed to set sampling rate");
+    }
+
+    controller.flushOutputBuffer();
+
+    // Refresh mouse type
+    type = identify();
+}
+
+void Mouse::activeAdditionalButtons() {
+    // Magic sequence to activate additional buttons
+    if (!writeMouseCommand(SET_SAMPLING_RATE, 200)) {
+        log.warn("Failed to set sampling rate");
+    }
+    if (!writeMouseCommand(SET_SAMPLING_RATE, 200)) {
+        log.warn("Failed to set sampling rate");
+    }
+    if (!writeMouseCommand(SET_SAMPLING_RATE, 80)) {
+        log.warn("Failed to set sampling rate");
+    }
+
+    controller.flushOutputBuffer();
+
+    // Refresh mouse type
+    type = identify();
+}
+
+Ps2Device::DeviceType Mouse::identify() {
+    if (!writeMouseCommand(DISABLE_DATA_REPORTING) || !writeMouseCommand(IDENTIFY)) {
+        log.error("Failed to identify mouse -> Assuming standard 3-button mouse");
+        return STANDARD_MOUSE;
+    }
+
+    auto mouseType = readByte();
+    readByte(); // Discard subtype
+
+    if (!writeMouseCommand(ENABLE_DATA_REPORTING)) {
+        log.warn("Failed to enable data reporting -> Mouse might not be working");
+    }
+
+    return static_cast<DeviceType>(mouseType);
 }
 
 }

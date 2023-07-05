@@ -27,7 +27,6 @@
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/game/Graphics2D.h"
-#include "lib/util/game/MouseListener.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/collection/Array.h"
@@ -36,6 +35,12 @@
 #include "Game.h"
 
 namespace Util {
+namespace Io {
+namespace Mouse {
+enum Button : uint8_t;
+}  // namespace Mouse
+}  // namespace Io
+
 namespace Graphic {
 class LinearFrameBuffer;
 }  // namespace Graphic
@@ -241,7 +246,7 @@ private:
 
     private:
 
-        void checkKey(MouseListener::Key key, uint8_t lastButtonState, uint8_t currentButtonState);
+        void checkKey(Io::Mouse::Button key, uint8_t lastButtonState, uint8_t currentButtonState);
 
         Engine &engine;
     };

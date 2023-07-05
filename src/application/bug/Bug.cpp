@@ -65,7 +65,7 @@ void Bug::onUpdate(double delta) {
     currentAnimation->update(delta);
 
     if (fleet.isMovingDown()) {
-        translateY(getPosition().getY() -0.1);
+        translateY(-0.1);
     }
 
     if (getPosition().getY() < -0.8 + Ship::SIZE_Y) {

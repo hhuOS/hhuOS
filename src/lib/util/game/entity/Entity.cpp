@@ -24,6 +24,7 @@
 #include "lib/util/game/entity/Entity.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/game/entity/collider/Collider.h"
+#include "lib/util/game/entity/event/TranslationEvent.h"
 
 namespace Util::Game {
 
@@ -32,15 +33,21 @@ Entity::Entity(uint32_t tag, const Math::Vector2D &position) : tag(tag), positio
 Entity::Entity(uint32_t tag, const Math::Vector2D &position, const RectangleCollider &collider) : tag(tag), position(position), colliderPresent(true), collider(collider) {}
 
 void Entity::translate(const Math::Vector2D &translation) {
-    velocity = velocity + translation;
+    auto newPosition = position + translation;
+    auto event = TranslationEvent(newPosition);
+    onTranslationEvent(event);
+
+    if (!event.isCanceled()) {
+        setPosition(newPosition);
+    }
 }
 
 void Entity::translateX(double x) {
-    velocity = Math::Vector2D(x, velocity.getY());
+    translate(Math::Vector2D(x, 0));
 }
 
 void Entity::translateY(double y) {
-    position = Math::Vector2D(position.getX(), y);
+    translate(Math::Vector2D(0, y));
 }
 
 void Entity::setPosition(const Math::Vector2D &position) {

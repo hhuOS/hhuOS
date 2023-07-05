@@ -13,50 +13,77 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_MOUSELISTENER_H
-#define HHUOS_MOUSELISTENER_H
+#ifndef HHUOS_MOUSEDECODER_H
+#define HHUOS_MOUSEDECODER_H
 
 #include <cstdint>
-#include "lib/util/math/Vector2D.h"
-#include "lib/util/io/key/MouseDecoder.h"
 
-namespace Util::Game {
+namespace Util::Io {
 
-class MouseListener {
+namespace Mouse {
+
+enum Button : uint8_t {
+    LEFT_BUTTON = 0x01,
+    RIGHT_BUTTON = 0x02,
+    MIDDLE_BUTTON = 0x04,
+    BUTTON_4 = 0x10,
+    BUTTON_5 = 0x20
+};
+
+enum ScrollDirection : uint8_t {
+    UP = 0x01,
+    DOWN = 0x0f,
+    RIGHT = 0x02,
+    LEFT = 0x0e
+};
+
+struct Update {
+    uint8_t buttons;
+    int16_t xMovement;
+    int16_t yMovement;
+    ScrollDirection scroll;
+};
+
+}
+
+class MouseDecoder {
 
 public:
+
     /**
      * Default Constructor.
+     * Deleted, as this class has only static members.
      */
-    MouseListener() = default;
+    MouseDecoder() = delete;
 
     /**
      * Copy Constructor.
      */
-    MouseListener(const MouseListener &other) = delete;
+    MouseDecoder(const MouseDecoder &other) = delete;
 
     /**
      * Assignment operator.
      */
-    MouseListener &operator=(const MouseListener &other) = delete;
+    MouseDecoder &operator=(const MouseDecoder &other) = delete;
 
     /**
      * Destructor.
+     * Deleted, as this class has only static members.
      */
-    ~MouseListener() = default;
+    ~MouseDecoder() = delete;
 
-    virtual void buttonPressed(Io::Mouse::Button key) = 0;
+    static Mouse::Update decode(const uint8_t bytes[4]);
 
-    virtual void buttonReleased(Io::Mouse::Button key) = 0;
+private:
 
-    virtual void mouseMoved(const Math::Vector2D &relativeMovement) = 0;
-
-    virtual void mouseScrolled(Io::Mouse::ScrollDirection direction) = 0;
+    enum Flag : uint8_t {
+        X_SIGN = 0x10,
+        Y_SIGN = 0x20,
+        X_OVERFLOW = 0x40,
+        Y_OVERFLOW = 0x80
+    };
 };
 
 }

@@ -21,6 +21,7 @@
 #include "MouseCursor.h"
 #include "lib/util/game/KeyListener.h"
 #include "lib/util/game/Scene.h"
+#include "application/mouse/Logo.h"
 
 namespace Util {
 namespace Game {
@@ -65,7 +66,8 @@ public:
 
 private:
 
-    MouseCursor *cursor = new MouseCursor();
+    Logo *logo = new Logo();
+    MouseCursor *cursor = new MouseCursor(*logo);
 };
 
 #endif

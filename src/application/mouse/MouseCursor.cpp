@@ -20,6 +20,13 @@
 #include "lib/util/game/Graphics2D.h"
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/game/entity/event/TranslationEvent.h"
+#include "lib/util/game/GameManager.h"
+#include "lib/util/graphic/Fonts.h"
+#include "application/mouse/Logo.h"
+#include "lib/util/base/String.h"
+#include "lib/util/graphic/Colors.h"
+#include "lib/util/graphic/Font.h"
+#include "lib/util/io/key/MouseDecoder.h"
 
 namespace Util {
 namespace Game {
@@ -27,50 +34,90 @@ class CollisionEvent;
 }  // namespace Game
 }  // namespace Util
 
-MouseCursor::MouseCursor() : Util::Game::Entity(0, Util::Math::Vector2D(0, 0)) {}
+MouseCursor::MouseCursor(Logo &logo) : Util::Game::Entity(0, Util::Math::Vector2D(0, 0)), logo(logo) {}
 
 void MouseCursor::initialize() {}
 
 void MouseCursor::onUpdate(double delta) {}
 
 void MouseCursor::onTranslationEvent(Util::Game::TranslationEvent &event) {
-    event.cancel();
+    const auto &resolution = Util::Game::GameManager::getRelativeResolution();
+    const auto &newPosition = event.getTargetPosition();
+
+    if (newPosition.getX() < -resolution.getX() ||
+        newPosition.getX() > resolution.getX() - currentSprite->getWidth() ||
+        newPosition.getY() < -resolution.getY() ||
+        newPosition.getY() > resolution.getY() - currentSprite->getHeight()) {
+        event.cancel();
+    }
 }
 
 void MouseCursor::onCollisionEvent(Util::Game::CollisionEvent &event) {}
 
 void MouseCursor::draw(Util::Game::Graphics2D &graphics) {
+    auto charWidth = Util::Graphic::Fonts::TERMINAL_FONT.getCharWidth() / static_cast<double>(Util::Game::GameManager::getTransformation());
+    auto additionalButtons = Util::String::format("%c%c", button4Pressed ? '4' : ' ', button5Pressed ? '5' : ' ');
+
     graphics.drawImage(getPosition(), currentSprite->getImage());
+    graphics.setColor(Util::Graphic::Colors::HHU_TURQUOISE);
+    graphics.drawString(getPosition() + Util::Math::Vector2D(currentSprite->getWidth() / 2 - charWidth, currentSprite->getHeight() / 3), additionalButtons);
 }
 
-void MouseCursor::keyPressed(Key key) {
+void MouseCursor::buttonPressed(Util::Io::Mouse::Button key) {
     switch (key) {
-        case Util::Game::MouseListener::LEFT:
+        case Util::Io::Mouse::LEFT_BUTTON:
             currentSprite = &leftClickSprite;
             break;
-        case Util::Game::MouseListener::RIGHT:
+        case Util::Io::Mouse::RIGHT_BUTTON:
             currentSprite = &rightClickSprite;
             break;
-        case Util::Game::MouseListener::MIDDLE:
+        case Util::Io::Mouse::MIDDLE_BUTTON:
             currentSprite = &middleClickSprite;
+            break;
+        case Util::Io::Mouse::BUTTON_4:
+            button4Pressed = true;
+            break;
+        case Util::Io::Mouse::BUTTON_5:
+            button5Pressed = true;
             break;
         default:
             break;
     }
 }
 
-void MouseCursor::keyReleased(Key key) {
-    currentSprite = &defaultSprite;
+void MouseCursor::buttonReleased(Util::Io::Mouse::Button key) {
+    switch (key) {
+        case Util::Io::Mouse::BUTTON_4:
+            button4Pressed = false;
+            break;
+        case Util::Io::Mouse::BUTTON_5:
+            button5Pressed = false;
+            break;
+        default:
+            currentSprite = &defaultSprite;
+            break;
+    }
 }
 
 void MouseCursor::mouseMoved(const Util::Math::Vector2D &relativeMovement) {
-    const auto &oldPosition = getPosition();
-    setPositionX(oldPosition.getX() + relativeMovement.getX());
-    setPositionY(oldPosition.getY() + relativeMovement.getY());
+    translate(relativeMovement);
+}
 
-    const auto &newPosition = getPosition();
-    if (newPosition.getX() < -1) setPosition({-1, newPosition.getY()});
-    if (newPosition.getX() > 1) setPosition({1, newPosition.getY()});
-    if (newPosition.getY() < -1 - currentSprite->getHeight()) setPosition({newPosition.getX(), -1 - currentSprite->getHeight()});
-    if (newPosition.getY() > 1 - currentSprite->getHeight()) setPosition({newPosition.getX(), 1 - currentSprite->getHeight()});
+void MouseCursor::mouseScrolled(Util::Io::Mouse::ScrollDirection direction) {
+    switch (direction) {
+        case Util::Io::Mouse::UP:
+            logo.translateY(0.01);
+            break;
+        case Util::Io::Mouse::DOWN:
+            logo.translateY(-0.01);
+            break;
+        case Util::Io::Mouse::RIGHT:
+            logo.translateX(0.01);
+            break;
+        case Util::Io::Mouse::LEFT:
+            logo.translateX(-0.01);
+            break;
+        default:
+            break;
+    }
 }
