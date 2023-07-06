@@ -15,47 +15,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PIPEDOUTPUTSTREAM_H
-#define HHUOS_PIPEDOUTPUTSTREAM_H
+#ifndef HHUOS_UTIL_SOUNDBLASTER_H
+#define HHUOS_UTIL_SOUNDBLASTER_H
 
-#include <cstdint>
+namespace Util::Sound {
 
-#include "OutputStream.h"
-
-namespace Util {
-namespace Io {
-class PipedInputStream;
-}  // namespace Io
-}  // namespace Util
-
-namespace Util::Io {
-
-class PipedOutputStream : public OutputStream {
+class SoundBlaster {
 
 public:
 
-    PipedOutputStream() = default;
+    enum Request {
+        SET_AUDIO_PARAMETERS,
+    };
 
-    explicit PipedOutputStream(PipedInputStream &inputStream);
+    /**
+     * Default Constructor.
+     * Deleted, as this class has only static members.
+     */
+    SoundBlaster() = delete;
 
-    PipedOutputStream(const PipedOutputStream &copy) = delete;
+    /**
+     * Copy Constructor.
+     */
+    SoundBlaster(const SoundBlaster &other) = delete;
 
-    PipedOutputStream &operator=(const PipedOutputStream &copy) = delete;
+    /**
+     * Assignment operator.
+     */
+    SoundBlaster &operator=(const SoundBlaster &other) = delete;
 
-    ~PipedOutputStream() override = default;
-
-    void connect(PipedInputStream &sink);
-
-    void write(uint8_t c) override;
-
-    void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
-
-private:
-
-    PipedInputStream *sink = nullptr;
-
-    friend class PipedInputStream;
-
+    /**
+     * Destructor.
+     * Deleted, as this class has only static members.
+     */
+    ~SoundBlaster() = delete;
 };
 
 }

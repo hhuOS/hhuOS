@@ -59,6 +59,10 @@ namespace Util::Math {
 
     double pow(double value, int exponent);
 
+    float min(float first, float second);
+
+    float max(float first, float second);
+
     double min(double first, double second);
 
     double max(double first, double second);

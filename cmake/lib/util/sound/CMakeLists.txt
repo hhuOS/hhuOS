@@ -16,9 +16,29 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-target_sources(device PUBLIC
-        ${HHUOS_SRC_DIR}/device/sound/speaker/PcSpeaker.cpp
-        ${HHUOS_SRC_DIR}/device/sound/speaker/PcSpeakerNode.cpp
-        ${HHUOS_SRC_DIR}/device/sound/soundblaster/SoundBlaster.cpp
-        ${HHUOS_SRC_DIR}/device/sound/soundblaster/SoundBlasterNode.cpp
-        ${HHUOS_SRC_DIR}/device/sound/soundblaster/SoundBlasterRunnable.cpp)
+project(lib.sound)
+message(STATUS "Project " ${PROJECT_NAME})
+
+include_directories(${HHUOS_SRC_DIR})
+
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+
+# Add subdirectories
+target_sources(${PROJECT_NAME} PUBLIC
+        ${HHUOS_SRC_DIR}/lib/util/sound/WaveFile.cpp)
+
+# Kernel space version
+project(lib.kernel.sound)
+message(STATUS "Project " ${PROJECT_NAME})
+include_directories(${HHUOS_SRC_DIR})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.sound)
+target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/kernel.cpp)
+
+# User space sound
+project(lib.user.sound)
+message(STATUS "Project " ${PROJECT_NAME})
+include_directories(${HHUOS_SRC_DIR})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.sound)
+target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/user.cpp)

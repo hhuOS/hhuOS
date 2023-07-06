@@ -16,9 +16,15 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-target_sources(device PUBLIC
-        ${HHUOS_SRC_DIR}/device/sound/speaker/PcSpeaker.cpp
-        ${HHUOS_SRC_DIR}/device/sound/speaker/PcSpeakerNode.cpp
-        ${HHUOS_SRC_DIR}/device/sound/soundblaster/SoundBlaster.cpp
-        ${HHUOS_SRC_DIR}/device/sound/soundblaster/SoundBlasterNode.cpp
-        ${HHUOS_SRC_DIR}/device/sound/soundblaster/SoundBlasterRunnable.cpp)
+project(play)
+message(STATUS "Project " ${PROJECT_NAME})
+
+include_directories(${HHUOS_SRC_DIR})
+
+# Set source files
+set(SOURCE_FILES
+        ${HHUOS_SRC_DIR}/application/play/play.cpp)
+
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+
+target_link_libraries(${PROJECT_NAME} lib.user.crt0 lib.user.base lib.user.sound)

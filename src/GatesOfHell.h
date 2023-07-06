@@ -81,6 +81,8 @@ private:
 
     static void initializeNetwork();
 
+    static void initializeSound();
+
     static void mountDevices();
 
     static void printBanner();

@@ -344,10 +344,10 @@ void FloppyController::trigger(const Kernel::InterruptFrame &frame) {
 
 void FloppyController::prepareDma(FloppyDevice &device, Isa::TransferMode transferMode, void *dmaMemory, uint8_t sectorCount) {
     auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    auto physicalAddress = reinterpret_cast<uint32_t>(memoryService.getPhysicalAddress(dmaMemory));
+    auto *physicalAddress = memoryService.getPhysicalAddress(dmaMemory);
 
     Isa::selectChannel(2);
-    Isa::setAddress(2, physicalAddress);
+    Isa::setAddress(2, static_cast<const uint8_t*>(physicalAddress));
     Isa::setCount(2, static_cast<uint16_t>(device.getSectorSize() * sectorCount - 1));
     Isa::setMode(2, transferMode, false, false, Isa::SINGLE_TRANSFER);
     Isa::deselectChannel(2);

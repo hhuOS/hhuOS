@@ -39,6 +39,14 @@ double absolute(double value) {
     return value < 0 ? value * -1 : value;
 }
 
+float min(float first, float second) {
+    return first < second ? first : second;
+}
+
+float max(float first, float second) {
+    return first > second ? first : second;
+}
+
 double min(double first, double second) {
     return first < second ? first : second;
 }

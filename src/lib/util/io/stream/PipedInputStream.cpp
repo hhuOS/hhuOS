@@ -23,9 +23,9 @@
 
 namespace Util::Io {
 
-PipedInputStream::PipedInputStream() : buffer(new uint8_t[BUFFER_SIZE]) {}
+PipedInputStream::PipedInputStream(int32_t bufferSize) : buffer(new uint8_t[bufferSize]), bufferSize(bufferSize) {}
 
-PipedInputStream::PipedInputStream(PipedOutputStream &outputStream) : buffer(new uint8_t[BUFFER_SIZE]) {
+PipedInputStream::PipedInputStream(PipedOutputStream &outputStream, int32_t bufferSize) : buffer(new uint8_t[bufferSize]), bufferSize(bufferSize) {
     connect(outputStream);
 }
 
@@ -66,37 +66,42 @@ int32_t PipedInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t 
     uint32_t ret = 0;
 
     while (true) {
+        int32_t currentIn = inPosition;
+        int32_t currentOut = outPosition;
+
         // Calculate the amount of bytes we can copy at once
         uint32_t toCopy;
-        if (outPosition < inPosition) {
-            toCopy = remaining < static_cast<uint32_t>(inPosition - outPosition) ? remaining : (inPosition - outPosition);
+        if (currentOut < currentIn) {
+            toCopy = remaining < static_cast<uint32_t>(currentIn - currentOut) ? remaining : (currentIn - currentOut);
         } else {
-            toCopy = remaining < (BUFFER_SIZE - outPosition) ? remaining : (BUFFER_SIZE - outPosition);
+            toCopy = remaining < (static_cast<uint32_t>(bufferSize) - currentOut) ? remaining : (bufferSize - currentOut);
         }
 
         // Copy bytes from internal buffer to targetBuffer buffer
-        auto sourceAddress = Address<uint32_t>(buffer).add(outPosition);
+        auto sourceAddress = Address<uint32_t>(buffer).add(currentOut);
         auto targetAddress = Address<uint32_t>(targetBuffer).add(offset);
         targetAddress.copyRange(sourceAddress, toCopy);
 
         offset += toCopy;
         remaining -= toCopy;
+        currentOut += toCopy;
         ret += toCopy;
 
-        if (outPosition == BUFFER_SIZE) {
-            outPosition = 0;
+        if (currentOut == bufferSize) {
+            currentOut = 0;
         }
 
         // Wrap around, if we have reached the buffer's end
-        if (static_cast<int32_t>(outPosition + toCopy) == inPosition) {
-            inPosition = -1;
-            outPosition = 0;
-        } else {
-            outPosition += toCopy;
+        if (currentOut == currentIn) {
+            currentIn = -1;
+            currentOut = 0;
         }
 
+        inPosition = currentIn;
+        outPosition = currentOut;
+
         // Check if we have copied the requested amount of bytes or if the internal buffer is empty
-        if (remaining == 0 || inPosition == -1) {
+        if (remaining == 0 || currentIn == -1) {
             return ret;
         }
     }
@@ -116,32 +121,50 @@ void PipedInputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint3
             Async::Thread::yield();
         }
 
-        if (inPosition < 0) { // Buffer is empty
-            inPosition = 0;
+        int32_t currentIn = inPosition;
+
+        if (currentIn < 0) { // Buffer is empty
+            currentIn = 0;
         }
 
         // Calculate the amount of bytes we can copy at once
         uint32_t toCopy;
-        if (inPosition < outPosition) {
-            toCopy = remaining < static_cast<uint32_t>(outPosition - inPosition) ? remaining : (outPosition - inPosition);
+        if (currentIn < outPosition) {
+            toCopy = remaining < static_cast<uint32_t>(outPosition - currentIn) ? remaining : (outPosition - currentIn);
         } else {
-            toCopy = remaining < (BUFFER_SIZE - inPosition) ? remaining : (BUFFER_SIZE - inPosition);
+            toCopy = remaining < (static_cast<uint32_t>(bufferSize) - currentIn) ? remaining : (bufferSize - currentIn);
         }
 
         // Copy bytes from sourceBuffer to internal buffer
         auto sourceAddress = Address<uint32_t>(sourceBuffer).add(sourcePosition);
-        auto targetAddress = Address<uint32_t>(buffer).add(inPosition);
+        auto targetAddress = Address<uint32_t>(buffer).add(currentIn);
         targetAddress.copyRange(sourceAddress, toCopy);
 
         remaining -= toCopy;
         sourcePosition += toCopy;
-        inPosition += toCopy;
+        currentIn += toCopy;
 
         // Wrap around, if we have reached the buffer's end
-        if (inPosition == BUFFER_SIZE) {
-            inPosition = 0;
+        if (currentIn == bufferSize) {
+            currentIn = 0;
         }
+
+        inPosition = currentIn;
     }
+}
+
+uint32_t PipedInputStream::available() {
+    uint32_t ret;
+
+    if (inPosition < 0) {
+        ret = 0;
+    } else if (outPosition < inPosition) {
+        ret = inPosition - outPosition;
+    } else {
+        ret = (bufferSize - outPosition) + inPosition;
+    }
+
+    return ret;
 }
 
 }

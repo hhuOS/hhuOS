@@ -59,3 +59,6 @@ Assets for the dino game have been taken from [itch.io](https://itch.io):
 Assets for the bug defender game have been taken from [itch.io](https://itch.io):
 - [Lunar Battle Pack](https://mattwalkden.itch.io/lunar-battle-pack) by [*MattWalkden*](https://mattwalkden.itch.io/) ([CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/legalcode))
 - [Pixel Heart Animation](https://nicolemariet.itch.io/pixel-heart-animation-32x32-16x16-freebie) by [*Nicole Marie T*](https://nicolemariet.itch.io/)
+
+Music for the SoundBlaster demo has been taken from [Bensound](https://www.bensound.com/royalty-free-music):
+- Ukulele license code: 3M7PXYPYNOTSIGNQ

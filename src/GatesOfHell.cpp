@@ -87,6 +87,11 @@
 #include "kernel/service/InterruptService.h"
 #include "lib/util/hardware/Acpi.h"
 #include "lib/util/hardware/SmBios.h"
+#include "device/sound/soundblaster/SoundBlaster.h"
+#include "lib/util/sound/WaveFile.h"
+#include "lib/util/sound/SoundBlaster.h"
+#include "lib/util/async/FunctionPointerRunnable.h"
+#include "kernel/service/ProcessService.h"
 
 namespace Device {
 class Machine;
@@ -121,16 +126,18 @@ void GatesOfHell::enter() {
 
     initializePorts();
 
+    Kernel::Logger::addOutputStream(*new Util::Io::FileOutputStream("/device/log"));
+    enablePortLogging();
+
     initializeTerminal();
 
     initializePs2Devices();
 
     initializeNetwork();
 
-    initializePowerManagement();
+    initializeSound();
 
-    Kernel::Logger::addOutputStream(*new Util::Io::FileOutputStream("/device/log"));
-    enablePortLogging();
+    initializePowerManagement();
 
     mountDevices();
 
@@ -345,7 +352,6 @@ void GatesOfHell::initializeFilesystem() {
     deviceDriver->addNode("/", new Filesystem::Memory::RandomNode());
     deviceDriver->addNode("/", new Filesystem::Memory::MountsNode());
     deviceDriver->addNode("/", new Kernel::MemoryStatusNode("memory"));
-    deviceDriver->addNode("/", new Device::Sound::PcSpeakerNode("speaker"));
 
     if (Kernel::Multiboot::isModuleLoaded("initrd")) {
         log.info("Initial ramdisk detected -> Mounting [%s]", "/initrd");
@@ -463,6 +469,16 @@ void GatesOfHell::initializeNetwork() {
             ip4Module.getRoutingModule().addRoute(Util::Network::Ip4::Ip4Route(address, "eth0"));
             ip4Module.getRoutingModule().addRoute(Util::Network::Ip4::Ip4Route(Util::Network::Ip4::Ip4SubnetAddress("10.0.2.15/0"), Util::Network::Ip4::Ip4Address("10.0.2.2"), "eth0"));
         }
+    }
+}
+
+void GatesOfHell::initializeSound() {
+    auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
+    auto &driver = filesystemService.getFilesystem().getVirtualDriver("/device");
+    driver.addNode("/", new Device::Sound::PcSpeakerNode("speaker"));
+
+    if (Device::SoundBlaster::isAvailable()) {
+        Device::SoundBlaster::initialize();
     }
 }
 

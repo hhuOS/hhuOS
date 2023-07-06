@@ -21,6 +21,7 @@
 #include <cstdint>
 
 #include "InputStream.h"
+#include "lib/util/async/Spinlock.h"
 
 namespace Util::Io {
 
@@ -30,9 +31,9 @@ class PipedInputStream : public InputStream {
 
 public:
 
-    PipedInputStream();
+    explicit PipedInputStream(int32_t bufferSize = DEFAULT_BUFFER_SIZE);
 
-    explicit PipedInputStream(PipedOutputStream &outputStream);
+    explicit PipedInputStream(PipedOutputStream &outputStream, int32_t bufferSize = DEFAULT_BUFFER_SIZE);
 
     PipedInputStream(const PipedInputStream &copy) = delete;
 
@@ -46,6 +47,8 @@ public:
 
     int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
 
+    uint32_t available();
+
 private:
 
     virtual void write(uint8_t c);
@@ -55,10 +58,12 @@ private:
     PipedOutputStream *source = nullptr;
 
     uint8_t *buffer;
+    int32_t bufferSize;
+
     int32_t inPosition = -1;
     int32_t outPosition = 0;
 
-    static const constexpr uint32_t BUFFER_SIZE = 1024;
+    static const constexpr uint32_t DEFAULT_BUFFER_SIZE = 1024;
 
     friend class PipedOutputStream;
 

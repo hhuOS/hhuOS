@@ -84,7 +84,7 @@ public:
      * @param channel The channel number (0-7)
      * @param address The address (must point to a buffer, that has been allocated by Isa::allocDmaBuffer()).
      */
-    static void setAddress(uint8_t channel, uint32_t address);
+    static void setAddress(uint8_t channel, const uint8_t *address);
 
     /**
      * Set the amount of bytes to transfer.
