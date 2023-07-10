@@ -156,14 +156,14 @@ private:
      *
      * @return The virtual/physical address at which the startup routine is located
      */
-    void* prepareApplicationProcessorStartupCode(void *gdts, void *stacks);
+    void prepareApplicationProcessorStartupCode(void *gdts, void *stacks);
 
     /**
      * Place the AP startup routine address into the warm reset vector and prepare CMOS for warm reset.
      *
      * @return The virtual address of the allocated memory used to write the warm-reset vector
      */
-    void* prepareApplicationProcessorWarmReset();
+    void prepareApplicationProcessorWarmReset();
 
     void* prepareApplicationProcessorGdts();
 

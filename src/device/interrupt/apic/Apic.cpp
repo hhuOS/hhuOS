@@ -315,8 +315,8 @@ bool Apic::isSymmetricMultiprocessingSupported() const {
 void Apic::startupApplicationProcessors() {
     void *gdtPointers = prepareApplicationProcessorGdts();
     void *stackPointers = prepareApplicationProcessorStacks();
-    void *startupCodeRegion = prepareApplicationProcessorStartupCode(gdtPointers, stackPointers);
-    void *warmResetVectorRegion = prepareApplicationProcessorWarmReset(); // This is technically only required for discrete APIC, see below
+    prepareApplicationProcessorStartupCode(gdtPointers, stackPointers);
+    prepareApplicationProcessorWarmReset(); // This is technically only required for discrete APIC, see below
 
     // Universal Startup Algorithm requires all interrupts disabled (they should be disabled anyway, but disabling them a second time is twice as good)
     Cpu::disableInterrupts();
@@ -381,12 +381,10 @@ void Apic::startupApplicationProcessors() {
     Cmos::enableNmi();
     Cpu::enableInterrupts();
 
-    // Free the startup routine page, stack pointer array, gdts array and warm reset vector memory, now that all APs are running.
-    // Keep the stacks though, they are not temporary!
+    // Free the stack pointer array and the gdt now that all APs are running.
+    // Keep the stacks and gdts though, they are not temporary!
     delete[] reinterpret_cast<uint8_t*>(gdtPointers);
     delete[] reinterpret_cast<uint8_t*>(stackPointers);
-    delete reinterpret_cast<uint8_t*>(startupCodeRegion);
-    delete reinterpret_cast<uint8_t*>(warmResetVectorRegion);
 }
 
 void* Apic::prepareApplicationProcessorStacks() {
@@ -401,7 +399,7 @@ void* Apic::prepareApplicationProcessorStacks() {
     return reinterpret_cast<void*>(stacks);
 }
 
-void* Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
+void Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
     if (boot_ap_size > Util::PAGESIZE) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Startup code does not fit into one page!");
     }
@@ -428,18 +426,15 @@ void* Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
     const auto startupCode = Util::Address<uint32_t>(reinterpret_cast<uint32_t>(&boot_ap));
     const auto destination = Util::Address<uint32_t>(Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress);
     destination.copyRange(startupCode, boot_ap_size);
-
-    return reinterpret_cast<void*>(destination.get());
 }
 
-void *Apic::prepareApplicationProcessorWarmReset() {
+void Apic::prepareApplicationProcessorWarmReset() {
     Cmos::write(0xF, 0x0A); // Shutdown status byte (MPSpec, sec. B.4)
 
     const uint32_t warmResetVectorPhysical = 0x40 << 4 | 0x67; // MPSpec, sec. B.4
     const uint32_t warmResetVectorVirtual = Kernel::MemoryLayout::PHYSICAL_TO_VIRTUAL(warmResetVectorPhysical); // Warm reset vector is DWORD
 
     *reinterpret_cast<volatile uint16_t*>(warmResetVectorVirtual) = Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress;
-    return reinterpret_cast<void*>(warmResetVectorVirtual);
 }
 
 void *Apic::prepareApplicationProcessorGdts() {

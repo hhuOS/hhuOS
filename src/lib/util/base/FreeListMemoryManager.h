@@ -125,7 +125,7 @@ private:
      *
      * @return Pointer to the allocated chunk of memory or nullptr if no chunk with the required size is available
      */
-    void *allocAlgorithm(uint32_t size, uint32_t alignment, FreeListHeader *startChunk);
+    void* allocAlgorithm(uint32_t size, uint32_t alignment, FreeListHeader *startChunk);
 
     /**
      * Implementation of the free algorithm, that is used in the free-functions.
@@ -159,7 +159,7 @@ private:
      *
      * @param origin Chunk of free memory to be merged
      */
-    FreeListHeader *merge(FreeListHeader *origin);
+    FreeListHeader* merge(FreeListHeader *origin);
 
     static const constexpr uint32_t MIN_BLOCK_SIZE = 4;
     static const constexpr uint32_t HEADER_SIZE = sizeof(FreeListHeader);
