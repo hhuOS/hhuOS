@@ -37,7 +37,7 @@ public:
     /**
      * Constructor.
      */
-    PageFrameAllocator(PagingAreaManager &pagingAreaManager, uint32_t startAddress, uint32_t endAddress);
+    PageFrameAllocator(PagingAreaManager &pagingAreaManager, uint8_t *startAddress, uint8_t *endAddress);
 
     /**
      * Copy Constructor.

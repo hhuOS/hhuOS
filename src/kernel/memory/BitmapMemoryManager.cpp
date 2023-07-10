@@ -21,7 +21,7 @@
 
 namespace Kernel {
 
-BitmapMemoryManager::BitmapMemoryManager(uint32_t startAddress, uint32_t endAddress, uint32_t blockSize, bool zeroMemory) :
+BitmapMemoryManager::BitmapMemoryManager(uint8_t *startAddress, uint8_t *endAddress, uint32_t blockSize, bool zeroMemory) :
         startAddress(startAddress), endAddress(endAddress), freeMemory(endAddress - startAddress + 1),
         blockSize(blockSize), zeroMemory(zeroMemory), bitmap((endAddress - startAddress + 1) / blockSize) {}
 
@@ -45,18 +45,15 @@ void *BitmapMemoryManager::allocateBlock() {
 }
 
 void BitmapMemoryManager::freeBlock(void *pointer) {
-    uint32_t address = (uint32_t) pointer - startAddress;
-
     // check if pointer points to valid memory
-    if ((uint32_t) pointer < startAddress || (uint32_t) pointer >= endAddress) {
-        return;
+    if (reinterpret_cast<uint8_t*>(pointer) < startAddress || reinterpret_cast<uint8_t*>(pointer) >= endAddress) {
+        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "free: Trying to free memory outside of heap boundaries");
     }
 
     // find number of block corresponding to physical address
-    auto blockNumber = (uint32_t) (address / blockSize);
+    auto blockNumber = (reinterpret_cast<uint8_t*>(pointer) - startAddress) / blockSize;
 
     bitmap.unset(blockNumber);
-
     freeMemory += blockSize;
 }
 
@@ -88,11 +85,11 @@ uint32_t BitmapMemoryManager::getBlockSize() const {
     return blockSize;
 }
 
-uint32_t BitmapMemoryManager::getStartAddress() const {
+uint8_t * BitmapMemoryManager::getStartAddress() const {
     return startAddress;
 }
 
-uint32_t BitmapMemoryManager::getEndAddress() const {
+uint8_t * BitmapMemoryManager::getEndAddress() const {
     return endAddress;
 }
 

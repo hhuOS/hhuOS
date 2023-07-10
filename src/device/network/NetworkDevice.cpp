@@ -33,7 +33,7 @@ namespace Device::Network {
 
 NetworkDevice::NetworkDevice() :
         packetMemory(static_cast<uint8_t*>(Kernel::System::getService<Kernel::MemoryService>().allocateKernelMemory(MAX_BUFFERED_PACKETS * PACKET_BUFFER_SIZE, Util::PAGESIZE))),
-        packetMemoryManager(reinterpret_cast<uint32_t>(packetMemory), reinterpret_cast<uint32_t>(packetMemory + MAX_BUFFERED_PACKETS * PACKET_BUFFER_SIZE - 1), PACKET_BUFFER_SIZE),
+        packetMemoryManager(packetMemory, packetMemory + MAX_BUFFERED_PACKETS * PACKET_BUFFER_SIZE - 1, PACKET_BUFFER_SIZE),
         incomingPacketQueue(MAX_BUFFERED_PACKETS),
         outgoingPacketQueue(MAX_BUFFERED_PACKETS),
         reader(new PacketReader(*this)),

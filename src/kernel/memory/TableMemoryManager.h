@@ -34,7 +34,7 @@ public:
     /**
      * Constructor.
      */
-    TableMemoryManager(BitmapMemoryManager &bitmapMemoryManager, uint32_t startAddress, uint32_t endAddress, uint32_t blockSize = 4096);
+    TableMemoryManager(BitmapMemoryManager &bitmapMemoryManager, uint8_t *startAddress, uint8_t *endAddress, uint32_t blockSize = 4096);
 
     /**
      * Copy Constructor.
@@ -51,7 +51,7 @@ public:
      */
     ~TableMemoryManager() override = default;
 
-    void setMemory(uint32_t start, uint32_t end, uint16_t useCount, bool reserved);
+    void setMemory(uint8_t *start, uint8_t *end, uint16_t useCount, bool reserved);
 
     [[nodiscard]] void* allocateBlock() override;
 
@@ -67,9 +67,9 @@ public:
 
     [[nodiscard]] uint32_t getFreeMemory() const override;
 
-    [[nodiscard]] uint32_t getStartAddress() const override;
+    [[nodiscard]] uint8_t* getStartAddress() const override;
 
-    [[nodiscard]] uint32_t getEndAddress() const override;
+    [[nodiscard]] uint8_t* getEndAddress() const override;
 
     void debugLog();
 
@@ -204,15 +204,15 @@ private:
         uint32_t allocationTableIndex;
     };
 
-    [[nodiscard]] TableIndex calculateIndex(uint32_t address) const;
+    [[nodiscard]] TableIndex calculateIndex(uint8_t *address) const;
 
     [[nodiscard]] uint32_t calculateAddress(const TableIndex &index) const;
 
 private:
 
     BitmapMemoryManager &bitmapMemoryManager;
-    uint32_t startAddress;
-    uint32_t endAddress;
+    uint8_t *startAddress;
+    uint8_t *endAddress;
     uint32_t blockSize;
 
     uint32_t referenceTableSizeInBlocks;

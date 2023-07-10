@@ -56,12 +56,12 @@ public:
     /**
      * Get the start address of the managed memory.
      */
-    [[nodiscard]] virtual uint32_t getStartAddress() const = 0;
+    [[nodiscard]] virtual uint8_t* getStartAddress() const = 0;
 
     /**
      * Get the end address of the managed memory.
      */
-    [[nodiscard]] virtual uint32_t getEndAddress() const = 0;
+    [[nodiscard]] virtual uint8_t* getEndAddress() const = 0;
 };
 
 }

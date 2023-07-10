@@ -52,7 +52,7 @@ public:
      * @param startAddress Start address of the memory area to manage
      * @param endAddress End address of the memory area to manage
      */
-    virtual void initialize(uint32_t startAddress, uint32_t endAddress) = 0;
+    virtual void initialize(uint8_t *startAddress, uint8_t *endAddress) = 0;
 
     /**
      * Allocate a chunk of memory of a given size and alignment.

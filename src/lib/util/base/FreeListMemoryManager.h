@@ -65,7 +65,7 @@ public:
     /**
      * Overriding function from HeapMemoryManager.
      */
-    void initialize(uint32_t startAddress, uint32_t endAddress) override;
+    void initialize(uint8_t *startAddress, uint8_t *endAddress) override;
 
     /**
      * Overriding function from HeapMemoryManager.
@@ -95,12 +95,12 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    [[nodiscard]] uint32_t getStartAddress() const override;
+    [[nodiscard]] uint8_t* getStartAddress() const override;
 
     /**
      * Overriding function from MemoryManager.
      */
-    [[nodiscard]] uint32_t getEndAddress() const override;
+    [[nodiscard]] uint8_t* getEndAddress() const override;
 
     void disableAutomaticUnmapping();
 
@@ -136,14 +136,6 @@ private:
 
 private:
 
-    uint32_t startAddress{};
-    uint32_t endAddress{};
-
-    Util::Async::Spinlock lock;
-    FreeListHeader *firstChunk = nullptr;
-    uint32_t unusedMemory = 0;
-    bool unmapFreedMemory = true;
-
     /**
      * Find the next chunk of memory with a required size.
      *
@@ -160,6 +152,14 @@ private:
      * @param origin Chunk of free memory to be merged
      */
     FreeListHeader* merge(FreeListHeader *origin);
+
+    uint8_t *startAddress{};
+    uint8_t *endAddress{};
+
+    Util::Async::Spinlock lock;
+    FreeListHeader *firstChunk = nullptr;
+    uint32_t unusedMemory = 0;
+    bool unmapFreedMemory = true;
 
     static const constexpr uint32_t MIN_BLOCK_SIZE = 4;
     static const constexpr uint32_t HEADER_SIZE = sizeof(FreeListHeader);

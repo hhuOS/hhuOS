@@ -82,7 +82,7 @@ void System::initializeSystem() {
     auto *pagingAreaManager = new PagingAreaManager();
 
     // Physical Page Frame Allocator is initialized to be possible to allocate physical memory (page frames)
-    auto *pageFrameAllocator = new PageFrameAllocator(*pagingAreaManager, 0, physicalMemorySize - 1);
+    auto *pageFrameAllocator = new PageFrameAllocator(*pagingAreaManager, nullptr, reinterpret_cast<uint8_t*>(physicalMemorySize - 1));
 
     // To be able to map new pages, a bootstrap address space is created.
     // It uses only the basePageDirectory with mapping for kernel space.
@@ -333,7 +333,7 @@ Util::HeapMemoryManager& System::initializeKernelHeap() {
 
         if (block.type == Multiboot::HEAP_RESERVED) {
             static Util::FreeListMemoryManager heapMemoryManager;
-            heapMemoryManager.initialize(block.virtualStartAddress, Kernel::MemoryLayout::KERNEL_HEAP_END_ADDRESS);
+            heapMemoryManager.initialize(reinterpret_cast<uint8_t*>(block.virtualStartAddress), reinterpret_cast<uint8_t*>(Kernel::MemoryLayout::KERNEL_HEAP_END_ADDRESS));
             return heapMemoryManager;
         }
     }

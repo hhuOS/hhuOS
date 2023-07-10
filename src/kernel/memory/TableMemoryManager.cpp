@@ -23,7 +23,7 @@ namespace Kernel {
 
 Logger TableMemoryManager::log = Logger::get("TableMemoryManager");
 
-TableMemoryManager::TableMemoryManager(BitmapMemoryManager &bitmapMemoryManager, uint32_t startAddress, uint32_t endAddress, uint32_t blockSize) :
+TableMemoryManager::TableMemoryManager(BitmapMemoryManager &bitmapMemoryManager, uint8_t *startAddress, uint8_t *endAddress, uint32_t blockSize) :
         bitmapMemoryManager(bitmapMemoryManager), startAddress(startAddress), endAddress(endAddress), blockSize(blockSize) {
     uint32_t memorySize = endAddress - startAddress + 1;
     uint32_t blockCount = memorySize / blockSize;
@@ -61,7 +61,7 @@ TableMemoryManager::TableMemoryManager(BitmapMemoryManager &bitmapMemoryManager,
     }
 }
 
-void TableMemoryManager::setMemory(uint32_t start, uint32_t end, uint16_t useCount, bool reserved) {
+void TableMemoryManager::setMemory(uint8_t *start, uint8_t *end, uint16_t useCount, bool reserved) {
     auto startIndex = calculateIndex(start);
     auto endIndex = calculateIndex(end);
 
@@ -95,12 +95,12 @@ void TableMemoryManager::setMemory(uint32_t start, uint32_t end, uint16_t useCou
     }
 }
 
-TableMemoryManager::TableIndex TableMemoryManager::calculateIndex(uint32_t address) const {
-    uint32_t referenceTableAddress = (address / blockSize) * blockSize;
-    uint32_t referenceTableIndex = referenceTableAddress / managedMemoryPerAllocationTable;
+TableMemoryManager::TableIndex TableMemoryManager::calculateIndex(uint8_t *address) const {
+    auto *referenceTableAddress = reinterpret_cast<uint8_t*>((reinterpret_cast<uint32_t>(address) / blockSize) * blockSize);
+    auto referenceTableIndex = reinterpret_cast<uint32_t>(referenceTableAddress) / managedMemoryPerAllocationTable;
 
-    uint32_t allocationTableAddress = address % managedMemoryPerAllocationTable;
-    uint32_t allocationTableIndex = allocationTableAddress / blockSize;
+    auto allocationTableAddress = reinterpret_cast<uint8_t*>(reinterpret_cast<uint32_t>(address) % managedMemoryPerAllocationTable);
+    auto allocationTableIndex = reinterpret_cast<uint32_t>(allocationTableAddress) / blockSize;
 
     return { referenceTableIndex / referenceTableEntriesPerBlock, referenceTableIndex % referenceTableEntriesPerBlock, allocationTableIndex };
 }
@@ -117,11 +117,11 @@ void *TableMemoryManager::allocateBlock() {
 
 void *TableMemoryManager::allocateBlockAtAddress(void *address) {
     // TODO: Is this the right way?
-    if (reinterpret_cast<uint32_t>(address) > endAddress) {
+    if (address > endAddress) {
         return address;
     }
 
-    const auto index = calculateIndex(reinterpret_cast<uint32_t>(address));
+    const auto index = calculateIndex(static_cast<uint8_t*>(address));
 
     auto *referenceTable = reinterpret_cast<ReferenceTableEntry*>(referenceTableArray[index.referenceTableArrayIndex]);
     auto &referenceTableEntry = referenceTable[index.referenceTableIndex];
@@ -141,11 +141,11 @@ void *TableMemoryManager::allocateBlockAtAddress(void *address) {
 
 void TableMemoryManager::freeBlock(void *pointer) {
     // TODO: Is this the right way?
-    if (reinterpret_cast<uint32_t>(pointer) > endAddress) {
+    if (pointer > endAddress) {
         return;
     }
 
-    const auto index = calculateIndex(reinterpret_cast<uint32_t>(pointer));
+    const auto index = calculateIndex(reinterpret_cast<uint8_t*>(pointer));
 
     auto *referenceTable = reinterpret_cast<ReferenceTableEntry*>(referenceTableArray[index.referenceTableArrayIndex]);
     auto &referenceTableEntry = referenceTable[index.referenceTableIndex];
@@ -156,7 +156,7 @@ void TableMemoryManager::freeBlock(void *pointer) {
 }
 
 void *TableMemoryManager::allocateBlockAfterAddress(void *address) {
-    auto startIndex = calculateIndex(reinterpret_cast<uint32_t>(address));
+    auto startIndex = calculateIndex(reinterpret_cast<uint8_t*>(address));
     auto endIndex = calculateIndex(endAddress);
 
     for (uint32_t i = startIndex.referenceTableArrayIndex; i <= endIndex.referenceTableArrayIndex; i++) {
@@ -235,11 +235,11 @@ uint32_t TableMemoryManager::getFreeMemory() const {
     return freeMemory;
 }
 
-uint32_t TableMemoryManager::getStartAddress() const {
+uint8_t * TableMemoryManager::getStartAddress() const {
     return startAddress;
 }
 
-uint32_t TableMemoryManager::getEndAddress() const {
+uint8_t * TableMemoryManager::getEndAddress() const {
     return endAddress;
 }
 

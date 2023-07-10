@@ -41,7 +41,7 @@ MemoryService::MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaM
         : pageFrameAllocator(*pageFrameAllocator), pagingAreaManager(*pagingAreaManager), currentAddressSpace(kernelAddressSpace), kernelAddressSpace(*kernelAddressSpace) {
     addressSpaces.add(kernelAddressSpace);
 
-    lowerMemoryManager.initialize(MemoryLayout::USABLE_LOWER_MEMORY.toVirtual().startAddress, MemoryLayout::USABLE_LOWER_MEMORY.toVirtual().endAddress);
+    lowerMemoryManager.initialize(reinterpret_cast<uint8_t*>(MemoryLayout::USABLE_LOWER_MEMORY.toVirtual().startAddress), reinterpret_cast<uint8_t*>(MemoryLayout::USABLE_LOWER_MEMORY.toVirtual().endAddress));
     lowerMemoryManager.disableAutomaticUnmapping();
 
     SystemCall::registerSystemCall(Util::System::UNMAP, [](uint32_t paramCount, va_list arguments) -> bool {

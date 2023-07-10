@@ -23,7 +23,7 @@
 
 namespace Util {
 
-void FreeListMemoryManager::initialize(uint32_t startAddress, uint32_t endAddress) {
+void FreeListMemoryManager::initialize(uint8_t *startAddress, uint8_t *endAddress) {
     this->startAddress = startAddress;
     this->endAddress = endAddress;
     unusedMemory = endAddress - startAddress + 1;
@@ -46,7 +46,7 @@ void* FreeListMemoryManager::allocateMemory(uint32_t size, uint32_t alignment) {
     void *ret = allocAlgorithm(size, alignment, firstChunk);
     lock.release();
 
-    if (ret != nullptr && (reinterpret_cast<uint32_t>(ret) < getStartAddress() || reinterpret_cast<uint32_t>(ret) > getEndAddress())) {
+    if (ret != nullptr && (ret < getStartAddress() || ret > getEndAddress())) {
         Util::Exception::throwException(Exception::OUT_OF_BOUNDS, "alloc: Allocated memory outside of heap boundaries");
     }
 
@@ -185,7 +185,7 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
         return;
     }
     // check if address points to valid memory for this manager
-    if (reinterpret_cast<uint32_t>(ptr) < getStartAddress() || reinterpret_cast<uint32_t>(ptr) > getEndAddress()) {
+    if (ptr < startAddress || ptr > endAddress) {
         Util::Exception::throwException(Exception::OUT_OF_BOUNDS, "free: Trying to free memory outside of heap boundaries");
     }
 
@@ -363,6 +363,10 @@ void* FreeListMemoryManager::reallocateMemory(void *ptr, uint32_t size, uint32_t
     }
 
     if (ret != nullptr) {
+        if (ret < getStartAddress() || ret > getEndAddress()) {
+            Util::Exception::throwException(Exception::OUT_OF_BOUNDS, "realloc: Allocated memory outside of heap boundaries");
+        }
+
         Util::Address<uint32_t>(ret).copyRange(Util::Address<uint32_t>(ptr), (size < oldHeader->size) ? size : oldHeader->size);
         freeMemory(ptr, 0);
     }
@@ -370,7 +374,7 @@ void* FreeListMemoryManager::reallocateMemory(void *ptr, uint32_t size, uint32_t
     return ret;
 }
 
-uint32_t FreeListMemoryManager::getStartAddress() const {
+uint8_t* FreeListMemoryManager::getStartAddress() const {
     return startAddress;
 }
 
@@ -382,7 +386,7 @@ uint32_t FreeListMemoryManager::getFreeMemory() const {
     return unusedMemory;
 }
 
-uint32_t FreeListMemoryManager::getEndAddress() const {
+uint8_t* FreeListMemoryManager::getEndAddress() const {
     return endAddress;
 }
 

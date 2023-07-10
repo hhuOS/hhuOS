@@ -37,7 +37,7 @@ public:
     /**
      * Constructor.
      */
-    BitmapMemoryManager(uint32_t startAddress, uint32_t endAddress, uint32_t blockSize = 4096, bool zeroMemory = false);
+    BitmapMemoryManager(uint8_t *startAddress, uint8_t *endAddress, uint32_t blockSize = 4096, bool zeroMemory = false);
 
     /**
      * Copy Constructor.
@@ -66,9 +66,9 @@ public:
 
     [[nodiscard]] uint32_t getBlockSize() const override;
 
-    [[nodiscard]] uint32_t getStartAddress() const override;
+    [[nodiscard]] uint8_t* getStartAddress() const override;
 
-    [[nodiscard]] uint32_t getEndAddress() const override;
+    [[nodiscard]] uint8_t* getEndAddress() const override;
 
 protected:
 
@@ -76,8 +76,8 @@ protected:
 
 private:
 
-    uint32_t startAddress;
-    uint32_t endAddress;
+    uint8_t *startAddress;
+    uint8_t *endAddress;
     uint32_t freeMemory;
 
     uint32_t blockSize;

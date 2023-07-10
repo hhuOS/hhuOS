@@ -6,11 +6,11 @@
 
 // Export functions
 extern "C" {
-void initMemoryManager(uint32_t, uint32_t);
+void initMemoryManager(uint8_t *startAddress, uint8_t *endAddress);
 void _exit(int32_t);
 }
 
-void initMemoryManager(uint32_t startAddress, uint32_t endAddress) {
+void initMemoryManager(uint8_t *startAddress, uint8_t *endAddress) {
     auto *memoryManager = new (reinterpret_cast<void*>(Util::USER_SPACE_MEMORY_MANAGER_ADDRESS)) Util::FreeListMemoryManager();
     memoryManager->initialize(startAddress, endAddress);
 }
