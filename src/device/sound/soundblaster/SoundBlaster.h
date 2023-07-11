@@ -22,13 +22,15 @@
 #include "device/cpu/IoPort.h"
 #include "lib/util/async/Spinlock.h"
 #include "kernel/log/Logger.h"
+#include "device/isa/Isa.h"
 /**
- * Driver for the original SoundBlaster (and compatible) cards (DSP version 1.xx).
+ * Driver for the original SoundBlaster cards.
  * The IRQ-number and DMA-channel, which the card uses, have to be set by using jumpers on the card.
  * If not specified else in the constructor, this driver assumes that IRQ 10 and DMA-channel 1 are used.
  *
  * Supported audio formats:
  *      -Mono PCM, 4000-23000 Hz, 8-bit samples
+ *      -Mono PCM, 23000-44100 Hz, 8-bit samples (only with DSP versions >= 2.01)
  */
 namespace Device {
 
@@ -90,9 +92,9 @@ public:
      *
      * @param sampleRate The sample rate
      * @param channels The amount of channels
-     * @param bits The amount of bits per sample
+     * @param bitsPerSample The amount of bits per sample
      */
-    bool setAudioParameters(uint16_t sampleRate, uint8_t channels, uint8_t bits);
+    bool setAudioParameters(uint16_t sampleRate, uint8_t channels, uint8_t bitsPerSample);
 
     [[nodiscard]] uint32_t getDmaBufferSize() const;
 
@@ -103,6 +105,17 @@ public:
     void plugin() override;
 
 private:
+
+    enum DspCommand {
+        GET_VERSION = 0xe1,
+        TURN_SPEAKER_ON = 0xd1,
+        TURN_SPEAKER_OFF = 0xd3,
+        TRANSFER_TIME_CONSTANT = 0x40,
+        SET_BLOCK_TRANSFER_SIZE = 0x48,
+        EIGHT_BIT_SINGLE_CYCLE_DMA_OUTPUT = 0x14,
+        EIGHT_BIT_SINGLE_CYCLE_HIGH_SPEED_DMA_OUTPUT = 0x91
+    };
+
     /**
      * Constructor.
      */
@@ -134,43 +147,6 @@ private:
     void writeToDSP(uint8_t value);
 
     /**
-     * Directly read a byte from the Analog-to-Digital Converter (ADC).
-     *
-     * The ADC takes microphone input and converts it to digital samples. By reading directly from the ADC, one can
-     * get these samples one-by-one. However, this takes up much processing time and needs precise timing.
-     * It is much better to let the DMA-controller handle the communication with the ADC and retrieve larger chunks
-     * of samples from it at once.
-     * This functionality will be implemented in the SoundBlaster-subclasses.
-     *
-     * @return The retrieved byte
-     */
-    uint8_t readFromADC();
-
-    /**
-     * Directly write a byte to the Digital-to-Analog Converter (DAC).
-     *
-     * The DAC takes digital samples and converts them to analog sound, that can be output by a speaker.
-     * By writing directly to the DAC, one can output these samples one-by-one. However, this takes up much
-     * processing time and needs precise timing. It is much better to let the DMA-controller handle the communication
-     * with the DAC and send larger chunks of samples to it at once.
-     * This functionality is implemented in the SoundBlaster-subclasses.
-     *
-     * CAUTION: As it seems, writing directly to the DAC is currently not supported by QEMU.
-     *
-     * @param value The byte to be sent.
-     */
-    void writeToDAC(uint8_t value);
-
-    /**
-     * Set the sample rate, that the DSP shall use to play the next samples.
-     *
-     * @param sampleRate The sample rate
-     * @param channels The amount of channels
-     * @param bits The amount of bits per sample
-     */
-    bool setSampleRate(uint16_t sampleRate, uint8_t channels, uint8_t bits);
-
-    /**
      * Prepare the DMA-controller for a data transfer to the sound card.
      *
      * @param offset Offset to add to the base address, that is used for DMA-transfer (SoundBlaster::dmaMemory)
@@ -179,11 +155,18 @@ private:
     void prepareDma(uint32_t offset, uint32_t size) const;
 
     /**
+     * Set the time constant, the DSP should use for the next transfer.
+     *
+     * @param timeConstant The time constant
+     */
+    void writeTimeConstant();
+
+    /**
      * Set the size of the buffer, that the DSP awaits to play.
      *
      * @param size The size
      */
-    void setBufferSize(uint32_t size);
+    void writeBufferSize(uint32_t size);
 
     /**
      * Check, if SoundBlaster IO-ports are available at the given address.
@@ -202,8 +185,6 @@ private:
      */
     static uint16_t getBasePort();
 
-    Util::Async::Spinlock lock;
-
     IoPort resetPort;
     IoPort readDataPort;
     IoPort writeDataPort;
@@ -212,6 +193,11 @@ private:
     uint8_t irqNumber;
     uint8_t dmaChannel;
 
+    uint16_t dspVersion;
+
+    uint16_t samplesPerSecond;
+    uint16_t timeConstant;
+
     uint32_t dmaBufferSize = 0;
     uint8_t *dmaBuffer = nullptr;
     uint8_t *physicalDmaAddress = nullptr;
@@ -219,8 +205,6 @@ private:
     bool receivedInterrupt = false;
 
     static Kernel::Logger log;
-
-private:
 
     static const constexpr uint16_t FIRST_BASE_ADDRESS = 0x220;
     static const constexpr uint16_t LAST_BASE_ADDRESS = 0x280;

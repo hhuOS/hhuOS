@@ -34,7 +34,7 @@
 #include "lib/util/sound/SoundBlaster.h"
 #include "lib/util/sound/WaveFile.h"
 
-static const constexpr uint32_t BUFFER_SIZE = 4096;
+static const constexpr double AUDIO_BUFFER_SIZE = 0.5;
 static const constexpr uint8_t BAR_LENGTH = 25;
 
 bool isRunning = true;
@@ -105,7 +105,8 @@ int32_t main(int32_t argc, char *argv[]) {
     Util::Graphic::Ansi::disableCursor();
     Util::System::out << "Playing '" << inputFile.getName() << "'... Press <ENTER> to stop." << Util::Io::PrintStream::endl;
 
-    auto *fileBuffer = new uint8_t[BUFFER_SIZE];
+    auto bufferSize = static_cast<uint32_t>(AUDIO_BUFFER_SIZE * waveFile.getSamplesPerSecond() * (waveFile.getBitsPerSample() / 8.0) * waveFile.getNumChannels());
+    auto *fileBuffer = new uint8_t[bufferSize];
     uint32_t remaining = waveFile.getDataSize();
 
     while (isRunning && remaining > 0) {
@@ -113,7 +114,7 @@ int32_t main(int32_t argc, char *argv[]) {
         printStatusLine(waveFile, remaining);
         Util::Graphic::Ansi::restoreCursorPosition();
 
-        uint32_t toWrite = remaining >= BUFFER_SIZE ? BUFFER_SIZE : remaining;
+        uint32_t toWrite = remaining >= bufferSize ? bufferSize : remaining;
         waveFile.read(fileBuffer, 0, toWrite);
         soundBlaster.play(fileBuffer, toWrite);
 

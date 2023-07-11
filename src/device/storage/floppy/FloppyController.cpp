@@ -373,7 +373,7 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::Transfe
     }
 
     auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    void *dmaMemory = memoryService.allocateLowerMemory(sectorCount * device.getSectorSize(), Util::PAGESIZE);
+    void *dmaMemory = memoryService.allocateLowerMemory(sectorCount * device.getSectorSize(), Isa::MAX_DMA_PAGESIZE);
     bool success = false;
 
     if (mode == WRITE) {

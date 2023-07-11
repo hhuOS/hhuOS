@@ -35,12 +35,18 @@ namespace Device {
 Kernel::Logger SoundBlaster::log = Kernel::Logger::get("SoundBlaster");
 
 SoundBlaster::SoundBlaster(uint16_t baseAddress, uint8_t irqNumber, uint8_t dmaChannel) :
-        resetPort(baseAddress + 0x06),
-        readDataPort(baseAddress + 0x0a),
-        writeDataPort(baseAddress + 0x0c),
-        readBufferStatusPort(baseAddress + 0x0e),
-        irqNumber(irqNumber),
-        dmaChannel(dmaChannel) {}
+        resetPort(baseAddress + 0x06), readDataPort(baseAddress + 0x0a),
+        writeDataPort(baseAddress + 0x0c), readBufferStatusPort(baseAddress + 0x0e),
+        irqNumber(irqNumber), dmaChannel(dmaChannel) {
+    // Get version
+    while((readBufferStatusPort.readByte() & 0x80) != 0x80);
+    uint8_t majorVersion = readDataPort.readByte();
+    while((readBufferStatusPort.readByte() & 0x80) != 0x80);
+    uint8_t minorVersion = readDataPort.readByte();
+
+    dspVersion = (majorVersion << 8) | minorVersion;
+    log.info("DSP version: [%u.%02u]", majorVersion, minorVersion);
+}
 
 SoundBlaster::~SoundBlaster() {
     Kernel::System::getService<Kernel::MemoryService>().freeLowerMemory(dmaBuffer);
@@ -116,13 +122,6 @@ bool SoundBlaster::initialize() {
     while((readBufferStatusPort.readByte() & 0x80) == 0x80);
     writeDataPort.writeByte(0xe1);
 
-    // Get version
-    while((readBufferStatusPort.readByte() & 0x80) != 0x80);
-    uint8_t majorVersion = readDataPort.readByte();
-    while((readBufferStatusPort.readByte() & 0x80) != 0x80);
-    uint8_t minorVersion = readDataPort.readByte();
-    log.info("Major version: [%x], Minor version: [%x]", majorVersion, minorVersion);
-
     auto &processService = Kernel::System::getService<Kernel::ProcessService>();
     auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
     auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
@@ -194,26 +193,12 @@ void SoundBlaster::writeToDSP(uint8_t value) {
     writeDataPort.writeByte(value);
 }
 
-uint8_t SoundBlaster::readFromADC() {
-    writeToDSP(0x20);
-    return readFromDSP();
-}
-
-void SoundBlaster::writeToDAC(uint8_t value) {
-    writeToDSP(0x10);
-    writeToDSP(value);
-}
-
 void SoundBlaster::turnSpeakerOn() {
-    lock.acquire();
-    writeToDSP(0xd1);
-    lock.release();
+    writeToDSP(TURN_SPEAKER_ON);
 }
 
 void SoundBlaster::turnSpeakerOff() {
-    lock.acquire();
-    writeToDSP(0xd3);
-    lock.release();
+    writeToDSP(TURN_SPEAKER_OFF);
 }
 
 void SoundBlaster::ackInterrupt() {
@@ -237,40 +222,38 @@ uint8_t* SoundBlaster::getDmaBuffer() const {
     return dmaBuffer;
 }
 
-bool SoundBlaster::setAudioParameters(uint16_t sampleRate, uint8_t channels, uint8_t bits) {
-    lock.acquire();
-    if (channels > 1 || bits != 8) {
-        lock.release();
+bool SoundBlaster::setAudioParameters(uint16_t sampleRate, uint8_t channels, uint8_t bitsPerSample) {
+    if (channels > 1 || bitsPerSample != 8) {
         return false;
     }
 
-    auto timeConstant = static_cast<uint16_t>(65536 - (256000000 / sampleRate));
+    if (dspVersion < 0x0201 && sampleRate > 23000) {
+        return false;
+    } else if (sampleRate > 44100) {
+        return false;
+    }
 
-    writeToDSP(0x40);
-    writeToDSP(static_cast<uint8_t>((timeConstant & 0xff00) >> 8));
+    samplesPerSecond = sampleRate;
+    timeConstant = static_cast<uint16_t>(65536 - (256000000 / sampleRate));
 
     auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    dmaBufferSize = static_cast<uint32_t>(AUDIO_BUFFER_SIZE * sampleRate * (bits / 8.0) * channels);
+    dmaBufferSize = static_cast<uint32_t>(AUDIO_BUFFER_SIZE * sampleRate * (bitsPerSample / 8.0) * channels);
     if (dmaBufferSize % 2 == 1) {
         dmaBufferSize++;
     }
+    if (dmaBufferSize > Isa::MAX_DMA_PAGESIZE) {
+        dmaBufferSize = Isa::MAX_DMA_PAGESIZE;
+    }
 
     memoryService.freeLowerMemory(dmaBuffer);
-    dmaBuffer = static_cast<uint8_t*>(memoryService.allocateLowerMemory(dmaBufferSize, Util::PAGESIZE));
+    dmaBuffer = static_cast<uint8_t*>(memoryService.allocateLowerMemory(dmaBufferSize, Isa::MAX_DMA_PAGESIZE));
     physicalDmaAddress = static_cast<uint8_t*>(memoryService.getPhysicalAddress(dmaBuffer));
 
-    lock.release();
     return true;
 }
 
 uint32_t SoundBlaster::getDmaBufferSize() const {
     return dmaBufferSize;
-}
-
-void SoundBlaster::setBufferSize(uint32_t size) {
-    writeToDSP(0x14);
-    writeToDSP(static_cast<uint8_t>((size - 1) & 0x00ff));
-    writeToDSP(static_cast<uint8_t>(((size - 1) & 0xff00) >> 8));
 }
 
 void SoundBlaster::prepareDma(uint32_t offset, uint32_t size) const {
@@ -281,13 +264,29 @@ void SoundBlaster::prepareDma(uint32_t offset, uint32_t size) const {
     Isa::deselectChannel(dmaChannel);
 }
 
+void SoundBlaster::writeTimeConstant() {
+    // Set time constant
+    writeToDSP(0x40);
+    writeToDSP(static_cast<uint8_t>((timeConstant & 0xff00) >> 8));
+}
+
+void SoundBlaster::writeBufferSize(uint32_t size) {
+    writeToDSP(static_cast<uint8_t>((size - 1) & 0x00ff));
+    writeToDSP(static_cast<uint8_t>(((size - 1) & 0xff00) >> 8));
+}
+
 void SoundBlaster::play(uint32_t offset, uint32_t size) {
-    lock.acquire();
-
     prepareDma(offset, size);
-    setBufferSize(size);
+    writeTimeConstant();
 
-    lock.release();
+    if (samplesPerSecond <= 23000) {
+        writeToDSP(EIGHT_BIT_SINGLE_CYCLE_DMA_OUTPUT);
+        writeBufferSize(size);
+    } else {
+        writeToDSP(SET_BLOCK_TRANSFER_SIZE);
+        writeBufferSize(size);
+        writeToDSP(EIGHT_BIT_SINGLE_CYCLE_HIGH_SPEED_DMA_OUTPUT);
+    }
 }
 
 }

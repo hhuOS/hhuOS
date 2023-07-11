@@ -103,8 +103,7 @@ public:
      * @param reverseMemoryOrder true, if the memory order shall be reversed (High addresses to low addresses)
      * @param dmaMode The DMA to use
      */
-    static void
-    setMode(uint8_t channel, TransferMode transferMode, bool autoReset, bool reverseMemoryOrder, DmaMode dmaMode);
+    static void setMode(uint8_t channel, TransferMode transferMode, bool autoReset, bool reverseMemoryOrder, DmaMode dmaMode);
 
     /**
      * Reset the controller's mask register (all bits are set to OFF).
@@ -120,8 +119,9 @@ public:
      */
     static void resetAll(uint8_t channel);
 
-private:
+    static const constexpr uint32_t MAX_DMA_PAGESIZE = 64 * 1024;
 
+private:
     /**
      * Reset the controller's flip-flop.
      *
