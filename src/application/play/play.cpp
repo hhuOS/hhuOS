@@ -34,7 +34,30 @@
 #include "lib/util/sound/SoundBlaster.h"
 #include "lib/util/sound/WaveFile.h"
 
-static const constexpr uint32_t BUFFER_SIZE = 8192;
+static const constexpr uint32_t BUFFER_SIZE = 4096;
+static const constexpr uint8_t BAR_LENGTH = 25;
+
+bool isRunning = true;
+
+void printStatusLine(const Util::Sound::WaveFile &waveFile, uint32_t remainingBytes) {
+    auto passedSeconds = (waveFile.getDataSize() - remainingBytes) / waveFile.getBytesPerSecond();
+    auto passedMinutes = passedSeconds / 60;
+    auto totalSeconds = waveFile.getSampleCount() / waveFile.getSamplesPerSecond();
+    auto totalMinutes = totalSeconds / 60;
+
+    auto timeString = Util::String::format("%u:%02um/%u:%02um", passedMinutes, passedSeconds - passedMinutes * 60, totalMinutes, totalSeconds - totalMinutes * 60);
+    auto percentage = static_cast<double>(passedSeconds) / totalSeconds;
+    auto filledBar = static_cast<uint32_t>((BAR_LENGTH - 2) * percentage);
+
+    Util::System::out << "[";
+    for (uint32_t i = 0; i < filledBar; i++) {
+        Util::System::out << "#";
+    }
+    for (uint32_t i = 0; i < (BAR_LENGTH - 2) - filledBar; i++) {
+        Util::System::out << "-";
+    }
+    Util::System::out << "]" << Util::Io::PrintStream::endl << timeString << Util::Io::PrintStream::flush;
+}
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -70,20 +93,38 @@ int32_t main(int32_t argc, char *argv[]) {
     auto outputStream = Util::Io::FileOutputStream(soundBlasterFile);
 
     if (!soundBlasterFile.control(Util::Sound::SoundBlaster::SET_AUDIO_PARAMETERS, Util::Array<uint32_t>({waveFile.getSamplesPerSecond(), waveFile.getNumChannels(), waveFile.getBitsPerSample()}))) {
-        Util::System::error << "play: Failed to set sample rate!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "play: Failed to set soundcard parameters!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto *fileBuffer = new uint8_t[BUFFER_SIZE];
 
+    Util::Async::Thread::createThread("Key-Listener", new Util::Async::FunctionPointerRunnable([]{
+        Util::System::in.read();
+        isRunning = false;
+    }));
+
+    Util::Graphic::Ansi::disableCursor();
+    Util::System::out << "Playing '" << inputFile.getName() << "'... Press <ENTER> to stop." << Util::Io::PrintStream::endl;
+
     uint32_t remaining = waveFile.getDataSize();
-    while (remaining > 0) {
+    while (isRunning && remaining > 0) {
+        printStatusLine(waveFile, remaining);
+        Util::Graphic::Ansi::moveCursorToBeginningOfPreviousLine(0);
+
         uint32_t toWrite = remaining >= BUFFER_SIZE ? BUFFER_SIZE : remaining;
         waveFile.read(fileBuffer, 0, toWrite);
         outputStream.write(fileBuffer, 0, toWrite);
 
         remaining -= toWrite;
     }
+
+    Util::Graphic::Ansi::clearLine();
+    Util::Graphic::Ansi::moveCursorToBeginningOfPreviousLine(0);
+    Util::Graphic::Ansi::clearLine();
+    Util::Graphic::Ansi::moveCursorToBeginningOfPreviousLine(0);
+    Util::Graphic::Ansi::clearLine();
+    Util::Graphic::Ansi::enableCursor();
 
     return 0;
 }

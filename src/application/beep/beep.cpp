@@ -103,6 +103,9 @@ int32_t main(int32_t argc, char *argv[]) {
         isRunning = false;
     }));
 
+    Util::Graphic::Ansi::disableCursor();
+    Util::System::out << "Playing '" << beepFile.getName() << "'... Press <ENTER> to stop." << Util::Io::PrintStream::endl;
+
     auto line = stream.readLine();
     while (isRunning && !line.isEmpty()) {
         auto split = line.split(",");
@@ -119,6 +122,13 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     printStream << 0 << Util::Io::PrintStream::flush;
+
     Util::Graphic::Ansi::clearLine();
+    Util::Graphic::Ansi::moveCursorToBeginningOfPreviousLine(0);
+    Util::Graphic::Ansi::clearLine();
+    Util::Graphic::Ansi::moveCursorToBeginningOfPreviousLine(0);
+    Util::Graphic::Ansi::clearLine();
+    Util::Graphic::Ansi::enableCursor();
+
     return 0;
 }
