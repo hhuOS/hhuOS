@@ -89,15 +89,13 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
+    auto soundBlaster = Util::Sound::SoundBlaster(soundBlasterFile);
     auto waveFile = Util::Sound::WaveFile(inputFile);
-    auto outputStream = Util::Io::FileOutputStream(soundBlasterFile);
 
-    if (!soundBlasterFile.control(Util::Sound::SoundBlaster::SET_AUDIO_PARAMETERS, Util::Array<uint32_t>({waveFile.getSamplesPerSecond(), waveFile.getNumChannels(), waveFile.getBitsPerSample()}))) {
-        Util::System::error << "play: Failed to set soundcard parameters!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    if (!soundBlaster.setAudioParameters(waveFile.getSamplesPerSecond(), waveFile.getNumChannels(), waveFile.getBitsPerSample())) {
+        Util::System::error << "play: Failed to set sound card parameters!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
-
-    auto *fileBuffer = new uint8_t[BUFFER_SIZE];
 
     Util::Async::Thread::createThread("Key-Listener", new Util::Async::FunctionPointerRunnable([]{
         Util::System::in.read();
@@ -107,14 +105,16 @@ int32_t main(int32_t argc, char *argv[]) {
     Util::Graphic::Ansi::disableCursor();
     Util::System::out << "Playing '" << inputFile.getName() << "'... Press <ENTER> to stop." << Util::Io::PrintStream::endl;
 
+    auto *fileBuffer = new uint8_t[BUFFER_SIZE];
     uint32_t remaining = waveFile.getDataSize();
+
     while (isRunning && remaining > 0) {
         printStatusLine(waveFile, remaining);
         Util::Graphic::Ansi::moveCursorToBeginningOfPreviousLine(0);
 
         uint32_t toWrite = remaining >= BUFFER_SIZE ? BUFFER_SIZE : remaining;
         waveFile.read(fileBuffer, 0, toWrite);
-        outputStream.write(fileBuffer, 0, toWrite);
+        soundBlaster.play(fileBuffer, toWrite);
 
         remaining -= toWrite;
     }

@@ -18,6 +18,9 @@
 #ifndef HHUOS_UTIL_SOUNDBLASTER_H
 #define HHUOS_UTIL_SOUNDBLASTER_H
 
+#include "lib/util/io/file/File.h"
+#include "lib/util/io/stream/FileOutputStream.h"
+
 namespace Util::Sound {
 
 class SoundBlaster {
@@ -29,10 +32,9 @@ public:
     };
 
     /**
-     * Default Constructor.
-     * Deleted, as this class has only static members.
+     * Constructor.
      */
-    SoundBlaster() = delete;
+    explicit SoundBlaster(const Io::File &soundBlasterFile);
 
     /**
      * Copy Constructor.
@@ -46,9 +48,17 @@ public:
 
     /**
      * Destructor.
-     * Deleted, as this class has only static members.
      */
-    ~SoundBlaster() = delete;
+    ~SoundBlaster() = default;
+
+    bool setAudioParameters(uint32_t sampleRate, uint8_t channels, uint8_t bitsPerSample);
+
+    void play(const uint8_t *data, uint32_t size);
+
+private:
+
+    Io::File soundBlasterFile;
+    Io::FileOutputStream stream;
 };
 
 }
