@@ -15,18 +15,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SoundBlaster.h"
+#include "PcSpeaker.h"
+#include "lib/util/async/Thread.h"
 
 namespace Util::Sound {
 
-Sound::SoundBlaster::SoundBlaster(const Io::File &soundBlasterFile) : soundBlasterFile(soundBlasterFile), stream(soundBlasterFile) {}
+PcSpeaker::PcSpeaker(const Io::File &speakerFile) : stream(speakerFile) {}
 
-bool SoundBlaster::setAudioParameters(uint32_t sampleRate, uint8_t channels, uint8_t bitsPerSample) {
-    return soundBlasterFile.control(Util::Sound::SoundBlaster::SET_AUDIO_PARAMETERS, Util::Array<uint32_t>({sampleRate, channels, bitsPerSample}));
+void PcSpeaker::play(uint32_t frequency) {
+    auto frequencyString = Util::String::format("%u", frequency);
+    stream.write(static_cast<const uint8_t*>(frequencyString), 0, frequencyString.length());
 }
 
-void Sound::SoundBlaster::play(const uint8_t *data, uint32_t size) {
-    stream.write(data, 0, size);
+void PcSpeaker::play(uint32_t frequency, const Time::Timestamp &length) {
+    play(frequency);
+    Util::Async::Thread::sleep(length);
+}
+
+void PcSpeaker::turnOff() {
+    play(0);
 }
 
 }

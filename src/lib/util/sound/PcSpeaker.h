@@ -15,60 +15,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_FLEET_H
-#define HHUOS_FLEET_H
+#ifndef HHUOS_UTIL_PCSPEAKER_H
+#define HHUOS_UTIL_PCSPEAKER_H
 
-#include <cstdint>
+#include "lib/util/io/file/File.h"
+#include "lib/util/io/stream/FileOutputStream.h"
+#include "lib/util/time/Timestamp.h"
 
-#include "lib/util/math/Random.h"
+namespace Util::Sound {
 
-class Fleet {
+class PcSpeaker {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    explicit Fleet(uint32_t size, double initialSpeed);
+    explicit PcSpeaker(const Io::File &speakerFile);
 
     /**
      * Copy Constructor.
      */
-    Fleet(const Fleet &other) = delete;
+    PcSpeaker(const PcSpeaker &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Fleet &operator=(const Fleet &other) = delete;
+    PcSpeaker &operator=(const PcSpeaker &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Fleet() = default;
+    ~PcSpeaker() = default;
 
-    void changeDirection();
+    void play(uint32_t frequency);
 
-    void increaseVelocity();
+    void play(uint32_t frequency, const Time::Timestamp &length);
 
-    void moveDown();
-
-    void decreaseSize();
-
-    void applyChanges();
-
-    [[nodiscard]] double getVelocity() const;
-
-    [[nodiscard]] bool isMovingDown() const;
-
-    [[nodiscard]] double getRandomNumber();
+    void turnOff();
 
 private:
 
-    uint32_t size;
-    double velocity = 1.0;
-    double moveDownCounter = 0;
-    Util::Math::Random random;
-
-    double nextVelocity = velocity;
+    Io::FileOutputStream stream;
 };
+
+}
 
 #endif

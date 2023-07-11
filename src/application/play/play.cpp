@@ -56,7 +56,7 @@ void printStatusLine(const Util::Sound::WaveFile &waveFile, uint32_t remainingBy
     for (uint32_t i = 0; i < (BAR_LENGTH - 2) - filledBar; i++) {
         Util::System::out << "-";
     }
-    Util::System::out << "]" << Util::Io::PrintStream::endl << timeString << Util::Io::PrintStream::flush;
+    Util::System::out << "] " << timeString << Util::Io::PrintStream::flush;
 }
 
 int32_t main(int32_t argc, char *argv[]) {
@@ -109,8 +109,9 @@ int32_t main(int32_t argc, char *argv[]) {
     uint32_t remaining = waveFile.getDataSize();
 
     while (isRunning && remaining > 0) {
+        Util::Graphic::Ansi::saveCursorPosition();
         printStatusLine(waveFile, remaining);
-        Util::Graphic::Ansi::moveCursorToBeginningOfPreviousLine(0);
+        Util::Graphic::Ansi::restoreCursorPosition();
 
         uint32_t toWrite = remaining >= BUFFER_SIZE ? BUFFER_SIZE : remaining;
         waveFile.read(fileBuffer, 0, toWrite);
