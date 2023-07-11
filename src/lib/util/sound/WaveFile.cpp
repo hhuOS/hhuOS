@@ -20,58 +20,40 @@
 
 namespace Util::Sound {
 
-WaveFile::WaveFile(uint8_t *buffer) : buffer(buffer) {
-    auto &riffChunk = *((RiffChunk*) buffer);
-
-    audioFormat = riffChunk.formatChunk.audioFormat;
-    bitsPerSample = riffChunk.formatChunk.bitsPerSample;
-    numChannels = riffChunk.formatChunk.numChannels;
-    samplesPerSecond = riffChunk.formatChunk.samplesPerSecond;
-    bytesPerSecond = riffChunk.formatChunk.bytesPerSecond;
-    bitsPerSample = riffChunk.formatChunk.bitsPerSample;
-    frameSize = static_cast<uint16_t>(riffChunk.formatChunk.numChannels * ((bitsPerSample + 7) / 8));
-    dataSize = riffChunk.dataChunk.chunkSize;
-    sampleCount = dataSize / frameSize;
-}
-
-const uint8_t* WaveFile::getData() const {
-    return &buffer[sizeof(RiffChunk)];
+WaveFile::WaveFile(const Io::File &file) : Io::FilterInputStream(stream), stream(file) {
+    read(reinterpret_cast<uint8_t*>(&riffChunk), 0, sizeof(RiffChunk));
 }
 
 uint32_t WaveFile::getDataSize() const {
-    return dataSize;
-}
-
-WaveFile::~WaveFile() {
-    delete buffer;
+    return riffChunk.dataChunk.chunkSize;
 }
 
 WaveFile::AudioFormat WaveFile::getAudioFormat() const {
-    return audioFormat;
+    return riffChunk.formatChunk.audioFormat;
 }
 
 uint16_t WaveFile::getNumChannels() const {
-    return numChannels;
+    return riffChunk.formatChunk.numChannels;
 }
 
 uint32_t WaveFile::getSamplesPerSecond() const {
-    return samplesPerSecond;
+    return riffChunk.formatChunk.samplesPerSecond;
 }
 
 uint32_t WaveFile::getBytesPerSecond() const {
-    return bytesPerSecond;
+    return riffChunk.formatChunk.bytesPerSecond;
 }
 
 uint16_t WaveFile::getBitsPerSample() const {
-    return bitsPerSample;
+    return riffChunk.formatChunk.bitsPerSample;
 }
 
 uint16_t WaveFile::getFrameSize() const {
-    return frameSize;
+    return riffChunk.formatChunk.frameSize;
 }
 
 uint32_t WaveFile::getSampleCount() const {
-    return sampleCount;
+    return riffChunk.dataChunk.chunkSize / riffChunk.formatChunk.frameSize;
 }
 
 }

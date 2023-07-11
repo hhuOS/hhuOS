@@ -34,6 +34,8 @@
 #include "lib/util/sound/SoundBlaster.h"
 #include "lib/util/sound/WaveFile.h"
 
+static const constexpr uint32_t BUFFER_SIZE = 8192;
+
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.setHelpText("Play .wav-files via a sound blaster card.\n"
@@ -64,21 +66,24 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto fileStream = Util::Io::FileInputStream(inputFile);
-    auto stream = Util::Io::BufferedInputStream(fileStream);
-    auto bufferedStream = Util::Io::BufferedInputStream(fileStream);
+    auto waveFile = Util::Sound::WaveFile(inputFile);
     auto outputStream = Util::Io::FileOutputStream(soundBlasterFile);
-
-    auto *fileBuffer = new uint8_t[inputFile.getLength()];
-    bufferedStream.read(fileBuffer, 0, inputFile.getLength());
-    auto waveFile = Util::Sound::WaveFile(fileBuffer);
 
     if (!soundBlasterFile.control(Util::Sound::SoundBlaster::SET_AUDIO_PARAMETERS, Util::Array<uint32_t>({waveFile.getSamplesPerSecond(), waveFile.getNumChannels(), waveFile.getBitsPerSample()}))) {
         Util::System::error << "play: Failed to set sample rate!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
-    outputStream.write(waveFile.getData(), 0, waveFile.getDataSize());
+    auto *fileBuffer = new uint8_t[BUFFER_SIZE];
+
+    uint32_t remaining = waveFile.getDataSize();
+    while (remaining > 0) {
+        uint32_t toWrite = remaining >= BUFFER_SIZE ? BUFFER_SIZE : remaining;
+        waveFile.read(fileBuffer, 0, toWrite);
+        outputStream.write(fileBuffer, 0, toWrite);
+
+        remaining -= toWrite;
+    }
 
     return 0;
 }

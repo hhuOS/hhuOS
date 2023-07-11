@@ -20,10 +20,13 @@
 
 #include <cstdint>
 #include "lib/util/base/Address.h"
+#include "lib/util/io/stream/FilterInputStream.h"
+#include "lib/util/io/file/File.h"
+#include "lib/util/io/stream/FileInputStream.h"
 
 namespace Util::Sound {
 
-class WaveFile {
+class WaveFile : public Io::FilterInputStream {
 
 public:
 
@@ -76,7 +79,7 @@ public:
     /**
      * Constructor.
      */
-    explicit WaveFile(uint8_t *buffer);
+    explicit WaveFile(const Io::File &file);
 
     /**
      * Copy Constructor.
@@ -91,7 +94,7 @@ public:
     /**
      * Destructor.
      */
-    ~WaveFile();
+    ~WaveFile() override = default;
 
     [[nodiscard]] AudioFormat getAudioFormat() const;
 
@@ -106,8 +109,6 @@ public:
     [[nodiscard]] uint16_t getFrameSize() const;
 
     [[nodiscard]] uint32_t getSampleCount() const;
-
-    [[nodiscard]] const uint8_t* getData() const;
 
     [[nodiscard]] uint32_t getDataSize() const;
 
@@ -137,16 +138,9 @@ private:
         DataChunk dataChunk;
     } __attribute__ ((packed));
 
-    uint8_t *buffer;
+    Io::FileInputStream stream;
 
-    AudioFormat audioFormat = PCM;
-    uint16_t numChannels = 0;
-    uint32_t samplesPerSecond = 0;
-    uint32_t bytesPerSecond = 0;
-    uint16_t bitsPerSample = 0;
-    uint16_t frameSize = 0;
-    uint32_t dataSize = 0;
-    uint32_t sampleCount = 0;
+    RiffChunk riffChunk{};
 };
 
 }
