@@ -37,6 +37,7 @@ Kernel::Logger SoundBlaster::log = Kernel::Logger::get("SoundBlaster");
 SoundBlaster::SoundBlaster(uint16_t baseAddress, uint8_t irqNumber, uint8_t dmaChannel) :
         resetPort(baseAddress + 0x06), readDataPort(baseAddress + 0x0a),
         writeDataPort(baseAddress + 0x0c), readBufferStatusPort(baseAddress + 0x0e),
+        mixerAddressPort(baseAddress + 0x04), mixerDataPort(baseAddress + 0x05),
         irqNumber(irqNumber), dmaChannel(dmaChannel) {
     // Get version
     while((readBufferStatusPort.readByte() & 0x80) != 0x80);
@@ -223,18 +224,27 @@ uint8_t* SoundBlaster::getDmaBuffer() const {
 }
 
 bool SoundBlaster::setAudioParameters(uint16_t sampleRate, uint8_t channels, uint8_t bitsPerSample) {
-    if (channels > 1 || bitsPerSample != 8) {
-        return false;
-    }
-
-    if (dspVersion < 0x0201 && sampleRate > 23000) {
-        return false;
-    } else if (sampleRate > 44100) {
-        return false;
+    if (dspVersion < 0x0201) {
+        if (channels > 1 || bitsPerSample != 8 || sampleRate < 4000 || sampleRate > 23000) {
+            return false;
+        }
+    } else if (dspVersion < 0x0300) {
+        if (channels > 1 || bitsPerSample != 8 || sampleRate < 4000 || sampleRate > 44100) {
+            return false;
+        }
+    } else if (channels == 1) {
+        if (bitsPerSample != 8 || sampleRate < 4000 || sampleRate > 44100) {
+            return false;
+        }
+    } else if (channels == 2) {
+        if (bitsPerSample != 8 || (sampleRate != 11025 && sampleRate != 22050)) {
+            return false;
+        }
     }
 
     samplesPerSecond = sampleRate;
-    timeConstant = static_cast<uint16_t>(65536 - (256000000 / sampleRate));
+    timeConstant = static_cast<uint16_t>(65536 - (256000000 / (sampleRate * channels)));
+    numChannels = channels;
 
     auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
     dmaBufferSize = static_cast<uint32_t>(AUDIO_BUFFER_SIZE * sampleRate * (bitsPerSample / 8.0) * channels);
@@ -264,6 +274,40 @@ void SoundBlaster::prepareDma(uint32_t offset, uint32_t size) const {
     Isa::deselectChannel(dmaChannel);
 }
 
+void SoundBlaster::enableLowPassFilter() {
+    mixerAddressPort.writeByte(OUTPUT_CONTROL);
+    mixerDataPort.writeByte(mixerDataPort.readByte() & ~LOW_PASS_FILTER);
+    lowPassFilterEnabled = true;
+}
+
+void SoundBlaster::disableLowPassFilter() {
+    mixerAddressPort.writeByte(OUTPUT_CONTROL);
+    mixerDataPort.writeByte(mixerDataPort.readByte() | LOW_PASS_FILTER);
+    lowPassFilterEnabled = false;
+}
+
+void SoundBlaster::enableStereo() {
+    mixerAddressPort.writeByte(OUTPUT_CONTROL);
+    mixerDataPort.writeByte(mixerDataPort.readByte() | STEREO);
+
+    // To enable stereo mode, the DSP needs to output a single silent byte
+    dmaBuffer[0] = 0x80;
+    dmaBuffer[1] = 0x80;
+
+    prepareDma(0, 2);
+    writeToDSP(EIGHT_BIT_SINGLE_CYCLE_DMA_OUTPUT);
+    writeBufferSize(1);
+
+    waitForInterrupt();
+    stereoEnabled = true;
+}
+
+void SoundBlaster::disableStereo() {
+    mixerAddressPort.writeByte(OUTPUT_CONTROL);
+    mixerDataPort.writeByte(mixerDataPort.readByte() & ~STEREO);
+    stereoEnabled = false;
+}
+
 void SoundBlaster::writeTimeConstant() {
     // Set time constant
     writeToDSP(0x40);
@@ -276,10 +320,30 @@ void SoundBlaster::writeBufferSize(uint32_t size) {
 }
 
 void SoundBlaster::play(uint32_t offset, uint32_t size) {
+    if (dspVersion >= 0x0300) {
+        if (numChannels == 1) {
+            if (stereoEnabled) {
+                disableStereo();
+            }
+
+            if (samplesPerSecond <= 23000 && !lowPassFilterEnabled) {
+                enableLowPassFilter();
+            }
+        } else if (numChannels == 2) {
+            if (!stereoEnabled) {
+                enableStereo();
+            }
+
+            if (lowPassFilterEnabled) {
+                disableLowPassFilter();
+            }
+        }
+    }
+
     prepareDma(offset, size);
     writeTimeConstant();
 
-    if (samplesPerSecond <= 23000) {
+    if (numChannels == 1 && samplesPerSecond <= 23000) {
         writeToDSP(EIGHT_BIT_SINGLE_CYCLE_DMA_OUTPUT);
         writeBufferSize(size);
     } else {

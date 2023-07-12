@@ -31,6 +31,7 @@
  * Supported audio formats:
  *      -Mono PCM, 4000-23000 Hz, 8-bit samples
  *      -Mono PCM, 23000-44100 Hz, 8-bit samples (only with DSP versions >= 2.01)
+ *      -Stereo PCM, 11025 Hz or 22050 Hz, 8-bit samples (only with DSP version >= 3.00)
  */
 namespace Device {
 
@@ -116,6 +117,16 @@ private:
         EIGHT_BIT_SINGLE_CYCLE_HIGH_SPEED_DMA_OUTPUT = 0x91
     };
 
+    enum MixerRegister {
+        RESET = 0x00,
+        OUTPUT_CONTROL = 0x0e
+    };
+
+    enum MixerOutputOptions {
+        STEREO = 0x02,
+        LOW_PASS_FILTER = 0x20
+    };
+
     /**
      * Constructor.
      */
@@ -155,6 +166,27 @@ private:
     void prepareDma(uint32_t offset, uint32_t size) const;
 
     /**
+     * Enable the mixer's low-pass filter (Recommended for mono-samples, which are played at a rate of <= 23000 Hz).
+     */
+    void enableLowPassFilter();
+
+    /**
+     * Disable the mixer's low pass-filter (Recommended for all stereo-samples,
+     * or mono-samples,which are played at a rate of > 23000 Hz).
+     */
+    void disableLowPassFilter();
+
+    /**
+     * Enable stereo-mode.
+     */
+    void enableStereo();
+
+    /**
+     * Disable stereo-mode.
+     */
+    void disableStereo();
+
+    /**
      * Set the time constant, the DSP should use for the next transfer.
      *
      * @param timeConstant The time constant
@@ -190,13 +222,20 @@ private:
     IoPort writeDataPort;
     IoPort readBufferStatusPort;
 
+    IoPort mixerAddressPort;
+    IoPort mixerDataPort;
+
     uint8_t irqNumber;
     uint8_t dmaChannel;
 
     uint16_t dspVersion;
 
-    uint16_t samplesPerSecond;
-    uint16_t timeConstant;
+    uint16_t samplesPerSecond = 0;
+    uint16_t timeConstant = 0;
+    uint8_t numChannels = 1;
+
+    bool stereoEnabled = false;
+    bool lowPassFilterEnabled = false;
 
     uint32_t dmaBufferSize = 0;
     uint8_t *dmaBuffer = nullptr;
