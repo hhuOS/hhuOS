@@ -34,7 +34,7 @@
 #include "lib/util/sound/SoundBlaster.h"
 #include "lib/util/sound/WaveFile.h"
 
-static const constexpr double AUDIO_BUFFER_SIZE = 0.5;
+static const constexpr double AUDIO_BUFFER_SIZE = 1.0;
 static const constexpr uint8_t BAR_LENGTH = 25;
 
 bool isRunning = true;

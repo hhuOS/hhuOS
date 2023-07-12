@@ -24,9 +24,17 @@ SoundBlasterRunnable::SoundBlasterRunnable(SoundBlaster &soundBlaster) : soundBl
     inputStream->connect(*outputStream);
 }
 
+SoundBlasterRunnable::~SoundBlasterRunnable() {
+    delete inputStream;
+    delete outputStream;
+}
+
 void SoundBlasterRunnable::run() {
     while (isRunning) {
+        inputStreamLock.acquire();
         uint32_t available = inputStream->available();
+        inputStreamLock.release();
+
         while (available == 0) {
             if (isPlaying) {
                 soundBlaster.waitForInterrupt();
@@ -36,7 +44,10 @@ void SoundBlasterRunnable::run() {
             }
 
             Util::Async::Thread::yield();
+
+            inputStreamLock.acquire();
             available = inputStream->available();
+            inputStreamLock.release();
         }
 
         const auto bufferSize = soundBlaster.getDmaBufferSize();
@@ -51,7 +62,9 @@ void SoundBlasterRunnable::run() {
             soundBlaster.waitForInterrupt();
         }
 
+        inputStreamLock.acquire();
         inputStream->read(dmaBuffer, dmaOffset, available);
+        inputStreamLock.release();
 
         if (available < bufferSize / 2) {
             Util::Address<uint32_t>(dmaBuffer + dmaOffset + available).setRange(0, bufferSize / 2 - available);
@@ -74,6 +87,16 @@ void SoundBlasterRunnable::run() {
 
 void SoundBlasterRunnable::stop() {
     isRunning = false;
+}
+
+void SoundBlasterRunnable::adjustInputStreamBuffer(uint16_t sampleRate, uint8_t channels, uint8_t bitsPerSample) {
+    inputStreamLock.acquire();
+
+    delete inputStream;
+    inputStream = new Util::Io::PipedInputStream(static_cast<int32_t>(AUDIO_BUFFER_SIZE * sampleRate * (bitsPerSample / 8.0) * channels));
+    inputStream->connect(*outputStream);
+
+    inputStreamLock.release();
 }
 
 }

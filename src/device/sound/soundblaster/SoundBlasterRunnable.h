@@ -51,11 +51,13 @@ public:
     /**
      * Destructor.
      */
-    ~SoundBlasterRunnable() override = default;
+    ~SoundBlasterRunnable() override;
 
     void run() override;
 
     void stop();
+
+    void adjustInputStreamBuffer(uint16_t sampleRate, uint8_t channels, uint8_t bitsPerSample);
 
 private:
 
@@ -65,8 +67,12 @@ private:
     uint32_t dmaOffset = 0;
     SoundBlaster &soundBlaster;
 
-    Util::Io::PipedInputStream *inputStream = new Util::Io::PipedInputStream(8192);
+    Util::Async::Spinlock inputStreamLock;
+
+    Util::Io::PipedInputStream *inputStream = new Util::Io::PipedInputStream();
     Util::Io::PipedOutputStream *outputStream = new Util::Io::PipedOutputStream();
+
+    static const constexpr double AUDIO_BUFFER_SIZE = 0.5;
 };
 
 }

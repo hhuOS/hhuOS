@@ -23,6 +23,11 @@
 #include "lib/util/async/Spinlock.h"
 #include "kernel/log/Logger.h"
 #include "device/isa/Isa.h"
+
+namespace Device {
+
+class SoundBlasterRunnable;
+
 /**
  * Driver for the original SoundBlaster cards.
  * The IRQ-number and DMA-channel, which the card uses, have to be set by using jumpers on the card.
@@ -33,8 +38,6 @@
  *      -Mono PCM, 23000-44100 Hz, 8-bit samples (only with DSP versions >= 2.01)
  *      -Stereo PCM, 11025 Hz or 22050 Hz, 8-bit samples (only with DSP version >= 3.00)
  */
-namespace Device {
-
 class SoundBlaster : public Kernel::InterruptHandler {
 
 public:
@@ -64,12 +67,12 @@ public:
     static bool initialize();
 
     /**
-     * Turn the speaker on (Unnecessary on SoundBlaster16).
+     * Turn the speaker on.
      */
     void turnSpeakerOn();
 
     /**
-     * Turn the speaker off (Unnecessary on SoundBlaster16).
+     * Turn the speaker off.
      */
     void turnSpeakerOff();
 
@@ -243,13 +246,15 @@ private:
 
     bool receivedInterrupt = false;
 
+    SoundBlasterRunnable *runnable;
+
     static Kernel::Logger log;
 
     static const constexpr uint16_t FIRST_BASE_ADDRESS = 0x220;
     static const constexpr uint16_t LAST_BASE_ADDRESS = 0x280;
     static const constexpr uint32_t TIMEOUT = 10;
 
-    static const constexpr double AUDIO_BUFFER_SIZE = 0.1;
+    static const constexpr double AUDIO_BUFFER_SIZE = 0.2;
 };
 
 }

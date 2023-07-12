@@ -38,7 +38,7 @@ SoundBlaster::SoundBlaster(uint16_t baseAddress, uint8_t irqNumber, uint8_t dmaC
         resetPort(baseAddress + 0x06), readDataPort(baseAddress + 0x0a),
         writeDataPort(baseAddress + 0x0c), readBufferStatusPort(baseAddress + 0x0e),
         mixerAddressPort(baseAddress + 0x04), mixerDataPort(baseAddress + 0x05),
-        irqNumber(irqNumber), dmaChannel(dmaChannel) {
+        irqNumber(irqNumber), dmaChannel(dmaChannel), runnable(new SoundBlasterRunnable(*this)) {
     // Get version
     while((readBufferStatusPort.readByte() & 0x80) != 0x80);
     uint8_t majorVersion = readDataPort.readByte();
@@ -47,6 +47,17 @@ SoundBlaster::SoundBlaster(uint16_t baseAddress, uint8_t irqNumber, uint8_t dmaC
 
     dspVersion = (majorVersion << 8) | minorVersion;
     log.info("DSP version: [%u.%02u]", majorVersion, minorVersion);
+
+    // Create thread and filesystem node
+    auto &processService = Kernel::System::getService<Kernel::ProcessService>();
+    auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
+    auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
+
+    auto &thread = Kernel::Thread::createKernelThread("Sound-Blaster", processService.getKernelProcess(), runnable);
+    auto *soundBlasterNode = new SoundBlasterNode(this, *runnable, thread);
+
+    filesystemService.getFilesystem().getVirtualDriver("/device").addNode("/", soundBlasterNode);
+    schedulerService.ready(thread);
 }
 
 SoundBlaster::~SoundBlaster() {
@@ -123,19 +134,9 @@ bool SoundBlaster::initialize() {
     while((readBufferStatusPort.readByte() & 0x80) == 0x80);
     writeDataPort.writeByte(0xe1);
 
-    auto &processService = Kernel::System::getService<Kernel::ProcessService>();
-    auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
-    auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
-
     auto *soundBlaster = new SoundBlaster(baseAddress);
-    auto *soundBlasterRunnable = new SoundBlasterRunnable(*soundBlaster);
-    auto &thread = Kernel::Thread::createKernelThread("Sound-Blaster", processService.getKernelProcess(), soundBlasterRunnable);
-    auto *soundBlasterNode = new SoundBlasterNode(soundBlaster, *soundBlasterRunnable, thread);
-
-    filesystemService.getFilesystem().getVirtualDriver("/device").addNode("/", soundBlasterNode);
-    schedulerService.ready(thread);
-
     soundBlaster->plugin();
+
     return true;
 }
 
@@ -259,6 +260,19 @@ bool SoundBlaster::setAudioParameters(uint16_t sampleRate, uint8_t channels, uin
     dmaBuffer = static_cast<uint8_t*>(memoryService.allocateLowerMemory(dmaBufferSize, Isa::MAX_DMA_PAGESIZE));
     physicalDmaAddress = static_cast<uint8_t*>(memoryService.getPhysicalAddress(dmaBuffer));
 
+    runnable->adjustInputStreamBuffer(sampleRate, channels, bitsPerSample);
+
+    if (dspVersion >= 0x0300) {
+        if (numChannels == 1) {
+            disableStereo();
+            enableLowPassFilter();
+        } else if (numChannels == 2) {
+            enableStereo();
+            disableLowPassFilter();
+        }
+    }
+
+    writeTimeConstant();
     return true;
 }
 
@@ -309,7 +323,6 @@ void SoundBlaster::disableStereo() {
 }
 
 void SoundBlaster::writeTimeConstant() {
-    // Set time constant
     writeToDSP(0x40);
     writeToDSP(static_cast<uint8_t>((timeConstant & 0xff00) >> 8));
 }
@@ -320,28 +333,7 @@ void SoundBlaster::writeBufferSize(uint32_t size) {
 }
 
 void SoundBlaster::play(uint32_t offset, uint32_t size) {
-    if (dspVersion >= 0x0300) {
-        if (numChannels == 1) {
-            if (stereoEnabled) {
-                disableStereo();
-            }
-
-            if (samplesPerSecond <= 23000 && !lowPassFilterEnabled) {
-                enableLowPassFilter();
-            }
-        } else if (numChannels == 2) {
-            if (!stereoEnabled) {
-                enableStereo();
-            }
-
-            if (lowPassFilterEnabled) {
-                disableLowPassFilter();
-            }
-        }
-    }
-
     prepareDma(offset, size);
-    writeTimeConstant();
 
     if (numChannels == 1 && samplesPerSecond <= 23000) {
         writeToDSP(EIGHT_BIT_SINGLE_CYCLE_DMA_OUTPUT);
