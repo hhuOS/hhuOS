@@ -36,9 +36,7 @@ namespace Device {
 
 Kernel::Logger Keyboard::log = Kernel::Logger::get("Keyboard");
 
-Keyboard::Keyboard(Ps2Controller &controller) : Ps2Device(controller, Ps2Controller::FIRST), Util::Io::FilterInputStream(inputStream) {
-    outputStream.connect(inputStream);
-}
+Keyboard::Keyboard(Ps2Controller &controller) : Ps2Device(controller, Ps2Controller::FIRST), Util::Io::FilterInputStream(inputStream), keyBuffer(BUFFER_SIZE), inputStream(keyBuffer) {}
 
 Keyboard* Keyboard::initialize(Ps2Controller &controller) {
     auto *keyboard = new Keyboard(controller);
@@ -171,8 +169,7 @@ void Keyboard::trigger(const Kernel::InterruptFrame &frame) {
         return;
     }
 
-    uint8_t data = controller.readDataByte();
-    outputStream.write(data);
+    keyBuffer.offer(controller.readDataByte());
 }
 
 }

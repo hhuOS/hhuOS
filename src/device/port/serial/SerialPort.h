@@ -27,6 +27,9 @@
 #include "device/cpu/IoPort.h"
 #include "lib/util/io/stream/OutputStream.h"
 #include "lib/util/io/stream/PipedInputStream.h"
+#include "lib/util/collection/ArrayBlockingQueue.h"
+#include "lib/util/io/stream/QueueInputStream.h"
+#include "lib/util/io/stream/QueueOutputStream.h"
 
 namespace Kernel {
     class Logger;
@@ -208,8 +211,9 @@ private:
 
     static void initializePort(ComPort port);
 
-    Util::Io::PipedOutputStream outputStream;
-    Util::Io::PipedInputStream inputStream;
+    Util::ArrayBlockingQueue<uint8_t> inputBuffer;
+    Util::Io::QueueInputStream inputStream;
+
     ComPort port;
     BaudRate dataRate;
 
@@ -224,6 +228,7 @@ private:
 
     static Kernel::Logger log;
 
+    static const constexpr uint32_t BUFFER_SIZE = 1024;
 };
 
 }

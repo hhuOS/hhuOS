@@ -42,7 +42,9 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/io/stream/OutputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/stream/PipedInputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/stream/PipedOutputStream.cpp
-        ${HHUOS_SRC_DIR}/lib/util/io/stream/PrintStream.cpp)
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/PrintStream.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/QueueInputStream.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/QueueOutputStream.cpp)
 
 # Kernel space version
 project(lib.kernel.io)

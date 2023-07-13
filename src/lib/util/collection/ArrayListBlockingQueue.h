@@ -19,6 +19,7 @@
 
 #include "Queue.h"
 #include "ArrayList.h"
+#include "lib/util/async/Thread.h"
 
 namespace Util {
 
@@ -93,13 +94,17 @@ bool ArrayListBlockingQueue<T>::offer(const T &element) {
 
 template<class T>
 T ArrayListBlockingQueue<T>::poll() {
-    while (isEmpty()) {}
+    while (isEmpty()) {
+        Util::Async::Thread::yield();
+    }
     return elements.removeIndex(0);
 }
 
 template<typename T>
 T ArrayListBlockingQueue<T>::peek() {
-    while (isEmpty()) {}
+    while (isEmpty()) {
+        Util::Async::Thread::yield();
+    }
     return elements.get(0);
 }
 

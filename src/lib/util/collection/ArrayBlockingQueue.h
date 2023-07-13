@@ -19,6 +19,7 @@
 #define HHUOS_ARRAYQUEUE_H
 
 #include "Queue.h"
+#include "lib/util/async/Thread.h"
 
 namespace Util {
 
@@ -105,7 +106,9 @@ bool ArrayBlockingQueue<T>::offer(const T &element) {
 
 template<class T>
 T ArrayBlockingQueue<T>::poll() {
-    while (length == 0) {}
+    while (length == 0) {
+        Util::Async::Thread::yield();
+    }
 
     auto &element = elements[head];
     head = (head + 1) % capacity;
@@ -116,13 +119,19 @@ T ArrayBlockingQueue<T>::poll() {
 
 template<class T>
 T ArrayBlockingQueue<T>::peek() {
-    while (length == 0) {}
+    while (length == 0) {
+        Util::Async::Thread::yield();
+    }
+
     return elements[head];
 }
 
 template<class T>
 bool ArrayBlockingQueue<T>::add(const T &element) {
-    while (!offer(element)) {}
+    while (!offer(element)) {
+        Util::Async::Thread::yield();
+    }
+
     return true;
 }
 

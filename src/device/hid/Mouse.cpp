@@ -37,9 +37,7 @@ namespace Device {
 
 Kernel::Logger Mouse::log = Kernel::Logger::get("Mouse");
 
-Mouse::Mouse(Ps2Controller &controller) : Ps2Device(controller, Ps2Controller::SECOND), Util::Io::FilterInputStream(inputStream) {
-    outputStream.connect(inputStream);
-}
+Mouse::Mouse(Ps2Controller &controller) : Ps2Device(controller, Ps2Controller::SECOND), Util::Io::FilterInputStream(inputStream), inputBuffer(BUFFER_SIZE), inputStream(inputBuffer) {}
 
 Mouse* Mouse::initialize(Ps2Controller &controller) {
     auto *mouse = new Mouse(controller);
@@ -151,10 +149,12 @@ void Mouse::trigger(const Kernel::InterruptFrame &frame) {
 
             if (type == STANDARD_MOUSE) {
                 // Write data: 1. button mask, 2. relative x-movement, 3. relative y-movement, 4. placeholder
-                outputStream.write(flags);
-                outputStream.write(dx);
-                outputStream.write(dy);
-                outputStream.write(0);
+                if (BUFFER_SIZE - inputBuffer.size() >= 4) {
+                    inputBuffer.offer(flags);
+                    inputBuffer.offer(dx);
+                    inputBuffer.offer(dy);
+                    inputBuffer.offer(0);
+                }
 
                 // Reset cycle
                 cycle = 1;
@@ -165,10 +165,12 @@ void Mouse::trigger(const Kernel::InterruptFrame &frame) {
             break;
         case 4:
             // Write data: 1. button mask, 2. relative x-movement, 3. relative y-movement, 4. scroll wheel and additional button mask
-            outputStream.write(flags);
-            outputStream.write(dx);
-            outputStream.write(dy);
-            outputStream.write(data);
+            if (BUFFER_SIZE - inputBuffer.size() >= 4) {
+                inputBuffer.offer(flags);
+                inputBuffer.offer(dx);
+                inputBuffer.offer(dy);
+                inputBuffer.offer(data);
+            }
 
             // Reset cycle
             cycle = 1;

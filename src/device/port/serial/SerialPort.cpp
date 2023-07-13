@@ -36,7 +36,7 @@ namespace Device {
 
 Kernel::Logger SerialPort::log = Kernel::Logger::get("COM");
 
-SerialPort::SerialPort(ComPort port, BaudRate dataRate) : Util::Io::FilterInputStream(inputStream),
+SerialPort::SerialPort(ComPort port, BaudRate dataRate) : Util::Io::FilterInputStream(inputStream), inputBuffer(BUFFER_SIZE), inputStream(inputBuffer),
         port(port), dataRate(dataRate), dataRegister(port), interruptRegister(port + 1), fifoControlRegister(port + 2),
         lineControlRegister(port + 3), modemControlRegister(port + 4), lineStatusRegister(port + 5),
         modemStatusRegister(port + 6), scratchRegister(port + 7) {
@@ -49,8 +49,6 @@ SerialPort::SerialPort(ComPort port, BaudRate dataRate) : Util::Io::FilterInputS
     lineControlRegister.writeByte(0x03);    // 8 bits per char, no parity, one stop bit
     fifoControlRegister.writeByte(0x07);    // Enable FIFO-buffers, Clear FIFO-buffers, Trigger interrupt after each byte
     modemControlRegister.writeByte(0x0b);   // Enable data lines
-
-    outputStream.connect(inputStream);
 }
 
 bool SerialPort::checkPort(ComPort port) {
@@ -154,7 +152,7 @@ void SerialPort::trigger(const Kernel::InterruptFrame &frame) {
     bool hasData = (lineStatusRegister.readByte() & 0x01) == 0x01;
     while (hasData) {
         uint8_t byte = dataRegister.readByte();
-        outputStream.write(byte == 13 ? '\n' : byte);
+        inputBuffer.offer(byte == 13 ? '\n' : byte);
         write(byte == 13 ? '\n' : byte);
 
         hasData = (lineStatusRegister.readByte() & 0x01) == 0x01;

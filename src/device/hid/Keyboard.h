@@ -25,6 +25,9 @@
 #include "Ps2Device.h"
 #include "lib/util/io/stream/FilterInputStream.h"
 #include "lib/util/io/stream/PipedInputStream.h"
+#include "lib/util/io/stream/QueueInputStream.h"
+#include "lib/util/io/stream/QueueOutputStream.h"
+#include "lib/util/collection/ArrayBlockingQueue.h"
 
 namespace Kernel {
 class Logger;
@@ -132,10 +135,12 @@ private:
 
     uint8_t leds{};
 
-    Util::Io::PipedOutputStream outputStream;
-    Util::Io::PipedInputStream inputStream;
+    Util::ArrayBlockingQueue<uint8_t> keyBuffer;
+    Util::Io::QueueInputStream inputStream;
 
     static Kernel::Logger log;
+
+    static const constexpr uint32_t BUFFER_SIZE = 1024;
 };
 
 }
