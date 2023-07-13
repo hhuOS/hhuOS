@@ -57,6 +57,8 @@ private:
 
     PipedOutputStream *source = nullptr;
 
+    Util::Async::Spinlock lock;
+
     uint8_t *buffer;
     int32_t bufferSize;
 
