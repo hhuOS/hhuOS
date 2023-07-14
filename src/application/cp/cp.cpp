@@ -57,6 +57,11 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
+    if (sourceFile.getType() != Util::Io::File::REGULAR) {
+        Util::System::error << "cp: '" << arguments[0] << "' is not a regular file!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        return -1;
+    }
+
     if (targetFile.exists() && targetFile.isDirectory()) {
         targetFile = Util::Io::File(targetFile.getCanonicalPath() + "/" + sourceFile.getName());
     }

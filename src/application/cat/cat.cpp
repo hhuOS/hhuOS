@@ -55,13 +55,14 @@ int32_t main(int32_t argc, char *argv[]) {
             continue;
         }
 
-        auto stream = Util::Io::FileInputStream(file);
-        auto bufferedStream = Util::Io::BufferedInputStream(stream);
-        int16_t logChar = bufferedStream.read();
+        auto fileStream = Util::Io::FileInputStream(file);
+        auto bufferedStream = Util::Io::BufferedInputStream(fileStream);
+        auto &stream = (file.getType() == Util::Io::File::REGULAR) ? static_cast<Util::Io::InputStream&>(bufferedStream) : static_cast<Util::Io::InputStream&>(fileStream);
 
+        int16_t logChar = stream.read();
         while (logChar != -1) {
             Util::System::out << static_cast<char>(logChar) << Util::Io::PrintStream::flush;
-            logChar = bufferedStream.read();
+            logChar = stream.read();
         }
     }
 

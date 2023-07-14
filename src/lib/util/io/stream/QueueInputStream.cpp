@@ -26,12 +26,11 @@ int16_t QueueInputStream::read() {
 }
 
 int32_t QueueInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
-    int32_t i;
-    for (i = 0; static_cast<uint32_t>(i) < length; i++) {
+    for (uint32_t i = 0; i < length; i++) {
         targetBuffer[offset + i] = queue.poll();
     }
 
-    return i;
+    return length;
 }
 
 }

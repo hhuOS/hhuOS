@@ -145,17 +145,13 @@ void SerialPort::plugin() {
 }
 
 void SerialPort::trigger(const Kernel::InterruptFrame &frame) {
-    if ((fifoControlRegister.readByte() & 0x01) == 0x01) {
+    if (fifoControlRegister.readByte() & 0x01) {
         return;
     }
 
-    bool hasData = (lineStatusRegister.readByte() & 0x01) == 0x01;
-    while (hasData) {
+    while (lineStatusRegister.readByte() & 0x01) {
         uint8_t byte = dataRegister.readByte();
         inputBuffer.offer(byte == 13 ? '\n' : byte);
-        write(byte == 13 ? '\n' : byte);
-
-        hasData = (lineStatusRegister.readByte() & 0x01) == 0x01;
     }
 }
 
@@ -184,7 +180,7 @@ void SerialPort::write(uint8_t c) {
         write(13);
     }
 
-    while ((lineStatusRegister.readByte() & 0x20) == 0);
+    while (!(lineStatusRegister.readByte() & 0x20)) {}
     dataRegister.writeByte(c);
 }
 

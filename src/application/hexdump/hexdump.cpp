@@ -82,8 +82,9 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto stream = Util::Io::FileInputStream(file);
-    auto bufferedStream = Util::Io::BufferedInputStream(stream);
+    auto fileStream = Util::Io::FileInputStream(file);
+    auto bufferedStream = Util::Io::BufferedInputStream(fileStream);
+    auto &stream = (file.getType() == Util::Io::File::REGULAR) ? static_cast<Util::Io::InputStream&>(bufferedStream) : static_cast<Util::Io::InputStream&>(fileStream);
 
     Util::System::out << Util::Io::PrintStream::hex << HEXDUMP_HEADER << Util::Io::PrintStream::endl;
     printSeparationLine();
@@ -94,7 +95,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
     if (argumentParser.hasArgument("skip")) {
         address = Util::String::parseInt(argumentParser.getArgument("skip"));
-        bufferedStream.skip(address);
+        stream.skip(address);
     }
 
     while (length == -1 || readBytes < length) {
@@ -105,7 +106,7 @@ int32_t main(int32_t argc, char *argv[]) {
         char line[LINE_LENGTH];
         uint8_t i;
         for (i = 0; i < LINE_LENGTH && (length == -1 || readBytes < length); i++) {
-            auto c = bufferedStream.read();
+            auto c = stream.read();
             if (c == -1) {
                 break;
             }

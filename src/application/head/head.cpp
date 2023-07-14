@@ -73,24 +73,25 @@ int32_t main(int32_t argc, char *argv[]) {
             Util::System::out << "==> " << file.getName() << " <==" << Util::Io::PrintStream::endl << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         }
 
-        auto stream = Util::Io::FileInputStream(file);
-        auto bufferedStream = Util::Io::BufferedInputStream(stream);
+        auto fileStream = Util::Io::FileInputStream(file);
+        auto bufferedStream = Util::Io::BufferedInputStream(fileStream);
+        auto &stream = (file.getType() == Util::Io::File::REGULAR) ? static_cast<Util::Io::InputStream&>(bufferedStream) : static_cast<Util::Io::InputStream&>(fileStream);
 
         if (byteMode) {
-            auto c = bufferedStream.read();
+            auto c = stream.read();
             for (uint32_t i = 0; i < count && c != -1; i++) {
                 Util::System::out << static_cast<char>(c) << Util::Io::PrintStream::flush;
-                c = bufferedStream.read();
+                c = stream.read();
             }
         } else {
             uint32_t lineCount = 0;
-            auto c = bufferedStream.read();
+            auto c = stream.read();
             while (lineCount < count && c != -1) {
                 Util::System::out << static_cast<char>(c) << Util::Io::PrintStream::flush;
                 if (c == '\n') {
                     lineCount++;
                 }
-                c = bufferedStream.read();
+                c = stream.read();
             }
         }
 
