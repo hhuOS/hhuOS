@@ -1,13 +1,13 @@
 #include <cstdint>
 
 #include "kernel/system/BlueScreen.h"
-#include "LinearFrameBufferTerminal.h"
 #include "LinearFrameBufferTerminalProvider.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/graphic/Font.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/io/stream/FileInputStream.h"
+#include "lib/util/graphic/LinearFrameBufferTerminal.h"
 
 namespace Device::Graphic {
 
@@ -77,7 +77,7 @@ Util::Graphic::Terminal* LinearFrameBufferTerminalProvider::initializeTerminal(c
     }
 
     auto *lfb = new Util::Graphic::LinearFrameBuffer(lfbFile, false);
-    auto *terminal = new LinearFrameBufferTerminal(lfb, font, cursor);
+    auto *terminal = new Util::Graphic::LinearFrameBufferTerminal(lfb, font, cursor);
     Kernel::BlueScreen::setLfbMode(lfb->getBuffer().get(), lfb->getResolutionX(), lfb->getResolutionY(), lfb->getColorDepth(), lfb->getPitch());
 
     return terminal;

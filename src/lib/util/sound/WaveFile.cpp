@@ -16,7 +16,12 @@
  */
 
 #include "WaveFile.h"
-#include "lib/util/base/Address.h"
+
+namespace Util {
+namespace Io {
+class File;
+}  // namespace Io
+}  // namespace Util
 
 namespace Util::Sound {
 

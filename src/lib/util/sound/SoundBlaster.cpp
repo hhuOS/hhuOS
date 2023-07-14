@@ -17,6 +17,8 @@
 
 #include "SoundBlaster.h"
 
+#include "lib/util/collection/Array.h"
+
 namespace Util::Sound {
 
 Sound::SoundBlaster::SoundBlaster(const Io::File &soundBlasterFile) : soundBlasterFile(soundBlasterFile), stream(soundBlasterFile) {}

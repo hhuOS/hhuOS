@@ -18,15 +18,15 @@
 #ifndef HHUOS_SOUNDBLASTERRUNNABLE_H
 #define HHUOS_SOUNDBLASTERRUNNABLE_H
 
+#include <cstdint>
+
 #include "lib/util/async/Runnable.h"
-#include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/PipedOutputStream.h"
-#include "lib/util/io/stream/FilterInputStream.h"
 #include "lib/util/io/stream/PipedInputStream.h"
-#include "SoundBlaster.h"
-#include "lib/util/io/stream/FilterOutputStream.h"
+#include "lib/util/async/Spinlock.h"
 
 namespace Device {
+class SoundBlaster;
 
 class SoundBlasterRunnable : public Util::Async::Runnable {
 

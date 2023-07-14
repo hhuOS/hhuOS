@@ -18,7 +18,7 @@
 #include <cstdint>
 
 #include "MultibootTerminalProvider.h"
-#include "device/graphic/terminal/cga/ColorGraphicsAdapter.h"
+#include "device/graphic/cga/ColorGraphicsAdapter.h"
 #include "kernel/multiboot/Multiboot.h"
 #include "kernel/system/BlueScreen.h"
 #include "lib/util/base/Exception.h"

@@ -18,9 +18,18 @@
 #ifndef HHUOS_UTIL_PCSPEAKER_H
 #define HHUOS_UTIL_PCSPEAKER_H
 
-#include "lib/util/io/file/File.h"
+#include <cstdint>
+
 #include "lib/util/io/stream/FileOutputStream.h"
-#include "lib/util/time/Timestamp.h"
+
+namespace Util {
+namespace Io {
+class File;
+}  // namespace Io
+namespace Time {
+class Timestamp;
+}  // namespace Time
+}  // namespace Util
 
 namespace Util::Sound {
 

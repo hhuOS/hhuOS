@@ -16,9 +16,13 @@
  */
 
 #include "SoundBlasterNode.h"
-#include "kernel/system/System.h"
-#include "kernel/service/SchedulerService.h"
+
 #include "lib/util/sound/SoundBlaster.h"
+#include "device/sound/soundblaster/SoundBlaster.h"
+#include "device/sound/soundblaster/SoundBlasterRunnable.h"
+#include "kernel/process/Thread.h"
+#include "lib/util/io/stream/PipedInputStream.h"
+#include "lib/util/io/stream/PipedOutputStream.h"
 
 namespace Device {
 

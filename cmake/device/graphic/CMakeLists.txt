@@ -17,13 +17,11 @@
 cmake_minimum_required(VERSION 3.14)
  
 target_sources(device PUBLIC
-        ${HHUOS_SRC_DIR}/device/graphic/lfb/LinearFrameBufferNode.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/lfb/LinearFrameBufferProvider.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/lfb/vesa/VesaBiosExtensions.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/terminal/TerminalNode.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/terminal/TerminalProvider.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/terminal/cga/ColorGraphicsAdapter.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/terminal/cga/ColorGraphicsAdapterProvider.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/terminal/lfb/CursorRunnable.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/terminal/lfb/LinearFrameBufferTerminal.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/terminal/lfb/LinearFrameBufferTerminalProvider.cpp)
+        ${HHUOS_SRC_DIR}/device/graphic/LinearFrameBufferNode.cpp
+        ${HHUOS_SRC_DIR}/device/graphic/LinearFrameBufferProvider.cpp
+        ${HHUOS_SRC_DIR}/device/graphic/LinearFrameBufferTerminalProvider.cpp
+        ${HHUOS_SRC_DIR}/device/graphic/TerminalNode.cpp
+        ${HHUOS_SRC_DIR}/device/graphic/TerminalProvider.cpp
+        ${HHUOS_SRC_DIR}/device/graphic/vesa/VesaBiosExtensions.cpp
+        ${HHUOS_SRC_DIR}/device/graphic/cga/ColorGraphicsAdapter.cpp
+        ${HHUOS_SRC_DIR}/device/graphic/cga/ColorGraphicsAdapterProvider.cpp)

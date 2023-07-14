@@ -18,11 +18,15 @@
 #ifndef HHUOS_SOUNDBLASTER_H
 #define HHUOS_SOUNDBLASTER_H
 
+#include <cstdint>
+
 #include "kernel/interrupt/InterruptHandler.h"
 #include "device/cpu/IoPort.h"
-#include "lib/util/async/Spinlock.h"
-#include "kernel/log/Logger.h"
-#include "device/isa/Isa.h"
+
+namespace Kernel {
+class Logger;
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device {
 

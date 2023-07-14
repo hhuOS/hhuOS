@@ -29,19 +29,15 @@
 #include "lib/util/graphic/Terminal.h"
 #include "lib/util/graphic/Color.h"
 
-namespace Device {
-namespace Graphic {
-class CursorRunnable;
-}  // namespace Graphic
-}  // namespace Device
 namespace Util {
 namespace Graphic {
+class CursorRunnable;
 class Font;
 class LinearFrameBuffer;
 }  // namespace Graphic
 }  // namespace Util
 
-namespace Device::Graphic {
+namespace Util::Graphic {
 
 class LinearFrameBufferTerminal : public Util::Graphic::Terminal {
 

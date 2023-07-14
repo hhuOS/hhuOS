@@ -18,10 +18,10 @@
 #include <cstdint>
 
 #include "device/bios/Bios.h"
-#include "device/graphic/lfb/vesa/VesaBiosExtensions.h"
+#include "device/graphic/vesa/VesaBiosExtensions.h"
 #include "kernel/multiboot/MultibootLinearFrameBufferProvider.h"
-#include "device/graphic/terminal/lfb/LinearFrameBufferTerminalProvider.h"
-#include "device/graphic/terminal/cga/ColorGraphicsAdapterProvider.h"
+#include "device/graphic/LinearFrameBufferTerminalProvider.h"
+#include "device/graphic/cga/ColorGraphicsAdapterProvider.h"
 #include "lib/util/reflection/InstanceFactory.h"
 #include "kernel/system/System.h"
 #include "kernel/multiboot/Multiboot.h"
@@ -63,8 +63,8 @@
 #include "GatesOfHell.h"
 #include "device/power/acpi/Acpi.h"
 #include "asm_interface.h"
-#include "device/graphic/lfb/LinearFrameBufferProvider.h"
-#include "device/graphic/terminal/TerminalProvider.h"
+#include "device/graphic/LinearFrameBufferProvider.h"
+#include "device/graphic/TerminalProvider.h"
 #include "device/port/serial/SerialPort.h"
 #include "device/power/default/DefaultMachine.h"
 #include "filesystem/core/Filesystem.h"
@@ -88,10 +88,6 @@
 #include "lib/util/hardware/Acpi.h"
 #include "lib/util/hardware/SmBios.h"
 #include "device/sound/soundblaster/SoundBlaster.h"
-#include "lib/util/sound/WaveFile.h"
-#include "lib/util/sound/SoundBlaster.h"
-#include "lib/util/async/FunctionPointerRunnable.h"
-#include "kernel/service/ProcessService.h"
 
 namespace Device {
 class Machine;

@@ -26,6 +26,7 @@
 #include "lib/util/io/stream/BufferedInputStream.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/stream/PrintStream.h"
+#include "lib/util/io/stream/InputStream.h"
 
 static const constexpr uint8_t LINE_LENGTH = 16;
 static const constexpr char LINE_SEPARATOR = '-';

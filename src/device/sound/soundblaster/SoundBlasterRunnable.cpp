@@ -16,7 +16,10 @@
  */
 
 #include "SoundBlasterRunnable.h"
+
 #include "lib/util/async/Thread.h"
+#include "device/sound/soundblaster/SoundBlaster.h"
+#include "lib/util/base/Address.h"
 
 namespace Device {
 

@@ -26,7 +26,6 @@
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/base/String.h"
-#include "lib/util/io/stream/FileOutputStream.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/stream/BufferedInputStream.h"
 #include "lib/util/io/stream/InputStream.h"

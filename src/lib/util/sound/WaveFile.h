@@ -19,10 +19,15 @@
 #define HHUOS_WAVEFILE_H
 
 #include <cstdint>
-#include "lib/util/base/Address.h"
+
 #include "lib/util/io/stream/FilterInputStream.h"
-#include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/FileInputStream.h"
+
+namespace Util {
+namespace Io {
+class File;
+}  // namespace Io
+}  // namespace Util
 
 namespace Util::Sound {
 

@@ -18,7 +18,7 @@
 #ifndef HHUOS_MULTIBOOTLINEARFRAMEBUFFERPROVIDER_H
 #define HHUOS_MULTIBOOTLINEARFRAMEBUFFERPROVIDER_H
 
-#include "device/graphic/lfb/LinearFrameBufferProvider.h"
+#include "device/graphic/LinearFrameBufferProvider.h"
 #include "Multiboot.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/String.h"

@@ -17,6 +17,8 @@
 
 #include "QueueInputStream.h"
 
+#include "lib/util/collection/Queue.h"
+
 namespace Util::Io {
 
 QueueInputStream::QueueInputStream(Queue<uint8_t> &queue, bool discardIfFull) : queue(queue), discardIfFull(discardIfFull) {}

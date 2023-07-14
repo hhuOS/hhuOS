@@ -18,8 +18,13 @@
 #ifndef HHUOS_QUEUEOUTPUTSTREAM_H
 #define HHUOS_QUEUEOUTPUTSTREAM_H
 
+#include <cstdint>
+
 #include "OutputStream.h"
-#include "lib/util/collection/Queue.h"
+
+namespace Util {
+template <typename T> class Queue;
+}  // namespace Util
 
 namespace Util::Io {
 

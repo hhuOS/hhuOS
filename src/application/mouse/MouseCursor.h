@@ -18,7 +18,7 @@
 #ifndef HHUOS_MOUSECURSOR_H
 #define HHUOS_MOUSECURSOR_H
 
-#include <stdint.h>
+#include <cstdint>
 
 #include "lib/util/game/MouseListener.h"
 #include "lib/util/game/entity/Entity.h"

@@ -25,6 +25,7 @@
 #include "lib/util/io/stream/BufferedInputStream.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/stream/PrintStream.h"
+#include "lib/util/io/stream/InputStream.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();

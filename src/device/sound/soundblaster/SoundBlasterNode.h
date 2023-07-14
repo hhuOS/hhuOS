@@ -18,14 +18,18 @@
 #ifndef HHUOS_SOUNDBLASTERNODE_H
 #define HHUOS_SOUNDBLASTERNODE_H
 
+#include <cstdint>
+
 #include "filesystem/memory/StreamNode.h"
-#include "SoundBlaster.h"
-#include "lib/util/io/stream/PipedInputStream.h"
-#include "lib/util/io/stream/PipedOutputStream.h"
-#include "SoundBlasterRunnable.h"
-#include "kernel/process/Thread.h"
+#include "lib/util/collection/Array.h"
+
+namespace Kernel {
+class Thread;
+}  // namespace Kernel
 
 namespace Device {
+class SoundBlaster;
+class SoundBlasterRunnable;
 
 class SoundBlasterNode : public Filesystem::Memory::StreamNode {
 

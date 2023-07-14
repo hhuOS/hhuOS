@@ -19,7 +19,7 @@
 #define HHUOS_LINEARFRAMEBUFFERTERMINALPROVIDER_H
 
 #include "lib/util/collection/Array.h"
-#include "device/graphic/terminal/TerminalProvider.h"
+#include "device/graphic/TerminalProvider.h"
 #include "lib/util/graphic/Fonts.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/String.h"

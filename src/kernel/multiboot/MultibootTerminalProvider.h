@@ -19,7 +19,7 @@
 #define HHUOS_MULTIBOOTTERMINALPROVIDER_H
 
 #include "Multiboot.h"
-#include "device/graphic/terminal/TerminalProvider.h"
+#include "device/graphic/TerminalProvider.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Terminal.h"
 #include "lib/util/base/String.h"

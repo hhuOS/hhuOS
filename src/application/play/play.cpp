@@ -18,7 +18,6 @@
 #include <cstdint>
 
 #include "lib/util/base/System.h"
-#include "lib/util/time/Timestamp.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/async/FunctionPointerRunnable.h"
 #include "lib/util/base/ArgumentParser.h"
@@ -26,9 +25,6 @@
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/base/String.h"
-#include "lib/util/io/stream/FileOutputStream.h"
-#include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/io/stream/BufferedInputStream.h"
 #include "lib/util/io/stream/InputStream.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/sound/SoundBlaster.h"

@@ -20,7 +20,7 @@
 
 #include "lib/util/async/Runnable.h"
 
-namespace Device::Graphic {
+namespace Util::Graphic {
 
 class LinearFrameBufferTerminal;
 

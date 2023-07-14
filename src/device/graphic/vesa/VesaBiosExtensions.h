@@ -21,7 +21,7 @@
 #include <cstdint>
 
 #include "lib/util/collection/ArrayList.h"
-#include "device/graphic/lfb/LinearFrameBufferProvider.h"
+#include "device/graphic/LinearFrameBufferProvider.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/Collection.h"
 #include "lib/util/collection/Iterator.h"

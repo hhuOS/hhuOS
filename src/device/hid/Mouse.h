@@ -23,11 +23,11 @@
 #include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/io/stream/FilterInputStream.h"
 #include "Ps2Device.h"
-#include "lib/util/io/stream/PipedInputStream.h"
-#include "lib/util/io/stream/PipedOutputStream.h"
 #include "lib/util/collection/ArrayBlockingQueue.h"
 #include "lib/util/io/stream/QueueInputStream.h"
-#include "lib/util/io/stream/QueueOutputStream.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Kernel {
 class Logger;

@@ -16,7 +16,18 @@
  */
 
 #include "PcSpeaker.h"
+
 #include "lib/util/async/Thread.h"
+#include "lib/util/base/String.h"
+
+namespace Util {
+namespace Io {
+class File;
+}  // namespace Io
+namespace Time {
+class Timestamp;
+}  // namespace Time
+}  // namespace Util
 
 namespace Util::Sound {
 

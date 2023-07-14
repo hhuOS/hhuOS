@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "device/graphic/terminal/TerminalProvider.h"
+#include "device/graphic/TerminalProvider.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/String.h"
 #include "lib/util/reflection/Prototype.h"

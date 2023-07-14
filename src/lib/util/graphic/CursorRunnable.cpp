@@ -24,7 +24,7 @@
 #include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/time/Timestamp.h"
 
-namespace Device::Graphic {
+namespace Util::Graphic {
 
 CursorRunnable::CursorRunnable(LinearFrameBufferTerminal &terminal, char cursor) : terminal(terminal), cursor(cursor) {}
 

@@ -15,17 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include "CursorRunnable.h"
 #include "lib/util/base/Address.h"
 #include "LinearFrameBufferTerminal.h"
-#include "kernel/system/System.h"
-#include "kernel/service/ProcessService.h"
-#include "device/graphic/terminal/lfb/CursorRunnable.h"
-#include "kernel/process/Thread.h"
-#include "kernel/service/SchedulerService.h"
 #include "lib/util/graphic/Font.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/async/Thread.h"
 
-namespace Device::Graphic {
+namespace Util::Graphic {
 
 LinearFrameBufferTerminal::LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, Util::Graphic::Font &font, char cursor) :
         Terminal(lfb->getResolutionX() / font.getCharWidth(), lfb->getResolutionY() / font.getCharHeight()),
@@ -113,9 +110,6 @@ void LinearFrameBufferTerminal::setPosition(uint16_t column, uint16_t row) {
 }
 
 void LinearFrameBufferTerminal::setCursor(bool enabled) {
-    auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
-    auto &processService = Kernel::System::getService<Kernel::ProcessService>();
-
     cursorLock.acquire();
 
     if (enabled) {
@@ -127,8 +121,7 @@ void LinearFrameBufferTerminal::setCursor(bool enabled) {
         }
 
         cursorRunnable = new CursorRunnable(*this, cursor);
-        auto &cursorThread = Kernel::Thread::createKernelThread("Cursor", processService.getKernelProcess(), cursorRunnable);
-        schedulerService.ready(cursorThread);
+        Util::Async::Thread::createThread("Cursor", cursorRunnable);
     } else if (cursorRunnable != nullptr) {
         cursorRunnable->stop();
         cursorRunnable = nullptr;

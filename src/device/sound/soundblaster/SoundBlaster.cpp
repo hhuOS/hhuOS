@@ -16,11 +16,11 @@
  */
 
 #include "SoundBlaster.h"
+
 #include "SoundBlasterRunnable.h"
 #include "SoundBlasterNode.h"
 #include "kernel/system/System.h"
 #include "kernel/service/MemoryService.h"
-#include "lib/util/base/Constants.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/time/Timestamp.h"
 #include "kernel/service/InterruptService.h"
@@ -29,8 +29,17 @@
 #include "kernel/service/ProcessService.h"
 #include "kernel/service/FilesystemService.h"
 #include "filesystem/memory/MemoryDriver.h"
+#include "filesystem/core/Filesystem.h"
+#include "kernel/log/Logger.h"
+#include "kernel/process/Thread.h"
+
+namespace Kernel {
+enum InterruptVector : uint8_t;
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device {
+enum InterruptRequest : uint8_t;
 
 Kernel::Logger SoundBlaster::log = Kernel::Logger::get("SoundBlaster");
 
