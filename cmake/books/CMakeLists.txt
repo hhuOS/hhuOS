@@ -28,15 +28,15 @@ if ($ENV{HHUOS_REDISTRIBUTABLE_BUILD})
 else()
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/books/alice.txt"
             COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/books/"
-            COMMAND wget https://www.gutenberg.org/files/11/11-0.txt -O "${CMAKE_BINARY_DIR}/books/alice.txt")
+            COMMAND wget https://www.gutenberg.org/files/11/11-0.txt -O - | iconv -f utf-8 -t ascii//TRANSLIT -o "${CMAKE_BINARY_DIR}/books/alice.txt")
 
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/books/peter_pan.txt"
             COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/books/"
-            COMMAND wget https://www.gutenberg.org/files/16/16-0.txt -O "${CMAKE_BINARY_DIR}/books/peter_pan.txt")
+            COMMAND wget https://www.gutenberg.org/files/16/16-0.txt -O - | iconv -f utf-8 -t ascii//TRANSLIT -o "${CMAKE_BINARY_DIR}/books/peter_pan.txt")
 
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/books/sleepy_hollow.txt"
             COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/books/"
-            COMMAND wget https://www.gutenberg.org/files/41/41-0.txt -O "${CMAKE_BINARY_DIR}/books/sleepy_hollow.txt")
+            COMMAND wget https://www.gutenberg.org/files/41/41-0.txt -O - | iconv -f utf-8 -t ascii//TRANSLIT -o "${CMAKE_BINARY_DIR}/books/sleepy_hollow.txt")
 
     add_custom_target(${PROJECT_NAME} DEPENDS
             "${CMAKE_BINARY_DIR}/books/alice.txt"
