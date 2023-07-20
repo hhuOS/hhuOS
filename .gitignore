@@ -10,10 +10,12 @@ hhuOS.bin
 hhuOS.initrd
 towboot-ia32.efi
 towboot-x64.efi
-limine-deploy
-limine-cd-efi.bin
-limine-cd.bin
-limine.sys
+limine
+limine-uefi-cd.bin
+limine-bios-cd.bin
+limine-bios.sys
+BOOTIA32.EFI
+BOOTX64.EFI
 OVMF.fd
 *.img
 *.dump

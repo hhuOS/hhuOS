@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-readonly TOWBOOT_VERSION="0.5.0"
+readonly TOWBOOT_VERSION="0.6.0"
 readonly FILE_LIST=("towboot-ia32.efi" "towboot-x64.efi" "hhuOS.bin" "hhuOS.initrd" "towboot.toml")
 
 if [[ ! -f "towboot-ia32.efi" || ! -f "towboot-x64.efi" ]]; then
