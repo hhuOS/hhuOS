@@ -72,6 +72,8 @@ public:
 
     void explode();
 
+    [[nodiscard]] bool isAlive() const;
+
     static const constexpr uint32_t TAG = 3;
     static const constexpr double SIZE_X = 0.15;
     static const constexpr double SIZE_Y = 0.1;

@@ -21,12 +21,15 @@
 #include "lib/util/game/Game.h"
 #include "lib/util/game/entity/component/LinearMovementComponent.h"
 #include "lib/util/game/entity/event/TranslationEvent.h"
+#include "lib/util/game/entity/event/CollisionEvent.h"
 #include "application/bug/Ship.h"
 #include "lib/util/game/Graphics2D.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/entity/collider/Collider.h"
 #include "lib/util/game/entity/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2D.h"
+#include "EnemyMissile.h"
+#include "Bug.h"
 
 namespace Util {
 namespace Game {
@@ -54,6 +57,20 @@ void PlayerMissile::onTranslationEvent(Util::Game::TranslationEvent &event) {
 }
 
 void PlayerMissile::onCollisionEvent(Util::Game::CollisionEvent &event) {
+    auto tag = event.getCollidedWidth().getTag();
+    if (tag == EnemyMissile::TAG) {
+        const auto &missile = event.getCollidedWidth<const EnemyMissile&>();
+        if (!missile.isAlive()) {
+            return;
+        }
+    } else if (tag == Bug::TAG) {
+        const auto &bug = event.getCollidedWidth<const Bug&>();
+        if (!bug.isAlive()) {
+            return;
+        }
+    }
+
+
     Util::Game::GameManager::getGame().getCurrentScene().removeObject(this);
     ship.allowFireMissile();
 }

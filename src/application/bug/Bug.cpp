@@ -49,6 +49,10 @@ void Bug::initialize() {
 }
 
 void Bug::onUpdate(double delta) {
+    if (currentAnimation == &explosion) {
+        isExploding = true;
+    }
+
     if (isExploding) {
         explosionTimer += delta;
 
@@ -114,6 +118,9 @@ void Bug::fireMissile() {
 }
 
 void Bug::explode() {
-    isExploding = true;
     currentAnimation = &explosion;
+}
+
+bool Bug::isAlive() const {
+    return !isExploding;
 }
