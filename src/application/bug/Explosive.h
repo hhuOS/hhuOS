@@ -15,33 +15,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_EXPLOSION_H
-#define HHUOS_EXPLOSION_H
+#ifndef HHUOS_EXPLOSIVE_H
+#define HHUOS_EXPLOSIVE_H
 
 #include "lib/util/game/SpriteAnimation.h"
+#include "lib/util/game/entity/Entity.h"
 
-class Explosion : public Util::Game::SpriteAnimation {
+class Explosive : public Util::Game::Entity {
 
 public:
     /**
      * Constructor.
      */
-    explicit Explosion(double size, double time);
+    Explosive(uint32_t tag, const Util::Math::Vector2D &position, const Util::Game::RectangleCollider &collider);
 
     /**
      * Copy Constructor.
      */
-    Explosion(const Explosion &other) = default;
+    Explosive(const Explosive &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Explosion &operator=(const Explosion &other) = default;
+    Explosive &operator=(const Explosive &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Explosion() = default;
+    ~Explosive() override = default;
+
+    void initialize() override;
+
+    void onUpdate(double delta) override;
+
+    void draw(Util::Game::Graphics2D &graphics) override;
+
+    void explode();
+
+    [[nodiscard]] bool isExploding() const;
+
+    [[nodiscard]] bool hasExploded() const;
+
+private:
+
+    Util::Game::SpriteAnimation animation;
+
+    bool shouldExplode = false;
+    bool exploding = false;
+
+    double explosionTimer = 0;
 };
 
 #endif

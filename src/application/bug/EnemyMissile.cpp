@@ -23,7 +23,6 @@
 #include "lib/util/game/entity/event/TranslationEvent.h"
 #include "lib/util/game/entity/event/CollisionEvent.h"
 #include "PlayerMissile.h"
-#include "Explosion.h"
 #include "application/bug/Ship.h"
 #include "lib/util/game/Graphics2D.h"
 #include "lib/util/game/Scene.h"
@@ -33,25 +32,20 @@
 
 class Bug;
 
-EnemyMissile::EnemyMissile(const Util::Math::Vector2D &position, Bug &bug) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)), bug(bug) {
+EnemyMissile::EnemyMissile(const Util::Math::Vector2D &position, Bug &bug) : Explosive(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)), bug(bug) {
     addComponent(new Util::Game::LinearMovementComponent(*this));
 }
 
 void EnemyMissile::initialize() {
+    Explosive::initialize();
     sprite = Util::Game::Sprite("/initrd/bug/enemy_missile.bmp", SIZE_X, SIZE_Y);
-    explosion = Explosion(SIZE_Y * 2, 0.5);
 }
 
 void EnemyMissile::onUpdate(double delta) {
-    if (isExploding) {
-        explosionTimer += delta;
+    Explosive::onUpdate(delta);
 
-        if (explosionTimer >= explosion.getAnimationTime()) {
-            Util::Game::GameManager::getCurrentScene().removeObject(this);
-            return;
-        }
-
-        explosion.update(delta);
+    if (hasExploded()) {
+        Util::Game::GameManager::getCurrentScene().removeObject(this);
     }
 }
 
@@ -60,35 +54,26 @@ void EnemyMissile::onTranslationEvent(Util::Game::TranslationEvent &event) {
         Util::Game::GameManager::getGame().getCurrentScene().removeObject(this);
     }
 
-    if (isExploding) {
+    if (isExploding()) {
         event.cancel();
     }
 }
 
 void EnemyMissile::onCollisionEvent(Util::Game::CollisionEvent &event) {
-    if (isExploding) {
+    if (isExploding()) {
         return;
     }
 
     auto tag = event.getCollidedWidth().getTag();
-    if (tag == PlayerMissile::TAG) {
-        isExploding = true;
-    }
-
-    if (tag == Ship::TAG) {
-        const auto &ship = event.getCollidedWidth<const Ship&>();
-        isExploding = ship.isAlive();
+    if (tag == PlayerMissile::TAG || tag == Ship::TAG) {
+        explode();
     }
 }
 
 void EnemyMissile::draw(Util::Game::Graphics2D &graphics) {
-    if (isExploding) {
-        graphics.drawImage(getPosition(), explosion.getCurrentSprite().getImage());
+    if (isExploding()) {
+        Explosive::draw(graphics);
     } else {
         graphics.drawImage(getPosition(), sprite.getImage());
     }
-}
-
-bool EnemyMissile::isAlive() const {
-    return !isExploding;
 }

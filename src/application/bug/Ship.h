@@ -23,6 +23,7 @@
 #include "lib/util/game/entity/Entity.h"
 #include "lib/util/game/Sprite.h"
 #include "lib/util/game/SpriteAnimation.h"
+#include "Explosive.h"
 
 namespace Util {
 namespace Game {
@@ -35,7 +36,7 @@ class Vector2D;
 }  // namespace Math
 }  // namespace Util
 
-class Ship : public Util::Game::Entity {
+class Ship : public Explosive {
 
 public:
     /**
@@ -72,10 +73,6 @@ public:
 
     void allowFireMissile();
 
-    void explode();
-
-    [[nodiscard]] bool isAlive() const;
-
     static const constexpr uint32_t TAG = 0;
     static const constexpr double SIZE_X = 0.2828;
     static const constexpr double SIZE_Y = 0.2;
@@ -84,11 +81,8 @@ private:
 
     Util::Game::Sprite sprite;
     Util::Game::Sprite heart;
-    Util::Game::SpriteAnimation explosion;
 
     uint32_t lives = 3;
-    double explosionTimer = 0;
-    bool isExploding = false;
     bool mayFireMissile = true;
 };
 

@@ -25,45 +25,39 @@
 #include "lib/util/game/entity/event/CollisionEvent.h"
 #include "GameOverScreen.h"
 #include "EnemyMissile.h"
-#include "Explosion.h"
 #include "lib/util/game/Graphics2D.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/entity/collider/Collider.h"
 #include "lib/util/game/entity/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2D.h"
 
-Ship::Ship(const Util::Math::Vector2D &position) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)) {
+Ship::Ship(const Util::Math::Vector2D &position) : Explosive(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)) {
     addComponent(new Util::Game::LinearMovementComponent(*this));
 }
 
 void Ship::initialize() {
+    Explosive::initialize();
+
     sprite = Util::Game::Sprite("/initrd/bug/ship.bmp", SIZE_X, SIZE_Y);
     heart = Util::Game::Sprite("/initrd/bug/heart.bmp", 0.05, 0.05);
-
-    explosion = Explosion(SIZE_Y, 1.0);
 }
 
 void Ship::onUpdate(double delta) {
-    if (lives == 0 && !isExploding) {
+    Explosive::onUpdate(delta);
+
+    if (lives == 0) {
         explode();
     }
 
-    if (isExploding) {
-        explosionTimer += delta;
-
-        if (explosionTimer >= explosion.getAnimationTime()) {
-            auto &game = Util::Game::GameManager::getGame();
-            game.pushScene(new GameOverScreen(false));
-            game.switchToNextScene();
-            return;
-        }
-
-        explosion.update(delta);
+    if (hasExploded()) {
+        auto &game = Util::Game::GameManager::getGame();
+        game.pushScene(new GameOverScreen(false));
+        game.switchToNextScene();
     }
 }
 
 void Ship::onTranslationEvent(Util::Game::TranslationEvent &event) {
-    if (isExploding) {
+    if (isExploding()) {
         event.cancel();
         return;
     }
@@ -82,7 +76,7 @@ void Ship::onCollisionEvent(Util::Game::CollisionEvent &event) {
     }
 
     const auto &missile = event.getCollidedWidth<const EnemyMissile>();
-    if (!missile.isAlive()) {
+    if (missile.isExploding()) {
         return;
     }
 
@@ -92,8 +86,8 @@ void Ship::onCollisionEvent(Util::Game::CollisionEvent &event) {
 }
 
 void Ship::draw(Util::Game::Graphics2D &graphics) {
-    if (isExploding) {
-        graphics.drawImage(getPosition(), explosion.getCurrentSprite().getImage());
+    if (isExploding()) {
+        Explosive::draw(graphics);
         return;
     }
 
@@ -117,12 +111,4 @@ void Ship::fireMissile() {
 
 void Ship::allowFireMissile() {
     mayFireMissile = true;
-}
-
-void Ship::explode() {
-    isExploding = true;
-}
-
-bool Ship::isAlive() const {
-    return !isExploding;
 }

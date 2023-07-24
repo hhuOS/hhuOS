@@ -60,12 +60,12 @@ void PlayerMissile::onCollisionEvent(Util::Game::CollisionEvent &event) {
     auto tag = event.getCollidedWidth().getTag();
     if (tag == EnemyMissile::TAG) {
         const auto &missile = event.getCollidedWidth<const EnemyMissile&>();
-        if (!missile.isAlive()) {
+        if (missile.isExploding()) {
             return;
         }
     } else if (tag == Bug::TAG) {
         const auto &bug = event.getCollidedWidth<const Bug&>();
-        if (!bug.isAlive()) {
+        if (bug.isExploding()) {
             return;
         }
     }

@@ -22,6 +22,7 @@
 
 #include "lib/util/game/entity/Entity.h"
 #include "lib/util/game/SpriteAnimation.h"
+#include "Explosive.h"
 
 class Fleet;
 namespace Util {
@@ -35,7 +36,7 @@ class Vector2D;
 }  // namespace Math
 }  // namespace Util
 
-class Bug : public Util::Game::Entity {
+class Bug : public Explosive {
 
 public:
     /**
@@ -70,23 +71,14 @@ public:
 
     void fireMissile();
 
-    void explode();
-
-    [[nodiscard]] bool isAlive() const;
-
     static const constexpr uint32_t TAG = 3;
     static const constexpr double SIZE_X = 0.15;
     static const constexpr double SIZE_Y = 0.1;
 
 private:
 
-    Util::Game::SpriteAnimation *currentAnimation = &animation;
     Util::Game::SpriteAnimation animation;
-    Util::Game::SpriteAnimation explosion;
     Fleet &fleet;
-
-    bool isExploding = false;
-    double explosionTimer = 0;
 };
 
 #endif

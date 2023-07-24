@@ -25,7 +25,6 @@
 #include "EnemyMissile.h"
 #include "PlayerMissile.h"
 #include "GameOverScreen.h"
-#include "Explosion.h"
 #include "application/bug/Fleet.h"
 #include "application/bug/Ship.h"
 #include "lib/util/collection/Array.h"
@@ -36,37 +35,28 @@
 #include "lib/util/game/entity/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2D.h"
 
-Bug::Bug(const Util::Math::Vector2D &position, Fleet &fleet) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)), fleet(fleet) {
+Bug::Bug(const Util::Math::Vector2D &position, Fleet &fleet) : Explosive(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)), fleet(fleet) {
     addComponent(new Util::Game::LinearMovementComponent(*this));
 }
 
 void Bug::initialize() {
+    Explosive::initialize();
+
     animation = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
         Util::Game::Sprite("/initrd/bug/bug1.bmp", SIZE_X, SIZE_Y),
         Util::Game::Sprite("/initrd/bug/bug2.bmp", SIZE_X, SIZE_Y)}), 0.5);
-
-    explosion = Explosion(SIZE_Y, 0.5);
 }
 
 void Bug::onUpdate(double delta) {
-    if (currentAnimation == &explosion) {
-        isExploding = true;
-    }
+    Explosive::onUpdate(delta);
 
-    if (isExploding) {
-        explosionTimer += delta;
-
-        if (explosionTimer >= explosion.getAnimationTime()) {
-            Util::Game::GameManager::getCurrentScene().removeObject(this);
-            fleet.decreaseSize();
-            return;
-        }
-
-        currentAnimation->update(delta);
+    if (hasExploded()) {
+        Util::Game::GameManager::getCurrentScene().removeObject(this);
+        fleet.decreaseSize();
         return;
     }
 
-    currentAnimation->update(delta);
+    animation.update(delta);
 
     if (fleet.isMovingDown()) {
         translateY(-0.1);
@@ -86,7 +76,7 @@ void Bug::onUpdate(double delta) {
 }
 
 void Bug::onTranslationEvent(Util::Game::TranslationEvent &event) {
-    if (isExploding) {
+    if (isExploding()) {
         event.cancel();
         return;
     }
@@ -108,19 +98,15 @@ void Bug::onCollisionEvent(Util::Game::CollisionEvent &event) {
 }
 
 void Bug::draw(Util::Game::Graphics2D &graphics) {
-    graphics.drawImage(getPosition(), currentAnimation->getCurrentSprite().getImage());
+    if (isExploding()) {
+        Explosive::draw(graphics);
+    } else {
+        graphics.drawImage(getPosition(), animation.getCurrentSprite().getImage());
+    }
 }
 
 void Bug::fireMissile() {
     auto *missile = new EnemyMissile(getPosition() + Util::Math::Vector2D((SIZE_X / 2) - (EnemyMissile::SIZE_X / 2), -SIZE_Y), *this);
     Util::Game::GameManager::getCurrentScene().addObject(missile);
     missile->setVelocityY(-1);
-}
-
-void Bug::explode() {
-    currentAnimation = &explosion;
-}
-
-bool Bug::isAlive() const {
-    return !isExploding;
 }
