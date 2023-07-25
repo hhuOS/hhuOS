@@ -21,7 +21,7 @@
 namespace Kernel {
 
 struct TaskStateSegment {
-    uint32_t prev_tss;
+    uint32_t previousTss;
     uint32_t esp0;      // Points to kernel stack
     uint32_t ss0;       // Points to segment used by kernel stack
     uint32_t esp1;
@@ -47,7 +47,7 @@ struct TaskStateSegment {
     uint32_t gs;
     uint32_t ldt;
     uint16_t trap;
-    uint16_t iomap_base;
+    uint16_t ioMapBaseOffset = sizeof(TaskStateSegment);
 } __attribute__((packed));
 
 }
