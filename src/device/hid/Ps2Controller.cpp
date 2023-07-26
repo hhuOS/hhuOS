@@ -110,8 +110,8 @@ void Ps2Controller::flushOutputBuffer() {
 bool Ps2Controller::waitOutputBuffer() {
     uint32_t timeout = 0;
     while (!(controlPort.readByte() & 0x01) && timeout < TIMEOUT) {
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(10));
-        timeout += 10;
+        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(100));
+        timeout += 100;
     }
 
     return timeout < TIMEOUT;
@@ -120,8 +120,8 @@ bool Ps2Controller::waitOutputBuffer() {
 bool Ps2Controller::waitInputBuffer() {
     uint32_t timeout = 0;
     while ((controlPort.readByte() & 0x02) && timeout < TIMEOUT) {
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(10));
-        timeout += 10;
+        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(100));
+        timeout += 100;
     }
 
     return timeout < TIMEOUT;

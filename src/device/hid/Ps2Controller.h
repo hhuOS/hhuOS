@@ -116,7 +116,7 @@ private:
 
     static Kernel::Logger log;
 
-    static const constexpr uint32_t TIMEOUT = 100;
+    static const constexpr uint32_t TIMEOUT = 500;
     static const constexpr uint8_t SELF_TEST_OK = 0x55;
     static const constexpr uint8_t PORT_TEST_OK = 0x00;
 };

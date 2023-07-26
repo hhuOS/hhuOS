@@ -114,7 +114,6 @@ private:
 
     static Kernel::Logger log;
 
-    static const constexpr uint32_t TIMEOUT = 100;
     static const constexpr uint32_t BUFFER_SIZE = 1024;
 };
 

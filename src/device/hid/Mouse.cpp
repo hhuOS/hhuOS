@@ -54,6 +54,7 @@ Mouse* Mouse::initialize(Ps2Controller &controller) {
         auto reply = mouse->readByte();
         if (reply == ACK) {
             resetAcknowledged = true;
+            continue;
         } else if (reply == SELF_TEST_PASSED) {
             log.info("Mouse has been reset and self test result is OK");
             break;
@@ -64,13 +65,15 @@ Mouse* Mouse::initialize(Ps2Controller &controller) {
         }
 
         count++;
-    } while (count < 10);
+    } while (count < 5);
 
-    if (!resetAcknowledged || count == 10) {
-        log.warn("Failed to reset mouse -> Mouse might not be connected");
+    if (!resetAcknowledged || count == 5) {
+        log.error("Failed to reset mouse -> Assuming no mouse is connected");
+        delete mouse;
+        return nullptr;
     }
 
-    mouse->readByte(); // The mouse seems to send another byte afterwards, which is 0x00 and can be discarded
+    mouse->readByte(); // The mouse seems to send another byte afterward, which is 0x00 and can be discarded
 
     // Setup mouse
     if (!mouse->writeMouseCommand(SET_DEFAULT_PARAMETERS)) {
@@ -84,7 +87,9 @@ Mouse* Mouse::initialize(Ps2Controller &controller) {
     }
 
     if (!mouse->writeMouseCommand(ENABLE_DATA_REPORTING)) {
-        log.warn("Failed to enable data reporting -> Mouse might not be working");
+        log.error("Failed to enable data reporting -> Assuming no mouse is connected");
+        delete mouse;
+        return nullptr;
     }
 
     controller.flushOutputBuffer();
@@ -226,7 +231,7 @@ void Mouse::activeAdditionalButtons() {
 
 Ps2Device::DeviceType Mouse::identify() {
     if (!writeMouseCommand(DISABLE_DATA_REPORTING) || !writeMouseCommand(IDENTIFY)) {
-        log.error("Failed to identify mouse -> Assuming standard 3-button mouse");
+        log.warn("Failed to identify mouse -> Assuming standard 3-button mouse");
         return STANDARD_MOUSE;
     }
 
@@ -234,9 +239,10 @@ Ps2Device::DeviceType Mouse::identify() {
     readByte(); // Discard subtype
 
     if (!writeMouseCommand(ENABLE_DATA_REPORTING)) {
-        log.warn("Failed to enable data reporting -> Mouse might not be working");
+        log.error("Failed to enable data reporting -> Mouse might not be working");
     }
 
+    controller.flushOutputBuffer();
     return static_cast<DeviceType>(mouseType);
 }
 

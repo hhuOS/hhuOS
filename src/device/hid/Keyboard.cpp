@@ -63,9 +63,9 @@ Keyboard* Keyboard::initialize(Ps2Controller &controller) {
         }
 
         count++;
-    } while (count < 10);
+    } while (count < 5);
 
-    if (!resetAcknowledged || count == 10) {
+    if (!resetAcknowledged || count == 5) {
         log.warn("Failed to reset keyboard -> Keyboard might not be connected");
     }
 
