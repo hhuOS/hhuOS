@@ -36,7 +36,7 @@ void ByteArrayOutputStream::getContent(uint8_t *target, uint32_t length) const {
 }
 
 String ByteArrayOutputStream::getContent() const {
-    return {buffer, position};
+    return Util::String(buffer, position);
 }
 
 uint32_t ByteArrayOutputStream::getLength() const {

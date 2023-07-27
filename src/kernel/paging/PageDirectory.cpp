@@ -194,6 +194,7 @@ uint32_t PageDirectory::unmap(uint32_t virtualAddress) {
 
     // If the requested page table is not present, the page cannot be unmapped
     if ((pageDirectory[pageDirectoryIndex] & Paging::PRESENT) == 0) {
+        lock.set(lockFree);
         return 0;
     }
 
