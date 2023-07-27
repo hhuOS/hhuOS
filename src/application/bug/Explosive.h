@@ -18,8 +18,20 @@
 #ifndef HHUOS_EXPLOSIVE_H
 #define HHUOS_EXPLOSIVE_H
 
+#include <cstdint>
+
 #include "lib/util/game/SpriteAnimation.h"
 #include "lib/util/game/entity/Entity.h"
+
+namespace Util {
+namespace Game {
+class Graphics2D;
+class RectangleCollider;
+}  // namespace Game
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
 
 class Explosive : public Util::Game::Entity {
 

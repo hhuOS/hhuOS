@@ -31,12 +31,6 @@
 #include "EnemyMissile.h"
 #include "Bug.h"
 
-namespace Util {
-namespace Game {
-class CollisionEvent;
-}  // namespace Game
-}  // namespace Util
-
 PlayerMissile::PlayerMissile(const Util::Math::Vector2D &position, Ship &ship) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)), ship(ship) {
     addComponent(new Util::Game::LinearMovementComponent(*this));
 }

@@ -96,7 +96,7 @@ bool Multiboot::hasKernelOption(const Util::String &key) {
 
 Util::String Multiboot::getKernelOption(const Util::String &key) {
     if (!hasTag(BOOT_COMMAND_LINE)) {
-        return false;
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Multiboot: Kernel options are not available!");
     }
 
     auto commandLine = getTag<BootCommandLine>(BOOT_COMMAND_LINE).string;

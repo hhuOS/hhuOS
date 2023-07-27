@@ -29,6 +29,8 @@
 #include "lib/util/game/entity/collider/Collider.h"
 #include "lib/util/game/entity/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2D.h"
+#include "application/bug/Explosive.h"
+#include "lib/util/game/entity/Entity.h"
 
 class Bug;
 

@@ -20,11 +20,11 @@
 
 #include <cstdint>
 
-#include "lib/util/game/entity/Entity.h"
 #include "lib/util/game/SpriteAnimation.h"
 #include "Explosive.h"
 
 class Fleet;
+
 namespace Util {
 namespace Game {
 class CollisionEvent;

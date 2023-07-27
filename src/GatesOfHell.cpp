@@ -88,6 +88,7 @@
 #include "lib/util/hardware/Acpi.h"
 #include "lib/util/hardware/SmBios.h"
 #include "device/sound/soundblaster/SoundBlaster.h"
+#include "lib/util/graphic/Ansi.h"
 
 namespace Device {
 class Machine;
@@ -96,10 +97,12 @@ class Machine;
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
 void GatesOfHell::enter() {
-    const auto logLevel = Kernel::Multiboot::hasKernelOption("log_level") ? Kernel::Multiboot::getKernelOption("log_level") : "inf";
+    const auto logLevel = Kernel::Multiboot::hasKernelOption("log_level") ? Kernel::Multiboot::getKernelOption(
+            "log_level") : "inf";
     Kernel::Logger::setLevel(logLevel);
 
-    log.info("%u MiB of physical memory detected", Kernel::System::getService<Kernel::MemoryService>().getMemoryStatus().totalPhysicalMemory / 1024 / 1024);
+    log.info("%u MiB of physical memory detected",
+             Kernel::System::getService<Kernel::MemoryService>().getMemoryStatus().totalPhysicalMemory / 1024 / 1024);
 
     printCpuInformation();
 
@@ -122,10 +125,18 @@ void GatesOfHell::enter() {
 
     initializePorts();
 
-    Kernel::Logger::addOutputStream(*new Util::Io::FileOutputStream("/device/log"));
+    initializeTerminal();
+
     enablePortLogging();
 
-    initializeTerminal();
+    auto *logFileStream = new Util::Io::FileOutputStream("/device/log");
+    Kernel::Logger::addOutputStream(*logFileStream);
+
+    Util::Io::FileOutputStream *terminalLogStream;
+    if (!Kernel::Multiboot::hasKernelOption("quiet") || (Kernel::Multiboot::hasKernelOption("quiet") && Kernel::Multiboot::getKernelOption("quiet") != "true")) {
+        terminalLogStream = new Util::Io::FileOutputStream("/device/terminal");
+        Kernel::Logger::addOutputStream(*terminalLogStream);
+    }
 
     initializePs2Devices();
 
@@ -137,12 +148,18 @@ void GatesOfHell::enter() {
 
     mountDevices();
 
-    printBanner();
-
     Util::Async::Process::execute(Util::Io::File("/initrd/bin/shell"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), "shell", Util::Array<Util::String>(0));
 
-    log.info("Starting scheduler!");
     Kernel::System::getService<Kernel::InterruptService>().allowParallelComputing();
+
+    if (!Kernel::Multiboot::hasKernelOption("quiet") || (Kernel::Multiboot::hasKernelOption("quiet") && Kernel::Multiboot::getKernelOption("quiet") != "true")) {
+        Kernel::Logger::removeOutputStream(*terminalLogStream);
+        delete terminalLogStream;
+    }
+
+    printBanner();
+
+    log.info("Starting scheduler!");
     Kernel::System::getService<Kernel::SchedulerService>().startScheduler();
 
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Once you entered the gates of hell, you are not allowed to leave!");
@@ -405,6 +422,9 @@ void GatesOfHell::initializePorts() {
 }
 
 void GatesOfHell::printBanner() {
+    Util::Graphic::Ansi::clearScreen();
+    Util::Graphic::Ansi::setPosition(Util::Graphic::Ansi::CursorPosition{0, 0});
+
     auto bannerFile = Util::Io::File("/initrd/banner.txt");
     if (bannerFile.exists()) {
         auto bannerStream = Util::Io::FileInputStream(bannerFile);

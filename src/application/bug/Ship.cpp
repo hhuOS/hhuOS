@@ -30,6 +30,8 @@
 #include "lib/util/game/entity/collider/Collider.h"
 #include "lib/util/game/entity/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2D.h"
+#include "application/bug/Explosive.h"
+#include "lib/util/game/entity/Entity.h"
 
 Ship::Ship(const Util::Math::Vector2D &position) : Explosive(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)) {
     addComponent(new Util::Game::LinearMovementComponent(*this));

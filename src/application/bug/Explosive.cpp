@@ -17,6 +17,17 @@
 
 #include "Explosive.h"
 
+#include "lib/util/collection/Array.h"
+#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Sprite.h"
+#include "lib/util/game/entity/collider/RectangleCollider.h"
+
+namespace Util {
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
+
 Explosive::Explosive(uint32_t tag, const Util::Math::Vector2D &position, const Util::Game::RectangleCollider &collider) : Entity(tag, position, collider) {}
 
 void Explosive::initialize() {
