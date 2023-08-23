@@ -19,20 +19,20 @@
 
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
-#include "lib/util/game/entity/component/LinearMovementComponent.h"
-#include "lib/util/game/entity/event/TranslationEvent.h"
-#include "lib/util/game/entity/event/CollisionEvent.h"
+#include "lib/util/game/2d/component/LinearMovementComponent.h"
+#include "lib/util/game/2d/event/TranslationEvent.h"
+#include "lib/util/game/2d/event/CollisionEvent.h"
 #include "application/bug/Ship.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/game/Scene.h"
-#include "lib/util/game/entity/collider/Collider.h"
-#include "lib/util/game/entity/collider/RectangleCollider.h"
+#include "lib/util/game/2d/collider/Collider.h"
+#include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2D.h"
 #include "EnemyMissile.h"
 #include "Bug.h"
 
-PlayerMissile::PlayerMissile(const Util::Math::Vector2D &position, Ship &ship) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)), ship(ship) {
-    addComponent(new Util::Game::LinearMovementComponent(*this));
+PlayerMissile::PlayerMissile(const Util::Math::Vector2D &position, Ship &ship) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Game::D2::Collider::STATIC, SIZE_X, SIZE_Y)), ship(ship) {
+    addComponent(new Util::Game::D2::LinearMovementComponent(*this));
 }
 
 void PlayerMissile::initialize() {
@@ -43,14 +43,14 @@ void PlayerMissile::onUpdate(double delta) {
 
 }
 
-void PlayerMissile::onTranslationEvent(Util::Game::TranslationEvent &event) {
+void PlayerMissile::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     if (event.getTargetPosition().getY() > 1.0) {
         Util::Game::GameManager::getGame().getCurrentScene().removeObject(this);
         ship.allowFireMissile();
     }
 }
 
-void PlayerMissile::onCollisionEvent(Util::Game::CollisionEvent &event) {
+void PlayerMissile::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
     auto tag = event.getCollidedWidth().getTag();
     if (tag == EnemyMissile::TAG) {
         const auto &missile = event.getCollidedWidth<const EnemyMissile&>();

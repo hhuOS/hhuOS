@@ -22,8 +22,8 @@
 #include "application/dino/Dino.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/game/Camera.h"
-#include "lib/util/game/entity/component/LinearMovementComponent.h"
-#include "lib/util/game/entity/component/GravityComponent.h"
+#include "lib/util/game/2d/component/LinearMovementComponent.h"
+#include "lib/util/game/2d/component/GravityComponent.h"
 #include "Saw.h"
 #include "lib/util/game/GameManager.h"
 #include "application/dino/Ground.h"
@@ -35,8 +35,8 @@
 #include "lib/util/math/Vector2D.h"
 
 DinoGame::DinoGame() {
-    dino->addComponent(new Util::Game::LinearMovementComponent(*dino));
-    dino->addComponent(new Util::Game::GravityComponent(*dino, 2, 0.0025));
+    dino->addComponent(new Util::Game::D2::LinearMovementComponent(*dino));
+    dino->addComponent(new Util::Game::D2::GravityComponent(*dino, 2, 0.0025));
 
     addObject(dino);
 

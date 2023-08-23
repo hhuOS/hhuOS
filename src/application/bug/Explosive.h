@@ -21,7 +21,7 @@
 #include <cstdint>
 
 #include "lib/util/game/SpriteAnimation.h"
-#include "lib/util/game/entity/Entity.h"
+#include "lib/util/game/2d/Entity.h"
 
 namespace Util {
 namespace Game {
@@ -33,13 +33,13 @@ class Vector2D;
 }  // namespace Math
 }  // namespace Util
 
-class Explosive : public Util::Game::Entity {
+class Explosive : public Util::Game::D2::Entity {
 
 public:
     /**
      * Constructor.
      */
-    Explosive(uint32_t tag, const Util::Math::Vector2D &position, const Util::Game::RectangleCollider &collider);
+    Explosive(uint32_t tag, const Util::Math::Vector2D &position, const Util::Game::D2::RectangleCollider &collider);
 
     /**
      * Copy Constructor.

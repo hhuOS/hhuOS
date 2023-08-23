@@ -20,21 +20,21 @@
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "PlayerMissile.h"
-#include "lib/util/game/entity/component/LinearMovementComponent.h"
-#include "lib/util/game/entity/event/TranslationEvent.h"
-#include "lib/util/game/entity/event/CollisionEvent.h"
+#include "lib/util/game/2d/component/LinearMovementComponent.h"
+#include "lib/util/game/2d/event/TranslationEvent.h"
+#include "lib/util/game/2d/event/CollisionEvent.h"
 #include "GameOverScreen.h"
 #include "EnemyMissile.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/game/Scene.h"
-#include "lib/util/game/entity/collider/Collider.h"
-#include "lib/util/game/entity/collider/RectangleCollider.h"
+#include "lib/util/game/2d/collider/Collider.h"
+#include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2D.h"
 #include "application/bug/Explosive.h"
-#include "lib/util/game/entity/Entity.h"
+#include "lib/util/game/2d/Entity.h"
 
-Ship::Ship(const Util::Math::Vector2D &position) : Explosive(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)) {
-    addComponent(new Util::Game::LinearMovementComponent(*this));
+Ship::Ship(const Util::Math::Vector2D &position) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Game::D2::Collider::STATIC, SIZE_X, SIZE_Y)) {
+    addComponent(new Util::Game::D2::LinearMovementComponent(*this));
 }
 
 void Ship::initialize() {
@@ -58,7 +58,7 @@ void Ship::onUpdate(double delta) {
     }
 }
 
-void Ship::onTranslationEvent(Util::Game::TranslationEvent &event) {
+void Ship::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     if (isExploding()) {
         event.cancel();
         return;
@@ -72,7 +72,7 @@ void Ship::onTranslationEvent(Util::Game::TranslationEvent &event) {
     }
 }
 
-void Ship::onCollisionEvent(Util::Game::CollisionEvent &event) {
+void Ship::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() != EnemyMissile::TAG) {
         return;
     }

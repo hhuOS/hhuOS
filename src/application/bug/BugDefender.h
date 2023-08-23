@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "lib/util/game/Scene.h"
+#include "lib/util/game/2d/Scene.h"
 #include "lib/util/game/KeyListener.h"
 #include "Ship.h"
 #include "Fleet.h"
@@ -36,7 +36,7 @@ class Key;
 }  // namespace Io
 }  // namespace Util
 
-class BugDefender : public Util::Game::Scene, public Util::Game::KeyListener {
+class BugDefender : public Util::Game::D2::Scene, public Util::Game::KeyListener {
 
 public:
     /**

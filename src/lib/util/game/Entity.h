@@ -13,50 +13,49 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
-#ifndef HHUOS_LINEARMOVEMENTCOMPONENT_H
-#define HHUOS_LINEARMOVEMENTCOMPONENT_H
 
-#include "Component.h"
+#ifndef HHUOS_ENTITY_H
+#define HHUOS_ENTITY_H
 
-namespace Util {
-namespace Game {
-class Entity;
-}  // namespace Game
-}  // namespace Util
+#include <cstdint>
+
+#include "Drawable.h"
 
 namespace Util::Game {
 
-class LinearMovementComponent : public Component {
-
+class Entity : public Drawable {
 
 public:
     /**
-    * Constructor.
-    */
-    explicit LinearMovementComponent(Entity &entity);
+     * Constructor.
+     */
+    explicit Entity(uint32_t tag);
 
     /**
      * Copy Constructor.
      */
-    LinearMovementComponent(const LinearMovementComponent &other) = delete;
+    Entity(const Entity &other) = delete;
 
     /**
      * Assignment operator.
      */
-    LinearMovementComponent &operator=(const LinearMovementComponent &other) = delete;
+    Entity &operator=(const Entity &other) = delete;
 
     /**
      * Destructor.
      */
-    ~LinearMovementComponent() = default;
+    ~Entity() override = default;
 
-protected:
+    virtual void initialize() = 0;
 
-    void update(double delta) override;
+    virtual void onUpdate(double delta) = 0;
+
+    [[nodiscard]] uint32_t getTag() const;
+
+private:
+
+    uint32_t tag;
 };
 
 }

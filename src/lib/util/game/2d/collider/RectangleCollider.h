@@ -18,25 +18,59 @@
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#include "LinearMovementComponent.h"
+#ifndef HHUOS_RECTANGLECOLLIDER_H
+#define HHUOS_RECTANGLECOLLIDER_H
 
-#include "lib/util/game/entity/Entity.h"
-#include "lib/util/game/entity/component/Component.h"
-#include "lib/util/game/entity/event/TranslationEvent.h"
-#include "lib/util/math/Vector2D.h"
+#include "Collider.h"
 
-namespace Util::Game {
+namespace Util::Game::D2 {
 
-LinearMovementComponent::LinearMovementComponent(Entity &entity) : Component(entity) {}
+class RectangleCollider : public Collider {
 
-void LinearMovementComponent::update(double delta) {
-    auto newPosition = getEntity().getPosition() + getEntity().getVelocity() * delta;
-    auto event = TranslationEvent(newPosition);
-    getEntity().onTranslationEvent(event);
+public:
 
-    if (!event.isCanceled()) {
-        getEntity().setPosition(newPosition);
-    }
+    enum Side {
+        LEFT, RIGHT, TOP, BOTTOM, NONE
+    };
+
+    /**
+     * Constructor.
+     */
+    RectangleCollider(const Math::Vector2D &position, Collider::Type type, double width, double height);
+
+    /**
+     * Copy Constructor.
+     */
+    RectangleCollider(const RectangleCollider &other) = default;
+
+    /**
+     * Assignment operator.
+     */
+    RectangleCollider &operator=(const RectangleCollider &other) = default;
+
+    /**
+     * Destructor.
+     */
+    ~RectangleCollider() = default;
+
+    static Side getOpposite(Side side);
+
+    [[nodiscard]] double getWidth() const;
+
+    [[nodiscard]] double getHeight() const;
+
+    void setWidth(double width);
+
+    void setHeight(double height);
+
+    [[nodiscard]] Side isColliding(const RectangleCollider &other) const;
+
+private:
+
+    double width;
+    double height;
+};
+
 }
 
-}
+#endif

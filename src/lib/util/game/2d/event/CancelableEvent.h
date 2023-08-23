@@ -17,42 +17,41 @@
  * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
-#ifndef HHUOS_TRANSLATIONEVENT_H
-#define HHUOS_TRANSLATIONEVENT_H
+#ifndef HHUOS_CANCELABLEEVENT_H
+#define HHUOS_CANCELABLEEVENT_H
 
-#include "lib/util/math/Vector2D.h"
-#include "CancelableEvent.h"
+namespace Util::Game::D2 {
 
-namespace Util::Game {
-
-class TranslationEvent : public CancelableEvent {
+class CancelableEvent {
 
 public:
     /**
-    * Constructor.
+    * Default Constructor.
     */
-    explicit TranslationEvent(const Math::Vector2D &targetPosition);
+    CancelableEvent() = default;
 
     /**
      * Copy Constructor.
      */
-    TranslationEvent(const TranslationEvent &other) = delete;
+    CancelableEvent(const CancelableEvent &other) = delete;
 
     /**
      * Assignment operator.
      */
-    TranslationEvent &operator=(const TranslationEvent &other) = delete;
+    CancelableEvent &operator=(const CancelableEvent &other) = delete;
 
     /**
      * Destructor.
      */
-    ~TranslationEvent() = default;
+    ~CancelableEvent() = default;
 
-    [[nodiscard]] const Math::Vector2D& getTargetPosition() const;
+    void cancel();
+
+    [[nodiscard]] bool isCanceled() const;
 
 private:
 
-    Math::Vector2D targetPosition;
+    bool canceled = false;
 };
 
 }

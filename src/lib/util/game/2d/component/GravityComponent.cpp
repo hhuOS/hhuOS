@@ -21,12 +21,12 @@
 #include "GravityComponent.h"
 
 #include "lib/util/math/Math.h"
-#include "lib/util/game/entity/Entity.h"
-#include "lib/util/game/entity/component/Component.h"
-#include "lib/util/game/entity/event/TranslationEvent.h"
+#include "lib/util/game/2d/Entity.h"
+#include "lib/util/game/2d/component/Component.h"
+#include "lib/util/game/2d/event/TranslationEvent.h"
 #include "lib/util/math/Vector2D.h"
 
-namespace Util::Game {
+namespace Util::Game::D2 {
 
 GravityComponent::GravityComponent(Entity &entity, double mass, double stopFactorX, double gravityValue) :
         Component(entity), mass(mass), stopFactorX(stopFactorX), gravityValue(gravityValue) {}

@@ -17,41 +17,39 @@
  * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
-#ifndef HHUOS_CANCELABLEEVENT_H
-#define HHUOS_CANCELABLEEVENT_H
+#ifndef HHUOS_LINEARMOVEMENTCOMPONENT_H
+#define HHUOS_LINEARMOVEMENTCOMPONENT_H
 
-namespace Util::Game {
+#include "Component.h"
 
-class CancelableEvent {
+namespace Util::Game::D2 {
+
+class LinearMovementComponent : public Component {
 
 public:
     /**
-    * Default Constructor.
+    * Constructor.
     */
-    CancelableEvent() = default;
+    explicit LinearMovementComponent(Entity &entity);
 
     /**
      * Copy Constructor.
      */
-    CancelableEvent(const CancelableEvent &other) = delete;
+    LinearMovementComponent(const LinearMovementComponent &other) = delete;
 
     /**
      * Assignment operator.
      */
-    CancelableEvent &operator=(const CancelableEvent &other) = delete;
+    LinearMovementComponent &operator=(const LinearMovementComponent &other) = delete;
 
     /**
      * Destructor.
      */
-    ~CancelableEvent() = default;
+    ~LinearMovementComponent() = default;
 
-    void cancel();
+protected:
 
-    [[nodiscard]] bool isCanceled() const;
-
-private:
-
-    bool canceled = false;
+    void update(double delta) override;
 };
 
 }

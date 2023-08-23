@@ -18,9 +18,9 @@
 #include "Ground.h"
 
 #include "lib/util/game/Graphics.h"
-#include "lib/util/game/entity/collider/Collider.h"
-#include "lib/util/game/entity/collider/RectangleCollider.h"
-#include "lib/util/game/entity/event/TranslationEvent.h"
+#include "lib/util/game/2d/collider/Collider.h"
+#include "lib/util/game/2d/collider/RectangleCollider.h"
+#include "lib/util/game/2d/event/TranslationEvent.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/math/Vector2D.h"
 
@@ -30,7 +30,7 @@ class CollisionEvent;
 }  // namespace Game
 }  // namespace Util
 
-Ground::Ground(const Util::Math::Vector2D &position) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, 1, 0.001)) {}
+Ground::Ground(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Game::D2::Collider::STATIC, 1, 0.001)) {}
 
 void Ground::initialize() {
     sprite = Util::Game::Sprite("/initrd/dino/ground.bmp", 0.2, 0.2);
@@ -38,11 +38,11 @@ void Ground::initialize() {
 
 void Ground::onUpdate(double delta) {}
 
-void Ground::onTranslationEvent(Util::Game::TranslationEvent &event) {
+void Ground::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     event.cancel();
 }
 
-void Ground::onCollisionEvent(Util::Game::CollisionEvent &event) {}
+void Ground::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
 
 void Ground::draw(Util::Game::Graphics &graphics) {
     graphics.setColor(Util::Graphic::Colors::GREEN);

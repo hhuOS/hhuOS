@@ -21,7 +21,7 @@
 #include <cstdint>
 
 #include "lib/util/game/MouseListener.h"
-#include "lib/util/game/entity/Entity.h"
+#include "lib/util/game/2d/Entity.h"
 #include "lib/util/game/Sprite.h"
 
 class Logo;
@@ -45,7 +45,7 @@ class TranslationEvent;
 }  // namespace Game
 }  // namespace Util
 
-class MouseCursor : public Util::Game::Entity, public Util::Game::MouseListener {
+class MouseCursor : public Util::Game::D2::Entity, public Util::Game::MouseListener {
 
 public:
     /**
@@ -72,9 +72,9 @@ public:
 
     void onUpdate(double delta) override;
 
-    void onTranslationEvent(Util::Game::TranslationEvent &event) override;
+    void onTranslationEvent(Util::Game::D2::TranslationEvent &event) override;
 
-    void onCollisionEvent(Util::Game::CollisionEvent &event) override;
+    void onCollisionEvent(Util::Game::D2::CollisionEvent &event) override;
 
     void draw(Util::Game::Graphics &graphics) override;
 

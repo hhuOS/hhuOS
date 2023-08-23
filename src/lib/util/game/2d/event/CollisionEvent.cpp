@@ -18,53 +18,19 @@
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_GRAVITYCOMPONENT_H
-#define HHUOS_GRAVITYCOMPONENT_H
+#include "CollisionEvent.h"
+#include "lib/util/game/2d/Entity.h"
 
-#include "Component.h"
+namespace Util::Game::D2 {
 
-namespace Util {
-namespace Game {
-class Entity;
-}  // namespace Game
-}  // namespace Util
+CollisionEvent::CollisionEvent(Entity &other, RectangleCollider::Side side) : other(other), side(side) {}
 
-namespace Util::Game {
-
-class GravityComponent : public Component {
-
-public:
-    /**
-    * Constructor.
-    */
-    GravityComponent(Entity &entity, double mass = 2, double stopFactorX = 0.15, double gravityValue = -1.25);
-
-    /**
-     * Copy Constructor.
-     */
-    GravityComponent(const GravityComponent &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    GravityComponent &operator=(const GravityComponent &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~GravityComponent() = default;
-
-protected:
-
-    void update(double delta) override;
-
-private:
-
-    double mass;
-    double stopFactorX;
-    double gravityValue;
-};
-
+Entity& Util::Game::D2::CollisionEvent::getCollidedWidth() {
+    return other;
 }
 
-#endif
+RectangleCollider::Side CollisionEvent::getSide() const {
+    return side;
+}
+
+}

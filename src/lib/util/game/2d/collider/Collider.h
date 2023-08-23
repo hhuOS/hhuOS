@@ -18,24 +18,59 @@
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#include "CollisionEvent.h"
+#ifndef HHUOS_COLLIDER_H
+#define HHUOS_COLLIDER_H
 
-namespace Util {
-namespace Game {
-class Entity;
-}  // namespace Game
-}  // namespace Util
+#include "lib/util/math/Vector2D.h"
 
-namespace Util::Game {
+namespace Util::Game::D2 {
 
-CollisionEvent::CollisionEvent(Entity &other, Util::Game::RectangleCollider::Side side) : other(other), side(side) {}
+class Collider {
 
-Entity& Util::Game::CollisionEvent::getCollidedWidth() {
-    return other;
+friend class Entity;
+
+public:
+
+    enum Type {
+        STATIC, DYNAMIC
+    };
+
+    /**
+     * Constructor.
+     */
+    Collider(const Math::Vector2D &position, Type type);
+
+    /**
+     * Copy Constructor.
+     */
+    Collider(const Collider &other) = default;
+
+    /**
+     * Assignment operator.
+     */
+    Collider &operator=(const Collider &other) = default;
+
+    /**
+     * Destructor.
+     */
+    ~Collider() = default;
+
+    [[nodiscard]] const Math::Vector2D& getPosition() const;
+
+    [[nodiscard]] Type getType() const;
+
+protected:
+
+    Math::Vector2D lastPosition;
+
+    void setPosition(const Math::Vector2D &position);
+
+private:
+
+    Math::Vector2D position;
+    Type type;
+};
+
 }
 
-RectangleCollider::Side Util::Game::CollisionEvent::getSide() const {
-    return side;
-}
-
-}
+#endif

@@ -18,14 +18,14 @@
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#include "TranslationEvent.h"
+#include "Component.h"
 
-namespace Util::Game {
+namespace Util::Game::D2 {
 
-TranslationEvent::TranslationEvent(const Math::Vector2D &targetPosition) : targetPosition(targetPosition) {}
+Component::Component(Entity &entity) : entity(entity) {}
 
-const Math::Vector2D& TranslationEvent::getTargetPosition() const {
-    return targetPosition;
+Entity &Component::getEntity() {
+    return entity;
 }
 
 }

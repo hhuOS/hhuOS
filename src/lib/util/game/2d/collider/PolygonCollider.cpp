@@ -20,7 +20,7 @@
 #include "lib/util/math/Math.h"
 #include "lib/util/game/Polygon.h"
 
-namespace Util::Game {
+namespace Util::Game::D2 {
 
 PolygonCollider::PolygonCollider(Polygon &polygon, Collider::Type colliderType) : Collider(polygon.getCenter(), colliderType), polygon(polygon) {}
 

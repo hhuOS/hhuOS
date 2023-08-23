@@ -21,7 +21,7 @@
 #include <cstdint>
 
 #include "lib/util/game/SpriteAnimation.h"
-#include "lib/util/game/entity/Entity.h"
+#include "lib/util/game/2d/Entity.h"
 
 namespace Util {
 namespace Math {
@@ -35,13 +35,13 @@ class TranslationEvent;
 }  // namespace Game
 }  // namespace Util
 
-class Dino : public Util::Game::Entity {
+class Dino : public Util::Game::D2::Entity {
 
 public:
     /**
      * Default Constructor.
      */
-    Dino(const Util::Math::Vector2D &position);
+    explicit Dino(const Util::Math::Vector2D &position);
 
     /**
      * Copy Constructor.
@@ -80,9 +80,9 @@ public:
 
     [[nodiscard]] bool isDead() const;
 
-    void onTranslationEvent(Util::Game::TranslationEvent &event) override;
+    void onTranslationEvent(Util::Game::D2::TranslationEvent &event) override;
 
-    void onCollisionEvent(Util::Game::CollisionEvent &event) override;
+    void onCollisionEvent(Util::Game::D2::CollisionEvent &event) override;
 
     void draw(Util::Game::Graphics &graphics) override;
 

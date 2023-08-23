@@ -17,7 +17,7 @@
 
 #include "Logo.h"
 
-#include "lib/util/game/entity/event/TranslationEvent.h"
+#include "lib/util/game/2d/event/TranslationEvent.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/math/Vector2D.h"
@@ -28,7 +28,7 @@ class CollisionEvent;
 }  // namespace Game
 }  // namespace Util
 
-Logo::Logo() : Util::Game::Entity(0, Util::Math::Vector2D(-0.5, -0.313)) {}
+Logo::Logo() : Util::Game::D2::Entity(0, Util::Math::Vector2D(-0.5, -0.313)) {}
 
 void Logo::initialize() {
     sprite = Util::Game::Sprite("initrd/mouse/logo.bmp", 1, 0.626);
@@ -36,7 +36,7 @@ void Logo::initialize() {
 
 void Logo::onUpdate(double delta) {}
 
-void Logo::onTranslationEvent(Util::Game::TranslationEvent &event) {
+void Logo::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     const auto &resolution = Util::Game::GameManager::getRelativeResolution();
     const auto &newPosition = event.getTargetPosition();
 
@@ -48,7 +48,7 @@ void Logo::onTranslationEvent(Util::Game::TranslationEvent &event) {
     }
 }
 
-void Logo::onCollisionEvent(Util::Game::CollisionEvent &event) {}
+void Logo::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
 
 void Logo::draw(Util::Game::Graphics &graphics) {
     graphics.drawImage2D(getPosition(), sprite.getImage());

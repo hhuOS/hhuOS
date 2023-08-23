@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "lib/util/game/entity/Entity.h"
+#include "lib/util/game/2d/Entity.h"
 #include "lib/util/game/Sprite.h"
 
 class Ship;
@@ -35,7 +35,7 @@ class Vector2D;
 }  // namespace Math
 }  // namespace Util
 
-class PlayerMissile : public Util::Game::Entity {
+class PlayerMissile : public Util::Game::D2::Entity {
 
 public:
     /**
@@ -62,9 +62,9 @@ public:
 
     void onUpdate(double delta) override;
 
-    void onTranslationEvent(Util::Game::TranslationEvent &event) override;
+    void onTranslationEvent(Util::Game::D2::TranslationEvent &event) override;
 
-    void onCollisionEvent(Util::Game::CollisionEvent &event) override;
+    void onCollisionEvent(Util::Game::D2::CollisionEvent &event) override;
 
     void draw(Util::Game::Graphics &graphics) override;
 

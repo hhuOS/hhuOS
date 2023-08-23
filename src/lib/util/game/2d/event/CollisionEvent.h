@@ -18,64 +18,55 @@
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_RECTANGLECOLLIDER_H
-#define HHUOS_RECTANGLECOLLIDER_H
+#ifndef HHUOS_COLLISIONEVENT_H
+#define HHUOS_COLLISIONEVENT_H
 
-#include "Collider.h"
+#include "Event.h"
+#include "lib/util/game/2d/collider/RectangleCollider.h"
+#include "lib/util/game/2d/Entity.h"
 
-namespace Util {
-namespace Math {
-class Vector2D;
-}  // namespace Math
-}  // namespace Util
+namespace Util::Game::D2 {
 
-namespace Util::Game {
-
-class RectangleCollider : public Collider {
+class CollisionEvent : public Event {
 
 public:
-
-    enum Side {
-        LEFT, RIGHT, TOP, BOTTOM, NONE
-    };
-
     /**
      * Constructor.
      */
-    RectangleCollider(const Math::Vector2D &position, Collider::Type type, double width, double height);
+    CollisionEvent(Entity &other, RectangleCollider::Side side);
 
     /**
      * Copy Constructor.
      */
-    RectangleCollider(const RectangleCollider &other) = default;
+    CollisionEvent(const CollisionEvent &other) = delete;
 
     /**
      * Assignment operator.
      */
-    RectangleCollider &operator=(const RectangleCollider &other) = default;
+    CollisionEvent &operator=(const CollisionEvent &other) = delete;
 
     /**
      * Destructor.
      */
-    ~RectangleCollider() = default;
+    ~CollisionEvent() = default;
 
-    static Side getOpposite(Side side);
+    [[nodiscard]] Entity& getCollidedWidth();
 
-    [[nodiscard]] double getWidth() const;
+    template<typename T>
+    [[nodiscard]] T& getCollidedWidth();
 
-    [[nodiscard]] double getHeight() const;
-
-    void setWidth(double width);
-
-    void setHeight(double height);
-
-    [[nodiscard]] Side isColliding(const RectangleCollider &other) const;
+    [[nodiscard]] RectangleCollider::Side getSide() const;
 
 private:
 
-    double width;
-    double height;
+    Entity &other;
+    const RectangleCollider::Side side;
 };
+
+template<typename T>
+T& Util::Game::D2::CollisionEvent::getCollidedWidth() {
+    return reinterpret_cast<T&>(other);
+}
 
 }
 

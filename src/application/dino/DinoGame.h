@@ -30,6 +30,7 @@
 #include "lib/util/collection/Iterator.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/math/Vector2D.h"
+#include "lib/util/game/2d/Scene.h"
 
 namespace Util {
 namespace Game {
@@ -41,7 +42,7 @@ class Key;
 }  // namespace Io
 }  // namespace Util
 
-class DinoGame : public Util::Game::Scene, public Util::Game::KeyListener {
+class DinoGame : public Util::Game::D2::Scene, public Util::Game::KeyListener {
 
 public:
     /**

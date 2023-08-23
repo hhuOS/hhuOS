@@ -63,9 +63,9 @@ public:
 
     void onUpdate(double delta) override;
 
-    void onTranslationEvent(Util::Game::TranslationEvent &event) override;
+    void onTranslationEvent(Util::Game::D2::TranslationEvent &event) override;
 
-    void onCollisionEvent(Util::Game::CollisionEvent &event) override;
+    void onCollisionEvent(Util::Game::D2::CollisionEvent &event) override;
 
     void draw(Util::Game::Graphics &graphics) override;
 

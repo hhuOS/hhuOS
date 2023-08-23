@@ -18,53 +18,22 @@
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_COMPONENT_H
-#define HHUOS_COMPONENT_H
+#include "Collider.h"
 
-namespace Util {
-namespace Game {
-class Entity;
-}  // namespace Game
-}  // namespace Util
+namespace Util::Game::D2 {
 
-namespace Util::Game {
+Collider::Collider(const Math::Vector2D &position, Collider::Type type) : position(position), type(type) {}
 
-class Component {
-
-friend class Entity;
-
-public:
-    /**
-    * Constructor.
-    */
-    explicit Component(Entity &entity);
-
-    /**
-     * Copy Constructor.
-     */
-    Component(const Component &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Component &operator=(const Component &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Component() = default;
-
-protected:
-
-    virtual void update(double delta) = 0;
-
-    [[nodiscard]] Entity& getEntity();
-
-private:
-
-    Entity &entity;
-};
-
+const Math::Vector2D &Collider::getPosition() const {
+    return position;
 }
 
-#endif
+Collider::Type Collider::getType() const {
+    return type;
+}
+
+void Collider::setPosition(const Math::Vector2D &position) {
+    Collider::position = position;
+}
+
+}

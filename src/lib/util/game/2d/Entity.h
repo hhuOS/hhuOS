@@ -18,31 +18,27 @@
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_ENTITY_H
-#define HHUOS_ENTITY_H
+#ifndef HHUOS_ENTITY_2D_H
+#define HHUOS_ENTITY_2D_H
 
 #include <cstdint>
 
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/game/Drawable.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/game/entity/collider/RectangleCollider.h"
+#include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/Collection.h"
 #include "lib/util/collection/Iterator.h"
-#include "lib/util/game/entity/component/Component.h"
+#include "lib/util/game/2d/component/Component.h"
+#include "lib/util/game/2d/event/TranslationEvent.h"
+#include "lib/util/game/Entity.h"
 
-namespace Util {
-namespace Game {
-class TranslationEvent;
-}  // namespace Game
-}  // namespace Util
-
-namespace Util::Game {
+namespace Util::Game::D2 {
 
 class CollisionEvent;
 
-class Entity : public Drawable {
+class Entity : public Util::Game::Entity {
 
 friend class Scene;
 
@@ -71,10 +67,6 @@ public:
      * Destructor.
      */
     ~Entity() override = default;
-
-    virtual void initialize() = 0;
-
-    virtual void onUpdate(double delta) = 0;
 
     virtual void onTranslationEvent(TranslationEvent &event) = 0;
 
@@ -108,15 +100,12 @@ public:
 
     [[nodiscard]] bool hasCollider() const;
 
-    [[nodiscard]] uint32_t getTag() const;
-
 private:
 
     void update(double delta);
 
     void onCollision(CollisionEvent &event);
 
-    uint32_t tag;
     bool positionChanged = false;
     Math::Vector2D position{};
     Math::Vector2D velocity{};

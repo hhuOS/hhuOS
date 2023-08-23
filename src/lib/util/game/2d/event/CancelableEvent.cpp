@@ -20,7 +20,7 @@
 
 #include "CancelableEvent.h"
 
-namespace Util::Game {
+namespace Util::Game::D2 {
 
 void CancelableEvent::cancel() {
     canceled = true;

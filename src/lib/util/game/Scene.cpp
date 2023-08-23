@@ -20,10 +20,10 @@
 
 #include "Scene.h"
 
-#include "lib/util/game/entity/event/CollisionEvent.h"
+#include "lib/util/game/2d/event/CollisionEvent.h"
 #include "lib/util/collection/Pair.h"
 #include "lib/util/game/Graphics.h"
-#include "lib/util/game/entity/collider/RectangleCollider.h"
+#include "lib/util/game/2d/collider/RectangleCollider.h"
 
 namespace Util {
 namespace Game {
@@ -43,15 +43,6 @@ Scene::~Scene() {
     }
 
     entities.clear();
-}
-
-void Scene::initialize(Graphics &graphics) {
-    initializeBackground(graphics);
-    graphics.saveCurrentStateAsBackground();
-
-    for (auto *entity : entities) {
-        entity->initialize();
-    }
 }
 
 void Scene::addObject(Entity *object) {
@@ -83,12 +74,6 @@ void Scene::applyChanges() {
     removeList.clear();
 }
 
-void Scene::updateEntities(double delta) {
-    for (auto *entity : entities) {
-        entity->update(delta);
-    }
-}
-
 void Scene::draw(Graphics &graphics) {
     for (auto *object : entities) {
         object->draw(graphics);
@@ -109,33 +94,6 @@ void Scene::setMouseListener(MouseListener &listener) {
 
 Camera& Scene::getCamera() {
     return camera;
-}
-
-void Scene::checkCollisions() {
-    auto detectedCollisions = ArrayList<Pair<Entity*, Entity*>>();
-    for (auto *entity : entities) {
-        if (entity->hasCollider() && entity->positionChanged) {
-            const auto &collider = entity->getCollider();
-
-            for (auto *otherEntity : entities) {
-                if (entity == otherEntity || !otherEntity->hasCollider() || detectedCollisions.contains(Pair(entity, otherEntity)) || detectedCollisions.contains(Pair(otherEntity, entity))) {
-                    continue;
-                }
-
-                const auto &otherCollider = otherEntity->getCollider();
-                auto side = collider.isColliding(otherCollider);
-
-                if (side != RectangleCollider::NONE) {
-                    auto event = CollisionEvent(*otherEntity, side);
-                    auto otherEvent = CollisionEvent(*entity, RectangleCollider::getOpposite(side));
-
-                    entity->onCollision(event);
-                    otherEntity->onCollision(otherEvent);
-                    detectedCollisions.add(Pair(entity, otherEntity));
-                }
-            }
-        }
-    }
 }
 
 }

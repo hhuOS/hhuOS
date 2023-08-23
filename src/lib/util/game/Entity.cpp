@@ -13,40 +13,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
-#ifndef HHUOS_EVENT_H
-#define HHUOS_EVENT_H
+
+#include "Entity.h"
 
 namespace Util::Game {
 
-class Event {
+Entity::Entity(uint32_t tag) : tag(tag) {}
 
-public:
-    /**
-    * Default Constructor.
-    */
-    Event() = default;
-
-    /**
-     * Copy Constructor.
-     */
-    Event(const Event &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Event &operator=(const Event &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Event() = default;
-
-};
-
+uint32_t Entity::getTag() const {
+    return tag;
 }
 
-#endif
+}

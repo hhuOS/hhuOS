@@ -18,19 +18,19 @@
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#include "lib/util/game/entity/component/Component.h"
-#include "lib/util/game/entity/event/CollisionEvent.h"
+#include "lib/util/game/2d/component/Component.h"
+#include "lib/util/game/2d/event/CollisionEvent.h"
 #include "Entity.h"
-#include "lib/util/game/entity/Entity.h"
+#include "lib/util/game/2d/Entity.h"
 #include "lib/util/base/Exception.h"
-#include "lib/util/game/entity/collider/Collider.h"
-#include "lib/util/game/entity/event/TranslationEvent.h"
+#include "lib/util/game/2d/collider/Collider.h"
+#include "lib/util/game/2d/event/TranslationEvent.h"
 
-namespace Util::Game {
+namespace Util::Game::D2 {
 
-Entity::Entity(uint32_t tag, const Math::Vector2D &position) : tag(tag), position(position), colliderPresent(false), collider(Util::Math::Vector2D(0, 0), Collider::STATIC, 0, 0) {}
+Entity::Entity(uint32_t tag, const Math::Vector2D &position) : Util::Game::Entity(tag), position(position), colliderPresent(false), collider(Util::Math::Vector2D(0, 0), Collider::STATIC, 0, 0) {}
 
-Entity::Entity(uint32_t tag, const Math::Vector2D &position, const RectangleCollider &collider) : tag(tag), position(position), colliderPresent(true), collider(collider) {}
+Entity::Entity(uint32_t tag, const Math::Vector2D &position, const RectangleCollider &collider) : Util::Game::Entity(tag), position(position), colliderPresent(true), collider(collider) {}
 
 void Entity::translate(const Math::Vector2D &translation) {
     auto newPosition = position + translation;
@@ -101,10 +101,6 @@ RectangleCollider& Entity::getCollider() {
 
 bool Entity::hasCollider() const {
     return colliderPresent;
-}
-
-uint32_t Entity::getTag() const {
-    return tag;
 }
 
 void Entity::update(double delta) {

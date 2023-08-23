@@ -19,7 +19,7 @@
 
 #include "lib/util/game/Graphics.h"
 #include "lib/util/math/Vector2D.h"
-#include "lib/util/game/entity/event/TranslationEvent.h"
+#include "lib/util/game/2d/event/TranslationEvent.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/graphic/Fonts.h"
 #include "application/mouse/Logo.h"
@@ -34,13 +34,13 @@ class CollisionEvent;
 }  // namespace Game
 }  // namespace Util
 
-MouseCursor::MouseCursor(Logo &logo) : Util::Game::Entity(0, Util::Math::Vector2D(0, 0)), logo(logo) {}
+MouseCursor::MouseCursor(Logo &logo) : Util::Game::D2::Entity(0, Util::Math::Vector2D(0, 0)), logo(logo) {}
 
 void MouseCursor::initialize() {}
 
 void MouseCursor::onUpdate(double delta) {}
 
-void MouseCursor::onTranslationEvent(Util::Game::TranslationEvent &event) {
+void MouseCursor::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     const auto &resolution = Util::Game::GameManager::getRelativeResolution();
     const auto &newPosition = event.getTargetPosition();
 
@@ -52,7 +52,7 @@ void MouseCursor::onTranslationEvent(Util::Game::TranslationEvent &event) {
     }
 }
 
-void MouseCursor::onCollisionEvent(Util::Game::CollisionEvent &event) {}
+void MouseCursor::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
 
 void MouseCursor::draw(Util::Game::Graphics &graphics) {
     auto charWidth = Util::Graphic::Fonts::TERMINAL_FONT.getCharWidth() / static_cast<double>(Util::Game::GameManager::getTransformation());

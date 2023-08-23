@@ -13,58 +13,52 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
+ * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_LOGO_H
-#define HHUOS_LOGO_H
+#ifndef HHUOS_GRAVITYCOMPONENT_H
+#define HHUOS_GRAVITYCOMPONENT_H
 
-#include "lib/util/game/2d/Entity.h"
-#include "lib/util/game/Sprite.h"
+#include "Component.h"
 
-namespace Util {
-namespace Game {
-class CollisionEvent;
-class Graphics;
-class TranslationEvent;
-}  // namespace Game
-}  // namespace Util
+namespace Util::Game::D2 {
 
-class Logo : public Util::Game::D2::Entity {
+class GravityComponent : public Component {
 
 public:
     /**
-     * Default Constructor.
-     */
-    Logo();
+    * Constructor.
+    */
+    explicit GravityComponent(Entity &entity, double mass = 2, double stopFactorX = 0.15, double gravityValue = -1.25);
 
     /**
      * Copy Constructor.
      */
-    Logo(const Logo &other) = delete;
+    GravityComponent(const GravityComponent &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Logo &operator=(const Logo &other) = delete;
+    GravityComponent &operator=(const GravityComponent &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Logo() override = default;
+    ~GravityComponent() = default;
 
-    void initialize() override;
+protected:
 
-    void onUpdate(double delta) override;
-
-    void onTranslationEvent(Util::Game::D2::TranslationEvent &event) override;
-
-    void onCollisionEvent(Util::Game::D2::CollisionEvent &event) override;
-
-    void draw(Util::Game::Graphics &graphics) override;
+    void update(double delta) override;
 
 private:
 
-    Util::Game::Sprite sprite;
+    double mass;
+    double stopFactorX;
+    double gravityValue;
 };
+
+}
 
 #endif

@@ -17,8 +17,26 @@
  * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
-#include "Event.h"
 
-namespace Util::Game {
+#include "LinearMovementComponent.h"
+
+#include "lib/util/game/2d/Entity.h"
+#include "lib/util/game/2d/component/Component.h"
+#include "lib/util/game/2d/event/TranslationEvent.h"
+#include "lib/util/math/Vector2D.h"
+
+namespace Util::Game::D2 {
+
+LinearMovementComponent::LinearMovementComponent(Entity &entity) : Component(entity) {}
+
+void LinearMovementComponent::update(double delta) {
+    auto newPosition = getEntity().getPosition() + getEntity().getVelocity() * delta;
+    auto event = TranslationEvent(newPosition);
+    getEntity().onTranslationEvent(event);
+
+    if (!event.isCanceled()) {
+        getEntity().setPosition(newPosition);
+    }
+}
 
 }

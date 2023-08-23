@@ -13,62 +13,62 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_COLLIDER_H
-#define HHUOS_COLLIDER_H
+#ifndef HHUOS_POLYGONCOLLIDER_H
+#define HHUOS_POLYGONCOLLIDER_H
+
+#include <cstdint>
 
 #include "lib/util/math/Vector2D.h"
+#include "lib/util/collection/Pair.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/game/2d/collider/Collider.h"
+#include "lib/util/game/Polygon.h"
 
-namespace Util::Game {
+namespace Util::Game::D2 {
 
-class Collider {
+struct Collision {
+    double overlap;
+    Math::Vector2D axis;
+};
 
-friend class Entity;
+class PolygonCollider : public Collider {
 
 public:
-
-    enum Type {
-        STATIC, DYNAMIC
-    };
-
     /**
      * Constructor.
      */
-    Collider(const Math::Vector2D &position, Type type);
+    explicit PolygonCollider(Polygon &polygon, Collider::Type colliderType = Collider::DYNAMIC);
 
     /**
      * Copy Constructor.
      */
-    Collider(const Collider &other) = default;
+    PolygonCollider(const PolygonCollider &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Collider &operator=(const Collider &other) = default;
+    PolygonCollider &operator=(const PolygonCollider &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Collider() = default;
+    ~PolygonCollider() = default;
 
-    [[nodiscard]] const Math::Vector2D& getPosition() const;
+    Collision isColliding(PolygonCollider &other);
 
-    [[nodiscard]] Type getType() const;
-
-protected:
-
-    Math::Vector2D lastPosition;
-
-    void setPosition(const Math::Vector2D &position);
+    Polygon &getPolygon();
 
 private:
 
-    Math::Vector2D position;
-    Type type;
+    static Pair<double, double> projectPolygonOnAxis(Util::Array<Math::Vector2D> vertices, const Math::Vector2D &axis);
+
+    static Math::Vector2D getAxes(Util::Array<Math::Vector2D> vertices, uint32_t index);
+
+    static double getOverlap(Util::Pair<double, double> range, Util::Pair<double, double> rangeOther);
+
+    Polygon &polygon;
 };
 
 }

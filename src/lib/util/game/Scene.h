@@ -24,7 +24,7 @@
 #include <cstdint>
 
 #include "Camera.h"
-#include "lib/util/game/entity/Entity.h"
+#include "lib/util/game/2d/Entity.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/collection/Collection.h"
@@ -65,35 +65,31 @@ public:
      */
     virtual ~Scene();
 
-    void initialize(Graphics &graphics);
+    virtual void initialize(Graphics &graphics) = 0;
+
+    virtual void updateEntities(double delta) = 0;
+
+    virtual void checkCollisions() = 0;
+
+    virtual void update(double delta) = 0;
 
     void addObject(Entity *object);
 
     void removeObject(Entity *object);
 
-    [[nodiscard]] uint32_t getObjectCount() const;
+    [[nodiscard]] virtual Camera& getCamera();
 
-    [[nodiscard]] Camera& getCamera();
+    [[nodiscard]] uint32_t getObjectCount() const;
 
     void applyChanges();
 
-    void updateEntities(double delta);
-
     void draw(Graphics &graphics);
-
-    virtual void update(double delta) = 0;
-
-    virtual void initializeBackground(Graphics &graphics) = 0;
 
 protected:
 
     void setKeyListener(KeyListener &listener);
 
     void setMouseListener(MouseListener &listener);
-
-private:
-
-    void checkCollisions();
 
     KeyListener *keyListener = nullptr;
     MouseListener *mouseListener = nullptr;

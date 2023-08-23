@@ -18,60 +18,54 @@
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_COLLISIONEVENT_H
-#define HHUOS_COLLISIONEVENT_H
-
-#include "Event.h"
-#include "lib/util/game/entity/collider/RectangleCollider.h"
+#ifndef HHUOS_COMPONENT_H
+#define HHUOS_COMPONENT_H
 
 namespace Util {
 namespace Game {
+namespace D2 {
 class Entity;
+}  // namespace D2
 }  // namespace Game
 }  // namespace Util
 
-namespace Util::Game {
+namespace Util::Game::D2 {
 
-class CollisionEvent : public Event {
+class Component {
+
+friend class Entity;
 
 public:
     /**
-     * Constructor.
-     */
-    CollisionEvent(Entity &other, RectangleCollider::Side side);
+    * Constructor.
+    */
+    explicit Component(Entity &entity);
 
     /**
      * Copy Constructor.
      */
-    CollisionEvent(const CollisionEvent &other) = delete;
+    Component(const Component &other) = delete;
 
     /**
      * Assignment operator.
      */
-    CollisionEvent &operator=(const CollisionEvent &other) = delete;
+    Component &operator=(const Component &other) = delete;
 
     /**
      * Destructor.
      */
-    ~CollisionEvent() = default;
+    ~Component() = default;
 
-    [[nodiscard]] Entity& getCollidedWidth();
+protected:
 
-    template<typename T>
-    [[nodiscard]] T& getCollidedWidth();
+    virtual void update(double delta) = 0;
 
-    [[nodiscard]] RectangleCollider::Side getSide() const;
+    [[nodiscard]] Entity& getEntity();
 
 private:
 
-    Entity &other;
-    const RectangleCollider::Side side;
+    Entity &entity;
 };
-
-template<typename T>
-T& Util::Game::CollisionEvent::getCollidedWidth() {
-    return reinterpret_cast<T&>(other);
-}
 
 }
 
