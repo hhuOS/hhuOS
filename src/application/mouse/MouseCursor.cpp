@@ -17,7 +17,7 @@
 
 #include "MouseCursor.h"
 
-#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Graphics.h"
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/game/entity/event/TranslationEvent.h"
 #include "lib/util/game/GameManager.h"
@@ -54,13 +54,13 @@ void MouseCursor::onTranslationEvent(Util::Game::TranslationEvent &event) {
 
 void MouseCursor::onCollisionEvent(Util::Game::CollisionEvent &event) {}
 
-void MouseCursor::draw(Util::Game::Graphics2D &graphics) {
+void MouseCursor::draw(Util::Game::Graphics &graphics) {
     auto charWidth = Util::Graphic::Fonts::TERMINAL_FONT.getCharWidth() / static_cast<double>(Util::Game::GameManager::getTransformation());
     auto additionalButtons = Util::String::format("%c%c", button4Pressed ? '4' : ' ', button5Pressed ? '5' : ' ');
 
-    graphics.drawImage(getPosition(), currentSprite->getImage());
+    graphics.drawImage2D(getPosition(), currentSprite->getImage());
     graphics.setColor(Util::Graphic::Colors::HHU_TURQUOISE);
-    graphics.drawString(getPosition() + Util::Math::Vector2D(currentSprite->getWidth() / 2 - charWidth, currentSprite->getHeight() / 3), additionalButtons);
+    graphics.drawString2D(getPosition() + Util::Math::Vector2D(currentSprite->getWidth() / 2 - charWidth, currentSprite->getHeight() / 3), additionalButtons);
 }
 
 void MouseCursor::buttonPressed(Util::Io::Mouse::Button key) {

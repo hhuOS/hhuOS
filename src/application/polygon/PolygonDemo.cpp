@@ -25,7 +25,7 @@
 
 namespace Util {
 namespace Game {
-class Graphics2D;
+class Graphics;
 }  // namespace Game
 }  // namespace Util
 
@@ -64,4 +64,4 @@ void PolygonDemo::keyPressed(Util::Io::Key key) {
 
 void PolygonDemo::keyReleased(Util::Io::Key key) {}
 
-void PolygonDemo::initializeBackground(Util::Game::Graphics2D &graphics) {}
+void PolygonDemo::initializeBackground(Util::Game::Graphics &graphics) {}

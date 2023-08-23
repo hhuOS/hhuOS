@@ -28,7 +28,7 @@
 #include "application/bug/Fleet.h"
 #include "application/bug/Ship.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Graphics.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/Sprite.h"
 #include "lib/util/game/entity/collider/Collider.h"
@@ -99,11 +99,11 @@ void Bug::onCollisionEvent(Util::Game::CollisionEvent &event) {
     }
 }
 
-void Bug::draw(Util::Game::Graphics2D &graphics) {
+void Bug::draw(Util::Game::Graphics &graphics) {
     if (isExploding()) {
         Explosive::draw(graphics);
     } else {
-        graphics.drawImage(getPosition(), animation.getCurrentSprite().getImage());
+        graphics.drawImage2D(getPosition(), animation.getCurrentSprite().getImage());
     }
 }
 

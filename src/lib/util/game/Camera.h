@@ -21,6 +21,7 @@
 #ifndef HHUOS_CAMERA_H
 #define HHUOS_CAMERA_H
 
+#include "lib/util/math/Vector3D.h"
 #include "lib/util/math/Vector2D.h"
 
 namespace Util::Game {
@@ -48,15 +49,24 @@ public:
      */
     ~Camera() = default;
 
-    [[nodiscard]] const Math::Vector2D& getPosition() const;
+    [[nodiscard]] const Math::Vector3D& getPosition() const;
+
+    [[nodiscard]] const Math::Vector3D& getRotation() const;
+
+    void setPosition(const Math::Vector3D &position);
 
     void setPosition(const Math::Vector2D &position);
 
-    void translate(const Math::Vector2D &translation);
+    void setRotation(const Math::Vector3D &rotation);
+
+    void translate(const Math::Vector3D &translation);
+
+    void rotate(const Math::Vector3D &angle);
 
 private:
 
-    Math::Vector2D position{};
+    Math::Vector3D position{};
+    Math::Vector3D rotation{};
 };
 
 }

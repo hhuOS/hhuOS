@@ -23,7 +23,7 @@
 #include "lib/util/game/entity/event/TranslationEvent.h"
 #include "lib/util/game/entity/event/CollisionEvent.h"
 #include "application/bug/Ship.h"
-#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Graphics.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/entity/collider/Collider.h"
 #include "lib/util/game/entity/collider/RectangleCollider.h"
@@ -69,6 +69,6 @@ void PlayerMissile::onCollisionEvent(Util::Game::CollisionEvent &event) {
     ship.allowFireMissile();
 }
 
-void PlayerMissile::draw(Util::Game::Graphics2D &graphics) {
-    graphics.drawImage(getPosition(), sprite.getImage());
+void PlayerMissile::draw(Util::Game::Graphics &graphics) {
+    graphics.drawImage2D(getPosition(), sprite.getImage());
 }

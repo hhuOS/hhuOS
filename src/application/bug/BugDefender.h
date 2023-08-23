@@ -29,7 +29,7 @@
 
 namespace Util {
 namespace Game {
-class Graphics2D;
+class Graphics;
 }  // namespace Game
 namespace Io {
 class Key;
@@ -61,7 +61,7 @@ public:
 
     void update(double delta) override;
 
-    void initializeBackground(Util::Game::Graphics2D &graphics) override;
+    void initializeBackground(Util::Game::Graphics &graphics) override;
 
     void keyPressed(Util::Io::Key key) override;
 

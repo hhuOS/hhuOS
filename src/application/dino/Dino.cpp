@@ -18,7 +18,7 @@
 #include "Dino.h"
 
 #include "lib/util/collection/Array.h"
-#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Graphics.h"
 #include "lib/util/game/Sprite.h"
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/game/entity/event/CollisionEvent.h"
@@ -120,8 +120,11 @@ void Dino::onUpdate(double delta) {
     getCollider().setHeight(currentAnimation->getHeight());
 }
 
-void Dino::draw(Util::Game::Graphics2D &graphics) {
-    graphics.drawImage(getPosition(), currentAnimation->getCurrentSprite().getImage());
+void Dino::draw(Util::Game::Graphics &graphics) {
+    graphics.drawImage2D(getPosition(), currentAnimation->getCurrentSprite().getImage());
+
+    graphics.setColor(Util::Graphic::Colors::GREEN);
+    graphics.drawString(10, 10, Util::String::format("Points: %u", points));
 }
 
 void Dino::die() {
@@ -175,4 +178,8 @@ bool Dino::isDying() const {
 
 bool Dino::isDead() const {
     return dead;
+}
+
+void Dino::setPoints(uint32_t points) {
+    Dino::points = points;
 }

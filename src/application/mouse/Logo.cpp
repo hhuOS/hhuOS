@@ -19,7 +19,7 @@
 
 #include "lib/util/game/entity/event/TranslationEvent.h"
 #include "lib/util/game/GameManager.h"
-#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Graphics.h"
 #include "lib/util/math/Vector2D.h"
 
 namespace Util {
@@ -50,6 +50,6 @@ void Logo::onTranslationEvent(Util::Game::TranslationEvent &event) {
 
 void Logo::onCollisionEvent(Util::Game::CollisionEvent &event) {}
 
-void Logo::draw(Util::Game::Graphics2D &graphics) {
-    graphics.drawImage(getPosition(), sprite.getImage());
+void Logo::draw(Util::Game::Graphics &graphics) {
+    graphics.drawImage2D(getPosition(), sprite.getImage());
 }

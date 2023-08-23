@@ -21,7 +21,7 @@
 #include "Polygon.h"
 
 #include "lib/util/math/Math.h"
-#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Graphics.h"
 
 namespace Util::Game {
 
@@ -37,8 +37,8 @@ const Util::Array<Math::Vector2D>& Polygon::getVertices() const {
     return vertices;
 }
 
-void Polygon::draw(Graphics2D &graphics) {
-    graphics.drawPolygon(vertices);
+void Polygon::draw(Graphics &graphics) {
+    graphics.drawPolygon2D(vertices);
 }
 
 void Polygon::scale(double factor) {

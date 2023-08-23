@@ -23,7 +23,7 @@
 
 namespace Util {
 namespace Game {
-class Graphics2D;
+class Graphics;
 }  // namespace Game
 }  // namespace Util
 
@@ -57,7 +57,7 @@ void Game::switchToNextScene() {
     sceneSwitched = true;
 }
 
-void Game::initializeNextScene(Graphics2D &graphics) {
+void Game::initializeNextScene(Graphics &graphics) {
     if (!firstScene) {
         delete scenes.poll();
     }

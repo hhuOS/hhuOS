@@ -17,7 +17,7 @@
 
 #include "Ground.h"
 
-#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Graphics.h"
 #include "lib/util/game/entity/collider/Collider.h"
 #include "lib/util/game/entity/collider/RectangleCollider.h"
 #include "lib/util/game/entity/event/TranslationEvent.h"
@@ -44,9 +44,9 @@ void Ground::onTranslationEvent(Util::Game::TranslationEvent &event) {
 
 void Ground::onCollisionEvent(Util::Game::CollisionEvent &event) {}
 
-void Ground::draw(Util::Game::Graphics2D &graphics) {
+void Ground::draw(Util::Game::Graphics &graphics) {
     graphics.setColor(Util::Graphic::Colors::GREEN);
     for (uint32_t i = 0; i < getCollider().getWidth() / sprite.getWidth(); i ++) {
-        graphics.drawImage(Util::Math::Vector2D(getPosition().getX() + i * sprite.getWidth(), getPosition().getY() - sprite.getHeight()), sprite.getImage());
+        graphics.drawImage2D(Util::Math::Vector2D(getPosition().getX() + i * sprite.getWidth(), getPosition().getY() - sprite.getHeight()), sprite.getImage());
     }
 }

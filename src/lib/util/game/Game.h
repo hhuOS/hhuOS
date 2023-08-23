@@ -29,7 +29,7 @@
 
 namespace Util {
 namespace Game {
-class Graphics2D;
+class Graphics;
 }  // namespace Game
 }  // namespace Util
 
@@ -72,7 +72,7 @@ public:
 
 private:
 
-    void initializeNextScene(Graphics2D &graphics);
+    void initializeNextScene(Graphics &graphics);
 
     ArrayListBlockingQueue<Scene*> scenes;
     bool firstScene = true;

@@ -25,7 +25,7 @@
 #include "lib/util/game/entity/event/CollisionEvent.h"
 #include "GameOverScreen.h"
 #include "EnemyMissile.h"
-#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Graphics.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/entity/collider/Collider.h"
 #include "lib/util/game/entity/collider/RectangleCollider.h"
@@ -87,16 +87,16 @@ void Ship::onCollisionEvent(Util::Game::CollisionEvent &event) {
     }
 }
 
-void Ship::draw(Util::Game::Graphics2D &graphics) {
+void Ship::draw(Util::Game::Graphics &graphics) {
     if (isExploding()) {
         Explosive::draw(graphics);
         return;
     }
 
-    graphics.drawImage(getPosition(), sprite.getImage());
+    graphics.drawImage2D(getPosition(), sprite.getImage());
 
     for (uint32_t i = 0; i < lives; i++) {
-        graphics.drawImage(Util::Math::Vector2D(-0.9 + i * 1.5 * heart.getWidth(), -0.9), heart.getImage());
+        graphics.drawImage2D(Util::Math::Vector2D(-0.9 + i * 1.5 * heart.getWidth(), -0.9), heart.getImage());
     }
 }
 

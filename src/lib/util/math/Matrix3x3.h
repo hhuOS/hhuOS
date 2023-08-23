@@ -15,68 +15,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_CUBE_H
-#define HHUOS_CUBE_H
+#ifndef HHUOS_MATRIX3X3_H
+#define HHUOS_MATRIX3X3_H
 
-#include <cstdint>
+namespace Util::Math {
 
-#include "lib/util/game/entity/Entity.h"
-
-namespace Util {
-namespace Game {
-class Graphics2D;
-class CollisionEvent;
-class TranslationEvent;
-}  // namespace Game
-namespace Graphic {
-class Color;
-}  // namespace Graphic
-}  // namespace Util
-
-class Cube : public Util::Game::Entity {
+class Matrix3x3 {
 
 public:
     /**
      * Default Constructor.
      */
-    Cube(double x, double y, double size);
+    Matrix3x3() = default;
 
     /**
      * Copy Constructor.
      */
-    Cube(const Cube &other) = default;
+    Matrix3x3(const Matrix3x3 &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Cube &operator=(const Cube &other) = default;
+    Matrix3x3 &operator=(const Matrix3x3 &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Cube() override = default;
-
-    void initialize() override;
-
-    void onUpdate(double delta) override;
-
-    void onTranslationEvent(Util::Game::TranslationEvent &event) override;
-
-    void onCollisionEvent(Util::Game::CollisionEvent &event) override;
-
-    void draw(Util::Game::Graphics2D &graphics) override;
-
-    void rotate(double angleX, double angleY, double angleZ);
-
-private:
-
-    double coordinates[8][3]{};
-    double x, y, size;
-
-    // Cube indices
-    static const constexpr uint8_t indX = 0, indY = 1, indZ = 2;
-
-    static const Util::Graphic::Color color;
+    ~Matrix3x3() = default;
 };
+
+}
 
 #endif

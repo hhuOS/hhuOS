@@ -17,7 +17,7 @@
 
 #include "DemoPolygon.h"
 
-#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Graphics.h"
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/game/entity/event/TranslationEvent.h"
 
@@ -52,7 +52,7 @@ void DemoPolygon::onUpdate(double delta) {
     polygon.scale(scaleFactor);
 }
 
-void DemoPolygon::draw(Util::Game::Graphics2D &graphics) {
+void DemoPolygon::draw(Util::Game::Graphics &graphics) {
     graphics.setColor(color);
     polygon.draw(graphics);
 }

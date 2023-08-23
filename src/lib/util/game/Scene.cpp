@@ -22,7 +22,7 @@
 
 #include "lib/util/game/entity/event/CollisionEvent.h"
 #include "lib/util/collection/Pair.h"
-#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Graphics.h"
 #include "lib/util/game/entity/collider/RectangleCollider.h"
 
 namespace Util {
@@ -45,7 +45,7 @@ Scene::~Scene() {
     entities.clear();
 }
 
-void Scene::initialize(Graphics2D &graphics) {
+void Scene::initialize(Graphics &graphics) {
     initializeBackground(graphics);
     graphics.saveCurrentStateAsBackground();
 
@@ -89,7 +89,7 @@ void Scene::updateEntities(double delta) {
     }
 }
 
-void Scene::draw(Graphics2D &graphics) {
+void Scene::draw(Graphics &graphics) {
     for (auto *object : entities) {
         object->draw(graphics);
     }

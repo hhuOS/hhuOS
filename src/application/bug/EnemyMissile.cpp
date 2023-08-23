@@ -24,7 +24,7 @@
 #include "lib/util/game/entity/event/CollisionEvent.h"
 #include "PlayerMissile.h"
 #include "application/bug/Ship.h"
-#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Graphics.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/entity/collider/Collider.h"
 #include "lib/util/game/entity/collider/RectangleCollider.h"
@@ -72,10 +72,10 @@ void EnemyMissile::onCollisionEvent(Util::Game::CollisionEvent &event) {
     }
 }
 
-void EnemyMissile::draw(Util::Game::Graphics2D &graphics) {
+void EnemyMissile::draw(Util::Game::Graphics &graphics) {
     if (isExploding()) {
         Explosive::draw(graphics);
     } else {
-        graphics.drawImage(getPosition(), sprite.getImage());
+        graphics.drawImage2D(getPosition(), sprite.getImage());
     }
 }

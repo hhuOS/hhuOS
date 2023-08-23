@@ -31,7 +31,6 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cp "$<TARGET_FILE:cat>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/cat"
         COMMAND /bin/cp "$<TARGET_FILE:color>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/color"
         COMMAND /bin/cp "$<TARGET_FILE:cp>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/cp"
-        COMMAND /bin/cp "$<TARGET_FILE:cube>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/cube"
         COMMAND /bin/cp "$<TARGET_FILE:date>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/date"
         COMMAND /bin/cp "$<TARGET_FILE:dino>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/dino"
         COMMAND /bin/cp "$<TARGET_FILE:echo>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/echo"
@@ -63,6 +62,6 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/asciimation" "${HHUOS_ROOT_DIR}/hdd0/img/user"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/books" "${HHUOS_ROOT_DIR}/hdd0/img/user"
         WORKING_DIRECTORY ${HHUOS_ROOT_DIR}/hdd0 COMMAND ${HHUOS_ROOT_DIR}/hdd0/build.sh
-        DEPENDS asciimation music books shell ant asciimate beep bug cat color cp cube date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping play polygon ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime)
+        DEPENDS asciimation music books shell ant asciimate beep bug cat color cp date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping play polygon ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime)
 
-add_custom_target(${PROJECT_NAME} DEPENDS asciimation music books shell ant asciimate beep bug cat color cp cube date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping play polygon ps  pwd rm rmdir shutdown smbios touch tree uecho unmount uptime "${HHUOS_ROOT_DIR}/hdd0.img")
+add_custom_target(${PROJECT_NAME} DEPENDS asciimation music books shell ant asciimate beep bug cat color cp date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping play polygon ps  pwd rm rmdir shutdown smbios touch tree uecho unmount uptime "${HHUOS_ROOT_DIR}/hdd0.img")

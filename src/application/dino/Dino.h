@@ -29,7 +29,7 @@ class Vector2D;
 }  // namespace Math
 
 namespace Game {
-class Graphics2D;
+class Graphics;
 class CollisionEvent;
 class TranslationEvent;
 }  // namespace Game
@@ -72,6 +72,8 @@ public:
 
     void reset();
 
+    void setPoints(uint32_t points);
+
     [[nodiscard]] bool hasHatched() const;
 
     [[nodiscard]] bool isDying() const;
@@ -82,7 +84,7 @@ public:
 
     void onCollisionEvent(Util::Game::CollisionEvent &event) override;
 
-    void draw(Util::Game::Graphics2D &graphics) override;
+    void draw(Util::Game::Graphics &graphics) override;
 
     static const constexpr uint32_t TAG = 0;
 
@@ -93,6 +95,8 @@ private:
     bool hatched = false;
     bool dead = false;
     bool onGround = false;
+
+    uint32_t points = 0;
 
     double time = 0;
     Util::Game::SpriteAnimation *currentAnimation = &eggAnimation;

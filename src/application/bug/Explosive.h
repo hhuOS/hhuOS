@@ -25,7 +25,7 @@
 
 namespace Util {
 namespace Game {
-class Graphics2D;
+class Graphics;
 class RectangleCollider;
 }  // namespace Game
 namespace Math {
@@ -60,7 +60,7 @@ public:
 
     void onUpdate(double delta) override;
 
-    void draw(Util::Game::Graphics2D &graphics) override;
+    void draw(Util::Game::Graphics &graphics) override;
 
     void explode();
 

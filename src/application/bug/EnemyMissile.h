@@ -28,7 +28,7 @@ class Bug;
 namespace Util {
 namespace Game {
 class CollisionEvent;
-class Graphics2D;
+class Graphics;
 class TranslationEvent;
 }  // namespace Game
 namespace Math {
@@ -67,7 +67,7 @@ public:
 
     void onCollisionEvent(Util::Game::CollisionEvent &event) override;
 
-    void draw(Util::Game::Graphics2D &graphics) override;
+    void draw(Util::Game::Graphics &graphics) override;
 
     static const constexpr uint32_t TAG = 2;
     static const constexpr double SIZE_X = 0.02;

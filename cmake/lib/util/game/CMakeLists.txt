@@ -41,13 +41,12 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/game/Engine.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Game.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/GameManager.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/Graphics2D.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/Graphics.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Polygon.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/ResourceManager.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Scene.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Sprite.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/SpriteAnimation.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/Text.cpp)
+        ${HHUOS_SRC_DIR}/lib/util/game/SpriteAnimation.cpp)
 
 # Kernel space version
 project(lib.kernel.game)

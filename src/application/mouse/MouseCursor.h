@@ -39,7 +39,7 @@ class Vector2D;
 }  // namespace Math
 
 namespace Game {
-class Graphics2D;
+class Graphics;
 class CollisionEvent;
 class TranslationEvent;
 }  // namespace Game
@@ -76,7 +76,7 @@ public:
 
     void onCollisionEvent(Util::Game::CollisionEvent &event) override;
 
-    void draw(Util::Game::Graphics2D &graphics) override;
+    void draw(Util::Game::Graphics &graphics) override;
 
     void buttonPressed(Util::Io::Mouse::Button key) override;
 

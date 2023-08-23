@@ -18,7 +18,7 @@
 #include "lib/util/game/Sprite.h"
 #include "lib/util/collection/Array.h"
 #include "Saw.h"
-#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Graphics.h"
 #include "lib/util/game/entity/collider/Collider.h"
 #include "lib/util/game/entity/collider/RectangleCollider.h"
 #include "lib/util/game/entity/event/TranslationEvent.h"
@@ -54,6 +54,6 @@ void Saw::onTranslationEvent(Util::Game::TranslationEvent &event) {
 
 void Saw::onCollisionEvent(Util::Game::CollisionEvent &event) {}
 
-void Saw::draw(Util::Game::Graphics2D &graphics) {
-    graphics.drawImage(getPosition(), animation.getCurrentSprite().getImage());
+void Saw::draw(Util::Game::Graphics &graphics) {
+    graphics.drawImage2D(getPosition(), animation.getCurrentSprite().getImage());
 }

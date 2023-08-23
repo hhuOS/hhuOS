@@ -29,12 +29,11 @@
 #include "lib/util/collection/Collection.h"
 #include "lib/util/collection/Iterator.h"
 #include "lib/util/game/Scene.h"
-#include "lib/util/game/Text.h"
 #include "lib/util/math/Vector2D.h"
 
 namespace Util {
 namespace Game {
-class Graphics2D;
+class Graphics;
 }  // namespace Game
 
 namespace Io {
@@ -67,7 +66,7 @@ public:
 
     void update(double delta) override;
 
-    void initializeBackground(Util::Game::Graphics2D &graphics) override;
+    void initializeBackground(Util::Game::Graphics &graphics) override;
 
     void keyPressed(Util::Io::Key key) override;
 
@@ -76,7 +75,6 @@ public:
 private:
 
     Dino *dino = new Dino(Util::Math::Vector2D(-0.8, 0));
-    Util::Game::Text *pointText = new Util::Game::Text(Util::Math::Vector2D(-1, 0.9), "Points: 0");
 
     Util::ArrayBlockingQueue<Ground*> ground = Util::ArrayBlockingQueue<Ground*>(4);
 

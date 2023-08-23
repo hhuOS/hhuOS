@@ -24,7 +24,7 @@
 #include "lib/util/game/GameManager.h"
 #include "BugDefender.h"
 #include "lib/util/base/Address.h"
-#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Graphics.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/graphic/Font.h"
 #include "lib/util/io/key/Key.h"
@@ -36,20 +36,23 @@ GameOverScreen::GameOverScreen(bool won) : won(won) {
 
 void GameOverScreen::update(double delta) {}
 
-void GameOverScreen::initializeBackground(Util::Game::Graphics2D &graphics) {
-    auto charWidth = Util::Graphic::Fonts::TERMINAL_FONT.getCharWidth() / static_cast<double>(Util::Game::GameManager::getTransformation());
+void GameOverScreen::initializeBackground(Util::Game::Graphics &graphics) {
+    auto resolution = Util::Game::GameManager::getAbsoluteResolution();
+    auto charWidth = Util::Graphic::Fonts::TERMINAL_FONT.getCharWidth();
+    auto charHeight = Util::Graphic::Fonts::TERMINAL_FONT.getCharHeight();
+
     graphics.clear();
     graphics.setColor(Util::Graphic::Colors::WHITE);
 
     if (won) {
-        graphics.drawString(Util::Math::Vector2D((Util::Address<uint32_t>(CONGRATULATIONS).stringLength() * -charWidth) / 2, 0.1), CONGRATULATIONS);
-        graphics.drawString(Util::Math::Vector2D((Util::Address<uint32_t>(INVASION_STOPPED).stringLength() * -charWidth) / 2, 0), INVASION_STOPPED);
+        graphics.drawString((static_cast<uint16_t>(resolution.getX() - Util::Address<uint32_t>(CONGRATULATIONS).stringLength() * charWidth) / 2), static_cast<uint16_t>(resolution.getY() / 2), CONGRATULATIONS);
+        graphics.drawString((static_cast<uint16_t>(resolution.getX() - Util::Address<uint32_t>(INVASION_STOPPED).stringLength() * charWidth) / 2), static_cast<uint16_t>(resolution.getY() / 2) + 2 * charHeight, INVASION_STOPPED);
     } else {
-        graphics.drawString(Util::Math::Vector2D((Util::Address<uint32_t>(LOST).stringLength() * -charWidth) / 2, 0.1), LOST);
-        graphics.drawString(Util::Math::Vector2D((Util::Address<uint32_t>(PLANET_INVADED).stringLength() * -charWidth) / 2, 0), PLANET_INVADED);
+        graphics.drawString((static_cast<uint16_t>(resolution.getX() - Util::Address<uint32_t>(LOST).stringLength() * charWidth) / 2), static_cast<uint16_t>(resolution.getY() / 2), LOST);
+        graphics.drawString((static_cast<uint16_t>(resolution.getX() - Util::Address<uint32_t>(PLANET_INVADED).stringLength() * charWidth) / 2), static_cast<uint16_t>(resolution.getY() / 2) + 2 * charHeight, PLANET_INVADED);
     }
 
-    graphics.drawString(Util::Math::Vector2D((Util::Address<uint32_t>(NEW_GAME).stringLength() * -charWidth) / 2, -0.75), NEW_GAME);
+    graphics.drawString((static_cast<uint16_t>(resolution.getX() - Util::Address<uint32_t>(NEW_GAME).stringLength() * charWidth) / 2), static_cast<uint16_t>(resolution.getY()) - 3 * charHeight, NEW_GAME);
 }
 
 void GameOverScreen::keyPressed(Util::Io::Key key) {

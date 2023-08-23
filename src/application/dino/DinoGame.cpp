@@ -29,9 +29,8 @@
 #include "application/dino/Ground.h"
 #include "lib/util/base/String.h"
 #include "lib/util/game/Game.h"
-#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Graphics.h"
 #include "lib/util/game/Sprite.h"
-#include "lib/util/game/Text.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/math/Vector2D.h"
 
@@ -40,7 +39,6 @@ DinoGame::DinoGame() {
     dino->addComponent(new Util::Game::GravityComponent(*dino, 2, 0.0025));
 
     addObject(dino);
-    addObject(pointText);
 
     for (uint32_t i = 0; i < 4; i++) {
         auto *newGround = new Ground(Util::Math::Vector2D(getCamera().getPosition().getX() - 1.5 + i, -0.8));
@@ -51,15 +49,15 @@ DinoGame::DinoGame() {
     setKeyListener(*this);
 }
 
-void DinoGame::initializeBackground(Util::Game::Graphics2D &graphics) {
+void DinoGame::initializeBackground(Util::Game::Graphics &graphics) {
     auto cloud1 = Util::Game::Sprite("/initrd/dino/cloud1.bmp", 0.45, 0.15);
     auto cloud3 = Util::Game::Sprite("/initrd/dino/cloud3.bmp", 0.6, 0.15);
     auto cloud4 = Util::Game::Sprite("/initrd/dino/cloud4.bmp", 0.45, 0.15);
 
     graphics.clear(Util::Graphic::Color(57, 97, 255));
-    graphics.drawImage(Util::Math::Vector2D(-1, 0.65), cloud1.getImage());
-    graphics.drawImage(Util::Math::Vector2D(0.2, 0.3), cloud3.getImage());
-    graphics.drawImage(Util::Math::Vector2D(0.65, 0.7), cloud4.getImage());
+    graphics.drawImage2D(Util::Math::Vector2D(-1, 0.65), cloud1.getImage());
+    graphics.drawImage2D(Util::Math::Vector2D(0.2, 0.3), cloud3.getImage());
+    graphics.drawImage2D(Util::Math::Vector2D(0.65, 0.7), cloud4.getImage());
 }
 
 void DinoGame::update(double delta) {
@@ -101,8 +99,7 @@ void DinoGame::update(double delta) {
         }
 
         getCamera().setPosition(Util::Math::Vector2D(dino->getPosition().getX() + 0.8, 0));
-        pointText->setPositionX(getCamera().getPosition().getX() - 1);
-        pointText->setText(Util::String::format("Points: %u", static_cast<uint32_t>(getCamera().getPosition().getX())));
+        dino->setPoints(getCamera().getPosition().getX());
     }
 }
 

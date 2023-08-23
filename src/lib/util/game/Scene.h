@@ -32,7 +32,7 @@
 
 namespace Util {
 namespace Game {
-class Graphics2D;
+class Graphics;
 class KeyListener;
 class MouseListener;
 }  // namespace Game
@@ -65,7 +65,7 @@ public:
      */
     virtual ~Scene();
 
-    void initialize(Graphics2D &graphics);
+    void initialize(Graphics &graphics);
 
     void addObject(Entity *object);
 
@@ -79,11 +79,11 @@ public:
 
     void updateEntities(double delta);
 
-    void draw(Graphics2D &graphics);
+    void draw(Graphics &graphics);
 
     virtual void update(double delta) = 0;
 
-    virtual void initializeBackground(Graphics2D &graphics) = 0;
+    virtual void initializeBackground(Graphics &graphics) = 0;
 
 protected:
 

@@ -22,16 +22,32 @@
 
 namespace Util::Game {
 
-const Math::Vector2D &Camera::getPosition() const {
+const Math::Vector3D &Camera::getPosition() const {
     return position;
 }
 
-void Camera::setPosition(const Math::Vector2D &position) {
+const Math::Vector3D &Camera::getRotation() const {
+    return rotation;
+}
+
+void Camera::setPosition(const Math::Vector3D &position) {
     Camera::position = position;
 }
 
-void Camera::translate(const Math::Vector2D &translation) {
+void Camera::setPosition(const Math::Vector2D &position) {
+    Camera::position = Math::Vector3D(position.getX(), position.getY(), 0);
+}
+
+void Camera::setRotation(const Math::Vector3D &rotation) {
+    this->rotation = rotation % 360;
+}
+
+void Camera::translate(const Math::Vector3D &translation) {
     position = position + translation;
+}
+
+void Camera::rotate(const Math::Vector3D &angle) {
+    rotation = (rotation + angle) % 360;
 }
 
 }

@@ -108,13 +108,15 @@ void Engine::run() {
 
 void Engine::initializeNextScene() {
     if (!game.firstScene) {
-        game.getCurrentScene().getCamera().setPosition(Math::Vector2D(0, 0));
+        game.getCurrentScene().getCamera().setPosition(Math::Vector3D(0, 0, 0));
     }
 
-    auto charWidth = Graphic::Fonts::TERMINAL_FONT.getCharWidth() / static_cast<double>(GameManager::getTransformation());
+    auto resolution = GameManager::getAbsoluteResolution();
+    auto charWidth = Graphic::Fonts::TERMINAL_FONT.getCharWidth();
+
     graphics.clear();
     graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawString(Util::Math::Vector2D((Util::Address<uint32_t>(LOADING).stringLength() * -charWidth) / 2, 0), LOADING);
+    graphics.drawString((static_cast<uint16_t>(resolution.getX() - Util::Address<uint32_t>(LOADING).stringLength() * charWidth) / 2), static_cast<uint16_t>(resolution.getY() / 2), LOADING);
     graphics.show();
 
     game.initializeNextScene(graphics);
@@ -130,10 +132,7 @@ void Engine::updateStatus() {
 }
 
 void Engine::drawStatus() {
-    double transformation = GameManager::getTransformation();
-    auto cameraPosition = game.getCurrentScene().getCamera().getPosition();
-    auto charHeight = (Graphic::Fonts::TERMINAL_FONT_SMALL.getCharHeight() + 2) / transformation;
-    auto charWidth = Graphic::Fonts::TERMINAL_FONT_SMALL.getCharWidth() / transformation;
+    auto charHeight = Graphic::Fonts::TERMINAL_FONT_SMALL.getCharHeight() + 2;
     auto color = graphics.getColor();
 
     const auto &memoryManager = *reinterpret_cast<HeapMemoryManager*>(USER_SPACE_MEMORY_MANAGER_ADDRESS);
@@ -141,14 +140,11 @@ void Engine::drawStatus() {
     auto heapUsedM = heapUsed / 1000 / 1000;
     auto heapUsedK = (heapUsed - heapUsedM * 1000 * 1000) / 1000;
 
-    auto x = cameraPosition.getX() - 1 + charWidth;
-    auto y = 1 - charHeight;
-
     graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawStringSmall(Math::Vector2D(x, y), String::format("FPS: %u", status.fps));
-    graphics.drawStringSmall(Math::Vector2D(x, y - charHeight), String::format("D: %ums | U: %ums | I: %ums", status.drawTime, status.updateTime, status.idleTime));
-    graphics.drawStringSmall(Math::Vector2D(x, y - charHeight * 2), String::format("Objects: %u", game.getCurrentScene().getObjectCount()));
-    graphics.drawStringSmall(Math::Vector2D(x, y - charHeight * 3), String::format("Heap used: %u.%03u MB", heapUsedM, heapUsedK));
+    graphics.drawStringSmall(10, 10, String::format("FPS: %u", status.fps));
+    graphics.drawStringSmall(10, 10 + charHeight, String::format("D: %ums | U: %ums | I: %ums", status.drawTime, status.updateTime, status.idleTime));
+    graphics.drawStringSmall(10, 10 + charHeight * 2, String::format("Objects: %u", game.getCurrentScene().getObjectCount()));
+    graphics.drawStringSmall(10, 10 + charHeight * 3, String::format("Heap used: %u.%03u MB", heapUsedM, heapUsedK));
     graphics.setColor(color);
 }
 

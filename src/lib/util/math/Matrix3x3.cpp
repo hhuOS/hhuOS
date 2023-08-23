@@ -13,44 +13,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_DRAWABLE_H
-#define HHUOS_DRAWABLE_H
-
-#include "Graphics.h"
-
-namespace Util::Game {
-
-class Drawable {
-
-public:
-    /**
-     * Default Constructor.
-     */
-    Drawable() = default;
-
-    /**
-     * Copy Constructor.
-     */
-    Drawable(const Drawable &other) = default;
-
-    /**
-     * Assignment operator.
-     */
-    Drawable &operator=(const Drawable &other) = default;
-
-    /**
-     * Destructor.
-     */
-    virtual ~Drawable() = default;
-
-    virtual void draw(Graphics &graphics) = 0;
-};
-
-}
-
-#endif
+#include "Matrix3x3.h"

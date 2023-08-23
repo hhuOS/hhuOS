@@ -21,7 +21,7 @@
 #include "lib/util/io/key/Key.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
-#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Graphics.h"
 #include "lib/util/graphic/Colors.h"
 
 void MouseDemo::update(double delta) {}
@@ -41,6 +41,6 @@ void MouseDemo::keyPressed(Util::Io::Key key) {
 
 void MouseDemo::keyReleased(Util::Io::Key key) {}
 
-void MouseDemo::initializeBackground(Util::Game::Graphics2D &graphics) {
+void MouseDemo::initializeBackground(Util::Game::Graphics &graphics) {
     graphics.clear(Util::Graphic::Colors::HHU_BLUE_30);
 }

@@ -29,7 +29,7 @@
 
 namespace Util {
 namespace Game {
-class Graphics2D;
+class Graphics;
 }  // namespace Game
 }  // namespace Util
 
@@ -70,7 +70,7 @@ public:
 
     void setPosition(const Math::Vector2D &newPosition);
 
-    void draw(Graphics2D &graphics) override;
+    void draw(Graphics &graphics) override;
 
 private:
 

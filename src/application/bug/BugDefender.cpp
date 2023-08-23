@@ -26,7 +26,7 @@
 #include "application/bug/Ship.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Graphics.h"
 #include "lib/util/io/key/Key.h"
 
 BugDefender::BugDefender() {
@@ -45,7 +45,7 @@ void BugDefender::update(double delta) {
     enemyFleet.applyChanges();
 }
 
-void BugDefender::initializeBackground(Util::Game::Graphics2D &graphics) {
+void BugDefender::initializeBackground(Util::Game::Graphics &graphics) {
     auto backgroundSprites = Util::Array<Util::Game::Sprite>(BACKGROUND_TILE_COUNT);
     for (uint32_t i = 0; i < BACKGROUND_TILE_COUNT; i++) {
         backgroundSprites[i] = Util::Game::Sprite(Util::String::format("/initrd/bug/background%u.bmp", i + 1), BACKGROUND_TILE_WIDTH, BACKGROUND_TILE_HEIGHT);
@@ -66,7 +66,7 @@ void BugDefender::initializeBackground(Util::Game::Graphics2D &graphics) {
 
     for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
         for (int32_t y = -tilesPerColumn; y < tilesPerColumn; y++) {
-            graphics.drawImage(Util::Math::Vector2D(x * BACKGROUND_TILE_WIDTH, y * BACKGROUND_TILE_HEIGHT), backgroundSprites[static_cast<uint32_t>(random.nextRandomNumber() * BACKGROUND_TILE_COUNT)].getImage());
+            graphics.drawImage2D(Util::Math::Vector2D(x * BACKGROUND_TILE_WIDTH, y * BACKGROUND_TILE_HEIGHT), backgroundSprites[static_cast<uint32_t>(random.nextRandomNumber() * BACKGROUND_TILE_COUNT)].getImage());
         }
     }
 
@@ -74,11 +74,11 @@ void BugDefender::initializeBackground(Util::Game::Graphics2D &graphics) {
     tilesPerRow = static_cast<int32_t>(resolution.getX() > resolution.getY() ? resolution.getX() * defaultTilesPerRow : defaultTilesPerRow);
 
     for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
-        graphics.drawImage(Util::Math::Vector2D(x * PLANET_TILE_WIDTH, -1 + PLANET_TILE_HEIGHT), surfaceSprite.getImage());
+        graphics.drawImage2D(Util::Math::Vector2D(x * PLANET_TILE_WIDTH, -1 + PLANET_TILE_HEIGHT), surfaceSprite.getImage());
     }
 
     for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
-        graphics.drawImage(Util::Math::Vector2D(x * PLANET_TILE_WIDTH, -1), planetSprites[static_cast<uint32_t>(random.nextRandomNumber() * PLANET_TILE_COUNT)].getImage());
+        graphics.drawImage2D(Util::Math::Vector2D(x * PLANET_TILE_WIDTH, -1), planetSprites[static_cast<uint32_t>(random.nextRandomNumber() * PLANET_TILE_COUNT)].getImage());
     }
 }
 

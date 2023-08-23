@@ -26,7 +26,7 @@
 #include "lib/util/async/Runnable.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Graphics.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/collection/Array.h"
@@ -258,7 +258,7 @@ private:
     void drawStatus();
 
     Game game;
-    Graphics2D graphics;
+    Graphics graphics;
     Statistics statistics;
     Async::Spinlock updateLock;
 

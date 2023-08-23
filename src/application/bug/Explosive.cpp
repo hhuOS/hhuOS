@@ -18,7 +18,7 @@
 #include "Explosive.h"
 
 #include "lib/util/collection/Array.h"
-#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Graphics.h"
 #include "lib/util/game/Sprite.h"
 #include "lib/util/game/entity/collider/RectangleCollider.h"
 
@@ -55,8 +55,8 @@ void Explosive::onUpdate(double delta) {
     }
 }
 
-void Explosive::draw(Util::Game::Graphics2D &graphics) {
-    graphics.drawImage(getPosition(), animation.getCurrentSprite().getImage());
+void Explosive::draw(Util::Game::Graphics &graphics) {
+    graphics.drawImage2D(getPosition(), animation.getCurrentSprite().getImage());
 }
 
 void Explosive::explode() {

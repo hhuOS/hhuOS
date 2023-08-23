@@ -24,7 +24,7 @@
 namespace Util {
 namespace Game {
 class CollisionEvent;
-class Graphics2D;
+class Graphics;
 class TranslationEvent;
 }  // namespace Game
 }  // namespace Util
@@ -60,7 +60,7 @@ public:
 
     void onCollisionEvent(Util::Game::CollisionEvent &event) override;
 
-    void draw(Util::Game::Graphics2D &graphics) override;
+    void draw(Util::Game::Graphics &graphics) override;
 
 private:
 

@@ -18,8 +18,8 @@
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_GRAPHICS2D_H
-#define HHUOS_GRAPHICS2D_H
+#ifndef HHUOS_GRAPHICS_H
+#define HHUOS_GRAPHICS_H
 
 #include <cstdint>
 
@@ -31,6 +31,7 @@
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/base/String.h"
+#include "lib/util/math/Vector3D.h"
 
 namespace Util {
 namespace Math {
@@ -50,50 +51,73 @@ class Game;
 
 namespace Util::Game {
 
-class Graphics2D {
+class Graphics {
 
 public:
     /**
      * Constructor.
      */
-    explicit Graphics2D(const Util::Graphic::LinearFrameBuffer &lfb, Game &game);
+    explicit Graphics(const Util::Graphic::LinearFrameBuffer &lfb, Game &game);
 
     /**
      * Copy Constructor.
      */
-    Graphics2D(const Graphics2D &other) = delete;
+    Graphics(const Graphics &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Graphics2D &operator=(const Graphics2D &other) = delete;
+    Graphics &operator=(const Graphics &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Graphics2D() = default;
+    ~Graphics() = default;
 
-    void drawLine(const Math::Vector2D &from, const Math::Vector2D &to) const;
+    /***** Basic functions to draw directly on the screen ******/
 
-    void drawPolygon(const Array<Math::Vector2D> &vertices) const;
+    void drawString(uint16_t x, uint16_t y, const char *string) const;
 
-    void drawSquare(const Math::Vector2D &position, double size) const;
+    void drawString(uint16_t x, uint16_t y, const String &string) const;
 
-    void drawRectangle(const Math::Vector2D &position, double width, double height) const;
+    void drawStringSmall(uint16_t x, uint16_t y, const char *string) const;
 
-    void fillSquare(const Math::Vector2D &position, double size) const;
+    void drawStringSmall(uint16_t x, uint16_t y, const String &string) const;
 
-    void fillRectangle(const Math::Vector2D &position, double width, double height) const;
+    /***** 2D drawing functions, respecting the camera position *****/
 
-    void drawString(const Math::Vector2D &position, const char *string) const;
+    void drawLine2D(const Math::Vector2D &from, const Math::Vector2D &to) const;
 
-    void drawString(const Math::Vector2D &position, const String &string) const;
+    void drawPolygon2D(const Array<Math::Vector2D> &vertices) const;
 
-    void drawStringSmall(const Math::Vector2D &position, const char *string) const;
+    void drawSquare2D(const Math::Vector2D &position, double size) const;
 
-    void drawStringSmall(const Math::Vector2D &position, const String &string) const;
+    void drawRectangle2D(const Math::Vector2D &position, double width, double height) const;
 
-    void drawImage(const Math::Vector2D &position, const Graphic::Image &image, bool flipX = false) const;
+    void fillSquare2D(const Math::Vector2D &position, double size) const;
+
+    void fillRectangle2D(const Math::Vector2D &position, double width, double height) const;
+
+    void drawString2D(const Math::Vector2D &position, const char *string) const;
+
+    void drawString2D(const Math::Vector2D &position, const String &string) const;
+
+    void drawStringSmall2D(const Math::Vector2D &position, const char *string) const;
+
+    void drawStringSmall2D(const Math::Vector2D &position, const String &string) const;
+
+    void drawImage2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX = false) const;
+
+    /***** 2D drawing functions *****/
+
+    [[nodiscard]] Math::Vector2D projectPoint(const Math::Vector3D &v, const Math::Vector3D &camT, const Math::Vector3D &camRr) const;
+
+    void drawLine3D(const Math::Vector3D &from, const Math::Vector3D &to) const;
+
+    void drawModel(const Array<Math::Vector3D> &vertices, const Array<Math::Vector2D> &edges) const;
+
+
+    /***** Miscellaneous *****/
 
     void clear(const Graphic::Color &color = Util::Graphic::Colors::BLACK);
 
@@ -107,7 +131,9 @@ public:
 
 private:
 
-    void drawString(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const;
+    void drawString(const Graphic::Font &font, uint16_t x, uint16_t y, const char *string) const;
+
+    void drawString2D(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const;
 
     Game &game;
 
