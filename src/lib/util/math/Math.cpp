@@ -191,6 +191,30 @@ double arctangent(double value, double divisor) {
     return ret;
 }
 
+float arcsine(float value) {
+    if (value > 1 || value < -1) {
+        return 0;
+    }
+
+    return arctangent(value, sqrt(1 - value*value));
+}
+
+double arcsine(double value) {
+    if (value > 1 || value < -1) {
+        return 0;
+    }
+
+    return arctangent(value, sqrt(1 - value*value));
+}
+
+float arccosine(float value) {
+    return static_cast<float>(PI / 2.0) - arcsine(value);
+}
+
+double arccosine(double value) {
+    return (PI / 2.0) - arcsine(value);
+}
+
 float sqrt(float value) {
     float ret = 0;
     asm volatile(

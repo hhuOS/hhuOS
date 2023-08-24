@@ -194,6 +194,7 @@ void Scheduler::checkSleepList() {
 Thread* Scheduler::getThread(uint32_t id) {
     lock.acquire();
     sleepLock.acquire();
+
     for (auto *thread : threadQueue) {
         if (thread->getId() == id) {
             sleepLock.release();

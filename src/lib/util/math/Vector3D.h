@@ -70,7 +70,7 @@ public:
 
     [[nodiscard]] double distance(const Vector3D &other) const;
 
-    [[nodiscard]] Vector3D rotate(const Vector3D &rotation);
+    [[nodiscard]] Vector3D rotate(const Vector3D &rotation) const;
 
     [[nodiscard]] Vector3D normalize() const;
 

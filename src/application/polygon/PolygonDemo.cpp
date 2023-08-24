@@ -42,23 +42,24 @@ PolygonDemo::PolygonDemo(uint32_t count) {
 void PolygonDemo::update(double delta) {}
 
 void PolygonDemo::keyPressed(Util::Io::Key key) {
-    if (key.getScancode() == Util::Io::Key::ESC) {
-        Util::Game::GameManager::getGame().stop();
-    }
-
-    switch (key.getAscii()) {
-        case '+': {
+    switch (key.getScancode()) {
+        case Util::Io::Key::PLUS: {
             auto *polygon = factory.createPolygon();
             polygons.offer(polygon);
             addObject(polygon);
             break;
         }
-        case '-': {
+        case Util::Io::Key::MINUS: {
             if (polygons.size() > 0) {
                 removeObject(polygons.poll());
             }
             break;
         }
+        case Util::Io::Key::ESC:
+            Util::Game::GameManager::getGame().stop();
+            break;
+        default:
+            break;
     }
 }
 

@@ -46,6 +46,7 @@ public:
 
     /**
      * Destructor.
+     * Deleted, as this class has only static members.
      */
     ~GatesOfHell() = delete;
 

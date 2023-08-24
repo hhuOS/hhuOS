@@ -88,8 +88,31 @@ double Vector3D::distance(const Vector3D &other) const {
 
 }
 
-Vector3D Vector3D::rotate(const Vector3D &rotation) {
-    return Vector3D();
+// Based on https://en.wikipedia.org/wiki/Rotation_matrix#In_three_dimensions
+Vector3D Vector3D::rotate(const Vector3D &rotation) const {
+    // Convert deg to rad
+    auto convert = 3.1415 / 180;
+
+    double A = rotation.getX() * convert;
+    double B = rotation.getY() * convert;
+    double C = rotation.getZ() * convert;
+
+    double sinA = Util::Math::sine(A);
+    double cosA = Util::Math::cosine(A);
+    double sinB = Util::Math::sine(B);
+    double cosB = Util::Math::cosine(B);
+    double sinC = Util::Math::sine(C);
+    double cosC = Util::Math::cosine(C);
+
+
+    Matrix3x3 rotationMatrix = {
+            cosB * cosC, sinA * sinB * cosC - cosA * sinC, cosA * sinB * cosC + sinA * sinC,
+            cosB * sinC, sinA * sinB * sinC + cosA * cosC, cosA * sinB * sinC - sinA * cosC,
+            -sinB, sinA * cosB, cosA * cosB
+    };
+
+    return rotationMatrix * *this;
+
 }
 
 Vector3D Vector3D::normalize() const {
@@ -132,7 +155,6 @@ Vector3D Matrix3x3::operator*(const Vector3D &v) const {
             a.d21 * v.getX() + a.d22 * v.getY() + a.d23 * v.getZ(),
             a.d31 * v.getX() + a.d32 * v.getY() + a.d33 * v.getZ()
     };
-
 }
 
 Matrix3x3 Matrix3x3::operator*(const Matrix3x3 &b) const {

@@ -66,11 +66,12 @@ else()
             COMMAND /bin/cp "$<TARGET_FILE:uecho>" "${HHUOS_ROOT_DIR}/initrd/bin/uecho"
             COMMAND /bin/cp "$<TARGET_FILE:unmount>" "${HHUOS_ROOT_DIR}/initrd/bin/unmount"
             COMMAND /bin/cp "$<TARGET_FILE:uptime>" "${HHUOS_ROOT_DIR}/initrd/bin/uptime"
+            COMMAND /bin/cp "$<TARGET_FILE:view3d>" "${HHUOS_ROOT_DIR}/initrd/bin/view3d"
             COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/beep" "${HHUOS_ROOT_DIR}/initrd"
             COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/asciimation" "${HHUOS_ROOT_DIR}/initrd"
             COMMAND /bin/tar -C "${HHUOS_ROOT_DIR}/initrd/" --xform s:'./':: -cf "${CMAKE_BINARY_DIR}/hhuOS.initrd" ./
             COMMAND /bin/rm -f "${HHUOS_ROOT_DIR}/hhuOS.img" "${HHUOS_ROOT_DIR}/hhuOS.iso"
-            DEPENDS asciimation music shell ant asciimate beep bug cat color cp date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping play polygon ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime)
+            DEPENDS asciimation music shell ant asciimate beep bug cat color cp date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping play polygon ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d)
 
-    add_custom_target(${PROJECT_NAME} DEPENDS music asciimation shell ant asciimate beep bug cat color cp date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping play polygon ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime "${CMAKE_BINARY_DIR}/hhuOS.initrd")
+    add_custom_target(${PROJECT_NAME} DEPENDS music asciimation shell ant asciimate beep bug cat color cp date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping play polygon ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d "${CMAKE_BINARY_DIR}/hhuOS.initrd")
 endif()

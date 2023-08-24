@@ -134,7 +134,7 @@ bool SoundBlaster::initialize() {
         return false;
     }
 
-    log.info("Found base port at address [%x]", baseAddress);
+    log.info("Found base port at address [0x%x]", baseAddress);
     auto readDataPort = IoPort(baseAddress + 0x0a);
     auto readBufferStatusPort = IoPort(baseAddress + 0x0e);
     auto writeDataPort = IoPort(baseAddress + 0x0c);

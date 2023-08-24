@@ -167,7 +167,7 @@ Math::Vector2D Graphics::projectPoint(const Math::Vector3D &v, const Math::Vecto
         return {-2, -2};
     }
 
-    // convert deg to rad
+    // Convert deg to rad
     auto camR = camRr * (3.1415 / 180);
 
     double x = camR.getX();
@@ -225,17 +225,20 @@ void Graphics::drawModel(const Array<Math::Vector3D> &vertices, const Array<Math
     auto numEdges = edges.length();
 
     for (uint32_t i = 0; i < numEdges; i++) {
+        auto edge = edges[i];
+        auto x = static_cast<int32_t>(edge.getX());
+        auto y = static_cast<int32_t>(edge.getY());
+        auto numVertices = static_cast<int32_t>(vertices.length());
 
-        auto e = edges[i];
+        // Do not draw edges pointing to out of bounds vertices
+        if (x < 0 || x >= numVertices || y < 0 || y >= numVertices) {
+            continue;
+        }
 
-        auto x = (int32_t) e.getX();
-        auto y = (int32_t) e.getY();
-        int64_t numVerteces = vertices.length();
-
-        // stop edges from calling out of bounds vertices
-        if (x < 0 || x >= numVerteces || y < 0 || y >= numVerteces) continue;
-        // stop edges from being drawn when the vertices are the same
-        if (x == y) continue;
+        // Do not draw edges where the vertices are the same
+        if (x == y) {
+            continue;
+        }
 
         drawLine3D(vertices[x], vertices[y]);
     }

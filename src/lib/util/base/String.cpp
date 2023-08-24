@@ -535,4 +535,27 @@ int32_t String::parseHexInt(const String &string) {
     return parseHexInt(static_cast<const char*>(string));
 }
 
+double String::parseDouble(const char *string) {
+    return parseDouble(String(string));
+}
+
+double String::parseDouble(const String &string) {
+    auto parts = string.split(".");
+    int32_t firstNumber = parseInt(parts[0]);
+    int32_t secondNumber = parts.length() > 1 ? parseInt(parts[1]) : 0;
+
+    double exp = 1;
+    if (parts.length() > 1) {
+        for (uint32_t i = 0; i < parts[1].length(); i++) {
+            exp *= 10;
+        }
+    }
+
+    if (firstNumber < 0 || (firstNumber < 1 && string[0] == '-')) {
+        return firstNumber - (secondNumber / exp);
+    } else {
+        return firstNumber + (secondNumber / exp);
+    }
+}
+
 }

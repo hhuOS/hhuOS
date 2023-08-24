@@ -53,6 +53,14 @@ namespace Util::Math {
 
     double arctangent(double value, double divisor = 1);
 
+    float arcsine(float value);
+
+    double arcsine(double value);
+
+    float arccosine(float value);
+
+    double arccosine(double value);
+
     float sqrt(float value);
 
     double sqrt(double value);
@@ -66,6 +74,8 @@ namespace Util::Math {
     double min(double first, double second);
 
     double max(double first, double second);
+
+    static const constexpr double PI = 3.14159265358979323846;
 }
 
 
