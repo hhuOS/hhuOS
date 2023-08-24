@@ -29,7 +29,7 @@ String InputStream::readString(uint32_t length) {
     return ret;
 }
 
-String InputStream::readLine() {
+String InputStream::readLine(bool &endOfFile) {
     Util::String line;
     auto currentChar = read();
     while (currentChar != -1 && currentChar != '\n') {
@@ -37,6 +37,7 @@ String InputStream::readLine() {
         currentChar = read();
     }
 
+    endOfFile = currentChar == -1;
     return line;
 }
 

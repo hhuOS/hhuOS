@@ -72,7 +72,9 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto inputStream = Util::Io::FileInputStream(file);
     auto bufferedStream = Util::Io::BufferedInputStream(inputStream);
-    auto frameInfo = bufferedStream.readLine().split(",");
+    bool endOfFile = false;
+
+    auto frameInfo = bufferedStream.readLine(endOfFile).split(",");
 
     auto lfbFile = Util::Io::File("/device/lfb");
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
@@ -101,7 +103,7 @@ int32_t main(int32_t argc, char *argv[]) {
     }));
 
     while (isRunning) {
-        auto delayLine = bufferedStream.readLine();
+        auto delayLine = bufferedStream.readLine(endOfFile);
         if (delayLine.length() == 0) {
             break;
         }
@@ -115,7 +117,7 @@ int32_t main(int32_t argc, char *argv[]) {
         lineDrawer.drawLine(frameEndX + charWidth, frameStartY - charHeight, frameEndX + charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
 
         for (int16_t i = 0; i < rows - 1; i++) {
-            stringDrawer.drawString(font, frameStartX, frameStartY + charHeight * i, static_cast<const char*>(bufferedStream.readLine()), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+            stringDrawer.drawString(font, frameStartX, frameStartY + charHeight * i, static_cast<const char*>(bufferedStream.readLine(endOfFile)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
         }
 
         bufferedLfb.flush();

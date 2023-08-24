@@ -507,18 +507,19 @@ void GatesOfHell::mountDevices() {
     auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
     auto inputStream = Util::Io::FileInputStream(mountFile);
     auto bufferedStream = Util::Io::BufferedInputStream(inputStream);
+    bool endOfFile = false;
 
-    Util::String line = bufferedStream.readLine();
-    while (!line.isEmpty()) {
+    Util::String line = bufferedStream.readLine(endOfFile);
+    while (!endOfFile) {
         if (line.beginsWith("#")) {
-            line = bufferedStream.readLine();
+            line = bufferedStream.readLine(endOfFile);
             continue;
         }
 
         auto split = line.split(" ");
         if (split.length() < 3) {
             log.error("Invalid line in /system/mount_table");
-            line = bufferedStream.readLine();
+            line = bufferedStream.readLine(endOfFile);
             continue;
         }
 
@@ -527,6 +528,6 @@ void GatesOfHell::mountDevices() {
             log.error("Failed to mount [%s] to [%s]", static_cast<const char*>(split[0]), static_cast<const char*>(split[1]));
         }
 
-        line = bufferedStream.readLine();
+        line = bufferedStream.readLine(endOfFile);
     }
 }

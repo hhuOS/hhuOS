@@ -279,8 +279,9 @@ int32_t main(int32_t argc, char *argv[]) {
         targetType = static_cast<Util::Hardware::SmBios::HeaderType>(Util::String::parseInt(argumentParser.getArgument("type")));
     }
 
+    bool endOfFile = false;
     auto versionStream = Util::Io::FileInputStream(versionFile);
-    auto versionString = versionStream.readLine();
+    auto versionString = versionStream.readLine(endOfFile);
     auto versionSplit = versionString.split(".");
     uint8_t majorVersion = Util::String::parseInt(versionSplit[0]);
     uint8_t minorVersion = Util::String::parseInt(versionSplit[1]);

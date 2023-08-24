@@ -59,12 +59,13 @@ void printStatusLine(uint32_t passedTime, uint32_t songLength) {
 uint32_t calculateLength(const Util::Io::File &beepFile) {
     auto fileStream = Util::Io::FileInputStream(beepFile);
     auto stream = Util::Io::BufferedInputStream(fileStream);
+    bool endOfFile = false;
     uint32_t length = 0;
 
-    auto line = stream.readLine();
-    while (!line.isEmpty()) {
+    auto line = stream.readLine(endOfFile);
+    while (!endOfFile) {
         length += Util::String::parseInt(line.split(",")[1]);
-        line = stream.readLine();
+        line = stream.readLine(endOfFile);
     }
 
     return length;
@@ -109,8 +110,9 @@ int32_t main(int32_t argc, char *argv[]) {
     Util::Graphic::Ansi::disableCursor();
     Util::System::out << "Playing '" << beepFile.getName() << "'... Press <ENTER> to stop." << Util::Io::PrintStream::endl;
 
-    auto line = stream.readLine();
-    while (isRunning && !line.isEmpty()) {
+    bool endOfLine = false;
+    auto line = stream.readLine(endOfLine);
+    while (isRunning && !endOfLine) {
         auto split = line.split(",");
         auto frequency = Util::String::parseInt(split[0]);
         auto length = Util::String::parseInt(split[1]);
@@ -123,7 +125,7 @@ int32_t main(int32_t argc, char *argv[]) {
         speaker.play(frequency, Util::Time::Timestamp::ofMilliseconds(length));
         passedTime += length;
 
-        line = stream.readLine();
+        line = stream.readLine(endOfLine);
     }
 
     speaker.turnOff();

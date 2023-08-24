@@ -41,7 +41,7 @@ public:
 
     String readString(uint32_t length);
 
-    String readLine();
+    String readLine(bool &endOfFile);
 
     uint32_t skip(uint32_t amount);
 

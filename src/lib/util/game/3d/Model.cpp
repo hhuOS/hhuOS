@@ -20,6 +20,7 @@
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/stream/BufferedInputStream.h"
+#include "lib/util/math/Math.h"
 
 namespace Util::Game::D3 {
 
@@ -73,32 +74,72 @@ void Model::loadModelFromFile() {
     auto stream = Io::BufferedInputStream(fileStream);
     auto vertexList = ArrayList<Math::Vector3D>();
     auto edgeList = ArrayList<Math::Vector2D>();
-    ReadState readState = UNKNOWN;
+    bool endOfFile = false;
 
-    auto currentLine = stream.readLine();
-    while (!currentLine.isEmpty()) {
-        if (currentLine.beginsWith("#")) {
-            // Skip comments
-        } else if (currentLine == "vertices") {
-            readState = READ_VERTICES;
-        } else if (currentLine == "edges") {
-            readState = READ_EDGES;
-        } else {
-            auto vectorStrings = currentLine.split(" ");
-            for (const auto &string: vectorStrings) {
-                auto vectorSplit = string.split(",");
+    if (modelFile.getName().endsWith(".3do")) {
+        ReadState readState = UNKNOWN;
 
-                if (readState == READ_VERTICES) {
-                    auto vertex = Math::Vector3D(String::parseDouble(vectorSplit[0]), String::parseDouble(vectorSplit[1]), String::parseDouble(vectorSplit[2]));
-                    vertexList.add(vertex);
-                } else if (readState == READ_EDGES) {
-                    auto edge = Math::Vector2D(String::parseDouble(vectorSplit[0]), String::parseDouble(vectorSplit[1]));
-                    edgeList.add(edge);
+        auto currentLine = stream.readLine(endOfFile);
+        while (!endOfFile) {
+            if (currentLine.beginsWith("#")) {
+                // Skip comments
+            } else if (currentLine == "vertices") {
+                readState = READ_VERTICES;
+            } else if (currentLine == "edges") {
+                readState = READ_EDGES;
+            } else {
+                auto vectorStrings = currentLine.split(" ");
+                for (const auto &string: vectorStrings) {
+                    auto vectorSplit = string.split(",");
+
+                    if (readState == READ_VERTICES) {
+                        auto vertex = Math::Vector3D(String::parseDouble(vectorSplit[0]), String::parseDouble(vectorSplit[1]), String::parseDouble(vectorSplit[2]));
+                        vertexList.add(vertex);
+                    } else if (readState == READ_EDGES) {
+                        auto edge = Math::Vector2D(String::parseDouble(vectorSplit[0]), String::parseDouble(vectorSplit[1]));
+                        edgeList.add(edge);
+                    }
                 }
             }
-        }
 
-        currentLine = stream.readLine();
+            currentLine = stream.readLine(endOfFile);
+        }
+    } else {
+        auto currentLine = stream.readLine(endOfFile);
+        while (!endOfFile) {
+            auto lineSplit = currentLine.substring(2).split(" ");
+
+            if (currentLine.beginsWith("v ")) {
+                auto vertex = Math::Vector3D(String::parseDouble(lineSplit[0]), String::parseDouble(lineSplit[1]), String::parseDouble(lineSplit[2]));
+                vertexList.add(vertex);
+            } else if (currentLine.beginsWith("f ")) {
+                for (uint32_t i = 0; i < lineSplit.length() - 1; i++) {
+                    auto point1 = String::parseInt(lineSplit[i].split("/")[0]) - 1;
+                    auto point2 = String::parseInt(lineSplit[i + 1].split("/")[0]) - 1;
+                    edgeList.add(Util::Math::Vector2D(point1, point2));
+                }
+
+                // Add connection from last vertex to first vertex
+                auto point1 = String::parseInt(lineSplit[lineSplit.length() - 1].split("/")[0]) - 1;
+                auto point2 = String::parseInt(lineSplit[0].split("/")[0]) - 1;
+                edgeList.add(Util::Math::Vector2D(point1, point2));
+            }
+
+            currentLine = stream.readLine(endOfFile);
+        }
+    }
+
+    // Normalize model size
+    double maxCoordinate = 0;
+    for (const auto &vertex : vertexList) {
+        if (Math::absolute(vertex.getX()) > maxCoordinate) maxCoordinate = vertex.getX();
+        if (Math::absolute(vertex.getY()) > maxCoordinate) maxCoordinate = vertex.getY();
+        if (Math::absolute(vertex.getZ()) > maxCoordinate) maxCoordinate = vertex.getZ();
+    }
+
+    for (uint32_t i = 0; i < vertexList.size(); i++) {
+        auto vertex = vertexList.get(i);
+        vertexList.set(i, Math::Vector3D(vertex.getX() / maxCoordinate, vertex.getY() / maxCoordinate, vertex.getZ() / maxCoordinate));
     }
 
     vertices = vertexList.toArray();

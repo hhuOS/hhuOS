@@ -61,6 +61,8 @@ public:
 
     void translate(const Math::Vector3D &translation);
 
+    void translateLocal(const Math::Vector3D &translation);
+
     void rotate(const Math::Vector3D &angle);
 
 private:

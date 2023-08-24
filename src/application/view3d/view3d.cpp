@@ -28,8 +28,8 @@
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("View 3do files.\n"
-                               "Rotate model using WASD. Zoom using R and F.\n"
+    argumentParser.setHelpText("View .obj- and .3do-files.\n"
+                               "Rotate model using WASD. Zoom using + and -.\n"
                                "Reset with SPACE.\n"
                                "ESC to exit.\n\n"
                                "Usage: view3do [FILE]\n"

@@ -24,10 +24,11 @@ ModelViewer::ModelViewer(const Util::Io::File &file) {
     addObject(model);
 
     setKeyListener(*this);
+    setMouseListener(*this);
 }
 
 void ModelViewer::update(double delta) {
-    model->translate(Util::Math::Vector3D(0, 0, zoom * delta));
+    camera.translateLocal(Util::Math::Vector3D(0, 0, zoom * delta));
     model->rotate(rotation * delta * 50);
 }
 
@@ -52,14 +53,16 @@ void ModelViewer::keyPressed(Util::Io::Key key) {
             if (rotation.getZ() == 0) rotation = rotation + Util::Math::Vector3D(0, 0, 1);
             break;
         case Util::Io::Key::PLUS:
-            if (zoom == 0) zoom = -1;
-            break;
-        case Util::Io::Key::MINUS:
             if (zoom == 0) zoom = 1;
             break;
+        case Util::Io::Key::MINUS:
+            if (zoom == 0) zoom = -1;
+            break;
         case Util::Io::Key::SPACE:
-            model->setPosition({0, 0, 3});
-            model->setRotation({0, 0, 0});
+            model->setPosition(Util::Math::Vector3D(0, 0, 3));
+            model->setRotation(Util::Math::Vector3D(0, 0, 0));
+            camera.setRotation(Util::Math::Vector3D(0, 0, 0));
+            camera.setPosition(Util::Math::Vector3D(0, 0, 0));
             break;
         case Util::Io::Key::ESC:
             Util::Game::GameManager::getGame().stop();
@@ -91,12 +94,33 @@ void ModelViewer::keyReleased(Util::Io::Key key) {
             if (rotation.getZ() == 1) rotation = rotation - Util::Math::Vector3D(0, 0, 1);
             break;
         case Util::Io::Key::PLUS:
-            if (zoom == -1) zoom = 0;
+            if (zoom == 1) zoom = 0;
             break;
         case Util::Io::Key::MINUS:
-            if (zoom == 1) zoom = 0;
+            if (zoom == -1) zoom = 0;
             break;
         default:
             break;
     }
 }
+
+void ModelViewer::mouseMoved(const Util::Math::Vector2D &relativeMovement) {
+    camera.rotate(Util::Math::Vector3D(relativeMovement.getY() * 10, relativeMovement.getX() * 10, 0));
+}
+
+void ModelViewer::mouseScrolled(Util::Io::Mouse::ScrollDirection direction) {
+    switch (direction) {
+        case Util::Io::Mouse::UP:
+            camera.translateLocal(Util::Math::Vector3D(0, 0, 0.1));
+            break;
+        case Util::Io::Mouse::DOWN:
+            camera.translateLocal(Util::Math::Vector3D(0, 0, -0.1));
+            break;
+        default:
+            break;
+    }
+}
+
+void ModelViewer::buttonPressed(Util::Io::Mouse::Button key) {}
+
+void ModelViewer::buttonReleased(Util::Io::Mouse::Button key) {}

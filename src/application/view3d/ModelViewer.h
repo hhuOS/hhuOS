@@ -20,9 +20,10 @@
 
 #include "lib/util/game/3d/Scene.h"
 #include "lib/util/game/KeyListener.h"
+#include "lib/util/game/MouseListener.h"
 #include "Model.h"
 
-class ModelViewer : public Util::Game::D3::Scene, public Util::Game::KeyListener {
+class ModelViewer : public Util::Game::D3::Scene, public Util::Game::KeyListener, public Util::Game::MouseListener {
 
 public:
     /**
@@ -50,6 +51,14 @@ public:
     void keyPressed(Util::Io::Key key) override;
 
     void keyReleased(Util::Io::Key key) override;
+
+    void buttonPressed(Util::Io::Mouse::Button key) override;
+
+    void buttonReleased(Util::Io::Mouse::Button key) override;
+
+    void mouseMoved(const Util::Math::Vector2D &relativeMovement) override;
+
+    void mouseScrolled(Util::Io::Mouse::ScrollDirection direction) override;
 
 private:
 

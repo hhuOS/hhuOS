@@ -50,4 +50,8 @@ void Camera::rotate(const Math::Vector3D &angle) {
     rotation = (rotation + angle) % 360;
 }
 
+void Camera::translateLocal(const Math::Vector3D &translation) {
+    translate(translation.rotate(rotation));
+}
+
 }
