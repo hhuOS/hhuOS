@@ -15,18 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SphereCollider.h"
+#include "Missile.h"
+#include "lib/util/game/Game.h"
+#include "lib/util/game/GameManager.h"
 
-namespace Util::Game::D3 {
+Missile::Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, const Util::Math::Vector3D &scale, const Util::Graphic::Color &color) : Util::Game::D3::Model(TAG, Util::Io::File("/initrd/battlespace/missile.obj"), translation, rotation, scale, color) {}
 
-SphereCollider::SphereCollider(Math::Vector3D position, double radius) : Collider(position, STATIC), radius(radius) {}
+void Missile::onUpdate(double delta) {
+    if (lifetime > 5) {
+        Util::Game::GameManager::getCurrentScene().removeObject(this);
+    } else {
+        lifetime += delta;
 
-bool SphereCollider::isColliding(const SphereCollider &other) const {
-    return getPosition().distance(other.getPosition()) - (radius + other.radius) <= 0;
+        auto translation = lifetime < 0.5 ? Util::Math::Vector3D(0, 0, 0.04) : Util::Math::Vector3D(0, 0, 0.2);
+        translateLocal(translation * delta * 60);
+    }
 }
 
-double SphereCollider::getRadius() const {
-    return radius;
-}
-
+void Missile::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {
+    Util::Game::GameManager::getCurrentScene().removeObject(this);
 }

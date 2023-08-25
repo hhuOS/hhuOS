@@ -45,24 +45,69 @@ Graphics::Graphics(const Graphic::LinearFrameBuffer &lfb, Game &game) :
 
 /***** Basic functions to draw directly on the screen ******/
 
-void Graphics::drawString(const Graphic::Font &font, uint16_t x, uint16_t y, const char *string) const {
-    stringDrawer.drawString(font, x, y, string, color, Util::Graphic::Colors::INVISIBLE);
+void Graphics::drawLine(const Math::Vector2D &from, const Math::Vector2D &to) const {
+    lineDrawer.drawLine(static_cast<int32_t>(from.getX()), static_cast<int32_t>(from.getY()),
+                        static_cast<int32_t>(to.getX()), static_cast<int32_t>(to.getY()), color);
+
 }
 
-void Graphics::drawString(uint16_t x, uint16_t y, const char *string) const {
-    drawString(Graphic::Fonts::TERMINAL_FONT, x, y, string);
+void Graphics::drawPolygon(const Array<Math::Vector2D> &vertices) const {
+    for (uint32_t i = 0; i < vertices.length() - 1; i++) {
+        drawLine(vertices[i], vertices[i + 1]);
+    }
+
+    drawLine(vertices[vertices.length() - 1], vertices[0]);
 }
 
-void Graphics::drawString(uint16_t x, uint16_t y, const String &string) const {
-    drawString(x, y, static_cast<const char*>(string));
+void Graphics::drawRectangle(const Math::Vector2D &position, double width, double height) const {
+    const auto x = position.getX();
+    const auto y = position.getY();
+
+    drawLine(position, Math::Vector2D(x + width, y));
+    drawLine(Math::Vector2D(x, y - height), Math::Vector2D(x + width, y - height));
+    drawLine(position, Math::Vector2D(x, y - height));
+    drawLine(Math::Vector2D(x + width, y), Math::Vector2D(x + width, y - height));
+
 }
 
-void Graphics::drawStringSmall(uint16_t x, uint16_t y, const char *string) const {
-    drawString(Graphic::Fonts::TERMINAL_FONT_SMALL, x, y, string);
+void Graphics::drawSquare(const Math::Vector2D &position, double size) const {
+    drawRectangle(position, size, size);
 }
 
-void Graphics::drawStringSmall(uint16_t x, uint16_t y, const String &string) const {
-    drawStringSmall(x, y, static_cast<const char*>(string));
+void Graphics::fillRectangle(const Math::Vector2D &position, double width, double height) const {
+    const auto startX = static_cast<int32_t>(position.getX());
+    const auto endX = static_cast<int32_t>(position.getX() + width);
+    const auto startY = static_cast<int32_t>(position.getY());
+    const auto endY = static_cast<int32_t>(position.getY() + height);
+
+    for (int32_t i = startY; i < endY; i++) {
+        lineDrawer.drawLine(startX, i, endX, i, color);
+    }
+
+}
+
+void Graphics::fillSquare(const Math::Vector2D &position, double size) const {
+    fillRectangle(position, size, size);
+}
+
+void Graphics::drawString(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const {
+    stringDrawer.drawString(font, static_cast<uint16_t>(position.getX()), static_cast<uint16_t>(position.getY()), string, color, Util::Graphic::Colors::INVISIBLE);
+}
+
+void Graphics::drawString(const Math::Vector2D &position, const char *string) const {
+    drawString(Graphic::Fonts::TERMINAL_FONT, position, string);
+}
+
+void Graphics::drawString(const Math::Vector2D &position, const String &string) const {
+    drawString(position, static_cast<const char*>(string));
+}
+
+void Graphics::drawStringSmall(const Math::Vector2D &position, const char *string) const {
+    drawString(Graphic::Fonts::TERMINAL_FONT_SMALL, position, string);
+}
+
+void Graphics::drawStringSmall(const Math::Vector2D &position, const String &string) const {
+    drawStringSmall(position, static_cast<const char*>(string));
 }
 
 /***** 2D drawing functions, respecting the camera position *****/
@@ -283,6 +328,11 @@ void Graphics::saveCurrentStateAsBackground() {
     Address<uint32_t>(backgroundBuffer).copyRange(lfb.getBuffer(), lfb.getPitch() * lfb.getResolutionY());
 }
 
+void Graphics::clearBackground() {
+    delete backgroundBuffer;
+    backgroundBuffer = nullptr;
+}
+
 void Graphics::clear(const Graphic::Color &color) {
     if (color == Util::Graphic::Colors::BLACK) {
         lfb.clear();
@@ -299,6 +349,22 @@ void Graphics::update() {
     auto &camera = game.getCurrentScene().getCamera();
     cameraPosition = camera.getPosition();
     cameraRotation = camera.getRotation();
+}
+
+uint8_t Graphics::getCharWidth() const {
+    return font.getCharWidth();
+}
+
+uint8_t Graphics::getCharHeight() const {
+    return font.getCharHeight();
+}
+
+uint8_t Graphics::getCharWidthSmall() const {
+    return fontSmall.getCharWidth();
+}
+
+uint8_t Graphics::getCharHeightSmall() const {
+    return fontSmall.getCharHeight();
 }
 
 }

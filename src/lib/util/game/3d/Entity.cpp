@@ -63,6 +63,10 @@ void Entity::setScale(const Math::Vector3D &scale) {
 }
 
 void Entity::update(double delta) {
+    if (colliderPresent) {
+        collider.setPosition(position);
+    }
+
     onUpdate(delta);
 }
 

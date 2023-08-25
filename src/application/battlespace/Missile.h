@@ -13,64 +13,46 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_RECTANGLECOLLIDER_H
-#define HHUOS_RECTANGLECOLLIDER_H
+#ifndef HHUOS_MISSILE_H
+#define HHUOS_MISSILE_H
 
-#include "lib/util/game/Collider.h"
+#include "lib/util/game/3d/Model.h"
 
-namespace Util::Game::D2 {
-
-class RectangleCollider : public Collider {
+class Missile : public Util::Game::D3::Model {
 
 public:
-
-    enum Side {
-        LEFT, RIGHT, TOP, BOTTOM, NONE
-    };
-
     /**
      * Constructor.
      */
-    RectangleCollider(const Math::Vector2D &position, Collider::Type type, double width, double height);
+    Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, const Util::Math::Vector3D &scale, const Util::Graphic::Color &color);
 
     /**
      * Copy Constructor.
      */
-    RectangleCollider(const RectangleCollider &other) = default;
+    Missile(const Missile &other) = delete;
 
     /**
      * Assignment operator.
      */
-    RectangleCollider &operator=(const RectangleCollider &other) = default;
+    Missile &operator=(const Missile &other) = delete;
 
     /**
      * Destructor.
      */
-    ~RectangleCollider() = default;
+    ~Missile() override = default;
 
-    static Side getOpposite(Side side);
+    void onUpdate(double delta) override;
 
-    [[nodiscard]] double getWidth() const;
+    void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
 
-    [[nodiscard]] double getHeight() const;
-
-    void setWidth(double width);
-
-    void setHeight(double height);
-
-    [[nodiscard]] Side isColliding(const RectangleCollider &other) const;
+    static const constexpr uint32_t TAG = 2;
 
 private:
 
-    double width;
-    double height;
-};
+    double lifetime = 0;
 
-}
+};
 
 #endif

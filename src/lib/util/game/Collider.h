@@ -59,17 +59,13 @@ public:
      */
     ~Collider() = default;
 
-    [[nodiscard]] const Math::Vector3D& getPosition() const;
-
-    [[nodiscard]] Type getType() const;
-
-protected:
-
-    Math::Vector3D lastPosition;
-
     void setPosition(const Math::Vector2D &position);
 
     void setPosition(const Math::Vector3D &position);
+
+    [[nodiscard]] const Math::Vector3D& getPosition() const;
+
+    [[nodiscard]] Type getType() const;
 
 private:
 

@@ -27,6 +27,7 @@
 #include "lib/util/graphic/LineDrawer.h"
 #include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/graphic/Colors.h"
+#include "lib/util/graphic/Fonts.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/PixelDrawer.h"
@@ -76,13 +77,25 @@ public:
 
     /***** Basic functions to draw directly on the screen ******/
 
-    void drawString(uint16_t x, uint16_t y, const char *string) const;
+    void drawLine(const Math::Vector2D &from, const Math::Vector2D &to) const;
 
-    void drawString(uint16_t x, uint16_t y, const String &string) const;
+    void drawPolygon(const Array<Math::Vector2D> &vertices) const;
 
-    void drawStringSmall(uint16_t x, uint16_t y, const char *string) const;
+    void drawRectangle(const Math::Vector2D &position, double width, double height) const;
 
-    void drawStringSmall(uint16_t x, uint16_t y, const String &string) const;
+    void drawSquare(const Math::Vector2D &position, double size) const;
+
+    void fillRectangle(const Math::Vector2D &position, double width, double height) const;
+
+    void fillSquare(const Math::Vector2D &position, double size) const;
+
+    void drawString(const Math::Vector2D &position, const char *string) const;
+
+    void drawString(const Math::Vector2D &position, const String &string) const;
+
+    void drawStringSmall(const Math::Vector2D &position, const char *string) const;
+
+    void drawStringSmall(const Math::Vector2D &position, const String &string) const;
 
     /***** 2D drawing functions, respecting the camera position *****/
 
@@ -119,6 +132,14 @@ public:
 
     /***** Miscellaneous *****/
 
+    [[nodiscard]] uint8_t getCharWidth() const;
+
+    [[nodiscard]] uint8_t getCharHeight() const;
+
+    [[nodiscard]] uint8_t getCharWidthSmall() const;
+
+    [[nodiscard]] uint8_t getCharHeightSmall() const;
+
     void clear(const Graphic::Color &color = Util::Graphic::Colors::BLACK);
 
     void show() const;
@@ -131,9 +152,11 @@ public:
 
     void saveCurrentStateAsBackground();
 
+    void clearBackground();
+
 private:
 
-    void drawString(const Graphic::Font &font, uint16_t x, uint16_t y, const char *string) const;
+    void drawString(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const;
 
     void drawString2D(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const;
 
@@ -147,6 +170,9 @@ private:
     const uint16_t transformation;
     const uint16_t offsetX;
     const uint16_t offsetY;
+
+    const Graphic::Font &font = Graphic::Fonts::TERMINAL_FONT;
+    const Graphic::Font &fontSmall = Graphic::Fonts::TERMINAL_FONT_SMALL;
 
     Math::Vector3D cameraPosition{};
     Math::Vector3D cameraRotation{};

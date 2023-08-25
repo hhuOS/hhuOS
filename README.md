@@ -66,5 +66,10 @@ Assets for the bug defender game have been taken from [itch.io](https://itch.io)
 - [Plane](https://alstrainfinite.itch.io/planes) by [*Alstra Infinite*](https://alstrainfinite.itch.io/) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
 - [Coffee Maker](https://alstrainfinite.itch.io/kitchen-appliance-2) by [*Alstra Infinite*](https://alstrainfinite.itch.io/) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
 
+Assets for the battlespace game have been taken from [itch.io](https://itch.io):
+- [Space Ship](https://mehrasaur.itch.io/3d-spaceships-pack) by [*mehrasaur*](https://mehrasaur.itch.io/) ([CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/legalcode))
+- [Asteroids](https://kenney-assets.itch.io/space-kit) by [*Kenney (Assets)*](https://kenney-assets.itch.io/) ([CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/legalcode))
+- [Missile](https://majadroid.itch.io/3d-lowpoly-spaceships-and-components-cc0) by [*Majadroid*](https://majadroid.itch.io/) ([CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/legalcode))
+
 Music for the SoundBlaster demo has been taken from [Bensound](https://www.bensound.com/royalty-free-music):
 - Ukulele license code: 3M7PXYPYNOTSIGNQ

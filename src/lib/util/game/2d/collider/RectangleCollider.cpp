@@ -66,8 +66,8 @@ RectangleCollider::Side RectangleCollider::isColliding(const RectangleCollider &
         getPosition().getY() < other.getPosition().getY() + other.getHeight() &&
         getHeight() + getPosition().getY() > other.getPosition().getY()) {
 
-        auto lastCenter = lastPosition + Math::Vector2D(getWidth() / 2, getHeight() / 2);
-        auto otherLastCenter = other.lastPosition + Math::Vector2D(other.getWidth() / 2, other.getHeight() / 2);
+        auto lastCenter = getPosition() + Math::Vector2D(getWidth() / 2, getHeight() / 2);
+        auto otherLastCenter = other.getPosition() + Math::Vector2D(other.getWidth() / 2, other.getHeight() / 2);
 
         auto centerXDistance = lastCenter.getX() - otherLastCenter.getX();
         auto centerYDistance = lastCenter.getY() - otherLastCenter.getY();

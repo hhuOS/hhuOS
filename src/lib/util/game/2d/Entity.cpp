@@ -103,7 +103,7 @@ bool Entity::hasCollider() const {
 }
 
 void Entity::update(double delta) {
-    collider.lastPosition = Util::Math::Vector3D(position.getX(), position.getY(), 0);
+    collider.setPosition(Util::Math::Vector2D(position.getX(), position.getY()));
     positionChanged = false;
 
     for (auto *component : components) {

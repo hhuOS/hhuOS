@@ -80,8 +80,8 @@ private:
 
     void loadModelFromFile();
 
-    const Io::File &modelFile;
-    const Graphic::Color color = Graphic::Color(10, 255, 0);
+    const Io::File modelFile;
+    const Graphic::Color color = Util::Graphic::Colors::GREEN;
 
     Array<Math::Vector3D> vertices = Util::Array<Math::Vector3D>(0);
     Array<Util::Math::Vector2D> edges = Util::Array<Math::Vector2D>(0);

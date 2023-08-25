@@ -23,6 +23,8 @@
 namespace Util::Game::D3 {
 
 void Scene::initialize(Graphics &graphics) {
+    graphics.clear();
+
     for (auto *entity : entities) {
         entity->initialize();
     }

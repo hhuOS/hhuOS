@@ -13,64 +13,42 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_RECTANGLECOLLIDER_H
-#define HHUOS_RECTANGLECOLLIDER_H
+#ifndef HHUOS_ASTEROID_H
+#define HHUOS_ASTEROID_H
 
-#include "lib/util/game/Collider.h"
+#include "lib/util/game/3d/Model.h"
+#include "lib/util/math/Random.h"
 
-namespace Util::Game::D2 {
-
-class RectangleCollider : public Collider {
+class Asteroid : public Util::Game::D3::Model {
 
 public:
-
-    enum Side {
-        LEFT, RIGHT, TOP, BOTTOM, NONE
-    };
-
     /**
      * Constructor.
      */
-    RectangleCollider(const Math::Vector2D &position, Collider::Type type, double width, double height);
+    Asteroid(const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, const Util::Math::Vector3D &scale, uint8_t modelId);
 
     /**
      * Copy Constructor.
      */
-    RectangleCollider(const RectangleCollider &other) = default;
+    Asteroid(const Asteroid &other) = delete;
 
     /**
      * Assignment operator.
      */
-    RectangleCollider &operator=(const RectangleCollider &other) = default;
+    Asteroid &operator=(const Asteroid &other) = delete;
 
     /**
      * Destructor.
      */
-    ~RectangleCollider() = default;
+    ~Asteroid() override = default;
 
-    static Side getOpposite(Side side);
+    void onUpdate(double delta) override;
 
-    [[nodiscard]] double getWidth() const;
+    void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
 
-    [[nodiscard]] double getHeight() const;
-
-    void setWidth(double width);
-
-    void setHeight(double height);
-
-    [[nodiscard]] Side isColliding(const RectangleCollider &other) const;
-
-private:
-
-    double width;
-    double height;
+    static const constexpr uint32_t TAG = 1;
 };
-
-}
 
 #endif

@@ -31,6 +31,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wl,--build-id=none -Wno-non-virtual-dtor 
 add_subdirectory(shell)
 add_subdirectory(ant)
 add_subdirectory(asciimate)
+add_subdirectory(battlespace)
 add_subdirectory(bug)
 add_subdirectory(beep)
 add_subdirectory(cat)

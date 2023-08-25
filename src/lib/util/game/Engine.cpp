@@ -114,11 +114,11 @@ void Engine::initializeNextScene() {
     }
 
     auto resolution = GameManager::getAbsoluteResolution();
-    auto charWidth = Graphic::Fonts::TERMINAL_FONT.getCharWidth();
+    auto stringPosition = Math::Vector2D((resolution.getX() - Util::Address<uint32_t>(LOADING).stringLength() * graphics.getCharWidth()) / 2.0, resolution.getY() / 2.0);
 
     graphics.clear();
     graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawString((static_cast<uint16_t>(resolution.getX() - Util::Address<uint32_t>(LOADING).stringLength() * charWidth) / 2), static_cast<uint16_t>(resolution.getY() / 2), LOADING);
+    graphics.drawString(stringPosition, LOADING);
     graphics.show();
 
     game.initializeNextScene(graphics);
@@ -134,7 +134,7 @@ void Engine::updateStatus() {
 }
 
 void Engine::drawStatus() {
-    auto charHeight = Graphic::Fonts::TERMINAL_FONT_SMALL.getCharHeight() + 2;
+    auto charHeight = graphics.getCharHeightSmall() + 2;
     auto color = graphics.getColor();
 
     const auto &memoryManager = *reinterpret_cast<HeapMemoryManager*>(USER_SPACE_MEMORY_MANAGER_ADDRESS);
@@ -143,10 +143,10 @@ void Engine::drawStatus() {
     auto heapUsedK = (heapUsed - heapUsedM * 1000 * 1000) / 1000;
 
     graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawStringSmall(10, 10, String::format("FPS: %u", status.fps));
-    graphics.drawStringSmall(10, 10 + charHeight, String::format("D: %ums | U: %ums | I: %ums", status.drawTime, status.updateTime, status.idleTime));
-    graphics.drawStringSmall(10, 10 + charHeight * 2, String::format("Objects: %u", game.getCurrentScene().getObjectCount()));
-    graphics.drawStringSmall(10, 10 + charHeight * 3, String::format("Heap used: %u.%03u MB", heapUsedM, heapUsedK));
+    graphics.drawStringSmall(Math::Vector2D(10, 10), String::format("FPS: %u", status.fps));
+    graphics.drawStringSmall(Math::Vector2D(10, 10 + charHeight), String::format("D: %ums | U: %ums | I: %ums", status.drawTime, status.updateTime, status.idleTime));
+    graphics.drawStringSmall(Math::Vector2D(10, 10 + charHeight * 2), String::format("Objects: %u", game.getCurrentScene().getObjectCount()));
+    graphics.drawStringSmall(Math::Vector2D(10, 10 + charHeight * 3), String::format("Heap used: %u.%03u MB", heapUsedM, heapUsedK));
     graphics.setColor(color);
 }
 

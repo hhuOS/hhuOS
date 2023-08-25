@@ -15,18 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SphereCollider.h"
+#include "Asteroid.h"
 
-namespace Util::Game::D3 {
+Asteroid::Asteroid(const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, const Util::Math::Vector3D &scale, uint8_t modelId) : Util::Game::D3::Model(TAG, Util::Io::File(Util::String::format("/initrd/battlespace/asteroid%u.obj", modelId)), position, rotation, scale) {}
 
-SphereCollider::SphereCollider(Math::Vector3D position, double radius) : Collider(position, STATIC), radius(radius) {}
+void Asteroid::onUpdate(double delta) {}
 
-bool SphereCollider::isColliding(const SphereCollider &other) const {
-    return getPosition().distance(other.getPosition()) - (radius + other.radius) <= 0;
-}
-
-double SphereCollider::getRadius() const {
-    return radius;
-}
-
-}
+void Asteroid::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {}
