@@ -96,9 +96,9 @@ public:
 
     [[nodiscard]] const Math::Vector2D& getVelocity() const;
 
-    [[nodiscard]] RectangleCollider& getCollider();
-
     [[nodiscard]] bool hasCollider() const;
+
+    [[nodiscard]] RectangleCollider& getCollider();
 
 private:
 

@@ -23,7 +23,6 @@
 #include "Entity.h"
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/base/Exception.h"
-#include "lib/util/game/2d/collider/Collider.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
 
 namespace Util::Game::D2 {
@@ -104,7 +103,7 @@ bool Entity::hasCollider() const {
 }
 
 void Entity::update(double delta) {
-    collider.lastPosition = position;
+    collider.lastPosition = Util::Math::Vector3D(position.getX(), position.getY(), 0);
     positionChanged = false;
 
     for (auto *component : components) {

@@ -31,13 +31,13 @@
 #include "lib/util/game/Graphics.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/Sprite.h"
-#include "lib/util/game/2d/collider/Collider.h"
+#include "lib/util/game/Collider.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2D.h"
 #include "application/bug/Explosive.h"
 #include "lib/util/game/2d/Entity.h"
 
-Bug::Bug(const Util::Math::Vector2D &position, Fleet &fleet) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Game::D2::Collider::STATIC, SIZE_X, SIZE_Y)), fleet(fleet) {
+Bug::Bug(const Util::Math::Vector2D &position, Fleet &fleet) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)), fleet(fleet) {
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
 }
 

@@ -123,6 +123,8 @@ public:
 
     void show() const;
 
+    void update();
+
     void setColor(const Graphic::Color &color);
 
     [[nodiscard]] Graphic::Color getColor() const;
@@ -145,6 +147,9 @@ private:
     const uint16_t transformation;
     const uint16_t offsetX;
     const uint16_t offsetY;
+
+    Math::Vector3D cameraPosition{};
+    Math::Vector3D cameraRotation{};
 
     uint8_t *backgroundBuffer = nullptr;
 

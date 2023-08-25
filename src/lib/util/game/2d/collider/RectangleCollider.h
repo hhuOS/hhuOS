@@ -21,11 +21,13 @@
 #ifndef HHUOS_RECTANGLECOLLIDER_H
 #define HHUOS_RECTANGLECOLLIDER_H
 
-#include "Collider.h"
+#include "lib/util/game/Collider.h"
 
 namespace Util::Game::D2 {
 
 class RectangleCollider : public Collider {
+
+friend class Entity;
 
 public:
 

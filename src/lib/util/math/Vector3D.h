@@ -19,6 +19,7 @@
 #define HHUOS_VECTOR3D_H
 
 #include "lib/util/base/String.h"
+#include "Vector2D.h"
 
 namespace Util::Math {
 
@@ -59,6 +60,8 @@ public:
     Vector3D operator%(double value) const;
 
     Vector3D operator+(const Vector3D &other) const;
+
+    Vector3D operator+(const Vector2D &other) const;
 
     Vector3D operator-(const Vector3D &other) const;
 

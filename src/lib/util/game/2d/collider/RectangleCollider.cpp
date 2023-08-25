@@ -21,7 +21,7 @@
 #include "RectangleCollider.h"
 
 #include "lib/util/math/Math.h"
-#include "lib/util/game/2d/collider/Collider.h"
+#include "lib/util/game/Collider.h"
 #include "lib/util/math/Vector2D.h"
 
 namespace Util::Game::D2 {

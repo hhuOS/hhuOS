@@ -24,7 +24,13 @@
 
 namespace Util::Game {
 
+namespace D2 {
+class Entity;
+}
+
 class Entity : public Drawable {
+
+friend class Util::Game::D2::Entity;
 
 public:
     /**

@@ -17,33 +17,64 @@
  * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
-#ifndef HHUOS_EVENT_H
-#define HHUOS_EVENT_H
 
-namespace Util::Game::D2 {
+#ifndef HHUOS_COLLIDER_H
+#define HHUOS_COLLIDER_H
 
-class Event {
+#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector3D.h"
+
+namespace Util::Game {
+
+class Collider {
 
 public:
+
+    enum Type {
+        STATIC, DYNAMIC
+    };
+
     /**
-    * Default Constructor.
-    */
-    Event() = default;
+     * Constructor.
+     */
+    Collider(const Math::Vector2D &position, Type type);
+
+    /**
+     * Constructor.
+     */
+    Collider(const Math::Vector3D &position, Type type);
 
     /**
      * Copy Constructor.
      */
-    Event(const Event &other) = delete;
+    Collider(const Collider &other) = default;
 
     /**
      * Assignment operator.
      */
-    Event &operator=(const Event &other) = delete;
+    Collider &operator=(const Collider &other) = default;
 
     /**
      * Destructor.
      */
-    ~Event() = default;
+    ~Collider() = default;
+
+    [[nodiscard]] const Math::Vector3D& getPosition() const;
+
+    [[nodiscard]] Type getType() const;
+
+protected:
+
+    Math::Vector3D lastPosition;
+
+    void setPosition(const Math::Vector2D &position);
+
+    void setPosition(const Math::Vector3D &position);
+
+private:
+
+    Math::Vector3D position;
+    Type type;
 };
 
 }

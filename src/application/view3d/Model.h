@@ -44,6 +44,8 @@ public:
     ~Model() override = default;
 
     void onUpdate(double delta) override;
+
+    void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
 };
 
 #endif

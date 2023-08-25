@@ -76,6 +76,8 @@ void Engine::run() {
             initializeNextScene();
         }
 
+        graphics.update();
+
         auto &scene = game.getCurrentScene();
         scene.update(frameTime);
         scene.updateEntities(frameTime);

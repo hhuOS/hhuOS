@@ -18,7 +18,7 @@
 #include "Ground.h"
 
 #include "lib/util/game/Graphics.h"
-#include "lib/util/game/2d/collider/Collider.h"
+#include "lib/util/game/Collider.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
 #include "lib/util/graphic/Colors.h"
@@ -30,7 +30,7 @@ class CollisionEvent;
 }  // namespace Game
 }  // namespace Util
 
-Ground::Ground(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Game::D2::Collider::STATIC, 1, 0.001)) {}
+Ground::Ground(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Game::Collider::STATIC, 1, 0.001)) {}
 
 void Ground::initialize() {
     sprite = Util::Game::Sprite("/initrd/dino/ground.bmp", 0.2, 0.2);

@@ -105,7 +105,7 @@ void ModelViewer::keyReleased(Util::Io::Key key) {
 }
 
 void ModelViewer::mouseMoved(const Util::Math::Vector2D &relativeMovement) {
-    camera.rotate(Util::Math::Vector3D(relativeMovement.getY() * 10, relativeMovement.getX() * 10, 0));
+    camera.rotate(Util::Math::Vector3D(-relativeMovement.getY() * 10, relativeMovement.getX() * 10, 0));
 }
 
 void ModelViewer::mouseScrolled(Util::Io::Mouse::ScrollDirection direction) {

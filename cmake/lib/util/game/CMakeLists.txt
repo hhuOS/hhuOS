@@ -27,6 +27,8 @@ target_link_libraries(${PROJECT_NAME} lib.graphic)
 
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/game/Camera.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/CancelableEvent.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/Collider.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Engine.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Entity.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Game.cpp
@@ -39,19 +41,19 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/game/SpriteAnimation.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/Entity.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/Scene.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/2d/collider/Collider.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/collider/PolygonCollider.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/collider/RectangleCollider.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/component/Component.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/component/GravityComponent.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/component/LinearMovementComponent.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/2d/event/CancelableEvent.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/event/CollisionEvent.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/event/TranslationEvent.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/3d/Entity.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/3d/Model.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/3d/Scene.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/3d/Util.cpp)
+        ${HHUOS_SRC_DIR}/lib/util/game/3d/Util.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/3d/collider/SphereCollider.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/3d/event/CollisionEvent.cpp)
 
 # Kernel space version
 project(lib.kernel.game)

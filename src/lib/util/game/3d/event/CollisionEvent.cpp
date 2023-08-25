@@ -17,44 +17,16 @@
  * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
-#ifndef HHUOS_TRANSLATIONEVENT_H
-#define HHUOS_TRANSLATIONEVENT_H
 
-#include "lib/util/math/Vector2D.h"
-#include "lib/util/game/CancelableEvent.h"
+#include "CollisionEvent.h"
+#include "lib/util/game/2d/Entity.h"
 
-namespace Util::Game::D2 {
+namespace Util::Game::D3 {
 
-class TranslationEvent : public CancelableEvent {
+CollisionEvent::CollisionEvent(Entity &other) : other(other) {}
 
-public:
-    /**
-    * Constructor.
-    */
-    explicit TranslationEvent(const Math::Vector2D &targetPosition);
-
-    /**
-     * Copy Constructor.
-     */
-    TranslationEvent(const TranslationEvent &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    TranslationEvent &operator=(const TranslationEvent &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~TranslationEvent() = default;
-
-    [[nodiscard]] const Math::Vector2D& getTargetPosition() const;
-
-private:
-
-    Math::Vector2D targetPosition;
-};
-
+Entity& Util::Game::D3::CollisionEvent::getCollidedWidth() {
+    return other;
 }
 
-#endif
+}

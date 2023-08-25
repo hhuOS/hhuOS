@@ -23,11 +23,11 @@
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/game/2d/event/CollisionEvent.h"
 #include "Ground.h"
-#include "lib/util/game/2d/collider/Collider.h"
+#include "lib/util/game/Collider.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
 
-Dino::Dino(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Game::D2::Collider::DYNAMIC, 0.2, 0.2)) {}
+Dino::Dino(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Game::Collider::DYNAMIC, 0.2, 0.2)) {}
 
 void Dino::initialize() {
     runAnimation = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({

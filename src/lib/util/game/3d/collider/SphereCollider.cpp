@@ -13,21 +13,20 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#include "CancelableEvent.h"
+#include "SphereCollider.h"
 
-namespace Util::Game::D2 {
+namespace Util::Game::D3 {
 
-void CancelableEvent::cancel() {
-    canceled = true;
+SphereCollider::SphereCollider(Math::Vector3D position, double radius) : Collider(position, STATIC), radius(radius) {}
+
+bool SphereCollider::isColliding(const SphereCollider &other) const {
+    return lastPosition.distance(other.lastPosition) - (radius + other.radius) <= 0;
 }
 
-bool CancelableEvent::isCanceled() const {
-    return canceled;
+double SphereCollider::getRadius() const {
+    return radius;
 }
 
 }

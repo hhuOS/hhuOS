@@ -20,8 +20,11 @@
 
 #include "lib/util/game/Entity.h"
 #include "lib/util/math/Vector3D.h"
+#include "lib/util/game/3d/collider/SphereCollider.h"
 
 namespace Util::Game::D3 {
+
+class CollisionEvent;
 
 class Entity : public Util::Game::Entity {
 
@@ -32,6 +35,10 @@ public:
      * Constructor.
      */
     Entity(uint32_t tag, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale);
+    /**
+     * Constructor.
+     */
+    Entity(uint32_t tag, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const SphereCollider &collider);
 
     /**
      * Copy Constructor.
@@ -49,6 +56,8 @@ public:
     ~Entity() override = default;
 
     virtual void onTransformChange() = 0;
+
+    virtual void onCollisionEvent(CollisionEvent &event) = 0;
 
     [[nodiscard]] const Math::Vector3D& getPosition() const;
 
@@ -68,6 +77,10 @@ public:
 
     void setScale(const Math::Vector3D &scale);
 
+    [[nodiscard]] bool hasCollider() const;
+
+    [[nodiscard]] SphereCollider& getCollider();
+
 private:
 
     void update(double delta);
@@ -75,6 +88,9 @@ private:
     Math::Vector3D position{};
     Math::Vector3D rotation{};
     Math::Vector3D scale{1, 1, 1};
+
+    bool colliderPresent = false;
+    SphereCollider collider;
 };
 
 }

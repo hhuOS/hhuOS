@@ -17,43 +17,29 @@
  * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
-#ifndef HHUOS_CANCELABLEEVENT_H
-#define HHUOS_CANCELABLEEVENT_H
 
-namespace Util::Game::D2 {
+#include "Collider.h"
 
-class CancelableEvent {
+namespace Util::Game {
 
-public:
-    /**
-    * Default Constructor.
-    */
-    CancelableEvent() = default;
+Collider::Collider(const Math::Vector2D &position, Collider::Type type) : position(position.getX(), position.getY(), 0), type(type) {}
 
-    /**
-     * Copy Constructor.
-     */
-    CancelableEvent(const CancelableEvent &other) = delete;
+Collider::Collider(const Math::Vector3D &position, Collider::Type type) : position(position), type(type) {}
 
-    /**
-     * Assignment operator.
-     */
-    CancelableEvent &operator=(const CancelableEvent &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~CancelableEvent() = default;
-
-    void cancel();
-
-    [[nodiscard]] bool isCanceled() const;
-
-private:
-
-    bool canceled = false;
-};
-
+const Math::Vector3D &Collider::getPosition() const {
+    return position;
 }
 
-#endif
+Collider::Type Collider::getType() const {
+    return type;
+}
+
+void Collider::setPosition(const Math::Vector2D &position) {
+    Collider::position = Math::Vector3D(position.getX(), position.getY(), 0);
+}
+
+void Collider::setPosition(const Math::Vector3D &position) {
+    Collider::position = position;
+}
+
+}

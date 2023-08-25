@@ -63,6 +63,10 @@ Vector3D Vector3D::operator+(const Vector3D &other) const {
     return {x + other.x, y + other.y, z + other.z};
 }
 
+Vector3D Vector3D::operator+(const Vector2D &other) const {
+    return {x + other.getX(), y + other.getY(), z};
+}
+
 Vector3D Vector3D::operator-(const Vector3D &other) const {
     return {x - other.x, y - other.y, z - other.z};
 }

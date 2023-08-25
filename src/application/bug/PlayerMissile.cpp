@@ -25,13 +25,13 @@
 #include "application/bug/Ship.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/game/Scene.h"
-#include "lib/util/game/2d/collider/Collider.h"
+#include "lib/util/game/Collider.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2D.h"
 #include "EnemyMissile.h"
 #include "Bug.h"
 
-PlayerMissile::PlayerMissile(const Util::Math::Vector2D &position, Ship &ship) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Game::D2::Collider::STATIC, SIZE_X, SIZE_Y)), ship(ship) {
+PlayerMissile::PlayerMissile(const Util::Math::Vector2D &position, Ship &ship) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)), ship(ship) {
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
 }
 

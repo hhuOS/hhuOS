@@ -17,6 +17,8 @@
 
 #include "Scene.h"
 #include "Entity.h"
+#include "lib/util/collection/Pair.h"
+#include "lib/util/game/3d/event/CollisionEvent.h"
 
 namespace Util::Game::D3 {
 
@@ -32,6 +34,32 @@ void Scene::updateEntities(double delta) {
     }
 }
 
-void Scene::checkCollisions() {}
+void Scene::checkCollisions() {
+    auto detectedCollisions = Util::ArrayList<Pair<Entity*, Entity*>>();
+
+    for (auto *entity : entities) {
+        auto *entity3D = reinterpret_cast<D3::Entity*>(entity);
+
+        if (entity3D->hasCollider()) {
+            for (auto *otherEntity : entities) {
+                auto *otherEntity3D = reinterpret_cast<D3::Entity*>(entity);
+                if (entity == otherEntity || !otherEntity3D->hasCollider() || detectedCollisions.contains(Util::Pair(entity3D, otherEntity3D))) {
+                    continue;
+                }
+
+                if (entity3D->getCollider().isColliding(otherEntity3D->getCollider())) {
+                    auto event = CollisionEvent(*otherEntity3D);
+                    auto otherEvent = CollisionEvent(*entity3D);
+
+                    entity3D->onCollisionEvent(event);
+                    otherEntity3D->onCollisionEvent(otherEvent);
+
+                    detectedCollisions.add(Util::Pair(entity3D, otherEntity3D));
+                }
+            }
+        }
+    }
+
+}
 
 }

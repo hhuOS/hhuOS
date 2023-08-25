@@ -58,6 +58,7 @@ void Scene::checkCollisions() {
 
                     entity2D->onCollision(event);
                     otherEntity2D->onCollision(otherEvent);
+
                     detectedCollisions.add(Pair(entity2D, otherEntity2D));
                 }
             }

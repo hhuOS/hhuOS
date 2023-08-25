@@ -18,58 +18,51 @@
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_COLLIDER_H
-#define HHUOS_COLLIDER_H
+#ifndef HHUOS_COLLISIONEVENT_3D_H
+#define HHUOS_COLLISIONEVENT_3D_H
 
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/game/Event.h"
+#include "lib/util/game/3d/Entity.h"
 
-namespace Util::Game::D2 {
+namespace Util::Game::D3 {
 
-class Collider {
-
-friend class Entity;
+class CollisionEvent : public Event {
 
 public:
-
-    enum Type {
-        STATIC, DYNAMIC
-    };
-
     /**
      * Constructor.
      */
-    Collider(const Math::Vector2D &position, Type type);
+    explicit CollisionEvent(Entity &other);
 
     /**
      * Copy Constructor.
      */
-    Collider(const Collider &other) = default;
+    CollisionEvent(const CollisionEvent &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Collider &operator=(const Collider &other) = default;
+    CollisionEvent &operator=(const CollisionEvent &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Collider() = default;
+    ~CollisionEvent() = default;
 
-    [[nodiscard]] const Math::Vector2D& getPosition() const;
+    [[nodiscard]] Entity& getCollidedWidth();
 
-    [[nodiscard]] Type getType() const;
-
-protected:
-
-    Math::Vector2D lastPosition;
-
-    void setPosition(const Math::Vector2D &position);
+    template<typename T>
+    [[nodiscard]] T& getCollidedWidth();
 
 private:
 
-    Math::Vector2D position;
-    Type type;
+    Entity &other;
 };
+
+template<typename T>
+T& Util::Game::D3::CollisionEvent::getCollidedWidth() {
+    return reinterpret_cast<T&>(other);
+}
 
 }
 

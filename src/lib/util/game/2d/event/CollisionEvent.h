@@ -18,10 +18,10 @@
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_COLLISIONEVENT_H
-#define HHUOS_COLLISIONEVENT_H
+#ifndef HHUOS_COLLISIONEVENT_2D_H
+#define HHUOS_COLLISIONEVENT_2D_H
 
-#include "Event.h"
+#include "lib/util/game/Event.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/game/2d/Entity.h"
 

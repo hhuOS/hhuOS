@@ -26,7 +26,7 @@
 #include "application/bug/Ship.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/game/Scene.h"
-#include "lib/util/game/2d/collider/Collider.h"
+#include "lib/util/game/Collider.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2D.h"
 #include "application/bug/Explosive.h"
@@ -34,7 +34,7 @@
 
 class Bug;
 
-EnemyMissile::EnemyMissile(const Util::Math::Vector2D &position, Bug &bug) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Game::D2::Collider::STATIC, SIZE_X, SIZE_Y)), bug(bug) {
+EnemyMissile::EnemyMissile(const Util::Math::Vector2D &position, Bug &bug) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)), bug(bug) {
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
 }
 

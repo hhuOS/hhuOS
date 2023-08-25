@@ -68,7 +68,6 @@ void Graphics::drawStringSmall(uint16_t x, uint16_t y, const String &string) con
 /***** 2D drawing functions, respecting the camera position *****/
 
 void Graphics::drawLine2D(const Math::Vector2D &from, const Math::Vector2D &to) const {
-    auto &cameraPosition = game.getCurrentScene().getCamera().getPosition();
     lineDrawer.drawLine(static_cast<int32_t>((from.getX() - cameraPosition.getX()) * transformation + offsetX),
                         static_cast<int32_t>((-from.getY() + cameraPosition.getY()) * transformation + offsetY),
                         static_cast<int32_t>((to.getX() - cameraPosition.getX()) * transformation + offsetX),
@@ -102,7 +101,6 @@ void Graphics::fillSquare2D(const Math::Vector2D &position, double size) const {
 }
 
 void Graphics::fillRectangle2D(const Math::Vector2D &position, double width, double height) const {
-    auto &cameraPosition = game.getCurrentScene().getCamera().getPosition();
     auto startX = static_cast<int32_t>((position.getX() - cameraPosition.getX()) * transformation + offsetX);
     auto endX = static_cast<int32_t>((position.getX() + width - cameraPosition.getX()) * transformation + offsetX);
     auto startY = static_cast<int32_t>((-position.getY() + cameraPosition.getY()) * transformation + offsetY);
@@ -114,7 +112,6 @@ void Graphics::fillRectangle2D(const Math::Vector2D &position, double width, dou
 }
 
 void Graphics::drawString2D(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const {
-    auto &cameraPosition = game.getCurrentScene().getCamera().getPosition();
     stringDrawer.drawString(font, static_cast<int32_t>((position.getX() - cameraPosition.getX()) * transformation + offsetX), static_cast<int32_t>((-position.getY() + cameraPosition.getY()) * transformation + offsetY), string, color, Util::Graphic::Colors::INVISIBLE);
 }
 
@@ -135,7 +132,6 @@ void Graphics::drawStringSmall2D(const Math::Vector2D &position, const String &s
 }
 
 void Graphics::drawImage2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX) const {
-    auto &cameraPosition = game.getCurrentScene().getCamera().getPosition();
     auto pixelBuffer = image.getPixelBuffer();
     auto xFlipOffset = flipX ? image.getWidth() - 1 : 0;
     auto xPixelOffset = static_cast<int32_t>((position.getX() - cameraPosition.getX()) * transformation + offsetX);
@@ -201,9 +197,8 @@ Math::Vector2D Graphics::projectPoint(const Math::Vector3D &v, const Math::Vecto
 }
 
 void Graphics::drawLine3D(const Math::Vector3D &from, const Math::Vector3D &to) const {
-    auto &camera = game.getCurrentScene().getCamera();
-    Util::Math::Vector2D v1 = projectPoint(from, camera.getPosition(), camera.getRotation());
-    Util::Math::Vector2D v2 = projectPoint(to, camera.getPosition(), camera.getRotation());
+    Util::Math::Vector2D v1 = projectPoint(from, cameraPosition, cameraRotation);
+    Util::Math::Vector2D v2 = projectPoint(to, cameraPosition, cameraRotation);
 
     // lines aren't drawn if one of the points is outside the camera view (range (-1, 1))
     if (v1.getX() < -1 || v1.getX() > 1 || v1.getY() < -1 || v1.getY() > 1) {
@@ -245,7 +240,6 @@ void Graphics::drawModel(const Array<Math::Vector3D> &vertices, const Array<Math
 }
 
 void Graphics::show() const {
-    auto &cameraPosition = game.getCurrentScene().getCamera().getPosition();
     lfb.flush();
 
     if (backgroundBuffer == nullptr) {
@@ -299,6 +293,12 @@ void Graphics::clear(const Graphic::Color &color) {
             }
         }
     }
+}
+
+void Graphics::update() {
+    auto &camera = game.getCurrentScene().getCamera();
+    cameraPosition = camera.getPosition();
+    cameraRotation = camera.getRotation();
 }
 
 }

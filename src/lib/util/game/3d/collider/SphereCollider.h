@@ -15,60 +15,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_POLYGONCOLLIDER_H
-#define HHUOS_POLYGONCOLLIDER_H
+#ifndef HHUOS_SPHERECOLLIDER_H
+#define HHUOS_SPHERECOLLIDER_H
 
-#include <cstdint>
-
-#include "lib/util/math/Vector2D.h"
-#include "lib/util/collection/Pair.h"
-#include "lib/util/collection/Array.h"
 #include "lib/util/game/Collider.h"
-#include "lib/util/game/Polygon.h"
 
-namespace Util::Game::D2 {
+namespace Util::Game::D3 {
 
-struct Collision {
-    double overlap;
-    Math::Vector2D axis;
-};
-
-class PolygonCollider : public Collider {
+class SphereCollider : public Collider {
 
 public:
     /**
      * Constructor.
      */
-    explicit PolygonCollider(Polygon &polygon, Collider::Type colliderType = Collider::DYNAMIC);
+    SphereCollider(Math::Vector3D position, double radius);
 
     /**
      * Copy Constructor.
      */
-    PolygonCollider(const PolygonCollider &other) = delete;
+    SphereCollider(const SphereCollider &other) = default;
 
     /**
      * Assignment operator.
      */
-    PolygonCollider &operator=(const PolygonCollider &other) = delete;
+    SphereCollider &operator=(const SphereCollider &other) = default;
 
     /**
      * Destructor.
      */
-    ~PolygonCollider() = default;
+    ~SphereCollider() = default;
 
-    Collision isColliding(PolygonCollider &other);
+    [[nodiscard]] bool isColliding(const SphereCollider &other) const;
 
-    Polygon &getPolygon();
+    [[nodiscard]] double getRadius() const;
 
 private:
 
-    static Pair<double, double> projectPolygonOnAxis(Util::Array<Math::Vector2D> vertices, const Math::Vector2D &axis);
-
-    static Math::Vector2D getAxes(Util::Array<Math::Vector2D> vertices, uint32_t index);
-
-    static double getOverlap(Util::Pair<double, double> range, Util::Pair<double, double> rangeOther);
-
-    Polygon &polygon;
+    double radius;
 };
 
 }
