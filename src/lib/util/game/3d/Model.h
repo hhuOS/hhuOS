@@ -23,6 +23,7 @@
 #include "lib/util/graphic/Color.h"
 #include "lib/util/io/file/File.h"
 #include "Entity.h"
+#include "ObjectFile.h"
 
 namespace Util::Game::D3 {
 
@@ -32,12 +33,12 @@ public:
     /**
      * Constructor.
      */
-    Model(uint32_t tag, const Io::File &modelFile, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale);
+    Model(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale);
 
     /**
      * Constructor.
      */
-    Model(uint32_t tag, const Io::File &modelFile, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const Graphic::Color &color);
+    Model(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const Graphic::Color &color);
 
     /**
      * Copy Constructor.
@@ -56,35 +57,18 @@ public:
 
     void initialize() override;
 
-    Array<Math::Vector3D> &getVertices();
-
-    Array<Util::Math::Vector2D> &getEdges();
-
-    Array<Math::Vector3D> &getTransformedBuffer();
-
-    void setTransformedBuffer(const Array<Math::Vector3D> &newVertices);
-
-    void calculateTransformedVertices();
-
     void draw(Graphics &graphics) override;
 
     void onTransformChange() override;
 
 private:
 
-    enum ReadState {
-        READ_VERTICES,
-        READ_EDGES,
-        UNKNOWN
-    };
+    void calculateTransformedVertices();
 
-    void loadModelFromFile();
-
-    const Io::File modelFile;
+    const String &modelPath;
     const Graphic::Color color = Util::Graphic::Colors::GREEN;
 
-    Array<Math::Vector3D> vertices = Util::Array<Math::Vector3D>(0);
-    Array<Util::Math::Vector2D> edges = Util::Array<Math::Vector2D>(0);
+    ObjectFile *objectFile = nullptr;
     Array<Math::Vector3D> transformedBuffer = Util::Array<Math::Vector3D>(0);
 
 

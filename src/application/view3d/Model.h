@@ -26,7 +26,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Model(const Util::Io::File &modelFile);
+    explicit Model(const Util::String &modelPath);
 
     /**
      * Copy Constructor.

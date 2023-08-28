@@ -15,10 +15,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Asteroid.h"
+#ifndef HHUOS_OBJECTFILE_H
+#define HHUOS_OBJECTFILE_H
 
-Asteroid::Asteroid(const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, const Util::Math::Vector3D &scale, uint8_t modelId) : Util::Game::D3::Model(TAG, Util::String::format("/initrd/battlespace/asteroid%u.obj", modelId), position, rotation, scale) {}
+#include "lib/util/base/String.h"
+#include "lib/util/math/Vector3D.h"
 
-void Asteroid::onUpdate(double delta) {}
+namespace Util::Game::D3 {
 
-void Asteroid::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {}
+class ObjectFile {
+
+public:
+    /**
+     * Copy Constructor.
+     */
+    ObjectFile(const ObjectFile &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    ObjectFile &operator=(const ObjectFile &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~ObjectFile() = default;
+
+    static ObjectFile* open(const String &path);
+
+private:
+
+    ObjectFile(const Array<Math::Vector3D> &vertices, const Array<Math::Vector2D> &edges);
+
+public:
+    [[nodiscard]] const Array<Math::Vector3D>& getVertices() const;
+
+    [[nodiscard]] const Array<Math::Vector2D>& getEdges() const;
+
+private:
+
+    Array<Math::Vector3D> vertices;
+    Array<Math::Vector2D> edges;
+};
+
+}
+
+#endif
