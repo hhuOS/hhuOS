@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_GAMEOVERSCREEN_H
-#define HHUOS_GAMEOVERSCREEN_H
+#ifndef HHUOS_BUG_DEFENDER_GAMEOVERSCREEN_H
+#define HHUOS_BUG_DEFENDER_GAMEOVERSCREEN_H
 
 #include "lib/util/game/2d/Scene.h"
 #include "lib/util/game/KeyListener.h"

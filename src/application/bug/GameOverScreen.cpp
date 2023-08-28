@@ -19,16 +19,18 @@
 
 #include <cstdint>
 
+#include "BugDefender.h"
+#include "GameOverScreen.h"
 #include "lib/util/graphic/Fonts.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/GameManager.h"
-#include "BugDefender.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/graphic/Font.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/math/Vector2D.h"
+
 
 GameOverScreen::GameOverScreen(bool won) : won(won) {
     setKeyListener(*this);
@@ -57,10 +59,10 @@ void GameOverScreen::initializeBackground(Util::Game::Graphics &graphics) {
 
 void GameOverScreen::keyPressed(Util::Io::Key key) {
     switch (key.getScancode()) {
-        case (Util::Io::Key::ESC) :
+        case Util::Io::Key::ESC:
             Util::Game::GameManager::getGame().stop();
             break;
-        case (Util::Io::Key::SPACE) :
+        case Util::Io::Key::SPACE:
             auto &game = Util::Game::GameManager::getGame();
             game.pushScene(new BugDefender());
             game.switchToNextScene();

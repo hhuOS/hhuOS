@@ -15,36 +15,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_BATTLESPACEINTRO_H
-#define HHUOS_BATTLESPACEINTRO_H
+#ifndef HHUOS_BATTLESPACE_GAMEOVERSCREEN_H
+#define HHUOS_BATTLESPACE_GAMEOVERSCREEN_H
 
 #include "lib/util/game/2d/Scene.h"
 #include "lib/util/game/KeyListener.h"
+#include "lib/util/io/key/Key.h"
 
-class IntroScreen : public Util::Game::D2::Scene, public Util::Game::KeyListener {
+class GameOverScreen : public Util::Game::D2::Scene, public Util::Game::KeyListener {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    IntroScreen();
+    explicit GameOverScreen(uint32_t score);
 
     /**
      * Copy Constructor.
      */
-    IntroScreen(const IntroScreen &other) = delete;
+    GameOverScreen(const GameOverScreen &other) = delete;
 
     /**
      * Assignment operator.
      */
-    IntroScreen &operator=(const IntroScreen &other) = delete;
+    GameOverScreen &operator=(const GameOverScreen &other) = delete;
 
     /**
      * Destructor.
      */
-    ~IntroScreen() override = default;
-
-    void initializeBackground(Util::Game::Graphics &graphics) override;
+    ~GameOverScreen() override = default;
 
     void update(double delta) override;
 
@@ -52,19 +51,20 @@ public:
 
     void keyReleased(Util::Io::Key key) override;
 
+    void initializeBackground(Util::Game::Graphics &graphics) override;
+
 private:
 
-    static const constexpr char *INTRO_TEXT[10] = {
-            "___  ____ ___ ___ _    ____ ____ ___  ____ ____ ____ ",
-            "|__] |__|  |   |  |    |___ [__  |__] |__| |    |___ ",
-            "|__] |  |  |   |  |___ |___ ___] |    |  | |___ |___ ",
+    uint32_t score;
+
+    const char* TEXT[7] = {
+            "____ ____ _  _ ____    ____ _  _ ____ ____ ",
+            "| __ |__| |\\/| |___    |  | |  | |___ |__/ ",
+            "|__] |  | |  | |___    |__|  \\/  |___ |  \\ ",
             "",
+            "Score :%d",
             "",
-            "",
-            "Turn using ARROW KEYS or the MOUSE. Fire using SPACEBAR.",
-            "Strafe using WASD. Change speed using Q and E.",
-            "",
-            "Press SPACE to start or ESC to exit!"
+            "Press SPACE to play again or ESC to exit!"
     };
 };
 

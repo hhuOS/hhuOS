@@ -15,41 +15,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "IntroScreen.h"
+#include "GameOverScreen.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/GameManager.h"
+#include "BattleSpace.h"
 
-IntroScreen::IntroScreen() {
+GameOverScreen::GameOverScreen(uint32_t score) : score(score) {
     setKeyListener(*this);
 }
 
-void IntroScreen::initializeBackground(Util::Game::Graphics &graphics) {
+void GameOverScreen::update(double delta) {}
+
+void GameOverScreen::initializeBackground(Util::Game::Graphics &graphics) {
     auto &resolution = Util::Game::GameManager::getAbsoluteResolution();
-    auto lines = sizeof(INTRO_TEXT) / sizeof(char*);
+    auto lines = sizeof(TEXT) / sizeof(char*);
     auto centerX = resolution.getX() / 2;
     auto centerY = resolution.getY() / 2;
     auto y = static_cast<uint16_t>(centerY - ((lines * graphics.getCharHeight()) / 2.0));
 
     graphics.setColor(Util::Graphic::Colors::GREEN);
     for (uint32_t i = 0; i < lines; i++) {
-        auto x = static_cast<uint16_t>(centerX - (Util::Address<uint32_t>(INTRO_TEXT[i]).stringLength() * graphics.getCharWidth()) / 2.0);
-        graphics.drawString(Util::Math::Vector2D(x, y + i * graphics.getCharHeight()), INTRO_TEXT[i]);
+        auto x = static_cast<uint16_t>(centerX - (Util::Address<uint32_t>(TEXT[i]).stringLength() * graphics.getCharWidth()) / 2.0);
+        graphics.drawString(Util::Math::Vector2D(x, y + i * graphics.getCharHeight()), i == 4 ? Util::String::format("Score: %d", score) : TEXT[i]);
     }
 }
 
-void IntroScreen::update(double delta) {}
-
-void IntroScreen::keyPressed(Util::Io::Key key) {
+void GameOverScreen::keyPressed(Util::Io::Key key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC:
             Util::Game::GameManager::getGame().stop();
             break;
         case Util::Io::Key::SPACE:
-            Util::Game::GameManager::getGame().switchToNextScene();
-            break;
+            auto &game = Util::Game::GameManager::getGame();
+            game.pushScene(new BattleSpace());
+            game.switchToNextScene();
     }
 }
 
-void IntroScreen::keyReleased(Util::Io::Key key) {
-
-}
+void GameOverScreen::keyReleased(Util::Io::Key key) {}

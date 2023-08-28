@@ -26,8 +26,9 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/battlespace/Asteroid.cpp
         ${HHUOS_SRC_DIR}/application/battlespace/battlespace.cpp
         ${HHUOS_SRC_DIR}/application/battlespace/BattleSpace.cpp
-        ${HHUOS_SRC_DIR}/application/battlespace/Missile.cpp
+        ${HHUOS_SRC_DIR}/application/battlespace/GameOverScreen.cpp
         ${HHUOS_SRC_DIR}/application/battlespace/IntroScreen.cpp
+        ${HHUOS_SRC_DIR}/application/battlespace/Missile.cpp
         ${HHUOS_SRC_DIR}/application/battlespace/Player.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
