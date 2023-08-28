@@ -16,20 +16,27 @@
  */
 
 #include "Model.h"
+#include "lib/util/game/GameManager.h"
+#include "lib/util/game/3d/Scene.h"
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/stream/BufferedInputStream.h"
 #include "lib/util/math/Math.h"
+#include "lib/util/game/ResourceManager.h"
 
 namespace Util::Game::D3 {
 
-Model::Model(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale) : Entity(tag, position, rotation, scale), modelPath(modelPath) {}
+Model::Model(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale) : Entity(tag, position, rotation, scale, SphereCollider(position, Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath) {}
 
-Model::Model(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const Graphic::Color &color) : Entity(tag, position, rotation, scale), modelPath(modelPath), color(color) {}
+Model::Model(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const Graphic::Color &color) : Entity(tag, position, rotation, scale, SphereCollider(position, Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath), color(color) {}
 
 void Model::initialize() {
-    objectFile = ObjectFile::open(modelPath);
+    if (!ResourceManager::hasObjectFile(modelPath)) {
+        ResourceManager::addObjectFile(modelPath, ObjectFile::open(modelPath));
+    }
+
+    objectFile = ResourceManager::getObjectFile(modelPath);
     transformedBuffer = Util::Array<Math::Vector3D>(objectFile->getVertices().length());
     calculateTransformedVertices();
 }
@@ -48,8 +55,23 @@ void Model::calculateTransformedVertices() {
 }
 
 void Model::draw(Graphics &graphics) {
-    graphics.setColor(color);
-    graphics.drawModel(transformedBuffer, objectFile->getEdges());
+    auto &camera = Util::Game::GameManager::getCurrentScene().getCamera();
+    auto minXProjection = graphics.projectPoint(getPosition() + Util::Math::Vector3D(-getCollider().getRadius(), 0, 0), camera.getPosition(), camera.getRotation());
+    auto maxXProjection = graphics.projectPoint(getPosition() + Util::Math::Vector3D(getCollider().getRadius(), 0, 0), camera.getPosition(), camera.getRotation());
+    auto minYProjection = graphics.projectPoint(getPosition() + Util::Math::Vector3D(0, -getCollider().getRadius(), 0), camera.getPosition(), camera.getRotation());
+    auto maxYProjection = graphics.projectPoint(getPosition() + Util::Math::Vector3D(0, getCollider().getRadius(), 0), camera.getPosition(), camera.getRotation());
+    auto minZProjection = graphics.projectPoint(getPosition() + Util::Math::Vector3D(0, 0, -getCollider().getRadius()), camera.getPosition(), camera.getRotation());
+    auto maxZProjection = graphics.projectPoint(getPosition() + Util::Math::Vector3D(0, 0, getCollider().getRadius()), camera.getPosition(), camera.getRotation());
+
+    if (((minXProjection.getX() >= -1 && minXProjection.getX() <= 1) && (minXProjection.getY() >= -1 && minXProjection.getY() <= 1)) ||
+            ((maxXProjection.getX() >= -1 && maxXProjection.getX() <= 1) && (maxXProjection.getY() >= -1 && maxXProjection.getY() <= 1)) ||
+            ((minYProjection.getX() >= -1 && minYProjection.getX() <= 1) && (minYProjection.getY() >= -1 && minYProjection.getY() <= 1)) ||
+            ((maxYProjection.getX() >= -1 && maxYProjection.getX() <= 1) && (maxYProjection.getY() >= -1 && maxYProjection.getY() <= 1)) ||
+            ((minZProjection.getX() >= -1 && minZProjection.getX() <= 1) && (minZProjection.getY() >= -1 && minZProjection.getY() <= 1)) ||
+            ((maxZProjection.getX() >= -1 && maxZProjection.getX() <= 1) && (maxZProjection.getY() >= -1 && maxZProjection.getY() <= 1))) {
+        graphics.setColor(color);
+        graphics.drawModel(transformedBuffer, objectFile->getEdges());
+    }
 }
 
 void Model::onTransformChange() {

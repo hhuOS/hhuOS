@@ -224,12 +224,12 @@ void Engine::MouseListenerRunnable::run() {
     }
 }
 
-void Engine::MouseListenerRunnable::checkKey(Io::Mouse::Button key, uint8_t lastButtonState, uint8_t currentButtonState) {
+void Engine::MouseListenerRunnable::checkKey(Io::Mouse::Button button, uint8_t lastButtonState, uint8_t currentButtonState) {
     auto &scene = engine.game.getCurrentScene();
-    if (!(lastButtonState & key) && (currentButtonState & key)) {
-        scene.mouseListener->buttonPressed(key);
-    } else if ((lastButtonState & key) && !(currentButtonState & key)) {
-        scene.mouseListener->buttonReleased(key);
+    if (!(lastButtonState & button) && (currentButtonState & button)) {
+        scene.mouseListener->buttonPressed(button);
+    } else if ((lastButtonState & button) && !(currentButtonState & button)) {
+        scene.mouseListener->buttonReleased(button);
     }
 }
 

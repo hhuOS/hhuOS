@@ -44,7 +44,7 @@ void Scene::checkCollisions() {
 
         if (entity3D->hasCollider()) {
             for (auto *otherEntity : entities) {
-                auto *otherEntity3D = reinterpret_cast<D3::Entity*>(entity);
+                auto *otherEntity3D = reinterpret_cast<D3::Entity*>(otherEntity);
                 if (entity == otherEntity || !otherEntity3D->hasCollider() || detectedCollisions.contains(Util::Pair(entity3D, otherEntity3D))) {
                     continue;
                 }

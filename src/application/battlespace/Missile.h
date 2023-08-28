@@ -49,10 +49,13 @@ public:
 
     static const constexpr uint32_t TAG = 2;
 
+    static const constexpr double START_SPEED = 0.04;
+    static const constexpr double FULL_SPEED = 0.2;
+    static const constexpr double START_SPEED_TIME = 0.5;
+
 private:
 
     double lifetime = 0;
-
 };
 
 #endif

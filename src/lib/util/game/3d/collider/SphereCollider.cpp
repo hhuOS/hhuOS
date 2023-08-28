@@ -19,7 +19,7 @@
 
 namespace Util::Game::D3 {
 
-SphereCollider::SphereCollider(Math::Vector3D position, double radius) : Collider(position, STATIC), radius(radius) {}
+SphereCollider::SphereCollider(const Math::Vector3D &position, double radius) : Collider(position, STATIC), radius(radius) {}
 
 bool SphereCollider::isColliding(const SphereCollider &other) const {
     return getPosition().distance(other.getPosition()) - (radius + other.radius) <= 0;

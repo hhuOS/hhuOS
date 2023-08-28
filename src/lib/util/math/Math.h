@@ -75,6 +75,14 @@ namespace Util::Math {
 
     double max(double first, double second);
 
+    float min(float first, float second, float third);
+
+    float max(float first, float second, float third);
+
+    double min(double first, double second, double third);
+
+    double max(double first, double second, double third);
+
     static const constexpr double PI = 3.14159265358979323846;
 }
 

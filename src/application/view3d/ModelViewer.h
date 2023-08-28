@@ -52,9 +52,9 @@ public:
 
     void keyReleased(Util::Io::Key key) override;
 
-    void buttonPressed(Util::Io::Mouse::Button key) override;
+    void buttonPressed(Util::Io::Mouse::Button button) override;
 
-    void buttonReleased(Util::Io::Mouse::Button key) override;
+    void buttonReleased(Util::Io::Mouse::Button button) override;
 
     void mouseMoved(const Util::Math::Vector2D &relativeMovement) override;
 

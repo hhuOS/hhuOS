@@ -63,8 +63,8 @@ void MouseCursor::draw(Util::Game::Graphics &graphics) {
     graphics.drawString2D(getPosition() + Util::Math::Vector2D(currentSprite->getWidth() / 2 - charWidth, currentSprite->getHeight() / 3), additionalButtons);
 }
 
-void MouseCursor::buttonPressed(Util::Io::Mouse::Button key) {
-    switch (key) {
+void MouseCursor::buttonPressed(Util::Io::Mouse::Button button) {
+    switch (button) {
         case Util::Io::Mouse::LEFT_BUTTON:
             currentSprite = &leftClickSprite;
             break;
@@ -85,8 +85,8 @@ void MouseCursor::buttonPressed(Util::Io::Mouse::Button key) {
     }
 }
 
-void MouseCursor::buttonReleased(Util::Io::Mouse::Button key) {
-    switch (key) {
+void MouseCursor::buttonReleased(Util::Io::Mouse::Button button) {
+    switch (button) {
         case Util::Io::Mouse::BUTTON_4:
             button4Pressed = false;
             break;

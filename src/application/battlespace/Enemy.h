@@ -15,74 +15,69 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PLAYER_H
-#define HHUOS_PLAYER_H
+#ifndef HHUOS_ENEMY_H
+#define HHUOS_ENEMY_H
 
-#include "lib/util/game/3d/Entity.h"
+#include "lib/util/game/3d/Model.h"
 #include "lib/util/collection/ArrayList.h"
-#include "Enemy.h"
+#include "lib/util/math/Random.h"
 
-class Player : public Util::Game::D3::Entity {
+class Player;
+
+class Enemy : public Util::Game::D3::Model {
 
 public:
+
+    enum Type {
+        STATIONARY = 1,
+        ORBIT_PLAYER_CLOCKWISE = 2,
+        ORBIT_PLAYER_COUNTER_CLOCKWISE = 3,
+        FLY_TOWARDS_PLAYER = 4,
+        KEEP_DISTANCE = 5
+    };
+
     /**
      * Constructor.
      */
-    explicit Player(const Util::ArrayList<Enemy*> &enemies);
+    Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, const Util::Math::Vector3D &scale, Type type);
 
     /**
      * Copy Constructor.
      */
-    Player(const Player &other) = delete;
+    Enemy(const Enemy &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Player &operator=(const Player &other) = delete;
+    Enemy &operator=(const Enemy &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Player() override = default;
-
-    void initialize() override;
+    ~Enemy() override = default;
 
     void onUpdate(double delta) override;
 
-    void draw(Util::Game::Graphics &graphics) override;
-
-    void onTransformChange() override;
-
     void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
-
-    bool mayFireMissile();
 
     [[nodiscard]] int16_t getHealth() const;
 
     void takeDamage(uint8_t damage);
 
-    void addScore(uint32_t points);
-
-    [[nodiscard]] uint32_t getScore() const;
-
-    Util::Math::Vector3D getCurrentMovementDirection();
-
-    void setMovementDirection(Util::Math::Vector3D direction);
-
-    void setSpeedDisplay(double speed);
-
-    static const constexpr uint32_t TAG = 0;
+    static const constexpr uint32_t TAG = 3;
 
 private:
 
-    const Util::ArrayList<Enemy*> &enemies;
+    Player &player;
+    Util::ArrayList<Enemy*> &enemies;
+    Util::Math::Random random;
 
-    int16_t health = 100;
-    uint32_t score = 0;
-    double speedDisplay = 0.0;
+    Type type;
+    int16_t health = 50;
     double invulnerabilityTimer = 0;
     double missileTimer = 0;
-    Util::Math::Vector3D currentMovementDirection;
+
+    static const Util::Math::Vector3D MAX_ROTATION_DELTA;
 };
 
 #endif

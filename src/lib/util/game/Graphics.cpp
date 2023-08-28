@@ -64,9 +64,9 @@ void Graphics::drawRectangle(const Math::Vector2D &position, double width, doubl
     const auto y = position.getY();
 
     drawLine(position, Math::Vector2D(x + width, y));
-    drawLine(Math::Vector2D(x, y - height), Math::Vector2D(x + width, y - height));
-    drawLine(position, Math::Vector2D(x, y - height));
-    drawLine(Math::Vector2D(x + width, y), Math::Vector2D(x + width, y - height));
+    drawLine(Math::Vector2D(x, y + height), Math::Vector2D(x + width, y + height));
+    drawLine(position, Math::Vector2D(x, y + height));
+    drawLine(Math::Vector2D(x + width, y), Math::Vector2D(x + width, y + height));
 
 }
 
@@ -195,21 +195,21 @@ void Graphics::drawImage2D(const Math::Vector2D &position, const Graphic::Image 
 }
 
 // Based on https://en.wikipedia.org/wiki/3D_projection#Perspective_projection
-Math::Vector2D Graphics::projectPoint(const Math::Vector3D &v, const Math::Vector3D &camT, const Math::Vector3D &camRr) const {
+Math::Vector2D Graphics::projectPoint(const Math::Vector3D &vertex, const Math::Vector3D &cameraPosition, const Math::Vector3D &cameraRotation) const {
     // Objects are visible between -1 and 1 on both axes, returning {-2, -2} for example means a point isn't rendered
     auto fov = 1.3;
 
     Math::Vector3D unitV = {0, 0, 1};
-    auto r = camRr;
+    auto r = cameraRotation;
     auto lineDir = unitV.rotate(r);
-    auto distToClosestPointOnLine = (v - camT) * lineDir;
+    auto distToClosestPointOnLine = (vertex - cameraPosition) * lineDir;
 
     if (distToClosestPointOnLine <= 0) {
         return {-2, -2};
     }
 
     // Convert deg to rad
-    auto camR = camRr * (3.1415 / 180);
+    auto camR = cameraRotation * (3.1415 / 180);
 
     double x = camR.getX();
     double y = camR.getY();
@@ -228,7 +228,7 @@ Math::Vector2D Graphics::projectPoint(const Math::Vector3D &v, const Math::Vecto
             cosX * sinY * cosZ + sinX * sinZ, cosX * sinY * sinZ - sinX * cosZ, cosX * cosY
     };
 
-    Math::Vector3D d = rot * (v - camT);
+    Math::Vector3D d = rot * (vertex - cameraPosition);
     Math::Vector3D e = {0, 0, fov};
     double a = 1;
     if (d.getZ() != 0) {

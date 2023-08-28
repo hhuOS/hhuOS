@@ -21,7 +21,7 @@ namespace Util::Game::D3 {
 
 Entity::Entity(uint32_t tag, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale) : Util::Game::Entity(tag), position(position), rotation(rotation), scale(scale), collider(Math::Vector3D(0, 0, 0), 0) {}
 
-Entity::Entity(uint32_t tag, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const SphereCollider &collider) : Util::Game::Entity(tag), position(position), rotation(rotation), scale(scale), collider(collider) {}
+Entity::Entity(uint32_t tag, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const SphereCollider &collider) : Util::Game::Entity(tag), position(position), rotation(rotation), scale(scale), colliderPresent(true), collider(collider) {}
 
 const Math::Vector3D &Entity::getPosition() const {
     return position;
@@ -34,6 +34,9 @@ void Entity::setPosition(const Math::Vector3D &position) {
 
 void Entity::translate(const Math::Vector3D &translation) {
     setPosition(position + translation);
+    if (colliderPresent) {
+        collider.setPosition(position);
+    }
 }
 
 void Entity::translateLocal(const Math::Vector3D &translation) {

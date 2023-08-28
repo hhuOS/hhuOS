@@ -22,6 +22,7 @@
 #define HHUOS_RESOURCEMANAGER_H
 
 #include "lib/util/base/String.h"
+#include "lib/util/game/3d/ObjectFile.h"
 
 namespace Util {
 namespace Graphic {
@@ -64,11 +65,20 @@ public:
 
     static void deleteImage(const String &key);
 
+    static void addObjectFile(const String &key, D3::ObjectFile *objectFile);
+
+    static bool hasObjectFile(const String &key);
+
+    static D3::ObjectFile * getObjectFile(const String &key);
+
+    static void deleteObjectFile(const String &key);
+
     static void clear();
 
 private:
 
     static HashMap<String, Graphic::Image*> images;
+    static HashMap<String, D3::ObjectFile*> objectFiles;
 };
 
 }

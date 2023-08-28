@@ -29,6 +29,7 @@
 namespace Util::Game {
 
 HashMap<String, Graphic::Image*> ResourceManager::images;
+HashMap<String, D3::ObjectFile*> ResourceManager::objectFiles;
 
 void ResourceManager::addImage(const String &key, Graphic::Image *image) {
     images.put(key, image);
@@ -52,8 +53,29 @@ void ResourceManager::clear() {
     for (auto *image : images.values()) {
         delete image;
     }
-
     images.clear();
+
+
+    for (auto *objectFile : objectFiles.values()) {
+        delete objectFile;
+    }
+    objectFiles.clear();
+}
+
+void ResourceManager::addObjectFile(const String &key, D3::ObjectFile *objectFile) {
+    objectFiles.put(key, objectFile);
+}
+
+bool ResourceManager::hasObjectFile(const String &key) {
+    return objectFiles.containsKey(key);
+}
+
+D3::ObjectFile * ResourceManager::getObjectFile(const String &key) {
+    return objectFiles.get(key);
+}
+
+void ResourceManager::deleteObjectFile(const String &key) {
+    objectFiles.remove(key);
 }
 
 }

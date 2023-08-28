@@ -246,7 +246,7 @@ private:
 
     private:
 
-        void checkKey(Io::Mouse::Button key, uint8_t lastButtonState, uint8_t currentButtonState);
+        void checkKey(Io::Mouse::Button button, uint8_t lastButtonState, uint8_t currentButtonState);
 
         Engine &engine;
     };

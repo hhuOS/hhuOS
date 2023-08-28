@@ -16,10 +16,15 @@
  */
 
 #include "Player.h"
+#include "lib/util/game/3d/event/CollisionEvent.h"
 #include "lib/util/game/GameManager.h"
+#include "lib/util/game/Scene.h"
 #include "lib/util/math/Math.h"
+#include "lib/util/game/3d/Util.h"
+#include "Missile.h"
+#include "Astronomical.h"
 
-Player::Player() : Util::Game::D3::Entity(TAG, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0, 0, 0), Util::Game::D3::SphereCollider(Util::Math::Vector3D(0, 0, 0), 0.8)) {}
+Player::Player(const Util::ArrayList<Enemy *> &enemies) : Util::Game::D3::Entity(TAG, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0, 0, 0), Util::Game::D3::SphereCollider(Util::Math::Vector3D(0, 0, 0), 0.8)), enemies(enemies) {}
 
 void Player::initialize() {}
 
@@ -36,67 +41,28 @@ void Player::draw(Util::Game::Graphics &graphics) {
     graphics.setColor(Util::Graphic::Colors::GREEN);
 
     // Draw reticle
-    /*auto raytraceDirection = Util::Math::Vector3D(0, 0, 1).rotate(getRotation());
-    auto raytraceOffset = raytraceDirection + getPosition();*/
+    auto raytraceDirection = Util::Math::Vector3D(0, 0, 1).rotate(getRotation());
+    auto raytraceOffset = raytraceDirection + getPosition();
+    auto *aimTarget = Util::Game::D3::Util::findEntityUsingRaytrace(reinterpret_cast<const Util::ArrayList<Util::Game::D3::Entity*>&>(enemies), raytraceOffset, raytraceDirection, 20, 0.5);
+
+    if (aimTarget != nullptr) {
+        graphics.setColor(Util::Graphic::Colors::RED);
+    }
 
     graphics.drawLine({centerX - 20, centerY}, {centerX - 50, centerY});
     graphics.drawLine({centerX + 20, centerY}, {centerX + 50, centerY});
     graphics.drawLine({centerX, centerY + 20}, {centerX, centerY + 50});
     graphics.drawLine({centerX, centerY - 20}, {centerX, centerY - 50});
 
+    graphics.setColor(invulnerabilityTimer > 0 ? Util::Graphic::Colors::RED : Util::Graphic::Colors::GREEN);
+
     // Draw player stats
-    Util::String healthString = "Health: ";
-    for (int i = 0; i < health / 10; i++) {
-        healthString += "=";
-    }
+    graphics.drawString(Util::Math::Vector2D(10, 20), "Health  : ");
+    graphics.drawString(Util::Math::Vector2D(10, 40), Util::String::format("Score   : %d", score));
+    graphics.drawString(Util::Math::Vector2D(10, 60), Util::String::format("Enemies : %d", enemies.size()));
 
-    const auto scoreString = Util::String::format("Score   : %d", score);
-    // auto miscString = Util::String::format("Enemies : %d", allEnemies.size());
-
-    graphics.drawString(Util::Math::Vector2D(10, 20), healthString);
-    graphics.drawString(Util::Math::Vector2D(10, 40), scoreString);
-    // graphics.drawString({10, 60}, miscString);
-
-    // Draw radar
-    Util::Math::Vector2D radarLocation = {55, resolution.getY() - 55};
-    const auto radarX = radarLocation.getX();
-    const auto radarY = radarLocation.getY();
-    const auto radarSize = 50;
-
-    graphics.drawLine({radarX - radarSize, radarY - radarSize}, {radarX + radarSize, radarY - radarSize});
-    graphics.drawLine({radarX + radarSize, radarY - radarSize}, {radarX + radarSize, radarY + radarSize});
-    graphics.drawLine({radarX + radarSize, radarY + radarSize}, {radarX - radarSize, radarY + radarSize});
-    graphics.drawLine({radarX - radarSize, radarY + radarSize}, {radarX - radarSize, radarY - radarSize});
-
-    graphics.fillSquare(radarLocation, 2);
-
-    /*graphics.setColor(Util::Graphic::Colors::RED);
-
-    for (uint16_t i = 0; i < allEnemies.size(); i++) {
-        auto enemyLoc = allEnemies.get(i)->getPosition();
-        auto relX = enemyLoc.getX() - getPosition().getX();
-        auto relY = enemyLoc.getY() - getPosition().getY();
-        auto relZ = enemyLoc.getZ() - getPosition().getZ();
-        Util::Math::Vector3D relOnPlane = {relX, 0, relZ};
-        auto rotRelOnPlane = relOnPlane.rotate({0, -getRotation().getY(), 0});
-        auto drawX = (rotRelOnPlane.getX())/20.0 * radarSize;
-        auto drawY = (-rotRelOnPlane.getZ())/20.0 * radarSize;
-
-        if (Util::Math::absolute(drawX) <= radarSize - 5 && Util::Math::absolute(drawY) <= radarSize - 5) {
-            Util::String drawString = "X";
-
-            auto cutoffWhenOnSameHeight = 3;
-            if (relY > cutoffWhenOnSameHeight) drawString = "^";
-            else if (relY < -cutoffWhenOnSameHeight) drawString = "v";
-
-            graphics.drawString({radarX + drawX - 3, radarY + drawY - 3}, drawString);
-        }
-    }
-
-    graphics.setColor(Util::Graphic::Colors::GREEN);*/
-
-    const auto headerSting = Util::String::format("Y: %d  P: %d", (int32_t) getRotation().getY(), (int32_t) getRotation().getX());
-    graphics.drawString(Util::Math::Vector2D(radarX - radarSize, radarY - radarSize - 15), headerSting);
+    graphics.drawRectangle(Util::Math::Vector2D(70, 22), 100, graphics.getCharHeight() - 4);
+    graphics.fillRectangle(Util::Math::Vector2D(70, 22), health, graphics.getCharHeight() - 4);
 
     // Draw speedometer
     const auto speedMeterX = resolution.getX() - 15;
@@ -110,11 +76,60 @@ void Player::draw(Util::Game::Graphics &graphics) {
     graphics.drawLine(Util::Math::Vector2D(speedMeterX - 10, centerY), Util::Math::Vector2D(speedMeterX + 10, centerY));
     graphics.drawLine(Util::Math::Vector2D(speedMeterX - 8, centerY + speedMeterScalar), Util::Math::Vector2D(speedMeterX + 8, centerY + speedMeterScalar));
     graphics.drawLine(Util::Math::Vector2D(speedMeterX - 10, centerY + speedMeterScalar * 2), Util::Math::Vector2D(speedMeterX + 10, centerY + speedMeterScalar * 2));
+
+    // Draw radar
+    auto radarLocation = Util::Math::Vector2D(55, resolution.getY() - 55);
+    auto radarX = radarLocation.getX();
+    auto radarY = radarLocation.getY();
+    auto radarSize = 50;
+
+    auto headerSting = Util::String::format("Y: %d  P: %d", static_cast<int32_t>(getRotation().getY()), static_cast<int32_t>(getRotation().getX()));
+    graphics.drawString(Util::Math::Vector2D(radarX - radarSize, radarY - radarSize - 15), headerSting);
+
+    graphics.drawLine({radarX - radarSize, radarY - radarSize}, {radarX + radarSize, radarY - radarSize});
+    graphics.drawLine({radarX + radarSize, radarY - radarSize}, {radarX + radarSize, radarY + radarSize});
+    graphics.drawLine({radarX + radarSize, radarY + radarSize}, {radarX - radarSize, radarY + radarSize});
+    graphics.drawLine({radarX - radarSize, radarY + radarSize}, {radarX - radarSize, radarY - radarSize});
+
+    graphics.fillSquare(radarLocation, 2);
+    graphics.setColor(Util::Graphic::Colors::RED);
+
+    for (uint16_t i = 0; i < enemies.size(); i++) {
+        auto enemyLocation = enemies.get(i)->getPosition();
+        auto relativeX = enemyLocation.getX() - getPosition().getX();
+        auto relativeY = enemyLocation.getY() - getPosition().getY();
+        auto relativeZ = enemyLocation.getZ() - getPosition().getZ();
+        auto relativeOnPlane = Util::Math::Vector3D(relativeX, 0, relativeZ).rotate(Util::Math::Vector3D(0, -getRotation().getY(), 0));
+        auto drawX = relativeOnPlane.getX() / 20.0 * radarSize;
+        auto drawY = -relativeOnPlane.getZ() / 20.0 * radarSize;
+
+        if (Util::Math::absolute(drawX) <= radarSize - 5 && Util::Math::absolute(drawY) <= radarSize - 5) {
+            Util::String drawString = "X";
+
+            auto cutoffWhenOnSameHeight = 3;
+            if (relativeY > cutoffWhenOnSameHeight) drawString = "^";
+            else if (relativeY < -cutoffWhenOnSameHeight) drawString = "v";
+
+            graphics.drawString({radarX + drawX - 3, radarY + drawY - 3}, drawString);
+        }
+    }
 }
 
 void Player::onTransformChange() {}
 
-void Player::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {}
+void Player::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {
+    switch (event.getCollidedWidth().getTag()) {
+        case Missile::TAG:
+            takeDamage(10);
+            break;
+        case Enemy::TAG:
+            takeDamage(30);
+            break;
+        case Astronomical::TAG:
+            takeDamage(100);
+        default:
+            break;
+    }}
 
 bool Player::mayFireMissile() {
     if (missileTimer <= 0) {
@@ -129,16 +144,11 @@ int16_t Player::getHealth() const {
     return health;
 }
 
-void Player::setHealth(int16_t health) {
-    Player::health = health;
-}
-
 void Player::takeDamage(uint8_t damage) {
-    if (invulnerabilityTimer<= 0) {
-        invulnerabilityTimer = 30;
-        setHealth(health - damage);
+    if (invulnerabilityTimer <= 0) {
+        invulnerabilityTimer = 0.5;
+        health -= damage;
     }
-
 }
 
 void Player::addScore(uint32_t points) {

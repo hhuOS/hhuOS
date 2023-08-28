@@ -55,6 +55,22 @@ double max(double first, double second) {
     return first > second ? first : second;
 }
 
+float min(float first, float second, float third) {
+    return min(min(first, second), third);
+}
+
+float max(float first, float second, float third) {
+    return max(min(first, second), third);
+}
+
+double min(double first, double second, double third) {
+    return min(min(first, second), third);
+}
+
+double max(double first, double second, double third) {
+    return max(min(first, second), third);
+}
+
 float sine(float value) {
     float ret = 0;
     asm volatile (
@@ -196,7 +212,7 @@ float arcsine(float value) {
         return 0;
     }
 
-    return arctangent(value, sqrt(1 - value*value));
+    return arctangent(value, sqrt(1 - value * value));
 }
 
 double arcsine(double value) {
@@ -204,7 +220,7 @@ double arcsine(double value) {
         return 0;
     }
 
-    return arctangent(value, sqrt(1 - value*value));
+    return arctangent(value, sqrt(1 - value * value));
 }
 
 float arccosine(float value) {

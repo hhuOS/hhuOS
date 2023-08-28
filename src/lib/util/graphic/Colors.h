@@ -29,6 +29,7 @@ static Color BLACK = Color(0, 0, 0);
 static Color RED = Color(170, 0, 0);
 static Color GREEN = Color(0, 170, 0);
 static Color YELLOW = Color(170, 170, 0);
+static Color BROWN = Color(170, 85, 0);
 static Color BLUE = Color(0, 0, 170);
 static Color MAGENTA = Color(170, 0, 170);
 static Color CYAN = Color(0, 170, 170);

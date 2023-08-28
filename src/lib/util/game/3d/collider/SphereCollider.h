@@ -28,7 +28,7 @@ public:
     /**
      * Constructor.
      */
-    SphereCollider(Math::Vector3D position, double radius);
+    SphereCollider(const Math::Vector3D &position, double radius);
 
     /**
      * Copy Constructor.

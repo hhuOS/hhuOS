@@ -33,10 +33,10 @@ enum Button : uint8_t {
 };
 
 enum ScrollDirection : uint8_t {
-    UP = 0x01,
-    DOWN = 0x0f,
-    RIGHT = 0x02,
-    LEFT = 0x0e
+    DOWN = 0x01,
+    UP = 0x0f,
+    LEFT = 0x02,
+    RIGHT = 0x0e
 };
 
 struct Update {

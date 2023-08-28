@@ -121,6 +121,6 @@ void ModelViewer::mouseScrolled(Util::Io::Mouse::ScrollDirection direction) {
     }
 }
 
-void ModelViewer::buttonPressed(Util::Io::Mouse::Button key) {}
+void ModelViewer::buttonPressed(Util::Io::Mouse::Button button) {}
 
-void ModelViewer::buttonReleased(Util::Io::Mouse::Button key) {}
+void ModelViewer::buttonReleased(Util::Io::Mouse::Button button) {}

@@ -18,8 +18,8 @@
 #ifndef HHUOS_UTIL_H
 #define HHUOS_UTIL_H
 
-#include "lib/util/math/Vector3D.h"
 #include "Entity.h"
+#include "lib/util/math/Vector3D.h"
 #include "lib/util/collection/ArrayList.h"
 
 namespace Util::Game::D3 {
@@ -48,6 +48,8 @@ public:
      * Deleted, as this class has only static members.
      */
     ~Util() = delete;
+
+    static Entity* findEntityUsingRaytrace(const ArrayList<Entity*> &entities, Math::Vector3D from, Math::Vector3D direction, double length, double precision = 0.1);
 
     static Math::Vector3D findLookAt(const Math::Vector3D &from, const Math::Vector3D &to);
 

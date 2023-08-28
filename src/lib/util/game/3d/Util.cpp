@@ -20,6 +20,28 @@
 
 namespace Util::Game::D3 {
 
+Entity* Util::findEntityUsingRaytrace(const ArrayList<Entity*> &entities, Math::Vector3D from, Math::Vector3D direction, double length, double precision) {
+    auto collider = SphereCollider(Math::Vector3D(0, 0, 0), precision);
+    auto normalizedDirection = direction.normalize();
+
+    for (double x = 0; x < length; x += precision) {
+        auto position = from + (normalizedDirection * x);
+        collider.setPosition(position);
+
+        for (auto *entity : entities) {
+            if (entity->hasCollider()) {
+                auto entityCollider = entity->getCollider();
+                if (collider.isColliding(entityCollider)) {
+                    return entity;
+                }
+            }
+        }
+    }
+
+    return nullptr;
+
+}
+
 Math::Vector3D Util::findLookAt(const Math::Vector3D &from, const Math::Vector3D &to) {
     Math::Vector3D v = to - from;
     Math::Vector3D norm = v.normalize();

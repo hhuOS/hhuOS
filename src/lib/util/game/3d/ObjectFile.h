@@ -43,14 +43,11 @@ public:
 
     static ObjectFile* open(const String &path);
 
-private:
-
-    ObjectFile(const Array<Math::Vector3D> &vertices, const Array<Math::Vector2D> &edges);
-
-public:
     [[nodiscard]] const Array<Math::Vector3D>& getVertices() const;
 
     [[nodiscard]] const Array<Math::Vector2D>& getEdges() const;
+
+    ObjectFile(const Array<Math::Vector3D> &vertices, const Array<Math::Vector2D> &edges);
 
 private:
 

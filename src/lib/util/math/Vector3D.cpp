@@ -89,7 +89,6 @@ double Vector3D::distance(const Vector3D &other) const {
     double pZ = pow((other.getZ() - getZ()), 2);
 
     return sqrt(pX + pY + pZ);
-
 }
 
 // Based on https://en.wikipedia.org/wiki/Rotation_matrix#In_three_dimensions

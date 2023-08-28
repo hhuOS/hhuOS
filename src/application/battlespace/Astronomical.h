@@ -13,52 +13,46 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_MOUSELISTENER_H
-#define HHUOS_MOUSELISTENER_H
+#ifndef HHUOS_ASTRONOMICAL_H
+#define HHUOS_ASTRONOMICAL_H
 
-#include <cstdint>
-#include "lib/util/math/Vector2D.h"
-#include "lib/util/io/key/MouseDecoder.h"
+#include "lib/util/game/3d/Model.h"
+#include "lib/util/math/Random.h"
 
-namespace Util::Game {
-
-class MouseListener {
+class Astronomical : public Util::Game::D3::Model {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    MouseListener() = default;
+    Astronomical(const Util::String &modelName, const Util::Math::Vector3D &position, double scale, const Util::Math::Vector3D &rotationVector, const Util::Graphic::Color &color);
 
     /**
      * Copy Constructor.
      */
-    MouseListener(const MouseListener &other) = delete;
+    Astronomical(const Astronomical &other) = delete;
 
     /**
      * Assignment operator.
      */
-    MouseListener &operator=(const MouseListener &other) = delete;
+    Astronomical &operator=(const Astronomical &other) = delete;
 
     /**
      * Destructor.
      */
-    ~MouseListener() = default;
+    ~Astronomical() override = default;
 
-    virtual void buttonPressed(Io::Mouse::Button button) = 0;
+    void onUpdate(double delta) override;
 
-    virtual void buttonReleased(Io::Mouse::Button button) = 0;
+    void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
 
-    virtual void mouseMoved(const Math::Vector2D &relativeMovement) = 0;
+    static const constexpr uint32_t TAG = 1;
 
-    virtual void mouseScrolled(Io::Mouse::ScrollDirection direction) = 0;
+private:
+
+    Util::Math::Vector3D rotationVector;
 };
-
-}
 
 #endif

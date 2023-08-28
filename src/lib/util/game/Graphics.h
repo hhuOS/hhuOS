@@ -125,7 +125,7 @@ public:
 
     /***** 2D drawing functions *****/
 
-    [[nodiscard]] Math::Vector2D projectPoint(const Math::Vector3D &v, const Math::Vector3D &camT, const Math::Vector3D &camRr) const;
+    [[nodiscard]] Math::Vector2D projectPoint(const Math::Vector3D &vertex, const Math::Vector3D &cameraPosition, const Math::Vector3D &cameraRotation) const;
 
     void drawLine3D(const Math::Vector3D &from, const Math::Vector3D &to);
 

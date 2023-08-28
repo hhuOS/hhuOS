@@ -20,10 +20,12 @@
 
 #include "lib/util/game/3d/Scene.h"
 #include "lib/util/game/KeyListener.h"
+#include "lib/util/game/MouseListener.h"
 #include "lib/util/math/Random.h"
 #include "Player.h"
+#include "Enemy.h"
 
-class BattleSpace : public Util::Game::D3::Scene, public Util::Game::KeyListener {
+class BattleSpace : public Util::Game::D3::Scene, public Util::Game::KeyListener, public Util::Game::MouseListener {
 
 public:
     /**
@@ -46,32 +48,33 @@ public:
      */
     ~BattleSpace() override = default;
 
-    double getRandomNumber();
-
-private:
-
     void update(double delta) override;
 
     void keyPressed(Util::Io::Key key) override;
 
     void keyReleased(Util::Io::Key key) override;
 
-    void updateEntities(double delta) override;
+    void buttonPressed(Util::Io::Mouse::Button button) override;
 
-    void fireMissile(const Util::Math::Vector3D &position, const Util::Math::Vector3D &direction, bool enemy);
+    void buttonReleased(Util::Io::Mouse::Button button) override;
+
+    void mouseMoved(const Util::Math::Vector2D &relativeMovement) override;
+
+    void mouseScrolled(Util::Io::Mouse::ScrollDirection direction) override;
 
 private:
 
     Util::Math::Random random;
 
-    Player *player = new Player();
+    Player *player = new Player(enemies);
+    Util::ArrayList<Enemy*> enemies;
+
     Util::Math::Vector3D inputRotation = {0, 0, 0};
     Util::Math::Vector3D inputTranslate = {0, 0, 0};
     double inputSpeed = 1.0;
-    bool playerFireMissile = false;
+    uint16_t difficulty = 0;
 
-    bool enemyAlive = false;
-    uint16_t difficulty = 1;
+    static const constexpr double ENEMY_SPAWN_RANGE = 10.0;
 };
 
 #endif

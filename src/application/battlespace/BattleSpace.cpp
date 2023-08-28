@@ -18,39 +18,56 @@
 #include "BattleSpace.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/GameManager.h"
-#include "Asteroid.h"
+#include "Astronomical.h"
 #include "Missile.h"
+#include "GameOverScreen.h"
+#include "Enemy.h"
+#include "Astronomical.h"
 
 BattleSpace::BattleSpace() {
+    addObject(new Astronomical("planet1", Util::Math::Vector3D(13, 16, 1000), 50, Util::Math::Vector3D(0, 0, 0), Util::Graphic::Colors::BLUE));
+    addObject(new Astronomical("planet2", Util::Math::Vector3D(37, -8, -2000), 75, Util::Math::Vector3D(0, 0, 0), Util::Graphic::Colors::YELLOW));
+
+    auto modelId = static_cast<uint8_t>(random.nextRandomNumber() * 3 + 1);
+    auto scale = 5 + random.nextRandomNumber() * 10;
+    auto rotation = Util::Math::Vector3D(random.nextRandomNumber() * 5, random.nextRandomNumber() * 5, random.nextRandomNumber() * 5);
+    addObject(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3D(13, 16, 42), scale, rotation, Util::Graphic::Colors::BROWN));
+
+    modelId = static_cast<uint8_t>(random.nextRandomNumber() * 3 + 1);
+    scale = 5 + random.nextRandomNumber() * 10;
+    rotation = Util::Math::Vector3D(random.nextRandomNumber() * 5, random.nextRandomNumber() * 5, random.nextRandomNumber() * 5);
+    addObject(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3D(40, 30, 55), scale, rotation, Util::Graphic::Colors::BROWN));
+
+    modelId = static_cast<uint8_t>(random.nextRandomNumber() * 3 + 1);
+    scale = 5 + random.nextRandomNumber() * 10;
+    rotation = Util::Math::Vector3D(random.nextRandomNumber() * 5, random.nextRandomNumber() * 5, random.nextRandomNumber() * 5);
+    addObject(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3D(78, -24, -63), scale, rotation, Util::Graphic::Colors::BROWN));
+
+    modelId = static_cast<uint8_t>(random.nextRandomNumber() * 3 + 1);
+    scale = 5 + random.nextRandomNumber() * 10;
+    rotation = Util::Math::Vector3D(random.nextRandomNumber() * 5, random.nextRandomNumber() * 5, random.nextRandomNumber() * 5);
+    addObject(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3D(-92, -74, -48), scale, rotation, Util::Graphic::Colors::BROWN));
+
+    modelId = static_cast<uint8_t>(random.nextRandomNumber() * 3 + 1);
+    scale = 5 + random.nextRandomNumber() * 10;
+    rotation = Util::Math::Vector3D(random.nextRandomNumber() * 5, random.nextRandomNumber() * 5, random.nextRandomNumber() * 5);
+    addObject(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3D(48, 21, -37), scale, rotation, Util::Graphic::Colors::BROWN));
+
+    modelId = static_cast<uint8_t>(random.nextRandomNumber() * 3 + 1);
+    scale = 5 + random.nextRandomNumber() * 10;
+    rotation = Util::Math::Vector3D(random.nextRandomNumber() * 5, random.nextRandomNumber() * 5, random.nextRandomNumber() * 5);
+    addObject(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3D(10, 23, -78), scale, rotation, Util::Graphic::Colors::BROWN));
+
     addObject(player);
 
-    auto modelId = static_cast<uint8_t>(random.nextRandomNumber() * 2 + 1);
-    auto scale = random.nextRandomNumber() * 5;
-    addObject(new Asteroid(Util::Math::Vector3D(0, 0, 10), Util::Math::Vector3D(random.nextRandomNumber(), random.nextRandomNumber(), random.nextRandomNumber()), Util::Math::Vector3D(scale, scale, scale), modelId));
-
-    modelId = static_cast<uint8_t>(random.nextRandomNumber() * 2 + 1);
-    scale = random.nextRandomNumber() * 5;
-    addObject(new Asteroid(Util::Math::Vector3D(12, 3, -8), Util::Math::Vector3D(random.nextRandomNumber(), random.nextRandomNumber(), random.nextRandomNumber()), Util::Math::Vector3D(scale, scale, scale), modelId));
-
-    modelId = static_cast<uint8_t>(random.nextRandomNumber() * 2 + 1);
-    scale = random.nextRandomNumber() * 5;
-    addObject(new Asteroid(Util::Math::Vector3D(14, -15, 7), Util::Math::Vector3D(random.nextRandomNumber(), random.nextRandomNumber(), random.nextRandomNumber()), Util::Math::Vector3D(scale, scale, scale), modelId));
-
-    modelId = static_cast<uint8_t>(random.nextRandomNumber() * 2 + 1);
-    scale = random.nextRandomNumber() * 5;
-    addObject(new Asteroid(Util::Math::Vector3D(-2, 7, 12), Util::Math::Vector3D(random.nextRandomNumber(), random.nextRandomNumber(), random.nextRandomNumber()), Util::Math::Vector3D(scale, scale, scale), modelId));
-
-    modelId = static_cast<uint8_t>(random.nextRandomNumber() * 2 + 1);
-    scale = random.nextRandomNumber() * 5;
-    addObject(new Asteroid(Util::Math::Vector3D(-8, 2, -11), Util::Math::Vector3D(random.nextRandomNumber(), random.nextRandomNumber(), random.nextRandomNumber()), Util::Math::Vector3D(scale, scale, scale), modelId));
-
     setKeyListener(*this);
+    setMouseListener(*this);
 }
 
 void BattleSpace::update(double delta) {
     if (player->getHealth() <= 0) {
-        /*Util::Game::GameManager::getGame().pushScene(new BattlespaceGameOver(player->getScore()));
-        Util::Game::GameManager::getGame().switchToNextScene();*/
+        Util::Game::GameManager::getGame().pushScene(new GameOverScreen(player->getScore()));
+        Util::Game::GameManager::getGame().switchToNextScene();
     } else {
         player->setSpeedDisplay(inputSpeed);
 
@@ -79,6 +96,24 @@ void BattleSpace::update(double delta) {
         auto &camera = Util::Game::GameManager::getGame().getCurrentScene().getCamera();
         camera.setRotation(player->getRotation());
         camera.setPosition(player->getPosition());
+
+        // Spawn enemies
+        if (enemies.isEmpty()) {
+            difficulty++;
+            double minEnemies = (difficulty / 3.0);
+            double enemyCount =  minEnemies + random.nextRandomNumber() * (difficulty - minEnemies);
+
+            for (uint32_t i = 0; i < enemyCount; i++) {
+                auto x = (random.nextRandomNumber() * (ENEMY_SPAWN_RANGE * 2)) - ENEMY_SPAWN_RANGE / 2.0;
+                auto y = (random.nextRandomNumber() * (ENEMY_SPAWN_RANGE * 2)) - ENEMY_SPAWN_RANGE / 2.0;
+                auto z = (random.nextRandomNumber() * (ENEMY_SPAWN_RANGE * 2)) - ENEMY_SPAWN_RANGE / 2.0;
+                auto type = random.nextRandomNumber() * 5;
+
+                auto *enemy = new Enemy(*player, enemies, Util::Math::Vector3D(x, y / 2, z), Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(1, 1, 1), static_cast<Enemy::Type>(type));
+                enemies.add(enemy);
+                addObject(enemy);
+            }
+        }
     }
 }
 
@@ -121,7 +156,8 @@ void BattleSpace::keyPressed(Util::Io::Key key) {
             break;
         case Util::Io::Key::SPACE:
             if (player->mayFireMissile()) {
-                fireMissile(player->getPosition(), player->getRotation(), false);
+                auto offset = Util::Math::Vector3D(0, 0, 1.5).rotate(player->getRotation());
+                addObject(new Missile(player->getPosition() + offset, player->getRotation(), Util::Math::Vector3D(0.2, 0.2, 0.2), Util::Graphic::Colors::GREEN));
             }
             break;
         default:
@@ -153,15 +189,25 @@ void BattleSpace::keyReleased(Util::Io::Key key) {
 
 }
 
-void BattleSpace::updateEntities(double delta) {
-    Scene::updateEntities(delta);
+void BattleSpace::buttonPressed(Util::Io::Mouse::Button button) {
+    if (button == Util::Io::Mouse::LEFT_BUTTON && player->mayFireMissile()) {
+        auto offset = Util::Math::Vector3D(0, 0, 1.5).rotate(player->getRotation());
+        addObject(new Missile(player->getPosition() + offset, player->getRotation(), Util::Math::Vector3D(0.2, 0.2, 0.2), Util::Graphic::Colors::GREEN));
+    }
 }
 
-void BattleSpace::fireMissile(const Util::Math::Vector3D &position, const Util::Math::Vector3D &direction, bool enemy) {
-    auto offset = Util::Math::Vector3D(0, 0, 1.5).rotate(direction);
-    addObject(new Missile(position + offset, direction, Util::Math::Vector3D(0.2, 0.2, 0.2), Util::Graphic::Colors::GREEN));
+void BattleSpace::buttonReleased(Util::Io::Mouse::Button button) {}
+
+void BattleSpace::mouseMoved(const Util::Math::Vector2D &relativeMovement) {
+    inputRotation = Util::Math::Vector3D(relativeMovement.getY() * 10, -relativeMovement.getX() * 10, inputRotation.getZ());
 }
 
-double BattleSpace::getRandomNumber() {
-    return random.nextRandomNumber();
+void BattleSpace::mouseScrolled(Util::Io::Mouse::ScrollDirection direction) {
+    if (direction == Util::Io::Mouse::UP) {
+        inputSpeed += 0.025;
+        if (inputSpeed > 1) inputSpeed = 1;
+    } else if (direction == Util::Io::Mouse::DOWN) {
+        inputSpeed -= 0.025;
+        if (inputSpeed < -1) inputSpeed = -1;
+    }
 }

@@ -70,8 +70,6 @@ private:
 
     ObjectFile *objectFile = nullptr;
     Array<Math::Vector3D> transformedBuffer = Util::Array<Math::Vector3D>(0);
-
-
 };
 
 }
