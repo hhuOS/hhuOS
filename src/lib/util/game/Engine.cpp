@@ -88,6 +88,7 @@ void Engine::run() {
         updateLock.release();
 
         statistics.startDrawTime();
+        graphics.resetCounters();
         scene.draw(graphics);
         if (showStatus) drawStatus();
         graphics.show();
@@ -145,7 +146,7 @@ void Engine::drawStatus() {
     graphics.setColor(Graphic::Colors::WHITE);
     graphics.drawStringSmall(Math::Vector2D(10, 10), String::format("FPS: %u", status.fps));
     graphics.drawStringSmall(Math::Vector2D(10, 10 + charHeight), String::format("D: %ums | U: %ums | I: %ums", status.drawTime, status.updateTime, status.idleTime));
-    graphics.drawStringSmall(Math::Vector2D(10, 10 + charHeight * 2), String::format("Objects: %u", game.getCurrentScene().getObjectCount()));
+    graphics.drawStringSmall(Math::Vector2D(10, 10 + charHeight * 2), String::format("Objects: %u | Edges: %u/%u", game.getCurrentScene().getObjectCount(), graphics.drawnEdgeCounter, graphics.edgeCounter));
     graphics.drawStringSmall(Math::Vector2D(10, 10 + charHeight * 3), String::format("Heap used: %u.%03u MB", heapUsedM, heapUsedK));
     graphics.setColor(color);
 }

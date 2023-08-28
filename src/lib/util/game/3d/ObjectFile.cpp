@@ -25,7 +25,7 @@ namespace Util::Game::D3 {
 
 ObjectFile::ObjectFile(const Array<Math::Vector3D> &vertices, const Array<Math::Vector2D> &edges) : vertices(vertices), edges(edges) {}
 
-ObjectFile *ObjectFile::open(const String &path) {
+ObjectFile* ObjectFile::open(const String &path) {
     auto fileStream = Io::FileInputStream(path);
     auto stream = Io::BufferedInputStream(fileStream);
     auto vertexList = ArrayList<Math::Vector3D>();
@@ -43,13 +43,21 @@ ObjectFile *ObjectFile::open(const String &path) {
             for (uint32_t i = 0; i < lineSplit.length() - 1; i++) {
                 auto point1 = String::parseInt(lineSplit[i].split("/")[0]) - 1;
                 auto point2 = String::parseInt(lineSplit[i + 1].split("/")[0]) - 1;
-                edgeList.add(Util::Math::Vector2D(point1, point2));
+                auto edge = Util::Math::Vector2D(point1, point2);
+
+                if (!edgeList.contains(Math::Vector2D(point1, point2)) && !edgeList.contains(Math::Vector2D(point2, point1))) {
+                    edgeList.add(edge);
+                }
             }
 
             // Add connection from last vertex to first vertex
             auto point1 = String::parseInt(lineSplit[lineSplit.length() - 1].split("/")[0]) - 1;
             auto point2 = String::parseInt(lineSplit[0].split("/")[0]) - 1;
-            edgeList.add(Util::Math::Vector2D(point1, point2));
+            auto edge = Util::Math::Vector2D(point1, point2);
+
+            if (!edgeList.contains(edge)) {
+                edgeList.add(edge);
+            }
         }
 
         currentLine = stream.readLine(endOfFile);

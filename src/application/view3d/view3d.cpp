@@ -57,7 +57,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto lfbFile = Util::Io::File("/device/lfb");
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto engine = Util::Game::Engine(lfb, 60);
-    Util::Game::GameManager::getGame().pushScene(new ModelViewer(file));
+    Util::Game::GameManager::getGame().pushScene(new ModelViewer(file.getCanonicalPath()));
     engine.run();
 
     return 0;

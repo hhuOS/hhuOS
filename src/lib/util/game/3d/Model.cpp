@@ -30,6 +30,7 @@ Model::Model(uint32_t tag, const String &modelPath, const Math::Vector3D &positi
 
 void Model::initialize() {
     objectFile = ObjectFile::open(modelPath);
+    transformedBuffer = Util::Array<Math::Vector3D>(objectFile->getVertices().length());
     calculateTransformedVertices();
 }
 

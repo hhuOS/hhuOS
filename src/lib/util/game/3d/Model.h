@@ -65,7 +65,7 @@ private:
 
     void calculateTransformedVertices();
 
-    const String &modelPath;
+    String modelPath;
     const Graphic::Color color = Util::Graphic::Colors::GREEN;
 
     ObjectFile *objectFile = nullptr;

@@ -54,6 +54,8 @@ namespace Util::Game {
 
 class Graphics {
 
+friend class Engine;
+
 public:
     /**
      * Constructor.
@@ -125,9 +127,9 @@ public:
 
     [[nodiscard]] Math::Vector2D projectPoint(const Math::Vector3D &v, const Math::Vector3D &camT, const Math::Vector3D &camRr) const;
 
-    void drawLine3D(const Math::Vector3D &from, const Math::Vector3D &to) const;
+    void drawLine3D(const Math::Vector3D &from, const Math::Vector3D &to);
 
-    void drawModel(const Array<Math::Vector3D> &vertices, const Array<Math::Vector2D> &edges) const;
+    void drawModel(const Array<Math::Vector3D> &vertices, const Array<Math::Vector2D> &edges);
 
 
     /***** Miscellaneous *****/
@@ -160,6 +162,8 @@ private:
 
     void drawString2D(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const;
 
+    void resetCounters();
+
     Game &game;
 
     const Graphic::BufferedLinearFrameBuffer lfb;
@@ -178,6 +182,9 @@ private:
     Math::Vector3D cameraRotation{};
 
     uint8_t *backgroundBuffer = nullptr;
+
+    uint32_t edgeCounter = 0;
+    uint32_t drawnEdgeCounter = 0;
 
     Graphic::Color color = Graphic::Colors::WHITE;
 };

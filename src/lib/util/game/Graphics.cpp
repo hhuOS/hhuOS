@@ -241,7 +241,7 @@ Math::Vector2D Graphics::projectPoint(const Math::Vector3D &v, const Math::Vecto
     };
 }
 
-void Graphics::drawLine3D(const Math::Vector3D &from, const Math::Vector3D &to) const {
+void Graphics::drawLine3D(const Math::Vector3D &from, const Math::Vector3D &to) {
     Util::Math::Vector2D v1 = projectPoint(from, cameraPosition, cameraRotation);
     Util::Math::Vector2D v2 = projectPoint(to, cameraPosition, cameraRotation);
 
@@ -259,21 +259,17 @@ void Graphics::drawLine3D(const Math::Vector3D &from, const Math::Vector3D &to) 
     auto y2 = static_cast<int32_t>(lfb.getResolutionY() - (v2.getY() + 1) * (lfb.getResolutionY() / 2.0));
 
     lineDrawer.drawLine(x1, y1, x2, y2, color);
+    drawnEdgeCounter++;
 }
 
-void Graphics::drawModel(const Array<Math::Vector3D> &vertices, const Array<Math::Vector2D> &edges) const {
+void Graphics::drawModel(const Array<Math::Vector3D> &vertices, const Array<Math::Vector2D> &edges) {
     auto numEdges = edges.length();
+    edgeCounter += numEdges;
 
     for (uint32_t i = 0; i < numEdges; i++) {
         auto edge = edges[i];
         auto x = static_cast<int32_t>(edge.getX());
         auto y = static_cast<int32_t>(edge.getY());
-        auto numVertices = static_cast<int32_t>(vertices.length());
-
-        // Do not draw edges pointing to out of bounds vertices
-        if (x < 0 || x >= numVertices || y < 0 || y >= numVertices) {
-            continue;
-        }
 
         // Do not draw edges where the vertices are the same
         if (x == y) {
@@ -365,6 +361,11 @@ uint8_t Graphics::getCharWidthSmall() const {
 
 uint8_t Graphics::getCharHeightSmall() const {
     return fontSmall.getCharHeight();
+}
+
+void Graphics::resetCounters() {
+    edgeCounter = 0;
+    drawnEdgeCounter = 0;
 }
 
 }

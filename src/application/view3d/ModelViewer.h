@@ -29,7 +29,7 @@ public:
     /**
      * Constructor.
      */
-    explicit ModelViewer(const Util::Io::File &file);
+    explicit ModelViewer(const Util::String &path);
 
     /**
      * Copy Constructor.

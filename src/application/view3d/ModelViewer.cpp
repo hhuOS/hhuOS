@@ -19,8 +19,8 @@
 #include "lib/util/game/Game.h"
 #include "lib/util/game/GameManager.h"
 
-ModelViewer::ModelViewer(const Util::Io::File &file) {
-    model = new Model(file);
+ModelViewer::ModelViewer(const Util::String &path) {
+    model = new Model(path);
     addObject(model);
 
     setKeyListener(*this);
