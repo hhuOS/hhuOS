@@ -125,7 +125,7 @@ public:
 
     /***** 2D drawing functions *****/
 
-    [[nodiscard]] Math::Vector2D projectPoint(const Math::Vector3D &vertex, const Math::Vector3D &cameraPosition, const Math::Vector3D &cameraRotation) const;
+    [[nodiscard]] static Math::Vector2D projectPoint(const Math::Vector3D &vertex, const Math::Vector3D &cameraPosition, const Math::Vector3D &cameraRotation) ;
 
     void drawLine3D(const Math::Vector3D &from, const Math::Vector3D &to);
 
@@ -187,6 +187,8 @@ private:
     uint32_t drawnEdgeCounter = 0;
 
     Graphic::Color color = Graphic::Colors::WHITE;
+
+    static const constexpr double FIELD_OF_VIEW = 1.3;
 };
 
 }

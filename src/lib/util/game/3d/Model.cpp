@@ -56,12 +56,12 @@ void Model::calculateTransformedVertices() {
 
 void Model::draw(Graphics &graphics) {
     auto &camera = Util::Game::GameManager::getCurrentScene().getCamera();
-    auto minXProjection = graphics.projectPoint(getPosition() + Util::Math::Vector3D(-getCollider().getRadius(), 0, 0), camera.getPosition(), camera.getRotation());
-    auto maxXProjection = graphics.projectPoint(getPosition() + Util::Math::Vector3D(getCollider().getRadius(), 0, 0), camera.getPosition(), camera.getRotation());
-    auto minYProjection = graphics.projectPoint(getPosition() + Util::Math::Vector3D(0, -getCollider().getRadius(), 0), camera.getPosition(), camera.getRotation());
-    auto maxYProjection = graphics.projectPoint(getPosition() + Util::Math::Vector3D(0, getCollider().getRadius(), 0), camera.getPosition(), camera.getRotation());
-    auto minZProjection = graphics.projectPoint(getPosition() + Util::Math::Vector3D(0, 0, -getCollider().getRadius()), camera.getPosition(), camera.getRotation());
-    auto maxZProjection = graphics.projectPoint(getPosition() + Util::Math::Vector3D(0, 0, getCollider().getRadius()), camera.getPosition(), camera.getRotation());
+    auto minXProjection = Util::Game::Graphics::projectPoint(getPosition() + Util::Math::Vector3D(-getCollider().getRadius(), 0, 0), camera.getPosition(), camera.getRotation());
+    auto maxXProjection = Util::Game::Graphics::projectPoint(getPosition() + Util::Math::Vector3D(getCollider().getRadius(), 0, 0), camera.getPosition(), camera.getRotation());
+    auto minYProjection = Util::Game::Graphics::projectPoint(getPosition() + Util::Math::Vector3D(0, -getCollider().getRadius(), 0), camera.getPosition(), camera.getRotation());
+    auto maxYProjection = Util::Game::Graphics::projectPoint(getPosition() + Util::Math::Vector3D(0, getCollider().getRadius(), 0), camera.getPosition(), camera.getRotation());
+    auto minZProjection = Util::Game::Graphics::projectPoint(getPosition() + Util::Math::Vector3D(0, 0, -getCollider().getRadius()), camera.getPosition(), camera.getRotation());
+    auto maxZProjection = Util::Game::Graphics::projectPoint(getPosition() + Util::Math::Vector3D(0, 0, getCollider().getRadius()), camera.getPosition(), camera.getRotation());
 
     if (((minXProjection.getX() >= -1 && minXProjection.getX() <= 1) && (minXProjection.getY() >= -1 && minXProjection.getY() <= 1)) ||
             ((maxXProjection.getX() >= -1 && maxXProjection.getX() <= 1) && (maxXProjection.getY() >= -1 && maxXProjection.getY() <= 1)) ||

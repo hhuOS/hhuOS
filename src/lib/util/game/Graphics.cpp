@@ -195,45 +195,38 @@ void Graphics::drawImage2D(const Math::Vector2D &position, const Graphic::Image 
 }
 
 // Based on https://en.wikipedia.org/wiki/3D_projection#Perspective_projection
-Math::Vector2D Graphics::projectPoint(const Math::Vector3D &vertex, const Math::Vector3D &cameraPosition, const Math::Vector3D &cameraRotation) const {
-    // Objects are visible between -1 and 1 on both axes, returning {-2, -2} for example means a point isn't rendered
-    auto fov = 1.3;
+Math::Vector2D Graphics::projectPoint(const Math::Vector3D &vertex, const Math::Vector3D &cameraPosition, const Math::Vector3D &cameraRotation) {
+    const auto unitVector = Math::Vector3D(0, 0, 1);
+    const auto lineDirection = unitVector.rotate(cameraRotation);
+    const auto distanceToClosestPointOnLine = (vertex - cameraPosition) * lineDirection;
 
-    Math::Vector3D unitV = {0, 0, 1};
-    auto r = cameraRotation;
-    auto lineDir = unitV.rotate(r);
-    auto distToClosestPointOnLine = (vertex - cameraPosition) * lineDir;
-
-    if (distToClosestPointOnLine <= 0) {
-        return {-2, -2};
+    if (distanceToClosestPointOnLine <= 0) {
+        return Util::Math::Vector2D(-2, -2);
     }
 
-    // Convert deg to rad
-    auto camR = cameraRotation * (3.1415 / 180);
+    // Convert degree to radians
+    const auto cameraRotationRadians = cameraRotation * (Math::PI / 180);
 
-    double x = camR.getX();
-    double y = camR.getY();
-    double z = camR.getZ();
+    const double x = cameraRotationRadians.getX();
+    const double y = cameraRotationRadians.getY();
+    const double z = cameraRotationRadians.getZ();
 
-    double sinX = Util::Math::sine(x);
-    double cosX = Util::Math::cosine(x);
-    double sinY = Util::Math::sine(y);
-    double cosY = Util::Math::cosine(y);
-    double sinZ = Util::Math::sine(z);
-    double cosZ = Util::Math::cosine(z);
+    const double sinX = Util::Math::sine(x);
+    const double cosX = Util::Math::cosine(x);
+    const double sinY = Util::Math::sine(y);
+    const double cosY = Util::Math::cosine(y);
+    const double sinZ = Util::Math::sine(z);
+    const double cosZ = Util::Math::cosine(z);
 
-    Math::Matrix3x3 rot = {
+    const auto rotationMatrix = Math::Matrix3x3 {
             cosY * cosZ, cosY * sinZ, -sinY,
             sinX * sinY * cosZ - cosX * sinZ, sinX * sinY * sinZ + cosX * cosZ, sinX * cosY,
             cosX * sinY * cosZ + sinX * sinZ, cosX * sinY * sinZ - sinX * cosZ, cosX * cosY
     };
 
-    Math::Vector3D d = rot * (vertex - cameraPosition);
-    Math::Vector3D e = {0, 0, fov};
-    double a = 1;
-    if (d.getZ() != 0) {
-        a = e.getZ() / d.getZ();
-    }
+    const auto d = rotationMatrix * (vertex - cameraPosition);
+    const auto e = Util::Math::Vector3D(0, 0, FIELD_OF_VIEW);
+    const auto a = d.getZ() == 0 ? 1 : e.getZ() / d.getZ();
 
     return {
             a * d.getX() + e.getX(),
@@ -242,34 +235,32 @@ Math::Vector2D Graphics::projectPoint(const Math::Vector3D &vertex, const Math::
 }
 
 void Graphics::drawLine3D(const Math::Vector3D &from, const Math::Vector3D &to) {
-    Util::Math::Vector2D v1 = projectPoint(from, cameraPosition, cameraRotation);
-    Util::Math::Vector2D v2 = projectPoint(to, cameraPosition, cameraRotation);
+    const auto v1 = projectPoint(from, cameraPosition, cameraRotation);
+    const auto v2 = projectPoint(to, cameraPosition, cameraRotation);
 
-    // lines aren't drawn if one of the points is outside the camera view (range (-1, 1))
-    if (v1.getX() < -1 || v1.getX() > 1 || v1.getY() < -1 || v1.getY() > 1) {
-        if (v2.getX() < -1 || v2.getX() > 1 || v2.getY() < -1 || v2.getY() > 1) {
-            return;
-        }
+    // Do not draw line, if both points are outside the camera view range
+    if ((v1.getX() < -1 || v1.getX() > 1 || v1.getY() < -1 || v1.getY() > 1) && (v2.getX() < -1 || v2.getX() > 1 || v2.getY() < -1 || v2.getY() > 1)) {
+        return;
     }
 
     // map the points of range (-1, 1) to actual screen coordinates
-    auto x1 = static_cast<int32_t>((v1.getX() + 1) * (lfb.getResolutionX() / 2.0));
-    auto y1 = static_cast<int32_t>(lfb.getResolutionY() - (v1.getY() + 1) * (lfb.getResolutionY() / 2.0));
-    auto x2 = static_cast<int32_t>((v2.getX() + 1) * (lfb.getResolutionX() / 2.0));
-    auto y2 = static_cast<int32_t>(lfb.getResolutionY() - (v2.getY() + 1) * (lfb.getResolutionY() / 2.0));
+    const auto x1 = static_cast<int32_t>((v1.getX() + 1) * (lfb.getResolutionX() / 2.0));
+    const auto y1 = static_cast<int32_t>(lfb.getResolutionY() - (v1.getY() + 1) * (lfb.getResolutionY() / 2.0));
+    const auto x2 = static_cast<int32_t>((v2.getX() + 1) * (lfb.getResolutionX() / 2.0));
+    const auto y2 = static_cast<int32_t>(lfb.getResolutionY() - (v2.getY() + 1) * (lfb.getResolutionY() / 2.0));
 
     lineDrawer.drawLine(x1, y1, x2, y2, color);
     drawnEdgeCounter++;
 }
 
 void Graphics::drawModel(const Array<Math::Vector3D> &vertices, const Array<Math::Vector2D> &edges) {
-    auto numEdges = edges.length();
+    const auto numEdges = edges.length();
     edgeCounter += numEdges;
 
     for (uint32_t i = 0; i < numEdges; i++) {
-        auto edge = edges[i];
-        auto x = static_cast<int32_t>(edge.getX());
-        auto y = static_cast<int32_t>(edge.getY());
+        const auto edge = edges[i];
+        const auto x = static_cast<int32_t>(edge.getX());
+        const auto y = static_cast<int32_t>(edge.getY());
 
         // Do not draw edges where the vertices are the same
         if (x == y) {

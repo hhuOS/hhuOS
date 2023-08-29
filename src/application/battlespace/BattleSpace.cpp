@@ -25,13 +25,13 @@
 #include "Astronomical.h"
 
 BattleSpace::BattleSpace() {
-    addObject(new Astronomical("planet1", Util::Math::Vector3D(13, 16, 1000), 50, Util::Math::Vector3D(0, 0, 0), Util::Graphic::Colors::BLUE));
-    addObject(new Astronomical("planet2", Util::Math::Vector3D(37, -8, -2000), 75, Util::Math::Vector3D(0, 0, 0), Util::Graphic::Colors::YELLOW));
+    addObject(new Astronomical("planet1", Util::Math::Vector3D(13, 16, 1000), 100, Util::Math::Vector3D(0, 0, 0), Util::Graphic::Colors::BLUE));
+    addObject(new Astronomical("planet2", Util::Math::Vector3D(37, -8, -3000), 100, Util::Math::Vector3D(0, 0, 0), Util::Graphic::Colors::YELLOW));
 
     auto modelId = static_cast<uint8_t>(random.nextRandomNumber() * 3 + 1);
     auto scale = 5 + random.nextRandomNumber() * 10;
     auto rotation = Util::Math::Vector3D(random.nextRandomNumber() * 5, random.nextRandomNumber() * 5, random.nextRandomNumber() * 5);
-    addObject(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3D(13, 16, 42), scale, rotation, Util::Graphic::Colors::BROWN));
+    addObject(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3D(-25, 12, 42), scale, rotation, Util::Graphic::Colors::BROWN));
 
     modelId = static_cast<uint8_t>(random.nextRandomNumber() * 3 + 1);
     scale = 5 + random.nextRandomNumber() * 10;
@@ -51,7 +51,7 @@ BattleSpace::BattleSpace() {
     modelId = static_cast<uint8_t>(random.nextRandomNumber() * 3 + 1);
     scale = 5 + random.nextRandomNumber() * 10;
     rotation = Util::Math::Vector3D(random.nextRandomNumber() * 5, random.nextRandomNumber() * 5, random.nextRandomNumber() * 5);
-    addObject(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3D(48, 21, -37), scale, rotation, Util::Graphic::Colors::BROWN));
+    addObject(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3D(-48, 21, -37), scale, rotation, Util::Graphic::Colors::BROWN));
 
     modelId = static_cast<uint8_t>(random.nextRandomNumber() * 3 + 1);
     scale = 5 + random.nextRandomNumber() * 10;

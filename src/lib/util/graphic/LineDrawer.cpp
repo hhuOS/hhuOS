@@ -126,7 +126,7 @@ void LineDrawer::drawLineSingleAxis(int32_t x, int32_t y, int8_t movement, int32
 }
 
 void LineDrawer::swap(int32_t *a, int32_t *b) {
-    uint32_t h = *a;
+    auto h = *a;
     *a = *b;
     *b = h;
 }
