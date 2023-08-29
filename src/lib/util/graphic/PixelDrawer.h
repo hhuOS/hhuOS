@@ -68,7 +68,19 @@ public:
 
 private:
 
+    static void drawPixel15Bit(uint8_t *buffer, uint16_t width, uint16_t x, uint16_t y, const Color &color);
+
+    static void drawPixel16Bit(uint8_t *buffer, uint16_t width, uint16_t x, uint16_t y, const Color &color);
+
+    static void drawPixel24Bit(uint8_t *buffer, uint16_t width, uint16_t x, uint16_t y, const Color &color);
+
+    static void drawPixel32Bit(uint8_t *buffer, uint16_t width, uint16_t x, uint16_t y, const Color &color);
+
     const LinearFrameBuffer &lfb;
+    uint8_t *const lfbBuffer;
+    const uint16_t lfbWidth;
+
+    void (*drawFunction)(uint8_t *buffer, uint16_t width, uint16_t x, uint16_t y, const Color &color);
 };
 
 }

@@ -130,7 +130,7 @@ uint16_t LinearFrameBuffer::getPitch() const {
     return pitch;
 }
 
-Address<uint32_t> LinearFrameBuffer::getBuffer() const {
+const Address<uint32_t> &LinearFrameBuffer::getBuffer() const {
     return *buffer;
 }
 

@@ -111,7 +111,7 @@ public:
      *
      * @return The buffer address
      */
-    [[nodiscard]] Address<uint32_t> getBuffer() const;
+    [[nodiscard]] const Address<uint32_t>& getBuffer() const;
 
     /**
      * Read the color of a pixel at a given position.

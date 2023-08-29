@@ -20,38 +20,70 @@
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/base/Address.h"
+#include "lib/util/base/Exception.h"
 
 namespace Util::Graphic {
 
-PixelDrawer::PixelDrawer(const LinearFrameBuffer &lfb): lfb(lfb) {}
+PixelDrawer::PixelDrawer(const LinearFrameBuffer &lfb): lfb(lfb), lfbBuffer(reinterpret_cast<uint8_t*>(lfb.getBuffer().get())), lfbWidth(lfb.getResolutionX()) {
+    switch (lfb.getColorDepth()) {
+        case 15:
+            drawFunction = &drawPixel15Bit;
+            break;
+        case 16:
+            drawFunction = &drawPixel16Bit;
+            break;
+        case 24:
+            drawFunction = &drawPixel24Bit;
+            break;
+        case 32:
+            drawFunction = &drawPixel32Bit;
+            break;
+        default:
+            Exception::throwException(Exception::INVALID_ARGUMENT, "PixelDrawer: Illegal color depth!");
+    }
+}
 
 void PixelDrawer::drawPixel(uint16_t x, uint16_t y, const Color &color) const {
     // Pixels outside the visible area won't be drawn
-    if(x > lfb.getResolutionX() - 1 || y > lfb.getResolutionY() - 1) {
+    if (x > lfb.getResolutionX() - 1 || y > lfb.getResolutionY() - 1) {
         return;
     }
 
     // Invisible pixels won't be drawn
-    if(color.getAlpha() == 0) {
+    if (color.getAlpha() == 0) {
         return;
     }
 
-    uint32_t rgbColor;
-    auto bpp = static_cast<uint8_t>(lfb.getColorDepth() == 15 ? 16 : lfb.getColorDepth());
-
-    if(color.getAlpha() < 255) {
-        rgbColor = lfb.readPixel(x, y).blend(color).getColorForDepth(lfb.getColorDepth());
+    // Blend if necessary and draw pixel
+    if (color.getAlpha() < 255) {
+        drawFunction(lfbBuffer, lfbWidth, x, y, lfb.readPixel(x, y).blend(color));
     } else {
-        rgbColor = color.getColorForDepth(lfb.getColorDepth());
+        drawFunction(lfbBuffer, lfbWidth, x, y, color);
     }
+}
 
-    // Calculate pixel offset
-    auto address = lfb.getBuffer().add((x * (bpp / 8)) + y * lfb.getPitch());
+void PixelDrawer::drawPixel15Bit(uint8_t *const buffer, const uint16_t width, const uint16_t x, const uint16_t y, const Color &color) {
+    const auto offset = x + y * width;
+    reinterpret_cast<uint16_t*>(buffer)[offset] = color.getRGB15();
+}
 
-    // Write color to pixel offset
-    for(uint32_t i = 0; i < (bpp / 8); i++) {
-        address.setByte((rgbColor >> (i * 8)) & 0xff, i);
-    }
+void PixelDrawer::drawPixel16Bit(uint8_t *const buffer, const uint16_t width, const uint16_t x, const uint16_t y, const Color &color) {
+    const auto offset = x + y * width;
+    reinterpret_cast<uint16_t*>(buffer)[offset] = color.getRGB16();
+}
+
+void PixelDrawer::drawPixel24Bit(uint8_t *const buffer, const uint16_t width, const uint16_t x, const uint16_t y, const Color &color) {
+    uint32_t rgbColor = color.getRGB24();
+    const auto offset = x * 3 + y * width * 3;
+
+    buffer[offset] = rgbColor & 0xff;
+    buffer[offset + 1] = (rgbColor >> 8) & 0xff;
+    buffer[offset + 2] = (rgbColor >> 16) & 0xff;
+}
+
+void PixelDrawer::drawPixel32Bit(uint8_t *const buffer, const uint16_t width, const uint16_t x, const uint16_t y, const Color &color) {
+    const auto offset = x + y * width;
+    reinterpret_cast<uint32_t*>(buffer)[offset] = color.getRGB32();
 }
 
 }
