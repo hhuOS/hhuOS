@@ -15,53 +15,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_POLYGONDEMO_H
-#define HHUOS_POLYGONDEMO_H
+#ifndef HHUOS_SPRITEDEMO_H
+#define HHUOS_SPRITEDEMO_H
 
-#include <cstdint>
-
-#include "lib/util/collection/ArrayListBlockingQueue.h"
-#include "DemoPolygonFactory.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
-#include "lib/util/game/KeyListener.h"
-#include "application/polygon/DemoPolygon.h"
-#include "lib/util/game/Scene.h"
 #include "lib/util/game/2d/Scene.h"
+#include "lib/util/game/Sprite.h"
+#include "lib/util/game/KeyListener.h"
+#include "DemoSprite.h"
+#include "DemoSpriteFactory.h"
+#include "lib/util/collection/ArrayListBlockingQueue.h"
 
-namespace Util {
-namespace Game {
-class Graphics;
-}  // namespace Game
-
-namespace Io {
-class Key;
-}  // namespace Io
-}  // namespace Util
-
-class PolygonDemo : public Util::Game::D2::Scene, public Util::Game::KeyListener {
+class SpriteDemo : public Util::Game::D2::Scene, public Util::Game::KeyListener {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    explicit PolygonDemo(uint32_t count);
+    SpriteDemo(uint32_t count);
 
     /**
      * Copy Constructor.
      */
-    PolygonDemo(const PolygonDemo &other) = delete;
+    SpriteDemo(const SpriteDemo &other) = delete;
 
     /**
      * Assignment operator.
      */
-    PolygonDemo &operator=(const PolygonDemo &other) = delete;
+    SpriteDemo &operator=(const SpriteDemo &other) = delete;
 
     /**
      * Destructor.
      */
-    ~PolygonDemo() override = default;
+    ~SpriteDemo() override = default;
 
     void update(double delta) override;
 
@@ -73,8 +58,8 @@ public:
 
 private:
 
-    DemoPolygonFactory factory;
-    Util::ArrayListBlockingQueue<DemoPolygon*> polygons;
+    DemoSpriteFactory factory;
+    Util::ArrayListBlockingQueue<DemoSprite*> entities;
 };
 
 #endif

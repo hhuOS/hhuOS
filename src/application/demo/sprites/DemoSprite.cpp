@@ -15,12 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SpriteEntity.h"
+#include "DemoSprite.h"
 
-SpriteEntity::SpriteEntity(const Util::Math::Vector2D &position, double size, double rotationSpeed, double scaleSpeed, bool flipX)
+DemoSprite::DemoSprite(const Util::Math::Vector2D &position, double size, double rotationSpeed, double scaleSpeed, bool flipX)
         : Util::Game::D2::Entity(TAG, position), initialPosition(position), size(size), rotationSpeed(rotationSpeed), scaleSpeed(scaleSpeed), flipX(flipX) {}
 
-void SpriteEntity::initialize() {
+void DemoSprite::initialize() {
     animation = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
         Util::Game::Sprite("/initrd/dino/run1.bmp", 0.2, 0.2267),
         Util::Game::Sprite("/initrd/dino/run2.bmp", 0.2, 0.2267),
@@ -40,7 +40,7 @@ void SpriteEntity::initialize() {
     }
 }
 
-void SpriteEntity::onUpdate(double delta) {
+void DemoSprite::onUpdate(double delta) {
     animation.update(delta);
 
     if (animation.getScale().getX() >= 2) {
@@ -56,10 +56,10 @@ void SpriteEntity::onUpdate(double delta) {
     setPosition(initialPosition + Util::Math::Vector2D(positionOffset, positionOffset));
 }
 
-void SpriteEntity::draw(Util::Game::Graphics &graphics) {
+void DemoSprite::draw(Util::Game::Graphics &graphics) {
     animation.draw(graphics, getPosition());
 }
 
-void SpriteEntity::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {}
+void DemoSprite::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {}
 
-void SpriteEntity::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
+void DemoSprite::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}

@@ -61,7 +61,7 @@ private:
             "",
             "",
             "",
-            "Turn using ARROW KEYS or the MOUSE. Fire using SPACEBAR.",
+            "Turn using ARROW KEYS. Fire using SPACEBAR.",
             "Strafe using WASD. Change speed using Q and E.",
             "",
             "Press SPACE to start or ESC to exit!"

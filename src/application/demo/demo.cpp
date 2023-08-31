@@ -21,21 +21,21 @@
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/game/Engine.h"
 #include "lib/util/base/ArgumentParser.h"
-#include "PolygonDemo.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
-
-static const constexpr int32_t DEFAULT_COUNT = 10;
+#include "application/demo/polygon/PolygonDemo.h"
+#include "application/demo/sprites/SpriteDemo.h"
+#include "application/demo/ant/Ant.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Demo application, displaying multiple rotating polygons.\n"
-                               "The amount of polygons can be adjusted via the '+' and '-' keys.\n"
-                               "Usage: polygon [COUNT]\n"
+    argumentParser.setHelpText("Demo applications, showing off the systems graphical capabilities.\n"
+                               "Usage: demo [DEMO] [OPTIONS]...\n"
+                               "Demos: ant, polygon, sprites"
                                "Options:\n"
                                "  -h, --help: Show this help message");
 
@@ -45,14 +45,32 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
-    auto count = arguments.length() == 0 ? DEFAULT_COUNT : Util::String::parseInt(arguments[0]);
+    if (arguments.length() == 0) {
+        Util::System::error << "demo: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        return -1;
+    }
 
-    auto lfbFile = Util::Io::File("/device/lfb");
-    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
-    auto engine = Util::Game::Engine(lfb, 60);
+    auto demo = arguments[0];
+    if (demo == "ant") {
+        auto sleepInterval = arguments.length() <= 1 ? 0 : Util::String::parseInt(arguments[1]);
+        runAntDemo(sleepInterval);
+    } else {
+        auto lfbFile = Util::Io::File("/device/lfb");
+        auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
+        auto engine = Util::Game::Engine(lfb, 60);
 
-    Util::Game::GameManager::getGame().pushScene(new PolygonDemo(count));
-    engine.run();
+        auto count = arguments.length() <= 1 ? 10 : Util::String::parseInt(arguments[1]);
+        if (demo == "polygon") {
+            Util::Game::GameManager::getGame().pushScene(new PolygonDemo(count));
+        } else if (demo == "sprites") {
+            Util::Game::GameManager::getGame().pushScene(new SpriteDemo(count));
+        } else {
+            Util::System::error << "demo: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            return -1;
+        }
+
+        engine.run();
+    }
 
     return 0;
 }

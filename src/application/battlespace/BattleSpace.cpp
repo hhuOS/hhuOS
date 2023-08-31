@@ -61,7 +61,6 @@ BattleSpace::BattleSpace() {
     addObject(player);
 
     setKeyListener(*this);
-    setMouseListener(*this);
 }
 
 void BattleSpace::update(double delta) {
@@ -187,27 +186,4 @@ void BattleSpace::keyReleased(Util::Io::Key key) {
             break;
     }
 
-}
-
-void BattleSpace::buttonPressed(Util::Io::Mouse::Button button) {
-    if (button == Util::Io::Mouse::LEFT_BUTTON && player->mayFireMissile()) {
-        auto offset = Util::Math::Vector3D(0, 0, 1.5).rotate(player->getRotation());
-        addObject(new Missile(player->getPosition() + offset, player->getRotation(), Util::Math::Vector3D(0.2, 0.2, 0.2), Util::Graphic::Colors::GREEN));
-    }
-}
-
-void BattleSpace::buttonReleased(Util::Io::Mouse::Button button) {}
-
-void BattleSpace::mouseMoved(const Util::Math::Vector2D &relativeMovement) {
-    inputRotation = Util::Math::Vector3D(relativeMovement.getY() * 10, -relativeMovement.getX() * 10, inputRotation.getZ());
-}
-
-void BattleSpace::mouseScrolled(Util::Io::Mouse::ScrollDirection direction) {
-    if (direction == Util::Io::Mouse::UP) {
-        inputSpeed += 0.025;
-        if (inputSpeed > 1) inputSpeed = 1;
-    } else if (direction == Util::Io::Mouse::DOWN) {
-        inputSpeed -= 0.025;
-        if (inputSpeed < -1) inputSpeed = -1;
-    }
 }

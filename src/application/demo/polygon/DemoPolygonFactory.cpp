@@ -2,10 +2,10 @@
 
 #include <cstdint>
 
-#include "application/polygon/DemoPolygon.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/math/Vector2D.h"
+#include "DemoPolygon.h"
 
 const Util::Array<Util::Math::Vector2D> DemoPolygonFactory::shape1 = {{0,   0}, {0.5, 1}, {1,   0}};
 const Util::Array<Util::Math::Vector2D> DemoPolygonFactory::shape2 = {{0,  1}, {1,  0}, {0,  -1}, {-1, 0}};

@@ -16,17 +16,21 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-project(polygon)
+project(demo)
 message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR})
 
 # Set source files
 set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/polygon/DemoPolygon.cpp
-        ${HHUOS_SRC_DIR}/application/polygon/DemoPolygonFactory.cpp
-        ${HHUOS_SRC_DIR}/application/polygon/polygon.cpp
-        ${HHUOS_SRC_DIR}/application/polygon/PolygonDemo.cpp)
+        ${HHUOS_SRC_DIR}/application/demo/demo.cpp
+        ${HHUOS_SRC_DIR}/application/demo/ant/Ant.cpp
+        ${HHUOS_SRC_DIR}/application/demo/polygon/DemoPolygon.cpp
+        ${HHUOS_SRC_DIR}/application/demo/polygon/DemoPolygonFactory.cpp
+        ${HHUOS_SRC_DIR}/application/demo/polygon/PolygonDemo.cpp
+        ${HHUOS_SRC_DIR}/application/demo/sprites/SpriteDemo.cpp
+        ${HHUOS_SRC_DIR}/application/demo/sprites/DemoSprite.cpp
+        ${HHUOS_SRC_DIR}/application/demo/sprites/DemoSpriteFactory.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 

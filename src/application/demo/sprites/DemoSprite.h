@@ -15,35 +15,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_SPRITEENTITY_H
-#define HHUOS_SPRITEENTITY_H
+#ifndef HHUOS_DEMOSPRITE_H
+#define HHUOS_DEMOSPRITE_H
 
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/game/Sprite.h"
 #include "lib/util/game/SpriteAnimation.h"
 
-class SpriteEntity : public Util::Game::D2::Entity {
+class DemoSprite : public Util::Game::D2::Entity {
 
 public:
     /**
      * Default Constructor.
      */
-    SpriteEntity(const Util::Math::Vector2D &position, double size, double rotationSpeed, double scaleSpeed, bool flipX);
+    DemoSprite(const Util::Math::Vector2D &position, double size, double rotationSpeed, double scaleSpeed, bool flipX);
 
     /**
      * Copy Constructor.
      */
-    SpriteEntity(const SpriteEntity &other) = delete;
+    DemoSprite(const DemoSprite &other) = delete;
 
     /**
      * Assignment operator.
      */
-    SpriteEntity &operator=(const SpriteEntity &other) = delete;
+    DemoSprite &operator=(const DemoSprite &other) = delete;
 
     /**
      * Destructor.
      */
-    ~SpriteEntity() override = default;
+    ~DemoSprite() override = default;
 
     void initialize() override;
 

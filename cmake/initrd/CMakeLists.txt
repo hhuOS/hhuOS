@@ -32,7 +32,6 @@ else()
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/hhuOS.initrd"
             COMMAND /bin/mkdir -p "${HHUOS_ROOT_DIR}/initrd/bin"
             COMMAND /bin/cp "$<TARGET_FILE:shell>" "${HHUOS_ROOT_DIR}/initrd/bin/shell"
-            COMMAND /bin/cp "$<TARGET_FILE:ant>" "${HHUOS_ROOT_DIR}/initrd/bin/ant"
             COMMAND /bin/cp "$<TARGET_FILE:asciimate>" "${HHUOS_ROOT_DIR}/initrd/bin/asciimate"
             COMMAND /bin/cp "$<TARGET_FILE:battlespace>" "${HHUOS_ROOT_DIR}/initrd/bin/battlespace"
             COMMAND /bin/cp "$<TARGET_FILE:beep>" "${HHUOS_ROOT_DIR}/initrd/bin/beep"
@@ -41,6 +40,7 @@ else()
             COMMAND /bin/cp "$<TARGET_FILE:color>" "${HHUOS_ROOT_DIR}/initrd/bin/color"
             COMMAND /bin/cp "$<TARGET_FILE:cp>" "${HHUOS_ROOT_DIR}/initrd/bin/cp"
             COMMAND /bin/cp "$<TARGET_FILE:date>" "${HHUOS_ROOT_DIR}/initrd/bin/date"
+            COMMAND /bin/cp "$<TARGET_FILE:demo>" "${HHUOS_ROOT_DIR}/initrd/bin/demo"
             COMMAND /bin/cp "$<TARGET_FILE:dino>" "${HHUOS_ROOT_DIR}/initrd/bin/dino"
             COMMAND /bin/cp "$<TARGET_FILE:echo>" "${HHUOS_ROOT_DIR}/initrd/bin/echo"
             COMMAND /bin/cp "$<TARGET_FILE:head>" "${HHUOS_ROOT_DIR}/initrd/bin/head"
@@ -55,14 +55,12 @@ else()
             COMMAND /bin/cp "$<TARGET_FILE:mouse>" "${HHUOS_ROOT_DIR}/initrd/bin/mouse"
             COMMAND /bin/cp "$<TARGET_FILE:ping>" "${HHUOS_ROOT_DIR}/initrd/bin/ping"
             COMMAND /bin/cp "$<TARGET_FILE:play>" "${HHUOS_ROOT_DIR}/initrd/bin/play"
-            COMMAND /bin/cp "$<TARGET_FILE:polygon>" "${HHUOS_ROOT_DIR}/initrd/bin/polygon"
             COMMAND /bin/cp "$<TARGET_FILE:ps>" "${HHUOS_ROOT_DIR}/initrd/bin/ps"
             COMMAND /bin/cp "$<TARGET_FILE:pwd>" "${HHUOS_ROOT_DIR}/initrd/bin/pwd"
             COMMAND /bin/cp "$<TARGET_FILE:rm>" "${HHUOS_ROOT_DIR}/initrd/bin/rm"
             COMMAND /bin/cp "$<TARGET_FILE:rmdir>" "${HHUOS_ROOT_DIR}/initrd/bin/rmdir"
             COMMAND /bin/cp "$<TARGET_FILE:shutdown>" "${HHUOS_ROOT_DIR}/initrd/bin/shutdown"
             COMMAND /bin/cp "$<TARGET_FILE:smbios>" "${HHUOS_ROOT_DIR}/initrd/bin/smbios"
-            COMMAND /bin/cp "$<TARGET_FILE:sprites>" "${HHUOS_ROOT_DIR}/initrd/bin/sprites"
             COMMAND /bin/cp "$<TARGET_FILE:touch>" "${HHUOS_ROOT_DIR}/initrd/bin/touch"
             COMMAND /bin/cp "$<TARGET_FILE:tree>" "${HHUOS_ROOT_DIR}/initrd/bin/tree"
             COMMAND /bin/cp "$<TARGET_FILE:uecho>" "${HHUOS_ROOT_DIR}/initrd/bin/uecho"
@@ -73,7 +71,7 @@ else()
             COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/asciimation" "${HHUOS_ROOT_DIR}/initrd"
             COMMAND /bin/tar -C "${HHUOS_ROOT_DIR}/initrd/" --xform s:'./':: -cf "${CMAKE_BINARY_DIR}/hhuOS.initrd" ./
             COMMAND /bin/rm -f "${HHUOS_ROOT_DIR}/hhuOS.img" "${HHUOS_ROOT_DIR}/hhuOS.iso"
-            DEPENDS asciimation music shell ant asciimate battlespace beep bug cat color cp date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping play polygon ps pwd rm rmdir shutdown smbios sprites touch tree uecho unmount uptime view3d)
+            DEPENDS asciimation music shell asciimate battlespace beep bug cat color cp date demo dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping play ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d)
 
-    add_custom_target(${PROJECT_NAME} DEPENDS music asciimation shell ant asciimate battlespace beep bug cat color cp date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping play polygon ps pwd rm rmdir shutdown smbios sprites touch tree uecho unmount uptime view3d "${CMAKE_BINARY_DIR}/hhuOS.initrd")
+    add_custom_target(${PROJECT_NAME} DEPENDS music asciimation shell asciimate battlespace beep bug cat color cp date demo dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping play ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d "${CMAKE_BINARY_DIR}/hhuOS.initrd")
 endif()

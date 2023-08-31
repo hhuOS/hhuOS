@@ -15,58 +15,63 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_BATTLESPACE_H
-#define HHUOS_BATTLESPACE_H
+#ifndef HHUOS_ANT_H
+#define HHUOS_ANT_H
 
-#include "lib/util/game/3d/Scene.h"
-#include "lib/util/game/KeyListener.h"
-#include "lib/util/game/MouseListener.h"
+#include <cstdint>
+#include "lib/util/graphic/Color.h"
 #include "lib/util/math/Random.h"
-#include "Player.h"
-#include "Enemy.h"
+#include "lib/util/graphic/Colors.h"
 
-class BattleSpace : public Util::Game::D3::Scene, public Util::Game::KeyListener {
+void runAntDemo(uint32_t sleepInterval);
+
+class Ant {
 
 public:
+
+    enum Direction {
+        UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270
+    };
+
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    BattleSpace();
+    Ant(int16_t limitX, int16_t limitY);
 
     /**
      * Copy Constructor.
      */
-    BattleSpace(const BattleSpace &other) = delete;
+    Ant(const Ant &other) = delete;
 
     /**
      * Assignment operator.
      */
-    BattleSpace &operator=(const BattleSpace &other) = delete;
+    Ant &operator=(const Ant &other) = delete;
 
     /**
      * Destructor.
      */
-    ~BattleSpace() override = default;
+    ~Ant() = default;
 
-    void update(double delta) override;
+    void move();
 
-    void keyPressed(Util::Io::Key key) override;
+    void turnClockWise();
 
-    void keyReleased(Util::Io::Key key) override;
+    void turnCounterClockWise();
+
+    [[nodiscard]] int16_t getX() const;
+
+    [[nodiscard]] int16_t getY() const;
+
+    [[nodiscard]] const Util::Graphic::Color &getColor() const;
 
 private:
 
-    Util::Math::Random random;
-
-    Player *player = new Player(enemies);
-    Util::ArrayList<Enemy*> enemies;
-
-    Util::Math::Vector3D inputRotation = {0, 0, 0};
-    Util::Math::Vector3D inputTranslate = {0, 0, 0};
-    double inputSpeed = 1.0;
-    uint16_t difficulty = 0;
-
-    static const constexpr double ENEMY_SPAWN_RANGE = 10.0;
+    int16_t limitX, limitY;
+    int16_t x, y;
+    Direction direction = UP;
+    Util::Graphic::Color color = Util::Graphic::Colors::WHITE;
+    Util::Math::Random random = Util::Math::Random();
 };
 
 #endif

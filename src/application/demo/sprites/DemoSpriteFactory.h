@@ -15,14 +15,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SpriteFactory.h"
+#ifndef HHUOS_DEMOSPRITEFACTORY_H
+#define HHUOS_DEMOSPRITEFACTORY_H
 
-SpriteEntity *SpriteFactory::createSprite() {
-    const auto size = random.nextRandomNumber() * 0.15 + 0.1;
-    const auto rotationSpeed = (random.nextRandomNumber() + 0.1) * (random.nextRandomNumber() < 0.5 ? -1 : 1);
-    const auto scaleSpeed = random.nextRandomNumber();
-    const auto position = Util::Math::Vector2D(random.nextRandomNumber() * 2 - 1 - size / 2, random.nextRandomNumber() * 2 - 1 - size / 2);
-    const auto flipX = random.nextRandomNumber() < 0.5;
+#include "lib/util/math/Random.h"
+#include "DemoSprite.h"
 
-    return new SpriteEntity(position, size, rotationSpeed, scaleSpeed, flipX);
-}
+class DemoSpriteFactory {
+
+public:
+    /**
+     * Default Constructor.
+     */
+    DemoSpriteFactory() = default;
+
+    /**
+     * Copy Constructor.
+     */
+    DemoSpriteFactory(const DemoSpriteFactory &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    DemoSpriteFactory &operator=(const DemoSpriteFactory &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~DemoSpriteFactory() = default;
+
+    DemoSprite* createSprite();
+
+private:
+
+    Util::Math::Random random = Util::Math::Random();
+};
+
+#endif

@@ -16,9 +16,8 @@
  */
 
 #include "PolygonDemo.h"
-
+#include "DemoPolygon.h"
 #include "DemoPolygonFactory.h"
-#include "application/polygon/DemoPolygon.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
