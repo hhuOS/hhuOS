@@ -15,10 +15,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Model.h"
+#ifndef HHUOS_SPRITEFACTORY_H
+#define HHUOS_SPRITEFACTORY_H
 
-Model::Model(const Util::String &modelPath) : Util::Game::D3::Model(0, modelPath, Util::Math::Vector3D(0, 0, 3), Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(1, 1, 1)) {}
+#include "lib/util/math/Random.h"
+#include "SpriteEntity.h"
 
-void Model::onUpdate(double delta) {}
+class SpriteFactory {
 
-void Model::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {}
+public:
+    /**
+     * Default Constructor.
+     */
+    SpriteFactory() = default;
+
+    /**
+     * Copy Constructor.
+     */
+    SpriteFactory(const SpriteFactory &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    SpriteFactory &operator=(const SpriteFactory &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~SpriteFactory() = default;
+
+    SpriteEntity* createSprite();
+
+private:
+
+    Util::Math::Random random = Util::Math::Random();
+};
+
+#endif

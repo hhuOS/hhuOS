@@ -15,12 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Astronomical.h"
+#include "SpriteFactory.h"
 
-Astronomical::Astronomical(const Util::String &modelName, const Util::Math::Vector3D &position, double scale, const Util::Math::Vector3D &rotationVector, const Util::Graphic::Color &color) : Util::Game::D3::ModelEntity(TAG, Util::String::format("/initrd/battlespace/%s.obj", static_cast<const char*>(modelName)), position, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(scale, scale, scale), color), rotationVector(rotationVector) {}
+SpriteEntity *SpriteFactory::createSprite() {
+    const auto size = random.nextRandomNumber() * 0.15 + 0.1;
+    const auto rotationSpeed = (random.nextRandomNumber() + 0.1) * (random.nextRandomNumber() < 0.5 ? -1 : 1);
+    const auto scaleSpeed = random.nextRandomNumber();
+    const auto position = Util::Math::Vector2D(random.nextRandomNumber() * 2 - 1 - size / 2, random.nextRandomNumber() * 2 - 1 - size / 2);
+    const auto flipX = random.nextRandomNumber() < 0.5;
 
-void Astronomical::onUpdate(double delta) {
-    rotate(rotationVector * delta);
+    return new SpriteEntity(position, size, rotationSpeed, scaleSpeed, flipX);
 }
-
-void Astronomical::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {}

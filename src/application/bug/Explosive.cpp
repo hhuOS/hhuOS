@@ -56,7 +56,7 @@ void Explosive::onUpdate(double delta) {
 }
 
 void Explosive::draw(Util::Game::Graphics &graphics) {
-    graphics.drawImage2D(getPosition(), animation.getCurrentSprite().getImage());
+    animation.draw(graphics, getPosition());
 }
 
 void Explosive::explode() {

@@ -27,11 +27,11 @@
 
 namespace Util::Game::D3 {
 
-Model::Model(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale) : Entity(tag, position, rotation, scale, SphereCollider(position, Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath) {}
+ModelEntity::ModelEntity(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale) : Entity(tag, position, rotation, scale, SphereCollider(position, Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath) {}
 
-Model::Model(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const Graphic::Color &color) : Entity(tag, position, rotation, scale, SphereCollider(position, Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath), color(color) {}
+ModelEntity::ModelEntity(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const Graphic::Color &color) : Entity(tag, position, rotation, scale, SphereCollider(position, Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath), color(color) {}
 
-void Model::initialize() {
+void ModelEntity::initialize() {
     if (!ResourceManager::hasObjectFile(modelPath)) {
         ResourceManager::addObjectFile(modelPath, ObjectFile::open(modelPath));
     }
@@ -41,7 +41,7 @@ void Model::initialize() {
     calculateTransformedVertices();
 }
 
-void Model::calculateTransformedVertices() {
+void ModelEntity::calculateTransformedVertices() {
     const auto &vertices = objectFile->getVertices();
     for (uint32_t i = 0; i < vertices.length(); i++) {
         auto vertex = vertices[i];
@@ -54,7 +54,7 @@ void Model::calculateTransformedVertices() {
     }
 }
 
-void Model::draw(Graphics &graphics) {
+void ModelEntity::draw(Graphics &graphics) {
     auto &camera = Util::Game::GameManager::getCurrentScene().getCamera();
     auto minXProjection = Util::Game::Graphics::projectPoint(getPosition() + Util::Math::Vector3D(-getCollider().getRadius(), 0, 0), camera.getPosition(), camera.getRotation());
     auto maxXProjection = Util::Game::Graphics::projectPoint(getPosition() + Util::Math::Vector3D(getCollider().getRadius(), 0, 0), camera.getPosition(), camera.getRotation());
@@ -74,7 +74,7 @@ void Model::draw(Graphics &graphics) {
     }
 }
 
-void Model::onTransformChange() {
+void ModelEntity::onTransformChange() {
     calculateTransformedVertices();
 }
 

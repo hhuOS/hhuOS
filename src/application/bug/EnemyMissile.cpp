@@ -34,7 +34,7 @@
 
 class Bug;
 
-EnemyMissile::EnemyMissile(const Util::Math::Vector2D &position, Bug &bug) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)), bug(bug) {
+EnemyMissile::EnemyMissile(const Util::Math::Vector2D &position, Bug &bug) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)), bug(bug) {
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
 }
 
@@ -76,6 +76,6 @@ void EnemyMissile::draw(Util::Game::Graphics &graphics) {
     if (isExploding()) {
         Explosive::draw(graphics);
     } else {
-        graphics.drawImage2D(getPosition(), sprite.getImage());
+        sprite.draw(graphics, getPosition());
     }
 }

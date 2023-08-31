@@ -15,12 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Astronomical.h"
+#include "ModelEntity.h"
 
-Astronomical::Astronomical(const Util::String &modelName, const Util::Math::Vector3D &position, double scale, const Util::Math::Vector3D &rotationVector, const Util::Graphic::Color &color) : Util::Game::D3::ModelEntity(TAG, Util::String::format("/initrd/battlespace/%s.obj", static_cast<const char*>(modelName)), position, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(scale, scale, scale), color), rotationVector(rotationVector) {}
+ModelEntity::ModelEntity(const Util::String &modelPath) : Util::Game::D3::ModelEntity(0, modelPath, Util::Math::Vector3D(0, 0, 3), Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(1, 1, 1)) {}
 
-void Astronomical::onUpdate(double delta) {
-    rotate(rotationVector * delta);
-}
+void ModelEntity::onUpdate(double delta) {}
 
-void Astronomical::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {}
+void ModelEntity::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {}

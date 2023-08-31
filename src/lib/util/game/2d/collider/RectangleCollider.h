@@ -36,7 +36,7 @@ public:
     /**
      * Constructor.
      */
-    RectangleCollider(const Math::Vector2D &position, Collider::Type type, double width, double height);
+    RectangleCollider(const Math::Vector2D &position, const Math::Vector2D &size, Collider::Type type);
 
     /**
      * Copy Constructor.
@@ -59,16 +59,19 @@ public:
 
     [[nodiscard]] double getHeight() const;
 
+    const Math::Vector2D& getSize() const;
+
     void setWidth(double width);
 
     void setHeight(double height);
+
+    void setSize(const Math::Vector2D &size);
 
     [[nodiscard]] Side isColliding(const RectangleCollider &other) const;
 
 private:
 
-    double width;
-    double height;
+    Math::Vector2D size;
 };
 
 }

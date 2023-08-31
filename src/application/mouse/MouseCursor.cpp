@@ -45,9 +45,9 @@ void MouseCursor::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     const auto &newPosition = event.getTargetPosition();
 
     if (newPosition.getX() < -resolution.getX() ||
-        newPosition.getX() > resolution.getX() - currentSprite->getWidth() ||
+        newPosition.getX() > resolution.getX() - currentSprite->getInitialSize().getX() ||
         newPosition.getY() < -resolution.getY() ||
-        newPosition.getY() > resolution.getY() - currentSprite->getHeight()) {
+        newPosition.getY() > resolution.getY() - currentSprite->getInitialSize().getY()) {
         event.cancel();
     }
 }
@@ -58,9 +58,9 @@ void MouseCursor::draw(Util::Game::Graphics &graphics) {
     auto charWidth = graphics.getCharWidth() / static_cast<double>(Util::Game::GameManager::getTransformation());
     auto additionalButtons = Util::String::format("%c%c", button4Pressed ? '4' : ' ', button5Pressed ? '5' : ' ');
 
-    graphics.drawImage2D(getPosition(), currentSprite->getImage());
+    currentSprite->draw(graphics, getPosition());
     graphics.setColor(Util::Graphic::Colors::HHU_TURQUOISE);
-    graphics.drawString2D(getPosition() + Util::Math::Vector2D(currentSprite->getWidth() / 2 - charWidth, currentSprite->getHeight() / 3), additionalButtons);
+    graphics.drawString2D(getPosition() + Util::Math::Vector2D(currentSprite->getInitialSize().getX() / 2 - charWidth, currentSprite->getInitialSize().getY() / 3), additionalButtons);
 }
 
 void MouseCursor::buttonPressed(Util::Io::Mouse::Button button) {

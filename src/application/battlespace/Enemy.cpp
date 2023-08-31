@@ -26,7 +26,7 @@
 
 const Util::Math::Vector3D Enemy::MAX_ROTATION_DELTA = Util::Math::Vector3D(1, 1, 0);
 
-Enemy::Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, const Util::Math::Vector3D &scale, Enemy::Type type) : Util::Game::D3::Model(2, "initrd/battlespace/enemy.obj", position, rotation, scale, Util::Graphic::Colors::RED), player(player), enemies(enemies), type(type) {}
+Enemy::Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, const Util::Math::Vector3D &scale, Enemy::Type type) : Util::Game::D3::ModelEntity(2, "initrd/battlespace/enemy.obj", position, rotation, scale, Util::Graphic::Colors::RED), player(player), enemies(enemies), type(type) {}
 
 void Enemy::onUpdate(double delta) {
     if (invulnerabilityTimer > 0) invulnerabilityTimer -= delta;

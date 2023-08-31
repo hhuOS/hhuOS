@@ -37,7 +37,7 @@
 #include "application/bug/Explosive.h"
 #include "lib/util/game/2d/Entity.h"
 
-Bug::Bug(const Util::Math::Vector2D &position, Fleet &fleet) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)), fleet(fleet) {
+Bug::Bug(const Util::Math::Vector2D &position, Fleet &fleet) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)), fleet(fleet) {
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
 }
 
@@ -103,7 +103,7 @@ void Bug::draw(Util::Game::Graphics &graphics) {
     if (isExploding()) {
         Explosive::draw(graphics);
     } else {
-        graphics.drawImage2D(getPosition(), animation.getCurrentSprite().getImage());
+        animation.draw(graphics, getPosition());
     }
 }
 

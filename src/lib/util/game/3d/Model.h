@@ -27,33 +27,33 @@
 
 namespace Util::Game::D3 {
 
-class Model : public Entity {
+class ModelEntity : public Entity {
 
 public:
     /**
      * Constructor.
      */
-    Model(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale);
+    ModelEntity(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale);
 
     /**
      * Constructor.
      */
-    Model(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const Graphic::Color &color);
+    ModelEntity(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const Graphic::Color &color);
 
     /**
      * Copy Constructor.
      */
-    Model(const Model &other) = delete;
+    ModelEntity(const ModelEntity &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Model &operator=(const Model &other) = delete;
+    ModelEntity &operator=(const ModelEntity &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Model() override = default;
+    ~ModelEntity() override = default;
 
     void initialize() override;
 

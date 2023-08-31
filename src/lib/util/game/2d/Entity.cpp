@@ -27,7 +27,7 @@
 
 namespace Util::Game::D2 {
 
-Entity::Entity(uint32_t tag, const Math::Vector2D &position) : Util::Game::Entity(tag), position(position), colliderPresent(false), collider(Util::Math::Vector2D(0, 0), Collider::STATIC, 0, 0) {}
+Entity::Entity(uint32_t tag, const Math::Vector2D &position) : Util::Game::Entity(tag), position(position), colliderPresent(false), collider(Util::Math::Vector2D(0, 0), Util::Math::Vector2D(0, 0), Collider::STATIC) {}
 
 Entity::Entity(uint32_t tag, const Math::Vector2D &position, const RectangleCollider &collider) : Util::Game::Entity(tag), position(position), colliderPresent(true), collider(collider) {}
 

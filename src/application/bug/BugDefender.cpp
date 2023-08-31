@@ -66,7 +66,7 @@ void BugDefender::initializeBackground(Util::Game::Graphics &graphics) {
 
     for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
         for (int32_t y = -tilesPerColumn; y < tilesPerColumn; y++) {
-            graphics.drawImage2D(Util::Math::Vector2D(x * BACKGROUND_TILE_WIDTH, y * BACKGROUND_TILE_HEIGHT), backgroundSprites[static_cast<uint32_t>(random.nextRandomNumber() * BACKGROUND_TILE_COUNT)].getImage());
+            backgroundSprites[static_cast<uint32_t>(random.nextRandomNumber() * BACKGROUND_TILE_COUNT)].draw(graphics, Util::Math::Vector2D(x * BACKGROUND_TILE_WIDTH, y * BACKGROUND_TILE_HEIGHT));
         }
     }
 
@@ -74,11 +74,11 @@ void BugDefender::initializeBackground(Util::Game::Graphics &graphics) {
     tilesPerRow = static_cast<int32_t>(resolution.getX() > resolution.getY() ? resolution.getX() * defaultTilesPerRow : defaultTilesPerRow);
 
     for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
-        graphics.drawImage2D(Util::Math::Vector2D(x * PLANET_TILE_WIDTH, -1 + PLANET_TILE_HEIGHT), surfaceSprite.getImage());
+        surfaceSprite.draw(graphics, Util::Math::Vector2D(x * PLANET_TILE_WIDTH, -1 + PLANET_TILE_HEIGHT));
     }
 
     for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
-        graphics.drawImage2D(Util::Math::Vector2D(x * PLANET_TILE_WIDTH, -1), planetSprites[static_cast<uint32_t>(random.nextRandomNumber() * PLANET_TILE_COUNT)].getImage());
+        planetSprites[static_cast<uint32_t>(random.nextRandomNumber() * PLANET_TILE_COUNT)].draw(graphics, Util::Math::Vector2D(x * PLANET_TILE_WIDTH, -1));
     }
 }
 

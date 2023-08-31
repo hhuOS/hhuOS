@@ -22,6 +22,8 @@
 #define HHUOS_SPRITE_H
 
 #include "lib/util/base/String.h"
+#include "lib/util/math/Vector2D.h"
+#include "Graphics.h"
 
 namespace Util {
 namespace Graphic {
@@ -61,15 +63,34 @@ public:
 
     [[nodiscard]] const Graphic::Image& getImage() const;
 
-    [[nodiscard]] double getWidth() const;
+    [[nodiscard]] const Math::Vector2D &getInitialSize() const;
 
-    [[nodiscard]] double getHeight() const;
+    [[nodiscard]] Math::Vector2D getScaledSize() const;
+
+    [[nodiscard]] const Math::Vector2D& getScale() const;
+
+    [[nodiscard]] double getRotation() const;
+
+    void setScale(const Math::Vector2D &scale);
+
+    void setScale(double scale);
+
+    void setRotation(double angle);
+
+    void rotate(double angle);
+
+    void flipX();
+
+    void draw(const Graphics &graphics, const Math::Vector2D &position) const;
 
 private:
 
     Graphic::Image *image;
-    double width;
-    double height;
+
+    Math::Vector2D size;
+    Math::Vector2D scale = Math::Vector2D(1, 1);
+    double rotationAngle = 0;
+    bool xFlipped = false;
 };
 
 }

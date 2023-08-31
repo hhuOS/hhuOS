@@ -55,9 +55,9 @@ void DinoGame::initializeBackground(Util::Game::Graphics &graphics) {
     auto cloud4 = Util::Game::Sprite("/initrd/dino/cloud4.bmp", 0.45, 0.15);
 
     graphics.clear(Util::Graphic::Color(57, 97, 255));
-    graphics.drawImage2D(Util::Math::Vector2D(-1, 0.65), cloud1.getImage());
-    graphics.drawImage2D(Util::Math::Vector2D(0.2, 0.3), cloud3.getImage());
-    graphics.drawImage2D(Util::Math::Vector2D(0.65, 0.7), cloud4.getImage());
+    cloud1.draw(graphics, Util::Math::Vector2D(-1, 0.65));
+    cloud3.draw(graphics, Util::Math::Vector2D(0.2, 0.3));
+    cloud4.draw(graphics, Util::Math::Vector2D(0.65, 0.7));
 }
 
 void DinoGame::update(double delta) {

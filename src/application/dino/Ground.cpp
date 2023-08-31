@@ -30,7 +30,7 @@ class CollisionEvent;
 }  // namespace Game
 }  // namespace Util
 
-Ground::Ground(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Game::Collider::STATIC, 1, 0.001)) {}
+Ground::Ground(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(1, 0.001), Util::Game::Collider::STATIC)) {}
 
 void Ground::initialize() {
     sprite = Util::Game::Sprite("/initrd/dino/ground.bmp", 0.2, 0.2);
@@ -46,7 +46,7 @@ void Ground::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
 
 void Ground::draw(Util::Game::Graphics &graphics) {
     graphics.setColor(Util::Graphic::Colors::GREEN);
-    for (uint32_t i = 0; i < getCollider().getWidth() / sprite.getWidth(); i ++) {
-        graphics.drawImage2D(Util::Math::Vector2D(getPosition().getX() + i * sprite.getWidth(), getPosition().getY() - sprite.getHeight()), sprite.getImage());
+    for (uint32_t i = 0; i < getCollider().getWidth() / sprite.getInitialSize().getX(); i ++) {
+        sprite.draw(graphics, Util::Math::Vector2D(getPosition().getX() + i * sprite.getInitialSize().getY(), getPosition().getY() - sprite.getInitialSize().getY()));
     }
 }

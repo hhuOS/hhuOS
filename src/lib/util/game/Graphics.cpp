@@ -176,20 +176,42 @@ void Graphics::drawStringSmall2D(const Math::Vector2D &position, const String &s
     drawStringSmall2D(position, static_cast<const char*>(string));
 }
 
-void Graphics::drawImage2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX) const {
-    auto pixelBuffer = image.getPixelBuffer();
-    auto xFlipOffset = flipX ? image.getWidth() - 1 : 0;
+void Graphics::drawImage2D(const Math::Vector2D &position, const Graphic::Image &image, const Math::Vector2D &scale, double rotationAngle, bool flipX) const {
     auto xPixelOffset = static_cast<int32_t>((position.getX() - cameraPosition.getX()) * transformation + offsetX);
     auto yPixelOffset = static_cast<int32_t>((-position.getY() + cameraPosition.getY()) * transformation + offsetY);
 
-    if (xPixelOffset + image.getWidth() < 0 || xPixelOffset > lfb.getResolutionX() ||
-        yPixelOffset - image.getHeight() > lfb.getResolutionY() || yPixelOffset < 0) {
+    if (xPixelOffset + image.getWidth() < 0 || xPixelOffset > lfb.getResolutionX() || yPixelOffset - image.getHeight() > lfb.getResolutionY() || yPixelOffset < 0) {
         return;
     }
 
-    for (int32_t i = 0; i < image.getHeight(); i++) {
-        for (int32_t j = 0; j < image.getWidth(); j++) {
-            pixelDrawer.drawPixel(xPixelOffset + xFlipOffset + (flipX ? -1 : 1) * j, yPixelOffset - i, pixelBuffer[i * image.getWidth() + j]);
+    auto pixelBuffer = image.getPixelBuffer();
+    uint16_t height = image.getHeight();
+    uint16_t width = image.getWidth();
+
+    if (scale == Util::Math::Vector2D(1, 1) && rotationAngle == 0) {
+        for (int32_t i = 0; i < image.getHeight(); i++) {
+            for (int32_t j = 0; j < image.getWidth(); j++) {
+                pixelDrawer.drawPixel(xPixelOffset + j, yPixelOffset - i, pixelBuffer[i * image.getWidth() + (flipX ? image.getWidth() - j : j)]);
+            }
+        }
+    } else {
+        auto scaledWidth = width * scale.getX();
+        auto scaledHeight = height * scale.getY();
+        auto halfWidth = scaledWidth / 2;
+        auto halfHeight = scaledWidth / 2;
+        auto factorX = scaledWidth / width;
+        auto factorY = scaledHeight / height;
+        auto sineAngle = Math::sine(rotationAngle);
+        auto cosineAngle = Math::cosine(rotationAngle);
+
+       for (int32_t i = 0; i < scaledHeight; i++) {
+            for (int32_t j = 0; j < scaledWidth; j++) {
+                auto imageX = static_cast<uint16_t>(j / factorX);
+                auto imageY = static_cast<uint16_t>(i / factorY);
+                auto lfbX = xPixelOffset + halfWidth + (cosineAngle * (j - halfWidth) - sineAngle * (i - halfHeight));
+                auto lfbY = yPixelOffset - halfHeight - (sineAngle * (j - halfWidth) + cosineAngle * (i - halfHeight));
+                pixelDrawer.drawPixel(static_cast<uint16_t>(lfbX), static_cast<uint16_t>(lfbY), pixelBuffer[width * imageY + (flipX ? width - imageX : imageX)]);
+            }
         }
     }
 }

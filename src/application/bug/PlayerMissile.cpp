@@ -31,7 +31,7 @@
 #include "EnemyMissile.h"
 #include "Bug.h"
 
-PlayerMissile::PlayerMissile(const Util::Math::Vector2D &position, Ship &ship) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)), ship(ship) {
+PlayerMissile::PlayerMissile(const Util::Math::Vector2D &position, Ship &ship) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)), ship(ship) {
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
 }
 
@@ -70,5 +70,5 @@ void PlayerMissile::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
 }
 
 void PlayerMissile::draw(Util::Game::Graphics &graphics) {
-    graphics.drawImage2D(getPosition(), sprite.getImage());
+    sprite.draw(graphics, getPosition());
 }

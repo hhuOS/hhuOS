@@ -19,7 +19,7 @@
 #include "lib/util/game/Game.h"
 #include "lib/util/game/GameManager.h"
 
-Missile::Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, const Util::Math::Vector3D &scale, const Util::Graphic::Color &color) : Util::Game::D3::Model(TAG, "/initrd/battlespace/missile.obj", translation, rotation, scale, color) {}
+Missile::Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, const Util::Math::Vector3D &scale, const Util::Graphic::Color &color) : Util::Game::D3::ModelEntity(TAG, "/initrd/battlespace/missile.obj", translation, rotation, scale, color) {}
 
 void Missile::onUpdate(double delta) {
     if (lifetime > 5) {

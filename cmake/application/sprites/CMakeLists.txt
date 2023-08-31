@@ -16,17 +16,18 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-project(view3d)
+project(sprites)
 message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR})
 
 # Set source files
 set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/view3d/ModelEntity.cpp
-        ${HHUOS_SRC_DIR}/application/view3d/ModelViewer.cpp
-        ${HHUOS_SRC_DIR}/application/view3d/view3d.cpp)
+        ${HHUOS_SRC_DIR}/application/sprites/sprites.cpp
+        ${HHUOS_SRC_DIR}/application/sprites/SpriteDemo.cpp
+        ${HHUOS_SRC_DIR}/application/sprites/SpriteEntity.cpp
+        ${HHUOS_SRC_DIR}/application/sprites/SpriteFactory.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME}  lib.user.crt0 lib.user.base lib.user.game)
+target_link_libraries(${PROJECT_NAME} lib.user.crt0 lib.user.base lib.user.game)

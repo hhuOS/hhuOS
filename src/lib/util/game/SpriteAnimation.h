@@ -60,15 +60,33 @@ public:
 
     void update(double delta);
 
-    [[nodiscard]] const Sprite& getCurrentSprite() const;
-
     [[nodiscard]] double getAnimationTime() const;
 
-    [[nodiscard]] double getWidth() const;
+    [[nodiscard]] const Math::Vector2D& getScale() const;
 
-    [[nodiscard]] double getHeight() const;
+    [[nodiscard]] const Math::Vector2D &getInitialSize() const;
+
+    [[nodiscard]] Math::Vector2D getScaledSize() const;
+
+    [[nodiscard]] double getRotation() const;
+
+    void setScale(const Math::Vector2D &scale);
+
+    void setScale(double scale);
+
+    void setRotation(double angle);
+
+    void rotate(double angle);
+
+    void flipX();
+
+    void draw(const Graphics &graphics, const Math::Vector2D &position) const;
 
 private:
+
+    Math::Vector2D scale = Math::Vector2D(1, 1);
+    double rotationAngle = 0;
+    bool xFlipped = false;
 
     double animationTime = 0;
     double timePerSprite = 0;

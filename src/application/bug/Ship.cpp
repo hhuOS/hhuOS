@@ -33,7 +33,7 @@
 #include "application/bug/Explosive.h"
 #include "lib/util/game/2d/Entity.h"
 
-Ship::Ship(const Util::Math::Vector2D &position) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Game::Collider::STATIC, SIZE_X, SIZE_Y)) {
+Ship::Ship(const Util::Math::Vector2D &position) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)) {
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
 }
 
@@ -93,10 +93,10 @@ void Ship::draw(Util::Game::Graphics &graphics) {
         return;
     }
 
-    graphics.drawImage2D(getPosition(), sprite.getImage());
+    sprite.draw(graphics, getPosition());
 
     for (uint32_t i = 0; i < lives; i++) {
-        graphics.drawImage2D(Util::Math::Vector2D(-0.9 + i * 1.5 * heart.getWidth(), -0.9), heart.getImage());
+        heart.draw(graphics, Util::Math::Vector2D(-0.9 + i * 1.5 * heart.getInitialSize().getX(), -0.9));
     }
 }
 

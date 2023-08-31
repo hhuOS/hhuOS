@@ -57,6 +57,8 @@ public:
 
     void flush() const;
 
+
+
 private:
 
     bool useMmx = false;

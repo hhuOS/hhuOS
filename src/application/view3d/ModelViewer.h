@@ -21,7 +21,7 @@
 #include "lib/util/game/3d/Scene.h"
 #include "lib/util/game/KeyListener.h"
 #include "lib/util/game/MouseListener.h"
-#include "Model.h"
+#include "ModelEntity.h"
 
 class ModelViewer : public Util::Game::D3::Scene, public Util::Game::KeyListener, public Util::Game::MouseListener {
 
@@ -62,7 +62,7 @@ public:
 
 private:
 
-    Model *model;
+    ModelEntity *model;
 
     double zoom = 0;
     Util::Math::Vector3D rotation = Util::Math::Vector3D(0, 0, 0);

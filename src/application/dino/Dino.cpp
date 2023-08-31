@@ -27,7 +27,7 @@
 #include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
 
-Dino::Dino(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Game::Collider::DYNAMIC, 0.2, 0.2)) {}
+Dino::Dino(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(0.2, 0.2), Util::Game::Collider::DYNAMIC)) {}
 
 void Dino::initialize() {
     runAnimation = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
@@ -116,12 +116,11 @@ void Dino::onUpdate(double delta) {
         currentAnimation->update(delta);
     }
 
-    getCollider().setWidth(currentAnimation->getWidth());
-    getCollider().setHeight(currentAnimation->getHeight());
+    getCollider().setSize(currentAnimation->getInitialSize());
 }
 
 void Dino::draw(Util::Game::Graphics &graphics) {
-    graphics.drawImage2D(getPosition(), currentAnimation->getCurrentSprite().getImage());
+    currentAnimation->draw(graphics, getPosition());
 
     graphics.setColor(Util::Graphic::Colors::GREEN);
     graphics.drawString(Util::Math::Vector2D(10, 10), Util::String::format("Points: %u", points));

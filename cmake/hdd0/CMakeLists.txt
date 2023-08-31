@@ -54,6 +54,7 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cp "$<TARGET_FILE:rmdir>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/rmdir"
         COMMAND /bin/cp "$<TARGET_FILE:shutdown>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/shutdown"
         COMMAND /bin/cp "$<TARGET_FILE:smbios>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/smbios"
+        COMMAND /bin/cp "$<TARGET_FILE:sprites>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/sprites"
         COMMAND /bin/cp "$<TARGET_FILE:touch>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/touch"
         COMMAND /bin/cp "$<TARGET_FILE:tree>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/tree"
         COMMAND /bin/cp "$<TARGET_FILE:uecho>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/uecho"
@@ -64,6 +65,6 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/asciimation" "${HHUOS_ROOT_DIR}/hdd0/img/user"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/books" "${HHUOS_ROOT_DIR}/hdd0/img/user"
         WORKING_DIRECTORY ${HHUOS_ROOT_DIR}/hdd0 COMMAND ${HHUOS_ROOT_DIR}/hdd0/build.sh
-        DEPENDS asciimation music books shell ant asciimate battlespace beep bug cat color cp date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping play polygon ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d)
+        DEPENDS asciimation music books shell ant asciimate battlespace beep bug cat color cp date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping play polygon ps pwd rm rmdir shutdown smbios sprites touch tree uecho unmount uptime view3d)
 
-add_custom_target(${PROJECT_NAME} DEPENDS asciimation music books shell ant asciimate battlespace beep bug cat color cp date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping play polygon ps  pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d "${HHUOS_ROOT_DIR}/hdd0.img")
+add_custom_target(${PROJECT_NAME} DEPENDS asciimation music books shell ant asciimate battlespace beep bug cat color cp date dino echo head hexdump ip kill ls lvgl_demo membench mkdir mount mouse ping play polygon ps  pwd rm rmdir shutdown smbios sprites touch tree uecho unmount uptime view3d "${HHUOS_ROOT_DIR}/hdd0.img")

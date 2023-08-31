@@ -121,7 +121,7 @@ public:
 
     void drawStringSmall2D(const Math::Vector2D &position, const String &string) const;
 
-    void drawImage2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX = false) const;
+    void drawImage2D(const Math::Vector2D &position, const Graphic::Image &image, const Math::Vector2D &scale = Util::Math::Vector2D(1, 1), double rotationAngle = 0, bool flipX = false) const;
 
     /***** 2D drawing functions *****/
 

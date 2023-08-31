@@ -15,69 +15,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_ENEMY_H
-#define HHUOS_ENEMY_H
+#ifndef HHUOS_VIEW3D_MODEL_H
+#define HHUOS_VIEW3D_MODEL_H
 
 #include "lib/util/game/3d/Model.h"
-#include "lib/util/collection/ArrayList.h"
-#include "lib/util/math/Random.h"
 
-class Player;
-
-class Enemy : public Util::Game::D3::ModelEntity {
+class ModelEntity : public Util::Game::D3::ModelEntity {
 
 public:
-
-    enum Type {
-        STATIONARY = 1,
-        ORBIT_PLAYER_CLOCKWISE = 2,
-        ORBIT_PLAYER_COUNTER_CLOCKWISE = 3,
-        FLY_TOWARDS_PLAYER = 4,
-        KEEP_DISTANCE = 5
-    };
-
     /**
      * Constructor.
      */
-    Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, const Util::Math::Vector3D &scale, Type type);
+    explicit ModelEntity(const Util::String &modelPath);
 
     /**
      * Copy Constructor.
      */
-    Enemy(const Enemy &other) = delete;
+    ModelEntity(const ModelEntity &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Enemy &operator=(const Enemy &other) = delete;
+    ModelEntity &operator=(const ModelEntity &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Enemy() override = default;
+    ~ModelEntity() override = default;
 
     void onUpdate(double delta) override;
 
     void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
-
-    [[nodiscard]] int16_t getHealth() const;
-
-    void takeDamage(uint8_t damage);
-
-    static const constexpr uint32_t TAG = 3;
-
-private:
-
-    Player &player;
-    Util::ArrayList<Enemy*> &enemies;
-    Util::Math::Random random;
-
-    Type type;
-    int16_t health = 50;
-    double invulnerabilityTimer = 0;
-    double missileTimer = 0;
-
-    static const Util::Math::Vector3D MAX_ROTATION_DELTA;
 };
 
 #endif

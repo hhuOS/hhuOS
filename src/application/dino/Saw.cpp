@@ -30,7 +30,7 @@ class CollisionEvent;
 }  // namespace Game
 }  // namespace Util
 
-Saw::Saw(const Util::Math::Vector2D &position) : Entity(TAG, Util::Math::Vector2D(position.getX(), position.getY()), Util::Game::D2::RectangleCollider(position, Util::Game::Collider::STATIC, 0.2, 0.2)) {}
+Saw::Saw(const Util::Math::Vector2D &position) : Entity(TAG, Util::Math::Vector2D(position.getX(), position.getY()), Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(0.2, 0.2), Util::Game::Collider::STATIC)) {}
 
 void Saw::initialize() {
     animation = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
@@ -55,5 +55,5 @@ void Saw::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
 void Saw::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
 
 void Saw::draw(Util::Game::Graphics &graphics) {
-    graphics.drawImage2D(getPosition(), animation.getCurrentSprite().getImage());
+    animation.draw(graphics, getPosition());
 }

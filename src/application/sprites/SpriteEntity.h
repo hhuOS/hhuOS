@@ -15,37 +15,59 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_VIEW3D_MODEL_H
-#define HHUOS_VIEW3D_MODEL_H
+#ifndef HHUOS_SPRITEENTITY_H
+#define HHUOS_SPRITEENTITY_H
 
-#include "lib/util/game/3d/Model.h"
+#include "lib/util/game/2d/Entity.h"
+#include "lib/util/game/Sprite.h"
+#include "lib/util/game/SpriteAnimation.h"
 
-class Model : public Util::Game::D3::Model {
+class SpriteEntity : public Util::Game::D2::Entity {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    explicit Model(const Util::String &modelPath);
+    SpriteEntity(const Util::Math::Vector2D &position, double size, double rotationSpeed, double scaleSpeed, bool flipX);
 
     /**
      * Copy Constructor.
      */
-    Model(const Model &other) = delete;
+    SpriteEntity(const SpriteEntity &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Model &operator=(const Model &other) = delete;
+    SpriteEntity &operator=(const SpriteEntity &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Model() override = default;
+    ~SpriteEntity() override = default;
+
+    void initialize() override;
 
     void onUpdate(double delta) override;
 
-    void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
+    void draw(Util::Game::Graphics &graphics) override;
+
+    void onTranslationEvent(Util::Game::D2::TranslationEvent &event) override;
+
+    void onCollisionEvent(Util::Game::D2::CollisionEvent &event) override;
+
+    static const constexpr uint32_t TAG = 0;
+
+private:
+
+    Util::Game::SpriteAnimation animation;
+
+    Util::Math::Vector2D initialPosition;
+    double size;
+    double rotationSpeed;
+    double scaleSpeed;
+    bool flipX;
+    bool scaleUp = true;
 };
+
 
 #endif

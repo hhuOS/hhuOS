@@ -41,9 +41,9 @@ void Logo::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     const auto &newPosition = event.getTargetPosition();
 
     if (newPosition.getX() < -resolution.getX() ||
-        newPosition.getX() > resolution.getX() - sprite.getWidth() ||
+        newPosition.getX() > resolution.getX() - sprite.getInitialSize().getX() ||
         newPosition.getY() < -resolution.getY() ||
-        newPosition.getY() > resolution.getY() - sprite.getHeight()) {
+        newPosition.getY() > resolution.getY() - sprite.getInitialSize().getY()) {
         event.cancel();
     }
 }
@@ -51,5 +51,5 @@ void Logo::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
 void Logo::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
 
 void Logo::draw(Util::Game::Graphics &graphics) {
-    graphics.drawImage2D(getPosition(), sprite.getImage());
+    sprite.draw(graphics, getPosition());
 }

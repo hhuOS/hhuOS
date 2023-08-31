@@ -15,47 +15,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MISSILE_H
-#define HHUOS_MISSILE_H
+#ifndef HHUOS_SPRITEDEMO_H
+#define HHUOS_SPRITEDEMO_H
 
-#include "lib/util/game/3d/Model.h"
+#include "lib/util/game/2d/Scene.h"
+#include "lib/util/game/Sprite.h"
+#include "lib/util/game/KeyListener.h"
+#include "SpriteEntity.h"
+#include "SpriteFactory.h"
+#include "lib/util/collection/ArrayListBlockingQueue.h"
 
-class Missile : public Util::Game::D3::ModelEntity {
+class SpriteDemo : public Util::Game::D2::Scene, public Util::Game::KeyListener {
 
 public:
     /**
      * Constructor.
      */
-    Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, const Util::Math::Vector3D &scale, const Util::Graphic::Color &color);
+    SpriteDemo(uint32_t count);
 
     /**
      * Copy Constructor.
      */
-    Missile(const Missile &other) = delete;
+    SpriteDemo(const SpriteDemo &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Missile &operator=(const Missile &other) = delete;
+    SpriteDemo &operator=(const SpriteDemo &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Missile() override = default;
+    ~SpriteDemo() override = default;
 
-    void onUpdate(double delta) override;
+    void update(double delta) override;
 
-    void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
+    void initializeBackground(Util::Game::Graphics &graphics) override;
 
-    static const constexpr uint32_t TAG = 2;
+    void keyPressed(Util::Io::Key key) override;
 
-    static const constexpr double START_SPEED = 0.04;
-    static const constexpr double FULL_SPEED = 0.2;
-    static const constexpr double START_SPEED_TIME = 0.5;
+    void keyReleased(Util::Io::Key key) override;
 
 private:
 
-    double lifetime = 0;
+    SpriteFactory factory;
+    Util::ArrayListBlockingQueue<SpriteEntity*> entities;
 };
 
 #endif

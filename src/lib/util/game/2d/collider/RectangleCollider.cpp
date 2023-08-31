@@ -26,8 +26,8 @@
 
 namespace Util::Game::D2 {
 
-RectangleCollider::RectangleCollider(const Math::Vector2D &position, Collider::Type type, double width, double height) :
-        Collider(position, type), width(width), height(height) {}
+RectangleCollider::RectangleCollider(const Math::Vector2D &position, const Math::Vector2D &size, Collider::Type type) :
+        Collider(position, type), size(size) {}
 
 RectangleCollider::Side RectangleCollider::getOpposite(RectangleCollider::Side side) {
     switch (side) {
@@ -45,19 +45,23 @@ RectangleCollider::Side RectangleCollider::getOpposite(RectangleCollider::Side s
 }
 
 double RectangleCollider::getWidth() const {
-    return width;
+    return size.getX();
 }
 
 double RectangleCollider::getHeight() const {
-    return height;
+    return size.getY();
+}
+
+const Math::Vector2D &RectangleCollider::getSize() const {
+    return size;
 }
 
 void RectangleCollider::setWidth(double width) {
-    RectangleCollider::width = width;
+    size = Math::Vector2D(width, size.getY());
 }
 
 void RectangleCollider::setHeight(double height) {
-    RectangleCollider::height = height;
+    size = Math::Vector2D(size.getX(), height);
 }
 
 RectangleCollider::Side RectangleCollider::isColliding(const RectangleCollider &other) const {
@@ -91,6 +95,10 @@ RectangleCollider::Side RectangleCollider::isColliding(const RectangleCollider &
     }
 
     return NONE;
+}
+
+void RectangleCollider::setSize(const Math::Vector2D &size) {
+    RectangleCollider::size = size;
 }
 
 }

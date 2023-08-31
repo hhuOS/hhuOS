@@ -30,7 +30,7 @@
 
 namespace Util::Game {
 
-Sprite::Sprite() : width(0), height(0) {
+Sprite::Sprite() : size(0, 0) {
     if (ResourceManager::hasImage("empty")) {
         image = ResourceManager::getImage("empty");
     } else {
@@ -39,7 +39,7 @@ Sprite::Sprite() : width(0), height(0) {
     }
 }
 
-Sprite::Sprite(const Util::String &path, double width, double height) : width(width), height(height) {
+Sprite::Sprite(const Util::String &path, double width, double height) : size(width, height) {
     auto key = String::format("%s_%x_%x", static_cast<const char*>(path), width, height);
     if (ResourceManager::hasImage(key)) {
         image = ResourceManager::getImage(key);
@@ -54,16 +54,48 @@ Sprite::Sprite(const Util::String &path, double width, double height) : width(wi
     }
 }
 
-const Graphic::Image &Sprite::getImage() const {
+const Graphic::Image& Sprite::getImage() const {
     return *image;
 }
 
-double Sprite::getWidth() const {
-    return width;
+const Math::Vector2D &Sprite::getInitialSize() const {
+    return size;
 }
 
-double Sprite::getHeight() const {
-    return height;
+Math::Vector2D Sprite::getScaledSize() const {
+    return Math::Vector2D(size.getX() * scale.getX(), size.getY() * scale.getY());
+}
+
+const Math::Vector2D &Sprite::getScale() const {
+    return scale;
+}
+
+double Sprite::getRotation() const {
+    return rotationAngle;
+}
+
+void Sprite::setScale(const Math::Vector2D &scale) {
+    Sprite::scale = scale;
+}
+
+void Sprite::setScale(double scale) {
+    Sprite::scale = Math::Vector2D(scale, scale);
+}
+
+void Sprite::setRotation(double angle) {
+    rotationAngle = angle;
+}
+
+void Sprite::rotate(double angle) {
+    rotationAngle += angle;
+}
+
+void Sprite::flipX() {
+    xFlipped = !xFlipped;
+}
+
+void Sprite::draw(const Graphics &graphics, const Math::Vector2D &position) const {
+    graphics.drawImage2D(position, *image, scale, rotationAngle, xFlipped);
 }
 
 }

@@ -20,7 +20,7 @@
 #include "lib/util/game/GameManager.h"
 
 ModelViewer::ModelViewer(const Util::String &path) {
-    model = new Model(path);
+    model = new ModelEntity(path);
     addObject(model);
 
     setKeyListener(*this);

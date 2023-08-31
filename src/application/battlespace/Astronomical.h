@@ -21,7 +21,7 @@
 #include "lib/util/game/3d/Model.h"
 #include "lib/util/math/Random.h"
 
-class Astronomical : public Util::Game::D3::Model {
+class Astronomical : public Util::Game::D3::ModelEntity {
 
 public:
     /**

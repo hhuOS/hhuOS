@@ -46,8 +46,8 @@ Image* Image::scale(uint16_t newWidth, uint16_t newHeight) {
     double factorX = static_cast<double>(newWidth) / width;
     double factorY = static_cast<double>(newHeight) / height;
 
-    for (int y = 0; y < newHeight; y++) {
-        for (int x = 0; x < newWidth; x++) {
+    for (int32_t y = 0; y < newHeight; y++) {
+        for (int32_t x = 0; x < newWidth; x++) {
             auto oldX = static_cast<uint16_t>(x / factorX);
             auto oldY = static_cast<uint16_t>(y / factorY);
             newPixelBuffer[newWidth * y + x] = pixelBuffer[width * oldY + oldX];
