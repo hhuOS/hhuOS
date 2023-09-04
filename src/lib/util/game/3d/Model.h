@@ -13,6 +13,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
+ * The original source code can be found here: https://github.com/Malte2036/hhuOS
+ *
+ * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
+ * The original source code can be found here: https://git.hhu.de/risch114/bachelorarbeit
  */
 
 #ifndef HHUOS_MODEL_H
@@ -27,33 +33,33 @@
 
 namespace Util::Game::D3 {
 
-class ModelEntity : public Entity {
+class Model : public Entity {
 
 public:
     /**
      * Constructor.
      */
-    ModelEntity(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale);
+    Model(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale);
 
     /**
      * Constructor.
      */
-    ModelEntity(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const Graphic::Color &color);
+    Model(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const Graphic::Color &color);
 
     /**
      * Copy Constructor.
      */
-    ModelEntity(const ModelEntity &other) = delete;
+    Model(const Model &other) = delete;
 
     /**
      * Assignment operator.
      */
-    ModelEntity &operator=(const ModelEntity &other) = delete;
+    Model &operator=(const Model &other) = delete;
 
     /**
      * Destructor.
      */
-    ~ModelEntity() override = default;
+    ~Model() override = default;
 
     void initialize() override;
 

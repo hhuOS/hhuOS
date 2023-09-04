@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * Battle Space has been implemented during a bachelor's thesis by Richard Josef Schweitzer
+ * The original source code can be found here: https://git.hhu.de/risch114/bachelorarbeit
  */
 
 #include "Enemy.h"
@@ -23,14 +26,30 @@
 #include "lib/util/game/Scene.h"
 #include "lib/util/math/Math.h"
 #include "lib/util/game/3d/Util.h"
+#include "EnemyDebris.h"
 
 const Util::Math::Vector3D Enemy::MAX_ROTATION_DELTA = Util::Math::Vector3D(1, 1, 0);
 
-Enemy::Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, const Util::Math::Vector3D &scale, Enemy::Type type) : Util::Game::D3::ModelEntity(2, "initrd/battlespace/enemy.obj", position, rotation, scale, Util::Graphic::Colors::RED), player(player), enemies(enemies), type(type) {}
+Enemy::Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, double scale, Enemy::Type type) : Util::Game::D3::Model(2, "initrd/battlespace/enemy.obj", position, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::RED), player(player), enemies(enemies), goalScale(scale), type(type) {}
+
+void Enemy::initialize() {
+    Model::initialize();
+
+    setScale(Util::Math::Vector3D(goalScale * 0.1, goalScale * 0.1, goalScale * 0.1));
+}
 
 void Enemy::onUpdate(double delta) {
-    if (invulnerabilityTimer > 0) invulnerabilityTimer -= delta;
-    if (missileTimer > 0) missileTimer -= delta;
+    if (getScale().length() < goalScale) {
+        setScale(getScale() * (1 + (delta * 5)));
+    }
+
+    if (invulnerabilityTimer > 0) {
+        invulnerabilityTimer -= delta;
+    }
+
+    if (missileTimer > 0) {
+        missileTimer -= delta;
+    }
 
     auto distance = getPosition().distance(player.getPosition());
     /*auto goalTranslation = player.getPosition();
@@ -97,7 +116,7 @@ void Enemy::onUpdate(double delta) {
     if (missileTimer <= 0 && relativeRotation.length() < 2) {
         missileTimer = 2 + random.nextRandomNumber() * 2.5;
         auto offset = Util::Math::Vector3D(0, 0, 1.5).rotate(getRotation());
-        Util::Game::GameManager::getCurrentScene().addObject(new Missile(getPosition() + offset, getRotation(), Util::Math::Vector3D(0.2, 0.2, 0.2), Util::Graphic::Colors::RED));
+        Util::Game::GameManager::getCurrentScene().addObject(new Missile(getPosition() + offset, getRotation(), 0.2, Util::Graphic::Colors::RED));
     }
 }
 
@@ -124,7 +143,16 @@ void Enemy::takeDamage(uint8_t damage) {
         if (health <= 0) {
             player.addScore(1000);
             enemies.remove(this);
-            Util::Game::GameManager::getCurrentScene().removeObject(this);
+
+            auto offset1 = Util::Math::Vector3D(-0.3, 0.03, 0.03).rotate(getRotation());
+            auto offset2 = Util::Math::Vector3D(0.3, -0.02, 0.04).rotate(getRotation());
+            auto offset3 = Util::Math::Vector3D(-0.01, 0.17, -0.4).rotate(getRotation());
+
+            auto &scene = Util::Game::GameManager::getCurrentScene();
+            scene.addObject(new EnemyDebris(getPosition() + offset1, getRotation(), 0.3, 1));
+            scene.addObject(new EnemyDebris(getPosition() + offset2, getRotation(), 0.3, 2));
+            scene.addObject(new EnemyDebris(getPosition() + offset3, getRotation(), 0.3, 3));
+            scene.removeObject(this);
         }
     }
 }

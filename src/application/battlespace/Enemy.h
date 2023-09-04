@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * Battle Space has been implemented during a bachelor's thesis by Richard Josef Schweitzer
+ * The original source code can be found here: https://git.hhu.de/risch114/bachelorarbeit
  */
 
 #ifndef HHUOS_ENEMY_H
@@ -24,7 +27,7 @@
 
 class Player;
 
-class Enemy : public Util::Game::D3::ModelEntity {
+class Enemy : public Util::Game::D3::Model {
 
 public:
 
@@ -39,7 +42,7 @@ public:
     /**
      * Constructor.
      */
-    Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, const Util::Math::Vector3D &scale, Type type);
+    Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, double scale, Type type);
 
     /**
      * Copy Constructor.
@@ -56,6 +59,8 @@ public:
      */
     ~Enemy() override = default;
 
+    void initialize() override;
+
     void onUpdate(double delta) override;
 
     void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
@@ -70,12 +75,14 @@ private:
 
     Player &player;
     Util::ArrayList<Enemy*> &enemies;
-    Util::Math::Random random;
-
+    double goalScale;
     Type type;
+
+    Util::Math::Random random;
     int16_t health = 50;
     double invulnerabilityTimer = 0;
     double missileTimer = 0;
+    double spawnTimer = 0.5;
 
     static const Util::Math::Vector3D MAX_ROTATION_DELTA;
 };

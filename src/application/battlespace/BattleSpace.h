@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * Battle Space has been implemented during a bachelor's thesis by Richard Josef Schweitzer
+ * The original source code can be found here: https://git.hhu.de/risch114/bachelorarbeit
  */
 
 #ifndef HHUOS_BATTLESPACE_H
@@ -61,8 +64,8 @@ private:
     Player *player = new Player(enemies);
     Util::ArrayList<Enemy*> enemies;
 
-    Util::Math::Vector3D inputRotation = {0, 0, 0};
-    Util::Math::Vector3D inputTranslate = {0, 0, 0};
+    Util::Math::Vector3D inputRotation = Util::Math::Vector3D(0, 0, 0);
+    Util::Math::Vector3D inputTranslate = Util::Math::Vector3D(0, 0, 0);
     double inputSpeed = 1.0;
     uint16_t difficulty = 0;
 

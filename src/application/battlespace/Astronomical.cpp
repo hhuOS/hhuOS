@@ -13,11 +13,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * Battle Space has been implemented during a bachelor's thesis by Richard Josef Schweitzer
+ * The original source code can be found here: https://git.hhu.de/risch114/bachelorarbeit
  */
 
 #include "Astronomical.h"
 
-Astronomical::Astronomical(const Util::String &modelName, const Util::Math::Vector3D &position, double scale, const Util::Math::Vector3D &rotationVector, const Util::Graphic::Color &color) : Util::Game::D3::ModelEntity(TAG, Util::String::format("/initrd/battlespace/%s.obj", static_cast<const char*>(modelName)), position, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(scale, scale, scale), color), rotationVector(rotationVector) {}
+Astronomical::Astronomical(const Util::String &modelName, const Util::Math::Vector3D &position, double scale, const Util::Math::Vector3D &rotationVector, const Util::Graphic::Color &color) : Util::Game::D3::Model(TAG, Util::String::format("/initrd/battlespace/%s.obj", static_cast<const char*>(modelName)), position, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(scale, scale, scale), color), rotationVector(rotationVector) {}
 
 void Astronomical::onUpdate(double delta) {
     rotate(rotationVector * delta);

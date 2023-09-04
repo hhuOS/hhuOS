@@ -37,7 +37,7 @@ String InputStream::readLine(bool &endOfFile) {
         currentChar = read();
     }
 
-    endOfFile = currentChar == -1;
+    endOfFile = line.isEmpty() && (currentChar == -1);
     return line;
 }
 

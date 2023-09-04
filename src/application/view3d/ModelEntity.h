@@ -20,7 +20,7 @@
 
 #include "lib/util/game/3d/Model.h"
 
-class ModelEntity : public Util::Game::D3::ModelEntity {
+class ModelEntity : public Util::Game::D3::Model {
 
 public:
     /**

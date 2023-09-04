@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * Battle Space has been implemented during a bachelor's thesis by Richard Josef Schweitzer
+ * The original source code can be found here: https://git.hhu.de/risch114/bachelorarbeit
  */
 
 #ifndef HHUOS_MISSILE_H
@@ -20,13 +23,13 @@
 
 #include "lib/util/game/3d/Model.h"
 
-class Missile : public Util::Game::D3::ModelEntity {
+class Missile : public Util::Game::D3::Model {
 
 public:
     /**
      * Constructor.
      */
-    Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, const Util::Math::Vector3D &scale, const Util::Graphic::Color &color);
+    Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale, const Util::Graphic::Color &color);
 
     /**
      * Copy Constructor.

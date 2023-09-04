@@ -68,7 +68,6 @@ Assets for the bug defender game have been taken from [itch.io](https://itch.io)
 
 Assets for the battlespace game have been taken from [itch.io](https://itch.io):
 - [Lowpoly - 3D Space Assets Pack](https://ejgarner118.itch.io/spacepack) by [*ejgarner118*](https://ejgarner118.itch.io/)
-- [3D LowPoly Spaceships and Components](https://majadroid.itch.io/3d-lowpoly-spaceships-and-components-cc0) by [*Majadroid*](https://majadroid.itch.io/) ([CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/legalcode))
 
 Music for the SoundBlaster demo has been taken from [Bensound](https://www.bensound.com/royalty-free-music):
 - Ukulele license code: 3M7PXYPYNOTSIGNQ

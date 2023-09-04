@@ -13,6 +13,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
+ * The original source code can be found here: https://github.com/Malte2036/hhuOS
+ *
+ * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
+ * The original source code can be found here: https://git.hhu.de/risch114/bachelorarbeit
  */
 
 #include "Model.h"
@@ -27,11 +33,11 @@
 
 namespace Util::Game::D3 {
 
-ModelEntity::ModelEntity(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale) : Entity(tag, position, rotation, scale, SphereCollider(position, Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath) {}
+Model::Model(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale) : Entity(tag, position, rotation, scale, SphereCollider(position, Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath) {}
 
-ModelEntity::ModelEntity(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const Graphic::Color &color) : Entity(tag, position, rotation, scale, SphereCollider(position, Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath), color(color) {}
+Model::Model(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const Graphic::Color &color) : Entity(tag, position, rotation, scale, SphereCollider(position, Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath), color(color) {}
 
-void ModelEntity::initialize() {
+void Model::initialize() {
     if (!ResourceManager::hasObjectFile(modelPath)) {
         ResourceManager::addObjectFile(modelPath, ObjectFile::open(modelPath));
     }
@@ -41,7 +47,7 @@ void ModelEntity::initialize() {
     calculateTransformedVertices();
 }
 
-void ModelEntity::calculateTransformedVertices() {
+void Model::calculateTransformedVertices() {
     const auto &vertices = objectFile->getVertices();
     for (uint32_t i = 0; i < vertices.length(); i++) {
         auto vertex = vertices[i];
@@ -54,7 +60,7 @@ void ModelEntity::calculateTransformedVertices() {
     }
 }
 
-void ModelEntity::draw(Graphics &graphics) {
+void Model::draw(Graphics &graphics) {
     auto &camera = Util::Game::GameManager::getCurrentScene().getCamera();
     auto minXProjection = Util::Game::Graphics::projectPoint(getPosition() + Util::Math::Vector3D(-getCollider().getRadius(), 0, 0), camera.getPosition(), camera.getRotation());
     auto maxXProjection = Util::Game::Graphics::projectPoint(getPosition() + Util::Math::Vector3D(getCollider().getRadius(), 0, 0), camera.getPosition(), camera.getRotation());
@@ -74,7 +80,7 @@ void ModelEntity::draw(Graphics &graphics) {
     }
 }
 
-void ModelEntity::onTransformChange() {
+void Model::onTransformChange() {
     calculateTransformedVertices();
 }
 

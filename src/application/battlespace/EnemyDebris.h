@@ -14,54 +14,51 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
- * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
- *
- * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
+ * Battle Space has been implemented during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/risch114/bachelorarbeit
  */
 
-#ifndef HHUOS_GRAVITYCOMPONENT_H
-#define HHUOS_GRAVITYCOMPONENT_H
+#ifndef HHUOS_ENEMYDEBRIS_H
+#define HHUOS_ENEMYDEBRIS_H
 
-#include "Component.h"
+#include "application/view3d/ModelEntity.h"
 
-namespace Util::Game::D2 {
-
-class GravityComponent : public Component {
+class EnemyDebris : public Util::Game::D3::Model {
 
 public:
     /**
-    * Constructor.
-    */
-    explicit GravityComponent(Entity &entity, double mass = 2, double stopFactorX = 0.15, double gravityValue = -1.25);
+     * Constructor.
+     */
+    EnemyDebris(const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, double scale, uint8_t modelId);
 
     /**
      * Copy Constructor.
      */
-    GravityComponent(const GravityComponent &other) = delete;
+    EnemyDebris(const EnemyDebris &other) = delete;
 
     /**
      * Assignment operator.
      */
-    GravityComponent &operator=(const GravityComponent &other) = delete;
+    EnemyDebris &operator=(const EnemyDebris &other) = delete;
 
     /**
      * Destructor.
      */
-    ~GravityComponent() = default;
+    ~EnemyDebris() override = default;
 
-protected:
+    void initialize() override;
 
-    void update(double delta) override;
+    void onUpdate(double delta) override;
+
+    void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
 
 private:
 
-    double mass;
-    double stopFactorX;
-    double gravityValue;
-};
+    uint8_t modelId;
+    double lifetime = 0;
 
-}
+    Util::Math::Vector3D translateDirection;
+    Util::Math::Vector3D rotationDirection;
+};
 
 #endif
