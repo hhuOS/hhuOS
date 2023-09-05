@@ -20,10 +20,7 @@
 
 #include "lib/util/async/Runnable.h"
 #include "device/network/NetworkDevice.h"
-#include "lib/util/collection/Array.h"
 #include "lib/util/collection/ArrayBlockingQueue.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 
 namespace Device::Network {
 

@@ -19,12 +19,13 @@
 
 #include "lib/util/game/2d/event/TranslationEvent.h"
 #include "lib/util/game/GameManager.h"
-#include "lib/util/game/Graphics.h"
 #include "lib/util/math/Vector2D.h"
 
 namespace Util {
 namespace Game {
+namespace D2 {
 class CollisionEvent;
+}  // namespace D2
 }  // namespace Game
 }  // namespace Util
 

@@ -24,11 +24,7 @@
 #include "Saw.h"
 #include "Dino.h"
 #include "lib/util/math/Random.h"
-#include "lib/util/collection/Array.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
-#include "lib/util/game/Scene.h"
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/game/2d/Scene.h"
 

@@ -22,10 +22,7 @@
 
 #include "lib/util/collection/ArrayListBlockingQueue.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/collection/Array.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 #include "kernel/process/Thread.h"
 
 namespace Util {

@@ -23,11 +23,8 @@
 
 #include <cstdint>
 
-#include "lib/util/collection/Array.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 
 namespace Kernel {
 enum GlobalSystemInterrupt : uint32_t;

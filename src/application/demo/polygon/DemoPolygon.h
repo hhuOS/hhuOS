@@ -30,8 +30,10 @@ class Vector2D;
 
 namespace Game {
 class Graphics;
+namespace D2 {
 class CollisionEvent;
 class TranslationEvent;
+}  // namespace D2
 }  // namespace Game
 }  // namespace Util
 

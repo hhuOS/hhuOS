@@ -20,9 +20,6 @@
 
 #include "lib/util/collection/ArrayBlockingQueue.h"
 #include "lib/util/async/Runnable.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 #include "kernel/process/Process.h"
 #include "kernel/process/Thread.h"
 

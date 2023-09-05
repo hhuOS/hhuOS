@@ -23,6 +23,7 @@
 
 #include "Sprite.h"
 #include "SpriteAnimation.h"
+#include "lib/util/game/Graphics.h"
 
 namespace Util::Game {
 

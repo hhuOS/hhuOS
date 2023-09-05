@@ -24,9 +24,16 @@
 #ifndef HHUOS_UTIL_H
 #define HHUOS_UTIL_H
 
-#include "Entity.h"
 #include "lib/util/math/Vector3D.h"
-#include "lib/util/collection/ArrayList.h"
+
+namespace Util {
+namespace Game {
+namespace D3 {
+class Entity;
+}  // namespace D3
+}  // namespace Game
+template <typename T> class ArrayList;
+}  // namespace Util
 
 namespace Util::Game::D3 {
 

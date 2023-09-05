@@ -25,6 +25,9 @@
 #define HHUOS_ENTITY_3D_H
 
 #include "lib/util/game/Entity.h"
+
+#include <cstdint>
+
 #include "lib/util/math/Vector3D.h"
 #include "lib/util/game/3d/collider/SphereCollider.h"
 
@@ -32,7 +35,7 @@ namespace Util::Game::D3 {
 
 class CollisionEvent;
 
-class Entity : public Util::Game::Entity {
+class Entity : public ::Util::Game::Entity {
 
 friend class Scene;
 

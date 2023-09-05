@@ -32,9 +32,6 @@
 #include "lib/util/game/Graphics.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/io/key/Key.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 #include "Game.h"
 
 namespace Util {

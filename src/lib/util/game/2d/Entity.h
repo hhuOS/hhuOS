@@ -27,15 +27,18 @@
 #include <cstdint>
 
 #include "lib/util/math/Vector2D.h"
-#include "lib/util/game/Drawable.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 #include "lib/util/game/2d/component/Component.h"
-#include "lib/util/game/2d/event/TranslationEvent.h"
 #include "lib/util/game/Entity.h"
+
+namespace Util {
+namespace Game {
+namespace D2 {
+class TranslationEvent;
+}  // namespace D2
+}  // namespace Game
+}  // namespace Util
 
 namespace Util::Game::D2 {
 

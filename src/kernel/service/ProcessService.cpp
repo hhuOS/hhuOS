@@ -31,6 +31,7 @@
 #include "lib/util/base/Exception.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/System.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Kernel {
 class VirtualAddressSpace;

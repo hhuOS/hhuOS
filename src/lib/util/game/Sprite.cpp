@@ -30,6 +30,7 @@
 #include "lib/util/graphic/Image.h"
 #include "lib/util/graphic/Color.h"
 #include "ResourceManager.h"
+#include "lib/util/game/Graphics.h"
 
 namespace Util::Game {
 

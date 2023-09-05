@@ -21,12 +21,21 @@
 #ifndef HHUOS_BATTLESPACE_H
 #define HHUOS_BATTLESPACE_H
 
+#include <cstdint>
+
 #include "lib/util/game/3d/Scene.h"
 #include "lib/util/game/KeyListener.h"
-#include "lib/util/game/MouseListener.h"
 #include "lib/util/math/Random.h"
 #include "Player.h"
 #include "Enemy.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/math/Vector3D.h"
+
+namespace Util {
+namespace Io {
+class Key;
+}  // namespace Io
+}  // namespace Util
 
 class BattleSpace : public Util::Game::D3::Scene, public Util::Game::KeyListener {
 

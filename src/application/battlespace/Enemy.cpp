@@ -19,6 +19,7 @@
  */
 
 #include "Enemy.h"
+
 #include "Missile.h"
 #include "Player.h"
 #include "lib/util/game/3d/event/CollisionEvent.h"
@@ -27,6 +28,10 @@
 #include "lib/util/math/Math.h"
 #include "lib/util/game/3d/Util.h"
 #include "EnemyDebris.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/game/3d/Entity.h"
+#include "lib/util/graphic/Colors.h"
+#include "lib/util/math/Vector3D.h"
 
 const Util::Math::Vector3D Enemy::MAX_ROTATION_DELTA = Util::Math::Vector3D(1, 1, 0);
 

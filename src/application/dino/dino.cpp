@@ -22,10 +22,10 @@
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/io/file/File.h"
-#include "DinoGame.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
+#include "IntroScreen.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -43,7 +43,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto engine = Util::Game::Engine(lfb, 60);
 
-    Util::Game::GameManager::getGame().pushScene(new DinoGame());
+    Util::Game::GameManager::getGame().pushScene(new IntroScreen());
     engine.run();
 
     return 0;

@@ -19,13 +19,20 @@
  */
 
 #include "Player.h"
+
 #include "lib/util/game/3d/event/CollisionEvent.h"
 #include "lib/util/game/GameManager.h"
-#include "lib/util/game/Scene.h"
 #include "lib/util/math/Math.h"
 #include "lib/util/game/3d/Util.h"
 #include "Missile.h"
 #include "Astronomical.h"
+#include "application/battlespace/Enemy.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/game/3d/collider/SphereCollider.h"
+#include "lib/util/game/Graphics.h"
+#include "lib/util/graphic/Colors.h"
+#include "lib/util/math/Vector2D.h"
 
 Player::Player(const Util::ArrayList<Enemy *> &enemies) : Util::Game::D3::Entity(TAG, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0, 0, 0), Util::Game::D3::SphereCollider(Util::Math::Vector3D(0, 0, 0), 0.8)), enemies(enemies) {}
 

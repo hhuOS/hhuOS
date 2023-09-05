@@ -6,7 +6,6 @@
 #include "filesystem/core/Filesystem.h"
 #include "filesystem/memory/MemoryDriver.h"
 #include "lib/util/base/Exception.h"
-#include "lib/util/collection/Collection.h"
 #include "lib/util/collection/Iterator.h"
 
 namespace Device::Graphic {

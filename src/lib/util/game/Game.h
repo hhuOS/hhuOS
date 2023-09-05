@@ -24,9 +24,6 @@
 #ifndef HHUOS_GAME_H
 #define HHUOS_GAME_H
 
-#include "lib/util/collection/Array.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 #include "Scene.h"
 #include "lib/util/collection/ArrayListBlockingQueue.h"
 

@@ -17,6 +17,8 @@
 
 #include "ArgumentParser.h"
 
+#include "lib/util/collection/Iterator.h"
+
 namespace Util {
 
 void ArgumentParser::setHelpText(const String &text) {

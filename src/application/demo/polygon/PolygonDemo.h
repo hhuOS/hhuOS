@@ -22,12 +22,9 @@
 
 #include "lib/util/collection/ArrayListBlockingQueue.h"
 #include "DemoPolygonFactory.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 #include "lib/util/game/KeyListener.h"
-#include "lib/util/game/Scene.h"
 #include "lib/util/game/2d/Scene.h"
+#include "application/demo/polygon/DemoPolygon.h"
 
 namespace Util {
 namespace Game {

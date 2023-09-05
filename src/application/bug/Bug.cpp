@@ -28,7 +28,6 @@
 #include "application/bug/Fleet.h"
 #include "application/bug/Ship.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/game/Graphics.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/Sprite.h"
 #include "lib/util/game/Collider.h"

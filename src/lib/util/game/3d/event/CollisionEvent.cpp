@@ -22,7 +22,14 @@
  */
 
 #include "CollisionEvent.h"
-#include "lib/util/game/2d/Entity.h"
+
+namespace Util {
+namespace Game {
+namespace D3 {
+class Entity;
+}  // namespace D3
+}  // namespace Game
+}  // namespace Util
 
 namespace Util::Game::D3 {
 

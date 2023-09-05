@@ -30,8 +30,10 @@ class Vector2D;
 
 namespace Game {
 class Graphics;
+namespace D2 {
 class CollisionEvent;
 class TranslationEvent;
+}  // namespace D2
 }  // namespace Game
 }  // namespace Util
 
@@ -73,6 +75,8 @@ public:
     void reset();
 
     void setPoints(uint32_t points);
+
+    [[nodiscard]] uint32_t getPoints() const;
 
     [[nodiscard]] bool hasHatched() const;
 

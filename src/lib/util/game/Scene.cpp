@@ -23,10 +23,7 @@
 
 #include "Scene.h"
 
-#include "lib/util/game/2d/event/CollisionEvent.h"
-#include "lib/util/collection/Pair.h"
-#include "lib/util/game/Graphics.h"
-#include "lib/util/game/2d/collider/RectangleCollider.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Util {
 namespace Game {

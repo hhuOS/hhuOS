@@ -25,7 +25,14 @@
 #define HHUOS_COLLISIONEVENT_3D_H
 
 #include "lib/util/game/Event.h"
-#include "lib/util/game/3d/Entity.h"
+
+namespace Util {
+namespace Game {
+namespace D3 {
+class Entity;
+}  // namespace D3
+}  // namespace Game
+}  // namespace Util
 
 namespace Util::Game::D3 {
 

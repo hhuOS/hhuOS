@@ -22,9 +22,15 @@
  */
 
 #include "Scene.h"
+
 #include "Entity.h"
 #include "lib/util/collection/Pair.h"
 #include "lib/util/game/3d/event/CollisionEvent.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/game/3d/collider/SphereCollider.h"
+#include "lib/util/game/Entity.h"
+#include "lib/util/game/Graphics.h"
 
 namespace Util::Game::D3 {
 

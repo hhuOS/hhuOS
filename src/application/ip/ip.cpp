@@ -25,8 +25,6 @@
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();

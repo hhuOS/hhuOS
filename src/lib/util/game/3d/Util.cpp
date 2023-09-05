@@ -22,7 +22,12 @@
  */
 
 #include "Util.h"
+
 #include "lib/util/math/Math.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/game/3d/Entity.h"
+#include "lib/util/game/3d/collider/SphereCollider.h"
 
 namespace Util::Game::D3 {
 

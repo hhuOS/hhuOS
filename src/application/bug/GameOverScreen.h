@@ -63,13 +63,27 @@ public:
 
 private:
 
-    const bool won;
+    bool won;
 
-    static const constexpr char *CONGRATULATIONS = "Congratulations!";
-    static const constexpr char *INVASION_STOPPED = "You have stopped the alien invasion!";
-    static const constexpr char *LOST = "Oh noooooo!";
-    static const constexpr char *PLANET_INVADED = "Your planet has been invaded by aliens!";
-    static const constexpr char *NEW_GAME = "Press SPACE to fight the next invasion, or ESC to run like a coward...";
+    const char* LOOSE_TEXT[7] = {
+            "____ ____ _  _ ____    ____ _  _ ____ ____ ",
+            "| __ |__| |\\/| |___    |  | |  | |___ |__/ ",
+            "|__] |  | |  | |___    |__|  \\/  |___ |  \\ ",
+            "",
+            "Your planet has been invaded by aliens!",
+            "",
+            "Press SPACE to fight the next invasion, or ESC to run like a coward..."
+    };
+
+    const char* WIN_TEXT[7] = {
+            "____ ____ _  _ ____ ____ ____ ___ _  _ _    ____ ___ _ ____ _  _ ____ ",
+            "|    |  | |\\ | | __ |__/ |__|  |  |  | |    |__|  |  | |  | |\\ | [__  ",
+            "|___ |__| | \\| |__] |  \\ |  |  |  |__| |___ |  |  |  | |__| | \\| ___] ",
+            "",
+            "You have stopped the alien invasion!",
+            "",
+            "Press SPACE to fight the next invasion, or ESC to run like a coward..."
+    };
 };
 
 #endif

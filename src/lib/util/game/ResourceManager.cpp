@@ -24,10 +24,9 @@
 #include "ResourceManager.h"
 
 #include "lib/util/collection/Array.h"
-#include "lib/util/collection/Collection.h"
 #include "lib/util/collection/HashMap.h"
-#include "lib/util/collection/Iterator.h"
 #include "lib/util/graphic/Image.h"
+#include "lib/util/game/3d/ObjectFile.h"
 
 namespace Util::Game {
 

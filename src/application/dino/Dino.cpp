@@ -26,6 +26,8 @@
 #include "lib/util/game/Collider.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
+#include "lib/util/base/String.h"
+#include "lib/util/graphic/Colors.h"
 
 Dino::Dino(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(0.2, 0.2), Util::Game::Collider::DYNAMIC)) {}
 
@@ -181,4 +183,8 @@ bool Dino::isDead() const {
 
 void Dino::setPoints(uint32_t points) {
     Dino::points = points;
+}
+
+uint32_t Dino::getPoints() const {
+    return points;
 }

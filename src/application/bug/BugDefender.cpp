@@ -26,7 +26,6 @@
 #include "application/bug/Ship.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/game/Graphics.h"
 #include "lib/util/io/key/Key.h"
 
 BugDefender::BugDefender() {

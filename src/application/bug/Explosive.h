@@ -26,7 +26,9 @@
 namespace Util {
 namespace Game {
 class Graphics;
+namespace D2 {
 class RectangleCollider;
+}  // namespace D2
 }  // namespace Game
 namespace Math {
 class Vector2D;

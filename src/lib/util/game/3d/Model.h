@@ -24,12 +24,23 @@
 #ifndef HHUOS_MODEL_H
 #define HHUOS_MODEL_H
 
-#include "lib/util/math/Vector2D.h"
+#include <cstdint>
+
 #include "lib/util/math/Vector3D.h"
 #include "lib/util/graphic/Color.h"
-#include "lib/util/io/file/File.h"
 #include "Entity.h"
-#include "ObjectFile.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/graphic/Colors.h"
+
+namespace Util {
+namespace Game {
+class Graphics;
+namespace D3 {
+class ObjectFile;
+}  // namespace D3
+}  // namespace Game
+}  // namespace Util
 
 namespace Util::Game::D3 {
 
@@ -72,10 +83,10 @@ private:
     void calculateTransformedVertices();
 
     String modelPath;
-    const Graphic::Color color = Util::Graphic::Colors::GREEN;
+    const Graphic::Color color = Graphic::Colors::GREEN;
 
     ObjectFile *objectFile = nullptr;
-    Array<Math::Vector3D> transformedBuffer = Util::Array<Math::Vector3D>(0);
+    Array<Math::Vector3D> transformedBuffer = Array<Math::Vector3D>(0);
 };
 
 }

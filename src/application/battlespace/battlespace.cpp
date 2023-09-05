@@ -28,7 +28,7 @@
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/game/Engine.h"
 #include "lib/util/game/GameManager.h"
-#include "BattleSpace.h"
+#include "lib/util/game/Game.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -47,7 +47,6 @@ int32_t main(int32_t argc, char *argv[]) {
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto engine = Util::Game::Engine(lfb, 60);
     Util::Game::GameManager::getGame().pushScene(new IntroScreen());
-    Util::Game::GameManager::getGame().pushScene(new BattleSpace());
     engine.run();
 
     return 0;

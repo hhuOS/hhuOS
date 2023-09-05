@@ -23,6 +23,8 @@
 
 #include "Collider.h"
 
+#include "lib/util/math/Vector2D.h"
+
 namespace Util::Game {
 
 Collider::Collider(const Math::Vector2D &position, Collider::Type type) : position(position.getX(), position.getY(), 0), type(type) {}

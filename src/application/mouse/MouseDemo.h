@@ -20,7 +20,6 @@
 
 #include "MouseCursor.h"
 #include "lib/util/game/KeyListener.h"
-#include "lib/util/game/Scene.h"
 #include "application/mouse/Logo.h"
 #include "lib/util/game/2d/Scene.h"
 

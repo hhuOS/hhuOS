@@ -26,6 +26,7 @@
 #include "lib/util/math/Math.h"
 #include "lib/util/game/Collider.h"
 #include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector3D.h"
 
 namespace Util::Game::D2 {
 

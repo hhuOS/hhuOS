@@ -21,9 +21,21 @@
 #ifndef HHUOS_PLAYER_H
 #define HHUOS_PLAYER_H
 
+#include <cstdint>
+
 #include "lib/util/game/3d/Entity.h"
-#include "lib/util/collection/ArrayList.h"
-#include "Enemy.h"
+#include "lib/util/math/Vector3D.h"
+
+class Enemy;
+namespace Util {
+namespace Game {
+class Graphics;
+namespace D3 {
+class CollisionEvent;
+}  // namespace D3
+}  // namespace Game
+template <typename T> class ArrayList;
+}  // namespace Util
 
 class Player : public Util::Game::D3::Entity {
 

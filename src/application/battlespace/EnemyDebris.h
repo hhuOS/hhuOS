@@ -21,7 +21,18 @@
 #ifndef HHUOS_ENEMYDEBRIS_H
 #define HHUOS_ENEMYDEBRIS_H
 
-#include "application/view3d/ModelEntity.h"
+#include <cstdint>
+
+#include "lib/util/game/3d/Model.h"
+#include "lib/util/math/Vector3D.h"
+
+namespace Util {
+namespace Game {
+namespace D3 {
+class CollisionEvent;
+}  // namespace D3
+}  // namespace Game
+}  // namespace Util
 
 class EnemyDebris : public Util::Game::D3::Model {
 

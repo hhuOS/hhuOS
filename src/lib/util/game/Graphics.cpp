@@ -31,12 +31,7 @@
 #include "lib/util/base/Address.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/math/Math.h"
-
-namespace Util {
-namespace Graphic {
-class Font;
-}  // namespace Graphic
-}  // namespace Util
+#include "lib/util/graphic/Font.h"
 
 namespace Util::Game {
 

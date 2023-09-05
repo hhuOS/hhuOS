@@ -16,8 +16,18 @@
  */
 
 #include "SpriteDemo.h"
+
 #include "lib/util/game/Game.h"
 #include "lib/util/game/GameManager.h"
+#include "application/demo/sprites/DemoSprite.h"
+#include "application/demo/sprites/DemoSpriteFactory.h"
+#include "lib/util/io/key/Key.h"
+
+namespace Util {
+namespace Game {
+class Graphics;
+}  // namespace Game
+}  // namespace Util
 
 SpriteDemo::SpriteDemo(uint32_t count) {
     for (uint32_t i = 0; i < count; i++) {

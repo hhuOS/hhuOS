@@ -30,6 +30,7 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/bug/Explosive.cpp
         ${HHUOS_SRC_DIR}/application/bug/Fleet.cpp
         ${HHUOS_SRC_DIR}/application/bug/GameOverScreen.cpp
+        ${HHUOS_SRC_DIR}/application/bug/IntroScreen.cpp
         ${HHUOS_SRC_DIR}/application/bug/PlayerMissile.cpp
         ${HHUOS_SRC_DIR}/application/bug/Ship.cpp)
 

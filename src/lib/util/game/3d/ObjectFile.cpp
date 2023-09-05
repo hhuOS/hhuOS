@@ -22,10 +22,14 @@
  */
 
 #include "ObjectFile.h"
+
+#include <cstdint>
+
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/stream/BufferedInputStream.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/math/Math.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Util::Game::D3 {
 

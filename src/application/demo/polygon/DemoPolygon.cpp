@@ -23,7 +23,9 @@
 
 namespace Util {
 namespace Game {
+namespace D2 {
 class CollisionEvent;
+}  // namespace D2
 }  // namespace Game
 }  // namespace Util
 

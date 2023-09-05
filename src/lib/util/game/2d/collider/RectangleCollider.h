@@ -25,6 +25,7 @@
 #define HHUOS_RECTANGLECOLLIDER_H
 
 #include "lib/util/game/Collider.h"
+#include "lib/util/math/Vector2D.h"
 
 namespace Util::Game::D2 {
 

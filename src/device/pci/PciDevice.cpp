@@ -19,8 +19,6 @@
 
 #include "device/pci/Pci.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 
 namespace Device {
 enum InterruptRequest : uint8_t;

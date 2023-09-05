@@ -20,8 +20,6 @@
 #include "lib/util/collection/ArrayList.h"
 #include "filesystem/fat/FatNode.h"
 #include "lib/util/base/Exception.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 #include "lib/util/base/String.h"
 
 namespace Filesystem::Fat {

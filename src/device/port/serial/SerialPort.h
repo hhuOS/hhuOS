@@ -27,9 +27,6 @@
 #include "lib/util/io/stream/OutputStream.h"
 #include "lib/util/collection/ArrayBlockingQueue.h"
 #include "lib/util/io/stream/QueueInputStream.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 
 namespace Kernel {
     class Logger;

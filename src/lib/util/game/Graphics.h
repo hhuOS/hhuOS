@@ -36,11 +36,9 @@
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/base/String.h"
 #include "lib/util/math/Vector3D.h"
+#include "lib/util/math/Vector2D.h"
 
 namespace Util {
-namespace Math {
-class Vector2D;
-}  // namespace Math
 
 namespace Graphic {
 class Font;

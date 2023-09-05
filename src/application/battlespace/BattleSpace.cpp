@@ -19,13 +19,19 @@
  */
 
 #include "BattleSpace.h"
+
 #include "lib/util/game/Game.h"
 #include "lib/util/game/GameManager.h"
 #include "Astronomical.h"
 #include "Missile.h"
 #include "GameOverScreen.h"
 #include "Enemy.h"
-#include "Astronomical.h"
+#include "application/battlespace/Player.h"
+#include "lib/util/base/String.h"
+#include "lib/util/game/Camera.h"
+#include "lib/util/game/Scene.h"
+#include "lib/util/graphic/Colors.h"
+#include "lib/util/io/key/Key.h"
 
 BattleSpace::BattleSpace() {
     addObject(new Astronomical("planet1", Util::Math::Vector3D(13, 16, 1000), 150, Util::Math::Vector3D(0, 0, 0), Util::Graphic::Colors::BLUE));

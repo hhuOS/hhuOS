@@ -28,6 +28,9 @@
 #include "lib/util/game/Engine.h"
 #include "lib/util/game/GameManager.h"
 #include "ModelViewer.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/game/Game.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();

@@ -22,6 +22,7 @@
 #include "device/storage/StorageDevice.h"
 #include "kernel/log/Logger.h"
 #include "lib/util/base/Exception.h"
+#include "lib/util/collection/Array.h"
 
 namespace Kernel {
 

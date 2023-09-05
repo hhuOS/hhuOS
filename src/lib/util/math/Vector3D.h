@@ -19,7 +19,12 @@
 #define HHUOS_VECTOR3D_H
 
 #include "lib/util/base/String.h"
-#include "Vector2D.h"
+
+namespace Util {
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
 
 namespace Util::Math {
 

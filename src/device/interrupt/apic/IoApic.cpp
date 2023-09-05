@@ -25,6 +25,7 @@
 #include "lib/util/base/Constants.h"
 #include "LocalApic.h"
 #include "lib/util/base/Exception.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Kernel {
 enum GlobalSystemInterrupt : uint32_t;

@@ -28,6 +28,7 @@
 #include "lib/util/async/IdGenerator.h"
 #include "lib/util/async/Runnable.h"
 #include "lib/util/base/Constants.h"
+#include "lib/util/collection/Iterator.h"
 
 void kickoff() {
     Kernel::System::getService<Kernel::SchedulerService>().kickoffThread();

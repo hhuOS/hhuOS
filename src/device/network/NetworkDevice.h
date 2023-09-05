@@ -25,9 +25,6 @@
 #include "lib/util/network/MacAddress.h"
 #include "kernel/log/Logger.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 #include "lib/util/base/String.h"
 
 namespace Device {

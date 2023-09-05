@@ -18,20 +18,17 @@
 #ifndef HHUOS_LVGLDRIVER_H
 #define HHUOS_LVGLDRIVER_H
 
-#include <cstdint>
 #include <src/hal/lv_hal_disp.h>
 #include <src/core/lv_group.h>
 #include <src/core/lv_obj.h>
 #include <src/hal/lv_hal_indev.h>
 #include <src/misc/lv_area.h>
 #include <src/misc/lv_color.h>
+#include <cstdint>
 
 #include "lib/util/async/Runnable.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/collection/ArrayListBlockingQueue.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 #include "lib/util/base/Address.h"
 
 namespace Util {

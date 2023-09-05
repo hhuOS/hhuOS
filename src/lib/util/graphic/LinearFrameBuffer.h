@@ -20,10 +20,11 @@
 
 #include <cstdint>
 
-#include "lib/util/base/Address.h"
 #include "Color.h"
 
 namespace Util {
+template <typename T> class Address;
+
 namespace Io {
 class File;
 }  // namespace File

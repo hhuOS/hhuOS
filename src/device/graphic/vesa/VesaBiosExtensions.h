@@ -23,8 +23,6 @@
 #include "lib/util/collection/ArrayList.h"
 #include "device/graphic/LinearFrameBufferProvider.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 #include "lib/util/base/String.h"
 #include "lib/util/reflection/Prototype.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"

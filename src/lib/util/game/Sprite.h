@@ -26,9 +26,12 @@
 
 #include "lib/util/base/String.h"
 #include "lib/util/math/Vector2D.h"
-#include "Graphics.h"
 
 namespace Util {
+namespace Game {
+class Graphics;
+}  // namespace Game
+
 namespace Graphic {
 class Image;
 }  // namespace Graphic

@@ -27,10 +27,7 @@
 #include "kernel/network/NetworkModule.h"
 #include "ArpHeader.h"
 #include "ArpEntry.h"
-#include "lib/util/collection/Array.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 #include "lib/util/network/MacAddress.h"
 
 namespace Device {
@@ -40,6 +37,7 @@ class NetworkDevice;
 }  // namespace Device
 namespace Kernel {
 class Logger;
+
 namespace Network {
 namespace Ip4 {
 class Ip4Interface;

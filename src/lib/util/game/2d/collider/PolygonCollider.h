@@ -30,7 +30,12 @@
 #include "lib/util/collection/Pair.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/game/Collider.h"
-#include "lib/util/game/Polygon.h"
+
+namespace Util {
+namespace Game {
+class Polygon;
+}  // namespace Game
+}  // namespace Util
 
 namespace Util::Game::D2 {
 

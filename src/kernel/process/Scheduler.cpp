@@ -27,6 +27,7 @@
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/time/Timestamp.h"
+#include "lib/util/collection/Iterator.h"
 
 extern uint32_t scheduler_initialized;
 

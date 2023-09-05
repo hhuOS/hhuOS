@@ -19,9 +19,21 @@
  */
 
 #include "EnemyDebris.h"
+
 #include "Enemy.h"
-#include "lib/util/game/Game.h"
 #include "lib/util/game/GameManager.h"
+#include "lib/util/base/String.h"
+#include "lib/util/game/Scene.h"
+#include "lib/util/graphic/Colors.h"
+#include "lib/util/math/Random.h"
+
+namespace Util {
+namespace Game {
+namespace D3 {
+class CollisionEvent;
+}  // namespace D3
+}  // namespace Game
+}  // namespace Util
 
 EnemyDebris::EnemyDebris(const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, double scale, uint8_t modelId) : Util::Game::D3::Model(Enemy::TAG, Util::String::format("/initrd/battlespace/debris%u.obj", modelId), position, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::RED), modelId(modelId) {}
 

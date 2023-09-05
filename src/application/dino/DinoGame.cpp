@@ -27,12 +27,14 @@
 #include "Saw.h"
 #include "lib/util/game/GameManager.h"
 #include "application/dino/Ground.h"
-#include "lib/util/base/String.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/game/Sprite.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/math/Vector2D.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/math/Vector3D.h"
+#include "GameOverScreen.h"
 
 DinoGame::DinoGame() {
     dino->addComponent(new Util::Game::D2::LinearMovementComponent(*dino));
@@ -61,7 +63,11 @@ void DinoGame::initializeBackground(Util::Game::Graphics &graphics) {
 }
 
 void DinoGame::update(double delta) {
-    if (dino->hasHatched() && (dino->isDying() == dino->isDead())) {
+    if (dino->isDead()) {
+        auto &game = Util::Game::GameManager::getGame();
+        game.pushScene(new GameOverScreen(dino->getPoints()));
+        game.switchToNextScene();
+    } else if (dino->hasHatched() && !dino->isDying()) {
         if (currentVelocity < MAX_VELOCITY) {
             currentVelocity += (delta / 100);
             if (currentVelocity >= DASH_VELOCITY) {
@@ -99,7 +105,7 @@ void DinoGame::update(double delta) {
         }
 
         getCamera().setPosition(Util::Math::Vector2D(dino->getPosition().getX() + 0.8, 0));
-        dino->setPoints(getCamera().getPosition().getX());
+        dino->setPoints(static_cast<uint32_t>(getCamera().getPosition().getX()));
     }
 }
 
@@ -109,11 +115,7 @@ void DinoGame::keyPressed(Util::Io::Key key) {
             Util::Game::GameManager::getGame().stop();
             break;
         case Util::Io::Key::SPACE :
-            if (dino->isDead()) {
-                auto &game = Util::Game::GameManager::getGame();
-                game.pushScene(new DinoGame());
-                game.switchToNextScene();
-            } else if (dino->hasHatched()) {
+            if (dino->hasHatched()) {
                 dino->jump();
             } else {
                 dino->hatch();

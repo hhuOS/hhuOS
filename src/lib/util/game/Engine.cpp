@@ -38,13 +38,12 @@
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/base/HeapMemoryManager.h"
 #include "lib/util/base/Constants.h"
-#include "lib/util/graphic/Fonts.h"
 #include "lib/util/base/String.h"
 #include "lib/util/game/Camera.h"
 #include "lib/util/game/Scene.h"
-#include "lib/util/graphic/Font.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/io/key/MouseDecoder.h"
+#include "lib/util/math/Vector3D.h"
 
 namespace Util::Game {
 
@@ -67,17 +66,14 @@ void Engine::run() {
     Async::Thread::createThread("Mouse-Listener", new MouseListenerRunnable(*this));
 
     while (game.isRunning()) {
-        statistics.startFrameTime();
-        statistics.startUpdateTime();
-        double frameTime = statistics.getLastFrameTime() / 1000.0;
-        if (frameTime < 0.001) {
-            frameTime = 0.001;
-        }
-
         updateLock.acquire();
         if (game.sceneSwitched) {
             initializeNextScene();
         }
+
+        statistics.startFrameTime();
+        statistics.startUpdateTime();
+        double frameTime = statistics.getLastFrameTime() / 1000.0;
 
         graphics.update();
 

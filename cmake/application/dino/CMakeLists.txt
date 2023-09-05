@@ -26,7 +26,9 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/dino/dino.cpp
         ${HHUOS_SRC_DIR}/application/dino/Dino.cpp
         ${HHUOS_SRC_DIR}/application/dino/DinoGame.cpp
+        ${HHUOS_SRC_DIR}/application/dino/GameOverScreen.cpp
         ${HHUOS_SRC_DIR}/application/dino/Ground.cpp
+        ${HHUOS_SRC_DIR}/application/dino/IntroScreen.cpp
         ${HHUOS_SRC_DIR}/application/dino/Saw.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})

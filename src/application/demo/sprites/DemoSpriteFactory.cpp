@@ -17,6 +17,9 @@
 
 #include "DemoSpriteFactory.h"
 
+#include "application/demo/sprites/DemoSprite.h"
+#include "lib/util/math/Vector2D.h"
+
 DemoSprite *DemoSpriteFactory::createSprite() {
     const auto size = random.nextRandomNumber() * 0.15 + 0.1;
     const auto rotationSpeed = (random.nextRandomNumber() + 0.1) * (random.nextRandomNumber() < 0.5 ? -1 : 1);

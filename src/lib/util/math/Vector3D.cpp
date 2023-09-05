@@ -16,7 +16,11 @@
  */
 
 #include "Vector3D.h"
+
+#include <cstdint>
+
 #include "Math.h"
+#include "lib/util/math/Vector2D.h"
 
 namespace Util::Math {
 

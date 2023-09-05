@@ -26,6 +26,8 @@
 
 #include "lib/util/base/String.h"
 #include "lib/util/math/Vector3D.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/math/Vector2D.h"
 
 namespace Util::Game::D3 {
 

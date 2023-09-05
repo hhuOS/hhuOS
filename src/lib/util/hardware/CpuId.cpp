@@ -18,8 +18,6 @@
 #include "asm_interface.h"
 #include "lib/util/collection/ArrayList.h"
 #include "CpuId.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 
 namespace Util::Hardware {
 

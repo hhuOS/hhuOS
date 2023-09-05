@@ -21,8 +21,22 @@
 #ifndef HHUOS_ASTRONOMICAL_H
 #define HHUOS_ASTRONOMICAL_H
 
+#include <cstdint>
+
 #include "lib/util/game/3d/Model.h"
-#include "lib/util/math/Random.h"
+#include "lib/util/base/String.h"
+#include "lib/util/math/Vector3D.h"
+
+namespace Util {
+namespace Game {
+namespace D3 {
+class CollisionEvent;
+}  // namespace D3
+}  // namespace Game
+namespace Graphic {
+class Color;
+}  // namespace Graphic
+}  // namespace Util
 
 class Astronomical : public Util::Game::D3::Model {
 

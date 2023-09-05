@@ -43,6 +43,7 @@
 #include "kernel/network/ip4/Ip4Socket.h"
 #include "lib/util/network/ip4/Ip4Route.h"
 #include "lib/util/network/ip4/Ip4SubnetAddress.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Kernel::Network::Ip4 {
 

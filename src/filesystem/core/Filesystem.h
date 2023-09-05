@@ -21,14 +21,13 @@
 #include "lib/util/async/ReentrantSpinlock.h"
 #include "lib/util/collection/HashMap.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 #include "lib/util/base/String.h"
 #include "filesystem/core/Driver.h"
 
 namespace Filesystem {
 class Node;
 class VirtualDriver;
+
 namespace Memory {
 class MemoryDriver;
 }  // namespace Memory

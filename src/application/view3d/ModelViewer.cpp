@@ -16,8 +16,14 @@
  */
 
 #include "ModelViewer.h"
+
 #include "lib/util/game/Game.h"
 #include "lib/util/game/GameManager.h"
+#include "application/view3d/ModelEntity.h"
+#include "lib/util/game/Camera.h"
+#include "lib/util/io/key/Key.h"
+#include "lib/util/io/key/MouseDecoder.h"
+#include "lib/util/math/Vector2D.h"
 
 ModelViewer::ModelViewer(const Util::String &path) {
     model = new ModelEntity(path);

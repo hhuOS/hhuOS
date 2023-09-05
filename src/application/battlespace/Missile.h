@@ -21,7 +21,23 @@
 #ifndef HHUOS_MISSILE_H
 #define HHUOS_MISSILE_H
 
+#include <cstdint>
+
 #include "lib/util/game/3d/Model.h"
+
+namespace Util {
+namespace Game {
+namespace D3 {
+class CollisionEvent;
+}  // namespace D3
+}  // namespace Game
+namespace Graphic {
+class Color;
+}  // namespace Graphic
+namespace Math {
+class Vector3D;
+}  // namespace Math
+}  // namespace Util
 
 class Missile : public Util::Game::D3::Model {
 

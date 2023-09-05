@@ -22,14 +22,17 @@
  */
 
 #include "Model.h"
+
 #include "lib/util/game/GameManager.h"
-#include "lib/util/game/3d/Scene.h"
 #include "lib/util/math/Vector2D.h"
-#include "lib/util/collection/ArrayList.h"
-#include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/io/stream/BufferedInputStream.h"
 #include "lib/util/math/Math.h"
 #include "lib/util/game/ResourceManager.h"
+#include "lib/util/game/3d/Entity.h"
+#include "lib/util/game/3d/ObjectFile.h"
+#include "lib/util/game/3d/collider/SphereCollider.h"
+#include "lib/util/game/Camera.h"
+#include "lib/util/game/Graphics.h"
+#include "lib/util/game/Scene.h"
 
 namespace Util::Game::D3 {
 

@@ -24,8 +24,13 @@
 #ifndef HHUOS_COLLIDER_H
 #define HHUOS_COLLIDER_H
 
-#include "lib/util/math/Vector2D.h"
 #include "lib/util/math/Vector3D.h"
+
+namespace Util {
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
 
 namespace Util::Game {
 

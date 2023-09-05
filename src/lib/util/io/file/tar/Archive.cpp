@@ -16,6 +16,7 @@
 
 #include "lib/util/base/Address.h"
 #include "Archive.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Util::Io::Tar {
 

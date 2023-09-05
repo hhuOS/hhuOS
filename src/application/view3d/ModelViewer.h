@@ -18,10 +18,29 @@
 #ifndef HHUOS_MODELVIEWER_H
 #define HHUOS_MODELVIEWER_H
 
+#include <cstdint>
+
 #include "lib/util/game/3d/Scene.h"
 #include "lib/util/game/KeyListener.h"
 #include "lib/util/game/MouseListener.h"
-#include "ModelEntity.h"
+#include "lib/util/base/String.h"
+#include "lib/util/math/Vector3D.h"
+
+class ModelEntity;
+
+namespace Util {
+namespace Io {
+class Key;
+
+namespace Mouse {
+enum Button : uint8_t;
+enum ScrollDirection : uint8_t;
+}  // namespace Mouse
+}  // namespace Io
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
 
 class ModelViewer : public Util::Game::D3::Scene, public Util::Game::KeyListener, public Util::Game::MouseListener {
 

@@ -20,8 +20,6 @@
 #include "Cpu.h"
 #include "lib/util/async/Atomic.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 
 namespace Device {
 

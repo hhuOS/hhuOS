@@ -26,6 +26,12 @@
 
 #include "lib/util/game/Scene.h"
 
+namespace Util {
+namespace Game {
+class Graphics;
+}  // namespace Game
+}  // namespace Util
+
 namespace Util::Game::D3 {
 
 class Scene : public Util::Game::Scene {

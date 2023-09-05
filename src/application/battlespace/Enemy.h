@@ -21,11 +21,23 @@
 #ifndef HHUOS_ENEMY_H
 #define HHUOS_ENEMY_H
 
+#include <cstdint>
+
 #include "lib/util/game/3d/Model.h"
-#include "lib/util/collection/ArrayList.h"
 #include "lib/util/math/Random.h"
 
 class Player;
+namespace Util {
+namespace Game {
+namespace D3 {
+class CollisionEvent;
+}  // namespace D3
+}  // namespace Game
+namespace Math {
+class Vector3D;
+}  // namespace Math
+template <typename T> class ArrayList;
+}  // namespace Util
 
 class Enemy : public Util::Game::D3::Model {
 

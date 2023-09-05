@@ -26,6 +26,12 @@
 
 #include "lib/util/game/Collider.h"
 
+namespace Util {
+namespace Math {
+class Vector3D;
+}  // namespace Math
+}  // namespace Util
+
 namespace Util::Game::D3 {
 
 class SphereCollider : public Collider {

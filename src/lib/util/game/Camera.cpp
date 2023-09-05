@@ -23,6 +23,8 @@
 
 #include "Camera.h"
 
+#include "lib/util/math/Vector2D.h"
+
 namespace Util::Game {
 
 const Math::Vector3D &Camera::getPosition() const {

@@ -23,6 +23,8 @@
 
 #include "SphereCollider.h"
 
+#include "lib/util/math/Vector3D.h"
+
 namespace Util::Game::D3 {
 
 SphereCollider::SphereCollider(const Math::Vector3D &position, double radius) : Collider(position, STATIC), radius(radius) {}

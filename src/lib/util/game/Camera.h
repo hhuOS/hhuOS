@@ -25,7 +25,12 @@
 #define HHUOS_CAMERA_H
 
 #include "lib/util/math/Vector3D.h"
-#include "lib/util/math/Vector2D.h"
+
+namespace Util {
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
 
 namespace Util::Game {
 

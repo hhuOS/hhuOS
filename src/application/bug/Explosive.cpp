@@ -18,7 +18,6 @@
 #include "Explosive.h"
 
 #include "lib/util/collection/Array.h"
-#include "lib/util/game/Graphics.h"
 #include "lib/util/game/Sprite.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
 

@@ -29,6 +29,8 @@
 #include "device/cpu/ModelSpecificRegister.h"
 #include "kernel/interrupt/InterruptVector.h"
 #include "lib/util/async/Spinlock.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Device {
 enum InterruptRequest : uint8_t;

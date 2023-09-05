@@ -19,7 +19,8 @@
 #define HHUOS_DEMOSPRITEFACTORY_H
 
 #include "lib/util/math/Random.h"
-#include "DemoSprite.h"
+
+class DemoSprite;
 
 class DemoSpriteFactory {
 

@@ -22,13 +22,10 @@
  */
 
 #include "Game.h"
-#include "lib/util/game/Scene.h"
 
-namespace Util {
-namespace Game {
-class Graphics;
-}  // namespace Game
-}  // namespace Util
+#include "lib/util/game/Scene.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/game/Graphics.h"
 
 namespace Util::Game {
 

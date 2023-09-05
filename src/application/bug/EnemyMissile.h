@@ -27,9 +27,11 @@ class Bug;
 
 namespace Util {
 namespace Game {
-class CollisionEvent;
 class Graphics;
+namespace D2 {
+class CollisionEvent;
 class TranslationEvent;
+}  // namespace D2
 }  // namespace Game
 namespace Math {
 class Vector2D;

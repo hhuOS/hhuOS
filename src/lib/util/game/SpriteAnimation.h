@@ -28,6 +28,13 @@
 
 #include "lib/util/collection/Array.h"
 #include "lib/util/game/Sprite.h"
+#include "lib/util/math/Vector2D.h"
+
+namespace Util {
+namespace Game {
+class Graphics;
+}  // namespace Game
+}  // namespace Util
 
 namespace Util::Game {
 

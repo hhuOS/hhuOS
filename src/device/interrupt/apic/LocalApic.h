@@ -23,15 +23,14 @@
 
 #include <cstdint>
 
-#include "lib/util/collection/Array.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 
 namespace Kernel {
 enum InterruptVector : uint8_t;
 }  // namespace Kernel
 namespace Util {
+template <typename T> class Array;
+
 namespace Async {
 class Spinlock;
 }  // namespace Async

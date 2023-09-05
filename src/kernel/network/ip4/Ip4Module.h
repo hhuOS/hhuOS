@@ -28,8 +28,6 @@
 #include "Ip4RoutingModule.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 #include "lib/util/base/String.h"
 #include "kernel/network/ip4/Ip4Interface.h"
 #include "lib/util/async/ReentrantSpinlock.h"

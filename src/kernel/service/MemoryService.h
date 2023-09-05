@@ -22,10 +22,7 @@
 
 #include "Service.h"
 #include "kernel/interrupt/InterruptHandler.h"
-#include "lib/util/collection/Array.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
 #include "lib/util/base/FreeListMemoryManager.h"
 #include "kernel/paging/VirtualAddressSpace.h"
 

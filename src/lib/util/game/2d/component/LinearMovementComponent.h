@@ -25,6 +25,14 @@
 
 #include "Component.h"
 
+namespace Util {
+namespace Game {
+namespace D2 {
+class Entity;
+}  // namespace D2
+}  // namespace Game
+}  // namespace Util
+
 namespace Util::Game::D2 {
 
 class LinearMovementComponent : public Component {

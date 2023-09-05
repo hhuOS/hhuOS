@@ -35,7 +35,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.setHelpText("Demo applications, showing off the systems graphical capabilities.\n"
                                "Usage: demo [DEMO] [OPTIONS]...\n"
-                               "Demos: ant, polygon, sprites"
+                               "Demos: ant, polygon, sprites\n"
                                "Options:\n"
                                "  -h, --help: Show this help message");
 

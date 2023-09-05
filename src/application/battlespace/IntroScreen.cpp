@@ -19,8 +19,17 @@
  */
 
 #include "IntroScreen.h"
+
+#include <cstdint>
+
 #include "lib/util/game/Game.h"
 #include "lib/util/game/GameManager.h"
+#include "BattleSpace.h"
+#include "lib/util/base/Address.h"
+#include "lib/util/game/Graphics.h"
+#include "lib/util/graphic/Colors.h"
+#include "lib/util/io/key/Key.h"
+#include "lib/util/math/Vector2D.h"
 
 IntroScreen::IntroScreen() {
     setKeyListener(*this);
@@ -33,6 +42,7 @@ void IntroScreen::initializeBackground(Util::Game::Graphics &graphics) {
     auto centerY = resolution.getY() / 2;
     auto y = static_cast<uint16_t>(centerY - ((lines * graphics.getCharHeight()) / 2.0));
 
+    graphics.clear();
     graphics.setColor(Util::Graphic::Colors::GREEN);
     for (uint32_t i = 0; i < lines; i++) {
         auto x = static_cast<uint16_t>(centerX - (Util::Address<uint32_t>(INTRO_TEXT[i]).stringLength() * graphics.getCharWidth()) / 2.0);
@@ -48,6 +58,7 @@ void IntroScreen::keyPressed(Util::Io::Key key) {
             Util::Game::GameManager::getGame().stop();
             break;
         case Util::Io::Key::SPACE:
+            Util::Game::GameManager::getGame().pushScene(new BattleSpace());
             Util::Game::GameManager::getGame().switchToNextScene();
             break;
     }

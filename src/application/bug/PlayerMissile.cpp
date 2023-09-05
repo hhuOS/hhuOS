@@ -23,7 +23,6 @@
 #include "lib/util/game/2d/event/TranslationEvent.h"
 #include "lib/util/game/2d/event/CollisionEvent.h"
 #include "application/bug/Ship.h"
-#include "lib/util/game/Graphics.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/Collider.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"

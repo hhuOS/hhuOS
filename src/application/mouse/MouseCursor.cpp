@@ -21,16 +21,16 @@
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
 #include "lib/util/game/GameManager.h"
-#include "lib/util/graphic/Fonts.h"
 #include "application/mouse/Logo.h"
 #include "lib/util/base/String.h"
 #include "lib/util/graphic/Colors.h"
-#include "lib/util/graphic/Font.h"
 #include "lib/util/io/key/MouseDecoder.h"
 
 namespace Util {
 namespace Game {
+namespace D2 {
 class CollisionEvent;
+}  // namespace D2
 }  // namespace Game
 }  // namespace Util
 

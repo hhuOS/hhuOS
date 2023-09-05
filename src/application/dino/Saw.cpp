@@ -18,7 +18,6 @@
 #include "lib/util/game/Sprite.h"
 #include "lib/util/collection/Array.h"
 #include "Saw.h"
-#include "lib/util/game/Graphics.h"
 #include "lib/util/game/Collider.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
@@ -26,7 +25,9 @@
 
 namespace Util {
 namespace Game {
+namespace D2 {
 class CollisionEvent;
+}  // namespace D2
 }  // namespace Game
 }  // namespace Util
 
