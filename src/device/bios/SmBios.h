@@ -37,7 +37,7 @@ public:
         uint8_t majorVersion;
         uint8_t minorVersion;
         uint32_t tableAddress;
-        uint16_t tableLength;
+        uint32_t tableLength;
     };
 
     /**
@@ -96,11 +96,28 @@ private:
         uint8_t bcdRevision;
     } __attribute__ ((packed));
 
+    struct EntryPoint3 {
+        char smSignature[5];
+        uint8_t smChecksum;
+        uint8_t length;
+        uint8_t majorVersion;
+        uint8_t minorVersion;
+        uint8_t docRevision;
+        uint8_t entryPointRevision;
+        uint8_t reserved;
+        uint32_t maxTableLength;
+        uint64_t tableAddress;
+    } __attribute__ ((packed));
+
     static const Kernel::Multiboot::SmBiosTables* findTables(const void *multibootInfo);
 
     static const EntryPoint* searchEntryPoint(uint32_t startAddress, uint32_t endAddress);
 
     static bool checkEntryPoint(EntryPoint *entryPoint);
+
+    static const EntryPoint3* searchEntryPoint3(uint32_t startAddress, uint32_t endAddress);
+
+    static bool checkEntryPoint3(EntryPoint3 *entryPoint);
 
     static const CopyInformation *copyInformation;
     static const Info *smBiosInformation;

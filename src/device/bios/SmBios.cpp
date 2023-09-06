@@ -49,11 +49,15 @@ void SmBios::copyTables(const void *multibootInfo, uint8_t *destination, uint32_
     if (info.tableAddress == 0) {
         // Search for entry point the "traditional" way
         auto *entryPoint = searchEntryPoint(0xf0000, 0xfffff);
-        if (entryPoint == nullptr) {
+        auto *entryPoint3 = searchEntryPoint3(0xf0000, 0xfffff);
+
+        if (entryPoint3 != nullptr) {
+            info = { entryPoint3->majorVersion, entryPoint3->minorVersion, static_cast<uint32_t>(entryPoint3->tableAddress), entryPoint3->maxTableLength };
+        } else if (entryPoint != nullptr) {
+            info = { entryPoint->majorVersion, entryPoint->minorVersion, entryPoint->tableAddress, entryPoint->tableLength };
+        } else {
             return;
         }
-
-        info = { entryPoint->majorVersion, entryPoint->minorVersion, entryPoint->tableAddress, entryPoint->tableLength };
     }
 
     copyInfo->sourceAddress = reinterpret_cast<uint32_t>(info.tableAddress);
@@ -158,6 +162,32 @@ const SmBios::EntryPoint* SmBios::searchEntryPoint(uint32_t startAddress, uint32
 }
 
 bool SmBios::checkEntryPoint(SmBios::EntryPoint *entryPoint) {
+    uint32_t sum = 0;
+    for (uint32_t i = 0; i < entryPoint->length; i++) {
+        sum += reinterpret_cast<uint8_t*>(entryPoint)[i];
+    }
+
+    return static_cast<uint8_t>(sum) == 0;
+}
+
+const SmBios::EntryPoint3* SmBios::searchEntryPoint3(uint32_t startAddress, uint32_t endAddress) {
+    char signature[sizeof(EntryPoint3::smSignature)] = {'_', 'S', 'M', '3', '_'};
+    auto signatureAddress = Util::Address<uint32_t>(signature);
+    startAddress = Util::Address<uint32_t>(startAddress).alignUp(16).get();
+
+    for (uint32_t i = startAddress; i <= endAddress - sizeof(signature); i += 16) {
+        auto address = Util::Address<uint32_t>(i);
+        if (address.compareRange(signatureAddress, sizeof(EntryPoint3::smSignature)) == 0) {
+            if (checkEntryPoint3(reinterpret_cast<EntryPoint3*>(i))) {
+                return reinterpret_cast<EntryPoint3*>(i);
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+bool SmBios::checkEntryPoint3(SmBios::EntryPoint3 *entryPoint) {
     uint32_t sum = 0;
     for (uint32_t i = 0; i < entryPoint->length; i++) {
         sum += reinterpret_cast<uint8_t*>(entryPoint)[i];

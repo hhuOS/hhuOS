@@ -79,13 +79,6 @@ public:
         END_OF_TABLE = 127
     };
 
-    struct Info {
-        uint8_t majorVersion;
-        uint8_t minorVersion;
-        uint32_t tableAddress;
-        uint16_t tableLength;
-    };
-
     struct TableHeader {
         HeaderType type;
         uint8_t length;
