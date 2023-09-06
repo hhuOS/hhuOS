@@ -22,6 +22,7 @@
 
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Scene.h"
+#include "lib/util/game/3d/event/CollisionEvent.h"
 #include "lib/util/math/Vector3D.h"
 
 namespace Util {
@@ -35,7 +36,9 @@ class Color;
 }  // namespace Graphic
 }  // namespace Util
 
-Missile::Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale, const Util::Graphic::Color &color) : Util::Game::D3::Model(TAG, "/initrd/battlespace/missile.obj", translation, rotation, Util::Math::Vector3D(scale, scale, scale), color) {}
+Missile::Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale, Player &player) : Util::Game::D3::Model(TAG, "/initrd/battlespace/missile.obj", translation, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::RED), player(&player) {}
+
+Missile::Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale) : Util::Game::D3::Model(TAG, "/initrd/battlespace/missile.obj", translation, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::GREEN) {}
 
 void Missile::onUpdate(double delta) {
     if (lifetime > 5) {
@@ -49,5 +52,9 @@ void Missile::onUpdate(double delta) {
 }
 
 void Missile::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {
+    if (event.getCollidedWidth().getTag() == Missile::TAG && player != nullptr) {
+        player->addScore(250);
+    }
+
     Util::Game::GameManager::getCurrentScene().removeObject(this);
 }

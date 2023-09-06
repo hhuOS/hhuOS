@@ -24,6 +24,7 @@
 #include <cstdint>
 
 #include "lib/util/game/3d/Model.h"
+#include "Player.h"
 
 namespace Util {
 namespace Game {
@@ -45,7 +46,12 @@ public:
     /**
      * Constructor.
      */
-    Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale, const Util::Graphic::Color &color);
+    Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale, Player &player);
+
+    /**
+     * Constructor.
+     */
+    Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale);
 
     /**
      * Copy Constructor.
@@ -74,6 +80,7 @@ public:
 
 private:
 
+    Player *player = nullptr;
     double lifetime = 0;
 };
 

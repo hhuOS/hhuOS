@@ -121,7 +121,7 @@ void Enemy::onUpdate(double delta) {
     if (missileTimer <= 0 && relativeRotation.length() < 2) {
         missileTimer = 2 + random.nextRandomNumber() * 2.5;
         auto offset = Util::Math::Vector3D(0, 0, 1.5).rotate(getRotation());
-        Util::Game::GameManager::getCurrentScene().addObject(new Missile(getPosition() + offset, getRotation(), 0.2, Util::Graphic::Colors::RED));
+        Util::Game::GameManager::getCurrentScene().addObject(new Missile(getPosition() + offset, getRotation(), 0.2, player));
     }
 }
 

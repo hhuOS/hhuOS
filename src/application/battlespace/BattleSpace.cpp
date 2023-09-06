@@ -165,7 +165,7 @@ void BattleSpace::keyPressed(Util::Io::Key key) {
         case Util::Io::Key::SPACE:
             if (player->mayFireMissile()) {
                 auto offset = Util::Math::Vector3D(0, 0, 1.5).rotate(player->getRotation());
-                addObject(new Missile(player->getPosition() + offset, player->getRotation(), 0.2, Util::Graphic::Colors::GREEN));
+                addObject(new Missile(player->getPosition() + offset, player->getRotation(), 0.2));
             }
             break;
         default:
