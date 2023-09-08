@@ -302,7 +302,7 @@ void Graphics::show() const {
     } else {
         auto pitch = lfb.getPitch();
         auto colorDepthDivisor = (lfb.getColorDepth() == 15 ? 16 : lfb.getColorDepth()) / 8;
-        auto xOffset = static_cast<uint32_t>(game.getCurrentScene().getCamera().getPosition().getX() * pitch / 4) % pitch;
+        auto xOffset = static_cast<uint32_t>(game.getCurrentScene().getCamera().getPosition().getX() * static_cast<uint32_t>(pitch / colorDepthDivisor)) % pitch;
         xOffset -= xOffset % colorDepthDivisor;
 
         for (uint32_t i = 0; i < lfb.getResolutionY(); i++) {

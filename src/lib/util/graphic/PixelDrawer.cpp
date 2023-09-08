@@ -24,7 +24,7 @@
 
 namespace Util::Graphic {
 
-PixelDrawer::PixelDrawer(const LinearFrameBuffer &lfb): lfb(lfb), lfbBuffer(reinterpret_cast<uint8_t*>(lfb.getBuffer().get())), lfbWidth(lfb.getResolutionX()) {
+PixelDrawer::PixelDrawer(const LinearFrameBuffer &lfb): lfb(lfb), lfbBuffer(reinterpret_cast<uint8_t*>(lfb.getBuffer().get())), lfbPitch(lfb.getPitch()) {
     switch (lfb.getColorDepth()) {
         case 15:
             drawFunction = &drawPixel15Bit;
@@ -56,33 +56,33 @@ void PixelDrawer::drawPixel(uint16_t x, uint16_t y, const Color &color) const {
 
     // Blend if necessary and draw pixel
     if (color.getAlpha() < 255) {
-        drawFunction(lfbBuffer, lfbWidth, x, y, lfb.readPixel(x, y).blend(color));
+        drawFunction(lfbBuffer, lfbPitch, x, y, lfb.readPixel(x, y).blend(color));
     } else {
-        drawFunction(lfbBuffer, lfbWidth, x, y, color);
+        drawFunction(lfbBuffer, lfbPitch, x, y, color);
     }
 }
 
-void PixelDrawer::drawPixel15Bit(uint8_t *const buffer, const uint16_t width, const uint16_t x, const uint16_t y, const Color &color) {
-    const auto offset = x + y * width;
+void PixelDrawer::drawPixel15Bit(uint8_t *const buffer, const uint16_t pitch, const uint16_t x, const uint16_t y, const Color &color) {
+    const auto offset = x + y * (pitch / 2);
     reinterpret_cast<uint16_t*>(buffer)[offset] = color.getRGB15();
 }
 
-void PixelDrawer::drawPixel16Bit(uint8_t *const buffer, const uint16_t width, const uint16_t x, const uint16_t y, const Color &color) {
-    const auto offset = x + y * width;
+void PixelDrawer::drawPixel16Bit(uint8_t *const buffer, const uint16_t pitch, const uint16_t x, const uint16_t y, const Color &color) {
+    const auto offset = x + y * (pitch / 2);
     reinterpret_cast<uint16_t*>(buffer)[offset] = color.getRGB16();
 }
 
-void PixelDrawer::drawPixel24Bit(uint8_t *const buffer, const uint16_t width, const uint16_t x, const uint16_t y, const Color &color) {
+void PixelDrawer::drawPixel24Bit(uint8_t *const buffer, const uint16_t pitch, const uint16_t x, const uint16_t y, const Color &color) {
     uint32_t rgbColor = color.getRGB24();
-    const auto offset = x * 3 + y * width * 3;
+    const auto offset = x * 3 + y * pitch;
 
     buffer[offset] = rgbColor & 0xff;
     buffer[offset + 1] = (rgbColor >> 8) & 0xff;
     buffer[offset + 2] = (rgbColor >> 16) & 0xff;
 }
 
-void PixelDrawer::drawPixel32Bit(uint8_t *const buffer, const uint16_t width, const uint16_t x, const uint16_t y, const Color &color) {
-    const auto offset = x + y * width;
+void PixelDrawer::drawPixel32Bit(uint8_t *const buffer, const uint16_t pitch, const uint16_t x, const uint16_t y, const Color &color) {
+    const auto offset = x + y * (pitch / 4);
     reinterpret_cast<uint32_t*>(buffer)[offset] = color.getRGB32();
 }
 
