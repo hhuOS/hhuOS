@@ -67,8 +67,8 @@ void TableMemoryManager::setMemory(uint8_t *start, uint8_t *end, uint16_t useCou
 
     for (uint32_t i = startIndex.referenceTableArrayIndex; i <= endIndex.referenceTableArrayIndex; i++) {
         auto *referenceTable = reinterpret_cast<ReferenceTableEntry*>(referenceTableArray[i]);
-        uint32_t referenceTableStartIndex = i == startIndex.referenceTableArrayIndex ? startIndex.referenceTableIndex : 0;
-        uint32_t referenceTableEndIndex = i == endIndex.referenceTableArrayIndex ? endIndex.referenceTableIndex : referenceTableEntriesPerBlock;
+        uint32_t referenceTableStartIndex = (i == startIndex.referenceTableArrayIndex) ? startIndex.referenceTableIndex : 0;
+        uint32_t referenceTableEndIndex = (i == endIndex.referenceTableArrayIndex) ? endIndex.referenceTableIndex : referenceTableEntriesPerBlock - 1;
 
         for (uint32_t j = referenceTableStartIndex; j <= referenceTableEndIndex; j++) {
             auto &referenceTableEntry = referenceTable[j];
@@ -81,8 +81,8 @@ void TableMemoryManager::setMemory(uint8_t *start, uint8_t *end, uint16_t useCou
             }
 
             auto *allocationTable = reinterpret_cast<AllocationTableEntry*>(referenceTableEntry.getAddress());
-            uint32_t allocationTableStartIndex = j == referenceTableStartIndex ? startIndex.allocationTableIndex : 0;
-            uint32_t allocationTableEndIndex = j == referenceTableEndIndex ? endIndex.allocationTableIndex : allocationTableEntriesPerBlock;
+            uint32_t allocationTableStartIndex = (j == referenceTableStartIndex) ? startIndex.allocationTableIndex : 0;
+            uint32_t allocationTableEndIndex = (j == referenceTableEndIndex) ? endIndex.allocationTableIndex : allocationTableEntriesPerBlock - 1;
 
             for (uint32_t k = allocationTableStartIndex; k <= allocationTableEndIndex; k++) {
                 auto &allocationTableEntry = allocationTable[k];
@@ -161,8 +161,8 @@ void *TableMemoryManager::allocateBlockAfterAddress(void *address) {
 
     for (uint32_t i = startIndex.referenceTableArrayIndex; i <= endIndex.referenceTableArrayIndex; i++) {
         auto *referenceTable = reinterpret_cast<ReferenceTableEntry*>(referenceTableArray[i]);
-        uint32_t referenceTableStartIndex = i == startIndex.referenceTableArrayIndex ? startIndex.referenceTableIndex : 0;
-        uint32_t referenceTableEndIndex = i == endIndex.referenceTableArrayIndex ? endIndex.referenceTableIndex : referenceTableEntriesPerBlock - 1;
+        uint32_t referenceTableStartIndex = (i == startIndex.referenceTableArrayIndex) ? startIndex.referenceTableIndex : 0;
+        uint32_t referenceTableEndIndex = (i == endIndex.referenceTableArrayIndex) ? endIndex.referenceTableIndex : referenceTableEntriesPerBlock - 1;
 
         for (uint32_t j = referenceTableStartIndex; j <= referenceTableEndIndex; j++) {
             auto &referenceTableEntry = referenceTable[j];
@@ -177,8 +177,8 @@ void *TableMemoryManager::allocateBlockAfterAddress(void *address) {
             }
 
             auto *allocationTable = reinterpret_cast<AllocationTableEntry*>(referenceTableEntry.getAddress());
-            uint32_t allocationTableStartIndex = j == referenceTableStartIndex ? startIndex.allocationTableIndex : 0;
-            uint32_t allocationTableEndIndex = j == referenceTableEndIndex ? endIndex.allocationTableIndex : allocationTableEntriesPerBlock - 1;
+            uint32_t allocationTableStartIndex = (j == referenceTableStartIndex) ? startIndex.allocationTableIndex : 0;
+            uint32_t allocationTableEndIndex = (j == referenceTableEndIndex) ? endIndex.allocationTableIndex : allocationTableEntriesPerBlock - 1;
 
             for (uint32_t k = allocationTableStartIndex; k <= allocationTableEndIndex; k++) {
                 auto &allocationTableEntry = allocationTable[k];
