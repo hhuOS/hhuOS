@@ -122,7 +122,7 @@ public:
 
     void drawStringSmall2D(const Math::Vector2D &position, const String &string) const;
 
-    void drawImage2D(const Math::Vector2D &position, const Graphic::Image &image, const Math::Vector2D &scale = Util::Math::Vector2D(1, 1), double rotationAngle = 0, bool flipX = false) const;
+    void drawImage2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX = false, const Math::Vector2D &scale = Util::Math::Vector2D(1, 1), double rotationAngle = 0) const;
 
     /***** 2D drawing functions *****/
 
@@ -162,6 +162,14 @@ private:
     void drawString(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const;
 
     void drawString2D(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const;
+
+    void drawImageDirect2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX) const;
+
+    void drawImageScaled2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, const Util::Math::Vector2D &scale) const;
+
+    void drawImageRotated2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, double rotationAngle) const;
+
+    void drawImageScaledAndRotated2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, const Util::Math::Vector2D &scale, double rotationAngle) const;
 
     void resetCounters();
 

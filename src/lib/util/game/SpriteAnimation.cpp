@@ -87,7 +87,7 @@ void SpriteAnimation::flipX() {
 }
 
 void SpriteAnimation::draw(const Graphics &graphics, const Math::Vector2D &position) const {
-    graphics.drawImage2D(position, sprites[currentSprite].getImage(), scale, rotationAngle, xFlipped);
+    graphics.drawImage2D(position, sprites[currentSprite].getImage(), xFlipped, scale, rotationAngle);
 }
 
 }

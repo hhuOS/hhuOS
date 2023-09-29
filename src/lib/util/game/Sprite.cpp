@@ -99,7 +99,7 @@ void Sprite::flipX() {
 }
 
 void Sprite::draw(const Graphics &graphics, const Math::Vector2D &position) const {
-    graphics.drawImage2D(position, *image, scale, rotationAngle, xFlipped);
+    graphics.drawImage2D(position, *image, xFlipped, scale, rotationAngle);
 }
 
 }
