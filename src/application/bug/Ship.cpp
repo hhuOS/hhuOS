@@ -95,7 +95,7 @@ void Ship::draw(Util::Game::Graphics &graphics) {
     sprite.draw(graphics, getPosition());
 
     for (uint32_t i = 0; i < lives; i++) {
-        heart.draw(graphics, Util::Math::Vector2D(-0.9 + i * 1.5 * heart.getInitialSize().getX(), -0.9));
+        heart.draw(graphics, Util::Math::Vector2D(-0.9 + i * 1.5 * heart.getSize().getX(), -0.9));
     }
 }
 

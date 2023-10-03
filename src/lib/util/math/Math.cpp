@@ -266,4 +266,12 @@ double pow(double value, int exponent) {
     return ret;
 }
 
+float modulo(float dividend, float divisor) {
+    return dividend - static_cast<int32_t>(dividend / divisor) * divisor;
+}
+
+double modulo(double dividend, double divisor) {
+    return dividend - static_cast<int32_t>(dividend / divisor) * divisor;
+}
+
 }

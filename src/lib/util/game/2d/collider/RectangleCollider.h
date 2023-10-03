@@ -63,7 +63,7 @@ public:
 
     [[nodiscard]] double getHeight() const;
 
-    const Math::Vector2D& getSize() const;
+    [[nodiscard]] const Math::Vector2D& getSize() const;
 
     void setWidth(double width);
 

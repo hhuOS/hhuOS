@@ -42,9 +42,9 @@ void Logo::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     const auto &newPosition = event.getTargetPosition();
 
     if (newPosition.getX() < -resolution.getX() ||
-        newPosition.getX() > resolution.getX() - sprite.getInitialSize().getX() ||
+        newPosition.getX() > resolution.getX() - sprite.getSize().getX() ||
         newPosition.getY() < -resolution.getY() ||
-        newPosition.getY() > resolution.getY() - sprite.getInitialSize().getY()) {
+        newPosition.getY() > resolution.getY() - sprite.getSize().getY()) {
         event.cancel();
     }
 }

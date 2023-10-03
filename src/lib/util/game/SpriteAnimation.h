@@ -74,9 +74,9 @@ public:
 
     [[nodiscard]] const Math::Vector2D& getScale() const;
 
-    [[nodiscard]] const Math::Vector2D &getInitialSize() const;
+    [[nodiscard]] const Math::Vector2D& getOriginalSize() const;
 
-    [[nodiscard]] Math::Vector2D getScaledSize() const;
+    [[nodiscard]] Math::Vector2D getSize() const;
 
     [[nodiscard]] double getRotation() const;
 

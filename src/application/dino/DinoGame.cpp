@@ -43,7 +43,7 @@ DinoGame::DinoGame() {
     addObject(dino);
 
     for (uint32_t i = 0; i < 4; i++) {
-        auto *newGround = new Ground(Util::Math::Vector2D(getCamera().getPosition().getX() - 1.5 + i, -0.8));
+        auto *newGround = new Ground(Util::Math::Vector2D(getCamera().getPosition().getX() - 1.5 + i, -1));
         ground.offer(newGround);
         addObject(newGround);
     }
@@ -79,7 +79,7 @@ void DinoGame::update(double delta) {
 
         if (obstacleCooldown <= 0) {
             if (random.nextRandomNumber() < delta) {
-                auto positionY = ground.peek()->getPosition().getY() + (random.nextRandomNumber() < 0.75 ? 0 : + 0.3);
+                auto positionY = ground.peek()->getPosition().getY() + ground.peek()->getCollider().getHeight() + (random.nextRandomNumber() < 0.75 ? 0 : + 0.3);
                 auto *saw = new Saw(Util::Math::Vector2D(getCamera().getPosition().getX() + 2, positionY));
                 obstacles.add(saw);
                 addObject(saw);
@@ -91,7 +91,7 @@ void DinoGame::update(double delta) {
 
         if (ground.peek()->getPosition().getX() < getCamera().getPosition().getX() - 2.5) {
             auto positionX = (static_cast<uint32_t>((getCamera().getPosition().getX() + 1.5) * 10) / 5) * 5 / 10.0 ;
-            auto *newGround = new Ground(Util::Math::Vector2D(positionX, -0.8));
+            auto *newGround = new Ground(Util::Math::Vector2D(positionX, -1));
             removeObject(ground.poll());
             ground.offer(newGround);
             addObject(newGround);

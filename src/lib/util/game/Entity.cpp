@@ -25,4 +25,8 @@ uint32_t Entity::getTag() const {
     return tag;
 }
 
+bool Entity::isParticle() const {
+    return false;
+}
+
 }

@@ -27,15 +27,16 @@
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
-#include "application/demo/polygon/PolygonDemo.h"
+#include "application/demo/polygons/PolygonDemo.h"
 #include "application/demo/sprites/SpriteDemo.h"
 #include "application/demo/ant/Ant.h"
+#include "application/demo/particles/ParticleDemo.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.setHelpText("Demo applications, showing off the systems graphical capabilities.\n"
                                "Usage: demo [DEMO] [OPTIONS]...\n"
-                               "Demos: ant, polygon, sprites\n"
+                               "Demos: ant, polygons, sprites\n"
                                "Options:\n"
                                "  -h, --help: Show this help message");
 
@@ -60,7 +61,9 @@ int32_t main(int32_t argc, char *argv[]) {
         auto engine = Util::Game::Engine(lfb, 60);
 
         auto count = arguments.length() <= 1 ? 10 : Util::String::parseInt(arguments[1]);
-        if (demo == "polygon") {
+        if (demo == "particles") {
+            Util::Game::GameManager::getGame().pushScene(new ParticleDemo());
+        } else if (demo == "polygons") {
             Util::Game::GameManager::getGame().pushScene(new PolygonDemo(count));
         } else if (demo == "sprites") {
             Util::Game::GameManager::getGame().pushScene(new SpriteDemo(count));

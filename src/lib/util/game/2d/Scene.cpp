@@ -58,7 +58,7 @@ void Scene::checkCollisions() {
 
             for (auto *otherEntity : entities) {
                 auto *otherEntity2D = reinterpret_cast<Util::Game::D2::Entity*>(otherEntity);
-                if (entity == otherEntity || !otherEntity2D->hasCollider() || detectedCollisions.contains(Pair(entity2D, otherEntity2D)) || detectedCollisions.contains(Pair(otherEntity2D, entity2D))) {
+                if (entity == otherEntity || !otherEntity2D->hasCollider() || otherEntity2D->isParticle() || detectedCollisions.contains(Pair(entity2D, otherEntity2D)) || detectedCollisions.contains(Pair(otherEntity2D, entity2D))) {
                     continue;
                 }
 

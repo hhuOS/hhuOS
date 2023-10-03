@@ -25,9 +25,12 @@ include_directories(${HHUOS_SRC_DIR})
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/demo/demo.cpp
         ${HHUOS_SRC_DIR}/application/demo/ant/Ant.cpp
-        ${HHUOS_SRC_DIR}/application/demo/polygon/DemoPolygon.cpp
-        ${HHUOS_SRC_DIR}/application/demo/polygon/DemoPolygonFactory.cpp
-        ${HHUOS_SRC_DIR}/application/demo/polygon/PolygonDemo.cpp
+        ${HHUOS_SRC_DIR}/application/demo/particles/Ground.cpp
+        ${HHUOS_SRC_DIR}/application/demo/particles/ParticleDemo.cpp
+        ${HHUOS_SRC_DIR}/application/demo/particles/RainEmitter.cpp
+        ${HHUOS_SRC_DIR}/application/demo/polygons/DemoPolygon.cpp
+        ${HHUOS_SRC_DIR}/application/demo/polygons/DemoPolygonFactory.cpp
+        ${HHUOS_SRC_DIR}/application/demo/polygons/PolygonDemo.cpp
         ${HHUOS_SRC_DIR}/application/demo/sprites/SpriteDemo.cpp
         ${HHUOS_SRC_DIR}/application/demo/sprites/DemoSprite.cpp
         ${HHUOS_SRC_DIR}/application/demo/sprites/DemoSpriteFactory.cpp)

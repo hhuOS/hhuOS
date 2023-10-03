@@ -48,6 +48,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/game/2d/component/LinearMovementComponent.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/event/CollisionEvent.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/event/TranslationEvent.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/2d/particle/Emitter.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/2d/particle/Particle.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/3d/Entity.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/3d/Model.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/3d/ObjectFile.cpp

@@ -62,11 +62,11 @@ const Graphic::Image& Sprite::getImage() const {
     return *image;
 }
 
-const Math::Vector2D &Sprite::getInitialSize() const {
+const Math::Vector2D &Sprite::getOriginalSize() const {
     return size;
 }
 
-Math::Vector2D Sprite::getScaledSize() const {
+Math::Vector2D Sprite::getSize() const {
     return Math::Vector2D(size.getX() * scale.getX(), size.getY() * scale.getY());
 }
 

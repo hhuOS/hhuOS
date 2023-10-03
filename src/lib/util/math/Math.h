@@ -83,6 +83,10 @@ namespace Util::Math {
 
     double max(double first, double second, double third);
 
+    float modulo(float dividend, float divisor);
+
+    double modulo(double dividend, double divisor);
+
     static const constexpr double PI = 3.14159265358979323846;
 }
 

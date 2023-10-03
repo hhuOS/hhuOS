@@ -49,12 +49,12 @@ double SpriteAnimation::getAnimationTime() const {
     return animationTime;
 }
 
-const Math::Vector2D &SpriteAnimation::getInitialSize() const {
-    return sprites[currentSprite].getInitialSize();
+const Math::Vector2D &SpriteAnimation::getOriginalSize() const {
+    return sprites[currentSprite].getOriginalSize();
 }
 
-Math::Vector2D SpriteAnimation::getScaledSize() const {
-    auto size = sprites[currentSprite].getInitialSize();
+Math::Vector2D SpriteAnimation::getSize() const {
+    auto size = sprites[currentSprite].getSize();
     return Math::Vector2D(size.getX() * scale.getX(), size.getY() * scale.getY());
 }
 

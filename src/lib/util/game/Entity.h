@@ -63,6 +63,8 @@ public:
 
     virtual void onUpdate(double delta) = 0;
 
+    [[nodiscard]] virtual bool isParticle() const;
+
     [[nodiscard]] uint32_t getTag() const;
 
 private:

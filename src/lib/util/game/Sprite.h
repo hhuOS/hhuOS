@@ -69,9 +69,9 @@ public:
 
     [[nodiscard]] const Graphic::Image& getImage() const;
 
-    [[nodiscard]] const Math::Vector2D &getInitialSize() const;
+    [[nodiscard]] const Math::Vector2D& getOriginalSize() const;
 
-    [[nodiscard]] Math::Vector2D getScaledSize() const;
+    [[nodiscard]] Math::Vector2D getSize() const;
 
     [[nodiscard]] const Math::Vector2D& getScale() const;
 

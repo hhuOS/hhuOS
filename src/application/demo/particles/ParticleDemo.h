@@ -15,66 +15,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_DINO_GROUND_H
-#define HHUOS_DINO_GROUND_H
+#ifndef HHUOS_PARTICLEDEMO_H
+#define HHUOS_PARTICLEDEMO_H
 
-#include <cstdint>
+#include "lib/util/game/2d/Scene.h"
+#include "lib/util/game/KeyListener.h"
+#include "RainEmitter.h"
 
-#include "lib/util/game/2d/Entity.h"
-#include "lib/util/game/Sprite.h"
-
-namespace Util {
-namespace Game {
-class Graphics;
-namespace D2 {
-class CollisionEvent;
-class TranslationEvent;
-}  // namespace D2
-}  // namespace Game
-namespace Math {
-class Vector2D;
-}  // namespace Math
-}  // namespace Util
-
-class Ground : public Util::Game::D2::Entity {
+class ParticleDemo : public Util::Game::D2::Scene, public Util::Game::KeyListener {
 
 public:
     /**
      * Default Constructor.
      */
-    explicit Ground(const Util::Math::Vector2D &position);
+    ParticleDemo();
 
     /**
      * Copy Constructor.
      */
-    Ground(const Ground &other) = delete;
+    ParticleDemo(const ParticleDemo &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Ground &operator=(const Ground &other) = delete;
+    ParticleDemo &operator=(const ParticleDemo &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Ground() override = default;
+    ~ParticleDemo() override = default;
 
-    void initialize() override;
+    void update(double delta) override;
 
-    void onUpdate(double delta) override;
+    void initializeBackground(Util::Game::Graphics &graphics) override;
 
-    void onTranslationEvent(Util::Game::D2::TranslationEvent &event) override;
+    void keyPressed(Util::Io::Key key) override;
 
-    void onCollisionEvent(Util::Game::D2::CollisionEvent &event) override;
-
-    void draw(Util::Game::Graphics &graphics) override;
-
-    static const constexpr uint32_t TAG = 2;
+    void keyReleased(Util::Io::Key key) override;
 
 private:
 
-    Util::Game::Sprite sprite;
+    RainEmitter *cloud = nullptr;
 };
-
 
 #endif

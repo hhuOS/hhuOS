@@ -118,7 +118,7 @@ void Dino::onUpdate(double delta) {
         currentAnimation->update(delta);
     }
 
-    getCollider().setSize(currentAnimation->getInitialSize());
+    getCollider().setSize(currentAnimation->getOriginalSize());
 }
 
 void Dino::draw(Util::Game::Graphics &graphics) {

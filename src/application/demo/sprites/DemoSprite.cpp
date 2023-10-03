@@ -65,7 +65,7 @@ void DemoSprite::onUpdate(double delta) {
     animation.setScale(scaleUp ? animation.getScale().getX() + delta * scaleSpeed : animation.getScale().getX() - delta * scaleSpeed);
     animation.rotate(delta * rotationSpeed);
 
-    auto positionOffset = (animation.getInitialSize().getX() - animation.getScaledSize().getX()) / 2;
+    auto positionOffset = (animation.getOriginalSize().getX() - animation.getSize().getX()) / 2;
     setPosition(initialPosition + Util::Math::Vector2D(positionOffset, positionOffset));
 }
 

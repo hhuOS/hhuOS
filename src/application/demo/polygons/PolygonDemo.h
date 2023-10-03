@@ -24,7 +24,7 @@
 #include "DemoPolygonFactory.h"
 #include "lib/util/game/KeyListener.h"
 #include "lib/util/game/2d/Scene.h"
-#include "application/demo/polygon/DemoPolygon.h"
+#include "DemoPolygon.h"
 
 namespace Util {
 namespace Game {

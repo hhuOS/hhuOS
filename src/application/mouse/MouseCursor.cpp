@@ -45,9 +45,9 @@ void MouseCursor::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     const auto &newPosition = event.getTargetPosition();
 
     if (newPosition.getX() < -resolution.getX() ||
-        newPosition.getX() > resolution.getX() - currentSprite->getInitialSize().getX() ||
+        newPosition.getX() > resolution.getX() - currentSprite->getSize().getX() ||
         newPosition.getY() < -resolution.getY() ||
-        newPosition.getY() > resolution.getY() - currentSprite->getInitialSize().getY()) {
+        newPosition.getY() > resolution.getY() - currentSprite->getSize().getY()) {
         event.cancel();
     }
 }
@@ -60,7 +60,8 @@ void MouseCursor::draw(Util::Game::Graphics &graphics) {
 
     currentSprite->draw(graphics, getPosition());
     graphics.setColor(Util::Graphic::Colors::HHU_TURQUOISE);
-    graphics.drawString2D(getPosition() + Util::Math::Vector2D(currentSprite->getInitialSize().getX() / 2 - charWidth, currentSprite->getInitialSize().getY() / 3), additionalButtons);
+    graphics.drawString2D(getPosition() + Util::Math::Vector2D(currentSprite->getSize().getX() / 2 - charWidth,
+                                                               currentSprite->getSize().getY() / 3), additionalButtons);
 }
 
 void MouseCursor::buttonPressed(Util::Io::Mouse::Button button) {

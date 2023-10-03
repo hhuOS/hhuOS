@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_DINO_GROUND_H
-#define HHUOS_DINO_GROUND_H
+#ifndef HHUOS_PARTICLES_GROUND_H
+#define HHUOS_PARTICLES_GROUND_H
 
 #include <cstdint>
 
@@ -69,7 +69,7 @@ public:
 
     void draw(Util::Game::Graphics &graphics) override;
 
-    static const constexpr uint32_t TAG = 2;
+    static const constexpr uint32_t TAG = 1;
 
 private:
 
