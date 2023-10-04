@@ -25,6 +25,7 @@ include_directories(${HHUOS_SRC_DIR})
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/demo/demo.cpp
         ${HHUOS_SRC_DIR}/application/demo/ant/Ant.cpp
+        ${HHUOS_SRC_DIR}/application/demo/particles/DropletEmitter.cpp
         ${HHUOS_SRC_DIR}/application/demo/particles/Ground.cpp
         ${HHUOS_SRC_DIR}/application/demo/particles/ParticleDemo.cpp
         ${HHUOS_SRC_DIR}/application/demo/particles/RainEmitter.cpp

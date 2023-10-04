@@ -43,7 +43,7 @@ void Particle::onUpdate(double delta) {
         }
     }
 
-    parent.updateParticle(*this, delta);
+    parent.onParticleUpdate(*this, delta);
 
     rotation += rotationVelocity * delta;
     setVelocity(getVelocity() + acceleration * delta);

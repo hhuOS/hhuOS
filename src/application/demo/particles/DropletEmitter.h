@@ -15,37 +15,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_RAINEMITTER_H
-#define HHUOS_RAINEMITTER_H
+#ifndef HHUOS_DROPLETEMITTER_H
+#define HHUOS_DROPLETEMITTER_H
 
-#include "lib/util/game/2d/particle/Emitter.h"
+#include "lib/util/game/2d/particle/SingleTimeEmitter.h"
 
-class RainEmitter : public Util::Game::D2::Emitter {
+class DropletEmitter : public Util::Game::D2::SingleTimeEmitter {
 
 public:
     /**
      * Default.
      */
-    explicit RainEmitter(const Util::Math::Vector2D &position);
+    explicit DropletEmitter(const Util::Math::Vector2D &position);
 
     /**
      * Copy Constructor.
      */
-    RainEmitter(const RainEmitter &other) = delete;
+    DropletEmitter(const DropletEmitter &other) = delete;
 
     /**
      * Assignment operator.
      */
-    RainEmitter &operator=(const RainEmitter &other) = delete;
+    DropletEmitter &operator=(const DropletEmitter &other) = delete;
 
     /**
      * Destructor.
      */
-    ~RainEmitter() override = default;
+    ~DropletEmitter() override = default;
 
     void initialize() override;
-
-    void onUpdate(double delta) override;
 
     void draw(Util::Game::Graphics &graphics) override;
 
@@ -59,15 +57,13 @@ public:
 
     void onParticleDestruction(Util::Game::D2::Particle &particle) override;
 
-    static const constexpr uint32_t TAG = 0;
-    static const constexpr uint32_t PARTICLE_TAG = 1;
+    static const constexpr uint32_t TAG = 2;
+    static const constexpr uint32_t PARTICLE_TAG = 3;
 
 private:
 
+    bool emitted = false;
     Util::Math::Random random;
-    Util::Game::Sprite cloudSprite;
-
-    static const constexpr double SPEED = 0.25;
 };
 
 #endif

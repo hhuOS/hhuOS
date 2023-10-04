@@ -30,19 +30,26 @@ void Emitter::initialize() {}
 void Emitter::onUpdate(double delta) {
     if (timeLimited) {
         timeToLive -= delta;
-        if (timeToLive <= 0 && activeParticles.size() == 0) {
-            GameManager::getCurrentScene().removeObject(this);
+        if (timeToLive <= 0) {
+            if (activeParticles.size() == 0) {
+                GameManager::getCurrentScene().removeObject(this);
+            }
+
+            return;
         }
     }
 
-    timeSinceLastEmission += delta;
-    if (timeSinceLastEmission >= emissionTime && (!timeLimited || timeToLive > 0)) {
-        emitParticles();
-        timeSinceLastEmission = 0;
+    if (emissionTime >= 0) {
+        timeSinceLastEmission += delta;
+        if (timeSinceLastEmission >= emissionTime && (!timeLimited || timeToLive > 0)) {
+            emitParticles();
+            timeSinceLastEmission = 0;
+        }
     }
 }
 
 void Emitter::removeParticle(Particle *particle) {
+    onParticleDestruction(*particle);
     activeParticles.remove(particle);
     GameManager::getCurrentScene().removeObject(particle);
 }
@@ -63,6 +70,10 @@ void Emitter::emitParticles() {
         activeParticles.add(particle);
         GameManager::getCurrentScene().addObject(particle);
     }
+}
+
+void Emitter::emitOnce() {
+    emitParticles();
 }
 
 uint32_t Emitter::getMinEmissionRate() const {
@@ -87,6 +98,10 @@ double Emitter::getEmissionTime() const {
 
 void Emitter::setEmissionTime(double emissionTime) {
     Emitter::emissionTime = emissionTime;
+}
+
+uint32_t Emitter::getActiveParticles() const {
+    return activeParticles.size();
 }
 
 }

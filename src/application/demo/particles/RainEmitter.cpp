@@ -18,6 +18,9 @@
 #include "RainEmitter.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
 #include "lib/util/game/2d/component/LinearMovementComponent.h"
+#include "DropletEmitter.h"
+#include "lib/util/game/GameManager.h"
+#include "lib/util/game/Scene.h"
 
 RainEmitter::RainEmitter(const Util::Math::Vector2D &position) : Util::Game::D2::Emitter(TAG, position, 0) {
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
@@ -33,10 +36,10 @@ void RainEmitter::initialize() {
     setMaxEmissionRate(2);
 
     particleTag = PARTICLE_TAG;
-    particleSprite = Util::Game::Sprite("/initrd/demo/raindrop.bmp", 0.005, 0.04);
+    particleSprite = Util::Game::Sprite("/initrd/demo/raindrop.bmp", 0.005, 0.03);
     particleVelocity = Util::Math::Vector2D(0, -0.8);
     particleTimeToLive = 5;
-    particleColliderSize = Util::Math::Vector2D(0.03, 0.03);
+    particleColliderSize = Util::Math::Vector2D(0.005, 0.03);
 }
 
 void RainEmitter::onUpdate(double delta) {
@@ -63,4 +66,9 @@ void RainEmitter::setNextParticleAttributes() {
     particlePosition = getPosition() + Util::Math::Vector2D(random.nextRandomNumber() * 0.5, 0);
 }
 
-void RainEmitter::updateParticle(Util::Game::D2::Particle &particle, double delta) {}
+void RainEmitter::onParticleUpdate(Util::Game::D2::Particle &particle, double delta) {}
+
+void RainEmitter::onParticleDestruction(Util::Game::D2::Particle &particle) {
+    auto *dropletEmitter = new DropletEmitter(particle.getPosition());
+    Util::Game::GameManager::getCurrentScene().addObject(dropletEmitter);
+}

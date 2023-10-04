@@ -54,9 +54,13 @@ public:
 
     void removeParticle(Particle *particle);
 
+    void emitOnce();
+
     virtual void setNextParticleAttributes() = 0;
 
-    virtual void updateParticle(Particle &particle, double delta) = 0;
+    virtual void onParticleUpdate(Particle &particle, double delta) = 0;
+
+    virtual void onParticleDestruction(Particle &particle) = 0;
 
     [[nodiscard]] uint32_t getMinEmissionRate() const;
 
@@ -69,6 +73,8 @@ public:
     [[nodiscard]] double getEmissionTime() const;
 
     void setEmissionTime(double emissionTime);
+
+    [[nodiscard]] uint32_t getActiveParticles() const;
 
 protected:
 

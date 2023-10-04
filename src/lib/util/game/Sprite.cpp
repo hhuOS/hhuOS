@@ -44,14 +44,16 @@ Sprite::Sprite() : size(0, 0) {
 }
 
 Sprite::Sprite(const Util::String &path, double width, double height) : size(width, height) {
-    auto key = String::format("%s_%x_%x", static_cast<const char*>(path), width, height);
+    auto transformation = GameManager::getTransformation();
+    auto pixelWidth = static_cast<uint16_t>(width * transformation) + 1;
+    auto pixelHeight = static_cast<uint16_t>(height * transformation) + 1;
+    auto key = String::format("%s_%u_%u", static_cast<const char*>(path), pixelWidth, pixelHeight);
+
     if (ResourceManager::hasImage(key)) {
         image = ResourceManager::getImage(key);
     } else {
         auto *file = Graphic::BitmapFile::open(path);
-        auto transformation = GameManager::getTransformation();
-
-        image = file->scale(static_cast<uint16_t>(width * transformation) + 1, static_cast<uint16_t>(height * transformation) + 1);
+        image = file->scale(pixelWidth, pixelHeight);
         delete file;
 
         ResourceManager::addImage(key, image);
