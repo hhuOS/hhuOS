@@ -48,6 +48,8 @@ void DropletEmitter::setNextParticleAttributes() {
     particleVelocity = Util::Math::Vector2D(Util::Math::cosine(angle), Util::Math::sine(angle));
 }
 
-void DropletEmitter::onParticleUpdate(Util::Game::D2::Particle &particle, double delta) {}
+void DropletEmitter::onParticleUpdate(Util::Game::D2::Particle &particle, double delta) {
+    particle.setAlpha(particle.getAlpha() - 1 * delta);
+}
 
 void DropletEmitter::onParticleDestruction(Util::Game::D2::Particle &particle) {}

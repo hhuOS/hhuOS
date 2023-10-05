@@ -80,6 +80,10 @@ double Sprite::getRotation() const {
     return rotationAngle;
 }
 
+double Sprite::getAlpha() const {
+    return alpha;
+}
+
 void Sprite::setScale(const Math::Vector2D &scale) {
     Sprite::scale = scale;
 }
@@ -92,6 +96,10 @@ void Sprite::setRotation(double angle) {
     rotationAngle = angle;
 }
 
+void Sprite::setAlpha(double alpha) {
+    Sprite::alpha = alpha;
+}
+
 void Sprite::rotate(double angle) {
     rotationAngle += angle;
 }
@@ -101,7 +109,7 @@ void Sprite::flipX() {
 }
 
 void Sprite::draw(const Graphics &graphics, const Math::Vector2D &position) const {
-    graphics.drawImage2D(position, *image, xFlipped, scale, rotationAngle);
+    graphics.drawImage2D(position, *image, xFlipped, alpha, scale, rotationAngle);
 }
 
 }

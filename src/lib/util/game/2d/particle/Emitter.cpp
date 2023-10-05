@@ -62,9 +62,11 @@ void Emitter::emitParticles() {
 
         Particle *particle;
         if (particleColliderSize == Math::Vector2D(0, 0)) {
-            particle = new Particle(particleTag, particlePosition, particleVelocity, particleAcceleration, particleScale, particleTimeToLive, particleSprite, *this);
+            particle = new Particle(particleTag, particlePosition, particleVelocity, particleAcceleration, particleRotationVelocity, particleScale,
+                                    particleAlpha, particleTimeToLive, particleSprite, *this);
         } else {
-            particle = new Particle(particleTag, particlePosition, RectangleCollider(particlePosition, particleColliderSize, particleColliderType), particleVelocity, particleAcceleration, particleScale, particleTimeToLive, particleSprite, *this);
+            particle = new Particle(particleTag, particlePosition, RectangleCollider(particlePosition, particleColliderSize, particleColliderType),
+                                    particleVelocity, particleAcceleration, particleRotationVelocity, particleScale, particleAlpha, particleTimeToLive, particleSprite, *this);
         }
 
         activeParticles.add(particle);

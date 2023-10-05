@@ -274,4 +274,12 @@ double modulo(double dividend, double divisor) {
     return dividend - static_cast<int32_t>(dividend / divisor) * divisor;
 }
 
+bool equals(float first, float second, float epsilon) {
+    return absolute(first - second)  < epsilon;
+}
+
+bool equals(double first, double second, double epsilon) {
+    return absolute(first - second)  < epsilon;
+}
+
 }

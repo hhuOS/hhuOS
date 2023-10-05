@@ -23,14 +23,19 @@
 
 namespace Util::Game::D2 {
 
-Particle::Particle(uint32_t tag, const Math::Vector2D &position, const Math::Vector2D &velocity, const Math::Vector2D &acceleration, double scale, double timeToLive, const Sprite &sprite, Emitter &parent) :
-        Entity(tag, position), acceleration(acceleration), timeLimited(timeToLive > 0), timeToLive(timeToLive), scale(scale), sprite(sprite), parent(parent) {
+Particle::Particle(uint32_t tag, const Math::Vector2D &position, const Math::Vector2D &velocity, const Math::Vector2D &acceleration,
+                   double rotationVelocity, double scale, double alpha, double timeToLive, const Sprite &sprite, Emitter &parent) :
+        Entity(tag, position), acceleration(acceleration), rotationVelocity(rotationVelocity), timeLimited(timeToLive > 0), timeToLive(timeToLive), sprite(sprite), parent(parent) {
     setVelocity(velocity);
+    Particle::sprite.setAlpha(alpha);
+    Particle::sprite.setScale(scale);
 }
 
-Particle::Particle(uint32_t tag, const Math::Vector2D &position, const RectangleCollider &collider, const Math::Vector2D &velocity, const Math::Vector2D &acceleration, double scale, double timeToLive, const Sprite &sprite, Emitter &parent) :
-        Entity(tag, position, collider), acceleration(acceleration), timeLimited(timeToLive > 0), timeToLive(timeToLive), scale(scale), sprite(sprite), parent(parent) {
+Particle::Particle(uint32_t tag, const Math::Vector2D &position, const RectangleCollider &collider, const Math::Vector2D &velocity,
+                   const Math::Vector2D &acceleration, double rotationVelocity, double scale, double alpha, double timeToLive, const Sprite &sprite, Emitter &parent) :
+        Entity(tag, position, collider), acceleration(acceleration), rotationVelocity(rotationVelocity), timeLimited(timeToLive > 0), timeToLive(timeToLive), sprite(sprite), parent(parent) {
     setVelocity(velocity);
+    Particle::sprite.setScale(scale);
 }
 
 void Particle::initialize() {}
@@ -40,18 +45,19 @@ void Particle::onUpdate(double delta) {
         timeToLive -= delta;
         if (timeToLive <= 0) {
             parent.removeParticle(this);
+            return;
         }
     }
 
     parent.onParticleUpdate(*this, delta);
 
-    rotation += rotationVelocity * delta;
+    sprite.rotate(rotationVelocity * delta);
     setVelocity(getVelocity() + acceleration * delta);
     setPosition(getPosition() + getVelocity() * delta);
 }
 
 void Particle::draw(Graphics &graphics) {
-    graphics.drawImage2D(getPosition(), sprite.getImage(), false, Math::Vector2D(scale, scale), rotation);
+    sprite.draw(graphics, getPosition());
 }
 
 void Particle::onTranslationEvent(TranslationEvent &event) {}
@@ -62,6 +68,22 @@ void Particle::onCollisionEvent(CollisionEvent &event) {
 
 bool Particle::isParticle() const {
     return true;
+}
+
+double Particle::getScale() const {
+    return sprite.getScale().getX();
+}
+
+void Particle::setScale(double scale) {
+    sprite.setScale(scale);
+}
+
+double Particle::getAlpha() const {
+    return sprite.getAlpha();
+}
+
+void Particle::setAlpha(double alpha) {
+    sprite.setAlpha(alpha);
 }
 
 }

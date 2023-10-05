@@ -31,11 +31,11 @@ public:
     /**
      * Constructor.
      */
-    Particle(uint32_t tag, const Math::Vector2D &position, const Math::Vector2D &velocity, const Math::Vector2D &acceleration, double scale, double timeToLive, const Sprite &sprite, Emitter &parent);
+    Particle(uint32_t tag, const Math::Vector2D &position, const Math::Vector2D &velocity, const Math::Vector2D &acceleration, double rotationVelocity, double scale, double alpha, double timeToLive, const Sprite &sprite, Emitter &parent);
     /**
      * Constructor.
      */
-    Particle(uint32_t tag, const Math::Vector2D &position, const RectangleCollider &collider, const Math::Vector2D &velocity, const Math::Vector2D &acceleration, double scale, double timeToLive, const Sprite &sprite, Emitter &parent);
+    Particle(uint32_t tag, const Math::Vector2D &position, const RectangleCollider &collider, const Math::Vector2D &velocity, const Math::Vector2D &acceleration, double rotationVelocity, double scale, double alpha, double timeToLive, const Sprite &sprite, Emitter &parent);
 
     /**
      * Copy Constructor.
@@ -64,24 +64,22 @@ public:
 
     [[nodiscard]] bool isParticle() const override;
 
+    [[nodiscard]] double getScale() const;
+
+    void setScale(double scale);
+
+    [[nodiscard]] double getAlpha() const;
+
+    void setAlpha(double alpha);
+
 private:
 
     Math::Vector2D acceleration;
+    double rotationVelocity;
     bool timeLimited;
     double timeToLive;
 
-    double rotation = 0;
-    double rotationVelocity = 0;
-
-    double angle = 0;
-    double radius = 0;
-    double angularVelocity = 0;
-
-    double scale;
-    double alpha = 1;
-    const Sprite &sprite;
-    Graphic::Color color = Graphic::Colors::WHITE;
-
+    Sprite sprite;
     Emitter &parent;
 };
 

@@ -87,6 +87,10 @@ namespace Util::Math {
 
     double modulo(double dividend, double divisor);
 
+    bool equals(float first, float second, float epsilon);
+
+    bool equals(double first, double second, double epsilon);
+
     static const constexpr double PI = 3.14159265358979323846;
 }
 

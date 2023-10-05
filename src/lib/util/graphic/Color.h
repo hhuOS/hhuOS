@@ -209,6 +209,8 @@ public:
      */
     [[nodiscard]] Color blend(const Color &color) const;
 
+    [[nodiscard]] Color withAlpha(uint8_t alpha) const;
+
 private:
 
     uint8_t red, green, blue, alpha;

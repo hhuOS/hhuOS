@@ -77,11 +77,15 @@ public:
 
     [[nodiscard]] double getRotation() const;
 
+    [[nodiscard]] double getAlpha() const;
+
     void setScale(const Math::Vector2D &scale);
 
     void setScale(double scale);
 
     void setRotation(double angle);
+
+    void setAlpha(double alpha);
 
     void rotate(double angle);
 
@@ -96,6 +100,7 @@ private:
     Math::Vector2D size;
     Math::Vector2D scale = Math::Vector2D(1, 1);
     double rotationAngle = 0;
+    double alpha = 1;
     bool xFlipped = false;
 };
 

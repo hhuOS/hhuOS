@@ -80,6 +80,7 @@ protected:
 
     Sprite particleSprite;
     double particleScale = 1.0;
+    double particleAlpha = 1;
 
     uint32_t particleTag = 0xffffffff;
     double particleTimeToLive = 2.0;
@@ -87,6 +88,7 @@ protected:
     Math::Vector2D particlePosition = Math::Vector2D(0, 0);
     Math::Vector2D particleVelocity = Math::Vector2D(0.1, 0.1);
     Math::Vector2D particleAcceleration = Math::Vector2D(0, 0);
+    double particleRotationVelocity = 0;
 
     Math::Vector2D particleColliderSize = Math::Vector2D(0, 0);
     RectangleCollider::Type particleColliderType = Collider::STATIC;

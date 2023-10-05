@@ -300,4 +300,8 @@ bool Color::operator==(const Color &other) const {
     return red == other.red && green == other.green && blue == other.blue;
 }
 
+Color Color::withAlpha(uint8_t alpha) const {
+    return Color(red, green, blue, alpha);
+}
+
 }
