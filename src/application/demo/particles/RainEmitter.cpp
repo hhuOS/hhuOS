@@ -60,8 +60,10 @@ void RainEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
     particle.setSprite(Util::Game::Sprite("/initrd/demo/raindrop.bmp", 0.005, 0.03));
     particle.setPosition(getPosition() + Util::Math::Vector2D(random.nextRandomNumber() * 0.5, 0));
     particle.setVelocity(Util::Math::Vector2D(0, -0.8));
-    particle.setTimeToLive(5);
+    particle.setTimeToLive(-1);
     particle.setCollider(Util::Game::D2::RectangleCollider(particle.getPosition(), Util::Math::Vector2D(0.005, 0.03), Util::Game::Collider::STATIC));
+
+    particle.addComponent(new Util::Game::D2::LinearMovementComponent(particle));
 }
 
 void RainEmitter::onParticleUpdate(Util::Game::D2::Particle &particle, double delta) {}

@@ -38,7 +38,7 @@
 
 DinoGame::DinoGame() {
     dino->addComponent(new Util::Game::D2::LinearMovementComponent(*dino));
-    dino->addComponent(new Util::Game::D2::GravityComponent(*dino, 2, 0.0025));
+    dino->addComponent(new Util::Game::D2::GravityComponent(*dino, 1.25, 0));
 
     addObject(dino);
 

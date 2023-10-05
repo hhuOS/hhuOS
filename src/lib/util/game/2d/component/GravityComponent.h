@@ -42,7 +42,7 @@ public:
     /**
     * Constructor.
     */
-    explicit GravityComponent(Entity &entity, double mass = 2, double stopFactorX = 0.15, double gravityValue = -1.25);
+    explicit GravityComponent(Entity &entity, double gravityValue = 1.25, double stopFactorX = 0.15);
 
     /**
      * Copy Constructor.
@@ -65,9 +65,8 @@ protected:
 
 private:
 
-    double mass;
-    double stopFactorX;
     double gravityValue;
+    double stopFactorX;
 };
 
 }

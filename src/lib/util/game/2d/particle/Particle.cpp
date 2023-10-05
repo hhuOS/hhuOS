@@ -39,10 +39,7 @@ void Particle::onUpdate(double delta) {
     }
 
     parent.onParticleUpdate(*this, delta);
-
     sprite.rotate(rotationVelocity * delta);
-    setVelocity(getVelocity() + acceleration * delta);
-    setPosition(getPosition() + getVelocity() * delta);
 }
 
 void Particle::draw(Graphics &graphics) {
@@ -82,14 +79,6 @@ void Particle::setTimeToLive(double timeToLive) {
 
 void Particle::setSprite(const Sprite &sprite) {
     Particle::sprite = sprite;
-}
-
-void Particle::setAcceleration(const Math::Vector2D &acceleration) {
-    Particle::acceleration = acceleration;
-}
-
-const Math::Vector2D& Particle::getAcceleration() const {
-    return acceleration;
 }
 
 double Particle::getRotationVelocity() const {

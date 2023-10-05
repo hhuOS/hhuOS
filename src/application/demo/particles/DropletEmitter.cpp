@@ -19,6 +19,7 @@
 #include "lib/util/math/Math.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Scene.h"
+#include "lib/util/game/2d/component/GravityComponent.h"
 
 DropletEmitter::DropletEmitter(const Util::Math::Vector2D &position) : Util::Game::D2::SingleTimeEmitter(TAG, PARTICLE_TAG, position) {}
 
@@ -37,13 +38,14 @@ void DropletEmitter::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
 
 void DropletEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
     auto angle = random.nextRandomNumber() * Util::Math::PI;
-    particle.setVelocity(Util::Math::Vector2D(Util::Math::cosine(angle), Util::Math::sine(angle)));
 
     particle.setSprite(Util::Game::Sprite("/initrd/demo/raindrop.bmp", 0.005, 0.005));
-    particle.setTimeToLive(-1);
     particle.setPosition(getPosition());
-    particle.setAcceleration(Util::Math::Vector2D(0, -2));
+    particle.setVelocity(Util::Math::Vector2D(Util::Math::cosine(angle), Util::Math::sine(angle)));
+    particle.setTimeToLive(-1);
     particle.setCollider(Util::Game::D2::RectangleCollider(particle.getPosition(), Util::Math::Vector2D(0.005, 0.005), Util::Game::Collider::STATIC));
+
+    particle.addComponent(new Util::Game::D2::GravityComponent(particle, 2.5, 0.0025));
 }
 
 void DropletEmitter::onParticleUpdate(Util::Game::D2::Particle &particle, double delta) {

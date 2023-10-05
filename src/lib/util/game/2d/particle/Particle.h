@@ -72,17 +72,12 @@ public:
 
     void setSprite(const Sprite &sprite);
 
-    void setAcceleration(const Math::Vector2D &acceleration);
-
-    [[nodiscard]] const Math::Vector2D& getAcceleration() const;
-
-    double getRotationVelocity() const;
-
     void setRotationVelocity(double rotationVelocity);
+
+    [[nodiscard]] double getRotationVelocity() const;
 
 private:
 
-    Math::Vector2D acceleration = Math::Vector2D(0, 0);
     double rotationVelocity = 0;
     bool timeLimited = false;
     double timeToLive = -1;

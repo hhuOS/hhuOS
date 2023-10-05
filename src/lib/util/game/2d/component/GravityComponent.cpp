@@ -31,19 +31,14 @@
 
 namespace Util::Game::D2 {
 
-GravityComponent::GravityComponent(Entity &entity, double mass, double stopFactorX, double gravityValue) :
-        Component(entity), mass(mass), stopFactorX(stopFactorX), gravityValue(gravityValue) {}
+GravityComponent::GravityComponent(Entity &entity, double gravityValue, double stopFactorX) :
+        Component(entity), gravityValue(gravityValue), stopFactorX(stopFactorX) {}
 
 void GravityComponent::update(double delta) {
     auto &entity = getEntity();
-    const auto &position = entity.getPosition();
-    auto velocity = entity.getVelocity();
+    auto velocity = entity.getVelocity() - Math::Vector2D(0, Math::absolute(gravityValue * delta));
+    auto newPosition = entity.getPosition() + Math::Vector2D(velocity.getX() * delta, velocity.getY() * delta);
 
-    auto force = Math::Vector2D(0, mass * gravityValue);
-    auto acceleration = Math::Vector2D(0, force.getY() / mass);
-    velocity = velocity + Math::Vector2D(acceleration.getX() * delta, -Math::absolute(acceleration.getY() * delta));
-
-    auto newPosition = position + Math::Vector2D(velocity.getX() * delta, velocity.getY() * delta);
     auto event = TranslationEvent(newPosition);
     entity.onTranslationEvent(event);
     
