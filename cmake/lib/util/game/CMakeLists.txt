@@ -34,13 +34,13 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/game/Game.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/GameManager.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Graphics.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/Polygon.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/ResourceManager.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Scene.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/Sprite.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/SpriteAnimation.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/Entity.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/2d/Polygon.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/Scene.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/2d/Sprite.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/2d/SpriteAnimation.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/collider/PolygonCollider.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/collider/RectangleCollider.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/component/Component.cpp

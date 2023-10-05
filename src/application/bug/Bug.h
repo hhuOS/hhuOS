@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "lib/util/game/SpriteAnimation.h"
+#include "lib/util/game/2d/SpriteAnimation.h"
 #include "Explosive.h"
 
 class Fleet;
@@ -79,7 +79,7 @@ public:
 
 private:
 
-    Util::Game::SpriteAnimation animation;
+    Util::Game::D2::SpriteAnimation animation;
     Fleet &fleet;
 };
 

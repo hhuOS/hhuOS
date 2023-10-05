@@ -29,7 +29,7 @@
 #include "application/bug/Ship.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/game/Scene.h"
-#include "lib/util/game/Sprite.h"
+#include "lib/util/game/2d/Sprite.h"
 #include "lib/util/game/Collider.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2D.h"
@@ -43,9 +43,9 @@ Bug::Bug(const Util::Math::Vector2D &position, Fleet &fleet) : Explosive(TAG, po
 void Bug::initialize() {
     Explosive::initialize();
 
-    animation = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
-        Util::Game::Sprite("/initrd/bug/bug1.bmp", SIZE_X, SIZE_Y),
-        Util::Game::Sprite("/initrd/bug/bug2.bmp", SIZE_X, SIZE_Y)}), 0.5);
+    animation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
+        Util::Game::D2::Sprite("/initrd/bug/bug1.bmp", SIZE_X, SIZE_Y),
+        Util::Game::D2::Sprite("/initrd/bug/bug2.bmp", SIZE_X, SIZE_Y)}), 0.5);
 }
 
 void Bug::onUpdate(double delta) {

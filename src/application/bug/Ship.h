@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "lib/util/game/Sprite.h"
+#include "lib/util/game/2d/Sprite.h"
 #include "Explosive.h"
 
 namespace Util {
@@ -79,8 +79,8 @@ public:
 
 private:
 
-    Util::Game::Sprite sprite;
-    Util::Game::Sprite heart;
+    Util::Game::D2::Sprite sprite;
+    Util::Game::D2::Sprite heart;
 
     uint32_t lives = 3;
     bool mayFireMissile = true;

@@ -18,21 +18,21 @@
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
- * The original source code can be found here: https://git.hhu.de/risch114/bachelorarbeit
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
 #include "Sprite.h"
 
 #include <cstdint>
 
-#include "GameManager.h"
+#include "lib/util/game/GameManager.h"
 #include "lib/util/graphic/BitmapFile.h"
 #include "lib/util/graphic/Image.h"
 #include "lib/util/graphic/Color.h"
-#include "ResourceManager.h"
+#include "lib/util/game/ResourceManager.h"
 #include "lib/util/game/Graphics.h"
 
-namespace Util::Game {
+namespace Util::Game::D2 {
 
 Sprite::Sprite() : size(0, 0) {
     if (ResourceManager::hasImage("empty")) {

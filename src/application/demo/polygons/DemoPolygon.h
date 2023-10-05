@@ -18,7 +18,7 @@
 #ifndef HHUOS_DEMOPOLYGON_H
 #define HHUOS_DEMOPOLYGON_H
 
-#include "lib/util/game/Polygon.h"
+#include "lib/util/game/2d/Polygon.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/game/2d/Entity.h"
@@ -77,7 +77,7 @@ public:
 
 private:
 
-    Util::Game::Polygon polygon;
+    Util::Game::D2::Polygon polygon;
     Util::Graphic::Color color;
     double rotationSpeed;
     double scaleSpeed;

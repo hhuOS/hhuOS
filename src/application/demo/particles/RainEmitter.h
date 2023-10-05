@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The particle demo is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #ifndef HHUOS_RAINEMITTER_H
@@ -65,7 +68,7 @@ public:
 private:
 
     Util::Math::Random random;
-    Util::Game::Sprite cloudSprite;
+    Util::Game::D2::Sprite cloudSprite;
 
     static const constexpr double SPEED = 0.25;
 };

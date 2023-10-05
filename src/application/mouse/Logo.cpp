@@ -32,7 +32,7 @@ class CollisionEvent;
 Logo::Logo() : Util::Game::D2::Entity(0, Util::Math::Vector2D(-0.5, -0.313)) {}
 
 void Logo::initialize() {
-    sprite = Util::Game::Sprite("initrd/mouse/logo.bmp", 1, 0.626);
+    sprite = Util::Game::D2::Sprite("initrd/mouse/logo.bmp", 1, 0.626);
 }
 
 void Logo::onUpdate(double delta) {}

@@ -18,7 +18,7 @@
 #include "DemoSprite.h"
 
 #include "lib/util/collection/Array.h"
-#include "lib/util/game/Sprite.h"
+#include "lib/util/game/2d/Sprite.h"
 
 namespace Util {
 namespace Game {
@@ -34,19 +34,19 @@ DemoSprite::DemoSprite(const Util::Math::Vector2D &position, double size, double
         : Util::Game::D2::Entity(TAG, position), initialPosition(position), size(size), rotationSpeed(rotationSpeed), scaleSpeed(scaleSpeed), flipX(flipX) {}
 
 void DemoSprite::initialize() {
-    animation = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
-        Util::Game::Sprite("/initrd/dino/run1.bmp", 0.2, 0.2267),
-        Util::Game::Sprite("/initrd/dino/run2.bmp", 0.2, 0.2267),
-        Util::Game::Sprite("/initrd/dino/run3.bmp", 0.2, 0.2267),
-        Util::Game::Sprite("/initrd/dino/run4.bmp", 0.2, 0.2267),
-        Util::Game::Sprite("/initrd/dino/run5.bmp", 0.2, 0.2267),
-        Util::Game::Sprite("/initrd/dino/run6.bmp", 0.2, 0.2267),
-        Util::Game::Sprite("/initrd/dino/dash1.bmp", 0.24, 0.2),
-        Util::Game::Sprite("/initrd/dino/dash2.bmp", 0.24, 0.2),
-        Util::Game::Sprite("/initrd/dino/dash3.bmp", 0.24, 0.2),
-        Util::Game::Sprite("/initrd/dino/dash4.bmp", 0.24, 0.2),
-        Util::Game::Sprite("/initrd/dino/dash5.bmp", 0.24, 0.2),
-        Util::Game::Sprite("/initrd/dino/dash6.bmp", 0.24, 0.2)}), 1.0);
+    animation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
+        Util::Game::D2::Sprite("/initrd/dino/run1.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/initrd/dino/run2.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/initrd/dino/run3.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/initrd/dino/run4.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/initrd/dino/run5.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/initrd/dino/run6.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/initrd/dino/dash1.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/initrd/dino/dash2.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/initrd/dino/dash3.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/initrd/dino/dash4.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/initrd/dino/dash5.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/initrd/dino/dash6.bmp", 0.24, 0.2)}), 1.0);
 
     if (flipX) {
         animation.flipX();

@@ -13,13 +13,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #ifndef HHUOS_EMITTER_H
 #define HHUOS_EMITTER_H
 
 #include "lib/util/game/2d/Entity.h"
-#include "lib/util/game/Sprite.h"
+#include "lib/util/game/2d/Sprite.h"
 #include "lib/util/math/Random.h"
 #include "Particle.h"
 

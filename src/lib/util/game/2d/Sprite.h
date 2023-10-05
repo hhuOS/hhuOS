@@ -18,65 +18,62 @@
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
- * The original source code can be found here: https://git.hhu.de/risch114/bachelorarbeit
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
-#ifndef HHUOS_SPRITEANIMATION_H
-#define HHUOS_SPRITEANIMATION_H
+#ifndef HHUOS_SPRITE_H
+#define HHUOS_SPRITE_H
 
-#include <cstdint>
-
-#include "lib/util/collection/Array.h"
-#include "lib/util/game/Sprite.h"
+#include "lib/util/base/String.h"
 #include "lib/util/math/Vector2D.h"
 
 namespace Util {
 namespace Game {
 class Graphics;
 }  // namespace Game
+
+namespace Graphic {
+class Image;
+}  // namespace Graphic
 }  // namespace Util
 
-namespace Util::Game {
+namespace Util::Game::D2 {
 
-class SpriteAnimation {
+class Sprite {
 
 public:
     /**
      * Default Constructor.
      */
-    SpriteAnimation();
+    Sprite();
 
     /**
      * Constructor.
      */
-    SpriteAnimation(const Array<Sprite> &sprites, double time);
+    Sprite(const String &path, double width, double height);
 
     /**
      * Copy Constructor.
      */
-    SpriteAnimation(const SpriteAnimation &other) = default;
+    Sprite(const Sprite &other) = default;
 
     /**
      * Assignment operator.
      */
-    SpriteAnimation &operator=(const SpriteAnimation &other) = default;
+    Sprite &operator=(const Sprite &other) = default;
 
     /**
      * Destructor.
      */
-    ~SpriteAnimation() = default;
+    ~Sprite() = default;
 
-    void reset();
-
-    void update(double delta);
-
-    [[nodiscard]] double getAnimationTime() const;
-
-    [[nodiscard]] const Math::Vector2D& getScale() const;
+    [[nodiscard]] const Graphic::Image& getImage() const;
 
     [[nodiscard]] const Math::Vector2D& getOriginalSize() const;
 
     [[nodiscard]] Math::Vector2D getSize() const;
+
+    [[nodiscard]] const Math::Vector2D& getScale() const;
 
     [[nodiscard]] double getRotation() const;
 
@@ -98,16 +95,13 @@ public:
 
 private:
 
+    Graphic::Image *image;
+
+    Math::Vector2D size;
     Math::Vector2D scale = Math::Vector2D(1, 1);
     double rotationAngle = 0;
     double alpha = 1;
     bool xFlipped = false;
-
-    double animationTime = 0;
-    double timePerSprite = 0;
-    double timeSinceLastChange = 0;
-    uint32_t currentSprite = 0;
-    Array<Sprite> sprites;
 };
 
 }

@@ -35,7 +35,7 @@ PlayerMissile::PlayerMissile(const Util::Math::Vector2D &position, Ship &ship) :
 }
 
 void PlayerMissile::initialize() {
-    sprite = Util::Game::Sprite("/initrd/bug/player_missile.bmp", SIZE_X, SIZE_Y);
+    sprite = Util::Game::D2::Sprite("/initrd/bug/player_missile.bmp", SIZE_X, SIZE_Y);
 }
 
 void PlayerMissile::onUpdate(double delta) {

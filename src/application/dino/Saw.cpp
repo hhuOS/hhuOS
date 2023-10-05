@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/game/Sprite.h"
+#include "lib/util/game/2d/Sprite.h"
 #include "lib/util/collection/Array.h"
 #include "Saw.h"
 #include "lib/util/game/Collider.h"
@@ -34,15 +34,15 @@ class CollisionEvent;
 Saw::Saw(const Util::Math::Vector2D &position) : Entity(TAG, Util::Math::Vector2D(position.getX(), position.getY()), Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(0.2, 0.2), Util::Game::Collider::STATIC)) {}
 
 void Saw::initialize() {
-    animation = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
-        Util::Game::Sprite("/initrd/dino/saw1.bmp", getCollider().getWidth(), getCollider().getHeight()),
-        Util::Game::Sprite("/initrd/dino/saw2.bmp", getCollider().getWidth(), getCollider().getHeight()),
-        Util::Game::Sprite("/initrd/dino/saw3.bmp", getCollider().getWidth(), getCollider().getHeight()),
-        Util::Game::Sprite("/initrd/dino/saw4.bmp", getCollider().getWidth(), getCollider().getHeight()),
-        Util::Game::Sprite("/initrd/dino/saw5.bmp", getCollider().getWidth(), getCollider().getHeight()),
-        Util::Game::Sprite("/initrd/dino/saw6.bmp", getCollider().getWidth(), getCollider().getHeight()),
-        Util::Game::Sprite("/initrd/dino/saw7.bmp", getCollider().getWidth(), getCollider().getHeight()),
-        Util::Game::Sprite("/initrd/dino/saw8.bmp", getCollider().getWidth(), getCollider().getHeight())}), 0.4);
+    animation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
+        Util::Game::D2::Sprite("/initrd/dino/saw1.bmp", getCollider().getWidth(), getCollider().getHeight()),
+        Util::Game::D2::Sprite("/initrd/dino/saw2.bmp", getCollider().getWidth(), getCollider().getHeight()),
+        Util::Game::D2::Sprite("/initrd/dino/saw3.bmp", getCollider().getWidth(), getCollider().getHeight()),
+        Util::Game::D2::Sprite("/initrd/dino/saw4.bmp", getCollider().getWidth(), getCollider().getHeight()),
+        Util::Game::D2::Sprite("/initrd/dino/saw5.bmp", getCollider().getWidth(), getCollider().getHeight()),
+        Util::Game::D2::Sprite("/initrd/dino/saw6.bmp", getCollider().getWidth(), getCollider().getHeight()),
+        Util::Game::D2::Sprite("/initrd/dino/saw7.bmp", getCollider().getWidth(), getCollider().getHeight()),
+        Util::Game::D2::Sprite("/initrd/dino/saw8.bmp", getCollider().getWidth(), getCollider().getHeight())}), 0.4);
 }
 
 void Saw::onUpdate(double delta) {

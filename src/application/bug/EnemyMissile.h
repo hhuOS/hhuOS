@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "lib/util/game/Sprite.h"
+#include "lib/util/game/2d/Sprite.h"
 #include "Explosive.h"
 
 class Bug;
@@ -77,7 +77,7 @@ public:
 
 private:
 
-    Util::Game::Sprite sprite;
+    Util::Game::D2::Sprite sprite;
     Bug &bug;
 };
 

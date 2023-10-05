@@ -17,7 +17,7 @@
 
 #include "BugDefender.h"
 
-#include "lib/util/game/Sprite.h"
+#include "lib/util/game/2d/Sprite.h"
 #include "lib/util/math/Random.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
@@ -45,17 +45,17 @@ void BugDefender::update(double delta) {
 }
 
 void BugDefender::initializeBackground(Util::Game::Graphics &graphics) {
-    auto backgroundSprites = Util::Array<Util::Game::Sprite>(BACKGROUND_TILE_COUNT);
+    auto backgroundSprites = Util::Array<Util::Game::D2::Sprite>(BACKGROUND_TILE_COUNT);
     for (uint32_t i = 0; i < BACKGROUND_TILE_COUNT; i++) {
-        backgroundSprites[i] = Util::Game::Sprite(Util::String::format("/initrd/bug/background%u.bmp", i + 1), BACKGROUND_TILE_WIDTH, BACKGROUND_TILE_HEIGHT);
+        backgroundSprites[i] = Util::Game::D2::Sprite(Util::String::format("/initrd/bug/background%u.bmp", i + 1), BACKGROUND_TILE_WIDTH, BACKGROUND_TILE_HEIGHT);
     }
 
-    auto planetSprites = Util::Array<Util::Game::Sprite>(PLANET_TILE_COUNT);
+    auto planetSprites = Util::Array<Util::Game::D2::Sprite>(PLANET_TILE_COUNT);
     for (uint32_t i = 0; i < PLANET_TILE_COUNT; i++) {
-        planetSprites[i] = Util::Game::Sprite(Util::String::format("/initrd/bug/planet%u.bmp", i + 1), PLANET_TILE_WIDTH, PLANET_TILE_HEIGHT);
+        planetSprites[i] = Util::Game::D2::Sprite(Util::String::format("/initrd/bug/planet%u.bmp", i + 1), PLANET_TILE_WIDTH, PLANET_TILE_HEIGHT);
     }
 
-    auto surfaceSprite = Util::Game::Sprite(Util::String::format("/initrd/bug/surface.bmp"), PLANET_TILE_WIDTH, PLANET_TILE_HEIGHT);
+    auto surfaceSprite = Util::Game::D2::Sprite(Util::String::format("/initrd/bug/surface.bmp"), PLANET_TILE_WIDTH, PLANET_TILE_HEIGHT);
 
     auto resolution = Util::Game::GameManager::getRelativeResolution();
     auto defaultTilesPerRow = (1 / BACKGROUND_TILE_WIDTH) + 1;

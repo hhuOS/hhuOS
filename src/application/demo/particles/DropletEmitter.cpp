@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The particle demo is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #include "DropletEmitter.h"
@@ -39,7 +42,7 @@ void DropletEmitter::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
 void DropletEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
     auto angle = random.nextRandomNumber() * Util::Math::PI;
 
-    particle.setSprite(Util::Game::Sprite("/initrd/demo/raindrop.bmp", 0.005, 0.005));
+    particle.setSprite(Util::Game::D2::Sprite("/initrd/demo/raindrop.bmp", 0.005, 0.005));
     particle.setPosition(getPosition());
     particle.setVelocity(Util::Math::Vector2D(Util::Math::cosine(angle), Util::Math::sine(angle)));
     particle.setTimeToLive(-1);

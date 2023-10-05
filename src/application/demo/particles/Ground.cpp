@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The particle demo is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #include "Ground.h"
@@ -35,7 +38,7 @@ class CollisionEvent;
 Ground::Ground(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(1, 0.2), Util::Game::Collider::STATIC)) {}
 
 void Ground::initialize() {
-    sprite = Util::Game::Sprite("/initrd/dino/ground.bmp", 0.2, 0.2);
+    sprite = Util::Game::D2::Sprite("/initrd/dino/ground.bmp", 0.2, 0.2);
 }
 
 void Ground::onUpdate(double delta) {}

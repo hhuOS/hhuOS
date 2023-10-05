@@ -21,7 +21,7 @@
 #include <cstdint>
 
 #include "lib/util/game/2d/Entity.h"
-#include "lib/util/game/SpriteAnimation.h"
+#include "lib/util/game/2d/SpriteAnimation.h"
 
 namespace Util {
 namespace Game {
@@ -73,7 +73,7 @@ public:
 
 private:
 
-    Util::Game::SpriteAnimation animation;
+    Util::Game::D2::SpriteAnimation animation;
 };
 
 #endif

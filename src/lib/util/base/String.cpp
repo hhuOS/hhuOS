@@ -309,13 +309,7 @@ char &String::operator[](uint32_t index) {
 }
 
 String::operator uint32_t() const {
-    uint32_t hash = 0;
-
-    for (uint32_t i = 0; i < len; i++) {
-        hash += buffer[i];
-    }
-
-    return hash;
+    return hashCode();
 }
 
 String String::join(const String &separator, const Util::Array<String> &elements) {

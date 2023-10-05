@@ -18,7 +18,7 @@
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
- * The original source code can be found here: https://git.hhu.de/risch114/bachelorarbeit
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
 #ifndef HHUOS_POLYGON_H
@@ -36,7 +36,7 @@ class Graphics;
 }  // namespace Game
 }  // namespace Util
 
-namespace Util::Game {
+namespace Util::Game::D2 {
 
 class Polygon : public Drawable {
 

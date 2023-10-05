@@ -18,7 +18,7 @@
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
- * The original source code can be found here: https://git.hhu.de/risch114/bachelorarbeit
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
 #ifndef HHUOS_POLYGONCOLLIDER_H
@@ -33,7 +33,9 @@
 
 namespace Util {
 namespace Game {
+namespace D2 {
 class Polygon;
+}  // namespace D2
 }  // namespace Game
 }  // namespace Util
 

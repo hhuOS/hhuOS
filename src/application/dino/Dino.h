@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "lib/util/game/SpriteAnimation.h"
+#include "lib/util/game/2d/SpriteAnimation.h"
 #include "lib/util/game/2d/Entity.h"
 
 namespace Util {
@@ -103,13 +103,13 @@ private:
     uint32_t points = 0;
 
     double time = 0;
-    Util::Game::SpriteAnimation *currentAnimation = &eggAnimation;
-    Util::Game::SpriteAnimation runAnimation;
-    Util::Game::SpriteAnimation dashAnimation;
-    Util::Game::SpriteAnimation eggAnimation;
-    Util::Game::SpriteAnimation crackAnimation;
-    Util::Game::SpriteAnimation hatchAnimation;
-    Util::Game::SpriteAnimation deathAnimation;
+    Util::Game::D2::SpriteAnimation *currentAnimation = &eggAnimation;
+    Util::Game::D2::SpriteAnimation runAnimation;
+    Util::Game::D2::SpriteAnimation dashAnimation;
+    Util::Game::D2::SpriteAnimation eggAnimation;
+    Util::Game::D2::SpriteAnimation crackAnimation;
+    Util::Game::D2::SpriteAnimation hatchAnimation;
+    Util::Game::D2::SpriteAnimation deathAnimation;
 
     static const constexpr double JUMP_VELOCITY = 0.75;
 };

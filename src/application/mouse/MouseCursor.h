@@ -22,7 +22,7 @@
 
 #include "lib/util/game/MouseListener.h"
 #include "lib/util/game/2d/Entity.h"
-#include "lib/util/game/Sprite.h"
+#include "lib/util/game/2d/Sprite.h"
 
 class Logo;
 
@@ -90,15 +90,15 @@ public:
 
 private:
 
-    Util::Game::Sprite defaultSprite = Util::Game::Sprite("/initrd/mouse/mouse_default.bmp", 0.2, 0.2);
-    Util::Game::Sprite leftClickSprite = Util::Game::Sprite("/initrd/mouse/mouse_left_click.bmp", 0.2, 0.2);
-    Util::Game::Sprite rightClickSprite = Util::Game::Sprite("/initrd/mouse/mouse_right_click.bmp", 0.2, 0.2);
-    Util::Game::Sprite middleClickSprite = Util::Game::Sprite("/initrd/mouse/mouse_scroll.bmp", 0.2, 0.2);
+    Util::Game::D2::Sprite defaultSprite = Util::Game::D2::Sprite("/initrd/mouse/mouse_default.bmp", 0.2, 0.2);
+    Util::Game::D2::Sprite leftClickSprite = Util::Game::D2::Sprite("/initrd/mouse/mouse_left_click.bmp", 0.2, 0.2);
+    Util::Game::D2::Sprite rightClickSprite = Util::Game::D2::Sprite("/initrd/mouse/mouse_right_click.bmp", 0.2, 0.2);
+    Util::Game::D2::Sprite middleClickSprite = Util::Game::D2::Sprite("/initrd/mouse/mouse_scroll.bmp", 0.2, 0.2);
 
     bool button4Pressed = false;
     bool button5Pressed = false;
 
-    Util::Game::Sprite *currentSprite = &defaultSprite;
+    Util::Game::D2::Sprite *currentSprite = &defaultSprite;
     Logo &logo;
 };
 

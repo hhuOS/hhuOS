@@ -35,7 +35,7 @@ class CollisionEvent;
 Ground::Ground(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(1, 0.2), Util::Game::Collider::STATIC)) {}
 
 void Ground::initialize() {
-    sprite = Util::Game::Sprite("/initrd/dino/ground.bmp", 0.2, 0.2);
+    sprite = Util::Game::D2::Sprite("/initrd/dino/ground.bmp", 0.2, 0.2);
 }
 
 void Ground::onUpdate(double delta) {}

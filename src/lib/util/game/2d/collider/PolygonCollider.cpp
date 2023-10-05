@@ -18,13 +18,13 @@
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
- * The original source code can be found here: https://git.hhu.de/risch114/bachelorarbeit
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
 #include "PolygonCollider.h"
 
 #include "lib/util/math/Math.h"
-#include "lib/util/game/Polygon.h"
+#include "lib/util/game/2d/Polygon.h"
 
 namespace Util::Game::D2 {
 

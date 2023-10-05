@@ -39,8 +39,8 @@ Ship::Ship(const Util::Math::Vector2D &position) : Explosive(TAG, position, Util
 void Ship::initialize() {
     Explosive::initialize();
 
-    sprite = Util::Game::Sprite("/initrd/bug/ship.bmp", SIZE_X, SIZE_Y);
-    heart = Util::Game::Sprite("/initrd/bug/heart.bmp", 0.05, 0.05);
+    sprite = Util::Game::D2::Sprite("/initrd/bug/ship.bmp", SIZE_X, SIZE_Y);
+    heart = Util::Game::D2::Sprite("/initrd/bug/heart.bmp", 0.05, 0.05);
 }
 
 void Ship::onUpdate(double delta) {

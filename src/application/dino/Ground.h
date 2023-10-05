@@ -21,7 +21,7 @@
 #include <cstdint>
 
 #include "lib/util/game/2d/Entity.h"
-#include "lib/util/game/Sprite.h"
+#include "lib/util/game/2d/Sprite.h"
 
 namespace Util {
 namespace Game {
@@ -69,11 +69,11 @@ public:
 
     void draw(Util::Game::Graphics &graphics) override;
 
-    static const constexpr uint32_t TAG = 2;
+    static const constexpr uint32_t TAG = 1;
 
 private:
 
-    Util::Game::Sprite sprite;
+    Util::Game::D2::Sprite sprite;
 };
 
 

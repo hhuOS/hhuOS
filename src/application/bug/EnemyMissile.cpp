@@ -39,7 +39,7 @@ EnemyMissile::EnemyMissile(const Util::Math::Vector2D &position, Bug &bug) : Exp
 
 void EnemyMissile::initialize() {
     Explosive::initialize();
-    sprite = Util::Game::Sprite("/initrd/bug/enemy_missile.bmp", SIZE_X, SIZE_Y);
+    sprite = Util::Game::D2::Sprite("/initrd/bug/enemy_missile.bmp", SIZE_X, SIZE_Y);
 }
 
 void EnemyMissile::onUpdate(double delta) {

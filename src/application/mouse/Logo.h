@@ -19,7 +19,7 @@
 #define HHUOS_LOGO_H
 
 #include "lib/util/game/2d/Entity.h"
-#include "lib/util/game/Sprite.h"
+#include "lib/util/game/2d/Sprite.h"
 
 namespace Util {
 namespace Game {
@@ -66,7 +66,7 @@ public:
 
 private:
 
-    Util::Game::Sprite sprite;
+    Util::Game::D2::Sprite sprite;
 };
 
 #endif

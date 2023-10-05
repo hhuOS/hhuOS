@@ -19,7 +19,7 @@
 
 #include "lib/util/collection/Array.h"
 #include "lib/util/game/Graphics.h"
-#include "lib/util/game/Sprite.h"
+#include "lib/util/game/2d/Sprite.h"
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/game/2d/event/CollisionEvent.h"
 #include "Ground.h"
@@ -28,47 +28,48 @@
 #include "lib/util/game/2d/event/TranslationEvent.h"
 #include "lib/util/base/String.h"
 #include "lib/util/graphic/Colors.h"
+#include "Saw.h"
 
 Dino::Dino(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(0.2, 0.2), Util::Game::Collider::DYNAMIC)) {}
 
 void Dino::initialize() {
-    runAnimation = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
-        Util::Game::Sprite("/initrd/dino/run1.bmp", 0.2, 0.2267),
-        Util::Game::Sprite("/initrd/dino/run2.bmp", 0.2, 0.2267),
-        Util::Game::Sprite("/initrd/dino/run3.bmp", 0.2, 0.2267),
-        Util::Game::Sprite("/initrd/dino/run4.bmp", 0.2, 0.2267),
-        Util::Game::Sprite("/initrd/dino/run5.bmp", 0.2, 0.2267),
-        Util::Game::Sprite("/initrd/dino/run6.bmp", 0.2, 0.2267)}), 0.5);
-    dashAnimation = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
-        Util::Game::Sprite("/initrd/dino/dash1.bmp", 0.24, 0.2),
-        Util::Game::Sprite("/initrd/dino/dash2.bmp", 0.24, 0.2),
-        Util::Game::Sprite("/initrd/dino/dash3.bmp", 0.24, 0.2),
-        Util::Game::Sprite("/initrd/dino/dash4.bmp", 0.24, 0.2),
-        Util::Game::Sprite("/initrd/dino/dash5.bmp", 0.24, 0.2),
-        Util::Game::Sprite("/initrd/dino/dash6.bmp", 0.24, 0.2)}), 0.4);
-    eggAnimation = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
-        Util::Game::Sprite("/initrd/dino/egg1.bmp", 0.2, 0.2),
-        Util::Game::Sprite("/initrd/dino/egg2.bmp", 0.2, 0.2),
-        Util::Game::Sprite("/initrd/dino/egg3.bmp", 0.2, 0.2),
-        Util::Game::Sprite("/initrd/dino/egg4.bmp", 0.2, 0.2),
-        Util::Game::Sprite("/initrd/dino/egg5.bmp", 0.2, 0.2),
-        Util::Game::Sprite("/initrd/dino/egg6.bmp", 0.2, 0.2)}), 0.5);
-    crackAnimation = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
-        Util::Game::Sprite("/initrd/dino/crack1.bmp", 0.2, 0.2667),
-        Util::Game::Sprite("/initrd/dino/crack2.bmp", 0.2, 0.2667),
-        Util::Game::Sprite("/initrd/dino/crack3.bmp", 0.2, 0.2667),
-        Util::Game::Sprite("/initrd/dino/crack4.bmp", 0.2, 0.2667)}), 1.0);
-    hatchAnimation = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
-        Util::Game::Sprite("/initrd/dino/hatch1.bmp", 0.2, 0.2667),
-        Util::Game::Sprite("/initrd/dino/hatch2.bmp", 0.2, 0.2667),
-        Util::Game::Sprite("/initrd/dino/hatch3.bmp", 0.2, 0.2667),
-        Util::Game::Sprite("/initrd/dino/hatch4.bmp", 0.2, 0.2667)}), 0.5);
-    deathAnimation = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
-        Util::Game::Sprite("/initrd/dino/death1.bmp", 0.2, 0.2267),
-        Util::Game::Sprite("/initrd/dino/death2.bmp", 0.2, 0.2267),
-        Util::Game::Sprite("/initrd/dino/death3.bmp", 0.2, 0.2267),
-        Util::Game::Sprite("/initrd/dino/death4.bmp", 0.2, 0.2267),
-        Util::Game::Sprite("/initrd/dino/death5.bmp", 0.2, 0.2267)}), 0.5);
+    runAnimation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
+        Util::Game::D2::Sprite("/initrd/dino/run1.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/initrd/dino/run2.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/initrd/dino/run3.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/initrd/dino/run4.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/initrd/dino/run5.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/initrd/dino/run6.bmp", 0.2, 0.2267)}), 0.5);
+    dashAnimation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
+        Util::Game::D2::Sprite("/initrd/dino/dash1.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/initrd/dino/dash2.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/initrd/dino/dash3.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/initrd/dino/dash4.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/initrd/dino/dash5.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/initrd/dino/dash6.bmp", 0.24, 0.2)}), 0.4);
+    eggAnimation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
+        Util::Game::D2::Sprite("/initrd/dino/egg1.bmp", 0.2, 0.2),
+        Util::Game::D2::Sprite("/initrd/dino/egg2.bmp", 0.2, 0.2),
+        Util::Game::D2::Sprite("/initrd/dino/egg3.bmp", 0.2, 0.2),
+        Util::Game::D2::Sprite("/initrd/dino/egg4.bmp", 0.2, 0.2),
+        Util::Game::D2::Sprite("/initrd/dino/egg5.bmp", 0.2, 0.2),
+        Util::Game::D2::Sprite("/initrd/dino/egg6.bmp", 0.2, 0.2)}), 0.5);
+    crackAnimation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
+        Util::Game::D2::Sprite("/initrd/dino/crack1.bmp", 0.2, 0.2667),
+        Util::Game::D2::Sprite("/initrd/dino/crack2.bmp", 0.2, 0.2667),
+        Util::Game::D2::Sprite("/initrd/dino/crack3.bmp", 0.2, 0.2667),
+        Util::Game::D2::Sprite("/initrd/dino/crack4.bmp", 0.2, 0.2667)}), 1.0);
+    hatchAnimation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
+        Util::Game::D2::Sprite("/initrd/dino/hatch1.bmp", 0.2, 0.2667),
+        Util::Game::D2::Sprite("/initrd/dino/hatch2.bmp", 0.2, 0.2667),
+        Util::Game::D2::Sprite("/initrd/dino/hatch3.bmp", 0.2, 0.2667),
+        Util::Game::D2::Sprite("/initrd/dino/hatch4.bmp", 0.2, 0.2667)}), 0.5);
+    deathAnimation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
+        Util::Game::D2::Sprite("/initrd/dino/death1.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/initrd/dino/death2.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/initrd/dino/death3.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/initrd/dino/death4.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/initrd/dino/death5.bmp", 0.2, 0.2267)}), 0.5);
 }
 
 void Dino::dash() {
@@ -162,9 +163,9 @@ void Dino::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
 }
 
 void Dino::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
-    if (event.getSide() == Util::Game::D2::RectangleCollider::BOTTOM && event.getCollidedWidth().getTag() == Ground::TAG) {
+    if (event.getCollidedWidth().getTag() == Ground::TAG) {
         onGround = true;
-    } else {
+    } else if(event.getCollidedWidth().getTag() == Saw::TAG) {
         die();
     }
 }

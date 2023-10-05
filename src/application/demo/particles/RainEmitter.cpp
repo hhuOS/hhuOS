@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The particle demo is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #include "RainEmitter.h"
@@ -26,7 +29,7 @@ RainEmitter::RainEmitter(const Util::Math::Vector2D &position) : Util::Game::D2:
 
 void RainEmitter::initialize() {
     Emitter::initialize();
-    cloudSprite = Util::Game::Sprite("/initrd/dino/cloud3.bmp", 0.6, 0.15);
+    cloudSprite = Util::Game::D2::Sprite("/initrd/dino/cloud3.bmp", 0.6, 0.15);
 
     setVelocityX(SPEED);
     setEmissionTime(0.2);
@@ -57,7 +60,7 @@ void RainEmitter::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
 void RainEmitter::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
 
 void RainEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
-    particle.setSprite(Util::Game::Sprite("/initrd/demo/raindrop.bmp", 0.005, 0.03));
+    particle.setSprite(Util::Game::D2::Sprite("/initrd/demo/raindrop.bmp", 0.005, 0.03));
     particle.setPosition(getPosition() + Util::Math::Vector2D(random.nextRandomNumber() * 0.5, 0));
     particle.setVelocity(Util::Math::Vector2D(0, -0.8));
     particle.setTimeToLive(-1);

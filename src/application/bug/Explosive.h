@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "lib/util/game/SpriteAnimation.h"
+#include "lib/util/game/2d/SpriteAnimation.h"
 #include "lib/util/game/2d/Entity.h"
 
 namespace Util {
@@ -72,7 +72,7 @@ public:
 
 private:
 
-    Util::Game::SpriteAnimation animation;
+    Util::Game::D2::SpriteAnimation animation;
 
     bool shouldExplode = false;
     bool exploding = false;
