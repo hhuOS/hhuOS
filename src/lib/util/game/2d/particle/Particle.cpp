@@ -23,22 +23,11 @@
 
 namespace Util::Game::D2 {
 
-Particle::Particle(uint32_t tag, const Math::Vector2D &position, const Math::Vector2D &velocity, const Math::Vector2D &acceleration,
-                   double rotationVelocity, double scale, double alpha, double timeToLive, const Sprite &sprite, Emitter &parent) :
-        Entity(tag, position), acceleration(acceleration), rotationVelocity(rotationVelocity), timeLimited(timeToLive > 0), timeToLive(timeToLive), sprite(sprite), parent(parent) {
-    setVelocity(velocity);
-    Particle::sprite.setAlpha(alpha);
-    Particle::sprite.setScale(scale);
-}
+Particle::Particle(uint32_t tag, Emitter &parent) : Entity(tag, parent.getPosition()), parent(parent) {}
 
-Particle::Particle(uint32_t tag, const Math::Vector2D &position, const RectangleCollider &collider, const Math::Vector2D &velocity,
-                   const Math::Vector2D &acceleration, double rotationVelocity, double scale, double alpha, double timeToLive, const Sprite &sprite, Emitter &parent) :
-        Entity(tag, position, collider), acceleration(acceleration), rotationVelocity(rotationVelocity), timeLimited(timeToLive > 0), timeToLive(timeToLive), sprite(sprite), parent(parent) {
-    setVelocity(velocity);
-    Particle::sprite.setScale(scale);
+void Particle::initialize() {
+    parent.onParticleInitialization(*this);
 }
-
-void Particle::initialize() {}
 
 void Particle::onUpdate(double delta) {
     if (timeLimited) {
@@ -84,6 +73,31 @@ double Particle::getAlpha() const {
 
 void Particle::setAlpha(double alpha) {
     sprite.setAlpha(alpha);
+}
+
+void Particle::setTimeToLive(double timeToLive) {
+    Particle::timeToLive = timeToLive;
+    timeLimited = timeToLive > 0;
+}
+
+void Particle::setSprite(const Sprite &sprite) {
+    Particle::sprite = sprite;
+}
+
+void Particle::setAcceleration(const Math::Vector2D &acceleration) {
+    Particle::acceleration = acceleration;
+}
+
+const Math::Vector2D& Particle::getAcceleration() const {
+    return acceleration;
+}
+
+double Particle::getRotationVelocity() const {
+    return rotationVelocity;
+}
+
+void Particle::setRotationVelocity(double rotationVelocity) {
+    Particle::rotationVelocity = rotationVelocity;
 }
 
 }

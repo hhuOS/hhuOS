@@ -365,7 +365,7 @@ void Graphics::drawImageDirect2D(const Math::Vector2D &position, const Graphic::
 
     for (uint32_t i = 0; i < image.getHeight(); i++) {
         for (uint32_t j = 0; j < image.getWidth(); j++) {
-            const auto pixel = pixelBuffer[i * image.getWidth() + (flipX ? image.getWidth() - j : j)];
+            const auto &pixel = pixelBuffer[i * image.getWidth() + (flipX ? image.getWidth() - j : j)];
             pixelDrawer.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(static_cast<uint8_t>(pixel.getAlpha() * alpha)));
         }
     }
@@ -391,7 +391,7 @@ void Graphics::drawImageScaled2D(const Math::Vector2D &position, const Graphic::
             const auto imageX = static_cast<uint16_t>(j / factorX);
             const auto imageY = static_cast<uint16_t>(i / factorY);
 
-            const auto pixel = pixelBuffer[imageY * image.getWidth() + (flipX ? (image.getWidth() - imageX) : imageX)];
+            const auto &pixel = pixelBuffer[imageY * image.getWidth() + (flipX ? (image.getWidth() - imageX) : imageX)];
             pixelDrawer.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(static_cast<uint8_t>(pixel.getAlpha() * alpha)));
         }
     }
@@ -422,7 +422,7 @@ void Graphics::drawImageRotated2D(const Math::Vector2D &position, const Graphic:
                 continue;
             }
 
-            const auto pixel = pixelBuffer[imageY * image.getWidth() + (flipX ? (image.getWidth() - imageX) : imageX)];
+            const auto &pixel = pixelBuffer[imageY * image.getWidth() + (flipX ? (image.getWidth() - imageX) : imageX)];
             pixelDrawer.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(static_cast<uint8_t>(pixel.getAlpha() * alpha)));
         }
     }
@@ -470,7 +470,7 @@ void Graphics::drawImageScaledAndRotated2D(const Math::Vector2D &position, const
                 continue;
             }
 
-            const auto pixel = scaledPixelBuffer[imageY * scaledWidth + (flipX ? (scaledWidth - imageX) : imageX)];
+            const auto &pixel = scaledPixelBuffer[imageY * scaledWidth + (flipX ? (scaledWidth - imageX) : imageX)];
             pixelDrawer.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(static_cast<uint8_t>(pixel.getAlpha() * alpha)));
         }
     }

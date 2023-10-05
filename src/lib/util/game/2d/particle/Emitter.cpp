@@ -22,8 +22,8 @@
 
 namespace Util::Game::D2 {
 
-Emitter::Emitter(uint32_t tag, const Util::Math::Vector2D &position, double timeToLive) :
-        Entity(0xffffffff, position), timeLimited(timeToLive > 0), timeToLive(timeToLive) {}
+Emitter::Emitter(uint32_t tag, uint32_t particleTag, const Util::Math::Vector2D &position, double timeToLive) :
+        Entity(tag, position), particleTag(particleTag), timeLimited(timeToLive > 0), timeToLive(timeToLive) {}
 
 void Emitter::initialize() {}
 
@@ -58,17 +58,7 @@ void Emitter::emitParticles() {
     uint32_t emissionRate = minEmissionRate + static_cast<uint32_t>(random.nextRandomNumber() * (maxEmissionRate - minEmissionRate));
 
     for (uint32_t i = 0; i < emissionRate; i++) {
-        setNextParticleAttributes();
-
-        Particle *particle;
-        if (particleColliderSize == Math::Vector2D(0, 0)) {
-            particle = new Particle(particleTag, particlePosition, particleVelocity, particleAcceleration, particleRotationVelocity, particleScale,
-                                    particleAlpha, particleTimeToLive, particleSprite, *this);
-        } else {
-            particle = new Particle(particleTag, particlePosition, RectangleCollider(particlePosition, particleColliderSize, particleColliderType),
-                                    particleVelocity, particleAcceleration, particleRotationVelocity, particleScale, particleAlpha, particleTimeToLive, particleSprite, *this);
-        }
-
+        auto *particle = new Particle(particleTag, *this);
         activeParticles.add(particle);
         GameManager::getCurrentScene().addObject(particle);
     }

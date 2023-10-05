@@ -31,11 +31,7 @@ public:
     /**
      * Constructor.
      */
-    Particle(uint32_t tag, const Math::Vector2D &position, const Math::Vector2D &velocity, const Math::Vector2D &acceleration, double rotationVelocity, double scale, double alpha, double timeToLive, const Sprite &sprite, Emitter &parent);
-    /**
-     * Constructor.
-     */
-    Particle(uint32_t tag, const Math::Vector2D &position, const RectangleCollider &collider, const Math::Vector2D &velocity, const Math::Vector2D &acceleration, double rotationVelocity, double scale, double alpha, double timeToLive, const Sprite &sprite, Emitter &parent);
+    Particle(uint32_t tag, Emitter &parent);
 
     /**
      * Copy Constructor.
@@ -72,12 +68,24 @@ public:
 
     void setAlpha(double alpha);
 
+    void setTimeToLive(double timeToLive);
+
+    void setSprite(const Sprite &sprite);
+
+    void setAcceleration(const Math::Vector2D &acceleration);
+
+    [[nodiscard]] const Math::Vector2D& getAcceleration() const;
+
+    double getRotationVelocity() const;
+
+    void setRotationVelocity(double rotationVelocity);
+
 private:
 
-    Math::Vector2D acceleration;
-    double rotationVelocity;
-    bool timeLimited;
-    double timeToLive;
+    Math::Vector2D acceleration = Math::Vector2D(0, 0);
+    double rotationVelocity = 0;
+    bool timeLimited = false;
+    double timeToLive = -1;
 
     Sprite sprite;
     Emitter &parent;

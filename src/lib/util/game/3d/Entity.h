@@ -44,6 +44,7 @@ public:
      * Constructor.
      */
     Entity(uint32_t tag, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale);
+
     /**
      * Constructor.
      */

@@ -82,6 +82,11 @@ void Entity::setVelocityY(double y) {
     velocity = Math::Vector2D(velocity.getX(), y);
 }
 
+void Entity::setCollider(const RectangleCollider &collider) {
+    Entity::collider = collider;
+    colliderPresent = true;
+}
+
 void Entity::addComponent(Component *component) {
     components.add(component);
 }

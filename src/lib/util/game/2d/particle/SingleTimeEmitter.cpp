@@ -21,7 +21,7 @@
 
 namespace Util::Game::D2 {
 
-SingleTimeEmitter::SingleTimeEmitter(uint32_t tag, const Math::Vector2D &position) : Emitter(tag, position, -1) {}
+SingleTimeEmitter::SingleTimeEmitter(uint32_t tag, uint32_t particleTag, const Math::Vector2D &position) : Emitter(tag, particleTag, position, -1) {}
 
 void SingleTimeEmitter::initialize() {
     Emitter::initialize();

@@ -28,7 +28,7 @@ public:
     /**
      * Default Constructor.
      */
-    SingleTimeEmitter(uint32_t tag, const Util::Math::Vector2D &position);
+    SingleTimeEmitter(uint32_t tag, uint32_t particleTag, const Util::Math::Vector2D &position);
 
     /**
      * Copy Constructor.

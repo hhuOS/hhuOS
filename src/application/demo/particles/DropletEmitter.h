@@ -51,7 +51,7 @@ public:
 
     void onCollisionEvent(Util::Game::D2::CollisionEvent &event) override;
 
-    void setNextParticleAttributes() override;
+    void onParticleInitialization(Util::Game::D2::Particle &particle) override;
 
     void onParticleUpdate(Util::Game::D2::Particle &particle, double delta) override;
 

@@ -22,24 +22,18 @@
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Scene.h"
 
-RainEmitter::RainEmitter(const Util::Math::Vector2D &position) : Util::Game::D2::Emitter(TAG, position, 0) {
-    addComponent(new Util::Game::D2::LinearMovementComponent(*this));
-    setVelocityX(SPEED);
-}
+RainEmitter::RainEmitter(const Util::Math::Vector2D &position) : Util::Game::D2::Emitter(TAG, PARTICLE_TAG, position, -1) {}
 
 void RainEmitter::initialize() {
     Emitter::initialize();
     cloudSprite = Util::Game::Sprite("/initrd/dino/cloud3.bmp", 0.6, 0.15);
 
+    setVelocityX(SPEED);
     setEmissionTime(0.2);
     setMinEmissionRate(2);
     setMaxEmissionRate(2);
 
-    particleTag = PARTICLE_TAG;
-    particleSprite = Util::Game::Sprite("/initrd/demo/raindrop.bmp", 0.005, 0.03);
-    particleVelocity = Util::Math::Vector2D(0, -0.8);
-    particleTimeToLive = 5;
-    particleColliderSize = Util::Math::Vector2D(0.005, 0.03);
+    addComponent(new Util::Game::D2::LinearMovementComponent(*this));
 }
 
 void RainEmitter::onUpdate(double delta) {
@@ -62,8 +56,12 @@ void RainEmitter::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
 
 void RainEmitter::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
 
-void RainEmitter::setNextParticleAttributes() {
-    particlePosition = getPosition() + Util::Math::Vector2D(random.nextRandomNumber() * 0.5, 0);
+void RainEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
+    particle.setSprite(Util::Game::Sprite("/initrd/demo/raindrop.bmp", 0.005, 0.03));
+    particle.setPosition(getPosition() + Util::Math::Vector2D(random.nextRandomNumber() * 0.5, 0));
+    particle.setVelocity(Util::Math::Vector2D(0, -0.8));
+    particle.setTimeToLive(5);
+    particle.setCollider(Util::Game::D2::RectangleCollider(particle.getPosition(), Util::Math::Vector2D(0.005, 0.03), Util::Game::Collider::STATIC));
 }
 
 void RainEmitter::onParticleUpdate(Util::Game::D2::Particle &particle, double delta) {}

@@ -31,7 +31,7 @@ public:
     /**
      * Constructor.
      */
-    Emitter(uint32_t tag, const Util::Math::Vector2D &position, double timeToLive);
+    Emitter(uint32_t tag, uint32_t particleTag, const Util::Math::Vector2D &position, double timeToLive);
 
     /**
      * Copy Constructor.
@@ -56,7 +56,7 @@ public:
 
     void emitOnce();
 
-    virtual void setNextParticleAttributes() = 0;
+    virtual void onParticleInitialization(Particle &particle) = 0;
 
     virtual void onParticleUpdate(Particle &particle, double delta) = 0;
 
@@ -76,23 +76,6 @@ public:
 
     [[nodiscard]] uint32_t getActiveParticles() const;
 
-protected:
-
-    Sprite particleSprite;
-    double particleScale = 1.0;
-    double particleAlpha = 1;
-
-    uint32_t particleTag = 0xffffffff;
-    double particleTimeToLive = 2.0;
-
-    Math::Vector2D particlePosition = Math::Vector2D(0, 0);
-    Math::Vector2D particleVelocity = Math::Vector2D(0.1, 0.1);
-    Math::Vector2D particleAcceleration = Math::Vector2D(0, 0);
-    double particleRotationVelocity = 0;
-
-    Math::Vector2D particleColliderSize = Math::Vector2D(0, 0);
-    RectangleCollider::Type particleColliderType = Collider::STATIC;
-
 private:
 
     void emitParticles();
@@ -100,10 +83,12 @@ private:
     Math::Random random;
     ArrayList<Particle*> activeParticles;
 
-    uint32_t minEmissionRate = 2;
-    uint32_t maxEmissionRate = 2;
+    uint32_t particleTag;
     bool timeLimited;
     double timeToLive;
+
+    uint32_t minEmissionRate = 2;
+    uint32_t maxEmissionRate = 2;
 
     double timeSinceLastEmission = 0;
     double emissionTime = 0.1;

@@ -20,21 +20,13 @@
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Scene.h"
 
-DropletEmitter::DropletEmitter(const Util::Math::Vector2D &position) : Util::Game::D2::SingleTimeEmitter(TAG, position) {}
+DropletEmitter::DropletEmitter(const Util::Math::Vector2D &position) : Util::Game::D2::SingleTimeEmitter(TAG, PARTICLE_TAG, position) {}
 
 void DropletEmitter::initialize() {
     SingleTimeEmitter::initialize();
 
     setMinEmissionRate(5);
     setMaxEmissionRate(5);
-
-    particleTag = PARTICLE_TAG;
-    particleSprite = Util::Game::Sprite("/initrd/demo/raindrop.bmp", 0.005, 0.005);
-    particleTimeToLive = -1;
-    particlePosition = getPosition();
-    particleVelocity = Util::Math::Vector2D(0.1, 0.25);
-    particleAcceleration = Util::Math::Vector2D(0, -2);
-    particleColliderSize = Util::Math::Vector2D(0.005, 0.005);
 }
 
 void DropletEmitter::draw(Util::Game::Graphics &graphics) {}
@@ -43,9 +35,15 @@ void DropletEmitter::onTranslationEvent(Util::Game::D2::TranslationEvent &event)
 
 void DropletEmitter::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
 
-void DropletEmitter::setNextParticleAttributes() {
+void DropletEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
     auto angle = random.nextRandomNumber() * Util::Math::PI;
-    particleVelocity = Util::Math::Vector2D(Util::Math::cosine(angle), Util::Math::sine(angle));
+    particle.setVelocity(Util::Math::Vector2D(Util::Math::cosine(angle), Util::Math::sine(angle)));
+
+    particle.setSprite(Util::Game::Sprite("/initrd/demo/raindrop.bmp", 0.005, 0.005));
+    particle.setTimeToLive(-1);
+    particle.setPosition(getPosition());
+    particle.setAcceleration(Util::Math::Vector2D(0, -2));
+    particle.setCollider(Util::Game::D2::RectangleCollider(particle.getPosition(), Util::Math::Vector2D(0.005, 0.005), Util::Game::Collider::STATIC));
 }
 
 void DropletEmitter::onParticleUpdate(Util::Game::D2::Particle &particle, double delta) {

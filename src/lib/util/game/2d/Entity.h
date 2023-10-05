@@ -96,6 +96,8 @@ public:
 
     void setVelocityY(double y);
 
+    void setCollider(const RectangleCollider &collider);
+
     void addComponent(Component *component);
 
     [[nodiscard]] const Math::Vector2D& getPosition() const;
