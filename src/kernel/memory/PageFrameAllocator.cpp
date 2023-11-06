@@ -27,7 +27,7 @@ PageFrameAllocator::PageFrameAllocator(PagingAreaManager &pagingAreaManager, uin
         TableMemoryManager(pagingAreaManager, startAddress, endAddress, Kernel::Paging::PAGESIZE) {
     auto *blockMap = Multiboot::getBlockMap();
 
-    // Reserve blocks already used by system image and initrd
+    // Reserve blocks already used by system image and multiboot modules
     for (uint32_t i = 0; blockMap[i].blockCount != 0; i++) {
         const auto &block = blockMap[i];
         uint32_t blockSize = block.initialMap ? Kernel::Paging::PAGESIZE * 1024 : Kernel::Paging::PAGESIZE;

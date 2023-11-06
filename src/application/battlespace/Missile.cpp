@@ -36,9 +36,9 @@ class Color;
 }  // namespace Graphic
 }  // namespace Util
 
-Missile::Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale, Player &player) : Util::Game::D3::Model(TAG, "/initrd/battlespace/missile.obj", translation, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::RED), player(&player) {}
+Missile::Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale, Player &player) : Util::Game::D3::Model(TAG, "/user/battlespace/missile.obj", translation, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::RED), player(&player) {}
 
-Missile::Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale) : Util::Game::D3::Model(TAG, "/initrd/battlespace/missile.obj", translation, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::GREEN) {}
+Missile::Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale) : Util::Game::D3::Model(TAG, "/user/battlespace/missile.obj", translation, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::GREEN) {}
 
 void Missile::onUpdate(double delta) {
     if (lifetime > 5) {

@@ -35,7 +35,7 @@ class CollisionEvent;
 }  // namespace Game
 }  // namespace Util
 
-EnemyDebris::EnemyDebris(const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, double scale, uint8_t modelId) : Util::Game::D3::Model(Enemy::TAG, Util::String::format("/initrd/battlespace/debris%u.obj", modelId), position, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::RED), modelId(modelId) {}
+EnemyDebris::EnemyDebris(const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, double scale, uint8_t modelId) : Util::Game::D3::Model(Enemy::TAG, Util::String::format("/user/battlespace/debris%u.obj", modelId), position, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::RED), modelId(modelId) {}
 
 void EnemyDebris::initialize() {
     Model::initialize();

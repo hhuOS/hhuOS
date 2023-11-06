@@ -32,14 +32,14 @@ Explosive::Explosive(uint32_t tag, const Util::Math::Vector2D &position, const U
 void Explosive::initialize() {
     auto size = getCollider().getHeight() > getCollider().getWidth() ? getCollider().getHeight() : getCollider().getWidth();
     animation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
-        Util::Game::D2::Sprite("/initrd/bug/explosion1.bmp", size, size),
-        Util::Game::D2::Sprite("/initrd/bug/explosion2.bmp", size, size),
-        Util::Game::D2::Sprite("/initrd/bug/explosion3.bmp", size, size),
-        Util::Game::D2::Sprite("/initrd/bug/explosion4.bmp", size, size),
-        Util::Game::D2::Sprite("/initrd/bug/explosion5.bmp", size, size),
-        Util::Game::D2::Sprite("/initrd/bug/explosion6.bmp", size, size),
-        Util::Game::D2::Sprite("/initrd/bug/explosion7.bmp", size, size),
-        Util::Game::D2::Sprite("/initrd/bug/explosion8.bmp", size, size)}), 0.5);
+        Util::Game::D2::Sprite("/user/bug/explosion1.bmp", size, size),
+        Util::Game::D2::Sprite("/user/bug/explosion2.bmp", size, size),
+        Util::Game::D2::Sprite("/user/bug/explosion3.bmp", size, size),
+        Util::Game::D2::Sprite("/user/bug/explosion4.bmp", size, size),
+        Util::Game::D2::Sprite("/user/bug/explosion5.bmp", size, size),
+        Util::Game::D2::Sprite("/user/bug/explosion6.bmp", size, size),
+        Util::Game::D2::Sprite("/user/bug/explosion7.bmp", size, size),
+        Util::Game::D2::Sprite("/user/bug/explosion8.bmp", size, size)}), 0.5);
 }
 
 void Explosive::onUpdate(double delta) {

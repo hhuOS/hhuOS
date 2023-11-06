@@ -52,9 +52,9 @@ DinoGame::DinoGame() {
 }
 
 void DinoGame::initializeBackground(Util::Game::Graphics &graphics) {
-    auto cloud1 = Util::Game::D2::Sprite("/initrd/dino/cloud1.bmp", 0.45, 0.15);
-    auto cloud3 = Util::Game::D2::Sprite("/initrd/dino/cloud3.bmp", 0.6, 0.15);
-    auto cloud4 = Util::Game::D2::Sprite("/initrd/dino/cloud4.bmp", 0.45, 0.15);
+    auto cloud1 = Util::Game::D2::Sprite("/user/dino/cloud1.bmp", 0.45, 0.15);
+    auto cloud3 = Util::Game::D2::Sprite("/user/dino/cloud3.bmp", 0.6, 0.15);
+    auto cloud4 = Util::Game::D2::Sprite("/user/dino/cloud4.bmp", 0.45, 0.15);
 
     graphics.clear(Util::Graphic::Color(57, 97, 255));
     cloud1.draw(graphics, Util::Math::Vector2D(-1, 0.65));

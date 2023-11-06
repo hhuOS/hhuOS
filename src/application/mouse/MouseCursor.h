@@ -90,10 +90,10 @@ public:
 
 private:
 
-    Util::Game::D2::Sprite defaultSprite = Util::Game::D2::Sprite("/initrd/mouse/mouse_default.bmp", 0.2, 0.2);
-    Util::Game::D2::Sprite leftClickSprite = Util::Game::D2::Sprite("/initrd/mouse/mouse_left_click.bmp", 0.2, 0.2);
-    Util::Game::D2::Sprite rightClickSprite = Util::Game::D2::Sprite("/initrd/mouse/mouse_right_click.bmp", 0.2, 0.2);
-    Util::Game::D2::Sprite middleClickSprite = Util::Game::D2::Sprite("/initrd/mouse/mouse_scroll.bmp", 0.2, 0.2);
+    Util::Game::D2::Sprite defaultSprite = Util::Game::D2::Sprite("/user/mouse/mouse_default.bmp", 0.2, 0.2);
+    Util::Game::D2::Sprite leftClickSprite = Util::Game::D2::Sprite("/user/mouse/mouse_left_click.bmp", 0.2, 0.2);
+    Util::Game::D2::Sprite rightClickSprite = Util::Game::D2::Sprite("/user/mouse/mouse_right_click.bmp", 0.2, 0.2);
+    Util::Game::D2::Sprite middleClickSprite = Util::Game::D2::Sprite("/user/mouse/mouse_scroll.bmp", 0.2, 0.2);
 
     bool button4Pressed = false;
     bool button5Pressed = false;

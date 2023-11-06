@@ -35,14 +35,14 @@ Saw::Saw(const Util::Math::Vector2D &position) : Entity(TAG, Util::Math::Vector2
 
 void Saw::initialize() {
     animation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
-        Util::Game::D2::Sprite("/initrd/dino/saw1.bmp", getCollider().getWidth(), getCollider().getHeight()),
-        Util::Game::D2::Sprite("/initrd/dino/saw2.bmp", getCollider().getWidth(), getCollider().getHeight()),
-        Util::Game::D2::Sprite("/initrd/dino/saw3.bmp", getCollider().getWidth(), getCollider().getHeight()),
-        Util::Game::D2::Sprite("/initrd/dino/saw4.bmp", getCollider().getWidth(), getCollider().getHeight()),
-        Util::Game::D2::Sprite("/initrd/dino/saw5.bmp", getCollider().getWidth(), getCollider().getHeight()),
-        Util::Game::D2::Sprite("/initrd/dino/saw6.bmp", getCollider().getWidth(), getCollider().getHeight()),
-        Util::Game::D2::Sprite("/initrd/dino/saw7.bmp", getCollider().getWidth(), getCollider().getHeight()),
-        Util::Game::D2::Sprite("/initrd/dino/saw8.bmp", getCollider().getWidth(), getCollider().getHeight())}), 0.4);
+        Util::Game::D2::Sprite("/user/dino/saw1.bmp", getCollider().getWidth(), getCollider().getHeight()),
+        Util::Game::D2::Sprite("/user/dino/saw2.bmp", getCollider().getWidth(), getCollider().getHeight()),
+        Util::Game::D2::Sprite("/user/dino/saw3.bmp", getCollider().getWidth(), getCollider().getHeight()),
+        Util::Game::D2::Sprite("/user/dino/saw4.bmp", getCollider().getWidth(), getCollider().getHeight()),
+        Util::Game::D2::Sprite("/user/dino/saw5.bmp", getCollider().getWidth(), getCollider().getHeight()),
+        Util::Game::D2::Sprite("/user/dino/saw6.bmp", getCollider().getWidth(), getCollider().getHeight()),
+        Util::Game::D2::Sprite("/user/dino/saw7.bmp", getCollider().getWidth(), getCollider().getHeight()),
+        Util::Game::D2::Sprite("/user/dino/saw8.bmp", getCollider().getWidth(), getCollider().getHeight())}), 0.4);
 }
 
 void Saw::onUpdate(double delta) {

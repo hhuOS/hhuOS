@@ -17,7 +17,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 readonly TOWBOOT_VERSION="0.6.1"
-readonly FILE_LIST=("towboot-ia32.efi" "towboot-x64.efi" "hhuOS.bin" "hhuOS.initrd" "towboot.toml")
+
+if [[ "${1}" = "--with-virtual-hdd" ]]; then
+  INCLUDE_HDD="true"
+else
+  INCLUDE_HDD="false"
+fi
+
+FILE_LIST=("towboot-ia32.efi" "towboot-x64.efi" "hhuOS.bin" "towboot.toml")
+if [[ "${INCLUDE_HDD}" = "true" ]]; then
+  FILE_LIST+=("../../hdd0.img")
+fi
+
+echo "${FILE_LIST[@]}"
 
 if [[ ! -f "towboot-ia32.efi" || ! -f "towboot-x64.efi" ]]; then
   wget -O towboot-ia32.efi "https://github.com/hhuOS/towboot/releases/download/v${TOWBOOT_VERSION}/towboot-v${TOWBOOT_VERSION}-i686.efi" || exit 1
@@ -36,9 +48,14 @@ mmd -i part.img efi || exit 1
 mmd -i part.img efi/boot || exit 1
 mcopy -i part.img towboot-ia32.efi ::efi/boot/bootia32.efi || exit 1
 mcopy -i part.img towboot-x64.efi ::efi/boot/bootx64.efi || exit 1
-mcopy -i part.img towboot.toml :: || exit 1
 mcopy -i part.img hhuOS.bin :: || exit 1
-mcopy -i part.img hhuOS.initrd :: || exit 1
+
+if [[ "${INCLUDE_HDD}" = "true" ]]; then
+  mcopy -i part.img towboot_vdd.toml ::towboot.toml || exit 1
+  mcopy -i part.img ../../hdd0.img :: || exit 1
+else
+  mcopy -i part.img towboot.toml :: || exit 1
+fi
 
 fallocate -l 1M fill.img || exit 1
 cat fill.img part.img fill.img > hhuOS-towboot.img || exit 1

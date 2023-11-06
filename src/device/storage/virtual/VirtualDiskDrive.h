@@ -40,7 +40,7 @@ public:
     /**
      * Constructor.
      */
-    VirtualDiskDrive(void *address, uint32_t sectorSize, uint32_t sectorCount);
+    VirtualDiskDrive(uint8_t *address, uint32_t sectorSize, uint32_t sectorCount);
 
     /**
      * Copy Constructor.

@@ -23,7 +23,7 @@ namespace Device::Storage {
 VirtualDiskDrive::VirtualDiskDrive(uint32_t sectorSize, uint32_t sectorCount) :
         address(new uint8_t[sectorSize * sectorCount]), freeAddress(true), sectorSize(sectorSize), sectorCount(sectorCount) {}
 
-VirtualDiskDrive::VirtualDiskDrive(void *address, uint32_t sectorSize, uint32_t sectorCount) :
+VirtualDiskDrive::VirtualDiskDrive(uint8_t *address, uint32_t sectorSize, uint32_t sectorCount) :
         address(address), freeAddress(false), sectorSize(sectorSize), sectorCount(sectorCount) {}
 
 VirtualDiskDrive::~VirtualDiskDrive() {
@@ -58,7 +58,7 @@ uint32_t VirtualDiskDrive::read(uint8_t *buffer, uint32_t startSector, uint32_t 
 
 uint32_t VirtualDiskDrive::write(const uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
     if (startSector + sectorCount > VirtualDiskDrive::sectorCount) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "VirtualDiskDrive: Trying to read out of bounds!");
+        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "VirtualDiskDrive: Trying to write out of bounds!");
     }
 
     auto byteCount = sectorSize * sectorCount;

@@ -89,6 +89,7 @@
 #include "lib/util/hardware/SmBios.h"
 #include "device/sound/soundblaster/SoundBlaster.h"
 #include "lib/util/graphic/Ansi.h"
+#include "device/storage/virtual/VirtualDiskDrive.h"
 
 namespace Device {
 class Machine;
@@ -148,7 +149,7 @@ void GatesOfHell::enter() {
 
     mountDevices();
 
-    Util::Async::Process::execute(Util::Io::File("/initrd/bin/shell"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), "shell", Util::Array<Util::String>(0));
+    Util::Async::Process::execute(Util::Io::File("/bin/shell"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), "shell", Util::Array<Util::String>(0));
 
     Kernel::System::getService<Kernel::InterruptService>().allowParallelComputing();
 
@@ -366,16 +367,6 @@ void GatesOfHell::initializeFilesystem() {
     deviceDriver->addNode("/", new Filesystem::Memory::MountsNode());
     deviceDriver->addNode("/", new Kernel::MemoryStatusNode("memory"));
 
-    if (Kernel::Multiboot::isModuleLoaded("initrd")) {
-        log.info("Initial ramdisk detected -> Mounting [%s]", "/initrd");
-        auto module = Kernel::Multiboot::getModule("initrd");
-        auto *tarArchive = new Util::Io::Tar::Archive(module.startAddress);
-        auto *tarDriver = new Filesystem::Tar::ArchiveDriver(*tarArchive);
-
-        filesystemService.createDirectory("/initrd");
-        filesystemService.getFilesystem().mountVirtualDriver("/initrd", tarDriver);
-    }
-
     if (Device::FirmwareConfiguration::isAvailable()) {
         auto *fwCfg = new Device::FirmwareConfiguration();
         auto *qemuDriver = new Filesystem::Qemu::FirmwareConfigurationDriver(*fwCfg);
@@ -425,7 +416,7 @@ void GatesOfHell::printBanner() {
     Util::Graphic::Ansi::clearScreen();
     Util::Graphic::Ansi::setPosition(Util::Graphic::Ansi::CursorPosition{0, 0});
 
-    auto bannerFile = Util::Io::File("/initrd/banner.txt");
+    auto bannerFile = Util::Io::File("/system/banner.txt");
     if (bannerFile.exists()) {
         auto bannerStream = Util::Io::FileInputStream(bannerFile);
         auto bufferedStream = Util::Io::BufferedInputStream(bannerStream);
@@ -461,6 +452,19 @@ void GatesOfHell::initializePowerManagement() {
 }
 
 void GatesOfHell::initializeStorage() {
+    log.info("Searching multiboot modules for virtual disk drives");
+    auto &storageService = Kernel::System::getService<Kernel::StorageService>();
+
+    for (const auto &name : Kernel::Multiboot::getModuleNames()) {
+        if (name.beginsWith("vdd")) {
+            auto &module = Kernel::Multiboot::getModule(name);
+            auto sectorCount = (module.endAddress - module.startAddress) / 512;
+            auto *device = new Device::Storage::VirtualDiskDrive(reinterpret_cast<uint8_t*>(module.startAddress), 512, sectorCount);
+
+            storageService.registerDevice(device, "vdd");
+        }
+    }
+
     Device::Storage::IdeController::initializeAvailableControllers();
 
     if (Device::Storage::FloppyController::isAvailable()) {

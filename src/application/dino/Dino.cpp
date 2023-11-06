@@ -34,42 +34,42 @@ Dino::Dino(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, p
 
 void Dino::initialize() {
     runAnimation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
-        Util::Game::D2::Sprite("/initrd/dino/run1.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/initrd/dino/run2.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/initrd/dino/run3.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/initrd/dino/run4.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/initrd/dino/run5.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/initrd/dino/run6.bmp", 0.2, 0.2267)}), 0.5);
+        Util::Game::D2::Sprite("/user/dino/run1.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/run2.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/run3.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/run4.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/run5.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/run6.bmp", 0.2, 0.2267)}), 0.5);
     dashAnimation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
-        Util::Game::D2::Sprite("/initrd/dino/dash1.bmp", 0.24, 0.2),
-        Util::Game::D2::Sprite("/initrd/dino/dash2.bmp", 0.24, 0.2),
-        Util::Game::D2::Sprite("/initrd/dino/dash3.bmp", 0.24, 0.2),
-        Util::Game::D2::Sprite("/initrd/dino/dash4.bmp", 0.24, 0.2),
-        Util::Game::D2::Sprite("/initrd/dino/dash5.bmp", 0.24, 0.2),
-        Util::Game::D2::Sprite("/initrd/dino/dash6.bmp", 0.24, 0.2)}), 0.4);
+        Util::Game::D2::Sprite("/user/dino/dash1.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/user/dino/dash2.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/user/dino/dash3.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/user/dino/dash4.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/user/dino/dash5.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/user/dino/dash6.bmp", 0.24, 0.2)}), 0.4);
     eggAnimation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
-        Util::Game::D2::Sprite("/initrd/dino/egg1.bmp", 0.2, 0.2),
-        Util::Game::D2::Sprite("/initrd/dino/egg2.bmp", 0.2, 0.2),
-        Util::Game::D2::Sprite("/initrd/dino/egg3.bmp", 0.2, 0.2),
-        Util::Game::D2::Sprite("/initrd/dino/egg4.bmp", 0.2, 0.2),
-        Util::Game::D2::Sprite("/initrd/dino/egg5.bmp", 0.2, 0.2),
-        Util::Game::D2::Sprite("/initrd/dino/egg6.bmp", 0.2, 0.2)}), 0.5);
+        Util::Game::D2::Sprite("/user/dino/egg1.bmp", 0.2, 0.2),
+        Util::Game::D2::Sprite("/user/dino/egg2.bmp", 0.2, 0.2),
+        Util::Game::D2::Sprite("/user/dino/egg3.bmp", 0.2, 0.2),
+        Util::Game::D2::Sprite("/user/dino/egg4.bmp", 0.2, 0.2),
+        Util::Game::D2::Sprite("/user/dino/egg5.bmp", 0.2, 0.2),
+        Util::Game::D2::Sprite("/user/dino/egg6.bmp", 0.2, 0.2)}), 0.5);
     crackAnimation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
-        Util::Game::D2::Sprite("/initrd/dino/crack1.bmp", 0.2, 0.2667),
-        Util::Game::D2::Sprite("/initrd/dino/crack2.bmp", 0.2, 0.2667),
-        Util::Game::D2::Sprite("/initrd/dino/crack3.bmp", 0.2, 0.2667),
-        Util::Game::D2::Sprite("/initrd/dino/crack4.bmp", 0.2, 0.2667)}), 1.0);
+        Util::Game::D2::Sprite("/user/dino/crack1.bmp", 0.2, 0.2667),
+        Util::Game::D2::Sprite("/user/dino/crack2.bmp", 0.2, 0.2667),
+        Util::Game::D2::Sprite("/user/dino/crack3.bmp", 0.2, 0.2667),
+        Util::Game::D2::Sprite("/user/dino/crack4.bmp", 0.2, 0.2667)}), 1.0);
     hatchAnimation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
-        Util::Game::D2::Sprite("/initrd/dino/hatch1.bmp", 0.2, 0.2667),
-        Util::Game::D2::Sprite("/initrd/dino/hatch2.bmp", 0.2, 0.2667),
-        Util::Game::D2::Sprite("/initrd/dino/hatch3.bmp", 0.2, 0.2667),
-        Util::Game::D2::Sprite("/initrd/dino/hatch4.bmp", 0.2, 0.2667)}), 0.5);
+        Util::Game::D2::Sprite("/user/dino/hatch1.bmp", 0.2, 0.2667),
+        Util::Game::D2::Sprite("/user/dino/hatch2.bmp", 0.2, 0.2667),
+        Util::Game::D2::Sprite("/user/dino/hatch3.bmp", 0.2, 0.2667),
+        Util::Game::D2::Sprite("/user/dino/hatch4.bmp", 0.2, 0.2667)}), 0.5);
     deathAnimation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
-        Util::Game::D2::Sprite("/initrd/dino/death1.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/initrd/dino/death2.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/initrd/dino/death3.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/initrd/dino/death4.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/initrd/dino/death5.bmp", 0.2, 0.2267)}), 0.5);
+        Util::Game::D2::Sprite("/user/dino/death1.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/death2.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/death3.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/death4.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/death5.bmp", 0.2, 0.2267)}), 0.5);
 }
 
 void Dino::dash() {

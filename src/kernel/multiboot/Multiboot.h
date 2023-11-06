@@ -277,6 +277,8 @@ public:
 
     static Util::String getKernelOption(const Util::String &key);
 
+    static Util::Array<Util::String> getModuleNames();
+
     static bool isModuleLoaded(const Util::String &moduleName);
 
     static const Module& getModule(const Util::String &moduleName);
@@ -295,8 +297,6 @@ public:
     static const T& getTag(TagType type);
 
     static Util::Array<TagType> getAvailableTagTypes();
-
-    static const char* getTagTypeAsString(TagType type);
 
 private:
 

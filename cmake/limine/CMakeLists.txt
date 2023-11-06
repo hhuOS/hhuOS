@@ -19,12 +19,19 @@ cmake_minimum_required(VERSION 3.14)
 project(limine)
 message(STATUS "Project " ${PROJECT_NAME})
 
-add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS.iso"
+add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS-limine.iso"
         WORKING_DIRECTORY "${HHUOS_ROOT_DIR}/loader/limine/"
         COMMAND /bin/cp "$<TARGET_FILE:system>" "${HHUOS_ROOT_DIR}/loader/limine/iso/hhuOS.bin"
-        COMMAND /bin/cp "${CMAKE_BINARY_DIR}/hhuOS.initrd" "${HHUOS_ROOT_DIR}/loader/limine/iso/hhuOS.initrd"
         COMMAND "${HHUOS_ROOT_DIR}/loader/limine/build.sh"
         COMMAND /bin/mv "${HHUOS_ROOT_DIR}/loader/limine/hhuOS-limine.iso" "${HHUOS_ROOT_DIR}"
-        DEPENDS system initrd floppy0 hdd0)
+        DEPENDS system floppy0 hdd0)
 
-add_custom_target(${PROJECT_NAME} DEPENDS system initrd floppy0 hdd0 "${HHUOS_ROOT_DIR}/hhuOS.iso")
+add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS-limine-vdd.iso"
+        WORKING_DIRECTORY "${HHUOS_ROOT_DIR}/loader/limine/"
+        COMMAND /bin/cp "$<TARGET_FILE:system>" "${HHUOS_ROOT_DIR}/loader/limine/iso/hhuOS.bin"
+        COMMAND "${HHUOS_ROOT_DIR}/loader/limine/build.sh" "--with-virtual-hdd"
+        COMMAND /bin/mv "${HHUOS_ROOT_DIR}/loader/limine/hhuOS-limine.iso" "${HHUOS_ROOT_DIR}/hhuOS-limine-vdd.iso"
+        DEPENDS system floppy0 hdd0)
+
+add_custom_target(${PROJECT_NAME} DEPENDS system floppy0 hdd0 "${HHUOS_ROOT_DIR}/hhuOS-limine.iso")
+add_custom_target(${PROJECT_NAME}-vdd DEPENDS system floppy0 hdd0 "${HHUOS_ROOT_DIR}/hhuOS-limine-vdd.iso")

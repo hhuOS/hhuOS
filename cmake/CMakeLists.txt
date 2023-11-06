@@ -119,8 +119,6 @@ add_subdirectory(kernel)
 add_subdirectory(lib)
 add_subdirectory(system)
 
-add_subdirectory(initrd)
-
 add_subdirectory(grub)
 add_subdirectory(limine)
 add_subdirectory(towboot)

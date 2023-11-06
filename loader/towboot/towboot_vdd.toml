@@ -1,0 +1,10 @@
+default = "hhuOS"
+timeout = 0
+log_level = "info"
+
+[entries]
+  [entries.hhuOS]
+    name = "hhuOS"
+    image = "\\hhuOS.bin"
+    argv = "log_level=inf log_ports=COM1 root=vdd0p0,Filesystem::Fat::FatDriver"
+    modules = [ { image = "\\hdd0.img", argv = "vdd0" } ]

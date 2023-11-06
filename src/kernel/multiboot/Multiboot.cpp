@@ -110,6 +110,25 @@ Util::String Multiboot::getKernelOption(const Util::String &key) {
     Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Multiboot: Requested kernel option is not available!");
 }
 
+Util::Array<Util::String> Multiboot::getModuleNames() {
+    auto list = Util::ArrayList<Util::String>();
+    auto currentAddress = reinterpret_cast<uint32_t>(info) + sizeof(Info);
+    auto *currentTag = reinterpret_cast<const TagHeader*>(currentAddress);
+
+    while (currentTag->type != TERMINATE) {
+        if (currentTag->type == MODULE) {
+            auto *module = reinterpret_cast<const Module*>(currentTag);
+            list.add(module->name);
+        }
+
+        currentAddress += currentTag->size;
+        currentAddress = currentAddress % 8 == 0 ? currentAddress : (currentAddress / 8) * 8 + 8;
+        currentTag = reinterpret_cast<const TagHeader*>(currentAddress);
+    }
+
+    return list.toArray();
+}
+
 bool Multiboot::isModuleLoaded(const Util::String &moduleName) {
     auto currentAddress = reinterpret_cast<uint32_t>(info) + sizeof(Info);
     auto *currentTag = reinterpret_cast<const TagHeader*>(currentAddress);

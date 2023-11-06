@@ -42,7 +42,7 @@ void DropletEmitter::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
 void DropletEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
     auto angle = random.nextRandomNumber() * Util::Math::PI;
 
-    particle.setSprite(Util::Game::D2::Sprite("/initrd/demo/raindrop.bmp", 0.005, 0.005));
+    particle.setSprite(Util::Game::D2::Sprite("/user/demo/raindrop.bmp", 0.005, 0.005));
     particle.setPosition(getPosition());
     particle.setVelocity(Util::Math::Vector2D(Util::Math::cosine(angle), Util::Math::sine(angle)));
     particle.setTimeToLive(-1);

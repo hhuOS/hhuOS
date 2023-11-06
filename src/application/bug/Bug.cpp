@@ -44,8 +44,8 @@ void Bug::initialize() {
     Explosive::initialize();
 
     animation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
-        Util::Game::D2::Sprite("/initrd/bug/bug1.bmp", SIZE_X, SIZE_Y),
-        Util::Game::D2::Sprite("/initrd/bug/bug2.bmp", SIZE_X, SIZE_Y)}), 0.5);
+        Util::Game::D2::Sprite("/user/bug/bug1.bmp", SIZE_X, SIZE_Y),
+        Util::Game::D2::Sprite("/user/bug/bug2.bmp", SIZE_X, SIZE_Y)}), 0.5);
 }
 
 void Bug::onUpdate(double delta) {

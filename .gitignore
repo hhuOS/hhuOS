@@ -1,11 +1,10 @@
 build/
-initrd/beep
-initrd/bin
-initrd/asciimation
 floppy0/img/bin
 floppy0/img/books
 hdd0/img/bin
-hdd0/img/user
+hdd0/img/user/asciimation
+hdd0/img/user/beep
+hdd0/img/user/books
 hhuOS.bin
 hhuOS.initrd
 towboot-ia32.efi

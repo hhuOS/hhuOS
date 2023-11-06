@@ -18,6 +18,12 @@
 
 readonly LIMINE_VERSION="5.20230928.2"
 
+if [[ "${1}" = "--with-virtual-hdd" ]]; then
+  INCLUDE_HDD="true"
+else
+  INCLUDE_HDD="false"
+fi
+
 if [[ ! -f "iso/limine-uefi-cd.bin" || ! -f "iso/limine-bios-cd.bin" || ! -f "iso/limine-bios.sys" ||! -f "iso/EFI/BOOT/BOOTIA32.EFI" || ! -f "iso/EFI/BOOT/BOOTX64.EFI" || ! -f "limine" ]]; then
   wget -O limine.zip "https://github.com/limine-bootloader/limine/archive/refs/tags/v${LIMINE_VERSION}-binary.zip" || exit 1
   unzip limine.zip || exit 1
@@ -36,6 +42,14 @@ if [[ ! -f "iso/limine-uefi-cd.bin" || ! -f "iso/limine-bios-cd.bin" || ! -f "is
 
   cd .. || exit 1
   rm -r limine.zip limine-${LIMINE_VERSION}-binary || exit 1
+fi
+
+if [[ "${INCLUDE_HDD}" = "true" ]]; then
+  cp "limine_vdd.cfg" "iso/limine.cfg" || exit 1
+  cp "../../hdd0.img" "iso" || exit 1
+else
+  cp "limine.cfg" "iso/limine.cfg"
+  rm -f "iso/hdd0.img"
 fi
 
 cd iso || exit 1

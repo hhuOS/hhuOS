@@ -95,7 +95,7 @@ private:
     Util::ArrayList<Util::String> history;
     uint32_t historyIndex = 0;
 
-    static const constexpr char *PATH = "/initrd/bin:/bin";
+    static const constexpr char *PATH = "/bin";
 };
 
 
