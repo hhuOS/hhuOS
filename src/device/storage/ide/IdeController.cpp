@@ -324,8 +324,11 @@ bool IdeController::readAtapiIdentity(uint8_t channel, uint16_t *buffer) {
 
 bool IdeController::selectDrive(uint8_t channel, uint8_t drive, bool prepareLbaAccess, uint8_t lbaHead) {
     auto &registers = channels[channel];
-    uint8_t selector = 0xa0 | (prepareLbaAccess << 6) | (drive << 4) | (0x0f & lbaHead);
+    if (!prepareLbaAccess && ((registers.lastDeviceControl >> 4) & 0x01) == drive) {
+        return true;
+    }
 
+    uint8_t selector = 0xa0 | (prepareLbaAccess << 6) | (drive << 4) | (0x0f & lbaHead);
     if (selector == registers.lastDeviceControl) {
         return true;
     }
@@ -405,15 +408,15 @@ uint16_t IdeController::determineSectorSize(const DeviceInfo &info) {
     registers.command.command.writeByte(READ_PIO_LBA28);
 
     bool logError = true;
-    uint16_t retries = MAX_WAIT_ON_STATUS_RETRIES;
-    while (waitStatus(registers.control.alternateStatus, DATA_REQUEST, retries, logError)) {
+    uint16_t timeout = WAIT_ON_STATUS_TIMEOUT;
+    while (waitStatus(registers.control.alternateStatus, DATA_REQUEST, timeout, logError)) {
         for (uint32_t i = 0; i < 128; i++) {
             registers.command.data.readWord();
         }
 
         sectorSize += 256;
         logError = false;
-        retries = 0xff;
+        timeout = 0xff;
     }
 
     return sectorSize;
@@ -661,11 +664,11 @@ uint16_t IdeController::performDmaIO(const IdeController::DeviceInfo &info, IdeC
     return sectorCount;
 }
 
-bool IdeController::waitStatus(const IoPort &port, Status status, uint16_t retries, bool logError) {
-    for (uint32_t i = 0; i < retries; i++) {
+bool IdeController::waitStatus(const IoPort &port, Status status, uint16_t timeout, bool logError) {
+    uint32_t endTime = Util::Time::getSystemTime().toMilliseconds() + timeout;
+    while (Util::Time::getSystemTime().toMilliseconds() < endTime) {
         auto currentStatus = port.readByte();
         if ((currentStatus & BUSY) == BUSY) {
-            Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
             continue;
         }
 
@@ -677,16 +680,14 @@ bool IdeController::waitStatus(const IoPort &port, Status status, uint16_t retri
         if ((currentStatus & status) == status) {
             return true;
         }
-
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
     }
 
     if (logError) log.error("Timeout while waiting on status [0x%02x]", status);
     return false;
 }
 
-bool IdeController::waitBusy(const IoPort &port, uint16_t retries, bool logError) {
-    return waitStatus(port, NONE, retries, logError);
+bool IdeController::waitBusy(const IoPort &port, uint16_t timeout, bool logError) {
+    return waitStatus(port, NONE, timeout, logError);
 }
 
 void IdeController::copyByteSwappedString(const char *source, char *target, uint32_t length) {

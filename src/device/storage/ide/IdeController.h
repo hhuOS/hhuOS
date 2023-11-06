@@ -83,7 +83,7 @@ private:
     static const constexpr uint16_t DEFAULT_CONTROL_BASE_ADDRESSES[DEVICES_PER_CHANNEL] = {0x03f4, 0x0374};
     static const constexpr uint32_t COMMAND_SET_WORD_COUNT = 6;
     static const constexpr uint32_t BUS_MASTER_CHANNEL_OFFSET = 0x08;
-    static const constexpr uint32_t MAX_WAIT_ON_STATUS_RETRIES = 4095;
+    static const constexpr uint32_t WAIT_ON_STATUS_TIMEOUT = 4095;
     static const constexpr uint32_t DMA_TIMEOUT = 30000;
     static const constexpr uint32_t PRD_END_OF_TRANSMISSION = 1 << 31;
 
@@ -290,9 +290,9 @@ private:
 
     uint16_t performDmaIO(const DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount);
 
-    static bool waitStatus(const IoPort &port, Status status, uint16_t retries = MAX_WAIT_ON_STATUS_RETRIES, bool logError = true);
+    static bool waitStatus(const IoPort &port, Status status, uint16_t timeout = WAIT_ON_STATUS_TIMEOUT, bool logError = true);
 
-    static bool waitBusy(const IoPort &port, uint16_t retries = MAX_WAIT_ON_STATUS_RETRIES, bool logError = true);
+    static bool waitBusy(const IoPort &port, uint16_t timeout = WAIT_ON_STATUS_TIMEOUT, bool logError = true);
 
     static void copyByteSwappedString(const char *source, char *target, uint32_t length);
 
