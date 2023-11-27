@@ -19,12 +19,13 @@
 
 #include "Thread.h"
 #include "lib/util/async/Atomic.h"
+#include "lib/interface.h"
 
 namespace Util::Async {
 
 bool ReentrantSpinlock::tryAcquire() {
-    auto currentThread = Thread::getCurrentThread();
-    auto success = lockVarWrapper.compareAndSet(SPINLOCK_UNLOCK, currentThread.getId()) || lockVarWrapper.compareAndSet(currentThread.getId(), currentThread.getId());
+    auto threadId = isSchedulerInitialized() ? Thread::getCurrentThread().getId() : 0;
+    auto success = lockVarWrapper.compareAndSet(SPINLOCK_UNLOCK, threadId) || lockVarWrapper.compareAndSet(threadId, threadId);
     if (success) {
         depth++;
     }
@@ -33,13 +34,13 @@ bool ReentrantSpinlock::tryAcquire() {
 }
 
 void ReentrantSpinlock::release() {
-    auto currentThread = Thread::getCurrentThread();
-    if (lockVarWrapper.get() == currentThread.getId()) {
+    auto threadId = isSchedulerInitialized() ? Thread::getCurrentThread().getId() : 0;
+    if (lockVarWrapper.get() == threadId) {
         depth--;
     }
 
     if (depth == 0) {
-        lockVarWrapper.compareAndSet(currentThread.getId(), SPINLOCK_UNLOCK);
+        lockVarWrapper.compareAndSet(threadId, SPINLOCK_UNLOCK);
     }
 }
 

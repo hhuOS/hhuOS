@@ -216,6 +216,10 @@ void yield() {
     Util::System::call(Util::System::YIELD, 0);
 }
 
+bool isSchedulerInitialized() {
+    return true;
+}
+
 Util::Time::Timestamp getSystemTime() {
     Util::Time::Timestamp systemTime;
     Util::System::call(Util::System::GET_SYSTEM_TIME, 1, &systemTime);

@@ -146,11 +146,11 @@ void SchedulerService::ready(Thread &thread) {
 }
 
 void SchedulerService::lockScheduler() {
-    scheduler.lock.acquire();
+    scheduler.readyQueueLock.acquire();
 }
 
 void SchedulerService::unlockScheduler() {
-    scheduler.lock.release();
+    scheduler.readyQueueLock.release();
 }
 
 void SchedulerService::yield() {

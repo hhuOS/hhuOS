@@ -72,7 +72,7 @@ public:
      */
     void exit();
 
-    void yield(bool force = false);
+    void yield();
 
     /**
      * Kills a specific Thread.
@@ -96,19 +96,11 @@ public:
      */
     Thread& getCurrentThread();
 
-    Thread& getNextThread();
-
     Thread * getThread(uint32_t id);
 
     [[nodiscard]] uint32_t getThreadCount() const;
 
 private:
-    /**
-     * Switches to the given Thread.
-     *
-     * @param nextThread A Thread
-     */
-    void dispatch(Thread &nextThread);
 
     void checkSleepList();
 
@@ -121,12 +113,12 @@ private:
         bool operator!=(const SleepEntry &other) const;
     };
 
-    Util::Async::Spinlock lock;
-    Util::Async::Spinlock sleepLock;
-
-    Util::ArrayListBlockingQueue<Thread*> threadQueue;
+    Util::ArrayListBlockingQueue<Thread*> readyQueue;
     Util::ArrayList<SleepEntry> sleepList;
     Thread *currentThread = nullptr;
+
+    Util::Async::Spinlock readyQueueLock;
+    Util::Async::Spinlock sleepQueueLock;
 
     static bool fpuAvailable;
 };

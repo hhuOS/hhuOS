@@ -29,49 +29,58 @@
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/collection/Iterator.h"
 
-extern uint32_t scheduler_initialized;
-
 namespace Kernel {
 
 bool Scheduler::fpuAvailable = Device::Fpu::isAvailable();
 
 Scheduler::~Scheduler() {
-    while (!threadQueue.isEmpty()) {
-        delete threadQueue.poll();
+    while (!readyQueue.isEmpty()) {
+        delete readyQueue.poll();
     }
 }
 
+Thread& Scheduler::getCurrentThread() {
+    if (!scheduler_initialized) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Scheduler: Trying to get current thread before initialization!");
+    }
+
+    return *currentThread;
+}
+
 void Scheduler::start() {
-    lock.acquire();
-    currentThread = &getNextThread();
+    readyQueueLock.acquire();
+    if (readyQueue.isEmpty()) {
+        readyQueueLock.release();
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Scheduler: No thread registered!");
+    }
+
+    auto *thread = readyQueue.poll();
+    currentThread = thread;
+
     start_first_thread(currentThread->getContext());
 }
 
 void Scheduler::ready(Thread &thread) {
-    if (currentThread == nullptr) {
-        currentThread = &thread;
-    }
-
-    if (threadQueue.contains(&thread)) {
+    readyQueueLock.acquire();
+    if (readyQueue.contains(&thread)) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Scheduler: Thread is already running!");
     }
 
-    lock.acquire();
-    threadQueue.offer(&thread);
+    readyQueue.offer(&thread);
     thread.getParent().addThread(thread);
-    lock.release();
+    readyQueueLock.release();
 }
 
 void Scheduler::exit() {
-    lock.acquire();
-    threadQueue.remove(currentThread);
+    readyQueueLock.acquire();
+
+    readyQueue.remove(currentThread);
     currentThread->getParent().removeThread(*currentThread);
-    lock.release();
-
     currentThread->unblockJoinList();
-
     System::getService<SchedulerService>().cleanup(currentThread);
-    yield(true);
+
+    readyQueueLock.release();
+    block();
 }
 
 void Scheduler::kill(Thread &thread) {
@@ -79,15 +88,15 @@ void Scheduler::kill(Thread &thread) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT,"Scheduler: A thread cannot kill itself!");
     }
 
-    sleepLock.acquire();
+    readyQueueLock.acquire();
+    sleepQueueLock.acquire();
     sleepList.remove(SleepEntry{&thread, 0});
-    sleepLock.release();
+    sleepQueueLock.release();
 
-    lock.acquire();
-    threadQueue.remove(&thread);
+    readyQueue.remove(&thread);
     thread.getParent().removeThread(thread);
     thread.unblockJoinList();
-    lock.release();
+    readyQueueLock.release();
 
     System::getService<SchedulerService>().cleanup(&thread);
 }
@@ -97,123 +106,118 @@ void Scheduler::killWithoutLock(Thread &thread) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT,"Scheduler: A thread cannot kill itself!");
     }
 
-    sleepLock.acquire();
+    sleepQueueLock.acquire();
     sleepList.remove(SleepEntry{&thread, 0});
-    sleepLock.release();
+    sleepQueueLock.release();
 
-    threadQueue.remove(&thread);
+    readyQueue.remove(&thread);
     thread.getParent().removeThread(thread);
     thread.unblockJoinList();
 
     System::getService<SchedulerService>().cleanup(&thread);
 }
 
-Thread& Scheduler::getCurrentThread() {
-    return *currentThread;
-}
-
-Thread& Scheduler::getNextThread() {
-    Thread *thread = threadQueue.poll();
-    threadQueue.offer(thread);
-
-    return *thread;
-}
-
-void Scheduler::yield(bool force) {
+void Scheduler::yield() {
     if (!scheduler_initialized) {
         return;
     }
 
-    if (force) {
-        lock.acquire();
-    } else if (!lock.tryAcquire()) {
+    if (!readyQueueLock.tryAcquire()) {
         return;
     }
 
-    do {
-        checkSleepList();
-    } while (threadQueue.isEmpty());
+    checkSleepList();
 
-    Thread &nextThread = getNextThread();
+    auto *current = currentThread;
+    auto *next = readyQueue.poll();
+    currentThread = next;
 
-    System::getService<Kernel::MemoryService>().switchAddressSpace(nextThread.getParent().getAddressSpace());
-    dispatch(nextThread);
-}
+    readyQueue.offer(current);
 
-void Scheduler::dispatch(Thread &nextThread) {
-    auto &oldThread = *currentThread;
-    currentThread = &nextThread;
     if (fpuAvailable) {
         Device::Fpu::armFpuMonitor();
     }
-
-    switch_context(&oldThread.kernelContext, &nextThread.kernelContext);
+    System::getService<Kernel::MemoryService>().switchAddressSpace(next->getParent().getAddressSpace());
+    switch_context(&current->kernelContext, &next->kernelContext);
 }
 
 uint32_t Scheduler::getThreadCount() const {
-    return threadQueue.size();
+    return readyQueue.size();
 }
 
 void Scheduler::block() {
-    lock.acquire();
-    threadQueue.remove(currentThread);
-    lock.release();
+    readyQueueLock.acquire();
 
-    yield(true);
+    do {
+        checkSleepList();
+    } while (readyQueue.isEmpty());
+
+    auto *current = currentThread;
+    auto *next = readyQueue.poll();
+    currentThread = next;
+
+    // Thread has enqueued itself into sleep list and waited so long, that it dequeued itself in the meantime
+    if (current == next) {
+        return;
+    }
+
+    if (fpuAvailable) {
+        Device::Fpu::armFpuMonitor();
+    }
+    System::getService<Kernel::MemoryService>().switchAddressSpace(next->getParent().getAddressSpace());
+    switch_context(&current->kernelContext, &next->kernelContext);
 }
 
 void Scheduler::unblock(Thread &thread) {
-    lock.acquire();
-    threadQueue.offer(&thread);
-    lock.release();
+    readyQueue.offer(&thread);
 }
 
 void Scheduler::sleep(const Util::Time::Timestamp &time) {
     auto systemTime = System::getService<TimeService>().getSystemTime().toMilliseconds();
 
-    sleepLock.acquire();
+    sleepQueueLock.acquire();
     sleepList.add(SleepEntry{currentThread, systemTime + time.toMilliseconds()});
-    sleepLock.release();
+    sleepQueueLock.release();
 
     block();
 }
 
 void Scheduler::checkSleepList() {
-    if (sleepLock.tryAcquire()) {
+    if (sleepQueueLock.tryAcquire()) {
         auto systemTime = System::getService<TimeService>().getSystemTime().toMilliseconds();
         for (uint32_t i = 0; i < sleepList.size(); i++) {
             const auto &entry = sleepList.get(i);
             if (systemTime >= entry.wakeupTime) {
-                threadQueue.offer(entry.thread);
+                readyQueue.offer(entry.thread);
                 sleepList.remove(entry);
             }
         }
-        sleepLock.release();
+        sleepQueueLock.release();
     }
 }
 
 Thread* Scheduler::getThread(uint32_t id) {
-    lock.acquire();
-    sleepLock.acquire();
+    readyQueueLock.acquire();
+    sleepQueueLock.acquire();
 
-    for (auto *thread : threadQueue) {
+    for (auto *thread : readyQueue) {
         if (thread->getId() == id) {
-            sleepLock.release();
-            lock.release();
+            sleepQueueLock.release();
+            readyQueueLock.release();
             return thread;
         }
     }
 
     for (auto &sleepEntry : sleepList) {
         if (sleepEntry.thread->getId() == id) {
-            sleepLock.release();
-            lock.release();
+            sleepQueueLock.release();
+            readyQueueLock.release();
             return sleepEntry.thread;
         }
     }
 
-    sleepLock.release();
-    lock.release();
+    sleepQueueLock.release();
+    readyQueueLock.release();
     return nullptr;
 }
 

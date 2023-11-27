@@ -231,6 +231,10 @@ void yield() {
     Kernel::System::getService<Kernel::SchedulerService>().yield();
 }
 
+bool isSchedulerInitialized() {
+    return scheduler_initialized;
+}
+
 Util::Time::Timestamp getSystemTime() {
     return Kernel::System::getService<Kernel::TimeService>().getSystemTime();
 }

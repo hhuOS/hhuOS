@@ -40,6 +40,8 @@ extern const uint8_t multiboot_data;
 extern const uint8_t acpi_data;
 extern const uint8_t smbios_data;
 
+extern uint32_t scheduler_initialized;
+
 // Import asm functions
 extern "C" {
 void load_page_directory(uint32_t*);

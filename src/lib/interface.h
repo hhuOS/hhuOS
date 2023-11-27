@@ -77,6 +77,7 @@ void joinProcess(uint32_t id);
 void killProcess(uint32_t id);
 void sleep(const Util::Time::Timestamp &time);
 void yield();
+bool isSchedulerInitialized();
 
 Util::Time::Timestamp getSystemTime();
 Util::Time::Date getCurrentDate();

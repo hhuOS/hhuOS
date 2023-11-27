@@ -32,6 +32,7 @@
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/System.h"
 #include "lib/util/collection/Iterator.h"
+#include "asm_interface.h"
 
 namespace Kernel {
 class VirtualAddressSpace;
@@ -161,6 +162,10 @@ void ProcessService::killProcess(Process &process) {
 }
 
 Process& ProcessService::getCurrentProcess() {
+    if (!scheduler_initialized) {
+        return kernelProcess;
+    }
+
     return System::getService<SchedulerService>().getCurrentThread().getParent();
 }
 

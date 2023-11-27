@@ -98,12 +98,9 @@ class Machine;
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
 void GatesOfHell::enter() {
-    const auto logLevel = Kernel::Multiboot::hasKernelOption("log_level") ? Kernel::Multiboot::getKernelOption(
-            "log_level") : "inf";
-    Kernel::Logger::setLevel(logLevel);
+    const auto logLevel = Kernel::Multiboot::hasKernelOption("log_level") ? Kernel::Multiboot::getKernelOption("log_level") : "inf"; Kernel::Logger::setLevel(logLevel);
 
-    log.info("%u MiB of physical memory detected",
-             Kernel::System::getService<Kernel::MemoryService>().getMemoryStatus().totalPhysicalMemory / 1024 / 1024);
+    log.info("%u MiB of physical memory detected", Kernel::System::getService<Kernel::MemoryService>().getMemoryStatus().totalPhysicalMemory / 1024 / 1024);
 
     printCpuInformation();
 

@@ -121,7 +121,9 @@ cleanup() {
     remove "floppy0/img/bin/"
     remove "floppy0/img/books/"
     remove "hdd0/img/bin/"
-    remove "hdd0/img/user/"
+    remove "hdd0/img/user/asciimation"
+    remove "hdd0/img/user/beep"
+    remove "hdd0/img/user/books"
     remove "hdd0/img/media/"
 
     local builddirs="";
