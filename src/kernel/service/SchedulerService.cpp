@@ -132,6 +132,14 @@ void SchedulerService::kickoffThread() {
     scheduler.exit();
 }
 
+void SchedulerService::setSchedulerInit() {
+    scheduler.setInit();
+}
+
+bool SchedulerService::isSchedulerInitialized() {
+    return scheduler.isInitialized();
+}
+
 void SchedulerService::startScheduler() {
     auto &processService = System::getService<ProcessService>();
     cleaner = new Kernel::SchedulerCleaner();

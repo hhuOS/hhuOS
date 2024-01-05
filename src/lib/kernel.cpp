@@ -50,8 +50,6 @@ class Runnable;
 }  // namespace Async
 }  // namespace Util
 
-extern uint32_t scheduler_initialized;
-
 void *allocateMemory(uint32_t size, uint32_t alignment) {
     if (Kernel::System::isInitialized()) {
         return Kernel::System::getService<Kernel::MemoryService>().allocateKernelMemory(size, alignment);
@@ -220,7 +218,7 @@ void killProcess(uint32_t id) {
 }
 
 void sleep(const Util::Time::Timestamp &time) {
-    if (scheduler_initialized) {
+    if (isSchedulerInitialized()) {
         Kernel::System::getService<Kernel::SchedulerService>().sleep(time);
     } else {
         Kernel::System::getService<Kernel::TimeService>().busyWait(time);
@@ -232,7 +230,7 @@ void yield() {
 }
 
 bool isSchedulerInitialized() {
-    return scheduler_initialized;
+    return Kernel::System::getService<Kernel::SchedulerService>().isSchedulerInitialized();
 }
 
 Util::Time::Timestamp getSystemTime() {

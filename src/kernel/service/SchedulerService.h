@@ -63,6 +63,10 @@ public:
 
     void kickoffThread();
 
+    void setSchedulerInit();
+
+    bool isSchedulerInitialized();
+
     void startScheduler();
 
     void ready(Thread &thread);

@@ -23,8 +23,8 @@ global bios_call_16_start
 global bios_call_16_end
 global bios_call_16_interrupt
 
-; Export variables
-global scheduler_initialized
+; Import functions
+extern is_scheduler_initialized
 
 ; Import variables
 extern initial_kernel_stack
@@ -45,8 +45,8 @@ bios_call:
 
     ; Check if the scheduler is running (we have to switch the stack then,
     ; because bios calls expect the stack to be placed at 4MB)
-    mov ebx, [scheduler_initialized]
-    cmp ebx, 0
+    call is_scheduler_initialized
+    cmp eax, 0
     je  skip_stack_switch
 
     ; Switch stack to boot stack used in boot.asm and save current stack pointer
@@ -131,8 +131,8 @@ bios_call_3:
     mov cr3, ecx
 
     ; Check if scheduler is running -> old stack has to be restored then
-    mov ebx, [scheduler_initialized]
-    cmp ebx, 0
+    call is_scheduler_initialized
+    cmp eax, 0
     je  skip_stack_switch_2
     ; Restore old stack if necessary
     pop esp
@@ -238,9 +238,3 @@ bits 32
     retfw
 
 bios_call_16_end:
-
-section .data
-
-; Indicates whether the scheduler has been started
-scheduler_initialized:
-    dw 0

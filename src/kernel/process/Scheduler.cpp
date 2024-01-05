@@ -27,7 +27,6 @@
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/time/Timestamp.h"
-#include "lib/util/collection/Iterator.h"
 
 namespace Kernel {
 
@@ -39,8 +38,17 @@ Scheduler::~Scheduler() {
     }
 }
 
+void Scheduler::setInit() {
+    initialized = true;
+}
+
+bool Scheduler::isInitialized() {
+    return initialized;
+}
+
 Thread& Scheduler::getCurrentThread() {
-    if (!scheduler_initialized) {
+    if (!initialized) {
+        readyQueueLock.release();
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Scheduler: Trying to get current thread before initialization!");
     }
 
@@ -118,7 +126,7 @@ void Scheduler::killWithoutLock(Thread &thread) {
 }
 
 void Scheduler::yield() {
-    if (!scheduler_initialized) {
+    if (!initialized) {
         return;
     }
 

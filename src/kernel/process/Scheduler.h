@@ -58,6 +58,16 @@ public:
      */
     ~Scheduler();
 
+    /**
+     * Set initialized to 'true'.
+     */
+    void setInit();
+
+    bool isInitialized();
+
+    /**
+     * Start the first thread.
+     */
     void start();
 
     /**
@@ -104,8 +114,6 @@ private:
 
     void checkSleepList();
 
-private:
-
     struct SleepEntry {
         Thread *thread;
         uint32_t wakeupTime;
@@ -113,11 +121,13 @@ private:
         bool operator!=(const SleepEntry &other) const;
     };
 
-    Util::ArrayListBlockingQueue<Thread*> readyQueue;
-    Util::ArrayList<SleepEntry> sleepList;
+    bool initialized = false;
     Thread *currentThread = nullptr;
 
+    Util::ArrayListBlockingQueue<Thread*> readyQueue;
     Util::Async::Spinlock readyQueueLock;
+
+    Util::ArrayList<SleepEntry> sleepList;
     Util::Async::Spinlock sleepQueueLock;
 
     static bool fpuAvailable;

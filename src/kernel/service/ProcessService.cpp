@@ -162,11 +162,12 @@ void ProcessService::killProcess(Process &process) {
 }
 
 Process& ProcessService::getCurrentProcess() {
-    if (!scheduler_initialized) {
+    auto &schedulerService = System::getService<SchedulerService>();
+    if (!schedulerService.isSchedulerInitialized()) {
         return kernelProcess;
     }
 
-    return System::getService<SchedulerService>().getCurrentThread().getParent();
+    return schedulerService.getCurrentThread().getParent();
 }
 
 bool ProcessService::isProcessActive(uint32_t id) {

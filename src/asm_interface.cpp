@@ -51,6 +51,8 @@ void disable_interrupts();
 void dispatch_interrupt(Kernel::InterruptFrame*);
 void set_tss_stack_entry(uint32_t);
 void flush_tss();
+void set_scheduler_init();
+bool is_scheduler_initialized();
 void release_scheduler_lock();
 int32_t atexit (void (*func)()) noexcept;
 }
@@ -111,6 +113,14 @@ void dispatch_interrupt(Kernel::InterruptFrame *frame) {
 void set_tss_stack_entry(uint32_t esp0) {
     Kernel::System::getTaskStateSegment().esp0 = esp0 + sizeof(Kernel::InterruptFrame);
     Kernel::System::getTaskStateSegment().ss0 = 0x10;
+}
+
+void set_scheduler_init() {
+    Kernel::System::getService<Kernel::SchedulerService>().setSchedulerInit();
+}
+
+bool is_scheduler_initialized() {
+    return Kernel::System::getService<Kernel::SchedulerService>().isSchedulerInitialized();
 }
 
 void release_scheduler_lock() {
