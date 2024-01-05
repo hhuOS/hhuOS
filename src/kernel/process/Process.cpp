@@ -99,7 +99,7 @@ void Process::setMainThread(Thread &thread) {
 }
 
 void Process::join() {
-    auto &schedulerService = System::getService<Kernel::SchedulerService>();
+    auto &schedulerService = System::getService<SchedulerService>();
     while (mainThread == nullptr) {
         if (finished) {
             return;

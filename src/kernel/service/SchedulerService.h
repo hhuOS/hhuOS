@@ -73,17 +73,19 @@ public:
 
     void yield();
 
+    void switchFpuContext();
+
     void cleanup(Thread *thread);
 
     void cleanup(Process *process);
-
-    void lockScheduler();
 
     void unlockScheduler();
 
     void block();
 
     void unblock(Thread &thread);
+
+    void join(Thread &thread);
 
     void sleep(const Util::Time::Timestamp &time);
 
@@ -95,20 +97,18 @@ public:
 
     [[nodiscard]] Thread& getCurrentThread();
 
+    [[nodiscard]] Thread* getLastFpuThread();
+
     [[nodiscard]] Thread* getThread(uint32_t id);
 
     [[nodiscard]] uint8_t* getDefaultFpuContext();
 
-    static const constexpr uint8_t SERVICE_ID = 4;
+    static constexpr uint8_t SERVICE_ID = 4;
 
 private:
 
     Scheduler scheduler;
     SchedulerCleaner *cleaner = nullptr;
-    Device::Fpu *fpu = nullptr;
-    uint8_t *defaultFpuContext = nullptr;
-
-    static Logger log;
 };
 
 }

@@ -17,6 +17,9 @@
 
 #include "Scheduler.h"
 
+#include <kernel/log/Logger.h>
+#include <lib/util/base/Address.h>
+
 #include "kernel/system/System.h"
 #include "kernel/service/TimeService.h"
 #include "asm_interface.h"
@@ -30,11 +33,28 @@
 
 namespace Kernel {
 
-bool Scheduler::fpuAvailable = Device::Fpu::isAvailable();
+Logger Scheduler::log = Logger::get("Scheduler");
+
+Scheduler::Scheduler() {
+    defaultFpuContext = static_cast<uint8_t*>(System::getService<MemoryService>().allocateKernelMemory(512, 16));
+    Util::Address<uint32_t>(defaultFpuContext).setRange(0, 512);
+
+    if (Device::Fpu::isAvailable()) {
+        log.info("FPU detected -> Enabling FPU context switching");
+        fpu = new Device::Fpu(defaultFpuContext);
+        fpu->plugin();
+    } else {
+        log.warn("No FPU present");
+    }
+}
 
 Scheduler::~Scheduler() {
     while (!readyQueue.isEmpty()) {
         delete readyQueue.poll();
+    }
+
+    for (auto id : joinMap.keys()) {
+        delete joinMap.remove(id);
     }
 }
 
@@ -55,6 +75,10 @@ Thread& Scheduler::getCurrentThread() {
     return *currentThread;
 }
 
+Thread* Scheduler::getLastFpuThread() {
+    return lastFpuThread;
+}
+
 void Scheduler::start() {
     readyQueueLock.acquire();
     if (readyQueue.isEmpty()) {
@@ -65,7 +89,9 @@ void Scheduler::start() {
     auto *thread = readyQueue.poll();
     currentThread = thread;
 
-    start_first_thread(currentThread->getContext());
+    auto *current = currentThread;
+
+    start_first_thread(current->getContext());
 }
 
 void Scheduler::ready(Thread &thread) {
@@ -76,6 +102,11 @@ void Scheduler::ready(Thread &thread) {
 
     readyQueue.offer(&thread);
     thread.getParent().addThread(thread);
+
+    joinLock.acquire();
+    joinMap.put(thread.getId(), new Util::ArrayList<Thread*>());
+    joinLock.release();
+
     readyQueueLock.release();
 }
 
@@ -84,7 +115,10 @@ void Scheduler::exit() {
 
     readyQueue.remove(currentThread);
     currentThread->getParent().removeThread(*currentThread);
-    currentThread->unblockJoinList();
+
+    unblockJoinList(*currentThread);
+
+    resetLastFpuThread(*currentThread);
     System::getService<SchedulerService>().cleanup(currentThread);
 
     readyQueueLock.release();
@@ -103,9 +137,10 @@ void Scheduler::kill(Thread &thread) {
 
     readyQueue.remove(&thread);
     thread.getParent().removeThread(thread);
-    thread.unblockJoinList();
+    unblockJoinList(thread);
     readyQueueLock.release();
 
+    resetLastFpuThread(thread);
     System::getService<SchedulerService>().cleanup(&thread);
 }
 
@@ -120,8 +155,9 @@ void Scheduler::killWithoutLock(Thread &thread) {
 
     readyQueue.remove(&thread);
     thread.getParent().removeThread(thread);
-    thread.unblockJoinList();
+    unblockJoinList(thread);
 
+    resetLastFpuThread(thread);
     System::getService<SchedulerService>().cleanup(&thread);
 }
 
@@ -142,15 +178,45 @@ void Scheduler::yield() {
 
     readyQueue.offer(current);
 
-    if (fpuAvailable) {
+    if (fpu != nullptr) {
         Device::Fpu::armFpuMonitor();
     }
-    System::getService<Kernel::MemoryService>().switchAddressSpace(next->getParent().getAddressSpace());
+
+    System::getService<MemoryService>().switchAddressSpace(next->getParent().getAddressSpace());
     switch_context(&current->kernelContext, &next->kernelContext);
+}
+
+void Scheduler::switchFpuContext() {
+    if (fpu == nullptr) {
+        return;
+    }
+
+    readyQueueLock.acquire();
+
+    // Disable FPU monitoring (will be enabled by scheduler at next thread switch)
+    Device::Fpu::disarmFpuMonitor();
+
+    if (currentThread == lastFpuThread) {
+        readyQueueLock.release();
+        return;
+    }
+
+    fpu->switchContext();
+
+    lastFpuThread = currentThread;
+    readyQueueLock.release();
 }
 
 uint32_t Scheduler::getThreadCount() const {
     return readyQueue.size();
+}
+
+uint8_t* Scheduler::getDefaultFpuContext() {
+    return defaultFpuContext;
+}
+
+void Scheduler::unlockReadyQueue() {
+    readyQueueLock.release();
 }
 
 void Scheduler::block() {
@@ -169,10 +235,11 @@ void Scheduler::block() {
         return;
     }
 
-    if (fpuAvailable) {
+    if (fpu != nullptr) {
         Device::Fpu::armFpuMonitor();
     }
-    System::getService<Kernel::MemoryService>().switchAddressSpace(next->getParent().getAddressSpace());
+
+    System::getService<MemoryService>().switchAddressSpace(next->getParent().getAddressSpace());
     switch_context(&current->kernelContext, &next->kernelContext);
 }
 
@@ -190,6 +257,16 @@ void Scheduler::sleep(const Util::Time::Timestamp &time) {
     block();
 }
 
+void Scheduler::join(const Thread& thread) {
+    joinLock.acquire();
+
+    auto *joinList = joinMap.get(thread.getId());
+    joinList->add(currentThread);
+
+    joinLock.release();
+    block();
+}
+
 void Scheduler::checkSleepList() {
     if (sleepQueueLock.tryAcquire()) {
         auto systemTime = System::getService<TimeService>().getSystemTime().toMilliseconds();
@@ -202,6 +279,24 @@ void Scheduler::checkSleepList() {
         }
         sleepQueueLock.release();
     }
+}
+
+void Scheduler::unblockJoinList(Thread& thread) {
+    // Ready threads that are joining on the current threads
+    joinLock.acquire();
+    auto *joinList = joinMap.get(thread.getId());
+    for (auto *thread : *joinList) {
+        readyQueue.offer(thread);
+    }
+
+    joinMap.remove(thread.getId());
+    delete joinList;
+    joinLock.release();
+}
+
+void Scheduler::resetLastFpuThread(Thread &terminatedThread) {
+    Util::Async::Atomic<uint32_t> wrapper(reinterpret_cast<uint32_t&>(lastFpuThread));
+    wrapper.compareAndSet(reinterpret_cast<uint32_t>(&terminatedThread), 0);
 }
 
 Thread* Scheduler::getThread(uint32_t id) {

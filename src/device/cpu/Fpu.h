@@ -53,12 +53,6 @@ public:
      */
     ~Fpu() override = default;
 
-    void plugin() override;
-
-    void trigger(const Kernel::InterruptFrame &frame) override;
-
-    void checkTerminatedThread(Kernel::Thread &thread);
-
     static bool isAvailable();
 
     static bool isFxsrAvailable();
@@ -67,16 +61,17 @@ public:
 
     static void disarmFpuMonitor();
 
-private:
+    void plugin() override;
 
-    void switchContext(Kernel::Thread &currentThread);
+    void trigger(const Kernel::InterruptFrame &frame) override;
+
+    void switchContext() const;
 
     void switchContextFpuOnly(Kernel::Thread &currentThread);
 
     static bool probeFpu();
 
     bool fxsrAvailable = isFxsrAvailable();
-    Kernel::Thread *lastFpuThread = nullptr;
 
     static Kernel::Logger log;
 };

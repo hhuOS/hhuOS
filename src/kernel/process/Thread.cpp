@@ -151,20 +151,7 @@ uint8_t *Thread::getFpuContext() const {
 }
 
 void Thread::join() {
-    auto &schedulerService = System::getService<SchedulerService>();
-    joinLock.acquire();
-    joinList.add(&schedulerService.getCurrentThread());
-    joinLock.release();
-    schedulerService.block();
-}
-
-void Thread::unblockJoinList() {
-    auto &schedulerService = System::getService<SchedulerService>();
-    joinLock.acquire();
-    for (auto *thread : joinList) {
-        schedulerService.unblock(*thread);
-    }
-    joinLock.release();
+    System::getService<SchedulerService>().join(*this);
 }
 
 Thread::Stack::Stack(uint8_t *stack, uint32_t size) : stack(stack), size(size) {

@@ -19,6 +19,8 @@
 #define HHUOS_SCHEDULER_H
 
 #include <cstdint>
+#include <device/cpu/Fpu.h>
+#include <lib/util/collection/HashMap.h>
 
 #include "lib/util/collection/ArrayListBlockingQueue.h"
 #include "lib/util/async/Spinlock.h"
@@ -35,13 +37,11 @@ namespace Kernel {
 
 class Scheduler {
 
-    friend class SchedulerService;
-
 public:
     /**
      * Constructor.
      */
-    explicit Scheduler() = default;
+    explicit Scheduler();
 
     /**
      * Copy Constructor.
@@ -84,6 +84,8 @@ public:
 
     void yield();
 
+    void switchFpuContext();
+
     /**
      * Kills a specific Thread.
      *
@@ -99,6 +101,8 @@ public:
 
     void sleep(const Util::Time::Timestamp &time);
 
+    void join(const Thread &thread);
+
     /**
      * Returns the activeFlag Thread.
      *
@@ -106,13 +110,23 @@ public:
      */
     Thread& getCurrentThread();
 
-    Thread * getThread(uint32_t id);
+    Thread* getLastFpuThread();
+
+    Thread* getThread(uint32_t id);
 
     [[nodiscard]] uint32_t getThreadCount() const;
+
+    uint8_t* getDefaultFpuContext();
+
+    void unlockReadyQueue();
 
 private:
 
     void checkSleepList();
+
+    void unblockJoinList(Thread &thread);
+
+    void resetLastFpuThread(Thread &terminatedThread);
 
     struct SleepEntry {
         Thread *thread;
@@ -124,13 +138,20 @@ private:
     bool initialized = false;
     Thread *currentThread = nullptr;
 
+    Device::Fpu *fpu = nullptr;
+    uint8_t *defaultFpuContext = nullptr;
+    Thread *lastFpuThread = nullptr;
+
     Util::ArrayListBlockingQueue<Thread*> readyQueue;
     Util::Async::Spinlock readyQueueLock;
 
     Util::ArrayList<SleepEntry> sleepList;
     Util::Async::Spinlock sleepQueueLock;
 
-    static bool fpuAvailable;
+    Util::HashMap<uint32_t, Util::ArrayList<Thread*>*> joinMap;
+    Util::Async::Spinlock joinLock;
+
+    static Logger log;
 };
 
 }

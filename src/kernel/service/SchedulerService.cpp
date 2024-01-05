@@ -43,20 +43,7 @@ class Timestamp;
 
 namespace Kernel {
 
-Logger SchedulerService::log = Logger::get("Scheduler");
-
 SchedulerService::SchedulerService() {
-    defaultFpuContext = static_cast<uint8_t*>(System::getService<MemoryService>().allocateKernelMemory(512, 16));
-    Util::Address<uint32_t>(defaultFpuContext).setRange(0, 512);
-
-    if (Device::Fpu::isAvailable()) {
-        log.info("FPU detected -> Enabling FPU context switching");
-        fpu = new Device::Fpu(defaultFpuContext);
-        fpu->plugin();
-    } else {
-        log.warn("No FPU present");
-    }
-
     SystemCall::registerSystemCall(Util::System::YIELD, [](uint32_t, va_list) -> bool {
         System::getService<SchedulerService>().yield();
         return true;
@@ -153,20 +140,24 @@ void SchedulerService::ready(Thread &thread) {
     scheduler.ready(thread);
 }
 
-void SchedulerService::lockScheduler() {
-    scheduler.readyQueueLock.acquire();
-}
-
 void SchedulerService::unlockScheduler() {
-    scheduler.readyQueueLock.release();
+    scheduler.unlockReadyQueue();
 }
 
 void SchedulerService::yield() {
     scheduler.yield();
 }
 
+void SchedulerService::switchFpuContext() {
+    scheduler.switchFpuContext();
+}
+
 Thread& SchedulerService::getCurrentThread() {
     return scheduler.getCurrentThread();
+}
+
+Thread* SchedulerService::getLastFpuThread() {
+    return scheduler.getLastFpuThread();
 }
 
 Thread *SchedulerService::getThread(uint32_t id) {
@@ -174,7 +165,6 @@ Thread *SchedulerService::getThread(uint32_t id) {
 }
 
 void SchedulerService::cleanup(Thread *thread) {
-    fpu->checkTerminatedThread(*thread);
     cleaner->cleanup(thread);
 }
 
@@ -196,6 +186,10 @@ void SchedulerService::unblock(Thread &thread) {
     }
 }
 
+void SchedulerService::join(Thread& thread) {
+    scheduler.join(thread);
+}
+
 void SchedulerService::kill(Thread &thread) {
     scheduler.kill(thread);
 }
@@ -209,7 +203,7 @@ void SchedulerService::exitCurrentThread() {
 }
 
 uint8_t *SchedulerService::getDefaultFpuContext() {
-    return defaultFpuContext;
+    return scheduler.getDefaultFpuContext();
 }
 
 void SchedulerService::sleep(const Util::Time::Timestamp &time) {

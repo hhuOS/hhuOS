@@ -146,11 +146,9 @@ void ProcessService::killProcess(Process &process) {
     }
 
     auto &schedulerService = System::getService<SchedulerService>();
-    schedulerService.lockScheduler();
     for (auto *thread : process.getThreads()) {
-        schedulerService.killWithoutLock(*thread);
+        schedulerService.kill(*thread);
     }
-    schedulerService.unlockScheduler();
 
     auto &cleanerThread = Thread::createKernelThread("Address-Space-Cleaner", process, new AddressSpaceCleaner());
     schedulerService.ready(cleanerThread);
