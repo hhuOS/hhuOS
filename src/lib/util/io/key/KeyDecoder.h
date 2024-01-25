@@ -18,6 +18,8 @@
 #ifndef HHUOS_KEYDECODER_H
 #define HHUOS_KEYDECODER_H
 
+#define KEY_CODE_USB
+
 #include <cstdint>
 #include "Key.h"
 
@@ -48,11 +50,24 @@ public:
 
     bool parseScancode(uint8_t code);
 
+    bool parseUsbCodes(uint8_t code, uint8_t type);
+
+    void defaulting();
+
+    enum KEY_TYPE : uint8_t {
+        KEY_MODIFIER = 0x01,
+        KEY_CODE     = 0x02,
+        KEY_TYPE     = 0x04
+    };
+
+
     [[nodiscard]] Key getCurrentKey() const;
 
 private:
 
     void parseAsciiCode(uint8_t code);
+    void parseAsciiUsb(uint8_t code);
+    bool isHighLetter();
 
     enum Code : uint8_t {
         BREAK_BIT = 0x80,
