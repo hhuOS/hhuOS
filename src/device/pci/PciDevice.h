@@ -96,6 +96,12 @@ public:
 
     [[nodiscard]] Device::InterruptRequest getInterruptLine() const;
 
+    uint8_t getBus() const;
+
+    uint8_t getDevice() const;
+
+    uint8_t getFunction() const;
+
 private:
 
     uint8_t bus{};
