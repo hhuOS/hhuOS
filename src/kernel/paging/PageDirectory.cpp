@@ -135,6 +135,7 @@ PageDirectory::~PageDirectory() {
     // Free page tables corresponding to user space (< 3GB)
     uint32_t maxIndex = MemoryLayout::KERNEL_START / (Paging::PAGESIZE * 1024);
     for (uint32_t index = 0; index < maxIndex; index++) {
+        if((void*)virtualTableAddresses[index] == (void*)0) continue;
         memoryService.freePageTable((void *) virtualTableAddresses[index]);
     }
 
