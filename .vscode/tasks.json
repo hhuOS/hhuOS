@@ -22,7 +22,7 @@
                     "quoting": "escape"
                 },
                 {
-                    "value": "hhuOS-limine.iso",
+                    "value": "hhuOS-grub.iso",
                     "quoting": "escape"
                 },
                 {
@@ -31,6 +31,14 @@
                 },
                 {
                     "value": "pc",
+                    "quoting": "escape"
+                },
+                {
+                    "value": "--usb",
+                    "quoting": "escape"
+                },
+                {
+                    "value": "type=uhci,vendorid=0x1038,productid=0x1614,port=1;vendorid=0x046d,productid=0xc077,port=2",
                     "quoting": "escape"
                 },
                 {
@@ -60,7 +68,7 @@
                     "quoting": "escape"
                 },
                 {
-                    "value": "hhuOS-towboot.img",
+                    "value": "hhuOS-grub.iso",
                     "quoting": "escape"
                 },
                 {
