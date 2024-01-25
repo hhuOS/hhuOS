@@ -515,13 +515,16 @@ void GatesOfHell::initializeUsb(){
     Kernel::Usb::Driver::KernelKbdDriver* k_driver = new Kernel::Usb::Driver::KernelKbdDriver("keyboard");
     Kernel::Usb::Driver::KernelMouseDriver* m_driver = new Kernel::Usb::Driver::KernelMouseDriver("mouse");
 
-    if(!k_driver->initialize()){
+    if((kbd_status = k_driver->initialize()) == -1){
         log.error("Error creating kbd driver");
     }
 
-    if(!m_driver->initialize()){
+    if((mouse_status = m_driver->initialize()) == -1){
         log.error("Error creating mouse driver");
     }
+
+    if(kbd_status) k_driver->submit();
+    if(mouse_status) m_driver->submit();
 
     Kernel::Usb::KeyBoardNode* kbd_node = new Kernel::Usb::KeyBoardNode();
     Kernel::Usb::MouseNode* mouse_node = new Kernel::Usb::MouseNode();
