@@ -17,6 +17,8 @@ public:
 
     int initialize() override;
 
+    int submit() override;
+
 private:
 
 KeyBoardDriver* driver;

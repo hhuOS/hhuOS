@@ -42,6 +42,13 @@ int Kernel::Usb::Driver::KernelKbdDriver::initialize(){
     dev_found = u.add_driver((UsbDriver*)driver);
     if(dev_found < 0) return -1;
 
+    return 1;
+}
+
+int Kernel::Usb::Driver::KernelKbdDriver::submit(){
+    Kernel::UsbService& u = Kernel::System::getService<Kernel::UsbService>();
+
+    KeyBoardDriver* kbd_driver = this->driver;
     UsbDev* dev = kbd_driver->dev.usb_dev;
     if(dev->set_idle(dev, kbd_driver->dev.interface) < 0) return -1;
     kbd_driver->trigger_led_report(kbd_driver);
