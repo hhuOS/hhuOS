@@ -81,10 +81,10 @@ public:
     void writeWord(uint16_t value) const;
 
     /**
-     * Write a byte to this TransferMode-port this with an offset to the address.
+     * Write a word to this TransferMode-port this with an offset to the address.
      *
      * @param offset Offset to port address
-     * @param value 8-bit value to write
+     * @param value 16-bit value to write
      */
     void writeWord(uint16_t offset, uint16_t value) const;
 
