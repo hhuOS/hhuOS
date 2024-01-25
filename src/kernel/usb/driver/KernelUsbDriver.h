@@ -13,6 +13,8 @@ public:
 
     virtual int initialize() = 0;
 
+    virtual int submit() = 0;
+
     char* getName();
 
 private:
