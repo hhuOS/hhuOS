@@ -89,6 +89,12 @@
 #include "lib/util/hardware/SmBios.h"
 #include "device/sound/soundblaster/SoundBlaster.h"
 #include "lib/util/graphic/Ansi.h"
+#include "kernel/service/UsbService.h"
+#include "kernel/usb/hid/KeyBoardNode.h"
+#include "kernel/usb/hid/MouseNode.h"
+#include "kernel/usb/driver/KernelKbdDriver.h"
+#include "kernel/usb/driver/KernelMouseDriver.h"
+#include "kernel/usb/driver/KernelUsbDriver.h"
 
 namespace Device {
 class Machine;
@@ -138,7 +144,8 @@ void GatesOfHell::enter() {
         Kernel::Logger::addOutputStream(*terminalLogStream);
     }
 
-    initializePs2Devices();
+    //initializePs2Devices(); // migrate to usb
+    initializeUsb();
 
     initializeNetwork();
 
@@ -495,6 +502,38 @@ void GatesOfHell::initializeSound() {
 
     if (Device::SoundBlaster::isAvailable()) {
         Device::SoundBlaster::initialize();
+    }
+}
+
+void GatesOfHell::initializeUsb(){
+    int kbd_status = 0, mouse_status = 0;
+    Kernel::System::registerService(Kernel::UsbService::SERVICE_ID, new Kernel::UsbService());
+    Kernel::UsbService& usb_service = Kernel::System::getService<Kernel::UsbService>();
+
+    usb_service.create_usb_fs();
+
+    Kernel::Usb::Driver::KernelKbdDriver* k_driver = new Kernel::Usb::Driver::KernelKbdDriver("keyboard");
+    Kernel::Usb::Driver::KernelMouseDriver* m_driver = new Kernel::Usb::Driver::KernelMouseDriver("mouse");
+
+    if(!k_driver->initialize()){
+        log.error("Error creating kbd driver");
+    }
+
+    if(!m_driver->initialize()){
+        log.error("Error creating mouse driver");
+    }
+
+    Kernel::Usb::KeyBoardNode* kbd_node = new Kernel::Usb::KeyBoardNode();
+    Kernel::Usb::MouseNode* mouse_node = new Kernel::Usb::MouseNode();
+
+    kbd_status = kbd_node->add_file_node();
+    mouse_status = mouse_node->add_file_node();
+
+    if(kbd_status == -1){
+        log.error("Error creating kbd node");
+    }
+    if(mouse_status == -1){
+        log.error("Error creating mouse node");
     }
 }
 

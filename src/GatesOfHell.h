@@ -84,6 +84,8 @@ private:
 
     static void initializeSound();
 
+    static void initializeUsb();
+
     static void mountDevices();
 
     static void printBanner();
