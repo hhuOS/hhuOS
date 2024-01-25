@@ -58,7 +58,7 @@ enum InterruptVector : uint8_t {
     RTC = 40,
     FREE1 = 41,
     FREE2 = 42,
-    FREE3 = 43,
+    UHCI = 43,
     MOUSE = 44,
     FPU = 45,
     PRIMARY_ATA = 46,
