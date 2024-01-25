@@ -26,6 +26,7 @@
 #include "lib/util/io/key/Key.h"
 #include "lib/util/io/stream/FileOutputStream.h"
 #include "lib/util/io/stream/PrintStream.h"
+#include "lib/util/io/key/InputEvents.h"
 
 namespace Util::Graphic {
 
@@ -487,6 +488,51 @@ Terminal::KeyboardRunnable::KeyboardRunnable(Terminal &terminal) : terminal(term
 void Terminal::KeyboardRunnable::run() {
     auto keyboardStream = Io::FileInputStream("/device/keyboard");
     auto keyDecoder = Io::KeyDecoder();
+
+    #ifdef KEY_CODE_USB
+    
+    int16_t modifiers = keyboardStream.read();
+    int16_t keytype   = keyboardStream.read();
+    int16_t keycode   = keyboardStream.read();
+
+    for(;;){
+        keyDecoder.parseUsbCodes(modifiers, (uint8_t)Io::KeyDecoder::KEY_MODIFIER);
+        keyDecoder.parseUsbCodes(keytype, (uint8_t)Io::KeyDecoder::KEY_TYPE);
+        keyDecoder.parseUsbCodes(keycode, (uint8_t)Io::KeyDecoder::KEY_CODE);
+
+        auto key = keyDecoder.getCurrentKey();
+
+        if(key.isPressed()){
+            auto c = key.getAscii();
+            if (c == 0) {
+                auto scan_code = key.getScancode();
+
+                if(scan_code == KEY_UP_ARROW)
+                    terminal.outputStream.write(reinterpret_cast<const uint8_t *>("\u001b[1A"), 0, 4);
+                else if(scan_code == KEY_DOWN_ARROW)
+                    terminal.outputStream.write(reinterpret_cast<const uint8_t *>("\u001b[1B"), 0, 4);
+                else if(scan_code == KEY_RIGHT_ARROW)
+                    terminal.outputStream.write(reinterpret_cast<const uint8_t *>("\u001b[1C"), 0, 4);
+                else if(scan_code == KEY_LEFT_ARROW)
+                    terminal.outputStream.write(reinterpret_cast<const uint8_t *>("\u001b[1D"), 0, 4);                
+            } else {
+                if (key.getCtrl()) {
+                    c &= 0x1f;
+                }
+
+                terminal.outputStream.write(c);
+            }
+        }
+
+        keyDecoder.defaulting();
+
+        modifiers = keyboardStream.read();
+        keytype   = keyboardStream.read();
+        keycode   = keyboardStream.read();
+    }
+
+    #else
+
     int16_t scancode = keyboardStream.read();
 
     while (scancode != -1) {
@@ -523,6 +569,8 @@ void Terminal::KeyboardRunnable::run() {
 
         scancode = keyboardStream.read();
     }
+
+    #endif
 }
 
 }
