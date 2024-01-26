@@ -512,16 +512,17 @@ void GatesOfHell::initializeUsb(){
 
     usb_service.create_usb_fs();
 
-    Kernel::Usb::Driver::KernelKbdDriver* k_driver = new Kernel::Usb::Driver::KernelKbdDriver("keyboard");
-    Kernel::Usb::Driver::KernelMouseDriver* m_driver = new Kernel::Usb::Driver::KernelMouseDriver("mouse");
+    Kernel::Usb::Driver::KernelUsbDriver* k_driver = new Kernel::Usb::Driver::KernelKbdDriver("keyboard");
+    Kernel::Usb::Driver::KernelUsbDriver* m_driver = new Kernel::Usb::Driver::KernelMouseDriver("mouse");
 
-    if((kbd_status = k_driver->initialize()) == -1){
-        log.error("Error creating kbd driver");
-    }
+    // we are still getting some deadlocks in here ??? -> fix this
+    // when starting some transfers we are not allowed to use locks !!! -> when hardware interrupts arrive this causes the deadlock
 
-    if((mouse_status = m_driver->initialize()) == -1){
-        log.error("Error creating mouse driver");
-    }
+    kbd_status = k_driver->initialize();
+    mouse_status = m_driver->initialize();
+
+    if(kbd_status == -1) log.error("Error creating kbd driver");
+    if(mouse_status == -1) log.error("Error creating mouse driver");
 
     if(kbd_status) k_driver->submit();
     if(mouse_status) m_driver->submit();
