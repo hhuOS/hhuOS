@@ -218,6 +218,7 @@ void key_board_report_callback(UsbDev *dev, uint32_t status, void *data) {
   m->unmap(m, (uint32_t)(uintptr_t)(uint8_t*)data);
 }
 
+// this method should only be callable inside the interrupt context !!!
 void trigger_led_report(KeyBoardDriver *driver) {
   uint8_t led_state = driver->current_led_state;
 
@@ -537,8 +538,8 @@ uint16_t RAW_KEY_U = 24;
 uint16_t RAW_KEY_V = 25;
 uint16_t RAW_KEY_W = 26;
 uint16_t RAW_KEY_X = 27;
-uint16_t RAW_KEY_Y = 28;
-uint16_t RAW_KEY_Z = 29;
+uint16_t RAW_KEY_Y = 29;
+uint16_t RAW_KEY_Z = 28;
 uint16_t RAW_KEY_1 = 30;
 uint16_t RAW_KEY_2 = 31;
 uint16_t RAW_KEY_3 = 32;
