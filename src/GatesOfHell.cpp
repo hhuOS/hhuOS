@@ -510,8 +510,6 @@ void GatesOfHell::initializeUsb(){
     Kernel::System::registerService(Kernel::UsbService::SERVICE_ID, new Kernel::UsbService());
     Kernel::UsbService& usb_service = Kernel::System::getService<Kernel::UsbService>();
 
-    usb_service.create_usb_fs();
-
     Kernel::Usb::Driver::KernelUsbDriver* k_driver = new Kernel::Usb::Driver::KernelKbdDriver("keyboard");
     Kernel::Usb::Driver::KernelUsbDriver* m_driver = new Kernel::Usb::Driver::KernelMouseDriver("mouse");
 
@@ -520,6 +518,8 @@ void GatesOfHell::initializeUsb(){
 
     kbd_status = k_driver->initialize();
     mouse_status = m_driver->initialize();
+
+    usb_service.create_usb_fs();
 
     if(kbd_status == -1) log.error("Error creating kbd driver");
     if(mouse_status == -1) log.error("Error creating mouse driver");
