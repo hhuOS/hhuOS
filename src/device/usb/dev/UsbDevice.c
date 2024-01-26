@@ -684,7 +684,7 @@ int set_configuration(UsbDev *dev, uint8_t configuration) {
   return 1;
 }
 
-int usb_dev_interface_lock(UsbDev *dev, Interface *interface) {
+int usb_dev_interface_lock(UsbDev *dev, Interface *interface, UsbDriver* driver) {
   int interface_count = dev->active_config->config_desc.bNumInterfaces;
   Interface **interfaces = dev->active_config->interfaces;
 
@@ -703,6 +703,7 @@ int usb_dev_interface_lock(UsbDev *dev, Interface *interface) {
     return E_INTERFACE_IN_USE;
 
   interface->active = 1;
+  interface->driver = driver;
 
   //dev->device_mutex->release_c(dev->device_mutex);
 
