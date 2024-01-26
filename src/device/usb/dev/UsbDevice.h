@@ -84,7 +84,7 @@ struct UsbDev {
                        void (*callback_function)(struct UsbDev* dev,
                                                  uint32_t status, void *data));
 
-  int (*usb_dev_interface_lock)(struct UsbDev *dev, Interface *interface);
+  int (*usb_dev_interface_lock)(struct UsbDev *dev, Interface *interface, void* driver);
   void (*usb_dev_free_interface)(struct UsbDev *dev, Interface *interface);
 
   void (*request_callback)(struct UsbDev *dev, uint32_t status, void *data);
@@ -184,7 +184,7 @@ void usb_dev_bulk(struct UsbDev *dev, Interface *interface, unsigned int pipe,
                   uint8_t priority, void *data, unsigned int len,
                   callback_function callback);
 
-int usb_dev_interface_lock(UsbDev *dev, Interface *interface);
+int usb_dev_interface_lock(UsbDev *dev, Interface *interface, void* driver);
 void usb_dev_free_interface(UsbDev *dev, Interface *interface);
 
 void request_callback(struct UsbDev *dev, uint32_t status, void *data);

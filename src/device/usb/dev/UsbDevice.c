@@ -684,7 +684,7 @@ int set_configuration(UsbDev *dev, uint8_t configuration) {
   return 1;
 }
 
-int usb_dev_interface_lock(UsbDev *dev, Interface *interface, UsbDriver* driver) {
+int usb_dev_interface_lock(UsbDev *dev, Interface *interface, void* driver) {
   int interface_count = dev->active_config->config_desc.bNumInterfaces;
   Interface **interfaces = dev->active_config->interfaces;
 

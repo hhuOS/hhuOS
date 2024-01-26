@@ -1141,7 +1141,7 @@ int register_driver_uhci(UsbController *controller, UsbDriver *driver) {
           continue;
         }
 
-        int status = dev->usb_dev_interface_lock(dev, interface);
+        int status = dev->usb_dev_interface_lock(dev, interface, driver);
 
         if ((status == E_INTERFACE_IN_USE) || (status == E_INTERFACE_INV)) {
           continue;
