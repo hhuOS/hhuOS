@@ -119,146 +119,165 @@ void Kernel::UsbService::create_usb_fs(){
     list_element* l_e_driver = controller->head_driver.l_e;
 
     while(l_e_dev != (void*)0){
-      Filesystem::Memory::MemoryDirectoryNode* dev_node = new Filesystem::Memory::MemoryDirectoryNode(Util::String::format("dev%u", dev_n++));
-      device_node->addChild(dev_node);
       UsbDev* dev = usb_service_c->get_dev(usb_service_c, l_e_dev);
-      
-      Util::String dev_temp;
-
-      temp = Util::String::format("%u", dev->speed);
-      write_to_node(dev_node, temp, "speed");
-
-      temp = Util::String::format("%u", dev->port);
-      write_to_node(dev_node, temp, "port");
-      
-      temp = Util::String::format("%u", dev->max_packet_size);
-      write_to_node(dev_node, temp, "max-packet-size");
-
-      temp = Util::String::format("0x%u", dev->lang_id);
-      write_to_node(dev_node, temp, "lang_id");
-      
-      temp = Util::String("manufacturer");
-      dev_temp = Util::String(dev->manufacturer);
-      write_to_node(dev_node, dev_temp, temp);
-      
-      temp = Util::String("product");
-      dev_temp = Util::String(dev->product);
-      write_to_node(dev_node, dev_temp, temp);
-    
-      temp = Util::String("serial-number");
-      dev_temp = Util::String(dev->serial_number);
-      write_to_node(dev_node, dev_temp, temp);
-
-      DeviceDescriptor d_desc = dev->device_desc;
-
-      temp = Util::String::format("0x%u", d_desc.bcdUSB);
-      write_to_node(dev_node, temp, "bcdUSB");
-
-      temp = Util::String::format("%u", d_desc.bDeviceClass);
-      write_to_node(dev_node, temp, "bDeviceClass");
-      
-      temp = Util::String::format("%u", d_desc.bDeviceSubClass);
-      write_to_node(dev_node, temp, "bDeviceSubClass");
-
-      temp = Util::String::format("%u", d_desc.bDeviceProtocol);
-      write_to_node(dev_node, temp, "bDeviceProtocol");
-
-      temp = Util::String::format("0x%u", d_desc.idVendor);
-      write_to_node(dev_node, temp, "idVendor");
-      
-      temp = Util::String::format("0x%u", d_desc.idProduct);
-      write_to_node(dev_node, temp, "idProduct");
-
-      temp = Util::String::format("0x%u", d_desc.bcdDevice);
-      write_to_node(dev_node, temp, "bcdDevice");
-
-      temp = Util::String::format("%u", d_desc.bNumConfigurations);
-      write_to_node(dev_node, temp, "bNumConfigurations");
-      
-      int num_interfaces = dev->active_config->config_desc.bNumInterfaces;
-      Interface** interfaces = dev->active_config->interfaces;
-
-      Util::String itf_temp;
-      for(int i = 0; i < num_interfaces; i++){
-        // config.interface
-        Interface* itf = interfaces[i];
-        uint8_t config_value = dev->active_config->config_desc.bConfigurationValue;
-        uint8_t itf_value    = itf->active_interface->alternate_interface_desc.bInterfaceNumber;
-        Util::String i_dev = Util::String::format("%u.%u", config_value, itf_value);
-
-        Filesystem::Memory::MemoryDirectoryNode* itf_node = new Filesystem::Memory::MemoryDirectoryNode(i_dev);
-
-        dev_node->addChild(itf_node);
-
-        temp = Util::String::format("%u", itf->active);
-        write_to_node(itf_node, temp, "active");
-
-        temp = Util::String("driver");
-        itf_temp = Util::String(((UsbDriver*)itf->driver)->name);
-        write_to_node(itf_node, itf_temp, temp);
-
-        temp = Util::String("interface-description");
-        itf_temp = Util::String(itf->interface_description);
-        write_to_node(itf_node, itf_temp, temp);
-
-        InterfaceDescriptor i_desc = itf->active_interface->alternate_interface_desc;
-
-        temp = Util::String::format("%u", i_desc.bInterfaceNumber);
-        write_to_node(itf_node, temp, "bInterfaceNumber");
-        
-        temp = Util::String::format("%u", i_desc.bAlternateSetting);
-        write_to_node(itf_node, temp, "bAlternateSetting");
-
-        temp = Util::String::format("%u", i_desc.bNumEndpoints);
-        write_to_node(itf_node, temp, "bNumEndpoints");
-
-        temp = Util::String::format("%u", i_desc.bInterfaceClass);
-        write_to_node(itf_node, temp, "bInterfaceClass");
-        
-        temp = Util::String::format("%u", i_desc.bInterfaceSubClass);
-        write_to_node(itf_node, temp, "bInterfaceSubClass");
-
-        temp = Util::String::format("%u", i_desc.bInterfaceProtocol);
-        write_to_node(itf_node, temp, "bInterfaceProtocol");
-      }
+      handle_fs_device(dev, dev_n, device_node);
 
       l_e_dev = l_e_dev->l_e;
+      dev_n++;
     }
 
     while(l_e_driver != (void*)0){
-      Util::String c_driver = Util::String::format("driver%u",driver_n++);
-      Filesystem::Memory::MemoryDirectoryNode* dr_node = new Filesystem::Memory::MemoryDirectoryNode(c_driver);
-
-      Util::String driver_temp;
       UsbDriver* driver = usb_service_c->get_driver(usb_service_c, l_e_driver);
-    
-      driver_node->addChild(dr_node);
-
-      temp = Util::String("name");
-      driver_temp = Util::String(driver->name);
-      write_to_node(dr_node, driver_temp, temp);
-
-      l_e_dev = controller->head_dev.l_e;
-
-      while(l_e_dev != (void*)0){
-        UsbDev* dev = usb_service_c->get_dev(usb_service_c, l_e_dev);
-
-        Util::String dev_info = Util::String(dev->manufacturer);
-     
-        dev_info = dev_info.join("\n", {Util::String(dev->product)});
-
-        temp = Util::String("device");
-        write_to_node(dr_node, dev_info, temp);
-
-        l_e_dev = l_e_dev->l_e;
-      }
+      handle_fs_driver(driver, driver_n, driver_node, controller);
 
       l_e_driver = l_e_driver->l_e;
+      driver_n++;
     }
 
     l_e_controller = l_e_controller->l_e;
   }
 
+}
+
+void Kernel::UsbService::handle_fs_interface(UsbDev* dev, Filesystem::Memory::MemoryDirectoryNode* dev_node){
+  int num_interfaces = dev->active_config->config_desc.bNumInterfaces;
+  Interface** interfaces = dev->active_config->interfaces;
+
+  Util::String itf_temp;
+  Util::String temp;
+
+  for(int i = 0; i < num_interfaces; i++){
+    // config.interface
+    Interface* itf = interfaces[i];
+    uint8_t config_value = dev->active_config->config_desc.bConfigurationValue;
+    uint8_t itf_value    = itf->active_interface->alternate_interface_desc.bInterfaceNumber;
+    Util::String i_dev = Util::String::format("%u.%u", config_value, itf_value);
+
+    Filesystem::Memory::MemoryDirectoryNode* itf_node = new Filesystem::Memory::MemoryDirectoryNode(i_dev);
+
+    dev_node->addChild(itf_node);
+
+    temp = Util::String::format("%u", itf->active);
+    write_to_node(itf_node, temp, "active");
+
+    temp = Util::String("driver");
+    itf_temp = Util::String(((UsbDriver*)itf->driver)->name);
+    write_to_node(itf_node, itf_temp, temp);
+
+    temp = Util::String("interface-description");
+    itf_temp = Util::String(itf->interface_description);
+    write_to_node(itf_node, itf_temp, temp);
+
+    InterfaceDescriptor i_desc = itf->active_interface->alternate_interface_desc;
+
+    temp = Util::String::format("%u", i_desc.bInterfaceNumber);
+    write_to_node(itf_node, temp, "bInterfaceNumber");
+    
+    temp = Util::String::format("%u", i_desc.bAlternateSetting);
+    write_to_node(itf_node, temp, "bAlternateSetting");
+
+    temp = Util::String::format("%u", i_desc.bNumEndpoints);
+    write_to_node(itf_node, temp, "bNumEndpoints");
+
+    temp = Util::String::format("%u", i_desc.bInterfaceClass);
+    write_to_node(itf_node, temp, "bInterfaceClass");
+    
+    temp = Util::String::format("%u", i_desc.bInterfaceSubClass);
+    write_to_node(itf_node, temp, "bInterfaceSubClass");
+
+    temp = Util::String::format("%u", i_desc.bInterfaceProtocol);
+    write_to_node(itf_node, temp, "bInterfaceProtocol");
+  }
+}
+
+void Kernel::UsbService::handle_fs_driver(UsbDriver* driver, uint8_t driver_n, Filesystem::Memory::MemoryDirectoryNode* driver_node, 
+                                          UsbController* controller){
+  Util::String driver_temp;
+  list_element* l_e_dev;
+  Util::String temp = Util::String("name");
+  driver_temp = Util::String(driver->name);
+
+  Util::String c_driver = Util::String::format("driver%u",driver_n);
+  Filesystem::Memory::MemoryDirectoryNode* dr_node = new Filesystem::Memory::MemoryDirectoryNode(c_driver);
+
+  driver_node->addChild(dr_node);
+
+  write_to_node(dr_node, driver_temp, temp);
+
+  l_e_dev = controller->head_dev.l_e;
+
+  while(l_e_dev != (void*)0){
+    UsbDev* dev = usb_service_c->get_dev(usb_service_c, l_e_dev);
+
+    Util::String dev_info = Util::String(dev->manufacturer);
+  
+    dev_info = dev_info.join("\n", {Util::String(dev->product)});
+
+    temp = Util::String("device");
+    write_to_node(dr_node, dev_info, temp);
+
+    l_e_dev = l_e_dev->l_e;
+  }
+}
+
+void Kernel::UsbService::handle_fs_device(UsbDev* dev, uint8_t dev_n, Filesystem::Memory::MemoryDirectoryNode* device_node){
+  Util::String dev_temp;
+  Util::String temp;
+
+  Filesystem::Memory::MemoryDirectoryNode* dev_node = new Filesystem::Memory::MemoryDirectoryNode(Util::String::format("dev%u", dev_n));
+  device_node->addChild(dev_node);
+
+  temp = Util::String::format("%u", dev->speed);
+  write_to_node(dev_node, temp, "speed");
+
+  temp = Util::String::format("%u", dev->port);
+  write_to_node(dev_node, temp, "port");
+  
+  temp = Util::String::format("%u", dev->max_packet_size);
+  write_to_node(dev_node, temp, "max-packet-size");
+
+  temp = Util::String::format("0x%u", dev->lang_id);
+  write_to_node(dev_node, temp, "lang_id");
+  
+  temp = Util::String("manufacturer");
+  dev_temp = Util::String(dev->manufacturer);
+  write_to_node(dev_node, dev_temp, temp);
+  
+  temp = Util::String("product");
+  dev_temp = Util::String(dev->product);
+  write_to_node(dev_node, dev_temp, temp);
+
+  temp = Util::String("serial-number");
+  dev_temp = Util::String(dev->serial_number);
+  write_to_node(dev_node, dev_temp, temp);
+
+  DeviceDescriptor d_desc = dev->device_desc;
+
+  temp = Util::String::format("0x%u", d_desc.bcdUSB);
+  write_to_node(dev_node, temp, "bcdUSB");
+
+  temp = Util::String::format("%u", d_desc.bDeviceClass);
+  write_to_node(dev_node, temp, "bDeviceClass");
+  
+  temp = Util::String::format("%u", d_desc.bDeviceSubClass);
+  write_to_node(dev_node, temp, "bDeviceSubClass");
+
+  temp = Util::String::format("%u", d_desc.bDeviceProtocol);
+  write_to_node(dev_node, temp, "bDeviceProtocol");
+
+  temp = Util::String::format("0x%u", d_desc.idVendor);
+  write_to_node(dev_node, temp, "idVendor");
+  
+  temp = Util::String::format("0x%u", d_desc.idProduct);
+  write_to_node(dev_node, temp, "idProduct");
+
+  temp = Util::String::format("0x%u", d_desc.bcdDevice);
+  write_to_node(dev_node, temp, "bcdDevice");
+
+  temp = Util::String::format("%u", d_desc.bNumConfigurations);
+  write_to_node(dev_node, temp, "bNumConfigurations");
+
+  handle_fs_interface(dev, dev_node);
 }
 
 void Kernel::UsbService::write_to_node(Filesystem::Memory::MemoryDirectoryNode* dev_node, Util::String& s, Util::String name){

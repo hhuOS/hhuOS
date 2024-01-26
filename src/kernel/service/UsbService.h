@@ -56,6 +56,11 @@ private:
   UsbService_C *usb_service_c;
   
   void write_to_node(Filesystem::Memory::MemoryDirectoryNode* dev_node, Util::String& s, Util::String name);
+  void handle_fs_interface(UsbDev* dev, Filesystem::Memory::MemoryDirectoryNode* dev_node);
+  void handle_fs_driver(UsbDriver* driver, uint8_t driver_n, Filesystem::Memory::MemoryDirectoryNode* driver_node,
+                        UsbController* controller);
+  void handle_fs_device(UsbDev* dev, uint8_t dev_n, Filesystem::Memory::MemoryDirectoryNode* device_node);
+
 };
 
 }; // namespace Kernel
