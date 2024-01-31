@@ -31,6 +31,9 @@
 //#define STATUS_DEBUG_ON //-> inspect status codes
 //#define PCI_DEBUG_ON //-> inspect PCI Room
 #define TRANSFER_MEASURE_ON //-> measures the time for a transfer
+//#define MEASURE_MS // -> measures in millis
+#define MEASURE_NS // -> measures in nano
+//#define MEASURE_MCS // -> measures in micro
 
 // time delay
 #define USB_TDRSTR 50

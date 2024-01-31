@@ -815,7 +815,13 @@ void insert_queue(_UHCI *uhci, QH *new_qh, TD *td,
   if((new_qh->flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_BULK ||
      (new_qh->flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_CONTROL){
     uint32_t* measure = (uint32_t*)m->allocateKernelMemory_c(m, sizeof(uint32_t), 0);
+    #if defined(MEASURE_MS)
     *measure = getSystemTimeInMilli();
+    #elif defined(MEASURE_NS)
+    *measure = getSystemTimeInNano();
+    #elif defined(MEASURE_MCS)
+    *measure = getSystemTimeInMicro();
+    #endif
     uhci->qh_measurement->put_c(uhci->qh_measurement, new_qh, measure);
   }
   #endif
@@ -1777,15 +1783,27 @@ uint32_t wait_poll(_UHCI *uhci, QH *process_qh) {
 
   if(td != (void*)0){ // transfer not sucessful
     status |= uhci->get_status(uhci, td);
+    uhci->controller_logger->error_c(uhci->controller_logger, "transfer was not sucessfult ! error mask %u", status);
   }
 
   #if defined(TRANSFER_MEASURE_ON)
   uint32_t* i_time = (uint32_t*)uhci->qh_measurement->get_c(uhci->qh_measurement, process_qh);
-  uint32_t transfer_duration_in_ms = getSystemTimeInMilli() - *i_time;
-  m->freeKernelMemory_c(m, i_time, 0);
-  uhci->controller_logger->info_c(uhci->controller_logger, "Control Transfer Duration in ms: %u", transfer_duration_in_ms);
+  uint32_t transfer_duration;
+  char* measure_msg;
+  #if defined(MEASURE_MS)
+  measure_msg = "Control Transfer Duration in ms: %u";
+  transfer_duration = getSystemTimeInMilli() - *i_time;
+  #elif defined(MEASURE_NS)
+  measure_msg = "Control Transfer Duration in ns: %u";
+  transfer_duration = getSystemTimeInNano() - *i_time;
+  #elif defined(MEASURE_MCS)
+  measure_msg = "Control Transfer Duration in micro: %u";
+  transfer_duration = getSystemTimeInMicro() - *i_time;
   #endif
-
+  m->freeKernelMemory_c(m, i_time, 0);
+  uhci->controller_logger->info_c(uhci->controller_logger, measure_msg, transfer_duration);
+  #endif
+  
   return status;
 }
 
@@ -1998,10 +2016,21 @@ void traverse_skeleton(_UHCI *uhci, QH *entry) {
     #if defined(TRANSFER_MEASURE_ON)
     if((entry->flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_BULK ||
        (entry->flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_CONTROL){
-      uint32_t* initial_time = (uint32_t*)uhci->qh_measurement->get_c(uhci->qh_measurement, entry);
-      uint32_t transfer_duration_in_ms = getSystemTimeInMilli() - *initial_time;
-      mem_service->freeKernelMemory_c(mem_service, initial_time, 0);
-      uhci->controller_logger->info_c(uhci->controller_logger, "Control Transfer Duration in ms: %u", transfer_duration_in_ms);
+      uint32_t* i_time = (uint32_t*)uhci->qh_measurement->get_c(uhci->qh_measurement, entry);
+      uint32_t transfer_duration;
+      char* measure_msg;
+      #if defined(MEASURE_MS)
+      measure_msg = "Control Transfer Duration in ms: %u";
+      transfer_duration = getSystemTimeInMilli() - *i_time;
+      #elif defined(MEASURE_NS)
+      measure_msg = "Control Transfer Duration in ns: %u";
+      transfer_duration = getSystemTimeInNano() - *i_time;
+      #elif defined(MEASURE_MCS)
+      measure_msg = "Control Transfer Duration in micro: %u";
+      transfer_duration = getSystemTimeInMicro() - *i_time;
+      #endif
+      mem_service->freeKernelMemory_c(mem_service, i_time, 0);
+      uhci->controller_logger->info_c(uhci->controller_logger, measure_msg, transfer_duration);
     }
     #endif
 
