@@ -89,6 +89,12 @@ struct QH_Device_Request_Map {
   void (*new_map)(struct QH_Device_Request_Map *m, const char *map_description);
 };
 
+struct QH_Measurement_Map{
+  struct SuperMap super;
+
+  void (*new_map)(struct QH_Measurement_Map* m, const char* map_description);
+};
+
 typedef struct QH_Callback_Function_Map QH_Callback_Function_Map;
 typedef struct QH_TD_Map QH_TD_Map;
 typedef struct Register_Map Register_Map;
@@ -100,6 +106,7 @@ typedef struct Interface_Device_Map Interface_Device_Map;
 typedef struct Address_Map Address_Map;
 typedef struct Address_TD_Map Address_TD_Map;
 typedef struct QH_Device_Request_Map QH_Device_Request_Map;
+typedef struct QH_Measurement_Map QH_Measurement_Map;
 
 #ifdef __cplusplus
 extern "C" {
@@ -173,6 +180,13 @@ void *get_c_qh_device_request(struct SuperMap *m, void *key);
 int contains_c_qh_device_request(struct SuperMap *m, void *key);
 void put_c_qh_device_request(struct SuperMap *m, void *key, void *value);
 void *remove_c_qh_device_request(struct SuperMap *m, void *key);
+
+void newQH_Measuremnt_Map(struct QH_Measurement_Map *map,
+                             const char *map_description);
+void *get_c_qh_measurement(struct SuperMap *m, void *key);
+int contains_c_qh_measurement(struct SuperMap *m, void *key);
+void put_c_qh_measurement(struct SuperMap *m, void *key, void *value);
+void *remove_c_qh_measurement(struct SuperMap *m, void *key);
 
 #ifdef __cplusplus
 }

@@ -374,3 +374,38 @@ void *remove_c_qh_device_request(struct SuperMap *m, void *key) {
   return ((Util::Map<QH *, UsbDeviceRequest *> *)m->map_pointer)
       ->remove((QH *)key);
 }
+
+void newQH_Measuremnt_Map(struct QH_Measurement_Map *map,
+                             const char *map_description) {
+  map->super.get_c = &get_c_qh_measurement;
+  map->super.contains_c = &contains_c_qh_measurement;
+  map->super.put_c = &put_c_qh_measurement;
+  map->super.remove_c = &remove_c_qh_measurement;
+  map->super.new_super_map = &new_super_map;
+
+  void *map_pointer = (Map_C) new Util::HashMap<QH *, uint32_t*>();
+  map->super.new_super_map(&map->super, map_description, map_pointer);
+}
+
+void *get_c_qh_measurement(struct SuperMap *m, void *key) {
+  if (((Util::Map<QH *, uint32_t*> *)m->map_pointer)
+          ->containsKey((QH *)key))
+    return ((Util::Map<QH *, uint32_t *> *)m->map_pointer)
+        ->get((QH *)key);
+  return (void *)0;
+}
+
+int contains_c_qh_measurement(struct SuperMap *m, void *key) {
+  return (int)((Util::Map<QH *, uint32_t *> *)m->map_pointer)
+      ->containsKey((QH *)key);
+}
+
+void put_c_qh_measurement(struct SuperMap *m, void *key, void *value) {
+  ((Util::Map<QH *, uint32_t *> *)m->map_pointer)
+      ->put((QH *)key, (uint32_t *)value);
+}
+
+void *remove_c_qh_measurement(struct SuperMap *m, void *key) {
+  return ((Util::Map<QH *, uint32_t *> *)m->map_pointer)
+      ->remove((QH *)key);
+}
