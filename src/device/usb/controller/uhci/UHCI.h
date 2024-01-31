@@ -30,6 +30,7 @@
 //#define REGISTER_DEBUG_ON -> inspect register
 //#define STATUS_DEBUG_ON -> inspect status codes
 //#define PCI_DEBUG_ON -> inspect PCI Room
+//#define TRANSFER_MEASURE_ON -> measures the time for a transfer
 
 // time delay
 #define USB_TDRSTR 50
@@ -170,6 +171,10 @@ struct _UHCI {
   SuperMap *qh_data_map;
   SuperMap *qh_dev_map;
   SuperMap *qh_device_request_map;
+
+  #if defined(TRANSFER_MEASURE_ON)
+  SuperMap * qh_measurement;
+  #endif
 
   uint8_t *map_io_buffer_qh; // 1 page
   uint8_t *map_io_buffer_td; // 2 page

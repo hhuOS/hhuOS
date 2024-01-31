@@ -413,6 +413,13 @@ void init_maps(_UHCI *uhci, MemoryService_C *m) {
   uhci->qh_data_map = (SuperMap *)qh_data_map;
   uhci->qh_dev_map = (SuperMap *)qh_device_map;
   uhci->qh_device_request_map = (SuperMap *)device_request_map;
+
+  #if defined(TRANSFER_MEASURE_ON)
+  QH_Measurement_Map* qh_measurement = m->allocateMemory_c(m, sizeof(QH_Measurement_Map), 0);
+  qh_measurement->new_map = &newQH_Measuremnt_Map;
+  qh_measurement->new_map(qh_measurement, "Map<QH*,uint32_t*>");
+  uhci->qh_measurement = (SuperMap*)qh_measurement;
+  #endif
 }
 
 void fill_maps(_UHCI *uhci) {
@@ -755,8 +762,6 @@ void free_td(_UHCI *uhci, TD *td) {
   }
 }
 
-// todo : fix potential error cause -> when inserting in the skeleton we 
-// should not interrupt the controller by 
 void insert_queue(_UHCI *uhci, QH *new_qh, TD *td,
                   uint16_t priority, enum QH_HEADS v) {
   MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
@@ -805,6 +810,16 @@ void insert_queue(_UHCI *uhci, QH *new_qh, TD *td,
   }
   new_qh->parent = (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, current));
   new_qh->flags |= QH_FLAG_IS_QH | QH_FLAG_IN | priority;
+
+  #if defined(TRANSFER_MEASURE_ON)
+  if(current->flags & QH_FLAG_TYPE_MASK == QH_FLAG_TYPE_BULK ||
+     current->flags & QH_FLAG_TYPE_MASK == QH_FLAG_TYPE_CONTROL){
+    uint32_t* measure = (uint32_t*)m->allocateKernelMemory_c(m, sizeof(uint32_t), 0);
+    *measure = getSystemTimeInMilli();
+    uhci->qh_measurement->put_c(uhci->qh_measurement, qh, measure);
+  }
+  #endif
+
   // adds to skeleton -> gets executed by controller !
   current->pyhsicalQHLP =
       ((uint32_t)(uintptr_t)(m->getPhysicalAddress(m, new_qh))) | QH_SELECT;
@@ -1764,6 +1779,13 @@ uint32_t wait_poll(_UHCI *uhci, QH *process_qh) {
     status |= uhci->get_status(uhci, td);
   }
 
+  #if defined(TRANSFER_MEASURE_ON)
+  uint32_t* initial_time = (uint32_t*)uhci->qh_measurement->get_c(uhci->qh_measurement, process_qh);
+  uint32_t transfer_duration_in_ms = getSystemTimeInMilli() - *initial_time;
+  m->freeKernelMemory_c(m, initial_time, 0);
+  uhci->controller_logger->info(uhci->controller_logger, "Control Transfer Duration in ms: %u", transfer_duration_in_ms);
+  #endif
+
   return status;
 }
 
@@ -1972,6 +1994,17 @@ void traverse_skeleton(_UHCI *uhci, QH *entry) {
   if (td == (void *)0) { // if null -> transmission was successful
     // uhci->inspect_QH(uhci, entry);
     // uhci->inspect_TD(uhci, td);
+
+    #if defined(TRANSFER_MEASURE_ON)
+    if(current->flags & QH_FLAG_TYPE_MASK == QH_FLAG_TYPE_BULK ||
+       current->flags & QH_FLAG_TYPE_MASK == QH_FLAG_TYPE_CONTROL){
+      uint32_t* initial_time = (uint32_t*)uhci->qh_measurement->get_c(uhci->qh_measurement, process_qh);
+      uint32_t transfer_duration_in_ms = getSystemTimeInMilli() - *initial_time;
+      m->freeKernelMemory_c(m, initial_time, 0);
+      uhci->controller_logger->info(uhci->controller_logger, "Control Transfer Duration in ms: %u", transfer_duration_in_ms);
+    }
+    #endif
+
     callback(dev, S_TRANSFER, data);
     retransmission_occured = uhci->retransmission(uhci, entry, td);
     if (!retransmission_occured) {
