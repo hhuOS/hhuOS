@@ -415,7 +415,7 @@ void init_maps(_UHCI *uhci, MemoryService_C *m) {
   uhci->qh_device_request_map = (SuperMap *)device_request_map;
 
   #if defined(TRANSFER_MEASURE_ON)
-  QH_Measurement_Map* qh_measurement = m->allocateMemory_c(m, sizeof(QH_Measurement_Map), 0);
+  QH_Measurement_Map* qh_measurement = m->allocateKernelMemory_c(m, sizeof(QH_Measurement_Map), 0);
   qh_measurement->new_map = &newQH_Measuremnt_Map;
   qh_measurement->new_map(qh_measurement, "Map<QH*,uint32_t*>");
   uhci->qh_measurement = (SuperMap*)qh_measurement;
@@ -812,11 +812,11 @@ void insert_queue(_UHCI *uhci, QH *new_qh, TD *td,
   new_qh->flags |= QH_FLAG_IS_QH | QH_FLAG_IN | priority;
 
   #if defined(TRANSFER_MEASURE_ON)
-  if(current->flags & QH_FLAG_TYPE_MASK == QH_FLAG_TYPE_BULK ||
-     current->flags & QH_FLAG_TYPE_MASK == QH_FLAG_TYPE_CONTROL){
+  if((new_qh->flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_BULK ||
+     (new_qh->flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_CONTROL){
     uint32_t* measure = (uint32_t*)m->allocateKernelMemory_c(m, sizeof(uint32_t), 0);
     *measure = getSystemTimeInMilli();
-    uhci->qh_measurement->put_c(uhci->qh_measurement, qh, measure);
+    uhci->qh_measurement->put_c(uhci->qh_measurement, new_qh, measure);
   }
   #endif
 
@@ -1780,10 +1780,10 @@ uint32_t wait_poll(_UHCI *uhci, QH *process_qh) {
   }
 
   #if defined(TRANSFER_MEASURE_ON)
-  uint32_t* initial_time = (uint32_t*)uhci->qh_measurement->get_c(uhci->qh_measurement, process_qh);
-  uint32_t transfer_duration_in_ms = getSystemTimeInMilli() - *initial_time;
-  m->freeKernelMemory_c(m, initial_time, 0);
-  uhci->controller_logger->info(uhci->controller_logger, "Control Transfer Duration in ms: %u", transfer_duration_in_ms);
+  uint32_t* i_time = (uint32_t*)uhci->qh_measurement->get_c(uhci->qh_measurement, process_qh);
+  uint32_t transfer_duration_in_ms = getSystemTimeInMilli() - *i_time;
+  m->freeKernelMemory_c(m, i_time, 0);
+  uhci->controller_logger->info_c(uhci->controller_logger, "Control Transfer Duration in ms: %u", transfer_duration_in_ms);
   #endif
 
   return status;
@@ -1996,12 +1996,12 @@ void traverse_skeleton(_UHCI *uhci, QH *entry) {
     // uhci->inspect_TD(uhci, td);
 
     #if defined(TRANSFER_MEASURE_ON)
-    if(current->flags & QH_FLAG_TYPE_MASK == QH_FLAG_TYPE_BULK ||
-       current->flags & QH_FLAG_TYPE_MASK == QH_FLAG_TYPE_CONTROL){
-      uint32_t* initial_time = (uint32_t*)uhci->qh_measurement->get_c(uhci->qh_measurement, process_qh);
+    if((entry->flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_BULK ||
+       (entry->flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_CONTROL){
+      uint32_t* initial_time = (uint32_t*)uhci->qh_measurement->get_c(uhci->qh_measurement, entry);
       uint32_t transfer_duration_in_ms = getSystemTimeInMilli() - *initial_time;
-      m->freeKernelMemory_c(m, initial_time, 0);
-      uhci->controller_logger->info(uhci->controller_logger, "Control Transfer Duration in ms: %u", transfer_duration_in_ms);
+      mem_service->freeKernelMemory_c(mem_service, initial_time, 0);
+      uhci->controller_logger->info_c(uhci->controller_logger, "Control Transfer Duration in ms: %u", transfer_duration_in_ms);
     }
     #endif
 

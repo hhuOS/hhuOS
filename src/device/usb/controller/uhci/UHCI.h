@@ -22,15 +22,15 @@
 // all debugs turned on
 //#define DEBUG_ON
 // only specfic debugs
-//#define TD_DEBUG_ON -> inspect TD
-//#define QH_DEBUG_ON -> inspect QH
-//#define TRANSFER_DEBUG_ON -> inspect whole TRANSFER
-//#define DEVICE_DEBUG_ON -> inspect dev
-//#define SKELETON_DEBUG_ON -> inspect skeleton when creating
-//#define REGISTER_DEBUG_ON -> inspect register
-//#define STATUS_DEBUG_ON -> inspect status codes
-//#define PCI_DEBUG_ON -> inspect PCI Room
-//#define TRANSFER_MEASURE_ON -> measures the time for a transfer
+//#define TD_DEBUG_ON //-> inspect TD
+//#define QH_DEBUG_ON //-> inspect QH
+//#define TRANSFER_DEBUG_ON //-> inspect whole TRANSFER
+//#define DEVICE_DEBUG_ON //-> inspect dev
+//#define SKELETON_DEBUG_ON //-> inspect skeleton when creating
+//#define REGISTER_DEBUG_ON //-> inspect register
+//#define STATUS_DEBUG_ON //-> inspect status codes
+//#define PCI_DEBUG_ON //-> inspect PCI Room
+#define TRANSFER_MEASURE_ON //-> measures the time for a transfer
 
 // time delay
 #define USB_TDRSTR 50
