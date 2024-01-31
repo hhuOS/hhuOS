@@ -10,6 +10,10 @@ extern "C"{
 
 uint32_t getSystemTimeInMilli();
 
+uint32_t getSystemTimeInMicro();
+
+uint32_t getSystemTimeInNano();
+
 uint32_t addMilis(uint32_t time_in_millis, uint32_t add_time_millis);
 
 #ifdef __cplusplus
