@@ -404,6 +404,8 @@ void init_device_functions(UsbDev *dev) {
   dev->handle_configuration = &handle_configuration;
   dev->handle_lang = &handle_lang;
   dev->handle_dev = &handle_dev;
+  dev->get_max_logic_unit_numbers = &get_max_logic_unit_numbers;
+  dev->reset_bulk_only = &reset_bulk_only;
 }
 
 
