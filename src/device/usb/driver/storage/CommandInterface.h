@@ -1,0 +1,153 @@
+#ifndef COMMAND_INTERFACE__INCLUDE
+#define COMMAND_INTERFACE__INCLUDE
+
+#include "stdint.h"
+
+#define CBW_SIGNATURE 0x43425355
+#define CSW_SIGNATURE 0x53425355
+
+#define FLAGS_IN 0x80
+#define FLAGS_OUT 0x00
+
+#define CBW_LEN 31
+#define CSW_LEN 13
+#define COMMAND_LEN 16
+
+struct CommandBlockWrapper {
+  uint32_t signature;
+  uint32_t tag;
+  uint32_t transfer_length;
+  uint8_t flags;
+  uint8_t lun;
+  uint8_t command_len;
+  uint8_t command[COMMAND_LEN]; // command data block consist of 16 bytes
+};
+
+struct CommandStatusWrapper {
+  uint32_t signature;
+  uint32_t tag;
+  uint32_t data_residue; // diff in data transfered -> sucess = 0
+  uint8_t status;
+};
+
+enum CommandCode {
+  REQUEST_SENSE = 0x03,
+  INQUIRY = 0x12,
+  READ_FORMAT_CAPACITIES = 0x23,
+  READ_CAPACITY_10 = 0x25,
+  READ_10 = 0x28,
+  WRITE_10 = 0x2A,
+  READ_16 = 0x88,
+  WRITE_16 = 0x8A,
+  READ_CAPACITY_16 = 0x9E,
+  REPORT_LUNS = 0xA0,
+  READ_12 = 0xA8,
+  WRITE_12 = 0xAA
+};
+
+enum InquiryData{
+  PERI_QUALIFIER,
+  PERI_DEVICE_TYPE,
+  RMB,
+  VERSION,
+  NORM_ACA,
+  HI_SUP,
+  RESPONSE_DATA_FORMAT,
+  ADDITIONAL_LEN,
+  SCCS,
+  ACC,
+  TPGS,
+  THREE_PC,
+  PROT,
+  RESV,
+  ENC_SERV,
+  VS,
+  MULTI_P,
+  ADDR_16,
+  WBUS_16,
+  SYNC_INQUIRY,
+  CMDN_QUE,
+  VENDOR_INFORMATION,
+  PRODUCT_INFORMATION,
+  PRODUCT_REVISION_LEVEL
+};
+
+enum CapacityDescriptorData{
+  NUMBER_OF_BLOCKS,
+  DESCRIPTOR_CODE,
+  BLOCK_LEN
+};
+
+enum RequestSenseData{
+  VALID,
+  ERROR_CODE,
+  FILE_MARK,
+  EOM,
+  ILI,
+  SENSE_RESV,
+  SENSE_KEY,
+  SENSE_INFORMATION,
+  ADDITIONAL_SENSE_LEN,
+  ADDITIONAL_SENSE_CODE,
+  ADDITIONAL_SENSE_CODE_QUALIFIER,
+  FIELD_REPLACEABLE_UNIT_CODE,
+  SENSE_KEY_SPECIFIC
+};
+
+enum ReadCapacityData__32_BIT{
+  LOGICAL_BLOCK_ADDRESS_32_BIT,
+  BLOCK_SIZE_IN_BYTES_32_BIT
+};
+
+enum ReadCapacityData__64_BIT{
+  LOGICAL_BLOCK_ADDRESS_64_BIT,
+  BLOCK_SIZE_IN_BYTES_64_BIT,
+  P_TYPE,
+  PROT_EN,
+  P_I_EXPONENT,
+  LBS,
+  LOWEST_BLOCK_ADDRESS,
+};
+
+struct InquiryCommandData {
+  uint8_t byte1;
+  uint8_t byte2;
+  uint8_t byte3;
+  uint8_t byte4;
+  uint8_t byte5;
+  uint8_t byte6;
+  uint8_t byte7;
+  uint8_t byte8;
+  uint8_t vendor_information[8];
+  uint8_t product_information[16];
+  uint8_t product_revision_level[4];
+} __attribute__((packed));
+
+struct CapacityListHeader {
+  uint8_t reserved1;
+  uint8_t reserved2;
+  uint8_t reserved3;
+  uint8_t capacity_len;
+  uint8_t capacity_descriptors[252];
+} __attribute__((packed));
+
+struct CapacityDescriptor {
+  uint32_t number_of_blocks;
+  uint8_t code;
+  uint8_t block_length_b1;
+  uint8_t block_length_b2;
+  uint8_t block_length_b3;
+} __attribute((packed));
+
+#define MAXIMUM_CAPACITY_1 0b01
+#define CURRENT_CAPACITY 0b10
+#define MAXIMUM_CAPACITY_2 0b11
+
+typedef struct InquiryCommandData InquiryCommandData;
+typedef struct CapacityListHeader CapacityListHeader;
+typedef struct CapacityDescriptor CapacityDescriptor;
+typedef struct CommandBlockWrapper CommandBlockWrapper;
+typedef struct CommandStatusWrapper CommandStatusWrapper;
+typedef enum CommandCode CommandCode;
+
+#endif
