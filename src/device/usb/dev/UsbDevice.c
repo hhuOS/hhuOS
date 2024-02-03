@@ -811,6 +811,43 @@ int set_idle(UsbDev *dev, Interface *interface) {
   return 1;
 }
 
+int reset_bulk_only(UsbDev* dev, Interface* interface){
+  if (!dev->contain_interface(dev, interface))
+    return -1;
+  
+  UsbDeviceRequest *request = dev->get_free_device_request(dev);
+
+  if (request == (void *)0)
+    return -1;
+
+  dev->request_build(
+    dev, request, HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_INTERFACE,
+    RESET_BULK_ONLY_DEVICE, 0, 0, 0, interface->active_interface->alternate_interface_desc.bInterfaceNumber,
+    0 
+  );
+  dev->request(dev, request, 0, PRIORITY_8, 0, &request_callback);
+
+  return 1;  
+}
+
+int get_max_logic_unit_numbers(UsbDev* dev, Interface* interface, uint8_t* data){
+  if (!dev->contain_interface(dev, interface))
+    return -1;
+  
+  UsbDeviceRequest *request = dev->get_free_device_request(dev);
+
+  if (request == (void *)0)
+    return -1;
+
+  dev->request_build(
+      dev, request, DEVICE_TO_HOST | TYPE_REQUEST_CLASS | RECIPIENT_INTERFACE, 
+      GET_MAX_LUN, 0, 0, 0, interface->active_interface->alternate_interface_desc.bInterfaceNumber,
+      1);
+  dev->request(dev, request, data, PRIORITY_8, 0, &request_callback);
+
+  return 1;      
+}
+
 // just support get descriptor, get configuration, get interface, get status,
 // set interface
 void usb_dev_control(UsbDev *dev, Interface *interface, unsigned int pipe,
@@ -837,7 +874,7 @@ void usb_dev_control(UsbDev *dev, Interface *interface, unsigned int pipe,
 
 void usb_dev_bulk(struct UsbDev *dev, Interface *interface, unsigned int pipe,
                   uint8_t priority, void *data, unsigned int len,
-                  callback_function callback) {
+                  callback_function callback, uint8_t flags) {
 
   if (!dev->contain_interface(dev, interface)) {
     callback(dev, E_INTERFACE_NOT_SUPPORTED, data);
@@ -850,7 +887,7 @@ void usb_dev_bulk(struct UsbDev *dev, Interface *interface, unsigned int pipe,
 
   for (int i = 0; i < endpoint_count; i++) {
     if (dev->is_pipe_buildable(endpoints[i], pipe)) {
-      ((UsbController*)dev->controller)->bulk_entry_point(dev, endpoints[i], data, len, priority, callback);
+      ((UsbController*)dev->controller)->bulk_entry_point(dev, endpoints[i], data, len, priority, callback, flags);
       return;
     }
   }

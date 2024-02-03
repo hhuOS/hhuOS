@@ -16,6 +16,8 @@
 #include "requests/UsbRequests.h"
 #include "data/UsbDev_Data.h"
 
+#define BULK_INITIAL_STATE 0x01
+
 struct UsbDev {
   uint8_t speed;
   uint8_t port;
@@ -82,7 +84,7 @@ struct UsbDev {
                        unsigned int pipe, uint8_t priority, void *data,
                        unsigned int len,
                        void (*callback_function)(struct UsbDev* dev,
-                                                 uint32_t status, void *data));
+                                                 uint32_t status, void *data), uint8_t flags);
 
   int (*usb_dev_interface_lock)(struct UsbDev *dev, Interface *interface, void* driver);
   void (*usb_dev_free_interface)(struct UsbDev *dev, Interface *interface);
@@ -182,7 +184,7 @@ void usb_dev_interrupt(UsbDev *dev, Interface *interface, unsigned int pipe,
                        uint16_t interval, callback_function callback);
 void usb_dev_bulk(struct UsbDev *dev, Interface *interface, unsigned int pipe,
                   uint8_t priority, void *data, unsigned int len,
-                  callback_function callback);
+                  callback_function callback, uint8_t flags);
 
 int usb_dev_interface_lock(UsbDev *dev, Interface *interface, void* driver);
 void usb_dev_free_interface(UsbDev *dev, Interface *interface);

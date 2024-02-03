@@ -116,8 +116,8 @@ enum BRequest_Class_AUDIO{
 };
 
 enum BRequest_Class_MASS_STORAGE{
-    BULK_ONLY_MASS_STORAGE_RESET = 0xFF,
-    GET_MAX_LOGIC_UNIT_NUMBER    = 0xFE
+    GET_MAX_LUN = 0xFE,
+    RESET_BULK_ONLY_DEVICE = 0xFF
 };
 
 enum BRequest_Class_PRINTER{
