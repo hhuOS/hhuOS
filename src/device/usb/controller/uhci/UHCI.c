@@ -1082,7 +1082,7 @@ void init_bulk_transfer(UsbController *controller, Interface *interface,
   }
 
   dev->usb_dev_bulk(dev, interface, pipe, (uint16_t)shifted_prio, data, len,
-                    callback);
+                    callback, 0);
 }
 
 int register_driver_uhci(UsbController *controller, UsbDriver *driver) {
@@ -1286,11 +1286,11 @@ int deregister_driver_uhci(UsbController *controller, UsbDriver *driver) {
 
 void bulk_entry_point_uhci(UsbDev *dev, Endpoint *endpoint, void *data,
                       unsigned int len, uint8_t priority,
-                      callback_function callback) {
+                      callback_function callback, uint8_t flags) {
   _UHCI *uhci_rcvry = (_UHCI*)container_of((UsbController*)dev->controller, _UHCI, super);
 
   uhci_rcvry->bulk_transfer(uhci_rcvry, dev, data, len, priority, endpoint,
-                            &build_interrupt_or_bulk, callback);
+                            &build_interrupt_or_bulk, callback, flags);
 }
 
 void control_entry_point_uhci(UsbDev *dev, UsbDeviceRequest *device_request,
@@ -1323,7 +1323,7 @@ void switch_configuration(_UHCI *uhci, UsbDev *dev, int configuration,
 
 UsbTransfer *build_interrupt_or_bulk(_UHCI *uhci, UsbDev *dev, void *data,
                                      Endpoint *e, unsigned int len,
-                                     const char *type) {
+                                     const char *type, uint8_t flags) {
   UsbPacket *prev = 0;
 
   UsbTransaction *prev_transaction = 0;
@@ -1363,7 +1363,7 @@ UsbTransfer *build_interrupt_or_bulk(_UHCI *uhci, UsbDev *dev, void *data,
                                  .address = dev->address,
                                  .packet_type = packet_type};
     prev = uhci->create_USB_Packet(uhci, dev, prev, token, dev->speed, start,
-                                   last_packet);
+                                   last_packet, flags);
     toggle ^= 1;
     count++;
     start += max_len;
@@ -1561,7 +1561,7 @@ UsbTransfer *build_control(_UHCI *uhci, UsbDev *dev,
                                .address = dev->address,
                                .packet_type = SETUP};
   head = uhci->create_USB_Packet(uhci, dev, 0, token, dev->speed,
-                                 device_request, 0);
+                                 device_request, 0, 0);
   setup_transaction->entry_packet = head;
   count++;
   prev = head;
@@ -1588,7 +1588,7 @@ UsbTransfer *build_control(_UHCI *uhci, UsbDev *dev,
                                  .address = dev->address,
                                  .packet_type = packet_type};
     prev =
-        uhci->create_USB_Packet(uhci, dev, prev, token, dev->speed, start, 0);
+        uhci->create_USB_Packet(uhci, dev, prev, token, dev->speed, start, 0, 0);
     count++;
     start += max_len;
     data_transaction->entry_packet = prev;
@@ -1608,7 +1608,7 @@ UsbTransfer *build_control(_UHCI *uhci, UsbDev *dev,
                                .address = dev->address,
                                .packet_type = packet_type};
   status_transaction->transaction_type = STATUS_TRANSACTION;
-  prev = uhci->create_USB_Packet(uhci, dev, prev, token, dev->speed, 0, 1);
+  prev = uhci->create_USB_Packet(uhci, dev, prev, token, dev->speed, 0, 1, 0);
   count++;
   status_transaction->entry_packet = prev;
   prev_transaction->next = status_transaction;
@@ -1623,7 +1623,7 @@ UsbTransfer *build_control(_UHCI *uhci, UsbDev *dev,
 // rename to create Transaction
 UsbPacket *create_USB_Packet(_UHCI *uhci, UsbDev *dev, UsbPacket *prev,
                              TokenValues token, int8_t speed, void *data,
-                             int last_packet) {
+                             int last_packet, uint8_t flags) {
   MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
                                                        MemoryService_C, super);
 
@@ -1649,7 +1649,7 @@ UsbPacket *create_USB_Packet(_UHCI *uhci, UsbDev *dev, UsbPacket *prev,
     td->pyhsicalLinkPointer |= QH_TERMINATE;
 
     #ifndef UHCI_POLL
-    if(dev->state == CONFIGURED_STATE){
+    if((dev->state == CONFIGURED_STATE) && (flags != BULK_INITIAL_STATE)){
       td->control_x_status |= (0x1 << IOC); // set interrupt bit only for last td in qh !
     }
     #endif    
@@ -1677,10 +1677,11 @@ UsbPacket *create_USB_Packet(_UHCI *uhci, UsbDev *dev, UsbPacket *prev,
   return packet;
 }
 
+// insert flag CONFIGURED : used for not using interrupts instead poll for timeout -> like the controls
 void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
                    uint8_t priority, Endpoint *e,
                    build_bulk_or_interrupt_transfer build_function,
-                   callback_function callback) {
+                   callback_function callback, uint8_t flags) {
   MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
                                                        MemoryService_C, super);
 
@@ -1695,7 +1696,7 @@ void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
   m->addVirtualAddress(m, qh_physical, qh);
 
   UsbTransfer *transfer =
-      build_function(uhci, dev, data, e, len, BULK_TRANSFER);
+      build_function(uhci, dev, data, e, len, BULK_TRANSFER, flags);
 
   TD *td = transfer->entry_transaction->entry_packet->internalTD;
 
@@ -1704,10 +1705,12 @@ void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
 
   qh->pyhsicalQHEP = (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, td));
 
-  uhci->qh_to_td_map->put_c(uhci->qh_to_td_map, qh, td);
-  uhci->qh_data_map->put_c(uhci->qh_data_map, qh, data);
-  uhci->qh_dev_map->put_c(uhci->qh_dev_map, qh, dev);
-  uhci->callback_map->put_c(uhci->callback_map, qh, callback);
+  if(flags != BULK_INITIAL_STATE){
+    uhci->qh_to_td_map->put_c(uhci->qh_to_td_map, qh, td);
+    uhci->qh_data_map->put_c(uhci->qh_data_map, qh, data);
+    uhci->qh_dev_map->put_c(uhci->qh_dev_map, qh, dev);
+    uhci->callback_map->put_c(uhci->callback_map, qh, callback);
+  }
 
   #if defined(DEBUG_ON) || defined(TRANSFER_DEBUG_ON)
   uhci->print_USB_Transfer(uhci, transfer);
@@ -1717,6 +1720,17 @@ void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
   uhci->destroy_transfer(uhci, transfer);
 
   uhci->insert_queue(uhci, qh, td, priority, QH_BULK);
+
+  if(flags == BULK_INITIAL_STATE){
+    uint32_t status = uhci->wait_poll(uhci, qh, UPPER_BOUND_TIME_OUT_MILLIS_BULK);
+
+    callback(dev, status, data);
+
+    uhci->remove_queue(uhci, qh);
+    m->remove_virtualAddress(m, qh_physical);
+    uhci->free_qh(uhci, qh);
+    uhci->remove_td_linkage(uhci, td);
+  }
 }
 
 void interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
@@ -1737,7 +1751,7 @@ void interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
   m->addVirtualAddress(m, qh_physical, qh);
 
   UsbTransfer *transfer =
-      build_function(uhci, dev, data, e, len, INTERRUPT_TRANSFER);
+      build_function(uhci, dev, data, e, len, INTERRUPT_TRANSFER, 0);
 
   TD *td = transfer->entry_transaction->entry_packet->internalTD;
 
@@ -1761,7 +1775,7 @@ void interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
 }
 
 // wait time out time -> upper bound 10ms 
-uint32_t wait_poll(_UHCI *uhci, QH *process_qh) {
+uint32_t wait_poll(_UHCI *uhci, QH *process_qh, uint32_t timeout) {
   TD *td;
 
   MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
@@ -1769,7 +1783,7 @@ uint32_t wait_poll(_UHCI *uhci, QH *process_qh) {
   uint32_t status = E_TRANSFER;
   uint32_t current_time;
   uint32_t initial_time = getSystemTimeInMilli();
-  uint32_t time_out_time = addMilis(initial_time, UPPER_BOUND_TIME_OUT_MILLIS);
+  uint32_t time_out_time = addMilis(initial_time, timeout);
   
   do {
     current_time = getSystemTimeInMilli();
@@ -1943,7 +1957,7 @@ void control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
   // uhci->inspect_transfer(uhci, qh, internalTD);
 
   if (dev->state != CONFIGURED_STATE) {
-    status = uhci->wait_poll(uhci, qh);
+    status = uhci->wait_poll(uhci, qh, UPPER_BOUND_TIME_OUT_MILLIS_CONTROL);
     
     callback(dev, status, data);
     

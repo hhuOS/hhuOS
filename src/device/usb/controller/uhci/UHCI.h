@@ -41,7 +41,8 @@
 #define USB_TRHRSI 3
 #define USB_TRSTRCY 10
 
-#define UPPER_BOUND_TIME_OUT_MILLIS 10
+#define UPPER_BOUND_TIME_OUT_MILLIS_CONTROL 10
+#define UPPER_BOUND_TIME_OUT_MILLIS_BULK 50
 
 extern const uint8_t CLASS_ID;
 extern const uint8_t SUBCLASS_ID;
@@ -69,12 +70,12 @@ struct _UHCI {
                                  struct TD *td);
   uint32_t (*get_status)(struct _UHCI *uhci, struct TD *td);
   void (*remove_queue)(struct _UHCI *uhci, struct QH *qh);
-  uint32_t (*wait_poll)(struct _UHCI *uhci, struct QH *process_qh);
+  uint32_t (*wait_poll)(struct _UHCI *uhci, struct QH *process_qh, uint32_t timeout);
   void (*traverse_skeleton)(struct _UHCI *uhci, struct QH *entry);
 
   UsbPacket *(*create_USB_Packet)(struct _UHCI *uhci, UsbDev *dev,
                                   UsbPacket *prev, struct TokenValues token,
-                                  int8_t speed, void *data, int last_packet);
+                                  int8_t speed, void *data, int last_packet, uint8_t flags);
 
   void (*dump_all)(struct _UHCI *uhci);
   void (*dump_skeleton)(struct _UHCI *uhci);
@@ -106,14 +107,14 @@ struct _UHCI {
                              UsbTransfer *(*build_bulk_or_interrupt_transfer)(
                                  struct _UHCI *uhci, UsbDev *dev, void *data,
                                  Endpoint *e, unsigned int len,
-                                 const char *type),
+                                 const char *type, uint8_t flags),
                              callback_function callback);
   void (*bulk_transfer)(struct _UHCI *uhci, UsbDev *dev, void *data,
                         unsigned int len, uint8_t priority, Endpoint *e,
                         UsbTransfer *(*build_bulk_or_interrupt_transfer)(
                             struct _UHCI *uhci, UsbDev *dev, void *data,
-                            Endpoint *e, unsigned int len, const char *type),
-                        callback_function callback);
+                            Endpoint *e, unsigned int len, const char *type, uint8_t flags),
+                        callback_function callback, uint8_t flags);
   int16_t (*is_valid_priority)(struct _UHCI *uhci, UsbDev *dev,
                                uint8_t priority, callback_function callback);
 
@@ -196,7 +197,7 @@ Register** request_register(struct _UHCI* uhci);
 
 void bulk_entry_point_uhci(struct UsbDev *dev, Endpoint *endpoint, void *data,
                       unsigned int len, uint8_t priority,
-                      callback_function callback);
+                      callback_function callback, uint8_t flags);
 void control_entry_point_uhci(struct UsbDev *dev,
                          struct UsbDeviceRequest *device_request, void *data,
                          uint8_t priority, Endpoint *endpoint,
@@ -216,7 +217,7 @@ typedef UsbTransfer *(*build_control_transfer)(
     void *data, Endpoint *endpoint);
 typedef UsbTransfer *(*build_bulk_or_interrupt_transfer)(
     _UHCI *uhci, UsbDev *dev, void *data, Endpoint *e, unsigned int len,
-    const char *type);
+    const char *type, uint8_t flags);
 
 void control_transfer(_UHCI *uhci, UsbDev *dev, struct UsbDeviceRequest *rq,
                       void *data, uint8_t priority, Endpoint *endpoint,
@@ -227,11 +228,10 @@ void interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
                         build_bulk_or_interrupt_transfer build_function,
                         callback_function callback);
 void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
-                   uint8_t, Endpoint *e,
-                   build_bulk_or_interrupt_transfer build_function,
-                   callback_function callback);
+                   uint8_t, Endpoint *e, build_bulk_or_interrupt_transfer build_function,
+                   callback_function callback, uint8_t flags);
 
-uint32_t wait_poll(_UHCI *uhci, QH *process_qh);
+uint32_t wait_poll(_UHCI *uhci, QH *process_qh, uint32_t timeout);
 
 void _poll_uhci_(UsbController *controller);
 
@@ -268,14 +268,14 @@ void link_driver_to_interface_uhci(UsbController *controller, UsbDriver *driver,
 
 UsbPacket *create_USB_Packet(_UHCI *uhci, UsbDev *dev, UsbPacket *prev,
                              struct TokenValues token, int8_t speed, void *data,
-                             int last_packet);
+                             int last_packet, uint8_t flags);
 
 UsbTransfer *build_control(_UHCI *uhci, UsbDev *dev,
                            UsbDeviceRequest *device_request, void *data,
                            Endpoint *e);
 UsbTransfer *build_interrupt_or_bulk(_UHCI *uhci, UsbDev *dev, void *data,
                                      Endpoint *e, unsigned int len,
-                                     const char *type);
+                                     const char *type, uint8_t flags);
 
 int uhci_contain_interface(UsbController *controller, Interface *interface);
 int16_t is_valid_priority(_UHCI *uhci, UsbDev *dev, uint8_t priority,
