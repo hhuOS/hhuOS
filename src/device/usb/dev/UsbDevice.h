@@ -123,8 +123,10 @@ struct UsbDev {
                            int s_len);
   void (*dump_device)(struct UsbDev *dev);
 
-  int (*get_max_logic_unit_numbers)(UsbDev* dev, Interface* interface, uint8_t* data);
-  int (*reset_bulk_only)(UsbDev* dev, Interface* interface);
+  int (*get_max_logic_unit_numbers)(struct UsbDev* dev, Interface* interface, uint8_t* data, void (*callback_function)(struct UsbDev *dev,
+                                              uint32_t status, void *data));
+  int (*reset_bulk_only)(struct UsbDev* dev, Interface* interface, void (*callback_function)(struct UsbDev *dev,
+                                              uint32_t status, void *data));
 
   UsbDeviceRequest *(*get_free_device_request)(struct UsbDev *dev);
   void (*free_device_request)(struct UsbDev *dev,
@@ -229,8 +231,8 @@ void process_lang_ids(UsbDev *dev, uint8_t *string_buffer, int s_len);
 
 void dump_device(struct UsbDev *dev);
 
-int get_max_logic_unit_numbers(UsbDev* dev, Interface* interface, uint8_t* data);
-int reset_bulk_only(UsbDev* dev, Interface* interface);
+int get_max_logic_unit_numbers(UsbDev* dev, Interface* interface, uint8_t* data, callback_function callback);
+int reset_bulk_only(UsbDev* dev, Interface* interface, callback_function callback);
 
 UsbDeviceRequest *get_free_device_request(UsbDev *dev);
 void free_device_request(UsbDev *dev, UsbDeviceRequest *device_request);

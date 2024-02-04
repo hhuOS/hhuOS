@@ -813,7 +813,7 @@ int set_idle(UsbDev *dev, Interface *interface) {
   return 1;
 }
 
-int reset_bulk_only(UsbDev* dev, Interface* interface){
+int reset_bulk_only(UsbDev* dev, Interface* interface, callback_function callback){
   if (!dev->contain_interface(dev, interface))
     return -1;
   
@@ -827,12 +827,12 @@ int reset_bulk_only(UsbDev* dev, Interface* interface){
     RESET_BULK_ONLY_DEVICE, 0, 0, 0, interface->active_interface->alternate_interface_desc.bInterfaceNumber,
     0 
   );
-  dev->request(dev, request, 0, PRIORITY_8, 0, &request_callback);
+  dev->request(dev, request, 0, PRIORITY_8, 0, callback);
 
   return 1;  
 }
 
-int get_max_logic_unit_numbers(UsbDev* dev, Interface* interface, uint8_t* data){
+int get_max_logic_unit_numbers(UsbDev* dev, Interface* interface, uint8_t* data, callback_function callback){
   if (!dev->contain_interface(dev, interface))
     return -1;
   
@@ -845,7 +845,7 @@ int get_max_logic_unit_numbers(UsbDev* dev, Interface* interface, uint8_t* data)
       dev, request, DEVICE_TO_HOST | TYPE_REQUEST_CLASS | RECIPIENT_INTERFACE, 
       GET_MAX_LUN, 0, 0, 0, interface->active_interface->alternate_interface_desc.bInterfaceNumber,
       1);
-  dev->request(dev, request, data, PRIORITY_8, 0, &request_callback);
+  dev->request(dev, request, data, PRIORITY_8, 0, callback);
 
   return 1;      
 }
