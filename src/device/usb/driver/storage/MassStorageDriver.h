@@ -58,10 +58,10 @@ struct MassStorageDriver{
     int (*read_command)(struct MassStorageDriver* driver, CommandCode cc, void* data);
     int (*send_inquiry)(struct MassStorageDriver *driver, CommandBlockWrapper *cbw,
                     CommandStatusWrapper *csw, InquiryCommandData *inquiry_data,
-                    uint8_t volume);
+                    uint8_t volume, RequestSense* rs);
     int (*send_read_format_capacities)(struct MassStorageDriver *driver, CommandBlockWrapper *cbw,
                                     CommandStatusWrapper* csw, CapacityListHeader* clh,
-                                    uint8_t volume);
+                                    uint8_t volume, RequestSense* rs);
     void (*parse_format_capacities)(struct MassStorageDriver* driver, CapacityListHeader* clh, uint8_t volume);
     int (*get_data)(struct MassStorageDriver *driver, void *data, unsigned int len, uint8_t flags);                       
     int (*send_data)(struct MassStorageDriver *driver, void *data, unsigned int len, uint8_t flags);
@@ -80,19 +80,19 @@ struct MassStorageDriver{
     int (*send_request_sense)(struct MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
                        RequestSense* rs, uint8_t volume);
     int (*send_read_capacity__32_bit)(struct MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
-                                ReadCapacity__32_Bit* rc, uint8_t volume);
+                                ReadCapacity__32_Bit* rc, uint8_t volume, RequestSense* rs);
     int (*send_read_capacity__64_bit)(struct MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
-                                ReadCapacity__64_Bit* rc, uint8_t volume);                                                                          
+                                ReadCapacity__64_Bit* rc, uint8_t volume, RequestSense* rs);                                                                          
     int (*send_read)(struct MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
                 uint8_t* buffer, uint32_t blocks, uint8_t volume, uint32_t lba_low, uint32_t lba_high,
-                callback_function callback, uint8_t flags);
+                callback_function callback, uint8_t flags, RequestSense* rs);
     int (*send_write)(struct MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
                 uint8_t* buffer, uint32_t blocks, uint8_t volume, uint32_t lba_low, uint32_t lba_high,
-                callback_function callback, uint8_t flags);              
+                callback_function callback, uint8_t flags, RequestSense* rs);              
     uint32_t (*get_drive_size)(struct MassStorageDriver* driver, uint8_t volume);
     uint32_t (*get_block_size)(struct MassStorageDriver* driver, uint8_t volume);
     uint32_t (*get_block_num)(struct MassStorageDriver* driver, uint8_t volume);
-    int (*test_mass_storage_writes)(struct MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw, uint8_t volume);
+    int (*test_mass_storage_writes)(struct MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw, uint8_t volume, RequestSense* rs);
     uint8_t success_transfer;
 
     struct MassStorageVolume* mass_storage_volumes;
@@ -111,10 +111,10 @@ int configure_device(MassStorageDriver *driver);
 int read_command(MassStorageDriver* driver, CommandCode cc, void* data);
 int send_inquiry(MassStorageDriver *driver, CommandBlockWrapper *cbw,
                  CommandStatusWrapper *csw, InquiryCommandData *inquiry_data,
-                 uint8_t volume);
+                 uint8_t volume, RequestSense* rs);
 int send_read_format_capacities(MassStorageDriver *driver, CommandBlockWrapper *cbw,
                                 CommandStatusWrapper* csw, CapacityListHeader* clh,
-                                uint8_t volume);
+                                uint8_t volume, RequestSense* rs);
 void parse_format_capacities(MassStorageDriver* driver, CapacityListHeader* clh, uint8_t volume);
 int get_data(MassStorageDriver *driver, void *data, unsigned int len, uint8_t flags);                       
 int send_data(MassStorageDriver *driver, void *data, unsigned int len, uint8_t flags);
@@ -133,18 +133,18 @@ void command_helper(MassStorageDriver *driver, uint8_t *command, uint8_t c1,
 int send_request_sense(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
                        RequestSense* rs, uint8_t volume);
 int send_read_capacity__32_bit(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
-                               ReadCapacity__32_Bit* rc, uint8_t volume);
+                               ReadCapacity__32_Bit* rc, uint8_t volume, RequestSense* rs);
 int send_read_capacity__64_bit(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
-                               ReadCapacity__64_Bit* rc, uint8_t volume);                                                                          
+                               ReadCapacity__64_Bit* rc, uint8_t volume, RequestSense* rs);                                                                          
 int send_read(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
               uint8_t* buffer, uint32_t blocks, uint8_t volume, uint32_t lba_low, uint32_t lba_high,
-              callback_function callback, uint8_t flags);
+              callback_function callback, uint8_t flags, RequestSense* rs);
 int send_write(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
                uint8_t* buffer, uint32_t blocks, uint8_t volume, uint32_t lba_low, uint32_t lba_high,
-               callback_function callback, uint8_t flags);              
+               callback_function callback, uint8_t flags, RequestSense* rs);              
 uint32_t get_drive_size(MassStorageDriver* driver, uint8_t volume);
 uint32_t get_block_size(MassStorageDriver* driver, uint8_t volume);
 uint32_t get_block_num(MassStorageDriver* driver, uint8_t volume);
-int test_mass_storage_writes(struct MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw, uint8_t volume);
+int test_mass_storage_writes(struct MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw, uint8_t volume, RequestSense* rs);
 
 #endif
