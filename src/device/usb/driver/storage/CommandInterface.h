@@ -137,7 +137,37 @@ struct CapacityDescriptor {
   uint8_t block_length_b1;
   uint8_t block_length_b2;
   uint8_t block_length_b3;
-} __attribute((packed));
+} __attribute__((packed));
+
+struct RequestSense{ // we will fix this at 18 bytes
+  uint8_t byte_1;
+  uint8_t reserved_1;
+  uint8_t byte_2;
+  uint32_t information;
+  uint8_t additional_sense_len;
+  uint32_t reserved_2;
+  uint8_t asc;
+  uint8_t ascq;
+  uint8_t field_replaceable_unit_code;
+  uint8_t sense_key_specific_1;
+  uint8_t sense_key_specific_2;
+  uint8_t sense_key_specific_3;
+} __attribute__((packed));
+
+struct ReadCapacity__32_Bit{
+  uint32_t logical_block_address;
+  uint32_t block_size;
+} __attribute__((packed));
+
+struct ReadCapacity__64_Bit{
+  uint32_t lower_logical_block_address;
+  uint32_t upper_logical_block_address;
+  uint32_t block_size;
+  uint8_t byte1;
+  uint8_t byte2;
+  uint16_t word1;
+  uint8_t reserved[16];
+} __attribute__((packed));
 
 #define MAXIMUM_CAPACITY_1 0b01
 #define CURRENT_CAPACITY 0b10
@@ -146,6 +176,9 @@ struct CapacityDescriptor {
 typedef struct InquiryCommandData InquiryCommandData;
 typedef struct CapacityListHeader CapacityListHeader;
 typedef struct CapacityDescriptor CapacityDescriptor;
+typedef struct RequestSense RequestSense;
+typedef struct ReadCapacity__32_Bit ReadCapacity__32_Bit;
+typedef struct ReadCapacity__64_Bit ReadCapacity__64_Bit;
 typedef struct CommandBlockWrapper CommandBlockWrapper;
 typedef struct CommandStatusWrapper CommandStatusWrapper;
 typedef enum CommandCode CommandCode;
