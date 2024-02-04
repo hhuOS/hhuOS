@@ -6,6 +6,7 @@
 #include "../../events/event/Event.h"
 #include "../../events/event/storage/MassStorageEvent.h"
 #include "CommandInterface.h"
+#include "../../interfaces/LoggerInterface.h"
 
 #define MAX_TRANSFER_BYTES 0x00008000
 #define ALLOWED_CAPACITES 31
@@ -93,10 +94,17 @@ struct MassStorageDriver{
     uint32_t (*get_block_size)(struct MassStorageDriver* driver, uint8_t volume);
     uint32_t (*get_block_num)(struct MassStorageDriver* driver, uint8_t volume);
     int (*test_mass_storage_writes)(struct MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw, uint8_t volume, RequestSense* rs);
+    Logger_C* (*init_logger)(struct MassStorageDriver* driver);
+    void (*parse_request_sense)(struct MassStorageDriver* driver, RequestSense* rs);
+    void (*init_sense_description)(struct MassStorageDriver* driver);
+
     uint8_t success_transfer;
 
     struct MassStorageVolume* mass_storage_volumes;
     uint8_t volumes; // 0 = 1, 1 = 2 ... 15 = 16 are assuming consecutively
+
+    char* description_sense[SENSE_STATUS_LEN];
+    Logger_C* driver_logger;
 };
 
 typedef struct MassStorageDriver MassStorageDriver;
@@ -145,6 +153,9 @@ int send_write(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatu
 uint32_t get_drive_size(MassStorageDriver* driver, uint8_t volume);
 uint32_t get_block_size(MassStorageDriver* driver, uint8_t volume);
 uint32_t get_block_num(MassStorageDriver* driver, uint8_t volume);
-int test_mass_storage_writes(struct MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw, uint8_t volume, RequestSense* rs);
+int test_mass_storage_writes(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw, uint8_t volume, RequestSense* rs);
+Logger_C* init_msd_logger(MassStorageDriver* driver);
+void parse_request_sense(MassStorageDriver* driver, RequestSense* rs);
+void init_sense_description(MassStorageDriver* driver);
 
 #endif

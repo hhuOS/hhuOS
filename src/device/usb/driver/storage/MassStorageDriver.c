@@ -7,7 +7,9 @@
 #include "../../include/UsbControllerInclude.h"
 #include "../../include/UsbErrors.h"
 #include "../../include/UsbGeneral.h"
+#include "../../include/UsbInterface.h"
 #include "../../interfaces/TimeInterface.h"
+#include "../../interfaces/LoggerInterface.h"
 #include "../UsbDriver.h"
 #include "CommandInterface.h"
 
@@ -115,11 +117,57 @@ void new_mass_storage_driver(MassStorageDriver* driver, char* name, UsbDevice_ID
   driver->get_block_size = &get_block_size;
   driver->get_block_num  = &get_block_num;
   driver->test_mass_storage_writes = &test_mass_storage_writes;
+  driver->init_sense_description = &init_sense_description;
 
   internal_msd_driver = driver;
 
   internal_msd_driver->super.new_usb_driver = &new_usb_driver;
   internal_msd_driver->super.new_usb_driver(&driver->super, name, entry);
+
+  internal_msd_driver->init_logger = &init_msd_logger;
+  internal_msd_driver->driver_logger = internal_msd_driver->init_logger(internal_msd_driver);
+  internal_msd_driver->init_sense_description(internal_msd_driver);
+  internal_msd_driver->parse_request_sense = &parse_request_sense;
+}
+
+Logger_C* init_msd_logger(MassStorageDriver* driver){
+  Logger_C* driver_logger = (Logger_C*)interface_allocateMemory(sizeof(Logger_C), 0);
+  driver_logger->new_logger = &new_logger;
+  driver_logger->new_logger(driver_logger, USB_DRIVER_LOGGER_TYPE, LOGGER_LEVEL_INFO);
+  
+  return driver_logger;
+}
+
+void init_sense_description(MassStorageDriver* driver){
+  driver->description_sense[RECOVERED_DATA_WITH_RETRIES] = "Recovered data with retries";
+  driver->description_sense[RECOVERED_DATA_WITH_ECC] = "Recovered data with ECC";
+  driver->description_sense[LOGICAL_DRIVE_NOT_READY_BECOMING_READY] = "Logical drive not ready - Becoming ready";
+  driver->description_sense[LOGICAL_DRIVE_NOT_READY_INIT_REQUIRED] = "Logical drive not ready - intialization required";
+  driver->description_sense[LOGICAL_UNIT_NOT_READY_FORMAT_IN_PROGRESS] = "Logical unit not ready - intialization required";
+  driver->description_sense[LOGICAL_UNIT_NOT_READY_DEVICE_IS_BUSY] = "Logical unit not ready - format in progress";
+  driver->description_sense[LOGICAL_UNIT_COMMUNICATION_ERROR] = "Logical unit communication error";
+  driver->description_sense[LOGICAL_UNIT_COMMUNICATION_TIMEOUT] = "Logical unit communication time-out";
+  driver->description_sense[LOGICAL_UNIT_COMMUNICATION_OVERRUN] = "Logical unit communication overrun";
+  driver->description_sense[MEDIUM_NOT_PRESENT] = "Medium is not present";
+  driver->description_sense[USB_TO_HOST_INTERFACE_FAILURE] = "USB-TO-HOST system interface failure";
+  driver->description_sense[INSUFFICIENT_RESOURCES] = "Insufficient resources";
+  driver->description_sense[UNKNOWN_ERR] = "Unknown error";
+  driver->description_sense[NO_SEEK_COMPLETE] = "No seek complete";
+  driver->description_sense[WRITE_FAULT] = "Write fault";
+  driver->description_sense[ID_CRC_ERROR] = "ID CRC error";
+  driver->description_sense[UNRECOVERED_READ_ERROR] = "Unrecovered read error";
+  driver->description_sense[RECORDED_ENTITY_NOT_FOUND] = "Recorded Entity not found";
+  driver->description_sense[UNKNOWN_FORMAT] = "Cannot read medium - unknown format";
+  driver->description_sense[PARAMETER_LIST_LEN_ERR] = "Paramter list length error";
+  driver->description_sense[INV_COMMAND_OPERATION_CODE] = "Invalid command operation code";
+  driver->description_sense[LOGICAL_BLOCK_ADDR_OUT_OF_RANGE] = "Logical block address out of range";
+  driver->description_sense[INV_FIELD_IN_COMMAND_PACKET] = "Invalid field in command packet";
+  driver->description_sense[LOGICAL_UNIT_NOT_SUPPORTED] = "Logical unit not supported";
+  driver->description_sense[INV_FIELD_IN_PARAMETER_LIST] = "Invalid field in paramter list";
+  driver->description_sense[PARAMETER_NOT_SUPPORTED] = "Paramter not supported";
+  driver->description_sense[PARAMETER_VALUE_INV] = "Parameter value invalid";
+  driver->description_sense[MEDIA_CHANGED] = "Not ready to ready transition - Media changed";
+  driver->description_sense[WRITE_PROT_MEDIA] = "Write protected media";
 }
 
 void disconnect_mass_storage(UsbDev* dev, Interface* interface){
@@ -174,22 +222,23 @@ int configure_device(MassStorageDriver *driver) {
   }
   CommandBlockWrapper* cbw = (CommandBlockWrapper*)command;
   CommandStatusWrapper* csw = (CommandStatusWrapper*)(command + sizeof(CommandBlockWrapper));
-  unsigned int add_offset = sizeof(CommandBlockWrapper) + sizeof(CommandStatusWrapper);
+  RequestSense* rs = (RequestSense*)(command + sizeof(CommandBlockWrapper) + sizeof(CommandStatusWrapper));
+  unsigned int add_offset = sizeof(CommandBlockWrapper) + sizeof(CommandStatusWrapper) + sizeof(RequestSense);
 
   for(int i = 0; i < volumes + 1; i++){
     InquiryCommandData* inquiry_data = (InquiryCommandData*)(command + add_offset);
-    if(driver->send_inquiry(driver, cbw, csw, inquiry_data, i) == -1)
+    if(driver->send_inquiry(driver, cbw, csw, inquiry_data, i, rs) == -1)
       return -1;
     CapacityListHeader* clh = (CapacityListHeader*)(command + add_offset);  
-    if(driver->send_read_format_capacities(driver, cbw, csw, clh, i) == -1)
+    if(driver->send_read_format_capacities(driver, cbw, csw, clh, i, rs) == -1)
       return -1;  
     ReadCapacity__32_Bit* rc_32_bit = (ReadCapacity__32_Bit*)(command + add_offset);
-    if(send_read_capacity__32_bit(driver, cbw, csw, rc_32_bit, i) == -1)
+    if(send_read_capacity__32_bit(driver, cbw, csw, rc_32_bit, i, rs) == -1)
       return -1;
     if(rc_32_bit->logical_block_address == 0xFFFFFFFF){
       // couldn't store with 32-bit
       ReadCapacity__64_Bit* rc_64_bit = (ReadCapacity__64_Bit*)(command + add_offset);
-      if(send_read_capacity__64_bit(driver, cbw, csw, rc_64_bit, i) == -1)
+      if(send_read_capacity__64_bit(driver, cbw, csw, rc_64_bit, i, rs) == -1)
         return -1;
       driver->mass_storage_volumes[i].version = READ_CAPACITY_16;
       driver->mass_storage_volumes[i].rc_64_bit = *rc_64_bit;
@@ -202,12 +251,13 @@ int configure_device(MassStorageDriver *driver) {
     driver->mass_storage_volumes[i].volume_size = driver->get_drive_size(driver, i);
     driver->mass_storage_volumes[i].block_size  = driver->get_block_size(driver, i);
     driver->mass_storage_volumes[i].block_num   = driver->get_block_num(driver, i);
-    /*#ifdef TEST_ON
-    driver->test_mass_storage_writes(driver, cbw, csw, i);
-    #endif*/
+    #ifdef TEST_ON
+    if(driver->test_mass_storage_writes(driver, cbw, csw, i, rs) == -1)
+      return -1;
+    #endif
     // reads 64 * block len as initial transfer
     if(send_read(driver, cbw, csw, driver->dev.buffer, 64, i, 0, 0, &callback_config, 
-      BULK_INITIAL_STATE) == -1)
+      BULK_INITIAL_STATE, rs) == -1)
       return -1;
   }
 
@@ -237,7 +287,7 @@ int read_command(MassStorageDriver* driver, CommandCode cc, void* data){
 
 int send_inquiry(MassStorageDriver *driver, CommandBlockWrapper *cbw,
                  CommandStatusWrapper *csw, InquiryCommandData *inquiry_data,
-                 uint8_t volume) {
+                 uint8_t volume, RequestSense* rs) {
   uint32_t millis = getSystemTimeInMilli();
   uint32_t t_length = 0x00000024;
   uint8_t flags = FLAGS_IN;
@@ -250,8 +300,10 @@ int send_inquiry(MassStorageDriver *driver, CommandBlockWrapper *cbw,
     return -1;
   if(driver->get_data(driver, inquiry_data, sizeof(InquiryCommandData), BULK_INITIAL_STATE) == -1)
     return -1;
-  if(driver->retrieve_status(driver, csw) == -1)
+  if(driver->retrieve_status(driver, csw) == -1){
+    driver->send_request_sense(driver, cbw, csw, rs, volume);
     return -1;
+  }
 
   driver->mass_storage_volumes[volume].inquiry = *inquiry_data;
 
@@ -260,7 +312,7 @@ int send_inquiry(MassStorageDriver *driver, CommandBlockWrapper *cbw,
 
 int send_read_format_capacities(MassStorageDriver *driver, CommandBlockWrapper *cbw,
                                 CommandStatusWrapper* csw, CapacityListHeader* clh,
-                                uint8_t volume) {
+                                uint8_t volume, RequestSense* rs) {
   uint32_t millis = getSystemTimeInMilli();
   uint32_t t_length = 0x000000FC;
   uint8_t flags = FLAGS_IN;
@@ -319,12 +371,95 @@ int send_request_sense(MassStorageDriver* driver, CommandBlockWrapper* cbw, Comm
   if(driver->retrieve_status(driver, csw) == -1)
     return -1;  
 
+  driver->parse_request_sense(driver, rs);
+
   return 1;
+}
+
+void parse_request_sense(MassStorageDriver* driver, RequestSense* rs){
+  uint8_t error = rs->byte_1 & ERROR_CODE;
+  uint8_t sense_key = rs->byte_2 & SENSE_KEY;
+  uint8_t asc = rs->asc;
+  uint8_t ascq = rs->ascq;
+
+  uint8_t status;
+  char* status_msg = "Error %u code : %u ; %s";
+  if(sense_key == 0x01 && asc == 0x17 && ascq == 0x01)
+    status = RECOVERED_DATA_WITH_RETRIES;
+  if(sense_key == 0x01 && asc == 0x18 && ascq == 0x00)
+    status = RECOVERED_DATA_WITH_ECC;
+  if(sense_key == 0x02){
+    if(asc == 0x04){
+      if(ascq == 0x01)
+        status = LOGICAL_DRIVE_NOT_READY_BECOMING_READY;
+      if(ascq == 0x02)
+        status = LOGICAL_DRIVE_NOT_READY_INIT_REQUIRED;
+      if(ascq == 0x04)
+        status = LOGICAL_UNIT_NOT_READY_FORMAT_IN_PROGRESS;
+      if(ascq == 0xFF)
+        status = LOGICAL_UNIT_NOT_READY_DEVICE_IS_BUSY;          
+    }
+    if(asc == 0x08){
+      if(ascq == 0x00)
+        status = LOGICAL_UNIT_COMMUNICATION_ERROR;
+      if(ascq == 0x01)
+        status = LOGICAL_UNIT_COMMUNICATION_TIMEOUT;
+      if(ascq == 0x80)
+        status = LOGICAL_UNIT_COMMUNICATION_OVERRUN;  
+    }
+    if(asc == 0x3A && ascq == 0x00)
+      status = MEDIUM_NOT_PRESENT;
+    if(asc == 0x54 && ascq == 0x00)
+      status = USB_TO_HOST_INTERFACE_FAILURE;
+    if(asc == 0x80 && ascq == 0x00)
+      status = INSUFFICIENT_RESOURCES;
+    if(asc == 0xFF && ascq == 0xFF)
+      status = UNKNOWN_ERR;   
+  }
+  if(sense_key == 0x03){
+    if(asc == 0x02 && ascq == 0x00)
+      status = NO_SEEK_COMPLETE;
+    if(asc == 0x03 && ascq == 0x00)
+      status = WRITE_FAULT;
+    if(asc == 0x10 && ascq == 0x00)
+      status = ID_CRC_ERROR;
+    if(asc == 0x11 && ascq == 0x00)
+      status = UNRECOVERED_READ_ERROR;
+    if(asc == 0x14 && ascq == 0x00)
+      status = RECORDED_ENTITY_NOT_FOUND;
+    if(asc == 0x30 && ascq == 0x01)
+      status = UNKNOWN_FORMAT;       
+  }
+  if(sense_key == 0x05){
+    if(asc == 0x1A && ascq == 0x00)
+      status = PARAMETER_LIST_LEN_ERR;
+    if(asc == 0x20 && ascq == 0x00)
+      status = INV_COMMAND_OPERATION_CODE;
+    if(asc == 0x21 && ascq == 0x00)
+      status = LOGICAL_BLOCK_ADDR_OUT_OF_RANGE;
+    if(asc == 0x24 && ascq == 0x00)
+      status = INV_FIELD_IN_COMMAND_PACKET;
+    if(asc == 0x25 && ascq == 0x00)
+      status = LOGICAL_UNIT_NOT_SUPPORTED;
+    if(asc == 0x26 && ascq == 0x00)
+      status = INV_FIELD_IN_PARAMETER_LIST;
+    if(asc == 0x26 && ascq == 0x01)
+      status = PARAMETER_NOT_SUPPORTED;
+    if(asc == 0x26 && ascq == 0x02)
+      status = PARAMETER_VALUE_INV;
+  }
+  if(sense_key == 0x06)
+    if(asc == 0x28 && ascq == 0x00)
+      status = MEDIA_CHANGED;
+  if(sense_key == 0x07)
+    if(asc == 0x27 && ascq == 0x00)
+      status = WRITE_PROT_MEDIA;
+  driver->driver_logger->info_c(driver->driver_logger, status_msg, error, status, driver->description_sense[status]);            
 }
 
 // query 32_bit first -> if 32_bit is too low make a call to 64 bit -> save flag in driver
 int send_read_capacity__32_bit(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
-                               ReadCapacity__32_Bit* rc, uint8_t volume){
+                               ReadCapacity__32_Bit* rc, uint8_t volume, RequestSense* rs){
   uint32_t millis = getSystemTimeInMilli();
   uint32_t t_length = 0x00000008;
   uint8_t flags = FLAGS_IN;
@@ -337,14 +472,16 @@ int send_read_capacity__32_bit(MassStorageDriver* driver, CommandBlockWrapper* c
     return -1;
   if(driver->get_data(driver, rc, sizeof(ReadCapacity__32_Bit), BULK_INITIAL_STATE) == -1)
     return -1;
-  if(driver->retrieve_status(driver, csw) == -1)
+  if(driver->retrieve_status(driver, csw) == -1){
+    driver->send_request_sense(driver, cbw, csw, rs, volume);
     return -1;
+  }
 
   return 1;      
 }
 
 int send_read_capacity__64_bit(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
-                               ReadCapacity__64_Bit* rc, uint8_t volume){
+                               ReadCapacity__64_Bit* rc, uint8_t volume, RequestSense* rs){
   uint32_t millis = getSystemTimeInMilli();
   uint32_t t_length = 0x00000020;
   uint8_t flags = FLAGS_IN;
@@ -357,15 +494,17 @@ int send_read_capacity__64_bit(MassStorageDriver* driver, CommandBlockWrapper* c
     return -1;
   if(driver->get_data(driver, rc, sizeof(ReadCapacity__64_Bit), BULK_INITIAL_STATE) == -1)
     return -1;
-  if(driver->retrieve_status(driver, csw) == -1)
+  if(driver->retrieve_status(driver, csw) == -1){
+    driver->send_request_sense(driver, cbw, csw, rs, volume);
     return -1;
+  }
 
   return 1;       
 }
 
 int send_read(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
               uint8_t* buffer, uint32_t blocks, uint8_t volume, uint32_t lba_low, uint32_t lba_high,
-              callback_function callback, uint8_t flags){
+              callback_function callback, uint8_t flags, RequestSense* rs){
   MassStorageVolume mass_storage_volume = driver->mass_storage_volumes[volume];
   uint32_t millis = getSystemTimeInMilli();
   uint8_t inner_flags = FLAGS_IN;
@@ -376,8 +515,8 @@ int send_read(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatus
     command_len = 12;
     uint8_t lba_b1 = lba_low & 0xFF, lba_b2 = (lba_low & 0xFF00) >> 8, lba_b3 = (lba_low & 0xFF0000) >> 16, lba_b4 = (lba_low & 0xFF000000) >> 24;
 
-    driver->command_helper(driver, cbw->command, READ_12, 0, lba_b4, lba_b3, lba_b2, lba_b1, block_b4,
-                           block_b3, block_b2, block_b1, 0, 0, 0, 0, 0, 0);
+    driver->command_helper(driver, cbw->command, READ_10, 0, lba_b4, lba_b3, lba_b2, lba_b1, 0, block_b2,
+                           block_b1, 0, 0, 0, 0, 0, 0, 0);
   }
   else if(mass_storage_volume.version == READ_CAPACITY_16){
     command_len = 16;
@@ -400,15 +539,17 @@ int send_read(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatus
     return -1;
   if(driver->get_data(driver, buffer, t_len, flags) == -1)
     return -1;
-  if(driver->retrieve_status(driver, csw) == -1)
+  if(driver->retrieve_status(driver, csw) == -1){
+    driver->send_request_sense(driver, cbw, csw, rs, volume);
     return -1;        
+  }
 
   return 1;
 }
 
 int send_write(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
                uint8_t* buffer, uint32_t blocks, uint8_t volume, uint32_t lba_low, uint32_t lba_high,
-               callback_function callback, uint8_t flags){
+               callback_function callback, uint8_t flags, RequestSense* rs){
   MassStorageVolume mass_storage_volume = driver->mass_storage_volumes[volume];
   uint32_t millis = getSystemTimeInMilli();
   uint8_t inner_flags = FLAGS_OUT;
@@ -419,8 +560,8 @@ int send_write(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatu
     command_len = 12;
     uint8_t lba_b1 = lba_low & 0xFF, lba_b2 = (lba_low & 0xFF00) >> 8, lba_b3 = (lba_low & 0xFF0000) >> 16, lba_b4 = (lba_low & 0xFF000000) >> 24;
 
-    driver->command_helper(driver, cbw->command, WRITE_12, 0, lba_b4, lba_b3, lba_b2, lba_b1, block_b4,
-                           block_b3, block_b2, block_b1, 0, 0, 0, 0, 0, 0);
+    driver->command_helper(driver, cbw->command, WRITE_10, 0, lba_b4, lba_b3, lba_b2, lba_b1, 0, block_b2,
+                          block_b1, 0, 0, 0, 0, 0, 0, 0);
   }
   else if(mass_storage_volume.version == READ_CAPACITY_16){
     command_len = 16;
@@ -443,8 +584,10 @@ int send_write(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatu
     return -1;
   if(driver->send_data(driver, buffer, t_len, flags) == -1)
     return -1;
-  if(driver->retrieve_status(driver, csw) == -1)
+  if(driver->retrieve_status(driver, csw) == -1){
+    driver->send_request_sense(driver, cbw, csw, rs, volume);
     return -1;        
+  }
 
   return 1;
 }
@@ -548,9 +691,11 @@ int retrieve_status(MassStorageDriver *driver, CommandStatusWrapper *csw) {
                     BULK_INITIAL_STATE);
 
   if (!driver->success_transfer){
-    
     return -1;
   }
+
+  if(csw->status != 0 || csw->data_residue > 0)
+    return -1;
   
   return 1;  
 }
@@ -585,46 +730,94 @@ void command_helper(MassStorageDriver *driver, uint8_t *command, uint8_t c1,
 }
 
 int test_mass_storage_writes(MassStorageDriver* driver, CommandBlockWrapper* cbw, 
-                             CommandStatusWrapper* csw, uint8_t volume){
+                             CommandStatusWrapper* csw, uint8_t volume, RequestSense* rs){
   uint32_t block_size = driver->get_block_size(driver, volume);
-  uint32_t block_num  = driver->get_block_num(driver, volume);
   uint8_t* buffer = driver->dev.buffer;
   // write 1 block starting from lba 0
   for(int i = 0; i < block_size; i++){
     buffer[i] = 'A';
   }
-  driver->send_write(driver, cbw, csw, buffer, 1, volume, 0, 0, &callback_config, BULK_INITIAL_STATE);
+  driver->driver_logger->info_c(driver->driver_logger, "sending %u bytes to dev, starting at lba %u", block_size, 0);
+  driver->send_write(driver, cbw, csw, buffer, 1, volume, 0, 0, &callback_config, BULK_INITIAL_STATE, rs);
   // write 4 blocks starting from lba 1
   for(int i = 0; i < (4 * block_size); i++){
     buffer[i] = 'B';
   }
-  driver->send_write(driver, cbw, csw, buffer, 4, volume, 1, 0, &callback_config, BULK_INITIAL_STATE);
+  driver->driver_logger->info_c(driver->driver_logger, "sending %u bytes to dev, starting at lba %u", block_size * 4, 1);
+  driver->send_write(driver, cbw, csw, buffer, 4, volume, 1, 0, &callback_config, BULK_INITIAL_STATE, rs);
   // write 1 block starting from lba 5
   for(int i = 0; i < block_size; i++){
     buffer[i] = 'C';
   }
-  driver->send_write(driver, cbw, csw, buffer, 1, volume, 5, 0, &callback_config, BULK_INITIAL_STATE);
+  driver->driver_logger->info_c(driver->driver_logger, "sending %u bytes to dev, starting at lba %u", block_size, 5);
+  driver->send_write(driver, cbw, csw, buffer, 1, volume, 5, 0, &callback_config, BULK_INITIAL_STATE, rs);
   // write 50 blocks starting
   for(int i = 0; i < 50 * block_size; i++){
     buffer[i] = 'D';
-  }                 
-  driver->send_write(driver, cbw, csw, buffer, 50, volume, 6, 0, &callback_config, BULK_INITIAL_STATE);            
+  }
+  driver->driver_logger->info_c(driver->driver_logger, "sending %u bytes to dev, starting at lba %u", block_size * 50, 6);                 
+  driver->send_write(driver, cbw, csw, buffer, 50, volume, 6, 0, &callback_config, BULK_INITIAL_STATE, rs);            
 
-  driver->send_read(driver, cbw, csw, buffer, 56, volume, 0, 0, &callback_config, BULK_INITIAL_STATE);
+  driver->driver_logger->info_c(driver->driver_logger, "recevice %u bytes from dev, started at lba %u", block_size * 56, 0);
+  driver->send_read(driver, cbw, csw, buffer, 56, volume, 0, 0, &callback_config, BULK_INITIAL_STATE, rs);
 
+  driver->driver_logger->info_c(driver->driver_logger, "starting tests ... ");
   // assert
+  int test_case = 1;
+  int test_failed = 0;
+  int test_one_failed = 0;
   for(int i = 0; i < block_size; i++){
-    if(buffer[i] != 'A') return -1;
+    if(buffer[i] != 'A'){
+      test_failed = 1;
+      test_one_failed = 1;
+      driver->driver_logger->info_c(driver->driver_logger, "test %d failed", test_case);
+      break;
+    }
   }
+  if(!test_failed)
+    driver->driver_logger->info_c(driver->driver_logger, "test %d passed", test_case);
+  test_case++;
+  test_failed = 0;    
   for(int i = block_size; i < block_size + (4 * block_size); i++){
-    if(buffer[i] != 'B') return -1;
+    if(buffer[i] != 'B'){
+      test_failed = 1;
+      test_one_failed = 1;
+      driver->driver_logger->info_c(driver->driver_logger, "test %d failed", test_case);
+      break;
+    }
   }
+  if(!test_failed)
+    driver->driver_logger->info_c(driver->driver_logger, "test %d passed", test_case);
+  test_case++;  
+  test_failed = 0;    
   for(int i = (5 * block_size); i < (6 * block_size); i++){
-    if(buffer[i] != 'C') return -1;
+    if(buffer[i] != 'C'){
+      test_failed = 1;
+      test_one_failed = 1;
+      driver->driver_logger->info_c(driver->driver_logger, "test %d failed", test_case);
+      break;
+    }
   }
+  if(!test_failed)
+    driver->driver_logger->info_c(driver->driver_logger, "test %d passed", test_case);
+  test_case++;
+  test_failed = 0;    
   for(int i = (6 * block_size); i < (56 * block_size); i++){
-    if(buffer[i] != 'D') return -1;
+    if(buffer[i] != 'D'){
+      test_failed = 1;
+      test_one_failed = 1;
+      driver->driver_logger->info_c(driver->driver_logger, "test %d failed", test_case);
+      break;
+    }
   }
+  if(!test_failed)
+    driver->driver_logger->info_c(driver->driver_logger, "test %d passed", test_case);
+  test_case++;  
+  test_failed = 0;    
 
+  if(!test_one_failed)
+    driver->driver_logger->info_c(driver->driver_logger, "all tests passed - device is working properly ...");
+  else
+    driver->driver_logger->info_c(driver->driver_logger, "not all tests passed - device is not working properly ...");
   return 1;
 }
