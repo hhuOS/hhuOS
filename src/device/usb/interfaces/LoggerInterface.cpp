@@ -5,11 +5,13 @@
 Kernel::Logger logger_service = Kernel::Logger::get("USB");
 Kernel::Logger logger_controller = Kernel::Logger::get("UHCI");
 Kernel::Logger logger_device = Kernel::Logger::get("USB_Device");
+Kernel::Logger logger_driver = Kernel::Logger::get("USB_Driver");
 Kernel::Logger logger_default = Kernel::Logger::get("USB DEFAULT"); // for all other purposes 
 
 const uint8_t USB_SERVICE_LOGGER_TYPE = 0;
 const uint8_t USB_CONTROLLER_LOGGER_TYPE = 1;
 const uint8_t USB_DEVICE_LOGGER_TYPE = 2;
+const uint8_t USB_DRIVER_LOGGER_TYPE = 3;
 
 const uint8_t LOGGER_LEVEL_TRACE = 0;
 const uint8_t LOGGER_LEVEL_DEBUG = 1;
@@ -77,6 +79,8 @@ void new_logger(struct Logger_C* logger, uint8_t type, uint8_t level){
         case USB_CONTROLLER_LOGGER_TYPE: logger->logger_pointer = &logger_controller;
             break;
         case USB_DEVICE_LOGGER_TYPE: logger->logger_pointer = &logger_device;
+            break;
+        case USB_DRIVER_LOGGER_TYPE: logger->logger_pointer = &logger_driver;
             break;
         default:
             logger->logger_pointer = &logger_default;    

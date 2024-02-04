@@ -20,6 +20,7 @@ struct Logger_C{
 extern const uint8_t USB_SERVICE_LOGGER_TYPE;
 extern const uint8_t USB_CONTROLLER_LOGGER_TYPE;
 extern const uint8_t USB_DEVICE_LOGGER_TYPE;
+extern const uint8_t USB_DRIVER_LOGGER_TYPE;
 
 extern const uint8_t LOGGER_LEVEL_TRACE;
 extern const uint8_t LOGGER_LEVEL_DEBUG;
