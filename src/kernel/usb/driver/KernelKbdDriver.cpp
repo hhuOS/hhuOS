@@ -51,7 +51,6 @@ int Kernel::Usb::Driver::KernelKbdDriver::submit(){
     KeyBoardDriver* kbd_driver = this->driver;
     UsbDev* dev = kbd_driver->dev.usb_dev;
     if(dev->set_idle(dev, kbd_driver->dev.interface) < 0) return -1;
-    //kbd_driver->trigger_led_report(kbd_driver); -> assuming default state
     
     u.submit_interrupt_transfer(kbd_driver->dev.interface, usb_rcvintpipe(kbd_driver->dev.endpoint_addr),
               kbd_driver->dev.priority, kbd_driver->dev.interval, kbd_driver->dev.buffer,
