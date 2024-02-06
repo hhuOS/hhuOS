@@ -19,7 +19,27 @@ public:
 
     int submit() override;
 
+    bool control(uint32_t request, const Util::Array<uint32_t>& parameters);
+
+    uint64_t readData(uint8_t *targetBuffer, uint64_t start_lba, uint32_t blocks, uint8_t volume);
+
+    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t start_lba, uint32_t blocks, uint8_t volume);
+
 private:
+    enum MSD_Params : uint8_t{
+        GET_SIZE,
+        GET_BLOCK_NUM,
+        GET_BLOCK_LEN,
+        GET_VOLUMES,
+        GET_CAPACITIES_FOUND,
+        GET_INQUIRY,
+        GET_CAPACITY,
+        GET_SENSE, // not implemented -> too lazy :)
+        GET_READ_CAPACITY
+    };
+
+    // additional msd params are in command interface 
+
     MassStorageDriver* driver;
 };
 
