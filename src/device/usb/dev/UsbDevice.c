@@ -50,12 +50,12 @@ void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port,
   dev->device_request_map_io =
       (uint8_t *)mem_service->mapIO(mem_service, PAGE_SIZE, 1);
 
+  mem_set(dev->device_request_map_io, PAGE_SIZE, 0);
+  mem_set(dev->device_request_map_io_bitmap, PAGE_SIZE / sizeof(UsbDeviceRequest), 0);    
+
   dev->device_mutex = (Mutex_C*)mem_service->allocateKernelMemory_c(mem_service, sizeof(Mutex_C), 0);
   dev->device_mutex->new_mutex = &new_mutex;
   dev->device_mutex->new_mutex(dev->device_mutex);
-
-  mem_set(dev->device_request_map_io, PAGE_SIZE, 0);
-  mem_set(dev->device_request_map_io_bitmap, PAGE_SIZE / sizeof(UsbDeviceRequest), 0);
 
   dev->speed = speed;
   dev->port = port;
@@ -734,8 +734,8 @@ UsbDeviceRequest *get_free_device_request(UsbDev *dev) {
 void free_device_request(UsbDev *dev, UsbDeviceRequest *device_request) {
   for (int i = 0; i < PAGE_SIZE; i += sizeof(UsbDeviceRequest)) {
     //dev->device_mutex->acquire_c(dev->device_mutex);
-    if ((dev->device_request_map_io_bitmap + i) == (uint8_t *)device_request) {
-      //dev->device_request_map_io_bitmap[i / sizeof(UsbDeviceRequest)] = 0;
+    if ((dev->device_request_map_io + i) == (uint8_t *)device_request) {
+      dev->device_request_map_io_bitmap[i / sizeof(UsbDeviceRequest)] = 0;
       //dev->device_mutex->release_c(dev->device_mutex);
       return;
     }
