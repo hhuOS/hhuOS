@@ -3,8 +3,6 @@
 
 #include "../UsbDriver.h"
 #include "stdint.h"
-#include "../../events/event/Event.h"
-#include "../../events/event/storage/MassStorageEvent.h"
 #include "CommandInterface.h"
 #include "../../interfaces/LoggerInterface.h"
 
@@ -97,6 +95,17 @@ struct MassStorageDriver{
     Logger_C* (*init_logger)(struct MassStorageDriver* driver);
     void (*parse_request_sense)(struct MassStorageDriver* driver, RequestSense* rs);
     void (*init_sense_description)(struct MassStorageDriver* driver);
+    int (*is_valid_volume)(struct MassStorageDriver* driver, uint8_t volume);
+    int (*get_capacity_count)(struct MassStorageDriver* driver, uint8_t volume);
+
+    int (*get_inquiry_data)(struct MassStorageDriver* driver, uint8_t volume, uint8_t param, 
+                          uint8_t* target, uint8_t* len);
+    int (*get_capacity_descpritor)(struct MassStorageDriver* driver, uint8_t volume, uint8_t capacity_num, uint8_t param,
+                                 uint8_t* target, uint8_t* len);
+    int (*get_sense_data)(struct MassStorageDriver* driver, uint8_t volume, uint8_t param,
+                        uint8_t* target, uint8_t* len);
+    int (*get_capacity)(struct MassStorageDriver* driver, uint8_t volume, uint8_t param, 
+                      uint8_t* target, uint8_t* len);
 
     uint8_t success_transfer;
 
@@ -157,5 +166,17 @@ int test_mass_storage_writes(MassStorageDriver* driver, CommandBlockWrapper* cbw
 Logger_C* init_msd_logger(MassStorageDriver* driver);
 void parse_request_sense(MassStorageDriver* driver, RequestSense* rs);
 void init_sense_description(MassStorageDriver* driver);
+
+int is_valid_volume(MassStorageDriver* driver, uint8_t volume);
+int get_capacity_count(MassStorageDriver* driver, uint8_t volume);
+int get_inquiry_data(MassStorageDriver* driver, uint8_t volume, uint8_t param, 
+                          uint8_t* target, uint8_t* len);
+int get_capacity_descpritor(MassStorageDriver* driver, uint8_t volume, uint8_t capacity_num, uint8_t param,
+                                 uint8_t* target, uint8_t* len);
+int get_sense_data(MassStorageDriver* driver, uint8_t volume, uint8_t param,
+                        uint8_t* target, uint8_t* len);
+int get_capacity(MassStorageDriver* driver, uint8_t volume, uint8_t param, 
+                      uint8_t* target, uint8_t* len);
+
 
 #endif

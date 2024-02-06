@@ -1,9 +1,5 @@
 #include "MassStorageDriver.h"
-#include "../../../../lib/util/io/key/InputEvents.h"
 #include "../../dev/UsbDevice.h"
-#include "../../events/EventDispatcher.h"
-#include "../../events/event/Event.h"
-#include "../../events/event/hid/KeyBoardEvent.h"
 #include "../../include/UsbControllerInclude.h"
 #include "../../include/UsbErrors.h"
 #include "../../include/UsbGeneral.h"
@@ -118,6 +114,11 @@ void new_mass_storage_driver(MassStorageDriver* driver, char* name, UsbDevice_ID
   driver->get_block_num  = &get_block_num;
   driver->test_mass_storage_writes = &test_mass_storage_writes;
   driver->init_sense_description = &init_sense_description;
+  driver->is_valid_volume = &is_valid_volume;
+  driver->get_inquiry_data = &get_inquiry_data;
+  driver->get_capacity_descpritor = &get_capacity_descpritor;
+  driver->get_sense_data = &get_sense_data;
+  driver->get_capacity = &get_capacity;
 
   internal_msd_driver = driver;
 
@@ -281,8 +282,21 @@ void callback_csw(UsbDev *dev, uint32_t status, void *data) {
     return;
 }
 
-int read_command(MassStorageDriver* driver, CommandCode cc, void* data){
-  return 0;
+uint64_t read(MassStorageDriver* driver, uint64_t start_lba, uint32_t blocks,
+              uint8_t volume){
+  
+}
+
+uint64_t write(){
+  
+}
+
+int is_valid_volume(MassStorageDriver* driver, uint8_t volume_input){
+  return (volume_input < driver->volumes ? 1 : 0);
+}
+
+int get_capacity_count(MassStorageDriver* driver, uint8_t volume){
+  return driver->mass_storage_volumes[volume].found_capacities;
 }
 
 int send_inquiry(MassStorageDriver *driver, CommandBlockWrapper *cbw,
@@ -308,6 +322,204 @@ int send_inquiry(MassStorageDriver *driver, CommandBlockWrapper *cbw,
   driver->mass_storage_volumes[volume].inquiry = *inquiry_data;
 
   return 1;
+}
+
+// copy len bytes to target buffer : for each get function
+
+int get_inquiry_data(MassStorageDriver* driver, uint8_t volume, uint8_t param, 
+                          uint8_t* target, uint8_t* len){
+  InquiryCommandData inquiry_data = driver->mass_storage_volumes[volume].inquiry;
+  
+  if(param == PERI_QUALIFIER){
+    *target = (inquiry_data.byte1 & PERI_QUALIFIER) >> 5;
+    *len    = 1;
+  }
+  else if(param == PERI_DEVICE_TYPE){
+    *target = inquiry_data.byte1 & PERI_DEVICE_TYPE;
+    *len    = 1;
+  }
+  else if(param == RMB){
+    *target = (inquiry_data.byte2 & RMB) >> 7;
+    *len    = 1;
+  }
+  else if(param == VERSION){
+    *target = inquiry_data.byte3;
+    *len    = 1;
+  }
+  else if(param == NORM_ACA){
+    *target = (inquiry_data.byte4 & NORM_ACA) >> 5;
+    *len    = 1;
+  }
+  else if(param == HI_SUP){
+    *target = (inquiry_data.byte4 & HI_SUP) >> 4;
+    *len    = 1;
+  }
+  else if(param == RESPONSE_DATA_FORMAT){
+    *target = inquiry_data.byte4 & RESPONSE_DATA_FORMAT;
+    *len    = 1;
+  }
+  else if(param == ADDITIONAL_LEN){
+    *target = inquiry_data.byte5 & ADDITIONAL_LEN;
+    *len    = 1;
+  }
+  else if(param == SCCS){
+    *target = (inquiry_data.byte6 & SCCS) >> 7;
+    *len    = 1;
+  }
+  else if(param == ACC){
+    *target = (inquiry_data.byte6 & ACC) >> 6;
+    *len    = 1;
+  }
+  else if(param == TPGS){
+    *target = (inquiry_data.byte6 & TPGS) >> 4;
+    *len    = 1;
+  }
+  else if(param == THREE_PC){
+    *target = (inquiry_data.byte6 & THREE_PC) >> 3;
+    *len    = 1;
+  }
+  else if(param == PROT){
+    *target = inquiry_data.byte6 & PROT;
+    *len    = 1;
+  }
+  else if(param == RESV){
+    *target = (inquiry_data.byte7 & RESV) >> 7;
+    *len    = 1;
+  }
+  else if(param == ENC_SERV){
+    *target = (inquiry_data.byte7 & ENC_SERV) >> 6;
+    *len    = 1;
+  }
+  else if(param == VS){
+    *target = (inquiry_data.byte7 & VS) >> 5;
+    *len    = 1;
+  }
+  else if(param == MULTI_P){
+    *target = (inquiry_data.byte7 & MULTI_P) >> 4;
+    *len    = 1;
+  }
+  else if(param == ADDR_16){
+    *target = inquiry_data.byte7 & ADDR_16;
+    *len    = 1;
+  }
+  else if(param == WBUS_16){
+    *target = (inquiry_data.byte8 & WBUS_16) >> 5;
+    *len    = 1;
+  }
+  else if(param == SYNC_INQUIRY){
+    *target = (inquiry_data.byte8 & SYNC_INQUIRY) >> 4;
+    *len    = 1;
+  }
+  else if(param == CMDN_QUE){
+    *target = (inquiry_data.byte8 & CMDN_QUE) >> 1;
+    *len    = 1;
+  }
+  // copy data from kernel to target buffer, todo !
+  else if(param == VENDOR_INFORMATION){
+    target = inquiry_data.vendor_information;
+    *len    = 8;
+  }
+  else if(param == PRODUCT_INFORMATION){
+    target = inquiry_data.product_information;
+    *len    = 16;
+  }
+  else if(param == PRODUCT_REVISION_LEVEL){
+    target = inquiry_data.product_revision_level;
+    *len    = 4;
+  }
+  else return -1;
+
+  return 1;                    
+}
+
+int get_capacity_descpritor(MassStorageDriver* driver, uint8_t volume, uint8_t capacity_num, uint8_t param,
+                                 uint8_t* target, uint8_t* len){
+  if(capacity_num >= driver->mass_storage_volumes[volume].found_capacities) return -1;
+  CapacityDescriptor c_desc = driver->mass_storage_volumes[volume].capacity_desc[capacity_num];
+
+  if(param == NUMBER_OF_BLOCKS){
+    uint32_t* extended_target = (uint32_t*)target;
+    *extended_target = c_desc.number_of_blocks;
+    *len    = 4;
+  }
+  else if(param == DESCRIPTOR_CODE){
+    *target = c_desc.code;
+    *len    = 1;
+  }
+  else if(param == BLOCK_LEN){
+    uint32_t* total = (uint32_t*)target;
+    *total = c_desc.block_length_b1 | c_desc.block_length_b2 << 8 | c_desc.block_length_b3 << 16;
+    *len    = 4;
+  }
+  else return -1;
+
+  return 1;
+}
+
+int get_sense_data(MassStorageDriver* driver, uint8_t volume, uint8_t param,
+                        uint8_t* target, uint8_t* len){
+  return -1;
+}
+
+int get_capacity(MassStorageDriver* driver, uint8_t volume, uint8_t param, 
+                      uint8_t* target, uint8_t* len){
+  if(driver->mass_storage_volumes[volume].version == READ_CAPACITY_10){
+    ReadCapacity__32_Bit rc = driver->mass_storage_volumes[volume].rc_32_bit;
+    if(param == LOGICAL_BLOCK_ADDRESS_32_BIT){
+      uint32_t* block_address = (uint32_t*)target;
+      *block_address = rc.logical_block_address;
+      *len    = 4;
+    }
+    else if(param == BLOCK_SIZE_IN_BYTES_32_BIT){
+      uint32_t* block_size = (uint32_t*)target;
+      *block_size = rc.block_size;
+      *len    = 4;
+    }
+    else return -1;
+
+    return 1;
+  }
+  else if(driver->mass_storage_volumes[volume].version == READ_CAPACITY_16){
+    ReadCapacity__64_Bit rc = driver->mass_storage_volumes[volume].rc_64_bit;
+    if(param == LOGICAL_BLOCK_ADDRESS_64_BIT){
+      uint32_t* logical_block_addr = (uint32_t*)target;
+      *logical_block_addr = rc.lower_logical_block_address;
+      *(logical_block_addr + 1) = rc.upper_logical_block_address;
+
+      *len = 8;
+    }
+    else if(param == BLOCK_SIZE_IN_BYTES_64_BIT){
+      uint32_t* block_size = (uint32_t*)target;
+      *block_size = rc.block_size;
+      *len = 4;
+    }
+    else if(param == P_TYPE){
+      *target = (rc.byte1 & P_TYPE) >> 1;
+      *len    = 1;
+    }
+    else if(param == PROT_EN){
+      *target = rc.byte1 & PROT_EN;
+      *len    = 1;
+    }
+    else if(param == P_I_EXPONENT){
+      *target = (rc.byte2 & P_I_EXPONENT) >> 4;
+      *len    = 1;
+    }
+    else if(param == LBS){
+      *target = rc.byte2 & LBS;
+      *len    = 1;
+    }
+    else if(param == LOWEST_BLOCK_ADDRESS){
+      uint16_t* l_block_addr = (uint16_t*)target;
+      *l_block_addr = rc.word1;
+      *len    = 2;
+    }
+    else return -1;
+
+    return 1;
+  }
+
+  return -1;
 }
 
 int send_read_format_capacities(MassStorageDriver *driver, CommandBlockWrapper *cbw,
