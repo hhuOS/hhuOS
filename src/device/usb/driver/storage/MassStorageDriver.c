@@ -6,6 +6,7 @@
 #include "../../include/UsbInterface.h"
 #include "../../interfaces/TimeInterface.h"
 #include "../../interfaces/LoggerInterface.h"
+#include "../../utility/Utils.h"
 #include "../UsbDriver.h"
 #include "CommandInterface.h"
 
@@ -74,6 +75,8 @@ int16_t probe_mass_storage(UsbDev *dev, Interface *interface) {
     internal_msd_driver->dev.priority = PRIORITY_8;
     internal_msd_driver->dev.interface = interface;
 
+    internal_msd_driver->init_map_io(internal_msd_driver);
+
     return 1;
   }
 
@@ -119,6 +122,11 @@ void new_mass_storage_driver(MassStorageDriver* driver, char* name, UsbDevice_ID
   driver->get_capacity_descpritor = &get_capacity_descpritor;
   driver->get_sense_data = &get_sense_data;
   driver->get_capacity = &get_capacity;
+  driver->init_map_io = &init_map_io;
+  driver->get_free_cbw = &get_free_cbw;
+  driver->get_free_csw = &get_free_csw;
+  driver->free_cbw = &free_cbw;
+  driver->free_csw = &free_csw;
 
   internal_msd_driver = driver;
 
@@ -129,6 +137,18 @@ void new_mass_storage_driver(MassStorageDriver* driver, char* name, UsbDevice_ID
   internal_msd_driver->driver_logger = internal_msd_driver->init_logger(internal_msd_driver);
   internal_msd_driver->init_sense_description(internal_msd_driver);
   internal_msd_driver->parse_request_sense = &parse_request_sense;
+}
+
+void init_map_io(MassStorageDriver* driver){
+  MemoryService_C* m = (MemoryService_C*)container_of(driver->dev.usb_dev->mem_service, MemoryService_C, super);
+  driver->csw_map_io = (uint8_t*)m->mapIO(m, PAGE_SIZE, 1);
+  driver->cbw_map_io = (uint8_t*)m->mapIO(m, PAGE_SIZE, 1);
+
+  mem_set(driver->csw_map_io, PAGE_SIZE, 0);
+  mem_set(driver->cbw_map_io, PAGE_SIZE, 0);
+
+  mem_set(driver->csw_map_io_bitmap, PAGE_SIZE / sizeof(CommandStatusWrapper), 0);
+  mem_set(driver->cbw_map_io_bitmap, PAGE_SIZE / sizeof(CommandBlockWrapper), 0);
 }
 
 Logger_C* init_msd_logger(MassStorageDriver* driver){
@@ -282,13 +302,65 @@ void callback_csw(UsbDev *dev, uint32_t status, void *data) {
     return;
 }
 
+CommandBlockWrapper* get_free_cbw(MassStorageDriver *driver){
+  for (int i = 0; i < PAGE_SIZE / sizeof(CommandBlockWrapper); i++) {
+    //dev->device_mutex->acquire_c(dev->device_mutex);
+    if (driver->cbw_map_io_bitmap[i] == 0) {
+      driver->cbw_map_io_bitmap[i] = 1;
+      //dev->device_mutex->release_c(dev->device_mutex);
+      return (CommandBlockWrapper*)(driver->cbw_map_io +
+                                  (i * sizeof(CommandBlockWrapper)));
+    }
+    //dev->device_mutex->release_c(dev->device_mutex);
+  }
+  return (void *)0;
+}
+
+void free_cbw(MassStorageDriver* driver, CommandBlockWrapper* cbw){
+  for (int i = 0; i < PAGE_SIZE; i += sizeof(CommandBlockWrapper)) {
+    //dev->device_mutex->acquire_c(dev->device_mutex);
+    if ((driver->cbw_map_io + i) == (uint8_t *)cbw) {
+      driver->cbw_map_io_bitmap[i / sizeof(UsbDeviceRequest)] = 0;
+      //dev->device_mutex->release_c(dev->device_mutex);
+      return;
+    }
+    //dev->device_mutex->release_c(dev->device_mutex);
+  }
+}
+
+CommandStatusWrapper* get_free_csw(MassStorageDriver* driver){
+  for (int i = 0; i < PAGE_SIZE / sizeof(CommandStatusWrapper); i++) {
+    //dev->device_mutex->acquire_c(dev->device_mutex);
+    if (driver->csw_map_io_bitmap[i] == 0) {
+      driver->csw_map_io_bitmap[i] = 1;
+      //dev->device_mutex->release_c(dev->device_mutex);
+      return (CommandStatusWrapper*)(driver->cbw_map_io +
+                                  (i * sizeof(CommandStatusWrapper)));
+    }
+    //dev->device_mutex->release_c(dev->device_mutex);
+  }
+  return (void *)0;
+}
+
+void free_csw(MassStorageDriver* driver, CommandStatusWrapper* csw){
+  for (int i = 0; i < PAGE_SIZE; i += sizeof(CommandBlockWrapper)) {
+    //dev->device_mutex->acquire_c(dev->device_mutex);
+    if ((driver->csw_map_io + i) == (uint8_t *)csw) {
+      driver->csw_map_io_bitmap[i / sizeof(CommandStatusWrapper)] = 0;
+      //dev->device_mutex->release_c(dev->device_mutex);
+      return;
+    }
+    //dev->device_mutex->release_c(dev->device_mutex);
+  }
+}
+
 uint64_t read(MassStorageDriver* driver, uint64_t start_lba, uint32_t blocks,
               uint8_t volume){
   
 }
 
 uint64_t write(){
-  
+
 }
 
 int is_valid_volume(MassStorageDriver* driver, uint8_t volume_input){

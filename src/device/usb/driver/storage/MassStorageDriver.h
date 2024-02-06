@@ -107,6 +107,11 @@ struct MassStorageDriver{
     int (*get_capacity)(struct MassStorageDriver* driver, uint8_t volume, uint8_t param, 
                       uint8_t* target, uint8_t* len);
 
+    void (*init_map_io)(struct MassStorageDriver* driver);
+    CommandBlockWrapper* (*get_free_cbw)(struct MassStorageDriver *driver);
+    void (*free_cbw)(struct MassStorageDriver* driver, CommandBlockWrapper* cbw);
+    CommandStatusWrapper* (*get_free_csw)(struct MassStorageDriver* driver);
+    void (*free_csw)(struct MassStorageDriver* driver, CommandStatusWrapper* csw);
     uint8_t success_transfer;
 
     struct MassStorageVolume* mass_storage_volumes;
@@ -114,6 +119,12 @@ struct MassStorageDriver{
 
     char* description_sense[SENSE_STATUS_LEN];
     Logger_C* driver_logger;
+
+    uint8_t* csw_map_io;
+    uint8_t* cbw_map_io;
+
+    uint8_t csw_map_io_bitmap[PAGE_SIZE / sizeof(CommandStatusWrapper)];
+    uint8_t cbw_map_io_bitmap[PAGE_SIZE / sizeof(CommandBlockWrapper)];
 };
 
 typedef struct MassStorageDriver MassStorageDriver;
@@ -177,6 +188,10 @@ int get_sense_data(MassStorageDriver* driver, uint8_t volume, uint8_t param,
                         uint8_t* target, uint8_t* len);
 int get_capacity(MassStorageDriver* driver, uint8_t volume, uint8_t param, 
                       uint8_t* target, uint8_t* len);
-
+void init_map_io(MassStorageDriver* driver);
+CommandBlockWrapper* get_free_cbw(MassStorageDriver *driver);
+void free_cbw(MassStorageDriver* driver, CommandBlockWrapper* cbw);
+CommandStatusWrapper* get_free_csw(MassStorageDriver* driver);
+void free_csw(MassStorageDriver* driver, CommandStatusWrapper* csw);
 
 #endif
