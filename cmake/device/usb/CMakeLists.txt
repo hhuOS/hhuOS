@@ -24,7 +24,6 @@ target_sources(device PUBLIC
         ${HHUOS_SRC_DIR}/device/usb/events/EventDispatcher.c
         ${HHUOS_SRC_DIR}/device/usb/events/listeners/hid/KeyBoardListener.c
         ${HHUOS_SRC_DIR}/device/usb/events/listeners/hid/MouseListener.c
-        ${HHUOS_SRC_DIR}/device/usb/events/listeners/storage/MassStorageListener.c
         ${HHUOS_SRC_DIR}/device/usb/events/listeners/EventListener.c
         ${HHUOS_SRC_DIR}/device/usb/include/UsbGeneral.c
         ${HHUOS_SRC_DIR}/device/usb/include/UsbInterface.cpp
