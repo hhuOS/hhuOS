@@ -21,14 +21,14 @@ struct CommandBlockWrapper {
   uint8_t lun;
   uint8_t command_len;
   uint8_t command[COMMAND_LEN]; // command data block consist of 16 bytes
-};
+} __attribute__((packed));
 
 struct CommandStatusWrapper {
   uint32_t signature;
   uint32_t tag;
   uint32_t data_residue; // diff in data transfered -> sucess = 0
   uint8_t status;
-};
+} __attribute__((packed));
 
 enum CommandCode {
   REQUEST_SENSE = 0x03,
@@ -46,27 +46,27 @@ enum CommandCode {
 };
 
 enum InquiryData{
-  PERI_QUALIFIER,
-  PERI_DEVICE_TYPE,
-  RMB,
-  VERSION,
-  NORM_ACA,
-  HI_SUP,
-  RESPONSE_DATA_FORMAT,
-  ADDITIONAL_LEN,
-  SCCS,
-  ACC,
-  TPGS,
-  THREE_PC,
-  PROT,
-  RESV,
-  ENC_SERV,
-  VS,
-  MULTI_P,
-  ADDR_16,
-  WBUS_16,
-  SYNC_INQUIRY,
-  CMDN_QUE,
+  PERI_QUALIFIER = 0x70,
+  PERI_DEVICE_TYPE = 0x1F,
+  RMB = 0x80,
+  VERSION = 0xFF,
+  NORM_ACA = 0x20,
+  HI_SUP = 0x10,
+  RESPONSE_DATA_FORMAT = 0x0F,
+  ADDITIONAL_LEN = 0xFF,
+  SCCS = 0x80,
+  ACC = 0x40,
+  TPGS = 0x30,
+  THREE_PC = 0x08,
+  PROT = 0x01,
+  RESV = 0x80,
+  ENC_SERV = 0x40,
+  VS = 0x20,
+  MULTI_P = 0x10,
+  ADDR_16 = 0x01,
+  WBUS_16 = 0x20,
+  SYNC_INQUIRY = 0x10,
+  CMDN_QUE = 0x02,
   VENDOR_INFORMATION,
   PRODUCT_INFORMATION,
   PRODUCT_REVISION_LEVEL
