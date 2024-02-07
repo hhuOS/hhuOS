@@ -1093,6 +1093,9 @@ int register_driver_uhci(UsbController *controller, UsbDriver *driver) {
   if (driver->probe == (void *)0) {
     return -1;
   };
+  // driver should be listed, althought i does not have a matching dev
+  // useful when later having plug & play
+  ((UsbController*)uhci)->link_driver_to_controller((UsbController*)uhci, driver);
 
   int driver_device_match_count = 0;
 
@@ -1173,7 +1176,6 @@ int register_driver_uhci(UsbController *controller, UsbDriver *driver) {
         } else {
           driver_device_match_count++;
           ((UsbController*)uhci)->link_device_to_driver((UsbController*)uhci, dev, driver);
-          ((UsbController*)uhci)->link_driver_to_controller((UsbController*)uhci, driver);
           ((UsbController*)uhci)->link_driver_to_interface((UsbController*)uhci, driver, interface);
           ((UsbController*)uhci)->interface_dev_map->put_c(
               ((UsbController*)uhci)->interface_dev_map, interface,
