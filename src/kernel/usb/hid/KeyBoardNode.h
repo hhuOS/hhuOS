@@ -8,7 +8,7 @@
 
 namespace Kernel::Usb {
 
-class KeyBoardNode : UsbNode, Util::Io::FilterInputStream {
+class KeyBoardNode : public UsbNode, Util::Io::FilterInputStream {
 
 public:
 

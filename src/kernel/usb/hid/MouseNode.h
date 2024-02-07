@@ -8,7 +8,7 @@
 
 namespace Kernel::Usb {
 
-class MouseNode : UsbNode , Util::Io::FilterInputStream{
+class MouseNode : public UsbNode , Util::Io::FilterInputStream{
 
 public:
 

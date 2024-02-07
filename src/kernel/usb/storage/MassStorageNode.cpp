@@ -27,6 +27,7 @@ int Kernel::Usb::MassStorageNode::add_file_node(){
   bool success = driver.addNode("/", this);
 
   if (!success) {
+    delete this;
     return -1;
   }
 
