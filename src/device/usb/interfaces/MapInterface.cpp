@@ -4,6 +4,8 @@
 #include "../controller/uhci/data/UHCI_Data.h"
 #include "../controller/uhci/UHCI.h"
 #include "../controller/uhci/components/UHCIRegister.h"
+#include "../driver/storage/CommandInterface.h"
+#include "../driver/storage/MassStorageDriver.h"
 
 void new_super_map(struct SuperMap *s, const char *map_descript,
                    Map_C pointer) {
@@ -408,4 +410,249 @@ void put_c_qh_measurement(struct SuperMap *m, void *key, void *value) {
 void *remove_c_qh_measurement(struct SuperMap *m, void *key) {
   return ((Util::Map<QH *, uint32_t *> *)m->map_pointer)
       ->remove((QH *)key);
+}
+
+void newCommandBlockIntMap(CommandBlockWrapper_Int_Map *map,
+                             const char *map_description) {
+  map->super.get_c = &get_command_block_int;
+  map->super.contains_c = &contains_command_block_int;
+  map->super.put_c = &put_command_block_int;
+  map->super.remove_c = &remove_command_block_int;
+  map->super.new_super_map = &new_super_map;
+
+  void *map_pointer = (Map_C) new Util::HashMap<CommandBlockWrapper *, uint32_t*>();
+  map->super.new_super_map(&map->super, map_description, map_pointer);
+}
+
+void *get_command_block_int(struct SuperMap *m, void *key) {
+  if (((Util::Map<CommandBlockWrapper *, uint32_t*> *)m->map_pointer)
+          ->containsKey((CommandBlockWrapper *)key))
+    return ((Util::Map<CommandBlockWrapper *, uint32_t*> *)m->map_pointer)
+        ->get((CommandBlockWrapper *)key);
+  return (void *)0;
+}
+
+int contains_command_block_int(struct SuperMap *m, void *key) {
+  return (int)((Util::Map<CommandBlockWrapper *, uint32_t *> *)m->map_pointer)
+      ->containsKey((CommandBlockWrapper*)key);
+}
+
+void put_command_block_int(struct SuperMap *m, void *key, void *value) {
+  ((Util::Map<CommandBlockWrapper *, uint32_t *> *)m->map_pointer)
+      ->put((CommandBlockWrapper *)key, (uint32_t *)value);
+}
+
+void *remove_command_block_int(struct SuperMap *m, void *key) {
+  return ((Util::Map<CommandBlockWrapper *, uint32_t *> *)m->map_pointer)
+      ->remove((CommandBlockWrapper *)key);
+}
+
+void newCommandStatusIntMap(CommandStatusWrapper_Int_Map *map,
+                             const char *map_description) {
+  map->super.get_c = &get_command_status_int;
+  map->super.contains_c = &contains_command_status_int;
+  map->super.put_c = &put_command_status_int;
+  map->super.remove_c = &remove_command_status_int;
+  map->super.new_super_map = &new_super_map;
+
+  void *map_pointer = (Map_C) new Util::HashMap<CommandStatusWrapper *, uint32_t*>();
+  map->super.new_super_map(&map->super, map_description, map_pointer);
+}
+
+void *get_command_status_int(struct SuperMap *m, void *key) {
+  if (((Util::Map<CommandStatusWrapper *, uint32_t*> *)m->map_pointer)
+          ->containsKey((CommandStatusWrapper *)key))
+    return ((Util::Map<CommandStatusWrapper *, uint32_t*> *)m->map_pointer)
+        ->get((CommandStatusWrapper *)key);
+  return (void *)0;
+}
+
+int contains_command_status_int(struct SuperMap *m, void *key) {
+  return (int)((Util::Map<CommandStatusWrapper *, uint32_t *> *)m->map_pointer)
+      ->containsKey((CommandStatusWrapper*)key);
+}
+
+void put_command_status_int(struct SuperMap *m, void *key, void *value) {
+  ((Util::Map<CommandStatusWrapper *, uint32_t *> *)m->map_pointer)
+      ->put((CommandStatusWrapper *)key, (uint32_t *)value);
+}
+
+void *remove_command_status_int(struct SuperMap *m, void *key) {
+  return ((Util::Map<CommandStatusWrapper *, uint32_t *> *)m->map_pointer)
+      ->remove((CommandStatusWrapper *)key);
+}
+
+void newDataIntMap(Data_Int_Map *map,
+                             const char *map_description) {
+  map->super.get_c = &get_data_int;
+  map->super.contains_c = &contains_data_int;
+  map->super.put_c = &put_data_int;
+  map->super.remove_c = &remove_data_int;
+  map->super.new_super_map = &new_super_map;
+
+  void *map_pointer = (Map_C) new Util::HashMap<uint8_t *, uint32_t*>();
+  map->super.new_super_map(&map->super, map_description, map_pointer);
+}
+
+void *get_data_int(struct SuperMap *m, void *key) {
+  if (((Util::Map<uint8_t *, uint32_t*> *)m->map_pointer)
+          ->containsKey((uint8_t *)key))
+    return ((Util::Map<uint8_t *, uint32_t*> *)m->map_pointer)
+        ->get((uint8_t *)key);
+  return (void *)0;
+}
+
+int contains_data_int(struct SuperMap *m, void *key) {
+  return (int)((Util::Map<uint8_t *, uint32_t *> *)m->map_pointer)
+      ->containsKey((uint8_t*)key);
+}
+
+void put_data_int(struct SuperMap *m, void *key, void *value) {
+  ((Util::Map<uint8_t *, uint32_t *> *)m->map_pointer)
+      ->put((uint8_t *)key, (uint32_t *)value);
+}
+
+void *remove_data_int(struct SuperMap *m, void *key) {
+  return ((Util::Map<uint8_t *, uint32_t *> *)m->map_pointer)
+      ->remove((uint8_t *)key);
+}
+
+void newIntCallbackMap(Int_Callback_Map *map,
+                             const char *map_description) {
+  map->super.get_c = &get_int_callback;
+  map->super.contains_c = &contains_int_callback;
+  map->super.put_c = &put_int_callback;
+  map->super.remove_c = &remove_int_callback;
+  map->super.new_super_map = &new_super_map;
+
+  void *map_pointer = (Map_C) new Util::HashMap<uint32_t, msd_callback*>();
+  map->super.new_super_map(&map->super, map_description, map_pointer);
+}
+
+void *get_int_callback(struct SuperMap *m, void *key) {
+  if (((Util::Map<uint32_t, msd_callback> *)m->map_pointer)
+          ->containsKey(*((uint32_t *)key)))
+    return ((Util::Map<uint32_t, msd_callback*> *)m->map_pointer)
+        ->get(*((uint32_t *)key));
+  return (void *)0;
+}
+
+int contains_int_callback(struct SuperMap *m, void *key) {
+  return (int)((Util::Map<uint32_t, msd_callback*> *)m->map_pointer)
+      ->containsKey(*((uint32_t*)key));
+}
+
+void put_int_callback(struct SuperMap *m, void *key, void *value) {
+  ((Util::Map<uint32_t, msd_callback*> *)m->map_pointer)
+      ->put(*((uint32_t*)key), (msd_callback*)value);
+}
+
+void *remove_int_callback(struct SuperMap *m, void *key) {
+  return ((Util::Map<uint32_t, msd_callback*> *)m->map_pointer)
+      ->remove(*((uint32_t*)key));
+}
+
+void newIntBufferMap(Int_Buffer_Map *map,
+                             const char *map_description) {
+  map->super.get_c = &get_command_block_int;
+  map->super.contains_c = &contains_command_block_int;
+  map->super.put_c = &put_command_block_int;
+  map->super.remove_c = &remove_command_block_int;
+  map->super.new_super_map = &new_super_map;
+
+  void *map_pointer = (Map_C) new Util::HashMap<uint32_t, uint8_t*>();
+  map->super.new_super_map(&map->super, map_description, map_pointer);
+}
+
+void *get_int_buffer(struct SuperMap *m, void *key) {
+  if (((Util::Map<uint32_t, uint8_t*> *)m->map_pointer)
+          ->containsKey(*((uint32_t *)key)))
+    return ((Util::Map<uint32_t, uint8_t*> *)m->map_pointer)
+        ->get(*((uint32_t *)key));
+  return (void *)0;
+}
+
+int contains_int_buffer(struct SuperMap *m, void *key) {
+  return (int)((Util::Map<uint32_t, uint8_t *> *)m->map_pointer)
+      ->containsKey(*((uint32_t*)key));
+}
+
+void put_int_buffer(struct SuperMap *m, void *key, void *value) {
+  ((Util::Map<uint32_t, uint8_t *> *)m->map_pointer)
+      ->put(*((uint32_t *)key), (uint8_t *)value);
+}
+
+void *remove_int_buffer(struct SuperMap *m, void *key) {
+  return ((Util::Map<uint32_t, uint8_t *> *)m->map_pointer)
+      ->remove(*((uint32_t *)key));
+}
+
+void newIntTLenMap(Int_T_Len_Map *map,
+                             const char *map_description) {
+  map->super.get_c = &get_int_t_len;
+  map->super.contains_c = &contains_int_t_len;
+  map->super.put_c = &put_int_t_len;
+  map->super.remove_c = &remove_int_t_len;
+  map->super.new_super_map = &new_super_map;
+
+  void *map_pointer = (Map_C) new Util::HashMap<uint32_t, uint32_t*>();
+  map->super.new_super_map(&map->super, map_description, map_pointer);
+}
+
+void *get_int_t_len(struct SuperMap *m, void *key) {
+  if (((Util::Map<uint32_t, uint32_t*> *)m->map_pointer)
+          ->containsKey(*((uint32_t *)key)))
+    return ((Util::Map<uint32_t, uint32_t*> *)m->map_pointer)
+        ->get(*((uint32_t *)key));
+  return (void *)0;
+}
+
+int contains_int_t_len(struct SuperMap *m, void *key) {
+  return (int)((Util::Map<uint32_t, uint32_t *> *)m->map_pointer)
+      ->containsKey(*((uint32_t*)key));
+}
+
+void put_int_t_len(struct SuperMap *m, void *key, void *value) {
+  ((Util::Map<uint32_t, uint32_t *> *)m->map_pointer)
+      ->put(*((uint32_t *)key), (uint32_t *)value);
+}
+
+void *remove_int_t_len(struct SuperMap *m, void *key) {
+  return ((Util::Map<uint32_t, uint32_t *> *)m->map_pointer)
+      ->remove(*((uint32_t *)key));
+}
+
+void newIntMemBufferMap(Int_Mem_Buffer_Map *map,
+                             const char *map_description) {
+  map->super.get_c = &get_int_t_len;
+  map->super.contains_c = &contains_int_t_len;
+  map->super.put_c = &put_int_t_len;
+  map->super.remove_c = &remove_int_t_len;
+  map->super.new_super_map = &new_super_map;
+
+  void *map_pointer = (Map_C) new Util::HashMap<uint32_t, uint8_t*>();
+  map->super.new_super_map(&map->super, map_description, map_pointer);
+}
+
+void *get_int_mem_buffer(struct SuperMap *m, void *key) {
+  if (((Util::Map<uint32_t, uint8_t*> *)m->map_pointer)
+          ->containsKey(*((uint32_t *)key)))
+    return ((Util::Map<uint32_t, uint8_t*> *)m->map_pointer)
+        ->get(*((uint32_t *)key));
+  return (void *)0;
+}
+
+int contains_int_mem_buffer(struct SuperMap *m, void *key) {
+  return (int)((Util::Map<uint32_t, uint8_t *> *)m->map_pointer)
+      ->containsKey(*((uint32_t*)key));
+}
+
+void put_int_mem_buffer(struct SuperMap *m, void *key, void *value) {
+  ((Util::Map<uint32_t, uint8_t *> *)m->map_pointer)
+      ->put(*((uint32_t *)key), (uint8_t *)value);
+}
+
+void *remove_int_mem_buffer(struct SuperMap *m, void *key) {
+  return ((Util::Map<uint32_t, uint8_t *> *)m->map_pointer)
+      ->remove(*((uint32_t *)key));
 }

@@ -95,6 +95,48 @@ struct QH_Measurement_Map{
   void (*new_map)(struct QH_Measurement_Map* m, const char* map_description);
 };
 
+struct CommandBlockWrapper_Int_Map{
+  struct SuperMap super;
+
+  void (*new_map)(struct CommandBlockWrapper_Int_Map* m, const char* map_description);
+};
+
+struct CommandStatusWrapper_Int_Map{
+  struct SuperMap super;
+
+  void (*new_map)(struct CommandStatusWrapper_Int_Map* m, const char* map_description);
+};
+
+struct Data_Int_Map{
+  struct SuperMap super;
+
+  void (*new_map)(struct Data_Int_Map* m, const char* map_description);
+};
+
+struct Int_Callback_Map{
+  struct SuperMap super;
+
+  void (*new_map)(struct Int_Callback_Map* m, const char* map_description);
+};
+
+struct Int_Buffer_Map{
+  struct SuperMap super;
+
+  void (*new_map)(struct Int_Buffer_Map* m, const char* map_description);
+};
+
+struct Int_T_Len_Map{
+  struct SuperMap super;
+
+  void (*new_map)(struct Int_T_Len_Map* m, const char* map_description);
+};
+
+struct Int_Mem_Buffer_Map{
+  struct SuperMap super;
+
+  void (*new_map)(struct Int_Mem_Buffer_Map* m, const char* map_description);
+};
+
 typedef struct QH_Callback_Function_Map QH_Callback_Function_Map;
 typedef struct QH_TD_Map QH_TD_Map;
 typedef struct Register_Map Register_Map;
@@ -107,6 +149,13 @@ typedef struct Address_Map Address_Map;
 typedef struct Address_TD_Map Address_TD_Map;
 typedef struct QH_Device_Request_Map QH_Device_Request_Map;
 typedef struct QH_Measurement_Map QH_Measurement_Map;
+typedef struct CommandBlockWrapper_Int_Map CommandBlockWrapper_Int_Map;
+typedef struct CommandStatusWrapper_Int_Map CommandStatusWrapper_Int_Map;
+typedef struct Data_Int_Map Data_Int_Map;
+typedef struct Int_Callback_Map Int_Callback_Map;
+typedef struct Int_Buffer_Map Int_Buffer_Map;
+typedef struct Int_T_Len_Map Int_T_Len_Map;
+typedef struct Int_Mem_Buffer_Map Int_Mem_Buffer_Map;
 
 #ifdef __cplusplus
 extern "C" {
@@ -187,6 +236,55 @@ void *get_c_qh_measurement(struct SuperMap *m, void *key);
 int contains_c_qh_measurement(struct SuperMap *m, void *key);
 void put_c_qh_measurement(struct SuperMap *m, void *key, void *value);
 void *remove_c_qh_measurement(struct SuperMap *m, void *key);
+
+void newCommandBlockIntMap(CommandBlockWrapper_Int_Map *map,
+                             const char *map_description);
+void *get_command_block_int(struct SuperMap *m, void *key);
+int contains_command_block_int(struct SuperMap *m, void *key);
+void put_command_block_int(struct SuperMap *m, void *key, void *value);
+void *remove_command_block_int(struct SuperMap *m, void *key);
+
+void newCommandStatusIntMap(CommandStatusWrapper_Int_Map *map,
+                             const char *map_description);
+void *get_command_status_int(struct SuperMap *m, void *key);
+int contains_command_status_int(struct SuperMap *m, void *key);
+void put_command_status_int(struct SuperMap *m, void *key, void *value);
+void *remove_command_status_int(struct SuperMap *m, void *key);
+
+void newDataIntMap(Data_Int_Map *map,
+                             const char *map_description);
+void *get_data_int(struct SuperMap *m, void *key);
+int contains_data_int(struct SuperMap *m, void *key);
+void put_data_int(struct SuperMap *m, void *key, void *value);
+void *remove_data_int(struct SuperMap *m, void *key);
+
+void newIntCallbackMap(Int_Callback_Map *map,
+                             const char *map_description);
+void *get_int_callback(struct SuperMap *m, void *key);
+int contains_int_callback(struct SuperMap *m, void *key);
+void put_int_callback(struct SuperMap *m, void *key, void *value);
+void *remove_int_callback(struct SuperMap *m, void *key);
+
+void newIntBufferMap(Int_Buffer_Map *map,
+                             const char *map_description);
+void *get_int_buffer(struct SuperMap *m, void *key);
+int contains_int_buffer(struct SuperMap *m, void *key);
+void put_int_buffer(struct SuperMap *m, void *key, void *value);
+void *remove_int_buffer(struct SuperMap *m, void *key);
+
+void newIntTLenMap(Int_T_Len_Map *map,
+                             const char *map_description);
+void *get_int_t_len(struct SuperMap *m, void *key);
+int contains_int_t_len(struct SuperMap *m, void *key);
+void put_int_t_len(struct SuperMap *m, void *key, void *value);
+void *remove_int_t_len(struct SuperMap *m, void *key);
+
+void newIntMemBufferMap(Int_Mem_Buffer_Map *map,
+                             const char *map_description);
+void *get_int_mem_buffer(struct SuperMap *m, void *key);
+int contains_int_mem_buffer(struct SuperMap *m, void *key);
+void put_int_mem_buffer(struct SuperMap *m, void *key, void *value);
+void *remove_int_mem_buffer(struct SuperMap *m, void *key);
 
 #ifdef __cplusplus
 }
