@@ -21,9 +21,9 @@ public:
 
     bool control(uint32_t request, const Util::Array<uint32_t>& parameters);
 
-    uint64_t readData(uint8_t *targetBuffer, uint64_t start_lba, uint32_t blocks, uint8_t volume);
+    uint64_t readData(uint8_t *targetBuffer, uint64_t start_lba, uint64_t msd_data);
 
-    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t start_lba, uint32_t blocks, uint8_t volume);
+    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t start_lba, uint64_t msd_data);
 
 private:
     enum MSD_Params : uint8_t{
@@ -35,7 +35,8 @@ private:
         GET_INQUIRY,
         GET_CAPACITY,
         GET_SENSE, // not implemented -> too lazy :)
-        GET_READ_CAPACITY
+        GET_READ_CAPACITY,
+        SET_CALLBACK
     };
 
     // additional msd params are in command interface 

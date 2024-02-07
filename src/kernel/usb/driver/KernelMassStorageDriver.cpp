@@ -11,6 +11,7 @@ extern "C"{
 #include "../../../device/usb/driver/storage/MassStorageDriver.h"
 #include "../../../device/usb/driver/UsbDriver.h"
 #include "../../../device/usb/include/UsbGeneral.h"
+#include "../../../device/usb/interfaces/TimeInterface.h"
 }
 
 Kernel::Usb::Driver::KernelMassStorageDriver::KernelMassStorageDriver(Util::String name) : Kernel::Usb::Driver::KernelUsbDriver(name){}
@@ -160,6 +161,13 @@ bool Kernel::Usb::Driver::KernelMassStorageDriver::control(uint32_t request, con
                 return false;
             return true;
         };
+        case SET_CALLBACK : {
+            // callback (uint32_t), uint32_t param
+            if(parameters.length() != 2){
+                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "expecting uint32_t [address], uint32_t [param]");
+            }
+            
+        };
 
         default : return false;
     }
@@ -167,10 +175,16 @@ bool Kernel::Usb::Driver::KernelMassStorageDriver::control(uint32_t request, con
     return false;
 }
 
-uint64_t Kernel::Usb::Driver::KernelMassStorageDriver::readData(uint8_t *targetBuffer, uint64_t start_lba, uint32_t blocks, uint8_t volume){
+// magic & u_tag should be equal like in the set callback control call
+uint64_t Kernel::Usb::Driver::KernelMassStorageDriver::readData(uint8_t *targetBuffer, uint64_t start_lba, uint64_t msd_data){
+    uint32_t blocks = (msd_data & 0xFFFFFFFF00000000) >> 32;
+    uint8_t volume  = msd_data & 0xFF;
+    uint16_t magic  = (msd_data & 0xFFFF00) >> 8;
+    uint8_t u_tag   = (msd_data & 0xFF000000) >> 24;
 
+    return driver->read_msd(driver, targetBuffer, start_lba, blocks, magic, u_tag, volume);
 }
 
-uint64_t Kernel::Usb::Driver::KernelMassStorageDriver::writeData(const uint8_t *sourceBuffer, uint64_t start_lba, uint32_t blocks, uint8_t volume){
+uint64_t Kernel::Usb::Driver::KernelMassStorageDriver::writeData(const uint8_t *sourceBuffer, uint64_t start_lba, uint64_t msd_data){
     return 0;
 }
