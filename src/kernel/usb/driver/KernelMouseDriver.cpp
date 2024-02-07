@@ -20,26 +20,28 @@ int Kernel::Usb::Driver::KernelMouseDriver::initialize(){
     Kernel::MemoryService& m = Kernel::System::getService<Kernel::MemoryService>();
     Kernel::UsbService& u = Kernel::System::getService<Kernel::UsbService>();
 
-    MouseDriver* mouse_driver = (MouseDriver*)m.allocateKernelMemory(sizeof(MouseDriver), 0);
-
-    MouseListener* mouse_listener = (MouseListener*)m.allocateKernelMemory(sizeof(MouseListener), 0);
-    mouse_listener->new_mouse_listener = &new_mouse_listener;
-    mouse_listener->new_mouse_listener(mouse_listener);
-    mouse_driver->new_mouse_driver = &new_mouse_driver;
     UsbDevice_ID usbDevs[] = {
         USB_INTERFACE_INFO(HID_INTERFACE, 0xFF, INTERFACE_PROTOCOL_MOUSE),
         {}
     };
+    MouseDriver* mouse_driver = (MouseDriver*)m.allocateKernelMemory(sizeof(MouseDriver), 0);
+
+    mouse_driver->new_mouse_driver = &new_mouse_driver;
     mouse_driver->new_mouse_driver(mouse_driver, this->getName(), usbDevs);
 
-    m_id = u.register_listener((EventListener*)mouse_listener);
-    if(m_id < 0) return -1;
-
-    mouse_driver->super.listener_id = m_id;
     this->driver = mouse_driver;
 
     dev_found = u.add_driver((UsbDriver*)this->driver);
-    if(dev_found < 0) return -1;
+    if(dev_found == -1) return -1;
+
+    MouseListener* mouse_listener = (MouseListener*)m.allocateKernelMemory(sizeof(MouseListener), 0);
+    mouse_listener->new_mouse_listener = &new_mouse_listener;
+    mouse_listener->new_mouse_listener(mouse_listener);
+    m_id = u.register_listener((EventListener*)mouse_listener);
+
+    if(m_id < 0) return -1;
+
+    mouse_driver->super.listener_id = m_id;
 
     return 1;
 }

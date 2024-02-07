@@ -21,17 +21,16 @@ int Kernel::Usb::Driver::KernelMassStorageDriver::initialize(){
     Kernel::MemoryService& m = Kernel::System::getService<Kernel::MemoryService>();
     Kernel::UsbService& u = Kernel::System::getService<Kernel::UsbService>();
 
-    MassStorageDriver* msd_driver = (MassStorageDriver*)m.allocateKernelMemory(sizeof(MassStorageDriver), 0);
-    msd_driver->new_mass_storage_driver = &new_mass_storage_driver;
     UsbDevice_ID usbDevs[] = {
         USB_INTERFACE_INFO(MASS_STORAGE_INTERFACE, 0xFF, 0xFF),
         {}
     };
-
+    MassStorageDriver* msd_driver = (MassStorageDriver*)m.allocateKernelMemory(sizeof(MassStorageDriver), 0);
+    msd_driver->new_mass_storage_driver = &new_mass_storage_driver;
     msd_driver->new_mass_storage_driver(msd_driver, this->getName(), usbDevs);
 
     dev_found = u.add_driver((UsbDriver*)msd_driver);
-    if(dev_found < 0) return -1;
+    if(dev_found == -1) return -1;
 
     if(msd_driver->configure_device(msd_driver) == -1)
         return -1;
