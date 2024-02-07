@@ -38,7 +38,7 @@
                     "quoting": "escape"
                 },
                 {
-                    "value": "type=uhci,vendorid=0x1038,productid=0x1614,port=1;vendorid=0x046d,productid=0xc077,port=2",
+                    "value": "type=uhci,vendorid=0x1038,productid=0x1614,port=1;vendorid=0xabcd,productid=1234,port=2", //vendorid=0x046d,productid=0xc077,port=2",
                     "quoting": "escape"
                 },
                 {

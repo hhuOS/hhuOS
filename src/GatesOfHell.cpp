@@ -94,6 +94,7 @@
 #include "kernel/usb/hid/MouseNode.h"
 #include "kernel/usb/driver/KernelKbdDriver.h"
 #include "kernel/usb/driver/KernelMouseDriver.h"
+#include "kernel/usb/driver/KernelMassStorageDriver.h"
 #include "kernel/usb/driver/KernelUsbDriver.h"
 
 namespace Device {
@@ -511,7 +512,7 @@ void GatesOfHell::initializeUsb(){
     Kernel::UsbService& usb_service = Kernel::System::getService<Kernel::UsbService>();
 
     Kernel::Usb::Driver::KernelUsbDriver* k_driver = new Kernel::Usb::Driver::KernelKbdDriver("keyboard");
-    Kernel::Usb::Driver::KernelUsbDriver* m_driver = new Kernel::Usb::Driver::KernelMouseDriver("mouse");
+    Kernel::Usb::Driver::KernelUsbDriver* m_driver = new Kernel::Usb::Driver::KernelMassStorageDriver("stick");
 
     // we are still getting some deadlocks in here ??? -> fix this
     // when starting some transfers we are not allowed to use locks !!! -> when hardware interrupts arrive this causes the deadlock
@@ -525,7 +526,7 @@ void GatesOfHell::initializeUsb(){
     if(mouse_status == -1) log.error("Error creating mouse driver");
 
     if(kbd_status) k_driver->submit();
-    if(mouse_status) m_driver->submit();
+    ///if(mouse_status) m_driver->submit();
 
     Kernel::Usb::KeyBoardNode* kbd_node = new Kernel::Usb::KeyBoardNode();
     Kernel::Usb::MouseNode* mouse_node = new Kernel::Usb::MouseNode();
