@@ -140,6 +140,7 @@ struct MassStorageDriver{
               uint16_t magic_number, uint8_t u_tag, uint8_t volume);
     int (*set_callback_msd)(struct MassStorageDriver* driver, msd_callback callback, 
                         uint16_t magic_number, uint8_t u_tag);
+    int (*unset_callback_msd)(struct MassStorageDriver* driver, uint16_t magic_number, uint8_t u_tag);                        
     uint64_t (*write_msd)(struct MassStorageDriver* driver, uint8_t* target, uint64_t start_lba, uint32_t blocks,
               uint16_t magic_number, uint8_t u_tag, uint8_t volume);
     void (*clear_msd_map)(struct MassStorageDriver* driver, uint32_t id);
@@ -224,6 +225,7 @@ uint64_t read_msd(MassStorageDriver* driver, uint8_t* target, uint64_t start_lba
               uint16_t magic_number, uint8_t u_tag, uint8_t volume);
 int set_callback_msd(MassStorageDriver* driver, msd_callback callback, 
                       uint16_t magic_number, uint8_t u_tag);
+int unset_callback_msd(MassStorageDriver* driver, uint16_t magic_number, uint8_t u_tag);
 uint64_t write_msd(MassStorageDriver* driver, uint8_t* target, uint64_t start_lba, uint32_t blocks,
                 uint16_t magic_number, uint8_t u_tag, uint8_t volume);
 int init_io_msd(MassStorageDriver* driver, CommandBlockWrapper* cbw, uint32_t blocks,

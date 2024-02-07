@@ -133,6 +133,7 @@ void new_mass_storage_driver(MassStorageDriver* driver, char* name, UsbDevice_ID
   driver->write_msd = &write_msd;
   driver->clear_msd_map = &clear_msd_map;
   driver->init_io_msd = &init_io_msd;
+  driver->unset_callback_msd = &unset_callback_msd;
 
   internal_msd_driver = driver;
 
@@ -549,6 +550,16 @@ int set_callback_msd(MassStorageDriver* driver, msd_callback callback,
   driver->callback_map->put_c(driver->callback_map, wrapper_entry, callback);
 
   return 1;
+}
+
+int unset_callback_msd(MassStorageDriver* driver, uint16_t magic_number, uint8_t u_tag){
+  uint32_t map_entry = magic_number | u_tag << 16;
+
+  if(!driver->callback_map->contains_c(driver->callback_map, &map_entry))
+    return -1;
+  driver->callback_map->remove_c(driver, &map_entry);
+
+  return 1;  
 }
 
 // magic_number an u_tag have to match set_callback magic_number and u_tag !!

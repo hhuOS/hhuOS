@@ -36,7 +36,8 @@ private:
         GET_CAPACITY,
         GET_SENSE, // not implemented -> too lazy :)
         GET_READ_CAPACITY,
-        SET_CALLBACK
+        SET_CALLBACK,
+        UNSET_CALLBACK
     };
 
     // additional msd params are in command interface 

@@ -174,6 +174,18 @@ bool Kernel::Usb::Driver::KernelMassStorageDriver::control(uint32_t request, con
                 return false;
             return true;    
         };
+        case UNSET_CALLBACK : {
+            if(parameters.length() != 1){
+                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "expecting uint32_t [param]");
+            }
+            uint32_t param = parameters[0];
+            uint16_t magic_number = param & 0xFFFF;
+            uint8_t u_tag = (param & 0xFF0000) >> 16;
+
+            if(driver->unset_callback_msd(driver, magic_number, u_tag) == -1)
+                return false;
+            return true;
+        };
 
         default : return false;
     }
