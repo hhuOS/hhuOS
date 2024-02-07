@@ -92,6 +92,7 @@
 #include "kernel/service/UsbService.h"
 #include "kernel/usb/hid/KeyBoardNode.h"
 #include "kernel/usb/hid/MouseNode.h"
+#include "kernel/usb/storage/MassStorageNode.h"
 #include "kernel/usb/driver/KernelKbdDriver.h"
 #include "kernel/usb/driver/KernelMouseDriver.h"
 #include "kernel/usb/driver/KernelMassStorageDriver.h"
@@ -507,39 +508,37 @@ void GatesOfHell::initializeSound() {
 }
 
 void GatesOfHell::initializeUsb(){
-    int kbd_status = 0, mouse_status = 0;
+    log.info("Initializing Usb ...");
+    
+    int kbd_status = 0, mouse_status = 0, msd_status = 0;
     Kernel::System::registerService(Kernel::UsbService::SERVICE_ID, new Kernel::UsbService());
     Kernel::UsbService& usb_service = Kernel::System::getService<Kernel::UsbService>();
 
     Kernel::Usb::Driver::KernelUsbDriver* k_driver = new Kernel::Usb::Driver::KernelKbdDriver("keyboard");
-    Kernel::Usb::Driver::KernelUsbDriver* m_driver = new Kernel::Usb::Driver::KernelMassStorageDriver("stick");
+    Kernel::Usb::Driver::KernelUsbDriver* msd_driver = new Kernel::Usb::Driver::KernelMassStorageDriver("msd");
+    Kernel::Usb::Driver::KernelUsbDriver* m_driver = new Kernel::Usb::Driver::KernelMouseDriver("mouse");
 
-    // we are still getting some deadlocks in here ??? -> fix this
-    // when starting some transfers we are not allowed to use locks !!! -> when hardware interrupts arrive this causes the deadlock
+    Kernel::Usb::UsbNode* k_node = new Kernel::Usb::KeyBoardNode();
+    Kernel::Usb::UsbNode* msd_node = new Kernel::Usb::MassStorageNode((Kernel::Usb::Driver::KernelMassStorageDriver*)msd_driver);
+    Kernel::Usb::UsbNode* m_node = new Kernel::Usb::MouseNode();
 
     kbd_status = k_driver->initialize();
     mouse_status = m_driver->initialize();
+    msd_status = msd_driver->initialize();
 
     usb_service.create_usb_fs();
 
-    if(kbd_status == -1) log.error("Error creating kbd driver");
-    if(mouse_status == -1) log.error("Error creating mouse driver");
-
-    if(kbd_status) k_driver->submit();
-    ///if(mouse_status) m_driver->submit();
-
-    Kernel::Usb::KeyBoardNode* kbd_node = new Kernel::Usb::KeyBoardNode();
-    Kernel::Usb::MouseNode* mouse_node = new Kernel::Usb::MouseNode();
-
-    kbd_status = kbd_node->add_file_node();
-    mouse_status = mouse_node->add_file_node();
-
-    if(kbd_status == -1){
-        log.error("Error creating kbd node");
-    }
-    if(mouse_status == -1){
-        log.error("Error creating mouse node");
-    }
+    if(kbd_status != -1)
+        if(k_driver->submit())
+            if(k_node->add_file_node())
+                log.info("Succesful added kbd node -> associated with 0x%x (%s driver)...", k_driver, k_driver->getName());
+    if(mouse_status != -1)
+        if(m_driver->submit())
+            if(m_node->add_file_node())
+                log.info("Succesful added mouse node -> associated with 0x%x (%s driver)...", m_driver, m_driver->getName());
+    if(msd_status != -1)
+        if(msd_node->add_file_node())
+            log.info("Succesful added msd node -> associated with 0x%x (%s driver)...", msd_driver, msd_driver->getName());
 }
 
 void GatesOfHell::mountDevices() {
