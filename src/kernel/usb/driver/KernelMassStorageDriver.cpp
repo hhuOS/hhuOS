@@ -161,12 +161,18 @@ bool Kernel::Usb::Driver::KernelMassStorageDriver::control(uint32_t request, con
                 return false;
             return true;
         };
-        case SET_CALLBACK : {
-            // callback (uint32_t), uint32_t param
+        case SET_CALLBACK : { // 0:15 = magic number ; 16:23 = u_tag
+            // callback is stored in uint32_t which could collide with unint64_t systems
             if(parameters.length() != 2){
                 Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "expecting uint32_t [address], uint32_t [param]");
             }
-            
+            msd_callback callback = (msd_callback)(uintptr_t)parameters[0];
+            uint32_t param = parameters[1];
+            uint16_t magic_number = param & 0xFFFF;
+            uint8_t u_tag = (param & 0xFF0000) >> 16;
+            if(driver->set_callback_msd(driver, callback, magic_number, u_tag) == -1)
+                return false;
+            return true;    
         };
 
         default : return false;
