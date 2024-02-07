@@ -192,5 +192,10 @@ uint64_t Kernel::Usb::Driver::KernelMassStorageDriver::readData(uint8_t *targetB
 }
 
 uint64_t Kernel::Usb::Driver::KernelMassStorageDriver::writeData(const uint8_t *sourceBuffer, uint64_t start_lba, uint64_t msd_data){
-    return 0;
+    uint32_t blocks = (msd_data & 0xFFFFFFFF00000000) >> 32;
+    uint8_t volume  = msd_data & 0xFF;
+    uint16_t magic  = (msd_data & 0xFFFF00) >> 8;
+    uint8_t u_tag   = (msd_data & 0xFF000000) >> 24;
+
+    return driver->write_msd(driver, (uint8_t*)sourceBuffer, start_lba, blocks, magic, u_tag, volume);
 }
