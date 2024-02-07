@@ -132,6 +132,7 @@ void new_mass_storage_driver(MassStorageDriver* driver, char* name, UsbDevice_ID
   driver->set_callback_msd = &set_callback_msd;
   driver->write_msd = &write_msd;
   driver->clear_msd_map = &clear_msd_map;
+  driver->init_io_msd = &init_io_msd;
 
   internal_msd_driver = driver;
 
@@ -357,15 +358,11 @@ void callback_mass_storage(UsbDev *dev, uint32_t status, void *data) {
 
     internal_msd_driver->clear_msd_map(internal_msd_driver, *id);
     mem_service->unmap(mem_service, (uint32_t)(uintptr_t)(uint8_t*)data);
+    internal_msd_driver->free_csw(internal_msd_driver, csw);
     return;
   }
 }
 
-// we will probably need a map : Map<CommandBlockWrapper*, uint32_t>
-// Map<CommandBlockWrapper*, uint32_t>
-// Map<uint8_t*, uint32_t>
-// Map<uint32_t, callback>
-// Map<uint32_t, uint8_t*> 
 void callback_cbw_data_write(UsbDev* dev, uint32_t status, void* data){
   if(status & E_TRANSFER)
     return;
@@ -384,6 +381,20 @@ void callback_cbw_data_write(UsbDev* dev, uint32_t status, void* data){
     internal_msd_driver->clear_msd_map(internal_msd_driver, *id);
     return;
   }
+
+  internal_msd_driver->data_map->put_c(internal_msd_driver->data_map, mm, id);
+  internal_msd_driver->stored_mem_buffer_map->put_c(internal_msd_driver->stored_mem_buffer_map, id, mm);
+
+  if(internal_msd_driver->send_data(internal_msd_driver, mm,
+                                  *stored_len, 0, &callback_mass_storage) == -1){
+    callback(target, 0);
+
+    internal_msd_driver->data_map->remove_c(internal_msd_driver->data_map, mm);
+    m->unmap(m, (uint32_t)(uintptr_t)mm);
+    internal_msd_driver->clear_msd_map(internal_msd_driver, *id);
+  }
+
+  internal_msd_driver->free_cbw(internal_msd_driver, (CommandBlockWrapper*)data);
 }
 
 void callback_cbw_data_read(UsbDev *dev, uint32_t status, void *data) {
@@ -413,9 +424,9 @@ void callback_cbw_data_read(UsbDev *dev, uint32_t status, void *data) {
                                   *stored_len, 0, &callback_mass_storage) == -1){
     callback(target, 0);
 
-    internal_msd_driver->free_cbw(internal_msd_driver, (CommandBlockWrapper*)data);
+    internal_msd_driver->data_map->remove_c(internal_msd_driver->data_map, mm);
+    m->unmap(m, (uint32_t)(uintptr_t)mm);
     internal_msd_driver->clear_msd_map(internal_msd_driver, *id);
-    return;
   }
 
   internal_msd_driver->free_cbw(internal_msd_driver, (CommandBlockWrapper*)data);
@@ -430,7 +441,7 @@ void callback_csw(UsbDev *dev, uint32_t status, void *data) {
   uint32_t* id = (uint32_t*)internal_msd_driver->csw_map->get_c(internal_msd_driver->csw_map, (CommandStatusWrapper*)data);
   uint8_t* target = internal_msd_driver->stored_target_map->get_c(internal_msd_driver->stored_target_map, id);
   msd_callback callback = internal_msd_driver->callback_map->get_c(internal_msd_driver->callback_map, id);
-  uint32_t* len = internal_msd_driver->stored_len_map->get_c(internal_msd_driver, id);
+  uint32_t* len = internal_msd_driver->stored_len_map->get_c(internal_msd_driver->stored_len_map, id);
   uint8_t* mm = internal_msd_driver->stored_mem_buffer_map->get_c(internal_msd_driver->stored_mem_buffer_map, id);
 
   // if csw->status is errorneous or if data residue is greater than 0 we should not fill target buffer
@@ -443,8 +454,6 @@ void callback_csw(UsbDev *dev, uint32_t status, void *data) {
     return;
   }
 
-  internal_msd_driver->free_csw(internal_msd_driver, (CommandStatusWrapper*)data);  
-
   for(int i = 0; i < *len; i++){
     target[i] = mm[i];
   }
@@ -452,14 +461,25 @@ void callback_csw(UsbDev *dev, uint32_t status, void *data) {
   m->unmap(m, (uint32_t)(uintptr_t)mm);
   
   callback(target, *len);
+  internal_msd_driver->free_csw(internal_msd_driver, (CommandStatusWrapper*)data);
   internal_msd_driver->clear_msd_map(internal_msd_driver, *id);
 }
 
 // clear stored_target entry, stored_len_entry and stored_mem_buffer_entry
 void clear_msd_map(MassStorageDriver* driver, uint32_t id){
-  driver->stored_target_map->remove_c(driver->stored_target_map, &id);
-  driver->stored_len_map->remove_c(driver->stored_len_map, &id);
-  driver->stored_mem_buffer_map->remove_c(driver->stored_mem_buffer_map, &id);
+  if(driver->stored_target_map->contains_c(driver->stored_target_map, &id)){
+    driver->stored_target_map->remove_c(driver->stored_target_map, &id);
+  }
+  if(driver->stored_len_map->contains_c(driver->stored_len_map, &id)){
+    uint32_t* len = driver->stored_len_map->get_c(driver->stored_len_map, &id);
+    interface_freeMemory(len, 0);
+    driver->stored_len_map->remove_c(driver->stored_len_map, &id);
+  }
+  if(driver->stored_mem_buffer_map->contains_c(driver->stored_mem_buffer_map, &id)){
+    uint8_t* mem_buffer = driver->stored_mem_buffer_map->get_c(driver->stored_mem_buffer_map, &id);
+    interface_freeMemory(mem_buffer, 0);
+    driver->stored_mem_buffer_map->remove_c(driver->stored_mem_buffer_map, &id);
+  }
 }
 
 CommandBlockWrapper* get_free_cbw(MassStorageDriver *driver){
@@ -522,6 +542,8 @@ int set_callback_msd(MassStorageDriver* driver, msd_callback callback,
     return -1;
   }
   uint32_t* wrapper_entry = (uint32_t*)interface_allocateMemory(sizeof(uint32_t), 0);
+  if(wrapper_entry == (void*)0) return -1;
+  
   *wrapper_entry = map_entry;
 
   driver->callback_map->put_c(driver->callback_map, wrapper_entry, callback);
@@ -536,14 +558,72 @@ uint64_t read_msd(MassStorageDriver* driver, uint8_t* buffer, uint64_t start_lba
   
   if(cbw == (void*)0) return 0;
 
+  uint32_t id = magic_number | u_tag << 16;
+
+  if(!driver->init_io_msd(driver, cbw, blocks, start_lba, buffer, magic_number, u_tag, volume)){
+    goto read_fail;
+  }
+
+  if(driver->send_command(driver, cbw, &callback_cbw_data_read, 0) == -1){
+    goto read_fail;
+  }
+
+  goto read_success;
+
+  read_fail:
+    msd_callback callback = driver->callback_map->get_c(driver->callback_map, &id);
+    uint8_t* target = driver->stored_target_map->get_c(driver->stored_target_map, &id);
+    callback(target, 0);
+    driver->clear_msd_map(driver, id);
+    return 0;
+
+  read_success:
+    return 1;  
+}
+
+uint64_t write_msd(MassStorageDriver* driver, uint8_t* buffer, uint64_t start_lba, uint32_t blocks,
+                    uint16_t magic_number, uint8_t u_tag, uint8_t volume){
+  CommandBlockWrapper* cbw = driver->get_free_cbw(driver);
+
+  if(cbw == (void*)0) return 0;
+
+  uint32_t id = magic_number | u_tag << 16;
+
+  if(!driver->init_io_msd(driver, cbw, blocks, start_lba, buffer, magic_number, u_tag, volume))
+    goto write_fail;
+
+  if(driver->send_command(driver, cbw, &callback_cbw_data_write, 0) == -1)
+    goto write_fail;
+
+  goto write_success;
+
+  write_fail:
+    msd_callback callback = driver->callback_map->get_c(driver->callback_map, &id);
+    uint8_t* target = driver->stored_target_map->get_c(driver->stored_target_map, &id);
+    callback(target, 0);
+    driver->clear_msd_map(driver, id);
+    return 0;
+
+  write_success:
+    return 1;  
+  return 1;
+}
+
+int init_io_msd(MassStorageDriver* driver, CommandBlockWrapper* cbw, uint32_t blocks, 
+                 uint64_t start_lba, uint8_t* buffer, uint16_t magic_number, uint8_t u_tag, uint8_t volume){
   uint32_t map_entry = magic_number | u_tag << 16;
 
   if(!driver->callback_map->contains_c(driver->callback_map, &map_entry)) return 0;
 
   uint32_t* wrapper_entry = (uint32_t*)interface_allocateMemory(sizeof(uint32_t), 0);
+  if(wrapper_entry == (void*)0) return 0;
   *wrapper_entry = map_entry;
 
   uint32_t* len_entry = (uint32_t*)interface_allocateMemory(sizeof(uint32_t), 0);
+  if(len_entry == (void*)0) {
+    interface_freeMemory(wrapper_entry, 0);
+    return 0;
+  }
   *len_entry = blocks * driver->get_block_size(driver, volume);
 
   driver->cbw_map->put_c(driver->cbw_map, cbw, wrapper_entry);
@@ -554,22 +634,10 @@ uint64_t read_msd(MassStorageDriver* driver, uint8_t* buffer, uint64_t start_lba
   uint32_t lba_high = (start_lba & 0xFFFFFFFF00000000) >> 32;
 
   uint32_t t_len = driver->calc_t_len(driver, volume, blocks);
-
+  
   driver->build_read_command(driver, cbw, volume, blocks, lba_low, lba_high, t_len);
 
-  if(driver->send_command(driver, cbw, &callback_cbw_data_read, 0) == -1)
-    return 0;
-
-  return 1;  
-}
-
-uint64_t write_msd(MassStorageDriver* driver){
-  CommandBlockWrapper* cbw = driver->get_free_cbw(driver);
-
-  if(cbw == (void*)0) return 0;
-
-  
-  return 0;
+  return 1;
 }
 
 uint32_t calc_t_len(MassStorageDriver* driver, uint8_t volume, uint32_t blocks){
