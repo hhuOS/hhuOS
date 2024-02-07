@@ -140,6 +140,11 @@ struct MassStorageDriver{
     int (*set_callback_msd)(struct MassStorageDriver* driver, void (*msd_callback)(uint8_t* buffer, uint32_t len), 
                         uint16_t magic_number, uint8_t u_tag);
     uint64_t (*write_msd)(struct MassStorageDriver* driver);
+    void (*clear_msd_map)(struct MassStorageDriver* driver, uint32_t id);
+
+    uint32_t (*calc_t_len)(struct MassStorageDriver* driver, uint8_t volume, uint32_t blocks);
+    void (*build_read_command)(struct MassStorageDriver* driver, CommandBlockWrapper* cbw, uint8_t volume, uint32_t blocks,
+                                uint32_t lba_low, uint32_t lba_high, uint32_t t_len);
 };
 
 typedef struct MassStorageDriver MassStorageDriver;
@@ -219,6 +224,7 @@ uint64_t write_msd(MassStorageDriver* driver);
 
 void callback_mass_storage(UsbDev *dev, uint32_t status, void *data);
 void callback_cbw_data_read(UsbDev *dev, uint32_t status, void *data);
+void callback_cbw_data_write(UsbDev* dev, uint32_t status, void* data);
 void callback_csw(UsbDev *dev, uint32_t status, void *data);
 
 uint32_t calc_t_len(MassStorageDriver* driver, uint8_t volume, uint32_t blocks);
@@ -226,5 +232,5 @@ void build_read_command(MassStorageDriver* driver, CommandBlockWrapper* cbw, uin
                         uint32_t blocks, uint32_t lba_low, uint32_t lba_high, uint32_t t_len);
 void build_write_command(MassStorageDriver* driver, CommandBlockWrapper* cbw, uint8_t volume,
                         uint32_t blocks, uint32_t lba_low, uint32_t lba_high, uint32_t t_len);
-
-#endif
+void clear_msd_map(MassStorageDriver* driver, uint32_t id);
+#endif  
