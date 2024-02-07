@@ -5,6 +5,7 @@
 #include "stdint.h"
 #include "CommandInterface.h"
 #include "../../interfaces/LoggerInterface.h"
+#include "../../interfaces/MapInterface.h"
 
 #define MAX_TRANSFER_BYTES 0x00008000
 #define ALLOWED_CAPACITES 31
@@ -54,7 +55,6 @@ struct MassStorageDriver{
     void (*new_mass_storage_driver)(struct MassStorageDriver* driver, char* name, UsbDevice_ID* entry);
 
     int (*configure_device)(struct MassStorageDriver *driver);
-    int (*read_command)(struct MassStorageDriver* driver, CommandCode cc, void* data);
     int (*send_inquiry)(struct MassStorageDriver *driver, CommandBlockWrapper *cbw,
                     CommandStatusWrapper *csw, InquiryCommandData *inquiry_data,
                     uint8_t volume, RequestSense* rs);
@@ -62,14 +62,14 @@ struct MassStorageDriver{
                                     CommandStatusWrapper* csw, CapacityListHeader* clh,
                                     uint8_t volume, RequestSense* rs);
     void (*parse_format_capacities)(struct MassStorageDriver* driver, CapacityListHeader* clh, uint8_t volume);
-    int (*get_data)(struct MassStorageDriver *driver, void *data, unsigned int len, uint8_t flags);                       
-    int (*send_data)(struct MassStorageDriver *driver, void *data, unsigned int len, uint8_t flags);
+    int (*get_data)(struct MassStorageDriver *driver, void *data, unsigned int len, uint8_t flags, callback_function callback);                       
+    int (*send_data)(struct MassStorageDriver *driver, void *data, unsigned int len, uint8_t flags, callback_function callback);
     void (*build_command)(struct MassStorageDriver *driver, CommandBlockWrapper *cbw,
                     uint32_t tag, uint32_t transfer_length, uint8_t flags,
                     uint8_t lun, uint8_t command_len);
     int (*send_command)(struct MassStorageDriver *driver, CommandBlockWrapper *cbw,
-                    callback_function callback);  
-    int (*retrieve_status)(struct MassStorageDriver *driver, CommandStatusWrapper *csw);
+                    callback_function callback, uint8_t flags);  
+    int (*retrieve_status)(struct MassStorageDriver *driver, CommandStatusWrapper *csw, uint8_t flags, callback_function callback);
     uint8_t (*check_csw_status)(struct MassStorageDriver *driver, CommandStatusWrapper *csw);
     void (*command_helper)(struct MassStorageDriver *driver, uint8_t *command, uint8_t c1,
                         uint8_t c2, uint8_t c3, uint8_t c4, uint8_t c5, uint8_t c6,
@@ -125,18 +125,34 @@ struct MassStorageDriver{
 
     uint8_t csw_map_io_bitmap[PAGE_SIZE / sizeof(CommandStatusWrapper)];
     uint8_t cbw_map_io_bitmap[PAGE_SIZE / sizeof(CommandBlockWrapper)];
+
+    SuperMap* cbw_map;
+    SuperMap* csw_map;
+    SuperMap* data_map;
+    SuperMap* callback_map;
+    SuperMap* stored_target_map;
+    SuperMap* stored_len_map;
+    SuperMap* stored_mem_buffer_map;
+
+    void (*init_msd_maps)(struct MassStorageDriver* driver);
+    uint64_t (*read_msd)(struct MassStorageDriver* driver, uint8_t* target, uint64_t start_lba, uint32_t blocks,
+              uint16_t magic_number, uint8_t u_tag, uint8_t volume);
+    int (*set_callback_msd)(struct MassStorageDriver* driver, void (*msd_callback)(uint8_t* buffer, uint32_t len), 
+                        uint16_t magic_number, uint8_t u_tag);
+    uint64_t (*write_msd)(struct MassStorageDriver* driver);
 };
 
 typedef struct MassStorageDriver MassStorageDriver;
 typedef struct MassStorageDev MassStorageDev;
 typedef struct MassStorageVolume MassStorageVolume;
 
+typedef void (*msd_callback)(uint8_t* buffer, uint32_t len);
+
 void new_mass_storage_driver(MassStorageDriver* driver, char* name, UsbDevice_ID* entry);
 int16_t probe_mass_storage(UsbDev *dev, Interface *interface);
 void callback_mass_storage(UsbDev *dev, uint32_t status, void *data);
 void disconnect_mass_storage(UsbDev* dev, Interface* interface);
 int configure_device(MassStorageDriver *driver);
-int read_command(MassStorageDriver* driver, CommandCode cc, void* data);
 int send_inquiry(MassStorageDriver *driver, CommandBlockWrapper *cbw,
                  CommandStatusWrapper *csw, InquiryCommandData *inquiry_data,
                  uint8_t volume, RequestSense* rs);
@@ -144,14 +160,14 @@ int send_read_format_capacities(MassStorageDriver *driver, CommandBlockWrapper *
                                 CommandStatusWrapper* csw, CapacityListHeader* clh,
                                 uint8_t volume, RequestSense* rs);
 void parse_format_capacities(MassStorageDriver* driver, CapacityListHeader* clh, uint8_t volume);
-int get_data(MassStorageDriver *driver, void *data, unsigned int len, uint8_t flags);                       
-int send_data(MassStorageDriver *driver, void *data, unsigned int len, uint8_t flags);
+int get_data(MassStorageDriver *driver, void *data, unsigned int len, uint8_t flags, callback_function callback);                       
+int send_data(MassStorageDriver *driver, void *data, unsigned int len, uint8_t flags, callback_function callback);
 void build_command(MassStorageDriver *driver, CommandBlockWrapper *cbw,
                    uint32_t tag, uint32_t transfer_length, uint8_t flags,
                    uint8_t lun, uint8_t command_len);
 int send_command(MassStorageDriver *driver, CommandBlockWrapper *cbw,
-                 callback_function callback);  
-int retrieve_status(MassStorageDriver *driver, CommandStatusWrapper *csw);
+                 callback_function callback, uint8_t flags);  
+int retrieve_status(MassStorageDriver *driver, CommandStatusWrapper *csw, uint8_t flags, callback_function callback);
 uint8_t check_csw_status(MassStorageDriver *driver, CommandStatusWrapper *csw);
 void command_helper(MassStorageDriver *driver, uint8_t *command, uint8_t c1,
                     uint8_t c2, uint8_t c3, uint8_t c4, uint8_t c5, uint8_t c6,
@@ -193,5 +209,22 @@ CommandBlockWrapper* get_free_cbw(MassStorageDriver *driver);
 void free_cbw(MassStorageDriver* driver, CommandBlockWrapper* cbw);
 CommandStatusWrapper* get_free_csw(MassStorageDriver* driver);
 void free_csw(MassStorageDriver* driver, CommandStatusWrapper* csw);
+
+void init_msd_maps(MassStorageDriver* driver);
+uint64_t read_msd(MassStorageDriver* driver, uint8_t* target, uint64_t start_lba, uint32_t blocks,
+              uint16_t magic_number, uint8_t u_tag, uint8_t volume);
+int set_callback_msd(MassStorageDriver* driver, void (*msd_callback)(uint8_t* buffer, uint32_t len), 
+                      uint16_t magic_number, uint8_t u_tag);
+uint64_t write_msd(MassStorageDriver* driver);
+
+void callback_mass_storage(UsbDev *dev, uint32_t status, void *data);
+void callback_cbw_data_read(UsbDev *dev, uint32_t status, void *data);
+void callback_csw(UsbDev *dev, uint32_t status, void *data);
+
+uint32_t calc_t_len(MassStorageDriver* driver, uint8_t volume, uint32_t blocks);
+void build_read_command(MassStorageDriver* driver, CommandBlockWrapper* cbw, uint8_t volume, 
+                        uint32_t blocks, uint32_t lba_low, uint32_t lba_high, uint32_t t_len);
+void build_write_command(MassStorageDriver* driver, CommandBlockWrapper* cbw, uint8_t volume,
+                        uint32_t blocks, uint32_t lba_low, uint32_t lba_high, uint32_t t_len);
 
 #endif
