@@ -9,17 +9,11 @@ Kernel::Usb::MassStorageNode::MassStorageNode(Kernel::Usb::Driver::KernelMassSto
                                         : Kernel::Usb::UsbNode(0), Filesystem::Memory::MemoryNode("msd"), driver(msd_driver){}
 
 uint64_t Kernel::Usb::MassStorageNode::readData(uint8_t* target, uint64_t start_lba, uint64_t msd_data){
-  uint32_t blocks = msd_data & 0xFFFFFFFF;
-  uint8_t volume  = (msd_data >> 32) & 0xFF;
-
-  return driver->readData(target, start_lba, blocks, volume);
+  return driver->readData(target, start_lba, msd_data);
 }
 
 uint64_t Kernel::Usb::MassStorageNode::writeData(const uint8_t* source, uint64_t start_lba, uint64_t msd_data){
-  uint32_t blocks = msd_data & 0xFFFFFFFF;
-  uint8_t volume  = (msd_data >> 32) & 0xFF;
-
-  return driver->writeData(source, start_lba, blocks, volume);
+  return driver->writeData(source, start_lba, msd_data);
 }
 
 bool Kernel::Usb::MassStorageNode::control(uint32_t request, const Util::Array<uint32_t>& parameters){
