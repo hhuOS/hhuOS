@@ -51,8 +51,7 @@ void new_UHCI(_UHCI *uhci, PciDevice_Struct* pci_device, SystemService_C *mem_se
   
   #ifndef UHCI_POLL
   InterruptService_C* i_serv = container_of(uhci->interrupt_service, InterruptService_C, super);
-  i_serv->add_interrupt_routine(i_serv, uhci->irq,
-          &handler_function_uhci, &uhci->super);
+  i_serv->add_interrupt_routine(i_serv, uhci->irq, &uhci->super);
   #endif
 
   uhci->mutex = uhci->init_mutex(uhci, m);
@@ -67,7 +66,11 @@ void new_UHCI(_UHCI *uhci, PciDevice_Struct* pci_device, SystemService_C *mem_se
   mem_set(uhci->map_io_buffer_bit_map_qh, PAGE_SIZE / sizeof(QH), 0);
   mem_set(uhci->map_io_buffer_bit_map_td, (2 * PAGE_SIZE) / sizeof(TD), 0);
 
+  uhci->signal = 0;
+  uhci->signal_not_override = 0;
+
   uhci->controller_configuration(uhci);
+  create_thread("usb", &uhci->super);
 }
 
 void controller_port_configuration(_UHCI* uhci){
@@ -290,6 +293,8 @@ void init_controller_functions(_UHCI *uhci) {
   uhci->super.control_entry_point = &control_entry_point_uhci;
   uhci->super.bulk_entry_point = &bulk_entry_point_uhci;
   uhci->super.new_usb_controller = &new_super_usb_controller;
+  uhci->super.handler_function = &handler_function_uhci;
+  uhci->super.runnable_function = &runnable_function_uhci;
   uhci->super.new_usb_controller(&uhci->super, uhci->mem_service, UHCI_name);
 
   uhci->dump_uhci_entry = &dump_uhci_entry;
@@ -2115,15 +2120,30 @@ void destroy_transfer(_UHCI* uhci, UsbTransfer *transfer) {
   m->freeKernelMemory_c(m, transfer, 0);
 }
 
-// when working with interrupt just implement this method
-void handler_function_uhci(void* controller) {
-  _UHCI* uhci = container_of((UsbController*)controller, _UHCI, super);
+void runnable_function_uhci(UsbController* controller){
+  _UHCI* uhci = container_of(controller, _UHCI, super);
+  for(;;){
+    if(uhci->signal){
+      MemoryService_C* m = (MemoryService_C*)container_of(uhci->mem_service, MemoryService_C, super);
 
-  MemoryService_C* m = (MemoryService_C*)container_of(uhci->mem_service, MemoryService_C, super);
+      for(QH* qh = uhci->qh_entry; qh != 0; qh = (QH*)(m->getVirtualAddress(m, qh->pyhsicalQHLP & QH_ADDRESS_MASK))){
+        uhci->traverse_skeleton(uhci, qh);
+      }
+      if(!uhci->signal_not_override)
+        uhci->signal = 0;
+      else 
+        uhci->signal_not_override = 0;  
+    }
+    else yield_c();
+  } 
+}
 
-  for(QH* qh = uhci->qh_entry; qh != 0; qh = (QH*)(m->getVirtualAddress(m, qh->pyhsicalQHLP & QH_ADDRESS_MASK))){
-    uhci->traverse_skeleton(uhci, qh);
-  }
+void handler_function_uhci(UsbController* controller) {
+  _UHCI* uhci = container_of(controller, _UHCI, super);
+
+  if(uhci->signal)
+    uhci->signal_not_override = 1;
+  uhci->signal = 1;
   // stop interrupt -> write clear
   Register* s_reg = uhci->look_for(uhci, Usb_Status);
 

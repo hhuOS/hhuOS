@@ -185,6 +185,10 @@ struct _UHCI {
 
   uint8_t map_io_buffer_bit_map_qh[PAGE_SIZE / sizeof(QH)];
   uint8_t map_io_buffer_bit_map_td[(2 * PAGE_SIZE) / sizeof(TD)];
+
+  uint8_t signal;
+  uint8_t signal_not_override; // possibility that we just passed the QH* that got transfered,
+  // meaning by setting this value, we will just continue to traverse the whole skeleton
 };
 
 typedef struct _UHCI _UHCI;
@@ -309,7 +313,9 @@ void remove_td_linkage(_UHCI *uhci, TD *start);
 
 void dump_uhci_entry(_UHCI* uhci);
 
-void handler_function_uhci(void* controller);
+void handler_function_uhci(UsbController* controller);
+
+void runnable_function_uhci(UsbController* controller);
 
 void destroy_transfer(_UHCI* uhci, UsbTransfer* transfer);
 
