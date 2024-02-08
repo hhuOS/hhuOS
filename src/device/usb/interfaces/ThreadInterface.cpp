@@ -1,6 +1,11 @@
 #include "ThreadInterface.h"
 #include "../../../lib/util/async/Thread.h"
 #include "../../../lib/util/time/Timestamp.h"
+#include "../controller/UsbRunnable.h"
+
+extern "C"{
+#include "../controller/UsbController.h"
+}
 
 void mdelay(uint32_t millis){
     Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(millis));
@@ -20,4 +25,8 @@ void ndelay(uint32_t nanos){
 
 void yield_c(){
     Util::Async::Thread::yield();
+}
+
+void create_thread(char* name, UsbController* controller){
+    Util::Async::Thread::createThread(name, new UsbRunnable(controller));
 }

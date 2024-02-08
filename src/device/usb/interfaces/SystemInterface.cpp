@@ -5,6 +5,10 @@
 #include "../controller/UsbInterruptHandler.h"
 #include "MapInterface.h"
 
+extern "C"{
+#include "../controller/UsbController.h"
+}
+
 void new_service(SystemService_C* service_c, SystemServiceP_C service_p){
     service_c->service_pointer = service_p;
 }
@@ -81,8 +85,8 @@ Service_Type type_of_memory(SystemService_C* c){
     return MEMORY_TYPE;
 }
 
-void add_interrupt_routine(InterruptService_C* interrupt_c, uint8_t irq, void (*handler_function)(void* controller), void* controller){
-    Device::Usb::UsbInterruptHandler* handler = new Device::Usb::UsbInterruptHandler(handler_function, irq, controller);
+void add_interrupt_routine(InterruptService_C* interrupt_c, uint8_t irq, void* controller){
+    Device::Usb::UsbInterruptHandler* handler = new Device::Usb::UsbInterruptHandler(irq, (UsbController*)controller);
     handler->plugin();
 
     interrupt_c->usb_interrupt_handler = (void*)handler;

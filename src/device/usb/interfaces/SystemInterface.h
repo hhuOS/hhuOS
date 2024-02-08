@@ -84,7 +84,8 @@ struct InterruptService_C{
     SystemService_C super;
 
     void (*new_interrupt_service)(struct InterruptService_C *interrupt_p);
-    void (*add_interrupt_routine)(struct InterruptService_C *interrupt_c, uint8_t irq, void (*handler_function)(void* controller), void* controller);
+    void (*add_interrupt_routine)(struct InterruptService_C *interrupt_c, uint8_t irq, 
+                                  void* controller);
 
     void *usb_interrupt_handler;
 };
@@ -151,7 +152,7 @@ struct MemoryService_C *new_mem_service();
 
 void new_interrupt_service(struct InterruptService_C *interrupt_c);
 
-void add_interrupt_routine(struct InterruptService_C *interrupt_c, uint8_t irq, void (*handler_function)(void* controller), void* controller);
+void add_interrupt_routine(struct InterruptService_C *interrupt_c, uint8_t irq, void* controller);
 
 Service_Type type_of_interrupt(SystemService_C *c);
 Service_Type type_of_memory(SystemService_C *c);
