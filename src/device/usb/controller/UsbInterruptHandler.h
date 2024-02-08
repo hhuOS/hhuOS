@@ -3,7 +3,10 @@
 
 #include "../../../kernel/process/ThreadState.h"
 #include "../../../kernel/interrupt/InterruptHandler.h"
+
+extern "C"{
 #include "UsbController.h"
+}
 
 namespace Device::Usb {
 
@@ -11,7 +14,7 @@ class UsbInterruptHandler: public Kernel::InterruptHandler{
 
 public:
     
-    UsbInterruptHandler(void (*t)(void* c), uint8_t irq, void* c);
+    UsbInterruptHandler(uint8_t irq, UsbController* c);
 
     UsbInterruptHandler(const UsbInterruptHandler& other) = delete;
 
@@ -22,9 +25,8 @@ public:
     void trigger(const Kernel::InterruptFrame& frame) override;
 
 private:
-    void (*handler_function)(void* c);
     uint8_t irq;
-    void* controller;
+    UsbController* controller;
 };
 
 };

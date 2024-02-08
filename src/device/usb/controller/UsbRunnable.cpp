@@ -1,8 +1,10 @@
 #include "UsbRunnable.h"
+extern "C"{
 #include "UsbController.h"
+}
 
-UsbRunnable::UsbRunnable(void* c) : controller(c){}
+UsbRunnable::UsbRunnable(UsbController* c) : controller(c){}
 
 void UsbRunnable::run(){
-    ((UsbController*)controller)->poll((UsbController*)controller);
+    controller->runnable_function(controller);
 }

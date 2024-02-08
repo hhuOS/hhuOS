@@ -2,12 +2,15 @@
 #define UsbRunnable__include
 
 #include "../../../lib/util/async/Runnable.h"
+extern "C"{
+#include "UsbController.h"
+}
 
 class UsbRunnable : public Util::Async::Runnable {
 
 public:
 
-    explicit UsbRunnable(void* controller);
+    explicit UsbRunnable(UsbController* controller);
 
     UsbRunnable(const UsbRunnable& other) = delete;
 
@@ -16,9 +19,7 @@ public:
     void run() override;
 
 private:
-
-    void* controller;
-
+    UsbController* controller;
 };
 
 #endif

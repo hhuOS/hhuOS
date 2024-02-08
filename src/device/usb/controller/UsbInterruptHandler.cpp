@@ -4,11 +4,16 @@
 #include "../../../kernel/process/ThreadState.h"
 #include "../../../kernel/service/InterruptService.h"
 #include "../../../kernel/system/System.h"
+#include "UsbRunnable.h"
+
+extern "C"{
+#include "UsbController.h"
+}
 
 namespace Device::Usb{
 
-UsbInterruptHandler::UsbInterruptHandler(void (*t)(void* c), uint8_t irq, void* c) : handler_function(t), irq(irq), controller(c) {
-    
+UsbInterruptHandler::UsbInterruptHandler(uint8_t irq, UsbController* c) 
+    : irq(irq), controller(c) {
 }
 
 void UsbInterruptHandler::plugin(){
@@ -18,7 +23,7 @@ void UsbInterruptHandler::plugin(){
 }
 
 void UsbInterruptHandler::trigger(const Kernel::InterruptFrame& frame){
-    handler_function(controller);
+    controller->handler_function(controller);
 }
 
 }
