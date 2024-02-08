@@ -557,7 +557,7 @@ int unset_callback_msd(MassStorageDriver* driver, uint16_t magic_number, uint8_t
 
   if(!driver->callback_map->contains_c(driver->callback_map, &map_entry))
     return -1;
-  driver->callback_map->remove_c(driver, &map_entry);
+  driver->callback_map->remove_c(driver->callback_map, &map_entry);
 
   return 1;  
 }

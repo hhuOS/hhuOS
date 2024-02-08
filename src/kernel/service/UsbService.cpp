@@ -22,18 +22,6 @@ Kernel::UsbService::UsbService() {
 
   usb_service_c->new_service = &new_usb_service;
   usb_service_c->new_service(usb_service_c);
-
-  
-  #ifdef POLL
-  list_element *l_e = usb_service_c->head.l_e;
-  while (l_e != 0) {
-    UsbController *controller =
-        usb_service_c->get_controller(usb_service_c, l_e);
-    Util::Async::Thread::createThread(
-        "UsbController", new UsbRunnable(controller));  
-    l_e = l_e->l_e;
-  }
-  #endif
 }
 
 int Kernel::UsbService::add_driver(UsbDriver *driver) {
