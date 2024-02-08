@@ -94,6 +94,9 @@ struct UsbController {
 
   Mutex_C* (*request_mutex)(struct UsbController* controller, SystemService_C* mem_service);
 
+  void (*runnable_function)(struct UsbController* controller);
+  void (*handler_function)(struct UsbController* controller);
+
   const char *name;
 
   EventDispatcher* dispatcher;
