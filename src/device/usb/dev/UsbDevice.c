@@ -850,6 +850,42 @@ int get_max_logic_unit_numbers(UsbDev* dev, Interface* interface, uint8_t* data,
   return 1;      
 }
 
+int get_descriptor(UsbDev* dev, Interface* interface, uint8_t* data, unsigned int len, callback_function callback){
+  if(!dev->contain_interface(dev, interface))
+    return -1;
+  
+  UsbDeviceRequest* request = dev->get_free_device_request(dev);
+
+  if(request == (void*)0)
+    return -1;
+
+  dev->request_build(
+    dev, request, DEVICE_TO_HOST | TYPE_REQUEST_CLASS | RECIPIENT_DEVICE,
+    GET_DESCRIPTOR, 0x2900, 0, 0, 0, len
+  );
+  dev->request(dev, request, data, PRIORITY_8, 0, callback);
+
+  return 1;
+}
+
+int get_status(UsbDev* dev, Interface* interface, uint8_t* data, callback_function callback){
+  if(!dev->contain_interface(dev, interface))
+    return -1;
+  
+  UsbDeviceRequest* request = dev->get_free_device_request(dev);
+
+  if(request == (void*)0)
+    return -1;
+
+  dev->request_build(
+    dev, request, DEVICE_TO_HOST | TYPE_REQUEST_STANDARD | RECIPIENT_DEVICE,
+    GET_STATUS, 0, 0, 0, 0, 2
+  );
+  dev->request(dev, request, data, PRIORITY_8, 0, callback);
+
+  return 1;
+}
+
 // just support get descriptor, get configuration, get interface, get status,
 // set interface
 void usb_dev_control(UsbDev *dev, Interface *interface, unsigned int pipe,

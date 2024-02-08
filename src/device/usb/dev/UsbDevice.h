@@ -128,6 +128,11 @@ struct UsbDev {
   int (*reset_bulk_only)(struct UsbDev* dev, Interface* interface, void (*callback_function)(struct UsbDev *dev,
                                               uint32_t status, void *data));
 
+  int (*get_descriptor)(struct UsbDev* dev, Interface* interface, uint8_t* data, unsigned int len,
+                      void (*callback_function)(struct UsbDev *dev,
+                                              uint32_t status, void *data));
+  int (*get_status)(struct UsbDev* dev, Interface* interface, uint8_t* data, void (*callback_function)(struct UsbDev *dev,
+                                              uint32_t status, void *data));
   UsbDeviceRequest *(*get_free_device_request)(struct UsbDev *dev);
   void (*free_device_request)(struct UsbDev *dev,
                               UsbDeviceRequest *device_request);
@@ -261,5 +266,8 @@ int handle_configuration(UsbDev* dev, uint8_t* string_buffer, uint8_t* config_bu
                 ConfigurationDescriptor* config_descriptor, uint8_t num_configurations);
 int handle_lang(UsbDev* dev, uint8_t* string_buffer);
 int handle_dev(UsbDev* dev, uint8_t* string_buffer, DeviceDescriptor* device_descriptor);
+
+int get_descriptor(UsbDev* dev, Interface* interface, uint8_t* data, unsigned int len, callback_function callback);
+int get_status(UsbDev* dev, Interface* interface, uint8_t* data, callback_function callback);
 
 #endif
