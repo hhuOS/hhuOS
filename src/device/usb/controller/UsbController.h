@@ -84,7 +84,7 @@ struct UsbController {
 
   void (*interrupt_entry_point)(UsbDev* dev, Endpoint* endpoint, void* data, unsigned int len, uint8_t prio, uint16_t interval, callback_function callback);
 
-  void (*control_entry_point)(UsbDev* dev, UsbDeviceRequest* device_request, void* data, uint8_t prio, Endpoint* endpoint, callback_function callback);
+  void (*control_entry_point)(UsbDev* dev, UsbDeviceRequest* device_request, void* data, uint8_t prio, Endpoint* endpoint, callback_function callback, uint8_t flags);
 
   void (*bulk_entry_point)(UsbDev* dev, Endpoint* endpoint, void* data, unsigned int len, uint8_t priority, callback_function callback, uint8_t flags);
 

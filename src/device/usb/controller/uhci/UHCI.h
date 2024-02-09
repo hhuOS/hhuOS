@@ -17,8 +17,6 @@
 #include "../../dev/UsbDevice.h"
 #include "../../dev/data/UsbDev_Data.h"
 
-//#define UHCI_POLL // distinguish between poll and interrupts
-
 // all debugs turned on
 //#define DEBUG_ON
 // only specfic debugs
@@ -99,8 +97,8 @@ struct _UHCI {
                            UsbTransfer *(*build_control_transfer)(
                                struct _UHCI *uhci, UsbDev *dev,
                                struct UsbDeviceRequest *device_request,
-                               void *data, Endpoint *endpoint),
-                           callback_function callback);
+                               void *data, Endpoint *endpoint, uint8_t flags),
+                           callback_function callback, uint8_t flags);
   void (*interrupt_transfer)(struct _UHCI *uhci, UsbDev *dev, void *data,
                              unsigned int len, uint16_t interval,
                              uint8_t priority, Endpoint *e,
@@ -205,7 +203,7 @@ void bulk_entry_point_uhci(struct UsbDev *dev, Endpoint *endpoint, void *data,
 void control_entry_point_uhci(struct UsbDev *dev,
                          struct UsbDeviceRequest *device_request, void *data,
                          uint8_t priority, Endpoint *endpoint,
-                         callback_function callback);
+                         callback_function callback, uint8_t flags);
 void interrupt_entry_point_uhci(struct UsbDev *dev, Endpoint *endpoint, void *data,
                            unsigned int len, uint8_t priority,
                            uint16_t interval, callback_function callback);
@@ -218,7 +216,7 @@ SystemService_C *request_interrupt_service(_UHCI* uhci, SystemService_C* mem_ser
 
 typedef UsbTransfer *(*build_control_transfer)(
     _UHCI *uhci, UsbDev *dev, struct UsbDeviceRequest *device_request,
-    void *data, Endpoint *endpoint);
+    void *data, Endpoint *endpoint, uint8_t flags);
 typedef UsbTransfer *(*build_bulk_or_interrupt_transfer)(
     _UHCI *uhci, UsbDev *dev, void *data, Endpoint *e, unsigned int len,
     const char *type, uint8_t flags);
@@ -226,7 +224,7 @@ typedef UsbTransfer *(*build_bulk_or_interrupt_transfer)(
 void control_transfer(_UHCI *uhci, UsbDev *dev, struct UsbDeviceRequest *rq,
                       void *data, uint8_t priority, Endpoint *endpoint,
                       build_control_transfer build_function,
-                      callback_function callback);
+                      callback_function callback, uint8_t flags);
 void interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
                         uint16_t interval, uint8_t priority, Endpoint *e,
                         build_bulk_or_interrupt_transfer build_function,
@@ -276,7 +274,7 @@ UsbPacket *create_USB_Packet(_UHCI *uhci, UsbDev *dev, UsbPacket *prev,
 
 UsbTransfer *build_control(_UHCI *uhci, UsbDev *dev,
                            UsbDeviceRequest *device_request, void *data,
-                           Endpoint *e);
+                           Endpoint *e, uint8_t flags);
 UsbTransfer *build_interrupt_or_bulk(_UHCI *uhci, UsbDev *dev, void *data,
                                      Endpoint *e, unsigned int len,
                                      const char *type, uint8_t flags);

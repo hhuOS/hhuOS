@@ -19,6 +19,7 @@
 #include "../../interfaces/ThreadInterface.h"
 #include "../../interfaces/TimeInterface.h"
 #include "../../utility/Utils.h"
+#include "../../driver/hub/HubDriver.h"
 
 const uint8_t CLASS_ID = 0x0C;
 const uint8_t SUBCLASS_ID = 0x03;
@@ -262,6 +263,21 @@ void create_dev(_UHCI *uhci, int16_t status, int pn, MemoryService_C *m) {
   uhci->controller_logger->info_c(
       uhci->controller_logger, "Succesful configured Usb-Device on port : %d\n" \
       "Device : %s, %s", pn, dev->manufacturer, dev->product);
+
+  if(dev->device_desc.bDeviceClass == HUB){
+    uhci->controller_logger->info_c(uhci->controller_logger,
+      "Starting enumeration on hub at port : %d: "
+    );
+    UsbDevice_ID usb_dev[] = {
+      USB_DEVICE_INFO(HUB, 0xFF, 0xFF), {}
+    };
+    HubDriver* hub_driver = (HubDriver*)m->allocateKernelMemory_c(m, sizeof(HubDriver), 0);
+    hub_driver->new_hub_driver = &new_hub_driver;
+    hub_driver->new_hub_driver(hub_driver, "hub", usb_dev);
+    uhci->super.register_driver(&uhci->super, (UsbDriver*)hub_driver);
+
+    hub_driver->configure_hub(hub_driver);
+  }    
 }
 
 void dump_uhci_entry(_UHCI* uhci){
@@ -976,7 +992,7 @@ void init_control_transfer(UsbController *controller, Interface *interface,
     return;
   }
 
-  dev->usb_dev_control(dev, interface, pipe, priority, data, setup, callback);
+  dev->usb_dev_control(dev, interface, pipe, priority, data, setup, callback, 0);
 }
 
 void init_interrupt_transfer(UsbController *controller, Interface *interface,
@@ -1302,11 +1318,11 @@ void bulk_entry_point_uhci(UsbDev *dev, Endpoint *endpoint, void *data,
 
 void control_entry_point_uhci(UsbDev *dev, UsbDeviceRequest *device_request,
                          void *data, uint8_t priority, Endpoint *endpoint,
-                         callback_function callback) {
+                         callback_function callback, uint8_t flags) {
   _UHCI *uhci_rcvry = (_UHCI *)container_of(((UsbController*)dev->controller), _UHCI, super);
 
   uhci_rcvry->control_transfer(uhci_rcvry, dev, device_request, data, priority,
-                               endpoint, &build_control, callback);
+                               endpoint, &build_control, callback, flags);
 }
 
 void interrupt_entry_point_uhci(UsbDev *dev, Endpoint *endpoint, void *data,
@@ -1535,7 +1551,7 @@ void dump_all(_UHCI *uhci) {
 
 UsbTransfer *build_control(_UHCI *uhci, UsbDev *dev,
                            UsbDeviceRequest *device_request, void *data,
-                           Endpoint *e) {
+                           Endpoint *e, uint8_t flags) {
   UsbPacket *head = 0;
   UsbPacket *prev = 0;
 
@@ -1568,7 +1584,7 @@ UsbTransfer *build_control(_UHCI *uhci, UsbDev *dev,
                                .address = dev->address,
                                .packet_type = SETUP};
   head = uhci->create_USB_Packet(uhci, dev, 0, token, dev->speed,
-                                 device_request, 0, 0);
+                                 device_request, 0, flags);
   setup_transaction->entry_packet = head;
   count++;
   prev = head;
@@ -1655,11 +1671,10 @@ UsbPacket *create_USB_Packet(_UHCI *uhci, UsbDev *dev, UsbPacket *prev,
   if (last_packet) {
     td->pyhsicalLinkPointer |= QH_TERMINATE;
 
-    #ifndef UHCI_POLL
-    if((dev->state == CONFIGURED_STATE) && (flags != BULK_INITIAL_STATE)){
+    if((dev->state == CONFIGURED_STATE) && (flags != BULK_INITIAL_STATE) && 
+        (flags != CONTROL_INITIAL_STATE)){
       td->control_x_status |= (0x1 << IOC); // set interrupt bit only for last td in qh !
-    }
-    #endif    
+    }   
   }
 
   td->token = ((token.max_len - 1) & 0x7FF) << TD_MAX_LENGTH;
@@ -1920,7 +1935,7 @@ unsigned int retransmission(_UHCI *uhci, QH *process_qh, TD *td) {
 void control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
                       void *data, uint8_t priority, Endpoint *endpoint,
                       build_control_transfer build_function,
-                      callback_function callback) {
+                      callback_function callback, uint8_t flags) {
   uint32_t status;
   MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
                                                        MemoryService_C, super);
@@ -1935,7 +1950,7 @@ void control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
   uint32_t qh_physical = (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, qh));
   m->addVirtualAddress(m, qh_physical, qh);
 
-  UsbTransfer *transfer = build_function(uhci, dev, rq, data, endpoint);
+  UsbTransfer *transfer = build_function(uhci, dev, rq, data, endpoint, flags);
 
   // we already linked them up while creating the packets
   TD *internalTD = transfer->entry_transaction->entry_packet->internalTD;
@@ -1963,7 +1978,7 @@ void control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
 
   // uhci->inspect_transfer(uhci, qh, internalTD);
 
-  if (dev->state != CONFIGURED_STATE) {
+  if (dev->state != CONFIGURED_STATE || flags == CONTROL_INITIAL_STATE) {
     status = uhci->wait_poll(uhci, qh, UPPER_BOUND_TIME_OUT_MILLIS_CONTROL);
     
     callback(dev, status, data);
