@@ -83,7 +83,7 @@ typedef struct UsbDriver UsbDriver;
 #define IMAGE 0x06
 #define PRINTER 0x07
 #define DEVICE_CLASS_MASS_STORAGE 0x08
-#define HUB 0X09
+#define HUB 0x09
 #define CDC_DATA 0x0A
 #define SMART_CARD 0x0B
 #define CONTENT_SECURITY 0x0D
