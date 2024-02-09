@@ -241,7 +241,7 @@ parse_usb() {
         if [[ -n "${type}" && -z "${_type_}" ]]; then _type_=${type};
           case ${type} in
             ${UHCI_TYPE})
-              _type_="-usb ";;
+              _type_="-usb -device usb-hub,bus=usb-bus.0,port=1 -device usb-hub,bus=usb-bus.0,port=2 ";;
             ${EHCI_TYPE})
               _type_="-device usb-ehci,id=ehci ";;
             ${XHCI_TYPE})
@@ -272,7 +272,7 @@ parse_usb() {
 
         if [[ -n ${host_port} && -z "${_host_port_}" ]]; then _host_port_=${host_port}; fi
 
-        port=$(expr ${x} : "${PORT_KEY}=\([0-9]\{1\}\)")
+        port=$(expr ${x} : "${PORT_KEY}=\([0-9]\{1\}[.]\{0,1\}[0-9]\{0,1\}\)")
 
         if [[ -n "${port}" && -z "${_port_}" ]]; then _port_=${port}; fi
       done
