@@ -97,6 +97,7 @@
 #include "kernel/usb/driver/KernelMouseDriver.h"
 #include "kernel/usb/driver/KernelMassStorageDriver.h"
 #include "kernel/usb/driver/KernelUsbDriver.h"
+#include "kernel/usb/driver/KernelHubDriver.h"
 
 namespace Device {
 class Machine;
@@ -510,22 +511,24 @@ void GatesOfHell::initializeSound() {
 void GatesOfHell::initializeUsb(){
     log.info("Initializing Usb ...");
     
-    int kbd_status = 0, mouse_status = 0, msd_status = 0;
+    int kbd_status = 0, mouse_status = 0, msd_status = 0, hub_status = 0;
     Kernel::System::registerService(Kernel::UsbService::SERVICE_ID, new Kernel::UsbService());
     Kernel::UsbService& usb_service = Kernel::System::getService<Kernel::UsbService>();
 
     Kernel::Usb::Driver::KernelUsbDriver* k_driver = new Kernel::Usb::Driver::KernelKbdDriver("keyboard");
     Kernel::Usb::Driver::KernelUsbDriver* msd_driver = new Kernel::Usb::Driver::KernelMassStorageDriver("msd");
     Kernel::Usb::Driver::KernelUsbDriver* m_driver = new Kernel::Usb::Driver::KernelMouseDriver("mouse");
+    Kernel::Usb::Driver::KernelUsbDriver* hub_driver = new Kernel::Usb::Driver::KernelHubDriver("hub");
 
     Kernel::Usb::UsbNode* k_node = new Kernel::Usb::KeyBoardNode();
     Kernel::Usb::UsbNode* msd_node = new Kernel::Usb::MassStorageNode((Kernel::Usb::Driver::KernelMassStorageDriver*)msd_driver);
     Kernel::Usb::UsbNode* m_node = new Kernel::Usb::MouseNode();
 
+    hub_status = hub_driver->initialize();
     kbd_status = k_driver->initialize();
     mouse_status = m_driver->initialize();
     msd_status = msd_driver->initialize();
-
+    
     usb_service.create_usb_fs();
 
     if(kbd_status != -1)
