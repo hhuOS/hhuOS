@@ -60,7 +60,7 @@ private:
   void handle_fs_driver(UsbDriver* driver, uint8_t driver_n, Filesystem::Memory::MemoryDirectoryNode* driver_node,
                         UsbController* controller);
   void handle_fs_device(UsbDev* dev, uint8_t dev_n, Filesystem::Memory::MemoryDirectoryNode* device_node);
-
+  void handle_fs_down_stream(UsbDev* dev, Filesystem::Memory::MemoryDirectoryNode* dev_node);
 };
 
 }; // namespace Kernel

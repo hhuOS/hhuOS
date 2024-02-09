@@ -206,12 +206,37 @@ void Kernel::UsbService::handle_fs_driver(UsbDriver* driver, uint8_t driver_n, F
   }
 }
 
+void Kernel::UsbService::handle_fs_down_stream(UsbDev* dev, Filesystem::Memory::MemoryDirectoryNode* dev_node){
+  if(dev->max_down_stream == 0) return;
+
+  for(int i = 0; i < dev->max_down_stream; i++){
+    Util::String usb_port = Util::String::format("usb_port%d", i);
+    Filesystem::Memory::MemoryDirectoryNode* hub_node = new Filesystem::Memory::MemoryDirectoryNode(usb_port);
+    dev_node->addChild(hub_node);
+    if(i < dev->downstream_count){
+      handle_fs_device(dev->downstream_devs[i], i, hub_node);
+    }
+  }
+}
+
 void Kernel::UsbService::handle_fs_device(UsbDev* dev, uint8_t dev_n, Filesystem::Memory::MemoryDirectoryNode* device_node){
   Util::String dev_temp;
   Util::String temp;
 
   Filesystem::Memory::MemoryDirectoryNode* dev_node = new Filesystem::Memory::MemoryDirectoryNode(Util::String::format("dev%u", dev_n));
   device_node->addChild(dev_node);
+
+  temp = Util::String::format("%u", dev->level);
+  write_to_node(dev_node, temp, "level");
+
+  temp = Util::String::format("%u", dev->rootport);
+  write_to_node(dev_node, temp, "root");
+
+  temp = Util::String::format("%u", dev->dev_num);
+  write_to_node(dev_node, temp, "dev_num");
+
+  temp = Util::String::format("%u", dev->removable);
+  write_to_node(dev_node, temp, "removable");
 
   temp = Util::String::format("%u", dev->speed);
   write_to_node(dev_node, temp, "speed");
@@ -262,6 +287,8 @@ void Kernel::UsbService::handle_fs_device(UsbDev* dev, uint8_t dev_n, Filesystem
 
   temp = Util::String::format("%u", d_desc.bNumConfigurations);
   write_to_node(dev_node, temp, "bNumConfigurations");
+
+  handle_fs_down_stream(dev, dev_node);
 
   handle_fs_interface(dev, dev_node);
 }
