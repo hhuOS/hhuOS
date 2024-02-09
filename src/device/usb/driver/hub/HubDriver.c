@@ -127,6 +127,8 @@ int configure_hub(HubDriver* driver){
     uint8_t start_port = 0x01;
     uint8_t num_ports = driver->hub_desc.num_ports;
 
+    dev->add_downstream(dev, num_ports);
+
     uint16_t port_status_field;
     uint16_t port_change_status_field;
     uint8_t device_attached_mask = 0x01;
@@ -191,9 +193,12 @@ int configure_hub(HubDriver* driver){
             new_dev->new_usb_device(new_dev, speed, start_port, level, removable, 
                     dev->rootport, start_device_num, dev->mem_service, dev->controller);
             if(new_dev->error_while_transfering){
-                new_dev->delete_usb_dev(dev);
+                new_dev->delete_usb_dev(new_dev);
             }
-            else start_device_num++;                     
+            else {
+                dev->add_downstream_device(dev, new_dev);
+                start_device_num++;
+            }                    
         }
         start_port++;
     }
@@ -202,16 +207,17 @@ int configure_hub(HubDriver* driver){
     return 1;
 }
 
+// if bit is set -> non removable
 uint8_t is_device_removable(HubDriver* driver, uint8_t downstream_port){
     uint8_t* removable_x = driver->hub_desc.x;
     uint8_t mask = 0x01;
 
     if(downstream_port < 8){
-        return ((removable_x[0] >> downstream_port) & mask);
+        return ((removable_x[0] >> downstream_port) & mask) ^ mask;
     }
     uint8_t byte_num = downstream_port / sizeof(uint8_t);
     uint8_t shift = downstream_port % sizeof(uint8_t);
-    return (removable_x[byte_num] >> shift);
+    return (removable_x[byte_num] >> shift) ^ mask;
 }
 
 void dump_port_status(HubDriver* driver, uint16_t* port_status_field){
