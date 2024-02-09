@@ -7,8 +7,7 @@
 #include "requests/UsbDescriptors.h"
 #include "requests/UsbRequests.h"
 #include "../driver/UsbDriver.h"
-#include "../driver/hid/KeyBoardDriver.h"
-#include "../driver/hid/MouseDriver.h"
+#include "../driver/hub/HubDriver.h"
 #include "../events/listeners/EventListener.h"
 #include "../events/listeners/hid/KeyBoardListener.h"
 #include "../events/listeners/hid/MouseListener.h"
@@ -93,7 +92,7 @@ void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port,
 
   dev->max_packet_size = device_descriptor->bMaxPacketSize0;
 
-  ((UsbController *)dev->controller)->reset_port((UsbController*)dev->controller, port);
+  //((UsbController *)dev->controller)->reset_port((UsbController*)dev->controller, port);
 
   dev->set_address(dev, address);
 
@@ -115,7 +114,7 @@ void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port,
   if(dev->handle_configuration(dev, string_buffer, config_buffer, config_descriptor, device_descriptor->bNumConfigurations) == -1){
     dev->device_logger->error_c(dev->device_logger, "Aborting configuration of device due to error while handling internal configuration of the device ...");
     return;
-  } 
+  }
 
   dev->set_configuration(dev,
                          dev->active_config->config_desc.bConfigurationValue);
@@ -406,9 +405,11 @@ void init_device_functions(UsbDev *dev) {
   dev->handle_dev = &handle_dev;
   dev->get_max_logic_unit_numbers = &get_max_logic_unit_numbers;
   dev->reset_bulk_only = &reset_bulk_only;
+  dev->get_descriptor = &get_descriptor;
+  dev->get_req_status = &get_req_status;
+  dev->set_feature = &set_feature;
+  dev->clear_feature = &clear_feature;
 }
-
-
 
 char *build_string(UsbDev *dev, int len, uint8_t *string_buffer) {
   MemoryService_C *mem_service =
@@ -460,7 +461,7 @@ int set_address(UsbDev *dev, uint8_t address) {
 
   dev->request_build(dev, device_req, HOST_TO_DEVICE, SET_ADDRESS, 0, address,
                      0, 0, 0);
-  dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, &request_callback);
+  dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, &request_callback, CONTROL_INITIAL_STATE);
 
   if (dev->error_while_transfering) {
     dev->device_logger->error_c(dev->device_logger,
@@ -502,8 +503,8 @@ void request_build(UsbDev *dev, UsbDeviceRequest *device_request,
 }
 
 void request(UsbDev *dev, UsbDeviceRequest *device_request, void *data,
-             uint8_t priority, Endpoint *endpoint, callback_function callback) {
-  ((UsbController*)dev->controller)->control_entry_point(dev, device_request, data, priority, endpoint, callback);
+             uint8_t priority, Endpoint *endpoint, callback_function callback, uint8_t flags) {
+  ((UsbController*)dev->controller)->control_entry_point(dev, device_request, data, priority, endpoint, callback, flags);
 }
 
 // update struct Interface + active field in alternate setting
@@ -522,7 +523,7 @@ int request_switch_alternate_setting(UsbDev *dev, Interface *interface,
                          interface->active_interface->alternate_interface_desc
                              .bInterfaceNumber,
                          0);
-      dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, callback);
+      dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, callback, 0);
       return 1;
     }
     current = current->next;
@@ -546,7 +547,7 @@ int request_switch_configuration(UsbDev *dev, int configuration,
         return -1;
       dev->request_build(dev, device_req, HOST_TO_DEVICE, SET_CONFIGURATION, 0,
                          configuration, 0, 0, 0);
-      dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, callback);
+      dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, callback, 0);
       dev->active_config = allowed_configs[i];
       return 1;
     }
@@ -565,7 +566,7 @@ int process_device_descriptor(UsbDev *dev, DeviceDescriptor *device_descriptor,
   dev->request_build(dev, request, DEVICE_TO_HOST, GET_DESCRIPTOR, DEVICE, 0, 8,
                      0, len);
   dev->request(dev, request, device_descriptor, PRIORITY_QH_8, 0,
-               &request_callback);
+               &request_callback, CONTROL_INITIAL_STATE);
 
   if (dev->error_while_transfering) {
     dev->device_logger->error_c(
@@ -594,7 +595,7 @@ int process_configuration_descriptor(UsbDev *dev,
   dev->request_build(dev, request, DEVICE_TO_HOST, GET_DESCRIPTOR,
                      CONFIGURATION, configuration_index, 8, 0, len);
   dev->request(dev, request, config_descriptor, PRIORITY_QH_8, 0,
-               &request_callback);
+               &request_callback, CONTROL_INITIAL_STATE);
 
   if (dev->error_while_transfering) {
     dev->device_logger->error_c(
@@ -623,7 +624,7 @@ int process_whole_configuration(UsbDev *dev, uint8_t *config_buffer,
   dev->request_build(dev, request, DEVICE_TO_HOST, GET_DESCRIPTOR,
                      CONFIGURATION, configuration_index, 8, 0, len);
   dev->request(dev, request, config_buffer, PRIORITY_QH_8, 0,
-               &request_callback);
+               &request_callback, CONTROL_INITIAL_STATE);
 
   if (dev->error_while_transfering) {
     dev->device_logger->error_c(
@@ -651,7 +652,7 @@ int process_string_descriptor(UsbDev *dev, uint8_t *string_buffer,
   dev->request_build(dev, request, DEVICE_TO_HOST, GET_DESCRIPTOR, STRING,
                      index, 8, lang_id, len);
   dev->request(dev, request, string_buffer, PRIORITY_QH_8, 0,
-               &request_callback);
+               &request_callback, CONTROL_INITIAL_STATE);
 
   if (dev->error_while_transfering) {
     dev->device_logger->error_c(
@@ -675,7 +676,7 @@ int set_configuration(UsbDev *dev, uint8_t configuration) {
   dev->request_build(dev, device_req, HOST_TO_DEVICE, SET_CONFIGURATION, 0,
                      dev->active_config->config_desc.bConfigurationValue, 0, 0,
                      0);
-  dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, &request_callback);
+  dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, &request_callback, CONTROL_INITIAL_STATE);
 
   if (dev->error_while_transfering) {
     dev->device_logger->error_c(dev->device_logger,
@@ -760,7 +761,7 @@ int set_report(UsbDev *dev, Interface *interface, uint8_t type, void *data,
       SET_REPORT, type, 0, 8,
       interface->active_interface->alternate_interface_desc.bInterfaceNumber,
       len);
-  dev->request(dev, request, data, PRIORITY_QH_8, 0, callback);
+  dev->request(dev, request, data, PRIORITY_QH_8, 0, callback, CONTROL_INITIAL_STATE);
 
   return 1;
 }
@@ -783,7 +784,7 @@ int set_protocol(UsbDev *dev, Interface *interface, uint16_t protocol_value,
       SET_PROTOCOL, 0, USE_REPORT_PROTOCOL, 0,
       interface->active_interface->alternate_interface_desc.bInterfaceNumber,
       0);
-  dev->request(dev, request, 0, PRIORITY_QH_8, 0, callback);
+  dev->request(dev, request, 0, PRIORITY_QH_8, 0, callback, CONTROL_INITIAL_STATE);
 
   return 1;
 }
@@ -802,7 +803,7 @@ int set_idle(UsbDev *dev, Interface *interface) {
       SET_IDLE, 0, 0, 0,
       interface->active_interface->alternate_interface_desc.bInterfaceNumber,
       0);
-  dev->request(dev, request, 0, PRIORITY_QH_8, 0, &request_callback);
+  dev->request(dev, request, 0, PRIORITY_QH_8, 0, &request_callback, 0);
 
   if (dev->error_while_transfering) {
     dev->device_logger->error_c(dev->device_logger,
@@ -827,12 +828,13 @@ int reset_bulk_only(UsbDev* dev, Interface* interface, callback_function callbac
     RESET_BULK_ONLY_DEVICE, 0, 0, 0, interface->active_interface->alternate_interface_desc.bInterfaceNumber,
     0 
   );
-  dev->request(dev, request, 0, PRIORITY_8, 0, callback);
+  dev->request(dev, request, 0, PRIORITY_8, 0, callback, CONTROL_INITIAL_STATE);
 
   return 1;  
 }
 
-int get_max_logic_unit_numbers(UsbDev* dev, Interface* interface, uint8_t* data, callback_function callback){
+int get_max_logic_unit_numbers(UsbDev* dev, Interface* interface, uint8_t* data, 
+                                callback_function callback){
   if (!dev->contain_interface(dev, interface))
     return -1;
   
@@ -845,12 +847,13 @@ int get_max_logic_unit_numbers(UsbDev* dev, Interface* interface, uint8_t* data,
       dev, request, DEVICE_TO_HOST | TYPE_REQUEST_CLASS | RECIPIENT_INTERFACE, 
       GET_MAX_LUN, 0, 0, 0, interface->active_interface->alternate_interface_desc.bInterfaceNumber,
       1);
-  dev->request(dev, request, data, PRIORITY_8, 0, callback);
+  dev->request(dev, request, data, PRIORITY_8, 0, callback, CONTROL_INITIAL_STATE);
 
   return 1;      
 }
 
-int get_descriptor(UsbDev* dev, Interface* interface, uint8_t* data, unsigned int len, callback_function callback){
+int get_descriptor(UsbDev* dev, Interface* interface, uint8_t* data, unsigned int len, 
+                callback_function callback){
   if(!dev->contain_interface(dev, interface))
     return -1;
   
@@ -863,12 +866,13 @@ int get_descriptor(UsbDev* dev, Interface* interface, uint8_t* data, unsigned in
     dev, request, DEVICE_TO_HOST | TYPE_REQUEST_CLASS | RECIPIENT_DEVICE,
     GET_DESCRIPTOR, 0x2900, 0, 0, 0, len
   );
-  dev->request(dev, request, data, PRIORITY_8, 0, callback);
+  dev->request(dev, request, data, PRIORITY_8, 0, callback, CONTROL_INITIAL_STATE);
 
   return 1;
 }
 
-int get_status(UsbDev* dev, Interface* interface, uint8_t* data, callback_function callback){
+int get_req_status(UsbDev* dev, Interface* interface, uint8_t* data, unsigned int len, 
+                  callback_function callback){
   if(!dev->contain_interface(dev, interface))
     return -1;
   
@@ -879,9 +883,47 @@ int get_status(UsbDev* dev, Interface* interface, uint8_t* data, callback_functi
 
   dev->request_build(
     dev, request, DEVICE_TO_HOST | TYPE_REQUEST_STANDARD | RECIPIENT_DEVICE,
-    GET_STATUS, 0, 0, 0, 0, 2
+    GET_STATUS, 0, 0, 0, 0, len
   );
-  dev->request(dev, request, data, PRIORITY_8, 0, callback);
+  dev->request(dev, request, data, PRIORITY_8, 0, callback, CONTROL_INITIAL_STATE);
+
+  return 1;
+}
+
+int set_feature(UsbDev* dev, Interface* interface, uint16_t feature_value, uint16_t port, 
+                callback_function callback){
+  if(!dev->contain_interface(dev, interface))
+    return -1;
+  
+  UsbDeviceRequest* request = dev->get_free_device_request(dev);
+
+  if(request == (void*)0)
+    return -1;
+
+  dev->request_build(
+    dev, request, HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_OTHER, SET_FEATURE,
+    0, feature_value, 0, port, 0
+  );
+  dev->request(dev, request, 0, PRIORITY_8, 0, callback, CONTROL_INITIAL_STATE);         
+
+  return 1;
+}
+
+int clear_feature(UsbDev* dev, Interface* interface, uint16_t feature_value, uint16_t port,
+                  callback_function callback){
+  if(!dev->contain_interface(dev, interface))
+    return -1;
+  
+  UsbDeviceRequest* request = dev->get_free_device_request(dev);
+
+  if(request == (void*)0)
+    return -1;
+
+  dev->request_build(
+    dev, request, HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_OTHER, CLEAR_FEATURE,
+    0, feature_value, 0, port, 0
+  );
+  dev->request(dev, request, 0, PRIORITY_8, 0, callback, CONTROL_INITIAL_STATE);         
 
   return 1;
 }
@@ -890,7 +932,7 @@ int get_status(UsbDev* dev, Interface* interface, uint8_t* data, callback_functi
 // set interface
 void usb_dev_control(UsbDev *dev, Interface *interface, unsigned int pipe,
                      uint8_t priority, void *data, uint8_t *setup,
-                     callback_function callback) {
+                     callback_function callback, uint8_t flags) {
   if (!dev->contain_interface(dev, interface)) {
     callback(dev, E_INTERFACE_NOT_SUPPORTED, data);
     return;
@@ -903,7 +945,7 @@ void usb_dev_control(UsbDev *dev, Interface *interface, unsigned int pipe,
 
   for (int i = 0; i < endpoint_count; i++) {
     if (dev->is_pipe_buildable(endpoints[i], pipe)) {
-      dev->request(dev, device_req, data, priority, endpoints[i], callback);
+      dev->request(dev, device_req, data, priority, endpoints[i], callback, flags);
       return;
     }
   }
@@ -925,7 +967,8 @@ void usb_dev_bulk(struct UsbDev *dev, Interface *interface, unsigned int pipe,
 
   for (int i = 0; i < endpoint_count; i++) {
     if (dev->is_pipe_buildable(endpoints[i], pipe)) {
-      ((UsbController*)dev->controller)->bulk_entry_point(dev, endpoints[i], data, len, priority, callback, flags);
+      ((UsbController*)dev->controller)->bulk_entry_point(dev, endpoints[i], data, 
+                  len, priority, callback, flags);
       return;
     }
   }

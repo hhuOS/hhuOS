@@ -17,6 +17,7 @@
 #include "data/UsbDev_Data.h"
 
 #define BULK_INITIAL_STATE 0x01
+#define CONTROL_INITIAL_STATE 0x02
 
 struct UsbDev {
   uint8_t speed;
@@ -65,14 +66,14 @@ struct UsbDev {
   void (*request)(struct UsbDev *dev, struct UsbDeviceRequest *device_request,
                   void *data, uint8_t priority, Endpoint *endpoint,
                   void (*callback_function)(struct UsbDev* dev, uint32_t status,
-                                            void *data));
+                                            void *data), uint8_t flags);
 
   void (*usb_dev_control)(struct UsbDev *dev, Interface *interface,
                           unsigned int pipe, uint8_t priority, void *data,
                           uint8_t *setup,
                           void (*callback_function)(struct UsbDev *dev,
                                                     uint32_t status,
-                                                    void *data));
+                                                    void *data), uint8_t flags);
   void (*usb_dev_interrupt)(struct UsbDev *dev, Interface *interface,
                             unsigned int pipe, uint8_t priority, void *data,
                             unsigned int len, uint16_t interval,
@@ -131,7 +132,13 @@ struct UsbDev {
   int (*get_descriptor)(struct UsbDev* dev, Interface* interface, uint8_t* data, unsigned int len,
                       void (*callback_function)(struct UsbDev *dev,
                                               uint32_t status, void *data));
-  int (*get_status)(struct UsbDev* dev, Interface* interface, uint8_t* data, void (*callback_function)(struct UsbDev *dev,
+  int (*get_req_status)(struct UsbDev* dev, Interface* interface, uint8_t* data, unsigned int len, void (*callback_function)(struct UsbDev *dev,
+                                              uint32_t status, void *data));
+  int (*set_feature)(struct UsbDev* dev, Interface* interface, uint16_t feature_value, uint16_t port, 
+                void (*callback_function)(struct UsbDev *dev,
+                                              uint32_t status, void *data));
+  int (*clear_feature)(struct UsbDev* dev, Interface* interface, uint16_t feature_value, uint16_t port,
+                  void (*callback_function)(struct UsbDev *dev,
                                               uint32_t status, void *data));
   UsbDeviceRequest *(*get_free_device_request)(struct UsbDev *dev);
   void (*free_device_request)(struct UsbDev *dev,
@@ -188,7 +195,7 @@ void new_usb_device(UsbDev *dev, uint8_t speed, uint8_t port,
 // pipe = endpoint information to create the pipe
 void usb_dev_control(UsbDev *dev, Interface *interface, unsigned int pipe,
                      uint8_t priority, void *data, uint8_t *setup,
-                     callback_function callback);
+                     callback_function callback, uint8_t flags);
 void usb_dev_interrupt(UsbDev *dev, Interface *interface, unsigned int pipe,
                        uint8_t priority, void *data, unsigned int len,
                        uint16_t interval, callback_function callback);
@@ -205,7 +212,7 @@ void request_build(struct UsbDev *dev, UsbDeviceRequest *req, int8_t rq_type,
                    int16_t shift, int16_t index, int16_t len);
 void request(struct UsbDev *dev, struct UsbDeviceRequest *device_request,
              void *data, uint8_t priority, Endpoint *endpoint,
-             callback_function callback);
+             callback_function callback, uint8_t flags);
 
 int8_t support_bulk(struct UsbDev *dev, Interface *interface);
 int8_t support_isochronous(struct UsbDev *dev, Interface *interface);
@@ -268,6 +275,10 @@ int handle_lang(UsbDev* dev, uint8_t* string_buffer);
 int handle_dev(UsbDev* dev, uint8_t* string_buffer, DeviceDescriptor* device_descriptor);
 
 int get_descriptor(UsbDev* dev, Interface* interface, uint8_t* data, unsigned int len, callback_function callback);
-int get_status(UsbDev* dev, Interface* interface, uint8_t* data, callback_function callback);
+int get_req_status(UsbDev* dev, Interface* interface, uint8_t* data, unsigned int len, callback_function callback);
+int clear_feature(UsbDev* dev, Interface* interface, uint16_t feature_value, uint16_t port,
+                  callback_function callback);
+int set_feature(UsbDev* dev, Interface* interface, uint16_t feature_value, uint16_t port, 
+                callback_function callback);
 
 #endif
