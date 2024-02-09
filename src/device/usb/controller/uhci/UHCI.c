@@ -263,21 +263,6 @@ void create_dev(_UHCI *uhci, int16_t status, int pn, MemoryService_C *m) {
   uhci->controller_logger->info_c(
       uhci->controller_logger, "Succesful configured Usb-Device on port : %d\n" \
       "Device : %s, %s", pn, dev->manufacturer, dev->product);
-
-  if(dev->device_desc.bDeviceClass == HUB){
-    uhci->controller_logger->info_c(uhci->controller_logger,
-      "Starting enumeration on hub at port : %d: "
-    );
-    UsbDevice_ID usb_dev[] = {
-      USB_DEVICE_INFO(HUB, 0xFF, 0xFF), {}
-    };
-    HubDriver* hub_driver = (HubDriver*)m->allocateKernelMemory_c(m, sizeof(HubDriver), 0);
-    hub_driver->new_hub_driver = &new_hub_driver;
-    hub_driver->new_hub_driver(hub_driver, "hub", usb_dev);
-    uhci->super.register_driver(&uhci->super, (UsbDriver*)hub_driver);
-
-    hub_driver->configure_hub(hub_driver);
-  }    
 }
 
 void dump_uhci_entry(_UHCI* uhci){
