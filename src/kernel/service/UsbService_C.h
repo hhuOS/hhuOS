@@ -15,8 +15,6 @@
 // #define EHCI
 // #define XHCI
 
-//#define POLL // also defined in controller -> find a matching include !
-
 struct UsbService_C {
   void (*new_service)(struct UsbService_C *usb_service_c);
   int (*add_driver_c)(struct UsbService_C *usb_service_c, UsbDriver *driver);

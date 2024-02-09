@@ -192,15 +192,13 @@ void Kernel::UsbService::handle_fs_driver(UsbDriver* driver, uint8_t driver_n, F
 
   write_to_node(dr_node, driver_temp, temp);
 
-  l_e_dev = controller->head_dev.l_e;
+  l_e_dev = driver->head.l_e;
 
   while(l_e_dev != (void*)0){
     UsbDev* dev = usb_service_c->get_dev(usb_service_c, l_e_dev);
 
     Util::String dev_info = Util::String(dev->manufacturer);
   
-    dev_info = dev_info.join("\n", {Util::String(dev->product)});
-
     temp = Util::String("device");
     write_to_node(dr_node, dev_info, temp);
 
