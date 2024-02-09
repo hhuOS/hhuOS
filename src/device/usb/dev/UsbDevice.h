@@ -39,8 +39,6 @@ struct UsbDev {
 
   Logger_C *device_logger;
 
-  Mutex_C *mutex;
-
   uint8_t error_while_transfering; // only used when not configured -> helpful
                                    // to pass the error
 
@@ -56,8 +54,9 @@ struct UsbDev {
 
   char *serial_number;
 
-  void (*new_usb_device)(struct UsbDev *dev, uint8_t speed, uint8_t port,
-                         SystemService_C *m, void *controller); // init phase#
+  void (*new_usb_device)(struct UsbDev *dev, uint8_t speed, uint8_t port, uint8_t level,
+                    uint8_t removable, uint8_t root_port, uint8_t dev_num, SystemService_C *m, 
+                    void *controller);
 
   void (*request_build)(struct UsbDev *dev, UsbDeviceRequest *req,
                         int8_t rq_type, int8_t rq, int16_t value_high,
@@ -175,6 +174,15 @@ struct UsbDev {
   int (*handle_lang)(struct UsbDev* dev, uint8_t* string_buffer);
   int (*handle_dev)(struct UsbDev* dev, uint8_t* string_buffer, DeviceDescriptor* device_descriptor);
 
+  void (*add_downstream_device)(struct UsbDev* dev, struct UsbDev* downstream_dev);
+  void (*add_downstream)(struct UsbDev* dev, struct UsbDev* downstream_devs , uint8_t downstream_ports, 
+                      uint8_t dev_connected);
+  void (*delete_usb_dev)(struct UsbDev* dev);
+  void (*free_usb_dev_strings)(struct UsbDev* dev);
+  void (*free_usb_dev_configs)(struct UsbDev* dev);
+  void (*free_usb_dev_interfaces)(struct UsbDev* dev, Interface** interfaces, int num_interfaces);
+  void (*free_usb_dev_endpoints)(struct UsbDev* dev, Endpoint** endpoints, int num_endpoints);
+
   uint8_t *device_request_map_io;
   uint8_t device_request_map_io_bitmap[PAGE_SIZE / sizeof(UsbDeviceRequest)];
 
@@ -183,14 +191,34 @@ struct UsbDev {
 
   Mutex_C* device_mutex;
   SystemService_C *mem_service;
+
+  struct UsbDev* downstream_devs;
+  uint8_t downstream_count;
+
+  uint8_t max_down_stream;
+
+  uint8_t level;
+  uint8_t rootport;
+  uint8_t dev_num;
+  uint8_t removable;
 };
 
 typedef struct UsbDev UsbDev;
 
 typedef void (*callback_function)(UsbDev* dev, uint32_t status, void *data);
 
-void new_usb_device(UsbDev *dev, uint8_t speed, uint8_t port,
-                    SystemService_C *m, void *uhci);
+void new_usb_device(UsbDev *dev, uint8_t speed, uint8_t port, uint8_t level,
+                    uint8_t removable, uint8_t root_port, uint8_t dev_num, SystemService_C *m, 
+                    void *controller);
+
+void add_downstream_device(UsbDev* dev, UsbDev* downstream_dev);
+void add_downstream(UsbDev* dev, UsbDev* downstream_devs , uint8_t downstream_ports, 
+                    uint8_t dev_connected);
+void delete_usb_dev(UsbDev* dev);
+void free_usb_dev_strings(UsbDev* dev);
+void free_usb_dev_configs(UsbDev* dev);
+void free_usb_dev_interfaces(UsbDev* dev, Interface** interfaces, int num_interfaces);
+void free_usb_dev_endpoints(UsbDev* dev, Endpoint** endpoints, int num_endpoints);
 
 // pipe = endpoint information to create the pipe
 void usb_dev_control(UsbDev *dev, Interface *interface, unsigned int pipe,

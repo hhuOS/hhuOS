@@ -22,8 +22,12 @@ const uint8_t DEFAULT_STATE = 0x01;
 const uint8_t ADDRESS_STATE = 0x02;
 const uint8_t CONFIGURED_STATE = 0x03;
 
-void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port,
-                    SystemService_C *m, void *controller) {
+// root_port = tree level
+// port = downstream port level
+// dev_num = dev number in that tree
+void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port, uint8_t level,
+                    uint8_t removable, uint8_t root_port, uint8_t dev_num, SystemService_C *m, 
+                    void *controller) {
 
   MemoryService_C *mem_service =
       (MemoryService_C *)container_of(m, MemoryService_C, super);
@@ -52,14 +56,18 @@ void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port,
   mem_set(dev->device_request_map_io, PAGE_SIZE, 0);
   mem_set(dev->device_request_map_io_bitmap, PAGE_SIZE / sizeof(UsbDeviceRequest), 0);    
 
-  dev->device_mutex = (Mutex_C*)mem_service->allocateKernelMemory_c(mem_service, sizeof(Mutex_C), 0);
-  dev->device_mutex->new_mutex = &new_mutex;
-  dev->device_mutex->new_mutex(dev->device_mutex);
-
   dev->speed = speed;
   dev->port = port;
   dev->address = 0;
   dev->max_packet_size = 8; // default
+  dev->level = level;
+  dev->removable = removable;
+  dev->rootport = root_port;
+  dev->dev_num = dev_num;
+
+  dev->max_down_stream = 0;
+  dev->downstream_count = 0;
+  dev->downstream_devs = 0;
 
   dev->active_config = 0;
   dev->supported_configs = 0;
@@ -68,7 +76,6 @@ void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port,
   dev->state = DEFAULT_STATE;
 
   dev->device_logger = 0;
-  dev->mutex = 0;
   dev->error_while_transfering = 0;
   dev->mem_service = m;
 
@@ -87,6 +94,10 @@ void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port,
   dev->init_device_functions = &init_device_functions;
   dev->init_device_functions(dev);
   dev->init_device_logger(dev);
+
+  dev->device_mutex = (Mutex_C*)mem_service->allocateKernelMemory_c(mem_service, sizeof(Mutex_C), 0);
+  dev->device_mutex->new_mutex = &new_mutex;
+  dev->device_mutex->new_mutex(dev->device_mutex);
 
   dev->process_device_descriptor(dev, device_descriptor, 8);
 
@@ -124,6 +135,88 @@ void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port,
   ((UsbController*)dev->controller)->add_device((UsbController *)dev->controller, dev);
 
   mem_service->unmap(mem_service, (uint32_t)(uintptr_t)map_io_buffer);
+}
+
+void add_downstream_device(UsbDev* dev, UsbDev* downstream_dev){
+  if(dev->downstream_count == dev->max_down_stream) return;
+
+  downstream_dev[dev->downstream_count++] = *downstream_dev;
+}
+
+void add_downstream(UsbDev* dev, UsbDev* downstream_devs , uint8_t downstream_ports, 
+                    uint8_t dev_connected){
+  if(!downstream_ports) return;
+  if(!dev_connected) return;
+  if(downstream_devs == (void*)0) return;
+
+  if(dev_connected > downstream_ports) return;
+  MemoryService_C* m = (MemoryService_C*)container_of(dev->mem_service, MemoryService_C, super);
+  
+  UsbDev* down_d = m->allocateKernelMemory_c(m, sizeof(UsbDev) * downstream_ports, 0);
+
+  for(int i = 0; i < dev_connected; i++){
+    down_d[i] = downstream_devs[i];
+  }
+
+  dev->downstream_devs = down_d;
+  dev->downstream_count = dev_connected;
+}
+
+void delete_usb_dev(UsbDev* dev){
+  MemoryService_C* m = (MemoryService_C*)container_of(dev->mem_service, MemoryService_C, super);
+  if(dev->downstream_devs != (void*)0) m->freeKernelMemory_c(m, dev->downstream_devs, 0);
+  m->freeKernelMemory_c(m, dev->device_mutex, 0);
+  m->unmap(m, (uint32_t)(uintptr_t)dev->device_request_map_io);
+  m->freeKernelMemory_c(m, dev->lang_ids, 0);
+  m->freeKernelMemory_c(m, dev->device_logger, 0);
+  free_usb_dev_strings(dev);
+  free_usb_dev_configs(dev);
+  m->freeKernelMemory_c(m, dev, 0);
+}
+
+void free_usb_dev_strings(UsbDev* dev){
+  MemoryService_C* m = (MemoryService_C*)container_of(dev->mem_service, MemoryService_C, super);
+  if(dev->manufacturer[0] != '\0') m->freeKernelMemory_c(m, dev->manufacturer, 0);
+  if(dev->product[0] != '\0') m->freeKernelMemory_c(m, dev->product, 0);
+  if(dev->serial_number[0] != '\0') m->freeKernelMemory_c(m, dev->serial_number, 0); 
+}
+
+void free_usb_dev_configs(UsbDev* dev){
+  MemoryService_C* m = (MemoryService_C*)container_of(dev->mem_service, MemoryService_C, super);
+  Configuration** configs = dev->supported_configs;
+
+  for(int i = 0; i < dev->device_desc.bNumConfigurations; i++){
+    Configuration* config = configs[i];
+    if(config->config_description[0] != '\0') m->freeKernelMemory_c(m, config->config_description, 0);
+    int num_interfaces = config->config_desc.bNumInterfaces;
+    free_usb_dev_interfaces(dev, config->interfaces, num_interfaces);
+  }
+  m->freeKernelMemory_c(m, dev->supported_configs, 0);
+}
+
+void free_usb_dev_interfaces(UsbDev* dev, Interface** interfaces, int num_interfaces){
+  MemoryService_C* m = (MemoryService_C*)container_of(dev->mem_service, MemoryService_C, super);
+  for(int i = 0; i < num_interfaces; i++){
+    Interface* itf = interfaces[i];
+    Alternate_Interface* alt_itf = itf->alternate_interfaces;
+    if(itf->interface_description[0] != '\0') m->freeKernelMemory_c(m, itf->interface_description, 0);
+    while(alt_itf != (void*)0){
+      free_usb_dev_endpoints(dev, alt_itf->endpoints, alt_itf->alternate_interface_desc.bNumEndpoints);
+      Alternate_Interface* temp = alt_itf;
+      alt_itf = alt_itf->next;
+      m->freeKernelMemory_c(m, temp, 0);
+    }
+    m->freeKernelMemory_c(m, itf, 0);
+  }
+  m->freeKernelMemory_c(m, interfaces, 0);
+}
+
+void free_usb_dev_endpoints(UsbDev* dev, Endpoint** endpoints, int num_endpoints){
+  MemoryService_C* m = (MemoryService_C*)container_of(dev->mem_service, MemoryService_C, super);
+  for(int i = 0; i < num_endpoints; i++){
+    m->freeKernelMemory_c(m, endpoints[i], 0);
+  }
+  m->freeKernelMemory_c(m, endpoints, 0);
 }
 
 int handle_interface(UsbDev* dev, Configuration* configuration, uint8_t* string_buffer, uint8_t* start, uint8_t* end,
@@ -409,6 +502,13 @@ void init_device_functions(UsbDev *dev) {
   dev->get_req_status = &get_req_status;
   dev->set_feature = &set_feature;
   dev->clear_feature = &clear_feature;
+  dev->add_downstream_device = &add_downstream_device;
+  dev->add_downstream = &add_downstream;
+  dev->delete_usb_dev = &delete_usb_dev;
+  dev->free_usb_dev_strings = &free_usb_dev_strings;
+  dev->free_usb_dev_configs = &free_usb_dev_configs;
+  dev->free_usb_dev_interfaces = &free_usb_dev_interfaces;
+  dev->free_usb_dev_endpoints = &free_usb_dev_endpoints;
 }
 
 char *build_string(UsbDev *dev, int len, uint8_t *string_buffer) {
