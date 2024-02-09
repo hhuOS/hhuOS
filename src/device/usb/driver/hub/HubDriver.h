@@ -54,6 +54,7 @@ struct HubDriver{
     void (*dump_port_status)(struct HubDriver* driver, uint16_t* port_status_field);
 
     Logger_C* (*init_hub_driver_logger)(struct HubDriver* driver);
+    uint8_t (*is_device_removable)(struct HubDriver* driver, uint8_t downstream_port);
 
     struct HubDescriptor hub_desc;
     uint8_t x_powered; 
@@ -132,5 +133,7 @@ void dump_port_status_change(HubDriver* driver, uint16_t* port_status_change_fie
 void dump_port_status(HubDriver* driver, uint16_t* port_status_field);
 
 Logger_C* init_hub_driver_logger(HubDriver* driver);
+
+uint8_t is_device_removable(HubDriver* driver, uint8_t downstream_port);
 
 #endif

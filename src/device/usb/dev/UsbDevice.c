@@ -140,26 +140,20 @@ void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port, uint8_t lev
 void add_downstream_device(UsbDev* dev, UsbDev* downstream_dev){
   if(dev->downstream_count == dev->max_down_stream) return;
 
-  downstream_dev[dev->downstream_count++] = *downstream_dev;
+  dev->downstream_devs[dev->downstream_count] = downstream_dev;
+  dev->downstream_count = dev->downstream_count + 1;
 }
 
-void add_downstream(UsbDev* dev, UsbDev* downstream_devs , uint8_t downstream_ports, 
-                    uint8_t dev_connected){
+void add_downstream(UsbDev* dev, uint8_t downstream_ports){
   if(!downstream_ports) return;
-  if(!dev_connected) return;
-  if(downstream_devs == (void*)0) return;
 
-  if(dev_connected > downstream_ports) return;
   MemoryService_C* m = (MemoryService_C*)container_of(dev->mem_service, MemoryService_C, super);
   
-  UsbDev* down_d = m->allocateKernelMemory_c(m, sizeof(UsbDev) * downstream_ports, 0);
-
-  for(int i = 0; i < dev_connected; i++){
-    down_d[i] = downstream_devs[i];
-  }
+  UsbDev** down_d = m->allocateKernelMemory_c(m, sizeof(UsbDev*) * downstream_ports, 0);
 
   dev->downstream_devs = down_d;
-  dev->downstream_count = dev_connected;
+  dev->max_down_stream = downstream_ports;
+  dev->downstream_count = 0;
 }
 
 void delete_usb_dev(UsbDev* dev){
@@ -169,8 +163,8 @@ void delete_usb_dev(UsbDev* dev){
   m->unmap(m, (uint32_t)(uintptr_t)dev->device_request_map_io);
   m->freeKernelMemory_c(m, dev->lang_ids, 0);
   m->freeKernelMemory_c(m, dev->device_logger, 0);
-  free_usb_dev_strings(dev);
-  free_usb_dev_configs(dev);
+  dev->free_usb_dev_strings(dev);
+  dev->free_usb_dev_configs(dev);
   m->freeKernelMemory_c(m, dev, 0);
 }
 
@@ -184,14 +178,15 @@ void free_usb_dev_strings(UsbDev* dev){
 void free_usb_dev_configs(UsbDev* dev){
   MemoryService_C* m = (MemoryService_C*)container_of(dev->mem_service, MemoryService_C, super);
   Configuration** configs = dev->supported_configs;
+  if(configs == (void*)0) return;
 
   for(int i = 0; i < dev->device_desc.bNumConfigurations; i++){
     Configuration* config = configs[i];
     if(config->config_description[0] != '\0') m->freeKernelMemory_c(m, config->config_description, 0);
     int num_interfaces = config->config_desc.bNumInterfaces;
-    free_usb_dev_interfaces(dev, config->interfaces, num_interfaces);
+    dev->free_usb_dev_interfaces(dev, config->interfaces, num_interfaces);
   }
-  m->freeKernelMemory_c(m, dev->supported_configs, 0);
+  m->freeKernelMemory_c(m, configs, 0);
 }
 
 void free_usb_dev_interfaces(UsbDev* dev, Interface** interfaces, int num_interfaces){
@@ -201,7 +196,7 @@ void free_usb_dev_interfaces(UsbDev* dev, Interface** interfaces, int num_interf
     Alternate_Interface* alt_itf = itf->alternate_interfaces;
     if(itf->interface_description[0] != '\0') m->freeKernelMemory_c(m, itf->interface_description, 0);
     while(alt_itf != (void*)0){
-      free_usb_dev_endpoints(dev, alt_itf->endpoints, alt_itf->alternate_interface_desc.bNumEndpoints);
+      dev->free_usb_dev_endpoints(dev, alt_itf->endpoints, alt_itf->alternate_interface_desc.bNumEndpoints);
       Alternate_Interface* temp = alt_itf;
       alt_itf = alt_itf->next;
       m->freeKernelMemory_c(m, temp, 0);

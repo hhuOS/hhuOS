@@ -175,8 +175,7 @@ struct UsbDev {
   int (*handle_dev)(struct UsbDev* dev, uint8_t* string_buffer, DeviceDescriptor* device_descriptor);
 
   void (*add_downstream_device)(struct UsbDev* dev, struct UsbDev* downstream_dev);
-  void (*add_downstream)(struct UsbDev* dev, struct UsbDev* downstream_devs , uint8_t downstream_ports, 
-                      uint8_t dev_connected);
+  void (*add_downstream)(struct UsbDev* dev, uint8_t downstream_ports);
   void (*delete_usb_dev)(struct UsbDev* dev);
   void (*free_usb_dev_strings)(struct UsbDev* dev);
   void (*free_usb_dev_configs)(struct UsbDev* dev);
@@ -192,7 +191,7 @@ struct UsbDev {
   Mutex_C* device_mutex;
   SystemService_C *mem_service;
 
-  struct UsbDev* downstream_devs;
+  struct UsbDev** downstream_devs;
   uint8_t downstream_count;
 
   uint8_t max_down_stream;
@@ -212,8 +211,7 @@ void new_usb_device(UsbDev *dev, uint8_t speed, uint8_t port, uint8_t level,
                     void *controller);
 
 void add_downstream_device(UsbDev* dev, UsbDev* downstream_dev);
-void add_downstream(UsbDev* dev, UsbDev* downstream_devs , uint8_t downstream_ports, 
-                    uint8_t dev_connected);
+void add_downstream(UsbDev* dev, uint8_t downstream_ports);
 void delete_usb_dev(UsbDev* dev);
 void free_usb_dev_strings(UsbDev* dev);
 void free_usb_dev_configs(UsbDev* dev);

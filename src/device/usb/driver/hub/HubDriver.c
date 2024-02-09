@@ -80,6 +80,7 @@ void new_hub_driver(HubDriver* driver, char* name, UsbDevice_ID* entry){
     driver->dump_port_status = &dump_port_status;
     driver->dump_port_status_change = &dump_port_status_change;
     driver->init_hub_driver_logger = &init_hub_driver_logger;
+    driver->is_device_removable = &is_device_removable;
 
     driver->transfer_success = 0;
     driver->dev.usb_dev = 0;
@@ -129,6 +130,8 @@ int configure_hub(HubDriver* driver){
     uint16_t port_status_field;
     uint16_t port_change_status_field;
     uint8_t device_attached_mask = 0x01;
+    uint8_t start_device_num = dev->dev_num + 1;
+
     for(int i = 1; i <= num_ports; i++){
         if(driver->set_hub_feature(driver, dev, itf, start_port, PORT_POWER) == -1) return -1;
         mdelay(wait_time * multiplicator_wait_time_ms);
@@ -180,16 +183,35 @@ int configure_hub(HubDriver* driver){
             #endif
 
             uint8_t speed = ((port_status_field & 0x200) >> 9) == 1 ? LOW_SPEED : FULL_SPEED;
-            
+            uint8_t removable = driver->is_device_removable(driver, start_port);
+            uint8_t level = dev->level + 1;
+
             UsbDev* new_dev = m->allocateKernelMemory_c(m, sizeof(UsbDev), 0);
             new_dev->new_usb_device = &new_usb_device;
-            new_dev->new_usb_device(new_dev, speed, start_port, dev->mem_service, dev->controller);
+            new_dev->new_usb_device(new_dev, speed, start_port, level, removable, 
+                    dev->rootport, start_device_num, dev->mem_service, dev->controller);
+            if(new_dev->error_while_transfering){
+                new_dev->delete_usb_dev(dev);
+            }
+            else start_device_num++;                     
         }
         start_port++;
     }
 
     m->unmap(m, (uint32_t)(uintptr_t)data);
     return 1;
+}
+
+uint8_t is_device_removable(HubDriver* driver, uint8_t downstream_port){
+    uint8_t* removable_x = driver->hub_desc.x;
+    uint8_t mask = 0x01;
+
+    if(downstream_port < 8){
+        return ((removable_x[0] >> downstream_port) & mask);
+    }
+    uint8_t byte_num = downstream_port / sizeof(uint8_t);
+    uint8_t shift = downstream_port % sizeof(uint8_t);
+    return (removable_x[byte_num] >> shift);
 }
 
 void dump_port_status(HubDriver* driver, uint16_t* port_status_field){
