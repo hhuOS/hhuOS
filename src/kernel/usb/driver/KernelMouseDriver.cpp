@@ -47,14 +47,16 @@ int Kernel::Usb::Driver::KernelMouseDriver::initialize(){
 }
 
 int Kernel::Usb::Driver::KernelMouseDriver::submit(){
-    MouseDriver* mouse_driver = this->driver;
     Kernel::UsbService& u = Kernel::System::getService<Kernel::UsbService>();
+    MouseDriver* mouse_driver = this->driver;
 
-    UsbDev* dev = mouse_driver->dev.usb_dev;
-    if(dev->set_idle(dev, mouse_driver->dev.interface) < 0) return -1;
+    for(int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++){
+        UsbDev* dev = mouse_driver->dev[i].usb_dev;
+        if(dev->set_idle(dev, mouse_driver->dev[i].interface) < 0) return -1;
 
-    u.submit_interrupt_transfer(mouse_driver->dev.interface, usb_rcvintpipe(mouse_driver->dev.endpoint_addr), mouse_driver->dev.priority,mouse_driver->dev.interval,
-              mouse_driver->dev.buffer, mouse_driver->dev.buffer_size, mouse_driver->dev.callback);
+        u.submit_interrupt_transfer(mouse_driver->dev[i].interface, usb_rcvintpipe(mouse_driver->dev[i].endpoint_addr), mouse_driver->dev[i].priority,mouse_driver->dev[i].interval,
+              mouse_driver->dev[i].buffer, mouse_driver->dev[i].buffer_size, mouse_driver->dev[i].callback);
+    }
     
     return 1;
 }
