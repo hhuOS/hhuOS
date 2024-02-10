@@ -149,7 +149,10 @@ void Kernel::UsbService::handle_fs_interface(UsbDev* dev, Filesystem::Memory::Me
     write_to_node(itf_node, temp, "active");
 
     temp = Util::String("driver");
-    itf_temp = Util::String(((UsbDriver*)itf->driver)->name);
+    if((UsbDriver*)itf->driver == (void*)0){
+      itf_temp = "";
+    }
+    else itf_temp = Util::String(((UsbDriver*)itf->driver)->name);
     write_to_node(itf_node, itf_temp, temp);
 
     temp = Util::String("interface-description");
