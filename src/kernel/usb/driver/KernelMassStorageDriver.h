@@ -17,13 +17,15 @@ public:
 
     int initialize() override;
 
-    int submit() override;
+    int submit(uint8_t minor) override;
 
-    bool control(uint32_t request, const Util::Array<uint32_t>& parameters);
+    void create_usb_dev_node() override;
 
-    uint64_t readData(uint8_t *targetBuffer, uint64_t start_lba, uint64_t msd_data);
+    bool control(uint32_t request, const Util::Array<uint32_t>& parameters, uint8_t minor);
 
-    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t start_lba, uint64_t msd_data);
+    uint64_t readData(uint8_t *targetBuffer, uint64_t start_lba, uint64_t msd_data, uint8_t minor);
+
+    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t start_lba, uint64_t msd_data, uint8_t minor);
 
 private:
     enum MSD_Params : uint8_t{
