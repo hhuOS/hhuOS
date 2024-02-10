@@ -25,6 +25,8 @@ int Kernel::Usb::Driver::KernelHubDriver::initialize(){
     hub_driver->new_hub_driver = &new_hub_driver;
     hub_driver->new_hub_driver(hub_driver, this->getName(), usbDevs);
     
+    this->driver = hub_driver;
+
     dev_found = u.add_driver((UsbDriver*)hub_driver);
     if(dev_found == -1) return -1;
 
@@ -33,6 +35,8 @@ int Kernel::Usb::Driver::KernelHubDriver::initialize(){
     return 1;
 }
 
-int Kernel::Usb::Driver::KernelHubDriver::submit(){
+int Kernel::Usb::Driver::KernelHubDriver::submit(uint8_t minor){
     return -1;
 }
+
+void Kernel::Usb::Driver::KernelHubDriver::create_usb_dev_node() {}
