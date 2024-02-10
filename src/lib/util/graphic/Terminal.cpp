@@ -486,7 +486,8 @@ void Terminal::TerminalPipedOutputStream::flush() {
 Terminal::KeyboardRunnable::KeyboardRunnable(Terminal &terminal) : terminal(terminal) {}
 
 void Terminal::KeyboardRunnable::run() {
-    auto keyboardStream = Io::FileInputStream("/device/keyboard");
+    // just pick first kbd for now
+    auto keyboardStream = Io::FileInputStream("/device/keyboard0");
     auto keyDecoder = Io::KeyDecoder();
 
     #ifdef KEY_CODE_USB
