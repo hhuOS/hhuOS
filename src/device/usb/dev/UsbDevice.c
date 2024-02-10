@@ -99,13 +99,19 @@ void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port, uint8_t lev
   dev->device_mutex->new_mutex = &new_mutex;
   dev->device_mutex->new_mutex(dev->device_mutex);
 
-  dev->process_device_descriptor(dev, device_descriptor, 8);
+  if(dev->process_device_descriptor(dev, device_descriptor, 8) == -1){
+    dev->device_logger->error_c(dev->device_logger , "Aborting configuration of device due to error while handle the device descriptor ...");
+    return;
+  }
 
   dev->max_packet_size = device_descriptor->bMaxPacketSize0;
 
   //((UsbController *)dev->controller)->reset_port((UsbController*)dev->controller, port);
 
-  dev->set_address(dev, address);
+  if(dev->set_address(dev, address) == -1){
+    dev->device_logger->error_c(dev->device_logger, "Aborting configuration of device due to error while setting the address ...");
+    return;
+  }
 
   dev->address = address;
   address++;
@@ -127,8 +133,11 @@ void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port, uint8_t lev
     return;
   }
 
-  dev->set_configuration(dev,
-                         dev->active_config->config_desc.bConfigurationValue);
+  if(dev->set_configuration(dev,
+                         dev->active_config->config_desc.bConfigurationValue) == -1){
+    dev->device_logger->error_c(dev->device_logger, "Aborting configuration of device due to error while setting the configration ...");
+    return;
+  }
 
   dev->state = CONFIGURED_STATE;
 
