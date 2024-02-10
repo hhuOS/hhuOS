@@ -15,19 +15,6 @@
 #define SELF_POWERED 0x01
 #define REMOTE_WAKEUP 0x02
 
-struct HubDev{
-    UsbDev* usb_dev;
-    unsigned int endpoint_addr;
-    void* buffer;
-    unsigned int buffer_size;
-    uint8_t priority;
-    Interface* interface;
-    uint16_t interval;
-    UsbDriver* driver;
-
-    void (*callback)(UsbDev* dev, uint32_t status, void* data);
-};
-
 struct HubDescriptor{
     uint8_t len;
     uint8_t type;
@@ -38,29 +25,48 @@ struct HubDescriptor{
     uint8_t x[HUB_DESCRIPTOR_VARIABLE_X];
 } __attribute__((packed));
 
-struct HubDriver{
-    struct UsbDriver super;
-    struct HubDev dev;
-    void (*new_hub_driver)(struct HubDriver* driver, char* name, struct UsbDevice_ID* entry);
-
-    int (*read_hub_status)(struct HubDriver* driver, UsbDev* dev, Interface* itf, uint8_t* data, unsigned int len);
-    int (*read_hub_descriptor)(struct HubDriver* driver, UsbDev* dev, Interface* itf, uint8_t* data);
-    int (*configure_hub)(struct HubDriver* driver);
-    int (*check_valid_hub_transfer)(struct HubDriver* driver);
-    int (*set_hub_feature)(struct HubDriver* driver, UsbDev* dev, Interface* itf, uint16_t port, uint16_t feature);
-    int (*clear_hub_feature)(struct HubDriver* driver, UsbDev* dev, Interface* itf, uint16_t port, uint16_t feature);
-
-    void (*dump_port_status_change)(struct HubDriver* driver, uint16_t* port_status_change_field);
-    void (*dump_port_status)(struct HubDriver* driver, uint16_t* port_status_field);
-
-    Logger_C* (*init_hub_driver_logger)(struct HubDriver* driver);
-    uint8_t (*is_device_removable)(struct HubDriver* driver, uint8_t downstream_port);
+struct HubDev{
+    UsbDev* usb_dev;
+    unsigned int endpoint_addr;
+    void* buffer;
+    unsigned int buffer_size;
+    uint8_t priority;
+    Interface* interface;
+    uint16_t interval;
+    UsbDriver* driver;
 
     struct HubDescriptor hub_desc;
     uint8_t x_powered; 
     uint8_t x_wakeup;
 
     uint8_t transfer_success;
+
+    void (*callback)(UsbDev* dev, uint32_t status, void* data);
+};
+
+struct HubDriver{
+    struct UsbDriver super;
+    struct HubDev dev[MAX_DEVICES_PER_USB_DRIVER];
+    uint8_t hub_map[MAX_DEVICES_PER_USB_DRIVER];
+
+    void (*new_hub_driver)(struct HubDriver* driver, char* name, struct UsbDevice_ID* entry);
+
+    int (*read_hub_status)(struct HubDriver* driver, struct HubDev* dev, Interface* itf, uint8_t* data, unsigned int len);
+    int (*read_hub_descriptor)(struct HubDriver* driver, struct HubDev* dev, Interface* itf, uint8_t* data);
+    int (*configure_hub)(struct HubDriver* driver);
+    int (*check_valid_hub_transfer)(struct HubDriver* driver);
+    int (*set_hub_feature)(struct HubDriver* driver, struct HubDev* dev, Interface* itf, uint16_t port, uint16_t feature);
+    int (*clear_hub_feature)(struct HubDriver* driver, struct HubDev* dev, Interface* itf, uint16_t port, uint16_t feature);
+
+    void (*dump_port_status_change)(struct HubDriver* driver, uint16_t* port_status_change_field);
+    void (*dump_port_status)(struct HubDriver* driver, uint16_t* port_status_field);
+
+    Logger_C* (*init_hub_driver_logger)(struct HubDriver* driver);
+    uint8_t (*is_device_removable)(struct HubDriver* driver, struct HubDev* dev, uint8_t downstream_port);
+
+    struct HubDev* (*get_free_hub_dev)(struct HubDriver* driver);
+    struct HubDev* (*match_hub_dev)(struct HubDriver* driver, UsbDev* dev);
+    void (*free_hub_dev)(struct HubDriver* driver, struct HubDev* hub_dev);
 
     Logger_C* hub_driver_logger;
 };
@@ -122,18 +128,22 @@ void disconnect_hub(UsbDev* dev, Interface* interface);
 
 void new_hub_driver(HubDriver* driver, char* name, UsbDevice_ID* entry);
 
-int read_hub_status(HubDriver* driver, UsbDev* dev, Interface* itf, uint8_t* data, unsigned int len);
-int read_hub_descriptor(HubDriver* driver, UsbDev* dev, Interface* itf, uint8_t* data);
+int read_hub_status(HubDriver* driver, HubDev* dev, Interface* itf, uint8_t* data, unsigned int len);
+int read_hub_descriptor(HubDriver* driver, HubDev* dev, Interface* itf, uint8_t* data);
 int configure_hub(HubDriver* driver);
 void configure_callback(UsbDev* dev, uint32_t status, void* data);
-int set_hub_feature(HubDriver* driver, UsbDev* dev, Interface* itf, uint16_t port, uint16_t feature);
-int clear_hub_feature(HubDriver* driver, UsbDev* dev, Interface* itf, uint16_t port, uint16_t feature);
+int set_hub_feature(HubDriver* driver, HubDev* dev, Interface* itf, uint16_t port, uint16_t feature);
+int clear_hub_feature(HubDriver* driver, HubDev* dev, Interface* itf, uint16_t port, uint16_t feature);
 
 void dump_port_status_change(HubDriver* driver, uint16_t* port_status_change_field);
 void dump_port_status(HubDriver* driver, uint16_t* port_status_field);
 
 Logger_C* init_hub_driver_logger(HubDriver* driver);
 
-uint8_t is_device_removable(HubDriver* driver, uint8_t downstream_port);
+uint8_t is_device_removable(HubDriver* driver, HubDev* hub_dev, uint8_t downstream_port);
+
+HubDev* get_free_hub_dev(HubDriver* driver);
+HubDev* match_hub_dev(HubDriver* driver, UsbDev* dev);
+void free_hub_dev(HubDriver* driver, HubDev* hub_dev);
 
 #endif
