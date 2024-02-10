@@ -10,13 +10,14 @@
 #include "../../../lib/util/collection/ArrayBlockingQueue.h"
 #include "../../../lib/util/io/stream/FilterInputStream.h"
 #include "KeyBoardNode.h"
+#include "../../../lib/util/base/String.h"
 
 Util::ArrayBlockingQueue<uint8_t> keyBuffer = Util::ArrayBlockingQueue<uint8_t>(BUFFER_SIZE);
 Util::Io::QueueInputStream inputStream = Util::Io::QueueInputStream(keyBuffer);
 
-Kernel::Usb::KeyBoardNode::KeyBoardNode() : Kernel::Usb::UsbNode(&key_board_node_callback), Util::Io::FilterInputStream(inputStream) {}
+Kernel::Usb::KeyBoardNode::KeyBoardNode(uint8_t minor) : Kernel::Usb::UsbNode(&key_board_node_callback, minor), Util::Io::FilterInputStream(inputStream) {}
 
-int Kernel::Usb::KeyBoardNode::add_file_node() {
+int Kernel::Usb::KeyBoardNode::add_file_node(Util::String node_name) {
 
   int s = interface_register_callback(KEY_BOARD_LISTENER, this->get_callback());
 
@@ -25,7 +26,7 @@ int Kernel::Usb::KeyBoardNode::add_file_node() {
     return -1;
   }
   
-  auto *streamNode = new Filesystem::Memory::StreamNode("keyboard", this);
+  auto *streamNode = new Filesystem::Memory::StreamNode(node_name, this);
   auto &filesystem =
       Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
   auto &driver = filesystem.getVirtualDriver("/device");
