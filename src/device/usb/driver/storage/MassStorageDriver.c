@@ -39,42 +39,47 @@ int16_t probe_mass_storage(UsbDev *dev, Interface *interface) {
   MemoryService_C *mem_service =
       (MemoryService_C *)container_of(dev->mem_service, MemoryService_C, super);
 
+  MassStorageDev* msd_dev = internal_msd_driver->get_free_msd_dev(internal_msd_driver);
+
+  if(msd_dev == (void*)0) return -1;
+
   for (int i = 0; i < e; i++) {
     Endpoint* endpoint = endpoints[i];
     if (!(endpoint->endpoint_desc.bmAttributes & TRANSFER_TYPE_BULK)) {
+      internal_msd_driver->free_msd_dev(internal_msd_driver, msd_dev);
       continue;
     }
     uint8_t direction =
         endpoint->endpoint_desc.bEndpointAddress & DIRECTION_MASK;
-    if (!internal_msd_driver->dev.bulk_in_endpoint_addr &&
+    if (!msd_dev->bulk_in_endpoint_addr &&
         (direction == DIRECTION_IN)) {
-      if(internal_msd_driver->dev.buffer == (void*)0){
+      if(msd_dev->buffer == (void*)0){
         msd_buffer = (uint8_t *)mem_service->mapIO(
           mem_service, sizeof(uint8_t) * MAX_TRANSFER_BYTES, 1);
-        internal_msd_driver->dev.buffer = msd_buffer;
+        msd_dev->buffer = msd_buffer;
       }    
       select = 1;
-      internal_msd_driver->dev.bulk_in_endpoint_addr =
+      msd_dev->bulk_in_endpoint_addr =
         endpoint->endpoint_desc.bEndpointAddress & ENDPOINT_MASK;
 
-    } else if (!internal_msd_driver->dev.bulk_out_endpoint_addr &&
+    } else if (!msd_dev->bulk_out_endpoint_addr &&
                (direction == DIRECTION_OUT)) {
-      if(internal_msd_driver->dev.buffer == (void*)0){
+      if(msd_dev->buffer == (void*)0){
         msd_buffer = (uint8_t *)mem_service->mapIO(
           mem_service, sizeof(uint8_t) * MAX_TRANSFER_BYTES, 1);
-          internal_msd_driver->dev.buffer = msd_buffer;
+        msd_dev->buffer = msd_buffer;
       }
       select = 1;
-      internal_msd_driver->dev.bulk_out_endpoint_addr =
+      msd_dev->bulk_out_endpoint_addr =
           endpoint->endpoint_desc.bEndpointAddress & ENDPOINT_MASK;
     }
   }
 
   if(select){
-    internal_msd_driver->dev.usb_dev = dev;
-    internal_msd_driver->dev.buffer_size = MAX_TRANSFER_BYTES;
-    internal_msd_driver->dev.priority = PRIORITY_8;
-    internal_msd_driver->dev.interface = interface;
+    msd_dev->usb_dev = dev;
+    msd_dev->buffer_size = MAX_TRANSFER_BYTES;
+    msd_dev->priority = PRIORITY_8;
+    msd_dev->interface = interface;
 
     internal_msd_driver->init_map_io(internal_msd_driver);
 
@@ -85,16 +90,20 @@ int16_t probe_mass_storage(UsbDev *dev, Interface *interface) {
 }
 
 void new_mass_storage_driver(MassStorageDriver* driver, char* name, UsbDevice_ID* entry){
-  driver->success_transfer = 0;
-  driver->dev.usb_dev = 0;
-  driver->dev.bulk_in_endpoint_addr = 0;
-  driver->dev.bulk_out_endpoint_addr = 0;
-  driver->dev.buffer = 0;
-  driver->dev.buffer_size = 0;
-  driver->dev.priority = 0;
-  driver->dev.interface = 0;
-  driver->dev.usb_driver = (UsbDriver*)driver;
-  driver->dev.callback = &callback_mass_storage;
+  for(int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++){
+    driver->msd_map[i] = 0;
+    driver->dev[i].success_transfer = 0;
+    driver->dev[i].mass_storage_volumes = 0;
+    driver->dev[i].volumes = 0;
+    driver->dev[i].usb_dev = 0;
+    driver->dev[i].bulk_in_endpoint_addr = 0;
+    driver->dev[i].bulk_out_endpoint_addr = 0;
+    driver->dev[i].buffer = 0;
+    driver->dev[i].buffer_size = 0;
+    driver->dev[i].priority = 0;
+    driver->dev[i].interface = 0;
+    driver->dev[i].usb_driver = (UsbDriver*)driver;
+  }
 
   driver->configure_device = &configure_device;
   driver->send_inquiry = &send_inquiry;
@@ -134,6 +143,13 @@ void new_mass_storage_driver(MassStorageDriver* driver, char* name, UsbDevice_ID
   driver->clear_msd_map = &clear_msd_map;
   driver->init_io_msd = &init_io_msd;
   driver->unset_callback_msd = &unset_callback_msd;
+  driver->get_free_msd_dev = &get_free_msd_dev;
+  driver->free_msd_dev = &free_msd_dev;
+  driver->match_msd_dev = &match_msd_dev;
+  driver->get_msd_dev_by_minor = &get_msd_dev_by_minor;
+  driver->build_write_command = &build_write_command;
+  driver->build_read_command = &build_read_command;
+  driver->calc_t_len = &calc_t_len;
 
   internal_msd_driver = driver;
 
@@ -147,8 +163,15 @@ void new_mass_storage_driver(MassStorageDriver* driver, char* name, UsbDevice_ID
   internal_msd_driver->parse_request_sense = &parse_request_sense;
 }
 
+MassStorageDev* get_msd_dev_by_minor(MassStorageDriver* driver, uint8_t minor){
+  if(minor >= MAX_DEVICES_PER_USB_DRIVER) return (void*)0;
+
+  return driver->dev + minor;
+}
+
 void init_map_io(MassStorageDriver* driver){
-  MemoryService_C* m = (MemoryService_C*)container_of(driver->dev.usb_dev->mem_service, MemoryService_C, super);
+  UsbDev* usb_dev = driver->dev[0].usb_dev;
+  MemoryService_C* m = (MemoryService_C*)container_of(usb_dev->mem_service, MemoryService_C, super);
   driver->csw_map_io = (uint8_t*)m->mapIO(m, PAGE_SIZE, 1);
   driver->cbw_map_io = (uint8_t*)m->mapIO(m, PAGE_SIZE, 1);
 
@@ -199,17 +222,48 @@ void init_sense_description(MassStorageDriver* driver){
   driver->description_sense[WRITE_PROT_MEDIA] = "Write protected media";
 }
 
+MassStorageDev* get_free_msd_dev(MassStorageDriver* driver){
+  for(int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++){
+    if(driver->msd_map[i] == 0){
+      driver->msd_map[i] = 1;
+      return driver->dev + i;
+    }
+  }
+  return (void*)0;
+}
+
+void free_msd_dev(MassStorageDriver* driver, MassStorageDev* msd_dev){
+  for(int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++){
+    if((driver->dev + i) == msd_dev){
+      driver->msd_map[i] = 0;
+      return;
+    }
+  }
+}
+
+MassStorageDev* match_msd_dev(MassStorageDriver* driver, UsbDev* dev){
+  for(int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++){
+    if(driver->dev[i].usb_dev == dev)
+      return driver->dev + i;
+  }
+  return (void*)0;
+}
+
 // clear all memory asscociated with this driver + all the interfaces need to be realease !
 void disconnect_mass_storage(UsbDev* dev, Interface* interface){
 
 }
 
 void callback_config(UsbDev *dev, uint32_t status, void *data) {
+  MassStorageDev* msd_dev = internal_msd_driver->match_msd_dev(internal_msd_driver, dev);
+
+  if(msd_dev == (void*)0) return;
+
   if(status == E_TRANSFER){
-    internal_msd_driver->success_transfer = 0;
+    msd_dev->success_transfer = 0;
   }
   else if(status == S_TRANSFER){
-    internal_msd_driver->success_transfer = 1;
+    msd_dev->success_transfer = 1;
   }
 }
 
@@ -262,75 +316,80 @@ void init_msd_maps(MassStorageDriver* driver){
 }
 
 int configure_device(MassStorageDriver *driver) {
-  UsbDev *dev = driver->dev.usb_dev;
-  Interface *itf = driver->dev.interface;
+  for(int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++){
+    if(driver->msd_map[i] == 0) continue;
+    UsbDev *dev = driver->dev[i].usb_dev;
+    Interface *itf = driver->dev[i].interface;
 
-  MemoryService_C *mem_service =
-      (MemoryService_C *)container_of(dev->mem_service, MemoryService_C, super);
-  uint8_t *command = (uint8_t *)mem_service->mapIO(
-      mem_service, PAGE_SIZE * sizeof(uint8_t), 1);
-  if(dev->get_max_logic_unit_numbers(dev, itf, command, &callback_config) == -1)
-    return -1;
-  uint32_t initial_time = getSystemTimeInMilli();
-  uint32_t timeout = addMilis(initial_time, 50);
-  uint32_t current_time;
-  do{
-    current_time = getSystemTimeInMilli();
-  } while((current_time < timeout) && (driver->success_transfer == 0));
+    MassStorageDev* msd_dev = driver->dev + i;
 
-  if(!driver->success_transfer)
-    return -1;
-
-  unsigned int volumes = command[0];
-
-  driver->volumes = volumes;
-  driver->mass_storage_volumes = (MassStorageVolume*)mem_service->allocateKernelMemory_c(mem_service, sizeof(MassStorageVolume) * (command[0] + 1), 0);
-  for(int i = 0; i < volumes + 1; i++){
-    driver->mass_storage_volumes[i].new_storage_volume = &new_storage_volume;
-    driver->mass_storage_volumes[i].new_storage_volume(driver->mass_storage_volumes + i, i);
-  }
-  CommandBlockWrapper* cbw = (CommandBlockWrapper*)command;
-  CommandStatusWrapper* csw = (CommandStatusWrapper*)(command + sizeof(CommandBlockWrapper));
-  RequestSense* rs = (RequestSense*)(command + sizeof(CommandBlockWrapper) + sizeof(CommandStatusWrapper));
-  unsigned int add_offset = sizeof(CommandBlockWrapper) + sizeof(CommandStatusWrapper) + sizeof(RequestSense);
-
-  for(int i = 0; i < volumes + 1; i++){
-    InquiryCommandData* inquiry_data = (InquiryCommandData*)(command + add_offset);
-    if(driver->send_inquiry(driver, cbw, csw, inquiry_data, i, rs) == -1)
+    MemoryService_C *mem_service =
+        (MemoryService_C *)container_of(dev->mem_service, MemoryService_C, super);
+    uint8_t *command = (uint8_t *)mem_service->mapIO(
+        mem_service, PAGE_SIZE * sizeof(uint8_t), 1);
+    if(dev->get_max_logic_unit_numbers(dev, itf, command, &callback_config) == -1)
       return -1;
-    CapacityListHeader* clh = (CapacityListHeader*)(command + add_offset);  
-    if(driver->send_read_format_capacities(driver, cbw, csw, clh, i, rs) == -1)
-      return -1;  
-    ReadCapacity__32_Bit* rc_32_bit = (ReadCapacity__32_Bit*)(command + add_offset);
-    if(send_read_capacity__32_bit(driver, cbw, csw, rc_32_bit, i, rs) == -1)
+    uint32_t initial_time = getSystemTimeInMilli();
+    uint32_t timeout = addMilis(initial_time, 50);
+    uint32_t current_time;
+    do{
+      current_time = getSystemTimeInMilli();
+    } while((current_time < timeout) && (msd_dev->success_transfer == 0));
+
+    if(!msd_dev->success_transfer)
       return -1;
-    if(rc_32_bit->logical_block_address == 0xFFFFFFFF){
-      // couldn't store with 32-bit
-      ReadCapacity__64_Bit* rc_64_bit = (ReadCapacity__64_Bit*)(command + add_offset);
-      if(send_read_capacity__64_bit(driver, cbw, csw, rc_64_bit, i, rs) == -1)
+
+    unsigned int volumes = command[0];
+
+    msd_dev->volumes = volumes;
+    msd_dev->mass_storage_volumes = (MassStorageVolume*)mem_service->allocateKernelMemory_c(mem_service, sizeof(MassStorageVolume) * (command[0] + 1), 0);
+    for(int i = 0; i < volumes + 1; i++){
+      msd_dev->mass_storage_volumes[i].new_storage_volume = &new_storage_volume;
+      msd_dev->mass_storage_volumes[i].new_storage_volume(msd_dev->mass_storage_volumes + i, i);
+    }
+    CommandBlockWrapper* cbw = (CommandBlockWrapper*)command;
+    CommandStatusWrapper* csw = (CommandStatusWrapper*)(command + sizeof(CommandBlockWrapper));
+    RequestSense* rs = (RequestSense*)(command + sizeof(CommandBlockWrapper) + sizeof(CommandStatusWrapper));
+    unsigned int add_offset = sizeof(CommandBlockWrapper) + sizeof(CommandStatusWrapper) + sizeof(RequestSense);
+
+    for(int i = 0; i < volumes + 1; i++){
+      InquiryCommandData* inquiry_data = (InquiryCommandData*)(command + add_offset);
+      if(driver->send_inquiry(driver, msd_dev, cbw, csw, inquiry_data, i, rs) == -1)
         return -1;
-      driver->mass_storage_volumes[i].version = READ_CAPACITY_16;
-      driver->mass_storage_volumes[i].rc_64_bit = *rc_64_bit;
+      CapacityListHeader* clh = (CapacityListHeader*)(command + add_offset);  
+      if(driver->send_read_format_capacities(driver, msd_dev, cbw, csw, clh, i, rs) == -1)
+        return -1;  
+      ReadCapacity__32_Bit* rc_32_bit = (ReadCapacity__32_Bit*)(command + add_offset);
+      if(driver->send_read_capacity__32_bit(driver, msd_dev, cbw, csw, rc_32_bit, i, rs) == -1)
+        return -1;
+      if(rc_32_bit->logical_block_address == 0xFFFFFFFF){
+        // couldn't store with 32-bit
+        ReadCapacity__64_Bit* rc_64_bit = (ReadCapacity__64_Bit*)(command + add_offset);
+        if(driver->send_read_capacity__64_bit(driver, msd_dev, cbw, csw, rc_64_bit, i, rs) == -1)
+          return -1;
+        msd_dev->mass_storage_volumes[i].version = READ_CAPACITY_16;
+        msd_dev->mass_storage_volumes[i].rc_64_bit = *rc_64_bit;
+      }
+      else{
+        msd_dev->mass_storage_volumes[i].version = READ_CAPACITY_10;
+        msd_dev->mass_storage_volumes[i].rc_32_bit = *rc_32_bit;
+      }
+      // set volume size
+      msd_dev->mass_storage_volumes[i].volume_size = driver->get_drive_size(driver, msd_dev, i);
+      msd_dev->mass_storage_volumes[i].block_size  = driver->get_block_size(driver, msd_dev, i);
+      msd_dev->mass_storage_volumes[i].block_num   = driver->get_block_num(driver, msd_dev, i);
+      #ifdef TEST_ON
+      if(driver->test_mass_storage_writes(driver, msd_dev, cbw, csw, i, rs) == -1)
+        return -1;
+      #endif
+      // reads 64 * block len as initial transfer
+      if(driver->send_read(driver, msd_dev, cbw, csw, msd_dev->buffer, 64, i, 0, 0, &callback_config, 
+        BULK_INITIAL_STATE, rs) == -1)
+        return -1;
     }
-    else{
-      driver->mass_storage_volumes[i].version = READ_CAPACITY_10;
-      driver->mass_storage_volumes[i].rc_32_bit = *rc_32_bit;
-    }
-    // set volume size
-    driver->mass_storage_volumes[i].volume_size = driver->get_drive_size(driver, i);
-    driver->mass_storage_volumes[i].block_size  = driver->get_block_size(driver, i);
-    driver->mass_storage_volumes[i].block_num   = driver->get_block_num(driver, i);
-    #ifdef TEST_ON
-    if(driver->test_mass_storage_writes(driver, cbw, csw, i, rs) == -1)
-      return -1;
-    #endif
-    // reads 64 * block len as initial transfer
-    if(send_read(driver, cbw, csw, driver->dev.buffer, 64, i, 0, 0, &callback_config, 
-      BULK_INITIAL_STATE, rs) == -1)
-      return -1;
-  }
 
-  mem_service->unmap(mem_service, (uint32_t)(uintptr_t)command);
+    mem_service->unmap(mem_service, (uint32_t)(uintptr_t)command);
+  }
 
   return 1;      
 }
@@ -346,7 +405,9 @@ void callback_mass_storage(UsbDev *dev, uint32_t status, void *data) {
   uint8_t* target = internal_msd_driver->stored_target_map->get_c(internal_msd_driver->stored_target_map, id);
   msd_callback callback = internal_msd_driver->callback_map->get_c(internal_msd_driver->callback_map, id);
 
-  if(csw == (void*)0){
+  MassStorageDev* msd_dev = internal_msd_driver->match_msd_dev(internal_msd_driver, dev);
+
+  if(csw == (void*)0 || msd_dev == (void*)0){
     callback(target, 0);
 
     internal_msd_driver->clear_msd_map(internal_msd_driver, *id);
@@ -354,7 +415,7 @@ void callback_mass_storage(UsbDev *dev, uint32_t status, void *data) {
     return;
   }
 
-  if(internal_msd_driver->retrieve_status(internal_msd_driver, csw, 0, &callback_csw) == -1){
+  if(internal_msd_driver->retrieve_status(internal_msd_driver, msd_dev, csw, 0, &callback_csw) == -1){
     callback(target, 0);
 
     internal_msd_driver->clear_msd_map(internal_msd_driver, *id);
@@ -375,7 +436,9 @@ void callback_cbw_data_write(UsbDev* dev, uint32_t status, void* data){
   MemoryService_C* m = (MemoryService_C*)container_of(dev->mem_service, MemoryService_C, super);
   uint8_t* mm = (uint8_t*)m->mapIO(m, sizeof(uint8_t) * *stored_len, 0);
 
-  if(mm == (void*)0){
+  MassStorageDev* msd_dev = internal_msd_driver->match_msd_dev(internal_msd_driver, dev);
+
+  if(mm == (void*)0 || msd_dev == (void*)0){
     callback(target, 0);
 
     internal_msd_driver->free_cbw(internal_msd_driver, (CommandBlockWrapper*)data);
@@ -386,7 +449,7 @@ void callback_cbw_data_write(UsbDev* dev, uint32_t status, void* data){
   internal_msd_driver->data_map->put_c(internal_msd_driver->data_map, mm, id);
   internal_msd_driver->stored_mem_buffer_map->put_c(internal_msd_driver->stored_mem_buffer_map, id, mm);
 
-  if(internal_msd_driver->send_data(internal_msd_driver, mm,
+  if(internal_msd_driver->send_data(internal_msd_driver, msd_dev, mm,
                                   *stored_len, 0, &callback_mass_storage) == -1){
     callback(target, 0);
 
@@ -410,7 +473,9 @@ void callback_cbw_data_read(UsbDev *dev, uint32_t status, void *data) {
   MemoryService_C* m = (MemoryService_C*)container_of(dev->mem_service, MemoryService_C, super);
   uint8_t* mm = (uint8_t*)m->mapIO(m, sizeof(uint8_t) * *stored_len, 0);
 
-  if(mm == (void*)0){
+  MassStorageDev* msd_dev = internal_msd_driver->match_msd_dev(internal_msd_driver, dev);
+
+  if(mm == (void*)0 || msd_dev == (void*)0){
     callback(target, 0);
 
     internal_msd_driver->free_cbw(internal_msd_driver, (CommandBlockWrapper*)data);
@@ -421,7 +486,7 @@ void callback_cbw_data_read(UsbDev *dev, uint32_t status, void *data) {
   internal_msd_driver->data_map->put_c(internal_msd_driver->data_map, mm, id);
   internal_msd_driver->stored_mem_buffer_map->put_c(internal_msd_driver->stored_mem_buffer_map, id, mm);
 
-  if(internal_msd_driver->get_data(internal_msd_driver, mm,
+  if(internal_msd_driver->get_data(internal_msd_driver, msd_dev, mm,
                                   *stored_len, 0, &callback_mass_storage) == -1){
     callback(target, 0);
 
@@ -564,18 +629,19 @@ int unset_callback_msd(MassStorageDriver* driver, uint16_t magic_number, uint8_t
 
 // magic_number an u_tag have to match set_callback magic_number and u_tag !!
 uint64_t read_msd(MassStorageDriver* driver, uint8_t* buffer, uint64_t start_lba, uint32_t blocks,
-              uint16_t magic_number, uint8_t u_tag, uint8_t volume){
+              uint16_t magic_number, uint8_t u_tag, uint8_t volume, uint8_t minor){
   CommandBlockWrapper* cbw = driver->get_free_cbw(driver);
   
+  MassStorageDev* msd_dev = driver->dev + minor;
   if(cbw == (void*)0) return 0;
 
   uint32_t id = magic_number | u_tag << 16;
 
-  if(!driver->init_io_msd(driver, cbw, blocks, start_lba, buffer, magic_number, u_tag, volume)){
+  if(!driver->init_io_msd(driver, msd_dev, cbw, blocks, start_lba, buffer, magic_number, u_tag, volume)){
     goto read_fail;
   }
 
-  if(driver->send_command(driver, cbw, &callback_cbw_data_read, 0) == -1){
+  if(driver->send_command(driver, msd_dev, cbw, &callback_cbw_data_read, 0) == -1){
     goto read_fail;
   }
 
@@ -593,17 +659,19 @@ uint64_t read_msd(MassStorageDriver* driver, uint8_t* buffer, uint64_t start_lba
 }
 
 uint64_t write_msd(MassStorageDriver* driver, uint8_t* buffer, uint64_t start_lba, uint32_t blocks,
-                    uint16_t magic_number, uint8_t u_tag, uint8_t volume){
+                    uint16_t magic_number, uint8_t u_tag, uint8_t volume, uint8_t minor){
   CommandBlockWrapper* cbw = driver->get_free_cbw(driver);
+
+  MassStorageDev* msd_dev = driver->dev + minor;
 
   if(cbw == (void*)0) return 0;
 
   uint32_t id = magic_number | u_tag << 16;
 
-  if(!driver->init_io_msd(driver, cbw, blocks, start_lba, buffer, magic_number, u_tag, volume))
+  if(!driver->init_io_msd(driver, msd_dev, cbw, blocks, start_lba, buffer, magic_number, u_tag, volume))
     goto write_fail;
 
-  if(driver->send_command(driver, cbw, &callback_cbw_data_write, 0) == -1)
+  if(driver->send_command(driver, msd_dev, cbw, &callback_cbw_data_write, 0) == -1)
     goto write_fail;
 
   goto write_success;
@@ -620,7 +688,7 @@ uint64_t write_msd(MassStorageDriver* driver, uint8_t* buffer, uint64_t start_lb
   return 1;
 }
 
-int init_io_msd(MassStorageDriver* driver, CommandBlockWrapper* cbw, uint32_t blocks, 
+int init_io_msd(MassStorageDriver* driver, MassStorageDev* msd_dev, CommandBlockWrapper* cbw, uint32_t blocks, 
                  uint64_t start_lba, uint8_t* buffer, uint16_t magic_number, uint8_t u_tag, uint8_t volume){
   uint32_t map_entry = magic_number | u_tag << 16;
 
@@ -635,7 +703,7 @@ int init_io_msd(MassStorageDriver* driver, CommandBlockWrapper* cbw, uint32_t bl
     interface_freeMemory(wrapper_entry, 0);
     return 0;
   }
-  *len_entry = blocks * driver->get_block_size(driver, volume);
+  *len_entry = blocks * driver->get_block_size(driver, msd_dev, volume);
 
   driver->cbw_map->put_c(driver->cbw_map, cbw, wrapper_entry);
   driver->stored_target_map->put_c(driver->stored_target_map, &map_entry, buffer);
@@ -644,15 +712,16 @@ int init_io_msd(MassStorageDriver* driver, CommandBlockWrapper* cbw, uint32_t bl
   uint32_t lba_low  = start_lba & 0x00000000FFFFFFFF;
   uint32_t lba_high = (start_lba & 0xFFFFFFFF00000000) >> 32;
 
-  uint32_t t_len = driver->calc_t_len(driver, volume, blocks);
+  uint32_t t_len = driver->calc_t_len(driver, msd_dev, volume, blocks);
   
-  driver->build_read_command(driver, cbw, volume, blocks, lba_low, lba_high, t_len);
+  driver->build_read_command(driver, msd_dev, cbw, volume, blocks, lba_low, lba_high, t_len);
 
   return 1;
 }
 
-uint32_t calc_t_len(MassStorageDriver* driver, uint8_t volume, uint32_t blocks){
-  CapacityDescriptor cap_desc = driver->mass_storage_volumes[volume].capacity_desc[0];
+uint32_t calc_t_len(MassStorageDriver* driver, MassStorageDev* msd_dev, 
+                   uint8_t volume, uint32_t blocks){
+  CapacityDescriptor cap_desc = msd_dev->mass_storage_volumes[volume].capacity_desc[0];
   uint32_t b1 = cap_desc.block_length_b1, b2 = cap_desc.block_length_b2, b3 = cap_desc.block_length_b3;
 
   uint32_t block_len = b1 | b2 << 8 | b3 << 16;
@@ -662,15 +731,17 @@ uint32_t calc_t_len(MassStorageDriver* driver, uint8_t volume, uint32_t blocks){
   return t_len;
 }
 
-int is_valid_volume(MassStorageDriver* driver, uint8_t volume_input){
-  return (volume_input < driver->volumes ? 1 : 0);
+int is_valid_volume(MassStorageDriver* driver, MassStorageDev* msd_dev, 
+                  uint8_t volume_input){
+  return (volume_input < msd_dev->volumes ? 1 : 0);
 }
 
-int get_capacity_count(MassStorageDriver* driver, uint8_t volume){
-  return driver->mass_storage_volumes[volume].found_capacities;
+int get_capacity_count(MassStorageDriver* driver, MassStorageDev* msd_dev, 
+                      uint8_t volume){
+  return msd_dev->mass_storage_volumes[volume].found_capacities;
 }
 
-int send_inquiry(MassStorageDriver *driver, CommandBlockWrapper *cbw,
+int send_inquiry(MassStorageDriver *driver, MassStorageDev* msd_dev, CommandBlockWrapper *cbw,
                  CommandStatusWrapper *csw, InquiryCommandData *inquiry_data,
                  uint8_t volume, RequestSense* rs) {
   uint32_t millis = getSystemTimeInMilli();
@@ -681,25 +752,25 @@ int send_inquiry(MassStorageDriver *driver, CommandBlockWrapper *cbw,
   driver->command_helper(driver, cbw->command, INQUIRY, 0, 0, 0, 0x24, 0, 0, 0, 0, 0, 0,
                  0, 0, 0, 0, 0);
   driver->build_command(driver, cbw, millis, t_length, flags, volume, command_len);
-  if(driver->send_command(driver, cbw, &callback_config, BULK_INITIAL_STATE) == -1)
+  if(driver->send_command(driver, msd_dev, cbw, &callback_config, BULK_INITIAL_STATE) == -1)
     return -1;
-  if(driver->get_data(driver, inquiry_data, sizeof(InquiryCommandData), BULK_INITIAL_STATE, &callback_config) == -1)
+  if(driver->get_data(driver, msd_dev, inquiry_data, sizeof(InquiryCommandData), BULK_INITIAL_STATE, &callback_config) == -1)
     return -1;
-  if(driver->retrieve_status(driver, csw, BULK_INITIAL_STATE, &callback_config) == -1){
-    driver->send_request_sense(driver, cbw, csw, rs, volume);
+  if(driver->retrieve_status(driver, msd_dev, csw, BULK_INITIAL_STATE, &callback_config) == -1){
+    driver->send_request_sense(driver, msd_dev, cbw, csw, rs, volume);
     return -1;
   }
 
-  driver->mass_storage_volumes[volume].inquiry = *inquiry_data;
+  msd_dev->mass_storage_volumes[volume].inquiry = *inquiry_data;
 
   return 1;
 }
 
 // copy len bytes to target buffer : for each get function
 
-int get_inquiry_data(MassStorageDriver* driver, uint8_t volume, uint8_t param, 
+int get_inquiry_data(MassStorageDriver* driver, MassStorageDev* msd_dev, uint8_t volume, uint8_t param, 
                           uint8_t* target, uint8_t* len){
-  InquiryCommandData inquiry_data = driver->mass_storage_volumes[volume].inquiry;
+  InquiryCommandData inquiry_data = msd_dev->mass_storage_volumes[volume].inquiry;
   
   if(param == PERI_QUALIFIER){
     *target = (inquiry_data.byte1 & PERI_QUALIFIER) >> 5;
@@ -803,10 +874,11 @@ int get_inquiry_data(MassStorageDriver* driver, uint8_t volume, uint8_t param,
   return 1;                    
 }
 
-int get_capacity_descpritor(MassStorageDriver* driver, uint8_t volume, uint8_t capacity_num, uint8_t param,
+int get_capacity_descpritor(MassStorageDriver* driver, MassStorageDev* msd_dev ,
+                            uint8_t volume, uint8_t capacity_num, uint8_t param,
                                  uint8_t* target, uint8_t* len){
-  if(capacity_num >= driver->mass_storage_volumes[volume].found_capacities) return -1;
-  CapacityDescriptor c_desc = driver->mass_storage_volumes[volume].capacity_desc[capacity_num];
+  if(capacity_num >= msd_dev->mass_storage_volumes[volume].found_capacities) return -1;
+  CapacityDescriptor c_desc = msd_dev->mass_storage_volumes[volume].capacity_desc[capacity_num];
 
   if(param == NUMBER_OF_BLOCKS){
     uint32_t* extended_target = (uint32_t*)target;
@@ -832,10 +904,10 @@ int get_sense_data(MassStorageDriver* driver, uint8_t volume, uint8_t param,
   return -1;
 }
 
-int get_capacity(MassStorageDriver* driver, uint8_t volume, uint8_t param, 
+int get_capacity(MassStorageDriver* driver, MassStorageDev* msd_dev, uint8_t volume, uint8_t param, 
                       uint8_t* target, uint8_t* len){
-  if(driver->mass_storage_volumes[volume].version == READ_CAPACITY_10){
-    ReadCapacity__32_Bit rc = driver->mass_storage_volumes[volume].rc_32_bit;
+  if(msd_dev->mass_storage_volumes[volume].version == READ_CAPACITY_10){
+    ReadCapacity__32_Bit rc = msd_dev->mass_storage_volumes[volume].rc_32_bit;
     if(param == LOGICAL_BLOCK_ADDRESS_32_BIT){
       uint32_t* block_address = (uint32_t*)target;
       *block_address = rc.logical_block_address;
@@ -850,8 +922,8 @@ int get_capacity(MassStorageDriver* driver, uint8_t volume, uint8_t param,
 
     return 1;
   }
-  else if(driver->mass_storage_volumes[volume].version == READ_CAPACITY_16){
-    ReadCapacity__64_Bit rc = driver->mass_storage_volumes[volume].rc_64_bit;
+  else if(msd_dev->mass_storage_volumes[volume].version == READ_CAPACITY_16){
+    ReadCapacity__64_Bit rc = msd_dev->mass_storage_volumes[volume].rc_64_bit;
     if(param == LOGICAL_BLOCK_ADDRESS_64_BIT){
       uint32_t* logical_block_addr = (uint32_t*)target;
       *logical_block_addr = rc.lower_logical_block_address;
@@ -893,7 +965,7 @@ int get_capacity(MassStorageDriver* driver, uint8_t volume, uint8_t param,
   return -1;
 }
 
-int send_read_format_capacities(MassStorageDriver *driver, CommandBlockWrapper *cbw,
+int send_read_format_capacities(MassStorageDriver *driver, MassStorageDev* msd_dev, CommandBlockWrapper *cbw,
                                 CommandStatusWrapper* csw, CapacityListHeader* clh,
                                 uint8_t volume, RequestSense* rs) {
   uint32_t millis = getSystemTimeInMilli();
@@ -905,11 +977,11 @@ int send_read_format_capacities(MassStorageDriver *driver, CommandBlockWrapper *
   driver->build_command(driver, cbw, millis, t_length, flags, volume, command_len);
   int current_iteration = 0;
   while(current_iteration < READ_FORMAT_CAPACITIES_THRESHHOLD){
-    if(driver->send_command(driver, cbw, &callback_config, BULK_INITIAL_STATE) == -1)
+    if(driver->send_command(driver, msd_dev, cbw, &callback_config, BULK_INITIAL_STATE) == -1)
       return -1;
-    if(driver->get_data(driver, clh, sizeof(CapacityListHeader), BULK_INITIAL_STATE, &callback_config) == -1)
+    if(driver->get_data(driver, msd_dev, clh, sizeof(CapacityListHeader), BULK_INITIAL_STATE, &callback_config) == -1)
       return -1;
-    if(driver->retrieve_status(driver, csw, BULK_INITIAL_STATE, &callback_config))
+    if(driver->retrieve_status(driver, msd_dev, csw, BULK_INITIAL_STATE, &callback_config))
       break;
     current_iteration++;  
   }
@@ -918,26 +990,27 @@ int send_read_format_capacities(MassStorageDriver *driver, CommandBlockWrapper *
   if(current_iteration == READ_FORMAT_CAPACITIES_THRESHHOLD)
     return -1;
   
-  driver->parse_format_capacities(driver, clh, volume);
+  driver->parse_format_capacities(driver, msd_dev, clh, volume);
 
   return 1;
 }
 
-void parse_format_capacities(MassStorageDriver* driver, CapacityListHeader* clh, uint8_t volume){
+void parse_format_capacities(MassStorageDriver* driver, MassStorageDev* msd_dev, 
+                             CapacityListHeader* clh, uint8_t volume){
   uint8_t capacity_len = clh->capacity_len;
   uint8_t* capacity_descriptors = clh->capacity_descriptors;
   uint8_t current_capacity = 0;
   int curret_index = 0;
   while(current_capacity < capacity_len){
     CapacityDescriptor* c_desc = (CapacityDescriptor*)capacity_descriptors;
-    driver->mass_storage_volumes[volume].capacity_desc[curret_index++] = *c_desc;
+    msd_dev->mass_storage_volumes[volume].capacity_desc[curret_index++] = *c_desc;
     current_capacity += sizeof(CapacityDescriptor);
   }
 
-  driver->mass_storage_volumes[volume].found_capacities = curret_index;
+  msd_dev->mass_storage_volumes[volume].found_capacities = curret_index;
 }
 
-int send_request_sense(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
+int send_request_sense(MassStorageDriver* driver, MassStorageDev* msd_dev, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
                        RequestSense* rs, uint8_t volume){
   uint32_t millis = getSystemTimeInMilli();
   uint32_t t_length = 0x00000012;
@@ -947,11 +1020,11 @@ int send_request_sense(MassStorageDriver* driver, CommandBlockWrapper* cbw, Comm
   driver->command_helper(driver, cbw->command, REQUEST_SENSE, 0, 0, 0, 0x12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   driver->build_command(driver, cbw, millis, t_length, flags, volume, command_len);
   
-  if(driver->send_command(driver, cbw, &callback_config, BULK_INITIAL_STATE) == -1)
+  if(driver->send_command(driver, msd_dev, cbw, &callback_config, BULK_INITIAL_STATE) == -1)
     return -1;
-  if(driver->get_data(driver, rs, sizeof(RequestSense), BULK_INITIAL_STATE, &callback_config) == -1)
+  if(driver->get_data(driver, msd_dev, rs, sizeof(RequestSense), BULK_INITIAL_STATE, &callback_config) == -1)
     return -1;  
-  if(driver->retrieve_status(driver, csw, BULK_INITIAL_STATE, &callback_config) == -1)
+  if(driver->retrieve_status(driver, msd_dev, csw, BULK_INITIAL_STATE, &callback_config) == -1)
     return -1;  
 
   driver->parse_request_sense(driver, rs);
@@ -1041,7 +1114,7 @@ void parse_request_sense(MassStorageDriver* driver, RequestSense* rs){
 }
 
 // query 32_bit first -> if 32_bit is too low make a call to 64 bit -> save flag in driver
-int send_read_capacity__32_bit(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
+int send_read_capacity__32_bit(MassStorageDriver* driver, MassStorageDev* msd_dev, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
                                ReadCapacity__32_Bit* rc, uint8_t volume, RequestSense* rs){
   uint32_t millis = getSystemTimeInMilli();
   uint32_t t_length = 0x00000008;
@@ -1051,19 +1124,19 @@ int send_read_capacity__32_bit(MassStorageDriver* driver, CommandBlockWrapper* c
   driver->command_helper(driver, cbw->command, READ_CAPACITY_10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   driver->build_command(driver, cbw, millis, t_length, flags, volume, command_len);
 
-  if(driver->send_command(driver, cbw, &callback_config, BULK_INITIAL_STATE) == -1)
+  if(driver->send_command(driver, msd_dev, cbw, &callback_config, BULK_INITIAL_STATE) == -1)
     return -1;
-  if(driver->get_data(driver, rc, sizeof(ReadCapacity__32_Bit), BULK_INITIAL_STATE, &callback_config) == -1)
+  if(driver->get_data(driver, msd_dev, rc, sizeof(ReadCapacity__32_Bit), BULK_INITIAL_STATE, &callback_config) == -1)
     return -1;
-  if(driver->retrieve_status(driver, csw, BULK_INITIAL_STATE, &callback_config) == -1){
-    driver->send_request_sense(driver, cbw, csw, rs, volume);
+  if(driver->retrieve_status(driver, msd_dev, csw, BULK_INITIAL_STATE, &callback_config) == -1){
+    driver->send_request_sense(driver, msd_dev, cbw, csw, rs, volume);
     return -1;
   }
 
   return 1;      
 }
 
-int send_read_capacity__64_bit(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
+int send_read_capacity__64_bit(MassStorageDriver* driver, MassStorageDev* msd_dev, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
                                ReadCapacity__64_Bit* rc, uint8_t volume, RequestSense* rs){
   uint32_t millis = getSystemTimeInMilli();
   uint32_t t_length = 0x00000020;
@@ -1073,21 +1146,22 @@ int send_read_capacity__64_bit(MassStorageDriver* driver, CommandBlockWrapper* c
   driver->command_helper(driver, cbw->command, READ_CAPACITY_16, 0x10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   driver->build_command(driver, cbw, millis, t_length, flags, volume, command_len);
 
-  if(driver->send_command(driver, cbw, &callback_config, BULK_INITIAL_STATE) == -1)
+  if(driver->send_command(driver, msd_dev, cbw, &callback_config, BULK_INITIAL_STATE) == -1)
     return -1;
-  if(driver->get_data(driver, rc, sizeof(ReadCapacity__64_Bit), BULK_INITIAL_STATE, &callback_config) == -1)
+  if(driver->get_data(driver, msd_dev, rc, sizeof(ReadCapacity__64_Bit), BULK_INITIAL_STATE, &callback_config) == -1)
     return -1;
-  if(driver->retrieve_status(driver, csw, BULK_INITIAL_STATE, &callback_config) == -1){
-    driver->send_request_sense(driver, cbw, csw, rs, volume);
+  if(driver->retrieve_status(driver, msd_dev, csw, BULK_INITIAL_STATE, &callback_config) == -1){
+    driver->send_request_sense(driver, msd_dev, cbw, csw, rs, volume);
     return -1;
   }
 
   return 1;       
 }
 
-void build_read_command(MassStorageDriver* driver, CommandBlockWrapper* cbw, uint8_t volume,
+void build_read_command(MassStorageDriver* driver, MassStorageDev* msd_dev, 
+                        CommandBlockWrapper* cbw, uint8_t volume,
                         uint32_t blocks, uint32_t lba_low, uint32_t lba_high, uint32_t t_len){
-  MassStorageVolume mass_storage_volume = driver->mass_storage_volumes[volume];
+  MassStorageVolume mass_storage_volume = msd_dev->mass_storage_volumes[volume];
   uint32_t millis = getSystemTimeInMilli();
   uint8_t inner_flags = FLAGS_IN;
   // reminder big-endian when larger than 1 byte
@@ -1112,29 +1186,31 @@ void build_read_command(MassStorageDriver* driver, CommandBlockWrapper* cbw, uin
   driver->build_command(driver, cbw, millis, t_len, inner_flags, volume, command_len);
 }
 
-int send_read(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
+int send_read(MassStorageDriver* driver, MassStorageDev* msd_dev, 
+              CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
               uint8_t* buffer, uint32_t blocks, uint8_t volume, uint32_t lba_low, uint32_t lba_high,
               callback_function callback, uint8_t flags, RequestSense* rs){
   
-  uint32_t t_len = calc_t_len(driver, volume, blocks);
+  uint32_t t_len = driver->calc_t_len(driver, msd_dev, volume, blocks);
 
-  build_read_command(driver, cbw, volume, blocks, lba_low, lba_high, t_len);
+  driver->build_read_command(driver, msd_dev, cbw, volume, blocks, lba_low, lba_high, t_len);
 
-  if(driver->send_command(driver, cbw, callback, BULK_INITIAL_STATE) == -1)
+  if(driver->send_command(driver, msd_dev, cbw, callback, BULK_INITIAL_STATE) == -1)
     return -1;
-  if(driver->get_data(driver, buffer, t_len, flags, &callback_config) == -1)
+  if(driver->get_data(driver, msd_dev, buffer, t_len, flags, &callback_config) == -1)
     return -1;
-  if(driver->retrieve_status(driver, csw, BULK_INITIAL_STATE, &callback_config) == -1){
-    driver->send_request_sense(driver, cbw, csw, rs, volume);
+  if(driver->retrieve_status(driver, msd_dev, csw, BULK_INITIAL_STATE, &callback_config) == -1){
+    driver->send_request_sense(driver, msd_dev, cbw, csw, rs, volume);
     return -1;        
   }
 
   return 1;
 }
 
-void build_write_command(MassStorageDriver* driver, CommandBlockWrapper* cbw, uint8_t volume,
+void build_write_command(MassStorageDriver* driver, MassStorageDev* msd_dev, 
+                        CommandBlockWrapper* cbw, uint8_t volume,
                         uint32_t blocks, uint32_t lba_low, uint32_t lba_high, uint32_t t_len){
-  MassStorageVolume mass_storage_volume = driver->mass_storage_volumes[volume];
+  MassStorageVolume mass_storage_volume = msd_dev->mass_storage_volumes[volume];
   uint32_t millis = getSystemTimeInMilli();
   uint8_t inner_flags = FLAGS_OUT;
   // reminder big-endian when larger than 1 byte
@@ -1159,40 +1235,43 @@ void build_write_command(MassStorageDriver* driver, CommandBlockWrapper* cbw, ui
   driver->build_command(driver, cbw, millis, t_len, inner_flags, volume, command_len);
 }
 
-int send_write(MassStorageDriver* driver, CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
+int send_write(MassStorageDriver* driver, MassStorageDev* msd_dev, 
+               CommandBlockWrapper* cbw, CommandStatusWrapper* csw,
                uint8_t* buffer, uint32_t blocks, uint8_t volume, uint32_t lba_low, uint32_t lba_high,
                callback_function callback, uint8_t flags, RequestSense* rs){
   
-  uint32_t t_len = calc_t_len(driver, volume, blocks);
+  uint32_t t_len = driver->calc_t_len(driver, msd_dev, volume, blocks);
 
-  build_write_command(driver, cbw, volume, blocks, lba_low, lba_high, t_len);
+  driver->build_write_command(driver, msd_dev, cbw, volume, blocks, lba_low, lba_high, t_len);
 
-  if(driver->send_command(driver, cbw, callback, BULK_INITIAL_STATE) == -1)
+  if(driver->send_command(driver, msd_dev, cbw, callback, BULK_INITIAL_STATE) == -1)
     return -1;
-  if(driver->send_data(driver, buffer, t_len, flags, &callback_config) == -1)
+  if(driver->send_data(driver, msd_dev, buffer, t_len, flags, &callback_config) == -1)
     return -1;
-  if(driver->retrieve_status(driver, csw, BULK_INITIAL_STATE, &callback_config) == -1){
-    driver->send_request_sense(driver, cbw, csw, rs, volume);
+  if(driver->retrieve_status(driver, msd_dev, csw, BULK_INITIAL_STATE, &callback_config) == -1){
+    driver->send_request_sense(driver, msd_dev, cbw, csw, rs, volume);
     return -1;        
   }
 
   return 1;
 }
 
-uint32_t get_drive_size(MassStorageDriver* driver, uint8_t volume){
-  if(driver->mass_storage_volumes[volume].found_capacities == 0) return 0;
+uint32_t get_drive_size(MassStorageDriver* driver, MassStorageDev* msd_dev, 
+                        uint8_t volume){
+  if(msd_dev->mass_storage_volumes[volume].found_capacities == 0) return 0;
 
-  CapacityDescriptor cap_desc = driver->mass_storage_volumes[volume].capacity_desc[0];
-  uint32_t block_len = driver->get_block_size(driver, volume);
+  CapacityDescriptor cap_desc = msd_dev->mass_storage_volumes[volume].capacity_desc[0];
+  uint32_t block_len = driver->get_block_size(driver, msd_dev, volume);
   uint32_t num_of_blocks = cap_desc.number_of_blocks;
 
   return block_len * num_of_blocks;
 }
 
-uint32_t get_block_size(MassStorageDriver* driver, uint8_t volume){
-  if(driver->mass_storage_volumes[volume].found_capacities == 0) return 0;
+uint32_t get_block_size(MassStorageDriver* driver, MassStorageDev* msd_dev, 
+                        uint8_t volume){
+  if(msd_dev->mass_storage_volumes[volume].found_capacities == 0) return 0;
 
-  CapacityDescriptor cap_desc = driver->mass_storage_volumes[volume].capacity_desc[0];
+  CapacityDescriptor cap_desc = msd_dev->mass_storage_volumes[volume].capacity_desc[0];
   uint32_t b1 = cap_desc.block_length_b1, b2 = cap_desc.block_length_b2, b3 = cap_desc.block_length_b3;
 
   uint32_t block_len = b1 | b2 << 8 | b3 << 16;
@@ -1200,33 +1279,37 @@ uint32_t get_block_size(MassStorageDriver* driver, uint8_t volume){
   return block_len; 
 }
 
-uint32_t get_block_num(MassStorageDriver* driver, uint8_t volume){
-  if(driver->mass_storage_volumes[volume].found_capacities == 0) return 0;
+uint32_t get_block_num(MassStorageDriver* driver, MassStorageDev* msd_dev, uint8_t volume){
+  if(msd_dev->mass_storage_volumes[volume].found_capacities == 0) return 0;
 
-  CapacityDescriptor cap_desc = driver->mass_storage_volumes[volume].capacity_desc[0];
+  CapacityDescriptor cap_desc = msd_dev->mass_storage_volumes[volume].capacity_desc[0];
 
   return cap_desc.number_of_blocks;
 }
 
-int get_data(MassStorageDriver *driver, void *data, unsigned int len, uint8_t flags, callback_function callback) {
-  UsbDev *dev = driver->dev.usb_dev;
-  Interface *itf = driver->dev.interface;
-  unsigned int endpoint = driver->dev.bulk_in_endpoint_addr;
+int get_data(MassStorageDriver *driver, MassStorageDev* msd_dev, 
+            void *data, unsigned int len, uint8_t flags, 
+            callback_function callback) {
+  UsbDev *dev = msd_dev->usb_dev;
+  Interface *itf = msd_dev->interface;
+  unsigned int endpoint = msd_dev->bulk_in_endpoint_addr;
   unsigned int pipe = usb_rcvbulkpipe(endpoint);
   dev->usb_dev_bulk(dev, itf, pipe, PRIORITY_8, data, len, &callback_config,
                     flags);
-  if(!driver->success_transfer)
+  if(!msd_dev->success_transfer)
     return -1;
   return 1;
 }
 
-int send_data(MassStorageDriver *driver, void *data, unsigned int len, uint8_t flags, callback_function callback) {
-  UsbDev* dev = driver->dev.usb_dev;
-  Interface* itf = driver->dev.interface;
-  unsigned int endpoint = driver->dev.bulk_out_endpoint_addr;
+int send_data(MassStorageDriver *driver, MassStorageDev* msd_dev, 
+              void *data, unsigned int len, uint8_t flags, 
+              callback_function callback) {
+  UsbDev* dev = msd_dev->usb_dev;
+  Interface* itf = msd_dev->interface;
+  unsigned int endpoint = msd_dev->bulk_out_endpoint_addr;
   unsigned int pipe = usb_sndbulkpipe(endpoint);
   dev->usb_dev_bulk(dev, itf, pipe, PRIORITY_8, data, len, &callback_config, flags);
-  if(!driver->success_transfer)
+  if(!msd_dev->success_transfer)
     return -1;
   return 1;  
 }
@@ -1242,7 +1325,8 @@ void build_command(MassStorageDriver *driver, CommandBlockWrapper *cbw,
   cbw->command_len = command_len;
 }
 
-int send_command(MassStorageDriver *driver, CommandBlockWrapper *cbw,
+int send_command(MassStorageDriver *driver, MassStorageDev* msd_dev, 
+                 CommandBlockWrapper *cbw,
                  callback_function callback, uint8_t flags) {
   if (cbw->flags != FLAGS_IN && cbw->flags != FLAGS_OUT)
     return -1;
@@ -1259,28 +1343,29 @@ int send_command(MassStorageDriver *driver, CommandBlockWrapper *cbw,
       valid_command != REPORT_LUNS && valid_command != READ_12 &&
       valid_command != WRITE_12)
     return -1;
-  UsbDev *dev = driver->dev.usb_dev;
-  Interface *itf = driver->dev.interface;
-  unsigned int pipe = usb_sndbulkpipe(driver->dev.bulk_out_endpoint_addr);
+  UsbDev *dev = msd_dev->usb_dev;
+  Interface *itf = msd_dev->interface;
+  unsigned int pipe = usb_sndbulkpipe(msd_dev->bulk_out_endpoint_addr);
   dev->usb_dev_bulk(dev, itf, pipe, PRIORITY_8, cbw, CBW_LEN, callback,
                     flags);
   if(flags == BULK_INITIAL_STATE)                    
-    if (!driver->success_transfer)
+    if (!msd_dev->success_transfer)
       return -1;
   return 1;
 }
 
-int retrieve_status(MassStorageDriver *driver, CommandStatusWrapper *csw, uint8_t flags,
+int retrieve_status(MassStorageDriver *driver, MassStorageDev* msd_dev, 
+                    CommandStatusWrapper *csw, uint8_t flags,
                     callback_function callback) {
-  UsbDev *dev = driver->dev.usb_dev;
-  Interface *itf = driver->dev.interface;
-  unsigned int pipe = usb_rcvbulkpipe(driver->dev.bulk_in_endpoint_addr);
+  UsbDev *dev = msd_dev->usb_dev;
+  Interface *itf = msd_dev->interface;
+  unsigned int pipe = usb_rcvbulkpipe(msd_dev->bulk_in_endpoint_addr);
 
   dev->usb_dev_bulk(dev, itf, pipe, PRIORITY_8, csw, CSW_LEN, callback,
                     flags);
 
   if(flags == BULK_INITIAL_STATE){
-    if (!driver->success_transfer){
+    if (!msd_dev->success_transfer){
     return -1;
   }
 
@@ -1320,37 +1405,38 @@ void command_helper(MassStorageDriver *driver, uint8_t *command, uint8_t c1,
   command[15] = c16;
 }
 
-int test_mass_storage_writes(MassStorageDriver* driver, CommandBlockWrapper* cbw, 
+int test_mass_storage_writes(MassStorageDriver* driver, MassStorageDev* msd_dev, 
+                             CommandBlockWrapper* cbw, 
                              CommandStatusWrapper* csw, uint8_t volume, RequestSense* rs){
-  uint32_t block_size = driver->get_block_size(driver, volume);
-  uint8_t* buffer = driver->dev.buffer;
+  uint32_t block_size = driver->get_block_size(driver, msd_dev, volume);
+  uint8_t* buffer = msd_dev->buffer;
   // write 1 block starting from lba 0
   for(int i = 0; i < block_size; i++){
     buffer[i] = 'A';
   }
   driver->driver_logger->info_c(driver->driver_logger, "sending %u bytes to dev, starting at lba %u", block_size, 0);
-  driver->send_write(driver, cbw, csw, buffer, 1, volume, 0, 0, &callback_config, BULK_INITIAL_STATE, rs);
+  driver->send_write(driver, msd_dev, cbw, csw, buffer, 1, volume, 0, 0, &callback_config, BULK_INITIAL_STATE, rs);
   // write 4 blocks starting from lba 1
   for(int i = 0; i < (4 * block_size); i++){
     buffer[i] = 'B';
   }
   driver->driver_logger->info_c(driver->driver_logger, "sending %u bytes to dev, starting at lba %u", block_size * 4, 1);
-  driver->send_write(driver, cbw, csw, buffer, 4, volume, 1, 0, &callback_config, BULK_INITIAL_STATE, rs);
+  driver->send_write(driver, msd_dev, cbw, csw, buffer, 4, volume, 1, 0, &callback_config, BULK_INITIAL_STATE, rs);
   // write 1 block starting from lba 5
   for(int i = 0; i < block_size; i++){
     buffer[i] = 'C';
   }
   driver->driver_logger->info_c(driver->driver_logger, "sending %u bytes to dev, starting at lba %u", block_size, 5);
-  driver->send_write(driver, cbw, csw, buffer, 1, volume, 5, 0, &callback_config, BULK_INITIAL_STATE, rs);
+  driver->send_write(driver, msd_dev, cbw, csw, buffer, 1, volume, 5, 0, &callback_config, BULK_INITIAL_STATE, rs);
   // write 50 blocks starting
   for(int i = 0; i < 50 * block_size; i++){
     buffer[i] = 'D';
   }
   driver->driver_logger->info_c(driver->driver_logger, "sending %u bytes to dev, starting at lba %u", block_size * 50, 6);                 
-  driver->send_write(driver, cbw, csw, buffer, 50, volume, 6, 0, &callback_config, BULK_INITIAL_STATE, rs);            
+  driver->send_write(driver, msd_dev, cbw, csw, buffer, 50, volume, 6, 0, &callback_config, BULK_INITIAL_STATE, rs);            
 
-  driver->driver_logger->info_c(driver->driver_logger, "recevice %u bytes from dev, started at lba %u", block_size * 56, 0);
-  driver->send_read(driver, cbw, csw, buffer, 56, volume, 0, 0, &callback_config, BULK_INITIAL_STATE, rs);
+  driver->driver_logger->info_c(driver->driver_logger, "received %u bytes from dev, started at lba %u", block_size * 56, 0);
+  driver->send_read(driver, msd_dev, cbw, csw, buffer, 56, volume, 0, 0, &callback_config, BULK_INITIAL_STATE, rs);
 
   driver->driver_logger->info_c(driver->driver_logger, "starting tests ... ");
   // assert
