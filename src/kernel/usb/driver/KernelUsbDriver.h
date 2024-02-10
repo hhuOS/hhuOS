@@ -13,13 +13,15 @@ public:
 
     virtual int initialize() = 0;
 
-    virtual int submit() = 0;
+    virtual int submit(uint8_t minor) = 0;
+
+    virtual void create_usb_dev_node() = 0;
 
     char* getName();
 
 private:
 
-Util::String driver_name;
+    Util::String driver_name;
 
 };
 
