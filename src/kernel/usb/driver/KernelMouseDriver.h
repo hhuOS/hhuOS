@@ -16,7 +16,9 @@ public:
 
     int initialize() override;
 
-    int submit() override;
+    int submit(uint8_t minor) override;
+
+    void create_usb_dev_node() override;
 
 private:
 

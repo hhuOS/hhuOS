@@ -4,6 +4,8 @@
 #include "../../service/MemoryService.h"
 #include "../../../lib/util/base/String.h"
 #include "../../service/UsbService.h"
+#include "../../log/Logger.h"
+#include "../hid/MouseNode.h"
 
 extern "C"{
 #include "../../../device/usb/include/UsbGeneral.h"
@@ -12,6 +14,8 @@ extern "C"{
 #include "../../../device/usb/events/listeners/hid/MouseListener.h"
 #include "../../../device/usb/events/listeners/EventListener.h"
 }
+
+Kernel::Logger kernel_mouse_logger = Kernel::Logger::get("KernelMouseDriver");
 
 Kernel::Usb::Driver::KernelMouseDriver::KernelMouseDriver(Util::String name) : Kernel::Usb::Driver::KernelUsbDriver(name) {}
 
@@ -46,7 +50,7 @@ int Kernel::Usb::Driver::KernelMouseDriver::initialize(){
     return 1;
 }
 
-int Kernel::Usb::Driver::KernelMouseDriver::submit(){
+int Kernel::Usb::Driver::KernelMouseDriver::submit(uint8_t minor){
     Kernel::UsbService& u = Kernel::System::getService<Kernel::UsbService>();
     MouseDriver* mouse_driver = this->driver;
 
@@ -60,4 +64,19 @@ int Kernel::Usb::Driver::KernelMouseDriver::submit(){
     }
     
     return 1;
+}
+
+void Kernel::Usb::Driver::KernelMouseDriver::create_usb_dev_node(){
+    MouseDriver* mouse_driver = this->driver;
+    uint8_t current_mouse_node_num = 0;
+    for(int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++){
+        if(mouse_driver->mouse_map[i] == 0) continue;
+
+        if(this->submit(i) != -1){
+            Kernel::Usb::UsbNode* mouse_node = new Kernel::Usb::MouseNode(i);
+            Util::String node_name = Util::String::format("mouse%u", current_mouse_node_num++);
+            mouse_node->add_file_node(node_name);
+            kernel_mouse_logger.info("Succesful added mouse node : minor %u -> associated with 0x%x (%s driver)...", mouse_node->get_minor(), this, this->getName());
+        }
+    }
 }
