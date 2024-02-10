@@ -51,6 +51,7 @@ int Kernel::Usb::Driver::KernelMouseDriver::submit(){
     MouseDriver* mouse_driver = this->driver;
 
     for(int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++){
+        if(mouse_driver->mouse_map[i] == 0) continue;
         UsbDev* dev = mouse_driver->dev[i].usb_dev;
         if(dev->set_idle(dev, mouse_driver->dev[i].interface) < 0) return -1;
 
