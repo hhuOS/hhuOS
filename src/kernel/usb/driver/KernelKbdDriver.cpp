@@ -1,9 +1,11 @@
 #include "KernelKbdDriver.h"
 #include "KernelUsbDriver.h"
+#include "../hid/KeyBoardNode.h"
 #include "../../system/System.h"
 #include "../../service/MemoryService.h"
 #include "../../../lib/util/base/String.h"
 #include "../../service/UsbService.h"
+#include "../../log/Logger.h"
 
 extern "C"{
 #include "../../../device/usb/dev/UsbDevice.h"    
@@ -13,6 +15,8 @@ extern "C"{
 #include "../../../device/usb/events/listeners/EventListener.h"
 #include "../../../device/usb/include/UsbGeneral.h"
 }
+
+Kernel::Logger kernel_kbd_logger = Kernel::Logger::get("KernelKbdDriver");
 
 Kernel::Usb::Driver::KernelKbdDriver::KernelKbdDriver(Util::String name) : Kernel::Usb::Driver::KernelUsbDriver(name) {}
 
@@ -47,19 +51,31 @@ int Kernel::Usb::Driver::KernelKbdDriver::initialize(){
     return 1;
 }
 
-int Kernel::Usb::Driver::KernelKbdDriver::submit(){
+int Kernel::Usb::Driver::KernelKbdDriver::submit(uint8_t minor){
     Kernel::UsbService& u = Kernel::System::getService<Kernel::UsbService>();
 
     KeyBoardDriver* kbd_driver = this->driver;
+    UsbDev* dev = kbd_driver->dev[minor].usb_dev;
+    if(dev->set_idle(dev, kbd_driver->dev[minor].interface) < 0) return -1;
+    
+    u.submit_interrupt_transfer(kbd_driver->dev[minor].interface, usb_rcvintpipe(kbd_driver->dev[minor].endpoint_addr),
+              kbd_driver->dev[minor].priority, kbd_driver->dev[minor].interval, kbd_driver->dev[minor].buffer,
+              kbd_driver->dev[minor].buffer_size, kbd_driver->dev[minor].callback);
+    return 1;
+}
+    
+
+void Kernel::Usb::Driver::KernelKbdDriver::create_usb_dev_node(){
+    KeyBoardDriver* kbd_driver = this->driver;
+    uint8_t current_kbd_node_num = 0;
     for(int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++){
         if(kbd_driver->key_board_map[i] == 0) continue;
-        UsbDev* dev = kbd_driver->dev[i].usb_dev;
-        if(dev->set_idle(dev, kbd_driver->dev[i].interface) < 0) return -1;
-    
-        u.submit_interrupt_transfer(kbd_driver->dev[i].interface, usb_rcvintpipe(kbd_driver->dev[i].endpoint_addr),
-              kbd_driver->dev[i].priority, kbd_driver->dev[i].interval, kbd_driver->dev[i].buffer,
-              kbd_driver->dev[i].buffer_size, kbd_driver->dev[i].callback);
+        
+        if(this->submit(i) != -1){
+            Kernel::Usb::UsbNode* kbd_node = new Kernel::Usb::KeyBoardNode(i);
+            Util::String node_name = Util::String::format("keyboard%u", current_kbd_node_num++);
+            kbd_node->add_file_node(node_name);
+            kernel_kbd_logger.info("Succesful added kbd node : minor %u-> associated with 0x%x (%s driver)...", kbd_node->get_minor(), this, this->getName());
+        }
     }
-    
-    return 1;
 }
