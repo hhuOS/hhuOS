@@ -520,10 +520,6 @@ void GatesOfHell::initializeUsb(){
     Kernel::Usb::Driver::KernelUsbDriver* m_driver = new Kernel::Usb::Driver::KernelMouseDriver("mouse");
     Kernel::Usb::Driver::KernelUsbDriver* hub_driver = new Kernel::Usb::Driver::KernelHubDriver("hub");
 
-    Kernel::Usb::UsbNode* k_node = new Kernel::Usb::KeyBoardNode();
-    Kernel::Usb::UsbNode* msd_node = new Kernel::Usb::MassStorageNode((Kernel::Usb::Driver::KernelMassStorageDriver*)msd_driver);
-    Kernel::Usb::UsbNode* m_node = new Kernel::Usb::MouseNode();
-
     hub_status = hub_driver->initialize();
     kbd_status = k_driver->initialize();
     mouse_status = m_driver->initialize();
@@ -532,16 +528,11 @@ void GatesOfHell::initializeUsb(){
     usb_service.create_usb_fs();
 
     if(kbd_status != -1)
-        if(k_driver->submit())
-            if(k_node->add_file_node())
-                log.info("Succesful added kbd node -> associated with 0x%x (%s driver)...", k_driver, k_driver->getName());
+        k_driver->create_usb_dev_node();
     if(mouse_status != -1)
-        if(m_driver->submit())
-            if(m_node->add_file_node())
-                log.info("Succesful added mouse node -> associated with 0x%x (%s driver)...", m_driver, m_driver->getName());
+        m_driver->create_usb_dev_node();
     if(msd_status != -1)
-        if(msd_node->add_file_node())
-            log.info("Succesful added msd node -> associated with 0x%x (%s driver)...", msd_driver, msd_driver->getName());
+        msd_driver->create_usb_dev_node();
 }
 
 void GatesOfHell::mountDevices() {
