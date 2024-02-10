@@ -7,6 +7,8 @@
 #include "../utility/Utils.h"
 #include "../dev/UsbDevice.h"
 
+#define MAX_DEVICES_PER_USB_DRIVER 10
+
 struct UsbDevice_ID{
     uint16_t idVendor;
     uint16_t idProduct;

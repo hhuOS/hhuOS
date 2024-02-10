@@ -51,11 +51,15 @@ int Kernel::Usb::Driver::KernelKbdDriver::submit(){
     Kernel::UsbService& u = Kernel::System::getService<Kernel::UsbService>();
 
     KeyBoardDriver* kbd_driver = this->driver;
-    UsbDev* dev = kbd_driver->dev.usb_dev;
-    if(dev->set_idle(dev, kbd_driver->dev.interface) < 0) return -1;
+    for(int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++){
+        if(kbd_driver->key_board_map[i] == 0) continue;
+        UsbDev* dev = kbd_driver->dev[i].usb_dev;
+        if(dev->set_idle(dev, kbd_driver->dev[i].interface) < 0) return -1;
     
-    u.submit_interrupt_transfer(kbd_driver->dev.interface, usb_rcvintpipe(kbd_driver->dev.endpoint_addr),
-              kbd_driver->dev.priority, kbd_driver->dev.interval, kbd_driver->dev.buffer,
-              kbd_driver->dev.buffer_size, kbd_driver->dev.callback);
+        u.submit_interrupt_transfer(kbd_driver->dev[i].interface, usb_rcvintpipe(kbd_driver->dev[i].endpoint_addr),
+              kbd_driver->dev[i].priority, kbd_driver->dev[i].interval, kbd_driver->dev[i].buffer,
+              kbd_driver->dev[i].buffer_size, kbd_driver->dev[i].callback);
+    }
+    
     return 1;
 }
