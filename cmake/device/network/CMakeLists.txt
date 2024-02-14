@@ -20,6 +20,7 @@ target_sources(device PUBLIC
         ${HHUOS_SRC_DIR}/device/network/MacAddressNode.cpp
         ${HHUOS_SRC_DIR}/device/network/NetworkDevice.cpp
         ${HHUOS_SRC_DIR}/device/network/NetworkFilesystemDriver.cpp
+        ${HHUOS_SRC_DIR}/device/network/NetworkPacketMemoryManager.cpp
         ${HHUOS_SRC_DIR}/device/network/PacketReader.cpp
         ${HHUOS_SRC_DIR}/device/network/PacketWriter.cpp
         ${HHUOS_SRC_DIR}/device/network/loopback/Loopback.cpp

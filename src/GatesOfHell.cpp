@@ -61,6 +61,9 @@
 #include "kernel/service/NetworkService.h"
 #include "BuildConfig.h"
 #include "GatesOfHell.h"
+
+#include <lib/util/math/Random.h>
+
 #include "device/power/acpi/Acpi.h"
 #include "asm_interface.h"
 #include "device/graphic/LinearFrameBufferProvider.h"

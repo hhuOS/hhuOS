@@ -32,8 +32,8 @@
 namespace Device::Network {
 
 NetworkDevice::NetworkDevice() :
-        packetMemory(static_cast<uint8_t*>(Kernel::System::getService<Kernel::MemoryService>().allocateKernelMemory(MAX_BUFFERED_PACKETS * PACKET_BUFFER_SIZE, Util::PAGESIZE))),
-        packetMemoryManager(packetMemory, packetMemory + MAX_BUFFERED_PACKETS * PACKET_BUFFER_SIZE - 1, PACKET_BUFFER_SIZE),
+        outgoingPacketMemoryManager(NetworkPacketMemoryManager::create(MAX_BUFFERED_PACKETS)),
+        incomingPacketMemoryManager(NetworkPacketMemoryManager::create(MAX_BUFFERED_PACKETS)),
         incomingPacketQueue(MAX_BUFFERED_PACKETS),
         outgoingPacketQueue(MAX_BUFFERED_PACKETS),
         reader(new PacketReader(*this)),
@@ -53,8 +53,13 @@ const Util::String& NetworkDevice::getIdentifier() const {
 }
 
 void NetworkDevice::sendPacket(const uint8_t *packet, uint32_t length) {
+    if (length > incomingPacketMemoryManager.getBlockSize()) {
+        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "NetworkDevice: Outgoing packet is too large!");
+    }
+
     outgoingPacketLock.acquire();
-    auto *buffer = reinterpret_cast<uint8_t*>(packetMemoryManager.allocateBlock());
+    auto *buffer = reinterpret_cast<uint8_t*>(outgoingPacketMemoryManager.allocateBlock());
+
     auto source = Util::Address<uint32_t>(packet);
     auto target = Util::Address<uint32_t>(buffer);
     target.copyRange(source, length);
@@ -68,18 +73,18 @@ void NetworkDevice::handleIncomingPacket(const uint8_t *packet, uint32_t length)
         return;
     }
 
-    auto *buffer = reinterpret_cast<uint8_t*>(packetMemoryManager.allocateBlock());
+    if (length > incomingPacketMemoryManager.getBlockSize()) {
+        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "NetworkDevice: Incoming packet is too large!");
+    }
+
+    auto *buffer = reinterpret_cast<uint8_t*>(incomingPacketMemoryManager.allocateBlock());
     auto source = Util::Address<uint32_t>(packet);
     auto target = Util::Address<uint32_t>(buffer);
     target.copyRange(source, length);
 
     if (!incomingPacketQueue.offer(Packet{buffer, length})) {
-        packetMemoryManager.freeBlock(buffer);
+        incomingPacketMemoryManager.freeBlock(buffer);
     }
-}
-
-NetworkDevice::~NetworkDevice() {
-    delete[] packetMemory;
 }
 
 NetworkDevice::Packet NetworkDevice::getNextIncomingPacket() {
@@ -99,7 +104,13 @@ NetworkDevice::Packet NetworkDevice::getNextOutgoingPacket() {
 }
 
 void NetworkDevice::freePacketBuffer(void *buffer) {
-    packetMemoryManager.freeBlock(buffer);
+    if (buffer >= outgoingPacketMemoryManager.getStartAddress() && buffer <= outgoingPacketMemoryManager.getEndAddress()) {
+        outgoingPacketMemoryManager.freeBlock(buffer);
+    } else if (buffer >= incomingPacketMemoryManager.getStartAddress() && buffer <= incomingPacketMemoryManager.getEndAddress()) {
+        incomingPacketMemoryManager.freeBlock(buffer);
+    } else {
+        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "NetworkDevice: Trying to free an invalid packet buffer!");
+    }
 }
 
 void NetworkDevice::freeLastSendBuffer() {

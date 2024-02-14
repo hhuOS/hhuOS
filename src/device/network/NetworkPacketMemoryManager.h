@@ -14,50 +14,45 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+ 
+#ifndef NETWORKPACKETMEMORYMANAGER_H
+#define NETWORKPACKETMEMORYMANAGER_H
+#include <kernel/memory/BitmapMemoryManager.h>
 
-#ifndef HHUOS_PACKETWRITER_H
-#define HHUOS_PACKETWRITER_H
-
-#include "lib/util/async/Runnable.h"
-#include "device/network/NetworkDevice.h"
-#include "lib/util/collection/ArrayBlockingQueue.h"
-
-namespace Device::Network {
-
-class PacketWriter : public Util::Async::Runnable {
+class NetworkPacketMemoryManager : public Kernel::BitmapMemoryManager {
 
 public:
-    /**
-     * Default Constructor.
-     */
-    PacketWriter(NetworkDevice &networkDevice);
+
+    static NetworkPacketMemoryManager create(uint32_t packetCount);
 
     /**
      * Copy Constructor.
      */
-    PacketWriter(const PacketWriter &other) = delete;
+    NetworkPacketMemoryManager(const NetworkPacketMemoryManager &other) = delete;
 
     /**
      * Assignment operator.
      */
-    PacketWriter &operator=(const PacketWriter &other) = delete;
+    NetworkPacketMemoryManager &operator=(const NetworkPacketMemoryManager &other) = delete;
 
     /**
      * Destructor.
      */
-    ~PacketWriter() override = default;
+    ~NetworkPacketMemoryManager() override;
 
-    void run() override;
+    void* allocateBlock() override;
 
-    void freeLastSendBuffer();
+    void handleError() override;
 
 private:
+    /**
+     * Constructor.
+     */
+    NetworkPacketMemoryManager(uint8_t *startAddress, uint8_t *endAddress);
 
-    static Kernel::Logger log;
-    Device::Network::NetworkDevice &networkDevice;
-    Util::ArrayBlockingQueue<NetworkDevice::Packet> packetQueue = Util::ArrayBlockingQueue<NetworkDevice::Packet>(16);
+    uint8_t *buffer;
+
+    static const constexpr uint32_t PACKET_BUFFER_SIZE = 2048;
 };
-
-}
 
 #endif

@@ -28,11 +28,14 @@ BitmapMemoryManager::BitmapMemoryManager(uint8_t *startAddress, uint8_t *endAddr
 void *BitmapMemoryManager::allocateBlock() {
     uint32_t block = bitmap.findAndSet();
 
-    if (block == bitmap.getSize()) {
+    if (block == Util::Async::AtomicBitmap::INVALID_INDEX) {
         handleError();
         return nullptr;
     }
 
+    if (freeMemory - blockSize > freeMemory) {
+        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "BitmapMemoryManager: Underflow!");
+    }
     freeMemory -= blockSize;
 
     void *address = reinterpret_cast<void *>(startAddress + block * blockSize);
