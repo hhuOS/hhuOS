@@ -41,6 +41,20 @@ int Kernel::Usb::MouseNode::add_file_node(Util::String node_name){
   return 1;
 }
 
+// treat mouse_movement as uint8_t instead of int8_t -> but later when 
+// using x,y,z we need to convert it back
 void mouse_node_callback(void* e){
+  MouseEvent* m_event = (MouseEvent*)e;
 
+  uint8_t value = m_event->super.event_value;
+  uint8_t code  = m_event->super.event_code;
+  uint8_t mouse_x = m_event->x_displacement;
+  uint8_t mouse_y = m_event->y_displacement;
+  uint8_t mouse_z = m_event->z_displacement;
+
+  mouseBuffer.offer(mouse_x);
+  mouseBuffer.offer(mouse_y);
+  mouseBuffer.offer(mouse_z);
+  mouseBuffer.offer(value);
+  mouseBuffer.offer(code);
 }
