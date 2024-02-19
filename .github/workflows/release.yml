@@ -23,7 +23,7 @@ jobs:
         run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target limine --type Default && wget -O limine-licence.txt https://raw.githubusercontent.com/limine-bootloader/limine/trunk/COPYING
 
       - name: Create artifact
-        run: tar -czvf hhuOS.tar.gz hhuOS-limine.iso hhuOS-towboot.img hdd0.img floppy0.img run.sh bios/ovmf/build.sh limine-licence.txt lvgl-licence.txt README.md
+        run: tar -czvf hhuOS.tar.gz hhuOS-limine.iso hhuOS-towboot.img hdd0.img floppy0.img run.sh efi/build.sh limine-licence.txt lvgl-licence.txt README.md
 
       - name: Publish Release
         uses: softprops/action-gh-release@v1
