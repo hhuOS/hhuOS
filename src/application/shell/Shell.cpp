@@ -44,6 +44,7 @@ void Shell::run() {
 
 void Shell::beginCommandLine() {
     currentLine = "";
+    sub_index = 0;
     auto currentDirectory = Util::Io::File::getCurrentWorkingDirectory();
 
     Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_GREEN << "["
@@ -99,14 +100,33 @@ void Shell::readLine() {
             case 0x0b ... 0x1f:
                 break;
             default:
-                currentLine += static_cast<char>(input);
-                Util::System::out << static_cast<char>(input) << Util::Io::PrintStream::flush;
+                buildLine(input);
         }
 
         input = Util::Graphic::Ansi::readChar();
     }
 
     Util::Graphic::Ansi::enableCanonicalMode();
+}
+
+void Shell::buildLine(int16_t input) {
+    uint32_t c_len = currentLine.length();
+    if(sub_index < c_len){
+        currentLine += " ";
+        Util::Graphic::Ansi::clearLineFromCursor();
+        for(uint32_t i = c_len; i > sub_index; i--){
+            currentLine[i] = currentLine[i - 1];
+        }
+        currentLine[sub_index] = static_cast<char>(input);
+        for(uint32_t i = sub_index; i < c_len + 1; i++){
+            Util::System::out << (char)currentLine[i] << Util::Io::PrintStream::flush;
+        }  
+    }
+    else {
+        currentLine += static_cast<char>(input);
+        Util::System::out << static_cast<char>(input) << Util::Io::PrintStream::flush;
+    }
+    sub_index++;
 }
 
 void Shell::parseInput() {
@@ -245,6 +265,7 @@ void Shell::handleUpKey() {
     auto historyLine = history.get(historyIndex);
     Util::System::out << historyLine << Util::Io::PrintStream::flush;
     currentLine = historyLine;
+    sub_index = currentLine.length();
 }
 
 void Shell::handleDownKey() {
@@ -272,34 +293,60 @@ void Shell::handleDownKey() {
 
     Util::System::out << historyLine << Util::Io::PrintStream::flush;
     currentLine = historyLine;
+    sub_index = currentLine.length();
 }
 
 void Shell::handleLeftKey() {
+    if(!sub_index) return;
 
+    Util::Graphic::Ansi::moveCursorLeft(1);
+    sub_index = sub_index - 1;
 }
 
 void Shell::handleRightKey() {
+    if(sub_index == currentLine.length()) return;
 
+    Util::Graphic::Ansi::moveCursorRight(1);
+    sub_index = sub_index + 1;
 }
 
+// does not handle backspace, when at shifting left
 void Shell::handleBackspace() {
-    if (currentLine.length() > 0) {
-        currentLine = currentLine.substring(0, currentLine.length() - 1);
-
+    if (currentLine.length() > 0 && sub_index > 0) {
         auto position = Util::Graphic::Ansi::getCursorPosition();
         auto limits = Util::Graphic::Ansi::getCursorLimits();
-
+    
         if (position.column == 0) {
             position.row = position.row == 0 ? 0 : position.row - 1;
             position.column = limits.column;
             Util::Graphic::Ansi::setPosition(position);
             Util::System::out << ' ' << Util::Io::PrintStream::flush;
             Util::Graphic::Ansi::setPosition(position);
-        } else {
+        }
+
+    
+        if(sub_index < currentLine.length()){
+            Util::Graphic::Ansi::clearLineFromCursor();
+            for(uint32_t i = sub_index; i < currentLine.length(); i++)
+                currentLine[i - 1] = currentLine[i];
+            Util::Graphic::Ansi::moveCursorLeft(1);
+            for(uint32_t i = sub_index - 1; i < currentLine.length() - 1; i++){
+                Util::System::out << currentLine[i] << Util::Io::PrintStream::flush;
+            }
+            if(sub_index - 1 >= 0) {
+                sub_index = sub_index - 1;
+                Util::Graphic::Ansi::moveCursorLeft(1); 
+            }     
+        }
+    
+        else{
             Util::Graphic::Ansi::moveCursorLeft(1);
             Util::System::out << ' ' << Util::Io::PrintStream::flush;
             Util::Graphic::Ansi::moveCursorLeft(1);
+            sub_index = currentLine.length() - 1;
         }
+
+        currentLine = currentLine.substring(0, currentLine.length() - 1);
     }
 }
 

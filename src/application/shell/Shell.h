@@ -78,6 +78,8 @@ private:
 
     void parseInput();
 
+    void buildLine(int16_t input);
+
     [[nodiscard]] Util::String checkPath(const Util::String &command) const;
 
     Util::String checkDirectory(const Util::String &command, Util::Io::File &directory) const;
@@ -94,6 +96,7 @@ private:
 
     Util::ArrayList<Util::String> history;
     uint32_t historyIndex = 0;
+    uint32_t sub_index;
 
     static const constexpr char *PATH = "/initrd/bin:/bin";
 };
