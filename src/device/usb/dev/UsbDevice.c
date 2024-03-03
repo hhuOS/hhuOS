@@ -242,6 +242,7 @@ int handle_interface(UsbDev* dev, Configuration* configuration, uint8_t* string_
             (Alternate_Interface *)mem_service->allocateKernelMemory_c(
                 mem_service, sizeof(Alternate_Interface), 0);
         alt_interface->next = 0;
+        ascii_string = "";
 
         InterfaceDescriptor *interface_desc = (InterfaceDescriptor *)start;
 
@@ -256,7 +257,6 @@ int handle_interface(UsbDev* dev, Configuration* configuration, uint8_t* string_
               "iInterface", s_len) == -1) return -1;
 
           ascii_string = dev->build_string(dev, s_len, string_buffer);
-          interfaces[interface_num - 1]->interface_description = ascii_string;
         }
 
         alt_interface->alternate_interface_desc = *interface_desc;
@@ -272,7 +272,7 @@ int handle_interface(UsbDev* dev, Configuration* configuration, uint8_t* string_
           interface->driver = 0;
           interface->active_interface = alt_interface;
           interface->alternate_interfaces = alt_interface;
-          interface->interface_description = "";
+          interface->interface_description = ascii_string;
           prev = alt_interface;
           interfaces[interface_num++] = interface;
         }
