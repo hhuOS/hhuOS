@@ -127,11 +127,8 @@ int delete_listener(UsbController *controller, int id) {
 
 int insert_callback(UsbController *controller, uint16_t reg_type,
                     event_callback callback) {
-  if (reg_type < 0)
-    return -1;
   if (callback == (void *)0)
     return -1;
-
 
   if (!controller->supported_event_listener_type(controller, reg_type))
     return -1;
