@@ -511,7 +511,7 @@ void GatesOfHell::initializeSound() {
 void GatesOfHell::initializeUsb(){
     log.info("Initializing Usb ...");
     
-    int kbd_status = 0, mouse_status = 0, msd_status = 0, hub_status = 0;
+    int kbd_status = 0, mouse_status = 0, msd_status = 0;
     Kernel::System::registerService(Kernel::UsbService::SERVICE_ID, new Kernel::UsbService());
     Kernel::UsbService& usb_service = Kernel::System::getService<Kernel::UsbService>();
 
@@ -520,7 +520,7 @@ void GatesOfHell::initializeUsb(){
     Kernel::Usb::Driver::KernelUsbDriver* m_driver = new Kernel::Usb::Driver::KernelMouseDriver("mouse");
     Kernel::Usb::Driver::KernelUsbDriver* hub_driver = new Kernel::Usb::Driver::KernelHubDriver("hub");
 
-    hub_status = hub_driver->initialize();
+    hub_driver->initialize();
     kbd_status = k_driver->initialize();
     mouse_status = m_driver->initialize();
     msd_status = msd_driver->initialize();
