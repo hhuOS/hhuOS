@@ -173,7 +173,6 @@ int configure_hub(HubDriver* driver){
         uint8_t wait_time = driver->dev[i].hub_desc.potpgt;
         uint8_t multiplicator_wait_time_ms = 2;
 
-        uint8_t start_port = 0x01;
         uint8_t num_ports = driver->dev[i].hub_desc.num_ports;
 
         dev->add_downstream(dev, num_ports);
@@ -183,7 +182,7 @@ int configure_hub(HubDriver* driver){
         uint8_t device_attached_mask = 0x01;
         uint8_t start_device_num = dev->dev_num + 1;
 
-        for(int i = 1; i <= num_ports; i++){
+        for(uint8_t start_port = 0x01; start_port <= num_ports; start_port++){
             if(driver->set_hub_feature(driver, hub_dev, itf, start_port, PORT_POWER) == -1) return -1;
             mdelay(wait_time * multiplicator_wait_time_ms);
 
@@ -249,7 +248,6 @@ int configure_hub(HubDriver* driver){
                     start_device_num++;
                 }                    
             }
-            start_port++;
         }
         m->unmap(m, (uint32_t)(uintptr_t)data);
     }
