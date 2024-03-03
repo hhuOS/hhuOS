@@ -8,6 +8,7 @@
 #include "../../interfaces/MapInterface.h"
 
 #define MAX_TRANSFER_BYTES 0x00008000
+#define MAX_BLOCKS 64
 #define ALLOWED_CAPACITES 31
 #define READ_FORMAT_CAPACITIES_THRESHHOLD 5 // atleast 5 iterations 
 #define MAX_VOLUMES 16
@@ -145,7 +146,7 @@ struct MassStorageDriver{
     int (*set_callback_msd)(struct MassStorageDriver* driver, msd_callback callback, 
                         uint16_t magic_number, uint8_t u_tag);
     int (*unset_callback_msd)(struct MassStorageDriver* driver, uint16_t magic_number, uint8_t u_tag);                        
-    uint64_t (*write_msd)(struct MassStorageDriver* driver, uint8_t* target, uint64_t start_lba, uint32_t blocks,
+    uint64_t (*write_msd)(struct MassStorageDriver* driver, uint8_t* source, uint64_t start_lba, uint32_t blocks,
               uint16_t magic_number, uint8_t u_tag, uint8_t volume, uint8_t minor);
     void (*clear_msd_map)(struct MassStorageDriver* driver, uint32_t id);
 
@@ -156,10 +157,13 @@ struct MassStorageDriver{
     void (*build_write_command)(struct MassStorageDriver* driver, struct MassStorageDev* msd, CommandBlockWrapper* cbw, uint8_t volume,
                         uint32_t blocks, uint32_t lba_low, uint32_t lba_high, uint32_t t_len);
     int (*init_io_msd)(struct MassStorageDriver* driver, struct MassStorageDev* msd_dev, CommandBlockWrapper* cbw, uint32_t blocks,
-                        uint64_t start_lba, uint8_t* buffer, uint16_t magic_number, uint8_t u_tag, uint8_t volume);
+                        uint64_t start_lba, uint8_t* buffer, uint16_t magic_number, uint8_t u_tag, uint8_t volume, uint8_t read);
     struct MassStorageDev* (*get_free_msd_dev)(struct MassStorageDriver* driver);
     void (*free_msd_dev)(struct MassStorageDriver* driver, struct MassStorageDev* msd_dev);
     struct MassStorageDev* (*match_msd_dev)(struct MassStorageDriver* driver, UsbDev* dev);
+    uint8_t (*valid_block_number)(struct MassStorageDriver* driver, uint32_t blocks);
+    void (*copy_from_user)(uint8_t* __user, uint8_t* __kernel, size_t size);
+    void (*copy_to_user)(uint8_t* __user, uint8_t* __kernel, size_t size);
 };
     
 typedef struct MassStorageDriver MassStorageDriver;
@@ -237,11 +241,11 @@ uint64_t read_msd(MassStorageDriver* driver, uint8_t* target, uint64_t start_lba
 int set_callback_msd(MassStorageDriver* driver, msd_callback callback, 
                       uint16_t magic_number, uint8_t u_tag);
 int unset_callback_msd(MassStorageDriver* driver, uint16_t magic_number, uint8_t u_tag);
-uint64_t write_msd(MassStorageDriver* driver, uint8_t* target, uint64_t start_lba, uint32_t blocks,
+uint64_t write_msd(MassStorageDriver* driver, uint8_t* source, uint64_t start_lba, uint32_t blocks,
                 uint16_t magic_number, uint8_t u_tag, uint8_t volume, uint8_t minor);
 int init_io_msd(MassStorageDriver* driver, MassStorageDev* msd_dev, CommandBlockWrapper* cbw, uint32_t blocks,
                 uint64_t start_lba, uint8_t* buffer, uint16_t magic_number, uint8_t u_tag,
-                uint8_t volume);
+                uint8_t volume, uint8_t read);
 
 void callback_mass_storage(UsbDev *dev, uint32_t status, void *data);
 void callback_cbw_data_read(UsbDev *dev, uint32_t status, void *data);
@@ -260,5 +264,9 @@ void free_msd_dev(MassStorageDriver* driver, MassStorageDev* msd_dev);
 MassStorageDev* match_msd_dev(MassStorageDriver* driver, UsbDev* dev);
 
 MassStorageDev* get_msd_dev_by_minor(MassStorageDriver* driver, uint8_t minor);
+uint8_t valid_block_number(MassStorageDriver* driver, uint32_t blocks);
+
+void copy_from_user(uint8_t* __user, uint8_t* __kernel, size_t size);
+void copy_to_user(uint8_t* __user, uint8_t* __kernel, size_t size);
 
 #endif  
