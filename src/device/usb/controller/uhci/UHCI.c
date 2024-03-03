@@ -50,10 +50,8 @@ void new_UHCI(_UHCI *uhci, PciDevice_Struct* pci_device, SystemService_C *mem_se
       uhci->request_interrupt_service(uhci, mem_service);
   uhci->interrupt_service = interrupt_service; 
   
-  #ifndef UHCI_POLL
   InterruptService_C* i_serv = container_of(uhci->interrupt_service, InterruptService_C, super);
   i_serv->add_interrupt_routine(i_serv, uhci->irq, &uhci->super);
-  #endif
 
   uhci->mutex = uhci->init_mutex(uhci, m);
   uhci->init_maps(uhci, m);
@@ -70,36 +68,33 @@ void new_UHCI(_UHCI *uhci, PciDevice_Struct* pci_device, SystemService_C *mem_se
   uhci->signal = 0;
   uhci->signal_not_override = 0;
 
-  uhci->controller_configuration(uhci);
-  create_thread("usb", &uhci->super);
+  if(uhci->controller_configuration(uhci))
+    create_thread("usb", &uhci->super);
 }
 
 void controller_port_configuration(_UHCI* uhci){
   MemoryService_C *m = (MemoryService_C*)container_of(uhci->mem_service, MemoryService_C, super);
 
-  uint16_t status;
-  if ((status = ((UsbController*)uhci)->reset_port((UsbController*)uhci, 1)) > 0) {
-    uhci->controller_logger->info_c(uhci->controller_logger, "Port %d enabled ...", 1);
-    #if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
-    Register* r = uhci->look_for(uhci, Port1_Status);
-    r->dump(r, uhci->controller_logger);
-    #endif
+  for(int port = 0; port < 2; port++){
+    uint16_t status;
+    if ((status = ((UsbController*)uhci)->reset_port((UsbController*)uhci, port+1)) > 0) {
+      uhci->controller_logger->info_c(uhci->controller_logger, "Port %d enabled ...", port+1);
+      #if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
+      Register* r = uhci->look_for(uhci, Port1_Status);
+      r->dump(r, uhci->controller_logger);
+      #endif
 
-    uhci->create_dev(uhci, status, 1, m);
-  }
+      Register_Type r_type = (port+1 == 1) ? Port1_Status : Port2_Status;
+      Register* port_reg = uhci->look_for(uhci, r_type);
 
-  if ((status = ((UsbController*)uhci)->reset_port((UsbController*)uhci, 2)) > 0) {
-    uhci->controller_logger->info_c(uhci->controller_logger, "Port %d enabled ...", 2);
-    #if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
-    Register* r = uhci->look_for(uhci, Port2_Status);
-    r->dump(r, uhci->controller_logger);
-    #endif
-
-    uhci->create_dev(uhci, status, 2, m);
+      uint16_t port_bits = *((uint16_t*)port_reg->raw_data);
+      if(port_bits & CONNECT)
+        uhci->create_dev(uhci, status, port+1, m);
+    }
   }
 }
 
-void controller_configuration(_UHCI* uhci){
+int controller_configuration(_UHCI* uhci){
   Register *reg;
   uint8_t one_byte_command;
   uint16_t two_byte_command;
@@ -108,7 +103,7 @@ void controller_configuration(_UHCI* uhci){
                                   "Performing Global Reset ...");
 
   reg = uhci->look_for(uhci, Usb_Command);
-  // wait 5* 10 = 50 <- specs 
+  // 50ms delay 
   for (int i = 0; i < 5; i++) {
     two_byte_command = GRESET;
     reg->write(reg, &two_byte_command);
@@ -152,10 +147,10 @@ void controller_configuration(_UHCI* uhci){
   #endif 
 
 
-  reg = uhci->look_for(uhci, Start_of_Frame);
+  /*reg = uhci->look_for(uhci, Start_of_Frame);
   reg->read(reg, &one_byte_command);
   if (one_byte_command != SOF)
-    goto fail_label;
+    goto fail_label; */
 
   uhci->controller_logger->info_c(uhci->controller_logger, "Performing Hardware Reset ...");
 
@@ -229,11 +224,12 @@ void controller_configuration(_UHCI* uhci){
 
   uhci->controller_port_configuration(uhci);
 
-  return;
+  return 1;
 
 fail_label:
   uhci->controller_logger->error_c(uhci->controller_logger,
-                                   "Failed to configure UHCI ...");                                  
+                                   "Failed to configure UHCI ...");
+  return -1;                                 
 }
 
 void create_dev(_UHCI *uhci, int16_t status, int pn, MemoryService_C *m) {
@@ -339,6 +335,7 @@ void init_controller_functions(_UHCI *uhci) {
   uhci->destroy_transfer = &destroy_transfer;
   uhci->controller_configuration = &controller_configuration;
   uhci->controller_port_configuration = &controller_port_configuration;
+  uhci->is_valid_interval = &is_valid_interval;
 }
 
 UsbControllerType is_of_type_uhci(UsbController *controller) {
@@ -593,6 +590,7 @@ QH* request_frames(_UHCI* uhci){
                 }
                 frame_list_address[frame_number] = (uint32_t)(uintptr_t)(physical_addresses[j]);
                 frame_list_address[frame_number] |= QH_SELECT;
+                break;
             }
         }
     }
@@ -768,8 +766,7 @@ void free_td(_UHCI *uhci, TD *td) {
   }
 }
 
-void insert_queue(_UHCI *uhci, QH *new_qh, TD *td,
-                  uint16_t priority, enum QH_HEADS v) {
+void insert_queue(_UHCI *uhci, QH *new_qh, uint16_t priority, enum QH_HEADS v) {
   MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
                                                        MemoryService_C, super);
   uint32_t physical_addr;
@@ -989,8 +986,10 @@ void init_interrupt_transfer(UsbController *controller, Interface *interface,
   UsbDev *dev =
       controller->interface_dev_map->get_c(controller->interface_dev_map, interface);
 
-  if (dev == (void *)0)
+  if (dev == (void *)0){
     callback(0, E_INTERFACE_INV, data);
+    return;
+  }
 
   if (!dev->support_interrupt(dev, interface)) {
     callback(dev, E_NOT_SUPPORTED_TRANSFER_TYPE, data);
@@ -1003,8 +1002,19 @@ void init_interrupt_transfer(UsbController *controller, Interface *interface,
     return;
   }
 
-  enum QH_HEADS mqh;
+  int16_t mqh;
 
+  if((mqh = uhci->is_valid_interval(uhci, dev, interval, data)) == -1){
+    callback(dev, E_INVALID_INTERVAL, data);
+    return;
+  }
+
+  dev->usb_dev_interrupt(dev, interface, pipe, (uint16_t)shifted_prio, data,
+                         len, (uint8_t)mqh, callback);
+}
+
+int16_t is_valid_interval(_UHCI* uhci, UsbDev* dev, uint16_t interval, void* data){
+  uint8_t mqh;
   if (interval == interval_1024_ms)
     mqh = QH_1024;
   else if (interval == interval_512_ms)
@@ -1028,19 +1038,15 @@ void init_interrupt_transfer(UsbController *controller, Interface *interface,
   else if (interval == interval_1_ms)
     mqh = QH_1;
   else {
-    if (interval <= 0) {
-      callback(dev, E_INVALID_INTERVAL, data);
-      return;
-    }
+    if (interval <= 0)
+      return -1;
+    
     interval = floor_address(interval);
-
-    uhci->init_interrupt_transfer((UsbController *)uhci, interface, pipe,
-                                  priority, data, len, interval, callback);
-    return;
+  
+    return uhci->is_valid_interval(uhci, dev, interval, data);
   }
 
-  dev->usb_dev_interrupt(dev, interface, pipe, (uint16_t)shifted_prio, data,
-                         len, (uint8_t)mqh, callback);
+  return mqh;
 }
 
 int16_t is_valid_priority(_UHCI *uhci, UsbDev *dev, uint8_t priority,
@@ -1073,9 +1079,10 @@ void init_bulk_transfer(UsbController *controller, Interface *interface,
   UsbDev *dev =
       controller->interface_dev_map->get_c(controller->interface_dev_map, interface);
 
-  if (dev == (void *)0)
+  if (dev == (void *)0){
     callback(0, E_INTERFACE_INV, data);
-
+    return;
+  }
   if (!dev->support_bulk(dev, interface)) {
     callback(dev, E_NOT_SUPPORTED_TRANSFER_TYPE, data);
     return;
@@ -1726,7 +1733,7 @@ void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
 
   uhci->destroy_transfer(uhci, transfer);
 
-  uhci->insert_queue(uhci, qh, td, priority, QH_BULK);
+  uhci->insert_queue(uhci, qh, priority, QH_BULK);
 
   if(flags == BULK_INITIAL_STATE){
     uint32_t status = uhci->wait_poll(uhci, qh, UPPER_BOUND_TIME_OUT_MILLIS_BULK);
@@ -1778,7 +1785,7 @@ void interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
 
   uhci->destroy_transfer(uhci, transfer);
 
-  uhci->insert_queue(uhci, qh, td, priority, (enum QH_HEADS)interval);
+  uhci->insert_queue(uhci, qh, priority, (enum QH_HEADS)interval);
 }
 
 // wait time out time -> upper bound 10ms 
@@ -1804,7 +1811,7 @@ uint32_t wait_poll(_UHCI *uhci, QH *process_qh, uint32_t timeout) {
 
   if(td != (void*)0){ // transfer not sucessful
     status |= uhci->get_status(uhci, td);
-    uhci->controller_logger->error_c(uhci->controller_logger, "transfer was not sucessfult ! error mask %u", status);
+    uhci->controller_logger->error_c(uhci->controller_logger, "transfer was not sucessful ! error mask %u", status);
   }
 
   #if defined(TRANSFER_MEASURE_ON)
@@ -1951,7 +1958,7 @@ void control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
 
   uhci->destroy_transfer(uhci, transfer);
 
-  if(dev->state == CONFIGURED_STATE){
+  if(dev->state == CONFIGURED_STATE && (flags != CONTROL_INITIAL_STATE)){
     uhci->qh_to_td_map->put_c(uhci->qh_to_td_map, qh, internalTD);
     uhci->qh_data_map->put_c(uhci->qh_data_map, qh, data);
     uhci->qh_dev_map->put_c(uhci->qh_dev_map, qh, dev);
@@ -1959,7 +1966,7 @@ void control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
     uhci->qh_device_request_map->put_c(uhci->qh_device_request_map, qh, rq);
   }
 
-  uhci->insert_queue(uhci, qh, internalTD, priority, QH_CTL);
+  uhci->insert_queue(uhci, qh, priority, QH_CTL);
 
   // uhci->inspect_transfer(uhci, qh, internalTD);
 

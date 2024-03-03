@@ -62,7 +62,7 @@ struct _UHCI {
   Addr_Region* (*i_o_space_layout_run)(struct _UHCI* uhci);
   Register** (*request_register)(struct _UHCI* uhci);
 
-  void (*insert_queue)(struct _UHCI *uhci, struct QH *new_qh, struct TD *td,
+  void (*insert_queue)(struct _UHCI *uhci, struct QH *new_qh,
                        uint16_t priority, enum QH_HEADS v);
   unsigned int (*retransmission)(struct _UHCI *uhci, struct QH *process_qh,
                                  struct TD *td);
@@ -152,7 +152,9 @@ struct _UHCI {
 
   void (*controller_port_configuration)(struct _UHCI* uhci);
 
-  void (*controller_configuration)(struct _UHCI* uhci);
+  int (*controller_configuration)(struct _UHCI* uhci);
+
+  int16_t (*is_valid_interval)(struct _UHCI* uhci, UsbDev* dev, uint16_t interval, void* data);
 
   Register **i_o_registers;
   QH *qh_entry;
@@ -208,7 +210,7 @@ void interrupt_entry_point_uhci(struct UsbDev *dev, Endpoint *endpoint, void *da
                            unsigned int len, uint8_t priority,
                            uint16_t interval, callback_function callback);
 
-void insert_queue(struct _UHCI *uhci, struct QH *new_qh, TD *td,
+void insert_queue(struct _UHCI *uhci, struct QH *new_qh,
                   uint16_t priority, enum QH_HEADS v);
 void remove_queue(struct _UHCI *uhci, struct QH *qh);
 
@@ -319,6 +321,8 @@ void destroy_transfer(_UHCI* uhci, UsbTransfer* transfer);
 
 void controller_port_configuration(_UHCI* uhci);
 
-void controller_configuration(_UHCI* uhci);
+int controller_configuration(_UHCI* uhci);
+
+int16_t is_valid_interval(_UHCI* uhci, UsbDev* dev, uint16_t interval, void* data);
 
 #endif
