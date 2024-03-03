@@ -32,6 +32,12 @@ static inline void mem_set(uint8_t* p, unsigned int size, uint8_t val){
     }
 }
 
+static inline void mem_cpy(uint8_t* source, uint8_t* target, size_t size){
+    for(unsigned int i = 0; i < size; i++){
+        target[i] = source[i];
+    }
+}
+
 static inline uint16_t floor_address(uint16_t interval){
     // get highest bit
     int pos = 0;
