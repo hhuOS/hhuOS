@@ -242,7 +242,6 @@ int handle_interface(UsbDev* dev, Configuration* configuration, uint8_t* string_
             (Alternate_Interface *)mem_service->allocateKernelMemory_c(
                 mem_service, sizeof(Alternate_Interface), 0);
         alt_interface->next = 0;
-        ascii_string = "";
 
         InterfaceDescriptor *interface_desc = (InterfaceDescriptor *)start;
 
