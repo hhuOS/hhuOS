@@ -95,7 +95,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
 
 # Add include-what-you-use command (if available)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-find_package(PythonInterp)
+find_package(Python3)
 find_program(iwyu_tool_path NAMES iwyu_tool.py iwyu-tool)
 find_program(iwyu_fix_includes_path NAMES fix_includes.py iwyu-fix-includes)
 if (PYTHONINTERP_FOUND AND iwyu_tool_path AND iwyu_fix_includes_path)

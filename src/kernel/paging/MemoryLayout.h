@@ -79,7 +79,7 @@ public:
     }
 
     // let kernel start at 3GB
-    static const constexpr uint32_t KERNEL_START = 0xc0000000;
+    static const constexpr uint32_t KERNEL_START = 0x00100000;
     static const constexpr uint32_t MEMORY_END = 0xffffffff;
 
     // Look into boot.asm for corresponding GDT-Entry
@@ -95,7 +95,7 @@ public:
     // start of virtual area for page tables and directories (128 MB)
     static const constexpr MemoryArea PAGING_AREA = { 0xf8000000, MEMORY_END, MemoryArea::VIRTUAL };
     // end of virtual kernel memory for heap
-    static const constexpr uint32_t KERNEL_HEAP_END_ADDRESS = PAGING_AREA.startAddress - 1;
+    static const constexpr uint32_t KERNEL_HEAP_END_ADDRESS = 0x80000000;
 };
 
 }

@@ -36,7 +36,8 @@ namespace Device {
 
 Kernel::Logger SerialPort::log = Kernel::Logger::get("COM");
 
-SerialPort::SerialPort(ComPort port, BaudRate dataRate) : Util::Io::FilterInputStream(inputStream), inputBuffer(BUFFER_SIZE), inputStream(inputBuffer),
+SerialPort::SerialPort(ComPort port, BaudRate dataRate) :
+        Util::Io::FilterInputStream(inputStream), inputBuffer(BUFFER_SIZE), inputStream(inputBuffer),
         port(port), dataRate(dataRate), dataRegister(port), interruptRegister(port + 1), fifoControlRegister(port + 2),
         lineControlRegister(port + 3), modemControlRegister(port + 4), lineStatusRegister(port + 5),
         modemStatusRegister(port + 6), scratchRegister(port + 7) {
@@ -65,12 +66,12 @@ bool SerialPort::checkPort(ComPort port) {
 }
 
 void SerialPort::initializePort(ComPort port) {
-    if (Kernel::Multiboot::hasKernelOption("debug_port")) {
+    /*if (Kernel::Multiboot::hasKernelOption("debug_port")) {
         auto portName = Kernel::Multiboot::getKernelOption("debug_port");
         if (portFromString(portName) == port) {
             return;
         }
-    }
+    }*/
 
     if (!checkPort(port)) {
         return;

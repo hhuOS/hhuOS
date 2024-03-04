@@ -18,6 +18,10 @@
 #ifndef __KernelEntry_include__
 #define __KernelEntry_include__
 
+#include "device/cpu/GlobalDescriptorTable.h"
+#include "lib/util/base/FreeListMemoryManager.h"
+#include "kernel/multiboot/Multiboot.h"
+
 namespace Kernel {
 class Logger;
 }  // namespace Kernel
@@ -54,43 +58,19 @@ public:
      * Entry point for the operating system.
      * This method is invoked by the main() method, after boot strapping process is finished an paging is initializeAvailableControllers.
      */
-    [[noreturn]] static void enter();
+    [[noreturn]] static void enter(uint32_t multibootMagic, const Kernel::Multiboot &multiboot);
+
+    static Util::HeapMemoryManager& getKernelHeap();
 
 private:
 
-    static void printMultibootInformation();
-
-    static void printCpuInformation();
-
-    static void printAcpiInformation();
-
-    static void printSmBiosInformation();
-
-    static void enablePortLogging();
-
-    static void initializeFilesystem();
-
-    static void initializePs2Devices();
-
-    static void initializePorts();
-
-    static void initializeTerminal();
-
-    static void initializePowerManagement();
-
-    static void initializeStorage();
-
-    static void initializeNetwork();
-
-    static void initializeSound();
-
-    static void mountDevices();
-
-    static void printBanner();
-
-    static void printDefaultBanner();
-
     static Kernel::Logger log;
+
+    static Device::GlobalDescriptorTable gdt;
+
+    static Device::GlobalDescriptorTable::TaskStateSegment tss;
+
+    static Util::HeapMemoryManager *kernelHeap;
 };
 
 

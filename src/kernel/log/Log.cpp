@@ -14,11 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+ 
+#include "Log.h"
 
-#include "kernel/multiboot/Multiboot.h"
-#include "Paging.h"
-#include "MemoryLayout.h"
+Device::SerialPort Kernel::Log::serial = Device::SerialPort(Device::SerialPort::COM1);
 
-namespace Kernel {
-
-}
+void Kernel::Log::log(const char *message, const Record &record) {}

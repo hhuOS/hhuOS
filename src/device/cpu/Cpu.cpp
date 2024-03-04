@@ -111,4 +111,65 @@ Util::Array<Cpu::Configuration0> Cpu::readCr0() {
     return cr0.toArray();
 }
 
+void Cpu::setSegmentRegister(SegmentRegister reg, const SegmentSelector &selector) {
+    switch (reg) {
+        case CS:
+            asm volatile(
+                    "push %0;"
+                    "push $cs_return;"
+                    "retf;"
+                    "cs_return:"
+                    : :
+                    "r"(static_cast<uint32_t>(static_cast<uint16_t>(selector)))
+                    );
+            break;
+        case DS:
+            asm volatile(
+                    "mov %0, %%ds"
+                    : :
+                    "r"(static_cast<uint16_t>(selector))
+                    );
+            break;
+        case ES:
+            asm volatile(
+                    "mov %0, %%es"
+                    : :
+                    "r"(static_cast<uint16_t>(selector))
+                    );
+            break;
+        case FS:
+            asm volatile(
+                    "mov %0, %%fs"
+                    : :
+                    "r"(static_cast<uint16_t>(selector))
+                    );
+            break;
+        case GS:
+            asm volatile(
+                    "mov %0, %%gs"
+                    : :
+                    "r"(static_cast<uint16_t>(selector))
+                    );
+            break;
+        case SS:
+            asm volatile(
+                    "mov %0, %%ss"
+                    : :
+                    "r"(static_cast<uint16_t>(selector))
+                    );
+            break;
+    }
+}
+
+Cpu::SegmentSelector::SegmentSelector(Cpu::PrivilegeLevel privilegeLevel, uint8_t index) :
+    privilegeLevel(privilegeLevel),
+    type(0),
+    index(index) {}
+
+Cpu::SegmentSelector::operator uint16_t() const {
+    return privilegeLevel |
+        type << 2 |
+        index << 3;
+}
+
 }

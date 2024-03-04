@@ -14,41 +14,60 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+ 
+#ifndef LOG_H
+#define LOG_H
 
-#ifndef HHUOS_TASKSTATESEGMENT_H
-#define HHUOS_TASKSTATESEGMENT_H
+#include <cstdarg>
+#include "device/port/serial/SerialPort.h"
 
 namespace Kernel {
 
-struct TaskStateSegment {
-    uint32_t previousTss;
-    uint32_t esp0;      // Points to kernel stack
-    uint32_t ss0;       // Points to segment used by kernel stack
-    uint32_t esp1;
-    uint32_t ss1;
-    uint32_t esp2;
-    uint32_t ss2;
-    uint32_t cr3;
-    uint32_t eip;
-    uint32_t eflags;
-    uint32_t eax;
-    uint32_t ecx;
-    uint32_t edx;
-    uint32_t ebx;
-    uint32_t esp;
-    uint32_t ebp;
-    uint32_t esi;
-    uint32_t edi;
-    uint32_t es;
-    uint32_t cs;
-    uint32_t ss;
-    uint32_t ds;
-    uint32_t fs;
-    uint32_t gs;
-    uint32_t ldt;
-    uint16_t trap;
-    uint16_t ioMapBaseOffset = sizeof(TaskStateSegment);
-} __attribute__((packed));
+class Log {
+
+    enum Level {
+        TRACE = 0,
+        DEBUG = 1,
+        INFO = 2,
+        WARN = 3,
+        ERROR = 4
+    };
+
+    struct Record {
+        Level level;
+        const char *file;
+        const char *line;
+        va_list arguments;
+    };
+
+    /**
+     * Default Constructor.
+     * Deleted, as this class has only static members.
+     */
+    Log() = delete;
+
+    /**
+     * Copy Constructor.
+     */
+    Log(const Log &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    Log &operator=(const Log &other) = delete;
+
+    /**
+     * Destructor.
+     * Deleted, as this class has only static members.
+     */
+    ~Log() = delete;
+
+    static void log(const char *message, const Record &record);
+
+private:
+
+    static Device::SerialPort serial;
+};
 
 }
 

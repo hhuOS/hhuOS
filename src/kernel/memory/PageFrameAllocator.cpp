@@ -25,7 +25,7 @@ namespace Kernel {
 
 PageFrameAllocator::PageFrameAllocator(PagingAreaManager &pagingAreaManager, uint8_t *startAddress, uint8_t *endAddress) :
         TableMemoryManager(pagingAreaManager, startAddress, endAddress, Kernel::Paging::PAGESIZE) {
-    auto *blockMap = Multiboot::getBlockMap();
+    /*auto *blockMap = Multiboot::getBlockMap();
 
     // Reserve blocks already used by system image and multiboot modules
     for (uint32_t i = 0; blockMap[i].blockCount != 0; i++) {
@@ -35,7 +35,7 @@ PageFrameAllocator::PageFrameAllocator(PagingAreaManager &pagingAreaManager, uin
         uint32_t end = start + block.blockCount * blockSize - 1;
 
         setMemory(reinterpret_cast<uint8_t*>(start), reinterpret_cast<uint8_t*>(end), 1, block.type == Multiboot::MULTIBOOT_RESERVED);
-    }
+    }*/
 }
 
 }

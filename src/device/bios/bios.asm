@@ -52,7 +52,7 @@ bios_call:
     ; Switch stack to boot stack used in boot.asm and save current stack pointer
     ; This is necessary because this stack is used for the bios call without paging
     ; and therefore we must know its physical address (which is current stack address - 0xC0000000)
-    mov ebx, initial_kernel_stack
+    ; mov ebx, initial_kernel_stack
     add ebx, (STACK_SIZE - 4)
     mov [ebx], esp
     mov esp, ebx
@@ -87,7 +87,7 @@ bios_call_2:
     mov ecx, 0
     mov cr3, ecx
     ; Load gdt for bios calls (with low/physical addresses)
-    lgdt [gdt_bios_descriptor - KERNEL_START]
+    ; lgdt [gdt_bios_descriptor - KERNEL_START]
 
     ; Shift values of esp and ebp to low addresses, because paging is disabled
     mov ecx, esp
@@ -111,7 +111,7 @@ bios_call_16_return:
     or  ecx, 0x80000000
     mov cr0, ecx
     ; Load global descriptor table
-    lgdt [gdt_descriptor]
+    ; lgdt [gdt_descriptor]
     ; Perform a far jump to a high address in kernel code (paging enabled)
     lea ecx, [bios_call_3]
     jmp ecx

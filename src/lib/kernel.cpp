@@ -43,6 +43,7 @@
 #include "lib/util/network/Socket.h"
 #include "lib/util/time/Date.h"
 #include "lib/util/time/Timestamp.h"
+#include "GatesOfHell.h"
 
 namespace Util {
 namespace Async {
@@ -51,11 +52,7 @@ class Runnable;
 }  // namespace Util
 
 void *allocateMemory(uint32_t size, uint32_t alignment) {
-    if (Kernel::System::isInitialized()) {
-        return Kernel::System::getService<Kernel::MemoryService>().allocateKernelMemory(size, alignment);
-    } else {
-        return Kernel::System::allocateEarlyMemory(size);
-    }
+    return GatesOfHell::getKernelHeap().allocateMemory(size, alignment);
 }
 
 void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment) {
@@ -63,15 +60,11 @@ void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment) {
         return allocateMemory(size, alignment);
     }
 
-    return Kernel::System::getService<Kernel::MemoryService>().reallocateKernelMemory(pointer, size, alignment);
+    return GatesOfHell::getKernelHeap().reallocateMemory(pointer, size, alignment);
 }
 
 void freeMemory(void *pointer, uint32_t alignment) {
-    if (Kernel::System::isInitialized()) {
-        Kernel::System::getService<Kernel::MemoryService>().freeKernelMemory(pointer, alignment);
-    } else {
-        Kernel::System::freeEarlyMemory(pointer);
-    }
+    return GatesOfHell::getKernelHeap().freeMemory(pointer, alignment);
 }
 
 bool isSystemInitialized() {

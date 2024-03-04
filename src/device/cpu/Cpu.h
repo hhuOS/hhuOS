@@ -49,6 +49,31 @@ public:
         PAGING = 0x80000000
     };
 
+    enum PrivilegeLevel : uint8_t  {
+        Ring0 = 0,
+        Ring1 = 1,
+        Ring2 = 2,
+        Ring3 = 3
+    };
+
+    struct SegmentSelector {
+    public:
+
+        SegmentSelector(Cpu::PrivilegeLevel privilegeLevel, uint8_t index);
+
+        explicit operator uint16_t() const;
+
+    private:
+
+        uint16_t privilegeLevel: 2;
+        uint16_t type: 1;
+        uint16_t index: 13;
+    } __attribute__((packed));
+
+    enum SegmentRegister {
+        CS, DS, ES, FS, GS, SS
+    };
+
     // Descriptor for either GDT or IDT
     struct Descriptor {
         uint16_t limit;
@@ -141,6 +166,8 @@ public:
     [[noreturn]] static void throwException(Util::Exception::Error error, const char *message);
 
     static const char *getExceptionName(uint32_t exception);
+
+    static void setSegmentRegister(SegmentRegister reg, const SegmentSelector &selector);
 
 private:
 

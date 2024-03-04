@@ -21,6 +21,7 @@
 #include <cstdint>
 
 #include "lib/util/base/Exception.h"
+#include "device/cpu/GlobalDescriptorTable.h"
 
 namespace Util {
 class HeapMemoryManager;
@@ -36,7 +37,6 @@ class Logger;
 class Service;
 class SystemCall;
 struct InterruptFrame;
-struct TaskStateSegment;
 
 /**
  * SystemManagement
@@ -141,7 +141,7 @@ public:
      */
     static bool isInitialized();
 
-    static TaskStateSegment& getTaskStateSegment();
+    static Device::GlobalDescriptorTable::TaskStateSegment& getTaskStateSegment();
 
 private:
 
@@ -159,7 +159,7 @@ private:
     static Service* serviceMap[256];
     static Util::Async::Spinlock serviceLock;
 
-    static TaskStateSegment taskStateSegment;
+    static Device::GlobalDescriptorTable::TaskStateSegment taskStateSegment;
     static Util::HeapMemoryManager *kernelHeapMemoryManager;
     static InterruptHandler *pagefaultHandler;
     static SystemCall systemCall;

@@ -53,8 +53,6 @@ void switch_context(Kernel::Context **current, Kernel::Context **next);
 void bios_call_16_start();
 void bios_call_16_end();
 void bios_call_16_interrupt();
-void _init();
-void _fini();
 }
 
 #endif

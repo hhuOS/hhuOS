@@ -31,7 +31,7 @@
 namespace Kernel {
 
 PageDirectory::PageDirectory() {
-    auto *blockMap = Multiboot::getBlockMap();
+    /*auto *blockMap = Multiboot::getBlockMap();
     uint32_t physPagingAreaStart = 0;
 
     for (uint32_t i = 0; blockMap[i].blockCount != 0; i++) {
@@ -93,7 +93,7 @@ PageDirectory::PageDirectory() {
 
     // Load the Page Directory into cr3 and enable 4 KiB paging via assembly code
     load_page_directory(pageDirectoryPhysicalAddress);
-    enable_system_paging();
+    enable_system_paging();*/
 }
 
 PageDirectory::PageDirectory(PageDirectory &basePageDirectory) {

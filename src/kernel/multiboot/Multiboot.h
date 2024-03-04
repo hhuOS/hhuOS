@@ -25,8 +25,6 @@
 #include "lib/util/base/Exception.h"
 #include "lib/util/hardware/Acpi.h"
 
-struct CopyInformation;
-
 namespace Kernel {
 
 class Multiboot {
@@ -70,11 +68,6 @@ public:
         INDEXED = 0,
         RGB = 1,
         EGA_TEXT = 2
-    };
-
-    struct Info {
-        uint32_t size;
-        uint32_t reserved;
     };
 
     struct TagHeader {
@@ -243,7 +236,7 @@ public:
 
     /**
      * Default Constructor.
-     * Deleted, as this class has only static members.
+     * Cannot be constructed manually.
      */
     Multiboot() = delete;
 
@@ -259,56 +252,42 @@ public:
 
     /**
      * Destructor.
-     * Deleted, as this class has only static members.
+     * Cannot be constructed manually.
      */
     ~Multiboot() = delete;
 
-    static void initialize();
+    Util::String getBootloaderName() const;
 
-    static const CopyInformation& getCopyInformation();
+    FramebufferInfo getFrameBufferInfo() const;
 
-    static Util::String getBootloaderName();
+    Util::Array<MemoryMapEntry> getMemoryMap() const;
 
-    static FramebufferInfo getFrameBufferInfo();
+    bool hasKernelOption(const Util::String &key) const;
 
-    static Util::Array<MemoryMapEntry> getMemoryMap();
+    Util::String getKernelOption(const Util::String &key) const;
 
-    static bool hasKernelOption(const Util::String &key);
+    Util::Array<Util::String> getModuleNames() const;
 
-    static Util::String getKernelOption(const Util::String &key);
+    bool isModuleLoaded(const Util::String &moduleName) const;
 
-    static Util::Array<Util::String> getModuleNames();
+    const Module& getModule(const Util::String &moduleName) const;
 
-    static bool isModuleLoaded(const Util::String &moduleName);
-
-    static const Module& getModule(const Util::String &moduleName);
-
-    static const MemoryBlock* getBlockMap();
-
-    // Used during the bootstrap process
-
-    static void copyMultibootInfo(const Info *source, uint8_t *destination, uint32_t maxBytes);
-
-    static void initializeMemoryBlockMap(const Info *multibootInfo);
-
-    static bool hasTag(TagType type);
+    bool hasTag(TagType type) const;
 
     template<typename T>
-    static const T& getTag(TagType type);
+    const T& getTag(TagType type) const;
 
-    static Util::Array<TagType> getAvailableTagTypes();
+    Util::Array<TagType> getAvailableTagTypes() const;
 
 private:
 
-    static const CopyInformation *copyInformation;
-    static const Info *info;
-
-    static const MemoryBlock blockMap[256];
+    uint32_t size;
+    uint32_t reserved;
 };
 
 template<typename T>
-const T& Multiboot::getTag(Multiboot::TagType type) {
-    auto currentAddress = reinterpret_cast<uint32_t>(info) + sizeof(Info);
+const T& Multiboot::getTag(Multiboot::TagType type) const {
+    auto currentAddress = reinterpret_cast<uint32_t>(this) + sizeof(Multiboot);
     auto *currentTag = reinterpret_cast<const TagHeader*>(currentAddress);
 
     while (currentTag->type != TERMINATE) {

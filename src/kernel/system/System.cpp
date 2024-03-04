@@ -44,7 +44,6 @@
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/SchedulerService.h"
 #include "kernel/system/SystemCall.h"
-#include "kernel/system/TaskStateSegment.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/FreeListMemoryManager.h"
@@ -52,6 +51,7 @@
 #include "device/interrupt/apic/Apic.h"
 #include "device/bios/SmBios.h"
 #include "device/port/serial/SerialPort.h"
+#include "device/cpu/GlobalDescriptorTable.h"
 
 namespace Kernel {
 class Service;
@@ -61,7 +61,7 @@ Util::Async::Spinlock System::serviceLock;
 Service* System::serviceMap[256]{};
 Util::HeapMemoryManager *System::kernelHeapMemoryManager{};
 InterruptHandler *System::pagefaultHandler{};
-TaskStateSegment System::taskStateSegment{};
+Device::GlobalDescriptorTable::TaskStateSegment System::taskStateSegment{};
 SystemCall System::systemCall{};
 Logger System::log = Logger::get("System");
 
@@ -70,7 +70,7 @@ Logger System::log = Logger::get("System");
  * everything to get the system run.
  */
 void System::initializeSystem() {
-    Multiboot::initialize();
+    // Multiboot::initialize();
     Device::Acpi::initialize();
     Device::SmBios::initialize();
 
@@ -94,7 +94,7 @@ void System::initializeSystem() {
     pagefaultHandler = memoryService;
 
     // Initialize global objects afterwards, because now missing pages can be mapped
-    _init();
+    // _init();
 
     // Register services after _init(), since the static objects serviceMap and serviceLock have now been initialized
     registerService(MemoryService::SERVICE_ID, memoryService);
@@ -134,11 +134,11 @@ void System::initializeSystem() {
     log.info("Enabling interrupts");
     Device::Cpu::enableInterrupts();
 
-    if (Multiboot::hasKernelOption("debug_port")) {
+    /*if (Multiboot::hasKernelOption("debug_port")) {
         auto portName = Multiboot::getKernelOption("debug_port");
         auto port = Device::SerialPort::portFromString(portName);
         interruptService->startGdbServer(port);
-    }
+    }*/
 
     // Setup time and date devices
     log.info("Initializing PIT");
@@ -175,9 +175,9 @@ void System::initializeSystem() {
     systemCall.plugin();
 
     // Protect kernel code
-    if (!Multiboot::hasKernelOption("debug_port")) {
+    /*if (!Multiboot::hasKernelOption("debug_port")) {
         kernelAddressSpace->getPageDirectory().unsetPageFlags(___WRITE_PROTECTED_START__, ___WRITE_PROTECTED_END__, Paging::READ_WRITE);
-    }
+    }*/
 }
 
 void *System::allocateEarlyMemory(uint32_t size) {
@@ -248,7 +248,7 @@ void System::initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t *bio
     // user data segment
     System::createGlobalDescriptorTableEntry(systemGdt, 4, 0, 0xFFFFFFFF, 0xF2, 0x0C);
     // tss segment
-    System::createGlobalDescriptorTableEntry(systemGdt, 5, reinterpret_cast<uint32_t>(&System::taskStateSegment), sizeof(Kernel::TaskStateSegment), 0x89, 0x4);
+    System::createGlobalDescriptorTableEntry(systemGdt, 5, reinterpret_cast<uint32_t>(&System::taskStateSegment), sizeof(Device::GlobalDescriptorTable::TaskStateSegment), 0x89, 0x4);
 
     // set up descriptor for GDT
     *((uint16_t *) systemGdtDescriptor) = 6 * 8;
@@ -306,7 +306,7 @@ bool System::isInitialized() {
 }
 
 uint32_t System::calculatePhysicalMemorySize() {
-    Util::Array<Multiboot::MemoryMapEntry> memoryMap = Multiboot::getMemoryMap();
+    /*Util::Array<Multiboot::MemoryMapEntry> memoryMap = Multiboot::getMemoryMap();
     Multiboot::MemoryMapEntry &maxEntry = memoryMap[0];
     for (const auto &entry : memoryMap) {
         if (entry.type != Multiboot::AVAILABLE) {
@@ -322,11 +322,12 @@ uint32_t System::calculatePhysicalMemorySize() {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "No usable memory found!");
     }
 
-    return static_cast<uint32_t>(maxEntry.address + maxEntry.length);
+    return static_cast<uint32_t>(maxEntry.address + maxEntry.length);*/
+    return 0;
 }
 
 Util::HeapMemoryManager& System::initializeKernelHeap() {
-    auto *blockMap = Multiboot::getBlockMap();
+    /*auto *blockMap = Multiboot::getBlockMap();
 
     for (uint32_t i = 0; blockMap[i].blockCount != 0; i++) {
         const auto &block = blockMap[i];
@@ -336,12 +337,12 @@ Util::HeapMemoryManager& System::initializeKernelHeap() {
             heapMemoryManager.initialize(reinterpret_cast<uint8_t*>(block.virtualStartAddress), reinterpret_cast<uint8_t*>(Kernel::MemoryLayout::KERNEL_HEAP_END_ADDRESS));
             return heapMemoryManager;
         }
-    }
+    }*/
 
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "No 4 MiB block available for bootstrapping the kernel heap memory manager!");
 }
 
-TaskStateSegment &System::getTaskStateSegment() {
+Device::GlobalDescriptorTable::TaskStateSegment &System::getTaskStateSegment() {
     return taskStateSegment;
 }
 

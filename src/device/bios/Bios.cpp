@@ -48,7 +48,8 @@ uint8_t Bios::get8BitRegister(uint16_t value, Bios::RegisterHalf half) {
 }
 
 bool Bios::isAvailable() {
-    return Kernel::Multiboot::hasKernelOption("bios") && Kernel::Multiboot::getKernelOption("bios") == "true" && !Kernel::System::getService<Kernel::InterruptService>().usesApic();
+    return false;
+    // return Kernel::Multiboot::hasKernelOption("bios") && Kernel::Multiboot::getKernelOption("bios") == "true" && !Kernel::System::getService<Kernel::InterruptService>().usesApic();
 }
 
 void Bios::init() {

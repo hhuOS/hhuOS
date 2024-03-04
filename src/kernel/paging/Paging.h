@@ -71,19 +71,6 @@ public:
      */
     ~Paging() = default;
 
-    /**
-    * Function to set up the 4MB page directories needed for bootstrapping and BIOS-calls.
-    * The parameters are assumed to point to physical addresses since paging is not enabled here.
-    * In the bootstrap-PD a first initial heap with 4MB and the first 4MB of PagingAreaMemory are mapped
-    * because they are needed to bootstrap the final 4KB-paging.
-    * Accordingly, until the 4KB paging with pagefault-handling is enabled, the heap should only be used
-    * for small allocations so that it does not exceed 4MB.
-    *
-    * @param directory Pointer to the bootstrapping 4MB page directory
-    * @param biosDirectory Pointer to the 4MB page directory only used for BIOS-calls
-    */
-    static void bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory);
-
     static constexpr uint32_t GET_PD_IDX(uint32_t x) {
         return x >> 22;
     }

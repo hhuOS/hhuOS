@@ -29,7 +29,7 @@
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/Constants.h"
 #include "kernel/paging/Paging.h"
-#include "kernel/system/TaskStateSegment.h"
+#include "device/cpu/GlobalDescriptorTable.h"
 #include "device/interrupt/apic/IoApic.h"
 #include "device/interrupt/apic/LocalApic.h"
 #include "device/interrupt/apic/LocalApicErrorHandler.h"
@@ -454,7 +454,7 @@ Cpu::Descriptor *Apic::allocateApplicationProcessorGdt() {
 
     auto *gdt = reinterpret_cast<uint16_t*>(memoryService.allocateLowerMemory(48));
 
-    const uint32_t tssSize = sizeof(Kernel::TaskStateSegment);
+    const uint32_t tssSize = sizeof(Device::GlobalDescriptorTable::TaskStateSegment);
     auto *tss = reinterpret_cast<void *>(memoryService.allocateLowerMemory(tssSize));
 
     // Zero everything

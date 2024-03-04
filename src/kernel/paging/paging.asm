@@ -19,42 +19,14 @@
 
 %include "constants.asm"
 
-global enable_bootstrap_paging
 global enable_system_paging
 global load_page_directory
 global bios_page_directory
-
-extern on_paging_enabled
-extern bootstrap_paging
 
 ; Calculate index to 4MB page where kernel should be placed
 KERNEL_PAGE equ (KERNEL_START >> 22)
 
 section .text
-
-; Set up first page table with 4MB pages to map kernel to higher half
-enable_bootstrap_paging:
-    push bios_page_directory - KERNEL_START
-    push bootstrap_page_directory - KERNEL_START
-    call bootstrap_paging
-
-    ; Load physical address of 4MB page directory into cr3
-    mov ecx, bootstrap_page_directory - KERNEL_START
-    mov cr3, ecx
-
-    ; Enable pse bit for 4MB paging
-    mov ecx, cr4
-    or  ecx, 0x00000010
-    mov cr4, ecx
-
-    ; Enable paging and page protection in cr0
-    mov ecx, cr0
-    or  ecx, 0x80010000
-    mov cr0, ecx
-
-    ; Jump back to boot sequence in boot.asm
-    lea ecx, [on_paging_enabled]
-    jmp ecx
 
 ; Switch from 4MB paging to 4KB paging
 enable_system_paging:

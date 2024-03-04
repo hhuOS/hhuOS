@@ -92,7 +92,7 @@ Util::Hardware::Acpi::Rsdp* Acpi::findRsdp(const void *multibootInfo) {
     Util::Hardware::Acpi::Rsdp *oldRsdp = nullptr;
     Util::Hardware::Acpi::Rsdp *newRsdp = nullptr;
 
-    auto currentAddress = reinterpret_cast<uint32_t>(multibootInfo) + sizeof(Kernel::Multiboot::Info);
+    auto currentAddress = reinterpret_cast<uint32_t>(multibootInfo) + sizeof(Kernel::Multiboot);
     auto *currentTag = reinterpret_cast<const Kernel::Multiboot::TagHeader*>(currentAddress);
     while (currentTag->type != Kernel::Multiboot::TERMINATE) {
         if (currentTag->type == Kernel::Multiboot::ACPI_OLD_RSDP) {
@@ -158,7 +158,7 @@ bool Acpi::checkSdt(Util::Hardware::Acpi::SdtHeader *sdtHeader) {
 }
 
 void Acpi::initialize() {
-    copyInformation = reinterpret_cast<const CopyInformation*>(&acpi_data);
+    /*copyInformation = reinterpret_cast<const CopyInformation*>(&acpi_data);
     if (copyInformation->success) {
         rsdp = reinterpret_cast<const Util::Hardware::Acpi::Rsdp*>(&acpi_data + sizeof(CopyInformation));
         tables = reinterpret_cast<const Util::Hardware::Acpi::SdtHeader**>(rsdp->rsdtAddress + sizeof(Util::Hardware::Acpi::SdtHeader));
@@ -167,7 +167,7 @@ void Acpi::initialize() {
         rsdp = nullptr;
         tables = nullptr;
         numTables = 0;
-    }
+    }*/
 }
 
 bool Acpi::isAvailable() {

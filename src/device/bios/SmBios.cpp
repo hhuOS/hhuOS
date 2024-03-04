@@ -82,10 +82,10 @@ void SmBios::copyTables(const void *multibootInfo, uint8_t *destination, uint32_
 }
 
 void SmBios::initialize() {
-    copyInformation = reinterpret_cast<const CopyInformation*>(&smbios_data);
+    /*copyInformation = reinterpret_cast<const CopyInformation*>(&smbios_data);
     if (copyInformation->success) {
         smBiosInformation = reinterpret_cast<const Info*>(&smbios_data + sizeof(CopyInformation));
-    }
+    }*/
 }
 
 bool SmBios::isAvailable() {
@@ -129,7 +129,7 @@ Util::Array<Util::Hardware::SmBios::HeaderType> SmBios::getAvailableTables() {
 }
 
 const Kernel::Multiboot::SmBiosTables* SmBios::findTables(const void *multibootInfo) {
-    auto currentAddress = reinterpret_cast<uint32_t>(multibootInfo) + sizeof(Kernel::Multiboot::Info);
+    auto currentAddress = reinterpret_cast<uint32_t>(multibootInfo) + sizeof(Kernel::Multiboot);
     auto *currentTag = reinterpret_cast<const Kernel::Multiboot::TagHeader*>(currentAddress);
     while (currentTag->type != Kernel::Multiboot::TERMINATE) {
         if (currentTag->type == Kernel::Multiboot::SMBIOS_TABLES) {
