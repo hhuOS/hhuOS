@@ -32,23 +32,40 @@ class Paging {
     
 public:
 
-    enum Flag : uint32_t {
-        NONE = 0x00,
-
+    enum Flags : uint32_t {
         // System defined flags
         PRESENT = 0x01,
-        READ_WRITE = 0x02,
-        USER_ACCESS = 0x04,
+        WRITABLE = 0x02,
+        USER_ACCESSIBLE = 0x04,
         WRITE_THROUGH = 0x08,
         CACHE_DISABLE = 0x10,
         ACCESSED = 0x20,
         DIRTY = 0x40,
-        PAGE_SIZE_MIB = 0x80,
+        HUGE_PAGE = 0x80,
         GLOBAL = 0x100,
 
         // User defined flags
         DO_NOT_UNMAP = 0x200
     };
+
+    struct Entry {
+        void set(uint32_t address, uint32_t flags);
+        uint32_t getAddress();
+        uint32_t getFlags();
+        bool isUnused();
+
+    private:
+        uint32_t flags : 12;
+        uint32_t address : 20;
+    } __attribute__ ((packed));
+
+    struct Table {
+        Entry& operator[] (uint32_t index);
+        void clear();
+
+    private:
+        Entry entries[1024];
+    } __attribute__ ((packed));
 
     /**
      * Default Constructor.
@@ -71,20 +88,14 @@ public:
      */
     ~Paging() = default;
 
-    static constexpr uint32_t GET_PD_IDX(uint32_t x) {
+    static void loadDirectory(const Table &directory);
+
+    static constexpr uint32_t DIRECTORY_INDEX(uint32_t x) {
         return x >> 22;
     }
 
-    static constexpr uint32_t GET_PT_IDX(uint32_t x) {
-        return (x >> 12) & 0x3FF;
-    }
-
-    static constexpr uint32_t GET_OFFSET(uint32_t x) {
-        return x & 0xFFF;
-    }
-
-    static constexpr uint32_t GET_FLAGS(uint32_t x) {
-        return 0xFFF;
+    static constexpr uint32_t TABLE_INDEX(uint32_t x) {
+        return (x >> 12) & 0x3ff;
     }
     
     // pagesize = 4KB

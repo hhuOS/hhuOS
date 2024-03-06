@@ -147,7 +147,7 @@ void MemoryService::createPageTable(PageDirectory *directory, uint32_t index) {
     uint32_t startAddress = index * Kernel::Paging::PAGESIZE * 1024;
     // Initialize the table in the page directory
     directory->createTable(index, reinterpret_cast<uint32_t>(physAddress),reinterpret_cast<uint32_t>(virtAddress),
-                           Paging::PRESENT | Paging::READ_WRITE | (startAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESS : 0));
+                           Paging::PRESENT | Paging::WRITABLE | (startAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESSIBLE : 0));
 }
 
 void Kernel::MemoryService::mapPhysicalAddress(uint32_t virtualAddress, uint32_t physicalAddress, uint16_t flags) {
@@ -256,7 +256,7 @@ void *Kernel::MemoryService::mapIO(uint32_t physicalAddress, uint32_t size, bool
         unmap(virtualAddress);
 
         // Map the page to the given physical address
-        mapPhysicalAddress(virtualAddress, physicalAddress + i * Kernel::Paging::PAGESIZE, Paging::PRESENT | Paging::READ_WRITE | Paging::CACHE_DISABLE | (virtualAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESS : 0));
+        mapPhysicalAddress(virtualAddress, physicalAddress + i * Kernel::Paging::PAGESIZE, Paging::PRESENT | Paging::WRITABLE | Paging::CACHE_DISABLE | (virtualAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESSIBLE : 0));
     }
 
     return virtualStartAddress;
@@ -302,8 +302,8 @@ void *MemoryService::mapIO(uint32_t size, bool mapToKernelHeap) {
         uint32_t physicalAddress = reinterpret_cast<uint32_t>(physicalStartAddress) + i * Kernel::Paging::PAGESIZE;
         unmap(virtualAddress);
         currentAddressSpace->getPageDirectory().map(physicalAddress, virtualAddress,
-                                                    Paging::PRESENT | Paging::READ_WRITE | Paging::CACHE_DISABLE |
-                                                    (virtualAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESS : 0));
+                                                    Paging::PRESENT | Paging::WRITABLE | Paging::CACHE_DISABLE |
+                                                    (virtualAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESSIBLE : 0));
     }
 
     return virtualStartAddress;
@@ -361,7 +361,7 @@ void MemoryService::trigger(const Kernel::InterruptFrame &frame) {
     }
 
     // Map the faulted Page
-    map(faultAddress, Paging::PRESENT | Paging::READ_WRITE | (faultAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESS : 0), true);
+    map(faultAddress, Paging::PRESENT | Paging::WRITABLE | (faultAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESSIBLE : 0), true);
     // TODO: Check other Faults
 }
 

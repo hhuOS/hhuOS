@@ -21,6 +21,8 @@
 #include "device/cpu/GlobalDescriptorTable.h"
 #include "lib/util/base/FreeListMemoryManager.h"
 #include "kernel/multiboot/Multiboot.h"
+#include "kernel/paging/Paging.h"
+#include "kernel/memory/PagingAreaManager.h"
 
 namespace Kernel {
 class Logger;
@@ -59,6 +61,8 @@ public:
      * This method is invoked by the main() method, after boot strapping process is finished an paging is initializeAvailableControllers.
      */
     [[noreturn]] static void enter(uint32_t multibootMagic, const Kernel::Multiboot &multiboot);
+
+    static uint32_t createInitialMapping(Kernel::Paging::Table &pageDirectory, Kernel::Paging::Table *pageTableMemory, uint32_t physicalStartAddress, uint32_t virtualStartAddress, uint32_t pageCount);
 
     static Util::HeapMemoryManager& getKernelHeap();
 

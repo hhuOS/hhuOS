@@ -7,6 +7,10 @@ cleanup_and_exit() {
 
   rm -f edk2-ovmf.pkg.tar.zst
   rm -f edk2-ovmf.pkg.tar
+  rm -f .BUILDINFO
+  rm -f .INSTALL
+  rm -f .MTREE
+  rm -f .PKGINFO
   rm -rf usr/
 
   exit $exit_code

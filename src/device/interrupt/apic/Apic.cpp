@@ -420,7 +420,7 @@ void Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
 
     // Identity map the allocated physical memory to the kernel address space (So addresses don't change after enabling paging)
     auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    memoryService.mapPhysicalAddress(Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress, Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress, Kernel::Paging::PRESENT | Kernel::Paging::READ_WRITE);
+    memoryService.mapPhysicalAddress(Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress, Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
 
     // Copy the startup routine and prepared variables to the identity mapped page
     const auto startupCode = Util::Address<uint32_t>(reinterpret_cast<uint32_t>(&boot_ap));

@@ -91,8 +91,9 @@ public:
     static const constexpr MemoryArea APPLICATION_PROCESSOR_STARTUP_CODE = { 0x00001000, 0x00001fff, MemoryArea::PHYSICAL };
 
     static const constexpr MemoryArea USABLE_LOWER_MEMORY = { 0x00002000, 0x0007ffff, MemoryArea::PHYSICAL };
-    
+
     // start of virtual area for page tables and directories (128 MB)
+    static const constexpr uint32_t PAGING_AREA_SIZE = 16 * 1024 * 1024;
     static const constexpr MemoryArea PAGING_AREA = { 0xf8000000, MEMORY_END, MemoryArea::VIRTUAL };
     // end of virtual kernel memory for heap
     static const constexpr uint32_t KERNEL_HEAP_END_ADDRESS = 0x80000000;

@@ -38,7 +38,7 @@ public:
     /**
      * Constructor.
      */
-    PagingAreaManager();
+    PagingAreaManager(uint8_t *startAddress, uint32_t mappedPages, uint32_t bootstrapPageCount);
 
     /**
      * Copy Constructor.

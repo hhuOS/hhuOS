@@ -22,12 +22,12 @@
 
 namespace Kernel {
 
-PagingAreaManager::PagingAreaManager() :
-        BitmapMemoryManager(reinterpret_cast<uint8_t*>(MemoryLayout::PAGING_AREA.startAddress), reinterpret_cast<uint8_t*>(MemoryLayout::PAGING_AREA.endAddress), Kernel::Paging::PAGESIZE, true),
-        blockPool(BLOCK_POOL_SIZE) {
-    // We use already 256 Page Tables for Kernel mappings and one Page Directory as the Kernel´s PD
-    setRange(0, 8 * 32 + 2);
-    refillPool();
+PagingAreaManager::PagingAreaManager(uint8_t *startAddress, uint32_t mappedPages, uint32_t bootstrapPageCount) : BitmapMemoryManager(startAddress, startAddress + MemoryLayout::PAGING_AREA_SIZE, Paging::PAGESIZE, true), blockPool(BLOCK_POOL_SIZE) {
+    setRange(0, bootstrapPageCount);
+    for (uint32_t i = 0; i < mappedPages - bootstrapPageCount; i++) {
+        void *block = BitmapMemoryManager::allocateBlock();
+        blockPool.push(block);
+    }
 }
 
 void PagingAreaManager::handleError() {

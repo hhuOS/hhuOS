@@ -21,4 +21,38 @@
 
 namespace Kernel {
 
+void Paging::Table::clear() {
+    Util::Address<uint32_t>(this).setRange(0, sizeof(Paging::Table));
+}
+
+Paging::Entry &Paging::Table::operator[](uint32_t index) {
+    return entries[index];
+}
+
+bool Paging::Entry::isUnused() {
+    return address == 0 && flags == 0;
+}
+
+void Paging::Entry::set(uint32_t address, uint32_t flags) {
+    this->flags = flags;
+    this->address = address >> 12;
+}
+
+uint32_t Paging::Entry::getAddress() {
+    return address << 12;
+}
+
+uint32_t Paging::Entry::getFlags() {
+    return flags;
+}
+
+void Paging::loadDirectory(const Paging::Table &directory) {
+    asm volatile(
+            "mov %0, %%cr3"
+            : :
+            "r"(&directory)
+            :
+            );
+}
+
 }

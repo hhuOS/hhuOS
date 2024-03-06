@@ -98,11 +98,11 @@ bool Fpu::isAvailable() {
     }
 
     auto cr0 = Cpu::readCr0();
-    if (cr0.contains(Cpu::X87_FPU_EMULATION)) {
+    if (cr0 & Cpu::X87_FPU_EMULATION) {
         return false;
     }
 
-    if (!cr0.contains(Cpu::EXTENSION_TYPE)) {
+    if (!(cr0 & Cpu::EXTENSION_TYPE)) {
         return false;
     }
 

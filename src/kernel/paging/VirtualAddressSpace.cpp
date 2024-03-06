@@ -28,22 +28,20 @@ class HeapMemoryManager;
 
 namespace Kernel {
 
-VirtualAddressSpace::VirtualAddressSpace(Util::HeapMemoryManager &kernelHeapMemoryManager) : memoryManager(&kernelHeapMemoryManager), kernelAddressSpace(true) {
-    this->pageDirectory = new PageDirectory();
-}
+VirtualAddressSpace::VirtualAddressSpace(Paging::Table &pageDirectory, Util::HeapMemoryManager &kernelHeapMemoryManager) : pageDirectory(&pageDirectory), memoryManager(&kernelHeapMemoryManager), kernelAddressSpace(true) {}
 
-VirtualAddressSpace::VirtualAddressSpace(PageDirectory &basePageDirectory) :
-        memoryManager(reinterpret_cast<Util::FreeListMemoryManager*>(Util::USER_SPACE_MEMORY_MANAGER_ADDRESS)), kernelAddressSpace(false) {
-    // Initialize a new memory abstraction through paging
-    this->pageDirectory = new PageDirectory(basePageDirectory);
+VirtualAddressSpace::VirtualAddressSpace(PageDirectory &basePageDirectory) : memoryManager(reinterpret_cast<Util::FreeListMemoryManager*>(Util::USER_SPACE_MEMORY_MANAGER_ADDRESS)), kernelAddressSpace(false) {
+    this->oldPageDirectory = new PageDirectory(basePageDirectory);
 }
 
 VirtualAddressSpace::~VirtualAddressSpace() {
-    delete pageDirectory;
+    if (!kernelAddressSpace) {
+        delete oldPageDirectory;
+    }
 }
 
 PageDirectory &VirtualAddressSpace::getPageDirectory() const {
-    return *pageDirectory;
+    return *oldPageDirectory;
 }
 
 Util::HeapMemoryManager &VirtualAddressSpace::getMemoryManager() const {

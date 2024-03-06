@@ -18,6 +18,8 @@
 #ifndef __VIRTUALADDRESSSPACE__
 #define __VIRTUALADDRESSSPACE__
 
+#include "Paging.h"
+
 namespace Util {
 
 class HeapMemoryManager;
@@ -40,7 +42,7 @@ public:
     /**
      * Constructor for the kernel address space.
      */
-    explicit VirtualAddressSpace(Util::HeapMemoryManager &kernelHeapMemoryManager);
+    explicit VirtualAddressSpace(Paging::Table &pageDirectory, Util::HeapMemoryManager &kernelHeapMemoryManager);
 
     /**
      * Constructor for user address space.
@@ -66,7 +68,8 @@ public:
 
 private:
 
-    PageDirectory *pageDirectory;
+    Paging::Table *pageDirectory;
+    PageDirectory *oldPageDirectory;
     Util::HeapMemoryManager *memoryManager;
 
     bool kernelAddressSpace;

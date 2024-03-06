@@ -48,7 +48,7 @@ PageDirectory::PageDirectory() {
     // Zero memory for PageTables and PageDirectories
     Util::Address<uint32_t>(MemoryLayout::PAGING_AREA.startAddress).setRange(0, Paging::PAGESIZE * 258);
     // Base page directory is located at VIRT_PAGE_MEM_START + 1MB, because the first 1MB is used for all Kernel page tables (mapping the kernel)
-    pageDirectory = reinterpret_cast<uint32_t*>(MemoryLayout::PAGING_AREA.startAddress + 256 * Paging::PAGESIZE);
+    oldPageDirectory = reinterpret_cast<uint32_t*>(MemoryLayout::PAGING_AREA.startAddress + 256 * Paging::PAGESIZE);
 
     // Calculate the physical address of the first page directory (reserve 1 MiB for kernel page tables)
     pageDirectoryPhysicalAddress = reinterpret_cast<uint32_t*>(physPagingAreaStart + 256 * Paging::PAGESIZE);
@@ -58,7 +58,7 @@ PageDirectory::PageDirectory() {
     uint32_t startIndex = MemoryLayout::KERNEL_START / (Paging::PAGESIZE * 1024);
     for (uint32_t i = 0; i < 256; i++) {
         // Pointer to the corresponding page table (physical address) - placed right after physical addresses of the initial heap
-        pageDirectory[startIndex + i] = (physPagingAreaStart + i * Paging::PAGESIZE) | Paging::PRESENT | Paging::READ_WRITE;
+        oldPageDirectory[startIndex + i] = (physPagingAreaStart + i * Paging::PAGESIZE) | Paging::PRESENT | Paging::WRITABLE;
         // Pointer to corresponding page table (virtual address) - placed at the beginning of PagingAreaMemory
         virtualTableAddresses[startIndex + i] = MemoryLayout::PAGING_AREA.startAddress + i * Paging::PAGESIZE;
     }
@@ -74,11 +74,11 @@ PageDirectory::PageDirectory() {
         // which leads to virtTableAddresses[0] = 0. This would overwrite the BIOS interrupt vector table and destroy BIOS calls!
         // Blocks with initialMap = false should not been mapped right now, but rather be manually mapped into the kernel heap later on.
         for (uint32_t j = 0; j < block.blockCount * 1024; j++) {
-            uint16_t pageDirectoryIndex = Paging::GET_PD_IDX((block.virtualStartAddress + j * Paging::PAGESIZE));
-            uint16_t pageTableIndex = Paging::GET_PT_IDX((block.virtualStartAddress + j * Paging::PAGESIZE));
+            uint16_t pageDirectoryIndex = Paging::DIRECTORY_INDEX((block.virtualStartAddress + j * Paging::PAGESIZE));
+            uint16_t pageTableIndex = Paging::TABLE_INDEX((block.virtualStartAddress + j * Paging::PAGESIZE));
 
             *(reinterpret_cast<uint32_t*>(virtualTableAddresses[pageDirectoryIndex]) + pageTableIndex) =
-                    (block.startAddress + j * Paging::PAGESIZE) | Paging::PRESENT | Paging::READ_WRITE;
+                    (block.startAddress + j * Paging::PAGESIZE) | Paging::PRESENT | Paging::WRITABLE;
         }
     }
 
@@ -147,8 +147,8 @@ void PageDirectory::map(uint32_t physicalAddress, uint32_t virtualAddress, uint1
     auto &memoryService = System::getService<Kernel::MemoryService>();
 
     // Calculate indices into page table and directory
-    uint32_t pageDirectoryIndex = Paging::GET_PD_IDX(virtualAddress);
-    uint32_t pageTableIndex = Paging::GET_PT_IDX(virtualAddress);
+    uint32_t pageDirectoryIndex = Paging::DIRECTORY_INDEX(virtualAddress);
+    uint32_t pageTableIndex = Paging::TABLE_INDEX(virtualAddress);
 
     // Get lock for page table
     auto lock = lockArray.access(pageDirectoryIndex);
@@ -183,8 +183,8 @@ void PageDirectory::map(uint32_t physicalAddress, uint32_t virtualAddress, uint1
 
 uint32_t PageDirectory::unmap(uint32_t virtualAddress) {
     // Get indices into page table and directory
-    uint32_t pageDirectoryIndex = Paging::GET_PD_IDX(virtualAddress);
-    uint32_t pageTableIndex = Paging::GET_PT_IDX(virtualAddress);
+    uint32_t pageDirectoryIndex = Paging::DIRECTORY_INDEX(virtualAddress);
+    uint32_t pageTableIndex = Paging::TABLE_INDEX(virtualAddress);
 
     // Get lock for current CPU
     auto lock = lockArray.access(pageDirectoryIndex);
@@ -230,8 +230,8 @@ void PageDirectory::createTable(uint32_t index, uint32_t physicalAddress, uint32
 
 void *PageDirectory::getPhysicalAddress(void *virtualAddress) {
     // Get indices into page table and directory
-    uint32_t pageDirectoryIndex = Paging::GET_PD_IDX((uint32_t) virtualAddress);
-    uint32_t pageTableIndex = Paging::GET_PT_IDX((uint32_t) virtualAddress);
+    uint32_t pageDirectoryIndex = Paging::DIRECTORY_INDEX((uint32_t) virtualAddress);
+    uint32_t pageTableIndex = Paging::TABLE_INDEX((uint32_t) virtualAddress);
 
     // Get lock for current CPU
     auto lock = lockArray.access(pageDirectoryIndex);
@@ -264,8 +264,8 @@ void PageDirectory::setPageFlags(uint32_t virtualStartAddress, uint32_t flags) {
     uint32_t alignedAddress = virtualStartAddress & 0xFFFFF000;
 
     // Get indices into page table and directory
-    uint32_t pageDirectoryIndex = Paging::GET_PD_IDX(alignedAddress);
-    uint32_t pageTableIndex = Paging::GET_PT_IDX(alignedAddress);
+    uint32_t pageDirectoryIndex = Paging::DIRECTORY_INDEX(alignedAddress);
+    uint32_t pageTableIndex = Paging::TABLE_INDEX(alignedAddress);
 
     auto lock = lockArray.access(pageDirectoryIndex);
     while (!lock.compareAndSet(lockFree, System::getService<InterruptService>().getCpuId())) {
@@ -307,8 +307,8 @@ void PageDirectory::unsetPageFlags(uint32_t virtualAddress, uint32_t flags) {
     uint32_t vaddr = virtualAddress & 0xFFFFF000;
 
     // Get indices into page table and directory
-    uint32_t pageDirectoryIndex = Paging::GET_PD_IDX(vaddr);
-    uint32_t pageTableIndex = Paging::GET_PT_IDX(vaddr);
+    uint32_t pageDirectoryIndex = Paging::DIRECTORY_INDEX(vaddr);
+    uint32_t pageTableIndex = Paging::TABLE_INDEX(vaddr);
 
     auto lock = lockArray.access(pageDirectoryIndex);
     while (!lock.compareAndSet(lockFree, System::getService<InterruptService>().getCpuId())) {

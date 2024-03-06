@@ -79,14 +79,14 @@ void System::initializeSystem() {
     uint32_t physicalMemorySize = calculatePhysicalMemorySize();
 
     // Initialize Paging Area Manager -> Manages the virtual addresses of all page tables and directories
-    auto *pagingAreaManager = new PagingAreaManager();
+    auto *pagingAreaManager = new PagingAreaManager(nullptr, 0, 0);
 
     // Physical Page Frame Allocator is initialized to be possible to allocate physical memory (page frames)
     auto *pageFrameAllocator = new PageFrameAllocator(*pagingAreaManager, nullptr, reinterpret_cast<uint8_t*>(physicalMemorySize - 1));
 
     // To be able to map new pages, a bootstrap address space is created.
     // It uses only the basePageDirectory with mapping for kernel space.
-    auto *kernelAddressSpace = new VirtualAddressSpace(*kernelHeapMemoryManager);
+    auto *kernelAddressSpace = reinterpret_cast<VirtualAddressSpace*>(0);
 
     // Create memory and interrupt services, so that the memory service can handle page faults
     auto *memoryService = new MemoryService(pageFrameAllocator, pagingAreaManager, kernelAddressSpace);
@@ -176,7 +176,7 @@ void System::initializeSystem() {
 
     // Protect kernel code
     /*if (!Multiboot::hasKernelOption("debug_port")) {
-        kernelAddressSpace->getPageDirectory().unsetPageFlags(___WRITE_PROTECTED_START__, ___WRITE_PROTECTED_END__, Paging::READ_WRITE);
+        kernelAddressSpace->getPageDirectory().unsetPageFlags(___WRITE_PROTECTED_START__, ___WRITE_PROTECTED_END__, Paging::WRITABLE);
     }*/
 }
 

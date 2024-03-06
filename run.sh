@@ -237,7 +237,7 @@ if [ "${QEMU_BOOT_DEVICE}" == "" ]; then
   exit 1
 fi
 
-#get_ovmf
+get_ovmf
 
 QEMU_ARGS="${QEMU_ARGS}"
 set_audio_parameters

@@ -112,7 +112,9 @@ public:
      */
     static void disableInterrupts();
 
-    static Util::Array<Configuration0> readCr0();
+    static uint32_t readCr0();
+
+    static void writeCr0(uint32_t value);
 
     /**
      * Stop the processor via hlt instruction.

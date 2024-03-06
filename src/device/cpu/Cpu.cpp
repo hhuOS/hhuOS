@@ -89,26 +89,18 @@ const char* Cpu::getExceptionName(uint32_t exception) {
     return hardwareExceptions[exception];
 }
 
-Util::Array<Cpu::Configuration0> Cpu::readCr0() {
-    auto cr0 = Util::ArrayList<Configuration0>();
-    uint32_t cr0Bits = 0;
+uint32_t Cpu::readCr0() {
+    uint32_t cr0 = 0;
     asm volatile (
             "mov %%cr0, %%eax;"
             "mov %%eax, (%0);"
             : :
-            "r"(&cr0Bits)
+            "r"(&cr0)
             :
             "eax"
             );
 
-    uint32_t i;
-    for (i = 1; i <= Configuration0::CACHE_DISABLE; i *= 2) {
-        if ((cr0Bits & i) != 0) {
-            cr0.add(static_cast<Configuration0>(i));
-        }
-    }
-
-    return cr0.toArray();
+    return cr0;
 }
 
 void Cpu::setSegmentRegister(SegmentRegister reg, const SegmentSelector &selector) {
@@ -161,15 +153,20 @@ void Cpu::setSegmentRegister(SegmentRegister reg, const SegmentSelector &selecto
     }
 }
 
+void Cpu::writeCr0(uint32_t value) {
+    asm volatile(
+            "mov %0, %%cr0"
+            : :
+            "r"(value)
+            :
+            );
+}
+
 Cpu::SegmentSelector::SegmentSelector(Cpu::PrivilegeLevel privilegeLevel, uint8_t index) :
-    privilegeLevel(privilegeLevel),
-    type(0),
-    index(index) {}
+    privilegeLevel(privilegeLevel), type(0), index(index) {}
 
 Cpu::SegmentSelector::operator uint16_t() const {
-    return privilegeLevel |
-        type << 2 |
-        index << 3;
+    return privilegeLevel | type << 2 | index << 3;
 }
 
 }
