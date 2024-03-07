@@ -5,5 +5,5 @@ log_level = "info"
 [entries]
   [entries.hhuOS]
     name = "hhuOS"
-    image = "\\hhuOS.bin"
+    image = "\\kernel.elf"
     argv = "log_level=inf log_ports=COM1 root=ide1p0,Filesystem::Fat::FatDriver"

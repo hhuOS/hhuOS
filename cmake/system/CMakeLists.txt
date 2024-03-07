@@ -26,8 +26,7 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/boot.asm
         ${HHUOS_SRC_DIR}/BuildConfig.cpp
         ${HHUOS_SRC_DIR}/GatesOfHell.cpp
-        ${HHUOS_SRC_DIR}/asm_interface.cpp
-        ${HHUOS_SRC_DIR}/constants.asm)
+        ${HHUOS_SRC_DIR}/asm_interface.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 

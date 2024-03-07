@@ -21,14 +21,14 @@ message(STATUS "Project " ${PROJECT_NAME})
 
 add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS-towboot.img"
         WORKING_DIRECTORY "${HHUOS_ROOT_DIR}/loader/towboot/"
-        COMMAND /bin/cp "$<TARGET_FILE:system>" "${HHUOS_ROOT_DIR}/loader/towboot/hhuOS.bin"
+        COMMAND /bin/cp "$<TARGET_FILE:system>" "${HHUOS_ROOT_DIR}/loader/towboot/kernel.elf"
         COMMAND "${HHUOS_ROOT_DIR}/loader/towboot/build.sh"
         COMMAND /bin/mv "${HHUOS_ROOT_DIR}/loader/towboot/hhuOS-towboot.img" "${HHUOS_ROOT_DIR}"
         DEPENDS system floppy0 hdd0)
 
 add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS-towboot-vdd.img"
         WORKING_DIRECTORY "${HHUOS_ROOT_DIR}/loader/towboot/"
-        COMMAND /bin/cp "$<TARGET_FILE:system>" "${HHUOS_ROOT_DIR}/loader/towboot/hhuOS.bin"
+        COMMAND /bin/cp "$<TARGET_FILE:system>" "${HHUOS_ROOT_DIR}/loader/towboot/kernel.elf"
         COMMAND "${HHUOS_ROOT_DIR}/loader/towboot/build.sh" "--with-virtual-hdd"
         COMMAND /bin/mv "${HHUOS_ROOT_DIR}/loader/towboot/hhuOS-towboot.img" "${HHUOS_ROOT_DIR}/hhuOS-towboot-vdd.img"
         DEPENDS system floppy0 hdd0)

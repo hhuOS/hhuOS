@@ -35,7 +35,7 @@ class IdeDevice;
 }  // namespace Device
 namespace Kernel {
 class Logger;
-struct InterruptFrame;
+struct InterruptFrameOld;
 }  // namespace Kernel
 
 namespace Device::Storage {
@@ -67,7 +67,7 @@ public:
 
     void plugin() override;
 
-    void trigger(const Kernel::InterruptFrame &frame) override;
+    void trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) override;
 
 private:
 

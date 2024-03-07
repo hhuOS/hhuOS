@@ -20,6 +20,7 @@
 #include "Cpu.h"
 #include "lib/util/async/Atomic.h"
 #include "lib/util/collection/ArrayList.h"
+#include "kernel/service/InterruptService.h"
 
 namespace Device {
 
@@ -78,7 +79,7 @@ void Cpu::halt() {
 void Cpu::throwException(Util::Exception::Error error, const char *message) {
     disableInterrupts();
     Util::System::errorMessage = message;
-    on_exception((uint32_t) error);
+    Kernel::Service::getService<Kernel::InterruptService>().handleException(Kernel::InterruptFrame{}, 0,static_cast<Kernel::InterruptVector>(error));
 }
 
 const char* Cpu::getExceptionName(uint32_t exception) {
@@ -87,20 +88,6 @@ const char* Cpu::getExceptionName(uint32_t exception) {
     }
 
     return hardwareExceptions[exception];
-}
-
-uint32_t Cpu::readCr0() {
-    uint32_t cr0 = 0;
-    asm volatile (
-            "mov %%cr0, %%eax;"
-            "mov %%eax, (%0);"
-            : :
-            "r"(&cr0)
-            :
-            "eax"
-            );
-
-    return cr0;
 }
 
 void Cpu::setSegmentRegister(SegmentRegister reg, const SegmentSelector &selector) {
@@ -153,6 +140,20 @@ void Cpu::setSegmentRegister(SegmentRegister reg, const SegmentSelector &selecto
     }
 }
 
+uint32_t Cpu::readCr0() {
+    uint32_t cr0 = 0;
+    asm volatile (
+            "mov %%cr0, %%eax;"
+            "mov %%eax, (%0);"
+            : :
+            "r"(&cr0)
+            :
+            "eax"
+            );
+
+    return cr0;
+}
+
 void Cpu::writeCr0(uint32_t value) {
     asm volatile(
             "mov %0, %%cr0"
@@ -160,6 +161,20 @@ void Cpu::writeCr0(uint32_t value) {
             "r"(value)
             :
             );
+}
+
+uint32_t Cpu::readCr2() {
+    uint32_t cr2 = 0;
+    asm volatile (
+            "mov %%cr0, %%eax;"
+            "mov %%eax, (%0);"
+            : :
+            "r"(&cr2)
+            :
+            "eax"
+            );
+
+    return cr2;
 }
 
 Cpu::SegmentSelector::SegmentSelector(Cpu::PrivilegeLevel privilegeLevel, uint8_t index) :

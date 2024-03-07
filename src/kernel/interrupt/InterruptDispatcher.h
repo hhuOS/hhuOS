@@ -19,6 +19,9 @@
 #define __InterruptDispatcher_include__
 
 #include <cstdint>
+#include "InterruptFrame.h"
+#include "InterruptHandler.h"
+#include "InterruptVector.h"
 
 namespace Util {
 
@@ -27,9 +30,6 @@ template <typename T> class List;
 }  // namespace Util
 
 namespace Kernel {
-class InterruptHandler;
-struct InterruptFrame;
-enum InterruptVector : uint8_t;
 
 /**
  * InterruptDispatcher - responsible for registering and dispatching interrupts to the
@@ -60,13 +60,18 @@ public:
      * @param isr Pointer to the handler itself
      */
     void assign(uint8_t slot, InterruptHandler &isr);
+    
+#pragma GCC push_options
+#pragma GCC target("general-regs-only")
 
     /**
      * Dispatched the interrupt to all registered interrupt handlers.
      *
      * @param frame The interrupt frame
      */
-    void dispatch(const InterruptFrame &frame);
+    void dispatch(const InterruptFrame &frame, InterruptVector vector);
+
+#pragma GCC pop_options
 
 private:
 

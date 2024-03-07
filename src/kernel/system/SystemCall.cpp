@@ -38,13 +38,13 @@ void SystemCall::plugin() {
     Kernel::System::getService<Kernel::InterruptService>().assignInterrupt(Kernel::InterruptVector::SYSTEM_CALL, *this);
 }
 
-void SystemCall::trigger(const Kernel::InterruptFrame &frame) {
-    uint16_t code = frame.eax & 0x000000ff;
+void SystemCall::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
+    /*uint16_t code = frame.eax & 0x000000ff;
     uint16_t paramCount = frame.eax >> 8;
     auto params = reinterpret_cast<va_list>(frame.ebx);
     auto &result = *reinterpret_cast<bool*>(frame.ecx);
 
-    result = systemCalls[code](paramCount, params);
+    result = systemCalls[code](paramCount, params);*/
 }
 
 }

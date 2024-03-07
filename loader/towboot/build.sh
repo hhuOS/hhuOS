@@ -24,7 +24,7 @@ else
   INCLUDE_HDD="false"
 fi
 
-FILE_LIST=("towboot-ia32.efi" "towboot-x64.efi" "hhuOS.bin" "towboot.toml")
+FILE_LIST=("towboot-ia32.efi" "towboot-x64.efi" "kernel.elf" "towboot.toml")
 if [[ "${INCLUDE_HDD}" = "true" ]]; then
   FILE_LIST+=("../../hdd0.img")
 fi
@@ -37,7 +37,7 @@ if [[ ! -f "towboot-ia32.efi" || ! -f "towboot-x64.efi" ]]; then
 fi
 
 SIZE=0;
-for file in ${FILE_LIST[@]}; do
+for file in "${FILE_LIST[@]}"; do
   SIZE=$(($SIZE + $(wc -c ${file} | cut -d ' ' -f 1)))
 done
 
@@ -48,7 +48,7 @@ mmd -i part.img efi || exit 1
 mmd -i part.img efi/boot || exit 1
 mcopy -i part.img towboot-ia32.efi ::efi/boot/bootia32.efi || exit 1
 mcopy -i part.img towboot-x64.efi ::efi/boot/bootx64.efi || exit 1
-mcopy -i part.img hhuOS.bin :: || exit 1
+mcopy -i part.img kernel.elf :: || exit 1
 
 if [[ "${INCLUDE_HDD}" = "true" ]]; then
   mcopy -i part.img towboot_vdd.toml ::towboot.toml || exit 1

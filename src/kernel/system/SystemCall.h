@@ -25,7 +25,7 @@
 #include "lib/util/base/System.h"
 
 namespace Kernel {
-struct InterruptFrame;
+struct InterruptFrameOld;
 
 class SystemCall : public Kernel::InterruptHandler {
 
@@ -54,7 +54,7 @@ public:
 
     void plugin() override;
 
-    void trigger(const Kernel::InterruptFrame &frame) override;
+    void trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) override;
 
 private:
 

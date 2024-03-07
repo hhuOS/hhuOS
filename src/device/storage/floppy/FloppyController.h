@@ -21,13 +21,13 @@
 #include <cstdint>
 
 #include "device/cpu/IoPort.h"
-#include "device/isa/Isa.h"
+#include "device/bus/isa/Isa.h"
 #include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/async/Spinlock.h"
 
 namespace Kernel {
 class Logger;
-struct InterruptFrame;
+struct InterruptFrameOld;
 }  // namespace Kernel
 
 namespace Device::Storage {
@@ -146,7 +146,7 @@ public:
     /**
      * Overriding function from InterruptDispatcher.
      */
-    void trigger(const Kernel::InterruptFrame &frame) override;
+    void trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) override;
 
     static const constexpr uint32_t SECTOR_SIZE = 512;
 

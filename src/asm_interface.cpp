@@ -23,12 +23,12 @@
 #include "kernel/service/InterruptService.h"
 #include "device/cpu/Cpu.h"
 #include "GatesOfHell.h"
-#include "device/power/acpi/Acpi.h"
+#include "device/system/Acpi.h"
 #include "kernel/log/Logger.h"
 #include "kernel/process/ThreadState.h"
 #include "kernel/service/SchedulerService.h"
-#include "device/cpu/GlobalDescriptorTable.h"
-#include "device/bios/SmBios.h"
+#include "kernel/memory/GlobalDescriptorTable.h"
+#include "device/system/SmBios.h"
 
 // Import functions
 extern "C" {
@@ -42,7 +42,7 @@ void init_gdt(uint16_t*, uint16_t*, uint16_t*, uint16_t*, uint16_t*);
 void bootstrap_paging(uint32_t*, uint32_t*);
 void enable_interrupts();
 void disable_interrupts();
-void dispatch_interrupt(Kernel::InterruptFrame*);
+void dispatch_interrupt(Kernel::InterruptFrameOld*);
 void set_tss_stack_entry(uint32_t);
 void flush_tss();
 void set_scheduler_init();
@@ -67,16 +67,16 @@ void disable_interrupts() {
     Device::Cpu::disableInterrupts();
 }
 
-void dispatch_interrupt(Kernel::InterruptFrame *frame) {
-    if (Kernel::System::isInitialized()) {
+void dispatch_interrupt(Kernel::InterruptFrameOld *frame) {
+    /*if (Kernel::System::isInitialized()) {
         Kernel::System::getService<Kernel::InterruptService>().dispatchInterrupt(*frame);
     } else {
         Kernel::System::handleEarlyInterrupt(*frame);
-    }
+    }*/
 }
 
 void set_tss_stack_entry(uint32_t esp0) {
-    Kernel::System::getTaskStateSegment().esp0 = esp0 + sizeof(Kernel::InterruptFrame);
+    Kernel::System::getTaskStateSegment().esp0 = esp0 + sizeof(Kernel::InterruptFrameOld);
     Kernel::System::getTaskStateSegment().ss0 = 0x10;
 }
 

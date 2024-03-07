@@ -29,7 +29,7 @@
 #include "kernel/interrupt/InterruptVector.h"
 
 namespace Kernel {
-struct InterruptFrame;
+struct InterruptFrameOld;
 }  // namespace Kernel
 
 namespace Device {
@@ -163,7 +163,7 @@ void Keyboard::plugin() {
     interruptService.allowHardwareInterrupt(Device::InterruptRequest::KEYBOARD);
 }
 
-void Keyboard::trigger(const Kernel::InterruptFrame &frame) {
+void Keyboard::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
     uint8_t control = controller.readControlByte();
     if (!(control & 0x01) || (control & 0x20)) {
         return;

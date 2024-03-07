@@ -18,8 +18,8 @@
 #include "lib/util/base/Address.h"
 #include "asm_interface.h"
 #include "device/cpu/Cpu.h"
-#include "device/time/Rtc.h"
-#include "device/time/Pit.h"
+#include "device/time/rtc/Rtc.h"
+#include "device/time/pit/Pit.h"
 #include "kernel/paging/MemoryLayout.h"
 #include "kernel/service/TimeService.h"
 #include "kernel/memory/PagingAreaManagerRefillRunnable.h"
@@ -30,7 +30,7 @@
 #include "kernel/service/InterruptService.h"
 #include "kernel/service/ProcessService.h"
 #include "BlueScreen.h"
-#include "device/power/acpi/Acpi.h"
+#include "device/system/Acpi.h"
 #include "kernel/interrupt/InterruptHandler.h"
 #include "kernel/interrupt/InterruptVector.h"
 #include "kernel/log/Logger.h"
@@ -49,9 +49,9 @@
 #include "lib/util/base/FreeListMemoryManager.h"
 #include "lib/util/base/HeapMemoryManager.h"
 #include "device/interrupt/apic/Apic.h"
-#include "device/bios/SmBios.h"
+#include "device/system/SmBios.h"
 #include "device/port/serial/SerialPort.h"
-#include "device/cpu/GlobalDescriptorTable.h"
+#include "kernel/memory/GlobalDescriptorTable.h"
 
 namespace Kernel {
 class Service;
@@ -61,7 +61,7 @@ Util::Async::Spinlock System::serviceLock;
 Service* System::serviceMap[256]{};
 Util::HeapMemoryManager *System::kernelHeapMemoryManager{};
 InterruptHandler *System::pagefaultHandler{};
-Device::GlobalDescriptorTable::TaskStateSegment System::taskStateSegment{};
+Kernel::GlobalDescriptorTable::TaskStateSegment System::taskStateSegment{};
 SystemCall System::systemCall{};
 Logger System::log = Logger::get("System");
 
@@ -91,19 +91,16 @@ void System::initializeSystem() {
     // Create memory and interrupt services, so that the memory service can handle page faults
     auto *memoryService = new MemoryService(pageFrameAllocator, pagingAreaManager, kernelAddressSpace);
     memoryService->switchAddressSpace(*kernelAddressSpace);
-    pagefaultHandler = memoryService;
+    /*pagefaultHandler = memoryService;
 
     // Initialize global objects afterwards, because now missing pages can be mapped
     // _init();
 
     // Register services after _init(), since the static objects serviceMap and serviceLock have now been initialized
     registerService(MemoryService::SERVICE_ID, memoryService);
-    log.info("Welcome to hhuOS!");
-    log.info("Memory management has been initialized");
 
-    auto *interruptService = new InterruptService();
-    registerService(InterruptService::SERVICE_ID, interruptService);
-    memoryService->plugin();
+    // registerService(InterruptService::SERVICE_ID, interruptService);
+    memoryService->plugin();*/
 
     if (Device::Apic::isAvailable()) {
         log.info("APIC detected");
@@ -111,7 +108,7 @@ void System::initializeSystem() {
         if (apic == nullptr) {
             log.warn("Failed to initialize APIC -> Falling back to PIC");
         } else {
-            interruptService->useApic(apic);
+            // interruptService->useApic(apic);
         }
 
         if (apic != nullptr && apic->isSymmetricMultiprocessingSupported()) {
@@ -210,12 +207,6 @@ bool System::isServiceRegistered(uint32_t serviceId) {
     return serviceMap[serviceId] != nullptr;
 }
 
-void System::panic(const InterruptFrame &frame) {
-    Device::Cpu::disableInterrupts();
-    BlueScreen::show(frame);
-    Device::Cpu::halt();
-}
-
 /**
  * Sets up the GDT for the system and a special GDT for BIOS-calls.
  * Only these two GDTs are needed, because memory protection and abstractions is done via paging.
@@ -248,7 +239,7 @@ void System::initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t *bio
     // user data segment
     System::createGlobalDescriptorTableEntry(systemGdt, 4, 0, 0xFFFFFFFF, 0xF2, 0x0C);
     // tss segment
-    System::createGlobalDescriptorTableEntry(systemGdt, 5, reinterpret_cast<uint32_t>(&System::taskStateSegment), sizeof(Device::GlobalDescriptorTable::TaskStateSegment), 0x89, 0x4);
+    System::createGlobalDescriptorTableEntry(systemGdt, 5, reinterpret_cast<uint32_t>(&System::taskStateSegment), sizeof(Kernel::GlobalDescriptorTable::TaskStateSegment), 0x89, 0x4);
 
     // set up descriptor for GDT
     *((uint16_t *) systemGdtDescriptor) = 6 * 8;
@@ -342,14 +333,8 @@ Util::HeapMemoryManager& System::initializeKernelHeap() {
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "No 4 MiB block available for bootstrapping the kernel heap memory manager!");
 }
 
-Device::GlobalDescriptorTable::TaskStateSegment &System::getTaskStateSegment() {
+Kernel::GlobalDescriptorTable::TaskStateSegment &System::getTaskStateSegment() {
     return taskStateSegment;
-}
-
-void System::handleEarlyInterrupt(const InterruptFrame &frame) {
-    if (frame.interrupt == InterruptVector::PAGE_FAULT) {
-        pagefaultHandler->trigger(frame);
-    }
 }
 
 }

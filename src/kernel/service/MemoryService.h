@@ -30,12 +30,12 @@ namespace Kernel {
 class PageDirectory;
 class PageFrameAllocator;
 class PagingAreaManager;
-struct InterruptFrame;
+struct InterruptFrameOld;
 }  // namespace Kernel
 
 namespace Kernel {
 
-class MemoryService : public Service, public InterruptHandler {
+class MemoryService : public Service {
 
 public:
 
@@ -216,12 +216,7 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void plugin() override;
-
-    /**
-     * Overriding function from InterruptHandler.
-     */
-    void trigger(const Kernel::InterruptFrame &frame) override;
+    void handlePageFault(uint32_t errorCode);
 
     [[nodiscard]] VirtualAddressSpace& getKernelAddressSpace() const;
 

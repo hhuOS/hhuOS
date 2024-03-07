@@ -23,5 +23,4 @@ include_directories(${HHUOS_SRC_DIR})
 
 # Add subdirectories
 add_subdirectory(crt0)
-add_subdirectory(lvgl)
 add_subdirectory(util)

@@ -21,14 +21,14 @@
 #include <cstdint>
 
 #include "device/network/NetworkDevice.h"
-#include "device/pci/PciDevice.h"
+#include "device/bus/pci/PciDevice.h"
 #include "kernel/interrupt/InterruptHandler.h"
 #include "device/cpu/IoPort.h"
 #include "lib/util/network/MacAddress.h"
 
 namespace Kernel {
 class Logger;
-struct InterruptFrame;
+struct InterruptFrameOld;
 }  // namespace Kernel
 
 namespace Device::Network {
@@ -62,7 +62,7 @@ public:
 
     void plugin() override;
 
-    void trigger(const Kernel::InterruptFrame &frame) override;
+    void trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) override;
 
 protected:
 

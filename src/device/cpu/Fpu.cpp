@@ -29,7 +29,7 @@
 #include "kernel/interrupt/InterruptVector.h"
 
 namespace Kernel {
-struct InterruptFrame;
+struct InterruptFrameOld;
 }  // namespace Kernel
 
 namespace Device {
@@ -88,7 +88,7 @@ void Fpu::plugin() {
     Kernel::System::getService<Kernel::InterruptService>().assignInterrupt(Kernel::InterruptVector::DEVICE_NOT_AVAILABLE, *this);
 }
 
-void Fpu::trigger(const Kernel::InterruptFrame &frame) {
+void Fpu::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
     Kernel::System::getService<Kernel::SchedulerService>().switchFpuContext();
 }
 

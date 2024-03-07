@@ -116,6 +116,8 @@ public:
 
     static void writeCr0(uint32_t value);
 
+    static uint32_t readCr2();
+
     /**
      * Stop the processor via hlt instruction.
      */

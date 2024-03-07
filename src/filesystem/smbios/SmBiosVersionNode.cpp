@@ -17,7 +17,7 @@
 
 #include "SmBiosVersionNode.h"
 
-#include "device/bios/SmBios.h"
+#include "device/system/SmBios.h"
 
 namespace Filesystem::SmBios {
 

@@ -21,7 +21,7 @@
 #include <cstdint>
 
 #include "lib/util/base/Exception.h"
-#include "device/cpu/GlobalDescriptorTable.h"
+#include "kernel/memory/GlobalDescriptorTable.h"
 
 namespace Util {
 class HeapMemoryManager;
@@ -36,7 +36,7 @@ class InterruptHandler;
 class Logger;
 class Service;
 class SystemCall;
-struct InterruptFrame;
+struct InterruptFrameOld;
 
 /**
  * SystemManagement
@@ -79,7 +79,7 @@ public:
 
     static void freeEarlyMemory(void *pointer);
 
-    static void handleEarlyInterrupt(const InterruptFrame &frame);
+    static void handleEarlyInterrupt(const InterruptFrameOld &frame);
 
     /**
      * Returns an already registered service.
@@ -113,13 +113,6 @@ public:
     static bool isServiceRegistered(uint32_t serviceId);
 
     /**
-     * Triggers a kernel panic printing relevant information inside a bluescreen.
-     *
-     * @param frame The interrupt frame
-     */
-    static void panic(const InterruptFrame &frame);
-
-    /**
      * Creates an entry into a given GDT (Global Descriptor Table).
      * Memory for the GDT must be allocated before.
      *
@@ -141,7 +134,7 @@ public:
      */
     static bool isInitialized();
 
-    static Device::GlobalDescriptorTable::TaskStateSegment& getTaskStateSegment();
+    static Kernel::GlobalDescriptorTable::TaskStateSegment& getTaskStateSegment();
 
 private:
 
@@ -159,7 +152,7 @@ private:
     static Service* serviceMap[256];
     static Util::Async::Spinlock serviceLock;
 
-    static Device::GlobalDescriptorTable::TaskStateSegment taskStateSegment;
+    static Kernel::GlobalDescriptorTable::TaskStateSegment taskStateSegment;
     static Util::HeapMemoryManager *kernelHeapMemoryManager;
     static InterruptHandler *pagefaultHandler;
     static SystemCall systemCall;

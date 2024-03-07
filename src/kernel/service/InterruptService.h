@@ -20,11 +20,11 @@
 
 #include <cstdint>
 
-#include "device/interrupt/Pic.h"
+#include "device/interrupt/pic/Pic.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/service/Service.h"
-#include "device/debug/GdbServer.h"
 #include "device/port/serial/SerialPort.h"
+#include "kernel/interrupt/InterruptDescriptorTable.h"
 
 namespace Device {
 class Apic;
@@ -33,7 +33,7 @@ enum InterruptRequest : uint8_t;
 
 namespace Kernel {
 class InterruptHandler;
-struct InterruptFrame;
+struct InterruptFrameOld;
 class Logger;
 enum InterruptVector : uint8_t;
 
@@ -41,9 +41,14 @@ class InterruptService : public Service {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor for use with classic PIC.
      */
-    InterruptService() = default;
+    explicit InterruptService(Device::Pic *pic);
+
+    /**
+     * Constructor for use with modern APIC.
+     */
+    explicit InterruptService(Device::Apic *apic);
 
     /**
      * Copy Constructor.
@@ -60,13 +65,18 @@ public:
      */
     ~InterruptService() override;
 
-    void useApic(Device::Apic *apic);
-
     [[nodiscard]] bool usesApic() const;
 
     void assignInterrupt(InterruptVector slot, InterruptHandler &handler);
 
-    void dispatchInterrupt(const InterruptFrame &frame);
+#pragma GCC push_options
+#pragma GCC target("general-regs-only")
+
+    [[noreturn]] void handleException(const InterruptFrame &frame, uint32_t errorCode, InterruptVector vector);
+
+    void dispatchInterrupt(const InterruptFrame &frame, InterruptVector slot);
+
+#pragma GCC pop_options
 
     void allowHardwareInterrupt(Device::InterruptRequest interrupt);
 
@@ -79,8 +89,6 @@ public:
     void setInterruptMask(uint16_t mask);
 
     void sendEndOfInterrupt(InterruptVector interrupt);
-
-    void startGdbServer(Device::SerialPort::ComPort port);
 
     [[nodiscard]] bool checkSpuriousInterrupt(InterruptVector interrupt);
 
@@ -96,11 +104,11 @@ public:
 
 private:
 
-    Device::Pic pic;
+    Device::Pic *pic = nullptr;
     Device::Apic *apic = nullptr;
 
     InterruptDispatcher dispatcher;
-    Device::GdbServer gdbServer = Device::GdbServer();
+    InterruptDescriptorTable idt;
 
     bool parallelComputingAllowed = false;
 

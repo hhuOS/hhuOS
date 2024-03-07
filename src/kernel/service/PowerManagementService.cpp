@@ -17,17 +17,17 @@
 
 #include "PowerManagementService.h"
 
-#include <stdarg.h>
+#include <cstdarg>
 
 #include "kernel/system/SystemCall.h"
 #include "lib/util/hardware/Machine.h"
 #include "kernel/system/System.h"
-#include "device/power/Machine.h"
-#include "lib/util/base/System.h"
+#include "device/system/FirmwareConfiguration.h"
+#include "device/cpu/Cpu.h"
 
 namespace Kernel {
 
-PowerManagementService::PowerManagementService(Device::Machine *machine) : machine(*machine) {
+PowerManagementService::PowerManagementService() {
     SystemCall::registerSystemCall(Util::System::SHUTDOWN, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
             return false;
@@ -47,16 +47,21 @@ PowerManagementService::PowerManagementService(Device::Machine *machine) : machi
     });
 }
 
-PowerManagementService::~PowerManagementService() {
-    delete &machine;
-}
-
 void PowerManagementService::shutdownMachine() {
-    machine.shutdown();
+    if (Device::FirmwareConfiguration::isAvailable()) {
+        qemuShutdownPort.writeWord(0x1797);
+    }
 }
 
 void PowerManagementService::rebootMachine() {
-    machine.reboot();
+    Device::Cpu::disableInterrupts();
+    uint8_t status;
+
+    do {
+        status = keyboardControlPort.readByte();
+    } while ((status & 0x02) != 0);
+
+    keyboardControlPort.writeByte(CPU_RESET_CODE);
 }
 
 }

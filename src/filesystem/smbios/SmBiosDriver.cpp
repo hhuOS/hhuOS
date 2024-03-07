@@ -20,7 +20,7 @@
 #include "SmBiosVersionNode.h"
 #include "SmBiosTableNode.h"
 #include "filesystem/memory/MemoryDirectoryNode.h"
-#include "device/bios/SmBios.h"
+#include "device/system/SmBios.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/hardware/SmBios.h"
 

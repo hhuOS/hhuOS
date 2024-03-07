@@ -18,6 +18,9 @@
 #ifndef __KernelService_include__
 #define __KernelService_include__
 
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/base/Exception.h"
+
 namespace Kernel {
 
 /**
@@ -49,6 +52,23 @@ public:
      */
     virtual ~Service() = default;
 
+    static bool isServiceRegistered(uint32_t serviceId);
+
+    static void registerService(uint32_t serviceId, Service *kernelService);
+
+    template<class T>
+    static inline T& getService() {
+        if (!isServiceRegistered(T::SERVICE_ID)) {
+            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Invalid service!");
+        }
+
+        return *reinterpret_cast<T*>(services[T::SERVICE_ID]);
+    }
+
+private:
+
+    static Service* services[256];
+    static Util::Async::Spinlock lock;
 };
 
 }

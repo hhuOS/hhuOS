@@ -20,16 +20,16 @@
 
 #include "Apic.h"
 
-#include "device/power/acpi/Acpi.h"
-#include "device/time/Cmos.h"
-#include "device/time/Pit.h"
+#include "device/system/Acpi.h"
+#include "device/time/rtc/Cmos.h"
+#include "device/time/pit/Pit.h"
 #include "device/cpu/symmetric_multiprocessing.h"
 #include "kernel/interrupt/InterruptVector.h"
 #include "kernel/system/System.h"
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/Constants.h"
 #include "kernel/paging/Paging.h"
-#include "device/cpu/GlobalDescriptorTable.h"
+#include "kernel/memory/GlobalDescriptorTable.h"
 #include "device/interrupt/apic/IoApic.h"
 #include "device/interrupt/apic/LocalApic.h"
 #include "device/interrupt/apic/LocalApicErrorHandler.h"
@@ -454,7 +454,7 @@ Cpu::Descriptor *Apic::allocateApplicationProcessorGdt() {
 
     auto *gdt = reinterpret_cast<uint16_t*>(memoryService.allocateLowerMemory(48));
 
-    const uint32_t tssSize = sizeof(Device::GlobalDescriptorTable::TaskStateSegment);
+    const uint32_t tssSize = sizeof(Kernel::GlobalDescriptorTable::TaskStateSegment);
     auto *tss = reinterpret_cast<void *>(memoryService.allocateLowerMemory(tssSize));
 
     // Zero everything

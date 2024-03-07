@@ -24,7 +24,7 @@
 #include "lib/util/async/Thread.h"
 #include "lib/util/time/Timestamp.h"
 #include "kernel/service/InterruptService.h"
-#include "device/isa/Isa.h"
+#include "device/bus/isa/Isa.h"
 #include "kernel/service/SchedulerService.h"
 #include "kernel/service/ProcessService.h"
 #include "kernel/service/FilesystemService.h"
@@ -35,7 +35,7 @@
 
 namespace Kernel {
 enum InterruptVector : uint8_t;
-struct InterruptFrame;
+struct InterruptFrameOld;
 }  // namespace Kernel
 
 namespace Device {
@@ -224,7 +224,7 @@ void SoundBlaster::waitForInterrupt() {
     receivedInterrupt = false;
 }
 
-void SoundBlaster::trigger(const Kernel::InterruptFrame &frame) {
+void SoundBlaster::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
     receivedInterrupt = true;
     ackInterrupt();
 }

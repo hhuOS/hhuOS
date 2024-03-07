@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "device/time/Pit.h"
+#include "device/time/pit/Pit.h"
 #include "PcSpeaker.h"
 #include "device/cpu/IoPort.h"
 

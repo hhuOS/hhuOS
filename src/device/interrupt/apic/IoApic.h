@@ -185,7 +185,7 @@ public:
      *
      * Marks entries for all supported interrupt inputs of the IO APIC as edge-triggered, active high,
      * masked, physical destination mode to local APIC of the current CPU and fixed delivery mode,
-     * unless trigger mode or pin polarity are overridden. Sets vector numbers to corresponding InterruptVector.
+     * unless handlePageFault mode or pin polarity are overridden. Sets vector numbers to corresponding InterruptVector.
      */
     void initializeRedirectionTable();
 

@@ -25,7 +25,7 @@
 
 namespace Kernel {
 class Logger;
-struct InterruptFrame;
+struct InterruptFrameOld;
 }  // namespace Kernel
 
 namespace Device {
@@ -93,7 +93,7 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void trigger(const Kernel::InterruptFrame &frame) override;
+    void trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) override;
 
     /**
      * Set the audio playback parameters.

@@ -25,7 +25,7 @@
 #include "kernel/interrupt/InterruptVector.h"
 
 namespace Kernel {
-struct InterruptFrame;
+struct InterruptFrameOld;
 }  // namespace Kernel
 
 namespace Device {
@@ -35,6 +35,6 @@ void LocalApicErrorHandler::plugin() {
     interruptService.assignInterrupt(Kernel::InterruptVector::ERROR, *this);
 }
 
-void LocalApicErrorHandler::trigger(const Kernel::InterruptFrame &frame) {}
+void LocalApicErrorHandler::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {}
 
 }

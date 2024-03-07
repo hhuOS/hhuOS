@@ -35,7 +35,7 @@ namespace Kernel {
 
 class Process;
 struct Context;
-struct InterruptFrame;
+struct InterruptFrameOld;
 
 class Thread {
 
@@ -118,7 +118,7 @@ private:
     Stack *kernelStack;
     Stack *userStack;
 
-    InterruptFrame &interruptFrame;
+    InterruptFrameOld &interruptFrame;
     Context *kernelContext;
     uint8_t *fpuContext;
 

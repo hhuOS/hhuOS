@@ -19,13 +19,15 @@
 #define __InterruptHandler_include__
 
 #include "kernel/process/ThreadState.h"
+#include "InterruptFrame.h"
+#include "InterruptVector.h"
 
 namespace Kernel {
 
 /**
  * Interface for an interrupt handler.
  * Every interrupt handler should derive from this interface.
- * The trigger-method is called if an interrupt occurred.
+ * The handlePageFault-method is called if an interrupt occurred.
  *
  * @author Michael Schoettner, Filip Krakowski, Fabian Ruhland, Burak Akguel, Christian Gesse
  * @date HHU, 2018
@@ -50,7 +52,7 @@ public:
     /**
      * Routine to handle an interrupt. Needs to be implemented in deriving class.
      */
-    virtual void trigger(const InterruptFrame &frame) = 0;
+    virtual void trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) = 0;
 };
 
 }

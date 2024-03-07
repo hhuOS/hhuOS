@@ -18,7 +18,7 @@
 #ifndef __KernelEntry_include__
 #define __KernelEntry_include__
 
-#include "device/cpu/GlobalDescriptorTable.h"
+#include "kernel/memory/GlobalDescriptorTable.h"
 #include "lib/util/base/FreeListMemoryManager.h"
 #include "kernel/multiboot/Multiboot.h"
 #include "kernel/paging/Paging.h"
@@ -69,11 +69,8 @@ public:
 private:
 
     static Kernel::Logger log;
-
-    static Device::GlobalDescriptorTable gdt;
-
-    static Device::GlobalDescriptorTable::TaskStateSegment tss;
-
+    static Kernel::GlobalDescriptorTable gdt;
+    static Kernel::GlobalDescriptorTable::TaskStateSegment tss;
     static Util::HeapMemoryManager *kernelHeap;
 };
 

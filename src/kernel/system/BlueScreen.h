@@ -19,6 +19,7 @@
 #define HHUOS_BLUESCREEN_H
 
 #include <cstdint>
+#include "kernel/interrupt/InterruptDescriptorTable.h"
 
 namespace Util {
 namespace Graphic {
@@ -28,7 +29,7 @@ class StringDrawer;
 }  // namespace Util
 
 namespace Kernel {
-struct InterruptFrame;
+struct InterruptFrameOld;
 
 class BlueScreen {
 
@@ -57,7 +58,7 @@ public:
 
     static void setCgaMode(uint32_t address, uint16_t columns, uint16_t rows);
 
-    static void show(const InterruptFrame &frame);
+    static void show(const InterruptFrame &frame, InterruptVector vector);
 
 private:
 

@@ -18,7 +18,7 @@
 #ifndef HHUOS_LOGGER_H
 #define HHUOS_LOGGER_H
 
-#include <device/port/serial/SerialPort.h>
+#include "device/port/serial/SerialPort.h"
 
 #include "lib/util/base/String.h"
 

@@ -40,8 +40,8 @@ Util::Async::IdGenerator<uint32_t> Thread::idGenerator;
 
 Thread::Thread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable, Thread::Stack *kernelStack, Thread::Stack *userStack) :
         id(idGenerator.next()), name(name), parent(parent), runnable(runnable), kernelStack(kernelStack), userStack(userStack),
-        interruptFrame(*reinterpret_cast<InterruptFrame*>(kernelStack->getStart() - sizeof(InterruptFrame))),
-        kernelContext(reinterpret_cast<Context*>(kernelStack->getStart() - sizeof(InterruptFrame) - sizeof(Context))),
+        interruptFrame(*reinterpret_cast<InterruptFrameOld*>(kernelStack->getStart() - sizeof(InterruptFrameOld))),
+        kernelContext(reinterpret_cast<Context*>(kernelStack->getStart() - sizeof(InterruptFrameOld) - sizeof(Context))),
         fpuContext(static_cast<uint8_t*>(System::getService<MemoryService>().allocateKernelMemory(512, 16))) {
     auto source = Util::Address<uint32_t>(System::getService<SchedulerService>().getDefaultFpuContext());
     Util::Address<uint32_t>(fpuContext).copyRange(source, 512);
@@ -59,7 +59,7 @@ Thread& Thread::createKernelThread(const Util::String &name, Process &parent, Ut
     auto *stack = Stack::createKernelStack(DEFAULT_STACK_SIZE);
     auto *thread = new Thread(name, parent, runnable, stack, stack);
 
-    thread->kernelContext->eip = reinterpret_cast<uint32_t>(interrupt_return);
+    // thread->kernelContext->eip = reinterpret_cast<uint32_t>(interrupt_return);
 
     thread->interruptFrame.cs = 0x08;
     thread->interruptFrame.fs = 0x10;
@@ -81,7 +81,7 @@ Thread& Thread::createUserThread(const Util::String &name, Process &parent, uint
     auto *userStack = Stack::createUserStack(DEFAULT_STACK_SIZE);
     auto *thread = new Thread(name, parent, nullptr, kernelStack, userStack);
 
-    thread->kernelContext->eip = reinterpret_cast<uint32_t>(interrupt_return);
+    // thread->kernelContext->eip = reinterpret_cast<uint32_t>(interrupt_return);
 
     thread->interruptFrame.cs = 0x1b;
     thread->interruptFrame.fs = 0x23;
@@ -105,7 +105,7 @@ Thread& Thread::createMainUserThread(const Util::String &name, Process &parent, 
     auto *userStack = Stack::createMainUserStack();
     auto *thread = new Thread(name, parent, nullptr, kernelStack, userStack);
 
-    thread->kernelContext->eip = reinterpret_cast<uint32_t>(interrupt_return);
+    // thread->kernelContext->eip = reinterpret_cast<uint32_t>(interrupt_return);
 
     thread->interruptFrame.cs = 0x1b;
     thread->interruptFrame.fs = 0x23;

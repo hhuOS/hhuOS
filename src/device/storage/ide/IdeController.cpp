@@ -26,8 +26,8 @@
 #include "kernel/system/System.h"
 #include "kernel/service/StorageService.h"
 #include "kernel/service/InterruptService.h"
-#include "device/pci/Pci.h"
-#include "device/pci/PciDevice.h"
+#include "device/bus/pci/Pci.h"
+#include "device/bus/pci/PciDevice.h"
 #include "kernel/log/Logger.h"
 #include "kernel/process/ThreadState.h"
 #include "kernel/service/MemoryService.h"
@@ -367,10 +367,10 @@ void IdeController::plugin() {
     interruptService.allowHardwareInterrupt(Device::InterruptRequest::SECONDARY_ATA);
 }
 
-void IdeController::trigger(const Kernel::InterruptFrame &frame) {
-    if (frame.interrupt == Kernel::InterruptVector::PRIMARY_ATA) {
+void IdeController::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
+    if (slot == Kernel::InterruptVector::PRIMARY_ATA) {
         channels[0].receivedInterrupt = true;
-    } else if (frame.interrupt == Kernel::InterruptVector::SECONDARY_ATA) {
+    } else if (slot == Kernel::InterruptVector::SECONDARY_ATA) {
         channels[1].receivedInterrupt = true;
     }
 }

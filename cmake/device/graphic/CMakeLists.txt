@@ -21,7 +21,4 @@ target_sources(device PUBLIC
         ${HHUOS_SRC_DIR}/device/graphic/LinearFrameBufferProvider.cpp
         ${HHUOS_SRC_DIR}/device/graphic/LinearFrameBufferTerminalProvider.cpp
         ${HHUOS_SRC_DIR}/device/graphic/TerminalNode.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/TerminalProvider.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/vesa/VesaBiosExtensions.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/cga/ColorGraphicsAdapter.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/cga/ColorGraphicsAdapterProvider.cpp)
+        ${HHUOS_SRC_DIR}/device/graphic/TerminalProvider.cpp)

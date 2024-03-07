@@ -21,7 +21,7 @@
 #include "filesystem/memory/StreamNode.h"
 #include "kernel/service/FilesystemService.h"
 #include "kernel/system/System.h"
-#include "device/port/serial/SerialPort.h"
+#include "SerialPort.h"
 #include "filesystem/core/Filesystem.h"
 #include "filesystem/memory/MemoryDriver.h"
 #include "kernel/interrupt/InterruptVector.h"
@@ -29,7 +29,7 @@
 #include "kernel/multiboot/Multiboot.h"
 
 namespace Kernel {
-struct InterruptFrame;
+struct InterruptFrameOld;
 }  // namespace Kernel
 
 namespace Device {
@@ -145,7 +145,7 @@ void SerialPort::plugin() {
     interruptRegister.writeByte(0x01);
 }
 
-void SerialPort::trigger(const Kernel::InterruptFrame &frame) {
+void SerialPort::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
     if (fifoControlRegister.readByte() & 0x01) {
         return;
     }

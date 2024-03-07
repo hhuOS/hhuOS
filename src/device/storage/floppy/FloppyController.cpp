@@ -18,7 +18,7 @@
 #include "kernel/service//InterruptService.h"
 #include "FloppyController.h"
 #include "FloppyDevice.h"
-#include "device/time/Cmos.h"
+#include "device/time/rtc/Cmos.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/system/System.h"
 #include "device/cpu/Cpu.h"
@@ -32,7 +32,7 @@
 #include "kernel/interrupt/InterruptVector.h"
 
 namespace Kernel {
-struct InterruptFrame;
+struct InterruptFrameOld;
 }  // namespace Kernel
 
 namespace Device::Storage {
@@ -337,7 +337,7 @@ void FloppyController::plugin() {
     interruptService.allowHardwareInterrupt(Device::InterruptRequest::FLOPPY);
 }
 
-void FloppyController::trigger(const Kernel::InterruptFrame &frame) {
+void FloppyController::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
     receivedInterrupt = true;
 }
 

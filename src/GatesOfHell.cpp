@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "device/cpu/GlobalDescriptorTable.h"
+#include "kernel/memory/GlobalDescriptorTable.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/log/Logger.h"
 #include "GatesOfHell.h"
@@ -25,6 +25,9 @@
 #include "kernel/memory/PageFrameAllocator.h"
 #include "kernel/paging/VirtualAddressSpace.h"
 #include "kernel/service/MemoryService.h"
+#include "kernel/interrupt/InterruptDescriptorTable.h"
+#include "kernel/service/InterruptService.h"
+#include "device/interrupt/apic/Apic.h"
 
 extern const uint32_t ___KERNEL_DATA_START__;
 extern const uint32_t ___KERNEL_DATA_END__;
@@ -44,8 +47,8 @@ class Machine;
 }  // namespace Device
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
-Device::GlobalDescriptorTable GatesOfHell::gdt{};
-Device::GlobalDescriptorTable::TaskStateSegment GatesOfHell::tss{};
+Kernel::GlobalDescriptorTable GatesOfHell::gdt{};
+Kernel::GlobalDescriptorTable::TaskStateSegment GatesOfHell::tss{};
 Util::HeapMemoryManager *GatesOfHell::kernelHeap = nullptr;
 
 extern "C" void start(uint32_t multibootMagic, const Kernel::Multiboot *multiboot) {
@@ -54,11 +57,12 @@ extern "C" void start(uint32_t multibootMagic, const Kernel::Multiboot *multiboo
 
 void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multiboot) {
     // Initialize GDT
-    gdt.addSegment(Device::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x9a, 0x0c)); // Kernel code segment
-    gdt.addSegment(Device::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x92, 0x0c)); // Kernel data segment
-    gdt.addSegment(Device::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xfa, 0x0c)); // User code segment
-    gdt.addSegment(Device::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xf2, 0x0c)); // User data segment
-    gdt.addSegment(Device::GlobalDescriptorTable::SegmentDescriptor(reinterpret_cast<uint32_t>(&tss), sizeof(Device::GlobalDescriptorTable::TaskStateSegment), 0x89, 0x04));
+    gdt = Kernel::GlobalDescriptorTable();
+    gdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x9a, 0x0c)); // Kernel code segment
+    gdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x92, 0x0c)); // Kernel data segment
+    gdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xfa, 0x0c)); // User code segment
+    gdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xf2, 0x0c)); // User data segment
+    gdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(reinterpret_cast<uint32_t>(&tss), sizeof(Kernel::GlobalDescriptorTable::TaskStateSegment), 0x89, 0x04));
     gdt.load();
 
     Device::Cpu::setSegmentRegister(Device::Cpu::CS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 1));
@@ -153,12 +157,36 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
         }
     }
 
-    // To be able to map new pages, a bootstrap address space is created.
-    // It uses only the basePageDirectory with mapping for kernel space.
-    auto *kernelAddressSpace = new Kernel::VirtualAddressSpace(*pageDirectory, *kernelHeap);
+    // Create kernel address space and memory service
+    auto *addressSpace = new Kernel::VirtualAddressSpace(*pageDirectory, *kernelHeap);
+    auto *memoryService = new Kernel::MemoryService(pageFrameAllocator, pagingAreaManager, addressSpace);
 
-    // Create memory and interrupt services, so that the memory service can handle page faults
-    auto *memoryService = new Kernel::MemoryService(pageFrameAllocator, pagingAreaManager, kernelAddressSpace);
+    // Create interrupt service with PIC or APIC, depending on what is available
+    Kernel::InterruptService *interruptService;
+    if (Device::Apic::isAvailable()) {
+        log.info("APIC detected");
+        auto *apic = Device::Apic::initialize();
+        if (apic == nullptr) {
+            auto *pic = new Device::Pic();
+            interruptService = new Kernel::InterruptService(pic);
+            log.warn("Failed to initialize APIC -> Falling back to PIC");
+        } else {
+            interruptService = new Kernel::InterruptService(apic);
+        }
+
+        if (apic != nullptr && apic->isSymmetricMultiprocessingSupported()) {
+            apic->startupApplicationProcessors();
+        }
+    } else {
+        log.info("APIC not available -> Falling back to PIC");
+        auto *pic = new Device::Pic();
+        interruptService = new Kernel::InterruptService(pic);
+    }
+
+    // Memory and interrupt services are initialized -> Page faults can now be handled
+    Kernel::Service::registerService(Kernel::MemoryService::SERVICE_ID, memoryService);
+    Kernel::Service::registerService(Kernel::InterruptService::SERVICE_ID, interruptService);
+    log.info("Welcome to hhuOS!");
 
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Once you entered the gates of hell, you are not allowed to leave!");
 }

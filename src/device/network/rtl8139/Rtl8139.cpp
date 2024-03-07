@@ -20,8 +20,8 @@
 
 #include "Rtl8139.h"
 
-#include "device/pci/Pci.h"
-#include "device/pci/PciDevice.h"
+#include "device/bus/pci/Pci.h"
+#include "device/bus/pci/PciDevice.h"
 #include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
 #include "lib/util/time/Timestamp.h"
@@ -33,7 +33,7 @@
 #include "lib/util/base/Address.h"
 
 namespace Kernel {
-struct InterruptFrame;
+struct InterruptFrameOld;
 enum InterruptVector : uint8_t;
 }  // namespace Kernel
 
@@ -116,7 +116,7 @@ void Rtl8139::plugin() {
     interruptService.assignInterrupt(static_cast<Kernel::InterruptVector>(pciDevice.getInterruptLine() + 32), *this);
 }
 
-void Rtl8139::trigger(const Kernel::InterruptFrame &frame) {
+void Rtl8139::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
     auto interrupt = baseRegister.readWord(INTERRUPT_STATUS);
     if (interrupt & RECEIVE_OK) {
         while (!(baseRegister.readByte(COMMAND) & BUFFER_EMPTY)) {

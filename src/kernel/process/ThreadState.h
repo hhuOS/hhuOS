@@ -30,7 +30,7 @@ struct Context {
     uint32_t eip;
 } __attribute__((packed));
 
-struct InterruptFrame {
+struct InterruptFrameOld {
     uint16_t gs;
     uint16_t pad6;
     uint16_t fs;

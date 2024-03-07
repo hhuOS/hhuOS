@@ -25,7 +25,7 @@
 
 #include "LocalApic.h"
 #include "LocalApicErrorHandler.h"
-#include "device/time/ApicTimer.h"
+#include "device/time/apic/ApicTimer.h"
 #include "device/cpu/Cpu.h"
 #include "lib/util/collection/HashMap.h"
 #include "lib/util/collection/Array.h"

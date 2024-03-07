@@ -324,7 +324,7 @@ void MemoryService::switchAddressSpace(VirtualAddressSpace &addressSpace) {
     // Set current address space
     currentAddressSpace = &addressSpace;
     // load cr3-register with phys. address of Page Directory
-    load_page_directory(addressSpace.getPageDirectory().getPageDirectoryPhysicalAddress());
+    // load_page_directory(addressSpace.getPageDirectory().getPageDirectoryPhysicalAddress());
 }
 
 void MemoryService::removeAddressSpace(VirtualAddressSpace &addressSpace) {
@@ -340,29 +340,22 @@ void* MemoryService::getPhysicalAddress(void *virtualAddress) {
     return currentAddressSpace->getPageDirectory().getPhysicalAddress(virtualAddress);
 }
 
-void MemoryService::plugin() {
-    System::getService<Kernel::InterruptService>().assignInterrupt(InterruptVector::PAGE_FAULT, *this);
-}
-
-void MemoryService::trigger(const Kernel::InterruptFrame &frame) {
-    // Get page fault address and flags
-    uint32_t faultAddress = 0;
-    // The faulted linear address is loaded in the cr2 register
-    asm volatile ("mov %%cr2, %0" : "=r" (faultAddress));
+void MemoryService::handlePageFault(uint32_t errorCode) {
+    // The faulted linear address is stored in the cr2 register
+    uint32_t faultAddress = Device::Cpu::readCr2();
 
     // There should be no access to the first page (address 0)
     if (faultAddress == 0) {
         Util::Exception::throwException(Util::Exception::NULL_POINTER, "Page fault at address 0x00000000!");
     }
 
-    // check if page fault was caused by illegal page access
-    if ((frame.error & 0x00000001u) > 0) {
+    // check if page fault was caused by an illegal page access
+    if ((errorCode & 0x00000001u) > 0) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_PAGE_ACCESS, "Privilege level not sufficient to access page!");
     }
 
     // Map the faulted Page
     map(faultAddress, Paging::PRESENT | Paging::WRITABLE | (faultAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESSIBLE : 0), true);
-    // TODO: Check other Faults
 }
 
 MemoryService::MemoryStatus MemoryService::getMemoryStatus() {

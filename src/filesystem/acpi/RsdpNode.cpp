@@ -19,7 +19,7 @@
 
 #include <cstdint>
 
-#include "device/power/acpi/Acpi.h"
+#include "device/system/Acpi.h"
 #include "lib/util/hardware/Acpi.h"
 
 namespace Filesystem::Acpi {

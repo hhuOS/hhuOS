@@ -30,7 +30,7 @@
 #include "kernel/interrupt/InterruptVector.h"
 
 namespace Kernel {
-struct InterruptFrame;
+struct InterruptFrameOld;
 }  // namespace Kernel
 
 namespace Device {
@@ -127,7 +127,7 @@ void Mouse::plugin() {
     interruptService.allowHardwareInterrupt(Device::InterruptRequest::MOUSE);
 }
 
-void Mouse::trigger(const Kernel::InterruptFrame &frame) {
+void Mouse::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
     auto status = controller.readControlByte();
     if (!(status & 0x20)) {
         return;

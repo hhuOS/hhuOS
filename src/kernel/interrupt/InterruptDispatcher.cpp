@@ -29,41 +29,21 @@
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/base/System.h"
 #include "kernel/interrupt/InterruptVector.h"
+#include "kernel/system/BlueScreen.h"
 
 namespace Kernel {
 
-void InterruptDispatcher::dispatch(const InterruptFrame &frame) {
-    auto &interruptService = System::getService<InterruptService>();
-    auto slot = static_cast<InterruptVector>(frame.interrupt);
-
-    // Handle exceptions
-    if (isUnrecoverableException(slot)) {
-        auto &processService = System::getService<ProcessService>();
-        if (processService.getCurrentProcess().isKernelProcess()) {
-            System::panic(frame);
-        }
-
-        Util::System::out << Device::Cpu::getExceptionName(slot) << ": " << Util::System::errorMessage << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-        processService.exitCurrentProcess(-1);
-    }
-
-    // Ignore spurious interrupts
-    if (interruptService.checkSpuriousInterrupt(slot)) {
-        return;
-    }
-
+void InterruptDispatcher::dispatch(const InterruptFrame &frame, InterruptVector vector) {
     // Throw exception, if there is no handler registered
-    auto *handlerList = handler[slot];
+    auto *handlerList = handler[vector];
     if (handlerList == nullptr) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "No handler registered!");
     }
 
     // Call installed interrupt handlers
     for (uint32_t i = 0; i < handlerList->size(); i++) {
-        handlerList->get(i)->trigger(frame);
+        handlerList->get(i)->trigger(frame, vector);
     }
-
-    interruptService.sendEndOfInterrupt(slot);
 }
 
 void InterruptDispatcher::assign(uint8_t slot, InterruptHandler &isr) {

@@ -21,14 +21,14 @@ message(STATUS "Project " ${PROJECT_NAME})
 
 add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS-grub.iso"
         WORKING_DIRECTORY "${HHUOS_ROOT_DIR}/loader/grub/"
-        COMMAND /bin/cp "$<TARGET_FILE:system>" "${HHUOS_ROOT_DIR}/loader/grub/iso/boot/hhuOS.bin"
+        COMMAND /bin/cp "$<TARGET_FILE:system>" "${HHUOS_ROOT_DIR}/loader/grub/iso/boot/kernel.elf"
         COMMAND "${HHUOS_ROOT_DIR}/loader/grub/build.sh"
         COMMAND /bin/mv "${HHUOS_ROOT_DIR}/loader/grub/hhuOS-grub.iso" "${HHUOS_ROOT_DIR}"
         DEPENDS system floppy0 hdd0)
 
 add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS-grub-vdd.iso"
         WORKING_DIRECTORY "${HHUOS_ROOT_DIR}/loader/grub/"
-        COMMAND /bin/cp "$<TARGET_FILE:system>" "${HHUOS_ROOT_DIR}/loader/grub/iso/boot/hhuOS.bin"
+        COMMAND /bin/cp "$<TARGET_FILE:system>" "${HHUOS_ROOT_DIR}/loader/grub/iso/boot/kernel.elf"
         COMMAND "${HHUOS_ROOT_DIR}/loader/grub/build.sh" "--with-virtual-hdd"
         COMMAND /bin/mv "${HHUOS_ROOT_DIR}/loader/grub/hhuOS-grub.iso" "${HHUOS_ROOT_DIR}/hhuOS-grub-vdd.iso"
         DEPENDS system floppy0 hdd0)

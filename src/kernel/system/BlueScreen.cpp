@@ -61,7 +61,7 @@ void BlueScreen::setCgaMode(uint32_t address, uint16_t columns, uint16_t rows) {
     maxStacktraceSize = rows - 12;
 }
 
-void BlueScreen::show(const InterruptFrame &frame) {
+void BlueScreen::show(const InterruptFrame &frame, InterruptVector vector) {
     auto address = Util::Address<uint32_t>(fbAddress);
     auto lfb = Util::Graphic::LinearFrameBuffer(&address, fbResX, fbResY, fbColorDepth, fbPitch);
     auto pixelDrawer = Util::Graphic::PixelDrawer(lfb);
@@ -70,16 +70,16 @@ void BlueScreen::show(const InterruptFrame &frame) {
     clear(pixelDrawer);
 
     print(stringDrawer, "[PANIC][Exception ");
-    printDecNumber(stringDrawer, frame.interrupt);
+    printDecNumber(stringDrawer, vector);
     print(stringDrawer, "] ");
-    printLine(stringDrawer, Device::Cpu::getExceptionName(frame.interrupt));
+    printLine(stringDrawer, Device::Cpu::getExceptionName(vector));
 
     if (Util::Address<uint32_t>(Util::System::errorMessage).stringLength() > 0) {
         printLine(stringDrawer, "");
         printLine(stringDrawer, Util::System::errorMessage);
     }
 
-    uint32_t cr0 = 0;
+    /*uint32_t cr0 = 0;
     asm volatile(
             "mov %%cr0, %%eax;"
             "mov %%eax, (%0);"
@@ -113,7 +113,7 @@ void BlueScreen::show(const InterruptFrame &frame) {
     printLine(stringDrawer, "");
 
     print(stringDrawer, "esp=");
-    printHexNumber(stringDrawer, frame.esp);
+    printHexNumber(stringDrawer, frame.stackPointer);
     posX = OFFSET_X + 15;
     print(stringDrawer, " ebp=");
     printHexNumber(stringDrawer, frame.ebp);
@@ -126,7 +126,7 @@ void BlueScreen::show(const InterruptFrame &frame) {
     printLine(stringDrawer, "");
 
     print(stringDrawer, "eflags=");
-    printHexNumber(stringDrawer, frame.eflags);
+    printHexNumber(stringDrawer, frame.flags);
     posX = OFFSET_X + 15;
     print(stringDrawer, " eip=");
     printHexNumber(stringDrawer, frame.eip);
@@ -162,7 +162,7 @@ void BlueScreen::show(const InterruptFrame &frame) {
 
     if (i >= maxStacktraceSize) {
         printLine(stringDrawer, "...");
-    }
+    }*/
 }
 
 void BlueScreen::clear(Util::Graphic::PixelDrawer &pixelDrawer) {

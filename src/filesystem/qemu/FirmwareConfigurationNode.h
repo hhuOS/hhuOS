@@ -21,7 +21,7 @@
 #include <cstdint>
 
 #include "filesystem/memory/MemoryNode.h"
-#include "device/debug/FirmwareConfiguration.h"
+#include "device/system/FirmwareConfiguration.h"
 #include "lib/util/base/String.h"
 
 namespace Filesystem::Qemu {

@@ -25,7 +25,7 @@
 namespace Kernel {
 class Logger;
 class Thread;
-struct InterruptFrame;
+struct InterruptFrameOld;
 }  // namespace Kernel
 
 namespace Device {
@@ -63,7 +63,7 @@ public:
 
     void plugin() override;
 
-    void trigger(const Kernel::InterruptFrame &frame) override;
+    void trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) override;
 
     void switchContext() const;
 

@@ -21,6 +21,7 @@
 #include <cstdint>
 
 #include "Service.h"
+#include "device/cpu/IoPort.h"
 
 namespace Device {
 class Machine;
@@ -34,7 +35,7 @@ public:
     /**
      * Default Constructor.
      */
-    explicit PowerManagementService(Device::Machine *machine);
+    explicit PowerManagementService();
 
     /**
      * Copy Constructor.
@@ -49,7 +50,7 @@ public:
     /**
      * Destructor.
      */
-    ~PowerManagementService() override;
+    ~PowerManagementService() override = default;
 
     void shutdownMachine();
 
@@ -59,7 +60,10 @@ public:
 
 private:
 
-    Device::Machine &machine;
+    const Device::IoPort qemuShutdownPort = Device::IoPort(0x501);
+    const Device::IoPort keyboardControlPort = Device::IoPort(0x64);
+
+    static const constexpr uint16_t CPU_RESET_CODE = 0xfe;
 };
 
 }

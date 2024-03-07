@@ -20,7 +20,7 @@
 #include <cstdint>
 
 #include "FirmwareConfigurationNode.h"
-#include "device/debug/FirmwareConfiguration.h"
+#include "device/system/FirmwareConfiguration.h"
 #include "filesystem/memory/MemoryDirectoryNode.h"
 #include "lib/util/collection/Array.h"
 

@@ -22,15 +22,23 @@
 #include "kernel/interrupt/InterruptVector.h"
 #include "kernel/log/Logger.h"
 #include "device/interrupt/apic/LocalApic.h"
+#include "kernel/service/ProcessService.h"
+#include "kernel/system/BlueScreen.h"
+#include "lib/util/base/System.h"
 
 namespace Kernel {
+
 class InterruptHandler;
-struct InterruptFrame;
+struct InterruptFrameOld;
 
 Kernel::Logger InterruptService::log = Kernel::Logger::get("Interrupt");
 
-void InterruptService::useApic(Device::Apic *apic) {
-    InterruptService::apic = apic;
+InterruptService::InterruptService(Device::Pic *pic) : pic(pic) {
+    idt.load();
+}
+
+InterruptService::InterruptService(Device::Apic *apic) : apic(apic) {
+    idt.load();
 }
 
 bool InterruptService::usesApic() const {
@@ -38,6 +46,7 @@ bool InterruptService::usesApic() const {
 }
 
 InterruptService::~InterruptService() {
+    delete pic;
     delete apic;
 }
 
@@ -45,15 +54,27 @@ void InterruptService::assignInterrupt(InterruptVector slot, InterruptHandler &h
     dispatcher.assign(slot, handler);
 }
 
-void InterruptService::dispatchInterrupt(const InterruptFrame &frame) {
-    dispatcher.dispatch(frame);
+void InterruptService::handleException(const InterruptFrame &frame, uint32_t errorCode, InterruptVector vector) {
+    auto &processService = Service::getService<ProcessService>();
+    if (processService.getCurrentProcess().isKernelProcess()) {
+        Device::Cpu::disableInterrupts();
+        BlueScreen::show(frame, vector);
+        Device::Cpu::halt();
+    }
+
+    Util::System::out << Device::Cpu::getExceptionName(vector) << ": " << Util::System::errorMessage << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    processService.exitCurrentProcess(-1);
+}
+
+void InterruptService::dispatchInterrupt(const InterruptFrame &frame, InterruptVector slot) {
+    dispatcher.dispatch(frame, slot);
 }
 
 void InterruptService::allowHardwareInterrupt(Device::InterruptRequest interrupt) {
     if (usesApic()) {
         apic->allow(interrupt);
     } else if (interrupt - 32 <= Device::InterruptRequest::SECONDARY_ATA) {
-        pic.allow(interrupt);
+        pic->allow(interrupt);
     }
 }
 
@@ -61,7 +82,7 @@ void InterruptService::forbidHardwareInterrupt(Device::InterruptRequest interrup
     if (usesApic()) {
         apic->forbid(interrupt);
     } else if (interrupt - 32 <= Device::InterruptRequest::SECONDARY_ATA) {
-        pic.forbid(interrupt);
+        pic->forbid(interrupt);
     }
 }
 
@@ -69,13 +90,8 @@ void InterruptService::sendEndOfInterrupt(InterruptVector interrupt) {
     if (usesApic()) {
         apic->sendEndOfInterrupt(interrupt);
     } else if (interrupt - 32 <= Device::InterruptRequest::SECONDARY_ATA) {
-        pic.sendEndOfInterrupt(static_cast<Device::InterruptRequest>(interrupt - 32));
+        pic->sendEndOfInterrupt(static_cast<Device::InterruptRequest>(interrupt - 32));
     }
-}
-
-void InterruptService::startGdbServer(Device::SerialPort::ComPort port) {
-    gdbServer.plugin();
-    gdbServer.start(port);
 }
 
 bool InterruptService::checkSpuriousInterrupt(InterruptVector interrupt) {
@@ -87,7 +103,7 @@ bool InterruptService::checkSpuriousInterrupt(InterruptVector interrupt) {
         return false;
     }
 
-    return pic.isSpurious(static_cast<Device::InterruptRequest>(interrupt - 32));
+    return pic->isSpurious(static_cast<Device::InterruptRequest>(interrupt - 32));
 
 }
 
@@ -96,7 +112,7 @@ Device::Apic &InterruptService::getApic() {
 }
 
 bool InterruptService::status(Device::InterruptRequest interrupt) {
-    return !(usesApic() ? apic->status(interrupt) : pic.status(interrupt));
+    return !(usesApic() ? apic->status(interrupt) : pic->status(interrupt));
 }
 
 uint16_t InterruptService::getInterruptMask() {

@@ -48,8 +48,8 @@ if [[ "${INCLUDE_HDD}" = "true" ]]; then
   cp "limine_vdd.cfg" "iso/limine.cfg" || exit 1
   cp "../../hdd0.img" "iso" || exit 1
 else
-  cp "limine.cfg" "iso/limine.cfg"
-  rm -f "iso/hdd0.img"
+  cp "limine.cfg" "iso/limine.cfg" || exit 1
+  rm -f "iso/hdd0.img" || exit 1
 fi
 
 cd iso || exit 1
