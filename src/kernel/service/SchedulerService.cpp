@@ -45,7 +45,7 @@ namespace Kernel {
 
 SchedulerService::SchedulerService() {
     SystemCall::registerSystemCall(Util::System::YIELD, [](uint32_t, va_list) -> bool {
-        System::getService<SchedulerService>().yield();
+        Service::getService<SchedulerService>().yield();
         return true;
     });
 
@@ -54,7 +54,7 @@ SchedulerService::SchedulerService() {
             return false;
         }
 
-        auto &schedulerService = System::getService<SchedulerService>();
+        auto &schedulerService = Service::getService<SchedulerService>();
         auto &threadId = *va_arg(arguments, uint32_t*);
 
         threadId = schedulerService.getCurrentThread().getId();
@@ -66,8 +66,8 @@ SchedulerService::SchedulerService() {
             return false;
         }
 
-        auto &processService = System::getService<ProcessService>();
-        auto &schedulerService = System::getService<SchedulerService>();
+        auto &processService = Service::getService<ProcessService>();
+        auto &schedulerService = Service::getService<SchedulerService>();
         auto *name = va_arg(arguments, const char*);
         auto *runnable = va_arg(arguments, Util::Async::Runnable*);
         auto eip = va_arg(arguments, uint32_t);
@@ -85,7 +85,7 @@ SchedulerService::SchedulerService() {
             return false;
         }
 
-        auto &schedulerService = System::getService<SchedulerService>();
+        auto &schedulerService = Service::getService<SchedulerService>();
         auto &time = *va_arg(arguments, Util::Time::Timestamp*);
 
         schedulerService.sleep(time);
@@ -97,7 +97,7 @@ SchedulerService::SchedulerService() {
             return false;
         }
 
-        auto &schedulerService = System::getService<SchedulerService>();
+        auto &schedulerService = Service::getService<SchedulerService>();
         auto threadId = va_arg(arguments, uint32_t);
 
         auto *thread = schedulerService.getThread(threadId);
@@ -109,7 +109,7 @@ SchedulerService::SchedulerService() {
     });
 
     SystemCall::registerSystemCall(Util::System::EXIT_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
-        System::getService<SchedulerService>().exitCurrentThread();
+        Service::getService<SchedulerService>().exitCurrentThread();
         return true;
     });
 }
@@ -128,7 +128,7 @@ bool SchedulerService::isSchedulerInitialized() {
 }
 
 void SchedulerService::startScheduler() {
-    auto &processService = System::getService<ProcessService>();
+    auto &processService = Service::getService<ProcessService>();
     cleaner = new Kernel::SchedulerCleaner();
     auto &schedulerCleanerThread = Kernel::Thread::createKernelThread("Scheduler-Cleaner", processService.getKernelProcess(), cleaner);
     ready(schedulerCleanerThread);
@@ -177,7 +177,7 @@ void SchedulerService::block() {
 }
 
 void SchedulerService::unblock(Thread &thread) {
-    auto &processService = System::getService<ProcessService>();
+    auto &processService = Service::getService<ProcessService>();
     auto &process = thread.getParent();
     if (processService.isProcessActive(process.getId())) {
         scheduler.unblock(thread);

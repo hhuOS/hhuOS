@@ -35,7 +35,7 @@ void SystemCall::registerSystemCall(Util::System::Code code, bool(*func)(uint32_
 }
 
 void SystemCall::plugin() {
-    Kernel::System::getService<Kernel::InterruptService>().assignInterrupt(Kernel::InterruptVector::SYSTEM_CALL, *this);
+    Kernel::Service::getService<Kernel::InterruptService>().assignInterrupt(Kernel::InterruptVector::SYSTEM_CALL, *this);
 }
 
 void SystemCall::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {

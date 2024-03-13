@@ -36,7 +36,7 @@ Kernel::Logger log = Kernel::Logger::get("SMP");
     while (true) {}
 
     // Initialize this AP's APIC
-    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     auto &apic = interruptService.getApic();
     apic.initializeCurrentLocalApic();
     apic.enableCurrentErrorHandler();

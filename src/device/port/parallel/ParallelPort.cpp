@@ -69,7 +69,7 @@ void ParallelPort::initializePort(ParallelPort::LptPort port) {
     auto *parallelPort = new ParallelPort(port);
     auto *streamNode = new Filesystem::Memory::StreamNode(Util::String(portToString(port)).toLowerCase(), reinterpret_cast<Util::Io::OutputStream*>(parallelPort));
 
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+    auto &filesystem = Kernel::Service::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
     bool success = driver.addNode("/", streamNode);
 

@@ -79,7 +79,7 @@ TerminalProvider::initializeTerminal(const TerminalProvider::ModeInfo &modeInfo,
     auto *terminal = initializeTerminal(modeInfo);
 
     // Create filesystem node
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+    auto &filesystem = Kernel::Service::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
     auto *terminalNode = new TerminalNode(filename, terminal);
 

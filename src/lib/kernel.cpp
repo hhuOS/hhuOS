@@ -72,7 +72,7 @@ bool isMemoryManagementInitialized() {
 }
 
 void* mapIO(void *physicalAddress, uint32_t size) {
-    return Kernel::System::getService<Kernel::MemoryService>().mapIO(physicalAddress, size, false);
+    return Kernel::Service::getService<Kernel::MemoryService>().mapIO(physicalAddress, size, false);
 }
 
 void unmap(void *virtualAddress, uint32_t pageCount, uint32_t breakCount) {
@@ -80,15 +80,15 @@ void unmap(void *virtualAddress, uint32_t pageCount, uint32_t breakCount) {
 }
 
 bool mount(const Util::String &deviceName, const Util::String &targetPath, const Util::String &driverName) {
-    return Kernel::System::getService<Kernel::FilesystemService>().mount(deviceName, targetPath, driverName);
+    return Kernel::Service::getService<Kernel::FilesystemService>().mount(deviceName, targetPath, driverName);
 }
 
 bool unmount(const Util::String &path) {
-    return Kernel::System::getService<Kernel::FilesystemService>().unmount(path);
+    return Kernel::Service::getService<Kernel::FilesystemService>().unmount(path);
 }
 
 bool createFile(const Util::String &path, Util::Io::File::Type type) {
-    auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
+    auto &filesystemService = Kernel::Service::getService<Kernel::FilesystemService>();
     if (type == Util::Io::File::REGULAR) {
         return filesystemService.createFile(path);
     } else if (type == Util::Io::File::DIRECTORY) {
@@ -99,60 +99,60 @@ bool createFile(const Util::String &path, Util::Io::File::Type type) {
 }
 
 bool deleteFile(const Util::String &path) {
-    return Kernel::System::getService<Kernel::FilesystemService>().deleteFile(path);
+    return Kernel::Service::getService<Kernel::FilesystemService>().deleteFile(path);
 }
 
 int32_t openFile(const Util::String &path) {
-    return Kernel::System::getService<Kernel::FilesystemService>().openFile(path);
+    return Kernel::Service::getService<Kernel::FilesystemService>().openFile(path);
 }
 
 void closeFile(int32_t fileDescriptor) {
-    Kernel::System::getService<Kernel::FilesystemService>().closeFile(fileDescriptor);
+    Kernel::Service::getService<Kernel::FilesystemService>().closeFile(fileDescriptor);
 }
 
 Util::Io::File::Type getFileType(int32_t fileDescriptor) {
-    return Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor).getType();
+    return Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor).getType();
 }
 
 uint32_t getFileLength(int32_t fileDescriptor) {
-    return Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor).getLength();
+    return Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor).getLength();
 }
 
 Util::Array<Util::String> getFileChildren(int32_t fileDescriptor) {
-    return Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor).getChildren();
+    return Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor).getChildren();
 }
 
 uint64_t readFile(int32_t fileDescriptor, uint8_t *targetBuffer, uint64_t pos, uint64_t length) {
-    return Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor).readData(targetBuffer, pos, length);
+    return Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor).readData(targetBuffer, pos, length);
 }
 
 uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t pos, uint64_t length) {
-    return Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor).writeData(sourceBuffer, pos, length);
+    return Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor).writeData(sourceBuffer, pos, length);
 }
 
 bool controlFile(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters) {
-    return Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor).control(request, parameters);
+    return Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor).control(request, parameters);
 }
 
 bool changeDirectory(const Util::String &path) {
-    return Kernel::System::getService<Kernel::ProcessService>().getCurrentProcess().setWorkingDirectory(path);
+    return Kernel::Service::getService<Kernel::ProcessService>().getCurrentProcess().setWorkingDirectory(path);
 }
 
 Util::Io::File getCurrentWorkingDirectory() {
-    return Kernel::System::getService<Kernel::ProcessService>().getCurrentProcess().getWorkingDirectory();
+    return Kernel::Service::getService<Kernel::ProcessService>().getCurrentProcess().getWorkingDirectory();
 }
 
 int32_t createSocket(Util::Network::Socket::Type socketType) {
-    return Kernel::System::getService<Kernel::NetworkService>().createSocket(socketType);
+    return Kernel::Service::getService<Kernel::NetworkService>().createSocket(socketType);
 }
 
 bool sendDatagram(int32_t fileDescriptor, const Util::Network::Datagram &datagram) {
-    auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor));
+    auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor));
     return socket.send(datagram);
 }
 
 bool receiveDatagram(int32_t fileDescriptor, Util::Network::Datagram &datagram) {
-    auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor));
+    auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor));
     auto *kernelDatagram = socket.receive();
     auto *datagramBuffer = new uint8_t[kernelDatagram->getLength()];
 
@@ -169,41 +169,41 @@ bool receiveDatagram(int32_t fileDescriptor, Util::Network::Datagram &datagram) 
 }
 
 Util::Async::Process executeBinary(const Util::Io::File &binaryFile, const Util::Io::File &inputFile, const Util::Io::File &outputFile, const Util::Io::File &errorFile, const Util::String &command, const Util::Array<Util::String> &arguments) {
-    auto &process = Kernel::System::getService<Kernel::ProcessService>().loadBinary(binaryFile, inputFile, outputFile, errorFile, command, arguments);
+    auto &process = Kernel::Service::getService<Kernel::ProcessService>().loadBinary(binaryFile, inputFile, outputFile, errorFile, command, arguments);
     return Util::Async::Process(process.getId());
 }
 
 Util::Async::Process getCurrentProcess() {
-    auto &process = Kernel::System::getService<Kernel::ProcessService>().getCurrentProcess();
+    auto &process = Kernel::Service::getService<Kernel::ProcessService>().getCurrentProcess();
     return Util::Async::Process(process.getId());
 }
 Util::Async::Thread createThread(const Util::String &name, Util::Async::Runnable *runnable) {
-    auto &thread = Kernel::Thread::createKernelThread(name, Kernel::System::getService<Kernel::ProcessService>().getKernelProcess(), runnable);
-    Kernel::System::getService<Kernel::SchedulerService>().ready(thread);
+    auto &thread = Kernel::Thread::createKernelThread(name, Kernel::Service::getService<Kernel::ProcessService>().getKernelProcess(), runnable);
+    Kernel::Service::getService<Kernel::SchedulerService>().ready(thread);
     return Util::Async::Thread(thread.getId());
 }
 
 Util::Async::Thread getCurrentThread() {
-    auto &thread = Kernel::System::getService<Kernel::SchedulerService>().getCurrentThread();
+    auto &thread = Kernel::Service::getService<Kernel::SchedulerService>().getCurrentThread();
     return Util::Async::Thread(thread.getId());
 }
 
 void joinThread(uint32_t id) {
-    auto *thread = Kernel::System::getService<Kernel::SchedulerService>().getThread(id);
+    auto *thread = Kernel::Service::getService<Kernel::SchedulerService>().getThread(id);
     if (thread != nullptr) {
         thread->join();
     }
 }
 
 void joinProcess(uint32_t id) {
-    auto *process = Kernel::System::getService<Kernel::ProcessService>().getProcess(id);
+    auto *process = Kernel::Service::getService<Kernel::ProcessService>().getProcess(id);
     if (process != nullptr) {
         process->join();
     }
 }
 
 void killProcess(uint32_t id) {
-    auto &processService = Kernel::System::getService<Kernel::ProcessService>();
+    auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
     auto *process = processService.getProcess(id);
     if (process != nullptr) {
         processService.killProcess(*process);
@@ -212,34 +212,34 @@ void killProcess(uint32_t id) {
 
 void sleep(const Util::Time::Timestamp &time) {
     if (isSchedulerInitialized()) {
-        Kernel::System::getService<Kernel::SchedulerService>().sleep(time);
+        Kernel::Service::getService<Kernel::SchedulerService>().sleep(time);
     } else {
-        Kernel::System::getService<Kernel::TimeService>().busyWait(time);
+        Kernel::Service::getService<Kernel::TimeService>().busyWait(time);
     }
 }
 
 void yield() {
-    Kernel::System::getService<Kernel::SchedulerService>().yield();
+    Kernel::Service::getService<Kernel::SchedulerService>().yield();
 }
 
 bool isSchedulerInitialized() {
-    return Kernel::System::getService<Kernel::SchedulerService>().isSchedulerInitialized();
+    return Kernel::Service::getService<Kernel::SchedulerService>().isSchedulerInitialized();
 }
 
 Util::Time::Timestamp getSystemTime() {
-    return Kernel::System::getService<Kernel::TimeService>().getSystemTime();
+    return Kernel::Service::getService<Kernel::TimeService>().getSystemTime();
 }
 
 Util::Time::Date getCurrentDate() {
-    return Kernel::System::getService<Kernel::TimeService>().getCurrentDate();
+    return Kernel::Service::getService<Kernel::TimeService>().getCurrentDate();
 }
 
 void setDate(const Util::Time::Date &date) {
-    Kernel::System::getService<Kernel::TimeService>().setCurrentDate(date);
+    Kernel::Service::getService<Kernel::TimeService>().setCurrentDate(date);
 }
 
 bool shutdown(Util::Hardware::Machine::ShutdownType type) {
-    auto &powerManagementService = Kernel::System::getService<Kernel::PowerManagementService>();
+    auto &powerManagementService = Kernel::Service::getService<Kernel::PowerManagementService>();
 
     if (type == Util::Hardware::Machine::SHUTDOWN) {
         powerManagementService.shutdownMachine();

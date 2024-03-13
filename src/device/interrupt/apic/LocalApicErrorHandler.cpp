@@ -31,7 +31,7 @@ struct InterruptFrameOld;
 namespace Device {
 
 void LocalApicErrorHandler::plugin() {
-    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     interruptService.assignInterrupt(Kernel::InterruptVector::ERROR, *this);
 }
 

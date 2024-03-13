@@ -39,6 +39,7 @@
 #include "lib/util/collection/ArrayList.h"
 #include "kernel/memory/MemoryLayout.h"
 #include "lib/util/hardware/Acpi.h"
+#include "kernel/service/InformationService.h"
 
 namespace Kernel {
 enum GlobalSystemInterrupt : uint32_t;
@@ -59,7 +60,8 @@ Apic::Apic(const Util::Array<LocalApic*> &localApicsArray, IoApic *ioApic) : loc
 }
 
 bool Apic::isAvailable() {
-    return LocalApic::supportsXApic() && Acpi::isAvailable() && Acpi::hasTable("APIC");
+    const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
+    return LocalApic::supportsXApic() && acpi.hasTable("APIC");
 }
 
 Apic* Apic::initialize() {
@@ -82,9 +84,10 @@ Apic* Apic::initialize() {
     auto *apic = new Apic(localApics, ioApic);
 
     // Initialize our local APIC, all others are only initialized when SMP is started up
-    const auto &madt = Acpi::getTable<Util::Hardware::Acpi::Madt>("APIC");
+    const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
+    const auto &madt = acpi.getTable<Util::Hardware::Acpi::Madt>("APIC");
     log.info("Enabling xAPIC mode");
-    LocalApic::enableXApicMode(madt.localApicAddress);
+    LocalApic::enableXApicMode(reinterpret_cast<void *>(madt.localApicAddress));
     log.info("Initializing local APIC [%u]", apic->getCurrentLocalApic().getCpuId());
     apic->initializeCurrentLocalApic();
 
@@ -164,9 +167,10 @@ bool Apic::isExternalInterrupt(Kernel::InterruptVector vector) const {
 }
 
 Util::Array<LocalApic*> Apic::getLocalApics() {
+    const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
     auto localApics = Util::ArrayList<LocalApic*>();
-    auto acpiLocalApics = Acpi::getMadtStructures<Util::Hardware::Acpi::ProcessorLocalApic>(Util::Hardware::Acpi::PROCESSOR_LOCAL_APIC);
-    auto acpiLocalApicNmis = Acpi::getMadtStructures<Util::Hardware::Acpi::LocalApicNmi>(Util::Hardware::Acpi::LOCAL_APIC_NMI);
+    auto acpiLocalApics = acpi.getMadtStructures<Util::Hardware::Acpi::ProcessorLocalApic>(Util::Hardware::Acpi::PROCESSOR_LOCAL_APIC);
+    auto acpiLocalApicNmis = acpi.getMadtStructures<Util::Hardware::Acpi::LocalApicNmi>(Util::Hardware::Acpi::LOCAL_APIC_NMI);
 
     if (acpiLocalApics.length() == 0) {
         log.error("No local APIC detected");
@@ -230,9 +234,10 @@ Util::Array<LocalApic*> Apic::getLocalApics() {
 }
 
 IoApic *Apic::getIoApic() {
-    auto acpiIoApics = Acpi::getMadtStructures<Util::Hardware::Acpi::IoApic>(Util::Hardware::Acpi::IO_APIC);
-    auto acpiNmiSources = Acpi::getMadtStructures<Util::Hardware::Acpi::NmiSource>(Util::Hardware::Acpi::NON_MASKABLE_INTERRUPT_SOURCE);
-    auto acpiInterruptSourceOverrides = Acpi::getMadtStructures<Util::Hardware::Acpi::InterruptSourceOverride>(Util::Hardware::Acpi::INTERRUPT_SOURCE_OVERRIDE);
+    const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
+    auto acpiIoApics = acpi.getMadtStructures<Util::Hardware::Acpi::IoApic>(Util::Hardware::Acpi::IO_APIC);
+    auto acpiNmiSources = acpi.getMadtStructures<Util::Hardware::Acpi::NmiSource>(Util::Hardware::Acpi::NON_MASKABLE_INTERRUPT_SOURCE);
+    auto acpiInterruptSourceOverrides = acpi.getMadtStructures<Util::Hardware::Acpi::InterruptSourceOverride>(Util::Hardware::Acpi::INTERRUPT_SOURCE_OVERRIDE);
 
     if (acpiIoApics.length() == 0) {
         // This is illegal, because this implementation does not support virtual wire mode
@@ -250,7 +255,7 @@ IoApic *Apic::getIoApic() {
     log.info("[%u] interrupt source %s found", acpiInterruptSourceOverrides.length(), acpiInterruptSourceOverrides.length() == 1 ? "override" : "overrides");
 
     const auto *ioInfo = acpiIoApics[0];
-    auto *ioApic = new IoApic(ioInfo->ioApicId, ioInfo->ioApicAddress, static_cast<Kernel::GlobalSystemInterrupt>(ioInfo->globalSystemInterruptBase));
+    auto *ioApic = new IoApic(ioInfo->ioApicId, reinterpret_cast<void*>(ioInfo->ioApicAddress), static_cast<Kernel::GlobalSystemInterrupt>(ioInfo->globalSystemInterruptBase));
 
     // Add all NMIs that belong to this I/O APIC
     for (const auto *nmi : acpiNmiSources) {
@@ -419,7 +424,7 @@ void Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
     boot_ap_entry = reinterpret_cast<uint32_t>(&applicationProcessorEntry);
 
     // Identity map the allocated physical memory to the kernel address space (So addresses don't change after enabling paging)
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     memoryService.mapPhysical(
             reinterpret_cast<void *>(Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress),
             reinterpret_cast<void *>(Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress), 0,
@@ -453,7 +458,7 @@ void *Apic::prepareApplicationProcessorGdts() {
 
 Cpu::Descriptor *Apic::allocateApplicationProcessorGdt() {
     // Allocate memory for the GDT and TSS. This is never freed, as its used as long as the system runs.
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
 
     auto *gdt = reinterpret_cast<uint16_t*>(memoryService.allocateLowerMemory(48));
 

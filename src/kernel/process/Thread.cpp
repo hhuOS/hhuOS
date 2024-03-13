@@ -31,7 +31,7 @@
 #include "lib/util/collection/Iterator.h"
 
 void kickoff() {
-    Kernel::System::getService<Kernel::SchedulerService>().kickoffThread();
+    Kernel::Service::getService<Kernel::SchedulerService>().kickoffThread();
 }
 
 namespace Kernel {
@@ -42,8 +42,8 @@ Thread::Thread(const Util::String &name, Process &parent, Util::Async::Runnable 
         id(idGenerator.next()), name(name), parent(parent), runnable(runnable), kernelStack(kernelStack), userStack(userStack),
         interruptFrame(*reinterpret_cast<InterruptFrameOld*>(kernelStack->getStart() - sizeof(InterruptFrameOld))),
         kernelContext(reinterpret_cast<Context*>(kernelStack->getStart() - sizeof(InterruptFrameOld) - sizeof(Context))),
-        fpuContext(static_cast<uint8_t*>(System::getService<MemoryService>().allocateKernelMemory(512, 16))) {
-    auto source = Util::Address<uint32_t>(System::getService<SchedulerService>().getDefaultFpuContext());
+        fpuContext(static_cast<uint8_t*>(Service::getService<MemoryService>().allocateKernelMemory(512, 16))) {
+    auto source = Util::Address<uint32_t>(Service::getService<SchedulerService>().getDefaultFpuContext());
     Util::Address<uint32_t>(fpuContext).copyRange(source, 512);
 }
 
@@ -151,7 +151,7 @@ uint8_t *Thread::getFpuContext() const {
 }
 
 void Thread::join() {
-    System::getService<SchedulerService>().join(*this);
+    Service::getService<SchedulerService>().join(*this);
 }
 
 Thread::Stack::Stack(uint8_t *stack, uint32_t size) : stack(stack), size(size) {
@@ -172,12 +172,12 @@ uint8_t* Thread::Stack::getStart() const {
 }
 
 Thread::Stack* Thread::Stack::createKernelStack(uint32_t size) {
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     return new Stack(static_cast<uint8_t*>(memoryService.allocateKernelMemory(size, 16)), size);
 }
 
 Thread::Stack* Thread::Stack::createUserStack(uint32_t size) {
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     return new Stack(static_cast<uint8_t*>(memoryService.allocateUserMemory(size, 16)), size);
 }
 

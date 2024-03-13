@@ -38,10 +38,9 @@ class Acpi {
 public:
 
     /**
-     * Default Constructor.
-     * Deleted, as this class has only static members.
+     * Constructor.
      */
-    Acpi() = delete;
+    Acpi();
 
     /**
      * Copy Constructor.
@@ -55,51 +54,44 @@ public:
 
     /**
      * Destructor.
-     * Deleted, as this class has only static members.
      */
-    ~Acpi() = delete;
+    ~Acpi() = default;
 
-    static void copyTables(const void *multibootInfo, uint8_t *destination, uint32_t maxBytes);
+    [[nodiscard]] const Util::Hardware::Acpi::Rsdp& getRsdp() const;
 
-    static void initialize();
+    [[nodiscard]] bool hasTable(const char *signature) const;
 
-    static bool isAvailable();
-
-    static const CopyInformation& getCopyInformation();
-
-    static const Util::Hardware::Acpi::Rsdp& getRsdp();
-
-    static bool hasTable(const char *signature);
-
-    static Util::Array<Util::String> getAvailableTables();
+    [[nodiscard]] Util::Array<Util::String> getAvailableTables() const;
 
     template<typename T>
-    static const T& getTable(const char *signature);
+    [[nodiscard]] const T& getTable(const char *signature) const;
 
     template<typename T>
-    static Util::Array<const T*> getMadtStructures(Util::Hardware::Acpi::ApicStructureType type);
+    [[nodiscard]] Util::Array<const T*> getMadtStructures(Util::Hardware::Acpi::ApicStructureType type) const;
 
 private:
 
-    static Util::Hardware::Acpi::Rsdp* findRsdp(const void *multibootInfo);
+    static const Util::Hardware::Acpi::Rsdp* findRsdp();
 
-    static Util::Hardware::Acpi::Rsdp* searchRsdp(uint32_t startAddress, uint32_t endAddress);
+    static const Util::Hardware::Acpi::Rsdp* searchRsdp(uint32_t startAddress, uint32_t endAddress);
 
-    static bool checkRsdp(Util::Hardware::Acpi::Rsdp *rsdp);
+    static bool checkRsdp(const Util::Hardware::Acpi::Rsdp *rsdp);
 
-    static bool checkSdt(Util::Hardware::Acpi::SdtHeader *sdtHeader);
+    static bool checkSdt(const Util::Hardware::Acpi::SdtHeader *sdtHeader);
 
-    static const CopyInformation *copyInformation;
-    static const Util::Hardware::Acpi::Rsdp *rsdp;
-    static const Util::Hardware::Acpi::SdtHeader **tables;
-    static uint32_t numTables;
+    const Util::Hardware::Acpi::SdtHeader* mapSdt(const Util::Hardware::Acpi::SdtHeader *sdtHeaderPhysical);
+
+    const Util::Hardware::Acpi::Rsdp *rsdp = nullptr;
+    const Util::Hardware::Acpi::Rsdt *rsdt = nullptr;
 };
 
 template<typename T>
-const T& Acpi::getTable(const char *signature) {
+const T& Acpi::getTable(const char *signature) const {
+    auto numTables = (rsdt->header.length - sizeof(Util::Hardware::Acpi::SdtHeader)) / sizeof(uint32_t);
+
     for (uint32_t i = 0; i < numTables; i++) {
-        if (Util::Address<uint32_t>(tables[i]->signature).compareRange(Util::Address<uint32_t>(signature), sizeof(Util::Hardware::Acpi::SdtHeader::signature)) == 0) {
-            return *reinterpret_cast<const T*>(tables[i]);
+        if (Util::Address<uint32_t>(rsdt->tables[i]->signature).compareRange(Util::Address<uint32_t>(signature), sizeof(Util::Hardware::Acpi::SdtHeader::signature)) == 0) {
+            return *reinterpret_cast<const T*>(rsdt->tables[i]);
         }
     }
 
@@ -107,7 +99,7 @@ const T& Acpi::getTable(const char *signature) {
 }
 
 template<typename T>
-Util::Array<const T*> Acpi::getMadtStructures(Util::Hardware::Acpi::ApicStructureType type) {
+Util::Array<const T*> Acpi::getMadtStructures(Util::Hardware::Acpi::ApicStructureType type) const {
     auto structures = Util::ArrayList<const T*>();
 
     const auto &madt = getTable<Util::Hardware::Acpi::Madt>("APIC");

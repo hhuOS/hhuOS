@@ -42,10 +42,10 @@ class Ip4Address;
 
 namespace Kernel::Network::Ip4 {
 
-Ip4Socket::Ip4Socket() : DatagramSocket(System::getService<NetworkService>().getNetworkStack().getIp4Module(), Util::Network::Socket::IP4) {}
+Ip4Socket::Ip4Socket() : DatagramSocket(Service::getService<NetworkService>().getNetworkStack().getIp4Module(), Util::Network::Socket::IP4) {}
 
 Ip4Socket::~Ip4Socket() {
-    auto &ip4Module = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getIp4Module();
+    auto &ip4Module = Kernel::Service::getService<Kernel::NetworkService>().getNetworkStack().getIp4Module();
     ip4Module.deregisterSocket(*this);
 }
 

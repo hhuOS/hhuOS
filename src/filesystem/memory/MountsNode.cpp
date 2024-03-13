@@ -56,7 +56,7 @@ Util::String MountsNode::buildBuffer() {
     auto stream = Util::Io::ByteArrayOutputStream();
     auto printStream = Util::Io::PrintStream(stream);
 
-    auto mountInformation = Kernel::System::getService<Kernel::FilesystemService>().getMountInformation();
+    auto mountInformation = Kernel::Service::getService<Kernel::FilesystemService>().getMountInformation();
     for (const auto &info : mountInformation) {
         printStream << info.device << " on " << info.target << " type " << info.driver << Util::Io::PrintStream::endl;
     }

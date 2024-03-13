@@ -32,7 +32,7 @@ class MemoryDriver;
 
 
 bool Filesystem::mount(const Util::String &deviceName, const Util::String &targetPath, const Util::String &driverName) {
-    auto &storageService = Kernel::System::getService<Kernel::StorageService>();
+    auto &storageService = Kernel::Service::getService<Kernel::StorageService>();
     if (!storageService.isDeviceRegistered(deviceName)) {
         return false;
     }
@@ -126,7 +126,7 @@ bool Filesystem::unmount(const Util::String &path) {
 }
 
 bool Filesystem::createFilesystem(const Util::String &deviceName, const Util::String &driverName) {
-    auto &storageService = Kernel::System::getService<Kernel::StorageService>();
+    auto &storageService = Kernel::Service::getService<Kernel::StorageService>();
     if (!storageService.isDeviceRegistered(deviceName)) {
         return false;
     }

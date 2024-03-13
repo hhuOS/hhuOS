@@ -37,7 +37,7 @@ FilesystemService::FilesystemService() {
             return false;
         }
 
-        auto &filesystemService = System::getService<FilesystemService>();
+        auto &filesystemService = Service::getService<FilesystemService>();
         auto *deviceName = va_arg(arguments, const char*);
         auto *targetPath = va_arg(arguments, const char*);
         auto *driverName = va_arg(arguments, const char*);
@@ -50,7 +50,7 @@ FilesystemService::FilesystemService() {
             return false;
         }
 
-        auto &filesystemService = System::getService<FilesystemService>();
+        auto &filesystemService = Service::getService<FilesystemService>();
         auto *path = va_arg(arguments, const char*);
 
         return filesystemService.unmount(path);
@@ -61,7 +61,7 @@ FilesystemService::FilesystemService() {
             return false;
         }
 
-        auto &filesystemService = System::getService<FilesystemService>();
+        auto &filesystemService = Service::getService<FilesystemService>();
         auto *path = va_arg(arguments, const char*);
         auto &fileDescriptor = *va_arg(arguments, int32_t*);
 
@@ -74,7 +74,7 @@ FilesystemService::FilesystemService() {
             return false;
         }
 
-        auto &filesystemService = System::getService<FilesystemService>();
+        auto &filesystemService = Service::getService<FilesystemService>();
         auto fileDescriptor = va_arg(arguments, int32_t);
 
         filesystemService.closeFile(fileDescriptor);
@@ -93,7 +93,7 @@ FilesystemService::FilesystemService() {
             return false;
         }
 
-        auto &filesystemService = System::getService<FilesystemService>();
+        auto &filesystemService = Service::getService<FilesystemService>();
         return type == Util::Io::File::REGULAR ? filesystemService.createFile(path) : filesystemService.createDirectory(path);
     });
 
@@ -102,7 +102,7 @@ FilesystemService::FilesystemService() {
             return false;
         }
 
-        auto &filesystemService = System::getService<FilesystemService>();
+        auto &filesystemService = Service::getService<FilesystemService>();
         auto *path = va_arg(arguments, const char*);
 
         return filesystemService.deleteFile(path);
@@ -116,7 +116,7 @@ FilesystemService::FilesystemService() {
         auto fileDescriptor = va_arg(arguments, int32_t);
         auto &type = *va_arg(arguments, Util::Io::File::Type*);
 
-        type = System::getService<FilesystemService>().getNode(fileDescriptor).getType();
+        type = Service::getService<FilesystemService>().getNode(fileDescriptor).getType();
         return true;
     });
 
@@ -125,7 +125,7 @@ FilesystemService::FilesystemService() {
             return false;
         }
 
-        auto &filesystemService = System::getService<FilesystemService>();
+        auto &filesystemService = Service::getService<FilesystemService>();
         auto fileDescriptor = va_arg(arguments, int32_t);
         auto &length = *va_arg(arguments, uint64_t*);
 
@@ -138,8 +138,8 @@ FilesystemService::FilesystemService() {
             return false;
         }
 
-        auto &filesystemService = System::getService<FilesystemService>();
-        auto &memoryService = System::getService<MemoryService>();
+        auto &filesystemService = Service::getService<FilesystemService>();
+        auto &memoryService = Service::getService<MemoryService>();
         auto fileDescriptor = va_arg(arguments, int32_t);
         auto **&targetChildren = *va_arg(arguments, char***);
         auto &count = *va_arg(arguments, uint32_t*);
@@ -163,7 +163,7 @@ FilesystemService::FilesystemService() {
             return false;
         }
 
-        auto &filesystemService = System::getService<FilesystemService>();
+        auto &filesystemService = Service::getService<FilesystemService>();
         auto fileDescriptor = va_arg(arguments, int32_t);
         auto *sourceBuffer = va_arg(arguments, uint8_t*);
         auto pos = va_arg(arguments, uint64_t);
@@ -179,7 +179,7 @@ FilesystemService::FilesystemService() {
             return false;
         }
 
-        auto &filesystemService = System::getService<FilesystemService>();
+        auto &filesystemService = Service::getService<FilesystemService>();
         auto fileDescriptor = va_arg(arguments, int32_t);
         auto *targetBuffer = va_arg(arguments, uint8_t*);
         auto pos = va_arg(arguments, uint64_t);
@@ -195,7 +195,7 @@ FilesystemService::FilesystemService() {
             return false;
         }
 
-        auto &filesystemService = System::getService<FilesystemService>();
+        auto &filesystemService = Service::getService<FilesystemService>();
         auto fileDescriptor = va_arg(arguments, int32_t);
         auto request = va_arg(arguments, uint32_t);
         auto &parameters = *va_arg(arguments, const Util::Array<uint32_t>*);
@@ -208,7 +208,7 @@ FilesystemService::FilesystemService() {
             return false;
         }
 
-        auto &processService = System::getService<ProcessService>();
+        auto &processService = Service::getService<ProcessService>();
         auto *path = va_arg(arguments, const char*);
 
         return processService.getCurrentProcess().setWorkingDirectory(path);
@@ -219,8 +219,8 @@ FilesystemService::FilesystemService() {
             return false;
         }
 
-        auto &processService = System::getService<ProcessService>();
-        auto &memoryService = System::getService<MemoryService>();
+        auto &processService = Service::getService<ProcessService>();
+        auto &memoryService = Service::getService<MemoryService>();
         auto *&targetPath = *va_arg(arguments, char**);
         auto path = processService.getCurrentProcess().getWorkingDirectory().getCanonicalPath();
 
@@ -258,19 +258,19 @@ bool FilesystemService::deleteFile(const Util::String &path) {
 }
 
 int32_t FilesystemService::openFile(const Util::String &path) {
-    return System::getService<ProcessService>().getCurrentProcess().getFileDescriptorManager().openFile(path);
+    return Service::getService<ProcessService>().getCurrentProcess().getFileDescriptorManager().openFile(path);
 }
 
 int32_t FilesystemService::registerFile(Filesystem::Node *node) {
-    return System::getService<ProcessService>().getCurrentProcess().getFileDescriptorManager().registerFile(node);
+    return Service::getService<ProcessService>().getCurrentProcess().getFileDescriptorManager().registerFile(node);
 }
 
 void FilesystemService::closeFile(int32_t fileDescriptor) {
-    return System::getService<ProcessService>().getCurrentProcess().getFileDescriptorManager().closeFile(fileDescriptor);
+    return Service::getService<ProcessService>().getCurrentProcess().getFileDescriptorManager().closeFile(fileDescriptor);
 }
 
 Filesystem::Node& FilesystemService::getNode(int32_t fileDescriptor) {
-    return System::getService<ProcessService>().getCurrentProcess().getFileDescriptorManager().getNode(fileDescriptor);
+    return Service::getService<ProcessService>().getCurrentProcess().getFileDescriptorManager().getNode(fileDescriptor);
 }
 
 Filesystem::Filesystem& FilesystemService::getFilesystem() {

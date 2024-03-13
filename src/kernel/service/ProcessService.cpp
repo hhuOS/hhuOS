@@ -37,9 +37,9 @@
 namespace Kernel {
 class VirtualAddressSpace;
 
-ProcessService::ProcessService() : kernelProcess(createProcess(System::getService<MemoryService>().getKernelAddressSpace(), "Kernel", Util::Io::File("/"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"))) {
+ProcessService::ProcessService() : kernelProcess(createProcess(Service::getService<MemoryService>().getKernelAddressSpace(), "Kernel", Util::Io::File("/"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"))) {
     SystemCall::registerSystemCall(Util::System::EXIT_PROCESS, [](uint32_t paramCount, va_list arguments) -> bool {
-        auto &processService = System::getService<ProcessService>();
+        auto &processService = Service::getService<ProcessService>();
         int32_t exitCode = paramCount >=1 ? va_arg(arguments, int32_t) : 0;
 
         processService.exitCurrentProcess(exitCode);
@@ -50,7 +50,7 @@ ProcessService::ProcessService() : kernelProcess(createProcess(System::getServic
             return false;
         }
 
-        auto &processService = System::getService<ProcessService>();
+        auto &processService = Service::getService<ProcessService>();
         auto *binaryFile = va_arg(arguments, Util::Io::File*);
         auto *inputFile = va_arg(arguments, Util::Io::File*);
         auto *outputFile = va_arg(arguments, Util::Io::File*);
@@ -70,7 +70,7 @@ ProcessService::ProcessService() : kernelProcess(createProcess(System::getServic
             return false;
         }
 
-        auto &processService = System::getService<ProcessService>();
+        auto &processService = Service::getService<ProcessService>();
         auto &processId = *va_arg(arguments, uint32_t*);
 
         processId = processService.getCurrentProcess().getId();
@@ -82,7 +82,7 @@ ProcessService::ProcessService() : kernelProcess(createProcess(System::getServic
             return false;
         }
 
-        auto &processService = System::getService<ProcessService>();
+        auto &processService = Service::getService<ProcessService>();
         auto processId = va_arg(arguments, uint32_t);
 
         auto *process = processService.getProcess(processId);
@@ -99,7 +99,7 @@ ProcessService::ProcessService() : kernelProcess(createProcess(System::getServic
             return false;
         }
 
-        auto &processService = System::getService<ProcessService>();
+        auto &processService = Service::getService<ProcessService>();
         auto processId = va_arg(arguments, int32_t);
 
         auto *process = processService.getProcess(processId);
@@ -130,13 +130,13 @@ Process& ProcessService::createProcess(VirtualAddressSpace &addressSpace, const 
 }
 
 Process& ProcessService::loadBinary(const Util::Io::File &binaryFile, const Util::Io::File &inputFile, const Util::Io::File &outputFile, const Util::Io::File &errorFile, const Util::String &command, const Util::Array<Util::String> &arguments) {
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
 
     auto &virtualAddressSpace = memoryService.createAddressSpace();
     auto &process = createProcess(virtualAddressSpace, binaryFile.getCanonicalPath(), Util::Io::File::getCurrentWorkingDirectory(), inputFile, outputFile, errorFile);
     auto &thread = Kernel::Thread::createKernelThread("Loader", process, new Kernel::BinaryLoader(binaryFile.getCanonicalPath(), command, arguments));
 
-    System::getService<SchedulerService>().ready(thread);
+    Service::getService<SchedulerService>().ready(thread);
     return process;
 }
 
@@ -145,7 +145,7 @@ void ProcessService::killProcess(Process &process) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "A process cannot kill itself!");
     }
 
-    auto &schedulerService = System::getService<SchedulerService>();
+    auto &schedulerService = Service::getService<SchedulerService>();
     for (auto *thread : process.getThreads()) {
         schedulerService.kill(*thread);
     }
@@ -160,7 +160,7 @@ void ProcessService::killProcess(Process &process) {
 }
 
 Process& ProcessService::getCurrentProcess() {
-    auto &schedulerService = System::getService<SchedulerService>();
+    auto &schedulerService = Service::getService<SchedulerService>();
     if (!schedulerService.isSchedulerInitialized()) {
         return kernelProcess;
     }
@@ -179,7 +179,7 @@ bool ProcessService::isProcessActive(uint32_t id) {
 }
 
 void ProcessService::exitCurrentProcess(int32_t exitCode) {
-    auto &schedulerService = System::getService<SchedulerService>();
+    auto &schedulerService = Service::getService<SchedulerService>();
     auto &process = getCurrentProcess();
     auto &cleanerThread = Thread::createKernelThread("Address-Space-Cleaner", process, new AddressSpaceCleaner());
 

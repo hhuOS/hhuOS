@@ -22,88 +22,88 @@
 #include "lib/util/base/Address.h"
 #include "lib/util/base/String.h"
 #include "kernel/multiboot/Multiboot.h"
+#include "kernel/service/Service.h"
+#include "kernel/service/InformationService.h"
+#include "kernel/memory/Paging.h"
+#include "kernel/service/MemoryService.h"
 
 namespace Device {
 
-const CopyInformation *Acpi::copyInformation{};
-const Util::Hardware::Acpi::Rsdp *Acpi::rsdp{};
-const Util::Hardware::Acpi::SdtHeader **Acpi::tables{};
-uint32_t Acpi::numTables{};
+Acpi::Acpi() {
+    rsdp = findRsdp();
+    if (rsdp != nullptr) {
+        auto *rsdt = const_cast<Util::Hardware::Acpi::Rsdt*>(reinterpret_cast<const Util::Hardware::Acpi::Rsdt*>(mapSdt(reinterpret_cast<Util::Hardware::Acpi::SdtHeader*>(rsdp->rsdtAddress))));
 
-void Acpi::copyTables(const void *multibootInfo, uint8_t *destination, uint32_t maxBytes) {
-    auto *copyInfo = reinterpret_cast<CopyInformation*>(destination);
-    copyInfo->sourceAddress = 0;
-    copyInfo->targetAreaSize = maxBytes;
-    copyInfo->copiedBytes = sizeof(CopyInformation);
-    copyInfo->success = false;
-
-    auto destinationAddress = Util::Address<uint32_t>(destination + sizeof(CopyInformation));
-
-    auto *rsdp = findRsdp(multibootInfo);
-    copyInfo->sourceAddress = reinterpret_cast<uint32_t>(rsdp);
-    if (rsdp == nullptr) {
-        return;
-    }
-
-    // Copy RSDP
-    if (copyInfo->copiedBytes + sizeof(Util::Hardware::Acpi::Rsdp) > maxBytes) return;
-    destinationAddress.copyRange(Util::Address<uint32_t>(rsdp), sizeof(Util::Hardware::Acpi::Rsdp));
-    rsdp = reinterpret_cast<Util::Hardware::Acpi::Rsdp*>(destinationAddress.get());
-    destinationAddress = destinationAddress.add(sizeof(Util::Hardware::Acpi::Rsdp));
-    copyInfo->copiedBytes += sizeof(Util::Hardware::Acpi::Rsdp);
-
-    // Check and copy RSDT
-    auto *rsdt = reinterpret_cast<Util::Hardware::Acpi::SdtHeader*>(rsdp->rsdtAddress);
-    if (!checkSdt(rsdt)) {
-        rsdp->rsdtAddress = 0;
-        return;
-    }
-
-    auto originalRsdtAddress = rsdp->rsdtAddress;
-    auto copiedRsdtAddress = destinationAddress.get();
-
-    if (copyInfo->copiedBytes + rsdt->length > maxBytes) return;
-    rsdp->rsdtAddress = Kernel::MemoryLayout::PHYSICAL_TO_VIRTUAL(copiedRsdtAddress);
-    destinationAddress.copyRange(Util::Address<uint32_t>(rsdt), rsdt->length);
-    destinationAddress = destinationAddress.add(rsdt->length);
-    copyInfo->copiedBytes += rsdt->length;
-
-    // Copy all tables, pointed to by the RSDT
-    auto **originalEntries = reinterpret_cast<Util::Hardware::Acpi::SdtHeader**>(originalRsdtAddress + sizeof(Util::Hardware::Acpi::SdtHeader));
-    auto *copiedEntries = reinterpret_cast<uint32_t*>(copiedRsdtAddress + sizeof(Util::Hardware::Acpi::SdtHeader));
-    uint32_t numEntries = (rsdt->length - sizeof(Util::Hardware::Acpi::SdtHeader)) / sizeof(uint32_t);
-
-    for (uint32_t i = 0; i < numEntries; i++) {
-        auto *sdt = originalEntries[i];
-        if (checkSdt(sdt)) {
-            if (copyInfo->copiedBytes + sdt->length > maxBytes) return;
-            destinationAddress.copyRange(Util::Address<uint32_t>(sdt), sdt->length);
-            copiedEntries[i] = Kernel::MemoryLayout::PHYSICAL_TO_VIRTUAL(destinationAddress.get());
-            destinationAddress = destinationAddress.add(sdt->length);
-            copyInfo->copiedBytes += sdt->length;
+        auto numTables = (rsdt->header.length - sizeof(Util::Hardware::Acpi::SdtHeader)) / sizeof(uint32_t);
+        for (uint32_t i = 0; i < numTables; i++) {
+            rsdt->tables[i] = mapSdt(rsdt->tables[i]);
         }
-    }
 
-    copyInfo->success = true;
+        Acpi::rsdt = rsdt;
+    }
 }
 
-Util::Hardware::Acpi::Rsdp* Acpi::findRsdp(const void *multibootInfo) {
-    // Search for RSDP in Multiboot tags
-    Util::Hardware::Acpi::Rsdp *oldRsdp = nullptr;
-    Util::Hardware::Acpi::Rsdp *newRsdp = nullptr;
+const Util::Hardware::Acpi::Rsdp& Acpi::getRsdp() const {
+    return *rsdp;
+}
 
-    auto currentAddress = reinterpret_cast<uint32_t>(multibootInfo) + sizeof(Kernel::Multiboot);
-    auto *currentTag = reinterpret_cast<const Kernel::Multiboot::TagHeader*>(currentAddress);
-    while (currentTag->type != Kernel::Multiboot::TERMINATE) {
-        if (currentTag->type == Kernel::Multiboot::ACPI_OLD_RSDP) {
-            oldRsdp = const_cast<Util::Hardware::Acpi::Rsdp*>(&reinterpret_cast<const Kernel::Multiboot::AcpiRsdp*>(currentTag)->rsdp);
-        } else if (currentTag->type == Kernel::Multiboot::ACPI_NEW_RSDP) {
-            newRsdp = const_cast<Util::Hardware::Acpi::Rsdp*>(&reinterpret_cast<const Kernel::Multiboot::AcpiRsdp*>(currentTag)->rsdp);
+bool Acpi::hasTable(const char *signature) const {
+    if (rsdt == nullptr) {
+        return false;
+    }
+
+    auto numTables = (rsdt->header.length - sizeof(Util::Hardware::Acpi::SdtHeader)) / sizeof(uint32_t);
+
+    for (uint32_t i = 0; i < numTables; i++) {
+        if (Util::Address<uint32_t>(rsdt->tables[i]->signature).compareRange(Util::Address<uint32_t>(signature), sizeof(Util::Hardware::Acpi::SdtHeader::signature)) == 0) {
+            return true;
         }
+    }
 
-        currentAddress += currentTag->size;
-        currentAddress = currentAddress % 8 == 0 ? currentAddress : (currentAddress / 8) * 8 + 8;
-        currentTag = reinterpret_cast<const Kernel::Multiboot::TagHeader*>(currentAddress);
+    return false;
+}
+
+Util::Array<Util::String> Acpi::getAvailableTables() const {
+    if (rsdt == nullptr) {
+        Util::Array<Util::String>(0);
+    }
+
+    auto numTables = (rsdt->header.length - sizeof(Util::Hardware::Acpi::SdtHeader)) / sizeof(uint32_t);
+    Util::Array<Util::String> signatures(numTables);
+
+    for (uint32_t i = 0; i < numTables; i++) {
+        signatures[i] = Util::String(reinterpret_cast<const uint8_t*>(rsdt->tables[i]->signature), sizeof(Util::Hardware::Acpi::SdtHeader::signature));
+    }
+
+    return signatures;
+}
+
+const Util::Hardware::Acpi::SdtHeader* Acpi::mapSdt(const Util::Hardware::Acpi::SdtHeader *sdtHeaderPhysical) {
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+    auto sdtPageOffset = rsdp->rsdtAddress % Kernel::Paging::PAGESIZE;
+    auto *sdtPage = memoryService.mapIO(const_cast<void*>(reinterpret_cast<const void*>(sdtHeaderPhysical)), 1);
+    auto *sdtHeaderVirtual = reinterpret_cast<Util::Hardware::Acpi::SdtHeader*>(reinterpret_cast<uint8_t*>(sdtPage) + sdtPageOffset);
+
+    if (sdtHeaderVirtual->length > Kernel::Paging::PAGESIZE) {
+        delete static_cast<uint8_t*>(sdtPage);
+        auto pages = sdtHeaderVirtual->length % Kernel::Paging::PAGESIZE == 0 ? sdtHeaderVirtual->length / Kernel::Paging::PAGESIZE : (sdtHeaderVirtual->length / Kernel::Paging::PAGESIZE) + 1;
+        sdtPage = memoryService.mapIO(const_cast<void*>(reinterpret_cast<const void*>(sdtHeaderPhysical)), pages);
+        sdtHeaderVirtual = reinterpret_cast<Util::Hardware::Acpi::SdtHeader*>(reinterpret_cast<uint8_t*>(sdtPage) + sdtPageOffset);
+    }
+
+    return sdtHeaderVirtual;
+}
+
+const Util::Hardware::Acpi::Rsdp* Acpi::findRsdp() {
+    // Search for RSDP in Multiboot tags
+    const Util::Hardware::Acpi::Rsdp *oldRsdp = nullptr;
+    const Util::Hardware::Acpi::Rsdp *newRsdp = nullptr;
+
+    const auto &multiboot = Kernel::Service::getService<Kernel::InformationService>().getMultibootInformation();
+    if (multiboot.hasTag(Kernel::Multiboot::ACPI_OLD_RSDP)) {
+        oldRsdp = &multiboot.getTag<Kernel::Multiboot::AcpiRsdp>(Kernel::Multiboot::ACPI_OLD_RSDP).rsdp;
+    } else if (multiboot.hasTag(Kernel::Multiboot::ACPI_NEW_RSDP)) {
+        newRsdp = &multiboot.getTag<Kernel::Multiboot::AcpiRsdp>(Kernel::Multiboot::ACPI_NEW_RSDP).rsdp;
     }
 
     if (oldRsdp != nullptr) {
@@ -116,13 +116,13 @@ Util::Hardware::Acpi::Rsdp* Acpi::findRsdp(const void *multibootInfo) {
     auto ebdaStartAddress = *reinterpret_cast<uint16_t*>(0x0000040e) << 4;
     auto rsdpAddress = searchRsdp(ebdaStartAddress, ebdaStartAddress + 1023);
     if (rsdpAddress != nullptr) {
-        return reinterpret_cast<Util::Hardware::Acpi::Rsdp*>(rsdpAddress);
+        return rsdpAddress;
     }
 
-    return reinterpret_cast<Util::Hardware::Acpi::Rsdp*>(searchRsdp(0x000e0000, 0x000fffff));
+    return searchRsdp(0x000e0000, 0x000fffff);
 }
 
-Util::Hardware::Acpi::Rsdp* Acpi::searchRsdp(uint32_t startAddress, uint32_t endAddress) {
+const Util::Hardware::Acpi::Rsdp* Acpi::searchRsdp(uint32_t startAddress, uint32_t endAddress) {
     char signature[sizeof(Util::Hardware::Acpi::Rsdp::signature)] = {'R', 'S', 'D', ' ', 'P', 'T', 'R', ' '};
     auto signatureAddress = Util::Address<uint32_t>(signature);
     startAddress = Util::Address<uint32_t>(startAddress).alignUp(16).get();
@@ -130,8 +130,8 @@ Util::Hardware::Acpi::Rsdp* Acpi::searchRsdp(uint32_t startAddress, uint32_t end
     for (uint32_t i = startAddress; i <= endAddress - sizeof(signature); i += 16) {
         auto address = Util::Address<uint32_t>(i);
         if (address.compareRange(signatureAddress, sizeof(Util::Hardware::Acpi::Rsdp::signature)) == 0) {
-            if (checkRsdp(reinterpret_cast<Util::Hardware::Acpi::Rsdp*>(i))) {
-                return reinterpret_cast<Util::Hardware::Acpi::Rsdp*>(i);
+            if (checkRsdp(reinterpret_cast<const Util::Hardware::Acpi::Rsdp*>(i))) {
+                return reinterpret_cast<const Util::Hardware::Acpi::Rsdp*>(i);
             }
         }
     }
@@ -139,66 +139,22 @@ Util::Hardware::Acpi::Rsdp* Acpi::searchRsdp(uint32_t startAddress, uint32_t end
     return nullptr;
 }
 
-bool Acpi::checkRsdp(Util::Hardware::Acpi::Rsdp *rsdp) {
+bool Acpi::checkRsdp(const Util::Hardware::Acpi::Rsdp *rsdp) {
     uint32_t sum = 0;
     for (uint32_t i = 0; i < sizeof(Util::Hardware::Acpi::Rsdp); i++) {
-        sum += reinterpret_cast<uint8_t*>(rsdp)[i];
+        sum += reinterpret_cast<const uint8_t*>(rsdp)[i];
     }
 
     return static_cast<uint8_t>(sum) == 0;
 }
 
-bool Acpi::checkSdt(Util::Hardware::Acpi::SdtHeader *sdtHeader) {
+bool Acpi::checkSdt(const Util::Hardware::Acpi::SdtHeader *sdtHeader) {
     uint32_t sum = 0;
     for (uint32_t i = 0; i < sdtHeader->length; i++) {
-        sum += reinterpret_cast<uint8_t*>(sdtHeader)[i];
+        sum += reinterpret_cast<const uint8_t*>(sdtHeader)[i];
     }
 
     return static_cast<uint8_t>(sum) == 0;
-}
-
-void Acpi::initialize() {
-    /*copyInformation = reinterpret_cast<const CopyInformation*>(&acpi_data);
-    if (copyInformation->success) {
-        rsdp = reinterpret_cast<const Util::Hardware::Acpi::Rsdp*>(&acpi_data + sizeof(CopyInformation));
-        tables = reinterpret_cast<const Util::Hardware::Acpi::SdtHeader**>(rsdp->rsdtAddress + sizeof(Util::Hardware::Acpi::SdtHeader));
-        numTables = (reinterpret_cast<Util::Hardware::Acpi::SdtHeader*>(rsdp->rsdtAddress)->length - sizeof(Util::Hardware::Acpi::SdtHeader)) / sizeof(uint32_t);
-    } else {
-        rsdp = nullptr;
-        tables = nullptr;
-        numTables = 0;
-    }*/
-}
-
-bool Acpi::isAvailable() {
-    return copyInformation->success;
-}
-
-const CopyInformation &Acpi::getCopyInformation() {
-    return *copyInformation;
-}
-
-const Util::Hardware::Acpi::Rsdp& Acpi::getRsdp() {
-    return *rsdp;
-}
-
-bool Acpi::hasTable(const char *signature) {
-    for (uint32_t i = 0; i < numTables; i++) {
-        if (Util::Address<uint32_t>(tables[i]->signature).compareRange(Util::Address<uint32_t>(signature), sizeof(Util::Hardware::Acpi::SdtHeader::signature)) == 0) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-Util::Array<Util::String> Acpi::getAvailableTables() {
-    Util::Array<Util::String> signatures(numTables);
-    for (uint32_t i = 0; i < numTables; i++) {
-        signatures[i] = Util::String(reinterpret_cast<const uint8_t*>(tables[i]->signature), sizeof(Util::Hardware::Acpi::SdtHeader::signature));
-    }
-
-    return signatures;
 }
 
 }

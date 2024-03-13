@@ -90,6 +90,8 @@ public:
 
     void* allocatePhysicalMemory(uint32_t frameCount);
 
+    void freePhysicalMemory(void *pointer, uint32_t frameCount);
+
     /**
      * Allocate space in PageTableArea.
      *

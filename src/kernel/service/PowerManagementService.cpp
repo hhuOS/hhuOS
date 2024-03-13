@@ -33,7 +33,7 @@ PowerManagementService::PowerManagementService() {
             return false;
         }
 
-        auto &powerManagementService = System::getService<PowerManagementService>();
+        auto &powerManagementService = Service::getService<PowerManagementService>();
         auto type = static_cast<Util::Hardware::Machine::ShutdownType>(va_arg(arguments, uint32_t));
 
         if (type == Util::Hardware::Machine::SHUTDOWN) {

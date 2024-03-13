@@ -32,7 +32,7 @@ Process::Process(VirtualAddressSpace &addressSpace, const Util::String &name, co
         id(idGenerator.next()), name(name), addressSpace(addressSpace), workingDirectory(workingDirectory) {}
 
 Process::~Process() {
-    Kernel::System::getService<Kernel::MemoryService>().removeAddressSpace(addressSpace);
+    Kernel::Service::getService<Kernel::MemoryService>().removeAddressSpace(addressSpace);
 }
 
 bool Process::operator==(const Process &other) const {
@@ -99,7 +99,7 @@ void Process::setMainThread(Thread &thread) {
 }
 
 void Process::join() {
-    auto &schedulerService = System::getService<SchedulerService>();
+    auto &schedulerService = Service::getService<SchedulerService>();
     while (mainThread == nullptr) {
         if (finished) {
             return;
@@ -128,7 +128,7 @@ void Process::removeThread(Thread &thread) {
 }
 
 void Process::killAllThreadsButCurrent() {
-    auto &schedulerService = System::getService<SchedulerService>();
+    auto &schedulerService = Service::getService<SchedulerService>();
     auto currentThreadId = schedulerService.getCurrentThread().getId();
 
     for (auto *thread : threads) {

@@ -51,7 +51,7 @@ ApicTimer::ApicTimer(uint32_t timerInterval, uint32_t yieldInterval) : cpuId(Loc
 }
 
 void ApicTimer::plugin() {
-    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     interruptService.assignInterrupt(Kernel::InterruptVector::APICTIMER, *this);
     LocalApic::allow(LocalApic::TIMER);
 }
@@ -75,7 +75,7 @@ void ApicTimer::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVe
 
     if (time.toMilliseconds() % yieldInterval == 0) {
         // Currently there is only one main scheduler, for SMP systems this should yield the core scheduler or something similar.
-        Kernel::System::getService<Kernel::SchedulerService>().yield();
+        Kernel::Service::getService<Kernel::SchedulerService>().yield();
     }
 }
 

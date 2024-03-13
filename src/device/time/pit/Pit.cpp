@@ -44,7 +44,7 @@ void Pit::setInterruptRate(uint32_t interval) {
     log.info("Setting PIT interval to [%ums] (Divisor: [%u])", timerInterval / 1000000 < 1 ? 1 : timerInterval / 1000000, divisor);
 
     // For some reason, the PIT interrupt rate is doubled, when it is attached to an IO APIC (only in QEMU)
-    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     if (FirmwareConfiguration::isAvailable() && interruptService.usesApic()) {
         divisor *= 2;
     }
@@ -55,7 +55,7 @@ void Pit::setInterruptRate(uint32_t interval) {
 }
 
 void Pit::plugin() {
-    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     interruptService.assignInterrupt(Kernel::InterruptVector::PIT, *this);
     interruptService.allowHardwareInterrupt(Device::InterruptRequest::PIT);
 }
@@ -63,9 +63,9 @@ void Pit::plugin() {
 void Pit::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
     time.addNanoseconds(timerInterval);
 
-    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     if (!interruptService.usesApic() && time.toMilliseconds() % yieldInterval == 0) {
-        Kernel::System::getService<Kernel::SchedulerService>().yield();
+        Kernel::Service::getService<Kernel::SchedulerService>().yield();
     }
 }
 

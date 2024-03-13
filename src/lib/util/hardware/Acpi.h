@@ -46,6 +46,11 @@ public:
         uint32_t creatorRevision;
     } __attribute__ ((packed));
 
+    struct Rsdt {
+        SdtHeader header;
+        const SdtHeader* tables[];
+    } __attribute__ ((packed));
+
     enum PowerManagementProfile : uint8_t {
         UNSPECIFIED = 0x00,
         DESKTOP = 0x01,

@@ -30,10 +30,10 @@
 
 namespace Kernel::Network::Udp {
 
-UdpSocket::UdpSocket() : DatagramSocket(System::getService<NetworkService>().getNetworkStack().getUdpModule(), Util::Network::Socket::UDP) {}
+UdpSocket::UdpSocket() : DatagramSocket(Service::getService<NetworkService>().getNetworkStack().getUdpModule(), Util::Network::Socket::UDP) {}
 
 UdpSocket::~UdpSocket() {
-    auto &udpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getUdpModule();
+    auto &udpModule = Kernel::Service::getService<Kernel::NetworkService>().getNetworkStack().getUdpModule();
     udpModule.deregisterSocket(*this);
 }
 

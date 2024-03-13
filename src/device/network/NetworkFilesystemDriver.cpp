@@ -30,7 +30,7 @@ NetworkFilesystemDriver::NetworkFilesystemDriver(NetworkDevice &device) : device
 }
 
 bool NetworkFilesystemDriver::mount(NetworkDevice &device) {
-    auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
+    auto &filesystemService = Kernel::Service::getService<Kernel::FilesystemService>();
     auto path = "/device/" + device.getIdentifier();
     auto *driver = new NetworkFilesystemDriver(device);
 

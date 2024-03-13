@@ -49,7 +49,7 @@ MemoryService::MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaM
             return false;
         }
 
-        auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+        auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
         auto virtualAddress = va_arg(arguments, void*);
         auto pageCount = va_arg(arguments, uint32_t);
         auto breakCount = va_arg(arguments, uint32_t);
@@ -66,7 +66,7 @@ MemoryService::MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaM
             return false;
         }
 
-        auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+        auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
         auto *physicalAddress = va_arg(arguments, void*);
         auto pageCount = va_arg(arguments, uint32_t);
         void *&mappedAddress = *va_arg(arguments, void**);
@@ -140,9 +140,7 @@ void* MemoryService::allocatePhysicalMemory(uint32_t frameCount) {
                 contiguous = false;
 
                 // Allocated frames are not contiguous -> Free them and try again
-                for (uint32_t j = 0; j < i; j++) {
-                    pageFrameAllocator.freeBlock(reinterpret_cast<void*>(reinterpret_cast<uint32_t>(physicalStartAddress) + j * Kernel::Paging::PAGESIZE));
-                }
+                freePhysicalMemory(physicalStartAddress, i);
 
                 physicalStartAddress = currentPhysicalAddress;
                 break;
@@ -151,6 +149,12 @@ void* MemoryService::allocatePhysicalMemory(uint32_t frameCount) {
     } while (!contiguous);
 
     return physicalStartAddress;
+}
+
+void MemoryService::freePhysicalMemory(void *pointer, uint32_t frameCount) {
+    for (uint32_t i = 0; i < frameCount; i++) {
+        pageFrameAllocator.freeBlock(static_cast<uint8_t*>(pointer) + i * Kernel::Paging::PAGESIZE);
+    }
 }
 
 Paging::Table* MemoryService::allocatePageTable() {
@@ -214,13 +218,16 @@ void* Kernel::MemoryService::unmap(void *virtualAddress, uint32_t pageCount, uin
 
 void Kernel::MemoryService::mapPhysical(void *physicalAddress, void *virtualAddress, uint32_t pageCount, uint16_t flags) {
     for (uint32_t i = 0; i < pageCount; i++) {
+        void *currentPhysicalAddress = reinterpret_cast<uint8_t*>(physicalAddress) + i * Kernel::Paging::PAGESIZE;
+        void *currentVirtualAddress = reinterpret_cast<uint8_t*>(virtualAddress) + i * Kernel::Paging::PAGESIZE;
+
         // If the virtual address is already mapped, we have to unmap it.
         // This can happen because the headers of the free list are mapped to arbitrary physical addresses, but the memory should be mapped to the given physical addresses.
-        unmap(virtualAddress, 1);
+        unmap(currentVirtualAddress, 1);
         // Mark the physical page frame as used
         physicalAddress = pageFrameAllocator.allocateBlockAtAddress(physicalAddress);
         // Map the page into the current address space
-        currentAddressSpace->map(reinterpret_cast<uint8_t*>(physicalAddress) + i * Kernel::Paging::PAGESIZE, reinterpret_cast<uint8_t*>(virtualAddress) + i * Kernel::Paging::PAGESIZE, flags);
+        currentAddressSpace->map(currentPhysicalAddress, currentVirtualAddress, flags);
     }
 }
 

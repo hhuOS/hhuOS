@@ -279,11 +279,13 @@ public:
 
     Util::Array<TagType> getAvailableTagTypes() const;
 
+    uint32_t getSize() const;
+
 private:
 
     uint32_t size;
     uint32_t reserved;
-};
+} __attribute__ ((packed));
 
 template<typename T>
 const T& Multiboot::getTag(Multiboot::TagType type) const {

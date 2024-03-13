@@ -77,7 +77,7 @@ private:
 
     bool isUnrecoverableException(Kernel::InterruptVector slot);
 
-    Util::List<InterruptHandler*>* handler[256];
+    Util::List<InterruptHandler*>* handler[256]{};
 
 };
 

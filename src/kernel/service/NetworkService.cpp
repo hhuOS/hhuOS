@@ -64,7 +64,7 @@ NetworkService::NetworkService() {
             return false;
         }
 
-        auto &networkService = System::getService<NetworkService>();
+        auto &networkService = Service::getService<NetworkService>();
         auto socketType = static_cast<Util::Network::Socket::Type>(va_arg(arguments, int));
         auto &fileDescriptor = *va_arg(arguments, int32_t*);
 
@@ -77,7 +77,7 @@ NetworkService::NetworkService() {
             return false;
         }
 
-        auto &filesystemService = System::getService<FilesystemService>();
+        auto &filesystemService = Service::getService<FilesystemService>();
         auto fileDescriptor = va_arg(arguments, int32_t);
         auto &datagram = *va_arg(arguments, Util::Network::Datagram*);
 
@@ -94,8 +94,8 @@ NetworkService::NetworkService() {
             return false;
         }
 
-        auto &filesystemService = System::getService<FilesystemService>();
-        auto &memoryService = System::getService<MemoryService>();
+        auto &filesystemService = Service::getService<FilesystemService>();
+        auto &memoryService = Service::getService<MemoryService>();
         auto fileDescriptor = va_arg(arguments, int32_t);
         auto &datagram = *va_arg(arguments, Util::Network::Datagram*);
 
@@ -205,7 +205,7 @@ int32_t NetworkService::createSocket(Util::Network::Socket::Type socketType) {
             return false;
     }
 
-    auto &filesystemService = System::getService<FilesystemService>();
+    auto &filesystemService = Service::getService<FilesystemService>();
     return filesystemService.registerFile(socket);
 }
 

@@ -69,7 +69,7 @@ void disable_interrupts() {
 
 void dispatch_interrupt(Kernel::InterruptFrameOld *frame) {
     /*if (Kernel::System::isInitialized()) {
-        Kernel::System::getService<Kernel::InterruptService>().dispatchInterrupt(*frame);
+        Kernel::Service::getService<Kernel::InterruptService>().dispatchInterrupt(*frame);
     } else {
         Kernel::System::handleEarlyInterrupt(*frame);
     }*/
@@ -81,15 +81,15 @@ void set_tss_stack_entry(uint32_t esp0) {
 }
 
 void set_scheduler_init() {
-    Kernel::System::getService<Kernel::SchedulerService>().setSchedulerInit();
+    Kernel::Service::getService<Kernel::SchedulerService>().setSchedulerInit();
 }
 
 bool is_scheduler_initialized() {
-    return Kernel::System::getService<Kernel::SchedulerService>().isSchedulerInitialized();
+    return Kernel::Service::getService<Kernel::SchedulerService>().isSchedulerInitialized();
 }
 
 void release_scheduler_lock() {
-    Kernel::System::getService<Kernel::SchedulerService>().unlockScheduler();
+    Kernel::Service::getService<Kernel::SchedulerService>().unlockScheduler();
 }
 
 int32_t atexit (void (*func)()) noexcept {

@@ -39,8 +39,8 @@ NetworkDevice::NetworkDevice() :
         reader(new PacketReader(*this)),
         writer(new PacketWriter(*this)),
         log(Kernel::Logger::get("Network")) {
-    auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
-    auto &processService = Kernel::System::getService<Kernel::ProcessService>();
+    auto &schedulerService = Kernel::Service::getService<Kernel::SchedulerService>();
+    auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
     auto &readerThread = Kernel::Thread::createKernelThread(Util::String::format("Packet-Reader"), processService.getKernelProcess(), reader);
     auto &writerThread = Kernel::Thread::createKernelThread(Util::String::format("Packet-Writer"), processService.getKernelProcess(), writer);
 

@@ -57,8 +57,8 @@ FloppyDevice::FloppyDevice(FloppyController &controller, uint8_t driveNumber, Fl
             gapLength = 27;
     }
 
-    auto &motorControlThread = Kernel::Thread::createKernelThread(Util::String::format("Floppy-%u-Motor-Controller", driveNumber), Kernel::System::getService<Kernel::ProcessService>().getKernelProcess(), motorControlRunnable);
-    Kernel::System::getService<Kernel::SchedulerService>().ready(motorControlThread);
+    auto &motorControlThread = Kernel::Thread::createKernelThread(Util::String::format("Floppy-%u-Motor-Controller", driveNumber), Kernel::Service::getService<Kernel::ProcessService>().getKernelProcess(), motorControlRunnable);
+    Kernel::Service::getService<Kernel::SchedulerService>().ready(motorControlThread);
 }
 
 uint32_t FloppyDevice::getSectorSize() {

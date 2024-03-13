@@ -108,7 +108,7 @@ Mouse* Mouse::initialize(Ps2Controller &controller) {
     }
 
     auto *streamNode = new Filesystem::Memory::StreamNode("mouse", mouse);
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+    auto &filesystem = Kernel::Service::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
     bool success = driver.addNode("/", streamNode);
 
@@ -122,7 +122,7 @@ Mouse* Mouse::initialize(Ps2Controller &controller) {
 }
 
 void Mouse::plugin() {
-    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     interruptService.assignInterrupt(Kernel::InterruptVector::MOUSE, *this);
     interruptService.allowHardwareInterrupt(Device::InterruptRequest::MOUSE);
 }

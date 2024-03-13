@@ -65,6 +65,8 @@ public:
      */
     ~InterruptService() override;
 
+    void useApic(Device::Apic *apic);
+
     [[nodiscard]] bool usesApic() const;
 
     void assignInterrupt(InterruptVector slot, InterruptHandler &handler);

@@ -26,13 +26,13 @@
 namespace Kernel {
 
 void AddressSpaceCleaner::run() {
-    auto &schedulerService = System::getService<SchedulerService>();
-    auto &currentProcess = System::getService<ProcessService>().getCurrentProcess();
+    auto &schedulerService = Service::getService<SchedulerService>();
+    auto &currentProcess = Service::getService<ProcessService>().getCurrentProcess();
     while (currentProcess.getThreadCount() > 1) {
         schedulerService.yield();
     }
 
-    System::getService<MemoryService>().unmap(0, 0xbfffffff, 0);
+    Service::getService<MemoryService>().unmap(0, 0xbfffffff, 0);
     schedulerService.cleanup(&currentProcess);
 }
 

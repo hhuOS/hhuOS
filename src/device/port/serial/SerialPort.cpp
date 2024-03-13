@@ -82,7 +82,7 @@ void SerialPort::initializePort(ComPort port) {
     auto *serialPort = new SerialPort(port);
     auto *streamNode = new Filesystem::Memory::StreamNode(Util::String(portToString(port)).toLowerCase(), serialPort, serialPort);
 
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+    auto &filesystem = Kernel::Service::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
     bool success = driver.addNode("/", streamNode);
 
@@ -133,12 +133,12 @@ const char* SerialPort::portToString(const ComPort port) {
 }
 
 void SerialPort::plugin() {
-    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     if (port == COM1 || port == COM3) {
         interruptService.assignInterrupt(Kernel::InterruptVector::COM1, *this);
         interruptService.allowHardwareInterrupt(Device::InterruptRequest::COM1);
     } else {
-        Kernel::System::getService<Kernel::InterruptService>().assignInterrupt(Kernel::InterruptVector::COM2, *this);
+        Kernel::Service::getService<Kernel::InterruptService>().assignInterrupt(Kernel::InterruptVector::COM2, *this);
         interruptService.allowHardwareInterrupt(Device::InterruptRequest::COM2);
     }
 

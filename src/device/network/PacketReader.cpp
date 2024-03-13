@@ -32,7 +32,7 @@ namespace Device::Network {
 PacketReader::PacketReader(Device::Network::NetworkDevice &networkDevice) : networkDevice(networkDevice) {}
 
 void PacketReader::run() {
-    auto &ethernetModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getEthernetModule();
+    auto &ethernetModule = Kernel::Service::getService<Kernel::NetworkService>().getNetworkStack().getEthernetModule();
 
     while (true) {
         const auto &packet = networkDevice.getNextIncomingPacket();

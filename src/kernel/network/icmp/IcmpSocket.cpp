@@ -38,10 +38,10 @@ class Ip4Address;
 
 namespace Kernel::Network::Icmp {
 
-IcmpSocket::IcmpSocket() : DatagramSocket(System::getService<NetworkService>().getNetworkStack().getIcmpModule(), Util::Network::Socket::ICMP) {}
+IcmpSocket::IcmpSocket() : DatagramSocket(Service::getService<NetworkService>().getNetworkStack().getIcmpModule(), Util::Network::Socket::ICMP) {}
 
 IcmpSocket::~IcmpSocket() {
-    auto &icmpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getIcmpModule();
+    auto &icmpModule = Kernel::Service::getService<Kernel::NetworkService>().getNetworkStack().getIcmpModule();
     icmpModule.deregisterSocket(*this);
 }
 

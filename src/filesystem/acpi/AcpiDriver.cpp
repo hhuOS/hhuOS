@@ -24,6 +24,8 @@
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/hardware/Acpi.h"
+#include "kernel/service/Service.h"
+#include "kernel/service/InformationService.h"
 
 namespace Filesystem::Acpi {
 
@@ -31,8 +33,9 @@ AcpiDriver::AcpiDriver() {
     addNode("/", new RsdpNode());
     addNode("/", new Memory::MemoryDirectoryNode("tables"));
 
-    for (const auto &tableSignature : Device::Acpi::getAvailableTables()) {
-        const auto &table = Device::Acpi::getTable<Util::Hardware::Acpi::SdtHeader>(static_cast<const char*>(tableSignature));
+    const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
+    for (const auto &tableSignature : acpi.getAvailableTables()) {
+        const auto &table = acpi.getTable<Util::Hardware::Acpi::SdtHeader>(static_cast<const char*>(tableSignature));
         addNode("/tables", new AcpiTableNode(table));
     }
 }

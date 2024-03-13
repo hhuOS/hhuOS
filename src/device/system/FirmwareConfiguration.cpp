@@ -128,7 +128,7 @@ uint64_t Device::FirmwareConfiguration::performDmaAccess(Device::FirmwareConfigu
         return 0;
     }
 
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     auto *dmaAccess = static_cast<DmaAccess*>(memoryService.mapIO(sizeof(DmaAccess)));
     void *physicalDmaAccessAddress = memoryService.getPhysicalAddress(dmaAccess);
 

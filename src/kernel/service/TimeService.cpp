@@ -38,7 +38,7 @@ TimeService::TimeService(Device::TimeProvider *timeProvider, Device::DateProvide
             return false;
         }
 
-        auto &timeService = System::getService<TimeService>();
+        auto &timeService = Service::getService<TimeService>();
         auto &targetTime = *va_arg(arguments, Util::Time::Timestamp*);
 
         targetTime = timeService.getSystemTime();
@@ -50,7 +50,7 @@ TimeService::TimeService(Device::TimeProvider *timeProvider, Device::DateProvide
             return false;
         }
 
-        auto &timeService = System::getService<TimeService>();
+        auto &timeService = Service::getService<TimeService>();
         auto &targetDate = *va_arg(arguments, Util::Time::Date*);
 
         targetDate = timeService.getCurrentDate();
@@ -62,7 +62,7 @@ TimeService::TimeService(Device::TimeProvider *timeProvider, Device::DateProvide
             return false;
         }
 
-        auto &timeService = System::getService<TimeService>();
+        auto &timeService = Service::getService<TimeService>();
         auto &date = *va_arg(arguments, Util::Time::Date*);
 
         timeService.setCurrentDate(date);
@@ -103,7 +103,7 @@ void TimeService::busyWait(const Util::Time::Timestamp &time) const {
     auto end = getSystemTime().toMilliseconds() + time.toMilliseconds();
 
     while (getSystemTime().toMilliseconds() < end) {
-        System::getService<SchedulerService>().yield();
+        Service::getService<SchedulerService>().yield();
     }
 }
 

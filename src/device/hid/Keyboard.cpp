@@ -113,7 +113,7 @@ Keyboard* Keyboard::initialize(Ps2Controller &controller) {
     }
 
     auto *streamNode = new Filesystem::Memory::StreamNode("keyboard", keyboard);
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+    auto &filesystem = Kernel::Service::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
     bool success = driver.addNode("/", streamNode);
 
@@ -158,7 +158,7 @@ void Keyboard::setLed(Led led, bool on) {
 }
 
 void Keyboard::plugin() {
-    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     interruptService.assignInterrupt(Kernel::InterruptVector::KEYBOARD, *this);
     interruptService.allowHardwareInterrupt(Device::InterruptRequest::KEYBOARD);
 }

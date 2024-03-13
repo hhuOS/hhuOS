@@ -78,7 +78,7 @@ void LinearFrameBufferProvider::initializeLinearFrameBuffer(const LinearFrameBuf
     auto *lfb = initializeLinearFrameBuffer(modeInfo);
 
     // Create filesystem node
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+    auto &filesystem = Kernel::Service::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
     auto *lfbNode = new LinearFrameBufferNode(filename, lfb);
 

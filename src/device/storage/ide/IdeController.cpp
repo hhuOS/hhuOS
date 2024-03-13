@@ -137,7 +137,7 @@ void IdeController::initializeDrives() {
     }
 
     for (auto *device : devices) {
-        Kernel::System::getService<Kernel::StorageService>().registerDevice(device, "ide");
+        Kernel::Service::getService<Kernel::StorageService>().registerDevice(device, "ide");
     }
 }
 
@@ -360,7 +360,7 @@ void IdeController::initializeAvailableControllers() {
 }
 
 void IdeController::plugin() {
-    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     interruptService.assignInterrupt(Kernel::InterruptVector::PRIMARY_ATA, *this);
     interruptService.allowHardwareInterrupt(Device::InterruptRequest::PRIMARY_ATA);
     interruptService.assignInterrupt(Kernel::InterruptVector::SECONDARY_ATA, *this);
@@ -556,7 +556,7 @@ uint16_t IdeController::performProgrammedIO(const IdeController::DeviceInfo &inf
 }
 
 uint16_t IdeController::performDmaIO(const IdeController::DeviceInfo &info, IdeController::TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount) {
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     auto &registers = channels[info.channel];
 
     uint8_t command;

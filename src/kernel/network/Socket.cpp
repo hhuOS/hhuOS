@@ -140,7 +140,7 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
                 Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
             }
 
-            auto &networkService = System::getService<NetworkService>();
+            auto &networkService = Service::getService<NetworkService>();
             auto &ip4Module = networkService.getNetworkStack().getIp4Module();
             auto &device = networkService.getNetworkDevice(reinterpret_cast<Util::Network::MacAddress&>(*bindAddress));
 
@@ -164,7 +164,7 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
                 Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
             }
 
-            auto &networkService = System::getService<NetworkService>();
+            auto &networkService = Service::getService<NetworkService>();
             auto &ip4Module = networkService.getNetworkStack().getIp4Module();
             auto &device = networkService.getNetworkDevice(reinterpret_cast<Util::Network::MacAddress&>(*bindAddress));
             auto &address = *reinterpret_cast<Util::Network::Ip4::Ip4SubnetAddress*>(parameters[0]);
@@ -182,7 +182,7 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
                 Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
             }
 
-            auto &networkService = System::getService<NetworkService>();
+            auto &networkService = Service::getService<NetworkService>();
             auto &ip4Module = networkService.getNetworkStack().getIp4Module();
             auto &device = networkService.getNetworkDevice(reinterpret_cast<Util::Network::MacAddress&>(*bindAddress));
             auto &address = *reinterpret_cast<Util::Network::Ip4::Ip4SubnetAddress*>(parameters[0]);
@@ -200,8 +200,8 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
                 Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Missing parameters!");
             }
 
-            auto &memoryService = System::getService<MemoryService>();
-            auto &networkService = System::getService<NetworkService>();
+            auto &memoryService = Service::getService<MemoryService>();
+            auto &networkService = Service::getService<NetworkService>();
             auto &routingModule = networkService.getNetworkStack().getIp4Module().getRoutingModule();
             auto &targetAddresses = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4SubnetAddress>*>(parameters[0]);
             auto &targetNextHops = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4Address>*>(parameters[1]);
@@ -233,7 +233,7 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
                 Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
             }
 
-            auto &networkService = System::getService<NetworkService>();
+            auto &networkService = Service::getService<NetworkService>();
             auto &routingModule = networkService.getNetworkStack().getIp4Module().getRoutingModule();
             auto route = *reinterpret_cast<Util::Network::Ip4::Ip4Route*>(parameters[0]);
 
@@ -250,7 +250,7 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
                 Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
             }
 
-            auto &networkService = System::getService<NetworkService>();
+            auto &networkService = Service::getService<NetworkService>();
             auto &routingModule = networkService.getNetworkStack().getIp4Module().getRoutingModule();
             auto route = *reinterpret_cast<Util::Network::Ip4::Ip4Route*>(parameters[0]);
 

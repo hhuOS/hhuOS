@@ -28,6 +28,8 @@
 #include "kernel/interrupt/InterruptDescriptorTable.h"
 #include "kernel/service/InterruptService.h"
 #include "device/interrupt/apic/Apic.h"
+#include "device/system/Acpi.h"
+#include "kernel/service/InformationService.h"
 
 extern const uint32_t ___KERNEL_DATA_START__;
 extern const uint32_t ___KERNEL_DATA_END__;
@@ -74,6 +76,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
     Device::Cpu::setSegmentRegister(Device::Cpu::SS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
 
     // Scan memory map
+    auto multibootSize = multiboot.getSize();
     auto *memoryMap = &multiboot.getTag<Kernel::Multiboot::MemoryMapHeader>(Kernel::Multiboot::MEMORY_MAP);
     auto memoryMapEntries = (memoryMap->tagHeader.size - sizeof(Kernel::Multiboot::TagHeader)) / memoryMap->entrySize;
 
@@ -88,7 +91,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
             physicalMemoryLimit = entry.address + entry.length;
         }
 
-        if (bootstrapMemory == 0 && (entry.address > KERNEL_DATA_END && entry.length >= INITIAL_PAGING_AREA_SIZE + INITIAL_KERNEL_HEAP_SIZE)) {
+        if (bootstrapMemory == 0 && entry.type == Kernel::Multiboot::AVAILABLE && (entry.address > KERNEL_DATA_END && entry.length >= INITIAL_PAGING_AREA_SIZE + INITIAL_KERNEL_HEAP_SIZE)) {
             bootstrapMemory = entry.address;
             entry.address += INITIAL_PAGING_AREA_SIZE + INITIAL_KERNEL_HEAP_SIZE;
         }
@@ -197,27 +200,41 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
     // Depending on the system and bootloader, this may be necessary to initialize ACPI and SMBIOS data structures
     memoryService->mapPhysical(nullptr, nullptr, 256, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
 
-    // Create interrupt service with PIC or APIC, depending on what is available
-    /*Kernel::InterruptService *interruptService;
+    // Map Multiboot2 tags
+    const auto multibootPageOffset = reinterpret_cast<uint32_t>(&multiboot) % Kernel::Paging::PAGESIZE;
+    const auto multibootPages = multibootSize % Kernel::Paging::PAGESIZE == 0 ? multibootSize / Kernel::Paging::PAGESIZE : multibootSize / Kernel::Paging::PAGESIZE + 1;
+    uint8_t *multibootVirtualAddress = static_cast<uint8_t*>(memoryService->mapIO(const_cast<void *>(reinterpret_cast<const void *>(&multiboot)), multibootPages, true)) + multibootPageOffset;
+
+    // Initialize information service, which holds global system information like Multiboot, ACPI, etc.
+    // It only has Multiboot information at the beginning, but other structures follow later in the boot process
+    auto *informationService = new Kernel::InformationService(reinterpret_cast<Kernel::Multiboot*>(multibootVirtualAddress));
+    Kernel::Service::registerService(Kernel::InformationService::SERVICE_ID, informationService);
+
+    // Initialize ACPI and add it to the information service
+    auto *acpi = new Device::Acpi();
+    informationService->setAcpi(acpi);
+
+    // Initialize the classic PIC and interrupt service
+    auto *pic = new Device::Pic();
+    auto *interruptService = new Kernel::InterruptService(pic);
+    Kernel::Service::registerService(Kernel::InterruptService::SERVICE_ID, interruptService);
+
+    // Switch to APIC, if available
     if (Device::Apic::isAvailable()) {
         log.info("APIC detected");
         auto *apic = Device::Apic::initialize();
         if (apic == nullptr) {
-            auto *pic = new Device::Pic();
-            interruptService = new Kernel::InterruptService(pic);
             log.warn("Failed to initialize APIC -> Falling back to PIC");
         } else {
-            interruptService = new Kernel::InterruptService(apic);
-        }
+            interruptService->useApic(apic);
 
-        if (apic != nullptr && apic->isSymmetricMultiprocessingSupported()) {
-            apic->startupApplicationProcessors();
+            /*if (apic ->isSymmetricMultiprocessingSupported()) {
+                apic->startupApplicationProcessors();
+            }*/
         }
     } else {
         log.info("APIC not available -> Falling back to PIC");
-        auto *pic = new Device::Pic();
-        interruptService = new Kernel::InterruptService(pic);
-    }*/
+    }
 
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Once you entered the gates of hell, you are not allowed to leave!");
 }

@@ -94,7 +94,7 @@ void Ip4Module::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformat
 }
 
 Ip4Interface Ip4Module::writeHeader(Util::Io::ByteArrayOutputStream &stream, const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &destinationAddress, Util::Network::Ip4::Ip4Header::Protocol protocol, uint16_t payloadLength) {
-    auto &networkService = Kernel::System::getService<Kernel::NetworkService>();
+    auto &networkService = Kernel::Service::getService<Kernel::NetworkService>();
     auto &arpModule = networkService.getNetworkStack().getArpModule();
     auto &ip4Module = networkService.getNetworkStack().getIp4Module();
     auto route = ip4Module.routingModule.findRoute(sourceAddress, destinationAddress);
@@ -164,7 +164,7 @@ bool Ip4Module::registerInterface(const Util::Network::Ip4::Ip4SubnetAddress &ad
     lock.release();
 
     if (ret) {
-        auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
+        auto &arpModule = Kernel::Service::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
         arpModule.setEntry(address.getIp4Address(), device.getMacAddress());
     }
 
@@ -175,7 +175,7 @@ bool Ip4Module::removeInterface(const Util::Network::Ip4::Ip4SubnetAddress &addr
     lock.acquire();
     for (const auto &interface : interfaces) {
         if (interface.getSubnetAddress() == address && interface.getDeviceIdentifier() == deviceIdentifier) {
-            auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
+            auto &arpModule = Kernel::Service::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
             arpModule.removeEntry(interface.getIp4Address());
 
             routingModule.removeRoute(address, deviceIdentifier);

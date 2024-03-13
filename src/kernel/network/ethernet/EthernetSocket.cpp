@@ -38,15 +38,15 @@ class MacAddress;
 
 namespace Kernel::Network::Ethernet {
 
-EthernetSocket::EthernetSocket() : DatagramSocket(System::getService<NetworkService>().getNetworkStack().getEthernetModule(), Util::Network::Socket::ETHERNET) {}
+EthernetSocket::EthernetSocket() : DatagramSocket(Service::getService<NetworkService>().getNetworkStack().getEthernetModule(), Util::Network::Socket::ETHERNET) {}
 
 EthernetSocket::~EthernetSocket() {
-    auto &ethernetModule = System::getService<NetworkService>().getNetworkStack().getEthernetModule();
+    auto &ethernetModule = Service::getService<NetworkService>().getNetworkStack().getEthernetModule();
     ethernetModule.deregisterSocket(*this);
 }
 
 bool EthernetSocket::send(const Util::Network::Datagram &datagram) {
-    auto &networkService = System::getService<NetworkService>();
+    auto &networkService = Service::getService<NetworkService>();
     auto &device = networkService.getNetworkDevice(reinterpret_cast<const Util::Network::MacAddress&>(getAddress()));
     auto packet = Util::Io::ByteArrayOutputStream();
 

@@ -85,11 +85,11 @@ Fpu::Fpu(const uint8_t *defaultFpuContext) {
 }
 
 void Fpu::plugin() {
-    Kernel::System::getService<Kernel::InterruptService>().assignInterrupt(Kernel::InterruptVector::DEVICE_NOT_AVAILABLE, *this);
+    Kernel::Service::getService<Kernel::InterruptService>().assignInterrupt(Kernel::InterruptVector::DEVICE_NOT_AVAILABLE, *this);
 }
 
 void Fpu::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
-    Kernel::System::getService<Kernel::SchedulerService>().switchFpuContext();
+    Kernel::Service::getService<Kernel::SchedulerService>().switchFpuContext();
 }
 
 bool Fpu::isAvailable() {
@@ -131,7 +131,7 @@ bool Fpu::probeFpu() {
 }
 
 void Fpu::switchContext() const {
-    auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
+    auto &schedulerService = Kernel::Service::getService<Kernel::SchedulerService>();
     auto &currentThread = schedulerService.getCurrentThread();
     auto *lastFpuThread = schedulerService.getLastFpuThread();
 

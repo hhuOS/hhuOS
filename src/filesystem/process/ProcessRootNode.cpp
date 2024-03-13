@@ -34,7 +34,7 @@ uint64_t ProcessRootNode::getLength() {
 }
 
 Util::Array<Util::String> ProcessRootNode::getChildren() {
-    auto ids = Kernel::System::getService<Kernel::ProcessService>().getActiveProcessIds();
+    auto ids = Kernel::Service::getService<Kernel::ProcessService>().getActiveProcessIds();
     auto ret = Util::Array<Util::String>(ids.length());
 
     for (uint32_t i = 0; i < ids.length(); i++) {

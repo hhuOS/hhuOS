@@ -35,7 +35,7 @@
 namespace Kernel::Network::Ip4 {
 
 bool Ip4RoutingModule::addRoute(const Util::Network::Ip4::Ip4Route &route) {
-    auto &ip4Module = System::getService<NetworkService>().getNetworkStack().getIp4Module();
+    auto &ip4Module = Service::getService<NetworkService>().getNetworkStack().getIp4Module();
     if (ip4Module.getTargetInterfaces(route.getSourceAddress()).length() == 0) {
         return false;
     }

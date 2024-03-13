@@ -21,9 +21,11 @@
 
 #include "device/system/Acpi.h"
 #include "lib/util/hardware/Acpi.h"
+#include "kernel/service/Service.h"
+#include "kernel/service/InformationService.h"
 
 namespace Filesystem::Acpi {
 
-RsdpNode::RsdpNode() : Memory::BufferNode("rsdp", reinterpret_cast<const uint8_t *>(&Device::Acpi::getRsdp()), sizeof(Util::Hardware::Acpi::Rsdp)) {}
+RsdpNode::RsdpNode() : Memory::BufferNode("rsdp", reinterpret_cast<const uint8_t *>(&Kernel::Service::getService<Kernel::InformationService>().getAcpi().getRsdp()), sizeof(Util::Hardware::Acpi::Rsdp)) {}
 
 }

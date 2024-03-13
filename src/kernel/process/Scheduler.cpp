@@ -36,7 +36,7 @@ namespace Kernel {
 Logger Scheduler::log = Logger::get("Scheduler");
 
 Scheduler::Scheduler() {
-    defaultFpuContext = static_cast<uint8_t*>(System::getService<MemoryService>().allocateKernelMemory(512, 16));
+    defaultFpuContext = static_cast<uint8_t*>(Service::getService<MemoryService>().allocateKernelMemory(512, 16));
     Util::Address<uint32_t>(defaultFpuContext).setRange(0, 512);
 
     if (Device::Fpu::isAvailable()) {
@@ -119,7 +119,7 @@ void Scheduler::exit() {
     unblockJoinList(*currentThread);
 
     resetLastFpuThread(*currentThread);
-    System::getService<SchedulerService>().cleanup(currentThread);
+    Service::getService<SchedulerService>().cleanup(currentThread);
 
     readyQueueLock.release();
     block();
@@ -141,7 +141,7 @@ void Scheduler::kill(Thread &thread) {
     readyQueueLock.release();
 
     resetLastFpuThread(thread);
-    System::getService<SchedulerService>().cleanup(&thread);
+    Service::getService<SchedulerService>().cleanup(&thread);
 }
 
 void Scheduler::killWithoutLock(Thread &thread) {
@@ -158,7 +158,7 @@ void Scheduler::killWithoutLock(Thread &thread) {
     unblockJoinList(thread);
 
     resetLastFpuThread(thread);
-    System::getService<SchedulerService>().cleanup(&thread);
+    Service::getService<SchedulerService>().cleanup(&thread);
 }
 
 void Scheduler::yield() {
@@ -182,7 +182,7 @@ void Scheduler::yield() {
         Device::Fpu::armFpuMonitor();
     }
 
-    System::getService<MemoryService>().switchAddressSpace(next->getParent().getAddressSpace());
+    Service::getService<MemoryService>().switchAddressSpace(next->getParent().getAddressSpace());
     switch_context(&current->kernelContext, &next->kernelContext);
 }
 
@@ -239,7 +239,7 @@ void Scheduler::block() {
         Device::Fpu::armFpuMonitor();
     }
 
-    System::getService<MemoryService>().switchAddressSpace(next->getParent().getAddressSpace());
+    Service::getService<MemoryService>().switchAddressSpace(next->getParent().getAddressSpace());
     switch_context(&current->kernelContext, &next->kernelContext);
 }
 
@@ -248,7 +248,7 @@ void Scheduler::unblock(Thread &thread) {
 }
 
 void Scheduler::sleep(const Util::Time::Timestamp &time) {
-    auto systemTime = System::getService<TimeService>().getSystemTime().toMilliseconds();
+    auto systemTime = Service::getService<TimeService>().getSystemTime().toMilliseconds();
 
     sleepQueueLock.acquire();
     sleepList.add(SleepEntry{currentThread, systemTime + time.toMilliseconds()});
@@ -269,7 +269,7 @@ void Scheduler::join(const Thread& thread) {
 
 void Scheduler::checkSleepList() {
     if (sleepQueueLock.tryAcquire()) {
-        auto systemTime = System::getService<TimeService>().getSystemTime().toMilliseconds();
+        auto systemTime = Service::getService<TimeService>().getSystemTime().toMilliseconds();
         for (uint32_t i = 0; i < sleepList.size(); i++) {
             const auto &entry = sleepList.get(i);
             if (systemTime >= entry.wakeupTime) {

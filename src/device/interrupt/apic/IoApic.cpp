@@ -35,13 +35,9 @@ enum InterruptVector : uint8_t;
 namespace Device {
 enum InterruptRequest : uint8_t;
 
-IoApic::IoApic(uint8_t ioId, uint32_t baseAddress, Kernel::GlobalSystemInterrupt gsiBase) : ioId(ioId), gsiBase(gsiBase) {
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    void *virtualStartAddress = memoryService.mapIO(reinterpret_cast<void*>(baseAddress), Util::PAGESIZE, true);
-
-    // Account for possible misalignment
-    const uint32_t pageOffset = baseAddress % Util::PAGESIZE;
-    mmioAddress = reinterpret_cast<uint32_t>(virtualStartAddress) + pageOffset;
+IoApic::IoApic(uint8_t ioId, void *baseAddress, Kernel::GlobalSystemInterrupt gsiBase) : ioId(ioId), gsiBase(gsiBase) {
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+    mmioAddress = memoryService.mapIO(baseAddress, 1, true);
 }
 
 uint8_t IoApic::getVersion() {

@@ -35,7 +35,7 @@
 namespace Device {
 enum InterruptRequest : uint8_t;
 
-uint32_t LocalApic::mmioAddress = 0;
+void *LocalApic::mmioAddress = 0;
 
 ModelSpecificRegister LocalApic::ia32ApicBaseMsr = ModelSpecificRegister(0x1b);
 Util::Array<LocalApic::Register> LocalApic::lintRegs = Util::Array<Register>({  // Local interrupt to register offset lookup.
@@ -104,12 +104,12 @@ void LocalApic::initialize() {
     writeDoubleWord(TPR, 0);
 }
 
-void LocalApic::enableXApicMode(uint32_t baseAddress) {
+void LocalApic::enableXApicMode(void *baseAddress) {
     // Mask all PIC interrupts that have been enabled previously. After the APIC has been initialized, the
     // InterruptService only reaches the I/O APIC's REDTBL registers.
     // At this point, no PIC interrupts should be unmasked, plugging in interrupt handlers should
     // be done after the APIC is initialized, otherwise they will be lost!
-    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     for (uint8_t i = 0; i < 16; ++i) {
         interruptService.forbidHardwareInterrupt(static_cast<InterruptRequest>(i));
     }
@@ -119,20 +119,16 @@ void LocalApic::enableXApicMode(uint32_t baseAddress) {
     IoPort(0x23).writeByte(0x01); // Write IMCR, 0x00 connects PIC to LINT0, 0x01 disconnects
 
     // The memory allocated here is never freed, because this implementation does not support disabling the APIC after enabling it.
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    void *virtualAddress = memoryService.mapIO(baseAddress, Util::PAGESIZE);
-
-    // Account for possible misalignment, as mapIO returns a page-aligned pointer
-    const uint32_t pageOffset = baseAddress % Util::PAGESIZE;
-    mmioAddress = reinterpret_cast<uint32_t>(virtualAddress) + pageOffset;
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+    mmioAddress = memoryService.mapIO(baseAddress, 1);
 }
 
 uint32_t LocalApic::readDoubleWord(LocalApic::Register reg) {
-    return *reinterpret_cast<uint32_t*>(mmioAddress + reg);
+    return *reinterpret_cast<uint32_t*>(static_cast<uint8_t*>(mmioAddress) + reg);
 }
 
 void LocalApic::writeDoubleWord(LocalApic::Register reg, uint32_t value) {
-    *reinterpret_cast<uint32_t *>(mmioAddress + reg) = value;
+    *reinterpret_cast<uint32_t*>(static_cast<uint8_t*>(mmioAddress) + reg) = value;
 }
 
 void LocalApic::synchronizeArbitrationIds() {

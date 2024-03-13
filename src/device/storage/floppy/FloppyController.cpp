@@ -85,7 +85,7 @@ void FloppyController::initializeAvailableDrives() {
         auto success = resetDrive(*device);
 
         if (success) {
-            Kernel::System::getService<Kernel::StorageService>().registerDevice(device, DEVICE_CLASS);
+            Kernel::Service::getService<Kernel::StorageService>().registerDevice(device, DEVICE_CLASS);
         } else {
             log.error("Unable to initialize primary floppy drive");
             delete device;
@@ -99,7 +99,7 @@ void FloppyController::initializeAvailableDrives() {
         auto success = resetDrive(*device);
 
         if (success) {
-            Kernel::System::getService<Kernel::StorageService>().registerDevice(device, DEVICE_CLASS);
+            Kernel::Service::getService<Kernel::StorageService>().registerDevice(device, DEVICE_CLASS);
         } else {
             log.error("Unable to initialize secondary floppy drive");
             delete device;
@@ -332,7 +332,7 @@ bool FloppyController::seek(FloppyDevice &device, uint8_t cylinder, uint8_t head
 }
 
 void FloppyController::plugin() {
-    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     interruptService.assignInterrupt(Kernel::InterruptVector::FLOPPY, *this);
     interruptService.allowHardwareInterrupt(Device::InterruptRequest::FLOPPY);
 }
@@ -342,7 +342,7 @@ void FloppyController::trigger(const Kernel::InterruptFrame &frame, Kernel::Inte
 }
 
 void FloppyController::prepareDma(FloppyDevice &device, Isa::TransferMode transferMode, void *dmaMemory, uint8_t sectorCount) {
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     auto *physicalAddress = memoryService.getPhysicalAddress(dmaMemory);
 
     Isa::selectChannel(2);
@@ -371,7 +371,7 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::Transfe
         return false;
     }
 
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     void *dmaMemory = memoryService.allocateLowerMemory(sectorCount * device.getSectorSize(), Isa::MAX_DMA_PAGESIZE);
     bool success = false;
 

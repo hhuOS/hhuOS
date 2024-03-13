@@ -58,9 +58,9 @@ SoundBlaster::SoundBlaster(uint16_t baseAddress, uint8_t irqNumber, uint8_t dmaC
     log.info("DSP version: [%u.%02u]", majorVersion, minorVersion);
 
     // Create thread and filesystem node
-    auto &processService = Kernel::System::getService<Kernel::ProcessService>();
-    auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
-    auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
+    auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
+    auto &schedulerService = Kernel::Service::getService<Kernel::SchedulerService>();
+    auto &filesystemService = Kernel::Service::getService<Kernel::FilesystemService>();
 
     auto &thread = Kernel::Thread::createKernelThread("Sound-Blaster", processService.getKernelProcess(), runnable);
     auto *soundBlasterNode = new SoundBlasterNode(this, *runnable, thread);
@@ -70,7 +70,7 @@ SoundBlaster::SoundBlaster(uint16_t baseAddress, uint8_t irqNumber, uint8_t dmaC
 }
 
 SoundBlaster::~SoundBlaster() {
-    Kernel::System::getService<Kernel::MemoryService>().freeLowerMemory(dmaBuffer);
+    Kernel::Service::getService<Kernel::MemoryService>().freeLowerMemory(dmaBuffer);
 }
 
 bool SoundBlaster::isAvailable() {
@@ -189,7 +189,7 @@ void SoundBlaster::plugin() {
     // Older DSPs (version < 4) don't support manual IRQ- and DMA-configuration.
     // They must be configured via jumpers and there is no real way to get the IRQ- and DMA-numbers in software.
     // We just assume the DSP to use IRQ 10 and DMA channel 1, if not specified else in the constructor.
-    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     interruptService.assignInterrupt(static_cast<Kernel::InterruptVector>(32 + irqNumber), *this);
     interruptService.allowHardwareInterrupt(static_cast<InterruptRequest>(irqNumber));
 }
@@ -256,7 +256,7 @@ bool SoundBlaster::setAudioParameters(uint16_t sampleRate, uint8_t channels, uin
     timeConstant = static_cast<uint16_t>(65536 - (256000000 / (sampleRate * channels)));
     numChannels = channels;
 
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     dmaBufferSize = static_cast<uint32_t>(AUDIO_BUFFER_SIZE * sampleRate * (bitsPerSample / 8.0) * channels);
     if (dmaBufferSize % 2 == 1) {
         dmaBufferSize++;

@@ -29,6 +29,7 @@
 #include "kernel/process/Thread.h"
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/hardware/Acpi.h"
+#include "kernel/service/InformationService.h"
 
 namespace Kernel {
 struct InterruptFrameOld;
@@ -39,8 +40,9 @@ namespace Device {
 Kernel::Logger Rtc::log = Kernel::Logger::get("RTC");
 
 Rtc::Rtc(uint32_t timerInterval) {
-    if (Acpi::isAvailable() && Acpi::hasTable("FADT")) {
-        const auto &fadt = Acpi::getTable<Util::Hardware::Acpi::Fadt>("FADT");
+    const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
+    if (acpi.hasTable("FADT")) {
+        const auto &fadt = acpi.getTable<Util::Hardware::Acpi::Fadt>("FADT");
         centuryRegister = fadt.century;
     }
 
@@ -68,7 +70,7 @@ void Rtc::plugin() {
     // As long as this flag is set, the RTC won't trigger any interrupts.
     Cmos::read(STATUS_REGISTER_C);
 
-    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     interruptService.assignInterrupt(Kernel::InterruptVector::RTC, *this);
     interruptService.allowHardwareInterrupt(Device::InterruptRequest::RTC);
 
@@ -222,8 +224,8 @@ Util::Time::Date Rtc::readDate() const {
 }
 
 void Rtc::alarm() {
-    auto &alarmThread = Kernel::Thread::createKernelThread("Rtc-Alarm", Kernel::System::getService<Kernel::ProcessService>().getKernelProcess(), new AlarmRunnable());
-    Kernel::System::getService<Kernel::SchedulerService>().ready(alarmThread);
+    auto &alarmThread = Kernel::Thread::createKernelThread("Rtc-Alarm", Kernel::Service::getService<Kernel::ProcessService>().getKernelProcess(), new AlarmRunnable());
+    Kernel::Service::getService<Kernel::SchedulerService>().ready(alarmThread);
 }
 
 void Rtc::setInterruptRate(uint32_t interval) {

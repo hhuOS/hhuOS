@@ -22,7 +22,7 @@
 #include <lib/util/base/Constants.h>
 
 NetworkPacketMemoryManager NetworkPacketMemoryManager::create(uint32_t packetCount) {
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     auto *startAddress = static_cast<uint8_t*>(memoryService.allocateKernelMemory(packetCount * PACKET_BUFFER_SIZE, Util::PAGESIZE));
     auto *endAddress = startAddress + packetCount * PACKET_BUFFER_SIZE - 1;
 

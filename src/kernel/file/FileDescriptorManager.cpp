@@ -34,7 +34,7 @@ int32_t FileDescriptorManager::registerFile(Filesystem::Node *node) {
 }
 
 int32_t FileDescriptorManager::openFile(const Util::String &path) {
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+    auto &filesystem = Kernel::Service::getService<Kernel::FilesystemService>().getFilesystem();
     auto *node = filesystem.getNode(path);
     if (node == nullptr) {
         return -1;

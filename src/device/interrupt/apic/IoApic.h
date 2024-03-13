@@ -131,7 +131,7 @@ public:
      * @param ioApicPlatform General information about the I/O APICs, parsed from ACPI
      * @param ioApicInformation Information about the specific I/O APIC, parsed from ACPI
      */
-    IoApic(uint8_t ioId, uint32_t baseAddress, Kernel::GlobalSystemInterrupt gsiBase);
+    IoApic(uint8_t ioId, void *baseAddress, Kernel::GlobalSystemInterrupt gsiBase);
 
     /**
      * Copy Constructor.
@@ -262,7 +262,7 @@ public:
 private:
 
     uint8_t ioId;
-    uint32_t mmioAddress = 0;
+    void *mmioAddress = 0;
 
     Kernel::GlobalSystemInterrupt gsiBase{};
     Kernel::GlobalSystemInterrupt gsiMax{};
@@ -277,12 +277,12 @@ private:
 
 template<typename T>
 T IoApic::readMMIORegister(Register reg) {
-    return *reinterpret_cast<volatile T*>(mmioAddress + reg);
+    return *reinterpret_cast<volatile T*>(static_cast<uint8_t*>(mmioAddress) + reg);
 }
 
 template<typename T>
 void IoApic::writeMMIORegister(Register reg, T val) {
-    *reinterpret_cast<volatile T*>(mmioAddress + reg) = val;
+    *reinterpret_cast<volatile T*>(static_cast<uint8_t*>(mmioAddress) + reg) = val;
 }
 
 }

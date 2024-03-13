@@ -148,7 +148,7 @@ const Multiboot::Module& Multiboot::getModule(const Util::String &moduleName) co
                     uint32_t size = module->endAddress - module->startAddress;
                     uint32_t offset = module->startAddress % Kernel::Paging::PAGESIZE;
 
-                    uint32_t virtualStartAddress = reinterpret_cast<uint32_t>(System::getService<Kernel::MemoryService>().mapIO(module->startAddress, size)) + offset;
+                    uint32_t virtualStartAddress = reinterpret_cast<uint32_t>(Service::getService<Kernel::MemoryService>().mapIO(module->startAddress, size)) + offset;
                     uint32_t virtualEndAddress = virtualStartAddress + size;
 
                     module->startAddress = virtualStartAddress;
@@ -198,6 +198,10 @@ Util::Array<Multiboot::TagType> Multiboot::getAvailableTagTypes() const {
     }
 
     return types.toArray();
+}
+
+uint32_t Multiboot::getSize() const {
+    return size;
 }
 
 }

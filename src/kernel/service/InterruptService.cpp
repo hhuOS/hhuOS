@@ -37,8 +37,8 @@ InterruptService::InterruptService(Device::Pic *pic) : pic(pic) {
     idt.load();
 }
 
-InterruptService::InterruptService(Device::Apic *apic) : apic(apic) {
-    idt.load();
+void InterruptService::useApic(Device::Apic *apic) {
+    InterruptService::apic = apic;
 }
 
 bool InterruptService::usesApic() const {
