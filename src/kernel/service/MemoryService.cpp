@@ -17,17 +17,16 @@
 
 #include <stdarg.h>
 
-#include "kernel/paging/Paging.h"
+#include "kernel/memory/Paging.h"
 #include "kernel/system/System.h"
 #include "kernel/service/InterruptService.h"
-#include "kernel/paging/MemoryLayout.h"
+#include "kernel/memory/MemoryLayout.h"
 #include "asm_interface.h"
 #include "MemoryService.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/memory/PageFrameAllocator.h"
 #include "kernel/memory/PagingAreaManager.h"
-#include "kernel/paging/PageDirectory.h"
-#include "kernel/paging/VirtualAddressSpace.h"
+#include "kernel/memory/VirtualAddressSpace.h"
 #include "kernel/process/ThreadState.h"
 #include "kernel/system/SystemCall.h"
 #include "lib/util/base/Exception.h"
@@ -51,15 +50,15 @@ MemoryService::MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaM
         }
 
         auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-        auto virtualStartAddress = va_arg(arguments, uint32_t);
-        auto virtualEndAddress = va_arg(arguments, uint32_t);
+        auto virtualAddress = va_arg(arguments, void*);
+        auto pageCount = va_arg(arguments, uint32_t);
         auto breakCount = va_arg(arguments, uint32_t);
 
-        if (virtualStartAddress > MemoryLayout::KERNEL_START || virtualEndAddress > MemoryLayout::KERNEL_START) {
+        if (reinterpret_cast<uint32_t>(virtualAddress) < MemoryLayout::KERNEL_END) {
             return false;
         }
 
-        return memoryService.unmap(virtualStartAddress, virtualEndAddress, breakCount) != 0;
+        return memoryService.unmap(virtualAddress, pageCount, breakCount) != nullptr;
     });
 
     SystemCall::registerSystemCall(Util::System::MAP_IO, [](uint32_t paramCount, va_list arguments) -> bool {
@@ -68,11 +67,11 @@ MemoryService::MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaM
         }
 
         auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-        auto physicalAddress = va_arg(arguments, uint32_t);
-        auto size = va_arg(arguments, uint32_t);
+        auto *physicalAddress = va_arg(arguments, void*);
+        auto pageCount = va_arg(arguments, uint32_t);
         void *&mappedAddress = *va_arg(arguments, void**);
 
-        mappedAddress = memoryService.mapIO(physicalAddress, size, false);
+        mappedAddress = memoryService.mapIO(physicalAddress, pageCount, false);
         return true;
     });
 }
@@ -122,169 +121,27 @@ void MemoryService::freeLowerMemory(void *pointer, uint32_t alignment) {
     lowerMemoryManager.freeMemory(pointer, alignment);
 }
 
-void *MemoryService::allocatePageTable() {
-    return pagingAreaManager.allocateBlock();
-}
-
-void MemoryService::freePageTable(void *virtualTableAddress) {
-    uint32_t physicalAddress = unmap(reinterpret_cast<uint32_t>(virtualTableAddress));
-    if (physicalAddress == 0) {
-        return;
-    }
-
-    // Free virtual memory
-    pagingAreaManager.freeBlock(virtualTableAddress);
-}
-
-void MemoryService::createPageTable(PageDirectory *directory, uint32_t index) {
-    // Get some virtual memory for the table
-    void *virtAddress = pagingAreaManager.allocateBlock();
-    // Get physical memory for the table
-    void *physAddress = getPhysicalAddress(virtAddress);
-    // There must be no mapping from virtual to physical address done here,
-    // because the page is zeroed out after allocation by the PagingAreaManager
-
-    uint32_t startAddress = index * Kernel::Paging::PAGESIZE * 1024;
-    // Initialize the table in the page directory
-    directory->createTable(index, reinterpret_cast<uint32_t>(physAddress),reinterpret_cast<uint32_t>(virtAddress),
-                           Paging::PRESENT | Paging::WRITABLE | (startAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESSIBLE : 0));
-}
-
-void Kernel::MemoryService::mapPhysicalAddress(uint32_t virtualAddress, uint32_t physicalAddress, uint16_t flags) {
-    // Mark the physical page frame as used
-    physicalAddress = reinterpret_cast<uint32_t>(pageFrameAllocator.allocateBlockAtAddress(reinterpret_cast<void*>(physicalAddress)));
-    // Map the page into the directory
-    currentAddressSpace->getPageDirectory().map(physicalAddress, virtualAddress, flags);
-}
-
-void Kernel::MemoryService::mapRange(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint16_t flags) {
-    // Get 4 KiB aligned start and end address
-    uint32_t alignedStartAddress = virtualStartAddress & 0xFFFFF000;
-    uint32_t alignedEndAddress = virtualEndAddress & 0xFFFFF000;
-    alignedEndAddress += (virtualEndAddress % Kernel::Paging::PAGESIZE == 0) ? 0 : Kernel::Paging::PAGESIZE;
-
-    // Map all pages
-    for (uint32_t i = alignedStartAddress; i < alignedEndAddress; i += Kernel::Paging::PAGESIZE) {
-        map(i, flags);
-    }
-}
-
-void Kernel::MemoryService::map(uint32_t virtualAddress, uint16_t flags, bool interrupt) {
-    // Allocate a physical page frame where the page should be mapped
-    const auto physicalAddress = reinterpret_cast<uint32_t>(pageFrameAllocator.allocateBlock());
-    // Map the page into the directory
-    currentAddressSpace->getPageDirectory().map(physicalAddress, virtualAddress, flags, interrupt);
-}
-
-uint32_t Kernel::MemoryService::unmap(uint32_t virtualAddress) {
-    uint32_t physAddress = currentAddressSpace->getPageDirectory().unmap(virtualAddress);
-    if (!physAddress) {
-        return 0;
-    }
-
-    pageFrameAllocator.freeBlock(reinterpret_cast<void*>(physAddress));
-
-    // Invalidate entry in TLB
-    asm volatile("push %%edx;"
-                 "movl %0,%%edx;"
-                 "invlpg (%%edx);"
-                 "pop %%edx;"  : : "r"(virtualAddress));
-
-    return physAddress;
-}
-
-uint32_t Kernel::MemoryService::unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount) {
-    // Remark: if given addresses are not aligned on pages, we do not want to unmap
-    // data that could be on the same page before virtualStartAddress or behind virtualEndAddress
-
-    // Get aligned start and end address of the area to be freed
-    uint32_t alignedStartAddress = virtualStartAddress & 0xFFFFF000;
-    alignedStartAddress += ((virtualStartAddress % Kernel::Paging::PAGESIZE != 0) ? Kernel::Paging::PAGESIZE : 0);
-    // Calculate start address of the last page we want to unmap
-    uint32_t alignedEndAddress = virtualEndAddress & 0xFFFFF000;
-    alignedEndAddress -= (((virtualEndAddress + 1) % Kernel::Paging::PAGESIZE != 0) ? Kernel::Paging::PAGESIZE : 0);
-
-    // Check if an unmap is possible (the start and end address have to contain at least one complete page)
-    if (alignedEndAddress < virtualStartAddress) {
-        return 0;
-    }
-    // Amount of pages to be unmapped
-    uint32_t pageCount = (alignedEndAddress - alignedStartAddress) / Kernel::Paging::PAGESIZE + 1;
-
-    // loop through the pages and unmap them
-    uint32_t ret = 0;
-    uint8_t cnt = 0;
-    for (uint32_t i = 0; i < pageCount; i++) {
-        ret = unmap(alignedStartAddress + i * Kernel::Paging::PAGESIZE);
-
-        if (ret) {
-            cnt = 0;
-        } else {
-            cnt++;
-        }
-
-        // TODO: This is ugly! We need a proper management for mapped/unmapped pages
-        // If there were eight pages after each other already unmapped, we break here.
-        // This is sort of a workaround because by merging large free memory blocks in memory management
-        // it might happen that some parts of the memory are already unmapped.
-        if (breakCount > 0 && cnt == breakCount) {
-            break;
-        }
-    }
-
-
-    return ret;
-}
-
-void *Kernel::MemoryService::mapIO(uint32_t physicalAddress, uint32_t size, bool mapToKernelHeap) {
-    // Get amount of needed pages
-    uint32_t pageCnt = size / Kernel::Paging::PAGESIZE;
-    pageCnt += (size % Kernel::Paging::PAGESIZE == 0) ? 0 : 1;
-
-    // Allocate 4 KiB aligned virtual memory
-    auto &manager = mapToKernelHeap ? kernelAddressSpace.getMemoryManager() : currentAddressSpace->getMemoryManager();
-    void *virtualStartAddress = manager.allocateMemory(pageCnt * Kernel::Paging::PAGESIZE, Kernel::Paging::PAGESIZE);
-
-    // Map the allocated virtual memory to physical addresses
-    for (uint32_t i = 0; i < pageCnt; i++) {
-        // Since the virtual memory is one block, we can update the virtual address this way
-        uint32_t virtualAddress = reinterpret_cast<uint32_t>(virtualStartAddress) + i * Kernel::Paging::PAGESIZE;
-
-        // If the virtual address is already mapped, we have to unmap it.
-        // This can happen because the headers of the free list are mapped to arbitrary physical addresses,
-        // but the memory should be mapped to the given physical addresses.
-        unmap(virtualAddress);
-
-        // Map the page to the given physical address
-        mapPhysicalAddress(virtualAddress, physicalAddress + i * Kernel::Paging::PAGESIZE, Paging::PRESENT | Paging::WRITABLE | Paging::CACHE_DISABLE | (virtualAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESSIBLE : 0));
-    }
-
-    return virtualStartAddress;
-}
-
-void *MemoryService::mapIO(uint32_t size, bool mapToKernelHeap) {
-    // Get amount of needed pages
-    uint32_t pageCnt = size / Kernel::Paging::PAGESIZE;
-    pageCnt += (size % Kernel::Paging::PAGESIZE == 0) ? 0 : 1;
-
-    // Allocate block of physical memory
+void* MemoryService::allocatePhysicalMemory(uint32_t frameCount) {
     void *physicalStartAddress = pageFrameAllocator.allocateBlock();
     void *currentPhysicalAddress = physicalStartAddress;
     void *lastPhysicalAddress;
     bool contiguous;
 
+    // Page frame allocator only works with independent physical frames (4 KiB).
+    // We allocate a large chunk of physical memory, by allocating single frames and checking, if they are contiguous
     do {
         contiguous = true;
 
-        for (uint32_t i = 1; i < pageCnt; i++) {
+        for (uint32_t i = 1; i < frameCount; i++) {
             lastPhysicalAddress = currentPhysicalAddress;
             currentPhysicalAddress = pageFrameAllocator.allocateBlockAfterAddress(physicalStartAddress);
 
             if (reinterpret_cast<uint32_t>(currentPhysicalAddress) - reinterpret_cast<uint32_t>(lastPhysicalAddress) != Kernel::Paging::PAGESIZE) {
                 contiguous = false;
 
+                // Allocated frames are not contiguous -> Free them and try again
                 for (uint32_t j = 0; j < i; j++) {
-                    pageFrameAllocator.freeBlock(reinterpret_cast<void *>(reinterpret_cast<uint32_t>(physicalStartAddress) + j * Kernel::Paging::PAGESIZE));
+                    pageFrameAllocator.freeBlock(reinterpret_cast<void*>(reinterpret_cast<uint32_t>(physicalStartAddress) + j * Kernel::Paging::PAGESIZE));
                 }
 
                 physicalStartAddress = currentPhysicalAddress;
@@ -293,20 +150,101 @@ void *MemoryService::mapIO(uint32_t size, bool mapToKernelHeap) {
         }
     } while (!contiguous);
 
-    // See mapIO(uint32_t physicalAddress, uint32_t size, bool mapToKernelHeap) for comments
-    auto &manager = mapToKernelHeap ? kernelAddressSpace.getMemoryManager() : currentAddressSpace->getMemoryManager();
-    void *virtualStartAddress = manager.allocateMemory(pageCnt * Kernel::Paging::PAGESIZE, Kernel::Paging::PAGESIZE);
+    return physicalStartAddress;
+}
 
-    for (uint32_t i = 0; i < pageCnt; i++) {
-        uint32_t virtualAddress = reinterpret_cast<uint32_t>(virtualStartAddress) + i * Kernel::Paging::PAGESIZE;
-        uint32_t physicalAddress = reinterpret_cast<uint32_t>(physicalStartAddress) + i * Kernel::Paging::PAGESIZE;
-        unmap(virtualAddress);
-        currentAddressSpace->getPageDirectory().map(physicalAddress, virtualAddress,
-                                                    Paging::PRESENT | Paging::WRITABLE | Paging::CACHE_DISABLE |
-                                                    (virtualAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESSIBLE : 0));
+Paging::Table* MemoryService::allocatePageTable() {
+    auto *pageTable = static_cast<Paging::Table*>(pagingAreaManager.allocateBlock());
+    pageTable->clear();
+
+    return pageTable;
+}
+
+void MemoryService::freePageTable(Paging::Table *pageTable) {
+    void *physicalAddress = currentAddressSpace->unmap(pageTable);
+    if (physicalAddress == nullptr) {
+        return;
     }
 
-    return virtualStartAddress;
+    // Free virtual memory
+    pagingAreaManager.freeBlock(pageTable);
+}
+
+void Kernel::MemoryService::map(void *virtualAddress, uint32_t pageCount, uint16_t flags) {
+    for (uint32_t i = 0; i < pageCount; i++) {
+        // Allocate a physical page frames to where the page should be mapped
+        auto *physicalAddress = pageFrameAllocator.allocateBlock();
+        // Map the frame to given virtual address
+        currentAddressSpace->map(physicalAddress, reinterpret_cast<uint8_t*>(virtualAddress) + i * Kernel::Paging::PAGESIZE, flags);
+    }
+}
+
+void* Kernel::MemoryService::unmap(void *virtualAddress, uint32_t pageCount, uint32_t breakCount) {
+    // Remark: if given addresses are not aligned on pages, we do not want to unmap data,
+    // that could be on the same page before virtualAddress or behind the end of the virtual memory block
+
+    // Align virtual address to page size
+    if (reinterpret_cast<uint32_t>(virtualAddress) % Paging::PAGESIZE != 0) {
+        virtualAddress = reinterpret_cast<void *>(Util::Address<uint32_t>(virtualAddress).alignUp(Paging::PAGESIZE).get());
+        pageCount -= 1;
+    }
+
+    // Loop through pages and unmap them individually
+    void *physicalAddress;
+    uint8_t count = 0;
+    for (uint32_t i = 0; i < pageCount; i++) {
+        physicalAddress = currentAddressSpace->unmap(virtualAddress);
+        if (physicalAddress == nullptr) {
+            count++;
+        } else {
+            count = 0;
+        }
+
+        // TODO: This is ugly! We need a proper management for mapped/unmapped pages
+        // If there were eight pages after each other already unmapped, we break here.
+        // This is sort of a workaround because by merging large free memory blocks in memory management
+        // it might happen that some parts of the memory are already unmapped.
+        if (breakCount > 0 && count == breakCount) {
+            break;
+        }
+    }
+
+    return physicalAddress;
+}
+
+void Kernel::MemoryService::mapPhysical(void *physicalAddress, void *virtualAddress, uint32_t pageCount, uint16_t flags) {
+    for (uint32_t i = 0; i < pageCount; i++) {
+        // If the virtual address is already mapped, we have to unmap it.
+        // This can happen because the headers of the free list are mapped to arbitrary physical addresses, but the memory should be mapped to the given physical addresses.
+        unmap(virtualAddress, 1);
+        // Mark the physical page frame as used
+        physicalAddress = pageFrameAllocator.allocateBlockAtAddress(physicalAddress);
+        // Map the page into the current address space
+        currentAddressSpace->map(reinterpret_cast<uint8_t*>(physicalAddress) + i * Kernel::Paging::PAGESIZE, reinterpret_cast<uint8_t*>(virtualAddress) + i * Kernel::Paging::PAGESIZE, flags);
+    }
+}
+
+void *MemoryService::mapIO(uint32_t pageCount, bool mapToKernelHeap) {
+    // Allocate block of physical memory
+    void *physicalAddress = allocatePhysicalMemory(pageCount);
+    // Map physical memory into heap
+    return mapIO(physicalAddress, pageCount, mapToKernelHeap);
+}
+
+void *Kernel::MemoryService::mapIO(void *physicalAddress, uint32_t pageCount, bool mapToKernelHeap) {
+    // Allocate page aligned virtual memory
+    auto &manager = mapToKernelHeap ? kernelAddressSpace.getMemoryManager() : currentAddressSpace->getMemoryManager();
+    void *virtualAddress = manager.allocateMemory(pageCount * Kernel::Paging::PAGESIZE, Kernel::Paging::PAGESIZE);
+
+    // Create mapping
+    uint32_t flags = Paging::PRESENT | Paging::WRITABLE | Paging::CACHE_DISABLE | (reinterpret_cast<uint32_t>(virtualAddress) < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESSIBLE : 0);
+    mapPhysical(physicalAddress, virtualAddress, pageCount, flags);
+
+    return virtualAddress;
+}
+
+void* MemoryService::getPhysicalAddress(void *virtualAddress) {
+    return currentAddressSpace->getPhysicalAddress(virtualAddress);
 }
 
 VirtualAddressSpace& MemoryService::createAddressSpace() {
@@ -336,26 +274,22 @@ void MemoryService::removeAddressSpace(VirtualAddressSpace &addressSpace) {
     delete &addressSpace;
 }
 
-void* MemoryService::getPhysicalAddress(void *virtualAddress) {
-    return currentAddressSpace->getPageDirectory().getPhysicalAddress(virtualAddress);
-}
-
 void MemoryService::handlePageFault(uint32_t errorCode) {
     // The faulted linear address is stored in the cr2 register
-    uint32_t faultAddress = Device::Cpu::readCr2();
+    auto faultAddress = Device::Cpu::readCr2();
 
-    // There should be no access to the first page (address 0)
+    // Check for null pointer access
     if (faultAddress == 0) {
         Util::Exception::throwException(Util::Exception::NULL_POINTER, "Page fault at address 0x00000000!");
     }
 
-    // check if page fault was caused by an illegal page access
+    // Check if page fault was caused by an illegal page access
     if ((errorCode & 0x00000001u) > 0) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_PAGE_ACCESS, "Privilege level not sufficient to access page!");
     }
 
     // Map the faulted Page
-    map(faultAddress, Paging::PRESENT | Paging::WRITABLE | (faultAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESSIBLE : 0), true);
+    map(reinterpret_cast<void *>(faultAddress), 1, Paging::PRESENT | Paging::WRITABLE | (faultAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESSIBLE : 0));
 }
 
 MemoryService::MemoryStatus MemoryService::getMemoryStatus() {

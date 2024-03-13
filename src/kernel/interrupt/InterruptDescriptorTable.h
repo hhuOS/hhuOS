@@ -107,7 +107,7 @@ private:
 
     static void handleInterrupt(const InterruptFrame &frame, InterruptVector vector);
 
-    static void handlePageFault(const InterruptFrame &frame, uint32_t errorCode);
+    __attribute__ ((interrupt)) static void handlePageFault(InterruptFrame *frame, uint32_t errorCode);
 
     // CPU Exceptions
     EXCEPTION_HANDLER(0, handleException)
@@ -124,6 +124,7 @@ private:
     EXCEPTION_HANDLER_WITH_ERROR_CODE(11, handleException)
     EXCEPTION_HANDLER_WITH_ERROR_CODE(12, handleException)
     EXCEPTION_HANDLER_WITH_ERROR_CODE(13, handleException)
+    // Interrupt vector 14 is used for page faults and has a specific handler
     EXCEPTION_HANDLER(15, handleException)
     EXCEPTION_HANDLER(16, handleException)
     EXCEPTION_HANDLER_WITH_ERROR_CODE(17, handleException)

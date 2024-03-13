@@ -17,7 +17,7 @@
 
 #include "kernel/system/System.h"
 #include "Process.h"
-#include "kernel/paging/VirtualAddressSpace.h"
+#include "kernel/memory/VirtualAddressSpace.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/SchedulerService.h"

@@ -19,7 +19,7 @@
 
 #include "kernel/multiboot/Multiboot.h"
 #include "kernel/system/System.h"
-#include "kernel/paging/Paging.h"
+#include "kernel/memory/Paging.h"
 #include "kernel/service/InterruptService.h"
 #include "device/cpu/Cpu.h"
 #include "GatesOfHell.h"

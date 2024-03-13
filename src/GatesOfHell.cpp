@@ -19,11 +19,11 @@
 #include "device/cpu/Cpu.h"
 #include "kernel/log/Logger.h"
 #include "GatesOfHell.h"
-#include "kernel/paging/MemoryLayout.h"
-#include "kernel/paging/Paging.h"
+#include "kernel/memory/MemoryLayout.h"
+#include "kernel/memory/Paging.h"
 #include "kernel/memory/PagingAreaManager.h"
 #include "kernel/memory/PageFrameAllocator.h"
-#include "kernel/paging/VirtualAddressSpace.h"
+#include "kernel/memory/VirtualAddressSpace.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/interrupt/InterruptDescriptorTable.h"
 #include "kernel/service/InterruptService.h"
@@ -35,7 +35,7 @@ extern const uint32_t ___KERNEL_DATA_END__;
 const uint32_t KERNEL_DATA_START = reinterpret_cast<uint32_t>(&___KERNEL_DATA_START__);
 const uint32_t KERNEL_DATA_END = reinterpret_cast<uint32_t>(&___KERNEL_DATA_END__);
 
-const constexpr uint32_t INITIAL_PAGING_AREA_SIZE = 32 * 1024;
+const constexpr uint32_t INITIAL_PAGING_AREA_SIZE = 128 * 1024;
 const constexpr uint32_t INITIAL_KERNEL_HEAP_SIZE = 128 * 1024;
 
 extern "C" {
@@ -50,6 +50,7 @@ Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 Kernel::GlobalDescriptorTable GatesOfHell::gdt{};
 Kernel::GlobalDescriptorTable::TaskStateSegment GatesOfHell::tss{};
 Util::HeapMemoryManager *GatesOfHell::kernelHeap = nullptr;
+bool GatesOfHell::memoryManagementInitialized = false;
 
 extern "C" void start(uint32_t multibootMagic, const Kernel::Multiboot *multiboot) {
     GatesOfHell::enter(multibootMagic, *multiboot);
@@ -133,12 +134,27 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
     kernelHeapManager.initialize(reinterpret_cast<uint8_t*>(kernelHeapVirtual), reinterpret_cast<uint8_t*>(Kernel::MemoryLayout::KERNEL_HEAP_END_ADDRESS));
     kernelHeap = &kernelHeapManager;
 
-    // Initialize static data structures
-    _init();
-
     // Initialize Paging Area Manager -> Manages the virtual addresses of all page tables and directories
     auto usedPagingAreaPages = (reinterpret_cast<uint32_t>(pageTableMemory) - pagingAreaPhysical) / Kernel::Paging::PAGESIZE;
     auto *pagingAreaManager = new Kernel::PagingAreaManager(reinterpret_cast<uint8_t*>(pagingAreaVirtual), INITIAL_PAGING_AREA_SIZE / Kernel::Paging::PAGESIZE, usedPagingAreaPages);
+
+    // Since page tables are not identity mapped, we need a separate page directory to keep track of the page table's virtual addresses.
+    // This page directory is never accessed by hardware and is only used by the OS to access page tables.
+    // Furthermore, we can no longer access the regular page directory using the current pointer and need to change it to its virtual equivalent.
+    pageDirectory = reinterpret_cast<Kernel::Paging::Table*>(pagingAreaVirtual);
+    auto *virtualPageDirectory = new Kernel::Paging::Table(*pageDirectory);
+
+    // The virtual page directory starts as a 1:1-copy of the regular page directory.
+    // We know that all page tables have been allocated consecutively from 'pageTableMemory', which is mapped to 'pagingAreaVirtual'.
+    // The first page in 'pageTableMemory' is used for the page directory itself and page tables start afterward.
+    uint32_t updatedEntries = 0;
+    for (uint32_t i = 0; i < Kernel::Paging::ENTRIES_PER_TABLE; i++) {
+        auto &entry = (*virtualPageDirectory)[i];
+        if (!entry.isUnused()) {
+            // Update entry with virtual page table address
+            entry.set(reinterpret_cast<uint32_t>(pagingAreaVirtual + Kernel::Paging::PAGESIZE + (Kernel::Paging::PAGESIZE * updatedEntries++)), entry.getFlags());
+        }
+    }
 
     // Initialize page frame allocator -> Manages physical memory
     auto *pageFrameAllocator = new Kernel::PageFrameAllocator(*pagingAreaManager, nullptr, reinterpret_cast<uint8_t*>(physicalMemoryLimit - 1));
@@ -146,8 +162,11 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
     pageFrameAllocator->setMemory(nullptr, reinterpret_cast<uint8_t*>(0x100000), 0, true);
     // Reserve kernel
     pageFrameAllocator->setMemory(reinterpret_cast<uint8_t*>(KERNEL_DATA_START), reinterpret_cast<uint8_t *>(KERNEL_DATA_START + kernelSize), 0, true);
+    // Mark mapped kernel heap and paging area memory as used
+    pageFrameAllocator->setMemory(reinterpret_cast<uint8_t*>(bootstrapMemory),
+                                  reinterpret_cast<uint8_t*>(bootstrapMemory + INITIAL_PAGING_AREA_SIZE + INITIAL_KERNEL_HEAP_SIZE), 1, false);
 
-    // Reserve corresponding block in memory map
+    // Reserve corresponding blocks in memory map
     for (uint32_t i = 0; i < memoryMapEntries; i++) {
         auto currentAddress = reinterpret_cast<uint32_t>(memoryMap) + sizeof(Kernel::Multiboot::MemoryMapHeader) + i * memoryMap->entrySize;
         auto &entry = *reinterpret_cast<Kernel::Multiboot::MemoryMapEntry*>(currentAddress);
@@ -157,12 +176,29 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
         }
     }
 
+    // Initialize static data structures
+    _init();
+
     // Create kernel address space and memory service
-    auto *addressSpace = new Kernel::VirtualAddressSpace(*pageDirectory, *kernelHeap);
+    auto *addressSpace = new Kernel::VirtualAddressSpace(pageDirectory, virtualPageDirectory, *kernelHeap);
     auto *memoryService = new Kernel::MemoryService(pageFrameAllocator, pagingAreaManager, addressSpace);
 
+    // Create interrupt descriptor table
+    auto *idt = new Kernel::InterruptDescriptorTable();
+    idt->load();
+
+    // The memory service and IDT are initialized and after registering the memory service, page faults can be handled,
+    // which means, that we can fully use the kernel heap
+    Kernel::Service::registerService(Kernel::MemoryService::SERVICE_ID, memoryService);
+    memoryManagementInitialized = true;
+    log.info("Welcome to hhuOS!");
+
+    // Identity map lower memory (1 MiB), used for ISA DMA and BIOS related stuff
+    // Depending on the system and bootloader, this may be necessary to initialize ACPI and SMBIOS data structures
+    memoryService->mapPhysical(nullptr, nullptr, 256, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
+
     // Create interrupt service with PIC or APIC, depending on what is available
-    Kernel::InterruptService *interruptService;
+    /*Kernel::InterruptService *interruptService;
     if (Device::Apic::isAvailable()) {
         log.info("APIC detected");
         auto *apic = Device::Apic::initialize();
@@ -181,18 +217,17 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
         log.info("APIC not available -> Falling back to PIC");
         auto *pic = new Device::Pic();
         interruptService = new Kernel::InterruptService(pic);
-    }
-
-    // Memory and interrupt services are initialized -> Page faults can now be handled
-    Kernel::Service::registerService(Kernel::MemoryService::SERVICE_ID, memoryService);
-    Kernel::Service::registerService(Kernel::InterruptService::SERVICE_ID, interruptService);
-    log.info("Welcome to hhuOS!");
+    }*/
 
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Once you entered the gates of hell, you are not allowed to leave!");
 }
 
 Util::HeapMemoryManager& GatesOfHell::getKernelHeap() {
     return *kernelHeap;
+}
+
+bool GatesOfHell::isMemoryManagementInitialized() {
+    return memoryManagementInitialized;
 }
 
 uint32_t GatesOfHell::createInitialMapping(Kernel::Paging::Table &pageDirectory, Kernel::Paging::Table *pageTableMemory, uint32_t physicalStartAddress, uint32_t virtualStartAddress, uint32_t pageCount) {

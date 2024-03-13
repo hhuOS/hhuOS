@@ -79,7 +79,20 @@ void Cpu::halt() {
 void Cpu::throwException(Util::Exception::Error error, const char *message) {
     disableInterrupts();
     Util::System::errorMessage = message;
-    Kernel::Service::getService<Kernel::InterruptService>().handleException(Kernel::InterruptFrame{}, 0,static_cast<Kernel::InterruptVector>(error));
+
+    uint32_t esp, cs, flags;
+    asm volatile (
+            "mov %%esp, %0;"
+            "mov %%cs, %1;"
+            "pushf;"
+            "pop %%eax;"
+            "mov %%eax, %2;"
+            :
+            "=r"(esp), "=r"(cs), "=r"(flags)
+            : : "eax"
+            );
+
+    Kernel::Service::getService<Kernel::InterruptService>().handleException(Kernel::InterruptFrame {esp, cs, flags}, 0, static_cast<Kernel::InterruptVector>(error));
 }
 
 const char* Cpu::getExceptionName(uint32_t exception) {
@@ -166,7 +179,7 @@ void Cpu::writeCr0(uint32_t value) {
 uint32_t Cpu::readCr2() {
     uint32_t cr2 = 0;
     asm volatile (
-            "mov %%cr0, %%eax;"
+            "mov %%cr2, %%eax;"
             "mov %%eax, (%0);"
             : :
             "r"(&cr2)

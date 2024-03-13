@@ -23,9 +23,9 @@
 namespace Kernel {
 
 struct InterruptFrame {
+    uint32_t instructionPointer;
+    uint32_t codeSegment;
     uint32_t flags;
-    uint32_t stackPointer;
-    uint32_t stackSegment;
 };
 
 }

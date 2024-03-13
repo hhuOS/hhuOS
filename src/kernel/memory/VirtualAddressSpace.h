@@ -1,0 +1,90 @@
+/*
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ */
+
+#ifndef __VIRTUALADDRESSSPACE__
+#define __VIRTUALADDRESSSPACE__
+
+#include "Paging.h"
+
+namespace Util {
+
+class HeapMemoryManager;
+
+}  // namespace Util
+
+namespace Kernel {
+class PageDirectory;
+
+/**
+ * VirtualAddressSpace - represents a virtual address space with corresponding page directory
+ * and memory managers.
+ *
+ * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+ * @date HHU, 2018
+ */
+class VirtualAddressSpace {
+
+public:
+    /**
+     * Constructor for the kernel address space.
+     */
+    explicit VirtualAddressSpace(Paging::Table *physicalPageDirectory, Paging::Table *virtualPageDirectory, Util::HeapMemoryManager &kernelHeapMemoryManager);
+
+    /**
+     * Constructor for user address space.
+     * The heap always starts at 0x2000.
+     */
+    explicit VirtualAddressSpace(const Kernel::Paging::Table &basePageDirectory);
+
+    /**
+     * Copy constructor.
+     */
+    VirtualAddressSpace(const VirtualAddressSpace &copy) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    VirtualAddressSpace &operator=(const VirtualAddressSpace &other) = delete;
+
+    /**
+     * Destructor
+     */
+    ~VirtualAddressSpace();
+
+    void* getPhysicalAddress(void *virtualAddress) const;
+
+    void map(const void *physicalAddress, const void *virtualAddress, uint16_t flags);
+
+    void* unmap(const void *virtualAddress);
+
+    [[nodiscard]] Util::HeapMemoryManager& getMemoryManager() const;
+
+    [[nodiscard]] const Paging::Table& getPageDirectory() const;
+
+    [[nodiscard]] bool isKernelAddressSpace() const;
+
+private:
+
+    bool kernelAddressSpace;
+    Paging::Table *physicalPageDirectory;
+    Paging::Table *virtualPageDirectory;
+    Util::HeapMemoryManager &memoryManager;
+};
+
+}
+
+#endif

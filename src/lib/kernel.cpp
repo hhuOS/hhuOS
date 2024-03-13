@@ -67,16 +67,16 @@ void freeMemory(void *pointer, uint32_t alignment) {
     return GatesOfHell::getKernelHeap().freeMemory(pointer, alignment);
 }
 
-bool isSystemInitialized() {
-    return Kernel::System::isInitialized();
+bool isMemoryManagementInitialized() {
+    return GatesOfHell::isMemoryManagementInitialized();
 }
 
-void* mapIO(uint32_t physicalAddress, uint32_t size) {
+void* mapIO(void *physicalAddress, uint32_t size) {
     return Kernel::System::getService<Kernel::MemoryService>().mapIO(physicalAddress, size, false);
 }
 
-void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount) {
-    Kernel::System::getService<Kernel::MemoryService>().unmap(virtualStartAddress, virtualEndAddress, breakCount);
+void unmap(void *virtualAddress, uint32_t pageCount, uint32_t breakCount) {
+    Kernel::Service::getService<Kernel::MemoryService>().unmap(virtualAddress, pageCount, breakCount);
 }
 
 bool mount(const Util::String &deviceName, const Util::String &targetPath, const Util::String &driverName) {

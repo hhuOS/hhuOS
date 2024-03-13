@@ -28,7 +28,7 @@
 namespace Util::Graphic {
 
 LinearFrameBuffer::LinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch, bool enableAcceleration) :
-        buffer(enableAcceleration ? Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(mapIO(physicalAddress, pitch * resolutionY)), useMmx) : new Address<uint32_t>(mapIO(physicalAddress, pitch * resolutionY))),
+        buffer(enableAcceleration ? Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(mapIO(reinterpret_cast<void*>(physicalAddress), pitch * resolutionY)), useMmx) : new Address<uint32_t>(mapIO(reinterpret_cast<void*>(physicalAddress), pitch * resolutionY))),
         resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
 
 LinearFrameBuffer::LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch, bool enableAcceleration) :
@@ -107,7 +107,7 @@ LinearFrameBuffer::LinearFrameBuffer(Io::File &file, bool enableAcceleration) {
     resolutionY = Util::String::parseInt(reinterpret_cast<const char*>(yBuffer));
     colorDepth = Util::String::parseInt(reinterpret_cast<const char*>(bppBuffer));
     pitch = Util::String::parseInt(reinterpret_cast<const char*>(pitchBuffer));
-    buffer = enableAcceleration ? Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(mapIO(address, pitch * resolutionY)), useMmx) : new Address<uint32_t>(mapIO(address, pitch * resolutionY));
+    buffer = enableAcceleration ? Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(mapIO(reinterpret_cast<void*>(address), pitch * resolutionY)), useMmx) : new Address<uint32_t>(mapIO(reinterpret_cast<void*>(address), pitch * resolutionY));
 }
 
 LinearFrameBuffer::~LinearFrameBuffer() {

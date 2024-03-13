@@ -37,7 +37,7 @@ enum InterruptRequest : uint8_t;
 
 IoApic::IoApic(uint8_t ioId, uint32_t baseAddress, Kernel::GlobalSystemInterrupt gsiBase) : ioId(ioId), gsiBase(gsiBase) {
     auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    void *virtualStartAddress = memoryService.mapIO(baseAddress, Util::PAGESIZE, true);
+    void *virtualStartAddress = memoryService.mapIO(reinterpret_cast<void*>(baseAddress), Util::PAGESIZE, true);
 
     // Account for possible misalignment
     const uint32_t pageOffset = baseAddress % Util::PAGESIZE;

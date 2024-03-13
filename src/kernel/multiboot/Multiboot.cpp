@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/paging/Paging.h"
+#include "kernel/memory/Paging.h"
 #include "kernel/system/System.h"
-#include "kernel/paging/MemoryLayout.h"
+#include "kernel/memory/MemoryLayout.h"
 #include "Multiboot.h"
 #include "kernel/multiboot/Multiboot.h"
 #include "asm_interface.h"

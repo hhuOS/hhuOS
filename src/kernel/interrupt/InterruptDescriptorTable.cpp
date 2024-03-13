@@ -327,7 +327,7 @@ void InterruptDescriptorTable::handleInterrupt(const InterruptFrame &frame, Inte
     interruptService.sendEndOfInterrupt(vector);
 }
 
-void InterruptDescriptorTable::handlePageFault(const Kernel::InterruptFrame &frame, uint32_t errorCode) {
+void InterruptDescriptorTable::handlePageFault(InterruptFrame *frame, uint32_t errorCode) {
     Service::getService<MemoryService>().handlePageFault(errorCode);
 }
 

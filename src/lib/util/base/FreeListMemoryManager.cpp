@@ -228,12 +228,12 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
     auto *mergedHeader = merge(header);
 
     // if the free chunk has more than 4KB of memory, a page can possibly be unmapped
-    if (unmapFreedMemory && mergedHeader->size >= Util::PAGESIZE && isSystemInitialized()) {
+    if (unmapFreedMemory && mergedHeader->size >= Util::PAGESIZE && isMemoryManagementInitialized()) {
         auto mergedAddress = reinterpret_cast<uint8_t*>(mergedHeader);
-        auto chunkEndAddr = mergedAddress + (HEADER_SIZE + mergedHeader->size);
+        auto size = HEADER_SIZE + mergedHeader->size;
 
         // try to unmap the free memory, not the list header!
-        unmap(reinterpret_cast<uint32_t>(mergedAddress + HEADER_SIZE), reinterpret_cast<uint32_t>(chunkEndAddr - 1), 8);
+        unmap(mergedAddress + HEADER_SIZE, size / Util::PAGESIZE, 8);
     }
 }
 

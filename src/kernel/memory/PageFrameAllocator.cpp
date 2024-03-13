@@ -16,7 +16,7 @@
  */
 
 #include "kernel/multiboot/Multiboot.h"
-#include "kernel/paging/Paging.h"
+#include "Paging.h"
 #include "PageFrameAllocator.h"
 #include "kernel/memory/PagingAreaManager.h"
 #include "kernel/memory/TableMemoryManager.h"

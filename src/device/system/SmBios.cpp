@@ -19,7 +19,7 @@
 
 #include "asm_interface.h"
 #include "lib/util/base/Address.h"
-#include "kernel/paging/MemoryLayout.h"
+#include "kernel/memory/MemoryLayout.h"
 #include "kernel/multiboot/Multiboot.h"
 #include "lib/util/collection/ArrayList.h"
 

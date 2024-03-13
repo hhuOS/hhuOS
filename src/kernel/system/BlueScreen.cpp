@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/paging/MemoryLayout.h"
+#include "kernel/memory/MemoryLayout.h"
 #include "device/cpu/Cpu.h"
 #include "lib/util/graphic/Fonts.h"
 #include "lib/util/base/System.h"

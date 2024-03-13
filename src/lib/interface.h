@@ -45,9 +45,9 @@ void* allocateMemory(uint32_t size, uint32_t alignment = 0);
 void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment = 0);
 void freeMemory(void *pointer, uint32_t alignment = 0);
 
-bool isSystemInitialized();
-void* mapIO(uint32_t physicalAddress, uint32_t size);
-void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount = 0);
+bool isMemoryManagementInitialized();
+void* mapIO(void *physicalAddress, uint32_t size);
+void unmap(void *virtualAddress, uint32_t pageCount, uint32_t breakCount = 0);
 
 bool mount(const Util::String &deviceName, const Util::String &targetPath, const Util::String &driverName);
 bool unmount(const Util::String &path);

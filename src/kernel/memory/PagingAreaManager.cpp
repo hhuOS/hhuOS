@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/paging/MemoryLayout.h"
+#include "MemoryLayout.h"
 #include "PagingAreaManager.h"
-#include "kernel/paging/Paging.h"
+#include "Paging.h"
 #include "lib/util/base/Exception.h"
 
 namespace Kernel {

@@ -28,7 +28,7 @@
 #include "kernel/system/System.h"
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/Constants.h"
-#include "kernel/paging/Paging.h"
+#include "kernel/memory/Paging.h"
 #include "kernel/memory/GlobalDescriptorTable.h"
 #include "device/interrupt/apic/IoApic.h"
 #include "device/interrupt/apic/LocalApic.h"
@@ -37,7 +37,7 @@
 #include "lib/util/base/Address.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/collection/ArrayList.h"
-#include "kernel/paging/MemoryLayout.h"
+#include "kernel/memory/MemoryLayout.h"
 #include "lib/util/hardware/Acpi.h"
 
 namespace Kernel {
@@ -420,7 +420,10 @@ void Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
 
     // Identity map the allocated physical memory to the kernel address space (So addresses don't change after enabling paging)
     auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    memoryService.mapPhysicalAddress(Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress, Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
+    memoryService.mapPhysical(
+            reinterpret_cast<void *>(Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress),
+            reinterpret_cast<void *>(Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress), 0,
+            Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
 
     // Copy the startup routine and prepared variables to the identity mapped page
     const auto startupCode = Util::Address<uint32_t>(reinterpret_cast<uint32_t>(&boot_ap));

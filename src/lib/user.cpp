@@ -59,18 +59,18 @@ void freeMemory(void *pointer, uint32_t alignment) {
     manager->freeMemory(pointer, alignment);
 }
 
-bool isSystemInitialized() {
+bool isMemoryManagementInitialized() {
     return true;
 }
 
-void* mapIO(uint32_t physicalAddress, uint32_t size) {
+void* mapIO(void *physicalAddress, uint32_t pageCount) {
     void *mappedAddress;
-    Util::System::call(Util::System::MAP_IO, 3, physicalAddress, size, &mappedAddress);
+    Util::System::call(Util::System::MAP_IO, 3, physicalAddress, pageCount, &mappedAddress);
     return mappedAddress;
 }
 
-void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount) {
-    Util::System::call(Util::System::UNMAP, 3, virtualStartAddress, virtualEndAddress, breakCount);
+void unmap(void *virtualAddress, uint32_t pageCount, uint32_t breakCount) {
+    Util::System::call(Util::System::UNMAP, 3, virtualAddress, pageCount, breakCount);
 }
 
 bool mount(const Util::String &deviceName, const Util::String &targetPath, const Util::String &driverName) {

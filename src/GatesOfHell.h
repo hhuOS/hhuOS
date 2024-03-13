@@ -21,7 +21,7 @@
 #include "kernel/memory/GlobalDescriptorTable.h"
 #include "lib/util/base/FreeListMemoryManager.h"
 #include "kernel/multiboot/Multiboot.h"
-#include "kernel/paging/Paging.h"
+#include "kernel/memory/Paging.h"
 #include "kernel/memory/PagingAreaManager.h"
 
 namespace Kernel {
@@ -66,12 +66,15 @@ public:
 
     static Util::HeapMemoryManager& getKernelHeap();
 
+    static bool isMemoryManagementInitialized();
+
 private:
 
     static Kernel::Logger log;
     static Kernel::GlobalDescriptorTable gdt;
     static Kernel::GlobalDescriptorTable::TaskStateSegment tss;
     static Util::HeapMemoryManager *kernelHeap;
+    static bool memoryManagementInitialized;
 };
 
 
