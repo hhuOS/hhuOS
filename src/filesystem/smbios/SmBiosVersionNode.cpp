@@ -18,10 +18,11 @@
 #include "SmBiosVersionNode.h"
 
 #include "device/system/SmBios.h"
+#include "kernel/service/InformationService.h"
 
 namespace Filesystem::SmBios {
 
-SmBiosVersionNode::SmBiosVersionNode() : Memory::StringNode("version"), versionString(Util::String::format("%u.%u", Device::SmBios::getSmBiosInformation().majorVersion, Device::SmBios::getSmBiosInformation().minorVersion)) {}
+SmBiosVersionNode::SmBiosVersionNode() : Memory::StringNode("version"), versionString(Util::String::format("%u.%u", Kernel::Service::getService<Kernel::InformationService>().getSmBios().getSmBiosInformation().majorVersion, Kernel::Service::getService<Kernel::InformationService>().getSmBios().getSmBiosInformation().minorVersion)) {}
 
 Util::String SmBiosVersionNode::getString() {
     return versionString;

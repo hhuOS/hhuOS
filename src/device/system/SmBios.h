@@ -36,14 +36,14 @@ public:
     struct Info {
         uint8_t majorVersion;
         uint8_t minorVersion;
-        uint32_t tableAddress;
+        const Util::Hardware::SmBios::TableHeader *tableAddress;
         uint32_t tableLength;
     };
 
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    SmBios() = default;
+    SmBios();
 
     /**
      * Copy Constructor.
@@ -60,22 +60,14 @@ public:
      */
     ~SmBios() = default;
 
-    static void copyTables(const void *multibootInfo, uint8_t *destination, uint32_t maxBytes);
+    [[nodiscard]] const Info& getSmBiosInformation() const;
 
-    static void initialize();
+    [[nodiscard]] bool hasTable(Util::Hardware::SmBios::HeaderType headerType) const;
 
-    static bool isAvailable();
-
-    static const CopyInformation& getCopyInformation();
-
-    static const Info& getSmBiosInformation();
-
-    static bool hasTable(Util::Hardware::SmBios::HeaderType headerType);
-
-    static Util::Array<Util::Hardware::SmBios::HeaderType> getAvailableTables();
+    [[nodiscard]] Util::Array<Util::Hardware::SmBios::HeaderType> getAvailableTables() const;
 
     template<typename T>
-    static const T& getTable(Util::Hardware::SmBios::HeaderType headerType);
+    [[nodiscard]] const T& getTable(Util::Hardware::SmBios::HeaderType headerType) const;
 
 private:
 
@@ -109,8 +101,6 @@ private:
         uint64_t tableAddress;
     } __attribute__ ((packed));
 
-    static const Kernel::Multiboot::SmBiosTables* findTables(const void *multibootInfo);
-
     static const EntryPoint* searchEntryPoint(uint32_t startAddress, uint32_t endAddress);
 
     static bool checkEntryPoint(EntryPoint *entryPoint);
@@ -119,13 +109,12 @@ private:
 
     static bool checkEntryPoint3(EntryPoint3 *entryPoint);
 
-    static const CopyInformation *copyInformation;
-    static const Info *smBiosInformation;
+    Info smBiosInformation{};
 };
 
 template<typename T>
-const T& SmBios::getTable(Util::Hardware::SmBios::HeaderType headerType) {
-    auto *currentTable = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(smBiosInformation->tableAddress);
+const T& SmBios::getTable(Util::Hardware::SmBios::HeaderType headerType) const {
+    auto *currentTable = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(smBiosInformation.tableAddress);
     while (currentTable->type != Util::Hardware::SmBios::END_OF_TABLE) {
         if (currentTable->type == headerType) {
             return *reinterpret_cast<const T*>(currentTable);

@@ -71,7 +71,7 @@ Logger System::log = Logger::get("System");
 void System::initializeSystem() {
     // Multiboot::initialize();
     // Device::Acpi::initialize();
-    Device::SmBios::initialize();
+    // Device::SmBios::initialize();
 
     kernelHeapMemoryManager = &initializeKernelHeap();
 

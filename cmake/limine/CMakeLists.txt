@@ -21,7 +21,7 @@ message(STATUS "Project " ${PROJECT_NAME})
 
 add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS-limine.iso"
         WORKING_DIRECTORY "${HHUOS_ROOT_DIR}/loader/limine/"
-        COMMAND /bin/mkdir "iso"
+        COMMAND /bin/mkdir -p "iso"
         COMMAND /bin/cp "$<TARGET_FILE:system>" "${HHUOS_ROOT_DIR}/loader/limine/iso/kernel.elf"
         COMMAND "${HHUOS_ROOT_DIR}/loader/limine/build.sh"
         COMMAND /bin/mv "${HHUOS_ROOT_DIR}/loader/limine/hhuOS-limine.iso" "${HHUOS_ROOT_DIR}"

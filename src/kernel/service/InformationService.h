@@ -22,6 +22,7 @@
 #include "Service.h"
 #include "kernel/multiboot/Multiboot.h"
 #include "device/system/Acpi.h"
+#include "device/system/SmBios.h"
 
 namespace Kernel {
 
@@ -31,7 +32,7 @@ public:
     /**
      * Constructor.
      */
-    InformationService(const Kernel::Multiboot *multiboot);
+    explicit InformationService(const Kernel::Multiboot *multiboot);
 
     /**
      * Copy Constructor.
@@ -50,16 +51,21 @@ public:
 
     void setAcpi(const Device::Acpi *acpi);
 
+    void setSmBios(const Device::SmBios *smBios);
+
     [[nodiscard]] const Multiboot& getMultibootInformation() const;
 
     [[nodiscard]] const Device::Acpi& getAcpi() const;
+
+    [[nodiscard]] const Device::SmBios& getSmBios() const;
 
     static const constexpr uint8_t SERVICE_ID = 9;
 
 private:
 
     const Multiboot *multiboot;
-    const Device::Acpi *acpi;
+    const Device::Acpi *acpi = nullptr;
+    const Device::SmBios *smBios = nullptr;
 };
 
 }

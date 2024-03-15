@@ -22,86 +22,52 @@
 #include "kernel/memory/MemoryLayout.h"
 #include "kernel/multiboot/Multiboot.h"
 #include "lib/util/collection/ArrayList.h"
+#include "kernel/service/InformationService.h"
+#include "kernel/service/MemoryService.h"
 
 namespace Device {
 
-const CopyInformation *SmBios::copyInformation{};
-const SmBios::Info *SmBios::smBiosInformation{};
-
-void SmBios::copyTables(const void *multibootInfo, uint8_t *destination, uint32_t maxBytes) {
-    auto *copyInfo = reinterpret_cast<CopyInformation*>(destination);
-    copyInfo->sourceAddress = 0;
-    copyInfo->targetAreaSize = maxBytes;
-    copyInfo->copiedBytes = sizeof(CopyInformation);
-    copyInfo->success = false;
-
-    auto destinationAddress = Util::Address<uint32_t>(destination + sizeof(CopyInformation));
-    Info info{};
-
-    // Search for SMBIOS tables in Multiboot tags
-    auto *smBiosTag = findTables(multibootInfo);
-    if (smBiosTag != nullptr) {
-        auto tableSize = static_cast<uint16_t>(smBiosTag->header.size - 16);
-        auto tableAddress = tableSize == 0 ? 0 : reinterpret_cast<uint32_t>(smBiosTag->tables);
-        info = { smBiosTag->majorVersion, smBiosTag->minorVersion, tableAddress, tableSize };
+SmBios::SmBios() {
+    // Search for SMBIOS tables in Multiboot information. Since the Multiboot information is already mapped into the kernel address space,
+    // we do not need to worry about physical and virtual addresses.
+    // Note: Limine does not follow the Multiboot2 standard, and passes the entry point to the kernel, instead of the whole tables.
+    //       In this case, 'tableAddress' will be set to nullptr, and the Multiboot tag will be ignored.
+    const auto &multiboot = Kernel::Service::getService<Kernel::InformationService>().getMultibootInformation();
+    if (multiboot.hasTag(Kernel::Multiboot::SMBIOS_TABLES)) {
+        const auto &tag = multiboot.getTag<Kernel::Multiboot::SmBiosTables>(Kernel::Multiboot::SMBIOS_TABLES);
+        auto tableSize = static_cast<uint16_t>(tag.header.size - 16);
+        auto tableAddress = tableSize == 0 ? nullptr : reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(tag.tables);
+        smBiosInformation = { tag.majorVersion, tag.minorVersion, tableAddress, tableSize };
     }
 
-    if (info.tableAddress == 0) {
+    if (smBiosInformation.tableAddress == nullptr) {
         // Search for entry point the "traditional" way
         auto *entryPoint = searchEntryPoint(0xf0000, 0xfffff);
         auto *entryPoint3 = searchEntryPoint3(0xf0000, 0xfffff);
 
-        if (entryPoint3 != nullptr) {
-            info = { entryPoint3->majorVersion, entryPoint3->minorVersion, static_cast<uint32_t>(entryPoint3->tableAddress), entryPoint3->maxTableLength };
-        } else if (entryPoint != nullptr) {
-            info = { entryPoint->majorVersion, entryPoint->minorVersion, entryPoint->tableAddress, entryPoint->tableLength };
-        } else {
-            return;
+        if (entryPoint != nullptr) {
+            smBiosInformation = { entryPoint->majorVersion, entryPoint->minorVersion, reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(entryPoint->tableAddress), entryPoint->tableLength };
+        } else if (entryPoint3 != nullptr) {
+            smBiosInformation = { entryPoint3->majorVersion, entryPoint3->minorVersion, reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(entryPoint3->tableAddress), entryPoint3->maxTableLength };
+        }
+
+        // The entry point struct contains a physical address, so we need to map the tables in to the kernel address space
+        if (smBiosInformation.tableAddress != nullptr) {
+            auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+            auto tablePageOffset = reinterpret_cast<uint32_t>(smBiosInformation.tableAddress) % Kernel::Paging::PAGESIZE;
+            auto tablePageCount = (tablePageOffset + smBiosInformation.tableLength) % Kernel::Paging::PAGESIZE == 0 ? (tablePageOffset + smBiosInformation.tableLength) / Kernel::Paging::PAGESIZE : ((tablePageOffset + smBiosInformation.tableLength) / Kernel::Paging::PAGESIZE) + 1;
+            auto *tablePage = memoryService.mapIO(const_cast<void*>(reinterpret_cast<const void*>(smBiosInformation.tableAddress)), tablePageCount);
+            smBiosInformation.tableAddress = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(reinterpret_cast<uint8_t*>(tablePage) + tablePageOffset);
         }
     }
-
-    copyInfo->sourceAddress = reinterpret_cast<uint32_t>(info.tableAddress);
-    if (info.tableAddress == 0) {
-        return;
-    }
-
-    // Copy information struct
-    if (copyInfo->copiedBytes + sizeof(Info) > maxBytes) return;
-    destinationAddress.copyRange(Util::Address<uint32_t>(&info), sizeof(Info));
-    auto *copiedInfo = reinterpret_cast<Info*>(destinationAddress.get());
-    destinationAddress = destinationAddress.add(sizeof(Info));
-    copyInfo->copiedBytes += sizeof(Info);
-
-    // Copy SMBIOS tables
-    if (copyInfo->copiedBytes + copiedInfo->tableLength > maxBytes) return;
-    destinationAddress.copyRange(Util::Address(copiedInfo->tableAddress), copiedInfo->tableLength);
-    copiedInfo->tableAddress = Kernel::MemoryLayout::PHYSICAL_TO_VIRTUAL(destinationAddress.get());
-    copyInfo->copiedBytes += copiedInfo->tableLength;
-
-    copyInfo->success = true;
 }
 
-void SmBios::initialize() {
-    /*copyInformation = reinterpret_cast<const CopyInformation*>(&smbios_data);
-    if (copyInformation->success) {
-        smBiosInformation = reinterpret_cast<const Info*>(&smbios_data + sizeof(CopyInformation));
-    }*/
+const SmBios::Info &SmBios::getSmBiosInformation() const {
+    return smBiosInformation;
 }
 
-bool SmBios::isAvailable() {
-    return copyInformation->success;
-}
-
-const CopyInformation& SmBios::getCopyInformation() {
-    return *copyInformation;
-}
-
-const SmBios::Info &SmBios::getSmBiosInformation() {
-    return *smBiosInformation;
-}
-
-bool SmBios::hasTable(Util::Hardware::SmBios::HeaderType headerType) {
-    auto *currentTable = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(smBiosInformation->tableAddress);
+bool SmBios::hasTable(Util::Hardware::SmBios::HeaderType headerType) const {
+    auto *currentTable = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(smBiosInformation.tableAddress);
     while (currentTable->type != Util::Hardware::SmBios::END_OF_TABLE) {
         if (currentTable->type == headerType) {
             return true;
@@ -113,35 +79,19 @@ bool SmBios::hasTable(Util::Hardware::SmBios::HeaderType headerType) {
     return false;
 }
 
-Util::Array<Util::Hardware::SmBios::HeaderType> SmBios::getAvailableTables() {
-    if (!isAvailable()) {
+Util::Array<Util::Hardware::SmBios::HeaderType> SmBios::getAvailableTables() const {
+    if (smBiosInformation.tableAddress == 0) {
         return Util::Array<Util::Hardware::SmBios::HeaderType>(0);
     }
 
     auto typeList = Util::ArrayList<Util::Hardware::SmBios::HeaderType>();
-    auto *currentTable = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(smBiosInformation->tableAddress);
+    auto *currentTable = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(smBiosInformation.tableAddress);
     while (currentTable->type != Util::Hardware::SmBios::END_OF_TABLE) {
         typeList.add(currentTable->type);
         currentTable = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(reinterpret_cast<uint32_t>(currentTable) + currentTable->calculateFullLength());
     }
 
     return typeList.toArray();
-}
-
-const Kernel::Multiboot::SmBiosTables* SmBios::findTables(const void *multibootInfo) {
-    auto currentAddress = reinterpret_cast<uint32_t>(multibootInfo) + sizeof(Kernel::Multiboot);
-    auto *currentTag = reinterpret_cast<const Kernel::Multiboot::TagHeader*>(currentAddress);
-    while (currentTag->type != Kernel::Multiboot::TERMINATE) {
-        if (currentTag->type == Kernel::Multiboot::SMBIOS_TABLES) {
-            return reinterpret_cast<const Kernel::Multiboot::SmBiosTables*>(currentTag);
-        }
-
-        currentAddress += currentTag->size;
-        currentAddress = currentAddress % 8 == 0 ? currentAddress : (currentAddress / 8) * 8 + 8;
-        currentTag = reinterpret_cast<const Kernel::Multiboot::TagHeader*>(currentAddress);
-    }
-
-    return nullptr;
 }
 
 const SmBios::EntryPoint* SmBios::searchEntryPoint(uint32_t startAddress, uint32_t endAddress) {

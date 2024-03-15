@@ -30,6 +30,7 @@
 #include "device/interrupt/apic/Apic.h"
 #include "device/system/Acpi.h"
 #include "kernel/service/InformationService.h"
+#include "device/system/SmBios.h"
 
 extern const uint32_t ___KERNEL_DATA_START__;
 extern const uint32_t ___KERNEL_DATA_END__;
@@ -87,13 +88,27 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
         auto currentAddress = reinterpret_cast<uint32_t>(memoryMap) + sizeof(Kernel::Multiboot::MemoryMapHeader) + i * memoryMap->entrySize;
         auto &entry = *reinterpret_cast<Kernel::Multiboot::MemoryMapEntry*>(currentAddress);
 
-        if (entry.address + entry.length > physicalMemoryLimit) {
+        if (entry.type == Kernel::Multiboot::AVAILABLE && (entry.address + entry.length) > physicalMemoryLimit) {
             physicalMemoryLimit = entry.address + entry.length;
         }
 
-        if (bootstrapMemory == 0 && entry.type == Kernel::Multiboot::AVAILABLE && (entry.address > KERNEL_DATA_END && entry.length >= INITIAL_PAGING_AREA_SIZE + INITIAL_KERNEL_HEAP_SIZE)) {
-            bootstrapMemory = entry.address;
-            entry.address += INITIAL_PAGING_AREA_SIZE + INITIAL_KERNEL_HEAP_SIZE;
+        if (bootstrapMemory == 0 && entry.type == Kernel::Multiboot::AVAILABLE) {
+            auto alignedAddress = Util::Address<uint32_t>(entry.address).alignUp(Kernel::Paging::PAGESIZE).get();
+            auto alignedLength = entry.length - (alignedAddress - entry.address);
+
+            if (alignedAddress > KERNEL_DATA_END && alignedLength >= INITIAL_PAGING_AREA_SIZE + INITIAL_KERNEL_HEAP_SIZE) {
+                // Entry starts and ends above kernel
+                bootstrapMemory = alignedAddress;
+                entry.address = alignedAddress + INITIAL_PAGING_AREA_SIZE + INITIAL_KERNEL_HEAP_SIZE;
+            } else if (alignedAddress + alignedLength > KERNEL_DATA_END) {
+                // Entry starts before or within kernel, but ends above kernel
+                auto alignedKernelEndAddress = Util::Address<uint32_t>(KERNEL_DATA_END).alignUp(Kernel::Paging::PAGESIZE).get();
+                auto usableLength = alignedLength - (alignedKernelEndAddress - alignedAddress);
+                if (usableLength >= INITIAL_PAGING_AREA_SIZE + INITIAL_KERNEL_HEAP_SIZE) {
+                    bootstrapMemory = alignedKernelEndAddress;
+                    entry.address = bootstrapMemory + INITIAL_PAGING_AREA_SIZE + INITIAL_KERNEL_HEAP_SIZE;
+                }
+            }
         }
     }
 
@@ -166,8 +181,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
     // Reserve kernel
     pageFrameAllocator->setMemory(reinterpret_cast<uint8_t*>(KERNEL_DATA_START), reinterpret_cast<uint8_t *>(KERNEL_DATA_START + kernelSize), 0, true);
     // Mark mapped kernel heap and paging area memory as used
-    pageFrameAllocator->setMemory(reinterpret_cast<uint8_t*>(bootstrapMemory),
-                                  reinterpret_cast<uint8_t*>(bootstrapMemory + INITIAL_PAGING_AREA_SIZE + INITIAL_KERNEL_HEAP_SIZE), 1, false);
+    pageFrameAllocator->setMemory(reinterpret_cast<uint8_t*>(bootstrapMemory), reinterpret_cast<uint8_t*>(bootstrapMemory + INITIAL_PAGING_AREA_SIZE + INITIAL_KERNEL_HEAP_SIZE), 1, false);
 
     // Reserve corresponding blocks in memory map
     for (uint32_t i = 0; i < memoryMapEntries; i++) {
@@ -213,6 +227,10 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
     // Initialize ACPI and add it to the information service
     auto *acpi = new Device::Acpi();
     informationService->setAcpi(acpi);
+
+    // Initialize SMBIOS and add it to the information service
+    auto *smBios = new Device::SmBios();
+    informationService->setSmBios(smBios);
 
     // Initialize the classic PIC and interrupt service
     auto *pic = new Device::Pic();

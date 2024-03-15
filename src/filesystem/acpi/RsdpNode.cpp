@@ -26,6 +26,6 @@
 
 namespace Filesystem::Acpi {
 
-RsdpNode::RsdpNode() : Memory::BufferNode("rsdp", reinterpret_cast<const uint8_t *>(&Kernel::Service::getService<Kernel::InformationService>().getAcpi().getRsdp()), sizeof(Util::Hardware::Acpi::Rsdp)) {}
+RsdpNode::RsdpNode() : Memory::BufferNode("rsdp", reinterpret_cast<const uint8_t*>(&Kernel::Service::getService<Kernel::InformationService>().getAcpi().getRsdp()), sizeof(Util::Hardware::Acpi::Rsdp)) {}
 
 }

@@ -23,10 +23,18 @@ void Kernel::InformationService::setAcpi(const Device::Acpi *acpi) {
     InformationService::acpi = acpi;
 }
 
-const Kernel::Multiboot &Kernel::InformationService::getMultibootInformation() const {
+void Kernel::InformationService::setSmBios(const Device::SmBios *smBios) {
+    InformationService::smBios = smBios;
+}
+
+const Kernel::Multiboot& Kernel::InformationService::getMultibootInformation() const {
     return *multiboot;
 }
 
-const Device::Acpi &Kernel::InformationService::getAcpi() const {
+const Device::Acpi& Kernel::InformationService::getAcpi() const {
     return *acpi;
+}
+
+const Device::SmBios& Kernel::InformationService::getSmBios() const {
+    return *smBios;
 }

@@ -23,6 +23,7 @@
 #include "device/system/SmBios.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/hardware/SmBios.h"
+#include "kernel/service/InformationService.h"
 
 namespace Filesystem::SmBios {
 
@@ -30,8 +31,9 @@ SmBiosDriver::SmBiosDriver() {
     addNode("/", new SmBiosVersionNode());
     addNode("/", new Memory::MemoryDirectoryNode("tables"));
 
-    for (const auto type : Device::SmBios::getAvailableTables()) {
-        const auto &table = Device::SmBios::getTable<Util::Hardware::SmBios::TableHeader>(type);
+    const auto &smBios = Kernel::Service::getService<Kernel::InformationService>().getSmBios();
+    for (const auto type : smBios.getAvailableTables()) {
+        const auto &table = smBios.getTable<Util::Hardware::SmBios::TableHeader>(type);
         addNode("/tables", new SmBiosTableNode(table));
     }
 }

@@ -80,13 +80,13 @@ Util::Array<Util::String> Acpi::getAvailableTables() const {
 
 const Util::Hardware::Acpi::SdtHeader* Acpi::mapSdt(const Util::Hardware::Acpi::SdtHeader *sdtHeaderPhysical) {
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    auto sdtPageOffset = rsdp->rsdtAddress % Kernel::Paging::PAGESIZE;
+    auto sdtPageOffset = reinterpret_cast<uint32_t>(sdtHeaderPhysical) % Kernel::Paging::PAGESIZE;
     auto *sdtPage = memoryService.mapIO(const_cast<void*>(reinterpret_cast<const void*>(sdtHeaderPhysical)), 1);
     auto *sdtHeaderVirtual = reinterpret_cast<Util::Hardware::Acpi::SdtHeader*>(reinterpret_cast<uint8_t*>(sdtPage) + sdtPageOffset);
 
-    if (sdtHeaderVirtual->length > Kernel::Paging::PAGESIZE) {
+    if ((sdtPageOffset + sdtHeaderVirtual->length) > Kernel::Paging::PAGESIZE) {
         delete static_cast<uint8_t*>(sdtPage);
-        auto pages = sdtHeaderVirtual->length % Kernel::Paging::PAGESIZE == 0 ? sdtHeaderVirtual->length / Kernel::Paging::PAGESIZE : (sdtHeaderVirtual->length / Kernel::Paging::PAGESIZE) + 1;
+        auto pages = (sdtPageOffset + sdtHeaderVirtual->length) % Kernel::Paging::PAGESIZE == 0 ? (sdtPageOffset + sdtHeaderVirtual->length) / Kernel::Paging::PAGESIZE : ((sdtPageOffset + sdtHeaderVirtual->length) / Kernel::Paging::PAGESIZE) + 1;
         sdtPage = memoryService.mapIO(const_cast<void*>(reinterpret_cast<const void*>(sdtHeaderPhysical)), pages);
         sdtHeaderVirtual = reinterpret_cast<Util::Hardware::Acpi::SdtHeader*>(reinterpret_cast<uint8_t*>(sdtPage) + sdtPageOffset);
     }
