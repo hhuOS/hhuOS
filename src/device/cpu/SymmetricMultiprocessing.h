@@ -18,8 +18,8 @@
  * The original source code can be found here: https://github.com/ChUrl/hhuOS
  */
 
-#ifndef HHUOS_SYMMETRIC_MULTIPROCESSING_H
-#define HHUOS_SYMMETRIC_MULTIPROCESSING_H
+#ifndef HHUOS_SYMMETRICMULTIPROCESSING_H
+#define HHUOS_SYMMETRICMULTIPROCESSING_H
 
 #include <cstdint>
 #include "Cpu.h"

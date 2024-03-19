@@ -126,6 +126,12 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
     // Page tables will be allocated in bootstrap memory, directly after the page directory
     auto *pageTableMemory = reinterpret_cast<Kernel::Paging::Table*>(pagingAreaPhysical + sizeof(Kernel::Paging::Table));
 
+    // Create identity mapping for lower memory (1 MiB), used for ISA DMA and BIOS related stuff
+    // Depending on the system and bootloader, this may be necessary to initialize ACPI and SMBIOS data structures.
+    // This also necessary to boot application processors on multicore systems, since the real mode boot code
+    // must be located somewhere in the lower memory area.
+    pageTableMemory += createInitialMapping(*pageDirectory, pageTableMemory, 0x00000000, 0x00000000, 256);
+
     // Create identity mapping for kernel
     const auto kernelSize = Util::Address<uint32_t>(KERNEL_DATA_END - KERNEL_DATA_START).alignUp(Kernel::Paging::PAGESIZE).get();
     pageTableMemory += createInitialMapping(*pageDirectory, pageTableMemory, KERNEL_DATA_START, KERNEL_DATA_START, kernelSize / Kernel::Paging::PAGESIZE);
@@ -246,9 +252,9 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
         } else {
             interruptService->useApic(apic);
 
-            /*if (apic ->isSymmetricMultiprocessingSupported()) {
+            if (apic ->isSymmetricMultiprocessingSupported()) {
                 apic->startupApplicationProcessors();
-            }*/
+            }
         }
     } else {
         log.info("APIC not available -> Falling back to PIC");

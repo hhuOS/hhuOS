@@ -89,6 +89,11 @@ public:
         uint16_t ioMapBaseOffset = sizeof(TaskStateSegment);
     } __attribute__((packed));
 
+    struct Descriptor {
+        uint16_t size;
+        uint32_t offset;
+    } __attribute__((packed));
+
     /**
      * Default Constructor.
      */
@@ -111,14 +116,11 @@ public:
 
     void addSegment(const SegmentDescriptor &descriptor);
 
+    Descriptor getDescriptor();
+
     void load();
 
 private:
-
-    struct Descriptor {
-        uint16_t size;
-        uint32_t offset;
-    } __attribute__((packed));
 
     uint64_t table[8]{};
     uint32_t index = 1; // First entry is always the NULL-descriptor

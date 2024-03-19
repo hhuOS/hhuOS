@@ -36,18 +36,17 @@ global boot_ap_gdts
 global boot_ap_stacks
 global boot_ap_entry
 
+extern bootApplicationProcessor
+
 %define startup_address 0x1000
 %define stack_size 0x1000
 
 [SECTION .text]
-align 8
 bits 16
+align 8
 boot_ap:
     ; Disable interrupts (maskable and non-maskable)
     cli
-    ; TODO: Does CMOS work core-locally?
-    ; mov	al, 0x80
-    ; out	0x70, al
 
     ; Enable A20 address line
     in al, 0x92
@@ -56,7 +55,7 @@ boot_ap:
 
     ; Load the temporary GDT required for the far jump into protected mode.
     ; It is located in the startup memory, so it will be deallocated after AP boot!
-    lgdt [tmp_gdt_desc - boot_ap + startup_address]
+    lgdt [(startup_gdt_descriptor - boot_ap) + startup_address]
 
     ; Enable Protected Mode, must be executed from an identity mapped page (if paging is used).
     ; Our page is identity mapped at startup_address.
@@ -73,59 +72,11 @@ boot_ap:
     mov gs, ax ; General purpose segment register
 
     ; Far jump to protected mode, sets cs (code segment register)
-    jmp dword 0x8:boot_ap_32 - boot_ap + startup_address
-
-; Keep these variables in the .text section, so they get copied to startup_address and can be accessed by offsets relative to startup_address.
-align 8
-tmp_gdt_start:
-	dw	0x0, 0x0, 0x0, 0x0
-tmp_gdt_code:
-	dw	0xFFFF ; 4Gb - (0x100000*0x1000 = 4Gb)
-	dw	0x0000 ; base address=0
-	dw	0x9A00 ; code read/exec
-	dw	0x00CF ; granularity=4096, 386 (+5th nibble of limit)
-tmp_gdt_data:
-	dw	0xFFFF ; 4Gb - (0x100000*0x1000 = 4Gb)
-	dw	0x0000 ; base address=0
-	dw	0x9200 ; data read/write
-	dw	0x00CF ; granularity=4096, 386 (+5th nibble of limit)
-tmp_gdt_end:
-tmp_gdt_desc:
-	dw tmp_gdt_end - tmp_gdt_start - 1 ; GDT size
-	dd tmp_gdt_start - boot_ap + startup_address
-
-; The following is set at runtime by Apic.cpp
-align 8
-boot_ap_idtr:
-    dw 0x0
-    dd 0x0
-align 8
-boot_ap_cr0:
-    dd 0x0
-align 8
-boot_ap_cr3:
-    dd 0x0
-align 8
-boot_ap_cr4:
-    dd 0x0
-align 8
-boot_ap_counter:
-    dd 0x0
-align 8
-boot_ap_gdts:
-    dd 0x0
-align 8
-boot_ap_stacks:
-    dd 0x0
-align 8
-boot_ap_entry:
-    dd 0x0
-
-; =================================================================================================
+    jmp dword 0x8:boot_ap32
 
 bits 32
 align 8
-boot_ap_32:
+boot_ap32:
     ; 1. Set cr3 to BSP value (for the page directory)
     mov eax, [boot_ap_cr3 - boot_ap + startup_address]
     mov cr3, eax
@@ -138,39 +89,81 @@ boot_ap_32:
 
     ; Load the system IDT
     lidt [boot_ap_idtr - boot_ap + startup_address]
-    ; lgdt [boot_ap_gdtr - boot_ap + startup_address]
 
-    ; Get the local APIC ID of this AP, to locate GDT and stack
-    ; mov eax, 0x1
-    ; cpuid
-    ; shr ebx, 0x18
-    ; mov edi, ebx ; Now the ID is in EDI
-
-    ; Get the initializedApplicationProcessorsCounter value to identify GDT and Stack
-    mov eax, [boot_ap_counter - boot_ap + startup_address]
+    ; Get the processor id to identify stack
+    mov eax, [(boot_ap_counter - boot_ap) + startup_address]
     mov edi, [eax]
 
     ; Load the AP's prepared GDT and TSS
-    mov ebx, [boot_ap_gdts - boot_ap + startup_address] ; GDT descriptor array
-    mov eax, [ebx + edi * 0x4] ; Choose correct GDT, each boot_ap_gdts entry is a 4 byte pointer to a descriptor
+    mov ebx, [(boot_ap_gdts - boot_ap) + startup_address] ; GDT descriptor array
+    mov eax, [ebx + (edi * 0x4)] ; Choose correct GDT, each boot_ap_gdts entry is a 4 byte pointer to a descriptor
     lgdt [eax]
     mov ax, 0x28
     ltr ax
 
     ; Load the correct stack for this AP
-    mov ebx, [boot_ap_stacks - boot_ap + startup_address] ; Stackpointer array
-    mov esp, [ebx + edi * 0x4] ; Choose correct stack, each boot_ap_stacks entry is a 4 byte pointer to a stack
+    mov ebx, [(boot_ap_stacks - boot_ap) + startup_address] ; Stackpointer array
+    mov esp, [ebx + (edi * 4)] ; Choose correct stack, each boot_ap_stacks entry is a 4 byte pointer to a stack
     add esp, stack_size ; Stack starts at the bottom
     mov ebp, esp ; Update base pointer
 
-    ; Call our entry function
+    ; Call entry function (C++)
     push edi ; Push apic id
-    call [boot_ap_entry - boot_ap + startup_address] ; AP entry function
+    call [(boot_ap_entry - boot_ap) + startup_address] ; AP entry function
 
-boot_ap_finish:
+; Keep these variables in the .text section, so they get copied to startup_address and can be accessed by offsets relative to startup_address
+align 8
+startup_gdt:
+; Null descriptor
+	dw	0x0000
+	dw	0x0000
+	dw	0x0000
+	dw	0x0000
+; Kernel code descriptor
+	dw	0xFFFF ; 4Gb - (0x100000*0x1000 = 4Gb)
+	dw	0x0000 ; base address=0
+	dw	0x9A00 ; code read/exec
+	dw	0x00CF ; granularity=4096, 386 (+5th nibble of limit)
+; Kernel data descriptor
+	dw	0xFFFF ; 4Gb - (0x100000*0x1000 = 4Gb)
+	dw	0x0000 ; base address=0
+	dw	0x9200 ; data read/write
+	dw	0x00CF ; granularity=4096, 386 (+5th nibble of limit)
+startup_gdt_descriptor:
+	dw startup_gdt_descriptor - startup_gdt - 1 ; GDT size
+	dd (startup_gdt - boot_ap) + startup_address ; GDT offset
+
+; The following is set at runtime by Apic.cpp
+align 8
+boot_ap_cr0:
+    dd 0
+align 8
+boot_ap_cr3:
+    dd 0
+align 8
+boot_ap_cr4:
+    dd 0
+align 8
+boot_ap_idtr:
+    dw 0
+    dd 0
+align 8
+boot_ap_counter:
+    dd 0
+align 8
+boot_ap_stacks:
+    dd 0
+align 8
+boot_ap_gdts:
+    dd 0
+align 8
+boot_ap_entry:
+    dd 0
+
+boot_ap_end:
     jmp $ ; Should never be reached
 
 [SECTION .data]
 align 8
 boot_ap_size:
-    dw boot_ap_finish - boot_ap + 1 ; Also include the last jmp $
+    dw boot_ap_end - boot_ap + 1 ; Also include the last jmp $

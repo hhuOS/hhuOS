@@ -20,10 +20,11 @@
 
 #include "Apic.h"
 
+#include "lib/util/base/operators.h"
 #include "device/system/Acpi.h"
 #include "device/time/rtc/Cmos.h"
 #include "device/time/pit/Pit.h"
-#include "device/cpu/symmetric_multiprocessing.h"
+#include "device/cpu/SymmetricMultiprocessing.h"
 #include "kernel/interrupt/InterruptVector.h"
 #include "kernel/system/System.h"
 #include "kernel/service/MemoryService.h"
@@ -318,8 +319,8 @@ bool Apic::isSymmetricMultiprocessingSupported() const {
 }
 
 void Apic::startupApplicationProcessors() {
-    void *gdtPointers = prepareApplicationProcessorGdts();
-    void *stackPointers = prepareApplicationProcessorStacks();
+    auto *gdtPointers = prepareApplicationProcessorGdts();
+    auto *stackPointers = prepareApplicationProcessorStacks();
     prepareApplicationProcessorStartupCode(gdtPointers, stackPointers);
     prepareApplicationProcessorWarmReset(); // This is technically only required for discrete APIC, see below
 
@@ -392,16 +393,16 @@ void Apic::startupApplicationProcessors() {
     delete[] reinterpret_cast<uint8_t*>(stackPointers);
 }
 
-void* Apic::prepareApplicationProcessorStacks() {
+uint8_t** Apic::prepareApplicationProcessorStacks() {
     // Allocate the stack pointer array
-    auto **stacks = reinterpret_cast<uint32_t**>(new uint8_t*[localApics.size() - 1]); // Exclude BSP
+    auto **stacks = new uint8_t*[localApics.size() - 1]; // Exclude BSP
 
     // Allocate the stacks
     for (uint32_t i = 0; i < localApics.size() - 1; ++i) {
-        stacks[i] = reinterpret_cast<uint32_t*>(new uint8_t[applicationProcessorStackSize]);
+        stacks[i] = new uint8_t[applicationProcessorStackSize];
     }
 
-    return reinterpret_cast<void*>(stacks);
+    return stacks;
 }
 
 void Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
@@ -423,13 +424,6 @@ void Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
     boot_ap_stacks = reinterpret_cast<uint32_t>(stacks);
     boot_ap_entry = reinterpret_cast<uint32_t>(&applicationProcessorEntry);
 
-    // Identity map the allocated physical memory to the kernel address space (So addresses don't change after enabling paging)
-    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    memoryService.mapPhysical(
-            reinterpret_cast<void *>(Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress),
-            reinterpret_cast<void *>(Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress), 0,
-            Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
-
     // Copy the startup routine and prepared variables to the identity mapped page
     const auto startupCode = Util::Address<uint32_t>(reinterpret_cast<uint32_t>(&boot_ap));
     const auto destination = Util::Address<uint32_t>(Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress);
@@ -439,54 +433,35 @@ void Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
 void Apic::prepareApplicationProcessorWarmReset() {
     Cmos::write(0xF, 0x0A); // Shutdown status byte (MPSpec, sec. B.4)
 
-    const uint32_t warmResetVectorPhysical = 0x40 << 4 | 0x67; // MPSpec, sec. B.4
-    const uint32_t warmResetVectorVirtual = Kernel::MemoryLayout::PHYSICAL_TO_VIRTUAL(warmResetVectorPhysical); // Warm reset vector is DWORD
-
-    *reinterpret_cast<volatile uint16_t*>(warmResetVectorVirtual) = Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress;
+    const uint32_t warmResetVector = 0x40 << 4 | 0x67; // MPSpec, sec. B.4
+    *reinterpret_cast<volatile uint16_t*>(warmResetVector) = Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress;
 }
 
-void *Apic::prepareApplicationProcessorGdts() {
-    // Allocate descriptor pointer array
-    auto **gdts = reinterpret_cast<Cpu::Descriptor**>(new Cpu::Descriptor*[localApics.size() - 1]); // Skip BSP
-
-    for (uint32_t i = 0; i < localApics.size() - 1; ++i) {
-        gdts[i] = allocateApplicationProcessorGdt();
-    }
-
-    return reinterpret_cast<void *>(gdts);
-}
-
-Cpu::Descriptor *Apic::allocateApplicationProcessorGdt() {
-    // Allocate memory for the GDT and TSS. This is never freed, as its used as long as the system runs.
+Kernel::GlobalDescriptorTable::Descriptor** Apic::prepareApplicationProcessorGdts() {
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
 
-    auto *gdt = reinterpret_cast<uint16_t*>(memoryService.allocateLowerMemory(48));
+    // Allocate descriptor pointer array
+    auto **gdts = new Kernel::GlobalDescriptorTable::Descriptor*[localApics.size() - 1]{}; // Skip BSP
 
-    const uint32_t tssSize = sizeof(Kernel::GlobalDescriptorTable::TaskStateSegment);
-    auto *tss = reinterpret_cast<void *>(memoryService.allocateLowerMemory(tssSize));
+    // Create GDTs for each core
+    for (uint32_t i = 0; i < localApics.size() - 1; ++i) {
+        auto *gdtMem = memoryService.allocateLowerMemory(sizeof(Kernel::GlobalDescriptorTable));
+        auto *tssMem = memoryService.allocateLowerMemory(sizeof(Kernel::GlobalDescriptorTable::TaskStateSegment));
 
-    // Zero everything
-    Util::Address<uint32_t>(gdt).setRange(0, 48);
-    Util::Address<uint32_t>(tss).setRange(0, tssSize);
+        auto *gdt = new (gdtMem) Kernel::GlobalDescriptorTable{};
+        auto *tss = new (tssMem) Kernel::GlobalDescriptorTable::TaskStateSegment{};
 
-    // Set up general GDT for the AP
-    // First entry has to be null
-    Kernel::System::createGlobalDescriptorTableEntry(gdt, 0, 0, 0, 0, 0);
-    // Kernel code segment
-    Kernel::System::createGlobalDescriptorTableEntry(gdt, 1, 0, 0xFFFFFFFF, 0x9A, 0xC);
-    // Kernel data segment
-    Kernel::System::createGlobalDescriptorTableEntry(gdt, 2, 0, 0xFFFFFFFF, 0x92, 0xC);
-    // User code segment
-    Kernel::System::createGlobalDescriptorTableEntry(gdt, 3, 0, 0xFFFFFFFF, 0xFA, 0xC);
-    // User data segment
-    Kernel::System::createGlobalDescriptorTableEntry(gdt, 4, 0, 0xFFFFFFFF, 0xF2, 0xC);
-    // TSS segment
-    Kernel::System::createGlobalDescriptorTableEntry(gdt, 5, reinterpret_cast<uint32_t>(tss), tssSize, 0x89, 0x4);
+        gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x9a, 0x0c)); // Kernel code segment
+        gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x92, 0x0c)); // Kernel data segment
+        gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xfa, 0x0c)); // User code segment
+        gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xf2, 0x0c)); // User data segment
+        gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(reinterpret_cast<uint32_t>(&tss), sizeof(Kernel::GlobalDescriptorTable::TaskStateSegment), 0x89, 0x04));
 
-    return new Cpu::Descriptor {
-            .limit = 6 * 8,
-            .address = reinterpret_cast<uint32_t>(gdt) // + Kernel::MemoryLayout::KERNEL_START
-    };
+        // Store current GDT descriptor in array
+        gdts[i] = new Kernel::GlobalDescriptorTable::Descriptor(gdt->getDescriptor());
+    }
+
+    return gdts;
 }
 
 }

@@ -48,8 +48,12 @@ void GlobalDescriptorTable::addSegment(const GlobalDescriptorTable::SegmentDescr
     table[index++] = descriptor;
 }
 
+GlobalDescriptorTable::Descriptor GlobalDescriptorTable::getDescriptor() {
+    return Descriptor{ static_cast<uint16_t>(index * sizeof(uint64_t) - 1), reinterpret_cast<uint32_t>(table) };
+}
+
 void GlobalDescriptorTable::load() {
-    auto descriptor = Descriptor{ static_cast<uint16_t>(index * sizeof(uint64_t) - 1), reinterpret_cast<uint32_t>(table) };
+    auto descriptor = getDescriptor();
     asm volatile(
             "lgdt (%0)"
             : :

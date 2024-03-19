@@ -18,7 +18,7 @@
  * The original source code can be found here: https://github.com/ChUrl/hhuOS
  */
 
-#include "symmetric_multiprocessing.h"
+#include "SymmetricMultiprocessing.h"
 
 #include "kernel/log/Logger.h"
 #include "device/interrupt/apic/Apic.h"

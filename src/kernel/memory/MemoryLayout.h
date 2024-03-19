@@ -51,31 +51,7 @@ public:
         [[nodiscard]] Util::Address<uint32_t> toAddress() const {
             return Util::Address<uint32_t>(startAddress);
         }
-
-        [[nodiscard]] MemoryArea toPhysical() const {
-            if (type == PHYSICAL) {
-                return { startAddress, endAddress, PHYSICAL };
-            } else {
-                return { VIRTUAL_TO_PHYSICAL(startAddress), VIRTUAL_TO_PHYSICAL(endAddress), PHYSICAL };
-            }
-        }
-
-        [[nodiscard]] MemoryArea toVirtual() const {
-            if (type == VIRTUAL) {
-                return { startAddress, endAddress, VIRTUAL };
-            } else {
-                return { PHYSICAL_TO_VIRTUAL(startAddress), PHYSICAL_TO_VIRTUAL(endAddress), VIRTUAL };
-            }
-        }
     };
-
-    static constexpr uint32_t PHYSICAL_TO_VIRTUAL(uint32_t address) {
-        return address + KERNEL_START;
-    }
-
-    static constexpr uint32_t VIRTUAL_TO_PHYSICAL(uint32_t address) {
-        return address - KERNEL_START;
-    }
 
     // let kernel start at 1 MiB
     static const constexpr uint32_t KERNEL_START = 0x00100000;

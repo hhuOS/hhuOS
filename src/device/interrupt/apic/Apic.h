@@ -29,6 +29,7 @@
 #include "device/cpu/Cpu.h"
 #include "lib/util/collection/HashMap.h"
 #include "lib/util/collection/Array.h"
+#include "kernel/memory/GlobalDescriptorTable.h"
 
 namespace Kernel {
 class Logger;
@@ -145,7 +146,7 @@ private:
      *
      * @return The virtual address of the stackpointer array
      */
-    void* prepareApplicationProcessorStacks();
+    uint8_t** prepareApplicationProcessorStacks();
 
     /**
      * Copy the AP startup routine to lower physical memory.
@@ -163,16 +164,7 @@ private:
      */
     void prepareApplicationProcessorWarmReset();
 
-    void* prepareApplicationProcessorGdts();
-
-    /**
-     * Sets up the GDT for the AP.
-     *
-     * The memory is allocated by MemoryService::AllocateKernelMemory with enabled paging, so its a virtual address.
-     * This is basically a shorter and slightly modified version of System::InitializeGlobalDescriptorTables.
-     * The main difference is that only a single GDT is used and its memory is allocated by this function.
-     */
-    Cpu::Descriptor* allocateApplicationProcessorGdt();
+    Kernel::GlobalDescriptorTable::Descriptor** prepareApplicationProcessorGdts();
 
     Kernel::GlobalSystemInterrupt getIrqOverride(InterruptRequest interruptRequest);
 
