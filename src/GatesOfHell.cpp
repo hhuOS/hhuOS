@@ -255,6 +255,8 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
     LOG_INFO("Initializing SMBIOS");
     auto *smBios = new Device::SmBios();
     informationService->setSmBios(smBios);
+    auto &biosInformation = smBios->getTable<Util::Hardware::SmBios::BiosInformation>(Util::Hardware::SmBios::BIOS_INFORMATION);
+    LOG_INFO("BIOS vendor: [%s], BIOS version: [%s (%s)]", biosInformation.getVendorName(), biosInformation.getVersion(), biosInformation.getReleaseDate());
 
     // Initialize the classic PIC and interrupt service
     LOG_INFO("Initializing classic PIC");
