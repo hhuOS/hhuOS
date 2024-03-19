@@ -27,33 +27,33 @@ namespace Device {
 Pic::Pic() {
     // Start initialization sequence on both PICs (ICW1)
     masterCommandPort.writeByte(INITIALIZE);
-    Pit::earlyDelay(100);
+    Pit::earlyDelay(1);
     slaveCommandPort.writeByte(INITIALIZE);
-    Pit::earlyDelay(100);
+    Pit::earlyDelay(1);
 
     // Set interrupt offsets (ICW2)
     masterDataPort.writeByte(Kernel::InterruptVector::PIT);
-    Pit::earlyDelay(100);
+    Pit::earlyDelay(1);
     slaveDataPort.writeByte(Kernel::InterruptVector::RTC);
-    Pit::earlyDelay(100);
+    Pit::earlyDelay(1);
 
     // Setup cascading PICs (ICW3)
     masterDataPort.writeByte(0x04);
-    Pit::earlyDelay(100);
+    Pit::earlyDelay(1);
     slaveDataPort.writeByte(0x02);
-    Pit::earlyDelay(100);
+    Pit::earlyDelay(1);
 
     // Enable 8086-mode (ICW4)
     masterDataPort.writeByte(0x01);
-    Pit::earlyDelay(100);
+    Pit::earlyDelay(1);
     slaveDataPort.writeByte(0x01);
-    Pit::earlyDelay(100);
+    Pit::earlyDelay(1);
 
     // Disable all interrupt lines
     masterDataPort.writeByte(0xff);
-    Pit::earlyDelay(100);
+    Pit::earlyDelay(1);
     slaveDataPort.writeByte(0xff);
-    Pit::earlyDelay(100);
+    Pit::earlyDelay(1);
 }
 
 void Pic::allow(InterruptRequest interrupt) {
