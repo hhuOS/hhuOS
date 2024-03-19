@@ -39,7 +39,7 @@ ApicTimer::Divider ApicTimer::divider = BY_16;
 
 ApicTimer::ApicTimer(uint32_t timerInterval, uint32_t yieldInterval) : cpuId(LocalApic::getId()), timerInterval(timerInterval), yieldInterval(yieldInterval) {
     auto counter = ticksPerMilliseconds * timerInterval;
-    // LOG_INFO("Setting APIC timer [%u] interval to [%ums] (Counter: [%u])", cpuId, timerInterval, counter);
+    LOG_INFO("Setting APIC timer [%u] interval to [%ums] (Counter: [%u])", cpuId, timerInterval, counter);
 
     // Recommended order: Divide -> LVT -> Initial Count (OSDev)
     LocalApic::writeDoubleWord(LocalApic::TIMER_DIVIDE, divider); // BY_1 is the highest resolution (overkill)
@@ -84,15 +84,15 @@ Util::Time::Timestamp ApicTimer::getTime() {
 
 void ApicTimer::calibrate() {
     // Prepare calibration
-    LocalApic::writeDoubleWord(LocalApic::TIMER_DIVIDE, divider);
+    LocalApic::writeDoubleWord(LocalApic::TIMER_DIVIDE, BY_1);
     LocalApic::LocalVectorTableEntry lvtEntry = LocalApic::readLocalVectorTable(LocalApic::TIMER);
     lvtEntry.timerMode = LocalApic::LocalVectorTableEntry::TimerMode::ONESHOT;
     LocalApic::writeLocalVectorTable(LocalApic::TIMER, lvtEntry);
 
     // The calibration works by waiting the desired interval and measuring how many ticks the timer does.
-    LocalApic::writeDoubleWord(LocalApic::TIMER_INITIAL, 0xFFFFFFFF); // Max initial counter, writing starts timer
-    Pit::earlyDelay(10000); // Wait 10 ms
-    ticksPerMilliseconds = (0xFFFFFFFF - LocalApic::readDoubleWord(LocalApic::TIMER_CURRENT)) / 10; // Ticks in 1 ms
+    LocalApic::writeDoubleWord(LocalApic::TIMER_INITIAL, 0xffffffff); // Max initial counter, writing starts timer
+    Pit::earlyDelay(50); // Wait 50 ms
+    ticksPerMilliseconds = (0xffffffff - LocalApic::readDoubleWord(LocalApic::TIMER_CURRENT)) / 50; // Ticks in 1 ms
 
     LOG_INFO("Apic Timer ticks per millisecond: [%u]", ticksPerMilliseconds);
 }

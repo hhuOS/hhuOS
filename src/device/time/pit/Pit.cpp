@@ -71,18 +71,32 @@ Util::Time::Timestamp Pit::getTime() {
     return time;
 }
 
-void Pit::earlyDelay(uint16_t us) {
-    auto controlPort = IoPort(0x43);
-    auto dataPort0 = IoPort(0x40);
-    auto counter = static_cast<uint32_t>((static_cast<double>(BASE_FREQUENCY) / 1000000) * us);
+void Pit::earlyDelay(uint16_t ms) {
+    const auto counter = static_cast<uint32_t>((BASE_FREQUENCY / 1000) * ms);
+    const auto lowByte = static_cast<uint8_t>(counter & 0x00ff);
+    const auto highByte = static_cast<uint8_t>((counter & 0xff00) >> 8);
 
-    controlPort.writeByte(0b110000); // Channel 0, mode 0, low-/high byte access mode
-    dataPort0.writeByte(static_cast<uint8_t>(counter & 0xFF)); // Low byte
-    dataPort0.writeByte(static_cast<uint8_t>((counter >> 8) & 0xFF)); // High byte
+    asm volatile (
+            "mov $0x30, %%al;" // Channel 0, mode 0, low-/high byte access mode
+            "outb $0x43;" // Control port
 
-    do {
-        controlPort.writeByte(0b11100010); // Read back channel 0, don't latch (deasserts line again)
-    } while (!(dataPort0.readByte() & (1 << 7))); // Bit 7 is the output pin state
+            // Set counter value
+            "mov (%0), %%al;" // Low byte
+            "outb $0x40;" // Data port
+            "mov (%1), %%al;" // High byte
+            "outb $0x40;" // Data port
+
+            // Wait until output pin bit is set (counter reached 0)
+            "pit_delay_loop:" // Loop label
+            "mov $0xe2, %%al;" // Read status byte -> channel 0, mode 0, low-/high byte access mode
+            "outb $0x43;" // Control port
+            "inb $0x40;" // Data port
+            "test $0x80, %%al;" // Test bit 7 (output pin state)
+            "jz pit_delay_loop" // If bit 7 is not set -> loop
+            : :
+            "r"(&lowByte), "r"(&highByte)
+            : "al"
+            );
 }
 
 }

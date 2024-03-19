@@ -79,9 +79,9 @@ public:
      * Intended for usage before interrupts are enabled and the PIT has been initialized to
      * rate-generator mode. It may not be used afterwards!
      *
-     * @param us The delay in microseconds
+     * @param ms The delay in microseconds
      */
-    static void earlyDelay(uint16_t us);
+    static void earlyDelay(uint16_t ms);
 
     static const constexpr uint32_t BASE_FREQUENCY = 1193182;
 

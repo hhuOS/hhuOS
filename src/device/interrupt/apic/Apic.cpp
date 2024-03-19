@@ -351,14 +351,14 @@ void Apic::startupApplicationProcessors() {
         // Not necessary with 10ms delay
         LocalApic::waitForInterProcessorInterruptDispatch();
         // 10 ms, xv6 waits 100 us instead.
-        Pit::earlyDelay(10000);
+        Pit::earlyDelay(10);
 
         // Issue the SIPI twice (for xApic):
         for (uint8_t j = 0; j < 2; ++j) {
             LocalApic::clearErrors();
             LocalApic::sendStartupInterProcessorInterrupt(localApic->getCpuId(), Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress);
             LocalApic::waitForInterProcessorInterruptDispatch();
-            Pit::earlyDelay(200); // 200 us
+            Pit::earlyDelay(1); // 200 us would be enough
         }
 
         // Wait until the AP marks itself as running, so we can continue to the next one.
@@ -374,7 +374,7 @@ void Apic::startupApplicationProcessors() {
                 break;
             }
 
-            Pit::earlyDelay(10000); // 10 ms
+            Pit::earlyDelay(10); // 10 ms
             readCount++;
         }
 
