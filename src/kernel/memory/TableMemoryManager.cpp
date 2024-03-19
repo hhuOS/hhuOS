@@ -16,12 +16,10 @@
  */
 
 #include "TableMemoryManager.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "kernel/memory/BitmapMemoryManager.h"
 
 namespace Kernel {
-
-Logger TableMemoryManager::log = Logger::get("TableMemoryManager");
 
 TableMemoryManager::TableMemoryManager(BitmapMemoryManager &bitmapMemoryManager, uint8_t *startAddress, uint8_t *endAddress, uint32_t blockSize) :
         bitmapMemoryManager(bitmapMemoryManager), startAddress(startAddress), endAddress(endAddress), blockSize(blockSize) {
@@ -247,22 +245,22 @@ void TableMemoryManager::debugLog() {
     uint32_t memorySize = endAddress - startAddress + 1;
     uint32_t blockCount = memorySize / blockSize;
 
-    log.debug("startAddress: [%u]", startAddress);
-    log.debug("endAddress: [%u]", endAddress);
-    log.debug("blockSize: [%u]", blockSize);
-    log.debug("memorySize: [%u]", memorySize);
-    log.debug("blockCount: [%u]", blockCount);
-    log.debug("bitmapBlockSize: [%u]", bitmapMemoryManager.getBlockSize());
-    log.debug("allocationTableCount: [%u]", allocationTableCount);
-    log.debug("allocationTableEntriesPerBlock: [%u]", allocationTableEntriesPerBlock);
-    log.debug("managedMemoryPerAllocationTable: [%u]", managedMemoryPerAllocationTable);
-    log.debug("referenceTableEntriesPerBlock: [%u]", referenceTableEntriesPerBlock);
-    log.debug("referenceTableSizeInBlocks: [%u]", referenceTableSizeInBlocks);
+    LOG_DEBUG("startAddress: [%u]", startAddress);
+    LOG_DEBUG("endAddress: [%u]", endAddress);
+    LOG_DEBUG("blockSize: [%u]", blockSize);
+    LOG_DEBUG("memorySize: [%u]", memorySize);
+    LOG_DEBUG("blockCount: [%u]", blockCount);
+    LOG_DEBUG("bitmapBlockSize: [%u]", bitmapMemoryManager.getBlockSize());
+    LOG_DEBUG("allocationTableCount: [%u]", allocationTableCount);
+    LOG_DEBUG("allocationTableEntriesPerBlock: [%u]", allocationTableEntriesPerBlock);
+    LOG_DEBUG("managedMemoryPerAllocationTable: [%u]", managedMemoryPerAllocationTable);
+    LOG_DEBUG("referenceTableEntriesPerBlock: [%u]", referenceTableEntriesPerBlock);
+    LOG_DEBUG("referenceTableSizeInBlocks: [%u]", referenceTableSizeInBlocks);
 
     for (uint32_t i = 0; i < referenceTableSizeInBlocks; i++) {
         for (uint32_t j = 0; j < bitmapMemoryManager.getBlockSize() / sizeof(ReferenceTableEntry); j++) {
             auto entry = referenceTableArray[i][j];
-            log.debug("Index: [%04u], Allocation Table Address: [0x%08x], Installed: [%B], Locked: [%B]", i * j + j, entry.getAddress(), entry.isInstalled(), entry.isLocked());
+            LOG_DEBUG("Index: [%04u], Allocation Table Address: [0x%08x], Installed: [%B], Locked: [%B]", i * j + j, entry.getAddress(), entry.isInstalled(), entry.isLocked());
             if (entry.getAddress() > 0) {
                 printAllocationTable(i, j);
             }
@@ -276,7 +274,7 @@ void TableMemoryManager::printAllocationTable(uint32_t referenceTableArrayIndex,
     for (uint32_t i = 0; i < allocationTableEntriesPerBlock; i++) {
         auto entry = allocationTable[i];
         uint32_t address = referenceTableArrayIndex * referenceTableEntriesPerBlock * managedMemoryPerAllocationTable + referenceTableIndex * managedMemoryPerAllocationTable + i * blockSize;
-        log.debug("Index: [%04u], Address: [0x%08x], Used: [%04u], Reserved: [%B]", i, address, entry.getUseCount(), entry.isReserved());
+        LOG_DEBUG("Index: [%04u], Address: [0x%08x], Used: [%04u], Reserved: [%B]", i, address, entry.getUseCount(), entry.isReserved());
     }
 }
 

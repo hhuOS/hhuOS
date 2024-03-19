@@ -21,7 +21,7 @@
 #include "LocalApic.h"
 
 #include "lib/util/hardware/CpuId.h"
-#include "kernel/system/System.h"
+
 #include "kernel/service/InterruptService.h"
 #include "lib/util/base/Constants.h"
 #include "kernel/service/MemoryService.h"

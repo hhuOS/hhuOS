@@ -24,7 +24,7 @@
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/network/NetworkAddress.h"
-#include "kernel/system/System.h"
+
 #include "kernel/service/NetworkService.h"
 #include "kernel/network/NetworkStack.h"
 #include "kernel/network/ip4/Ip4Module.h"

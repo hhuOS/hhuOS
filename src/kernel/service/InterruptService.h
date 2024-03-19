@@ -113,8 +113,6 @@ private:
     InterruptDescriptorTable idt;
 
     bool parallelComputingAllowed = false;
-
-    static Kernel::Logger log;
 };
 
 }

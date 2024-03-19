@@ -18,7 +18,7 @@
 #include "PciDevice.h"
 #include "Pci.h"
 #include "device/cpu/IoPort.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/collection/Iterator.h"
 
@@ -26,7 +26,6 @@ namespace Device {
 
 const IoPort Pci::configAddressPort = IoPort(CONFIG_ADDRESS);
 const IoPort Pci::configDataPort = IoPort(CONFIG_DATA);
-Kernel::Logger Pci::log = Kernel::Logger::get("PCI");
 Util::ArrayList<PciDevice> Pci::devices = Util::ArrayList<PciDevice>();
 
 void Pci::prepareRegister(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset) {
@@ -90,12 +89,12 @@ void Pci::checkFunction(uint8_t bus, uint8_t device, uint8_t function) {
     auto subClass = readByte(bus, device, function, SUBCLASS);
 
     if (baseClass == BRIDGE && subClass == PCI_TO_PCI) {
-        log.info("Found PCI-to-PCI bridge on bus [%u]", bus);
+        LOG_INFO("Found PCI-to-PCI bridge on bus [%u]", bus);
         uint8_t secondaryBus = readByte(bus, device, function, SECONDARY_BUS);
         scanBus(secondaryBus);
     } else {
         auto pciDevice = readDevice(bus, device, function);
-        log.info("Found PCI device [0x%04x:0x%04x] on bus [%u]", pciDevice.getVendorId(), pciDevice.getDeviceId(), bus);
+        LOG_INFO("Found PCI device [0x%04x:0x%04x] on bus [%u]", pciDevice.getVendorId(), pciDevice.getDeviceId(), bus);
         devices.add(pciDevice);
     }
 }

@@ -34,7 +34,6 @@ Io::PrintStream System::out(bufferedOutStream);
 Io::FileOutputStream System::errorStream(2);
 Io::BufferedOutputStream System::bufferedErrorStream(errorStream);
 Io::PrintStream System::error(bufferedErrorStream);
-const char *System::errorMessage = "";
 
 bool System::call(System::Code code, uint32_t paramCount...) {
     va_list args;

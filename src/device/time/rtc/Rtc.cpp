@@ -19,13 +19,13 @@
 #include "kernel/service/InterruptService.h"
 #include "Cmos.h"
 #include "Rtc.h"
-#include "kernel/system/System.h"
+
 #include "kernel/service/ProcessService.h"
 #include "device/interrupt/InterruptRequest.h"
 #include "device/system/Acpi.h"
 #include "AlarmRunnable.h"
 #include "kernel/interrupt/InterruptVector.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/hardware/Acpi.h"
@@ -37,8 +37,6 @@ struct InterruptFrameOld;
 
 namespace Device {
 
-Kernel::Logger Rtc::log = Kernel::Logger::get("RTC");
-
 Rtc::Rtc(uint32_t timerInterval) {
     const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
     if (acpi.hasTable("FADT")) {
@@ -49,7 +47,7 @@ Rtc::Rtc(uint32_t timerInterval) {
     useBcd = (Cmos::read(STATUS_REGISTER_B) & 0x04) == 0;
     useTwelveHours = (Cmos::read(STATUS_REGISTER_B) & 0x02) == 0;
     currentDate = readDate();
-    log.info("Retrieved RTC state (Data format: [%s], Hour format: [%s], Century register: [0x%02x], Current date: [%u-%02u-%02u %02u:%02u:%02u]",
+    LOG_INFO("Retrieved RTC state (Data format: [%s], Hour format: [%s], Century register: [0x%02x], Current date: [%u-%02u-%02u %02u:%02u:%02u]",
              useBcd ? "BCD" : "Binary", useTwelveHours ? "12h" : "24h", centuryRegister,
              currentDate.getYear(), currentDate.getMonth(), currentDate.getDayOfMonth(),
              currentDate.getHours(), currentDate.getMinutes(), currentDate.getSeconds());
@@ -242,7 +240,7 @@ void Rtc::setInterruptRate(uint32_t interval) {
     if (divisorLog > 15) divisorLog = 15;
 
     timerInterval = static_cast<uint32_t>(1000000000 / (static_cast<double>(BASE_FREQUENCY) / (1 << (divisorLog - 1))));
-    log.info("Setting RTC interval to [%ums] (Divisor: [%u])", timerInterval / 1000000 < 1 ? 1 : timerInterval / 1000000, divisorLog);
+    LOG_INFO("Setting RTC interval to [%ums] (Divisor: [%u])", timerInterval / 1000000 < 1 ? 1 : timerInterval / 1000000, divisorLog);
 
     uint8_t oldValue = Cmos::read(STATUS_REGISTER_A);
     Cmos::write(STATUS_REGISTER_A, (oldValue & 0xf0) | divisorLog);

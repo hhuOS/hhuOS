@@ -20,6 +20,16 @@
 
 namespace Util {
 
+const char *Exception::hardwareExceptions[] = {
+        "Divide-by-zero Error", "Debug", "Non-maskable Interrupt", "Breakpoint",
+        "Overflow", "Bound Range Exceeded", "Invalid Opcode", "Device not available",
+        "Double Fault", "Coprocessor Segment Overrun", "Invalid TSS", "Segment Not Present",
+        "Stack-Segment Fault", "General Protection Fault", "Page Fault", "Reserved",
+        "x87 Floating-Point Exception", "Alignment Check", "Machine Check", "SIMD Floating-Point Exception",
+        "Virtualization Exception", "Reserved", "Reserved", "Reserved", "Reserved", "Reserved", "Reserved",
+        "Reserved", "Reserved", "Reserved", "Security Exception", "Reserved"
+};
+
 const char *Exception::softwareExceptions[]{
         "NullPointer Exception", "IndexOutOfBounds Exception", "InvalidArgument Exception", "KeyNotFound Exception",
         "IllegalState Exception", "OutOfMemoryException", "OutOfPhysicalMemory Exception",
@@ -32,11 +42,13 @@ void Exception::throwException(Error error, const char *message) {
 }
 
 const char *Exception::getExceptionName(Error error) {
-    if (error < NULL_POINTER || error > UNSUPPORTED_OPERATION) {
+    if (error <= RESERVED_11) {
+        return hardwareExceptions[error];
+    } else if (error >= NULL_POINTER && error <= UNSUPPORTED_OPERATION){
+        return softwareExceptions[error - NULL_POINTER];
+    } else {
         throwException(INVALID_ARGUMENT, "Trying to throw an invalid exception!");
     }
-
-    return softwareExceptions[error - NULL_POINTER];
 }
 
 }

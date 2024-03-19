@@ -299,8 +299,6 @@ private:
     ChannelRegisters channels[CHANNELS_PER_CONTROLLER]{};
     Util::Async::Spinlock ioLock;
     bool supportsDma = false;
-
-    static Kernel::Logger log;
 };
 
 }

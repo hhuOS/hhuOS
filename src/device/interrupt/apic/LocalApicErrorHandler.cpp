@@ -21,7 +21,7 @@
 #include "LocalApicErrorHandler.h"
 
 #include "kernel/service/InterruptService.h"
-#include "kernel/system/System.h"
+
 #include "kernel/interrupt/InterruptVector.h"
 
 namespace Kernel {

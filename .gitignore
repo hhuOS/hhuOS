@@ -5,8 +5,7 @@ hdd0/img/bin
 hdd0/img/user/asciimation
 hdd0/img/user/beep
 hdd0/img/user/books
-hhuOS.bin
-hhuOS.initrd
+kernel.elf
 towboot-ia32.efi
 towboot-x64.efi
 limine

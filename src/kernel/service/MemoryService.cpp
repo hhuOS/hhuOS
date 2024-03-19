@@ -18,7 +18,7 @@
 #include <stdarg.h>
 
 #include "kernel/memory/Paging.h"
-#include "kernel/system/System.h"
+
 #include "kernel/service/InterruptService.h"
 #include "kernel/memory/MemoryLayout.h"
 #include "asm_interface.h"
@@ -28,7 +28,7 @@
 #include "kernel/memory/PagingAreaManager.h"
 #include "kernel/memory/VirtualAddressSpace.h"
 #include "kernel/process/ThreadState.h"
-#include "kernel/system/SystemCall.h"
+#include "kernel/syscall/SystemCall.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/base/HeapMemoryManager.h"
 #include "lib/util/base/System.h"

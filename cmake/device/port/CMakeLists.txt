@@ -18,4 +18,6 @@ cmake_minimum_required(VERSION 3.14)
 
 target_sources(device PUBLIC
         ${HHUOS_SRC_DIR}/device/port/parallel/ParallelPort.cpp
+        ${HHUOS_SRC_DIR}/device/port/serial/SimpleSerialPort.cpp
+        ${HHUOS_SRC_DIR}/device/port/serial/Serial.cpp
         ${HHUOS_SRC_DIR}/device/port/serial/SerialPort.cpp)

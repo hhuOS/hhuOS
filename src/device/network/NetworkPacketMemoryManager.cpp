@@ -18,7 +18,6 @@
  #include "NetworkPacketMemoryManager.h"
 
 #include <kernel/service/MemoryService.h>
-#include <kernel/system/System.h>
 #include <lib/util/base/Constants.h>
 
 NetworkPacketMemoryManager NetworkPacketMemoryManager::create(uint32_t packetCount) {

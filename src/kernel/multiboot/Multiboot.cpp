@@ -16,7 +16,7 @@
  */
 
 #include "kernel/memory/Paging.h"
-#include "kernel/system/System.h"
+
 #include "kernel/memory/MemoryLayout.h"
 #include "Multiboot.h"
 #include "kernel/multiboot/Multiboot.h"

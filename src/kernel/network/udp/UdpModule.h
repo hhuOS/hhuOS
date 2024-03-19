@@ -85,8 +85,6 @@ public:
 private:
 
     uint16_t generatePort(const Util::Network::Ip4::Ip4Address &address);
-
-    static Kernel::Logger log;
 };
 
 }

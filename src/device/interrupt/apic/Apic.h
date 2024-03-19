@@ -180,8 +180,6 @@ private:
     IoApic *ioApic;                      // The IoApic instance responsible for the external interrupts.
     LocalApicErrorHandler errorHandler;  // The interrupt handler that gets triggered on an internal APIC error.
 
-    static Kernel::Logger log;
-
 };
 
 }

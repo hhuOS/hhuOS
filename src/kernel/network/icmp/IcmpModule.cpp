@@ -26,7 +26,7 @@
 #include "IcmpSocket.h"
 #include "kernel/network/icmp/IcmpModule.h"
 #include "device/network/NetworkDevice.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/collection/Iterator.h"
@@ -42,15 +42,13 @@
 
 namespace Kernel::Network::Icmp {
 
-Kernel::Logger IcmpModule::log = Kernel::Logger::get("ICMP");
-
 void IcmpModule::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
     auto *buffer = stream.getBuffer() + stream.getPosition();
     auto calculatedChecksum = Ip4::Ip4Module::calculateChecksum(buffer, Util::Network::Icmp::IcmpHeader::CHECKSUM_OFFSET, information.payloadLength);
     auto receivedChecksum = (buffer[Util::Network::Icmp::IcmpHeader::CHECKSUM_OFFSET] << 8) | buffer[Util::Network::Icmp::IcmpHeader::CHECKSUM_OFFSET + 1];
 
     if (receivedChecksum != calculatedChecksum) {
-        log.warn("Discarding packet, because of wrong header checksum");
+        LOG_WARN("Discarding packet, because of wrong header checksum");
         return;
     }
 

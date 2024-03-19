@@ -19,17 +19,15 @@
 
 #include "filesystem/memory/StreamNode.h"
 #include "kernel/service/FilesystemService.h"
-#include "kernel/system/System.h"
+
 #include "lib/util/async/Thread.h"
 #include "filesystem/core/Filesystem.h"
 #include "filesystem/memory/MemoryDriver.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/time/Timestamp.h"
 
 namespace Device {
-
-Kernel::Logger ParallelPort::log = Kernel::Logger::get("LPT");
 
 ParallelPort::ParallelPort(ParallelPort::LptPort port) : sppDataPort(port), sppStatusPort(port + 1), sppControlPort(port + 2) {
     uint8_t control = sppControlPort.readByte();
@@ -64,7 +62,7 @@ void ParallelPort::initializePort(ParallelPort::LptPort port) {
         return;
     }
 
-    log.info("Parallel port [%s] detected", portToString(port));
+    LOG_INFO("Parallel port [%s] detected", portToString(port));
 
     auto *parallelPort = new ParallelPort(port);
     auto *streamNode = new Filesystem::Memory::StreamNode(Util::String(portToString(port)).toLowerCase(), reinterpret_cast<Util::Io::OutputStream*>(parallelPort));
@@ -74,7 +72,7 @@ void ParallelPort::initializePort(ParallelPort::LptPort port) {
     bool success = driver.addNode("/", streamNode);
 
     if (!success) {
-        log.error("Failed to initialize virtual node for [%s]", portToString(port));
+        LOG_ERROR("Failed to initialize virtual node for [%s]", portToString(port));
         delete streamNode;
     }
 }

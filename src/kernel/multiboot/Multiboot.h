@@ -31,6 +31,8 @@ class Multiboot {
 
 public:
 
+    static const constexpr uint32_t MAGIC = 0x36d76289;
+
     enum TagType : uint32_t {
         TERMINATE = 0,
         BOOT_COMMAND_LINE = 1,
@@ -256,30 +258,30 @@ public:
      */
     ~Multiboot() = delete;
 
-    Util::String getBootloaderName() const;
+    [[nodiscard]] Util::String getBootloaderName() const;
 
-    FramebufferInfo getFrameBufferInfo() const;
+    [[nodiscard]] FramebufferInfo getFrameBufferInfo() const;
 
-    Util::Array<MemoryMapEntry> getMemoryMap() const;
+    [[nodiscard]] Util::Array<MemoryMapEntry> getMemoryMap() const;
 
-    bool hasKernelOption(const Util::String &key) const;
+    [[nodiscard]] bool hasKernelOption(const Util::String &key) const;
 
-    Util::String getKernelOption(const Util::String &key) const;
+    [[nodiscard]] Util::String getKernelOption(const Util::String &key) const;
 
-    Util::Array<Util::String> getModuleNames() const;
+    [[nodiscard]] Util::Array<Util::String> getModuleNames() const;
 
-    bool isModuleLoaded(const Util::String &moduleName) const;
+    [[nodiscard]] bool isModuleLoaded(const Util::String &moduleName) const;
 
-    const Module& getModule(const Util::String &moduleName) const;
+    [[nodiscard]] const Module& getModule(const Util::String &moduleName) const;
 
-    bool hasTag(TagType type) const;
+    [[nodiscard]] bool hasTag(TagType type) const;
 
     template<typename T>
     const T& getTag(TagType type) const;
 
-    Util::Array<TagType> getAvailableTagTypes() const;
+    [[nodiscard]] Util::Array<TagType> getAvailableTagTypes() const;
 
-    uint32_t getSize() const;
+    [[nodiscard]] uint32_t getSize() const;
 
 private:
 

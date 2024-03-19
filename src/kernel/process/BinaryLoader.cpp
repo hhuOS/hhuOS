@@ -22,7 +22,7 @@
 #include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/file/elf/File.h"
-#include "kernel/system/System.h"
+
 #include "kernel/memory/Paging.h"
 #include "kernel/service/ProcessService.h"
 #include "kernel/process/Process.h"

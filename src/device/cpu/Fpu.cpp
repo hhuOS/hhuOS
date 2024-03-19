@@ -16,12 +16,12 @@
  */
 
 #include "kernel/service/InterruptService.h"
-#include "kernel/system/System.h"
+
 #include "lib/util/hardware/CpuId.h"
 #include "Cpu.h"
 #include "Fpu.h"
 #include "device/cpu/Fpu.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/async/Atomic.h"
@@ -33,8 +33,6 @@ struct InterruptFrameOld;
 }  // namespace Kernel
 
 namespace Device {
-
-Kernel::Logger Fpu::log = Kernel::Logger::get("FPU");
 
 Fpu::Fpu(const uint8_t *defaultFpuContext) {
     disarmFpuMonitor();
@@ -49,15 +47,15 @@ Fpu::Fpu(const uint8_t *defaultFpuContext) {
             );
 
     if (isFxsrAvailable()) {
-        log.info("FXSR support detected -> Using FXSAVE/FXRSTR for FPU context switching");
+        LOG_INFO("FXSR support detected -> Using FXSAVE/FXRSTR for FPU context switching");
 
         auto features = Util::Hardware::CpuId::getCpuFeatures();
         if (features.contains(Util::Hardware::CpuId::MMX)) {
-            log.info("MMX support detected");
+            LOG_INFO("MMX support detected");
         }
 
         if (features.contains(Util::Hardware::CpuId::SSE)) {
-            log.info("SSE support detected -> Activating OSFXSR and OSXMMEXCPT");
+            LOG_INFO("SSE support detected -> Activating OSFXSR and OSXMMEXCPT");
             asm volatile (
                     "mov %%cr4, %%eax;"
                     "or $0x00000600, %%eax;"
@@ -74,7 +72,7 @@ Fpu::Fpu(const uint8_t *defaultFpuContext) {
                 "r"(defaultFpuContext)
                 );
     } else {
-        log.info("FXSR is not supported -> Falling back to FNSAVE/FRSTR for FPU context switching");
+        LOG_INFO("FXSR is not supported -> Falling back to FNSAVE/FRSTR for FPU context switching");
         asm volatile (
                 "fninit;"
                 "fnsave (%0);"

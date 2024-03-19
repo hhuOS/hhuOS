@@ -20,13 +20,12 @@
 #include "device/storage/PartitionHandler.h"
 #include "device/storage/Partition.h"
 #include "device/storage/StorageDevice.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/collection/Array.h"
 
 namespace Kernel {
 
-Logger StorageService::log = Logger::get("Storage");
 Util::HashMap<Util::String, uint32_t> StorageService::nameMap;
 
 StorageService::~StorageService() {
@@ -46,10 +45,10 @@ Util::String StorageService::registerDevice(Device::Storage::StorageDevice *devi
     deviceMap.put(name, device);
     nameMap.put(deviceClass, value + 1);
 
-    log.info("Registered device [%s]",static_cast<char*>(name));
+    LOG_INFO("Registered device [%s]",static_cast<char*>(name));
 
     if (lock.getDepth() == 1) {
-        log.info("Scanning device [%s] for partitions", static_cast<char *>(name));
+        LOG_INFO("Scanning device [%s] for partitions", static_cast<char *>(name));
         auto partitionReader = Device::Storage::PartitionHandler(*device);
         for (const auto &info: partitionReader.readPartitionTable()) {
             auto *partition = new Device::Storage::Partition(*device, info.startSector, info.sectorCount);

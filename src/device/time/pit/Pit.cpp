@@ -17,8 +17,8 @@
 
 #include "kernel/service/InterruptService.h"
 #include "Pit.h"
-#include "kernel/system/System.h"
-#include "kernel/log/Logger.h"
+
+#include "kernel/log/Log.h"
 #include "kernel/service/SchedulerService.h"
 #include "device/system/FirmwareConfiguration.h"
 #include "device/interrupt/InterruptRequest.h"
@@ -30,8 +30,6 @@ struct InterruptFrameOld;
 
 namespace Device {
 
-Kernel::Logger Pit::log = Kernel::Logger::get("PIT");
-
 Pit::Pit(uint32_t timerInterval, uint32_t yieldInterval) : yieldInterval(yieldInterval) {
     setInterruptRate(timerInterval);
 }
@@ -41,7 +39,7 @@ void Pit::setInterruptRate(uint32_t interval) {
     if (divisor > UINT16_MAX) divisor = UINT16_MAX;
 
     timerInterval = static_cast<uint32_t>(1000000000 / (static_cast<double>(BASE_FREQUENCY) / divisor));
-    log.info("Setting PIT interval to [%ums] (Divisor: [%u])", timerInterval / 1000000 < 1 ? 1 : timerInterval / 1000000, divisor);
+    LOG_INFO("Setting PIT interval to [%ums] (Divisor: [%u])", timerInterval / 1000000 < 1 ? 1 : timerInterval / 1000000, divisor);
 
     // For some reason, the PIT interrupt rate is doubled, when it is attached to an IO APIC (only in QEMU)
     auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();

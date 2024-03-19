@@ -28,8 +28,8 @@
 #include "lib/util/network/NetworkAddress.h"
 #include "lib/util/network/Socket.h"
 #include "kernel/network/ip4/Ip4Module.h"
-#include "kernel/system/SystemCall.h"
-#include "kernel/system/System.h"
+#include "kernel/syscall/SystemCall.h"
+
 #include "kernel/network/ethernet/EthernetSocket.h"
 #include "kernel/network/ip4/Ip4Socket.h"
 #include "kernel/network/icmp/IcmpSocket.h"
@@ -40,7 +40,7 @@
 #include "lib/util/base/Address.h"
 #include "lib/util/network/Datagram.h"
 #include "kernel/network/Socket.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "device/network/NetworkFilesystemDriver.h"
 #include "device/network/loopback/Loopback.h"
 #include "kernel/network/arp/ArpModule.h"
@@ -55,7 +55,6 @@ class Node;
 
 namespace Kernel {
 
-Logger NetworkService::log = Logger::get("Network");
 Util::HashMap<Util::String, uint32_t> NetworkService::nameMap;
 
 NetworkService::NetworkService() {
@@ -130,7 +129,7 @@ void NetworkService::initializeLoopback() {
 
     lock.acquire();
     deviceMap.put(loopback->identifier, loopback);
-    log.info("Registered device [%s]",static_cast<char*>(loopback->identifier));
+    LOG_INFO("Registered device [%s]",static_cast<char*>(loopback->identifier));
     lock.release();
 
     Device::Network::NetworkFilesystemDriver::mount(*loopback);
@@ -152,7 +151,7 @@ Util::String NetworkService::registerNetworkDevice(Device::Network::NetworkDevic
     deviceMap.put(device->identifier, device);
     nameMap.put(deviceClass, value + 1);
 
-    log.info("Registered device [%s]",static_cast<char*>(device->identifier));
+    LOG_INFO("Registered device [%s]",static_cast<char*>(device->identifier));
     lock.release();
 
     Device::Network::NetworkFilesystemDriver::mount(*device);

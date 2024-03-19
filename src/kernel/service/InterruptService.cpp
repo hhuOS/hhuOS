@@ -20,18 +20,15 @@
 #include "device/interrupt/InterruptRequest.h"
 #include "device/interrupt/apic/Apic.h"
 #include "kernel/interrupt/InterruptVector.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "device/interrupt/apic/LocalApic.h"
 #include "kernel/service/ProcessService.h"
-#include "kernel/system/BlueScreen.h"
 #include "lib/util/base/System.h"
 
 namespace Kernel {
 
 class InterruptHandler;
 struct InterruptFrameOld;
-
-Kernel::Logger InterruptService::log = Kernel::Logger::get("Interrupt");
 
 InterruptService::InterruptService(Device::Pic *pic) : pic(pic) {
     idt.load();
@@ -58,11 +55,11 @@ void InterruptService::handleException(const InterruptFrame &frame, uint32_t err
     auto &processService = Service::getService<ProcessService>();
     if (processService.getCurrentProcess().isKernelProcess()) {
         Device::Cpu::disableInterrupts();
-        BlueScreen::show(frame, vector);
+        Util::Exception::throwException(static_cast<Util::Exception::Error>(vector), ": CPU exception!");
         Device::Cpu::halt();
     }
 
-    Util::System::out << Device::Cpu::getExceptionName(vector) << ": " << Util::System::errorMessage << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    Util::System::out << Util::Exception::getExceptionName(static_cast<Util::Exception::Error>(vector)) << ": CPU exception!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     processService.exitCurrentProcess(-1);
 }
 

@@ -17,7 +17,7 @@
  * The network stack is based on a bachelor's thesis, written by Hannes Feil.
  */
 
-#include "kernel/system/System.h"
+
 #include "kernel/service/NetworkService.h"
 #include "NetworkDevice.h"
 #include "PacketReader.h"

@@ -53,7 +53,6 @@ public:
 
 private:
 
-    static Kernel::Logger log;
     Device::Network::NetworkDevice &networkDevice;
     Util::ArrayBlockingQueue<NetworkDevice::Packet> packetQueue = Util::ArrayBlockingQueue<NetworkDevice::Packet>(16);
 };

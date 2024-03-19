@@ -20,7 +20,7 @@
 
 #include "EthernetSocket.h"
 
-#include "kernel/system/System.h"
+
 #include "kernel/service/NetworkService.h"
 #include "lib/util/network/ethernet/EthernetDatagram.h"
 #include "device/network/NetworkDevice.h"

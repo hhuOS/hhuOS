@@ -28,7 +28,7 @@
 #include "lib/util/network/MacAddress.h"
 #include "lib/util/network/ip4/Ip4PortAddress.h"
 #include "kernel/network/NetworkModule.h"
-#include "kernel/system/System.h"
+
 #include "kernel/service/NetworkService.h"
 #include "device/network/NetworkDevice.h"
 #include "kernel/network/NetworkStack.h"

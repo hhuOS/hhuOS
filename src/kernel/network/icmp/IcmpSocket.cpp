@@ -18,7 +18,7 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "kernel/system/System.h"
+
 #include "kernel/service/NetworkService.h"
 #include "lib/util/network/icmp/IcmpDatagram.h"
 #include "IcmpSocket.h"

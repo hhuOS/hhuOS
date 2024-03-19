@@ -19,7 +19,7 @@
 
 #include "SoundBlasterRunnable.h"
 #include "SoundBlasterNode.h"
-#include "kernel/system/System.h"
+
 #include "kernel/service/MemoryService.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/time/Timestamp.h"
@@ -30,7 +30,7 @@
 #include "kernel/service/FilesystemService.h"
 #include "filesystem/memory/MemoryDriver.h"
 #include "filesystem/core/Filesystem.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "kernel/process/Thread.h"
 
 namespace Kernel {
@@ -40,8 +40,6 @@ struct InterruptFrameOld;
 
 namespace Device {
 enum InterruptRequest : uint8_t;
-
-Kernel::Logger SoundBlaster::log = Kernel::Logger::get("SoundBlaster");
 
 SoundBlaster::SoundBlaster(uint16_t baseAddress, uint8_t irqNumber, uint8_t dmaChannel) :
         resetPort(baseAddress + 0x06), readDataPort(baseAddress + 0x0a),
@@ -55,7 +53,7 @@ SoundBlaster::SoundBlaster(uint16_t baseAddress, uint8_t irqNumber, uint8_t dmaC
     uint8_t minorVersion = readDataPort.readByte();
 
     dspVersion = (majorVersion << 8) | minorVersion;
-    log.info("DSP version: [%u.%02u]", majorVersion, minorVersion);
+    LOG_INFO("DSP version: [%u.%02u]", majorVersion, minorVersion);
 
     // Create thread and filesystem node
     auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
@@ -134,7 +132,7 @@ bool SoundBlaster::initialize() {
         return false;
     }
 
-    log.info("Found base port at address [0x%x]", baseAddress);
+    LOG_INFO("Found base port at address [0x%x]", baseAddress);
     auto readDataPort = IoPort(baseAddress + 0x0a);
     auto readBufferStatusPort = IoPort(baseAddress + 0x0e);
     auto writeDataPort = IoPort(baseAddress + 0x0c);

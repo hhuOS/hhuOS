@@ -17,7 +17,7 @@
 
 #include "NetworkDevice.h"
 
-#include "kernel/system/System.h"
+
 #include "kernel/service/ProcessService.h"
 #include "lib/util/async/Thread.h"
 #include "device/network/PacketReader.h"
@@ -37,8 +37,7 @@ NetworkDevice::NetworkDevice() :
         incomingPacketQueue(MAX_BUFFERED_PACKETS),
         outgoingPacketQueue(MAX_BUFFERED_PACKETS),
         reader(new PacketReader(*this)),
-        writer(new PacketWriter(*this)),
-        log(Kernel::Logger::get("Network")) {
+        writer(new PacketWriter(*this)) {
     auto &schedulerService = Kernel::Service::getService<Kernel::SchedulerService>();
     auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
     auto &readerThread = Kernel::Thread::createKernelThread(Util::String::format("Packet-Reader"), processService.getKernelProcess(), reader);

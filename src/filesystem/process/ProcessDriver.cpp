@@ -18,7 +18,7 @@
 #include "ProcessDriver.h"
 
 #include "kernel/service/ProcessService.h"
-#include "kernel/system/System.h"
+
 #include "ProcessDirectoryNode.h"
 #include "ProcessRootNode.h"
 #include "ProcessFileNode.h"

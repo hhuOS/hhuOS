@@ -100,8 +100,6 @@ public:
     static Io::PrintStream out;
     static Io::PrintStream error;
 
-    static const char *errorMessage;
-
 private:
 
     static void call(Code code, bool &result, uint32_t paramCount, va_list args);

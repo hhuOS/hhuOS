@@ -222,8 +222,6 @@ private:
     uint32_t allocationTableCount;
 
     ReferenceTableEntry **referenceTableArray;
-
-    static Logger log;
     static const constexpr uint32_t MIN_BITMAP_BLOCK_SIZE = 16;
 };
 

@@ -20,7 +20,7 @@
 
 #include "Ip4Socket.h"
 
-#include "kernel/system/System.h"
+
 #include "kernel/service/NetworkService.h"
 #include "lib/util/network/ip4/Ip4Datagram.h"
 #include "device/network/NetworkDevice.h"

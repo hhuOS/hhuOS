@@ -18,7 +18,7 @@
 #include <endian.h>
 
 #include "FirmwareConfiguration.h"
-#include "kernel/system/System.h"
+
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/Address.h"
 

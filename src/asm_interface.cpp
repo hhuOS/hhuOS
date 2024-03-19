@@ -18,13 +18,12 @@
 #include <cstdint>
 
 #include "kernel/multiboot/Multiboot.h"
-#include "kernel/system/System.h"
 #include "kernel/memory/Paging.h"
 #include "kernel/service/InterruptService.h"
 #include "device/cpu/Cpu.h"
 #include "GatesOfHell.h"
 #include "device/system/Acpi.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "kernel/process/ThreadState.h"
 #include "kernel/service/SchedulerService.h"
 #include "kernel/memory/GlobalDescriptorTable.h"
@@ -37,48 +36,14 @@ void _fini();
 
 // Export functions
 extern "C" {
-void main();
-void init_gdt(uint16_t*, uint16_t*, uint16_t*, uint16_t*, uint16_t*);
-void bootstrap_paging(uint32_t*, uint32_t*);
-void enable_interrupts();
-void disable_interrupts();
-void dispatch_interrupt(Kernel::InterruptFrameOld*);
 void set_tss_stack_entry(uint32_t);
-void flush_tss();
 void set_scheduler_init();
 bool is_scheduler_initialized();
 void release_scheduler_lock();
 int32_t atexit (void (*func)()) noexcept;
 }
 
-void main() {
-    Kernel::Logger::get("System").info("Entering Gates of Hell");
-}
-
-void init_gdt(uint16_t *gdt, uint16_t *gdt_bios, uint16_t *gdt_descriptor, uint16_t *gdt_bios_descriptor, uint16_t *gdt_phys_descriptor) {
-    Kernel::System::initializeGlobalDescriptorTables(gdt, gdt_bios, gdt_descriptor, gdt_bios_descriptor, gdt_phys_descriptor);
-}
-
-void enable_interrupts() {
-    Device::Cpu::enableInterrupts();
-}
-
-void disable_interrupts() {
-    Device::Cpu::disableInterrupts();
-}
-
-void dispatch_interrupt(Kernel::InterruptFrameOld *frame) {
-    /*if (Kernel::System::isInitialized()) {
-        Kernel::Service::getService<Kernel::InterruptService>().dispatchInterrupt(*frame);
-    } else {
-        Kernel::System::handleEarlyInterrupt(*frame);
-    }*/
-}
-
-void set_tss_stack_entry(uint32_t esp0) {
-    Kernel::System::getTaskStateSegment().esp0 = esp0 + sizeof(Kernel::InterruptFrameOld);
-    Kernel::System::getTaskStateSegment().ss0 = 0x10;
-}
+void set_tss_stack_entry(uint32_t esp0) {}
 
 void set_scheduler_init() {
     Kernel::Service::getService<Kernel::SchedulerService>().setSchedulerInit();

@@ -89,8 +89,6 @@ private:
     IoPort sppStatusPort;
     IoPort sppControlPort;
 
-    static Kernel::Logger log;
-
     static const constexpr uint8_t STATUS_REGISTER_IRQ = 0x04;
     static const constexpr uint8_t STATUS_REGISTER_ERROR = 0x08;
     static const constexpr uint8_t STATUS_REGISTER_SELECT_IN = 0x10;

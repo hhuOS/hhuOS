@@ -178,8 +178,6 @@ private:
     bool useBcd;
     bool useTwelveHours;
 
-    static Kernel::Logger log;
-
     static const constexpr uint32_t BASE_FREQUENCY = 32768;
     static const constexpr uint8_t CURRENT_CENTURY = 20;
 

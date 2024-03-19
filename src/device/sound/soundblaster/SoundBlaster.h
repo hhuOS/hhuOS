@@ -252,8 +252,6 @@ private:
 
     SoundBlasterRunnable *runnable;
 
-    static Kernel::Logger log;
-
     static const constexpr uint16_t FIRST_BASE_ADDRESS = 0x220;
     static const constexpr uint16_t LAST_BASE_ADDRESS = 0x280;
     static const constexpr uint32_t TIMEOUT = 10;

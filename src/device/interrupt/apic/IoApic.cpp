@@ -20,7 +20,7 @@
 
 #include "IoApic.h"
 
-#include "kernel/system/System.h"
+
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/Constants.h"
 #include "LocalApic.h"

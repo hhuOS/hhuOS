@@ -83,8 +83,6 @@ public:
 
 private:
 
-    static Kernel::Logger log;
-
     static const constexpr uint32_t MINIMUM_PACKET_SIZE = 64;
 };
 

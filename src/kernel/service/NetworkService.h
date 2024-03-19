@@ -85,7 +85,6 @@ private:
     Util::HashMap<Util::String, Device::Network::NetworkDevice*> deviceMap;
     Network::NetworkStack networkStack;
 
-    static Logger log;
     static Util::HashMap<Util::String, uint32_t> nameMap;
 };
 

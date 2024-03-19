@@ -18,7 +18,7 @@
 #include "AddressSpaceCleaner.h"
 
 #include "kernel/service/MemoryService.h"
-#include "kernel/system/System.h"
+
 #include "kernel/service/ProcessService.h"
 #include "kernel/process/Process.h"
 #include "kernel/service/SchedulerService.h"

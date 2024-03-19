@@ -20,16 +20,14 @@
 
 #include "SymmetricMultiprocessing.h"
 
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "device/interrupt/apic/Apic.h"
-#include "kernel/system/System.h"
+
 #include "kernel/service/InterruptService.h"
 
 namespace Device {
 
 volatile bool runningApplicationProcessors[256]{}; // Once an AP is running it sets its corresponding entry to true
-
-Kernel::Logger log = Kernel::Logger::get("SMP");
 
 [[noreturn]] void applicationProcessorEntry(uint8_t initializedApplicationProcessorsCounter) {
     runningApplicationProcessors[initializedApplicationProcessorsCounter] = true; // Mark this AP as running

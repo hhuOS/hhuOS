@@ -16,7 +16,7 @@
  */
 
 #include "lib/util/io/file/File.h"
-#include "kernel/system/System.h"
+
 #include "kernel/service/StorageService.h"
 #include "lib/util/reflection/InstanceFactory.h"
 #include "PhysicalDriver.h"

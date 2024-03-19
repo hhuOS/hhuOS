@@ -24,7 +24,7 @@
 #include "kernel/memory/BitmapMemoryManager.h"
 #include "lib/util/collection/ArrayBlockingQueue.h"
 #include "lib/util/network/MacAddress.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/base/String.h"
 
@@ -111,8 +111,6 @@ private:
 
     PacketReader *reader;
     PacketWriter *writer;
-
-    Kernel::Logger log;
 
     static const constexpr uint32_t MAX_BUFFERED_PACKETS = 16;
 };

@@ -19,8 +19,8 @@
 
 #include "lib/util/base/Exception.h"
 #include "TimeService.h"
-#include "kernel/system/SystemCall.h"
-#include "kernel/system/System.h"
+#include "kernel/syscall/SystemCall.h"
+
 #include "device/time/DateProvider.h"
 #include "device/time/TimeProvider.h"
 #include "kernel/service/SchedulerService.h"

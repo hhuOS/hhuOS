@@ -1,6 +1,6 @@
 #include "lib/util/collection/ArrayList.h"
 #include "TerminalProvider.h"
-#include "kernel/system/System.h"
+
 #include "kernel/service/FilesystemService.h"
 #include "TerminalNode.h"
 #include "filesystem/core/Filesystem.h"

@@ -17,17 +17,17 @@
 
 #include <stdarg.h>
 
-#include "kernel/system/System.h"
+
 #include "SchedulerService.h"
 #include "ProcessService.h"
 #include "kernel/service/SchedulerService.h"
 #include "device/cpu/Fpu.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "kernel/process/Process.h"
 #include "kernel/process/SchedulerCleaner.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/MemoryService.h"
-#include "kernel/system/SystemCall.h"
+#include "kernel/syscall/SystemCall.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/base/System.h"

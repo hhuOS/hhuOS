@@ -20,7 +20,6 @@
 #include "kernel/service/InterruptService.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/ProcessService.h"
-#include "kernel/system/BlueScreen.h"
 #include "lib/util/base/System.h"
 
 namespace Kernel {

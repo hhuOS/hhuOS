@@ -161,24 +161,9 @@ public:
         RESERVED_11 = 0x1F,
     };
 
-    /**
-     * Throw an exception.
-     *
-     * @param error The exception number
-     * @param message An error message, that will be shown on the bluescreen
-     */
-    [[noreturn]] static void throwException(Util::Exception::Error error, const char *message);
-
-    static const char *getExceptionName(uint32_t exception);
-
     static void setSegmentRegister(SegmentRegister reg, const SegmentSelector &selector);
 
 private:
-
-    // Pointers to lists with hardware (software) exceptions
-    static const char *hardwareExceptions[];
-    static const char *softwareExceptions[];
-
     /**
      * Keeps track of how often disableInterrupts() and enableInterrupts() have been called.
      * Interrupts stay disabled, as long as this number is greater than zero.

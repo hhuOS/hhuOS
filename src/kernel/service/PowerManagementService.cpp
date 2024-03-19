@@ -19,9 +19,9 @@
 
 #include <cstdarg>
 
-#include "kernel/system/SystemCall.h"
+#include "kernel/syscall/SystemCall.h"
 #include "lib/util/hardware/Machine.h"
-#include "kernel/system/System.h"
+
 #include "device/system/FirmwareConfiguration.h"
 #include "device/cpu/Cpu.h"
 

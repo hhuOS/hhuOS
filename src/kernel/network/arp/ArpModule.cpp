@@ -22,7 +22,7 @@
 
 #include "lib/util/async/Thread.h"
 #include "device/network/NetworkDevice.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/io/stream/ByteArrayInputStream.h"
 #include "lib/util/io/stream/ByteArrayOutputStream.h"
@@ -44,19 +44,17 @@ class OutputStream;
 
 namespace Kernel::Network::Arp {
 
-Kernel::Logger ArpModule::log = Kernel::Logger::get("Arp");
-
 void ArpModule::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
     auto arpHeader = ArpHeader();
     arpHeader.read(stream);
 
     if (arpHeader.getHardwareAddressType() != ArpHeader::ETHERNET) {
-        log.warn("Discarding packet, because of unsupported hardware address type 0x%04x", arpHeader.getHardwareAddressType());
+        LOG_WARN("Discarding packet, because of unsupported hardware address type 0x%04x", arpHeader.getHardwareAddressType());
         return;
     }
 
     if (arpHeader.getProtocolAddressType() != ArpHeader::IP4) {
-        log.warn("Discarding packet, because of unsupported protocol address type 0x%04x", arpHeader.getProtocolAddressType());
+        LOG_WARN("Discarding packet, because of unsupported protocol address type 0x%04x", arpHeader.getProtocolAddressType());
         return;
     }
 
@@ -78,7 +76,7 @@ void ArpModule::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformat
             handleReply(sourceMacAddress, sourceIpAddress, targetMacAddress, targetIpAddress);
             break;
         default:
-            log.warn("Discarding packet, because of unsupported operation type 0x%04x", arpHeader.getOperation());
+            LOG_WARN("Discarding packet, because of unsupported operation type 0x%04x", arpHeader.getOperation());
     }
 }
 

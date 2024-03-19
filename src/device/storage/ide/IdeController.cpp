@@ -23,12 +23,12 @@
 #include "lib/util/async/Thread.h"
 #include "device/storage/ChsConverter.h"
 #include "IdeDevice.h"
-#include "kernel/system/System.h"
+
 #include "kernel/service/StorageService.h"
 #include "kernel/service/InterruptService.h"
 #include "device/bus/pci/Pci.h"
 #include "device/bus/pci/PciDevice.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "kernel/process/ThreadState.h"
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/Exception.h"
@@ -44,17 +44,15 @@
 
 namespace Device::Storage {
 
-Kernel::Logger IdeController::log = Kernel::Logger::get("IDE");
-
 IdeController::IdeController(const PciDevice &pciDevice) {
-    log.info("Initializing controller [0x%04x:0x%04x]", pciDevice.getVendorId(), pciDevice.getDeviceId());
+    LOG_INFO("Initializing controller [0x%04x:0x%04x]", pciDevice.getVendorId(), pciDevice.getDeviceId());
 
     uint32_t baseAddress;
     uint32_t controlBaseAddress;
     uint32_t dmaBaseAddress = 0;
 
     if (pciDevice.getProgrammingInterface() & 0x80) {
-        log.info("Controller supports DMA");
+        LOG_INFO("Controller supports DMA");
         supportsDma = true;
         dmaBaseAddress = pciDevice.readDoubleWord(Pci::Register::BASE_ADDRESS_4) & 0xfffffffc;
 
@@ -69,7 +67,7 @@ IdeController::IdeController(const PciDevice &pciDevice) {
             // Controller is running in compatibility mode
             if ((channelInterface & 0x02) == 0x02) {
                 // Mode can be modified -> Change to native mode
-                log.info("Changing mode of channel [%u] to native mode", i);
+                LOG_INFO("Changing mode of channel [%u] to native mode", i);
                 pciDevice.writeByte(Pci::Register::PROGRAMMING_INTERFACE, pciDevice.getProgrammingInterface() | (0x01 << i * 2));
             }
         }
@@ -77,12 +75,12 @@ IdeController::IdeController(const PciDevice &pciDevice) {
         channelInterface = pciDevice.getProgrammingInterface() >> i * 2;
         if ((channelInterface & 0x01) == 0x00) {
             // Controller is still running in compatibility mode -> Use default base address
-            log.info("Channel [%u] is running in compatibility mode", i);
+            LOG_INFO("Channel [%u] is running in compatibility mode", i);
             baseAddress = DEFAULT_BASE_ADDRESSES[i];
             controlBaseAddress = DEFAULT_CONTROL_BASE_ADDRESSES[i];
         } else {
             // Controller is running in native mode -> Read base address from PCI Registers
-            log.info("Channel [%u] is running in native mode", i);
+            LOG_INFO("Channel [%u] is running in native mode", i);
             baseAddress = pciDevice.readDoubleWord(Pci::Register::BASE_ADDRESS_0) & 0xfffffffc;
             controlBaseAddress = pciDevice.readDoubleWord(Pci::Register::BASE_ADDRESS_1) & 0xfffffffc;
         }
@@ -167,7 +165,7 @@ bool IdeController::resetDrive(uint8_t channel, uint8_t drive) {
     Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(5));
 
     if (!waitBusy(registers.command.status)) {
-        log.error("Failed to reset drive [%u] on channel [%u]", drive, channel);
+        LOG_ERROR("Failed to reset drive [%u] on channel [%u]", drive, channel);
         registers.driveType[drive] = OTHER;
         return false;
     }
@@ -175,7 +173,7 @@ bool IdeController::resetDrive(uint8_t channel, uint8_t drive) {
     // Check error register
     status = registers.command.error.readByte();
     if (status != 0x00 && status != 0x01) {
-        log.error("Got error code [%u] for drive [%u] on channel [%u]", status, drive, channel);
+        LOG_ERROR("Got error code [%u] for drive [%u] on channel [%u]", status, drive, channel);
         registers.driveType[drive] = OTHER;
         return false;
     }
@@ -199,7 +197,7 @@ bool IdeController::resetDrive(uint8_t channel, uint8_t drive) {
 
         return false;
     } else {
-        log.error("Sector count [%u] and sector number [%u] are not as expected for drive [%u] on channel [%u]", sectorCount, sectorNumber, drive, channel);
+        LOG_ERROR("Sector count [%u] and sector number [%u] are not as expected for drive [%u] on channel [%u]", sectorCount, sectorNumber, drive, channel);
         registers.driveType[drive] = OTHER;
         return false;
     }
@@ -225,7 +223,7 @@ IdeDevice* IdeController::identifyDrive(uint8_t channel, uint8_t drive) {
 
     if (registers.driveType[drive] == ATA) {
         if (!readAtaIdentity(channel, buffer)) {
-            log.error("Error while identifying ATA drive [%u] on channel[%u]", drive, channel);
+            LOG_ERROR("Error while identifying ATA drive [%u] on channel[%u]", drive, channel);
             delete[] buffer;
             return nullptr;
         }
@@ -234,7 +232,7 @@ IdeDevice* IdeController::identifyDrive(uint8_t channel, uint8_t drive) {
         info.signature = *(buffer + DEVICE_TYPE);
     } else if (registers.driveType[drive] == ATAPI) {
         if (!readAtapiIdentity(channel, buffer)) {
-            log.error("Error while identifying ATAPI drive [%u] on channel[%u]", drive, channel);
+            LOG_ERROR("Error while identifying ATAPI drive [%u] on channel[%u]", drive, channel);
             delete[] buffer;
             return nullptr;
         }
@@ -280,7 +278,7 @@ IdeDevice* IdeController::identifyDrive(uint8_t channel, uint8_t drive) {
     auto model = Util::String(reinterpret_cast<const uint8_t*>(info.model), sizeof(info.model)).strip();
     auto serial = Util::String(reinterpret_cast<const uint8_t*>(info.serial), sizeof(info.serial)).strip();
     auto firmware = Util::String(reinterpret_cast<const uint8_t*>(info.firmware), sizeof(info.firmware)).strip();
-    log.info("Found %s drive on channel [%u]: %s %s (Firmware: [%s])", info.type == ATA ? "ATA" : "ATAPI", info.channel,
+    LOG_INFO("Found %s drive on channel [%u]: %s %s (Firmware: [%s])", info.type == ATA ? "ATA" : "ATAPI", info.channel,
              static_cast<const char*>(model), static_cast<const char*>(serial), static_cast<const char*>(firmware));
 
     IdeDevice *device = nullptr;
@@ -334,7 +332,7 @@ bool IdeController::selectDrive(uint8_t channel, uint8_t drive, bool prepareLbaA
     }
 
     if (!waitBusy(registers.command.status)) {
-        log.error("Failed to select drive [%u] on channel [%u]", drive, channel);
+        LOG_ERROR("Failed to select drive [%u] on channel [%u]", drive, channel);
         return false;
     }
 
@@ -342,7 +340,7 @@ bool IdeController::selectDrive(uint8_t channel, uint8_t drive, bool prepareLbaA
     Util::Async::Thread::sleep(Util::Time::Timestamp(0, 400));
 
     if (!waitBusy(registers.command.status)) {
-        log.error("Failed to select drive [%u] on channel [%u]", drive, channel);
+        LOG_ERROR("Failed to select drive [%u] on channel [%u]", drive, channel);
         return false;
     }
 
@@ -431,7 +429,7 @@ uint16_t IdeController::performIO(const IdeController::DeviceInfo &info, IdeCont
     ioLock.acquire();
     if (!selectDrive(info.channel, info.drive)) {
         ioLock.release();
-        log.error("Failed to select drive [%u] on channel [%u] for %s", mode == READ ? "reading" : "writing", info.drive, info.channel);
+        LOG_ERROR("Failed to select drive [%u] on channel [%u] for %s", mode == READ ? "reading" : "writing", info.drive, info.channel);
         return 0;
     }
 
@@ -446,7 +444,7 @@ uint16_t IdeController::performIO(const IdeController::DeviceInfo &info, IdeCont
 
     if (!waitStatus(registers.control.alternateStatus, DRIVE_READY)) {
         ioLock.release();
-        log.error("Failed to %s sectors on drive [%u] on channel [%u]", mode == READ ? "read" : "write", info.drive, info.channel);
+        LOG_ERROR("Failed to %s sectors on drive [%u] on channel [%u]", mode == READ ? "read" : "write", info.drive, info.channel);
         return 0;
     }
 
@@ -528,14 +526,14 @@ uint16_t IdeController::performProgrammedIO(const IdeController::DeviceInfo &inf
     registers.command.command.writeByte(command);
 
     if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST)) {
-        log.error("Failed to %s sectors on drive [%u] on channel [%u] via PIO", mode == READ ? "read" : "write", info.drive, info.channel);
+        LOG_ERROR("Failed to %s sectors on drive [%u] on channel [%u] via PIO", mode == READ ? "read" : "write", info.drive, info.channel);
         return 0;
     }
 
     uint32_t i;
     for (i = 0; i < sectorCount; i++) {
         if (i > 0 && !waitStatus(registers.control.alternateStatus, DRIVE_READY)) {
-            log.error("Drive [%u] on channel [%u] does not respond after %s [%u] sectors via PIO", info.drive, info.channel, mode == READ ? "reading" : "writing", i);
+            LOG_ERROR("Drive [%u] on channel [%u] does not respond after %s [%u] sectors via PIO", info.drive, info.channel, mode == READ ? "reading" : "writing", i);
             return i;
         }
 
@@ -613,7 +611,7 @@ uint16_t IdeController::performDmaIO(const IdeController::DeviceInfo &info, IdeC
     // Send command
     registers.command.command.writeByte(command);
     if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST)) {
-        log.error("Failed to %s sectors on drive [%u] on channel [%u] via DMA", mode == READ ? "read" : "write", info.drive, info.channel);
+        LOG_ERROR("Failed to %s sectors on drive [%u] on channel [%u] via DMA", mode == READ ? "read" : "write", info.drive, info.channel);
 
         delete prdVirtual;
         delete dmaMemoryVirtual;
@@ -646,7 +644,7 @@ uint16_t IdeController::performDmaIO(const IdeController::DeviceInfo &info, IdeC
     } while (Util::Time::getSystemTime().toMilliseconds() < timeout);
 
     if (Util::Time::getSystemTime().toMilliseconds() >= timeout) {
-        log.error("Timeout while %s sectors on drive [%u] on channel [%u] via DMA", mode == READ ? "reading" : "writing", info.drive, info.channel);
+        LOG_ERROR("Timeout while %s sectors on drive [%u] on channel [%u] via DMA", mode == READ ? "reading" : "writing", info.drive, info.channel);
 
         delete prdVirtual;
         delete dmaMemoryVirtual;
@@ -673,7 +671,7 @@ bool IdeController::waitStatus(const IoPort &port, Status status, uint16_t timeo
         }
 
         if ((currentStatus & ERROR) == ERROR) {
-            if (logError) log.error("Error while waiting on status [0x%02x]", status);
+            if (logError) LOG_ERROR("Error while waiting on status [0x%02x]", status);
             return false;
         }
 
@@ -682,7 +680,7 @@ bool IdeController::waitStatus(const IoPort &port, Status status, uint16_t timeo
         }
     }
 
-    if (logError) log.error("Timeout while waiting on status [0x%02x]", status);
+    if (logError) LOG_ERROR("Timeout while waiting on status [0x%02x]", status);
     return false;
 }
 

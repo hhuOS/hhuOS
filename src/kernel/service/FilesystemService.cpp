@@ -17,14 +17,14 @@
 
 #include <stdarg.h>
 
-#include "kernel/system/System.h"
+
 #include "ProcessService.h"
 #include "FilesystemService.h"
 #include "filesystem/core/Node.h"
 #include "kernel/file/FileDescriptorManager.h"
 #include "kernel/process/Process.h"
 #include "kernel/service/MemoryService.h"
-#include "kernel/system/SystemCall.h"
+#include "kernel/syscall/SystemCall.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/base/System.h"

@@ -24,7 +24,7 @@
 #include "lib/util/network/NumberUtil.h"
 #include "lib/util/network/ethernet/EthernetDatagram.h"
 #include "device/network/NetworkDevice.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/collection/Iterator.h"
@@ -43,8 +43,6 @@ class OutputStream;
 
 namespace Kernel::Network::Ethernet {
 
-Kernel::Logger EthernetModule::log = Kernel::Logger::get("Ethernet");
-
 bool EthernetModule::checkPacket(const uint8_t *packet, uint32_t length) {
     // TODO: Uncomment once checksum calculation is implemented;
     // uint32_t frameCheckSequence = (packet[length - 4] << 24) | (packet[length - 3] << 16) | (packet[length - 2] << 8) | packet[length - 1];
@@ -58,7 +56,7 @@ void EthernetModule::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInf
     header.read(stream);
 
     if (header.getDestinationAddress() != device.getMacAddress() && !(header.getDestinationAddress().isBroadcastAddress())) {
-        log.warn("Discarding packet, because of wrong destination address!");
+        LOG_WARN("Discarding packet, because of wrong destination address!");
         return;
     }
 

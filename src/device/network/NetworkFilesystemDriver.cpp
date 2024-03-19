@@ -18,7 +18,7 @@
 #include "MacAddressNode.h"
 #include "NetworkFilesystemDriver.h"
 #include "kernel/service/FilesystemService.h"
-#include "kernel/system/System.h"
+
 #include "device/network/NetworkDevice.h"
 #include "filesystem/core/Filesystem.h"
 #include "lib/util/base/String.h"

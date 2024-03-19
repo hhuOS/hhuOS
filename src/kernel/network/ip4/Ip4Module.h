@@ -100,8 +100,6 @@ private:
     Ip4RoutingModule routingModule;
     Util::ArrayList<Ip4Interface> interfaces;
     Util::Async::ReentrantSpinlock lock;
-
-    static Kernel::Logger log;
 };
 
 }

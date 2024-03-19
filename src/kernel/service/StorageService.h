@@ -65,7 +65,6 @@ private:
     Util::Async::ReentrantSpinlock lock;
     Util::HashMap<Util::String, Device::Storage::StorageDevice*> deviceMap;
 
-    static Logger log;
     static Util::HashMap<Util::String, uint32_t> nameMap;
 
 };

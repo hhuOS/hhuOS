@@ -157,8 +157,6 @@ private:
     uint8_t *receiveBuffer{};
     IoPort baseRegister = IoPort(0x00);
 
-    static Kernel::Logger log;
-
     static const constexpr uint16_t VENDOR_ID = 0x10ec;
     static const constexpr uint16_t DEVICE_ID = 0x8139;
     static const constexpr uint32_t BUFFER_SIZE = 8 * 1024 + 16 + 1500;

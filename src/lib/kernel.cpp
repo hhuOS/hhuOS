@@ -20,7 +20,7 @@
 #include "lib/interface.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/process/Process.h"
-#include "kernel/system/System.h"
+
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/FilesystemService.h"
 #include "kernel/service/TimeService.h"
@@ -44,6 +44,7 @@
 #include "lib/util/time/Date.h"
 #include "lib/util/time/Timestamp.h"
 #include "GatesOfHell.h"
+#include "lib/util/base/System.h"
 
 namespace Util {
 namespace Async {
@@ -68,7 +69,7 @@ void freeMemory(void *pointer, uint32_t alignment) {
 }
 
 bool isMemoryManagementInitialized() {
-    return GatesOfHell::isMemoryManagementInitialized();
+    return Kernel::Service::isServiceRegistered(Kernel::MemoryService::SERVICE_ID);
 }
 
 void* mapIO(void *physicalAddress, uint32_t size) {
@@ -227,7 +228,7 @@ bool isSchedulerInitialized() {
 }
 
 Util::Time::Timestamp getSystemTime() {
-    return Kernel::Service::getService<Kernel::TimeService>().getSystemTime();
+    return Kernel::Service::isServiceRegistered(Kernel::TimeService::SERVICE_ID) ? Kernel::Service::getService<Kernel::TimeService>().getSystemTime() : Util::Time::Timestamp::ofMilliseconds(0);
 }
 
 Util::Time::Date getCurrentDate() {
@@ -252,5 +253,11 @@ bool shutdown(Util::Hardware::Machine::ShutdownType type) {
 }
 
 void throwError(Util::Exception::Error error, const char *message) {
-    Device::Cpu::throwException(error, message);
+    if (Kernel::Service::isServiceRegistered(Kernel::FilesystemService::SERVICE_ID)) {
+        Util::System::out << Util::Exception::getExceptionName(error) << ": " << message << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    } else {
+        LOG_ERROR("%s: %s", Util::Exception::getExceptionName(error), message);
+    }
+
+    while (true) {};
 }

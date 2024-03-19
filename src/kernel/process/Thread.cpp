@@ -17,7 +17,7 @@
 
 #include "lib/util/base/Address.h"
 #include "lib/util/base/operators.h"
-#include "kernel/system/System.h"
+
 #include "kernel/memory/MemoryLayout.h"
 #include "kernel/memory/Paging.h"
 #include "asm_interface.h"

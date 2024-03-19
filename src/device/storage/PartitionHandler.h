@@ -379,8 +379,6 @@ private:
 
     StorageDevice &device;
 
-    static Kernel::Logger log;
-
     static const constexpr uint32_t PARTITION_TABLE_START = 0x1be;
     static const constexpr uint16_t BOOT_RECORD_SIGNATURE = 0xaa55;
 };

@@ -22,13 +22,12 @@
 
 #include "device/bus/pci/Pci.h"
 #include "device/bus/pci/PciDevice.h"
-#include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/async/Thread.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/InterruptService.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/Address.h"
 
@@ -39,10 +38,8 @@ enum InterruptVector : uint8_t;
 
 namespace Device::Network {
 
-Kernel::Logger Rtl8139::log = Kernel::Logger::get("RTL8139");
-
 Rtl8139::Rtl8139(const PciDevice &pciDevice) : pciDevice(pciDevice) {
-    log.info("Configuring PCI registers");
+    LOG_INFO("Configuring PCI registers");
     uint16_t command = pciDevice.readWord(Pci::COMMAND);
     command |= Pci::BUS_MASTER | Pci::IO_SPACE;
     pciDevice.writeWord(Pci::COMMAND, command);
@@ -50,22 +47,22 @@ Rtl8139::Rtl8139(const PciDevice &pciDevice) : pciDevice(pciDevice) {
     uint16_t ioBaseAddress = pciDevice.readDoubleWord(Pci::BASE_ADDRESS_0) & ~0x0f;
     baseRegister = IoPort(ioBaseAddress);
 
-    log.info("Powering on device");
+    LOG_INFO("Powering on device");
     baseRegister.writeByte(CONFIG_1, 0x00);
 
-    log.info("Performing software reset");
+    LOG_INFO("Performing software reset");
     baseRegister.writeByte(COMMAND, RESET);
     while (baseRegister.readByte(COMMAND) & RESET) {
         Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
     }
 
-    log.info("Masking interrupts");
+    LOG_INFO("Masking interrupts");
     baseRegister.writeWord(INTERRUPT_MASK, RECEIVE_OK | RECEIVE_ERROR | TRANSMIT_OK | TRANSMIT_ERROR);
 
-    log.info("Enabling receiver/transmitter");
+    LOG_INFO("Enabling receiver/transmitter");
     baseRegister.writeByte(COMMAND, ENABLE_RECEIVER | ENABLE_TRANSMITTER);
 
-    log.info("Configuring receive buffer");
+    LOG_INFO("Configuring receive buffer");
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     receiveBuffer = static_cast<uint8_t*>(memoryService.mapIO(BUFFER_SIZE));
 

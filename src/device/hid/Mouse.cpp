@@ -17,7 +17,7 @@
 
 #include "Mouse.h"
 
-#include "kernel/system/System.h"
+
 #include "kernel/service/InterruptService.h"
 #include "filesystem/memory/StreamNode.h"
 #include "kernel/service/FilesystemService.h"
@@ -25,7 +25,7 @@
 #include "device/hid/Ps2Device.h"
 #include "filesystem/core/Filesystem.h"
 #include "filesystem/memory/MemoryDriver.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "device/interrupt/InterruptRequest.h"
 #include "kernel/interrupt/InterruptVector.h"
 
@@ -35,14 +35,12 @@ struct InterruptFrameOld;
 
 namespace Device {
 
-Kernel::Logger Mouse::log = Kernel::Logger::get("Mouse");
-
 Mouse::Mouse(Ps2Controller &controller) : Ps2Device(controller, Ps2Controller::SECOND), Util::Io::FilterInputStream(inputStream), inputBuffer(BUFFER_SIZE), inputStream(inputBuffer) {}
 
 Mouse* Mouse::initialize(Ps2Controller &controller) {
     auto *mouse = new Mouse(controller);
     if (!controller.isPortAvailable(Ps2Controller::SECOND)) {
-        log.error("Second port of PS/2 controller is not available");
+        LOG_ERROR("Second port of PS/2 controller is not available");
         delete mouse;
         return nullptr;
     }
@@ -56,10 +54,10 @@ Mouse* Mouse::initialize(Ps2Controller &controller) {
             resetAcknowledged = true;
             continue;
         } else if (reply == SELF_TEST_PASSED) {
-            log.info("Mouse has been reset and self test result is OK");
+            LOG_INFO("Mouse has been reset and self test result is OK");
             break;
         } else if (reply == SELF_TEST_FAILED_1 || reply == SELF_TEST_FAILED_2) {
-            log.error("Mouse has been reset but self test result is error code [0x%02x]", reply);
+            LOG_ERROR("Mouse has been reset but self test result is error code [0x%02x]", reply);
             delete mouse;
             return nullptr;
         }
@@ -68,7 +66,7 @@ Mouse* Mouse::initialize(Ps2Controller &controller) {
     } while (count < 5);
 
     if (!resetAcknowledged || count == 5) {
-        log.error("Failed to reset mouse -> Assuming no mouse is connected");
+        LOG_ERROR("Failed to reset mouse -> Assuming no mouse is connected");
         delete mouse;
         return nullptr;
     }
@@ -77,17 +75,17 @@ Mouse* Mouse::initialize(Ps2Controller &controller) {
 
     // Setup mouse
     if (!mouse->writeMouseCommand(SET_DEFAULT_PARAMETERS)) {
-        log.warn("Failed to set default parameters");
+        LOG_WARN("Failed to set default parameters");
     }
     if (!mouse->writeMouseCommand(SET_RESOLUTION, 0x02)) {
-        log.warn("Failed to set resolution");
+        LOG_WARN("Failed to set resolution");
     }
     if (!mouse->writeMouseCommand(SET_SAMPLING_RATE, 80)) {
-        log.warn("Failed to set sampling rate");
+        LOG_WARN("Failed to set sampling rate");
     }
 
     if (!mouse->writeMouseCommand(ENABLE_DATA_REPORTING)) {
-        log.error("Failed to enable data reporting -> Assuming no mouse is connected");
+        LOG_ERROR("Failed to enable data reporting -> Assuming no mouse is connected");
         delete mouse;
         return nullptr;
     }
@@ -100,11 +98,11 @@ Mouse* Mouse::initialize(Ps2Controller &controller) {
     }
 
     if (mouse->type == STANDARD_MOUSE) {
-        log.info("Detected standard 3-button mouse without scroll wheel");
+        LOG_INFO("Detected standard 3-button mouse without scroll wheel");
     } else if (mouse->type == MOUSE_WITH_SCROLL_WHEEL) {
-        log.info("Detected 3-button mouse with scroll wheel");
+        LOG_INFO("Detected 3-button mouse with scroll wheel");
     } else if (mouse->type == FIVE_BUTTON_MOUSE) {
-        log.info("Detected 5-button mouse with scroll wheel");
+        LOG_INFO("Detected 5-button mouse with scroll wheel");
     }
 
     auto *streamNode = new Filesystem::Memory::StreamNode("mouse", mouse);
@@ -113,7 +111,7 @@ Mouse* Mouse::initialize(Ps2Controller &controller) {
     bool success = driver.addNode("/", streamNode);
 
     if (!success) {
-        log.error("Mouse: Failed to add node");
+        LOG_ERROR("Mouse: Failed to add node");
         delete streamNode;
         return nullptr;
     }
@@ -196,13 +194,13 @@ bool Mouse::writeMouseCommand(Mouse::Command command, uint8_t data) {
 void Mouse::activateScrollWheel() {
     // Magic sequence to activate scroll wheel
     if (!writeMouseCommand(SET_SAMPLING_RATE, 200)) {
-        log.warn("Failed to set sampling rate");
+        LOG_WARN("Failed to set sampling rate");
     }
     if (!writeMouseCommand(SET_SAMPLING_RATE, 100)) {
-        log.warn("Failed to set sampling rate");
+        LOG_WARN("Failed to set sampling rate");
     }
     if (!writeMouseCommand(SET_SAMPLING_RATE, 80)) {
-        log.warn("Failed to set sampling rate");
+        LOG_WARN("Failed to set sampling rate");
     }
 
     controller.flushOutputBuffer();
@@ -214,13 +212,13 @@ void Mouse::activateScrollWheel() {
 void Mouse::activeAdditionalButtons() {
     // Magic sequence to activate additional buttons
     if (!writeMouseCommand(SET_SAMPLING_RATE, 200)) {
-        log.warn("Failed to set sampling rate");
+        LOG_WARN("Failed to set sampling rate");
     }
     if (!writeMouseCommand(SET_SAMPLING_RATE, 200)) {
-        log.warn("Failed to set sampling rate");
+        LOG_WARN("Failed to set sampling rate");
     }
     if (!writeMouseCommand(SET_SAMPLING_RATE, 80)) {
-        log.warn("Failed to set sampling rate");
+        LOG_WARN("Failed to set sampling rate");
     }
 
     controller.flushOutputBuffer();
@@ -231,7 +229,7 @@ void Mouse::activeAdditionalButtons() {
 
 Ps2Device::DeviceType Mouse::identify() {
     if (!writeMouseCommand(DISABLE_DATA_REPORTING) || !writeMouseCommand(IDENTIFY)) {
-        log.warn("Failed to identify mouse -> Assuming standard 3-button mouse");
+        LOG_WARN("Failed to identify mouse -> Assuming standard 3-button mouse");
         return STANDARD_MOUSE;
     }
 
@@ -239,7 +237,7 @@ Ps2Device::DeviceType Mouse::identify() {
     readByte(); // Discard subtype
 
     if (!writeMouseCommand(ENABLE_DATA_REPORTING)) {
-        log.error("Failed to enable data reporting -> Mouse might not be working");
+        LOG_ERROR("Failed to enable data reporting -> Mouse might not be working");
     }
 
     controller.flushOutputBuffer();

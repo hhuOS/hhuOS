@@ -26,7 +26,7 @@
 #include "kernel/network/ip4/Ip4Module.h"
 #include "kernel/network/ethernet/EthernetModule.h"
 #include "device/network/NetworkDevice.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/collection/Iterator.h"
@@ -42,8 +42,6 @@
 #include "lib/util/network/ip4/Ip4Address.h"
 
 namespace Kernel::Network::Udp {
-
-Kernel::Logger UdpModule::log = Kernel::Logger::get("UDP");
 
 bool UdpModule::registerSocket(Socket &socket) {
     auto &socketAddress = (Util::Network::Ip4::Ip4PortAddress&) socket.getAddress();
@@ -77,7 +75,7 @@ void UdpModule::readPacket(Util::Io::ByteArrayInputStream &stream, NetworkModule
 
     auto checksum = calculateChecksum(pseudoHeaderStream.getBuffer(), stream.getBuffer() + stream.getPosition() - Util::Network::Udp::UdpHeader::HEADER_SIZE, information.payloadLength);
     if (header.getChecksum() != checksum) {
-        log.warn("Discarding packet, because of wrong checksum");
+        LOG_WARN("Discarding packet, because of wrong checksum");
         return;
     }
 

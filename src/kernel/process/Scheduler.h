@@ -150,8 +150,6 @@ private:
 
     Util::HashMap<uint32_t, Util::ArrayList<Thread*>*> joinMap;
     Util::Async::Spinlock joinLock;
-
-    static Logger log;
 };
 
 }

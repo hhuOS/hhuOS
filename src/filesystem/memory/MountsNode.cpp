@@ -18,7 +18,7 @@
 #include "MountsNode.h"
 
 #include "kernel/service/FilesystemService.h"
-#include "kernel/system/System.h"
+
 #include "lib/util/io/stream/ByteArrayOutputStream.h"
 #include "filesystem/core/Filesystem.h"
 #include "filesystem/memory/MemoryNode.h"

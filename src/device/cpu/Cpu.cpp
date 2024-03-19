@@ -24,23 +24,6 @@
 
 namespace Device {
 
-const char *Cpu::hardwareExceptions[] = {
-        "Divide-by-zero Error", "Debug", "Non-maskable Interrupt", "Breakpoint",
-        "Overflow", "Bound Range Exceeded", "Invalid Opcode", "Device not available",
-        "Double Fault", "Coprocessor Segment Overrun", "Invalid TSS", "Segment Not Present",
-        "Stack-Segment Fault", "General Protection Fault", "Page Fault", "Reserved",
-        "x87 Floating-Point Exception", "Alignment Check", "Machine Check", "SIMD Floating-Point Exception",
-        "Virtualization Exception", "Reserved", "Reserved", "Reserved", "Reserved", "Reserved", "Reserved",
-        "Reserved", "Reserved", "Reserved", "Security Exception", "Reserved"
-};
-
-const char *Cpu::softwareExceptions[]{
-        "NullPointer Exception", "IndexOutOfBounds Exception", "InvalidArgument Exception", "KeyNotFound Exception",
-        "IllegalState Exception", "OutOfMemoryException", "OutOfPhysicalMemory Exception",
-        "OutOfPageTableMemory Exception", "IllegalPageAccess Exception", "UnknownType Exception",
-        "PagingError Exception", "UnsupportedOperation Exception"
-};
-
 int32_t Cpu::cliCount = 1; // Interrupts are disabled on startup
 
 void Cpu::enableInterrupts() {
@@ -74,33 +57,6 @@ void Cpu::halt() {
                    "hlt"
     );
     __builtin_unreachable();
-}
-
-void Cpu::throwException(Util::Exception::Error error, const char *message) {
-    disableInterrupts();
-    Util::System::errorMessage = message;
-
-    uint32_t esp, cs, flags;
-    asm volatile (
-            "mov %%esp, %0;"
-            "mov %%cs, %1;"
-            "pushf;"
-            "pop %%eax;"
-            "mov %%eax, %2;"
-            :
-            "=r"(esp), "=r"(cs), "=r"(flags)
-            : : "eax"
-            );
-
-    Kernel::Service::getService<Kernel::InterruptService>().handleException(Kernel::InterruptFrame {esp, cs, flags}, 0, static_cast<Kernel::InterruptVector>(error));
-}
-
-const char* Cpu::getExceptionName(uint32_t exception) {
-    if (exception >= Util::Exception::NULL_POINTER) {
-        return Util::Exception::getExceptionName(static_cast<Util::Exception::Error>(exception));
-    }
-
-    return hardwareExceptions[exception];
 }
 
 void Cpu::setSegmentRegister(SegmentRegister reg, const SegmentSelector &selector) {

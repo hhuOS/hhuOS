@@ -21,11 +21,11 @@
 #include "Ip4Module.h"
 
 #include "lib/util/network/ip4/Ip4Header.h"
-#include "kernel/system/System.h"
+
 #include "kernel/service/NetworkService.h"
 #include "lib/util/network/ip4/Ip4Datagram.h"
 #include "device/network/NetworkDevice.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/io/stream/ByteArrayInputStream.h"
@@ -47,8 +47,6 @@
 
 namespace Kernel::Network::Ip4 {
 
-Kernel::Logger Ip4Module::log = Kernel::Logger::get("IPv4");
-
 void Ip4Module::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
     auto &tmpStream = reinterpret_cast<Util::Io::ByteArrayInputStream&>(stream);
     auto *buffer = tmpStream.getBuffer() + tmpStream.getPosition();
@@ -57,7 +55,7 @@ void Ip4Module::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformat
     auto receivedChecksum = (buffer[Util::Network::Ip4::Ip4Header::CHECKSUM_OFFSET] << 8) | buffer[Util::Network::Ip4::Ip4Header::CHECKSUM_OFFSET + 1];
 
     if (receivedChecksum != calculatedChecksum) {
-        log.warn("Discarding packet, because of wrong header checksum");
+        LOG_WARN("Discarding packet, because of wrong header checksum");
         return;
     }
 
@@ -65,16 +63,16 @@ void Ip4Module::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformat
     header.read(stream);
 
     if (header.getVersion() != 4) {
-        log.warn("Discarding packet, because of wrong IP version");
+        LOG_WARN("Discarding packet, because of wrong IP version");
         return;
     }
 
     if (header.getTimeToLive() == 1) {
-        log.warn("Discarding packet, because its time to live has expired");
+        LOG_WARN("Discarding packet, because its time to live has expired");
     }
 
     if (getTargetInterfaces(header.getDestinationAddress()).length() == 0) {
-        log.warn("Discarding packet, because of wrong destination address!");
+        LOG_WARN("Discarding packet, because of wrong destination address!");
         return;
     }
 

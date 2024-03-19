@@ -17,10 +17,10 @@
 
 #include "kernel/service/InterruptService.h"
 #include "device/interrupt/InterruptRequest.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "filesystem/memory/StreamNode.h"
 #include "kernel/service/FilesystemService.h"
-#include "kernel/system/System.h"
+
 #include "SerialPort.h"
 #include "filesystem/core/Filesystem.h"
 #include "filesystem/memory/MemoryDriver.h"
@@ -34,25 +34,9 @@ struct InterruptFrameOld;
 
 namespace Device {
 
-Kernel::Logger SerialPort::log = Kernel::Logger::get("COM");
+SerialPort::SerialPort(Serial::ComPort port, Serial::BaudRate dataRate) : Util::Io::FilterInputStream(inputStream), inputBuffer(BUFFER_SIZE), inputStream(inputBuffer), port(port, dataRate) {}
 
-SerialPort::SerialPort(ComPort port, BaudRate dataRate) :
-        Util::Io::FilterInputStream(inputStream), inputBuffer(BUFFER_SIZE), inputStream(inputBuffer),
-        port(port), dataRate(dataRate), dataRegister(port), interruptRegister(port + 1), fifoControlRegister(port + 2),
-        lineControlRegister(port + 3), modemControlRegister(port + 4), lineStatusRegister(port + 5),
-        modemStatusRegister(port + 6), scratchRegister(port + 7) {
-    interruptRegister.writeByte(0x00);      // Disable all interrupts
-    lineControlRegister.writeByte(0x80);    // Enable DLAB, so that the divisor can be set
-
-    dataRegister.writeByte(static_cast<uint8_t>(static_cast<uint16_t>(dataRate) & 0x0f));      // Divisor low byte
-    interruptRegister.writeByte(static_cast<uint8_t>(static_cast<uint16_t>(dataRate) >> 8));   // Divisor high byte
-
-    lineControlRegister.writeByte(0x03);    // 8 bits per char, no parity, one stop bit
-    fifoControlRegister.writeByte(0x07);    // Enable FIFO-buffers, Clear FIFO-buffers, Trigger interrupt after each byte
-    modemControlRegister.writeByte(0x0b);   // Enable data lines
-}
-
-bool SerialPort::checkPort(ComPort port) {
+bool SerialPort::checkPort(Serial::ComPort port) {
     IoPort scratchRegister(port + 7);
 
     for (uint8_t i = 0; i < 0xff; i++) {
@@ -65,19 +49,12 @@ bool SerialPort::checkPort(ComPort port) {
     return true;
 }
 
-void SerialPort::initializePort(ComPort port) {
-    /*if (Kernel::Multiboot::hasKernelOption("debug_port")) {
-        auto portName = Kernel::Multiboot::getKernelOption("debug_port");
-        if (portFromString(portName) == port) {
-            return;
-        }
-    }*/
-
+void SerialPort::initializePort(Serial::ComPort port) {
     if (!checkPort(port)) {
         return;
     }
 
-    log.info("Serial port [%s] detected", portToString(port));
+    LOG_INFO("Serial port [%s] detected", portToString(port));
 
     auto *serialPort = new SerialPort(port);
     auto *streamNode = new Filesystem::Memory::StreamNode(Util::String(portToString(port)).toLowerCase(), serialPort, serialPort);
@@ -89,52 +66,21 @@ void SerialPort::initializePort(ComPort port) {
     if (success) {
         serialPort->plugin();
     } else {
-        log.error("%s: Failed to add node", portToString(port));
+        LOG_ERROR("%s: Failed to add node", portToString(port));
         delete streamNode;
     }
 }
 
 void SerialPort::initializeAvailablePorts() {
-    initializePort(COM1);
-    initializePort(COM2);
-    initializePort(COM3);
-    initializePort(COM4);
-}
-
-SerialPort::ComPort SerialPort::portFromString(const Util::String &portName) {
-    const auto port = portName.toLowerCase();
-
-    if (port == "com1") {
-        return COM1;
-    } else if (port == "com2") {
-        return COM2;
-    } else if (port == "com3") {
-        return COM3;
-    } else if (port == "com4") {
-        return COM4;
-    } else {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "COM: Invalid port!");
-    }
-}
-
-const char* SerialPort::portToString(const ComPort port) {
-    switch (port) {
-        case COM1:
-            return "COM1";
-        case COM2:
-            return "COM2";
-        case COM3:
-            return "COM3";
-        case COM4:
-            return "COM4";
-        default:
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "COM: Invalid port!");
-    }
+    initializePort(Serial::COM1);
+    initializePort(Serial::COM2);
+    initializePort(Serial::COM3);
+    initializePort(Serial::COM4);
 }
 
 void SerialPort::plugin() {
     auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
-    if (port == COM1 || port == COM3) {
+    if (port.getPort() == Serial::COM1 || port.getPort() == Serial::COM3) {
         interruptService.assignInterrupt(Kernel::InterruptVector::COM1, *this);
         interruptService.allowHardwareInterrupt(Device::InterruptRequest::COM1);
     } else {
@@ -142,62 +88,38 @@ void SerialPort::plugin() {
         interruptService.allowHardwareInterrupt(Device::InterruptRequest::COM2);
     }
 
-    interruptRegister.writeByte(0x01);
+    port.interruptRegister.writeByte(0x01);
 }
 
 void SerialPort::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
-    if (fifoControlRegister.readByte() & 0x01) {
+    if (port.fifoControlRegister.readByte() & 0x01) {
         return;
     }
 
-    while (lineStatusRegister.readByte() & 0x01) {
-        uint8_t byte = dataRegister.readByte();
+    while (port.lineStatusRegister.readByte() & 0x01) {
+        uint8_t byte = port.dataRegister.readByte();
         inputBuffer.offer(byte == 13 ? '\n' : byte);
     }
 }
 
-void SerialPort::setDataRate(SerialPort::BaudRate rate) {
-    dataRate = rate;
-
-    uint8_t interruptBackup = interruptRegister.readByte();
-    uint8_t lineControlBackup = lineStatusRegister.readByte();
-
-    interruptRegister.writeByte(0x00);                   // Disable all interrupts
-    lineControlRegister.writeByte(0x80);                 // Enable to DLAB, so that the divisor can be set
-
-    dataRegister.writeByte(static_cast<uint8_t>(static_cast<uint16_t>(rate) & 0x0f));       // Divisor low byte
-    interruptRegister.writeByte(static_cast<uint8_t>(static_cast<uint16_t>(rate) >> 8));    // Divisor high byte
-
-    lineControlRegister.writeByte(lineControlBackup);   // Restore line control register
-    interruptRegister.writeByte(interruptBackup);       // Restore interrupt register
+void SerialPort::setDataRate(Serial::BaudRate rate) {
+    port.setDataRate(rate);
 }
 
-SerialPort::BaudRate SerialPort::getDataRate() const {
-    return dataRate;
+Serial::BaudRate SerialPort::getDataRate() const {
+    return port.getDataRate();
 }
 
 void SerialPort::write(uint8_t c) {
-    if (c == '\n') {
-        write(13);
-    }
-
-    while (!(lineStatusRegister.readByte() & 0x20)) {}
-    dataRegister.writeByte(c);
+    port.write(c);
 }
 
 void SerialPort::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    for (uint32_t i = 0; i < length; i++) {
-        write(sourceBuffer[offset + i]);
-    }
+    port.write(sourceBuffer, offset, length);
 }
 
 uint8_t SerialPort::readDirect() {
-    bool hasData = (lineStatusRegister.readByte() & 0x01) == 0x01;
-    while (!hasData) {
-        hasData = (lineStatusRegister.readByte() & 0x01) == 0x01;
-    }
-
-    return dataRegister.readByte();
+    return port.read();
 }
 
 }

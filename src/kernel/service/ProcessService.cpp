@@ -18,7 +18,7 @@
 #include <stdarg.h>
 
 #include "kernel/process/AddressSpaceCleaner.h"
-#include "kernel/system/System.h"
+
 #include "kernel/process/BinaryLoader.h"
 #include "ProcessService.h"
 #include "FilesystemService.h"
@@ -27,7 +27,7 @@
 #include "kernel/process/Thread.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/SchedulerService.h"
-#include "kernel/system/SystemCall.h"
+#include "kernel/syscall/SystemCall.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/System.h"
@@ -116,7 +116,7 @@ Process& ProcessService::createProcess(VirtualAddressSpace &addressSpace, const 
     auto *process = new Process(addressSpace, name, workingDirectory);
 
     // Create standard file descriptors
-    if (System::isServiceRegistered(FilesystemService::SERVICE_ID)) {
+    if (Service::isServiceRegistered(FilesystemService::SERVICE_ID)) {
         process->getFileDescriptorManager().openFile(standardIn.getCanonicalPath());
         process->getFileDescriptorManager().openFile(standardOut.getCanonicalPath());
         process->getFileDescriptorManager().openFile(standardError.getCanonicalPath());

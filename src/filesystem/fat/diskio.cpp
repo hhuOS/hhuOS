@@ -17,7 +17,7 @@
 
 #include <cstdint>
 
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "filesystem/fat/FatDriver.h"
 #include "filesystem/fat/ff/source/diskio.h"
 #include "device/storage/StorageDevice.h"
@@ -32,7 +32,6 @@ char* strchr(const char *str, int32_t c);
 int32_t memcmp(const void *str1, const void *str2, uint32_t n);
 }
 
-static Kernel::Logger log = Kernel::Logger::get("FAT");
 static const constexpr DWORD DEFAULT_BLOCK_SIZE = 1;
 
 void* memset(void *str, int32_t c, uint32_t n) {

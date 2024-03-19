@@ -18,12 +18,26 @@
 #ifndef LOG_H
 #define LOG_H
 
+#define XSTRINGIFY(a) STRINGIFY(a)
+#define STRINGIFY(a) #a
+
+#define LOG_TRACE(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::TRACE, __FILE__, XSTRINGIFY(__LINE__) }, message)
+#define LOG_DEBUG(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::DEBUG, __FILE__, XSTRINGIFY(__LINE__) }, message)
+#define LOG_INFO(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::INFO, __FILE__, XSTRINGIFY(__LINE__) }, message)
+#define LOG_WARN(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::WARN, __FILE__, XSTRINGIFY(__LINE__) }, message)
+#define LOG_ERROR(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::ERROR, __FILE__, XSTRINGIFY(__LINE__) }, message)
+
 #include <cstdarg>
-#include "device/port/serial/SerialPort.h"
+#include "device/port/serial/SimpleSerialPort.h"
+#include "lib/util/io/stream/PrintStream.h"
+#include "lib/util/collection/HashMap.h"
+#include "lib/util/async/Spinlock.h"
 
 namespace Kernel {
 
 class Log {
+
+public:
 
     enum Level {
         TRACE = 0,
@@ -37,7 +51,6 @@ class Log {
         Level level;
         const char *file;
         const char *line;
-        va_list arguments;
     };
 
     /**
@@ -62,11 +75,42 @@ class Log {
      */
     ~Log() = delete;
 
-    static void log(const char *message, const Record &record);
+    static void setLevel(Level level);
+
+    static void addOutputStream(Util::Io::OutputStream &stream);
+
+    static void removeOutputStream(Util::Io::OutputStream &stream);
+
+    static void log(const Record &record, const char *message...);
 
 private:
 
-    static Device::SerialPort serial;
+    static void logEarly(const Record &record, const char *message);
+
+    static void logEarlyWithHeap(const Record &record, const char *message...);
+
+    static void writeStringEarly(const char *string);
+
+    static const char* extractFileName(const char *path);
+
+    static const char* getLevelAsString(const Level &level);
+
+    static const char*getColor(const Level &level);
+
+    static Level level;
+
+    static Util::Async::Spinlock lock;
+    static Util::HashMap<Util::Io::OutputStream*, Util::Io::PrintStream*> streamMap;
+    static Util::ArrayList<Util::String> buffer;
+
+    static Device::SimpleSerialPort *serial;
+    static bool serialChecked;
+
+    static const constexpr char *LEVEL_TRACE = "TRC";
+    static const constexpr char *LEVEL_DEBUG = "DBG";
+    static const constexpr char *LEVEL_INFO = "INF";
+    static const constexpr char *LEVEL_WARN = "WRN";
+    static const constexpr char *LEVEL_ERROR = "ERR";
 };
 
 }

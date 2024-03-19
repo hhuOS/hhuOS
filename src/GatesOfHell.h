@@ -66,15 +66,13 @@ public:
 
     static Util::HeapMemoryManager& getKernelHeap();
 
-    static bool isMemoryManagementInitialized();
+    static bool isKernelHeapInitialized();
 
 private:
 
-    static Kernel::Logger log;
     static Kernel::GlobalDescriptorTable gdt;
     static Kernel::GlobalDescriptorTable::TaskStateSegment tss;
     static Util::HeapMemoryManager *kernelHeap;
-    static bool memoryManagementInitialized;
 };
 
 

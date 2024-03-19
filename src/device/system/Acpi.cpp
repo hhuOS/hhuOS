@@ -26,20 +26,27 @@
 #include "kernel/service/InformationService.h"
 #include "kernel/memory/Paging.h"
 #include "kernel/service/MemoryService.h"
+#include "kernel/log/Log.h"
 
 namespace Device {
 
 Acpi::Acpi() {
     rsdp = findRsdp();
     if (rsdp != nullptr) {
+        auto vendor = Util::String(reinterpret_cast<const uint8_t*>(rsdp->oemId), sizeof(Util::Hardware::Acpi::Rsdp::oemId));
+        LOG_INFO("ACPI vendor: [%s], ACPI version: [%s]", static_cast<const char*>(vendor), rsdp->revision == 0 ? "1.0" : ">=2.0");
+
         auto *rsdt = const_cast<Util::Hardware::Acpi::Rsdt*>(reinterpret_cast<const Util::Hardware::Acpi::Rsdt*>(mapSdt(reinterpret_cast<Util::Hardware::Acpi::SdtHeader*>(rsdp->rsdtAddress))));
 
+        Util::String tableString;
         auto numTables = (rsdt->header.length - sizeof(Util::Hardware::Acpi::SdtHeader)) / sizeof(uint32_t);
         for (uint32_t i = 0; i < numTables; i++) {
             rsdt->tables[i] = mapSdt(rsdt->tables[i]);
+            tableString += Util::String(reinterpret_cast<const uint8_t*>(rsdt->tables[i]->signature), sizeof(Util::Hardware::Acpi::SdtHeader::signature)) + " ";
         }
 
         Acpi::rsdt = rsdt;
+        LOG_INFO("ACPI tables: %s", static_cast<const char*>(tableString));
     }
 }
 
@@ -96,30 +103,40 @@ const Util::Hardware::Acpi::SdtHeader* Acpi::mapSdt(const Util::Hardware::Acpi::
 
 const Util::Hardware::Acpi::Rsdp* Acpi::findRsdp() {
     // Search for RSDP in Multiboot tags
-    const Util::Hardware::Acpi::Rsdp *oldRsdp = nullptr;
-    const Util::Hardware::Acpi::Rsdp *newRsdp = nullptr;
+    const Util::Hardware::Acpi::Rsdp *rsdp = nullptr;
+    const Util::Hardware::Acpi::Rsdp *xsdp = nullptr;
 
     const auto &multiboot = Kernel::Service::getService<Kernel::InformationService>().getMultibootInformation();
     if (multiboot.hasTag(Kernel::Multiboot::ACPI_OLD_RSDP)) {
-        oldRsdp = &multiboot.getTag<Kernel::Multiboot::AcpiRsdp>(Kernel::Multiboot::ACPI_OLD_RSDP).rsdp;
+        rsdp = &multiboot.getTag<Kernel::Multiboot::AcpiRsdp>(Kernel::Multiboot::ACPI_OLD_RSDP).rsdp;
     } else if (multiboot.hasTag(Kernel::Multiboot::ACPI_NEW_RSDP)) {
-        newRsdp = &multiboot.getTag<Kernel::Multiboot::AcpiRsdp>(Kernel::Multiboot::ACPI_NEW_RSDP).rsdp;
+        xsdp = &multiboot.getTag<Kernel::Multiboot::AcpiRsdp>(Kernel::Multiboot::ACPI_NEW_RSDP).rsdp;
     }
 
-    if (oldRsdp != nullptr) {
-        return oldRsdp;
-    } else if (newRsdp != nullptr) {
-        return newRsdp;
+    if (rsdp != nullptr) {
+        LOG_INFO("Found RSDP in multiboot tags");
+        return rsdp;
+    } else if (xsdp != nullptr) {
+        LOG_INFO("Found XSDP in multiboot tags");
+        return xsdp;
     }
 
     // Search for RSDP the "traditional" way
     auto ebdaStartAddress = *reinterpret_cast<uint16_t*>(0x0000040e) << 4;
     auto rsdpAddress = searchRsdp(ebdaStartAddress, ebdaStartAddress + 1023);
     if (rsdpAddress != nullptr) {
+        LOG_INFO("Found RSDP in extended bios area");
         return rsdpAddress;
     }
 
-    return searchRsdp(0x000e0000, 0x000fffff);
+    rsdpAddress = searchRsdp(0x000e0000, 0x000fffff);
+    if (rsdpAddress != nullptr) {
+        LOG_INFO("Found RSDP in bios area");
+        return rsdpAddress;
+    }
+
+    LOG_ERROR("RSDP not found -> ACPI not available");
+    return nullptr;
 }
 
 const Util::Hardware::Acpi::Rsdp* Acpi::searchRsdp(uint32_t startAddress, uint32_t endAddress) {

@@ -21,7 +21,7 @@
 #include "UdpSocket.h"
 
 #include "UdpModule.h"
-#include "kernel/system/System.h"
+
 #include "kernel/service/NetworkService.h"
 #include "lib/util/network/Datagram.h"
 #include "kernel/network/NetworkStack.h"

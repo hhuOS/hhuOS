@@ -26,7 +26,7 @@
 #include "device/time/pit/Pit.h"
 #include "device/cpu/SymmetricMultiprocessing.h"
 #include "kernel/interrupt/InterruptVector.h"
-#include "kernel/system/System.h"
+
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/Constants.h"
 #include "kernel/memory/Paging.h"
@@ -34,7 +34,7 @@
 #include "device/interrupt/apic/IoApic.h"
 #include "device/interrupt/apic/LocalApic.h"
 #include "device/interrupt/apic/LocalApicErrorHandler.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/collection/ArrayList.h"
@@ -48,8 +48,6 @@ enum GlobalSystemInterrupt : uint32_t;
 
 namespace Device {
 enum InterruptRequest : uint8_t;
-
-Kernel::Logger Apic::log = Kernel::Logger::get("APIC");
 
 uint8_t initializedApplicationProcessorsCounter = 0; // Used to determine AP GDT/Stack slot
 
@@ -68,7 +66,7 @@ bool Apic::isAvailable() {
 Apic* Apic::initialize() {
     if (!LocalApic::readBaseModelSpecificRegister().isBootstrapProcessor) {
         // IA32_APIC_BASE_MSR is unique (every core has its own)
-        log.error("Apic may only be initialized by the bootstrap processor!");
+        LOG_ERROR("Apic may only be initialized by the bootstrap processor!");
         return nullptr;
     }
 
@@ -87,13 +85,13 @@ Apic* Apic::initialize() {
     // Initialize our local APIC, all others are only initialized when SMP is started up
     const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
     const auto &madt = acpi.getTable<Util::Hardware::Acpi::Madt>("APIC");
-    log.info("Enabling xAPIC mode");
+    LOG_INFO("Enabling xAPIC mode");
     LocalApic::enableXApicMode(reinterpret_cast<void *>(madt.localApicAddress));
-    log.info("Initializing local APIC [%u]", apic->getCurrentLocalApic().getCpuId());
+    LOG_INFO("Initializing local APIC [%u]", apic->getCurrentLocalApic().getCpuId());
     apic->initializeCurrentLocalApic();
 
     // Initialize the I/O APIC
-    log.info("Initializing IO APIC");
+    LOG_INFO("Initializing IO APIC");
     ioApic->initialize();
 
     // We only require one error handler, as every AP can only access its own local APIC's error register
@@ -174,17 +172,17 @@ Util::Array<LocalApic*> Apic::getLocalApics() {
     auto acpiLocalApicNmis = acpi.getMadtStructures<Util::Hardware::Acpi::LocalApicNmi>(Util::Hardware::Acpi::LOCAL_APIC_NMI);
 
     if (acpiLocalApics.length() == 0) {
-        log.error("No local APIC detected");
+        LOG_ERROR("No local APIC detected");
         return Util::Array<LocalApic*>(0);
     }
 
-    log.info("[%u] local %s detected", acpiLocalApics.length(), acpiLocalApics.length() == 1 ? "APIC" : "APICs");
+    LOG_INFO("[%u] local %s detected", acpiLocalApics.length(), acpiLocalApics.length() == 1 ? "APIC" : "APICs");
 
     for (const auto *localInfo : acpiLocalApics) {
         if (!(localInfo->flags & 0x01)) {
             // When ACPI reports this local APIC as disabled, it may not be used by the OS.
             // ACPI 1.0 specification, sec. 5.2.8.1
-            log.info("Local APIC [%u] is marked as disabled", localInfo->apicId);
+            LOG_INFO("Local APIC [%u] is marked as disabled", localInfo->apicId);
             continue;
         }
 
@@ -200,7 +198,7 @@ Util::Array<LocalApic*> Apic::getLocalApics() {
         //     }
         // }
         // if (nmiInfo == nullptr) {
-        //     log.error("Couldn't find NMI info for local APIC [%u]!", localInfo->apicId);
+        //     LOG_ERROR("Couldn't find NMI info for local APIC [%u]!", localInfo->apicId);
         //     return Util::Array<LocalApic*>(0);
         // }
         // localApic->addNonMaskableInterrupt(nmiInfo->localApicLint == 0 ? LocalApic::LINT0 : LocalApic::LINT1,
@@ -229,7 +227,7 @@ Util::Array<LocalApic*> Apic::getLocalApics() {
         localApics.add(localApic);
     }
 
-    log.info("[%u] local %s usable", localApics.size(), localApics.size() == 1 ? "APIC is" : "APICs are");
+    LOG_INFO("[%u] local %s usable", localApics.size(), localApics.size() == 1 ? "APIC is" : "APICs are");
 
     return localApics.toArray();
 }
@@ -242,18 +240,18 @@ IoApic *Apic::getIoApic() {
 
     if (acpiIoApics.length() == 0) {
         // This is illegal, because this implementation does not support virtual wire mode
-        log.error("No IO APIC present");
+        LOG_ERROR("No IO APIC present");
         return nullptr;
     }
 
     // Multiple I/O APICs are possible, but in the usual Intel consumer chipsets there is only one
     if (acpiIoApics.length() > 1) {
-        log.error("[%u] IO %s detected, but more than one IO APIC is not supported", acpiIoApics.length(), acpiIoApics.length() == 1 ? "APIC" : "APICs");
+        LOG_ERROR("[%u] IO %s detected, but more than one IO APIC is not supported", acpiIoApics.length(), acpiIoApics.length() == 1 ? "APIC" : "APICs");
         return nullptr;
     }
 
-    log.info("[%u] IO %s detected", acpiIoApics.length(), acpiIoApics.length() == 1 ? "APIC" : "APICs");
-    log.info("[%u] interrupt source %s found", acpiInterruptSourceOverrides.length(), acpiInterruptSourceOverrides.length() == 1 ? "override" : "overrides");
+    LOG_INFO("[%u] IO %s detected", acpiIoApics.length(), acpiIoApics.length() == 1 ? "APIC" : "APICs");
+    LOG_INFO("[%u] interrupt source %s found", acpiInterruptSourceOverrides.length(), acpiInterruptSourceOverrides.length() == 1 ? "override" : "overrides");
 
     const auto *ioInfo = acpiIoApics[0];
     auto *ioApic = new IoApic(ioInfo->ioApicId, reinterpret_cast<void*>(ioInfo->ioApicAddress), static_cast<Kernel::GlobalSystemInterrupt>(ioInfo->globalSystemInterruptBase));
@@ -283,7 +281,7 @@ IoApic *Apic::getIoApic() {
             trigger = IoApic::RedirectionTableEntry::TriggerMode::LEVEL;
         }
 
-        log.info("Interrupt source override [%u]->[%u], Polarity: [%s], Trigger: [%s]", override->source, override->globalSystemInterrupt,
+        LOG_INFO("Interrupt source override [%u]->[%u], Polarity: [%s], Trigger: [%s]", override->source, override->globalSystemInterrupt,
                  polarity == IoApic::RedirectionTableEntry::PinPolarity::HIGH ? "High" : "Low", trigger == IoApic::RedirectionTableEntry::TriggerMode::EDGE ? "Edge" : "Level");
         ioApic->addIrqOverride(static_cast<InterruptRequest>(override->source), static_cast<Kernel::GlobalSystemInterrupt>(override->globalSystemInterrupt), polarity, trigger);
     }
@@ -301,7 +299,7 @@ bool Apic::isCurrentTimerRunning() {
 
 void Apic::startCurrentTimer() {
     if (isCurrentTimerRunning()) {
-        log.warn("Trying to start an already running APIC timer");
+        LOG_WARN("Trying to start an already running APIC timer");
         return;
     }
 
@@ -328,7 +326,7 @@ void Apic::startupApplicationProcessors() {
     Cpu::disableInterrupts();
     Cmos::disableNmi();
 
-    log.info("CPU [%u] is the bootstrap processor", LocalApic::getId());
+    LOG_INFO("CPU [%u] is the bootstrap processor", LocalApic::getId());
 
     // Call the startup code on each AP using the INIT-SIPI-SIPI Universal Startup Algorithm
     for (const auto *localApic : localApics.values()) {
@@ -372,7 +370,7 @@ void Apic::startupApplicationProcessors() {
         while (!runningApplicationProcessors[initializedApplicationProcessorsCounter]) {
             if (readCount > 10) {
                 // Waited 10 * 10 ms = 0.1 s in total (pretty arbitrarily chosen by me)
-                log.error("CPU [%u] did not mark itself as running, it could be in undefined state", localApic->getCpuId());
+                LOG_ERROR("CPU [%u] did not mark itself as running, it could be in undefined state", localApic->getCpuId());
                 break;
             }
 
@@ -381,7 +379,7 @@ void Apic::startupApplicationProcessors() {
         }
 
         initializedApplicationProcessorsCounter++;
-        log.info("CPU [%u] is now online", localApic->getCpuId());
+        LOG_INFO("CPU [%u] is now online", localApic->getCpuId());
     }
 
     Cmos::enableNmi();

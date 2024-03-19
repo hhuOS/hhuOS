@@ -123,8 +123,6 @@ private:
 
     static uint32_t ticksPerMilliseconds; // The number of ticks the APIC timer does in 10 ms.
     static Divider divider;                // The used divider, it has to be consistent to get consistent timings.
-
-    static Kernel::Logger log;
 };
 
 }

@@ -20,8 +20,6 @@
 
 namespace Device::Network {
 
-Kernel::Logger PacketWriter::log = Kernel::Logger::get("PacketWriter");
-
 PacketWriter::PacketWriter(Device::Network::NetworkDevice &networkDevice) : networkDevice(networkDevice) {}
 
 void PacketWriter::run() {

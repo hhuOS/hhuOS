@@ -1,6 +1,5 @@
 #include <cstdint>
 
-#include "kernel/system/BlueScreen.h"
 #include "LinearFrameBufferTerminalProvider.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/graphic/Font.h"
@@ -78,7 +77,6 @@ Util::Graphic::Terminal* LinearFrameBufferTerminalProvider::initializeTerminal(c
 
     auto *lfb = new Util::Graphic::LinearFrameBuffer(lfbFile, false);
     auto *terminal = new Util::Graphic::LinearFrameBufferTerminal(lfb, font, cursor);
-    Kernel::BlueScreen::setLfbMode(lfb->getBuffer().get(), lfb->getResolutionX(), lfb->getResolutionY(), lfb->getColorDepth(), lfb->getPitch());
 
     return terminal;
 }

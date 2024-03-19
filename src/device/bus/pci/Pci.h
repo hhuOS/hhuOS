@@ -201,8 +201,7 @@ private:
 
     static const IoPort configAddressPort;
     static const IoPort configDataPort;
-    
-    static Kernel::Logger log;
+
     static Util::ArrayList<PciDevice> devices;
 
     static const constexpr uint16_t CONFIG_ADDRESS = 0xcf8;

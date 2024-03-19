@@ -23,10 +23,10 @@
 #include "device/interrupt/apic/LocalApic.h"
 #include "device/time/pit/Pit.h"
 #include "kernel/service/SchedulerService.h"
-#include "kernel/system/System.h"
+
 #include "kernel/service/InterruptService.h"
 #include "kernel/interrupt/InterruptVector.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 
 namespace Kernel {
 struct InterruptFrameOld;
@@ -36,11 +36,10 @@ namespace Device {
 
 uint32_t ApicTimer::ticksPerMilliseconds = 0;
 ApicTimer::Divider ApicTimer::divider = BY_16;
-Kernel::Logger ApicTimer::log = Kernel::Logger::get("APIC");
 
 ApicTimer::ApicTimer(uint32_t timerInterval, uint32_t yieldInterval) : cpuId(LocalApic::getId()), timerInterval(timerInterval), yieldInterval(yieldInterval) {
     auto counter = ticksPerMilliseconds * timerInterval;
-    // log.info("Setting APIC timer [%u] interval to [%ums] (Counter: [%u])", cpuId, timerInterval, counter);
+    // LOG_INFO("Setting APIC timer [%u] interval to [%ums] (Counter: [%u])", cpuId, timerInterval, counter);
 
     // Recommended order: Divide -> LVT -> Initial Count (OSDev)
     LocalApic::writeDoubleWord(LocalApic::TIMER_DIVIDE, divider); // BY_1 is the highest resolution (overkill)
@@ -95,7 +94,7 @@ void ApicTimer::calibrate() {
     Pit::earlyDelay(10000); // Wait 10 ms
     ticksPerMilliseconds = (0xFFFFFFFF - LocalApic::readDoubleWord(LocalApic::TIMER_CURRENT)) / 10; // Ticks in 1 ms
 
-    log.info("Apic Timer ticks per millisecond: [%u]", ticksPerMilliseconds);
+    LOG_INFO("Apic Timer ticks per millisecond: [%u]", ticksPerMilliseconds);
 }
 
 uint8_t ApicTimer::getCpuId() const {

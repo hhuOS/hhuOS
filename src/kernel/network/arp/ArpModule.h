@@ -105,8 +105,6 @@ private:
     Util::Async::ReentrantSpinlock lock;
     Util::ArrayList<ArpEntry> arpCache;
 
-    static Kernel::Logger log;
-
     static const constexpr uint32_t REQUEST_WAIT_TIME = 100;
     static const constexpr uint32_t MAX_REQUEST_RETRIES = 10;
 };

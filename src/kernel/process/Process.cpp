@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/system/System.h"
+
 #include "Process.h"
 #include "kernel/memory/VirtualAddressSpace.h"
 #include "kernel/process/Thread.h"

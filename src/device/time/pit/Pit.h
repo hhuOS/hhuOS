@@ -101,8 +101,6 @@ private:
     IoPort controlPort = IoPort(0x43);
     IoPort dataPort0 = IoPort(0x40);
 
-    static Kernel::Logger log;
-
 };
 
 }

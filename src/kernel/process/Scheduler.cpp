@@ -16,11 +16,8 @@
  */
 
 #include "Scheduler.h"
-
-#include <kernel/log/Logger.h>
 #include <lib/util/base/Address.h>
 
-#include "kernel/system/System.h"
 #include "kernel/service/TimeService.h"
 #include "asm_interface.h"
 #include "device/cpu/Fpu.h"
@@ -30,21 +27,20 @@
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/time/Timestamp.h"
+#include "kernel/log/Log.h"
 
 namespace Kernel {
-
-Logger Scheduler::log = Logger::get("Scheduler");
 
 Scheduler::Scheduler() {
     defaultFpuContext = static_cast<uint8_t*>(Service::getService<MemoryService>().allocateKernelMemory(512, 16));
     Util::Address<uint32_t>(defaultFpuContext).setRange(0, 512);
 
     if (Device::Fpu::isAvailable()) {
-        log.info("FPU detected -> Enabling FPU context switching");
+        LOG_INFO("FPU detected -> Enabling FPU context switching");
         fpu = new Device::Fpu(defaultFpuContext);
         fpu->plugin();
     } else {
-        log.warn("No FPU present");
+        LOG_WARN("No FPU present");
     }
 }
 

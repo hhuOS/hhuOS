@@ -18,13 +18,11 @@
 #include "Ps2Controller.h"
 
 #include "lib/util/async/Thread.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/time/Timestamp.h"
 
 namespace Device {
-
-Kernel::Logger Ps2Controller::log = Kernel::Logger::get("PS/2");
 
 Ps2Controller* Ps2Controller::initialize() {
     auto *controller = new Ps2Controller();
@@ -44,11 +42,11 @@ Ps2Controller* Ps2Controller::initialize() {
     // Perform self test
     auto result = controller->writeCommand(TEST_CONTROLLER);
     if (result != SELF_TEST_OK) {
-        log.error("Self test failed!");
+        LOG_ERROR("Self test failed!");
         delete controller;
         return nullptr;
     }
-    log.info("Self test result is OK");
+    LOG_INFO("Self test result is OK");
 
     // Check if the controller has reset itself during the self test and if so, write the configuration byte again
     if (controller->writeCommand(READ_CONFIGURATION_BYTE) != configuration) {
@@ -59,26 +57,26 @@ Ps2Controller* Ps2Controller::initialize() {
     controller->writeCommand(ENABLE_SECOND_PORT);
     configuration = controller->writeCommand(READ_CONFIGURATION_BYTE);
     if (configuration & SECOND_PORT_CLOCK) {
-        log.info("Single channel controller detected");
+        LOG_INFO("Single channel controller detected");
     } else {
-        log.info("Dual channel controller detected");
+        LOG_INFO("Dual channel controller detected");
         controller->writeCommand(DISABLE_SECOND_PORT);
     }
 
     result = controller->writeCommand(TEST_FIRST_PORT);
     if (result == PORT_TEST_OK) {
-        log.info("First port test result is OK");
+        LOG_INFO("First port test result is OK");
         controller->firstPortAvailable = true;
     } else {
-        log.error("First port test returned [0x%02x] -> Deactivating port", result);
+        LOG_ERROR("First port test returned [0x%02x] -> Deactivating port", result);
     }
 
     result = controller->writeCommand(TEST_SECOND_PORT);
     if (result == PORT_TEST_OK) {
-        log.info("Second port test result is OK");
+        LOG_INFO("Second port test result is OK");
         controller->secondPortAvailable = true;
     } else {
-        log.error("Second port test returned [0x%02x] -> Deactivating port", result);
+        LOG_ERROR("Second port test returned [0x%02x] -> Deactivating port", result);
     }
 
     // Enable working ports

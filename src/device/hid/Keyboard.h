@@ -135,8 +135,6 @@ private:
     Util::ArrayBlockingQueue<uint8_t> keyBuffer;
     Util::Io::QueueInputStream inputStream;
 
-    static Kernel::Logger log;
-
     static const constexpr uint32_t BUFFER_SIZE = 1024;
 };
 

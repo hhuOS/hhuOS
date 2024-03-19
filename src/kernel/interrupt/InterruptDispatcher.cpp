@@ -16,7 +16,7 @@
  */
 
 #include "kernel/service/InterruptService.h"
-#include "kernel/system/System.h"
+
 #include "device/cpu/Cpu.h"
 #include "lib/util/collection/ArrayList.h"
 #include "kernel/service/ProcessService.h"
@@ -29,7 +29,6 @@
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/base/System.h"
 #include "kernel/interrupt/InterruptVector.h"
-#include "kernel/system/BlueScreen.h"
 
 namespace Kernel {
 

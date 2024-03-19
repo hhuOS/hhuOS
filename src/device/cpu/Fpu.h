@@ -72,8 +72,6 @@ public:
     static bool probeFpu();
 
     bool fxsrAvailable = isFxsrAvailable();
-
-    static Kernel::Logger log;
 };
 
 }

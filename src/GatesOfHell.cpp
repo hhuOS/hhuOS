@@ -17,7 +17,7 @@
 
 #include "kernel/memory/GlobalDescriptorTable.h"
 #include "device/cpu/Cpu.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "GatesOfHell.h"
 #include "kernel/memory/MemoryLayout.h"
 #include "kernel/memory/Paging.h"
@@ -31,6 +31,7 @@
 #include "device/system/Acpi.h"
 #include "kernel/service/InformationService.h"
 #include "device/system/SmBios.h"
+#include "kernel/log/Log.h"
 
 extern const uint32_t ___KERNEL_DATA_START__;
 extern const uint32_t ___KERNEL_DATA_END__;
@@ -49,11 +50,9 @@ namespace Device {
 class Machine;
 }  // namespace Device
 
-Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 Kernel::GlobalDescriptorTable GatesOfHell::gdt{};
 Kernel::GlobalDescriptorTable::TaskStateSegment GatesOfHell::tss{};
 Util::HeapMemoryManager *GatesOfHell::kernelHeap = nullptr;
-bool GatesOfHell::memoryManagementInitialized = false;
 
 extern "C" void start(uint32_t multibootMagic, const Kernel::Multiboot *multiboot) {
     GatesOfHell::enter(multibootMagic, *multiboot);
@@ -76,7 +75,14 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
     Device::Cpu::setSegmentRegister(Device::Cpu::GS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
     Device::Cpu::setSegmentRegister(Device::Cpu::SS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
 
+    LOG_INFO("Welcome to hhuOS early boot environment!");
+
+    if (multibootMagic != Kernel::Multiboot::MAGIC) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Multiboot2 magic number is invalid!");
+    }
+
     // Scan memory map
+    LOG_INFO("Searching memory map for bootstrap memory region");
     auto multibootSize = multiboot.getSize();
     auto *memoryMap = &multiboot.getTag<Kernel::Multiboot::MemoryMapHeader>(Kernel::Multiboot::MEMORY_MAP);
     auto memoryMapEntries = (memoryMap->tagHeader.size - sizeof(Kernel::Multiboot::TagHeader)) / memoryMap->entrySize;
@@ -119,6 +125,8 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
     uint32_t pagingAreaPhysical = bootstrapMemory;
     uint32_t kernelHeapPhysical = bootstrapMemory + INITIAL_PAGING_AREA_SIZE;
 
+    LOG_INFO("Creating initial mappings");
+
     // Create page directory
     auto *pageDirectory = reinterpret_cast<Kernel::Paging::Table*>(pagingAreaPhysical);
     pageDirectory->clear();
@@ -150,15 +158,19 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
     memoryMap = reinterpret_cast<Kernel::Multiboot::MemoryMapHeader*>((kernelHeapVirtual + INITIAL_KERNEL_HEAP_SIZE) - memoryMap->tagHeader.size);
 
     // Enable paging
+    LOG_INFO("Enabling paging");
     Kernel::Paging::loadDirectory(*pageDirectory);
     Device::Cpu::writeCr0(Device::Cpu::readCr0() | Device::Cpu::PAGING);
 
     // Initialize kernel heap
+    LOG_INFO("Initializing kernel heap");
     static Util::FreeListMemoryManager kernelHeapManager;
     kernelHeapManager.initialize(reinterpret_cast<uint8_t*>(kernelHeapVirtual), reinterpret_cast<uint8_t*>(Kernel::MemoryLayout::KERNEL_HEAP_END_ADDRESS));
     kernelHeap = &kernelHeapManager;
+    LOG_INFO("Kernel heap initialized (Bootstrap memory: [0x%08x])", bootstrapMemory);
 
     // Initialize Paging Area Manager -> Manages the virtual addresses of all page tables and directories
+    LOG_INFO("Initializing paging area manager");
     auto usedPagingAreaPages = (reinterpret_cast<uint32_t>(pageTableMemory) - pagingAreaPhysical) / Kernel::Paging::PAGESIZE;
     auto *pagingAreaManager = new Kernel::PagingAreaManager(reinterpret_cast<uint8_t*>(pagingAreaVirtual), INITIAL_PAGING_AREA_SIZE / Kernel::Paging::PAGESIZE, usedPagingAreaPages);
 
@@ -181,6 +193,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
     }
 
     // Initialize page frame allocator -> Manages physical memory
+    LOG_INFO("Initializing page frame allocator");
     auto *pageFrameAllocator = new Kernel::PageFrameAllocator(*pagingAreaManager, nullptr, reinterpret_cast<uint8_t*>(physicalMemoryLimit - 1));
     // Reserve low memory (used by BIOS and ISA devices)
     pageFrameAllocator->setMemory(nullptr, reinterpret_cast<uint8_t*>(0x100000), 0, true);
@@ -200,22 +213,25 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
     }
 
     // Initialize static data structures
+    LOG_INFO("Initializing static data structures");
     _init();
 
     // Create kernel address space and memory service
+    LOG_INFO("Initializing kernel address space");
     auto *addressSpace = new Kernel::VirtualAddressSpace(pageDirectory, virtualPageDirectory, *kernelHeap);
     auto *memoryService = new Kernel::MemoryService(pageFrameAllocator, pagingAreaManager, addressSpace);
 
     // Create interrupt descriptor table
+    LOG_INFO("Initializing interrupt descriptor table");
     auto *idt = new Kernel::InterruptDescriptorTable();
     idt->load();
 
     // The memory service and IDT are initialized and after registering the memory service, page faults can be handled,
     // which means, that we can fully use the kernel heap
     Kernel::Service::registerService(Kernel::MemoryService::SERVICE_ID, memoryService);
-    memoryManagementInitialized = true;
-    log.info("Welcome to hhuOS!");
+    LOG_INFO("Welcome to hhuOS!");
 
+    LOG_INFO("Creating remaining mappings, needed for booting");
     // Identity map lower memory (1 MiB), used for ISA DMA and BIOS related stuff
     // Depending on the system and bootloader, this may be necessary to initialize ACPI and SMBIOS data structures
     memoryService->mapPhysical(nullptr, nullptr, 256, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
@@ -231,24 +247,27 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
     Kernel::Service::registerService(Kernel::InformationService::SERVICE_ID, informationService);
 
     // Initialize ACPI and add it to the information service
+    LOG_INFO("Initializing ACPI");
     auto *acpi = new Device::Acpi();
     informationService->setAcpi(acpi);
 
-    // Initialize SMBIOS and add it to the information service
+    // Initialize SMBIOS and add it to the information
+    LOG_INFO("Initializing SMBIOS");
     auto *smBios = new Device::SmBios();
     informationService->setSmBios(smBios);
 
     // Initialize the classic PIC and interrupt service
+    LOG_INFO("Initializing classic PIC");
     auto *pic = new Device::Pic();
     auto *interruptService = new Kernel::InterruptService(pic);
     Kernel::Service::registerService(Kernel::InterruptService::SERVICE_ID, interruptService);
 
     // Switch to APIC, if available
     if (Device::Apic::isAvailable()) {
-        log.info("APIC detected");
+        LOG_INFO("APIC detected");
         auto *apic = Device::Apic::initialize();
         if (apic == nullptr) {
-            log.warn("Failed to initialize APIC -> Falling back to PIC");
+            LOG_WARN("Failed to initialize APIC -> Falling back to PIC");
         } else {
             interruptService->useApic(apic);
 
@@ -257,7 +276,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
             }
         }
     } else {
-        log.info("APIC not available -> Falling back to PIC");
+        LOG_INFO("APIC not available -> Falling back to PIC");
     }
 
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Once you entered the gates of hell, you are not allowed to leave!");
@@ -265,10 +284,6 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot &multib
 
 Util::HeapMemoryManager& GatesOfHell::getKernelHeap() {
     return *kernelHeap;
-}
-
-bool GatesOfHell::isMemoryManagementInitialized() {
-    return memoryManagementInitialized;
 }
 
 uint32_t GatesOfHell::createInitialMapping(Kernel::Paging::Table &pageDirectory, Kernel::Paging::Table *pageTableMemory, uint32_t physicalStartAddress, uint32_t virtualStartAddress, uint32_t pageCount) {
@@ -296,4 +311,8 @@ uint32_t GatesOfHell::createInitialMapping(Kernel::Paging::Table &pageDirectory,
     }
 
     return allocatedPageTables;
+}
+
+bool GatesOfHell::isKernelHeapInitialized() {
+    return kernelHeap != nullptr;
 }

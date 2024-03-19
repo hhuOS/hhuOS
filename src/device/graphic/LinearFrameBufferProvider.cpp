@@ -2,7 +2,7 @@
 #include "LinearFrameBufferProvider.h"
 #include "LinearFrameBufferNode.h"
 #include "kernel/service/FilesystemService.h"
-#include "kernel/system/System.h"
+
 #include "filesystem/core/Filesystem.h"
 #include "filesystem/memory/MemoryDriver.h"
 #include "lib/util/base/Exception.h"

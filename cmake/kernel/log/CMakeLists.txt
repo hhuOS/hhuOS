@@ -17,5 +17,4 @@
 cmake_minimum_required(VERSION 3.14)
 
 target_sources(kernel PUBLIC
-        ${HHUOS_SRC_DIR}/kernel/log/Log.cpp
-        ${HHUOS_SRC_DIR}/kernel/log/Logger.cpp)
+        ${HHUOS_SRC_DIR}/kernel/log/Log.cpp)
