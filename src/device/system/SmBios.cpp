@@ -24,6 +24,7 @@
 #include "lib/util/collection/ArrayList.h"
 #include "kernel/service/InformationService.h"
 #include "kernel/service/MemoryService.h"
+#include "kernel/log/Log.h"
 
 namespace Device {
 
@@ -34,10 +35,12 @@ SmBios::SmBios() {
     //       In this case, 'tableAddress' will be set to nullptr, and the Multiboot tag will be ignored.
     const auto &multiboot = Kernel::Service::getService<Kernel::InformationService>().getMultibootInformation();
     if (multiboot.hasTag(Kernel::Multiboot::SMBIOS_TABLES)) {
+        LOG_INFO("Found SMBIOS tables in multiboot tags");
         const auto &tag = multiboot.getTag<Kernel::Multiboot::SmBiosTables>(Kernel::Multiboot::SMBIOS_TABLES);
         auto tableSize = static_cast<uint16_t>(tag.header.size - 16);
         auto tableAddress = tableSize == 0 ? nullptr : reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(tag.tables);
         smBiosInformation = { tag.majorVersion, tag.minorVersion, tableAddress, tableSize };
+        LOG_INFO("SMBIOS version: [%u.%u]", smBiosInformation.majorVersion, smBiosInformation.minorVersion);
     }
 
     if (smBiosInformation.tableAddress == nullptr) {
@@ -46,18 +49,23 @@ SmBios::SmBios() {
         auto *entryPoint3 = searchEntryPoint3(0xf0000, 0xfffff);
 
         if (entryPoint != nullptr) {
+            LOG_INFO("Found old entry point in BIOS area");
             smBiosInformation = { entryPoint->majorVersion, entryPoint->minorVersion, reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(entryPoint->tableAddress), entryPoint->tableLength };
         } else if (entryPoint3 != nullptr) {
+            LOG_INFO("Found new entry point in BIOS area");
             smBiosInformation = { entryPoint3->majorVersion, entryPoint3->minorVersion, reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(entryPoint3->tableAddress), entryPoint3->maxTableLength };
         }
 
         // The entry point struct contains a physical address, so we need to map the tables in to the kernel address space
         if (smBiosInformation.tableAddress != nullptr) {
+            LOG_INFO("SMBIOS version: [%u.%u]", smBiosInformation.majorVersion, smBiosInformation.minorVersion);
             auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
             auto tablePageOffset = reinterpret_cast<uint32_t>(smBiosInformation.tableAddress) % Kernel::Paging::PAGESIZE;
             auto tablePageCount = (tablePageOffset + smBiosInformation.tableLength) % Kernel::Paging::PAGESIZE == 0 ? (tablePageOffset + smBiosInformation.tableLength) / Kernel::Paging::PAGESIZE : ((tablePageOffset + smBiosInformation.tableLength) / Kernel::Paging::PAGESIZE) + 1;
             auto *tablePage = memoryService.mapIO(const_cast<void*>(reinterpret_cast<const void*>(smBiosInformation.tableAddress)), tablePageCount);
             smBiosInformation.tableAddress = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(reinterpret_cast<uint8_t*>(tablePage) + tablePageOffset);
+        } else {
+            LOG_ERROR("SMBIOS not available");
         }
     }
 }
