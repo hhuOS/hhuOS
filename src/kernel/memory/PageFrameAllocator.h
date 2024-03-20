@@ -53,6 +53,8 @@ public:
      * Destructor.
      */
      ~PageFrameAllocator() override = default;
+
+     void* allocateBlock() override;
 };
 
 }

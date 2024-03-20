@@ -25,6 +25,7 @@
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/base/FreeListMemoryManager.h"
 #include "kernel/memory/VirtualAddressSpace.h"
+#include "device/bus/isa/Isa.h"
 
 namespace Kernel {
 class PageDirectory;
@@ -82,13 +83,9 @@ public:
 
     void freeUserMemory(void *pointer, uint32_t alignment = 0);
 
-    void* allocateLowerMemory(uint32_t size, uint32_t alignment = 0);
+    void* allocateLowerMemory(uint32_t pageCount);
 
-    void* reallocateLowerMemory(void *pointer, uint32_t size, uint32_t alignment = 0);
-
-    void freeLowerMemory(void *pointer, uint32_t alignment = 0);
-
-    void* allocatePhysicalMemory(uint32_t frameCount);
+    void* allocatePhysicalMemory(uint32_t frameCount, void *startAddress = reinterpret_cast<void*>(Device::Isa::MAX_DMA_ADDRESS));
 
     void freePhysicalMemory(void *pointer, uint32_t frameCount);
 
@@ -204,8 +201,6 @@ public:
     static const constexpr uint8_t SERVICE_ID = 2;
 
 private:
-
-    Util::FreeListMemoryManager lowerMemoryManager;
 
     PageFrameAllocator &pageFrameAllocator;
     PagingAreaManager &pagingAreaManager;

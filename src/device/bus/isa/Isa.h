@@ -119,6 +119,7 @@ public:
      */
     static void resetAll(uint8_t channel);
 
+    static const constexpr uint32_t MAX_DMA_ADDRESS = 16 * 1024 * 1024;
     static const constexpr uint32_t MAX_DMA_PAGESIZE = 64 * 1024;
 
 private:

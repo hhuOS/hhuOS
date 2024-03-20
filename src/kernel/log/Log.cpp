@@ -37,16 +37,17 @@ void Log::setLevel(Level level) {
     Log::level = level;
 }
 
-void Log::addOutputStream(Util::Io::OutputStream &stream) {
+void Log::addOutputStream(Util::Io::OutputStream &stream, bool append) {
     lock.acquire();
-
     auto *printStream = new Util::Io::PrintStream(stream);
-    for (const auto &message : buffer) {
-        *printStream << message << Util::Io::PrintStream::endl;
+
+    if (append) {
+        for (const auto &message: buffer) {
+            *printStream << message << Util::Io::PrintStream::endl;
+        }
     }
 
     streamMap.put(&stream, printStream);
-
     lock.release();
 }
 
@@ -210,6 +211,27 @@ const char* Log::getColor(const Level &level) {
         default:
             return Util::Graphic::Ansi::FOREGROUND_BRIGHT_WHITE;
     }
+}
+
+void Log::setLevel(const Util::String &level) {
+    const auto logLevel = level.toUpperCase();
+    if (logLevel == LEVEL_TRACE) {
+        setLevel(Level::TRACE);
+    } else if (logLevel == LEVEL_DEBUG) {
+        setLevel(Level::DEBUG);
+    } else if (logLevel == LEVEL_INFO) {
+        setLevel(Level::INFO);
+    } else if (logLevel == LEVEL_WARN) {
+        setLevel(Level::WARN);
+    } else if (logLevel == LEVEL_ERROR) {
+        setLevel(Level::ERROR);
+    } else {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Logger: Invalid log level!");
+    }
+}
+
+const Device::SimpleSerialPort &Log::getEarlyLogSerialPort() {
+    return *serial;
 }
 
 }
