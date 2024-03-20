@@ -17,8 +17,6 @@
 cmake_minimum_required(VERSION 3.14)
  
 target_sources(device PUBLIC
+        ${HHUOS_SRC_DIR}/device/graphic/ColorGraphicsAdapter.cpp
         ${HHUOS_SRC_DIR}/device/graphic/LinearFrameBufferNode.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/LinearFrameBufferProvider.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/LinearFrameBufferTerminalProvider.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/TerminalNode.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/TerminalProvider.cpp)
+        ${HHUOS_SRC_DIR}/device/graphic/TerminalNode.cpp)

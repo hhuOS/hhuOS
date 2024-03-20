@@ -571,12 +571,11 @@ uint16_t IdeController::performDmaIO(const IdeController::DeviceInfo &info, IdeC
     auto pages = size / Util::PAGESIZE + (size % Util::PAGESIZE == 0 ? 0 : 1);
 
     // Each page corresponds to an 8-byte entry in the PRD
-    auto prdSize = pages * 8;
-    auto prdVirtual = reinterpret_cast<uint32_t*>(memoryService.mapIO(prdSize));
+    auto prdVirtual = reinterpret_cast<uint32_t*>(memoryService.mapIO(pages));
     auto prdPhysical = reinterpret_cast<uint32_t>(memoryService.getPhysicalAddress(prdVirtual));
 
     // Allocate memory for the DMA transfer
-    auto dmaMemoryVirtual = reinterpret_cast<uint32_t*>(memoryService.mapIO(size));
+    auto dmaMemoryVirtual = reinterpret_cast<uint32_t*>(memoryService.mapIO(pages));
     auto dmaMemoryPhysical = reinterpret_cast<uint32_t>(memoryService.getPhysicalAddress(dmaMemoryVirtual));
 
     if (mode == WRITE) {

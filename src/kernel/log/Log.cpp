@@ -31,6 +31,7 @@ Util::HashMap<Util::Io::OutputStream*, Util::Io::PrintStream*> Log::streamMap{};
 Util::ArrayList<Util::String> Log::buffer{};
 Device::SimpleSerialPort *Log::serial = nullptr;
 bool Log::serialChecked = false;
+bool Log::earlySerialLoggingEnabled = false;
 
 void Log::setLevel(Level level) {
     Log::level = level;
@@ -59,6 +60,10 @@ void Log::removeOutputStream(Util::Io::OutputStream &stream) {
     lock.release();
 }
 
+void Log::disableEarlySerialLogging() {
+    earlySerialLoggingEnabled = false;
+}
+
 void Log::log(const Record &record, const char *message...) {
     if (isMemoryManagementInitialized()) {
         if (record.level < level) {
@@ -73,21 +78,21 @@ void Log::log(const Record &record, const char *message...) {
         uint32_t seconds = millis / 1000;
         uint32_t fraction = millis % 1000;
 
-        const auto logMessage = Util::String::format("%s[%u.%03u]%s[%s]%s[%s:%s] %s",
+        const auto logMessage = Util::String::format("%s[%u.%03u]%s[%s]%s[%s:%s] %s%s",
                  Util::Graphic::Ansi::FOREGROUND_CYAN, seconds, fraction, getColor(record.level), getLevelAsString(record.level),
-                 Util::Graphic::Ansi::FOREGROUND_DEFAULT, extractFileName(record.file), record.line,
-                 static_cast<const char*>(Util::String::vformat((char *) message, args)));
+                 Util::Graphic::Ansi::FOREGROUND_MAGENTA, extractFileName(record.file), record.line,
+                 Util::Graphic::Ansi::FOREGROUND_DEFAULT, static_cast<const char*>(Util::String::vformat((char *) message, args)));
 
         buffer.add(logMessage);
 
-        if (streamMap.size() == 0) {
+        if (earlySerialLoggingEnabled) {
             writeStringEarly(static_cast<const char*>(logMessage));
             writeStringEarly("\n");
-        } else {
-            for (auto *stream : streamMap.keys()) {
-                auto &printStream= *streamMap.get(stream);
-                printStream << logMessage << Util::Io::PrintStream::endl;
-            }
+        }
+
+        for (auto *stream : streamMap.keys()) {
+            auto &printStream = *streamMap.get(stream);
+            printStream << logMessage << Util::Io::PrintStream::endl;
         }
 
         lock.release();
@@ -106,13 +111,14 @@ void Log::logEarly(const Log::Record &record, const char *message) {
     writeStringEarly("[");
     writeStringEarly(getLevelAsString(record.level));
     writeStringEarly("]");
-    writeStringEarly(Util::Graphic::Ansi::FOREGROUND_DEFAULT);
+    writeStringEarly(Util::Graphic::Ansi::FOREGROUND_MAGENTA);
     writeStringEarly("[");
     writeStringEarly(extractFileName(record.file));
     writeStringEarly(":");
     writeStringEarly(record.line);
     writeStringEarly("] ");
 
+    writeStringEarly(Util::Graphic::Ansi::FOREGROUND_DEFAULT);
     writeStringEarly(message);
     writeStringEarly("\n");
 }
@@ -121,10 +127,10 @@ void Log::logEarlyWithHeap(const Log::Record &record, const char *message, ...) 
     va_list args;
     va_start(args, message);
 
-    const auto logMessage = Util::String::format("%s[%u.%03u]%s[%s]%s[%s:%s] %s\n",
-                 Util::Graphic::Ansi::FOREGROUND_CYAN, 0, 0, getColor(record.level), getLevelAsString(record.level),
-                 Util::Graphic::Ansi::FOREGROUND_DEFAULT, extractFileName(record.file), record.line,
-                 static_cast<const char*>(Util::String::vformat((char *) message, args)));
+    const auto logMessage = Util::String::format("%s[%u.%03u]%s[%s]%s[%s:%s] %s%s\n",
+             Util::Graphic::Ansi::FOREGROUND_CYAN, 0, 0, getColor(record.level), getLevelAsString(record.level),
+             Util::Graphic::Ansi::FOREGROUND_MAGENTA, extractFileName(record.file), record.line,
+             Util::Graphic::Ansi::FOREGROUND_DEFAULT, static_cast<const char*>(Util::String::vformat((char *) message, args)));
 
     writeStringEarly(static_cast<const char*>(logMessage));
 
@@ -136,8 +142,19 @@ void Log::writeStringEarly(const char *string) {
         if (Device::SerialPort::checkPort(Device::Serial::COM1)) {
             static auto serial = Device::SimpleSerialPort(Device::Serial::COM1);
             Kernel::Log::serial = &serial;
-            serialChecked = true;
+        } else if (Device::SerialPort::checkPort(Device::Serial::COM2)) {
+            static auto serial = Device::SimpleSerialPort(Device::Serial::COM2);
+            Kernel::Log::serial = &serial;
+        } else if (Device::SerialPort::checkPort(Device::Serial::COM3)) {
+            static auto serial = Device::SimpleSerialPort(Device::Serial::COM3);
+            Kernel::Log::serial = &serial;
+        } else if (Device::SerialPort::checkPort(Device::Serial::COM4)) {
+            static auto serial = Device::SimpleSerialPort(Device::Serial::COM4);
+            Kernel::Log::serial = &serial;
         }
+
+        earlySerialLoggingEnabled = (serial != nullptr);
+        serialChecked = true;
     }
 
     if (serial == nullptr) {

@@ -48,7 +48,7 @@ public:
      * Constructor for user address space.
      * The heap always starts at 0x2000.
      */
-    explicit VirtualAddressSpace(const Kernel::Paging::Table &basePageDirectory);
+    explicit VirtualAddressSpace();
 
     /**
      * Copy constructor.

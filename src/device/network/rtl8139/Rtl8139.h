@@ -25,6 +25,7 @@
 #include "kernel/interrupt/InterruptHandler.h"
 #include "device/cpu/IoPort.h"
 #include "lib/util/network/MacAddress.h"
+#include "lib/util/base/Constants.h"
 
 namespace Kernel {
 class Logger;
@@ -160,6 +161,7 @@ private:
     static const constexpr uint16_t VENDOR_ID = 0x10ec;
     static const constexpr uint16_t DEVICE_ID = 0x8139;
     static const constexpr uint32_t BUFFER_SIZE = 8 * 1024 + 16 + 1500;
+    static const constexpr uint32_t BUFFER_PAGES = BUFFER_SIZE % Util::PAGESIZE == 0 ? (BUFFER_SIZE / Util::PAGESIZE) : (BUFFER_SIZE / Util::PAGESIZE + 1);
     static const constexpr uint8_t TRANSMIT_DESCRIPTOR_COUNT = 4;
 };
 

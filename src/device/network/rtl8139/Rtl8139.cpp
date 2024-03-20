@@ -64,7 +64,7 @@ Rtl8139::Rtl8139(const PciDevice &pciDevice) : pciDevice(pciDevice) {
 
     LOG_INFO("Configuring receive buffer");
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    receiveBuffer = static_cast<uint8_t*>(memoryService.mapIO(BUFFER_SIZE));
+    receiveBuffer = static_cast<uint8_t*>(memoryService.mapIO(BUFFER_PAGES));
 
     auto physicalReceiveBufferAddress = reinterpret_cast<uint32_t>(memoryService.getPhysicalAddress(receiveBuffer));
     baseRegister.writeDoubleWord(RECEIVE_BUFFER_START, physicalReceiveBufferAddress);

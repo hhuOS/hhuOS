@@ -24,11 +24,12 @@
 #include "lib/util/graphic/Color.h"
 #include "lib/util/base/String.h"
 #include "lib/util/base/Address.h"
+#include "lib/util/base/Constants.h"
 
 namespace Util::Graphic {
 
 LinearFrameBuffer::LinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch, bool enableAcceleration) :
-        buffer(enableAcceleration ? Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(mapIO(reinterpret_cast<void*>(physicalAddress), pitch * resolutionY)), useMmx) : new Address<uint32_t>(mapIO(reinterpret_cast<void*>(physicalAddress), pitch * resolutionY))),
+        buffer(mapBuffer(reinterpret_cast<void*>(physicalAddress), resolutionY, pitch, enableAcceleration, useMmx)),
         resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
 
 LinearFrameBuffer::LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch, bool enableAcceleration) :
@@ -107,7 +108,7 @@ LinearFrameBuffer::LinearFrameBuffer(Io::File &file, bool enableAcceleration) {
     resolutionY = Util::String::parseInt(reinterpret_cast<const char*>(yBuffer));
     colorDepth = Util::String::parseInt(reinterpret_cast<const char*>(bppBuffer));
     pitch = Util::String::parseInt(reinterpret_cast<const char*>(pitchBuffer));
-    buffer = enableAcceleration ? Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(mapIO(reinterpret_cast<void*>(address), pitch * resolutionY)), useMmx) : new Address<uint32_t>(mapIO(reinterpret_cast<void*>(address), pitch * resolutionY));
+    buffer = mapBuffer(reinterpret_cast<void *>(address), resolutionY, pitch, enableAcceleration, useMmx);
 }
 
 LinearFrameBuffer::~LinearFrameBuffer() {
@@ -150,6 +151,23 @@ void LinearFrameBuffer::clear() const {
     buffer->setRange(0, getPitch() * getResolutionY());
     if (useMmx) {
         Math::endMmx();
+    }
+}
+
+Address<uint32_t>* LinearFrameBuffer::mapBuffer(void *physicalAddress, uint16_t resolutionY, uint16_t pitch, bool enableAcceleration, bool &useMmx) {
+    if (reinterpret_cast<uint32_t>(physicalAddress) % Util::PAGESIZE != 0) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "LinearFrameBuffer: Physical address is not page aligned!");
+    }
+
+    const auto size = resolutionY * pitch;
+    const auto pageCount = size % Util::PAGESIZE == 0 ? (size / Util::PAGESIZE) : (size / Util::PAGESIZE) + 1;
+    void *virtualAddress = mapIO(physicalAddress, pageCount);
+
+    if (enableAcceleration) {
+        return Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(virtualAddress), useMmx);
+    } else {
+        useMmx = false;
+        return new Address<uint32_t>(virtualAddress);
     }
 }
 

@@ -127,6 +127,8 @@ public:
 
 private:
 
+    static Address<uint32_t>* mapBuffer(void *physicalAddress, uint16_t resolutionY, uint16_t pitch, bool enableAcceleration, bool &useMmx);
+
     bool useMmx = false;
     Address<uint32_t> *buffer = nullptr;
 

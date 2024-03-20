@@ -60,7 +60,7 @@ public:
      * Entry point for the operating system.
      * This method is invoked by the main() method, after boot strapping process is finished an paging is initializeAvailableControllers.
      */
-    [[noreturn]] static void enter(uint32_t multibootMagic, const Kernel::Multiboot &multiboot);
+    [[noreturn]] static void enter(uint32_t multibootMagic, const Kernel::Multiboot *multiboot);
 
     static uint32_t createInitialMapping(Kernel::Paging::Table &pageDirectory, Kernel::Paging::Table *pageTableMemory, uint32_t physicalStartAddress, uint32_t virtualStartAddress, uint32_t pageCount);
 

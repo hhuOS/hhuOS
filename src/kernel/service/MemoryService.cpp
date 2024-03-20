@@ -255,7 +255,7 @@ void* MemoryService::getPhysicalAddress(void *virtualAddress) {
 }
 
 VirtualAddressSpace& MemoryService::createAddressSpace() {
-    auto addressSpace = new VirtualAddressSpace(kernelAddressSpace.getPageDirectory());
+    auto addressSpace = new VirtualAddressSpace();
     addressSpaces.add(addressSpace);
 
     return *addressSpace;

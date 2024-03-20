@@ -260,10 +260,6 @@ public:
 
     [[nodiscard]] Util::String getBootloaderName() const;
 
-    [[nodiscard]] FramebufferInfo getFrameBufferInfo() const;
-
-    [[nodiscard]] Util::Array<MemoryMapEntry> getMemoryMap() const;
-
     [[nodiscard]] bool hasKernelOption(const Util::String &key) const;
 
     [[nodiscard]] Util::String getKernelOption(const Util::String &key) const;
