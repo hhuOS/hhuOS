@@ -89,8 +89,8 @@ const uint32_t KERNEL_DATA_END = reinterpret_cast<uint32_t>(&___KERNEL_DATA_END_
 const uint32_t WRITE_PROTECTED_START = reinterpret_cast<uint32_t>(&___WRITE_PROTECTED_START__);
 const uint32_t WRITE_PROTECTED_END = reinterpret_cast<uint32_t>(&___WRITE_PROTECTED_END__);
 
-const constexpr uint32_t INITIAL_PAGING_AREA_SIZE = 128 * 1024;
-const constexpr uint32_t INITIAL_KERNEL_HEAP_SIZE = 128 * 1024;
+const constexpr uint32_t INITIAL_PAGING_AREA_SIZE = 256 * 1024;
+const constexpr uint32_t INITIAL_KERNEL_HEAP_SIZE = 32 * 1024;
 
 extern "C" {
     void _init();
@@ -184,12 +184,6 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     // Page tables will be allocated in bootstrap memory, directly after the page directory
     auto *pageTableMemory = reinterpret_cast<Kernel::Paging::Table*>(pagingAreaPhysical + sizeof(Kernel::Paging::Table));
 
-    // Create identity mapping for lower memory (1 MiB), used for ISA DMA and BIOS related stuff
-    // Depending on the system and bootloader, this may be necessary to initialize ACPI and SMBIOS data structures.
-    // This also necessary to boot application processors on multicore systems, since the real mode boot code
-    // must be located somewhere in the lower memory area.
-    pageTableMemory += createInitialMapping(*pageDirectory, pageTableMemory, 0x00000000, 0x00000000, 256);
-
     // Create identity mapping for kernel
     const auto kernelSize = Util::Address<uint32_t>(KERNEL_DATA_END - KERNEL_DATA_START).alignUp(Kernel::Paging::PAGESIZE).get();
     pageTableMemory += createInitialMapping(*pageDirectory, pageTableMemory, KERNEL_DATA_START, KERNEL_DATA_START, kernelSize / Kernel::Paging::PAGESIZE);
@@ -245,8 +239,6 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     // Initialize page frame allocator -> Manages physical memory
     LOG_INFO("Initializing page frame allocator");
     auto *pageFrameAllocator = new Kernel::PageFrameAllocator(*pagingAreaManager, nullptr, reinterpret_cast<uint8_t*>(physicalMemoryLimit - 1));
-    // Reserve low memory (used by BIOS and ISA devices)
-    pageFrameAllocator->setMemory(nullptr, reinterpret_cast<uint8_t*>(0x100000), 0, true);
     // Reserve kernel
     pageFrameAllocator->setMemory(reinterpret_cast<uint8_t*>(KERNEL_DATA_START), reinterpret_cast<uint8_t *>(KERNEL_DATA_START + kernelSize), 0, true);
     // Mark mapped kernel heap and paging area memory as used
@@ -280,11 +272,15 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     // which means, that we can fully use the kernel heap
     Kernel::Service::registerService(Kernel::MemoryService::SERVICE_ID, memoryService);
     LOG_INFO("Welcome to hhuOS!");
+    LOG_INFO("Used kernel heap memory during early boot process: [%u Byte]", kernelHeapManager.getTotalMemory() - kernelHeapManager.getFreeMemory());
 
     LOG_INFO("Creating remaining mappings, needed for booting");
-    // Identity map lower memory (1 MiB), used for ISA DMA and BIOS related stuff
+    // Identity map BIOS related parts of the lower 1 MiB
     // Depending on the system and bootloader, this may be necessary to initialize ACPI and SMBIOS data structures
-    memoryService->mapPhysical(nullptr, nullptr, 256, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
+    // The startup code for application processors is also located there
+    memoryService->mapPhysical(nullptr, nullptr, Kernel::MemoryLayout::USABLE_LOWER_MEMORY.startAddress / Kernel::Paging::PAGESIZE, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
+    memoryService->mapPhysical(reinterpret_cast<void*>(Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1), reinterpret_cast<void*>(Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1),
+                               (KERNEL_DATA_START - (Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1)) / Kernel::Paging::PAGESIZE, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
 
     // Detect CPU features
     if (Util::Hardware::CpuId::isAvailable()) {
@@ -307,6 +303,12 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     const auto *multibootVirtualAddress = static_cast<const uint8_t*>(memoryService->mapIO(const_cast<void*>(reinterpret_cast<const void*>(multiboot)), multibootPages, true)) + multibootPageOffset;
     multiboot = reinterpret_cast<const Kernel::Multiboot*>(multibootVirtualAddress);
     LOG_INFO("Bootloader: [%s], Multiboot size: [%u Byte]", static_cast<const char*>(multiboot->getBootloaderName()), multiboot->getSize());
+
+    // Set log level
+    if (multiboot->hasKernelOption("log_level")) {
+        const auto level = multiboot->getKernelOption("log_level");
+        Kernel::Log::setLevel(level);
+    }
 
     const auto tagTypes = multiboot->getAvailableTagTypes();
     Util::String tagString;
@@ -445,8 +447,13 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     for (const auto &name : multiboot->getModuleNames()) {
         if (name.beginsWith("vdd")) {
             auto &module = multiboot->getModule(name);
-            auto sectorCount = (module.endAddress - module.startAddress) / 512;
-            auto *device = new Device::Storage::VirtualDiskDrive(reinterpret_cast<uint8_t*>(module.startAddress), 512, sectorCount);
+            const auto sectorCount = (module.endAddress - module.startAddress) / 512;
+            const auto modulePageOffset = module.startAddress % Kernel::Paging::PAGESIZE;
+            const auto moduleSize = module.endAddress - module.startAddress;
+            const auto modulePageCount = moduleSize % Kernel::Paging::PAGESIZE == 0 ? (moduleSize / Kernel::Paging::PAGESIZE) : (moduleSize / Kernel::Paging::PAGESIZE) + 1;
+
+            auto *moduleVirtualAddress = memoryService->mapIO(reinterpret_cast<void*>(module.startAddress), modulePageCount);
+            auto *device = new Device::Storage::VirtualDiskDrive(static_cast<uint8_t*>(moduleVirtualAddress) + modulePageOffset, 512, sectorCount);
 
             storageService->registerDevice(device, "vdd");
         }
@@ -556,7 +563,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
             }
 
             auto *stream = new Util::Io::FileOutputStream(file);
-            Kernel::Log::addOutputStream(*stream);
+            Kernel::Log::addOutputStream(*stream, Util::String(Device::Serial::portToString(Kernel::Log::getEarlyLogSerialPort().getPort())) != port.toUpperCase());
         }
     }
 

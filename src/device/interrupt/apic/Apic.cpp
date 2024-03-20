@@ -397,7 +397,7 @@ uint8_t** Apic::prepareApplicationProcessorStacks() {
 
     // Allocate the stacks
     for (uint32_t i = 0; i < localApics.size() - 1; ++i) {
-        stacks[i] = new uint8_t[applicationProcessorStackSize];
+        stacks[i] = new uint8_t[AP_STACK_SIZE];
     }
 
     return stacks;
@@ -409,14 +409,10 @@ void Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
     }
 
     // Prepare the empty variables in the startup routine at their original location
-    asm volatile("sidt %0"
-            : "=m"(boot_ap_idtr));
-    asm volatile("mov %%cr0, %%eax;"
-            : "=a"(boot_ap_cr0));
-    asm volatile("mov %%cr3, %%eax;"
-            : "=a"(boot_ap_cr3));
-    asm volatile("mov %%cr4, %%eax;"
-            : "=a"(boot_ap_cr4));
+    asm volatile("sidt %0" : "=m"(boot_ap_idtr));
+    asm volatile("mov %%cr0, %%eax;" : "=a"(boot_ap_cr0));
+    asm volatile("mov %%cr3, %%eax;" : "=a"(boot_ap_cr3));
+    asm volatile("mov %%cr4, %%eax;" : "=a"(boot_ap_cr4));
     boot_ap_counter = reinterpret_cast<uint32_t>(&initializedApplicationProcessorsCounter);
     boot_ap_gdts = reinterpret_cast<uint32_t>(gdts);
     boot_ap_stacks = reinterpret_cast<uint32_t>(stacks);
@@ -436,18 +432,13 @@ void Apic::prepareApplicationProcessorWarmReset() {
 }
 
 Kernel::GlobalDescriptorTable::Descriptor** Apic::prepareApplicationProcessorGdts() {
-    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-
     // Allocate descriptor pointer array
     auto **gdts = new Kernel::GlobalDescriptorTable::Descriptor*[localApics.size() - 1]{}; // Skip BSP
 
     // Create GDTs for each core
     for (uint32_t i = 0; i < localApics.size() - 1; ++i) {
-        auto *gdtMem = memoryService.allocateLowerMemory(sizeof(Kernel::GlobalDescriptorTable));
-        auto *tssMem = memoryService.allocateLowerMemory(sizeof(Kernel::GlobalDescriptorTable::TaskStateSegment));
-
-        auto *gdt = new (gdtMem) Kernel::GlobalDescriptorTable{};
-        auto *tss = new (tssMem) Kernel::GlobalDescriptorTable::TaskStateSegment{};
+        auto *gdt = new Kernel::GlobalDescriptorTable{};
+        auto *tss = new Kernel::GlobalDescriptorTable::TaskStateSegment{};
 
         gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x9a, 0x0c)); // Kernel code segment
         gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x92, 0x0c)); // Kernel data segment

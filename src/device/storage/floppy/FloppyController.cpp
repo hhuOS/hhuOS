@@ -340,11 +340,8 @@ void FloppyController::trigger(const Kernel::InterruptFrame &frame, Kernel::Inte
 }
 
 void FloppyController::prepareDma(FloppyDevice &device, Isa::TransferMode transferMode, void *dmaMemory, uint8_t sectorCount) {
-    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    auto *physicalAddress = memoryService.getPhysicalAddress(dmaMemory);
-
     Isa::selectChannel(2);
-    Isa::setAddress(2, static_cast<const uint8_t*>(physicalAddress));
+    Isa::setAddress(2, static_cast<const uint8_t*>(dmaMemory));
     Isa::setCount(2, static_cast<uint16_t>(device.getSectorSize() * sectorCount - 1));
     Isa::setMode(2, transferMode, false, false, Isa::SINGLE_TRANSFER);
     Isa::deselectChannel(2);
@@ -370,19 +367,22 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::Transfe
     }
 
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    void *dmaMemory = memoryService.allocateLowerMemory(sectorCount * device.getSectorSize(), Isa::MAX_DMA_PAGESIZE);
+    const auto dmaSize = sectorCount * device.getSectorSize();
+    const auto dmaPages = dmaSize % Util::PAGESIZE == 0 ? (dmaSize / Util::PAGESIZE) : (dmaSize / Util::PAGESIZE) + 1;
+    void *dmaMemory = memoryService.allocateLowerMemory(dmaPages);
+    void *physicalDmaAddress = memoryService.getPhysicalAddress(dmaMemory);
     bool success = false;
 
     if (mode == WRITE) {
         auto sourceAddress = Util::Address<uint32_t>(buffer);
-        auto targetAddress = Util::Address<uint32_t>(dmaMemory);
+        auto targetAddress = Util::Address<uint32_t>(physicalDmaAddress);
         targetAddress.copyRange(sourceAddress, sectorCount * device.getSectorSize());
     }
 
     setMotorState(device, ON);
     for (uint8_t i = 0; i < RETRY_COUNT; i++) {
         receivedInterrupt = false;
-        prepareDma(device, mode == WRITE ? Isa::READ : Isa::WRITE, dmaMemory, sectorCount);
+        prepareDma(device, mode == WRITE ? Isa::READ : Isa::WRITE, physicalDmaAddress, sectorCount);
 
         writeFifoByte((mode == WRITE ? WRITE_DATA : READ_DATA) | MULTITRACK | MFM);
         writeFifoByte(device.getDriveNumber() | (head << 2u));
@@ -432,7 +432,7 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::Transfe
     }
 
     setMotorState(device, OFF);
-    memoryService.freeLowerMemory(dmaMemory);
+    delete reinterpret_cast<uint8_t*>(dmaMemory);
 
     ioLock.release();
     return success;

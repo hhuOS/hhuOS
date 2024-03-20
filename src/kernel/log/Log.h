@@ -79,13 +79,17 @@ public:
 
     static void setLevel(Level level);
 
-    static void addOutputStream(Util::Io::OutputStream &stream);
+    static void setLevel(const Util::String &level);
+
+    static void addOutputStream(Util::Io::OutputStream &stream, bool append = true);
 
     static void removeOutputStream(Util::Io::OutputStream &stream);
 
     static void disableEarlySerialLogging();
 
     static void log(const Record &record, const char *message...);
+
+    static const Device::SimpleSerialPort& getEarlyLogSerialPort();
 
 private:
 

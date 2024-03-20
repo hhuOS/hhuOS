@@ -41,9 +41,6 @@ MemoryService::MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaM
         : pageFrameAllocator(*pageFrameAllocator), pagingAreaManager(*pagingAreaManager), currentAddressSpace(kernelAddressSpace), kernelAddressSpace(*kernelAddressSpace) {
     addressSpaces.add(kernelAddressSpace);
 
-    lowerMemoryManager.initialize(reinterpret_cast<uint8_t*>(MemoryLayout::USABLE_LOWER_MEMORY.startAddress), reinterpret_cast<uint8_t*>(MemoryLayout::USABLE_LOWER_MEMORY.endAddress));
-    lowerMemoryManager.disableAutomaticUnmapping();
-
     SystemCall::registerSystemCall(Util::System::UNMAP, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 2) {
             return false;
@@ -109,20 +106,37 @@ void MemoryService::freeUserMemory(void *pointer, uint32_t alignment) {
     currentAddressSpace->getMemoryManager().freeMemory(pointer, alignment);
 }
 
-void *MemoryService::allocateLowerMemory(uint32_t size, uint32_t alignment) {
-    return lowerMemoryManager.allocateMemory(size, alignment);
+void* MemoryService::allocateLowerMemory(uint32_t pageCount) {
+    // Allocate memory below 16 MiB
+    void *physicalAddress = allocatePhysicalMemory(pageCount, nullptr);
+    if (reinterpret_cast<uint32_t>(physicalAddress) >= Device::Isa::MAX_DMA_ADDRESS) {
+        freePhysicalMemory(physicalAddress, pageCount);
+        return nullptr;
+    }
+
+    // Allocate page aligned virtual memory
+    auto &manager = kernelAddressSpace.getMemoryManager();
+    void *virtualAddress = manager.allocateMemory(pageCount * Kernel::Paging::PAGESIZE, Kernel::Paging::PAGESIZE);
+
+    // Create mapping
+    uint32_t flags = Paging::PRESENT | Paging::WRITABLE;
+
+    for (uint32_t i = 0; i < pageCount; i++) {
+        void *currentPhysicalAddress = reinterpret_cast<uint8_t*>(physicalAddress) + i * Kernel::Paging::PAGESIZE;
+        void *currentVirtualAddress = reinterpret_cast<uint8_t*>(virtualAddress) + i * Kernel::Paging::PAGESIZE;
+
+        // If the virtual address is already mapped, we have to unmap it.
+        // This can happen because the headers of the free list are mapped to arbitrary physical addresses, but the memory should be mapped to the given physical addresses.
+        unmap(currentVirtualAddress, 1);
+        // Map the page into the current address space
+        currentAddressSpace->map(currentPhysicalAddress, currentVirtualAddress, flags);
+    }
+
+    return virtualAddress;
 }
 
-void *MemoryService::reallocateLowerMemory(void *pointer, uint32_t size, uint32_t alignment) {
-    return lowerMemoryManager.reallocateMemory(pointer, size, alignment);
-}
-
-void MemoryService::freeLowerMemory(void *pointer, uint32_t alignment) {
-    lowerMemoryManager.freeMemory(pointer, alignment);
-}
-
-void* MemoryService::allocatePhysicalMemory(uint32_t frameCount) {
-    void *physicalStartAddress = pageFrameAllocator.allocateBlock();
+void* MemoryService::allocatePhysicalMemory(uint32_t frameCount, void *startAddress) {
+    void *physicalStartAddress = pageFrameAllocator.allocateBlockAfterAddress(startAddress);
     void *currentPhysicalAddress = physicalStartAddress;
     void *lastPhysicalAddress;
     bool contiguous;
@@ -225,7 +239,7 @@ void Kernel::MemoryService::mapPhysical(void *physicalAddress, void *virtualAddr
         // This can happen because the headers of the free list are mapped to arbitrary physical addresses, but the memory should be mapped to the given physical addresses.
         unmap(currentVirtualAddress, 1);
         // Mark the physical page frame as used
-        physicalAddress = pageFrameAllocator.allocateBlockAtAddress(physicalAddress);
+        currentPhysicalAddress = pageFrameAllocator.allocateBlockAtAddress(currentPhysicalAddress);
         // Map the page into the current address space
         currentAddressSpace->map(currentPhysicalAddress, currentVirtualAddress, flags);
     }
@@ -244,7 +258,7 @@ void *Kernel::MemoryService::mapIO(void *physicalAddress, uint32_t pageCount, bo
     void *virtualAddress = manager.allocateMemory(pageCount * Kernel::Paging::PAGESIZE, Kernel::Paging::PAGESIZE);
 
     // Create mapping
-    uint32_t flags = Paging::PRESENT | Paging::WRITABLE | Paging::CACHE_DISABLE | (reinterpret_cast<uint32_t>(virtualAddress) < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESSIBLE : 0);
+    uint32_t flags = Paging::PRESENT | Paging::WRITABLE | (reinterpret_cast<uint32_t>(virtualAddress) < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESSIBLE : 0);
     mapPhysical(physicalAddress, virtualAddress, pageCount, flags);
 
     return virtualAddress;
@@ -301,7 +315,6 @@ void MemoryService::handlePageFault(uint32_t errorCode) {
 
 MemoryService::MemoryStatus MemoryService::getMemoryStatus() {
     return {pageFrameAllocator.getTotalMemory(), pageFrameAllocator.getFreeMemory(),
-            lowerMemoryManager.getTotalMemory(), lowerMemoryManager.getFreeMemory(),
             kernelAddressSpace.getMemoryManager().getTotalMemory(), kernelAddressSpace.getMemoryManager().getFreeMemory(),
             pagingAreaManager.getTotalMemory(), pagingAreaManager.getFreeMemory()};
 }

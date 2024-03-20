@@ -68,7 +68,7 @@ SoundBlaster::SoundBlaster(uint16_t baseAddress, uint8_t irqNumber, uint8_t dmaC
 }
 
 SoundBlaster::~SoundBlaster() {
-    Kernel::Service::getService<Kernel::MemoryService>().freeLowerMemory(dmaBuffer);
+    delete dmaBuffer;
 }
 
 bool SoundBlaster::isAvailable() {
@@ -263,8 +263,8 @@ bool SoundBlaster::setAudioParameters(uint16_t sampleRate, uint8_t channels, uin
         dmaBufferSize = Isa::MAX_DMA_PAGESIZE;
     }
 
-    memoryService.freeLowerMemory(dmaBuffer);
-    dmaBuffer = static_cast<uint8_t*>(memoryService.allocateLowerMemory(dmaBufferSize, Isa::MAX_DMA_PAGESIZE));
+    delete dmaBuffer;
+    dmaBuffer = static_cast<uint8_t*>(memoryService.allocateLowerMemory(dmaBufferSize));
     physicalDmaAddress = static_cast<uint8_t*>(memoryService.getPhysicalAddress(dmaBuffer));
 
     runnable->adjustInputStreamBuffer(sampleRate, channels, bitsPerSample);

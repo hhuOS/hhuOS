@@ -126,7 +126,7 @@ void Isa::setAddress(uint8_t channel, const uint8_t *address) {
     resetFlipFlop(channel);
     startAddressRegisters[channel].writeByte(reinterpret_cast<uint32_t>(address) & 0x000000ffu);
     startAddressRegisters[channel].writeByte((reinterpret_cast<uint32_t>(address) >> 8u) & 0x000000ffu);
-    pageAddressRegisters[channel].writeByte((reinterpret_cast<uint32_t>(address) >> 16u) & 0x0000000fu);
+    pageAddressRegisters[channel].writeByte((reinterpret_cast<uint32_t>(address) >> 16u) & 0x000000ffu);
 }
 
 void Isa::setCount(uint8_t channel, uint16_t count) {
