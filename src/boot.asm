@@ -85,12 +85,6 @@ MULTIBOOT2_TAG_FLAG_OPTIONAL equ 0x01
 MULTIBOOT2_CONSOLE_FLAG_FORCE_TEXT_MODE equ 0x01
 MULTIBOOT2_CONSOLE_FLAG_SUPPORT_TEXT_MODE equ 0x02
 
-; Multiboot2 framebuffer options
-MULTIBOOT2_GRAPHICS_MODE   equ 0
-MULTIBOOT2_GRAPHICS_WIDTH  equ 800
-MULTIBOOT2_GRAPHICS_HEIGHT equ 600
-MULTIBOOT2_GRAPHICS_BPP    equ 32
-
 [SECTION .text]
 [BITS 32]
 
@@ -119,6 +113,13 @@ multiboot2_header:
     dd 12
     dd (boot)
 
+    ; Flags tag
+    align 8
+    dw MULTIBOOT2_TAG_FLAGS
+    dw MULTIBOOT2_TAG_FLAG_OPTIONAL
+    dd 12
+    dd MULTIBOOT2_CONSOLE_FLAG_SUPPORT_TEXT_MODE
+
     ; Information request tag (required)
     align 8
     dw MULTIBOOT2_TAG_INFORMATION_REQUEST
@@ -139,14 +140,14 @@ multiboot2_header:
     dd MULTIBOOT2_REQUEST_ACPI_OLD_RSDP
     dd MULTIBOOT2_REQUEST_ACPI_NEW_RSDP
 
-    ; Framebuffer tag
+    ; Framebuffer tag (Delete to let GRUB boot in CGA text mode)
     align 8
     dw MULTIBOOT2_TAG_FRAMEBUFFER
     dw MULTIBOOT2_TAG_FLAG_OPTIONAL
     dd 20
-    dd MULTIBOOT2_GRAPHICS_WIDTH
-    dd MULTIBOOT2_GRAPHICS_HEIGHT
-    dd MULTIBOOT2_GRAPHICS_BPP
+    dd 800
+    dd 600
+    dd 32
 
     ; Module alignment tag
     align 8

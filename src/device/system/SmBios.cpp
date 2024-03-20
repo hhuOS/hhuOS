@@ -40,7 +40,12 @@ SmBios::SmBios() {
         auto tableSize = static_cast<uint16_t>(tag.header.size - 16);
         auto tableAddress = tableSize == 0 ? nullptr : reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(tag.tables);
         smBiosInformation = { tag.majorVersion, tag.minorVersion, tableAddress, tableSize };
-        LOG_INFO("SMBIOS version: [%u.%u]", smBiosInformation.majorVersion, smBiosInformation.minorVersion);
+
+        if (smBiosInformation.tableAddress == nullptr) {
+            LOG_ERROR("Invalid multiboot SMBIOS tag -> Falling back to manual search");
+        } else {
+            LOG_INFO("SMBIOS version: [%u.%u]", smBiosInformation.majorVersion, smBiosInformation.minorVersion);
+        }
     }
 
     if (smBiosInformation.tableAddress == nullptr) {
@@ -88,7 +93,7 @@ bool SmBios::hasTable(Util::Hardware::SmBios::HeaderType headerType) const {
 }
 
 Util::Array<Util::Hardware::SmBios::HeaderType> SmBios::getAvailableTables() const {
-    if (smBiosInformation.tableAddress == 0) {
+    if (smBiosInformation.tableAddress == nullptr) {
         return Util::Array<Util::Hardware::SmBios::HeaderType>(0);
     }
 

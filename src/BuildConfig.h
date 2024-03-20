@@ -18,9 +18,6 @@
 #ifndef HHUOS_BUILDCONFIG_H
 #define HHUOS_BUILDCONFIG_H
 
-#define XSTRINGIFY(a) STRINGIFY(a)
-#define STRINGIFY(a) #a
-
 class BuildConfig {
 
 public:

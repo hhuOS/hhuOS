@@ -40,9 +40,9 @@ class ProcessService : public Service {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    ProcessService();
+    ProcessService(Process *kernelProcess);
 
     /**
      * Copy Constructor.
@@ -83,7 +83,7 @@ private:
 
     Util::ArrayList<Process*> processList;
     Util::Async::Spinlock lock;
-    Process &kernelProcess;
+    Process *kernelProcess;
 };
 
 }

@@ -129,7 +129,7 @@ uint64_t Device::FirmwareConfiguration::performDmaAccess(Device::FirmwareConfigu
     }
 
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    auto *dmaAccess = static_cast<DmaAccess*>(memoryService.mapIO(sizeof(DmaAccess)));
+    auto *dmaAccess = static_cast<DmaAccess*>(memoryService.mapIO(1));
     void *physicalDmaAccessAddress = memoryService.getPhysicalAddress(dmaAccess);
 
     // Select file

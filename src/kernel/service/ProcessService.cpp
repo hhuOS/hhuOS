@@ -37,7 +37,9 @@
 namespace Kernel {
 class VirtualAddressSpace;
 
-ProcessService::ProcessService() : kernelProcess(createProcess(Service::getService<MemoryService>().getKernelAddressSpace(), "Kernel", Util::Io::File("/"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"))) {
+ProcessService::ProcessService(Process *kernelProcess) : kernelProcess(kernelProcess) {
+    processList.add(kernelProcess);
+
     SystemCall::registerSystemCall(Util::System::EXIT_PROCESS, [](uint32_t paramCount, va_list arguments) -> bool {
         auto &processService = Service::getService<ProcessService>();
         int32_t exitCode = paramCount >=1 ? va_arg(arguments, int32_t) : 0;
@@ -162,7 +164,7 @@ void ProcessService::killProcess(Process &process) {
 Process& ProcessService::getCurrentProcess() {
     auto &schedulerService = Service::getService<SchedulerService>();
     if (!schedulerService.isSchedulerInitialized()) {
-        return kernelProcess;
+        return *kernelProcess;
     }
 
     return schedulerService.getCurrentThread().getParent();
@@ -208,7 +210,7 @@ Process* ProcessService::getProcess(uint32_t id) {
 }
 
 Process& ProcessService::getKernelProcess() const {
-    return kernelProcess;
+    return *kernelProcess;
 }
 
 Util::Array<uint32_t> ProcessService::getActiveProcessIds() const {

@@ -72,8 +72,8 @@ bool isMemoryManagementInitialized() {
     return Kernel::Service::isServiceRegistered(Kernel::MemoryService::SERVICE_ID);
 }
 
-void* mapIO(void *physicalAddress, uint32_t size) {
-    return Kernel::Service::getService<Kernel::MemoryService>().mapIO(physicalAddress, size, false);
+void* mapIO(void *physicalAddress, uint32_t pageCount) {
+    return Kernel::Service::getService<Kernel::MemoryService>().mapIO(physicalAddress, pageCount, false);
 }
 
 void unmap(void *virtualAddress, uint32_t pageCount, uint32_t breakCount) {
@@ -253,7 +253,7 @@ bool shutdown(Util::Hardware::Machine::ShutdownType type) {
 }
 
 void throwError(Util::Exception::Error error, const char *message) {
-    if (Kernel::Service::isServiceRegistered(Kernel::FilesystemService::SERVICE_ID)) {
+    if (Kernel::Service::isServiceRegistered(Kernel::SchedulerService::SERVICE_ID) && Kernel::Service::getService<Kernel::SchedulerService>().isSchedulerInitialized()) {
         Util::System::out << Util::Exception::getExceptionName(error) << ": " << message << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     } else {
         LOG_ERROR("%s: %s", Util::Exception::getExceptionName(error), message);

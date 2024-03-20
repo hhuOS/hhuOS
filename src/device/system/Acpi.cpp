@@ -34,7 +34,7 @@ Acpi::Acpi() {
     rsdp = findRsdp();
     if (rsdp != nullptr) {
         auto vendor = Util::String(reinterpret_cast<const uint8_t*>(rsdp->oemId), sizeof(Util::Hardware::Acpi::Rsdp::oemId));
-        LOG_INFO("ACPI vendor: [%s], ACPI version: [%s]", static_cast<const char*>(vendor), rsdp->revision == 0 ? "1.0" : ">=2.0");
+        LOG_INFO("ACPI vendor: [%s], ACPI version: [%s]", static_cast<const char*>(vendor.strip()), rsdp->revision == 0 ? "1.0" : ">=2.0");
 
         auto *rsdt = const_cast<Util::Hardware::Acpi::Rsdt*>(reinterpret_cast<const Util::Hardware::Acpi::Rsdt*>(mapSdt(reinterpret_cast<Util::Hardware::Acpi::SdtHeader*>(rsdp->rsdtAddress))));
 

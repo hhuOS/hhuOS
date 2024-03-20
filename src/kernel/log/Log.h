@@ -18,14 +18,16 @@
 #ifndef LOG_H
 #define LOG_H
 
-#define XSTRINGIFY(a) STRINGIFY(a)
-#define STRINGIFY(a) #a
+#include "lib/util/base/Constants.h"
 
-#define LOG_TRACE(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::TRACE, __FILE__, XSTRINGIFY(__LINE__) }, message)
-#define LOG_DEBUG(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::DEBUG, __FILE__, XSTRINGIFY(__LINE__) }, message)
-#define LOG_INFO(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::INFO, __FILE__, XSTRINGIFY(__LINE__) }, message)
-#define LOG_WARN(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::WARN, __FILE__, XSTRINGIFY(__LINE__) }, message)
-#define LOG_ERROR(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::ERROR, __FILE__, XSTRINGIFY(__LINE__) }, message)
+#define LOG_XSTRINGIFY(a) LOG_STRINGIFY(a)
+#define LOG_STRINGIFY(a) #a
+
+#define LOG_TRACE(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::TRACE, __FILE__, LOG_XSTRINGIFY(__LINE__) }, message)
+#define LOG_DEBUG(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::DEBUG, __FILE__, LOG_XSTRINGIFY(__LINE__) }, message)
+#define LOG_INFO(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::INFO, __FILE__, LOG_XSTRINGIFY(__LINE__) }, message)
+#define LOG_WARN(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::WARN, __FILE__, LOG_XSTRINGIFY(__LINE__) }, message)
+#define LOG_ERROR(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::ERROR, __FILE__, LOG_XSTRINGIFY(__LINE__) }, message)
 
 #include <cstdarg>
 #include "device/port/serial/SimpleSerialPort.h"
@@ -81,6 +83,8 @@ public:
 
     static void removeOutputStream(Util::Io::OutputStream &stream);
 
+    static void disableEarlySerialLogging();
+
     static void log(const Record &record, const char *message...);
 
 private:
@@ -105,6 +109,7 @@ private:
 
     static Device::SimpleSerialPort *serial;
     static bool serialChecked;
+    static bool earlySerialLoggingEnabled;
 
     static const constexpr char *LEVEL_TRACE = "TRC";
     static const constexpr char *LEVEL_DEBUG = "DBG";

@@ -321,7 +321,7 @@ private:
      */
     bool handleReadWriteError(FloppyDevice &device, uint8_t cylinder, uint8_t head);
 
-    bool receivedInterrupt = false;
+    volatile bool receivedInterrupt = false;
 
     Device::IoPort statusRegisterA;
     Device::IoPort statusRegisterB;

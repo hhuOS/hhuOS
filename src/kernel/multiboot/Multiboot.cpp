@@ -36,32 +36,6 @@ Util::String Multiboot::getBootloaderName() const {
     return getTag<BootLoaderName>(BOOT_LOADER_NAME).string;
 }
 
-Multiboot::FramebufferInfo Multiboot::getFrameBufferInfo() const {
-    if (!hasTag(FRAMEBUFFER_INFO)) {
-        return {};
-    }
-
-    return getTag<FramebufferInfo>(FRAMEBUFFER_INFO);
-}
-
-Util::Array<Multiboot::MemoryMapEntry> Multiboot::getMemoryMap() const {
-    if (!hasTag(MEMORY_MAP)) {
-        return Util::Array<MemoryMapEntry>(0);
-    }
-
-    const auto &memoryMapHeader = getTag<MemoryMapHeader>(MEMORY_MAP);
-    auto numEntries = (memoryMapHeader.tagHeader.size - sizeof(TagHeader)) / memoryMapHeader.entrySize;
-    auto memoryMap = Util::Array<MemoryMapEntry>(numEntries);
-
-    for (uint32_t i = 0; i < numEntries; i++) {
-        auto currentAddress = reinterpret_cast<uint32_t>(&memoryMapHeader) + sizeof(MemoryMapHeader) + i * memoryMapHeader.entrySize;
-        const auto &entry = *reinterpret_cast<const MemoryMapEntry*>(currentAddress);
-        memoryMap[i] = entry;
-    }
-
-    return memoryMap;
-}
-
 bool Multiboot::hasKernelOption(const Util::String &key) const {
     if (!hasTag(BOOT_COMMAND_LINE)) {
         return false;
