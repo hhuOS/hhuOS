@@ -55,7 +55,7 @@ void InterruptService::handleException(const InterruptFrame &frame, uint32_t err
     auto &processService = Service::getService<ProcessService>();
     if (processService.getCurrentProcess().isKernelProcess()) {
         Device::Cpu::disableInterrupts();
-        Util::Exception::throwException(static_cast<Util::Exception::Error>(vector), ": CPU exception!");
+        Util::Exception::throwException(static_cast<Util::Exception::Error>(vector), "CPU exception!");
         Device::Cpu::halt();
     }
 

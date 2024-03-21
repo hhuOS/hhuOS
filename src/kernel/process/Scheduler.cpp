@@ -28,6 +28,7 @@
 #include "lib/util/base/Exception.h"
 #include "lib/util/time/Timestamp.h"
 #include "kernel/log/Log.h"
+#include "kernel/service/InterruptService.h"
 
 namespace Kernel {
 
@@ -58,7 +59,7 @@ void Scheduler::setInit() {
     initialized = true;
 }
 
-bool Scheduler::isInitialized() {
+bool Scheduler::isInitialized() const {
     return initialized;
 }
 
@@ -85,9 +86,7 @@ void Scheduler::start() {
     auto *thread = readyQueue.poll();
     currentThread = thread;
 
-    auto *current = currentThread;
-
-    start_first_thread(current->getContext());
+    Thread::startFirstThread(*currentThread);
 }
 
 void Scheduler::ready(Thread &thread) {
@@ -157,7 +156,7 @@ void Scheduler::killWithoutLock(Thread &thread) {
     Service::getService<SchedulerService>().cleanup(&thread);
 }
 
-void Scheduler::yield() {
+void Scheduler::yield(bool interrupt) {
     if (!initialized) {
         return;
     }
@@ -178,8 +177,13 @@ void Scheduler::yield() {
         Device::Fpu::armFpuMonitor();
     }
 
-    Service::getService<MemoryService>().switchAddressSpace(next->getParent().getAddressSpace());
-    switch_context(&current->kernelContext, &next->kernelContext);
+    if (interrupt) {
+        auto &interruptService = Service::getService<InterruptService>();
+        auto vector = interruptService.usesApic() ? InterruptVector::APICTIMER : InterruptVector::PIT;
+        interruptService.sendEndOfInterrupt(vector);
+    }
+
+    Thread::switchThread(*current, *next);
 }
 
 void Scheduler::switchFpuContext() {
@@ -235,8 +239,7 @@ void Scheduler::block() {
         Device::Fpu::armFpuMonitor();
     }
 
-    Service::getService<MemoryService>().switchAddressSpace(next->getParent().getAddressSpace());
-    switch_context(&current->kernelContext, &next->kernelContext);
+    Thread::switchThread(*current, *next);
 }
 
 void Scheduler::unblock(Thread &thread) {

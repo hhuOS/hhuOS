@@ -54,12 +54,6 @@ public:
 
         ~Stack();
 
-        static Stack* createKernelStack(uint32_t size);
-
-        static Stack* createUserStack(uint32_t size);
-
-        static Stack* createMainUserStack();
-
         [[nodiscard]] uint8_t* getStart() const;
 
     private:
@@ -96,8 +90,6 @@ public:
 
     [[nodiscard]] Util::String getName() const;
 
-    [[nodiscard]] Context* getContext() const;
-
     [[nodiscard]] Process& getParent() const;
 
     [[nodiscard]] uint8_t* getFpuContext() const;
@@ -106,24 +98,37 @@ public:
 
     virtual void run();
 
+    static void startFirstThread(const Thread &thread);
+
+    static void switchThread(Thread &current, const Thread &next);
+
 private:
 
-    Thread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable, Thread::Stack *kernelStack, Thread::Stack *userStack);
+    Thread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable, uint32_t *kernelStack, uint32_t *userStack);
+
+    void prepareKernelStack();
+
+    static void kickoffKernelThread();
+
+    static uint32_t* createKernelStack(uint32_t size);
+
+    static uint32_t* createUserStack(uint32_t size);
+
+    static uint32_t* createMainUserStack();
 
     uint32_t id;
     Util::String name;
     Process &parent;
     Util::Async::Runnable *runnable;
 
-    Stack *kernelStack;
-    Stack *userStack;
+    uint32_t *kernelStack;
+    uint32_t *userStack;
+    uint32_t *oldStackPointer;
 
-    InterruptFrameOld &interruptFrame;
-    Context *kernelContext;
     uint8_t *fpuContext;
 
     static Util::Async::IdGenerator<uint32_t> idGenerator;
-    static const constexpr uint32_t DEFAULT_STACK_SIZE = 4096;
+    static const constexpr uint32_t STACK_SIZE = 4096;
 };
 
 }
