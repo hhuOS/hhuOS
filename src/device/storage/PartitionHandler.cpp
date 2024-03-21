@@ -68,7 +68,7 @@ Util::Array<PartitionHandler::PartitionInfo> PartitionHandler::readPartitionTabl
         };
         partitionList.add(info);
 
-        LOG_DEBUG("Partition found (Number: [%u], type: [%c], Active: [%B], System ID: [0x%02x], Sector: [%u], Count: [%u])",
+        LOG_INFO("Partition found (Number: [%u], type: [%c], Active: [%B], System ID: [0x%02x], Sector: [%u], Count: [%u])",
                   info.number, info.type, info.active, info.systemId, info.startSector, info.sectorCount);
 
         // 0x05 or 0x0f --> Extended currentPrimaryPartition
@@ -95,17 +95,10 @@ Util::Array<PartitionHandler::PartitionInfo> PartitionHandler::readPartitionTabl
                 }
 
                 // Add partition to the list
-                info = {
-                        partitionNumber,
-                        LOGICAL,
-                        currentLogicalPartition.activeFlag == 0x80,
-                        currentLogicalPartition.systemId,
-                        ebrSector + currentLogicalPartition.relativeSector,
-                        currentLogicalPartition.sectorCount
-                };
+                info = { partitionNumber, LOGICAL, currentLogicalPartition.activeFlag == 0x80, currentLogicalPartition.systemId, ebrSector + currentLogicalPartition.relativeSector, currentLogicalPartition.sectorCount };
                 partitionList.add(info);
 
-                LOG_DEBUG("Partition found (Number: [%u], type: [%c], Active: [%B], System ID: [0x%02x], Sector: [%u], Count: [%u])",
+                LOG_INFO("Partition found (Number: [%u], type: [%c], Active: [%B], System ID: [0x%02x], Sector: [%u], Count: [%u])",
                           info.number, info.type, info.active, info.systemId, info.startSector, info.sectorCount);
 
                 // Check system ID of next partition
@@ -134,14 +127,7 @@ void PartitionHandler::writePartition(uint8_t partitionNumber, bool active, Syst
 
     // Read MBR
     auto *mbr = readBootRecord(0);
-    PartitionTableEntry entry = {
-            static_cast<uint8_t>(active ? 0x80 : 0x00),
-            0, 0, static_cast<uint8_t>(systemId),
-            0,
-            0,
-            startSector,
-            sectorCount
-    };
+    PartitionTableEntry entry = { static_cast<uint8_t>(active ? 0x80 : 0x00), 0, 0, static_cast<uint8_t>(systemId), 0, 0, startSector, sectorCount };
 
     if (partitionNumber <= 4) {
         LOG_DEBUG("Writing primary partition (Number: [%u], Active: [%B], System ID: [0x%02x], Sector: [%u], Count: [%u])", partitionNumber, active, systemId, startSector, sectorCount);
