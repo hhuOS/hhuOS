@@ -660,6 +660,8 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
                           << "Build date: " << BuildConfig::getBuildDate() << Util::Io::PrintStream::endl << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     }
 
+    schedulerService->startScheduler();
+
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Once you entered the gates of hell, you are not allowed to leave!");
 }
 
@@ -670,7 +672,7 @@ Util::HeapMemoryManager& GatesOfHell::getKernelHeap() {
 uint32_t GatesOfHell::createInitialMapping(Kernel::Paging::Table &pageDirectory, Kernel::Paging::Table *pageTableMemory, uint32_t physicalStartAddress, uint32_t virtualStartAddress, uint32_t pageCount) {
     uint32_t allocatedPageTables = 0;
 
-    for (uint32_t i = 0; i <= pageCount; i++) {
+    for (uint32_t i = 0; i < pageCount; i++) {
         auto physicalAddress = physicalStartAddress + i * Kernel::Paging::PAGESIZE;
         auto virtualAddress = virtualStartAddress + i * Kernel::Paging::PAGESIZE;
 

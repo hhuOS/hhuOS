@@ -13,54 +13,40 @@
 ; You should have received a copy of the GNU General Public License
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-global start_first_thread
-global switch_context
+global start_kernel_thread
+global switch_thread
 
 extern scheduler_initialized
 extern set_scheduler_init
 extern release_scheduler_lock
 
-start_first_thread:
-    ; get the thread's context
-    mov    esp, [esp + 0x04]
+%define PUSHAD_STACK_SPACE 8 * 4
+%define PUSHF_STACK_SPACE 1 * 4
 
-    ; load registers
-    pop edi
-    pop esi
-    pop ebx
-    pop ebp
+start_kernel_thread:
+    mov esp, [esp + 4] ; First parameter -> load 'oldStackPointer'
+    popad
+    popf
 
-    call set_scheduler_init
-    call flush_tss
     call release_scheduler_lock
 
-    ; start thread
     ret
 
-switch_context:
-    ; get both thread's contexts
-    mov eax, [esp + 0x04]
-    mov edx, [esp + 0x08]
+switch_thread:
+    ; Save registers of current thread
+    pushf
+    pushad
 
-    ; save current thread's context
-    push ebp
-    push ebx
-    push esi
-    push edi
-
-    ; switch stacks
+    ; Save stack pointer in 'currentStackPointer'
+    mov eax, [esp + PUSHAD_STACK_SPACE + PUSHF_STACK_SPACE + 4]
     mov [eax], esp
-    mov esp, [edx]
 
-    ; load next thread's context
-    pop edi
-    pop esi
-    pop ebx
-    pop ebp
+    ; Load registers of next thread by using 'nextStackPointer'
+    mov esp, [esp + PUSHAD_STACK_SPACE + PUSHF_STACK_SPACE + 8]
+    popad
+    popf
 
     call release_scheduler_lock
-
-    ; resume next thread
     ret
 
 flush_tss:

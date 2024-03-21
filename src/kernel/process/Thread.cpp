@@ -30,6 +30,11 @@
 #include "lib/util/base/Constants.h"
 #include "lib/util/collection/Iterator.h"
 
+extern "C" {
+    void start_kernel_thread(uint32_t *oldStackPointer);
+    void switch_thread(uint32_t **currentStackPointer, uint32_t *nextStackPointer);
+}
+
 void kickoff() {
     Kernel::Service::getService<Kernel::SchedulerService>().kickoffThread();
 }
@@ -38,46 +43,30 @@ namespace Kernel {
 
 Util::Async::IdGenerator<uint32_t> Thread::idGenerator;
 
-Thread::Thread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable, Thread::Stack *kernelStack, Thread::Stack *userStack) :
+Thread::Thread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable, uint32_t *kernelStack, uint32_t *userStack) :
         id(idGenerator.next()), name(name), parent(parent), runnable(runnable), kernelStack(kernelStack), userStack(userStack),
-        interruptFrame(*reinterpret_cast<InterruptFrameOld*>(kernelStack->getStart() - sizeof(InterruptFrameOld))),
-        kernelContext(reinterpret_cast<Context*>(kernelStack->getStart() - sizeof(InterruptFrameOld) - sizeof(Context))),
         fpuContext(static_cast<uint8_t*>(Service::getService<MemoryService>().allocateKernelMemory(512, 16))) {
     auto source = Util::Address<uint32_t>(Service::getService<SchedulerService>().getDefaultFpuContext());
     Util::Address<uint32_t>(fpuContext).copyRange(source, 512);
 }
 
 Thread::~Thread() {
-    // Do not delete user stack, as it is hard coded
-    // TODO: Once a process can have multiple user threads, this needs to be revised
-    delete kernelStack;
+    delete reinterpret_cast<uint8_t*>(kernelStack);
     delete fpuContext;
     delete runnable;
 }
 
 Thread& Thread::createKernelThread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable) {
-    auto *stack = Stack::createKernelStack(DEFAULT_STACK_SIZE);
-    auto *thread = new Thread(name, parent, runnable, stack, stack);
+    auto *stack = createKernelStack(STACK_SIZE);
+    auto *thread = new Thread(name, parent, runnable, stack, nullptr);
 
-    // thread->kernelContext->eip = reinterpret_cast<uint32_t>(interrupt_return);
-
-    thread->interruptFrame.cs = 0x08;
-    thread->interruptFrame.fs = 0x10;
-    thread->interruptFrame.gs = 0x10;
-    thread->interruptFrame.ds = 0x10;
-    thread->interruptFrame.es = 0x10;
-    thread->interruptFrame.ss = 0x10;
-
-    thread->interruptFrame.ebp = reinterpret_cast<uint32_t>(stack->getStart());
-    thread->interruptFrame.uesp = reinterpret_cast<uint32_t>(stack->getStart());
-    thread->interruptFrame.eflags = 0x200;
-    thread->interruptFrame.eip = reinterpret_cast<uint32_t>(kickoff);
+    thread->prepareKernelStack();
 
     return *thread;
 }
 
 Thread& Thread::createUserThread(const Util::String &name, Process &parent, uint32_t eip, Util::Async::Runnable *runnable) {
-    auto *kernelStack = Stack::createKernelStack(DEFAULT_STACK_SIZE);
+    /*auto *kernelStack = Stack::createKernelStack(DEFAULT_STACK_SIZE);
     auto *userStack = Stack::createUserStack(DEFAULT_STACK_SIZE);
     auto *thread = new Thread(name, parent, nullptr, kernelStack, userStack);
 
@@ -97,11 +86,12 @@ Thread& Thread::createUserThread(const Util::String &name, Process &parent, uint
 
     *(reinterpret_cast<uint32_t*>(userStack->getStart()) - 1) = reinterpret_cast<uint32_t>(runnable);
 
-    return *thread;
+    return *thread;*/
+    return *new Thread(name, parent, nullptr, nullptr, nullptr);
 }
 
 Thread& Thread::createMainUserThread(const Util::String &name, Process &parent, uint32_t eip, uint32_t argc, char **argv, void *envp, uint32_t heapStartAddress) {
-    auto *kernelStack = Stack::createKernelStack(DEFAULT_STACK_SIZE);
+    /*auto *kernelStack = Stack::createKernelStack(DEFAULT_STACK_SIZE);
     auto *userStack = Stack::createMainUserStack();
     auto *thread = new Thread(name, parent, nullptr, kernelStack, userStack);
 
@@ -123,7 +113,46 @@ Thread& Thread::createMainUserThread(const Util::String &name, Process &parent, 
     thread->interruptFrame.eflags = 0x200;
     thread->interruptFrame.eip = eip;
 
-    return *thread;
+    return *thread;*/
+    return *new Thread(name, parent, nullptr, nullptr, nullptr);
+}
+
+void Thread::prepareKernelStack() {
+    Util::Address<uint32_t>(kernelStack).setRange(0, STACK_SIZE);
+
+    const auto capacity = STACK_SIZE / sizeof(uint32_t);
+    kernelStack[capacity - 1] = 0x00DEAD00; // Dummy return address
+    kernelStack[capacity - 2] = reinterpret_cast<uint32_t>(kickoffKernelThread); // Address of 'kickoff_kernel_thread()'
+    kernelStack[capacity - 3] = 0x202; // eflags (Interrupts enabled)
+
+    kernelStack[capacity - 4] = 0; // eax
+    kernelStack[capacity - 5] = 0; // ecx
+    kernelStack[capacity - 6] = 0; // edx
+    kernelStack[capacity - 7] = 0; // ebx
+    kernelStack[capacity - 8] = 0; // Skipped by 'popad' ('pushad' pushes esp here)
+    kernelStack[capacity - 9] = 0; // ebp
+    kernelStack[capacity - 10] = 0; // esi
+    kernelStack[capacity - 11] = 0; // edi
+
+    oldStackPointer = kernelStack + (capacity - 11);
+}
+
+void Thread::kickoffKernelThread() {
+    auto &schedulerService = Kernel::Service::getService<Kernel::SchedulerService>();
+    schedulerService.setSchedulerInit();
+
+    auto &thread = schedulerService.getCurrentThread();
+    thread.runnable->run();
+
+    schedulerService.exitCurrentThread();
+}
+
+void Thread::startFirstThread(const Thread &thread) {
+    start_kernel_thread(thread.oldStackPointer);
+}
+
+void Thread::switchThread(Thread &current, const Thread &next) {
+    switch_thread(&current.oldStackPointer, next.oldStackPointer);
 }
 
 uint32_t Thread::getId() const {
@@ -132,10 +161,6 @@ uint32_t Thread::getId() const {
 
 Util::String Thread::getName() const {
     return name;
-}
-
-Context* Thread::getContext() const {
-    return kernelContext;
 }
 
 void Thread::run() {
@@ -171,18 +196,18 @@ uint8_t* Thread::Stack::getStart() const {
     return &stack[size];
 }
 
-Thread::Stack* Thread::Stack::createKernelStack(uint32_t size) {
+uint32_t* Thread::createKernelStack(uint32_t size) {
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    return new Stack(static_cast<uint8_t*>(memoryService.allocateKernelMemory(size, 16)), size);
+    return static_cast<uint32_t*>(memoryService.allocateKernelMemory(size, 16));
 }
 
-Thread::Stack* Thread::Stack::createUserStack(uint32_t size) {
+uint32_t* Thread::createUserStack(uint32_t size) {
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    return new Stack(static_cast<uint8_t*>(memoryService.allocateUserMemory(size, 16)), size);
+    return static_cast<uint32_t*>(memoryService.allocateUserMemory(size, 16));
 }
 
-Thread::Stack* Thread::Stack::createMainUserStack() {
-    return new (reinterpret_cast<void*>(Util::USER_SPACE_STACK_INSTANCE_ADDRESS)) Stack(reinterpret_cast<uint8_t*>(MemoryLayout::KERNEL_START - Paging::PAGESIZE), Paging::PAGESIZE - 16);
+uint32_t* Thread::createMainUserStack() {
+    return reinterpret_cast<uint32_t*>(MemoryLayout::KERNEL_START - Paging::PAGESIZE);
 }
 
 }

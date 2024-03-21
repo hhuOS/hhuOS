@@ -63,7 +63,7 @@ public:
      */
     void setInit();
 
-    bool isInitialized();
+    bool isInitialized() const;
 
     /**
      * Start the first thread.
@@ -82,7 +82,7 @@ public:
      */
     void exit();
 
-    void yield();
+    void yield(bool interrupt = false);
 
     void switchFpuContext();
 
