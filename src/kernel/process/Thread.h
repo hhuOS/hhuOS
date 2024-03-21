@@ -39,7 +39,6 @@ struct InterruptFrameOld;
 
 class Thread {
 
-    friend class ThreadScheduler;
     friend class Scheduler;
 
 public:
@@ -94,6 +93,8 @@ public:
 
     [[nodiscard]] uint8_t* getFpuContext() const;
 
+    [[nodiscard]] bool isKernelThread() const;
+
     void join();
 
     virtual void run();
@@ -104,11 +105,13 @@ public:
 
 private:
 
-    Thread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable, uint32_t *kernelStack, uint32_t *userStack);
+    Thread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable, uint32_t userInstructionPointer, uint32_t *kernelStack, uint32_t *userStack);
 
     void prepareKernelStack();
 
     static void kickoffKernelThread();
+
+    void switchToUserMode();
 
     static uint32_t* createKernelStack(uint32_t size);
 
@@ -120,6 +123,7 @@ private:
     Util::String name;
     Process &parent;
     Util::Async::Runnable *runnable;
+    uint32_t userInstructionPointer;
 
     uint32_t *kernelStack;
     uint32_t *userStack;

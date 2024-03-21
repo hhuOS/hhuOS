@@ -26,6 +26,7 @@
 #include "lib/util/base/FreeListMemoryManager.h"
 #include "kernel/memory/VirtualAddressSpace.h"
 #include "device/bus/isa/Isa.h"
+#include "kernel/memory/GlobalDescriptorTable.h"
 
 namespace Kernel {
 class PageDirectory;
@@ -54,7 +55,7 @@ public:
     /**
      * Constructor.
      */
-    MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaManager *pagingAreaManager, VirtualAddressSpace *kernelAddressSpace);
+    MemoryService(GlobalDescriptorTable *gdt, GlobalDescriptorTable::TaskStateSegment *tss, PageFrameAllocator *pageFrameAllocator, PagingAreaManager *pagingAreaManager, VirtualAddressSpace *kernelAddressSpace);
 
     /**
      * Copy Constructor.
@@ -174,13 +175,6 @@ public:
     VirtualAddressSpace& createAddressSpace();
 
     /**
-     * Switch to a given address space.
-     *
-     * @param addressSpace The address space to switch to
-     */
-    void switchAddressSpace(VirtualAddressSpace &addressSpace);
-
-    /**
      * Remove an address space from the system.
      *
      * @param addressSpace The address space to remove
@@ -192,15 +186,27 @@ public:
      */
     void handlePageFault(uint32_t errorCode);
 
+    /**
+     * Switch to a given address space.
+     *
+     * @param addressSpace The address space to switch to
+     */
+    void switchAddressSpace(VirtualAddressSpace &addressSpace);
+
     [[nodiscard]] VirtualAddressSpace& getKernelAddressSpace() const;
 
     [[nodiscard]] VirtualAddressSpace& getCurrentAddressSpace() const;
 
     MemoryStatus getMemoryStatus();
 
+    void setTaskStateSegmentStackEntry(const uint32_t *stackPointer);
+
     static const constexpr uint8_t SERVICE_ID = 2;
 
 private:
+
+    GlobalDescriptorTable *gdt;
+    GlobalDescriptorTable::TaskStateSegment *tss;
 
     PageFrameAllocator &pageFrameAllocator;
     PagingAreaManager &pagingAreaManager;

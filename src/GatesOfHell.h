@@ -70,8 +70,6 @@ public:
 
 private:
 
-    static Kernel::GlobalDescriptorTable gdt;
-    static Kernel::GlobalDescriptorTable::TaskStateSegment tss;
     static Util::HeapMemoryManager *kernelHeap;
 };
 

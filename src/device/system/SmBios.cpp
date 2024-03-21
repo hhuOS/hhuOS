@@ -17,7 +17,7 @@
 
 #include "SmBios.h"
 
-#include "asm_interface.h"
+
 #include "lib/util/base/Address.h"
 #include "kernel/memory/MemoryLayout.h"
 #include "kernel/multiboot/Multiboot.h"

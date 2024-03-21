@@ -19,6 +19,7 @@
 #define HHUOS_GLOBALDESCRIPTORTABLE_H
 
 #include <cstdint>
+#include "device/cpu/Cpu.h"
 
 namespace Kernel {
 

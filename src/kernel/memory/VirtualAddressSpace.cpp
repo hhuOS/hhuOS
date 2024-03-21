@@ -18,6 +18,8 @@
 #include "VirtualAddressSpace.h"
 #include "lib/util/base/Constants.h"
 #include "kernel/service/MemoryService.h"
+#include "kernel/service/ProcessService.h"
+#include "MemoryLayout.h"
 
 namespace Util {
 
@@ -30,9 +32,18 @@ namespace Kernel {
 VirtualAddressSpace::VirtualAddressSpace(Paging::Table *physicalPageDirectory, Paging::Table *virtualPageDirectory, Util::HeapMemoryManager &kernelHeapMemoryManager) :
         kernelAddressSpace(true), physicalPageDirectory(physicalPageDirectory), virtualPageDirectory(virtualPageDirectory), memoryManager(kernelHeapMemoryManager) {}
 
-VirtualAddressSpace::VirtualAddressSpace() :
-        kernelAddressSpace(false), physicalPageDirectory(new Paging::Table()), virtualPageDirectory(new Paging::Table()),
-        memoryManager(*reinterpret_cast<Util::FreeListMemoryManager*>(Util::USER_SPACE_MEMORY_MANAGER_ADDRESS)) {}
+VirtualAddressSpace::VirtualAddressSpace() : kernelAddressSpace(false), physicalPageDirectory(Service::getService<MemoryService>().allocatePageTable()), virtualPageDirectory(new Paging::Table()), memoryManager(*reinterpret_cast<Util::FreeListMemoryManager*>(Util::USER_SPACE_MEMORY_MANAGER_ADDRESS)) {
+    auto &kernelSpace = Service::getService<ProcessService>().getKernelProcess().getAddressSpace();
+
+    for (uint32_t address = MemoryLayout::KERNEL_AREA.startAddress; address < MemoryLayout::KERNEL_AREA.endAddress; address += 1024 * Util::PAGESIZE) {
+        // Get index into page directory
+        uint32_t pageDirectoryIndex = Paging::DIRECTORY_INDEX(reinterpret_cast<uint32_t>(address));
+
+        // Copy kernel mapping
+        (*physicalPageDirectory)[pageDirectoryIndex] = (*kernelSpace.physicalPageDirectory)[pageDirectoryIndex];
+        (*virtualPageDirectory)[pageDirectoryIndex] = (*kernelSpace.virtualPageDirectory)[pageDirectoryIndex];
+    }
+}
 
 VirtualAddressSpace::~VirtualAddressSpace() {
     if (!kernelAddressSpace) {
@@ -84,8 +95,9 @@ void VirtualAddressSpace::map(const void *physicalAddress, const void *virtualAd
         void *physicalPageTable = getPhysicalAddress(virtualPageTable);
 
         // Set table address in page directory
-        (*virtualPageDirectory)[pageDirectoryIndex].set(reinterpret_cast<uint32_t>(virtualPageTable), Paging::PRESENT | Paging::WRITABLE);
-        (*physicalPageDirectory)[pageDirectoryIndex].set(reinterpret_cast<uint32_t>(physicalPageTable), Paging::PRESENT | Paging::WRITABLE);
+        auto pageDirectoryFlags = Paging::PRESENT | Paging::WRITABLE | (reinterpret_cast<uint32_t>(virtualAddress) >= Kernel::MemoryLayout::KERNEL_AREA.endAddress ? Paging::USER_ACCESSIBLE : 0);
+        (*virtualPageDirectory)[pageDirectoryIndex].set(reinterpret_cast<uint32_t>(virtualPageTable), pageDirectoryFlags);
+        (*physicalPageDirectory)[pageDirectoryIndex].set(reinterpret_cast<uint32_t>(physicalPageTable), pageDirectoryFlags);
     }
 
     // Get corresponding page table
@@ -140,7 +152,7 @@ void* VirtualAddressSpace::unmap(const void *virtualAddress) {
 }
 
 const Paging::Table& VirtualAddressSpace::getPageDirectory() const {
-    return *virtualPageDirectory;
+    return *physicalPageDirectory;
 }
 
 }

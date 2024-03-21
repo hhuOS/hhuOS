@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "asm_interface.h"
+
 #include "lib/util/base/System.h"
 #include "Cpu.h"
 #include "lib/util/async/Atomic.h"
@@ -31,10 +31,10 @@ void Cpu::enableInterrupts() {
     int count = cliCountWrapper.fetchAndDec();
 
     if (count == 1) {
-        // nmiCount has been decreased to 0 -> Enable interrupts
+        // count has been decreased to 0 -> Enable interrupts
         asm volatile ( "sti" );
     } else if (count < 1) {
-        // nmiCount has been decreased to a negative value -> Illegal state
+        // count has been decreased to a negative value -> Illegal state
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "CPU: nmiCount is less than 0!");
     }
 }
@@ -44,10 +44,10 @@ void Cpu::disableInterrupts() {
     int count = cliCountWrapper.fetchAndInc();
 
     if (count == 0) {
-        // nmiCount has been increased from 0 to 1 -> Disable interrupts
+        // count has been increased from 0 to 1 -> Disable interrupts
         asm volatile ( "cli" );
     } else if (count < 0) {
-        // nmiCount is negative -> Illegal state
+        // count is negative -> Illegal state
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "CPU: nmiCount is less than 0!");
     }
 }
@@ -144,6 +144,15 @@ uint32_t Cpu::readCr2() {
             );
 
     return cr2;
+}
+
+void Cpu::loadTaskStateSegment(const Cpu::SegmentSelector &selector) {
+    asm volatile(
+            "ltr %0"
+            : :
+            "r"(static_cast<uint16_t>(selector))
+            :
+            );
 }
 
 Cpu::SegmentSelector::SegmentSelector(Cpu::PrivilegeLevel privilegeLevel, uint8_t index) :

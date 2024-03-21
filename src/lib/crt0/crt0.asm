@@ -20,16 +20,11 @@ extern ___FINI_ARRAY_END__
 section .text
 
 ; Entry point
+; Expects stack to be prepared with envp, argv, argc and heapStartAddress
 _start:
     ; Initialize memory manager
-    push ecx
-    push ebx
-    push eax
-
-    push 0xbfffefff        ; Push second parameter (endAddress) on the stack
-    push edx               ; Push first parameter (startAddress) on the stack
     call initMemoryManager
-    add esp,8
+    add esp, 4
 
     ; Initialize bss
     call clear_bss
@@ -38,12 +33,6 @@ _start:
     call _init
 
     ; Call main method
-    ;mov eax,[envp]  ; Push third parameter (envp) on the stack
-    ;push eax
-    ;mov eax,[argv]  ; Push second parameter (argv) on the stack
-    ;push eax
-    ;mov eax,[argc]  ; Push first parameter (argc) on the stack
-    ;push eax
     call main
     add esp,12
     push eax      ; Get return value from eax

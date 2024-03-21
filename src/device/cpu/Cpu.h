@@ -118,6 +118,8 @@ public:
 
     static uint32_t readCr2();
 
+    static void loadTaskStateSegment(const SegmentSelector &selector);
+
     /**
      * Stop the processor via hlt instruction.
      */
