@@ -78,6 +78,7 @@
 #include "lib/util/base/System.h"
 #include "BuildConfig.h"
 #include "kernel/memory/PagingAreaManagerRefillRunnable.h"
+#include "lib/util/async/Process.h"
 
 extern const uint32_t ___KERNEL_DATA_START__;
 extern const uint32_t ___KERNEL_DATA_END__;
@@ -96,12 +97,14 @@ extern "C" {
     void _init();
 }
 
+extern "C" int32_t atexit (void (*func)()) noexcept {
+    return 0;
+}
+
 namespace Device {
 class Machine;
 }  // namespace Device
 
-Kernel::GlobalDescriptorTable GatesOfHell::gdt{};
-Kernel::GlobalDescriptorTable::TaskStateSegment GatesOfHell::tss{};
 Util::HeapMemoryManager *GatesOfHell::kernelHeap = nullptr;
 
 extern "C" void start(uint32_t multibootMagic, const Kernel::Multiboot *multiboot) {
@@ -114,23 +117,6 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     if (multibootMagic != Kernel::Multiboot::MAGIC) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Multiboot2 magic number is invalid!");
     }
-
-    // Setup GDT
-    LOG_INFO("Setting up global descriptor table");
-    gdt = Kernel::GlobalDescriptorTable();
-    gdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x9a, 0x0c)); // Kernel code segment
-    gdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x92, 0x0c)); // Kernel data segment
-    gdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xfa, 0x0c)); // User code segment
-    gdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xf2, 0x0c)); // User data segment
-    gdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(reinterpret_cast<uint32_t>(&tss), sizeof(Kernel::GlobalDescriptorTable::TaskStateSegment), 0x89, 0x04));
-    gdt.load();
-
-    Device::Cpu::setSegmentRegister(Device::Cpu::CS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 1));
-    Device::Cpu::setSegmentRegister(Device::Cpu::DS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-    Device::Cpu::setSegmentRegister(Device::Cpu::ES, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-    Device::Cpu::setSegmentRegister(Device::Cpu::FS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-    Device::Cpu::setSegmentRegister(Device::Cpu::GS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-    Device::Cpu::setSegmentRegister(Device::Cpu::SS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
 
     // Scan memory map
     LOG_INFO("Scanning memory map to calculate physical address limit");
@@ -202,6 +188,28 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     kernelHeap = &kernelHeapManager;
     LOG_INFO("Kernel heap initialized (Bootstrap memory: [0x%08x])", bootstrapMemory);
 
+    // Setup GDT
+    LOG_INFO("Setting up global descriptor table");
+    auto *tss = new Kernel::GlobalDescriptorTable::TaskStateSegment();
+    auto *gdt = new Kernel::GlobalDescriptorTable();
+    gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x9a, 0x0c)); // Kernel code segment
+    gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x92, 0x0c)); // Kernel data segment
+    gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xfa, 0x0c)); // User code segment
+    gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xf2, 0x0c)); // User data segment
+    gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(reinterpret_cast<uint32_t>(tss), sizeof(Kernel::GlobalDescriptorTable::TaskStateSegment), 0x89, 0x04));
+    gdt->load();
+
+    // Load task state segment
+    Device::Cpu::loadTaskStateSegment(Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 5));
+
+    // Set segment registers
+    Device::Cpu::setSegmentRegister(Device::Cpu::CS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 1));
+    Device::Cpu::setSegmentRegister(Device::Cpu::SS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    Device::Cpu::setSegmentRegister(Device::Cpu::DS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    Device::Cpu::setSegmentRegister(Device::Cpu::ES, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    Device::Cpu::setSegmentRegister(Device::Cpu::FS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    Device::Cpu::setSegmentRegister(Device::Cpu::GS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+
     // Initialize Paging Area Manager -> Manages the virtual addresses of all page tables and directories
     LOG_INFO("Initializing paging area manager");
     auto usedPagingAreaPages = (reinterpret_cast<uint32_t>(pageTableMemory) - pagingAreaPhysical) / Kernel::Paging::PAGESIZE;
@@ -250,7 +258,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     // Create kernel address space and memory service
     LOG_INFO("Initializing kernel address space");
     auto *kernelAddressSpace = new Kernel::VirtualAddressSpace(pageDirectory, virtualPageDirectory, *kernelHeap);
-    auto *memoryService = new Kernel::MemoryService(pageFrameAllocator, pagingAreaManager, kernelAddressSpace);
+    auto *memoryService = new Kernel::MemoryService(gdt, tss, pageFrameAllocator, pagingAreaManager, kernelAddressSpace);
 
     // Create interrupt descriptor table
     LOG_INFO("Initializing interrupt descriptor table");

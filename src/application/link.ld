@@ -20,7 +20,7 @@ OUTPUT_FORMAT(elf32-i386)
 
 SECTIONS
 {
-    . = 0x2000;     /* Virtual start address */
+    . = 0x8001000;     /* Virtual start address */
 
     ___PROGRAM_START__ = .;
 

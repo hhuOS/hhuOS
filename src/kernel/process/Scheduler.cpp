@@ -19,7 +19,7 @@
 #include <lib/util/base/Address.h>
 
 #include "kernel/service/TimeService.h"
-#include "asm_interface.h"
+
 #include "device/cpu/Fpu.h"
 #include "kernel/process/Process.h"
 #include "kernel/process/Thread.h"

@@ -21,7 +21,7 @@
 
 #include "kernel/service/InterruptService.h"
 #include "kernel/memory/MemoryLayout.h"
-#include "asm_interface.h"
+
 #include "MemoryService.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/memory/PageFrameAllocator.h"
@@ -37,8 +37,8 @@
 
 namespace Kernel {
 
-MemoryService::MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaManager *pagingAreaManager, VirtualAddressSpace *kernelAddressSpace)
-        : pageFrameAllocator(*pageFrameAllocator), pagingAreaManager(*pagingAreaManager), currentAddressSpace(kernelAddressSpace), kernelAddressSpace(*kernelAddressSpace) {
+MemoryService::MemoryService(GlobalDescriptorTable *gdt, GlobalDescriptorTable::TaskStateSegment *tss, PageFrameAllocator *pageFrameAllocator, PagingAreaManager *pagingAreaManager, VirtualAddressSpace *kernelAddressSpace)
+        : gdt(gdt), tss(tss), pageFrameAllocator(*pageFrameAllocator), pagingAreaManager(*pagingAreaManager), currentAddressSpace(kernelAddressSpace), kernelAddressSpace(*kernelAddressSpace) {
     addressSpaces.add(kernelAddressSpace);
 
     SystemCall::registerSystemCall(Util::System::UNMAP, [](uint32_t paramCount, va_list arguments) -> bool {
@@ -280,10 +280,17 @@ void MemoryService::switchAddressSpace(VirtualAddressSpace &addressSpace) {
         return;
     }
 
+    // Get physical address of new page directory
+    auto *pageDirectoryPhysical = getPhysicalAddress(const_cast<void*>(reinterpret_cast<const void*>(&addressSpace.getPageDirectory())));
+
     // Set current address space
     currentAddressSpace = &addressSpace;
-    // load cr3-register with phys. address of Page Directory
-    // load_page_directory(addressSpace.getPageDirectory().getPageDirectoryPhysicalAddress());
+
+    asm volatile (
+            "mov %0, %%cr3"
+            : :
+            "r"(pageDirectoryPhysical)
+            );
 }
 
 void MemoryService::removeAddressSpace(VirtualAddressSpace &addressSpace) {
@@ -310,7 +317,7 @@ void MemoryService::handlePageFault(uint32_t errorCode) {
     }
 
     // Map the faulted Page
-    map(reinterpret_cast<void *>(faultAddress), 1, Paging::PRESENT | Paging::WRITABLE | (faultAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESSIBLE : 0));
+    map(reinterpret_cast<void *>(faultAddress), 1, Paging::PRESENT | Paging::WRITABLE | (faultAddress >= Kernel::MemoryLayout::KERNEL_AREA.endAddress ? Paging::USER_ACCESSIBLE : 0));
 }
 
 MemoryService::MemoryStatus MemoryService::getMemoryStatus() {
@@ -325,6 +332,11 @@ VirtualAddressSpace& MemoryService::getKernelAddressSpace() const {
 
 VirtualAddressSpace &MemoryService::getCurrentAddressSpace() const {
     return *currentAddressSpace;
+}
+
+void MemoryService::setTaskStateSegmentStackEntry(const uint32_t *stackPointer) {
+    tss->esp0 = reinterpret_cast<uint32_t>(stackPointer);
+    tss->ss0 = static_cast<uint16_t>(Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
 }
 
 }

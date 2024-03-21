@@ -25,10 +25,7 @@ include_directories(${HHUOS_SRC_DIR})
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/boot.asm
         ${HHUOS_SRC_DIR}/BuildConfig.cpp
-        ${HHUOS_SRC_DIR}/GatesOfHell.cpp
-        ${HHUOS_SRC_DIR}/asm_interface.cpp
-        ../../src/device/graphic/ColorGraphicsAdapter.cpp
-        ../../src/device/graphic/ColorGraphicsAdapter.h)
+        ${HHUOS_SRC_DIR}/GatesOfHell.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 

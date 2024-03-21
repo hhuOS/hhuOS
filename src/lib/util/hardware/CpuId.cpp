@@ -15,9 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "asm_interface.h"
+
 #include "lib/util/collection/ArrayList.h"
 #include "CpuId.h"
+
+extern "C" [[nodiscard]] int32_t is_cpuid_available();
 
 namespace Util::Hardware {
 

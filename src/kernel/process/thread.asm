@@ -14,37 +14,59 @@
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 global start_kernel_thread
+global start_user_thread
 global switch_thread
 
-extern scheduler_initialized
-extern set_scheduler_init
+extern set_tss_stack_entry
 extern release_scheduler_lock
 
 %define PUSHAD_STACK_SPACE 8 * 4
 %define PUSHF_STACK_SPACE 1 * 4
+%define PUSH_SEGMENT_REGISTERS_SPACE 4 * 4
 
 start_kernel_thread:
     mov esp, [esp + 4] ; First parameter -> load 'oldStackPointer'
     popad
     popf
+    pop gs
+    pop fs
+    pop es
+    pop ds
 
     call release_scheduler_lock
 
     ret
 
+start_user_thread:
+    mov esp, [esp + 4] ; First parameter -> load 'oldStackPointer'
+    iret ; Switch to user mode
+
 switch_thread:
     ; Save registers of current thread
+    push ds
+    push es
+    push fs
+    push gs
     pushf
     pushad
 
-    ; Save stack pointer in 'currentStackPointer'
-    mov eax, [esp + PUSHAD_STACK_SPACE + PUSHF_STACK_SPACE + 4]
+    ; Save stack pointer in first parameter 'currentStackPointer'
+    mov eax, [esp + PUSHAD_STACK_SPACE + PUSHF_STACK_SPACE + PUSH_SEGMENT_REGISTERS_SPACE + 4]
     mov [eax], esp
 
-    ; Load registers of next thread by using 'nextStackPointer'
-    mov esp, [esp + PUSHAD_STACK_SPACE + PUSHF_STACK_SPACE + 8]
+    ; Set TSS stack entry using third parameter 'nextStackEndPointer'
+    push dword [esp + PUSHAD_STACK_SPACE + PUSHF_STACK_SPACE + PUSH_SEGMENT_REGISTERS_SPACE + 12]
+    call set_tss_stack_entry
+    add esp, 4
+
+    ; Load registers of next thread using second parameter 'nextStackPointer'
+    mov esp, [esp + PUSHAD_STACK_SPACE + PUSHF_STACK_SPACE + PUSH_SEGMENT_REGISTERS_SPACE + 8]
     popad
     popf
+    pop gs
+    pop fs
+    pop es
+    pop ds
 
     call release_scheduler_lock
     ret

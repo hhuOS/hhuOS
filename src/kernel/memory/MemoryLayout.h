@@ -26,7 +26,7 @@
 #define __MEMLAYOUT_include__
 
 #include "lib/util/base/Address.h"
-#include "asm_interface.h"
+
 
 namespace Kernel {
 
@@ -67,6 +67,8 @@ public:
     // end of virtual kernel memory for heap
     static const constexpr uint32_t KERNEL_HEAP_END_ADDRESS = 0x8000000;
     static const constexpr uint32_t KERNEL_END = KERNEL_HEAP_END_ADDRESS;
+
+    static const constexpr MemoryArea KERNEL_AREA = { KERNEL_START, KERNEL_END, MemoryArea::VIRTUAL };
 };
 
 }

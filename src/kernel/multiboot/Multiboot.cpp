@@ -20,7 +20,7 @@
 #include "kernel/memory/MemoryLayout.h"
 #include "Multiboot.h"
 #include "kernel/multiboot/Multiboot.h"
-#include "asm_interface.h"
+
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/base/Address.h"

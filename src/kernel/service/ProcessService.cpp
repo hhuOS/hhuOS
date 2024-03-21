@@ -32,7 +32,7 @@
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/System.h"
 #include "lib/util/collection/Iterator.h"
-#include "asm_interface.h"
+
 
 namespace Kernel {
 class VirtualAddressSpace;
