@@ -118,17 +118,6 @@ const Multiboot::Module& Multiboot::getModule(const Util::String &moduleName) co
         if (currentTag->type == MODULE) {
             auto *module = reinterpret_cast<Module*>(const_cast<TagHeader*>(currentTag));
             if (moduleName == module->name) {
-                if (module->startAddress < MemoryLayout::KERNEL_START) {
-                    uint32_t size = module->endAddress - module->startAddress;
-                    uint32_t offset = module->startAddress % Kernel::Paging::PAGESIZE;
-
-                    uint32_t virtualStartAddress = reinterpret_cast<uint32_t>(Service::getService<Kernel::MemoryService>().mapIO(module->startAddress, size)) + offset;
-                    uint32_t virtualEndAddress = virtualStartAddress + size;
-
-                    module->startAddress = virtualStartAddress;
-                    module->endAddress = virtualEndAddress;
-                }
-
                 return *module;
             }
         }

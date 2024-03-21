@@ -109,7 +109,14 @@ extern "C" void start(uint32_t multibootMagic, const Kernel::Multiboot *multiboo
 }
 
 void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multiboot) {
-    // Initialize GDT
+    // Check multiboot magic number
+    LOG_INFO("Welcome to hhuOS early boot environment!");
+    if (multibootMagic != Kernel::Multiboot::MAGIC) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Multiboot2 magic number is invalid!");
+    }
+
+    // Setup GDT
+    LOG_INFO("Setting up global descriptor table");
     gdt = Kernel::GlobalDescriptorTable();
     gdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x9a, 0x0c)); // Kernel code segment
     gdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x92, 0x0c)); // Kernel data segment
@@ -125,21 +132,14 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     Device::Cpu::setSegmentRegister(Device::Cpu::GS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
     Device::Cpu::setSegmentRegister(Device::Cpu::SS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
 
-    LOG_INFO("Welcome to hhuOS early boot environment!");
-
-    if (multibootMagic != Kernel::Multiboot::MAGIC) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Multiboot2 magic number is invalid!");
-    }
-
     // Scan memory map
-    LOG_INFO("Searching memory map for bootstrap memory region");
+    LOG_INFO("Scanning memory map to calculate physical address limit");
+    auto multibootAddress = reinterpret_cast<uint32_t>(multiboot);
     auto multibootSize = multiboot->getSize();
     auto *memoryMap = &(multiboot->getTag<Kernel::Multiboot::MemoryMapHeader>(Kernel::Multiboot::MEMORY_MAP));
     auto memoryMapEntries = (memoryMap->tagHeader.size - sizeof(Kernel::Multiboot::TagHeader)) / memoryMap->entrySize;
 
-    // Search for available memory to bootstrap paging
     uint32_t physicalMemoryLimit = 0;
-    uint32_t bootstrapMemory = 0;
     for (uint32_t i = 0; i < memoryMapEntries; i++) {
         auto currentAddress = reinterpret_cast<uint32_t>(memoryMap) + sizeof(Kernel::Multiboot::MemoryMapHeader) + i * memoryMap->entrySize;
         auto &entry = *reinterpret_cast<Kernel::Multiboot::MemoryMapEntry*>(currentAddress);
@@ -147,29 +147,18 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         if (entry.type == Kernel::Multiboot::AVAILABLE && (entry.address + entry.length) > physicalMemoryLimit) {
             physicalMemoryLimit = entry.address + entry.length;
         }
-
-        if (bootstrapMemory == 0 && entry.type == Kernel::Multiboot::AVAILABLE) {
-            auto alignedAddress = Util::Address<uint32_t>(entry.address).alignUp(Kernel::Paging::PAGESIZE).get();
-            auto alignedLength = entry.length - (alignedAddress - entry.address);
-
-            if (alignedAddress > KERNEL_DATA_END && alignedLength >= INITIAL_PAGING_AREA_SIZE + INITIAL_KERNEL_HEAP_SIZE) {
-                // Entry starts and ends above kernel
-                bootstrapMemory = alignedAddress;
-                entry.address = alignedAddress + INITIAL_PAGING_AREA_SIZE + INITIAL_KERNEL_HEAP_SIZE;
-            } else if (alignedAddress + alignedLength > KERNEL_DATA_END) {
-                // Entry starts before or within kernel, but ends above kernel
-                auto alignedKernelEndAddress = Util::Address<uint32_t>(KERNEL_DATA_END).alignUp(Kernel::Paging::PAGESIZE).get();
-                auto usableLength = alignedLength - (alignedKernelEndAddress - alignedAddress);
-                if (usableLength >= INITIAL_PAGING_AREA_SIZE + INITIAL_KERNEL_HEAP_SIZE) {
-                    bootstrapMemory = alignedKernelEndAddress;
-                    entry.address = bootstrapMemory + INITIAL_PAGING_AREA_SIZE + INITIAL_KERNEL_HEAP_SIZE;
-                }
-            }
-        }
     }
 
-    if (bootstrapMemory == 0) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_MEMORY, "No memory available for bootstrapping!");
+    // Use lower memory (< 1 MiB) below kernel to bootstrap paging and kernel heap
+    uint32_t bootstrapMemory = Kernel::MemoryLayout::USABLE_LOWER_MEMORY.startAddress;
+
+    // Bootloaders may also place the multiboot information inside this area (e.g. Limine), so we need to check for that
+    if (multibootAddress < Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress) {
+        // Check free space before multiboot info
+        if (multibootAddress - Kernel::MemoryLayout::USABLE_LOWER_MEMORY.startAddress < INITIAL_PAGING_AREA_SIZE + INITIAL_KERNEL_HEAP_SIZE) {
+            // Not enough space before multiboot info -> Use memory after multiboot info
+            bootstrapMemory = Util::Address<uint32_t>(multibootAddress + multibootSize).alignUp(Kernel::Paging::PAGESIZE).get();
+        }
     }
 
     uint32_t pagingAreaPhysical = bootstrapMemory;
@@ -389,7 +378,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     Device::Cpu::enableInterrupts();
 
     // Initialize frame buffer
-    Util::Graphic::LinearFrameBuffer *lfb;
+    Util::Graphic::LinearFrameBuffer *lfb = nullptr;
     Util::Graphic::Terminal *terminal;
     if (multiboot->hasTag(Kernel::Multiboot::FRAMEBUFFER_INFO)) {
         const auto &tag = multiboot->getTag<Kernel::Multiboot::FramebufferInfo>(Kernel::Multiboot::FRAMEBUFFER_INFO);
@@ -443,20 +432,18 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     auto *storageService = new Kernel::StorageService();
     Kernel::Service::registerService(Kernel::StorageService::SERVICE_ID, storageService);
 
-    LOG_INFO("Searching multiboot modules for virtual disk drives");
-    for (const auto &name : multiboot->getModuleNames()) {
-        if (name.beginsWith("vdd")) {
-            auto &module = multiboot->getModule(name);
-            const auto sectorCount = (module.endAddress - module.startAddress) / 512;
-            const auto modulePageOffset = module.startAddress % Kernel::Paging::PAGESIZE;
-            const auto moduleSize = module.endAddress - module.startAddress;
-            const auto modulePageCount = moduleSize % Kernel::Paging::PAGESIZE == 0 ? (moduleSize / Kernel::Paging::PAGESIZE) : (moduleSize / Kernel::Paging::PAGESIZE) + 1;
+    LOG_INFO("Searching multiboot modules for virtual disk drive");
+    if (multiboot->getModuleNames().contains("vdd0")) {
+        auto &module = multiboot->getModule("vdd0");
+        const auto sectorCount = (module.endAddress - module.startAddress) / 512;
+        const auto modulePageOffset = module.startAddress % Kernel::Paging::PAGESIZE;
+        const auto moduleSize = module.endAddress - module.startAddress;
+        const auto modulePageCount = moduleSize % Kernel::Paging::PAGESIZE == 0 ? (moduleSize / Kernel::Paging::PAGESIZE) : (moduleSize / Kernel::Paging::PAGESIZE) + 1;
 
-            auto *moduleVirtualAddress = memoryService->mapIO(reinterpret_cast<void*>(module.startAddress), modulePageCount);
-            auto *device = new Device::Storage::VirtualDiskDrive(static_cast<uint8_t*>(moduleVirtualAddress) + modulePageOffset, 512, sectorCount);
+        auto *moduleVirtualAddress = memoryService->mapIO(reinterpret_cast<void*>(module.startAddress), modulePageCount);
+        auto *device = new Device::Storage::VirtualDiskDrive(static_cast<uint8_t*>(moduleVirtualAddress) + modulePageOffset, 512, sectorCount);
 
-            storageService->registerDevice(device, "vdd");
-        }
+        storageService->registerDevice(device, "vdd");
     }
 
     Device::Storage::IdeController::initializeAvailableControllers();
