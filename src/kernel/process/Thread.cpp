@@ -166,7 +166,7 @@ void Thread::switchToUserMode() {
 
     kernelStack[capacity - 2] = static_cast<uint16_t>(Device::Cpu::SegmentSelector(Device::Cpu::Ring3, 4)); // ss = user data segment
     kernelStack[capacity - 3] = reinterpret_cast<uint32_t>(userStack + (capacity - 5)); // esp for user stack (leave room for 'main()' arguments)
-    kernelStack[capacity - 4] = 0x3202; // eflags (IOPL 3, interrupts enabled)
+    kernelStack[capacity - 4] = 0x202; // eflags (interrupts enabled)
     kernelStack[capacity - 5] = static_cast<uint16_t>(Device::Cpu::SegmentSelector(Device::Cpu::Ring3, 3)); // cs = user code segment
 
     kernelStack[capacity - 6] = userInstructionPointer; // Address of user function to start

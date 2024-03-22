@@ -327,7 +327,9 @@ void InterruptDescriptorTable::handleInterrupt(const InterruptFrame &frame, Inte
 }
 
 void InterruptDescriptorTable::handlePageFault(InterruptFrame *frame, uint32_t errorCode) {
+    ENTER_INTERRUPT_HANDLER_WITH_ERROR_CODE
     Service::getService<MemoryService>().handlePageFault(errorCode);
+    LEAVE_INTERRUPT_HANDLER
 }
 
 void InterruptDescriptorTable::load() {
