@@ -18,22 +18,27 @@
 #include "stdint.h"
 
 void new_usb_service(UsbService_C *usb_service_c) {
-#if defined(UHCI)
+
+  #if defined(UHCI)
   Pci_C *pci_uhci = search_c_controllers(CLASS_ID, SUBCLASS_ID, INTERFACE_ID);
-  init_uhci_routine(usb_service_c, pci_uhci);
-#endif
-#if defined(OHCI)
+  usb_service_c->init_uhci_routine = &init_uhci_routine;
+  usb_service_c->init_uhci_routine(usb_service_c, pci_uhci);
+  #endif
+  #if defined(OHCI)
   Pci_C *pci_ohci = search_c_controllers(0, 0, 0);
-  init_ohci_routine(usb_service_c, pci_ohci);
-#endif
-#if defined(EHCI)
+  usb_service_c->init_ohci_routine = &init_ohci_routine;
+  usb_service_c->init_ohci_routine(usb_service_c, pci_ohci);
+  #endif
+  #if defined(EHCI)
   Pci_C *pci_ehci = search_c_controllers(0, 0, 0);
-  init_ehci_routine(usb_service_c, pci_ehci);
-#endif
-#if defined(XHCI)
+  usb_service_c->init_ehci_routine = &init_ehci_routine;
+  usb_service_c->init_ehci_routine(usb_service_c, pci_ehci);
+  #endif
+  #if defined(XHCI)
   Pci_C *pci_xhci = search_c_controllers(0, 0, 0);
-  init_xhci_routine(usb_service_c, pci_xhci);
-#endif
+  usb_service_c->init_xhci_routine = &init_xhci_routine;
+  usb_service_c->init_xhci_routine(usb_service_c, pci_xhci);
+  #endif
 }
 
 void init_xhci_routine(UsbService_C *usb_service_c, Pci_C *pci_c) { return; }
@@ -44,6 +49,23 @@ void init_uhci_routine(UsbService_C *usb_service_c, Pci_C *pci_c) {
 
   usb_service_c->head.l_e = 0;
   usb_service_c->request_mem_service = &request_mem_service;
+  usb_service_c->add_driver_c = &add_driver_c;
+  usb_service_c->remove_driver_c = &remove_driver_c;
+  usb_service_c->init_uhci_routine = &init_uhci_routine;
+  usb_service_c->init_xhci_routine = &init_xhci_routine;
+  usb_service_c->init_ehci_routine = &init_ehci_routine;
+  usb_service_c->init_ohci_routine = &init_ohci_routine;
+  usb_service_c->find_controller = &find_controller;
+  usb_service_c->submit_bulk_transfer_c = &submit_bulk_transfer_c;
+  usb_service_c->submit_interrupt_transfer_c = &submit_interrupt_transfer_c;
+  usb_service_c->submit_control_transfer_c = &submit_control_transfer_c;
+  usb_service_c->register_callback_c = &register_callback_c;
+  usb_service_c->deregister_callback_c = &deregister_callback_c;
+  usb_service_c->register_listener_c = &register_listener_c;
+  usb_service_c->deregister_listener_c = &deregister_listener_c;
+  usb_service_c->get_controller = &get_controller;
+  usb_service_c->get_dev = &get_dev;
+  usb_service_c->get_driver = &get_driver;
   //usb_service_c->request_interrupt_service = &request_interrupt_service;
   SystemService_C *mem_service =
       usb_service_c->request_mem_service(usb_service_c);
@@ -69,26 +91,7 @@ void init_uhci_routine(UsbService_C *usb_service_c, Pci_C *pci_c) {
       l_e->l_e = &controller->super.l_e;
     }
   }
-
-  m->freeKernelMemory_c(m, pci_c, 0);
-
-  usb_service_c->add_driver_c = &add_driver_c;
-  usb_service_c->remove_driver_c = &remove_driver_c;
-  usb_service_c->init_uhci_routine = &init_uhci_routine;
-  usb_service_c->init_xhci_routine = &init_xhci_routine;
-  usb_service_c->init_ehci_routine = &init_ehci_routine;
-  usb_service_c->init_ohci_routine = &init_ohci_routine;
-  usb_service_c->find_controller = &find_controller;
-  usb_service_c->submit_bulk_transfer_c = &submit_bulk_transfer_c;
-  usb_service_c->submit_interrupt_transfer_c = &submit_interrupt_transfer_c;
-  usb_service_c->submit_control_transfer_c = &submit_control_transfer_c;
-  usb_service_c->register_callback_c = &register_callback_c;
-  usb_service_c->deregister_callback_c = &deregister_callback_c;
-  usb_service_c->register_listener_c = &register_listener_c;
-  usb_service_c->deregister_listener_c = &deregister_listener_c;
-  usb_service_c->get_controller = &get_controller;
-  usb_service_c->get_dev = &get_dev;
-  usb_service_c->get_driver = &get_driver;
+  m->freeKernelMemory_c(m, pci_c, 0);  
 }
 
 void init_ohci_routine(UsbService_C *usb_service_c, Pci_C *pci_c) { return; }
