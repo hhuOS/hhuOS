@@ -1897,7 +1897,7 @@ uint32_t get_status(_UHCI *uhci, TD *td) {
 // if not null -> check retransmission current tries and resend the QH
 
 // return if retransmission occured or not !
-unsigned int retransmission(_UHCI *uhci, QH *process_qh, TD *td) {
+unsigned int retransmission(_UHCI *uhci, QH *process_qh) {
   TD *saved_td = 0;
   TD *head = 0;
 
@@ -1905,7 +1905,7 @@ unsigned int retransmission(_UHCI *uhci, QH *process_qh, TD *td) {
   MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
                                                        MemoryService_C, super);
   uint8_t transfer_type = process_qh->flags & QH_FLAG_TYPE_MASK;
-  if ((td == (void *)0) && (transfer_type == QH_FLAG_TYPE_INTERRUPT)) {
+  if (transfer_type == QH_FLAG_TYPE_INTERRUPT) {
     saved_td = (TD *)uhci->qh_to_td_map->get_c(uhci->qh_to_td_map, process_qh);
     head = saved_td;
     while (saved_td != (void *)0) {
@@ -1917,10 +1917,8 @@ unsigned int retransmission(_UHCI *uhci, QH *process_qh, TD *td) {
     process_qh->pyhsicalQHEP =
         (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, head));
     retransmission_occured = 1;
-  } else if (td != (void *)0) {
-    td->control_x_status = ((0x1 << LS) & td->control_x_status) | ((0x1 << IOC) & td->control_x_status) | (0x3 << C_ERR) | (0x1 << ACTIVE);
-    retransmission_occured = 1;
   }
+
   return retransmission_occured;
 }
 
@@ -2063,7 +2061,7 @@ void traverse_skeleton(_UHCI *uhci, QH *entry) {
     #endif
 
     callback(dev, S_TRANSFER, data);
-    retransmission_occured = uhci->retransmission(uhci, entry, td);
+    retransmission_occured = uhci->retransmission(uhci, entry);
     if (!retransmission_occured) {
       TD* rcvry = (TD*)uhci->qh_to_td_map->get_c(uhci->qh_to_td_map, entry);
       uhci->remove_queue(uhci, entry);

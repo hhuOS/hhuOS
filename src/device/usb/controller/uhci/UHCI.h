@@ -64,8 +64,7 @@ struct _UHCI {
 
   void (*insert_queue)(struct _UHCI *uhci, struct QH *new_qh,
                        uint16_t priority, enum QH_HEADS v);
-  unsigned int (*retransmission)(struct _UHCI *uhci, struct QH *process_qh,
-                                 struct TD *td);
+  unsigned int (*retransmission)(struct _UHCI *uhci, struct QH *process_qh);
   uint32_t (*get_status)(struct _UHCI *uhci, struct TD *td);
   void (*remove_queue)(struct _UHCI *uhci, struct QH *qh);
   uint32_t (*wait_poll)(struct _UHCI *uhci, struct QH *process_qh, uint32_t timeout);
@@ -256,7 +255,7 @@ void init_bulk_transfer(UsbController *controller, Interface *interface,
                         unsigned int pipe, uint8_t priority, void *data,
                         unsigned len, callback_function callback);
 
-unsigned int retransmission(_UHCI *uhci, struct QH *process_qh, struct TD *td);
+unsigned int retransmission(_UHCI *uhci, struct QH *process_qh);
 
 void traverse_skeleton(_UHCI *uhci, struct QH *entry);
 
