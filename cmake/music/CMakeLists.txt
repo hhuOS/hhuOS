@@ -26,55 +26,58 @@ if ($ENV{HHUOS_REDISTRIBUTABLE_BUILD})
     add_custom_target(${PROJECT_NAME} DEPENDS
             "${CMAKE_BINARY_DIR}/beep/")
 else()
-    add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/angel.beep"
-            COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
-            COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2020/01/cruel-angels-thesis-neon-genesis.html > "${CMAKE_BINARY_DIR}/beep/angel.beep")
+    find_package(Python3)
+    if (Python3_Interpreter_FOUND)
+        add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/angel.beep"
+                COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
+                COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2020/01/cruel-angels-thesis-neon-genesis.html > "${CMAKE_BINARY_DIR}/beep/angel.beep")
 
-    add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/castlevania.beep"
-            COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
-            COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2020/10/vampire-killer-castlevania.html > "${CMAKE_BINARY_DIR}/beep/castlevania.beep")
+        add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/castlevania.beep"
+                COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
+                COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2020/10/vampire-killer-castlevania.html > "${CMAKE_BINARY_DIR}/beep/castlevania.beep")
 
-    add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/dance_monkey.beep"
-            COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
-            COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2020/04/dance-monkey-by-tones-and-i-hard-version.html > "${CMAKE_BINARY_DIR}/beep/dance_monkey.beep")
+        add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/dance_monkey.beep"
+                COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
+                COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2020/04/dance-monkey-by-tones-and-i-hard-version.html > "${CMAKE_BINARY_DIR}/beep/dance_monkey.beep")
 
-    add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/deja_vu.beep"
-            COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
-            COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2019/02/deja-vu-initial-d.html -t 94 > "${CMAKE_BINARY_DIR}/beep/deja_vu.beep")
+        add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/deja_vu.beep"
+                COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
+                COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2019/02/deja-vu-initial-d.html -t 94 > "${CMAKE_BINARY_DIR}/beep/deja_vu.beep")
 
-    add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/ghostbusters.beep"
-            COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
-            COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2019/10/ghostbusters-theme-hard-version.html > "${CMAKE_BINARY_DIR}/beep/ghostbusters.beep")
+        add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/ghostbusters.beep"
+                COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
+                COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2019/10/ghostbusters-theme-hard-version.html > "${CMAKE_BINARY_DIR}/beep/ghostbusters.beep")
 
-    add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/harry_potter.beep"
-            COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
-            COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2019/07/nimbus-2000-harry-potter.html -t 94 > "${CMAKE_BINARY_DIR}/beep/harry_potter.beep")
+        add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/harry_potter.beep"
+                COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
+                COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2019/07/nimbus-2000-harry-potter.html -t 94 > "${CMAKE_BINARY_DIR}/beep/harry_potter.beep")
 
-    add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/mario.beep"
-            COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
-            COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2022/06/overworld-theme-new-super-mario-bros-ds.html -t 94 > "${CMAKE_BINARY_DIR}/beep/mario.beep")
+        add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/mario.beep"
+                COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
+                COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2022/06/overworld-theme-new-super-mario-bros-ds.html -t 94 > "${CMAKE_BINARY_DIR}/beep/mario.beep")
 
-    add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/sonne.beep"
-            COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
-            COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2022/01/sonne-by-rammstein.html > "${CMAKE_BINARY_DIR}/beep/sonne.beep")
+        add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/sonne.beep"
+                COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
+                COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2022/01/sonne-by-rammstein.html > "${CMAKE_BINARY_DIR}/beep/sonne.beep")
 
-    add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/star_wars.beep"
-            COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
-            COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2015/11/star-wars-main-theme.html > "${CMAKE_BINARY_DIR}/beep/star_wars.beep")
+        add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/star_wars.beep"
+                COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
+                COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2015/11/star-wars-main-theme.html > "${CMAKE_BINARY_DIR}/beep/star_wars.beep")
 
-    add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/tetris.beep"
-            COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
-            COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2019/10/tetris-theme-hard-version.html > "${CMAKE_BINARY_DIR}/beep/tetris.beep")
+        add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/beep/tetris.beep"
+                COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/beep/"
+                COMMAND python3 "${HHUOS_TOOL_DIR}/beep.py" -i https://pianoletternotes.blogspot.com/2019/10/tetris-theme-hard-version.html > "${CMAKE_BINARY_DIR}/beep/tetris.beep")
 
-    add_custom_target(${PROJECT_NAME} DEPENDS
-            "${CMAKE_BINARY_DIR}/beep/angel.beep"
-            "${CMAKE_BINARY_DIR}/beep/castlevania.beep"
-            "${CMAKE_BINARY_DIR}/beep/dance_monkey.beep"
-            "${CMAKE_BINARY_DIR}/beep/deja_vu.beep"
-            "${CMAKE_BINARY_DIR}/beep/ghostbusters.beep"
-            "${CMAKE_BINARY_DIR}/beep/harry_potter.beep"
-            "${CMAKE_BINARY_DIR}/beep/mario.beep"
-            "${CMAKE_BINARY_DIR}/beep/sonne.beep"
-            "${CMAKE_BINARY_DIR}/beep/star_wars.beep"
-            "${CMAKE_BINARY_DIR}/beep/tetris.beep")
+        add_custom_target(${PROJECT_NAME} DEPENDS
+                "${CMAKE_BINARY_DIR}/beep/angel.beep"
+                "${CMAKE_BINARY_DIR}/beep/castlevania.beep"
+                "${CMAKE_BINARY_DIR}/beep/dance_monkey.beep"
+                "${CMAKE_BINARY_DIR}/beep/deja_vu.beep"
+                "${CMAKE_BINARY_DIR}/beep/ghostbusters.beep"
+                "${CMAKE_BINARY_DIR}/beep/harry_potter.beep"
+                "${CMAKE_BINARY_DIR}/beep/mario.beep"
+                "${CMAKE_BINARY_DIR}/beep/sonne.beep"
+                "${CMAKE_BINARY_DIR}/beep/star_wars.beep"
+                "${CMAKE_BINARY_DIR}/beep/tetris.beep")
+    endif()
 endif()

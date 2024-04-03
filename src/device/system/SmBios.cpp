@@ -17,14 +17,14 @@
 
 #include "SmBios.h"
 
-
 #include "lib/util/base/Address.h"
-#include "kernel/memory/MemoryLayout.h"
 #include "kernel/multiboot/Multiboot.h"
 #include "lib/util/collection/ArrayList.h"
 #include "kernel/service/InformationService.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/log/Log.h"
+#include "kernel/memory/Paging.h"
+#include "kernel/service/Service.h"
 
 namespace Device {
 

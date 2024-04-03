@@ -21,18 +21,15 @@
 #include <cstdint>
 
 #include "Service.h"
-#include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/base/FreeListMemoryManager.h"
 #include "kernel/memory/VirtualAddressSpace.h"
 #include "device/bus/isa/Isa.h"
 #include "kernel/memory/GlobalDescriptorTable.h"
+#include "kernel/memory/Paging.h"
 
 namespace Kernel {
-class PageDirectory;
 class PageFrameAllocator;
 class PagingAreaManager;
-struct InterruptFrameOld;
 }  // namespace Kernel
 
 namespace Kernel {

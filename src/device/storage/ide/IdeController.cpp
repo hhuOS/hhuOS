@@ -23,13 +23,11 @@
 #include "lib/util/async/Thread.h"
 #include "device/storage/ChsConverter.h"
 #include "IdeDevice.h"
-
 #include "kernel/service/StorageService.h"
 #include "kernel/service/InterruptService.h"
 #include "device/bus/pci/Pci.h"
 #include "device/bus/pci/PciDevice.h"
 #include "kernel/log/Log.h"
-#include "kernel/process/ThreadState.h"
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/collection/Array.h"
@@ -41,6 +39,11 @@
 #include "kernel/interrupt/InterruptVector.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/collection/Iterator.h"
+#include "kernel/service/Service.h"
+
+namespace Kernel {
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device::Storage {
 

@@ -18,15 +18,16 @@
 #ifndef __KernelEntry_include__
 #define __KernelEntry_include__
 
-#include "kernel/memory/GlobalDescriptorTable.h"
-#include "lib/util/base/FreeListMemoryManager.h"
-#include "kernel/multiboot/Multiboot.h"
+#include <cstdint>
+
 #include "kernel/memory/Paging.h"
-#include "kernel/memory/PagingAreaManager.h"
 
 namespace Kernel {
-class Logger;
+class Multiboot;
 }  // namespace Kernel
+namespace Util {
+class HeapMemoryManager;
+}  // namespace Util
 
 /**
  * Represents the entry point for the operating system.

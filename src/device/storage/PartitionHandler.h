@@ -27,9 +27,6 @@ namespace Storage {
 class StorageDevice;
 }  // namespace Storage
 }  // namespace Device
-namespace Kernel {
-class Logger;
-}  // namespace Kernel
 
 namespace Device::Storage {
 

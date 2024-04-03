@@ -18,9 +18,7 @@
 #include <cstdint>
 
 #include "lib/interface.h"
-#include "device/cpu/Cpu.h"
 #include "kernel/process/Process.h"
-
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/FilesystemService.h"
 #include "kernel/service/TimeService.h"
@@ -45,6 +43,10 @@
 #include "lib/util/time/Timestamp.h"
 #include "GatesOfHell.h"
 #include "lib/util/base/System.h"
+#include "kernel/log/Log.h"
+#include "kernel/service/Service.h"
+#include "lib/util/base/HeapMemoryManager.h"
+#include "lib/util/io/stream/PrintStream.h"
 
 namespace Util {
 namespace Async {

@@ -18,6 +18,8 @@
 #ifndef __VIRTUALADDRESSSPACE__
 #define __VIRTUALADDRESSSPACE__
 
+#include <cstdint>
+
 #include "Paging.h"
 
 namespace Util {
@@ -27,7 +29,6 @@ class HeapMemoryManager;
 }  // namespace Util
 
 namespace Kernel {
-class PageDirectory;
 
 /**
  * VirtualAddressSpace - represents a virtual address space with corresponding page directory

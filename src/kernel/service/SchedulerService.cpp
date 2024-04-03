@@ -15,22 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <stdarg.h>
-
+#include <cstdarg>
 
 #include "SchedulerService.h"
 #include "ProcessService.h"
 #include "kernel/service/SchedulerService.h"
-#include "device/cpu/Fpu.h"
-#include "kernel/log/Log.h"
 #include "kernel/process/Process.h"
 #include "kernel/process/SchedulerCleaner.h"
 #include "kernel/process/Thread.h"
-#include "kernel/service/MemoryService.h"
-#include "kernel/syscall/SystemCall.h"
-#include "lib/util/async/Spinlock.h"
-#include "lib/util/base/Address.h"
 #include "lib/util/base/System.h"
+#include "InterruptService.h"
+#include "kernel/service/Service.h"
 
 namespace Util {
 namespace Async {
@@ -44,12 +39,12 @@ class Timestamp;
 namespace Kernel {
 
 SchedulerService::SchedulerService() {
-    SystemCall::registerSystemCall(Util::System::YIELD, [](uint32_t, va_list) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::YIELD, [](uint32_t, va_list) -> bool {
         Service::getService<SchedulerService>().yield();
         return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::GET_CURRENT_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::GET_CURRENT_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
             return false;
         }
@@ -61,7 +56,7 @@ SchedulerService::SchedulerService() {
         return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::CREATE_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::CREATE_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 4) {
             return false;
         }
@@ -80,7 +75,7 @@ SchedulerService::SchedulerService() {
         return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::SLEEP, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::SLEEP, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
             return false;
         }
@@ -92,7 +87,7 @@ SchedulerService::SchedulerService() {
         return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::JOIN_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::JOIN_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
             return false;
         }
@@ -108,7 +103,7 @@ SchedulerService::SchedulerService() {
         return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::EXIT_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::EXIT_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
         Service::getService<SchedulerService>().exitCurrentThread();
         return true;
     });

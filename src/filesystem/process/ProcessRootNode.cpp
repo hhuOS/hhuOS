@@ -16,7 +16,9 @@
  */
 
 #include "ProcessRootNode.h"
+
 #include "kernel/service/ProcessService.h"
+#include "kernel/service/Service.h"
 
 
 namespace Filesystem::Process {

@@ -24,13 +24,19 @@
 #include "device/interrupt/apic/LocalApic.h"
 #include "kernel/service/ProcessService.h"
 #include "lib/util/base/System.h"
+#include "device/cpu/Cpu.h"
+#include "device/interrupt/pic/Pic.h"
+#include "kernel/process/Process.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/io/stream/PrintStream.h"
 
 namespace Kernel {
 
 class InterruptHandler;
-struct InterruptFrameOld;
+struct InterruptFrame;
 
 InterruptService::InterruptService(Device::Pic *pic) : pic(pic) {
+    LOG_INFO("Loading interrupt descriptor table");
     idt.load();
 }
 
@@ -48,7 +54,11 @@ InterruptService::~InterruptService() {
 }
 
 void InterruptService::assignInterrupt(InterruptVector slot, InterruptHandler &handler) {
-    dispatcher.assign(slot, handler);
+    interruptDispatcher.assign(slot, handler);
+}
+
+void InterruptService::assignSystemCall(Util::System::Code code, bool(*func)(uint32_t, va_list)) {
+    systemCallDispatcher.assign(code, func);
 }
 
 void InterruptService::handleException(const InterruptFrame &frame, uint32_t errorCode, InterruptVector vector) {
@@ -56,7 +66,6 @@ void InterruptService::handleException(const InterruptFrame &frame, uint32_t err
     if (processService.getCurrentProcess().isKernelProcess()) {
         Device::Cpu::disableInterrupts();
         Util::Exception::throwException(static_cast<Util::Exception::Error>(vector), "CPU exception!");
-        Device::Cpu::halt();
     }
 
     Util::System::out << Util::Exception::getExceptionName(static_cast<Util::Exception::Error>(vector)) << ": CPU exception!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
@@ -64,7 +73,11 @@ void InterruptService::handleException(const InterruptFrame &frame, uint32_t err
 }
 
 void InterruptService::dispatchInterrupt(const InterruptFrame &frame, InterruptVector slot) {
-    dispatcher.dispatch(frame, slot);
+    interruptDispatcher.dispatch(frame, slot);
+}
+
+void InterruptService::dispatchSystemCall(Util::System::Code code, uint16_t paramCount, va_list params, bool &result) {
+    systemCallDispatcher.dispatch(code, paramCount, params, result);
 }
 
 void InterruptService::allowHardwareInterrupt(Device::InterruptRequest interrupt) {

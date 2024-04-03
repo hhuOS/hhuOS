@@ -24,6 +24,7 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/hardware/SmBios.h"
 #include "kernel/service/InformationService.h"
+#include "kernel/service/Service.h"
 
 namespace Filesystem::SmBios {
 

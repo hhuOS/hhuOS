@@ -16,7 +16,6 @@
  */
 
 #include "lib/util/io/file/File.h"
-
 #include "kernel/service/StorageService.h"
 #include "lib/util/reflection/InstanceFactory.h"
 #include "PhysicalDriver.h"
@@ -24,6 +23,7 @@
 #include "filesystem/core/Driver.h"
 #include "filesystem/core/Node.h"
 #include "filesystem/core/VirtualDriver.h"
+#include "kernel/service/Service.h"
 
 namespace Filesystem {
 namespace Memory {

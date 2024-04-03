@@ -17,6 +17,8 @@
 
 #include "Serial.h"
 
+#include "lib/util/base/Exception.h"
+
 namespace Device::Serial {
 
 ComPort portFromString(const Util::String &portName) {

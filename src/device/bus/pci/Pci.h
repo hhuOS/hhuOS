@@ -22,9 +22,6 @@
 
 #include "lib/util/collection/Array.h"
 
-namespace Kernel {
-class Logger;
-}  // namespace Kernel
 namespace Util {
 
 template <typename T> class ArrayList;

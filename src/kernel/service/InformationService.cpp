@@ -17,6 +17,14 @@
 
 #include "InformationService.h"
 
+namespace Device {
+class Acpi;
+class SmBios;
+}  // namespace Device
+namespace Kernel {
+class Multiboot;
+}  // namespace Kernel
+
 Kernel::InformationService::InformationService(const Kernel::Multiboot *multiboot) : multiboot(multiboot) {}
 
 void Kernel::InformationService::setAcpi(const Device::Acpi *acpi) {

@@ -21,12 +21,12 @@
 #include "UdpSocket.h"
 
 #include "UdpModule.h"
-
 #include "kernel/service/NetworkService.h"
 #include "lib/util/network/Datagram.h"
 #include "kernel/network/NetworkStack.h"
 #include "lib/util/network/ip4/Ip4PortAddress.h"
 #include "lib/util/network/Socket.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel::Network::Udp {
 

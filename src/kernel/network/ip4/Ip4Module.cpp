@@ -21,7 +21,6 @@
 #include "Ip4Module.h"
 
 #include "lib/util/network/ip4/Ip4Header.h"
-
 #include "kernel/service/NetworkService.h"
 #include "lib/util/network/ip4/Ip4Datagram.h"
 #include "device/network/NetworkDevice.h"
@@ -44,6 +43,7 @@
 #include "lib/util/network/ip4/Ip4Route.h"
 #include "lib/util/network/ip4/Ip4SubnetAddress.h"
 #include "lib/util/collection/Iterator.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel::Network::Ip4 {
 

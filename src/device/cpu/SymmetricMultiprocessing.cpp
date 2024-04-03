@@ -20,10 +20,9 @@
 
 #include "SymmetricMultiprocessing.h"
 
-#include "kernel/log/Log.h"
 #include "device/interrupt/apic/Apic.h"
-
 #include "kernel/service/InterruptService.h"
+#include "kernel/service/Service.h"
 
 namespace Device {
 

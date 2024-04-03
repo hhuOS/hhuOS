@@ -22,17 +22,16 @@
 
 #include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/io/stream/FilterInputStream.h"
-#include "lib/util/base/String.h"
-#include "device/cpu/IoPort.h"
 #include "lib/util/io/stream/OutputStream.h"
 #include "lib/util/collection/ArrayBlockingQueue.h"
 #include "lib/util/io/stream/QueueInputStream.h"
 #include "SimpleSerialPort.h"
+#include "device/port/serial/Serial.h"
 
 namespace Kernel {
-    class Logger;
-struct InterruptFrameOld;
-}
+enum InterruptVector : uint8_t;
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device {
 

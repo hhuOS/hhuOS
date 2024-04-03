@@ -18,14 +18,17 @@
 #ifndef HHUOS_SCHEDULER_H
 #define HHUOS_SCHEDULER_H
 
-#include <cstdint>
-#include <device/cpu/Fpu.h>
 #include <lib/util/collection/HashMap.h>
+#include <cstdint>
 
 #include "lib/util/collection/ArrayListBlockingQueue.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/collection/ArrayList.h"
 #include "kernel/process/Thread.h"
+
+namespace Device {
+class Fpu;
+}  // namespace Device
 
 namespace Util {
 namespace Time {

@@ -98,18 +98,17 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(Python3)
 find_program(iwyu_tool_path NAMES iwyu_tool.py iwyu-tool)
 find_program(iwyu_fix_includes_path NAMES fix_includes.py iwyu-fix-includes)
-if (PYTHONINTERP_FOUND AND iwyu_tool_path AND iwyu_fix_includes_path)
+if (Python3_Interpreter_FOUND AND iwyu_tool_path AND iwyu_fix_includes_path)
     ProcessorCount(ncpus)
     add_custom_target(optimize_includes
-            COMMAND "${PYTHON_EXECUTABLE}" "${iwyu_tool_path}" -j "${ncpus}" -p "${CMAKE_BINARY_DIR}" |
-                    "${PYTHON_EXECUTABLE}" "${iwyu_fix_includes_path}" --nocomments --noupdate_comments --blank_lines --nosafe_headers --ignore_re "(.*/ff/source.*)|(.*/_deps/lvgl.*)" -p "${HHUOS_SRC_DIR}"
+            COMMAND "${Python3_EXECUTABLE}" "${iwyu_tool_path}" -j "${ncpus}" -p "${CMAKE_BINARY_DIR}" |
+                    "${Python3_EXECUTABLE}" "${iwyu_fix_includes_path}" --nocomments --noupdate_comments --blank_lines --nosafe_headers --ignore_re "(.*/ff/source.*)|(.*/_deps/lvgl.*)" -p "${HHUOS_SRC_DIR}"
             VERBATIM)
 endif()
 
 find_program(cloc_path NAMES cloc)
 if (cloc_path)
-    add_custom_target(cloc
-            COMMAND "${cloc_path}" "${HHUOS_SRC_DIR}" --exclude-dir=ff VERBATIM)
+    add_custom_target(cloc COMMAND "${cloc_path}" "${HHUOS_SRC_DIR}" --exclude-dir=ff VERBATIM)
 endif()
 
 # Add subdirectories

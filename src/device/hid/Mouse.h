@@ -27,8 +27,8 @@
 #include "lib/util/io/stream/QueueInputStream.h"
 
 namespace Kernel {
-class Logger;
-struct InterruptFrameOld;
+enum InterruptVector : uint8_t;
+struct InterruptFrame;
 }  // namespace Kernel
 
 namespace Device {

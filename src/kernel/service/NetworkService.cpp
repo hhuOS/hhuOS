@@ -28,8 +28,6 @@
 #include "lib/util/network/NetworkAddress.h"
 #include "lib/util/network/Socket.h"
 #include "kernel/network/ip4/Ip4Module.h"
-#include "kernel/syscall/SystemCall.h"
-
 #include "kernel/network/ethernet/EthernetSocket.h"
 #include "kernel/network/ip4/Ip4Socket.h"
 #include "kernel/network/icmp/IcmpSocket.h"
@@ -48,6 +46,8 @@
 #include "lib/util/network/ip4/Ip4Route.h"
 #include "lib/util/network/ip4/Ip4SubnetAddress.h"
 #include "lib/util/collection/Array.h"
+#include "InterruptService.h"
+#include "kernel/service/Service.h"
 
 namespace Filesystem {
 class Node;
@@ -58,7 +58,7 @@ namespace Kernel {
 Util::HashMap<Util::String, uint32_t> NetworkService::nameMap;
 
 NetworkService::NetworkService() {
-    SystemCall::registerSystemCall(Util::System::CREATE_SOCKET, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::CREATE_SOCKET, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 2) {
             return false;
         }
@@ -71,7 +71,7 @@ NetworkService::NetworkService() {
         return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::SEND_DATAGRAM, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::SEND_DATAGRAM, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 2) {
             return false;
         }
@@ -80,7 +80,7 @@ NetworkService::NetworkService() {
         auto fileDescriptor = va_arg(arguments, int32_t);
         auto &datagram = *va_arg(arguments, Util::Network::Datagram*);
 
-        auto &socket = reinterpret_cast<Network::Socket&>(filesystemService.getNode(fileDescriptor));
+        auto &socket = reinterpret_cast<Network::Socket &>(filesystemService.getNode(fileDescriptor));
         if (!socket.isBound()) {
             Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
         }
@@ -88,7 +88,7 @@ NetworkService::NetworkService() {
         return socket.send(datagram);
     });
 
-    SystemCall::registerSystemCall(Util::System::RECEIVE_DATAGRAM, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::RECEIVE_DATAGRAM, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 2) {
             return false;
         }
@@ -108,7 +108,8 @@ NetworkService::NetworkService() {
             return false;
         }
 
-        auto *datagramBuffer = reinterpret_cast<uint8_t*>(memoryService.allocateUserMemory(kernelDatagram->getLength()));
+        auto *datagramBuffer = reinterpret_cast<uint8_t *>(memoryService.allocateUserMemory(
+                kernelDatagram->getLength()));
 
         auto source = Util::Address<uint32_t>(kernelDatagram->getData());
         auto target = Util::Address<uint32_t>(datagramBuffer);

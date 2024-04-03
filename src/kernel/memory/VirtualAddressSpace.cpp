@@ -16,10 +16,16 @@
  */
 
 #include "VirtualAddressSpace.h"
+
 #include "lib/util/base/Constants.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/ProcessService.h"
 #include "MemoryLayout.h"
+#include "kernel/memory/Paging.h"
+#include "kernel/process/Process.h"
+#include "kernel/service/Service.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/base/FreeListMemoryManager.h"
 
 namespace Util {
 

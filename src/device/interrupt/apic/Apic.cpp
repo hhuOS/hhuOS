@@ -20,16 +20,12 @@
 
 #include "Apic.h"
 
-#include "lib/util/base/operators.h"
 #include "device/system/Acpi.h"
 #include "device/time/rtc/Cmos.h"
 #include "device/time/pit/Pit.h"
 #include "device/cpu/SymmetricMultiprocessing.h"
 #include "kernel/interrupt/InterruptVector.h"
-
-#include "kernel/service/MemoryService.h"
 #include "lib/util/base/Constants.h"
-#include "kernel/memory/Paging.h"
 #include "kernel/memory/GlobalDescriptorTable.h"
 #include "device/interrupt/apic/IoApic.h"
 #include "device/interrupt/apic/LocalApic.h"
@@ -41,6 +37,8 @@
 #include "kernel/memory/MemoryLayout.h"
 #include "lib/util/hardware/Acpi.h"
 #include "kernel/service/InformationService.h"
+#include "device/cpu/Cpu.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel {
 enum GlobalSystemInterrupt : uint32_t;

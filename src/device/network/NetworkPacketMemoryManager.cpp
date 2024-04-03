@@ -20,6 +20,9 @@
 #include <kernel/service/MemoryService.h>
 #include <lib/util/base/Constants.h>
 
+#include "kernel/memory/BitmapMemoryManager.h"
+#include "kernel/service/Service.h"
+
 NetworkPacketMemoryManager NetworkPacketMemoryManager::create(uint32_t packetCount) {
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     auto *startAddress = static_cast<uint8_t*>(memoryService.allocateKernelMemory(packetCount * PACKET_BUFFER_SIZE, Util::PAGESIZE));

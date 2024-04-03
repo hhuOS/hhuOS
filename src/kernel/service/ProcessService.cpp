@@ -15,10 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <stdarg.h>
+#include <cstdarg>
 
 #include "kernel/process/AddressSpaceCleaner.h"
-
 #include "kernel/process/BinaryLoader.h"
 #include "ProcessService.h"
 #include "FilesystemService.h"
@@ -27,11 +26,12 @@
 #include "kernel/process/Thread.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/SchedulerService.h"
-#include "kernel/syscall/SystemCall.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/System.h"
 #include "lib/util/collection/Iterator.h"
+#include "InterruptService.h"
+#include "kernel/service/Service.h"
 
 
 namespace Kernel {
@@ -40,14 +40,14 @@ class VirtualAddressSpace;
 ProcessService::ProcessService(Process *kernelProcess) : kernelProcess(kernelProcess) {
     processList.add(kernelProcess);
 
-    SystemCall::registerSystemCall(Util::System::EXIT_PROCESS, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::EXIT_PROCESS, [](uint32_t paramCount, va_list arguments) -> bool {
         auto &processService = Service::getService<ProcessService>();
-        int32_t exitCode = paramCount >=1 ? va_arg(arguments, int32_t) : 0;
+        int32_t exitCode = paramCount >= 1 ? va_arg(arguments, int32_t) : 0;
 
         processService.exitCurrentProcess(exitCode);
     });
 
-    SystemCall::registerSystemCall(Util::System::EXECUTE_BINARY, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::EXECUTE_BINARY, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 7) {
             return false;
         }
@@ -61,13 +61,14 @@ ProcessService::ProcessService(Process *kernelProcess) : kernelProcess(kernelPro
         auto *commandArguments = va_arg(arguments, Util::Array<Util::String>*);
         auto &processId = *va_arg(arguments, uint32_t*);
 
-        auto &process = processService.loadBinary(*binaryFile, *inputFile, *outputFile, *errorFile, *command, *commandArguments);
+        auto &process = processService.loadBinary(*binaryFile, *inputFile, *outputFile, *errorFile, *command,
+                                                  *commandArguments);
 
         processId = process.getId();
         return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::GET_CURRENT_PROCESS, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::GET_CURRENT_PROCESS, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
             return false;
         }
@@ -79,7 +80,7 @@ ProcessService::ProcessService(Process *kernelProcess) : kernelProcess(kernelPro
         return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::JOIN_PROCESS, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::JOIN_PROCESS, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
             return false;
         }
@@ -96,7 +97,7 @@ ProcessService::ProcessService(Process *kernelProcess) : kernelProcess(kernelPro
         return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::KILL_PROCESS, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::KILL_PROCESS, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
             return false;
         }

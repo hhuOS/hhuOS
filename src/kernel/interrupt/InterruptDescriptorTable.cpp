@@ -16,13 +16,17 @@
  */
 
 #include "InterruptDescriptorTable.h"
+
+#include <cstdarg>
+
 #include "kernel/service/Service.h"
 #include "kernel/service/InterruptService.h"
 #include "kernel/service/MemoryService.h"
-#include "kernel/service/ProcessService.h"
 #include "lib/util/base/System.h"
 
 namespace Kernel {
+enum InterruptVector : uint8_t;
+struct InterruptFrame;
 
 InterruptDescriptorTable::InterruptDescriptorTable() {
     // CPU Exceptions
@@ -162,7 +166,7 @@ InterruptDescriptorTable::InterruptDescriptorTable() {
     SET_IDT_ENTRY(table, 131, handleInterrupt131)
     SET_IDT_ENTRY(table, 132, handleInterrupt132)
     SET_IDT_ENTRY(table, 133, handleInterrupt133)
-    SET_IDT_ENTRY(table, 134, handleInterrupt134)
+    // System call handler is set up below
     SET_IDT_ENTRY(table, 135, handleInterrupt135)
     SET_IDT_ENTRY(table, 136, handleInterrupt136)
     SET_IDT_ENTRY(table, 137, handleInterrupt137)
@@ -284,6 +288,9 @@ InterruptDescriptorTable::InterruptDescriptorTable() {
     SET_IDT_ENTRY(table, 253, handleInterrupt253)
     SET_IDT_ENTRY(table, 254, handleInterrupt254)
     SET_IDT_ENTRY(table, 255, handleInterrupt255)
+
+    // Set system call handler
+    table[0x86] = GateDescriptor(reinterpret_cast<uint32_t>(handleSystemCall), Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 1), GateType::TRAP_32, Device::Cpu::PrivilegeLevel::Ring3);
 }
 
 InterruptDescriptorTable::GateDescriptor::GateDescriptor(uint32_t address, const Device::Cpu::SegmentSelector &segmentSelector, InterruptDescriptorTable::GateType gateType, Device::Cpu::PrivilegeLevel privilegeLevel) :
@@ -329,6 +336,28 @@ void InterruptDescriptorTable::handleInterrupt(const InterruptFrame &frame, Inte
 void InterruptDescriptorTable::handlePageFault(InterruptFrame *frame, uint32_t errorCode) {
     ENTER_INTERRUPT_HANDLER_WITH_ERROR_CODE
     Service::getService<MemoryService>().handlePageFault(errorCode);
+    LEAVE_INTERRUPT_HANDLER
+}
+
+void InterruptDescriptorTable::handleSystemCall(InterruptFrame *frame) {
+    ENTER_INTERRUPT_HANDLER
+
+    uint32_t ebxValue;
+    uint32_t ecxValue;
+    uint32_t edxValue;
+
+    asm volatile (
+            "mov %%ebx, (%0);"
+            "mov %%ecx, (%1);"
+            "mov %%edx, (%2);"
+            : :
+            "r"(&ebxValue), "r"(&ecxValue), "r"(&edxValue)
+            :
+            "ebx", "ecx", "edx"
+            );
+
+    Service::getService<InterruptService>().dispatchSystemCall(static_cast<Util::System::Code>(ebxValue), ebxValue >> 8, reinterpret_cast<va_list>(ecxValue), *reinterpret_cast<bool *>(edxValue));
+
     LEAVE_INTERRUPT_HANDLER
 }
 

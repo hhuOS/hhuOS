@@ -36,7 +36,6 @@ class NetworkDevice;
 }  // namespace Network
 }  // namespace Device
 namespace Kernel {
-class Logger;
 
 namespace Network {
 namespace Ip4 {

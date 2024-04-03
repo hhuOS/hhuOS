@@ -15,15 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/memory/Paging.h"
-
-#include "kernel/memory/MemoryLayout.h"
 #include "Multiboot.h"
 #include "kernel/multiboot/Multiboot.h"
-
-#include "kernel/service/MemoryService.h"
 #include "lib/util/base/Exception.h"
-#include "lib/util/base/Address.h"
 #include "lib/util/collection/ArrayList.h"
 
 namespace Kernel {

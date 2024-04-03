@@ -29,7 +29,6 @@
 namespace Util {
 class String;
 }  // namespace Util
-struct CopyInformation;
 
 namespace Device {
 

@@ -21,7 +21,15 @@
 #ifndef HHUOS_SINGLETIMEEMITTER_H
 #define HHUOS_SINGLETIMEEMITTER_H
 
+#include <cstdint>
+
 #include "Emitter.h"
+
+namespace Util {
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
 
 namespace Util::Game::D2 {
 

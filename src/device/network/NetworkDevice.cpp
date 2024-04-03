@@ -17,17 +17,17 @@
 
 #include "NetworkDevice.h"
 
-
 #include "kernel/service/ProcessService.h"
 #include "lib/util/async/Thread.h"
 #include "device/network/PacketReader.h"
 #include "device/network/PacketWriter.h"
 #include "kernel/process/Thread.h"
-#include "kernel/service/MemoryService.h"
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/base/Address.h"
-#include "lib/util/base/Constants.h"
 #include "kernel/network/ethernet/EthernetModule.h"
+#include "device/network/NetworkPacketMemoryManager.h"
+#include "kernel/service/Service.h"
+#include "lib/util/base/Exception.h"
 
 namespace Device::Network {
 

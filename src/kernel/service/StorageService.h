@@ -27,7 +27,6 @@
 #include "device/storage/StorageDevice.h"
 
 namespace Kernel {
-class Logger;
 
 class StorageService : public Service {
 

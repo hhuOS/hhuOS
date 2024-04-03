@@ -38,7 +38,6 @@ class MacAddress;
 }  // namespace Util
 
 namespace Kernel {
-class Logger;
 
 class NetworkService : public Service {
 

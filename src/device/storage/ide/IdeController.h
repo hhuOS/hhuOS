@@ -27,16 +27,18 @@
 #include "device/cpu/IoPort.h"
 #include "lib/util/async/Spinlock.h"
 
+namespace Kernel {
+enum InterruptVector : uint8_t;
+struct InterruptFrame;
+}  // namespace Kernel
+
 namespace Device {
 class PciDevice;
+
 namespace Storage {
 class IdeDevice;
 }  // namespace Storage
 }  // namespace Device
-namespace Kernel {
-class Logger;
-struct InterruptFrameOld;
-}  // namespace Kernel
 
 namespace Device::Storage {
 

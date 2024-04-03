@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/multiboot/Multiboot.h"
 #include "Paging.h"
 #include "PageFrameAllocator.h"
 #include "kernel/memory/PagingAreaManager.h"

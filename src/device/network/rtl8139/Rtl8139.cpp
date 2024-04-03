@@ -30,10 +30,11 @@
 #include "kernel/log/Log.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/Address.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel {
-struct InterruptFrameOld;
 enum InterruptVector : uint8_t;
+struct InterruptFrame;
 }  // namespace Kernel
 
 namespace Device::Network {

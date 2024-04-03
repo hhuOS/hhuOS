@@ -15,9 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/multiboot/Multiboot.h"
 #include "Paging.h"
-#include "MemoryLayout.h"
+#include "lib/util/base/Address.h"
 
 namespace Kernel {
 

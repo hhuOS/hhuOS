@@ -19,7 +19,6 @@
 #include "kernel/service/InterruptService.h"
 #include "Cmos.h"
 #include "Rtc.h"
-
 #include "kernel/service/ProcessService.h"
 #include "device/interrupt/InterruptRequest.h"
 #include "device/system/Acpi.h"
@@ -30,9 +29,10 @@
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/hardware/Acpi.h"
 #include "kernel/service/InformationService.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel {
-struct InterruptFrameOld;
+struct InterruptFrame;
 }  // namespace Kernel
 
 namespace Device {

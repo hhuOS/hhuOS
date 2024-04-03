@@ -19,12 +19,16 @@
 #define HHUOS_INFORMATIONSERVICE_H
 
 #include <cstdint>
+
 #include "Service.h"
-#include "kernel/multiboot/Multiboot.h"
-#include "device/system/Acpi.h"
-#include "device/system/SmBios.h"
+
+namespace Device {
+class Acpi;
+class SmBios;
+}  // namespace Device
 
 namespace Kernel {
+class Multiboot;
 
 class InformationService : public Service {
 

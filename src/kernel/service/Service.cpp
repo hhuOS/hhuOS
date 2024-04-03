@@ -16,7 +16,9 @@
  */
 
 #include "Service.h"
+
 #include "lib/util/base/Exception.h"
+#include "lib/util/async/Spinlock.h"
 
 namespace Kernel {
 

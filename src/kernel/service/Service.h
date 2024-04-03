@@ -18,8 +18,15 @@
 #ifndef __KernelService_include__
 #define __KernelService_include__
 
-#include "lib/util/async/Spinlock.h"
+#include <cstdint>
+
 #include "lib/util/base/Exception.h"
+
+namespace Util {
+namespace Async {
+class Spinlock;
+}  // namespace Async
+}  // namespace Util
 
 namespace Kernel {
 

@@ -24,10 +24,6 @@
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/OutputStream.h"
 
-namespace Kernel {
-class Logger;
-}  // namespace Kernel
-
 namespace Device {
 
 class ParallelPort : public Util::Io::OutputStream {

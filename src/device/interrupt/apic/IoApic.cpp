@@ -20,12 +20,11 @@
 
 #include "IoApic.h"
 
-
 #include "kernel/service/MemoryService.h"
-#include "lib/util/base/Constants.h"
 #include "LocalApic.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/collection/Iterator.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel {
 enum GlobalSystemInterrupt : uint32_t;

@@ -21,10 +21,18 @@
 #ifndef HHUOS_EMITTER_H
 #define HHUOS_EMITTER_H
 
+#include <cstdint>
+
 #include "lib/util/game/2d/Entity.h"
-#include "lib/util/game/2d/Sprite.h"
 #include "lib/util/math/Random.h"
 #include "Particle.h"
+#include "lib/util/collection/ArrayList.h"
+
+namespace Util {
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
 
 namespace Util::Game::D2 {
 

@@ -19,10 +19,13 @@
 #define HHUOS_INTERRUPTDESCRIPTORTABLE_H
 
 #include <cstdint>
+
 #include "device/cpu/Cpu.h"
-#include "kernel/process/ThreadState.h"
-#include "InterruptVector.h"
-#include "InterruptFrame.h"
+
+namespace Kernel {
+enum InterruptVector : uint8_t;
+struct InterruptFrame;
+}  // namespace Kernel
 
 #define STRINGIFY(a) #a
 
@@ -155,6 +158,8 @@ private:
     static void handleInterrupt(const InterruptFrame &frame, InterruptVector vector);
 
     __attribute__ ((interrupt)) static void handlePageFault(InterruptFrame *frame, uint32_t errorCode);
+
+    __attribute__ ((interrupt)) static void handleSystemCall(InterruptFrame *frame);
 
     // CPU Exceptions
     EXCEPTION_HANDLER(0, handleException)
@@ -293,7 +298,7 @@ private:
     INTERRUPT_HANDLER(131, handleInterrupt)
     INTERRUPT_HANDLER(132, handleInterrupt)
     INTERRUPT_HANDLER(133, handleInterrupt)
-    INTERRUPT_HANDLER(134, handleInterrupt)
+    // Interrupt vector 134 (0x86) is used for system calls and has a specific handler
     INTERRUPT_HANDLER(135, handleInterrupt)
     INTERRUPT_HANDLER(136, handleInterrupt)
     INTERRUPT_HANDLER(137, handleInterrupt)

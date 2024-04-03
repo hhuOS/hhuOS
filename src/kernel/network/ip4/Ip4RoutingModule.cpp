@@ -24,13 +24,13 @@
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/network/NetworkAddress.h"
-
 #include "kernel/service/NetworkService.h"
 #include "kernel/network/NetworkStack.h"
 #include "kernel/network/ip4/Ip4Module.h"
 #include "lib/util/network/ip4/Ip4SubnetAddress.h"
 #include "kernel/network/ip4/Ip4Interface.h"
 #include "lib/util/collection/Iterator.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel::Network::Ip4 {
 

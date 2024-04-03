@@ -16,11 +16,9 @@
  */
 
 
-#include "lib/util/base/System.h"
 #include "Cpu.h"
 #include "lib/util/async/Atomic.h"
-#include "lib/util/collection/ArrayList.h"
-#include "kernel/service/InterruptService.h"
+#include "lib/util/base/Exception.h"
 
 namespace Device {
 

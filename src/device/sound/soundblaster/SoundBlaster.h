@@ -24,8 +24,8 @@
 #include "device/cpu/IoPort.h"
 
 namespace Kernel {
-class Logger;
-struct InterruptFrameOld;
+enum InterruptVector : uint8_t;
+struct InterruptFrame;
 }  // namespace Kernel
 
 namespace Device {

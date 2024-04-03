@@ -21,11 +21,11 @@
 #include "LocalApicErrorHandler.h"
 
 #include "kernel/service/InterruptService.h"
-
 #include "kernel/interrupt/InterruptVector.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel {
-struct InterruptFrameOld;
+struct InterruptFrame;
 }  // namespace Kernel
 
 namespace Device {

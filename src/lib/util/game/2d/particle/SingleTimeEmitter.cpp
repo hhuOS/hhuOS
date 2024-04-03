@@ -19,8 +19,16 @@
  */
 
 #include "SingleTimeEmitter.h"
+
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Scene.h"
+#include "lib/util/game/2d/particle/Emitter.h"
+
+namespace Util {
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
 
 namespace Util::Game::D2 {
 

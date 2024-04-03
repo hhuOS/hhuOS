@@ -18,13 +18,13 @@
 #include "ProcessDriver.h"
 
 #include "kernel/service/ProcessService.h"
-
 #include "ProcessDirectoryNode.h"
 #include "ProcessRootNode.h"
 #include "ProcessFileNode.h"
 #include "kernel/process/Process.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/file/File.h"
+#include "kernel/service/Service.h"
 
 namespace Filesystem {
 class Node;

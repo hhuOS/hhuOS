@@ -20,7 +20,6 @@
 #include "FloppyDevice.h"
 #include "device/time/rtc/Cmos.h"
 #include "kernel/service/MemoryService.h"
-
 #include "device/cpu/Cpu.h"
 #include "kernel/service/StorageService.h"
 #include "lib/util/async/Thread.h"
@@ -30,9 +29,11 @@
 #include "lib/util/time/Timestamp.h"
 #include "device/interrupt/InterruptRequest.h"
 #include "kernel/interrupt/InterruptVector.h"
+#include "kernel/service/Service.h"
+#include "lib/util/base/Constants.h"
 
 namespace Kernel {
-struct InterruptFrameOld;
+struct InterruptFrame;
 }  // namespace Kernel
 
 namespace Device::Storage {

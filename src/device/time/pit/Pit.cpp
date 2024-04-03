@@ -17,15 +17,15 @@
 
 #include "kernel/service/InterruptService.h"
 #include "Pit.h"
-
 #include "kernel/log/Log.h"
 #include "kernel/service/SchedulerService.h"
 #include "device/system/FirmwareConfiguration.h"
 #include "device/interrupt/InterruptRequest.h"
 #include "kernel/interrupt/InterruptVector.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel {
-struct InterruptFrameOld;
+struct InterruptFrame;
 }  // namespace Kernel
 
 namespace Device {

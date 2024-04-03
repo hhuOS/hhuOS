@@ -18,10 +18,10 @@
 #include "AddressSpaceCleaner.h"
 
 #include "kernel/service/MemoryService.h"
-
 #include "kernel/service/ProcessService.h"
 #include "kernel/process/Process.h"
 #include "kernel/service/SchedulerService.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel {
 

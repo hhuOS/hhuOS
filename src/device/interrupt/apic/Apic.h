@@ -26,13 +26,11 @@
 #include "LocalApic.h"
 #include "LocalApicErrorHandler.h"
 #include "device/time/apic/ApicTimer.h"
-#include "device/cpu/Cpu.h"
 #include "lib/util/collection/HashMap.h"
 #include "lib/util/collection/Array.h"
 #include "kernel/memory/GlobalDescriptorTable.h"
 
 namespace Kernel {
-class Logger;
 enum GlobalSystemInterrupt : uint32_t;
 enum InterruptVector : uint8_t;
 }  // namespace Kernel

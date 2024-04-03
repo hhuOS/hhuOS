@@ -18,6 +18,7 @@
 #ifndef NETWORKPACKETMEMORYMANAGER_H
 #define NETWORKPACKETMEMORYMANAGER_H
 #include <kernel/memory/BitmapMemoryManager.h>
+#include <cstdint>
 
 class NetworkPacketMemoryManager : public Kernel::BitmapMemoryManager {
 

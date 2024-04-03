@@ -20,14 +20,10 @@
 
 #include <cstdint>
 
-#include "kernel/interrupt/InterruptHandler.h"
-#include "lib/util/io/stream/FilterInputStream.h"
-#include "lib/util/base/String.h"
 #include "device/cpu/IoPort.h"
 #include "lib/util/io/stream/OutputStream.h"
-#include "lib/util/collection/ArrayBlockingQueue.h"
-#include "lib/util/io/stream/QueueInputStream.h"
 #include "Serial.h"
+#include "lib/util/io/stream/InputStream.h"
 
 namespace Device {
 

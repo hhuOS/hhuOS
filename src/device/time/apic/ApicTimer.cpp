@@ -23,13 +23,13 @@
 #include "device/interrupt/apic/LocalApic.h"
 #include "device/time/pit/Pit.h"
 #include "kernel/service/SchedulerService.h"
-
 #include "kernel/service/InterruptService.h"
 #include "kernel/interrupt/InterruptVector.h"
 #include "kernel/log/Log.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel {
-struct InterruptFrameOld;
+struct InterruptFrame;
 }  // namespace Kernel
 
 namespace Device {

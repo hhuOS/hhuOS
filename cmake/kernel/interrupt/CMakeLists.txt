@@ -18,4 +18,5 @@ cmake_minimum_required(VERSION 3.14)
 
 target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/interrupt/InterruptDescriptorTable.cpp
-        ${HHUOS_SRC_DIR}/kernel/interrupt/InterruptDispatcher.cpp)
+        ${HHUOS_SRC_DIR}/kernel/interrupt/InterruptDispatcher.cpp
+        ${HHUOS_SRC_DIR}/kernel/interrupt/SystemCallDispatcher.cpp)

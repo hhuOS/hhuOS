@@ -20,7 +20,6 @@
 
 #include "Ip4Socket.h"
 
-
 #include "kernel/service/NetworkService.h"
 #include "lib/util/network/ip4/Ip4Datagram.h"
 #include "device/network/NetworkDevice.h"
@@ -31,6 +30,7 @@
 #include "kernel/network/ip4/Ip4Interface.h"
 #include "kernel/network/ip4/Ip4Module.h"
 #include "lib/util/network/Socket.h"
+#include "kernel/service/Service.h"
 
 namespace Util {
 namespace Network {

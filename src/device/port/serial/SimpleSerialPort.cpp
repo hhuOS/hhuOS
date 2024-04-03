@@ -15,20 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/service/InterruptService.h"
-#include "device/interrupt/InterruptRequest.h"
-#include "kernel/log/Log.h"
-#include "filesystem/memory/StreamNode.h"
-#include "kernel/service/FilesystemService.h"
-
 #include "SimpleSerialPort.h"
-#include "filesystem/core/Filesystem.h"
-#include "filesystem/memory/MemoryDriver.h"
-#include "kernel/interrupt/InterruptVector.h"
-#include "lib/util/base/Exception.h"
-#include "kernel/multiboot/Multiboot.h"
 
 namespace Device {
+namespace Serial {
+enum ComPort : uint16_t;
+enum class BaudRate : uint16_t;
+}  // namespace Serial
 
 SimpleSerialPort::SimpleSerialPort(Serial::ComPort port, Serial::BaudRate dataRate) :
         port(port), dataRate(dataRate), dataRegister(port), interruptRegister(port + 1), fifoControlRegister(port + 2),

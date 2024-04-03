@@ -21,10 +21,13 @@
 #ifndef HHUOS_LOCALAPICERRORHANDLER_H
 #define HHUOS_LOCALAPICERRORHANDLER_H
 
+#include <cstdint>
+
 #include "kernel/interrupt/InterruptHandler.h"
 
 namespace Kernel {
-struct InterruptFrameOld;
+enum InterruptVector : uint8_t;
+struct InterruptFrame;
 }  // namespace Kernel
 
 namespace Device {

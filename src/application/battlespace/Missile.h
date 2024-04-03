@@ -24,7 +24,8 @@
 #include <cstdint>
 
 #include "lib/util/game/3d/Model.h"
-#include "Player.h"
+
+class Player;
 
 namespace Util {
 namespace Game {
@@ -32,9 +33,6 @@ namespace D3 {
 class CollisionEvent;
 }  // namespace D3
 }  // namespace Game
-namespace Graphic {
-class Color;
-}  // namespace Graphic
 namespace Math {
 class Vector3D;
 }  // namespace Math

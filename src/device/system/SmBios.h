@@ -23,9 +23,6 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/hardware/SmBios.h"
 #include "lib/util/base/Exception.h"
-#include "kernel/multiboot/Multiboot.h"
-
-struct CopyInformation;
 
 namespace Device {
 

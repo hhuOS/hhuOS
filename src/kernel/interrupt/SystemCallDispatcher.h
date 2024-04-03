@@ -15,48 +15,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __ThreadState_include__
-#define __ThreadState_include__
+#ifndef HHUOS_SYSTEMCALLDISPATCHER_H
+#define HHUOS_SYSTEMCALLDISPATCHER_H
 
 #include <cstdint>
+#include <cstdarg>
+
+#include "lib/util/base/System.h"
 
 namespace Kernel {
 
-struct Context {
-    uint32_t edi;
-    uint32_t esi;
-    uint32_t ebx;
-    uint32_t ebp;
-    uint32_t eip;
-} __attribute__((packed));
+class SystemCallDispatcher {
 
-struct InterruptFrameOld {
-    uint16_t gs;
-    uint16_t pad6;
-    uint16_t fs;
-    uint16_t pad5;
-    uint16_t es;
-    uint16_t pad4;
-    uint16_t ds;
-    uint16_t pad3;
-    uint32_t edi;
-    uint32_t esi;
-    uint32_t ebp;
-    uint32_t esp;
-    uint32_t ebx;
-    uint32_t edx;
-    uint32_t ecx;
-    uint32_t eax;
-    uint32_t interrupt;
-    uint32_t error;
-    uint32_t eip;
-    uint16_t cs;
-    uint16_t pad2;
-    uint32_t eflags;
-    uint32_t uesp;
-    uint16_t ss;
-    uint16_t pad1;
-} __attribute__((packed));
+public:
+    /**
+     * Default Constructor.
+     */
+    SystemCallDispatcher() = default;
+
+    /**
+     * Copy Constructor.
+     */
+    SystemCallDispatcher(const SystemCallDispatcher &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    SystemCallDispatcher &operator=(const SystemCallDispatcher &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~SystemCallDispatcher() = default;
+
+    void assign(Util::System::Code code, bool(*func)(uint32_t paramCount, va_list params));
+
+    void dispatch(Util::System::Code code, uint16_t paramCount, va_list params, bool &result) const;
+
+private:
+
+    bool(*systemCalls[256])(uint32_t paramCount, va_list params){};
+
+};
 
 }
 

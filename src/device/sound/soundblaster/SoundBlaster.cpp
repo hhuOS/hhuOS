@@ -19,7 +19,6 @@
 
 #include "SoundBlasterRunnable.h"
 #include "SoundBlasterNode.h"
-
 #include "kernel/service/MemoryService.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/time/Timestamp.h"
@@ -32,10 +31,11 @@
 #include "filesystem/core/Filesystem.h"
 #include "kernel/log/Log.h"
 #include "kernel/process/Thread.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel {
 enum InterruptVector : uint8_t;
-struct InterruptFrameOld;
+struct InterruptFrame;
 }  // namespace Kernel
 
 namespace Device {

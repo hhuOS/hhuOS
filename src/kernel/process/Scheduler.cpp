@@ -16,10 +16,10 @@
  */
 
 #include "Scheduler.h"
+
 #include <lib/util/base/Address.h>
 
 #include "kernel/service/TimeService.h"
-
 #include "device/cpu/Fpu.h"
 #include "kernel/process/Process.h"
 #include "kernel/process/Thread.h"
@@ -29,6 +29,12 @@
 #include "lib/util/time/Timestamp.h"
 #include "kernel/log/Log.h"
 #include "kernel/service/InterruptService.h"
+#include "kernel/interrupt/InterruptVector.h"
+#include "kernel/service/Service.h"
+#include "lib/util/async/Atomic.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/HashMap.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Kernel {
 

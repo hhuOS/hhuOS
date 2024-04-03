@@ -24,17 +24,9 @@
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/3d/event/CollisionEvent.h"
 #include "lib/util/math/Vector3D.h"
-
-namespace Util {
-namespace Game {
-namespace D3 {
-class CollisionEvent;
-}  // namespace D3
-}  // namespace Game
-namespace Graphic {
-class Color;
-}  // namespace Graphic
-}  // namespace Util
+#include "application/battlespace/Player.h"
+#include "lib/util/game/3d/Entity.h"
+#include "lib/util/graphic/Colors.h"
 
 Missile::Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale, Player &player) : Util::Game::D3::Model(TAG, "/user/battlespace/missile.obj", translation, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::RED), player(&player) {}
 

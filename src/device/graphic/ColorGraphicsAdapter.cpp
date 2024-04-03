@@ -1,9 +1,10 @@
 #include "ColorGraphicsAdapter.h"
-#include "kernel/service/MemoryService.h"
+
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/interface.h"
 #include "lib/util/base/Constants.h"
+#include "lib/util/base/Exception.h"
 
 namespace Device::Graphic {
 

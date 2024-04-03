@@ -19,9 +19,6 @@
 
 #include <cstdint>
 
-#include "lib/util/base/Exception.h"
-#include "lib/util/collection/Array.h"
-
 namespace Device {
 
 /**

@@ -21,8 +21,6 @@
 #include <cstdint>
 
 #include "lib/util/base/String.h"
-#include "lib/util/collection/ArrayList.h"
-#include "lib/util/async/Spinlock.h"
 
 namespace Util {
 namespace Async {
@@ -34,8 +32,6 @@ template <typename T> class IdGenerator;
 namespace Kernel {
 
 class Process;
-struct Context;
-struct InterruptFrameOld;
 
 class Thread {
 

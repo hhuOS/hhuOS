@@ -25,13 +25,11 @@
 #include "kernel/memory/PageFrameAllocator.h"
 #include "kernel/memory/VirtualAddressSpace.h"
 #include "kernel/service/MemoryService.h"
-#include "kernel/interrupt/InterruptDescriptorTable.h"
 #include "kernel/service/InterruptService.h"
 #include "device/interrupt/apic/Apic.h"
 #include "device/system/Acpi.h"
 #include "kernel/service/InformationService.h"
 #include "device/system/SmBios.h"
-#include "kernel/log/Log.h"
 #include "device/time/pit/Pit.h"
 #include "device/time/rtc/Rtc.h"
 #include "kernel/service/TimeService.h"
@@ -79,6 +77,34 @@
 #include "BuildConfig.h"
 #include "kernel/memory/PagingAreaManagerRefillRunnable.h"
 #include "lib/util/async/Process.h"
+#include "device/hid/Ps2Controller.h"
+#include "device/interrupt/pic/Pic.h"
+#include "device/port/serial/Serial.h"
+#include "device/port/serial/SerialPort.h"
+#include "device/port/serial/SimpleSerialPort.h"
+#include "filesystem/core/Filesystem.h"
+#include "kernel/multiboot/Multiboot.h"
+#include "kernel/network/NetworkStack.h"
+#include "kernel/network/ip4/Ip4Module.h"
+#include "kernel/network/ip4/Ip4RoutingModule.h"
+#include "kernel/process/Process.h"
+#include "kernel/process/Thread.h"
+#include "kernel/service/Service.h"
+#include "lib/util/base/Address.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/base/FreeListMemoryManager.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/hardware/SmBios.h"
+#include "lib/util/io/file/File.h"
+#include "lib/util/io/stream/PrintStream.h"
+#include "lib/util/network/ip4/Ip4Address.h"
+#include "lib/util/network/ip4/Ip4Route.h"
+#include "lib/util/network/ip4/Ip4SubnetAddress.h"
+
+namespace Util {
+class HeapMemoryManager;
+}  // namespace Util
 
 extern const uint32_t ___KERNEL_DATA_START__;
 extern const uint32_t ___KERNEL_DATA_END__;
@@ -100,10 +126,6 @@ extern "C" {
 extern "C" int32_t atexit (void (*func)()) noexcept {
     return 0;
 }
-
-namespace Device {
-class Machine;
-}  // namespace Device
 
 Util::HeapMemoryManager *GatesOfHell::kernelHeap = nullptr;
 
@@ -255,15 +277,17 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     LOG_INFO("Initializing static data structures");
     _init();
 
+    // Initialize the classic PIC and interrupt service
+    // Needs to be done before memory service initialization, so that the memory service can register its system calls
+    LOG_INFO("Initializing classic PIC");
+    auto *pic = new Device::Pic();
+    auto *interruptService = new Kernel::InterruptService(pic);
+    Kernel::Service::registerService(Kernel::InterruptService::SERVICE_ID, interruptService);
+
     // Create kernel address space and memory service
     LOG_INFO("Initializing kernel address space");
     auto *kernelAddressSpace = new Kernel::VirtualAddressSpace(pageDirectory, virtualPageDirectory, *kernelHeap);
     auto *memoryService = new Kernel::MemoryService(gdt, tss, pageFrameAllocator, pagingAreaManager, kernelAddressSpace);
-
-    // Create interrupt descriptor table
-    LOG_INFO("Initializing interrupt descriptor table");
-    auto *idt = new Kernel::InterruptDescriptorTable();
-    idt->load();
 
     // The memory service and IDT are initialized and after registering the memory service, page faults can be handled,
     // which means, that we can fully use the kernel heap
@@ -330,12 +354,6 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     informationService->setSmBios(smBios);
     auto &biosInformation = smBios->getTable<Util::Hardware::SmBios::BiosInformation>(Util::Hardware::SmBios::BIOS_INFORMATION);
     LOG_INFO("BIOS vendor: [%s], BIOS version: [%s (%s)]", biosInformation.getVendorName(), biosInformation.getVersion(), biosInformation.getReleaseDate());
-
-    // Initialize the classic PIC and interrupt service
-    LOG_INFO("Initializing classic PIC");
-    auto *pic = new Device::Pic();
-    auto *interruptService = new Kernel::InterruptService(pic);
-    Kernel::Service::registerService(Kernel::InterruptService::SERVICE_ID, interruptService);
 
     // Switch to APIC, if available
     if (Device::Apic::isAvailable()) {
@@ -645,6 +663,9 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
             line = bufferedStream.readLine(endOfFile);
         }
     }
+
+    // Ready 'shell' process
+    Util::Async::Process::execute(Util::Io::File("/bin/shell"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), "uptime", Util::Array<Util::String>(0));
 
     // Clear screen and print banner
     Kernel::Log::removeOutputStream(*terminal);

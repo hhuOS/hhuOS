@@ -15,22 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/service/InterruptService.h"
-
-#include "device/cpu/Cpu.h"
 #include "lib/util/collection/ArrayList.h"
-#include "kernel/service/ProcessService.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/interrupt/InterruptHandler.h"
-#include "kernel/process/Process.h"
-#include "kernel/process/ThreadState.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/collection/List.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/base/System.h"
 #include "kernel/interrupt/InterruptVector.h"
 
 namespace Kernel {
+struct InterruptFrame;
 
 void InterruptDispatcher::dispatch(const InterruptFrame &frame, InterruptVector vector) {
     // Throw exception, if there is no handler registered

@@ -20,7 +20,6 @@
 
 #include "EthernetSocket.h"
 
-
 #include "kernel/service/NetworkService.h"
 #include "lib/util/network/ethernet/EthernetDatagram.h"
 #include "device/network/NetworkDevice.h"
@@ -29,6 +28,7 @@
 #include "kernel/network/NetworkStack.h"
 #include "kernel/network/ethernet/EthernetModule.h"
 #include "lib/util/network/Socket.h"
+#include "kernel/service/Service.h"
 
 namespace Util {
 namespace Network {

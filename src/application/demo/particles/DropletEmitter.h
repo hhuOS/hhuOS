@@ -21,7 +21,24 @@
 #ifndef HHUOS_DROPLETEMITTER_H
 #define HHUOS_DROPLETEMITTER_H
 
+#include <cstdint>
+
 #include "lib/util/game/2d/particle/SingleTimeEmitter.h"
+#include "lib/util/math/Random.h"
+
+namespace Util {
+namespace Game {
+class Graphics;
+namespace D2 {
+class CollisionEvent;
+class Particle;
+class TranslationEvent;
+}  // namespace D2
+}  // namespace Game
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
 
 class DropletEmitter : public Util::Game::D2::SingleTimeEmitter {
 

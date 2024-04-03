@@ -16,12 +16,25 @@
  */
  
 #include "Log.h"
+
+#include <cstdint>
+#include <cstdarg>
+
 #include "lib/util/graphic/Ansi.h"
 #include "device/port/serial/SerialPort.h"
 #include "GatesOfHell.h"
-#include "kernel/service/SchedulerService.h"
 #include "lib/interface.h"
-#include "kernel/service/TimeService.h"
+#include "device/port/serial/Serial.h"
+#include "device/port/serial/SimpleSerialPort.h"
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/HashMap.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/io/stream/OutputStream.h"
+#include "lib/util/io/stream/PrintStream.h"
+#include "lib/util/time/Timestamp.h"
 
 namespace Kernel {
 

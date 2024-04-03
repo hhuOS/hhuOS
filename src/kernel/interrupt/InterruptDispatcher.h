@@ -19,9 +19,6 @@
 #define __InterruptDispatcher_include__
 
 #include <cstdint>
-#include "InterruptFrame.h"
-#include "InterruptHandler.h"
-#include "InterruptVector.h"
 
 namespace Util {
 
@@ -30,6 +27,9 @@ template <typename T> class List;
 }  // namespace Util
 
 namespace Kernel {
+class InterruptHandler;
+enum InterruptVector : uint8_t;
+struct InterruptFrame;
 
 /**
  * InterruptDispatcher - responsible for registering and dispatching interrupts to the

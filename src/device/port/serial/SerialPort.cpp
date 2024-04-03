@@ -20,16 +20,18 @@
 #include "kernel/log/Log.h"
 #include "filesystem/memory/StreamNode.h"
 #include "kernel/service/FilesystemService.h"
-
 #include "SerialPort.h"
 #include "filesystem/core/Filesystem.h"
 #include "filesystem/memory/MemoryDriver.h"
 #include "kernel/interrupt/InterruptVector.h"
-#include "lib/util/base/Exception.h"
-#include "kernel/multiboot/Multiboot.h"
+#include "device/port/serial/SerialPort.h"
+#include "device/cpu/IoPort.h"
+#include "device/port/serial/SimpleSerialPort.h"
+#include "kernel/service/Service.h"
+#include "lib/util/base/String.h"
 
 namespace Kernel {
-struct InterruptFrameOld;
+struct InterruptFrame;
 }  // namespace Kernel
 
 namespace Device {

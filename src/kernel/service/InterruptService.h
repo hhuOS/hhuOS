@@ -18,24 +18,25 @@
 #ifndef HHUOS_INTERRUPTSERVICE_H
 #define HHUOS_INTERRUPTSERVICE_H
 
+#include <cstdarg>
 #include <cstdint>
 
-#include "device/interrupt/pic/Pic.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/service/Service.h"
-#include "device/port/serial/SerialPort.h"
 #include "kernel/interrupt/InterruptDescriptorTable.h"
+#include "lib/util/base/System.h"
+#include "kernel/interrupt/SystemCallDispatcher.h"
 
 namespace Device {
 class Apic;
 enum InterruptRequest : uint8_t;
+class Pic;
 }  // namespace Device
 
 namespace Kernel {
 class InterruptHandler;
-struct InterruptFrameOld;
-class Logger;
 enum InterruptVector : uint8_t;
+struct InterruptFrame;
 
 class InterruptService : public Service {
 
@@ -71,12 +72,16 @@ public:
 
     void assignInterrupt(InterruptVector slot, InterruptHandler &handler);
 
+    void assignSystemCall(Util::System::Code code, bool(*func)(uint32_t paramCount, va_list params));
+
 #pragma GCC push_options
 #pragma GCC target("general-regs-only")
 
     [[noreturn]] void handleException(const InterruptFrame &frame, uint32_t errorCode, InterruptVector vector);
 
     void dispatchInterrupt(const InterruptFrame &frame, InterruptVector slot);
+
+    void dispatchSystemCall(Util::System::Code code, uint16_t paramCount, va_list params, bool &result);
 
 #pragma GCC pop_options
 
@@ -109,8 +114,9 @@ private:
     Device::Pic *pic = nullptr;
     Device::Apic *apic = nullptr;
 
-    InterruptDispatcher dispatcher;
     InterruptDescriptorTable idt;
+    InterruptDispatcher interruptDispatcher;
+    SystemCallDispatcher systemCallDispatcher;
 
     bool parallelComputingAllowed = false;
 };

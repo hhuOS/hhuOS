@@ -26,7 +26,6 @@
 
 namespace Kernel {
 class BitmapMemoryManager;
-class Logger;
 
 class TableMemoryManager : public BlockMemoryManager {
 

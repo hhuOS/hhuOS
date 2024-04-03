@@ -25,6 +25,7 @@
 #include "kernel/network/NetworkStack.h"
 #include "kernel/network/icmp/IcmpModule.h"
 #include "lib/util/network/Socket.h"
+#include "kernel/service/Service.h"
 
 namespace Util {
 namespace Network {

@@ -16,7 +16,6 @@
  */
 
 #include "kernel/service/InterruptService.h"
-
 #include "lib/util/hardware/CpuId.h"
 #include "Cpu.h"
 #include "Fpu.h"
@@ -24,12 +23,12 @@
 #include "kernel/log/Log.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/SchedulerService.h"
-#include "lib/util/async/Atomic.h"
 #include "lib/util/collection/Array.h"
 #include "kernel/interrupt/InterruptVector.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel {
-struct InterruptFrameOld;
+struct InterruptFrame;
 }  // namespace Kernel
 
 namespace Device {

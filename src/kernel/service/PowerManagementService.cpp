@@ -19,16 +19,17 @@
 
 #include <cstdarg>
 
-#include "kernel/syscall/SystemCall.h"
 #include "lib/util/hardware/Machine.h"
-
 #include "device/system/FirmwareConfiguration.h"
 #include "device/cpu/Cpu.h"
+#include "InterruptService.h"
+#include "kernel/service/Service.h"
+#include "lib/util/base/System.h"
 
 namespace Kernel {
 
 PowerManagementService::PowerManagementService() {
-    SystemCall::registerSystemCall(Util::System::SHUTDOWN, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::SHUTDOWN, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
             return false;
         }

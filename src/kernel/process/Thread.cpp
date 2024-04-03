@@ -16,20 +16,15 @@
  */
 
 #include "lib/util/base/Address.h"
-#include "lib/util/base/operators.h"
-
-#include "kernel/memory/MemoryLayout.h"
-#include "kernel/memory/Paging.h"
 #include "Thread.h"
-#include "kernel/process/ThreadState.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/async/IdGenerator.h"
 #include "lib/util/async/Runnable.h"
 #include "lib/util/base/Constants.h"
-#include "lib/util/collection/Iterator.h"
 #include "kernel/process/Process.h"
 #include "device/cpu/Cpu.h"
+#include "kernel/service/Service.h"
 
 extern "C" {
     void start_kernel_thread(uint32_t *oldStackPointer);

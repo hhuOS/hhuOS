@@ -19,6 +19,7 @@
 
 #include "device/system/SmBios.h"
 #include "kernel/service/InformationService.h"
+#include "kernel/service/Service.h"
 
 namespace Filesystem::SmBios {
 

@@ -28,7 +28,6 @@
 #include "lib/util/network/MacAddress.h"
 #include "lib/util/network/ip4/Ip4PortAddress.h"
 #include "kernel/network/NetworkModule.h"
-
 #include "kernel/service/NetworkService.h"
 #include "device/network/NetworkDevice.h"
 #include "kernel/network/NetworkStack.h"
@@ -40,6 +39,7 @@
 #include "kernel/network/ip4/Ip4RoutingModule.h"
 #include "lib/util/base/String.h"
 #include "lib/util/network/ip4/Ip4Route.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel::Network {
 

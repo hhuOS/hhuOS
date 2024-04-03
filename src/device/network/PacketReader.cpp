@@ -26,6 +26,7 @@
 #include "kernel/network/NetworkStack.h"
 #include "kernel/network/ethernet/EthernetModule.h"
 #include "kernel/network/NetworkModule.h"
+#include "kernel/service/Service.h"
 
 namespace Device::Network {
 

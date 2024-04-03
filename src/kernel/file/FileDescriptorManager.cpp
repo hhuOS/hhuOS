@@ -5,6 +5,7 @@
 #include "filesystem/core/Filesystem.h"
 #include "filesystem/core/Node.h"
 #include "lib/util/base/Exception.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel {
 

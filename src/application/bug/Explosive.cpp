@@ -20,6 +20,7 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/game/2d/Sprite.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
+#include "lib/util/base/String.h"
 
 namespace Util {
 namespace Math {

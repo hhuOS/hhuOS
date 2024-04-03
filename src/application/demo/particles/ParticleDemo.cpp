@@ -19,11 +19,17 @@
  */
 
 #include "ParticleDemo.h"
-#include "lib/util/game/2d/particle/Emitter.h"
+
+#include <cstdint>
+
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "RainEmitter.h"
 #include "Ground.h"
+#include "lib/util/game/Graphics.h"
+#include "lib/util/graphic/Color.h"
+#include "lib/util/io/key/Key.h"
+#include "lib/util/math/Vector2D.h"
 
 ParticleDemo::ParticleDemo() {
     cloud = new RainEmitter(Util::Math::Vector2D(0, 0.8));

@@ -18,9 +18,9 @@
 #include <endian.h>
 
 #include "FirmwareConfiguration.h"
-
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/Address.h"
+#include "kernel/service/Service.h"
 
 Device::FirmwareConfiguration::FirmwareConfiguration() {
     selectorPort.writeWord(ID);

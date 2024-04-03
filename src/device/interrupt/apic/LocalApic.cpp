@@ -21,9 +21,7 @@
 #include "LocalApic.h"
 
 #include "lib/util/hardware/CpuId.h"
-
 #include "kernel/service/InterruptService.h"
-#include "lib/util/base/Constants.h"
 #include "kernel/service/MemoryService.h"
 #include "device/cpu/IoPort.h"
 #include "device/cpu/ModelSpecificRegister.h"
@@ -31,6 +29,7 @@
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/Iterator.h"
+#include "kernel/service/Service.h"
 
 namespace Device {
 enum InterruptRequest : uint8_t;

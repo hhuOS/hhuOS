@@ -18,7 +18,22 @@
 #ifndef LOG_H
 #define LOG_H
 
-#include "lib/util/base/Constants.h"
+#include "lib/util/base/String.h"
+
+namespace Device {
+class SimpleSerialPort;
+}  // namespace Device
+namespace Util {
+namespace Async {
+class Spinlock;
+}  // namespace Async
+namespace Io {
+class OutputStream;
+class PrintStream;
+}  // namespace Io
+template <typename K, typename V> class HashMap;
+template <typename T> class ArrayList;
+}  // namespace Util
 
 #define LOG_XSTRINGIFY(a) LOG_STRINGIFY(a)
 #define LOG_STRINGIFY(a) #a
@@ -28,12 +43,6 @@
 #define LOG_INFO(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::INFO, __FILE__, LOG_XSTRINGIFY(__LINE__) }, message)
 #define LOG_WARN(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::WARN, __FILE__, LOG_XSTRINGIFY(__LINE__) }, message)
 #define LOG_ERROR(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::ERROR, __FILE__, LOG_XSTRINGIFY(__LINE__) }, message)
-
-#include <cstdarg>
-#include "device/port/serial/SimpleSerialPort.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/collection/HashMap.h"
-#include "lib/util/async/Spinlock.h"
 
 namespace Kernel {
 

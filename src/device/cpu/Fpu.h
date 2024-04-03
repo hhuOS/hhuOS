@@ -23,9 +23,9 @@
 #include "kernel/interrupt/InterruptHandler.h"
 
 namespace Kernel {
-class Logger;
 class Thread;
-struct InterruptFrameOld;
+enum InterruptVector : uint8_t;
+struct InterruptFrame;
 }  // namespace Kernel
 
 namespace Device {

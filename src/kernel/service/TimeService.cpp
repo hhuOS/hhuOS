@@ -15,16 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <stdarg.h>
+#include <cstdarg>
 
 #include "lib/util/base/Exception.h"
 #include "TimeService.h"
-#include "kernel/syscall/SystemCall.h"
-
 #include "device/time/DateProvider.h"
 #include "device/time/TimeProvider.h"
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/base/System.h"
+#include "InterruptService.h"
+#include "kernel/service/Service.h"
 
 namespace Device {
 class Rtc;
@@ -33,7 +33,7 @@ class Rtc;
 namespace Kernel {
 
 TimeService::TimeService(Device::TimeProvider *timeProvider, Device::DateProvider *dateProvider) : timeProvider(timeProvider), dateProvider(dateProvider) {
-    SystemCall::registerSystemCall(Util::System::GET_SYSTEM_TIME, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::GET_SYSTEM_TIME, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
             return false;
         }
@@ -45,7 +45,7 @@ TimeService::TimeService(Device::TimeProvider *timeProvider, Device::DateProvide
         return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::GET_CURRENT_DATE, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::GET_CURRENT_DATE, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
             return false;
         }
@@ -57,7 +57,7 @@ TimeService::TimeService(Device::TimeProvider *timeProvider, Device::DateProvide
         return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::SET_DATE, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::SET_DATE, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
             return false;
         }

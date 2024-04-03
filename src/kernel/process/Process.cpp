@@ -17,12 +17,14 @@
 
 
 #include "Process.h"
+
 #include "kernel/memory/VirtualAddressSpace.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/async/IdGenerator.h"
 #include "lib/util/collection/Iterator.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel {
 

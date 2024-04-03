@@ -23,10 +23,6 @@
 #include "Service.h"
 #include "device/cpu/IoPort.h"
 
-namespace Device {
-class Machine;
-}  // namespace Device
-
 namespace Kernel {
 
 class PowerManagementService : public Service {

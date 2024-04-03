@@ -26,8 +26,8 @@
 #include "lib/util/async/Spinlock.h"
 
 namespace Kernel {
-class Logger;
-struct InterruptFrameOld;
+enum InterruptVector : uint8_t;
+struct InterruptFrame;
 }  // namespace Kernel
 
 namespace Device::Storage {

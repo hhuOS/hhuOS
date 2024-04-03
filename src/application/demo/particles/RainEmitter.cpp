@@ -19,11 +19,26 @@
  */
 
 #include "RainEmitter.h"
+
 #include "lib/util/game/2d/event/TranslationEvent.h"
 #include "lib/util/game/2d/component/LinearMovementComponent.h"
 #include "DropletEmitter.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Scene.h"
+#include "lib/util/base/String.h"
+#include "lib/util/game/2d/collider/RectangleCollider.h"
+#include "lib/util/game/2d/particle/Particle.h"
+#include "lib/util/game/Collider.h"
+#include "lib/util/math/Vector2D.h"
+
+namespace Util {
+namespace Game {
+class Graphics;
+namespace D2 {
+class CollisionEvent;
+}  // namespace D2
+}  // namespace Game
+}  // namespace Util
 
 RainEmitter::RainEmitter(const Util::Math::Vector2D &position) : Util::Game::D2::Emitter(TAG, PARTICLE_TAG, position, -1) {}
 

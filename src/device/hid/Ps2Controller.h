@@ -22,10 +22,6 @@
 
 #include "device/cpu/IoPort.h"
 
-namespace Kernel {
-class Logger;
-}  // namespace Kernel
-
 namespace Device {
 
 class Ps2Controller {

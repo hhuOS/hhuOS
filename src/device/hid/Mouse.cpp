@@ -17,7 +17,6 @@
 
 #include "Mouse.h"
 
-
 #include "kernel/service/InterruptService.h"
 #include "filesystem/memory/StreamNode.h"
 #include "kernel/service/FilesystemService.h"
@@ -28,9 +27,10 @@
 #include "kernel/log/Log.h"
 #include "device/interrupt/InterruptRequest.h"
 #include "kernel/interrupt/InterruptVector.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel {
-struct InterruptFrameOld;
+struct InterruptFrame;
 }  // namespace Kernel
 
 namespace Device {

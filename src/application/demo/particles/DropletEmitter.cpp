@@ -19,10 +19,25 @@
  */
 
 #include "DropletEmitter.h"
+
 #include "lib/util/math/Math.h"
-#include "lib/util/game/GameManager.h"
-#include "lib/util/game/Scene.h"
 #include "lib/util/game/2d/component/GravityComponent.h"
+#include "lib/util/base/String.h"
+#include "lib/util/game/2d/Sprite.h"
+#include "lib/util/game/2d/collider/RectangleCollider.h"
+#include "lib/util/game/2d/particle/Particle.h"
+#include "lib/util/game/Collider.h"
+#include "lib/util/math/Vector2D.h"
+
+namespace Util {
+namespace Game {
+class Graphics;
+namespace D2 {
+class CollisionEvent;
+class TranslationEvent;
+}  // namespace D2
+}  // namespace Game
+}  // namespace Util
 
 DropletEmitter::DropletEmitter(const Util::Math::Vector2D &position) : Util::Game::D2::SingleTimeEmitter(TAG, PARTICLE_TAG, position) {}
 

@@ -30,6 +30,7 @@
 #include "lib/util/math/Vector2D.h"
 #include "application/bug/Explosive.h"
 #include "lib/util/game/2d/Entity.h"
+#include "lib/util/base/String.h"
 
 class Bug;
 

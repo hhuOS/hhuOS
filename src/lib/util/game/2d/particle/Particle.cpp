@@ -19,10 +19,19 @@
  */
 
 #include "Particle.h"
+
 #include "Emitter.h"
-#include "lib/util/math/Math.h"
-#include "lib/util/game/GameManager.h"
-#include "lib/util/game/Game.h"
+#include "lib/util/math/Vector2D.h"
+
+namespace Util {
+namespace Game {
+class Graphics;
+namespace D2 {
+class CollisionEvent;
+class TranslationEvent;
+}  // namespace D2
+}  // namespace Game
+}  // namespace Util
 
 namespace Util::Game::D2 {
 

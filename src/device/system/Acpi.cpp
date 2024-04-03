@@ -17,8 +17,6 @@
 
 #include "Acpi.h"
 
-#include "kernel/memory/MemoryLayout.h"
-
 #include "lib/util/base/Address.h"
 #include "lib/util/base/String.h"
 #include "kernel/multiboot/Multiboot.h"

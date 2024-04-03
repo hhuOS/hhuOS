@@ -23,9 +23,6 @@
 #include "kernel/process/Scheduler.h"
 #include "Service.h"
 
-namespace Device {
-class Fpu;
-}  // namespace Device
 namespace Util {
 namespace Time {
 class Timestamp;
@@ -33,7 +30,6 @@ class Timestamp;
 }  // namespace Util
 
 namespace Kernel {
-class Logger;
 class Process;
 class SchedulerCleaner;
 class Thread;

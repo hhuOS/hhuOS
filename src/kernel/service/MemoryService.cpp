@@ -15,25 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <stdarg.h>
+#include <cstdarg>
 
 #include "kernel/memory/Paging.h"
-
 #include "kernel/service/InterruptService.h"
 #include "kernel/memory/MemoryLayout.h"
-
 #include "MemoryService.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/memory/PageFrameAllocator.h"
 #include "kernel/memory/PagingAreaManager.h"
 #include "kernel/memory/VirtualAddressSpace.h"
-#include "kernel/process/ThreadState.h"
-#include "kernel/syscall/SystemCall.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/base/HeapMemoryManager.h"
 #include "lib/util/base/System.h"
-#include "kernel/interrupt/InterruptVector.h"
 #include "lib/util/collection/Iterator.h"
+#include "device/cpu/Cpu.h"
+#include "kernel/service/Service.h"
+#include "lib/util/base/Address.h"
 
 namespace Kernel {
 
@@ -41,7 +39,7 @@ MemoryService::MemoryService(GlobalDescriptorTable *gdt, GlobalDescriptorTable::
         : gdt(gdt), tss(tss), pageFrameAllocator(*pageFrameAllocator), pagingAreaManager(*pagingAreaManager), currentAddressSpace(kernelAddressSpace), kernelAddressSpace(*kernelAddressSpace) {
     addressSpaces.add(kernelAddressSpace);
 
-    SystemCall::registerSystemCall(Util::System::UNMAP, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::UNMAP, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 2) {
             return false;
         }
@@ -58,7 +56,7 @@ MemoryService::MemoryService(GlobalDescriptorTable *gdt, GlobalDescriptorTable::
         return memoryService.unmap(virtualAddress, pageCount, breakCount) != nullptr;
     });
 
-    SystemCall::registerSystemCall(Util::System::MAP_IO, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::MAP_IO, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 3) {
             return false;
         }

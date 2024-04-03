@@ -17,7 +17,6 @@
 
 #include <cstdint>
 
-#include "kernel/log/Log.h"
 #include "filesystem/fat/FatDriver.h"
 #include "filesystem/fat/ff/source/diskio.h"
 #include "device/storage/StorageDevice.h"
