@@ -272,7 +272,6 @@ void dump_uhci_entry(_UHCI* uhci){
                     pci_device->get_vendor_id_c(pci_device), pci_device->get_device_id_c(pci_device), pci_device->get_interrupt_line_c(pci_device));
 }
 
-// todo implement these methods of super !
 void init_controller_functions(_UHCI *uhci) {
   uhci->super.poll = &_poll_uhci_;
   uhci->super.register_driver = &register_driver_uhci;
@@ -317,9 +316,6 @@ void init_controller_functions(_UHCI *uhci) {
   uhci->interrupt_transfer = &interrupt_transfer;
   uhci->bulk_transfer = &bulk_transfer;
   uhci->is_valid_priority = &is_valid_priority;
-  uhci->init_control_transfer = &init_control_transfer;
-  uhci->init_interrupt_transfer = &init_interrupt_transfer;
-  uhci->init_bulk_transfer = &init_bulk_transfer;
   uhci->init_controller_functions = &init_controller_functions;
   uhci->init_logger = &init_logger;
   uhci->init_mutex = &init_mutex;

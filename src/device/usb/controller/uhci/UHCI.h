@@ -114,19 +114,6 @@ struct _UHCI {
                         callback_function callback, uint8_t flags);
   int16_t (*is_valid_priority)(struct _UHCI *uhci, UsbDev *dev,
                                uint8_t priority, callback_function callback);
-
-  void (*init_control_transfer)(UsbController *controller, Interface *interface,
-                                unsigned int pipe, uint8_t priority, void *data,
-                                uint8_t *setup, callback_function callback);
-  void (*init_interrupt_transfer)(UsbController *controller,
-                                  Interface *interface, unsigned int pipe,
-                                  uint8_t priority, void *data,
-                                  unsigned int len, uint16_t interval,
-                                  callback_function callback);
-  void (*init_bulk_transfer)(UsbController *controller, Interface *interface,
-                             unsigned int pipe, uint8_t priority, void *data,
-                             unsigned len, callback_function callback);
-
   void (*init_controller_functions)(struct _UHCI *uhci);
   Logger_C* (*init_logger)(struct _UHCI *uhci, MemoryService_C *m);
   Mutex_C* (*init_mutex)(struct _UHCI* uhci, MemoryService_C* m);
