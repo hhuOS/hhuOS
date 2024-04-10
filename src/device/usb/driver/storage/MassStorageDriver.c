@@ -1622,6 +1622,8 @@ int test_mass_storage_writes(MassStorageDriver *driver, MassStorageDev *msd_dev,
                              RequestSense *rs) {
   uint32_t block_size = driver->get_block_size(driver, msd_dev, volume);
   uint8_t *buffer = msd_dev->buffer;
+  
+  driver->driver_logger->info_c(driver->driver_logger, "Start writing device");
   // write 1 block starting from lba 0
   for (int i = 0; i < block_size; i++) {
     buffer[i] = 'A';
@@ -1632,7 +1634,7 @@ int test_mass_storage_writes(MassStorageDriver *driver, MassStorageDev *msd_dev,
   driver->send_write(driver, msd_dev, cbw, csw, buffer, 1, volume, 0, 0,
                      &callback_config, BULK_INITIAL_STATE, rs);
   // write 4 blocks starting from lba 1
-  for (int i = 0; i < (4 * block_size); i++) {
+  for (int i = 0; i < 4 * block_size; i++) {
     buffer[i] = 'B';
   }
   driver->driver_logger->info_c(driver->driver_logger,
@@ -1649,24 +1651,35 @@ int test_mass_storage_writes(MassStorageDriver *driver, MassStorageDev *msd_dev,
                                 block_size, 5);
   driver->send_write(driver, msd_dev, cbw, csw, buffer, 1, volume, 5, 0,
                      &callback_config, BULK_INITIAL_STATE, rs);
-  // write 50 blocks starting
-  for (int i = 0; i < 50 * block_size; i++) {
+  // write 20 blocks starting from lba 10
+  for (int i = 0; i < 20 * block_size; i++) {
     buffer[i] = 'D';
   }
   driver->driver_logger->info_c(driver->driver_logger,
                                 "sending %u bytes to dev, starting at lba %u",
-                                block_size * 50, 6);
-  driver->send_write(driver, msd_dev, cbw, csw, buffer, 50, volume, 6, 0,
+                                block_size * 20, 10);
+  driver->send_write(driver, msd_dev, cbw, csw, buffer, 20, volume, 10, 0,
                      &callback_config, BULK_INITIAL_STATE, rs);
 
+  // write 3 blocks starting from lba 48
+  for (int i = 0; i < 3 * block_size; i++) {
+    buffer[i] = 'E';
+  }
+  driver->driver_logger->info_c(driver->driver_logger,
+                                "sending %u bytes to dev, starting at lba %u",
+                                block_size * 3, 48);
+  driver->send_write(driver, msd_dev, cbw, csw, buffer, 3, volume, 48, 0,
+                     &callback_config, BULK_INITIAL_STATE, rs);
+
+
+  driver->driver_logger->info_c(driver->driver_logger, "starting tests to ensure data integrity");
+
+  // read 1 block starting from lba 0
+  driver->send_read(driver, msd_dev, cbw, csw, buffer, 1, volume, 0, 0,
+                    &callback_config, BULK_INITIAL_STATE, rs);
   driver->driver_logger->info_c(driver->driver_logger,
                                 "received %u bytes from dev, started at lba %u",
-                                block_size * 56, 0);
-  driver->send_read(driver, msd_dev, cbw, csw, buffer, 56, volume, 0, 0,
-                    &callback_config, BULK_INITIAL_STATE, rs);
-
-  driver->driver_logger->info_c(driver->driver_logger, "starting tests ... ");
-  // assert
+                                block_size, 0);
   int test_case = 1;
   int test_failed = 0;
   int test_one_failed = 0;
@@ -1684,7 +1697,14 @@ int test_mass_storage_writes(MassStorageDriver *driver, MassStorageDev *msd_dev,
                                   test_case);
   test_case++;
   test_failed = 0;
-  for (int i = block_size; i < block_size + (4 * block_size); i++) {
+
+  // read 4 blocks starting from lba 1
+  driver->send_read(driver, msd_dev, cbw, csw, buffer, 4, volume, 1, 0,
+                    &callback_config, BULK_INITIAL_STATE, rs);
+  driver->driver_logger->info_c(driver->driver_logger,
+                                "received %u bytes from dev, started at lba %u",
+                                block_size * 4, 1);
+  for (int i = 0; i < 4 * block_size; i++) {
     if (buffer[i] != 'B') {
       test_failed = 1;
       test_one_failed = 1;
@@ -1698,7 +1718,14 @@ int test_mass_storage_writes(MassStorageDriver *driver, MassStorageDev *msd_dev,
                                   test_case);
   test_case++;
   test_failed = 0;
-  for (int i = (5 * block_size); i < (6 * block_size); i++) {
+  // read 1 block starting from lba 5
+  driver->send_read(driver, msd_dev, cbw, csw, buffer, 1, volume, 5, 0,
+                    &callback_config, BULK_INITIAL_STATE, rs);
+  driver->driver_logger->info_c(driver->driver_logger,
+                                "received %u bytes from dev, started at lba %u",
+                                block_size, 5);
+
+  for (int i = 0; i < block_size; i++) {
     if (buffer[i] != 'C') {
       test_failed = 1;
       test_one_failed = 1;
@@ -1712,7 +1739,15 @@ int test_mass_storage_writes(MassStorageDriver *driver, MassStorageDev *msd_dev,
                                   test_case);
   test_case++;
   test_failed = 0;
-  for (int i = (6 * block_size); i < (56 * block_size); i++) {
+
+  // read 20 blocks starting from lba 10
+  driver->send_read(driver, msd_dev, cbw, csw, buffer, 20, volume, 10, 0,
+                    &callback_config, BULK_INITIAL_STATE, rs);
+  driver->driver_logger->info_c(driver->driver_logger,
+                                "received %u bytes from dev, started at lba %u",
+                                block_size * 20, 10);
+
+  for (int i = 0; i < 20 * block_size; i++) {
     if (buffer[i] != 'D') {
       test_failed = 1;
       test_one_failed = 1;
@@ -1727,13 +1762,33 @@ int test_mass_storage_writes(MassStorageDriver *driver, MassStorageDev *msd_dev,
   test_case++;
   test_failed = 0;
 
+  // read 3 blocks starting from lba 48
+  driver->send_read(driver, msd_dev, cbw, csw, buffer, 3, volume, 48, 0,
+                    &callback_config, BULK_INITIAL_STATE, rs);
+  driver->driver_logger->info_c(driver->driver_logger,
+                                "received %u bytes from dev, started at lba %u",
+                                block_size * 3, 48);
+
+  for (int i = 0; i < 3 * block_size; i++) {
+    if (buffer[i] != 'E') {
+      test_failed = 1;
+      test_one_failed = 1;
+      driver->driver_logger->info_c(driver->driver_logger, "test %d failed",
+                                    test_case);
+      break;
+    }
+  }
+  if (!test_failed)
+    driver->driver_logger->info_c(driver->driver_logger, "test %d passed",
+                                  test_case);
+
   if (!test_one_failed)
     driver->driver_logger->info_c(
         driver->driver_logger,
-        "all tests passed - device is working properly ...");
+        "all tests passed - device is working properly");
   else
     driver->driver_logger->info_c(
         driver->driver_logger,
-        "not all tests passed - device is not working properly ...");
+        "not all tests passed - device is not working properly");
   return 1;
 }
