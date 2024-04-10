@@ -67,28 +67,22 @@ Thread& Thread::createKernelThread(const Util::String &name, Process &parent, Ut
 }
 
 Thread& Thread::createUserThread(const Util::String &name, Process &parent, uint32_t eip, Util::Async::Runnable *runnable) {
-    /*auto *kernelStack = Stack::createKernelStack(DEFAULT_STACK_SIZE);
-    auto *userStack = Stack::createUserStack(DEFAULT_STACK_SIZE);
-    auto *thread = new Thread(name, parent, nullptr, kernelStack, userStack);
+    auto *kernelStack = Thread::createKernelStack(STACK_SIZE);
+    auto *userStack = Thread::createUserStack(STACK_SIZE);
+    auto *thread = new Thread(name, parent, runnable, eip, kernelStack, userStack);
 
-    // thread->kernelContext->eip = reinterpret_cast<uint32_t>(interrupt_return);
+    thread->prepareKernelStack();
 
-    thread->interruptFrame.cs = 0x1b;
-    thread->interruptFrame.fs = 0x23;
-    thread->interruptFrame.gs = 0x23;
-    thread->interruptFrame.ds = 0x23;
-    thread->interruptFrame.es = 0x23;
-    thread->interruptFrame.ss = 0x23;
+    // Prepare user stack
+    Util::Address<uint32_t>(thread->userStack).setRange(0, STACK_SIZE);
 
-    thread->interruptFrame.ebp = reinterpret_cast<uint32_t>(userStack->getStart() - 8);
-    thread->interruptFrame.uesp = reinterpret_cast<uint32_t>(userStack->getStart() - 8);
-    thread->interruptFrame.eflags = 0x200;
-    thread->interruptFrame.eip = reinterpret_cast<uint32_t>(eip);
+    const auto capacity = STACK_SIZE / sizeof(uint32_t);
+    thread->userStack[capacity - 1] = 0x00DEAD00; // Dummy return address
 
-    *(reinterpret_cast<uint32_t*>(userStack->getStart()) - 1) = reinterpret_cast<uint32_t>(runnable);
+    // Parameters for 'kickoffUserThread' (empty space before is only used when creating a main thread)
+    thread->userStack[capacity - 4] = reinterpret_cast<uint32_t>(runnable);
 
-    return *thread;*/
-    return *new Thread(name, parent, nullptr, 0, nullptr, nullptr);
+    return *thread;
 }
 
 Thread& Thread::createMainUserThread(const Util::String &name, Process &parent, uint32_t eip, uint32_t argc, char **argv, void *envp, uint32_t heapStartAddress) {

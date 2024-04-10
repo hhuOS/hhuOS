@@ -17,5 +17,5 @@ void initMemoryManager(uint8_t *startAddress) {
 }
 
 void _exit(int32_t exitCode) {
-    Util::System::call(Util::System::EXIT_THREAD, 1, exitCode);
+    Util::System::call(Util::System::EXIT_PROCESS, 1, exitCode);
 }

@@ -40,14 +40,10 @@ void CursorRunnable::run() {
 
     visible = false;
     draw();
-    finished = true;
 }
 
 void CursorRunnable::stop() {
     isRunning = false;
-    while (!finished) {
-        Util::Async::Thread::yield();
-    }
 }
 
 void CursorRunnable::draw() {

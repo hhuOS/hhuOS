@@ -60,7 +60,6 @@ private:
 
     bool visible = true;
     bool isRunning = true;
-    bool finished = false;
 };
 
 }
