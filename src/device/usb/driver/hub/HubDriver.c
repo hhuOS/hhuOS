@@ -185,7 +185,7 @@ int configure_hub(HubDriver *driver) {
     uint16_t port_status_field;
     uint16_t port_change_status_field;
     uint8_t device_attached_mask = 0x01;
-    uint8_t start_device_num = dev->dev_num + 1;
+    uint8_t start_device_num = 0x03 + ((dev->dev_num-1) * 8);
 
     for (uint8_t start_port = 0x01; start_port <= num_ports; start_port++) {
       if (driver->set_hub_feature(driver, hub_dev, itf, start_port,
