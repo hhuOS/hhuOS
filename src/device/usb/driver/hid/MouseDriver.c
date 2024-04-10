@@ -1,17 +1,17 @@
 #include "MouseDriver.h"
-#include "../../events/event/Event.h"
 #include "../../../../lib/util/io/key/InputEvents.h"
-#include "../../events/event/hid/MouseEvent.h"
-#include "../../include/UsbControllerInclude.h"
 #include "../../controller/UsbControllerFlags.h"
 #include "../../dev/UsbDevice.h"
 #include "../../dev/requests/UsbRequests.h"
+#include "../../events/event/Event.h"
+#include "../../events/event/hid/MouseEvent.h"
+#include "../../include/UsbControllerInclude.h"
 #include "../../include/UsbErrors.h"
 #include "../../interfaces/SystemInterface.h"
 #include "../../utility/Utils.h"
 #include "../UsbDriver.h"
 
-static MouseDriver* internal_driver = 0;
+static MouseDriver *internal_driver = 0;
 
 static void new_usb_driver(UsbDriver *usb_driver, char *name,
                            UsbDevice_ID *entry);
@@ -24,7 +24,7 @@ static void new_usb_driver(UsbDriver *usb_driver, char *name,
   usb_driver->name = name;
   usb_driver->entry = entry;
   usb_driver->head.l_e = 0;
-  usb_driver->l_e .l_e = 0;
+  usb_driver->l_e.l_e = 0;
 }
 
 int16_t probe_mouse(UsbDev *dev, Interface *interface) {
@@ -33,11 +33,13 @@ int16_t probe_mouse(UsbDev *dev, Interface *interface) {
       interface->active_interface->alternate_interface_desc;
   int e = interface_desc.bNumEndpoints;
 
-  if(internal_driver == (void*)0) return -1;
+  if (internal_driver == (void *)0)
+    return -1;
 
-  MouseDev* mouse_dev = internal_driver->get_freee_mouse_dev(internal_driver);
+  MouseDev *mouse_dev = internal_driver->get_freee_mouse_dev(internal_driver);
 
-  if(mouse_dev == (void*)0) return -1;
+  if (mouse_dev == (void *)0)
+    return -1;
 
   MemoryService_C *mem_service =
       (MemoryService_C *)container_of(dev->mem_service, MemoryService_C, super);
@@ -72,10 +74,9 @@ int16_t probe_mouse(UsbDev *dev, Interface *interface) {
 
 void disconnect_mouse(UsbDev *dev, Interface *interface) {}
 
-void new_mouse_driver(MouseDriver *driver, char *name,
-                      UsbDevice_ID *entry) {                        
-  for(int j = 0; j < MAX_DEVICES_PER_USB_DRIVER; j++){
-    for(int i = 0; i < MOUSE_LOOK_UP_SIZE; i++){
+void new_mouse_driver(MouseDriver *driver, char *name, UsbDevice_ID *entry) {
+  for (int j = 0; j < MAX_DEVICES_PER_USB_DRIVER; j++) {
+    for (int i = 0; i < MOUSE_LOOK_UP_SIZE; i++) {
       driver->dev[j].look_up_buffer[i] = 0;
       driver->dev[j].movement_buffer[i] = 0;
     }
@@ -90,9 +91,9 @@ void new_mouse_driver(MouseDriver *driver, char *name,
     internal_driver->dev[j].interface = 0;
     internal_driver->dev[j].interval = 0;
     internal_driver->dev[j].callback = &callback_mouse;
-    internal_driver->dev[j].usb_driver = (UsbDriver*)driver;
+    internal_driver->dev[j].usb_driver = (UsbDriver *)driver;
   }
-  
+
   driver->constructEvent_mouse = &constructEvent_mouse;
   driver->trigger_mouse_event = &trigger_mouse_event;
   driver->look_for_mouse_released = &look_for_mouse_released;
@@ -106,26 +107,27 @@ void new_mouse_driver(MouseDriver *driver, char *name,
   driver->super.new_usb_driver(&driver->super, name, entry);
 }
 
-MouseDev* match_mouse(MouseDriver* driver, UsbDev* dev){
-  for(int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++){
-    if(driver->dev[i].usb_dev == dev) return (driver->dev + i);
+MouseDev *match_mouse(MouseDriver *driver, UsbDev *dev) {
+  for (int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++) {
+    if (driver->dev[i].usb_dev == dev)
+      return (driver->dev + i);
   }
-  return (void*)0;
+  return (void *)0;
 }
 
-MouseDev* get_freee_mouse_dev(MouseDriver* driver){
-  for(int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++){
-    if(driver->mouse_map[i] == 0){
+MouseDev *get_freee_mouse_dev(MouseDriver *driver) {
+  for (int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++) {
+    if (driver->mouse_map[i] == 0) {
       driver->mouse_map[i] = 1;
       return driver->dev + i;
     }
   }
-  return (void*)0;
+  return (void *)0;
 }
 
-void free_mouse_dev(MouseDriver* driver, MouseDev* mouse_dev){
-  for(int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++){
-    if((driver->dev + i) == mouse_dev){
+void free_mouse_dev(MouseDriver *driver, MouseDev *mouse_dev) {
+  for (int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++) {
+    if ((driver->dev + i) == mouse_dev) {
       driver->mouse_map[i] = 0;
       return;
     }
@@ -138,9 +140,10 @@ void callback_mouse(UsbDev *dev, uint32_t status, void *data) {
     return;
   }
 
-  MouseDev* mouse_dev = internal_driver->match_mouse(internal_driver, dev);
+  MouseDev *mouse_dev = internal_driver->match_mouse(internal_driver, dev);
 
-  if(mouse_dev == 0) return;
+  if (mouse_dev == 0)
+    return;
 
   uint8_t button1, button2, button3;
   uint8_t *mouse_buffer = (uint8_t *)data;
@@ -156,13 +159,19 @@ void callback_mouse(UsbDev *dev, uint32_t status, void *data) {
 
   mouse_dev->movement_submitted = 0;
 
-  internal_driver->look_for_mouse_events(internal_driver, mouse_dev, &button1, 0, &x, &y, &z);
-  internal_driver->look_for_mouse_events(internal_driver, mouse_dev, &button2, 1, &x, &y, &z);
-  internal_driver->look_for_mouse_events(internal_driver, mouse_dev, &button3, 2, &x, &y, &z);
+  internal_driver->look_for_mouse_events(internal_driver, mouse_dev, &button1,
+                                         0, &x, &y, &z);
+  internal_driver->look_for_mouse_events(internal_driver, mouse_dev, &button2,
+                                         1, &x, &y, &z);
+  internal_driver->look_for_mouse_events(internal_driver, mouse_dev, &button3,
+                                         2, &x, &y, &z);
 
-  internal_driver->look_for_mouse_released(internal_driver, mouse_dev, &button1, 0, &x, &y, &z);
-  internal_driver->look_for_mouse_released(internal_driver, mouse_dev, &button2, 1, &x, &y, &z);
-  internal_driver->look_for_mouse_released(internal_driver, mouse_dev, &button3, 2, &x, &y, &z);
+  internal_driver->look_for_mouse_released(internal_driver, mouse_dev, &button1,
+                                           0, &x, &y, &z);
+  internal_driver->look_for_mouse_released(internal_driver, mouse_dev, &button2,
+                                           1, &x, &y, &z);
+  internal_driver->look_for_mouse_released(internal_driver, mouse_dev, &button3,
+                                           2, &x, &y, &z);
 
   mouse_dev->look_up_buffer[0] = button1;
   mouse_dev->look_up_buffer[1] = button2 >> 1;
@@ -173,37 +182,45 @@ void callback_mouse(UsbDev *dev, uint32_t status, void *data) {
   mouse_dev->movement_buffer[2] = z;
 }
 
-void look_for_mouse_events(MouseDriver* mouse_driver, MouseDev* mouse_dev, 
-                           uint8_t *mouse_code, int index,
-                           int8_t *x, int8_t *y, int8_t *z) {
+void look_for_mouse_events(MouseDriver *mouse_driver, MouseDev *mouse_dev,
+                           uint8_t *mouse_code, int index, int8_t *x, int8_t *y,
+                           int8_t *z) {
   uint16_t event_type = MOUSE_EVENT;
   uint16_t event_value = 0;
   MouseEvent event;
 
-  if (((*mouse_code >> index) == 1) && (mouse_dev->look_up_buffer[index] == 1)) {
+  if (((*mouse_code >> index) == 1) &&
+      (mouse_dev->look_up_buffer[index] == 1)) {
     event_value = MOUSE_HOLD;
     mouse_dev->movement_submitted = 1;
-    event = mouse_driver->constructEvent_mouse(mouse_driver, index, &event_value, &event_type, x, y, z);
-  } else if (((*mouse_code >> index) == 1) && (mouse_dev->look_up_buffer[index] == 0)) {
+    event = mouse_driver->constructEvent_mouse(
+        mouse_driver, index, &event_value, &event_type, x, y, z);
+  } else if (((*mouse_code >> index) == 1) &&
+             (mouse_dev->look_up_buffer[index] == 0)) {
     event_value = MOUSE_ENTERED;
     mouse_dev->movement_submitted = 1;
-    event = mouse_driver->constructEvent_mouse(mouse_driver, index, &event_value, &event_type, x, y, z);
-  }
-  else if(*mouse_code == 0){
-    if((*x == 0) && (*y == 0) && (*z == 0)) return;
-    if((mouse_dev->movement_buffer[0] != *x) || (mouse_dev->movement_buffer[1] != *y) || (mouse_dev->movement_buffer[2] != *z)){
-      if(mouse_dev->movement_submitted) return;
-      event = mouse_driver->constructEvent_mouse(mouse_driver, -1, &event_value, &event_type, x ,y ,z);
+    event = mouse_driver->constructEvent_mouse(
+        mouse_driver, index, &event_value, &event_type, x, y, z);
+  } else if (*mouse_code == 0) {
+    if ((*x == 0) && (*y == 0) && (*z == 0))
+      return;
+    if ((mouse_dev->movement_buffer[0] != *x) ||
+        (mouse_dev->movement_buffer[1] != *y) ||
+        (mouse_dev->movement_buffer[2] != *z)) {
+      if (mouse_dev->movement_submitted)
+        return;
+      event = mouse_driver->constructEvent_mouse(mouse_driver, -1, &event_value,
+                                                 &event_type, x, y, z);
       mouse_dev->movement_submitted = 1;
-    }
-    else return;
+    } else
+      return;
   }
   mouse_driver->trigger_mouse_event(mouse_driver, (GenericEvent *)&event);
 }
 
-void look_for_mouse_released(MouseDriver* mouse_driver, MouseDev* mouse_dev, 
-                             uint8_t *mouse_code, int index,
-                             int8_t *x, int8_t *y, int8_t *z) {
+void look_for_mouse_released(MouseDriver *mouse_driver, MouseDev *mouse_dev,
+                             uint8_t *mouse_code, int index, int8_t *x,
+                             int8_t *y, int8_t *z) {
   uint16_t event_type = MOUSE_EVENT;
   uint16_t event_value = MOUSE_RELEASED;
   MouseEvent event;
@@ -213,16 +230,19 @@ void look_for_mouse_released(MouseDriver* mouse_driver, MouseDev* mouse_dev,
     is_released = 1;
   }
   if (is_released) {
-    event = mouse_driver->constructEvent_mouse(mouse_driver, index, &event_value, &event_type, x, y, z);
+    event = mouse_driver->constructEvent_mouse(
+        mouse_driver, index, &event_value, &event_type, x, y, z);
     mouse_driver->trigger_mouse_event(mouse_driver, (GenericEvent *)&event);
   }
 }
 
-MouseEvent constructEvent_mouse(MouseDriver* mouse_driver, int index, uint16_t *value, uint16_t *type,
-                                int8_t *x, int8_t *y, int8_t *z) {
+MouseEvent constructEvent_mouse(MouseDriver *mouse_driver, int index,
+                                uint16_t *value, uint16_t *type, int8_t *x,
+                                int8_t *y, int8_t *z) {
 
   MouseEvent event;
-  uint16_t input_key = mouse_driver->map_mouse_to_input_event(mouse_driver, index);
+  uint16_t input_key =
+      mouse_driver->map_mouse_to_input_event(mouse_driver, index);
 
   event.x_displacement = *x;
   event.y_displacement = *y;
@@ -235,11 +255,13 @@ MouseEvent constructEvent_mouse(MouseDriver* mouse_driver, int index, uint16_t *
 }
 
 void trigger_mouse_event(MouseDriver *mouse_driver, GenericEvent *event) {
-  ((UsbDriver*)mouse_driver)->dispatcher->publish_event(((UsbDriver*)mouse_driver)->dispatcher, event,
-                                          ((UsbDriver*)mouse_driver)->listener_id);
+  ((UsbDriver *)mouse_driver)
+      ->dispatcher->publish_event(((UsbDriver *)mouse_driver)->dispatcher,
+                                  event,
+                                  ((UsbDriver *)mouse_driver)->listener_id);
 }
 
-uint16_t map_mouse_to_input_event(MouseDriver* mouse_driver, int index) {
+uint16_t map_mouse_to_input_event(MouseDriver *mouse_driver, int index) {
   uint16_t input_key = 0;
 
   if (index == RAW_BUTTON_1) {

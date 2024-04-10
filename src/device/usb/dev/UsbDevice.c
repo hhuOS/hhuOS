@@ -1,20 +1,20 @@
-#include "stdint.h"
 #include "UsbDevice.h"
-#include "../controller/UsbControllerFlags.h"
 #include "../controller/UsbController.h"
-#include "data/UsbDev_Data.h"
-#include "../include/UsbErrors.h"
-#include "requests/UsbDescriptors.h"
-#include "requests/UsbRequests.h"
+#include "../controller/UsbControllerFlags.h"
 #include "../driver/UsbDriver.h"
 #include "../driver/hub/HubDriver.h"
 #include "../events/listeners/EventListener.h"
 #include "../events/listeners/hid/KeyBoardListener.h"
 #include "../events/listeners/hid/MouseListener.h"
+#include "../include/UsbControllerInclude.h"
+#include "../include/UsbErrors.h"
+#include "../include/UsbGeneral.h"
 #include "../interfaces/SystemInterface.h"
 #include "../utility/Utils.h"
-#include "../include/UsbGeneral.h"
-#include "../include/UsbControllerInclude.h"
+#include "data/UsbDev_Data.h"
+#include "requests/UsbDescriptors.h"
+#include "requests/UsbRequests.h"
+#include "stdint.h"
 
 uint8_t address = 0x01;
 
@@ -25,9 +25,9 @@ const uint8_t CONFIGURED_STATE = 0x03;
 // root_port = tree level
 // port = downstream port level
 // dev_num = dev number in that tree
-void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port, uint8_t level,
-                    uint8_t removable, uint8_t root_port, uint8_t dev_num, SystemService_C *m, 
-                    void *controller) {
+void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port,
+                    uint8_t level, uint8_t removable, uint8_t root_port,
+                    uint8_t dev_num, SystemService_C *m, void *controller) {
 
   MemoryService_C *mem_service =
       (MemoryService_C *)container_of(m, MemoryService_C, super);
@@ -54,7 +54,8 @@ void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port, uint8_t lev
       (uint8_t *)mem_service->mapIO(mem_service, PAGE_SIZE, 1);
 
   mem_set(dev->device_request_map_io, PAGE_SIZE, 0);
-  mem_set(dev->device_request_map_io_bitmap, PAGE_SIZE / sizeof(UsbDeviceRequest), 0);    
+  mem_set(dev->device_request_map_io_bitmap,
+          PAGE_SIZE / sizeof(UsbDeviceRequest), 0);
 
   dev->speed = speed;
   dev->port = port;
@@ -95,21 +96,27 @@ void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port, uint8_t lev
   dev->init_device_functions(dev);
   dev->init_device_logger(dev);
 
-  dev->device_mutex = (Mutex_C*)mem_service->allocateKernelMemory_c(mem_service, sizeof(Mutex_C), 0);
+  dev->device_mutex = (Mutex_C *)mem_service->allocateKernelMemory_c(
+      mem_service, sizeof(Mutex_C), 0);
   dev->device_mutex->new_mutex = &new_mutex;
   dev->device_mutex->new_mutex(dev->device_mutex);
 
-  if(dev->process_device_descriptor(dev, device_descriptor, 8) == -1){
-    dev->device_logger->error_c(dev->device_logger , "Aborting configuration of device due to error while handle the device descriptor ...");
+  if (dev->process_device_descriptor(dev, device_descriptor, 8) == -1) {
+    dev->device_logger->error_c(dev->device_logger,
+                                "Aborting configuration of device due to error "
+                                "while handle the device descriptor ...");
     return;
   }
 
   dev->max_packet_size = device_descriptor->bMaxPacketSize0;
 
-  //((UsbController *)dev->controller)->reset_port((UsbController*)dev->controller, port);
+  //((UsbController
+  //*)dev->controller)->reset_port((UsbController*)dev->controller, port);
 
-  if(dev->set_address(dev, address) == -1){
-    dev->device_logger->error_c(dev->device_logger, "Aborting configuration of device due to error while setting the address ...");
+  if (dev->set_address(dev, address) == -1) {
+    dev->device_logger->error_c(dev->device_logger,
+                                "Aborting configuration of device due to error "
+                                "while setting the address ...");
     return;
   }
 
@@ -117,57 +124,75 @@ void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port, uint8_t lev
   address++;
 
   dev->state = ADDRESS_STATE;
-  
-  if(dev->handle_lang(dev, string_buffer) == -1){
-    dev->device_logger->error_c(dev->device_logger, "Aborting configuration of device due to error while handling the langs ...");
+
+  if (dev->handle_lang(dev, string_buffer) == -1) {
+    dev->device_logger->error_c(dev->device_logger,
+                                "Aborting configuration of device due to error "
+                                "while handling the langs ...");
     return;
   }
 
-  if(dev->handle_dev(dev, string_buffer, device_descriptor) == -1){
-    dev->device_logger->error_c(dev->device_logger, "Aborting configuration of device due to error while handling device spefic requests ...");
+  if (dev->handle_dev(dev, string_buffer, device_descriptor) == -1) {
+    dev->device_logger->error_c(dev->device_logger,
+                                "Aborting configuration of device due to error "
+                                "while handling device spefic requests ...");
     return;
   }
 
-  if(dev->handle_configuration(dev, string_buffer, config_buffer, config_descriptor, device_descriptor->bNumConfigurations) == -1){
-    dev->device_logger->error_c(dev->device_logger, "Aborting configuration of device due to error while handling internal configuration of the device ...");
+  if (dev->handle_configuration(dev, string_buffer, config_buffer,
+                                config_descriptor,
+                                device_descriptor->bNumConfigurations) == -1) {
+    dev->device_logger->error_c(
+        dev->device_logger,
+        "Aborting configuration of device due to error while handling internal "
+        "configuration of the device ...");
     return;
   }
 
-  if(dev->set_configuration(dev,
-                         dev->active_config->config_desc.bConfigurationValue) == -1){
-    dev->device_logger->error_c(dev->device_logger, "Aborting configuration of device due to error while setting the configration ...");
+  if (dev->set_configuration(
+          dev, dev->active_config->config_desc.bConfigurationValue) == -1) {
+    dev->device_logger->error_c(dev->device_logger,
+                                "Aborting configuration of device due to error "
+                                "while setting the configration ...");
     return;
   }
 
   dev->state = CONFIGURED_STATE;
 
-  ((UsbController*)dev->controller)->add_device((UsbController *)dev->controller, dev);
+  ((UsbController *)dev->controller)
+      ->add_device((UsbController *)dev->controller, dev);
 
   mem_service->unmap(mem_service, (uint32_t)(uintptr_t)map_io_buffer);
 }
 
-void add_downstream_device(UsbDev* dev, UsbDev* downstream_dev){
-  if(dev->downstream_count == dev->max_down_stream) return;
+void add_downstream_device(UsbDev *dev, UsbDev *downstream_dev) {
+  if (dev->downstream_count == dev->max_down_stream)
+    return;
 
   dev->downstream_devs[dev->downstream_count] = downstream_dev;
   dev->downstream_count = dev->downstream_count + 1;
 }
 
-void add_downstream(UsbDev* dev, uint8_t downstream_ports){
-  if(!downstream_ports) return;
+void add_downstream(UsbDev *dev, uint8_t downstream_ports) {
+  if (!downstream_ports)
+    return;
 
-  MemoryService_C* m = (MemoryService_C*)container_of(dev->mem_service, MemoryService_C, super);
-  
-  UsbDev** down_d = m->allocateKernelMemory_c(m, sizeof(UsbDev*) * downstream_ports, 0);
+  MemoryService_C *m =
+      (MemoryService_C *)container_of(dev->mem_service, MemoryService_C, super);
+
+  UsbDev **down_d =
+      m->allocateKernelMemory_c(m, sizeof(UsbDev *) * downstream_ports, 0);
 
   dev->downstream_devs = down_d;
   dev->max_down_stream = downstream_ports;
   dev->downstream_count = 0;
 }
 
-void delete_usb_dev(UsbDev* dev){
-  MemoryService_C* m = (MemoryService_C*)container_of(dev->mem_service, MemoryService_C, super);
-  if(dev->downstream_devs != (void*)0) m->freeKernelMemory_c(m, dev->downstream_devs, 0);
+void delete_usb_dev(UsbDev *dev) {
+  MemoryService_C *m =
+      (MemoryService_C *)container_of(dev->mem_service, MemoryService_C, super);
+  if (dev->downstream_devs != (void *)0)
+    m->freeKernelMemory_c(m, dev->downstream_devs, 0);
   m->freeKernelMemory_c(m, dev->device_mutex, 0);
   m->unmap(m, (uint32_t)(uintptr_t)dev->device_request_map_io);
   m->freeKernelMemory_c(m, dev->lang_ids, 0);
@@ -177,36 +202,48 @@ void delete_usb_dev(UsbDev* dev){
   m->freeKernelMemory_c(m, dev, 0);
 }
 
-void free_usb_dev_strings(UsbDev* dev){
-  MemoryService_C* m = (MemoryService_C*)container_of(dev->mem_service, MemoryService_C, super);
-  if(dev->manufacturer[0] != '\0') m->freeKernelMemory_c(m, dev->manufacturer, 0);
-  if(dev->product[0] != '\0') m->freeKernelMemory_c(m, dev->product, 0);
-  if(dev->serial_number[0] != '\0') m->freeKernelMemory_c(m, dev->serial_number, 0); 
+void free_usb_dev_strings(UsbDev *dev) {
+  MemoryService_C *m =
+      (MemoryService_C *)container_of(dev->mem_service, MemoryService_C, super);
+  if (dev->manufacturer[0] != '\0')
+    m->freeKernelMemory_c(m, dev->manufacturer, 0);
+  if (dev->product[0] != '\0')
+    m->freeKernelMemory_c(m, dev->product, 0);
+  if (dev->serial_number[0] != '\0')
+    m->freeKernelMemory_c(m, dev->serial_number, 0);
 }
 
-void free_usb_dev_configs(UsbDev* dev){
-  MemoryService_C* m = (MemoryService_C*)container_of(dev->mem_service, MemoryService_C, super);
-  Configuration** configs = dev->supported_configs;
-  if(configs == (void*)0) return;
+void free_usb_dev_configs(UsbDev *dev) {
+  MemoryService_C *m =
+      (MemoryService_C *)container_of(dev->mem_service, MemoryService_C, super);
+  Configuration **configs = dev->supported_configs;
+  if (configs == (void *)0)
+    return;
 
-  for(int i = 0; i < dev->device_desc.bNumConfigurations; i++){
-    Configuration* config = configs[i];
-    if(config->config_description[0] != '\0') m->freeKernelMemory_c(m, config->config_description, 0);
+  for (int i = 0; i < dev->device_desc.bNumConfigurations; i++) {
+    Configuration *config = configs[i];
+    if (config->config_description[0] != '\0')
+      m->freeKernelMemory_c(m, config->config_description, 0);
     int num_interfaces = config->config_desc.bNumInterfaces;
     dev->free_usb_dev_interfaces(dev, config->interfaces, num_interfaces);
   }
   m->freeKernelMemory_c(m, configs, 0);
 }
 
-void free_usb_dev_interfaces(UsbDev* dev, Interface** interfaces, int num_interfaces){
-  MemoryService_C* m = (MemoryService_C*)container_of(dev->mem_service, MemoryService_C, super);
-  for(int i = 0; i < num_interfaces; i++){
-    Interface* itf = interfaces[i];
-    Alternate_Interface* alt_itf = itf->alternate_interfaces;
-    if(itf->interface_description[0] != '\0') m->freeKernelMemory_c(m, itf->interface_description, 0);
-    while(alt_itf != (void*)0){
-      dev->free_usb_dev_endpoints(dev, alt_itf->endpoints, alt_itf->alternate_interface_desc.bNumEndpoints);
-      Alternate_Interface* temp = alt_itf;
+void free_usb_dev_interfaces(UsbDev *dev, Interface **interfaces,
+                             int num_interfaces) {
+  MemoryService_C *m =
+      (MemoryService_C *)container_of(dev->mem_service, MemoryService_C, super);
+  for (int i = 0; i < num_interfaces; i++) {
+    Interface *itf = interfaces[i];
+    Alternate_Interface *alt_itf = itf->alternate_interfaces;
+    if (itf->interface_description[0] != '\0')
+      m->freeKernelMemory_c(m, itf->interface_description, 0);
+    while (alt_itf != (void *)0) {
+      dev->free_usb_dev_endpoints(
+          dev, alt_itf->endpoints,
+          alt_itf->alternate_interface_desc.bNumEndpoints);
+      Alternate_Interface *temp = alt_itf;
       alt_itf = alt_itf->next;
       m->freeKernelMemory_c(m, temp, 0);
     }
@@ -215,101 +252,111 @@ void free_usb_dev_interfaces(UsbDev* dev, Interface** interfaces, int num_interf
   m->freeKernelMemory_c(m, interfaces, 0);
 }
 
-void free_usb_dev_endpoints(UsbDev* dev, Endpoint** endpoints, int num_endpoints){
-  MemoryService_C* m = (MemoryService_C*)container_of(dev->mem_service, MemoryService_C, super);
-  for(int i = 0; i < num_endpoints; i++){
+void free_usb_dev_endpoints(UsbDev *dev, Endpoint **endpoints,
+                            int num_endpoints) {
+  MemoryService_C *m =
+      (MemoryService_C *)container_of(dev->mem_service, MemoryService_C, super);
+  for (int i = 0; i < num_endpoints; i++) {
     m->freeKernelMemory_c(m, endpoints[i], 0);
   }
   m->freeKernelMemory_c(m, endpoints, 0);
 }
 
-int handle_interface(UsbDev* dev, Configuration* configuration, uint8_t* string_buffer, uint8_t* start, uint8_t* end,
-                      uint8_t num_interfaces){
-  MemoryService_C* mem_service = (MemoryService_C*)container_of(dev->mem_service, MemoryService_C, super);
+int handle_interface(UsbDev *dev, Configuration *configuration,
+                     uint8_t *string_buffer, uint8_t *start, uint8_t *end,
+                     uint8_t num_interfaces) {
+  MemoryService_C *mem_service =
+      (MemoryService_C *)container_of(dev->mem_service, MemoryService_C, super);
   Interface **interfaces = (Interface **)mem_service->allocateKernelMemory_c(
       mem_service, sizeof(Interface *) * num_interfaces, 0);
   configuration->interfaces = interfaces;
 
   uint8_t s_len;
-  char* ascii_string;
+  char *ascii_string;
   unsigned int interface_num = 0;
   unsigned int endpoint_num = 0;
   unsigned int prev_interface_number = -1;
   Alternate_Interface *prev;
   while (start < end) {
-      if (*(start + 1) == INTERFACE) {
-        Alternate_Interface *alt_interface =
-            (Alternate_Interface *)mem_service->allocateKernelMemory_c(
-                mem_service, sizeof(Alternate_Interface), 0);
-        alt_interface->next = 0;
+    if (*(start + 1) == INTERFACE) {
+      Alternate_Interface *alt_interface =
+          (Alternate_Interface *)mem_service->allocateKernelMemory_c(
+              mem_service, sizeof(Alternate_Interface), 0);
+      alt_interface->next = 0;
 
-        InterfaceDescriptor *interface_desc = (InterfaceDescriptor *)start;
+      InterfaceDescriptor *interface_desc = (InterfaceDescriptor *)start;
 
-        if (interface_desc->iInterface != 0) {
-          if(dev->process_string_descriptor(dev, string_buffer,
-              interface_desc->iInterface, dev->lang_id, "iInterface", 1) == -1) return -1;
-          
-          s_len = string_buffer[0];
+      if (interface_desc->iInterface != 0) {
+        if (dev->process_string_descriptor(dev, string_buffer,
+                                           interface_desc->iInterface,
+                                           dev->lang_id, "iInterface", 1) == -1)
+          return -1;
 
-          if(dev->process_string_descriptor(
-              dev, string_buffer, interface_desc->iInterface, dev->lang_id,
-              "iInterface", s_len) == -1) return -1;
+        s_len = string_buffer[0];
 
-          ascii_string = dev->build_string(dev, s_len, string_buffer);
-        }
+        if (dev->process_string_descriptor(
+                dev, string_buffer, interface_desc->iInterface, dev->lang_id,
+                "iInterface", s_len) == -1)
+          return -1;
 
-        alt_interface->alternate_interface_desc = *interface_desc;
-
-        if (interface_desc->bInterfaceNumber == prev_interface_number) {
-          prev->next = alt_interface;
-          prev = prev->next;
-        } else {
-          Interface *interface =
-              (Interface *)mem_service->allocateKernelMemory_c(
-                  mem_service, sizeof(Interface), 0);
-          interface->active = 0;
-          interface->driver = 0;
-          interface->active_interface = alt_interface;
-          interface->alternate_interfaces = alt_interface;
-          interface->interface_description = ascii_string;
-          prev = alt_interface;
-          interfaces[interface_num++] = interface;
-        }
-        endpoint_num = 0;
-        prev_interface_number = interface_desc->bInterfaceNumber;
-        alt_interface->endpoints =
-            (Endpoint **)mem_service->allocateKernelMemory_c(
-                mem_service,
-                sizeof(struct Endpoint *) * interface_desc->bNumEndpoints, 0);
+        ascii_string = dev->build_string(dev, s_len, string_buffer);
       }
 
-      else if (*(start + 1) == HID) {
-        // ReportDescriptor* report_desc = (ReportDescriptor*)start;
-        //  for now we will just ignore custom input report and will only look
-        //  at the default input report meaning if class code of 0 we can't
-        //  support it right now
-      }
+      alt_interface->alternate_interface_desc = *interface_desc;
 
-      else if (*(start + 1) == ENDPOINT) {
-        EndpointDescriptor *endpoint_desc = (EndpointDescriptor *)start;
-        Endpoint *endpoint = (Endpoint *)mem_service->allocateKernelMemory_c(
-            mem_service, sizeof(Endpoint), 0);
-        endpoint->endpoint_desc = *endpoint_desc;
-        prev->endpoints[endpoint_num++] = endpoint;
+      if (interface_desc->bInterfaceNumber == prev_interface_number) {
+        prev->next = alt_interface;
+        prev = prev->next;
+      } else {
+        Interface *interface = (Interface *)mem_service->allocateKernelMemory_c(
+            mem_service, sizeof(Interface), 0);
+        interface->active = 0;
+        interface->driver = 0;
+        interface->active_interface = alt_interface;
+        interface->alternate_interfaces = alt_interface;
+        interface->interface_description = ascii_string;
+        prev = alt_interface;
+        interfaces[interface_num++] = interface;
       }
-      start += *(start);
+      endpoint_num = 0;
+      prev_interface_number = interface_desc->bInterfaceNumber;
+      alt_interface->endpoints =
+          (Endpoint **)mem_service->allocateKernelMemory_c(
+              mem_service,
+              sizeof(struct Endpoint *) * interface_desc->bNumEndpoints, 0);
     }
-    return 1;
+
+    else if (*(start + 1) == HID) {
+      // ReportDescriptor* report_desc = (ReportDescriptor*)start;
+      //  for now we will just ignore custom input report and will only look
+      //  at the default input report meaning if class code of 0 we can't
+      //  support it right now
+    }
+
+    else if (*(start + 1) == ENDPOINT) {
+      EndpointDescriptor *endpoint_desc = (EndpointDescriptor *)start;
+      Endpoint *endpoint = (Endpoint *)mem_service->allocateKernelMemory_c(
+          mem_service, sizeof(Endpoint), 0);
+      endpoint->endpoint_desc = *endpoint_desc;
+      prev->endpoints[endpoint_num++] = endpoint;
+    }
+    start += *(start);
+  }
+  return 1;
 }
 
-int handle_configuration(UsbDev* dev, uint8_t* string_buffer, uint8_t* config_buffer, ConfigurationDescriptor* config_descriptor, uint8_t num_configurations){
-  MemoryService_C* mem_service = (MemoryService_C*)container_of(dev->mem_service, MemoryService_C, super);
+int handle_configuration(UsbDev *dev, uint8_t *string_buffer,
+                         uint8_t *config_buffer,
+                         ConfigurationDescriptor *config_descriptor,
+                         uint8_t num_configurations) {
+  MemoryService_C *mem_service =
+      (MemoryService_C *)container_of(dev->mem_service, MemoryService_C, super);
   uint16_t total_len;
   uint8_t desc_len;
   uint8_t *start;
   uint8_t *end;
   uint8_t s_len;
-  char* ascii_string;
+  char *ascii_string;
   uint8_t config_sel = 0, current_entry = 0;
 
   Configuration **configurations =
@@ -319,9 +366,10 @@ int handle_configuration(UsbDev* dev, uint8_t* string_buffer, uint8_t* config_bu
   // default to config0, interface0
   for (int i = 0; i < num_configurations; i++) {
     // request first 4 bytes of each config desc (wTotalLength)
-    if(dev->process_configuration_descriptor(dev, config_descriptor, i, 4) == -1)
+    if (dev->process_configuration_descriptor(dev, config_descriptor, i, 4) ==
+        -1)
       return -1;
-    
+
     total_len = config_descriptor->wTotalLength;
     desc_len = config_descriptor->bLength;
 
@@ -329,7 +377,8 @@ int handle_configuration(UsbDev* dev, uint8_t* string_buffer, uint8_t* config_bu
       continue;
     }
 
-    if(dev->process_whole_configuration(dev, config_buffer, i, total_len) == -1)
+    if (dev->process_whole_configuration(dev, config_buffer, i, total_len) ==
+        -1)
       return -1;
 
     Configuration *configuration =
@@ -337,19 +386,20 @@ int handle_configuration(UsbDev* dev, uint8_t* string_buffer, uint8_t* config_bu
             mem_service, sizeof(Configuration), 0);
     ConfigurationDescriptor *config_desc =
         (ConfigurationDescriptor *)config_buffer;
-    configuration->config_description = "";    
+    configuration->config_description = "";
 
     if (config_desc->iConfiguration != 0) {
-      if(dev->process_string_descriptor(dev, string_buffer,
-          config_desc->iConfiguration, dev->lang_id, "iConfiguration", 1) == -1)
-          return -1;
-  
+      if (dev->process_string_descriptor(
+              dev, string_buffer, config_desc->iConfiguration, dev->lang_id,
+              "iConfiguration", 1) == -1)
+        return -1;
+
       s_len = string_buffer[0];
 
-      if(dev->process_string_descriptor(
-          dev, string_buffer, config_desc->iConfiguration, dev->lang_id,
-          "iConfiguration", s_len) == -1)
-          return -1;
+      if (dev->process_string_descriptor(
+              dev, string_buffer, config_desc->iConfiguration, dev->lang_id,
+              "iConfiguration", s_len) == -1)
+        return -1;
 
       ascii_string = dev->build_string(dev, s_len, string_buffer);
       configuration->config_description = ascii_string;
@@ -364,24 +414,27 @@ int handle_configuration(UsbDev* dev, uint8_t* string_buffer, uint8_t* config_bu
     end = config_buffer + total_len;
 
     configuration->config_desc = *config_desc;
-    
-    dev->handle_interface(dev, configuration, string_buffer, start, end, config_desc->bNumInterfaces);
-    
+
+    dev->handle_interface(dev, configuration, string_buffer, start, end,
+                          config_desc->bNumInterfaces);
+
     configurations[current_entry++] = configuration;
   }
 
   return 1;
 }
 
-int handle_lang(UsbDev* dev, uint8_t* string_buffer){
+int handle_lang(UsbDev *dev, uint8_t *string_buffer) {
   uint8_t s_len;
 
-  if(dev->process_string_descriptor(dev, string_buffer, 0, 0, "langs", 1) == -1)
+  if (dev->process_string_descriptor(dev, string_buffer, 0, 0, "langs", 1) ==
+      -1)
     return -1;
 
   s_len = string_buffer[0];
 
-  if(dev->process_string_descriptor(dev, string_buffer, 0, 0, "langs", s_len) == -1)
+  if (dev->process_string_descriptor(dev, string_buffer, 0, 0, "langs",
+                                     s_len) == -1)
     return -1;
 
   dev->process_lang_ids(dev, string_buffer, s_len);
@@ -389,29 +442,30 @@ int handle_lang(UsbDev* dev, uint8_t* string_buffer){
   return 1;
 }
 
-int handle_dev(UsbDev* dev, uint8_t* string_buffer, DeviceDescriptor* device_descriptor){
+int handle_dev(UsbDev *dev, uint8_t *string_buffer,
+               DeviceDescriptor *device_descriptor) {
   uint8_t s_len;
   char *ascii_string;
 
-  if(dev->process_device_descriptor(dev, device_descriptor,
-                                 sizeof(DeviceDescriptor)) == -1)
+  if (dev->process_device_descriptor(dev, device_descriptor,
+                                     sizeof(DeviceDescriptor)) == -1)
     return -1;
 
   dev->device_desc = *device_descriptor;
 
   if (device_descriptor->iManufacturer != 0) {
 
-    if(dev->process_string_descriptor(
-        dev, string_buffer, device_descriptor->iManufacturer, dev->lang_id,
-        "iManufacturer", 1) == -1)
-        return -1;
+    if (dev->process_string_descriptor(dev, string_buffer,
+                                       device_descriptor->iManufacturer,
+                                       dev->lang_id, "iManufacturer", 1) == -1)
+      return -1;
 
     s_len = string_buffer[0];
 
-    if(dev->process_string_descriptor(
-        dev, string_buffer, device_descriptor->iManufacturer, dev->lang_id,
-        "iManufacturer", s_len) == -1)
-        return -1;
+    if (dev->process_string_descriptor(
+            dev, string_buffer, device_descriptor->iManufacturer, dev->lang_id,
+            "iManufacturer", s_len) == -1)
+      return -1;
 
     ascii_string = dev->build_string(dev, s_len, string_buffer);
     dev->manufacturer = ascii_string;
@@ -419,16 +473,16 @@ int handle_dev(UsbDev* dev, uint8_t* string_buffer, DeviceDescriptor* device_des
 
   if (device_descriptor->iProduct != 0) {
 
-    if(dev->process_string_descriptor(dev, string_buffer,
-                                                  device_descriptor->iProduct,
-                                                  dev->lang_id, "iProduct", 1) == -1)
+    if (dev->process_string_descriptor(dev, string_buffer,
+                                       device_descriptor->iProduct,
+                                       dev->lang_id, "iProduct", 1) == -1)
       return -1;
 
     s_len = string_buffer[0];
 
-    if(dev->process_string_descriptor(
-        dev, string_buffer, device_descriptor->iProduct, dev->lang_id,
-        "iProduct", s_len) == -1)
+    if (dev->process_string_descriptor(dev, string_buffer,
+                                       device_descriptor->iProduct,
+                                       dev->lang_id, "iProduct", s_len) == -1)
       return -1;
 
     ascii_string = dev->build_string(dev, s_len, string_buffer);
@@ -437,17 +491,17 @@ int handle_dev(UsbDev* dev, uint8_t* string_buffer, DeviceDescriptor* device_des
 
   if (device_descriptor->iSerialNumber != 0) {
 
-    if(dev->process_string_descriptor(
-        dev, string_buffer, device_descriptor->iSerialNumber, dev->lang_id,
-        "iSerialNumber", 1) == -1)
-        return -1;
+    if (dev->process_string_descriptor(dev, string_buffer,
+                                       device_descriptor->iSerialNumber,
+                                       dev->lang_id, "iSerialNumber", 1) == -1)
+      return -1;
 
     s_len = string_buffer[0];
 
-    if(dev->process_string_descriptor(
-        dev, string_buffer, device_descriptor->iSerialNumber, dev->lang_id,
-        "iSerialNumber", s_len) == -1)
-        return -1;
+    if (dev->process_string_descriptor(
+            dev, string_buffer, device_descriptor->iSerialNumber, dev->lang_id,
+            "iSerialNumber", s_len) == -1)
+      return -1;
 
     ascii_string = dev->build_string(dev, s_len, string_buffer);
     dev->serial_number = ascii_string;
@@ -564,7 +618,8 @@ int set_address(UsbDev *dev, uint8_t address) {
 
   dev->request_build(dev, device_req, HOST_TO_DEVICE, SET_ADDRESS, 0, address,
                      0, 0, 0);
-  dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, &request_callback, CONTROL_INITIAL_STATE);
+  dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, &request_callback,
+               CONTROL_INITIAL_STATE);
 
   if (dev->error_while_transfering) {
     dev->device_logger->error_c(dev->device_logger,
@@ -606,8 +661,11 @@ void request_build(UsbDev *dev, UsbDeviceRequest *device_request,
 }
 
 void request(UsbDev *dev, UsbDeviceRequest *device_request, void *data,
-             uint8_t priority, Endpoint *endpoint, callback_function callback, uint8_t flags) {
-  ((UsbController*)dev->controller)->control_entry_point(dev, device_request, data, priority, endpoint, callback, flags);
+             uint8_t priority, Endpoint *endpoint, callback_function callback,
+             uint8_t flags) {
+  ((UsbController *)dev->controller)
+      ->control_entry_point(dev, device_request, data, priority, endpoint,
+                            callback, flags);
 }
 
 // update struct Interface + active field in alternate setting
@@ -640,7 +698,8 @@ int request_switch_configuration(UsbDev *dev, int configuration,
   unsigned int config_count = dev->device_desc.bNumConfigurations;
   Configuration **allowed_configs = dev->supported_configs;
 
-  if(config_count < configuration) return -1;
+  if (config_count < configuration)
+    return -1;
 
   for (int i = 0; i < config_count; i++) {
     Configuration *config = allowed_configs[i];
@@ -726,8 +785,8 @@ int process_whole_configuration(UsbDev *dev, uint8_t *config_buffer,
 
   dev->request_build(dev, request, DEVICE_TO_HOST, GET_DESCRIPTOR,
                      CONFIGURATION, configuration_index, 8, 0, len);
-  dev->request(dev, request, config_buffer, PRIORITY_QH_8, 0,
-               &request_callback, CONTROL_INITIAL_STATE);
+  dev->request(dev, request, config_buffer, PRIORITY_QH_8, 0, &request_callback,
+               CONTROL_INITIAL_STATE);
 
   if (dev->error_while_transfering) {
     dev->device_logger->error_c(
@@ -740,8 +799,8 @@ int process_whole_configuration(UsbDev *dev, uint8_t *config_buffer,
 }
 
 int process_string_descriptor(UsbDev *dev, uint8_t *string_buffer,
-                                uint16_t index, uint16_t lang_id, char *s,
-                                unsigned int len) {
+                              uint16_t index, uint16_t lang_id, char *s,
+                              unsigned int len) {
   if (lang_id != 0 && lang_id != dev->lang_id)
     return -1;
   if (s == (void *)0)
@@ -754,8 +813,8 @@ int process_string_descriptor(UsbDev *dev, uint8_t *string_buffer,
 
   dev->request_build(dev, request, DEVICE_TO_HOST, GET_DESCRIPTOR, STRING,
                      index, 8, lang_id, len);
-  dev->request(dev, request, string_buffer, PRIORITY_QH_8, 0,
-               &request_callback, CONTROL_INITIAL_STATE);
+  dev->request(dev, request, string_buffer, PRIORITY_QH_8, 0, &request_callback,
+               CONTROL_INITIAL_STATE);
 
   if (dev->error_while_transfering) {
     dev->device_logger->error_c(
@@ -779,7 +838,8 @@ int set_configuration(UsbDev *dev, uint8_t configuration) {
   dev->request_build(dev, device_req, HOST_TO_DEVICE, SET_CONFIGURATION, 0,
                      dev->active_config->config_desc.bConfigurationValue, 0, 0,
                      0);
-  dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, &request_callback, CONTROL_INITIAL_STATE);
+  dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, &request_callback,
+               CONTROL_INITIAL_STATE);
 
   if (dev->error_while_transfering) {
     dev->device_logger->error_c(dev->device_logger,
@@ -790,11 +850,11 @@ int set_configuration(UsbDev *dev, uint8_t configuration) {
   return 1;
 }
 
-int usb_dev_interface_lock(UsbDev *dev, Interface *interface, void* driver) {
+int usb_dev_interface_lock(UsbDev *dev, Interface *interface, void *driver) {
   int interface_count = dev->active_config->config_desc.bNumInterfaces;
   Interface **interfaces = dev->active_config->interfaces;
 
-  //dev->device_mutex->acquire_c(dev->device_mutex);
+  // dev->device_mutex->acquire_c(dev->device_mutex);
 
   int i_found = 0;
   for (int i = 0; i < interface_count; i++) {
@@ -811,7 +871,7 @@ int usb_dev_interface_lock(UsbDev *dev, Interface *interface, void* driver) {
   interface->active = 1;
   interface->driver = driver;
 
-  //dev->device_mutex->release_c(dev->device_mutex);
+  // dev->device_mutex->release_c(dev->device_mutex);
 
   return 1;
 }
@@ -823,27 +883,27 @@ void usb_dev_free_interface(UsbDev *dev, Interface *interface) {
 
 UsbDeviceRequest *get_free_device_request(UsbDev *dev) {
   for (int i = 0; i < PAGE_SIZE / sizeof(UsbDeviceRequest); i++) {
-    //dev->device_mutex->acquire_c(dev->device_mutex);
+    // dev->device_mutex->acquire_c(dev->device_mutex);
     if (dev->device_request_map_io_bitmap[i] == 0) {
       dev->device_request_map_io_bitmap[i] = 1;
-      //dev->device_mutex->release_c(dev->device_mutex);
+      // dev->device_mutex->release_c(dev->device_mutex);
       return (UsbDeviceRequest *)(dev->device_request_map_io +
                                   (i * sizeof(UsbDeviceRequest)));
     }
-    //dev->device_mutex->release_c(dev->device_mutex);
+    // dev->device_mutex->release_c(dev->device_mutex);
   }
   return (void *)0;
 }
 
 void free_device_request(UsbDev *dev, UsbDeviceRequest *device_request) {
   for (int i = 0; i < PAGE_SIZE; i += sizeof(UsbDeviceRequest)) {
-    //dev->device_mutex->acquire_c(dev->device_mutex);
+    // dev->device_mutex->acquire_c(dev->device_mutex);
     if ((dev->device_request_map_io + i) == (uint8_t *)device_request) {
       dev->device_request_map_io_bitmap[i / sizeof(UsbDeviceRequest)] = 0;
-      //dev->device_mutex->release_c(dev->device_mutex);
+      // dev->device_mutex->release_c(dev->device_mutex);
       return;
     }
-    //dev->device_mutex->release_c(dev->device_mutex);
+    // dev->device_mutex->release_c(dev->device_mutex);
   }
 }
 
@@ -864,7 +924,8 @@ int set_report(UsbDev *dev, Interface *interface, uint8_t type, void *data,
       SET_REPORT, type, 0, 8,
       interface->active_interface->alternate_interface_desc.bInterfaceNumber,
       len);
-  dev->request(dev, request, data, PRIORITY_QH_8, 0, callback, CONTROL_INITIAL_STATE);
+  dev->request(dev, request, data, PRIORITY_QH_8, 0, callback,
+               CONTROL_INITIAL_STATE);
 
   return 1;
 }
@@ -887,7 +948,8 @@ int set_protocol(UsbDev *dev, Interface *interface, uint16_t protocol_value,
       SET_PROTOCOL, 0, USE_REPORT_PROTOCOL, 0,
       interface->active_interface->alternate_interface_desc.bInterfaceNumber,
       0);
-  dev->request(dev, request, 0, PRIORITY_QH_8, 0, callback, CONTROL_INITIAL_STATE);
+  dev->request(dev, request, 0, PRIORITY_QH_8, 0, callback,
+               CONTROL_INITIAL_STATE);
 
   return 1;
 }
@@ -917,116 +979,117 @@ int set_idle(UsbDev *dev, Interface *interface) {
   return 1;
 }
 
-int reset_bulk_only(UsbDev* dev, Interface* interface, callback_function callback){
+int reset_bulk_only(UsbDev *dev, Interface *interface,
+                    callback_function callback) {
   if (!dev->contain_interface(dev, interface))
     return -1;
-  
+
   UsbDeviceRequest *request = dev->get_free_device_request(dev);
 
   if (request == (void *)0)
     return -1;
 
   dev->request_build(
-    dev, request, HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_INTERFACE,
-    RESET_BULK_ONLY_DEVICE, 0, 0, 0, interface->active_interface->alternate_interface_desc.bInterfaceNumber,
-    0 
-  );
+      dev, request, HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_INTERFACE,
+      RESET_BULK_ONLY_DEVICE, 0, 0, 0,
+      interface->active_interface->alternate_interface_desc.bInterfaceNumber,
+      0);
   dev->request(dev, request, 0, PRIORITY_8, 0, callback, CONTROL_INITIAL_STATE);
 
-  return 1;  
+  return 1;
 }
 
-int get_max_logic_unit_numbers(UsbDev* dev, Interface* interface, uint8_t* data, 
-                                callback_function callback){
+int get_max_logic_unit_numbers(UsbDev *dev, Interface *interface, uint8_t *data,
+                               callback_function callback) {
   if (!dev->contain_interface(dev, interface))
     return -1;
-  
+
   UsbDeviceRequest *request = dev->get_free_device_request(dev);
 
   if (request == (void *)0)
     return -1;
 
   dev->request_build(
-      dev, request, DEVICE_TO_HOST | TYPE_REQUEST_CLASS | RECIPIENT_INTERFACE, 
-      GET_MAX_LUN, 0, 0, 0, interface->active_interface->alternate_interface_desc.bInterfaceNumber,
+      dev, request, DEVICE_TO_HOST | TYPE_REQUEST_CLASS | RECIPIENT_INTERFACE,
+      GET_MAX_LUN, 0, 0, 0,
+      interface->active_interface->alternate_interface_desc.bInterfaceNumber,
       1);
-  dev->request(dev, request, data, PRIORITY_8, 0, callback, CONTROL_INITIAL_STATE);
-
-  return 1;      
-}
-
-int get_descriptor(UsbDev* dev, Interface* interface, uint8_t* data, unsigned int len, 
-                callback_function callback){
-  if(!dev->contain_interface(dev, interface))
-    return -1;
-  
-  UsbDeviceRequest* request = dev->get_free_device_request(dev);
-
-  if(request == (void*)0)
-    return -1;
-
-  dev->request_build(
-    dev, request, DEVICE_TO_HOST | TYPE_REQUEST_CLASS | RECIPIENT_DEVICE,
-    GET_DESCRIPTOR, 0x2900, 0, 0, 0, len
-  );
-  dev->request(dev, request, data, PRIORITY_8, 0, callback, CONTROL_INITIAL_STATE);
+  dev->request(dev, request, data, PRIORITY_8, 0, callback,
+               CONTROL_INITIAL_STATE);
 
   return 1;
 }
 
-int get_req_status(UsbDev* dev, Interface* interface, uint8_t* data, unsigned int len, 
-                  callback_function callback){
-  if(!dev->contain_interface(dev, interface))
-    return -1;
-  
-  UsbDeviceRequest* request = dev->get_free_device_request(dev);
-
-  if(request == (void*)0)
+int get_descriptor(UsbDev *dev, Interface *interface, uint8_t *data,
+                   unsigned int len, callback_function callback) {
+  if (!dev->contain_interface(dev, interface))
     return -1;
 
-  dev->request_build(
-    dev, request, DEVICE_TO_HOST | TYPE_REQUEST_STANDARD | RECIPIENT_DEVICE,
-    GET_STATUS, 0, 0, 0, 0, len
-  );
-  dev->request(dev, request, data, PRIORITY_8, 0, callback, CONTROL_INITIAL_STATE);
+  UsbDeviceRequest *request = dev->get_free_device_request(dev);
+
+  if (request == (void *)0)
+    return -1;
+
+  dev->request_build(dev, request,
+                     DEVICE_TO_HOST | TYPE_REQUEST_CLASS | RECIPIENT_DEVICE,
+                     GET_DESCRIPTOR, 0x2900, 0, 0, 0, len);
+  dev->request(dev, request, data, PRIORITY_8, 0, callback,
+               CONTROL_INITIAL_STATE);
 
   return 1;
 }
 
-int set_feature(UsbDev* dev, Interface* interface, uint16_t feature_value, uint16_t port, 
-                callback_function callback){
-  if(!dev->contain_interface(dev, interface))
-    return -1;
-  
-  UsbDeviceRequest* request = dev->get_free_device_request(dev);
-
-  if(request == (void*)0)
+int get_req_status(UsbDev *dev, Interface *interface, uint8_t *data,
+                   unsigned int len, callback_function callback) {
+  if (!dev->contain_interface(dev, interface))
     return -1;
 
-  dev->request_build(
-    dev, request, HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_OTHER, SET_FEATURE,
-    0, feature_value, 0, port, 0
-  );
-  dev->request(dev, request, 0, PRIORITY_8, 0, callback, CONTROL_INITIAL_STATE);         
+  UsbDeviceRequest *request = dev->get_free_device_request(dev);
+
+  if (request == (void *)0)
+    return -1;
+
+  dev->request_build(dev, request,
+                     DEVICE_TO_HOST | TYPE_REQUEST_STANDARD | RECIPIENT_DEVICE,
+                     GET_STATUS, 0, 0, 0, 0, len);
+  dev->request(dev, request, data, PRIORITY_8, 0, callback,
+               CONTROL_INITIAL_STATE);
 
   return 1;
 }
 
-int clear_feature(UsbDev* dev, Interface* interface, uint16_t feature_value, uint16_t port,
-                  callback_function callback){
-  if(!dev->contain_interface(dev, interface))
-    return -1;
-  
-  UsbDeviceRequest* request = dev->get_free_device_request(dev);
-
-  if(request == (void*)0)
+int set_feature(UsbDev *dev, Interface *interface, uint16_t feature_value,
+                uint16_t port, callback_function callback) {
+  if (!dev->contain_interface(dev, interface))
     return -1;
 
-  dev->request_build(
-    dev, request, HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_OTHER, CLEAR_FEATURE,
-    0, feature_value, 0, port, 0
-  );
-  dev->request(dev, request, 0, PRIORITY_8, 0, callback, CONTROL_INITIAL_STATE);         
+  UsbDeviceRequest *request = dev->get_free_device_request(dev);
+
+  if (request == (void *)0)
+    return -1;
+
+  dev->request_build(dev, request,
+                     HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_OTHER,
+                     SET_FEATURE, 0, feature_value, 0, port, 0);
+  dev->request(dev, request, 0, PRIORITY_8, 0, callback, CONTROL_INITIAL_STATE);
+
+  return 1;
+}
+
+int clear_feature(UsbDev *dev, Interface *interface, uint16_t feature_value,
+                  uint16_t port, callback_function callback) {
+  if (!dev->contain_interface(dev, interface))
+    return -1;
+
+  UsbDeviceRequest *request = dev->get_free_device_request(dev);
+
+  if (request == (void *)0)
+    return -1;
+
+  dev->request_build(dev, request,
+                     HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_OTHER,
+                     CLEAR_FEATURE, 0, feature_value, 0, port, 0);
+  dev->request(dev, request, 0, PRIORITY_8, 0, callback, CONTROL_INITIAL_STATE);
 
   return 1;
 }
@@ -1048,7 +1111,8 @@ void usb_dev_control(UsbDev *dev, Interface *interface, unsigned int pipe,
 
   for (int i = 0; i < endpoint_count; i++) {
     if (dev->is_pipe_buildable(endpoints[i], pipe)) {
-      dev->request(dev, device_req, data, priority, endpoints[i], callback, flags);
+      dev->request(dev, device_req, data, priority, endpoints[i], callback,
+                   flags);
       return;
     }
   }
@@ -1070,8 +1134,9 @@ void usb_dev_bulk(struct UsbDev *dev, Interface *interface, unsigned int pipe,
 
   for (int i = 0; i < endpoint_count; i++) {
     if (dev->is_pipe_buildable(endpoints[i], pipe)) {
-      ((UsbController*)dev->controller)->bulk_entry_point(dev, endpoints[i], data, 
-                  len, priority, callback, flags);
+      ((UsbController *)dev->controller)
+          ->bulk_entry_point(dev, endpoints[i], data, len, priority, callback,
+                             flags);
       return;
     }
   }
@@ -1093,8 +1158,9 @@ void usb_dev_interrupt(UsbDev *dev, Interface *interface, unsigned int pipe,
 
   for (int i = 0; i < endpoint_count; i++) {
     if (dev->is_pipe_buildable(endpoints[i], pipe)) {
-      ((UsbController*)dev->controller)->interrupt_entry_point(dev, endpoints[i], data, len, priority, interval,
-                            callback);
+      ((UsbController *)dev->controller)
+          ->interrupt_entry_point(dev, endpoints[i], data, len, priority,
+                                  interval, callback);
       return;
     }
   }
@@ -1151,7 +1217,8 @@ int8_t support_interrupt(UsbDev *dev, Interface *interface) {
   return dev->support_transfer_type(dev, interface, TRANSFER_TYPE_INTERRUPT);
 }
 
-int8_t support_transfer_type(UsbDev* dev, Interface* interface, uint8_t transfer_type){
+int8_t support_transfer_type(UsbDev *dev, Interface *interface,
+                             uint8_t transfer_type) {
   Endpoint **endpoints = interface->active_interface->endpoints;
   int8_t supports = 0;
   Alternate_Interface *active_interface = interface->active_interface;

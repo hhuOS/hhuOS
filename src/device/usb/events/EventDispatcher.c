@@ -1,7 +1,7 @@
 #include "EventDispatcher.h"
-#include "event/Event.h"
 #include "../include/UsbInterface.h"
 #include "../interfaces/SystemInterface.h"
+#include "event/Event.h"
 #include "listeners/EventListener.h"
 
 void publish_event(EventDispatcher *dispatcher, GenericEvent *event, int id) {
@@ -21,12 +21,12 @@ int register_event_listener(EventDispatcher *dispatcher,
                                         event_listener);
   dispatcher->event_listener_counter = count + 1;
 
-  //dispatcher->dispatcher_mutex->acquire_c(dispatcher->dispatcher_mutex);
+  // dispatcher->dispatcher_mutex->acquire_c(dispatcher->dispatcher_mutex);
 
   list_element *l_e = dispatcher->head.l_e;
   if (l_e == (void *)0) {
     dispatcher->head.l_e = &event_listener->l_e;
-    //dispatcher->dispatcher_mutex->release_c(dispatcher->dispatcher_mutex);
+    // dispatcher->dispatcher_mutex->release_c(dispatcher->dispatcher_mutex);
     return count;
   }
   while (l_e->l_e != (void *)0) {
@@ -35,7 +35,7 @@ int register_event_listener(EventDispatcher *dispatcher,
 
   l_e->l_e = &event_listener->l_e;
 
-  //dispatcher->dispatcher_mutex->release_c(dispatcher->dispatcher_mutex);
+  // dispatcher->dispatcher_mutex->release_c(dispatcher->dispatcher_mutex);
 
   return count;
 }
@@ -43,7 +43,7 @@ int deregister_event_listener(EventDispatcher *dispatcher, int id) {
   list_element *l_e = dispatcher->head.l_e;
   list_element *prev = 0;
 
-  //dispatcher->dispatcher_mutex->acquire_c(dispatcher->dispatcher_mutex);
+  // dispatcher->dispatcher_mutex->acquire_c(dispatcher->dispatcher_mutex);
 
   int found = 0;
   while (l_e != (void *)0) {
@@ -59,14 +59,14 @@ int deregister_event_listener(EventDispatcher *dispatcher, int id) {
     }
   }
 
-  //dispatcher->dispatcher_mutex->release_c(dispatcher->dispatcher_mutex);
+  // dispatcher->dispatcher_mutex->release_c(dispatcher->dispatcher_mutex);
 
   if (found) {
     dispatcher->event_listener_map->remove_c(dispatcher->event_listener_map,
                                              &id);
     return id;
   }
-  
+
   return -1;
 }
 
@@ -81,7 +81,7 @@ EventListener *getListener(EventDispatcher *dispatcher, int id) {
 
 int reg_callback(EventDispatcher *dispatcher, event_callback callback,
                  uint16_t event_listener_type) {
-  //dispatcher->dispatcher_mutex->acquire_c(dispatcher->dispatcher_mutex);
+  // dispatcher->dispatcher_mutex->acquire_c(dispatcher->dispatcher_mutex);
 
   list_element *l_e = dispatcher->head.l_e;
 
@@ -90,21 +90,21 @@ int reg_callback(EventDispatcher *dispatcher, event_callback callback,
         (EventListener *)container_of(l_e, EventListener, l_e);
     if (listener->type_of(listener) == event_listener_type) {
       listener->register_event_callback(listener, callback);
-      //dispatcher->dispatcher_mutex->release_c(dispatcher->dispatcher_mutex);
+      // dispatcher->dispatcher_mutex->release_c(dispatcher->dispatcher_mutex);
       return 1;
     }
     l_e = l_e->l_e;
   }
 
-  //dispatcher->dispatcher_mutex->release_c(dispatcher->dispatcher_mutex);
+  // dispatcher->dispatcher_mutex->release_c(dispatcher->dispatcher_mutex);
 
   return -1;
 }
 
 int dereg_callback(EventDispatcher *dispatcher, event_callback callback,
                    uint16_t event_listener_type) {
-  //dispatcher->dispatcher_mutex->acquire_c(dispatcher->dispatcher_mutex);
-  
+  // dispatcher->dispatcher_mutex->acquire_c(dispatcher->dispatcher_mutex);
+
   list_element *l_e = dispatcher->head.l_e;
 
   while (l_e != (void *)0) {
@@ -112,13 +112,13 @@ int dereg_callback(EventDispatcher *dispatcher, event_callback callback,
         (EventListener *)container_of(l_e, EventListener, l_e);
     if (listener->type_of(listener) == event_listener_type) {
       listener->deregister_event_callback(listener, callback);
-      //dispatcher->dispatcher_mutex->release_c(dispatcher->dispatcher_mutex);
+      // dispatcher->dispatcher_mutex->release_c(dispatcher->dispatcher_mutex);
       return 1;
     }
     l_e = l_e->l_e;
   }
 
-  //dispatcher->dispatcher_mutex->release_c(dispatcher->dispatcher_mutex);
+  // dispatcher->dispatcher_mutex->release_c(dispatcher->dispatcher_mutex);
 
   return -1;
 }
@@ -135,9 +135,11 @@ void new_event_dispatcher(EventDispatcher *event_dispatcher) {
   event_dispatcher->event_listener_counter = 0;
   event_dispatcher->head.l_e = 0;
 
-  event_dispatcher->dispatcher_mutex = (Mutex_C*)interface_allocateMemory(sizeof(Mutex_C), 0);
+  event_dispatcher->dispatcher_mutex =
+      (Mutex_C *)interface_allocateMemory(sizeof(Mutex_C), 0);
   event_dispatcher->dispatcher_mutex->new_mutex = &new_mutex;
-  event_dispatcher->dispatcher_mutex->new_mutex(event_dispatcher->dispatcher_mutex);
+  event_dispatcher->dispatcher_mutex->new_mutex(
+      event_dispatcher->dispatcher_mutex);
 }
 
 void init_event_dispatcher_map(EventDispatcher *event_dispatcher) {
