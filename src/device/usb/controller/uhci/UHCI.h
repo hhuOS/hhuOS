@@ -51,12 +51,6 @@ struct _UHCI {
   void (*new_UHCI)(struct _UHCI *uhci, PciDevice_Struct* pci_device, SystemService_C* mem_service);
 
   Register *(*look_for)(struct _UHCI *uhci, Register_Type r);
-  // int8_t (*write)(struct _UHCI* uhci, Register* reg, void* b);
-  // int8_t (*read)(struct _UHCI* uhci, Register* reg);
-
-  // void* (*get_reg_data)(struct _UHCI* uhci, Register* reg);
-
-  // char* (*get_information)(struct _UHCI* uhci);
 
   QH* (*request_frames)(struct _UHCI* uhci);
   Addr_Region* (*i_o_space_layout_run)(struct _UHCI* uhci);
