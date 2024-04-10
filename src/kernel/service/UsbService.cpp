@@ -196,6 +196,7 @@ void Kernel::UsbService::handle_fs_driver(
     UsbController *controller) {
   Util::String driver_temp;
   list_element *l_e_dev;
+  uint8_t dev_count = 0;
   Util::String temp = Util::String("name");
   driver_temp = Util::String(driver->name);
 
@@ -214,7 +215,7 @@ void Kernel::UsbService::handle_fs_driver(
 
     Util::String dev_info = Util::String(dev->manufacturer);
 
-    temp = Util::String("device");
+    temp = Util::String::format("device%u", dev_count++);
     write_to_node(dr_node, dev_info, temp);
 
     l_e_dev = l_e_dev->l_e;
