@@ -54,7 +54,10 @@ Thread::Thread(const Util::String &name, Process &parent, Util::Async::Runnable 
 Thread::~Thread() {
     delete reinterpret_cast<uint8_t*>(kernelStack);
     delete fpuContext;
-    delete runnable;
+
+    if (isKernelThread()) {
+        delete runnable;
+    }
 }
 
 Thread& Thread::createKernelThread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable) {
