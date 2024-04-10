@@ -254,7 +254,7 @@ void create_dev(_UHCI *uhci, int16_t status, int pn, MemoryService_C *m) {
       "%s-Usb-Device detected at port : %d -> Start configuration",
       speed == FULL_SPEED ? "Full-Speed" : "Low-Speed", pn);
 
-  dev->new_usb_device(dev, speed, pn, 0, 0xFF, pn, 1, (SystemService_C *)m,
+  dev->new_usb_device(dev, speed, pn, 0, 0xFF, pn, pn, (SystemService_C *)m,
                       uhci, 0);
 
 #if defined(DEVICE_DEBUG_ON) || defined(DEBUG_ON)
