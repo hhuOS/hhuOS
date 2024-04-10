@@ -45,7 +45,6 @@ Scheduler::Scheduler() {
     if (Device::Fpu::isAvailable()) {
         LOG_INFO("FPU detected -> Enabling FPU context switching");
         fpu = new Device::Fpu(defaultFpuContext);
-        fpu->plugin();
     } else {
         LOG_WARN("No FPU present");
     }
@@ -194,7 +193,7 @@ void Scheduler::yield(bool interrupt) {
 
 void Scheduler::switchFpuContext() {
     if (fpu == nullptr) {
-        return;
+        Util::Exception::throwException(Util::Exception::DEVICE_NOT_AVAILABLE, "FPU not found!");
     }
 
     readyQueueLock.acquire();

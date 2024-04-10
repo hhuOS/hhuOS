@@ -23,6 +23,7 @@
 #include "kernel/service/InterruptService.h"
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/System.h"
+#include "kernel/service/SchedulerService.h"
 
 namespace Kernel {
 enum InterruptVector : uint8_t;
@@ -37,7 +38,7 @@ InterruptDescriptorTable::InterruptDescriptorTable() {
     SET_IDT_ENTRY(table, 4, handleInterrupt4)
     SET_IDT_ENTRY(table, 5, handleInterrupt5)
     SET_IDT_ENTRY(table, 6, handleInterrupt6)
-    SET_IDT_ENTRY(table, 7, handleInterrupt7)
+    SET_IDT_ENTRY(table, 7, handleFpuException)
     SET_IDT_ENTRY(table, 8, handleInterrupt8)
     SET_IDT_ENTRY(table, 9, handleInterrupt9)
     SET_IDT_ENTRY(table, 10, handleInterrupt10)
@@ -166,7 +167,7 @@ InterruptDescriptorTable::InterruptDescriptorTable() {
     SET_IDT_ENTRY(table, 131, handleInterrupt131)
     SET_IDT_ENTRY(table, 132, handleInterrupt132)
     SET_IDT_ENTRY(table, 133, handleInterrupt133)
-    // System call handler is set up below
+    // System call handler is set up below (0x86 = 134)
     SET_IDT_ENTRY(table, 135, handleInterrupt135)
     SET_IDT_ENTRY(table, 136, handleInterrupt136)
     SET_IDT_ENTRY(table, 137, handleInterrupt137)
@@ -336,6 +337,12 @@ void InterruptDescriptorTable::handleInterrupt(const InterruptFrame &frame, Inte
 void InterruptDescriptorTable::handlePageFault(InterruptFrame *frame, uint32_t errorCode) {
     ENTER_INTERRUPT_HANDLER_WITH_ERROR_CODE
     Service::getService<MemoryService>().handlePageFault(errorCode);
+    LEAVE_INTERRUPT_HANDLER
+}
+
+void InterruptDescriptorTable::handleFpuException(InterruptFrame *frame) {
+    ENTER_INTERRUPT_HANDLER
+    Kernel::Service::getService<Kernel::SchedulerService>().switchFpuContext();
     LEAVE_INTERRUPT_HANDLER
 }
 

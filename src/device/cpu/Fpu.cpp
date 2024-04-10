@@ -81,14 +81,6 @@ Fpu::Fpu(const uint8_t *defaultFpuContext) {
     }
 }
 
-void Fpu::plugin() {
-    Kernel::Service::getService<Kernel::InterruptService>().assignInterrupt(Kernel::InterruptVector::DEVICE_NOT_AVAILABLE, *this);
-}
-
-void Fpu::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
-    Kernel::Service::getService<Kernel::SchedulerService>().switchFpuContext();
-}
-
 bool Fpu::isAvailable() {
     if (Util::Hardware::CpuId::getCpuFeatures().contains(Util::Hardware::CpuId::FPU)) {
         return true;

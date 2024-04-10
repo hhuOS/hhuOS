@@ -35,7 +35,6 @@ Util::String MemoryStatusNode::formatMemory(uint32_t value) {
 Util::String MemoryStatusNode::getString() {
     auto memoryStatus = Kernel::Service::getService<Kernel::MemoryService>().getMemoryStatus();
     return "Physical:      " + formatMemory(memoryStatus.freePhysicalMemory) + " / " + formatMemory(memoryStatus.totalPhysicalMemory) + "\n"
-            + "Lower:         " + formatMemory(memoryStatus.freeLowerMemory) + " / " + formatMemory(memoryStatus.totalLowerMemory) + "\n"
             + "Kernel:        " + formatMemory(memoryStatus.freeKernelHeapMemory) + " / " + formatMemory(memoryStatus.totalKernelHeapMemory) + "\n"
             + "Paging Area:   " + formatMemory(memoryStatus.freePagingAreaMemory) + " / " + formatMemory(memoryStatus.totalPagingAreaMemory) + "\n";
 }

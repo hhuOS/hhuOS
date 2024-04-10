@@ -46,7 +46,6 @@ public:
     ~AddressSpaceCleaner() override = default;
 
     void run() override;
-
 };
 
 }

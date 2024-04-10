@@ -52,6 +52,10 @@ Thread::Thread(const Util::String &name, Process &parent, Util::Async::Runnable 
 }
 
 Thread::~Thread() {
+    if (userStack != reinterpret_cast<void*>(Util::MAIN_STACK_START_ADDRESS)) {
+        Kernel::Service::getService<Kernel::MemoryService>().freeUserMemory(userStack, 16);
+    }
+
     delete reinterpret_cast<uint8_t*>(kernelStack);
     delete fpuContext;
     delete runnable;

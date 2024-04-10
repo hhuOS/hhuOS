@@ -207,20 +207,23 @@ void* Kernel::MemoryService::unmap(void *virtualAddress, uint32_t pageCount, uin
 
     // Loop through pages and unmap them individually
     void *physicalAddress;
-    uint8_t count = 0;
+    uint8_t nonMappedCount = 0;
     for (uint32_t i = 0; i < pageCount; i++) {
-        physicalAddress = currentAddressSpace->unmap(virtualAddress);
+        auto currentVirtualAddress = reinterpret_cast<uint32_t>(virtualAddress) + (i * Paging::PAGESIZE);
+        physicalAddress = currentAddressSpace->unmap(reinterpret_cast<const void*>(currentVirtualAddress));
+
         if (physicalAddress == nullptr) {
-            count++;
+            nonMappedCount++;
         } else {
-            count = 0;
+            nonMappedCount = 0;
+            pageFrameAllocator.freeBlock(physicalAddress);
         }
 
         // TODO: This is ugly! We need a proper management for mapped/unmapped pages
         // If there were eight pages after each other already unmapped, we break here.
         // This is sort of a workaround because by merging large free memory blocks in memory management
         // it might happen that some parts of the memory are already unmapped.
-        if (breakCount > 0 && count == breakCount) {
+        if (breakCount > 0 && nonMappedCount == breakCount) {
             break;
         }
     }

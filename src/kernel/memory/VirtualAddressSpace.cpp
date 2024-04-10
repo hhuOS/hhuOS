@@ -53,7 +53,7 @@ VirtualAddressSpace::VirtualAddressSpace() : kernelAddressSpace(false), physical
 
 VirtualAddressSpace::~VirtualAddressSpace() {
     if (!kernelAddressSpace) {
-        delete physicalPageDirectory;
+        Service::getService<MemoryService>().freePageTable(physicalPageDirectory);
         delete virtualPageDirectory;
     }
 }
@@ -150,7 +150,7 @@ void* VirtualAddressSpace::unmap(const void *virtualAddress) {
     // Delete page table, if it is empty
     if (pageTable.isEmpty()) {
         (*virtualPageDirectory)[pageDirectoryIndex].clear();
-        (*virtualPageDirectory)[pageDirectoryIndex].clear();
+        (*physicalPageDirectory)[pageDirectoryIndex].clear();
         Service::getService<MemoryService>().freePageTable(&pageTable);
     }
 

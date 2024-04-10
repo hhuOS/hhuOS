@@ -30,7 +30,7 @@ struct InterruptFrame;
 
 namespace Device {
 
-class Fpu : public Kernel::InterruptHandler {
+class Fpu {
 
 public:
     /**
@@ -51,7 +51,7 @@ public:
     /**
      * Destructor.
      */
-    ~Fpu() override = default;
+    ~Fpu() = default;
 
     static bool isAvailable();
 
@@ -61,13 +61,7 @@ public:
 
     static void disarmFpuMonitor();
 
-    void plugin() override;
-
-    void trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) override;
-
     void switchContext() const;
-
-    void switchContextFpuOnly(Kernel::Thread &currentThread);
 
     static bool probeFpu();
 

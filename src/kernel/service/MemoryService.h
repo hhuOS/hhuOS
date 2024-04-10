@@ -41,8 +41,6 @@ public:
     struct MemoryStatus {
         uint32_t totalPhysicalMemory;
         uint32_t freePhysicalMemory;
-        uint32_t totalLowerMemory;
-        uint32_t freeLowerMemory;
         uint32_t totalKernelHeapMemory;
         uint32_t freeKernelHeapMemory;
         uint32_t totalPagingAreaMemory;

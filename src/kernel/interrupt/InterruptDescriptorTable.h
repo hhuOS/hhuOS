@@ -159,6 +159,8 @@ private:
 
     __attribute__ ((interrupt)) static void handlePageFault(InterruptFrame *frame, uint32_t errorCode);
 
+    __attribute__ ((interrupt)) static void handleFpuException(InterruptFrame *frame);
+
     __attribute__ ((interrupt)) static void handleSystemCall(InterruptFrame *frame);
 
     // CPU Exceptions
