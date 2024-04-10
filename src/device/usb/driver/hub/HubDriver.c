@@ -177,6 +177,9 @@ int configure_hub(HubDriver *driver) {
 
     uint8_t num_ports = driver->dev[i].hub_desc.num_ports;
 
+    driver->hub_driver_logger->info_c(driver->hub_driver_logger,
+      "Detected %d downstream ports , minor %d", num_ports, i);
+
     dev->add_downstream(dev, num_ports);
 
     uint16_t port_status_field;
@@ -264,6 +267,10 @@ int configure_hub(HubDriver *driver) {
         } else {
           dev->add_downstream_device(dev, new_dev);
           start_device_num++;
+          driver->hub_driver_logger->info_c(driver->hub_driver_logger, 
+          "Succesful configured Usb-Device on port : %d , "
+          "Device : %s, %s",
+          start_port, new_dev->manufacturer, new_dev->product);
         }
       }
     }

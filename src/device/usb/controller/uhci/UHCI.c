@@ -270,7 +270,7 @@ void create_dev(_UHCI *uhci, int16_t status, int pn, MemoryService_C *m) {
 
   uhci->controller_logger->info_c(
       uhci->controller_logger,
-      "Succesful configured Usb-Device on port : %d\n"
+      "Succesful configured Usb-Device on port : %d , "
       "Device : %s, %s",
       pn, dev->manufacturer, dev->product);
 }
