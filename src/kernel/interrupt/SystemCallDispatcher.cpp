@@ -23,13 +23,17 @@ namespace Kernel {
 
 void SystemCallDispatcher::assign(Util::System::Code code, bool(*func)(uint32_t, va_list)) {
     if (systemCalls[code] != nullptr) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "SystemCallDispatcher: Code is already assigned");
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "SystemCallDispatcher: Code is already assigned!");
     }
 
     systemCalls[code] = func;
 }
 
 void SystemCallDispatcher::dispatch(Util::System::Code code, uint16_t paramCount, va_list params, bool &result) const {
+    if (systemCalls[code] == nullptr) {
+        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "SystemCallDispatcher: No handler registered!");
+    }
+
     result = systemCalls[code](paramCount, params);
 }
 

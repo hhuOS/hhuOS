@@ -29,7 +29,7 @@ void InterruptDispatcher::dispatch(const InterruptFrame &frame, InterruptVector 
     // Throw exception, if there is no handler registered
     auto *handlerList = handler[vector];
     if (handlerList == nullptr) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "No handler registered!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "InterruptDispatcher: No handler registered!");
     }
 
     // Call installed interrupt handlers

@@ -16,7 +16,7 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-project(lib.user.crt0)
+project(lib.user.runtime)
 message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR})
@@ -25,5 +25,5 @@ add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
 # Add subdirectories
 target_sources(${PROJECT_NAME} PUBLIC
-        ${HHUOS_SRC_DIR}/lib/crt0/crt0.asm
-        ${HHUOS_SRC_DIR}/lib/crt0/crt0.cpp)
+        ${HHUOS_SRC_DIR}/lib/runtime/runtime.asm
+        ${HHUOS_SRC_DIR}/lib/runtime/runtime.cpp)
