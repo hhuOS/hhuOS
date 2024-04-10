@@ -67,7 +67,8 @@ struct _UHCI {
   unsigned int (*retransmission)(struct _UHCI *uhci, struct QH *process_qh);
   uint32_t (*get_status)(struct _UHCI *uhci, struct TD *td);
   void (*remove_queue)(struct _UHCI *uhci, struct QH *qh);
-  uint32_t (*wait_poll)(struct _UHCI *uhci, struct QH *process_qh, uint32_t timeout);
+  uint32_t (*wait_poll)(struct _UHCI *uhci, struct QH *process_qh, uint32_t timeout, 
+                        uint8_t flags);
   void (*traverse_skeleton)(struct _UHCI *uhci, struct QH *entry);
 
   UsbPacket *(*create_USB_Packet)(struct _UHCI *uhci, UsbDev *dev,
@@ -221,7 +222,7 @@ void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
                    uint8_t, Endpoint *e, build_bulk_or_interrupt_transfer build_function,
                    callback_function callback, uint8_t flags);
 
-uint32_t wait_poll(_UHCI *uhci, QH *process_qh, uint32_t timeout);
+uint32_t wait_poll(_UHCI *uhci, QH *process_qh, uint32_t timeout, uint8_t flags);
 
 void _poll_uhci_(UsbController *controller);
 

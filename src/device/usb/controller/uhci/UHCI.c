@@ -255,7 +255,7 @@ void create_dev(_UHCI *uhci, int16_t status, int pn, MemoryService_C *m) {
       speed == FULL_SPEED ? "Full-Speed" : "Low-Speed", pn);
 
   dev->new_usb_device(dev, speed, pn, 0, 0xFF, pn, 1, (SystemService_C *)m,
-                      uhci);
+                      uhci, 0);
 
 #if defined(DEVICE_DEBUG_ON) || defined(DEBUG_ON)
   dev->dump_device(dev);
@@ -1797,7 +1797,7 @@ void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
   m->addVirtualAddress(m, qh_physical, qh);
 
   UsbTransfer *transfer =
-      build_function(uhci, dev, data, e, len, BULK_TRANSFER, flags);
+      build_function(uhci, dev, data, e, len, BULK_TRANSFER, flags & BULK_INITIAL_STATE);
 
   TD *td = transfer->entry_transaction->entry_packet->internalTD;
 
@@ -1806,7 +1806,7 @@ void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
 
   qh->pyhsicalQHEP = (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, td));
 
-  if (flags != BULK_INITIAL_STATE) {
+  if (!(flags & BULK_INITIAL_STATE)) {
     uhci->qh_to_td_map->put_c(uhci->qh_to_td_map, qh, td);
     uhci->qh_data_map->put_c(uhci->qh_data_map, qh, data);
     uhci->qh_dev_map->put_c(uhci->qh_dev_map, qh, dev);
@@ -1822,9 +1822,10 @@ void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
 
   uhci->insert_queue(uhci, qh, priority, QH_BULK);
 
-  if (flags == BULK_INITIAL_STATE) {
+  if ((flags & BULK_INITIAL_STATE) > 0) {
     uint32_t status =
-        uhci->wait_poll(uhci, qh, UPPER_BOUND_TIME_OUT_MILLIS_BULK);
+        uhci->wait_poll(uhci, qh, UPPER_BOUND_TIME_OUT_MILLIS_BULK, 
+                        flags & SUPRESS_DEVICE_ERRORS);
 
     callback(dev, status, data);
 
@@ -1877,7 +1878,7 @@ void interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
 }
 
 // wait time out time -> upper bound 10ms
-uint32_t wait_poll(_UHCI *uhci, QH *process_qh, uint32_t timeout) {
+uint32_t wait_poll(_UHCI *uhci, QH *process_qh, uint32_t timeout, uint8_t flags) {
   TD *td;
 
   MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
@@ -1899,7 +1900,8 @@ uint32_t wait_poll(_UHCI *uhci, QH *process_qh, uint32_t timeout) {
 
   if (td != (void *)0) { // transfer not sucessful
     status |= uhci->get_status(uhci, td);
-    uhci->controller_logger->error_c(
+    if(flags != SUPRESS_DEVICE_ERRORS)
+      uhci->controller_logger->error_c(
         uhci->controller_logger, "transfer was not sucessful ! error mask %u",
         status);
   }
@@ -2033,7 +2035,8 @@ void control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
   uint32_t qh_physical = (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, qh));
   m->addVirtualAddress(m, qh_physical, qh);
 
-  UsbTransfer *transfer = build_function(uhci, dev, rq, data, endpoint, flags);
+  UsbTransfer *transfer = build_function(uhci, dev, rq, data, endpoint, 
+    flags & CONTROL_INITIAL_STATE);
 
   // we already linked them up while creating the packets
   TD *internalTD = transfer->entry_transaction->entry_packet->internalTD;
@@ -2049,7 +2052,7 @@ void control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
 
   uhci->destroy_transfer(uhci, transfer);
 
-  if (dev->state == CONFIGURED_STATE && (flags != CONTROL_INITIAL_STATE)) {
+  if ((dev->state == CONFIGURED_STATE) && !(flags & CONTROL_INITIAL_STATE)) {
     uhci->qh_to_td_map->put_c(uhci->qh_to_td_map, qh, internalTD);
     uhci->qh_data_map->put_c(uhci->qh_data_map, qh, data);
     uhci->qh_dev_map->put_c(uhci->qh_dev_map, qh, dev);
@@ -2061,8 +2064,9 @@ void control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
 
   // uhci->inspect_transfer(uhci, qh, internalTD);
 
-  if (dev->state != CONFIGURED_STATE || flags == CONTROL_INITIAL_STATE) {
-    status = uhci->wait_poll(uhci, qh, UPPER_BOUND_TIME_OUT_MILLIS_CONTROL);
+  if (dev->state != CONFIGURED_STATE || ((flags & CONTROL_INITIAL_STATE) > 0)) {
+    status = uhci->wait_poll(uhci, qh, UPPER_BOUND_TIME_OUT_MILLIS_CONTROL,
+                             flags & SUPRESS_DEVICE_ERRORS);
 
     callback(dev, status, data);
 

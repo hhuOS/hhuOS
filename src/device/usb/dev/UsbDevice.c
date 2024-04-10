@@ -27,7 +27,8 @@ const uint8_t CONFIGURED_STATE = 0x03;
 // dev_num = dev number in that tree
 void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port,
                     uint8_t level, uint8_t removable, uint8_t root_port,
-                    uint8_t dev_num, SystemService_C *m, void *controller) {
+                    uint8_t dev_num, SystemService_C *m, void *controller, 
+                    uint8_t supress_flag) {
 
   MemoryService_C *mem_service =
       (MemoryService_C *)container_of(m, MemoryService_C, super);
@@ -101,7 +102,8 @@ void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port,
   dev->device_mutex->new_mutex = &new_mutex;
   dev->device_mutex->new_mutex(dev->device_mutex);
 
-  if (dev->process_device_descriptor(dev, device_descriptor, 8) == -1) {
+  if (dev->process_device_descriptor(dev, device_descriptor, 8, supress_flag) == -1) {
+    if(supress_flag) return;
     dev->device_logger->error_c(dev->device_logger,
                                 "Aborting configuration of device due to error "
                                 "while handle the device descriptor ...");
@@ -448,7 +450,7 @@ int handle_dev(UsbDev *dev, uint8_t *string_buffer,
   char *ascii_string;
 
   if (dev->process_device_descriptor(dev, device_descriptor,
-                                     sizeof(DeviceDescriptor)) == -1)
+                                     sizeof(DeviceDescriptor), 0) == -1)
     return -1;
 
   dev->device_desc = *device_descriptor;
@@ -719,18 +721,22 @@ int request_switch_configuration(UsbDev *dev, int configuration,
 }
 
 int process_device_descriptor(UsbDev *dev, DeviceDescriptor *device_descriptor,
-                              unsigned int len) {
+                              unsigned int len, uint8_t supress_flag) {
   UsbDeviceRequest *request = dev->get_free_device_request(dev);
+  uint8_t S_FLAG = 0;
 
   if (request == (void *)0)
     return -1;
 
+  if(supress_flag) S_FLAG = SUPRESS_DEVICE_ERRORS;
+
   dev->request_build(dev, request, DEVICE_TO_HOST, GET_DESCRIPTOR, DEVICE, 0, 8,
                      0, len);
   dev->request(dev, request, device_descriptor, PRIORITY_QH_8, 0,
-               &request_callback, CONTROL_INITIAL_STATE);
+               &request_callback, CONTROL_INITIAL_STATE | S_FLAG);
 
   if (dev->error_while_transfering) {
+    if(supress_flag) return -1;
     dev->device_logger->error_c(
         dev->device_logger, "Couldn't read device descriptor from device !");
     return -1;

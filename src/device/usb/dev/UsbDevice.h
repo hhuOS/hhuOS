@@ -18,6 +18,7 @@
 
 #define BULK_INITIAL_STATE 0x01
 #define CONTROL_INITIAL_STATE 0x02
+#define SUPRESS_DEVICE_ERRORS 0x04
 
 struct UsbDev {
   uint8_t speed;
@@ -56,7 +57,7 @@ struct UsbDev {
 
   void (*new_usb_device)(struct UsbDev *dev, uint8_t speed, uint8_t port, uint8_t level,
                     uint8_t removable, uint8_t root_port, uint8_t dev_num, SystemService_C *m, 
-                    void *controller);
+                    void *controller, uint8_t supress_flag);
 
   void (*request_build)(struct UsbDev *dev, UsbDeviceRequest *req,
                         int8_t rq_type, int8_t rq, int16_t value_high,
@@ -155,7 +156,7 @@ struct UsbDev {
   int (*set_address)(struct UsbDev *dev, uint8_t address);
   int (*process_device_descriptor)(struct UsbDev *dev,
                                    DeviceDescriptor *device_descriptor,
-                                   unsigned int len);
+                                   unsigned int len, uint8_t supress_flag);
   int (*process_configuration_descriptor)(
       struct UsbDev *dev, ConfigurationDescriptor *config_descriptor,
       uint16_t configuration_index, unsigned int len);
@@ -208,7 +209,7 @@ typedef void (*callback_function)(UsbDev* dev, uint32_t status, void *data);
 
 void new_usb_device(UsbDev *dev, uint8_t speed, uint8_t port, uint8_t level,
                     uint8_t removable, uint8_t root_port, uint8_t dev_num, SystemService_C *m, 
-                    void *controller);
+                    void *controller, uint8_t supress_flag);
 
 void add_downstream_device(UsbDev* dev, UsbDev* downstream_dev);
 void add_downstream(UsbDev* dev, uint8_t downstream_ports);
@@ -280,7 +281,7 @@ int set_protocol(UsbDev *dev, Interface *interface, uint16_t protocol_value,
                  callback_function callback);
 int set_idle(UsbDev *dev, Interface *interface);
 int process_device_descriptor(UsbDev *dev, DeviceDescriptor *device_descriptor,
-                              unsigned int len);
+                              unsigned int len, uint8_t supress_flag);
 int process_configuration_descriptor(UsbDev *dev,
                                      ConfigurationDescriptor *config_descriptor,
                                      uint16_t configuration_index,

@@ -258,7 +258,7 @@ int configure_hub(HubDriver *driver) {
         new_dev->new_usb_device = &new_usb_device;
         new_dev->new_usb_device(new_dev, speed, start_port, level, removable,
                                 dev->rootport, start_device_num,
-                                dev->mem_service, dev->controller);
+                                dev->mem_service, dev->controller, 1);
         if (new_dev->error_while_transfering) {
           new_dev->delete_usb_dev(new_dev);
         } else {

@@ -84,7 +84,7 @@ void Kernel::Usb::Driver::KernelKbdDriver::create_usb_dev_node() {
       Util::String node_name =
           Util::String::format("keyboard%u", current_kbd_node_num++);
       kbd_node->add_file_node(node_name);
-      kernel_kbd_logger.info("Succesful added kbd node : minor %u-> associated "
+      kernel_kbd_logger.info("Succesful added kbd node : minor %u -> associated "
                              "with 0x%x (%s driver)...",
                              kbd_node->get_minor(), this, this->getName());
     }
