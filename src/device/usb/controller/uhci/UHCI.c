@@ -1909,21 +1909,28 @@ uint32_t wait_poll(_UHCI *uhci, QH *process_qh, uint32_t timeout, uint8_t flags)
 #if defined(TRANSFER_MEASURE_ON)
   uint32_t *i_time =
       (uint32_t *)uhci->qh_measurement->get_c(uhci->qh_measurement, process_qh);
+  uint32_t transfer_type = process_qh->flags & QH_FLAG_TYPE_MASK;
   uint32_t transfer_duration;
-  char *measure_msg;
+  const char *measure_msg;
+  const char *transfer_type_msg;
+
+  if(transfer_type == QH_FLAG_TYPE_BULK)
+    transfer_type_msg = BULK_TRANSFER;
+  else if(transfer_type == QH_FLAG_TYPE_CONTROL)
+    transfer_type_msg = CONTROL_TRANSFER;
 #if defined(MEASURE_MS)
-  measure_msg = "Control Transfer Duration in ms: %u";
+  measure_msg = "%s Transfer Duration in ms: %u";
   transfer_duration = getSystemTimeInMilli() - *i_time;
 #elif defined(MEASURE_NS)
-  measure_msg = "Control Transfer Duration in ns: %u";
+  measure_msg = "%s Transfer Duration in ns: %u";
   transfer_duration = getSystemTimeInNano() - *i_time;
 #elif defined(MEASURE_MCS)
-  measure_msg = "Control Transfer Duration in micro: %u";
+  measure_msg = "%s Transfer Duration in micro: %u";
   transfer_duration = getSystemTimeInMicro() - *i_time;
 #endif
   m->freeKernelMemory_c(m, i_time, 0);
   uhci->controller_logger->info_c(uhci->controller_logger, measure_msg,
-                                  transfer_duration);
+                                  transfer_type_msg, transfer_duration);
 #endif
 
   return status;
