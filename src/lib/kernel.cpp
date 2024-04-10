@@ -256,9 +256,9 @@ bool shutdown(Util::Hardware::Machine::ShutdownType type) {
 
 void throwError(Util::Exception::Error error, const char *message) {
     if (Kernel::Service::isServiceRegistered(Kernel::SchedulerService::SERVICE_ID) && Kernel::Service::getService<Kernel::SchedulerService>().isSchedulerInitialized()) {
-        Util::System::out << Util::Exception::getExceptionName(error) << ": " << message << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::out << Util::Exception::getExceptionName(error) << "(" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     } else {
-        LOG_ERROR("%s: %s", Util::Exception::getExceptionName(error), message);
+        LOG_ERROR("%s(%s)", Util::Exception::getExceptionName(error), message);
     }
 
     while (true) {};

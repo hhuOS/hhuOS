@@ -18,12 +18,14 @@
 #include "lib/util/base/Address.h"
 #include "LinearFrameBufferNode.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
+#include "kernel/service/Service.h"
+#include "kernel/service/MemoryService.h"
 
 namespace Device::Graphic {
 
 LinearFrameBufferNode::LinearFrameBufferNode(const Util::String &name, Util::Graphic::LinearFrameBuffer *lfb) :
         Filesystem::Memory::StringNode(name),
-        addressBuffer(Util::String::format("%u", lfb->getBuffer().get())),
+        addressBuffer(Util::String::format("%u", Kernel::Service::getService<Kernel::MemoryService>().getPhysicalAddress(reinterpret_cast<void *>(lfb->getBuffer().get())))),
         resolutionBuffer(Util::String::format("%ux%u@%u", lfb->getResolutionX(), lfb->getResolutionY(), lfb->getColorDepth())),
         pitchBuffer(Util::String::format("%u", lfb->getPitch())) {}
 

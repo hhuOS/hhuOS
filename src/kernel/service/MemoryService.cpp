@@ -259,7 +259,7 @@ void *Kernel::MemoryService::mapIO(void *physicalAddress, uint32_t pageCount, bo
     void *virtualAddress = manager.allocateMemory(pageCount * Kernel::Paging::PAGESIZE, Kernel::Paging::PAGESIZE);
 
     // Create mapping
-    uint32_t flags = Paging::PRESENT | Paging::WRITABLE | (reinterpret_cast<uint32_t>(virtualAddress) < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESSIBLE : 0);
+    uint32_t flags = Paging::PRESENT | Paging::WRITABLE | (reinterpret_cast<uint32_t>(virtualAddress) >= Kernel::MemoryLayout::KERNEL_END ? Paging::USER_ACCESSIBLE : 0);
     mapPhysical(physicalAddress, virtualAddress, pageCount, flags);
 
     return virtualAddress;

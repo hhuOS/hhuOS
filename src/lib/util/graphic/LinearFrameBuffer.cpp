@@ -108,7 +108,7 @@ LinearFrameBuffer::LinearFrameBuffer(Io::File &file, bool enableAcceleration) {
     resolutionY = Util::String::parseInt(reinterpret_cast<const char*>(yBuffer));
     colorDepth = Util::String::parseInt(reinterpret_cast<const char*>(bppBuffer));
     pitch = Util::String::parseInt(reinterpret_cast<const char*>(pitchBuffer));
-    buffer = mapBuffer(reinterpret_cast<void *>(address), resolutionY, pitch, enableAcceleration, useMmx);
+    buffer = mapBuffer(reinterpret_cast<void*>(address), resolutionY, pitch, enableAcceleration, useMmx);
 }
 
 LinearFrameBuffer::~LinearFrameBuffer() {
