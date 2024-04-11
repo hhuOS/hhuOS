@@ -28,7 +28,7 @@ LinearFrameBufferTerminal::LinearFrameBufferTerminal(Util::Graphic::LinearFrameB
         Terminal(lfb->getResolutionX() / font.getCharWidth(), lfb->getResolutionY() / font.getCharHeight()),
         characterBuffer(new Character[getColumns() * getRows()]), lfb(*lfb), pixelDrawer(*lfb), stringDrawer(pixelDrawer), shadowLfb(*lfb, false),
         shadowPixelDrawer(shadowLfb), shadowStringDrawer(shadowPixelDrawer), shadowScroller(shadowLfb, false), font(font), cursor(cursor) {
-    LinearFrameBufferTerminal::clear(Util::Graphic::Colors::BLACK);
+    Terminal::clear();
     LinearFrameBufferTerminal::setCursor(true);
 }
 
@@ -41,22 +41,14 @@ LinearFrameBufferTerminal::~LinearFrameBufferTerminal() {
 void LinearFrameBufferTerminal::putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) {
     while (!cursorLock.tryAcquire()) {
         cursorLock.release();
+        Util::Async::Thread::yield();
     }
 
-    if (c == '\n') {
-        stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), ' ', Util::Graphic::Colors::INVISIBLE, Util::Graphic::Colors::BLACK);
-        currentRow++;
-        currentColumn = 0;
-    } else {
-        const auto bufferIndex = currentRow * getColumns() + currentColumn;
-        characterBuffer[bufferIndex].value = c;
-        characterBuffer[bufferIndex].foregroundColor = foregroundColor;
-        characterBuffer[bufferIndex].backgroundColor = backgroundColor;
+    characterBuffer[currentRow * getColumns() + currentColumn] = {c, foregroundColor, backgroundColor};
 
-        stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), c, foregroundColor, backgroundColor);
-        shadowStringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), c, foregroundColor, backgroundColor);
-        currentColumn++;
-    }
+    stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), c, foregroundColor, backgroundColor);
+    shadowStringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), c, foregroundColor, backgroundColor);
+    currentColumn++;
 
     if (currentColumn >= getColumns()) {
         currentRow++;
@@ -72,27 +64,56 @@ void LinearFrameBufferTerminal::putChar(char c, const Util::Graphic::Color &fore
     cursorLock.release();
 }
 
-void LinearFrameBufferTerminal::clear(const Util::Graphic::Color &backgroundColor) {
+void LinearFrameBufferTerminal::clear(const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor, uint16_t startColumn, uint32_t startRow, uint16_t endColumn, uint16_t endRow) {
     while (!cursorLock.tryAcquire()) {
         cursorLock.release();
+        Util::Async::Thread::yield();
     }
 
-    uint32_t size = getRows() * getColumns();
-    for (uint32_t i = 0; i < size; i++) {
-        characterBuffer[i].clear();
+    if (startRow == endRow) {
+        // Clear from start column to end column
+        for (uint32_t i = 0; i < static_cast<uint32_t>(endColumn - startColumn + 1) * font.getCharWidth(); i++) {
+            for (uint32_t j = 0; j < font.getCharHeight(); j++) {
+                shadowPixelDrawer.drawPixel((startColumn * font.getCharWidth()) + i, (startRow * font.getCharHeight()) + j, backgroundColor);
+            }
+        }
+    } else if (startRow < endRow) {
+        // Clear from start position to end of line
+        for (uint32_t y = 0; y < font.getCharHeight(); y++) {
+            for (uint32_t x = 0; x < static_cast<uint32_t>(getColumns() - startColumn) * font.getCharWidth(); x++) {
+                shadowPixelDrawer.drawPixel((startColumn * font.getCharWidth()) + x, (startRow * font.getCharHeight()) + y, backgroundColor);
+            }
+        }
+
+        // Clear from next line to before last line
+        for (uint32_t y = 0; y < (endRow - startRow - 1) * font.getCharHeight(); y++) {
+            for (uint32_t x = 0; x < getColumns() * font.getCharWidth(); x++) {
+                shadowPixelDrawer.drawPixel(x, ((startRow + 1) * font.getCharHeight()) + y, backgroundColor);
+            }
+        }
+
+        // Clear from beginning of last line to end position
+        for (uint32_t y = 0; y < font.getCharHeight(); y++) {
+            for (uint32_t x = 0; x < endColumn * font.getCharWidth(); x++) {
+                shadowPixelDrawer.drawPixel(x, (endRow * font.getCharHeight()) + y, backgroundColor);
+            }
+        }
+    } else {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Terminal: Invalid arguments for clear()!");
     }
 
-    shadowLfb.clear();
+    for (uint32_t i = startRow * getColumns() + startColumn; i < static_cast<uint32_t>(endRow * getColumns()) + endColumn + 1; i++) {
+        characterBuffer[i] = {'\0', foregroundColor, backgroundColor};
+    }
+
     shadowLfb.flush();
-    currentRow = 0;
-    currentColumn = 0;
-
     cursorLock.release();
 }
 
 void LinearFrameBufferTerminal::setPosition(uint16_t column, uint16_t row) {
     while (!cursorLock.tryAcquire()) {
         cursorLock.release();
+        Util::Async::Thread::yield();
     }
 
     auto character = characterBuffer[currentRow * getColumns() + currentColumn];
@@ -131,15 +152,15 @@ void LinearFrameBufferTerminal::setCursor(bool enabled) {
 }
 
 void LinearFrameBufferTerminal::scrollUp() {
+    // Scroll character buffer
     auto characterAddress = Util::Address<uint32_t>(characterBuffer);
     characterAddress.copyRange(characterAddress.add(getColumns() * sizeof(Character)), getColumns() * (getRows() - 1) * sizeof(Character));
 
-    for (uint32_t i = 0; i < getColumns(); i++) {
-        characterBuffer[getColumns() * (getRows() - 1) + i].clear();
-    }
+    // Scroll shadow LFB
+    shadowScroller.scrollUp(font.getCharHeight(), false);
 
-    shadowScroller.scrollUp(font.getCharHeight());
-    shadowLfb.flush();
+    // Clear last line (Also flushes shadow buffer)
+    clear(getForegroundColor(), getBackgroundColor(), 0, getRows() - 1, getColumns() - 1, getRows() - 1);
 }
 
 uint16_t LinearFrameBufferTerminal::getCurrentColumn() const {

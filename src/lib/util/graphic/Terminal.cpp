@@ -36,27 +36,17 @@ Terminal::Terminal(uint16_t columns, uint16_t rows) : outputStream(*this), colum
 
 void Terminal::write(uint8_t c) {
     if (!ansiParsing) {
-        putChar(c, foregroundColor, backgroundColor);
+        if (c == '\n') {
+            clear(foregroundColor, backgroundColor, getCurrentColumn(), getCurrentRow(), columns, getCurrentRow());
+            setPosition(0, getCurrentRow() + 1);
+        } else {
+            putChar(c, foregroundColor, backgroundColor);
+        }
         return;
     }
 
-    switch (c) {
-        case Ansi::ESCAPE_SEQUENCE_START:
-            isEscapeActive = true;
-            break;
-        case 0x07:
-            handleBell();
-            return;
-        case 0x09:
-            handleTab();
-            return;
-        case 0x00 ... 0x06:
-        case 0x08:
-        case 0x0b ... 0x1a:
-        case 0x1c ... 0x1f:
-            return;
-        default:
-            break;
+    if (c == Ansi::ESCAPE_SEQUENCE_START) {
+        isEscapeActive = true;
     }
 
     if (isEscapeActive) {
@@ -82,7 +72,28 @@ void Terminal::write(uint8_t c) {
             currentEscapeSequence += c;
         }
     } else {
-        putChar(c, foregroundColor, backgroundColor);
+        switch (c) {
+            case 0x07:
+                handleBell();
+                return;
+            case 0x09:
+                handleTab();
+                return;
+            case 0x00 ... 0x06:
+            case 0x08:
+            case 0x0b ... 0x1a:
+            case 0x1c ... 0x1f:
+                return;
+            default:
+                break;
+        }
+
+        if (c == '\n') {
+            clear(foregroundColor, backgroundColor, getCurrentColumn(), getCurrentRow(), columns, getCurrentRow());
+            setPosition(0, getCurrentRow() + 1);
+        } else {
+            putChar(c, foregroundColor, backgroundColor);
+        }
     }
 }
 
@@ -263,25 +274,21 @@ void Terminal::parseCursorEscapeSequence(const Util::String &escapeSequence, cha
 
 void Terminal::parseEraseSequence(const Util::String &escapeSequence, char endCode) {
     const auto code = escapeSequence.isEmpty() ? 0 : Util::String::parseInt(escapeSequence);
-    const auto column = getCurrentColumn();
-    const auto row = getCurrentRow();
 
     switch (endCode) {
         case 'J': {
             switch (code) {
                 case 0:
-                    while (getCurrentColumn() < getColumns() - 1 || getCurrentRow() < getRows() - 1) {
-                        putChar(' ', foregroundColor, backgroundColor);
-                    }
+                    // Clear screen from cursor
+                    clear(foregroundColor, backgroundColor, getCurrentColumn(), getCurrentRow(), columns - 1, rows - 1);
                     break;
                 case 1:
-                    setPosition(0, 0);
-                    while (getCurrentColumn() < column || getCurrentRow() < row) {
-                        putChar(' ', foregroundColor, backgroundColor);
-                    }
+                    // Clear screen to cursor
+                    clear(foregroundColor, backgroundColor, 0, 0, getCurrentColumn(), getCurrentRow());
                     break;
                 case 2:
-                    clear(backgroundColor);
+                    // Clear screen
+                    clear();
                     break;
                 default:
                     break;
@@ -291,21 +298,16 @@ void Terminal::parseEraseSequence(const Util::String &escapeSequence, char endCo
         case 'K': {
             switch (code) {
                 case 0:
-                    while (getCurrentColumn() < getColumns() - 1) {
-                        putChar(' ', foregroundColor, backgroundColor);
-                    }
+                    // Clear line from cursor
+                    clear(foregroundColor, backgroundColor, getCurrentColumn(), getCurrentRow(), columns - 1, getCurrentRow());
                     break;
                 case 1:
-                    setPosition(0, row);
-                    while (getCurrentColumn() <= column) {
-                        putChar(' ', foregroundColor, backgroundColor);
-                    }
+                    // Clear line to cursor
+                    clear(foregroundColor, backgroundColor, 0, getCurrentRow(), getCurrentColumn(), getCurrentRow());
                     break;
                 case 2:
-                    setPosition(0, row);
-                    while (getCurrentColumn() < getColumns() - 1) {
-                        putChar(' ', foregroundColor, backgroundColor);
-                    }
+                    // Clear line
+                    clear(foregroundColor, backgroundColor, 0, getCurrentRow(), columns - 1, getCurrentRow());
                     break;
                 default:
                     break;
@@ -315,8 +317,6 @@ void Terminal::parseEraseSequence(const Util::String &escapeSequence, char endCo
         default:
             break;
     }
-
-    setPosition(column, row);
 }
 
 uint16_t Terminal::getColumns() const {
@@ -427,6 +427,19 @@ void Terminal::setAnsiParsing(bool enabled) {
 
 void Terminal::setKeyboardScancodes(bool enabled) {
     keyboardScancodes = enabled;
+}
+
+void Terminal::clear() {
+    clear(foregroundColor, backgroundColor, 0, 0, getColumns() - 1, getRows() - 1);
+    setPosition(0, 0);
+}
+
+const Color& Terminal::getForegroundColor() const {
+    return foregroundColor;
+}
+
+const Color& Terminal::getBackgroundColor() const {
+    return backgroundColor;
 }
 
 Terminal::TerminalPipedOutputStream::TerminalPipedOutputStream(Terminal &terminal) : terminal(terminal) {}

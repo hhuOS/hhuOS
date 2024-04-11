@@ -56,7 +56,7 @@ public:
 
     void putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) override;
 
-    void clear(const Util::Graphic::Color &backgroundColor) override;
+    void clear(const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor, uint16_t startColumn, uint32_t startRow, uint16_t endColumn, uint16_t endRow) override;
 
     void setPosition(uint16_t column, uint16_t row) override;
 

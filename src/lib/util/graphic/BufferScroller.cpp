@@ -29,7 +29,7 @@ BufferScroller::~BufferScroller() {
     delete &targetBuffer;
 }
 
-void BufferScroller::scrollUp(uint16_t lineCount) const {
+void BufferScroller::scrollUp(uint16_t lineCount, bool clearBelow) const {
     // Move screen buffer upwards by the given amount of lines
     auto source = lfb.getBuffer().add(lfb.getPitch() * lineCount);
     targetBuffer.copyRange(source, lfb.getPitch() * (lfb.getResolutionY() - lineCount));
@@ -38,8 +38,10 @@ void BufferScroller::scrollUp(uint16_t lineCount) const {
     }
 
     // Clear lower part of the screen
-    auto clear = lfb.getBuffer().add(lfb.getPitch() * (lfb.getResolutionY() - lineCount));
-    clear.setRange(0, lfb.getPitch() * lineCount);
+    if (clearBelow) {
+        auto clear = lfb.getBuffer().add(lfb.getPitch() * (lfb.getResolutionY() - lineCount));
+        clear.setRange(0, lfb.getPitch() * lineCount);
+    }
 }
 
 }

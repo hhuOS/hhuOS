@@ -61,7 +61,7 @@ public:
      *
      * @param lineCount The amount of pixel lines to scroll up
      */
-    void scrollUp(uint16_t lineCount) const;
+    void scrollUp(uint16_t lineCount, bool clearBelow) const;
 
 private:
 

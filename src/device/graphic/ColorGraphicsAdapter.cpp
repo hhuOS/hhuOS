@@ -9,7 +9,7 @@
 namespace Device::Graphic {
 
 ColorGraphicsAdapter::ColorGraphicsAdapter(uint16_t columns, uint16_t rows) : Terminal(columns, rows), cgaMemory(mapBuffer(reinterpret_cast<void*>(CGA_START_ADDRESS), columns, rows)) {
-    ColorGraphicsAdapter::clear(Util::Graphic::Colors::BLACK);
+    Terminal::clear();
     ColorGraphicsAdapter::setCursor(true);
 }
 
@@ -21,16 +21,9 @@ void ColorGraphicsAdapter::putChar(char c, const Util::Graphic::Color &foregroun
     uint16_t position = (currentRow * getColumns() + currentColumn) * BYTES_PER_CHARACTER;
     uint8_t colorAttribute = (backgroundColor.getRGB4() << 4) | foregroundColor.getRGB4();
 
-    if (c == '\n') {
-        cgaMemory.setByte(' ', position);
-        cgaMemory.setByte(0, position + 1);
-        currentRow++;
-        currentColumn = 0;
-    } else {
-        cgaMemory.setByte(c, position);
-        cgaMemory.setByte(colorAttribute, position + 1);
-        currentColumn++;
-    }
+    cgaMemory.setByte(c, position);
+    cgaMemory.setByte(colorAttribute, position + 1);
+    currentColumn++;
 
     if (currentColumn >= getColumns()) {
         currentRow++;
@@ -46,15 +39,15 @@ void ColorGraphicsAdapter::putChar(char c, const Util::Graphic::Color &foregroun
     updateCursorPosition();
 }
 
-void ColorGraphicsAdapter::clear(const Util::Graphic::Color &backgroundColor) {
-    uint32_t size = getRows() * getColumns();
-    for (uint32_t i = 0; i < size; i++) {
-        cgaMemory.setShort(0x0700, i * 2);
-    }
+void ColorGraphicsAdapter::clear(const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor, uint16_t startColumn, uint32_t startRow, uint16_t endColumn, uint16_t endRow) {
+    uint8_t colorAttribute = (backgroundColor.getRGB4() << 4) | foregroundColor.getRGB4();
+    uint16_t startPosition = (startRow * getColumns() + startColumn) * BYTES_PER_CHARACTER;
+    uint16_t endPosition = (endRow * getColumns() + endColumn + 1) * BYTES_PER_CHARACTER;
 
-    currentRow = 0;
-    currentColumn = 0;
-    updateCursorPosition();
+    for (uint32_t i = startPosition; i < endPosition; i += 2) {
+        cgaMemory.setByte(' ', i);
+        cgaMemory.setByte(colorAttribute, i + 1);
+    }
 }
 
 void ColorGraphicsAdapter::setPosition(uint16_t column, uint16_t row) {
@@ -104,10 +97,7 @@ void ColorGraphicsAdapter::scrollUp() {
     cgaMemory.copyRange(source, columns * (rows - 1) * BYTES_PER_CHARACTER);
 
     // Clear last row
-    auto clear = cgaMemory.add(columns * (rows - 1) * BYTES_PER_CHARACTER);
-    for (uint32_t i = 0; i < getColumns(); i++) {
-        clear.setShort(0x0700, i * 2);
-    }
+    clear(getForegroundColor(), getBackgroundColor(), 0, getRows() - 1, getColumns() - 1, getRows() - 1);
 }
 
 uint16_t ColorGraphicsAdapter::getCurrentColumn() const {
