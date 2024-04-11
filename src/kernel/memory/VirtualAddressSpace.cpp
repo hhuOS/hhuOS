@@ -58,7 +58,7 @@ VirtualAddressSpace::~VirtualAddressSpace() {
     }
 }
 
-Util::HeapMemoryManager &VirtualAddressSpace::getMemoryManager() const {
+Util::HeapMemoryManager& VirtualAddressSpace::getMemoryManager() const {
     return memoryManager;
 }
 

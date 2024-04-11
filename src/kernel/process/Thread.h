@@ -127,6 +127,8 @@ private:
 
     uint8_t *fpuContext;
 
+    static uint8_t defaultFpuContext[512];
+
     static Util::Async::IdGenerator<uint32_t> idGenerator;
     static const constexpr uint32_t STACK_SIZE = 4096;
 };

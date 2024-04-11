@@ -26,6 +26,8 @@
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/base/String.h"
 #include "kernel/process/Process.h"
+#include "kernel/process/Scheduler.h"
+#include "kernel/process/SchedulerCleaner.h"
 
 namespace Util {
 namespace Io {
@@ -42,7 +44,7 @@ public:
     /**
      * Constructor.
      */
-    ProcessService(Process *kernelProcess);
+    explicit ProcessService(Process *kernelProcess);
 
     /**
      * Copy Constructor.
@@ -77,9 +79,20 @@ public:
 
     [[nodiscard]] Util::Array<uint32_t> getActiveProcessIds() const;
 
+    [[nodiscard]] Scheduler& getScheduler();
+
+    void cleanup(Thread *thread);
+
+    void cleanup(Process *process);
+
+    void startScheduler();
+
     static const constexpr uint8_t SERVICE_ID = 7;
 
 private:
+
+    Scheduler scheduler;
+    SchedulerCleaner *cleaner = nullptr;
 
     Util::ArrayList<Process*> processList;
     Util::Async::Spinlock lock;

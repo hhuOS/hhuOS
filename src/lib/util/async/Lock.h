@@ -39,7 +39,7 @@ public:
      *
      * @return true, if the lock is held, else false
      */
-    virtual bool isLocked() = 0;
+    virtual bool isLocked() const = 0;
 
     template<typename T>
     T releaseAndReturn(T returnValue) {

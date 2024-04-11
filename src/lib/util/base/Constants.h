@@ -25,7 +25,7 @@ namespace Util {
 
 static const constexpr uint32_t PAGESIZE = 0x1000;
 static const constexpr uint32_t USER_SPACE_MEMORY_MANAGER_ADDRESS = 0x8000000;
-static const constexpr uint32_t MAIN_STACK_START_ADDRESS = 0xffff000;
+static const constexpr uint32_t MAIN_STACK_START_ADDRESS = 0xfffff000;
 
 }
 

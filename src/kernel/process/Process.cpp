@@ -21,10 +21,10 @@
 #include "kernel/memory/VirtualAddressSpace.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/MemoryService.h"
-#include "kernel/service/SchedulerService.h"
 #include "lib/util/async/IdGenerator.h"
 #include "lib/util/collection/Iterator.h"
 #include "kernel/service/Service.h"
+#include "kernel/service/ProcessService.h"
 
 namespace Kernel {
 
@@ -101,13 +101,13 @@ void Process::setMainThread(Thread &thread) {
 }
 
 void Process::join() {
-    auto &schedulerService = Service::getService<SchedulerService>();
+    auto &scheduler = Service::getService<ProcessService>().getScheduler();
     while (mainThread == nullptr) {
         if (finished) {
             return;
         }
 
-        schedulerService.yield();
+        scheduler.yield();
     }
 
     mainThread->join();
@@ -130,12 +130,12 @@ void Process::removeThread(Thread &thread) {
 }
 
 void Process::killAllThreadsButCurrent() {
-    auto &schedulerService = Service::getService<SchedulerService>();
-    auto currentThreadId = schedulerService.getCurrentThread().getId();
+    auto &scheduler = Service::getService<ProcessService>().getScheduler();
+    auto currentThreadId = scheduler.getCurrentThread().getId();
 
     for (auto *thread : threads) {
         if (thread->getId() != currentThreadId) {
-            schedulerService.killWithoutLock(*thread);
+            scheduler.kill(*thread);
         }
     }
 }

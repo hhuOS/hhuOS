@@ -42,9 +42,9 @@ public:
     /**
      * Constructor.
      *
-     * @param timerInterval The interval (in milliseconds), at which RTC shall handlePageFault interrupts
+     * @param timerInterval The interval (in milliseconds), at which RTC shall produce periodic interrupts (0 = disabled)
      */
-    explicit Rtc(uint32_t timerInterval);
+    explicit Rtc(uint32_t timerInterval = 0);
 
     /**
      * Copy Constructor.

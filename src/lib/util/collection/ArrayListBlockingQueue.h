@@ -49,6 +49,8 @@ public:
 
     T peek() override;
 
+    T get(uint32_t index);
+
     bool add(const T &element) override;
 
     bool addAll(const Collection<T> &other) override;
@@ -106,6 +108,11 @@ T ArrayListBlockingQueue<T>::peek() {
         Util::Async::Thread::yield();
     }
     return elements.get(0);
+}
+
+template<typename T>
+T ArrayListBlockingQueue<T>::get(uint32_t index) {
+    return elements.get(index);
 }
 
 template<class T>

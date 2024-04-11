@@ -19,10 +19,11 @@
 #include "PagingAreaManager.h"
 #include "Paging.h"
 #include "lib/util/base/Exception.h"
+#include "lib/util/base/Constants.h"
 
 namespace Kernel {
 
-PagingAreaManager::PagingAreaManager(uint8_t *startAddress, uint32_t mappedPages, uint32_t bootstrapPageCount) : BitmapMemoryManager(startAddress, (startAddress + MemoryLayout::PAGING_AREA_SIZE - 1), Paging::PAGESIZE, true), blockPool(BLOCK_POOL_SIZE) {
+PagingAreaManager::PagingAreaManager(uint8_t *startAddress, uint32_t mappedPages, uint32_t bootstrapPageCount) : BitmapMemoryManager(startAddress, (startAddress + MemoryLayout::PAGING_AREA_SIZE - 1), Util::PAGESIZE, true), blockPool(BLOCK_POOL_SIZE) {
     setRange(0, bootstrapPageCount);
     for (uint32_t i = 0; i < mappedPages - bootstrapPageCount; i++) {
         void *block = BitmapMemoryManager::allocateBlock();

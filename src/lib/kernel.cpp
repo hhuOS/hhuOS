@@ -26,7 +26,6 @@
 #include "kernel/service/ProcessService.h"
 #include "filesystem/core/Node.h"
 #include "kernel/process/Thread.h"
-#include "kernel/service/SchedulerService.h"
 #include "kernel/service/NetworkService.h"
 #include "kernel/network/Socket.h"
 #include "lib/util/base/Address.h"
@@ -182,17 +181,17 @@ Util::Async::Process getCurrentProcess() {
 }
 Util::Async::Thread createThread(const Util::String &name, Util::Async::Runnable *runnable) {
     auto &thread = Kernel::Thread::createKernelThread(name, Kernel::Service::getService<Kernel::ProcessService>().getKernelProcess(), runnable);
-    Kernel::Service::getService<Kernel::SchedulerService>().ready(thread);
+    Kernel::Service::getService<Kernel::ProcessService>().getScheduler().ready(thread);
     return Util::Async::Thread(thread.getId());
 }
 
 Util::Async::Thread getCurrentThread() {
-    auto &thread = Kernel::Service::getService<Kernel::SchedulerService>().getCurrentThread();
+    auto &thread = Kernel::Service::getService<Kernel::ProcessService>().getScheduler().getCurrentThread();
     return Util::Async::Thread(thread.getId());
 }
 
 void joinThread(uint32_t id) {
-    auto *thread = Kernel::Service::getService<Kernel::SchedulerService>().getThread(id);
+    auto *thread = Kernel::Service::getService<Kernel::ProcessService>().getScheduler().getThread(id);
     if (thread != nullptr) {
         thread->join();
     }
@@ -215,18 +214,18 @@ void killProcess(uint32_t id) {
 
 void sleep(const Util::Time::Timestamp &time) {
     if (isSchedulerInitialized()) {
-        Kernel::Service::getService<Kernel::SchedulerService>().sleep(time);
+        Kernel::Service::getService<Kernel::ProcessService>().getScheduler().sleep(time);
     } else {
         Kernel::Service::getService<Kernel::TimeService>().busyWait(time);
     }
 }
 
 void yield() {
-    Kernel::Service::getService<Kernel::SchedulerService>().yield();
+    Kernel::Service::getService<Kernel::ProcessService>().getScheduler().yield();
 }
 
 bool isSchedulerInitialized() {
-    return Kernel::Service::getService<Kernel::SchedulerService>().isSchedulerInitialized();
+    return Kernel::Service::getService<Kernel::ProcessService>().getScheduler().isInitialized();
 }
 
 Util::Time::Timestamp getSystemTime() {
@@ -255,11 +254,11 @@ bool shutdown(Util::Hardware::Machine::ShutdownType type) {
 }
 
 void throwError(Util::Exception::Error error, const char *message) {
-    if (Kernel::Service::isServiceRegistered(Kernel::SchedulerService::SERVICE_ID) && Kernel::Service::getService<Kernel::SchedulerService>().isSchedulerInitialized()) {
+    if (Kernel::Service::isServiceRegistered(Kernel::ProcessService::SERVICE_ID) && Kernel::Service::getService<Kernel::ProcessService>().getScheduler().isInitialized()) {
         Util::System::out << Util::Exception::getExceptionName(error) << "(" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     } else {
         LOG_ERROR("%s(%s)", Util::Exception::getExceptionName(error), message);
     }
 
-    while (true) {};
+    while (true) {}
 }

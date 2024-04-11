@@ -22,11 +22,11 @@
 
 #include "device/interrupt/apic/LocalApic.h"
 #include "device/time/pit/Pit.h"
-#include "kernel/service/SchedulerService.h"
 #include "kernel/service/InterruptService.h"
 #include "kernel/interrupt/InterruptVector.h"
 #include "kernel/log/Log.h"
 #include "kernel/service/Service.h"
+#include "kernel/service/ProcessService.h"
 
 namespace Kernel {
 struct InterruptFrame;
@@ -34,15 +34,14 @@ struct InterruptFrame;
 
 namespace Device {
 
-uint32_t ApicTimer::ticksPerMilliseconds = 0;
-ApicTimer::Divider ApicTimer::divider = BY_16;
+uint32_t ApicTimer::TICKS_PER_MILLISECOND = 0;
 
 ApicTimer::ApicTimer(uint32_t timerInterval, uint32_t yieldInterval) : cpuId(LocalApic::getId()), timerInterval(timerInterval), yieldInterval(yieldInterval) {
-    auto counter = ticksPerMilliseconds * timerInterval;
+    auto counter = TICKS_PER_MILLISECOND * timerInterval;
     LOG_INFO("Setting APIC timer [%u] interval to [%ums] (Counter: [%u])", cpuId, timerInterval, counter);
 
     // Recommended order: Divide -> LVT -> Initial Count (OSDev)
-    LocalApic::writeDoubleWord(LocalApic::TIMER_DIVIDE, divider); // BY_1 is the highest resolution (overkill)
+    LocalApic::writeDoubleWord(LocalApic::TIMER_DIVIDE, Divider::BY_1);
     LocalApic::LocalVectorTableEntry lvtEntry = LocalApic::readLocalVectorTable(LocalApic::TIMER);
     lvtEntry.timerMode = LocalApic::LocalVectorTableEntry::TimerMode::PERIODIC;
     LocalApic::writeLocalVectorTable(LocalApic::TIMER, lvtEntry);
@@ -74,7 +73,7 @@ void ApicTimer::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVe
 
     if (time.toMilliseconds() % yieldInterval == 0) {
         // Currently there is only one main scheduler, for SMP systems this should yield the core scheduler or something similar.
-        Kernel::Service::getService<Kernel::SchedulerService>().yield();
+        Kernel::Service::getService<Kernel::ProcessService>().getScheduler().yield();
     }
 }
 
@@ -92,9 +91,9 @@ void ApicTimer::calibrate() {
     // The calibration works by waiting the desired interval and measuring how many ticks the timer does.
     LocalApic::writeDoubleWord(LocalApic::TIMER_INITIAL, 0xffffffff); // Max initial counter, writing starts timer
     Pit::earlyDelay(50); // Wait 50 ms
-    ticksPerMilliseconds = (0xffffffff - LocalApic::readDoubleWord(LocalApic::TIMER_CURRENT)) / 50; // Ticks in 1 ms
+    TICKS_PER_MILLISECOND = (0xffffffff - LocalApic::readDoubleWord(LocalApic::TIMER_CURRENT)) / 50; // Ticks in 1 ms
 
-    LOG_INFO("Apic Timer ticks per millisecond: [%u]", ticksPerMilliseconds);
+    LOG_INFO("Apic Timer ticks per millisecond: [%u]", TICKS_PER_MILLISECOND);
 }
 
 uint8_t ApicTimer::getCpuId() const {

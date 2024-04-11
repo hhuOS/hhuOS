@@ -64,7 +64,7 @@ public:
     /**
      * Set initialized to 'true'.
      */
-    void setInit();
+    void setInititialized();
 
     bool isInitialized() const;
 
@@ -96,8 +96,6 @@ public:
      */
     void kill(Thread &thread);
 
-    void killWithoutLock(Thread &thread);
-
     void block();
 
     void unblock(Thread &thread);
@@ -123,11 +121,13 @@ public:
 
     void unlockReadyQueue();
 
+    void removeFromJoinMap(uint32_t threadId);
+
 private:
 
-    void checkSleepList();
+    void lockReadyQueue();
 
-    void unblockJoinList(Thread &thread);
+    void checkSleepList();
 
     void resetLastFpuThread(Thread &terminatedThread);
 

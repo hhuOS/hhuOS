@@ -46,7 +46,6 @@ class NetworkDevice {
 
 friend class PacketReader;
 friend class PacketWriter;
-friend class Kernel::NetworkService;
 
 public:
 
@@ -76,6 +75,8 @@ public:
      * Destructor.
      */
     virtual ~NetworkDevice() = default;
+
+    void setIdentifier(const Util::String &identifier);
 
     [[nodiscard]] const Util::String& getIdentifier() const;
 

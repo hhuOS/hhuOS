@@ -25,6 +25,7 @@
 #include "kernel/log/Log.h"
 #include "kernel/memory/Paging.h"
 #include "kernel/service/Service.h"
+#include "lib/util/base/Constants.h"
 
 namespace Device {
 
@@ -65,8 +66,8 @@ SmBios::SmBios() {
         if (smBiosInformation.tableAddress != nullptr) {
             LOG_INFO("SMBIOS version: [%u.%u]", smBiosInformation.majorVersion, smBiosInformation.minorVersion);
             auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-            auto tablePageOffset = reinterpret_cast<uint32_t>(smBiosInformation.tableAddress) % Kernel::Paging::PAGESIZE;
-            auto tablePageCount = (tablePageOffset + smBiosInformation.tableLength) % Kernel::Paging::PAGESIZE == 0 ? (tablePageOffset + smBiosInformation.tableLength) / Kernel::Paging::PAGESIZE : ((tablePageOffset + smBiosInformation.tableLength) / Kernel::Paging::PAGESIZE) + 1;
+            auto tablePageOffset = reinterpret_cast<uint32_t>(smBiosInformation.tableAddress) % Util::PAGESIZE;
+            auto tablePageCount = (tablePageOffset + smBiosInformation.tableLength) % Util::PAGESIZE == 0 ? (tablePageOffset + smBiosInformation.tableLength) / Util::PAGESIZE : ((tablePageOffset + smBiosInformation.tableLength) / Util::PAGESIZE) + 1;
             auto *tablePage = memoryService.mapIO(const_cast<void*>(reinterpret_cast<const void*>(smBiosInformation.tableAddress)), tablePageCount);
             smBiosInformation.tableAddress = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(reinterpret_cast<uint8_t*>(tablePage) + tablePageOffset);
         } else {

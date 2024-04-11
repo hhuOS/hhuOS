@@ -24,7 +24,6 @@
 #include "kernel/process/Process.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/MemoryService.h"
-#include "kernel/service/SchedulerService.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/time/Timestamp.h"
 #include "kernel/log/Log.h"
@@ -35,6 +34,8 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/HashMap.h"
 #include "lib/util/collection/Iterator.h"
+#include "lib/util/base/HeapMemoryManager.h"
+#include "kernel/service/ProcessService.h"
 
 namespace Kernel {
 
@@ -60,7 +61,7 @@ Scheduler::~Scheduler() {
     }
 }
 
-void Scheduler::setInit() {
+void Scheduler::setInititialized() {
     initialized = true;
 }
 
@@ -95,7 +96,13 @@ void Scheduler::start() {
 }
 
 void Scheduler::ready(Thread &thread) {
-    readyQueueLock.acquire();
+    lockReadyQueue();
+    while (!joinLock.tryAcquire()) {
+        readyQueueLock.release();
+        yield();
+        lockReadyQueue();
+    }
+
     if (readyQueue.contains(&thread)) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Scheduler: Thread is already running!");
     }
@@ -103,23 +110,33 @@ void Scheduler::ready(Thread &thread) {
     readyQueue.offer(&thread);
     thread.getParent().addThread(thread);
 
-    joinLock.acquire();
     joinMap.put(thread.getId(), new Util::ArrayList<Thread*>());
-    joinLock.release();
 
+    joinLock.release();
     readyQueueLock.release();
 }
 
 void Scheduler::exit() {
-    readyQueueLock.acquire();
+    lockReadyQueue();
+    while (!joinLock.tryAcquire()) {
+        readyQueueLock.release();
+        yield();
+        lockReadyQueue();
+    }
 
-    readyQueue.remove(currentThread);
+    // Ready threads that are joining on the current thread
+    auto threadId = currentThread->getId();
+    auto *joinList = joinMap.get(threadId);
+    for (uint32_t i = 0; i < joinList->size(); i++) {
+        readyQueue.offer(joinList->get(i));
+    }
+
+    delete joinMap.remove(threadId);
+    joinLock.release();
+
     currentThread->getParent().removeThread(*currentThread);
-
-    unblockJoinList(*currentThread);
-
     resetLastFpuThread(*currentThread);
-    Service::getService<SchedulerService>().cleanup(currentThread);
+    Service::getService<ProcessService>().cleanup(currentThread);
 
     readyQueueLock.release();
     block();
@@ -130,35 +147,32 @@ void Scheduler::kill(Thread &thread) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT,"Scheduler: A thread cannot kill itself!");
     }
 
-    readyQueueLock.acquire();
-    sleepQueueLock.acquire();
-    sleepList.remove(SleepEntry{&thread, 0});
-    sleepQueueLock.release();
-
-    readyQueue.remove(&thread);
-    thread.getParent().removeThread(thread);
-    unblockJoinList(thread);
-    readyQueueLock.release();
-
-    resetLastFpuThread(thread);
-    Service::getService<SchedulerService>().cleanup(&thread);
-}
-
-void Scheduler::killWithoutLock(Thread &thread) {
-    if (thread.getId() == currentThread->getId()) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT,"Scheduler: A thread cannot kill itself!");
+    lockReadyQueue();
+    while (!joinLock.tryAcquire()) {
+        readyQueueLock.release();
+        yield();
+        lockReadyQueue();
     }
 
     sleepQueueLock.acquire();
     sleepList.remove(SleepEntry{&thread, 0});
     sleepQueueLock.release();
 
+    // Ready threads that are joining on the current thread
+    auto *joinList = joinMap.get(thread.getId());
+    for (uint32_t i = 0; i < joinList->size(); i++) {
+        readyQueue.offer(joinList->get(i));
+    }
+
+    delete joinMap.remove(thread.getId());
+    joinLock.release();
+
     readyQueue.remove(&thread);
     thread.getParent().removeThread(thread);
-    unblockJoinList(thread);
 
     resetLastFpuThread(thread);
-    Service::getService<SchedulerService>().cleanup(&thread);
+    Service::getService<ProcessService>().cleanup(&thread);
+    readyQueueLock.release();
 }
 
 void Scheduler::yield(bool interrupt) {
@@ -263,11 +277,14 @@ void Scheduler::sleep(const Util::Time::Timestamp &time) {
 
 void Scheduler::join(const Thread& thread) {
     joinLock.acquire();
+    if (!joinMap.containsKey(thread.getId())) {
+        return;
+    }
 
     auto *joinList = joinMap.get(thread.getId());
     joinList->add(currentThread);
-
     joinLock.release();
+
     block();
 }
 
@@ -285,19 +302,6 @@ void Scheduler::checkSleepList() {
     }
 }
 
-void Scheduler::unblockJoinList(Thread& thread) {
-    // Ready threads that are joining on the current threads
-    joinLock.acquire();
-    auto *joinList = joinMap.get(thread.getId());
-    for (auto *thread : *joinList) {
-        readyQueue.offer(thread);
-    }
-
-    joinMap.remove(thread.getId());
-    delete joinList;
-    joinLock.release();
-}
-
 void Scheduler::resetLastFpuThread(Thread &terminatedThread) {
     Util::Async::Atomic<uint32_t> wrapper(reinterpret_cast<uint32_t&>(lastFpuThread));
     wrapper.compareAndSet(reinterpret_cast<uint32_t>(&terminatedThread), 0);
@@ -305,27 +309,46 @@ void Scheduler::resetLastFpuThread(Thread &terminatedThread) {
 
 Thread* Scheduler::getThread(uint32_t id) {
     readyQueueLock.acquire();
-    sleepQueueLock.acquire();
-
-    for (auto *thread : readyQueue) {
+    for (uint32_t i = 0; i < readyQueue.size(); i++) {
+        auto *thread = readyQueue.get(i);
         if (thread->getId() == id) {
-            sleepQueueLock.release();
             readyQueueLock.release();
             return thread;
         }
     }
+    readyQueueLock.release();
 
-    for (auto &sleepEntry : sleepList) {
-        if (sleepEntry.thread->getId() == id) {
+    sleepQueueLock.acquire();
+    for (uint32_t i = 0; i < sleepList.size(); i++) {
+        const auto &entry = sleepList.get(i);
+        if (entry.thread->getId() == id) {
             sleepQueueLock.release();
-            readyQueueLock.release();
-            return sleepEntry.thread;
+            return entry.thread;
         }
     }
-
     sleepQueueLock.release();
-    readyQueueLock.release();
+
     return nullptr;
+}
+
+void Scheduler::removeFromJoinMap(uint32_t threadId) {
+    joinLock.acquire();
+    delete joinMap.remove(threadId);
+    joinLock.release();
+}
+
+void Scheduler::lockReadyQueue() {
+    auto &kernelSpace = Kernel::Service::getService<Kernel::MemoryService>().getKernelAddressSpace();
+
+    // We need to make sure, that both the kernel memory manager and the joinMap are currently not locked.
+    // Otherwise, a deadlock may occur: Since we are holding the ready queue lock,
+    // the scheduler won't switch threads anymore, and none of the locks will ever be release
+    readyQueueLock.acquire();
+    while (kernelSpace.getMemoryManager().isLocked()) {
+        readyQueueLock.release();
+        yield();
+        readyQueueLock.acquire();
+    }
 }
 
 bool Scheduler::SleepEntry::operator!=(const Scheduler::SleepEntry &other) const {

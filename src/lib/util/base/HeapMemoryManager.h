@@ -87,6 +87,11 @@ public:
 	 * @param alignment Alignment of the allocated chunk
      */
     virtual void freeMemory(void *pointer, uint32_t alignment) = 0;
+
+    /**
+     * Check whether the manager's lock is currently acquired.
+     */
+    [[nodiscard]] virtual bool isLocked() const = 0;
 };
 
 }

@@ -20,13 +20,14 @@
 #include "kernel/memory/PagingAreaManager.h"
 #include "kernel/memory/TableMemoryManager.h"
 #include "device/bus/isa/Isa.h"
+#include "lib/util/base/Constants.h"
 
 extern const uint32_t ___KERNEL_DATA_END__;
 const uint32_t KERNEL_DATA_END = reinterpret_cast<uint32_t>(&___KERNEL_DATA_END__);
 
 namespace Kernel {
 
-PageFrameAllocator::PageFrameAllocator(PagingAreaManager &pagingAreaManager, uint8_t *startAddress, uint8_t *endAddress) : TableMemoryManager(pagingAreaManager, startAddress, endAddress, Kernel::Paging::PAGESIZE) {}
+PageFrameAllocator::PageFrameAllocator(PagingAreaManager &pagingAreaManager, uint8_t *startAddress, uint8_t *endAddress) : TableMemoryManager(pagingAreaManager, startAddress, endAddress, Util::PAGESIZE) {}
 
 void* PageFrameAllocator::allocateBlock() {
     // Try to allocate memory over 16 MiB, to leave free memory for ISA DMA transfers

@@ -33,7 +33,6 @@
 #include "device/time/pit/Pit.h"
 #include "device/time/rtc/Rtc.h"
 #include "kernel/service/TimeService.h"
-#include "kernel/service/SchedulerService.h"
 #include "kernel/service/ProcessService.h"
 #include "lib/util/hardware/CpuId.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
@@ -165,7 +164,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         // Check free space before multiboot info
         if (multibootAddress - Kernel::MemoryLayout::USABLE_LOWER_MEMORY.startAddress < INITIAL_PAGING_AREA_SIZE + INITIAL_KERNEL_HEAP_SIZE) {
             // Not enough space before multiboot info -> Use memory after multiboot info
-            bootstrapMemory = Util::Address<uint32_t>(multibootAddress + multibootSize).alignUp(Kernel::Paging::PAGESIZE).get();
+            bootstrapMemory = Util::Address<uint32_t>(multibootAddress + multibootSize).alignUp(Util::PAGESIZE).get();
         }
     }
 
@@ -182,16 +181,16 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     auto *pageTableMemory = reinterpret_cast<Kernel::Paging::Table*>(pagingAreaPhysical + sizeof(Kernel::Paging::Table));
 
     // Create identity mapping for kernel
-    const auto kernelSize = Util::Address<uint32_t>(KERNEL_DATA_END - KERNEL_DATA_START).alignUp(Kernel::Paging::PAGESIZE).get();
-    pageTableMemory += createInitialMapping(*pageDirectory, pageTableMemory, KERNEL_DATA_START, KERNEL_DATA_START, kernelSize / Kernel::Paging::PAGESIZE);
+    const auto kernelSize = Util::Address<uint32_t>(KERNEL_DATA_END - KERNEL_DATA_START).alignUp(Util::PAGESIZE).get();
+    pageTableMemory += createInitialMapping(*pageDirectory, pageTableMemory, KERNEL_DATA_START, KERNEL_DATA_START, kernelSize / Util::PAGESIZE);
 
     // Map beginning of paging area
-    const auto pagingAreaVirtual = Util::Address<uint32_t>(KERNEL_DATA_END).alignUp(Kernel::Paging::PAGESIZE).get();
-    pageTableMemory += createInitialMapping(*pageDirectory, pageTableMemory, pagingAreaPhysical, pagingAreaVirtual, INITIAL_PAGING_AREA_SIZE / Kernel::Paging::PAGESIZE);
+    const auto pagingAreaVirtual = Util::Address<uint32_t>(KERNEL_DATA_END).alignUp(Util::PAGESIZE).get();
+    pageTableMemory += createInitialMapping(*pageDirectory, pageTableMemory, pagingAreaPhysical, pagingAreaVirtual, INITIAL_PAGING_AREA_SIZE / Util::PAGESIZE);
 
     // Map beginning of kernel heap
     const auto kernelHeapVirtual = pagingAreaVirtual + Kernel::MemoryLayout::PAGING_AREA_SIZE;
-    pageTableMemory += createInitialMapping(*pageDirectory, pageTableMemory, kernelHeapPhysical, kernelHeapVirtual, INITIAL_KERNEL_HEAP_SIZE / Kernel::Paging::PAGESIZE);
+    pageTableMemory += createInitialMapping(*pageDirectory, pageTableMemory, kernelHeapPhysical, kernelHeapVirtual, INITIAL_KERNEL_HEAP_SIZE / Util::PAGESIZE);
 
     // Copy memory map to end of initial kernel heap area (will be overwritten later on!)
     auto memoryMapTarget = Util::Address<uint32_t>((kernelHeapPhysical + INITIAL_KERNEL_HEAP_SIZE) - memoryMap->tagHeader.size);
@@ -234,8 +233,8 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
 
     // Initialize Paging Area Manager -> Manages the virtual addresses of all page tables and directories
     LOG_INFO("Initializing paging area manager");
-    auto usedPagingAreaPages = (reinterpret_cast<uint32_t>(pageTableMemory) - pagingAreaPhysical) / Kernel::Paging::PAGESIZE;
-    auto *pagingAreaManager = new Kernel::PagingAreaManager(reinterpret_cast<uint8_t*>(pagingAreaVirtual), INITIAL_PAGING_AREA_SIZE / Kernel::Paging::PAGESIZE, usedPagingAreaPages);
+    auto usedPagingAreaPages = (reinterpret_cast<uint32_t>(pageTableMemory) - pagingAreaPhysical) / Util::PAGESIZE;
+    auto *pagingAreaManager = new Kernel::PagingAreaManager(reinterpret_cast<uint8_t*>(pagingAreaVirtual), INITIAL_PAGING_AREA_SIZE / Util::PAGESIZE, usedPagingAreaPages);
 
     // Since page tables are not identity mapped, we need a separate page directory to keep track of the page table's virtual addresses.
     // This page directory is never accessed by hardware and is only used by the OS to access page tables.
@@ -251,7 +250,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         auto &entry = (*virtualPageDirectory)[i];
         if (!entry.isUnused()) {
             // Update entry with virtual page table address
-            entry.set(reinterpret_cast<uint32_t>(pagingAreaVirtual + Kernel::Paging::PAGESIZE + (Kernel::Paging::PAGESIZE * updatedEntries++)), entry.getFlags());
+            entry.set(reinterpret_cast<uint32_t>(pagingAreaVirtual + Util::PAGESIZE + (Util::PAGESIZE * updatedEntries++)), entry.getFlags());
         }
     }
 
@@ -299,9 +298,9 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     // Identity map BIOS related parts of the lower 1 MiB
     // Depending on the system and bootloader, this may be necessary to initialize ACPI and SMBIOS data structures
     // The startup code for application processors is also located there
-    memoryService->mapPhysical(nullptr, nullptr, Kernel::MemoryLayout::USABLE_LOWER_MEMORY.startAddress / Kernel::Paging::PAGESIZE, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
+    memoryService->mapPhysical(nullptr, nullptr, Kernel::MemoryLayout::USABLE_LOWER_MEMORY.startAddress / Util::PAGESIZE, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
     memoryService->mapPhysical(reinterpret_cast<void*>(Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1), reinterpret_cast<void*>(Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1),
-                               (KERNEL_DATA_START - (Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1)) / Kernel::Paging::PAGESIZE, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
+                               (KERNEL_DATA_START - (Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1)) / Util::PAGESIZE, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
 
     // Detect CPU features
     if (Util::Hardware::CpuId::isAvailable()) {
@@ -319,8 +318,8 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     }
 
     // Map Multiboot2 tags
-    const auto multibootPageOffset = reinterpret_cast<uint32_t>(multiboot) % Kernel::Paging::PAGESIZE;
-    const auto multibootPages = multibootSize % Kernel::Paging::PAGESIZE == 0 ? multibootSize / Kernel::Paging::PAGESIZE : multibootSize / Kernel::Paging::PAGESIZE + 1;
+    const auto multibootPageOffset = reinterpret_cast<uint32_t>(multiboot) % Util::PAGESIZE;
+    const auto multibootPages = multibootSize % Util::PAGESIZE == 0 ? multibootSize / Util::PAGESIZE : multibootSize / Util::PAGESIZE + 1;
     const auto *multibootVirtualAddress = static_cast<const uint8_t*>(memoryService->mapIO(const_cast<void*>(reinterpret_cast<const void*>(multiboot)), multibootPages, true)) + multibootPageOffset;
     multiboot = reinterpret_cast<const Kernel::Multiboot*>(multibootVirtualAddress);
     LOG_INFO("Bootloader: [%s], Multiboot size: [%u Byte]", static_cast<const char*>(multiboot->getBootloaderName()), multiboot->getSize());
@@ -375,20 +374,19 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     // Create scheduler and process service and register kernel process;
     LOG_INFO("Initializing scheduler");
     auto *kernelProcess = new Kernel::Process(*kernelAddressSpace, "Kernel");
-    auto *schedulerService = new Kernel::SchedulerService();
     auto *processService = new Kernel::ProcessService(kernelProcess);
-    Kernel::Service::registerService(Kernel::SchedulerService::SERVICE_ID, schedulerService);
+    auto &scheduler = processService->getScheduler();
     Kernel::Service::registerService(Kernel::ProcessService::SERVICE_ID, processService);
 
     // Create thread to refill block pool of paging area manager
     auto &refillThread = Kernel::Thread::createKernelThread("Paging-Area-Pool-Refiller", processService->getKernelProcess(), new Kernel::PagingAreaManagerRefillRunnable(*pagingAreaManager));
-    schedulerService->ready(refillThread);
+    scheduler.ready(refillThread);
 
     // Register memory manager
     Util::Reflection::InstanceFactory::registerPrototype(new Util::FreeListMemoryManager());
 
     // Protect kernel code
-    for (uint32_t address = WRITE_PROTECTED_START; address < WRITE_PROTECTED_END; address += Kernel::Paging::PAGESIZE) {
+    for (uint32_t address = WRITE_PROTECTED_START; address < WRITE_PROTECTED_END; address += Util::PAGESIZE) {
         // Get indices into page table and directory
         uint32_t pageDirectoryIndex = Kernel::Paging::DIRECTORY_INDEX(reinterpret_cast<uint32_t>(address));
         uint32_t pageTableIndex = Kernel::Paging::TABLE_INDEX(reinterpret_cast<uint32_t>(address));
@@ -439,7 +437,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     Device::Rtc *rtc = nullptr;
     if (Device::Rtc::isAvailable()) {
         LOG_INFO("Initializing RTC");
-        rtc = new Device::Rtc(250);
+        rtc = new Device::Rtc();
         rtc->plugin();
 
         if (!Device::Rtc::isValid()) {
@@ -462,9 +460,9 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     if (multiboot->getModuleNames().contains("vdd0")) {
         auto &module = multiboot->getModule("vdd0");
         const auto sectorCount = (module.endAddress - module.startAddress) / 512;
-        const auto modulePageOffset = module.startAddress % Kernel::Paging::PAGESIZE;
+        const auto modulePageOffset = module.startAddress % Util::PAGESIZE;
         const auto moduleSize = module.endAddress - module.startAddress;
-        const auto modulePageCount = moduleSize % Kernel::Paging::PAGESIZE == 0 ? (moduleSize / Kernel::Paging::PAGESIZE) : (moduleSize / Kernel::Paging::PAGESIZE) + 1;
+        const auto modulePageCount = moduleSize % Util::PAGESIZE == 0 ? (moduleSize / Util::PAGESIZE) : (moduleSize / Util::PAGESIZE) + 1;
 
         auto *moduleVirtualAddress = memoryService->mapIO(reinterpret_cast<void*>(module.startAddress), modulePageCount);
         auto *device = new Device::Storage::VirtualDiskDrive(static_cast<uint8_t*>(moduleVirtualAddress) + modulePageOffset, 512, sectorCount);
@@ -689,7 +687,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
                           << "Build date: " << BuildConfig::getBuildDate() << Util::Io::PrintStream::endl << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     }
 
-    schedulerService->startScheduler();
+    processService->startScheduler();
 
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Once you entered the gates of hell, you are not allowed to leave!");
 }
@@ -702,8 +700,8 @@ uint32_t GatesOfHell::createInitialMapping(Kernel::Paging::Table &pageDirectory,
     uint32_t allocatedPageTables = 0;
 
     for (uint32_t i = 0; i < pageCount; i++) {
-        auto physicalAddress = physicalStartAddress + i * Kernel::Paging::PAGESIZE;
-        auto virtualAddress = virtualStartAddress + i * Kernel::Paging::PAGESIZE;
+        auto physicalAddress = physicalStartAddress + i * Util::PAGESIZE;
+        auto virtualAddress = virtualStartAddress + i * Util::PAGESIZE;
 
         auto directoryIndex = Kernel::Paging::DIRECTORY_INDEX(virtualAddress);
         if (pageDirectory[directoryIndex].isUnused()) {

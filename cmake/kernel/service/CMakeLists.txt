@@ -25,6 +25,5 @@ target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/service/NetworkService.cpp
         ${HHUOS_SRC_DIR}/kernel/service/PowerManagementService.cpp
         ${HHUOS_SRC_DIR}/kernel/service/ProcessService.cpp
-        ${HHUOS_SRC_DIR}/kernel/service/SchedulerService.cpp
         ${HHUOS_SRC_DIR}/kernel/service/StorageService.cpp
         ${HHUOS_SRC_DIR}/kernel/service/TimeService.cpp)

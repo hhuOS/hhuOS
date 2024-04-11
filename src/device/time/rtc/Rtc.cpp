@@ -26,7 +26,6 @@
 #include "kernel/interrupt/InterruptVector.h"
 #include "kernel/log/Log.h"
 #include "kernel/process/Thread.h"
-#include "kernel/service/SchedulerService.h"
 #include "lib/util/hardware/Acpi.h"
 #include "kernel/service/InformationService.h"
 #include "kernel/service/Service.h"
@@ -58,15 +57,6 @@ Rtc::Rtc(uint32_t timerInterval) {
 void Rtc::plugin() {
     Cpu::disableInterrupts();
     Cmos::disableNmi();
-
-    // Enable 'update ended interrupts': An Interrupt will be triggered after every RTC-update.
-    // Enable 'periodic interrupts': Periodic interrupts will be triggered at the set rate.
-    uint8_t oldValue = Cmos::read(STATUS_REGISTER_B);
-    Cmos::write(STATUS_REGISTER_B, oldValue | INTERRUPT_UPDATE_ENDED | INTERRUPT_PERIODIC);
-
-    // Read status register C. This will clear the data-flag.
-    // As long as this flag is set, the RTC won't trigger any interrupts.
-    Cmos::read(STATUS_REGISTER_C);
 
     auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     interruptService.assignInterrupt(Kernel::InterruptVector::RTC, *this);
@@ -170,7 +160,7 @@ void Rtc::setAlarm(const Util::Time::Date &date) const {
 
     // Enable 'alarm interrupts': An Interrupt will be triggered every 24 hours at the set alarm time.
     uint8_t oldValue = Cmos::read(STATUS_REGISTER_B);
-    Cmos::write(STATUS_REGISTER_B, oldValue | 0x20);
+    Cmos::write(STATUS_REGISTER_B, oldValue | INTERRUPT_ALARM);
 }
 
 uint8_t Rtc::bcdToBinary(uint8_t bcd) {
@@ -223,27 +213,42 @@ Util::Time::Date Rtc::readDate() const {
 
 void Rtc::alarm() {
     auto &alarmThread = Kernel::Thread::createKernelThread("Rtc-Alarm", Kernel::Service::getService<Kernel::ProcessService>().getKernelProcess(), new AlarmRunnable());
-    Kernel::Service::getService<Kernel::SchedulerService>().ready(alarmThread);
+    Kernel::Service::getService<Kernel::ProcessService>().getScheduler().ready(alarmThread);
 }
 
 void Rtc::setInterruptRate(uint32_t interval) {
     Cpu::disableInterrupts();
     Cmos::disableNmi();
 
-    auto divisor = static_cast<uint32_t>(BASE_FREQUENCY * (interval / 1000.0));
-    uint32_t divisorLog;
-    for (divisorLog = 1; divisor >= 2; divisorLog++) {
-        divisor /= 2;
+    if (interval == 0) {
+        // Periodic interrupts are disabled
+        timerInterval = 0;
+    } else {
+        auto divisor = static_cast<uint32_t>(BASE_FREQUENCY * (interval / 1000.0));
+        uint32_t divisorLog;
+        for (divisorLog = 1; divisor >= 2; divisorLog++) {
+            divisor /= 2;
+        }
+
+        if (divisorLog < 3) divisorLog = 3;
+        if (divisorLog > 15) divisorLog = 15;
+
+        timerInterval = static_cast<uint32_t>(1000000000 / (static_cast<double>(BASE_FREQUENCY) / (1 << (divisorLog - 1))));
+        LOG_INFO("Setting RTC interval to [%ums] (Divisor: [%u])", timerInterval / 1000000 < 1 ? 1 : timerInterval / 1000000, divisorLog);
+
+        // Set periodic interrupt rate
+        auto oldValue = Cmos::read(STATUS_REGISTER_A);
+        Cmos::write(STATUS_REGISTER_A, (oldValue & 0xf0) | divisorLog);
     }
 
-    if (divisorLog < 3) divisorLog = 3;
-    if (divisorLog > 15) divisorLog = 15;
+    // Enable 'update ended interrupts': An Interrupt will be triggered after every RTC-update.
+    // Enable 'periodic interrupts': Periodic interrupts will be triggered at the set rate.
+    auto oldValue = Cmos::read(STATUS_REGISTER_B);
+    Cmos::write(STATUS_REGISTER_B, oldValue | INTERRUPT_UPDATE_ENDED | (timerInterval == 0 ? 0 : INTERRUPT_PERIODIC));
 
-    timerInterval = static_cast<uint32_t>(1000000000 / (static_cast<double>(BASE_FREQUENCY) / (1 << (divisorLog - 1))));
-    LOG_INFO("Setting RTC interval to [%ums] (Divisor: [%u])", timerInterval / 1000000 < 1 ? 1 : timerInterval / 1000000, divisorLog);
-
-    uint8_t oldValue = Cmos::read(STATUS_REGISTER_A);
-    Cmos::write(STATUS_REGISTER_A, (oldValue & 0xf0) | divisorLog);
+    // Read status register C. This will clear the data-flag.
+    // As long as this flag is set, the RTC won't trigger any interrupts.
+    Cmos::read(STATUS_REGISTER_C);
 
     Cmos::enableNmi();
     Cpu::enableInterrupts();

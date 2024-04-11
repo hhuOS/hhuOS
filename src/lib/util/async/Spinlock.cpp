@@ -36,7 +36,7 @@ void Spinlock::release() {
     lockVarWrapper.set(SPINLOCK_UNLOCK);
 }
 
-bool Spinlock::isLocked() {
+bool Spinlock::isLocked() const {
     return lockVarWrapper.get() != SPINLOCK_UNLOCK;
 }
 

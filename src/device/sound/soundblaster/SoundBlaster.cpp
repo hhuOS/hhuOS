@@ -24,7 +24,6 @@
 #include "lib/util/time/Timestamp.h"
 #include "kernel/service/InterruptService.h"
 #include "device/bus/isa/Isa.h"
-#include "kernel/service/SchedulerService.h"
 #include "kernel/service/ProcessService.h"
 #include "kernel/service/FilesystemService.h"
 #include "filesystem/memory/MemoryDriver.h"
@@ -57,14 +56,13 @@ SoundBlaster::SoundBlaster(uint16_t baseAddress, uint8_t irqNumber, uint8_t dmaC
 
     // Create thread and filesystem node
     auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
-    auto &schedulerService = Kernel::Service::getService<Kernel::SchedulerService>();
     auto &filesystemService = Kernel::Service::getService<Kernel::FilesystemService>();
 
     auto &thread = Kernel::Thread::createKernelThread("Sound-Blaster", processService.getKernelProcess(), runnable);
     auto *soundBlasterNode = new SoundBlasterNode(this, *runnable, thread);
 
     filesystemService.getFilesystem().getVirtualDriver("/device").addNode("/", soundBlasterNode);
-    schedulerService.ready(thread);
+    processService.getScheduler().ready(thread);
 }
 
 SoundBlaster::~SoundBlaster() {

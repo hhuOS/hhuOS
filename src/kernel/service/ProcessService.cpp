@@ -25,7 +25,6 @@
 #include "kernel/process/Process.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/MemoryService.h"
-#include "kernel/service/SchedulerService.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/System.h"
@@ -39,6 +38,74 @@ class VirtualAddressSpace;
 
 ProcessService::ProcessService(Process *kernelProcess) : kernelProcess(kernelProcess) {
     processList.add(kernelProcess);
+
+    Service::getService<InterruptService>().assignSystemCall(Util::System::YIELD, [](uint32_t, va_list) -> bool {
+        Service::getService<ProcessService>().getScheduler().yield();
+        return true;
+    });
+
+    Service::getService<InterruptService>().assignSystemCall(Util::System::GET_CURRENT_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
+        if (paramCount < 1) {
+            return false;
+        }
+
+        auto &processService = Service::getService<ProcessService>();
+        auto &threadId = *va_arg(arguments, uint32_t*);
+
+        threadId = processService.getScheduler().getCurrentThread().getId();
+        return true;
+    });
+
+    Service::getService<InterruptService>().assignSystemCall(Util::System::CREATE_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
+        if (paramCount < 4) {
+            return false;
+        }
+
+        auto &processService = Service::getService<ProcessService>();
+        auto *name = va_arg(arguments, const char*);
+        auto *runnable = va_arg(arguments, Util::Async::Runnable*);
+        auto eip = va_arg(arguments, uint32_t);
+        auto &threadId = *va_arg(arguments, uint32_t*);
+
+        auto &thread = Kernel::Thread::createUserThread(name, processService.getCurrentProcess(), eip, runnable);
+
+        threadId = thread.getId();
+        processService.getScheduler().ready(thread);
+        return true;
+    });
+
+    Service::getService<InterruptService>().assignSystemCall(Util::System::SLEEP, [](uint32_t paramCount, va_list arguments) -> bool {
+        if (paramCount < 1) {
+            return false;
+        }
+
+        auto &processService = Service::getService<ProcessService>();
+        auto &time = *va_arg(arguments, Util::Time::Timestamp*);
+
+        processService.getScheduler().sleep(time);
+        return true;
+    });
+
+    Service::getService<InterruptService>().assignSystemCall(Util::System::JOIN_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
+        if (paramCount < 1) {
+            return false;
+        }
+
+        auto &processService = Service::getService<ProcessService>();
+        auto threadId = va_arg(arguments, uint32_t);
+
+        auto *thread = processService.getScheduler().getThread(threadId);
+        if (thread != nullptr) {
+            thread->join();
+        }
+
+        return true;
+    });
+
+    Service::getService<InterruptService>().assignSystemCall(Util::System::EXIT_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
+        Service::getService<ProcessService>().getScheduler().exit();
+        return true;
+    });
 
     Service::getService<InterruptService>().assignSystemCall(Util::System::EXIT_PROCESS, [](uint32_t paramCount, va_list arguments) -> bool {
         auto &processService = Service::getService<ProcessService>();
@@ -139,7 +206,7 @@ Process& ProcessService::loadBinary(const Util::Io::File &binaryFile, const Util
     auto &process = createProcess(virtualAddressSpace, binaryFile.getCanonicalPath(), Util::Io::File::getCurrentWorkingDirectory(), inputFile, outputFile, errorFile);
     auto &thread = Kernel::Thread::createKernelThread("Loader", process, new Kernel::BinaryLoader(binaryFile.getCanonicalPath(), command, arguments));
 
-    Service::getService<SchedulerService>().ready(thread);
+    scheduler.ready(thread);
     return process;
 }
 
@@ -148,13 +215,12 @@ void ProcessService::killProcess(Process &process) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "A process cannot kill itself!");
     }
 
-    auto &schedulerService = Service::getService<SchedulerService>();
     for (auto *thread : process.getThreads()) {
-        schedulerService.kill(*thread);
+        scheduler.kill(*thread);
     }
 
     auto &cleanerThread = Thread::createKernelThread("Address-Space-Cleaner", process, new AddressSpaceCleaner());
-    schedulerService.ready(cleanerThread);
+    scheduler.ready(cleanerThread);
     process.setExitCode(-1);
 
     lock.acquire();
@@ -163,12 +229,11 @@ void ProcessService::killProcess(Process &process) {
 }
 
 Process& ProcessService::getCurrentProcess() {
-    auto &schedulerService = Service::getService<SchedulerService>();
-    if (!schedulerService.isSchedulerInitialized()) {
+    if (!scheduler.isInitialized()) {
         return *kernelProcess;
     }
 
-    return schedulerService.getCurrentThread().getParent();
+    return scheduler.getCurrentThread().getParent();
 }
 
 bool ProcessService::isProcessActive(uint32_t id) {
@@ -182,12 +247,11 @@ bool ProcessService::isProcessActive(uint32_t id) {
 }
 
 void ProcessService::exitCurrentProcess(int32_t exitCode) {
-    auto &schedulerService = Service::getService<SchedulerService>();
     auto &process = getCurrentProcess();
     auto &cleanerThread = Thread::createKernelThread("Address-Space-Cleaner", process, new AddressSpaceCleaner());
 
     process.killAllThreadsButCurrent();
-    schedulerService.ready(cleanerThread);
+    scheduler.ready(cleanerThread);
 
     process.setExitCode(exitCode);
 
@@ -195,7 +259,7 @@ void ProcessService::exitCurrentProcess(int32_t exitCode) {
     processList.remove(&process);
     lock.release();
 
-    schedulerService.exitCurrentThread();
+    scheduler.exit();
 
     __builtin_unreachable();
 }
@@ -221,6 +285,26 @@ Util::Array<uint32_t> ProcessService::getActiveProcessIds() const {
     }
 
     return ids;
+}
+
+Scheduler &ProcessService::getScheduler() {
+    return scheduler;
+}
+
+void ProcessService::cleanup(Thread *thread) {
+    cleaner->cleanup(thread);
+}
+
+void ProcessService::cleanup(Process *process) {
+    cleaner->cleanup(process);
+}
+
+void ProcessService::startScheduler() {
+    cleaner = new Kernel::SchedulerCleaner();
+    auto &schedulerCleanerThread = Kernel::Thread::createKernelThread("Scheduler-Cleaner", *kernelProcess, cleaner);
+    scheduler.ready(schedulerCleanerThread);
+
+    scheduler.start();
 }
 
 }

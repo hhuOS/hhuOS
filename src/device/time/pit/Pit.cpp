@@ -18,11 +18,11 @@
 #include "kernel/service/InterruptService.h"
 #include "Pit.h"
 #include "kernel/log/Log.h"
-#include "kernel/service/SchedulerService.h"
 #include "device/system/FirmwareConfiguration.h"
 #include "device/interrupt/InterruptRequest.h"
 #include "kernel/interrupt/InterruptVector.h"
 #include "kernel/service/Service.h"
+#include "kernel/service/ProcessService.h"
 
 namespace Kernel {
 struct InterruptFrame;
@@ -63,7 +63,7 @@ void Pit::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector s
 
     auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     if (!interruptService.usesApic() && time.toMilliseconds() % yieldInterval == 0) {
-        Kernel::Service::getService<Kernel::SchedulerService>().yield();
+        Kernel::Service::getService<Kernel::ProcessService>().getScheduler().yield();
     }
 }
 

@@ -22,7 +22,6 @@
 #include "device/network/PacketReader.h"
 #include "device/network/PacketWriter.h"
 #include "kernel/process/Thread.h"
-#include "kernel/service/SchedulerService.h"
 #include "lib/util/base/Address.h"
 #include "kernel/network/ethernet/EthernetModule.h"
 #include "device/network/NetworkPacketMemoryManager.h"
@@ -38,13 +37,16 @@ NetworkDevice::NetworkDevice() :
         outgoingPacketQueue(MAX_BUFFERED_PACKETS),
         reader(new PacketReader(*this)),
         writer(new PacketWriter(*this)) {
-    auto &schedulerService = Kernel::Service::getService<Kernel::SchedulerService>();
     auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
-    auto &readerThread = Kernel::Thread::createKernelThread(Util::String::format("Packet-Reader"), processService.getKernelProcess(), reader);
-    auto &writerThread = Kernel::Thread::createKernelThread(Util::String::format("Packet-Writer"), processService.getKernelProcess(), writer);
+    auto &readerThread = Kernel::Thread::createKernelThread("Packet-Reader", processService.getKernelProcess(), reader);
+    auto &writerThread = Kernel::Thread::createKernelThread("Packet-Writer", processService.getKernelProcess(), writer);
 
-    schedulerService.ready(readerThread);
-    schedulerService.ready(writerThread);
+    processService.getScheduler().ready(readerThread);
+    processService.getScheduler().ready(writerThread);
+}
+
+void NetworkDevice::setIdentifier(const Util::String &identifier) {
+    NetworkDevice::identifier = identifier;
 }
 
 const Util::String& NetworkDevice::getIdentifier() const {

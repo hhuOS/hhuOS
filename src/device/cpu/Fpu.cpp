@@ -22,10 +22,10 @@
 #include "device/cpu/Fpu.h"
 #include "kernel/log/Log.h"
 #include "kernel/process/Thread.h"
-#include "kernel/service/SchedulerService.h"
 #include "lib/util/collection/Array.h"
 #include "kernel/interrupt/InterruptVector.h"
 #include "kernel/service/Service.h"
+#include "kernel/service/ProcessService.h"
 
 namespace Kernel {
 struct InterruptFrame;
@@ -120,9 +120,9 @@ bool Fpu::probeFpu() {
 }
 
 void Fpu::switchContext() const {
-    auto &schedulerService = Kernel::Service::getService<Kernel::SchedulerService>();
-    auto &currentThread = schedulerService.getCurrentThread();
-    auto *lastFpuThread = schedulerService.getLastFpuThread();
+    auto &scheduler = Kernel::Service::getService<Kernel::ProcessService>().getScheduler();
+    auto &currentThread = scheduler.getCurrentThread();
+    auto *lastFpuThread = scheduler.getLastFpuThread();
 
     if (fxsrAvailable) {
         if (lastFpuThread != nullptr) {

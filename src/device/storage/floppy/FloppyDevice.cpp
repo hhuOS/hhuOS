@@ -22,7 +22,6 @@
 #include "device/storage/ChsConverter.h"
 #include "device/storage/floppy/FloppyController.h"
 #include "kernel/process/Thread.h"
-#include "kernel/service/SchedulerService.h"
 #include "lib/util/base/String.h"
 #include "kernel/service/Service.h"
 
@@ -59,7 +58,7 @@ FloppyDevice::FloppyDevice(FloppyController &controller, uint8_t driveNumber, Fl
     }
 
     auto &motorControlThread = Kernel::Thread::createKernelThread(Util::String::format("Floppy-%u-Motor-Controller", driveNumber), Kernel::Service::getService<Kernel::ProcessService>().getKernelProcess(), motorControlRunnable);
-    Kernel::Service::getService<Kernel::SchedulerService>().ready(motorControlThread);
+    Kernel::Service::getService<Kernel::ProcessService>().getScheduler().ready(motorControlThread);
 }
 
 uint32_t FloppyDevice::getSectorSize() {

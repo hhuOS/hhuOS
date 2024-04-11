@@ -102,6 +102,11 @@ public:
      */
     [[nodiscard]] uint8_t* getEndAddress() const override;
 
+    /**
+     * Overriding function from MemoryManager.
+     */
+    [[nodiscard]] bool isLocked() const override;
+
     void disableAutomaticUnmapping();
 
 private:

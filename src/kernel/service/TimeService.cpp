@@ -21,10 +21,10 @@
 #include "TimeService.h"
 #include "device/time/DateProvider.h"
 #include "device/time/TimeProvider.h"
-#include "kernel/service/SchedulerService.h"
 #include "lib/util/base/System.h"
 #include "InterruptService.h"
 #include "kernel/service/Service.h"
+#include "ProcessService.h"
 
 namespace Device {
 class Rtc;
@@ -103,7 +103,7 @@ void TimeService::busyWait(const Util::Time::Timestamp &time) const {
     auto end = getSystemTime().toMilliseconds() + time.toMilliseconds();
 
     while (getSystemTime().toMilliseconds() < end) {
-        Service::getService<SchedulerService>().yield();
+        Service::getService<ProcessService>().getScheduler().yield();
     }
 }
 

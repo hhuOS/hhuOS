@@ -32,6 +32,7 @@
 #include "device/cpu/Cpu.h"
 #include "kernel/service/Service.h"
 #include "lib/util/base/Address.h"
+#include "lib/util/base/Constants.h"
 
 namespace Kernel {
 
@@ -114,14 +115,14 @@ void* MemoryService::allocateLowerMemory(uint32_t pageCount) {
 
     // Allocate page aligned virtual memory
     auto &manager = kernelAddressSpace.getMemoryManager();
-    void *virtualAddress = manager.allocateMemory(pageCount * Kernel::Paging::PAGESIZE, Kernel::Paging::PAGESIZE);
+    void *virtualAddress = manager.allocateMemory(pageCount * Util::PAGESIZE, Util::PAGESIZE);
 
     // Create mapping
     uint32_t flags = Paging::PRESENT | Paging::WRITABLE;
 
     for (uint32_t i = 0; i < pageCount; i++) {
-        void *currentPhysicalAddress = reinterpret_cast<uint8_t*>(physicalAddress) + i * Kernel::Paging::PAGESIZE;
-        void *currentVirtualAddress = reinterpret_cast<uint8_t*>(virtualAddress) + i * Kernel::Paging::PAGESIZE;
+        void *currentPhysicalAddress = reinterpret_cast<uint8_t*>(physicalAddress) + i * Util::PAGESIZE;
+        void *currentVirtualAddress = reinterpret_cast<uint8_t*>(virtualAddress) + i * Util::PAGESIZE;
 
         // If the virtual address is already mapped, we have to unmap it.
         // This can happen because the headers of the free list are mapped to arbitrary physical addresses, but the memory should be mapped to the given physical addresses.
@@ -148,7 +149,7 @@ void* MemoryService::allocatePhysicalMemory(uint32_t frameCount, void *startAddr
             lastPhysicalAddress = currentPhysicalAddress;
             currentPhysicalAddress = pageFrameAllocator.allocateBlockAfterAddress(physicalStartAddress);
 
-            if (reinterpret_cast<uint32_t>(currentPhysicalAddress) - reinterpret_cast<uint32_t>(lastPhysicalAddress) != Kernel::Paging::PAGESIZE) {
+            if (reinterpret_cast<uint32_t>(currentPhysicalAddress) - reinterpret_cast<uint32_t>(lastPhysicalAddress) != Util::PAGESIZE) {
                 contiguous = false;
 
                 // Allocated frames are not contiguous -> Free them and try again
@@ -165,7 +166,7 @@ void* MemoryService::allocatePhysicalMemory(uint32_t frameCount, void *startAddr
 
 void MemoryService::freePhysicalMemory(void *pointer, uint32_t frameCount) {
     for (uint32_t i = 0; i < frameCount; i++) {
-        pageFrameAllocator.freeBlock(static_cast<uint8_t*>(pointer) + i * Kernel::Paging::PAGESIZE);
+        pageFrameAllocator.freeBlock(static_cast<uint8_t*>(pointer) + i * Util::PAGESIZE);
     }
 }
 
@@ -191,7 +192,7 @@ void Kernel::MemoryService::map(void *virtualAddress, uint32_t pageCount, uint16
         // Allocate a physical page frames to where the page should be mapped
         auto *physicalAddress = pageFrameAllocator.allocateBlock();
         // Map the frame to given virtual address
-        currentAddressSpace->map(physicalAddress, reinterpret_cast<uint8_t*>(virtualAddress) + i * Kernel::Paging::PAGESIZE, flags);
+        currentAddressSpace->map(physicalAddress, reinterpret_cast<uint8_t*>(virtualAddress) + i * Util::PAGESIZE, flags);
     }
 }
 
@@ -200,8 +201,8 @@ void* Kernel::MemoryService::unmap(void *virtualAddress, uint32_t pageCount, uin
     // that could be on the same page before virtualAddress or behind the end of the virtual memory block
 
     // Align virtual address to page size
-    if (reinterpret_cast<uint32_t>(virtualAddress) % Paging::PAGESIZE != 0) {
-        virtualAddress = reinterpret_cast<void *>(Util::Address<uint32_t>(virtualAddress).alignUp(Paging::PAGESIZE).get());
+    if (reinterpret_cast<uint32_t>(virtualAddress) % Util::PAGESIZE != 0) {
+        virtualAddress = reinterpret_cast<void *>(Util::Address<uint32_t>(virtualAddress).alignUp(Util::PAGESIZE).get());
         pageCount -= 1;
     }
 
@@ -209,7 +210,7 @@ void* Kernel::MemoryService::unmap(void *virtualAddress, uint32_t pageCount, uin
     void *physicalAddress;
     uint8_t nonMappedCount = 0;
     for (uint32_t i = 0; i < pageCount; i++) {
-        auto currentVirtualAddress = reinterpret_cast<uint32_t>(virtualAddress) + (i * Paging::PAGESIZE);
+        auto currentVirtualAddress = reinterpret_cast<uint32_t>(virtualAddress) + (i * Util::PAGESIZE);
         physicalAddress = currentAddressSpace->unmap(reinterpret_cast<const void*>(currentVirtualAddress));
 
         if (physicalAddress == nullptr) {
@@ -233,8 +234,8 @@ void* Kernel::MemoryService::unmap(void *virtualAddress, uint32_t pageCount, uin
 
 void Kernel::MemoryService::mapPhysical(void *physicalAddress, void *virtualAddress, uint32_t pageCount, uint16_t flags) {
     for (uint32_t i = 0; i < pageCount; i++) {
-        void *currentPhysicalAddress = reinterpret_cast<uint8_t*>(physicalAddress) + i * Kernel::Paging::PAGESIZE;
-        void *currentVirtualAddress = reinterpret_cast<uint8_t*>(virtualAddress) + i * Kernel::Paging::PAGESIZE;
+        void *currentPhysicalAddress = reinterpret_cast<uint8_t*>(physicalAddress) + i * Util::PAGESIZE;
+        void *currentVirtualAddress = reinterpret_cast<uint8_t*>(virtualAddress) + i * Util::PAGESIZE;
 
         // If the virtual address is already mapped, we have to unmap it.
         // This can happen because the headers of the free list are mapped to arbitrary physical addresses, but the memory should be mapped to the given physical addresses.
@@ -256,7 +257,7 @@ void *MemoryService::mapIO(uint32_t pageCount, bool mapToKernelHeap) {
 void *Kernel::MemoryService::mapIO(void *physicalAddress, uint32_t pageCount, bool mapToKernelHeap) {
     // Allocate page aligned virtual memory
     auto &manager = mapToKernelHeap ? kernelAddressSpace.getMemoryManager() : currentAddressSpace->getMemoryManager();
-    void *virtualAddress = manager.allocateMemory(pageCount * Kernel::Paging::PAGESIZE, Kernel::Paging::PAGESIZE);
+    void *virtualAddress = manager.allocateMemory(pageCount * Util::PAGESIZE, Util::PAGESIZE);
 
     // Create mapping
     uint32_t flags = Paging::PRESENT | Paging::WRITABLE | (reinterpret_cast<uint32_t>(virtualAddress) >= Kernel::MemoryLayout::KERNEL_END ? Paging::USER_ACCESSIBLE : 0);

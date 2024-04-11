@@ -26,10 +26,10 @@
 #include "kernel/service/ProcessService.h"
 #include "kernel/process/Process.h"
 #include "kernel/process/Thread.h"
-#include "kernel/service/SchedulerService.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/base/Address.h"
 #include "kernel/service/Service.h"
+#include "lib/util/base/Constants.h"
 
 namespace Kernel {
 
@@ -68,13 +68,12 @@ void BinaryLoader::run() {
     }
 
     auto &processService = Service::getService<ProcessService>();
-    auto &schedulerService = Service::getService<SchedulerService>();
     auto &process = processService.getCurrentProcess();
-    auto heapAddress = Util::Address(currentAddress + 1).alignUp(Kernel::Paging::PAGESIZE).get();
+    auto heapAddress = Util::Address(currentAddress + 1).alignUp(Util::PAGESIZE).get();
     auto &userThread = Thread::createMainUserThread(file.getName(), process, (uint32_t) executable.getEntryPoint(), argc, argv, nullptr, heapAddress);
 
     processService.getCurrentProcess().setMainThread(userThread);
-    schedulerService.ready(userThread);
+    processService.getScheduler().ready(userThread);
 }
 
 }

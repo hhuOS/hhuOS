@@ -18,13 +18,13 @@
 #include "lib/util/base/Address.h"
 #include "Thread.h"
 #include "kernel/service/MemoryService.h"
-#include "kernel/service/SchedulerService.h"
 #include "lib/util/async/IdGenerator.h"
 #include "lib/util/async/Runnable.h"
 #include "lib/util/base/Constants.h"
 #include "kernel/process/Process.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/service/Service.h"
+#include "kernel/service/ProcessService.h"
 
 extern "C" {
     void start_kernel_thread(uint32_t *oldStackPointer);
@@ -37,17 +37,18 @@ extern "C" void set_tss_stack_entry(uint32_t *stackPointer) {
 }
 
 extern "C" void release_scheduler_lock() {
-    Kernel::Service::getService<Kernel::SchedulerService>().unlockScheduler();
+    Kernel::Service::getService<Kernel::ProcessService>().getScheduler().unlockReadyQueue();
 }
 
 namespace Kernel {
 
+uint8_t Thread::defaultFpuContext[512]{};
 Util::Async::IdGenerator<uint32_t> Thread::idGenerator;
 
 Thread::Thread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable, uint32_t userInstructionPointer, uint32_t *kernelStack, uint32_t *userStack) :
         id(idGenerator.next()), name(name), parent(parent), runnable(runnable), userInstructionPointer(userInstructionPointer), kernelStack(kernelStack), userStack(userStack),
         fpuContext(static_cast<uint8_t*>(Service::getService<MemoryService>().allocateKernelMemory(512, 16))) {
-    auto source = Util::Address<uint32_t>(Service::getService<SchedulerService>().getDefaultFpuContext());
+    auto source = Util::Address<uint32_t>(defaultFpuContext);
     Util::Address<uint32_t>(fpuContext).copyRange(source, 512);
 }
 
@@ -139,14 +140,14 @@ void Thread::prepareKernelStack() {
 }
 
 void Thread::kickoffKernelThread() {
-    auto &schedulerService = Kernel::Service::getService<Kernel::SchedulerService>();
-    schedulerService.setSchedulerInit();
+    auto &scheduler = Kernel::Service::getService<Kernel::ProcessService>().getScheduler();
+    scheduler.setInititialized();
 
-    auto &thread = schedulerService.getCurrentThread();
+    auto &thread = scheduler.getCurrentThread();
 
     if (thread.isKernelThread()) {
         thread.runnable->run();
-        schedulerService.exitCurrentThread();
+        scheduler.exit();
     } else {
         thread.switchToUserMode();
     }
@@ -208,7 +209,7 @@ bool Thread::isKernelThread() const {
 }
 
 void Thread::join() {
-    Service::getService<SchedulerService>().join(*this);
+    Service::getService<ProcessService>().getScheduler().join(*this);
 }
 
 Thread::Stack::Stack(uint8_t *stack, uint32_t size) : stack(stack), size(size) {

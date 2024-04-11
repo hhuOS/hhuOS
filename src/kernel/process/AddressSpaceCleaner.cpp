@@ -20,7 +20,6 @@
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/ProcessService.h"
 #include "kernel/process/Process.h"
-#include "kernel/service/SchedulerService.h"
 #include "kernel/service/Service.h"
 #include "kernel/memory/MemoryLayout.h"
 #include "lib/util/base/Constants.h"
@@ -28,14 +27,14 @@
 namespace Kernel {
 
 void AddressSpaceCleaner::run() {
-    auto &schedulerService = Service::getService<SchedulerService>();
+    auto &processService = Service::getService<ProcessService>();
     auto &currentProcess = Service::getService<ProcessService>().getCurrentProcess();
     while (currentProcess.getThreadCount() > 1) {
-        schedulerService.yield();
+        processService.getScheduler().yield();
     }
 
     Service::getService<MemoryService>().unmap(reinterpret_cast<void*>(Kernel::MemoryLayout::KERNEL_END), ((Kernel::MemoryLayout::MEMORY_END - Kernel::MemoryLayout::KERNEL_END) + 1) / Util::PAGESIZE, 0);
-    schedulerService.cleanup(&currentProcess);
+    processService.cleanup(&currentProcess);
 }
 
 }

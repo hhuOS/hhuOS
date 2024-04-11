@@ -49,7 +49,7 @@ public:
 
     void release() override;
 
-    bool isLocked() override;
+    bool isLocked() const override;
 
 protected:
 

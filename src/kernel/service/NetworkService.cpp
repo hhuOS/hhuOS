@@ -126,11 +126,11 @@ NetworkService::NetworkService() {
 
 void NetworkService::initializeLoopback() {
     auto *loopback = new Device::Network::Loopback();
-    loopback->identifier = "loopback";
+    loopback->setIdentifier("loopback");
 
     lock.acquire();
-    deviceMap.put(loopback->identifier, loopback);
-    LOG_INFO("Registered device [%s]",static_cast<char*>(loopback->identifier));
+    deviceMap.put(loopback->getIdentifier(), loopback);
+    LOG_INFO("Registered device [%s]",static_cast<char*>(loopback->getIdentifier()));
     lock.release();
 
     Device::Network::NetworkFilesystemDriver::mount(*loopback);
@@ -148,15 +148,15 @@ Util::String NetworkService::registerNetworkDevice(Device::Network::NetworkDevic
     }
 
     auto value = nameMap.get(deviceClass);
-    device->identifier = Util::String::format("%s%u", static_cast<char*>(deviceClass), value);
-    deviceMap.put(device->identifier, device);
+    device->setIdentifier(Util::String::format("%s%u", static_cast<char*>(deviceClass), value));
+    deviceMap.put(device->getIdentifier(), device);
     nameMap.put(deviceClass, value + 1);
 
-    LOG_INFO("Registered device [%s]",static_cast<char*>(device->identifier));
+    LOG_INFO("Registered device [%s]",static_cast<char*>(device->getIdentifier()));
     lock.release();
 
     Device::Network::NetworkFilesystemDriver::mount(*device);
-    return device->identifier;
+    return device->getIdentifier();
 }
 
 Device::Network::NetworkDevice &NetworkService::getNetworkDevice(const Util::String &identifier) {

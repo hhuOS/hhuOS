@@ -22,6 +22,8 @@
 #include "kernel/process/Thread.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/time/Timestamp.h"
+#include "kernel/service/Service.h"
+#include "kernel/service/ProcessService.h"
 
 namespace Kernel {
 
@@ -58,8 +60,18 @@ void SchedulerCleaner::cleanupProcesses() {
 }
 
 void SchedulerCleaner::cleanupThreads() {
+    auto &scheduler = Service::getService<ProcessService>().getScheduler();
+
     while (threadQueue.size() > 0) {
-        delete threadQueue.poll();
+        auto *thread = threadQueue.poll();
+
+        if (scheduler.getThread(thread->getId())) {
+            // Thread is still inside ready queue -> Wait until the scheduler has finished blocking the thread
+            threadQueue.add(thread);
+            Util::Async::Thread::yield();
+        } else {
+            delete thread;
+        }
     }
 }
 

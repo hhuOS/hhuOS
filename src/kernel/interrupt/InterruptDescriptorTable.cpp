@@ -23,7 +23,7 @@
 #include "kernel/service/InterruptService.h"
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/System.h"
-#include "kernel/service/SchedulerService.h"
+#include "kernel/service/ProcessService.h"
 
 namespace Kernel {
 enum InterruptVector : uint8_t;
@@ -342,7 +342,7 @@ void InterruptDescriptorTable::handlePageFault(InterruptFrame *frame, uint32_t e
 
 void InterruptDescriptorTable::handleFpuException(InterruptFrame *frame) {
     ENTER_INTERRUPT_HANDLER
-    Kernel::Service::getService<Kernel::SchedulerService>().switchFpuContext();
+    Kernel::Service::getService<Kernel::ProcessService>().getScheduler().switchFpuContext();
     LEAVE_INTERRUPT_HANDLER
 }
 

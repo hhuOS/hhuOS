@@ -394,4 +394,8 @@ void FreeListMemoryManager::disableAutomaticUnmapping() {
     unmapFreedMemory = false;
 }
 
+bool FreeListMemoryManager::isLocked() const {
+    return lock.isLocked();
+}
+
 }

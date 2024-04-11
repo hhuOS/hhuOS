@@ -32,7 +32,6 @@ class Paging {
     
 public:
 
-    static const constexpr uint32_t PAGESIZE = 4096;
     static const constexpr uint32_t ENTRIES_PER_TABLE = 1024;
 
     enum Flags : uint32_t {
