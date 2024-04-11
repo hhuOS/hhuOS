@@ -370,7 +370,7 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::Transfe
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     const auto dmaSize = sectorCount * device.getSectorSize();
     const auto dmaPages = dmaSize % Util::PAGESIZE == 0 ? (dmaSize / Util::PAGESIZE) : (dmaSize / Util::PAGESIZE) + 1;
-    void *dmaMemory = memoryService.allocateLowerMemory(dmaPages);
+    void *dmaMemory = memoryService.allocateIsaMemory(dmaPages);
     void *physicalDmaAddress = memoryService.getPhysicalAddress(dmaMemory);
     bool success = false;
 

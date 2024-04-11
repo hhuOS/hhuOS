@@ -115,7 +115,7 @@ const uint32_t KERNEL_DATA_END = reinterpret_cast<uint32_t>(&___KERNEL_DATA_END_
 const uint32_t WRITE_PROTECTED_START = reinterpret_cast<uint32_t>(&___WRITE_PROTECTED_START__);
 const uint32_t WRITE_PROTECTED_END = reinterpret_cast<uint32_t>(&___WRITE_PROTECTED_END__);
 
-const constexpr uint32_t INITIAL_PAGING_AREA_SIZE = 256 * 1024;
+const constexpr uint32_t INITIAL_PAGING_AREA_SIZE = 384 * 1024;
 const constexpr uint32_t INITIAL_KERNEL_HEAP_SIZE = 32 * 1024;
 
 extern "C" {

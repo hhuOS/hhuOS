@@ -262,7 +262,7 @@ bool SoundBlaster::setAudioParameters(uint16_t sampleRate, uint8_t channels, uin
     }
 
     delete dmaBuffer;
-    dmaBuffer = static_cast<uint8_t*>(memoryService.allocateLowerMemory(dmaBufferSize));
+    dmaBuffer = static_cast<uint8_t*>(memoryService.allocateIsaMemory(dmaBufferSize));
     physicalDmaAddress = static_cast<uint8_t*>(memoryService.getPhysicalAddress(dmaBuffer));
 
     runnable->adjustInputStreamBuffer(sampleRate, channels, bitsPerSample);

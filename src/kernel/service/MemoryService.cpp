@@ -105,7 +105,7 @@ void MemoryService::freeUserMemory(void *pointer, uint32_t alignment) {
     currentAddressSpace->getMemoryManager().freeMemory(pointer, alignment);
 }
 
-void* MemoryService::allocateLowerMemory(uint32_t pageCount) {
+void* MemoryService::allocateIsaMemory(uint32_t pageCount) {
     // Allocate memory below 16 MiB
     void *physicalAddress = allocatePhysicalMemory(pageCount, nullptr);
     if (reinterpret_cast<uint32_t>(physicalAddress) >= Device::Isa::MAX_DMA_ADDRESS) {
@@ -118,7 +118,7 @@ void* MemoryService::allocateLowerMemory(uint32_t pageCount) {
     void *virtualAddress = manager.allocateMemory(pageCount * Util::PAGESIZE, Util::PAGESIZE);
 
     // Create mapping
-    uint32_t flags = Paging::PRESENT | Paging::WRITABLE;
+    uint32_t flags = Paging::PRESENT | Paging::WRITABLE | Paging::CACHE_DISABLE;
 
     for (uint32_t i = 0; i < pageCount; i++) {
         void *currentPhysicalAddress = reinterpret_cast<uint8_t*>(physicalAddress) + i * Util::PAGESIZE;
@@ -260,7 +260,7 @@ void *Kernel::MemoryService::mapIO(void *physicalAddress, uint32_t pageCount, bo
     void *virtualAddress = manager.allocateMemory(pageCount * Util::PAGESIZE, Util::PAGESIZE);
 
     // Create mapping
-    uint32_t flags = Paging::PRESENT | Paging::WRITABLE | (reinterpret_cast<uint32_t>(virtualAddress) >= Kernel::MemoryLayout::KERNEL_END ? Paging::USER_ACCESSIBLE : 0);
+    uint32_t flags = Paging::PRESENT | Paging::WRITABLE | Paging::CACHE_DISABLE | (reinterpret_cast<uint32_t>(virtualAddress) >= Kernel::MemoryLayout::KERNEL_END ? Paging::USER_ACCESSIBLE : 0);
     mapPhysical(physicalAddress, virtualAddress, pageCount, flags);
 
     return virtualAddress;

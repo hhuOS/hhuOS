@@ -79,7 +79,7 @@ public:
 
     void freeUserMemory(void *pointer, uint32_t alignment = 0);
 
-    void* allocateLowerMemory(uint32_t pageCount);
+    void* allocateIsaMemory(uint32_t pageCount);
 
     void* allocatePhysicalMemory(uint32_t frameCount, void *startAddress = reinterpret_cast<void*>(Device::Isa::MAX_DMA_ADDRESS));
 
