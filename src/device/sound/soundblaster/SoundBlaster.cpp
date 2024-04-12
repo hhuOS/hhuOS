@@ -31,6 +31,7 @@
 #include "kernel/log/Log.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/Service.h"
+#include "lib/util/base/Constants.h"
 
 namespace Kernel {
 enum InterruptVector : uint8_t;
@@ -253,16 +254,19 @@ bool SoundBlaster::setAudioParameters(uint16_t sampleRate, uint8_t channels, uin
     numChannels = channels;
 
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    dmaBufferSize = static_cast<uint32_t>(AUDIO_BUFFER_SIZE * sampleRate * (bitsPerSample / 8.0) * channels);
+    dmaBufferSize = (sampleRate * (bitsPerSample / 8) * channels) / (1000 / AUDIO_BUFFER_SIZE_MS);
     if (dmaBufferSize % 2 == 1) {
         dmaBufferSize++;
+    }
+    if (dmaBufferSize % Util::PAGESIZE != 0) {
+        dmaBufferSize = ((dmaBufferSize + Util::PAGESIZE) / Util::PAGESIZE) * Util::PAGESIZE;
     }
     if (dmaBufferSize > Isa::MAX_DMA_PAGESIZE) {
         dmaBufferSize = Isa::MAX_DMA_PAGESIZE;
     }
 
     delete dmaBuffer;
-    dmaBuffer = static_cast<uint8_t*>(memoryService.allocateIsaMemory(dmaBufferSize));
+    dmaBuffer = static_cast<uint8_t*>(memoryService.allocateIsaMemory(dmaBufferSize / Util::PAGESIZE));
     physicalDmaAddress = static_cast<uint8_t*>(memoryService.getPhysicalAddress(dmaBuffer));
 
     runnable->adjustInputStreamBuffer(sampleRate, channels, bitsPerSample);
