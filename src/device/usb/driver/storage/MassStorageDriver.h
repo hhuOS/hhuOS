@@ -12,7 +12,7 @@
 #define ALLOWED_CAPACITES 31
 #define READ_FORMAT_CAPACITIES_THRESHHOLD 5 // atleast 5 iterations 
 #define MAX_VOLUMES 16
-#define TEST_ON
+//#define TEST_ON
 
 struct MassStorageDev{
     UsbDev* usb_dev;
