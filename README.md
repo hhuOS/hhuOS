@@ -38,7 +38,7 @@ To test hhuOS quickly in QEMU, you can issue the following commands.
 ```sh
 git clone https://github.com/hhuOS/hhuOS.git
 cd hhuOS/
-git submodule init
+git submodule initialize
 git submodule update
 ./build.sh
 ./run.sh

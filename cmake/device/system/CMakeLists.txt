@@ -18,5 +18,7 @@ cmake_minimum_required(VERSION 3.14)
 
 target_sources(device PUBLIC
         ${HHUOS_SRC_DIR}/device/system/Acpi.cpp
+        ${HHUOS_SRC_DIR}/device/system/bios.asm
+        ${HHUOS_SRC_DIR}/device/system/Bios.cpp
         ${HHUOS_SRC_DIR}/device/system/FirmwareConfiguration.cpp
         ${HHUOS_SRC_DIR}/device/system/SmBios.cpp)

@@ -33,10 +33,6 @@ class PacketWriter;
 }  // namespace Network
 }  // namespace Device
 
-namespace Kernel {
-class NetworkService;
-}  // namespace Kernel
-
 namespace Device::Network {
 
 /**

@@ -36,6 +36,26 @@ class ColorGraphicsAdapter : public Util::Graphic::Terminal {
 
 public:
 
+    enum VideoCardType : uint8_t {
+        NO_DISPLAY = 0x00,
+        MONOCHROME = 0x01,
+        CGA_COLOR = 0x02,
+        EGA_COLOR = 0x04,
+        EGA_MONOCHROME = 0x05,
+        PGA_COLOR = 0x06,
+        VGA_MONOCHROME = 0x07,
+        VGA_COLOR = 0x08,
+        MCGA_COLOR_DIGITAL = 0x0a,
+        MCGA_MONOCHROME = 0x0b,
+        MCGA_COLOR = 0x0c,
+        UNKNOWN = 0xff
+    };
+
+    enum Mode : uint8_t {
+        TEXT_40_COLUMNS = 0x01,
+        TEXT_80_COLUMNS = 0x03,
+    };
+
     ColorGraphicsAdapter(uint16_t columns, uint16_t rows);
 
     ColorGraphicsAdapter(const ColorGraphicsAdapter &copy) = delete;
@@ -43,6 +63,10 @@ public:
     ColorGraphicsAdapter &operator=(const ColorGraphicsAdapter &other) = delete;
 
     ~ColorGraphicsAdapter() override;
+
+    [[nodiscard]] static VideoCardType getVideoCardType();
+
+    static void setMode(Mode mode);
 
     void putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) override;
 
@@ -79,6 +103,7 @@ private:
     static const constexpr uint16_t CURSOR_START_INDEX = 0x0a;
     static const constexpr uint16_t CURSOR_END_INDEX = 0x0b;
     static const constexpr uint32_t CGA_START_ADDRESS = 0x000b8000;
+    static const constexpr uint16_t BIOS_FUNCTION_CHECK_VIDEO_CARD = 0x1a00;
 };
 
 }

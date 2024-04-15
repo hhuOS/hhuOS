@@ -38,6 +38,10 @@ class MemoryService : public Service {
 
 public:
 
+    enum GlobalDescriptorTableType {
+        KERNEL, BIOS_CALL
+    };
+
     struct MemoryStatus {
         uint32_t totalPhysicalMemory;
         uint32_t freePhysicalMemory;
@@ -78,6 +82,8 @@ public:
     void* reallocateUserMemory(void *pointer, uint32_t size, uint32_t alignment = 0);
 
     void freeUserMemory(void *pointer, uint32_t alignment = 0);
+
+    void* allocateBiosMemory(uint32_t pageCount);
 
     void* allocateIsaMemory(uint32_t pageCount);
 
@@ -187,6 +193,8 @@ public:
      * @param addressSpace The address space to switch to
      */
     void switchAddressSpace(VirtualAddressSpace &addressSpace);
+
+    void loadGlobalDescriptorTable();
 
     [[nodiscard]] VirtualAddressSpace& getKernelAddressSpace() const;
 

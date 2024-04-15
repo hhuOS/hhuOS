@@ -17,7 +17,6 @@
 
 #include "MemoryLayout.h"
 #include "PagingAreaManager.h"
-#include "Paging.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/base/Constants.h"
 

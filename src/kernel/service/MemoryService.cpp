@@ -33,6 +33,7 @@
 #include "kernel/service/Service.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/base/Constants.h"
+#include "device/system/Bios.h"
 
 namespace Kernel {
 
@@ -103,6 +104,35 @@ void *MemoryService::reallocateUserMemory(void *pointer, uint32_t size, uint32_t
 
 void MemoryService::freeUserMemory(void *pointer, uint32_t alignment) {
     currentAddressSpace->getMemoryManager().freeMemory(pointer, alignment);
+}
+
+void* MemoryService::allocateBiosMemory(uint32_t pageCount) {
+    // Allocate memory below 1 MiB
+    void *physicalAddress = allocatePhysicalMemory(pageCount, nullptr);
+    if (reinterpret_cast<uint32_t>(physicalAddress) >= Device::Bios::MAX_USABLE_ADDRESS) {
+        freePhysicalMemory(physicalAddress, pageCount);
+        return nullptr;
+    }
+
+    // Allocate page aligned virtual memory
+    auto &manager = kernelAddressSpace.getMemoryManager();
+    void *virtualAddress = manager.allocateMemory(pageCount * Util::PAGESIZE, Util::PAGESIZE);
+
+    // Create mapping
+    uint32_t flags = Paging::PRESENT | Paging::WRITABLE;
+
+    for (uint32_t i = 0; i < pageCount; i++) {
+        void *currentPhysicalAddress = reinterpret_cast<uint8_t*>(physicalAddress) + i * Util::PAGESIZE;
+        void *currentVirtualAddress = reinterpret_cast<uint8_t*>(virtualAddress) + i * Util::PAGESIZE;
+
+        // If the virtual address is already mapped, we have to unmap it.
+        // This can happen because the headers of the free list are mapped to arbitrary physical addresses, but the memory should be mapped to the given physical addresses.
+        unmap(currentVirtualAddress, 1);
+        // Map the page into the current address space
+        currentAddressSpace->map(currentPhysicalAddress, currentVirtualAddress, flags);
+    }
+
+    return virtualAddress;
 }
 
 void* MemoryService::allocateIsaMemory(uint32_t pageCount) {
@@ -339,6 +369,10 @@ VirtualAddressSpace &MemoryService::getCurrentAddressSpace() const {
 void MemoryService::setTaskStateSegmentStackEntry(const uint32_t *stackPointer) {
     tss->esp0 = reinterpret_cast<uint32_t>(stackPointer);
     tss->ss0 = static_cast<uint16_t>(Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+}
+
+void MemoryService::loadGlobalDescriptorTable() {
+    gdt->load();
 }
 
 }

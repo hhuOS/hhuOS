@@ -47,11 +47,6 @@ public:
     explicit InterruptService(Device::Pic *pic);
 
     /**
-     * Constructor for use with modern APIC.
-     */
-    explicit InterruptService(Device::Apic *apic);
-
-    /**
      * Copy Constructor.
      */
     InterruptService(const InterruptService &other) = delete;
@@ -65,6 +60,8 @@ public:
      * Destructor.
      */
     ~InterruptService() override;
+
+    void loadIdt();
 
     void useApic(Device::Apic *apic);
 

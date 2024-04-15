@@ -25,6 +25,7 @@
 #include "InterruptService.h"
 #include "kernel/service/Service.h"
 #include "ProcessService.h"
+#include "kernel/process/Scheduler.h"
 
 namespace Device {
 class Rtc;

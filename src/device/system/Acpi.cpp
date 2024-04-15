@@ -22,7 +22,6 @@
 #include "kernel/multiboot/Multiboot.h"
 #include "kernel/service/Service.h"
 #include "kernel/service/InformationService.h"
-#include "kernel/memory/Paging.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/log/Log.h"
 #include "lib/util/base/Constants.h"

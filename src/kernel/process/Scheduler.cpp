@@ -33,9 +33,9 @@
 #include "lib/util/async/Atomic.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/HashMap.h"
-#include "lib/util/collection/Iterator.h"
 #include "lib/util/base/HeapMemoryManager.h"
 #include "kernel/service/ProcessService.h"
+#include "kernel/memory/VirtualAddressSpace.h"
 
 namespace Kernel {
 

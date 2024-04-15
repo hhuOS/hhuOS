@@ -53,22 +53,34 @@ public:
         }
     };
 
-    // let kernel start at 1 MiB
-    static const constexpr uint32_t KERNEL_START = 0x00100000;
-    static const constexpr uint32_t MEMORY_END = 0xffffffff;
 
+    // Used for BIOS calls
+    static const constexpr MemoryArea BIOS_CALL_CODE_AREA = { 0x00000500, 0x000005ff, MemoryArea::PHYSICAL };
+    static const constexpr MemoryArea BIOS_CALL_ESP_BACKUP = { 0x00000600, 0x00000603 + sizeof(uint32_t), MemoryArea::PHYSICAL };
+    static const constexpr MemoryArea BIOS_CALL_IDT = { 0x00000604, 0x0000060a + sizeof(uint16_t) + sizeof(uint32_t), MemoryArea::PHYSICAL };
+    static const constexpr MemoryArea BIOS_CALL_STACK = { 0x00000700, 0x000007ff, MemoryArea::PHYSICAL };
+
+    // Used to boot up application processors
     static const constexpr MemoryArea APPLICATION_PROCESSOR_STARTUP_CODE = { 0x00001000, 0x00001fff, MemoryArea::PHYSICAL };
 
+    // Used for bootstrapping
     static const constexpr MemoryArea USABLE_LOWER_MEMORY = { 0x00002000, 0x0007ffff, MemoryArea::PHYSICAL };
 
-    // start of virtual area for page tables and directories (128 MB)
+    // Let kernel start at 1 MiB
+    static const constexpr uint32_t KERNEL_START = 0x00100000;
+
+    // Size of virtual memory area for page tables and directories
     static const constexpr uint32_t PAGING_AREA_SIZE = 16 * 1024 * 1024;
-    static const constexpr MemoryArea PAGING_AREA = { 0xf8000000, MEMORY_END, MemoryArea::VIRTUAL };
-    // end of virtual kernel memory for heap
+
+    // End of virtual kernel memory
     static const constexpr uint32_t KERNEL_HEAP_END_ADDRESS = 0x8000000;
     static const constexpr uint32_t KERNEL_END = KERNEL_HEAP_END_ADDRESS;
 
+    // The whole virtual kernel area, including code, paging area and heap
     static const constexpr MemoryArea KERNEL_AREA = { KERNEL_START, KERNEL_END, MemoryArea::VIRTUAL };
+
+    // Highest possible address
+    static const constexpr uint32_t MEMORY_END = 0xffffffff;
 };
 
 }

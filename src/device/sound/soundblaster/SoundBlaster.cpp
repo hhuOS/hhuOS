@@ -32,6 +32,7 @@
 #include "kernel/process/Thread.h"
 #include "kernel/service/Service.h"
 #include "lib/util/base/Constants.h"
+#include "kernel/process/Scheduler.h"
 
 namespace Kernel {
 enum InterruptVector : uint8_t;

@@ -23,6 +23,7 @@
 #include "kernel/service/Service.h"
 #include "kernel/memory/MemoryLayout.h"
 #include "lib/util/base/Constants.h"
+#include "kernel/process/Scheduler.h"
 
 namespace Kernel {
 

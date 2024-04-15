@@ -20,14 +20,6 @@
 
 #include <cstdint>
 
-#include "kernel/interrupt/InterruptHandler.h"
-
-namespace Kernel {
-class Thread;
-enum InterruptVector : uint8_t;
-struct InterruptFrame;
-}  // namespace Kernel
-
 namespace Device {
 
 class Fpu {

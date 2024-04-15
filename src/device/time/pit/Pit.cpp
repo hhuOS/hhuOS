@@ -23,6 +23,7 @@
 #include "kernel/interrupt/InterruptVector.h"
 #include "kernel/service/Service.h"
 #include "kernel/service/ProcessService.h"
+#include "kernel/process/Scheduler.h"
 
 namespace Kernel {
 struct InterruptFrame;

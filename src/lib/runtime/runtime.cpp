@@ -1,5 +1,5 @@
 #include <cstdint>
-#include <cstdarg>
+
 #include "lib/util/base/operators.h"
 #include "lib/util/base/Constants.h"
 #include "lib/util/base/FreeListMemoryManager.h"

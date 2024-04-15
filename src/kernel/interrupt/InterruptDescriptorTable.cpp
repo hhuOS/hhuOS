@@ -24,6 +24,7 @@
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/System.h"
 #include "kernel/service/ProcessService.h"
+#include "kernel/process/Scheduler.h"
 
 namespace Kernel {
 enum InterruptVector : uint8_t;
@@ -294,6 +295,8 @@ InterruptDescriptorTable::InterruptDescriptorTable() {
     table[0x86] = GateDescriptor(reinterpret_cast<uint32_t>(handleSystemCall), Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 1), GateType::TRAP_32, Device::Cpu::PrivilegeLevel::Ring3);
 }
 
+InterruptDescriptorTable::Descriptor::Descriptor(void *address, uint16_t entries) : size((entries * sizeof(uint64_t)) - 1), offset(reinterpret_cast<uint32_t>(address)) {}
+
 InterruptDescriptorTable::GateDescriptor::GateDescriptor(uint32_t address, const Device::Cpu::SegmentSelector &segmentSelector, InterruptDescriptorTable::GateType gateType, Device::Cpu::PrivilegeLevel privilegeLevel) :
         offset1(static_cast<uint16_t>(address & 0x0000ffff)),
         segmentSelector(static_cast<uint16_t>(segmentSelector)),
@@ -313,6 +316,23 @@ InterruptDescriptorTable::GateDescriptor::operator uint64_t() const {
             static_cast<uint64_t>(privilegeLevel) << 45 |
             static_cast<uint64_t>(present) << 47 |
             static_cast<uint64_t>(offset2) << 48;
+}
+
+InterruptDescriptorTable::Descriptor InterruptDescriptorTable::getDescriptor() {
+    return Descriptor(table, IDT_ENTRIES);
+}
+
+void InterruptDescriptorTable::Descriptor::load() {
+    asm volatile(
+            "lidt (%0)"
+            : :
+            "r"(this)
+            :
+            );
+}
+
+void InterruptDescriptorTable::load() {
+    getDescriptor().load();
 }
 
 void InterruptDescriptorTable::handleException(const Kernel::InterruptFrame &frame, uint32_t errorCode, InterruptVector vector) {
@@ -366,16 +386,6 @@ void InterruptDescriptorTable::handleSystemCall(InterruptFrame *frame) {
     Service::getService<InterruptService>().dispatchSystemCall(static_cast<Util::System::Code>(ebxValue), ebxValue >> 8, reinterpret_cast<va_list>(ecxValue), *reinterpret_cast<bool *>(edxValue));
 
     LEAVE_INTERRUPT_HANDLER
-}
-
-void InterruptDescriptorTable::load() {
-    auto descriptor = Descriptor { .offset = reinterpret_cast<uint32_t>(table) };
-    asm volatile(
-            "lidt (%0)"
-            : :
-            "r"(&descriptor)
-            :
-            );
 }
 
 }

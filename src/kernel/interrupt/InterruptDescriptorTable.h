@@ -124,6 +124,14 @@ public:
         uint16_t offset2;
     };
 
+    struct Descriptor {
+        uint16_t size = (IDT_ENTRIES * sizeof(GateDescriptor)) - 1;
+        uint32_t offset;
+
+        Descriptor(void *address, uint16_t entries);
+        void load();
+    } __attribute__((packed));
+
     /**
      * Default-Constructor.
      */
@@ -143,6 +151,8 @@ public:
      * Destructor.
      */
     ~InterruptDescriptorTable() = default;
+
+    Descriptor getDescriptor();
 
     void load();
 
@@ -424,11 +434,6 @@ private:
     INTERRUPT_HANDLER(255, handleInterrupt)
 
 #pragma GCC pop_options
-
-    struct Descriptor {
-        uint16_t size = (IDT_ENTRIES * sizeof(GateDescriptor)) - 1;
-        uint32_t offset;
-    } __attribute__((packed));
 
     uint64_t table[IDT_ENTRIES]{};
 };

@@ -25,6 +25,7 @@
 #include "device/cpu/Cpu.h"
 #include "kernel/service/Service.h"
 #include "kernel/service/ProcessService.h"
+#include "kernel/process/Scheduler.h"
 
 extern "C" {
     void start_kernel_thread(uint32_t *oldStackPointer);

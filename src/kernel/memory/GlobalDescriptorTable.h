@@ -92,6 +92,9 @@ public:
     struct Descriptor {
         uint16_t size;
         uint32_t offset;
+
+        Descriptor(void *address, uint16_t entries);
+        void load();
     } __attribute__((packed));
 
     /**

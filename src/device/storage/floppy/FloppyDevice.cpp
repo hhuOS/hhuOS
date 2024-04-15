@@ -24,6 +24,7 @@
 #include "kernel/process/Thread.h"
 #include "lib/util/base/String.h"
 #include "kernel/service/Service.h"
+#include "kernel/process/Scheduler.h"
 
 namespace Device::Storage {
 

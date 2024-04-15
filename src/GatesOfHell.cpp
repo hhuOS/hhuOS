@@ -100,6 +100,9 @@
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/network/ip4/Ip4Route.h"
 #include "lib/util/network/ip4/Ip4SubnetAddress.h"
+#include "device/system/Bios.h"
+#include "kernel/process/Scheduler.h"
+#include "lib/util/base/Constants.h"
 
 namespace Util {
 class HeapMemoryManager;
@@ -211,14 +214,15 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
 
     // Setup GDT
     LOG_INFO("Setting up global descriptor table");
-    auto *tss = new Kernel::GlobalDescriptorTable::TaskStateSegment();
     auto *gdt = new Kernel::GlobalDescriptorTable();
+    auto *tss = new Kernel::GlobalDescriptorTable::TaskStateSegment();
     gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x9a, 0x0c)); // Kernel code segment
     gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x92, 0x0c)); // Kernel data segment
     gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xfa, 0x0c)); // User code segment
     gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xf2, 0x0c)); // User data segment
     gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(reinterpret_cast<uint32_t>(tss), sizeof(Kernel::GlobalDescriptorTable::TaskStateSegment), 0x89, 0x04));
     gdt->load();
+
 
     // Load task state segment
     Device::Cpu::loadTaskStateSegment(Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 5));
@@ -283,6 +287,9 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     auto *interruptService = new Kernel::InterruptService(pic);
     Kernel::Service::registerService(Kernel::InterruptService::SERVICE_ID, interruptService);
 
+    LOG_INFO("Loading interrupt descriptor table");
+    interruptService->loadIdt();
+
     // Create kernel address space and memory service
     LOG_INFO("Initializing kernel address space");
     auto *kernelAddressSpace = new Kernel::VirtualAddressSpace(pageDirectory, virtualPageDirectory, *kernelHeap);
@@ -297,10 +304,21 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     LOG_INFO("Creating remaining mappings, needed for booting");
     // Identity map BIOS related parts of the lower 1 MiB
     // Depending on the system and bootloader, this may be necessary to initialize ACPI and SMBIOS data structures
-    // The startup code for application processors is also located there
+    // The BIOS call code and startup code for application processors is also located there
     memoryService->mapPhysical(nullptr, nullptr, Kernel::MemoryLayout::USABLE_LOWER_MEMORY.startAddress / Util::PAGESIZE, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
     memoryService->mapPhysical(reinterpret_cast<void*>(Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1), reinterpret_cast<void*>(Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1),
                                (KERNEL_DATA_START - (Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1)) / Util::PAGESIZE, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
+
+    // Create scheduler and process service and register kernel process;
+    LOG_INFO("Initializing scheduler");
+    auto *kernelProcess = new Kernel::Process(*kernelAddressSpace, "Kernel");
+    auto *processService = new Kernel::ProcessService(kernelProcess);
+    auto &scheduler = processService->getScheduler();
+    Kernel::Service::registerService(Kernel::ProcessService::SERVICE_ID, processService);
+
+    // Initialize BIOS calls
+    LOG_INFO("Initializing BIOS calls");
+    Device::Bios::initialize();
 
     // Detect CPU features
     if (Util::Hardware::CpuId::isAvailable()) {
@@ -354,7 +372,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     auto &biosInformation = smBios->getTable<Util::Hardware::SmBios::BiosInformation>(Util::Hardware::SmBios::BIOS_INFORMATION);
     LOG_INFO("BIOS vendor: [%s], BIOS version: [%s (%s)]", biosInformation.getVendorName(), biosInformation.getVersion(), biosInformation.getReleaseDate());
 
-    // Switch to APIC, if available
+    // Switch to APIC, if available (CAUTION: BIOS calls are not supported anymore, once the APIC is initialized)
     if (Device::Apic::isAvailable()) {
         LOG_INFO("APIC detected");
         auto *apic = Device::Apic::initialize();
@@ -370,13 +388,6 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     } else {
         LOG_INFO("APIC not available -> Falling back to PIC");
     }
-
-    // Create scheduler and process service and register kernel process;
-    LOG_INFO("Initializing scheduler");
-    auto *kernelProcess = new Kernel::Process(*kernelAddressSpace, "Kernel");
-    auto *processService = new Kernel::ProcessService(kernelProcess);
-    auto &scheduler = processService->getScheduler();
-    Kernel::Service::registerService(Kernel::ProcessService::SERVICE_ID, processService);
 
     // Create thread to refill block pool of paging area manager
     auto &refillThread = Kernel::Thread::createKernelThread("Paging-Area-Pool-Refiller", processService->getKernelProcess(), new Kernel::PagingAreaManagerRefillRunnable(*pagingAreaManager));

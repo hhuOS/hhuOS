@@ -22,7 +22,6 @@
 #include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/file/elf/File.h"
-#include "kernel/memory/Paging.h"
 #include "kernel/service/ProcessService.h"
 #include "kernel/process/Process.h"
 #include "kernel/process/Thread.h"
@@ -30,6 +29,7 @@
 #include "lib/util/base/Address.h"
 #include "kernel/service/Service.h"
 #include "lib/util/base/Constants.h"
+#include "kernel/process/Scheduler.h"
 
 namespace Kernel {
 

@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/service/InterruptService.h"
 #include "lib/util/hardware/CpuId.h"
 #include "Cpu.h"
 #include "Fpu.h"
@@ -23,13 +22,9 @@
 #include "kernel/log/Log.h"
 #include "kernel/process/Thread.h"
 #include "lib/util/collection/Array.h"
-#include "kernel/interrupt/InterruptVector.h"
 #include "kernel/service/Service.h"
 #include "kernel/service/ProcessService.h"
-
-namespace Kernel {
-struct InterruptFrame;
-}  // namespace Kernel
+#include "kernel/process/Scheduler.h"
 
 namespace Device {
 

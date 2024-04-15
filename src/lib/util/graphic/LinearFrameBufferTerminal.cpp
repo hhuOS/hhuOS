@@ -21,6 +21,7 @@
 #include "lib/util/graphic/Font.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/async/Thread.h"
+#include "lib/util/base/Exception.h"
 
 namespace Util::Graphic {
 

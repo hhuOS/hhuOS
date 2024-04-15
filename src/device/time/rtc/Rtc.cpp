@@ -29,6 +29,7 @@
 #include "lib/util/hardware/Acpi.h"
 #include "kernel/service/InformationService.h"
 #include "kernel/service/Service.h"
+#include "kernel/process/Scheduler.h"
 
 namespace Kernel {
 struct InterruptFrame;

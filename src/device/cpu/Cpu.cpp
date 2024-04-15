@@ -144,6 +144,29 @@ uint32_t Cpu::readCr2() {
     return cr2;
 }
 
+Kernel::Paging::Table *Cpu::readCr3() {
+    uint32_t cr3 = 0;
+    asm volatile (
+            "mov %%cr3, %%eax;"
+            "mov %%eax, (%0);"
+            : :
+            "r"(&cr3)
+            :
+            "eax"
+            );
+
+    return reinterpret_cast<Kernel::Paging::Table*>(cr3);
+}
+
+void Cpu::writeCr3(const Kernel::Paging::Table *pageDirectory) {
+    asm volatile(
+            "mov %0, %%cr3"
+            : :
+            "r"(pageDirectory)
+            :
+            );
+}
+
 void Cpu::loadTaskStateSegment(const Cpu::SegmentSelector &selector) {
     asm volatile(
             "ltr %0"

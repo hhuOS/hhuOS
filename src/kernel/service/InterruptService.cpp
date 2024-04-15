@@ -20,7 +20,6 @@
 #include "device/interrupt/InterruptRequest.h"
 #include "device/interrupt/apic/Apic.h"
 #include "kernel/interrupt/InterruptVector.h"
-#include "kernel/log/Log.h"
 #include "device/interrupt/apic/LocalApic.h"
 #include "kernel/service/ProcessService.h"
 #include "lib/util/base/System.h"
@@ -35,8 +34,9 @@ namespace Kernel {
 class InterruptHandler;
 struct InterruptFrame;
 
-InterruptService::InterruptService(Device::Pic *pic) : pic(pic) {
-    LOG_INFO("Loading interrupt descriptor table");
+InterruptService::InterruptService(Device::Pic *pic) : pic(pic) {}
+
+void InterruptService::loadIdt() {
     idt.load();
 }
 

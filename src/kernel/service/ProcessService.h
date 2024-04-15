@@ -27,7 +27,6 @@
 #include "lib/util/base/String.h"
 #include "kernel/process/Process.h"
 #include "kernel/process/Scheduler.h"
-#include "kernel/process/SchedulerCleaner.h"
 
 namespace Util {
 namespace Io {
@@ -37,6 +36,8 @@ class File;
 
 namespace Kernel {
 class VirtualAddressSpace;
+class SchedulerCleaner;
+class Thread;
 
 class ProcessService : public Service {
 

@@ -17,6 +17,7 @@
 
 #include "Paging.h"
 #include "lib/util/base/Address.h"
+#include "device/cpu/Cpu.h"
 
 namespace Kernel {
 
@@ -60,12 +61,7 @@ uint16_t Paging::Entry::getFlags() const {
 }
 
 void Paging::loadDirectory(const Paging::Table &directory) {
-    asm volatile(
-            "mov %0, %%cr3"
-            : :
-            "r"(&directory)
-            :
-            );
+    Device::Cpu::writeCr3(&directory);
 }
 
 }

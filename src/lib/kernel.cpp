@@ -46,6 +46,7 @@
 #include "kernel/service/Service.h"
 #include "lib/util/base/HeapMemoryManager.h"
 #include "lib/util/io/stream/PrintStream.h"
+#include "kernel/process/Scheduler.h"
 
 namespace Util {
 namespace Async {

@@ -27,6 +27,7 @@
 #include "device/network/NetworkPacketMemoryManager.h"
 #include "kernel/service/Service.h"
 #include "lib/util/base/Exception.h"
+#include "kernel/process/Scheduler.h"
 
 namespace Device::Network {
 

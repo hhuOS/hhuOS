@@ -31,6 +31,16 @@
 #include "lib/util/collection/Iterator.h"
 #include "InterruptService.h"
 #include "kernel/service/Service.h"
+#include "kernel/process/SchedulerCleaner.h"
+
+namespace Util {
+namespace Async {
+class Runnable;
+}  // namespace Async
+namespace Time {
+class Timestamp;
+}  // namespace Time
+}  // namespace Util
 
 
 namespace Kernel {

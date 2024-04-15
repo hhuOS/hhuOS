@@ -23,7 +23,6 @@
 #include "kernel/service/InformationService.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/log/Log.h"
-#include "kernel/memory/Paging.h"
 #include "kernel/service/Service.h"
 #include "lib/util/base/Constants.h"
 

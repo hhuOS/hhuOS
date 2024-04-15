@@ -18,6 +18,7 @@
 #define __CPU_include__
 
 #include <cstdint>
+#include "kernel/memory/Paging.h"
 
 namespace Device {
 
@@ -114,6 +115,10 @@ public:
     static void writeCr0(uint32_t value);
 
     static uint32_t readCr2();
+
+    static Kernel::Paging::Table* readCr3();
+
+    static void writeCr3(const Kernel::Paging::Table *pageDirectory);
 
     static void loadTaskStateSegment(const SegmentSelector &selector);
 
