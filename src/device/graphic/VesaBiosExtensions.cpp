@@ -23,6 +23,7 @@
 #include "kernel/service/Service.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/collection/ArrayList.h"
+#include "kernel/process/Thread.h"
 
 namespace Device::Graphic {
 
@@ -35,13 +36,13 @@ VesaBiosExtensions::DeviceInfo VesaBiosExtensions::getDeviceInfo() {
     *vbeInfo = DeviceInfo{};
 
     // Prepare bios parameters: Store function code in AX and return data address in ES:DI
-    Device::Bios::RealModeContext biosContext{};
-    biosContext.ax = BiosFunction::GET_VBE_INFO;
+    Kernel::Thread::Context biosContext{};
+    biosContext.eax = BiosFunction::GET_VBE_INFO;
     biosContext.es = static_cast<uint16_t>(reinterpret_cast<uint32_t>(vbeInfoPhysicalAddress) >> 4);
 
     // Perform the bios call and check if it was successful
     auto biosReturn = Bios::interrupt(0x10, biosContext);
-    if (biosReturn.ax != BIOS_CALL_RETURN_CODE_SUCCESS) {
+    if (biosReturn.eax != BIOS_CALL_RETURN_CODE_SUCCESS) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VesaBiosExtensions: VesaBiosExtensions Bios Extensions are not supported!");
     }
 
@@ -61,14 +62,14 @@ VesaBiosExtensions::ModeInfo VesaBiosExtensions::getModeInfo(uint16_t mode) {
     *modeInfo = ModeInfo{};
 
     // Prepare bios parameters: Store function code in AX, mode number in CX and return data address in ES:DI
-    Device::Bios::RealModeContext biosContext{};
-    biosContext.ax = BiosFunction::GET_MODE_INFO;
-    biosContext.cx = mode;
+    Kernel::Thread::Context biosContext{};
+    biosContext.eax = BiosFunction::GET_MODE_INFO;
+    biosContext.ecx = mode;
     biosContext.es = static_cast<uint16_t>(reinterpret_cast<uint32_t>(modeInfoPhysicalAddress) >> 4);
 
     // Perform the bios call and check if it was successful
     auto biosReturn = Bios::interrupt(0x10, biosContext);
-    if (biosReturn.ax != BIOS_CALL_RETURN_CODE_SUCCESS) {
+    if (biosReturn.eax != BIOS_CALL_RETURN_CODE_SUCCESS) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VesaBiosExtensions: Mode not supported!");
     }
 
@@ -104,13 +105,13 @@ Util::Array<VesaBiosExtensions::UsableMode> VesaBiosExtensions::getAvailableMode
 
 void VesaBiosExtensions::setMode(uint16_t mode) {
     // Prepare bios parameters: Store function code in AX and mode number in BX
-    Device::Bios::RealModeContext biosContext{};
-    biosContext.ax = BiosFunction::SET_MODE;
-    biosContext.bx = mode | MODE_NUMBER_LFB_BIT;
+    Kernel::Thread::Context biosContext{};
+    biosContext.eax = BiosFunction::SET_MODE;
+    biosContext.ebx = mode | MODE_NUMBER_LFB_BIT;
 
     // Perform the bios call and check if it was successful
     auto biosReturn = Bios::interrupt(0x10, biosContext);
-    if (biosReturn.ax != BIOS_CALL_RETURN_CODE_SUCCESS) {
+    if (biosReturn.eax != BIOS_CALL_RETURN_CODE_SUCCESS) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VesaBiosExtensions: Mode not supported!");
     }
 }

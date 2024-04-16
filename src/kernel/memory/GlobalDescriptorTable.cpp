@@ -29,7 +29,7 @@ GlobalDescriptorTable::SegmentDescriptor::SegmentDescriptor(uint32_t base, uint3
         flags(flags),
         base3(static_cast<uint8_t>((base & 0xff000000) >> 24)) {}
 
-GlobalDescriptorTable::Descriptor::Descriptor(void *address, uint16_t entries) : size((entries * sizeof(uint64_t)) - 1), offset(reinterpret_cast<uint32_t>(address)) {}
+GlobalDescriptorTable::Descriptor::Descriptor(const void *address, uint16_t entries) : size((entries * sizeof(uint64_t)) - 1), offset(reinterpret_cast<uint32_t>(address)) {}
 
 GlobalDescriptorTable::SegmentDescriptor::operator uint64_t() const {
 return static_cast<uint64_t>(limit1) |
@@ -49,7 +49,7 @@ void GlobalDescriptorTable::addSegment(const GlobalDescriptorTable::SegmentDescr
     table[index++] = descriptor;
 }
 
-GlobalDescriptorTable::Descriptor GlobalDescriptorTable::getDescriptor() {
+GlobalDescriptorTable::Descriptor GlobalDescriptorTable::getDescriptor() const {
     return Descriptor(table, index);
 }
 
@@ -62,7 +62,7 @@ void GlobalDescriptorTable::Descriptor::load() {
             );
 }
 
-void GlobalDescriptorTable::load() {
+void GlobalDescriptorTable::load() const {
     getDescriptor().load();
 }
 

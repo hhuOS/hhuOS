@@ -33,27 +33,27 @@ void Cpu::enableInterrupts() {
         asm volatile ( "sti" );
     } else if (count < 1) {
         // count has been decreased to a negative value -> Illegal state
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "CPU: nmiCount is less than 0!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "CPU: cliCount is less than 0!");
     }
 }
 
 void Cpu::disableInterrupts() {
     auto cliCountWrapper = Util::Async::Atomic<int32_t>(cliCount);
     int count = cliCountWrapper.fetchAndInc();
-
-    if (count == 0) {
-        // count has been increased from 0 to 1 -> Disable interrupts
-        asm volatile ( "cli" );
-    } else if (count < 0) {
+    if (count < 0) {
         // count is negative -> Illegal state
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "CPU: nmiCount is less than 0!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "CPU: cliCount is less than 0!");
     }
+
+    asm volatile ( "cli" );
 }
 
 void Cpu::halt() {
-    asm volatile ( "cli\n"
-                   "hlt"
+    asm volatile (
+            "cli;"
+            "hlt;"
     );
+
     __builtin_unreachable();
 }
 

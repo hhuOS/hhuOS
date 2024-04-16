@@ -20,18 +20,19 @@
 #include "lib/util/base/Address.h"
 #include "device/cpu/Cpu.h"
 #include "lib/util/base/Exception.h"
-#include "lib/util/async/Spinlock.h"
 #include "device/time/rtc/Cmos.h"
 #include "kernel/service/InterruptService.h"
 #include "Bios.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/memory/GlobalDescriptorTable.h"
 #include "kernel/service/Service.h"
-#include "kernel/service/ProcessService.h"
-#include "kernel/process/Scheduler.h"
+#include "kernel/multiboot/Multiboot.h"
+#include "kernel/service/InformationService.h"
+#include "lib/util/async/ReentrantSpinlock.h"
+#include "lib/util/base/String.h"
 
 extern "C" {
-    void bios_call();
+    void bios_call(Kernel::Thread::Context *stack, uint32_t entryPoint);
     void bios_call_16_start();
     void bios_call_16_end();
     void bios_call_16_interrupt();
@@ -41,7 +42,7 @@ namespace Device {
 
 Kernel::InterruptDescriptorTable::Descriptor *Bios::biosIdtDescriptor = nullptr;
 Kernel::GlobalDescriptorTable Bios::biosGdt;
-Util::Async::Spinlock Bios::lock;
+Util::Async::ReentrantSpinlock Bios::lock;
 
 uint16_t Bios::construct16BitRegister(uint8_t lowerValue, uint8_t higherValue) {
     return lowerValue | (higherValue << 8);
@@ -54,10 +55,19 @@ uint8_t Bios::get8BitRegister(uint16_t value, Bios::RegisterHalf half) {
         return (value & 0xff00) >> 8;
     }
 
-    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Bios: Invalid register half!");
+    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "BIOS: Invalid register half!");
+}
+
+bool Bios::isAvailable() {
+    auto &multiboot = Kernel::Service::getService<Kernel::InformationService>().getMultibootInformation();
+    return multiboot.hasKernelOption("bios") && multiboot.getKernelOption("bios") == "true";
 }
 
 void Bios::initialize() {
+    if (!isAvailable()) {
+        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "BIOS calls are disabled!");
+    }
+
     // Setup special GDT, only used for BIOS calls
     biosGdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x9a, 0x0c)); // 32-bit kernel code segment
     biosGdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x92, 0x0c)); // 32-bit kernel data segment
@@ -75,25 +85,30 @@ void Bios::initialize() {
     targetAddress.copyRange(sourceAddress, size);
 }
 
-Bios::RealModeContext Bios::interrupt(int interruptNumber, const RealModeContext &context) {
+Kernel::Thread::Context Bios::interrupt(int interruptNumber, const Kernel::Thread::Context &context) {
+    auto biosCodeStart = Kernel::MemoryLayout::BIOS_CALL_CODE_AREA.toAddress();
+
+    // Write number of bios interrupt manually into code
+    lock.acquire();
+    auto interruptNumberAddress = biosCodeStart.add(reinterpret_cast<uint32_t>(&bios_call_16_interrupt) - reinterpret_cast<uint32_t>(&bios_call_16_start));
+    interruptNumberAddress.setByte(interruptNumber, 1);
+
+    auto biosContext = protectedModeCall(biosGdt, biosCodeStart.get(), context);
+
+    return lock.releaseAndReturn(biosContext);
+}
+
+Kernel::Thread::Context Bios::protectedModeCall(const Kernel::GlobalDescriptorTable &gdt, uint32_t entryPoint, const Kernel::Thread::Context &context) {
     auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
-
-    if (interruptService.usesApic() || processService.getScheduler().isInitialized()) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Too late for issuing BIOS calls!");
-    }
 
     lock.acquire();
+
     // Get pointer to BIOS context inside lower memory
-    auto *biosContext = reinterpret_cast<RealModeContext*>(Kernel::MemoryLayout::BIOS_CALL_STACK.startAddress);
+    auto *biosContext = reinterpret_cast<Kernel::Thread::Context*>(Kernel::MemoryLayout::BIOS_CALL_STACK.endAddress - sizeof(Kernel::Thread::Context) + 1);
 
     // Copy given context into lower memory
     *biosContext = context;
-
-    // Write number of bios interrupt manually into code
-    auto interruptNumberAddress = Kernel::MemoryLayout::BIOS_CALL_CODE_AREA.toAddress().add(reinterpret_cast<uint32_t>(&bios_call_16_interrupt) - reinterpret_cast<uint32_t>(&bios_call_16_start));
-    interruptNumberAddress.setByte(interruptNumber, 1);
 
     // Disable interrupts during the bios call, since our protected mode handler cannot be called
     Cpu::disableInterrupts();
@@ -101,24 +116,16 @@ Bios::RealModeContext Bios::interrupt(int interruptNumber, const RealModeContext
 
     // Save interrupt mask
     auto interruptMask = interruptService.getInterruptMask();
+    interruptService.setInterruptMask(0x0000);
 
     // Load BIOS call IDT
     biosIdtDescriptor->load();
 
     // Switch to bios call GDT
-    biosGdt.load();
-
-    // Disable paging
-    auto *pageDirectory = Device::Cpu::readCr3();
-    Device::Cpu::writeCr0(Device::Cpu::readCr0() & ~Device::Cpu::Configuration0::PAGING);
-    Device::Cpu::writeCr3(nullptr);
+    gdt.load();
 
     // Call assembly code
-    bios_call();
-
-    // Enable paging
-    Device::Cpu::writeCr3(pageDirectory);
-    Device::Cpu::writeCr0(Device::Cpu::readCr0() | Device::Cpu::Configuration0::PAGING);
+    bios_call(biosContext, entryPoint);
 
     // Switch back to kernel GDT
     memoryService.loadGlobalDescriptorTable();

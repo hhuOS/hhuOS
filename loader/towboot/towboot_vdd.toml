@@ -6,5 +6,5 @@ log_level = "info"
   [entries.hhuOS]
     name = "hhuOS"
     image = "\\kernel.elf"
-    argv = "log_level=inf log_ports=COM1 root=vdd0p0,Filesystem::Fat::FatDriver"
+    argv = "log_level=inf log_ports=COM1 root=vdd0p0,Filesystem::Fat::FatDriver bios=false"
     modules = [ { image = "\\hdd0.img", argv = "vdd0" } ]

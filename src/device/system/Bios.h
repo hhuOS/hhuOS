@@ -19,17 +19,19 @@
 #define HHUOS_DEVICE_BIOS_H
 
 #include <cstdint>
+
 #include "kernel/interrupt/InterruptDescriptorTable.h"
+#include "kernel/process/Thread.h"
+
+namespace Util {
+namespace Async {
+class ReentrantSpinlock;
+}  // namespace Async
+}  // namespace Util
 
 namespace Kernel {
 class GlobalDescriptorTable;
 }  // namespace Kernel
-
-namespace Util {
-namespace Async {
-    class Spinlock;
-}  // namespace Async
-}  // namespace Util
 
 namespace Device {
 
@@ -39,24 +41,6 @@ namespace Device {
 class Bios {
 
 public:
-    /**
-     * State of the 16-bit registers, that shall be loaded once the switch to real mode has been performed.
-     * This way, parameters can be passed to a BIOS call.
-     */
-    struct RealModeContext {
-        uint16_t ds;
-        uint16_t es;
-        uint16_t fs;
-        uint16_t flags;
-        uint32_t di;
-        uint32_t si;
-        uint32_t bp;
-        uint32_t sp;
-        uint32_t bx;
-        uint32_t dx;
-        uint32_t cx;
-        uint32_t ax;
-    } __attribute__((packed));
 
     enum RegisterHalf : uint8_t {
         LOWER,
@@ -89,6 +73,8 @@ public:
      */
     ~Bios() = default;
 
+    static bool isAvailable();
+
     /**
      * Initializes segment for bios call.
      * Builds up a 16-bit code segment manually. The start address of this code segment is in the GDT for bios calls.
@@ -101,7 +87,9 @@ public:
      * @param Interrupt number number of the bios call
      * @param context Parameter struct for the bios call
      */
-    static RealModeContext interrupt(int interruptNumber, const RealModeContext &context);
+    static Kernel::Thread::Context interrupt(int interruptNumber, const Kernel::Thread::Context &context);
+
+    static Kernel::Thread::Context protectedModeCall(const Kernel::GlobalDescriptorTable &gdt, uint32_t entryPoint, const Kernel::Thread::Context &context);
 
     static const constexpr uint32_t MAX_USABLE_ADDRESS = 0xfffff;
 
@@ -109,7 +97,7 @@ private:
 
     static Kernel::InterruptDescriptorTable::Descriptor *biosIdtDescriptor;
     static Kernel::GlobalDescriptorTable biosGdt;
-    static Util::Async::Spinlock lock;
+    static Util::Async::ReentrantSpinlock lock;
 };
 
 }

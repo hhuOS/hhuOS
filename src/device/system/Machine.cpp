@@ -15,53 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_POWERMANAGEMENTSERVICE_H
-#define HHUOS_POWERMANAGEMENTSERVICE_H
-
-#include <cstdint>
-
-#include "Service.h"
+#include "Machine.h"
+#include "device/cpu/Cpu.h"
 
 namespace Device {
-class Machine;
-}  // namespace Device
 
-namespace Kernel {
-
-class PowerManagementService : public Service {
-
-public:
-    /**
-     * Constructor.
-     */
-    explicit PowerManagementService(Device::Machine *machine);
-
-    /**
-     * Copy Constructor.
-     */
-    PowerManagementService(const PowerManagementService &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    PowerManagementService &operator=(const PowerManagementService &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~PowerManagementService() override = default;
-
-    void shutdownMachine();
-
-    void rebootMachine();
-
-    static const constexpr uint8_t SERVICE_ID = 3;
-
-private:
-
-    Device::Machine *machine;
-};
-
+void Machine::shutdown() {
+    qemuShutdownPort.writeWord(0x1797);
 }
 
-#endif
+void Machine::reboot() {
+    Cpu::disableInterrupts();
+    uint8_t status;
+
+    do {
+        status = keyboardControlPort.readByte();
+    } while ((status & 0x02) != 0);
+
+    keyboardControlPort.writeByte(CPU_RESET_CODE);
+}
+
+}

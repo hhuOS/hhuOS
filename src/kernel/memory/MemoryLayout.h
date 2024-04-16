@@ -56,7 +56,6 @@ public:
 
     // Used for BIOS calls
     static const constexpr MemoryArea BIOS_CALL_CODE_AREA = { 0x00000500, 0x000005ff, MemoryArea::PHYSICAL };
-    static const constexpr MemoryArea BIOS_CALL_ESP_BACKUP = { 0x00000600, 0x00000603 + sizeof(uint32_t), MemoryArea::PHYSICAL };
     static const constexpr MemoryArea BIOS_CALL_IDT = { 0x00000604, 0x0000060a + sizeof(uint16_t) + sizeof(uint32_t), MemoryArea::PHYSICAL };
     static const constexpr MemoryArea BIOS_CALL_STACK = { 0x00000700, 0x000007ff, MemoryArea::PHYSICAL };
 

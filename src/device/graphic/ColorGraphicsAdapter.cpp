@@ -5,6 +5,7 @@
 #include "lib/util/base/Constants.h"
 #include "lib/util/base/Exception.h"
 #include "device/system/Bios.h"
+#include "kernel/process/Thread.h"
 
 namespace Device::Graphic {
 
@@ -125,16 +126,16 @@ Util::Address<uint32_t> ColorGraphicsAdapter::mapBuffer(void *physicalAddress, u
 }
 
 ColorGraphicsAdapter::VideoCardType ColorGraphicsAdapter::getVideoCardType() {
-    Bios::RealModeContext biosContext{};
-    biosContext.ax = BIOS_FUNCTION_CHECK_VIDEO_CARD;
+    Kernel::Thread::Context biosContext{};
+    biosContext.eax = BIOS_FUNCTION_CHECK_VIDEO_CARD;
     biosContext = Bios::interrupt(0x10, biosContext);
 
-    return static_cast<VideoCardType>(biosContext.bx);
+    return static_cast<VideoCardType>(biosContext.ebx);
 }
 
 void ColorGraphicsAdapter::setMode(ColorGraphicsAdapter::Mode mode) {
-    Bios::RealModeContext biosContext{};
-    biosContext.ax = mode;
+    Kernel::Thread::Context biosContext{};
+    biosContext.eax = mode;
     Bios::interrupt(0x10, biosContext);
 }
 

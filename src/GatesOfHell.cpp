@@ -103,6 +103,8 @@
 #include "device/system/Bios.h"
 #include "kernel/process/Scheduler.h"
 #include "lib/util/base/Constants.h"
+#include "device/system/AdvancedPowerManagement.h"
+#include "device/system/Machine.h"
 
 namespace Util {
 class HeapMemoryManager;
@@ -223,7 +225,6 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(reinterpret_cast<uint32_t>(tss), sizeof(Kernel::GlobalDescriptorTable::TaskStateSegment), 0x89, 0x04));
     gdt->load();
 
-
     // Load task state segment
     Device::Cpu::loadTaskStateSegment(Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 5));
 
@@ -309,16 +310,53 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     memoryService->mapPhysical(reinterpret_cast<void*>(Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1), reinterpret_cast<void*>(Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1),
                                (KERNEL_DATA_START - (Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1)) / Util::PAGESIZE, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
 
-    // Create scheduler and process service and register kernel process;
+    // Map Multiboot2 tags
+    const auto multibootPageOffset = reinterpret_cast<uint32_t>(multiboot) % Util::PAGESIZE;
+    const auto multibootPages = multibootSize % Util::PAGESIZE == 0 ? multibootSize / Util::PAGESIZE : multibootSize / Util::PAGESIZE + 1;
+    const auto *multibootVirtualAddress = static_cast<const uint8_t*>(memoryService->mapIO(const_cast<void*>(reinterpret_cast<const void*>(multiboot)), multibootPages, true)) + multibootPageOffset;
+    multiboot = reinterpret_cast<const Kernel::Multiboot*>(multibootVirtualAddress);
+
+    // Set log level
+    if (multiboot->hasKernelOption("log_level")) {
+        const auto level = multiboot->getKernelOption("log_level");
+        Kernel::Log::setLevel(level);
+    }
+
+    // Create scheduler and process service and register kernel process
     LOG_INFO("Initializing scheduler");
     auto *kernelProcess = new Kernel::Process(*kernelAddressSpace, "Kernel");
     auto *processService = new Kernel::ProcessService(kernelProcess);
     auto &scheduler = processService->getScheduler();
     Kernel::Service::registerService(Kernel::ProcessService::SERVICE_ID, processService);
 
-    // Initialize BIOS calls
-    LOG_INFO("Initializing BIOS calls");
-    Device::Bios::initialize();
+    // Initialize frame buffer
+    LOG_INFO("Initializing display");
+    Util::Graphic::LinearFrameBuffer *lfb = nullptr;
+    Util::Graphic::Terminal *terminal;
+    if (multiboot->hasTag(Kernel::Multiboot::FRAMEBUFFER_INFO)) {
+        const auto &tag = multiboot->getTag<Kernel::Multiboot::FramebufferInfo>(Kernel::Multiboot::FRAMEBUFFER_INFO);
+
+        if (tag.type == Kernel::Multiboot::EGA_TEXT) {
+            LOG_INFO("Framebuffer info provided by bootloader (Type: [EGA_TEXT], Resolution: [%ux%u@%u], Address: [0x%08x])", tag.width, tag.height, tag.bpp, tag.address);
+
+            if ((tag.width != 80 && tag.width != 40) && tag.height != 25) {
+                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Unsupported text mode resolution!");
+            }
+
+            terminal = new Device::Graphic::ColorGraphicsAdapter(tag.width, tag.height);
+        } else if (tag.type == Kernel::Multiboot::RGB) {
+            LOG_INFO("Framebuffer info provided by bootloader (Type: [RGB], Resolution: [%ux%u@%u], Address: [0x%08x])", tag.width, tag.height, tag.bpp, tag.address);
+
+            lfb = new Util::Graphic::LinearFrameBuffer(tag.address, tag.width, tag.height, tag.bpp, tag.pitch, false);
+            terminal = new Util::Graphic::LinearFrameBufferTerminal(lfb);
+        } else {
+            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Unsupported frame buffer type!");
+        }
+    } else {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "No framebuffer information provided by bootloader!");
+    }
+
+    Kernel::Log::addOutputStream(*terminal);
 
     // Detect CPU features
     if (Util::Hardware::CpuId::isAvailable()) {
@@ -335,19 +373,8 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         LOG_ERROR("CPUID not available!");
     }
 
-    // Map Multiboot2 tags
-    const auto multibootPageOffset = reinterpret_cast<uint32_t>(multiboot) % Util::PAGESIZE;
-    const auto multibootPages = multibootSize % Util::PAGESIZE == 0 ? multibootSize / Util::PAGESIZE : multibootSize / Util::PAGESIZE + 1;
-    const auto *multibootVirtualAddress = static_cast<const uint8_t*>(memoryService->mapIO(const_cast<void*>(reinterpret_cast<const void*>(multiboot)), multibootPages, true)) + multibootPageOffset;
-    multiboot = reinterpret_cast<const Kernel::Multiboot*>(multibootVirtualAddress);
+    // Detect Multiboot2 tags
     LOG_INFO("Bootloader: [%s], Multiboot size: [%u Byte]", static_cast<const char*>(multiboot->getBootloaderName()), multiboot->getSize());
-
-    // Set log level
-    if (multiboot->hasKernelOption("log_level")) {
-        const auto level = multiboot->getKernelOption("log_level");
-        Kernel::Log::setLevel(level);
-    }
-
     const auto tagTypes = multiboot->getAvailableTagTypes();
     Util::String tagString;
     for (uint32_t i = 0; i < tagTypes.length(); i++) {
@@ -371,6 +398,26 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     informationService->setSmBios(smBios);
     auto &biosInformation = smBios->getTable<Util::Hardware::SmBios::BiosInformation>(Util::Hardware::SmBios::BIOS_INFORMATION);
     LOG_INFO("BIOS vendor: [%s], BIOS version: [%s (%s)]", biosInformation.getVendorName(), biosInformation.getVersion(), biosInformation.getReleaseDate());
+
+    // Initialize BIOS calls
+    if (Device::Bios::isAvailable()) {
+        LOG_INFO("Initializing BIOS calls");
+        Device::Bios::initialize();
+    }
+
+    // Initialize power management (APM needs BIOS calls)
+    LOG_INFO("Initializing power management");
+    Device::Machine *machine = nullptr;
+    if (Device::AdvancedPowerManagement::isAvailable()) {
+        machine = Device::AdvancedPowerManagement::initialize();
+    }
+
+    if (machine == nullptr) {
+        machine = new Device::Machine();
+    }
+
+    auto *powerManagementService = new Kernel::PowerManagementService(machine);
+    Kernel::Service::registerService(Kernel::PowerManagementService::SERVICE_ID, powerManagementService);
 
     // Switch to APIC, if available (CAUTION: BIOS calls are not supported anymore, once the APIC is initialized)
     if (Device::Apic::isAvailable()) {
@@ -411,34 +458,6 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     // The base system is initialized -> We can now enable interrupts and initialize timer devices
     LOG_INFO("Enabling interrupts");
     Device::Cpu::enableInterrupts();
-
-    // Initialize frame buffer
-    Util::Graphic::LinearFrameBuffer *lfb = nullptr;
-    Util::Graphic::Terminal *terminal;
-    if (multiboot->hasTag(Kernel::Multiboot::FRAMEBUFFER_INFO)) {
-        const auto &tag = multiboot->getTag<Kernel::Multiboot::FramebufferInfo>(Kernel::Multiboot::FRAMEBUFFER_INFO);
-
-        if (tag.type == Kernel::Multiboot::EGA_TEXT) {
-            LOG_INFO("Framebuffer info provided by bootloader (Type: [EGA_TEXT], Resolution: [%ux%u@%u], Address: [0x%08x])", tag.width, tag.height, tag.bpp, tag.address);
-
-            if ((tag.width != 80 && tag.width != 40) && tag.height != 25) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Unsupported text mode resolution!");
-            }
-
-            terminal = new Device::Graphic::ColorGraphicsAdapter(tag.width, tag.height);
-        } else if (tag.type == Kernel::Multiboot::RGB) {
-            LOG_INFO("Framebuffer info provided by bootloader (Type: [RGB], Resolution: [%ux%u@%u], Address: [0x%08x])", tag.width, tag.height, tag.bpp, tag.address);
-
-            lfb = new Util::Graphic::LinearFrameBuffer(tag.address, tag.width, tag.height, tag.bpp, tag.pitch, false);
-            terminal = new Util::Graphic::LinearFrameBufferTerminal(lfb);
-        } else {
-            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Unsupported frame buffer type!");
-        }
-    } else {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "No framebuffer information provided by bootloader!");
-    }
-
-    Kernel::Log::addOutputStream(*terminal);
 
     // Setup time and date devices
     LOG_INFO("Initializing PIT");
@@ -635,11 +654,6 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     if (Device::SoundBlaster::isAvailable()) {
         Device::SoundBlaster::initialize();
     }
-
-    // Initialize power management
-    LOG_INFO("Initializing power management");
-    auto *powerManagementService = new Kernel::PowerManagementService();
-    Kernel::Service::registerService(Kernel::PowerManagementService::SERVICE_ID, powerManagementService);
 
     // Mount devices specified /system/mount_table
     auto mountFile = Util::Io::File("/system/mount_table");

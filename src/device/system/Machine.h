@@ -15,51 +15,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_POWERMANAGEMENTSERVICE_H
-#define HHUOS_POWERMANAGEMENTSERVICE_H
+#ifndef HHUOS_MACHINE_H
+#define HHUOS_MACHINE_H
 
-#include <cstdint>
+#include <stdint.h>
 
-#include "Service.h"
+#include "device/cpu/IoPort.h"
 
 namespace Device {
-class Machine;
-}  // namespace Device
 
-namespace Kernel {
-
-class PowerManagementService : public Service {
+class Machine {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    explicit PowerManagementService(Device::Machine *machine);
+    Machine() = default;
 
     /**
      * Copy Constructor.
      */
-    PowerManagementService(const PowerManagementService &other) = delete;
+    Machine(const Machine &other) = delete;
 
     /**
      * Assignment operator.
      */
-    PowerManagementService &operator=(const PowerManagementService &other) = delete;
+    Machine &operator=(const Machine &other) = delete;
 
     /**
      * Destructor.
      */
-    ~PowerManagementService() override = default;
+    virtual ~Machine() = default;
 
-    void shutdownMachine();
+    virtual void shutdown();
 
-    void rebootMachine();
-
-    static const constexpr uint8_t SERVICE_ID = 3;
+    virtual void reboot();
 
 private:
 
-    Device::Machine *machine;
+    const IoPort qemuShutdownPort = IoPort(0x501);
+    const IoPort keyboardControlPort = IoPort(0x64);
+
+    static const constexpr uint16_t CPU_RESET_CODE = 0xfe;
 };
 
 }

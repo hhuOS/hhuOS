@@ -37,13 +37,13 @@ struct InterruptFrame;
     "push %es;" \
     "push %fs;" \
     "push %gs;" \
-    "push %ax;" \
-    "mov $0x10, %ax;" \
-    "mov %ax, %ds;" \
-    "mov %ax, %es;" \
-    "mov %ax, %fs;" \
-    "mov %ax, %gs;" \
-    "pop %ax;" \
+    "push %eax;" \
+    "mov $0x10, %eax;" \
+    "mov %eax, %ds;" \
+    "mov %eax, %es;" \
+    "mov %eax, %fs;" \
+    "mov %eax, %gs;" \
+    "pop %eax;" \
     ); \
     frame = *reinterpret_cast<InterruptFrame**>(reinterpret_cast<uint8_t*>(&frame) + 4 * sizeof(uint32_t)); \
 
@@ -53,13 +53,13 @@ struct InterruptFrame;
     "push %es;" \
     "push %fs;" \
     "push %gs;" \
-    "push %ax;" \
-    "mov $0x10, %ax;" \
-    "mov %ax, %ds;" \
-    "mov %ax, %es;" \
-    "mov %ax, %fs;" \
-    "mov %ax, %gs;" \
-    "pop %ax;" \
+    "push %eax;" \
+    "mov $0x10, %eax;" \
+    "mov %eax, %ds;" \
+    "mov %eax, %es;" \
+    "mov %eax, %fs;" \
+    "mov %eax, %gs;" \
+    "pop %eax;" \
     ); \
     frame = *reinterpret_cast<InterruptFrame**>(reinterpret_cast<uint8_t*>(&frame) + 4 * sizeof(uint32_t)); \
     errorCode = *reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(&errorCode) + 0x10);

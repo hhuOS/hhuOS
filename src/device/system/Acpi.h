@@ -35,7 +35,6 @@ namespace Device {
 class Acpi {
 
 public:
-
     /**
      * Constructor.
      */

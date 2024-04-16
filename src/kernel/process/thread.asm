@@ -43,12 +43,12 @@ start_user_thread:
 
 switch_thread:
     ; Save registers of current thread
-    push ds
-    push es
-    push fs
-    push gs
-    pushf
     pushad
+    pushfd
+    push gs
+    push fs
+    push es
+    push ds
 
     ; Save stack pointer in first parameter 'currentStackPointer'
     mov eax, [esp + PUSHAD_STACK_SPACE + PUSHF_STACK_SPACE + PUSH_SEGMENT_REGISTERS_SPACE + 4]
@@ -61,12 +61,12 @@ switch_thread:
 
     ; Load registers of next thread using second parameter 'nextStackPointer'
     mov esp, [esp + PUSHAD_STACK_SPACE + PUSHF_STACK_SPACE + PUSH_SEGMENT_REGISTERS_SPACE + 8]
-    popad
-    popf
-    pop gs
-    pop fs
-    pop es
     pop ds
+    pop es
+    pop fs
+    pop gs
+    popfd
+    popad
 
     call release_scheduler_lock
     ret

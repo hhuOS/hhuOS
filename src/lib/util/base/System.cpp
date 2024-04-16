@@ -68,7 +68,8 @@ void System::call(Code code, bool &result, uint32_t paramCount, va_list args) {
             "r"(ebxValue),
             "r"(ecxValue),
             "r"(edxValue)
-            : "eax", "ebx", "ecx");
+            : "eax", "ebx", "ecx"
+            );
 }
 
 }

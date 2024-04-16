@@ -39,26 +39,21 @@ class Thread {
 
 public:
 
-    class Stack {
-
-    public:
-
-        Stack(const Stack &other) = delete;
-
-        Stack &operator=(const Stack &other) = delete;
-
-        ~Stack();
-
-        [[nodiscard]] uint8_t* getStart() const;
-
-    private:
-
-        explicit Stack(uint8_t *stack, uint32_t size);
-
-        uint8_t *stack;
-        uint32_t size;
-
-    };
+    struct Context {
+        uint32_t ds;
+        uint32_t es;
+        uint32_t fs;
+        uint32_t gs;
+        uint32_t flags;
+        uint32_t edi;
+        uint32_t esi;
+        uint32_t ebp;
+        uint32_t esp;
+        uint32_t ebx;
+        uint32_t edx;
+        uint32_t ecx;
+        uint32_t eax;
+    } __attribute__((packed));
 
     /**
      * Copy Constructor.

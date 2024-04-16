@@ -93,7 +93,7 @@ public:
         uint16_t size;
         uint32_t offset;
 
-        Descriptor(void *address, uint16_t entries);
+        Descriptor(const void *address, uint16_t entries);
         void load();
     } __attribute__((packed));
 
@@ -119,9 +119,9 @@ public:
 
     void addSegment(const SegmentDescriptor &descriptor);
 
-    Descriptor getDescriptor();
+    [[nodiscard]] Descriptor getDescriptor() const;
 
-    void load();
+    void load() const;
 
 private:
 

@@ -213,23 +213,6 @@ void Thread::join() {
     Service::getService<ProcessService>().getScheduler().join(*this);
 }
 
-Thread::Stack::Stack(uint8_t *stack, uint32_t size) : stack(stack), size(size) {
-    Util::Address<uint32_t>(stack).setRange(0, size);
-
-    this->stack[0] = 0x44; // D
-    this->stack[1] = 0x41; // A
-    this->stack[2] = 0x45; // E
-    this->stack[3] = 0x44; // D
-}
-
-Thread::Stack::~Stack() {
-    delete[] stack;
-}
-
-uint8_t* Thread::Stack::getStart() const {
-    return &stack[size];
-}
-
 uint32_t* Thread::createKernelStack(uint32_t size) {
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     return static_cast<uint32_t*>(memoryService.allocateKernelMemory(size, 16));
