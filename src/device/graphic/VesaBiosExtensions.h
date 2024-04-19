@@ -21,12 +21,62 @@
 #include <cstdint>
 
 #include "lib/util/collection/Array.h"
+#include "lib/util/base/String.h"
 
 namespace Device::Graphic {
 
 class VesaBiosExtensions {
 
 public:
+
+    struct UsableMode {
+        uint16_t resolutionX;
+        uint16_t resolutionY;
+        uint8_t colorDepth;
+        uint16_t pitch;
+        uint32_t physicalAddress;
+        uint16_t modeNumber;
+
+        bool operator!=(const UsableMode &other) const;
+    };
+
+    static VesaBiosExtensions* initialize();
+
+    static bool isAvailable();
+
+    /**
+     * Copy Constructor.
+     */
+    VesaBiosExtensions(const VesaBiosExtensions &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    VesaBiosExtensions &operator=(const VesaBiosExtensions &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~VesaBiosExtensions() = default;
+
+    [[nodiscard]] const Util::String &getVendorName() const;
+
+    [[nodiscard]] const Util::String &getProductName() const;
+
+    [[nodiscard]] const Util::Array<UsableMode>& getSupportedModes() const;
+
+    [[nodiscard]] const UsableMode& findMode(uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth) const;
+
+    static void setMode(uint16_t mode);
+
+private:
+
+    enum BiosFunction : uint16_t {
+        GET_VBE_INFO = 0x4f00,
+        GET_MODE_INFO = 0x4f01,
+        SET_MODE = 0x4f02,
+        GET_CURRENT_MODE = 0x4f03
+    };
 
     enum MemoryModel : uint8_t {
         TEXT_MODE = 0x00,
@@ -44,7 +94,7 @@ public:
      * See http://wiki.osdev.org/VESA_Video_Modes for further reference.
      */
     struct DeviceInfo {
-        char signature[4]{'V', 'B', 'E', '2'};
+        char signature[4];
         uint16_t version; // VBE version; high byte is major version, low byte is minor version
         uint32_t oem; // segment:offset pointer to OEM
         uint32_t capabilities; // bitfield that describes card capabilitiesPointer
@@ -57,55 +107,10 @@ public:
         char reserved[222]; // reserved for future expansion
         char oemData[256]; // OEM BIOSes store their strings in this area
 
-        bool isValid();
+        bool isValid() const;
+        const char* getVendorName() const;
+        const char* getDeviceName() const;
     } __attribute__((packed));
-
-    struct UsableMode {
-        uint16_t resolutionX;
-        uint16_t resolutionY;
-        uint8_t colorDepth;
-        uint16_t pitch;
-        uint16_t modeNumber;
-
-        bool operator!=(const UsableMode &other) const;
-    };
-
-    /**
-     * Default Constructor.
-     * Deleted, as this class has only static members.
-     */
-    VesaBiosExtensions() = delete;
-
-    /**
-     * Copy Constructor.
-     */
-    VesaBiosExtensions(const VesaBiosExtensions &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    VesaBiosExtensions &operator=(const VesaBiosExtensions &other) = delete;
-
-    /**
-     * Destructor.
-     * Deleted, as this class has only static members.
-     */
-    ~VesaBiosExtensions() = delete;
-
-    static DeviceInfo getDeviceInfo();
-
-    [[nodiscard]] static Util::Array<UsableMode> getAvailableModes();
-
-    static void setMode(uint16_t mode);
-
-private:
-
-    enum BiosFunction : uint16_t {
-        GET_VBE_INFO = 0x4f00,
-        GET_MODE_INFO = 0x4f01,
-        SET_MODE = 0x4f02,
-        GET_CURRENT_MODE = 0x4f03
-    };
 
     /**
      * Information about a VBE graphics mode.
@@ -143,12 +148,26 @@ private:
     } __attribute__((packed));
 
     /**
+     * Constructor.
+     */
+    VesaBiosExtensions(const DeviceInfo &deviceInfo, const Util::Array<UsableMode> &supportedModes);
+
+    static DeviceInfo getDeviceInfo();
+
+    static Util::Array<UsableMode> getModes(const DeviceInfo &deviceInfo);
+
+    /**
      * Get information about a specific VBE graphics mode from the BIOS.
      *
      * @param mode The mode number
      * @return A pointer to the mode info struct
      */
     static VesaBiosExtensions::ModeInfo getModeInfo(uint16_t mode);
+
+    Util::String vendorName;
+    Util::String productName;
+
+    Util::Array<UsableMode> supportedModes;
 
     static const constexpr uint32_t VBE_CONTROLLER_INFO_SIZE = 512;
     static const constexpr uint32_t VBE_MODE_INFO_SIZE = 256;

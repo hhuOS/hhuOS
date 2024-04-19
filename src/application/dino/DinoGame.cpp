@@ -43,8 +43,8 @@ DinoGame::DinoGame() {
 
     addObject(dino);
 
-    for (uint32_t i = 0; i < 4; i++) {
-        auto *newGround = new Ground(Util::Math::Vector2D(getCamera().getPosition().getX() - 1.5 + i, -1));
+    for (uint32_t i = 0; i < 5; i++) {
+        auto *newGround = new Ground(Util::Math::Vector2D(getCamera().getPosition().getX() - 2 + i, -1));
         ground.offer(newGround);
         addObject(newGround);
     }
@@ -90,9 +90,8 @@ void DinoGame::update(double delta) {
             obstacleCooldown -= delta;
         }
 
-        if (ground.peek()->getPosition().getX() < getCamera().getPosition().getX() - 2.5) {
-            auto positionX = (static_cast<uint32_t>((getCamera().getPosition().getX() + 1.5) * 10) / 5) * 5 / 10.0 ;
-            auto *newGround = new Ground(Util::Math::Vector2D(positionX, -1));
+        if (ground.peek()->getPosition().getX() < getCamera().getPosition().getX() - 3) {
+            auto *newGround = new Ground(Util::Math::Vector2D(ground.get(ground.size() - 1)->getPosition().getX() + 1, -1));
             removeObject(ground.poll());
             ground.offer(newGround);
             addObject(newGround);

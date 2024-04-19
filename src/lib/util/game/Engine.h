@@ -52,9 +52,9 @@ class Engine : public Util::Async::Runnable {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    Engine(const Util::Graphic::LinearFrameBuffer &lfb, const uint8_t targetFrameRate);
+    Engine(const Util::Graphic::LinearFrameBuffer &lfb, uint8_t targetFrameRate);
 
     /**
      * Copy Constructor.

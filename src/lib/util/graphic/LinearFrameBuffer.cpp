@@ -43,17 +43,11 @@ LinearFrameBuffer::LinearFrameBuffer(Io::File &file, bool enableAcceleration) {
         Exception::throwException(Exception::INVALID_ARGUMENT, "LinearFrameBuffer: File does not exist!");
     }
 
-    uint8_t addressBuffer[16];
-    uint8_t xBuffer[16];
-    uint8_t yBuffer[16];
-    uint8_t bppBuffer[16];
-    uint8_t pitchBuffer[16];
-
-    Util::Address<uint32_t>(addressBuffer).setRange(0, sizeof(addressBuffer));
-    Util::Address<uint32_t>(xBuffer).setRange(0, sizeof(xBuffer));
-    Util::Address<uint32_t>(yBuffer).setRange(0, sizeof(yBuffer));
-    Util::Address<uint32_t>(bppBuffer).setRange(0, sizeof(bppBuffer));
-    Util::Address<uint32_t>(pitchBuffer).setRange(0, sizeof(pitchBuffer));
+    uint8_t addressBuffer[16]{};
+    uint8_t xBuffer[16]{};
+    uint8_t yBuffer[16]{};
+    uint8_t bppBuffer[16]{};
+    uint8_t pitchBuffer[16]{};
 
     auto stream = Io::FileInputStream(file);
     int16_t currentChar;
@@ -76,7 +70,7 @@ LinearFrameBuffer::LinearFrameBuffer(Io::File &file, bool enableAcceleration) {
         i = currentChar;
     }
 
-    for (unsigned char & i : yBuffer) {
+    for (unsigned char &i : yBuffer) {
         currentChar = stream.read();
         if (currentChar == '@') {
             break;
@@ -85,7 +79,7 @@ LinearFrameBuffer::LinearFrameBuffer(Io::File &file, bool enableAcceleration) {
         i = currentChar;
     }
 
-    for (unsigned char & i : bppBuffer) {
+    for (unsigned char &i : bppBuffer) {
         currentChar = stream.read();
         if (currentChar == '\n') {
             break;
@@ -94,9 +88,9 @@ LinearFrameBuffer::LinearFrameBuffer(Io::File &file, bool enableAcceleration) {
         i = currentChar;
     }
 
-    for (unsigned char & i : pitchBuffer) {
+    for (unsigned char &i : pitchBuffer) {
         currentChar = stream.read();
-        if (currentChar == -1) {
+        if (currentChar == '\n') {
             break;
         }
 

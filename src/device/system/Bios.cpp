@@ -32,17 +32,18 @@
 #include "lib/util/base/String.h"
 
 extern "C" {
-    void bios_call(Kernel::Thread::Context *stack, uint32_t entryPoint);
+    void protected_mode_call(Kernel::Thread::Context *stack, uint32_t entryPoint);
+    void real_mode_call(Device::Bios::RealModeContext *stack);
     void bios_call_16_start();
-    void bios_call_16_end();
     void bios_call_16_interrupt();
+    void bios_call_16_end();
 }
 
 namespace Device {
 
 Kernel::InterruptDescriptorTable::Descriptor *Bios::biosIdtDescriptor = nullptr;
 Kernel::GlobalDescriptorTable Bios::biosGdt;
-Util::Async::ReentrantSpinlock Bios::lock;
+Util::Async::Spinlock Bios::lock;
 
 uint16_t Bios::construct16BitRegister(uint8_t lowerValue, uint8_t higherValue) {
     return lowerValue | (higherValue << 8);
@@ -86,16 +87,54 @@ void Bios::initialize() {
 }
 
 Kernel::Thread::Context Bios::interrupt(int interruptNumber, const Kernel::Thread::Context &context) {
-    auto biosCodeStart = Kernel::MemoryLayout::BIOS_CALL_CODE_AREA.toAddress();
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+
+    lock.acquire();
 
     // Write number of bios interrupt manually into code
-    lock.acquire();
+    auto biosCodeStart = Kernel::MemoryLayout::BIOS_CALL_CODE_AREA.toAddress();
     auto interruptNumberAddress = biosCodeStart.add(reinterpret_cast<uint32_t>(&bios_call_16_interrupt) - reinterpret_cast<uint32_t>(&bios_call_16_start));
     interruptNumberAddress.setByte(interruptNumber, 1);
 
-    auto biosContext = protectedModeCall(biosGdt, biosCodeStart.get(), context);
+    // Get pointer to BIOS context inside lower memory
+    auto *biosContext = reinterpret_cast<RealModeContext*>(Kernel::MemoryLayout::BIOS_CALL_STACK.endAddress - sizeof(RealModeContext) + 1);
 
-    return lock.releaseAndReturn(biosContext);
+    // Copy given context into lower memory
+    *biosContext = context;
+
+    // Disable interrupts during the bios call, since our protected mode handler cannot be called
+    Cpu::disableInterrupts();
+    Cmos::disableNmi();
+
+    // Save interrupt mask
+    auto interruptMask = interruptService.getInterruptMask();
+    interruptService.setInterruptMask(0x0000);
+
+    // Load BIOS call IDT
+    biosIdtDescriptor->load();
+
+    // Switch to bios call GDT
+    biosGdt.load();
+
+    // Call assembly code
+    real_mode_call(biosContext);
+
+    // Switch back to kernel GDT
+    memoryService.loadGlobalDescriptorTable();
+
+    // Load kernel IDT
+    interruptService.loadIdt();
+
+    // Restore interrupt mask
+    interruptService.setInterruptMask(interruptMask);
+
+    // Enable interrupts
+    Cmos::enableNmi();
+    Cpu::enableInterrupts();
+
+    // Return a copy of the BIOS context
+    return lock.releaseAndReturn(*biosContext);
 }
 
 Kernel::Thread::Context Bios::protectedModeCall(const Kernel::GlobalDescriptorTable &gdt, uint32_t entryPoint, const Kernel::Thread::Context &context) {
@@ -125,7 +164,7 @@ Kernel::Thread::Context Bios::protectedModeCall(const Kernel::GlobalDescriptorTa
     gdt.load();
 
     // Call assembly code
-    bios_call(biosContext, entryPoint);
+    protected_mode_call(biosContext, entryPoint);
 
     // Switch back to kernel GDT
     memoryService.loadGlobalDescriptorTable();
@@ -142,6 +181,16 @@ Kernel::Thread::Context Bios::protectedModeCall(const Kernel::GlobalDescriptorTa
 
     // Return a copy of the BIOS context
     return lock.releaseAndReturn(*biosContext);
+}
+
+Bios::RealModeContext::RealModeContext(const Kernel::Thread::Context &context) :
+        ds(context.ds), es(context.es), fs(context.fs), gs(context.gs),
+        flags(context.flags), edi(context.edi), esi(context.esi),
+        ebp(context.ebp), esp(context.esp),
+        ebx(context.ebx), edx(context.edx), ecx(context.ecx), eax(context.eax) {}
+
+Bios::RealModeContext::operator Kernel::Thread::Context() {
+    return Kernel::Thread::Context{ds, es, fs, gs, flags, edi, esi, ebp, esp, ebx, edx, ecx, eax};
 }
 
 }

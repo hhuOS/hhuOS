@@ -38,6 +38,11 @@ namespace Util::Graphic {
 class LinearFrameBuffer {
 
 public:
+
+    enum Request {
+        SET_RESOLUTION
+    };
+
     /**
      * Constructor.
      *

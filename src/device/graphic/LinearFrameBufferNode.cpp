@@ -23,18 +23,51 @@
 
 namespace Device::Graphic {
 
-LinearFrameBufferNode::LinearFrameBufferNode(const Util::String &name, Util::Graphic::LinearFrameBuffer *lfb) :
-        Filesystem::Memory::StringNode(name),
-        addressBuffer(Util::String::format("%u", Kernel::Service::getService<Kernel::MemoryService>().getPhysicalAddress(reinterpret_cast<void *>(lfb->getBuffer().get())))),
-        resolutionBuffer(Util::String::format("%ux%u@%u", lfb->getResolutionX(), lfb->getResolutionY(), lfb->getColorDepth())),
-        pitchBuffer(Util::String::format("%u", lfb->getPitch())) {}
+LinearFrameBufferNode::LinearFrameBufferNode(const Util::String &name, const Util::Graphic::LinearFrameBuffer &lfb) : Filesystem::Memory::StringNode(name),
+        physicalAddress(Kernel::Service::getService<Kernel::MemoryService>().getPhysicalAddress(reinterpret_cast<void*>(lfb.getBuffer().get()))),
+        resolutionX(lfb.getResolutionX()), resolutionY(lfb.getResolutionY()), colorDepth(lfb.getColorDepth()), pitch(lfb.getPitch()) {
+    if (Device::Graphic::VesaBiosExtensions::isAvailable()) {
+        vbe = Device::Graphic::VesaBiosExtensions::initialize();
+    }
+}
 
 LinearFrameBufferNode::~LinearFrameBufferNode() {
-    delete lfb;
+    delete vbe;
 }
 
 Util::String LinearFrameBufferNode::getString() {
-    return addressBuffer + "\n" + resolutionBuffer + "\n" + pitchBuffer + "\n";
+    auto buffer = Util::String::format("%u\n%ux%u@%u\n%u\n", physicalAddress, resolutionX, resolutionY, colorDepth, pitch);
+    if (vbe != nullptr) {
+        buffer += Util::String::format("Vendor: %s\nDevice: %s\nSupported modes:\n", static_cast<const char*>(vbe->getVendorName()), static_cast<const char*>(vbe->getProductName()));
+        for (const auto &mode : vbe->getSupportedModes()) {
+            buffer += Util::String::format("%ux%u@%u\n", mode.resolutionX, mode.resolutionY, mode.colorDepth);
+        }
+    }
+
+    return buffer;
+}
+
+bool LinearFrameBufferNode::control(uint32_t request, const Util::Array<uint32_t> &parameters) {
+    switch (request) {
+        case Util::Graphic::LinearFrameBuffer::SET_RESOLUTION: {
+            if (vbe == nullptr || parameters.length() < 3) {
+                return false;
+            }
+
+            const auto &mode = vbe->findMode(parameters[0], parameters[1], parameters[2]);
+            Device::Graphic::VesaBiosExtensions::setMode(mode.modeNumber);
+
+            physicalAddress = reinterpret_cast<void*>(mode.physicalAddress);
+            resolutionX = mode.resolutionX;
+            resolutionY = mode.resolutionY;
+            colorDepth = mode.colorDepth;
+            pitch = mode.pitch;
+
+            return true;
+        }
+        default:
+            return false;
+    }
 }
 
 }

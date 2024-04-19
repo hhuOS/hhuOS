@@ -25,7 +25,7 @@
 
 namespace Util {
 namespace Async {
-class ReentrantSpinlock;
+class Spinlock;
 }  // namespace Async
 }  // namespace Util
 
@@ -47,11 +47,29 @@ public:
         HIGHER
     };
 
+    struct RealModeContext {
+        uint16_t ds;
+        uint16_t es;
+        uint16_t fs;
+        uint16_t gs;
+        uint16_t flags;
+        uint32_t edi;
+        uint32_t esi;
+        uint32_t ebp;
+        uint32_t esp;
+        uint32_t ebx;
+        uint32_t edx;
+        uint32_t ecx;
+        uint32_t eax;
+
+        RealModeContext(const Kernel::Thread::Context &context);
+        operator Kernel::Thread::Context();
+    } __attribute__((packed));
+
     static uint16_t construct16BitRegister(uint8_t lowerValue, uint8_t higherValue);
 
     static uint8_t get8BitRegister(uint16_t value, RegisterHalf half);
 
-public:
     /**
      * Default-Constructor.
      * Deleted, as this class has only static members.
@@ -97,7 +115,7 @@ private:
 
     static Kernel::InterruptDescriptorTable::Descriptor *biosIdtDescriptor;
     static Kernel::GlobalDescriptorTable biosGdt;
-    static Util::Async::ReentrantSpinlock lock;
+    static Util::Async::Spinlock lock;
 };
 
 }

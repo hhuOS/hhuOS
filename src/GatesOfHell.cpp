@@ -105,6 +105,7 @@
 #include "lib/util/base/Constants.h"
 #include "device/system/AdvancedPowerManagement.h"
 #include "device/system/Machine.h"
+#include "device/graphic/VesaBiosExtensions.h"
 
 namespace Util {
 class HeapMemoryManager;
@@ -419,7 +420,6 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     auto *powerManagementService = new Kernel::PowerManagementService(machine);
     Kernel::Service::registerService(Kernel::PowerManagementService::SERVICE_ID, powerManagementService);
 
-    // Switch to APIC, if available (CAUTION: BIOS calls are not supported anymore, once the APIC is initialized)
     if (Device::Apic::isAvailable()) {
         LOG_INFO("APIC detected");
         auto *apic = Device::Apic::initialize();
@@ -576,7 +576,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     }
 
     if (lfb != nullptr) {
-        auto *lfbNode = new Device::Graphic::LinearFrameBufferNode("lfb", lfb);
+        auto *lfbNode = new Device::Graphic::LinearFrameBufferNode("lfb", *lfb);
         deviceDriver->addNode("/", lfbNode);
     }
 

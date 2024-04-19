@@ -104,8 +104,6 @@ void Engine::run() {
         statistics.incFrames();
         statistics.stopFrameTime();
     }
-
-    Graphic::Ansi::cleanupGraphicalApplication();
 }
 
 void Engine::initializeNextScene() {
@@ -147,6 +145,7 @@ void Engine::drawStatus() {
     graphics.drawStringSmall(Math::Vector2D(10, 10 + charHeight), String::format("D: %ums | U: %ums | I: %ums", status.drawTime, status.updateTime, status.idleTime));
     graphics.drawStringSmall(Math::Vector2D(10, 10 + charHeight * 2), String::format("Objects: %u | Edges: %u/%u", game.getCurrentScene().getObjectCount(), graphics.drawnEdgeCounter, graphics.edgeCounter));
     graphics.drawStringSmall(Math::Vector2D(10, 10 + charHeight * 3), String::format("Heap used: %u.%03u MB", heapUsedM, heapUsedK));
+    graphics.drawStringSmall(Math::Vector2D(10, 10 + charHeight * 4), String::format("Resolution: %ux%u@%u", graphics.lfb.getResolutionX(), graphics.lfb.getResolutionY(), graphics.lfb.getColorDepth()));
     graphics.setColor(color);
 }
 

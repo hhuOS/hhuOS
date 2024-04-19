@@ -27,6 +27,7 @@
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/game/2d/Scene.h"
+#include "lib/util/collection/ArrayListBlockingQueue.h"
 
 namespace Util {
 namespace Game {
@@ -73,7 +74,7 @@ private:
 
     Dino *dino = new Dino(Util::Math::Vector2D(-0.8, 0));
 
-    Util::ArrayBlockingQueue<Ground*> ground = Util::ArrayBlockingQueue<Ground*>(4);
+    Util::ArrayListBlockingQueue<Ground*> ground = Util::ArrayListBlockingQueue<Ground*>();
 
     Util::ArrayList<Saw*> obstacles;
     Util::Math::Random random;

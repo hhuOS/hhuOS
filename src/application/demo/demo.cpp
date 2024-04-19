@@ -38,7 +38,10 @@ int32_t main(int32_t argc, char *argv[]) {
                                "Usage: demo [DEMO] [OPTIONS]...\n"
                                "Demos: ant, polygons, sprites\n"
                                "Options:\n"
+                               "  -r, --resolution: Set display resolution"
                                "  -h, --help: Show this help message");
+
+    argumentParser.addArgument("resolution", false, "r");
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
@@ -51,12 +54,24 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
+    auto lfbFile = Util::Io::File("/device/lfb");
+
+    if (argumentParser.hasArgument("resolution")) {
+        auto split1 = argumentParser.getArgument("resolution").split("x");
+        auto split2 = split1[1].split("@");
+
+        uint32_t resolutionX = Util::String::parseInt(split1[0]);
+        uint32_t resolutionY = Util::String::parseInt(split2[0]);
+        uint32_t colorDepth = split2.length() > 1 ? Util::String::parseInt(split2[1]) : 32;
+
+        lfbFile.control(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
+    }
+
     auto demo = arguments[0];
     if (demo == "ant") {
         auto sleepInterval = arguments.length() <= 1 ? 0 : Util::String::parseInt(arguments[1]);
         runAntDemo(sleepInterval);
     } else {
-        auto lfbFile = Util::Io::File("/device/lfb");
         auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
         auto engine = Util::Game::Engine(lfb, 60);
 

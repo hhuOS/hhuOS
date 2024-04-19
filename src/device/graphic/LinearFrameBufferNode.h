@@ -20,6 +20,7 @@
 
 #include "filesystem/memory/StringNode.h"
 #include "lib/util/base/String.h"
+#include "VesaBiosExtensions.h"
 
 namespace Util {
 namespace Graphic {
@@ -35,7 +36,7 @@ public:
     /**
      * Constructor.
      */
-    explicit LinearFrameBufferNode(const Util::String &name, Util::Graphic::LinearFrameBuffer *lfb);
+    explicit LinearFrameBufferNode(const Util::String &name, const Util::Graphic::LinearFrameBuffer &lfb);
 
     /**
      * Copy Constructor.
@@ -55,16 +56,21 @@ public:
     /**
      * Overriding function from StringNode.
      */
-    Util::String getString();
+    Util::String getString() override;
+
+    /**
+     * Overriding function from Node.
+     */
+    bool control(uint32_t request, const Util::Array<uint32_t> &parameters) override;
 
 private:
 
-    Util::Graphic::LinearFrameBuffer *lfb;
-
-    const Util::String addressBuffer;
-    const Util::String resolutionBuffer;
-    const Util::String pitchBuffer;
-
+    void *physicalAddress;
+    uint16_t resolutionX;
+    uint16_t resolutionY;
+    uint8_t colorDepth;
+    uint16_t pitch;
+    Device::Graphic::VesaBiosExtensions *vbe = nullptr;
 };
 
 }

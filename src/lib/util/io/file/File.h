@@ -81,7 +81,7 @@ public:
 
     [[nodiscard]] bool remove();
 
-    [[nodiscard]] bool control(uint32_t request, const Util::Array<uint32_t> &parameters);
+    bool control(uint32_t request, const Util::Array<uint32_t> &parameters);
 
     [[nodiscard]] static String getCanonicalPath(const Util::String &path);
 
