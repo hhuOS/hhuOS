@@ -44,7 +44,7 @@ void Timestamp::addNanoseconds(uint32_t value) {
 }
 
 void Timestamp::addSeconds(uint32_t value) {
-    this->seconds += seconds;
+    this->seconds += value;
 }
 
 bool Timestamp::operator>(const Timestamp &other) const {

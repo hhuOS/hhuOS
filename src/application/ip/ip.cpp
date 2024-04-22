@@ -30,7 +30,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.setHelpText("Show and edit IPv4 addresses of network devices.\n"
                                "Usage: ip [COMMAND] [ARGUMENTS...]\n"
-                               "Valid commands: { address | route }"
+                               "Valid commands: { address | route }\n"
                                "Options:\n"
                                "  -h, --help: Show this help message");
 

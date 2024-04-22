@@ -15,6 +15,7 @@ limine-bios.sys
 BOOTIA32.EFI
 BOOTX64.EFI
 OVMF.fd
+nettest-server
 *.img
 *.dump
 *.iso
