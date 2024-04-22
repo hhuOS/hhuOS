@@ -30,10 +30,6 @@ PagingAreaManager::PagingAreaManager(uint8_t *startAddress, uint32_t mappedPages
     }
 }
 
-void PagingAreaManager::handleError() {
-    Util::Exception::throwException(Util::Exception::OUT_OF_PAGING_MEMORY);
-}
-
 void *PagingAreaManager::allocateBlock() {
     return blockPool.pop();
 }
@@ -49,6 +45,10 @@ void PagingAreaManager::refillPool() {
 
     for (uint32_t i = 0; i < blockPool.getCapacity(); i++) {
         void *block = BitmapMemoryManager::allocateBlock();
+        if (block == nullptr) {
+            Util::Exception::throwException(Util::Exception::OUT_OF_PAGING_MEMORY, "PagingAreaManager: Out of memory!");
+        }
+
         if (!blockPool.push(block)) {
             BitmapMemoryManager::freeBlock(block);
             return;

@@ -29,7 +29,6 @@ void *BitmapMemoryManager::allocateBlock() {
     uint32_t block = bitmap.findAndSet();
 
     if (block == Util::Async::AtomicBitmap::INVALID_INDEX) {
-        handleError();
         return nullptr;
     }
 
@@ -58,10 +57,6 @@ void BitmapMemoryManager::freeBlock(void *pointer) {
 
     bitmap.unset(blockNumber);
     freeMemory += blockSize;
-}
-
-void BitmapMemoryManager::handleError() {
-    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "BitmapMemoryManager: Out of memory!");
 }
 
 void BitmapMemoryManager::setRange(uint32_t startBlock, uint32_t blockCount) {

@@ -59,8 +59,6 @@ public:
 
      void freeBlock(void *pointer) override;
 
-     void handleError() override;
-
      void refillPool();
 
 private:

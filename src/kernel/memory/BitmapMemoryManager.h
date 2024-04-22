@@ -58,8 +58,6 @@ public:
 
     void freeBlock(void *pointer) override;
 
-    virtual void handleError();
-
     [[nodiscard]] uint32_t getTotalMemory() const override;
 
     [[nodiscard]] uint32_t getFreeMemory() const override;
