@@ -77,8 +77,8 @@ void Rtl8139::initializeAvailableCards() {
     auto devices = Pci::search(VENDOR_ID, DEVICE_ID);
     for (const auto &device : devices) {
         auto *rtl8139 = new Rtl8139(device);
-        rtl8139->plugin();
         networkService.registerNetworkDevice(rtl8139, "eth");
+        rtl8139->plugin();
     }
 }
 

@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The RTL8139 driver is based on a bachelor's thesis, written by Alexander Hansen.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-alhan100
  */
 
 #ifndef HHUOS_RTL8139_H
