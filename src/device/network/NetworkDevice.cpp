@@ -24,16 +24,17 @@
 #include "kernel/process/Thread.h"
 #include "lib/util/base/Address.h"
 #include "kernel/network/ethernet/EthernetModule.h"
-#include "device/network/NetworkPacketMemoryManager.h"
 #include "kernel/service/Service.h"
 #include "lib/util/base/Exception.h"
 #include "kernel/process/Scheduler.h"
+#include "kernel/service/MemoryService.h"
+#include "lib/util/base/Constants.h"
 
 namespace Device::Network {
 
 NetworkDevice::NetworkDevice() :
-        outgoingPacketMemoryManager(NetworkPacketMemoryManager::create(MAX_BUFFERED_PACKETS)),
-        incomingPacketMemoryManager(NetworkPacketMemoryManager::create(MAX_BUFFERED_PACKETS)),
+        outgoingPacketMemoryManager(*createPacketManager(MAX_BUFFERED_PACKETS)),
+        incomingPacketMemoryManager(*createPacketManager(MAX_BUFFERED_PACKETS)),
         incomingPacketQueue(MAX_BUFFERED_PACKETS),
         outgoingPacketQueue(MAX_BUFFERED_PACKETS),
         reader(new PacketReader(*this)),
@@ -46,6 +47,11 @@ NetworkDevice::NetworkDevice() :
     processService.getScheduler().ready(writerThread);
 }
 
+NetworkDevice::~NetworkDevice() {
+    delete &incomingPacketMemoryManager;
+    delete &outgoingPacketMemoryManager;
+}
+
 void NetworkDevice::setIdentifier(const Util::String &identifier) {
     NetworkDevice::identifier = identifier;
 }
@@ -56,30 +62,39 @@ const Util::String& NetworkDevice::getIdentifier() const {
 
 void NetworkDevice::sendPacket(const uint8_t *packet, uint32_t length) {
     if (length > incomingPacketMemoryManager.getBlockSize()) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "NetworkDevice: Outgoing packet is too large!");
+        return; // Discard too large packets
     }
 
-    outgoingPacketLock.acquire();
     auto *buffer = reinterpret_cast<uint8_t*>(outgoingPacketMemoryManager.allocateBlock());
+    while (buffer == nullptr) {
+        // No packet memory available -> Retry
+        Util::Async::Thread::yield();
+        buffer = reinterpret_cast<uint8_t*>(outgoingPacketMemoryManager.allocateBlock());
+    }
 
     auto source = Util::Address<uint32_t>(packet);
     auto target = Util::Address<uint32_t>(buffer);
     target.copyRange(source, length);
 
+    outgoingPacketLock.acquire();
     outgoingPacketQueue.add(Packet{buffer, length});
     outgoingPacketLock.release();
 }
 
 void NetworkDevice::handleIncomingPacket(const uint8_t *packet, uint32_t length) {
     if (!Kernel::Network::Ethernet::EthernetModule::checkPacket(packet, length)) {
-        return;
+        return; // Discard packets failing the checksum test
     }
 
     if (length > incomingPacketMemoryManager.getBlockSize()) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "NetworkDevice: Incoming packet is too large!");
+        return; // Discard too large packets
     }
 
     auto *buffer = reinterpret_cast<uint8_t*>(incomingPacketMemoryManager.allocateBlock());
+    if (buffer == nullptr) {
+        return; // No packet memory available -> Discard packet
+    }
+
     auto source = Util::Address<uint32_t>(packet);
     auto target = Util::Address<uint32_t>(buffer);
     target.copyRange(source, length);
@@ -117,6 +132,14 @@ void NetworkDevice::freePacketBuffer(void *buffer) {
 
 void NetworkDevice::freeLastSendBuffer() {
     writer->freeLastSendBuffer();
+}
+
+Kernel::BitmapMemoryManager* NetworkDevice::createPacketManager(uint32_t packetCount) {
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+    auto *startAddress = static_cast<uint8_t*>(memoryService.allocateKernelMemory(packetCount * PACKET_BUFFER_SIZE, Util::PAGESIZE));
+    auto *endAddress = startAddress + packetCount * PACKET_BUFFER_SIZE - 1;
+
+    return new Kernel::BitmapMemoryManager(startAddress, endAddress);
 }
 
 bool NetworkDevice::Packet::operator==(const NetworkDevice::Packet &other) const {

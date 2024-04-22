@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "NetworkPacketMemoryManager.h"
+#include "kernel/memory/BitmapMemoryManager.h"
 #include "lib/util/collection/ArrayBlockingQueue.h"
 #include "lib/util/network/MacAddress.h"
 #include "lib/util/async/Spinlock.h"
@@ -70,7 +70,7 @@ public:
     /**
      * Destructor.
      */
-    virtual ~NetworkDevice() = default;
+    virtual ~NetworkDevice();
 
     void setIdentifier(const Util::String &identifier);
 
@@ -94,12 +94,14 @@ protected:
 
 private:
 
+    static Kernel::BitmapMemoryManager* createPacketManager(uint32_t packetCount);
+
     void freePacketBuffer(void *buffer);
 
     Util::String identifier;
 
-    NetworkPacketMemoryManager outgoingPacketMemoryManager;
-    NetworkPacketMemoryManager incomingPacketMemoryManager;
+    Kernel::BitmapMemoryManager &outgoingPacketMemoryManager;
+    Kernel::BitmapMemoryManager &incomingPacketMemoryManager;
     Util::ArrayBlockingQueue<Packet> incomingPacketQueue;
     Util::ArrayBlockingQueue<Packet> outgoingPacketQueue;
     Util::Async::Spinlock outgoingPacketLock;
@@ -107,6 +109,7 @@ private:
     PacketReader *reader;
     PacketWriter *writer;
 
+    static const constexpr uint32_t PACKET_BUFFER_SIZE = 2048;
     static const constexpr uint32_t MAX_BUFFERED_PACKETS = 16;
 };
 
