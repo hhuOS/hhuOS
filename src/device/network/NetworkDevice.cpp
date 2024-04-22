@@ -61,10 +61,11 @@ const Util::String& NetworkDevice::getIdentifier() const {
 }
 
 void NetworkDevice::sendPacket(const uint8_t *packet, uint32_t length) {
-    if (length > incomingPacketMemoryManager.getBlockSize()) {
+    if (length > MAX_ETHERNET_PACKET_SIZE) {
         return; // Discard too large packets
     }
 
+    // Allocate kernel buffer to copy and send packet
     auto *buffer = reinterpret_cast<uint8_t*>(outgoingPacketMemoryManager.allocateBlock());
     while (buffer == nullptr) {
         // No packet memory available -> Retry
@@ -72,9 +73,16 @@ void NetworkDevice::sendPacket(const uint8_t *packet, uint32_t length) {
         buffer = reinterpret_cast<uint8_t*>(outgoingPacketMemoryManager.allocateBlock());
     }
 
+    // Copy packet into kernel buffer
     auto source = Util::Address<uint32_t>(packet);
     auto target = Util::Address<uint32_t>(buffer);
     target.copyRange(source, length);
+
+    // Add padding, if necessary
+    if (length < MIN_ETHERNET_PACKET_SIZE) {
+        target.add(length).setRange(0, MIN_ETHERNET_PACKET_SIZE - length);
+        length = MIN_ETHERNET_PACKET_SIZE;
+    }
 
     outgoingPacketLock.acquire();
     outgoingPacketQueue.add(Packet{buffer, length});

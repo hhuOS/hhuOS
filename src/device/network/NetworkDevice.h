@@ -111,6 +111,8 @@ private:
 
     static const constexpr uint32_t PACKET_BUFFER_SIZE = 2048;
     static const constexpr uint32_t MAX_BUFFERED_PACKETS = 16;
+    static const constexpr uint32_t MIN_ETHERNET_PACKET_SIZE = 64;
+    static const constexpr uint32_t MAX_ETHERNET_PACKET_SIZE = 1522;
 };
 
 }
