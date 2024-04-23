@@ -1,2 +1,3 @@
 #   <Device>            <Target>            <Driver>
     floppy0             /media/floppy       Filesystem::Fat::FatDriver
+    ide1                /media/cdrom        Filesystem::Iso::IsoDriver

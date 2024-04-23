@@ -107,6 +107,7 @@
 #include "device/system/Machine.h"
 #include "device/graphic/VesaBiosExtensions.h"
 #include "device/network/ne2000/Ne2000.h"
+#include "filesystem/iso9660/IsoDriver.h"
 
 namespace Util {
 class HeapMemoryManager;
@@ -514,6 +515,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     Kernel::Service::registerService(Kernel::FilesystemService::SERVICE_ID, filesystemService);
 
     Util::Reflection::InstanceFactory::registerPrototype(new Filesystem::Fat::FatDriver());
+    Util::Reflection::InstanceFactory::registerPrototype(new Filesystem::Iso::IsoDriver());
 
     bool rootMounted = false;
     if (multiboot->hasKernelOption("root")) {

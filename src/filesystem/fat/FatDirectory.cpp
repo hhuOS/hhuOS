@@ -57,11 +57,11 @@ Util::Array<Util::String> FatDirectory::getChildren() {
 }
 
 uint64_t FatDirectory::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
-    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "FatDriver: Trying to read from a directory!");
+    return 0;
 }
 
 uint64_t FatDirectory::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
-    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "FatDriver: Trying to write to a directory!");
+    return 0;
 }
 
 }
