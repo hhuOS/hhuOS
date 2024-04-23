@@ -16,6 +16,9 @@
  *
  * The IDE driver is based on a bachelor's thesis, written by Tim Laurischkat.
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-tilau101
+ *
+ * The driver has been enhanced with ATAPI capabilities during a bachelor's thesis, written by Moritz Riefer.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-morie103
  */
 
 #ifndef HHUOS_IDEDEVICE_H

@@ -16,6 +16,9 @@
  *
  * The IDE driver is based on a bachelor's thesis, written by Tim Laurischkat.
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-tilau101
+ *
+ * The driver has been enhanced with ATAPI capabilities during a bachelor's thesis, written by Moritz Riefer.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-morie103
  */
 
 #include "IdeController.h"
@@ -226,7 +229,7 @@ IdeDevice* IdeController::identifyDrive(uint8_t channel, uint8_t drive) {
 
     if (registers.driveType[drive] == ATA) {
         if (!readAtaIdentity(channel, buffer)) {
-            LOG_ERROR("Error while identifying ATA drive [%u] on channel[%u]", drive, channel);
+            LOG_ERROR("Error while identifying ATA drive [%u] on channel [%u]", drive, channel);
             delete[] buffer;
             return nullptr;
         }
@@ -235,7 +238,7 @@ IdeDevice* IdeController::identifyDrive(uint8_t channel, uint8_t drive) {
         info.signature = *(buffer + DEVICE_TYPE);
     } else if (registers.driveType[drive] == ATAPI) {
         if (!readAtapiIdentity(channel, buffer)) {
-            LOG_ERROR("Error while identifying ATAPI drive [%u] on channel[%u]", drive, channel);
+            LOG_ERROR("Error while identifying ATAPI drive [%u] on channel [%u]", drive, channel);
             delete[] buffer;
             return nullptr;
         }
@@ -244,6 +247,15 @@ IdeDevice* IdeController::identifyDrive(uint8_t channel, uint8_t drive) {
         info.signature = *(buffer + DEVICE_TYPE);
         info.atapi.type = getAtapiType(info.signature);
         info.atapi.packetLength = info.signature % 2 ? 0x10 : 0x0c;
+
+        auto *response = new uint8_t[8];
+        if (readAtapiCapacity(channel, info.atapi.packetLength, reinterpret_cast<uint16_t*>(response))) {
+            // A CD-ROM is present and the drive returned capacity information
+            info.atapi.maxSectorsLba = (response[0] << 24) | (response[1] << 16) | (response[2] << 8) | response[3];
+            info.atapi.blockSize = (response[4] << 24) | (response[5] << 16) | (response[6] << 8) | response[7];
+            info.atapi.capacity = (info.atapi.maxSectorsLba + 1) * info.atapi.blockSize;
+            delete[] response;
+        }
     }
 
     info.channel = channel;
@@ -278,19 +290,20 @@ IdeDevice* IdeController::identifyDrive(uint8_t channel, uint8_t drive) {
     copyByteSwappedString(reinterpret_cast<const char*>(buffer + SERIAL), info.serial, sizeof(info.serial));
     copyByteSwappedString(reinterpret_cast<const char*>(buffer + FIRMWARE), info.firmware, sizeof(info.firmware));
 
+    delete[] buffer;
+
     auto model = Util::String(reinterpret_cast<const uint8_t*>(info.model), sizeof(info.model)).strip();
     auto serial = Util::String(reinterpret_cast<const uint8_t*>(info.serial), sizeof(info.serial)).strip();
     auto firmware = Util::String(reinterpret_cast<const uint8_t*>(info.firmware), sizeof(info.firmware)).strip();
     LOG_INFO("Found %s drive on channel [%u]: %s %s (Firmware: [%s])", info.type == ATA ? "ATA" : "ATAPI", info.channel,
              static_cast<const char*>(model), static_cast<const char*>(serial), static_cast<const char*>(firmware));
 
-    IdeDevice *device = nullptr;
-    if (info.type == ATA) {
-        device = new IdeDevice(*this, info);
+    if (info.type == ATAPI && info.atapi.capacity == 0) {
+        LOG_WARN("Failed to read capacity from drive [%u] on channel [%u] -> Probably no CD-ROM is present", drive, channel);
+        return nullptr;
+    } else {
+        return new IdeDevice(*this, info);
     }
-
-    delete[] buffer;
-    return device;
 }
 
 bool IdeController::readAtaIdentity(uint8_t channel, uint16_t *buffer) {
@@ -305,6 +318,7 @@ bool IdeController::readAtaIdentity(uint8_t channel, uint16_t *buffer) {
     for (uint32_t i = 0; i < 256; i++) {
         buffer[i] = registers.command.data.readWord();
     }
+
     return true;
 }
 
@@ -320,6 +334,47 @@ bool IdeController::readAtapiIdentity(uint8_t channel, uint16_t *buffer) {
     for (uint32_t i = 0; i < 256; i++) {
         buffer[i] = registers.command.data.readWord();
     }
+
+    return true;
+}
+
+bool IdeController::readAtapiCapacity(uint8_t channel, uint8_t packetLength, uint16_t *buffer) {
+    auto &registers = channels[channel];
+
+    auto *packet = new uint8_t[packetLength]{};
+    packet[0] = READ_CAPACITY;
+
+    if (!waitStatus(registers.control.alternateStatus, DRIVE_READY)) {
+        return false;
+    }
+
+    ioLock.acquire();
+    prepareAtapiIO(channel, 8);
+    Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
+
+    if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST)) {
+        ioLock.release();
+        delete[] packet;
+        return false;
+    }
+
+    for (uint8_t i = 0; i < packetLength; i += 2) {
+        registers.command.data.writeWord(packet[i] | (packet[i + 1] << 8));
+    }
+
+    if (!waitStatus(registers.control.alternateStatus, DRIVE_READY)) {
+        ioLock.release();
+        delete[] packet;
+        return false;
+    }
+
+    uint16_t answerSize = (registers.command.lbaHigh.readByte() << 8) | registers.command.lbaMid.readByte();
+    for (uint8_t i = 0; i < answerSize / 2; i++) {
+        *buffer++ = registers.command.data.readWord();
+    }
+
+    ioLock.release();
+    delete[] packet;
     return true;
 }
 
@@ -335,7 +390,6 @@ bool IdeController::selectDrive(uint8_t channel, uint8_t drive, bool prepareLbaA
     }
 
     if (!waitBusy(registers.command.status)) {
-        LOG_ERROR("Failed to select drive [%u] on channel [%u]", drive, channel);
         return false;
     }
 
@@ -343,7 +397,6 @@ bool IdeController::selectDrive(uint8_t channel, uint8_t drive, bool prepareLbaA
     Util::Async::Thread::sleep(Util::Time::Timestamp(0, 400));
 
     if (!waitBusy(registers.command.status)) {
-        LOG_ERROR("Failed to select drive [%u] on channel [%u]", drive, channel);
         return false;
     }
 
@@ -405,7 +458,7 @@ uint16_t IdeController::determineSectorSize(const DeviceInfo &info) {
     auto &registers = channels[info.channel];
     uint32_t sectorSize = 0;
 
-    prepareIO(info, 0, 1);
+    prepareAtaIO(info, 0, 1);
     registers.command.command.writeByte(READ_PIO_LBA28);
 
     bool logError = true;
@@ -423,7 +476,7 @@ uint16_t IdeController::determineSectorSize(const DeviceInfo &info) {
     return sectorSize;
 }
 
-uint16_t IdeController::performIO(const IdeController::DeviceInfo &info, IdeController::TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount) {
+uint16_t IdeController::performAtaIO(const DeviceInfo &info, TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount) {
     auto &registers = channels[info.channel];
     if (!checkBounds(info, startSector, sectorCount)) {
         Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "IDE: Trying to read/write out of track bounds!");
@@ -432,7 +485,6 @@ uint16_t IdeController::performIO(const IdeController::DeviceInfo &info, IdeCont
     ioLock.acquire();
     if (!selectDrive(info.channel, info.drive)) {
         ioLock.release();
-        LOG_ERROR("Failed to select drive [%u] on channel [%u] for %s", mode == READ ? "reading" : "writing", info.drive, info.channel);
         return 0;
     }
 
@@ -447,7 +499,6 @@ uint16_t IdeController::performIO(const IdeController::DeviceInfo &info, IdeCont
 
     if (!waitStatus(registers.control.alternateStatus, DRIVE_READY)) {
         ioLock.release();
-        LOG_ERROR("Failed to %s sectors on drive [%u] on channel [%u]", mode == READ ? "read" : "write", info.drive, info.channel);
         return 0;
     }
 
@@ -461,10 +512,10 @@ uint16_t IdeController::performIO(const IdeController::DeviceInfo &info, IdeCont
         uint16_t sectors;
         if (supportsDma && info.supportsDma()) {
             // TODO: Reactivate DMA once issues on real hardware have been fixed
-            // sectors = performDmaIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
-            sectors = performProgrammedIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
+            // sectors = performDmaAtaIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
+            sectors = performProgrammedAtaIO(info, mode, reinterpret_cast<uint16_t *>(buffer + (processedSectors * info.sectorSize)), start, count);
         } else {
-            sectors = performProgrammedIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
+            sectors = performProgrammedAtaIO(info, mode, reinterpret_cast<uint16_t *>(buffer + (processedSectors * info.sectorSize)), start, count);
         }
 
         processedSectors += sectors;
@@ -478,7 +529,7 @@ uint16_t IdeController::performIO(const IdeController::DeviceInfo &info, IdeCont
     return processedSectors;
 }
 
-void IdeController::prepareIO(const IdeController::DeviceInfo &info, uint64_t startSector, uint16_t sectorCount) {
+void IdeController::prepareAtaIO(const DeviceInfo &info, uint64_t startSector, uint16_t sectorCount) {
     auto &registers = channels[info.channel];
 
     if (info.addressing == CHS) {
@@ -513,9 +564,9 @@ void IdeController::prepareIO(const IdeController::DeviceInfo &info, uint64_t st
     }
 }
 
-uint16_t IdeController::performProgrammedIO(const IdeController::DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount) {
+uint16_t IdeController::performProgrammedAtaIO(const DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount) {
     auto &registers = channels[info.channel];
-    prepareIO(info, startSector, sectorCount);
+    prepareAtaIO(info, startSector, sectorCount);
 
     uint8_t command;
     if (info.addressing == CHS || info.addressing == LBA28) {
@@ -529,14 +580,12 @@ uint16_t IdeController::performProgrammedIO(const IdeController::DeviceInfo &inf
     registers.command.command.writeByte(command);
 
     if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST)) {
-        LOG_ERROR("Failed to %s sectors on drive [%u] on channel [%u] via PIO", mode == READ ? "read" : "write", info.drive, info.channel);
         return 0;
     }
 
     uint32_t i;
     for (i = 0; i < sectorCount; i++) {
         if (i > 0 && !waitStatus(registers.control.alternateStatus, DRIVE_READY)) {
-            LOG_ERROR("Drive [%u] on channel [%u] does not respond after %s [%u] sectors via PIO", info.drive, info.channel, mode == READ ? "reading" : "writing", i);
             return i;
         }
 
@@ -556,7 +605,7 @@ uint16_t IdeController::performProgrammedIO(const IdeController::DeviceInfo &inf
     return i;
 }
 
-uint16_t IdeController::performDmaIO(const IdeController::DeviceInfo &info, IdeController::TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount) {
+uint16_t IdeController::performDmaAtaIO(const DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount) {
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     auto &registers = channels[info.channel];
 
@@ -608,13 +657,11 @@ uint16_t IdeController::performDmaIO(const IdeController::DeviceInfo &info, IdeC
     registers.dma.status.writeByte(~(DmaStatus::DMA_ERROR | DmaStatus::INTERRUPT));
 
     // Select drive and sector
-    prepareIO(info, startSector, sectorCount);
+    prepareAtaIO(info, startSector, sectorCount);
 
     // Send command
     registers.command.command.writeByte(command);
     if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST)) {
-        LOG_ERROR("Failed to %s sectors on drive [%u] on channel [%u] via DMA", mode == READ ? "read" : "write", info.drive, info.channel);
-
         delete prdVirtual;
         delete dmaMemoryVirtual;
         return 0;
@@ -646,8 +693,6 @@ uint16_t IdeController::performDmaIO(const IdeController::DeviceInfo &info, IdeC
     } while (Util::Time::getSystemTime().toMilliseconds() < timeout);
 
     if (Util::Time::getSystemTime().toMilliseconds() >= timeout) {
-        LOG_ERROR("Timeout while %s sectors on drive [%u] on channel [%u] via DMA", mode == READ ? "reading" : "writing", info.drive, info.channel);
-
         delete prdVirtual;
         delete dmaMemoryVirtual;
         return 0;
@@ -662,6 +707,125 @@ uint16_t IdeController::performDmaIO(const IdeController::DeviceInfo &info, IdeC
     delete prdVirtual;
     delete dmaMemoryVirtual;
     return sectorCount;
+}
+
+void IdeController::prepareAtapiIO(uint8_t channel, uint16_t len) {
+    auto &registers = channels[channel];
+
+    if (len == 0) {
+        len = 8;
+    }
+
+    registers.command.features.writeByte(0);
+    registers.command.sectorCount.writeByte(0);
+    registers.command.lbaLow.writeByte(0);
+    registers.command.lbaMid.writeByte((len >> 0) & 0xff);
+    registers.command.lbaHigh.writeByte((len >> 8) & 0xff);
+    registers.command.command.writeByte(ATA_SEND_PACKET);
+}
+
+uint16_t IdeController::performAtapiIO(const IdeController::DeviceInfo &info, IdeController::TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount) {
+    auto &registers = channels[info.channel];
+
+    if (mode != READ) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "IDE: Trying to write to an ATAPI device!");
+    }
+
+    if (!(startSector + sectorCount < info.atapi.maxSectorsLba)) {
+        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "IDE: Trying to read/write out of track bounds!");
+    }
+
+    ioLock.acquire();
+    if (!selectDrive(info.channel, info.drive)) {
+        ioLock.release();
+        return 0;
+    }
+
+    // Enable interrupts
+    if (registers.interruptsDisabled) {
+        registers.control.deviceControl.writeByte(0x00);
+        registers.interruptsDisabled = false;
+    }
+
+    // Clear interrupt flag
+    registers.receivedInterrupt = false;
+
+    if (!waitStatus(registers.control.alternateStatus, DRIVE_READY)) {
+        ioLock.release();
+        return 0;
+    }
+
+    uint32_t processedSectors = 0;
+    while (processedSectors < sectorCount) {
+        uint32_t sectorsLeft = sectorCount - processedSectors;
+        uint32_t start = startSector + processedSectors;
+        uint32_t count = sectorsLeft > info.atapi.maxSectorsLba ? info.atapi.maxSectorsLba : sectorsLeft;
+
+        uint16_t sectors;
+        sectors = performProgrammedAtapiIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
+
+        processedSectors += sectors;
+        if (sectors == 0) {
+            ioLock.release();
+            return processedSectors;
+        }
+    }
+
+    ioLock.release();
+    return processedSectors;
+}
+
+uint16_t IdeController::performProgrammedAtapiIO(const IdeController::DeviceInfo &info, IdeController::TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount) {
+    auto &registers = channels[info.channel];
+
+    if(sectorCount * info.sectorSize > 65535) {
+        return 0;
+    }
+
+    prepareAtapiIO(info.channel, static_cast<uint16_t>(sectorCount * info.sectorSize));
+
+    // packet for read command
+    auto *packet = new uint8_t[info.atapi.packetLength]{};
+    packet[0] = ATAPI_READ;
+    packet[2] = (startSector >> 24) & 0xff;
+    packet[3] = (startSector >> 16) & 0xff;
+    packet[4] = (startSector >> 8) & 0xff;
+    packet[5] = (startSector >> 0) & 0xff;
+    packet[6] = (sectorCount >> 24) & 0xff;
+    packet[7] = (sectorCount >> 16) & 0xff;
+    packet[8] = (sectorCount >> 8) & 0xff;
+    packet[9] = (sectorCount >> 0) & 0xff;
+
+    if (!waitStatus(registers.control.alternateStatus, DRIVE_READY)) {
+        ioLock.release();
+        delete[] packet;
+        return 0;
+    }
+
+    for (uint8_t i = 0; i < info.atapi.packetLength; i += 2) {
+        registers.command.data.writeWord(packet[i] | (packet[i + 1] << 8));
+    }
+
+    if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST)) {
+        delete[] packet;
+        return 0;
+    }
+
+    uint16_t i;
+    for (i = 0; i < sectorCount; i++) {
+        if (i > 0 && !waitStatus(registers.control.alternateStatus, DRIVE_READY)) {
+            delete[] packet;
+            return i;
+        }
+
+        uint16_t transferSize = (registers.command.lbaHigh.readByte() << 8) | registers.command.lbaMid.readByte();
+        for (uint16_t j = 0; j < transferSize / 2; j++) {
+            *buffer++ = registers.command.data.readWord();
+        }
+    }
+
+    delete[] packet;
+    return i;
 }
 
 bool IdeController::waitStatus(const IoPort &port, Status status, uint16_t timeout, bool logError) {

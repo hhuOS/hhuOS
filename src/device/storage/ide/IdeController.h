@@ -16,6 +16,9 @@
  *
  * The IDE driver is based on a bachelor's thesis, written by Tim Laurischkat.
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-tilau101
+ *
+ * The driver has been enhanced with ATAPI capabilities during a bachelor's thesis, written by Moritz Riefer.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-morie103
  */
 
 #ifndef HHUOS_IDECONTROLLER_H
@@ -45,6 +48,13 @@ namespace Device::Storage {
 class IdeController : public Kernel::InterruptHandler {
 
 public:
+
+    enum DriveType : uint8_t {
+        ATA = 0x00,
+        ATAPI = 0x01,
+        OTHER = 0x02,
+    };
+
     /**
      * Constructor.
      */
@@ -93,12 +103,6 @@ private:
         CHS = 0x00,
         LBA28 = 0x01,
         LBA48 = 0x02,
-    };
-
-    enum DriveType : uint8_t {
-        ATA = 0x00,
-        ATAPI = 0x01,
-        OTHER = 0x02,
     };
 
     enum AtapiType {
@@ -173,8 +177,11 @@ private:
     };
 
     struct AtapiValues {
-        uint8_t type;
-        uint8_t packetLength;
+        uint8_t type;                                 // Atapi type
+        uint8_t packetLength;                         // Packet length is 12 or 16
+        uint32_t maxSectorsLba;                       // Size in Sectors
+        uint32_t blockSize;                           // size of data blocks
+        uint32_t capacity;                            // Storage Capacity in Bytes
     };
 
 public:
@@ -210,13 +217,19 @@ public:
         [[nodiscard]] bool supportsDma() const;
     };
 
-    uint16_t performIO(const DeviceInfo &info, TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount);
+    uint16_t performAtaIO(const DeviceInfo &info, TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount);
+
+    uint16_t performAtapiIO(const DeviceInfo &info, TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount);
 
 private:
 
+    enum AtapiCommand {
+        READ_CAPACITY = 0x25
+    };
+
     struct CommandRegisters {
         explicit CommandRegisters(uint16_t baseAddress);
-        
+
         Device::IoPort data;            // base + 0x00 (read/write)
         Device::IoPort error;           // base + 0x01 (read)
         Device::IoPort features;        // base + 0x01 (write)
@@ -278,6 +291,8 @@ private:
 
     bool readAtapiIdentity(uint8_t channel, uint16_t *buffer);
 
+    bool readAtapiCapacity(uint8_t channel, uint8_t packetLength, uint16_t *buffer);
+
     static uint8_t getAtapiType(uint16_t signature);
 
     bool selectDrive(uint8_t channel, uint8_t drive, bool prepareLbaAccess = false, uint8_t lbaHead = 0);
@@ -286,15 +301,19 @@ private:
 
     bool checkBounds(const DeviceInfo &info, uint64_t startSector, uint32_t sectorCount);
 
-    void prepareIO(const DeviceInfo &info, uint64_t startSector, uint16_t sectorCount);
+    void prepareAtaIO(const DeviceInfo &info, uint64_t startSector, uint16_t sectorCount);
 
-    uint16_t performProgrammedIO(const DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount);
+    uint16_t performProgrammedAtaIO(const DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount);
 
-    uint16_t performDmaIO(const DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount);
+    uint16_t performDmaAtaIO(const DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount);
 
-    static bool waitStatus(const IoPort &port, Status status, uint16_t timeout = WAIT_ON_STATUS_TIMEOUT, bool logError = true);
+    void prepareAtapiIO(uint8_t channel, uint16_t len);
 
-    static bool waitBusy(const IoPort &port, uint16_t timeout = WAIT_ON_STATUS_TIMEOUT, bool logError = true);
+    uint16_t performProgrammedAtapiIO(const DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount);
+
+    static bool waitStatus(const IoPort &port, Status status, uint16_t timeout = WAIT_ON_STATUS_TIMEOUT, bool logError = false);
+
+    static bool waitBusy(const IoPort &port, uint16_t timeout = WAIT_ON_STATUS_TIMEOUT, bool logError = false);
 
     static void copyByteSwappedString(const char *source, char *target, uint32_t length);
 
