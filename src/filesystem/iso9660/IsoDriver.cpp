@@ -199,10 +199,14 @@ IsoDriver::PathTableEntry* IsoDriver::PathTableEntry::createCopy() const {
 Util::String IsoDriver::DirectoryRecord::getName() const {
     auto name =  Util::String(reinterpret_cast<const uint8_t*>(identifier), identifierLength);
     if (name.contains(';')) {
-        return name.split(";")[0];
-    } else {
-        return name;
+        name = name.split(";")[0];
     }
+
+    if (name.endsWith(".")) {
+        name = name.substring(0, name.length() - 1);
+    }
+
+    return name;
 }
 
 IsoDriver::DirectoryRecord* IsoDriver::DirectoryRecord::createCopy() const {
