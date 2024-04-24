@@ -22,6 +22,8 @@
 #include "kernel/log/Log.h"
 #include "IsoNode.h"
 #include "lib/util/base/Address.h"
+#include "GatesOfHell.h"
+#include "lib/util/base/FreeListMemoryManager.h"
 
 namespace Filesystem::Iso {
 
@@ -130,7 +132,7 @@ bool IsoDriver::initializePrimaryVolumeDescriptor() {
     auto *buffer = new uint8_t[device->getSectorSize()];
 
     for (uint16_t i = 0;; i++) {
-        uint32_t startSector = VOLUME_DESCRIPTORS_START_SECTOR -1 + i;
+        uint32_t startSector = VOLUME_DESCRIPTORS_START_SECTOR + i;
         uint16_t readSectors = device->read(buffer, startSector, 1);
 
         const auto &header = *reinterpret_cast<VolumeDescriptorHeader*>(buffer);

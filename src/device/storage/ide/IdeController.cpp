@@ -807,21 +807,23 @@ uint16_t IdeController::performProgrammedAtapiIO(const IdeController::DeviceInfo
         return 0;
     }
 
-    uint16_t i;
-    for (i = 0; i < sectorCount; i++) {
-        if (i > 0 && !waitStatus(registers.control.alternateStatus, DRIVE_READY)) {
+    uint16_t transferredBytes = 0;
+    while (transferredBytes < sectorCount * info.sectorSize) {
+        if (transferredBytes > 0 && !waitStatus(registers.control.alternateStatus, DRIVE_READY)) {
             delete[] packet;
-            return i;
+            return transferredBytes / info.sectorSize;
         }
 
         uint16_t transferSize = (registers.command.lbaHigh.readByte() << 8) | registers.command.lbaMid.readByte();
         for (uint16_t j = 0; j < transferSize / 2; j++) {
             *buffer++ = registers.command.data.readWord();
         }
+
+        transferredBytes += transferSize;
     }
 
     delete[] packet;
-    return i;
+    return transferredBytes / info.sectorSize;
 }
 
 bool IdeController::waitStatus(const IoPort &port, Status status, uint16_t timeout, bool logError) {
