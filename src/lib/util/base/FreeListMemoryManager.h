@@ -163,7 +163,6 @@ private:
 
     Util::Async::Spinlock lock;
     FreeListHeader *firstChunk = nullptr;
-    uint32_t unusedMemory = 0;
     bool unmapFreedMemory = true;
 
     static const constexpr uint32_t MIN_BLOCK_SIZE = 4;
