@@ -27,10 +27,8 @@
 #include "device/cpu/IoPort.h"
 #include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/network/MacAddress.h"
+#include "device/bus/pci/PciDevice.h"
 
-namespace Device {
-class PciDevice;
-}  // namespace Device
 namespace Kernel {
 enum InterruptVector : uint8_t;
 struct InterruptFrame;
@@ -347,7 +345,7 @@ private:
      */
     void processReceivedPackets();
 
-    const PciDevice &pciDevice;
+    PciDevice pciDevice;
     IoPort baseRegister = IoPort(0x00);
 
     uint8_t currentNextPagePointer;

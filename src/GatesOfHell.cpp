@@ -43,6 +43,7 @@
 #include "kernel/service/StorageService.h"
 #include "device/storage/virtual/VirtualDiskDrive.h"
 #include "device/storage/ide/IdeController.h"
+#include "device/storage/ahci/AhciController.h"
 #include "device/storage/floppy/FloppyController.h"
 #include "kernel/service/FilesystemService.h"
 #include "lib/util/reflection/InstanceFactory.h"
@@ -502,6 +503,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     }
 
     Device::Storage::IdeController::initializeAvailableControllers();
+    Device::Storage::AhciController::initializeAvailableControllers();
 
     if (Device::Storage::FloppyController::isAvailable()) {
         auto *floppyController = new Device::Storage::FloppyController();
@@ -681,6 +683,8 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
             }
 
             LOG_INFO("Mounting [%s] to [%s]", static_cast<const char*>(split[0]), static_cast<const char*>(split[1]));
+            filesystemService->createDirectory(split[1]);
+
             auto success = filesystemService->mount(split[0], split[1], split[2]);
             if (!success) {
                 LOG_ERROR("Failed to mount [%s] to [%s]", static_cast<const char*>(split[0]), static_cast<const char*>(split[1]));

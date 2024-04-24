@@ -186,7 +186,7 @@ private:
 
 public:
 
-    enum TransferMode : uint8_t{
+    enum TransferMode : uint8_t {
         READ = 0x0,
         WRITE = 0x1,
     };

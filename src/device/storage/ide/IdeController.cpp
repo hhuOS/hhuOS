@@ -57,15 +57,18 @@ IdeController::IdeController(const PciDevice &pciDevice) {
     uint32_t controlBaseAddress;
     uint32_t dmaBaseAddress = 0;
 
+    uint16_t command = pciDevice.readWord(Pci::COMMAND);
+    command |= Pci::IO_SPACE;
+
     if (pciDevice.getProgrammingInterface() & 0x80) {
         LOG_INFO("Controller supports DMA");
         supportsDma = true;
         dmaBaseAddress = pciDevice.readDoubleWord(Pci::Register::BASE_ADDRESS_4) & 0xfffffffc;
 
-        uint16_t command = pciDevice.readWord(Pci::COMMAND);
-        command |= Pci::BUS_MASTER | Pci::IO_SPACE;
-        pciDevice.writeWord(Pci::COMMAND, command);
+        command |= Pci::BUS_MASTER;
     }
+
+    pciDevice.writeWord(Pci::COMMAND, command);
 
     for (uint32_t i = 0; i < CHANNELS_PER_CONTROLLER; i++) {
         auto channelInterface = pciDevice.getProgrammingInterface() >> i * 2;

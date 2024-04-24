@@ -40,7 +40,7 @@ namespace Device::Network {
 Ne2000::Ne2000(const PciDevice &device) : pciDevice(device) {
     LOG_INFO("Configuring PCI registers");
     uint16_t command = pciDevice.readWord(Pci::COMMAND);
-    command |= Pci::BUS_MASTER | Pci::IO_SPACE;
+    command |= Pci::IO_SPACE;
     pciDevice.writeWord(Pci::COMMAND, command);
 
     /** Source for "~0x3": https://wiki.osdev.org/Ne2000, Initialization and MAC Address */
@@ -386,8 +386,8 @@ void Ne2000::processReceivedPackets() {
 
 void Ne2000::plugin() {
     auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
-    interruptService.allowHardwareInterrupt(pciDevice.getInterruptLine());
     interruptService.assignInterrupt(static_cast<Kernel::InterruptVector>(pciDevice.getInterruptLine() + 32), *this);
+    interruptService.allowHardwareInterrupt(pciDevice.getInterruptLine());
 }
 
 }
