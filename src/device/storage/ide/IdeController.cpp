@@ -728,10 +728,10 @@ uint16_t IdeController::performAtapiIO(const IdeController::DeviceInfo &info, Id
     auto &registers = channels[info.channel];
 
     if (mode != READ) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "IDE: Trying to write to an ATAPI device!");
+        return 0;
     }
 
-    if (!(startSector + sectorCount < info.atapi.maxSectorsLba)) {
+    if (startSector + sectorCount >= info.atapi.maxSectorsLba) {
         Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "IDE: Trying to read/write out of track bounds!");
     }
 
@@ -759,7 +759,7 @@ uint16_t IdeController::performAtapiIO(const IdeController::DeviceInfo &info, Id
     while (processedSectors < sectorCount) {
         uint32_t sectorsLeft = sectorCount - processedSectors;
         uint32_t start = startSector + processedSectors;
-        uint32_t count = sectorsLeft > info.atapi.maxSectorsLba ? info.atapi.maxSectorsLba : sectorsLeft;
+        uint32_t count = sectorsLeft > 65535 / info.atapi.blockSize ? 65535 / info.atapi.blockSize : sectorsLeft;
 
         uint16_t sectors;
         sectors = performProgrammedAtapiIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
@@ -777,10 +777,6 @@ uint16_t IdeController::performAtapiIO(const IdeController::DeviceInfo &info, Id
 
 uint16_t IdeController::performProgrammedAtapiIO(const IdeController::DeviceInfo &info, IdeController::TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount) {
     auto &registers = channels[info.channel];
-
-    if(sectorCount * info.sectorSize > 65535) {
-        return 0;
-    }
 
     prepareAtapiIO(info.channel, static_cast<uint16_t>(sectorCount * info.sectorSize));
 
