@@ -18,12 +18,16 @@
  * The original source code can be found here: https://github.com/Spectranis/bachelorthesis-mthiel/tree/ne2k_dev
  */
 
+#include <cstdint>
+
 #include "lib/util/base/System.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/network/ip4/Ip4PortAddress.h"
 #include "lib/util/network/Socket.h"
 #include "lib/util/network/udp/UdpDatagram.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/stream/PrintStream.h"
 
 static const constexpr uint32_t DEFAULT_BIND_PORT = 1797;
 static const constexpr uint32_t DEFAULT_REMOTE_PORT = 1856;

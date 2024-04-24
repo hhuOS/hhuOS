@@ -29,6 +29,7 @@
 #include "kernel/process/Scheduler.h"
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/Constants.h"
+#include "kernel/memory/BitmapMemoryManager.h"
 
 namespace Device::Network {
 

@@ -44,6 +44,7 @@
 #include "lib/util/base/Address.h"
 #include "lib/util/io/key/MouseDecoder.h"
 #include "lib/util/math/Vector3D.h"
+#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 
 namespace Util::Game {
 

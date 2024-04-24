@@ -28,8 +28,8 @@
 #include "kernel/service/Service.h"
 #include "kernel/multiboot/Multiboot.h"
 #include "kernel/service/InformationService.h"
-#include "lib/util/async/ReentrantSpinlock.h"
 #include "lib/util/base/String.h"
+#include "lib/util/async/Spinlock.h"
 
 extern "C" {
     void protected_mode_call(Kernel::Thread::Context *stack, uint32_t entryPoint);

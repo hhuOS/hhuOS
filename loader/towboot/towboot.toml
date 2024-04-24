@@ -6,4 +6,4 @@ log_level = "info"
   [entries.hhuOS]
     name = "hhuOS"
     image = "\\kernel.elf"
-    argv = "log_level=inf log_ports=COM1 root=ide1p0,Filesystem::Fat::FatDriver bios=false"
+    argv = "log_level=inf log_ports=COM1 root=ata1p0,Filesystem::Fat::FatDriver bios=false"

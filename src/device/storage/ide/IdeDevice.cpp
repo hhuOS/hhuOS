@@ -57,4 +57,8 @@ uint32_t IdeDevice::write(const uint8_t *buffer, uint32_t startSector, uint32_t 
     return controller.performAtaIO(info, IdeController::WRITE, const_cast<uint8_t *>(buffer), startSector, sectorCount);
 }
 
+const IdeController::DeviceInfo &IdeDevice::getDeviceInfo() const {
+    return info;
+}
+
 }

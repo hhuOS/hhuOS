@@ -19,7 +19,6 @@
 #define HHUOS_DINOGAME_H
 
 #include "lib/util/game/KeyListener.h"
-#include "lib/util/collection/ArrayBlockingQueue.h"
 #include "Ground.h"
 #include "Saw.h"
 #include "Dino.h"

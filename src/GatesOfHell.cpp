@@ -105,7 +105,6 @@
 #include "lib/util/base/Constants.h"
 #include "device/system/AdvancedPowerManagement.h"
 #include "device/system/Machine.h"
-#include "device/graphic/VesaBiosExtensions.h"
 #include "device/network/ne2000/Ne2000.h"
 #include "filesystem/iso9660/IsoDriver.h"
 

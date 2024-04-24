@@ -21,11 +21,20 @@
 #ifndef HHUOS_NE2000_H
 #define HHUOS_NE2000_H
 
+#include <cstdint>
+
 #include "device/network/NetworkDevice.h"
-#include "device/bus/pci/PciDevice.h"
 #include "device/cpu/IoPort.h"
-#include "kernel/interrupt/InterruptFrame.h"
 #include "kernel/interrupt/InterruptHandler.h"
+#include "lib/util/network/MacAddress.h"
+
+namespace Device {
+class PciDevice;
+}  // namespace Device
+namespace Kernel {
+enum InterruptVector : uint8_t;
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device::Network {
 

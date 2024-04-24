@@ -19,10 +19,21 @@
  */
 
 #include "Ne2000.h"
+
 #include "kernel/service/NetworkService.h"
 #include "kernel/log/Log.h"
 #include "lib/util/time/Timestamp.h"
 #include "kernel/service/InterruptService.h"
+#include "device/bus/pci/Pci.h"
+#include "device/bus/pci/PciDevice.h"
+#include "kernel/service/Service.h"
+#include "lib/util/async/Thread.h"
+#include "lib/util/collection/Array.h"
+
+namespace Kernel {
+enum InterruptVector : uint8_t;
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device::Network {
 

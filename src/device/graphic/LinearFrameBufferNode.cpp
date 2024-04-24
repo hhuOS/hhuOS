@@ -20,6 +20,7 @@
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "kernel/service/Service.h"
 #include "kernel/service/MemoryService.h"
+#include "device/graphic/VesaBiosExtensions.h"
 
 namespace Device::Graphic {
 

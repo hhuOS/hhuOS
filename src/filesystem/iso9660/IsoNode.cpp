@@ -19,7 +19,11 @@
  */
 
 #include "IsoNode.h"
+
 #include "lib/util/base/Address.h"
+#include "device/storage/StorageDevice.h"
+#include "filesystem/iso9660/IsoDriver.h"
+#include "lib/util/collection/ArrayList.h"
 
 namespace Filesystem::Iso {
 

@@ -20,11 +20,14 @@
 
 #include <cstdint>
 
-#include "kernel/memory/BitmapMemoryManager.h"
 #include "lib/util/collection/ArrayBlockingQueue.h"
 #include "lib/util/network/MacAddress.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/base/String.h"
+
+namespace Kernel {
+class BitmapMemoryManager;
+}  // namespace Kernel
 
 namespace Device {
 namespace Network {

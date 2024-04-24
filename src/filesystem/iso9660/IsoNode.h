@@ -21,8 +21,19 @@
 #ifndef HHUOS_ISONODE_H
 #define HHUOS_ISONODE_H
 
+#include <cstdint>
+
 #include "filesystem/core/Node.h"
 #include "IsoDriver.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/io/file/File.h"
+
+namespace Device {
+namespace Storage {
+class StorageDevice;
+}  // namespace Storage
+}  // namespace Device
 
 namespace Filesystem::Iso {
 

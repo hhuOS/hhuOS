@@ -18,9 +18,17 @@
 #ifndef HHUOS_LINEARFRAMEBUFFERNODE_H
 #define HHUOS_LINEARFRAMEBUFFERNODE_H
 
+#include <cstdint>
+
 #include "filesystem/memory/StringNode.h"
 #include "lib/util/base/String.h"
-#include "VesaBiosExtensions.h"
+#include "lib/util/collection/Array.h"
+
+namespace Device {
+namespace Graphic {
+class VesaBiosExtensions;
+}  // namespace Graphic
+}  // namespace Device
 
 namespace Util {
 namespace Graphic {

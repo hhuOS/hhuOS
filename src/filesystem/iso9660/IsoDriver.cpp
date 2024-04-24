@@ -19,11 +19,17 @@
  */
 
 #include "IsoDriver.h"
+
 #include "kernel/log/Log.h"
 #include "IsoNode.h"
 #include "lib/util/base/Address.h"
-#include "GatesOfHell.h"
-#include "lib/util/base/FreeListMemoryManager.h"
+#include "device/storage/StorageDevice.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/Iterator.h"
+
+namespace Filesystem {
+class Node;
+}  // namespace Filesystem
 
 namespace Filesystem::Iso {
 

@@ -21,8 +21,22 @@
 #ifndef HHUOS_ISODRIVER_H
 #define HHUOS_ISODRIVER_H
 
+#include <cstdint>
+
 #include "filesystem/core/PhysicalDriver.h"
 #include "lib/util/collection/ArrayList.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/file/File.h"
+#include "lib/util/reflection/Prototype.h"
+
+namespace Device {
+namespace Storage {
+class StorageDevice;
+}  // namespace Storage
+}  // namespace Device
+namespace Filesystem {
+class Node;
+}  // namespace Filesystem
 
 namespace Filesystem::Iso {
 

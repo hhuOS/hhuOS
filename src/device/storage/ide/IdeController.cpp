@@ -140,8 +140,13 @@ void IdeController::initializeDrives() {
         }
     }
 
+    auto &storageService = Kernel::Service::getService<Kernel::StorageService>();
     for (auto *device : devices) {
-        Kernel::Service::getService<Kernel::StorageService>().registerDevice(device, "ide");
+        if (device->getDeviceInfo().type == ATA) {
+            storageService.registerDevice(device, "ata");
+        } else if (device->getDeviceInfo().type == ATAPI) {
+            storageService.registerDevice(device, "atapi");
+        }
     }
 }
 
