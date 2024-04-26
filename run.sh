@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+readonly CONST_OVMF_URL="https://retrage.github.io/edk2-nightly/bin/RELEASEIa32_OVMF.fd"
+
 readonly CONST_QEMU_BIN_I386="qemu-system-i386"
 readonly CONST_QEMU_MACHINE_PC="pc"
 readonly CONST_QEMU_MACHINE_PC_KVM="pc,accel=kvm,kernel-irqchip=split"
@@ -63,9 +65,10 @@ set_audio_parameters() {
 }
 
 get_ovmf() {
-  cd "efi" || exit 1
-  ./build.sh || exit 1
-  cd ".." || exit 1
+  if [ ! -f "efi/OVMF.fd" ]; then
+    mkdir -p "efi"
+    wget -O efi/OVMF.fd "${CONST_OVMF_URL}"
+  fi
 }
 
 check_file() {
