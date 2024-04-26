@@ -370,13 +370,13 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::Transfe
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     const auto dmaSize = sectorCount * device.getSectorSize();
     const auto dmaPages = dmaSize % Util::PAGESIZE == 0 ? (dmaSize / Util::PAGESIZE) : (dmaSize / Util::PAGESIZE) + 1;
-    void *dmaMemory = memoryService.allocateIsaMemory(dmaPages);
-    void *physicalDmaAddress = memoryService.getPhysicalAddress(dmaMemory);
+    void *dmaBuffer = memoryService.allocateIsaMemory(dmaPages);
+    void *physicalDmaAddress = memoryService.getPhysicalAddress(dmaBuffer);
     bool success = false;
 
     if (mode == WRITE) {
         auto sourceAddress = Util::Address<uint32_t>(buffer);
-        auto targetAddress = Util::Address<uint32_t>(physicalDmaAddress);
+        auto targetAddress = Util::Address<uint32_t>(dmaBuffer);
         targetAddress.copyRange(sourceAddress, sectorCount * device.getSectorSize());
     }
 
@@ -419,7 +419,7 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::Transfe
         }
 
         if (mode == READ) {
-            auto sourceAddress = Util::Address<uint32_t>(dmaMemory);
+            auto sourceAddress = Util::Address<uint32_t>(dmaBuffer);
             auto targetAddress = Util::Address<uint32_t>(buffer);
             targetAddress.copyRange(sourceAddress, device.getSectorSize() * sectorCount);
         }
@@ -433,7 +433,7 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::Transfe
     }
 
     setMotorState(device, OFF);
-    delete reinterpret_cast<uint8_t*>(dmaMemory);
+    delete reinterpret_cast<uint8_t*>(dmaBuffer);
 
     ioLock.release();
     return success;
