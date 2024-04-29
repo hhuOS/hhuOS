@@ -92,17 +92,49 @@ void Shell::readLine() {
                 handleTab();
                 Util::Graphic::Ansi::enableRawMode();
                 break;
-            case 0x0a:
-                currentLine = currentLine.strip();
-                Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            case 0x0a: {
                 Util::Graphic::Ansi::enableCanonicalMode();
+
+                auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
+                auto startPosition = getStartPosition();
+                uint16_t column = startPosition.column + (currentLine.length() % (cursorLimits.column + 1));
+                uint16_t row = startPosition.row + ((currentLine.length() + startPosition.column) / (cursorLimits.column + 1));
+                Util::Graphic::Ansi::setPosition({column, row});
+                Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+
+                currentLine = currentLine.strip();
                 return;
+            }
             case 0x00 ... 0x06:
             case 0x0b ... 0x1f:
                 break;
             default:
-                currentLine += static_cast<char>(input);
-                Util::System::out << static_cast<char>(input) << Util::Io::PrintStream::flush;
+                Util::Graphic::Ansi::enableCanonicalMode();
+                auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
+                auto cursorPos = Util::Graphic::Ansi::getCursorPosition();
+                auto scrolledLines = getScrolledLines(); // Amount of lines the screen has been scrolled to display the current line
+                auto startPosition = getStartPosition();
+                auto preCursor = currentLine.substring(0, (cursorPos.row - startPosition.row) * (cursorLimits.column + 1) + cursorPos.column - startPosition.column);
+                auto afterCursor = currentLine.substring((cursorPos.row - startPosition.row) * (cursorLimits.column + 1) + cursorPos.column - startPosition.column, currentLine.length());
+                currentLine = preCursor + static_cast<char>(input) + afterCursor;
+
+                Util::System::out << static_cast<char>(input) << afterCursor << Util::Io::PrintStream::flush;
+
+                if (getScrolledLines() > scrolledLines) { // The new character caused the screen to scroll up one row
+                    if (cursorPos.column >= cursorLimits.column) { // The cursor was at the end of the row and should move to the beginning of the next row
+                        Util::Graphic::Ansi::setPosition({0, cursorPos.row >= cursorLimits.row ? cursorPos.row : static_cast<uint16_t>(cursorPos.row + 1)});
+                    } else { // The cursor just needs to advance one column, but we need to decrement the row, because the entire screen has been scrolled up
+                        Util::Graphic::Ansi::setPosition({static_cast<uint16_t>(cursorPos.column + 1), static_cast<uint16_t>(cursorPos.row - 1)});
+                    }
+                } else { // The screen did not scroll
+                    if (cursorPos.column < cursorLimits.column) { // The cursor just needs to advance one column
+                        Util::Graphic::Ansi::setPosition({static_cast<uint16_t>(cursorPos.column + 1), cursorPos.row});
+                    } else if (cursorPos.row < cursorLimits.row){ // The cursor was at the end of the line and should move to the beginning of the next row
+                        Util::Graphic::Ansi::setPosition({0, static_cast<uint16_t>(cursorPos.row + 1)});
+                    }
+                }
+
+                Util::Graphic::Ansi::enableRawMode();
         }
 
         input = Util::Graphic::Ansi::readChar();
@@ -300,34 +332,77 @@ void Shell::handleDownKey() {
 }
 
 void Shell::handleLeftKey() {
+    auto cursorPos = Util::Graphic::Ansi::getCursorPosition();
+    auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
+    auto startPosition = getStartPosition();
 
+    if (cursorPos.row <= startPosition.row && cursorPos.column > startPosition.column) {
+        cursorPos.column -= 1;
+    } else if (cursorPos.row > startPosition.row) {
+        if (cursorPos.column == 0) {
+            cursorPos.column = cursorLimits.column;
+            cursorPos.row -= 1;
+        } else {
+            cursorPos.column -= 1;
+        }
+    }
+
+    Util::Graphic::Ansi::setPosition(cursorPos);
 }
 
 void Shell::handleRightKey() {
+    auto cursorPos = Util::Graphic::Ansi::getCursorPosition();
+    auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
+    auto startPosition = getStartPosition();
+    auto currentLineIndex = static_cast<uint32_t>((cursorPos.row - startPosition.row) * (cursorLimits.column + 1) + cursorPos.column - startPosition.column);
 
+    if (currentLineIndex > currentLine.length() - 1) {
+        return;
+    }
+
+    if (cursorPos.column < cursorLimits.column) {
+        cursorPos.column += 1;
+    } else {
+        cursorPos.column = 0;
+        cursorPos.row += 1;
+    }
+
+    Util::Graphic::Ansi::setPosition(cursorPos);
 }
 
 void Shell::handleBackspace() {
     if (currentLine.length() > 0) {
-        currentLine = currentLine.substring(0, currentLine.length() - 1);
+        handleLeftKey();
 
-        auto position = Util::Graphic::Ansi::getCursorPosition();
-        auto limits = Util::Graphic::Ansi::getCursorLimits();
+        auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
+        auto cursorPos = Util::Graphic::Ansi::getCursorPosition();
+        auto startPosition = getStartPosition();
+        auto preCursor = currentLine.substring(0, (cursorPos.row - startPosition.row) * (cursorLimits.column + 1) + cursorPos.column - startPosition.column);
+        auto afterCursor = currentLine.substring(((cursorPos.row - startPosition.row) * (cursorLimits.column + 1) + cursorPos.column - startPosition.column) + 1, currentLine.length());
+        currentLine = preCursor + afterCursor;
 
-        if (position.column == 0) {
-            position.row = position.row == 0 ? 0 : position.row - 1;
-            position.column = limits.column;
-            Util::Graphic::Ansi::setPosition(position);
-            Util::System::out << ' ' << Util::Io::PrintStream::flush;
-            Util::Graphic::Ansi::setPosition(position);
-        } else {
-            Util::Graphic::Ansi::moveCursorLeft(1);
-            Util::System::out << ' ' << Util::Io::PrintStream::flush;
-            Util::Graphic::Ansi::moveCursorLeft(1);
-        }
+        Util::System::out << afterCursor << ' ' << Util::Io::PrintStream::flush;
+        Util::Graphic::Ansi::setPosition(cursorPos);
     }
 }
 
 void Shell::handleTab() {
 
+}
+
+uint32_t Shell::getScrolledLines() const {
+    auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
+    auto currentScrolledRow = (startPosition.row + (currentLine.length() + startPosition.column) / (cursorLimits.column + 1));
+    return currentScrolledRow > cursorLimits.row ? currentScrolledRow - cursorLimits.row : 0;
+}
+
+Util::Graphic::Ansi::CursorPosition Shell::getStartPosition() const {
+    auto cursorPos = Util::Graphic::Ansi::getCursorPosition();
+    auto scrolledLines = getScrolledLines();
+    auto startPosition = Util::Graphic::Ansi::CursorPosition{Shell::startPosition.column, static_cast<uint16_t>(Shell::startPosition.row - scrolledLines)};
+    if (startPosition.row > cursorPos.row) {
+        startPosition.row = cursorPos.row;
+    }
+
+    return startPosition;
 }

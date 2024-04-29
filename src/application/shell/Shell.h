@@ -78,6 +78,10 @@ private:
 
     void parseInput();
 
+    [[nodiscard]] uint32_t getScrolledLines() const;
+
+    [[nodiscard]] Util::Graphic::Ansi::CursorPosition getStartPosition() const;
+
     [[nodiscard]] Util::String checkPath(const Util::String &command) const;
 
     Util::String checkDirectory(const Util::String &command, Util::Io::File &directory) const;
