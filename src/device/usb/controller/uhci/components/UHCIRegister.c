@@ -2,23 +2,29 @@
 #include "../../../dev/UsbDevice.h"
 #include "../../../interfaces/LoggerInterface.h"
 #include "../../UsbControllerFlags.h"
-#include "UHCIMemory.h"
+#include "../../components/ControllerMemory.h"
 #include "stdint.h"
 
-void new_reg(Register *reg, char *name, uint8_t length, void *raw,
-             struct Addr_Region *addr_reg) {
-  reg->raw_data = raw;
-  reg->name = name;
-  reg->length = length;
-  reg->addr_reg = addr_reg;
-}
+__REGISTER_DECLARE_FUNCTIONS__(Command, command, uint16_t);
+__REGISTER_DECLARE_FUNCTIONS__(Status, status, uint16_t);
+__REGISTER_DECLARE_FUNCTIONS__(Interrupt, interrupt, uint16_t);
+__REGISTER_PORT_DECLARE_FUNCTION__;
+__REGISTER_DECLARE_FUNCTIONS__(Frame_Numb, frame_number, uint16_t);
+__REGISTER_DECLARE_FUNCTIONS__(Frame_Base, frame_base, uint32_t);
+__REGISTER_DECLARE_FUNCTIONS__(SOF, sof, uint8_t);
 
-Register_Type command_reg_type_of(Register *reg) { return Usb_Command; }
+__DECLARE_DUMP_USB_REG__(cmd);
+__DECLARE_DUMP_USB_REG__(sts);
+__DECLARE_DUMP_USB_REG__(intr);
+__DECLARE_DUMP_USB_REG__(portsc);
+__DECLARE_DUMP_USB_REG__(frnum);
+__DECLARE_DUMP_USB_REG__(flbaseadd);
+__DECLARE_DUMP_USB_REG__(sofmod);
 
-void command_reg_reload(Register *reg) {
-  uint16_t d1 = *((uint16_t *)reg->raw_data);
-  Command_Register *creg =
-      (Command_Register *)container_of(reg, Command_Register, super);
+__REGISTER_TYPE_OF_FUNCTION__(command) { return Usb_Command; }
+
+__REGISTER_RELOAD_FUNCTION__(command){
+  __REGISTER_RELOAD_INITIALIZER__(uint16_t, __REGISTER_NAME__(Command), reg, creg);
   creg->max_packet = (d1 & MAXP) >> 7;
   creg->configure = (d1 & CF) >> 6;
   creg->software_debug = (d1 & SWDBG) >> 5;
@@ -29,68 +35,32 @@ void command_reg_reload(Register *reg) {
   creg->run = (d1 & RS);
 }
 
-void command_reg_set(Register *reg, void *b) {
-  uint16_t word = *((uint16_t *)b);
-  uint16_t raw = *((uint16_t *)reg->raw_data);
-  word |= raw;
-  reg->write(reg, &word);
-  reg->reload(reg);
+__REGISTER_SET_FUNCTION__(command){
+  __REGISTER_SET_INITIALIZER__(uint16_t, reg, b);
 }
 
-size_t command_reg_write(Register *reg, void *b) {
-  size_t word_count;
-  uint16_t word = *((uint16_t *)b);
-  Addr_Region *addr_reg = reg->addr_reg;
-  Register_Type type = reg->type_of(reg);
-  word_count = addr_reg->write(addr_reg, &word, reg->length, &type);
-  *((uint16_t *)(reg->raw_data)) = word;
-  reg->reload(reg);
-  return word_count;
+__REGISTER_WRITE_FUNCTION__(command) {
+  __REGISTER_WRITE_INTIIALIZER__(uint16_t, reg, b);
 }
 
-void command_reg_clear(Register *reg, void *b) {
-  uint16_t word = *((uint16_t *)b);
-  uint16_t raw = *((uint16_t *)reg->raw_data);
-  raw &= ~word;
-  reg->write(reg, &raw);
-  reg->reload(reg);
+__REGISTER_CLEAR_FUNCTION__(command) {
+  __REGISTER_CLEAR_INITIALIZER__(uint16_t, reg, b);
 }
 
-size_t command_reg_read(Register *reg, void *buffer) {
-  Addr_Region *addr_reg = reg->addr_reg;
-  Register_Type type = reg->type_of(reg);
-  size_t read_count = addr_reg->read(addr_reg, reg->length, &type, buffer);
-  *((uint16_t *)reg->raw_data) = *((uint16_t *)buffer);
-  reg->reload(reg);
-  return read_count;
+__REGISTER_READ_FUNCTION__(command) {
+  __REGISTER_READ_INITIALIZER__(uint16_t, reg, b);
 }
 
-void new_command_reg(Command_Register *reg, Addr_Region *addr_reg,
-                     uint16_t *buffer) {
-  reg->super.new_register = &new_reg;
-  reg->super.reload = &command_reg_reload;
-  reg->super.type_of = &command_reg_type_of;
-  reg->super.read = &command_reg_read;
-  reg->super.write = &command_reg_write;
-  reg->super.set = &command_reg_set;
-  reg->super.clear = &command_reg_clear;
-  reg->super.dump = &dump_usb_cmd;
-
-  mem_set((uint8_t *)buffer, 0x02, 0);
-
-  reg->super.new_register(&reg->super, DEF_NAME(Usb, command), 0x02, buffer,
-                          addr_reg);
+__REGISTER_NEW_FUNCTION__(Command, command, uint16_t){
+  __REGISTER_INITIALIZER__(reg, COMMAND, buffer, addr_reg, 0x02, 
+    __DEF_NAME__(USB, COMMAND));
 }
 
 // status register is write clear !
+__REGISTER_TYPE_OF_FUNCTION__(status) { return Usb_Status; }
 
-Register_Type status_reg_type_of(Register *reg) { return Usb_Status; }
-
-void status_reg_reload(Register *reg) {
-  uint16_t d1 = *((uint16_t *)reg->raw_data);
-  Status_Register *sreg =
-      (Status_Register *)container_of(reg, Status_Register, super);
-
+__REGISTER_RELOAD_FUNCTION__(status) {
+  __REGISTER_RELOAD_INITIALIZER__(uint16_t, __REGISTER_NAME__(Status), reg, sreg);
   sreg->halted = (d1 & HALTED) >> 5;
   sreg->process_error = (d1 & PCS_ERR) >> 4;
   sreg->system_error = (d1 & SYS_ERR) >> 3;
@@ -99,131 +69,70 @@ void status_reg_reload(Register *reg) {
   sreg->interrupt = (d1 & INT);
 }
 
-void status_reg_set(Register *reg, void *b) {
+__REGISTER_CLEAR_FUNCTION__(status) {
   uint16_t word = *((uint16_t *)b);
-  uint16_t raw = *((uint16_t *)reg->raw_data);
-  word |= raw;
+
   reg->write(reg, &word);
-  reg->reload(reg);
 }
 
 // 0x00FF
-size_t status_reg_write(Register *reg, void *b) {
+__REGISTER_WRITE_FUNCTION__(status) {
   size_t word_count;
   uint16_t word = *((uint16_t *)b);
   Addr_Region *addr_reg = reg->addr_reg;
   Register_Type type = reg->type_of(reg);
   word_count = addr_reg->write(addr_reg, &word, reg->length, &type);
 
-  uint16_t r;
-  reg->read(reg, &r);
-
-  *((uint16_t *)(reg->raw_data)) = r & ~word;
+  *((uint16_t *)(reg->raw_data)) &= ~word;
   reg->reload(reg);
 
   return word_count;
 }
 
-size_t status_reg_read(Register *reg, void *buffer) {
-  Addr_Region *addr_reg = reg->addr_reg;
-  Register_Type type = reg->type_of(reg);
-  size_t read_count = addr_reg->read(addr_reg, reg->length, &type, buffer);
-  *((uint16_t *)reg->raw_data) = *((uint16_t *)buffer);
-  reg->reload(reg);
-  return read_count;
+__REGISTER_READ_FUNCTION__(status) {
+  __REGISTER_READ_INITIALIZER__(uint16_t, reg, b);
 }
 
-void new_status_reg(Status_Register *reg, Addr_Region *addr_reg,
-                    uint16_t *buffer) {
-  reg->super.new_register = &new_reg;
-  reg->super.reload = &status_reg_reload;
-  reg->super.type_of = &status_reg_type_of;
-  reg->super.set = &status_reg_set;
-  // reg->super.clear = &status_reg_clear;
-  reg->super.write = &status_reg_write;
-  reg->super.read = &status_reg_read;
-  reg->super.dump = &dump_usb_sts;
+__REGISTER_SET_FUNCTION__(status){}
 
-  mem_set((uint8_t *)buffer, 0x02, 0);
-
-  reg->super.new_register(&reg->super, DEF_NAME(Usb, status), 0x02, buffer,
-                          addr_reg);
+__REGISTER_NEW_FUNCTION__(Status, status, uint16_t) {
+  __REGISTER_INITIALIZER__(reg, STATUS, buffer, addr_reg, 0x02, 
+    __DEF_NAME__(USB, STATUS));
 }
 
-Register_Type interrupt_reg_type_of(Register *reg) { return Usb_Interrupt; }
+__REGISTER_TYPE_OF_FUNCTION__(interrupt) { return Usb_Interrupt; }
 
-void interrupt_reg_reload(Register *reg) {
-  uint16_t d1 = *((uint16_t *)reg->raw_data);
-  Interrupt_Register *ireg =
-      (Interrupt_Register *)container_of(reg, Interrupt_Register, super);
-
+__REGISTER_RELOAD_FUNCTION__(interrupt) {
+  __REGISTER_RELOAD_INITIALIZER__(uint16_t, __REGISTER_NAME__(Interrupt), reg, ireg);
   ireg->short_packet = (d1 & SHORT_PACK) >> 3;
   ireg->complete = (d1 & COMPLETE) >> 2;
   ireg->resume = (d1 & RESUME) >> 1;
   ireg->timeout_crc = (d1 & TMOUT_CRC);
 }
 
-size_t interrupt_reg_write(Register *reg, void *b) {
-  size_t word_count;
-  uint16_t word = *((uint16_t *)b);
-  Addr_Region *addr_reg = reg->addr_reg;
-  Register_Type type = reg->type_of(reg);
-  word_count = addr_reg->write(addr_reg, &word, reg->length, &type);
-  *((uint16_t *)(reg->raw_data)) = word;
-  reg->reload(reg);
-
-  return word_count;
+__REGISTER_WRITE_FUNCTION__(interrupt) {
+  __REGISTER_WRITE_INTIIALIZER__(uint16_t, reg, b);
 }
 
-void interrupt_reg_set(Register *reg, void *b) {
-  uint16_t word = *((uint16_t *)b);
-  uint16_t raw = *((uint16_t *)reg->raw_data);
-  word |= raw;
-  reg->write(reg, &word);
-  reg->reload(reg);
+__REGISTER_SET_FUNCTION__(interrupt) {
+  __REGISTER_SET_INITIALIZER__(uint16_t, reg, b);
 }
 
-void interrupt_reg_clear(Register *reg, void *b) {
-  uint16_t word = *((uint16_t *)b);
-  uint16_t raw = *((uint16_t *)reg->raw_data);
-  raw &= ~word;
-  reg->write(reg, &raw);
-  reg->reload(reg);
+__REGISTER_CLEAR_FUNCTION__(interrupt) {
+  __REGISTER_CLEAR_INITIALIZER__(uint16_t, reg, b);
 }
 
-size_t interrupt_reg_read(Register *reg, void *buffer) {
-  size_t word_count;
-  Addr_Region *addr_reg = reg->addr_reg;
-  Register_Type type = reg->type_of(reg);
-  word_count = addr_reg->read(addr_reg, reg->length, &type, buffer);
-  *((uint16_t *)reg->raw_data) = *((uint16_t *)buffer);
-  reg->reload(reg);
-
-  return word_count;
+__REGISTER_READ_FUNCTION__(interrupt) {
+  __REGISTER_READ_INITIALIZER__(uint16_t, reg, b);
 }
 
-void new_interrupt_reg(Interrupt_Register *reg, Addr_Region *addr_reg,
-                       uint16_t *buffer) {
-  reg->super.new_register = &new_reg;
-  reg->super.reload = &interrupt_reg_reload;
-  reg->super.type_of = &interrupt_reg_type_of;
-  reg->super.set = &interrupt_reg_set;
-  reg->super.clear = &interrupt_reg_clear;
-  reg->super.write = &interrupt_reg_write;
-  reg->super.read = &interrupt_reg_read;
-  reg->super.dump = &dump_usb_intr;
-
-  mem_set((uint8_t *)buffer, 0x02, 0);
-
-  reg->super.new_register(&reg->super, DEF_NAME(Usb, interrupt), 0x02, buffer,
-                          addr_reg);
+__REGISTER_NEW_FUNCTION__(Interrupt, interrupt, uint16_t) {
+  __REGISTER_INITIALIZER__(reg, INTERRUPT, buffer, addr_reg, 0x02, 
+    __DEF_NAME__(USB, INTERRUPT));
 }
 
-void port_reg_reload(Register *reg) {
-  uint16_t d1 = *((uint16_t *)reg->raw_data);
-  Port_Register *preg =
-      (Port_Register *)container_of(reg, Port_Register, super);
-
+__REGISTER_RELOAD_FUNCTION__(port) {
+  __REGISTER_RELOAD_INITIALIZER__(uint16_t, __REGISTER_NAME__(Port), reg, preg);
   preg->suspend = (d1 & SUSPEND) >> 12;
   preg->reset = (d1 & RESET) >> 9;
   preg->low_speed = (d1 & LOW_SPEED_ATTACH) >> 8;
@@ -236,220 +145,118 @@ void port_reg_reload(Register *reg) {
   preg->connected = (d1 & CONNECT);
 }
 
-Register_Type port_reg_type_of_1(Register *reg) { return Port1_Status; }
+__REGISTER_TYPE_OF_PORT__(port, 1) { return Port1_Status; }
 
-Register_Type port_reg_type_of_2(Register *reg) { return Port2_Status; }
+__REGISTER_TYPE_OF_PORT__(port, 2) { return Port2_Status; }
 
-size_t port_reg_write(Register *reg, void *b) {
+__REGISTER_WRITE_FUNCTION__(port) {
   size_t word_count;
   uint16_t word = *((uint16_t *)b);
   Addr_Region *addr_reg = reg->addr_reg;
   Register_Type type = reg->type_of(reg);
   word_count = addr_reg->write(addr_reg, &word, reg->length, &type);
-  *((uint16_t *)(reg->raw_data)) = word;
+
+  *((uint16_t *)(reg->raw_data)) = (word & ~(CON_CHANGE | ENA_CHANGE)) | 
+    ((*((uint16_t *)(reg->raw_data)) & (CON_CHANGE | ENA_CHANGE)) & 
+    ~(word & (CON_CHANGE | ENA_CHANGE)));
+
   reg->reload(reg);
 
   return word_count;
 }
 
-void port_reg_clear(Register *reg, void *b) {
-  uint16_t word = *((uint16_t *)b);
-  uint16_t raw = *((uint16_t *)reg->raw_data);
-  raw &= ~word;
-  reg->write(reg, &raw);
-  reg->reload(reg);
+__REGISTER_READ_FUNCTION__(port) {
+  __REGISTER_READ_INITIALIZER__(uint16_t, reg, b);
 }
 
-void port_reg_set(Register *reg, void *b) {
-  uint16_t word = *((uint16_t *)b);
-  uint16_t raw = *((uint16_t *)reg->raw_data);
-  word |= raw;
-  reg->write(reg, &word);
-  reg->reload(reg);
-}
+__REGISTER_SET_FUNCTION__(port){}
+__REGISTER_CLEAR_FUNCTION__(port){}
 
-size_t port_reg_read(Register *reg, void *buffer) {
-  size_t word_count;
-  Addr_Region *addr_reg = reg->addr_reg;
-  Register_Type type = reg->type_of(reg);
-  word_count = addr_reg->read(addr_reg, reg->length, &type, buffer);
-  *((uint16_t *)reg->raw_data) = *((uint16_t *)buffer);
-  reg->reload(reg);
-
-  return word_count;
-}
-
-void new_port_reg(Port_Register *reg, int pn, Addr_Region *addr_reg,
-                  uint16_t *buffer) {
-  reg->super.new_register = &new_reg;
-  reg->super.reload = &port_reg_reload;
-  reg->super.set = &port_reg_set;
-  reg->super.clear = &port_reg_clear;
-  reg->super.write = &port_reg_write;
-  reg->super.read = &port_reg_read;
-  reg->super.dump = &dump_usb_portsc;
-
-  mem_set((uint8_t *)buffer, 0x02, 0);
+__REGISTER_PORT_NEW_FUNCTION__ {
+  __REGISTER_PORT_INITIALIZER__(reg);
 
   if (pn == 1) {
-    reg->super.type_of = &port_reg_type_of_1;
-    reg->super.new_register(&reg->super, DEF_NAME(Port, 1), 0x02, buffer,
-                            addr_reg);
+    __REGISTER_PORT_SUB_ROUTINE__(reg, 1, buffer, addr_reg);
   } else if (pn == 2) {
-    reg->super.type_of = &port_reg_type_of_2;
-    reg->super.new_register(&reg->super, DEF_NAME(Port, 2), 0x02, buffer,
-                            addr_reg);
+    __REGISTER_PORT_SUB_ROUTINE__(reg, 2, buffer, addr_reg);
   }
 }
 
-void frame_number_reg_reload(Register *reg) {
-  uint16_t d1 = *((uint16_t *)reg->raw_data);
-  Frame_Numb_Register *f_n_reg =
-      (Frame_Numb_Register *)container_of(reg, Frame_Numb_Register, super);
+__REGISTER_RELOAD_FUNCTION__(frame_number) {
+  __REGISTER_RELOAD_INITIALIZER__(uint16_t, __REGISTER_NAME__(Frame_Numb), reg, 
+    f_n_reg);
 
   f_n_reg->frame_num = d1;
 }
 
-Register_Type frame_number_reg_type_of(Register *reg) { return Frame_Number; }
+__REGISTER_TYPE_OF_FUNCTION__(frame_number) { return Frame_Number; }
 
-size_t frame_number_reg_write(Register *reg, void *b) {
-  size_t word_count;
-  uint16_t word = *((uint16_t *)b);
-  Addr_Region *addr_reg = reg->addr_reg;
-  Register_Type type = reg->type_of(reg);
-  word_count = addr_reg->write(addr_reg, &word, reg->length, &type);
-  *((uint16_t *)(reg->raw_data)) = word;
-  reg->reload(reg);
-
-  return word_count;
+__REGISTER_WRITE_FUNCTION__(frame_number) {
+  __REGISTER_WRITE_INTIIALIZER__(uint16_t, reg, b);
 }
 
-size_t frame_number_reg_read(Register *reg, void *buffer) {
-  size_t word_count;
-  Addr_Region *addr_reg = reg->addr_reg;
-  Register_Type type = reg->type_of(reg);
-  word_count = addr_reg->read(addr_reg, reg->length, &type, buffer);
-  *((uint16_t *)reg->raw_data) = *((uint16_t *)buffer);
-  reg->reload(reg);
-
-  return word_count;
+__REGISTER_READ_FUNCTION__(frame_number) {
+  __REGISTER_READ_INITIALIZER__(uint16_t, reg, b);
 }
 
-void new_frame_number_reg(Frame_Numb_Register *reg, Addr_Region *addr_reg,
-                          uint16_t *buffer) {
-  reg->super.new_register = &new_reg;
-  reg->super.reload = &frame_number_reg_reload;
-  reg->super.type_of = &frame_number_reg_type_of;
-  reg->super.write = &frame_number_reg_write;
-  reg->super.read = &frame_number_reg_read;
-  reg->super.dump = &dump_usb_frnum;
+__REGISTER_SET_FUNCTION__(frame_number) {}
+__REGISTER_CLEAR_FUNCTION__(frame_number) {}
 
-  mem_set((uint8_t *)buffer, 0x02, 0);
-
-  reg->super.new_register(&reg->super, DEF_NAME(Frame, number), 0x02, buffer,
-                          addr_reg);
+__REGISTER_NEW_FUNCTION__(Frame_Numb, frame_number, uint16_t) {
+  __REGISTER_INITIALIZER__(reg, FRAME_NUMBER, buffer, addr_reg, 0x02, 
+    __DEF_NAME__(FRAME, NUMBER));
 }
 
-void frame_base_reg_reload(Register *reg) {
-  uint32_t d1 = *((uint32_t *)reg->raw_data);
-  Frame_Base_Register *f_b_r =
-      (Frame_Base_Register *)container_of(reg, Frame_Base_Register, super);
-
+__REGISTER_RELOAD_FUNCTION__(frame_base) {
+  __REGISTER_RELOAD_INITIALIZER__(uint32_t, __REGISTER_NAME__(Frame_Base), reg, 
+    f_b_r);
   f_b_r->frame_address = d1;
 }
 
-Register_Type frame_base_reg_type_of(Register *reg) {
+__REGISTER_TYPE_OF_FUNCTION__(frame_base) {
   return Frame_List_Base_Address;
 }
 
-size_t frame_base_reg_write(Register *reg, void *b) {
-
-  size_t word_count;
-  uint32_t *dword = (uint32_t *)b;
-  Addr_Region *addr_reg = reg->addr_reg;
-  Register_Type type = reg->type_of(reg);
-
-  word_count = addr_reg->write(addr_reg, dword, reg->length, &type);
-  *((uint32_t *)(reg->raw_data)) = *dword;
-  reg->reload(reg);
-
-  return word_count;
+__REGISTER_WRITE_FUNCTION__(frame_base) {
+  __REGISTER_WRITE_INTIIALIZER__(uint32_t, reg, b);
 }
 
-size_t frame_base_reg_read(Register *reg, void *buffer) {
-  size_t word_count;
-  Addr_Region *addr_reg = reg->addr_reg;
-  Register_Type type = reg->type_of(reg);
-  word_count = addr_reg->read(addr_reg, reg->length, &type, buffer);
-  *((uint32_t *)reg->raw_data) = *((uint32_t *)buffer);
-  reg->reload(reg);
-
-  return word_count;
+__REGISTER_READ_FUNCTION__(frame_base) {
+  __REGISTER_READ_INITIALIZER__(uint32_t, reg, b);
 }
 
-void new_frame_base_reg(Frame_Base_Register *reg, Addr_Region *addr_reg,
-                        uint32_t *buffer) {
-  reg->super.new_register = &new_reg;
-  reg->super.type_of = &frame_base_reg_type_of;
-  reg->super.reload = &frame_base_reg_reload;
-  reg->super.write = &frame_base_reg_write;
-  reg->super.read = &frame_base_reg_read;
-  reg->super.dump = &dump_usb_flbaseadd;
+__REGISTER_CLEAR_FUNCTION__(frame_base) {}
+__REGISTER_SET_FUNCTION__(frame_base) {}
 
-  mem_set((uint8_t *)buffer, 0x04, 0);
-
-  reg->super.new_register(&reg->super, DEF_NAME(Frame, base_address), 0x04,
-                          buffer, addr_reg);
+__REGISTER_NEW_FUNCTION__(Frame_Base, frame_base, uint32_t) {
+  __REGISTER_INITIALIZER__(reg, FRAME_BASE, buffer, addr_reg, 0x04, 
+    __DEF_NAME__(FRAME, BASE_ADDR));
 }
 
-void sof_reg_reload(Register *reg) {
-  uint8_t d1 = *((uint8_t *)reg->raw_data);
-  SOF_Register *sof = (SOF_Register *)container_of(reg, SOF_Register, super);
-
+__REGISTER_RELOAD_FUNCTION__(sof){
+  __REGISTER_RELOAD_INITIALIZER__(uint8_t, __REGISTER_NAME__(SOF), reg, sof);
   sof->frame_duration = d1;
 }
 
-Register_Type sof_reg_type_of(Register *reg) { return Start_of_Frame; }
+__REGISTER_TYPE_OF_FUNCTION__(sof) { return Start_of_Frame; }
 
-size_t sof_reg_write(Register *reg, void *b) {
-  size_t word_count;
-  uint8_t byte = *((uint8_t *)b);
-  Addr_Region *addr_reg = reg->addr_reg;
-  Register_Type type = reg->type_of(reg);
-
-  word_count = addr_reg->write(addr_reg, &byte, reg->length, &type);
-  *((uint8_t *)(reg->raw_data)) = byte;
-  reg->reload(reg);
-
-  return word_count;
+__REGISTER_WRITE_FUNCTION__(sof) {
+  __REGISTER_WRITE_INTIIALIZER__(uint8_t, reg, b);
 }
 
-size_t sof_reg_read(Register *reg, void *buffer) {
-  size_t word_count;
-  Addr_Region *addr_reg = reg->addr_reg;
-  Register_Type type = reg->type_of(reg);
-  word_count = addr_reg->read(addr_reg, reg->length, &type, buffer);
-  *((uint8_t *)reg->raw_data) = *((uint8_t *)buffer);
-  reg->reload(reg);
-
-  return word_count;
+__REGISTER_READ_FUNCTION__(sof) {
+  __REGISTER_READ_INITIALIZER__(uint8_t, reg, b);
 }
 
-void new_sof_reg(SOF_Register *reg, Addr_Region *addr_reg, uint8_t *buffer) {
-  reg->super.new_register = &new_reg;
-  reg->super.type_of = &sof_reg_type_of;
-  reg->super.reload = &sof_reg_reload;
-  reg->super.write = &sof_reg_write;
-  reg->super.read = &sof_reg_read;
-  reg->super.dump = &dump_usb_sofmod;
+__REGISTER_CLEAR_FUNCTION__(sof) {}
+__REGISTER_SET_FUNCTION__(sof) {}
 
-  mem_set(buffer, 0x01, 0);
-
-  reg->super.new_register(&reg->super, STRINGIZE(start_of_frame), 0x01, buffer,
-                                                 addr_reg);
+__REGISTER_NEW_FUNCTION__(SOF, sof, uint8_t) {
+  __REGISTER_INITIALIZER__(reg, SOF, buffer, addr_reg, 0x01, 
+    __DEF_NAME__(USB, SOF));
 }
 
-void dump_usb_cmd(Register *reg, Logger_C *logger) {
+static void dump_usb_cmd(Register *reg, Logger_C *logger) {
   if (logger == (void *)0)
     return;
   Command_Register *c_reg =
@@ -465,7 +272,7 @@ void dump_usb_cmd(Register *reg, Logger_C *logger) {
                   c_reg->host_controller_reset, c_reg->run);
 }
 
-void dump_usb_sts(Register *reg, Logger_C *logger) {
+static void dump_usb_sts(Register *reg, Logger_C *logger) {
   if (logger == (void *)0)
     return;
   Status_Register *status_reg =
@@ -482,7 +289,7 @@ void dump_usb_sts(Register *reg, Logger_C *logger) {
                   status_reg->interrupt);
 }
 
-void dump_usb_intr(Register *reg, Logger_C *logger) {
+static void dump_usb_intr(Register *reg, Logger_C *logger) {
   if (logger == (void *)0)
     return;
   Interrupt_Register *intr_reg =
@@ -495,7 +302,7 @@ void dump_usb_intr(Register *reg, Logger_C *logger) {
                   intr_reg->complete, intr_reg->resume, intr_reg->timeout_crc);
 }
 
-void dump_usb_portsc(Register *reg, Logger_C *logger) {
+static void dump_usb_portsc(Register *reg, Logger_C *logger) {
   if (logger == (void *)0)
     return;
   Port_Register *port_reg =
@@ -513,7 +320,7 @@ void dump_usb_portsc(Register *reg, Logger_C *logger) {
                   port_reg->connected_changed, port_reg->connected);
 }
 
-void dump_usb_frnum(Register *reg, Logger_C *logger) {
+static void dump_usb_frnum(Register *reg, Logger_C *logger) {
   if (logger == (void *)0)
     return;
   Frame_Numb_Register *fn_reg =
@@ -524,7 +331,7 @@ void dump_usb_frnum(Register *reg, Logger_C *logger) {
   logger->debug_c(logger, fn_reg_msg, fn_reg->frame_num);
 }
 
-void dump_usb_flbaseadd(Register *reg, Logger_C *logger) {
+static void dump_usb_flbaseadd(Register *reg, Logger_C *logger) {
   if (logger == (void *)0)
     return;
   Frame_Base_Register *fb_reg =
@@ -535,7 +342,7 @@ void dump_usb_flbaseadd(Register *reg, Logger_C *logger) {
   logger->debug_c(logger, fb_reg_msg, fb_reg->frame_address);
 }
 
-void dump_usb_sofmod(Register *reg, Logger_C *logger) {
+static void dump_usb_sofmod(Register *reg, Logger_C *logger) {
   if (logger == (void *)0)
     return;
   SOF_Register *sof_reg =
