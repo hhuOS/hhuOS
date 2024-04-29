@@ -24,7 +24,7 @@
 
 namespace Device::Storage {
 
-AhciDevice::AhciDevice(uint32_t portNumber, AhciController::DeviceInfo *deviceInfo, AhciController &controller) : portNumber(portNumber), info(*deviceInfo), controller(controller) {}
+AhciDevice::AhciDevice(uint32_t portNumber, AhciController::DeviceSignature type, AhciController::DeviceInfo *deviceInfo, AhciController &controller) : portNumber(portNumber), type(type), info(*deviceInfo), controller(controller) {}
 
 AhciDevice::~AhciDevice() {
     delete &info;
@@ -39,6 +39,10 @@ uint64_t AhciDevice::getSectorCount() {
 }
 
 uint32_t AhciDevice::read(uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
+    if (type) {
+        return controller.performAtapiIO(portNumber, info, AhciController::READ, buffer, startSector, sectorCount);
+    }
+
     return controller.performAtaIO(portNumber, info, AhciController::READ, buffer, startSector, sectorCount);
 }
 

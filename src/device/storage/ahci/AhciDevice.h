@@ -34,7 +34,7 @@ public:
     /**
      * Default Constructor.
      */
-    AhciDevice(uint32_t portNumber, AhciController::DeviceInfo *deviceInfo, AhciController &controller);
+    AhciDevice(uint32_t portNumber, AhciController::DeviceSignature type, AhciController::DeviceInfo *deviceInfo, AhciController &controller);
 
     /**
      * Copy Constructor.
@@ -74,6 +74,7 @@ public:
 private:
 
     const uint32_t portNumber;
+    const AhciController::DeviceSignature type;
     const AhciController::DeviceInfo &info;
     AhciController &controller;
 

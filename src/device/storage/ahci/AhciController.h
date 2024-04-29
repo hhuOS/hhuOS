@@ -42,6 +42,14 @@ class AhciController : Kernel::InterruptHandler {
 
 public:
 
+    enum DeviceSignature : uint32_t {
+        NONE = 0x00000000,
+        ATA = 0x00000101,
+        ATAPI = 0xeb140101,
+        ENCLOSURE_POWER_MANAGEMENT_BRIDGE = 0xc33c0101,
+        PORT_MULTIPLIER = 0x96690101
+    };
+
     enum TransferMode : uint8_t {
         READ = 0x0,
         WRITE = 0x1,
@@ -195,19 +203,13 @@ public:
 
     uint16_t performAtaIO(uint32_t portNumber, const DeviceInfo &deviceInfo, TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount);
 
+    uint16_t performAtapiIO(uint32_t portNumber, const DeviceInfo &deviceInfo, TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount);
+
     void plugin() override;
 
     void trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) override;
 
 private:
-
-    enum DeviceSignature : uint32_t {
-        NONE = 0x00000000,
-        ATA = 0x00000101,
-        ATAPI = 0xeb140101,
-        ENCLOSURE_POWER_MANAGEMENT_BRIDGE = 0xc33c0101,
-        PORT_MULTIPLIER = 0x96690101
-    };
 
     enum DeviceDetection : uint8_t {
         NO_DEVICE = 0x00,
@@ -274,7 +276,8 @@ private:
         READ_DMA = 0xc8,
         READ_DMA_EX = 0x25,
         WRITE_DMA = 0xca,
-        WRITE_DMA_EX = 0x35
+        WRITE_DMA_EX = 0x35,
+        ATAPI_READ = 0xa8
     };
 
     struct FisRegisterHostToDevice {
@@ -424,7 +427,7 @@ private:
     uint32_t portCount = 0;
 
     static const constexpr uint8_t PCI_SUBCLASS_AHCI = 0x06;
-    static const constexpr uint32_t AHCI_ENABLE_TIMEOUT_MS = 1000;
+    static const constexpr uint32_t AHCI_ENABLE_TIMEOUT = 1000;
     static const constexpr uint32_t COMMAND_TIMEOUT = 10000;
     static const constexpr uint32_t SECTORS_PER_DESCRIPTOR_ENTRY = 8;
 };
