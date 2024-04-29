@@ -23,7 +23,7 @@
 
 #include <cstdint>
 
-#include "filesystem/core/Node.h"
+#include "filesystem/Node.h"
 #include "IsoDriver.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"

@@ -18,7 +18,7 @@
 #ifndef HHUOS_DRIVER_H
 #define HHUOS_DRIVER_H
 
-#include "filesystem/core/Node.h"
+#include "Node.h"
 #include "device/storage/StorageDevice.h"
 
 namespace Filesystem {

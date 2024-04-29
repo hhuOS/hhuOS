@@ -18,7 +18,7 @@
 #ifndef HHUOS_PROCESSDRIVER_H
 #define HHUOS_PROCESSDRIVER_H
 
-#include "filesystem/core/VirtualDriver.h"
+#include "filesystem/VirtualDriver.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/file/File.h"
 

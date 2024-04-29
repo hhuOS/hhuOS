@@ -20,9 +20,9 @@
 #include "lib/util/reflection/InstanceFactory.h"
 #include "PhysicalDriver.h"
 #include "Filesystem.h"
-#include "filesystem/core/Driver.h"
-#include "filesystem/core/Node.h"
-#include "filesystem/core/VirtualDriver.h"
+#include "Driver.h"
+#include "Node.h"
+#include "VirtualDriver.h"
 #include "kernel/service/Service.h"
 
 namespace Filesystem {

@@ -20,7 +20,7 @@
 #include "filesystem/memory/StreamNode.h"
 #include "kernel/service/FilesystemService.h"
 #include "lib/util/async/Thread.h"
-#include "filesystem/core/Filesystem.h"
+#include "filesystem/Filesystem.h"
 #include "filesystem/memory/MemoryDriver.h"
 #include "kernel/log/Log.h"
 #include "lib/util/base/Exception.h"

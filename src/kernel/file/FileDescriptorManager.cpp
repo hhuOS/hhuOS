@@ -2,8 +2,8 @@
 #include "kernel/service/FilesystemService.h"
 #include "FileDescriptorManager.h"
 #include "kernel/file/FileDescriptorManager.h"
-#include "filesystem/core/Filesystem.h"
-#include "filesystem/core/Node.h"
+#include "filesystem/Filesystem.h"
+#include "filesystem/Node.h"
 #include "lib/util/base/Exception.h"
 #include "kernel/service/Service.h"
 

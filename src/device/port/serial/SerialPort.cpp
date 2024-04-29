@@ -21,7 +21,7 @@
 #include "filesystem/memory/StreamNode.h"
 #include "kernel/service/FilesystemService.h"
 #include "SerialPort.h"
-#include "filesystem/core/Filesystem.h"
+#include "filesystem/Filesystem.h"
 #include "filesystem/memory/MemoryDriver.h"
 #include "kernel/interrupt/InterruptVector.h"
 #include "device/port/serial/SerialPort.h"

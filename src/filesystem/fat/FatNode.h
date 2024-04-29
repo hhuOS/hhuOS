@@ -21,7 +21,7 @@
 #include <cstdint>
 
 #include "filesystem/fat/ff/source/ff.h"
-#include "filesystem/core/Node.h"
+#include "filesystem/Node.h"
 #include "lib/util/base/String.h"
 
 namespace Filesystem::Fat {

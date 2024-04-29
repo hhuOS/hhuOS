@@ -25,6 +25,7 @@
 
 #include "device/bus/pci/PciDevice.h"
 #include "kernel/interrupt/InterruptHandler.h"
+#include "lib/util/base/Constants.h"
 
 namespace Kernel {
 enum InterruptVector : uint8_t;
@@ -272,12 +273,13 @@ private:
     enum Command : uint8_t {
         ATA_IDENTIFY = 0xec,
         ATAPI_IDENTIFY = 0xa1,
-        ATA_PACKET = 0xa0,
         READ_DMA = 0xc8,
         READ_DMA_EX = 0x25,
         WRITE_DMA = 0xca,
         WRITE_DMA_EX = 0x35,
-        ATAPI_READ = 0xa8
+        ATA_PACKET = 0xa0,
+        ATAPI_READ = 0xa8,
+        ATAPI_READ_CAPACITY = 0x25
     };
 
     struct FisRegisterHostToDevice {
@@ -338,6 +340,8 @@ private:
         void startCommandEngine();
 
         void stopCommandEngine();
+
+        bool issueCommand(uint8_t slot);
 
         [[nodiscard]] bool isActive() const;
 
@@ -405,7 +409,7 @@ private:
         uint8_t reserved[48];
         HbaPhysicalRegionDescriptorTableEntry physicalRegionDescriptorTable[];
 
-        static HbaCommandTable* createCommandTable(uint16_t descriptorCount);
+        static AhciController::HbaCommandTable *createCommandTable(uint32_t byteCount, void *physicalDmaBuffer);
     } __attribute__((packed));
 
     bool biosHandoff();
@@ -416,7 +420,15 @@ private:
 
     DeviceInfo* identifyDevice(uint32_t portNumber);
 
+    bool readAtapiCapacity(uint32_t portNumber, DeviceInfo *info);
+
+    void* readFromDevice(uint32_t portNumber, uint32_t byteCount, const uint8_t commandFis[64], const uint8_t atapiCommand[16]);
+
+    bool writeToDevice(uint32_t portNumber, void *physicalDmaAddress, uint32_t byteCount, const uint8_t commandFis[64], const uint8_t atapiCommand[16]);
+
     uint32_t findCommandSlot(uint32_t portNumber);
+
+    static void *allocateDmaBuffer(uint32_t size);
 
     static void byteSwapString(char *string, uint32_t length);
 
@@ -429,7 +441,7 @@ private:
     static const constexpr uint8_t PCI_SUBCLASS_AHCI = 0x06;
     static const constexpr uint32_t AHCI_ENABLE_TIMEOUT = 1000;
     static const constexpr uint32_t COMMAND_TIMEOUT = 10000;
-    static const constexpr uint32_t SECTORS_PER_DESCRIPTOR_ENTRY = 8;
+    static const constexpr uint32_t BYTES_PER_DESCRIPTOR_ENTRY = Util::PAGESIZE;
 };
 
 }

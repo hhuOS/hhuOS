@@ -24,7 +24,7 @@
 #include "kernel/service/TimeService.h"
 #include "kernel/service/PowerManagementService.h"
 #include "kernel/service/ProcessService.h"
-#include "filesystem/core/Node.h"
+#include "filesystem/Node.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/NetworkService.h"
 #include "kernel/network/Socket.h"

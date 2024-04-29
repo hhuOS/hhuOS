@@ -23,7 +23,7 @@
 
 #include <cstdint>
 
-#include "filesystem/core/Node.h"
+#include "filesystem/Node.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/network/Socket.h"
 

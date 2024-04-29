@@ -20,7 +20,7 @@
 
 #include "lib/util/io/file/tar/Archive.h"
 #include "lib/util/base/Address.h"
-#include "filesystem/core/Node.h"
+#include "filesystem/Node.h"
 
 namespace Filesystem::Tar {
 

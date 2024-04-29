@@ -82,7 +82,7 @@
 #include "device/port/serial/Serial.h"
 #include "device/port/serial/SerialPort.h"
 #include "device/port/serial/SimpleSerialPort.h"
-#include "filesystem/core/Filesystem.h"
+#include "filesystem/Filesystem.h"
 #include "kernel/multiboot/Multiboot.h"
 #include "kernel/network/NetworkStack.h"
 #include "kernel/network/ip4/Ip4Module.h"

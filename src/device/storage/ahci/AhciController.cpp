@@ -32,9 +32,9 @@
 #include "device/bus/pci/Pci.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/base/Address.h"
-#include "lib/util/base/Exception.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
+#include "lib/util/base/Exception.h"
 
 namespace Kernel {
 enum InterruptVector : uint8_t;
@@ -92,12 +92,14 @@ AhciController::AhciController(const PciDevice &pciDevice) : pciDevice(pciDevice
                 auto firmware = Util::String(reinterpret_cast<const uint8_t*>(info->firmwareRevision), sizeof(DeviceInfo::firmwareRevision)).strip();
                 LOG_INFO("Found %s drive on port [%u]: %s %s (Firmware: [%s])", type == ATA ? "ATA" : "ATAPI", i, static_cast<const char*>(model), static_cast<const char*>(serial), static_cast<const char*>(firmware));
 
-                if (type == ATAPI && info->bytesPerSector == 0) { // For some reason, bytesPerSector is always 0 on ATAPI devices
-                    info->bytesPerSector = 2048; // Most commonly used sector size for CD-ROMs
+                if (type == ATAPI) {
+                    readAtapiCapacity(i, info);
                 }
 
-                auto *device = new AhciDevice(i, type, info, *this);
-                Kernel::Service::getService<Kernel::StorageService>().registerDevice(device, type == ATA ? "ata" : "atapi");
+                if (info->bytesPerSector > 0 && info->lbaCapacity > 0) {
+                    auto *device = new AhciDevice(i, type, info, *this);
+                    Kernel::Service::getService<Kernel::StorageService>().registerDevice(device, type == ATA ? "ata" : "atapi");
+                }
             } else {
                 switch (type) {
                     case ENCLOSURE_POWER_MANAGEMENT_BRIDGE:
@@ -217,7 +219,7 @@ uint32_t AhciController::findCommandSlot(uint32_t portNumber) {
         }
     }
 
-    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "AHCI: No command slot available!");
+    return UINT32_MAX;
 }
 
 void AhciController::byteSwapString(char *string, uint32_t length) {
@@ -229,306 +231,229 @@ void AhciController::byteSwapString(char *string, uint32_t length) {
 }
 
 AhciController::DeviceInfo* AhciController::identifyDevice(uint32_t portNumber) {
-    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    auto &port = registers->ports[portNumber];
-    auto *commandList = virtualCommandLists[portNumber];
+    uint8_t commandFis[64]{};
+    uint8_t atapiCommand[16]{};
 
-    portLocks[portNumber].acquire();
+    auto &hostToDeviceFis = *reinterpret_cast<FisRegisterHostToDevice*>(commandFis);
+    hostToDeviceFis.type = REGISTER_HOST_TO_DEVICE;
+    hostToDeviceFis.commandControl = 1;
+    hostToDeviceFis.command = registers->ports[portNumber].signature == ATA ? ATA_IDENTIFY : ATAPI_IDENTIFY;
 
-    if (!port.isActive()) {
-        LOG_ERROR("Trying to identify device on an inactive port");
-        portLocks[portNumber].release();
-        return nullptr;
+    auto *info = static_cast<DeviceInfo*>(readFromDevice(portNumber, 512, commandFis, atapiCommand));
+    if (info != nullptr) {
+        byteSwapString(reinterpret_cast<char*>(info->model), sizeof(DeviceInfo::model));
+        byteSwapString(reinterpret_cast<char*>(info->serialNumber), sizeof(DeviceInfo::serialNumber));
+        byteSwapString(reinterpret_cast<char*>(info->firmwareRevision), sizeof(DeviceInfo::firmwareRevision));
     }
 
-    auto slot = findCommandSlot(portNumber);
+    return info;
+}
 
-    auto *dataBaseAddress = memoryService.mapIO(1);
-    auto *dataBaseAddressPhysical = memoryService.getPhysicalAddress(dataBaseAddress);
+bool AhciController::readAtapiCapacity(uint32_t portNumber, DeviceInfo *info) {
+    uint8_t commandFis[64]{};
+    uint8_t atapiCommand[16]{};
 
-    auto *commandTable = HbaCommandTable::createCommandTable(1);
-    auto &commandFis = *reinterpret_cast<FisRegisterHostToDevice*>(commandTable->commandFis);
-    commandFis.type = REGISTER_HOST_TO_DEVICE;
-    commandFis.commandControl = 1;
-    commandFis.command = port.signature == ATA ? ATA_IDENTIFY : ATAPI_IDENTIFY;
+    auto &hostToDeviceFis = *reinterpret_cast<FisRegisterHostToDevice*>(commandFis);
+    hostToDeviceFis.type = REGISTER_HOST_TO_DEVICE;
+    hostToDeviceFis.commandControl = 1;
+    hostToDeviceFis.command = ATA_PACKET;
+    hostToDeviceFis.featureLow = 1;
 
-    auto &descriptorEntry = commandTable->physicalRegionDescriptorTable[0];
-    descriptorEntry.dataBaseAddress = reinterpret_cast<uint32_t>(dataBaseAddressPhysical);
-    descriptorEntry.dataByteCount = 512 - 1;
+    atapiCommand[0] = ATAPI_READ_CAPACITY;
 
-    auto &commandHeader = commandList[slot];
-    commandHeader.clear();
-    commandHeader.physicalRegionDescriptorTableLength = 1;
-    commandHeader.commandFisLength = sizeof(FisRegisterHostToDevice) / sizeof(uint32_t);
-    commandHeader.commandTableDescriptorBaseAddress = reinterpret_cast<uint32_t>(memoryService.getPhysicalAddress(commandTable));
-
-    // Wait while device is busy
-    uint32_t timeout = Util::Time::getSystemTime().toMilliseconds() + COMMAND_TIMEOUT;
-    while (port.taskFileData & (BUSY | DATA_TRANSFER_REQUESTED)) {
-        if (Util::Time::getSystemTime().toMilliseconds() >= timeout) {
-            LOG_ERROR("Timeout while waiting on busy device");
-            portLocks[portNumber].release();
-            delete reinterpret_cast<uint8_t*>(dataBaseAddress);
-            delete commandTable;
-            return nullptr;
-        }
-
-        Util::Async::Thread::yield();
+    auto *response = reinterpret_cast<uint8_t*>(readFromDevice(portNumber, 8, commandFis, atapiCommand));
+    if (response == nullptr) {
+        LOG_WARN("Failed to read capacity from drive on port [%u] -> Probably no CD-ROM is present", portNumber);
+        info->lbaCapacity = 0;
+        info->bytesPerSector = 0;
+    } else {
+        info->lbaCapacity = (response[0] << 24) | (response[1] << 16) | (response[2] << 8) | response[3];
+        info->bytesPerSector = (response[4] << 24) | (response[5] << 16) | (response[6] << 8) | response[7];
     }
 
-    // Issue command
-    port.commandIssue = 1 << slot;
-
-    // Wait for command completion
-    timeout = Util::Time::getSystemTime().toMilliseconds() + COMMAND_TIMEOUT;
-    while (true) {
-        if (!(port.commandIssue & (1 << slot))) {
-            break;
-        }
-
-        if (port.interruptStatus & TASK_FILE_ERROR) {
-            LOG_ERROR("Read error during ATA_IDENTIFY command");
-            portLocks[portNumber].release();
-            delete commandTable;
-            delete reinterpret_cast<uint8_t*>(dataBaseAddress);
-            return nullptr;
-        }
-
-        if (Util::Time::getSystemTime().toMilliseconds() >= timeout) {
-            LOG_ERROR("Timeout during ATA_IDENTIFY command");
-            portLocks[portNumber].release();
-            delete reinterpret_cast<uint8_t*>(dataBaseAddress);
-            delete commandTable;
-            return nullptr;
-        }
-
-        Util::Async::Thread::yield();
-    }
-
-    auto *deviceInfo = static_cast<DeviceInfo*>(dataBaseAddress);
-    byteSwapString(reinterpret_cast<char*>(deviceInfo->model), sizeof(DeviceInfo::model));
-    byteSwapString(reinterpret_cast<char*>(deviceInfo->serialNumber), sizeof(DeviceInfo::serialNumber));
-    byteSwapString(reinterpret_cast<char*>(deviceInfo->firmwareRevision), sizeof(DeviceInfo::firmwareRevision));
-
-    portLocks[portNumber].release();
-    delete commandTable;
-    return deviceInfo;
+    delete response;
+    return true;
 }
 
 uint16_t AhciController::performAtaIO(uint32_t portNumber, const DeviceInfo &deviceInfo, AhciController::TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount) {
-    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    auto &port = registers->ports[portNumber];
-    auto *commandList = virtualCommandLists[portNumber];
-
-    portLocks[portNumber].acquire();
-
-    if (!port.isActive()) {
-        portLocks[portNumber].release();
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Trying to read/write from a device on an inactive port");
+    if (startSector + sectorCount > deviceInfo.lbaCapacity) {
+        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "AHCI: Trying to read/write out of disk bounds!");
     }
 
-    auto slot = findCommandSlot(portNumber);
+    uint8_t commandFis[64]{};
+    uint8_t atapiCommand[16]{};
 
-    const auto dmaSize = sectorCount * deviceInfo.bytesPerSector;
-    const auto dmaPages = dmaSize % Util::PAGESIZE == 0 ? (dmaSize / Util::PAGESIZE) : (dmaSize / Util::PAGESIZE) + 1;
-    auto *dmaBuffer = memoryService.allocateIsaMemory(dmaPages);
-    auto *physicalDmaAddress = memoryService.getPhysicalAddress(dmaBuffer);
-
-    if (mode == WRITE) {
-        auto sourceAddress = Util::Address<uint32_t>(buffer);
-        auto targetAddress = Util::Address<uint32_t>(dmaBuffer);
-        targetAddress.copyRange(sourceAddress, sectorCount * deviceInfo.bytesPerSector);
-    }
-
-    auto descriptorCount = sectorCount % SECTORS_PER_DESCRIPTOR_ENTRY == 0 ? (sectorCount / SECTORS_PER_DESCRIPTOR_ENTRY) : (sectorCount / SECTORS_PER_DESCRIPTOR_ENTRY) + 1;
-
-    auto *commandTable = HbaCommandTable::createCommandTable(descriptorCount);
-    for (uint32_t i = 0; i < descriptorCount; i++) {
-        auto &entry = commandTable->physicalRegionDescriptorTable[i];
-
-        uint32_t remainingSectors = sectorCount - (i * SECTORS_PER_DESCRIPTOR_ENTRY);
-        entry.dataBaseAddress = reinterpret_cast<uint32_t>(physicalDmaAddress) + i * SECTORS_PER_DESCRIPTOR_ENTRY * deviceInfo.bytesPerSector;
-        entry.dataByteCount = ((remainingSectors < SECTORS_PER_DESCRIPTOR_ENTRY ? remainingSectors : SECTORS_PER_DESCRIPTOR_ENTRY) * deviceInfo.bytesPerSector) - 1;
-    }
-
-    auto &commandFis = *reinterpret_cast<FisRegisterHostToDevice*>(commandTable->commandFis);
-    commandFis.type = REGISTER_HOST_TO_DEVICE;
-    commandFis.commandControl = 1;
-    commandFis.command = mode == READ ? READ_DMA_EX : WRITE_DMA_EX;
-    commandFis.device = 1 << 6; // LBA mode
-    commandFis.featureLow = 1; // DMA mode
-    commandFis.lba0 = startSector & 0xff;
-    commandFis.lba1 = (startSector >> 8) & 0xff;
-    commandFis.lba2 = (startSector >> 16) & 0xff;
-    commandFis.lba3 = (startSector >> 24) & 0xff;
-    commandFis.countLow = sectorCount & 0xff;
-    commandFis.countHigh = (sectorCount >> 8) & 0xff;
-
-    auto &commandHeader = commandList[slot];
-    commandHeader.clear();
-    commandHeader.physicalRegionDescriptorTableLength = descriptorCount; // Read 8 sectors per descriptor
-    commandHeader.commandFisLength = sizeof(FisRegisterHostToDevice) / sizeof(uint32_t);
-    commandHeader.commandTableDescriptorBaseAddress = reinterpret_cast<uint32_t>(memoryService.getPhysicalAddress(commandTable));
-    commandHeader.write = mode == READ ? 0 : 1;
-
-    // Wait while device is busy
-    uint32_t timeout = Util::Time::getSystemTime().toMilliseconds() + COMMAND_TIMEOUT;
-    while (port.taskFileData & (BUSY | DATA_TRANSFER_REQUESTED)) {
-        if (Util::Time::getSystemTime().toMilliseconds() >= timeout) {
-            portLocks[portNumber].release();
-            delete reinterpret_cast<uint8_t*>(dmaBuffer);
-            delete commandTable;
-            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Timeout while waiting on busy device");
-        }
-
-        Util::Async::Thread::yield();
-    }
-
-    // Issue command
-    port.commandIssue = 1 << slot;
-
-    // Wait for command completion
-    timeout = Util::Time::getSystemTime().toMilliseconds() + COMMAND_TIMEOUT;
-    while (true) {
-        if (!(port.commandIssue & (1 << slot))) {
-            break;
-        }
-
-        if (port.interruptStatus & TASK_FILE_ERROR) {
-            portLocks[portNumber].release();
-            delete reinterpret_cast<uint8_t*>(dmaBuffer);
-            delete commandTable;
-            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Error during DMA command");
-        }
-
-        if (Util::Time::getSystemTime().toMilliseconds() >= timeout) {
-            portLocks[portNumber].release();
-            delete reinterpret_cast<uint8_t*>(dmaBuffer);
-            delete commandTable;
-            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Timeout during DMA command");
-        }
-
-        Util::Async::Thread::yield();
-    }
+    auto &hostToDeviceFis = *reinterpret_cast<FisRegisterHostToDevice*>(commandFis);
+    hostToDeviceFis.type = REGISTER_HOST_TO_DEVICE;
+    hostToDeviceFis.commandControl = 1;
+    hostToDeviceFis.command = mode == READ ? READ_DMA_EX : WRITE_DMA_EX;
+    hostToDeviceFis.device = 1 << 6; // LBA mode
+    hostToDeviceFis.featureLow = 1; // DMA mode
+    hostToDeviceFis.lba0 = startSector & 0xff;
+    hostToDeviceFis.lba1 = (startSector >> 8) & 0xff;
+    hostToDeviceFis.lba2 = (startSector >> 16) & 0xff;
+    hostToDeviceFis.lba3 = (startSector >> 24) & 0xff;
+    hostToDeviceFis.countLow = sectorCount & 0xff;
+    hostToDeviceFis.countHigh = (sectorCount >> 8) & 0xff;
 
     if (mode == READ) {
+        auto *dmaBuffer = readFromDevice(portNumber, sectorCount * deviceInfo.bytesPerSector, commandFis, atapiCommand);
+        if (dmaBuffer == nullptr) {
+            return 0;
+        }
+
         auto sourceAddress = Util::Address<uint32_t>(dmaBuffer);
         auto targetAddress = Util::Address<uint32_t>(buffer);
         targetAddress.copyRange(sourceAddress, deviceInfo.bytesPerSector * sectorCount);
-    }
 
-    portLocks[portNumber].release();
-    delete reinterpret_cast<uint8_t*>(dmaBuffer);
-    delete commandTable;
-    return sectorCount;
+        delete reinterpret_cast<uint8_t*>(dmaBuffer);
+        return sectorCount;
+    } else {
+        auto dmaSize = deviceInfo.bytesPerSector * sectorCount;
+        auto *dmaBuffer = allocateDmaBuffer(dmaSize);
+        auto *physicalDmaAddress = Kernel::Service::getService<Kernel::MemoryService>().getPhysicalAddress(dmaBuffer);
+
+        auto sourceAddress = Util::Address<uint32_t>(buffer);
+        auto targetAddress = Util::Address<uint32_t>(dmaBuffer);
+        targetAddress.copyRange(sourceAddress, sectorCount * deviceInfo.bytesPerSector);
+
+        auto success = writeToDevice(portNumber, physicalDmaAddress, dmaSize, commandFis, atapiCommand);
+
+        delete reinterpret_cast<uint8_t*>(dmaBuffer);
+        return success ? sectorCount : 0;
+    }
 }
 
 uint16_t AhciController::performAtapiIO(uint32_t portNumber, const AhciController::DeviceInfo &deviceInfo, AhciController::TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount) {
-    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    auto &port = registers->ports[portNumber];
-    auto *commandList = virtualCommandLists[portNumber];
+    if (startSector + sectorCount > deviceInfo.lbaCapacity) {
+        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "AHCI: Trying to read/write out of disk bounds!");
+    }
 
     if (mode == WRITE) {
         return 0;
     }
 
-    portLocks[portNumber].acquire();
+    uint8_t commandFis[64]{};
+    uint8_t atapiCommand[16]{};
 
-    if (!port.isActive()) {
-        portLocks[portNumber].release();
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Trying to read/write from a device on an inactive port");
-    }
+    auto &hostToDeviceFis = *reinterpret_cast<FisRegisterHostToDevice*>(commandFis);
+    hostToDeviceFis.type = REGISTER_HOST_TO_DEVICE;
+    hostToDeviceFis.commandControl = 1;
+    hostToDeviceFis.command = ATA_PACKET;
+    hostToDeviceFis.featureLow = 1;
 
-    auto slot = findCommandSlot(portNumber);
+    atapiCommand[0] = ATAPI_READ;
+    atapiCommand[2] = (startSector >> 24) & 0xff;
+    atapiCommand[3] = (startSector >> 16) & 0xff;
+    atapiCommand[4] = (startSector >> 8) & 0xff;
+    atapiCommand[5] = (startSector >> 0) & 0xff;
+    atapiCommand[6] = (sectorCount >> 24) & 0xff;
+    atapiCommand[7] = (sectorCount >> 16) & 0xff;
+    atapiCommand[8] = (sectorCount >> 8) & 0xff;
+    atapiCommand[9] = (sectorCount >> 0) & 0xff;
 
-    const auto dmaSize = sectorCount * deviceInfo.bytesPerSector;
-    const auto dmaPages = dmaSize % Util::PAGESIZE == 0 ? (dmaSize / Util::PAGESIZE) : (dmaSize / Util::PAGESIZE) + 1;
-    auto *dmaBuffer = memoryService.allocateIsaMemory(dmaPages);
-    auto *physicalDmaAddress = memoryService.getPhysicalAddress(dmaBuffer);
-
-    auto descriptorCount = sectorCount % SECTORS_PER_DESCRIPTOR_ENTRY == 0 ? (sectorCount / SECTORS_PER_DESCRIPTOR_ENTRY) : (sectorCount / SECTORS_PER_DESCRIPTOR_ENTRY) + 1;
-
-    auto *commandTable = HbaCommandTable::createCommandTable(descriptorCount);
-    for (uint32_t i = 0; i < descriptorCount; i++) {
-        auto &entry = commandTable->physicalRegionDescriptorTable[i];
-
-        uint32_t remainingSectors = sectorCount - (i * SECTORS_PER_DESCRIPTOR_ENTRY);
-        entry.dataBaseAddress = reinterpret_cast<uint32_t>(physicalDmaAddress) + i * SECTORS_PER_DESCRIPTOR_ENTRY * deviceInfo.bytesPerSector;
-        entry.dataByteCount = ((remainingSectors < SECTORS_PER_DESCRIPTOR_ENTRY ? remainingSectors : SECTORS_PER_DESCRIPTOR_ENTRY) * deviceInfo.bytesPerSector) - 1;
-    }
-
-    auto &commandFis = *reinterpret_cast<FisRegisterHostToDevice*>(commandTable->commandFis);
-    commandFis.type = REGISTER_HOST_TO_DEVICE;
-    commandFis.commandControl = 1;
-    commandFis.command = ATA_PACKET;
-    commandFis.featureLow = 1;
-
-    auto *atapiPacket = commandTable->atapiCommand;
-    atapiPacket[0] = ATAPI_READ;
-    atapiPacket[2] = (startSector >> 24) & 0xff;
-    atapiPacket[3] = (startSector >> 16) & 0xff;
-    atapiPacket[4] = (startSector >> 8) & 0xff;
-    atapiPacket[5] = (startSector >> 0) & 0xff;
-    atapiPacket[6] = (sectorCount >> 24) & 0xff;
-    atapiPacket[7] = (sectorCount >> 16) & 0xff;
-    atapiPacket[8] = (sectorCount >> 8) & 0xff;
-    atapiPacket[9] = (sectorCount >> 0) & 0xff;
-
-    auto &commandHeader = commandList[slot];
-    commandHeader.clear();
-    commandHeader.physicalRegionDescriptorTableLength = descriptorCount; // Read 8 sectors per descriptor
-    commandHeader.commandFisLength = sizeof(FisRegisterHostToDevice) / sizeof(uint32_t);
-    commandHeader.commandTableDescriptorBaseAddress = reinterpret_cast<uint32_t>(memoryService.getPhysicalAddress(commandTable));
-    commandHeader.atapi = 1;
-
-    // Wait while device is busy
-    uint32_t timeout = Util::Time::getSystemTime().toMilliseconds() + COMMAND_TIMEOUT;
-    while (port.taskFileData & (BUSY | DATA_TRANSFER_REQUESTED)) {
-        if (Util::Time::getSystemTime().toMilliseconds() >= timeout) {
-            portLocks[portNumber].release();
-            delete reinterpret_cast<uint8_t*>(dmaBuffer);
-            delete commandTable;
-            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Timeout while waiting on busy device");
-        }
-
-        Util::Async::Thread::yield();
-    }
-
-    // Issue command
-    port.commandIssue = 1 << slot;
-
-    // Wait for command completion
-    timeout = Util::Time::getSystemTime().toMilliseconds() + COMMAND_TIMEOUT;
-    while (true) {
-        if (!(port.commandIssue & (1 << slot))) {
-            break;
-        }
-
-        if (port.interruptStatus & TASK_FILE_ERROR) {
-            portLocks[portNumber].release();
-            delete reinterpret_cast<uint8_t*>(dmaBuffer);
-            delete commandTable;
-            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Error during DMA command");
-        }
-
-        if (Util::Time::getSystemTime().toMilliseconds() >= timeout) {
-            portLocks[portNumber].release();
-            delete reinterpret_cast<uint8_t*>(dmaBuffer);
-            delete commandTable;
-            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Timeout during DMA command");
-        }
-
-        Util::Async::Thread::yield();
+    auto *dmaBuffer = readFromDevice(portNumber, sectorCount * deviceInfo.bytesPerSector, commandFis, atapiCommand);
+    if (dmaBuffer == nullptr) {
+        return 0;
     }
 
     auto sourceAddress = Util::Address<uint32_t>(dmaBuffer);
     auto targetAddress = Util::Address<uint32_t>(buffer);
     targetAddress.copyRange(sourceAddress, deviceInfo.bytesPerSector * sectorCount);
 
-    portLocks[portNumber].release();
     delete reinterpret_cast<uint8_t*>(dmaBuffer);
-    delete commandTable;
     return sectorCount;
+}
+
+void* AhciController::readFromDevice(uint32_t portNumber, uint32_t byteCount, const uint8_t commandFis[64], const uint8_t atapiCommand[16]) {
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+    auto &port = registers->ports[portNumber];
+    auto *commandList = virtualCommandLists[portNumber];
+
+    portLocks[portNumber].acquire();
+
+    if (!port.isActive()) {
+        portLocks[portNumber].release();
+        return nullptr;
+    }
+
+    auto slot = findCommandSlot(portNumber);
+    if (slot == UINT32_MAX) {
+        portLocks[portNumber].release();
+        return nullptr;
+    }
+
+    auto *dmaBuffer = allocateDmaBuffer(byteCount);
+    auto *physicalDmaAddress = memoryService.getPhysicalAddress(dmaBuffer);
+
+    auto *commandTable = HbaCommandTable::createCommandTable(byteCount, physicalDmaAddress);
+    Util::Address<uint32_t>(commandTable->commandFis).copyRange(Util::Address<uint32_t>(commandFis), sizeof(HbaCommandTable::commandFis));
+    Util::Address<uint32_t>(commandTable->atapiCommand).copyRange(Util::Address<uint32_t>(atapiCommand), sizeof(HbaCommandTable::atapiCommand));
+
+    auto &commandHeader = commandList[slot];
+    commandHeader.clear();
+    commandHeader.physicalRegionDescriptorTableLength = byteCount % BYTES_PER_DESCRIPTOR_ENTRY == 0 ? (byteCount / BYTES_PER_DESCRIPTOR_ENTRY) : (byteCount / BYTES_PER_DESCRIPTOR_ENTRY) + 1;
+    commandHeader.commandFisLength = sizeof(FisRegisterHostToDevice) / sizeof(uint32_t);
+    commandHeader.commandTableDescriptorBaseAddress = reinterpret_cast<uint32_t>(memoryService.getPhysicalAddress(commandTable));
+    commandHeader.atapi = atapiCommand[0] == 0 ? 0 : 1;
+
+    // Issue command
+    if (!port.issueCommand(slot)) {
+        portLocks[portNumber].release();
+        delete reinterpret_cast<uint8_t*>(dmaBuffer);
+        delete commandTable;
+        return nullptr;
+    }
+
+    portLocks[portNumber].release();
+    delete commandTable;
+    return dmaBuffer;
+}
+
+bool AhciController::writeToDevice(uint32_t portNumber, void *physicalDmaAddress, uint32_t byteCount, const uint8_t *commandFis, const uint8_t *atapiCommand) {
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+    auto &port = registers->ports[portNumber];
+    auto *commandList = virtualCommandLists[portNumber];
+
+    portLocks[portNumber].acquire();
+
+    if (!port.isActive()) {
+        portLocks[portNumber].release();
+        return false;
+    }
+
+    auto slot = findCommandSlot(portNumber);
+    if (slot == UINT32_MAX) {
+        portLocks[portNumber].release();
+        return false;
+    }
+
+    auto *commandTable = HbaCommandTable::createCommandTable(byteCount, physicalDmaAddress);
+    Util::Address<uint32_t>(commandTable->commandFis).copyRange(Util::Address<uint32_t>(commandFis), sizeof(HbaCommandTable::commandFis));
+    Util::Address<uint32_t>(commandTable->atapiCommand).copyRange(Util::Address<uint32_t>(atapiCommand), sizeof(HbaCommandTable::atapiCommand));
+
+    auto &commandHeader = commandList[slot];
+    commandHeader.clear();
+    commandHeader.physicalRegionDescriptorTableLength = byteCount % BYTES_PER_DESCRIPTOR_ENTRY == 0 ? (byteCount / BYTES_PER_DESCRIPTOR_ENTRY) : (byteCount / BYTES_PER_DESCRIPTOR_ENTRY) + 1;
+    commandHeader.commandFisLength = sizeof(FisRegisterHostToDevice) / sizeof(uint32_t);
+    commandHeader.commandTableDescriptorBaseAddress = reinterpret_cast<uint32_t>(memoryService.getPhysicalAddress(commandTable));
+    commandHeader.atapi = atapiCommand[0] == 0 ? 0 : 1;
+
+    // Issue command
+    if (!port.issueCommand(slot)) {
+        portLocks[portNumber].release();
+        delete commandTable;
+        return false;
+    }
+
+    portLocks[portNumber].release();
+    delete commandTable;
+    return true;
+}
+
+void *AhciController::allocateDmaBuffer(uint32_t size) {
+    const auto dmaPages = size % Util::PAGESIZE == 0 ? (size / Util::PAGESIZE) : (size / Util::PAGESIZE) + 1;
+    return Kernel::Service::getService<Kernel::MemoryService>().mapIO(dmaPages);
 }
 
 void AhciController::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {}
@@ -558,6 +483,41 @@ void AhciController::HbaPort::stopCommandEngine() {
     }
 }
 
+bool AhciController::HbaPort::issueCommand(uint8_t slot) {
+    // Wait while device is busy
+    uint32_t timeout = Util::Time::getSystemTime().toMilliseconds() + COMMAND_TIMEOUT;
+    while (taskFileData & (BUSY | DATA_TRANSFER_REQUESTED)) {
+        if (Util::Time::getSystemTime().toMilliseconds() >= timeout) {
+            return false;
+        }
+
+        Util::Async::Thread::yield();
+    }
+
+    // Issue command
+    commandIssue = 1 << slot;
+
+    // Wait for command completion
+    timeout = Util::Time::getSystemTime().toMilliseconds() + COMMAND_TIMEOUT;
+    while (true) {
+        if (!(commandIssue & (1 << slot))) {
+            break;
+        }
+
+        if (interruptStatus & TASK_FILE_ERROR) {
+            return false;
+        }
+
+        if (Util::Time::getSystemTime().toMilliseconds() >= timeout) {
+            return false;
+        }
+
+        Util::Async::Thread::yield();
+    }
+
+    return true;
+}
+
 bool AhciController::HbaPort::isActive() const {
     return ((command & (START | FIS_RECEIVE_ENABLE | FIS_RECEIVE_RUNNING | COMMAND_LIST_RUNNING)) == (START | FIS_RECEIVE_ENABLE | FIS_RECEIVE_RUNNING | COMMAND_LIST_RUNNING));
 }
@@ -580,14 +540,22 @@ void AhciController::HbaCommandHeader::clear() {
     Util::Address<uint32_t>(this).setRange(0, sizeof(uint32_t) * 2);
 }
 
-AhciController::HbaCommandTable* AhciController::HbaCommandTable::createCommandTable(uint16_t descriptorCount) {
+AhciController::HbaCommandTable * AhciController::HbaCommandTable::createCommandTable(uint32_t byteCount, void *physicalDmaBuffer) {
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
 
+    auto descriptorCount = byteCount % BYTES_PER_DESCRIPTOR_ENTRY == 0 ? (byteCount / BYTES_PER_DESCRIPTOR_ENTRY) : (byteCount / BYTES_PER_DESCRIPTOR_ENTRY) + 1;
     auto tableSize = sizeof(commandFis) + sizeof(atapiCommand) + sizeof(reserved) + descriptorCount * sizeof(HbaPhysicalRegionDescriptorTableEntry);
     auto tablePages = tableSize % Util::PAGESIZE == 0 ? (tableSize / Util::PAGESIZE) : (tableSize / Util::PAGESIZE) + 1;
     auto *commandTable = reinterpret_cast<HbaCommandTable*>(memoryService.mapIO(tablePages));
-
     Util::Address<uint32_t>(commandTable).setRange(0, tableSize);
+
+    for (uint32_t i = 0; i < descriptorCount; i++) {
+        auto &entry = commandTable->physicalRegionDescriptorTable[i];
+
+        uint32_t remainingBytes = byteCount - (i * BYTES_PER_DESCRIPTOR_ENTRY);
+        entry.dataBaseAddress = reinterpret_cast<uint32_t>(physicalDmaBuffer) + i * BYTES_PER_DESCRIPTOR_ENTRY;
+        entry.dataByteCount = (remainingBytes < BYTES_PER_DESCRIPTOR_ENTRY ? remainingBytes : BYTES_PER_DESCRIPTOR_ENTRY) - 1;
+    }
     return commandTable;
 }
 

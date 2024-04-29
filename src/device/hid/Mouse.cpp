@@ -22,7 +22,7 @@
 #include "kernel/service/FilesystemService.h"
 #include "device/hid/Ps2Controller.h"
 #include "device/hid/Ps2Device.h"
-#include "filesystem/core/Filesystem.h"
+#include "filesystem/Filesystem.h"
 #include "filesystem/memory/MemoryDriver.h"
 #include "kernel/log/Log.h"
 #include "device/interrupt/InterruptRequest.h"

@@ -487,7 +487,7 @@ uint16_t IdeController::determineSectorSize(const DeviceInfo &info) {
 uint16_t IdeController::performAtaIO(const DeviceInfo &info, TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount) {
     auto &registers = channels[info.channel];
     if (!checkBounds(info, startSector, sectorCount)) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "IDE: Trying to read/write out of track bounds!");
+        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "IDE: Trying to read/write out of disk bounds!");
     }
 
     ioLock.acquire();
@@ -740,7 +740,7 @@ uint16_t IdeController::performAtapiIO(const IdeController::DeviceInfo &info, Id
     }
 
     if (startSector + sectorCount >= info.atapi.maxSectorsLba) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "IDE: Trying to read/write out of track bounds!");
+        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "IDE: Trying to read/write out of disk bounds!");
     }
 
     ioLock.acquire();

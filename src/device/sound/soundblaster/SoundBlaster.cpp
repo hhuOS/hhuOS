@@ -27,7 +27,7 @@
 #include "kernel/service/ProcessService.h"
 #include "kernel/service/FilesystemService.h"
 #include "filesystem/memory/MemoryDriver.h"
-#include "filesystem/core/Filesystem.h"
+#include "filesystem/Filesystem.h"
 #include "kernel/log/Log.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/Service.h"

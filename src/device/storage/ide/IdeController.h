@@ -299,7 +299,7 @@ private:
 
     uint16_t determineSectorSize(const DeviceInfo &info);
 
-    bool checkBounds(const DeviceInfo &info, uint64_t startSector, uint32_t sectorCount);
+    static bool checkBounds(const DeviceInfo &info, uint64_t startSector, uint32_t sectorCount);
 
     void prepareAtaIO(const DeviceInfo &info, uint64_t startSector, uint16_t sectorCount);
 

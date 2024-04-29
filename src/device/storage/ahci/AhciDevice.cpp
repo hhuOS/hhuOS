@@ -39,7 +39,7 @@ uint64_t AhciDevice::getSectorCount() {
 }
 
 uint32_t AhciDevice::read(uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
-    if (type) {
+    if (type == AhciController::ATAPI) {
         return controller.performAtapiIO(portNumber, info, AhciController::READ, buffer, startSector, sectorCount);
     }
 

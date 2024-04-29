@@ -18,7 +18,7 @@
 #ifndef HHUOS_ARCHIVEDRIVER_H
 #define HHUOS_ARCHIVEDRIVER_H
 
-#include "filesystem/core/VirtualDriver.h"
+#include "filesystem/VirtualDriver.h"
 #include "lib/util/io/file/tar/Archive.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/String.h"
