@@ -252,29 +252,34 @@ void Shell::executeBinary(const Util::String &path, const Util::String &command,
         return;
     }
 
+    auto lfbSettingsString = Util::String();
     auto lfbFile = Util::Io::File("/device/lfb");
-    auto lfbInputStream = Util::Io::FileInputStream(lfbFile);
-
-    bool endOfFile;
-    lfbInputStream.readLine(endOfFile); // Skip address
-    auto lfbSettingsString = lfbInputStream.readLine(endOfFile);
+    if (lfbFile.exists()) {
+        bool endOfFile;
+        auto lfbInputStream = Util::Io::FileInputStream(lfbFile);
+        lfbInputStream.readLine(endOfFile); // Skip address
+        lfbSettingsString = lfbInputStream.readLine(endOfFile);
+    }
 
     auto process = Util::Async::Process::execute(binaryFile, inputFile, outputFile, outputFile, command, arguments);
     if (!async) {
         process.join();
 
-        auto lfbInputStreamAfter = Util::Io::FileInputStream(lfbFile);
-        lfbInputStreamAfter.readLine(endOfFile); // Skip address
-        auto lfbSettingsStringAfter = lfbInputStreamAfter.readLine(endOfFile);
-        if (lfbSettingsString != lfbSettingsStringAfter) {
-            auto split1 = lfbSettingsString.split("x");
-            auto split2 = split1[1].split("@");
+        if (lfbFile.exists()) {
+            bool endOfFile;
+            auto lfbInputStreamAfter = Util::Io::FileInputStream(lfbFile);
+            lfbInputStreamAfter.readLine(endOfFile); // Skip address
+            auto lfbSettingsStringAfter = lfbInputStreamAfter.readLine(endOfFile);
+            if (lfbSettingsString != lfbSettingsStringAfter) {
+                auto split1 = lfbSettingsString.split("x");
+                auto split2 = split1[1].split("@");
 
-            uint32_t resolutionX = Util::String::parseInt(split1[0]);
-            uint32_t resolutionY = Util::String::parseInt(split2[0]);
-            uint32_t colorDepth = split2.length() > 1 ? Util::String::parseInt(split2[1]) : 32;
+                uint32_t resolutionX = Util::String::parseInt(split1[0]);
+                uint32_t resolutionY = Util::String::parseInt(split2[0]);
+                uint32_t colorDepth = split2.length() > 1 ? Util::String::parseInt(split2[1]) : 32;
 
-            lfbFile.control(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array({resolutionX, resolutionY, colorDepth}));
+                lfbFile.control(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array({resolutionX, resolutionY, colorDepth}));
+            }
         }
 
         Util::Graphic::Ansi::cleanupGraphicalApplication();
