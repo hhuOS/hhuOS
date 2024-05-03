@@ -4,6 +4,34 @@
 #include "stdint.h"
 #include "MapInterface.h"
 
+#define __ALLOC_KERNEL_MEM__(mem_service, type, size) \
+    (type*)mem_service->allocateKernelMemory_c(mem_service, size, 0)
+
+#define __ALLOC_KERNEL_MEM_ALIGN__(mem_service, type, size, alignment) \
+    (type*)mem_service->allocateKernelMemory_c(mem_service, size, alignment)
+
+#define __MAP_IO_KERNEL__(mem_service, type, size) \
+    (type*)mem_service->mapIO(mem_service, size, 1)
+
+#define __GET_PHYSICAL__(mem_service, virtual_addr) \
+    __STRUCT_CALL__(mem_service, getPhysicalAddress, virtual_addr)
+
+#define __ADD_VIRT__(mem_service, name, target_name) \
+    uint32_t target_name = __PTR_TYPE__(uint32_t, \
+    __GET_PHYSICAL__(mem_service, name)); \
+    __STRUCT_CALL__(mem_service, addVirtualAddress, target_name,  name)
+
+#define __FREE_KERNEL_MEM__(mem_service, p) \
+    mem_service->freeKernelMemory_c(mem_service, p, 0)
+
+#define __MEM_SERVICE__(super_ptr, name) \
+    MemoryService_C* name = \
+        (MemoryService_C*)container_of(super_ptr, MemoryService_C, super)
+
+#define __INT_SERVICE__(super_ptr, name) \
+    InterruptService_C* name = \
+      container_of(super_ptr, InterruptService_C, super)
+
 enum Service_Type {
     MEMORY_TYPE = 1,
     INTERRUPT_TYPE = 2
