@@ -2,7 +2,6 @@
 #include "../../dev/UsbDevice.h"
 #include "../../dev/data/UsbDev_Data.h"
 #include "../../driver/UsbDriver.h"
-#include "../../driver/hub/HubDriver.h"
 #include "../../events/EventDispatcher.h"
 #include "../../include/UsbControllerInclude.h"
 #include "../../include/UsbErrors.h"
@@ -17,9 +16,159 @@
 #include "../../utility/Utils.h"
 #include "../UsbController.h"
 #include "../UsbControllerFlags.h"
-#include "components/UHCIMemory.h"
+#include "../components/ControllerMemory.h"
+#include "../components/ControllerMemoryTypes.h"
+#include "../components/ControllerRegister.h"
 #include "components/UHCIRegister.h"
 #include "data/UHCI_Data.h"
+
+static QH* request_frames(struct _UHCI* uhci);
+static Addr_Region *i_o_space_layout_run(UsbController* controller, PciDevice_Struct* pci_device);
+static Register** request_register(UsbController* controller, Addr_Region* addr_region);
+static void bulk_entry_point_uhci(struct UsbDev *dev, Endpoint *endpoint, void *data,
+                      unsigned int len, uint8_t priority,
+                      callback_function callback, uint8_t flags);
+static void control_entry_point_uhci(struct UsbDev *dev,
+                         struct UsbDeviceRequest *device_request, void *data,
+                         uint8_t priority, Endpoint *endpoint,
+                         callback_function callback, uint8_t flags);
+static void interrupt_entry_point_uhci(struct UsbDev *dev, Endpoint *endpoint, void *data,
+                           unsigned int len, uint8_t priority,
+                           uint16_t interval, callback_function callback);
+static void insert_queue(struct _UHCI *uhci, struct QH *new_qh,
+                  uint16_t priority, enum QH_HEADS v);
+static void remove_queue(struct _UHCI *uhci, struct QH *qh);
+static void control_transfer(_UHCI *uhci, UsbDev *dev, struct UsbDeviceRequest *rq,
+                      void *data, uint8_t priority, Endpoint *endpoint,
+                      build_control_transfer build_function,
+                      callback_function callback, uint8_t flags);
+static void interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
+                        uint16_t interval, uint8_t priority, Endpoint *e,
+                        build_bulk_or_interrupt_transfer build_function,
+                        callback_function callback);
+static void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
+                   uint8_t, Endpoint *e, build_bulk_or_interrupt_transfer build_function,
+                   callback_function callback, uint8_t flags);
+static uint32_t wait_poll(_UHCI *uhci, QH *process_qh, uint32_t timeout, uint8_t flags);
+static void _poll_uhci_(UsbController *controller);
+static QH *get_free_qh(_UHCI *uhci);
+static TD *get_free_td(_UHCI *uhci);
+static void free_qh(_UHCI *uhci, QH *qh);
+static void free_td(_UHCI *uhci, TD *td);
+static void init_control_transfer(UsbController *controller, Interface *interface,
+                           unsigned int pipe, uint8_t priority, void *data,
+                           uint8_t *setup, callback_function callback);
+static void init_interrupt_transfer(UsbController *controller, Interface *interface,
+                             unsigned int pipe, uint8_t priority, void *data,
+                             unsigned int len, uint16_t interval,
+                             callback_function callback);
+static void init_bulk_transfer(UsbController *controller, Interface *interface,
+                        unsigned int pipe, uint8_t priority, void *data,
+                        unsigned len, callback_function callback);
+static unsigned int retransmission(_UHCI *uhci, struct QH *process_qh);
+static void traverse_skeleton(_UHCI *uhci, struct QH *entry);
+static uint32_t get_status(_UHCI *uhci, TD *td);
+static UsbPacket *create_USB_Packet(_UHCI *uhci, UsbDev *dev, UsbPacket *prev,
+                             struct TokenValues token, int8_t speed, void *data,
+                             int last_packet, uint8_t flags);
+static UsbTransfer *build_control(_UHCI *uhci, UsbDev *dev,
+                           UsbDeviceRequest *device_request, void *data,
+                           Endpoint *e, uint8_t flags);
+static UsbTransfer *build_interrupt_or_bulk(_UHCI *uhci, UsbDev *dev, void *data,
+                                     Endpoint *e, unsigned int len,
+                                     const char *type, uint8_t flags);
+static int uhci_contain_interface(UsbController *controller, Interface *interface);
+static int16_t is_valid_priority(_UHCI *uhci, UsbDev *dev, uint8_t priority,
+                          callback_function callback);
+static UsbControllerType is_of_type_uhci(UsbController *controller);
+static uint16_t uhci_reset_port(UsbController *controller, uint8_t port);
+static void init_maps(_UHCI *uhci, MemoryService_C *m);
+static void create_dev(_UHCI *uhci, int16_t status, int pn, MemoryService_C *m);
+static void remove_transfer_entry(_UHCI *uhci, QH *entry);
+static void dump_all(_UHCI *uhci);
+static void dump_skeleton(_UHCI *uhci);
+static void inspect_TD(_UHCI *uhci, struct TD *td);
+static void inspect_QH(_UHCI *uhci, struct QH *qh);
+static void inspect_transfer(_UHCI *uhci, struct QH *qh, struct TD *td);
+static void print_USB_Transaction(_UHCI *uhci, UsbTransaction *transaction, int order);
+static void print_USB_Transfer(_UHCI *uhci, UsbTransfer *transfer);
+static void remove_td_linkage(_UHCI *uhci, TD *start);
+static void dump_uhci_entry(_UHCI* uhci);
+static void handler_function_uhci(UsbController* controller);
+static void runnable_function_uhci(UsbController* controller);
+static void destroy_transfer(_UHCI* uhci, UsbTransfer* transfer);
+static void controller_port_configuration(_UHCI* uhci);
+static int controller_configuration(_UHCI* uhci);
+static int16_t is_valid_interval(_UHCI* uhci, UsbDev* dev, uint16_t interval, void* data);
+static int controller_initializer(_UHCI* uhci);
+static int controller_reset(_UHCI* uhci);
+
+static inline void __assign_fba(MemoryService_C* m, 
+                                uint32_t* frame_list, _UHCI* uhci) {
+    uhci->fba = 
+        __PTR_TYPE__(uint32_t, __GET_PHYSICAL__(m, frame_list));
+}   
+
+static inline void __init_buff_mem(_UHCI* uhci, uint32_t qh_size, uint32_t td_size) {
+    __mem_set(uhci->map_io_buffer_qh, qh_size, 0); 
+    __mem_set(uhci->map_io_buffer_td, td_size, 0); 
+    __mem_set(uhci->map_io_buffer_bit_map_qh, qh_size / sizeof(QH), 0);
+    __mem_set(uhci->map_io_buffer_bit_map_td, td_size / sizeof(TD), 0);
+}
+
+static inline void __uhci_build(_UHCI* uhci, MemoryService_C* m, PciDevice_Struct* pci_device,
+                                uint32_t qh_size, uint32_t td_size) {
+    __INIT_UHCI__(uhci, (SystemService_C*)m, pci_device);
+    uhci->qh_len = qh_size;
+    uhci->td_len = td_size;
+    uhci->map_io_buffer_qh = __MAP_IO_KERNEL__(m, uint8_t, qh_size);
+    uhci->map_io_buffer_bit_map_qh = __ALLOC_KERNEL_MEM__(m, uint8_t, qh_size / sizeof(QH));
+    
+    uhci->map_io_buffer_td = __MAP_IO_KERNEL__(m, uint8_t, td_size);
+    uhci->map_io_buffer_bit_map_td = __ALLOC_KERNEL_MEM__(m, uint8_t, td_size / sizeof(TD));
+    
+    __init_buff_mem(uhci, qh_size, td_size);
+
+    uhci->signal = 0;
+    uhci->signal_not_override = 0;
+}
+
+static inline void __save_address(MemoryService_C* m, QH** physical_addr, QH* current, 
+                     int pos) {
+    uint32_t physical;
+    QH* qh__ = (QH*)__GET_PHYSICAL__(m, current);
+    __ARR_ENTRY__(physical_addr, pos, qh__);
+    physical = __PTR_TYPE__(uint32_t, physical_addr[pos]);
+    __STRUCT_CALL__(m, addVirtualAddress, physical, current);
+}
+
+static inline void __frame_entry(MemoryService_C* m, QH* next, QH* current, 
+                                 uint32_t next_physical_addr, 
+                                 uint32_t* frame_list, int fn) {
+    current->pyhsicalQHLP = next_physical_addr | QH_SELECT;
+    next->parent = __PTR_TYPE__(uint32_t, 
+        __GET_PHYSICAL__(m, current));
+    frame_list[fn] = __PTR_TYPE__(uint32_t, 
+        __GET_PHYSICAL__(m, current)) | QH_SELECT;
+}
+
+static inline void __build_qh(QH* qh, uint32_t flags, uint32_t qhlp,
+                              uint32_t qhep, uint32_t parent) {
+    qh->flags = flags;
+    qh->pyhsicalQHLP = qhlp;
+    qh->pyhsicalQHEP = qhep;
+    qh->parent = parent;
+}
+
+static inline void __add_to_frame(uint32_t* frame_list, int fn,
+                                  QH* physical) {
+    frame_list[fn] = 
+        (__PTR_TYPE__(uint32_t, physical)) | QH_SELECT;
+}
+
+static inline void __qh_set_parent(MemoryService_C* m, QH* qh, QH* parent) {
+    qh->parent = __PTR_TYPE__(uint32_t, __GET_PHYSICAL__(m, parent));
+}
 
 const uint8_t CLASS_ID = 0x0C;
 const uint8_t SUBCLASS_ID = 0x03;
@@ -29,96 +178,66 @@ const uint8_t INTERFACE_ID = 0x00;
 // place hid to the hubs
 void new_UHCI(_UHCI *uhci, PciDevice_Struct *pci_device,
               SystemService_C *mem_service) {
-  uhci->mem_service = mem_service;
-  uhci->pci_device = pci_device;
+  __MEM_SERVICE__(mem_service, m);
 
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
-
-  uhci->init_controller_functions = &init_controller_functions;
-  uhci->init_controller_functions(uhci);
-
-  uhci->controller_logger = uhci->init_logger(uhci, m);
+  __DECLARE_UHCI_DEFAULT__(uhci, m, pci_device);
 
   uhci->dump_uhci_entry(uhci);
 
-  uhci->addr_region = uhci->i_o_space_layout_run(uhci);
-
   uhci->qh_entry = uhci->request_frames(uhci);
-  uhci->i_o_registers = uhci->request_register(uhci);
 
-  uhci->request_interrupt_service = &request_interrupt_service;
-  SystemService_C *interrupt_service =
-      uhci->request_interrupt_service(uhci, mem_service);
-  uhci->interrupt_service = interrupt_service;
-
-  InterruptService_C *i_serv =
-      container_of(uhci->interrupt_service, InterruptService_C, super);
-  i_serv->add_interrupt_routine(i_serv, uhci->irq, &uhci->super);
-
-  uhci->mutex = uhci->init_mutex(uhci, m);
   uhci->init_maps(uhci, m);
-  uhci->fill_maps(uhci);
-
-  uhci->map_io_buffer_qh = (uint8_t *)m->mapIO(m, PAGE_SIZE, 1);
-  uhci->map_io_buffer_td = (uint8_t *)m->mapIO(m, 2 * PAGE_SIZE, 1);
-
-  mem_set(uhci->map_io_buffer_qh, PAGE_SIZE, 0);
-  mem_set(uhci->map_io_buffer_td, 2 * PAGE_SIZE, 0);
-  mem_set(uhci->map_io_buffer_bit_map_qh, PAGE_SIZE / sizeof(QH), 0);
-  mem_set(uhci->map_io_buffer_bit_map_td, (2 * PAGE_SIZE) / sizeof(TD), 0);
-
-  uhci->signal = 0;
-  uhci->signal_not_override = 0;
+  __add_look_up_registers(__UHC_CAST__(uhci), 8);
 
   if (uhci->controller_configuration(uhci))
     create_thread("usb", &uhci->super);
 }
 
-void controller_port_configuration(_UHCI *uhci) {
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
-
-  for (int port = 0; port < 2; port++) {
+static void controller_port_configuration(_UHCI *uhci) {
+  __UHC_MEMORY__(uhci, m);
+  __FOR_RANGE__(port, int, 0, 2) {
     uint16_t status;
-    if ((status = ((UsbController *)uhci)
-                      ->reset_port((UsbController *)uhci, port + 1)) > 0) {
-      uhci->controller_logger->info_c(uhci->controller_logger,
-                                      "Port %d enabled ...", port + 1);
+    
+    if ((status = 
+      __STRUCT_CALL__(__CAST__(__UHC__*, uhci), reset_port, port + 1)) > 0) {
+        __UHC_CALL_LOGGER_INFO__(__UHC_CAST__(uhci), 
+        "Port %d enabled ...", port + 1);
 #if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
       Register *r = uhci->look_for(uhci, Port1_Status);
       r->dump(r, uhci->controller_logger);
 #endif
-
       Register_Type r_type = (port + 1 == 1) ? Port1_Status : Port2_Status;
-      Register *port_reg = uhci->look_for(uhci, r_type);
+      Register *port_reg = 
+        __STRUCT_CALL__(__CAST__(__UHC__*, uhci), look_up, r_type);
 
       uint16_t port_bits = *((uint16_t *)port_reg->raw_data);
       if (port_bits & CONNECT)
-        uhci->create_dev(uhci, status, port + 1, m);
+        __STRUCT_CALL__(uhci, create_dev, status, port + 1, m);
     }
   }
 }
 
-int controller_configuration(_UHCI *uhci) {
-  Register *reg;
-  uint8_t one_byte_command;
-  uint16_t two_byte_command;
+static int controller_initializer(_UHCI* uhci) {
+  if(__STRUCT_CALL__(uhci, controller_reset) == -1) return -1;
+  if(__STRUCT_CALL__(uhci, controller_configuration) == -1) return -1;
+  
+  __STRUCT_CALL__(uhci, controller_port_configuration);
 
-  uhci->controller_logger->info_c(uhci->controller_logger,
-                                  "Performing Global Reset ...");
+  return 1;
+}
 
-  reg = uhci->look_for(uhci, Usb_Command);
+static int controller_reset(_UHCI* uhci) {
+  uint32_t read_buffer;
+
+  __UHC_CALL_LOGGER_INFO__(__UHC_CAST__(uhci), "Performing Global Reset ...");
   // 50ms delay
-  for (int i = 0; i < 5; i++) {
-    two_byte_command = GRESET;
-    reg->write(reg, &two_byte_command);
+  __FOR_RANGE__(i, int, 0, 5){
+    __REGISTER_WRITE(__CAST__(__UHC__*, uhci), Usb_Command, GRESET);
     mdelay(USB_TDRST);
 #if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
     reg->dump(reg, uhci->controller_logger);
 #endif
-    two_byte_command = 0;
-    reg->write(reg, &two_byte_command);
+    __REGISTER_WRITE(__CAST__(__UHC__*, uhci), Usb_Command, 0);
 #if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
     reg->dump(reg, uhci->controller_logger);
 #endif
@@ -126,43 +245,31 @@ int controller_configuration(_UHCI *uhci) {
 
   mdelay(USB_TRSTRCY);
 
-  reg->read(reg, &two_byte_command);
-  if (two_byte_command != 0x0000)
-    goto fail_label;
+  __REGISTER_READ(__CAST__(__UHC__*, uhci), Usb_Command, &read_buffer);
 
-  reg = uhci->look_for(uhci, Usb_Status);
-  reg->read(reg, &two_byte_command);
+  if (__CAST__(uint16_t, read_buffer) != 0x0000)
+    goto fail_label;
+  __REGISTER_READ(__CAST__(__UHC__*, uhci), Usb_Status, &read_buffer);
 
 #if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
   reg->dump(reg, uhci->controller_logger);
 #endif
   // HC Halted
-  if (two_byte_command != HALTED)
+  if (__CAST__(uint16_t, read_buffer) != HALTED)
     goto fail_label;
 
 #if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
   reg->dump(reg, uhci->controller_logger);
 #endif
 
-  // write_clear
-  two_byte_command = 0x00FF;
-  reg->write(reg, &two_byte_command);
+  __REGISTER_WRITE(__CAST__(__UHC__*, uhci), Usb_Status, 0x00FF);
 
 #if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
   reg->dump(reg, uhci->controller_logger);
 #endif
+  __UHC_CALL_LOGGER_INFO__(__UHC_CAST__(uhci), "Performing Hardware Reset ...");
 
-  /*reg = uhci->look_for(uhci, Start_of_Frame);
-  reg->read(reg, &one_byte_command);
-  if (one_byte_command != SOF)
-    goto fail_label; */
-
-  uhci->controller_logger->info_c(uhci->controller_logger,
-                                  "Performing Hardware Reset ...");
-
-  reg = uhci->look_for(uhci, Usb_Command);
-  two_byte_command = HCRESET;
-  reg->write(reg, &two_byte_command);
+  __REGISTER_WRITE(__CAST__(__UHC__*, uhci), Usb_Command, HCRESET);
 
 #if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
   reg->dump(reg, uhci->controller_logger);
@@ -170,115 +277,95 @@ int controller_configuration(_UHCI *uhci) {
 
   mdelay(10);
 
-  reg->read(reg, &two_byte_command);
-  if (two_byte_command & HCRESET)
+  __REGISTER_READ(__CAST__(__UHC__*, uhci), Usb_Command, &read_buffer);
+
+  if (__CAST__(uint16_t,read_buffer) & HCRESET)
     goto fail_label;
-
-  uhci->controller_logger->info_c(uhci->controller_logger,
-                                  "Configuring UHCI ...");
-
-  reg = uhci->look_for(uhci, Frame_List_Base_Address);
-  reg->write(reg, &uhci->fba);
-
-  reg = uhci->look_for(uhci, Frame_Number);
-  two_byte_command = 0x0000;
-  reg->write(reg, &two_byte_command);
-
-#if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
-  reg->dump(reg, uhci->controller_logger);
-#endif
-
-  reg = uhci->look_for(uhci, Start_of_Frame);
-  one_byte_command = SOF;
-  reg->write(reg, &one_byte_command);
-
-#if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
-  reg->dump(reg, uhci->controller_logger);
-#endif
-
-  reg = uhci->look_for(uhci, Usb_Interrupt);
-#ifdef UHCI_POLL
-  two_byte_command = 0x0000;
-  uhci->controller_logger->info_c(uhci->controller_logger,
-                                  "Interrupts disabled ...");
-#else
-  two_byte_command = TMOUT_CRC | COMPLETE;
-  uhci->controller_logger->info_c(uhci->controller_logger,
-                                  "Interrupts enabled ...");
-#endif
-  reg->write(reg, &two_byte_command);
-
-#if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
-  reg->dump(reg, uhci->controller_logger);
-#endif
-
-  reg = uhci->look_for(uhci, Usb_Status);
-  two_byte_command = 0xFFFF;
-  reg->write(reg, &two_byte_command);
-
-#if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
-  reg->dump(reg, uhci->controller_logger);
-#endif
-
-  uhci->controller_logger->info_c(uhci->controller_logger,
-                                  "Configured UHCI ...");
-
-  uhci->controller_logger->info_c(uhci->controller_logger,
-                                  "UHCI is running ...");
-  reg = uhci->look_for(uhci, Usb_Command);
-  two_byte_command = MAXP | RS | CF;
-  reg->write(reg, &two_byte_command);
-
-#if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
-  reg->dump(reg, uhci->controller_logger);
-#endif
-
-  uhci->controller_port_configuration(uhci);
-
   return 1;
 
-fail_label:
-  uhci->controller_logger->error_c(uhci->controller_logger,
-                                   "Failed to configure UHCI ...");
+  fail_label:
+  __UHC_CALL_LOGGER_ERROR__(__UHC_CAST__(uhci), "Failed to reset UHCI ...");
   return -1;
 }
 
-void create_dev(_UHCI *uhci, int16_t status, int pn, MemoryService_C *m) {
-  UsbDev *dev = (UsbDev *)m->allocateKernelMemory_c(m, sizeof(UsbDev), 0);
+static int controller_configuration(_UHCI *uhci) {
+  __UHC_CALL_LOGGER_INFO__(__UHC_CAST__(uhci), "Configuring UHCI ...");
+
+  __REGISTER_WRITE(__CAST__(__UHC__*, uhci), Frame_List_Base_Address, 
+      uhci->fba);
+  __REGISTER_WRITE(__CAST__(__UHC__*, uhci), Frame_Number, 0);
+
+#if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
+  reg->dump(reg, uhci->controller_logger);
+#endif
+  __REGISTER_WRITE(__CAST__(__UHC__*, uhci), Start_of_Frame, SOF_FLAG);
+
+#if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
+  reg->dump(reg, uhci->controller_logger);
+#endif
+  uint16_t wVal;
+#ifdef UHCI_POLL
+  wVal = 0x0000;
+  uhci->controller_logger->info_c(uhci->controller_logger,
+                                  "Interrupts disabled ...");
+#else
+  wVal = TMOUT_CRC | COMPLETE;
+  __UHC_CALL_LOGGER_INFO__(__UHC_CAST__(uhci), "Interrupts enabled ...");
+
+#endif
+  __REGISTER_WRITE(__CAST__(__UHC__*, uhci), Usb_Interrupt, wVal);
+
+#if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
+  reg->dump(reg, uhci->controller_logger);
+#endif
+
+  __REGISTER_WRITE(__CAST__(__UHC__*, uhci), Usb_Status, 0xFFFF);
+
+#if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
+  reg->dump(reg, uhci->controller_logger);
+#endif
+
+  __UHC_CALL_LOGGER_INFO__(__UHC_CAST__(uhci), "Configured UHCI ...");
+
+  __REGISTER_WRITE(__CAST__(__UHC__*, uhci), Usb_Command, MAXP | RS | CF);
+  
+  __UHC_CALL_LOGGER_INFO__(__UHC_CAST__(uhci), "UHCI is running ...");
+
+#if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
+  reg->dump(reg, uhci->controller_logger);
+#endif
+  uhci->controller_port_configuration(uhci);
+  return 1;
+}
+
+static void create_dev(_UHCI *uhci, int16_t status, int pn, MemoryService_C *m) {
   uint8_t speed = (status & LOW_SPEED_ATTACH) ? LOW_SPEED : FULL_SPEED;
 
-  dev->new_usb_device = &new_usb_device;
-
-  uhci->controller_logger->info_c(
-      uhci->controller_logger,
-      "%s-Usb-Device detected at port : %d -> Start configuration",
+  __UHC_CALL_LOGGER_INFO__(__UHC_CAST__(uhci), 
+    "%s-Usb-Device detected at port : %d -> Start configuration",
       speed == FULL_SPEED ? "Full-Speed" : "Low-Speed", pn);
-
-  dev->new_usb_device(dev, speed, pn, 0, 0xFF, pn, pn, (SystemService_C *)m,
+  __NEW__(m, UsbDev, sizeof(UsbDev), dev, new_usb_device, 
+    new_usb_device, speed, pn, 0, 0xFF, pn, pn, (SystemService_C *)m,
                       uhci, 0);
-
+                      
 #if defined(DEVICE_DEBUG_ON) || defined(DEBUG_ON)
   dev->dump_device(dev);
 #endif
-
   if (dev->error_while_transfering) {
-    uhci->controller_logger->error_c(
-        uhci->controller_logger,
-        "Aborting configuration of Usb-Device on port : %d", pn);
+    __UHC_CALL_LOGGER_ERROR__(__UHC_CAST__(uhci), 
+      "Aborting configuration of Usb-Device on port : %d", pn);
     return;
   }
-
-  uhci->controller_logger->info_c(
-      uhci->controller_logger,
+  __UHC_CALL_LOGGER_INFO__(__UHC_CAST__(uhci), 
       "Succesful configured Usb-Device on port : %d , "
       "Device : %s, %s",
       pn, dev->manufacturer, dev->product);
 }
 
-void dump_uhci_entry(_UHCI *uhci) {
-  Logger_C *controller_logger = uhci->controller_logger;
-  PciDevice_Struct *pci_device = uhci->pci_device;
-
+static void dump_uhci_entry(_UHCI *uhci) {
+  Logger_C *controller_logger = __UHC_GET__(uhci, controller_logger);
+  PciDevice_Struct *pci_device = __UHC_GET__(uhci, pci_device);
+  
   char *msg = "UHCI found : Bus = %d, device = %d, function = %d, vendorID = "
               "0x%x, deviceID = 0x%x, IRQ = %d";
 
@@ -291,143 +378,21 @@ void dump_uhci_entry(_UHCI *uhci) {
                             pci_device->get_interrupt_line_c(pci_device));
 }
 
-void init_controller_functions(_UHCI *uhci) {
-  uhci->super.poll = &_poll_uhci_;
-  uhci->super.register_driver = &register_driver_uhci;
-  uhci->super.remove_driver = &deregister_driver_uhci;
-  uhci->super.control = &init_control_transfer;
-  uhci->super.interrupt = &init_interrupt_transfer;
-  uhci->super.bulk = &init_bulk_transfer;
-  uhci->super.contains_interface = &uhci_contain_interface;
-  uhci->super.is_of_type = &is_of_type_uhci;
-  uhci->super.reset_port = &uhci_reset_port;
-  uhci->super.link_device_to_driver = &link_device_to_driver_uhci;
-  uhci->super.link_driver_to_controller = &link_driver_to_controller_uhci;
-  uhci->super.link_driver_to_interface = &link_driver_to_interface_uhci;
-  uhci->super.interrupt_entry_point = &interrupt_entry_point_uhci;
-  uhci->super.control_entry_point = &control_entry_point_uhci;
-  uhci->super.bulk_entry_point = &bulk_entry_point_uhci;
-  uhci->super.new_usb_controller = &new_super_usb_controller;
-  uhci->super.handler_function = &handler_function_uhci;
-  uhci->super.runnable_function = &runnable_function_uhci;
-  uhci->super.new_usb_controller(&uhci->super, uhci->mem_service, UHCI_name);
-
-  uhci->dump_uhci_entry = &dump_uhci_entry;
-  uhci->i_o_space_layout_run = &i_o_space_layout_run;
-  uhci->request_register = &request_register;
-  uhci->request_frames = &request_frames;
-  uhci->look_for = &look_for_reg;
-  uhci->insert_queue = &insert_queue;
-  uhci->retransmission = &retransmission;
-  uhci->get_status = &get_status;
-  uhci->remove_queue = &remove_queue;
-  uhci->wait_poll = &wait_poll;
-  uhci->traverse_skeleton = &traverse_skeleton;
-  uhci->create_USB_Packet = &create_USB_Packet;
-  uhci->dump_all = &dump_all;
-  uhci->dump_skeleton = &dump_skeleton;
-  uhci->inspect_TD = &inspect_TD;
-  uhci->inspect_QH = &inspect_QH;
-  uhci->inspect_transfer = &inspect_transfer;
-  uhci->print_USB_Transaction = &print_USB_Transaction;
-  uhci->print_USB_Transfer = &print_USB_Transfer;
-  uhci->control_transfer = &control_transfer;
-  uhci->interrupt_transfer = &interrupt_transfer;
-  uhci->bulk_transfer = &bulk_transfer;
-  uhci->is_valid_priority = &is_valid_priority;
-  uhci->init_controller_functions = &init_controller_functions;
-  uhci->init_logger = &init_logger;
-  uhci->init_mutex = &init_mutex;
-  uhci->init_maps = &init_maps;
-  uhci->fill_maps = &fill_maps;
-  uhci->create_dev = &create_dev;
-  uhci->remove_transfer_entry = &remove_transfer_entry;
-  uhci->get_free_qh = &get_free_qh;
-  uhci->get_free_td = &get_free_td;
-  uhci->free_qh = &free_qh;
-  uhci->free_td = &free_td;
-  uhci->remove_td_linkage = &remove_td_linkage;
-  uhci->destroy_transfer = &destroy_transfer;
-  uhci->controller_configuration = &controller_configuration;
-  uhci->controller_port_configuration = &controller_port_configuration;
-  uhci->is_valid_interval = &is_valid_interval;
-}
-
-UsbControllerType is_of_type_uhci(UsbController *controller) {
+static UsbControllerType is_of_type_uhci(UsbController *controller) {
   return TYPE_UHCI;
 }
 
-Logger_C *init_logger(_UHCI *uhci, MemoryService_C *m) {
-  Logger_C *logger =
-      (Logger_C *)m->allocateKernelMemory_c(m, sizeof(Logger_C), 0);
-  logger->new_logger = &new_logger;
+static void init_maps(_UHCI *uhci, MemoryService_C *m) {
+  __NEW__(m, QH_TD_Map, sizeof(QH_TD_Map), qh_td_map, new_map, newQH_TD, "Map<QH*,TD*>");
+  __NEW__(m, QH_Callback_Function_Map, sizeof(QH_Callback_Function_Map), qh_callback_map,
+    new_map,  newQH_CallbackMap, "Map<QH*,callback_function>");
+  __NEW__(m, QH_Data_Map, sizeof(QH_Data_Map), qh_data_map, new_map, newQH_Data_Map,
+    "Map<QH*,void*>");
+  __NEW__(m, QH_Device_Map, sizeof(QH_Device_Map), qh_device_map, new_map, 
+    newQH_Device_Map, "Map<QH*,UsbDev*>");  
+  __NEW__(m, QH_Device_Request_Map, sizeof(QH_Device_Request_Map), device_request_map, 
+    new_map, newQH_DeviceRequest_Map, "Map<QH*,UsbDeviceRequest*>");
 
-#if defined(DEBUG_ON) || defined(TD_DEBUG_ON) || defined(QH_DEBUG_ON) ||       \
-    defined(TRANSFER_DEBUG_ON) || defined(DEVICE_DEBUG_ON) ||                  \
-    defined(SKELETON_DEBUG_ON) || defined(REGISTER_DEBUG_ON) ||                \
-    defined(STATUS_DEBUG_ON)
-
-  logger->new_logger(logger, USB_CONTROLLER_LOGGER_TYPE, LOGGER_LEVEL_DEBUG);
-#else
-
-  logger->new_logger(logger, USB_CONTROLLER_LOGGER_TYPE, LOGGER_LEVEL_INFO);
-
-#endif
-
-  return logger;
-}
-
-Mutex_C *init_mutex(_UHCI *uhci, MemoryService_C *m) {
-  Mutex_C *mutex = (Mutex_C *)m->allocateKernelMemory_c(m, sizeof(Mutex_C), 0);
-  mutex->new_mutex = &new_mutex;
-  mutex->new_mutex(mutex);
-
-  return mutex;
-}
-
-SystemService_C *request_interrupt_service(_UHCI *uhci,
-                                           SystemService_C *mem_service) {
-  InterruptService_C *interrupt_service;
-  MemoryService_C *m =
-      (MemoryService_C *)container_of(mem_service, MemoryService_C, super);
-
-  interrupt_service = (InterruptService_C *)m->allocateKernelMemory_c(
-      m, sizeof(InterruptService_C), 0);
-
-  interrupt_service->new_interrupt_service = &new_interrupt_service;
-  interrupt_service->new_interrupt_service(interrupt_service);
-
-  return (SystemService_C *)interrupt_service;
-}
-
-void init_maps(_UHCI *uhci, MemoryService_C *m) {
-  QH_TD_Map *qh_td_map = m->allocateKernelMemory_c(m, sizeof(QH_TD_Map), 0);
-  QH_Callback_Function_Map *qh_callback_map =
-      m->allocateKernelMemory_c(m, sizeof(QH_Callback_Function_Map), 0);
-  QH_Data_Map *qh_data_map =
-      m->allocateKernelMemory_c(m, sizeof(QH_Data_Map), 0);
-  QH_Device_Map *qh_device_map =
-      m->allocateKernelMemory_c(m, sizeof(QH_Device_Map), 0);
-  Register_Map *register_map =
-      m->allocateKernelMemory_c(m, sizeof(Register_Map), 0);
-  QH_Device_Request_Map *device_request_map =
-      m->allocateKernelMemory_c(m, sizeof(QH_Device_Request_Map), 0);
-
-  qh_td_map->new_map = &newQH_TD;
-  qh_callback_map->new_map = &newQH_CallbackMap;
-  qh_data_map->new_map = &newQH_Data_Map;
-  qh_device_map->new_map = &newQH_Device_Map;
-  register_map->new_map = &newRegisterMap;
-  device_request_map->new_map = &newQH_DeviceRequest_Map;
-
-  qh_td_map->new_map(qh_td_map, "Map<QH*,TD*>");
-  qh_callback_map->new_map(qh_callback_map, "Map<QH*,callback_function>");
-  qh_data_map->new_map(qh_data_map, "Map<QH*,void*>");
-  qh_device_map->new_map(qh_device_map, "Map<QH*,UsbDev*>");
-  register_map->new_map(register_map, "Map<RegisterType*,Register*>");
-  device_request_map->new_map(device_request_map, "Map<QH*,UsbDeviceRequest*>");
-
-  uhci->register_look_up = (SuperMap *)register_map;
   uhci->qh_to_td_map = (SuperMap *)qh_td_map;
   uhci->callback_map = (SuperMap *)qh_callback_map;
   uhci->qh_data_map = (SuperMap *)qh_data_map;
@@ -435,41 +400,22 @@ void init_maps(_UHCI *uhci, MemoryService_C *m) {
   uhci->qh_device_request_map = (SuperMap *)device_request_map;
 
 #if defined(TRANSFER_MEASURE_ON)
-  QH_Measurement_Map *qh_measurement =
-      m->allocateKernelMemory_c(m, sizeof(QH_Measurement_Map), 0);
-  qh_measurement->new_map = &newQH_Measuremnt_Map;
-  qh_measurement->new_map(qh_measurement, "Map<QH*,uint32_t*>");
+  __NEW__(m, QH_Measurement_Map, sizeof(QH_Measurement_Map), qh_measurement, new_map,
+    newQH_Measuremnt_Map, "Map<QH*,uint32_t*>");
   uhci->qh_measurement = (SuperMap *)qh_measurement;
 #endif
 }
 
-void fill_maps(_UHCI *uhci) {
-  // register_map
-  Register **registers = uhci->i_o_registers;
-  for (int i = 0; i < 8; i++) {
-    Register_Type lvalue = registers[i]->type_of(registers[i]);
-    uhci->register_look_up->put_c(uhci->register_look_up, &lvalue,
-                                  registers[i]);
-  }
-}
-
-uint16_t uhci_reset_port(UsbController *controller, uint8_t port) {
-  uint16_t val;
-  uint16_t lval;
-  Register *reg;
-
+static uint16_t uhci_reset_port(UsbController *controller, uint8_t port) {
+  uint32_t read_buffer;
   _UHCI *uhci = (_UHCI *)container_of(controller, _UHCI, super);
 
   Register_Type r = (port == 1 ? Port1_Status : Port2_Status);
 
-  reg = uhci->look_for(uhci, r);
-
-  uhci->controller_logger->info_c(uhci->controller_logger,
-                                  "Performing Reset on port = %u", port);
-
-  reg->read(reg, &val);
-  lval = val | RESET;
-  reg->write(reg, &lval);
+  __UHC_CALL_LOGGER_INFO__(controller, 
+    "Performing Reset on port = %u", port);
+  __REGISTER_READ(__CAST__(__UHC__*, uhci), r, &read_buffer);
+  __REGISTER_WRITE(__CAST__(__UHC__*, uhci), r, read_buffer | RESET);
 
 #if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
   reg->dump(reg, uhci->controller_logger);
@@ -477,9 +423,8 @@ uint16_t uhci_reset_port(UsbController *controller, uint8_t port) {
 
   mdelay(USB_TDRSTR);
 
-  reg->read(reg, &val);
-  lval = val & 0xFCB1;
-  reg->write(reg, &lval);
+  __REGISTER_READ(__CAST__(__UHC__*, uhci), r, &read_buffer);
+  __REGISTER_WRITE(__CAST__(__UHC__*, uhci), r, read_buffer & 0xFCB1);
 
 #if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
   reg->dump(reg, uhci->controller_logger);
@@ -487,16 +432,14 @@ uint16_t uhci_reset_port(UsbController *controller, uint8_t port) {
 
   udelay(300);
 
-  reg->read(reg, &val);
-  lval = val | CON_CHANGE | CONNECT;
-  reg->write(reg, &lval);
+  __REGISTER_READ(__CAST__(__UHC__*, uhci), r, &read_buffer);
+  __REGISTER_WRITE(__CAST__(__UHC__*, uhci), r, read_buffer | CON_CHANGE | CONNECT);
 
 #if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
   reg->dump(reg, uhci->controller_logger);
 #endif
 
-  lval = val | CONNECT | ENA;
-  reg->write(reg, &lval);
+  __REGISTER_WRITE(__CAST__(__UHC__*, uhci), r, read_buffer | CONNECT | ENA);
 
 #if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
   reg->dump(reg, uhci->controller_logger);
@@ -504,9 +447,8 @@ uint16_t uhci_reset_port(UsbController *controller, uint8_t port) {
 
   udelay(50);
 
-  reg->read(reg, &val);
-  lval = val | 0x000F;
-  reg->write(reg, &lval);
+  __REGISTER_READ(__CAST__(__UHC__*, uhci), r, &read_buffer);
+  __REGISTER_WRITE(__CAST__(__UHC__*, uhci), r, read_buffer | 0x000F);
 
 #if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
   reg->dump(reg, uhci->controller_logger);
@@ -514,56 +456,35 @@ uint16_t uhci_reset_port(UsbController *controller, uint8_t port) {
 
   mdelay(50);
 
-  reg->read(reg, &val);
+  __REGISTER_READ(__CAST__(__UHC__*, uhci), r, &read_buffer);
 
-  return (val & ENA);
+  return (__CAST__(uint16_t, read_buffer) & ENA);
 }
 
-QH *request_frames(_UHCI *uhci) {
+static QH *request_frames(_UHCI *uhci) {
   QH *current;
   QH *child;
-
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
-
-  uint8_t *map_io_buffer = (uint8_t *)m->mapIO(m, PAGE_SIZE, 1);
   int map_io_offset = 0;
 
-  QH **physical_addresses = (QH **)(m->allocateKernelMemory_c(
-      m, SKELETON_SIZE * sizeof(uint32_t *), 0));
-  uint32_t *frame_list_address =
-      (uint32_t *)(m->mapIO(m, sizeof(uint32_t) * TOTAL_FRAMES, 1));
+  __UHC_MEMORY__(uhci, m);
+
+  uint8_t* map_io_buffer = __MAP_IO_KERNEL__(m, uint8_t, PAGE_SIZE);
+  QH** physical_addresses = 
+    __ALLOC_KERNEL_MEM__(m, QH*, SKELETON_SIZE * sizeof(uint32_t *));
+  uint32_t* frame_list_address = __MAP_IO_KERNEL__(m, uint32_t, 
+    sizeof(uint32_t) * TOTAL_FRAMES);
 
   // build bulk qh
-  QH *bulk_qh = (QH *)(map_io_buffer + map_io_offset);
-  map_io_offset += sizeof(QH);
-
-  bulk_qh->flags =
-      PRIORITY_QH_8 | QH_FLAG_END | QH_FLAG_IS_MQH | QH_FLAG_TYPE_BULK;
-  bulk_qh->pyhsicalQHLP = QH_TERMINATE | QH_SELECT;
-  bulk_qh->pyhsicalQHEP = QH_TERMINATE | TD_SELECT;
-  bulk_qh->parent = 0;
-
-  uint32_t bulk_physical_address =
-      (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, bulk_qh));
-  m->addVirtualAddress(m, bulk_physical_address, bulk_qh);
+  QH* __QH_ASSIGN__(map_io_buffer, map_io_offset, bulk_qh);
+  __BULK_DEFAULT__(bulk_qh);
+  __ADD_VIRT__(m, bulk_qh, bulk_physical_address);
 
   // build control qh
-  QH *control_qh = (QH *)(map_io_buffer + map_io_offset);
-  map_io_offset += sizeof(QH);
+  QH* __QH_ASSIGN__(map_io_buffer, map_io_offset, control_qh);
+  __CTL_DEFAULT__(control_qh, bulk_physical_address);
+  __ADD_VIRT__(m, control_qh, control_physical_address);
 
-  bulk_qh->parent = (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, control_qh));
-
-  control_qh->pyhsicalQHLP =
-      ((uint32_t)(uintptr_t)(m->getPhysicalAddress(m, bulk_qh))) | QH_SELECT;
-  control_qh->pyhsicalQHEP = QH_TERMINATE | TD_SELECT;
-  control_qh->parent = 0;
-  control_qh->flags =
-      PRIORITY_QH_8 | QH_FLAG_END | QH_FLAG_IS_MQH | QH_FLAG_TYPE_CONTROL;
-
-  uint32_t control_physical_address =
-      (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, control_qh));
-  m->addVirtualAddress(m, control_physical_address, control_qh);
+  bulk_qh->parent = control_physical_address;
 
 #if defined(DEBUG_ON) || defined(SKELETON_DEBUG_ON)
   uhci->controller_logger->debug_c(
@@ -577,47 +498,23 @@ QH *request_frames(_UHCI *uhci) {
   uhci->controller_logger->debug_c(uhci->controller_logger, "control qhlp : %d",
                                    control_qh->pyhsicalQHLP & QH_ADDRESS_MASK);
 #endif
-  uint32_t physical;
-  // build interrupt qh
-  for (int frame_number = 0; frame_number < TOTAL_FRAMES; frame_number++) {
-    for (int j = FRAME_SCHEDULE.size - 1; j >= 0; j--) {
+  __FOR_RANGE__(frame_number, int, 0, TOTAL_FRAMES) {
+    __FOR_RANGE_DEC__(j, int, SKELETON_SIZE - 1, 0, 1){
       if ((frame_number + 1) % FRAME_SCHEDULE.qh[j] == 0) {
         if (frame_number + 1 == FRAME_SCHEDULE.qh[j]) {
-          current = (QH *)(map_io_buffer + map_io_offset);
-          map_io_offset += sizeof(QH);
+          __QH_ASSIGN_DEFAULT__(map_io_buffer, map_io_offset, current);
 
-          current->pyhsicalQHEP = 0;
-          current->pyhsicalQHLP = 0;
-          current->flags = 0;
-          current->parent = 0;
-
-          physical_addresses[j] = (QH *)(m->getPhysicalAddress(m, current));
-          physical = (uint32_t)(uintptr_t)physical_addresses[j];
-
-          m->addVirtualAddress(m, physical, current);
+          __save_address(m, physical_addresses, current, j);
 
           if (j == 0) {
-            current->pyhsicalQHLP =
-                ((uint32_t)(uintptr_t)(m->getPhysicalAddress(m, control_qh))) |
-                QH_SELECT;
-            control_qh->parent =
-                (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, current));
-            frame_list_address[frame_number] =
-                (uint32_t)(uintptr_t)(physical_addresses[j]);
-            frame_list_address[frame_number] |= QH_SELECT;
-          } else {
-            current->pyhsicalQHLP =
-                (uint32_t)(uintptr_t)(physical_addresses[j - 1]);
-            current->pyhsicalQHLP |= QH_SELECT;
-            child->parent =
-                (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, current));
-            frame_list_address[frame_number] =
-                (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, current));
-            frame_list_address[frame_number] |= QH_SELECT;
+            __frame_entry(m, control_qh, current, control_physical_address, 
+              frame_list_address, frame_number);
+          } 
+          else {
+            __frame_entry(m, child, current, __PTR_TYPE__(uint32_t, physical_addresses[j - 1])
+              , frame_list_address, frame_number);
           }
-          current->pyhsicalQHEP = TD_SELECT | QH_TERMINATE;
-          current->flags = PRIORITY_QH_8 | QH_FLAG_END | QH_FLAG_IS_MQH |
-                           QH_FLAG_TYPE_INTERRUPT;
+          __INT_DEFAULT__(current);
 
 #if defined(DEBUG_ON) || defined(SKELETON_DEBUG_ON)
           uhci->controller_logger->debug_c(uhci->controller, "address : %d",
@@ -630,29 +527,23 @@ QH *request_frames(_UHCI *uhci) {
           child = current;
           break;
         }
-        frame_list_address[frame_number] =
-            (uint32_t)(uintptr_t)(physical_addresses[j]);
-        frame_list_address[frame_number] |= QH_SELECT;
+        __add_to_frame(frame_list_address, frame_number, physical_addresses[j]);
         break;
       }
     }
   }
-  m->freeKernelMemory_c(m, physical_addresses, 0);
+  __FREE_KERNEL_MEM__(m, physical_addresses);
+  __assign_fba(m, frame_list_address, uhci);
 
-  uhci->fba =
-      (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, frame_list_address));
   return current;
 }
 
-Addr_Region *i_o_space_layout_run(_UHCI *uhci) {
+static Addr_Region *i_o_space_layout_run(UsbController* controller, PciDevice_Struct* pci_device) {
   uint16_t command;
-  IO_Port_Struct_C *io_port;
-  IO_Region *io_region;
   uint16_t base_address;
 
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
-  PciDevice_Struct *pci_device = uhci->pci_device;
+  _UHCI* uhci = container_of(controller, _UHCI, super);
+  __UHC_MEMORY__(uhci, m);
 
   command = pci_device->readWord_c(pci_device, COMMAND);
   command &= (0xFFFF ^ (INTERRUPT_DISABLE | MEMORY_SPACE));
@@ -661,91 +552,56 @@ Addr_Region *i_o_space_layout_run(_UHCI *uhci) {
 
   base_address =
       pci_device->readDoubleWord_c(pci_device, BASE_ADDRESS_4) & 0xFFFFFFFC;
-  uhci->irq = pci_device->readByte_c(pci_device, INTERRUPT_LINE);
+  
+  __UHC_SET__(controller, irq, pci_device->readByte_c(pci_device, INTERRUPT_LINE)); 
 
   pci_device->writeDoubleWord_c(pci_device, CAPABILITIES_POINTER, 0x00000000);
   pci_device->writeDoubleWord_c(pci_device, 0x38, 0x00000000);
 
   pci_device->writeWord_c(pci_device, 0xC0, 0x8F00);
 
-  io_port = (IO_Port_Struct_C *)m->allocateKernelMemory_c(
-      m, sizeof(IO_Port_Struct_C), 0);
-  io_port->newIO_Port = &newIO_Port;
-  io_port->newIO_Port(io_port, base_address);
-
-  io_region = (IO_Region *)m->allocateKernelMemory_c(m, sizeof(IO_Region), 0);
-  io_region->new_io_region = &new_io_region;
-
-  io_region->new_io_region(io_region, io_port, 8);
+  __NEW__(m, IO_Port_Struct_C, sizeof(IO_Port_Struct_C), io_port, newIO_Port,
+    newIO_Port, base_address);
+  __NEW__(m, IO_Region, sizeof(IO_Region), io_region, new_io_region, new_io_region,
+    io_port, 8);
 
   return (Addr_Region *)io_region;
 }
 
-Register **request_register(_UHCI *uhci) {
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
-  Addr_Region *ar = uhci->addr_region;
+static Register **request_register(UsbController* controller, Addr_Region* addr_region) {
+  _UHCI* uhci = container_of(controller, _UHCI, super);
+  __UHC_MEMORY__(uhci, m);
+  Addr_Region *ar = __UHC_GET__(uhci, addr_region);
 
-  Command_Register *c_reg = (Command_Register *)m->allocateKernelMemory_c(
-      m, sizeof(Command_Register), 0);
-  Status_Register *s_reg = (Status_Register *)m->allocateKernelMemory_c(
-      m, sizeof(Status_Register), 0);
-  Interrupt_Register *i_reg = (Interrupt_Register *)m->allocateKernelMemory_c(
-      m, sizeof(Interrupt_Register), 0);
-  Port_Register *p_reg_1 =
-      (Port_Register *)m->allocateKernelMemory_c(m, sizeof(Port_Register), 0);
-  Port_Register *p_reg_2 =
-      (Port_Register *)m->allocateKernelMemory_c(m, sizeof(Port_Register), 0);
-  Frame_Numb_Register *f_n_reg =
-      (Frame_Numb_Register *)m->allocateKernelMemory_c(
-          m, sizeof(Frame_Numb_Register), 0);
-  Frame_Base_Register *f_b_reg =
-      (Frame_Base_Register *)m->allocateKernelMemory_c(
-          m, sizeof(Frame_Base_Register), 0);
-  SOF_Register *sof_reg =
-      (SOF_Register *)m->allocateKernelMemory_c(m, sizeof(SOF_Register), 0);
+  __NEW__(m, Command_Register, sizeof(Command_Register), c_reg, 
+          new_command_register, new_command_reg, ar, 
+          __ALLOC_KERNEL_MEM__(m, uint16_t, sizeof(uint16_t)));
+  __NEW__(m, Status_Register, sizeof(Status_Register), s_reg,
+          new_status_register, new_status_reg, ar,
+          __ALLOC_KERNEL_MEM__(m, uint16_t, sizeof(uint16_t)));
+  __NEW__(m, Interrupt_Register, sizeof(Interrupt_Register), i_reg,
+          new_interrupt_register, new_interrupt_reg, ar, 
+          __ALLOC_KERNEL_MEM__(m, uint16_t, sizeof(uint16_t)));
+  __NEW__(m, Port_Register, sizeof(Port_Register), p_reg_1,
+          new_port_register, new_port_reg, 1, ar,
+          __ALLOC_KERNEL_MEM__(m, uint16_t, sizeof(uint16_t)));
+  __NEW__(m, Port_Register, sizeof(Port_Register), p_reg_2,
+          new_port_register, new_port_reg, 2, ar,
+          __ALLOC_KERNEL_MEM__(m, uint16_t, sizeof(uint16_t)));
+  __NEW__(m, Frame_Numb_Register, sizeof(Frame_Numb_Register), f_n_reg, 
+          new_frame_number_register, new_frame_number_reg, ar,
+          __ALLOC_KERNEL_MEM__(m, uint16_t, sizeof(uint16_t)));
+  __NEW__(m, Frame_Base_Register, sizeof(Frame_Base_Register), f_b_reg,
+          new_frame_base_register, new_frame_base_reg, ar,
+          __ALLOC_KERNEL_MEM__(m, uint32_t, sizeof(uint32_t)));
+  __NEW__(m, SOF_Register, sizeof(SOF_Register), sof_reg,
+          new_sof_register, new_sof_reg, ar,
+          __ALLOC_KERNEL_MEM__(m, uint8_t, sizeof(uint8_t)));
 
-  Register **regs =
-      (Register **)m->allocateKernelMemory_c(m, sizeof(Register *) * 8, 0);
+  Register **regs = 
+    __ALLOC_KERNEL_MEM__(m, Register*, sizeof(Register*)*8);
 
-  c_reg->new_command_register = &new_command_reg;
-  s_reg->new_status_register = &new_status_reg;
-  i_reg->new_interrupt_register = &new_interrupt_reg;
-  p_reg_1->new_port_register = &new_port_reg;
-  p_reg_2->new_port_register = &new_port_reg;
-  f_n_reg->new_frame_number_register = &new_frame_number_reg;
-  f_b_reg->new_frame_base_register = &new_frame_base_reg;
-  sof_reg->new_sof_register = &new_sof_reg;
-
-  c_reg->new_command_register(
-      c_reg, ar, (uint16_t *)m->allocateKernelMemory_c(m, sizeof(uint16_t), 0));
-  s_reg->new_status_register(
-      s_reg, ar, (uint16_t *)m->allocateKernelMemory_c(m, sizeof(uint16_t), 0));
-  i_reg->new_interrupt_register(
-      i_reg, ar, (uint16_t *)m->allocateKernelMemory_c(m, sizeof(uint16_t), 0));
-  p_reg_1->new_port_register(
-      p_reg_1, 1, ar,
-      (uint16_t *)m->allocateKernelMemory_c(m, sizeof(uint16_t), 0));
-  p_reg_2->new_port_register(
-      p_reg_2, 2, ar,
-      (uint16_t *)m->allocateKernelMemory_c(m, sizeof(uint16_t), 0));
-  f_n_reg->new_frame_number_register(
-      f_n_reg, ar,
-      (uint16_t *)m->allocateKernelMemory_c(m, sizeof(uint16_t), 0));
-  f_b_reg->new_frame_base_register(
-      f_b_reg, ar,
-      (uint32_t *)m->allocateKernelMemory_c(m, sizeof(uint32_t), 0));
-  sof_reg->new_sof_register(
-      sof_reg, ar, (uint8_t *)m->allocateKernelMemory_c(m, sizeof(uint8_t), 0));
-
-  regs[0] = (Register *)c_reg;
-  regs[1] = (Register *)s_reg;
-  regs[2] = (Register *)i_reg;
-  regs[3] = (Register *)f_n_reg;
-  regs[4] = (Register *)f_b_reg;
-  regs[5] = (Register *)sof_reg;
-  regs[6] = (Register *)p_reg_1;
-  regs[7] = (Register *)p_reg_2;
+  __ADD_REGISTER_ENTRIES__(regs);
 
   return regs;
 }
@@ -783,22 +639,22 @@ MemoryService_C, super);
     return (Addr_Region*)addr_region;
 }*/
 
-QH *get_free_qh(_UHCI *uhci) {
-  for (int i = 0; i < PAGE_SIZE / sizeof(QH); i++) {
-    // uhci->mutex->acquire_c(uhci->mutex);
+static QH *get_free_qh(_UHCI *uhci) {
+  __FOR_RANGE__(i, int, 0, PAGE_SIZE / sizeof(QH)){
+    __USB_LOCK__(__UHC_CAST__(uhci));
     if (uhci->map_io_buffer_bit_map_qh[i] == 0) {
       uhci->map_io_buffer_bit_map_qh[i] = 1;
-      // uhci->mutex->release_c(uhci->mutex);
+      __USB_RELEASE__(__UHC_CAST__(uhci));
       return (QH *)(uhci->map_io_buffer_qh + (i * sizeof(QH)));
     }
-    // uhci->mutex->release_c(uhci->mutex);
+    __USB_RELEASE__(__UHC_CAST__(uhci));
   }
   return (void *)0;
 }
 
-TD *get_free_td(_UHCI *uhci) {
+static TD *get_free_td(_UHCI *uhci) {
   for (int i = 0; i < ((2 * PAGE_SIZE) / sizeof(TD)); i++) {
-    // uhci->mutex->acquire_c(uhci->mutex);
+    __USB_LOCK__(__UHC_CAST__(uhci));
     if (uhci->map_io_buffer_bit_map_td[i] == 0) {
       uhci->map_io_buffer_bit_map_td[i] = 1;
       // uhci->mutex->release_c(uhci->mutex);
@@ -809,7 +665,7 @@ TD *get_free_td(_UHCI *uhci) {
   return (void *)0;
 }
 
-void free_qh(_UHCI *uhci, QH *qh) {
+static void free_qh(_UHCI *uhci, QH *qh) {
   for (int i = 0; i < PAGE_SIZE; i += sizeof(QH)) {
     // uhci->mutex->acquire_c(uhci->mutex);
     if ((uhci->map_io_buffer_qh + i) == (uint8_t *)qh) {
@@ -821,7 +677,7 @@ void free_qh(_UHCI *uhci, QH *qh) {
   }
 }
 
-void free_td(_UHCI *uhci, TD *td) {
+static void free_td(_UHCI *uhci, TD *td) {
   for (int i = 0; i < (2 * PAGE_SIZE); i += sizeof(TD)) {
     // uhci->mutex->acquire_c(uhci->mutex);
     if ((uhci->map_io_buffer_td + i) == (uint8_t *)td) {
@@ -833,14 +689,14 @@ void free_td(_UHCI *uhci, TD *td) {
   }
 }
 
-void insert_queue(_UHCI *uhci, QH *new_qh, uint16_t priority, enum QH_HEADS v) {
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
+static void insert_queue(_UHCI *uhci, QH *new_qh, uint16_t priority, enum QH_HEADS v) {
+  __UHC_MEMORY__(uhci, m);
+
   uint32_t physical_addr;
   int8_t offset = (int8_t)v;
   QH *current = uhci->qh_entry;
 
-  uhci->mutex->acquire_c(uhci->mutex);
+  __UHC_ACQUIRE_LOCK__(uhci);
 
   while (offset > 0) {
     if ((current->flags & QH_FLAG_IS_MQH)) {
@@ -905,15 +761,13 @@ void insert_queue(_UHCI *uhci, QH *new_qh, uint16_t priority, enum QH_HEADS v) {
   uhci->inspect_QH(uhci, new_qh);
   uhci->inspect_QH(uhci, current);
 #endif
-  uhci->mutex->release_c(uhci->mutex);
+  __UHC_RELEASE_LOCK__(uhci);
 }
 
 // todo as in the insert queue method
-void remove_queue(_UHCI *uhci, QH *qh) {
-  MemoryService_C *memory_service = (MemoryService_C *)container_of(
-      uhci->mem_service, MemoryService_C, super);
-
-  uhci->mutex->acquire_c(uhci->mutex);
+static void remove_queue(_UHCI *uhci, QH *qh) {
+  __UHC_MEMORY__(uhci, memory_service);
+  __UHC_ACQUIRE_LOCK__(uhci);
 
   QH *parent =
       (QH *)memory_service->getVirtualAddress(memory_service, qh->parent);
@@ -944,70 +798,18 @@ void remove_queue(_UHCI *uhci, QH *qh) {
     child->parent = qh->parent;
   }
 
-  uhci->mutex->release_c(uhci->mutex);
-}
-
-Register *look_for_reg(_UHCI *uhci, Register_Type r) {
-  return (
-      Register *)(uhci->register_look_up->get_c(uhci->register_look_up, &r));
+  __UHC_RELEASE_LOCK__(uhci);
 }
 
 /*Interface* lock_interface(_UHCI* uhci, UsbDev* dev, unsigned int
 interface_num){ return dev->usb_dev_interface_lock(dev, interface_num);
 }*/
 
-void dump_drivers(_UHCI *uhci) {
-  list_element *l_e = uhci->super.head_driver.l_e;
-  Logger_C *logger = uhci->controller_logger;
-  char *message = "UHCI : %x\n";
-  char *driver_message = "\tDriver : %s\n";
-  char *device_message = "\t\tDevice : %s\n";
-
-  logger->debug_c(logger, message, (uint32_t)(uintptr_t)uhci);
-  while (l_e != (void *)0) {
-    UsbDriver *usb_driver = (UsbDriver *)container_of(l_e, UsbDriver, l_e);
-    logger->debug_c(logger, driver_message, usb_driver->name);
-    list_element *l = usb_driver->head.l_e;
-    while (l != (void *)0) {
-      UsbDev *dev = (UsbDev *)container_of(l, UsbDev, l_e_driver);
-      logger->debug_c(logger, device_message, dev->device_desc.idProduct);
-      l = l->l_e;
-    }
-    l_e = l_e->l_e;
-  }
-}
-
-void dump_devices(_UHCI *uhci) {
-  list_element *l_e = uhci->super.head_dev.l_e;
-  Logger_C *logger = uhci->controller_logger;
-  char *message = "UHCI : %x\n";
-  char *device_message = "\tDevice : %s\n";
-  char *interface_message = "\t\t%d.%d : %s";
-
-  logger->debug_c(logger, message, (uint32_t)(uintptr_t)uhci);
-  while (l_e != (void *)0) {
-    UsbDev *usb_dev = (UsbDev *)container_of(l_e, UsbDev, l_e);
-    logger->debug_c(logger, device_message, usb_dev->device_desc.idProduct);
-    int config_value = usb_dev->active_config->config_desc.bConfigurationValue;
-    int interface_num = usb_dev->active_config->config_desc.bNumInterfaces;
-    Interface **interfaces = usb_dev->active_config->interfaces;
-    for (int i = 0; i < interface_num; i++) {
-      int interface_number =
-          interfaces[i]
-              ->active_interface->alternate_interface_desc.bInterfaceNumber;
-      UsbDriver *used_driver = (UsbDriver *)interfaces[i]->driver;
-      logger->debug_c(logger, interface_message, config_value, interface_number,
-                      used_driver->name);
-    }
-    l_e = l_e->l_e;
-  }
-}
-
-void free_interface(_UHCI *uhci, UsbDev *dev, Interface *interface) {
+static void free_interface(_UHCI *uhci, UsbDev *dev, Interface *interface) {
   dev->usb_dev_free_interface(dev, interface);
 }
 
-int uhci_contain_interface(UsbController *controller, Interface *interface) {
+static int uhci_contain_interface(UsbController *controller, Interface *interface) {
 
   return controller->interface_dev_map->get_c(controller->interface_dev_map,
                                               interface) == (void *)0
@@ -1018,7 +820,7 @@ int uhci_contain_interface(UsbController *controller, Interface *interface) {
 // replace each method with prototyp (..., UsbDev*, Interface*, ...) -> (...,
 // Interface*, ...);
 // entry point for usb driver
-void init_control_transfer(UsbController *controller, Interface *interface,
+static void init_control_transfer(UsbController *controller, Interface *interface,
                            unsigned int pipe, uint8_t priority, void *data,
                            uint8_t *setup, callback_function callback) {
   _UHCI *uhci = (_UHCI *)container_of(controller, _UHCI, super);
@@ -1046,7 +848,7 @@ void init_control_transfer(UsbController *controller, Interface *interface,
                        0);
 }
 
-void init_interrupt_transfer(UsbController *controller, Interface *interface,
+static void init_interrupt_transfer(UsbController *controller, Interface *interface,
                              unsigned int pipe, uint8_t priority, void *data,
                              unsigned int len, uint16_t interval,
                              callback_function callback) {
@@ -1082,7 +884,7 @@ void init_interrupt_transfer(UsbController *controller, Interface *interface,
                          len, (uint8_t)mqh, callback);
 }
 
-int16_t is_valid_interval(_UHCI *uhci, UsbDev *dev, uint16_t interval,
+static int16_t is_valid_interval(_UHCI *uhci, UsbDev *dev, uint16_t interval,
                           void *data) {
   uint8_t mqh;
   if (interval == interval_1024_ms)
@@ -1111,7 +913,7 @@ int16_t is_valid_interval(_UHCI *uhci, UsbDev *dev, uint16_t interval,
     if (interval <= 0)
       return -1;
 
-    interval = floor_address(interval);
+    interval = __floor_address(interval);
 
     return uhci->is_valid_interval(uhci, dev, interval, data);
   }
@@ -1119,7 +921,7 @@ int16_t is_valid_interval(_UHCI *uhci, UsbDev *dev, uint16_t interval,
   return mqh;
 }
 
-int16_t is_valid_priority(_UHCI *uhci, UsbDev *dev, uint8_t priority,
+static int16_t is_valid_priority(_UHCI *uhci, UsbDev *dev, uint8_t priority,
                           callback_function callback) {
   int16_t shift_prio = -1;
   if (priority == PRIORITY_1)
@@ -1141,7 +943,7 @@ int16_t is_valid_priority(_UHCI *uhci, UsbDev *dev, uint8_t priority,
   return shift_prio;
 }
 
-void init_bulk_transfer(UsbController *controller, Interface *interface,
+static void init_bulk_transfer(UsbController *controller, Interface *interface,
                         unsigned int pipe, uint8_t priority, void *data,
                         unsigned len, callback_function callback) {
   _UHCI *uhci = (_UHCI *)container_of(controller, _UHCI, super);
@@ -1168,214 +970,7 @@ void init_bulk_transfer(UsbController *controller, Interface *interface,
                     callback, 0);
 }
 
-int register_driver_uhci(UsbController *controller, UsbDriver *driver) {
-  _UHCI *uhci = (_UHCI *)container_of(controller, _UHCI, super);
-  list_element *first_dev = uhci->super.head_dev.l_e;
-  UsbDevice_ID *device_id_table = driver->entry;
-
-  if (driver->probe == (void *)0) {
-    return -1;
-  };
-  // driver should be listed, althought i does not have a matching dev
-  // useful when later having plug & play
-  ((UsbController *)uhci)
-      ->link_driver_to_controller((UsbController *)uhci, driver);
-
-  int driver_device_match_count = 0;
-
-  for (int i = 0;
-       device_id_table[i].idVendor != 0 || device_id_table[i].idProduct != 0 ||
-       device_id_table[i].bcdDevice_low != 0 ||
-       device_id_table[i].bcdDevice_high != 0 ||
-       device_id_table[i].bDeviceClass != 0 ||
-       device_id_table[i].bDeviceSubClass != 0 ||
-       device_id_table[i].bDeviceProtocol != 0 ||
-       device_id_table[i].bInterfaceClass != 0 ||
-       device_id_table[i].bInterfaceSubClass != 0 ||
-       device_id_table[i].bInterfaceProtocol != 0;
-       i++) {
-    UsbDevice_ID device_id = device_id_table[i];
-    for (list_element *copy_devs = first_dev; copy_devs != (void *)0;
-         copy_devs = copy_devs->l_e) {
-      UsbDev *dev = (UsbDev *)container_of(copy_devs, UsbDev, l_e);
-      DeviceDescriptor device_desc = dev->device_desc;
-      // 0xFF is default value -> if change check
-      if (device_id.idVendor != 0xFF &&
-          device_id.idVendor != device_desc.idVendor) {
-        continue;
-      }
-      if (device_id.idProduct != 0xFF &&
-          device_id.idProduct != device_desc.idProduct) {
-        continue;
-      }
-      if (device_id.bcdDevice_high != 0xFF &&
-          device_id.bcdDevice_high !=
-              USB_MAJOR_VERSION(device_desc.bcdDevice) &&
-          device_id.bcdDevice_low != USB_MINOR_VERSION(device_desc.bcdDevice)) {
-        continue;
-      }
-      if (device_id.bDeviceClass != 0xFF &&
-          device_id.bDeviceClass != device_desc.bDeviceClass) {
-        continue;
-      }
-      if (device_id.bDeviceSubClass != 0xFF &&
-          device_id.bDeviceSubClass != device_desc.bDeviceSubClass) {
-        continue;
-      }
-      if (device_id.bDeviceProtocol != 0xFF &&
-          device_id.bDeviceProtocol != device_desc.bDeviceProtocol) {
-        continue;
-      }
-
-      Configuration *config = dev->active_config;
-      int interface_num = config->config_desc.bNumInterfaces;
-
-      for (int k = 0; k < interface_num; k++) {
-        Interface *interface = config->interfaces[k];
-        Alternate_Interface *alt_interface = interface->active_interface;
-        if (device_id.bInterfaceClass != 0xFF &&
-            device_id.bInterfaceClass !=
-                alt_interface->alternate_interface_desc.bInterfaceClass) {
-          continue;
-        }
-        if (device_id.bInterfaceSubClass != 0xFF &&
-            device_id.bInterfaceSubClass !=
-                alt_interface->alternate_interface_desc.bInterfaceSubClass) {
-          continue;
-        }
-        if (device_id.bInterfaceProtocol != 0xFF &&
-            device_id.bInterfaceProtocol !=
-                alt_interface->alternate_interface_desc.bInterfaceProtocol) {
-          continue;
-        }
-
-        int status = dev->usb_dev_interface_lock(dev, interface, driver);
-
-        if ((status == E_INTERFACE_IN_USE) || (status == E_INTERFACE_INV)) {
-          continue;
-        }
-
-        if (driver->probe(dev, interface) < 0) {
-          dev->usb_dev_free_interface(dev, interface);
-        } else {
-          driver_device_match_count++;
-          ((UsbController *)uhci)
-              ->link_device_to_driver((UsbController *)uhci, dev, driver);
-          ((UsbController *)uhci)
-              ->link_driver_to_interface((UsbController *)uhci, driver,
-                                          interface);
-          ((UsbController *)uhci)
-              ->interface_dev_map->put_c(
-                  ((UsbController *)uhci)->interface_dev_map, interface, dev);
-          driver->dispatcher = uhci->super.dispatcher;
-        }
-      }
-    }
-  }
-  return (driver_device_match_count == 0
-              ? -1
-              : driver_device_match_count); // no device found if 0
-}
-
-void link_device_to_driver_uhci(UsbController *controller, UsbDev *dev,
-                                UsbDriver *driver) {
-  list_element *l_e = driver->head.l_e;
-
-  _UHCI *uhci = (_UHCI *)container_of(controller, _UHCI, super);
-
-  // uhci->mutex->acquire_c(uhci->mutex);
-
-  if (l_e == (void *)0) {
-    driver->head.l_e = &dev->l_e_driver;
-    // uhci->mutex->release_c(uhci->mutex);
-    return;
-  }
-  while (l_e->l_e != (void *)0) {
-    l_e = l_e->l_e;
-  }
-
-  // uhci->mutex->release_c(uhci->mutex);
-
-  l_e->l_e = &dev->l_e_driver;
-}
-
-void link_driver_to_controller_uhci(UsbController *controller,
-                                    UsbDriver *driver) {
-  _UHCI *uhci = (_UHCI *)container_of(controller, _UHCI, super);
-  list_element *l_e = uhci->super.head_driver.l_e;
-
-  // uhci->mutex->acquire_c(uhci->mutex);
-
-  if (l_e == (void *)0) {
-    uhci->super.head_driver.l_e = &driver->l_e;
-    // uhci->mutex->release_c(uhci->mutex);
-    return;
-  }
-  while (l_e->l_e != (void *)0) {
-    l_e = l_e->l_e;
-  }
-
-  // uhci->mutex->release_c(uhci->mutex);
-
-  l_e->l_e = &driver->l_e;
-}
-
-void link_driver_to_interface_uhci(UsbController *controller, UsbDriver *driver,
-                                   Interface *interface) {
-  interface->driver = (void *)driver;
-}
-
-int deregister_driver_uhci(UsbController *controller, UsbDriver *driver) {
-  _UHCI *uhci = (_UHCI *)container_of(controller, _UHCI, super);
-
-  list_element *prev;
-  list_element *l_e = uhci->super.head_driver.l_e;
-
-  UsbDriver *d = (UsbDriver *)container_of(l_e, UsbDriver, l_e);
-
-  if (l_e == (void *)0)
-    return -1;
-
-  // uhci->mutex->acquire_c(uhci->mutex);
-
-  if (d == driver) {
-    uhci->super.head_driver.l_e = uhci->super.head_driver.l_e->l_e;
-  } else {
-    prev = l_e;
-    l_e = l_e->l_e;
-    // remove controller linkage
-    while (l_e != (void *)0) {
-      d = (UsbDriver *)container_of(l_e, UsbDriver, l_e);
-      if (driver == d) {
-        prev->l_e = l_e->l_e;
-        break;
-      }
-      l_e = l_e->l_e;
-    }
-  }
-
-  // remove device linkage
-  list_element *l_dev = uhci->super.head_dev.l_e;
-  while (l_dev != (void *)0) {
-    UsbDev *dev = (UsbDev *)container_of(l_dev, UsbDev, l_e);
-    int interface_num = dev->active_config->config_desc.bNumInterfaces;
-    Interface **interfaces = dev->active_config->interfaces;
-    for (int i = 0; i < interface_num; i++) {
-      if (((UsbDriver *)interfaces[i]->driver) == driver) {
-        dev->usb_dev_free_interface(dev, interfaces[i]);
-        // uhci->mutex->release_c(uhci->mutex);
-        return 1;
-      }
-    }
-    l_dev = l_dev->l_e;
-  }
-
-  // uhci->mutex->release_c(uhci->mutex);
-
-  return -1;
-}
-
-void bulk_entry_point_uhci(UsbDev *dev, Endpoint *endpoint, void *data,
+static void bulk_entry_point_uhci(UsbDev *dev, Endpoint *endpoint, void *data,
                            unsigned int len, uint8_t priority,
                            callback_function callback, uint8_t flags) {
   _UHCI *uhci_rcvry =
@@ -1385,7 +980,7 @@ void bulk_entry_point_uhci(UsbDev *dev, Endpoint *endpoint, void *data,
                             &build_interrupt_or_bulk, callback, flags);
 }
 
-void control_entry_point_uhci(UsbDev *dev, UsbDeviceRequest *device_request,
+static void control_entry_point_uhci(UsbDev *dev, UsbDeviceRequest *device_request,
                               void *data, uint8_t priority, Endpoint *endpoint,
                               callback_function callback, uint8_t flags) {
   _UHCI *uhci_rcvry =
@@ -1395,7 +990,7 @@ void control_entry_point_uhci(UsbDev *dev, UsbDeviceRequest *device_request,
                                endpoint, &build_control, callback, flags);
 }
 
-void interrupt_entry_point_uhci(UsbDev *dev, Endpoint *endpoint, void *data,
+static void interrupt_entry_point_uhci(UsbDev *dev, Endpoint *endpoint, void *data,
                                 unsigned int len, uint8_t priority,
                                 uint16_t interval, callback_function callback) {
   _UHCI *uhci_rcvry =
@@ -1405,20 +1000,21 @@ void interrupt_entry_point_uhci(UsbDev *dev, Endpoint *endpoint, void *data,
                                  endpoint, &build_interrupt_or_bulk, callback);
 }
 
-void use_alternate_setting(_UHCI *uhci, UsbDev *dev, Interface *interface,
+static void use_alternate_setting(_UHCI *uhci, UsbDev *dev, Interface *interface,
                            unsigned int setting, callback_function callback) {
   dev->request_switch_alternate_setting(dev, interface, setting, callback);
 }
 
-void switch_configuration(_UHCI *uhci, UsbDev *dev, int configuration,
+static void switch_configuration(_UHCI *uhci, UsbDev *dev, int configuration,
                           callback_function callback) {
   dev->request_switch_configuration(dev, configuration, callback);
 }
 
-UsbTransfer *build_interrupt_or_bulk(_UHCI *uhci, UsbDev *dev, void *data,
+static UsbTransfer *build_interrupt_or_bulk(_UHCI *uhci, UsbDev *dev, void *data,
                                      Endpoint *e, unsigned int len,
                                      const char *type, uint8_t flags) {
   UsbPacket *prev = 0;
+  __UHC_MEMORY__(uhci, m);
 
   UsbTransaction *prev_transaction = 0;
   UsbTransaction *data_transaction = 0;
@@ -1427,8 +1023,7 @@ UsbTransfer *build_interrupt_or_bulk(_UHCI *uhci, UsbDev *dev, void *data,
 
   TokenValues token;
   int count = 0;
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
+  
   UsbTransfer *usb_transfer =
       (UsbTransfer *)m->allocateKernelMemory_c(m, sizeof(UsbTransfer), 0);
 
@@ -1478,7 +1073,7 @@ UsbTransfer *build_interrupt_or_bulk(_UHCI *uhci, UsbDev *dev, void *data,
   return usb_transfer;
 }
 
-void print_USB_Transfer(_UHCI *uhci, UsbTransfer *transfer) {
+static void print_USB_Transfer(_UHCI *uhci, UsbTransfer *transfer) {
   int order = 0;
   char *message =
       "Starting with %s-transfer ... \nProcessing %d Transactions ... \n";
@@ -1490,28 +1085,25 @@ void print_USB_Transfer(_UHCI *uhci, UsbTransfer *transfer) {
     order++;
     transaction = transaction->next;
   }
-
   message = "%s-transfer finished ... \n";
-  uhci->controller_logger->debug_c(uhci->controller_logger, message,
+  __UHC_CALL_LOGGER_DEBUG__(__UHC_CAST__(uhci), message,
                                    transfer->transfer_type);
 }
 
-void print_USB_Transaction(_UHCI *uhci, UsbTransaction *transaction,
+static void print_USB_Transaction(_UHCI *uhci, UsbTransaction *transaction,
                            int order) {
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
+  __UHC_MEMORY__(uhci, m);
   char *message = "Transaction :\nType : %s\nOrder : %d\n"
                   "Packet : %u\n\n"; // packet contains the address of the td
   uint32_t address = (uint32_t)(uintptr_t)(m->getPhysicalAddress(
       m, transaction->entry_packet));
-  uhci->controller_logger->debug_c(uhci->controller_logger, message,
-                                   transaction->transaction_type, order,
-                                   address);
+  __UHC_CALL_LOGGER_DEBUG__(__UHC_CAST__(uhci), message,
+                            transaction->transaction_type, order,
+                            address);
 }
 
-void inspect_QH(_UHCI *uhci, struct QH *qh) {
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
+static void inspect_QH(_UHCI *uhci, struct QH *qh) {
+  __UHC_MEMORY__(uhci, m);
   char *message = "QH Address : %u\n"
                   "QH QHLP : %u\n\tAddress Part : %u\n\tQH/TD Select : "
                   "%u\n\tQH Terminate "
@@ -1525,8 +1117,7 @@ void inspect_QH(_UHCI *uhci, struct QH *qh) {
                   "\tTYPE = %x\n\tQH_TD = %u , QH_QH = %u\n\n";
 
   uint32_t address = (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, qh));
-  uhci->controller_logger->debug_c(
-      uhci->controller_logger, message, address, qh->pyhsicalQHLP,
+  __UHC_CALL_LOGGER_DEBUG__(__UHC_CAST__(uhci), message, address, qh->pyhsicalQHLP,
       qh->pyhsicalQHLP & QH_ADDRESS_MASK,
       (qh->pyhsicalQHLP & QH_TD_SELECT) >> 1, qh->pyhsicalQHLP & QH_TERMINATE,
       qh->pyhsicalQHEP, qh->pyhsicalQHEP & QH_ADDRESS_MASK,
@@ -1543,9 +1134,8 @@ void inspect_QH(_UHCI *uhci, struct QH *qh) {
           : 0);
 }
 
-void inspect_TD(_UHCI *uhci, struct TD *td) {
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
+static void inspect_TD(_UHCI *uhci, struct TD *td) {
+  __UHC_MEMORY__(uhci, m);
   char *message =
       "TD Address : %u\n"
       "TD LP : %u\n\tAddress Part : %u\n\tDEPTH Select : %u\n\tQH/TD Select "
@@ -1561,8 +1151,7 @@ void inspect_TD(_UHCI *uhci, struct TD *td) {
       "Buffer Pointer : %u\n\n";
 
   uint32_t address = (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, td));
-  uhci->controller_logger->debug_c(
-      uhci->controller_logger, message, address, td->pyhsicalLinkPointer,
+  __UHC_CALL_LOGGER_DEBUG__(__UHC_CAST__(uhci), message, address, td->pyhsicalLinkPointer,
       td->pyhsicalLinkPointer & QH_ADDRESS_MASK,
       (td->pyhsicalLinkPointer & DEPTH_BREADTH_SELECT) >> 2,
       (td->pyhsicalLinkPointer & QH_TD_SELECT) >> 1,
@@ -1580,9 +1169,8 @@ void inspect_TD(_UHCI *uhci, struct TD *td) {
       td->bufferPointer);
 }
 
-void inspect_transfer(_UHCI *uhci, QH *qh, TD *td) {
-  MemoryService_C *memory_service = (MemoryService_C *)container_of(
-      uhci->mem_service, MemoryService_C, super);
+static void inspect_transfer(_UHCI *uhci, QH *qh, TD *td) {
+  __UHC_MEMORY__(uhci, memory_service);
 
   uhci->inspect_QH(uhci, qh);
 
@@ -1593,10 +1181,9 @@ void inspect_transfer(_UHCI *uhci, QH *qh, TD *td) {
   }
 }
 
-void dump_skeleton(_UHCI *uhci) {
+static void dump_skeleton(_UHCI *uhci) {
   QH *qh = uhci->qh_entry;
-  MemoryService_C *memory_service = (MemoryService_C *)container_of(
-      uhci->mem_service, MemoryService_C, super);
+  __UHC_MEMORY__(uhci, memory_service);
 
   while (qh != (void *)0) {
     uhci->inspect_QH(uhci, qh);
@@ -1606,9 +1193,8 @@ void dump_skeleton(_UHCI *uhci) {
   }
 }
 
-void dump_all(_UHCI *uhci) {
-  MemoryService_C *mem_service = (MemoryService_C *)container_of(
-      uhci->mem_service, MemoryService_C, super);
+static void dump_all(_UHCI *uhci) {
+  __UHC_MEMORY__(uhci, mem_service);
   QH *qh = uhci->qh_entry;
   TD *td;
 
@@ -1626,11 +1212,13 @@ void dump_all(_UHCI *uhci) {
   }
 }
 
-UsbTransfer *build_control(_UHCI *uhci, UsbDev *dev,
+static UsbTransfer *build_control(_UHCI *uhci, UsbDev *dev,
                            UsbDeviceRequest *device_request, void *data,
                            Endpoint *e, uint8_t flags) {
   UsbPacket *head = 0;
   UsbPacket *prev = 0;
+
+  __UHC_MEMORY__(uhci, m);
 
   UsbTransaction *prev_transaction = 0;
   UsbTransaction *data_transaction = 0;
@@ -1641,8 +1229,6 @@ UsbTransfer *build_control(_UHCI *uhci, UsbDev *dev,
       (e == ((void *)0) ? 0
                         : e->endpoint_desc.bEndpointAddress & ENDPOINT_MASK);
 
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
   UsbTransfer *usb_transfer =
       (UsbTransfer *)m->allocateKernelMemory_c(m, sizeof(UsbTransfer), 0);
 
@@ -1721,11 +1307,10 @@ UsbTransfer *build_control(_UHCI *uhci, UsbDev *dev,
 }
 
 // rename to create Transaction
-UsbPacket *create_USB_Packet(_UHCI *uhci, UsbDev *dev, UsbPacket *prev,
+static UsbPacket *create_USB_Packet(_UHCI *uhci, UsbDev *dev, UsbPacket *prev,
                              TokenValues token, int8_t speed, void *data,
                              int last_packet, uint8_t flags) {
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
+  __UHC_MEMORY__(uhci, m);
 
   TD *td = uhci->get_free_td(uhci);
 
@@ -1779,12 +1364,11 @@ UsbPacket *create_USB_Packet(_UHCI *uhci, UsbDev *dev, UsbPacket *prev,
 
 // insert flag CONFIGURED : used for not using interrupts instead poll for
 // timeout -> like the controls
-void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
+static void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
                    uint8_t priority, Endpoint *e,
                    build_bulk_or_interrupt_transfer build_function,
                    callback_function callback, uint8_t flags) {
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
+  __UHC_MEMORY__(uhci, m);
 
   QH *qh = uhci->get_free_qh(uhci);
 
@@ -1836,12 +1420,11 @@ void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
   }
 }
 
-void interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
+static void interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
                         uint16_t interval, uint8_t priority, Endpoint *e,
                         build_bulk_or_interrupt_transfer build_function,
                         callback_function callback) {
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
+  __UHC_MEMORY__(uhci, m);
 
   QH *qh = uhci->get_free_qh(uhci);
 
@@ -1878,11 +1461,10 @@ void interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
 }
 
 // wait time out time -> upper bound 10ms
-uint32_t wait_poll(_UHCI *uhci, QH *process_qh, uint32_t timeout, uint8_t flags) {
+static uint32_t wait_poll(_UHCI *uhci, QH *process_qh, uint32_t timeout, uint8_t flags) {
   TD *td;
 
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
+  __UHC_MEMORY__(uhci, m);
   uint32_t status = E_TRANSFER;
   uint32_t current_time;
   uint32_t initial_time = getSystemTimeInMilli();
@@ -1901,9 +1483,9 @@ uint32_t wait_poll(_UHCI *uhci, QH *process_qh, uint32_t timeout, uint8_t flags)
   if (td != (void *)0) { // transfer not sucessful
     status |= uhci->get_status(uhci, td);
     if(flags != SUPRESS_DEVICE_ERRORS)
-      uhci->controller_logger->error_c(
-        uhci->controller_logger, "transfer was not sucessful ! error mask %u",
-        status);
+      __UHC_CALL_LOGGER_ERROR__(__UHC_CAST__(uhci), 
+      "transfer was not sucessful ! error mask %u",
+      status);
   }
 
 #if defined(TRANSFER_MEASURE_ON)
@@ -1936,7 +1518,7 @@ uint32_t wait_poll(_UHCI *uhci, QH *process_qh, uint32_t timeout, uint8_t flags)
   return status;
 }
 
-uint32_t get_status(_UHCI *uhci, TD *td) {
+static uint32_t get_status(_UHCI *uhci, TD *td) {
   uint32_t status = td->control_x_status;
   uint32_t error_mask = 0;
   char *message;
@@ -1998,13 +1580,12 @@ uint32_t get_status(_UHCI *uhci, TD *td) {
 // if not null -> check retransmission current tries and resend the QH
 
 // return if retransmission occured or not !
-unsigned int retransmission(_UHCI *uhci, QH *process_qh) {
+static unsigned int retransmission(_UHCI *uhci, QH *process_qh) {
   TD *saved_td = 0;
   TD *head = 0;
 
   unsigned int retransmission_occured = 0;
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
+  __UHC_MEMORY__(uhci, m);
   uint8_t transfer_type = process_qh->flags & QH_FLAG_TYPE_MASK;
   if (transfer_type == QH_FLAG_TYPE_INTERRUPT) {
     saved_td = (TD *)uhci->qh_to_td_map->get_c(uhci->qh_to_td_map, process_qh);
@@ -2024,13 +1605,12 @@ unsigned int retransmission(_UHCI *uhci, QH *process_qh) {
   return retransmission_occured;
 }
 
-void control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
+static void control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
                       void *data, uint8_t priority, Endpoint *endpoint,
                       build_control_transfer build_function,
                       callback_function callback, uint8_t flags) {
   uint32_t status;
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
+  __UHC_MEMORY__(uhci, m);
 
   QH *qh = uhci->get_free_qh(uhci);
 
@@ -2085,9 +1665,8 @@ void control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
   }
 }
 
-void remove_td_linkage(_UHCI *uhci, TD *start) {
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
+static void remove_td_linkage(_UHCI *uhci, TD *start) {
+  __UHC_MEMORY__(uhci, m);
   TD *temp;
 
   while (start != 0) {
@@ -2100,10 +1679,9 @@ void remove_td_linkage(_UHCI *uhci, TD *start) {
   }
 }
 
-void _poll_uhci_(UsbController *controller) {
+static void _poll_uhci_(UsbController *controller) {
   _UHCI *uhci = (_UHCI *)container_of(controller, _UHCI, super);
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
+  __UHC_MEMORY__(uhci, m);
   QH *entry = uhci->qh_entry;
   for (;;) {
     if (entry == (void *)0) {
@@ -2115,7 +1693,7 @@ void _poll_uhci_(UsbController *controller) {
   }
 }
 
-void traverse_skeleton(_UHCI *uhci, QH *entry) {
+static void traverse_skeleton(_UHCI *uhci, QH *entry) {
   // uhci->inspect_QH(uhci, entry);
   if (entry == (void *)0)
     return;
@@ -2126,8 +1704,7 @@ void traverse_skeleton(_UHCI *uhci, QH *entry) {
   unsigned int retransmission_occured;
   uint32_t error_mask;
 
-  MemoryService_C *mem_service = (MemoryService_C *)container_of(
-      uhci->mem_service, MemoryService_C, super);
+  __UHC_MEMORY__(uhci, mem_service);
 
   // just looking for 0 would be the same result
   TD *td = (TD *)mem_service->getVirtualAddressTD(
@@ -2198,7 +1775,7 @@ void traverse_skeleton(_UHCI *uhci, QH *entry) {
 }
 
 // remove all map entries + free memory
-void remove_transfer_entry(_UHCI *uhci, QH *entry) {
+static void remove_transfer_entry(_UHCI *uhci, QH *entry) {
   if ((entry->flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_CONTROL) {
     UsbDev *dev = uhci->qh_dev_map->get_c(uhci->qh_dev_map, entry);
     UsbDeviceRequest *device_req =
@@ -2215,9 +1792,8 @@ void remove_transfer_entry(_UHCI *uhci, QH *entry) {
   uhci->qh_dev_map->remove_c(uhci->qh_dev_map, entry);
 }
 
-void destroy_transfer(_UHCI *uhci, UsbTransfer *transfer) {
-  MemoryService_C *m = (MemoryService_C *)container_of(uhci->mem_service,
-                                                       MemoryService_C, super);
+static void destroy_transfer(_UHCI *uhci, UsbTransfer *transfer) {
+  __UHC_MEMORY__(uhci, m);
 
   UsbTransaction *transaction = transfer->entry_transaction;
 
@@ -2233,12 +1809,11 @@ void destroy_transfer(_UHCI *uhci, UsbTransfer *transfer) {
   m->freeKernelMemory_c(m, transfer, 0);
 }
 
-void runnable_function_uhci(UsbController *controller) {
+static void runnable_function_uhci(UsbController *controller) {
   _UHCI *uhci = container_of(controller, _UHCI, super);
   for (;;) {
     if (uhci->signal) {
-      MemoryService_C *m = (MemoryService_C *)container_of(
-          uhci->mem_service, MemoryService_C, super);
+      __UHC_MEMORY__(uhci, m);
 
       for (QH *qh = uhci->qh_entry; qh != 0;
            qh = (QH *)(m->getVirtualAddress(m, qh->pyhsicalQHLP &
@@ -2254,16 +1829,17 @@ void runnable_function_uhci(UsbController *controller) {
   }
 }
 
-void handler_function_uhci(UsbController *controller) {
+static void handler_function_uhci(UsbController *controller) {
   _UHCI *uhci = container_of(controller, _UHCI, super);
 
   if (uhci->signal)
     uhci->signal_not_override = 1;
   uhci->signal = 1;
   // stop interrupt -> write clear
-  Register *s_reg = uhci->look_for(uhci, Usb_Status);
+  Register *s_reg =
+    __STRUCT_CALL__(__CAST__(__UHC__*, uhci), look_up, Usb_Status);
 
   uint16_t lval = INT | ERR_INT;
 
-  s_reg->write(s_reg, &lval);
+  __STRUCT_CALL__(s_reg, write, &lval);
 }
