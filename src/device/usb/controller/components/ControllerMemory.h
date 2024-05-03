@@ -5,8 +5,8 @@
 #include "../../utility/Utils.h"
 
 enum _WR_SIZE_{
-    BYTE = 0x01,
-    WORD = 0x02,
+    _BYTE = 0x01,
+    _WORD = 0x02,
     D_WORD = 0x04
 };
 

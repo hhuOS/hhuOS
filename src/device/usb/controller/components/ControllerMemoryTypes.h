@@ -37,9 +37,7 @@
     __IO_read_value__(value, len, data); \
     __IO_read_ ## len ## __(data, value, reg)
 
-#define __DECLARE_IO_REGION__(io_region, io_port, size) \
-    __ENTRY__(io_region, io_port) = io_port; \
-    \
+#define __DECLARE_IO_REGION__(io_region, size) \
     __SUPER__(io_region, new_addr_region) = &new_address_region; \
     __SUPER__(io_region, write) = &io_write; \
     __SUPER__(io_region, read) = &io_read; \
@@ -65,18 +63,10 @@ struct IO_Region{
 };
 
 
-Memory_Type io_mem_type(struct Addr_Region* addr_region);
-Memory_Type mem_mem_type(struct Addr_Region* addr_region);
 void new_io_region(struct IO_Region* io_region, IO_Port_Struct_C* io_port, 
                     uint32_t size);
 void new_mem_region(struct Memory_Region* mem_region, void* mem_start, 
                     uint32_t size);
-
-size_t io_write(struct Addr_Region* addr_region, void* b, uint8_t length, void* r);
-size_t io_read(struct Addr_Region* addr_region, uint8_t length, void* r, void* buffer);
-
-size_t mem_write(struct Addr_Region* addr_region, void* b, uint8_t length, void* r);
-size_t mem_read(struct Addr_Region* addr_region, uint8_t length, void* r, void* buffer);
 
 typedef struct Memory_Region Memory_Region;
 typedef struct IO_Region IO_Region;

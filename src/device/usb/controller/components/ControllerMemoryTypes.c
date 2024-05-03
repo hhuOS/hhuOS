@@ -3,9 +3,19 @@
 #include "ControllerRegister.h"
 #include "ControllerMemory.h"
 
+
+static Memory_Type io_mem_type(struct Addr_Region* addr_region);
+static Memory_Type mem_mem_type(struct Addr_Region* addr_region);
+static size_t io_write(struct Addr_Region* addr_region, void* b, uint8_t length, void* r);
+static size_t io_read(struct Addr_Region* addr_region, uint8_t length, void* r, void* buffer);
+
+static size_t mem_write(struct Addr_Region* addr_region, void* b, uint8_t length, void* r);
+static size_t mem_read(struct Addr_Region* addr_region, uint8_t length, void* r, void* buffer);
+
 void new_io_region(struct IO_Region *io_region, IO_Port_Struct_C *io_port,
                    uint32_t size) {
-  __DECLARE_IO_REGION__(io_region, io_port, size);
+  io_region->io_port = io_port;
+  __DECLARE_IO_REGION__(io_region, size);
 }
 
 void new_mem_region(struct Memory_Region *mem_region, void *mem_start,
@@ -17,13 +27,11 @@ void new_mem_region(struct Memory_Region *mem_region, void *mem_start,
   // if using memIO write a function for read and write
 }
 
-Memory_Type mem_mem_type(struct Addr_Region *addr_region) { return MEM; }
+static Memory_Type mem_mem_type(struct Addr_Region *addr_region) { return MEM; }
 
-Memory_Type io_mem_type(struct Addr_Region *addr_region) { return IO; }
+static Memory_Type io_mem_type(struct Addr_Region *addr_region) { return IO; }
 
-
-
-size_t io_write(struct Addr_Region *addr_region, void *b, uint8_t length,
+static size_t io_write(struct Addr_Region *addr_region, void *b, uint8_t length,
                 void *r) {
   uint8_t int8_tvalue;
   uint16_t int16_tvalue;
@@ -33,9 +41,9 @@ size_t io_write(struct Addr_Region *addr_region, void *b, uint8_t length,
 
   enum Register_Type type = *((enum Register_Type *)r);
 
-  if (length == BYTE) {;
+  if (length == _BYTE) {;
     __IO_write__(b, int8_tvalue, BYTE, i_o_reg);
-  } else if (length == WORD) {
+  } else if (length == _WORD) {
     __IO_write__(b, int16_tvalue, WORD, i_o_reg);
   } else if (length == D_WORD) {
     __IO_write__(b, int32_tvalue, D_WORD, i_o_reg);
@@ -44,7 +52,7 @@ size_t io_write(struct Addr_Region *addr_region, void *b, uint8_t length,
   return length;
 }
 
-size_t io_read(struct Addr_Region *addr_region, uint8_t length, void *r,
+static size_t io_read(struct Addr_Region *addr_region, uint8_t length, void *r,
                void *buffer) {
   uint8_t *int8_pvalue;
   uint16_t *int16_pvalue;
@@ -57,9 +65,9 @@ size_t io_read(struct Addr_Region *addr_region, uint8_t length, void *r,
 
   IO_Region *i_o_reg = (IO_Region *)container_of(addr_region, IO_Region, super);
 
-  if (length == BYTE) {
+  if (length == _BYTE) {
     __IO_read__(buffer, int8_pvalue, BYTE, i_o_reg);
-  } else if (length == WORD) {
+  } else if (length == _WORD) {
     __IO_read__(buffer, int16_pvalue, WORD, i_o_reg);
   } else if (length == D_WORD) {
     __IO_read__(buffer, int32_pvalue, D_WORD, i_o_reg);
@@ -67,12 +75,12 @@ size_t io_read(struct Addr_Region *addr_region, uint8_t length, void *r,
   return length;
 }
 
-size_t mem_write(struct Addr_Region *addr_region, void *b, uint8_t length,
+static size_t mem_write(struct Addr_Region *addr_region, void *b, uint8_t length,
                  void *r) {
   return 0;
 }
 
-size_t mem_read(struct Addr_Region *addr_region, uint8_t length, void *r,
+static size_t mem_read(struct Addr_Region *addr_region, uint8_t length, void *r,
                 void *buffer) {
   return 0;
 }
