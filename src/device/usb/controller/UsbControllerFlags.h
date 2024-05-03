@@ -6,7 +6,7 @@
 #define BAR 0x8
 #define OFFSET 0x20
 
-#define SOF 0x40          // signals start of frame
+#define SOF_FLAG 0x40          // signals start of frame
 #define TOTAL_FRAMES 1024 // 4KB aligned
 
 #define PRIORITY_QH_1 0x00 << 1
