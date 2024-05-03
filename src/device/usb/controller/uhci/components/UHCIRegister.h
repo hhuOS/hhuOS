@@ -319,7 +319,7 @@ __REGISTER_PORT_NEW_FUNCTION__;
 
 #define __REGISTER_INITIALIZER__(reg, type, buffer, region, len, def_name) \
     __REGISTER_ ## type ## _INITIALIZER__(reg); \
-    mem_set((uint8_t *)buffer, len, 0); \
+    __mem_set((uint8_t *)buffer, len, 0); \
     __CALL_SUPER__(reg->super, new_register, def_name, len, buffer, \
                     region)
 
