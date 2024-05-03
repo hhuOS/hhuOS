@@ -26,19 +26,19 @@ struct list_element{
 typedef struct list_head list_head;
 typedef struct list_element list_element;
 
-static inline void mem_set(uint8_t* p, unsigned int size, uint8_t val){
+static inline void __mem_set(uint8_t* p, unsigned int size, uint8_t val){
     for(unsigned int i = 0; i < size; i++){
         *(p + i) = val;
     }
 }
 
-static inline void mem_cpy(uint8_t* source, uint8_t* target, size_t size){
+static inline void __mem_cpy(uint8_t* source, uint8_t* target, size_t size){
     for(unsigned int i = 0; i < size; i++){
         target[i] = source[i];
     }
 }
 
-static inline uint16_t floor_address(uint16_t interval){
+static inline uint16_t __floor_address(uint16_t interval){
     // get highest bit
     int pos = 0;
     while(interval != 0){
@@ -58,5 +58,93 @@ static inline uint16_t floor_address(uint16_t interval){
 
     return v;
 }
+
+#define __STRUCT_INIT__(name, f1, f2, ...) \
+    name->f1 = &f2; \
+    name->f1(name, ## __VA_ARGS__)
+
+#define __LIST_FOR_EACH__(name) \
+    while (name != (void*)0)
+
+#define __LIST_FOR_EACH_FINAL__(name) \
+    while (name->l_e != (void*)0)
+
+#define __LIST_TRAVERSE__(name) \
+    __LIST_FOR_EACH_FINAL__(name) { \
+        name = name->l_e; \
+    } 
+
+#define __FOR_RANGE__(name, dtype, start, end) \
+    for(dtype name = start; name < end; name++)
+
+#define __FOR_RANGE_INC__(name, dtype, start, end, inc) \
+    for(dtype name = start; name < end; name+=inc)
+
+#define __FOR_RANGE_DEC__(name, dtype, start, end, dec) \
+    for(dtype name = start; name >= end; name-=dec)
+
+#define __FOR_RANGE_COND__(name, dtype, start, condition, update) \
+    for(dtype name = start; condition; update)
+
+#define __NEW__(mem_service, type, size, name, fptr, func, ...) \
+    struct type* name = __ALLOC_KERNEL_MEM__(mem_service, type, size); \
+    __STRUCT_INIT__(name, fptr, func, ## __VA_ARGS__)
+
+#define __NEW_ALIGN__(mem_service, type, size, align, name, fptr, func, ...) \
+    struct type* name = __ALLOC_KERNEL_MEM__(mem_service, type, size, align); \
+    __STRUCT_INIT__(name, fptr, funct, ## __VA_ARGS__)
+
+#define __SUPER__(name, field) \
+    name->super.field
+
+#define __ENTRY__(name, field) \
+    name->field
+
+#define __CALL_SUPER__(super, super_function, ...) \
+    super.super_function(&super, ## __VA_ARGS__)
+
+#define __DECLARE_STRUCT__(type, name) \
+    struct type name
+
+#define __CONCAT__(A,B) \
+    A ## B
+
+#define __STRINGIZE__(A) #A
+
+#define __ARR_ENTRY__(arr, pos, value) \
+    arr[pos] = value
+
+#define __CAST__(cast, type) \
+    ((cast)type)
+
+#define __BYTE__ uint8_t
+#define __WORD__ uint16_t
+#define __D_WORD__ uint32_t
+
+#define __UHC__ UsbController
+
+#define __STRUCT_CALL__(str, function, ...) \
+    str->function(str, ## __VA_ARGS__)
+
+#define __PTR__ uintptr_t
+
+#define __PTR_TYPE__(type, addr) \
+    (type)(__PTR__)(addr)
+
+#define __GET_FROM_SUPER__(super, field) \
+    super->field
+
+#define __SET_IN_SUPER__(super, field, cmd) \
+    super->field = cmd
+    
+#define __RET_N__ 0    
+#define __RET_E__ -1
+#define __RET_S__ 1
+
+#define __IF_EXT__(condition, expr1, expr2) \
+    condition ? expr1 : expr2
+
+#define __IF_CONTINUE__(condition) \
+    if(condition) {continue;}
 
 #endif
