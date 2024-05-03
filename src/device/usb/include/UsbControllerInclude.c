@@ -30,3 +30,8 @@ const uint16_t GET_CONFIGURATION_SETUP = 0x0002;
 const uint16_t GET_INTERFACE_SETUP = 0x0003;
 const uint16_t SET_INTERFACE_SETUP = 0x0004;
 const uint16_t GET_STATUS_SETUP = 0x0005;
+
+const int DRIVER_REMOVED = 0x1;
+const int DRIVER_NOT_FOUND = 0x2;
+const int DRIVER_LINKED = 0x4;
+const int DRIVER_NOT_LINKED = 0x8;

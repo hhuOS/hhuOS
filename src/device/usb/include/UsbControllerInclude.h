@@ -33,4 +33,9 @@ extern const uint16_t GET_INTERFACE_SETUP;
 extern const uint16_t SET_INTERFACE_SETUP;
 extern const uint16_t GET_STATUS_SETUP;
 
+extern const int DRIVER_REMOVED;
+extern const int DRIVER_NOT_FOUND;
+extern const int DRIVER_LINKED;
+extern const int DRIVER_NOT_LINKED;
+
 #endif
