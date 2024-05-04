@@ -4,6 +4,7 @@
 #include "../interfaces/MapInterface.h"
 #include "../interfaces/SystemInterface.h"
 #include "../include/UsbErrors.h"
+#include "../dev/UsbDevice.h"
 
 const char *xHCI_name = "xHCI";
 const char *EHCI_name = "EHCI";
@@ -79,13 +80,13 @@ static inline int __match_interface(UsbDevice_ID device_id,
 static inline int __probe_routine(UsbController* controller, UsbDev* dev,
                                    Interface* interface, UsbDriver* driver) {
   if (driver->probe(dev, interface) < 0) {
-    dev->usb_dev_free_interface(dev, interface);
+    __STRUCT_CALL__(dev, usb_dev_free_interface, interface);
     return __RET_N__;
   }
   __STRUCT_CALL__(controller, link_device_to_driver, dev, driver);
   __STRUCT_CALL__(controller, link_driver_to_interface, driver, interface);
   __STRUCT_CALL__(controller->interface_dev_map, put_c, interface, dev);
-  driver->dispatcher = controller->dispatcher; 
+  __STRUCT_CALL__(driver, set_event_dispatcher, controller->dispatcher);
 
   return __RET_S__;        
 }
@@ -108,11 +109,11 @@ void new_super_usb_controller(UsbController *controller, SystemService_C *mem_se
   controller->interrupt_service = (SystemService_C*)interrupt_service;
   controller->interface_dev_map = (SuperMap*)interface_device_map;
   controller->register_look_up = (SuperMap*)register_map;
-  controller->addr_region = controller->addr_address_region(controller, pci_device);
-  controller->registers = controller->add_registers(controller, controller->addr_region);
-  controller->dispatcher = controller->request_event_dispatcher(controller);
-  controller->controller_logger = controller->init_controller_logger(controller);
-  interrupt_service->add_interrupt_routine(interrupt_service, controller->irq, controller);
+  controller->addr_region = __STRUCT_CALL__(controller, addr_address_region, pci_device);
+  controller->registers = __STRUCT_CALL__(controller, add_registers, controller->addr_region);
+  controller->dispatcher = __STRUCT_CALL__(controller, request_event_dispatcher);
+  controller->controller_logger = __STRUCT_CALL__(controller, init_controller_logger);
+  __STRUCT_CALL__(interrupt_service, add_interrupt_routine, controller->irq, controller);
 }
 
 static Logger_C *init_logger(UsbController *controller) {
@@ -147,32 +148,32 @@ static Register *look_for_reg(UsbController* controller, Register_Type r) {
 }
 
 static void add_device(UsbController *controller, UsbDev *dev) {
-  controller->controller_mutex->acquire_c(controller->controller_mutex);
-  if (controller->head_dev.l_e == (void *)0) {
-    controller->head_dev.l_e = &dev->l_e;
+  __STRUCT_CALL__(controller->controller_mutex, acquire_c);
+  __IF_LIST_HEAD_NULL(controller->head_dev) {
+    __LIST_ADD_FIRST_ENTRY__(controller->head_dev, &dev->l_e);
   } 
   else {
-    list_element *l_e = controller->head_dev.l_e;
+    list_element *l_e = __LIST_FIRST_ENTRY__(controller->head_dev);
     __LIST_TRAVERSE__(l_e);
-    l_e->l_e = &dev->l_e;
+    __LIST_NEXT_ENTRY__(l_e, &dev->l_e);
   }
 
-  controller->controller_mutex->release_c(controller->controller_mutex);
+  __STRUCT_CALL__(controller->controller_mutex, release_c);
 }
 
 static int contain_device(UsbController *controller, UsbDev *dev) {
-  controller->controller_mutex->acquire_c(controller->controller_mutex);
-  list_element *l_e = controller->head_dev.l_e;
+  __STRUCT_CALL__(controller->controller_mutex, acquire_c);
+  list_element *l_e = __LIST_FIRST_ENTRY__(controller->head_dev);
   __LIST_FOR_EACH__(l_e) {
     UsbDev *container_dev = (UsbDev *)container_of(l_e, UsbDev, l_e);
     if (container_dev == dev) {
-      controller->controller_mutex->release_c(controller->controller_mutex);
+      __STRUCT_CALL__(controller->controller_mutex, release_c);
       return 1;
     }
-    l_e = l_e->l_e;
+    __UPDATE_LIST_ENTRY__(l_e);
   }
 
-  controller->controller_mutex->release_c(controller->controller_mutex);
+  __STRUCT_CALL__(controller->controller_mutex, release_c);
 
   return 0;
 }
@@ -183,16 +184,14 @@ static int insert_listener(UsbController *controller, EventListener *listener) {
   if (listener == (void *)0)
     return -1;
 
-  return controller->dispatcher->register_event_listener(controller->dispatcher,
-                                                         listener);
+  return __STRUCT_CALL__(controller->dispatcher, register_event_listener, listener);
 }
 
 static int delete_listener(UsbController *controller, int id) {
   if (id < 0)
     return -1;
 
-  return controller->dispatcher->deregister_event_listener(
-      controller->dispatcher, id);
+  return __STRUCT_CALL__(controller->dispatcher, deregister_event_listener, id);
 }
 
 static int insert_callback(UsbController *controller, uint16_t reg_type,
@@ -200,11 +199,10 @@ static int insert_callback(UsbController *controller, uint16_t reg_type,
   if (callback == (void *)0)
     return -1;
 
-  if (!controller->supported_event_listener_type(controller, reg_type))
+  if (!__STRUCT_CALL__(controller, supported_event_listener_type, reg_type))
     return -1;
 
-  return controller->dispatcher->reg_callback(controller->dispatcher, callback,
-                                              reg_type);
+  return __STRUCT_CALL__(controller->dispatcher, reg_callback, callback, reg_type);
 }
 
 static int supported_event_listener_type(UsbController *controller,
@@ -227,16 +225,15 @@ static int delete_callback(UsbController *controller, uint16_t reg_type,
   if (callback == (void *)0)
     return -1;
 
-  if (!controller->supported_event_listener_type(controller, reg_type))
+  if (!__STRUCT_CALL__(controller, supported_event_listener_type, reg_type))
     return -1;
 
-  return controller->dispatcher->dereg_callback(controller->dispatcher,
-                                                callback, reg_type);
+  return __STRUCT_CALL__(controller->dispatcher, dereg_callback, callback, reg_type);
 }
 
 static int register_driver(UsbController *controller, UsbDriver *driver) {
-  list_element *first_dev = controller->head_dev.l_e;
-  UsbDevice_ID *device_id_table = driver->entry;
+  list_element *first_dev = __LIST_FIRST_ENTRY__(controller->head_dev);
+  UsbDevice_ID *device_id_table = __STRUCT_CALL__(driver, get_device_id);
   int driver_device_match_count = 0;
 
   if (driver->probe == (void *)0) {
@@ -249,11 +246,11 @@ static int register_driver(UsbController *controller, UsbDriver *driver) {
     __FOR_RANGE_COND__(copy_devs, list_element*, first_dev, copy_devs != (void *)0, 
       copy_devs = copy_devs->l_e){
       UsbDev *dev = (UsbDev *)container_of(copy_devs, UsbDev, l_e);
-      DeviceDescriptor device_desc = dev->device_desc;
+      DeviceDescriptor device_desc = __STRUCT_CALL__(dev, get_device_descriptor);
       // 0xFF is default value -> if change check
       __IF_CONTINUE__(!__match_device(device_id, device_desc))
 
-      Configuration *config = dev->active_config;
+      Configuration *config = __STRUCT_CALL__(dev, get_active_configuration);
       int interface_num = config->config_desc.bNumInterfaces;
 
       __FOR_RANGE__(k, int, 0, interface_num) {
@@ -261,7 +258,7 @@ static int register_driver(UsbController *controller, UsbDriver *driver) {
         Alternate_Interface *alt_interface = interface->active_interface;
         __IF_CONTINUE__(!__match_interface(device_id, alt_interface->alternate_interface_desc));
 
-        int status = dev->usb_dev_interface_lock(dev, interface, driver);
+        int status = __STRUCT_CALL__(dev, usb_dev_interface_lock, interface, driver);
 
         __IF_CONTINUE__((status == E_INTERFACE_IN_USE) || (status == E_INTERFACE_INV))
 
@@ -275,12 +272,13 @@ static int register_driver(UsbController *controller, UsbDriver *driver) {
 
 static void link_device_to_driver(UsbController *controller, UsbDev *dev,
                                 UsbDriver *driver) {
-  list_element *l_e = driver->head.l_e;
+  list_head head = __STRUCT_CALL__(driver, get_device_head);
+  list_element *l_e = __LIST_FIRST_ENTRY__(head);        
 
   __USB_LOCK__(controller);
 
-  if (l_e == (void *)0) {
-    driver->head.l_e = &dev->l_e_driver;
+  __IF_LIST_ENTRY_NULL(l_e) {
+    __LIST_ADD_FIRST_ENTRY__(head, &dev->l_e_driver);
     __USB_RELEASE__(controller);
     return;
   }
@@ -288,24 +286,26 @@ static void link_device_to_driver(UsbController *controller, UsbDev *dev,
 
   __USB_RELEASE__(controller);
 
-  l_e->l_e = &dev->l_e_driver;
+  __LIST_NEXT_ENTRY__(l_e, &dev->l_e_driver);
 }
 
 static void link_driver_to_controller(UsbController *controller,
                                     UsbDriver *driver) {
-  list_element *l_e = controller->head_driver.l_e;
+  list_head head = controller->head_driver;
+  list_element *l_e = head.l_e;
 
   __USB_LOCK__(controller);
 
-  if (l_e == (void *)0) {
-    controller->head_driver.l_e = &driver->l_e;
+  __IF_LIST_ENTRY_NULL(l_e) {
+    __LIST_ADD_FIRST_ENTRY__(head, &driver->l_e);
     __USB_RELEASE__(controller);
     return;
   }
   __LIST_TRAVERSE__(l_e);
+
   __USB_RELEASE__(controller);
 
-  l_e->l_e = &driver->l_e;
+  __LIST_NEXT_ENTRY__(l_e, &driver->l_e);
 }
 
 static void link_driver_to_interface(UsbController *controller, UsbDriver *driver,
@@ -320,28 +320,29 @@ static int deregister_driver(UsbController *controller, UsbDriver *driver) {
 
 static int remove_controller_linkage(UsbController* controller, UsbDriver* driver){
   list_element *prev;
-  list_element *l_e = controller->head_driver.l_e;
+  list_head head = controller->head_driver;
+  list_element *l_e = __LIST_FIRST_ENTRY__(head);
 
   UsbDriver *d = (UsbDriver *)container_of(l_e, UsbDriver, l_e);
 
-  if (l_e == (void *)0)
+  __IF_LIST_ENTRY_NULL(l_e)
     return DRIVER_NOT_FOUND;
 
   __USB_LOCK__(controller);
 
   if (d == driver) {
-    controller->head_driver.l_e = controller->head_driver.l_e->l_e;
+    __LIST_ADD_FIRST_ENTRY__(controller->head_driver, __LIST_NEXT_HEAD__(head));
     return DRIVER_REMOVED;
   } 
   prev = l_e;
-  l_e = l_e->l_e;
+  l_e = __LIST_NEXT_ELEMENT__(l_e);
   __LIST_FOR_EACH__(l_e){
     d = (UsbDriver *)container_of(l_e, UsbDriver, l_e);
     if (driver == d) {
-      prev->l_e = l_e->l_e;
+      __LIST_NEXT_ELEMENT__(prev) = __LIST_NEXT_ELEMENT__(l_e);
       return DRIVER_REMOVED;
     }
-    l_e = l_e->l_e;
+    __UPDATE_LIST_ENTRY__(l_e);
   }
   
   __USB_RELEASE__(controller);
@@ -350,22 +351,24 @@ static int remove_controller_linkage(UsbController* controller, UsbDriver* drive
 }
 
 static int remove_device_linkage(UsbController* controller, UsbDriver* driver){
-  list_element *l_dev = controller->head_dev.l_e;
+  list_head head = controller->head_dev;
+  list_element *l_dev = head.l_e;
 
   __USB_LOCK__(controller);
 
   __LIST_FOR_EACH__(l_dev) {
     UsbDev *dev = (UsbDev *)container_of(l_dev, UsbDev, l_e);
-    int interface_num = dev->active_config->config_desc.bNumInterfaces;
-    Interface **interfaces = dev->active_config->interfaces;
-    for (int i = 0; i < interface_num; i++) {
+    int interface_num = 
+      __STRUCT_CALL__(dev, get_active_configuration)->config_desc.bNumInterfaces;
+    Interface **interfaces = __STRUCT_CALL__(dev, get_active_configuration)->interfaces;
+    __FOR_RANGE__(i, int, 0, interface_num) {
       if (((UsbDriver *)interfaces[i]->driver) == driver) {
-        dev->usb_dev_free_interface(dev, interfaces[i]);
+        __STRUCT_CALL__(dev, usb_dev_free_interface, interfaces[i]);
         __USB_RELEASE__(controller);
         return DRIVER_LINKED;
       }
     }
-    l_dev = l_dev->l_e;
+    __UPDATE_LIST_ENTRY__(l_dev);
   }
 
   __USB_RELEASE__(controller);
