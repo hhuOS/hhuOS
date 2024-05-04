@@ -137,14 +137,56 @@ static inline uint16_t __floor_address(uint16_t interval){
 #define __SET_IN_SUPER__(super, field, cmd) \
     super->field = cmd
     
-#define __RET_N__ 0    
+#define __FUNC_CALL__(proto, ...) \
+    proto(__VA_ARGS__)
+
+#define __DECLARE_GET__(type, f_name, member, container_type, keyword) \
+    __FUNC_CALL__(keyword type get_ ## f_name, container_type c)  {     \
+        return c->member;                                     \
+    } 
+
+#define __DECLARE_SET__(f_name, member, container_type, member_type, keyword) \
+    __FUNC_CALL__(keyword void set_ ## f_name, container_type c, member_type m) { \
+        c->member = m;                                                     \
+    }
+
+#define __DECLARE_STRUCT_GET__(f_name, container_type, type) \
+    type (*get_ ## f_name)(container_type c)
+#define __DECLARE_STRUCT_SET__(f_name, container_type, member_type) \
+    void (*set_ ## f_name)(container_type c, member_type m)
+
+#define __RET_N__  0    
 #define __RET_E__ -1
-#define __RET_S__ 1
+#define __RET_S__  1
 
 #define __IF_EXT__(condition, expr1, expr2) \
     condition ? expr1 : expr2
 
 #define __IF_CONTINUE__(condition) \
     if(condition) {continue;}
+
+#define __LIST_FIRST_ENTRY__(list_h) \
+    list_h.l_e
+
+#define __LIST_NEXT_ELEMENT__(list_e) \
+    list_e->l_e
+
+#define __LIST_NEXT_HEAD__(list_h) \
+    list_h.l_e->l_e
+
+#define __LIST_ADD_FIRST_ENTRY__(list_h, list_e) \
+    __LIST_FIRST_ENTRY__(list_h) = list_e
+
+#define __LIST_NEXT_ENTRY__(list_e, list_e_next) \
+    __LIST_NEXT_ELEMENT__(list_e) = list_e_next
+
+#define __IF_LIST_ENTRY_NULL(list_e) \
+    if (list_e == (void*)0)
+
+#define __IF_LIST_HEAD_NULL(list_h) \
+    if(__LIST_FIRST_ENTRY__(list_h) == (void*)0)
+
+#define __UPDATE_LIST_ENTRY__(list_e) \
+    list_e = __LIST_NEXT_ELEMENT__(list_e)
 
 #endif
