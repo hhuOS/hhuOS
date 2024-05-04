@@ -53,6 +53,11 @@ typedef struct UsbDevice_ID UsbDevice_ID;
 #define USB_MINOR_PART_VERSION(bcd) ((bcd & 0x00F0) >> 4)
 #define USB_SUB_MINOR_PART_VERSION(bcd) ((bcd & 0x000F))
 
+#define __INIT_USB_DRIVER__(name) \
+    __ENTRY__(name, get_device_id) = &get_device_id_table; \
+    __ENTRY__(name, get_device_head) = &get_head_device; \
+    __ENTRY__(name, set_event_dispatcher) = &set_event_dispatcher
+
 struct UsbDriver{
 
     void (*new_usb_driver)(struct UsbDriver* usb_driver, char* name, struct UsbDevice_ID* entry);
@@ -62,7 +67,11 @@ struct UsbDriver{
     char* name;
     UsbDevice_ID* entry;
 
-    list_head head; // linking devices
+    __DECLARE_STRUCT_GET__(device_id, struct UsbDriver*, UsbDevice_ID*);
+    __DECLARE_STRUCT_GET__(device_head, struct UsbDriver*, list_head);
+    __DECLARE_STRUCT_SET__(event_dispatcher, struct UsbDriver*, EventDispatcher*);
+
+    list_head head;   // linking devices
     list_element l_e; // element in controller linkage
 
     int listener_id;
@@ -72,8 +81,18 @@ struct UsbDriver{
 
 typedef struct UsbDriver UsbDriver;
 
-//void add_id(UsbDriver* driver, int id);
-//int get_id(UsbDriver* driver);
+__DECLARE_GET__(UsbDevice_ID*, device_id_table, entry, UsbDriver*, static inline);
+__DECLARE_GET__(list_head, head_device, head, UsbDriver*, static inline);
+__DECLARE_SET__(event_dispatcher, dispatcher, UsbDriver*, EventDispatcher*, static inline);
+
+static inline void new_usb_driver(UsbDriver* usb_driver, char* name, UsbDevice_ID* entry) {
+    usb_driver->name = name;
+    usb_driver->entry = entry;
+    usb_driver->head.l_e = 0;
+    usb_driver->l_e.l_e = 0;
+
+    __INIT_USB_DRIVER__(usb_driver);
+}
 
 /******************************
  * Device Classes
