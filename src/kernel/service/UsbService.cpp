@@ -20,32 +20,30 @@ Kernel::UsbService::UsbService() {
   usb_service_c =
       (UsbService_C *)m.allocateKernelMemory(sizeof(UsbService_C), 0);
 
-  usb_service_c->new_service = &new_usb_service;
-  usb_service_c->new_service(usb_service_c);
+  __STRUCT_INIT__(usb_service_c, new_service, new_usb_service);
 }
 
 int Kernel::UsbService::add_driver(UsbDriver *driver) {
-  return usb_service_c->add_driver_c(usb_service_c, driver);
+  return __STRUCT_CALL__(usb_service_c, add_driver_c, driver); 
 }
 
 int Kernel::UsbService::remove_driver(UsbDriver *driver) {
-
-  return usb_service_c->remove_driver_c(usb_service_c, driver);
+  return __STRUCT_CALL__(usb_service_c, remove_driver_c, driver);
 }
 
 void Kernel::UsbService::submit_bulk_transfer(Interface *interface,
                                               unsigned int pipe, uint8_t prio,
                                               void *data, unsigned int len,
                                               callback_function callback) {
-  usb_service_c->submit_bulk_transfer_c(usb_service_c, interface, pipe, prio,
-                                        data, len, callback);
+  __STRUCT_CALL__(usb_service_c, submit_bulk_transfer_c, interface, pipe, prio, data,
+    len, callback);
 }
 
 void Kernel::UsbService::submit_interrupt_transfer(
     Interface *interface, unsigned int pipe, uint8_t prio, uint16_t interval,
     void *data, unsigned int len, callback_function callback) {
-  usb_service_c->submit_interrupt_transfer_c(
-      usb_service_c, interface, pipe, prio, interval, data, len, callback);
+  __STRUCT_CALL__(usb_service_c, submit_interrupt_transfer_c, interface, pipe,
+    prio, interval, data, len, callback);
 }
 
 void Kernel::UsbService::submit_control_transfer(Interface *interface,
@@ -53,8 +51,8 @@ void Kernel::UsbService::submit_control_transfer(Interface *interface,
                                                  uint8_t prio, void *data,
                                                  uint8_t *setup,
                                                  callback_function callback) {
-  usb_service_c->submit_control_transfer_c(usb_service_c, interface, pipe, prio,
-                                           data, setup, callback);
+  __STRUCT_CALL__(usb_service_c, submit_control_transfer_c, interface, pipe,
+    prio, data, setup, callback);
 }
 
 int Kernel::UsbService::register_callback(uint16_t register_type,
