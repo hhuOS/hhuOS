@@ -102,9 +102,27 @@ static int controller_configuration(_UHCI* uhci);
 static int16_t is_valid_interval(_UHCI* uhci, UsbDev* dev, uint16_t interval, void* data);
 static int controller_initializer(_UHCI* uhci);
 static int controller_reset(_UHCI* uhci);
+static UsbTransaction* build_setup_stage(_UHCI* uhci, UsbDeviceRequest* device_request, 
+  UsbDev* dev, uint8_t endpoint, uint8_t flags);
+static UsbTransaction* build_data_stage(_UHCI* uhci, UsbDev* dev, uint16_t total_bytes_to_transfer,
+  uint8_t packet_type, void* data, uint8_t endpoint, UsbTransaction* prev_trans,
+  unsigned int *count, uint8_t flags);
+static UsbTransaction* build_data_stage_only(_UHCI* uhci, void* data, unsigned int len,
+  Endpoint* e, UsbDev* dev, unsigned int* count, uint8_t flags);
+static UsbTransaction* build_data_transaction(_UHCI* uhci, unsigned int len,
+  uint8_t packet_type, uint8_t* start, uint8_t* end, uint16_t max_len, UsbDev* dev,
+  uint8_t endpoint, UsbPacket* prev, uint8_t flags, uint8_t toggle);
+static void build_status_stage(_UHCI* uhci, uint8_t packet_type, uint8_t endpoint,
+  UsbDev* dev, UsbTransaction* prev_trans);
+static void successful_transmission_routine(_UHCI* uhci, callback_function callback, 
+  UsbDev* dev, void* data, QH* entry, MemoryService_C* mem_service);
+static void failed_transmission_routine(_UHCI* uhci, UsbDev* dev, void* data, 
+  TD* td, QH* entry, MemoryService_C* mem_service, callback_function callback);
+static void transmission_clearing_routine(_UHCI* uhci, QH* entry, 
+  MemoryService_C* mem_service);
 
-static inline void __assign_fba(MemoryService_C* m, 
-                                uint32_t* frame_list, _UHCI* uhci) {
+static inline void __assign_fba(_UHCI* uhci, MemoryService_C* m, 
+                                uint32_t* frame_list) {
     uhci->fba = 
         __PTR_TYPE__(uint32_t, __GET_PHYSICAL__(m, frame_list));
 }   
@@ -114,6 +132,250 @@ static inline void __init_buff_mem(_UHCI* uhci, uint32_t qh_size, uint32_t td_si
     __mem_set(uhci->map_io_buffer_td, td_size, 0); 
     __mem_set(uhci->map_io_buffer_bit_map_qh, qh_size / sizeof(QH), 0);
     __mem_set(uhci->map_io_buffer_bit_map_td, td_size / sizeof(TD), 0);
+}
+
+static inline void __save_address(_UHCI* uhci, MemoryService_C* m, QH** physical_addr, 
+  QH* current, int pos) {
+  uint32_t physical;
+  QH* qh__ = (QH*)__GET_PHYSICAL__(m, current);
+  __ARR_ENTRY__(physical_addr, pos, qh__);
+  physical = __PTR_TYPE__(uint32_t, physical_addr[pos]);
+  __STRUCT_CALL__(m, addVirtualAddress, physical, current);
+}
+
+static inline void __frame_entry(_UHCI* uhci, MemoryService_C* m, QH* next, QH* current, 
+                                 uint32_t next_physical_addr, 
+                                 uint32_t* frame_list, int fn) {
+  current->pyhsicalQHLP = next_physical_addr | QH_SELECT;
+  next->parent = __PTR_TYPE__(uint32_t, 
+      __GET_PHYSICAL__(m, current));
+  frame_list[fn] = __PTR_TYPE__(uint32_t, 
+      __GET_PHYSICAL__(m, current)) | QH_SELECT;
+}
+
+static inline void __build_qh(_UHCI* uhci, QH* qh, uint32_t flags, uint32_t qhlp,
+                              uint32_t qhep, uint32_t parent) {
+  qh->flags = flags;
+  qh->pyhsicalQHLP = qhlp;
+  qh->pyhsicalQHEP = qhep;
+  qh->parent = parent;
+}
+
+static inline void __add_to_frame(_UHCI* uhci, uint32_t* frame_list, int fn,
+                                  QH* physical) {
+  frame_list[fn] = 
+      (__PTR_TYPE__(uint32_t, physical)) | QH_SELECT;
+}
+
+static inline void __qh_set_parent(_UHCI* uhci, MemoryService_C* m, QH* qh, QH* parent) {
+  qh->parent = __PTR_TYPE__(uint32_t, __GET_PHYSICAL__(m, parent));
+}
+
+static inline QH* __search_for_qh(_UHCI* uhci, MemoryService_C* m, QH* current, enum QH_HEADS v){
+  uint32_t physical_addr;
+  int8_t offset = (int8_t)v;
+
+  while (offset > 0) {
+    if ((current->flags & QH_FLAG_IS_MQH)) {
+      offset--;
+    }
+    physical_addr = (current->pyhsicalQHLP & QH_ADDRESS_MASK);
+    current = __GET_VIRTUAL__(m, physical_addr, QH);
+  }
+  return current;
+}
+
+static inline void __qh_inc_device_count(_UHCI* uhci, QH* current) {
+  current->flags = ((((current->flags & QH_FLAG_DEVICE_COUNT_MASK) >>
+                      QH_FLAG_DEVICE_COUNT_SHIFT) +
+                     1)
+                    << QH_FLAG_DEVICE_COUNT_SHIFT) |
+                   (current->flags & 0xFF);
+}
+
+static inline void __qh_dec_device_count(_UHCI* uhci, QH* current) {
+  current->flags = ((((current->flags & QH_FLAG_DEVICE_COUNT_MASK) >>
+                  QH_FLAG_DEVICE_COUNT_SHIFT) -
+                 1)
+                << QH_FLAG_DEVICE_COUNT_SHIFT) |
+               (current->flags & 0xFF);
+}
+
+static inline QH* __follow_schedule(_UHCI* uhci, MemoryService_C* m, QH* current, uint16_t priority) {
+  while (((current->flags & QH_FLAG_END_MASK) == QH_FLAG_IN) &&
+         (((current->flags & PRIORITY_QH_MASK) >> 1) >= priority)) {
+    current = __GET_VIRTUAL__(m, __QHLP_ADDR__(current), QH);
+  }
+  return current;
+}
+
+static inline void __add_to_skeleton(_UHCI* uhci, MemoryService_C* m, QH* current, QH* new_qh) {
+  current->pyhsicalQHLP = 
+    (__PTR_TYPE__(uint32_t, __GET_PHYSICAL__(m, new_qh))) | QH_SELECT;
+}
+
+static inline void __adjust_last_in_schedule(_UHCI* uhci, QH* current, QH* new_qh) {
+  if ((current->pyhsicalQHLP & QH_TERMINATE) ==
+      QH_TERMINATE) { // erase bit which got set prior
+    current->pyhsicalQHLP &= 0xFFFFFFFE;
+    new_qh->pyhsicalQHLP = QH_TERMINATE | QH_SELECT;
+  } else {
+    new_qh->pyhsicalQHLP = current->pyhsicalQHLP;
+  }
+}
+
+static inline void __adjust_last_in_sub_schedule(_UHCI* uhci, MemoryService_C* m, QH* current, QH* new_qh) {
+  if ((current->flags & QH_FLAG_END_MASK) == QH_FLAG_END) {
+    new_qh->flags |= QH_FLAG_END;
+    current->flags &= 0xFFFFFFFE;
+  } else { // if not last element in chain update parent pointer
+    QH *c = __GET_VIRTUAL__(m, __QHLP_ADDR__(current), QH);
+    c->parent = __PTR_TYPE__(uint32_t, __GET_PHYSICAL__(m, new_qh));
+  }
+}
+
+static inline QH* __retrieve_mqh(_UHCI* uhci, MemoryService_C* m, QH* start_point) {
+  QH *current = start_point;
+  while ((current->flags & QH_FLAG_IS_MASK) == QH_FLAG_IS_QH) {
+    current = __GET_VIRTUAL__(m, current->parent, QH);
+  }
+  return current;
+}
+
+static inline void __adjust_remove(_UHCI* uhci, QH* qh, QH* parent, QH* child) {
+  __IF_CUSTOM__((qh->flags & QH_FLAG_END_MASK) == QH_FLAG_END, 
+    parent->flags |= QH_FLAG_END);
+  __IF_CUSTOM__((qh->flags & QH_FLAG_END_MASK) == QH_FLAG_IN,
+    child->parent = qh->parent); // if qh is not last in chain update child pointer to
+}
+
+static inline void __set_transaction_type(_UHCI* uhci, UsbTransaction* transaction,
+  uint8_t packet_type) {
+  transaction->transaction_type = 
+    __IF_EXT__((packet_type == OUT), DATA_OUT_TRANSACTION, DATA_IN_TRANSACTION);
+}
+
+static inline int __is_last_packet(_UHCI* uhci, uint8_t* current_data, uint8_t* end, 
+  uint16_t max_len) {
+  return __IF_EXT__((current_data + max_len) >= end, 1, 0);
+}
+
+static inline TokenValues __build_token(_UHCI* uhci, uint16_t max_len, uint8_t toggle,
+  uint8_t endpoint_number, uint8_t address_number, uint16_t packet_type) {
+  return (TokenValues){.max_len = max_len,
+                       .toggle = toggle,
+                       .endpoint = endpoint_number,
+                       .address = address_number,
+                       .packet_type = packet_type};
+}
+
+static inline void __save_map_properties(_UHCI* uhci, QH* qh, 
+  TD* td, void* data, UsbDev* dev, callback_function callback) {
+  __STRUCT_CALL__(uhci->qh_to_td_map, put_c, qh, td);
+  __STRUCT_CALL__(uhci->qh_data_map, put_c, qh, data);
+  __STRUCT_CALL__(uhci->qh_dev_map, put_c, qh, dev);
+  __STRUCT_CALL__(uhci->callback_map, put_c, qh, callback);
+}
+
+static inline void __save_map_properties_control(_UHCI* uhci, QH* qh, 
+  TD* td, void* data, UsbDev* dev, callback_function callback, 
+  UsbDeviceRequest* request) {
+  __STRUCT_CALL__(uhci, __save_map_properties, qh, td, data, dev, callback);
+  __STRUCT_CALL__(uhci->qh_device_request_map, put_c, qh, request);
+}
+
+static inline void __set_qhep(_UHCI* uhci, QH* qh, TD* td, MemoryService_C* m){
+  qh->pyhsicalQHEP = __PTR_TYPE__(uint32_t, __GET_PHYSICAL__(m, td));
+}
+
+static inline void __set_flags(_UHCI* uhci, QH* qh, uint32_t type, 
+  uint32_t transaction_count) {
+  qh->flags = (transaction_count << QH_FLAG_DEVICE_COUNT_SHIFT) |
+              type;
+}
+
+static inline void __initial_state_routine(_UHCI* uhci, uint32_t timeout,
+  QH* qh, uint8_t flags, UsbDev* dev, void* data, uint32_t qh_physical, TD* td,
+  MemoryService_C* m, callback_function callback){
+  uint32_t status = __STRUCT_CALL__(uhci, wait_poll, qh, timeout, 
+    flags & SUPRESS_DEVICE_ERRORS);
+
+  callback(dev, status, data);
+
+  __STRUCT_CALL__(uhci, remove_queue, qh);
+  __STRUCT_CALL__(m, remove_virtualAddress, qh_physical);
+  __STRUCT_CALL__(uhci, free_qh, qh);
+  __STRUCT_CALL__(uhci, remove_td_linkage, td);
+}
+
+static inline void __initial_state_routine_control(_UHCI* uhci, uint32_t timeout,
+  QH* qh, uint8_t flags, UsbDev* dev, void* data, uint32_t qh_physical, TD* td,
+  MemoryService_C* m, UsbDeviceRequest* rq, callback_function callback) {
+  __STRUCT_CALL__(uhci, __initial_state_routine, timeout, qh, flags, dev, data,
+    qh_physical, td, m, callback);
+  __STRUCT_CALL__(dev, free_device_request, rq);
+}
+
+static inline void __default_qh(_UHCI* uhci, QH* qh) {
+  qh->pyhsicalQHLP = 0;
+  qh->pyhsicalQHEP = 0;
+  qh->parent       = 0;
+  qh->flags        = 0;
+}
+
+static inline void __default_td(_UHCI* uhci, TD* td) {
+  td->pyhsicalLinkPointer = 0;
+  td->control_x_status    = 0;
+  td->token               = 0;
+  td->bufferPointer       = 0;
+}
+
+static inline uint8_t __packet_type_control(_UHCI* uhci, UsbDev* dev, 
+  UsbDeviceRequest* request) {
+  return __IF_EXT__(__STRUCT_CALL__(dev, __is_device_to_host, request), IN, OUT);
+}
+
+static inline uint8_t __packet_type(_UHCI* uhci, UsbDev* dev, Endpoint* e) {
+  return __IF_EXT__(__STRUCT_CALL__(dev,__is_direction_in, e), IN, OUT);
+}
+
+static inline TD* __build_td(_UHCI* uhci, UsbDev* dev, 
+  UsbPacket* prev, TokenValues* token,
+  int8_t speed, void* data, int last_packet, uint8_t flags) {
+  __UHC_MEMORY__(uhci, m);
+  TD *td = __STRUCT_CALL__(uhci, get_free_td);
+  __STRUCT_CALL__(uhci, __default_td, td);
+  __IF_COND__(__NOT_NULL__(prev)) {
+    prev->internalTD->pyhsicalLinkPointer |= 
+      (__PTR_TYPE__(uint32_t, __GET_PHYSICAL__(m, td)));
+  }
+
+  td->pyhsicalLinkPointer = DEPTH_BREADTH_SELECT | TD_SELECT;
+  td->control_x_status = __IF_EXT__((speed == LOW_SPEED), 
+    (0x1 << LS), (0x0 << LS));
+  td->control_x_status |= (0x1 << ACTIVE);
+  td->control_x_status |= (0x3 << C_ERR); // 3 Fehlversuche max
+
+  __IF_COND__(last_packet){
+    td->pyhsicalLinkPointer |= QH_TERMINATE;
+    __IF_COND__(__CONFIG_STATE__(dev) && __BULK_NOT_INITIAL__(flags) && __CTL_NOT_INITIAL__(flags)){
+      td->control_x_status |= (0x1 << IOC); 
+    }
+  }
+
+  td->token = ((token->max_len - 1) & 0x7FF) << TD_MAX_LENGTH;
+  td->token |= (token->toggle << TD_DATA_TOGGLE);
+  td->token |= (token->endpoint << TD_ENDPOINT);
+  td->token |= (token->address << TD_DEVICE_ADDRESS);
+  td->token |= (token->packet_type);
+
+  td->bufferPointer = __PTR_TYPE__(uint32_t,__GET_PHYSICAL__(m, data));
+
+  return td;
+}
+
+static inline uint8_t __td_failed(_UHCI* uhci, TD* td) {
+  return ((td->control_x_status >> ACTIVE) & 0x01);
 }
 
 static inline void __uhci_build(_UHCI* uhci, MemoryService_C* m, PciDevice_Struct* pci_device,
@@ -127,47 +389,10 @@ static inline void __uhci_build(_UHCI* uhci, MemoryService_C* m, PciDevice_Struc
     uhci->map_io_buffer_td = __MAP_IO_KERNEL__(m, uint8_t, td_size);
     uhci->map_io_buffer_bit_map_td = __ALLOC_KERNEL_MEM__(m, uint8_t, td_size / sizeof(TD));
     
-    __init_buff_mem(uhci, qh_size, td_size);
+    __STRUCT_CALL__(uhci, __init_buff_mem, qh_size, td_size);
 
     uhci->signal = 0;
     uhci->signal_not_override = 0;
-}
-
-static inline void __save_address(MemoryService_C* m, QH** physical_addr, QH* current, 
-                     int pos) {
-    uint32_t physical;
-    QH* qh__ = (QH*)__GET_PHYSICAL__(m, current);
-    __ARR_ENTRY__(physical_addr, pos, qh__);
-    physical = __PTR_TYPE__(uint32_t, physical_addr[pos]);
-    __STRUCT_CALL__(m, addVirtualAddress, physical, current);
-}
-
-static inline void __frame_entry(MemoryService_C* m, QH* next, QH* current, 
-                                 uint32_t next_physical_addr, 
-                                 uint32_t* frame_list, int fn) {
-    current->pyhsicalQHLP = next_physical_addr | QH_SELECT;
-    next->parent = __PTR_TYPE__(uint32_t, 
-        __GET_PHYSICAL__(m, current));
-    frame_list[fn] = __PTR_TYPE__(uint32_t, 
-        __GET_PHYSICAL__(m, current)) | QH_SELECT;
-}
-
-static inline void __build_qh(QH* qh, uint32_t flags, uint32_t qhlp,
-                              uint32_t qhep, uint32_t parent) {
-    qh->flags = flags;
-    qh->pyhsicalQHLP = qhlp;
-    qh->pyhsicalQHEP = qhep;
-    qh->parent = parent;
-}
-
-static inline void __add_to_frame(uint32_t* frame_list, int fn,
-                                  QH* physical) {
-    frame_list[fn] = 
-        (__PTR_TYPE__(uint32_t, physical)) | QH_SELECT;
-}
-
-static inline void __qh_set_parent(MemoryService_C* m, QH* qh, QH* parent) {
-    qh->parent = __PTR_TYPE__(uint32_t, __GET_PHYSICAL__(m, parent));
 }
 
 const uint8_t CLASS_ID = 0x0C;
@@ -182,15 +407,14 @@ void new_UHCI(_UHCI *uhci, PciDevice_Struct *pci_device,
 
   __DECLARE_UHCI_DEFAULT__(uhci, m, pci_device);
 
-  uhci->dump_uhci_entry(uhci);
+  __STRUCT_CALL__(uhci, dump_uhci_entry);
+  uhci->qh_entry = __STRUCT_CALL__(uhci, request_frames);
+  __STRUCT_CALL__(uhci, init_maps, m);
 
-  uhci->qh_entry = uhci->request_frames(uhci);
-
-  uhci->init_maps(uhci, m);
   __add_look_up_registers(__UHC_CAST__(uhci), 8);
 
-  if (uhci->controller_configuration(uhci))
-    create_thread("usb", &uhci->super);
+  __IF_CUSTOM__(__STRUCT_CALL__(uhci, controller_configuration), 
+    create_thread("usb", &uhci->super));
 }
 
 static void controller_port_configuration(_UHCI *uhci) {
@@ -334,7 +558,7 @@ static int controller_configuration(_UHCI *uhci) {
 #if defined(DEBUG_ON) || defined(REGISTER_DEBUG_ON)
   reg->dump(reg, uhci->controller_logger);
 #endif
-  uhci->controller_port_configuration(uhci);
+  __STRUCT_CALL__(uhci, controller_port_configuration);
   return 1;
 }
 
@@ -344,9 +568,7 @@ static void create_dev(_UHCI *uhci, int16_t status, int pn, MemoryService_C *m) 
   __UHC_CALL_LOGGER_INFO__(__UHC_CAST__(uhci), 
     "%s-Usb-Device detected at port : %d -> Start configuration",
       speed == FULL_SPEED ? "Full-Speed" : "Low-Speed", pn);
-  __NEW__(m, UsbDev, sizeof(UsbDev), dev, new_usb_device, 
-    new_usb_device, speed, pn, 0, 0xFF, pn, pn, (SystemService_C *)m,
-                      uhci, 0);
+  __DEFAULT_DEV__(speed, pn, __UHC_CAST__(uhci), m);
                       
 #if defined(DEVICE_DEBUG_ON) || defined(DEBUG_ON)
   dev->dump_device(dev);
@@ -476,12 +698,12 @@ static QH *request_frames(_UHCI *uhci) {
 
   // build bulk qh
   QH* __QH_ASSIGN__(map_io_buffer, map_io_offset, bulk_qh);
-  __BULK_DEFAULT__(bulk_qh);
+  __BULK_DEFAULT__(uhci, bulk_qh);
   __ADD_VIRT__(m, bulk_qh, bulk_physical_address);
 
   // build control qh
   QH* __QH_ASSIGN__(map_io_buffer, map_io_offset, control_qh);
-  __CTL_DEFAULT__(control_qh, bulk_physical_address);
+  __CTL_DEFAULT__(uhci, control_qh, bulk_physical_address);
   __ADD_VIRT__(m, control_qh, control_physical_address);
 
   bulk_qh->parent = control_physical_address;
@@ -504,17 +726,18 @@ static QH *request_frames(_UHCI *uhci) {
         if (frame_number + 1 == FRAME_SCHEDULE.qh[j]) {
           __QH_ASSIGN_DEFAULT__(map_io_buffer, map_io_offset, current);
 
-          __save_address(m, physical_addresses, current, j);
+          __STRUCT_CALL__(uhci, __save_address, m, physical_addresses, current, j);
 
           if (j == 0) {
-            __frame_entry(m, control_qh, current, control_physical_address, 
-              frame_list_address, frame_number);
+            __STRUCT_CALL__(uhci, __frame_entry, m, control_qh, current, 
+              control_physical_address, frame_list_address, frame_number);
           } 
           else {
-            __frame_entry(m, child, current, __PTR_TYPE__(uint32_t, physical_addresses[j - 1])
-              , frame_list_address, frame_number);
+            __STRUCT_CALL__(uhci, __frame_entry, m, child, current, 
+              __PTR_TYPE__(uint32_t, physical_addresses[j - 1]), 
+              frame_list_address, frame_number);
           }
-          __INT_DEFAULT__(current);
+          __INT_DEFAULT__(uhci, current);
 
 #if defined(DEBUG_ON) || defined(SKELETON_DEBUG_ON)
           uhci->controller_logger->debug_c(uhci->controller, "address : %d",
@@ -527,13 +750,14 @@ static QH *request_frames(_UHCI *uhci) {
           child = current;
           break;
         }
-        __add_to_frame(frame_list_address, frame_number, physical_addresses[j]);
+        __STRUCT_CALL__(uhci, __add_to_frame, frame_list_address, 
+          frame_number, physical_addresses[j]);
         break;
       }
     }
   }
   __FREE_KERNEL_MEM__(m, physical_addresses);
-  __assign_fba(m, frame_list_address, uhci);
+  __STRUCT_CALL__(uhci, __assign_fba, m, frame_list_address);
 
   return current;
 }
@@ -545,20 +769,18 @@ static Addr_Region *i_o_space_layout_run(UsbController* controller, PciDevice_St
   _UHCI* uhci = container_of(controller, _UHCI, super);
   __UHC_MEMORY__(uhci, m);
 
-  command = pci_device->readWord_c(pci_device, COMMAND);
+  command = __STRUCT_CALL__(pci_device, readWord_c, COMMAND);
   command &= (0xFFFF ^ (INTERRUPT_DISABLE | MEMORY_SPACE));
   command |= BUS_MASTER | IO_SPACE;
-  pci_device->writeWord_c(pci_device, COMMAND, command);
+  __STRUCT_CALL__(pci_device, writeWord_c, COMMAND, command);
 
-  base_address =
-      pci_device->readDoubleWord_c(pci_device, BASE_ADDRESS_4) & 0xFFFFFFFC;
+  base_address = 
+    __STRUCT_CALL__(pci_device, readDoubleWord_c, BASE_ADDRESS_4) & 0xFFFFFFFC;;
   
   __UHC_SET__(controller, irq, pci_device->readByte_c(pci_device, INTERRUPT_LINE)); 
-
-  pci_device->writeDoubleWord_c(pci_device, CAPABILITIES_POINTER, 0x00000000);
-  pci_device->writeDoubleWord_c(pci_device, 0x38, 0x00000000);
-
-  pci_device->writeWord_c(pci_device, 0xC0, 0x8F00);
+  __STRUCT_CALL__(pci_device, writeDoubleWord_c, CAPABILITIES_POINTER, 0x00000000);
+  __STRUCT_CALL__(pci_device, writeDoubleWord_c, 0x38, 0x00000000);
+  __STRUCT_CALL__(pci_device, writeWord_c, 0xC0, 0x8F00);
 
   __NEW__(m, IO_Port_Struct_C, sizeof(IO_Port_Struct_C), io_port, newIO_Port,
     newIO_Port, base_address);
@@ -600,8 +822,14 @@ static Register **request_register(UsbController* controller, Addr_Region* addr_
 
   Register **regs = 
     __ALLOC_KERNEL_MEM__(m, Register*, sizeof(Register*)*8);
-
-  __ADD_REGISTER_ENTRIES__(regs);
+  __ARR_ENTRY__(regs, 0, (Register *)c_reg); 
+  __ARR_ENTRY__(regs, 1, (Register *)s_reg); 
+  __ARR_ENTRY__(regs, 2, (Register *)i_reg); 
+  __ARR_ENTRY__(regs, 3, (Register *)f_n_reg); 
+  __ARR_ENTRY__(regs, 4, (Register *)f_b_reg); 
+  __ARR_ENTRY__(regs, 5, (Register *)sof_reg); 
+  __ARR_ENTRY__(regs, 6, (Register *)p_reg_1); 
+  __ARR_ENTRY__(regs, 7, (Register *)p_reg_2);
 
   return regs;
 }
@@ -640,101 +868,38 @@ MemoryService_C, super);
 }*/
 
 static QH *get_free_qh(_UHCI *uhci) {
-  __FOR_RANGE__(i, int, 0, PAGE_SIZE / sizeof(QH)){
-    __USB_LOCK__(__UHC_CAST__(uhci));
-    if (uhci->map_io_buffer_bit_map_qh[i] == 0) {
-      uhci->map_io_buffer_bit_map_qh[i] = 1;
-      __USB_RELEASE__(__UHC_CAST__(uhci));
-      return (QH *)(uhci->map_io_buffer_qh + (i * sizeof(QH)));
-    }
-    __USB_RELEASE__(__UHC_CAST__(uhci));
-  }
-  return (void *)0;
+  __GET_FREE_STRUCTURE__(QH, PAGE_SIZE, uhci->map_io_buffer_qh, 
+    uhci->map_io_buffer_bit_map_qh, uhci)
 }
 
 static TD *get_free_td(_UHCI *uhci) {
-  for (int i = 0; i < ((2 * PAGE_SIZE) / sizeof(TD)); i++) {
-    __USB_LOCK__(__UHC_CAST__(uhci));
-    if (uhci->map_io_buffer_bit_map_td[i] == 0) {
-      uhci->map_io_buffer_bit_map_td[i] = 1;
-      // uhci->mutex->release_c(uhci->mutex);
-      return (TD *)(uhci->map_io_buffer_td + (i * sizeof(TD)));
-    }
-    // uhci->mutex->release_c(uhci->mutex);
-  }
-  return (void *)0;
+  __GET_FREE_STRUCTURE__(TD, (2 * PAGE_SIZE), uhci->map_io_buffer_td,
+    uhci->map_io_buffer_bit_map_td, uhci)
 }
 
 static void free_qh(_UHCI *uhci, QH *qh) {
-  for (int i = 0; i < PAGE_SIZE; i += sizeof(QH)) {
-    // uhci->mutex->acquire_c(uhci->mutex);
-    if ((uhci->map_io_buffer_qh + i) == (uint8_t *)qh) {
-      uhci->map_io_buffer_bit_map_qh[i / sizeof(QH)] = 0;
-      // uhci->mutex->release_c(uhci->mutex);
-      return;
-    }
-    // uhci->mutex->release_c(uhci->mutex);
-  }
+  __FREE_STRUCTURE__(QH, PAGE_SIZE, uhci->map_io_buffer_qh, 
+    uhci->map_io_buffer_bit_map_qh, qh, uhci);
 }
 
 static void free_td(_UHCI *uhci, TD *td) {
-  for (int i = 0; i < (2 * PAGE_SIZE); i += sizeof(TD)) {
-    // uhci->mutex->acquire_c(uhci->mutex);
-    if ((uhci->map_io_buffer_td + i) == (uint8_t *)td) {
-      uhci->map_io_buffer_bit_map_td[i / sizeof(TD)] = 0;
-      // uhci->mutex->release_c(uhci->mutex);
-      return;
-    }
-    // uhci->mutex->release_c(uhci->mutex);
-  }
+  __FREE_STRUCTURE__(TD, (2*PAGE_SIZE), uhci->map_io_buffer_td, 
+    uhci->map_io_buffer_bit_map_td, td, uhci);
 }
 
 static void insert_queue(_UHCI *uhci, QH *new_qh, uint16_t priority, enum QH_HEADS v) {
   __UHC_MEMORY__(uhci, m);
 
-  uint32_t physical_addr;
-  int8_t offset = (int8_t)v;
-  QH *current = uhci->qh_entry;
+  QH* current = __STRUCT_CALL__(uhci, __search_for_qh, m, uhci->qh_entry, v);
 
-  __UHC_ACQUIRE_LOCK__(uhci);
+  __STRUCT_CALL__(uhci, __qh_inc_device_count, current);
 
-  while (offset > 0) {
-    if ((current->flags & QH_FLAG_IS_MQH)) {
-      offset--;
-    }
-    physical_addr = (current->pyhsicalQHLP & QH_ADDRESS_MASK);
-    current = m->getVirtualAddress(m, physical_addr);
-  }
+  current = __STRUCT_CALL__(uhci, __follow_schedule, m, current, priority);
 
-  current->flags = ((((current->flags & QH_FLAG_DEVICE_COUNT_MASK) >>
-                      QH_FLAG_DEVICE_COUNT_SHIFT) +
-                     1)
-                    << QH_FLAG_DEVICE_COUNT_SHIFT) |
-                   (current->flags & 0xFF);
-
-  while (((current->flags & QH_FLAG_END_MASK) == QH_FLAG_IN) &&
-         (((current->flags & PRIORITY_QH_MASK) >> 1) >= priority)) {
-    current =
-        (QH *)m->getVirtualAddress(m, current->pyhsicalQHLP & QH_ADDRESS_MASK);
-  }
-
-  if ((current->pyhsicalQHLP & QH_TERMINATE) ==
-      QH_TERMINATE) { // erase bit which got set prior
-    current->pyhsicalQHLP &= 0xFFFFFFFE;
-    new_qh->pyhsicalQHLP = QH_TERMINATE | QH_SELECT;
-  } else {
-    new_qh->pyhsicalQHLP = current->pyhsicalQHLP;
-  }
-
-  if ((current->flags & QH_FLAG_END_MASK) == QH_FLAG_END) {
-    new_qh->flags |= QH_FLAG_END;
-    current->flags &= 0xFFFFFFFE;
-  } else { // if not last element in chain update parent pointer
-    QH *c =
-        (QH *)m->getVirtualAddress(m, current->pyhsicalQHLP & QH_ADDRESS_MASK);
-    c->parent = (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, new_qh));
-  }
-  new_qh->parent = (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, current));
+  __STRUCT_CALL__(uhci, __adjust_last_in_schedule, current, new_qh);
+  __STRUCT_CALL__(uhci,__adjust_last_in_sub_schedule, m, current, new_qh);
+  
+  new_qh->parent = __PTR_TYPE__(uint32_t, __GET_PHYSICAL__(m, current));
   new_qh->flags |= QH_FLAG_IS_QH | QH_FLAG_IN | priority;
 
 #if defined(TRANSFER_MEASURE_ON)
@@ -753,10 +918,8 @@ static void insert_queue(_UHCI *uhci, QH *new_qh, uint16_t priority, enum QH_HEA
   }
 #endif
 
-  // adds to skeleton -> gets executed by controller !
-  current->pyhsicalQHLP =
-      ((uint32_t)(uintptr_t)(m->getPhysicalAddress(m, new_qh))) | QH_SELECT;
-
+  __STRUCT_CALL__(uhci, __add_to_skeleton, m, current, new_qh);
+  
 #if defined(DEBUG_ON) || defined(QH_DEBUG_ON)
   uhci->inspect_QH(uhci, new_qh);
   uhci->inspect_QH(uhci, current);
@@ -764,39 +927,20 @@ static void insert_queue(_UHCI *uhci, QH *new_qh, uint16_t priority, enum QH_HEA
   __UHC_RELEASE_LOCK__(uhci);
 }
 
-// todo as in the insert queue method
 static void remove_queue(_UHCI *uhci, QH *qh) {
   __UHC_MEMORY__(uhci, memory_service);
   __UHC_ACQUIRE_LOCK__(uhci);
 
-  QH *parent =
-      (QH *)memory_service->getVirtualAddress(memory_service, qh->parent);
-  QH *child = (QH *)memory_service->getVirtualAddress(
-      memory_service, qh->pyhsicalQHLP & QH_ADDRESS_MASK);
+  QH *parent = __GET_VIRTUAL__(memory_service, qh->parent, QH);
+ 
+  QH *child = __GET_VIRTUAL__(memory_service, qh->pyhsicalQHLP & QH_ADDRESS_MASK, QH);
 
   parent->pyhsicalQHLP = qh->pyhsicalQHLP;
 
-  QH *mqh = qh;
-
-  while ((mqh->flags & QH_FLAG_IS_MASK) == QH_FLAG_IS_QH) {
-    mqh = (QH *)memory_service->getVirtualAddress(memory_service, mqh->parent);
-  }
-
-  mqh->flags = ((((mqh->flags & QH_FLAG_DEVICE_COUNT_MASK) >>
-                  QH_FLAG_DEVICE_COUNT_SHIFT) -
-                 1)
-                << QH_FLAG_DEVICE_COUNT_SHIFT) |
-               (mqh->flags & 0xFF);
-
-  if ((qh->flags & QH_FLAG_END_MASK) == QH_FLAG_END) {
-    parent->flags |= QH_FLAG_END;
-  }
-
-  if ((qh->flags & QH_FLAG_END_MASK) ==
-      QH_FLAG_IN) { // if qh is not last in chain update child pointer to
-    // parent
-    child->parent = qh->parent;
-  }
+  QH* mqh = __STRUCT_CALL__(uhci, __retrieve_mqh, memory_service, qh);
+  
+  __STRUCT_CALL__(uhci, __qh_dec_device_count, mqh);
+  __STRUCT_CALL__(uhci, __adjust_remove, qh, parent, child);
 
   __UHC_RELEASE_LOCK__(uhci);
 }
@@ -806,15 +950,12 @@ interface_num){ return dev->usb_dev_interface_lock(dev, interface_num);
 }*/
 
 static void free_interface(_UHCI *uhci, UsbDev *dev, Interface *interface) {
-  dev->usb_dev_free_interface(dev, interface);
+  __STRUCT_CALL__(dev, usb_dev_free_interface, interface);
 }
 
 static int uhci_contain_interface(UsbController *controller, Interface *interface) {
-
-  return controller->interface_dev_map->get_c(controller->interface_dev_map,
-                                              interface) == (void *)0
-             ? -1
-             : 1;
+  return __IF_EXT__(__STRUCT_CALL__(controller->interface_dev_map, get_c, interface) == 0,
+    -1, 1);
 }
 
 // replace each method with prototyp (..., UsbDev*, Interface*, ...) -> (...,
@@ -823,65 +964,21 @@ static int uhci_contain_interface(UsbController *controller, Interface *interfac
 static void init_control_transfer(UsbController *controller, Interface *interface,
                            unsigned int pipe, uint8_t priority, void *data,
                            uint8_t *setup, callback_function callback) {
-  _UHCI *uhci = (_UHCI *)container_of(controller, _UHCI, super);
-
-  UsbDev *dev = (UsbDev *)controller->interface_dev_map->get_c(
-      controller->interface_dev_map, interface);
-
-  if (dev == (void *)0) {
-    callback(0, E_INTERFACE_NOT_SUPPORTED, data);
-    return;
-  }
-
-  if (!dev->support_control(dev, interface)) {
-    callback(dev, E_NOT_SUPPORTED_TRANSFER_TYPE, data);
-    return;
-  }
-  int16_t shifted_prio;
-  if ((shifted_prio = uhci->is_valid_priority(uhci, dev, priority, callback)) ==
-      -1) {
-    callback(dev, E_PRIORITY_NOT_SUPPORTED, data);
-    return;
-  }
-
-  dev->usb_dev_control(dev, interface, pipe, priority, data, setup, callback,
-                       0);
+  __TRANSFER_INITIALIZER__(controller, support_control, interface, priority, callback);
+  __STRUCT_CALL__(dev, usb_dev_control, interface, pipe, (uint16_t)shifted_prio,
+    data, setup, callback, 0);
 }
 
 static void init_interrupt_transfer(UsbController *controller, Interface *interface,
                              unsigned int pipe, uint8_t priority, void *data,
                              unsigned int len, uint16_t interval,
                              callback_function callback) {
-  _UHCI *uhci = (_UHCI *)container_of(controller, _UHCI, super);
-
-  UsbDev *dev = controller->interface_dev_map->get_c(
-      controller->interface_dev_map, interface);
-
-  if (dev == (void *)0) {
-    callback(0, E_INTERFACE_INV, data);
-    return;
-  }
-
-  if (!dev->support_interrupt(dev, interface)) {
-    callback(dev, E_NOT_SUPPORTED_TRANSFER_TYPE, data);
-    return;
-  }
-  int16_t shifted_prio;
-  if ((shifted_prio = uhci->is_valid_priority(uhci, dev, priority, callback)) ==
-      -1) {
-    callback(dev, E_PRIORITY_NOT_SUPPORTED, data);
-    return;
-  }
-
   int16_t mqh;
-
-  if ((mqh = uhci->is_valid_interval(uhci, dev, interval, data)) == -1) {
-    callback(dev, E_INVALID_INTERVAL, data);
-    return;
-  }
-
-  dev->usb_dev_interrupt(dev, interface, pipe, (uint16_t)shifted_prio, data,
-                         len, (uint8_t)mqh, callback);
+  __TRANSFER_INITIALIZER__(controller, support_interrupt, interface, priority, callback);
+  __IF_SINGLE_RET__(__NEG_CHECK__((mqh = __STRUCT_CALL__(uhci, is_valid_interval, dev, interval, data))),
+    callback(dev, E_INVALID_INTERVAL, data));
+  __STRUCT_CALL__(dev, usb_dev_interrupt, interface, pipe, (uint16_t)shifted_prio,
+    data, len, (uint8_t)mqh, callback);
 }
 
 static int16_t is_valid_interval(_UHCI *uhci, UsbDev *dev, uint16_t interval,
@@ -910,14 +1007,11 @@ static int16_t is_valid_interval(_UHCI *uhci, UsbDev *dev, uint16_t interval,
   else if (interval == interval_1_ms)
     mqh = QH_1;
   else {
-    if (interval <= 0)
-      return -1;
+    __IF_RET_NEG__(interval <= 0);
 
     interval = __floor_address(interval);
-
-    return uhci->is_valid_interval(uhci, dev, interval, data);
+    return __STRUCT_CALL__(uhci, is_valid_interval, dev, interval, data);
   }
-
   return mqh;
 }
 
@@ -946,36 +1040,15 @@ static int16_t is_valid_priority(_UHCI *uhci, UsbDev *dev, uint8_t priority,
 static void init_bulk_transfer(UsbController *controller, Interface *interface,
                         unsigned int pipe, uint8_t priority, void *data,
                         unsigned len, callback_function callback) {
-  _UHCI *uhci = (_UHCI *)container_of(controller, _UHCI, super);
-
-  UsbDev *dev = controller->interface_dev_map->get_c(
-      controller->interface_dev_map, interface);
-
-  if (dev == (void *)0) {
-    callback(0, E_INTERFACE_INV, data);
-    return;
-  }
-  if (!dev->support_bulk(dev, interface)) {
-    callback(dev, E_NOT_SUPPORTED_TRANSFER_TYPE, data);
-    return;
-  }
-  int16_t shifted_prio;
-  if ((shifted_prio = uhci->is_valid_priority(uhci, dev, priority, callback)) ==
-      -1) {
-    callback(dev, E_PRIORITY_NOT_SUPPORTED, data);
-    return;
-  }
-
-  dev->usb_dev_bulk(dev, interface, pipe, (uint16_t)shifted_prio, data, len,
-                    callback, 0);
+  __TRANSFER_INITIALIZER__(controller, support_bulk, interface, priority, callback);
+  __STRUCT_CALL__(dev, usb_dev_bulk, interface, pipe, (uint16_t)shifted_prio, data,
+    len, callback, 0);
 }
 
 static void bulk_entry_point_uhci(UsbDev *dev, Endpoint *endpoint, void *data,
                            unsigned int len, uint8_t priority,
                            callback_function callback, uint8_t flags) {
-  _UHCI *uhci_rcvry =
-      (_UHCI *)container_of((UsbController *)dev->controller, _UHCI, super);
-
+  __UHCI_CONTAINER__(__CAST__(UsbController*, dev->controller), uhci_rcvry);
   uhci_rcvry->bulk_transfer(uhci_rcvry, dev, data, len, priority, endpoint,
                             &build_interrupt_or_bulk, callback, flags);
 }
@@ -983,9 +1056,7 @@ static void bulk_entry_point_uhci(UsbDev *dev, Endpoint *endpoint, void *data,
 static void control_entry_point_uhci(UsbDev *dev, UsbDeviceRequest *device_request,
                               void *data, uint8_t priority, Endpoint *endpoint,
                               callback_function callback, uint8_t flags) {
-  _UHCI *uhci_rcvry =
-      (_UHCI *)container_of(((UsbController *)dev->controller), _UHCI, super);
-
+  __UHCI_CONTAINER__(__CAST__(UsbController*, dev->controller), uhci_rcvry);
   uhci_rcvry->control_transfer(uhci_rcvry, dev, device_request, data, priority,
                                endpoint, &build_control, callback, flags);
 }
@@ -993,9 +1064,7 @@ static void control_entry_point_uhci(UsbDev *dev, UsbDeviceRequest *device_reque
 static void interrupt_entry_point_uhci(UsbDev *dev, Endpoint *endpoint, void *data,
                                 unsigned int len, uint8_t priority,
                                 uint16_t interval, callback_function callback) {
-  _UHCI *uhci_rcvry =
-      container_of((UsbController *)dev->controller, _UHCI, super);
-
+  __UHCI_CONTAINER__(__CAST__(UsbController*, dev->controller), uhci_rcvry);
   uhci_rcvry->interrupt_transfer(uhci_rcvry, dev, data, len, interval, priority,
                                  endpoint, &build_interrupt_or_bulk, callback);
 }
@@ -1013,64 +1082,199 @@ static void switch_configuration(_UHCI *uhci, UsbDev *dev, int configuration,
 static UsbTransfer *build_interrupt_or_bulk(_UHCI *uhci, UsbDev *dev, void *data,
                                      Endpoint *e, unsigned int len,
                                      const char *type, uint8_t flags) {
-  UsbPacket *prev = 0;
-  __UHC_MEMORY__(uhci, m);
-
-  UsbTransaction *prev_transaction = 0;
-  UsbTransaction *data_transaction = 0;
-
-  data_transaction->next = 0;
-
-  TokenValues token;
-  int count = 0;
+  unsigned int count = 0;
   
-  UsbTransfer *usb_transfer =
-      (UsbTransfer *)m->allocateKernelMemory_c(m, sizeof(UsbTransfer), 0);
-
-  uint8_t toggle = 0;
-  uint16_t max_len = e->endpoint_desc.wMaxPacketSize & WMAX_PACKET_SIZE_MASK;
-  uint8_t endpoint = e->endpoint_desc.bEndpointAddress & ENDPOINT_MASK;
-
-  // data transaction
-  uint8_t *start = (uint8_t *)data;
-  uint8_t *end = start + len;
-  uint8_t packet_type =
-      (e->endpoint_desc.bEndpointAddress & DIRECTION_IN) ? IN : OUT;
-  int last_packet = 0;
-  while (start < end) { // run through data and send max payload for endpoint
-    data_transaction = (UsbTransaction *)m->allocateKernelMemory_c(
-        m, sizeof(UsbTransaction), 0);
-    data_transaction->transaction_type =
-        (packet_type == OUT) ? DATA_OUT_TRANSACTION : DATA_IN_TRANSACTION;
-    last_packet = (start + max_len) >= end ? 1 : 0;
-    if (start + max_len > end) { // send less than maximum payload
-      max_len = end - start;
-    }
-    token = (TokenValues){.max_len = max_len,
-                          .toggle = toggle,
-                          .endpoint = endpoint,
-                          .address = dev->address,
-                          .packet_type = packet_type};
-    prev = uhci->create_USB_Packet(uhci, dev, prev, token, dev->speed, start,
-                                   last_packet, flags);
-    toggle ^= 1;
-    count++;
-    start += max_len;
-
-    data_transaction->entry_packet = prev;
-    data_transaction->next = 0;
-
-    if (prev_transaction == (void *)0) {
-      usb_transfer->entry_transaction = data_transaction;
-    } else {
-      prev_transaction->next = data_transaction;
-    }
-    prev_transaction = data_transaction;
-  }
-
+  __UHC_MEMORY__(uhci, m);
+  UsbTransfer *usb_transfer = 
+    __ALLOC_KERNEL_MEM__(m, UsbTransfer, sizeof(UsbTransfer));
+  
+  UsbTransaction* first_data_transaction = 
+    __STRUCT_CALL__(uhci, build_data_stage_only, data, len, e, dev, &count, flags);
+  
+  usb_transfer->entry_transaction = first_data_transaction;
   usb_transfer->transaction_count = count;
   usb_transfer->transfer_type = type;
   return usb_transfer;
+}
+
+static UsbTransfer *build_control(_UHCI *uhci, UsbDev *dev,
+                           UsbDeviceRequest *device_request, void *data,
+                           Endpoint *e, uint8_t flags) {
+  UsbTransaction *prev_transaction = 0;
+  
+  unsigned int count = 0;
+  
+  __UHC_MEMORY__(uhci, m);
+  UsbTransfer *usb_transfer = 
+    __ALLOC_KERNEL_MEM__(m, UsbTransfer, sizeof(UsbTransfer));
+
+  uint8_t endpoint = __STRUCT_CALL__(dev, __endpoint_default_or_not, e);
+  uint8_t packet_type = __STRUCT_CALL__(uhci, __packet_type_control, dev, device_request);
+  uint16_t total_bytes_to_transfer = device_request->wLength;
+
+  prev_transaction = __STRUCT_CALL__(uhci, build_setup_stage, device_request, 
+    dev, endpoint, flags);
+  usb_transfer->entry_transaction = prev_transaction;
+  count++;
+
+  prev_transaction = __STRUCT_CALL__(uhci, build_data_stage, dev, total_bytes_to_transfer, 
+    packet_type, data, endpoint, prev_transaction, &count, flags);
+
+  __STRUCT_CALL__(uhci, build_status_stage, packet_type, endpoint, dev, prev_transaction);
+  
+  count++;
+  
+  usb_transfer->transaction_count = count;
+  usb_transfer->transfer_type = CONTROL_TRANSFER;
+  return usb_transfer;
+}
+
+static UsbTransaction* build_setup_stage(_UHCI* uhci, UsbDeviceRequest* device_request, 
+  UsbDev* dev, uint8_t endpoint, uint8_t flags) {
+  TokenValues token;
+  uint16_t payload_size = 8;
+  // setup transaction
+  __UHC_MEMORY__(uhci, m);
+  
+  UsbTransaction *setup_transaction =
+      __ALLOC_KERNEL_MEM__(m, UsbTransaction, sizeof(UsbTransaction));
+  setup_transaction->transaction_type = SETUP_TRANSACTION;
+  token = __STRUCT_CALL__(uhci, __build_token, payload_size, 0, endpoint, 
+    dev->address, SETUP);
+  setup_transaction->entry_packet = __STRUCT_CALL__(uhci, create_USB_Packet, 
+    dev, 0, token, dev->speed, device_request, 0, flags);
+
+  return setup_transaction;
+}
+
+static UsbTransaction* build_data_stage(_UHCI* uhci, UsbDev* dev, uint16_t total_bytes_to_transfer,
+  uint8_t packet_type, void* data, uint8_t endpoint, UsbTransaction* prev_trans,
+  unsigned int *count, uint8_t flags) {
+  UsbTransaction *data_transaction = 0;
+  uint8_t toggle = 0;
+  uint16_t max_len = dev->max_packet_size;
+  
+  // data transaction
+  uint8_t *start = (uint8_t *)data;
+  uint8_t *end = start + total_bytes_to_transfer;
+  while (start < end) { // run through data and send max payload for endpoint
+    toggle ^= 1;
+    data_transaction = 
+      __STRUCT_CALL__(uhci, build_data_transaction, total_bytes_to_transfer, 
+      packet_type, start, end,max_len, dev, endpoint, prev_trans->entry_packet, 
+      flags, toggle);
+    (*count)++;
+    start += max_len;
+
+    prev_trans->next = data_transaction;
+    prev_trans = data_transaction;
+  }
+
+  return prev_trans;
+}
+
+static UsbTransaction* build_data_stage_only(_UHCI* uhci, void* data, unsigned int len,
+  Endpoint* e, UsbDev* dev, unsigned int* count, uint8_t flags){
+  UsbTransaction *prev_transaction = 0;
+  UsbTransaction* head = 0;
+  UsbPacket* prev = 0;
+
+  uint16_t max_len = __STRUCT_CALL__(dev, __max_payload, e);
+  uint8_t endpoint = __STRUCT_CALL__(dev, __endpoint_number, e);
+  uint8_t packet_type = __STRUCT_CALL__(uhci, __packet_type, dev, e);
+
+  uint8_t *start = (uint8_t *)data;
+  uint8_t *end = start + len;
+  uint8_t toggle = 0;
+
+  while(start < end) { // run through data and send max payload for endpoint
+    UsbTransaction* data_transaction = __STRUCT_CALL__(uhci, 
+      build_data_transaction, len, packet_type, start, end, 
+      max_len, dev, endpoint, prev, flags, toggle);
+    toggle ^= 1;
+    (*count)++;
+    start += max_len;
+    if (prev_transaction == (void *)0) {
+      head = data_transaction;
+    } 
+    else {
+      prev_transaction->next = data_transaction;
+    }
+    prev_transaction = data_transaction;
+    prev = data_transaction->entry_packet;
+  }
+
+  return head;
+}
+
+static UsbTransaction* build_data_transaction(_UHCI* uhci, unsigned int len,
+  uint8_t packet_type, uint8_t* start, uint8_t* end, uint16_t max_len, UsbDev* dev,
+  uint8_t endpoint, UsbPacket* prev, uint8_t flags, uint8_t toggle) {
+  TokenValues token;
+  UsbTransaction *data_transaction;
+  int last_packet = 0;
+
+  __UHC_MEMORY__(uhci, m);
+  data_transaction = __ALLOC_KERNEL_MEM__(m, UsbTransaction, sizeof(UsbTransaction));
+  __STRUCT_CALL__(uhci, __set_transaction_type, data_transaction, packet_type);
+  if(endpoint != 0){
+    last_packet = __STRUCT_CALL__(uhci, __is_last_packet, start, end, max_len);
+  }
+  if (start + max_len > end) { // send less than maximum payload
+    max_len = end - start;
+  }
+  token = __STRUCT_CALL__(uhci, __build_token, max_len, toggle, endpoint, 
+    dev->address, packet_type);
+  prev = __STRUCT_CALL__(uhci, create_USB_Packet, dev, prev, token, dev->speed, 
+    start, last_packet, flags);
+  
+  data_transaction->entry_packet = prev;
+  data_transaction->next = 0;
+
+  return data_transaction;
+}
+
+static void build_status_stage(_UHCI* uhci, uint8_t packet_type, uint8_t endpoint,
+  UsbDev* dev, UsbTransaction* prev_trans) {
+  // status transaction
+  // inverted packettype of data stage , empty data packet
+  TokenValues token;
+  packet_type = __IF_EXT__((packet_type == IN), OUT, IN);
+
+  __UHC_MEMORY__(uhci, m);
+  UsbTransaction *status_transaction =
+      __ALLOC_KERNEL_MEM__(m, UsbTransaction, sizeof(UsbTransaction));
+
+  token = __STRUCT_CALL__(uhci, __build_token, 0, 1, endpoint, dev->address, 
+    packet_type);
+  
+  status_transaction->transaction_type = STATUS_TRANSACTION;
+  
+  status_transaction->next = 0;
+  status_transaction->entry_packet = __STRUCT_CALL__(uhci, create_USB_Packet, dev, 
+    prev_trans->entry_packet, token, dev->speed, 0, 1, 0);
+  prev_trans->next = status_transaction;
+}
+
+// rename to create Transaction
+static UsbPacket *create_USB_Packet(_UHCI *uhci, UsbDev *dev, UsbPacket *prev,
+                             TokenValues token, int8_t speed, void *data,
+                             int last_packet, uint8_t flags) {
+  __UHC_MEMORY__(uhci, m);
+
+  TD* td = __STRUCT_CALL__(uhci, __build_td, dev, prev, &token, speed, data, 
+    last_packet, flags);
+
+  UsbPacket *packet = __ALLOC_KERNEL_MEM__(m, UsbPacket, sizeof(UsbPacket));
+  packet->internalTD = td;
+
+  __ADD_VIRT_TD__(m, td, phy_td);
+
+#if defined(DEBUG_ON) || defined(TD_DEBUG_ON)
+  uhci->inspect_TD(uhci, td);
+#endif
+
+  return packet;
 }
 
 static void print_USB_Transfer(_UHCI *uhci, UsbTransfer *transfer) {
@@ -1212,156 +1416,6 @@ static void dump_all(_UHCI *uhci) {
   }
 }
 
-static UsbTransfer *build_control(_UHCI *uhci, UsbDev *dev,
-                           UsbDeviceRequest *device_request, void *data,
-                           Endpoint *e, uint8_t flags) {
-  UsbPacket *head = 0;
-  UsbPacket *prev = 0;
-
-  __UHC_MEMORY__(uhci, m);
-
-  UsbTransaction *prev_transaction = 0;
-  UsbTransaction *data_transaction = 0;
-
-  TokenValues token;
-  unsigned int count = 0;
-  unsigned int endpoint =
-      (e == ((void *)0) ? 0
-                        : e->endpoint_desc.bEndpointAddress & ENDPOINT_MASK);
-
-  UsbTransfer *usb_transfer =
-      (UsbTransfer *)m->allocateKernelMemory_c(m, sizeof(UsbTransfer), 0);
-
-  uint8_t toggle = 0;
-  uint16_t total_bytes_to_transfer = device_request->wLength;
-  uint16_t max_len = 8; // max payload of setup transaction
-
-  // setup transaction
-  UsbTransaction *setup_transaction =
-      (UsbTransaction *)m->allocateKernelMemory_c(m, sizeof(UsbTransaction), 0);
-  usb_transfer->entry_transaction = setup_transaction;
-  setup_transaction->transaction_type = SETUP_TRANSACTION;
-  token = (TokenValues){.max_len = max_len,
-                        .toggle = toggle,
-                        .endpoint = endpoint,
-                        .address = dev->address,
-                        .packet_type = SETUP};
-  head = uhci->create_USB_Packet(uhci, dev, 0, token, dev->speed,
-                                 device_request, 0, flags);
-  setup_transaction->entry_packet = head;
-  count++;
-  prev = head;
-  prev_transaction = setup_transaction;
-
-  max_len = dev->max_packet_size;
-  // data transaction
-  uint8_t *start = (uint8_t *)data;
-  uint8_t *end = start + total_bytes_to_transfer;
-  uint8_t packet_type =
-      (device_request->bmRequestType & DEVICE_TO_HOST) ? IN : OUT;
-  while (start < end) { // run through data and send max payload for endpoint
-    data_transaction = (UsbTransaction *)m->allocateKernelMemory_c(
-        m, sizeof(UsbTransaction), 0);
-    data_transaction->transaction_type =
-        (packet_type == OUT) ? DATA_OUT_TRANSACTION : DATA_IN_TRANSACTION;
-    toggle ^= 1;
-    if (start + max_len > end) { // send less than maximum payload
-      max_len = end - start;
-    }
-    token = (TokenValues){.max_len = max_len,
-                          .toggle = toggle,
-                          .endpoint = endpoint,
-                          .address = dev->address,
-                          .packet_type = packet_type};
-    prev = uhci->create_USB_Packet(uhci, dev, prev, token, dev->speed, start, 0,
-                                   0);
-    count++;
-    start += max_len;
-    data_transaction->entry_packet = prev;
-    prev_transaction->next = data_transaction;
-    prev_transaction = data_transaction;
-  }
-
-  toggle = 1;
-  // status transaction
-  // inverted packettype of data stage , empty data packet
-  packet_type = (packet_type == IN ? OUT : IN);
-  UsbTransaction *status_transaction =
-      (UsbTransaction *)m->allocateKernelMemory_c(m, sizeof(UsbTransaction), 0);
-  token = (TokenValues){.max_len = 0,
-                        .toggle = toggle,
-                        .endpoint = endpoint,
-                        .address = dev->address,
-                        .packet_type = packet_type};
-  status_transaction->transaction_type = STATUS_TRANSACTION;
-  prev = uhci->create_USB_Packet(uhci, dev, prev, token, dev->speed, 0, 1, 0);
-  count++;
-  status_transaction->entry_packet = prev;
-  prev_transaction->next = status_transaction;
-
-  status_transaction->next = 0;
-
-  usb_transfer->transaction_count = count;
-  usb_transfer->transfer_type = CONTROL_TRANSFER;
-  return usb_transfer;
-}
-
-// rename to create Transaction
-static UsbPacket *create_USB_Packet(_UHCI *uhci, UsbDev *dev, UsbPacket *prev,
-                             TokenValues token, int8_t speed, void *data,
-                             int last_packet, uint8_t flags) {
-  __UHC_MEMORY__(uhci, m);
-
-  TD *td = uhci->get_free_td(uhci);
-
-  td->bufferPointer = 0;
-  td->control_x_status = 0;
-  td->pyhsicalLinkPointer = 0;
-  td->token = 0;
-
-  if (prev != (void *)0) {
-    prev->internalTD->pyhsicalLinkPointer |=
-        ((uint32_t)(uintptr_t)(m->getPhysicalAddress(m, td)));
-  }
-
-  td->pyhsicalLinkPointer = DEPTH_BREADTH_SELECT | TD_SELECT;
-
-  td->control_x_status = (speed == LOW_SPEED ? (0x1 << LS) : (0x0 << LS));
-  td->control_x_status |= (0x1 << ACTIVE);
-  td->control_x_status |= (0x3 << C_ERR); // 3 Fehlversuche max
-
-  if (last_packet) {
-    td->pyhsicalLinkPointer |= QH_TERMINATE;
-
-    if ((dev->state == CONFIGURED_STATE) && (flags != BULK_INITIAL_STATE) &&
-        (flags != CONTROL_INITIAL_STATE)) {
-      td->control_x_status |=
-          (0x1 << IOC); // set interrupt bit only for last td in qh !
-    }
-  }
-
-  td->token = ((token.max_len - 1) & 0x7FF) << TD_MAX_LENGTH;
-  td->token |= (token.toggle << TD_DATA_TOGGLE);
-  td->token |= (token.endpoint << TD_ENDPOINT);
-  td->token |= (token.address << TD_DEVICE_ADDRESS);
-  td->token |= (token.packet_type);
-
-  td->bufferPointer = (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, data));
-
-  UsbPacket *packet =
-      (UsbPacket *)m->allocateKernelMemory_c(m, sizeof(UsbPacket), 0);
-  packet->internalTD = td;
-
-  uint32_t p = (uint32_t)(uintptr_t)m->getPhysicalAddress(m, td);
-  m->addVirtualAddressTD(m, p, td);
-
-#if defined(DEBUG_ON) || defined(TD_DEBUG_ON)
-  uhci->inspect_TD(uhci, td);
-#endif
-
-  return packet;
-}
-
 // insert flag CONFIGURED : used for not using interrupts instead poll for
 // timeout -> like the controls
 static void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
@@ -1370,53 +1424,34 @@ static void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len
                    callback_function callback, uint8_t flags) {
   __UHC_MEMORY__(uhci, m);
 
-  QH *qh = uhci->get_free_qh(uhci);
+  QH *qh = __STRUCT_CALL__(uhci, get_free_qh);
+  __STRUCT_CALL__(uhci, __default_qh, qh);
 
-  qh->flags = 0;
-  qh->parent = 0;
-  qh->pyhsicalQHEP = 0;
-  qh->pyhsicalQHLP = 0;
-
-  uint32_t qh_physical = (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, qh));
-  m->addVirtualAddress(m, qh_physical, qh);
+  __ADD_VIRT__(m, qh, qh_physical);
 
   UsbTransfer *transfer =
-      build_function(uhci, dev, data, e, len, BULK_TRANSFER, flags & BULK_INITIAL_STATE);
+      build_function(uhci, dev, data, e, len, BULK_TRANSFER, 
+      flags & BULK_INITIAL_STATE);
 
   TD *td = transfer->entry_transaction->entry_packet->internalTD;
 
-  qh->flags = (transfer->transaction_count << QH_FLAG_DEVICE_COUNT_SHIFT) |
-              QH_FLAG_TYPE_BULK;
+  __STRUCT_CALL__(uhci, __set_flags, qh, QH_FLAG_TYPE_BULK, 
+    transfer->transaction_count);
+  __STRUCT_CALL__(uhci, __set_qhep, qh, td, m);
 
-  qh->pyhsicalQHEP = (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, td));
-
-  if (!(flags & BULK_INITIAL_STATE)) {
-    uhci->qh_to_td_map->put_c(uhci->qh_to_td_map, qh, td);
-    uhci->qh_data_map->put_c(uhci->qh_data_map, qh, data);
-    uhci->qh_dev_map->put_c(uhci->qh_dev_map, qh, dev);
-    uhci->callback_map->put_c(uhci->callback_map, qh, callback);
-  }
-
+  if (!(flags & BULK_INITIAL_STATE)) 
+    __STRUCT_CALL__(uhci, __save_map_properties, qh, td, data, dev, callback);
+  
 #if defined(DEBUG_ON) || defined(TRANSFER_DEBUG_ON)
   uhci->print_USB_Transfer(uhci, transfer);
   uhci->inspect_transfer(uhci, qh, td);
 #endif
-
-  uhci->destroy_transfer(uhci, transfer);
-
-  uhci->insert_queue(uhci, qh, priority, QH_BULK);
+  __STRUCT_CALL__(uhci, destroy_transfer, transfer);
+  __STRUCT_CALL__(uhci, insert_queue, qh, priority, QH_BULK);
 
   if ((flags & BULK_INITIAL_STATE) > 0) {
-    uint32_t status =
-        uhci->wait_poll(uhci, qh, UPPER_BOUND_TIME_OUT_MILLIS_BULK, 
-                        flags & SUPRESS_DEVICE_ERRORS);
-
-    callback(dev, status, data);
-
-    uhci->remove_queue(uhci, qh);
-    m->remove_virtualAddress(m, qh_physical);
-    uhci->free_qh(uhci, qh);
-    uhci->remove_td_linkage(uhci, td);
+    __STRUCT_CALL__(uhci,__initial_state_routine, UPPER_BOUND_TIME_OUT_MILLIS_BULK, 
+      qh, flags, dev, data, qh_physical, td, m, callback);
   }
 }
 
@@ -1426,62 +1461,84 @@ static void interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned in
                         callback_function callback) {
   __UHC_MEMORY__(uhci, m);
 
-  QH *qh = uhci->get_free_qh(uhci);
-
-  qh->flags = 0;
-  qh->parent = 0;
-  qh->pyhsicalQHEP = 0;
-  qh->pyhsicalQHLP = 0;
-
-  uint32_t qh_physical = (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, qh));
-  m->addVirtualAddress(m, qh_physical, qh);
+  QH *qh = __STRUCT_CALL__(uhci, get_free_qh);
+  __STRUCT_CALL__(uhci, __default_qh, qh);
+  __ADD_VIRT__(m, qh, qh_physical);
 
   UsbTransfer *transfer =
       build_function(uhci, dev, data, e, len, INTERRUPT_TRANSFER, 0);
 
   TD *td = transfer->entry_transaction->entry_packet->internalTD;
 
-  qh->flags = (transfer->transaction_count << QH_FLAG_DEVICE_COUNT_SHIFT) |
-              QH_FLAG_TYPE_INTERRUPT;
-  qh->pyhsicalQHEP = (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, td));
-
-  uhci->qh_to_td_map->put_c(uhci->qh_to_td_map, qh, td);
-  uhci->qh_data_map->put_c(uhci->qh_data_map, qh, data);
-  uhci->qh_dev_map->put_c(uhci->qh_dev_map, qh, dev);
-  uhci->callback_map->put_c(uhci->callback_map, qh, callback);
+  __STRUCT_CALL__(uhci, __set_qhep, qh, td, m);
+  __STRUCT_CALL__(uhci, __set_flags, qh, QH_FLAG_TYPE_INTERRUPT, 
+    transfer->transaction_count);
+  __STRUCT_CALL__(uhci, __save_map_properties, qh, td, data, dev, callback);
 
 #if defined(DEBUG_ON) || defined(TRANSFER_DEBUG_ON)
   uhci->print_USB_Transfer(uhci, transfer);
   uhci->inspect_transfer(uhci, qh, td);
 #endif
 
-  uhci->destroy_transfer(uhci, transfer);
+  __STRUCT_CALL__(uhci, destroy_transfer, transfer);
+  __STRUCT_CALL__(uhci, insert_queue, qh, priority, (enum QH_HEADS)interval);
+}
 
-  uhci->insert_queue(uhci, qh, priority, (enum QH_HEADS)interval);
+static void control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
+                      void *data, uint8_t priority, Endpoint *endpoint,
+                      build_control_transfer build_function,
+                      callback_function callback, uint8_t flags) {
+  __UHC_MEMORY__(uhci, m);
+
+  QH* qh = __STRUCT_CALL__(uhci, get_free_qh);
+  __STRUCT_CALL__(uhci, __default_qh, qh);
+  __ADD_VIRT__(m, qh, qh_physical);
+
+  UsbTransfer *transfer = build_function(uhci, dev, rq, data, endpoint, 
+    flags & CONTROL_INITIAL_STATE);
+
+  TD *internalTD = transfer->entry_transaction->entry_packet->internalTD;
+  __STRUCT_CALL__(uhci, __set_qhep, qh, internalTD, m);
+  __STRUCT_CALL__(uhci, __set_flags, qh, QH_FLAG_TYPE_CONTROL, 
+    transfer->transaction_count);
+
+#if defined(DEBUG_ON) || defined(TRANSFER_DEBUG_ON)
+  uhci->print_USB_Transfer(uhci, transfer);
+  uhci->inspect_transfer(uhci, qh, td);
+#endif
+
+  __STRUCT_CALL__(uhci, destroy_transfer, transfer);
+
+  if ((dev->state == CONFIGURED_STATE) && !(flags & CONTROL_INITIAL_STATE)) 
+    __STRUCT_CALL__(uhci, __save_map_properties_control, qh, internalTD,
+       data, dev, callback, rq);
+  
+  __STRUCT_CALL__(uhci, insert_queue, qh, priority, QH_CTL);
+
+  if (dev->state != CONFIGURED_STATE || ((flags & CONTROL_INITIAL_STATE) > 0)) 
+    __STRUCT_CALL__(uhci,__initial_state_routine_control, 
+      UPPER_BOUND_TIME_OUT_MILLIS_CONTROL, qh, flags, dev, data, 
+      qh_physical, internalTD, m, rq, callback);
 }
 
 // wait time out time -> upper bound 10ms
 static uint32_t wait_poll(_UHCI *uhci, QH *process_qh, uint32_t timeout, uint8_t flags) {
   TD *td;
+  uint32_t current_time;
 
   __UHC_MEMORY__(uhci, m);
   uint32_t status = E_TRANSFER;
-  uint32_t current_time;
   uint32_t initial_time = getSystemTimeInMilli();
   uint32_t time_out_time = addMilis(initial_time, timeout);
 
   do {
     current_time = getSystemTimeInMilli();
-    td = (TD *)m->getVirtualAddressTD(m, process_qh->pyhsicalQHEP &
-                                             QH_ADDRESS_MASK);
-    if (td == (void *)0) { // if null -> transmission was successful
-      status = S_TRANSFER;
-      break;
-    }
+    td = (TD*)__STRUCT_CALL__(m, getVirtualAddressTD, __QHEP_ADDR__(process_qh));
+    __IF_SINGLE_BREAK__(__IS_NULL__(td), status = S_TRANSFER); // if null -> transmission was successful
   } while (current_time < time_out_time);
 
-  if (td != (void *)0) { // transfer not sucessful
-    status |= uhci->get_status(uhci, td);
+  __IF_NOT_NULL__(td) { // transfer not sucessful
+    status |= __STRUCT_CALL__(uhci, get_status, td);
     if(flags != SUPRESS_DEVICE_ERRORS)
       __UHC_CALL_LOGGER_ERROR__(__UHC_CAST__(uhci), 
       "transfer was not sucessful ! error mask %u",
@@ -1588,93 +1645,30 @@ static unsigned int retransmission(_UHCI *uhci, QH *process_qh) {
   __UHC_MEMORY__(uhci, m);
   uint8_t transfer_type = process_qh->flags & QH_FLAG_TYPE_MASK;
   if (transfer_type == QH_FLAG_TYPE_INTERRUPT) {
-    saved_td = (TD *)uhci->qh_to_td_map->get_c(uhci->qh_to_td_map, process_qh);
+    saved_td = (TD*)__STRUCT_CALL__(uhci->qh_to_td_map, get_c, process_qh);
     head = saved_td;
-    while (saved_td != (void *)0) {
+    while (__NOT_NULL__(saved_td)) {
       saved_td->control_x_status = ((0x1 << LS) & saved_td->control_x_status) |
                                    ((0x1 << IOC) & saved_td->control_x_status) |
                                    (0x3 << C_ERR) | (0x1 << ACTIVE);
-      saved_td = (TD *)m->getVirtualAddressTD(m, saved_td->pyhsicalLinkPointer &
-                                                     QH_ADDRESS_MASK);
+      saved_td = (TD*)__STRUCT_CALL__(m, getVirtualAddressTD, 
+        __LP_ADDR__(saved_td));
     }
-    process_qh->pyhsicalQHEP =
-        (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, head));
+  __STRUCT_CALL__(uhci, __set_qhep, process_qh, head, m);
     retransmission_occured = 1;
   }
-
   return retransmission_occured;
 }
 
-static void control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
-                      void *data, uint8_t priority, Endpoint *endpoint,
-                      build_control_transfer build_function,
-                      callback_function callback, uint8_t flags) {
-  uint32_t status;
-  __UHC_MEMORY__(uhci, m);
-
-  QH *qh = uhci->get_free_qh(uhci);
-
-  qh->flags = 0;
-  qh->parent = 0;
-  qh->pyhsicalQHEP = 0;
-  qh->pyhsicalQHLP = 0;
-
-  uint32_t qh_physical = (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, qh));
-  m->addVirtualAddress(m, qh_physical, qh);
-
-  UsbTransfer *transfer = build_function(uhci, dev, rq, data, endpoint, 
-    flags & CONTROL_INITIAL_STATE);
-
-  // we already linked them up while creating the packets
-  TD *internalTD = transfer->entry_transaction->entry_packet->internalTD;
-  qh->flags = (transfer->transaction_count << QH_FLAG_DEVICE_COUNT_SHIFT) |
-              QH_FLAG_TYPE_CONTROL;
-  qh->pyhsicalQHEP =
-      ((uint32_t)(uintptr_t)(m->getPhysicalAddress(m, internalTD)));
-
-#if defined(DEBUG_ON) || defined(TRANSFER_DEBUG_ON)
-  uhci->print_USB_Transfer(uhci, transfer);
-  uhci->inspect_transfer(uhci, qh, td);
-#endif
-
-  uhci->destroy_transfer(uhci, transfer);
-
-  if ((dev->state == CONFIGURED_STATE) && !(flags & CONTROL_INITIAL_STATE)) {
-    uhci->qh_to_td_map->put_c(uhci->qh_to_td_map, qh, internalTD);
-    uhci->qh_data_map->put_c(uhci->qh_data_map, qh, data);
-    uhci->qh_dev_map->put_c(uhci->qh_dev_map, qh, dev);
-    uhci->callback_map->put_c(uhci->callback_map, qh, callback);
-    uhci->qh_device_request_map->put_c(uhci->qh_device_request_map, qh, rq);
-  }
-
-  uhci->insert_queue(uhci, qh, priority, QH_CTL);
-
-  // uhci->inspect_transfer(uhci, qh, internalTD);
-
-  if (dev->state != CONFIGURED_STATE || ((flags & CONTROL_INITIAL_STATE) > 0)) {
-    status = uhci->wait_poll(uhci, qh, UPPER_BOUND_TIME_OUT_MILLIS_CONTROL,
-                             flags & SUPRESS_DEVICE_ERRORS);
-
-    callback(dev, status, data);
-
-    uhci->remove_queue(uhci, qh);
-    m->remove_virtualAddress(m, qh_physical);
-    uhci->free_qh(uhci, qh);
-    uhci->remove_td_linkage(uhci, internalTD);
-    dev->free_device_request(dev, rq);
-  }
-}
-
 static void remove_td_linkage(_UHCI *uhci, TD *start) {
-  __UHC_MEMORY__(uhci, m);
   TD *temp;
-
-  while (start != 0) {
-    uint32_t p_addr = (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, start));
-    temp = (TD *)m->getVirtualAddressTD(m, start->pyhsicalLinkPointer &
-                                               QH_ADDRESS_MASK);
-    uhci->free_td(uhci, start);
-    m->remove_virtualAddressTD(m, p_addr);
+  __UHC_MEMORY__(uhci, m);
+  
+  while (__NOT_NULL__(start)) {
+    uint32_t p_addr = __PTR_TYPE__(uint32_t, __GET_PHYSICAL__(m, start));
+    temp = (TD*)__STRUCT_CALL__(m, getVirtualAddressTD, __LP_ADDR__(start)); 
+    __STRUCT_CALL__(uhci, free_td, start);
+    __STRUCT_CALL__(m, remove_virtualAddressTD, p_addr);
     start = temp;
   }
 }
@@ -1684,40 +1678,63 @@ static void _poll_uhci_(UsbController *controller) {
   __UHC_MEMORY__(uhci, m);
   QH *entry = uhci->qh_entry;
   for (;;) {
-    if (entry == (void *)0) {
+    if (__IS_NULL__(entry)) {
       entry = uhci->qh_entry;
     }
-    uhci->traverse_skeleton(uhci, entry);
-    entry =
-        (QH *)m->getVirtualAddress(m, entry->pyhsicalQHLP & QH_ADDRESS_MASK);
+    __STRUCT_CALL__(uhci, traverse_skeleton, entry);
+    entry = __GET_VIRTUAL__(m, __QHLP_ADDR__(entry), QH);
   }
+}
+
+static void transmission_clearing_routine(_UHCI* uhci, QH* entry, 
+  MemoryService_C* mem_service) {
+  TD *rcvry = __MAP_GET__(uhci->qh_to_td_map, TD*, entry);
+    __STRUCT_CALL__(uhci, remove_queue, entry);
+    __STRUCT_CALL__(uhci, remove_transfer_entry, entry);
+    uint32_t phy_qh =__PTR_TYPE__(uint32_t,
+      __GET_PHYSICAL__(mem_service, entry));
+    __STRUCT_CALL__(mem_service, remove_virtualAddress, phy_qh);
+    __STRUCT_CALL__(uhci, free_qh, entry);
+    __STRUCT_CALL__(uhci, remove_td_linkage, rcvry);
+}
+
+static void successful_transmission_routine(_UHCI* uhci, callback_function callback, 
+  UsbDev* dev, void* data, QH* entry, MemoryService_C* mem_service) {
+  unsigned int retransmission_occured;
+  callback(dev, S_TRANSFER, data);
+  retransmission_occured = __STRUCT_CALL__(uhci, retransmission, entry);
+  if (!retransmission_occured) {
+    __STRUCT_CALL__(uhci, transmission_clearing_routine, entry, mem_service);
+  }
+}
+
+static void failed_transmission_routine(_UHCI* uhci, UsbDev* dev, void* data, 
+  TD* td, QH* entry, MemoryService_C* mem_service, callback_function callback) {
+  uint32_t error_mask = __STRUCT_CALL__(uhci, get_status, td);
+  
+  __STRUCT_CALL__(uhci, transmission_clearing_routine, entry, mem_service);
+
+  callback(dev, E_TRANSFER | error_mask, data);
 }
 
 static void traverse_skeleton(_UHCI *uhci, QH *entry) {
   // uhci->inspect_QH(uhci, entry);
-  if (entry == (void *)0)
-    return;
-  if ((entry->flags & QH_FLAG_IS_MASK) == QH_FLAG_IS_MQH) {
-    return;
-  }
-
-  unsigned int retransmission_occured;
-  uint32_t error_mask;
+  __IF_RET__(__IS_NULL__(entry));
+  __IF_RET__((entry->flags & QH_FLAG_IS_MASK) == QH_FLAG_IS_MQH);
 
   __UHC_MEMORY__(uhci, mem_service);
 
-  // just looking for 0 would be the same result
-  TD *td = (TD *)mem_service->getVirtualAddressTD(
-      mem_service, entry->pyhsicalQHEP & QH_ADDRESS_MASK);
+  TD *td = (TD *)__STRUCT_CALL__(mem_service, getVirtualAddressTD, 
+    __QHEP_ADDR__(entry));
 
-  callback_function callback =
-      (callback_function)uhci->callback_map->get_c(uhci->callback_map, entry);
-  void *data = (void *)uhci->qh_data_map->get_c(uhci->qh_data_map, entry);
-  UsbDev *dev = (UsbDev *)uhci->qh_dev_map->get_c(uhci->qh_dev_map, entry);
+  callback_function callback = 
+    __MAP_GET__(uhci->callback_map, callback_function, entry);
+  void *data = __MAP_GET__(uhci->qh_data_map, void*, entry);
+  UsbDev *dev = __MAP_GET__(uhci->qh_dev_map, UsbDev*, entry);
 
   // uhci->inspect_TD(uhci, td);
 
-  if (td == (void *)0) { // if null -> transmission was successful
+  if (__IS_NULL__(td)) { // transmission successful
     // uhci->inspect_QH(uhci, entry);
     // uhci->inspect_TD(uhci, td);
 
@@ -1743,34 +1760,12 @@ static void traverse_skeleton(_UHCI *uhci, QH *entry) {
                                       transfer_duration);
     }
 #endif
-
-    callback(dev, S_TRANSFER, data);
-    retransmission_occured = uhci->retransmission(uhci, entry);
-    if (!retransmission_occured) {
-      TD *rcvry = (TD *)uhci->qh_to_td_map->get_c(uhci->qh_to_td_map, entry);
-      uhci->remove_queue(uhci, entry);
-      uhci->remove_transfer_entry(uhci, entry);
-      uint32_t phy_qh = (uint32_t)(uintptr_t)(mem_service->getPhysicalAddress(
-          mem_service, entry));
-      mem_service->remove_virtualAddress(mem_service, phy_qh);
-      uhci->free_qh(uhci, entry);
-      uhci->remove_td_linkage(uhci, rcvry);
-    }
+    __STRUCT_CALL__(uhci, successful_transmission_routine, callback, dev, 
+      data, entry, mem_service);
   }
-
-  else if (((td->control_x_status >> ACTIVE) & 0x01) == 0x00) {
-    error_mask = uhci->get_status(uhci, td);
-
-    TD *rcvry = (TD *)uhci->qh_to_td_map->get_c(uhci->qh_to_td_map, entry);
-    uhci->remove_queue(uhci, entry);
-    uhci->remove_transfer_entry(uhci, entry);
-    uint32_t phy_qh = (uint32_t)(uintptr_t)(mem_service->getPhysicalAddress(
-        mem_service, entry));
-    mem_service->remove_virtualAddress(mem_service, phy_qh);
-    uhci->free_qh(uhci, entry);
-    uhci->remove_td_linkage(uhci, rcvry);
-
-    callback(dev, E_TRANSFER | error_mask, data);
+  else if (!__STRUCT_CALL__(uhci, __td_failed, td)) {
+    __STRUCT_CALL__(uhci, failed_transmission_routine, dev, data, td, entry,
+      mem_service, callback);
   }
 }
 
@@ -1814,24 +1809,19 @@ static void runnable_function_uhci(UsbController *controller) {
   for (;;) {
     if (uhci->signal) {
       __UHC_MEMORY__(uhci, m);
-
-      for (QH *qh = uhci->qh_entry; qh != 0;
-           qh = (QH *)(m->getVirtualAddress(m, qh->pyhsicalQHLP &
-                                                   QH_ADDRESS_MASK))) {
+      __FOR_RANGE_COND__(qh, QH*, uhci->qh_entry, qh != 0, 
+        qh = __GET_VIRTUAL__(m, __QHLP_ADDR__(qh), QH)) {
         uhci->traverse_skeleton(uhci, qh);
       }
-      if (!uhci->signal_not_override)
-        uhci->signal = 0;
-      else
-        uhci->signal_not_override = 0;
-    } else
-      yield_c();
+      __IF_ELSE__(!uhci->signal_not_override, uhci->signal = 0, 
+        uhci->signal_not_override = 0);
+    } 
+    else yield_c();
   }
 }
 
 static void handler_function_uhci(UsbController *controller) {
   _UHCI *uhci = container_of(controller, _UHCI, super);
-
   if (uhci->signal)
     uhci->signal_not_override = 1;
   uhci->signal = 1;
