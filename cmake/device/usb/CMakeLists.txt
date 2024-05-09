@@ -5,7 +5,8 @@ target_sources(device PUBLIC
         ${HHUOS_SRC_DIR}/device/usb/controller/UsbController.c
         ${HHUOS_SRC_DIR}/device/usb/controller/uhci/UHCI.c
         ${HHUOS_SRC_DIR}/device/usb/dev/UsbDevice.c
-        ${HHUOS_SRC_DIR}/device/usb/controller/uhci/components/UHCIMemory.c
+        #${HHUOS_SRC_DIR}/device/usb/controller/uhci/components/UHCIMemory.c
+        ${HHUOS_SRC_DIR}/device/usb/controller/components/ControllerMemoryTypes.c
         ${HHUOS_SRC_DIR}/device/usb/controller/uhci/components/UHCIRegister.c
         ${HHUOS_SRC_DIR}/device/usb/interfaces/SystemInterface.cpp
         ${HHUOS_SRC_DIR}/device/usb/interfaces/IoPortInterface.cpp
