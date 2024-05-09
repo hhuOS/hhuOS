@@ -7,86 +7,62 @@
 #include "../../interfaces/ThreadInterface.h"
 #include "../UsbDriver.h"
 
+static int read_hub_status(HubDriver* driver, HubDev* dev, Interface* itf, uint8_t* data, unsigned int len);
+static int read_hub_descriptor(HubDriver* driver, HubDev* dev, Interface* itf, uint8_t* data);
+static int configure_hub(HubDriver* driver);
+static void configure_callback(UsbDev* dev, uint32_t status, void* data);
+static int set_hub_feature(HubDriver* driver, HubDev* dev, Interface* itf, uint16_t port, uint16_t feature);
+static int clear_hub_feature(HubDriver* driver, HubDev* dev, Interface* itf, uint16_t port, uint16_t feature);
+static void callback_hub(UsbDev* dev, uint32_t status, void* data);
+static int16_t probe_hub(UsbDev* dev, Interface* interface);
+static void disconnect_hub(UsbDev* dev, Interface* interface);
+static void dump_port_status_change(HubDriver* driver, uint16_t* port_status_change_field);
+static void dump_port_status(HubDriver* driver, uint16_t* port_status_field);
+static uint8_t is_device_removable(HubDriver* driver, HubDev* hub_dev, uint8_t downstream_port);
+static HubDev* get_free_hub_dev(HubDriver* driver);
+static HubDev* match_hub_dev(HubDriver* driver, UsbDev* dev);
+static void free_hub_dev(HubDriver* driver, HubDev* hub_dev);
+
 static HubDriver *internal_hub_driver = 0;
-
-static void new_usb_driver(UsbDriver *usb_driver, char *name,
-                           UsbDevice_ID *entry);
-
-static void new_usb_driver(UsbDriver *usb_driver, char *name,
-                           UsbDevice_ID *entry) {
-  usb_driver->probe = &probe_hub;
-  usb_driver->disconnect = &disconnect_hub;
-
-  usb_driver->name = name;
-  usb_driver->entry = entry;
-  usb_driver->head.l_e = 0;
-  usb_driver->l_e.l_e = 0;
-}
 
 // if we use plug & play this callback would listen to the interrupt transfer
 // which checks the status of the downstream ports
-void callback_hub(UsbDev *dev, uint32_t status, void *data) {}
+static void callback_hub(UsbDev *dev, uint32_t status, void *data) {}
 
-int16_t probe_hub(UsbDev *dev, Interface *interface) {
+static int16_t probe_hub(UsbDev *dev, Interface *interface) {
   Endpoint **endpoints = interface->active_interface->endpoints;
   InterfaceDescriptor interface_desc =
       interface->active_interface->alternate_interface_desc;
-  // check if we should support that interface !!!
   int e = interface_desc.bNumEndpoints;
+  MemoryService_C *mem_service = __DEV_MEMORY(dev);
 
-  HubDev *hub_dev = internal_hub_driver->get_free_hub_dev(internal_hub_driver);
-  if (hub_dev == (void *)0)
-    return -1;
-
-  MemoryService_C *mem_service =
-      (MemoryService_C *)container_of(dev->mem_service, MemoryService_C, super);
-
+  __REQUEST_OR_LEAVE__(HubDev, internal_hub_driver, get_free_hub_dev, hub_dev);
   // select only 1 endpoint
-  for (int i = 0; i < e; i++) {
-    // check for type , direction
-    if (!(endpoints[i]->endpoint_desc.bEndpointAddress & DIRECTION_IN)) {
-      internal_hub_driver->free_hub_dev(internal_hub_driver, hub_dev);
-      continue;
-    }
-    if (!(endpoints[i]->endpoint_desc.bmAttributes & TRANSFER_TYPE_INTERRUPT)) {
-      internal_hub_driver->free_hub_dev(internal_hub_driver, hub_dev);
-      continue;
-    }
+  __FOR_RANGE__(i, int, 0, e) {
+    __DRIVER_DIRECTION_IN__(__STRUCT_CALL__(internal_hub_driver, free_hub_dev, hub_dev), 
+      dev, endpoints[i]);
+    __DRIVER_TYPE_INTERRUPT__(__STRUCT_CALL__(internal_hub_driver, free_hub_dev, hub_dev),
+      dev, endpoints[i]);
     if (!hub_dev->endpoint_addr) {
       uint8_t *key_board_buffer =
           (uint8_t *)mem_service->mapIO(mem_service, sizeof(uint8_t), 1);
 
-      hub_dev->endpoint_addr =
-          endpoints[i]->endpoint_desc.bEndpointAddress & ENDPOINT_MASK;
+      hub_dev->endpoint_addr = __STRUCT_CALL__(dev, __endpoint_number, endpoints[i]);
       hub_dev->usb_dev = dev;
       hub_dev->buffer = key_board_buffer;
       hub_dev->buffer_size = 0;
       hub_dev->priority = PRIORITY_8;
       hub_dev->interface = interface;
       hub_dev->interval = endpoints[i]->endpoint_desc.bInterval;
-      return 1;
+      return __RET_S__;
     }
   }
-
-  return -1;
+  return __RET_E__;
 }
 
-void disconnect_hub(UsbDev *dev, Interface *interface) {}
+static void disconnect_hub(UsbDev *dev, Interface *interface) {}
 
 void new_hub_driver(HubDriver *driver, char *name, UsbDevice_ID *entry) {
-  driver->read_hub_status = &read_hub_status;
-  driver->read_hub_descriptor = &read_hub_descriptor;
-  driver->configure_hub = &configure_hub;
-  driver->set_hub_feature = &set_hub_feature;
-  driver->clear_hub_feature = &clear_hub_feature;
-  driver->dump_port_status = &dump_port_status;
-  driver->dump_port_status_change = &dump_port_status_change;
-  driver->init_hub_driver_logger = &init_hub_driver_logger;
-  driver->is_device_removable = &is_device_removable;
-  driver->get_free_hub_dev = &get_free_hub_dev;
-  driver->match_hub_dev = &match_hub_dev;
-  driver->free_hub_dev = &free_hub_dev;
-
   for (int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++) {
     driver->hub_map[i] = 0;
     driver->dev[i].transfer_success = 0;
@@ -104,40 +80,22 @@ void new_hub_driver(HubDriver *driver, char *name, UsbDevice_ID *entry) {
   }
 
   internal_hub_driver = driver;
-
-  driver->super.new_usb_driver = &new_usb_driver;
-  driver->super.new_usb_driver(&driver->super, name, entry);
-  driver->hub_driver_logger = driver->init_hub_driver_logger(driver);
+  __INIT_HUB_DRIVER__(driver, name, entry);
 }
 
-HubDev *get_free_hub_dev(HubDriver *driver) {
-  for (int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++) {
-    if (driver->hub_map[i] == 0) {
-      driver->hub_map[i] = 1;
-      return driver->dev + i;
-    }
-  }
-  return (void *)0;
+static HubDev *get_free_hub_dev(HubDriver *driver) {
+  __GET_FREE_DEV__(HubDev, driver->dev, driver->hub_map);
 }
 
-HubDev *match_hub_dev(HubDriver *driver, UsbDev *dev) {
-  for (int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++) {
-    if (driver->dev[i].usb_dev == dev)
-      return driver->dev + i;
-  }
-  return (void *)0;
+static HubDev *match_hub_dev(HubDriver *driver, UsbDev *dev) {
+  __MATCH_DEV__(HubDev, driver->dev, usb_dev, dev);
 }
 
-void free_hub_dev(HubDriver *driver, HubDev *hub_dev) {
-  for (int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++) {
-    if (driver->dev + i == hub_dev) {
-      driver->hub_map[i] = 0;
-      return;
-    }
-  }
+static void free_hub_dev(HubDriver *driver, HubDev *hub_dev) {
+  __FREE_DEV__(hub_dev, driver->dev, driver->hub_map);
 }
 
-void configure_callback(UsbDev *dev, uint32_t status, void *data) {
+static void configure_callback(UsbDev *dev, uint32_t status, void *data) {
   HubDev *hub_dev =
       internal_hub_driver->match_hub_dev(internal_hub_driver, dev);
 
@@ -151,7 +109,7 @@ void configure_callback(UsbDev *dev, uint32_t status, void *data) {
 }
 
 // stacking hub's currently not supported ! -> maybe implemented in future
-int configure_hub(HubDriver *driver) {
+static int configure_hub(HubDriver *driver) {
   for (int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++) {
     if (driver->hub_map[i] == 0)
       continue;
@@ -160,8 +118,7 @@ int configure_hub(HubDriver *driver) {
 
     HubDev *hub_dev = driver->dev + i;
 
-    MemoryService_C *m = (MemoryService_C *)container_of(
-        dev->mem_service, MemoryService_C, super);
+    MemoryService_C *m = __DEV_MEMORY(dev);
     uint8_t *data = (uint8_t *)m->mapIO(m, PAGE_SIZE * sizeof(uint8_t), 1);
 
     if (driver->read_hub_descriptor(driver, hub_dev, itf, data) == -1)
@@ -177,7 +134,7 @@ int configure_hub(HubDriver *driver) {
 
     uint8_t num_ports = driver->dev[i].hub_desc.num_ports;
 
-    driver->hub_driver_logger->info_c(driver->hub_driver_logger,
+    __DRIVER_LOGGER_INFO_CALL__(driver,
       "Detected %d downstream ports , minor %d", num_ports, i);
 
     dev->add_downstream(dev, num_ports);
@@ -257,17 +214,15 @@ int configure_hub(HubDriver *driver) {
             driver->is_device_removable(driver, hub_dev, start_port);
         uint8_t level = dev->level + 1;
 
-        UsbDev *new_dev = m->allocateKernelMemory_c(m, sizeof(UsbDev), 0);
-        new_dev->new_usb_device = &new_usb_device;
-        new_dev->new_usb_device(new_dev, speed, start_port, level, removable,
-                                dev->rootport, start_device_num,
-                                dev->mem_service, dev->controller, 1);
+        __SUPRESS_DEV__(speed, start_port, level, removable, dev->rootport, start_device_num,
+          dev->controller, m, new_dev);
+
         if (new_dev->error_while_transfering) {
           new_dev->delete_usb_dev(new_dev);
         } else {
           dev->add_downstream_device(dev, new_dev);
           start_device_num++;
-          driver->hub_driver_logger->info_c(driver->hub_driver_logger, 
+          __DRIVER_LOGGER_INFO_CALL__(driver,
           "Succesful configured Usb-Device on port : %d , "
           "Device : %s, %s",
           start_port, new_dev->manufacturer, new_dev->product);
@@ -281,7 +236,7 @@ int configure_hub(HubDriver *driver) {
 }
 
 // if bit is set -> non removable
-uint8_t is_device_removable(HubDriver *driver, HubDev *hub_dev,
+static uint8_t is_device_removable(HubDriver *driver, HubDev *hub_dev,
                             uint8_t downstream_port) {
   uint8_t *removable_x = hub_dev->hub_desc.x;
   uint8_t mask = 0x01;
@@ -294,7 +249,7 @@ uint8_t is_device_removable(HubDriver *driver, HubDev *hub_dev,
   return (removable_x[byte_num] >> shift) ^ mask;
 }
 
-void dump_port_status(HubDriver *driver, uint16_t *port_status_field) {
+static void dump_port_status(HubDriver *driver, uint16_t *port_status_field) {
   uint8_t mask = 0x01;
   uint8_t port_indicator = (*port_status_field >> PORT_INDICATOR_STATUS) & mask;
   uint8_t port_test = (*port_status_field >> PORT_TEST_STATUS) & mask;
@@ -310,8 +265,7 @@ void dump_port_status(HubDriver *driver, uint16_t *port_status_field) {
   uint8_t port_enable = (*port_status_field >> PORT_ENABLE_STATUS) & mask;
   uint8_t port_connect = *port_status_field & mask;
 
-  driver->hub_driver_logger->debug_c(
-      driver->hub_driver_logger,
+  __DRIVER_LOGGER_DEBUG_CALL__(driver,
       "PORT_STATUS :\n\n\tport indicator : %u\n\tport test : %u\n\tport high "
       "speed attached : %u\n"
       "\tport low speed attached : %u\n\tport power : %u\n\tport reset : "
@@ -321,7 +275,7 @@ void dump_port_status(HubDriver *driver, uint16_t *port_status_field) {
       port_reset, port_over_current, port_suspend, port_enable, port_connect);
 }
 
-void dump_port_status_change(HubDriver *driver,
+static void dump_port_status_change(HubDriver *driver,
                              uint16_t *port_status_change_field) {
   uint8_t mask = 0x01;
   uint8_t reset_change =
@@ -334,8 +288,7 @@ void dump_port_status_change(HubDriver *driver,
       (*port_status_change_field >> PORT_ENABLE_CHANGE_STATUS) & mask;
   uint8_t connect_change = *port_status_change_field & mask;
 
-  driver->hub_driver_logger->debug_c(
-      driver->hub_driver_logger,
+  __DRIVER_LOGGER_DEBUG_CALL__(driver,
       "PORT CHANGE STATUS :\n\n\treset change : %u\n\tover current change : "
       "%u\n\tsuspend change : %u\n"
       "\tenable change : %u\n\tconnect change : %u\n",
@@ -343,15 +296,7 @@ void dump_port_status_change(HubDriver *driver,
       connect_change);
 }
 
-Logger_C *init_hub_driver_logger(HubDriver *driver) {
-  Logger_C *l = (Logger_C *)interface_allocateMemory(sizeof(Logger_C), 0);
-  l->new_logger = &new_logger;
-  l->new_logger(l, USB_DRIVER_LOGGER_TYPE, LOGGER_LEVEL_DEBUG);
-
-  return l;
-}
-
-int read_hub_status(HubDriver *driver, HubDev *hub_dev, Interface *itf,
+static int read_hub_status(HubDriver *driver, HubDev *hub_dev, Interface *itf,
                     uint8_t *data, unsigned int len) {
   if (hub_dev->usb_dev->get_req_status(hub_dev->usb_dev, itf, data, len,
                                        &configure_callback) == -1)
@@ -362,7 +307,7 @@ int read_hub_status(HubDriver *driver, HubDev *hub_dev, Interface *itf,
   return 1;
 }
 
-int read_hub_descriptor(HubDriver *driver, HubDev *hub_dev, Interface *itf,
+static int read_hub_descriptor(HubDriver *driver, HubDev *hub_dev, Interface *itf,
                         uint8_t *data) {
   if (hub_dev->usb_dev->get_descriptor(hub_dev->usb_dev, itf, data, 2,
                                        &configure_callback) == -1)
@@ -386,7 +331,7 @@ int read_hub_descriptor(HubDriver *driver, HubDev *hub_dev, Interface *itf,
   return 1;
 }
 
-int set_hub_feature(HubDriver *driver, HubDev *hub_dev, Interface *itf,
+static int set_hub_feature(HubDriver *driver, HubDev *hub_dev, Interface *itf,
                     uint16_t port, uint16_t feature) {
   if (hub_dev->usb_dev->set_feature(hub_dev->usb_dev, itf, feature, port,
                                     &configure_callback) == -1)
@@ -398,7 +343,7 @@ int set_hub_feature(HubDriver *driver, HubDev *hub_dev, Interface *itf,
   return 1;
 }
 
-int clear_hub_feature(HubDriver *driver, HubDev *hub_dev, Interface *itf,
+static int clear_hub_feature(HubDriver *driver, HubDev *hub_dev, Interface *itf,
                       uint16_t port, uint16_t feature) {
   if (hub_dev->usb_dev->clear_feature(hub_dev->usb_dev, itf, feature, port,
                                       &configure_callback) == -1)

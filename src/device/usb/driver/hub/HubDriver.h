@@ -15,6 +15,25 @@
 #define SELF_POWERED 0x01
 #define REMOTE_WAKEUP 0x02
 
+#define __INIT_HUB_DRIVER__(name, driver_name, entry) \
+    __ENTRY__(name, read_hub_status) = &read_hub_status; \
+    __ENTRY__(name, read_hub_descriptor) = &read_hub_descriptor; \
+    __ENTRY__(name, configure_hub) = &configure_hub; \
+    __ENTRY__(name, set_hub_feature) = &set_hub_feature; \
+    __ENTRY__(name, clear_hub_feature) = &clear_hub_feature; \
+    __ENTRY__(name, dump_port_status) = &dump_port_status; \
+    __ENTRY__(name, dump_port_status_change) = &dump_port_status_change; \
+    __ENTRY__(name, is_device_removable) = &is_device_removable; \
+    __ENTRY__(name, get_free_hub_dev) = &get_free_hub_dev; \
+    __ENTRY__(name, match_hub_dev) = &match_hub_dev; \
+    __ENTRY__(name, free_hub_dev) = &free_hub_dev; \
+    \
+    __SUPER__(name, probe) = &probe_hub; \
+    __SUPER__(name, disconnect) = &disconnect_hub; \
+    __SUPER__(name, new_usb_driver) = &new_usb_driver; \
+    \
+    __CALL_SUPER__(name->super, new_usb_driver, driver_name, entry)
+
 struct HubDescriptor{
     uint8_t len;
     uint8_t type;
@@ -60,15 +79,11 @@ struct HubDriver{
 
     void (*dump_port_status_change)(struct HubDriver* driver, uint16_t* port_status_change_field);
     void (*dump_port_status)(struct HubDriver* driver, uint16_t* port_status_field);
-
-    Logger_C* (*init_hub_driver_logger)(struct HubDriver* driver);
     uint8_t (*is_device_removable)(struct HubDriver* driver, struct HubDev* dev, uint8_t downstream_port);
 
     struct HubDev* (*get_free_hub_dev)(struct HubDriver* driver);
     struct HubDev* (*match_hub_dev)(struct HubDriver* driver, UsbDev* dev);
     void (*free_hub_dev)(struct HubDriver* driver, struct HubDev* hub_dev);
-
-    Logger_C* hub_driver_logger;
 };
 
 enum FeatureSelectorHub{
@@ -121,29 +136,6 @@ typedef struct HubDriver HubDriver;
 typedef struct HubDescriptor HubDescriptor;
 typedef enum FeatureSelectorHub FeatureSelectorHub;
 
-void callback_hub(UsbDev* dev, uint32_t status, void* data);
-
-int16_t probe_hub(UsbDev* dev, Interface* interface);
-void disconnect_hub(UsbDev* dev, Interface* interface);
-
 void new_hub_driver(HubDriver* driver, char* name, UsbDevice_ID* entry);
-
-int read_hub_status(HubDriver* driver, HubDev* dev, Interface* itf, uint8_t* data, unsigned int len);
-int read_hub_descriptor(HubDriver* driver, HubDev* dev, Interface* itf, uint8_t* data);
-int configure_hub(HubDriver* driver);
-void configure_callback(UsbDev* dev, uint32_t status, void* data);
-int set_hub_feature(HubDriver* driver, HubDev* dev, Interface* itf, uint16_t port, uint16_t feature);
-int clear_hub_feature(HubDriver* driver, HubDev* dev, Interface* itf, uint16_t port, uint16_t feature);
-
-void dump_port_status_change(HubDriver* driver, uint16_t* port_status_change_field);
-void dump_port_status(HubDriver* driver, uint16_t* port_status_field);
-
-Logger_C* init_hub_driver_logger(HubDriver* driver);
-
-uint8_t is_device_removable(HubDriver* driver, HubDev* hub_dev, uint8_t downstream_port);
-
-HubDev* get_free_hub_dev(HubDriver* driver);
-HubDev* match_hub_dev(HubDriver* driver, UsbDev* dev);
-void free_hub_dev(HubDriver* driver, HubDev* hub_dev);
 
 #endif
