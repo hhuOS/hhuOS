@@ -1,6 +1,9 @@
 #ifndef MapInterface__include
 #define MapInterface__include
 
+#define __MAP_GET__(map, type, val) \
+  (type)__STRUCT_CALL__(map, get_c, val)
+
 typedef void *Map_C;
 
 struct SuperMap {
