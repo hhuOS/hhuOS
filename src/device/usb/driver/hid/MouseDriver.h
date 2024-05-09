@@ -25,6 +25,22 @@ struct MouseDev{
     void (*callback)(UsbDev* dev, uint32_t status, void* data);
 };
 
+#define __INIT_MOUSE_DRIVER__(name, driver_name, entry) \
+    __ENTRY__(name, constructEvent_mouse) = &constructEvent_mouse; \
+    __ENTRY__(name, trigger_mouse_event) = &trigger_mouse_event; \
+    __ENTRY__(name, look_for_mouse_released) = &look_for_mouse_released; \
+    __ENTRY__(name, look_for_mouse_events) = &look_for_mouse_events; \
+    __ENTRY__(name, map_mouse_to_input_event) = &map_mouse_to_input_event; \
+    __ENTRY__(name, match_mouse) = &match_mouse; \
+    __ENTRY__(name, get_free_mouse_dev) = &get_free_mouse_dev; \
+    __ENTRY__(name, free_mouse_dev) = &free_mouse_dev; \
+    \
+    __SUPER__(name, probe) = &probe_mouse; \
+    __SUPER__(name, disconnect) = &disconnect_mouse; \
+    __SUPER__(name, new_usb_driver) = &new_usb_driver; \
+    \
+    __CALL_SUPER__(name->super, new_usb_driver, driver_name, entry)
+
 struct MouseDriver{
     struct UsbDriver super;
     struct MouseDev dev[MAX_DEVICES_PER_USB_DRIVER];
@@ -38,7 +54,7 @@ struct MouseDriver{
     uint16_t (*map_mouse_to_input_event)(struct MouseDriver* driver, int index);
 
     struct MouseDev* (*match_mouse)(struct MouseDriver* driver, UsbDev* dev);
-    struct MouseDev* (*get_freee_mouse_dev)(struct MouseDriver* driver);
+    struct MouseDev* (*get_free_mouse_dev)(struct MouseDriver* driver);
     void (*free_mouse_dev)(struct MouseDriver* driver, struct MouseDev* mouse_dev);
 };
 
@@ -46,20 +62,6 @@ typedef struct MouseDriver MouseDriver;
 typedef struct MouseDev MouseDev;
 
 void new_mouse_driver(MouseDriver* driver, char* name, UsbDevice_ID* entry);
-
-int16_t probe_mouse(UsbDev* dev, Interface* interface);
-void disconnect_mouse(UsbDev* dev, Interface* interface);
-void callback_mouse(UsbDev* dev, uint32_t status, void* data);
-
-MouseEvent constructEvent_mouse(MouseDriver* driver, int index, uint16_t* value, uint16_t* type, int8_t* x, int8_t* y, int8_t* z);
-void trigger_mouse_event(MouseDriver* driver, GenericEvent* event);
-void look_for_mouse_released(MouseDriver* driver, MouseDev* mouse_dev, uint8_t* mouse_code, int index, int8_t* x, int8_t* y, int8_t* z);
-void look_for_mouse_events(MouseDriver* driver, MouseDev* mouse_dev, uint8_t* mouse_code, int index, int8_t* x, int8_t* y, int8_t* z);
-MouseDev* match_mouse(MouseDriver* driver, UsbDev* dev);
-MouseDev* get_freee_mouse_dev(MouseDriver* driver);
-void free_mouse_dev(MouseDriver* driver, MouseDev* mouse_dev);
-
-uint16_t map_mouse_to_input_event(MouseDriver* driver, int index);
 
 extern uint8_t RAW_BUTTON_1;
 extern uint8_t RAW_BUTTON_2;
