@@ -10,16 +10,31 @@
 #define __ALLOC_KERNEL_MEM_ALIGN__(mem_service, type, size, alignment) \
     (type*)mem_service->allocateKernelMemory_c(mem_service, size, alignment)
 
+#define __ALLOC_KERNEL_MEM_T__(mem_service, type, name, size) \
+    type* name = (type*)mem_service->allocateKernelMemory_c(mem_service, \
+    sizeof(type) * size, 0)
+
+#define __ALLOC_KERNEL_MEM_S__(mem_service, type, name) \
+    __ALLOC_KERNEL_MEM_T__(mem_service, type, name, 1)
+
 #define __MAP_IO_KERNEL__(mem_service, type, size) \
     (type*)mem_service->mapIO(mem_service, size, 1)
 
 #define __GET_PHYSICAL__(mem_service, virtual_addr) \
     __STRUCT_CALL__(mem_service, getPhysicalAddress, virtual_addr)
 
+#define __GET_VIRTUAL__(mem_service, physical_addr, type) \
+    (type*)__STRUCT_CALL__(mem_service, getVirtualAddress, physical_addr)
+
 #define __ADD_VIRT__(mem_service, name, target_name) \
     uint32_t target_name = __PTR_TYPE__(uint32_t, \
     __GET_PHYSICAL__(mem_service, name)); \
-    __STRUCT_CALL__(mem_service, addVirtualAddress, target_name,  name)
+    __STRUCT_CALL__(mem_service, addVirtualAddress, target_name, name)
+
+#define __ADD_VIRT_TD__(mem_service, name, target_name) \
+    uint32_t target_name = __PTR_TYPE__(uint32_t, \
+    __GET_PHYSICAL__(mem_service, name)); \
+    __STRUCT_CALL__(mem_service, addVirtualAddressTD, target_name, name)
 
 #define __FREE_KERNEL_MEM__(mem_service, p) \
     mem_service->freeKernelMemory_c(mem_service, p, 0)
