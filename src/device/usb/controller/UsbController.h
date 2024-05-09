@@ -151,6 +151,19 @@
     __UHC_DEFAULT_TABLE_CHECK__(name, bInterfaceProtocol, dev_id_table); \
     name++)
 
+#define __DEFAULT_REMOVABLE_VALUE 0xFF
+
+#define __DEFAULT_DEV__(speed, pn, controller, mem_service) \
+  __NEW__(mem_service, UsbDev, sizeof(UsbDev), dev, new_usb_device, \
+    new_usb_device, speed, pn, 0, __DEFAULT_REMOVABLE_VALUE, \
+    pn, pn, controller, 0)
+
+#define __SUPRESS_DEV__(speed, start_pn, level, removable, rootport, \
+  device_num, controller, mem_service, name) \
+  __NEW__(mem_service, UsbDev, sizeof(UsbDev), name, new_usb_device, \
+    new_usb_device, speed, start_pn, level, removable, rootport, \
+    device_num, controller, 1)
+
 enum UsbControllerType {
   TYPE_UHCI = 0x01,
   TYPE_OHCI = 0x02,
