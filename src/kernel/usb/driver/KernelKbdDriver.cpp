@@ -32,27 +32,24 @@ int Kernel::Usb::Driver::KernelKbdDriver::initialize() {
   KeyBoardDriver *kbd_driver =
       (KeyBoardDriver *)m.allocateKernelMemory(sizeof(KeyBoardDriver), 0);
 
-  kbd_driver->new_key_board_driver = &new_key_board_driver;
-  kbd_driver->new_key_board_driver(kbd_driver, this->getName(), usbDevs);
+  __STRUCT_INIT__(kbd_driver, new_key_board_driver, new_key_board_driver,
+    this->getName(), usbDevs);
 
   this->driver = kbd_driver;
 
   dev_found = u.add_driver((UsbDriver *)driver);
-  if (dev_found == -1)
-    return -1;
+  __IF_RET_NEG__(__IS_NEG_ONE__(dev_found));
 
   KeyBoardListener *key_board_listener =
       (KeyBoardListener *)m.allocateKernelMemory(sizeof(KeyBoardListener), 0);
-  key_board_listener->new_listener = &new_key_board_listener;
-  key_board_listener->new_listener(key_board_listener);
+  __STRUCT_INIT__(key_board_listener, new_listener, new_key_board_listener);
   k_id = u.register_listener((EventListener *)key_board_listener);
 
-  if (k_id < 0)
-    return -1;
+  __IF_RET_NEG__(k_id < 0);
 
   kbd_driver->super.listener_id = k_id;
 
-  return 1;
+  return __RET_S__;
 }
 
 int Kernel::Usb::Driver::KernelKbdDriver::submit(uint8_t minor) {
@@ -60,8 +57,7 @@ int Kernel::Usb::Driver::KernelKbdDriver::submit(uint8_t minor) {
 
   KeyBoardDriver *kbd_driver = this->driver;
   UsbDev *dev = kbd_driver->dev[minor].usb_dev;
-  if (dev->set_idle(dev, kbd_driver->dev[minor].interface) < 0)
-    return -1;
+  __IF_RET_NEG__(dev->set_idle(dev, kbd_driver->dev[minor].interface) < 0);
 
   u.submit_interrupt_transfer(
       kbd_driver->dev[minor].interface,
@@ -69,17 +65,16 @@ int Kernel::Usb::Driver::KernelKbdDriver::submit(uint8_t minor) {
       kbd_driver->dev[minor].priority, kbd_driver->dev[minor].interval,
       kbd_driver->dev[minor].buffer, kbd_driver->dev[minor].buffer_size,
       kbd_driver->dev[minor].callback);
-  return 1;
+  return __RET_S__;
 }
 
 void Kernel::Usb::Driver::KernelKbdDriver::create_usb_dev_node() {
   KeyBoardDriver *kbd_driver = this->driver;
   uint8_t current_kbd_node_num = 0;
   for (int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++) {
-    if (kbd_driver->key_board_map[i] == 0)
-      continue;
+    __IF_CONTINUE__(kbd_driver->key_board_map[i] == 0);
 
-    if (this->submit(i) != -1) {
+    if (__NOT_NEG_ONE__(this->submit(i))) {
       Kernel::Usb::UsbNode *kbd_node = new Kernel::Usb::KeyBoardNode(i);
       Util::String node_name =
           Util::String::format("keyboard%u", current_kbd_node_num++);
