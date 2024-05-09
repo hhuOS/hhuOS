@@ -27,6 +27,24 @@ struct KeyBoardDev{
     void (*callback)(UsbDev* dev, uint32_t status, void* data);
 };
 
+#define __INIT_KBD_DRIVER__(name, driver_name, entry) \
+    __ENTRY__(name, look_for_events) = &look_for_events; \
+    __ENTRY__(name, look_for_released) = &look_for_released; \
+    __ENTRY__(name, constructEvent_key_board) = &constructEvent_key_board; \
+    __ENTRY__(name, trigger_key_board_event) = &trigger_key_board_event; \
+    __ENTRY__(name, map_to_input_event_value) = &map_to_input_event_value; \
+    __ENTRY__(name, trigger_led_report) = &trigger_led_report; \
+    __ENTRY__(name, key_board_report_callback) = &key_board_report_callback; \
+    __ENTRY__(name, get_free_kbd_dev) = &get_free_kbd_dev; \
+    __ENTRY__(name, free_kbd_dev) = &free_kbd_dev; \
+    __ENTRY__(name, match_kbd_dev) = &match_kbd_dev; \
+    \
+    __SUPER__(name, probe) = &probe_key_board; \
+    __SUPER__(name, disconnect) = &disconnect_key_board; \
+    __SUPER__(name, new_usb_driver) = &new_usb_driver; \
+    \
+    __CALL_SUPER__(name->super, new_usb_driver, driver_name, entry)
+
 struct KeyBoardDriver{
     struct UsbDriver super;
     struct KeyBoardDev dev[MAX_DEVICES_PER_USB_DRIVER];
@@ -46,32 +64,12 @@ struct KeyBoardDriver{
     struct KeyBoardDev* (*get_free_kbd_dev)(struct KeyBoardDriver* driver);
     void (*free_kbd_dev)(struct KeyBoardDriver* driver, struct KeyBoardDev* kbd_dev);
     struct KeyBoardDev* (*match_kbd_dev)(struct KeyBoardDriver* driver, UsbDev* dev);
-    
 };
 
 typedef struct KeyBoardDriver KeyBoardDriver;
 typedef struct KeyBoardDev KeyBoardDev;
 
 void new_key_board_driver(KeyBoardDriver* key_board_driver, char* name, struct UsbDevice_ID* entry);
-void callback_key_board(UsbDev* dev, uint32_t status, void* data);
-
-//void add_keyboard_id(KeyBoardDriver* key_board_driver, int id);
-//int get_keyboard_id(KeyBoardDriver* key_board_driver);
-
-int16_t probe_key_board(UsbDev* dev, Interface* interface);
-void disconnect_key_board(UsbDev* dev, Interface* interface);
-
-void look_for_events(KeyBoardDriver* driver, KeyBoardDev* kbd_dev, uint8_t* key_code, uint8_t* modifiers);
-void look_for_released(KeyBoardDriver* driver, KeyBoardDev* kbd_dev, uint8_t* key_codes, uint8_t* modifiers);
-KeyBoardEvent constructEvent_key_board(KeyBoardDriver* driver, uint8_t* key_code, uint8_t* modifiers, uint16_t* value, uint16_t* type);
-void trigger_key_board_event(KeyBoardDriver* key_board_driver, GenericEvent* event);
-uint16_t map_to_input_event_value(KeyBoardDriver* driver ,uint8_t raw_key, uint8_t modifiers);
-void trigger_led_report(KeyBoardDriver* driver, KeyBoardDev* kbd_dev);
-KeyBoardDev* get_free_kbd_dev(KeyBoardDriver* driver);
-void free_kbd_dev(KeyBoardDriver* driver, KeyBoardDev* kbd_dev);
-KeyBoardDev* match_kbd_dev(KeyBoardDriver* driver, UsbDev* dev);
-
-void key_board_report_callback(UsbDev* dev, uint32_t status, void* data);
 
 // list of keycodes without modifiers -> in input.h list all events explicit
 // + add field to keyboard event for retrieving modifiers -> input.h should contain masks for them

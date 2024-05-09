@@ -8,70 +8,57 @@
 #include "../../include/UsbErrors.h"
 #include "../UsbDriver.h"
 
+static void callback_key_board(UsbDev* dev, uint32_t status, void* data);
+static int16_t probe_key_board(UsbDev* dev, Interface* interface);
+static void disconnect_key_board(UsbDev* dev, Interface* interface);
+static void look_for_events(KeyBoardDriver* driver, KeyBoardDev* kbd_dev, uint8_t* key_code, uint8_t* modifiers);
+static void look_for_released(KeyBoardDriver* driver, KeyBoardDev* kbd_dev, uint8_t* key_codes, uint8_t* modifiers);
+static KeyBoardEvent constructEvent_key_board(KeyBoardDriver* driver, uint8_t* key_code, uint8_t* modifiers, uint16_t* value, uint16_t* type);
+static void trigger_key_board_event(KeyBoardDriver* key_board_driver, GenericEvent* event);
+static uint16_t map_to_input_event_value(KeyBoardDriver* driver ,uint8_t raw_key, uint8_t modifiers);
+static void trigger_led_report(KeyBoardDriver* driver, KeyBoardDev* kbd_dev);
+static KeyBoardDev* get_free_kbd_dev(KeyBoardDriver* driver);
+static void free_kbd_dev(KeyBoardDriver* driver, KeyBoardDev* kbd_dev);
+static KeyBoardDev* match_kbd_dev(KeyBoardDriver* driver, UsbDev* dev);
+static void key_board_report_callback(UsbDev* dev, uint32_t status, void* data);
+
 static KeyBoardDriver *internal_k_driver = 0;
 
-static void new_usb_driver(UsbDriver *usb_driver, char *name,
-                           UsbDevice_ID *entry);
-
-static void new_usb_driver(UsbDriver *usb_driver, char *name,
-                           UsbDevice_ID *entry) {
-  usb_driver->probe = &probe_key_board;
-  usb_driver->disconnect = &disconnect_key_board;
-
-  usb_driver->name = name;
-  usb_driver->entry = entry;
-  usb_driver->head.l_e = 0;
-  usb_driver->l_e.l_e = 0;
-}
-
-int16_t probe_key_board(UsbDev *dev, Interface *interface) {
-
-  KeyBoardDev *kbd_dev = internal_k_driver->get_free_kbd_dev(internal_k_driver);
-
-  if (kbd_dev == 0)
-    return -1;
+static int16_t probe_key_board(UsbDev *dev, Interface *interface) {
+  __REQUEST_OR_LEAVE__(KeyBoardDev, internal_k_driver, get_free_kbd_dev, kbd_dev);
 
   Endpoint **endpoints = interface->active_interface->endpoints;
   InterfaceDescriptor interface_desc =
       interface->active_interface->alternate_interface_desc;
-  // check if we should support that interface !!!
   int e = interface_desc.bNumEndpoints;
 
-  MemoryService_C *mem_service =
-      (MemoryService_C *)container_of(dev->mem_service, MemoryService_C, super);
-
+  MemoryService_C* mem_service = __DEV_MEMORY(dev);
   // select only 1 endpoint
-  for (int i = 0; i < e; i++) {
+  __FOR_RANGE__(i, int , 0, e){
     // check for type , direction
-    if (!(endpoints[i]->endpoint_desc.bEndpointAddress & DIRECTION_IN)) {
-      internal_k_driver->free_kbd_dev(internal_k_driver, kbd_dev);
-      continue;
-    }
-    if (!(endpoints[i]->endpoint_desc.bmAttributes & TRANSFER_TYPE_INTERRUPT)) {
-      internal_k_driver->free_kbd_dev(internal_k_driver, kbd_dev);
-      continue;
-    }
+    __DRIVER_DIRECTION_IN__(__STRUCT_CALL__(internal_k_driver, free_kbd_dev, kbd_dev),
+      dev, endpoints[i]);
+    __DRIVER_TYPE_INTERRUPT__(__STRUCT_CALL__(internal_k_driver, free_kbd_dev, kbd_dev),
+      dev, endpoints[i]);
+
     if (!kbd_dev->endpoint_addr) {
       uint8_t *key_board_buffer = (uint8_t *)mem_service->mapIO(
           mem_service, sizeof(uint8_t) * KEYBOARD_BUFFER_SIZE, 1);
 
-      kbd_dev->endpoint_addr =
-          endpoints[i]->endpoint_desc.bEndpointAddress & ENDPOINT_MASK;
+      kbd_dev->endpoint_addr = __STRUCT_CALL__(dev, __endpoint_number, endpoints[i]);
       kbd_dev->usb_dev = dev;
       kbd_dev->buffer = key_board_buffer;
       kbd_dev->buffer_size = KEYBOARD_BUFFER_SIZE;
       kbd_dev->priority = PRIORITY_8;
       kbd_dev->interface = interface;
       kbd_dev->interval = endpoints[i]->endpoint_desc.bInterval;
-
-      return 1;
+      return __RET_S__;
     }
   }
-
-  return -1;
+  return __RET_E__;
 }
 
-void disconnect_key_board(UsbDev *dev, Interface *interface) {}
+static void disconnect_key_board(UsbDev *dev, Interface *interface) {}
 
 void new_key_board_driver(KeyBoardDriver *key_board_driver, char *name,
                           UsbDevice_ID *entry) {
@@ -96,58 +83,24 @@ void new_key_board_driver(KeyBoardDriver *key_board_driver, char *name,
       key_board_driver->dev[i].look_up_buffer[j] = 0;
     }
   }
-
-  key_board_driver->look_for_events = &look_for_events;
-  key_board_driver->look_for_released = &look_for_released;
-  key_board_driver->constructEvent_key_board = &constructEvent_key_board;
-  key_board_driver->trigger_key_board_event = &trigger_key_board_event;
-  key_board_driver->map_to_input_event_value = &map_to_input_event_value;
-  key_board_driver->trigger_led_report = &trigger_led_report;
-  key_board_driver->key_board_report_callback = &key_board_report_callback;
-  key_board_driver->get_free_kbd_dev = &get_free_kbd_dev;
-  key_board_driver->free_kbd_dev = &free_kbd_dev;
-  key_board_driver->match_kbd_dev = &match_kbd_dev;
-
   internal_k_driver = key_board_driver;
 
-  internal_k_driver->super.new_usb_driver = &new_usb_driver;
-  internal_k_driver->super.new_usb_driver(&key_board_driver->super, name,
-                                          entry);
+  __INIT_KBD_DRIVER__(key_board_driver, name, entry);
 }
 
-KeyBoardDev *get_free_kbd_dev(KeyBoardDriver *driver) {
-  KeyBoardDev *kbd_dev = 0;
-  for (int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++) {
-    if (internal_k_driver->key_board_map[i] == 0) {
-      internal_k_driver->key_board_map[i] = 1;
-      kbd_dev = internal_k_driver->dev + i;
-      return kbd_dev;
-    }
-  }
-  return kbd_dev;
+static KeyBoardDev *get_free_kbd_dev(KeyBoardDriver *driver) {
+  __GET_FREE_DEV__(KeyBoardDev, driver->dev, driver->key_board_map);
 }
 
-void free_kbd_dev(KeyBoardDriver *driver, KeyBoardDev *kbd_dev) {
-  for (int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++) {
-    if ((driver->dev + i) == kbd_dev) {
-      driver->key_board_map[i] = 0;
-      return;
-    }
-  }
+static void free_kbd_dev(KeyBoardDriver *driver, KeyBoardDev *kbd_dev) {
+  __FREE_DEV__(kbd_dev, driver->dev, driver->key_board_map);
 }
 
-KeyBoardDev *match_kbd_dev(KeyBoardDriver *driver, UsbDev *dev) {
-  KeyBoardDev *kbd_dev = 0;
-  for (int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++) {
-    if ((internal_k_driver->dev + i)->usb_dev == dev) {
-      kbd_dev = internal_k_driver->dev + i;
-      return kbd_dev;
-    }
-  }
-  return kbd_dev;
+static KeyBoardDev *match_kbd_dev(KeyBoardDriver *driver, UsbDev *dev) {
+  __MATCH_DEV__(KeyBoardDev, driver->dev, usb_dev, dev);
 }
 
-void callback_key_board(UsbDev *dev, uint32_t status, void *data) {
+static void callback_key_board(UsbDev *dev, uint32_t status, void *data) {
   if (status & E_TRANSFER)
     return;
 
@@ -203,7 +156,7 @@ void callback_key_board(UsbDev *dev, uint32_t status, void *data) {
   kbd_dev->look_up_buffer[5] = key_code_6;
 }
 
-void look_for_events(KeyBoardDriver *k_driver, KeyBoardDev *kbd_dev,
+static void look_for_events(KeyBoardDriver *k_driver, KeyBoardDev *kbd_dev,
                      uint8_t *key_code, uint8_t *modifiers) {
   uint16_t event_type = KEY_EVENT;
   uint16_t event_value;
@@ -253,7 +206,7 @@ void look_for_events(KeyBoardDriver *k_driver, KeyBoardDev *kbd_dev,
   k_driver->trigger_key_board_event(k_driver, (GenericEvent *)&event);
 }
 
-void look_for_released(KeyBoardDriver *k_driver, KeyBoardDev *kbd_dev,
+static void look_for_released(KeyBoardDriver *k_driver, KeyBoardDev *kbd_dev,
                        uint8_t *key_codes, uint8_t *modifiers) {
   uint16_t event_type = KEY_EVENT;
   uint16_t event_value = KEY_RELEASED;
@@ -277,20 +230,18 @@ void look_for_released(KeyBoardDriver *k_driver, KeyBoardDev *kbd_dev,
   }
 }
 
-void key_board_report_callback(UsbDev *dev, uint32_t status, void *data) {
-  MemoryService_C *m =
-      (MemoryService_C *)container_of(dev->mem_service, MemoryService_C, super);
+static void key_board_report_callback(UsbDev *dev, uint32_t status, void *data) {
+  MemoryService_C* m = __DEV_MEMORY(dev);
   m->unmap(m, (uint32_t)(uintptr_t)(uint8_t *)data);
 }
 
 // this method should only be callable inside the interrupt context !!!
-void trigger_led_report(KeyBoardDriver *driver, KeyBoardDev *kbd_dev) {
+static void trigger_led_report(KeyBoardDriver *driver, KeyBoardDev *kbd_dev) {
   uint8_t led_state = kbd_dev->current_led_state;
 
   UsbDev *kbd = kbd_dev->usb_dev;
 
-  MemoryService_C *m =
-      (MemoryService_C *)container_of(kbd->mem_service, MemoryService_C, super);
+  MemoryService_C* m = __DEV_MEMORY(kbd);
 
   uint8_t *data_buffer = (uint8_t *)m->mapIO(m, sizeof(uint8_t), 1);
   *data_buffer = led_state;
@@ -301,7 +252,7 @@ void trigger_led_report(KeyBoardDriver *driver, KeyBoardDev *kbd_dev) {
 
 // [a-zA-Z] will not be covered by us
 // meaning reader component has to look at modifiers
-KeyBoardEvent constructEvent_key_board(KeyBoardDriver *k_driver,
+static KeyBoardEvent constructEvent_key_board(KeyBoardDriver *k_driver,
                                        uint8_t *key_code, uint8_t *modifiers,
                                        uint16_t *value, uint16_t *type) {
 
@@ -317,7 +268,7 @@ KeyBoardEvent constructEvent_key_board(KeyBoardDriver *k_driver,
   return event;
 }
 
-void trigger_key_board_event(KeyBoardDriver *key_board_driver,
+static void trigger_key_board_event(KeyBoardDriver *key_board_driver,
                              GenericEvent *event) {
   ((UsbDriver *)key_board_driver)
       ->dispatcher->publish_event(((UsbDriver *)key_board_driver)->dispatcher,
@@ -325,7 +276,7 @@ void trigger_key_board_event(KeyBoardDriver *key_board_driver,
                                   ((UsbDriver *)key_board_driver)->listener_id);
 }
 
-uint16_t map_to_input_event_value(KeyBoardDriver *k_driver, uint8_t raw_key,
+static uint16_t map_to_input_event_value(KeyBoardDriver *k_driver, uint8_t raw_key,
                                   uint8_t modifiers) {
   uint16_t input_key = 0;
 
