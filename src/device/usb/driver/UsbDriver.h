@@ -6,8 +6,13 @@
 #include "../events/EventDispatcher.h"
 #include "../utility/Utils.h"
 #include "../dev/UsbDevice.h"
+#include "../include/UsbInterface.h"
+#include "../interfaces/LoggerInterface.h"
 
 #define MAX_DEVICES_PER_USB_DRIVER 10
+
+#define __DEVICE_ITERATE__(dtype, name) \
+    __FOR_RANGE__(name, dtype, 0, MAX_DEVICES_PER_USB_DRIVER)
 
 struct UsbDevice_ID{
     uint16_t idVendor;
@@ -58,6 +63,63 @@ typedef struct UsbDevice_ID UsbDevice_ID;
     __ENTRY__(name, get_device_head) = &get_head_device; \
     __ENTRY__(name, set_event_dispatcher) = &set_event_dispatcher
 
+#define __GET_FREE_DEV__(type, internal_dev, bit_map) \
+    type* __dev = 0; \
+    __FOR_RANGE__(i, int, 0, MAX_DEVICES_PER_USB_DRIVER){ \
+        __IF_CUSTOM__(__IS_ZERO__(bit_map[i]), bit_map[i] = 1; \
+            __dev = internal_dev + i; return __dev); \
+    }   \
+    return __dev
+
+#define __FREE_DEV__(container_device, internal_dev, bit_map) \
+    __FOR_RANGE__(i, int, 0, MAX_DEVICES_PER_USB_DRIVER) { \
+        __IF_CUSTOM__((internal_dev + i) == container_device, \
+            bit_map[i] = 0; return); \
+    }
+
+#define __MATCH_DEV__(type, internal_dev, dev_field, device) \
+    type* __dev = 0; \
+    __FOR_RANGE__(i, int, 0, MAX_DEVICES_PER_USB_DRIVER){ \
+        __IF_CUSTOM__((internal_dev + i)->dev_field == device, \
+        __dev = internal_dev + i; return __dev); \
+    } \
+    return __dev
+
+#define __REQUEST_OR_LEAVE__(type, driver, request_function, name) \
+    type* name = __STRUCT_CALL__(driver, request_function); \
+    __IF_RET_NEG__(__IS_NULL__(name))
+
+#define __DRIVER_FAIL_ROUTINE__(fail_routine) \
+    fail_routine; continue
+
+#define __DRIVER_DIRECTION_IN__(fail_routine, dev, endpoint) \
+    __IF_CUSTOM__(__STRUCT_CALL__(dev, __is_direction_out, endpoint), \
+        __DRIVER_FAIL_ROUTINE__(fail_routine))
+
+#define __DRIVER_DIRECTION_OUT__(fail_routine, dev, endpoint) \
+    __IF_CUSTOM__(__STRUCT_CALL__(dev, __is_direction_in, endpoint), \
+        __DRIVER_FAIL_ROUTINE__(fail_routine))
+
+#define __DRIVER_TYPE_INTERRUPT__(fail_routine, dev, endpoint) \
+    __IF_CUSTOM__(!(__STRUCT_CALL__(dev, __is_interrupt_type, endpoint)), \
+        __DRIVER_FAIL_ROUTINE__(fail_routine))
+
+#define __DRIVER_TYPE_CONTROL__(fail_routine, dev, endpoint) \
+    __IF_CUSTOM__(!(__STRUCT_CALL__(dev, __is_control_type, endpoint)), \
+        __DRIVER_FAIL_ROUTINE__(fail_routine))
+
+#define __DRIVER_TYPE_BULK__(fail_routine, dev, endpoint) \
+    __IF_CUSTOM__(!(__STRUCT_CALL__(dev, __is_bulk_type, endpoint)), \
+        __DRIVER_FAIL_ROUTINE__(fail_routine))
+
+#define __DRIVER_LOGGER_INFO_CALL__(sub_driver, message, ...) \
+    __STRUCT_CALL__((__CAST__(UsbDriver*, sub_driver))->driver_logger, info_c, \
+        message, ## __VA_ARGS__)
+
+#define __DRIVER_LOGGER_DEBUG_CALL__(sub_driver, message, ...) \
+    __STRUCT_CALL__((__CAST__(UsbDriver*, sub_driver))->driver_logger, debug_c, \
+        message, ## __VA_ARGS__)
+
 struct UsbDriver{
 
     void (*new_usb_driver)(struct UsbDriver* usb_driver, char* name, struct UsbDevice_ID* entry);
@@ -77,6 +139,7 @@ struct UsbDriver{
     int listener_id;
 
     EventDispatcher* dispatcher; // set by appropriate UsbController
+    Logger_C* driver_logger;
 };
 
 typedef struct UsbDriver UsbDriver;
@@ -91,6 +154,11 @@ static inline void new_usb_driver(UsbDriver* usb_driver, char* name, UsbDevice_I
     usb_driver->head.l_e = 0;
     usb_driver->l_e.l_e = 0;
 
+    Logger_C* driver_logger = (Logger_C*)interface_allocateMemory(
+        sizeof(Logger_C), 0);
+    __STRUCT_INIT__(driver_logger, new_logger, new_logger, 
+        USB_DRIVER_LOGGER_TYPE, LOGGER_LEVEL_INFO);
+    usb_driver->driver_logger = driver_logger;
     __INIT_USB_DRIVER__(usb_driver);
 }
 
