@@ -117,6 +117,9 @@ static inline uint16_t __floor_address(uint16_t interval){
 #define __CAST__(cast, type) \
     ((cast)type)
 
+#define __TYPE_CAST__(type, name, val) \
+    type name = __CAST__(type, val)
+
 #define __BYTE__ uint8_t
 #define __WORD__ uint16_t
 #define __D_WORD__ uint32_t
@@ -159,11 +162,99 @@ static inline uint16_t __floor_address(uint16_t interval){
 #define __RET_E__ -1
 #define __RET_S__  1
 
+#define __IS_NULL__(name) \
+    name == (void*)0
+
+#define __NOT_NULL__(name) \
+    name != (void*)0
+
 #define __IF_EXT__(condition, expr1, expr2) \
     condition ? expr1 : expr2
 
 #define __IF_CONTINUE__(condition) \
     if(condition) {continue;}
+
+#define __IF_RET__(condition) \
+    if(condition) {return;}
+
+#define __IF_BREAK__(condition) \
+    if(condition) {break;}
+
+#define __IF_COND__(condition) \
+    if(condition) 
+
+#define __IF_CUSTOM__(condition, cmd) \
+    if(condition) { \
+        cmd;        \
+    }
+
+#define __IF_SINGLE_RET__(condition, cmd) \
+    __IF_COND__(condition){ \
+        cmd;       \
+        return;    \
+    }
+
+#define __IF_SINGLE_BREAK__(condition, cmd) \
+    __IF_COND__(condition) { \
+        cmd;   \
+        break; \
+    }
+
+#define __IF_SINGLE_CONTINUE__(condition, cmd) \
+    __IF_COND__(condition) { \
+        cmd;      \
+        continue; \
+    }
+
+#define __IF_ELSE__(condition, if_cmd, else_cmd) \
+    __IF_COND__(condition) { \
+        if_cmd;              \
+    }                        \
+    else{                    \
+        else_cmd;            \
+    }
+
+#define __NOT_ZERO__(condition) \
+    condition != 0
+
+#define __IS_ZERO__(condition) \
+    condition == 0
+
+#define __IS_NEG_ONE__(condition) \
+    condition == -1
+
+#define __NOT_NEG_ONE__(condition) \
+    condition != -1
+
+#define __IF_NOT_ZERO__(condition) \
+    __IF_COND__(__NOT_ZERO__(condition))
+
+#define __IF_ZERO__(condition) \
+    __IF_COND__(__IS_ZERO__(condition))
+
+#define __IF_NEG_ONE__(condition) \
+    __IF_COND__(__IS_NEG_ONE__(condition))
+
+#define __IF_NOT_NEG_ONE__(condition) \
+    __IF_COND__(__NOT_NEG_ONE__(condition))
+
+#define __IF_RET_NEG__(condition) \
+    __IF_COND__(condition) return -1
+
+#define __IF_RET_ZERO__(condition) \
+    __IF_COND__(condition) return 0
+
+#define __IF_RET_POS__(condition) \
+    __IF_COND__(condition) return 1
+
+#define __IF_RET_NULL__(condition) \
+    __IF_COND__(condition) return (void*)0
+
+#define __IF_IS_NULL__(name) \
+    if(__IS_NULL__(name))
+
+#define __IF_NOT_NULL__(name) \
+    if(__NOT_NULL__(name))
 
 #define __LIST_FIRST_ENTRY__(list_h) \
     list_h.l_e
@@ -188,5 +279,18 @@ static inline uint16_t __floor_address(uint16_t interval){
 
 #define __UPDATE_LIST_ENTRY__(list_e) \
     list_e = __LIST_NEXT_ELEMENT__(list_e)
+
+#define __NEG_CHECK__(condition) \
+    condition == __RET_E__
+
+#define __ZERO_CHECK__(condition) \
+    condition == __RET_N__
+
+#define __POS_CHECK__(condition) \
+    condition == __RET_S__
+
+#define __NOT_EQUAL__ !=
+
+#define __EQUAL__ ==
 
 #endif
