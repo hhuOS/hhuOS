@@ -139,11 +139,8 @@ typedef __DECLARE_REGISTER__(Frame_Numb) __REGISTER_NAME__(Frame_Numb);
 typedef __DECLARE_REGISTER__(Frame_Base) __REGISTER_NAME__(Frame_Base);
 typedef __DECLARE_REGISTER__(SOF) __REGISTER_NAME__(SOF);
 
-void new_reg(struct Register *reg, char *name, uint8_t length, void *raw, 
-    struct Addr_Region *addr_reg);
-
 #define __REGISTER_NEW_FUNCTION__(type, name, buffer_type) \
-    void new ## _ ## name ## _reg(__DECLARE_REGISTER__(type)* reg, \
+    void new_ ## name ## _reg(__DECLARE_REGISTER__(type)* reg, \
             struct Addr_Region* addr_reg, \
             buffer_type* buffer)
 
@@ -257,65 +254,33 @@ __REGISTER_PORT_NEW_FUNCTION__;
     \
     return word_count
 
-#define __REGISTER_STATUS_INITIALIZER__(reg) \
+#define __REGISTER_SUPER_ROUTINE__(reg, name, dump_name) \
     __SUPER__(reg, new_register) = &new_reg; \
-    __SUPER__(reg, reload) = &status_reg_reload; \
-    __SUPER__(reg, type_of) = &status_reg_type_of; \
-    __SUPER__(reg, clear) = &status_reg_clear; \
-    __SUPER__(reg, write) = &status_reg_write; \
-    __SUPER__(reg, read) = &status_reg_read; \
-    __SUPER__(reg, set) = &status_reg_set; \
-    __SUPER__(reg, dump) = &dump_usb_sts
+    __SUPER__(reg, reload) = __CONCAT__(&name, _reg_reload); \
+    __SUPER__(reg, type_of) = __CONCAT__(&name, _reg_type_of); \
+    __SUPER__(reg, clear) = __CONCAT__(&name, _reg_clear); \
+    __SUPER__(reg, write) = __CONCAT__(&name, _reg_write); \
+    __SUPER__(reg, read) = __CONCAT__(&name, _reg_read); \
+    __SUPER__(reg, set) = __CONCAT__(&name, _reg_set); \
+    __SUPER__(reg, dump) = __CONCAT__(&dump_usb_, dump_name)
+
+#define __REGISTER_STATUS_INITIALIZER__(reg) \
+    __REGISTER_SUPER_ROUTINE__(reg, status, sts)
 
 #define __REGISTER_COMMAND_INITIALIZER__(reg) \
-    __SUPER__(reg, new_register) = &new_reg; \
-    __SUPER__(reg, reload) = &command_reg_reload; \
-    __SUPER__(reg, type_of) = &command_reg_type_of; \
-    __SUPER__(reg, set) = &command_reg_set; \
-    __SUPER__(reg, write) = &command_reg_write; \
-    __SUPER__(reg, read) = &command_reg_read; \
-    __SUPER__(reg, clear) = &command_reg_clear; \
-    __SUPER__(reg, dump) = &dump_usb_cmd
+    __REGISTER_SUPER_ROUTINE__(reg, command, cmd)
 
 #define __REGISTER_INTERRUPT_INITIALIZER__(reg) \
-    __SUPER__(reg, new_register) = &new_reg; \
-    __SUPER__(reg, reload) = &interrupt_reg_reload; \
-    __SUPER__(reg, type_of) = &interrupt_reg_type_of; \
-    __SUPER__(reg, set) = &interrupt_reg_set; \
-    __SUPER__(reg, write) = &interrupt_reg_write; \
-    __SUPER__(reg, read) = &interrupt_reg_read; \
-    __SUPER__(reg, clear) = &interrupt_reg_clear; \
-    __SUPER__(reg, dump) = &dump_usb_intr
+    __REGISTER_SUPER_ROUTINE__(reg, interrupt, intr)
 
 #define __REGISTER_FRAME_NUMBER_INITIALIZER__(reg) \
-    __SUPER__(reg, new_register) = &new_reg; \
-    __SUPER__(reg, reload) = &frame_number_reg_reload; \
-    __SUPER__(reg, type_of) = &frame_number_reg_type_of; \
-    __SUPER__(reg, write) = &frame_number_reg_write; \
-    __SUPER__(reg, read) = &frame_number_reg_read; \
-    __SUPER__(reg, clear) = &frame_number_reg_clear; \
-    __SUPER__(reg, set) = &frame_number_reg_set; \
-    __SUPER__(reg, dump) = &dump_usb_frnum
+    __REGISTER_SUPER_ROUTINE__(reg, frame_number, frnum)
 
 #define __REGISTER_FRAME_BASE_INITIALIZER__(reg) \
-    __SUPER__(reg, new_register) = &new_reg; \
-    __SUPER__(reg, type_of) = &frame_base_reg_type_of; \
-    __SUPER__(reg, reload) = &frame_base_reg_reload; \
-    __SUPER__(reg, write) = &frame_base_reg_write; \
-    __SUPER__(reg, read) = &frame_base_reg_read; \
-    __SUPER__(reg, set) = &frame_base_reg_set; \
-    __SUPER__(reg, clear) = &frame_base_reg_clear; \
-    __SUPER__(reg, dump) = &dump_usb_flbaseadd
+    __REGISTER_SUPER_ROUTINE__(reg, frame_base, flbaseadd)
 
 #define __REGISTER_SOF_INITIALIZER__(reg) \
-    __SUPER__(reg, new_register) = &new_reg; \
-    __SUPER__(reg, type_of) = &sof_reg_type_of; \
-    __SUPER__(reg, reload) = &sof_reg_reload; \
-    __SUPER__(reg, write) = &sof_reg_write; \
-    __SUPER__(reg, read) = &sof_reg_read; \
-    __SUPER__(reg, set) = &sof_reg_set; \
-    __SUPER__(reg, clear) = &sof_reg_clear; \
-    __SUPER__(reg, dump) = &dump_usb_sofmod
+    __REGISTER_SUPER_ROUTINE__(reg, sof, sofmod)
 
 #define __REGISTER_INITIALIZER__(reg, type, buffer, region, len, def_name) \
     __REGISTER_ ## type ## _INITIALIZER__(reg); \
@@ -345,5 +310,32 @@ __REGISTER_PORT_NEW_FUNCTION__;
 
 #define __DECLARE_DUMP_USB_REG__(name) \
     static void dump_usb_ ## name(Register* reg, Logger_C* logger)
+
+#define __REGISTER_DEFAULT_NEW__(reg_sufix, reg_name, buffer_type, \
+    define_reg, reg_init_routine, size) \
+    __REGISTER_NEW_FUNCTION__(reg_sufix, reg_name, buffer_type) { \
+        __REGISTER_INITIALIZER__(reg, reg_init_routine, buffer, addr_reg, \
+            size, define_reg); \
+    }
+
+#define __REGISTER_DEFAULT_READ__(name, buffer_type) \
+    __REGISTER_READ_FUNCTION__(name) { \
+        __REGISTER_READ_INITIALIZER__(buffer_type, reg, b); \
+    }
+
+#define __REGISTER_DEFAULT_CLEAR__(name, buffer_type) \
+    __REGISTER_CLEAR_FUNCTION__(name) { \
+        __REGISTER_CLEAR_INITIALIZER__(buffer_type, reg, b); \
+    }
+
+#define __REGISTER_DEFAULT_WRITE__(name, buffer_type) \
+    __REGISTER_WRITE_FUNCTION__(name) { \
+        __REGISTER_WRITE_INTIIALIZER__(buffer_type, reg, b); \
+    }
+
+#define __REGISTER_DEFAULT_SET__(name, buffer_type) \
+    __REGISTER_SET_FUNCTION__(name){ \
+        __REGISTER_SET_INITIALIZER__(buffer_type, reg, b); \
+    }
 
 #endif

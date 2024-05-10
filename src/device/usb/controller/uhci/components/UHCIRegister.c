@@ -22,7 +22,6 @@ __DECLARE_DUMP_USB_REG__(flbaseadd);
 __DECLARE_DUMP_USB_REG__(sofmod);
 
 __REGISTER_TYPE_OF_FUNCTION__(command) { return Usb_Command; }
-
 __REGISTER_RELOAD_FUNCTION__(command){
   __REGISTER_RELOAD_INITIALIZER__(uint16_t, __REGISTER_NAME__(Command), reg, creg);
   creg->max_packet = (d1 & MAXP) >> 7;
@@ -35,30 +34,15 @@ __REGISTER_RELOAD_FUNCTION__(command){
   creg->run = (d1 & RS);
 }
 
-__REGISTER_SET_FUNCTION__(command){
-  __REGISTER_SET_INITIALIZER__(uint16_t, reg, b);
-}
-
-__REGISTER_WRITE_FUNCTION__(command) {
-  __REGISTER_WRITE_INTIIALIZER__(uint16_t, reg, b);
-}
-
-__REGISTER_CLEAR_FUNCTION__(command) {
-  __REGISTER_CLEAR_INITIALIZER__(uint16_t, reg, b);
-}
-
-__REGISTER_READ_FUNCTION__(command) {
-  __REGISTER_READ_INITIALIZER__(uint16_t, reg, b);
-}
-
-__REGISTER_NEW_FUNCTION__(Command, command, uint16_t){
-  __REGISTER_INITIALIZER__(reg, COMMAND, buffer, addr_reg, 0x02, 
-    __DEF_NAME__(USB, COMMAND));
-}
+__REGISTER_DEFAULT_SET__(command, uint16_t);
+__REGISTER_DEFAULT_WRITE__(command, uint16_t);
+__REGISTER_DEFAULT_CLEAR__(command, uint16_t);
+__REGISTER_DEFAULT_READ__(command, uint16_t);
+__REGISTER_DEFAULT_NEW__(Command, command, uint16_t, __DEF_NAME__(USB, COMMAND),
+  COMMAND, 0x02);
 
 // status register is write clear !
 __REGISTER_TYPE_OF_FUNCTION__(status) { return Usb_Status; }
-
 __REGISTER_RELOAD_FUNCTION__(status) {
   __REGISTER_RELOAD_INITIALIZER__(uint16_t, __REGISTER_NAME__(Status), reg, sreg);
   sreg->halted = (d1 & HALTED) >> 5;
@@ -68,13 +52,10 @@ __REGISTER_RELOAD_FUNCTION__(status) {
   sreg->error_interrupt = (d1 & ERR_INT) >> 1;
   sreg->interrupt = (d1 & INT);
 }
-
 __REGISTER_CLEAR_FUNCTION__(status) {
   uint16_t word = *((uint16_t *)b);
-
   reg->write(reg, &word);
 }
-
 // 0x00FF
 __REGISTER_WRITE_FUNCTION__(status) {
   size_t word_count;
@@ -89,19 +70,12 @@ __REGISTER_WRITE_FUNCTION__(status) {
   return word_count;
 }
 
-__REGISTER_READ_FUNCTION__(status) {
-  __REGISTER_READ_INITIALIZER__(uint16_t, reg, b);
-}
-
+__REGISTER_DEFAULT_READ__(status, uint16_t);
 __REGISTER_SET_FUNCTION__(status){}
-
-__REGISTER_NEW_FUNCTION__(Status, status, uint16_t) {
-  __REGISTER_INITIALIZER__(reg, STATUS, buffer, addr_reg, 0x02, 
-    __DEF_NAME__(USB, STATUS));
-}
+__REGISTER_DEFAULT_NEW__(Status, status, uint16_t, __DEF_NAME__(USB, STATUS),
+  STATUS, 0x02);
 
 __REGISTER_TYPE_OF_FUNCTION__(interrupt) { return Usb_Interrupt; }
-
 __REGISTER_RELOAD_FUNCTION__(interrupt) {
   __REGISTER_RELOAD_INITIALIZER__(uint16_t, __REGISTER_NAME__(Interrupt), reg, ireg);
   ireg->short_packet = (d1 & SHORT_PACK) >> 3;
@@ -110,26 +84,12 @@ __REGISTER_RELOAD_FUNCTION__(interrupt) {
   ireg->timeout_crc = (d1 & TMOUT_CRC);
 }
 
-__REGISTER_WRITE_FUNCTION__(interrupt) {
-  __REGISTER_WRITE_INTIIALIZER__(uint16_t, reg, b);
-}
-
-__REGISTER_SET_FUNCTION__(interrupt) {
-  __REGISTER_SET_INITIALIZER__(uint16_t, reg, b);
-}
-
-__REGISTER_CLEAR_FUNCTION__(interrupt) {
-  __REGISTER_CLEAR_INITIALIZER__(uint16_t, reg, b);
-}
-
-__REGISTER_READ_FUNCTION__(interrupt) {
-  __REGISTER_READ_INITIALIZER__(uint16_t, reg, b);
-}
-
-__REGISTER_NEW_FUNCTION__(Interrupt, interrupt, uint16_t) {
-  __REGISTER_INITIALIZER__(reg, INTERRUPT, buffer, addr_reg, 0x02, 
-    __DEF_NAME__(USB, INTERRUPT));
-}
+__REGISTER_DEFAULT_WRITE__(interrupt, uint16_t);
+__REGISTER_DEFAULT_SET__(interrupt, uint16_t);
+__REGISTER_DEFAULT_CLEAR__(interrupt, uint16_t);
+__REGISTER_DEFAULT_READ__(interrupt, uint16_t);
+__REGISTER_DEFAULT_NEW__(Interrupt, interrupt, uint16_t, __DEF_NAME__(USB, INTERRUPT),
+  INTERRUPT, 0x02);
 
 __REGISTER_RELOAD_FUNCTION__(port) {
   __REGISTER_RELOAD_INITIALIZER__(uint16_t, __REGISTER_NAME__(Port), reg, preg);
@@ -144,11 +104,8 @@ __REGISTER_RELOAD_FUNCTION__(port) {
   preg->connected_changed = (d1 & CON_CHANGE) >> 1;
   preg->connected = (d1 & CONNECT);
 }
-
 __REGISTER_TYPE_OF_PORT__(port, 1) { return Port1_Status; }
-
 __REGISTER_TYPE_OF_PORT__(port, 2) { return Port2_Status; }
-
 __REGISTER_WRITE_FUNCTION__(port) {
   size_t word_count;
   uint16_t word = *((uint16_t *)b);
@@ -165,10 +122,7 @@ __REGISTER_WRITE_FUNCTION__(port) {
   return word_count;
 }
 
-__REGISTER_READ_FUNCTION__(port) {
-  __REGISTER_READ_INITIALIZER__(uint16_t, reg, b);
-}
-
+__REGISTER_DEFAULT_READ__(port, uint16_t);
 __REGISTER_SET_FUNCTION__(port){}
 __REGISTER_CLEAR_FUNCTION__(port){}
 
@@ -188,73 +142,38 @@ __REGISTER_RELOAD_FUNCTION__(frame_number) {
 
   f_n_reg->frame_num = d1;
 }
-
 __REGISTER_TYPE_OF_FUNCTION__(frame_number) { return Frame_Number; }
 
-__REGISTER_WRITE_FUNCTION__(frame_number) {
-  __REGISTER_WRITE_INTIIALIZER__(uint16_t, reg, b);
-}
-
-__REGISTER_READ_FUNCTION__(frame_number) {
-  __REGISTER_READ_INITIALIZER__(uint16_t, reg, b);
-}
-
+__REGISTER_DEFAULT_WRITE__(frame_number, uint16_t);
+__REGISTER_DEFAULT_READ__(frame_number, uint16_t);
 __REGISTER_SET_FUNCTION__(frame_number) {}
 __REGISTER_CLEAR_FUNCTION__(frame_number) {}
-
-__REGISTER_NEW_FUNCTION__(Frame_Numb, frame_number, uint16_t) {
-  __REGISTER_INITIALIZER__(reg, FRAME_NUMBER, buffer, addr_reg, 0x02, 
-    __DEF_NAME__(FRAME, NUMBER));
-}
+__REGISTER_DEFAULT_NEW__(Frame_Numb, frame_number, uint16_t, __DEF_NAME__(FRAME, NUMBER),
+  FRAME_NUMBER, 0x02);
 
 __REGISTER_RELOAD_FUNCTION__(frame_base) {
   __REGISTER_RELOAD_INITIALIZER__(uint32_t, __REGISTER_NAME__(Frame_Base), reg, 
     f_b_r);
   f_b_r->frame_address = d1;
 }
-
-__REGISTER_TYPE_OF_FUNCTION__(frame_base) {
-  return Frame_List_Base_Address;
-}
-
-__REGISTER_WRITE_FUNCTION__(frame_base) {
-  __REGISTER_WRITE_INTIIALIZER__(uint32_t, reg, b);
-}
-
-__REGISTER_READ_FUNCTION__(frame_base) {
-  __REGISTER_READ_INITIALIZER__(uint32_t, reg, b);
-}
-
+__REGISTER_TYPE_OF_FUNCTION__(frame_base) {return Frame_List_Base_Address;}
+__REGISTER_DEFAULT_WRITE__(frame_base, uint32_t);
+__REGISTER_DEFAULT_READ__(frame_base, uint32_t);
 __REGISTER_CLEAR_FUNCTION__(frame_base) {}
 __REGISTER_SET_FUNCTION__(frame_base) {}
-
-__REGISTER_NEW_FUNCTION__(Frame_Base, frame_base, uint32_t) {
-  __REGISTER_INITIALIZER__(reg, FRAME_BASE, buffer, addr_reg, 0x04, 
-    __DEF_NAME__(FRAME, BASE_ADDR));
-}
+__REGISTER_DEFAULT_NEW__(Frame_Base, frame_base, uint32_t, __DEF_NAME__(FRAME, BASE_ADDR),
+  FRAME_BASE, 0x04);
 
 __REGISTER_RELOAD_FUNCTION__(sof){
   __REGISTER_RELOAD_INITIALIZER__(uint8_t, __REGISTER_NAME__(SOF), reg, sof);
   sof->frame_duration = d1;
 }
-
 __REGISTER_TYPE_OF_FUNCTION__(sof) { return Start_of_Frame; }
-
-__REGISTER_WRITE_FUNCTION__(sof) {
-  __REGISTER_WRITE_INTIIALIZER__(uint8_t, reg, b);
-}
-
-__REGISTER_READ_FUNCTION__(sof) {
-  __REGISTER_READ_INITIALIZER__(uint8_t, reg, b);
-}
-
+__REGISTER_DEFAULT_WRITE__(sof, uint8_t);
+__REGISTER_DEFAULT_READ__(sof, uint8_t);
 __REGISTER_CLEAR_FUNCTION__(sof) {}
 __REGISTER_SET_FUNCTION__(sof) {}
-
-__REGISTER_NEW_FUNCTION__(SOF, sof, uint8_t) {
-  __REGISTER_INITIALIZER__(reg, SOF, buffer, addr_reg, 0x01, 
-    __DEF_NAME__(USB, SOF));
-}
+__REGISTER_DEFAULT_NEW__(SOF, sof, uint8_t, __DEF_NAME__(USB, SOF), SOF, 0x01);
 
 static void dump_usb_cmd(Register *reg, Logger_C *logger) {
   if (logger == (void *)0)
