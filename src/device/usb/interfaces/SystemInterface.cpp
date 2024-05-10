@@ -7,9 +7,35 @@
 
 extern "C"{
 #include "../controller/UsbController.h"
+static void add_interrupt_routine(struct InterruptService_C *interrupt_c, uint8_t irq, void* controller);
+static Service_Type type_of_interrupt(SystemService_C *c);
+static Service_Type type_of_memory(SystemService_C *c);
+static void *allocateKernelMemory_c(MemoryService_C *m, uint32_t size, uint32_t alignment);
+static void *reallocateKernelMemory_c(MemoryService_C *m, void *pointer, uint32_t size, uint32_t alignment);
+static void freeKernelMemory_c(MemoryService_C *m, void *pointer, uint32_t alignment);
+static void *allocateUserMemory_c(MemoryService_C *m, uint32_t size, uint32_t alignment);
+static void *reallocateUserMemory_c(MemoryService_C *m, void *pointer, uint32_t size, uint32_t alignment);
+static void freeUserMemory_c(MemoryService_C *m, void *pointer, uint32_t alignment);
+static void *allocateLowerMemory_c(MemoryService_C *m, uint32_t size, uint32_t alignment);
+static void *reallocateLowerMemory_c(MemoryService_C *m, void *pointer, uint32_t size, uint32_t alignment);
+static void freeLowerMemory_c(MemoryService_C *m, void *pointer, uint32_t alignment);
+static void mapPhysicalAddress(MemoryService_C *m, uint32_t virtualAddress, uint32_t physicalAddress, uint16_t flags);
+static void map(MemoryService_C *m, uint32_t virtualAddress, uint16_t flags, int interrupt);
+static void *mapIO_w_phy(MemoryService_C *m, uint32_t physicalAddress, uint32_t size, int mapToKernelHeap);
+static void *mapIO(MemoryService_C *m, uint32_t size, int mapToKernelHeap);
+static uint32_t unmap(MemoryService_C *m, uint32_t virtualAddress);
+static uint32_t unmap_range(MemoryService_C *m, uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount);
+static void* getPhysicalAddress(MemoryService_C *m, void *virtualAddress);
+static void* getVirtualAddress(MemoryService_C* m, uint32_t physical_address);
+static void addVirtualAddress(MemoryService_C* m, uint32_t physical_address, void* qh);
+static void set_address_map(MemoryService_C* m);
+static void* getVirtualAddressTD(MemoryService_C* m, uint32_t physical_address);
+static void addVirtualAddressTD(MemoryService_C* m, uint32_t physical_address, void* td);
+static void remove_virtualAddress(MemoryService_C* m, uint32_t physical_address);
+static void remove_virtualAddressTD(MemoryService_C* m, uint32_t physical_address);
 }
 
-void new_service(SystemService_C* service_c, SystemServiceP_C service_p){
+static inline void new_service(SystemService_C* service_c, SystemServiceP_C service_p){
     service_c->service_pointer = service_p;
 }
 
@@ -19,35 +45,8 @@ MemoryService_C* new_mem_service(){
 
     MemoryService_C* mem_c = (MemoryService_C*)mem_service.allocateKernelMemory(sizeof(MemoryService_C));
 
-    mem_c->allocateKernelMemory_c = &allocateKernelMemory_c;
-    mem_c->reallocateKernelMemory_c = &reallocateKernelMemory_c;
-    mem_c->freeKernelMemory_c = &freeKernelMemory_c;
-    mem_c->allocateUserMemory_c = &allocateUserMemory_c;
-    mem_c->reallocateUserMemory_c = &reallocateUserMemory_c;
-    mem_c->freeUserMemory_c = &freeUserMemory_c;
-    mem_c->allocateLowerMemory_c = &allocateLowerMemory_c;
-    mem_c->reallocateLowerMemory_c = &reallocateLowerMemory_c;
-    mem_c->freeLowerMemory_c = &freeLowerMemory_c;
-    mem_c->mapPhysicalAddress = &mapPhysicalAddress;
-    mem_c->map = &map;
-    mem_c->mapIO_w_phy = &mapIO_w_phy;
-    mem_c->mapIO = &mapIO;
-    mem_c->unmap = &unmap;
-    mem_c->unmap_range = &unmap_range;
-    mem_c->getPhysicalAddress = &getPhysicalAddress;
-    mem_c->getVirtualAddress = &getVirtualAddress;
-    mem_c->addVirtualAddress = &addVirtualAddress;
-    mem_c->getVirtualAddressTD = &getVirtualAddressTD;
-    mem_c->addVirtualAddressTD = &addVirtualAddressTD;
-    mem_c->remove_virtualAddress = &remove_virtualAddress;
-    mem_c->remove_virtualAddressTD = &remove_virtualAddressTD;
-    mem_c->set_address_map = &set_address_map;
-
-    mem_c->super.type_of = &type_of_memory;
-    mem_c->super.new_service = &new_service;
-    mem_c->super.new_service(&mem_c->super, s);
-
-    mem_c->set_address_map(mem_c);
+    __INIT_MEMORY__(mem_c, s);
+    __STRUCT_CALL__(mem_c, set_address_map);
 
     return mem_c;
 }

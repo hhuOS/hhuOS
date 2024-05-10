@@ -67,6 +67,36 @@ struct SystemService_C
 
 typedef struct SystemService_C SystemService_C;
 
+#define __INIT_MEMORY__(name, mem_pointer) \
+    __ENTRY__(name, allocateKernelMemory_c) = &allocateKernelMemory_c; \
+    __ENTRY__(name, reallocateKernelMemory_c) = &reallocateKernelMemory_c; \
+    __ENTRY__(name, freeKernelMemory_c) = &freeKernelMemory_c; \
+    __ENTRY__(name, allocateUserMemory_c) = &allocateUserMemory_c; \
+    __ENTRY__(name, reallocateUserMemory_c) = &reallocateUserMemory_c; \
+    __ENTRY__(name, freeUserMemory_c) = &freeUserMemory_c; \
+    __ENTRY__(name, allocateLowerMemory_c) = &allocateLowerMemory_c; \
+    __ENTRY__(name, reallocateLowerMemory_c) = &reallocateLowerMemory_c; \
+    __ENTRY__(name, freeLowerMemory_c) = &freeLowerMemory_c; \
+    __ENTRY__(name, mapPhysicalAddress) = &mapPhysicalAddress; \
+    __ENTRY__(name, map) = &map; \
+    __ENTRY__(name, mapIO_w_phy) = &mapIO_w_phy; \
+    __ENTRY__(name, mapIO) = &mapIO; \
+    __ENTRY__(name, unmap) = &unmap; \
+    __ENTRY__(name, unmap_range) = &unmap_range; \
+    __ENTRY__(name, getPhysicalAddress) = &getPhysicalAddress; \
+    __ENTRY__(name, getVirtualAddress) = &getVirtualAddress; \
+    __ENTRY__(name, addVirtualAddress) = &addVirtualAddress; \
+    __ENTRY__(name, getVirtualAddressTD) = &getVirtualAddressTD; \
+    __ENTRY__(name, addVirtualAddressTD) = &addVirtualAddressTD; \
+    __ENTRY__(name, remove_virtualAddress) = &remove_virtualAddress; \
+    __ENTRY__(name, remove_virtualAddressTD) = &remove_virtualAddressTD; \
+    __ENTRY__(name, set_address_map) = &set_address_map; \
+    \
+    __SUPER__(name, type_of) = &type_of_memory; \
+    __SUPER__(name, new_service) = &new_service; \
+    \
+    __CALL_SUPER__(name->super, new_service, mem_pointer)
+
 struct MemoryService_C
 {
 
@@ -141,64 +171,9 @@ typedef struct MemoryService_C MemoryService_C;
 extern "C"{
 #endif
 
-// Memory Service
-
-void *allocateKernelMemory_c(MemoryService_C *m, uint32_t size, uint32_t alignment);
-
-void *reallocateKernelMemory_c(MemoryService_C *m, void *pointer, uint32_t size, uint32_t alignment);
-
-void freeKernelMemory_c(MemoryService_C *m, void *pointer, uint32_t alignment);
-
-void *allocateUserMemory_c(MemoryService_C *m, uint32_t size, uint32_t alignment);
-
-void *reallocateUserMemory_c(MemoryService_C *m, void *pointer, uint32_t size, uint32_t alignment);
-
-void freeUserMemory_c(MemoryService_C *m, void *pointer, uint32_t alignment);
-
-void *allocateLowerMemory_c(MemoryService_C *m, uint32_t size, uint32_t alignment);
-
-void *reallocateLowerMemory_c(MemoryService_C *m, void *pointer, uint32_t size, uint32_t alignment);
-
-void freeLowerMemory_c(MemoryService_C *m, void *pointer, uint32_t alignment);
-
-void mapPhysicalAddress(MemoryService_C *m, uint32_t virtualAddress, uint32_t physicalAddress, uint16_t flags);
-
-void map(MemoryService_C *m, uint32_t virtualAddress, uint16_t flags, int interrupt);
-
-void *mapIO_w_phy(MemoryService_C *m, uint32_t physicalAddress, uint32_t size, int mapToKernelHeap);
-
-void *mapIO(MemoryService_C *m, uint32_t size, int mapToKernelHeap);
-
-uint32_t unmap(MemoryService_C *m, uint32_t virtualAddress);
-
-uint32_t unmap_range(MemoryService_C *m, uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount);
-
-void* getPhysicalAddress(MemoryService_C *m, void *virtualAddress);
-
-void* getVirtualAddress(MemoryService_C* m, uint32_t physical_address);
-
-void addVirtualAddress(MemoryService_C* m, uint32_t physical_address, void* qh);
-
-void set_address_map(MemoryService_C* m);
-
-void* getVirtualAddressTD(MemoryService_C* m, uint32_t physical_address);
-
-void addVirtualAddressTD(MemoryService_C* m, uint32_t physical_address, void* td);
-
-void remove_virtualAddress(MemoryService_C* m, uint32_t physical_address);
-
-void remove_virtualAddressTD(MemoryService_C* m, uint32_t physical_address);
-
-void new_service(struct SystemService_C *service_c, SystemServiceP_C service_p);
-
 struct MemoryService_C *new_mem_service();
 
 void new_interrupt_service(struct InterruptService_C *interrupt_c);
-
-void add_interrupt_routine(struct InterruptService_C *interrupt_c, uint8_t irq, void* controller);
-
-Service_Type type_of_interrupt(SystemService_C *c);
-Service_Type type_of_memory(SystemService_C *c);
 
 #ifdef __cplusplus
 }
