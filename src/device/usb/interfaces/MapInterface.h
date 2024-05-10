@@ -1,6 +1,8 @@
 #ifndef MapInterface__include
 #define MapInterface__include
 
+#include "../utility/Utils.h"
+
 #define __MAP_GET__(map, type, val) \
   (type)__STRUCT_CALL__(map, get_c, val)
 
@@ -20,274 +22,178 @@ struct SuperMap {
 
 typedef struct SuperMap SuperMap;
 
+#define __DECLARE_MAP__(type) \
+  typedef struct type { \
+    struct SuperMap super; \
+    void (*new_map)(struct type* m, const char* map_description); \
+  } type;
+
+#define __MAP_PARAMETER_LIST__ \
+  struct SuperMap* m, void* key
+
+#define __MAP_PARAMETER_LIST_EXT__ \
+  __MAP_PARAMETER_LIST__ , void* value
+
+#define __MAP_PROTO__(proto, parameter_list) \
+  proto(parameter_list)
+
+#define __DEFINE_GET__(name) \
+  __MAP_PROTO__(static void* get_c_ ## name, __MAP_PARAMETER_LIST__)
+
+#define __DEFINE_CONTAINS__(name) \
+  __MAP_PROTO__(static int contains_c_ ## name, __MAP_PARAMETER_LIST__)
+
+#define __DEFINE_PUT__(name) \
+  __MAP_PROTO__(static void put_c_ ## name, __MAP_PARAMETER_LIST_EXT__)
+
+#define __DEFINE_REMOVE__(name) \
+  __MAP_PROTO__(static void* remove_c_ ## name, __MAP_PARAMETER_LIST__)
+
+#define __DEFINE_MAP_FUNCTIONS__(name) \
+  __DEFINE_GET__(name); \
+  __DEFINE_CONTAINS__(name); \
+  __DEFINE_PUT__(name); \
+  __DEFINE_REMOVE__(name)
+
+#define __DEFINE_MAP_NEW__(name, type) \
+  void name(struct type* map, const char* description)
+
+#define __MAP_GET_POINTER__(name, key_t, value_t) \
+  __DEFINE_GET__(name) {  \
+    if (((Util::Map<key_t *, value_t *> *)m->map_pointer)->containsKey((key_t *)key)) { \
+      return ((Util::Map<key_t *, value_t *> *)m->map_pointer)->get((key_t *)key); \
+    } \
+    return (void *)0; \
+  }
+  
+#define __MAP_GET_VALUE__(name, key_t, value_t) \
+  __DEFINE_GET__(name) { \
+    if (((Util::Map<key_t, value_t *> *)m->map_pointer) \
+          ->containsKey(*((key_t *)key))) \
+    return (((Util::Map<key_t, value_t *> *)m->map_pointer) \
+                ->get(*((key_t *)key))); \
+    return (void *)0; \
+  }
+
+#define __MAP_CONTAINS_POINTER__(name, key_t, value_t) \
+  __DEFINE_CONTAINS__(name) { \
+    return ((Util::Map<key_t *, value_t *> *)m->map_pointer)->containsKey((key_t *)key); \
+  }
+
+#define __MAP_CONTAINS_VALUE__(name, key_t, value_t) \
+  __DEFINE_CONTAINS__(name) { \
+    return ((Util::Map<key_t, value_t *> *)m->map_pointer) \
+      ->containsKey(*((key_t *)key)); \
+  }
+
+#define __MAP_PUT_POINTER__(name, key_t, value_t) \
+  __DEFINE_PUT__(name){ \
+    ((Util::Map<key_t *, value_t *> *)m->map_pointer)->put((key_t *)key, (value_t *)value); \
+  }
+
+#define __MAP_PUT_VALUE__(name, key_t, value_t) \
+  __DEFINE_PUT__(name){ \
+    ((Util::Map<key_t, value_t *> *)m->map_pointer) \
+      ->put(*((key_t *)key), (value_t *)value); \
+  }
+
+#define __MAP_REMOVE_POINTER__(name, key_t, value_t) \
+  __DEFINE_REMOVE__(name){ \
+    return ((Util::Map<key_t *, value_t *> *)m->map_pointer)->remove((key_t *)key); \
+  }
+
+#define __MAP_REMOVE_VALUE__(name, key_t, value_t) \
+  __DEFINE_REMOVE__(name){ \
+    return ((Util::Map<key_t, value_t *> *)m->map_pointer) \
+      ->remove(*((key_t *)key)); \
+  }
+
+#define __MAP_SUPER_ROUTINE__(name, key_t, value_t) \
+  __SUPER__(map, get_c) = __CONCAT__(&get_c_, name); \
+  __SUPER__(map, contains_c) = __CONCAT__(&contains_c_, name); \
+  __SUPER__(map, put_c) = __CONCAT__(&put_c_, name); \
+  __SUPER__(map, remove_c) = __CONCAT__(&remove_c_, name); \
+  __SUPER__(map, new_super_map) = &new_super_map; \
+  \
+  void *map_pointer = (Map_C) new Util::HashMap<key_t, value_t *>(); \
+  __CALL_SUPER__(map->super, new_super_map, description, map_pointer)
+
+#define __MAP_NEW_PTR_ROUTINE__(func_name, name, type, key_t, value_t) \
+  __DEFINE_MAP_NEW__(func_name, type) { \
+    __MAP_SUPER_ROUTINE__(name, key_t*, value_t); \
+  }
+
+#define __MAP_NEW_VALUE_ROUTINE__(func_name, name, type, key_t, value_t) \
+  __DEFINE_MAP_NEW__(func_name, type) { \
+    __MAP_SUPER_ROUTINE__(name, key_t, value_t); \
+  }
+
+#define __MAP_INIT_PTR__(func_name, type, name, key_t, value_t) \
+  __MAP_NEW_PTR_ROUTINE__(func_name, name, type, key_t, value_t); \
+  __MAP_GET_POINTER__(name, key_t, value_t); \
+  __MAP_CONTAINS_POINTER__(name, key_t, value_t); \
+  __MAP_PUT_POINTER__(name, key_t, value_t); \
+  __MAP_REMOVE_POINTER__(name, key_t, value_t)
+
+#define __MAP_INIT_VALUE__(func_name, type, name, key_t, value_t) \
+  __MAP_NEW_VALUE_ROUTINE__(func_name, name, type, key_t, value_t); \
+  __MAP_GET_VALUE__(name, key_t, value_t); \
+  __MAP_CONTAINS_VALUE__(name, key_t, value_t); \
+  __MAP_PUT_VALUE__(name, key_t, value_t); \
+  __MAP_REMOVE_VALUE__(name, key_t, value_t)
+
 // each new map needs to be struct accord
 // recycle TD when interrupt transfer instead of creating new ones
-struct QH_TD_Map { // Map<QH,TD*>
-  struct SuperMap super;
-
-  void (*new_map)(struct QH_TD_Map *m, const char *map_description);
-};
+__DECLARE_MAP__(QH_TD_Map);
 
 // after completion or if there are errors while transmitting this callback
 // function associated with the QH is called -> callback to driver
-struct QH_Callback_Function_Map { // Map<QH, void (*callback)(int status, void*
-                                  // data)>
-  struct SuperMap super;
+__DECLARE_MAP__(QH_Callback_Function_Map);
 
-  void (*new_map)(struct QH_Callback_Function_Map *m,
-                  const char *map_description);
-};
+//counts retransmissions for a certain QH
+__DECLARE_MAP__(QH_Status_Map);
 
-struct QH_Status_Map { // Map<QH,int> counts retransmissions for a certain QH
-  struct SuperMap super;
-
-  void (*new_map)(struct QH_Status_Map *m, const char *map_description);
-};
-
-struct QH_Data_Map { // Map<QH,void*>
-  struct SuperMap super;
-
-  void (*new_map)(struct QH_Data_Map *m, const char *map_description);
-};
-
-struct QH_Device_Map { // Map<QH,Device>
-  struct SuperMap super;
-
-  void (*new_map)(struct QH_Device_Map *m, const char *map_description);
-};
-
-struct Register_Map { // Map<RegisterType,Register>
-  struct SuperMap super;
-
-  void (*new_map)(struct Register_Map *m, const char *map_description);
-};
-
-struct EventMap {
-  struct SuperMap super;
-
-  void (*new_map)(struct EventMap *m, const char *map_description);
-};
-
-struct Interface_Device_Map { // Map<Interface*,UsbDev*>
-  struct SuperMap super;
-
-  void (*new_map)(struct Interface_Device_Map *m, const char *map_description);
-};
-
-struct Address_Map {
-  struct SuperMap super;
-
-  void (*new_map)(struct Address_Map *m, const char *map_description);
-};
-
-struct Address_TD_Map {
-  struct SuperMap super;
-
-  void (*new_map)(struct Address_TD_Map *m, const char *map_description);
-};
-
-struct QH_Device_Request_Map {
-  struct SuperMap super;
-
-  void (*new_map)(struct QH_Device_Request_Map *m, const char *map_description);
-};
-
-struct QH_Measurement_Map{
-  struct SuperMap super;
-
-  void (*new_map)(struct QH_Measurement_Map* m, const char* map_description);
-};
-
-struct CommandBlockWrapper_Int_Map{
-  struct SuperMap super;
-
-  void (*new_map)(struct CommandBlockWrapper_Int_Map* m, const char* map_description);
-};
-
-struct CommandStatusWrapper_Int_Map{
-  struct SuperMap super;
-
-  void (*new_map)(struct CommandStatusWrapper_Int_Map* m, const char* map_description);
-};
-
-struct Data_Int_Map{
-  struct SuperMap super;
-
-  void (*new_map)(struct Data_Int_Map* m, const char* map_description);
-};
-
-struct Int_Callback_Map{
-  struct SuperMap super;
-
-  void (*new_map)(struct Int_Callback_Map* m, const char* map_description);
-};
-
-struct Int_Buffer_Map{
-  struct SuperMap super;
-
-  void (*new_map)(struct Int_Buffer_Map* m, const char* map_description);
-};
-
-struct Int_T_Len_Map{
-  struct SuperMap super;
-
-  void (*new_map)(struct Int_T_Len_Map* m, const char* map_description);
-};
-
-struct Int_Mem_Buffer_Map{
-  struct SuperMap super;
-
-  void (*new_map)(struct Int_Mem_Buffer_Map* m, const char* map_description);
-};
-
-typedef struct QH_Callback_Function_Map QH_Callback_Function_Map;
-typedef struct QH_TD_Map QH_TD_Map;
-typedef struct Register_Map Register_Map;
-typedef struct QH_Status_Map QH_Status_Map;
-typedef struct QH_Data_Map QH_Data_Map;
-typedef struct QH_Device_Map QH_Device_Map;
-typedef struct EventMap EventMap;
-typedef struct Interface_Device_Map Interface_Device_Map;
-typedef struct Address_Map Address_Map;
-typedef struct Address_TD_Map Address_TD_Map;
-typedef struct QH_Device_Request_Map QH_Device_Request_Map;
-typedef struct QH_Measurement_Map QH_Measurement_Map;
-typedef struct CommandBlockWrapper_Int_Map CommandBlockWrapper_Int_Map;
-typedef struct CommandStatusWrapper_Int_Map CommandStatusWrapper_Int_Map;
-typedef struct Data_Int_Map Data_Int_Map;
-typedef struct Int_Callback_Map Int_Callback_Map;
-typedef struct Int_Buffer_Map Int_Buffer_Map;
-typedef struct Int_T_Len_Map Int_T_Len_Map;
-typedef struct Int_Mem_Buffer_Map Int_Mem_Buffer_Map;
+__DECLARE_MAP__(QH_Data_Map);
+__DECLARE_MAP__(QH_Device_Map);
+__DECLARE_MAP__(Register_Map);
+__DECLARE_MAP__(EventMap);
+__DECLARE_MAP__(Interface_Device_Map);
+__DECLARE_MAP__(Address_Map);
+__DECLARE_MAP__(Address_TD_Map);
+__DECLARE_MAP__(QH_Device_Request_Map);
+__DECLARE_MAP__(QH_Measurement_Map);
+__DECLARE_MAP__(CommandBlockWrapper_Int_Map);
+__DECLARE_MAP__(CommandStatusWrapper_Int_Map);
+__DECLARE_MAP__(Data_Int_Map);
+__DECLARE_MAP__(Int_Callback_Map);
+__DECLARE_MAP__(Int_Buffer_Map);
+__DECLARE_MAP__(Int_T_Len_Map);
+__DECLARE_MAP__(Int_Mem_Buffer_Map);
 
 #ifdef __cplusplus
+
 extern "C" {
 #endif
 
-void *remove_c_QH_Status(struct SuperMap *m, void *key);
-void put_c_QH_Status(struct SuperMap *m, void *key, void *value);
-int contains_c_QH_Status(struct SuperMap *m, void *key);
-void *get_c_QH_Status(struct SuperMap *m, void *key);
-void newQH_StatusMap(struct QH_Status_Map *map, const char *map_description);
-
-void *remove_c_QH_Callback(struct SuperMap *m, void *key);
-void put_c_QH_Callback(struct SuperMap *m, void *key, void *value);
-int contains_c_QH_Callback(struct SuperMap *m, void *key);
-void *get_c_QH_Callback(struct SuperMap *m, void *key);
-void newQH_CallbackMap(struct QH_Callback_Function_Map *map,
-                       const char *map_description);
-
-void *remove_c_Register(struct SuperMap *m, void *key);
-void put_c_Register(struct SuperMap *m, void *key, void *value);
-int contains_c_Register(struct SuperMap *m, void *key);
-void *get_c_Register(struct SuperMap *m, void *key);
-void newRegisterMap(struct Register_Map *map, const char *map_description);
-
-void *remove_c_QH_TD(struct SuperMap *m, void *key);
-void put_c_QH_TD(struct SuperMap *m, void *key, void *value);
-int contains_c_QH_TD(struct SuperMap *m, void *key);
-void *get_c_QH_TD(struct SuperMap *m, void *key);
-void newQH_TD(struct QH_TD_Map *map, const char *map_description);
-
-void *remove_c_QH_Device_Map(struct SuperMap *m, void *key);
-void put_c_QH_Device_Map(struct SuperMap *m, void *key, void *value);
-int contains_c_QH_Device_Map(struct SuperMap *m, void *key);
-void *get_c_QH_Device_Map(struct SuperMap *m, void *key);
-void newQH_Device_Map(struct QH_Device_Map *map, const char *map_description);
-
-void *remove_c_QH_Data_Map(struct SuperMap *m, void *key);
-void put_c_QH_Data_Map(struct SuperMap *m, void *key, void *value);
-int contains_c_QH_Data_Map(struct SuperMap *m, void *key);
-void *get_c_QH_Data_Map(struct SuperMap *m, void *key);
-void newQH_Data_Map(struct QH_Data_Map *map, const char *map_description);
-
-void *get_c_event_map(struct SuperMap *m, void *key);
-int contains_c_event_map(struct SuperMap *m, void *key);
-void put_c_event_map(struct SuperMap *m, void *key, void *value);
-void *remove_c_event_map(struct SuperMap *m, void *key);
-void newEventMap(struct EventMap *map, const char *map_description);
-
-void *remove_c_interface_device_map(struct SuperMap *m, void *key);
-void put_c_interface_device_map(struct SuperMap *m, void *key, void *value);
-int contains_c_interface_device_map(struct SuperMap *m, void *key);
-void *get_c_interface_device_map(struct SuperMap *m, void *key);
-void newInterface_Device_Map(struct Interface_Device_Map *map,
-                             const char *map_description);
-
-void newAddressMap(struct Address_Map *map, const char *map_description);
-void *get_c_address_map(struct SuperMap *m, void *key);
-int contains_c_address_map(struct SuperMap *m, void *key);
-void put_c_address_map(struct SuperMap *m, void *key, void *value);
-void *remove_c_address_map(struct SuperMap *m, void *key);
-
-void newAddressTDMap(struct Address_TD_Map *map, const char *map_description);
-void *get_c_address_td_map(struct SuperMap *m, void *key);
-int contains_c_address_td_map(struct SuperMap *m, void *key);
-void put_c_address_td_map(struct SuperMap *m, void *key, void *value);
-void *remove_c_address_td_map(struct SuperMap *m, void *key);
-
-void newQH_DeviceRequest_Map(struct QH_Device_Request_Map *map,
-                             const char *map_description);
-void *get_c_qh_device_request(struct SuperMap *m, void *key);
-int contains_c_qh_device_request(struct SuperMap *m, void *key);
-void put_c_qh_device_request(struct SuperMap *m, void *key, void *value);
-void *remove_c_qh_device_request(struct SuperMap *m, void *key);
-
-void newQH_Measuremnt_Map(struct QH_Measurement_Map *map,
-                             const char *map_description);
-void *get_c_qh_measurement(struct SuperMap *m, void *key);
-int contains_c_qh_measurement(struct SuperMap *m, void *key);
-void put_c_qh_measurement(struct SuperMap *m, void *key, void *value);
-void *remove_c_qh_measurement(struct SuperMap *m, void *key);
-
-void newCommandBlockIntMap(CommandBlockWrapper_Int_Map *map,
-                             const char *map_description);
-void *get_command_block_int(struct SuperMap *m, void *key);
-int contains_command_block_int(struct SuperMap *m, void *key);
-void put_command_block_int(struct SuperMap *m, void *key, void *value);
-void *remove_command_block_int(struct SuperMap *m, void *key);
-
-void newCommandStatusIntMap(CommandStatusWrapper_Int_Map *map,
-                             const char *map_description);
-void *get_command_status_int(struct SuperMap *m, void *key);
-int contains_command_status_int(struct SuperMap *m, void *key);
-void put_command_status_int(struct SuperMap *m, void *key, void *value);
-void *remove_command_status_int(struct SuperMap *m, void *key);
-
-void newDataIntMap(Data_Int_Map *map,
-                             const char *map_description);
-void *get_data_int(struct SuperMap *m, void *key);
-int contains_data_int(struct SuperMap *m, void *key);
-void put_data_int(struct SuperMap *m, void *key, void *value);
-void *remove_data_int(struct SuperMap *m, void *key);
-
-void newIntCallbackMap(Int_Callback_Map *map,
-                             const char *map_description);
-void *get_int_callback(struct SuperMap *m, void *key);
-int contains_int_callback(struct SuperMap *m, void *key);
-void put_int_callback(struct SuperMap *m, void *key, void *value);
-void *remove_int_callback(struct SuperMap *m, void *key);
-
-void newIntBufferMap(Int_Buffer_Map *map,
-                             const char *map_description);
-void *get_int_buffer(struct SuperMap *m, void *key);
-int contains_int_buffer(struct SuperMap *m, void *key);
-void put_int_buffer(struct SuperMap *m, void *key, void *value);
-void *remove_int_buffer(struct SuperMap *m, void *key);
-
-void newIntTLenMap(Int_T_Len_Map *map,
-                             const char *map_description);
-void *get_int_t_len(struct SuperMap *m, void *key);
-int contains_int_t_len(struct SuperMap *m, void *key);
-void put_int_t_len(struct SuperMap *m, void *key, void *value);
-void *remove_int_t_len(struct SuperMap *m, void *key);
-
-void newIntMemBufferMap(Int_Mem_Buffer_Map *map,
-                             const char *map_description);
-void *get_int_mem_buffer(struct SuperMap *m, void *key);
-int contains_int_mem_buffer(struct SuperMap *m, void *key);
-void put_int_mem_buffer(struct SuperMap *m, void *key, void *value);
-void *remove_int_mem_buffer(struct SuperMap *m, void *key);
+__DEFINE_MAP_NEW__(newQH_StatusMap, QH_Status_Map);
+__DEFINE_MAP_NEW__(newQH_CallbackMap, QH_Callback_Function_Map);
+__DEFINE_MAP_NEW__(newRegisterMap, Register_Map);
+__DEFINE_MAP_NEW__(newQH_TD, QH_TD_Map);
+__DEFINE_MAP_NEW__(newQH_Device_Map, QH_Device_Map);
+__DEFINE_MAP_NEW__(newQH_Data_Map, QH_Data_Map);
+__DEFINE_MAP_NEW__(newEventMap, EventMap);
+__DEFINE_MAP_NEW__(newInterface_Device_Map, Interface_Device_Map);
+__DEFINE_MAP_NEW__(newAddressMap, Address_Map);
+__DEFINE_MAP_NEW__(newAddressTDMap, Address_TD_Map);
+__DEFINE_MAP_NEW__(newQH_DeviceRequest_Map, QH_Device_Request_Map);
+__DEFINE_MAP_NEW__(newQH_Measuremnt_Map, QH_Measurement_Map);
+__DEFINE_MAP_NEW__(newCommandBlockIntMap, CommandBlockWrapper_Int_Map);
+__DEFINE_MAP_NEW__(newCommandStatusIntMap, CommandStatusWrapper_Int_Map);
+__DEFINE_MAP_NEW__(newDataIntMap, Data_Int_Map);
+__DEFINE_MAP_NEW__(newIntCallbackMap, Int_Callback_Map);
+__DEFINE_MAP_NEW__(newIntBufferMap, Int_Buffer_Map);
+__DEFINE_MAP_NEW__(newIntTLenMap, Int_T_Len_Map);
+__DEFINE_MAP_NEW__(newIntMemBufferMap, Int_Mem_Buffer_Map);
 
 #ifdef __cplusplus
 }
