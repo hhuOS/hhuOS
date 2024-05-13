@@ -8,24 +8,24 @@
 #include "../../event/hid/MouseEvent.h"
 #include "stdint.h"
 
-void mouse_call(EventListener *listener, GenericEvent *event) {
+static uint16_t type_of_mouse(EventListener* listener);
+static void mouse_call(EventListener* listener, GenericEvent* event);
+
+static void mouse_call(EventListener *listener, GenericEvent *event) {
   list_element *l_e = listener->head.l_e;
   // extract_mouse_event(event);
   // listener->listener_mutex->acquire_c(listener->listener_mutex);
-  while (l_e != (void *)0) {
+  while (__NOT_NULL__(l_e)) {
     Event_Callback *e_c =
         (Event_Callback *)container_of(l_e, Event_Callback, l_e);
     e_c->callback(event);
-    l_e = l_e->l_e;
+    __UPDATE_LIST_ENTRY__(l_e);
   }
   // listener->listener_mutex->release_c(listener->listener_mutex);
 }
 
-uint16_t type_of_mouse(EventListener *listener) { return MOUSE_LISTENER; }
+static uint16_t type_of_mouse(EventListener *listener) { return MOUSE_LISTENER; }
 
 void new_mouse_listener(MouseListener *listener) {
-  listener->super.call = &mouse_call;
-  listener->super.type_of = &type_of_mouse;
-  listener->super.new_super_event_listener = &new_super_event_listener;
-  listener->super.new_super_event_listener(&listener->super);
+  __INIT_MOUSE_LISTENER__(listener);
 }

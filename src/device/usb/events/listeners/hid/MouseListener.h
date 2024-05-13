@@ -5,6 +5,13 @@
 #include "../../event/Event.h"
 #include "stdint.h"
 
+#define __INIT_MOUSE_LISTENER__(name) \
+    __SUPER__(name, call) = &mouse_call; \
+    __SUPER__(name, type_of) = &type_of_mouse; \
+    __SUPER__(name, new_super_event_listener) = &new_super_event_listener; \
+    \
+    __CALL_SUPER__(name->super, new_super_event_listener)
+
 struct MouseListener{
     EventListener super;
     void (*new_mouse_listener)(struct MouseListener* listener);
@@ -12,8 +19,6 @@ struct MouseListener{
 
 typedef struct MouseListener MouseListener;
 
-void mouse_call(EventListener* listener, GenericEvent* event);
 void new_mouse_listener(MouseListener* listener);
-uint16_t type_of_mouse(EventListener* listener);
 
 #endif

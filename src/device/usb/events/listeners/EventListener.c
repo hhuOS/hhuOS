@@ -4,21 +4,21 @@
 #include "../../interfaces/SystemInterface.h"
 #include "../../utility/Utils.h"
 
-void new_super_event_listener(EventListener *listener) {
+static void register_event_callback(struct EventListener* event_listener, event_callback callback);
+static void deregister_event_callback(struct EventListener* event_listener, event_callback callback);
 
-  listener->register_event_callback = &register_event_callback;
-  listener->deregister_event_callback = &deregister_event_callback;
+void new_super_event_listener(EventListener *listener) {
+  __INIT_EVENT_LISTENER__(listener);
   listener->head.l_e = 0;
   listener->l_e.l_e = 0;
   listener->listener_id = -1;
 
   listener->listener_mutex =
       (Mutex_C *)interface_allocateMemory(sizeof(Mutex_C), 0);
-  listener->listener_mutex->new_mutex = &new_mutex;
-  listener->listener_mutex->new_mutex(listener->listener_mutex);
+  __STRUCT_INIT__(listener->listener_mutex, new_mutex, new_mutex);
 }
 
-void register_event_callback(EventListener *event_listener,
+static void register_event_callback(EventListener *event_listener,
                              event_callback callback) {
   list_element *l_e = event_listener->head.l_e;
   Event_Callback *event_c =
@@ -43,7 +43,7 @@ void register_event_callback(EventListener *event_listener,
   // event_listener->listener_mutex->release_c(event_listener->listener_mutex);
 }
 
-void deregister_event_callback(EventListener *event_listener,
+static void deregister_event_callback(EventListener *event_listener,
                                event_callback callback) {
   list_element *l_e = event_listener->head.l_e;
   list_element *prev = 0;
