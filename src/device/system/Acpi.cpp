@@ -90,8 +90,9 @@ const Util::Hardware::Acpi::SdtHeader* Acpi::mapSdt(const Util::Hardware::Acpi::
     auto *sdtHeaderVirtual = reinterpret_cast<Util::Hardware::Acpi::SdtHeader*>(reinterpret_cast<uint8_t*>(sdtPage) + sdtPageOffset);
 
     if ((sdtPageOffset + sdtHeaderVirtual->length) > Util::PAGESIZE) {
-        delete static_cast<uint8_t*>(sdtPage);
         auto pages = (sdtPageOffset + sdtHeaderVirtual->length) % Util::PAGESIZE == 0 ? (sdtPageOffset + sdtHeaderVirtual->length) / Util::PAGESIZE : ((sdtPageOffset + sdtHeaderVirtual->length) / Util::PAGESIZE) + 1;
+        delete static_cast<uint8_t*>(sdtPage);
+
         sdtPage = memoryService.mapIO(const_cast<void*>(reinterpret_cast<const void*>(sdtHeaderPhysical)), pages);
         sdtHeaderVirtual = reinterpret_cast<Util::Hardware::Acpi::SdtHeader*>(reinterpret_cast<uint8_t*>(sdtPage) + sdtPageOffset);
     }
