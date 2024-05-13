@@ -18,6 +18,36 @@
 #include "../../device/usb/utility/Utils.h"
 #include "stdint.h"
 
+static int add_driver_c(UsbService_C *usb_service_c, UsbDriver *driver);
+static int remove_driver_c(UsbService_C *usb_service_c, UsbDriver *driver);
+static UsbController *find_controller(UsbService_C *usb_service_c,
+                               Interface *interface);
+
+static void submit_bulk_transfer_c(UsbService_C *usb_service_c, Interface *interface,
+                            unsigned int pipe, uint8_t prio, void *data,
+                            unsigned int len, callback_function callback);
+static void submit_interrupt_transfer_c(UsbService_C *usb_service_c,
+                                 Interface *interface, unsigned int pipe,
+                                 uint8_t prio, uint16_t interval, void *data,
+                                 unsigned int len, callback_function callback);
+static void submit_control_transfer_c(UsbService_C *usb_service_c,
+                               Interface *interface, unsigned int pipe,
+                               uint8_t prio, void *data, uint8_t *setup,
+                               callback_function callback);
+static int register_callback_c(UsbService_C *usb_service_c, uint16_t register_type,
+                        event_callback event_c);
+static int deregister_callback_c(UsbService_C *usb_service_c, uint16_t register_type,
+                          event_callback event_c);
+static int deregister_listener_c(UsbService_C *usb_service_c, int id);
+static int register_listener_c(UsbService_C *usb_service_c, EventListener *listener);
+static UsbController *get_controller(UsbService_C *usb_service_c, list_element *l_e);
+static UsbDriver* get_driver(UsbService_C* usb_service_c, list_element* l_e);
+static UsbDev* get_dev(UsbService_C* usb_service_c, list_element* l_e);
+static void init_uhci_routine(UsbService_C *usb_service_c, Pci_C *pci_c);
+static void init_xhci_routine(UsbService_C *usb_service_c, Pci_C *pci_c);
+static void init_ehci_routine(UsbService_C *usb_service_c, Pci_C *pci_c);
+static void init_ohci_routine(UsbService_C *usb_service_c, Pci_C *pci_c);
+
 void new_usb_service(UsbService_C *usb_service_c) {
 
   #if defined(UHCI)
@@ -42,9 +72,9 @@ void new_usb_service(UsbService_C *usb_service_c) {
   #endif
 }
 
-void init_xhci_routine(UsbService_C *usb_service_c, Pci_C *pci_c) { return; }
+static void init_xhci_routine(UsbService_C *usb_service_c, Pci_C *pci_c) { return; }
 
-void init_uhci_routine(UsbService_C *usb_service_c, Pci_C *pci_c) {
+static void init_uhci_routine(UsbService_C *usb_service_c, Pci_C *pci_c) {
   if (pci_c == (void *)0)
     return;
 
@@ -75,13 +105,13 @@ void init_uhci_routine(UsbService_C *usb_service_c, Pci_C *pci_c) {
   m->freeKernelMemory_c(m, pci_c, 0);  
 }
 
-void init_ohci_routine(UsbService_C *usb_service_c, Pci_C *pci_c) { return; }
+static void init_ohci_routine(UsbService_C *usb_service_c, Pci_C *pci_c) { return; }
 
-void init_ehci_routine(UsbService_C *usb_service_c, Pci_C *pci_c) { return; }
+static void init_ehci_routine(UsbService_C *usb_service_c, Pci_C *pci_c) { return; }
 
 // 1 if no errors in any controller
 // -1 error occur at min. 1
-int add_driver_c(UsbService_C *usb_service_c, UsbDriver *driver) {
+static int add_driver_c(UsbService_C *usb_service_c, UsbDriver *driver) {
   list_element *l_e = usb_service_c->head.l_e;
   int status = 0;
   while (l_e != (void *)0) {
@@ -99,7 +129,7 @@ int add_driver_c(UsbService_C *usb_service_c, UsbDriver *driver) {
 }
 
 // same as above
-int remove_driver_c(UsbService_C *usb_service_c, UsbDriver *driver) {
+static int remove_driver_c(UsbService_C *usb_service_c, UsbDriver *driver) {
   list_element *l_e = usb_service_c->head.l_e;
   int status;
   while (l_e != (void *)0) {
@@ -116,7 +146,7 @@ int remove_driver_c(UsbService_C *usb_service_c, UsbDriver *driver) {
   return status;
 }
 
-void submit_bulk_transfer_c(UsbService_C *usb_service_c, Interface *interface,
+static void submit_bulk_transfer_c(UsbService_C *usb_service_c, Interface *interface,
                             unsigned int pipe, uint8_t prio, void *data,
                             unsigned int len, callback_function callback) {
   UsbController *usb_controller =
@@ -125,7 +155,7 @@ void submit_bulk_transfer_c(UsbService_C *usb_service_c, Interface *interface,
                        callback);
 }
 
-void submit_interrupt_transfer_c(UsbService_C *usb_service_c,
+static void submit_interrupt_transfer_c(UsbService_C *usb_service_c,
                                  Interface *interface, unsigned int pipe,
                                  uint8_t prio, uint16_t interval, void *data,
                                  unsigned int len, callback_function callback) {
@@ -135,7 +165,17 @@ void submit_interrupt_transfer_c(UsbService_C *usb_service_c,
                             interval, callback);
 }
 
-void submit_control_transfer_c(UsbService_C *usb_service_c,
+static void submit_iso_transfer_c(UsbService_C *usb_service_c,
+                                 Interface *interface, unsigned int pipe,
+                                 uint8_t prio, uint16_t interval, void *data,
+                                 unsigned int len, callback_function callback) {
+  UsbController *usb_controller =
+      usb_service_c->find_controller(usb_service_c, interface);
+  usb_controller->iso(usb_controller, interface, pipe, prio, data, len,
+                            interval, callback);
+}
+
+static void submit_control_transfer_c(UsbService_C *usb_service_c,
                                Interface *interface, unsigned int pipe,
                                uint8_t prio, void *data, uint8_t *setup,
                                callback_function callback) {
@@ -145,7 +185,7 @@ void submit_control_transfer_c(UsbService_C *usb_service_c,
                           callback);
 }
 
-UsbController *find_controller(UsbService_C *usb_service_c,
+static UsbController *find_controller(UsbService_C *usb_service_c,
                                Interface *interface) {
   list_element *l_e = usb_service_c->head.l_e;
   while (l_e != (void *)0) {
@@ -159,20 +199,20 @@ UsbController *find_controller(UsbService_C *usb_service_c,
   return (void *)0;
 }
 
-UsbController *get_controller(UsbService_C *usb_service_c, list_element *l_e) {
+static UsbController *get_controller(UsbService_C *usb_service_c, list_element *l_e) {
   return (UsbController *)container_of(l_e, UsbController, l_e);
 }
 
-UsbDev* get_dev(UsbService_C* usb_service_c, list_element* l_e){
+static UsbDev* get_dev(UsbService_C* usb_service_c, list_element* l_e){
   return (UsbDev*)container_of(l_e, UsbDev, l_e);
 }
 
-UsbDriver* get_driver(UsbService_C* usb_service_c, list_element* l_e){
+static UsbDriver* get_driver(UsbService_C* usb_service_c, list_element* l_e){
   return (UsbDriver*)container_of(l_e, UsbDriver, l_e);
 }
 
 // < 0 error occured in min. 1 controller
-int register_callback_c(UsbService_C *usb_service_c, uint16_t register_type,
+static int register_callback_c(UsbService_C *usb_service_c, uint16_t register_type,
                         event_callback event_c) {
   int status = 0;
   list_element *l_e = usb_service_c->head.l_e;
@@ -190,7 +230,7 @@ int register_callback_c(UsbService_C *usb_service_c, uint16_t register_type,
   return status;
 }
 
-int deregister_callback_c(UsbService_C *usb_service_c, uint16_t register_type,
+static int deregister_callback_c(UsbService_C *usb_service_c, uint16_t register_type,
                           event_callback event_c) {
   int status = 0;
   list_element *l_e = usb_service_c->head.l_e;
@@ -208,7 +248,7 @@ int deregister_callback_c(UsbService_C *usb_service_c, uint16_t register_type,
   return status;
 }
 
-int register_listener_c(UsbService_C *usb_service_c, EventListener *listener) {
+static int register_listener_c(UsbService_C *usb_service_c, EventListener *listener) {
   int status = 0;
   list_element *l_e = usb_service_c->head.l_e;
   while (l_e != 0) {
@@ -225,7 +265,7 @@ int register_listener_c(UsbService_C *usb_service_c, EventListener *listener) {
   return status;
 }
 
-int deregister_listener_c(UsbService_C *usb_service_c, int id) {
+static int deregister_listener_c(UsbService_C *usb_service_c, int id) {
   int status = 0;
   list_element *l_e = usb_service_c->head.l_e;
   while (l_e != 0) {

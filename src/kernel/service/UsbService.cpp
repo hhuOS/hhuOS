@@ -46,6 +46,11 @@ void Kernel::UsbService::submit_interrupt_transfer(
     prio, interval, data, len, callback);
 }
 
+void Kernel::UsbService::submit_iso_transfer(Interface* interface, unsigned int pipe, uint8_t prio, 
+    uint16_t interval, void* data, unsigned int len, callback_function callback){
+  
+}
+
 void Kernel::UsbService::submit_control_transfer(Interface *interface,
                                                  unsigned int pipe,
                                                  uint8_t prio, void *data,

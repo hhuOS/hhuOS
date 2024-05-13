@@ -36,6 +36,9 @@ public:
                                  uint8_t prio, uint16_t interval, void *data,
                                  unsigned int len, callback_function callback);
 
+  void submit_iso_transfer(Interface* interface, unsigned int pipe, uint8_t prio, 
+    uint16_t interval, void* data, unsigned int len, callback_function callback);
+
   void submit_control_transfer(Interface *interface, unsigned int pipe,
                                uint8_t prio, void *data, uint8_t *setup,
                                callback_function callback);

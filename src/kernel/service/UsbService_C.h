@@ -94,40 +94,6 @@ extern "C" {
 #endif
 
 void new_usb_service(UsbService_C *usb_service_c);
-int add_driver_c(UsbService_C *usb_service_c, UsbDriver *driver);
-int remove_driver_c(UsbService_C *usb_service_c, UsbDriver *driver);
-
-UsbController *find_controller(UsbService_C *usb_service_c,
-                               Interface *interface);
-
-void submit_bulk_transfer_c(UsbService_C *usb_service_c, Interface *interface,
-                            unsigned int pipe, uint8_t prio, void *data,
-                            unsigned int len, callback_function callback);
-void submit_interrupt_transfer_c(UsbService_C *usb_service_c,
-                                 Interface *interface, unsigned int pipe,
-                                 uint8_t prio, uint16_t interval, void *data,
-                                 unsigned int len, callback_function callback);
-void submit_control_transfer_c(UsbService_C *usb_service_c,
-                               Interface *interface, unsigned int pipe,
-                               uint8_t prio, void *data, uint8_t *setup,
-                               callback_function callback);
-
-int register_callback_c(UsbService_C *usb_service_c, uint16_t register_type,
-                        event_callback event_c);
-int deregister_callback_c(UsbService_C *usb_service_c, uint16_t register_type,
-                          event_callback event_c);
-
-int deregister_listener_c(UsbService_C *usb_service_c, int id);
-int register_listener_c(UsbService_C *usb_service_c, EventListener *listener);
-
-UsbController *get_controller(UsbService_C *usb_service_c, list_element *l_e);
-UsbDriver* get_driver(UsbService_C* usb_service_c, list_element* l_e);
-UsbDev* get_dev(UsbService_C* usb_service_c, list_element* l_e);
-
-void init_uhci_routine(UsbService_C *usb_service_c, Pci_C *pci_c);
-void init_xhci_routine(UsbService_C *usb_service_c, Pci_C *pci_c);
-void init_ehci_routine(UsbService_C *usb_service_c, Pci_C *pci_c);
-void init_ohci_routine(UsbService_C *usb_service_c, Pci_C *pci_c);
 
 #ifdef __cplusplus
 }
