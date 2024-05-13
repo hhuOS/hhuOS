@@ -24,18 +24,14 @@ int Kernel::Usb::Driver::KernelHubDriver::initialize() {
 
   HubDriver *hub_driver =
       (HubDriver *)m.allocateKernelMemory(sizeof(HubDriver), 0);
-  hub_driver->new_hub_driver = &new_hub_driver;
-  hub_driver->new_hub_driver(hub_driver, this->getName(), usbDevs);
+  __STRUCT_INIT__(hub_driver, new_hub_driver, new_hub_driver, this->getName(), usbDevs);
 
   this->driver = hub_driver;
-
   dev_found = u.add_driver((UsbDriver *)hub_driver);
-  if (dev_found == -1)
-    return -1;
+  __IF_RET_NEG__(__IS_NEG_ONE__(dev_found));
+  __IF_RET_NEG__(__IS_NEG_ONE__(__STRUCT_CALL__(hub_driver, configure_hub)));
 
-  if (hub_driver->configure_hub(hub_driver) == -1)
-    return -1;
-  return 1;
+  return __RET_S__;
 }
 
 int Kernel::Usb::Driver::KernelHubDriver::submit(uint8_t minor) { return -1; }

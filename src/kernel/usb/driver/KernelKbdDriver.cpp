@@ -57,7 +57,7 @@ int Kernel::Usb::Driver::KernelKbdDriver::submit(uint8_t minor) {
 
   KeyBoardDriver *kbd_driver = this->driver;
   UsbDev *dev = kbd_driver->dev[minor].usb_dev;
-  __IF_RET_NEG__(dev->set_idle(dev, kbd_driver->dev[minor].interface) < 0);
+  __IF_RET_NEG__(__STRUCT_CALL__(dev, set_idle, kbd_driver->dev[minor].interface) < 0);
 
   u.submit_interrupt_transfer(
       kbd_driver->dev[minor].interface,

@@ -30,28 +30,21 @@ int Kernel::Usb::Driver::KernelMouseDriver::initialize() {
       USB_INTERFACE_INFO(HID_INTERFACE, 0xFF, INTERFACE_PROTOCOL_MOUSE), {}};
   MouseDriver *mouse_driver =
       (MouseDriver *)m.allocateKernelMemory(sizeof(MouseDriver), 0);
-
-  mouse_driver->new_mouse_driver = &new_mouse_driver;
-  mouse_driver->new_mouse_driver(mouse_driver, this->getName(), usbDevs);
-
+  __STRUCT_INIT__(mouse_driver, new_mouse_driver, new_mouse_driver, this->getName(), 
+    usbDevs);
   this->driver = mouse_driver;
-
   dev_found = u.add_driver((UsbDriver *)this->driver);
-  if (dev_found == -1)
-    return -1;
+  __IF_RET_NEG__(dev_found);
 
   MouseListener *mouse_listener =
       (MouseListener *)m.allocateKernelMemory(sizeof(MouseListener), 0);
-  mouse_listener->new_mouse_listener = &new_mouse_listener;
-  mouse_listener->new_mouse_listener(mouse_listener);
+  __STRUCT_INIT__(mouse_listener, new_mouse_listener, new_mouse_listener);
   m_id = u.register_listener((EventListener *)mouse_listener);
-
-  if (m_id < 0)
-    return -1;
+  __IF_RET_NEG__(m_id < 0);
 
   mouse_driver->super.listener_id = m_id;
 
-  return 1;
+  return __RET_S__;
 }
 
 int Kernel::Usb::Driver::KernelMouseDriver::submit(uint8_t minor) {
@@ -59,9 +52,7 @@ int Kernel::Usb::Driver::KernelMouseDriver::submit(uint8_t minor) {
   MouseDriver *mouse_driver = this->driver;
 
   UsbDev *dev = mouse_driver->dev[minor].usb_dev;
-  if (dev->set_idle(dev, mouse_driver->dev[minor].interface) < 0)
-    return -1;
-
+  __IF_RET_NEG__(__STRUCT_CALL__(dev, set_idle, mouse_driver->dev[minor].interface) < 0);
   u.submit_interrupt_transfer(
       mouse_driver->dev[minor].interface,
       usb_rcvintpipe(mouse_driver->dev[minor].endpoint_addr),
@@ -69,17 +60,16 @@ int Kernel::Usb::Driver::KernelMouseDriver::submit(uint8_t minor) {
       mouse_driver->dev[minor].buffer, mouse_driver->dev[minor].buffer_size,
       mouse_driver->dev[minor].callback);
 
-  return 1;
+  return __RET_S__;
 }
 
 void Kernel::Usb::Driver::KernelMouseDriver::create_usb_dev_node() {
   MouseDriver *mouse_driver = this->driver;
   uint8_t current_mouse_node_num = 0;
   for (int i = 0; i < MAX_DEVICES_PER_USB_DRIVER; i++) {
-    if (mouse_driver->mouse_map[i] == 0)
-      continue;
+    __IF_CONTINUE__(__IS_ZERO__(mouse_driver->mouse_map[i]));
 
-    if (this->submit(i) != -1) {
+    if (__NOT_NEG_ONE__(this->submit(i))) {
       Kernel::Usb::UsbNode *mouse_node = new Kernel::Usb::MouseNode(i);
       Util::String node_name =
           Util::String::format("mouse%u", current_mouse_node_num++);

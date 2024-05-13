@@ -32,22 +32,19 @@ int Kernel::Usb::Driver::KernelMassStorageDriver::initialize() {
       USB_INTERFACE_INFO(MASS_STORAGE_INTERFACE, 0xFF, 0xFF), {}};
   MassStorageDriver *msd_driver =
       (MassStorageDriver *)m.allocateKernelMemory(sizeof(MassStorageDriver), 0);
-  msd_driver->new_mass_storage_driver = &new_mass_storage_driver;
-  msd_driver->new_mass_storage_driver(msd_driver, this->getName(), usbDevs);
-
+  __STRUCT_INIT__(msd_driver, new_mass_storage_driver, new_mass_storage_driver,
+    this->getName(), usbDevs);
   this->driver = msd_driver;
 
   dev_found = u.add_driver((UsbDriver *)msd_driver);
-  if (dev_found == -1)
-    return -1;
+  __IF_RET_NEG__(__IS_NEG_ONE__(dev_found));
+  __IF_RET_NEG__(__IS_NEG_ONE__(__STRUCT_CALL__(msd_driver, configure_device)));
 
-  if (msd_driver->configure_device(msd_driver) == -1)
-    return -1;
-  return 1;
+  return __RET_S__;
 }
 
 int Kernel::Usb::Driver::KernelMassStorageDriver::submit(uint8_t minor) {
-  return -1;
+  return __RET_E__;
 }
 
 void Kernel::Usb::Driver::KernelMassStorageDriver::create_usb_dev_node() {
@@ -70,9 +67,8 @@ void Kernel::Usb::Driver::KernelMassStorageDriver::create_usb_dev_node() {
 
 bool Kernel::Usb::Driver::KernelMassStorageDriver::control(
     uint32_t request, const Util::Array<uint32_t> &parameters, uint8_t minor) {
-  MassStorageDev *msd_dev = driver->get_msd_dev_by_minor(driver, minor);
-  if (msd_dev == (void *)0)
-    return false;
+  MassStorageDev *msd_dev = __STRUCT_CALL__(driver, get_msd_dev_by_minor, minor);
+  __IF_CUSTOM__(__IS_NULL__(msd_dev), return false);
   switch (request) {
   case GET_SIZE: {
     if (parameters.length() != 2) {
@@ -267,7 +263,7 @@ uint64_t Kernel::Usb::Driver::KernelMassStorageDriver::readData(
   uint16_t magic = (msd_data & 0xFFFF00) >> 8;
   uint8_t u_tag = (msd_data & 0xFF000000) >> 24;
 
-  return driver->read_msd(driver, targetBuffer, start_lba, blocks, magic, u_tag,
+  return __STRUCT_CALL__(driver, read_msd, targetBuffer, start_lba, blocks, magic, u_tag,
                           volume, minor);
 }
 
@@ -279,6 +275,6 @@ uint64_t Kernel::Usb::Driver::KernelMassStorageDriver::writeData(
   uint16_t magic = (msd_data & 0xFFFF00) >> 8;
   uint8_t u_tag = (msd_data & 0xFF000000) >> 24;
 
-  return driver->write_msd(driver, (uint8_t *)sourceBuffer, start_lba, blocks,
+  return __STRUCT_CALL__(driver, write_msd, (uint8_t *)sourceBuffer, start_lba, blocks,
                            magic, u_tag, volume, minor);
 }
