@@ -35,20 +35,20 @@ static void control_entry_point_uhci(struct UsbDev *dev,
 static void interrupt_entry_point_uhci(struct UsbDev *dev, Endpoint *endpoint, void *data,
                            unsigned int len, uint8_t priority,
                            uint16_t interval, callback_function callback);
+static void iso_entry_point_uhci(UsbDev* dev, Endpoint* endpoint, void* data, 
+  unsigned int len, uint8_t priority, uint16_t interval, callback_function callback);
 static void insert_queue(struct _UHCI *uhci, struct QH *new_qh,
                   uint16_t priority, enum QH_HEADS v);
 static void remove_queue(struct _UHCI *uhci, struct QH *qh);
 static void control_transfer(_UHCI *uhci, UsbDev *dev, struct UsbDeviceRequest *rq,
                       void *data, uint8_t priority, Endpoint *endpoint,
-                      build_control_transfer build_function,
                       callback_function callback, uint8_t flags);
 static void interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
-                        uint16_t interval, uint8_t priority, Endpoint *e,
-                        build_bulk_or_interrupt_transfer build_function,
-                        callback_function callback);
+                        uint16_t interval, uint8_t priority, Endpoint *e, callback_function callback);
 static void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
-                   uint8_t, Endpoint *e, build_bulk_or_interrupt_transfer build_function,
-                   callback_function callback, uint8_t flags);
+                   uint8_t, Endpoint *e, callback_function callback, uint8_t flags);
+static void iso_transfer(_UHCI* uhci, UsbDev* dev, void* data, unsigned int len,
+  uint16_t interval, uint8_t priority, Endpoint *e, callback_function callback);
 static uint32_t wait_poll(_UHCI *uhci, QH *process_qh, uint32_t timeout, uint8_t flags);
 static void _poll_uhci_(UsbController *controller);
 static QH *get_free_qh(_UHCI *uhci);
@@ -64,7 +64,10 @@ static void init_interrupt_transfer(UsbController *controller, Interface *interf
                              callback_function callback);
 static void init_bulk_transfer(UsbController *controller, Interface *interface,
                         unsigned int pipe, uint8_t priority, void *data,
-                        unsigned len, callback_function callback);
+                        unsigned int len, callback_function callback);
+static void init_iso_transfer(UsbController* controller, Interface* interface,
+  unsigned int pipe, uint8_t priority, void* data, unsigned int len, 
+  uint16_t interval, callback_function callback);
 static unsigned int retransmission(_UHCI *uhci, struct QH *process_qh);
 static void traverse_skeleton(_UHCI *uhci, struct QH *entry);
 static uint32_t get_status(_UHCI *uhci, TD *td);
@@ -74,7 +77,7 @@ static UsbPacket *create_USB_Packet(_UHCI *uhci, UsbDev *dev, UsbPacket *prev,
 static UsbTransfer *build_control(_UHCI *uhci, UsbDev *dev,
                            UsbDeviceRequest *device_request, void *data,
                            Endpoint *e, uint8_t flags);
-static UsbTransfer *build_interrupt_or_bulk(_UHCI *uhci, UsbDev *dev, void *data,
+static UsbTransfer *build_other_type_transfer(_UHCI *uhci, UsbDev *dev, void *data,
                                      Endpoint *e, unsigned int len,
                                      const char *type, uint8_t flags);
 static int uhci_contain_interface(UsbController *controller, Interface *interface);
@@ -356,9 +359,14 @@ static inline TD* __build_td(_UHCI* uhci, UsbDev* dev,
   td->control_x_status |= (0x1 << ACTIVE);
   td->control_x_status |= (0x3 << C_ERR); // 3 Fehlversuche max
 
+  if((flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_ISO){
+    td->control_x_status |= (0x1 << IOS);
+  }
+
   __IF_COND__(last_packet){
     td->pyhsicalLinkPointer |= QH_TERMINATE;
-    __IF_COND__(__CONFIG_STATE__(dev) && __BULK_NOT_INITIAL__(flags) && __CTL_NOT_INITIAL__(flags)){
+    __IF_COND__(__CONFIG_STATE__(dev) && __BULK_NOT_INITIAL__(flags) && 
+      __CTL_NOT_INITIAL__(flags)){
       td->control_x_status |= (0x1 << IOC); 
     }
   }
@@ -975,8 +983,8 @@ static void init_interrupt_transfer(UsbController *controller, Interface *interf
                              callback_function callback) {
   int16_t mqh;
   __TRANSFER_INITIALIZER__(controller, support_interrupt, interface, priority, callback);
-  __IF_SINGLE_RET__(__NEG_CHECK__((mqh = __STRUCT_CALL__(uhci, is_valid_interval, dev, interval, data))),
-    callback(dev, E_INVALID_INTERVAL, data));
+  __IF_SINGLE_RET__(__NEG_CHECK__((mqh = __STRUCT_CALL__(uhci, is_valid_interval, dev, 
+    interval, data))), callback(dev, E_INVALID_INTERVAL, data));
   __STRUCT_CALL__(dev, usb_dev_interrupt, interface, pipe, (uint16_t)shifted_prio,
     data, len, (uint8_t)mqh, callback);
 }
@@ -1039,10 +1047,21 @@ static int16_t is_valid_priority(_UHCI *uhci, UsbDev *dev, uint8_t priority,
 
 static void init_bulk_transfer(UsbController *controller, Interface *interface,
                         unsigned int pipe, uint8_t priority, void *data,
-                        unsigned len, callback_function callback) {
+                        unsigned int len, callback_function callback) {
   __TRANSFER_INITIALIZER__(controller, support_bulk, interface, priority, callback);
   __STRUCT_CALL__(dev, usb_dev_bulk, interface, pipe, (uint16_t)shifted_prio, data,
     len, callback, 0);
+}
+
+static void init_iso_transfer(UsbController* controller, Interface* interface,
+  unsigned int pipe, uint8_t priority, void* data, unsigned int len, 
+  uint16_t interval, callback_function callback) {
+  uint16_t mqh;
+  __TRANSFER_INITIALIZER__(controller, support_isochronous, interface, priority, callback);
+  __IF_SINGLE_RET__(__NEG_CHECK__((mqh = __STRUCT_CALL__(uhci, is_valid_interval, dev, 
+    interval, data))), callback(dev, E_INVALID_INTERVAL, data));
+  __STRUCT_CALL__(dev, usb_dev_iso, interface, pipe, (uint16_t)shifted_prio,
+    data, len, (uint8_t)mqh, callback);
 }
 
 static void bulk_entry_point_uhci(UsbDev *dev, Endpoint *endpoint, void *data,
@@ -1050,7 +1069,7 @@ static void bulk_entry_point_uhci(UsbDev *dev, Endpoint *endpoint, void *data,
                            callback_function callback, uint8_t flags) {
   __UHCI_CONTAINER__(__CAST__(UsbController*, dev->controller), uhci_rcvry);
   uhci_rcvry->bulk_transfer(uhci_rcvry, dev, data, len, priority, endpoint,
-                            &build_interrupt_or_bulk, callback, flags);
+    callback, flags);
 }
 
 static void control_entry_point_uhci(UsbDev *dev, UsbDeviceRequest *device_request,
@@ -1058,7 +1077,7 @@ static void control_entry_point_uhci(UsbDev *dev, UsbDeviceRequest *device_reque
                               callback_function callback, uint8_t flags) {
   __UHCI_CONTAINER__(__CAST__(UsbController*, dev->controller), uhci_rcvry);
   uhci_rcvry->control_transfer(uhci_rcvry, dev, device_request, data, priority,
-                               endpoint, &build_control, callback, flags);
+                               endpoint, callback, flags);
 }
 
 static void interrupt_entry_point_uhci(UsbDev *dev, Endpoint *endpoint, void *data,
@@ -1066,8 +1085,15 @@ static void interrupt_entry_point_uhci(UsbDev *dev, Endpoint *endpoint, void *da
                                 uint16_t interval, callback_function callback) {
   __UHCI_CONTAINER__(__CAST__(UsbController*, dev->controller), uhci_rcvry);
   uhci_rcvry->interrupt_transfer(uhci_rcvry, dev, data, len, interval, priority,
-                                 endpoint, &build_interrupt_or_bulk, callback);
+                                 endpoint, callback);
 }
+
+static void iso_entry_point_uhci(UsbDev* dev, Endpoint* endpoint, void* data, 
+  unsigned int len, uint8_t priority, uint16_t interval, callback_function callback) {
+  __UHCI_CONTAINER__(__CAST__(UsbController*, dev->controller), uhci_rcvry);
+  uhci_rcvry->iso_transfer(uhci_rcvry, dev, data, len, interval, priority, 
+    endpoint, callback);
+} 
 
 static void use_alternate_setting(_UHCI *uhci, UsbDev *dev, Interface *interface,
                            unsigned int setting, callback_function callback) {
@@ -1079,7 +1105,7 @@ static void switch_configuration(_UHCI *uhci, UsbDev *dev, int configuration,
   dev->request_switch_configuration(dev, configuration, callback);
 }
 
-static UsbTransfer *build_interrupt_or_bulk(_UHCI *uhci, UsbDev *dev, void *data,
+static UsbTransfer *build_other_type_transfer(_UHCI *uhci, UsbDev *dev, void *data,
                                      Endpoint *e, unsigned int len,
                                      const char *type, uint8_t flags) {
   unsigned int count = 0;
@@ -1191,7 +1217,8 @@ static UsbTransaction* build_data_stage_only(_UHCI* uhci, void* data, unsigned i
     UsbTransaction* data_transaction = __STRUCT_CALL__(uhci, 
       build_data_transaction, len, packet_type, start, end, 
       max_len, dev, endpoint, prev, flags, toggle);
-    toggle ^= 1;
+    if((flags & QH_FLAG_TYPE_MASK) != QH_FLAG_TYPE_ISO)
+      toggle ^= 1;
     (*count)++;
     start += max_len;
     if (prev_transaction == (void *)0) {
@@ -1419,9 +1446,7 @@ static void dump_all(_UHCI *uhci) {
 // insert flag CONFIGURED : used for not using interrupts instead poll for
 // timeout -> like the controls
 static void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
-                   uint8_t priority, Endpoint *e,
-                   build_bulk_or_interrupt_transfer build_function,
-                   callback_function callback, uint8_t flags) {
+  uint8_t priority, Endpoint *e, callback_function callback, uint8_t flags) {
   __UHC_MEMORY__(uhci, m);
 
   QH *qh = __STRUCT_CALL__(uhci, get_free_qh);
@@ -1429,9 +1454,8 @@ static void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len
 
   __ADD_VIRT__(m, qh, qh_physical);
 
-  UsbTransfer *transfer =
-      build_function(uhci, dev, data, e, len, BULK_TRANSFER, 
-      flags & BULK_INITIAL_STATE);
+  UsbTransfer *transfer = build_other_type_transfer(uhci, dev, data, e, len, 
+    BULK_TRANSFER, flags & BULK_INITIAL_STATE);
 
   TD *td = transfer->entry_transaction->entry_packet->internalTD;
 
@@ -1456,17 +1480,15 @@ static void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len
 }
 
 static void interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
-                        uint16_t interval, uint8_t priority, Endpoint *e,
-                        build_bulk_or_interrupt_transfer build_function,
-                        callback_function callback) {
+  uint16_t interval, uint8_t priority, Endpoint *e, callback_function callback) {
   __UHC_MEMORY__(uhci, m);
 
   QH *qh = __STRUCT_CALL__(uhci, get_free_qh);
   __STRUCT_CALL__(uhci, __default_qh, qh);
   __ADD_VIRT__(m, qh, qh_physical);
 
-  UsbTransfer *transfer =
-      build_function(uhci, dev, data, e, len, INTERRUPT_TRANSFER, 0);
+  UsbTransfer *transfer = build_other_type_transfer(uhci, dev, data, e, len, 
+    INTERRUPT_TRANSFER, 0);
 
   TD *td = transfer->entry_transaction->entry_packet->internalTD;
 
@@ -1484,9 +1506,36 @@ static void interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned in
   __STRUCT_CALL__(uhci, insert_queue, qh, priority, (enum QH_HEADS)interval);
 }
 
+static void iso_transfer(_UHCI* uhci, UsbDev* dev, void* data, unsigned int len,
+  uint16_t interval, uint8_t priority, Endpoint *e, callback_function callback){
+  __UHC_MEMORY__(uhci, m);
+
+  QH *qh = __STRUCT_CALL__(uhci, get_free_qh);
+  __STRUCT_CALL__(uhci, __default_qh, qh);
+  __ADD_VIRT__(m, qh, qh_physical);
+
+  UsbTransfer *transfer = build_other_type_transfer(uhci, dev, data, e, len, 
+    INTERRUPT_TRANSFER, QH_FLAG_TYPE_ISO);
+
+  TD *td = transfer->entry_transaction->entry_packet->internalTD;
+
+  __STRUCT_CALL__(uhci, __set_qhep, qh, td, m);
+  __STRUCT_CALL__(uhci, __set_flags, qh, QH_FLAG_TYPE_INTERRUPT, 
+    transfer->transaction_count);
+  __STRUCT_CALL__(uhci, __save_map_properties, qh, td, data, dev, callback);
+
+#if defined(DEBUG_ON) || defined(TRANSFER_DEBUG_ON)
+  uhci->print_USB_Transfer(uhci, transfer);
+  uhci->inspect_transfer(uhci, qh, td);
+#endif
+
+  __STRUCT_CALL__(uhci, destroy_transfer, transfer);
+  __STRUCT_CALL__(uhci, insert_queue, qh, priority, (enum QH_HEADS)interval);
+}
+
+
 static void control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
                       void *data, uint8_t priority, Endpoint *endpoint,
-                      build_control_transfer build_function,
                       callback_function callback, uint8_t flags) {
   __UHC_MEMORY__(uhci, m);
 
@@ -1494,7 +1543,7 @@ static void control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
   __STRUCT_CALL__(uhci, __default_qh, qh);
   __ADD_VIRT__(m, qh, qh_physical);
 
-  UsbTransfer *transfer = build_function(uhci, dev, rq, data, endpoint, 
+  UsbTransfer *transfer = build_control(uhci, dev, rq, data, endpoint, 
     flags & CONTROL_INITIAL_STATE);
 
   TD *internalTD = transfer->entry_transaction->entry_packet->internalTD;
@@ -1583,7 +1632,8 @@ static uint32_t get_status(_UHCI *uhci, TD *td) {
   if ((status >> NAK_RECV) & 0x01) {
 #if defined(DEBUG_ON) || defined(STATUS_DEBUG_ON)
     message = "NAK received";
-    uhci->controller_logger->debug_c(uhci->controller_logger, message);
+    __UHC_CALL_LOGGER_DEBUG__(((UsbController*)uhci), 
+      message);
 #endif
 
     error_mask |= E_NAK_RECEIVED;
@@ -1591,7 +1641,8 @@ static uint32_t get_status(_UHCI *uhci, TD *td) {
   if ((status >> STALLED) & 0x01) {
 #if defined(DEBUG_ON) || defined(STATUS_DEBUG_ON)
     message = "Stalled received";
-    uhci->controller_logger->debug_c(uhci->controller_logger, message);
+    __UHC_CALL_LOGGER_DEBUG__(((UsbController*)uhci), 
+      message);
 #endif
 
     error_mask |= E_STALLED;
@@ -1599,7 +1650,8 @@ static uint32_t get_status(_UHCI *uhci, TD *td) {
   if ((status >> DATA_BUFFER_ERROR) & 0x01) {
 #if defined(DEBUG_ON) || defined(STATUS_DEBUG_ON)
     message = "Data Buffer Error received";
-    uhci->controller_logger->debug_c(uhci->controller_logger, message);
+    __UHC_CALL_LOGGER_DEBUG__(((UsbController*)uhci), 
+      message);
 #endif
 
     error_mask |= E_DATA_BUFFER;
@@ -1607,7 +1659,8 @@ static uint32_t get_status(_UHCI *uhci, TD *td) {
   if ((status >> BABBLE_DETECTED) & 0x01) {
 #if defined(DEBUG_ON) || defined(STATUS_DEBUG_ON)
     message = "Babble Detected received";
-    uhci->controller_logger->debug_c(uhci->controller_logger, message);
+    __UHC_CALL_LOGGER_DEBUG__(((UsbController*)uhci), 
+      message);
 #endif
 
     error_mask |= E_BABBLE_DETECTED;
@@ -1615,7 +1668,8 @@ static uint32_t get_status(_UHCI *uhci, TD *td) {
   if ((status >> CRC) & 0x01) {
 #if defined(DEBUG_ON) || defined(STATUS_DEBUG_ON)
     message = "CRC Error received";
-    uhci->controller_logger->debug_c(uhci->controller_logger, message);
+    __UHC_CALL_LOGGER_DEBUG__(((UsbController*)uhci), 
+      message);
 #endif
 
     error_mask |= E_CRC;
@@ -1623,7 +1677,8 @@ static uint32_t get_status(_UHCI *uhci, TD *td) {
   if ((status >> BITSTUFF_ERROR) & 0x01) {
 #if defined(DEBUG_ON) || defined(STATUS_DEBUG_ON)
     message = "Bitstuff Error received";
-    uhci->controller_logger->debug_c(uhci->controller_logger, message);
+    __UHC_CALL_LOGGER_DEBUG__(((UsbController*)uhci), 
+      message);;
 #endif
 
     error_mask |= E_BITSTUFF;

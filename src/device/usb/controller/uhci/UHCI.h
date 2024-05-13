@@ -27,7 +27,7 @@
 //#define DEVICE_DEBUG_ON //-> inspect dev
 //#define SKELETON_DEBUG_ON //-> inspect skeleton when creating
 //#define REGISTER_DEBUG_ON //-> inspect register
-//#define STATUS_DEBUG_ON //-> inspect status codes
+#define STATUS_DEBUG_ON //-> inspect status codes
 //#define PCI_DEBUG_ON //-> inspect PCI Room
 //#define TRANSFER_MEASURE_ON //-> measures the time for a transfer
 //#define MEASURE_MS // -> measures in millis
@@ -40,7 +40,7 @@
 #define USB_TRHRSI 3
 #define USB_TRSTRCY 10
 
-#define UPPER_BOUND_TIME_OUT_MILLIS_CONTROL 10
+#define UPPER_BOUND_TIME_OUT_MILLIS_CONTROL 150
 #define UPPER_BOUND_TIME_OUT_MILLIS_BULK 50
 
 #define DECLARE_TYPE_UHCI(name, mem_service, ...) \
@@ -69,13 +69,15 @@
     __SUPER__(uhci, control)                   = &init_control_transfer; \
     __SUPER__(uhci, interrupt)                 = &init_interrupt_transfer; \
     __SUPER__(uhci, bulk)                      = &init_bulk_transfer; \
+    __SUPER__(uhci, iso)                       = &init_iso_transfer; \
     __SUPER__(uhci, contains_interface)        = &uhci_contain_interface; \
     __SUPER__(uhci, is_of_type)                = &is_of_type_uhci; \
     __SUPER__(uhci, reset_port)                = &uhci_reset_port; \
     __SUPER__(uhci, interrupt_entry_point)     = &interrupt_entry_point_uhci; \
     __SUPER__(uhci, control_entry_point)       = &control_entry_point_uhci; \
     __SUPER__(uhci, bulk_entry_point)          = &bulk_entry_point_uhci; \
-    __SUPER__(uhci, addr_address_region)        = &i_o_space_layout_run; \
+    __SUPER__(uhci, iso_entry_point)           = &iso_entry_point_uhci; \
+    __SUPER__(uhci, addr_address_region)       = &i_o_space_layout_run; \
     __SUPER__(uhci, new_usb_controller)        = &new_super_usb_controller; \
     __SUPER__(uhci, add_registers)             = &request_register; \
     __SUPER__(uhci, handler_function)          = &handler_function_uhci; \
@@ -100,6 +102,7 @@
     __ENTRY__(uhci, control_transfer)              = &control_transfer; \
     __ENTRY__(uhci, interrupt_transfer)            = &interrupt_transfer; \
     __ENTRY__(uhci, bulk_transfer)                 = &bulk_transfer; \
+    __ENTRY__(uhci, iso_transfer)                 = &iso_transfer; \
     __ENTRY__(uhci, is_valid_priority)             = &is_valid_priority; \
     __ENTRY__(uhci, init_maps)                     = &init_maps; \
     __ENTRY__(uhci, create_dev)                    = &create_dev; \
@@ -274,25 +277,16 @@ struct _UHCI {
   void (*control_transfer)(struct _UHCI *uhci, UsbDev *dev,
                            struct UsbDeviceRequest *rq, void *data,
                            uint8_t priority, Endpoint *endpoint,
-                           UsbTransfer *(*build_control_transfer)(
-                               struct _UHCI *uhci, UsbDev *dev,
-                               struct UsbDeviceRequest *device_request,
-                               void *data, Endpoint *endpoint, uint8_t flags),
                            callback_function callback, uint8_t flags);
   void (*interrupt_transfer)(struct _UHCI *uhci, UsbDev *dev, void *data,
                              unsigned int len, uint16_t interval,
                              uint8_t priority, Endpoint *e,
-                             UsbTransfer *(*build_bulk_or_interrupt_transfer)(
-                                 struct _UHCI *uhci, UsbDev *dev, void *data,
-                                 Endpoint *e, unsigned int len,
-                                 const char *type, uint8_t flags),
                              callback_function callback);
   void (*bulk_transfer)(struct _UHCI *uhci, UsbDev *dev, void *data,
                         unsigned int len, uint8_t priority, Endpoint *e,
-                        UsbTransfer *(*build_bulk_or_interrupt_transfer)(
-                            struct _UHCI *uhci, UsbDev *dev, void *data,
-                            Endpoint *e, unsigned int len, const char *type, uint8_t flags),
                         callback_function callback, uint8_t flags);
+  void (*iso_transfer)(struct _UHCI* uhci, UsbDev* dev, void* data, unsigned int len,
+    uint16_t interval, uint8_t priority, Endpoint* e, callback_function callback);
   int16_t (*is_valid_priority)(struct _UHCI *uhci, UsbDev *dev,
                                uint8_t priority, callback_function callback);
   void (*init_maps)(struct _UHCI *uhci, MemoryService_C *m);
@@ -403,13 +397,6 @@ struct _UHCI {
 typedef struct _UHCI _UHCI;
 
 void new_UHCI(struct _UHCI *uhci, PciDevice_Struct* pci_device, SystemService_C *mem_service);
-
-typedef UsbTransfer *(*build_control_transfer)(
-    _UHCI *uhci, UsbDev *dev, struct UsbDeviceRequest *device_request,
-    void *data, Endpoint *endpoint, uint8_t flags);
-typedef UsbTransfer *(*build_bulk_or_interrupt_transfer)(
-    _UHCI *uhci, UsbDev *dev, void *data, Endpoint *e, unsigned int len,
-    const char *type, uint8_t flags);
 
 extern const uint8_t CLASS_ID;
 extern const uint8_t SUBCLASS_ID;
