@@ -195,7 +195,7 @@
   request_function(dev, device_req, ## __VA_ARGS__); \
   return __RET_S__;
 
-#define __USB_DEV_ROUTINE__(dev, interface, data, call, routine_function, ...) \
+#define __USB_DEV_ROUTINE__(dev, interface, data, call, routine_function, pipe, ...) \
   __IF_SINGLE_RET__(!__STRUCT_CALL__(dev, contain_interface, interface), \
     call(dev, E_INTERFACE_NOT_SUPPORTED, data));  \
   unsigned int endpoint_count = \
@@ -207,19 +207,23 @@
   } \
   call(dev, E_ENDPOINT_INV, data);
 
-#define __USB_DEV_BULK_ROUTINE__(dev, interface, data, call, ...) \
+#define __USB_DEV_BULK_ROUTINE__(dev, interface, data, call, pipe, ...) \
   __USB_DEV_ROUTINE__(dev, interface, data, call, \
-  ((UsbController *)dev->controller)->bulk_entry_point, \
+  ((UsbController *)dev->controller)->bulk_entry_point, pipe, \
   ## __VA_ARGS__)
 
-#define __USB_DEV_INTR_ROUTINE__(dev, interface, data, call, ...) \
+#define __USB_DEV_INTR_ROUTINE__(dev, interface, data, call, pipe, ...) \
   __USB_DEV_ROUTINE__(dev, interface, data, call, \
-  ((UsbController *)dev->controller)->interrupt_entry_point, \
+  ((UsbController *)dev->controller)->interrupt_entry_point, pipe, \
   ## __VA_ARGS__)
 
-#define __USB_DEV_CTL_ROUTINE__(dev, interface, data, call, ...) \
+#define __USB_DEV_CTL_ROUTINE__(dev, interface, data, call, pipe, ...) \
   __USB_DEV_ROUTINE__(dev, interface, data, call, \
-  dev->request, ## __VA_ARGS__)
+  dev->request, pipe, ## __VA_ARGS__)
+
+#define __USB_DEV_ISO_ROUTINE__(dev, interface, data, call, pipe, ...) \
+  __USB_DEV_ROUTINE__(dev, interface, data, call, \
+  ((UsbController *)dev->controller)->iso_entry_point, pipe, ## __VA_ARGS__)
 
 #define __CALLB_PROTO__ void (*callback)(struct UsbDev* dev, \
   uint32_t status, void* data)
@@ -246,6 +250,8 @@ struct UsbDev {
                        unsigned int pipe, uint8_t priority, void *data,
                        unsigned int len,
                        __CALLB_PROTO__, uint8_t flags);
+  void (*usb_dev_iso)(struct UsbDev* dev, Interface* interface, unsigned int pipe,
+    uint8_t priority, void* data, unsigned int len, uint16_t interval, __CALLB_PROTO__);
   int (*usb_dev_interface_lock)(struct UsbDev *dev, Interface *interface, void* driver);
   void (*usb_dev_free_interface)(struct UsbDev *dev, Interface *interface);
   void (*request_callback)(struct UsbDev *dev, uint32_t status, void *data);

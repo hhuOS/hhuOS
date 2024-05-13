@@ -653,6 +653,9 @@ static int handle_interface(UsbDev *dev, Configuration *configuration,
       //  at the default input report meaning if class code of 0 we can't
       //  support it right now
     }
+    else if(*(start + 1) == 0x24){ // audio
+      endpoint_num = 0;
+    }
     else if (__STRUCT_CALL__(dev, __is_endpoint, start)) {
      __STRUCT_CALL__(dev, endpoint_build_routine, mem_service, &endpoint_num, 
       prev, start);
@@ -1029,21 +1032,28 @@ static void usb_dev_control(UsbDev *dev, Interface *interface, unsigned int pipe
                      uint8_t priority, void *data, uint8_t *setup,
                      callback_function callback, uint8_t flags) {
   UsbDeviceRequest *device_req = (UsbDeviceRequest *)setup;
-  __USB_DEV_CTL_ROUTINE__(dev, interface, data, callback,
+  __USB_DEV_CTL_ROUTINE__(dev, interface, data, callback, pipe, 
     device_req, data, priority, endpoints[i], callback, flags);
 }
 
 static void usb_dev_bulk(struct UsbDev *dev, Interface *interface, unsigned int pipe,
                   uint8_t priority, void *data, unsigned int len,
                   callback_function callback, uint8_t flags) {
-  __USB_DEV_BULK_ROUTINE__(dev, interface, data, callback, endpoints[i], 
+  __USB_DEV_BULK_ROUTINE__(dev, interface, data, callback, pipe, endpoints[i], 
     data, len, priority, callback, flags);
 }
 
 static void usb_dev_interrupt(UsbDev *dev, Interface *interface, unsigned int pipe,
                        uint8_t priority, void *data, unsigned int len,
                        uint16_t interval, callback_function callback) {
-  __USB_DEV_INTR_ROUTINE__(dev, interface, data, callback, endpoints[i], 
+  __USB_DEV_INTR_ROUTINE__(dev, interface, data, callback, pipe, endpoints[i], 
+    data, len, priority, interval, callback);
+}
+
+static void usb_dev_isochrous(UsbDev* dev, Interface* interface, unsigned int pipe,
+  uint8_t priority, void* data, unsigned int len, uint16_t interval, 
+  callback_function callback){
+  __USB_DEV_ISO_ROUTINE__(dev, interface, data, callback, pipe, endpoints[i],
     data, len, priority, interval, callback);
 }
 
