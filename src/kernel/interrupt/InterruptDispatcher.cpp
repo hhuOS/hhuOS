@@ -20,7 +20,6 @@
 #include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/collection/List.h"
-#include "kernel/interrupt/InterruptVector.h"
 
 namespace Kernel {
 struct InterruptFrame;
@@ -44,10 +43,6 @@ void InterruptDispatcher::assign(uint8_t slot, InterruptHandler &isr) {
     }
 
     handler[slot]->add(&isr);
-}
-
-bool InterruptDispatcher::isUnrecoverableException(InterruptVector slot) {
-    return (slot < PIT || (slot >= NULL_POINTER && slot <= UNSUPPORTED_OPERATION)) && handler[slot] == nullptr;
 }
 
 }

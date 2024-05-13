@@ -47,6 +47,7 @@
 #include "lib/util/base/HeapMemoryManager.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "kernel/process/Scheduler.h"
+#include "kernel/memory/MemoryLayout.h"
 
 namespace Util {
 namespace Async {
@@ -254,11 +255,32 @@ bool shutdown(Util::Hardware::Machine::ShutdownType type) {
     return false;
 }
 
+void logStackTrace() {
+    uint32_t *ebp = nullptr;
+    asm volatile (
+            "mov %%ebp, (%0);"
+            : :
+            "r"(&ebp)
+            :
+            "eax"
+            );
+
+
+    uint32_t eip = ebp[1];
+    while (reinterpret_cast<uint32_t>(ebp) >= Kernel::MemoryLayout::KERNEL_START) {
+        LOG_ERROR("0x%08x", eip);
+        ebp = reinterpret_cast<uint32_t*>(ebp[0]);
+        eip = ebp[1];
+    }
+}
+
 void throwError(Util::Exception::Error error, const char *message) {
     if (Kernel::Service::isServiceRegistered(Kernel::ProcessService::SERVICE_ID) && Kernel::Service::getService<Kernel::ProcessService>().getScheduler().isInitialized()) {
-        Util::System::out << Util::Exception::getExceptionName(error) << "(" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::out << Util::Exception::getExceptionName(error) << " (" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::printStackTrace(Util::System::out, Kernel::MemoryLayout::KERNEL_START);
     } else {
         LOG_ERROR("%s(%s)", Util::Exception::getExceptionName(error), message);
+        logStackTrace();
     }
 
     while (true) {}

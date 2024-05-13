@@ -21,7 +21,7 @@
 #include "lib/util/io/stream/BufferedOutputStream.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/stream/FileOutputStream.h"
-#include "lib/util/io/stream/PrintStream.h"
+#include "lib/util/base/String.h"
 
 namespace Util {
 
@@ -70,6 +70,29 @@ void System::call(Code code, bool &result, uint32_t paramCount, va_list args) {
             "r"(edxValue)
             : "eax", "ebx", "ecx"
             );
+}
+
+void System::printStackTrace(const Io::PrintStream &stream, uint32_t minEbp) {
+    uint32_t *ebp = nullptr;
+    asm volatile (
+            "mov %%ebp, (%0);"
+            : :
+            "r"(&ebp)
+            :
+            "eax"
+            );
+
+
+    // If we handle a CPU exception in user space, we skip the kernel space exception handler
+    while (reinterpret_cast<uint32_t>(ebp) < minEbp) {
+        ebp = reinterpret_cast<uint32_t*>(ebp[0]);
+    }
+
+    while (reinterpret_cast<uint32_t>(ebp) >= minEbp) {
+        auto eip = ebp[1];
+        Util::System::out << Util::String::format("0x%08x", eip) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        ebp = reinterpret_cast<uint32_t*>(ebp[0]);
+    }
 }
 
 }

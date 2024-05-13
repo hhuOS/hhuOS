@@ -491,10 +491,10 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     LOG_INFO("Searching multiboot modules for virtual disk drive");
     if (multiboot->getModuleNames().contains("vdd0")) {
         auto &module = multiboot->getModule("vdd0");
-        const auto sectorCount = (module.endAddress - module.startAddress) / 512;
-        const auto modulePageOffset = module.startAddress % Util::PAGESIZE;
         const auto moduleSize = module.endAddress - module.startAddress;
+        const auto modulePageOffset = module.startAddress % Util::PAGESIZE;
         const auto modulePageCount = moduleSize % Util::PAGESIZE == 0 ? (moduleSize / Util::PAGESIZE) : (moduleSize / Util::PAGESIZE) + 1;
+        const auto sectorCount = moduleSize % 512 == 0 ? (moduleSize / 512) : (moduleSize / 512) + 1;
 
         auto *moduleVirtualAddress = memoryService->mapIO(reinterpret_cast<void*>(module.startAddress), modulePageCount);
         auto *device = new Device::Storage::VirtualDiskDrive(static_cast<uint8_t*>(moduleVirtualAddress) + modulePageOffset, 512, sectorCount);
@@ -719,6 +719,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
                           << "Build date: " << BuildConfig::getBuildDate() << Util::Io::PrintStream::endl << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     }
 
+    LOG_INFO("Starting scheduler");
     processService->startScheduler();
 
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Once you entered the gates of hell, you are not allowed to leave!");

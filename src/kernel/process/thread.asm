@@ -26,12 +26,14 @@ extern release_scheduler_lock
 
 start_kernel_thread:
     mov esp, [esp + 4] ; First parameter -> load 'oldStackPointer'
-    popad
-    popf
-    pop gs
-    pop fs
-    pop es
+
+    ; Load registers from prepared stack
     pop ds
+    pop es
+    pop fs
+    pop gs
+    popfd
+    popad
 
     call release_scheduler_lock
 

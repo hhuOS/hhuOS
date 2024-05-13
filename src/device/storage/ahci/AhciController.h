@@ -21,7 +21,7 @@
 #ifndef HHUOS_AHCICONTROLLER_H
 #define HHUOS_AHCICONTROLLER_H
 
-#include <stdint.h>
+#include <cstdint>
 
 #include "device/bus/pci/PciDevice.h"
 #include "kernel/interrupt/InterruptHandler.h"

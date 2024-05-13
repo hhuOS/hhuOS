@@ -15,13 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-/**
- * Describes the memory layout of hhuOS and defines global constants
- *
- * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * @date HHU, 2018
- */
-
 #ifndef __MEMLAYOUT_include__
 #define __MEMLAYOUT_include__
 

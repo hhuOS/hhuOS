@@ -96,6 +96,8 @@ public:
 
     static bool call(Code code, uint32_t paramCount...);
 
+    static void printStackTrace(const Util::Io::PrintStream &stream, uint32_t minEbp);
+
     static Io::InputStream &in;
     static Io::PrintStream out;
     static Io::PrintStream error;

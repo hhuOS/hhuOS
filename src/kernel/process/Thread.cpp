@@ -118,24 +118,24 @@ void Thread::prepareKernelStack() {
     Util::Address<uint32_t>(kernelStack).setRange(0, STACK_SIZE);
 
     const auto capacity = STACK_SIZE / sizeof(uint32_t);
-    kernelStack[capacity - 1] = 0x00DEAD00; // Dummy return address
+    kernelStack[capacity - 1] = 0x0000DEAD; // Dummy return address
     kernelStack[capacity - 2] = reinterpret_cast<uint32_t>(kickoffKernelThread); // Address of 'kickoff_kernel_thread()'
 
-    kernelStack[capacity - 3] = static_cast<uint16_t>(Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-    kernelStack[capacity - 4] = static_cast<uint16_t>(Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-    kernelStack[capacity - 5] = static_cast<uint16_t>(Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-    kernelStack[capacity - 6] = static_cast<uint16_t>(Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    kernelStack[capacity - 3] = 0; // eax
+    kernelStack[capacity - 4] = 0; // ecx
+    kernelStack[capacity - 5] = 0; // edx
+    kernelStack[capacity - 6] = 0; // ebx
+    kernelStack[capacity - 7] = 0; // Skipped by 'popad' ('pushad' pushes esp here)
+    kernelStack[capacity - 8] = 0; // ebp
+    kernelStack[capacity - 9] = 0; // esi
+    kernelStack[capacity - 10] = 0; // edi
 
-    kernelStack[capacity - 7] = 0x202; // eflags (interrupts enabled)
+    kernelStack[capacity - 11] = 0x202; // eflags (interrupts enabled)
 
-    kernelStack[capacity - 8] = 0; // eax
-    kernelStack[capacity - 9] = 0; // ecx
-    kernelStack[capacity - 10] = 0; // edx
-    kernelStack[capacity - 11] = 0; // ebx
-    kernelStack[capacity - 12] = 0; // Skipped by 'popad' ('pushad' pushes esp here)
-    kernelStack[capacity - 13] = 0; // ebp
-    kernelStack[capacity - 14] = 0; // esi
-    kernelStack[capacity - 15] = 0; // edi
+    kernelStack[capacity - 12] = static_cast<uint16_t>(Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2)); // gs
+    kernelStack[capacity - 13] = static_cast<uint16_t>(Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2)); // fs
+    kernelStack[capacity - 14] = static_cast<uint16_t>(Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2)); // es
+    kernelStack[capacity - 15] = static_cast<uint16_t>(Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2)); // ds
 
     oldStackPointer = kernelStack + (capacity - 15);
 }

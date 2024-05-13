@@ -29,6 +29,7 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS-limine.iso"
 
 add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS-limine-vdd.iso"
         WORKING_DIRECTORY "${HHUOS_ROOT_DIR}/loader/limine/"
+        COMMAND /bin/mkdir -p "iso"
         COMMAND /bin/cp "$<TARGET_FILE:system>" "${HHUOS_ROOT_DIR}/loader/limine/iso/kernel.elf"
         COMMAND "${HHUOS_ROOT_DIR}/loader/limine/build.sh" "--with-virtual-hdd"
         COMMAND /bin/mv "${HHUOS_ROOT_DIR}/loader/limine/hhuOS-limine.iso" "${HHUOS_ROOT_DIR}/hhuOS-limine-vdd.iso"

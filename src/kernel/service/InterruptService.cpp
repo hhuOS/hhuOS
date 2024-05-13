@@ -28,6 +28,7 @@
 #include "kernel/process/Process.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/io/stream/PrintStream.h"
+#include "lib/util/base/Constants.h"
 
 namespace Kernel {
 
@@ -68,7 +69,8 @@ void InterruptService::handleException(const InterruptFrame &frame, uint32_t err
         Util::Exception::throwException(static_cast<Util::Exception::Error>(vector), "CPU exception!");
     }
 
-    Util::System::out << Util::Exception::getExceptionName(static_cast<Util::Exception::Error>(vector)) << ": CPU exception!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    Util::System::out << Util::Exception::getExceptionName(static_cast<Util::Exception::Error>(vector)) << " (CPU exception!)" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    Util::System::printStackTrace(Util::System::out, Util::USER_SPACE_MEMORY_MANAGER_ADDRESS);
     processService.exitCurrentProcess(-1);
 }
 
