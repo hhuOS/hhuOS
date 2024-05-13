@@ -6,6 +6,12 @@
 #define __MAP_GET__(map, type, val) \
   (type)__STRUCT_CALL__(map, get_c, val)
 
+#define __MAP_PUT__(map, key, val) \
+  __STRUCT_CALL__(map, put_c, key, val)
+
+#define __MAP_REMOVE__(map, type, key) \
+  (type)__STRUCT_CALL__(map, remove_c, key)
+
 typedef void *Map_C;
 
 struct SuperMap {
