@@ -55,8 +55,13 @@ AhciController::AhciController(const PciDevice &pciDevice) : pciDevice(pciDevice
     registers = static_cast<HbaRegisters*>(memoryService.mapIO(abar, 1));
     LOG_INFO("AHCI [%u.%u.%u] compatible controller found", ((registers->version & 0xffff0000) >> 16), (registers->version & 0x0000ff00 >> 8), registers->version & 0x000000ff);
 
-    biosHandoff();
-    enableAhci();
+    if (!biosHandoff()) {
+        return;
+    }
+
+    if (!enableAhci()) {
+        return;
+    }
 
     registers->interruptStatus = 0xffffffff; // Clear global interrupt status
 
@@ -155,8 +160,10 @@ bool AhciController::biosHandoff() {
     Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(25));
 
     // Wait for BIOS
-    while (registers->biosHandoffControl & BIOS_BUSY) {
+    uint32_t time = 0;
+    while (registers->biosHandoffControl & BIOS_BUSY && time < AHCI_ENABLE_TIMEOUT) {
         Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(100));
+        time += 100;
     }
 
     // Check if we have the ownership now

@@ -439,7 +439,7 @@ private:
     uint32_t portCount = 0;
 
     static const constexpr uint8_t PCI_SUBCLASS_AHCI = 0x06;
-    static const constexpr uint32_t AHCI_ENABLE_TIMEOUT = 1000;
+    static const constexpr uint32_t AHCI_ENABLE_TIMEOUT = 5000;
     static const constexpr uint32_t COMMAND_TIMEOUT = 10000;
     static const constexpr uint32_t BYTES_PER_DESCRIPTOR_ENTRY = Util::PAGESIZE;
 };
