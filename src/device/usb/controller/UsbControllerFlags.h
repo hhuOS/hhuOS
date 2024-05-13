@@ -49,6 +49,7 @@
 #define SPD 0x1D
 #define C_ERR 0x1B
 #define LS 0x1A
+#define IOS 0x19
 #define IOC 0x18
 #define ACTIVE 0x17
 #define NAK_RECV 0x13
