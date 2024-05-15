@@ -19,6 +19,7 @@ cmake_minimum_required(VERSION 3.14)
 target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/process/AddressSpaceCleaner.cpp
         ${HHUOS_SRC_DIR}/kernel/process/BinaryLoader.cpp
+        ${HHUOS_SRC_DIR}/kernel/process/FileDescriptorManager.cpp
         ${HHUOS_SRC_DIR}/kernel/process/Process.cpp
         ${HHUOS_SRC_DIR}/kernel/process/SchedulerCleaner.cpp
         ${HHUOS_SRC_DIR}/kernel/process/Scheduler.cpp

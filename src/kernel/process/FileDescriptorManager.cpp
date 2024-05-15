@@ -1,7 +1,6 @@
 
 #include "kernel/service/FilesystemService.h"
 #include "FileDescriptorManager.h"
-#include "kernel/file/FileDescriptorManager.h"
 #include "filesystem/Filesystem.h"
 #include "filesystem/Node.h"
 #include "lib/util/base/Exception.h"

@@ -28,6 +28,7 @@
 #include "kernel/process/Scheduler.h"
 
 namespace Kernel {
+class FileDescriptorManager;
 
 Util::Async::IdGenerator<uint32_t> Process::idGenerator;
 

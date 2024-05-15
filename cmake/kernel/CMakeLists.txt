@@ -24,7 +24,6 @@ include_directories(${HHUOS_SRC_DIR})
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
 # Add subdirectories
-add_subdirectory(file)
 add_subdirectory(interrupt)
 add_subdirectory(log)
 add_subdirectory(memory)

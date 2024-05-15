@@ -612,6 +612,9 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         }
     }
 
+    // Add '/device/log' to kernel logger
+    Kernel::Log::addOutputStream(*new Util::Io::FileOutputStream("/device/log"));
+
     // Initialize PS/2 devices
     LOG_INFO("Initializing PS/2 devices");
     auto *ps2Controller = Device::Ps2Controller::initialize();

@@ -21,7 +21,7 @@
 #include <cstdint>
 
 #include "lib/util/io/file/File.h"
-#include "kernel/file/FileDescriptorManager.h"
+#include "FileDescriptorManager.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/base/String.h"

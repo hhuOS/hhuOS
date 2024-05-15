@@ -20,7 +20,7 @@
 #include "ProcessService.h"
 #include "FilesystemService.h"
 #include "filesystem/Node.h"
-#include "kernel/file/FileDescriptorManager.h"
+#include "kernel/process/FileDescriptorManager.h"
 #include "kernel/process/Process.h"
 #include "kernel/service/MemoryService.h"
 #include "lib/util/io/file/File.h"

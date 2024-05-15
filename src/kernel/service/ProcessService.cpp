@@ -21,7 +21,7 @@
 #include "kernel/process/BinaryLoader.h"
 #include "ProcessService.h"
 #include "FilesystemService.h"
-#include "kernel/file/FileDescriptorManager.h"
+#include "kernel/process/FileDescriptorManager.h"
 #include "kernel/process/Process.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/MemoryService.h"
