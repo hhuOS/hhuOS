@@ -279,7 +279,7 @@ void throwError(Util::Exception::Error error, const char *message) {
         Util::System::out << Util::Exception::getExceptionName(error) << " (" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         Util::System::printStackTrace(Util::System::out, Kernel::MemoryLayout::KERNEL_START);
     } else {
-        LOG_ERROR("%s(%s)", Util::Exception::getExceptionName(error), message);
+        LOG_ERROR("%s (%s)", Util::Exception::getExceptionName(error), message);
         logStackTrace();
     }
 

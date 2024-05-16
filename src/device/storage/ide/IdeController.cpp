@@ -388,7 +388,7 @@ bool IdeController::readAtapiCapacity(uint8_t channel, uint8_t packetLength, uin
 
 bool IdeController::selectDrive(uint8_t channel, uint8_t drive, bool prepareLbaAccess, uint8_t lbaHead) {
     auto &registers = channels[channel];
-    if (!prepareLbaAccess && ((registers.lastDeviceControl >> 4) & 0x01) == drive) {
+    if (!prepareLbaAccess && registers.lastDeviceControl != UINT8_MAX && ((registers.lastDeviceControl >> 4) & 0x01) == drive) {
         return true;
     }
 

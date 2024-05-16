@@ -20,10 +20,13 @@ project(floppy0)
 message(STATUS "Project " ${PROJECT_NAME})
 
 add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/floppy0.img"
-        COMMAND /bin/mkdir -p "${HHUOS_ROOT_DIR}/floppy0/img/bin"
-        COMMAND /bin/cp "$<TARGET_FILE:echo>" "${HHUOS_ROOT_DIR}/floppy0/img/bin/echo"
-        COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/books" "${HHUOS_ROOT_DIR}/floppy0/img/"
-        WORKING_DIRECTORY ${HHUOS_ROOT_DIR}/floppy0 COMMAND ${HHUOS_ROOT_DIR}/floppy0/build.sh
-        DEPENDS echo)
+        WORKING_DIRECTORY "${HHUOS_ROOT_DIR}/disk"
+        COMMAND /bin/mkdir -p "floppy0/bin/"
+        COMMAND /bin/cp "$<TARGET_FILE:echo>" "floppy0/bin/echo"
+        COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/books" "floppy0/"
+        COMMAND /bin/rm -f "${HHUOS_ROOT_DIR}/floppy0.img"
+        COMMAND mkfs.fat -F 12 -C "${HHUOS_ROOT_DIR}/floppy0.img" 2880
+        COMMAND mcopy -s -o -i "${HHUOS_ROOT_DIR}/floppy0.img" "floppy0/*" ::/
+        DEPENDS books echo)
 
-add_custom_target(${PROJECT_NAME} DEPENDS echo "${HHUOS_ROOT_DIR}/floppy0.img")
+add_custom_target(${PROJECT_NAME} DEPENDS books echo "${HHUOS_ROOT_DIR}/floppy0.img")

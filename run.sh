@@ -22,14 +22,32 @@ readonly CONST_QEMU_BIN_I386="qemu-system-i386"
 readonly CONST_QEMU_MACHINE_PC="pc"
 readonly CONST_QEMU_MACHINE_PC_KVM="pc,accel=kvm,kernel-irqchip=split"
 readonly CONST_QEMU_CPU_I386="base,+fpu,+tsc,+cmov,+fxsr,+mmx,+sse,+apic"
-readonly CONST_QEMU_DEFAULT_RAM="64M"
+readonly CONST_QEMU_DEFAULT_RAM="256M"
 readonly CONST_QEMU_BIOS_PC=""
 readonly CONST_QEMU_BIOS_EFI="efi/OVMF.fd"
-readonly CONST_QEMU_STORAGE_ARGS="-drive driver=raw,index=0,if=floppy,file=floppy0.img -drive driver=raw,node-name=hdd0,file.driver=file,file.filename=hdd0.img -device ide-cd,bus=ide.1 -device ahci,id=ahci -device ide-cd,bus=ahci.0"
-readonly CONST_QEMU_NETWORK_ARGS="-nic model=ne2k_pci,id=ne2k,hostfwd=udp::1797-:1797 -object filter-dump,id=filter0,netdev=ne2k,file=ne2k.dump, -nic model=rtl8139,id=rtl8139,hostfwd=udp::1798-:1798 -object filter-dump,id=filter1,netdev=rtl8139,file=rtl8139.dump"
+
 readonly CONST_QEMU_ARGS="-vga std -rtc base=localtime -device isa-debug-exit -smp 2"
-readonly CONST_QEMU_OLD_AUDIO_ARGS="-soundhw pcspk -device sb16,irq=10,dma=1"
-readonly CONST_QEMU_NEW_AUDIO_ARGS="-audiodev id=pa,driver=pa -machine pcspk-audiodev=pa -device sb16,irq=10,dma=1,audiodev=pa"
+
+readonly CONST_QEMU_STORAGE_ARGS="\
+-device ahci,id=ahci \
+-drive driver=raw,if=none,id=floppy0,file.filename=floppy0.img \
+-drive driver=raw,if=none,id=hdd0,file.filename=hdd0.img \
+-device floppy,drive=floppy0 \
+-device ide-hd,bus=ide.0,drive=hdd0 \
+-device ide-cd,bus=ahci.0"
+
+readonly CONST_QEMU_NETWORK_ARGS="\
+-nic model=ne2k_pci,id=ne2k,hostfwd=udp::1797-:1797 -object filter-dump,id=filter0,netdev=ne2k,file=ne2k.dump, \
+-nic model=rtl8139,id=rtl8139,hostfwd=udp::1798-:1798 -object filter-dump,id=filter1,netdev=rtl8139,file=rtl8139.dump"
+
+readonly CONST_QEMU_OLD_AUDIO_ARGS="\
+-soundhw pcspk \
+-device sb16,irq=10,dma=1"
+
+readonly CONST_QEMU_NEW_AUDIO_ARGS="\
+-audiodev id=pa,driver=pa \
+-machine pcspk-audiodev=pa \
+-device sb16,irq=10,dma=1,audiodev=pa"
 
 QEMU_BIN="${CONST_QEMU_BIN_I386}"
 QEMU_MACHINE="${CONST_QEMU_MACHINE_PC}"
@@ -43,14 +61,6 @@ QEMU_NETWORK_ARGS="${CONST_QEMU_NETWORK_ARGS}"
 QEMU_ARGS="${CONST_QEMU_ARGS}"
 
 QEMU_GDB_PORT=""
-
-if [ -f "hhuOS-towboot.img" ]; then
-  QEMU_BOOT_DEVICE="-boot c -drive driver=raw,node-name=boot,file.driver=file,file.filename=hhuOS-towboot.img"
-elif [ -f "hhuOS-limine.iso" ]; then
-  QEMU_BOOT_DEVICE="-boot d -cdrom hhuOS-limine.iso"
-elif [ -f "hhuOS-grub.iso" ]; then
-  QEMU_BOOT_DEVICE="-boot d -cdrom hhuOS-grub.iso"
-fi
 
 version_lt() {
   test "$(printf "%s\n" "$@" | sort -V | tr ' ' '\n' | head -n 1)" != "${2}"
@@ -84,9 +94,9 @@ parse_file() {
   local path=$1
   
   if [[ $path == *.iso ]]; then
-    QEMU_BOOT_DEVICE="-boot d -cdrom ${path}"
+    QEMU_BOOT_DEVICE="-boot d -drive driver=raw,if=none,id=boot,file.filename=${path} -device ide-cd,bus=ide.1,drive=boot"
   elif [[ $path == *.img ]]; then
-    QEMU_BOOT_DEVICE="-drive driver=raw,node-name=boot,file.driver=file,file.filename=${path}"
+    QEMU_BOOT_DEVICE="-boot c -drive driver=raw,if=none,id=boot,file.filename=${path} -device ide-hd,bus=ide.0,drive=boot"
   else
     printf "Invalid file '%s'!\\n" "${path}"
     exit 1
@@ -232,6 +242,14 @@ run_qemu() {
     $command
   fi
 }
+
+if [ -f "hhuOS-towboot.img" ]; then
+  parse_file "hhuOS-towboot.img"
+elif [ -f "hhuOS-limine.iso" ]; then
+  parse_file "hhuOS-limine.iso"
+elif [ -f "hhuOS-grub.iso" ]; then
+  parse_file "hhuOS-grub.iso"
+fi
 
 parse_args "$@"
 

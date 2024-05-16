@@ -147,10 +147,23 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Multiboot2 magic number is invalid!");
     }
 
-    // Scan memory map
-    LOG_INFO("Scanning memory map to calculate physical address limit");
+    // Needed later for mapping the multiboot header into virtual memory
     auto multibootAddress = reinterpret_cast<uint32_t>(multiboot);
     auto multibootSize = multiboot->getSize();
+
+    // Check if multiboot struct interferes with BIOS or SMP code
+    if (multibootAddress < Kernel::MemoryLayout::USABLE_LOWER_MEMORY.startAddress) {
+        multibootAddress = Util::Address<uint32_t>(multibootAddress + multibootSize).alignUp(Util::PAGESIZE).get();
+        if (multibootAddress < Kernel::MemoryLayout::USABLE_LOWER_MEMORY.startAddress) {
+            multibootAddress = Kernel::MemoryLayout::USABLE_LOWER_MEMORY.startAddress;
+        }
+
+        Util::Address<uint32_t>(multibootAddress).copyRange(Util::Address<uint32_t>(multiboot), multiboot->getSize());
+        multiboot = reinterpret_cast<const Kernel::Multiboot*>(multibootAddress);
+    }
+
+    // Scan memory map
+    LOG_INFO("Scanning memory map to calculate physical address limit");
     auto *memoryMap = &(multiboot->getTag<Kernel::Multiboot::MemoryMapHeader>(Kernel::Multiboot::MEMORY_MAP));
     auto memoryMapEntries = (memoryMap->tagHeader.size - sizeof(Kernel::Multiboot::TagHeader)) / memoryMap->entrySize;
 
@@ -518,31 +531,24 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     Util::Reflection::InstanceFactory::registerPrototype(new Filesystem::Fat::FatDriver());
     Util::Reflection::InstanceFactory::registerPrototype(new Filesystem::Iso::IsoDriver());
 
-    bool rootMounted = false;
-    if (multiboot->hasKernelOption("root")) {
-        auto rootOptions = multiboot->getKernelOption("root").split(",");
-        if (rootOptions.length() >= 2) {
-            const auto &deviceName = rootOptions[0];
-            const auto &driverName = rootOptions[1];
-
-            if (storageService->isDeviceRegistered(deviceName)) {
-                LOG_INFO("Mounting [%s] to root using driver [%s]", static_cast<const char*>(deviceName), static_cast<const char*>(driverName));
-                rootMounted = filesystemService->mount(deviceName, "/", driverName);
-                if (!rootMounted) {
-                    LOG_ERROR("Failed to mount root filesystem");
-                }
-            } else {
-                LOG_ERROR("Device [%s] is not available", static_cast<const char*>(deviceName));
-            }
-        } else {
-            LOG_ERROR("Invalid options for root filesystem given");
-        }
+    if (!multiboot->hasKernelOption("root")) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "No root filesystem specified!");
     }
 
-    if (!rootMounted) {
-        LOG_INFO("Mounting virtual filesystem as root filesystem");
-        auto *rootDriver = new Filesystem::Memory::MemoryDriver();
-        filesystemService->getFilesystem().mountVirtualDriver("/", rootDriver);
+    auto rootOptions = multiboot->getKernelOption("root").split(",");
+    if (rootOptions.length() < 2) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Invalid arguments for root filesystem!");
+    }
+
+    const auto &rootDeviceName = rootOptions[0];
+    const auto &rootDriverName = rootOptions[1];
+    if (!storageService->isDeviceRegistered(rootDeviceName)) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Root device not found!");
+    }
+
+    LOG_INFO("Mounting [%s] to root using driver [%s]", static_cast<const char*>(rootDeviceName), static_cast<const char*>(rootDriverName));
+    if (!filesystemService->mount(rootDeviceName, "/", rootDriverName)) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Failed to mount root filesystem!");
     }
 
     auto *deviceDriver = new Filesystem::Memory::MemoryDriver();

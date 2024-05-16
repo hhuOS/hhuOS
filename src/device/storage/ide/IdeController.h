@@ -272,13 +272,13 @@ private:
         ChannelRegisters();
         ChannelRegisters(uint16_t commandBaseAddress, uint16_t controlBaseAddress, uint16_t dmaBaseAddress);
 
-        bool receivedInterrupt{};             // Currently received interrupt
-        uint8_t lastDeviceControl{};          // Saves current state of deviceControlRegister
-        bool interruptsDisabled{};            // nIEN (No Interrupt);
-        DriveType driveType[2]{};             // Initially found drive types;
-        CommandRegisters command;             // Command Register Set IoPorts
-        ControlRegisters control;             // Control Register Set IoPorts
-        DmaRegisters dma;                     // DMA Bus Master Register Set IoPorts
+        bool receivedInterrupt = false;         // Currently received interrupt
+        uint8_t lastDeviceControl = UINT8_MAX;  // Saves current state of deviceControlRegister
+        bool interruptsDisabled = false;        // nIEN (No Interrupt);
+        DriveType driveType[2]{};               // Initially found drive types;
+        CommandRegisters command;               // Command Register Set IoPorts
+        ControlRegisters control;               // Control Register Set IoPorts
+        DmaRegisters dma;                       // DMA Bus Master Register Set IoPorts
     };
 
     void initializeDrives();

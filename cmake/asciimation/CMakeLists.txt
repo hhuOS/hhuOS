@@ -22,22 +22,22 @@ message(STATUS "Project " ${PROJECT_NAME})
 
 if ($ENV{HHUOS_REDISTRIBUTABLE_BUILD})
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/asciimation/"
-        COMMAND COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/asciimation/")
+        COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/asciimation/")
 
     add_custom_target(${PROJECT_NAME} DEPENDS
             "${CMAKE_BINARY_DIR}/asciimation/")
 else()
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/asciimation/star_wars.txt"
             COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/asciimation/"
-            COMMAND wget https://www.asciimation.co.nz/asciimation/SwPlay.jar
-            COMMAND unzip -u SwPlay.jar -d star_wars
-            COMMAND /bin/echo 14,67 | /bin/cat - star_wars/data/sw1.txt >> "${CMAKE_BINARY_DIR}/asciimation/star_wars.txt")
+            COMMAND wget "https://www.asciimation.co.nz/asciimation/SwPlay.jar"
+            COMMAND unzip -u "SwPlay.jar" -d "star_wars"
+            COMMAND /bin/echo 14,67 | /bin/cat - "star_wars/data/sw1.txt" >> "${CMAKE_BINARY_DIR}/asciimation/star_wars.txt")
 
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/asciimation/jar_jar.txt"
             COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/asciimation/"
-            COMMAND wget https://www.asciimation.co.nz/asciimation/jjplay.jar
-            COMMAND unzip -u jjplay.jar -d jar_jar
-            COMMAND /bin/echo 23,81 | /bin/cat - jar_jar/data/jj1.txt >> "${CMAKE_BINARY_DIR}/asciimation/jar_jar.txt")
+            COMMAND wget "https://www.asciimation.co.nz/asciimation/jjplay.jar"
+            COMMAND unzip -u "jjplay.jar" -d "jar_jar"
+            COMMAND /bin/echo 23,81 | /bin/cat - "jar_jar/data/jj1.txt" >> "${CMAKE_BINARY_DIR}/asciimation/jar_jar.txt")
 
     add_custom_target(${PROJECT_NAME} DEPENDS
             "${CMAKE_BINARY_DIR}/asciimation/star_wars.txt"

@@ -349,7 +349,7 @@ void MemoryService::handlePageFault(uint32_t errorCode) {
     }
 
     // Map the faulted Page
-    map(reinterpret_cast<void *>(faultAddress), 1, Paging::PRESENT | Paging::WRITABLE | (faultAddress >= Kernel::MemoryLayout::KERNEL_AREA.endAddress ? Paging::USER_ACCESSIBLE : 0));
+    map(reinterpret_cast<void*>(faultAddress), 1, Paging::PRESENT | Paging::WRITABLE | (faultAddress >= Kernel::MemoryLayout::KERNEL_AREA.endAddress ? Paging::USER_ACCESSIBLE : 0));
 }
 
 MemoryService::MemoryStatus MemoryService::getMemoryStatus() {
