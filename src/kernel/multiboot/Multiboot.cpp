@@ -65,6 +65,10 @@ Util::String Multiboot::getKernelOption(const Util::String &key) const {
     Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Multiboot: Requested kernel option is not available!");
 }
 
+Util::String Multiboot::getKernelOption(const Util::String &key, const Util::String &defaultValue) const {
+    return hasKernelOption(key) ? getKernelOption(key) : defaultValue;
+}
+
 Util::Array<Util::String> Multiboot::getModuleNames() const {
     auto list = Util::ArrayList<Util::String>();
     auto currentAddress = reinterpret_cast<uint32_t>(this) + sizeof(Multiboot);

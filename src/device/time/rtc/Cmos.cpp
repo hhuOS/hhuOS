@@ -48,14 +48,14 @@ void Cmos::disableNmi() {
     auto nmiWrapper = Util::Async::Atomic<int32_t>(nmiCount);
     int count = nmiWrapper.fetchAndInc();
 
-    if (count == 0) {
-        // nmiCount has been increased from 0 to 1 -> Disable non-maskable interrupts
-        uint8_t value = registerPort.readByte() | 0x80; // Set high bit to disable NMI
-        registerPort.writeByte(value);
-    } else if (count < 0) {
+    if (count < 0) {
         // nmiCount is negative -> Illegal state
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "CPU: nmiCount is less than 0!");
     }
+
+    // Disable non-maskable interrupts
+    uint8_t value = registerPort.readByte() | 0x80; // Set high bit to disable NMI
+    registerPort.writeByte(value);
 }
 
 void Cmos::enableNmi() {

@@ -61,8 +61,8 @@ uint8_t Bios::get8BitRegister(uint16_t value, Bios::RegisterHalf half) {
 }
 
 bool Bios::isAvailable() {
-    auto &multiboot = Kernel::Service::getService<Kernel::InformationService>().getMultibootInformation();
-    return multiboot.hasKernelOption("bios") && multiboot.getKernelOption("bios") == "true";
+    const auto &multiboot = Kernel::Service::getService<Kernel::InformationService>().getMultibootInformation();
+    return multiboot.getKernelOption("bios", "true") == "true";
 }
 
 void Bios::initialize() {

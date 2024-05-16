@@ -21,13 +21,16 @@
 #include "kernel/service/Service.h"
 #include "kernel/service/MemoryService.h"
 #include "device/graphic/VesaBiosExtensions.h"
+#include "kernel/service/InformationService.h"
+#include "kernel/multiboot/Multiboot.h"
 
 namespace Device::Graphic {
 
 LinearFrameBufferNode::LinearFrameBufferNode(const Util::String &name, const Util::Graphic::LinearFrameBuffer &lfb) : Filesystem::Memory::StringNode(name),
         physicalAddress(Kernel::Service::getService<Kernel::MemoryService>().getPhysicalAddress(reinterpret_cast<void*>(lfb.getBuffer().get()))),
         resolutionX(lfb.getResolutionX()), resolutionY(lfb.getResolutionY()), colorDepth(lfb.getColorDepth()), pitch(lfb.getPitch()) {
-    if (Device::Graphic::VesaBiosExtensions::isAvailable()) {
+    const auto &multiboot = Kernel::Service::getService<Kernel::InformationService>().getMultibootInformation();
+    if (multiboot.getKernelOption("vbe", "true") == "true" && Device::Graphic::VesaBiosExtensions::isAvailable()) {
         vbe = Device::Graphic::VesaBiosExtensions::initialize();
     }
 }
@@ -39,7 +42,13 @@ LinearFrameBufferNode::~LinearFrameBufferNode() {
 Util::String LinearFrameBufferNode::getString() {
     auto buffer = Util::String::format("%u\n%ux%u@%u\n%u\n", physicalAddress, resolutionX, resolutionY, colorDepth, pitch);
     if (vbe != nullptr) {
-        buffer += Util::String::format("Vendor: %s\nDevice: %s\nSupported modes:\n", static_cast<const char*>(vbe->getVendorName()), static_cast<const char*>(vbe->getProductName()));
+        const auto &deviceInfo = vbe->getDeviceInfo();
+
+        buffer += Util::String::format("OEM string: %s\n", deviceInfo.getOemString());
+        if (deviceInfo.vbeVersion >= 0x0200) {
+            buffer += Util::String::format("Vendor: %s\nDevice: %s\nRevision: %s\nSupported modes:\n", deviceInfo.getVendorName(), deviceInfo.getProductName(), deviceInfo.getProductRevision());
+        }
+
         for (const auto &mode : vbe->getSupportedModes()) {
             buffer += Util::String::format("%ux%u@%u\n", mode.resolutionX, mode.resolutionY, mode.colorDepth);
         }

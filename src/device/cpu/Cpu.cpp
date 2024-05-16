@@ -40,6 +40,7 @@ void Cpu::enableInterrupts() {
 void Cpu::disableInterrupts() {
     auto cliCountWrapper = Util::Async::Atomic<int32_t>(cliCount);
     int count = cliCountWrapper.fetchAndInc();
+
     if (count < 0) {
         // count is negative -> Illegal state
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "CPU: cliCount is less than 0!");

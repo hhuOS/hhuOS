@@ -26,12 +26,14 @@
 #include "kernel/process/Thread.h"
 #include "kernel/log/Log.h"
 #include "lib/util/math/Math.h"
+#include "kernel/memory/MemoryLayout.h"
 
 namespace Device::Graphic {
 
-VesaBiosExtensions::VesaBiosExtensions(const VesaBiosExtensions::DeviceInfo &deviceInfo, const Util::Array<UsableMode> &supportedModes) : supportedModes(supportedModes) {
-    vendorName = deviceInfo.getVendorName();
-    productName = deviceInfo.getDeviceName();
+VesaBiosExtensions::VesaBiosExtensions(const DeviceInfo *deviceInfo, const Util::Array<UsableMode> &supportedModes) : deviceInfo(*deviceInfo), supportedModes(supportedModes) {}
+
+VesaBiosExtensions::~VesaBiosExtensions() {
+    delete &deviceInfo;
 }
 
 VesaBiosExtensions* VesaBiosExtensions::initialize() {
@@ -39,26 +41,38 @@ VesaBiosExtensions* VesaBiosExtensions::initialize() {
         return nullptr;
     }
 
-    auto deviceInfo = getDeviceInfo();
-    if (!deviceInfo.isValid()) {
+    auto *deviceInfo = getVbeInfo();
+    if (deviceInfo == nullptr || !deviceInfo->isValid()) {
+        LOG_ERROR("Failed to get VBE device info from BIOS");
+        delete deviceInfo;
         return nullptr;
     }
 
-    LOG_INFO("VBE compatible graphics card found (Vendor: [%s], Device: [%s])", deviceInfo.getVendorName(), deviceInfo.getDeviceName());
-    auto modes = getModes(deviceInfo);
+    if (deviceInfo->vbeVersion < 0x0200) {
+        LOG_INFO("VBE [%u.%u] compatible graphics card found (OEM string: [%s])", (deviceInfo->vbeVersion & 0xff00) >> 8, deviceInfo->vbeVersion & 0x00ff, deviceInfo->getOemString());
+    } else {
+        LOG_INFO("VBE [%u.%u] compatible graphics card found (OEM string: [%s], Vendor: [%s], Device: [%s], Revision: [%s])",
+                 (deviceInfo->vbeVersion & 0xff00) >> 8, deviceInfo->vbeVersion & 0x00ff,
+                 deviceInfo->getOemString(), deviceInfo->getVendorName(), deviceInfo->getProductName(), deviceInfo->getProductRevision());
+    }
 
+    auto modes = getModes(*deviceInfo);
     return new VesaBiosExtensions(deviceInfo, modes);
 }
 
 bool VesaBiosExtensions::isAvailable() {
-    if (!Bios::isAvailable() || !getDeviceInfo().isValid()) {
+    if (!Bios::isAvailable()) {
         return false;
     }
 
-    return true;
+    VesaBiosExtensions::DeviceInfo *deviceInfo = getVbeInfo();
+    auto available = (deviceInfo != nullptr && deviceInfo->isValid());
+
+    delete deviceInfo;
+    return available;
 }
 
-VesaBiosExtensions::DeviceInfo VesaBiosExtensions::getDeviceInfo() {
+VesaBiosExtensions::DeviceInfo* VesaBiosExtensions::getVbeInfo() {
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
 
     // Allocate space for VBE info struct inside lower memory
@@ -75,14 +89,10 @@ VesaBiosExtensions::DeviceInfo VesaBiosExtensions::getDeviceInfo() {
     auto biosReturn = Bios::interrupt(0x10, biosContext);
     if (biosReturn.eax != BIOS_CALL_RETURN_CODE_SUCCESS) {
         delete vbeInfo;
-        return DeviceInfo{};
+        return nullptr;
     }
 
-    // Create a copy of the VBE info struct and free the allocated space in lower memory
-    DeviceInfo ret = *vbeInfo;
-    delete vbeInfo;
-
-    return ret;
+    return vbeInfo;
 }
 
 VesaBiosExtensions::ModeInfo VesaBiosExtensions::getModeInfo(uint16_t mode) {
@@ -117,14 +127,8 @@ const Util::Array<VesaBiosExtensions::UsableMode>& VesaBiosExtensions::getSuppor
 }
 
 Util::Array<VesaBiosExtensions::UsableMode> VesaBiosExtensions::getModes(const DeviceInfo &deviceInfo) {
-    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     auto usableModes = Util::ArrayList<UsableMode>();
-
-    // Get device info and map mode array into virtual memory
-    auto *modeArrayPhysicalAddress = reinterpret_cast<uint16_t*>((deviceInfo.videoModes[1] << 4) + deviceInfo.videoModes[0]);
-    auto modeArrayPageOffset = reinterpret_cast<uint32_t>(modeArrayPhysicalAddress) % Util::PAGESIZE;
-    auto *modeArrayPage = memoryService.mapIO(modeArrayPhysicalAddress, 1);
-    auto *modeArray = reinterpret_cast<uint16_t*>(reinterpret_cast<uint8_t*>(modeArrayPage) + modeArrayPageOffset);
+    auto *modeArray = deviceInfo.getVideoModeArray();
 
     for (uint32_t i = 0; modeArray[i] != MODE_LIST_END_MARKER; i++) {
         auto mode = getModeInfo(modeArray[i]);
@@ -132,7 +136,7 @@ Util::Array<VesaBiosExtensions::UsableMode> VesaBiosExtensions::getModes(const D
             continue;
         }
 
-        LOG_DEBUG("Found mode [%ux%u@u]", mode.resX, mode.resY, mode.bpp);
+        LOG_DEBUG("Found mode [%ux%u@%u]", mode.resX, mode.resY, mode.bpp);
         usableModes.add(UsableMode{mode.resX, mode.resY, mode.bpp, mode.pitch, mode.physicalAddress, modeArray[i]});
     }
 
@@ -152,12 +156,8 @@ void VesaBiosExtensions::setMode(uint16_t mode) {
     }
 }
 
-const Util::String &VesaBiosExtensions::getVendorName() const {
-    return vendorName;
-}
-
-const Util::String &VesaBiosExtensions::getProductName() const {
-    return productName;
+const VesaBiosExtensions::DeviceInfo& VesaBiosExtensions::getDeviceInfo() const {
+    return deviceInfo;
 }
 
 const VesaBiosExtensions::UsableMode& VesaBiosExtensions::findMode(uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth) const {
@@ -184,12 +184,40 @@ bool VesaBiosExtensions::DeviceInfo::isValid() const {
     return signature[0] == 'V' && signature[1] == 'E' && signature[2] == 'S' && signature[3] == 'A';
 }
 
-const char *VesaBiosExtensions::DeviceInfo::getDeviceName() const {
-    return reinterpret_cast<const char*>((vendor[1] << 4) + vendor[0]);
+const char* VesaBiosExtensions::DeviceInfo::getOemString() const {
+    return static_cast<const char*>(calculateVirtualAddress(oem[0], oem[1]));
 }
 
-const char *VesaBiosExtensions::DeviceInfo::getVendorName() const {
-    return reinterpret_cast<const char*>((productName[1] << 4) + productName[0]);
+const char* VesaBiosExtensions::DeviceInfo::getVendorName() const {
+    return static_cast<const char*>(calculateVirtualAddress(vendor[0], vendor[1]));
+}
+
+const char* VesaBiosExtensions::DeviceInfo::getProductName() const {
+    return static_cast<const char*>(calculateVirtualAddress(productName[0], productName[1]));
+}
+
+const char* VesaBiosExtensions::DeviceInfo::getProductRevision() const {
+    return static_cast<const char*>(calculateVirtualAddress(productRevision[0], productRevision[1]));
+}
+
+const uint16_t* VesaBiosExtensions::DeviceInfo::getVideoModeArray() const {
+    return static_cast<const uint16_t*>(calculateVirtualAddress(videoModes[0], videoModes[1]));
+}
+
+const void* VesaBiosExtensions::DeviceInfo::calculateVirtualAddress(uint16_t segment, uint16_t offset) const {
+    auto *address = reinterpret_cast<const void*>((offset << 4) + segment);
+
+    if (reinterpret_cast<uint32_t>(address) > Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress) {
+        // Data is located inside BIOS data area, which is identity mapped
+        return address;
+    } else {
+        // Data is located inside oemData area of this struct -> Physical address needs to be translated to virtual address
+        auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+        auto *physicalStructAddress = memoryService.getPhysicalAddress(const_cast<DeviceInfo*>(this));
+        auto structOffset = reinterpret_cast<uint32_t>(address) - reinterpret_cast<uint32_t>(physicalStructAddress);
+
+        return reinterpret_cast<const char*>(this) + structOffset;
+    }
 }
 
 bool VesaBiosExtensions::UsableMode::operator!=(const VesaBiosExtensions::UsableMode &other) const {

@@ -30,7 +30,7 @@ log_level = \"info\"\\n\
 [entries.hhuOS]\\n\
     name = \"hhuOS\"\\n\
     image = \"hhuOS/kernel.elf\"\\n\
-    argv = \"log_level=inf log_ports=COM1 root=ata1p0,Filesystem::Fat::FatDriver bios=false\"")
+    argv = \"log_level=inf log_ports=COM1 root=ata1p0,Filesystem::Fat::FatDriver apic=true bios=false apm=false vbe=false\"")
 
 set(TOWBOOT_VDD_CONFIG "\
 default = \"hhuOS\"\\n\
@@ -41,7 +41,7 @@ log_level = \"info\"\\n\
 [entries.hhuOS]\\n\
     name = \"hhuOS\"\\n\
     image = \"hhuOS/kernel.elf\"\\n\
-    argv = \"log_level=inf log_ports=COM1 root=vdd0p0,Filesystem::Fat::FatDriver bios=false\"\\n\
+    argv = \"log_level=inf log_ports=COM1 root=vdd0p0,Filesystem::Fat::FatDriver apic=true bios=false apm=false vbe=false\"\\n\
     modules = [ { image = \"hhuOS/hdd0.img\", argv = \"vdd0\" } ]")
 
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/towboot/towbootctl"

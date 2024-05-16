@@ -28,6 +28,34 @@ namespace Device::Graphic {
 class VesaBiosExtensions {
 
 public:
+    /**
+     * Information about a VBE device.
+     * See http://wiki.osdev.org/VESA_Video_Modes for further reference.
+     */
+    struct DeviceInfo {
+        char signature[4];
+        uint16_t vbeVersion; // VBE version; high byte is major version, low byte is minor version
+        uint16_t oem[2]; // segment:offset pointer to OEM
+        uint32_t capabilities; // bitfield that describes card capabilities
+        uint16_t videoModes[2]; // segment:offset pointer to list of supported video modes
+        uint16_t videoMemory; // amount of video memory in 64KB blocks
+        uint16_t softwareRevision; // software revision
+        uint16_t vendor[2]; // segment:offset to card vendor string
+        uint16_t productName[2]; // segment:offset to card model name
+        uint16_t productRevision[2]; // segment:offset pointer to product revision
+        char reserved[222]; // reserved for future expansion
+        char oemData[256]; // OEM BIOSes store their strings in this area
+
+        [[nodiscard]] bool isValid() const;
+        [[nodiscard]] const char* getOemString() const;
+        [[nodiscard]] const char* getVendorName() const;
+        [[nodiscard]] const char* getProductName() const;
+        [[nodiscard]] const char* getProductRevision() const;
+        [[nodiscard]] const uint16_t* getVideoModeArray() const;
+
+    private:
+        [[nodiscard]] const void* calculateVirtualAddress(uint16_t segment, uint16_t offset) const;
+    } __attribute__((packed));
 
     struct UsableMode {
         uint16_t resolutionX;
@@ -57,11 +85,9 @@ public:
     /**
      * Destructor.
      */
-    ~VesaBiosExtensions() = default;
+    ~VesaBiosExtensions();
 
-    [[nodiscard]] const Util::String &getVendorName() const;
-
-    [[nodiscard]] const Util::String &getProductName() const;
+    [[nodiscard]] const DeviceInfo& getDeviceInfo() const;
 
     [[nodiscard]] const Util::Array<UsableMode>& getSupportedModes() const;
 
@@ -88,29 +114,6 @@ private:
         DIRECT_COLOR = 0x06,
         YUV = 0x07
     };
-
-    /**
-     * Information about a VBE device.
-     * See http://wiki.osdev.org/VESA_Video_Modes for further reference.
-     */
-    struct DeviceInfo {
-        char signature[4];
-        uint16_t version; // VBE version; high byte is major version, low byte is minor version
-        uint32_t oem; // segment:offset pointer to OEM
-        uint32_t capabilities; // bitfield that describes card capabilitiesPointer
-        uint16_t videoModes[2]; // segment:offset pointer to list of supported video modes
-        uint16_t videoMemory; // amount of video memory in 64KB blocks
-        uint16_t softwareRevision; // software revision
-        uint16_t vendor[2]; // segment:offset to card vendor string
-        uint16_t productName[2]; // segment:offset to card model name
-        uint16_t productRevision[2]; // segment:offset pointer to product revision
-        char reserved[222]; // reserved for future expansion
-        char oemData[256]; // OEM BIOSes store their strings in this area
-
-        bool isValid() const;
-        const char* getVendorName() const;
-        const char* getDeviceName() const;
-    } __attribute__((packed));
 
     /**
      * Information about a VBE graphics mode.
@@ -150,9 +153,9 @@ private:
     /**
      * Constructor.
      */
-    VesaBiosExtensions(const DeviceInfo &deviceInfo, const Util::Array<UsableMode> &supportedModes);
+    VesaBiosExtensions(const DeviceInfo *deviceInfo, const Util::Array<UsableMode> &supportedModes);
 
-    static DeviceInfo getDeviceInfo();
+    static DeviceInfo* getVbeInfo();
 
     static Util::Array<UsableMode> getModes(const DeviceInfo &deviceInfo);
 
@@ -164,9 +167,7 @@ private:
      */
     static VesaBiosExtensions::ModeInfo getModeInfo(uint16_t mode);
 
-    Util::String vendorName;
-    Util::String productName;
-
+    const DeviceInfo &deviceInfo;
     Util::Array<UsableMode> supportedModes;
 
     static const constexpr uint32_t VBE_CONTROLLER_INFO_SIZE = 512;

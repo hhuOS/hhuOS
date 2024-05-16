@@ -108,6 +108,7 @@
 #include "device/system/Machine.h"
 #include "device/network/ne2000/Ne2000.h"
 #include "filesystem/iso9660/IsoDriver.h"
+#include "device/time/rtc/Cmos.h"
 
 namespace Util {
 class HeapMemoryManager;
@@ -424,7 +425,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     // Initialize power management (APM needs BIOS calls)
     LOG_INFO("Initializing power management");
     Device::Machine *machine = nullptr;
-    if (Device::AdvancedPowerManagement::isAvailable()) {
+    if (multiboot->getKernelOption("apm", "true") == "true" && Device::AdvancedPowerManagement::isAvailable()) {
         LOG_INFO("APM is available");
         machine = Device::AdvancedPowerManagement::initialize();
     }
@@ -436,7 +437,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     auto *powerManagementService = new Kernel::PowerManagementService(machine);
     Kernel::Service::registerService(Kernel::PowerManagementService::SERVICE_ID, powerManagementService);
 
-    if (Device::Apic::isAvailable()) {
+    if (multiboot->getKernelOption("apic", "true") == "true" && Device::Apic::isAvailable()) {
         LOG_INFO("APIC detected");
         auto *apic = Device::Apic::initialize();
         if (apic == nullptr) {
@@ -444,7 +445,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         } else {
             interruptService->useApic(apic);
 
-            if (apic ->isSymmetricMultiprocessingSupported()) {
+            if (apic->isSymmetricMultiprocessingSupported()) {
                 apic->startupApplicationProcessors();
             }
         }
@@ -474,6 +475,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     // The base system is initialized -> We can now enable interrupts and initialize timer devices
     LOG_INFO("Enabling interrupts");
     Device::Cpu::enableInterrupts();
+    Device::Cmos::enableNmi();
 
     // Setup time and date devices
     LOG_INFO("Initializing PIT");

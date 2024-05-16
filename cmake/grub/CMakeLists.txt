@@ -37,7 +37,7 @@ else\\n\
 fi\\n\
 \\n\
 menuentry \"hhuOS\" {\\n\
-    multiboot2 /boot/hhuOS/kernel.elf log_level=inf log_ports=COM1 root=ata0p0,Filesystem::Fat::FatDriver bios=true\\n\
+    multiboot2 /boot/hhuOS/kernel.elf log_level=inf log_ports=COM1 root=ata0p0,Filesystem::Fat::FatDriver apic=true bios=true apm=true vbe=true\\n\
 }")
 
 set(GRUB_VDD_CONFIG "\
@@ -58,7 +58,7 @@ else\\n\
 fi\\n\
 \\n\
 menuentry \"hhuOS\" {\\n\
-    multiboot2 /boot/hhuOS/kernel.elf log_level=inf log_ports=COM1 root=vdd0p0,Filesystem::Fat::FatDriver bios=true\\n\
+    multiboot2 /boot/hhuOS/kernel.elf log_level=inf log_ports=COM1 root=vdd0p0,Filesystem::Fat::FatDriver apic=true bios=true apm=true vbe=false\\n\
     module2 /boot/hhuOS/hdd0.img vdd0\\n\
 }")
 

@@ -264,6 +264,8 @@ public:
 
     [[nodiscard]] Util::String getKernelOption(const Util::String &key) const;
 
+    [[nodiscard]] Util::String getKernelOption(const Util::String &key, const Util::String &defaultValue) const;
+
     [[nodiscard]] Util::Array<Util::String> getModuleNames() const;
 
     [[nodiscard]] bool isModuleLoaded(const Util::String &moduleName) const;

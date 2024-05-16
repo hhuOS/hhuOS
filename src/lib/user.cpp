@@ -237,10 +237,7 @@ void setDate(const Util::Time::Date &date) {
 }
 
 bool shutdown(Util::Hardware::Machine::ShutdownType type) {
-    auto result = Util::System::call(Util::System::SHUTDOWN, 1, type);
-    if (result) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Shutdown system call returned successful!");
-    }
+    Util::System::call(Util::System::SHUTDOWN, 1, type);
 
     // If this code is reached, the shutdown was not successful
     return false;
