@@ -425,6 +425,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     LOG_INFO("Initializing power management");
     Device::Machine *machine = nullptr;
     if (Device::AdvancedPowerManagement::isAvailable()) {
+        LOG_INFO("APM is available");
         machine = Device::AdvancedPowerManagement::initialize();
     }
 

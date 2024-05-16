@@ -30,6 +30,7 @@
 #include "kernel/service/InformationService.h"
 #include "lib/util/base/String.h"
 #include "lib/util/async/Spinlock.h"
+#include "kernel/log/Log.h"
 
 extern "C" {
     void protected_mode_call(Kernel::Thread::Context *stack, uint32_t entryPoint);
@@ -76,7 +77,7 @@ void Bios::initialize() {
     biosGdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0x000fffff, 0x92, 0x00)); // 16-bit BIOS data segment
 
     // Setup IDT descriptor for 16-bit code
-    biosIdtDescriptor = reinterpret_cast<Kernel::InterruptDescriptorTable::Descriptor*>(Kernel::MemoryLayout::BIOS_CALL_IDT.toAddress().get());
+    biosIdtDescriptor = reinterpret_cast<Kernel::InterruptDescriptorTable::Descriptor*>(Kernel::MemoryLayout::BIOS_CALL_IDT_DESCRIPTOR.toAddress().get());
     *biosIdtDescriptor = Kernel::InterruptDescriptorTable::Descriptor(nullptr, 256 / 2); // Real mode entries are only half as wide
 
     // Copy 16-bit code to lower memory
@@ -148,6 +149,12 @@ Kernel::Thread::Context Bios::protectedModeCall(const Kernel::GlobalDescriptorTa
 
     // Copy given context into lower memory
     *biosContext = context;
+
+    // Segments must point to kernel data segment
+    biosContext->ds = 0x10;
+    biosContext->es = 0x10;
+    biosContext->fs = 0x10;
+    biosContext->gs = 0x10;
 
     // Disable interrupts during the bios call, since our protected mode handler cannot be called
     Cpu::disableInterrupts();

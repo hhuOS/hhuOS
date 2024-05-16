@@ -146,10 +146,10 @@ bios_call_16_start:
     mov cr0,eax
 
     ; Flush pipeline and switch decoding unit to real mode by performing a far jump to the next instruction
-    jmp 0x0000:(BIOS_CALL_CODE + bios_call_16_real_mode_enter - bios_call_16_start)
+    jmp 0x0000:(BIOS_CALL_CODE + (bios_call_16_real_mode_enter - bios_call_16_start))
 
 bios_call_16_real_mode_enter:
-    ; Setup segment registers
+    ; Setup segment registers for real mode
     mov dx,0x0000
     mov ds,dx
     mov es,dx
@@ -201,11 +201,15 @@ bios_call_16_interrupt:
     jmp 0x0018:(BIOS_CALL_CODE + (bios_call_16_real_mode_leave - bios_call_16_start))
 
 bios_call_16_real_mode_leave:
-    ; Restore stack segment
+    ; Setup segment registers for protected mode
     mov dx,0x0010
+    mov ds,dx
+    mov es,dx
+    mov fs,dx
+    mov gs,dx
     mov ss,dx
 
-    ; Far return to bios_call_16_end:
+    ; Far return to real_mode_call_return:
 [BITS 32]
     retfw
 bios_call_16_end:
