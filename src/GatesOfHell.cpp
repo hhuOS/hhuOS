@@ -313,19 +313,8 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     auto *kernelAddressSpace = new Kernel::VirtualAddressSpace(pageDirectory, virtualPageDirectory, *kernelHeap);
     auto *memoryService = new Kernel::MemoryService(gdt, tss, pageFrameAllocator, pagingAreaManager, kernelAddressSpace);
 
-    // The memory service and IDT are initialized and after registering the memory service, page faults can be handled,
-    // which means, that we can fully use the kernel heap
+    // The memory service and IDT are initialized and after registering the memory service, page faults can be handled, allowing us to fully use the kernel heap
     Kernel::Service::registerService(Kernel::MemoryService::SERVICE_ID, memoryService);
-    LOG_INFO("Welcome to hhuOS!");
-    LOG_INFO("Used kernel heap memory during early boot process: [%u Byte]", kernelHeapManager.getTotalMemory() - kernelHeapManager.getFreeMemory());
-
-    LOG_INFO("Creating remaining mappings, needed for booting");
-    // Identity map BIOS related parts of the lower 1 MiB
-    // Depending on the system and bootloader, this may be necessary to initialize ACPI and SMBIOS data structures
-    // The BIOS call code and startup code for application processors is also located there
-    memoryService->mapPhysical(nullptr, nullptr, Kernel::MemoryLayout::USABLE_LOWER_MEMORY.startAddress / Util::PAGESIZE, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
-    memoryService->mapPhysical(reinterpret_cast<void*>(Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1), reinterpret_cast<void*>(Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1),
-                               (KERNEL_DATA_START - (Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1)) / Util::PAGESIZE, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
 
     // Map Multiboot2 tags
     const auto multibootPageOffset = reinterpret_cast<uint32_t>(multiboot) % Util::PAGESIZE;
@@ -333,11 +322,29 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     const auto *multibootVirtualAddress = static_cast<const uint8_t*>(memoryService->mapIO(const_cast<void*>(reinterpret_cast<const void*>(multiboot)), multibootPages, true)) + multibootPageOffset;
     multiboot = reinterpret_cast<const Kernel::Multiboot*>(multibootVirtualAddress);
 
+    // Reserve Multiboot2 modules, before any page faults on the heap occur.
+    // Otherwise, parts of the modules might be overwritten
+    for (const auto &name : multiboot->getModuleNames()) {
+        auto &module = multiboot->getModule(name);
+        pageFrameAllocator->setMemory(reinterpret_cast<uint8_t *>(module.startAddress), reinterpret_cast<uint8_t *>(module.endAddress - 1), 0, true);
+    }
+
+    // Identity map BIOS related parts of the lower 1 MiB
+    // Depending on the system and bootloader, this may be necessary to initialize ACPI and SMBIOS data structures
+    // The BIOS call code and startup code for application processors is also located there
+    memoryService->mapPhysical(nullptr, nullptr, Kernel::MemoryLayout::USABLE_LOWER_MEMORY.startAddress / Util::PAGESIZE, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
+    memoryService->mapPhysical(reinterpret_cast<void*>(Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1), reinterpret_cast<void*>(Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1),
+                               (KERNEL_DATA_START - (Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1)) / Util::PAGESIZE, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
+
     // Set log level
     if (multiboot->hasKernelOption("log_level")) {
         const auto level = multiboot->getKernelOption("log_level");
         Kernel::Log::setLevel(level);
     }
+
+    // Memory management has been set up now, and we continue with the remaining boot process
+    LOG_INFO("Welcome to hhuOS!");
+    LOG_INFO("Used kernel heap memory during early boot process: [%u Byte]", kernelHeapManager.getTotalMemory() - kernelHeapManager.getFreeMemory());
 
     // Create scheduler and process service and register kernel process
     LOG_INFO("Initializing scheduler");
@@ -505,17 +512,19 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     Kernel::Service::registerService(Kernel::StorageService::SERVICE_ID, storageService);
 
     LOG_INFO("Searching multiboot modules for virtual disk drive");
-    if (multiboot->getModuleNames().contains("vdd0")) {
-        auto &module = multiboot->getModule("vdd0");
-        const auto moduleSize = module.endAddress - module.startAddress;
-        const auto modulePageOffset = module.startAddress % Util::PAGESIZE;
-        const auto modulePageCount = moduleSize % Util::PAGESIZE == 0 ? (moduleSize / Util::PAGESIZE) : (moduleSize / Util::PAGESIZE) + 1;
-        const auto sectorCount = moduleSize % 512 == 0 ? (moduleSize / 512) : (moduleSize / 512) + 1;
+    for (const auto &name : multiboot->getModuleNames()) {
+        if (name.beginsWith("vdd")) {
+            auto &module = multiboot->getModule(name);
+            const auto moduleSize = module.endAddress - module.startAddress;
+            const auto modulePageOffset = module.startAddress % Util::PAGESIZE;
+            const auto modulePageCount = moduleSize % Util::PAGESIZE == 0 ? (moduleSize / Util::PAGESIZE) : (moduleSize / Util::PAGESIZE) + 1;
+            const auto sectorCount = moduleSize % 512 == 0 ? (moduleSize / 512) : (moduleSize / 512) + 1;
 
-        auto *moduleVirtualAddress = memoryService->mapIO(reinterpret_cast<void*>(module.startAddress), modulePageCount);
-        auto *device = new Device::Storage::VirtualDiskDrive(static_cast<uint8_t*>(moduleVirtualAddress) + modulePageOffset, 512, sectorCount);
+            auto *moduleVirtualAddress = memoryService->mapIO(reinterpret_cast<void *>(module.startAddress), modulePageCount);
+            auto *device = new Device::Storage::VirtualDiskDrive(static_cast<uint8_t *>(moduleVirtualAddress) + modulePageOffset, 512, sectorCount);
 
-        storageService->registerDevice(device, "vdd");
+            storageService->registerDevice(device, "vdd");
+        }
     }
 
     Device::Storage::IdeController::initializeAvailableControllers();
