@@ -83,8 +83,7 @@ Keyboard* Keyboard::initialize(Ps2Controller &controller) {
                 LOG_INFO("Detected MF2 keyboard with need for translation");
                 controller.enableKeyboardTranslation();
             } else {
-                LOG_WARN("Detected MF2 keyboard with unknown subtype [0x%02x] -> Assuming translation is not needed",
-                         subtype);
+                LOG_WARN("Detected MF2 keyboard with unknown subtype [0x%02x] -> Assuming translation is not needed", subtype);
             }
         } else {
             LOG_ERROR("Device connected to first PS/2 port reports as [0x%02x:0x%02x], which is not a valid keyboard", type, subtype);

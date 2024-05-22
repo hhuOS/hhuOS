@@ -57,7 +57,7 @@ public:
 
     static bool probeFpu();
 
-    bool fxsrAvailable = isFxsrAvailable();
+    bool fxsrAvailable = false;
 };
 
 }

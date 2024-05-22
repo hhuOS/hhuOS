@@ -42,6 +42,7 @@ Fpu::Fpu(const uint8_t *defaultFpuContext) {
 
     if (isFxsrAvailable()) {
         LOG_INFO("FXSR support detected -> Using FXSAVE/FXRSTR for FPU context switching");
+        fxsrAvailable = true;
 
         auto features = Util::Hardware::CpuId::getCpuFeatures();
         if (features.contains(Util::Hardware::CpuId::MMX)) {
@@ -122,20 +123,6 @@ void Fpu::switchContext() const {
     if (fxsrAvailable) {
         if (lastFpuThread != nullptr) {
             asm volatile (
-                    "fnsave (%0)"
-                    : :
-                    "r"(lastFpuThread->getFpuContext())
-                    );
-        }
-
-        asm volatile(
-                "frstor (%0)"
-                : :
-                "r"(currentThread.getFpuContext())
-                );
-    } else {
-        if (lastFpuThread != nullptr) {
-            asm volatile (
                     "fxsave (%0)"
                     : :
                     "r"(lastFpuThread->getFpuContext())
@@ -144,6 +131,20 @@ void Fpu::switchContext() const {
 
         asm volatile(
                 "fxrstor (%0)"
+                : :
+                "r"(currentThread.getFpuContext())
+                );
+    } else {
+        if (lastFpuThread != nullptr) {
+            asm volatile (
+                    "fnsave (%0)"
+                    : :
+                    "r"(lastFpuThread->getFpuContext())
+                    );
+        }
+
+        asm volatile(
+                "frstor (%0)"
                 : :
                 "r"(currentThread.getFpuContext())
                 );

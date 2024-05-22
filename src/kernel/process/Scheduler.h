@@ -64,7 +64,7 @@ public:
     /**
      * Set initialized to 'true'.
      */
-    void setInititialized();
+    void setInitialized();
 
     bool isInitialized() const;
 

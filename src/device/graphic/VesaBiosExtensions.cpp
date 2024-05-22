@@ -27,6 +27,7 @@
 #include "kernel/log/Log.h"
 #include "lib/util/math/Math.h"
 #include "kernel/memory/MemoryLayout.h"
+#include "lib/util/base/System.h"
 
 namespace Device::Graphic {
 
@@ -87,7 +88,7 @@ VesaBiosExtensions::DeviceInfo* VesaBiosExtensions::getVbeInfo() {
 
     // Perform the bios call and check if it was successful
     auto biosReturn = Bios::interrupt(0x10, biosContext);
-    if (biosReturn.eax != BIOS_CALL_RETURN_CODE_SUCCESS) {
+    if (!checkReturnStatus(biosReturn)) {
         delete vbeInfo;
         return nullptr;
     }
@@ -111,7 +112,7 @@ VesaBiosExtensions::ModeInfo VesaBiosExtensions::getModeInfo(uint16_t mode) {
 
     // Perform the bios call and check if it was successful
     auto biosReturn = Bios::interrupt(0x10, biosContext);
-    if (biosReturn.eax != BIOS_CALL_RETURN_CODE_SUCCESS) {
+    if (!checkReturnStatus(biosReturn)) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VesaBiosExtensions: Mode not supported!");
     }
 
@@ -151,7 +152,7 @@ void VesaBiosExtensions::setMode(uint16_t mode) {
 
     // Perform the bios call and check if it was successful
     auto biosReturn = Bios::interrupt(0x10, biosContext);
-    if (biosReturn.eax != BIOS_CALL_RETURN_CODE_SUCCESS) {
+    if (!checkReturnStatus(biosReturn)) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VesaBiosExtensions: Mode not supported!");
     }
 }
@@ -178,6 +179,10 @@ const VesaBiosExtensions::UsableMode& VesaBiosExtensions::findMode(uint16_t reso
     }
 
     return *bestMode;
+}
+
+bool VesaBiosExtensions::checkReturnStatus(const Kernel::Thread::Context &biosReturnContext) {
+    return (biosReturnContext.eax & 0x0000ffff) == BIOS_CALL_RETURN_CODE_SUCCESS;
 }
 
 bool VesaBiosExtensions::DeviceInfo::isValid() const {

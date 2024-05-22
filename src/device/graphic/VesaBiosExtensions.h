@@ -22,6 +22,7 @@
 
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/String.h"
+#include "kernel/process/Thread.h"
 
 namespace Device::Graphic {
 
@@ -166,6 +167,8 @@ private:
      * @return A pointer to the mode info struct
      */
     static VesaBiosExtensions::ModeInfo getModeInfo(uint16_t mode);
+
+    static bool checkReturnStatus(const Kernel::Thread::Context &biosReturnContext);
 
     const DeviceInfo &deviceInfo;
     Util::Array<UsableMode> supportedModes;

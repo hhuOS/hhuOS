@@ -61,7 +61,7 @@ Scheduler::~Scheduler() {
     }
 }
 
-void Scheduler::setInititialized() {
+void Scheduler::setInitialized() {
     initialized = true;
 }
 
@@ -262,7 +262,9 @@ void Scheduler::block() {
 }
 
 void Scheduler::unblock(Thread &thread) {
+    readyQueueLock.acquire();
     readyQueue.offer(&thread);
+    readyQueueLock.release();
 }
 
 void Scheduler::sleep(const Util::Time::Timestamp &time) {

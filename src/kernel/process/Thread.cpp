@@ -43,14 +43,13 @@ extern "C" void release_scheduler_lock() {
 
 namespace Kernel {
 
-uint8_t Thread::defaultFpuContext[512]{};
 Util::Async::IdGenerator<uint32_t> Thread::idGenerator;
 
 Thread::Thread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable, uint32_t userInstructionPointer, uint32_t *kernelStack, uint32_t *userStack) :
         id(idGenerator.next()), name(name), parent(parent), runnable(runnable), userInstructionPointer(userInstructionPointer), kernelStack(kernelStack), userStack(userStack),
         fpuContext(static_cast<uint8_t*>(Service::getService<MemoryService>().allocateKernelMemory(512, 16))) {
-    auto source = Util::Address<uint32_t>(defaultFpuContext);
-    Util::Address<uint32_t>(fpuContext).copyRange(source, 512);
+    auto defaultFpuContext = Util::Address<uint32_t>(Service::getService<ProcessService>().getScheduler().getDefaultFpuContext());
+    Util::Address<uint32_t>(fpuContext).copyRange(defaultFpuContext, 512);
 }
 
 Thread::~Thread() {
@@ -142,7 +141,7 @@ void Thread::prepareKernelStack() {
 
 void Thread::kickoffKernelThread() {
     auto &scheduler = Kernel::Service::getService<Kernel::ProcessService>().getScheduler();
-    scheduler.setInititialized();
+    scheduler.setInitialized();
 
     auto &thread = scheduler.getCurrentThread();
 

@@ -43,65 +43,21 @@ LinearFrameBuffer::LinearFrameBuffer(Io::File &file, bool enableAcceleration) {
         Exception::throwException(Exception::INVALID_ARGUMENT, "LinearFrameBuffer: File does not exist!");
     }
 
-    uint8_t addressBuffer[16]{};
-    uint8_t xBuffer[16]{};
-    uint8_t yBuffer[16]{};
-    uint8_t bppBuffer[16]{};
-    uint8_t pitchBuffer[16]{};
-
     auto stream = Io::FileInputStream(file);
-    int16_t currentChar;
+    bool endOfFile;
 
-    for (unsigned char &i : addressBuffer) {
-        currentChar = stream.read();
-        if (currentChar == '\n') {
-            break;
-        }
+    const auto addressString = stream.readLine(endOfFile);
+    const auto resolutionString = stream.readLine(endOfFile);
+    const auto pitchString = stream.readLine(endOfFile);
 
-        i = currentChar;
-    }
+    const auto colorDepthSplit = resolutionString.split("@");
+    const auto resolutionSplit = colorDepthSplit[0].split("x");
 
-    for (unsigned char &i : xBuffer) {
-        currentChar = stream.read();
-        if (currentChar == 'x') {
-            break;
-        }
-
-        i = currentChar;
-    }
-
-    for (unsigned char &i : yBuffer) {
-        currentChar = stream.read();
-        if (currentChar == '@') {
-            break;
-        }
-
-        i = currentChar;
-    }
-
-    for (unsigned char &i : bppBuffer) {
-        currentChar = stream.read();
-        if (currentChar == '\n') {
-            break;
-        }
-
-        i = currentChar;
-    }
-
-    for (unsigned char &i : pitchBuffer) {
-        currentChar = stream.read();
-        if (currentChar == '\n') {
-            break;
-        }
-
-        i = currentChar;
-    }
-
-    uint32_t address = Util::String::parseInt(reinterpret_cast<const char*>(addressBuffer));
-    resolutionX = Util::String::parseInt(reinterpret_cast<const char*>(xBuffer));
-    resolutionY = Util::String::parseInt(reinterpret_cast<const char*>(yBuffer));
-    colorDepth = Util::String::parseInt(reinterpret_cast<const char*>(bppBuffer));
-    pitch = Util::String::parseInt(reinterpret_cast<const char*>(pitchBuffer));
+    uint32_t address = Util::String::parseInt(static_cast<const char*>(addressString));
+    resolutionX = Util::String::parseInt(static_cast<const char*>(resolutionSplit[0]));
+    resolutionY = Util::String::parseInt(static_cast<const char*>(resolutionSplit[1]));
+    colorDepth = Util::String::parseInt(static_cast<const char*>(colorDepthSplit[1]));
+    pitch = Util::String::parseInt(static_cast<const char*>(pitchString));
     buffer = mapBuffer(reinterpret_cast<void*>(address), resolutionY, pitch, enableAcceleration, useMmx);
 }
 

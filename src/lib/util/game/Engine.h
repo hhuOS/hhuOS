@@ -78,11 +78,11 @@ private:
     struct Statistics {
 
         struct Gather {
-            uint32_t fps;
-            uint32_t frameTime;
-            uint32_t drawTime;
-            uint32_t updateTime;
-            uint32_t idleTime;
+            uint32_t fps = 0;
+            uint32_t frameTime = 0;
+            uint32_t drawTime = 0;
+            uint32_t updateTime = 0;
+            uint32_t idleTime = 0;
         };
 
         void incFrames() {
