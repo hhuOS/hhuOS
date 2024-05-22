@@ -8,25 +8,31 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
+      - id: commit
+        uses: prompt/actions-commit-hash@v3
 
-      - uses: awalsh128/cache-apt-pkgs-action@v1
+      - name: Install dependencies
+        uses: amitie10g/install-package@v1.2.5
         with:
-          packages: cmake make nasm gcc-multilib g++-multilib grub-pc-bin grub-efi-ia32-bin dosfstools mtools xorriso zstd unzip wget
+          apt: build-essential nasm gcc-multilib g++-multilib cmake xorriso dosfstools mtools unzip wget grub-pc-bin grub-efi-ia32-bin
 
       - name: Build towboot image
-        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target towboot --type Debug && wget -O lvgl-licence.txt https://raw.githubusercontent.com/lvgl/lvgl/master/LICENCE.txt
+        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target towboot --type Debug
 
       - name: Build limine image
-        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target limine --type Debug && wget -O limine-licence.txt https://raw.githubusercontent.com/limine-bootloader/limine/trunk/COPYING
+        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target limine --type Debug
 
       - name: Build grub image
         run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target grub --type Debug
 
+      - name: Download Limine licence
+        run: wget -O limine-licence.txt https://raw.githubusercontent.com/limine-bootloader/limine/trunk/COPYING
+
       - name: Create artifact
-        run: tar -czvf hhuOS.tar.gz hhuOS-limine.iso hhuOS-towboot.img hdd0.img floppy0.img run.sh limine-licence.txt lvgl-licence.txt README.md
+        run: mkdir -p hhuOS-${{ steps.commit.outputs.short }} && cp hhuOS-limine.iso hhuOS-towboot.img hdd0.img floppy0.img run.sh limine-licence.txt README.md hhuOS-${{ steps.commit.outputs.short }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: hhuOS
-          path: hhuOS.tar.gz
+          name: hhuOS-${{ steps.commit.outputs.short }}
+          path: hhuOS-${{ steps.commit.outputs.short }}

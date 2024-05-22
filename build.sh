@@ -19,9 +19,14 @@
 BUILD_TYPE="Default"
 TARGET="towboot"
 BUILD_DIR="build"
-CORE_COUNT=$(nproc)
 VALID_TARGETS="grub limine towboot"
 FORBIDDEN_DIR_NAMES="cmake loader media src"
+
+if [[ "${OSTYPE}" == darwin* ]]; then
+  CORE_COUNT="$(sysctl -n hw.logicalcpu)"
+else
+  CORE_COUNT="$(nproc)"
+fi
 
 parse_target() {
     local target=$1
@@ -104,6 +109,7 @@ cleanup() {
     remove "rtl8139.dump"
     remove "floppy0.img"
     remove "hdd0.img"
+    remove "RELEASEIa32_OVMF.fd"
     remove "disk/floppy0/bin/"
     remove "disk/floppy0/books/"
     remove "disk/hdd0/bin/"
@@ -111,7 +117,6 @@ cleanup() {
     remove "disk/hdd0/user/beep"
     remove "disk/hdd0/user/books"
     remove "disk/hdd0/media/"
-    remove "efi/"
     remove "tools/nettest/nettest-server"
 
     local builddirs="";

@@ -24,7 +24,7 @@ readonly CONST_QEMU_MACHINE_PC_KVM="pc,accel=kvm,kernel-irqchip=split"
 readonly CONST_QEMU_CPU_I386="base,+fpu,+tsc,+cmov,+fxsr,+mmx,+sse,+apic"
 readonly CONST_QEMU_DEFAULT_RAM="256M"
 readonly CONST_QEMU_BIOS_PC=""
-readonly CONST_QEMU_BIOS_EFI="efi/OVMF.fd"
+readonly CONST_QEMU_BIOS_EFI="RELEASEIa32_OVMF.fd"
 
 readonly CONST_QEMU_ARGS="-vga std -rtc base=localtime -device isa-debug-exit -smp 2"
 
@@ -75,10 +75,7 @@ set_audio_parameters() {
 }
 
 get_ovmf() {
-  if [ ! -f "efi/OVMF.fd" ]; then
-    mkdir -p "efi"
-    wget -O efi/OVMF.fd "${CONST_OVMF_URL}"
-  fi
+  wget -N "${CONST_OVMF_URL}"
 }
 
 check_file() {

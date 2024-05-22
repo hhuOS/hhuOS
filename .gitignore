@@ -123,8 +123,8 @@ disk/hdd0/bin
 disk/hdd0/user/asciimation
 disk/hdd0/user/beep
 disk/hdd0/user/books
-efi/
 tools/nettest/nettest-server
+RELEASEIa32_OVMF.fd
 *.img
 *.iso
 *.dump
