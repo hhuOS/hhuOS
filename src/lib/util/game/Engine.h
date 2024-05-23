@@ -33,6 +33,10 @@
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/io/key/Key.h"
 #include "Game.h"
+#include "lib/util/io/key/KeyDecoder.h"
+#include "lib/util/io/stream/InputStream.h"
+#include "lib/util/io/stream/FileInputStream.h"
+#include "lib/util/io/file/File.h"
 
 namespace Util {
 namespace Io {
@@ -69,7 +73,7 @@ public:
     /**
      * Destructor.
      */
-    ~Engine() override = default;
+    ~Engine() override;
 
     void run() override;
 
@@ -189,84 +193,33 @@ private:
         uint32_t idleTimeStart = 0;
     };
 
-    class KeyListenerRunnable : public Async::Runnable {
-
-    public:
-        /**
-         * Constructor.
-         */
-        explicit KeyListenerRunnable(Engine &engine);
-
-        /**
-         * Copy Constructor.
-         */
-        KeyListenerRunnable(const KeyListenerRunnable &other) = delete;
-
-        /**
-         * Assignment operator.
-         */
-        KeyListenerRunnable &operator=(const KeyListenerRunnable &other) = delete;
-
-        /**
-         * Destructor.
-         */
-        ~KeyListenerRunnable() override = default;
-
-        void run() override;
-
-    private:
-
-        Engine &engine;
-    };
-
-    class MouseListenerRunnable : public Async::Runnable {
-
-    public:
-        /**
-         * Constructor.
-         */
-        explicit MouseListenerRunnable(Engine &engine);
-
-        /**
-         * Copy Constructor.
-         */
-        MouseListenerRunnable(const MouseListenerRunnable &other) = delete;
-
-        /**
-         * Assignment operator.
-         */
-        MouseListenerRunnable &operator=(const MouseListenerRunnable &other) = delete;
-
-        /**
-         * Destructor.
-         */
-        ~MouseListenerRunnable() override = default;
-
-        void run() override;
-
-    private:
-
-        void checkKey(Io::Mouse::Button button, uint8_t lastButtonState, uint8_t currentButtonState);
-
-        Engine &engine;
-    };
-
     void initializeNextScene();
 
     void updateStatus();
 
     void drawStatus();
 
+    void checkKeyboard();
+
+    void checkMouse();
+
+    void checkMouseKey(Io::Mouse::Button button, uint8_t lastButtonState, uint8_t currentButtonState);
+
     Game game;
     Graphics graphics;
     Statistics statistics;
-    Async::Spinlock updateLock;
 
     bool showStatus = false;
     uint32_t statusUpdateTimer = 0;
     Statistics::Gather status = statistics.gather();
 
-    Util::ArrayList<Io::Key> pressedKeys;
+    Util::Io::FileInputStream *mouseInputStream;
+    uint8_t mouseValues[4]{};
+    uint32_t mouseValueIndex = 0;
+    uint8_t lastMouseButtonState = 0;
+
+    Io::KeyDecoder keyDecoder;
+    ArrayList<Io::Key> pressedKeys;
 
     const uint8_t targetFrameRate;
 
