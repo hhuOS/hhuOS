@@ -364,5 +364,6 @@ static inline void new_usb_driver(UsbDriver* usb_driver, char* name, UsbDevice_I
 
 #define INTERFACE_PROTOCOL_KDB 0x01
 #define INTERFACE_PROTOCOL_MOUSE 0x02
+#define PR_PROTOCOL_UNDEFINED = 0x00
 
 #endif
