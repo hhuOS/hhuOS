@@ -183,6 +183,11 @@ static inline uint16_t __floor_address(uint16_t interval){
 #define __IF_COND__(condition) \
     if(condition) 
 
+#define __IF_RET_SELF__(condition, ret) \
+    __IF_COND__(condition){ \
+        return ret; \
+    }
+
 #define __IF_CUSTOM__(condition, cmd) \
     if(condition) { \
         cmd;        \
@@ -292,5 +297,8 @@ static inline uint16_t __floor_address(uint16_t interval){
 #define __NOT_EQUAL__ !=
 
 #define __EQUAL__ ==
+
+#define __8_BIT_L_SHIFT__(x) x >> 8
+#define __8_BIT_H_SHIFT__(x) x << 8
 
 #endif
