@@ -50,7 +50,7 @@ Pic::Pic() {
     Pit::earlyDelay(1);
 
     // Disable all interrupt lines
-    masterDataPort.writeByte(0xff);
+    masterDataPort.writeByte(0xfb); // Allow cascading interrupts
     Pit::earlyDelay(1);
     slaveDataPort.writeByte(0xff);
     Pit::earlyDelay(1);
