@@ -111,6 +111,10 @@ int32_t Terminal::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) 
     return inputStream.read(targetBuffer, offset, length);
 }
 
+bool Terminal::isReadyToRead() {
+    return inputStream.isReadyToRead();
+}
+
 void Terminal::handleBell() {
     Async::Thread::createThread("Terminal-Bell", new Async::FunctionPointerRunnable([](){
         auto stream = Io::FileOutputStream("/device/speaker");

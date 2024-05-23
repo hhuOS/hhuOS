@@ -64,4 +64,8 @@ bool ByteArrayInputStream::isEmpty() const {
     return size == 0;
 }
 
+bool ByteArrayInputStream::isReadyToRead() {
+    return !isEmpty();
+}
+
 }

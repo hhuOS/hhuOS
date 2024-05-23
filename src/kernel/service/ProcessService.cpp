@@ -138,8 +138,7 @@ ProcessService::ProcessService(Process *kernelProcess) : kernelProcess(kernelPro
         auto *commandArguments = va_arg(arguments, Util::Array<Util::String>*);
         auto &processId = *va_arg(arguments, uint32_t*);
 
-        auto &process = processService.loadBinary(*binaryFile, *inputFile, *outputFile, *errorFile, *command,
-                                                  *commandArguments);
+        auto &process = processService.loadBinary(*binaryFile, *inputFile, *outputFile, *errorFile, *command,*commandArguments);
 
         processId = process.getId();
         return true;

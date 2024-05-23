@@ -33,8 +33,6 @@
 static const constexpr double AUDIO_BUFFER_SIZE = 1.0;
 static const constexpr uint8_t BAR_LENGTH = 25;
 
-bool isRunning = true;
-
 void printStatusLine(const Util::Sound::WaveFile &waveFile, uint32_t remainingBytes) {
     auto passedSeconds = (waveFile.getDataSize() - remainingBytes) / waveFile.getBytesPerSecond();
     auto passedMinutes = passedSeconds / 60;
@@ -93,19 +91,20 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    Util::Async::Thread::createThread("Key-Listener", new Util::Async::FunctionPointerRunnable([]{
-        Util::System::in.read();
-        isRunning = false;
-    }));
-
     Util::Graphic::Ansi::disableCursor();
+    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
+
     Util::System::out << "Playing '" << inputFile.getName() << "'... Press <ENTER> to stop." << Util::Io::PrintStream::endl;
 
     auto bufferSize = static_cast<uint32_t>(AUDIO_BUFFER_SIZE * waveFile.getSamplesPerSecond() * (waveFile.getBitsPerSample() / 8.0) * waveFile.getNumChannels());
     auto *fileBuffer = new uint8_t[bufferSize];
     uint32_t remaining = waveFile.getDataSize();
 
-    while (isRunning && remaining > 0) {
+    while (remaining > 0) {
+        if (Util::System::in.read() > 0) {
+            break;
+        }
+
         Util::Graphic::Ansi::saveCursorPosition();
         printStatusLine(waveFile, remaining);
         Util::Graphic::Ansi::restoreCursorPosition();

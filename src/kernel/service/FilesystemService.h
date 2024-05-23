@@ -24,6 +24,7 @@
 #include "Service.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/String.h"
+#include "kernel/process/FileDescriptor.h"
 
 namespace Filesystem {
 class Node;
@@ -72,7 +73,7 @@ public:
 
     void closeFile(int32_t fileDescriptor);
 
-    Filesystem::Node& getNode(int32_t fileDescriptor);
+    FileDescriptor& getFileDescriptor(int32_t fileDescriptor);
 
     [[nodiscard]] Filesystem::Filesystem& getFilesystem();
 

@@ -49,4 +49,8 @@ StreamNode::~StreamNode() {
     }
 }
 
+bool StreamNode::isReadyToRead() {
+    return inputStream->isReadyToRead();
+}
+
 }

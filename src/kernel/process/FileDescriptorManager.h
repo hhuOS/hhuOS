@@ -4,6 +4,7 @@
 #include <cstdint>
 
 #include "lib/util/base/String.h"
+#include "FileDescriptor.h"
 
 namespace Filesystem {
 class Node;
@@ -34,18 +35,16 @@ public:
      */
     ~FileDescriptorManager();
 
-    int32_t registerFile(Filesystem::Node *node);
+    int32_t registerFile(Filesystem::Node *node) const;
 
-    int32_t openFile(const Util::String &path);
+    int32_t openFile(const Util::String &path) const;
 
-    void closeFile(int32_t fileDescriptor);
+    void closeFile(int32_t fileDescriptor) const;
 
-    Filesystem::Node& getNode(int32_t fileDescriptor);
-
-private:
+    [[nodiscard]] FileDescriptor& getDescriptor(int32_t fileDescriptor) const;
 
     int32_t size;
-    Filesystem::Node **descriptorTable;
+    FileDescriptor *descriptorTable;
 
     static const constexpr int32_t DEFAULT_TABLE_SIZE = 1024;
 

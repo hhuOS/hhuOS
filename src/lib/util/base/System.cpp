@@ -21,17 +21,18 @@
 #include "lib/util/io/stream/BufferedOutputStream.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/stream/FileOutputStream.h"
+#include "lib/util/io/file/File.h"
 #include "lib/util/base/String.h"
 
 namespace Util {
 
-Io::FileInputStream System::inStream(0);
+Io::FileInputStream System::inStream(Util::Io::STANDARD_INPUT);
 Io::BufferedInputStream System::bufferedInStream(inStream);
 Io::InputStream &System::in = System::bufferedInStream;
-Io::FileOutputStream System::outStream(1);
+Io::FileOutputStream System::outStream(Util::Io::STANDARD_OUTPUT);
 Io::BufferedOutputStream System::bufferedOutStream(outStream);
 Io::PrintStream System::out(bufferedOutStream);
-Io::FileOutputStream System::errorStream(2);
+Io::FileOutputStream System::errorStream(Util::Io::STANDARD_ERROR);
 Io::BufferedOutputStream System::bufferedErrorStream(errorStream);
 Io::PrintStream System::error(bufferedErrorStream);
 

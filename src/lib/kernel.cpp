@@ -115,27 +115,38 @@ void closeFile(int32_t fileDescriptor) {
 }
 
 Util::Io::File::Type getFileType(int32_t fileDescriptor) {
-    return Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor).getType();
+    return Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor).getNode().getType();
 }
 
 uint32_t getFileLength(int32_t fileDescriptor) {
-    return Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor).getLength();
+    return Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor).getNode().getLength();
 }
 
 Util::Array<Util::String> getFileChildren(int32_t fileDescriptor) {
-    return Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor).getChildren();
+    return Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor).getNode().getChildren();
 }
 
 uint64_t readFile(int32_t fileDescriptor, uint8_t *targetBuffer, uint64_t pos, uint64_t length) {
-    return Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor).readData(targetBuffer, pos, length);
+    uint32_t read = 0;
+
+    auto &descriptor = Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor);
+    if (descriptor.getAccessMode() == Util::Io::File::BLOCKING || descriptor.getNode().isReadyToRead()) {
+        read = descriptor.getNode().readData(targetBuffer, pos, length);
+    }
+
+    return read;
 }
 
 uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t pos, uint64_t length) {
-    return Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor).writeData(sourceBuffer, pos, length);
+    return Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor).getNode().writeData(sourceBuffer, pos, length);
 }
 
 bool controlFile(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters) {
-    return Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor).control(request, parameters);
+    return Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor).getNode().control(request, parameters);
+}
+
+bool controlFileDescriptor(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters) {
+    return Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor).control(request, parameters);
 }
 
 bool changeDirectory(const Util::String &path) {
@@ -151,12 +162,12 @@ int32_t createSocket(Util::Network::Socket::Type socketType) {
 }
 
 bool sendDatagram(int32_t fileDescriptor, const Util::Network::Datagram &datagram) {
-    auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor));
+    auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor));
     return socket.send(datagram);
 }
 
 bool receiveDatagram(int32_t fileDescriptor, Util::Network::Datagram &datagram) {
-    auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor));
+    auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor));
     auto *kernelDatagram = socket.receive();
     auto *datagramBuffer = new uint8_t[kernelDatagram->getLength()];
 

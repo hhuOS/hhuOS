@@ -65,4 +65,8 @@ int32_t FileInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t l
     return count > 0 ? count : -1;
 }
 
+bool FileInputStream::isReadyToRead() {
+    return Util::Io::File::isReadyToRead(fileDescriptor);
+}
+
 }

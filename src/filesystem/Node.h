@@ -101,6 +101,23 @@ public:
     virtual uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t length) = 0;
 
     /**
+     * Check if this node is readable without blocking. Regular files are always ready to read.
+     * This function is mainly useful for character files (i.e. streams), such as terminals or sockets.
+     *
+     * @return Whether this node is readable without blocking
+     */
+    virtual bool isReadyToRead() {
+        switch (getType()) {
+            case Util::Io::File::REGULAR:
+                return true;
+            case Util::Io::File::DIRECTORY:
+                return false;
+            default:
+                Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Node does not implement 'isReadyToRead()'!");
+        }
+    }
+
+    /**
      * If this nodes represents a device, this function can be used to manipulate this device.
      * The parameters are implementation dependent.
      *

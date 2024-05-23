@@ -47,6 +47,10 @@ public:
         ENABLE_KEYBOARD_SCANCODES
     };
 
+    enum ControllerCommand {
+        CREATE_VIRTUAL_TERMINAL
+    };
+
     Terminal(uint16_t columns, uint16_t rows);
 
     Terminal(const Terminal &copy) = delete;
@@ -62,6 +66,8 @@ public:
     int16_t read() override;
 
     int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
+
+    bool isReadyToRead() override;
 
     virtual void putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) = 0;
 

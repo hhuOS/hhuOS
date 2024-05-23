@@ -142,6 +142,10 @@ bool controlFile(int32_t fileDescriptor, uint32_t request, const Util::Array<uin
     return Util::System::call(Util::System::CONTROL_FILE, 3, fileDescriptor, request, &parameters);
 }
 
+bool controlFileDescriptor(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters) {
+    return Util::System::call(Util::System::CONTROL_FILE_DESCRIPTOR, 3, fileDescriptor, request, &parameters);
+}
+
 bool changeDirectory(const Util::String &path) {
     return Util::System::call(Util::System::CHANGE_DIRECTORY, 1, static_cast<const char*>(path));
 }

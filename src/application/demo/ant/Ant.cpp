@@ -27,8 +27,6 @@
 #include "lib/util/io/stream/InputStream.h"
 #include "lib/util/time/Timestamp.h"
 
-static bool isRunning = true;
-
 Ant::Ant(int16_t limitX, int16_t limitY) : limitX(limitX), limitY(limitY), x(static_cast<int16_t>(Util::Math::Random().nextRandomNumber() * limitX)), y(static_cast<int16_t>(Util::Math::Random().nextRandomNumber() * limitY)) {}
 
 void Ant::move() {
@@ -95,17 +93,18 @@ void runAntDemo(uint32_t sleepInterval) {
     auto lfbFile = Util::Io::File("/device/lfb");
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto drawer = Util::Graphic::PixelDrawer(lfb);
+
     Util::Graphic::Ansi::prepareGraphicalApplication(false);
+    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
     Ant ant(static_cast<int16_t>(lfb.getResolutionX()), static_cast<int16_t>(lfb.getResolutionY()));
     lfb.clear();
 
-    Util::Async::Thread::createThread("Key-Listener", new Util::Async::FunctionPointerRunnable([]{
-        Util::System::in.read();
-        isRunning = false;
-    }));
+    for (int i = 0;; i++) {
+        if (Util::System::in.read() > 0) {
+            break;
+        }
 
-    for (int i = 0; isRunning; i++) {
         auto pixel = lfb.readPixel(ant.getX(), ant.getY());
         if (pixel == Util::Graphic::Colors::BLACK) {
             drawer.drawPixel(ant.getX(), ant.getY(), ant.getColor());

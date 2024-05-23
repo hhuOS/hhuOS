@@ -51,6 +51,8 @@ public:
 
     int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
 
+    bool isReadyToRead() override;
+
 private:
 
     uint32_t pos = 0;

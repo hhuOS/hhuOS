@@ -78,11 +78,7 @@ void SimpleSerialPort::write(const uint8_t *sourceBuffer, uint32_t offset, uint3
 }
 
 int16_t SimpleSerialPort::read() {
-    bool hasData = (lineStatusRegister.readByte() & 0x01) == 0x01;
-    while (!hasData) {
-        hasData = (lineStatusRegister.readByte() & 0x01) == 0x01;
-    }
-
+    while (!isReadyToRead()) {}
     return dataRegister.readByte();
 }
 
@@ -92,6 +88,10 @@ int32_t SimpleSerialPort::read(uint8_t *targetBuffer, uint32_t offset, uint32_t 
     }
 
     return length;
+}
+
+bool SimpleSerialPort::isReadyToRead() {
+    return (lineStatusRegister.readByte() & 0x01) == 0x01;
 }
 
 }

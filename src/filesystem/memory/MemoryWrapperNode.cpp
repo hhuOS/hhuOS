@@ -51,4 +51,8 @@ bool MemoryWrapperNode::control(uint32_t request, const Util::Array<uint32_t> &p
     return node.control(request, parameters);
 }
 
+bool MemoryWrapperNode::isReadyToRead() {
+    return node.isReadyToRead();
+}
+
 }

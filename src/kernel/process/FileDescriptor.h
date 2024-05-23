@@ -15,52 +15,59 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_QUEUEINPUTSTREAM_H
-#define HHUOS_QUEUEINPUTSTREAM_H
+#ifndef HHUOS_FILEDESCRIPTOR_H
+#define HHUOS_FILEDESCRIPTOR_H
 
-#include <cstdint>
+#include "filesystem/Node.h"
 
-#include "InputStream.h"
+namespace Kernel {
 
-namespace Util {
-template <typename T> class Queue;
-}  // namespace Util
-
-namespace Util::Io {
-
-class QueueInputStream : public InputStream {
+class FileDescriptor {
 
 public:
     /**
+     * Default Constructor.
+     */
+    FileDescriptor() = default;
+
+    /**
      * Constructor.
      */
-    explicit QueueInputStream(Queue<uint8_t> &queue, bool discardIfFull = false);
+    FileDescriptor(Filesystem::Node *node, Util::Io::File::AccessMode accessMode);
 
     /**
      * Copy Constructor.
      */
-    QueueInputStream(const QueueInputStream &other) = delete;
+    FileDescriptor(const FileDescriptor &other) = delete;
 
     /**
      * Assignment operator.
      */
-    QueueInputStream &operator=(const QueueInputStream &other) = delete;
+    FileDescriptor &operator=(const FileDescriptor &other) = delete;
 
     /**
      * Destructor.
      */
-    ~QueueInputStream() override = default;
+    ~FileDescriptor();
 
-    int16_t read() override;
+    bool control(uint32_t request, const Util::Array<uint32_t> &parameters);
 
-    int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
+    [[nodiscard]] bool isValid() const;
 
-    bool isReadyToRead() override;
+    [[nodiscard]] Filesystem::Node& getNode() const;
+
+    [[nodiscard]] Util::Io::File::AccessMode getAccessMode() const;
+
+    void setNode(Filesystem::Node *node);
+
+    void setAccessMode(Util::Io::File::AccessMode accessMode);
+
+    void clear();
 
 private:
 
-    Queue<uint8_t> &queue;
-    bool discardIfFull;
+    Filesystem::Node *node = nullptr;
+    Util::Io::File::AccessMode accessMode = Util::Io::File::BLOCKING;
 };
 
 }

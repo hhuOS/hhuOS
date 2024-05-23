@@ -22,6 +22,8 @@
 
 #include "lib/util/base/String.h"
 #include "Color.h"
+#include "lib/util/io/stream/InputStream.h"
+#include "lib/util/base/System.h"
 
 namespace Util::Graphic {
 
@@ -174,7 +176,7 @@ public:
 
     [[nodiscard]] static CursorPosition getCursorLimits();
 
-    [[nodiscard]] static int16_t readChar();
+    [[nodiscard]] static int16_t readChar(Util::Io::InputStream &stream = Util::System::in);
 
     static const constexpr char ESCAPE_SEQUENCE_START = 0x1b;
     static const constexpr char *RESET = "\u001b[0m";

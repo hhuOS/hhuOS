@@ -59,4 +59,8 @@ bool TerminalNode::control(uint32_t request, const Util::Array<uint32_t> &parame
     }
 }
 
+bool TerminalNode::isReadyToRead() {
+    return terminal->isReadyToRead();
+}
+
 }

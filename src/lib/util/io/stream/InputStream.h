@@ -39,6 +39,8 @@ public:
 
     virtual int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) = 0;
 
+    virtual bool isReadyToRead() = 0;
+
     String readString(uint32_t length);
 
     String readLine(bool &endOfFile);

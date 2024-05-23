@@ -41,8 +41,6 @@
 
 static const constexpr uint16_t DEFAULT_FPS = 15;
 
-bool isRunning = true;
-
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.addArgument("fps", false, "f");
@@ -96,13 +94,13 @@ int32_t main(int32_t argc, char *argv[]) {
     uint16_t frameEndY = frameStartY + (rows * charHeight);
 
     Util::Graphic::Ansi::prepareGraphicalApplication(false);
+    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
-    Util::Async::Thread::createThread("Key-Listener", new Util::Async::FunctionPointerRunnable([]{
-        Util::System::in.read();
-        isRunning = false;
-    }));
+    while (true) {
+        if (Util::System::in.read() > 0) {
+            break;
+        }
 
-    while (isRunning) {
         auto delayLine = bufferedStream.readLine(endOfFile);
         if (delayLine.length() == 0) {
             break;
