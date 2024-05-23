@@ -419,7 +419,6 @@ struct UsbDev {
   struct Configuration **supported_configs;
   uint8_t state; // default , address, configured -> helpful when doing control
                  // transfer for polling (!configured) !!!
-  // void* driver;
   Logger_C *device_logger;
   uint8_t error_while_transfering; // only used when not configured -> helpful
                                    // to pass the error
