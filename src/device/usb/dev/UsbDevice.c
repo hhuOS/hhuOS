@@ -647,15 +647,7 @@ static int handle_interface(UsbDev *dev, Configuration *configuration,
         string_buffer, interfaces, &prev, &prev_interface_number, &interface_num);
       endpoint_num = 0;
     }
-    else if (__STRUCT_CALL__(dev, __is_hid, start)) {
-      // ReportDescriptor* report_desc = (ReportDescriptor*)start;
-      //  for now we will just ignore custom input report and will only look
-      //  at the default input report meaning if class code of 0 we can't
-      //  support it right now
-    }
-    else if(*(start + 1) == 0x24){ // audio
-      endpoint_num = 0;
-    }
+    //else if (__STRUCT_CALL__(dev, __is_hid, start)) {} -> use in class specific driver
     else if (__STRUCT_CALL__(dev, __is_endpoint, start)) {
      __STRUCT_CALL__(dev, endpoint_build_routine, mem_service, &endpoint_num, 
       prev, start);
