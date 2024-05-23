@@ -13,7 +13,7 @@ enum Descriptor_Type {
   OTHER_SPEED_CONFIG = 0x07,
   INTERFACE_POWER = 0x08,
   HID = 0x21,
-  REPORT = 0x22
+  REPORT = 0x22,
 };
 
 struct DeviceDescriptor {
