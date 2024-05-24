@@ -162,12 +162,12 @@ int32_t createSocket(Util::Network::Socket::Type socketType) {
 }
 
 bool sendDatagram(int32_t fileDescriptor, const Util::Network::Datagram &datagram) {
-    auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor));
+    auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor).getNode());
     return socket.send(datagram);
 }
 
 bool receiveDatagram(int32_t fileDescriptor, Util::Network::Datagram &datagram) {
-    auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor));
+    auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor).getNode());
     auto *kernelDatagram = socket.receive();
     auto *datagramBuffer = new uint8_t[kernelDatagram->getLength()];
 

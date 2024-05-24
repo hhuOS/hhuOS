@@ -21,12 +21,12 @@ readonly CONST_OVMF_URL="https://retrage.github.io/edk2-nightly/bin/RELEASEIa32_
 readonly CONST_QEMU_BIN_I386="qemu-system-i386"
 readonly CONST_QEMU_MACHINE_PC="pc"
 readonly CONST_QEMU_MACHINE_PC_KVM="pc,accel=kvm,kernel-irqchip=split"
-readonly CONST_QEMU_CPU_I386="base,+fpu,+tsc,+cmov,+fxsr,+mmx,+sse"
+readonly CONST_QEMU_CPU_I386="base,+fpu,+tsc,+cmov,+fxsr,+mmx,+sse,+apic"
 readonly CONST_QEMU_DEFAULT_RAM="256M"
 readonly CONST_QEMU_BIOS_PC=""
 readonly CONST_QEMU_BIOS_EFI="RELEASEIa32_OVMF.fd"
 
-readonly CONST_QEMU_ARGS="-vga std -rtc base=localtime -device isa-debug-exit"
+readonly CONST_QEMU_ARGS="-vga std -rtc base=localtime -device isa-debug-exit -smp 2"
 
 readonly CONST_QEMU_STORAGE_ARGS="\
 -device ahci,id=ahci \

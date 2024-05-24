@@ -94,7 +94,7 @@ Mouse* Mouse::initialize(Ps2Controller &controller) {
 
     mouse->activateScrollWheel();
     if (mouse->type == MOUSE_WITH_SCROLL_WHEEL) {
-        mouse->activeAdditionalButtons();
+        mouse->activateAdditionalButtons();
     }
 
     if (mouse->type == STANDARD_MOUSE) {
@@ -209,7 +209,7 @@ void Mouse::activateScrollWheel() {
     type = identify();
 }
 
-void Mouse::activeAdditionalButtons() {
+void Mouse::activateAdditionalButtons() {
     // Magic sequence to activate additional buttons
     if (!writeMouseCommand(SET_SAMPLING_RATE, 200)) {
         LOG_WARN("Failed to set sampling rate");

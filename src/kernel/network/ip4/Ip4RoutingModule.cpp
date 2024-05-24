@@ -43,7 +43,7 @@ bool Ip4RoutingModule::addRoute(const Util::Network::Ip4::Ip4Route &route) {
     bool ret = false;
     lock.acquire();
 
-    if (route.getAddress().getBitCount() == 0) {
+    if (route.getTargetAddress().getBitCount() == 0) {
         routes.remove(route);
         defaultRoute = route;
         ret = true;
@@ -106,8 +106,6 @@ const Util::Network::Ip4::Ip4Route& Ip4RoutingModule::findRoute(const Util::Netw
 
     lock.acquire();
     for (const auto &route : routes) {
-        auto routeAddress = route.getSourceAddress();
-
         if (anySource || sourceAddress == route.getSourceAddress()) {
             auto subnetAddress = route.getTargetAddress();
             auto prefix = address.compareTo(subnetAddress);

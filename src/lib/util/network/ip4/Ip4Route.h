@@ -38,12 +38,22 @@ public:
     /**
      * Constructor.
      */
-    Ip4Route(const Util::Network::Ip4::Ip4SubnetAddress &localAddress, const Util::Network::Ip4::Ip4Address &nextHop, const Util::String &deviceIdentifier);
+    Ip4Route(const Ip4SubnetAddress &targetAddress, const Util::String &deviceIdentifier);
 
     /**
      * Constructor.
      */
-    Ip4Route(const Util::Network::Ip4::Ip4SubnetAddress &localAddress, const Util::String &deviceIdentifier);
+    Ip4Route(const Ip4Address &sourceAddress, const Ip4SubnetAddress &targetAddress, const String &deviceIdentifier);
+
+    /**
+     * Constructor.
+     */
+    Ip4Route(const Ip4SubnetAddress &targetAddress, const Ip4Address &nextHop, const String &deviceIdentifier);
+
+    /**
+     * Constructor.
+     */
+    Ip4Route(const Ip4Address &sourceAddress, const Ip4SubnetAddress &targetAddress, const Ip4Address &nextHop, const String &deviceIdentifier);
 
     /**
      * Copy Constructor.
@@ -64,9 +74,7 @@ public:
 
     bool operator!=(const Ip4Route &other) const;
 
-    [[nodiscard]] const Ip4SubnetAddress & getAddress() const;
-
-    [[nodiscard]] Ip4Address getSourceAddress() const;
+    [[nodiscard]] const Ip4Address& getSourceAddress() const;
 
     [[nodiscard]] Ip4SubnetAddress getTargetAddress() const;
 
@@ -80,7 +88,8 @@ public:
 
 private:
 
-    Ip4SubnetAddress address{};
+    Ip4Address sourceAddress{};
+    Ip4SubnetAddress targetAddress{};
     Ip4Address nextHop{};
     String deviceIdentifier{};
 
