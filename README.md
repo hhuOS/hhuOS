@@ -16,39 +16,71 @@ Welcome to hhuOS, a **small operating system** written in C++ and Assembler for 
 
 This is a project by the [Operating Systems group](https://www.cs.hhu.de/en/research-groups/operating-systems.html) at the *Heinrich Heine University Düsseldorf*.
 
-Check out our [wiki](https://github.com/hhuOS/hhuOS/wiki/)!
-
 <p align="center">
   <a href="https://www.uni-duesseldorf.de/home/en/home.html"><img src="media/logo/hhu.svg" width=300></a>
 </p>
 
-## Compiling
+## Run without building
 
-GCC 7 and CMake 3.14 or newer versions of GCC and CMake are required to compile hhuOS.  
-Before the kernel can be compiled, some packages must be installed. To install them, you can run the following command (on Ubuntu 20.04):
+We provide nightly builds of our `master` and `development` branches via [GitHub Releases](https://github.com/hhuOS/hhuOS/releases). Execute the following commands to download and run the latest `master` build in QEMU (on Ubuntu 22.04):
 
-```sh
-sudo apt install build-essential nasm gcc-multilib g++-multilib cmake xorriso dosfstools mtools unzip wget
-```
-
-## Usage
-
-To test hhuOS quickly in QEMU, you can issue the following commands.
-
-```sh
-git clone https://github.com/hhuOS/hhuOS.git
-cd hhuOS/
-git submodule initialize
-git submodule update
-./build.sh
+```shell
+sudo apt install wget qemu-system-x86
+mkdir -p hhuOS
+cd hhuOS
+wget https://github.com/hhuOS/hhuOS/releases/download/nightly-master/hhuOS-master.tar.gz
+tar -xzf hhuOS-master.tar.gz
 ./run.sh
 ```
 
-See the [wiki](https://github.com/hhuOS/hhuOS/wiki/Build-and-run-hhuOS) for more details.
+The OS will boot into a shell with some UNIX-like commands. Run `ls /bin` to see all available applications. Try out `bug` and `battlespace` for some old-fashioned games!
+
+<p align="center">
+  <img src="media/screenshots/shell.png" width="600px">
+</p>
+
+## Build from source
+
+GCC (>=7), CMake (>=3.14) and some other dependencies are required to compile hhuOS. To install them, you can run the following command (on Ubuntu 22.04):
+
+```shell
+sudo apt install build-essential nasm gcc-multilib g++-multilib cmake python3 python3-distutils xorriso dosfstools mtools unzip wget git
+```
+
+Afterward, clone this repository and execute the included build-script:
+
+```shell
+git clone https://github.com/hhuOS/hhuOS.git
+cd hhuOS
+./build.sh
+```
+
+To test hhuOS in QEMU, simply execute the included run-script:
+
+```shell
+./run.sh
+```
+
+## What next?
+
+Congratulations! If you have made it this far, you have successfully compiled and run hhuOS! If you have not done so yet, you should definitely try out the included games `bug`, `battlespace` and `dino`, as well as the `demo` command, to see the capabilities of our user space game engine.
+
+When you are done tinkering with the OS, why not try to build your own application for hhuOS? Our [wiki](https://github.com/hhuOS/hhuOS/wiki/) provides tutorials on how to set up a development environment and get started with app development for hhuOS.
+
+## Screenshots
+
+<table style="margin-left: auto; margin-right: auto">
+    <tr>
+        <td><img src="media/screenshots/shell.png" width="450px"></td>
+        <td><img src="media/screenshots/network.png" width="450px"></td>
+    </tr>
+    <tr>
+        <td><img src="media/screenshots/bug.png" width="450px"></td>
+        <td><img src="media/screenshots/battlespace.png" width="450px"></td>
+    </tr>
+</table>
 
 ## Notes
-
-Assets for the mouse demo haven been taken from [Icons8](https://icons8.com/).
 
 Assets for the dino game have been taken from [itch.io](https://itch.io):
  - [Dino Characters](https://arks.itch.io/dino-characters) by [*@ScissorMarks*](https://twitter.com/ScissorMarks) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
@@ -60,14 +92,16 @@ Assets for the bug defender game have been taken from [itch.io](https://itch.io)
 - [Lunar Battle Pack](https://mattwalkden.itch.io/lunar-battle-pack) by [*MattWalkden*](https://mattwalkden.itch.io/) ([CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/legalcode))
 - [Pixel Heart Animation](https://nicolemariet.itch.io/pixel-heart-animation-32x32-16x16-freebie) by [*Nicole Marie T*](https://nicolemariet.itch.io/)
 
+Assets for the battlespace game have been taken from [itch.io](https://itch.io):
+- [Lowpoly - 3D Space Assets Pack](https://ejgarner118.itch.io/spacepack) by [*ejgarner118*](https://ejgarner118.itch.io/)
+
 3D-demo assets haven been taken from [itch.io](https://itch.io):
 - [M1 Tank](https://alstrainfinite.itch.io/m1-tank) by [*Alstra Infinite*](https://alstrainfinite.itch.io/) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
 - [Shark](https://alstrainfinite.itch.io/fish) by [*Alstra Infinite*](https://alstrainfinite.itch.io/) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
 - [Plane](https://alstrainfinite.itch.io/planes) by [*Alstra Infinite*](https://alstrainfinite.itch.io/) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
 - [Coffee Maker](https://alstrainfinite.itch.io/kitchen-appliance-2) by [*Alstra Infinite*](https://alstrainfinite.itch.io/) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
 
-Assets for the battlespace game have been taken from [itch.io](https://itch.io):
-- [Lowpoly - 3D Space Assets Pack](https://ejgarner118.itch.io/spacepack) by [*ejgarner118*](https://ejgarner118.itch.io/)
+Assets for the mouse demo haven been taken from [Icons8](https://icons8.com/).
 
 Music for the SoundBlaster demo has been taken from [Bensound](https://www.bensound.com/royalty-free-music):
 - Ukulele license code: 3M7PXYPYNOTSIGNQ

@@ -37,7 +37,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.setHelpText("Demo applications, showing off the systems graphical capabilities.\n"
                                "Usage: demo [DEMO] [OPTIONS]...\n"
-                               "Demos: ant, polygons, sprites\n"
+                               "Demos: ant, mousepolygons, sprites\n"
                                "Options:\n"
                                "  -r, --resolution: Set display resolution"
                                "  -h, --help: Show this help message");
@@ -51,7 +51,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "demo: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "demo: No arguments provided! Please specify a demo (ant, mouse, polygons, sprites)." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -70,7 +70,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto demo = arguments[0];
     if (demo == "ant") {
-        auto sleepInterval = arguments.length() <= 1 ? 0 : Util::String::parseInt(arguments[1]);
+        auto sleepInterval = arguments.length() <= 1 ? 0 : Util::String::parseInt(arguments[0]);
         runAntDemo(sleepInterval);
     } else {
         auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
@@ -81,9 +81,11 @@ int32_t main(int32_t argc, char *argv[]) {
         } else if (demo == "particles") {
             Util::Game::GameManager::getGame().pushScene(new ParticleDemo());
         } else if (demo == "polygons") {
-            Util::Game::GameManager::getGame().pushScene(new PolygonDemo(10));
+            auto initialCount = arguments.length() > 1 ? Util::String::parseInt(arguments[1]) : 10;
+            Util::Game::GameManager::getGame().pushScene(new PolygonDemo(initialCount));
         } else if (demo == "sprites") {
-            Util::Game::GameManager::getGame().pushScene(new SpriteDemo(10));
+            auto initialCount = arguments.length() > 1 ? Util::String::parseInt(arguments[1]) : 10;
+            Util::Game::GameManager::getGame().pushScene(new SpriteDemo(initialCount));
         } else {
             Util::System::error << "demo: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
             return -1;
