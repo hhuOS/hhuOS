@@ -31,6 +31,7 @@
 #include "application/demo/sprites/SpriteDemo.h"
 #include "application/demo/ant/Ant.h"
 #include "application/demo/particles/ParticleDemo.h"
+#include "application/demo/mouse/MouseDemo.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -75,13 +76,14 @@ int32_t main(int32_t argc, char *argv[]) {
         auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
         auto engine = Util::Game::Engine(lfb, 60);
 
-        auto count = arguments.length() <= 1 ? 10 : Util::String::parseInt(arguments[1]);
-        if (demo == "particles") {
+        if (demo == "mouse") {
+            Util::Game::GameManager::getGame().pushScene(new MouseDemo());
+        } else if (demo == "particles") {
             Util::Game::GameManager::getGame().pushScene(new ParticleDemo());
         } else if (demo == "polygons") {
-            Util::Game::GameManager::getGame().pushScene(new PolygonDemo(count));
+            Util::Game::GameManager::getGame().pushScene(new PolygonDemo(10));
         } else if (demo == "sprites") {
-            Util::Game::GameManager::getGame().pushScene(new SpriteDemo(count));
+            Util::Game::GameManager::getGame().pushScene(new SpriteDemo(10));
         } else {
             Util::System::error << "demo: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
             return -1;

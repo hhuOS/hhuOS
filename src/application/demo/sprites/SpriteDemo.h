@@ -41,7 +41,7 @@ public:
     /**
      * Constructor.
      */
-    SpriteDemo(uint32_t count);
+    explicit SpriteDemo(uint32_t initialCount);
 
     /**
      * Copy Constructor.

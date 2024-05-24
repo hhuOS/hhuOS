@@ -42,7 +42,7 @@ public:
     /**
      * Default Constructor.
      */
-    explicit PolygonDemo(uint32_t count);
+    explicit PolygonDemo(uint32_t initialCount);
 
     /**
      * Copy Constructor.

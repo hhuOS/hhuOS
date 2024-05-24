@@ -17,7 +17,7 @@
 
 #include "MouseDemo.h"
 
-#include "application/mouse/MouseCursor.h"
+#include "MouseCursor.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"

@@ -45,7 +45,6 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cp "$<TARGET_FILE:membench>" "bin/membench"
         COMMAND /bin/cp "$<TARGET_FILE:mkdir>" "bin/mkdir"
         COMMAND /bin/cp "$<TARGET_FILE:mount>" "bin/mount"
-        COMMAND /bin/cp "$<TARGET_FILE:mouse>" "bin/mouse"
         COMMAND /bin/cp "$<TARGET_FILE:nettest>" "bin/nettest"
         COMMAND /bin/cp "$<TARGET_FILE:ping>" "bin/ping"
         COMMAND /bin/cp "$<TARGET_FILE:play>" "bin/play"
@@ -70,6 +69,6 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cat "${CMAKE_BINARY_DIR}/fill.img" "${CMAKE_BINARY_DIR}/part.img" "${CMAKE_BINARY_DIR}/fill.img" > "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/rm "${CMAKE_BINARY_DIR}/part.img" "${CMAKE_BINARY_DIR}/fill.img"
         COMMAND /bin/echo -e "'o\\nn\\np\\n1\\n2048\\n131071\\nt\\ne\\nw\\n'" | fdisk "${HHUOS_ROOT_DIR}/hdd0.img"
-        DEPENDS asciimation books music shell asciimate battlespace beep bug cat color cp date demo dino echo head hexdump ip kill ls membench mkdir mount mouse nettest ping play ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d)
+        DEPENDS asciimation books music shell asciimate battlespace beep bug cat color cp date demo dino echo head hexdump ip kill ls membench mkdir mount nettest ping play ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d)
 
-add_custom_target(${PROJECT_NAME} DEPENDS asciimation books music shell asciimate battlespace beep bug cat color cp date demo dino echo head hexdump ip kill ls membench mkdir mount mouse nettest ping play ps  pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d "${HHUOS_ROOT_DIR}/hdd0.img")
+add_custom_target(${PROJECT_NAME} DEPENDS asciimation books music shell asciimate battlespace beep bug cat color cp date demo dino echo head hexdump ip kill ls membench mkdir mount nettest ping play ps  pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d "${HHUOS_ROOT_DIR}/hdd0.img")

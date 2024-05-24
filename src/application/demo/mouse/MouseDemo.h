@@ -20,7 +20,7 @@
 
 #include "MouseCursor.h"
 #include "lib/util/game/KeyListener.h"
-#include "application/mouse/Logo.h"
+#include "Logo.h"
 #include "lib/util/game/2d/Scene.h"
 
 namespace Util {
