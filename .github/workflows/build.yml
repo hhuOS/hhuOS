@@ -36,3 +36,19 @@ jobs:
         with:
           name: hhuOS-${{ steps.commit.outputs.short }}
           path: hhuOS-${{ steps.commit.outputs.short }}
+
+      - name: Create nightly
+        if: github.ref_name == 'master' || github.ref_name == 'development'
+        run: tar -czvf hhuOS-${{ github.ref_name }}.tar.gz hhuOS-limine.iso hhuOS-towboot.img hdd0.img floppy0.img run.sh limine-licence.txt README.md
+
+      - name: Release nightly
+        if: github.ref_name == 'master' || github.ref_name == 'development'
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: true
+          name: nightly-${{ github.ref_name }}
+          tag_name: nightly-${{ github.ref_name }}
+          files: hhuOS-${{ github.ref_name }}.tar.gz
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
