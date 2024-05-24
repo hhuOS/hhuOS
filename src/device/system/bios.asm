@@ -178,12 +178,15 @@ bios_call_16_interrupt:
     ; Disable interrupts (might have been enabled by the BIOS)
     cli
 
+    ; Store flags (might be affected by the next instruction)
+    pushf
+
     ; Restore ESP
-    add esp,50
+    add esp,50 + 2
 
     ; Push registers into the parameter struct, which then holds return values from the BIOS call
     pushad
-    pushf ; Do not skip flags this time
+    push word [esp - 50 + (32 - 2)] ; Push stored flags
     push gs
     push fs
     push es
