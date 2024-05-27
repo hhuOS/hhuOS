@@ -37,7 +37,8 @@
   __ENTRY__(usb_service_c, deregister_listener_c) = &deregister_listener_c; \
   __ENTRY__(usb_service_c, get_controller) = &get_controller; \
   __ENTRY__(usb_service_c, get_dev) = &get_dev; \
-  __ENTRY__(usb_service_c, get_driver) = &get_driver
+  __ENTRY__(usb_service_c, get_driver) = &get_driver; \
+  __ENTRY__(usb_service_c, submit_iso_transfer_c) = &submit_iso_transfer_c
 
 struct UsbService_C {
   void (*new_service)(struct UsbService_C *usb_service_c);
@@ -57,6 +58,11 @@ struct UsbService_C {
                                  uint8_t prio, void *data, unsigned int len,
                                  callback_function callback);
   void (*submit_interrupt_transfer_c)(struct UsbService_C *usb_service_c,
+                                      Interface *interface, unsigned int pipe,
+                                      uint8_t prio, uint16_t interval,
+                                      void *data, unsigned int len,
+                                      callback_function callback);
+  void (*submit_iso_transfer_c)(struct UsbService_C *usb_service_c,
                                       Interface *interface, unsigned int pipe,
                                       uint8_t prio, uint16_t interval,
                                       void *data, unsigned int len,

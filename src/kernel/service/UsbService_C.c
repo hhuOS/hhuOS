@@ -30,6 +30,10 @@ static void submit_interrupt_transfer_c(UsbService_C *usb_service_c,
                                  Interface *interface, unsigned int pipe,
                                  uint8_t prio, uint16_t interval, void *data,
                                  unsigned int len, callback_function callback);
+static void submit_iso_transfer_c(UsbService_C *usb_service_c,
+                                 Interface *interface, unsigned int pipe,
+                                 uint8_t prio, uint16_t interval, void *data,
+                                 unsigned int len, callback_function callback);
 static void submit_control_transfer_c(UsbService_C *usb_service_c,
                                Interface *interface, unsigned int pipe,
                                uint8_t prio, void *data, uint8_t *setup,

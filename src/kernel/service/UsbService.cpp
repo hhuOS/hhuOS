@@ -48,7 +48,8 @@ void Kernel::UsbService::submit_interrupt_transfer(
 
 void Kernel::UsbService::submit_iso_transfer(Interface* interface, unsigned int pipe, uint8_t prio, 
     uint16_t interval, void* data, unsigned int len, callback_function callback){
-  
+  __STRUCT_CALL__(usb_service_c, submit_iso_transfer_c, interface, pipe, prio,
+    interval, data, len, callback);
 }
 
 void Kernel::UsbService::submit_control_transfer(Interface *interface,
