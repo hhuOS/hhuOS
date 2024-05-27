@@ -20,6 +20,12 @@
 #define __MAP_IO_KERNEL__(mem_service, type, size) \
     (type*)mem_service->mapIO(mem_service, size, 1)
 
+#define __MAP_IO_KERNEL_T__(mem_service, type, name, size) \
+    type* name = __MAP_IO_KERNEL__(mem_service, type, sizeof(type) * size)
+
+#define __MAP_IO_KERNEL_S__(mem_service, type, name) \
+    __MAP_IO_KERNEL_T__(mem_service, type, name, 1)
+
 #define __GET_PHYSICAL__(mem_service, virtual_addr) \
     __STRUCT_CALL__(mem_service, getPhysicalAddress, virtual_addr)
 
