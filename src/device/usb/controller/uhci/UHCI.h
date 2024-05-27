@@ -27,7 +27,7 @@
 //#define DEVICE_DEBUG_ON //-> inspect dev
 //#define SKELETON_DEBUG_ON //-> inspect skeleton when creating
 //#define REGISTER_DEBUG_ON //-> inspect register
-#define STATUS_DEBUG_ON //-> inspect status codes
+// #define STATUS_DEBUG_ON //-> inspect status codes
 //#define PCI_DEBUG_ON //-> inspect PCI Room
 //#define TRANSFER_MEASURE_ON //-> measures the time for a transfer
 //#define MEASURE_MS // -> measures in millis
@@ -338,7 +338,7 @@ struct _UHCI {
   QH* (*__search_for_qh)(struct _UHCI* uhci, MemoryService_C* m, QH* current, enum QH_HEADS v);
   void (*__qh_inc_device_count)(struct _UHCI* uhci, QH* current);
   void (*__qh_dec_device_count)(struct _UHCI* uhci, QH* current);
-  QH* (*__follow_schedule)(struct _UHCI* uhci, MemoryService_C* m, QH* current, uint16_t priority);
+  QH* (*__follow_schedule)(struct _UHCI* uhci, MemoryService_C* m, QH* current, uint16_t priority, uint8_t type_flag);
   void (*__add_to_skeleton)(struct _UHCI* uhci, MemoryService_C* m, QH* current, QH* new_qh);
   void (*__adjust_last_in_schedule)(struct _UHCI* uhci, QH* current, QH* new_qh);
   void (*__adjust_last_in_sub_schedule)(struct _UHCI* uhci, MemoryService_C* m, QH* current, QH* new_qh);

@@ -204,9 +204,13 @@ static inline void __qh_dec_device_count(_UHCI* uhci, QH* current) {
                (current->flags & 0xFF);
 }
 
-static inline QH* __follow_schedule(_UHCI* uhci, MemoryService_C* m, QH* current, uint16_t priority) {
+static inline QH* __follow_schedule(_UHCI* uhci, MemoryService_C* m, QH* current, 
+  uint16_t priority, uint8_t type_flag) {
   while (((current->flags & QH_FLAG_END_MASK) == QH_FLAG_IN) &&
          (((current->flags & PRIORITY_QH_MASK) >> 1) >= priority)) {
+    if(((current->flags & QH_FLAG_IS_MASK) == QH_FLAG_IS_QH) && 
+      ((current->flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_INTERRUPT) &&
+      type_flag == QH_FLAG_TYPE_ISO) return current;
     current = __GET_VIRTUAL__(m, __QHLP_ADDR__(current), QH);
   }
   return current;
@@ -716,18 +720,6 @@ static QH *request_frames(_UHCI *uhci) {
 
   bulk_qh->parent = control_physical_address;
 
-#if defined(DEBUG_ON) || defined(SKELETON_DEBUG_ON)
-  uhci->controller_logger->debug_c(
-      uhci->controller_logger, "bulk qh address : %d", bulk_physical_address);
-  uhci->controller_logger->debug_c(uhci->controller_logger, "bulk qhlp : %d",
-                                   bulk_qh->pyhsicalQHLP & QH_ADDRESS_MASK);
-
-  uhci->controller_logger->debug_c(uhci->controller_logger,
-                                   "control qh address : %d",
-                                   control_physical_address);
-  uhci->controller_logger->debug_c(uhci->controller_logger, "control qhlp : %d",
-                                   control_qh->pyhsicalQHLP & QH_ADDRESS_MASK);
-#endif
   __FOR_RANGE__(frame_number, int, 0, TOTAL_FRAMES) {
     __FOR_RANGE_DEC__(j, int, SKELETON_SIZE - 1, 0, 1){
       if ((frame_number + 1) % FRAME_SCHEDULE.qh[j] == 0) {
@@ -746,15 +738,6 @@ static QH *request_frames(_UHCI *uhci) {
               frame_list_address, frame_number);
           }
           __INT_DEFAULT__(uhci, current);
-
-#if defined(DEBUG_ON) || defined(SKELETON_DEBUG_ON)
-          uhci->controller_logger->debug_c(uhci->controller, "address : %d",
-                                           physical);
-          uhci->controller_logger->debug_c(uhci->controller, "qhlp : %d",
-                                           current->pyhsicalQHLP &
-                                               QH_ADDRESS_MASK);
-#endif
-
           child = current;
           break;
         }
@@ -902,7 +885,8 @@ static void insert_queue(_UHCI *uhci, QH *new_qh, uint16_t priority, enum QH_HEA
 
   __STRUCT_CALL__(uhci, __qh_inc_device_count, current);
 
-  current = __STRUCT_CALL__(uhci, __follow_schedule, m, current, priority);
+  current = __STRUCT_CALL__(uhci, __follow_schedule, m, current, priority,
+    new_qh->flags & QH_FLAG_TYPE_MASK);
 
   __STRUCT_CALL__(uhci, __adjust_last_in_schedule, current, new_qh);
   __STRUCT_CALL__(uhci,__adjust_last_in_sub_schedule, m, current, new_qh);
@@ -910,28 +894,8 @@ static void insert_queue(_UHCI *uhci, QH *new_qh, uint16_t priority, enum QH_HEA
   new_qh->parent = __PTR_TYPE__(uint32_t, __GET_PHYSICAL__(m, current));
   new_qh->flags |= QH_FLAG_IS_QH | QH_FLAG_IN | priority;
 
-#if defined(TRANSFER_MEASURE_ON)
-  if ((new_qh->flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_BULK ||
-      (new_qh->flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_CONTROL) {
-    uint32_t *measure =
-        (uint32_t *)m->allocateKernelMemory_c(m, sizeof(uint32_t), 0);
-#if defined(MEASURE_MS)
-    *measure = getSystemTimeInMilli();
-#elif defined(MEASURE_NS)
-    *measure = getSystemTimeInNano();
-#elif defined(MEASURE_MCS)
-    *measure = getSystemTimeInMicro();
-#endif
-    uhci->qh_measurement->put_c(uhci->qh_measurement, new_qh, measure);
-  }
-#endif
-
   __STRUCT_CALL__(uhci, __add_to_skeleton, m, current, new_qh);
   
-#if defined(DEBUG_ON) || defined(QH_DEBUG_ON)
-  uhci->inspect_QH(uhci, new_qh);
-  uhci->inspect_QH(uhci, current);
-#endif
   __UHC_RELEASE_LOCK__(uhci);
 }
 
@@ -1096,8 +1060,8 @@ static void iso_entry_point_uhci(UsbDev* dev, Endpoint* endpoint, void* data,
 } 
 
 static void use_alternate_setting(_UHCI *uhci, UsbDev *dev, Interface *interface,
-                           unsigned int setting, callback_function callback) {
-  dev->request_switch_alternate_setting(dev, interface, setting, callback);
+                           unsigned int setting) {
+  dev->request_switch_alternate_setting(dev, interface, setting);
 }
 
 static void switch_configuration(_UHCI *uhci, UsbDev *dev, int configuration,
@@ -1520,7 +1484,7 @@ static void iso_transfer(_UHCI* uhci, UsbDev* dev, void* data, unsigned int len,
   TD *td = transfer->entry_transaction->entry_packet->internalTD;
 
   __STRUCT_CALL__(uhci, __set_qhep, qh, td, m);
-  __STRUCT_CALL__(uhci, __set_flags, qh, QH_FLAG_TYPE_INTERRUPT, 
+  __STRUCT_CALL__(uhci, __set_flags, qh, QH_FLAG_TYPE_ISO, 
     transfer->transaction_count);
   __STRUCT_CALL__(uhci, __save_map_properties, qh, td, data, dev, callback);
 
@@ -1550,11 +1514,6 @@ static void control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
   __STRUCT_CALL__(uhci, __set_qhep, qh, internalTD, m);
   __STRUCT_CALL__(uhci, __set_flags, qh, QH_FLAG_TYPE_CONTROL, 
     transfer->transaction_count);
-
-#if defined(DEBUG_ON) || defined(TRANSFER_DEBUG_ON)
-  uhci->print_USB_Transfer(uhci, transfer);
-  uhci->inspect_transfer(uhci, qh, td);
-#endif
 
   __STRUCT_CALL__(uhci, destroy_transfer, transfer);
 
@@ -1712,6 +1671,20 @@ static unsigned int retransmission(_UHCI *uhci, QH *process_qh) {
   __STRUCT_CALL__(uhci, __set_qhep, process_qh, head, m);
     retransmission_occured = 1;
   }
+  else if(transfer_type == QH_FLAG_TYPE_ISO) {
+    saved_td = (TD*)__STRUCT_CALL__(uhci->qh_to_td_map, get_c, process_qh);
+    head = saved_td;
+    while (__NOT_NULL__(saved_td)) {
+      saved_td->control_x_status = ((0x1 << LS) & saved_td->control_x_status) |
+                                   ((0x1 << IOC) & saved_td->control_x_status) |
+                                   ((0x1 << IOS) & saved_td->control_x_status) |
+                                   (0x3 << C_ERR) | (0x1 << ACTIVE);
+      saved_td = (TD*)__STRUCT_CALL__(m, getVirtualAddressTD, 
+        __LP_ADDR__(saved_td));
+    }
+  __STRUCT_CALL__(uhci, __set_qhep, process_qh, head, m);
+    retransmission_occured = 1;
+  }
   return retransmission_occured;
 }
 
@@ -1787,34 +1760,10 @@ static void traverse_skeleton(_UHCI *uhci, QH *entry) {
   void *data = __MAP_GET__(uhci->qh_data_map, void*, entry);
   UsbDev *dev = __MAP_GET__(uhci->qh_dev_map, UsbDev*, entry);
 
-  // uhci->inspect_TD(uhci, td);
-
   if (__IS_NULL__(td)) { // transmission successful
     // uhci->inspect_QH(uhci, entry);
     // uhci->inspect_TD(uhci, td);
 
-#if defined(TRANSFER_MEASURE_ON)
-    if ((entry->flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_BULK ||
-        (entry->flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_CONTROL) {
-      uint32_t *i_time =
-          (uint32_t *)uhci->qh_measurement->get_c(uhci->qh_measurement, entry);
-      uint32_t transfer_duration;
-      char *measure_msg;
-#if defined(MEASURE_MS)
-      measure_msg = "Control Transfer Duration in ms: %u";
-      transfer_duration = getSystemTimeInMilli() - *i_time;
-#elif defined(MEASURE_NS)
-      measure_msg = "Control Transfer Duration in ns: %u";
-      transfer_duration = getSystemTimeInNano() - *i_time;
-#elif defined(MEASURE_MCS)
-      measure_msg = "Control Transfer Duration in micro: %u";
-      transfer_duration = getSystemTimeInMicro() - *i_time;
-#endif
-      mem_service->freeKernelMemory_c(mem_service, i_time, 0);
-      uhci->controller_logger->info_c(uhci->controller_logger, measure_msg,
-                                      transfer_duration);
-    }
-#endif
     __STRUCT_CALL__(uhci, successful_transmission_routine, callback, dev, 
       data, entry, mem_service);
   }
