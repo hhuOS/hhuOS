@@ -33,6 +33,9 @@ static void usb_dev_interrupt(UsbDev *dev, Interface *interface, unsigned int pi
 static void usb_dev_bulk(struct UsbDev *dev, Interface *interface, unsigned int pipe,
                    uint8_t priority, void *data, unsigned int len,
                    callback_function callback, uint8_t flags);
+static void usb_dev_iso(UsbDev* dev, Interface* interface, unsigned int pipe,
+  uint8_t priority, void* data, unsigned int len, uint16_t interval, 
+  callback_function callback);
 static int usb_dev_interface_lock(UsbDev *dev, Interface *interface, void* driver);
 static void usb_dev_free_interface(UsbDev *dev, Interface *interface);
 static void request_callback(struct UsbDev *dev, uint32_t status, void *data);
@@ -52,7 +55,7 @@ static int contain_interface(UsbDev *dev, Interface *interface);
 static int request_switch_configuration(struct UsbDev *dev, int configuration,
                                   callback_function callback);
 static int request_switch_alternate_setting(struct UsbDev *dev, Interface *interface,
-                                      int setting, callback_function callback);
+                                      int setting);
 static void dump_device_desc(struct UsbDev *dev);
 static void dump_configuration(struct UsbDev *dev);
 static void dump_interface(struct UsbDev *dev, Interface *interface);
@@ -130,6 +133,31 @@ static inline void __transition_to_config_state(UsbDev* dev) {
 
 static inline void __set_max_packet(UsbDev* dev, DeviceDescriptor* dev_desc) {
   dev->max_packet_size = dev_desc->bMaxPacketSize0;
+}
+
+static inline int8_t __has_endpoints(UsbDev* dev, Alternate_Interface* alt_itf){
+  return __IF_EXT__(alt_itf->alternate_interface_desc.bInterfaceNumber == 0, -1, 1);
+}
+
+static inline Endpoint* __get_first_endpoint(UsbDev* dev, Alternate_Interface* alt_itf){
+  return __IF_EXT__(__IS_NEG_ONE__(dev->__has_endpoints(dev, alt_itf)),
+    (void*)0, alt_itf->endpoints[0]);
+}
+
+static inline int8_t __match_endpoint(UsbDev* dev, Endpoint* e, uint8_t endpoint_number){
+  __IF_RET_SELF__(e->endpoint_desc.bEndpointAddress == endpoint_number,
+      __RET_S__);
+  return __RET_E__;
+}
+
+static inline Endpoint* __get_endpoint(UsbDev* dev, Alternate_Interface* alt_interface,
+  uint8_t endpoint_number){
+  __FOR_RANGE__(i, int, 0, alt_interface->alternate_interface_desc.bNumEndpoints){
+    if(__match_endpoint(dev, alt_interface->endpoints[i], endpoint_number)){
+      return alt_interface->endpoints[i];
+    }
+  }
+  return (void*)0;
 }
 
 static inline Interface* __build_interface(UsbDev* dev, Alternate_Interface* alt_interface,
@@ -315,20 +343,30 @@ static inline void __request_clear_feature(UsbDev* dev, UsbDeviceRequest* device
 }
 
 static inline void __request_switch_alt_setting(UsbDev* dev, UsbDeviceRequest* device_req,
-  Interface* interface, int setting, callback_function callback) {
+  Interface* interface, Alternate_Interface* alt_itf) {
   dev->request_build(dev, device_req, HOST_TO_DEVICE | RECIPIENT_INTERFACE,
-                         SET_INTERFACE, 0, setting, 0,
-                         interface->active_interface->alternate_interface_desc
-                             .bInterfaceNumber,
+                         SET_INTERFACE, 0, alt_itf->alternate_interface_desc.bAlternateSetting, 
+                         0, interface->active_interface->alternate_interface_desc.bInterfaceNumber,
                          0);
-      dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, callback, 0);
+  dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, &request_callback, CONTROL_INITIAL_STATE);
+  if(dev->error_while_transfering) return;
+  interface->active_interface = alt_itf;
 }
 
 static inline void __request_switch_config(UsbDev* dev, UsbDeviceRequest* device_req,
   int configuration, callback_function callback) {
   dev->request_build(dev, device_req, HOST_TO_DEVICE, SET_CONFIGURATION, 0,
                          configuration, 0, 0, 0);
-      dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, callback, 0);
+  dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, callback, 0);
+}
+
+static inline uint8_t __get_alternate_settings(UsbDev* dev, Interface* interface){
+  Alternate_Interface* alt_itf = interface->alternate_interfaces;
+  uint8_t num_settings = 0;
+  while(__NOT_NULL__(alt_itf)){
+    num_settings++; alt_itf = alt_itf->next;
+  }
+  return num_settings;
 }
 
 static inline uint8_t __transfer_type(UsbDev* dev, Endpoint* e){
@@ -803,13 +841,13 @@ static void request(UsbDev *dev, UsbDeviceRequest *device_request, void *data,
 
 // update struct Interface + active field in alternate setting
 static int request_switch_alternate_setting(UsbDev *dev, Interface *interface,
-                                     int setting, callback_function callback) {
-  __IF_RET_NEG__(dev->contain_interface(dev, interface));
+                                     int setting) {
+  __IF_RET_NEG__(!dev->contain_interface(dev, interface));
   Alternate_Interface *current = interface->alternate_interfaces;
   while (__NOT_NULL__(current)) {
     if (current->alternate_interface_desc.bAlternateSetting == setting) {
       __REQUEST_ROUTINE_CALLBACK__(dev, __request_switch_alt_setting, interface,
-        setting, callback);
+        current);
     }
     current = current->next;
   }
@@ -1042,7 +1080,7 @@ static void usb_dev_interrupt(UsbDev *dev, Interface *interface, unsigned int pi
     data, len, priority, interval, callback);
 }
 
-static void usb_dev_isochrous(UsbDev* dev, Interface* interface, unsigned int pipe,
+static void usb_dev_iso(UsbDev* dev, Interface* interface, unsigned int pipe,
   uint8_t priority, void* data, unsigned int len, uint16_t interval, 
   callback_function callback){
   __USB_DEV_ISO_ROUTINE__(dev, interface, data, callback, pipe, endpoints[i],

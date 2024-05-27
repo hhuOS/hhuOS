@@ -23,20 +23,17 @@
 #define __DEV_MEMORY__(dev, name) \
   UsbController* c = __CAST__(UsbController*, dev->controller); \
   __MEM_SERVICE__(c->mem_service, name)
-
-#define __ASSIGN_SIZE__(size, off) \
-  off += sizeof(size)
-
+  
 #define __ASSIGN_MEM__(type, name, buffer, off) \
   type* name = (type*)(buffer + off)
 
 #define __DEV_IO__ASSIGN__(buffer, off, type, name) \
   __ASSIGN_MEM__(type, name, buffer, off); \
-  __ASSIGN_SIZE__(type, (off))
+  off += sizeof(type)
 
 #define __DEV_IO_ASSIGN_SIZE__(buffer, off, type, name, size) \
   __ASSIGN_MEM__(type, name, buffer, off); \
-  __ASSIGN_SIZE__(size, (off))
+  off += size
 
 #define __INIT_DEV__(name) \
   __ENTRY__(name, request_build) = &request_build; \
@@ -44,6 +41,7 @@
   __ENTRY__(name, usb_dev_control) = &usb_dev_control; \
   __ENTRY__(name, usb_dev_interrupt) = &usb_dev_interrupt; \
   __ENTRY__(name, usb_dev_bulk) = &usb_dev_bulk; \
+  __ENTRY__(name, usb_dev_iso) = &usb_dev_iso; \
   __ENTRY__(name, usb_dev_interface_lock) = &usb_dev_interface_lock; \
   __ENTRY__(name, usb_dev_free_interface) = &usb_dev_free_interface; \
   __ENTRY__(name, request_callback) = &request_callback; \
@@ -140,7 +138,11 @@
   __ENTRY__(name, __is_x_to_y) = &__is_x_to_y; \
   __ENTRY__(name, __is_device_to_host) = &__is_device_to_host; \
   __ENTRY__(name, __is_host_to_device) = &__is_host_to_device; \
-
+  __ENTRY__(name, __get_alternate_settings) = &__get_alternate_settings; \
+  __ENTRY__(name, __has_endpoints) = &__has_endpoints; \
+  __ENTRY__(name, __get_first_endpoint) = &__get_first_endpoint; \
+  __ENTRY__(name, __match_endpoint) = &__match_endpoint; \
+  __ENTRY__(name, __get_endpoint) = &__get_endpoint
 
 #define __STATE_BODY__(dev, cmp, s) \
   dev->state cmp s
@@ -261,8 +263,7 @@ struct UsbDev {
       struct UsbDev *dev, int configuration,
       __CALLB_PROTO__);
   int (*request_switch_alternate_setting)(
-      struct UsbDev *dev, Interface *interface, int setting,
-      __CALLB_PROTO__);
+      struct UsbDev *dev, Interface *interface, int setting);
   int8_t (*support_bulk)(struct UsbDev *dev, Interface *interface);
   int8_t (*support_isochronous)(struct UsbDev *dev, Interface *interface);
   int8_t (*support_control)(struct UsbDev *dev, Interface *interface);
@@ -387,7 +388,7 @@ struct UsbDev {
   void (*__request_clear_feature)(struct UsbDev* dev, UsbDeviceRequest* device_req,
     uint16_t feature_value, uint16_t port, __CALLB_PROTO__);
   void (*__request_switch_alt_setting)(struct UsbDev* dev, UsbDeviceRequest* device_req,
-    Interface* interface, int setting, __CALLB_PROTO__);
+    Interface* interface, Alternate_Interface* alt_itf);
   void (*__request_switch_config)(struct UsbDev* dev, UsbDeviceRequest* device_req,
     int configuration, __CALLB_PROTO__);
   uint8_t (*__transfer_type)(struct UsbDev* dev, Endpoint* e);
@@ -406,6 +407,12 @@ struct UsbDev {
     uint8_t x_to_y);
   uint8_t (*__is_device_to_host)(struct UsbDev* dev, UsbDeviceRequest* dev_req);
   uint8_t (*__is_host_to_device)(struct UsbDev* dev, UsbDeviceRequest* dev_req);
+  uint8_t (*__get_alternate_settings)(struct UsbDev* dev, Interface* interface);
+  int8_t (*__has_endpoints)(struct UsbDev* dev, Alternate_Interface* alt_itf);
+  Endpoint* (*__get_first_endpoint)(struct UsbDev* dev, Alternate_Interface* alt_itf);
+  int8_t (*__match_endpoint)(struct UsbDev* dev, Endpoint* e, uint8_t endpoint_number);
+  Endpoint* (*__get_endpoint)(struct UsbDev* dev, Alternate_Interface* alt_interface,
+    uint8_t endpoint_number);
 
   uint8_t speed;
   uint8_t port;
