@@ -7,6 +7,7 @@ global __cxa_pure_virtual
 ; Import functions
 extern main
 extern initMemoryManager
+extern initLibc
 extern _exit
 
 ; Import linker symbols
@@ -31,6 +32,8 @@ _start:
 
     ; Initialize static variables
     call _init
+	
+	call initLibc
 
     ; Call main method
     call main
@@ -38,7 +41,7 @@ _start:
     push eax      ; Get return value from eax
 
     ; Cleanup static variables and exit process
-    call _fini
+    ;call _fini
     call _exit
 
 ; Zero out bss
