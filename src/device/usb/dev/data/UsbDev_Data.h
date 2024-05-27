@@ -21,24 +21,23 @@
 
 struct Endpoint {
   EndpointDescriptor endpoint_desc;
+  void* class_specific;
 };
 
 struct Alternate_Interface {
   InterfaceDescriptor alternate_interface_desc;
   struct Endpoint **endpoints;
 
+  void* class_specific;
   struct Alternate_Interface *next;
 };
 
 struct Interface {
   struct Alternate_Interface *alternate_interfaces;
-
   struct Alternate_Interface *active_interface;
-
   uint8_t active; // checks if a driver already has access to this interface
 
   void *driver; // UsbDriver*
-
   char *interface_description;
 };
 
