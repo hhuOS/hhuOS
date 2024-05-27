@@ -5,7 +5,17 @@
 
 #define AUDIO_CONFIGURATION_BUFFER 2048
 
-#define __INIT_AUDIO_DRIVER__(name) \
+#define __INIT_AUDIO_DRIVER__(name, driver_name, entry) \
+  __ENTRY__(name, get_free_audio_dev) = &get_free_audio_dev; \
+  __ENTRY__(name, match_audio_dev) = &match_audio_dev; \
+  __ENTRY__(name, free_audio_dev) = &free_audio_dev; \
+  __ENTRY__(name, configure_audio_device) = &configure_audio_device; \
+  \
+  __SUPER__(name, probe) = &probe_audio; \
+  __SUPER__(name, disconnect) = &disconnect_audio; \
+  __SUPER__(name, new_usb_driver) = &new_usb_driver; \
+  \
+  __CALL_SUPER__(name->super, new_usb_driver, driver_name, entry)
 
 #define __SET_REQUEST__ 0x01
 #define __GET_REQUEST__ 0x02
@@ -53,16 +63,125 @@
 #define __SPACIOUSNESS_UPPER_BOUND__ 255
 #define __SPACIOUSNESS_LOWER_BOUND__ 0
 
+#define __MATCH_ID__(driver, unit_descriptor, id, target_bSourceID, cmd) \
+  __IF_CUSTOM__(id == target_bSourceID, \
+    cmd \
+  )
+
+#define __UNIT_MATCH_ID__(driver, unit_descriptor, target_bSourceID, cmd) \
+  __MATCH_ID__(driver, unit_descriptor, unit_descriptor.bUnitID, target_bSourceID, cmd)
+
+#define __TERMINAL_MATCH_ID__(driver, terminal_descriptor, target_bSourceID, cmd) \
+  __MATCH_ID__(driver, terminal_descriptor, terminal_descriptor.bTerminalID, target_bSourceID, cmd)
+
+#define __INPUT_TERMINAL_MATCH__(driver, ac_interface, input_terminal_id, index, cmd) \
+  __TERMINAL_MATCH_ID__(driver, ac_interface->in_terminal[index]->in_terminal_desc, input_terminal_id, cmd)
+
+#define __OUTPUT_TERMINAL_MATCH__(driver, ac_interface, output_terminal_id, index, cmd) \
+  __TERMINAL_MATCH_ID__(driver, ac_interface->out_terminal[index]->out_terminal_desc, output_terminal_id, cmd)
+
+#define __FEATURE_UNIT_MATCH__(driver, ac_interface, feature_unit_id, index, cmd) \
+  __UNIT_MATCH_ID__(driver, ac_interface->feature_unit[index]->feature_unit_desc, feature_unit_id, cmd)
+
+#define __MIXER_UNIT_MATCH__(driver, ac_interface, mixer_unit_id, index, cmd) \
+  __UNIT_MATCH_ID__(driver, ac_interface->mixer_unit[index]->mixer_unit_desc, mixer_unit_id, cmd)
+
+#define __SELECTOR_UNIT_MATCH__(driver, ac_interface, selector_unit_id, index, cmd) \
+  __UNIT_MATCH_ID__(driver, ac_interface->selector_unit[index]->selector_unit_desc, selector_unit_id, cmd)
+
+#define __EXTENSION_UNIT_MATCH__(driver, ac_interface, extension_unit_id, index, cmd) \
+  __UNIT_MATCH_ID__(driver, ac_interface->extension_unit[index]->extension_unit_desc, extension_unit_id, cmd)
+
+#define __PROCESSING_UNIT_MATCH__(driver, ac_interface, processing_unit_id, index, cmd) \
+  __UNIT_MATCH_ID__(driver, ac_interface->processing_unit[index]->processing_unit_desc, processing_unit_id, cmd)
+
+#define __TOTAL_CHANNEL_MATCH_TERMINAL__(driver, terminal_descriptor, target_bSourceID) \
+  __TERMINAL_MATCH_ID__(driver, terminal_descriptor, target_bSourceID, \
+    return __get_total_channels_in_cluster(driver, terminal_descriptor.cluster))
+
+#define __TOTAL_CHANNEL_MATCH_UNIT__(driver, unit_descriptor, target_bSourceID) \
+  __UNIT_MATCH_ID__(driver, unit_descriptor, target_bSourceID, \
+    return __get_total_channels_in_cluster(driver, unit_descriptor.cluster))
+
+#define __MULTI_UPSTREAM__(driver, ac_interface, unit, sub_type, bSource_off, type) \
+  return find_structure_by_id(driver, ac_interface, ((type*)unit)->baSourceID + bSource_off, sub_type); break;
+
+#define __SINGLE_UPSTREAM__(driver, ac_interface, unit, sub_type, type) \
+  return find_structure_by_id(driver, ac_interface, ((type*)unit)->bSourceID, sub_type); break;
+  
+#define __UNIT_COUNT__(ac_interface, unit) \
+  ac_interface->unit_count_map[unit] == __MAX_UNITS__
+
+#define __GET_UNIT_COUNT__(ac_interface, unit) \
+  ac_interface->unit_count_map[unit]
+
+#define __UNIT_INC__(ac_interface, unit) \
+  ac_interface->unit_count_map[unit] = __GET_UNIT_COUNT__(ac_interface, unit) + 1
+
+#define __ADD_UNIT__(ac_interface, unit, unit_type, unit_v) \
+  ac_interface->unit[__GET_UNIT_COUNT__(ac_interface, unit_type)] = unit_v; \
+  __UNIT_INC__(ac_interface, unit_type)
+
+#define __MAX_UPSTREAM_DEPTH__ 3
+#define __MAX_UNITS__ 10
+#define __MAX_STREAMING_INTERFACES__ 10
+
+#define __TRAVERSE_UNIT__ \
+  __FOR_RANGE__(i, int, 0, __MAX_UNITS__)
+
+struct AudioStreamingDescriptor {
+  uint8_t bLength;
+  uint8_t bDescriptorType;
+  uint8_t bDescriptorSubtype;
+  uint8_t bTerminalLink;
+  uint8_t bDelay;
+  uint16_t wFormatTag;
+} __attribute__((packed));
+
+struct AudioControlDescriptor {
+  uint8_t bLength;
+  uint8_t bDescriptorType;
+  uint8_t bDescriptorSubtype;
+  uint16_t bcdADC;
+  uint16_t wTotalLength;
+  uint8_t bInCollection;
+  uint8_t* baInterfaceNr;
+} __attribute__((packed));
+
+struct AudioStreamingIsoEndpointDescriptor {
+  uint8_t bLength;
+  uint8_t bDescriptorType;
+  uint8_t bDescriptorSubtype;
+  uint8_t bmAttributes;
+  uint8_t bLockDelayUnits;
+  uint16_t wLockDelay;
+} __attribute__((packed));
+
+struct SampleFrequency{
+  uint16_t sampleFreq_lo;
+  uint8_t  sampleFreq_hi;
+} __attribute__((packed));
+
+typedef struct SampleFrequency SampleFrequency;
+
+#define __8000_HZ__ (SampleFrequency){.sampleFreq_lo = 8000, .sampleFreq_hi = 0}
+#define __16000_HZ__ (SampleFrequency){.sampleFreq_lo = 16000, .sampleFreq_hi = 0}
+#define __24000_HZ__ (SampleFrequency){.sampleFreq_lo = 24000, .sampleFreq_hi = 0}
+#define __32000_HZ__ (SampleFrequency){.sampleFreq_lo = 32000, .sampleFreq_hi = 0}
+#define __44100_HZ__ (SampleFrequency){.sampleFreq_lo = 44100, .sampleFreq_hi = 0} 
+#define __48000_HZ__ (SampleFrequency){.sampleFreq_lo = 48000, .sampleFreq_hi = 0}
+
 struct ACInterface {
   struct AudioControlDescriptor ac_desc;
-  struct InputTerminalDescriptor in_terminal_desc;
-  struct OutputTerminalDescriptor out_terminal_desc;
-  struct MixerUnitDescriptor mixer_unit_desc;
-  struct SelectorUnitDescriptor selector_unit_desc;
-  struct FeatureUnitDescriptor feature_unit_desc;
-  struct ProcessingUnitDescriptor processing_unit_desc;
-  struct ExtensionUnitDescriptor extension_unit_desc;
-  struct AssociatedInterfaceDescriptor associated_interface_desc;
+  struct InputTerminal* in_terminal[__MAX_UNITS__];
+  struct OutputTerminal* out_terminal[__MAX_UNITS__];
+  struct MixerUnit* mixer_unit[__MAX_UNITS__];
+  struct SelectorUnit* selector_unit[__MAX_UNITS__];
+  struct FeatureUnit* feature_unit[__MAX_UNITS__];
+  struct ProcessingUnit* processing_unit[__MAX_UNITS__];
+  struct ExtensionUnit* extension_unit[__MAX_UNITS__];
+  struct AssociatedInterface* associated_interface[__MAX_UNITS__];
+  uint8_t unit_count_map[__MAX_UNITS__];
 };
 
 struct ASEndpoint {
@@ -71,15 +190,18 @@ struct ASEndpoint {
 
 struct ASInterface {
   struct AudioStreamingDescriptor as_desc;
-  struct ASEndpoint* as_endpoint;
+  struct FormatType* format_type;
+  struct SampleFrequency current_freq;
+  uint8_t bPitchEnable;
+
+  uint8_t* buffer;
+  unsigned int buffer_size;
 };
 
-struct AudioInterfaceCollection {
+/*struct AudioInterfaceCollection {
   struct ACInterface* ac_itf;
   struct ASInterface** as_itf;
-
-  uint8_t num_streaming_interfaces;
-};
+}; */
 
 typedef struct ACInterface ACInterface;
 typedef struct ASInterface ASInterface;
@@ -92,24 +214,32 @@ struct AudioDev {
     void* buffer;
     unsigned int buffer_size;
     uint8_t priority;
-    Interface* interface;
+    Interface* audio_control_interface;
+    Interface* audio_streaming_interfaces[__MAX_STREAMING_INTERFACES__];
+    uint8_t audio_streaming_interfaces_num;
     uint16_t interval;
     UsbDriver* usb_driver;
-    AudioInterfaceCollection* audio_collection;
     int16_t curr_volume;
     int16_t max_volume;
     int16_t min_volume;
+
 
     void (*callback)(UsbDev* dev, uint32_t status, void* data);
 };
 
 struct AudioDriver {
-    struct UsbDriver driver;
-    struct AudioDev dev[MAX_DEVICES_PER_USB_DRIVER];
-    uint8_t audio_map[MAX_DEVICES_PER_USB_DRIVER];
+  struct UsbDriver super;
+  struct AudioDev dev[MAX_DEVICES_PER_USB_DRIVER];
+  uint8_t audio_map[MAX_DEVICES_PER_USB_DRIVER];
 
-    void (*new_driver)(struct AudioDriver* driver);
+  void (*new_audio_driver)(struct AudioDriver* driver, char* name, UsbDevice_ID* entry);
+  struct AudioDev* (*get_free_audio_dev)(struct AudioDriver* driver);
+  void (*free_audio_dev)(struct AudioDriver *driver, struct AudioDev *audio_dev);
+  struct AudioDev* (*match_audio_dev)(struct AudioDriver *driver, UsbDev *dev);
+  int (*configure_audio_device)(struct AudioDriver* driver);
 };
+
+void new_audio_driver(struct AudioDriver* driver, char* name, UsbDevice_ID* entry);
 
 enum AudioDescriptorTypes {
   CS_DEVICE = 0x21,
@@ -143,6 +273,40 @@ enum AudioEndpointDescriptorSubtypes {
   EP_GENERAL = 0x01
 };
 
+enum TerminalTypes{
+  USB_UNDEFINED = 0x0100,
+  USB_STREAMING = 0x0101,
+  USB_VENDOR_SPECIFIC = 0x01FF
+};
+
+enum InputTerminalTypes{
+  INPUT_UNDEFINED = 0x0200,
+  MICROPHONE = 0x0201,
+  DESKTOP_MICROPHONE = 0x0202,
+  PERSONAL_MICROPHONE = 0x0203,
+  OMNI_DIRECTIONAL_MICROPHONE = 0x0204
+};
+
+enum OutputTerminalTypes{
+  OUTPUT_UNDEFINED = 0x0300,
+  SPEAKER = 0x0301,
+  HEADPHONES = 0x0302,
+  HEAD_MOUNTED_DISPLAY_AUDIO = 0x0303,
+  DESKTOP_SPEAKER = 0x0304,
+  ROOM_SPEAKER = 0x0305,
+  COMMUNICATION_SPEAKER = 0x0306,
+  LOW_FREQ_EFFECTS_SPEAKER = 0x0307
+};
+
+enum BiDirectionalTerminalTypes{
+  BI_DIRECTIONAL_UNDEFINED = 0x0400,
+  HANDSET = 0x0401,
+  HEADSET = 0x0402,
+  SPEAKER_PHONE = 0x0403,
+  ECHO_SUPRESSING_SPEAKER_PHONE = 0x0404,
+  ECHO_CANCELING_SPEAKER_PHONE = 0x0405
+};
+
 enum ProcessingUnitProcessTypes {
     PROCESS_UNDEFINED = 0x00,
     UP_DOWNMIX_PROCESS = 0x01,
@@ -169,6 +333,12 @@ enum FeatureUnitbmaControls{
   BIT_DELAY = 0x0080,
   BIT_BASS_BOOST = 0x0100,
   BIT_LOUDNESS = 0x0200
+};
+
+enum IsoEndpointControls {
+  BIT_SAMPLING_FREQ = 0x01,
+  BIT_PITCH = 0x02,
+  BIT_MAX_PACKETS_ONLY = 0x80
 };
 
 enum FeatureUnitControlSelectors{
@@ -289,34 +459,6 @@ struct ClusterDescriptor{
 
 typedef struct ClusterDescriptor ClusterDescriptor;
 
-struct AudioControlDescriptor {
-  uint8_t bLength;
-  uint8_t bDescriptorType;
-  uint8_t bDescriptorSubtype;
-  uint16_t bcdADC;
-  uint16_t wTotalLength;
-  uint8_t bInCollection;
-  uint8_t baInterfaceNr[];
-} __attribute__((packed));
-
-struct AudioStreamingDescriptor {
-  uint8_t bLength;
-  uint8_t bDescriptorType;
-  uint8_t bDescriptorSubtype;
-  uint8_t bTerminalLink;
-  uint8_t bDelay;
-  uint16_t wFormatTag;
-} __attribute__((packed));
-
-struct AudioStreamingIsoEndpointDescriptor {
-  uint8_t bLength;
-  uint8_t bDescriptorType;
-  uint8_t bDescriptorSubtype;
-  uint8_t bmAttributes;
-  uint8_t bLockDelayUnits;
-  
-} __attribute__((packed));
-
 struct InputTerminalDescriptor{
   uint8_t bLength;
   uint8_t bDescriptorType;
@@ -324,9 +466,14 @@ struct InputTerminalDescriptor{
   uint8_t bTerminalID;
   uint16_t wTerminalType;
   uint8_t bAssocTerminal;
-  ClusterDescriptor cluster_descriptor;
+  ClusterDescriptor cluster;
   uint8_t iTerminal;
 } __attribute__((packed));
+
+struct InputTerminal{
+  struct InputTerminalDescriptor in_terminal_desc;
+  char* in_terminal_description;
+};
 
 struct OutputTerminalDescriptor{
   uint8_t bLength;
@@ -339,6 +486,11 @@ struct OutputTerminalDescriptor{
   uint8_t iTerminal;
 } __attribute__((packed));
 
+struct OutputTerminal{
+  struct OutputTerminalDescriptor out_terminal_desc;
+  char* out_terminal_description;
+};
+
 struct MixerUnitDescriptor{
   uint8_t bLength;
   uint8_t bDescriptorType;
@@ -346,10 +498,15 @@ struct MixerUnitDescriptor{
   uint8_t bUnitID;
   uint8_t bNrInPins;
   uint8_t* baSourceID;
-  ClusterDescriptor cluster_desc;
+  ClusterDescriptor cluster;
   uint8_t* bmControls;
-  uint8_t bmControlsLength;
   uint8_t iMixer;
+};
+
+struct MixerUnit{
+  struct MixerUnitDescriptor mixer_unit_desc;
+  char* mixer_description;
+  uint8_t bmControlsLength;
 };
 
 struct SelectorUnitDescriptor{
@@ -360,7 +517,12 @@ struct SelectorUnitDescriptor{
   uint8_t bNrInPins;
   uint8_t* baSourceID;
   uint8_t iSelector;
-}; 
+};
+
+struct SelectorUnit{
+  struct SelectorUnitDescriptor selector_unit_desc;
+  char* selector_description;
+};
 
 struct FeatureUnitDescriptor{
   uint8_t bLength;
@@ -373,6 +535,11 @@ struct FeatureUnitDescriptor{
   uint8_t iFeature;
 };
 
+struct FeatureUnit{
+  struct FeatureUnitDescriptor feature_unit_desc;
+  char* feature_description;
+};
+
 struct ProcessingUnitDescriptor{
   uint8_t bLength;
   uint8_t bDescriptorType;
@@ -380,12 +547,17 @@ struct ProcessingUnitDescriptor{
   uint8_t bUnitID;
   uint16_t wProcessType;
   uint8_t bNrInPins;
-  uint8_t* baSource;
+  uint8_t* baSourceID;
   ClusterDescriptor cluster;
   uint8_t bControlSize;
   uint8_t* bmControls;
   uint8_t iProcessing;
   void* process_specific_descriptor;
+};
+
+struct ProcessingUnit{
+   struct ProcessingUnitDescriptor processing_unit_desc;
+   char* processing_description;
 };
 
 struct UP_DOWN_MixProcessingUnitDescriptor{
@@ -486,11 +658,16 @@ struct ExtensionUnitDescriptor{
   uint8_t bUnitID;
   uint16_t wExtensionCode;
   uint8_t bNrInPins;
-  uint8_t* baSource;
+  uint8_t* baSourceID;
   ClusterDescriptor cluster;
   uint8_t bControlSize;
   uint8_t* bmControls;
   uint8_t iExtension;
+};
+
+struct ExtensionUnit{
+  struct ExtensionUnitDescriptor extension_unit_desc;
+  char* extension_description;
 };
 
 struct AssociatedInterfaceDescriptor{
@@ -606,10 +783,84 @@ struct DynamicRangeCompressorMaxAmplControlParameterBlock{
 
 };
 
+struct SamplingFrequencyControlParameterBlock{
+  uint8_t control_selector;
+  uint8_t wLength;
+  struct SampleFrequency tSampleFreq;
+} __attribute__((packed));
+
+struct PitchControlParameterBlock{
+  uint8_t control_selector;
+  uint8_t wLength;
+  uint8_t bPitchEnable;
+} __attribute__((packed));
+
 enum CPL{
   CPL_0 = 0x00,
   CPL_1 = 0x01,
   CPL_2 = 0x02
+};
+
+enum AudioDataFormatType1_Codes{
+  TYPE_1_UNDEFINED = 0x0000,
+  PCM = 0x0001,
+  PCM_8 = 0x0002,
+  IEEE_FLOAT = 0x0003,
+  ALAW = 0x0004,
+  MULAW = 0x0005
+};
+
+enum AudioDataFormatType2_Codes{
+  TYPE_2_UNDEFINED = 0x1000,
+  MPEG = 0x1001,
+  AC_3 = 0x1002
+};
+
+enum AudioDataFormatType3_Codes{
+  TYPE_3_UNDEFINED = 0x2000,
+  IEC1937_AC_3 = 0x2001,
+  IEC1937_MPEG_1_LAYER1 = 0x2002,
+  IEC1937_MPEG_1_LAYER2_OR_3 = 0x2003,
+  IEC1937_MPEG_2_EXT = 0x2004,
+  IEC1937_MPEG_2_LAYER1_LS = 0x2005,
+  IEC1937_MPEG_2_LAYER2_3_LS = 0x2006
+};
+
+enum FormatTypeCodes{
+  FORMAT_TYPE_UNDEFINED = 0x00,
+  FORMAT_TYPE_1 = 0x01,
+  FORMAT_TYPE_2 = 0x02,
+  FORMAT_TYPE_3 = 0x03
+};
+
+struct FormatType{
+  enum FormatTypeCodes format;
+  void* type_descriptor;
+};
+
+struct FormatSpecificType{
+  
+};
+
+struct Type1_FormatTypeDescriptor{
+  uint8_t bLength;
+  uint8_t bDescriptorType;
+  uint8_t bDescriptorSubtype;
+  uint8_t bFormatType;
+  uint8_t bNrChannels;
+  uint8_t bSubframeSize;
+  uint8_t bBitResolution;
+  uint8_t bSamFreqType;
+  void* samFreq;
+} __attribute__((packed));
+
+struct ContinuousSamplingFrequency{
+  struct SampleFrequency tLower;
+  struct SampleFrequency tUpper;
+} __attribute__((packed));
+
+struct DiscreteNumberSamplingFrequencies{
+  struct SampleFrequency* tSam;
 };
 
 typedef struct AudioDev AudioDev;
