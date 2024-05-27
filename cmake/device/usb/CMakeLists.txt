@@ -17,6 +17,7 @@ target_sources(device PUBLIC
         ${HHUOS_SRC_DIR}/device/usb/driver/hid/MouseDriver.c
         ${HHUOS_SRC_DIR}/device/usb/driver/hid/KeyBoardDriver.c
         ${HHUOS_SRC_DIR}/device/usb/driver/storage/MassStorageDriver.c
+        ${HHUOS_SRC_DIR}/device/usb/driver/audio/AudioDeviceDriver.c
         ${HHUOS_SRC_DIR}/device/usb/driver/hub/HubDriver.c
         ${HHUOS_SRC_DIR}/device/usb/interfaces/MapInterface.cpp
         ${HHUOS_SRC_DIR}/device/usb/interfaces/TimeInterface.cpp
