@@ -98,6 +98,7 @@
 #include "kernel/usb/driver/KernelMassStorageDriver.h"
 #include "kernel/usb/driver/KernelUsbDriver.h"
 #include "kernel/usb/driver/KernelHubDriver.h"
+#include "kernel/usb/driver/KernelAudioDriver.h"
 
 namespace Device {
 class Machine;
@@ -511,7 +512,7 @@ void GatesOfHell::initializeSound() {
 void GatesOfHell::initializeUsb(){
     log.info("Initializing Usb ...");
     
-    int kbd_status = 0, mouse_status = 0, msd_status = 0;
+    int kbd_status = 0, mouse_status = 0, msd_status = 0, audio_status = 0;
     Kernel::System::registerService(Kernel::UsbService::SERVICE_ID, new Kernel::UsbService());
     Kernel::UsbService& usb_service = Kernel::System::getService<Kernel::UsbService>();
 
@@ -519,11 +520,13 @@ void GatesOfHell::initializeUsb(){
     Kernel::Usb::Driver::KernelUsbDriver* msd_driver = new Kernel::Usb::Driver::KernelMassStorageDriver("msd");
     Kernel::Usb::Driver::KernelUsbDriver* m_driver = new Kernel::Usb::Driver::KernelMouseDriver("mouse");
     Kernel::Usb::Driver::KernelUsbDriver* hub_driver = new Kernel::Usb::Driver::KernelHubDriver("hub");
+    Kernel::Usb::Driver::KernelUsbDriver* audio_driver = new Kernel::Usb::Driver::KernelAudioDriver("audio");
 
     hub_driver->initialize();
     kbd_status = k_driver->initialize();
     mouse_status = m_driver->initialize();
     msd_status = msd_driver->initialize();
+    audio_status = audio_driver->initialize();
     
     usb_service.create_usb_fs();
 
@@ -533,6 +536,8 @@ void GatesOfHell::initializeUsb(){
         m_driver->create_usb_dev_node();
     if(msd_status != -1)
         msd_driver->create_usb_dev_node();
+    if(audio_status != -1)
+        audio_driver->create_usb_dev_node();
 }
 
 void GatesOfHell::mountDevices() {
