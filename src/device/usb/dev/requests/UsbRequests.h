@@ -104,6 +104,7 @@ enum BRequest_Class_HID{
     SET_IDLE = 0x0A
 };
 
+/*
 enum BRequest_Class_AUDIO{
     SET_CURRENT = 0x01,
     GET_CURRENT = 0x81,
@@ -113,7 +114,7 @@ enum BRequest_Class_AUDIO{
     GET_MAX = 0x83,
     SET_RES = 0x04,
     GET_RES = 0x84
-};
+}; */
 
 enum BRequest_Class_MASS_STORAGE{
     GET_MAX_LUN = 0xFE,
