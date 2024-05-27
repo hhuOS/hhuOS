@@ -109,6 +109,7 @@
 #include "device/network/ne2000/Ne2000.h"
 #include "filesystem/iso9660/IsoDriver.h"
 #include "device/time/rtc/Cmos.h"
+#include "device/graphic/VesaBiosExtensions.h"
 
 namespace Util {
 class HeapMemoryManager;
@@ -444,6 +445,39 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     auto *powerManagementService = new Kernel::PowerManagementService(machine);
     Kernel::Service::registerService(Kernel::PowerManagementService::SERVICE_ID, powerManagementService);
 
+    Device::Graphic::VesaBiosExtensions *vbe = nullptr;
+    if (multiboot->getKernelOption("vbe", "true") == "true" && Device::Graphic::VesaBiosExtensions::isAvailable()) {
+        LOG_INFO("Initializing Vesa BIOS Extensions");
+        vbe = Device::Graphic::VesaBiosExtensions::initialize();
+
+        if (multiboot->hasKernelOption("resolution")) {
+            auto split1 = multiboot->getKernelOption("resolution").split("@");
+            auto split2 = split1[0].split("x");
+
+            if (split2.length() < 2) {
+                LOG_WARN("Ignoring invalid 'resolution' parameter");
+            } else {
+                auto resolutionX = Util::String::parseInt(split2[0]);
+                auto resolutionY = Util::String::parseInt(split2[1]);
+                auto colorDepth = split1.length() > 1 ? Util::String::parseInt(split1[1]) : 32;
+
+                if (lfb == nullptr || (lfb->getResolutionX() != resolutionX || lfb->getResolutionY() != resolutionY || lfb->getColorDepth() != colorDepth)) {
+                    Kernel::Log::removeOutputStream(*terminal);
+                    delete terminal;
+
+                    auto mode = vbe->findMode(resolutionX, resolutionY, colorDepth);
+                    Device::Graphic::VesaBiosExtensions::setMode(mode.modeNumber);
+
+                    lfb = new Util::Graphic::LinearFrameBuffer(mode.physicalAddress, mode.resolutionX, mode.resolutionY, mode.colorDepth, mode.pitch, false);
+                    terminal = new Util::Graphic::LinearFrameBufferTerminal(lfb);
+                    Kernel::Log::addOutputStream(*terminal);
+                }
+            }
+        }
+    }
+
+    auto *lfbNode = lfb == nullptr ? nullptr : new Device::Graphic::LinearFrameBufferNode("lfb", *lfb, vbe);
+
     if (multiboot->getKernelOption("apic", "true") == "true" && Device::Apic::isAvailable()) {
         LOG_INFO("APIC detected");
         auto *apic = Device::Apic::initialize();
@@ -598,7 +632,6 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     }
 
     if (lfb != nullptr) {
-        auto *lfbNode = new Device::Graphic::LinearFrameBufferNode("lfb", *lfb);
         deviceDriver->addNode("/", lfbNode);
     }
 

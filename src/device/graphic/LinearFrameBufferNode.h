@@ -44,7 +44,7 @@ public:
     /**
      * Constructor.
      */
-    explicit LinearFrameBufferNode(const Util::String &name, const Util::Graphic::LinearFrameBuffer &lfb);
+    explicit LinearFrameBufferNode(const Util::String &name, const Util::Graphic::LinearFrameBuffer &lfb, const VesaBiosExtensions *vbe);
 
     /**
      * Copy Constructor.
@@ -78,7 +78,8 @@ private:
     uint16_t resolutionY;
     uint8_t colorDepth;
     uint16_t pitch;
-    Device::Graphic::VesaBiosExtensions *vbe = nullptr;
+
+    const Device::Graphic::VesaBiosExtensions *vbe;
 };
 
 }

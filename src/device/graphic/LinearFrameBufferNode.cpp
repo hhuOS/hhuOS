@@ -26,14 +26,9 @@
 
 namespace Device::Graphic {
 
-LinearFrameBufferNode::LinearFrameBufferNode(const Util::String &name, const Util::Graphic::LinearFrameBuffer &lfb) : Filesystem::Memory::StringNode(name),
+LinearFrameBufferNode::LinearFrameBufferNode(const Util::String &name, const Util::Graphic::LinearFrameBuffer &lfb, const VesaBiosExtensions *vbe) : Filesystem::Memory::StringNode(name),
         physicalAddress(Kernel::Service::getService<Kernel::MemoryService>().getPhysicalAddress(reinterpret_cast<void*>(lfb.getBuffer().get()))),
-        resolutionX(lfb.getResolutionX()), resolutionY(lfb.getResolutionY()), colorDepth(lfb.getColorDepth()), pitch(lfb.getPitch()) {
-    const auto &multiboot = Kernel::Service::getService<Kernel::InformationService>().getMultibootInformation();
-    if (multiboot.getKernelOption("vbe", "true") == "true" && Device::Graphic::VesaBiosExtensions::isAvailable()) {
-        vbe = Device::Graphic::VesaBiosExtensions::initialize();
-    }
-}
+        resolutionX(lfb.getResolutionX()), resolutionY(lfb.getResolutionY()), colorDepth(lfb.getColorDepth()), pitch(lfb.getPitch()), vbe(vbe) {}
 
 LinearFrameBufferNode::~LinearFrameBufferNode() {
     delete vbe;
@@ -41,6 +36,7 @@ LinearFrameBufferNode::~LinearFrameBufferNode() {
 
 Util::String LinearFrameBufferNode::getString() {
     auto buffer = Util::String::format("%u\n%ux%u@%u\n%u\n", physicalAddress, resolutionX, resolutionY, colorDepth, pitch);
+
     if (vbe != nullptr) {
         const auto &deviceInfo = vbe->getDeviceInfo();
 

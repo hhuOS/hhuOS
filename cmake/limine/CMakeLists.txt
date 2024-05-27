@@ -41,7 +41,7 @@ VERBOSE=yes\\n\
     COMMENT=hhuOS\\n\
     PROTOCOL=multiboot2\\n\
     KERNEL_PATH=boot:///hhuOS/kernel.elf\\n\
-    KERNEL_CMDLINE=log_level=inf log_ports=COM1 root=vdd0p0,Filesystem::Fat::FatDriver apic=true bios=true apm=true vbe=false\\n\
+    KERNEL_CMDLINE=log_level=inf log_ports=COM1 root=vdd0p0,Filesystem::Fat::FatDriver apic=true bios=true apm=true vbe=true\\n\
     MODULE_PATH=boot:///hhuOS/hdd0.img\\n\
     MODULE_STRING=vdd0")
 
