@@ -49,6 +49,8 @@ void Shell::beginCommandLine() {
     currentLine = "";
     auto currentDirectory = Util::Io::File::getCurrentWorkingDirectory();
 
+    buildAutoCompletionLists();
+
     Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_GREEN << "["
                       << Util::Graphic::Ansi::FOREGROUND_BRIGHT_WHITE << (currentDirectory.getCanonicalPath().isEmpty() ? "/" : currentDirectory.getName())
                       << Util::Graphic::Ansi::FOREGROUND_BRIGHT_GREEN << "]> "
@@ -138,6 +140,11 @@ void Shell::readLine() {
                 Util::Graphic::Ansi::enableRawMode();
         }
 
+        if (input != '\t') {
+            autoCompletionSearchString = "";
+            autoCompletionIndex = 0;
+        }
+
         input = Util::Graphic::Ansi::readChar();
     }
 
@@ -147,15 +154,16 @@ void Shell::readLine() {
 void Shell::parseInput() {
     const auto async = currentLine.endsWith("&");
     const auto pipeSplit = currentLine.substring(0, async ? currentLine.length() - 1 : currentLine.length()).split(">");
+
     if (pipeSplit.length() == 0) {
         return;
     }
 
     const auto command = pipeSplit[0].substring(0, currentLine.indexOf(" "));
-    const auto rest = pipeSplit[0].substring(currentLine.indexOf(" ") + 1, currentLine.length());
+    const auto rest = pipeSplit[0].substring(currentLine.indexOf(" "), currentLine.length());
 
     bool valid;
-    auto arguments = parseArguments(rest, valid);
+    auto arguments = parseArguments(rest.strip(), valid);
     const auto targetFile = pipeSplit.length() == 1 ? "/device/terminal" : pipeSplit[1].split(" ")[0];
 
     if (!valid) {
@@ -201,6 +209,10 @@ Util::Array<Util::String> Shell::parseArguments(const Util::String &argumentStri
         } else {
             currentArgument += currentCharacter;
         }
+    }
+
+    if (!currentArgument.isEmpty()) {
+        argumentList.add(currentArgument);
     }
 
     valid = !inString;
@@ -423,7 +435,47 @@ void Shell::handleBackspace() {
 }
 
 void Shell::handleTab() {
+    if (currentLine.isEmpty() || currentLine.contains(' ')) {
+        return;
+    }
 
+    if (autoCompletionSearchString.isEmpty()) {
+        autoCompletionSearchString = currentLine;
+    }
+
+    auto autoCompletionSuggestions = Util::ArrayList<Util::String>();
+    autoCompletionSuggestions.addAll(autoCompletionPathSuggestions);
+    autoCompletionSuggestions.addAll(autoCompletionCurrentWorkingDirectorySuggestions);
+
+    for (uint32_t i = 0; i < autoCompletionSuggestions.size(); i++) {
+        auto index = (autoCompletionIndex + i) % autoCompletionSuggestions.size();
+        const auto &suggestion = autoCompletionSuggestions.get(index);
+
+        if (suggestion.beginsWith(autoCompletionSearchString)) {
+            autoCompletionIndex = index + 1 % autoCompletionSuggestions.size();
+            currentLine = suggestion;
+
+            auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
+            Util::Graphic::Ansi::setPosition(startPosition);
+
+            for (auto row = startPosition.row; row <= cursorPosition.row; row++) {
+                if (row == startPosition.row) {
+                    Util::Graphic::Ansi::clearLineFromCursor();
+                } else if (row == cursorPosition.row) {
+                    Util::Graphic::Ansi::clearLineToCursor();
+                } else {
+                    Util::Graphic::Ansi::clearLine();
+                }
+
+                Util::Graphic::Ansi::setPosition(Util::Graphic::Ansi::CursorPosition{cursorPosition.column, static_cast<uint16_t>(row + 1)});
+            }
+
+            Util::Graphic::Ansi::setPosition(startPosition);
+            Util::System::out << suggestion << Util::Io::PrintStream::flush;
+
+            break;
+        }
+    }
 }
 
 uint32_t Shell::getScrolledLines() const {
@@ -441,4 +493,29 @@ Util::Graphic::Ansi::CursorPosition Shell::getStartPosition() const {
     }
 
     return startPosition;
+}
+
+void Shell::buildAutoCompletionLists() {
+    autoCompletionPathSuggestions.clear();
+    autoCompletionCurrentWorkingDirectorySuggestions.clear();
+
+    for (const auto &path : Util::String(PATH).split(":")) {
+        auto directory = Util::Io::File(path);
+        if (directory.exists() && directory.isDirectory()) {
+            for (const auto &fileName : directory.getChildren()) {
+                auto file = Util::Io::File(directory.getCanonicalPath() + "/" + fileName);
+                if (file.isFile()) {
+                    autoCompletionPathSuggestions.add(fileName);
+                }
+            }
+        }
+    }
+
+    auto workingDirectory = Util::Io::File::getCurrentWorkingDirectory();
+    for (const auto &fileName : workingDirectory.getChildren()) {
+        auto file = Util::Io::File(workingDirectory.getCanonicalPath() + "/" + fileName);
+        if (file.isFile()) {
+            autoCompletionCurrentWorkingDirectorySuggestions.add(fileName);
+        }
+    }
 }

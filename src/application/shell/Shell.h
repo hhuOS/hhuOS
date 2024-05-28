@@ -88,6 +88,8 @@ private:
 
     Util::String checkDirectory(const Util::String &command, Util::Io::File &directory) const;
 
+    void buildAutoCompletionLists();
+
     static void cd(const Util::Array<Util::String> &arguments);
 
     static void executeBinary(const Util::String &path, const Util::String &command, const Util::Array<Util::String> &arguments, const Util::String &outputPath, bool async);
@@ -100,6 +102,11 @@ private:
 
     Util::ArrayList<Util::String> history;
     uint32_t historyIndex = 0;
+
+    Util::String autoCompletionSearchString = "";
+    Util::ArrayList<Util::String> autoCompletionPathSuggestions;
+    Util::ArrayList<Util::String> autoCompletionCurrentWorkingDirectorySuggestions;
+    uint32_t autoCompletionIndex = 0;
 
     static const constexpr char *PATH = "/bin";
 };
