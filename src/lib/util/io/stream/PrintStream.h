@@ -100,6 +100,8 @@ public:
     PrintStream& operator<<(int16_t value);
 
     PrintStream& operator<<(uint16_t value);
+	
+	PrintStream& operator<<(long int value);
 
     PrintStream& operator<<(int32_t value);
 

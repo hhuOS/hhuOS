@@ -208,6 +208,11 @@ PrintStream& PrintStream::operator<<(int32_t number) {
     return *this;
 }
 
+PrintStream& PrintStream::operator<<(long int value) {
+	print((int32_t)value);
+    return *this;
+}
+
 PrintStream& PrintStream::operator<<(uint32_t number) {
     print(number);
     return *this;
