@@ -48,6 +48,7 @@
 #include "lib/util/io/stream/PrintStream.h"
 #include "kernel/process/Scheduler.h"
 #include "kernel/memory/MemoryLayout.h"
+#include "device/cpu/Cpu.h"
 
 namespace Util {
 namespace Async {
@@ -289,10 +290,19 @@ void throwError(Util::Exception::Error error, const char *message) {
     if (Kernel::Service::isServiceRegistered(Kernel::ProcessService::SERVICE_ID) && Kernel::Service::getService<Kernel::ProcessService>().getScheduler().isInitialized()) {
         Util::System::out << Util::Exception::getExceptionName(error) << " (" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         Util::System::printStackTrace(Util::System::out, Kernel::MemoryLayout::KERNEL_START);
+
+        auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
+        if (processService.getCurrentProcess().isKernelProcess()) {
+            Device::Cpu::disableInterrupts();
+            Device::Cpu::halt();
+        }
+
+        processService.exitCurrentProcess(-1);
     } else {
         LOG_ERROR("%s (%s)", Util::Exception::getExceptionName(error), message);
         logStackTrace();
-    }
 
-    while (true) {}
+        Device::Cpu::disableInterrupts();
+        Device::Cpu::halt();
+    }
 }
