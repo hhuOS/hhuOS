@@ -19,11 +19,12 @@
 #include "lib/util/base/System.h"
 #include "lib/util/async/Process.h"
 #include "lib/util/graphic/Terminal.h"
-#include "Shell.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/collection/ArrayList.h"
+#include "Shell.h"
 
 Shell::Shell(const Util::String &path) : startDirectory(path) {}
 
@@ -151,12 +152,15 @@ void Shell::parseInput() {
     }
 
     const auto command = pipeSplit[0].substring(0, currentLine.indexOf(" "));
-    const auto rest = pipeSplit[0].substring(currentLine.indexOf(" "), currentLine.length());
-    auto arguments = rest.split(" ");
+    const auto rest = pipeSplit[0].substring(currentLine.indexOf(" ") + 1, currentLine.length());
 
+    bool valid;
+    auto arguments = parseArguments(rest, valid);
     const auto targetFile = pipeSplit.length() == 1 ? "/device/terminal" : pipeSplit[1].split(" ")[0];
 
-    if (command == "cd") {
+    if (!valid) {
+        Util::System::out << "Invalid argument string!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    } else if (command == "cd") {
         cd(arguments);
     } else if (command == "exit") {
         isRunning = false;
@@ -174,6 +178,33 @@ void Shell::parseInput() {
     }
 
     historyIndex = history.size();
+}
+
+Util::Array<Util::String> Shell::parseArguments(const Util::String &argumentString, bool &valid) {
+    auto argumentList = Util::ArrayList<Util::String>();
+    auto currentArgument = Util::String();
+    bool inString = false;
+    for (uint32_t i = 0; i < argumentString.length(); i++) {
+        auto currentCharacter = argumentString[i];
+        if (currentCharacter == '"') {
+            if (currentArgument.length() > 0) {
+                argumentList.add(currentArgument);
+                currentArgument = "";
+            }
+
+            inString = !inString;
+        } else if (currentCharacter == ' ' && !inString) {
+            if (currentArgument.length() > 0) {
+                argumentList.add(currentArgument);
+                currentArgument = "";
+            }
+        } else {
+            currentArgument += currentCharacter;
+        }
+    }
+
+    valid = !inString;
+    return argumentList.toArray();
 }
 
 Util::String Shell::checkPath(const Util::String &command) const {

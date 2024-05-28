@@ -78,6 +78,8 @@ private:
 
     void parseInput();
 
+    Util::Array<Util::String> parseArguments(const Util::String &argumentString, bool &valid);
+
     [[nodiscard]] uint32_t getScrolledLines() const;
 
     [[nodiscard]] Util::Graphic::Ansi::CursorPosition getStartPosition() const;
