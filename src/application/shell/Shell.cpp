@@ -461,13 +461,15 @@ void Shell::handleTab() {
             for (auto row = startPosition.row; row <= cursorPosition.row; row++) {
                 if (row == startPosition.row) {
                     Util::Graphic::Ansi::clearLineFromCursor();
-                } else if (row == cursorPosition.row) {
-                    Util::Graphic::Ansi::clearLineToCursor();
                 } else {
-                    Util::Graphic::Ansi::clearLine();
-                }
+                    if (row == cursorPosition.row) {
+                        Util::Graphic::Ansi::clearLineToCursor();
+                    } else {
+                        Util::Graphic::Ansi::clearLine();
+                    }
 
-                Util::Graphic::Ansi::setPosition(Util::Graphic::Ansi::CursorPosition{cursorPosition.column, static_cast<uint16_t>(row + 1)});
+                    Util::Graphic::Ansi::setPosition(Util::Graphic::Ansi::CursorPosition{cursorPosition.column, static_cast<uint16_t>(row + 1)});
+                }
             }
 
             Util::Graphic::Ansi::setPosition(startPosition);
