@@ -17,24 +17,11 @@
 
 #include <cstdint>
 
-#include "lib/util/base/System.h"
-#include "lib/util/base/ArgumentParser.h"
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/io/stream/PrintStream.h"
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("ANSI color test application.\n"
-                               "Usage: color\n"
-                               "Options:\n"
-                               "  -h, --help: Show this help message");
-
-    if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-        return -1;
-    }
-
+void ansiColorDemo() {
     Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << "4-bit colors:" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 
     for (uint32_t i = 0; i < 16; i++) {
@@ -68,5 +55,4 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     Util::System::out << Util::Io::PrintStream::flush;
-    return 0;
 }

@@ -32,12 +32,13 @@
 #include "application/demo/ant/Ant.h"
 #include "application/demo/particles/ParticleDemo.h"
 #include "application/demo/mouse/MouseDemo.h"
+#include "application/demo/color/AnsiColorDemo.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.setHelpText("Demo applications, showing off the systems graphical capabilities.\n"
                                "Usage: demo [DEMO] [OPTIONS]...\n"
-                               "Demos: ant, mousepolygons, sprites\n"
+                               "Demos: ant, color, mouse, polygons, sprites\n"
                                "Options:\n"
                                "  -r, --resolution: Set display resolution"
                                "  -h, --help: Show this help message");
@@ -51,8 +52,15 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "demo: No arguments provided! Please specify a demo (ant, mouse, polygons, sprites)." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "demo: No arguments provided! Please specify a demo (ant, color, mouse, polygons, sprites)." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
+    }
+
+    auto demo = arguments[0];
+
+    if (demo == "color") {
+        ansiColorDemo();
+        return 0;
     }
 
     auto lfbFile = Util::Io::File("/device/lfb");
@@ -68,7 +76,6 @@ int32_t main(int32_t argc, char *argv[]) {
         lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
     }
 
-    auto demo = arguments[0];
     if (demo == "ant") {
         auto sleepInterval = arguments.length() <= 1 ? 0 : Util::String::parseInt(arguments[0]);
         runAntDemo(sleepInterval);
