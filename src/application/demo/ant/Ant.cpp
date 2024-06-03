@@ -89,10 +89,8 @@ const Util::Graphic::Color &Ant::getColor() const {
     return color;
 }
 
-void runAntDemo(uint32_t sleepInterval) {
-    auto lfbFile = Util::Io::File("/device/lfb");
-    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
-    auto drawer = Util::Graphic::PixelDrawer(lfb);
+void antDemo(Util::Graphic::LinearFrameBuffer &lfb, uint32_t sleepInterval) {
+    auto pixelDrawer = Util::Graphic::PixelDrawer(lfb);
 
     Util::Graphic::Ansi::prepareGraphicalApplication(false);
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
@@ -107,10 +105,10 @@ void runAntDemo(uint32_t sleepInterval) {
 
         auto pixel = lfb.readPixel(ant.getX(), ant.getY());
         if (pixel == Util::Graphic::Colors::BLACK) {
-            drawer.drawPixel(ant.getX(), ant.getY(), ant.getColor());
+            pixelDrawer.drawPixel(ant.getX(), ant.getY(), ant.getColor());
             ant.turnClockWise();
         } else {
-            drawer.drawPixel(ant.getX(), ant.getY(), Util::Graphic::Colors::BLACK);
+            pixelDrawer.drawPixel(ant.getX(), ant.getY(), Util::Graphic::Colors::BLACK);
             ant.turnCounterClockWise();
         }
 

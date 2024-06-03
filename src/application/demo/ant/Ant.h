@@ -22,8 +22,9 @@
 #include "lib/util/graphic/Color.h"
 #include "lib/util/math/Random.h"
 #include "lib/util/graphic/Colors.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
 
-void runAntDemo(uint32_t sleepInterval);
+void antDemo(Util::Graphic::LinearFrameBuffer &lfb, uint32_t sleepInterval);
 
 class Ant {
 

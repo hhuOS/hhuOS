@@ -26,6 +26,7 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/demo/demo.cpp
         ${HHUOS_SRC_DIR}/application/demo/ant/Ant.cpp
         ${HHUOS_SRC_DIR}/application/demo/color/AnsiColorDemo.cpp
+        ${HHUOS_SRC_DIR}/application/demo/fonts/FontDemo.cpp
         ${HHUOS_SRC_DIR}/application/demo/mouse/Logo.cpp
         ${HHUOS_SRC_DIR}/application/demo/mouse/MouseCursor.cpp
         ${HHUOS_SRC_DIR}/application/demo/mouse/MouseDemo.cpp
