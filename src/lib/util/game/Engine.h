@@ -223,6 +223,9 @@ private:
 
     const uint8_t targetFrameRate;
 
+    const Graphic::Font &loadingFont = Graphic::Fonts::TERMINAL_8x16;
+    const Graphic::Font &statisticsFont = Graphic::Fonts::TERMINAL_8x8;
+
     static const constexpr char *LOADING = "Loading...";
 };
 

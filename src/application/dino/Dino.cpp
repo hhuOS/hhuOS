@@ -126,7 +126,7 @@ void Dino::draw(Util::Game::Graphics &graphics) {
     currentAnimation->draw(graphics, getPosition());
 
     graphics.setColor(Util::Graphic::Colors::GREEN);
-    graphics.drawString(Util::Math::Vector2D(10, 10), Util::String::format("Points: %u", points));
+    graphics.drawString(Util::Graphic::Fonts::TERMINAL_8x16, Util::Math::Vector2D(10, 10), Util::String::format("Points: %u", points));
 }
 
 void Dino::die() {

@@ -28,7 +28,6 @@
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/graphic/StringDrawer.h"
-#include "lib/util/graphic/Fonts.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/time/Timestamp.h"
@@ -38,6 +37,7 @@
 #include "lib/util/graphic/Font.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/InputStream.h"
+#include "lib/util/graphic/font/Terminal8x16.h"
 
 static const constexpr uint16_t DEFAULT_FPS = 15;
 
@@ -81,7 +81,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto lineDrawer = Util::Graphic::LineDrawer(pixelDrawer);
     auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
 
-    const auto &font = Util::Graphic::Fonts::TERMINAL_FONT;
+    const auto &font = Util::Graphic::Fonts::TERMINAL_8x16;
     auto charWidth = font.getCharWidth();
     auto charHeight = font.getCharHeight();
 

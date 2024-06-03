@@ -342,9 +342,9 @@ void Scheduler::removeFromJoinMap(uint32_t threadId) {
 void Scheduler::lockReadyQueue() {
     auto &kernelSpace = Kernel::Service::getService<Kernel::MemoryService>().getKernelAddressSpace();
 
-    // We need to make sure, that both the kernel memory manager and the joinMap are currently not locked.
+    // We need to make sure, that both the kernel memory manager and the ready queue are currently not locked.
     // Otherwise, a deadlock may occur: Since we are holding the ready queue lock,
-    // the scheduler won't switch threads anymore, and none of the locks will ever be release
+    // the scheduler won't switch threads anymore, and none of the locks will ever be released
     readyQueueLock.acquire();
     while (kernelSpace.getMemoryManager().isLocked()) {
         readyQueueLock.release();
