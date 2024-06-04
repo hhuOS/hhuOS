@@ -1,5 +1,6 @@
 #include <cstdint>
 #include "lib/libc/stdlib.h"
+#include "lib/libc/ctype.h"
 
 #include "lib/interface.h"
 #include "lib/util/base/System.h"
@@ -136,3 +137,19 @@ ldiv_t ldiv ( long x, long y) {
 	ret.rem = x%y;
 	return ret;
 }
+
+
+//string conversion
+long strtol(const char* str, char **str_end, int base) {
+	while (isspace(*str) && *str != '\0') str++;
+	
+	if (*str == '\0') return 0;
+}
+
+long stroul(const char* str, char **str_end, int base);
+
+long strtod(const char* str, char **str_end);
+
+double atof (const char* str);
+int atoi (const char *str);
+long atol (const char *str);

@@ -1,6 +1,7 @@
 #include <cstdint>
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "lib/util/base/System.h"
 #include "lib/util/io/stream/PrintStream.h"
@@ -11,7 +12,7 @@ int intComp(const void* a, const void* b) {
 
 int32_t main(int32_t argc, char *argv[]) {
 	
-	
+	//Test stdlib 
 	Util::System::out << "----- stdlib.h" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	srand(12345);
 	Util::System::out << "rand: " << rand() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
@@ -39,6 +40,24 @@ int32_t main(int32_t argc, char *argv[]) {
 	div_t d1 = div(124, 7);
 	ldiv_t d2 = ldiv(124444444, 777);
 	Util::System::out << "div(124,7), ldiv(124444444444, 777): " << d1.quot <<" "<<d1.rem<<" "<<d2.quot<<" "<<d2.rem<<Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-    return 0;
+    
+	
+	//Test string
+	char buf[1024];
+	char * str1 = "Hello World!";
+	char * str2 = "Test";
+	Util::System::out << "----- string.h" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	strcpy(buf, str1);
+	Util::System::out << "strcpy: " << buf << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	strncpy(buf, str2, 3);
+	Util::System::out << "strncpy: " << buf << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	strcat(buf, str2);
+	Util::System::out << "strcat: " << buf << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	strncat(buf, str1, 7);
+	Util::System::out << "strncat: " << buf << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	strxfrm(buf, str1, 5);
+	Util::System::out << "strxfrm: " << buf << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	
+	return 0;
 	
 }

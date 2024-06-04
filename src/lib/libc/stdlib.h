@@ -1,8 +1,7 @@
 #ifndef _LIBC_STDLIB
 #define _LIBC_STDLIB
 
-typedef unsigned long int size_t;
-#define NULL 0
+#include <stddef.h>
 
 //memory management
 extern "C" void *malloc(size_t size);
@@ -37,8 +36,14 @@ extern "C" div_t div( int x, int y);
 extern "C" ldiv_t ldiv ( long x, long y);
 
 //string conversion
-int atoi (const char *str);
-long atol (const char *str);
+extern "C" long strtol(const char* str, char **str_end, int base);
+extern "C" long stroul(const char* str, char **str_end, int base);
+extern "C" long strtod(const char* str, char **str_end);
+
+extern "C" double atof (const char* str);
+extern "C" int atoi (const char *str);
+extern "C" long atol (const char *str);
+
 
 
 #endif
