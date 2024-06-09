@@ -5,9 +5,10 @@
 #include <cstdint>
 
 
-Kernel::Usb::UsbNode::UsbNode(void (*r_callback)(void *e), uint8_t minor) : callback(r_callback), minor(minor){}
+Kernel::Usb::UsbNode::UsbNode(
+    uint8_t minor) : minor(minor){}
 
-void (*Kernel::Usb::UsbNode::get_callback())(void* e) { 
+void (*Kernel::Usb::UsbNode::get_callback())(void* e, void* buffer) { 
     return this->callback;
 }
 

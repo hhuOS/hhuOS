@@ -9,19 +9,18 @@ namespace Kernel::Usb {
 class UsbNode {
 
 public:
+    explicit UsbNode(uint8_t minor);
 
-    explicit UsbNode(void (*r_callback)(void* e), uint8_t minor);
-
-    virtual int add_file_node(Util::String node_name) = 0;
+    virtual int add_file_node() = 0;
 
     ~UsbNode() = default;
 
-    void (*get_callback())(void* e);
+    void (*get_callback())(void* e, void* buffer);
 
     uint8_t get_minor();
 
 private:
-    void (*callback)(void* e);
+    void (*callback)(void* e, void* buffer);
 
     uint8_t minor;
 };
