@@ -24,26 +24,26 @@ static void free_usb_dev_configs(UsbDev* dev);
 static void free_usb_dev_interfaces(UsbDev* dev, Interface** interfaces, int num_interfaces);
 static void free_usb_dev_endpoints(UsbDev* dev, Endpoint** endpoints, int num_endpoints);
  // pipe = endpoint information to create the pipe
-static void usb_dev_control(UsbDev *dev, Interface *interface, unsigned int pipe,
+static uint32_t usb_dev_control(UsbDev *dev, Interface *interface, unsigned int pipe,
                       uint8_t priority, void *data, uint8_t *setup,
                       callback_function callback, uint8_t flags);
-static void usb_dev_interrupt(UsbDev *dev, Interface *interface, unsigned int pipe,
+static uint32_t usb_dev_interrupt(UsbDev *dev, Interface *interface, unsigned int pipe,
                         uint8_t priority, void *data, unsigned int len,
                         uint16_t interval, callback_function callback);
-static void usb_dev_bulk(struct UsbDev *dev, Interface *interface, unsigned int pipe,
+static uint32_t usb_dev_bulk(struct UsbDev *dev, Interface *interface, unsigned int pipe,
                    uint8_t priority, void *data, unsigned int len,
                    callback_function callback, uint8_t flags);
-static void usb_dev_iso(UsbDev* dev, Interface* interface, unsigned int pipe,
+static uint32_t usb_dev_iso(UsbDev* dev, Interface* interface, unsigned int pipe,
   uint8_t priority, void* data, unsigned int len, uint16_t interval, 
   callback_function callback);
 static int usb_dev_interface_lock(UsbDev *dev, Interface *interface, void* driver);
 static void usb_dev_free_interface(UsbDev *dev, Interface *interface);
-static void request_callback(struct UsbDev *dev, uint32_t status, void *data);
+static void request_callback(struct UsbDev *dev, Interface* itf, uint32_t status, void *data);
 static void request_build(struct UsbDev *dev, UsbDeviceRequest *req, int8_t rq_type,
                     int8_t rq, int16_t value_high, int16_t value_low,
                     int16_t shift, int16_t index, int16_t len);
-static void request(struct UsbDev *dev, struct UsbDeviceRequest *device_request,
-              void *data, uint8_t priority, Endpoint *endpoint,
+static uint32_t request(struct UsbDev *dev, struct UsbDeviceRequest *device_request,
+              void *data, uint8_t priority, Interface* interface, Endpoint *endpoint,
               callback_function callback, uint8_t flags);
 static int8_t support_bulk(struct UsbDev *dev, Interface *interface);
 static int8_t support_isochronous(struct UsbDev *dev, Interface *interface);
@@ -214,7 +214,7 @@ static inline void __request_dev_descriptor(UsbDev* dev,
   unsigned int len, uint8_t flag) {
   __STRUCT_CALL__(dev, request_build, device_req, DEVICE_TO_HOST, GET_DESCRIPTOR, 
     DEVICE, 0, 8, 0, len);
-  __STRUCT_CALL__(dev, request, device_req, device_descriptor, PRIORITY_QH_8, 0,
+  __STRUCT_CALL__(dev, request, device_req, device_descriptor, PRIORITY_QH_8, 0, 0,
                &request_callback, CONTROL_INITIAL_STATE | flag);
 } 
 
@@ -223,7 +223,7 @@ static inline void __request_config_descriptor(UsbDev* dev,
   uint16_t configuration_index, unsigned int len) {
   __STRUCT_CALL__(dev, request_build, device_req, DEVICE_TO_HOST, GET_DESCRIPTOR,
     CONFIGURATION, configuration_index, 8, 0, len);
-  __STRUCT_CALL__(dev, request, device_req, config_descriptor, PRIORITY_QH_8, 0,
+  __STRUCT_CALL__(dev, request, device_req, config_descriptor, PRIORITY_QH_8, 0, 0,
     &request_callback, CONTROL_INITIAL_STATE);
 }
 
@@ -231,7 +231,7 @@ static inline void __request_whole_config(UsbDev* dev, UsbDeviceRequest* device_
   uint8_t* config_buffer, uint16_t configuration_index, unsigned int len) {
   __STRUCT_CALL__(dev, request_build, device_req, DEVICE_TO_HOST, GET_DESCRIPTOR,
     CONFIGURATION, configuration_index, 8, 0, len);
-  __STRUCT_CALL__(dev, request, device_req, config_buffer, PRIORITY_QH_8, 0, 
+  __STRUCT_CALL__(dev, request, device_req, config_buffer, PRIORITY_QH_8, 0, 0,
     &request_callback, CONTROL_INITIAL_STATE);
 }
 
@@ -239,14 +239,14 @@ static inline void __request_set_address(UsbDev* dev,
   UsbDeviceRequest* device_req, uint8_t addr) {
   __STRUCT_CALL__(dev, request_build, device_req, HOST_TO_DEVICE, 
     SET_ADDRESS, 0, addr, 0, 0, 0);
-  __STRUCT_CALL__(dev, request, device_req, 0, PRIORITY_QH_8, 0, 
+  __STRUCT_CALL__(dev, request, device_req, 0, PRIORITY_QH_8, 0, 0,
     &request_callback, CONTROL_INITIAL_STATE);
 }
 
 static inline void __request_set_config(UsbDev* dev, UsbDeviceRequest* device_req) {
   __STRUCT_CALL__(dev, request_build, device_req, HOST_TO_DEVICE, SET_CONFIGURATION, 
     0, dev->active_config->config_desc.bConfigurationValue, 0, 0, 0);
-  __STRUCT_CALL__(dev, request, device_req, 0, PRIORITY_QH_8, 0, &request_callback,
+  __STRUCT_CALL__(dev, request, device_req, 0, PRIORITY_QH_8, 0, 0, &request_callback,
     CONTROL_INITIAL_STATE);
 }
 
@@ -255,7 +255,7 @@ static inline void __request_string_descriptor(UsbDev* dev,
   uint16_t index, uint16_t lang_id, unsigned int len) {
   __STRUCT_CALL__(dev, request_build, device_req, DEVICE_TO_HOST, GET_DESCRIPTOR, 
     STRING, index, 8, lang_id, len);
-  __STRUCT_CALL__(dev, request, device_req, string_buffer, PRIORITY_QH_8, 0, &request_callback,
+  __STRUCT_CALL__(dev, request, device_req, string_buffer, PRIORITY_QH_8, 0, 0, &request_callback,
     CONTROL_INITIAL_STATE);
 }
 
@@ -265,7 +265,7 @@ static inline void __request_set_protocol(UsbDev* dev, UsbDeviceRequest* device_
     HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_INTERFACE, SET_PROTOCOL, 0, 
     USE_REPORT_PROTOCOL, 0, 
     interface->active_interface->alternate_interface_desc.bInterfaceNumber, 0);
-  __STRUCT_CALL__(dev, request, device_req, 0, PRIORITY_QH_8, 0, callback,
+  __STRUCT_CALL__(dev, request, device_req, 0, PRIORITY_QH_8, 0, 0, callback,
     CONTROL_INITIAL_STATE);
 }
 
@@ -274,7 +274,7 @@ static inline void __request_set_idle(UsbDev* dev, UsbDeviceRequest* device_req,
   __STRUCT_CALL__(dev, request_build, device_req, 
     HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_INTERFACE, SET_IDLE, 0, 0, 0,
     interface->active_interface->alternate_interface_desc.bInterfaceNumber, 0);
-  __STRUCT_CALL__(dev, request, device_req, 0, PRIORITY_QH_8, 0, 
+  __STRUCT_CALL__(dev, request, device_req, 0, PRIORITY_QH_8, 0, 0,
     &request_callback, 0);
 }
 
@@ -284,7 +284,7 @@ static inline void __request_set_report(UsbDev* dev, UsbDeviceRequest* device_re
   __STRUCT_CALL__(dev, request_build, device_req, 
     HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_INTERFACE, SET_REPORT, type, 0, 
     8, interface->active_interface->alternate_interface_desc.bInterfaceNumber, len);
-  __STRUCT_CALL__(dev, request, device_req, data, PRIORITY_QH_8, 0, callback,
+  __STRUCT_CALL__(dev, request, device_req, data, PRIORITY_QH_8, 0, 0, callback,
     CONTROL_INITIAL_STATE);
 }
 
@@ -294,7 +294,7 @@ static inline void __request_reset_bulk_only(UsbDev* dev, UsbDeviceRequest* devi
     HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_INTERFACE,
     RESET_BULK_ONLY_DEVICE, 0, 0, 0,
     interface->active_interface->alternate_interface_desc.bInterfaceNumber, 0);
-  __STRUCT_CALL__(dev, request, device_req, 0, PRIORITY_8, 0, callback, 
+  __STRUCT_CALL__(dev, request, device_req, 0, PRIORITY_8, 0, 0, callback, 
     CONTROL_INITIAL_STATE);
 }
 
@@ -304,7 +304,7 @@ static inline void __request_get_max_logic_unit_number(UsbDev* dev,
   __STRUCT_CALL__(dev, request_build, device_req, 
     DEVICE_TO_HOST | TYPE_REQUEST_CLASS | RECIPIENT_INTERFACE, GET_MAX_LUN, 0, 0, 0,
     interface->active_interface->alternate_interface_desc.bInterfaceNumber, 1);
-  __STRUCT_CALL__(dev, request, device_req, data, PRIORITY_8, 0, callback,
+  __STRUCT_CALL__(dev, request, device_req, data, PRIORITY_8, 0, 0, callback,
     CONTROL_INITIAL_STATE);
 }
 
@@ -313,7 +313,7 @@ static inline void __request_get_descriptor(UsbDev* dev, UsbDeviceRequest* devic
   __STRUCT_CALL__(dev, request_build, device_req,
     DEVICE_TO_HOST | TYPE_REQUEST_CLASS | RECIPIENT_DEVICE,
     GET_DESCRIPTOR, 0x2900, 0, 0, 0, len);
-  __STRUCT_CALL__(dev, request, device_req, data, PRIORITY_8, 0, callback,
+  __STRUCT_CALL__(dev, request, device_req, data, PRIORITY_8, 0, 0, callback,
     CONTROL_INITIAL_STATE);
 }
 
@@ -322,7 +322,7 @@ static inline void __request_get_req_status(UsbDev* dev, UsbDeviceRequest* devic
   dev->request_build(dev, device_req,
                      DEVICE_TO_HOST | TYPE_REQUEST_STANDARD | RECIPIENT_DEVICE,
                      GET_STATUS, 0, 0, 0, 0, len);
-  dev->request(dev, device_req, data, PRIORITY_8, 0, callback,
+  dev->request(dev, device_req, data, PRIORITY_8, 0, 0, callback,
                CONTROL_INITIAL_STATE);
 }
 
@@ -331,7 +331,7 @@ static inline void __request_set_feature(UsbDev* dev, UsbDeviceRequest* device_r
   dev->request_build(dev, device_req,
                      HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_OTHER,
                      SET_FEATURE, 0, feature_value, 0, port, 0);
-  dev->request(dev, device_req, 0, PRIORITY_8, 0, callback, CONTROL_INITIAL_STATE);
+  dev->request(dev, device_req, 0, PRIORITY_8, 0, 0, callback, CONTROL_INITIAL_STATE);
 }
 
 static inline void __request_clear_feature(UsbDev* dev, UsbDeviceRequest* device_req,
@@ -339,7 +339,7 @@ static inline void __request_clear_feature(UsbDev* dev, UsbDeviceRequest* device
   dev->request_build(dev, device_req,
                      HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_OTHER,
                      CLEAR_FEATURE, 0, feature_value, 0, port, 0);
-  dev->request(dev, device_req, 0, PRIORITY_8, 0, callback, CONTROL_INITIAL_STATE);
+  dev->request(dev, device_req, 0, PRIORITY_8, 0, 0, callback, CONTROL_INITIAL_STATE);
 }
 
 static inline void __request_switch_alt_setting(UsbDev* dev, UsbDeviceRequest* device_req,
@@ -348,7 +348,7 @@ static inline void __request_switch_alt_setting(UsbDev* dev, UsbDeviceRequest* d
                          SET_INTERFACE, 0, alt_itf->alternate_interface_desc.bAlternateSetting, 
                          0, interface->active_interface->alternate_interface_desc.bInterfaceNumber,
                          0);
-  dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, &request_callback, CONTROL_INITIAL_STATE);
+  dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, 0, &request_callback, CONTROL_INITIAL_STATE);
   if(dev->error_while_transfering) return;
   interface->active_interface = alt_itf;
 }
@@ -357,7 +357,7 @@ static inline void __request_switch_config(UsbDev* dev, UsbDeviceRequest* device
   int configuration, callback_function callback) {
   dev->request_build(dev, device_req, HOST_TO_DEVICE, SET_CONFIGURATION, 0,
                          configuration, 0, 0, 0);
-  dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, callback, 0);
+  dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, 0, callback, 0);
 }
 
 static inline uint8_t __get_alternate_settings(UsbDev* dev, Interface* interface){
@@ -812,7 +812,7 @@ static void process_lang_ids(UsbDev *dev, uint8_t *string_buffer, int s_len) {
   }
 }
 
-static void request_callback(UsbDev *dev, uint32_t status, void *data) {
+static void request_callback(UsbDev *dev, Interface* itf, uint32_t status, void *data) {
   if (status & E_TRANSFER) {
     dev->error_while_transfering = 1;
   } else if (status & S_TRANSFER) {
@@ -831,11 +831,11 @@ static void request_build(UsbDev *dev, UsbDeviceRequest *device_request,
   device_request->wLength = len;
 }
 
-static void request(UsbDev *dev, UsbDeviceRequest *device_request, void *data,
-             uint8_t priority, Endpoint *endpoint, callback_function callback,
-             uint8_t flags) {
-  ((UsbController *)dev->controller)
-      ->control_entry_point(dev, device_request, data, priority, endpoint,
+static uint32_t request(UsbDev *dev, UsbDeviceRequest *device_request, void *data,
+             uint8_t priority, Interface* interface, Endpoint *endpoint, 
+             callback_function callback, uint8_t flags) {
+  return ((UsbController *)dev->controller)
+      ->control_entry_point(dev, device_request, data, priority, interface, endpoint,
                             callback, flags);
 }
 
@@ -890,7 +890,7 @@ static int process_device_descriptor(UsbDev *dev, DeviceDescriptor *device_descr
   dev->request_build(dev, request, DEVICE_TO_HOST, GET_DESCRIPTOR, DEVICE, 0, 8,
                      0, len);
   dev->request(dev, request, device_descriptor, PRIORITY_QH_8, 0,
-               &request_callback, CONTROL_INITIAL_STATE | S_FLAG);
+               0, &request_callback, CONTROL_INITIAL_STATE | S_FLAG);
 
   if (dev->error_while_transfering) {
     if(supress_flag) return -1;
@@ -1058,32 +1058,32 @@ static int clear_feature(UsbDev *dev, Interface *interface, uint16_t feature_val
 
 // just support get descriptor, get configuration, get interface, get status,
 // set interface
-static void usb_dev_control(UsbDev *dev, Interface *interface, unsigned int pipe,
+static uint32_t usb_dev_control(UsbDev *dev, Interface *interface, unsigned int pipe,
                      uint8_t priority, void *data, uint8_t *setup,
                      callback_function callback, uint8_t flags) {
   UsbDeviceRequest *device_req = (UsbDeviceRequest *)setup;
   __USB_DEV_CTL_ROUTINE__(dev, interface, data, callback, pipe, 
-    device_req, data, priority, endpoints[i], callback, flags);
+    device_req, data, priority, interface, endpoints[i], callback, flags);
 }
 
-static void usb_dev_bulk(struct UsbDev *dev, Interface *interface, unsigned int pipe,
+static uint32_t usb_dev_bulk(struct UsbDev *dev, Interface *interface, unsigned int pipe,
                   uint8_t priority, void *data, unsigned int len,
                   callback_function callback, uint8_t flags) {
-  __USB_DEV_BULK_ROUTINE__(dev, interface, data, callback, pipe, endpoints[i], 
+  __USB_DEV_BULK_ROUTINE__(dev, interface, data, callback, pipe, interface, endpoints[i], 
     data, len, priority, callback, flags);
 }
 
-static void usb_dev_interrupt(UsbDev *dev, Interface *interface, unsigned int pipe,
+static uint32_t usb_dev_interrupt(UsbDev *dev, Interface *interface, unsigned int pipe,
                        uint8_t priority, void *data, unsigned int len,
                        uint16_t interval, callback_function callback) {
-  __USB_DEV_INTR_ROUTINE__(dev, interface, data, callback, pipe, endpoints[i], 
+  __USB_DEV_INTR_ROUTINE__(dev, interface, data, callback, pipe, interface, endpoints[i], 
     data, len, priority, interval, callback);
 }
 
-static void usb_dev_iso(UsbDev* dev, Interface* interface, unsigned int pipe,
+static uint32_t usb_dev_iso(UsbDev* dev, Interface* interface, unsigned int pipe,
   uint8_t priority, void* data, unsigned int len, uint16_t interval, 
   callback_function callback){
-  __USB_DEV_ISO_ROUTINE__(dev, interface, data, callback, pipe, endpoints[i],
+  __USB_DEV_ISO_ROUTINE__(dev, interface, data, callback, pipe, interface, endpoints[i],
     data, len, priority, interval, callback);
 }
 
@@ -1100,17 +1100,14 @@ static int is_pipe_buildable(UsbDev* dev, Endpoint *endpoint, unsigned int pipe)
   unsigned int type;
   unsigned int end_point;
   unsigned int direction;
-  unsigned int reserved;
 
   type = (pipe & CONTROL_PIPE_MASK) >> 5;
   end_point = pipe & ENDPOINT_MASK;
-  reserved = (pipe & 0x10) >> 4;
   direction = pipe & DIRECTION_MASK;
 
   return __STRUCT_CALL__(dev, __is_direction, endpoint, direction)     && 
          __STRUCT_CALL__(dev, __is_transfer_type, endpoint, type)      &&
-         end_point == __STRUCT_CALL__(dev,__endpoint_number, endpoint) &&
-         reserved == 0;
+         end_point == __STRUCT_CALL__(dev,__endpoint_number, endpoint);
 }
 
 static int8_t support_bulk(UsbDev *dev, Interface *interface) {

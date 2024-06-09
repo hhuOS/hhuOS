@@ -19,6 +19,8 @@
 #define BULK_INITIAL_STATE 0x01
 #define CONTROL_INITIAL_STATE 0x02
 #define SUPRESS_DEVICE_ERRORS 0x04
+#define ISO_EXT 0x08
+#define NO_ACTIVATE 0x10
 
 #define __DEV_MEMORY__(dev, name) \
   UsbController* c = __CAST__(UsbController*, dev->controller); \
@@ -199,15 +201,15 @@
 
 #define __USB_DEV_ROUTINE__(dev, interface, data, call, routine_function, pipe, ...) \
   __IF_SINGLE_RET__(!__STRUCT_CALL__(dev, contain_interface, interface), \
-    call(dev, E_INTERFACE_NOT_SUPPORTED, data));  \
+    call(dev, interface, E_INTERFACE_NOT_SUPPORTED, data));  \
   unsigned int endpoint_count = \
       interface->active_interface->alternate_interface_desc.bNumEndpoints; \
   Endpoint **endpoints = interface->active_interface->endpoints; \
   __FOR_RANGE__(i, int, 0, endpoint_count) { \
-    __IF_SINGLE_RET__(__STRUCT_CALL__(dev, is_pipe_buildable, endpoints[i], \
-      pipe), routine_function(dev, ## __VA_ARGS__)) \
+    __IF_CUSTOM__(__STRUCT_CALL__(dev, is_pipe_buildable, endpoints[i], \
+      pipe), return routine_function(dev, ## __VA_ARGS__)) \
   } \
-  call(dev, E_ENDPOINT_INV, data);
+  call(dev, interface, E_ENDPOINT_INV, data);
 
 #define __USB_DEV_BULK_ROUTINE__(dev, interface, data, call, pipe, ...) \
   __USB_DEV_ROUTINE__(dev, interface, data, call, \
@@ -228,7 +230,7 @@
   ((UsbController *)dev->controller)->iso_entry_point, pipe, ## __VA_ARGS__)
 
 #define __CALLB_PROTO__ void (*callback)(struct UsbDev* dev, \
-  uint32_t status, void* data)
+  Interface* itf, uint32_t status, void* data)
 
 struct UsbDev {
   void (*new_usb_device)(struct UsbDev *dev, uint8_t speed, uint8_t port, uint8_t level,
@@ -238,25 +240,25 @@ struct UsbDev {
                         int8_t rq_type, int8_t rq, int16_t value_high,
                         int16_t value_low, int16_t shift, int16_t index,
                         int16_t len);
-  void (*request)(struct UsbDev *dev, struct UsbDeviceRequest *device_request,
-                  void *data, uint8_t priority, Endpoint *endpoint,
+  uint32_t (*request)(struct UsbDev *dev, struct UsbDeviceRequest *device_request,
+                  void *data, uint8_t priority, Interface* interface, Endpoint *endpoint,
                   __CALLB_PROTO__, uint8_t flags);
-  void (*usb_dev_control)(struct UsbDev *dev, Interface *interface,
+  uint32_t (*usb_dev_control)(struct UsbDev *dev, Interface *interface,
                           unsigned int pipe, uint8_t priority, void *data,
                           uint8_t *setup, __CALLB_PROTO__, uint8_t flags);
-  void (*usb_dev_interrupt)(struct UsbDev *dev, Interface *interface,
+  uint32_t (*usb_dev_interrupt)(struct UsbDev *dev, Interface *interface,
                             unsigned int pipe, uint8_t priority, void *data,
                             unsigned int len, uint16_t interval,
                             __CALLB_PROTO__);
-  void (*usb_dev_bulk)(struct UsbDev *dev, Interface *interface,
+  uint32_t (*usb_dev_bulk)(struct UsbDev *dev, Interface *interface,
                        unsigned int pipe, uint8_t priority, void *data,
                        unsigned int len,
                        __CALLB_PROTO__, uint8_t flags);
-  void (*usb_dev_iso)(struct UsbDev* dev, Interface* interface, unsigned int pipe,
+  uint32_t (*usb_dev_iso)(struct UsbDev* dev, Interface* interface, unsigned int pipe,
     uint8_t priority, void* data, unsigned int len, uint16_t interval, __CALLB_PROTO__);
   int (*usb_dev_interface_lock)(struct UsbDev *dev, Interface *interface, void* driver);
   void (*usb_dev_free_interface)(struct UsbDev *dev, Interface *interface);
-  void (*request_callback)(struct UsbDev *dev, uint32_t status, void *data);
+  void (*request_callback)(struct UsbDev *dev, Interface* itf, uint32_t status, void *data);
   int (*is_pipe_buildable)(struct UsbDev* dev, Endpoint *endpoint, unsigned int pipe);
   int (*contain_interface)(struct UsbDev *dev, Interface *interface);
   int (*request_switch_configuration)(
@@ -453,7 +455,7 @@ typedef struct UsbDev UsbDev;
 
 extern MemoryService_C* __DEV_MEMORY(UsbDev* dev);
 
-typedef void (*callback_function)(UsbDev* dev, uint32_t status, void *data);
+typedef void (*callback_function)(UsbDev* dev, Interface* itf, uint32_t status, void *data);
 
 void new_usb_device(UsbDev *dev, uint8_t speed, uint8_t port, uint8_t level,
                     uint8_t removable, uint8_t root_port, uint8_t dev_num, 
