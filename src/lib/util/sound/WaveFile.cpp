@@ -27,6 +27,13 @@ namespace Util::Sound {
 
 WaveFile::WaveFile(const Io::File &file) : Io::FilterInputStream(stream), stream(file) {
     read(reinterpret_cast<uint8_t*>(&riffChunk), 0, sizeof(RiffChunk));
+    String signature = String(riffChunk.dataChunk.dataSignature);
+    if(signature != chunkIDData){
+        uint32_t org_size = riffChunk.dataChunk.chunkSize + sizeof(DataChunk);
+        uint8_t* buffer = new uint8_t[org_size];
+        read(buffer, 0, org_size);
+        riffChunk.dataChunk = *((DataChunk*)(buffer + riffChunk.dataChunk.chunkSize));
+    }
 }
 
 uint32_t WaveFile::getDataSize() const {

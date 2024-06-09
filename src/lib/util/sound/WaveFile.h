@@ -119,6 +119,16 @@ public:
 
 private:
 
+    const String chunkIDFormat = String("fmt");
+    const String chunkIDData   = String("data");
+    const String chunkIDList   = String("LIST");
+    const String chunkIDIArt   = String("IART");
+    const String chunkIDICrd   = String("ICRD");
+    const String chunkIDINam   = String("INAM");
+    const String chunkIDIPrd   = String("IPRD");  
+    const String chunkIDISft   = String("ISFT");
+    const String chunkType     = String("INFO");
+    
     struct FormatChunk {
         char formatSignature[4];
         uint32_t chunkSize;
