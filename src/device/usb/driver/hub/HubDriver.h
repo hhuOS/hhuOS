@@ -60,7 +60,7 @@ struct HubDev{
 
     uint8_t transfer_success;
 
-    void (*callback)(UsbDev* dev, uint32_t status, void* data);
+    void (*callback)(UsbDev* dev, Interface* interface, uint32_t status, void* data);
 };
 
 struct HubDriver{

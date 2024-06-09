@@ -10,10 +10,10 @@
 static int read_hub_status(HubDriver* driver, HubDev* dev, Interface* itf, uint8_t* data, unsigned int len);
 static int read_hub_descriptor(HubDriver* driver, HubDev* dev, Interface* itf, uint8_t* data);
 static int configure_hub(HubDriver* driver);
-static void configure_callback(UsbDev* dev, uint32_t status, void* data);
+static void configure_callback(UsbDev* dev, Interface* interface, uint32_t status, void* data);
 static int set_hub_feature(HubDriver* driver, HubDev* dev, Interface* itf, uint16_t port, uint16_t feature);
 static int clear_hub_feature(HubDriver* driver, HubDev* dev, Interface* itf, uint16_t port, uint16_t feature);
-static void callback_hub(UsbDev* dev, uint32_t status, void* data);
+static void callback_hub(UsbDev* dev, Interface* interface, uint32_t status, void* data);
 static int16_t probe_hub(UsbDev* dev, Interface* interface);
 static void disconnect_hub(UsbDev* dev, Interface* interface);
 static void dump_port_status_change(HubDriver* driver, uint16_t* port_status_change_field);
@@ -27,7 +27,7 @@ static HubDriver *internal_hub_driver = 0;
 
 // if we use plug & play this callback would listen to the interrupt transfer
 // which checks the status of the downstream ports
-static void callback_hub(UsbDev *dev, uint32_t status, void *data) {}
+static void callback_hub(UsbDev *dev, Interface* interface, uint32_t status, void *data) {}
 
 static int16_t probe_hub(UsbDev *dev, Interface *interface) {
   Endpoint **endpoints = interface->active_interface->endpoints;
@@ -95,7 +95,7 @@ static void free_hub_dev(HubDriver *driver, HubDev *hub_dev) {
   __FREE_DEV__(hub_dev, driver->dev, driver->hub_map);
 }
 
-static void configure_callback(UsbDev *dev, uint32_t status, void *data) {
+static void configure_callback(UsbDev *dev, Interface* interface, uint32_t status, void *data) {
   HubDev *hub_dev =
       internal_hub_driver->match_hub_dev(internal_hub_driver, dev);
 
