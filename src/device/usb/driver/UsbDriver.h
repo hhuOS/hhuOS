@@ -140,6 +140,8 @@ struct UsbDriver{
 
     EventDispatcher* dispatcher; // set by appropriate UsbController
     Logger_C* driver_logger;
+    SuperMap* interface_buffer_map;
+    SuperMap* interface_write_callback_map;
 };
 
 typedef struct UsbDriver UsbDriver;
@@ -158,8 +160,28 @@ static inline void new_usb_driver(UsbDriver* usb_driver, char* name, UsbDevice_I
         sizeof(Logger_C), 0);
     __STRUCT_INIT__(driver_logger, new_logger, new_logger, 
         USB_DRIVER_LOGGER_TYPE, LOGGER_LEVEL_INFO);
+    Interface_Buffer_Map* buffer_map = (Interface_Buffer_Map*)interface_allocateMemory(
+        sizeof(Interface_Buffer_Map), 0);
+    Interface_Write_Callback_Map* write_callback_map = (Interface_Write_Callback_Map*)interface_allocateMemory(
+        sizeof(Interface_Write_Callback_Map), 0);
+    __STRUCT_INIT__(buffer_map, new_map, newInterface_Buffer_Map, 
+        "Map<Interface*,void*>");
+    __STRUCT_INIT__(write_callback_map, new_map, newInterface_Write_Callback_Map,
+        "Map<Interface*, write_callback*");
     usb_driver->driver_logger = driver_logger;
+    usb_driver->interface_buffer_map = (SuperMap*)buffer_map;
+    usb_driver->interface_write_callback_map = (SuperMap*)write_callback_map;
     __INIT_USB_DRIVER__(usb_driver);
+}
+
+typedef void (*write_callback)(uint8_t* map_io_buffer, uint16_t len, void* buffer);
+
+// used for stream writes
+static inline void driver_stream_write_register_buffer(UsbDriver* driver, Interface* interface, 
+    void* buffer, write_callback w){
+    __MAP_PUT__(driver->interface_buffer_map, interface, buffer);
+    __STRUCT_CALL__(driver->interface_write_callback_map, put_c, interface, (void*
+    )w);
 }
 
 /******************************
