@@ -8,10 +8,7 @@
 
 Kernel::Usb::MassStorageNode::MassStorageNode(
     Kernel::Usb::Driver::KernelMassStorageDriver *msd_driver, uint8_t minor,
-    Util::String node_name)
-    : Kernel::Usb::UsbNode(0, minor), Filesystem::Memory::MemoryNode(node_name),
-      driver(msd_driver) {}
-
+    Util::String node_name) : UsbMemoryNode(node_name, minor), driver(msd_driver) {}
 uint64_t Kernel::Usb::MassStorageNode::readData(uint8_t *target,
                                                 uint64_t start_lba,
                                                 uint64_t msd_data) {
@@ -29,11 +26,11 @@ bool Kernel::Usb::MassStorageNode::control(
   return driver->control(request, parameters, this->get_minor());
 }
 
-int Kernel::Usb::MassStorageNode::add_file_node(Util::String node_name) {
+int Kernel::Usb::MassStorageNode::add_file_node() {
   auto &filesystem =
       Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
   auto &driver = filesystem.getVirtualDriver("/device");
-  bool success = driver.addNode("/", this);
+  bool success = driver.addNode("/", (Filesystem::Memory::MemoryNode*)this);
 
   if (!success) {
     delete this;
