@@ -25,47 +25,48 @@
 static QH* request_frames(struct _UHCI* uhci);
 static Addr_Region *i_o_space_layout_run(UsbController* controller, PciDevice_Struct* pci_device);
 static Register** request_register(UsbController* controller, Addr_Region* addr_region);
-static void bulk_entry_point_uhci(struct UsbDev *dev, Endpoint *endpoint, void *data,
+static uint32_t bulk_entry_point_uhci(struct UsbDev *dev, Interface* interface, Endpoint *endpoint, void *data,
                       unsigned int len, uint8_t priority,
                       callback_function callback, uint8_t flags);
-static void control_entry_point_uhci(struct UsbDev *dev,
+static uint32_t control_entry_point_uhci(struct UsbDev *dev,
                          struct UsbDeviceRequest *device_request, void *data,
-                         uint8_t priority, Endpoint *endpoint,
+                         uint8_t priority, Interface* interface, Endpoint *endpoint,
                          callback_function callback, uint8_t flags);
-static void interrupt_entry_point_uhci(struct UsbDev *dev, Endpoint *endpoint, void *data,
+static uint32_t interrupt_entry_point_uhci(struct UsbDev *dev, Interface* interface, Endpoint *endpoint, void *data,
                            unsigned int len, uint8_t priority,
                            uint16_t interval, callback_function callback);
-static void iso_entry_point_uhci(UsbDev* dev, Endpoint* endpoint, void* data, 
+static uint32_t iso_entry_point_uhci(UsbDev* dev, Interface* interface, Endpoint* endpoint, void* data, 
   unsigned int len, uint8_t priority, uint16_t interval, callback_function callback);
 static void insert_queue(struct _UHCI *uhci, struct QH *new_qh,
                   uint16_t priority, enum QH_HEADS v);
+static int remove_transfer_uhci(UsbController* controller, uint32_t transfer_id);
 static void remove_queue(struct _UHCI *uhci, struct QH *qh);
-static void control_transfer(_UHCI *uhci, UsbDev *dev, struct UsbDeviceRequest *rq,
-                      void *data, uint8_t priority, Endpoint *endpoint,
+static uint32_t control_transfer(_UHCI *uhci, UsbDev *dev, struct UsbDeviceRequest *rq,
+                      void *data, uint8_t priority, Interface* interface, Endpoint *endpoint,
                       callback_function callback, uint8_t flags);
-static void interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
-                        uint16_t interval, uint8_t priority, Endpoint *e, callback_function callback);
-static void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
-                   uint8_t, Endpoint *e, callback_function callback, uint8_t flags);
-static void iso_transfer(_UHCI* uhci, UsbDev* dev, void* data, unsigned int len,
-  uint16_t interval, uint8_t priority, Endpoint *e, callback_function callback);
+static uint32_t interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
+                        uint16_t interval, uint8_t priority, Interface* interface, Endpoint *e, callback_function callback);
+static uint32_t bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
+                   uint8_t, Interface* interface, Endpoint *e, callback_function callback, uint8_t flags);
+static uint32_t iso_transfer(_UHCI* uhci, UsbDev* dev, void* data, unsigned int len,
+  uint16_t interval, uint8_t priority, Interface* interface, Endpoint *e, callback_function callback, uint16_t flags);
 static uint32_t wait_poll(_UHCI *uhci, QH *process_qh, uint32_t timeout, uint8_t flags);
 static void _poll_uhci_(UsbController *controller);
-static QH *get_free_qh(_UHCI *uhci);
-static TD *get_free_td(_UHCI *uhci);
+static QH *get_free_qh(_UHCI *uhci, uint32_t* qh_id);
+static TD *get_free_td(_UHCI *uhci, uint32_t* td_id);
 static void free_qh(_UHCI *uhci, QH *qh);
 static void free_td(_UHCI *uhci, TD *td);
-static void init_control_transfer(UsbController *controller, Interface *interface,
+static uint32_t init_control_transfer(UsbController *controller, Interface *interface,
                            unsigned int pipe, uint8_t priority, void *data,
                            uint8_t *setup, callback_function callback);
-static void init_interrupt_transfer(UsbController *controller, Interface *interface,
+static uint32_t init_interrupt_transfer(UsbController *controller, Interface *interface,
                              unsigned int pipe, uint8_t priority, void *data,
                              unsigned int len, uint16_t interval,
                              callback_function callback);
-static void init_bulk_transfer(UsbController *controller, Interface *interface,
+static uint32_t init_bulk_transfer(UsbController *controller, Interface *interface,
                         unsigned int pipe, uint8_t priority, void *data,
                         unsigned int len, callback_function callback);
-static void init_iso_transfer(UsbController* controller, Interface* interface,
+static uint32_t init_iso_transfer(UsbController* controller, Interface* interface,
   unsigned int pipe, uint8_t priority, void* data, unsigned int len, 
   uint16_t interval, callback_function callback);
 static unsigned int retransmission(_UHCI *uhci, struct QH *process_qh);
@@ -102,7 +103,7 @@ static void runnable_function_uhci(UsbController* controller);
 static void destroy_transfer(_UHCI* uhci, UsbTransfer* transfer);
 static void controller_port_configuration(_UHCI* uhci);
 static int controller_configuration(_UHCI* uhci);
-static int16_t is_valid_interval(_UHCI* uhci, UsbDev* dev, uint16_t interval, void* data);
+static int16_t is_valid_interval(_UHCI* uhci, UsbDev* dev, uint16_t interval);
 static int controller_initializer(_UHCI* uhci);
 static int controller_reset(_UHCI* uhci);
 static UsbTransaction* build_setup_stage(_UHCI* uhci, UsbDeviceRequest* device_request, 
@@ -118,11 +119,16 @@ static UsbTransaction* build_data_transaction(_UHCI* uhci, unsigned int len,
 static void build_status_stage(_UHCI* uhci, uint8_t packet_type, uint8_t endpoint,
   UsbDev* dev, UsbTransaction* prev_trans);
 static void successful_transmission_routine(_UHCI* uhci, callback_function callback, 
-  UsbDev* dev, void* data, QH* entry, MemoryService_C* mem_service);
-static void failed_transmission_routine(_UHCI* uhci, UsbDev* dev, void* data, 
-  TD* td, QH* entry, MemoryService_C* mem_service, callback_function callback);
+  UsbDev* dev, Interface* interface, void* data, QH* entry, MemoryService_C* mem_service);
+static void failed_transmission_routine(_UHCI* uhci, UsbDev* dev, Interface* interface, 
+  void* data, TD* td, QH* entry, MemoryService_C* mem_service, callback_function callback);
 static void transmission_clearing_routine(_UHCI* uhci, QH* entry, 
   MemoryService_C* mem_service);
+static int fast_buffer_change_uhci(struct UsbController* controller, UsbDev* dev, 
+  Endpoint* endpoint, uint32_t qh_id, void* buffer);
+static uint32_t iso_transfer_ext(UsbController* uhci, Interface* interface, 
+  Endpoint* e, void* data, unsigned int len,
+  uint16_t interval, uint8_t priority, callback_function callback);
 
 static inline void __assign_fba(_UHCI* uhci, MemoryService_C* m, 
                                 uint32_t* frame_list) {
@@ -188,26 +194,32 @@ static inline QH* __search_for_qh(_UHCI* uhci, MemoryService_C* m, QH* current, 
   return current;
 }
 
-static inline void __qh_inc_device_count(_UHCI* uhci, QH* current) {
+// @deprecated
+/*static inline void __qh_inc_device_count(_UHCI* uhci, QH* current) {
   current->flags = ((((current->flags & QH_FLAG_DEVICE_COUNT_MASK) >>
                       QH_FLAG_DEVICE_COUNT_SHIFT) +
                      1)
                     << QH_FLAG_DEVICE_COUNT_SHIFT) |
                    (current->flags & 0xFF);
-}
+}*/
 
-static inline void __qh_dec_device_count(_UHCI* uhci, QH* current) {
+// @deprecated
+/*static inline void __qh_dec_device_count(_UHCI* uhci, QH* current) {
   current->flags = ((((current->flags & QH_FLAG_DEVICE_COUNT_MASK) >>
                   QH_FLAG_DEVICE_COUNT_SHIFT) -
                  1)
                 << QH_FLAG_DEVICE_COUNT_SHIFT) |
                (current->flags & 0xFF);
+} */
+
+static inline void __save_QH_ID(_UHCI* uhci, QH* qh, uint32_t qh_id){
+  qh->flags |= (qh_id << QH_ID_SHIFT);
 }
 
 static inline QH* __follow_schedule(_UHCI* uhci, MemoryService_C* m, QH* current, 
   uint16_t priority, uint8_t type_flag) {
   while (((current->flags & QH_FLAG_END_MASK) == QH_FLAG_IN) &&
-         (((current->flags & PRIORITY_QH_MASK) >> 1) >= priority)) {
+         ((current->flags & PRIORITY_QH_MASK) >= priority)) {
     if(((current->flags & QH_FLAG_IS_MASK) == QH_FLAG_IS_QH) && 
       ((current->flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_INTERRUPT) &&
       type_flag == QH_FLAG_TYPE_ISO) return current;
@@ -277,17 +289,19 @@ static inline TokenValues __build_token(_UHCI* uhci, uint16_t max_len, uint8_t t
 }
 
 static inline void __save_map_properties(_UHCI* uhci, QH* qh, 
-  TD* td, void* data, UsbDev* dev, callback_function callback) {
+  TD* td, void* data, UsbDev* dev, Interface* interface, 
+  callback_function callback) {
   __STRUCT_CALL__(uhci->qh_to_td_map, put_c, qh, td);
   __STRUCT_CALL__(uhci->qh_data_map, put_c, qh, data);
   __STRUCT_CALL__(uhci->qh_dev_map, put_c, qh, dev);
+  __STRUCT_CALL__(uhci->qh_interface_map, put_c, qh, interface);
   __STRUCT_CALL__(uhci->callback_map, put_c, qh, callback);
 }
 
 static inline void __save_map_properties_control(_UHCI* uhci, QH* qh, 
-  TD* td, void* data, UsbDev* dev, callback_function callback, 
+  TD* td, void* data, UsbDev* dev, Interface* interface, callback_function callback, 
   UsbDeviceRequest* request) {
-  __STRUCT_CALL__(uhci, __save_map_properties, qh, td, data, dev, callback);
+  __STRUCT_CALL__(uhci, __save_map_properties, qh, td, data, dev, interface, callback);
   __STRUCT_CALL__(uhci->qh_device_request_map, put_c, qh, request);
 }
 
@@ -296,18 +310,18 @@ static inline void __set_qhep(_UHCI* uhci, QH* qh, TD* td, MemoryService_C* m){
 }
 
 static inline void __set_flags(_UHCI* uhci, QH* qh, uint32_t type, 
-  uint32_t transaction_count) {
-  qh->flags = (transaction_count << QH_FLAG_DEVICE_COUNT_SHIFT) |
-              type;
+  uint32_t qh_id, uint32_t iso_ext) {
+  qh->flags = (type | (qh_id << QH_ID_SHIFT) | iso_ext);
 }
 
 static inline void __initial_state_routine(_UHCI* uhci, uint32_t timeout,
-  QH* qh, uint8_t flags, UsbDev* dev, void* data, uint32_t qh_physical, TD* td,
+  QH* qh, uint8_t flags, UsbDev* dev, Interface* interface, 
+  void* data, uint32_t qh_physical, TD* td,
   MemoryService_C* m, callback_function callback){
   uint32_t status = __STRUCT_CALL__(uhci, wait_poll, qh, timeout, 
     flags & SUPRESS_DEVICE_ERRORS);
 
-  callback(dev, status, data);
+  callback(dev, interface, status, data);
 
   __STRUCT_CALL__(uhci, remove_queue, qh);
   __STRUCT_CALL__(m, remove_virtualAddress, qh_physical);
@@ -316,9 +330,9 @@ static inline void __initial_state_routine(_UHCI* uhci, uint32_t timeout,
 }
 
 static inline void __initial_state_routine_control(_UHCI* uhci, uint32_t timeout,
-  QH* qh, uint8_t flags, UsbDev* dev, void* data, uint32_t qh_physical, TD* td,
+  QH* qh, uint8_t flags, UsbDev* dev, Interface* interface, void* data, uint32_t qh_physical, TD* td,
   MemoryService_C* m, UsbDeviceRequest* rq, callback_function callback) {
-  __STRUCT_CALL__(uhci, __initial_state_routine, timeout, qh, flags, dev, data,
+  __STRUCT_CALL__(uhci, __initial_state_routine, timeout, qh, flags, dev, interface, data,
     qh_physical, td, m, callback);
   __STRUCT_CALL__(dev, free_device_request, rq);
 }
@@ -350,7 +364,8 @@ static inline TD* __build_td(_UHCI* uhci, UsbDev* dev,
   UsbPacket* prev, TokenValues* token,
   int8_t speed, void* data, int last_packet, uint8_t flags) {
   __UHC_MEMORY__(uhci, m);
-  TD *td = __STRUCT_CALL__(uhci, get_free_td);
+  uint32_t td_id;
+  TD *td = __STRUCT_CALL__(uhci, get_free_td, &td_id);
   __STRUCT_CALL__(uhci, __default_td, td);
   __IF_COND__(__NOT_NULL__(prev)) {
     prev->internalTD->pyhsicalLinkPointer |= 
@@ -388,6 +403,28 @@ static inline TD* __build_td(_UHCI* uhci, UsbDev* dev,
 
 static inline uint8_t __td_failed(_UHCI* uhci, TD* td) {
   return ((td->control_x_status >> ACTIVE) & 0x01);
+}
+
+static inline int8_t __match_qh_by_id(_UHCI* uhci, uint32_t transfer_id, QH* entry){
+  uint32_t qh_id = (entry->flags & QH_ID_MASK) >> QH_ID_SHIFT;
+  return __IF_EXT__((qh_id == transfer_id), 1, -1);
+}
+
+static inline QH* __find_qh_in_skeleton_by_id(_UHCI* uhci, uint32_t transfer_id){
+  QH* current = uhci->qh_entry;
+  __MEM_SERVICE__(((UsbController*)uhci)->mem_service, m);
+  while(__NOT_NULL__(current)){
+    if(__STRUCT_CALL__(uhci, __match_qh_by_id, transfer_id, current) == 1){
+      return current;
+    }
+    current = __GET_VIRTUAL__(m, __QHLP_ADDR__(current), QH);
+  }
+  return (void*)0;
+}
+
+static inline void __switch_buffer(struct _UHCI* uhci, void* buffer, TD* td){
+  __MEM_SERVICE__(((UsbController*)uhci)->mem_service, m);
+  td->bufferPointer = __PTR_TYPE__(uint32_t,__GET_PHYSICAL__(m, buffer));
 }
 
 static inline void __uhci_build(_UHCI* uhci, MemoryService_C* m, PciDevice_Struct* pci_device,
@@ -626,12 +663,15 @@ static void init_maps(_UHCI *uhci, MemoryService_C *m) {
     newQH_Device_Map, "Map<QH*,UsbDev*>");  
   __NEW__(m, QH_Device_Request_Map, sizeof(QH_Device_Request_Map), device_request_map, 
     new_map, newQH_DeviceRequest_Map, "Map<QH*,UsbDeviceRequest*>");
+  __NEW__(m, QH_Interface_Map, sizeof(QH_Interface_Map), qh_interface_map, new_map,
+    newQH_Interface_Map, "Map<QH*, Interface*>");
 
   uhci->qh_to_td_map = (SuperMap *)qh_td_map;
   uhci->callback_map = (SuperMap *)qh_callback_map;
   uhci->qh_data_map = (SuperMap *)qh_data_map;
   uhci->qh_dev_map = (SuperMap *)qh_device_map;
   uhci->qh_device_request_map = (SuperMap *)device_request_map;
+  uhci->qh_interface_map = (SuperMap*)qh_interface_map;
 
 #if defined(TRANSFER_MEASURE_ON)
   __NEW__(m, QH_Measurement_Map, sizeof(QH_Measurement_Map), qh_measurement, new_map,
@@ -858,14 +898,14 @@ MemoryService_C, super);
     return (Addr_Region*)addr_region;
 }*/
 
-static QH *get_free_qh(_UHCI *uhci) {
+static QH *get_free_qh(_UHCI *uhci, uint32_t* qh_id) {
   __GET_FREE_STRUCTURE__(QH, PAGE_SIZE, uhci->map_io_buffer_qh, 
-    uhci->map_io_buffer_bit_map_qh, uhci)
+    uhci->map_io_buffer_bit_map_qh, uhci, qh_id);
 }
 
-static TD *get_free_td(_UHCI *uhci) {
+static TD *get_free_td(_UHCI *uhci, uint32_t* td_id) {
   __GET_FREE_STRUCTURE__(TD, (2 * PAGE_SIZE), uhci->map_io_buffer_td,
-    uhci->map_io_buffer_bit_map_td, uhci)
+    uhci->map_io_buffer_bit_map_td, uhci, td_id);
 }
 
 static void free_qh(_UHCI *uhci, QH *qh) {
@@ -883,7 +923,7 @@ static void insert_queue(_UHCI *uhci, QH *new_qh, uint16_t priority, enum QH_HEA
 
   QH* current = __STRUCT_CALL__(uhci, __search_for_qh, m, uhci->qh_entry, v);
 
-  __STRUCT_CALL__(uhci, __qh_inc_device_count, current);
+  // @deprecated __STRUCT_CALL__(uhci, __qh_inc_device_count, current);
 
   current = __STRUCT_CALL__(uhci, __follow_schedule, m, current, priority,
     new_qh->flags & QH_FLAG_TYPE_MASK);
@@ -909,12 +949,38 @@ static void remove_queue(_UHCI *uhci, QH *qh) {
 
   parent->pyhsicalQHLP = qh->pyhsicalQHLP;
 
-  QH* mqh = __STRUCT_CALL__(uhci, __retrieve_mqh, memory_service, qh);
-  
-  __STRUCT_CALL__(uhci, __qh_dec_device_count, mqh);
+  // QH* mqh = __STRUCT_CALL__(uhci, __retrieve_mqh, memory_service, qh);
+  // @deprecated __STRUCT_CALL__(uhci, __qh_dec_device_count, mqh);
   __STRUCT_CALL__(uhci, __adjust_remove, qh, parent, child);
 
   __UHC_RELEASE_LOCK__(uhci);
+}
+
+static int remove_transfer_uhci(UsbController* controller, uint32_t transfer_id){
+  _UHCI* uhci = (_UHCI*)container_of(controller, _UHCI, super);
+  
+  QH* qh = __find_qh_in_skeleton_by_id(uhci, transfer_id);
+  __IF_RET_ZERO__(__IS_NULL__(qh));
+  uhci->remove_queue(uhci, qh); 
+  return __RET_S__;
+}
+
+static int fast_buffer_change_uhci(struct UsbController* controller, UsbDev* dev, 
+  Endpoint* endpoint, uint32_t qh_id, void* buffer){
+  __MEM_SERVICE__(controller->mem_service, m);
+  _UHCI* uhci = (_UHCI*)container_of(controller, _UHCI, super);
+  QH* qh = __STRUCT_CALL__(uhci, __find_qh_in_skeleton_by_id, qh_id);
+  __IF_RET_ZERO__(__IS_NULL__(qh));
+  uint16_t max_payload = __STRUCT_CALL__(dev, __max_payload, endpoint);
+  uint8_t* start = (uint8_t*)buffer;
+  TD* td = __MAP_GET__(uhci->qh_to_td_map, TD*, qh);
+  while(__NOT_NULL__(td)){
+    __STRUCT_CALL__(uhci, __switch_buffer, start, td);
+    start += max_payload;
+    td = (TD*)__STRUCT_CALL__(m, getVirtualAddressTD, __LP_ADDR__(td));
+  }
+
+  return __RET_S__;
 }
 
 /*Interface* lock_interface(_UHCI* uhci, UsbDev* dev, unsigned int
@@ -933,28 +999,27 @@ static int uhci_contain_interface(UsbController *controller, Interface *interfac
 // replace each method with prototyp (..., UsbDev*, Interface*, ...) -> (...,
 // Interface*, ...);
 // entry point for usb driver
-static void init_control_transfer(UsbController *controller, Interface *interface,
+static uint32_t init_control_transfer(UsbController *controller, Interface *interface,
                            unsigned int pipe, uint8_t priority, void *data,
                            uint8_t *setup, callback_function callback) {
   __TRANSFER_INITIALIZER__(controller, support_control, interface, priority, callback);
-  __STRUCT_CALL__(dev, usb_dev_control, interface, pipe, (uint16_t)shifted_prio,
+  return __STRUCT_CALL__(dev, usb_dev_control, interface, pipe, (uint16_t)shifted_prio,
     data, setup, callback, 0);
 }
 
-static void init_interrupt_transfer(UsbController *controller, Interface *interface,
+static uint32_t init_interrupt_transfer(UsbController *controller, Interface *interface,
                              unsigned int pipe, uint8_t priority, void *data,
                              unsigned int len, uint16_t interval,
                              callback_function callback) {
   int16_t mqh;
   __TRANSFER_INITIALIZER__(controller, support_interrupt, interface, priority, callback);
   __IF_SINGLE_RET__(__NEG_CHECK__((mqh = __STRUCT_CALL__(uhci, is_valid_interval, dev, 
-    interval, data))), callback(dev, E_INVALID_INTERVAL, data));
-  __STRUCT_CALL__(dev, usb_dev_interrupt, interface, pipe, (uint16_t)shifted_prio,
+    interval))), callback(dev, interface, E_INVALID_INTERVAL, data));
+  return __STRUCT_CALL__(dev, usb_dev_interrupt, interface, pipe, (uint16_t)shifted_prio,
     data, len, (uint8_t)mqh, callback);
 }
 
-static int16_t is_valid_interval(_UHCI *uhci, UsbDev *dev, uint16_t interval,
-                          void *data) {
+static int16_t is_valid_interval(_UHCI *uhci, UsbDev *dev, uint16_t interval) {
   uint8_t mqh;
   if (interval == interval_1024_ms)
     mqh = QH_1024;
@@ -982,7 +1047,7 @@ static int16_t is_valid_interval(_UHCI *uhci, UsbDev *dev, uint16_t interval,
     __IF_RET_NEG__(interval <= 0);
 
     interval = __floor_address(interval);
-    return __STRUCT_CALL__(uhci, is_valid_interval, dev, interval, data);
+    return __STRUCT_CALL__(uhci, is_valid_interval, dev, interval);
   }
   return mqh;
 }
@@ -1009,55 +1074,59 @@ static int16_t is_valid_priority(_UHCI *uhci, UsbDev *dev, uint8_t priority,
   return shift_prio;
 }
 
-static void init_bulk_transfer(UsbController *controller, Interface *interface,
+static uint32_t init_bulk_transfer(UsbController *controller, Interface *interface,
                         unsigned int pipe, uint8_t priority, void *data,
                         unsigned int len, callback_function callback) {
   __TRANSFER_INITIALIZER__(controller, support_bulk, interface, priority, callback);
-  __STRUCT_CALL__(dev, usb_dev_bulk, interface, pipe, (uint16_t)shifted_prio, data,
+  return __STRUCT_CALL__(dev, usb_dev_bulk, interface, pipe, (uint16_t)shifted_prio, data,
     len, callback, 0);
 }
 
-static void init_iso_transfer(UsbController* controller, Interface* interface,
+static uint32_t init_iso_transfer(UsbController* controller, Interface* interface,
   unsigned int pipe, uint8_t priority, void* data, unsigned int len, 
   uint16_t interval, callback_function callback) {
   uint16_t mqh;
   __TRANSFER_INITIALIZER__(controller, support_isochronous, interface, priority, callback);
   __IF_SINGLE_RET__(__NEG_CHECK__((mqh = __STRUCT_CALL__(uhci, is_valid_interval, dev, 
-    interval, data))), callback(dev, E_INVALID_INTERVAL, data));
-  __STRUCT_CALL__(dev, usb_dev_iso, interface, pipe, (uint16_t)shifted_prio,
+    interval))), callback(dev, interface, E_INVALID_INTERVAL, data));
+  return __STRUCT_CALL__(dev, usb_dev_iso, interface, pipe, (uint16_t)shifted_prio,
     data, len, (uint8_t)mqh, callback);
 }
 
-static void bulk_entry_point_uhci(UsbDev *dev, Endpoint *endpoint, void *data,
+static uint32_t bulk_entry_point_uhci(UsbDev *dev, Interface* interface, 
+                           Endpoint *endpoint, void *data,
                            unsigned int len, uint8_t priority,
                            callback_function callback, uint8_t flags) {
   __UHCI_CONTAINER__(__CAST__(UsbController*, dev->controller), uhci_rcvry);
-  uhci_rcvry->bulk_transfer(uhci_rcvry, dev, data, len, priority, endpoint,
+  return uhci_rcvry->bulk_transfer(uhci_rcvry, dev, data, len, priority, interface, endpoint,
     callback, flags);
 }
 
-static void control_entry_point_uhci(UsbDev *dev, UsbDeviceRequest *device_request,
-                              void *data, uint8_t priority, Endpoint *endpoint,
-                              callback_function callback, uint8_t flags) {
+static uint32_t control_entry_point_uhci(UsbDev *dev, UsbDeviceRequest *device_request,
+                              void *data, uint8_t priority, Interface* interface, 
+                              Endpoint *endpoint, callback_function callback, 
+                              uint8_t flags) {
   __UHCI_CONTAINER__(__CAST__(UsbController*, dev->controller), uhci_rcvry);
-  uhci_rcvry->control_transfer(uhci_rcvry, dev, device_request, data, priority,
-                               endpoint, callback, flags);
+  return uhci_rcvry->control_transfer(uhci_rcvry, dev, device_request, data, priority,
+                               interface, endpoint, callback, flags);
 }
 
-static void interrupt_entry_point_uhci(UsbDev *dev, Endpoint *endpoint, void *data,
+static uint32_t interrupt_entry_point_uhci(UsbDev *dev, Interface* interface, 
+                                Endpoint *endpoint, void *data,
                                 unsigned int len, uint8_t priority,
                                 uint16_t interval, callback_function callback) {
   __UHCI_CONTAINER__(__CAST__(UsbController*, dev->controller), uhci_rcvry);
-  uhci_rcvry->interrupt_transfer(uhci_rcvry, dev, data, len, interval, priority,
-                                 endpoint, callback);
+  return uhci_rcvry->interrupt_transfer(uhci_rcvry, dev, data, len, interval, priority,
+                                 interface, endpoint, callback);
 }
 
-static void iso_entry_point_uhci(UsbDev* dev, Endpoint* endpoint, void* data, 
+static uint32_t iso_entry_point_uhci(UsbDev* dev, Interface* interface, 
+  Endpoint* endpoint, void* data, 
   unsigned int len, uint8_t priority, uint16_t interval, callback_function callback) {
   __UHCI_CONTAINER__(__CAST__(UsbController*, dev->controller), uhci_rcvry);
-  uhci_rcvry->iso_transfer(uhci_rcvry, dev, data, len, interval, priority, 
-    endpoint, callback);
-} 
+  return uhci_rcvry->iso_transfer(uhci_rcvry, dev, data, len, interval, priority, 
+    interface, endpoint, callback, 0);
+}
 
 static void use_alternate_setting(_UHCI *uhci, UsbDev *dev, Interface *interface,
                            unsigned int setting) {
@@ -1309,7 +1378,7 @@ static void inspect_QH(_UHCI *uhci, struct QH *qh) {
                   "QH Parent : %u\n"
                   "QH Flags : \n\tEND = %x , IN = %x\n"
                   "\tPRIORITY = %x\n\tMQH = %x , QH = %x\n"
-                  "\tTYPE = %x\n\tQH_TD = %u , QH_QH = %u\n\n";
+                  "\tTYPE = %x\n\tQH_ID = %u\n\n";
 
   uint32_t address = (uint32_t)(uintptr_t)(m->getPhysicalAddress(m, qh));
   __UHC_CALL_LOGGER_DEBUG__(__UHC_CAST__(uhci), message, address, qh->pyhsicalQHLP,
@@ -1321,12 +1390,7 @@ static void inspect_QH(_UHCI *uhci, struct QH *qh) {
       (qh->flags & PRIORITY_QH_MASK) >> 1, (qh->flags & QH_FLAG_IS_MQH) >> 4,
       !((qh->flags & QH_FLAG_IS_MQH) >> 4),
       (qh->flags & QH_FLAG_TYPE_MASK) >> 5,
-      (qh->flags & QH_FLAG_IS_MASK) == QH_FLAG_IS_QH
-          ? (qh->flags & QH_FLAG_DEVICE_COUNT_MASK) >> 8
-          : 0,
-      (qh->flags & QH_FLAG_IS_MASK) == QH_FLAG_IS_MQH
-          ? (qh->flags & QH_FLAG_DEVICE_COUNT_MASK) >> 8
-          : 0);
+      (qh->flags & QH_ID_MASK));
 }
 
 static void inspect_TD(_UHCI *uhci, struct TD *td) {
@@ -1409,13 +1473,13 @@ static void dump_all(_UHCI *uhci) {
 
 // insert flag CONFIGURED : used for not using interrupts instead poll for
 // timeout -> like the controls
-static void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
-  uint8_t priority, Endpoint *e, callback_function callback, uint8_t flags) {
+static uint32_t bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
+  uint8_t priority, Interface* interface, Endpoint *e, callback_function callback, uint8_t flags) {
   __UHC_MEMORY__(uhci, m);
-
-  QH *qh = __STRUCT_CALL__(uhci, get_free_qh);
+  
+  uint32_t qh_id;
+  QH *qh = __STRUCT_CALL__(uhci, get_free_qh, &qh_id);
   __STRUCT_CALL__(uhci, __default_qh, qh);
-
   __ADD_VIRT__(m, qh, qh_physical);
 
   UsbTransfer *transfer = build_other_type_transfer(uhci, dev, data, e, len, 
@@ -1424,11 +1488,11 @@ static void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len
   TD *td = transfer->entry_transaction->entry_packet->internalTD;
 
   __STRUCT_CALL__(uhci, __set_flags, qh, QH_FLAG_TYPE_BULK, 
-    transfer->transaction_count);
+    qh_id, 0);
   __STRUCT_CALL__(uhci, __set_qhep, qh, td, m);
 
   if (!(flags & BULK_INITIAL_STATE)) 
-    __STRUCT_CALL__(uhci, __save_map_properties, qh, td, data, dev, callback);
+    __STRUCT_CALL__(uhci, __save_map_properties, qh, td, data, dev, interface, callback);
   
 #if defined(DEBUG_ON) || defined(TRANSFER_DEBUG_ON)
   uhci->print_USB_Transfer(uhci, transfer);
@@ -1439,15 +1503,18 @@ static void bulk_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len
 
   if ((flags & BULK_INITIAL_STATE) > 0) {
     __STRUCT_CALL__(uhci,__initial_state_routine, UPPER_BOUND_TIME_OUT_MILLIS_BULK, 
-      qh, flags, dev, data, qh_physical, td, m, callback);
+      qh, flags, dev, interface, data, qh_physical, td, m, callback);
   }
+
+  return qh_id;
 }
 
-static void interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
-  uint16_t interval, uint8_t priority, Endpoint *e, callback_function callback) {
+static uint32_t interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned int len,
+  uint16_t interval, uint8_t priority, Interface* interface, Endpoint *e, callback_function callback) {
   __UHC_MEMORY__(uhci, m);
 
-  QH *qh = __STRUCT_CALL__(uhci, get_free_qh);
+  uint32_t qh_id;
+  QH *qh = __STRUCT_CALL__(uhci, get_free_qh, &qh_id);
   __STRUCT_CALL__(uhci, __default_qh, qh);
   __ADD_VIRT__(m, qh, qh_physical);
 
@@ -1458,8 +1525,8 @@ static void interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned in
 
   __STRUCT_CALL__(uhci, __set_qhep, qh, td, m);
   __STRUCT_CALL__(uhci, __set_flags, qh, QH_FLAG_TYPE_INTERRUPT, 
-    transfer->transaction_count);
-  __STRUCT_CALL__(uhci, __save_map_properties, qh, td, data, dev, callback);
+    qh_id, 0);
+  __STRUCT_CALL__(uhci, __save_map_properties, qh, td, data, dev, interface, callback);
 
 #if defined(DEBUG_ON) || defined(TRANSFER_DEBUG_ON)
   uhci->print_USB_Transfer(uhci, transfer);
@@ -1468,25 +1535,29 @@ static void interrupt_transfer(_UHCI *uhci, UsbDev *dev, void *data, unsigned in
 
   __STRUCT_CALL__(uhci, destroy_transfer, transfer);
   __STRUCT_CALL__(uhci, insert_queue, qh, priority, (enum QH_HEADS)interval);
+
+  return qh_id;
 }
 
-static void iso_transfer(_UHCI* uhci, UsbDev* dev, void* data, unsigned int len,
-  uint16_t interval, uint8_t priority, Endpoint *e, callback_function callback){
+static uint32_t iso_transfer(_UHCI* uhci, UsbDev* dev, void* data, unsigned int len,
+  uint16_t interval, uint8_t priority, Interface* interface, Endpoint *e, 
+  callback_function callback, uint16_t flags){
   __UHC_MEMORY__(uhci, m);
 
-  QH *qh = __STRUCT_CALL__(uhci, get_free_qh);
+  uint32_t qh_id;
+  QH *qh = __STRUCT_CALL__(uhci, get_free_qh, &qh_id);
   __STRUCT_CALL__(uhci, __default_qh, qh);
   __ADD_VIRT__(m, qh, qh_physical);
 
   UsbTransfer *transfer = build_other_type_transfer(uhci, dev, data, e, len, 
-    INTERRUPT_TRANSFER, QH_FLAG_TYPE_ISO);
+    ISO_TRANSFER, flags | QH_FLAG_TYPE_ISO);
 
   TD *td = transfer->entry_transaction->entry_packet->internalTD;
 
   __STRUCT_CALL__(uhci, __set_qhep, qh, td, m);
   __STRUCT_CALL__(uhci, __set_flags, qh, QH_FLAG_TYPE_ISO, 
-    transfer->transaction_count);
-  __STRUCT_CALL__(uhci, __save_map_properties, qh, td, data, dev, callback);
+    qh_id, (flags & ISO_EXT) ? QH_FLAG_ISO_EXT : 0);
+  __STRUCT_CALL__(uhci, __save_map_properties, qh, td, data, dev, interface, callback);
 
 #if defined(DEBUG_ON) || defined(TRANSFER_DEBUG_ON)
   uhci->print_USB_Transfer(uhci, transfer);
@@ -1495,15 +1566,30 @@ static void iso_transfer(_UHCI* uhci, UsbDev* dev, void* data, unsigned int len,
 
   __STRUCT_CALL__(uhci, destroy_transfer, transfer);
   __STRUCT_CALL__(uhci, insert_queue, qh, priority, (enum QH_HEADS)interval);
+
+  return qh_id;
 }
 
+static uint32_t iso_transfer_ext(UsbController* controller, Interface* interface, 
+  Endpoint* e, void* data, unsigned int len,
+  uint16_t interval, uint8_t priority, callback_function callback){
+  _UHCI* uhci = (_UHCI*)container_of(controller, _UHCI, super);
+  UsbDev* dev = ((UsbController*)uhci)->interface_dev_map->get_c(
+    ((UsbController*)uhci)->interface_dev_map, interface);
+  uint16_t shifted_prio = (uint16_t)is_valid_priority(uhci, dev, priority, callback);
+  uint16_t shifted_interval =  (uint16_t)is_valid_interval(uhci, dev, interval);
 
-static void control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
-                      void *data, uint8_t priority, Endpoint *endpoint,
+  return __STRUCT_CALL__(uhci, iso_transfer, dev, data, len, shifted_interval, shifted_prio,
+    interface, e, callback, ISO_EXT);
+}
+
+static uint32_t control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
+                      void *data, uint8_t priority, Interface* interface, Endpoint *endpoint,
                       callback_function callback, uint8_t flags) {
   __UHC_MEMORY__(uhci, m);
 
-  QH* qh = __STRUCT_CALL__(uhci, get_free_qh);
+  uint32_t qh_id;
+  QH* qh = __STRUCT_CALL__(uhci, get_free_qh, &qh_id);
   __STRUCT_CALL__(uhci, __default_qh, qh);
   __ADD_VIRT__(m, qh, qh_physical);
 
@@ -1513,20 +1599,22 @@ static void control_transfer(_UHCI *uhci, UsbDev *dev, UsbDeviceRequest *rq,
   TD *internalTD = transfer->entry_transaction->entry_packet->internalTD;
   __STRUCT_CALL__(uhci, __set_qhep, qh, internalTD, m);
   __STRUCT_CALL__(uhci, __set_flags, qh, QH_FLAG_TYPE_CONTROL, 
-    transfer->transaction_count);
+    qh_id, 0);
 
   __STRUCT_CALL__(uhci, destroy_transfer, transfer);
 
   if ((dev->state == CONFIGURED_STATE) && !(flags & CONTROL_INITIAL_STATE)) 
     __STRUCT_CALL__(uhci, __save_map_properties_control, qh, internalTD,
-       data, dev, callback, rq);
+       data, dev, interface, callback, rq);
   
   __STRUCT_CALL__(uhci, insert_queue, qh, priority, QH_CTL);
 
   if (dev->state != CONFIGURED_STATE || ((flags & CONTROL_INITIAL_STATE) > 0)) 
     __STRUCT_CALL__(uhci,__initial_state_routine_control, 
-      UPPER_BOUND_TIME_OUT_MILLIS_CONTROL, qh, flags, dev, data, 
+      UPPER_BOUND_TIME_OUT_MILLIS_CONTROL, qh, flags, dev, interface, data, 
       qh_physical, internalTD, m, rq, callback);
+
+  return qh_id;
 }
 
 // wait time out time -> upper bound 10ms
@@ -1717,32 +1805,34 @@ static void _poll_uhci_(UsbController *controller) {
 static void transmission_clearing_routine(_UHCI* uhci, QH* entry, 
   MemoryService_C* mem_service) {
   TD *rcvry = __MAP_GET__(uhci->qh_to_td_map, TD*, entry);
-    __STRUCT_CALL__(uhci, remove_queue, entry);
-    __STRUCT_CALL__(uhci, remove_transfer_entry, entry);
-    uint32_t phy_qh =__PTR_TYPE__(uint32_t,
-      __GET_PHYSICAL__(mem_service, entry));
-    __STRUCT_CALL__(mem_service, remove_virtualAddress, phy_qh);
-    __STRUCT_CALL__(uhci, free_qh, entry);
-    __STRUCT_CALL__(uhci, remove_td_linkage, rcvry);
+  __STRUCT_CALL__(uhci, remove_queue, entry);
+  __STRUCT_CALL__(uhci, remove_transfer_entry, entry);
+  uint32_t phy_qh =__PTR_TYPE__(uint32_t,
+    __GET_PHYSICAL__(mem_service, entry));
+  __STRUCT_CALL__(mem_service, remove_virtualAddress, phy_qh);
+  __STRUCT_CALL__(uhci, free_qh, entry);
+  __STRUCT_CALL__(uhci, remove_td_linkage, rcvry);
 }
 
 static void successful_transmission_routine(_UHCI* uhci, callback_function callback, 
-  UsbDev* dev, void* data, QH* entry, MemoryService_C* mem_service) {
+  UsbDev* dev, Interface* interface, void* data, QH* entry, MemoryService_C* mem_service) {
   unsigned int retransmission_occured;
-  callback(dev, S_TRANSFER, data);
+  callback(dev, interface, S_TRANSFER, data);
   retransmission_occured = __STRUCT_CALL__(uhci, retransmission, entry);
   if (!retransmission_occured) {
     __STRUCT_CALL__(uhci, transmission_clearing_routine, entry, mem_service);
   }
 }
 
-static void failed_transmission_routine(_UHCI* uhci, UsbDev* dev, void* data, 
-  TD* td, QH* entry, MemoryService_C* mem_service, callback_function callback) {
+static void failed_transmission_routine(_UHCI* uhci, UsbDev* dev, Interface* interface, 
+  void* data, TD* td, QH* entry, MemoryService_C* mem_service, callback_function callback) {
   uint32_t error_mask = __STRUCT_CALL__(uhci, get_status, td);
   
+  __IF_RET__(!error_mask);
+
   __STRUCT_CALL__(uhci, transmission_clearing_routine, entry, mem_service);
 
-  callback(dev, E_TRANSFER | error_mask, data);
+  callback(dev, interface, E_TRANSFER | error_mask, data);
 }
 
 static void traverse_skeleton(_UHCI *uhci, QH *entry) {
@@ -1752,6 +1842,8 @@ static void traverse_skeleton(_UHCI *uhci, QH *entry) {
 
   __UHC_MEMORY__(uhci, mem_service);
 
+  __IF_RET__((entry->flags & QH_FLAG_ISO_EXT));
+
   TD *td = (TD *)__STRUCT_CALL__(mem_service, getVirtualAddressTD, 
     __QHEP_ADDR__(entry));
 
@@ -1759,16 +1851,17 @@ static void traverse_skeleton(_UHCI *uhci, QH *entry) {
     __MAP_GET__(uhci->callback_map, callback_function, entry);
   void *data = __MAP_GET__(uhci->qh_data_map, void*, entry);
   UsbDev *dev = __MAP_GET__(uhci->qh_dev_map, UsbDev*, entry);
+  Interface* interface = __MAP_GET__(uhci->qh_interface_map, Interface*, entry);
 
   if (__IS_NULL__(td)) { // transmission successful
     // uhci->inspect_QH(uhci, entry);
     // uhci->inspect_TD(uhci, td);
 
-    __STRUCT_CALL__(uhci, successful_transmission_routine, callback, dev, 
+    __STRUCT_CALL__(uhci, successful_transmission_routine, callback, dev, interface,
       data, entry, mem_service);
   }
   else if (!__STRUCT_CALL__(uhci, __td_failed, td)) {
-    __STRUCT_CALL__(uhci, failed_transmission_routine, dev, data, td, entry,
+    __STRUCT_CALL__(uhci, failed_transmission_routine, dev, interface, data, td, entry,
       mem_service, callback);
   }
 }
@@ -1789,6 +1882,7 @@ static void remove_transfer_entry(_UHCI *uhci, QH *entry) {
   uhci->callback_map->remove_c(uhci->callback_map, entry);
   uhci->qh_data_map->remove_c(uhci->qh_data_map, entry);
   uhci->qh_dev_map->remove_c(uhci->qh_dev_map, entry);
+  uhci->qh_interface_map->remove_c(uhci->qh_interface_map, entry);
 }
 
 static void destroy_transfer(_UHCI *uhci, UsbTransfer *transfer) {
@@ -1810,9 +1904,10 @@ static void destroy_transfer(_UHCI *uhci, UsbTransfer *transfer) {
 
 static void runnable_function_uhci(UsbController *controller) {
   _UHCI *uhci = container_of(controller, _UHCI, super);
+  __UHC_MEMORY__(uhci, m);
+  QH* periodic_first_mqh = __STRUCT_CALL__(uhci, __search_for_qh, m, uhci->qh_entry, QH_1);
   for (;;) {
     if (uhci->signal) {
-      __UHC_MEMORY__(uhci, m);
       __FOR_RANGE_COND__(qh, QH*, uhci->qh_entry, qh != 0, 
         qh = __GET_VIRTUAL__(m, __QHLP_ADDR__(qh), QH)) {
         uhci->traverse_skeleton(uhci, qh);
@@ -1820,7 +1915,26 @@ static void runnable_function_uhci(UsbController *controller) {
       __IF_ELSE__(!uhci->signal_not_override, uhci->signal = 0, 
         uhci->signal_not_override = 0);
     } 
-    else yield_c();
+    else {
+      /*QH* current = __GET_VIRTUAL__(m, __QHLP_ADDR__(periodic_first_mqh), QH);
+      while((current->flags & QH_FLAG_TYPE_MASK) != QH_FLAG_TYPE_CONTROL){
+        TD *td = (TD *)__STRUCT_CALL__(m, getVirtualAddressTD, 
+        __QHEP_ADDR__(current));
+
+        callback_function callback = 
+          __MAP_GET__(uhci->callback_map, callback_function, current);
+        void *data = __MAP_GET__(uhci->qh_data_map, void*, current);
+        UsbDev *dev = __MAP_GET__(uhci->qh_dev_map, UsbDev*, current);
+        Interface* interface = __MAP_GET__(uhci->qh_interface_map, Interface*, current);
+
+        if (__IS_NULL__(td)) { // transmission successful
+          __STRUCT_CALL__(uhci, successful_transmission_routine, callback, dev, interface,
+            data, current, m);
+        }
+        current = __GET_VIRTUAL__(m, __QHLP_ADDR__(current), QH);
+      } */
+      yield_c();
+    }
   }
 }
 

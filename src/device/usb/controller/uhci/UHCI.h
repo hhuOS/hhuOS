@@ -77,11 +77,14 @@
     __SUPER__(uhci, control_entry_point)       = &control_entry_point_uhci; \
     __SUPER__(uhci, bulk_entry_point)          = &bulk_entry_point_uhci; \
     __SUPER__(uhci, iso_entry_point)           = &iso_entry_point_uhci; \
+    __SUPER__(uhci, remove_transfer)           = &remove_transfer_uhci; \
+    __SUPER__(uhci, fast_buffer_change)        = &fast_buffer_change_uhci; \
     __SUPER__(uhci, addr_address_region)       = &i_o_space_layout_run; \
     __SUPER__(uhci, new_usb_controller)        = &new_super_usb_controller; \
     __SUPER__(uhci, add_registers)             = &request_register; \
     __SUPER__(uhci, handler_function)          = &handler_function_uhci; \
     __SUPER__(uhci, runnable_function)         = &runnable_function_uhci; \
+    __SUPER__(uhci, iso_ext)                   = &iso_transfer_ext; \
     \
     __ENTRY__(uhci, dump_uhci_entry)               = &dump_uhci_entry; \
     __ENTRY__(uhci, request_frames)                = &request_frames; \
@@ -135,8 +138,8 @@
     __ENTRY__(uhci, __add_to_frame)                = &__add_to_frame; \
     __ENTRY__(uhci, __qh_set_parent)               = &__qh_set_parent; \
     __ENTRY__(uhci, __search_for_qh)               = &__search_for_qh; \
-    __ENTRY__(uhci, __qh_inc_device_count)         = &__qh_inc_device_count; \
-    __ENTRY__(uhci, __qh_dec_device_count)         = &__qh_dec_device_count; \
+    /*__ENTRY__(uhci, __qh_inc_device_count)         = &__qh_inc_device_count; \ 
+    __ENTRY__(uhci, __qh_dec_device_count)         = &__qh_dec_device_count; \ */ \
     __ENTRY__(uhci, __follow_schedule)             = &__follow_schedule; \
     __ENTRY__(uhci, __add_to_skeleton)             = &__add_to_skeleton; \
     __ENTRY__(uhci, __adjust_last_in_schedule)     = &__adjust_last_in_schedule; \
@@ -157,7 +160,10 @@
     __ENTRY__(uhci, __default_qh)                  = &__default_qh; \
     __ENTRY__(uhci, __default_td)                  = &__default_td; \
     __ENTRY__(uhci, __build_td)                    = &__build_td; \
-    __ENTRY__(uhci, __td_failed)                    = &__td_failed; \
+    __ENTRY__(uhci, __td_failed)                   = &__td_failed; \
+    __ENTRY__(uhci, __match_qh_by_id)              = &__match_qh_by_id; \
+    __ENTRY__(uhci, __find_qh_in_skeleton_by_id)   = &__find_qh_in_skeleton_by_id; \
+    __ENTRY__(uhci, __switch_buffer)               = &__switch_buffer; \
     \
     __CALL_SUPER__(uhci->super, new_usb_controller, m, \
                     pci, UHCI_name)
@@ -189,10 +195,11 @@
 #define __QH_BUILD_PARENT__(qh, x) \
     __build_qh(qh, 0, 0, 0, x)
 
-#define __GET_FREE_STRUCTURE_COND__(buffer, bit_map, type, uhci) \
+#define __GET_FREE_STRUCTURE_COND__(buffer, bit_map, type, uhci, ...) \
     if(!bit_map[i]) { \
       __ARR_ENTRY__(bit_map, i, 1); \
       __USB_RELEASE__(__UHC_CAST__(uhci)); \
+      *__VA_ARGS__ = i; \
       return (type*)(buffer + (i * sizeof(type))); \
     }
 
@@ -206,12 +213,12 @@
 #define __BODY_STRUCTURE_C__(cond) \
     __USB_LOCK__(__UHC_CAST__(uhci)); \
     cond \
-    __USB_RELEASE__(__UHC_CAST__(uhci)); \
+    __USB_RELEASE__(__UHC_CAST__(uhci)) \
 
-#define __GET_FREE_STRUCTURE__(type, size, buffer, bit_map, uhci) \
+#define __GET_FREE_STRUCTURE__(type, size, buffer, bit_map, uhci, ...) \
     __FOR_RANGE__(i, int, 0, (size / sizeof(type))) { \
       __BODY_STRUCTURE_C__(__GET_FREE_STRUCTURE_COND__(buffer, bit_map, \
-        type, uhci)) \
+        type, uhci, ## __VA_ARGS__)) \
     } \
     return (void*)0;
 
@@ -227,12 +234,12 @@
   _UHCI *uhci = (_UHCI *)container_of(controller, _UHCI, super); \
   UsbDev *dev = \
     (UsbDev *)__STRUCT_CALL__(controller->interface_dev_map, get_c, interface); \
-  __IF_SINGLE_RET__(__IS_NULL__(dev), callback(0, E_INTERFACE_NOT_SUPPORTED, data)) \
+  __IF_SINGLE_RET__(__IS_NULL__(dev), callback(0, interface, E_INTERFACE_NOT_SUPPORTED, data)) \
   __IF_SINGLE_RET__(!__STRUCT_CALL__(dev, support_function, interface), \
-    callback(dev, E_NOT_SUPPORTED_TRANSFER_TYPE, data)) \
+    callback(dev, interface, E_NOT_SUPPORTED_TRANSFER_TYPE, data)) \
   __IF_SINGLE_RET__(__NEG_CHECK__((shifted_prio = \
     __STRUCT_CALL__(uhci, is_valid_priority, dev, priority, callback))), \
-    callback(dev, E_PRIORITY_NOT_SUPPORTED, data))
+    callback(dev, interface, E_PRIORITY_NOT_SUPPORTED, data))
 
 #define __UHCI_CONTAINER__(controller, name) \
     _UHCI* name = (_UHCI*)container_of(controller, _UHCI, super)
@@ -270,23 +277,23 @@ struct _UHCI {
   void (*print_USB_Transaction)(struct _UHCI *uhci, UsbTransaction *transaction,
                                 int order);
   void (*print_USB_Transfer)(struct _UHCI *uhci, UsbTransfer *transfer);
-  QH *(*get_free_qh)(struct _UHCI *uhci);
-  TD *(*get_free_td)(struct _UHCI *uhci);
+  QH *(*get_free_qh)(struct _UHCI *uhci, uint32_t* qh_id);
+  TD *(*get_free_td)(struct _UHCI *uhci, uint32_t* td_id);
   void (*free_qh)(struct _UHCI *uhci, QH *qh);
   void (*free_td)(struct _UHCI *uhci, TD *td);
-  void (*control_transfer)(struct _UHCI *uhci, UsbDev *dev,
+  uint32_t (*control_transfer)(struct _UHCI *uhci, UsbDev *dev,
                            struct UsbDeviceRequest *rq, void *data,
-                           uint8_t priority, Endpoint *endpoint,
+                           uint8_t priority, Interface* interface, Endpoint *endpoint,
                            callback_function callback, uint8_t flags);
-  void (*interrupt_transfer)(struct _UHCI *uhci, UsbDev *dev, void *data,
+  uint32_t (*interrupt_transfer)(struct _UHCI *uhci, UsbDev *dev, void *data,
                              unsigned int len, uint16_t interval,
-                             uint8_t priority, Endpoint *e,
+                             uint8_t priority, Interface* interface, Endpoint *e,
                              callback_function callback);
-  void (*bulk_transfer)(struct _UHCI *uhci, UsbDev *dev, void *data,
-                        unsigned int len, uint8_t priority, Endpoint *e,
+  uint32_t (*bulk_transfer)(struct _UHCI *uhci, UsbDev *dev, void *data,
+                        unsigned int len, uint8_t priority, Interface* interface, Endpoint *e,
                         callback_function callback, uint8_t flags);
-  void (*iso_transfer)(struct _UHCI* uhci, UsbDev* dev, void* data, unsigned int len,
-    uint16_t interval, uint8_t priority, Endpoint* e, callback_function callback);
+  uint32_t (*iso_transfer)(struct _UHCI* uhci, UsbDev* dev, void* data, unsigned int len,
+    uint16_t interval, uint8_t priority, Interface* interface, Endpoint* e, callback_function callback, uint16_t flags);
   int16_t (*is_valid_priority)(struct _UHCI *uhci, UsbDev *dev,
                                uint8_t priority, callback_function callback);
   void (*init_maps)(struct _UHCI *uhci, MemoryService_C *m);
@@ -300,7 +307,7 @@ struct _UHCI {
   void (*destroy_transfer)(struct _UHCI* uhci, UsbTransfer* transfer);
   void (*controller_port_configuration)(struct _UHCI* uhci);
   int (*controller_configuration)(struct _UHCI* uhci);
-  int16_t (*is_valid_interval)(struct _UHCI* uhci, UsbDev* dev, uint16_t interval, void* data);
+  int16_t (*is_valid_interval)(struct _UHCI* uhci, UsbDev* dev, uint16_t interval);
   int (*controller_initializer)(struct _UHCI* uhci);
   int (*controller_reset)(struct _UHCI* uhci);
   UsbTransaction* (*build_setup_stage)(struct _UHCI* uhci, UsbDeviceRequest* device_request, 
@@ -316,9 +323,9 @@ struct _UHCI {
   void (*build_status_stage)(struct _UHCI* uhci, uint8_t packet_type, uint8_t endpoint,
     UsbDev* dev, UsbTransaction* prev_trans);
   void (*successful_transmission_routine)(struct _UHCI* uhci, callback_function callback, 
-    UsbDev* dev, void* data, QH* entry, MemoryService_C* mem_service);
-  void (*failed_transmission_routine)(struct _UHCI* uhci, UsbDev* dev, void* data, 
-    TD* td, QH* entry, MemoryService_C* mem_service, callback_function callback);
+    UsbDev* dev, Interface* interface, void* data, QH* entry, MemoryService_C* mem_service);
+  void (*failed_transmission_routine)(struct _UHCI* uhci, UsbDev* dev, Interface* interface, 
+    void* data, TD* td, QH* entry, MemoryService_C* mem_service, callback_function callback);
   void (*transmission_clearing_routine)(struct _UHCI* uhci, QH* entry, 
     MemoryService_C* mem_service);
   void (*__assign_fba)(struct _UHCI* uhci, MemoryService_C* m, uint32_t* frame_list);
@@ -353,18 +360,18 @@ struct _UHCI {
   TokenValues (*__build_token)(struct _UHCI* uhci, uint16_t max_len, uint8_t toggle,
     uint8_t endpoint_number, uint8_t address_number, uint16_t packet_type);
   void (*__save_map_properties)(struct _UHCI* uhci, QH* qh, 
-    TD* td, void* data, UsbDev* dev, callback_function callback);
+    TD* td, void* data, UsbDev* dev, Interface* interface, callback_function callback);
   void (*__save_map_properties_control)(struct _UHCI* uhci, QH* qh, 
-    TD* td, void* data, UsbDev* dev, callback_function callback, 
+    TD* td, void* data, UsbDev* dev, Interface* interface, callback_function callback, 
     UsbDeviceRequest* request);
   void (*__set_qhep)(struct _UHCI* uhci, QH* qh, TD* td, MemoryService_C* m);
   void (*__set_flags)(struct _UHCI* uhci, QH* qh, uint32_t type, 
-    uint32_t transaction_count);
+    uint32_t qh_id, uint32_t iso_ext);
   void (*__initial_state_routine)(struct _UHCI* uhci, uint32_t timeout,
-    QH* qh, uint8_t flags, UsbDev* dev, void* data, uint32_t qh_physical, TD* td,
-    MemoryService_C* m, callback_function callback);
+    QH* qh, uint8_t flags, UsbDev* dev, Interface* interface, void* data, 
+    uint32_t qh_physical, TD* td, MemoryService_C* m, callback_function callback);
   void (*__initial_state_routine_control)(struct _UHCI* uhci, uint32_t timeout,
-    QH* qh, uint8_t flags, UsbDev* dev, void* data, uint32_t qh_physical, TD* td,
+    QH* qh, uint8_t flags, UsbDev* dev, Interface* interface, void* data, uint32_t qh_physical, TD* td,
     MemoryService_C* m, UsbDeviceRequest* rq, callback_function callback);
   void (*__default_qh)(struct _UHCI* uhci, QH* qh);
   void (*__default_td)(struct _UHCI* uhci, TD* td);
@@ -372,6 +379,9 @@ struct _UHCI {
     UsbPacket* prev, TokenValues* token,
     int8_t speed, void* data, int last_packet, uint8_t flags);
   uint8_t (*__td_failed)(struct _UHCI* uhci, TD* td);
+  int8_t (*__match_qh_by_id)(struct _UHCI* uhci, uint32_t transfer_id, QH* current);
+  QH* (*__find_qh_in_skeleton_by_id)(struct _UHCI* uhci, uint32_t transfer_id);
+  void (*__switch_buffer)(struct _UHCI* uhci, void* buffer, TD* td);
 
   QH *qh_entry;
   uint32_t fba;
@@ -380,6 +390,7 @@ struct _UHCI {
   SuperMap *qh_data_map;
   SuperMap *qh_dev_map;
   SuperMap *qh_device_request_map;
+  SuperMap* qh_interface_map;
   uint8_t signal;
   uint8_t signal_not_override;
   uint8_t *map_io_buffer_qh;
