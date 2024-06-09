@@ -122,3 +122,7 @@ uint16_t MOUSE_LEFT = 131;
 uint16_t MOUSE_RIGHT = 132;
 
 uint16_t KEY_AROBE_SIGN = 133;
+
+uint16_t AUDIO_EVENT = 144;
+uint16_t AUDIO_IN = 145;
+uint16_t AUDIO_OUT = 146;

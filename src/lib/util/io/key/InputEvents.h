@@ -135,4 +135,8 @@ extern uint16_t KEY_AROBE_SIGN;
 #define RIGHT_ALT_MASK 0x40
 #define RIGHT_GUI_MASK 0x80
 
+extern uint16_t AUDIO_EVENT;
+extern uint16_t AUDIO_IN;
+extern uint16_t AUDIO_OUT;
+
 #endif
