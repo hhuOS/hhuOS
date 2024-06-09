@@ -7,7 +7,7 @@ extern "C"{
 }
 
 // define abstraction layer to call specific service routine (usb)!
-int interface_register_callback(uint16_t register_type, event_callback event_c);
+int interface_register_callback(uint16_t register_type, event_callback event_c, void* buffer);
 int interface_deregister_callback(uint16_t register_type, event_callback event_c);
 
 // :for kernel
