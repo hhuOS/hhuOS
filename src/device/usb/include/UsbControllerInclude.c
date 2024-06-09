@@ -24,6 +24,7 @@ const uint8_t PRIORITY_8 = 7;
 
 const uint16_t MOUSE_LISTENER = 0x0000;
 const uint16_t KEY_BOARD_LISTENER = 0x0001;
+const uint16_t AUDIO_LISTENER = 0x0002;
 
 const uint16_t GET_DESCRIPTOR_SETUP = 0x0001;
 const uint16_t GET_CONFIGURATION_SETUP = 0x0002;

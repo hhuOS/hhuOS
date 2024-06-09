@@ -26,6 +26,7 @@ extern const uint8_t PRIORITY_8;
  
 extern const uint16_t MOUSE_LISTENER;
 extern const uint16_t KEY_BOARD_LISTENER;
+extern const uint16_t AUDIO_LISTENER;
  
 extern const uint16_t GET_DESCRIPTOR_SETUP;
 extern const uint16_t GET_CONFIGURATION_SETUP;
