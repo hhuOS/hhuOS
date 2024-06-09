@@ -180,25 +180,31 @@ struct UsbController {
   int (*register_driver)(struct UsbController *usb_controller,
                          UsbDriver *driver);
   int (*remove_driver)(struct UsbController *usb_controller, UsbDriver *driver);
-  void (*control)(struct UsbController *controller, Interface *interface,
+  uint32_t (*control)(struct UsbController *controller, Interface *interface,
                   unsigned int pipe, uint8_t priority, void *data,
                   uint8_t *setup, callback_function callback);
-  void (*interrupt)(struct UsbController *controller, Interface *interface,
+  uint32_t (*interrupt)(struct UsbController *controller, Interface *interface,
                     unsigned int pipe, uint8_t priority, void *data,
                     unsigned int len, uint16_t interval,
                     callback_function callback);
-  void (*bulk)(struct UsbController *controller, Interface *interface,
+  uint32_t (*bulk)(struct UsbController *controller, Interface *interface,
                unsigned int pipe, uint8_t priority, void *data,
                unsigned int len, callback_function callback);
-  void (*iso)(struct UsbController* controller, Interface* interface, 
+  uint32_t (*iso)(struct UsbController* controller, Interface* interface, 
     unsigned int pipe, uint8_t priority, void* data, unsigned int len, uint16_t interval,
     callback_function callback);
+  uint32_t (*iso_ext)(struct UsbController* controller, Interface* interface, 
+    Endpoint* e, void* data, unsigned int len,
+    uint16_t interval, uint8_t priority, callback_function callback);
+  int (*remove_transfer)(struct UsbController* controller, uint32_t transfer_id);
   int (*contains_dev)(struct UsbController *controller, UsbDev *dev);
   int (*contains_interface)(struct UsbController *controller,
                             Interface *interface);
   UsbControllerType (*is_of_type)(struct UsbController *usb_controller);
   int (*insert_callback)(struct UsbController *controller, uint16_t reg_type,
-                         event_callback callback);
+                         event_callback callback, void* buffer);
+  int (*insert_buffer)(struct UsbController* controller, Interface* interface,
+    void* buffer, write_callback write_callback);
   int (*delete_callback)(struct UsbController *controller, uint16_t reg_type,
                          event_callback callback);
   int (*insert_listener)(struct UsbController *controller,
@@ -210,10 +216,11 @@ struct UsbController {
   void (*link_device_to_driver)(struct UsbController* controller, UsbDev* dev, UsbDriver* driver);
   void (*link_driver_to_controller)(struct UsbController* controller, UsbDriver* driver);
   void (*link_driver_to_interface)(struct UsbController* controller, UsbDriver* driver, Interface* interface);
-  void (*interrupt_entry_point)(UsbDev* dev, Endpoint* endpoint, void* data, unsigned int len, uint8_t prio, uint16_t interval, callback_function callback);
-  void (*control_entry_point)(UsbDev* dev, UsbDeviceRequest* device_request, void* data, uint8_t prio, Endpoint* endpoint, callback_function callback, uint8_t flags);
-  void (*bulk_entry_point)(UsbDev* dev, Endpoint* endpoint, void* data, unsigned int len, uint8_t priority, callback_function callback, uint8_t flags);
-  void (*iso_entry_point)(UsbDev* dev, Endpoint* endpoint, void* data, unsigned int len, uint8_t priority, uint16_t interval, callback_function callback);
+  uint32_t (*interrupt_entry_point)(UsbDev* dev, Interface* interface, Endpoint* endpoint, void* data, unsigned int len, uint8_t prio, uint16_t interval, callback_function callback);
+  uint32_t (*control_entry_point)(UsbDev* dev, UsbDeviceRequest* device_request, void* data, uint8_t prio, Interface* interface, Endpoint* endpoint, callback_function callback, uint8_t flags);
+  uint32_t (*bulk_entry_point)(UsbDev* dev, Interface* interface, Endpoint* endpoint, void* data, unsigned int len, uint8_t priority, callback_function callback, uint8_t flags);
+  uint32_t (*iso_entry_point)(UsbDev* dev, Interface* interface, Endpoint* endpoint, void* data, unsigned int len, uint8_t priority, uint16_t interval, callback_function callback);
+  int (*fast_buffer_change)(struct UsbController* controller, UsbDev* dev, Endpoint* endpoint, uint32_t qh_id, void* buffer);
   EventDispatcher* (*request_event_dispatcher)(struct UsbController* controller);
   Logger_C* (*init_controller_logger)(struct UsbController* controller);
   Register *(*look_up)(struct UsbController* controller, Register_Type r);

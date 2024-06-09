@@ -26,7 +26,7 @@ static Logger_C* init_logger(UsbController* controller);
 static int insert_listener(UsbController *controller, EventListener *listener);
 static int delete_listener(UsbController *controller, int id);
 static int insert_callback(UsbController *controller, uint16_t reg_type,
-                    event_callback callback);
+                    event_callback callback, void* buffer);
 static int delete_callback(UsbController *controller, uint16_t reg_type,
                     event_callback callback);
 static int supported_event_listener_type(UsbController *controller, 
@@ -195,14 +195,15 @@ static int delete_listener(UsbController *controller, int id) {
 }
 
 static int insert_callback(UsbController *controller, uint16_t reg_type,
-                    event_callback callback) {
+                    event_callback callback, void* buffer) {
   if (callback == (void *)0)
     return -1;
 
   if (!__STRUCT_CALL__(controller, supported_event_listener_type, reg_type))
     return -1;
 
-  return __STRUCT_CALL__(controller->dispatcher, reg_callback, callback, reg_type);
+  return __STRUCT_CALL__(controller->dispatcher, reg_callback, callback, reg_type, 
+    buffer);
 }
 
 static int supported_event_listener_type(UsbController *controller,
@@ -212,6 +213,8 @@ static int supported_event_listener_type(UsbController *controller,
   if (event_listener_type == MOUSE_LISTENER) {
     supported = 1;
   } else if (event_listener_type == KEY_BOARD_LISTENER) {
+    supported = 1;
+  } else if (event_listener_type == AUDIO_LISTENER){
     supported = 1;
   }
 
