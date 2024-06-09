@@ -27,6 +27,9 @@ __DEFINE_MAP_FUNCTIONS__(int_callback);
 __DEFINE_MAP_FUNCTIONS__(int_buffer);
 __DEFINE_MAP_FUNCTIONS__(int_t_len);
 __DEFINE_MAP_FUNCTIONS__(int_mem_buffer);
+__DEFINE_MAP_FUNCTIONS__(qh_interface_map);
+__DEFINE_MAP_FUNCTIONS__(interface_buffer_map);
+__DEFINE_MAP_FUNCTIONS__(interface_write_callback_map);
 }
 
 static inline void new_super_map(struct SuperMap *s, const char *map_descript,
@@ -40,8 +43,8 @@ __MAP_INIT_PTR__(newQH_TD, QH_TD_Map, QH_TD, QH, TD);
 __MAP_INIT_VALUE__(newRegisterMap, Register_Map, Register, Register_Type,
   Register);
 
-__MAP_INIT_PTR__(newQH_CallbackMap, QH_Callback_Function_Map, QH_Callback,
-  QH, callback_function);
+__MAP_INIT_FUNC_PTR__(newQH_CallbackMap, QH_Callback_Function_Map, QH_Callback, QH, 
+  callback_function);
 
 __MAP_INIT_PTR__(newQH_StatusMap, QH_Status_Map, QH_Status, QH, uint8_t);
 
@@ -84,3 +87,12 @@ __MAP_INIT_VALUE__(newIntTLenMap, Int_T_Len_Map, int_t_len, uint32_t,
 
 __MAP_INIT_VALUE__(newIntMemBufferMap, Int_Mem_Buffer_Map, int_mem_buffer,
   uint32_t, uint8_t);
+
+__MAP_INIT_PTR__(newQH_Interface_Map, QH_Interface_Map, qh_interface_map, 
+  QH, Interface);
+
+__MAP_INIT_PTR__(newInterface_Buffer_Map, Interface_Buffer_Map, interface_buffer_map,
+  Interface, void);
+
+__MAP_INIT_FUNC_PTR__(newInterface_Write_Callback_Map, Interface_Write_Callback_Map,
+  interface_write_callback_map, Interface, write_callback);
