@@ -20,7 +20,7 @@ static void key_board_call(EventListener *listener, GenericEvent *event) {
     Event_Callback *e_c =
         (Event_Callback *)container_of(l_e, Event_Callback, l_e);
     KeyBoardEvent *k_evt = container_of(event, KeyBoardEvent, super);
-    e_c->callback((void *)k_evt);
+    e_c->callback((void *)k_evt, e_c->buffer);
     __UPDATE_LIST_ENTRY__(l_e);
   }
   // listener->listener_mutex->release_c(listener->listener_mutex);

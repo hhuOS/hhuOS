@@ -8,6 +8,7 @@
 
 struct Event_Callback{
     list_element l_e;
+    void* buffer;
     event_callback callback;
 };
 
@@ -19,7 +20,8 @@ typedef struct Event_Callback Event_Callback;
 
 struct EventListener{
     void (*call)(struct EventListener* event_listener, GenericEvent* event);
-    void (*register_event_callback)(struct EventListener* event_listener, event_callback callback);
+    void (*register_event_callback)(struct EventListener* event_listener, event_callback callback, 
+        void* buffer);
     void (*deregister_event_callback)(struct EventListener* event_listener, event_callback callback);
     uint16_t (*type_of)(struct EventListener* event_listener);
     void (*new_super_event_listener)(struct EventListener* event_listener);

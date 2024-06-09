@@ -18,7 +18,7 @@ static void mouse_call(EventListener *listener, GenericEvent *event) {
   while (__NOT_NULL__(l_e)) {
     Event_Callback *e_c =
         (Event_Callback *)container_of(l_e, Event_Callback, l_e);
-    e_c->callback(event);
+    e_c->callback(event, e_c->buffer);
     __UPDATE_LIST_ENTRY__(l_e);
   }
   // listener->listener_mutex->release_c(listener->listener_mutex);

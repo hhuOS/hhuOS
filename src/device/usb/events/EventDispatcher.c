@@ -9,7 +9,8 @@ static void publish_event(EventDispatcher* dispatcher,  GenericEvent* event, int
 static int register_event_listener(EventDispatcher* dispatcher, EventListener* event_listener);
 static int deregister_event_listener(EventDispatcher* dispatcher, int id);
 static EventListener* getListener(EventDispatcher* dispatcher, int id);
-static int reg_callback(EventDispatcher* dispatcher, event_callback callback, uint16_t event_listener_type);
+static int reg_callback(EventDispatcher* dispatcher, event_callback callback, uint16_t event_listener_type,
+  void* buffer);
 static int dereg_callback(EventDispatcher* dispatcher, event_callback callback, uint16_t event_listener_type);
 
 static void publish_event(EventDispatcher *dispatcher, GenericEvent *event, int id) {
@@ -71,7 +72,7 @@ static EventListener *getListener(EventDispatcher *dispatcher, int id) {
 }
 
 static int reg_callback(EventDispatcher *dispatcher, event_callback callback,
-                 uint16_t event_listener_type) {
+                 uint16_t event_listener_type, void* buffer) {
   // dispatcher->dispatcher_mutex->acquire_c(dispatcher->dispatcher_mutex);
 
   list_element *l_e = __LIST_FIRST_ENTRY__(dispatcher->head);
@@ -80,7 +81,7 @@ static int reg_callback(EventDispatcher *dispatcher, event_callback callback,
     EventListener *listener =
         (EventListener *)container_of(l_e, EventListener, l_e);
     if (listener->type_of(listener) == event_listener_type) {
-      listener->register_event_callback(listener, callback);
+      listener->register_event_callback(listener, callback, buffer);
       // dispatcher->dispatcher_mutex->release_c(dispatcher->dispatcher_mutex);
       return 1;
     }

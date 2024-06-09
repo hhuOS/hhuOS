@@ -4,7 +4,7 @@
 #include "../../interfaces/SystemInterface.h"
 #include "../../utility/Utils.h"
 
-static void register_event_callback(struct EventListener* event_listener, event_callback callback);
+static void register_event_callback(struct EventListener* event_listener, event_callback callback, void* buffer);
 static void deregister_event_callback(struct EventListener* event_listener, event_callback callback);
 
 void new_super_event_listener(EventListener *listener) {
@@ -19,11 +19,12 @@ void new_super_event_listener(EventListener *listener) {
 }
 
 static void register_event_callback(EventListener *event_listener,
-                             event_callback callback) {
+                             event_callback callback, void* buffer) {
   list_element *l_e = event_listener->head.l_e;
   Event_Callback *event_c =
       (Event_Callback *)interface_allocateMemory(sizeof(Event_Callback), 0);
   event_c->callback = callback;
+  event_c->buffer = buffer;
   event_c->l_e.l_e = 0;
 
   // event_listener->listener_mutex->acquire_c(event_listener->listener_mutex);

@@ -21,7 +21,8 @@ struct EventDispatcher{
     int (*register_event_listener)(struct EventDispatcher* dispatcher, EventListener* event_listener);
     int (*deregister_event_listener)(struct EventDispatcher* dispatcher, int id);
     EventListener* (*getListener)(struct EventDispatcher* dispatcher, int id);
-    int (*reg_callback)(struct EventDispatcher* dispatcher, event_callback callback, uint16_t event_listener_type);
+    int (*reg_callback)(struct EventDispatcher* dispatcher, event_callback callback, uint16_t event_listener_type,
+        void* buffer);
     int (*dereg_callback)(struct EventDispatcher* dispatcher, event_callback callback, uint16_t event_listener_type);
     void (*new_event_dispatcher)(struct EventDispatcher* event_dispatcher);
     void (*init_event_dispatcher_map)(struct EventDispatcher* event_dispatcher);
