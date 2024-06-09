@@ -71,6 +71,14 @@ typedef struct SuperMap SuperMap;
     } \
     return (void *)0; \
   }
+
+#define __MAP_GET_FUNC_PTR__(name, key_t, value_t) \
+  __DEFINE_GET__(name) { \
+    if (((Util::Map<key_t *, value_t> *)m->map_pointer)->containsKey((key_t *)key)) { \
+      return (void*)(((Util::Map<key_t *, value_t> *)m->map_pointer)->get((key_t *)key)); \
+    } \
+    return (void *)0; \
+  }
   
 #define __MAP_GET_VALUE__(name, key_t, value_t) \
   __DEFINE_GET__(name) { \
@@ -86,6 +94,11 @@ typedef struct SuperMap SuperMap;
     return ((Util::Map<key_t *, value_t *> *)m->map_pointer)->containsKey((key_t *)key); \
   }
 
+#define __MAP_CONTAINS_FUNC_PTR__(name, key_t, value_t) \
+  __DEFINE_CONTAINS__(name) { \
+    return ((Util::Map<key_t *, value_t> *)m->map_pointer)->containsKey((key_t *)key); \
+  }
+
 #define __MAP_CONTAINS_VALUE__(name, key_t, value_t) \
   __DEFINE_CONTAINS__(name) { \
     return ((Util::Map<key_t, value_t *> *)m->map_pointer) \
@@ -97,6 +110,11 @@ typedef struct SuperMap SuperMap;
     ((Util::Map<key_t *, value_t *> *)m->map_pointer)->put((key_t *)key, (value_t *)value); \
   }
 
+#define __MAP_PUT_FUNC_PTR__(name, key_t, value_t) \
+  __DEFINE_PUT__(name){ \
+    ((Util::Map<key_t *, value_t> *)m->map_pointer)->put((key_t *)key, (value_t)value); \
+  }
+
 #define __MAP_PUT_VALUE__(name, key_t, value_t) \
   __DEFINE_PUT__(name){ \
     ((Util::Map<key_t, value_t *> *)m->map_pointer) \
@@ -106,6 +124,11 @@ typedef struct SuperMap SuperMap;
 #define __MAP_REMOVE_POINTER__(name, key_t, value_t) \
   __DEFINE_REMOVE__(name){ \
     return ((Util::Map<key_t *, value_t *> *)m->map_pointer)->remove((key_t *)key); \
+  }
+
+#define __MAP_REMOVE_FUNC_PTR__(name, key_t, value_t) \
+  __DEFINE_REMOVE__(name){ \
+    return (void*)(((Util::Map<key_t *, value_t> *)m->map_pointer)->remove((key_t *)key)); \
   }
 
 #define __MAP_REMOVE_VALUE__(name, key_t, value_t) \
@@ -121,17 +144,22 @@ typedef struct SuperMap SuperMap;
   __SUPER__(map, remove_c) = __CONCAT__(&remove_c_, name); \
   __SUPER__(map, new_super_map) = &new_super_map; \
   \
-  void *map_pointer = (Map_C) new Util::HashMap<key_t, value_t *>(); \
+  void *map_pointer = (Map_C) new Util::HashMap<key_t, value_t>(); \
   __CALL_SUPER__(map->super, new_super_map, description, map_pointer)
 
 #define __MAP_NEW_PTR_ROUTINE__(func_name, name, type, key_t, value_t) \
   __DEFINE_MAP_NEW__(func_name, type) { \
-    __MAP_SUPER_ROUTINE__(name, key_t*, value_t); \
+    __MAP_SUPER_ROUTINE__(name, key_t*, value_t*); \
   }
 
 #define __MAP_NEW_VALUE_ROUTINE__(func_name, name, type, key_t, value_t) \
   __DEFINE_MAP_NEW__(func_name, type) { \
-    __MAP_SUPER_ROUTINE__(name, key_t, value_t); \
+    __MAP_SUPER_ROUTINE__(name, key_t, value_t*); \
+  }
+
+#define __MAP_NEW_FUNC_ROUTINE__(func_name, name, type, key_t, value_t) \
+  __DEFINE_MAP_NEW__(func_name, type) { \
+    __MAP_SUPER_ROUTINE__(name, key_t*, value_t); \
   }
 
 #define __MAP_INIT_PTR__(func_name, type, name, key_t, value_t) \
@@ -147,6 +175,13 @@ typedef struct SuperMap SuperMap;
   __MAP_CONTAINS_VALUE__(name, key_t, value_t); \
   __MAP_PUT_VALUE__(name, key_t, value_t); \
   __MAP_REMOVE_VALUE__(name, key_t, value_t)
+
+#define __MAP_INIT_FUNC_PTR__(func_name, type, name, key_t, value_t) \
+  __MAP_NEW_FUNC_ROUTINE__(func_name, name, type, key_t, value_t); \
+  __MAP_GET_FUNC_PTR__(name, key_t, value_t); \
+  __MAP_CONTAINS_FUNC_PTR__(name, key_t, value_t); \
+  __MAP_PUT_FUNC_PTR__(name, key_t, value_t); \
+  __MAP_REMOVE_FUNC_PTR__(name, key_t, value_t)
 
 // each new map needs to be struct accord
 // recycle TD when interrupt transfer instead of creating new ones
@@ -175,6 +210,9 @@ __DECLARE_MAP__(Int_Callback_Map);
 __DECLARE_MAP__(Int_Buffer_Map);
 __DECLARE_MAP__(Int_T_Len_Map);
 __DECLARE_MAP__(Int_Mem_Buffer_Map);
+__DECLARE_MAP__(QH_Interface_Map);
+__DECLARE_MAP__(Interface_Buffer_Map);
+__DECLARE_MAP__(Interface_Write_Callback_Map);
 
 #ifdef __cplusplus
 
@@ -200,6 +238,9 @@ __DEFINE_MAP_NEW__(newIntCallbackMap, Int_Callback_Map);
 __DEFINE_MAP_NEW__(newIntBufferMap, Int_Buffer_Map);
 __DEFINE_MAP_NEW__(newIntTLenMap, Int_T_Len_Map);
 __DEFINE_MAP_NEW__(newIntMemBufferMap, Int_Mem_Buffer_Map);
+__DEFINE_MAP_NEW__(newQH_Interface_Map, QH_Interface_Map);
+__DEFINE_MAP_NEW__(newInterface_Buffer_Map, Interface_Buffer_Map);
+__DEFINE_MAP_NEW__(newInterface_Write_Callback_Map, Interface_Write_Callback_Map);
 
 #ifdef __cplusplus
 }
