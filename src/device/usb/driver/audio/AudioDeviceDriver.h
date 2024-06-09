@@ -2,6 +2,8 @@
 #define AUDIO_DEVICE_DRIVER_INCLUDE
 
 #include "../UsbDriver.h"
+#include "../../interfaces/MapInterface.h"
+#include "../../interfaces/MutexInterface.h"
 
 #define AUDIO_CONFIGURATION_BUFFER 2048
 
@@ -10,6 +12,28 @@
   __ENTRY__(name, match_audio_dev) = &match_audio_dev; \
   __ENTRY__(name, free_audio_dev) = &free_audio_dev; \
   __ENTRY__(name, configure_audio_device) = &configure_audio_device; \
+  __ENTRY__(name, sync_streaming_interface) = &sync_streaming_interface; \
+  __ENTRY__(name, audio_device_routine) = &audio_device_routine; \
+  __ENTRY__(name, switch_if_zero_bandwidth) = &switch_if_zero_bandwidth; \
+  __ENTRY__(name, set_default_frequency) = &set_default_frequency; \
+  __ENTRY__(name, __get_terminal) = &__get_terminal; \
+  __ENTRY__(name, __get_sample_frequency) = &__get_sample_frequency; \
+  __ENTRY__(name, __get_sub_frame_size) = &__get_sub_frame_size; \
+  __ENTRY__(name, __get_total_supported_frequencies) = &__get_total_supported_frequencies; \
+  __ENTRY__(name, __get_1ms_size) = &__get_1ms_size; \
+  __ENTRY__(name, __get_bit_depth) = &__get_bit_depth; \
+  __ENTRY__(name, __get_frame_size) = &__get_frame_size; \
+  __ENTRY__(name, __is_freq_set) = &__is_freq_set; \
+  __ENTRY__(name, __convert_to_class_specific_as_interface) = &__convert_to_class_specific_as_interface; \
+  __ENTRY__(name, __convert_to_class_specific_ac_interface) = &__convert_to_class_specific_ac_interface; \
+  __ENTRY__(name, __get_audio_dev) = &__get_audio_dev; \
+  __ENTRY__(name, __match_terminal_type) = &__match_terminal_type; \
+  __ENTRY__(name, __is_as_output_terminal) = &__is_as_output_terminal; \
+  __ENTRY__(name, __is_as_input_terminal) = &__is_as_input_terminal; \
+  __ENTRY__(name, __get_as_interface_by_terminal) = &__get_as_interface_by_terminal; \
+  __ENTRY__(name, __get_sync_delay) = &__get_sync_delay; \
+  __ENTRY__(name, __get_sync_unit)  = &__get_sync_unit; \
+  __ENTRY__(name, __convert_to_class_specific_as_endpoint) = &__convert_to_class_specific_as_endpoint; \
   \
   __SUPER__(name, probe) = &probe_audio; \
   __SUPER__(name, disconnect) = &disconnect_audio; \
@@ -164,7 +188,7 @@ struct SampleFrequency{
 
 typedef struct SampleFrequency SampleFrequency;
 
-#define __8000_HZ__ (SampleFrequency){.sampleFreq_lo = 8000, .sampleFreq_hi = 0}
+#define __8000_HZ__  (SampleFrequency){.sampleFreq_lo = 8000,  .sampleFreq_hi = 0}
 #define __16000_HZ__ (SampleFrequency){.sampleFreq_lo = 16000, .sampleFreq_hi = 0}
 #define __24000_HZ__ (SampleFrequency){.sampleFreq_lo = 24000, .sampleFreq_hi = 0}
 #define __32000_HZ__ (SampleFrequency){.sampleFreq_lo = 32000, .sampleFreq_hi = 0}
@@ -193,15 +217,25 @@ struct ASInterface {
   struct FormatType* format_type;
   struct SampleFrequency current_freq;
   uint8_t bPitchEnable;
+  uint8_t terminal_type;
 
-  uint8_t* buffer;
+  uint8_t* buffer_first;
+  uint8_t* buffer_second;
+  uint8_t active_buffer;
   unsigned int buffer_size;
+  uint32_t qh_id;
 };
 
 /*struct AudioInterfaceCollection {
   struct ACInterface* ac_itf;
   struct ASInterface** as_itf;
 }; */
+
+enum LockDelayUnit{
+  LOCK_UNIT_UNDEFINED = 0x00,
+  LOCK_UNIT_MS        = 0x01,
+  LOCK_PCM_SAMPLES    = 0x02
+};
 
 typedef struct ACInterface ACInterface;
 typedef struct ASInterface ASInterface;
@@ -211,7 +245,8 @@ typedef struct ASEndpoint ASEndpoint;
 struct AudioDev {
     UsbDev* usb_dev;
     unsigned int endpoint_addr;
-    void* buffer;
+    void* buffer_first;
+    void* buffer_second;
     unsigned int buffer_size;
     uint8_t priority;
     Interface* audio_control_interface;
@@ -222,9 +257,9 @@ struct AudioDev {
     int16_t curr_volume;
     int16_t max_volume;
     int16_t min_volume;
+    //Mutex_C* mutex;
 
-
-    void (*callback)(UsbDev* dev, uint32_t status, void* data);
+    void (*callback)(UsbDev* dev, Interface* interface, uint32_t status, void* data);
 };
 
 struct AudioDriver {
@@ -237,9 +272,50 @@ struct AudioDriver {
   void (*free_audio_dev)(struct AudioDriver *driver, struct AudioDev *audio_dev);
   struct AudioDev* (*match_audio_dev)(struct AudioDriver *driver, UsbDev *dev);
   int (*configure_audio_device)(struct AudioDriver* driver);
+  int8_t (*sync_streaming_interface)(struct AudioDriver* driver, 
+    UsbDev* dev, Interface* interface);
+  void (*audio_device_routine)(struct AudioDriver* driver, uint8_t* start,
+    uint8_t* end, MemoryService_C* mem_service, uint8_t minor);
+  void (*switch_if_zero_bandwidth)(struct AudioDriver* driver, struct AudioDev* audio_dev);
+  void (*set_default_frequency)(struct AudioDriver* driver, struct AudioDev* audio_dev);
+  uint8_t (*__get_terminal)(struct AudioDriver* driver, struct AudioDev* audio_dev, ASInterface* as_interface);
+  uint32_t (*__get_sample_frequency)(struct AudioDriver* driver, ASInterface* as_interface);
+  uint32_t (*__get_sub_frame_size)(struct AudioDriver* driver, ASInterface* as_interface);
+  uint32_t (*__get_total_supported_frequencies)(struct AudioDriver* driver, ASInterface* as_interface);
+  uint16_t (*__get_1ms_size)(struct AudioDriver* driver, ASInterface* as_interface);
+  uint32_t (*__get_bit_depth)(struct AudioDriver* driver, ASInterface* as_interface);
+  uint32_t (*__get_frame_size)(struct AudioDriver* driver, ASInterface* as_interface);
+  int8_t (*__is_freq_set)(struct AudioDriver* driver, ASInterface* as_interface);
+  ASInterface* (*__convert_to_class_specific_as_interface)(struct AudioDriver* driver,
+    Interface* interface);
+  ACInterface* (*__convert_to_class_specific_ac_interface)(struct AudioDriver* driver,
+    Interface* interface);
+  ASEndpoint* (*__convert_to_class_specific_as_endpoint)(struct AudioDriver* driver,
+    Endpoint* endpoint);
+  struct AudioDev* (*__get_audio_dev)(struct AudioDriver* driver, uint8_t minor);
+  int8_t (*__match_terminal_type)(struct AudioDriver* driver, 
+    ASInterface* as_interface, uint8_t terminal_type);
+  int8_t (*__is_as_output_terminal)(struct AudioDriver* driver,
+    ASInterface* as_interface);
+  int8_t (*__is_as_input_terminal)(struct AudioDriver* driver,
+    ASInterface* as_interface);
+  ASInterface* (*__get_as_interface_by_terminal)(struct AudioDriver* driver, 
+    struct AudioDev* audio_dev, uint8_t terminal_type);
+  uint16_t (*__get_sync_delay)(struct AudioDriver* driver, Endpoint* endpoint);
+  enum LockDelayUnit (*__get_sync_unit)(struct AudioDriver* driver, Endpoint* endpoint);
+
 };
 
 void new_audio_driver(struct AudioDriver* driver, char* name, UsbDevice_ID* entry);
+
+struct ASAudioEndpoint{ // since the default endpoint is an extended enpoint this structure is required and has to be stored in the corresponding audio component 
+  Endpoint endpoint;
+  uint8_t bInterval;
+  uint8_t bRefresh;
+  uint8_t bSynchAddress;
+} __attribute__((packed));
+
+
 
 enum AudioDescriptorTypes {
   CS_DEVICE = 0x21,
@@ -785,13 +861,13 @@ struct DynamicRangeCompressorMaxAmplControlParameterBlock{
 
 struct SamplingFrequencyControlParameterBlock{
   uint8_t control_selector;
-  uint8_t wLength;
+  uint16_t wLength;
   struct SampleFrequency tSampleFreq;
 } __attribute__((packed));
 
 struct PitchControlParameterBlock{
   uint8_t control_selector;
-  uint8_t wLength;
+  uint16_t wLength;
   uint8_t bPitchEnable;
 } __attribute__((packed));
 
@@ -834,8 +910,13 @@ enum FormatTypeCodes{
 };
 
 struct FormatType{
-  enum FormatTypeCodes format;
   void* type_descriptor;
+  enum FormatTypeCodes (*get_format_type)(void* type_descriptor);
+  uint8_t (*get_total_channels)(void* type_descriptor);
+  uint8_t (*get_subframe_size)(void* type_descriptor);
+  uint8_t (*get_bit_depth)(void* type_descriptor);
+  uint8_t (*get_sam_freq_type)(void* type_descriptor);
+  SampleFrequency (*get_sam_frequency)(void* type_descriptor, uint8_t freq_num);
 };
 
 struct FormatSpecificType{
@@ -879,8 +960,8 @@ typedef struct CopyProtectControlParameterBlock CopyProtectControlParameterBlock
 typedef struct MixerControlParameterBlockFirstForm MixerControlParameterBlockFirstForm;
 typedef struct MixerControlParameterBlockSecondForm MixerControlParameterBlockSecondForm;
 typedef struct SelectorControlParameterBlock SelectorControlParameterBlock;
-typedef enum CPL CPL;
-typedef enum SpatialLocations SpatialLocations;
+typedef enum   CPL CPL;
+typedef enum   SpatialLocations SpatialLocations;
 typedef struct ProcessingUnitDescriptor ProcessingUnitDescriptor;
 typedef struct UP_DOWN_MixProcessingUnitDescriptor UP_DOWN_MixProcessingUnitDescriptor;
 typedef struct DolbyPrologicProcessingUnitDescriptor DolbyPrologicProcessingUnitDescriptor;
@@ -890,5 +971,7 @@ typedef struct ChorusProcessingUnitDescriptor ChorusProcessingUnitDescriptor;
 typedef struct DynamicRangeCompressorProcessnigUnitDescriptor DynamicRangeCompressorProcessnigUnitDescriptor;
 typedef struct ExtensionUnitDescriptor ExtensionUnitDescriptor;
 typedef struct AssociatedInterfaceDescriptor AssociatedInterfaceDescriptor;
+typedef struct ASAudioEndpoint ASAudioEndpoint;
+typedef enum   LockDelayUnit LockDelayUnit;
 
 #endif

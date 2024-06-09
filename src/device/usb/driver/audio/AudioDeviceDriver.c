@@ -1,6 +1,12 @@
 #include "AudioDeviceDriver.h"
 #include "../../controller/UsbControllerFlags.h"
 #include "../../include/UsbErrors.h"
+#include "../../include/UsbGeneral.h"
+#include "../../interfaces/TimeInterface.h"
+#include "../../events/event/audio/AudioSampleEvent.h"
+#include "../../../../lib/util/io/key/InputEvents.h"
+#include "../../controller/UsbController.h"
+#include "../../interfaces/ThreadInterface.h"
 
 static uint8_t get_upstream_channels_by_source_id(AudioDriver* driver, 
     uint8_t bSourceID, ACInterface* ac_interface);
@@ -184,6 +190,16 @@ static int8_t set_sampling_frequency(AudioDriver* driver, AudioDev* audio_dev,
     Interface* as_interface, struct SampleFrequency sample_freq);
 static struct SampleFrequency get_sampling_frequency(AudioDriver* driver,
     AudioDev* audio_dev, Interface* as_interface);
+static uint8_t __get_terminal(AudioDriver* driver, AudioDev* audio_dev, ASInterface* as_interface);
+static AudioSampleEvent generate_audio_event(AudioDriver* driver,
+    ASInterface* as_interface, uint8_t** raw_data);
+static void trigger_audio_event(AudioDriver* driver, GenericEvent* event);
+static int8_t sync_streaming_interface(AudioDriver* driver, UsbDev* dev,
+    Interface* interface);
+static void audio_device_routine(AudioDriver* driver, uint8_t* start,
+    uint8_t* end, MemoryService_C* mem_service, uint8_t minor);
+static void switch_if_zero_bandwidth(AudioDriver* driver, AudioDev* audio_dev);
+static void set_default_frequency(AudioDriver* driver, AudioDev* audio_dev);
 
 static AudioDriver* internal_audio_driver = 0;
 
@@ -239,6 +255,110 @@ static inline uint8_t __is_extension_unit(AudioDriver* driver, uint8_t* start){
   return __IF_EXT__((*(start + 2) == EXTENSION_UNIT), 1, 0);
 }
 
+static inline int8_t __is_zero_frequency(AudioDriver* driver, SampleFrequency sample_freq){
+    return __IF_EXT__(((sample_freq.sampleFreq_lo == 0) && (sample_freq.sampleFreq_hi) == 0), 1, -1);
+}
+
+static inline ASInterface* __convert_to_class_specific_as_interface(AudioDriver* driver,
+    Interface* interface){
+    __TYPE_CAST__(ASInterface*, as_interface, interface->active_interface->class_specific);
+    return as_interface;
+}
+
+static inline ACInterface* __convert_to_class_specific_ac_interface(AudioDriver* driver,
+    Interface* interface){
+    __TYPE_CAST__(ACInterface*, ac_interface, interface->active_interface->class_specific);
+    return ac_interface;
+}
+
+static inline ASEndpoint* __convert_to_class_specific_as_endpoint(AudioDriver* driver,
+    Endpoint* endpoint){
+    __TYPE_CAST__(ASEndpoint*, as_endpoint, endpoint->class_specific);
+    return as_endpoint;
+}
+
+static inline uint32_t __get_total_supported_frequencies(AudioDriver* driver, ASInterface* as_interface){
+    uint8_t freq_type = as_interface->format_type->get_sam_freq_type(
+        as_interface->format_type->type_descriptor);
+    return __IF_EXT__((__IS_ZERO__(freq_type)), 2, freq_type);
+}
+
+static inline void __get_supported_frequencies(AudioDriver* driver, ASInterface* as_interface,
+    SampleFrequency frequencies[], uint8_t* num_supported_freq){
+    uint8_t num_support = __get_total_supported_frequencies(driver, as_interface);
+}
+
+static inline uint32_t __get_sample_frequency(AudioDriver* driver, ASInterface* as_interface){
+    uint16_t s_low = as_interface->current_freq.sampleFreq_lo;
+    uint8_t s_high = as_interface->current_freq.sampleFreq_hi;
+    return (s_low | __16_BIT_H_SHIFT__(s_high));
+}
+
+static inline uint32_t __get_sub_frame_size(AudioDriver* driver, ASInterface* as_interface){
+    return as_interface->format_type->get_subframe_size(
+        as_interface->format_type->type_descriptor);
+}
+
+static inline uint16_t __get_1ms_size(AudioDriver* driver, ASInterface* as_interface){
+    return (__get_sample_frequency(driver, as_interface) / 1000) * 
+    __get_sub_frame_size(driver, as_interface);
+}
+
+static inline uint32_t __get_bit_depth(AudioDriver* driver, ASInterface* as_interface){
+    return as_interface->format_type->get_bit_depth(
+        as_interface->format_type->type_descriptor);
+}
+
+static inline uint32_t __get_frame_size(AudioDriver* driver, ASInterface* as_interface){
+    return __get_sub_frame_size(driver, as_interface) * __get_sample_frequency(driver, as_interface);
+}
+
+static inline int8_t __is_freq_set(AudioDriver* driver, ASInterface* as_interface){
+    return __IF_EXT__((__is_zero_frequency(driver, as_interface->current_freq) == 1), -1, 1);
+}
+
+static inline AudioDev* __get_audio_dev(AudioDriver* driver, uint8_t minor){
+    __IF_RET_NULL__(minor >= MAX_DEVICES_PER_USB_DRIVER);
+    return driver->dev + minor;
+}
+
+static inline int8_t __match_terminal_type(AudioDriver* driver, 
+    ASInterface* as_interface, uint8_t terminal_type){
+    return __IF_EXT__((as_interface->terminal_type == terminal_type), 1, -1);
+}
+
+static inline int8_t __is_as_output_terminal(AudioDriver* driver,
+    ASInterface* as_interface){
+    return __match_terminal_type(driver, as_interface, OUTPUT_TERMINAL);
+}
+
+static inline int8_t __is_as_input_terminal(AudioDriver* driver,
+    ASInterface* as_interface){
+    return __match_terminal_type(driver, as_interface, INPUT_TERMINAL);
+}
+
+static inline ASInterface* __get_as_interface_by_terminal(AudioDriver* driver, 
+    AudioDev* audio_dev, uint8_t terminal_type){
+    __FOR_RANGE__(i, int, 0, audio_dev->audio_streaming_interfaces_num){
+        ASInterface* as_interface = __convert_to_class_specific_as_interface(
+            driver, audio_dev->audio_streaming_interfaces[i]);
+        if(__match_terminal_type(driver, as_interface, terminal_type) == 1){
+            return as_interface;
+        }
+    }
+    return (void*)0;
+}
+
+static inline uint16_t __get_sync_delay(AudioDriver* driver, Endpoint* endpoint){
+    ASEndpoint* as_endpoint = __convert_to_class_specific_as_endpoint(driver, endpoint);
+    return as_endpoint->as_iso_endpoint.wLockDelay;
+}
+
+static inline LockDelayUnit __get_sync_unit(AudioDriver* driver, Endpoint* endpoint){
+    ASEndpoint* as_endpoint = __convert_to_class_specific_as_endpoint(driver, endpoint);
+    return as_endpoint->as_iso_endpoint.bLockDelayUnits;
+}
+
 static int8_t __is_channel_in_cluster(AudioDriver* driver, ClusterDescriptor cluster,
     SpatialLocations loc){
     return __IF_EXT__(__NOT_ZERO__(cluster.wChannelConfig & loc), 1, -1);
@@ -280,9 +400,79 @@ static int16_t probe_audio(UsbDev* dev, Interface* interface){
 
 static void disconnect_audio(UsbDev* dev, Interface* interface){}
 
-static void callback_audio(UsbDev* dev, uint32_t status, void* data){
+static void callback_audio(UsbDev* dev, Interface* interface, uint32_t status, void* data){
     __IF_RET__(status & E_TRANSFER);
-    
+    AudioSampleEvent audio_sample_event;
+    //uint8_t* raw_data = (uint8_t*)data;
+    UsbController* controller = (UsbController*)dev->controller;
+    ASInterface* as_interface = internal_audio_driver->__convert_to_class_specific_as_interface(internal_audio_driver,
+        interface);
+    //uint16_t size = as_interface->buffer_size;
+    //uint16_t sub_frame_size = __get_sub_frame_size(internal_audio_driver, as_interface);
+    if(as_interface->terminal_type == INPUT_TERMINAL){
+        uint8_t* active_buffer;
+        uint8_t* passive_buffer;
+        if(as_interface->active_buffer == 0x01){
+            active_buffer = as_interface->buffer_second;
+            passive_buffer = as_interface->buffer_first;
+            as_interface->active_buffer = 0x02;
+        }
+        else if(as_interface->active_buffer == 0x02){
+            active_buffer = as_interface->buffer_first;
+            passive_buffer = as_interface->buffer_second;
+            as_interface->active_buffer = 0x01;
+        }
+        controller->fast_buffer_change(controller, dev, 
+            dev->__get_first_endpoint(dev, interface->active_interface),
+            as_interface->qh_id, active_buffer); 
+        void* write_buffer = internal_audio_driver->super.interface_buffer_map->get_c(
+           internal_audio_driver->super.interface_buffer_map, interface);
+        write_callback write_callback = internal_audio_driver->super.interface_write_callback_map->get_c(
+            internal_audio_driver->super.interface_write_callback_map, interface);
+        write_callback(passive_buffer, as_interface->buffer_size, write_buffer);
+    }
+
+    /*else if(as_interface->terminal_type == OUTPUT_TERMINAL){
+        for(int i = 0; i < size; i+=sub_frame_size){
+            audio_sample_event = generate_audio_event(internal_audio_driver, 
+                as_interface, &raw_data);
+            trigger_audio_event(internal_audio_driver, 
+                (GenericEvent*)&audio_sample_event);
+        }
+    } */
+}
+
+static AudioSampleEvent generate_audio_event(AudioDriver* driver,
+    ASInterface* as_interface, uint8_t** raw_data){
+    AudioSampleEvent audio_event;
+    audio_event.super.event_type = AUDIO_EVENT;
+    audio_event.super.event_value = AUDIO_IN;
+    audio_event.sub_frame = driver->__get_sub_frame_size(driver, as_interface);
+    if(audio_event.sub_frame == 0x01){
+        audio_event.super.event_code = **raw_data;
+        (*raw_data)++;
+    }
+    else if(audio_event.sub_frame == 0x02){
+        audio_event.super.event_code = *((uint16_t*)*raw_data);
+        (*raw_data)+=2;
+    }
+    else if(audio_event.sub_frame == 0x03){
+        audio_event.super.event_code = 
+            *((uint16_t*)*raw_data) | 
+            __16_BIT_H_SHIFT__(*((uint8_t*)((*raw_data)+2)));
+        (*raw_data)+=3;
+    }
+    else if(audio_event.sub_frame == 0x04){
+        audio_event.super.event_code = *((uint32_t*)*raw_data);
+        (*raw_data)+=4;
+    }
+
+    return audio_event;
+}
+
+static void trigger_audio_event(AudioDriver* driver, GenericEvent* event){
+    __STRUCT_CALL__(((UsbDriver*)driver)->dispatcher, publish_event,
+        event, ((UsbDriver*)driver)->listener_id);
 }
 
 void new_audio_driver(AudioDriver* driver, char* name, UsbDevice_ID* entry){
@@ -290,7 +480,8 @@ void new_audio_driver(AudioDriver* driver, char* name, UsbDevice_ID* entry){
         driver->audio_map[i] = 0;
         driver->dev[i].usb_dev = 0;
         driver->dev[i].endpoint_addr = 0;
-        driver->dev[i].buffer = 0;
+        driver->dev[i].buffer_first = 0;
+        driver->dev[i].buffer_second = 0;
         driver->dev[i].buffer_size = 0;
         driver->dev[i].priority = 0;
         driver->dev[i].audio_control_interface = 0;
@@ -305,6 +496,7 @@ void new_audio_driver(AudioDriver* driver, char* name, UsbDevice_ID* entry){
             driver->dev[i].audio_streaming_interfaces[i] = 0;
         }
     }
+    
     internal_audio_driver = driver;
     __INIT_AUDIO_DRIVER__(driver, name, entry);
 }
@@ -321,7 +513,7 @@ static void free_audio_dev(AudioDriver *driver, AudioDev *audio_dev) {
   __FREE_DEV__(audio_dev, driver->dev, driver->audio_map);
 }
 
-static void audio_callback(UsbDev *dev, uint32_t status, void *data) {
+static void audio_callback(UsbDev *dev, Interface* interface, uint32_t status, void *data) {
   if (status & E_TRANSFER) {
     dev->error_while_transfering = 1;
   } else if (status & S_TRANSFER) {
@@ -347,7 +539,7 @@ static inline void __set_requests(AudioDriver* driver, UsbDev* dev,
         HOST_TO_DEVICE | TYPE_REQUEST_CLASS | recipient, 
         bRequest, wValueHigh, wValueLow, 8, 
         __8_BIT_H_SHIFT__(wIndexHigh) | wIndexLow, len);
-    __STRUCT_CALL__(dev, request, device_req, data, PRIORITY_QH_8, 0,
+    __STRUCT_CALL__(dev, request, device_req, data, PRIORITY_QH_8, 0, 0,
          callback, flags);
 }
 
@@ -360,7 +552,7 @@ static inline void __get_requests(AudioDriver* driver, UsbDev* dev,
         DEVICE_TO_HOST | TYPE_REQUEST_CLASS | recipient, 
         bRequest, wValueHigh, wValueLow, 8, 
         __8_BIT_H_SHIFT__(wIndexHigh) | wIndexLow, len);
-    __STRUCT_CALL__(dev, request, device_req, data, PRIORITY_QH_8, 0,
+    __STRUCT_CALL__(dev, request, device_req, data, PRIORITY_QH_8, 0, 0,
          callback, flags);
 }
 
@@ -584,7 +776,7 @@ static inline void __parse_waModes(AudioDriver* driver, uint8_t* pos,
         up_down_mix_processing_unit_descriptor){
     __FOR_RANGE__(i, int, 0, *number_modes){
         *(up_down_mix_processing_unit_descriptor->waModes + i) = 
-            (uint16_t*)(pos + i);
+            *((uint16_t*)(pos + i));
     }
 }
 
@@ -1189,6 +1381,16 @@ static int __update_alt_interface(AudioDriver* driver, Alternate_Interface** alt
     return __RET_E__;
 }
 
+static uint8_t __get_terminal(AudioDriver* driver, AudioDev* audio_dev, 
+    ASInterface* as_interface){
+    uint8_t terminal_id = as_interface->as_desc.bTerminalLink;
+    enum ACInterfaceDescriptorSubtypes ac_subtype;
+    ACInterface* ac_interface = (ACInterface*)audio_dev->audio_control_interface->active_interface->class_specific;
+    find_structure_by_id(driver, ac_interface, terminal_id, &ac_subtype);
+
+    return (uint8_t)ac_subtype;
+}
+
 static int handle_ac_routine(AudioDriver* driver, uint8_t** start, 
   MemoryService_C* m, uint8_t minor){
   AudioDev audio_dev = driver->dev[minor];
@@ -1231,7 +1433,7 @@ static int handle_ac_routine(AudioDriver* driver, uint8_t** start,
   return __RET_S__;
 }
 
-static ASInterface* as_routine(AudioDriver* driver, uint8_t* start,
+static ASInterface* as_routine(AudioDriver* driver, AudioDev* audio_dev, uint8_t* start,
     MemoryService_C* m, Alternate_Interface* alt_itf){
   
   __ALLOC_KERNEL_MEM_S__(m, ASInterface, as_interface);
@@ -1240,6 +1442,8 @@ static ASInterface* as_routine(AudioDriver* driver, uint8_t* start,
   as_interface->current_freq = (SampleFrequency){0, 0};
   as_interface->format_type = 0;
   __set_class_specific_interface(driver, alt_itf, as_interface);
+  uint8_t terminal_type = __get_terminal(driver, audio_dev, as_interface);
+  as_interface->terminal_type = terminal_type;
 
   return as_interface;
 }
@@ -1264,7 +1468,7 @@ static int handle_as_routine(AudioDriver* driver, uint8_t** start,
         }
     }
     if(__is_as_interface(driver, *start)){
-        as_interface = as_routine(driver, *start, m, alt_itf);
+        as_interface = as_routine(driver, &audio_dev, *start, m, alt_itf);
     }
     else if(__is_format_type(driver, *start)){
         handle_format_routine(driver, *start, m, as_interface);
@@ -1314,27 +1518,76 @@ static struct DiscreteNumberSamplingFrequencies* __parse_discrete_sample_freq(Au
     return discrete_freq;
 }
 
+static enum FormatTypeCodes get_format_type1(void* type_descriptor){
+    __TYPE_CAST__(struct Type1_FormatTypeDescriptor*, type1, type_descriptor);
+    return type1->bFormatType;
+}
+
+static uint8_t get_total_channels_type_1(void* type_descriptor){
+    __TYPE_CAST__(struct Type1_FormatTypeDescriptor*, type1, type_descriptor);
+    return type1->bNrChannels;
+}
+
+static uint8_t get_subframe_size_type_1(void* type_descriptor){
+    __TYPE_CAST__(struct Type1_FormatTypeDescriptor*, type1, type_descriptor);
+    return type1->bSubframeSize;
+}
+
+static uint8_t get_bith_depth_type_1(void* type_descriptor){
+    __TYPE_CAST__(struct Type1_FormatTypeDescriptor*, type1, type_descriptor);
+    return type1->bBitResolution;
+}
+
+static uint8_t get_sam_freq_type_1(void* type_descriptor){
+    __TYPE_CAST__(struct Type1_FormatTypeDescriptor*, type1, type_descriptor);
+    return type1->bSamFreqType;
+}
+
+// num : from 1 to x
+static SampleFrequency get_sam_freq_discrete_type_1(void* type_descriptor, uint8_t num){
+    __TYPE_CAST__(struct Type1_FormatTypeDescriptor*, type1, type_descriptor);
+    __TYPE_CAST__(struct DiscreteNumberSamplingFrequencies*, sam_freq, type1->samFreq);
+    if(num > get_sam_freq_type_1(type_descriptor)) 
+        return __DEFAULT_STRUCT__(SampleFrequency, 0, 0);
+    return *(sam_freq->tSam + num-1);    
+}
+
+// 0, 1 : 0 for lower bound, 1 for upper bound
+static SampleFrequency get_sam_freq_cont_type_1(void* type_descriptor, uint8_t num){
+    __TYPE_CAST__(struct Type1_FormatTypeDescriptor*, type1, type_descriptor);
+    __TYPE_CAST__(struct ContinuousSamplingFrequency*, sam_freq, type1->samFreq);
+    if(__IS_ZERO__(num)) return sam_freq->tLower;
+    else if(num == 1) return sam_freq->tUpper;
+
+    return __DEFAULT_STRUCT__(SampleFrequency, 0, 0);
+}
+
 static int handle_format_type_1(AudioDriver* driver, uint8_t* start,
     MemoryService_C* m, ASInterface* as_interface){
     uint8_t* pos = start + 8;
     void* samFreq = 0;
-    __ALLOC_KERNEL_MEM_S__(m, struct Type1_FormatTypeDescriptor, type1_descriptor);
+    SampleFrequency (*get_sam_frequency)(void* t_d, uint8_t num);
     __TYPE_CAST__(struct Type1_FormatTypeDescriptor*, type1, start);
     if(type1->bSamFreqType == 0){
         samFreq = __parse_contig_sample_freq(driver, pos, m);
+        get_sam_frequency = &get_sam_freq_cont_type_1;
     }
     else if((type1->bSamFreqType) >= 1 && (type1->bSamFreqType <= 255)){
         samFreq = __parse_discrete_sample_freq(driver, pos, type1->bSamFreqType, m);
+        get_sam_frequency = &get_sam_freq_discrete_type_1;
     }
-    if(__IS_NULL__(samFreq)) {
-        __FREE_KERNEL_MEM__(m, type1_descriptor);
-        return __RET_N__;
-    }
+    if(__IS_NULL__(samFreq)) return -1;
+    __ALLOC_KERNEL_MEM_S__(m, struct Type1_FormatTypeDescriptor, type1_descriptor);
     *type1_descriptor = *type1;
     type1_descriptor->samFreq = samFreq;
     __ALLOC_KERNEL_MEM_S__(m, struct FormatType, format_type);
-    format_type->format = FORMAT_TYPE_1;
     format_type->type_descriptor = type1_descriptor;
+    format_type->get_format_type = &get_format_type1;
+    format_type->get_total_channels = &get_total_channels_type_1;
+    format_type->get_subframe_size = &get_subframe_size_type_1;
+    format_type->get_bit_depth = &get_bith_depth_type_1;
+    format_type->get_sam_freq_type = &get_sam_freq_type_1;
+    format_type->get_sam_frequency = get_sam_frequency;
     as_interface->format_type = format_type;
     return __RET_S__;
 }
@@ -1391,20 +1644,20 @@ static void switch_if_zero_bandwidth(AudioDriver* driver, AudioDev* audio_dev){
 static void set_default_frequency(AudioDriver* driver, AudioDev* audio_dev){
     Interface** streaming_interfaces = audio_dev->audio_streaming_interfaces;
     uint8_t streaming_interfaces_num = audio_dev->audio_streaming_interfaces_num;
-    SampleFrequency sample_frequencies [] = {__8000_HZ__, __16000_HZ__, __24000_HZ__, 
-        __32000_HZ__, __44100_HZ__, __48000_HZ__, {}};
+    SampleFrequency sample_frequencies [] = {__44100_HZ__, __48000_HZ__, {}};
     __FOR_RANGE__(i, int, 0, streaming_interfaces_num){
         ASInterface* as_interface = (ASInterface*)streaming_interfaces[i]->active_interface->class_specific;
-        __FOR_RANGE_COND__(j, int, 0, sample_frequencies[j].sampleFreq_lo != 0 || 
-            sample_frequencies[j].sampleFreq_hi != 0, j++){
-            if(as_interface->format_type->format == FORMAT_TYPE_1){
+        __FOR_RANGE_COND__(j, int, 0, 
+            (__is_zero_frequency(driver, sample_frequencies[j]) != 1), j++){
+            struct FormatType* format_type = as_interface->format_type;
+            if(format_type->get_format_type(format_type->type_descriptor) == FORMAT_TYPE_1){
                 struct Type1_FormatTypeDescriptor* type1 = (struct Type1_FormatTypeDescriptor*)as_interface->format_type->type_descriptor;
                 struct DiscreteNumberSamplingFrequencies* discrete = (struct DiscreteNumberSamplingFrequencies*)type1->samFreq;
                 SampleFrequency* sample_freq = discrete->tSam;
                 __FOR_RANGE__(t, int, 0, type1->bSamFreqType){
                     if((sample_freq+t)->sampleFreq_lo == sample_frequencies[j].sampleFreq_lo &&
                         (sample_freq+t)->sampleFreq_hi == sample_frequencies[j].sampleFreq_hi){
-                        set_sampling_frequency(driver, audio_dev, streaming_interfaces[i], *sample_freq);
+                        set_sampling_frequency(driver, audio_dev, streaming_interfaces[i], *(sample_freq + t));
                         goto label_cont;
                     }
                 }
@@ -1412,6 +1665,29 @@ static void set_default_frequency(AudioDriver* driver, AudioDev* audio_dev){
         }
         label_cont:
     }
+}
+
+static int8_t sync_streaming_interface(AudioDriver* driver, UsbDev* dev,
+    Interface* interface){
+    Endpoint* endpoint = __STRUCT_CALL__(dev, __get_first_endpoint, interface->active_interface);
+    ASInterface* as_interface = __STRUCT_CALL__(driver, 
+    __convert_to_class_specific_as_interface, interface);
+    __IF_RET_NEG__(__IS_NULL__(endpoint));
+    uint16_t delay = __STRUCT_CALL__(driver, __get_sync_delay, endpoint);
+    LockDelayUnit delay_unit = __STRUCT_CALL__(driver, __get_sync_unit, endpoint);
+    uint16_t time_in_ms;
+    if(delay_unit == LOCK_UNIT_UNDEFINED) return __RET_E__;
+    else if(delay_unit == LOCK_PCM_SAMPLES){
+        uint16_t samples_per_1ms = __get_1ms_size(driver, as_interface);
+        time_in_ms = delay / samples_per_1ms;
+        time_in_ms += (delay % samples_per_1ms == 0) ? 0 : 1;
+    }
+    else if(delay_unit == LOCK_UNIT_MS){
+        time_in_ms = delay;
+    }
+    mdelay(time_in_ms);
+
+    return __RET_S__;
 }
 
 static int configure_audio_device(AudioDriver* driver){
@@ -1439,9 +1715,9 @@ static int configure_audio_device(AudioDriver* driver){
 
         __STRUCT_CALL__(dev, __set_start, config_buffer, &desc_len, &start);
         __STRUCT_CALL__(dev, __set_end, config_buffer, &total_len, &end);
-        audio_device_routine(driver, start, end, mem_service, i);
-        switch_if_zero_bandwidth(driver, driver->dev + i);
-        set_default_frequency(driver, driver->dev + i);
+        __STRUCT_CALL__(driver, audio_device_routine, start, end, mem_service, i);
+        __STRUCT_CALL__(driver, switch_if_zero_bandwidth, driver->dev + i);
+        __STRUCT_CALL__(driver, set_default_frequency, driver->dev + i);
     }
 
     return __RET_S__;
@@ -1662,7 +1938,6 @@ static int8_t audio_selector_control(AudioDriver* driver, AudioDev* audio_dev,
     return __RET_S__;
 }
 
-
 static void selector_control_callback(UsbDev* dev, uint32_t status, void* data){
     // transfer checks
     __IF_RET__(status & E_TRANSFER);
@@ -1813,7 +2088,7 @@ static int8_t audio_endpoint_controls(AudioDriver* driver, AudioDev* audio_dev,
 
 // callback mechanism has to be changed into (UsbDev* dev, Interface* itf, uint32_t status, void* data)
 // for requests that have to change interface values this is pretty important
-static void frequency_control_callback(UsbDev* dev, uint32_t status, void* data){
+static void frequency_control_callback(UsbDev* dev, Interface* interface, uint32_t status, void* data){
     __IF_RET__(status & E_TRANSFER);
     __TYPE_CAST__(struct SamplingFrequencyControlParameterBlock*, 
         samp_control_block, data);
