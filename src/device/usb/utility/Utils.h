@@ -300,5 +300,12 @@ static inline uint16_t __floor_address(uint16_t interval){
 
 #define __8_BIT_L_SHIFT__(x) x >> 8
 #define __8_BIT_H_SHIFT__(x) x << 8
+#define __16_BIT_L_SHIFT__(x) x >> 16
+#define __16_BIT_H_SHIFT__(x) x << 16
+#define __24_BIT_L_SHIFT__(x) x >> 24
+#define __24_BIT_H_SHIFT__(x) x << 24
+
+#define __DEFAULT_STRUCT__(type, ...) \
+    (type){__VA_ARGS__}
 
 #endif
