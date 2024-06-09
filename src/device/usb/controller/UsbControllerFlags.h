@@ -9,6 +9,10 @@
 #define SOF_FLAG 0x40          // signals start of frame
 #define TOTAL_FRAMES 1024 // 4KB aligned
 
+#define QH_FLAG_END 0x01
+#define QH_FLAG_IN 0x00
+#define QH_FLAG_END_MASK 0x01
+
 #define PRIORITY_QH_1 0x00 << 1
 #define PRIORITY_QH_2 0x01 << 1
 #define PRIORITY_QH_3 0x02 << 1
@@ -18,10 +22,6 @@
 #define PRIORITY_QH_7 0x06 << 1
 #define PRIORITY_QH_8 0x07 << 1
 #define PRIORITY_QH_MASK 0x0E
-
-#define QH_FLAG_END 0x01
-#define QH_FLAG_IN 0x00
-#define QH_FLAG_END_MASK 0x01
 
 #define QH_FLAG_IS_MQH 0x01 << 4
 #define QH_FLAG_IS_QH 0x00 << 4
@@ -33,12 +33,14 @@
 #define QH_FLAG_TYPE_CONTROL 0x03 << 5
 #define QH_FLAG_TYPE_MASK 0x60
 
-#define QH_FLAG_RESERVED 0x80
+#define QH_FLAG_ISO_EXT 0x80
+
+#define QH_ID_MASK  0xFFFFFF00
+#define QH_ID_SHIFT 0x08
+//#define QH_FLAG_DEVICE_COUNT_MASK 0xFFFFFF00
+//#define QH_FLAG_DEVICE_COUNT_SHIFT 0x08
+
 #define QH_ADDRESS_MASK 0xFFFFFFF0
-
-#define QH_FLAG_DEVICE_COUNT_MASK 0xFFFFFF00
-#define QH_FLAG_DEVICE_COUNT_SHIFT 0x08
-
 #define QH_TD_SELECT 0x02
 #define QH_SELECT 0x02
 #define TD_SELECT 0x00
