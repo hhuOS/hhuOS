@@ -38,7 +38,8 @@
   __ENTRY__(usb_service_c, get_controller) = &get_controller; \
   __ENTRY__(usb_service_c, get_dev) = &get_dev; \
   __ENTRY__(usb_service_c, get_driver) = &get_driver; \
-  __ENTRY__(usb_service_c, submit_iso_transfer_c) = &submit_iso_transfer_c
+  __ENTRY__(usb_service_c, submit_iso_transfer_c) = &submit_iso_transfer_c; \
+  __ENTRY__(usb_service_c, submit_iso_ext_transfer_c) = &submit_iso_ext_transfer_c
 
 struct UsbService_C {
   void (*new_service)(struct UsbService_C *usb_service_c);
@@ -62,17 +63,21 @@ struct UsbService_C {
                                       uint8_t prio, uint16_t interval,
                                       void *data, unsigned int len,
                                       callback_function callback);
-  void (*submit_iso_transfer_c)(struct UsbService_C *usb_service_c,
+  uint32_t (*submit_iso_transfer_c)(struct UsbService_C *usb_service_c,
                                       Interface *interface, unsigned int pipe,
                                       uint8_t prio, uint16_t interval,
                                       void *data, unsigned int len,
                                       callback_function callback);
+  uint32_t (*submit_iso_ext_transfer_c)(struct UsbService_C* usb_service, 
+              Interface* interface, Endpoint* endpoint, uint8_t prio, 
+              uint16_t interval, void* data, 
+              unsigned int len, callback_function callback);
   void (*submit_control_transfer_c)(struct UsbService_C *usb_service_c,
                                     Interface *interface, unsigned int pipe,
                                     uint8_t prio, void *data, uint8_t *setup,
                                     callback_function callback);
   int (*register_callback_c)(struct UsbService_C *usb_service_c,
-                             uint16_t register_type, event_callback event_c);
+                             uint16_t register_type, event_callback event_c, void* buffer);
   int (*deregister_callback_c)(struct UsbService_C *usb_service_c,
                                uint16_t register_type, event_callback event_c);
 

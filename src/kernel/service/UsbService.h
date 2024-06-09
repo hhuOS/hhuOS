@@ -36,14 +36,18 @@ public:
                                  uint8_t prio, uint16_t interval, void *data,
                                  unsigned int len, callback_function callback);
 
-  void submit_iso_transfer(Interface* interface, unsigned int pipe, uint8_t prio, 
+  uint32_t submit_iso_transfer(Interface* interface, unsigned int pipe, uint8_t prio, 
     uint16_t interval, void* data, unsigned int len, callback_function callback);
+  
+  uint32_t submit_iso_transfer_ext(Interface* interface, Endpoint* endpoint, uint8_t prio, 
+              uint16_t interval, void* data, 
+              unsigned int len, callback_function callback);
 
   void submit_control_transfer(Interface *interface, unsigned int pipe,
                                uint8_t prio, void *data, uint8_t *setup,
                                callback_function callback);
 
-  int register_callback(uint16_t register_type, event_callback event_c);
+  int register_callback(uint16_t register_type, event_callback event_c, void* buffer);
 
   int deregister_callback(uint16_t register_type, event_callback event_c);
 

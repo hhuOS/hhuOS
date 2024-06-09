@@ -30,16 +30,20 @@ static void submit_interrupt_transfer_c(UsbService_C *usb_service_c,
                                  Interface *interface, unsigned int pipe,
                                  uint8_t prio, uint16_t interval, void *data,
                                  unsigned int len, callback_function callback);
-static void submit_iso_transfer_c(UsbService_C *usb_service_c,
+static uint32_t submit_iso_transfer_c(UsbService_C *usb_service_c,
                                  Interface *interface, unsigned int pipe,
                                  uint8_t prio, uint16_t interval, void *data,
                                  unsigned int len, callback_function callback);
+static uint32_t submit_iso_ext_transfer_c(struct UsbService_C* usb_service, 
+              Interface* interface, Endpoint* endpoint, uint8_t prio, 
+              uint16_t interval, void* data, 
+              unsigned int len, callback_function callback);
 static void submit_control_transfer_c(UsbService_C *usb_service_c,
                                Interface *interface, unsigned int pipe,
                                uint8_t prio, void *data, uint8_t *setup,
                                callback_function callback);
 static int register_callback_c(UsbService_C *usb_service_c, uint16_t register_type,
-                        event_callback event_c);
+                        event_callback event_c, void* buffer);
 static int deregister_callback_c(UsbService_C *usb_service_c, uint16_t register_type,
                           event_callback event_c);
 static int deregister_listener_c(UsbService_C *usb_service_c, int id);
@@ -169,14 +173,24 @@ static void submit_interrupt_transfer_c(UsbService_C *usb_service_c,
                             interval, callback);
 }
 
-static void submit_iso_transfer_c(UsbService_C *usb_service_c,
+static uint32_t submit_iso_transfer_c(UsbService_C *usb_service_c,
                                  Interface *interface, unsigned int pipe,
                                  uint8_t prio, uint16_t interval, void *data,
                                  unsigned int len, callback_function callback) {
   UsbController *usb_controller =
       usb_service_c->find_controller(usb_service_c, interface);
-  usb_controller->iso(usb_controller, interface, pipe, prio, data, len,
+  return usb_controller->iso(usb_controller, interface, pipe, prio, data, len,
                             interval, callback);
+}
+
+static uint32_t submit_iso_ext_transfer_c(struct UsbService_C* usb_service_c, 
+              Interface* interface, Endpoint* endpoint, uint8_t prio, 
+              uint16_t interval, void* data, 
+              unsigned int len, callback_function callback){
+  UsbController *usb_controller =
+      usb_service_c->find_controller(usb_service_c, interface);
+  return usb_controller->iso_ext(usb_controller, interface, endpoint, data,
+    len, interval, prio, callback);
 }
 
 static void submit_control_transfer_c(UsbService_C *usb_service_c,
@@ -217,13 +231,13 @@ static UsbDriver* get_driver(UsbService_C* usb_service_c, list_element* l_e){
 
 // < 0 error occured in min. 1 controller
 static int register_callback_c(UsbService_C *usb_service_c, uint16_t register_type,
-                        event_callback event_c) {
+                        event_callback event_c, void* buffer) {
   int status = 0;
   list_element *l_e = usb_service_c->head.l_e;
   while (l_e != 0) {
     UsbController *controller =
         (UsbController *)container_of(l_e, UsbController, l_e);
-    int s = controller->insert_callback(controller, register_type, event_c);
+    int s = controller->insert_callback(controller, register_type, event_c, buffer);
     if (s == 1 && status <= 0)
       status = s;
     else if (s == -1 && status <= 0)

@@ -46,10 +46,16 @@ void Kernel::UsbService::submit_interrupt_transfer(
     prio, interval, data, len, callback);
 }
 
-void Kernel::UsbService::submit_iso_transfer(Interface* interface, unsigned int pipe, uint8_t prio, 
+uint32_t Kernel::UsbService::submit_iso_transfer(Interface* interface, unsigned int pipe, uint8_t prio, 
     uint16_t interval, void* data, unsigned int len, callback_function callback){
-  __STRUCT_CALL__(usb_service_c, submit_iso_transfer_c, interface, pipe, prio,
+  return __STRUCT_CALL__(usb_service_c, submit_iso_transfer_c, interface, pipe, prio,
     interval, data, len, callback);
+}
+
+uint32_t Kernel::UsbService::submit_iso_transfer_ext(Interface* interface, Endpoint* endpoint, uint8_t prio, 
+              uint16_t interval, void* data, unsigned int len, callback_function callback){
+    return __STRUCT_CALL__(usb_service_c, submit_iso_ext_transfer_c,
+      interface, endpoint, prio, interval, data, len, callback);
 }
 
 void Kernel::UsbService::submit_control_transfer(Interface *interface,
@@ -62,9 +68,9 @@ void Kernel::UsbService::submit_control_transfer(Interface *interface,
 }
 
 int Kernel::UsbService::register_callback(uint16_t register_type,
-                                          event_callback event_c) {
+                                          event_callback event_c, void* buffer) {
   return usb_service_c->register_callback_c(usb_service_c, register_type,
-                                            event_c);
+                                            event_c, buffer);
 }
 
 int Kernel::UsbService::deregister_callback(uint16_t register_type,
