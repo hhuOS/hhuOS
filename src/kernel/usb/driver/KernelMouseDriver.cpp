@@ -6,6 +6,9 @@
 #include "../../system/System.h"
 #include "../hid/MouseNode.h"
 #include "KernelUsbDriver.h"
+#include "../../../lib/util/io/stream/QueueInputStream.h"
+#include "../../../lib/util/collection/ArrayBlockingQueue.h"
+#include "../UsbRegistry.h"
 
 extern "C" {
 #include "../../../device/usb/driver/UsbDriver.h"
@@ -13,6 +16,9 @@ extern "C" {
 #include "../../../device/usb/events/listeners/EventListener.h"
 #include "../../../device/usb/events/listeners/hid/MouseListener.h"
 #include "../../../device/usb/include/UsbGeneral.h"
+#include "../../../device/usb/events/event/Event.h"
+#include "../../../device/usb/events/event/hid/MouseEvent.h"
+#include "../../../device/usb/include/UsbControllerInclude.h"
 }
 
 Kernel::Logger kernel_mouse_logger = Kernel::Logger::get("KernelMouseDriver");
@@ -70,13 +76,40 @@ void Kernel::Usb::Driver::KernelMouseDriver::create_usb_dev_node() {
     __IF_CONTINUE__(__IS_ZERO__(mouse_driver->mouse_map[i]));
 
     if (__NOT_NEG_ONE__(this->submit(i))) {
-      Kernel::Usb::UsbNode *mouse_node = new Kernel::Usb::MouseNode(i);
       Util::String node_name =
           Util::String::format("mouse%u", current_mouse_node_num++);
-      mouse_node->add_file_node(node_name);
+      Util::ArrayBlockingQueue<uint8_t>* mouseBuffer =
+        new Util::ArrayBlockingQueue<uint8_t>(BUFFER_SIZE);
+      Util::Io::QueueInputStream* mouseinputStream =
+        new Util::Io::QueueInputStream(*mouseBuffer);
+      Kernel::Usb::UsbNode *mouse_node = new Kernel::Usb::MouseNode(node_name, this,
+        mouseinputStream, i);
+      
+      interface_register_callback(MOUSE_LISTENER, mouse_event_callback, mouseBuffer);
+
+      mouse_node->add_file_node();
       kernel_mouse_logger.info("Succesful added mouse node : minor %u -> "
                                "associated with 0x%x (%s driver)...",
                                mouse_node->get_minor(), this, this->getName());
     }
   }
+}
+
+// treat mouse_movement as uint8_t instead of int8_t -> but later when
+// using x,y,z we need to convert it back
+void mouse_event_callback(void *e, void* b) {
+  Util::ArrayBlockingQueue<uint8_t>* mouseBuffer = (Util::ArrayBlockingQueue<uint8_t>*)b;
+  MouseEvent *m_event = (MouseEvent *)e;
+
+  uint8_t value = m_event->super.event_value;
+  uint8_t code = m_event->super.event_code;
+  uint8_t mouse_x = m_event->x_displacement;
+  uint8_t mouse_y = m_event->y_displacement;
+  uint8_t mouse_z = m_event->z_displacement;
+
+  mouseBuffer->offer(mouse_x);
+  mouseBuffer->offer(mouse_y);
+  mouseBuffer->offer(mouse_z);
+  mouseBuffer->offer(value);
+  mouseBuffer->offer(code);
 }

@@ -29,4 +29,14 @@ KeyBoardDriver* driver;
 
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void key_board_event_callback(void* e, void* buffer);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

@@ -58,7 +58,7 @@ void Kernel::Usb::Driver::KernelMassStorageDriver::create_usb_dev_node() {
         Util::String::format("msd%u", current_msd_node_num++);
     Kernel::Usb::UsbNode *msd_node =
         new Kernel::Usb::MassStorageNode(this, i, node_name);
-    msd_node->add_file_node("");
+    msd_node->add_file_node();
     kernel_msd_logger.info("Succesful added msd node : minor %u -> associated "
                            "with 0x%x (%s driver)...",
                            msd_node->get_minor(), msd_driver, this->getName());

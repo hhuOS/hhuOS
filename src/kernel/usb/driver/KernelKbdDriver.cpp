@@ -6,6 +6,9 @@
 #include "../../system/System.h"
 #include "../hid/KeyBoardNode.h"
 #include "KernelUsbDriver.h"
+#include "../../../lib/util/io/stream/QueueInputStream.h"
+#include "../../../lib/util/collection/ArrayBlockingQueue.h"
+#include "../UsbRegistry.h"
 
 extern "C" {
 #include "../../../device/usb/dev/UsbDevice.h"
@@ -14,6 +17,9 @@ extern "C" {
 #include "../../../device/usb/events/listeners/EventListener.h"
 #include "../../../device/usb/events/listeners/hid/KeyBoardListener.h"
 #include "../../../device/usb/include/UsbGeneral.h"
+#include "../../../device/usb/events/event/Event.h"
+#include "../../../device/usb/events/event/hid/KeyBoardEvent.h"
+#include "../../../device/usb/include/UsbControllerInclude.h"
 }
 
 Kernel::Logger kernel_kbd_logger = Kernel::Logger::get("KernelKbdDriver");
@@ -75,13 +81,33 @@ void Kernel::Usb::Driver::KernelKbdDriver::create_usb_dev_node() {
     __IF_CONTINUE__(kbd_driver->key_board_map[i] == 0);
 
     if (__NOT_NEG_ONE__(this->submit(i))) {
-      Kernel::Usb::UsbNode *kbd_node = new Kernel::Usb::KeyBoardNode(i);
       Util::String node_name =
           Util::String::format("keyboard%u", current_kbd_node_num++);
-      kbd_node->add_file_node(node_name);
+      Util::ArrayBlockingQueue<uint8_t>* keyBuffer =
+        new Util::ArrayBlockingQueue<uint8_t>(BUFFER_SIZE);
+      Util::Io::QueueInputStream* inputStream = new Util::Io::QueueInputStream(*keyBuffer);
+      Kernel::Usb::UsbNode *kbd_node = new Kernel::Usb::KeyBoardNode(node_name, this,
+        inputStream, i);
+
+      interface_register_callback(KEY_BOARD_LISTENER, &key_board_event_callback, keyBuffer);
+      
+      kbd_node->add_file_node();
       kernel_kbd_logger.info("Succesful added kbd node : minor %u -> associated "
                              "with 0x%x (%s driver)...",
                              kbd_node->get_minor(), this, this->getName());
     }
   }
+}
+
+// write KeyEvent instead GenericEvent to avoid container macro
+void key_board_event_callback(void *event, void* buffer) { // writes events to buffer
+  Util::ArrayBlockingQueue<uint8_t>* keyBuffer = (Util::ArrayBlockingQueue<uint8_t>*)buffer;
+  KeyBoardEvent *k_evt = (KeyBoardEvent *)event;
+  uint8_t modifiers = k_evt->modifiers;
+  uint8_t value = k_evt->super.event_value;
+  uint8_t code = k_evt->super.event_code;
+
+  keyBuffer->offer(modifiers);
+  keyBuffer->offer(value);
+  keyBuffer->offer(code);
 }

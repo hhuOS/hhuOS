@@ -28,4 +28,14 @@ MouseDriver* driver;
 
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void mouse_event_callback(void* e, void* buffer);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
