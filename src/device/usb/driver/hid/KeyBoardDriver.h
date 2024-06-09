@@ -24,7 +24,7 @@ struct KeyBoardDev{
     uint8_t current_modifier_state;
     uint8_t current_modifier_count; 
 
-    void (*callback)(UsbDev* dev, uint32_t status, void* data);
+    void (*callback)(UsbDev* dev, Interface* interface, uint32_t status, void* data);
 };
 
 #define __INIT_KBD_DRIVER__(name, driver_name, entry) \
@@ -59,7 +59,7 @@ struct KeyBoardDriver{
     uint16_t (*map_to_input_event_value)(struct KeyBoardDriver* driver, uint8_t raw_key, uint8_t modifiers);
     void (*trigger_led_report)(struct KeyBoardDriver* driver, struct KeyBoardDev* kbd_dev);
 
-    void (*key_board_report_callback)(UsbDev* dev, uint32_t status, void* data);
+    void (*key_board_report_callback)(UsbDev* dev, Interface* interface, uint32_t status, void* data);
 
     struct KeyBoardDev* (*get_free_kbd_dev)(struct KeyBoardDriver* driver);
     void (*free_kbd_dev)(struct KeyBoardDriver* driver, struct KeyBoardDev* kbd_dev);

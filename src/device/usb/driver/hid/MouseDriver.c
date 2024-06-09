@@ -13,7 +13,7 @@
 
 static int16_t probe_mouse(UsbDev* dev, Interface* interface);
 static void disconnect_mouse(UsbDev* dev, Interface* interface);
-static void callback_mouse(UsbDev* dev, uint32_t status, void* data);
+static void callback_mouse(UsbDev* dev, Interface* interface, uint32_t status, void* data);
 static MouseEvent constructEvent_mouse(MouseDriver* driver, int index, uint16_t* value, uint16_t* type, int8_t* x, int8_t* y, int8_t* z);
 static void trigger_mouse_event(MouseDriver* driver, GenericEvent* event);
 static void look_for_mouse_released(MouseDriver* driver, MouseDev* mouse_dev, uint8_t* mouse_code, int index, int8_t* x, int8_t* y, int8_t* z);
@@ -95,7 +95,7 @@ static void free_mouse_dev(MouseDriver *driver, MouseDev *mouse_dev) {
   __FREE_DEV__(mouse_dev, driver->dev, driver->mouse_map);
 }
 
-static void callback_mouse(UsbDev *dev, uint32_t status, void *data) {
+static void callback_mouse(UsbDev *dev, Interface* interface, uint32_t status, void *data) {
   if (status & E_TRANSFER) {
     return;
   }

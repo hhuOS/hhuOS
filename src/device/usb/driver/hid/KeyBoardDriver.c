@@ -8,7 +8,7 @@
 #include "../../include/UsbErrors.h"
 #include "../UsbDriver.h"
 
-static void callback_key_board(UsbDev* dev, uint32_t status, void* data);
+static void callback_key_board(UsbDev* dev, Interface* interface, uint32_t status, void* data);
 static int16_t probe_key_board(UsbDev* dev, Interface* interface);
 static void disconnect_key_board(UsbDev* dev, Interface* interface);
 static void look_for_events(KeyBoardDriver* driver, KeyBoardDev* kbd_dev, uint8_t* key_code, uint8_t* modifiers);
@@ -20,7 +20,7 @@ static void trigger_led_report(KeyBoardDriver* driver, KeyBoardDev* kbd_dev);
 static KeyBoardDev* get_free_kbd_dev(KeyBoardDriver* driver);
 static void free_kbd_dev(KeyBoardDriver* driver, KeyBoardDev* kbd_dev);
 static KeyBoardDev* match_kbd_dev(KeyBoardDriver* driver, UsbDev* dev);
-static void key_board_report_callback(UsbDev* dev, uint32_t status, void* data);
+static void key_board_report_callback(UsbDev* dev, Interface* interface, uint32_t status, void* data);
 
 static KeyBoardDriver *internal_k_driver = 0;
 
@@ -100,7 +100,7 @@ static KeyBoardDev *match_kbd_dev(KeyBoardDriver *driver, UsbDev *dev) {
   __MATCH_DEV__(KeyBoardDev, driver->dev, usb_dev, dev);
 }
 
-static void callback_key_board(UsbDev *dev, uint32_t status, void *data) {
+static void callback_key_board(UsbDev *dev, Interface* interface, uint32_t status, void *data) {
   if (status & E_TRANSFER)
     return;
 
@@ -230,7 +230,7 @@ static void look_for_released(KeyBoardDriver *k_driver, KeyBoardDev *kbd_dev,
   }
 }
 
-static void key_board_report_callback(UsbDev *dev, uint32_t status, void *data) {
+static void key_board_report_callback(UsbDev *dev, Interface* interface, uint32_t status, void *data) {
   MemoryService_C* m = __DEV_MEMORY(dev);
   m->unmap(m, (uint32_t)(uintptr_t)(uint8_t *)data);
 }

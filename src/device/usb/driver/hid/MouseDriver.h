@@ -22,7 +22,7 @@ struct MouseDev{
     int8_t movement_buffer[MOUSE_LOOK_UP_SIZE]; // x,y,z
     uint8_t movement_submitted;
 
-    void (*callback)(UsbDev* dev, uint32_t status, void* data);
+    void (*callback)(UsbDev* dev, Interface* interface, uint32_t status, void* data);
 };
 
 #define __INIT_MOUSE_DRIVER__(name, driver_name, entry) \
