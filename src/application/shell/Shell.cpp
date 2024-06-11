@@ -44,6 +44,17 @@ void Shell::run() {
     }
 }
 
+void Shell::runCommand(Util::String command) {
+	if (!Util::Io::File::changeDirectory(startDirectory)) {
+        Util::System::error << "Unable to start shell in '" << startDirectory << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        return;
+    }
+	
+	currentLine = command;
+	parseInput();
+}
+
+
 void Shell::beginCommandLine() {
     currentLine = "";
     auto currentDirectory = Util::Io::File::getCurrentWorkingDirectory();

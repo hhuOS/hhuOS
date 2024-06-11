@@ -32,13 +32,14 @@ public:
     Address(const Address &other) = default;
 
     Address& operator=(const Address &other) = default;
-
-    explicit Address(T address);
-
-    explicit Address(void *pointer);
+	
+	explicit Address(void *pointer);
 
     explicit Address(const void *pointer);
 
+    explicit Address(T address);
+
+    
     virtual ~Address() = default;
 
     bool operator==(const Address &other) const;

@@ -1,7 +1,7 @@
 #ifndef LIBC_STDDEF
 #define LIBC_STDDEF
 
-#define NULL ((void*)0)
+#define NULL 0
 #define offsetof(TYPE, MEMBER) __builtin_offsetof(TYPE, MEMBER) //GCC specific
 
 typedef unsigned long int size_t;

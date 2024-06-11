@@ -1,9 +1,14 @@
 #include <cstdint>
 #include "lib/libc/stdlib.h"
 #include "lib/libc/ctype.h"
+#include "lib/libc/limits.h"
+#include "lib/libc/errno.h"
 
 #include "lib/interface.h"
 #include "lib/util/base/System.h"
+#include "lib/util/base/String.h"
+#include "lib/util/math/Math.h"
+#include "lib/util/collection/ArrayList.h"
 #include "lib/runtime/runtime.h"
 #include "lib/util/math/Random.h"
 
@@ -37,6 +42,33 @@ void exit(int exit_code) {
 int atexit(void (*func)(void)) {
 	LibcRuntime::addExitCleanupFunc(func);
 	return 0;
+}
+
+
+//program utility
+int system(const char* command) {
+	Util::ArrayList<Util::String> args = Util::ArrayList<Util::String>();
+	args.add("/");
+	args.add("-c");
+	
+	Util::String commString = Util::String(command);
+	for (auto arg : commString.split(" ")) {
+		args.add(arg);
+	}
+	
+	auto shell = executeBinary(
+		Util::Io::File("/bin/shell"), 
+		Util::Io::File("/device/terminal"), 
+		Util::Io::File("/device/terminal"), 
+		Util::Io::File("/device/terminal"), 
+		"shell", 
+		args.toArray());
+	shell.join();
+	return 0; //process return type not preserved currently
+}
+
+char * getenv(const char* name) {
+	return NULL; //unimplemented
 }
 
 
@@ -139,17 +171,298 @@ ldiv_t ldiv ( long x, long y) {
 }
 
 
-//string conversion
+//String conversion
+int _get_char_value(char c, int base) {
+	if (isdigit(c)) c -= 48;
+	else if (isupper(c)) c -= 55;
+	else if (islower(c)) c -= 87;
+	else return -1;
+	
+	if (c >= base) return -1;
+	
+	return c;
+}
+
 long strtol(const char* str, char **str_end, int base) {
 	while (isspace(*str) && *str != '\0') str++;
 	
 	if (*str == '\0') return 0;
+	
+	//detect sign
+	int sign = 1;
+	if (*str == '-') {
+		sign = -1;
+		str++;
+	} else if (*str == '+') {
+		str++;
+	}
+	
+	//automatic base detection
+	if (base == 0) {
+		if (*str == '0') {
+			base = 8;
+			if (*(str+1) == 'x' || *(str+1) == 'X') base = 16;
+		} else {
+			base = 10;
+		}
+	}
+	
+	//skip base prefix if existing
+	if (base == 8 && *str == '0') str++;
+	if (base == 16 && *str=='0' && (*(str +1) == 'x' || *(str +1) == 'X')) str +=2;
+	
+	//find end of number
+	char buf[32];
+	char * curr = buf;
+	int len;
+	
+	for (len=0;len<32;len++, str++) {
+		buf[len] = *str;
+		if (!isalnum(*str)) break;
+		if (_get_char_value(*str, base) == -1) break;
+	}
+	
+	if (str_end) *str_end = (char*)str;
+	
+	//interpret number
+	long long ret = 0;
+	long long mul = 1;
+	for (int i=len-1; i >= 0; i--, mul*=base) {
+		ret += _get_char_value(buf[i], base) * mul;
+		
+		//bounds check
+		if (sign == -1 && ret > -LONG_MIN) {
+			setErrno(ERANGE);
+			return LONG_MIN;
+		}
+		if (sign == 1 && ret > LONG_MAX) {
+			setErrno(ERANGE);
+			return LONG_MAX;
+		}
+	}
+	
+	return (long)(sign*ret);
 }
 
-long stroul(const char* str, char **str_end, int base);
+unsigned long strtoul(const char* str, char **str_end, int base) {
+	while (isspace(*str) && *str != '\0') str++;
+	
+	if (*str == '\0') return 0;
+	
+	//detect sign
+	int sign = 1;
+	if (*str == '-') {
+		sign = -1;
+		str++;
+	} else if (*str == '+') {
+		str++;
+	}
+	
+	//automatic base detection
+	if (base == 0) {
+		if (*str == '0') {
+			base = 8;
+			if (*(str+1) == 'x' || *(str+1) == 'X') base = 16;
+		} else {
+			base = 10;
+		}
+	}
+	
+	//skip base prefix if existing
+	if (base == 8 && *str == '0') str++;
+	if (base == 16 && *str=='0' && (*(str +1) == 'x' || *(str +1) == 'X')) str +=2;
+	
+	//find end of number
+	char buf[32];
+	int len;
+	
+	for (len=0;len<32;len++, str++) {
+		buf[len] = *str;
+		if (!isalnum(*str)) break;
+		if (_get_char_value(*str, base) == -1) break;
+	}
+	
+	if (str_end) *str_end = (char*)str;
+	
+	//interpret number
+	long long ret = 0;
+	long long mul = 1;
+	for (int i=len-1; i >= 0; i--, mul*=base) {
+		ret += _get_char_value(buf[i], base) * mul;
+		
+		if (ret > ULONG_MAX) {
+			setErrno(ERANGE);
+			return ULONG_MAX;
+		}
+	}
+	
+	return sign == -1 ? ULONG_MAX - ret + 1: ret;
+}
 
-long strtod(const char* str, char **str_end);
 
-double atof (const char* str);
-int atoi (const char *str);
-long atol (const char *str);
+double strtod(const char* str, char **str_end) {
+	while (isspace(*str) && *str != '\0') str++;
+	
+	if (*str == '\0') return 0;
+	
+	int sign = 1;
+	if (*str == '-') {
+		sign = -1;
+		str++;
+	} else if (*str == '+') {
+		str++;
+	}
+	
+	double ret = 0;
+	while (isdigit(*str)) {
+		ret *= 10;
+		ret += _get_char_value(*str, 10);
+		str++;
+	}
+	
+	if (*str == '.') {
+		str++;
+		double mul = 0.1;
+		while (isdigit(*str)) {
+			ret += mul * _get_char_value(*str, 10);
+			mul/=10;
+			str++;
+		}
+	}
+	
+	if (*str == 'e' || *str == 'E') {
+		ret *= Util::Math::pow(10, strtol(str + 1, NULL, 10));
+	}
+	
+	return ret;
+}
+
+double atof (const char* str) {
+	return strtod(str, NULL);
+}
+
+
+int atoi (const char *str) {
+	return strtol(str, NULL, 0);
+}
+
+
+long atol (const char *str) {
+	return strtol(str, NULL, 0);
+}
+
+
+//multibyte utf-8 strings 
+int mblen(const char* s, size_t n) {
+	if (!s) return 0;
+	if ((*s) == '\0') return 0;
+	if (n==0) return -1;
+	
+	size_t len = 0;
+	
+	if (((*s) & 0b10000000) == 0b00000000) len = 1; //of type 0b0xxxxxxx
+	else if (((*s) & 0b11100000) == 0b11000000) len=2; //of type 0b110xxxxx
+	else if (((*s) & 0b11110000) == 0b11100000) len=3; //of type 0b1110xxxx
+	else if (((*s) & 0b11111000) == 0b11110000) len=4; //of type 0b11110xxx
+	
+	if (len > n) return -1;
+	
+	for (size_t i=1; i<len; i++) {
+		if (((*(s + i)) & 0b11000000) != 0b10000000) return -1; //check that following bytes have 0x10xxxxxx form
+	}
+	
+	return len;
+}
+
+int mbtowc(wchar_t * pwc, const char* s, size_t n) {
+	size_t len = mblen(s,n);
+	
+	if (len <= 0 && (*s) != 0) return len; //same error handling as mblen
+	if (!pwc) return len;
+	
+	size_t first_byte_len = 0;
+	switch (len) {
+		case 1:
+			(*pwc) = (wchar_t)(*s);
+			if ((*s) == 0) return 0;
+			return len;
+			
+		case 2:
+			first_byte_len = 5;
+			break;
+		case 3:
+			first_byte_len = 4;
+			break;
+		case 4:
+			first_byte_len = 3;
+			break;
+	}
+	
+	(*pwc) = 0;
+	size_t offset = 0;
+	for (int i = len-1; i>0; i--, offset += 6) {
+		(*pwc) |= (((wchar_t)(*(s + i))) & 0b00111111) << offset; // assemble the values of the following bytes
+	}
+	
+	(*pwc) |= (((wchar_t)(*s)) & ((1 << first_byte_len) - 1)) << offset; // add first byte value
+	return len;
+}
+
+int wctomb(char * s, wchar_t wc) {
+	if (wc >= 0x110000) return -1;
+	if (!s) return 0;
+	
+	size_t len = 1;
+	if (wc >= 0x10000) len = 4;
+	else if (wc >= 0x800) len = 3;
+	else if (wc >= 0x80) len=2;
+	
+	switch (len) {
+		case 1:
+			(*s) = (char)wc;
+			return len;
+			
+		case 2:
+			(*s) = 0b11000000 | ((wc >> 6) & 0b00011111);
+			(*(s+1)) = 0b10000000 | (wc & 0b00111111);
+			return 2;
+		case 3:
+			(*s) = 0b11100000 | ((wc >> 12) & 0b1111);
+			(*(s+1)) = 0b10000000 | ((wc >> 6) & 0b111111);
+			(*(s+2)) = 0b10000000 | (wc & 0b111111);
+			return 3;
+		case 4:
+			(*s) = 0b11110000 | ((wc >> 18) & 0b111);
+			(*(s+1)) = 0b10000000 | ((wc >> 12) & 0b111111);
+			(*(s+2)) = 0b10000000 | ((wc >> 6) & 0b111111);
+			(*(s+3)) = 0b10000000 | (wc & 0b111111);		
+			return 4;
+	}
+	return -1;
+}
+
+size_t mbstowcs(wchar_t * dst, const char * s, size_t len) {
+	size_t curr;
+	for (curr = 0; curr <len; curr++){
+		size_t charlen = mbtowc(dst + curr, s, MB_LEN_MAX);
+		
+		if (charlen <= 0) return curr-1;
+		
+		s+=charlen;
+	}
+	return curr;
+}
+
+size_t wcstombs(char* dst, const wchar_t * src, size_t len) {
+	size_t curr = 0;
+	while (curr < len) {
+		size_t charlen = wctomb(dst + curr, *src);
+		
+		if (charlen<=0) return curr-1;
+		
+		src++;
+		curr += charlen;
+	}
+	
+	return curr;
+}

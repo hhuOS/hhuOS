@@ -3,6 +3,10 @@
 
 #include <stddef.h>
 
+#define MB_LEN_MAX 4
+#define MB_CUR_MAX 4
+
+
 //memory management
 extern "C" void *malloc(size_t size);
 extern "C" void *calloc(size_t num, size_t size);
@@ -37,13 +41,22 @@ extern "C" ldiv_t ldiv ( long x, long y);
 
 //string conversion
 extern "C" long strtol(const char* str, char **str_end, int base);
-extern "C" long stroul(const char* str, char **str_end, int base);
-extern "C" long strtod(const char* str, char **str_end);
+extern "C" unsigned long strtoul(const char* str, char **str_end, int base);
+extern "C" double strtod(const char* str, char **str_end);
 
 extern "C" double atof (const char* str);
 extern "C" int atoi (const char *str);
 extern "C" long atol (const char *str);
 
+//multibyte strings 
+extern "C" int mblen(const char* s, size_t n);
+extern "C" int mbtowc(wchar_t * pwc, const char* s, size_t n);
+extern "C" int wctomb(char * s, wchar_t wc);
+extern "C" size_t mbstowcs(wchar_t * dst, const char * s, size_t len);
+extern "C" size_t wcstombs(char* dst, const wchar_t * src, size_t len);
 
+//program utility
+extern "C" int system(const char* command);
+extern "C" char * getenv(const char* name);
 
 #endif

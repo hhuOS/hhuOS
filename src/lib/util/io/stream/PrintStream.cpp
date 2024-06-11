@@ -20,6 +20,7 @@
 #include "ByteArrayOutputStream.h"
 #include "lib/util/io/stream/OutputStream.h"
 #include "lib/util/base/Address.h"
+#include "lib/util/math/Math.h"
 
 namespace Util::Io {
 
@@ -114,6 +115,44 @@ void PrintStream::print(uint8_t number) {
 
 void PrintStream::print(void *pointer) {
     print(reinterpret_cast<uint32_t>(pointer));
+}
+
+void PrintStream::print(double number) {
+	if (number == 0) {
+		print("0.0");
+		return;
+	}
+	
+	if (number < 0) {
+		write('-');
+		number *= -1;
+	}
+	
+	long mul = 1;
+	while (Util::Math::pow(10, mul) <= number) mul++;
+	mul--;
+	
+	while (mul >= 0) {
+		print(((int)(number/Util::Math::pow(10, mul)))%10);
+		mul--;
+	}
+	
+	write('.');
+	number -= (int)number;
+	
+	while (1) {
+		number *= 10;
+		
+		if (1 - (number - (uint8_t)number) < 0.0001) {
+			print((uint8_t) number+1);
+			break;
+		}
+		
+		print((uint8_t) number);
+		number -= (int)number;
+		
+		if (number < 0.00000001) break;
+	}
 }
 
 void PrintStream::println() {
@@ -222,6 +261,12 @@ PrintStream& PrintStream::operator<<(void *pointer) {
     print(pointer);
     return *this;
 }
+
+PrintStream& PrintStream::operator<<(double value) {
+	print(value);
+    return *this;
+}
+
 
 PrintStream& PrintStream::operator<<(PrintStream &(*f)(PrintStream &)) {
     return f(*this);

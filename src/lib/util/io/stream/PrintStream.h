@@ -64,6 +64,8 @@ public:
     void print(int8_t number);
 
     void print(uint8_t number);
+	
+	void print(double number);
 
     void print(void *pointer);
 
@@ -108,6 +110,8 @@ public:
     PrintStream& operator<<(uint32_t value);
 
     PrintStream& operator<<(void *ptr);
+	
+	PrintStream& operator<<(double value);
 
     PrintStream& operator<<(PrintStream& (*f)(PrintStream&));
 

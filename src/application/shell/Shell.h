@@ -57,6 +57,8 @@ public:
     ~Shell() override = default;
 
     void run() override;
+	
+	void runCommand(Util::String command);
 
 private:
 

@@ -1,4 +1,7 @@
+#include <cstdint>
 #include "lib/libc/string.h"
+
+#include "lib/util/base/Address.h"
 
 //string manipulation
 char * strcpy(char * dest, const char* src) {
@@ -93,7 +96,7 @@ char * strchr(const char * str, int ch) {
 		if ((*str) == (char)ch) return (char*) str;
 		str++;
 	}
-	if (ch == 0) return str;
+	if (ch == 0) return (char*)str;
 	return NULL;
 	
 }
@@ -105,7 +108,7 @@ char * strrchr(const char * str, int ch) {
 		if ((*str) == (char)ch) ret = (char*)str;
 		str++;
 	}
-	if (ch == 0) return str;
+	if (ch == 0) return (char*)str;
 	return ret;
 }
 
@@ -132,7 +135,7 @@ size_t strcspn(const char *dest, const char * src) {
 //return pointer to first char in dest that appears in breakset
 char * strpbrk(const char * dest, const char *breakset) {
 	while (*dest) {
-		if (strchr(breakset, *dest)) return dest; //return if character in breakset
+		if (strchr(breakset, *dest)) return (char*)dest; //return if character in breakset
 		dest++;
 	}
 	return NULL;
@@ -174,7 +177,7 @@ char * strstr(const char * str, const char *substr) {
 //return pointer to first character not in delim
 char * _strtok_strcpbrk(const char * dest, const char *delim) {
 	while (*dest) {
-		if (!strchr(delim, *dest)) return dest; //return if character not in delim
+		if (!strchr(delim, *dest)) return (char*)dest; //return if character not in delim
 		dest++;
 	}
 	return NULL;
@@ -189,21 +192,61 @@ char * strtok(char * str, const char * delim) {
 		if (!tokStart) return NULL; //no tokens in str 
 		
 		char * tokEnd = strpbrk(tokStart, delim);
-		if (!tokEnd) _strtok_next_token = NULL;
-		(*tokEnd) = '\0'; //replace delimiter with null
-		_strtok_next_token = tokEnd+1;
+		if (tokEnd) {
+			(*tokEnd) = '\0'; //replace delimiter with null
+			_strtok_next_token = tokEnd+1;
+		} else {
+			_strtok_next_token = NULL;
+		}
 		return tokStart;
+		
 	} else {
+		if (!_strtok_next_token) return NULL;
 		return strtok(_strtok_next_token, delim); //process next token in line
 	}
 }
 
 //memory manipulation 
-void * memchr(const void* ptr, int ch, size_t count);
-int memcmp(const void * lhs, const void* rhs, size_t count);
-void * memset(void * dest, int ch, size_t count);
-void * memcpy(void * dest, const void * src, size_t count);
-void * memmove(void * dest, const void * src, size_t count);
+void * memchr(const void* ptr, int ch, size_t count) {
+	const unsigned char * p = (const unsigned char *)ptr;
+	for (size_t i=0; i<count;i++,p++) {
+		if ((*p) == (unsigned char)ch) return (void*)p;
+	}
+	return NULL;
+}
+
+int memcmp(const void * lhs, const void* rhs, size_t count) {
+	return (int)Util::Address((uint32_t)lhs).compareRange(Util::Address((uint32_t)rhs), (uint32_t)count);
+}
+
+void * memset(void * dest, int ch, size_t count) {
+	Util::Address((uint32_t)dest).setRange(ch, (uint32_t)count);
+	return dest;
+}
+void * memcpy(void * dest, const void * src, size_t count) {
+	Util::Address((uint32_t)dest).copyRange(Util::Address((uint32_t)src), (uint32_t)count);
+	return dest;
+}
+
+void * memmove(void * dest, const void * src, size_t count) {
+	char * tempBuf = new char[count]();
+	memcpy(tempBuf, src, count);
+	memcpy(dest, tempBuf, count);
+	delete tempBuf;
+	return dest;
+}
+
 
 //error handling
-char * strerror(int errnum);
+
+char * errorStrings[] = {
+	"",
+	"Function Domain Error",
+	"Function Range Error",
+	"Illegal Byte Sequence"
+};
+
+char * strerror(int errnum) {
+	if (errnum>0 && errnum <4) return errorStrings[errnum];
+	return "No Error";
+}

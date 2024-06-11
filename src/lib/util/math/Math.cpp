@@ -258,11 +258,18 @@ double sqrt(double value) {
 }
 
 double pow(double value, int exponent) {
-    double ret = 1;
-    for(int i = 1; i <= exponent; i++){
-        ret *= value;
-    }
-
+	double ret = 1;
+	
+	if (exponent < 0) {
+		for(int i = 1; i <= -exponent; i++){
+			ret /= value;
+		}
+	} else {
+		for(int i = 1; i <= exponent; i++){
+			ret *= value;
+		}
+	}
+	
     return ret;
 }
 
