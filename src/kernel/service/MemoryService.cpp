@@ -237,7 +237,7 @@ void* Kernel::MemoryService::unmap(void *virtualAddress, uint32_t pageCount, uin
     }
 
     // Loop through pages and unmap them individually
-    void *physicalAddress;
+    void *physicalAddress = nullptr;
     uint8_t nonMappedCount = 0;
     for (uint32_t i = 0; i < pageCount; i++) {
         auto currentVirtualAddress = reinterpret_cast<uint32_t>(virtualAddress) + (i * Util::PAGESIZE);

@@ -44,7 +44,7 @@ The OS will boot into a shell with some UNIX-like commands. Run `ls /bin` to see
 GCC (>=7), CMake (>=3.14) and some other dependencies are required to compile hhuOS. To install them, you can run the following command (on Ubuntu 22.04):
 
 ```shell
-sudo apt install build-essential nasm gcc-multilib g++-multilib cmake python3 python3-distutils xorriso dosfstools mtools unzip wget git
+sudo apt install build-essential nasm gcc-multilib g++-multilib cmake python3 python3-distutils xorriso dosfstools mtools unzip wget ffmpeg git
 ```
 
 Afterward, clone this repository and execute the included build-script:

@@ -59,15 +59,16 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cp "$<TARGET_FILE:unmount>" "bin/unmount"
         COMMAND /bin/cp "$<TARGET_FILE:uptime>" "bin/uptime"
         COMMAND /bin/cp "$<TARGET_FILE:view3d>" "bin/view3d"
-        COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/beep" "user"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/asciimation" "user"
+        COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/beep" "user"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/books" "user"
+        COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/wav" "user"
         COMMAND mkfs.fat -C "${CMAKE_BINARY_DIR}/part.img" 63488
         COMMAND mcopy -s -o -i "${CMAKE_BINARY_DIR}/part.img" * ::/
         COMMAND fallocate -l 1M "${CMAKE_BINARY_DIR}/fill.img"
         COMMAND /bin/cat "${CMAKE_BINARY_DIR}/fill.img" "${CMAKE_BINARY_DIR}/part.img" "${CMAKE_BINARY_DIR}/fill.img" > "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/rm "${CMAKE_BINARY_DIR}/part.img" "${CMAKE_BINARY_DIR}/fill.img"
         COMMAND /bin/echo -e "'o\\nn\\np\\n1\\n2048\\n131071\\nt\\ne\\nw\\n'" | fdisk "${HHUOS_ROOT_DIR}/hdd0.img"
-        DEPENDS asciimation books music shell asciimate battlespace beep bug cat cp date demo dino echo head hexdump ip kill ls membench mkdir mount nettest ping play ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d)
+        DEPENDS asciimation-star-wars books-gutenberg shell asciimate battlespace beep bug cat cp date demo dino echo head hexdump ip kill ls membench mkdir mount nettest ping play ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d)
 
-add_custom_target(${PROJECT_NAME} DEPENDS asciimation books music shell asciimate battlespace beep bug cat cp date demo dino echo head hexdump ip kill ls membench mkdir mount nettest ping play ps  pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d "${HHUOS_ROOT_DIR}/hdd0.img")
+add_custom_target(${PROJECT_NAME} DEPENDS asciimation-star-wars books-gutenberg music shell asciimate battlespace beep bug cat cp date demo dino echo head hexdump ip kill ls membench mkdir mount nettest ping play ps  pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d "${HHUOS_ROOT_DIR}/hdd0.img")

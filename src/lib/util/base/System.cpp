@@ -39,7 +39,7 @@ Io::PrintStream System::error(bufferedErrorStream);
 bool System::call(System::Code code, uint32_t paramCount...) {
     va_list args;
     va_start(args, paramCount);
-    bool result;
+    bool result = false;
 
     call(code, result, paramCount, args);
 
