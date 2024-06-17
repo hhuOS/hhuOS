@@ -98,7 +98,7 @@ public:
 
     static bool call(Code code, uint32_t paramCount...);
 
-    static void printStackTrace(const Util::Io::PrintStream &stream, uint32_t minEbp);
+    static void printStackTrace(const Util::Io::PrintStream &stream, uint32_t minEbp, bool userSpace);
 
     static Io::InputStream &in;
     static Io::PrintStream out;
@@ -107,6 +107,8 @@ public:
 private:
 
     static void call(Code code, bool &result, uint32_t paramCount, va_list args);
+
+    static const char* getSymbolName(uint32_t symbolAddress);
 
     static Io::FileInputStream inStream;
     static Io::BufferedInputStream bufferedInStream;

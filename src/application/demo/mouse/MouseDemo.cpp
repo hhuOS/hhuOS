@@ -23,6 +23,7 @@
 #include "lib/util/game/Game.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/graphic/Colors.h"
+#include "application/demo/mouse/Logo.h"
 
 void MouseDemo::update(double delta) {}
 

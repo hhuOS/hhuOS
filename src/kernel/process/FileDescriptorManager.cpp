@@ -2,9 +2,9 @@
 #include "kernel/service/FilesystemService.h"
 #include "FileDescriptorManager.h"
 #include "filesystem/Filesystem.h"
-#include "filesystem/Node.h"
 #include "lib/util/base/Exception.h"
 #include "kernel/service/Service.h"
+#include "kernel/process/FileDescriptor.h"
 
 namespace Kernel {
 

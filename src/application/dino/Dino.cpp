@@ -29,6 +29,7 @@
 #include "lib/util/base/String.h"
 #include "lib/util/graphic/Colors.h"
 #include "Saw.h"
+#include "lib/util/graphic/font/Terminal8x16.h"
 
 Dino::Dino(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(0.2, 0.2), Util::Game::Collider::DYNAMIC)) {}
 

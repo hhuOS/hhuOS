@@ -17,6 +17,9 @@
 
 #include "FileDescriptor.h"
 
+#include "filesystem/Node.h"
+#include "lib/util/base/Exception.h"
+
 namespace Kernel {
 
 FileDescriptor::FileDescriptor(Filesystem::Node *node, Util::Io::File::AccessMode accessMode) : node(node), accessMode(accessMode) {}

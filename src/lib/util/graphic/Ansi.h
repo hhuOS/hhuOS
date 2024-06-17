@@ -22,8 +22,13 @@
 
 #include "lib/util/base/String.h"
 #include "Color.h"
-#include "lib/util/io/stream/InputStream.h"
 #include "lib/util/base/System.h"
+
+namespace Util {
+namespace Io {
+class InputStream;
+}  // namespace Io
+}  // namespace Util
 
 namespace Util::Graphic {
 

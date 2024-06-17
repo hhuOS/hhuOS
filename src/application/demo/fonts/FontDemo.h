@@ -18,7 +18,11 @@
 #ifndef HHUOS_FONTDEMO_H
 #define HHUOS_FONTDEMO_H
 
-#include "lib/util/graphic/LinearFrameBuffer.h"
+namespace Util {
+namespace Graphic {
+class LinearFrameBuffer;
+}  // namespace Graphic
+}  // namespace Util
 
 void fontDemo(Util::Graphic::LinearFrameBuffer &lfb);
 

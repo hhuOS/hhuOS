@@ -20,6 +20,7 @@
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/io/stream/PrintStream.h"
+#include "lib/util/base/System.h"
 
 void ansiColorDemo() {
     Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << "4-bit colors:" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;

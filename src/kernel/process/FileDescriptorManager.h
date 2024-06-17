@@ -4,13 +4,13 @@
 #include <cstdint>
 
 #include "lib/util/base/String.h"
-#include "FileDescriptor.h"
 
 namespace Filesystem {
 class Node;
 }  // namespace Filesystem
 
 namespace Kernel {
+class FileDescriptor;
 
 class FileDescriptorManager {
 

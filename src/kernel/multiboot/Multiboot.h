@@ -24,6 +24,7 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/hardware/Acpi.h"
+#include "lib/util/io/file/elf/File.h"
 
 namespace Kernel {
 
@@ -220,6 +221,15 @@ public:
     struct ImageLoadBasePhysicalAddress {
         TagHeader header;
         uint32_t address;
+    };
+
+    struct ElfSymbols {
+        TagHeader header;
+        uint16_t entryCount;
+        uint16_t entrySize;
+        uint16_t stringSectionIndex;
+        uint16_t reserved;
+        Util::Io::Elf::SectionHeader sectionHeaders[];
     };
 
     enum BlockType : uint8_t {

@@ -19,7 +19,6 @@
 
 #include "kernel/service/MemoryService.h"
 #include "device/system/Bios.h"
-#include "lib/util/base/Constants.h"
 #include "kernel/service/Service.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/collection/ArrayList.h"
@@ -27,7 +26,6 @@
 #include "kernel/log/Log.h"
 #include "lib/util/math/Math.h"
 #include "kernel/memory/MemoryLayout.h"
-#include "lib/util/base/System.h"
 
 namespace Device::Graphic {
 

@@ -24,12 +24,6 @@
 #include "lib/util/base/String.h"
 #include "lib/util/io/file/File.h"
 
-namespace Util {
-namespace Io {
-class File;
-}  // namespace File
-}  // namespace Util
-
 namespace Util::Io {
 
 class FileInputStream : public InputStream {

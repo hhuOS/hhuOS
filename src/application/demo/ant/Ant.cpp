@@ -22,7 +22,6 @@
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/async/Thread.h"
-#include "lib/util/async/FunctionPointerRunnable.h"
 #include "lib/util/base/System.h"
 #include "lib/util/io/stream/InputStream.h"
 #include "lib/util/time/Timestamp.h"

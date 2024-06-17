@@ -21,8 +21,6 @@
 #include "kernel/service/Service.h"
 #include "kernel/service/MemoryService.h"
 #include "device/graphic/VesaBiosExtensions.h"
-#include "kernel/service/InformationService.h"
-#include "kernel/multiboot/Multiboot.h"
 
 namespace Device::Graphic {
 

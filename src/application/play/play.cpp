@@ -18,8 +18,6 @@
 #include <cstdint>
 
 #include "lib/util/base/System.h"
-#include "lib/util/async/Thread.h"
-#include "lib/util/async/FunctionPointerRunnable.h"
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/file/File.h"

@@ -28,18 +28,18 @@
 
 #include "lib/util/async/Runnable.h"
 #include "lib/util/time/Timestamp.h"
-#include "lib/util/async/Spinlock.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/io/key/Key.h"
 #include "Game.h"
 #include "lib/util/io/key/KeyDecoder.h"
-#include "lib/util/io/stream/InputStream.h"
-#include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/io/file/File.h"
+#include "lib/util/graphic/font/Terminal8x16.h"
+#include "lib/util/graphic/font/Terminal8x8.h"
 
 namespace Util {
 namespace Io {
+class FileInputStream;
+
 namespace Mouse {
 enum Button : uint8_t;
 }  // namespace Mouse
@@ -47,6 +47,7 @@ enum Button : uint8_t;
 
 namespace Graphic {
 class LinearFrameBuffer;
+class Font;
 }  // namespace Graphic
 }  // namespace Util
 

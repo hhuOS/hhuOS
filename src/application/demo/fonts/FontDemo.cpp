@@ -16,6 +16,9 @@
  */
 
 #include "FontDemo.h"
+
+#include <cstdint>
+
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/graphic/Colors.h"
@@ -28,6 +31,10 @@
 #include "lib/util/graphic/font/Sun8x16.h"
 #include "lib/util/graphic/font/Sun12x22.h"
 #include "lib/util/graphic/Ansi.h"
+#include "lib/util/base/String.h"
+#include "lib/util/graphic/Font.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/io/stream/InputStream.h"
 
 const char *string = "The quick brown fox jumps over the lazy dog 1234567890";
 

@@ -17,6 +17,8 @@
 
 #include "WaveFile.h"
 
+#include "lib/util/base/Exception.h"
+
 namespace Util {
 namespace Io {
 class File;

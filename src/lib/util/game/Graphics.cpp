@@ -22,6 +22,7 @@
  */
 
 #include "Graphics.h"
+
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/math/Vector2D.h"
 #include "Game.h"
@@ -30,9 +31,6 @@
 #include "lib/util/base/Address.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/math/Math.h"
-#include "lib/util/graphic/Font.h"
-#include "lib/util/graphic/font/Terminal8x16.h"
-#include "lib/util/graphic/font/Terminal8x8.h"
 
 namespace Util::Game {
 

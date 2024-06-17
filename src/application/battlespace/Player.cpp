@@ -33,6 +33,8 @@
 #include "lib/util/game/Graphics.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/math/Vector2D.h"
+#include "lib/util/graphic/Font.h"
+#include "lib/util/graphic/font/Terminal8x16.h"
 
 Player::Player(const Util::ArrayList<Enemy *> &enemies) : Util::Game::D3::Entity(TAG, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0, 0, 0), Util::Game::D3::SphereCollider(Util::Math::Vector3D(0, 0, 0), 0.8)), enemies(enemies) {}
 

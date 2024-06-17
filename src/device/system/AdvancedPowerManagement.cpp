@@ -23,7 +23,6 @@
 #include "kernel/process/Thread.h"
 #include "device/system/Machine.h"
 #include "kernel/memory/GlobalDescriptorTable.h"
-#include "lib/util/base/System.h"
 
 namespace Device {
 

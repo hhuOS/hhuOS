@@ -64,7 +64,6 @@ void PlayerMissile::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
         }
     }
 
-
     Util::Game::GameManager::getGame().getCurrentScene().removeObject(this);
     ship.allowFireMissile();
 }

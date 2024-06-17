@@ -31,7 +31,6 @@
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/time/Timestamp.h"
-#include "lib/util/async/FunctionPointerRunnable.h"
 #include "lib/util/graphic/LineDrawer.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Font.h"

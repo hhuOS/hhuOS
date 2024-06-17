@@ -124,11 +124,12 @@ multiboot2_header:
     align 8
     dw MULTIBOOT2_TAG_INFORMATION_REQUEST
     dw 0
-    dd 24
+    dd 28
     dd MULTIBOOT2_REQUEST_BOOT_COMMAND_LINE
     dd MULTIBOOT2_REQUEST_MODULE
     dd MULTIBOOT2_REQUEST_MEMORY_MAP
     dd MULTIBOOT2_REQUEST_FRAMEBUFFER_INFO
+    dd MULTIBOOT2_REQUEST_ELF_SYMBOLS
 
     ; Information request tag (optional)
     align 8

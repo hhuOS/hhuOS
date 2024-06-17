@@ -25,6 +25,8 @@
 #include "lib/util/base/String.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/MouseDecoder.h"
+#include "lib/util/graphic/Font.h"
+#include "lib/util/graphic/font/Terminal8x16.h"
 
 namespace Util {
 namespace Game {

@@ -27,6 +27,8 @@
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/math/Vector2D.h"
+#include "lib/util/graphic/Font.h"
+#include "lib/util/graphic/font/Terminal8x16.h"
 
 IntroScreen::IntroScreen() {
     setKeyListener(*this);

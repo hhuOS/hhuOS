@@ -18,7 +18,14 @@
 #ifndef HHUOS_FILEDESCRIPTOR_H
 #define HHUOS_FILEDESCRIPTOR_H
 
-#include "filesystem/Node.h"
+#include <cstdint>
+
+#include "lib/util/collection/Array.h"
+#include "lib/util/io/file/File.h"
+
+namespace Filesystem {
+class Node;
+}  // namespace Filesystem
 
 namespace Kernel {
 

@@ -49,6 +49,7 @@
 #include "kernel/process/Scheduler.h"
 #include "kernel/memory/MemoryLayout.h"
 #include "device/cpu/Cpu.h"
+#include "kernel/process/FileDescriptor.h"
 
 namespace Util {
 namespace Async {
@@ -289,7 +290,7 @@ void logStackTrace() {
 void throwError(Util::Exception::Error error, const char *message) {
     if (Kernel::Service::isServiceRegistered(Kernel::ProcessService::SERVICE_ID) && Kernel::Service::getService<Kernel::ProcessService>().getScheduler().isInitialized()) {
         Util::System::out << Util::Exception::getExceptionName(error) << " (" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-        Util::System::printStackTrace(Util::System::out, Kernel::MemoryLayout::KERNEL_START);
+        Util::System::printStackTrace(Util::System::out, Kernel::MemoryLayout::KERNEL_START, false);
 
         auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
         if (processService.getCurrentProcess().isKernelProcess()) {

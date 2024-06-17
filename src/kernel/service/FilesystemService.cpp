@@ -28,6 +28,7 @@
 #include "lib/util/base/System.h"
 #include "InterruptService.h"
 #include "kernel/service/Service.h"
+#include "kernel/process/FileDescriptor.h"
 
 namespace Kernel {
 

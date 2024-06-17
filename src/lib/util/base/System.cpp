@@ -23,6 +23,8 @@
 #include "lib/util/io/stream/FileOutputStream.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/String.h"
+#include "lib/util/io/file/elf/File.h"
+#include "Constants.h"
 
 namespace Util {
 
@@ -73,7 +75,7 @@ void System::call(Code code, bool &result, uint32_t paramCount, va_list args) {
             );
 }
 
-void System::printStackTrace(const Io::PrintStream &stream, uint32_t minEbp) {
+void System::printStackTrace(const Io::PrintStream &stream, uint32_t minEbp, bool userSpace) {
     uint32_t *ebp = nullptr;
     asm volatile (
             "mov %%ebp, (%0);"
@@ -84,16 +86,41 @@ void System::printStackTrace(const Io::PrintStream &stream, uint32_t minEbp) {
             );
 
 
-    // If we handle a CPU exception in user space, we skip the kernel space exception handler
+    // If we handle an exception in user space, we skip the kernel space exception handler
     while (reinterpret_cast<uint32_t>(ebp) < minEbp) {
         ebp = reinterpret_cast<uint32_t*>(ebp[0]);
     }
 
     while (reinterpret_cast<uint32_t>(ebp) >= minEbp) {
         auto eip = ebp[1];
-        Util::System::out << Util::String::format("0x%08x", eip) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::out << Util::String::format("0x%08x", eip) << Util::Io::PrintStream::flush;
+
+        if (userSpace) {
+            auto *symbolName = getSymbolName(eip);
+            while (symbolName == nullptr) {
+                symbolName = getSymbolName(--eip);
+            }
+
+            Util::System::out << " " << symbolName << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        }
+
         ebp = reinterpret_cast<uint32_t*>(ebp[0]);
     }
+}
+
+const char *System::getSymbolName(uint32_t symbolAddress) {
+    auto symbolTableSize = *reinterpret_cast<uint32_t*>(SYMBOL_TABLE_SIZE_ADDRESS);
+    auto *symbolTable = *reinterpret_cast<Util::Io::Elf::SymbolEntry**>(SYMBOL_TABLE_ADDRESS);
+    auto *stringTable = *reinterpret_cast<const char**>(STRING_TABLE_ADDRESS);
+
+    for (uint32_t i = 0; i < symbolTableSize / sizeof(Util::Io::Elf::SymbolEntry); i++) {
+        const auto &symbol = *(symbolTable + i);
+        if (symbol.value == symbolAddress) {
+            return stringTable + symbol.nameOffset;
+        }
+    }
+
+    return nullptr;
 }
 
 }

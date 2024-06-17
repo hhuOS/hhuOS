@@ -24,13 +24,13 @@
 #include "Service.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/String.h"
-#include "kernel/process/FileDescriptor.h"
 
 namespace Filesystem {
 class Node;
 }  // namespace Filesystem
 
 namespace Kernel {
+class FileDescriptor;
 
 class FilesystemService : public Service {
 
