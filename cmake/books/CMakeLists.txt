@@ -29,15 +29,15 @@ if ($ENV{HHUOS_REDISTRIBUTABLE_BUILD})
             "${CMAKE_BINARY_DIR}/books/")
 else()
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/books/alice.txt"
-            COMMAND wget "https://www.gutenberg.org/files/11/11-0.txt" -O - | iconv -f utf-8 -t ascii//TRANSLIT -o "${CMAKE_BINARY_DIR}/books/alice.txt"
+            COMMAND wget "https://www.gutenberg.org/files/11/11-0.txt" -qO - | recode -f utf-8..ascii > "${CMAKE_BINARY_DIR}/books/alice.txt"
             DEPENDS "${CMAKE_BINARY_DIR}/books/")
 
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/books/peter_pan.txt"
-            COMMAND wget "https://www.gutenberg.org/files/16/16-0.txt" -O - | iconv -f utf-8 -t ascii//TRANSLIT -o "${CMAKE_BINARY_DIR}/books/peter_pan.txt"
+            COMMAND wget "https://www.gutenberg.org/files/16/16-0.txt" -qO - | recode -f utf-8..ascii >  "${CMAKE_BINARY_DIR}/books/peter_pan.txt"
             DEPENDS "${CMAKE_BINARY_DIR}/books/")
 
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/books/sleepy_hollow.txt"
-            COMMAND wget "https://www.gutenberg.org/files/41/41-0.txt" -O - | iconv -f utf-8 -t ascii//TRANSLIT -o "${CMAKE_BINARY_DIR}/books/sleepy_hollow.txt"
+            COMMAND wget "https://www.gutenberg.org/files/41/41-0.txt" -qO - | recode -f utf-8..ascii >  "${CMAKE_BINARY_DIR}/books/sleepy_hollow.txt"
             DEPENDS "${CMAKE_BINARY_DIR}/books/")
 
     add_custom_target(${PROJECT_NAME} DEPENDS
