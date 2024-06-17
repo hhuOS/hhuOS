@@ -35,7 +35,7 @@
 
 const Util::Math::Vector3D Enemy::MAX_ROTATION_DELTA = Util::Math::Vector3D(1, 1, 0);
 
-Enemy::Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, double scale, Enemy::Type type) : Util::Game::D3::Model(2, "user/battlespace/enemy.obj", position, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::RED), player(player), enemies(enemies), goalScale(scale), type(type) {}
+Enemy::Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, double scale, Enemy::Type type) : Util::Game::D3::Model(2, "/user/battlespace/enemy.obj", position, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::RED), player(player), enemies(enemies), goalScale(scale), type(type) {}
 
 void Enemy::initialize() {
     Model::initialize();
