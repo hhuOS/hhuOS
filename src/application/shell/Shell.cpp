@@ -114,26 +114,26 @@ void Shell::readLine() {
             default:
                 Util::Graphic::Ansi::enableCanonicalMode();
                 auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
-                auto cursorPos = Util::Graphic::Ansi::getCursorPosition();
+                auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
                 auto scrolledLines = getScrolledLines(); // Amount of lines the screen has been scrolled to display the current line
                 auto startPosition = getStartPosition();
-                auto preCursor = currentLine.substring(0, (cursorPos.row - startPosition.row) * (cursorLimits.column + 1) + cursorPos.column - startPosition.column);
-                auto afterCursor = currentLine.substring((cursorPos.row - startPosition.row) * (cursorLimits.column + 1) + cursorPos.column - startPosition.column, currentLine.length());
+                auto preCursor = currentLine.substring(0, (cursorPosition.row - startPosition.row) * (cursorLimits.column + 1) + cursorPosition.column - startPosition.column);
+                auto afterCursor = currentLine.substring((cursorPosition.row - startPosition.row) * (cursorLimits.column + 1) + cursorPosition.column - startPosition.column, currentLine.length());
                 currentLine = preCursor + static_cast<char>(input) + afterCursor;
 
                 Util::System::out << static_cast<char>(input) << afterCursor << Util::Io::PrintStream::flush;
 
                 if (getScrolledLines() > scrolledLines) { // The new character caused the screen to scroll up one row
-                    if (cursorPos.column >= cursorLimits.column) { // The cursor was at the end of the row and should move to the beginning of the next row
-                        Util::Graphic::Ansi::setPosition({0, cursorPos.row >= cursorLimits.row ? cursorPos.row : static_cast<uint16_t>(cursorPos.row + 1)});
+                    if (cursorPosition.column >= cursorLimits.column) { // The cursor was at the end of the row and should move to the beginning of the next row
+                        Util::Graphic::Ansi::setPosition({0, cursorPosition.row >= cursorLimits.row ? cursorPosition.row : static_cast<uint16_t>(cursorPosition.row + 1)});
                     } else { // The cursor just needs to advance one column, but we need to decrement the row, because the entire screen has been scrolled up
-                        Util::Graphic::Ansi::setPosition({static_cast<uint16_t>(cursorPos.column + 1), static_cast<uint16_t>(cursorPos.row - 1)});
+                        Util::Graphic::Ansi::setPosition({static_cast<uint16_t>(cursorPosition.column + 1), static_cast<uint16_t>(cursorPosition.row - 1)});
                     }
                 } else { // The screen did not scroll
-                    if (cursorPos.column < cursorLimits.column) { // The cursor just needs to advance one column
-                        Util::Graphic::Ansi::setPosition({static_cast<uint16_t>(cursorPos.column + 1), cursorPos.row});
-                    } else if (cursorPos.row < cursorLimits.row){ // The cursor was at the end of the line and should move to the beginning of the next row
-                        Util::Graphic::Ansi::setPosition({0, static_cast<uint16_t>(cursorPos.row + 1)});
+                    if (cursorPosition.column < cursorLimits.column) { // The cursor just needs to advance one column
+                        Util::Graphic::Ansi::setPosition({static_cast<uint16_t>(cursorPosition.column + 1), cursorPosition.row});
+                    } else if (cursorPosition.row < cursorLimits.row){ // The cursor was at the end of the line and should move to the beginning of the next row
+                        Util::Graphic::Ansi::setPosition({0, static_cast<uint16_t>(cursorPosition.row + 1)});
                     }
                 }
 
@@ -380,58 +380,63 @@ void Shell::handleDownKey() {
 }
 
 void Shell::handleLeftKey() {
-    auto cursorPos = Util::Graphic::Ansi::getCursorPosition();
+    auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
     auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
     auto startPosition = getStartPosition();
 
-    if (cursorPos.row <= startPosition.row && cursorPos.column > startPosition.column) {
-        cursorPos.column -= 1;
-    } else if (cursorPos.row > startPosition.row) {
-        if (cursorPos.column == 0) {
-            cursorPos.column = cursorLimits.column;
-            cursorPos.row -= 1;
+    if (cursorPosition.row <= startPosition.row && cursorPosition.column > startPosition.column) {
+        cursorPosition.column -= 1;
+    } else if (cursorPosition.row > startPosition.row) {
+        if (cursorPosition.column == 0) {
+            cursorPosition.column = cursorLimits.column;
+            cursorPosition.row -= 1;
         } else {
-            cursorPos.column -= 1;
+            cursorPosition.column -= 1;
         }
     }
 
-    Util::Graphic::Ansi::setPosition(cursorPos);
+    Util::Graphic::Ansi::setPosition(cursorPosition);
 }
 
 void Shell::handleRightKey() {
-    auto cursorPos = Util::Graphic::Ansi::getCursorPosition();
+    auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
     auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
     auto startPosition = getStartPosition();
-    auto currentLineIndex = static_cast<uint32_t>((cursorPos.row - startPosition.row) * (cursorLimits.column + 1) + cursorPos.column - startPosition.column);
+    auto currentLineIndex = static_cast<uint32_t>((cursorPosition.row - startPosition.row) * (cursorLimits.column + 1) + cursorPosition.column - startPosition.column);
 
     if (currentLineIndex > currentLine.length() - 1) {
         return;
     }
 
-    if (cursorPos.column < cursorLimits.column) {
-        cursorPos.column += 1;
+    if (cursorPosition.column < cursorLimits.column) {
+        cursorPosition.column += 1;
     } else {
-        cursorPos.column = 0;
-        cursorPos.row += 1;
+        cursorPosition.column = 0;
+        cursorPosition.row += 1;
     }
 
-    Util::Graphic::Ansi::setPosition(cursorPos);
+    Util::Graphic::Ansi::setPosition(cursorPosition);
 }
 
 void Shell::handleBackspace() {
-    if (currentLine.length() > 0) {
-        handleLeftKey();
+    auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
+    auto startPosition = getStartPosition();
 
-        auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
-        auto cursorPos = Util::Graphic::Ansi::getCursorPosition();
-        auto startPosition = getStartPosition();
-        auto preCursor = currentLine.substring(0, (cursorPos.row - startPosition.row) * (cursorLimits.column + 1) + cursorPos.column - startPosition.column);
-        auto afterCursor = currentLine.substring(((cursorPos.row - startPosition.row) * (cursorLimits.column + 1) + cursorPos.column - startPosition.column) + 1, currentLine.length());
-        currentLine = preCursor + afterCursor;
-
-        Util::System::out << afterCursor << ' ' << Util::Io::PrintStream::flush;
-        Util::Graphic::Ansi::setPosition(cursorPos);
+    if (currentLine.length() == 0 || cursorPosition == startPosition) {
+        return;
     }
+
+    handleLeftKey();
+    cursorPosition = Util::Graphic::Ansi::getCursorPosition();
+
+    auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
+    auto preCursor = currentLine.substring(0, (cursorPosition.row - startPosition.row) * (cursorLimits.column + 1) + cursorPosition.column - startPosition.column);
+    auto afterCursor = currentLine.substring(((cursorPosition.row - startPosition.row) * (cursorLimits.column + 1) + cursorPosition.column - startPosition.column) + 1, currentLine.length());
+
+    currentLine = preCursor + afterCursor;
+
+    Util::System::out << afterCursor << ' ' << Util::Io::PrintStream::flush;
+    Util::Graphic::Ansi::setPosition(cursorPosition);
 }
 
 void Shell::handleTab() {
@@ -487,11 +492,11 @@ uint32_t Shell::getScrolledLines() const {
 }
 
 Util::Graphic::Ansi::CursorPosition Shell::getStartPosition() const {
-    auto cursorPos = Util::Graphic::Ansi::getCursorPosition();
+    auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
     auto scrolledLines = getScrolledLines();
     auto startPosition = Util::Graphic::Ansi::CursorPosition{Shell::startPosition.column, static_cast<uint16_t>(Shell::startPosition.row - scrolledLines)};
-    if (startPosition.row > cursorPos.row) {
-        startPosition.row = cursorPos.row;
+    if (startPosition.row > cursorPosition.row) {
+        startPosition.row = cursorPosition.row;
     }
 
     return startPosition;

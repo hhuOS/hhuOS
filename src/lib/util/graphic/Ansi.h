@@ -67,6 +67,8 @@ public:
 
     struct CursorPosition {
         uint16_t column, row;
+
+        bool operator==(const CursorPosition &other);
     };
 
     /**
