@@ -25,6 +25,7 @@
 #include "lib/util/base/String.h"
 #include "lib/util/io/file/elf/File.h"
 #include "Constants.h"
+#include "Address.h"
 
 namespace Util {
 
@@ -102,6 +103,10 @@ void System::printStackTrace(const Io::PrintStream &stream, uint32_t minEbp, boo
             }
 
             Util::System::out << " " << symbolName << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+
+            if (!Util::Address<uint32_t>(symbolName).compareString("main")) {
+                break;
+            }
         }
 
         ebp = reinterpret_cast<uint32_t*>(ebp[0]);
@@ -113,8 +118,10 @@ const char *System::getSymbolName(uint32_t symbolAddress) {
 
     for (uint32_t i = 0; i < addressSpaceHeader.symbolTableSize / sizeof(Util::Io::Elf::SymbolEntry); i++) {
         const auto &symbol = *(addressSpaceHeader.symbolTable + i);
-        if (symbol.value == symbolAddress) {
-            return addressSpaceHeader.stringTable + symbol.nameOffset;
+        if (symbol.value == symbolAddress && symbol.getSymbolType() == Util::Io::Elf::SymbolType::FUNC) {
+            if (symbol.getSymbolType() == Util::Io::Elf::SymbolType::FUNC) {
+                return addressSpaceHeader.stringTable + symbol.nameOffset;
+            }
         }
     }
 
