@@ -36,7 +36,6 @@
 #include "GameManager.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/math/Vector2D.h"
-#include "lib/util/base/HeapMemoryManager.h"
 #include "lib/util/base/Constants.h"
 #include "lib/util/base/String.h"
 #include "lib/util/game/Camera.h"
@@ -46,6 +45,7 @@
 #include "lib/util/math/Vector3D.h"
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "lib/util/graphic/Font.h"
+#include "lib/util/base/FreeListMemoryManager.h"
 
 namespace Util::Game {
 
@@ -147,7 +147,7 @@ void Engine::drawStatus() {
     auto charHeight = statisticsFont.getCharHeight() + 2;
     auto color = graphics.getColor();
 
-    const auto &memoryManager = *reinterpret_cast<HeapMemoryManager*>(USER_SPACE_MEMORY_MANAGER_ADDRESS);
+    const auto &memoryManager = Util::System::getAddressSpaceHeader().memoryManager;
     auto heapUsed = (memoryManager.getTotalMemory() - memoryManager.getFreeMemory());
     auto heapUsedM = heapUsed / 1000 / 1000;
     auto heapUsedK = (heapUsed - heapUsedM * 1000 * 1000) / 1000;

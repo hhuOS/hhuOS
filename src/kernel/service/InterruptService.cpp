@@ -70,7 +70,7 @@ void InterruptService::handleException(const InterruptFrame &frame, uint32_t err
     }
 
     Util::System::out << Util::Exception::getExceptionName(static_cast<Util::Exception::Error>(vector)) << " (CPU exception!)" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-    Util::System::printStackTrace(Util::System::out, Util::USER_SPACE_MEMORY_MANAGER_ADDRESS, true);
+    Util::System::printStackTrace(Util::System::out, Util::USER_SPACE_MEMORY_START_ADDRESS, true);
     processService.exitCurrentProcess(-1);
 }
 

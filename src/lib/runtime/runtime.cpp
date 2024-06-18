@@ -12,7 +12,7 @@ void _exit(int32_t);
 }
 
 void initMemoryManager(uint8_t *startAddress) {
-    auto *memoryManager = new (reinterpret_cast<void*>(Util::USER_SPACE_MEMORY_MANAGER_ADDRESS)) Util::FreeListMemoryManager();
+    auto *memoryManager = new (&Util::System::getAddressSpaceHeader().memoryManager) Util::FreeListMemoryManager();
     memoryManager->initialize(startAddress, reinterpret_cast<uint8_t*>(Util::MAIN_STACK_START_ADDRESS - 1));
 }
 

@@ -109,18 +109,20 @@ void System::printStackTrace(const Io::PrintStream &stream, uint32_t minEbp, boo
 }
 
 const char *System::getSymbolName(uint32_t symbolAddress) {
-    auto symbolTableSize = *reinterpret_cast<uint32_t*>(SYMBOL_TABLE_SIZE_ADDRESS);
-    auto *symbolTable = *reinterpret_cast<Util::Io::Elf::SymbolEntry**>(SYMBOL_TABLE_ADDRESS);
-    auto *stringTable = *reinterpret_cast<const char**>(STRING_TABLE_ADDRESS);
+    auto &addressSpaceHeader = Util::System::getAddressSpaceHeader();
 
-    for (uint32_t i = 0; i < symbolTableSize / sizeof(Util::Io::Elf::SymbolEntry); i++) {
-        const auto &symbol = *(symbolTable + i);
+    for (uint32_t i = 0; i < addressSpaceHeader.symbolTableSize / sizeof(Util::Io::Elf::SymbolEntry); i++) {
+        const auto &symbol = *(addressSpaceHeader.symbolTable + i);
         if (symbol.value == symbolAddress) {
-            return stringTable + symbol.nameOffset;
+            return addressSpaceHeader.stringTable + symbol.nameOffset;
         }
     }
 
     return nullptr;
+}
+
+System::AddressSpaceHeader &System::getAddressSpaceHeader() {
+    return *reinterpret_cast<AddressSpaceHeader*>(USER_SPACE_MEMORY_START_ADDRESS);
 }
 
 }

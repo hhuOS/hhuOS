@@ -28,6 +28,7 @@
 #include "lib/util/base/Exception.h"
 #include "lib/util/base/Address.h"
 #include "kernel/service/Service.h"
+#include "lib/util/base/System.h"
 #include "lib/util/base/Constants.h"
 #include "kernel/process/Scheduler.h"
 
@@ -57,20 +58,22 @@ void BinaryLoader::run() {
     // Needed for allocating memory before user space heap
     auto *currentAddress = reinterpret_cast<uint8_t*>(executable.getEndAddress());
 
+    auto &addressSpaceHeader = *reinterpret_cast<Util::System::AddressSpaceHeader*>(Util::USER_SPACE_MEMORY_START_ADDRESS);
+
     // Copy symbol and string table to user space (needed for stack trace with symbol names)
     auto &symbolTableHeader = executable.getSectionHeader(Util::Io::Elf::SectionHeaderType::SYMTAB);
     auto &stringTableHeader = executable.getSectionHeader(Util::Io::Elf::SectionHeaderType::STRTAB);
-    *reinterpret_cast<uint32_t*>(Util::SYMBOL_TABLE_SIZE_ADDRESS) = symbolTableHeader.size;
+    addressSpaceHeader.symbolTableSize = symbolTableHeader.size;
 
     auto symbolTableAddress = Util::Address<uint32_t>(buffer + symbolTableHeader.offset);
     auto stringTableAddress = Util::Address<uint32_t>(buffer + stringTableHeader.offset);
 
     Util::Address<uint32_t>(currentAddress).copyRange(symbolTableAddress, symbolTableHeader.size);
-    *reinterpret_cast<uint32_t*>(Util::SYMBOL_TABLE_ADDRESS) = reinterpret_cast<uint32_t>(currentAddress);
+    addressSpaceHeader.symbolTable = reinterpret_cast<const Util::Io::Elf::SymbolEntry*>(currentAddress);
     currentAddress += symbolTableHeader.size;
 
     Util::Address<uint32_t>(currentAddress).copyRange(stringTableAddress, stringTableHeader.size);
-    *reinterpret_cast<uint32_t*>(Util::STRING_TABLE_ADDRESS) = reinterpret_cast<uint32_t>(currentAddress);
+    addressSpaceHeader.stringTable = reinterpret_cast<const char*>(currentAddress);
     currentAddress += stringTableHeader.size;
 
     // Copy arguments to user space

@@ -19,7 +19,6 @@
 
 #include "lib/interface.h"
 #include "lib/util/base/System.h"
-#include "lib/util/base/HeapMemoryManager.h"
 #include "lib/util/base/Constants.h"
 #include "lib/util/async/Runnable.h"
 #include "lib/util/io/stream/PrintStream.h"
@@ -33,6 +32,7 @@
 #include "lib/util/network/Socket.h"
 #include "lib/util/time/Date.h"
 #include "lib/util/time/Timestamp.h"
+#include "lib/util/base/FreeListMemoryManager.h"
 
 namespace Util {
 namespace Network {
@@ -41,8 +41,7 @@ class Datagram;
 }  // namespace Util
 
 void* allocateMemory(uint32_t size, uint32_t alignment) {
-    auto *manager = reinterpret_cast<Util::HeapMemoryManager*>(Util::USER_SPACE_MEMORY_MANAGER_ADDRESS);
-    return manager->allocateMemory(size, alignment);
+    return Util::System::getAddressSpaceHeader().memoryManager.allocateMemory(size, alignment);
 }
 
 void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment) {
@@ -50,13 +49,11 @@ void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment) {
         return allocateMemory(size, alignment);
     }
 
-    auto *manager = reinterpret_cast<Util::HeapMemoryManager*>(Util::USER_SPACE_MEMORY_MANAGER_ADDRESS);
-    return manager->reallocateMemory(pointer, size, alignment);
+    return Util::System::getAddressSpaceHeader().memoryManager.reallocateMemory(pointer, size, alignment);
 }
 
 void freeMemory(void *pointer, uint32_t alignment) {
-    auto *manager = reinterpret_cast<Util::HeapMemoryManager*>(Util::USER_SPACE_MEMORY_MANAGER_ADDRESS);
-    manager->freeMemory(pointer, alignment);
+    Util::System::getAddressSpaceHeader().memoryManager.freeMemory(pointer, alignment);
 }
 
 bool isMemoryManagementInitialized() {
@@ -249,7 +246,7 @@ bool shutdown(Util::Hardware::Machine::ShutdownType type) {
 
 void throwError(Util::Exception::Error error, const char *message) {
     Util::System::out << Util::Exception::getExceptionName(error) << " (" << message << ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-    Util::System::printStackTrace(Util::System::out, Util::USER_SPACE_MEMORY_MANAGER_ADDRESS, true);
+    Util::System::printStackTrace(Util::System::out, Util::USER_SPACE_MEMORY_START_ADDRESS, true);
     Util::System::call(Util::System::EXIT_PROCESS, 1, -1);
     __builtin_unreachable();
 }

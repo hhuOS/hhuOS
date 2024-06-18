@@ -23,6 +23,8 @@
 
 #include "lib/util/io/stream/InputStream.h" // IWYU pragma: keep
 #include "lib/util/io/stream/PrintStream.h" // IWYU pragma: keep
+#include "FreeListMemoryManager.h"
+#include "lib/util/io/file/elf/File.h"
 
 namespace Util {
 namespace Io {
@@ -75,6 +77,13 @@ public:
         SHUTDOWN
     };
 
+    struct AddressSpaceHeader {
+        FreeListMemoryManager memoryManager;
+        uint32_t symbolTableSize;
+        const Util::Io::Elf::SymbolEntry *symbolTable;
+        const char *stringTable;
+    };
+
     /**
      * Default Constructor.
      * Deleted, as this class has only static members.
@@ -99,6 +108,8 @@ public:
     static bool call(Code code, uint32_t paramCount...);
 
     static void printStackTrace(const Util::Io::PrintStream &stream, uint32_t minEbp, bool userSpace);
+
+    static AddressSpaceHeader& getAddressSpaceHeader();
 
     static Io::InputStream &in;
     static Io::PrintStream out;

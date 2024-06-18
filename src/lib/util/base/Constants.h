@@ -16,7 +16,6 @@
  */
 
 #include <cstdint>
-#include "FreeListMemoryManager.h"
 
 #ifndef HHUOS_CONSTANTS_H
 #define HHUOS_CONSTANTS_H
@@ -24,10 +23,7 @@
 namespace Util {
 
 static const constexpr uint32_t PAGESIZE = 0x1000;
-static const constexpr uint32_t USER_SPACE_MEMORY_MANAGER_ADDRESS = 0x8000000;
-static const constexpr uint32_t SYMBOL_TABLE_SIZE_ADDRESS = USER_SPACE_MEMORY_MANAGER_ADDRESS + sizeof(Util::FreeListMemoryManager);
-static const constexpr uint32_t SYMBOL_TABLE_ADDRESS = SYMBOL_TABLE_SIZE_ADDRESS + sizeof(uint32_t);
-static const constexpr uint32_t STRING_TABLE_ADDRESS = SYMBOL_TABLE_ADDRESS + sizeof(uint32_t);
+static const constexpr uint32_t USER_SPACE_MEMORY_START_ADDRESS = 0x8000000;
 static const constexpr uint32_t MAIN_STACK_START_ADDRESS = 0xffff0000;
 
 }

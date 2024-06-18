@@ -18,6 +18,7 @@
 #include "VirtualAddressSpace.h"
 
 #include "lib/util/base/Constants.h"
+#include "lib/util/base/System.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/ProcessService.h"
 #include "MemoryLayout.h"
@@ -38,7 +39,7 @@ namespace Kernel {
 VirtualAddressSpace::VirtualAddressSpace(Paging::Table *physicalPageDirectory, Paging::Table *virtualPageDirectory, Util::HeapMemoryManager &kernelHeapMemoryManager) :
         kernelAddressSpace(true), physicalPageDirectory(physicalPageDirectory), virtualPageDirectory(virtualPageDirectory), memoryManager(kernelHeapMemoryManager) {}
 
-VirtualAddressSpace::VirtualAddressSpace() : kernelAddressSpace(false), physicalPageDirectory(Service::getService<MemoryService>().allocatePageTable()), virtualPageDirectory(new Paging::Table()), memoryManager(*reinterpret_cast<Util::FreeListMemoryManager*>(Util::USER_SPACE_MEMORY_MANAGER_ADDRESS)) {
+VirtualAddressSpace::VirtualAddressSpace() : kernelAddressSpace(false), physicalPageDirectory(Service::getService<MemoryService>().allocatePageTable()), virtualPageDirectory(new Paging::Table()), memoryManager(Util::System::getAddressSpaceHeader().memoryManager) {
     auto &kernelSpace = Service::getService<ProcessService>().getKernelProcess().getAddressSpace();
 
     for (uint32_t address = MemoryLayout::KERNEL_AREA.startAddress; address < MemoryLayout::KERNEL_AREA.endAddress; address += 1024 * Util::PAGESIZE) {
