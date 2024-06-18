@@ -2,8 +2,10 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "lib/util/base/System.h"
+#include "lib/util/base/String.h"
 
 #include "lib/util/io/stream/PrintStream.h"
 
@@ -12,6 +14,39 @@ int intComp(const void* a, const void* b) {
 }
 
 int32_t main(int32_t argc, char *argv[]) {
+	bool t;
+	
+	//Test math
+	Util::System::out << "----- math.h"<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "fabs -4: "<< fabs(-4) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "fmod 3.7 0.5: "<< fmod(3.7, 0.5) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "log 4: "<< log(4) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "log10 4: "<< log10(4) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "pow 2, 2.5: "<< pow(2, 2.5)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "exp -5: "<< exp(-5)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "sqrt 2: "<< sqrt(2)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "sin 2: "<< sin(2)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "cos 2: "<< cos(2)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "tan 2: "<< tan(2)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "asin 0.5: "<< asin(0.5)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "acos 0.5: "<< acos(0.5)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "atan 0.5: "<< atan(0.5)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "atan2 0.5, 4: "<< atan2(0.5, 4)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "sinh 2: "<< sinh(2)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "cosh 2: "<< cosh(2)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "tanh 2: "<< tanh(2)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "ceil 2.5: "<< ceil(2.5)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "floor 2.5: "<< floor(2.5)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	
+	int ex;
+	double r = frexp(13.245, &ex);
+	double r2;
+	Util::System::out << "frexp 13.245: "<< r<<", "<<ex<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "ldexp 2.5, 3: "<< ldexp(2.5, 3)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	r = modf(13.245, &r2);
+	Util::System::out << "modf 13.245: "<< r2 <<" "<<r<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	
+	Util::System::in.readLine(t);
 	
 	//Test stdlib 
 	Util::System::out << "----- stdlib.h" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
@@ -65,6 +100,7 @@ int32_t main(int32_t argc, char *argv[]) {
 	}
 	Util::System::out <<Util::Io::PrintStream::dec << buf << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	
+	Util::System::in.readLine(t);
 	
 	//Test string
 	

@@ -32,6 +32,14 @@ namespace Util::Math {
     float absolute(float value);
 
     double absolute(double value);
+	
+	double exp(double arg);
+
+	double ln(double arg);
+
+	double log10(double arg);
+
+	double pow(double base, double exponent);
 
     float sine(float value);
 
@@ -65,7 +73,7 @@ namespace Util::Math {
 
     double sqrt(double value);
 
-    double pow(double value, int exponent);
+    double powInt(double value, int exponent);
 
     float min(float first, float second);
 
@@ -92,6 +100,7 @@ namespace Util::Math {
     bool equals(double first, double second, double epsilon);
 
     static const constexpr double PI = 3.14159265358979323846;
+	static const constexpr double E = 2.718281828459045235360;
 }
 
 

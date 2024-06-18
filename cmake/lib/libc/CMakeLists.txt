@@ -31,4 +31,5 @@ target_sources(${PROJECT_NAME} PUBLIC
 		${HHUOS_SRC_DIR}/lib/libc/ctype.cpp
         ${HHUOS_SRC_DIR}/lib/libc/stdlib.cpp
 		${HHUOS_SRC_DIR}/lib/libc/string.cpp	
+		${HHUOS_SRC_DIR}/lib/libc/math.cpp
 		)

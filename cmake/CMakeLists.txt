@@ -83,7 +83,7 @@ set(CMAKE_C_FLAGS "-m32 -march=i386 -mfpmath=387 -mno-mmx -mno-sse -mno-avx -Wal
 if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 9)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mmanual-endbr")
 endif()
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wl,--build-id=none -Wno-non-virtual-dtor -fno-threadsafe-statics -Wplacement-new=0 -fno-use-cxa-atexit -fno-rtti -fno-exceptions -std=c++17 -T ${HHUOS_SRC_DIR}/link.ld")
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wl,--build-id=none -Wno-non-virtual-dtor -fno-threadsafe-statics -Wplacement-new=0 -fno-use-cxa-atexit -fno-rtti -fno-exceptions -std=c++20 -T ${HHUOS_SRC_DIR}/link.ld")
 
 # Set preprocessor defines
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
@@ -110,6 +110,7 @@ find_program(cloc_path NAMES cloc)
 if (cloc_path)
     add_custom_target(cloc COMMAND "${cloc_path}" "${HHUOS_SRC_DIR}" --exclude-dir=ff VERBATIM)
 endif()
+
 
 # Add subdirectories
 add_subdirectory(device)

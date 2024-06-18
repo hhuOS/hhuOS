@@ -129,18 +129,18 @@ void PrintStream::print(double number) {
 	}
 	
 	long mul = 1;
-	while (Util::Math::pow(10, mul) <= number) mul++;
+	while (Util::Math::powInt(10, mul) <= number) mul++;
 	mul--;
 	
 	while (mul >= 0) {
-		print(((int)(number/Util::Math::pow(10, mul)))%10);
+		print(((int)(number/Util::Math::powInt(10, mul)))%10);
 		mul--;
 	}
 	
 	write('.');
 	number -= (int)number;
 	
-	while (1) {
+	for (int i=0; i<20; i++){
 		number *= 10;
 		
 		if (1 - (number - (uint8_t)number) < 0.0001) {
@@ -151,7 +151,7 @@ void PrintStream::print(double number) {
 		print((uint8_t) number);
 		number -= (int)number;
 		
-		if (number < 0.00000001) break;
+		if (number < 0.0000001) break;
 	}
 }
 

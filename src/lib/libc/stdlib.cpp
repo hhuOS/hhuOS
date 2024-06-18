@@ -331,7 +331,7 @@ double strtod(const char* str, char **str_end) {
 	}
 	
 	if (*str == 'e' || *str == 'E') {
-		ret *= Util::Math::pow(10, strtol(str + 1, NULL, 10));
+		ret *= Util::Math::powInt(10, strtol(str + 1, NULL, 10));
 	}
 	
 	return ret;

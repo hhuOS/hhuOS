@@ -232,7 +232,7 @@ void * memmove(void * dest, const void * src, size_t count) {
 	char * tempBuf = new char[count]();
 	memcpy(tempBuf, src, count);
 	memcpy(dest, tempBuf, count);
-	delete tempBuf;
+	delete [] tempBuf;
 	return dest;
 }
 

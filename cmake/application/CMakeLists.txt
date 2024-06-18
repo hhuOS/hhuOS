@@ -25,7 +25,7 @@ set(CMAKE_C_FLAGS "-m32 -march=i386 -mfpmath=387 -mno-mmx -mno-sse -mno-avx -Wal
 if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 9)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mmanual-endbr")
 endif()
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wl,--build-id=none -Wno-non-virtual-dtor -fno-threadsafe-statics -fno-use-cxa-atexit -fno-rtti -fno-exceptions -std=c++17  -I ${HHUOS_SRC_DIR}/lib/libc -T ${HHUOS_SRC_DIR}/application/link.ld")
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wl,--build-id=none -Wno-non-virtual-dtor -fno-threadsafe-statics -fno-use-cxa-atexit -fno-rtti -fno-exceptions -std=c++20  -I ${HHUOS_SRC_DIR}/lib/libc -T ${HHUOS_SRC_DIR}/application/link.ld")
 
 # Add subdirectories
 add_subdirectory(shell)
