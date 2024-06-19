@@ -65,24 +65,34 @@ void Shell::readLine() {
 
     while (isRunning) {
         switch (input) {
-            case Util::Graphic::Ansi::KEY_UP:
+            case Util::Graphic::Ansi::UP:
                 Util::Graphic::Ansi::enableCanonicalMode();
                 handleUpKey();
                 Util::Graphic::Ansi::enableRawMode();
                 break;
-            case Util::Graphic::Ansi::KEY_DOWN:
+            case Util::Graphic::Ansi::DOWN:
                 Util::Graphic::Ansi::enableCanonicalMode();
                 handleDownKey();
                 Util::Graphic::Ansi::enableRawMode();
                 break;
-            case Util::Graphic::Ansi::KEY_RIGHT:
+            case Util::Graphic::Ansi::RIGHT:
                 Util::Graphic::Ansi::enableCanonicalMode();
                 handleRightKey();
                 Util::Graphic::Ansi::enableRawMode();
                 break;
-            case Util::Graphic::Ansi::KEY_LEFT:
+            case Util::Graphic::Ansi::LEFT:
                 Util::Graphic::Ansi::enableCanonicalMode();
                 handleLeftKey();
+                Util::Graphic::Ansi::enableRawMode();
+                break;
+            case Util::Graphic::Ansi::POS1:
+                Util::Graphic::Ansi::enableCanonicalMode();
+                handlePos1();
+                Util::Graphic::Ansi::enableRawMode();
+                break;
+            case Util::Graphic::Ansi::END:
+                Util::Graphic::Ansi::enableCanonicalMode();
+                handleEnd();
                 Util::Graphic::Ansi::enableRawMode();
                 break;
             case 0x08:
@@ -485,6 +495,14 @@ void Shell::handleTab() {
     }
 }
 
+void Shell::handlePos1() {
+    Util::Graphic::Ansi::setPosition(getStartPosition());
+}
+
+void Shell::handleEnd() {
+    Util::Graphic::Ansi::setPosition(getEndPosition());
+}
+
 uint32_t Shell::getScrolledLines() const {
     auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
     auto currentScrolledRow = (startPosition.row + (currentLine.length() + startPosition.column) / (cursorLimits.column + 1));
@@ -500,6 +518,19 @@ Util::Graphic::Ansi::CursorPosition Shell::getStartPosition() const {
     }
 
     return startPosition;
+}
+
+Util::Graphic::Ansi::CursorPosition Shell::getEndPosition() const {
+    auto position = getStartPosition();
+    auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
+
+    position.column += currentLine.length();
+    while (position.column > cursorLimits.column) {
+        position.column -= (cursorLimits.column + 1);
+        position.row++;
+    }
+
+    return position;
 }
 
 void Shell::buildAutoCompletionLists() {

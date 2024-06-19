@@ -365,13 +365,17 @@ int16_t Ansi::readChar(Util::Io::InputStream &stream) {
 
         switch (input) {
             case 'A':
-                return KEY_UP;
+                return UP;
             case 'B':
-                return KEY_DOWN;
+                return DOWN;
             case 'C':
-                return KEY_RIGHT;
+                return RIGHT;
             case 'D':
-                return KEY_LEFT;
+                return LEFT;
+            case 'H':
+                return POS1;
+            case 'F':
+                return END;
             default:
                 enableAnsiParsing();
                 System::out << escapeSequence << Io::PrintStream::flush;

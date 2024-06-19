@@ -37,10 +37,13 @@ enum InterruptRequest : uint8_t {
     FLOPPY = 0x06,
     LPT1 = 0x07,
     RTC = 0x08,
-    MOUSE = 0x0C,
-    FPU = 0x0D,
-    PRIMARY_ATA = 0x0E,
-    SECONDARY_ATA = 0x0F,
+    FREE1 = 0x09,
+    FREE2 = 0x0a,
+    FREE3 = 0x0b,
+    MOUSE = 0x0c,
+    FPU = 0x0d,
+    PRIMARY_ATA = 0x0e,
+    SECONDARY_ATA = 0x0f,
     // Other devices
 };
 

@@ -76,6 +76,10 @@ private:
 
     void handleTab();
 
+    void handlePos1();
+
+    void handleEnd();
+
     void parseInput();
 
     Util::Array<Util::String> parseArguments(const Util::String &argumentString, bool &valid);
@@ -83,6 +87,8 @@ private:
     [[nodiscard]] uint32_t getScrolledLines() const;
 
     [[nodiscard]] Util::Graphic::Ansi::CursorPosition getStartPosition() const;
+
+    [[nodiscard]] Util::Graphic::Ansi::CursorPosition getEndPosition() const;
 
     [[nodiscard]] Util::String checkPath(const Util::String &command) const;
 

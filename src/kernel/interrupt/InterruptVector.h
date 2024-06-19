@@ -50,6 +50,7 @@ enum InterruptVector : uint8_t {
     // PC/AT compatible interrupts
     PIT = 32,
     KEYBOARD = 33,
+    CASCADE = 34,
     COM2 = 35,
     COM1 = 36,
     LPT2 = 37,

@@ -56,7 +56,9 @@ public:
         UP = 0x48,
         DOWN = 0x50,
         LEFT = 0x4b,
-        RIGHT = 0x4d
+        RIGHT = 0x4d,
+        POS1 = 0x47,
+        END = 0x4f
     };
 
     /**
