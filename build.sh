@@ -153,7 +153,7 @@ print_usage() {
     printf "Usage: ./build.sh [OPTION...]
     Available options:
     -t, --target
-        Set the the build target (grub/towboot/limine, default: towboot).
+        Set the the build target (towboot/limine/grub, default: towboot).
     -d, --directory
         Set the build directory.
     -g, --type

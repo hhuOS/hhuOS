@@ -21,6 +21,7 @@
 #include <cstdint>
 
 #include "Service.h"
+#include "lib/util/io/file/elf/File.h"
 
 namespace Device {
 class Acpi;
@@ -63,13 +64,21 @@ public:
 
     [[nodiscard]] const Device::SmBios& getSmBios() const;
 
+    [[nodiscard]] const char* getSymbolName(uint32_t symbolAddress);
+
     static const constexpr uint8_t SERVICE_ID = 9;
 
 private:
 
+    static void* mapElfSection(const Util::Io::Elf::SectionHeader &sectionHeader);
+
     const Multiboot *multiboot;
     const Device::Acpi *acpi = nullptr;
     const Device::SmBios *smBios = nullptr;
+
+    uint32_t symbolTableSize = 0;
+    const Util::Io::Elf::SymbolEntry *symbolTable = nullptr;
+    const char *stringTable = nullptr;
 };
 
 }

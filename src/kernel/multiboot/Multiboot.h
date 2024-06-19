@@ -76,43 +76,43 @@ public:
     struct TagHeader {
         TagType type;
         uint32_t size;
-    };
+    } __attribute__((packed));
 
     struct BootCommandLine {
         TagHeader header;
         const char string[];
-    };
+    } __attribute__((packed));
 
     struct BootLoaderName {
         TagHeader header;
         const char string[];
-    };
+    } __attribute__((packed));
 
     struct Module {
         TagHeader header;
         uint32_t startAddress;
         uint32_t endAddress;
         const char name[];
-    };
+    } __attribute__((packed));
 
     struct BasicMemoryInformation {
         TagHeader header;
         uint32_t lowerMemory;
         uint32_t upperMemory;
-    };
+    } __attribute__((packed));
 
     struct BiosBootDevice {
         TagHeader header;
         uint32_t biosDevice;
         uint32_t partition;
         uint32_t subPartition;
-    };
+    } __attribute__((packed));
 
     struct MemoryMapHeader {
         TagHeader tagHeader;
         uint32_t entrySize;
         uint32_t entryVersion;
-    };
+    } __attribute__((packed));
 
     struct MemoryMapEntry {
         uint64_t address;
@@ -123,7 +123,7 @@ public:
         bool operator!=(const MemoryMapEntry &other) const {
             return address != other.address;
         }
-    };
+    } __attribute__((packed));
 
     struct VbeInfo {
         TagHeader header;
@@ -133,18 +133,18 @@ public:
         uint16_t interfaceLength;
         uint8_t controlInfo[512];
         uint8_t modeInfo[256];
-    };
+    } __attribute__((packed));
 
     struct FramebufferPalette {
         uint8_t red;
         uint8_t green;
         uint8_t blue;
-    };
+    } __attribute__((packed));
 
     struct IndexedColorInfo {
         uint32_t numColors;
         FramebufferPalette colors[];
-    };
+    } __attribute__((packed));
 
     struct RgbColorInfo {
         uint8_t redFieldPosition;
@@ -153,12 +153,12 @@ public:
         uint8_t greenMaskSize;
         uint8_t blueFieldPosition;
         uint8_t blueMaskSize;
-    };
+    } __attribute__((packed));
 
     union ColorInfo {
         IndexedColorInfo indexInfo;
         RgbColorInfo rgbInfo;
-    };
+    } __attribute__((packed));
 
     struct FramebufferInfo {
         TagHeader header;
@@ -170,7 +170,7 @@ public:
         FrameBufferType type;
         uint8_t reserved;
         ColorInfo colorInfo;
-    };
+    } __attribute__((packed));
 
     struct ApmTable {
         TagHeader header;
@@ -183,17 +183,17 @@ public:
         uint16_t codeSegmentLength;
         uint16_t codeSegment16Length;
         uint16_t dataSegmentLength;
-    };
+    } __attribute__((packed));
 
     struct Efi32BitSystemTablePointer {
         TagHeader header;
         uint32_t address;
-    };
+    } __attribute__((packed));
 
     struct Efi64BitSystemTablePointer {
         TagHeader header;
         uint64_t address;
-    };
+    } __attribute__((packed));
 
     struct SmBiosTables {
         TagHeader header;
@@ -201,50 +201,35 @@ public:
         uint8_t minorVersion;
         uint8_t reserved[6];
         uint8_t tables[];
-    };
+    } __attribute__((packed));
 
     struct AcpiRsdp {
         TagHeader header;
         Util::Hardware::Acpi::Rsdp rsdp;
-    };
+    } __attribute__((packed));
 
     struct Efi32BitImageHandlePointer {
         TagHeader header;
         uint32_t pointer;
-    };
+    } __attribute__((packed));
 
     struct Efi64BitImageHandlePointer {
         TagHeader header;
         uint64_t pointer;
-    };
+    } __attribute__((packed));
 
     struct ImageLoadBasePhysicalAddress {
         TagHeader header;
         uint32_t address;
-    };
+    } __attribute__((packed));
 
     struct ElfSymbols {
         TagHeader header;
-        uint16_t entryCount;
-        uint16_t entrySize;
-        uint16_t stringSectionIndex;
-        uint16_t reserved;
+        uint32_t entryCount;
+        uint32_t entrySize;
+        uint32_t stringSectionIndex;
         Util::Io::Elf::SectionHeader sectionHeaders[];
-    };
-
-    enum BlockType : uint8_t {
-        MULTIBOOT_RESERVED,
-        HEAP_RESERVED,
-        PAGING_RESERVED
-    };
-
-    struct MemoryBlock {
-        uint32_t startAddress;
-        uint32_t virtualStartAddress;
-        uint32_t blockCount;
-        bool initialMap;
-        BlockType type;
-    };
+    } __attribute__((packed));
 
     /**
      * Default Constructor.

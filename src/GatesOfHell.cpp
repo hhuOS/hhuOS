@@ -138,7 +138,7 @@ extern "C" int32_t atexit (void (*func)()) noexcept {
 
 Util::HeapMemoryManager *GatesOfHell::kernelHeap = nullptr;
 
-extern "C" void start(uint32_t multibootMagic, const Kernel::Multiboot *multiboot) {
+extern "C" void main(uint32_t multibootMagic, const Kernel::Multiboot *multiboot) {
     GatesOfHell::enter(multibootMagic, multiboot);
 }
 

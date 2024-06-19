@@ -313,7 +313,7 @@ void MemoryService::switchAddressSpace(VirtualAddressSpace &addressSpace) {
     }
 
     // Get physical address of new page directory
-    auto *pageDirectoryPhysical = getPhysicalAddress(const_cast<void*>(reinterpret_cast<const void*>(&addressSpace.getPageDirectory())));
+    auto *pageDirectoryPhysical = getPhysicalAddress(const_cast<void*>(reinterpret_cast<const void*>(&addressSpace.getPageDirectoryPhysical())));
 
     // Set current address space
     currentAddressSpace = &addressSpace;
@@ -364,6 +364,10 @@ VirtualAddressSpace& MemoryService::getKernelAddressSpace() const {
 
 VirtualAddressSpace &MemoryService::getCurrentAddressSpace() const {
     return *currentAddressSpace;
+}
+
+const Util::ArrayList<VirtualAddressSpace *> &MemoryService::getAllAddressSpaces() const {
+    return addressSpaces;
 }
 
 void MemoryService::setTaskStateSegmentStackEntry(const uint32_t *stackPointer) {

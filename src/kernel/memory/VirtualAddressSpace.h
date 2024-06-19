@@ -74,7 +74,7 @@ public:
 
     [[nodiscard]] Util::HeapMemoryManager& getMemoryManager() const;
 
-    [[nodiscard]] const Paging::Table& getPageDirectory() const;
+    [[nodiscard]] const Paging::Table& getPageDirectoryPhysical() const;
 
     [[nodiscard]] bool isKernelAddressSpace() const;
 

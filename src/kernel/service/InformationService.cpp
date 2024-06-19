@@ -16,16 +16,29 @@
  */
 
 #include "InformationService.h"
+#include "kernel/multiboot/Multiboot.h"
+#include "MemoryService.h"
+#include "lib/util/base/Constants.h"
 
 namespace Device {
 class Acpi;
 class SmBios;
 }  // namespace Device
-namespace Kernel {
-class Multiboot;
-}  // namespace Kernel
 
-Kernel::InformationService::InformationService(const Kernel::Multiboot *multiboot) : multiboot(multiboot) {}
+Kernel::InformationService::InformationService(const Kernel::Multiboot *multiboot) : multiboot(multiboot) {
+    if (multiboot->hasTag(Kernel::Multiboot::ELF_SYMBOLS)) {
+        auto &symbolsTag = multiboot->getTag<Kernel::Multiboot::ElfSymbols>(Kernel::Multiboot::ELF_SYMBOLS);
+        for (uint32_t i = 0; i < symbolsTag.entryCount; i++) {
+            const auto &header = symbolsTag.sectionHeaders[i];
+            if (header.type == Util::Io::Elf::SectionHeaderType::SYMTAB) {
+                symbolTableSize = header.size;
+                symbolTable = reinterpret_cast<const Util::Io::Elf::SymbolEntry*>(mapElfSection(header));
+            } else if (header.type == Util::Io::Elf::SectionHeaderType::STRTAB && i != symbolsTag.stringSectionIndex) {
+                stringTable = reinterpret_cast<const char*>(mapElfSection(header));
+            }
+        }
+    }
+}
 
 void Kernel::InformationService::setAcpi(const Device::Acpi *acpi) {
     InformationService::acpi = acpi;
@@ -45,4 +58,25 @@ const Device::Acpi& Kernel::InformationService::getAcpi() const {
 
 const Device::SmBios& Kernel::InformationService::getSmBios() const {
     return *smBios;
+}
+
+const char* Kernel::InformationService::getSymbolName(uint32_t symbolAddress) {
+    for (uint32_t i = 0; i < symbolTableSize / sizeof(Util::Io::Elf::SymbolEntry); i++) {
+        const auto &symbol = *(symbolTable + i);
+        if (symbol.value == symbolAddress && symbol.getSymbolType() == Util::Io::Elf::SymbolType::FUNC) {
+                return stringTable + symbol.nameOffset;
+        }
+    }
+
+    return nullptr;
+}
+
+void *Kernel::InformationService::mapElfSection(const Util::Io::Elf::SectionHeader &sectionHeader) {
+    // Beware: 'sectionHeader.virtualAddress' refers to a physical address in this case, due to the bootloader using an identity mapping
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+    auto pageOffset = sectionHeader.virtualAddress % Util::PAGESIZE;
+    auto pageCount = (pageOffset + sectionHeader.size) % Util::PAGESIZE == 0 ? (pageOffset + sectionHeader.size) / Util::PAGESIZE : ((pageOffset + sectionHeader.size) / Util::PAGESIZE) + 1;
+    auto mappedSection = memoryService.mapIO(reinterpret_cast<void*>(sectionHeader.virtualAddress), pageCount);
+
+    return reinterpret_cast<uint8_t*>(mappedSection) + pageOffset;
 }

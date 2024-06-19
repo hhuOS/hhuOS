@@ -79,43 +79,58 @@ void Log::disableEarlySerialLogging() {
 }
 
 void Log::log(const Record &record, const char *message...) {
+    if (record.level < level) {
+        return;
+    }
+
+    va_list args;
+    va_start(args, message);
+
     if (isMemoryManagementInitialized()) {
-        if (record.level < level) {
-            return;
-        }
-
-        va_list args;
-        va_start(args, message);
-        lock.acquire();
-
-        uint32_t millis = Util::Time::getSystemTime().toMilliseconds();
-        uint32_t seconds = millis / 1000;
-        uint32_t fraction = millis % 1000;
-
-        const auto logMessage = Util::String::format("%s[%u.%03u]%s[%s]%s[%s:%s] %s%s",
-                 Util::Graphic::Ansi::FOREGROUND_CYAN, seconds, fraction, getColor(record.level), getLevelAsString(record.level),
-                 Util::Graphic::Ansi::FOREGROUND_MAGENTA, extractFileName(record.file), record.line,
-                 Util::Graphic::Ansi::FOREGROUND_DEFAULT, static_cast<const char*>(Util::String::vformat((char *) message, args)));
-
-        buffer.add(logMessage);
-
-        if (earlySerialLoggingEnabled) {
-            writeStringEarly(static_cast<const char*>(logMessage));
-            writeStringEarly("\n");
-        }
-
-        for (auto *stream : streamMap.keys()) {
-            auto &printStream = *streamMap.get(stream);
-            printStream << logMessage << Util::Io::PrintStream::endl;
-        }
-
-        lock.release();
-        va_end(args);
+        logDefault(record, message, args);
     } else if (GatesOfHell::isKernelHeapInitialized()) {
-        logEarlyWithHeap(record, message);
+        logEarlyWithHeap(record, message, args);
     } else {
         logEarly(record, message);
     }
+
+    va_end(args);
+}
+
+void Log::logDefault(const Log::Record &record, const char *message, va_list args) {
+    lock.acquire();
+
+    uint32_t millis = Util::Time::getSystemTime().toMilliseconds();
+    uint32_t seconds = millis / 1000;
+    uint32_t fraction = millis % 1000;
+
+    const auto logMessage = Util::String::format("%s[%u.%03u]%s[%s]%s[%s:%s] %s%s",
+             Util::Graphic::Ansi::FOREGROUND_CYAN, seconds, fraction, getColor(record.level), getLevelAsString(record.level),
+             Util::Graphic::Ansi::FOREGROUND_MAGENTA, extractFileName(record.file), record.line,
+             Util::Graphic::Ansi::FOREGROUND_DEFAULT, static_cast<const char*>(Util::String::vformat(message, args)));
+
+    buffer.add(logMessage);
+
+    if (earlySerialLoggingEnabled) {
+        writeStringEarly(static_cast<const char*>(logMessage));
+        writeStringEarly("\n");
+    }
+
+    for (auto *stream : streamMap.keys()) {
+        auto &printStream = *streamMap.get(stream);
+        printStream << logMessage << Util::Io::PrintStream::endl;
+    }
+
+    lock.release();
+}
+
+void Log::logEarlyWithHeap(const Log::Record &record, const char *message, va_list args) {
+    const auto logMessage = Util::String::format("%s[%u.%03u]%s[%s]%s[%s:%s] %s%s\n",
+             Util::Graphic::Ansi::FOREGROUND_CYAN, 0, 0, getColor(record.level), getLevelAsString(record.level),
+             Util::Graphic::Ansi::FOREGROUND_MAGENTA, extractFileName(record.file), record.line,
+             Util::Graphic::Ansi::FOREGROUND_DEFAULT, static_cast<const char*>(Util::String::vformat(message, args)));
+
+    writeStringEarly(static_cast<const char*>(logMessage));
 }
 
 void Log::logEarly(const Log::Record &record, const char *message) {
@@ -135,20 +150,6 @@ void Log::logEarly(const Log::Record &record, const char *message) {
     writeStringEarly(Util::Graphic::Ansi::FOREGROUND_DEFAULT);
     writeStringEarly(message);
     writeStringEarly("\n");
-}
-
-void Log::logEarlyWithHeap(const Log::Record &record, const char *message, ...) {
-    va_list args;
-    va_start(args, message);
-
-    const auto logMessage = Util::String::format("%s[%u.%03u]%s[%s]%s[%s:%s] %s%s\n",
-             Util::Graphic::Ansi::FOREGROUND_CYAN, 0, 0, getColor(record.level), getLevelAsString(record.level),
-             Util::Graphic::Ansi::FOREGROUND_MAGENTA, extractFileName(record.file), record.line,
-             Util::Graphic::Ansi::FOREGROUND_DEFAULT, static_cast<const char*>(Util::String::vformat((char *) message, args)));
-
-    writeStringEarly(static_cast<const char*>(logMessage));
-
-    va_end(args);
 }
 
 void Log::writeStringEarly(const char *string) {

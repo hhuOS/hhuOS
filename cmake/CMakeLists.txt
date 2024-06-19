@@ -18,7 +18,7 @@ cmake_minimum_required(VERSION 3.14)
 include(ProcessorCount)
 
 # Set version
-execute_process(COMMAND git describe --tags --abbrev=0 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+execute_process(COMMAND git describe --abbrev=0 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         OUTPUT_VARIABLE HHUOS_VERSION ERROR_QUIET)
 string(STRIP "${HHUOS_VERSION}" HHUOS_VERSION)
 if (HHUOS_VERSION STREQUAL "")

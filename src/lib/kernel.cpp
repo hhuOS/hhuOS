@@ -50,6 +50,7 @@
 #include "kernel/memory/MemoryLayout.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/process/FileDescriptor.h"
+#include "kernel/service/InformationService.h"
 
 namespace Util {
 namespace Async {
@@ -268,7 +269,7 @@ bool shutdown(Util::Hardware::Machine::ShutdownType type) {
     return false;
 }
 
-void logStackTrace() {
+void printKernelStackTrace(bool log) {
     uint32_t *ebp = nullptr;
     asm volatile (
             "mov %%ebp, (%0);"
@@ -278,30 +279,53 @@ void logStackTrace() {
             "eax"
             );
 
-
-    uint32_t eip = ebp[1];
     while (reinterpret_cast<uint32_t>(ebp) >= Kernel::MemoryLayout::KERNEL_START) {
-        LOG_ERROR("0x%08x", eip);
+        uint32_t eip = ebp[1];
+
+        if (eip == 0x0000DEAD) {
+            break;
+        }
+
+        const char *symbolName = "";
+        if (Kernel::Service::isServiceRegistered(Kernel::InformationService::SERVICE_ID)) {
+            uint32_t symbolEip = eip;
+            auto &informationService = Kernel::Service::getService<Kernel::InformationService>();
+            symbolName = informationService.getSymbolName(symbolEip);
+            while (symbolName == nullptr && symbolEip >= Kernel::MemoryLayout::KERNEL_START) {
+                symbolName = informationService.getSymbolName(--symbolEip);
+            }
+        }
+
+        if (log) {
+            LOG_ERROR("0x%08x %s", eip, symbolName);
+        } else {
+            Util::System::out << Util::String::format("0x%08x", eip) << " " << symbolName << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        }
+
         ebp = reinterpret_cast<uint32_t*>(ebp[0]);
-        eip = ebp[1];
     }
 }
 
 void throwError(Util::Exception::Error error, const char *message) {
     if (Kernel::Service::isServiceRegistered(Kernel::ProcessService::SERVICE_ID) && Kernel::Service::getService<Kernel::ProcessService>().getScheduler().isInitialized()) {
-        Util::System::out << Util::Exception::getExceptionName(error) << " (" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-        Util::System::printStackTrace(Util::System::out, Kernel::MemoryLayout::KERNEL_START, false);
-
         auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
         if (processService.getCurrentProcess().isKernelProcess()) {
             Device::Cpu::disableInterrupts();
+
+            Util::System::out << "Kernel Panic: " << Util::Exception::getExceptionName(error) << " (" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            printKernelStackTrace(false);
+
+            Util::System::out << "System halt!" << Util::Io::PrintStream::flush;
             Device::Cpu::halt();
+        } else {
+            Util::System::out << Util::Exception::getExceptionName(error) << " (" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::printStackTrace(Util::System::out, Kernel::MemoryLayout::KERNEL_START);
+            processService.exitCurrentProcess(-1);
         }
 
-        processService.exitCurrentProcess(-1);
     } else {
-        LOG_ERROR("%s (%s)", Util::Exception::getExceptionName(error), message);
-        logStackTrace();
+        LOG_ERROR("Kernel Panic: %s (%s)", Util::Exception::getExceptionName(error), message);
+        printKernelStackTrace(true);
 
         Device::Cpu::disableInterrupts();
         Device::Cpu::halt();

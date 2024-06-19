@@ -107,7 +107,12 @@ public:
 
     static bool call(Code code, uint32_t paramCount...);
 
-    static void printStackTrace(const Util::Io::PrintStream &stream, uint32_t minEbp, bool userSpace);
+    /**
+     * Print application stack trace.
+     * This only works for user space applications, not for the kernel.
+     * See 'lib/kernel.cpp' and 'kernel/service/InformationService' for kernel stack traces.
+     */
+    static void printStackTrace(const Io::PrintStream &stream, uint32_t minEbp);
 
     static AddressSpaceHeader& getAddressSpaceHeader();
 

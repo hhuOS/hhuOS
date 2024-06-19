@@ -76,13 +76,13 @@ File::~File() {
 uint32_t File::getEndAddress() {
     uint32_t ret = 0;
 
-    for(int i = 0; i < fileHeader.programHeaderEntries; i++) {
+    for (int i = 0; i < fileHeader.programHeaderEntries; i++) {
         auto header = programHeaders[i];
 
-        if(header.type == ProgramHeaderType::LOAD) {
+        if (header.type == ProgramHeaderType::LOAD) {
             const auto size = header.virtualAddress + header.memorySize;
 
-            if(size > ret) {
+            if (size > ret) {
                 ret = size;
             }
         }
@@ -92,7 +92,7 @@ uint32_t File::getEndAddress() {
 }
 
 void File::loadProgram() {
-    for(int i = 0; i < fileHeader.programHeaderEntries; i++) {
+    for (int i = 0; i < fileHeader.programHeaderEntries; i++) {
         auto header = programHeaders[i];
 
         if(header.type == ProgramHeaderType::LOAD) {
