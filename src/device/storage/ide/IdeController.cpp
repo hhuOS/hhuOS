@@ -43,6 +43,7 @@
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/collection/Iterator.h"
 #include "kernel/service/Service.h"
+#include "kernel/service/TimeService.h"
 
 namespace Kernel {
 struct InterruptFrame;
@@ -402,7 +403,7 @@ bool IdeController::selectDrive(uint8_t channel, uint8_t drive, bool prepareLbaA
     }
 
     registers.command.driveHead.writeByte(selector);
-    Util::Async::Thread::sleep(Util::Time::Timestamp(0, 400));
+    Kernel::Service::getService<Kernel::TimeService>().busyWait(Util::Time::Timestamp::ofNanoseconds(400));
 
     if (!waitBusy(registers.command.status)) {
         return false;

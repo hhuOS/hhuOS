@@ -110,6 +110,7 @@
 #include "filesystem/iso9660/IsoDriver.h"
 #include "device/time/rtc/Cmos.h"
 #include "device/graphic/VesaBiosExtensions.h"
+#include "device/time/acpi/AcpiTimer.h"
 
 namespace Util {
 class HeapMemoryManager;
@@ -301,9 +302,8 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
 
     // Initialize the classic PIC and interrupt service
     // Needs to be done before memory service initialization, so that the memory service can register its system calls
-    LOG_INFO("Initializing classic PIC");
-    auto *pic = new Device::Pic();
-    auto *interruptService = new Kernel::InterruptService(pic);
+    LOG_INFO("Initializing interrupt service");
+    auto *interruptService = new Kernel::InterruptService();
     Kernel::Service::registerService(Kernel::InterruptService::SERVICE_ID, interruptService);
 
     LOG_INFO("Loading interrupt descriptor table");
@@ -478,20 +478,49 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
 
     auto *lfbNode = lfb == nullptr ? nullptr : new Device::Graphic::LinearFrameBufferNode("lfb", *lfb, vbe);
 
+    // Setup time and date devices
+    // Needs to be done before PIC/APIC initialization, since they call 'TimeService::busyWait()'
+    LOG_INFO("Initializing PIT");
+    auto *pit = new Device::Pit(Util::Time::Timestamp::ofMilliseconds(1), Util::Time::Timestamp::ofMilliseconds(10));
+
+    Device::Rtc *rtc = nullptr;
+    if (Device::Rtc::isAvailable()) {
+        LOG_INFO("Initializing RTC");
+        rtc = new Device::Rtc();
+
+        if (!Device::Rtc::isValid()) {
+            LOG_WARN("CMOS has been cleared -> RTC is probably providing invalid date and time");
+        }
+    } else {
+        LOG_INFO("RTC not available");
+    }
+
+    Device::AcpiTimer *acpiTimer = nullptr;
+    if (Device::AcpiTimer::isAvailable()) {
+        LOG_INFO("Initializing ACPI timer");
+        acpiTimer = new Device::AcpiTimer();
+    }
+
+    Device::WaitTimer *waitTimer = acpiTimer == nullptr ? static_cast<Device::WaitTimer*>(pit) : static_cast<Device::WaitTimer*>(acpiTimer);
+    auto *timeService = new Kernel::TimeService(waitTimer, pit, rtc);
+    Kernel::Service::registerService(Kernel::TimeService::SERVICE_ID, timeService);
+
     if (multiboot->getKernelOption("apic", "true") == "true" && Device::Apic::isAvailable()) {
         LOG_INFO("APIC detected");
         auto *apic = Device::Apic::initialize();
         if (apic == nullptr) {
-            LOG_WARN("Failed to initialize APIC -> Falling back to PIC");
+            LOG_WARN("Failed to initialize APIC");
         } else {
             interruptService->useApic(apic);
-
-            if (apic->isSymmetricMultiprocessingSupported()) {
-                apic->startupApplicationProcessors();
-            }
         }
     } else {
-        LOG_INFO("APIC not available -> Falling back to PIC");
+        LOG_INFO("APIC not available");
+    }
+
+    if (!interruptService->usesApic()) {
+        LOG_INFO("Falling back to classic PIC for interrupt handling");
+        auto *pic = new Device::Pic();
+        interruptService->usePic(pic);
     }
 
     // Create thread to refill block pool of paging area manager
@@ -518,25 +547,19 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     Device::Cpu::enableInterrupts();
     Device::Cmos::enableNmi();
 
-    // Setup time and date devices
-    LOG_INFO("Initializing PIT");
-    auto *pit = new Device::Pit(1, 10);
     pit->plugin();
-
-    Device::Rtc *rtc = nullptr;
-    if (Device::Rtc::isAvailable()) {
-        LOG_INFO("Initializing RTC");
-        rtc = new Device::Rtc();
+    if (rtc != nullptr) {
         rtc->plugin();
-
-        if (!Device::Rtc::isValid()) {
-            LOG_WARN("CMOS has been cleared -> RTC is probably providing invalid date and time");
-        }
-    } else {
-        LOG_INFO("RTC not available");
     }
 
-    Kernel::Service::registerService(Kernel::TimeService::SERVICE_ID, new Kernel::TimeService(pit, rtc));
+    if (interruptService->usesApic()) {
+        auto &apic = interruptService->getApic();
+        apic.startCurrentTimer();
+
+        if (apic.isSymmetricMultiprocessingSupported()) {
+            apic.startupApplicationProcessors();
+        }
+    }
 
     // Scan PCI bus
     Device::Pci::scan();

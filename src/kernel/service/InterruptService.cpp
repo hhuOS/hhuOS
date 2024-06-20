@@ -35,10 +35,12 @@ namespace Kernel {
 class InterruptHandler;
 struct InterruptFrame;
 
-InterruptService::InterruptService(Device::Pic *pic) : pic(pic) {}
-
 void InterruptService::loadIdt() {
     idt.load();
+}
+
+void InterruptService::usePic(Device::Pic *pic) {
+    InterruptService::pic = pic;
 }
 
 void InterruptService::useApic(Device::Apic *apic) {

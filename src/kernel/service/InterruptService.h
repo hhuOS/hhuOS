@@ -42,9 +42,9 @@ class InterruptService : public Service {
 
 public:
     /**
-     * Constructor for use with classic PIC.
+     * Default Constructor.
      */
-    explicit InterruptService(Device::Pic *pic);
+    InterruptService() = default;
 
     /**
      * Copy Constructor.
@@ -62,6 +62,8 @@ public:
     ~InterruptService() override;
 
     void loadIdt();
+
+    void usePic(Device::Pic *pic);
 
     void useApic(Device::Apic *apic);
 

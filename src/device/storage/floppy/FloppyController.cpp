@@ -64,6 +64,7 @@ bool FloppyController::isFifoBufferReady() {
 void FloppyController::initializeAvailableDrives() {
     if (!isAvailable()) {
         LOG_INFO("No floppy drives available");
+        return;
     }
 
     Cpu::disableInterrupts();

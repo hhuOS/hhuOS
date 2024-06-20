@@ -26,6 +26,7 @@
 #include "kernel/service/Service.h"
 #include "ProcessService.h"
 #include "kernel/process/Scheduler.h"
+#include "device/time/WaitTimer.h"
 
 namespace Device {
 class Rtc;
@@ -33,7 +34,7 @@ class Rtc;
 
 namespace Kernel {
 
-TimeService::TimeService(Device::TimeProvider *timeProvider, Device::DateProvider *dateProvider) : timeProvider(timeProvider), dateProvider(dateProvider) {
+TimeService::TimeService(Device::WaitTimer *waitTimer, Device::TimeProvider *timeProvider, Device::DateProvider *dateProvider) : waitTimer(waitTimer), timeProvider(timeProvider), dateProvider(dateProvider) {
     Service::getService<InterruptService>().assignSystemCall(Util::System::GET_SYSTEM_TIME, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
             return false;
@@ -71,11 +72,6 @@ TimeService::TimeService(Device::TimeProvider *timeProvider, Device::DateProvide
     });
 }
 
-TimeService::~TimeService() {
-    delete timeProvider;
-    delete dateProvider;
-}
-
 Util::Time::Timestamp TimeService::getSystemTime() const {
     if (timeProvider != nullptr) {
         return timeProvider->getTime();
@@ -101,15 +97,7 @@ void TimeService::setCurrentDate(const Util::Time::Date &date) {
 }
 
 void TimeService::busyWait(const Util::Time::Timestamp &time) const {
-    auto end = getSystemTime().toMilliseconds() + time.toMilliseconds();
-
-    while (getSystemTime().toMilliseconds() < end) {
-        Service::getService<ProcessService>().getScheduler().yield();
-    }
-}
-
-Device::Rtc *TimeService::getRtc() {
-    return reinterpret_cast<Device::Rtc *>(dateProvider);
+    waitTimer->wait(time);
 }
 
 }

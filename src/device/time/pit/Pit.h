@@ -24,6 +24,8 @@
 #include "device/cpu/IoPort.h"
 #include "device/time/TimeProvider.h"
 #include "lib/util/time/Timestamp.h"
+#include "lib/util/async/Spinlock.h"
+#include "device/time/WaitTimer.h"
 
 namespace Kernel {
 enum InterruptVector : uint8_t;
@@ -32,16 +34,17 @@ struct InterruptFrame;
 
 namespace Device {
 
-class Pit : public Kernel::InterruptHandler, public TimeProvider {
+class Pit : public Kernel::InterruptHandler, public TimeProvider, public WaitTimer {
 
 public:
     /**
-     * Constructor.
+     * Constructor with interval rate.
+     * Configures the PIT to generate periodic interrupts at a given rate and drive the scheduler
      *
-     * @param timerInterval The interval (in milliseconds), at which the PIT shall handlePageFault interrupts.
-     * @param yieldInterval The interval (in milliseconds), at which the scheduler shall be yielded.
+     * @param timerInterval The interval at which the PIT shall trigger interrupts.
+     * @param yieldInterval The interval at which the scheduler shall be yielded.
      */
-    Pit(uint32_t timerInterval, uint32_t yieldInterval);
+    explicit Pit(const Util::Time::Timestamp &timerInterval, const Util::Time::Timestamp &yieldInterval);
 
     /**
      * Copy Constructor.
@@ -74,6 +77,11 @@ public:
     [[nodiscard]] Util::Time::Timestamp getTime() override;
 
     /**
+     * Overriding function from TimeProvider.
+     */
+    [[nodiscard]] bool isLocked() const override;
+
+    /**
      * Wait for a specified amount of time.
      *
      * Intended for usage before interrupts are enabled and the PIT has been initialized to
@@ -81,26 +89,76 @@ public:
      *
      * @param ms The delay in microseconds
      */
-    static void earlyDelay(uint16_t ms);
+    void wait(const Util::Time::Timestamp &waitTime) override;
 
     static const constexpr uint32_t BASE_FREQUENCY = 1193182;
 
 private:
 
+    enum BcdBinaryMode : uint8_t {
+        BINARY = 0x00,
+        BCD = 0x01
+    };
+
+    enum OperatingMode : uint8_t {
+        INTERRUPT_ON_TERMINAL_COUNT = 0x00,
+        ONE_SHOT = 0x01,
+        RATE_GENERATOR = 0x02,
+        SQUARE_WAVE_GENERATOR = 0x03,
+        SOFTWARE_TRIGGERED_STROBE = 0x04,
+        HARDWARE_TRIGGERED_STROBE = 0x05,
+    };
+
+    enum AccessMode : uint8_t {
+        LATCH_COUNT = 0x00,
+        LOW_BYTE_ONLY = 0x01,
+        HIGH_BYTE_ONLY = 0x02,
+        LOW_BYTE_HIGH_BYTE = 0x03
+    };
+
+    enum Channel : uint8_t  {
+        CHANNEL_0 = 0x00,
+        CHANNEL_1 = 0x01,
+        CHANNEL_2 = 0x02,
+        READ_BACK = 0x03
+    };
+
+    struct Command {
+        Command(OperatingMode operatingMode, AccessMode accessMode);
+
+        explicit operator uint8_t() const;
+
+    private:
+
+        BcdBinaryMode bcdBinaryMode: 1;
+        OperatingMode operatingMode: 3;
+        AccessMode accessMode: 2;
+        uint8_t channel: 2;
+    } __attribute__ ((packed));
+
+    uint16_t readTimer();
+
     /**
      * Sets the interval at which the PIT fires interrupts.
      *
-     * @param interval The interval in milliseconds
+     * @param interval The interval
      */
-    void setInterruptRate(uint32_t interval);
+    void setInterruptRate(const Util::Time::Timestamp &interval);
 
-    Util::Time::Timestamp time{};
-    uint32_t timerInterval = 0;
-    uint32_t yieldInterval;
+    void setDivisor(uint16_t divisor);
+
+    bool yield = false;
+    Util::Time::Timestamp time;
+    Util::Time::Timestamp timeSinceLastYield;
+    Util::Time::Timestamp timerInterval;
+    Util::Time::Timestamp yieldInterval;
 
     IoPort controlPort = IoPort(0x43);
     IoPort dataPort0 = IoPort(0x40);
 
+    Util::Async::Spinlock readTimerLock;
+
+    static const constexpr uint32_t NANOSECONDS_PER_TICK = 1000000000 / 1193182;
 };
 
 }

@@ -15,21 +15,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "PagingAreaManagerRefillRunnable.h"
+#ifndef HHUOS_WAITTIMER_H
+#define HHUOS_WAITTIMER_H
 
-#include "lib/util/async/Thread.h"
-#include "kernel/memory/PagingAreaManager.h"
 #include "lib/util/time/Timestamp.h"
 
-namespace Kernel {
+namespace Device {
 
-PagingAreaManagerRefillRunnable::PagingAreaManagerRefillRunnable(PagingAreaManager &pagingAreaManager) : pagingAreaManager(pagingAreaManager) {}
+class WaitTimer {
 
-void PagingAreaManagerRefillRunnable::run() {
-    while (true) {
-        pagingAreaManager.refillPool();
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
-    }
+public:
+    /**
+     * Default Constructor.
+     */
+    WaitTimer() = default;
+
+    /**
+     * Copy Constructor.
+     */
+    WaitTimer(const WaitTimer &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    WaitTimer &operator=(const WaitTimer &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    virtual ~WaitTimer() = default;
+
+    virtual void wait(const Util::Time::Timestamp &waitTime) = 0;
+};
+
 }
 
-}
+#endif

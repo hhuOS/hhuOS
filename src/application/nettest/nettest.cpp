@@ -60,7 +60,7 @@ int32_t receiveTraffic(Util::Network::Socket &socket){
 
     /** Start time with first received packet */
     Util::Time::Timestamp secondsPassed = Util::Time::getSystemTime();
-    secondsPassed.addSeconds(1);
+    secondsPassed += Util::Time::Timestamp::ofSeconds(1);
 
     Util::String receivedMessage = Util::String(firstReceivedDatagram.getData(), firstReceivedDatagram.getLength());
     packetsReceived++;
@@ -102,7 +102,7 @@ int32_t receiveTraffic(Util::Network::Socket &socket){
             /** reset bytes received */
             bytesReceivedInInterval = 0;
             /** set seconds to next second passed */
-            secondsPassed.addSeconds(1);
+            secondsPassed += Util::Time::Timestamp::ofSeconds(1);
         }
     }
     bytesReceived = bytesReceived + bytesReceivedInInterval;
@@ -142,8 +142,8 @@ int32_t sendTraffic(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4
     /** Set Interval End */
     Util::Time::Timestamp testFinishTime = Util::Time::getSystemTime();
     Util::Time::Timestamp secondsPassed = Util::Time::getSystemTime();
-    testFinishTime.addSeconds(timingInterval);
-    secondsPassed.addSeconds(1);
+    testFinishTime += Util::Time::Timestamp::ofSeconds(timingInterval);
+    secondsPassed += Util::Time::Timestamp::ofSeconds(1);
 
     Util::System::out   << "Start: " << Util::Time::getSystemTime().toSeconds() << "s - End: " << testFinishTime.toSeconds() << "s" << Util::Io::PrintStream::endl
                         << "----------------------------------------------" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
@@ -176,7 +176,7 @@ int32_t sendTraffic(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4
             /** reset Bytes send */
             bytesSendInInterval = 0;
             /** set seconds to next second passed */
-            secondsPassed.addSeconds(1);
+            secondsPassed += Util::Time::Timestamp::ofSeconds(1);
         }
     }
 

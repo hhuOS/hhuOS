@@ -31,24 +31,23 @@ struct InterruptFrame;
 
 namespace Device {
 
-Pit::Pit(uint32_t timerInterval, uint32_t yieldInterval) : yieldInterval(yieldInterval) {
+Pit::Pit(const Util::Time::Timestamp &timerInterval, const Util::Time::Timestamp &yieldInterval) : timerInterval(timerInterval), yieldInterval(yieldInterval) {
     setInterruptRate(timerInterval);
 }
 
-void Pit::setInterruptRate(uint32_t interval) {
-    auto divisor = static_cast<uint32_t>(BASE_FREQUENCY * (interval / 1000.0));
+void Pit::setInterruptRate(const Util::Time::Timestamp &interval) {
+    auto divisor = interval.toNanoseconds() / NANOSECONDS_PER_TICK;
     if (divisor > UINT16_MAX) divisor = UINT16_MAX;
 
-    timerInterval = static_cast<uint32_t>(1000000000 / (static_cast<double>(BASE_FREQUENCY) / divisor));
-    LOG_INFO("Setting PIT interval to [%ums] (Divisor: [%u])", timerInterval / 1000000 < 1 ? 1 : timerInterval / 1000000, divisor);
+    setDivisor(divisor);
+}
 
-    // For some reason, the PIT interrupt rate is doubled, when it is attached to an IO APIC (only in QEMU)
-    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
-    if (FirmwareConfiguration::isAvailable() && interruptService.usesApic()) {
-        divisor *= 2;
-    }
+void Pit::setDivisor(uint16_t divisor) {
+    timerInterval = Util::Time::Timestamp::ofNanoseconds(NANOSECONDS_PER_TICK * divisor);
+    LOG_INFO("Setting PIT interval to [%ums] (Divisor: [%u])", static_cast<uint32_t>(timerInterval.toMilliseconds() < 1 ? 1 : timerInterval.toMilliseconds()), divisor);
 
-    controlPort.writeByte(0x36); // Select channel 0, Use low-/high byte access mode, Set operating mode to rate generator
+    auto command = Command(OperatingMode::RATE_GENERATOR, AccessMode::LOW_BYTE_HIGH_BYTE);
+    controlPort.writeByte(static_cast<uint8_t>(command)); // Select channel 0, Use low-/high byte access mode, Set operating mode to rate generator
     dataPort0.writeByte((uint8_t) (divisor & 0xff)); // Low byte
     dataPort0.writeByte((uint8_t) (divisor >> 8)); // High byte
 }
@@ -60,11 +59,14 @@ void Pit::plugin() {
 }
 
 void Pit::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
-    time.addNanoseconds(timerInterval);
+    time += timerInterval;
 
-    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
-    if (!interruptService.usesApic() && time.toMilliseconds() % yieldInterval == 0) {
-        Kernel::Service::getService<Kernel::ProcessService>().getScheduler().yield();
+    if (!Kernel::Service::getService<Kernel::InterruptService>().usesApic()) {
+        timeSinceLastYield += timerInterval;
+        if (timeSinceLastYield > yieldInterval) {
+            timeSinceLastYield = Util::Time::Timestamp::ofMilliseconds(0);
+            Kernel::Service::getService<Kernel::ProcessService>().getScheduler().yield();
+        }
     }
 }
 
@@ -72,32 +74,43 @@ Util::Time::Timestamp Pit::getTime() {
     return time;
 }
 
-void Pit::earlyDelay(uint16_t ms) {
-    const auto counter = static_cast<uint32_t>((BASE_FREQUENCY / 1000) * ms);
-    const auto lowByte = static_cast<uint8_t>(counter & 0x00ff);
-    const auto highByte = static_cast<uint8_t>((counter & 0xff00) >> 8);
+void Pit::wait(const Util::Time::Timestamp &waitTime) {
+    auto elapsedTime = Util::Time::Timestamp();
+    auto lastTimerValue = readTimer();
 
-    asm volatile (
-            "mov $0x30, %%al;" // Channel 0, mode 0, low-/high byte access mode
-            "outb $0x43;" // Control port
+    while (elapsedTime < waitTime) {
+        auto timerValue = readTimer();
+        auto ticks = lastTimerValue >= timerValue ? lastTimerValue - timerValue : ((timerInterval.toNanoseconds() / NANOSECONDS_PER_TICK) - timerValue + lastTimerValue);
+        elapsedTime += Util::Time::Timestamp::ofNanoseconds(ticks * NANOSECONDS_PER_TICK);
 
-            // Set counter value
-            "mov (%0), %%al;" // Low byte
-            "outb $0x40;" // Data port
-            "mov (%1), %%al;" // High byte
-            "outb $0x40;" // Data port
+        lastTimerValue = timerValue;
+    }
+}
 
-            // Wait until output pin bit is set (counter reached 0)
-            "pit_delay_loop:" // Loop label
-            "mov $0xe2, %%al;" // Read status byte -> channel 0, mode 0, low-/high byte access mode
-            "outb $0x43;" // Control port
-            "inb $0x40;" // Data port
-            "test $0x80, %%al;" // Test bit 7 (output pin state)
-            "jz pit_delay_loop" // If bit 7 is not set -> loop
-            : :
-            "r"(&lowByte), "r"(&highByte)
-            : "al"
-            );
+bool Pit::isLocked() const {
+    return readTimerLock.isLocked();
+}
+
+uint16_t Pit::readTimer() {
+    const auto latchCountCommand = Command(OperatingMode::INTERRUPT_ON_TERMINAL_COUNT, AccessMode::LATCH_COUNT);
+
+    // We need to make sure, that no other thread is accessing the PIT, while the timer value is read.
+    // However, the scheduler relies on system time for updating its sleep list, potentially causing a deadlock.
+    // Circumventing the deadlock using `tryAcquire()` works, but messes up the scheduler's timing, leading to threads sleeping much longer than they anticipated.
+    // The best option so far is to just disable interrupts for a short amount of time, while reading the timer value.
+    readTimerLock.acquire();
+    controlPort.writeByte(static_cast<uint8_t>(latchCountCommand));
+    uint16_t lowByte = dataPort0.readByte();
+    uint16_t highByte = dataPort0.readByte();
+    readTimerLock.release();
+
+    return lowByte | (highByte << 8);
+}
+
+Pit::Command::Command(Pit::OperatingMode operatingMode, Pit::AccessMode accessMode) : bcdBinaryMode(BINARY), operatingMode(operatingMode), accessMode(accessMode), channel(CHANNEL_0) {}
+
+Pit::Command::operator uint8_t() const {
+    return *reinterpret_cast<const uint8_t*>(this);
 }
 
 }

@@ -155,7 +155,7 @@ void Scheduler::kill(Thread &thread) {
     }
 
     sleepQueueLock.acquire();
-    sleepList.remove(SleepEntry{&thread, 0});
+    sleepList.remove(SleepEntry{&thread, Util::Time::Timestamp()});
     sleepQueueLock.release();
 
     // Ready threads that are joining on the current thread
@@ -268,10 +268,9 @@ void Scheduler::unblock(Thread &thread) {
 }
 
 void Scheduler::sleep(const Util::Time::Timestamp &time) {
-    auto systemTime = Service::getService<TimeService>().getSystemTime().toMilliseconds();
-
     sleepQueueLock.acquire();
-    sleepList.add(SleepEntry{currentThread, systemTime + time.toMilliseconds()});
+    auto wakeupTime = Util::Time::getSystemTime() + time;
+    sleepList.add(SleepEntry{currentThread, wakeupTime});
     sleepQueueLock.release();
 
     block();
@@ -292,7 +291,7 @@ void Scheduler::join(const Thread& thread) {
 
 void Scheduler::checkSleepList() {
     if (sleepQueueLock.tryAcquire()) {
-        auto systemTime = Service::getService<TimeService>().getSystemTime().toMilliseconds();
+        auto systemTime = Service::getService<TimeService>().getSystemTime();
         for (uint32_t i = 0; i < sleepList.size(); i++) {
             const auto &entry = sleepList.get(i);
             if (systemTime >= entry.wakeupTime) {

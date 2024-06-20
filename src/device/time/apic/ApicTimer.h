@@ -72,7 +72,7 @@ public:
      * @param timerInterval The tick interval in milliseconds (10 milliseconds by default)
      * @param yieldInterval The preemption interval in milliseconds (10 milliseconds by default)
      */
-    ApicTimer(uint32_t timerInterval, uint32_t yieldInterval);
+    ApicTimer(Util::Time::Timestamp timerInterval, Util::Time::Timestamp yieldInterval);
 
     /**
      * Copy Constructor.
@@ -116,12 +116,13 @@ public:
 
 private:
     uint8_t cpuId;          // The id of the CPU that uses this timer.
-    uint32_t timerInterval; // The interrupt trigger interval in milliseconds.
-    uint32_t yieldInterval; // The preemption trigger interval in milliseconds.
+    Util::Time::Timestamp timerInterval; // The interrupt trigger interval in milliseconds.
+    Util::Time::Timestamp yieldInterval; // The preemption trigger interval in milliseconds.
+    Util::Time::Timestamp timeSinceLastYield;
 
     Util::Time::Timestamp time{}; // The "core-local" timestamp.
 
-    static uint32_t TICKS_PER_MILLISECOND; // The number of ticks the APIC timer does in 10 ms.
+    static uint32_t BASE_FREQUENCY; // The number of ticks the APIC timer does in 1 second
 };
 
 }

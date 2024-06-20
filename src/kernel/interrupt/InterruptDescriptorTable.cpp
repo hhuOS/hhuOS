@@ -308,14 +308,7 @@ InterruptDescriptorTable::GateDescriptor::GateDescriptor(uint32_t address, const
         offset2(static_cast<uint16_t>((address & 0xffff0000) >> 16)) {}
 
 InterruptDescriptorTable::GateDescriptor::operator uint64_t() const {
-    return static_cast<uint64_t>(offset1) |
-            static_cast<uint64_t>(segmentSelector) << 16 |
-            static_cast<uint64_t>(reserved1) << 32 |
-            static_cast<uint64_t>(gateType) << 40 |
-            static_cast<uint64_t>(reserved2) << 44 |
-            static_cast<uint64_t>(privilegeLevel) << 45 |
-            static_cast<uint64_t>(present) << 47 |
-            static_cast<uint64_t>(offset2) << 48;
+    return *reinterpret_cast<const uint64_t*>(this);
 }
 
 InterruptDescriptorTable::Descriptor InterruptDescriptorTable::getDescriptor() {

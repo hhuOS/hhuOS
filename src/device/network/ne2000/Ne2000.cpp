@@ -284,7 +284,7 @@ void Ne2000::handleOverwriteWarning() {
 
     /** Issue STOP Command and wait at least 1.6 ms */
     baseRegister.writeByte(COMMAND, STOP | PAGE0);
-    Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(2));
+    Util::Async::Thread::sleep(Util::Time::Timestamp::ofMicroseconds(1600));
 
     /** Clear RBCR Registers */
     baseRegister.writeByte(P0_RBCR0, 0);

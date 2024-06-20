@@ -44,7 +44,7 @@ public:
      *
      * @param timerInterval The interval (in milliseconds), at which RTC shall produce periodic interrupts (0 = disabled)
      */
-    explicit Rtc(uint32_t timerInterval = 0);
+    explicit Rtc(const Util::Time::Timestamp &timerInterval = Util::Time::Timestamp::ofMilliseconds(0));
 
     /**
      * Copy Constructor.
@@ -165,13 +165,13 @@ private:
     /**
      * Set the rate at which the RTC fires periodic interrupts.
      *
-     * @param interval The interval in milliseconds
+     * @param interval The interval
      */
-    void setInterruptRate(uint32_t interval);
+    void setInterruptRate(const Util::Time::Timestamp &interval);
 
     Util::Time::Timestamp time{};
     Util::Time::Date currentDate{};
-    uint32_t timerInterval = 0;
+    Util::Time::Timestamp timerInterval{};
 
     uint8_t centuryRegister = 0;
 
@@ -179,6 +179,8 @@ private:
     bool useTwelveHours;
 
     static const constexpr uint32_t BASE_FREQUENCY = 32768;
+    static const constexpr uint32_t NANOSECONDS_PER_TICK = 1000000000 / BASE_FREQUENCY;
+
     static const constexpr uint8_t CURRENT_CENTURY = 20;
 
     static const constexpr uint8_t INTERRUPT_UPDATE_ENDED = 0x10;

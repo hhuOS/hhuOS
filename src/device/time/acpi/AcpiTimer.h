@@ -15,43 +15,54 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_TIMEPROVIDER_H
-#define HHUOS_TIMEPROVIDER_H
+#ifndef HHUOS_ACPITIMER_H
+#define HHUOS_ACPITIMER_H
 
 #include <cstdint>
+#include "device/cpu/IoPort.h"
 #include "lib/util/time/Timestamp.h"
+#include "device/time/WaitTimer.h"
+#include "kernel/interrupt/InterruptHandler.h"
 
 namespace Device {
 
-class TimeProvider {
+class AcpiTimer : public WaitTimer {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    TimeProvider() = default;
+    AcpiTimer();
 
     /**
      * Copy Constructor.
      */
-    TimeProvider(const TimeProvider &other) = delete;
+    AcpiTimer(const AcpiTimer &other) = delete;
 
     /**
      * Assignment operator.
      */
-    TimeProvider &operator=(const TimeProvider &other) = delete;
+    AcpiTimer &operator=(const AcpiTimer &other) = delete;
 
     /**
      * Destructor.
      */
-    virtual ~TimeProvider() = default;
+    ~AcpiTimer() override = default;
 
-    [[nodiscard]] virtual Util::Time::Timestamp getTime() = 0;
+    static bool isAvailable();
 
-    [[nodiscard]] virtual bool isLocked() const {
-        return false;
-    }
+    uint32_t readTimer();
 
+    void wait(const Util::Time::Timestamp &waitTime) override;
+
+private:
+
+    IoPort timerPort = IoPort(0);
+
+    uint32_t maxValue = UINT32_MAX;
+
+    static const constexpr uint32_t FREQUENCY = 3579545;
+    static const constexpr uint32_t NANOSECONDS_PER_TICK = 1000000000 / FREQUENCY;
 };
 
 }
