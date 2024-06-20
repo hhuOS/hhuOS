@@ -505,22 +505,27 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     auto *timeService = new Kernel::TimeService(waitTimer, pit, rtc);
     Kernel::Service::registerService(Kernel::TimeService::SERVICE_ID, timeService);
 
+    // Initialize classic PIC
+    LOG_INFO("Initializing PIC");
+    auto *pic = new Device::Pic();
+    interruptService->usePic(pic);
+
+    // Check if APIC exists and initialize it
     if (multiboot->getKernelOption("apic", "true") == "true" && Device::Apic::isAvailable()) {
         LOG_INFO("APIC detected");
         auto *apic = Device::Apic::initialize();
         if (apic == nullptr) {
-            LOG_WARN("Failed to initialize APIC");
+            LOG_WARN("Failed to initialize APIC -> Falling back to PIC");
         } else {
             interruptService->useApic(apic);
+            apic->startCurrentTimer();
+
+            if (apic->isSymmetricMultiprocessingSupported()) {
+                apic->startupApplicationProcessors();
+            }
         }
     } else {
-        LOG_INFO("APIC not available");
-    }
-
-    if (!interruptService->usesApic()) {
-        LOG_INFO("Falling back to classic PIC for interrupt handling");
-        auto *pic = new Device::Pic();
-        interruptService->usePic(pic);
+        LOG_INFO("APIC not available -> Falling back to PIC");
     }
 
     // Create thread to refill block pool of paging area manager
@@ -550,15 +555,6 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     pit->plugin();
     if (rtc != nullptr) {
         rtc->plugin();
-    }
-
-    if (interruptService->usesApic()) {
-        auto &apic = interruptService->getApic();
-        apic.startCurrentTimer();
-
-        if (apic.isSymmetricMultiprocessingSupported()) {
-            apic.startupApplicationProcessors();
-        }
     }
 
     // Scan PCI bus

@@ -31,63 +31,16 @@ struct InterruptFrame;
 
 #define CAT(a,b) a##b
 
-#define ENTER_INTERRUPT_HANDLER \
-    asm volatile( \
-    "push %ds;" \
-    "push %es;" \
-    "push %fs;" \
-    "push %gs;" \
-    "push %eax;" \
-    "mov $0x10, %eax;" \
-    "mov %eax, %ds;" \
-    "mov %eax, %es;" \
-    "mov %eax, %fs;" \
-    "mov %eax, %gs;" \
-    "pop %eax;" \
-    ); \
-    frame = *reinterpret_cast<InterruptFrame**>(reinterpret_cast<uint8_t*>(&frame) + 4 * sizeof(uint32_t)); \
-
-#define ENTER_INTERRUPT_HANDLER_WITH_ERROR_CODE \
-    asm volatile( \
-    "push %ds;" \
-    "push %es;" \
-    "push %fs;" \
-    "push %gs;" \
-    "push %eax;" \
-    "mov $0x10, %eax;" \
-    "mov %eax, %ds;" \
-    "mov %eax, %es;" \
-    "mov %eax, %fs;" \
-    "mov %eax, %gs;" \
-    "pop %eax;" \
-    ); \
-    frame = *reinterpret_cast<InterruptFrame**>(reinterpret_cast<uint8_t*>(&frame) + 4 * sizeof(uint32_t)); \
-    errorCode = *reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(&errorCode) + 0x10);
-
-#define LEAVE_INTERRUPT_HANDLER \
-    asm volatile( \
-    "pop %ds;" \
-    "pop %es;" \
-    "pop %fs;" \
-    "pop %gs;" \
-    );
-
 #define INTERRUPT_HANDLER(VECTOR, HANDLER) __attribute__ ((interrupt)) static void CAT(handleInterrupt, VECTOR)(InterruptFrame *frame) { \
-         ENTER_INTERRUPT_HANDLER \
          HANDLER(*frame, static_cast<InterruptVector>(VECTOR));\
-         LEAVE_INTERRUPT_HANDLER \
     }
 
 #define EXCEPTION_HANDLER(VECTOR, HANDLER) __attribute__ ((interrupt)) static void CAT(handleInterrupt, VECTOR)(InterruptFrame *frame) { \
-         ENTER_INTERRUPT_HANDLER \
          HANDLER(*frame, 0, static_cast<InterruptVector>(VECTOR));\
-         LEAVE_INTERRUPT_HANDLER \
     }
 
 #define EXCEPTION_HANDLER_WITH_ERROR_CODE(VECTOR, HANDLER) __attribute__ ((interrupt)) static void CAT(handleInterrupt, VECTOR)(InterruptFrame *frame, uint32_t errorCode) { \
-         ENTER_INTERRUPT_HANDLER_WITH_ERROR_CODE \
          HANDLER(*frame, errorCode, static_cast<InterruptVector>(VECTOR));\
-         LEAVE_INTERRUPT_HANDLER \
     }
 
 #define SET_IDT_ENTRY(IDT, INDEX, HANDLER) IDT[INDEX] = GateDescriptor(reinterpret_cast<uint32_t>(HANDLER), Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 1), GateType::INTERRUPT_32, Device::Cpu::PrivilegeLevel::Ring0);
