@@ -74,6 +74,8 @@ private:
 
     void handleBackspace();
 
+    void handleDel();
+
     void handleTab();
 
     void handlePos1();

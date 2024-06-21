@@ -118,6 +118,10 @@ void Shell::readLine() {
                 currentLine = currentLine.strip();
                 return;
             }
+            case 0x7f:
+                Util::Graphic::Ansi::enableCanonicalMode();
+                handleDel();
+                Util::Graphic::Ansi::enableRawMode();
             case 0x00 ... 0x06:
             case 0x0b ... 0x1f:
                 break;
@@ -440,6 +444,19 @@ void Shell::handleBackspace() {
     cursorPosition = Util::Graphic::Ansi::getCursorPosition();
 
     auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
+    auto preCursor = currentLine.substring(0, (cursorPosition.row - startPosition.row) * (cursorLimits.column + 1) + cursorPosition.column - startPosition.column);
+    auto afterCursor = currentLine.substring(((cursorPosition.row - startPosition.row) * (cursorLimits.column + 1) + cursorPosition.column - startPosition.column) + 1, currentLine.length());
+
+    currentLine = preCursor + afterCursor;
+
+    Util::System::out << afterCursor << ' ' << Util::Io::PrintStream::flush;
+    Util::Graphic::Ansi::setPosition(cursorPosition);
+}
+
+void Shell::handleDel() {
+    auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
+    auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
+
     auto preCursor = currentLine.substring(0, (cursorPosition.row - startPosition.row) * (cursorLimits.column + 1) + cursorPosition.column - startPosition.column);
     auto afterCursor = currentLine.substring(((cursorPosition.row - startPosition.row) * (cursorLimits.column + 1) + cursorPosition.column - startPosition.column) + 1, currentLine.length());
 

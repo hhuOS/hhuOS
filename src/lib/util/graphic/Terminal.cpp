@@ -519,20 +519,22 @@ void Terminal::KeyboardRunnable::run() {
                             terminal.outputStream.write(reinterpret_cast<const uint8_t *>("\u001b[1A"), 0, 4);
                             break;
                         case Io::Key::DOWN:
-                            terminal.outputStream.write(reinterpret_cast<const uint8_t *>("\u001b[1B"), 0, 4);
+                            terminal.outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1B"), 0, 4);
                             break;
                         case Io::Key::RIGHT:
-                            terminal.outputStream.write(reinterpret_cast<const uint8_t *>("\u001b[1C"), 0, 4);
+                            terminal.outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1C"), 0, 4);
                             break;
                         case Io::Key::LEFT:
-                            terminal.outputStream.write(reinterpret_cast<const uint8_t *>("\u001b[1D"), 0, 4);
+                            terminal.outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1D"), 0, 4);
                             break;
                         case Io::Key::END:
-                            terminal.outputStream.write(reinterpret_cast<const uint8_t *>("\u001b[1F"), 0, 4);
+                            terminal.outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1F"), 0, 4);
                             break;
                         case Io::Key::POS1:
-                            terminal.outputStream.write(reinterpret_cast<const uint8_t *>("\u001b[1H"), 0, 4);
+                            terminal.outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1H"), 0, 4);
                             break;
+                        case Io::Key::DEL:
+                            terminal.outputStream.write(0x7f);
                     }
                 } else {
                     if (key.getCtrl()) {
