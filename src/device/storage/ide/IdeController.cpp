@@ -283,10 +283,10 @@ IdeDevice* IdeController::identifyDrive(uint8_t channel, uint8_t drive) {
         info.commandSets[j] = *(buffer + COMMAND_SETS + j);
     }
 
-    if ((info.commandSets[1] & 0x400) == 0x400) {
+    if (info.commandSets[1] & 0x400) {
         // LBA48 supported
         info.addressing = LBA48;
-    } else if ((info.capabilities & 0x100) == 0x100) {
+    } else if (info.capabilities & 0x200) {
         // LBA28 supported
         info.addressing = LBA28;
     } else {
