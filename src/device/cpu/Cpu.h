@@ -59,6 +59,8 @@ public:
 
         SegmentSelector(Cpu::PrivilegeLevel privilegeLevel, uint8_t index);
 
+        SegmentSelector(uint16_t selectorBits);
+
         explicit operator uint16_t() const;
 
     private:
@@ -165,7 +167,9 @@ public:
         RESERVED_11 = 0x1F,
     };
 
-    static void setSegmentRegister(SegmentRegister reg, const SegmentSelector &selector);
+    static void writeSegmentRegister(SegmentRegister reg, const SegmentSelector &selector);
+
+    static SegmentSelector readSegmentRegister(SegmentRegister reg);
 
 private:
     /**
