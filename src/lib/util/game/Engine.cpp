@@ -68,7 +68,7 @@ Engine::~Engine() {
 
 void Engine::run() {
     const auto delta = 1.0 / targetFrameRate;
-    const auto deltaMilliseconds = static_cast<uint32_t>(delta * 1000);
+    const auto deltaMicroseconds = static_cast<uint64_t>(delta * 1000000);
 
     Graphic::Ansi::prepareGraphicalApplication(true);
     initializeNextScene();
@@ -83,7 +83,7 @@ void Engine::run() {
 
         statistics.startFrameTime();
         statistics.startUpdateTime();
-        double frameTime = statistics.getLastFrameTime() / 1000.0;
+        double frameTime = static_cast<double>(statistics.getLastFrameTime().toMicroseconds()) / 1000000;
 
         checkKeyboard();
         checkMouse();
@@ -106,14 +106,12 @@ void Engine::run() {
         statistics.stopDrawTime();
 
         statistics.startIdleTime();
-        const auto drawTime = statistics.getLastDrawTime();
-        const auto updateTime = statistics.getLastUpdateTime();
-        if (drawTime + updateTime < deltaMilliseconds) {
-            Async::Thread::sleep(Time::Timestamp::ofMilliseconds(deltaMilliseconds - (drawTime + updateTime)));
+        const auto renderTime = statistics.getLastDrawTime() + statistics.getLastUpdateTime();
+        if (renderTime.toMicroseconds() < deltaMicroseconds) {
+            Async::Thread::sleep(Time::Timestamp::ofMicroseconds(deltaMicroseconds - renderTime.toMicroseconds()));
         }
         statistics.stopIdleTime();
 
-        statistics.incFrames();
         statistics.stopFrameTime();
     }
 }
@@ -137,9 +135,9 @@ void Engine::initializeNextScene() {
 
 void Engine::updateStatus() {
     statusUpdateTimer += statistics.getLastFrameTime();
-    if (statusUpdateTimer > 1000) {
+    if (statusUpdateTimer > Time::Timestamp::ofSeconds(1)) {
         status = statistics.gather();
-        statusUpdateTimer = 0;
+        statusUpdateTimer.reset();
     }
 }
 
@@ -153,8 +151,8 @@ void Engine::drawStatus() {
     auto heapUsedK = (heapUsed - heapUsedM * 1000 * 1000) / 1000;
 
     graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawString(statisticsFont, Math::Vector2D(10, 10), String::format("FPS: %u", status.fps));
-    graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight), String::format("D: %ums | U: %ums | I: %ums", status.drawTime, status.updateTime, status.idleTime));
+    graphics.drawString(statisticsFont, Math::Vector2D(10, 10), String::format("FPS: %u", status.framesPerSecond));
+    graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight), String::format("D: %ums | U: %ums | I: %ums", static_cast<uint32_t>(status.drawTime.toMilliseconds()), static_cast<uint32_t>(status.updateTime.toMilliseconds()), static_cast<uint32_t>(status.idleTime.toMilliseconds())));
     graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight * 2), String::format("Objects: %u | Edges: %u/%u", game.getCurrentScene().getObjectCount(), graphics.drawnEdgeCounter, graphics.edgeCounter));
     graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight * 3), String::format("Heap used: %u.%03u MB", heapUsedM, heapUsedK));
     graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight * 4), String::format("Resolution: %ux%u@%u", graphics.lfb.getResolutionX(), graphics.lfb.getResolutionY(), graphics.lfb.getColorDepth()));

@@ -83,73 +83,70 @@ private:
     struct Statistics {
 
         struct Gather {
-            uint32_t fps = 0;
-            uint32_t frameTime = 0;
-            uint32_t drawTime = 0;
-            uint32_t updateTime = 0;
-            uint32_t idleTime = 0;
+            uint32_t framesPerSecond = 0;
+            Time::Timestamp frameTime;
+            Time::Timestamp drawTime;
+            Time::Timestamp updateTime;
+            Time::Timestamp idleTime;
         };
 
-        void incFrames() {
-            frames++;
-        }
-
         void startFrameTime() {
-            frameTimeStart = Time::getSystemTime().toMilliseconds();
+            frameTimeStart = Time::getSystemTime();
         }
 
         void stopFrameTime() {
-            const uint32_t frameTime = Time::getSystemTime().toMilliseconds() - frameTimeStart;
+            const auto frameTime = Time::getSystemTime() - frameTimeStart;
             frameTimes[frameTimesIndex++ % ARRAY_SIZE] = frameTime;
+            frames++;
 
             timeCounter += frameTime;
-            if (timeCounter >= 1000) {
-                fps = frames;
+            if (timeCounter >= Time::Timestamp::ofSeconds(1)) {
+                framesPerSecond = frames;
                 frames = 0;
-                timeCounter = 0;
+                timeCounter.reset();
             }
         }
 
         void startDrawTime() {
-            drawTimeStart = Time::getSystemTime().toMilliseconds();
+            drawTimeStart = Time::getSystemTime();
         }
 
         void stopDrawTime() {
-            drawTimes[drawTimesIndex++ % ARRAY_SIZE] = Time::getSystemTime().toMilliseconds() - drawTimeStart;
+            drawTimes[drawTimesIndex++ % ARRAY_SIZE] = Time::getSystemTime() - drawTimeStart;
         }
 
         void startUpdateTime() {
-            updateTimeStart = Time::getSystemTime().toMilliseconds();
+            updateTimeStart = Time::getSystemTime();
         }
 
         void stopUpdateTimeTime() {
-            updateTimes[updateTimesIndex++ % ARRAY_SIZE] = Time::getSystemTime().toMilliseconds() - updateTimeStart;
+            updateTimes[updateTimesIndex++ % ARRAY_SIZE] = Time::getSystemTime() - updateTimeStart;
         }
 
         void startIdleTime() {
-            idleTimeStart = Time::getSystemTime().toMilliseconds();
+            idleTimeStart = Time::getSystemTime();
         }
 
         void stopIdleTime() {
-            idleTimes[idleTimesIndex++ % ARRAY_SIZE] = Time::getSystemTime().toMilliseconds() - idleTimeStart;
+            idleTimes[idleTimesIndex++ % ARRAY_SIZE] = Time::getSystemTime() - idleTimeStart;
         }
 
-        uint32_t getLastFrameTime() {
+        [[nodiscard]] const Time::Timestamp& getLastFrameTime() const {
             const auto index = frameTimesIndex % ARRAY_SIZE;
             return frameTimes[index == 0 ? ARRAY_SIZE - 1 : index - 1];
         }
 
-        uint32_t getLastDrawTime() {
+        [[nodiscard]] const Time::Timestamp& getLastDrawTime() const {
             const auto index = drawTimesIndex % ARRAY_SIZE;
             return drawTimes[index == 0 ? ARRAY_SIZE - 1 : index - 1];
         }
 
-        uint32_t getLastUpdateTime() {
+        [[nodiscard]] const Time::Timestamp& getLastUpdateTime() const {
             const auto index = updateTimesIndex % ARRAY_SIZE;
             return updateTimes[index == 0 ? ARRAY_SIZE - 1 : index - 1];
         }
 
-        [[nodiscard]] Gather gather() {
+        [[nodiscard]] Gather gather() const {
             Gather gather{};
             uint32_t count = frameTimesIndex < ARRAY_SIZE ? frameTimesIndex : ARRAY_SIZE;
 
@@ -161,11 +158,11 @@ private:
                     gather.idleTime += idleTimes[i];
                 }
 
-                gather.fps = fps;
-                gather.frameTime /= count;
-                gather.drawTime /= count;
-                gather.updateTime /= count;
-                gather.idleTime /= count;
+                gather.framesPerSecond = framesPerSecond;
+                gather.frameTime = Time::Timestamp::ofMicroseconds(gather.frameTime.toMicroseconds() / count);
+                gather.drawTime = Time::Timestamp::ofMicroseconds(gather.drawTime.toMicroseconds() / count);
+                gather.updateTime = Time::Timestamp::ofMicroseconds(gather.updateTime.toMicroseconds() / count);
+                gather.idleTime = Time::Timestamp::ofMicroseconds(gather.idleTime.toMicroseconds() / count);
             }
 
             return gather;
@@ -175,23 +172,23 @@ private:
         static const constexpr uint32_t ARRAY_SIZE = 100;
 
         uint32_t frames = 0;
-        uint32_t fps = 0;
-        uint32_t timeCounter = 0;
+        uint32_t framesPerSecond = 0;
+        Time::Timestamp timeCounter;
 
-        uint32_t frameTimes[ARRAY_SIZE]{};
-        uint32_t drawTimes[ARRAY_SIZE]{};
-        uint32_t updateTimes[ARRAY_SIZE]{};
-        uint32_t idleTimes[ARRAY_SIZE]{};
+        Time::Timestamp frameTimes[ARRAY_SIZE]{};
+        Time::Timestamp drawTimes[ARRAY_SIZE]{};
+        Time::Timestamp updateTimes[ARRAY_SIZE]{};
+        Time::Timestamp idleTimes[ARRAY_SIZE]{};
 
         uint32_t frameTimesIndex = 0;
         uint32_t drawTimesIndex = 0;
         uint32_t updateTimesIndex = 0;
         uint32_t idleTimesIndex = 0;
 
-        uint32_t frameTimeStart = 0;
-        uint32_t drawTimeStart = 0;
-        uint32_t updateTimeStart = 0;
-        uint32_t idleTimeStart = 0;
+        Time::Timestamp frameTimeStart;
+        Time::Timestamp drawTimeStart;
+        Time::Timestamp updateTimeStart;
+        Time::Timestamp idleTimeStart;
     };
 
     void initializeNextScene();
@@ -211,7 +208,7 @@ private:
     Statistics statistics;
 
     bool showStatus = false;
-    uint32_t statusUpdateTimer = 0;
+    Time::Timestamp statusUpdateTimer;
     Statistics::Gather status = statistics.gather();
 
     Util::Io::FileInputStream *mouseInputStream;

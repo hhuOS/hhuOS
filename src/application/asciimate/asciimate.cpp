@@ -42,12 +42,12 @@ static const constexpr uint16_t DEFAULT_FPS = 15;
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
-    argumentParser.addArgument("fps", false, "f");
+    argumentParser.addArgument("framesPerSecond", false, "f");
     argumentParser.setHelpText("Play asciimation movies from text-files.\n"
                                "See https://http://www.asciimation.co.nz for more information\n"
                                "Usage: asciimate [FILE]\n"
                                "Options:\n"
-                               "  -f, --fps: Set the target framerate (Default: 15)\n"
+                               "  -f, --framesPerSecond: Set the target framerate (Default: 15)\n"
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
@@ -84,7 +84,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto charWidth = font.getCharWidth();
     auto charHeight = font.getCharHeight();
 
-    double fps = argumentParser.hasArgument("fps") ? Util::String::parseInt(argumentParser.getArgument("fps")) : DEFAULT_FPS;
+    double fps = argumentParser.hasArgument("framesPerSecond") ? Util::String::parseInt(argumentParser.getArgument("framesPerSecond")) : DEFAULT_FPS;
     uint16_t rows = Util::String::parseInt(frameInfo[0]);
     uint16_t columns = Util::String::parseInt(frameInfo[1]);
     uint16_t frameStartX = (((lfb.getResolutionX() / charWidth) - columns) / 2) * charWidth;
