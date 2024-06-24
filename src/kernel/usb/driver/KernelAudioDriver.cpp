@@ -89,8 +89,8 @@ bool Kernel::Usb::Driver::KernelAudioDriver::close_audio_stream(AudioDev* audio_
   Interface* as_streaming){
   __IF_RET_SELF__(__IS_NEG_ONE__(__STRUCT_CALL__(driver, 
     __has_zero_bandwidth_setting, audio_dev->usb_dev, as_streaming)), false);
-  __IF_RET_SELF__(__STRUCT_CALL__(driver, 
-    __is_zero_bandwidth_active, audio_dev->usb_dev, as_streaming), false);
+  __IF_RET_SELF__((__STRUCT_CALL__(driver, 
+    __is_zero_bandwidth_active, audio_dev->usb_dev, as_streaming) == 1), false);
   __STRUCT_CALL__(audio_dev->usb_dev, request_switch_alternate_setting,
     as_streaming, 0);
   if(audio_dev->usb_dev->error_while_transfering){
