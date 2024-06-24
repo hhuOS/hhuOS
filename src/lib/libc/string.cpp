@@ -120,6 +120,7 @@ size_t strspn(const char* dest, const char* src) {
 		dest++;
 		ret++;
 	}
+	return ret;
 }
 
 //number of initial character in dest that don't appear in src
@@ -130,6 +131,7 @@ size_t strcspn(const char *dest, const char * src) {
 		dest++;
 		ret++;
 	}
+	return ret;
 }
 
 //return pointer to first char in dest that appears in breakset

@@ -7,8 +7,19 @@
 	 EILSEQ = 3 //illegal byte sequence
  } errno_val_t;
  
-extern "C" void setErrno(errno_val_t val);
-extern "C" errno_val_t getErrno();
+ 
+ 
+ #ifdef __cplusplus
+extern "C" {
+#endif
+ 
+void setErrno(errno_val_t val);
+errno_val_t getErrno();
+
+
+#ifdef __cplusplus
+}
+#endif
  
 #define errno getErrno()
  

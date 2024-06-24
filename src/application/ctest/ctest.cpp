@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <locale.h>
+#include <setjmp.h>
 
 #include "lib/util/base/System.h"
 #include "lib/util/base/String.h"
@@ -13,8 +15,34 @@ int intComp(const void* a, const void* b) {
 	return (*(int*)a) - (*(int*)b);
 }
 
+
+jmp_buf jbuf;
+void longjmp_test() {
+	longjmp(jbuf, 0);
+}
+
 int32_t main(int32_t argc, char *argv[]) {
 	bool t;
+	
+	//Test locale
+	Util::System::out << "----- locale.h"<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "Current monetary name/symbol: " <<localeconv()->currency_symbol<<"/"<<localeconv()->int_curr_symbol<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "Current decimal seperator: " <<localeconv()->decimal_point<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	
+	
+	//Test setjmp 
+	
+	Util::System::out << "----- setjmp.h"<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	if (setjmp(jbuf) == 0) {
+		Util::System::out << "Calling setjmp"<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+		longjmp_test();
+	} else {
+		Util::System::out << "Returned from longjmp"<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	}
+	
+	
+	Util::System::in.readLine(t);
+	
 	
 	//Test math
 	Util::System::out << "----- math.h"<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
@@ -47,6 +75,7 @@ int32_t main(int32_t argc, char *argv[]) {
 	Util::System::out << "modf 13.245: "<< r2 <<" "<<r<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	
 	Util::System::in.readLine(t);
+	
 	
 	//Test stdlib 
 	Util::System::out << "----- stdlib.h" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;

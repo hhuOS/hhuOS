@@ -32,4 +32,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/libc/stdlib.cpp
 		${HHUOS_SRC_DIR}/lib/libc/string.cpp	
 		${HHUOS_SRC_DIR}/lib/libc/math.cpp
+		${HHUOS_SRC_DIR}/lib/libc/locale.cpp
+		${HHUOS_SRC_DIR}/lib/libc/setjmp.asm
 		)
