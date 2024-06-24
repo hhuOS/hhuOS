@@ -18,7 +18,7 @@
 #include "KeyDecoder.h"
 
 #include "lib/util/io/key/Key.h"
-#include "InputEvents.h"
+#include "lib/util/usb/input/InputEvents.h"
 
 namespace Util::Io {
 
