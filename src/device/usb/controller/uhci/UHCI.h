@@ -85,6 +85,7 @@
     __SUPER__(uhci, handler_function)          = &handler_function_uhci; \
     __SUPER__(uhci, runnable_function)         = &runnable_function_uhci; \
     __SUPER__(uhci, iso_ext)                   = &iso_transfer_ext; \
+    __SUPER__(uhci, reset_transfer)            = &reset_transfer_uhci; \
     \
     __ENTRY__(uhci, dump_uhci_entry)               = &dump_uhci_entry; \
     __ENTRY__(uhci, request_frames)                = &request_frames; \
@@ -234,12 +235,12 @@
   _UHCI *uhci = (_UHCI *)container_of(controller, _UHCI, super); \
   UsbDev *dev = \
     (UsbDev *)__STRUCT_CALL__(controller->interface_dev_map, get_c, interface); \
-  __IF_SINGLE_RET__(__IS_NULL__(dev), callback(0, interface, E_INTERFACE_NOT_SUPPORTED, data)) \
-  __IF_SINGLE_RET__(!__STRUCT_CALL__(dev, support_function, interface), \
-    callback(dev, interface, E_NOT_SUPPORTED_TRANSFER_TYPE, data)) \
-  __IF_SINGLE_RET__(__NEG_CHECK__((shifted_prio = \
-    __STRUCT_CALL__(uhci, is_valid_priority, dev, priority, callback))), \
-    callback(dev, interface, E_PRIORITY_NOT_SUPPORTED, data))
+  __IF_CUSTOM__(__IS_NULL__(dev), callback(0, interface, E_INTERFACE_NOT_SUPPORTED, data); return __RET_N__); \
+  __IF_CUSTOM__(!__STRUCT_CALL__(dev, support_function, interface), \
+    callback(dev, interface, E_NOT_SUPPORTED_TRANSFER_TYPE, data); return __RET_N__); \
+  __IF_CUSTOM__(__NEG_CHECK__((shifted_prio = \
+    __STRUCT_CALL__(uhci, is_valid_priority, dev, priority))), \
+      callback(dev, interface, E_PRIORITY_NOT_SUPPORTED, data); return __RET_N__)
 
 #define __UHCI_CONTAINER__(controller, name) \
     _UHCI* name = (_UHCI*)container_of(controller, _UHCI, super)
@@ -294,8 +295,7 @@ struct _UHCI {
                         callback_function callback, uint8_t flags);
   uint32_t (*iso_transfer)(struct _UHCI* uhci, UsbDev* dev, void* data, unsigned int len,
     uint16_t interval, uint8_t priority, Interface* interface, Endpoint* e, callback_function callback, uint16_t flags);
-  int16_t (*is_valid_priority)(struct _UHCI *uhci, UsbDev *dev,
-                               uint8_t priority, callback_function callback);
+  int16_t (*is_valid_priority)(struct _UHCI *uhci, UsbDev *dev, uint8_t priority);
   void (*init_maps)(struct _UHCI *uhci, MemoryService_C *m);
   void (*create_dev)(struct _UHCI *uhci, int16_t status, int pn,
                      MemoryService_C *m);

@@ -82,8 +82,7 @@ static UsbTransfer *build_other_type_transfer(_UHCI *uhci, UsbDev *dev, void *da
                                      Endpoint *e, unsigned int len,
                                      const char *type, uint8_t flags);
 static int uhci_contain_interface(UsbController *controller, Interface *interface);
-static int16_t is_valid_priority(_UHCI *uhci, UsbDev *dev, uint8_t priority,
-                          callback_function callback);
+static int16_t is_valid_priority(_UHCI *uhci, UsbDev *dev, uint8_t priority);
 static UsbControllerType is_of_type_uhci(UsbController *controller);
 static uint16_t uhci_reset_port(UsbController *controller, uint8_t port);
 static void init_maps(_UHCI *uhci, MemoryService_C *m);
@@ -129,6 +128,7 @@ static int fast_buffer_change_uhci(struct UsbController* controller, UsbDev* dev
 static uint32_t iso_transfer_ext(UsbController* uhci, Interface* interface, 
   Endpoint* e, void* data, unsigned int len,
   uint16_t interval, uint8_t priority, callback_function callback);
+static int reset_transfer_uhci(UsbController* controller, uint32_t transfer_id);
 
 static inline void __assign_fba(_UHCI* uhci, MemoryService_C* m, 
                                 uint32_t* frame_list) {
@@ -222,8 +222,12 @@ static inline QH* __follow_schedule(_UHCI* uhci, MemoryService_C* m, QH* current
          ((current->flags & PRIORITY_QH_MASK) >= priority)) {
     if(((current->flags & QH_FLAG_IS_MASK) == QH_FLAG_IS_QH) && 
       ((current->flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_INTERRUPT) &&
-      type_flag == QH_FLAG_TYPE_ISO) return current;
-    current = __GET_VIRTUAL__(m, __QHLP_ADDR__(current), QH);
+      type_flag == QH_FLAG_TYPE_ISO) return  (__GET_VIRTUAL__(m, current->parent, QH));
+    current = __GET_VIRTUAL__(m, __QHLP_ADDR__(current), QH); 
+  }
+  if(((current->flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_INTERRUPT)
+    && (type_flag == QH_FLAG_TYPE_ISO)){
+    current = (__GET_VIRTUAL__(m, current->parent, QH));
   }
   return current;
 }
@@ -965,6 +969,13 @@ static int remove_transfer_uhci(UsbController* controller, uint32_t transfer_id)
   return __RET_S__;
 }
 
+static int reset_transfer_uhci(UsbController* controller, uint32_t transfer_id){
+  _UHCI* uhci = (_UHCI*)container_of(controller, _UHCI, super);
+  QH* qh = __find_qh_in_skeleton_by_id(uhci, transfer_id);
+  __IF_RET_ZERO__(__IS_NULL__(qh));
+  return __STRUCT_CALL__(uhci, retransmission, qh);
+}
+
 static int fast_buffer_change_uhci(struct UsbController* controller, UsbDev* dev, 
   Endpoint* endpoint, uint32_t qh_id, void* buffer){
   __MEM_SERVICE__(controller->mem_service, m);
@@ -986,10 +997,10 @@ static int fast_buffer_change_uhci(struct UsbController* controller, UsbDev* dev
 /*Interface* lock_interface(_UHCI* uhci, UsbDev* dev, unsigned int
 interface_num){ return dev->usb_dev_interface_lock(dev, interface_num);
 }*/
-
+/* @deprecated moved into device layer
 static void free_interface(_UHCI *uhci, UsbDev *dev, Interface *interface) {
   __STRUCT_CALL__(dev, usb_dev_free_interface, interface);
-}
+} */
 
 static int uhci_contain_interface(UsbController *controller, Interface *interface) {
   return __IF_EXT__(__STRUCT_CALL__(controller->interface_dev_map, get_c, interface) == 0,
@@ -1013,8 +1024,8 @@ static uint32_t init_interrupt_transfer(UsbController *controller, Interface *in
                              callback_function callback) {
   int16_t mqh;
   __TRANSFER_INITIALIZER__(controller, support_interrupt, interface, priority, callback);
-  __IF_SINGLE_RET__(__NEG_CHECK__((mqh = __STRUCT_CALL__(uhci, is_valid_interval, dev, 
-    interval))), callback(dev, interface, E_INVALID_INTERVAL, data));
+  __IF_CUSTOM__(__NEG_CHECK__((mqh = __STRUCT_CALL__(uhci, is_valid_interval, dev, 
+    interval))), callback(dev, interface, E_INVALID_INTERVAL, data); return __RET_N__);
   return __STRUCT_CALL__(dev, usb_dev_interrupt, interface, pipe, (uint16_t)shifted_prio,
     data, len, (uint8_t)mqh, callback);
 }
@@ -1052,8 +1063,7 @@ static int16_t is_valid_interval(_UHCI *uhci, UsbDev *dev, uint16_t interval) {
   return mqh;
 }
 
-static int16_t is_valid_priority(_UHCI *uhci, UsbDev *dev, uint8_t priority,
-                          callback_function callback) {
+static int16_t is_valid_priority(_UHCI *uhci, UsbDev *dev, uint8_t priority) {
   int16_t shift_prio = -1;
   if (priority == PRIORITY_1)
     shift_prio = PRIORITY_QH_1;
@@ -1087,8 +1097,8 @@ static uint32_t init_iso_transfer(UsbController* controller, Interface* interfac
   uint16_t interval, callback_function callback) {
   uint16_t mqh;
   __TRANSFER_INITIALIZER__(controller, support_isochronous, interface, priority, callback);
-  __IF_SINGLE_RET__(__NEG_CHECK__((mqh = __STRUCT_CALL__(uhci, is_valid_interval, dev, 
-    interval))), callback(dev, interface, E_INVALID_INTERVAL, data));
+  __IF_CUSTOM__(__NEG_CHECK__((mqh = __STRUCT_CALL__(uhci, is_valid_interval, dev, 
+    interval))), callback(dev, interface, E_INVALID_INTERVAL, data); return __RET_N__);
   return __STRUCT_CALL__(dev, usb_dev_iso, interface, pipe, (uint16_t)shifted_prio,
     data, len, (uint8_t)mqh, callback);
 }
@@ -1128,7 +1138,8 @@ static uint32_t iso_entry_point_uhci(UsbDev* dev, Interface* interface,
     interface, endpoint, callback, 0);
 }
 
-static void use_alternate_setting(_UHCI *uhci, UsbDev *dev, Interface *interface,
+// moved into device layer
+/* @deprecated static void use_alternate_setting(_UHCI *uhci, UsbDev *dev, Interface *interface,
                            unsigned int setting) {
   dev->request_switch_alternate_setting(dev, interface, setting);
 }
@@ -1136,7 +1147,7 @@ static void use_alternate_setting(_UHCI *uhci, UsbDev *dev, Interface *interface
 static void switch_configuration(_UHCI *uhci, UsbDev *dev, int configuration,
                           callback_function callback) {
   dev->request_switch_configuration(dev, configuration, callback);
-}
+} */
 
 static UsbTransfer *build_other_type_transfer(_UHCI *uhci, UsbDev *dev, void *data,
                                      Endpoint *e, unsigned int len,
@@ -1576,7 +1587,7 @@ static uint32_t iso_transfer_ext(UsbController* controller, Interface* interface
   _UHCI* uhci = (_UHCI*)container_of(controller, _UHCI, super);
   UsbDev* dev = ((UsbController*)uhci)->interface_dev_map->get_c(
     ((UsbController*)uhci)->interface_dev_map, interface);
-  uint16_t shifted_prio = (uint16_t)is_valid_priority(uhci, dev, priority, callback);
+  uint16_t shifted_prio = (uint16_t)is_valid_priority(uhci, dev, priority);
   uint16_t shifted_interval =  (uint16_t)is_valid_interval(uhci, dev, interval);
 
   return __STRUCT_CALL__(uhci, iso_transfer, dev, data, len, shifted_interval, shifted_prio,
@@ -1674,7 +1685,9 @@ static uint32_t wait_poll(_UHCI *uhci, QH *process_qh, uint32_t timeout, uint8_t
 static uint32_t get_status(_UHCI *uhci, TD *td) {
   uint32_t status = td->control_x_status;
   uint32_t error_mask = 0;
+#if defined(DEBUG_ON) || defined(STATUS_DEBUG_ON)
   char *message;
+#endif
 
   if ((status >> NAK_RECV) & 0x01) {
 #if defined(DEBUG_ON) || defined(STATUS_DEBUG_ON)
@@ -1828,7 +1841,12 @@ static void failed_transmission_routine(_UHCI* uhci, UsbDev* dev, Interface* int
   void* data, TD* td, QH* entry, MemoryService_C* mem_service, callback_function callback) {
   uint32_t error_mask = __STRUCT_CALL__(uhci, get_status, td);
   
-  __IF_RET__(!error_mask);
+  __IF_RET__(!error_mask || ((entry->flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_ISO));
+  // if switching to the zero bandwidth setting in iso transfers, the transfer should still reside in the
+  // schedule, but shouldn't be executed -> goal is when activated to refresh TD's correctly, so
+  // that they can be executed
+  /*__IF_SINGLE_RET__(((entry->flags & QH_FLAG_TYPE_MASK) == QH_FLAG_TYPE_ISO),
+    retransmission(uhci, entry)); //this approach is 100% safe, because the transfer is always ready to go*/
 
   __STRUCT_CALL__(uhci, transmission_clearing_routine, entry, mem_service);
 
@@ -1905,7 +1923,7 @@ static void destroy_transfer(_UHCI *uhci, UsbTransfer *transfer) {
 static void runnable_function_uhci(UsbController *controller) {
   _UHCI *uhci = container_of(controller, _UHCI, super);
   __UHC_MEMORY__(uhci, m);
-  QH* periodic_first_mqh = __STRUCT_CALL__(uhci, __search_for_qh, m, uhci->qh_entry, QH_1);
+  //QH* periodic_first_mqh = __STRUCT_CALL__(uhci, __search_for_qh, m, uhci->qh_entry, QH_1);
   for (;;) {
     if (uhci->signal) {
       __FOR_RANGE_COND__(qh, QH*, uhci->qh_entry, qh != 0, 
