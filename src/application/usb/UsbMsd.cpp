@@ -157,6 +157,12 @@ int32_t main(int32_t argc, char* argv[]){
                            "\t--file [arg]: Specify file to read or write from/to\n"
                            "\t--dir  [arg]: Specify a directory, to search the file specified via --file\n");
 
+    if(!arg_parser.parse(argc, argv)){
+        Util::System::error << arg_parser.getErrorString() 
+                << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        return -1;
+    }
+
     uint32_t volume_num;
     msd_file.control(GET_VOLUMES, {(uint32_t)&volume_num});
     Util::System::out << Util::String::format("Volumes found : %u", volume_num) << Util::Io::PrintStream::endl;
@@ -176,11 +182,6 @@ int32_t main(int32_t argc, char* argv[]){
 
     // multiple reads/writes allowed -> lba-start size has to match blocks size
 
-    if(!arg_parser.parse(argc, argv)){
-        Util::System::error << arg_parser.getErrorString() 
-                << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-        return -1;
-    }
     uint8_t size;
     uint32_t lba_array[MAX_EXECUTION];
     uint32_t block_array[MAX_EXECUTION];
