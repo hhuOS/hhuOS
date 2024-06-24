@@ -197,6 +197,7 @@ struct UsbController {
     Endpoint* e, void* data, unsigned int len,
     uint16_t interval, uint8_t priority, callback_function callback);
   int (*remove_transfer)(struct UsbController* controller, uint32_t transfer_id);
+  int (*reset_transfer)(struct UsbController* controller, uint32_t transfer_id);
   int (*contains_dev)(struct UsbController *controller, UsbDev *dev);
   int (*contains_interface)(struct UsbController *controller,
                             Interface *interface);
