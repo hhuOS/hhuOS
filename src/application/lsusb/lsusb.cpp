@@ -64,15 +64,14 @@ int32_t main(int32_t argc, char* argv[]){
     arg_parser.addArgument("controller", false, "c");
     arg_parser.addArgument("root", false, "r");
 
-    arg_parser.setHelpText("Show Usb.\n"
-                               "Usage: lsusb [options]\n"
-                               "Options:\n"
-                               "\t-l, --level [number]: Display devices on level [number]\n"
-                               "\t-e, --extended : Extended information\n"
-                               "\t-d, --downstream : Display correct order\n"
-                               "\t-c, --controller [number] : Display devices on controller [number]\n"
-                               "\t-r, --root [number] : Display devices on root port [number]\n"
-                               "\t-h, --help: Show this help message");
+    arg_parser.setHelpText("Usage: lsusb [options]\n"
+                           "Options:\n"
+                           "\t-l, --level [number]: Display devices on level [number]\n"
+                           "\t-e, --extended : Extended information\n"
+                           "\t-d, --downstream : Display correct order\n"
+                           "\t-c, --controller [number] : Display devices on controller [number]\n"
+                           "\t-r, --root [number] : Display devices on root port [number]\n"
+                           "\t-h, --help: Show this help message");
 
     if(!arg_parser.parse(argc, argv)){
         Util::System::error << arg_parser.getErrorString() 
