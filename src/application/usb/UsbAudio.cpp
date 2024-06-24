@@ -1,4 +1,3 @@
-#include "UsbAudio.h"
 #include <cstdint>
 #include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/FileOutputStream.h"
@@ -104,7 +103,7 @@ int32_t main(uint32_t argc, char* argv[]){
     uint32_t minutes = seconds / 60;
 
     Util::System::out << Util::String::format("Start playing song : %s # Duration : %02u-%02um", 
-        file_string, minutes, seconds % 60) 
+        (char*)f.getName(), minutes, seconds % 60) 
         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     Util::System::out << "m : mute , u : unmute , +/- : vol up/down, e : exit , p : pause/play" 
         << Util::Io::PrintStream::endl << Util::Io::PrintStream::endl 
