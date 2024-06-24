@@ -1,5 +1,5 @@
 #include "KeyBoardDriver.h"
-#include "../../../../lib/util/io/key/InputEvents.h"
+#include "lib/util/usb/input/InputEvents.h"
 #include "../../dev/UsbDevice.h"
 #include "../../events/EventDispatcher.h"
 #include "../../events/event/Event.h"

@@ -1,5 +1,5 @@
 #include "MouseDriver.h"
-#include "../../../../lib/util/io/key/InputEvents.h"
+#include "lib/util/usb/input/InputEvents.h"
 #include "../../controller/UsbControllerFlags.h"
 #include "../../dev/UsbDevice.h"
 #include "../../dev/requests/UsbRequests.h"
