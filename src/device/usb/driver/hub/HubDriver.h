@@ -27,6 +27,7 @@
     __ENTRY__(name, get_free_hub_dev) = &get_free_hub_dev; \
     __ENTRY__(name, match_hub_dev) = &match_hub_dev; \
     __ENTRY__(name, free_hub_dev) = &free_hub_dev; \
+    __ENTRY__(name, get_hub_descriptor) = &get_hub_descriptor; \
     \
     __SUPER__(name, probe) = &probe_hub; \
     __SUPER__(name, disconnect) = &disconnect_hub; \
@@ -80,7 +81,8 @@ struct HubDriver{
     void (*dump_port_status_change)(struct HubDriver* driver, uint16_t* port_status_change_field);
     void (*dump_port_status)(struct HubDriver* driver, uint16_t* port_status_field);
     uint8_t (*is_device_removable)(struct HubDriver* driver, struct HubDev* dev, uint8_t downstream_port);
-
+    void (*get_hub_descriptor)(struct HubDriver* driver, UsbDev* dev, UsbDeviceRequest* device_req,
+        void* data, unsigned int len, callback_function callback);
     struct HubDev* (*get_free_hub_dev)(struct HubDriver* driver);
     struct HubDev* (*match_hub_dev)(struct HubDriver* driver, UsbDev* dev);
     void (*free_hub_dev)(struct HubDriver* driver, struct HubDev* hub_dev);

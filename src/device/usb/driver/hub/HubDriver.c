@@ -22,6 +22,8 @@ static uint8_t is_device_removable(HubDriver* driver, HubDev* hub_dev, uint8_t d
 static HubDev* get_free_hub_dev(HubDriver* driver);
 static HubDev* match_hub_dev(HubDriver* driver, UsbDev* dev);
 static void free_hub_dev(HubDriver* driver, HubDev* hub_dev);
+static void get_hub_descriptor(HubDriver* driver, UsbDev* dev, UsbDeviceRequest* device_req,
+  void* data, unsigned int len, callback_function callback);
 
 static HubDriver *internal_hub_driver = 0;
 
@@ -140,7 +142,7 @@ static int configure_hub(HubDriver *driver) {
     dev->add_downstream(dev, num_ports);
 
     uint16_t port_status_field;
-    uint16_t port_change_status_field;
+    //uint16_t port_change_status_field;
     uint8_t device_attached_mask = 0x01;
     uint8_t start_device_num = 0x03 + ((dev->dev_num-1) * 8);
 
@@ -154,16 +156,6 @@ static int configure_hub(HubDriver *driver) {
                                     C_PORT_OVER_CURRENT) == -1)
         return -1;
 
-#ifdef HUB_DRIVER_DUMP_PORTS
-
-      if (driver->read_hub_status(driver, hub_dev, itf, data, 0x04) == -1)
-        return -1;
-      port_status_field = *((uint16_t *)data);
-      port_change_status_field = *((uint16_t *)(data + 2));
-      driver->dump_port_status(driver, &port_status_field);
-
-#endif
-
       if (driver->clear_hub_feature(driver, hub_dev, itf, start_port,
                                     C_PORT_CONNECTION) == -1)
         return -1;
@@ -172,41 +164,16 @@ static int configure_hub(HubDriver *driver) {
         return -1;
 
       port_status_field = *((uint16_t *)data);
-      port_change_status_field = *((uint16_t *)(data + 2));
-
-#ifdef HUB_DRIVER_DUMP_PORTS
-      driver->dump_port_status(driver, &port_status_field);
-      driver->dump_port_status_change(driver, &port_change_status_field);
-#endif
+      //port_change_status_field = *((uint16_t *)(data + 2));
 
       if (port_status_field & device_attached_mask) { // device attached
         if (driver->set_hub_feature(driver, hub_dev, itf, start_port,
                                     PORT_RESET) == -1)
           return -1;
-#ifdef HUB_DRIVER_DUMP_PORTS
 
-        if (driver->read_hub_status(driver, hub_dev, itf, data, 0x04) == -1)
-          return -1;
-        port_status_field = *((uint16_t *)data);
-        port_change_status_field = *((uint16_t *)(data + 2));
-        driver->dump_port_status(driver, &port_status_field);
-        driver->dump_port_status_change(driver, &port_change_status_field);
-
-#endif
         if (driver->clear_hub_feature(driver, hub_dev, itf, start_port,
                                       C_PORT_RESET) == -1)
           return -1;
-
-#ifdef HUB_DRIVER_DUMP_PORTS
-
-        if (driver->read_hub_status(driver, hub_dev, itf, data, 0x04) == -1)
-          return -1;
-        port_status_field = *((uint16_t *)data);
-        port_change_status_field = *((uint16_t *)(data + 2));
-        driver->dump_port_status(driver, &port_status_field);
-        driver->dump_port_status_change(driver, &port_change_status_field);
-
-#endif
 
         uint8_t speed =
             ((port_status_field & 0x200) >> 9) == 1 ? LOW_SPEED : FULL_SPEED;
@@ -307,25 +274,30 @@ static int read_hub_status(HubDriver *driver, HubDev *hub_dev, Interface *itf,
   return 1;
 }
 
+static void get_hub_descriptor(HubDriver* driver, UsbDev* dev, UsbDeviceRequest* device_req,
+  void* data, unsigned int len, callback_function callback){
+  __STRUCT_CALL__(dev, request_build, device_req,
+    DEVICE_TO_HOST | TYPE_REQUEST_CLASS | RECIPIENT_DEVICE,
+    GET_DESCRIPTOR, 0x2900, 0, 0, 0, len);
+  __STRUCT_CALL__(dev, request, device_req, data, PRIORITY_8, 0, 0, callback,
+    CONTROL_INITIAL_STATE);
+}
+
 static int read_hub_descriptor(HubDriver *driver, HubDev *hub_dev, Interface *itf,
                         uint8_t *data) {
-  if (hub_dev->usb_dev->get_descriptor(hub_dev->usb_dev, itf, data, 2,
-                                       &configure_callback) == -1)
-    return -1;
-  // instead of polling in the control block, we will just poll in here ->
-  // needed to change again the whole control transfer via flag
-  if (!hub_dev->transfer_success)
-    return -1;
+  UsbDev* dev = hub_dev->usb_dev;
+  UsbDeviceRequest* device_req = __STRUCT_CALL__(dev, get_free_device_request);
+  __IF_RET_NEG__(__IS_NULL__(device_req));
+  get_hub_descriptor(driver, dev, device_req, data, 2, &configure_callback);
+
+  __IF_RET_NEG__(!hub_dev->transfer_success);
 
   HubDescriptor *hub_desc = (HubDescriptor *)data;
   uint8_t hub_desc_len = hub_desc->len;
-  if (hub_dev->usb_dev->get_descriptor(hub_dev->usb_dev, itf, data,
-                                       hub_desc_len, &configure_callback) == -1)
-    return -1;
-  if (!hub_dev->transfer_success)
-    return -1;
+  get_hub_descriptor(driver, dev, device_req, data, hub_desc_len, &configure_callback);
+  
+  __IF_RET_NEG__(!hub_dev->transfer_success);
   hub_desc = (HubDescriptor *)data;
-
   hub_dev->hub_desc = *hub_desc;
 
   return 1;
@@ -333,9 +305,13 @@ static int read_hub_descriptor(HubDriver *driver, HubDev *hub_dev, Interface *it
 
 static int set_hub_feature(HubDriver *driver, HubDev *hub_dev, Interface *itf,
                     uint16_t port, uint16_t feature) {
-  if (hub_dev->usb_dev->set_feature(hub_dev->usb_dev, itf, feature, port,
-                                    &configure_callback) == -1)
-    return -1;
+  UsbDev* usb_dev = hub_dev->usb_dev;
+  UsbDeviceRequest* device_req = usb_dev->get_free_device_request(hub_dev->usb_dev);
+  __IF_RET_NEG__(__IS_NULL__(device_req));
+  usb_dev->request_build(usb_dev, device_req,
+                  HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_OTHER,
+                  SET_FEATURE, 0, feature, 0, port, 0);
+  usb_dev->request(usb_dev, device_req, 0, PRIORITY_8, 0, 0, configure_callback, CONTROL_INITIAL_STATE);
 
   if (!hub_dev->transfer_success)
     return -1;
@@ -345,10 +321,14 @@ static int set_hub_feature(HubDriver *driver, HubDev *hub_dev, Interface *itf,
 
 static int clear_hub_feature(HubDriver *driver, HubDev *hub_dev, Interface *itf,
                       uint16_t port, uint16_t feature) {
-  if (hub_dev->usb_dev->clear_feature(hub_dev->usb_dev, itf, feature, port,
-                                      &configure_callback) == -1)
-    return -1;
-
+  UsbDev* usb_dev = hub_dev->usb_dev;
+  UsbDeviceRequest* device_req = usb_dev->get_free_device_request(hub_dev->usb_dev);
+  __IF_RET_NEG__(__IS_NULL__(device_req));
+  usb_dev->request_build(usb_dev, device_req,
+                     HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_OTHER,
+                     CLEAR_FEATURE, 0, feature, 0, port, 0);
+  usb_dev->request(usb_dev, device_req, 0, PRIORITY_8, 0, 0, configure_callback, CONTROL_INITIAL_STATE);
+  
   if (!hub_dev->transfer_success)
     return -1;
 
