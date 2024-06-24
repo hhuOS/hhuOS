@@ -28,22 +28,10 @@ public:
     uint64_t writeData(const uint8_t *sourceBuffer, uint64_t start_lba, uint64_t msd_data, uint8_t minor);
 
 private:
-    enum MSD_Params : uint8_t{
-        GET_SIZE,
-        GET_BLOCK_NUM,
-        GET_BLOCK_LEN,
-        GET_VOLUMES,
-        GET_CAPACITIES_FOUND,
-        GET_INQUIRY,
-        GET_CAPACITY,
-        GET_SENSE, // not implemented -> too lazy :)
-        GET_READ_CAPACITY,
-        SET_CALLBACK,
-        UNSET_CALLBACK
-    };
-
     // additional msd params are in command interface 
-
+    bool get_requests(const Util::Array<uint32_t> &parameters,
+        MassStorageDev* msd_dev, uint32_t (*get_call)(MassStorageDriver* msd_driver, 
+        MassStorageDev* msd_dev, uint8_t volume));
     MassStorageDriver* driver;
 };
 

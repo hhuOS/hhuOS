@@ -49,11 +49,9 @@
     __ENTRY__(name, free_csw) = &free_csw; \
     __ENTRY__(name, init_msd_maps) = &init_msd_maps; \
     __ENTRY__(name, read_msd) = &read_msd; \
-    __ENTRY__(name, set_callback_msd) = &set_callback_msd; \
     __ENTRY__(name, write_msd) = &write_msd; \
     __ENTRY__(name, clear_msd_map) = &clear_msd_map; \
     __ENTRY__(name, init_io_msd) = &init_io_msd; \
-    __ENTRY__(name, unset_callback_msd) = &unset_callback_msd; \
     __ENTRY__(name, get_free_msd_dev) = &get_free_msd_dev; \
     __ENTRY__(name, free_msd_dev) = &free_msd_dev; \
     __ENTRY__(name, match_msd_dev) = &match_msd_dev; \
@@ -62,10 +60,10 @@
     __ENTRY__(name, build_read_command) = &build_read_command; \
     __ENTRY__(name, calc_t_len) = &calc_t_len; \
     __ENTRY__(name, valid_block_number) = &valid_block_number; \
-    __ENTRY__(name, copy_from_user) = &copy_from_user; \
-    __ENTRY__(name, copy_to_user) = &copy_to_user; \
     __ENTRY__(name, parse_request_sense) = &parse_request_sense; \
     __ENTRY__(name, get_capacity_count) = &get_capacity_count; \
+    __ENTRY__(name, reset_bulk_only)    = &reset_bulk_only; \
+    __ENTRY__(name, get_max_logic_unit_numbers) = &get_max_logic_unit_numbers; \
     \
     __SUPER__(name, probe) = &probe_mass_storage; \
     __SUPER__(name, disconnect) = &disconnect_mass_storage; \
@@ -161,7 +159,7 @@ struct MassStorageDriver{
     void (*parse_request_sense)(struct MassStorageDriver* driver, RequestSense* rs);
     void (*init_sense_description)(struct MassStorageDriver* driver);
     int (*is_valid_volume)(struct MassStorageDriver* driver, struct MassStorageDev* msd_dev, uint8_t volume);
-    int (*get_capacity_count)(struct MassStorageDriver* driver, struct MassStorageDev* msd_dev, uint8_t volume);
+    uint32_t (*get_capacity_count)(struct MassStorageDriver* driver, struct MassStorageDev* msd_dev, uint8_t volume);
 
     int (*get_inquiry_data)(struct MassStorageDriver* driver, struct MassStorageDev* msd_dev, uint8_t volume, uint8_t param, 
                           uint8_t* target, uint8_t* len);
@@ -171,7 +169,10 @@ struct MassStorageDriver{
                         uint8_t* target, uint8_t* len);
     int (*get_capacity)(struct MassStorageDriver* driver, struct MassStorageDev* msd_dev, uint8_t volume, uint8_t param, 
                       uint8_t* target, uint8_t* len);
-
+    int (*get_max_logic_unit_numbers)(struct MassStorageDriver* driver, 
+        UsbDev *dev, Interface *interface, uint8_t *data);
+    int (*reset_bulk_only)(struct MassStorageDriver* driver, UsbDev *dev, 
+        Interface *interface, callback_function callback);
     void (*set_dev_properites)(struct MassStorageDriver* driver, struct MassStorageDev* msd_dev, UsbDev* dev, Interface* interface);
     void (*msd_match_routine)(struct MassStorageDriver* driver, MemoryService_C* mem_service, 
         UsbDev* dev, Endpoint* endpoint, struct MassStorageDev* msd_dev, uint8_t* select, 
@@ -194,7 +195,6 @@ struct MassStorageDriver{
     SuperMap* cbw_map;
     SuperMap* csw_map;
     SuperMap* data_map;
-    SuperMap* callback_map;
     SuperMap* stored_target_map;
     SuperMap* stored_len_map;
     SuperMap* stored_mem_buffer_map;

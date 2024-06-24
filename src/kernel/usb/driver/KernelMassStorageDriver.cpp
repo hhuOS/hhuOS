@@ -1,12 +1,15 @@
 #include "KernelMassStorageDriver.h"
-#include "../../../lib/util/base/Exception.h"
-#include "../../../lib/util/base/String.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/base/String.h"
+#include "lib/util/usb/io_control/MassStorageDeviceControl.h"
 #include "../../log/Logger.h"
 #include "../../service/MemoryService.h"
 #include "../../service/UsbService.h"
 #include "../../system/System.h"
 #include "../storage/MassStorageNode.h"
 #include "KernelUsbDriver.h"
+#include "lib/util/async/Thread.h"
+#include "lib/util/base/Address.h"
 
 extern "C" {
 #include "../../../device/usb/dev/UsbDevice.h"
@@ -65,13 +68,10 @@ void Kernel::Usb::Driver::KernelMassStorageDriver::create_usb_dev_node() {
   }
 }
 
-bool Kernel::Usb::Driver::KernelMassStorageDriver::control(
-    uint32_t request, const Util::Array<uint32_t> &parameters, uint8_t minor) {
-  MassStorageDev *msd_dev = __STRUCT_CALL__(driver, get_msd_dev_by_minor, minor);
-  __IF_CUSTOM__(__IS_NULL__(msd_dev), return false);
-  switch (request) {
-  case GET_SIZE: {
-    if (parameters.length() != 2) {
+bool Kernel::Usb::Driver::KernelMassStorageDriver::get_requests(const Util::Array<uint32_t> &parameters,
+  MassStorageDev* msd_dev, uint32_t (*get_call)(MassStorageDriver* msd_driver, 
+    MassStorageDev* msd_dev, uint8_t volume)){
+  if (parameters.length() != 2) {
       Util::Exception::throwException(
           Util::Exception::INVALID_ARGUMENT,
           "expecting uint32_t [address], uint32_t [volume]");
@@ -84,40 +84,23 @@ bool Kernel::Usb::Driver::KernelMassStorageDriver::control(
                                       "passed invalid volume");
     }
 
-    *user_address = driver->get_drive_size(driver, msd_dev, volume);
+    *user_address = get_call(driver, msd_dev, volume);
     return true;
+}
+
+bool Kernel::Usb::Driver::KernelMassStorageDriver::control(
+    uint32_t request, const Util::Array<uint32_t> &parameters, uint8_t minor) {
+  MassStorageDev *msd_dev = __STRUCT_CALL__(driver, get_msd_dev_by_minor, minor);
+  __IF_CUSTOM__(__IS_NULL__(msd_dev), return false);
+  switch (request) {
+  case GET_SIZE: {
+    return get_requests(parameters, msd_dev, driver->get_drive_size);
   };
   case GET_BLOCK_LEN: {
-    if (parameters.length() != 2) {
-      Util::Exception::throwException(
-          Util::Exception::INVALID_ARGUMENT,
-          "expecting uint32_t [address], uint32_t [volume]");
-    }
-    uint32_t *user_address = (uint32_t *)(uintptr_t)parameters[0];
-    uint32_t volume = parameters[1];
-    if (!driver->is_valid_volume(driver, msd_dev, volume)) {
-      Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT,
-                                      "passed invalid volume");
-    }
-
-    *user_address = driver->get_block_size(driver, msd_dev, volume);
-    return true;
+    return get_requests(parameters, msd_dev, driver->get_block_size);
   };
   case GET_BLOCK_NUM: {
-    if (parameters.length() != 2) {
-      Util::Exception::throwException(
-          Util::Exception::INVALID_ARGUMENT,
-          "expecting uint32_t [address], uint32_t [volume]");
-    }
-    uint32_t *user_address = (uint32_t *)(uintptr_t)parameters[0];
-    uint32_t volume = parameters[1];
-    if (!driver->is_valid_volume(driver, msd_dev, volume)) {
-      Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT,
-                                      "passed invalid volume");
-    }
-
-    *user_address = driver->get_block_num(driver, msd_dev, volume);
-    return true;
+    return get_requests(parameters, msd_dev, driver->get_block_num);
   };
   case GET_VOLUMES: {
     if (parameters.length() != 1) {
@@ -125,25 +108,11 @@ bool Kernel::Usb::Driver::KernelMassStorageDriver::control(
                                       "expecting uint32_t [address]");
     }
     uint32_t *user_address = (uint32_t *)(uintptr_t)parameters[0];
-
     *user_address = msd_dev->volumes;
     return true;
   };
   case GET_CAPACITIES_FOUND: {
-    if (parameters.length() != 2) {
-      Util::Exception::throwException(
-          Util::Exception::INVALID_ARGUMENT,
-          "expecting uint32_t [address], uint32_t [volume]");
-    }
-    uint32_t *user_address = (uint32_t *)(uintptr_t)parameters[0];
-    uint32_t volume = parameters[1];
-    if (!driver->is_valid_volume(driver, msd_dev, volume)) {
-      Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT,
-                                      "passed invalid volume");
-    }
-
-    *user_address = driver->get_capacity_count(driver, msd_dev, volume);
-    return true;
+    return get_requests(parameters, msd_dev, driver->get_capacity_count);
   };
   case GET_INQUIRY: {
     if (parameters.length() != 4) {
@@ -218,39 +187,9 @@ bool Kernel::Usb::Driver::KernelMassStorageDriver::control(
       return false;
     return true;
   };
-  case SET_CALLBACK: { // 0:15 = magic number ; 16:23 = u_tag
-    // callback is stored in uint32_t which could collide with unint64_t systems
-    if (parameters.length() != 2) {
-      Util::Exception::throwException(
-          Util::Exception::INVALID_ARGUMENT,
-          "expecting uint32_t [address], uint32_t [param]");
-    }
-    msd_callback callback = (msd_callback)(uintptr_t)parameters[0];
-    uint32_t param = parameters[1];
-    uint16_t magic_number = param & 0xFFFF;
-    uint8_t u_tag = (param & 0xFF0000) >> 16;
-    if (driver->set_callback_msd(driver, callback, magic_number, u_tag) == -1)
-      return false;
-    return true;
-  };
-  case UNSET_CALLBACK: {
-    if (parameters.length() != 1) {
-      Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT,
-                                      "expecting uint32_t [param]");
-    }
-    uint32_t param = parameters[0];
-    uint16_t magic_number = param & 0xFFFF;
-    uint8_t u_tag = (param & 0xFF0000) >> 16;
-
-    if (driver->unset_callback_msd(driver, magic_number, u_tag) == -1)
-      return false;
-    return true;
-  };
-
   default:
     return false;
   }
-
   return false;
 }
 
@@ -258,13 +197,28 @@ bool Kernel::Usb::Driver::KernelMassStorageDriver::control(
 uint64_t Kernel::Usb::Driver::KernelMassStorageDriver::readData(
     uint8_t *targetBuffer, uint64_t start_lba, uint64_t msd_data,
     uint8_t minor) {
+  uint8_t tranmission_default = 0xFF;
   uint32_t blocks = (msd_data & 0xFFFFFFFF00000000) >> 32;
   uint8_t volume = msd_data & 0xFF;
   uint16_t magic = (msd_data & 0xFFFF00) >> 8;
   uint8_t u_tag = (msd_data & 0xFF000000) >> 24;
 
-  return __STRUCT_CALL__(driver, read_msd, targetBuffer, start_lba, blocks, magic, u_tag,
+  MassStorageDev* msd_dev = driver->get_msd_dev_by_minor(driver, minor);
+  uint32_t block_size = driver->get_block_size(driver, msd_dev, volume);
+
+  uint8_t* kernel_tgt_buffer = new uint8_t[(blocks*block_size) + 5];
+  kernel_tgt_buffer[blocks*block_size] = tranmission_default;
+  __STRUCT_CALL__(driver, read_msd, kernel_tgt_buffer, start_lba, blocks, magic, u_tag,
                           volume, minor);
+  while(kernel_tgt_buffer[blocks*block_size] == tranmission_default){
+    Util::Async::Thread::yield();
+  }
+  Util::Address<uint32_t> kernel_tgt_buff_addr = Util::Address<uint32_t>(kernel_tgt_buffer);
+  Util::Address<uint32_t> target_buff_addr     = Util::Address<uint32_t>(targetBuffer);
+
+  target_buff_addr.copyRange(kernel_tgt_buff_addr, blocks*block_size);
+
+  return *((uint32_t*)(kernel_tgt_buffer + (blocks*block_size) + 1));
 }
 
 uint64_t Kernel::Usb::Driver::KernelMassStorageDriver::writeData(
@@ -274,7 +228,21 @@ uint64_t Kernel::Usb::Driver::KernelMassStorageDriver::writeData(
   uint8_t volume = msd_data & 0xFF;
   uint16_t magic = (msd_data & 0xFFFF00) >> 8;
   uint8_t u_tag = (msd_data & 0xFF000000) >> 24;
+  uint8_t tranmission_default = 0xFF;
 
-  return __STRUCT_CALL__(driver, write_msd, (uint8_t *)sourceBuffer, start_lba, blocks,
+  MassStorageDev* msd_dev = driver->get_msd_dev_by_minor(driver, minor);
+  uint32_t block_size = driver->get_block_size(driver, msd_dev, volume);
+  uint8_t* kernel_tgt_buffer = new uint8_t[(blocks*block_size)+5];
+  Util::Address<uint32_t> kernel_tgt_buff_addr = Util::Address<uint32_t>(kernel_tgt_buffer);
+  Util::Address<uint32_t> source_buff_addr     = Util::Address<uint32_t>(sourceBuffer);
+  kernel_tgt_buff_addr.copyRange(source_buff_addr, blocks*block_size);
+  kernel_tgt_buff_addr.setByte(tranmission_default, blocks*block_size);
+  kernel_tgt_buff_addr.setInt(0, (blocks*block_size)+1);
+
+  __STRUCT_CALL__(driver, write_msd, kernel_tgt_buffer, start_lba, blocks,
                            magic, u_tag, volume, minor);
+  while(kernel_tgt_buffer[blocks*block_size] == tranmission_default){
+    Util::Async::Thread::yield();
+  }
+  return *((uint32_t*)(kernel_tgt_buffer + (blocks*block_size) + 1));
 }
