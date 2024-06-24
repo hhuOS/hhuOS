@@ -23,11 +23,12 @@ include_directories(${HHUOS_SRC_DIR})
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
+target_link_libraries(${PROJECT_NAME} lib.usb)
+
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/io/file/File.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/file/elf/File.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/file/tar/Archive.cpp
-        ${HHUOS_SRC_DIR}/lib/util/io/key/InputEvents.c
         ${HHUOS_SRC_DIR}/lib/util/io/key/Key.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/key/KeyDecoder.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/key/MouseDecoder.cpp
