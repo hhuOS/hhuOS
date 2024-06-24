@@ -64,8 +64,6 @@ static void dump_endpoint(struct UsbDev *dev, Endpoint *endpoint);
 static char *build_string(UsbDev *dev, int len, uint8_t *string_buffer);
 static void process_lang_ids(UsbDev *dev, uint8_t *string_buffer, int s_len);
 static void dump_device(struct UsbDev *dev);
-static int get_max_logic_unit_numbers(UsbDev* dev, Interface* interface, uint8_t* data, callback_function callback);
-static int reset_bulk_only(UsbDev* dev, Interface* interface, callback_function callback);
 static UsbDeviceRequest *get_free_device_request(UsbDev *dev);
 static void free_device_request(UsbDev *dev, UsbDeviceRequest *device_request);
 static int set_report(UsbDev *dev, Interface *interface, uint8_t type, void *data,
@@ -92,12 +90,7 @@ static int handle_configuration(UsbDev* dev, uint8_t* string_buffer, uint8_t* co
                  ConfigurationDescriptor* config_descriptor, uint8_t num_configurations);
 static int handle_lang(UsbDev* dev, uint8_t* string_buffer);
 static int handle_dev(UsbDev* dev, uint8_t* string_buffer, DeviceDescriptor* device_descriptor);
-static int get_descriptor(UsbDev* dev, Interface* interface, uint8_t* data, unsigned int len, callback_function callback);
 static int get_req_status(UsbDev* dev, Interface* interface, uint8_t* data, unsigned int len, callback_function callback);
-static int clear_feature(UsbDev* dev, Interface* interface, uint16_t feature_value, uint16_t port,
-                        callback_function callback);
-static int set_feature(UsbDev* dev, Interface* interface, uint16_t feature_value, uint16_t port, 
-                       callback_function callback);
 static char* string_build_routine(struct UsbDev* dev, unsigned int string_index,
     uint8_t* string_buffer, char* string_repr);
 static int interface_build_routine(struct UsbDev* dev, MemoryService_C* mem_service,
@@ -288,35 +281,6 @@ static inline void __request_set_report(UsbDev* dev, UsbDeviceRequest* device_re
     CONTROL_INITIAL_STATE);
 }
 
-static inline void __request_reset_bulk_only(UsbDev* dev, UsbDeviceRequest* device_req,
-  Interface* interface, callback_function callback){
-  __STRUCT_CALL__(dev, request_build, device_req, 
-    HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_INTERFACE,
-    RESET_BULK_ONLY_DEVICE, 0, 0, 0,
-    interface->active_interface->alternate_interface_desc.bInterfaceNumber, 0);
-  __STRUCT_CALL__(dev, request, device_req, 0, PRIORITY_8, 0, 0, callback, 
-    CONTROL_INITIAL_STATE);
-}
-
-static inline void __request_get_max_logic_unit_number(UsbDev* dev, 
-  UsbDeviceRequest* device_req, Interface* interface, void* data,
-  callback_function callback){
-  __STRUCT_CALL__(dev, request_build, device_req, 
-    DEVICE_TO_HOST | TYPE_REQUEST_CLASS | RECIPIENT_INTERFACE, GET_MAX_LUN, 0, 0, 0,
-    interface->active_interface->alternate_interface_desc.bInterfaceNumber, 1);
-  __STRUCT_CALL__(dev, request, device_req, data, PRIORITY_8, 0, 0, callback,
-    CONTROL_INITIAL_STATE);
-}
-
-static inline void __request_get_descriptor(UsbDev* dev, UsbDeviceRequest* device_req,
-  void* data, unsigned int len, callback_function callback){
-  __STRUCT_CALL__(dev, request_build, device_req,
-    DEVICE_TO_HOST | TYPE_REQUEST_CLASS | RECIPIENT_DEVICE,
-    GET_DESCRIPTOR, 0x2900, 0, 0, 0, len);
-  __STRUCT_CALL__(dev, request, device_req, data, PRIORITY_8, 0, 0, callback,
-    CONTROL_INITIAL_STATE);
-}
-
 static inline void __request_get_req_status(UsbDev* dev, UsbDeviceRequest* device_req,
   void* data, unsigned int len, callback_function callback){
   dev->request_build(dev, device_req,
@@ -326,20 +290,10 @@ static inline void __request_get_req_status(UsbDev* dev, UsbDeviceRequest* devic
                CONTROL_INITIAL_STATE);
 }
 
-static inline void __request_set_feature(UsbDev* dev, UsbDeviceRequest* device_req,
-  uint16_t feature_value, uint16_t port, callback_function callback){
-  dev->request_build(dev, device_req,
-                     HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_OTHER,
-                     SET_FEATURE, 0, feature_value, 0, port, 0);
-  dev->request(dev, device_req, 0, PRIORITY_8, 0, 0, callback, CONTROL_INITIAL_STATE);
-}
-
-static inline void __request_clear_feature(UsbDev* dev, UsbDeviceRequest* device_req,
-  uint16_t feature_value, uint16_t port, callback_function callback){
-  dev->request_build(dev, device_req,
-                     HOST_TO_DEVICE | TYPE_REQUEST_CLASS | RECIPIENT_OTHER,
-                     CLEAR_FEATURE, 0, feature_value, 0, port, 0);
-  dev->request(dev, device_req, 0, PRIORITY_8, 0, 0, callback, CONTROL_INITIAL_STATE);
+static void alt_setting_callback(UsbDev* dev, Interface* interface, uint32_t status, void* data){
+  __IF_RET__(status & E_TRANSFER);
+  Alternate_Interface* alt_itf = (Alternate_Interface*)interface->data;
+  interface->active_interface = alt_itf;
 }
 
 static inline void __request_switch_alt_setting(UsbDev* dev, UsbDeviceRequest* device_req,
@@ -349,7 +303,9 @@ static inline void __request_switch_alt_setting(UsbDev* dev, UsbDeviceRequest* d
                          0, interface->active_interface->alternate_interface_desc.bInterfaceNumber,
                          0);
   dev->request(dev, device_req, 0, PRIORITY_QH_8, 0, 0, &request_callback, CONTROL_INITIAL_STATE);
-  if(dev->error_while_transfering) return;
+  if(dev->error_while_transfering) {
+    return;
+  }
   interface->active_interface = alt_itf;
 }
 
@@ -361,10 +317,10 @@ static inline void __request_switch_config(UsbDev* dev, UsbDeviceRequest* device
 }
 
 static inline uint8_t __get_alternate_settings(UsbDev* dev, Interface* interface){
-  Alternate_Interface* alt_itf = interface->alternate_interfaces;
   uint8_t num_settings = 0;
-  while(__NOT_NULL__(alt_itf)){
-    num_settings++; alt_itf = alt_itf->next;
+  __FOR_RANGE_COND__(alt_itf, Alternate_Interface*, interface->alternate_interfaces,
+    __NOT_NULL__(alt_itf), alt_itf = alt_itf->next){
+    num_settings++;
   }
   return num_settings;
 }
@@ -396,6 +352,36 @@ static inline uint16_t __max_payload(UsbDev* dev, Endpoint* e) {
 
 static inline uint8_t __endpoint_number(UsbDev* dev, Endpoint* e) {
   return e->endpoint_desc.bEndpointAddress & ENDPOINT_MASK;
+}
+
+static inline uint8_t __interface_number(UsbDev* dev, Alternate_Interface* alt_interface){
+  return alt_interface->alternate_interface_desc.bInterfaceNumber;
+}
+
+static inline uint8_t __alt_interface_setting(UsbDev* dev, Alternate_Interface* alt_interface){
+  return alt_interface->alternate_interface_desc.bAlternateSetting;
+}
+
+static inline uint8_t __get_total_num_of_endpoints(UsbDev* dev, Alternate_Interface* alt_interface){
+  return alt_interface->alternate_interface_desc.bNumEndpoints;
+}
+
+static inline int8_t __match_alt_interface(UsbDev* dev, Alternate_Interface* alt_itf, uint8_t setting){
+  return __IF_EXT__(alt_itf->alternate_interface_desc.bAlternateSetting == setting, 1 , -1);
+}
+
+static inline int8_t __is_class_specific_interface_set(UsbDev* dev, 
+  Alternate_Interface* alt_itf){
+  return __IF_EXT__(__IS_NULL__(alt_itf->class_specific), -1 , 1);
+}
+
+static inline Alternate_Interface* __get_alternate_interface_by_setting(UsbDev* dev,
+  Interface* interface, uint8_t setting){
+  __FOR_RANGE_COND__(alt_itf, Alternate_Interface*, interface->alternate_interfaces,
+    __NOT_NULL__(alt_itf), alt_itf = alt_itf->next){
+    if(__match_alt_interface(dev, alt_itf, setting) == 1) return alt_itf;
+  }
+  return (void*)0;
 }
 
 static inline uint8_t __endpoint_default_or_not(UsbDev* dev, Endpoint* e) {
@@ -631,10 +617,11 @@ static int interface_build_routine(UsbDev* dev, MemoryService_C* mem_service,
   uint8_t* start, uint8_t* string_buffer, Interface** interfaces,
   Alternate_Interface** prev, unsigned int* prev_interface_number,
   unsigned int* interface_num) {
-  char *ascii_string;
+  char *ascii_string = 0;
 
   __ALLOC_KERNEL_MEM_S__(mem_service, Alternate_Interface, alt_interface);
   alt_interface->next = 0;
+  alt_interface->class_specific = 0;
 
   __TYPE_CAST__(InterfaceDescriptor*, interface_desc, start);
 
@@ -664,6 +651,7 @@ static void endpoint_build_routine(UsbDev* dev, MemoryService_C* mem_service,
   __TYPE_CAST__(EndpointDescriptor*, endpoint_desc, start);
   __ALLOC_KERNEL_MEM_S__(mem_service, Endpoint, endpoint);
   endpoint->endpoint_desc = *endpoint_desc;
+  endpoint->class_specific = 0;
   prev->endpoints[(*endpoint_num)++] = endpoint;
 }
 
@@ -1017,43 +1005,10 @@ static int set_idle(UsbDev *dev, Interface *interface) {
     interface);
 }
 
-static int reset_bulk_only(UsbDev *dev, Interface *interface,
-                    callback_function callback) {
-  __IF_RET_NEG__(!dev->contain_interface(dev, interface));
-  __REQUEST_ROUTINE_CALLBACK__(dev, __request_reset_bulk_only, interface, callback);
-}
-
-static int get_max_logic_unit_numbers(UsbDev *dev, Interface *interface, uint8_t *data,
-                               callback_function callback) {
-  __IF_RET_NEG__(!dev->contain_interface(dev, interface));
-  __REQUEST_ROUTINE_CALLBACK__(dev, __request_get_max_logic_unit_number, interface,
-    data, callback);
-}
-
-static int get_descriptor(UsbDev *dev, Interface *interface, uint8_t *data,
-                   unsigned int len, callback_function callback) {
-  __IF_RET_NEG__(!dev->contain_interface(dev, interface));
-  __REQUEST_ROUTINE_CALLBACK__(dev, __request_get_descriptor, data, len, callback);
-}
-
 static int get_req_status(UsbDev *dev, Interface *interface, uint8_t *data,
                    unsigned int len, callback_function callback) {
   __IF_RET_NEG__(!dev->contain_interface(dev, interface));
   __REQUEST_ROUTINE_CALLBACK__(dev, __request_get_req_status, data, len, callback);
-}
-
-static int set_feature(UsbDev *dev, Interface *interface, uint16_t feature_value,
-                uint16_t port, callback_function callback) {
-  __IF_RET_NEG__(!dev->contain_interface(dev, interface));
-  __REQUEST_ROUTINE_CALLBACK__(dev, __request_set_feature, feature_value, port, 
-    callback);
-}
-
-static int clear_feature(UsbDev *dev, Interface *interface, uint16_t feature_value,
-                  uint16_t port, callback_function callback) {
-  __IF_RET_NEG__(!dev->contain_interface(dev, interface));
-  __REQUEST_ROUTINE_CALLBACK__(dev, __request_clear_feature, feature_value, port, 
-    callback);
 }
 
 // just support get descriptor, get configuration, get interface, get status,

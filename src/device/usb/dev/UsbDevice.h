@@ -79,12 +79,7 @@
   __ENTRY__(name, handle_configuration) = &handle_configuration; \
   __ENTRY__(name, handle_lang) = &handle_lang; \
   __ENTRY__(name, handle_dev) = &handle_dev; \
-  __ENTRY__(name, get_max_logic_unit_numbers) = &get_max_logic_unit_numbers; \
-  __ENTRY__(name, reset_bulk_only) = &reset_bulk_only; \
-  __ENTRY__(name, get_descriptor) = &get_descriptor; \
   __ENTRY__(name, get_req_status) = &get_req_status; \
-  __ENTRY__(name, set_feature) = &set_feature; \
-  __ENTRY__(name, clear_feature) = &clear_feature; \
   __ENTRY__(name, add_downstream_device) = &add_downstream_device; \
   __ENTRY__(name, add_downstream) = &add_downstream; \
   __ENTRY__(name, delete_usb_dev) = &delete_usb_dev; \
@@ -117,12 +112,7 @@
   __ENTRY__(name, __request_set_protocol) = &__request_set_protocol; \
   __ENTRY__(name, __request_set_idle) = &__request_set_idle; \
   __ENTRY__(name, __request_set_report) = &__request_set_report; \
-  __ENTRY__(name, __request_reset_bulk_only) = &__request_reset_bulk_only; \
-  __ENTRY__(name, __request_get_max_logic_unit_number) = &__request_get_max_logic_unit_number; \
-  __ENTRY__(name, __request_get_descriptor) = &__request_get_descriptor; \
   __ENTRY__(name, __request_get_req_status) = &__request_get_req_status; \
-  __ENTRY__(name, __request_set_feature) = &__request_set_feature; \
-  __ENTRY__(name, __request_clear_feature) = &__request_clear_feature; \
   __ENTRY__(name, __request_switch_alt_setting) = &__request_switch_alt_setting; \
   __ENTRY__(name, __request_switch_config) = &__request_switch_config; \
   __ENTRY__(name, __transfer_type) = &__transfer_type; \
@@ -144,7 +134,13 @@
   __ENTRY__(name, __has_endpoints) = &__has_endpoints; \
   __ENTRY__(name, __get_first_endpoint) = &__get_first_endpoint; \
   __ENTRY__(name, __match_endpoint) = &__match_endpoint; \
-  __ENTRY__(name, __get_endpoint) = &__get_endpoint
+  __ENTRY__(name, __get_endpoint) = &__get_endpoint; \
+  __ENTRY__(name, __interface_number) = &__interface_number; \
+  __ENTRY__(name, __alt_interface_setting) = &__alt_interface_setting; \
+  __ENTRY__(name, __get_total_num_of_endpoints) = &__get_total_num_of_endpoints; \
+  __ENTRY__(name, __get_alternate_interface_by_setting) = &__get_alternate_interface_by_setting; \
+  __ENTRY__(name, __is_class_specific_interface_set) = &__is_class_specific_interface_set; \
+  __ENTRY__(name, __match_alt_interface) = &__match_alt_interface
 
 #define __STATE_BODY__(dev, cmp, s) \
   dev->state cmp s
@@ -200,8 +196,8 @@
   return __RET_S__;
 
 #define __USB_DEV_ROUTINE__(dev, interface, data, call, routine_function, pipe, ...) \
-  __IF_SINGLE_RET__(!__STRUCT_CALL__(dev, contain_interface, interface), \
-    call(dev, interface, E_INTERFACE_NOT_SUPPORTED, data));  \
+  __IF_CUSTOM__(!__STRUCT_CALL__(dev, contain_interface, interface), \
+    call(dev, interface, E_INTERFACE_NOT_SUPPORTED, data); return __RET_N__);  \
   unsigned int endpoint_count = \
       interface->active_interface->alternate_interface_desc.bNumEndpoints; \
   Endpoint **endpoints = interface->active_interface->endpoints; \
@@ -209,7 +205,7 @@
     __IF_CUSTOM__(__STRUCT_CALL__(dev, is_pipe_buildable, endpoints[i], \
       pipe), return routine_function(dev, ## __VA_ARGS__)) \
   } \
-  call(dev, interface, E_ENDPOINT_INV, data);
+  call(dev, interface, E_ENDPOINT_INV, data); return __RET_N__;
 
 #define __USB_DEV_BULK_ROUTINE__(dev, interface, data, call, pipe, ...) \
   __USB_DEV_ROUTINE__(dev, interface, data, call, \
@@ -282,15 +278,9 @@ struct UsbDev {
   void (*process_lang_ids)(struct UsbDev *dev, uint8_t *string_buffer,
                            int s_len);
   void (*dump_device)(struct UsbDev *dev);
-  int (*get_max_logic_unit_numbers)(struct UsbDev* dev, Interface* interface, uint8_t* data, __CALLB_PROTO__);
-  int (*reset_bulk_only)(struct UsbDev* dev, Interface* interface, __CALLB_PROTO__);
   int (*get_descriptor)(struct UsbDev* dev, Interface* interface, uint8_t* data, unsigned int len,
                       __CALLB_PROTO__);
   int (*get_req_status)(struct UsbDev* dev, Interface* interface, uint8_t* data, unsigned int len, __CALLB_PROTO__);
-  int (*set_feature)(struct UsbDev* dev, Interface* interface, uint16_t feature_value, uint16_t port, 
-                __CALLB_PROTO__);
-  int (*clear_feature)(struct UsbDev* dev, Interface* interface, uint16_t feature_value, uint16_t port,
-                 __CALLB_PROTO__);
   UsbDeviceRequest *(*get_free_device_request)(struct UsbDev *dev);
   void (*free_device_request)(struct UsbDev *dev,
                               UsbDeviceRequest *device_request);
@@ -415,7 +405,15 @@ struct UsbDev {
   int8_t (*__match_endpoint)(struct UsbDev* dev, Endpoint* e, uint8_t endpoint_number);
   Endpoint* (*__get_endpoint)(struct UsbDev* dev, Alternate_Interface* alt_interface,
     uint8_t endpoint_number);
-
+  uint8_t (*__interface_number)(struct UsbDev* dev, Alternate_Interface* alt_interface);
+  uint8_t (*__alt_interface_setting)(struct UsbDev* dev, Alternate_Interface* alt_interface);
+  uint8_t (*__get_total_num_of_endpoints)(struct UsbDev* dev, Alternate_Interface* alt_interface);
+  Alternate_Interface* (*__get_alternate_interface_by_setting)(struct UsbDev* dev,
+    Interface* interface, uint8_t setting);
+  int8_t (*__is_class_specific_interface_set)(struct UsbDev* dev, 
+    Alternate_Interface* alt_itf);
+  int8_t (*__match_alt_interface)(struct UsbDev* dev, Alternate_Interface* alt_itf, uint8_t setting);
+  
   uint8_t speed;
   uint8_t port;
   uint8_t address;

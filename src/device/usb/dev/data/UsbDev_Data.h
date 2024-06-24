@@ -38,6 +38,7 @@ struct Interface {
   uint8_t active; // checks if a driver already has access to this interface
 
   void *driver; // UsbDriver*
+  void *data;
   char *interface_description;
 };
 
