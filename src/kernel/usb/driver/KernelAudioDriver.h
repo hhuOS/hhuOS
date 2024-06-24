@@ -40,26 +40,28 @@ private:
         Util::Io::QueueOutputStream** output_stream, void* stream, uint8_t type);
     void* terminal_routine(Interface* interface, uint8_t* type);
     Util::Io::QueueOutputStream* input_terminal_routine(Interface* interface, uint32_t frame_size);
-    Util::Io::QueueInputStream* output_terminal_routine(uint32_t frame_size);
+    Util::Io::QueueInputStream* output_terminal_routine(Interface* interface, uint32_t frame_size);
     bool get_requests(const Util::Array<uint32_t>& params, struct AudioDev* audio_dev,
         uint32_t (*get_call)(AudioDriver* driver, ASInterface* as_interface));
-
-    AudioDriver* driver;
-
-    enum Audio_Params{
-        GET_FREQ = 0x01,
-        GET_FRAME_SIZE = 0x02,
-        GET_SUB_FRAME_SIZE = 0x03,
-        GET_BIT_DEPTH = 0x04,
-        GET_TOTAL_FREQ = 0x05,
-        SET_FREQ = 0x06,
-        MUTE = 0x07,
-        UNMUTE = 0x08,
-        VOL_UP = 0x09,
-        VOL_DOWN = 0x0A,
-        OUT_TERMINAL_SELECT = 0x0D,
-        IN_TERMINAL_SELECT = 0x0E,
-    };
+    bool direct_requests(const Util::Array<uint32_t>& parameters,
+        AudioDev* audio_dev, int8_t (*direct_req)(AudioDriver* driver, 
+        AudioDev* audio_dev, Interface* as_interface));
+    bool set_sound_requests(const Util::Array<uint32_t>& parameters,
+        AudioDev* audio_dev, int8_t (*set_call)(AudioDriver* driver, int16_t wVolume, AudioDev* audio_dev, 
+        Interface* as_interface));
+    Interface* request_common_routine(
+        const Util::Array<uint32_t>& parameters, AudioDev* audio_dev);
+    bool get_sound_requests(const Util::Array<uint32_t>& parameters,
+        AudioDev* audio_dev, uint32_t (*get_sound_call)(AudioDriver* driver, AudioDev* audio_dev));
+    AudioDriver* driver; 
+    bool open_audio_stream(AudioDev* audio_dev, Interface* as_streaming);
+    bool close_audio_stream(AudioDev* audio_dev, Interface* as_streaming);
+    bool add_transfer(AudioDev* audio_dev, Interface* itf, ASInterface* as_interface);
+    bool remove_transfer(AudioDev* audio_dev, ASInterface* as_interface);
+    bool set_frequency(const Util::Array<uint32_t>& parameters, AudioDev* audio_dev);
+    bool audio_stream(const Util::Array<uint32_t>& parameters,
+        AudioDev* audio_dev, uint32_t type);
+    void clear_buffer(AudioDev* audio_dev, Interface* as_streaming);
 };
 
 };
@@ -68,7 +70,7 @@ private:
 extern "C" {
 #endif
 
-void audio_input_event_callback(void* e, void* buffer);
+void audio_input_event_callback(uint8_t* map_io_buffer, uint16_t len, void* b);
 void audio_output_event_callback(uint8_t* map_io_buffer, uint16_t len, void* b);
 
 #ifdef __cplusplus

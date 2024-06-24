@@ -4,7 +4,7 @@
 #include "../../include/UsbGeneral.h"
 #include "../../interfaces/TimeInterface.h"
 #include "../../events/event/audio/AudioSampleEvent.h"
-#include "../../../../lib/util/io/key/InputEvents.h"
+#include "lib/util/usb/input/InputEvents.h"
 #include "../../controller/UsbController.h"
 #include "../../interfaces/ThreadInterface.h"
 
@@ -20,28 +20,27 @@ static int mixer_build_routine(AudioDriver* driver, uint8_t* start,
   MemoryService_C* m, ACInterface* ac_interface);
 static int8_t is_bm_control_programmable(AudioDriver* driver, 
     struct MixerUnit* mixer_unit, uint8_t input_channel, 
-    uint8_t output_channel, uint8_t output_channels, uint8_t input_channels);
+    uint8_t output_channel);
 static uint8_t mixer_bmControlLength(AudioDriver* driver,
     uint8_t input_channels, uint8_t output_channels);
 static int selector_build_routine(AudioDriver* driver, uint8_t* start,
   ACInterface* ac_interface, MemoryService_C* m);
 static int feature_build_routine(AudioDriver* driver, uint8_t* start,
   ACInterface* ac_interface, MemoryService_C* m);
-static int up_down_mix_processing_unit_build_routine(AudioDriver* driver,
-    uint8_t* start, MemoryService_C* m, 
-    ProcessingUnitDescriptor* processing_unit_descriptor);
-static int dolby_prologic_processing_unit_build_routine(AudioDriver* driver,
-    MemoryService_C* m, uint8_t* start, ProcessingUnitDescriptor* processing_unit_descriptor);
-static int stereo_extender_processing_unit_build_routine(AudioDriver* driver,
-    MemoryService_C* m, uint8_t* start, ProcessingUnitDescriptor* processing_unit_descriptor);
-static int reverberation_processing_unit_build_routine(AudioDriver* driver,
-    MemoryService_C* m, uint8_t* start, ProcessingUnitDescriptor* processing_unit_descriptor);
-static int chorus_processing_unit_build_routine(AudioDriver* driver, 
-    MemoryService_C* m, uint8_t* start, ProcessingUnitDescriptor* processing_unit_descriptor);
-static int dynamic_range_compressor_processing_unit_build_routine(AudioDriver* driver, 
-    MemoryService_C* m, uint8_t* start, ProcessingUnitDescriptor* processing_unit_descriptor);
+static void* up_down_mix_processing_unit_build_routine(AudioDriver* driver,
+    uint8_t* start, MemoryService_C* m);
+static void* dolby_prologic_processing_unit_build_routine(AudioDriver* driver,
+    MemoryService_C* m, uint8_t* start);
+static void* stereo_extender_processing_unit_build_routine(AudioDriver* driver,
+    MemoryService_C* m, uint8_t* start);
+static void* reverberation_processing_unit_build_routine(AudioDriver* driver,
+    MemoryService_C* m, uint8_t* start);
+static void* chorus_processing_unit_build_routine(AudioDriver* driver, 
+    MemoryService_C* m, uint8_t* start);
+static void* dynamic_range_compressor_processing_unit_build_routine(AudioDriver* driver, 
+    MemoryService_C* m, uint8_t* start);
 static void parse_process_specific_descriptor(AudioDriver* driver, 
-    ProcessingUnitDescriptor* process_unit, uint16_t wProcessType,
+    struct ProcessingUnit* process_unit, enum ProcessingUnitProcessTypes wProcessType,
     uint8_t* pos, MemoryService_C* m);
 static int processing_unit_build_routine(AudioDriver* driver, uint8_t* start,
     ACInterface* ac_interface, MemoryService_C* m);
@@ -58,121 +57,76 @@ static int handle_as_endpoint_routine(AudioDriver* driver, MemoryService_C* m, u
 static void audio_device_routine(AudioDriver* driver, uint8_t* start,
     uint8_t* end, MemoryService_C* mem_service, uint8_t minor);
 static int configure_audio_device(AudioDriver* driver);
-static void feature_control_first_form(AudioDriver* driver, uint8_t control, 
-    uint8_t request_form, UsbDev* dev, UsbDeviceRequest* device_req, uint8_t bRequest,
-    uint8_t channel_number, uint8_t unit_id, uint8_t audio_interface,
-    void* data, uint8_t len, callback_function callback, uint8_t flags);
-static void feature_control_second_form(AudioDriver* driver, uint8_t control, 
-    uint8_t request_form, UsbDev* dev, UsbDeviceRequest* device_req, 
-    uint8_t bRequest, uint8_t feature_unit_id, uint8_t audio_interface, 
-    void* data, uint8_t len, callback_function callback, uint8_t flags);
-static SpatialLocations __get_loc_by_channel_number(AudioDriver* driver, 
+static SpatialLocations get_loc_by_channel_number(AudioDriver* driver, 
     ClusterDescriptor cluster, uint8_t channel_number);
-static int16_t __get_channel_number_by_loc(AudioDriver* driver, ClusterDescriptor cluster,
+static int16_t get_channel_number_by_loc(AudioDriver* driver, ClusterDescriptor cluster,
     SpatialLocations loc);
-static int8_t feature_control_sub_routine_checks(AudioDriver* driver,
-    AudioDev* audio_dev, uint8_t request_form, uint8_t channel_number, 
-    uint8_t feature_unit_id, uint8_t audio_interface);
 static int8_t audio_mute_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t channel_number, 
-    uint8_t audio_interface, uint8_t feature_unit_id, void* data, uint8_t len, 
-    callback_function callback, uint8_t flags);
+    Interface* interface, uint8_t request_form, uint8_t bRequest, 
+    uint8_t channel_number, callback_function callback, uint8_t flags, uint8_t bMute);
 static int8_t audio_volume_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t channel_number,
-    uint8_t audio_interface, uint8_t feature_unit_id, void* data, uint8_t len,
-    callback_function callback, uint8_t flags);
+    Interface* interface, uint8_t request_form, uint8_t bRequest, 
+    uint8_t channel_number, callback_function callback, uint8_t flags, int16_t wVolume);
 static int8_t audio_mixer_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t icn, uint8_t ocn,
-    uint8_t mixer_unit_id, uint8_t audio_interface, void* data, uint8_t len,
-    callback_function callback);
-static int8_t mixer_first_form_build(AudioDriver* driver, MemoryService_C* mem_service,
-    uint16_t mixer_value, AudioDev* audio_dev, uint8_t request_form, uint8_t bRequest,
-    uint8_t icn, uint8_t ocn, uint8_t audio_interface, uint8_t mixer_unit_id);
-static int8_t mixer_second_form_build(AudioDriver* driver, MemoryService_C* mem_service,
-    AudioDev* audio_dev, uint8_t request_form, uint8_t bRequest, uint8_t icn,
-    uint8_t ocn, uint8_t mixer_unit_id, uint8_t audio_interface);
+    Interface* interface, uint8_t request_form, uint8_t bRequest, 
+    uint8_t icn, uint8_t ocn, int16_t wMixer);
 static int8_t set_mixer_unit_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint16_t mixer_value, uint8_t icn, uint8_t ocn, uint8_t mixer_unit_id,
-    uint8_t audio_interface);
-static int8_t get_mixer_unit_control(AudioDriver* driver, AudioDev* audio_dev);
+    Interface* interface, uint8_t icn, uint8_t ocn, int16_t wMixer);
+static int8_t get_mixer_unit_control(AudioDriver* driver, AudioDev* audio_dev,
+    Interface* interface, uint8_t icn, uint8_t ocn);
 static int8_t audio_selector_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t selector_unit_id, uint8_t audio_interface, 
-    void* data, uint8_t len, callback_function callback);
+    Interface* interface, uint8_t request_form, uint8_t bRequest, uint8_t bSelector);
 static int8_t selector_set_cur(AudioDriver* driver, AudioDev* audio_dev, 
-    uint8_t bSelector, uint8_t selector_unit_id, uint8_t audio_interface);
+    Interface* interface, uint8_t bSelector);
 static int8_t audio_processing_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t control_selector,
-    uint8_t processing_unit_id, uint8_t audio_interface,
-    void* data, uint8_t len, callback_function callback);
+    Interface* interface, uint8_t unit_id, uint8_t request_form, uint8_t bRequest, 
+    uint8_t control, void* data, uint8_t len, callback_function callback,
+    uint8_t flags);
 static int8_t audio_extension_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t control_selector,
-    uint8_t extension_unit_id, uint8_t audio_interface, void* data, uint8_t len,
-    callback_function callback);
+    Interface* interface, uint8_t request_form, uint8_t bRequest, uint8_t bOn);
 static int8_t audio_enable_processing_control(AudioDriver* driver, 
-    AudioDev* audio_dev, uint8_t request_form, uint8_t bRequest, 
-    uint8_t processing_unit_id, uint8_t audio_interface, void* data, 
-    uint8_t len, callback_function callback);
+    AudioDev* audio_dev, Interface* interface, uint8_t request_form, 
+    uint8_t bRequest, uint8_t bEnable);
 static int8_t enable_processing_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t processing_unit_id, uint8_t audio_interface);
+    Interface* interface);
 static int8_t disable_processing_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t processing_unit_id, uint8_t audio_interface);
+    Interface* interface);
 static int8_t audio_mode_select_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t processing_unit_id,
-    uint8_t audio_interface, void* data, uint8_t len);
+    Interface* interface, uint8_t request_form, uint8_t bRequest, uint8_t bMode);
 static int8_t audio_spaciousness_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t processing_unit_id,
-    uint8_t audio_interface, void* data, uint8_t len);
+    Interface* interface, uint8_t request_form, uint8_t bRequest, uint8_t bSpaciousness);
 static int8_t audio_reverb_type_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t processing_unit_id,
-    uint8_t audio_interface, void* data, uint8_t len);
+    Interface* interface, uint8_t request_form, uint8_t bRequest, enum ReverbTypes type);
 static int8_t audio_reverb_level_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t processing_unit_id,
-    uint8_t audio_interface, void* data, uint8_t len);
+    Interface* interface, uint8_t request_form, uint8_t bRequest, uint8_t bReverbLevel);
 static int8_t audio_chorus_level_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t processing_unit_id,
-    uint8_t audio_interface, void* data, uint8_t len);
+    Interface* interface, uint8_t request_form, uint8_t bRequest, uint8_t bChorusLevel);
 static int8_t audio_set_cur_spaciousness_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t processing_unit_id,
-    uint8_t audio_interface, void* data, uint8_t len, uint8_t bSpaciousness);
+    Interface* interface, uint8_t bSpaciousness);
 static enum ProcessingUnitProcessTypes retrieve_process_type(AudioDriver* driver,
     uint8_t* pos);
-static int8_t supports_audio_mode(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t processing_unit_id, uint8_t mode_value);
 static int8_t set_audio_mode_attribute(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t processing_unit_id, uint8_t audio_interface, uint8_t bMode);
+    Interface* interface, uint8_t bMode);
 static int8_t enable_extension_unit(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t extension_unit_id, uint8_t audio_interface);
+    Interface* interface);
 static int8_t disable_extension_unit(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t extension_unit_id, uint8_t audio_interface);
+    Interface* interface);
 static int8_t audio_copy_protect_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t channel_number,
-    uint8_t audio_interface, uint8_t terminal_unit_id, void* data, uint8_t len,
-    callback_function callback, uint8_t flags);
+    Interface* interface, uint8_t request_form, uint8_t bRequest, CPL cpl);
 static int8_t set_copy_protect(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t output_terminal_id, CPL copy_protect_value, uint8_t channel_number,
-    uint8_t audio_interface);
+    Interface* interface, CPL cpl);
 static int8_t get_copy_protect(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t input_terminal_id, CPL copy_protect_value, uint8_t channel_number,
-    uint8_t audio_interface);
+    Interface* interface, CPL cpl);
 static int8_t set_sound_value(AudioDriver* driver, int16_t value, AudioDev* audio_dev,
-    uint8_t channel_number, uint8_t audio_interface, uint8_t feature_unit_id);
+    Interface* as_interface);
 static int8_t set_max_sound_value(AudioDriver* driver, int16_t value, 
-    AudioDev* audio_dev, uint8_t channel_number, uint8_t audio_interface,
-    uint8_t feature_unit_id);
+    AudioDev* audio_dev, Interface* as_interface);
 static int8_t set_min_sound_value(AudioDriver* driver, int16_t value,
-    AudioDev* audio_dev, uint8_t channel_number, uint8_t audio_interface, 
-    uint8_t feature_unit_id);
+    AudioDev* audio_dev, Interface* as_interface);
 static int8_t set_volume_resolution(AudioDriver* driver, AudioDev* audio_dev,
-    int16_t resolution_value, uint8_t channel_number, uint8_t audio_interface,
-    uint8_t feature_unit_id);
-static int8_t increment_sound(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t channel_number, uint8_t audio_interface, uint8_t feature_unit_id);
-static int8_t decrement_sound(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t channel_number, uint8_t audio_interface, uint8_t feature_unit_id);
-static int8_t mute(AudioDriver* driver, AudioDev* audio_dev, uint8_t channel_number,
-    uint8_t audio_interface, uint8_t feature_unit_id);
-static int8_t unmute(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t channel_number, uint8_t audio_interface, uint8_t feature_unit_id);
+    int16_t resolution_value, Interface* as_interface);
+static int8_t mute(AudioDriver* driver, AudioDev* audio_dev, Interface* interface);
+static int8_t unmute(AudioDriver* driver, AudioDev* audio_dev, Interface* interface);
 static AudioDev* get_free_audio_dev(AudioDriver* driver);
 static AudioDev* match_audio_dev(AudioDriver* driver, UsbDev* dev);
 static void free_audio_dev(AudioDriver* driver, AudioDev* audio_dev);
@@ -188,18 +142,64 @@ static struct ContinuousSamplingFrequency* __parse_contig_sample_freq(AudioDrive
     MemoryService_C* m);
 static int8_t set_sampling_frequency(AudioDriver* driver, AudioDev* audio_dev,
     Interface* as_interface, struct SampleFrequency sample_freq);
-static struct SampleFrequency get_sampling_frequency(AudioDriver* driver,
+static int8_t get_sampling_frequency(AudioDriver* driver,
     AudioDev* audio_dev, Interface* as_interface);
 static uint8_t __get_terminal(AudioDriver* driver, AudioDev* audio_dev, ASInterface* as_interface);
-static AudioSampleEvent generate_audio_event(AudioDriver* driver,
+/*static AudioSampleEvent generate_audio_event(AudioDriver* driver,
     ASInterface* as_interface, uint8_t** raw_data);
-static void trigger_audio_event(AudioDriver* driver, GenericEvent* event);
+static void trigger_audio_event(AudioDriver* driver, GenericEvent* event); */
 static int8_t sync_streaming_interface(AudioDriver* driver, UsbDev* dev,
     Interface* interface);
 static void audio_device_routine(AudioDriver* driver, uint8_t* start,
     uint8_t* end, MemoryService_C* mem_service, uint8_t minor);
-static void switch_if_zero_bandwidth(AudioDriver* driver, AudioDev* audio_dev);
-static void set_default_frequency(AudioDriver* driver, AudioDev* audio_dev);
+static uint8_t get_available_controls(AudioDriver* driver,
+    struct FeatureUnit* feature_unit);
+static uint8_t get_upstream_channels_by_source_id_depth(AudioDriver* driver,
+    uint8_t bSourceID, ACInterface* ac_interface, uint8_t depth);
+static uint8_t get_upstream_channels_by_source_id(AudioDriver* driver, 
+    uint8_t bSourceID, ACInterface* ac_interface);
+static int8_t get_max_volume(AudioDriver* driver, AudioDev* audio_dev, 
+    Interface* as_interface);
+static int8_t get_min_volume(AudioDriver* driver,
+    AudioDev* audio_dev, Interface* as_interface);
+static int8_t get_current_volume(AudioDriver* driver,
+    AudioDev* audio_dev, Interface* as_interface);
+static int8_t get_mute_attribute(AudioDriver* driver, AudioDev* audio_dev, Interface* interface);
+static void switch_if_zero_bandwidth(AudioDriver* driver, AudioDev* audio_dev);//, Interface* interface);
+static void request_device_attributes(AudioDriver* driver, AudioDev* audio_dev,
+    Interface* itf);
+static void configure_interfaces(AudioDriver* driver, AudioDev* audio_dev);
+static void* get_top_layer_buffer(AudioDriver* driver, Interface* interface);
+static Endpoint* get_iso_endpoint(AudioDriver* driver, AudioDev* audio_dev,
+    Interface* as_interface);
+static void* recover_unit_from_as_interface(AudioDriver* driver,
+    AudioDev* audio_dev, Interface* interface, 
+    enum ACInterfaceDescriptorSubtypes search, 
+    enum ProcessingUnitProcessTypes process_type);
+static int8_t feature_control(AudioDriver* driver, uint8_t control, 
+    uint8_t request_form, AudioDev* audio_dev, Interface* interface, 
+    uint8_t bRequest, uint8_t channel_number, void* data, 
+    uint8_t len, callback_function callback, uint8_t flags);
+static int8_t support_pitch_control(AudioDriver* driver, AudioDev* audio_dev, 
+    Interface* as_interface);
+static int8_t audio_endpoint_controls(AudioDriver* driver, AudioDev* audio_dev,
+    uint8_t request_form, uint8_t bRequest, uint8_t control_selector, 
+    Interface* as_interface, void* data, uint8_t len, 
+    callback_function callback, uint8_t flags);
+static int8_t sampling_frequency_control(AudioDriver* driver, 
+    AudioDev* audio_dev, uint8_t request_form, uint8_t bRequest, 
+    Interface* as_interface, struct SampleFrequency sample_freq,
+    uint8_t flags);
+static int8_t sampling_pitch_control(AudioDriver* driver, AudioDev* audio_dev,
+    uint8_t request_form, uint8_t bRequest, Interface* as_interface, 
+    uint8_t bPitchEnable);
+static void* back_propagate_input(AudioDriver* driver, ACInterface* ac_interface,
+    struct InputTerminal* input_terminal, enum ACInterfaceDescriptorSubtypes start,
+    enum ProcessingUnitProcessTypes subtype);
+static void* back_propagate_output(AudioDriver* driver, ACInterface* ac_interface,
+    struct OutputTerminal* output_terminal, enum ACInterfaceDescriptorSubtypes search);
+static void* back_propagate_output_processing(AudioDriver* driver, ACInterface* ac_interface,
+    struct OutputTerminal* output_terminal, enum ProcessingUnitProcessTypes search);
 
 static AudioDriver* internal_audio_driver = 0;
 
@@ -285,7 +285,7 @@ static inline uint32_t __get_total_supported_frequencies(AudioDriver* driver, AS
 
 static inline void __get_supported_frequencies(AudioDriver* driver, ASInterface* as_interface,
     SampleFrequency frequencies[], uint8_t* num_supported_freq){
-    uint8_t num_support = __get_total_supported_frequencies(driver, as_interface);
+    //uint8_t num_support = __get_total_supported_frequencies(driver, as_interface);
 }
 
 static inline uint32_t __get_sample_frequency(AudioDriver* driver, ASInterface* as_interface){
@@ -299,9 +299,14 @@ static inline uint32_t __get_sub_frame_size(AudioDriver* driver, ASInterface* as
         as_interface->format_type->type_descriptor);
 }
 
+static inline uint32_t __get_num_channels(AudioDriver* driver, ASInterface* as_interface){
+    return as_interface->format_type->get_total_channels(
+        as_interface->format_type->type_descriptor);
+}
+
 static inline uint16_t __get_1ms_size(AudioDriver* driver, ASInterface* as_interface){
-    return (__get_sample_frequency(driver, as_interface) / 1000) * 
-    __get_sub_frame_size(driver, as_interface);
+    return ((__get_sample_frequency(driver, as_interface) / 1000)) * 
+    __get_sub_frame_size(driver, as_interface) * __get_num_channels(driver, as_interface);
 }
 
 static inline uint32_t __get_bit_depth(AudioDriver* driver, ASInterface* as_interface){
@@ -310,11 +315,28 @@ static inline uint32_t __get_bit_depth(AudioDriver* driver, ASInterface* as_inte
 }
 
 static inline uint32_t __get_frame_size(AudioDriver* driver, ASInterface* as_interface){
-    return __get_sub_frame_size(driver, as_interface) * __get_sample_frequency(driver, as_interface);
+    return __get_sub_frame_size(driver, as_interface) * __get_sample_frequency(driver, as_interface) * 
+        __get_num_channels(driver, as_interface);
 }
 
 static inline int8_t __is_freq_set(AudioDriver* driver, ASInterface* as_interface){
     return __IF_EXT__((__is_zero_frequency(driver, as_interface->current_freq) == 1), -1, 1);
+}
+
+static inline uint32_t __get_volume(AudioDriver* audio_driver, AudioDev* audio_dev){
+    return audio_dev->curr_volume;
+}
+
+static inline uint32_t __get_mute_attribute(AudioDriver* audio_driver, AudioDev* audio_dev){
+    return audio_dev->muted;
+}
+
+static inline uint32_t __get_max_volume(AudioDriver* audio_driver, AudioDev* audio_dev){
+    return audio_dev->max_volume;
+}
+
+static inline uint32_t __get_min_volume(AudioDriver* audio_driver, AudioDev* audio_dev){
+    return audio_dev->min_volume;
 }
 
 static inline AudioDev* __get_audio_dev(AudioDriver* driver, uint8_t minor){
@@ -337,13 +359,45 @@ static inline int8_t __is_as_input_terminal(AudioDriver* driver,
     return __match_terminal_type(driver, as_interface, INPUT_TERMINAL);
 }
 
-static inline ASInterface* __get_as_interface_by_terminal(AudioDriver* driver, 
+static inline int8_t __is_zero_bandwidth_active(AudioDriver* driver,
+    UsbDev* dev, Interface* as_interface){
+    __IF_RET_NEG__(__IS_NEG_ONE__(__STRUCT_CALL__(driver, 
+        __has_zero_bandwidth_setting, dev, as_interface)));
+    return __IF_EXT__(__IS_NEG_ONE__(__STRUCT_CALL__(dev, 
+        __is_class_specific_interface_set, as_interface->active_interface)),
+        1, -1);
+}
+
+static inline ASInterface* __get_class_specific_as_interface(
+    AudioDriver* driver, UsbDev* dev, Interface* interface){
+    if(__IS_NEG_ONE__(__STRUCT_CALL__(driver,
+        __is_zero_bandwidth_active, dev, interface))){
+        __TYPE_CAST__(ASInterface*, as_interface, 
+            interface->active_interface->class_specific);
+        return as_interface;
+    }
+    Alternate_Interface* alt_itf = __STRUCT_CALL__(dev, 
+        __get_alternate_interface_by_setting, interface, 1);
+    return (ASInterface*)alt_itf->class_specific;
+}
+
+static inline Interface* __get_as_interface_by_terminal(AudioDriver* driver, 
     AudioDev* audio_dev, uint8_t terminal_type){
     __FOR_RANGE__(i, int, 0, audio_dev->audio_streaming_interfaces_num){
-        ASInterface* as_interface = __convert_to_class_specific_as_interface(
+        ASInterface* as_interface;
+        if(__is_zero_bandwidth_active(driver, audio_dev->usb_dev, 
+            audio_dev->audio_streaming_interfaces[i]) == 1){
+            Alternate_Interface* alt_itf = __STRUCT_CALL__(audio_dev->usb_dev, 
+                __get_alternate_interface_by_setting, 
+                audio_dev->audio_streaming_interfaces[i], 1); 
+            as_interface = (ASInterface*)alt_itf->class_specific;
+        }
+        else{
+            as_interface = __convert_to_class_specific_as_interface(
             driver, audio_dev->audio_streaming_interfaces[i]);
+        }
         if(__match_terminal_type(driver, as_interface, terminal_type) == 1){
-            return as_interface;
+            return audio_dev->audio_streaming_interfaces[i];
         }
     }
     return (void*)0;
@@ -359,12 +413,43 @@ static inline LockDelayUnit __get_sync_unit(AudioDriver* driver, Endpoint* endpo
     return as_endpoint->as_iso_endpoint.bLockDelayUnits;
 }
 
-static int8_t __is_channel_in_cluster(AudioDriver* driver, ClusterDescriptor cluster,
-    SpatialLocations loc){
-    return __IF_EXT__(__NOT_ZERO__(cluster.wChannelConfig & loc), 1, -1);
+static inline uint8_t __match_frequency(AudioDriver* driver, SampleFrequency* as_freq,
+    SampleFrequency* target){
+    return __IF_EXT__(as_freq->sampleFreq_lo == target->sampleFreq_lo &&
+        as_freq->sampleFreq_hi == target->sampleFreq_hi, 1, 0);
 }
 
-static void __set_default_audio_properties(AudioDriver* driver, 
+static inline int8_t __has_zero_bandwidth_setting(AudioDriver* driver,
+    UsbDev* dev, Interface* as_interface){
+    uint8_t settings = __STRUCT_CALL__(dev, 
+        __get_alternate_settings, as_interface);
+    return __IF_EXT__(settings <= 1, -1, 1);
+}
+
+static inline void __clear_low_level_buffers(AudioDriver* driver, 
+    AudioDev* audio_dev){
+    __mem_set(audio_dev->buffer_first, audio_dev->buffer_size,
+        0);
+    __mem_set(audio_dev->buffer_second, audio_dev->buffer_size,
+        0);
+}
+
+static inline void __set_active_and_passive_buffers(AudioDriver* driver,
+    ASInterface* as_interface, uint8_t** active_buffer,
+    uint8_t** passive_buffer,
+    uint8_t* as_interface_active_buffer,
+    uint8_t* as_interface_passive_buffer){
+    *passive_buffer = as_interface_active_buffer;
+    *active_buffer  = as_interface_passive_buffer;
+    as_interface->active_buffer = (as_interface->active_buffer % 2) + 0x01;
+}
+
+static inline int8_t __is_channel_in_cluster(AudioDriver* driver, ClusterDescriptor cluster,
+    SpatialLocations loc){
+    return __IF_EXT__(__NOT_ZERO__((cluster.wChannelConfig & loc)), 1, -1);
+}
+
+static inline void __set_default_audio_properties(AudioDriver* driver, 
     AudioDev* audio_dev, UsbDev* dev){
     audio_dev->usb_driver = (UsbDriver*)driver;
     audio_dev->usb_dev = dev;
@@ -402,47 +487,43 @@ static void disconnect_audio(UsbDev* dev, Interface* interface){}
 
 static void callback_audio(UsbDev* dev, Interface* interface, uint32_t status, void* data){
     __IF_RET__(status & E_TRANSFER);
-    AudioSampleEvent audio_sample_event;
-    //uint8_t* raw_data = (uint8_t*)data;
     UsbController* controller = (UsbController*)dev->controller;
     ASInterface* as_interface = internal_audio_driver->__convert_to_class_specific_as_interface(internal_audio_driver,
         interface);
-    //uint16_t size = as_interface->buffer_size;
-    //uint16_t sub_frame_size = __get_sub_frame_size(internal_audio_driver, as_interface);
+    void* write_buffer = internal_audio_driver->super.interface_buffer_map->get_c(
+           internal_audio_driver->super.interface_buffer_map, interface);
+    write_callback write_callback = internal_audio_driver->super.interface_write_callback_map->get_c(
+        internal_audio_driver->super.interface_write_callback_map, interface);
     if(as_interface->terminal_type == INPUT_TERMINAL){
         uint8_t* active_buffer;
         uint8_t* passive_buffer;
         if(as_interface->active_buffer == 0x01){
-            active_buffer = as_interface->buffer_second;
-            passive_buffer = as_interface->buffer_first;
-            as_interface->active_buffer = 0x02;
+            __set_active_and_passive_buffers(internal_audio_driver,
+                as_interface, &active_buffer, &passive_buffer, 
+                as_interface->buffer_first, as_interface->buffer_second);
         }
         else if(as_interface->active_buffer == 0x02){
-            active_buffer = as_interface->buffer_first;
-            passive_buffer = as_interface->buffer_second;
-            as_interface->active_buffer = 0x01;
+            __set_active_and_passive_buffers(internal_audio_driver,
+                as_interface, &active_buffer, &passive_buffer,
+                as_interface->buffer_second, as_interface->buffer_first);
         }
         controller->fast_buffer_change(controller, dev, 
             dev->__get_first_endpoint(dev, interface->active_interface),
-            as_interface->qh_id, active_buffer); 
-        void* write_buffer = internal_audio_driver->super.interface_buffer_map->get_c(
-           internal_audio_driver->super.interface_buffer_map, interface);
-        write_callback write_callback = internal_audio_driver->super.interface_write_callback_map->get_c(
-            internal_audio_driver->super.interface_write_callback_map, interface);
+            as_interface->qh_id, active_buffer);
         write_callback(passive_buffer, as_interface->buffer_size, write_buffer);
     }
 
-    /*else if(as_interface->terminal_type == OUTPUT_TERMINAL){
-        for(int i = 0; i < size; i+=sub_frame_size){
-            audio_sample_event = generate_audio_event(internal_audio_driver, 
-                as_interface, &raw_data);
-            trigger_audio_event(internal_audio_driver, 
-                (GenericEvent*)&audio_sample_event);
-        }
-    } */
+    else if(as_interface->terminal_type == OUTPUT_TERMINAL){
+        write_callback(as_interface->buffer_first, as_interface->buffer_size, write_buffer);
+    }
 }
 
-static AudioSampleEvent generate_audio_event(AudioDriver* driver,
+static void* get_top_layer_buffer(AudioDriver* driver, Interface* interface){
+   return ((UsbDriver*)driver)->interface_buffer_map->get_c(
+           internal_audio_driver->super.interface_buffer_map, interface);
+}
+
+/*static AudioSampleEvent generate_audio_event(AudioDriver* driver,
     ASInterface* as_interface, uint8_t** raw_data){
     AudioSampleEvent audio_event;
     audio_event.super.event_type = AUDIO_EVENT;
@@ -468,38 +549,12 @@ static AudioSampleEvent generate_audio_event(AudioDriver* driver,
     }
 
     return audio_event;
-}
+} 
 
 static void trigger_audio_event(AudioDriver* driver, GenericEvent* event){
     __STRUCT_CALL__(((UsbDriver*)driver)->dispatcher, publish_event,
         event, ((UsbDriver*)driver)->listener_id);
-}
-
-void new_audio_driver(AudioDriver* driver, char* name, UsbDevice_ID* entry){
-    __FOR_RANGE__(i, int, 0, MAX_DEVICES_PER_USB_DRIVER){
-        driver->audio_map[i] = 0;
-        driver->dev[i].usb_dev = 0;
-        driver->dev[i].endpoint_addr = 0;
-        driver->dev[i].buffer_first = 0;
-        driver->dev[i].buffer_second = 0;
-        driver->dev[i].buffer_size = 0;
-        driver->dev[i].priority = 0;
-        driver->dev[i].audio_control_interface = 0;
-        driver->dev[i].audio_streaming_interfaces_num = 0;
-        driver->dev[i].interval = 0;
-        driver->dev[i].callback = &callback_audio;
-        driver->dev[i].usb_driver = (UsbDriver *)driver;
-        driver->dev[i].curr_volume = 0;
-        driver->dev[i].max_volume = 0;
-        driver->dev[i].min_volume = 0;
-        __FOR_RANGE__(j, int, 0, __MAX_STREAMING_INTERFACES__){
-            driver->dev[i].audio_streaming_interfaces[i] = 0;
-        }
-    }
-    
-    internal_audio_driver = driver;
-    __INIT_AUDIO_DRIVER__(driver, name, entry);
-}
+} */
 
 static AudioDev *get_free_audio_dev(AudioDriver *driver) {
   __GET_FREE_DEV__(AudioDev, driver->dev, driver->audio_map);
@@ -513,14 +568,6 @@ static void free_audio_dev(AudioDriver *driver, AudioDev *audio_dev) {
   __FREE_DEV__(audio_dev, driver->dev, driver->audio_map);
 }
 
-static void audio_callback(UsbDev *dev, Interface* interface, uint32_t status, void *data) {
-  if (status & E_TRANSFER) {
-    dev->error_while_transfering = 1;
-  } else if (status & S_TRANSFER) {
-    dev->error_while_transfering = 0;
-  }
-}
-
 static inline void __parse_common_unit_descriptor_part(AudioDriver* driver, uint8_t* start,
     uint8_t* len_member, uint8_t* type_member, uint8_t* subtype_member,
     uint8_t* unit_id){
@@ -531,7 +578,7 @@ static inline void __parse_common_unit_descriptor_part(AudioDriver* driver, uint
 }
 
 static inline void __set_requests(AudioDriver* driver, UsbDev* dev, 
-    UsbDeviceRequest* device_req, uint8_t recipient, uint8_t bRequest, 
+    Interface* interface, UsbDeviceRequest* device_req, uint8_t recipient, uint8_t bRequest, 
     uint8_t wValueHigh, uint8_t wValueLow, uint8_t wIndexHigh,
     uint8_t wIndexLow, void* data, uint8_t len, callback_function callback, 
     uint8_t flags){
@@ -539,12 +586,12 @@ static inline void __set_requests(AudioDriver* driver, UsbDev* dev,
         HOST_TO_DEVICE | TYPE_REQUEST_CLASS | recipient, 
         bRequest, wValueHigh, wValueLow, 8, 
         __8_BIT_H_SHIFT__(wIndexHigh) | wIndexLow, len);
-    __STRUCT_CALL__(dev, request, device_req, data, PRIORITY_QH_8, 0, 0,
+    __STRUCT_CALL__(dev, request, device_req, data, PRIORITY_QH_8, interface, 0,
          callback, flags);
 }
 
 static inline void __get_requests(AudioDriver* driver, UsbDev* dev, 
-    UsbDeviceRequest* device_req, uint8_t recipient, uint8_t bRequest, 
+    Interface* interface, UsbDeviceRequest* device_req, uint8_t recipient, uint8_t bRequest, 
     uint8_t wValueHigh, uint8_t wValueLow, uint8_t wIndexHigh, 
     uint8_t wIndexLow, void* data, uint8_t len, callback_function callback,
     uint8_t flags){
@@ -552,142 +599,92 @@ static inline void __get_requests(AudioDriver* driver, UsbDev* dev,
         DEVICE_TO_HOST | TYPE_REQUEST_CLASS | recipient, 
         bRequest, wValueHigh, wValueLow, 8, 
         __8_BIT_H_SHIFT__(wIndexHigh) | wIndexLow, len);
-    __STRUCT_CALL__(dev, request, device_req, data, PRIORITY_QH_8, 0, 0,
+    __STRUCT_CALL__(dev, request, device_req, data, PRIORITY_QH_8, interface, 0,
          callback, flags);
 }
 
-static inline void __request_terminal_set(AudioDriver* driver, UsbDev* dev, 
-    UsbDeviceRequest* device_req, uint8_t control_selector, 
-    uint8_t audio_interface, uint8_t terminal_id, void* data, uint8_t len,
-    callback_function callback, uint8_t flags){
-    __set_requests(driver, dev, device_req, RECIPIENT_INTERFACE, SET_CUR,
-        control_selector, 0, terminal_id, audio_interface, data, len, 
+static inline void __request_common_get(AudioDriver* driver, UsbDev* dev,
+    Interface* interface, UsbDeviceRequest* device_req, uint8_t bRequest, 
+    uint8_t control_selector, uint8_t audio_interface, uint8_t unit_id, 
+    void* data, uint8_t len, callback_function callback, uint8_t flags){
+    __IF_RET__(bRequest != GET_CUR && bRequest != GET_MIN
+        && bRequest != GET_MAX && bRequest != GET_RES);
+    __get_requests(driver, dev, interface, device_req, RECIPIENT_INTERFACE, bRequest,
+        control_selector, 0, unit_id, audio_interface, data, len, 
         callback, flags);
 }
 
-static inline void __request_terminal_get(AudioDriver* driver, UsbDev* dev,
-    UsbDeviceRequest* device_req, uint8_t bRequest, uint8_t control_selector,
-    uint8_t audio_interface, uint8_t terminal_id, void* data, uint8_t len,
-    callback_function callback, uint8_t flags){
-    __IF_RET__(bRequest != GET_CUR && bRequest != GET_MIN
-        && bRequest != GET_MAX && bRequest != GET_RES);
-    __get_requests(driver, dev, device_req, RECIPIENT_INTERFACE, bRequest,
-        control_selector, 0, terminal_id, audio_interface, data, len, 
+static inline void __request_common_set(AudioDriver* driver, UsbDev* dev, 
+    Interface* interface, UsbDeviceRequest* device_req, uint8_t bRequest, 
+    uint8_t control_selector, uint8_t audio_interface, uint8_t unit_id, 
+    void* data, uint8_t len, callback_function callback, uint8_t flags){
+    __IF_RET__(bRequest != SET_CUR && bRequest != SET_MIN
+        && bRequest != SET_MAX && bRequest != SET_RES);
+    __set_requests(driver, dev, interface, device_req, RECIPIENT_INTERFACE, bRequest,
+        control_selector, 0, unit_id, audio_interface, data, len, 
         callback, flags);
 }
 
 static inline void __request_mixer_set(AudioDriver* driver, UsbDev* dev,
-    UsbDeviceRequest* device_req, uint8_t icn, uint8_t ocn,
+    Interface* interface, UsbDeviceRequest* device_req, uint8_t bRequest, uint8_t icn, uint8_t ocn,
     uint8_t mixer_unit_id, uint8_t audio_interface, void* data, uint8_t len,
     callback_function callback, uint8_t flags){
-    __set_requests(driver, dev, device_req, RECIPIENT_INTERFACE, SET_CUR,
+    __IF_RET__(bRequest != SET_CUR && bRequest != SET_MIN
+        && bRequest != SET_MAX && bRequest != SET_RES);
+    __set_requests(driver, dev, interface, device_req, RECIPIENT_INTERFACE, bRequest,
         icn, ocn, mixer_unit_id, audio_interface, data, len, callback, flags);
 }
 
 static inline void __request_mixer_get(AudioDriver* driver, UsbDev* dev,
-    UsbDeviceRequest* device_req, uint8_t bRequest, uint8_t icn, uint8_t ocn,
+    Interface* interface, UsbDeviceRequest* device_req, uint8_t bRequest, uint8_t icn, uint8_t ocn,
     uint8_t mixer_unit_id, uint8_t audio_interface, void* data, uint8_t len,
     callback_function callback, uint8_t flags){
     __IF_RET__(bRequest != GET_CUR && bRequest != GET_MIN && 
         bRequest != GET_MAX && bRequest != GET_RES);
-    __get_requests(driver, dev, device_req, RECIPIENT_INTERFACE, bRequest,
+    __get_requests(driver, dev, interface, device_req, RECIPIENT_INTERFACE, bRequest,
         icn, ocn, mixer_unit_id, audio_interface, data, len, callback, flags);
 }
 
-static inline void __request_selector_set(AudioDriver* driver, UsbDev* dev,
-    UsbDeviceRequest* device_req, uint8_t selector_unit_id,
-    uint8_t audio_interface, void* data, uint8_t len,
-    callback_function callback, uint8_t flags){
-    __set_requests(driver, dev, device_req, RECIPIENT_INTERFACE, SET_CUR,
-        0, 0, selector_unit_id, audio_interface, data, len, callback, flags);
-}
-
-static inline void __request_selector_get(AudioDriver* driver, UsbDev* dev,
-    UsbDeviceRequest* device_req, uint8_t bRequest, uint8_t selector_unit_id,
-    uint8_t audio_interface, void* data, uint8_t len, 
-    callback_function callback, uint8_t flags){
-    __IF_RET__(bRequest != GET_CUR && bRequest != GET_MIN && 
-        bRequest != GET_MAX);
-    __get_requests(driver, dev, device_req, RECIPIENT_INTERFACE, bRequest,
-        0, 0, selector_unit_id, audio_interface, data, len, callback, flags);
-}
-
 static inline void __request_feature_set(AudioDriver* driver, UsbDev* dev,
-    UsbDeviceRequest* device_req, uint8_t control_selector, 
+    Interface* interface, UsbDeviceRequest* device_req, uint8_t bRequest, uint8_t control_selector, 
     uint8_t channel_number, uint8_t feature_unit_id,
     uint8_t audio_interface, void* data, uint8_t len, 
     callback_function callback, uint8_t flags){
-    __set_requests(driver, dev, device_req, RECIPIENT_INTERFACE, SET_CUR,
+    __IF_RET__(bRequest != SET_CUR && bRequest != SET_MIN
+        && bRequest != SET_MAX && bRequest != SET_RES);
+    __set_requests(driver, dev, interface, device_req, RECIPIENT_INTERFACE, bRequest,
         control_selector, channel_number, feature_unit_id, audio_interface,
         data, len, callback, flags);
 }
 
 static inline void __request_feature_get(AudioDriver* driver, UsbDev* dev,
-    UsbDeviceRequest* device_req, uint8_t bRequest, uint8_t control_selector, 
+    Interface* interface, UsbDeviceRequest* device_req, uint8_t bRequest, uint8_t control_selector, 
     uint8_t channel_number, uint8_t feature_unit_id,
     uint8_t audio_interface, void* data, uint8_t len,
     callback_function callback, uint8_t flags){
     __IF_RET__(bRequest != GET_CUR && bRequest != GET_MIN && 
         bRequest != GET_MAX && bRequest != GET_RES);
-    __get_requests(driver, dev, device_req, RECIPIENT_INTERFACE, bRequest,
+    __get_requests(driver, dev, interface, device_req, RECIPIENT_INTERFACE, bRequest,
         control_selector, channel_number, feature_unit_id, audio_interface,
         data, len, callback, flags);
 }
 
-static inline void __request_processing_set(AudioDriver* driver, UsbDev* dev,
-    UsbDeviceRequest* device_req, uint8_t control_selector, 
-    uint8_t processing_unit_id, uint8_t audio_interface, void* data, uint8_t len,
-    callback_function callback, uint8_t flags){
-    __set_requests(driver, dev, device_req, RECIPIENT_INTERFACE, SET_CUR,
-        control_selector, 0, processing_unit_id, audio_interface, data, len, 
-        callback, flags);
-}
-
-static inline void __request_processing_get(AudioDriver* driver, UsbDev* dev,
-    UsbDeviceRequest* device_req, uint8_t bRequest, uint8_t control_selector, 
-    uint8_t processing_unit_id, uint8_t audio_interface, void* data, uint8_t len,
-    callback_function callback, uint8_t flags){
-    __IF_RET__(bRequest != GET_CUR && bRequest != GET_MIN && 
-        bRequest != GET_MAX && bRequest != GET_RES);
-    __get_requests(driver, dev, device_req, RECIPIENT_INTERFACE, bRequest,
-        control_selector, 0, processing_unit_id, audio_interface, data, len, 
-        callback, flags);
-}
-
-static inline void __request_extension_set(AudioDriver* driver, UsbDev* dev,
-    UsbDeviceRequest* device_req, uint8_t control_selector,
-    uint8_t extension_unit_id, uint8_t audio_interface, void* data, uint8_t len,
-    callback_function callback, uint8_t flags){
-    __set_requests(driver ,dev, device_req, RECIPIENT_INTERFACE, SET_CUR,
-        control_selector, 0, extension_unit_id, audio_interface, data, len, 
-        callback, flags);
-}
-
-static inline void __request_extension_get(AudioDriver* driver, UsbDev* dev,
-    UsbDeviceRequest* device_req, uint8_t bRequest, uint8_t control_selector,
-    uint8_t extension_unit_id, uint8_t audio_interface, void* data, uint8_t len,
-    callback_function callback, uint8_t flags){
-    __IF_RET__(bRequest != GET_CUR && bRequest != GET_MIN && 
-        bRequest != GET_MAX && bRequest != GET_RES);
-    __get_requests(driver, dev, device_req, RECIPIENT_INTERFACE, bRequest,
-        control_selector, 0, extension_unit_id, audio_interface, data, len, 
-            callback, flags);
-}
-
 static inline void __request_endpoint_set(AudioDriver* driver, UsbDev* dev,
-    UsbDeviceRequest* device_req, uint8_t control_selector, uint8_t endpoint,
+    Interface* interface, UsbDeviceRequest* device_req, uint8_t bRequest, uint8_t control_selector, uint8_t endpoint,
     void* data, uint8_t len, callback_function callback, uint8_t flags){
-    __set_requests(driver, dev, device_req, RECIPIENT_ENDPOINT, SET_CUR,
+    __IF_RET__(bRequest != SET_CUR && bRequest != SET_MIN
+        && bRequest != SET_MAX && bRequest != SET_RES);
+    __set_requests(driver, dev, interface, device_req, RECIPIENT_ENDPOINT, bRequest,
         control_selector, 0, 0, endpoint, data, len, callback, flags);
 }
 
 static inline void __request_endpoint_get(AudioDriver* driver, UsbDev* dev,
-    UsbDeviceRequest* device_req, uint8_t bRequest, uint8_t control_selector, 
+    Interface* interface, UsbDeviceRequest* device_req, uint8_t bRequest, uint8_t control_selector, 
     uint8_t endpoint, void* data, uint8_t len, callback_function callback, 
     uint8_t flags){
     __IF_RET__(bRequest != GET_CUR && bRequest != GET_MIN && 
         bRequest != GET_MAX && bRequest != GET_RES);
-    __get_requests(driver, dev, device_req, RECIPIENT_ENDPOINT, bRequest,
+    __get_requests(driver, dev, interface, device_req, RECIPIENT_ENDPOINT, bRequest,
         control_selector, 0, 0, endpoint, data, len, callback, flags);
 }
 
@@ -703,12 +700,12 @@ static inline uint8_t* __parse_bmControls(AudioDriver* driver, uint8_t* pos,
 }
 
 static void inline __parse_bmaControls(AudioDriver* driver, uint8_t*** member,
-    uint8_t* control_size, MemoryService_C* m, uint8_t upstream_channels,
+    uint8_t* control_size, MemoryService_C* m, uint8_t available_controls,
     uint8_t* start){
     __ALLOC_KERNEL_MEM_T__(m, uint8_t*, bmaControls, sizeof(uint8_t*) * 
-        (upstream_channels+1));
+        available_controls);
     uint8_t* bmaControl_offset = start+6;
-    __FOR_RANGE__(j, int, 0, upstream_channels+1){
+    __FOR_RANGE__(j, int, 0, available_controls){
         uint8_t* bmControl = __parse_bmControls(driver, bmaControl_offset, 
             j, control_size, m);
         *(bmaControls+j) = bmControl;
@@ -726,24 +723,53 @@ static inline uint8_t __get_total_channels_in_cluster(AudioDriver* driver,
     return cluster.bNrChannels;
 }
 
-static inline void* __search_for_unit(AudioDriver* driver, uint8_t id){
-    return 0;
+static inline void* __search_for_unit_by_id(AudioDriver* driver, ACInterface* ac_interface, 
+    uint8_t id, enum ACInterfaceDescriptorSubtypes* unit_type){
+    __TRAVERSE_UNIT__ {
+        __INPUT_TERMINAL_MATCH__(driver, ac_interface, id, i, 
+            *unit_type=INPUT_TERMINAL;return ac_interface->in_terminal[i]);
+        __OUTPUT_TERMINAL_MATCH__(driver, ac_interface, id, i,
+            *unit_type=OUTPUT_TERMINAL;return ac_interface->out_terminal[i]);
+        __FEATURE_UNIT_MATCH__(driver, ac_interface, id, i,
+            *unit_type=FEATURE_UNIT;return ac_interface->feature_unit[i]);
+        __MIXER_UNIT_MATCH__(driver, ac_interface, id, i,
+            *unit_type=MIXER_UNIT;return ac_interface->mixer_unit[i]);
+        __SELECTOR_UNIT_MATCH__(driver, ac_interface, id, i,
+            *unit_type=SELECTOR_UNIT;return ac_interface->selector_unit[i]);
+        __EXTENSION_UNIT_MATCH__(driver, ac_interface, id, i,
+            *unit_type=EXTENSION_UNIT;return ac_interface->extension_unit[i]);
+        __PROCESSING_UNIT_MATCH__(driver, ac_interface, id, i,
+            *unit_type=PROCESSING_UNIT;return ac_interface->processing_unit[i]);
+    }
+    *unit_type=AC_DESCRIPTOR_UNDEFINED;
+    return (void*)0;
+}
+
+static inline uint8_t __get_unit_id(AudioDriver* driver, void* unit){
+    __TYPE_CAST__(uint8_t*, raw, unit);
+    return *(raw+3);
+}
+
+static inline uint8_t __get_unit_sub_type(AudioDriver* driver, void* unit){
+    __TYPE_CAST__(uint8_t*, raw, unit);
+    return *(raw+2);
+}
+
+static inline uint16_t __get_terminal_type(AudioDriver* driver, void* terminal){
+    __TYPE_CAST__(uint8_t*, raw, terminal);
+    return *(raw+4);
 }
 
 static inline uint8_t* __get_feature_bmControl_of_channel(AudioDriver* driver, 
-    ACInterface* ac_interface, uint8_t channel_number, uint8_t feature_unit_id){ 
-    /*__IF_RET_NULL__(__IS_NULL__(ac_interface->feature_unit));
-    struct FeatureUnit* feature_unit = __search_for_unit(driver);
-    uint8_t upstream_channels = get_upstream_channels_by_source_id_depth(driver, 
-      ac_interface->feature_unit->feature_unit_desc.bSourceID,
-        ac_interface, __MAX_UPSTREAM_DEPTH__);
-    __IF_RET_NULL__(channel_number > upstream_channels);
-    return *(ac_interface->feature_unit->feature_unit_desc.bmaControls + channel_number);
-*/}
+    uint8_t channel_number, struct FeatureUnit* feature_unit){ 
+    uint8_t available_controls = get_available_controls(driver, feature_unit);
+    __IF_RET_NULL__(channel_number > available_controls);
+    return *(feature_unit->feature_unit_desc.bmaControls + channel_number);
+}
 
 static inline int8_t __bmControl_supported(AudioDriver* driver, uint8_t* bmControl,
     enum FeatureUnitbmaControls control_bit){
-    __IF_EXT__((__IS_ZERO__((*bmControl & control_bit))), -1 , 0);
+    return __IF_EXT__((__IS_ZERO__((*bmControl & control_bit))), -1 , 1);
 }
 
 static inline int8_t __bmControl_mute_supported(AudioDriver* driver, uint8_t* bmControl){
@@ -771,12 +797,135 @@ static inline int8_t __bmControl_delay_supported(AudioDriver* driver, uint8_t* b
     return __bmControl_supported(driver, bmControl, BIT_DELAY);
 }
 
+static inline int8_t __support_enable_processing_control(AudioDriver* driver, struct ProcessingUnit* processing_unit){
+    __IF_RET_NEG__(__IS_ZERO__(processing_unit->processing_unit_desc.bControlSize));
+    return __IF_EXT__(__IS_ZERO__((*(processing_unit->processing_unit_desc.bmControls) & ENABLE_PROCESSING)),
+        -1, 1);
+}
+
+static inline int8_t __common_control(AudioDriver* driver, uint8_t bControlSize, uint8_t* bmControl, uint16_t control){
+    __IF_RET_NEG__(__IS_ZERO__(bControlSize));
+    return __IF_EXT__(__IS_ZERO__((*(bmControl) & control)), -1, 1);
+}
+
+static inline int8_t __support_mode_select_control(AudioDriver* driver, struct ProcessingUnit* processing_unit){
+    __IF_RET_NEG__(processing_unit->processing_unit_desc.wProcessType != UP_DOWNMIX_PROCESS
+        && processing_unit->processing_unit_desc.wProcessType != DOLBY_PROLOGIC_PROCESS);
+    uint8_t  bControlSize;
+    uint8_t* bmControl;
+    if(processing_unit->processing_unit_desc.wProcessType == UP_DOWNMIX_PROCESS){
+        __TYPE_CAST__(UP_DOWN_MixProcessingUnitDescriptor*, up_down, 
+            processing_unit->processing_unit_desc.process_specific_descriptor);
+        bControlSize = up_down->bControlSize; bmControl = up_down->bmControls;
+    }
+    else{
+        __TYPE_CAST__(DolbyPrologicProcessingUnitDescriptor*, dolby, 
+            processing_unit->processing_unit_desc.process_specific_descriptor);
+        bControlSize = dolby->bControlSize; bmControl = dolby->bmControls;
+    }
+    return __common_control(driver, bControlSize, bmControl, MODE_SELECT);
+}
+
+static inline int8_t __support_spaciousness_control(AudioDriver* driver, struct ProcessingUnit* processing_unit){
+    __IF_RET_NEG__(processing_unit->processing_unit_desc.wProcessType != STEREO_EXTENDER_PROCESS);
+    return __common_control(driver, processing_unit->processing_unit_desc.bControlSize,
+        processing_unit->processing_unit_desc.bmControls, SPACIOUSNESS);
+}
+
+static inline int8_t __reverb_control(AudioDriver* driver, enum ProcessingUnitProcessTypes type, 
+    uint8_t bControlSize, uint8_t* bmControl, enum ReverbProcessingUnitControl control){
+    __IF_RET_NEG__(type != REVERBERATION_PROCESS);
+    return __common_control(driver, bControlSize, bmControl, control);
+}
+
+static inline int8_t __support_reverb_type_control(AudioDriver* driver, struct ProcessingUnit* processing_unit){
+    return __reverb_control(driver, processing_unit->processing_unit_desc.wProcessType,
+        processing_unit->processing_unit_desc.bControlSize, processing_unit->processing_unit_desc.bmControls,
+        REVERB_TYPE); 
+}
+
+static inline int8_t __support_reverb_level_control(AudioDriver* driver, struct ProcessingUnit* processing_unit){
+    return __reverb_control(driver, processing_unit->processing_unit_desc.wProcessType,
+        processing_unit->processing_unit_desc.bControlSize, processing_unit->processing_unit_desc.bmControls,
+        REVERB_LEVEL); 
+}
+
+static inline int8_t __support_reverb_time_control(AudioDriver* driver, struct ProcessingUnit* processing_unit){
+    return __reverb_control(driver, processing_unit->processing_unit_desc.wProcessType,
+        processing_unit->processing_unit_desc.bControlSize, processing_unit->processing_unit_desc.bmControls,
+        REVERB_TIME); 
+}
+
+static inline int8_t __support_reverb_delay_feedback_control(AudioDriver* driver, struct ProcessingUnit* processing_unit){
+    return __reverb_control(driver, processing_unit->processing_unit_desc.wProcessType,
+        processing_unit->processing_unit_desc.bControlSize, processing_unit->processing_unit_desc.bmControls,
+        REVERB_DELAY_FEEDBACK); 
+}
+
+static inline int8_t __chorus_control(AudioDriver* driver, enum ProcessingUnitProcessTypes type, uint8_t bControlSize,
+    uint8_t* bmControl, enum ChorusProcessingUnitControl control){
+    __IF_RET_NEG__(type != CHORUS_PROCESS);
+    return __common_control(driver, bControlSize, bmControl, control);
+}
+
+static inline int8_t __support_chorus_level_control(AudioDriver* driver, struct ProcessingUnit* processing_unit){
+    return __chorus_control(driver, processing_unit->processing_unit_desc.wProcessType,
+        processing_unit->processing_unit_desc.bControlSize, processing_unit->processing_unit_desc.bmControls,
+        CHORUS_LEVEL); 
+}
+
+static inline int8_t __support_chorus_modulation_rate_control(AudioDriver* driver, struct ProcessingUnit* processing_unit){
+    return __chorus_control(driver, processing_unit->processing_unit_desc.wProcessType,
+        processing_unit->processing_unit_desc.bControlSize, processing_unit->processing_unit_desc.bmControls,
+        CHORUS_MODULATION_RATE); 
+}
+
+static inline int8_t __support_chorus_modulation_depth_control(AudioDriver* driver, struct ProcessingUnit* processing_unit){
+    return __chorus_control(driver, processing_unit->processing_unit_desc.wProcessType,
+        processing_unit->processing_unit_desc.bControlSize, processing_unit->processing_unit_desc.bmControls,
+        CHORUS_MODULATION_DEPTH); 
+}
+
+static inline int8_t __dynamic_control(AudioDriver* driver, enum ProcessingUnitProcessTypes type, uint8_t bControlSize,
+    uint8_t* bmControl, enum DynamicRangeUnitControl control){
+    __IF_RET_NEG__(type != DYN_RANGE_COMP_PROCESS);
+    return __common_control(driver, bControlSize, bmControl, control);
+}
+
+static inline int8_t __support_compression_ratio_control(AudioDriver* driver, struct ProcessingUnit* processing_unit){
+    return __dynamic_control(driver, processing_unit->processing_unit_desc.wProcessType,
+        processing_unit->processing_unit_desc.bControlSize, processing_unit->processing_unit_desc.bmControls,
+        COMPRESSION_RATIO); 
+}
+
+static inline int8_t __support_max_amplitude_control(AudioDriver* driver, struct ProcessingUnit* processing_unit){
+    return __dynamic_control(driver, processing_unit->processing_unit_desc.wProcessType,
+        processing_unit->processing_unit_desc.bControlSize, processing_unit->processing_unit_desc.bmControls,
+        MAX_AMPLITUDE); 
+}
+
+static inline int8_t __support_threshold_control(AudioDriver* driver, struct ProcessingUnit* processing_unit){
+    return __dynamic_control(driver, processing_unit->processing_unit_desc.wProcessType,
+        processing_unit->processing_unit_desc.bControlSize, processing_unit->processing_unit_desc.bmControls,
+        THRESHOLD); 
+}
+
+static inline int8_t __support_attack_time_control(AudioDriver* driver, struct ProcessingUnit* processing_unit){
+    return __dynamic_control(driver, processing_unit->processing_unit_desc.wProcessType,
+        processing_unit->processing_unit_desc.bControlSize, processing_unit->processing_unit_desc.bmControls,
+        ATTACK_TIME); 
+}
+
+static inline int8_t __support_release_time_control(AudioDriver* driver, struct ProcessingUnit* processing_unit){
+    return __dynamic_control(driver, processing_unit->processing_unit_desc.wProcessType,
+        processing_unit->processing_unit_desc.bControlSize, processing_unit->processing_unit_desc.bmControls,
+        RELEASE_TIME); 
+}
+
 static inline void __parse_waModes(AudioDriver* driver, uint8_t* pos,
-    uint8_t* number_modes, UP_DOWN_MixProcessingUnitDescriptor* 
-        up_down_mix_processing_unit_descriptor){
+    uint8_t* number_modes, uint16_t* waModes){
     __FOR_RANGE__(i, int, 0, *number_modes){
-        *(up_down_mix_processing_unit_descriptor->waModes + i) = 
-            *((uint16_t*)(pos + i));
+        *(waModes + i) = *(((uint16_t*)pos) + i);
     }
 }
 
@@ -858,13 +1007,11 @@ static inline int8_t __audio_interface_present(AudioDriver* driver, AudioDev* de
 
 static inline void __build_selector_control_block(AudioDriver* driver, 
     SelectorControlParameterBlock* selector_control_block, uint8_t selector_value){
-    selector_control_block->wLength = 1;
     selector_control_block->bSelector = selector_value;
 }
 
 static inline void __build_mixer_control_first_form(AudioDriver* driver, 
-    MixerControlParameterBlockFirstForm* mixer_control_block, uint16_t mixer_value){
-    mixer_control_block->wLength = 2;
+    MixerControlParameterBlockFirstForm* mixer_control_block, int16_t mixer_value){
     mixer_control_block->wMixer = mixer_value;
 }
 
@@ -879,30 +1026,22 @@ static inline void __build_mixer_control_second_form(AudioDriver* driver,
 
 static inline void __build_copy_protect_control(AudioDriver* driver, 
     CopyProtectControlParameterBlock* copy_protect_block, CPL copy_protect){
-    copy_protect_block->control_selector = COPY_PROTECT_CONTROL;
-    copy_protect_block->wLength = 1;
     copy_protect_block->bCopyProtect = copy_protect;
 }
 
 static inline void __build_enable_processing_control_block(AudioDriver* driver,
     struct EnableProcessingControlParameterBlock* enable_processing_block, 
     uint8_t bEnable){
-    enable_processing_block->control_selector = XU_ENABLE_CONTROL;
-    enable_processing_block->wLength = 1;
     enable_processing_block->bEnable = bEnable;
 }
 
 static inline void __build_mode_select_control_block(AudioDriver* driver,
     struct ModeSelectControlParameterBlock* mode_select_block, uint8_t bMode){
-    mode_select_block->control_selector = DP_MODE_SELECT_CONTROL;
-    mode_select_block->wLength = 1;
     mode_select_block->bMode = bMode;
 }
 
 static inline void __build_spaciousness_control_block(AudioDriver* driver,
     struct SpaciousnessControlParameterBlock* control_block, uint8_t value){
-    control_block->control_selector = STEREO_SPACIOUSNESS_CONTROL;
-    control_block->wLength = 1;
     control_block->bSpaciousness = value;
 }
 
@@ -915,38 +1054,58 @@ static inline void __build_reverb_type_control_block(AudioDriver* driver,
 static inline void __build_reverb_level_control_block(AudioDriver* driver,
     struct ReverbLevelControlParameterBlock* reverb_control_block,
     uint8_t bReverbLevel){
-    reverb_control_block->control_selector = REVERB_LEVEL_CONTROL;
-    reverb_control_block->wLength = 1;
     reverb_control_block->bReverbLevel = bReverbLevel;
 }
 
 static inline void __build_chorus_level_control_block(AudioDriver* driver,
     struct ChorusLevelControlParameterBlock* chorus_control_block,
     uint8_t bChorusLevel){
-    chorus_control_block->control_selector = CHORUS_LEVEL_CONTROL;
-    chorus_control_block->wLength = 1;
     chorus_control_block->bChorusLevel = bChorusLevel;
 }
 
 static inline void __build_enable_extension_processing_control_block(AudioDriver* driver,
     struct EnableProcessingControlParameterBlock* control_block, uint8_t bOn){
-    control_block->control_selector = XU_ENABLE_CONTROL;
-    control_block->wLength = 1;
     control_block->bEnable = bOn;
 }
 
 static inline void __build_volume_control_block(AudioDriver* driver, 
     VolumeControlParameterBlockFirstForm* volume_control_block, int16_t value){
-    volume_control_block->control_selector = VOLUME_CONTROL;
-    volume_control_block->wLength = 2;
     volume_control_block->wVolume = value;
 }
 
 static inline void __build_mute_control_block(AudioDriver* driver,
     MuteControlParameterBlockFirstForm* mute_control_block, uint8_t value){
-    mute_control_block->control_selector = MUTE_CONTROL;
-    mute_control_block->wLength = 1;
     mute_control_block->bMute = value;
+}
+
+static inline void __build_pitch_control_block(AudioDriver* driver,
+    struct PitchControlParameterBlock* pitch_control_block, uint8_t value){
+    pitch_control_block->bPitchEnable = value;
+}
+
+void new_audio_driver(AudioDriver* driver, char* name, UsbDevice_ID* entry){
+    __FOR_RANGE__(i, int, 0, MAX_DEVICES_PER_USB_DRIVER){
+        driver->audio_map[i] = 0;
+        driver->dev[i].usb_dev = 0;
+        driver->dev[i].buffer_first = 0;
+        driver->dev[i].buffer_second = 0;
+        driver->dev[i].buffer_size = 0;
+        driver->dev[i].priority = 0;
+        driver->dev[i].audio_control_interface = 0;
+        driver->dev[i].audio_streaming_interfaces_num = 0;
+        driver->dev[i].interval = 0;
+        driver->dev[i].callback = &callback_audio;
+        driver->dev[i].usb_driver = (UsbDriver *)driver;
+        driver->dev[i].curr_volume = 0;
+        driver->dev[i].max_volume = 0;
+        driver->dev[i].min_volume = 0;
+        __FOR_RANGE__(j, int, 0, __MAX_STREAMING_INTERFACES__){
+            driver->dev[i].audio_streaming_interfaces[i] = 0;
+        }
+    }
+    
+    internal_audio_driver = driver;
+    __INIT_AUDIO_DRIVER__(driver, name, entry);
 }
 
 // for the enumeration we are assuming that enumerating the unit/terminal is 
@@ -990,32 +1149,36 @@ static inline void __parse_cluster(AudioDriver* driver, ClusterDescriptor* clust
     uint8_t* start, uint8_t offset){
     start += offset;
     cluster->bNrChannels =  *(start);
-    cluster->wChannelConfig = *(start+1);
+    cluster->wChannelConfig = *((uint16_t*)(start+1));
     cluster->iChannelNames = (*start+3);
 }
 
-static void mute_control_callback(UsbDev *dev, uint32_t status, void *data){
+static void mute_control_callback(UsbDev *dev, Interface* interface, uint32_t status, void *data){
     __IF_RET__(status & E_TRANSFER);
-    __TYPE_CAST__(MuteControlParameterBlockFirstForm*, mute_control, data);
-    MemoryService_C* mem_service = __DEV_MEMORY(dev);
-    // need to free device request + free map io mem
+    __TYPE_CAST__(struct MuteControlParameterBlockFirstForm*, mute_block, data);
+    __TYPE_CAST__(AudioDev*, audio_dev, interface->data);
+    audio_dev->muted = mute_block->bMute;
 }
 
-static void volume_control_callback(UsbDev* dev, uint32_t status, void* data){
+static void volume_change_callback(UsbDev* dev, Interface* interface, uint32_t status, void* data){
     __IF_RET__(status & E_TRANSFER);
-    __TYPE_CAST__(MuteControlParameterBlockFirstForm*, mute_control, data);
-    MemoryService_C* mem_service = __DEV_MEMORY(dev);
-    // need to free device request + free map io mem
+    __TYPE_CAST__(AudioDev*, audio_dev, interface->data);
+    __TYPE_CAST__(struct VolumeControlParameterBlockFirstForm*, volume_block, data);
+    audio_dev->curr_volume = volume_block->wVolume;
 }
 
-static void copy_protect_control_callback(UsbDev* dev, uint32_t status, void* data){
+static void volume_max_callback(UsbDev* dev, Interface* interface, uint32_t status, void* data){
     __IF_RET__(status & E_TRANSFER);
-    __TYPE_CAST__(CopyProtectControlParameterBlock*, copy_protect_block, data);    
-    MemoryService_C* mem_service = __DEV_MEMORY(dev);
+    __TYPE_CAST__(AudioDev*, audio_dev, interface->data);
+    __TYPE_CAST__(struct VolumeControlParameterBlockFirstForm*, volume_block, data);
+    audio_dev->max_volume = volume_block->wVolume;
 }
 
-static void extension_callback(UsbDev* dev, uint32_t status, void* data){
-
+static void volume_min_callback(UsbDev* dev, Interface* interface, uint32_t status, void* data){
+    __IF_RET__(status & E_TRANSFER);
+    __TYPE_CAST__(AudioDev*, audio_dev, interface->data);
+    __TYPE_CAST__(struct VolumeControlParameterBlockFirstForm*, volume_block, data);
+    audio_dev->min_volume = volume_block->wVolume;
 }
 
 static uint8_t* __parse_mixer_bmControls(AudioDriver* driver, uint8_t* pos, 
@@ -1056,17 +1219,68 @@ static int mixer_build_routine(AudioDriver* driver, uint8_t* start,
   return __RET_S__;
 }
 
+static void* back_propagate_output_processing(AudioDriver* driver, ACInterface* ac_interface,
+    struct OutputTerminal* output_terminal, enum ProcessingUnitProcessTypes search){
+    __BACK_PROPAGATE_OUT_PROCESSING__(driver, output_terminal, ac_interface, search);
+    return (void*)0;
+}
+
+static void* back_propagate_output(AudioDriver* driver, ACInterface* ac_interface,
+    struct OutputTerminal* output_terminal, enum ACInterfaceDescriptorSubtypes search){
+    if(search == OUTPUT_TERMINAL) return output_terminal;
+    __BACK_PROPAGATE_OUT__(driver, output_terminal, ac_interface, search);
+    return (void*)0;
+}
+
+static void* back_propagate_input(AudioDriver* driver, ACInterface* ac_interface,
+    struct InputTerminal* input_terminal, enum ACInterfaceDescriptorSubtypes start,
+    enum ProcessingUnitProcessTypes subtype){
+    void** ac_units = (void**)0;
+    uint8_t unit_count = 0;
+    if(start == INPUT_TERMINAL) return input_terminal;
+    uint8_t search_id = input_terminal->in_terminal_desc.bTerminalID;
+    switch(start){
+        case MIXER_UNIT : ac_units = (void**)ac_interface->mixer_unit; 
+            unit_count = ac_interface->unit_count_map[MIXER_UNIT]; break;
+        case SELECTOR_UNIT : ac_units = (void**)ac_interface->selector_unit;
+            unit_count = ac_interface->unit_count_map[SELECTOR_UNIT]; break;
+        case FEATURE_UNIT : ac_units = (void**)ac_interface->feature_unit;
+            unit_count = ac_interface->unit_count_map[FEATURE_UNIT]; break;
+        case PROCESSING_UNIT : ac_units = (void**)ac_interface->processing_unit;
+            unit_count = ac_interface->unit_count_map[PROCESSING_UNIT]; break;
+        case EXTENSION_UNIT : ac_units = (void**)ac_interface->extension_unit;
+            unit_count = ac_interface->unit_count_map[EXTENSION_UNIT]; break;
+        case OUTPUT_TERMINAL : ac_units = (void**)ac_interface->out_terminal;
+            unit_count = ac_interface->unit_count_map[OUTPUT_TERMINAL]; break;
+        default : return (void*)0;
+    }
+    // now back prop
+    __FOR_RANGE__(i, int, 0, unit_count){
+        __IF_CONTINUE__((start == PROCESSING_UNIT) &&  (__STRUCT_CALL__(driver, 
+            retrieve_process_type, (uint8_t*)(ac_units[i])) != subtype));
+        __BACK_PROPAGATE_IN__(driver, start, ac_units[i], ac_interface, search_id);
+    }
+    return (void*)0;
+}
+
+static uint8_t get_available_controls(AudioDriver* driver,
+    struct FeatureUnit* feature_unit){
+    uint8_t size = feature_unit->feature_unit_desc.bLength;
+    uint8_t ctl_size = feature_unit->feature_unit_desc.bControlSize;
+    return (size - 7) / ctl_size;
+}
+
 static uint8_t get_upstream_channels_by_source_id_depth(AudioDriver* driver,
     uint8_t bSourceID, ACInterface* ac_interface, uint8_t depth){
     __IF_RET_ZERO__(depth == 0);
     __TRAVERSE_UNIT__{
-        __TERMINAL_MATCH_ID__(driver, ac_interface->out_terminal[i]->out_terminal_desc, bSourceID,
-        return get_upstream_channels_by_source_id_depth(driver, 
+        __OUTPUT_TERMINAL_MATCH__(driver, ac_interface, bSourceID, i, 
+            return get_upstream_channels_by_source_id_depth(driver, 
             ac_interface->out_terminal[i]->out_terminal_desc.bSourceID, ac_interface, depth-1));
-        __UNIT_MATCH_ID__(driver, ac_interface->selector_unit[i]->selector_unit_desc, bSourceID,
+        __SELECTOR_UNIT_MATCH__(driver, ac_interface, bSourceID, i, 
             return get_upstream_channels_by_source_id_depth(driver,
-                *ac_interface->selector_unit[i]->selector_unit_desc.baSourceID, ac_interface, depth-1));
-        __UNIT_MATCH_ID__(driver, ac_interface->feature_unit[i]->feature_unit_desc, bSourceID,
+                *(ac_interface->selector_unit[i]->selector_unit_desc.baSourceID), ac_interface, depth-1));
+        __FEATURE_UNIT_MATCH__(driver, ac_interface, bSourceID, i, 
             return get_upstream_channels_by_source_id_depth(driver, 
                 ac_interface->feature_unit[i]->feature_unit_desc.bSourceID, ac_interface, depth-1));
 
@@ -1091,28 +1305,29 @@ static uint8_t get_upstream_channels_by_source_id(AudioDriver* driver,
         __TOTAL_CHANNEL_MATCH_UNIT__(driver, ac_interface->processing_unit[i]->processing_unit_desc, bSourceID);
         __TOTAL_CHANNEL_MATCH_UNIT__(driver, ac_interface->extension_unit[i]->extension_unit_desc, bSourceID);
     }
-    
     return __RET_N__;
 }
 
+// find_structure can also be used directly, giving the id to search for
 static void* find_structure_by_id(AudioDriver* driver, ACInterface* ac_interface,
-    uint8_t bSourceID, enum ACInterfaceDescriptorSubtypes* subtype){
-    __TRAVERSE_UNIT__{
-        __TERMINAL_MATCH_ID__(driver, ac_interface->in_terminal[i]->in_terminal_desc, bSourceID,
-        *subtype = INPUT_TERMINAL; return ac_interface->in_terminal[i]);
-        __TERMINAL_MATCH_ID__(driver, ac_interface->out_terminal[i]->out_terminal_desc, bSourceID,
-            *subtype = OUTPUT_TERMINAL; return ac_interface->out_terminal[i]);
-        __UNIT_MATCH_ID__(driver, ac_interface->mixer_unit[i]->mixer_unit_desc, bSourceID,
-            *subtype = MIXER_UNIT; return ac_interface->mixer_unit[i]);
-        __UNIT_MATCH_ID__(driver, ac_interface->selector_unit[i]->selector_unit_desc, bSourceID,
-            *subtype = SELECTOR_UNIT; return ac_interface->selector_unit[i]);
-        __UNIT_MATCH_ID__(driver, ac_interface->feature_unit[i]->feature_unit_desc, bSourceID,
-            *subtype = FEATURE_UNIT; return ac_interface->feature_unit[i]);
-        __UNIT_MATCH_ID__(driver, ac_interface->processing_unit[i]->processing_unit_desc, bSourceID,
-            *subtype = PROCESSING_UNIT; return ac_interface->processing_unit[i]);
-        __UNIT_MATCH_ID__(driver, ac_interface->extension_unit[i]->extension_unit_desc, bSourceID,
-            *subtype = EXTENSION_UNIT; return ac_interface->extension_unit[i]);
+    uint8_t bSourceID, enum ACInterfaceDescriptorSubtypes* unit_type){
+    __TRAVERSE_UNIT__ {
+        __INPUT_TERMINAL_MATCH__(driver, ac_interface, bSourceID, i, 
+            *unit_type=INPUT_TERMINAL;return ac_interface->in_terminal[i]);
+        __OUTPUT_TERMINAL_MATCH__(driver, ac_interface, bSourceID, i,
+            *unit_type=OUTPUT_TERMINAL;return ac_interface->out_terminal[i]);
+        __FEATURE_UNIT_MATCH__(driver, ac_interface, bSourceID, i,
+            *unit_type=FEATURE_UNIT;return ac_interface->feature_unit[i]);
+        __MIXER_UNIT_MATCH__(driver, ac_interface, bSourceID, i,
+            *unit_type=MIXER_UNIT;return ac_interface->mixer_unit[i]);
+        __SELECTOR_UNIT_MATCH__(driver, ac_interface, bSourceID, i,
+            *unit_type=SELECTOR_UNIT;return ac_interface->selector_unit[i]);
+        __EXTENSION_UNIT_MATCH__(driver, ac_interface, bSourceID, i,
+            *unit_type=EXTENSION_UNIT;return ac_interface->extension_unit[i]);
+        __PROCESSING_UNIT_MATCH__(driver, ac_interface, bSourceID, i,
+            *unit_type=PROCESSING_UNIT;return ac_interface->processing_unit[i]);
     }
+    *unit_type=AC_DESCRIPTOR_UNDEFINED;
     return (void*)0;
 }
 
@@ -1139,7 +1354,9 @@ static void* get_upstream_structure(AudioDriver* driver, ACInterface* ac_interfa
 
 static int8_t is_bm_control_programmable(AudioDriver* driver, 
     struct MixerUnit* mixer_unit, uint8_t input_channel, 
-    uint8_t output_channel, uint8_t output_channels, uint8_t input_channels){
+    uint8_t output_channel){
+    uint8_t output_channels = __STRUCT_CALL__(driver, 
+        __get_total_channels_in_cluster, mixer_unit->mixer_unit_desc.cluster);
     uint8_t N = mixer_unit->bmControlsLength;
     uint8_t shift;
     __IF_ELSE__(((output_channels % 8) == 0), shift = output_channels / 8,
@@ -1156,7 +1373,7 @@ static uint8_t mixer_bmControlLength(AudioDriver* driver,
     // column corresponding to an output channel
     // total count of bmControls is ((n * m) / 8) if mod 8 == 0; otherwise ((n * m) / 8) + 1
     uint8_t N;
-    __IF_ELSE__(((input_channels * output_channels) / 8) % 8 != 0, 
+    __IF_ELSE__(((input_channels * output_channels) % 8) != 0, 
         N = ((input_channels * output_channels) / 8) + 1,
         N = ((input_channels* output_channels) / 8));
     return N;
@@ -1165,6 +1382,7 @@ static uint8_t mixer_bmControlLength(AudioDriver* driver,
 static int selector_build_routine(AudioDriver* driver, uint8_t* start,
   ACInterface* ac_interface, MemoryService_C* m){
   __IF_RET_NEG__(__UNIT_COUNT__(ac_interface, SELECTOR_UNIT));
+  __ALLOC_KERNEL_MEM_S__(m, struct SelectorUnit, selector_unit);
   SelectorUnitDescriptor selector_unit_desc;
   uint8_t bNrInPins = *(start + 4);
   selector_unit_desc.bLength = *start;
@@ -1175,93 +1393,100 @@ static int selector_build_routine(AudioDriver* driver, uint8_t* start,
   __parse_baSourceID(driver, start+5, bNrInPins, m, 
     &selector_unit_desc.baSourceID);
   selector_unit_desc.iSelector = *(start+5+bNrInPins);
-  ac_interface->selector_unit[__GET_UNIT_COUNT__(ac_interface, 
-    SELECTOR_UNIT)]->selector_unit_desc = selector_unit_desc;
+  selector_unit->selector_unit_desc = selector_unit_desc;
+  __ADD_UNIT__(ac_interface, selector_unit, SELECTOR_UNIT, selector_unit);
+
+  return __RET_S__;
 }
 
 static int feature_build_routine(AudioDriver* driver, uint8_t* start,
   ACInterface* ac_interface, MemoryService_C* m){
   __IF_RET_NEG__(__UNIT_COUNT__(ac_interface, FEATURE_UNIT));
   __ALLOC_KERNEL_MEM_S__(m, struct FeatureUnit, feature_unit);
-  FeatureUnitDescriptor feature_unit_desc;
   uint8_t control_size = *(start+5);
-  __parse_common_unit_descriptor_part(driver, start, &feature_unit_desc.bLength,
-    &feature_unit_desc.bDescriptorType, &feature_unit_desc.bDescriptorSubtype,
-    &feature_unit_desc.bUnitID);
-  feature_unit_desc.bSourceID = *(start+4);
-  feature_unit_desc.bControlSize = control_size;
-  uint8_t upstream_channels = get_upstream_channels_by_source_id_depth(driver, 
-    feature_unit_desc.bSourceID, ac_interface, __MAX_UPSTREAM_DEPTH__);
-  __parse_bmaControls(driver, &feature_unit_desc.bmaControls, &control_size,
-    m, upstream_channels, start);
-  feature_unit_desc.iFeature = *(start + 6 + 
-    ((upstream_channels+1) * control_size));
-  feature_unit->feature_unit_desc = feature_unit_desc;
+  __parse_common_unit_descriptor_part(driver, start, &feature_unit->feature_unit_desc.bLength,
+    &feature_unit->feature_unit_desc.bDescriptorType, &feature_unit->feature_unit_desc.bDescriptorSubtype,
+    &feature_unit->feature_unit_desc.bUnitID);
+  feature_unit->feature_unit_desc.bSourceID = *(start+4);
+  feature_unit->feature_unit_desc.bControlSize = control_size;
+  uint8_t available_controls = get_available_controls(driver, feature_unit); 
+  __parse_bmaControls(driver, &feature_unit->feature_unit_desc.bmaControls, &control_size,
+    m, available_controls, start);
+  feature_unit->feature_unit_desc.iFeature = *(start + 6 + 
+    (available_controls * control_size));
   __ADD_UNIT__(ac_interface, feature_unit, FEATURE_UNIT, feature_unit);
   
   return __RET_S__;
 }
 
-static int up_down_mix_processing_unit_build_routine(AudioDriver* driver,
-    uint8_t* start, MemoryService_C* m, 
-    ProcessingUnitDescriptor* processing_unit_descriptor){
-    __EXT_SPECIFIC_PROCESSING_UNIT_ROUTINE__(driver, start, processing_unit_descriptor,
-        UP_DOWN_MixProcessingUnitDescriptor, m);
+static void* up_down_mix_processing_unit_build_routine(AudioDriver* driver,
+    uint8_t* start, MemoryService_C* m){
+    __EXT_SPECIFIC_PROCESSING_UNIT_ROUTINE__(driver, start,
+      UP_DOWN_MixProcessingUnitDescriptor, m);
+    return processing_unit_desc;
 }
 
-static int dolby_prologic_processing_unit_build_routine(AudioDriver* driver,
-    MemoryService_C* m, uint8_t* start, ProcessingUnitDescriptor* processing_unit_descriptor){
-    __EXT_SPECIFIC_PROCESSING_UNIT_ROUTINE__(driver, start, processing_unit_descriptor,
-        DolbyPrologicProcessingUnitDescriptor, m);
+static void* dolby_prologic_processing_unit_build_routine(AudioDriver* driver,
+    MemoryService_C* m, uint8_t* start){
+    __EXT_SPECIFIC_PROCESSING_UNIT_ROUTINE__(driver, start,
+      DolbyPrologicProcessingUnitDescriptor, m);
+    return processing_unit_desc;
 }
 
-static int stereo_extender_processing_unit_build_routine(AudioDriver* driver,
-    MemoryService_C* m, uint8_t* start, ProcessingUnitDescriptor* processing_unit_descriptor){
-    __SIMPLE_SPECIFIC_PROCESSING_UNIT_ROUTINE__(driver, start, 
-        processing_unit_descriptor, THREE_D_StereoExtenderProcessingUnitDescriptor, m);
+static void* stereo_extender_processing_unit_build_routine(AudioDriver* driver,
+    MemoryService_C* m, uint8_t* start){
+    __SIMPLE_SPECIFIC_PROCESSING_UNIT_ROUTINE__(driver, start,
+      THREE_D_StereoExtenderProcessingUnitDescriptor, m);
+    return processing_unit_desc;
 }
 
-static int reverberation_processing_unit_build_routine(AudioDriver* driver,
-    MemoryService_C* m, uint8_t* start, ProcessingUnitDescriptor* processing_unit_descriptor){
-    __SIMPLE_SPECIFIC_PROCESSING_UNIT_ROUTINE__(driver, start, processing_unit_descriptor,
-        ReverberationProcessingUnitDescriptor, m);
+static void* reverberation_processing_unit_build_routine(AudioDriver* driver,
+    MemoryService_C* m, uint8_t* start){
+    __SIMPLE_SPECIFIC_PROCESSING_UNIT_ROUTINE__(driver, start,
+      ReverberationProcessingUnitDescriptor, m);
+    return processing_unit_desc;
 }
 
-static int chorus_processing_unit_build_routine(AudioDriver* driver, 
-    MemoryService_C* m, uint8_t* start, ProcessingUnitDescriptor* processing_unit_descriptor){
-    __SIMPLE_SPECIFIC_PROCESSING_UNIT_ROUTINE__(driver, start, processing_unit_descriptor,
-        ChorusProcessingUnitDescriptor, m);
+static void* chorus_processing_unit_build_routine(AudioDriver* driver, 
+    MemoryService_C* m, uint8_t* start){
+    __SIMPLE_SPECIFIC_PROCESSING_UNIT_ROUTINE__(driver, start,
+      ChorusProcessingUnitDescriptor, m);
+    return processing_unit_desc;
 }
 
-static int dynamic_range_compressor_processing_unit_build_routine(AudioDriver* driver, 
-    MemoryService_C* m, uint8_t* start, ProcessingUnitDescriptor* processing_unit_descriptor){
-    __SIMPLE_SPECIFIC_PROCESSING_UNIT_ROUTINE__(driver, start, processing_unit_descriptor, 
-        DynamicRangeCompressorProcessnigUnitDescriptor, m);
+static void* dynamic_range_compressor_processing_unit_build_routine(AudioDriver* driver, 
+    MemoryService_C* m, uint8_t* start){
+    __SIMPLE_SPECIFIC_PROCESSING_UNIT_ROUTINE__(driver, start,
+      DynamicRangeCompressorProcessnigUnitDescriptor, m);
+    return processing_unit_desc;
 }
 
 static void parse_process_specific_descriptor(AudioDriver* driver, 
-    ProcessingUnitDescriptor* process_unit, uint16_t wProcessType,
+    struct ProcessingUnit* process_unit, enum ProcessingUnitProcessTypes wProcessType,
     uint8_t* pos, MemoryService_C* m){
+    void* specific = (void*)0;    
     switch(wProcessType){
         case UP_DOWNMIX_PROCESS : 
-            up_down_mix_processing_unit_build_routine(driver, pos, m,
-                process_unit); break;
+            specific = up_down_mix_processing_unit_build_routine(driver, pos, m); 
+            process_unit->ext = 1; break;
         case DOLBY_PROLOGIC_PROCESS : 
-            dolby_prologic_processing_unit_build_routine(driver, m, pos,
-                process_unit); break;
+            specific = dolby_prologic_processing_unit_build_routine(driver, m, pos); 
+            process_unit->ext = 1; break;
         case STEREO_EXTENDER_PROCESS : 
-            stereo_extender_processing_unit_build_routine(driver, m,
-                pos, process_unit); break;
+            specific = stereo_extender_processing_unit_build_routine(driver, m, pos); 
+            process_unit->ext = 0; break;
         case REVERBERATION_PROCESS : 
-            reverberation_processing_unit_build_routine(driver, m,
-                pos, process_unit); break;
-        case CHORUS_PROCESS : chorus_processing_unit_build_routine(driver, m,
-            pos, process_unit); break;
+            specific = reverberation_processing_unit_build_routine(driver, m, pos); 
+            process_unit->ext = 0; break;
+        case CHORUS_PROCESS : 
+            specific = chorus_processing_unit_build_routine(driver, m, pos); 
+            process_unit->ext = 0; break;
         case DYN_RANGE_COMP_PROCESS : 
-            dynamic_range_compressor_processing_unit_build_routine(driver, m,
-                pos, process_unit); break;
+            specific = dynamic_range_compressor_processing_unit_build_routine(driver, m, pos);
+            process_unit->ext = 0;
         default : break;
     };
+    __assign_process(driver, specific, &process_unit->processing_unit_desc);
 }
 
 static int processing_unit_build_routine(AudioDriver* driver, uint8_t* start,
@@ -1284,10 +1509,10 @@ static int processing_unit_build_routine(AudioDriver* driver, uint8_t* start,
         &processing_unit_desc.bControlSize, m);
     processing_unit_desc.iProcessing = *(start+12+processing_unit_desc.bNrInPins+
         processing_unit_desc.bControlSize);
-    parse_process_specific_descriptor(driver, &processing_unit_desc, 
+    processing_unit->processing_unit_desc = processing_unit_desc;    
+    parse_process_specific_descriptor(driver, processing_unit, 
         processing_unit_desc.wProcessType, start+13+processing_unit_desc.bNrInPins+
         processing_unit_desc.bControlSize, m);
-    processing_unit->processing_unit_desc = processing_unit_desc;
     __ADD_UNIT__(ac_interface, processing_unit, PROCESSING_UNIT, processing_unit);
 
     return __RET_S__;
@@ -1326,6 +1551,7 @@ static int associated_interface_build_routine(AudioDriver* driver, uint8_t* star
         &associated_interface_descriptor.bDescriptorType, &associated_interface_descriptor.bDescriptorSubtype,
         &associated_interface_descriptor.bInterfaceNr);
     // unit | terminal listed here again ?
+    return 0;
 }
 
 static uint8_t* __parse_baInterfaceNumbers(AudioDriver* driver, uint8_t* start,
@@ -1457,7 +1683,7 @@ static int handle_as_routine(AudioDriver* driver, uint8_t** start,
   uint8_t as_num = 1, as_endpoint_num = 0;
   
   while(*start < end){
-    if(*((*start) + 1) == INTERFACE){
+    if((*((*start) + 1) == INTERFACE) && (*((*start) + 6) == AUDIO_STREAMING)){
         as_endpoint_num = 0;
         if(__IS_NULL__(alt_itf)){
             alt_itf = audio_streaming_interfaces[0]->alternate_interfaces;
@@ -1641,44 +1867,38 @@ static void switch_if_zero_bandwidth(AudioDriver* driver, AudioDev* audio_dev){
     }
 }
 
-static void set_default_frequency(AudioDriver* driver, AudioDev* audio_dev){
-    Interface** streaming_interfaces = audio_dev->audio_streaming_interfaces;
-    uint8_t streaming_interfaces_num = audio_dev->audio_streaming_interfaces_num;
-    SampleFrequency sample_frequencies [] = {__44100_HZ__, __48000_HZ__, {}};
-    __FOR_RANGE__(i, int, 0, streaming_interfaces_num){
-        ASInterface* as_interface = (ASInterface*)streaming_interfaces[i]->active_interface->class_specific;
-        __FOR_RANGE_COND__(j, int, 0, 
-            (__is_zero_frequency(driver, sample_frequencies[j]) != 1), j++){
-            struct FormatType* format_type = as_interface->format_type;
-            if(format_type->get_format_type(format_type->type_descriptor) == FORMAT_TYPE_1){
-                struct Type1_FormatTypeDescriptor* type1 = (struct Type1_FormatTypeDescriptor*)as_interface->format_type->type_descriptor;
-                struct DiscreteNumberSamplingFrequencies* discrete = (struct DiscreteNumberSamplingFrequencies*)type1->samFreq;
-                SampleFrequency* sample_freq = discrete->tSam;
-                __FOR_RANGE__(t, int, 0, type1->bSamFreqType){
-                    if((sample_freq+t)->sampleFreq_lo == sample_frequencies[j].sampleFreq_lo &&
-                        (sample_freq+t)->sampleFreq_hi == sample_frequencies[j].sampleFreq_hi){
-                        set_sampling_frequency(driver, audio_dev, streaming_interfaces[i], *(sample_freq + t));
-                        goto label_cont;
-                    }
-                }
+static int8_t is_valid_frequency(AudioDriver* driver, Interface* itf,
+    AudioDev* audio_dev, struct SampleFrequency frequency){
+    ASInterface* as_interface = __STRUCT_CALL__(driver, 
+        __get_class_specific_as_interface, audio_dev->usb_dev, itf);
+    struct FormatType* format_type = as_interface->format_type;
+    if(format_type->get_format_type(format_type->type_descriptor) == FORMAT_TYPE_1){
+        struct Type1_FormatTypeDescriptor* type1 = (struct Type1_FormatTypeDescriptor*)as_interface->format_type->type_descriptor;
+        struct DiscreteNumberSamplingFrequencies* discrete = (struct DiscreteNumberSamplingFrequencies*)type1->samFreq;
+        SampleFrequency* sample_freq = discrete->tSam;
+        __FOR_RANGE__(t, int, 0, type1->bSamFreqType){
+            if(__STRUCT_CALL__(driver, __match_frequency, sample_freq+t, &frequency)){
+                return __RET_S__;
             }
         }
-        label_cont:
     }
+    return __RET_E__;
 }
 
 static int8_t sync_streaming_interface(AudioDriver* driver, UsbDev* dev,
     Interface* interface){
-    Endpoint* endpoint = __STRUCT_CALL__(dev, __get_first_endpoint, interface->active_interface);
+    Endpoint* endpoint = __STRUCT_CALL__(dev, 
+        __get_first_endpoint, interface->active_interface);
     ASInterface* as_interface = __STRUCT_CALL__(driver, 
-    __convert_to_class_specific_as_interface, interface);
+        __convert_to_class_specific_as_interface, interface);
     __IF_RET_NEG__(__IS_NULL__(endpoint));
     uint16_t delay = __STRUCT_CALL__(driver, __get_sync_delay, endpoint);
     LockDelayUnit delay_unit = __STRUCT_CALL__(driver, __get_sync_unit, endpoint);
     uint16_t time_in_ms;
     if(delay_unit == LOCK_UNIT_UNDEFINED) return __RET_E__;
     else if(delay_unit == LOCK_PCM_SAMPLES){
-        uint16_t samples_per_1ms = __get_1ms_size(driver, as_interface);
+        uint16_t samples_per_1ms = __STRUCT_CALL__(driver, 
+            __get_1ms_size, as_interface);
         time_in_ms = delay / samples_per_1ms;
         time_in_ms += (delay % samples_per_1ms == 0) ? 0 : 1;
     }
@@ -1688,6 +1908,26 @@ static int8_t sync_streaming_interface(AudioDriver* driver, UsbDev* dev,
     mdelay(time_in_ms);
 
     return __RET_S__;
+}
+
+static void request_device_attributes(AudioDriver* driver, AudioDev* audio_dev,
+    Interface* itf){
+    __STRUCT_CALL__(driver, get_sampling_frequency, audio_dev, itf);
+    __STRUCT_CALL__(driver, get_min_volume, audio_dev, itf);
+    __STRUCT_CALL__(driver, get_mute_attribute, audio_dev, itf);
+    __STRUCT_CALL__(driver, get_max_volume, audio_dev, itf);
+    __STRUCT_CALL__(driver, get_current_volume, audio_dev, itf);
+}
+
+static void configure_interfaces(AudioDriver* driver, AudioDev* audio_dev){
+    Interface** streaming_interfaces = audio_dev->audio_streaming_interfaces;
+    __FOR_RANGE__(i, int, 0, audio_dev->audio_streaming_interfaces_num){
+        /*__STRUCT_CALL__(driver, switch_if_zero_bandwidth, audio_dev, 
+            streaming_interfaces[i]); */
+        mdelay(50);
+        __STRUCT_CALL__(driver, request_device_attributes, audio_dev,
+            streaming_interfaces[i]);
+    }
 }
 
 static int configure_audio_device(AudioDriver* driver){
@@ -1716,39 +1956,40 @@ static int configure_audio_device(AudioDriver* driver){
         __STRUCT_CALL__(dev, __set_start, config_buffer, &desc_len, &start);
         __STRUCT_CALL__(dev, __set_end, config_buffer, &total_len, &end);
         __STRUCT_CALL__(driver, audio_device_routine, start, end, mem_service, i);
+        //__STRUCT_CALL__(driver, configure_interfaces, driver->dev + i);
         __STRUCT_CALL__(driver, switch_if_zero_bandwidth, driver->dev + i);
-        __STRUCT_CALL__(driver, set_default_frequency, driver->dev + i);
+        for(int j = 0; j < driver->dev[i].audio_streaming_interfaces_num; j++){
+            Interface* as_interface = driver->dev[i].audio_streaming_interfaces[j];
+            request_device_attributes(driver, driver->dev + i, as_interface);
+        }
     }
+    return __RET_S__;
+}
+
+static int8_t feature_control(AudioDriver* driver, uint8_t control, 
+    uint8_t request_form, AudioDev* audio_dev, Interface* interface, 
+    uint8_t bRequest, uint8_t channel_number, void* data, 
+    uint8_t len, callback_function callback, uint8_t flags){
+    __FEATURE_REQUEST_PROTO__();
+    UsbDev* dev = audio_dev->usb_dev;
+    UsbDeviceRequest* device_req = dev->get_free_device_request(dev);
+    __IF_RET_NEG__(__IS_NULL__(device_req));
+    struct FeatureUnit* feature_unit = __RECOVER_FEATURE_UNIT__(driver, 
+        audio_dev, interface);
+    __IF_RET_NEG__(__IS_NULL__(feature_unit));
+    uint8_t audio_interface = dev->__interface_number(dev, 
+        audio_dev->audio_control_interface->active_interface);
+    __IF_ELSE__(request_form == __SET_REQUEST__,
+        __request_feature_ = &__request_feature_set,
+        __request_feature_ = &__request_feature_get);
+    __request_feature_(driver, dev, interface, device_req, bRequest, control,
+        channel_number, feature_unit->feature_unit_desc.bUnitID, 
+        audio_interface, data, len, callback, flags);
 
     return __RET_S__;
 }
 
-// specific mute control for a channel
-static void feature_control_first_form(AudioDriver* driver, uint8_t control, 
-    uint8_t request_form, UsbDev* dev, UsbDeviceRequest* device_req, uint8_t bRequest,
-    uint8_t channel_number, uint8_t unit_id, uint8_t audio_interface,
-    void* data, uint8_t len, callback_function callback, uint8_t flags){
-    __IF_ELSE__(request_form == __SET_REQUEST__, 
-    __request_feature_set(driver, dev, device_req, control, channel_number,
-        unit_id, audio_interface, data, len, callback, flags),
-    __request_feature_get(driver, dev, device_req, bRequest, control,
-        channel_number, unit_id, audio_interface, data, len,
-        callback, flags));
-}
-
-// entered if channel number is set to 0xFF
-static void feature_control_second_form(AudioDriver* driver, uint8_t control, 
-    uint8_t request_form, UsbDev* dev, UsbDeviceRequest* device_req, 
-    uint8_t bRequest, uint8_t feature_unit_id, uint8_t audio_interface, 
-    void* data, uint8_t len, callback_function callback, uint8_t flags){
-    __IF_ELSE__(request_form == __SET_REQUEST__,
-        __request_feature_set(driver, dev, device_req, MUTE_CONTROL, 0xFF, 
-            feature_unit_id, audio_interface, data, len, callback, flags),
-        __request_feature_get(driver, dev, device_req, bRequest, MUTE_CONTROL, 0xFF, 
-            feature_unit_id, audio_interface, data, len, callback, flags));
-}
-
-static SpatialLocations __get_loc_by_channel_number(AudioDriver* driver, 
+static SpatialLocations get_loc_by_channel_number(AudioDriver* driver, 
     ClusterDescriptor cluster, uint8_t channel_number){
     uint8_t channel_count = 1;
 
@@ -1769,7 +2010,7 @@ static SpatialLocations __get_loc_by_channel_number(AudioDriver* driver,
 }
 
 // does not support master control as input channel !
-static int16_t __get_channel_number_by_loc(AudioDriver* driver, ClusterDescriptor cluster,
+static int16_t get_channel_number_by_loc(AudioDriver* driver, ClusterDescriptor cluster,
     SpatialLocations loc){
     uint8_t channel_number = 0;
     __CHANNEL_OR_INC__(driver, cluster, loc, SPATIAL_LOC_L, channel_number);
@@ -1787,37 +2028,91 @@ static int16_t __get_channel_number_by_loc(AudioDriver* driver, ClusterDescripto
     return __RET_E__;
 }
 
+/* @deprecated static uint8_t get_total_controls(AudioDriver* driver,
+    struct FeatureUnit* feature_unit, 
+    int8_t (*control_supported)(AudioDriver* driver, uint8_t* bmControl)){
+    uint8_t upstream_ch = get_available_controls(driver, 
+        feature_unit);
+    uint8_t tot_size = 0;
+    __FOR_RANGE__(i, int, 0, upstream_ch){
+        uint8_t* bmControl = __get_feature_bmControl_of_channel(driver, 
+            i, feature_unit);
+        if(control_supported(driver, bmControl) == 1)
+            tot_size++;   
+    }
 
-
-static int8_t feature_control_sub_routine_checks(AudioDriver* driver,
-    AudioDev* audio_dev, uint8_t request_form, uint8_t channel_number, 
-    uint8_t feature_unit_id, uint8_t audio_interface){
-    __IF_RET_NEG__(!__valid_request_form(driver, request_form));
-    __IF_RET_NEG__(!__channel_present(driver, audio_dev, channel_number) && 
-        channel_number != 0xFF);
-    __IF_RET_NEG__(!__feature_unit_present(driver, audio_dev, feature_unit_id));
-    __IF_RET_NEG__(!__audio_interface_present(driver, audio_dev, audio_interface));
-    return __RET_S__;
+    return tot_size;
+} */
+ 
+static void* recover_unit_from_as_interface(AudioDriver* driver,
+    AudioDev* audio_dev, Interface* interface, enum ACInterfaceDescriptorSubtypes search,
+    enum ProcessingUnitProcessTypes process_sub_type){
+    enum ACInterfaceDescriptorSubtypes subtype;
+    void* terminal = (void*)0;
+    void* unit     = (void*)0;
+    __IF_RET_NULL__(__IS_NULL__(audio_dev->audio_control_interface));
+    ASInterface* as_interface = driver->__convert_to_class_specific_as_interface(
+        driver, interface);
+    __IF_RET_NULL__(__IS_NULL__(as_interface));
+    uint8_t terminal_type = as_interface->terminal_type;
+    ACInterface* ac_interface = driver->__convert_to_class_specific_ac_interface(driver, 
+        audio_dev->audio_control_interface);
+    terminal = find_structure_by_id(driver, ac_interface,
+            as_interface->as_desc.bTerminalLink, &subtype);
+    if(terminal_type == INPUT_TERMINAL){
+        unit = back_propagate_input(driver, ac_interface, terminal, search, 
+            process_sub_type);
+    }
+    else if(terminal_type == OUTPUT_TERMINAL){
+        if(search == PROCESSING_UNIT)
+            unit = back_propagate_output_processing(driver, ac_interface,
+                terminal, process_sub_type);
+        else 
+            unit = back_propagate_output(driver, ac_interface, 
+                terminal, search);
+    }
+    return unit;
 }
 
+/* @deprecated static uint8_t* build_mute_control_block(AudioDriver* driver,
+    MemoryService_C* m, struct FeatureUnit* feature_unit, uint8_t bMute,
+    uint8_t* mute_block_size){
+    uint8_t tot_size = get_total_controls(driver, feature_unit, 
+        &__bmControl_mute_supported);
+    __IF_RET_NULL__(__IS_ZERO__(tot_size));
+    __MAP_IO_KERNEL_T__(m, uint8_t, mute_block, tot_size);
+    __FOR_RANGE__(i, int, 0, tot_size){
+        mute_block[i] = bMute;
+    }
+    *mute_block_size = tot_size;
+    return mute_block;
+} */
+
+/* @deprecated static int16_t* build_volume_control_block(AudioDriver* driver, 
+    MemoryService_C* m, struct FeatureUnit* feature_unit, int16_t wVolume,
+    uint8_t* vol_block_size){
+    uint8_t tot_size = get_total_controls(driver, feature_unit,
+        &__bmControl_volume_supported);
+    __IF_RET_NULL__(__IS_ZERO__(tot_size));
+    __MAP_IO_KERNEL_T__(m, int16_t, volume_block, tot_size);
+    __FOR_RANGE__(i, int, 0, tot_size){
+        volume_block[i] = wVolume;
+    }
+    *vol_block_size = tot_size;
+    return volume_block;
+} */
+
 static int8_t audio_mute_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t channel_number, 
-    uint8_t audio_interface, uint8_t feature_unit_id, void* data, uint8_t len, 
-    callback_function callback, uint8_t flags){
+    Interface* interface, uint8_t request_form, uint8_t bRequest, 
+    uint8_t channel_number, callback_function callback, uint8_t flags, uint8_t bMute){
+    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
     
-    UsbDev* dev = audio_dev->usb_dev;
-    __IF_RET_NEG__(__IS_NEG_ONE__(feature_control_sub_routine_checks(driver,
-        audio_dev, request_form, channel_number, feature_unit_id, audio_interface)));
-
-    UsbDeviceRequest* device_req = dev->get_free_device_request(dev);
-    __IF_IS_NULL__(device_req);
-
-    __IF_ELSE__(channel_number == 0xFF, feature_control_second_form(driver, MUTE_CONTROL,
-        request_form, dev, device_req, bRequest, feature_unit_id, audio_interface,
-            data, len, callback, flags),
-        feature_control_first_form(driver, MUTE_CONTROL, request_form, dev, device_req,
-            bRequest, channel_number, feature_unit_id, audio_interface, data,
-            len, callback, flags));
+    __MAP_IO_KERNEL_S__(mem_service, struct MuteControlParameterBlockFirstForm, mute_block);
+    __build_mute_control_block(driver, mute_block, bMute);
+    
+    feature_control(driver, MUTE_CONTROL, request_form, audio_dev, interface, bRequest,
+        channel_number, mute_block,
+        sizeof(struct MuteControlParameterBlockFirstForm), callback, 0);
 
     return __RET_S__;
 }
@@ -1826,210 +2121,214 @@ static int8_t audio_mute_control(AudioDriver* driver, AudioDev* audio_dev,
 // CUR : 0x8000 represents silence
 // RES : 1/256 dB (0x0001) : +127.9961 dB (0x7FFF)
 static int8_t audio_volume_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t channel_number,
-    uint8_t audio_interface, uint8_t feature_unit_id, void* data, uint8_t len,
-    callback_function callback, uint8_t flags){
-    UsbDev* dev = audio_dev->usb_dev;
-
-    __IF_RET_NEG__(__IS_NEG_ONE__(feature_control_sub_routine_checks(driver,
-        audio_dev, request_form, channel_number, feature_unit_id, audio_interface)));
-    UsbDeviceRequest* device_req = dev->get_free_device_request(dev);
-    __IF_IS_NULL__(device_req);
-
-    __IF_ELSE__(channel_number == 0xFF, feature_control_second_form(driver, VOLUME_CONTROL,
-        request_form, dev, device_req, bRequest, feature_unit_id, audio_interface,
-            data, len, callback, flags),
-        feature_control_first_form(driver, VOLUME_CONTROL, request_form, dev, device_req,
-            bRequest, channel_number, feature_unit_id, audio_interface, data,
-            len, callback, flags));
+    Interface* interface, uint8_t request_form, uint8_t bRequest, 
+    uint8_t channel_number, callback_function callback, uint8_t flags, 
+    int16_t wVolume){
+    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
+    
+    //int16_t* volume_block = build_volume_control_block(driver, 
+        //mem_service, feature_unit, wVolume, &len);
+    __MAP_IO_KERNEL_S__(mem_service, struct VolumeControlParameterBlockFirstForm, volume_block);
+    __build_volume_control_block(driver, volume_block, wVolume);
+    
+    feature_control(driver, VOLUME_CONTROL, request_form, audio_dev, interface, bRequest,
+        channel_number, volume_block,
+        sizeof(struct VolumeControlParameterBlockFirstForm), callback, flags);
 
     return __RET_S__;
+}
+
+static void mixer_callback(UsbDev* dev, Interface* interface, uint32_t status, void* data){
+    // mixer transfer checks
 }
 
 // range from +127.9961 dB (0x7FFF) : -127.9961 dB (0x8001)
 // 0x8000 for cur req : silence request
 // res reqest range : 0x0001 - 0x7FFF
-// if request is not supported the pipe must stall !!!
-// i don't know exactly but the icn and ocn must be a construct of both 
-// the cluster number and the channel number !
-// so for now let's just assume that both bytes are just constructed out of 
-// the channel numbers and exclude the channel cluster number which for now 
-// are not needed !
-// second for is executed when both input and output channels are 0xFF
 static int8_t audio_mixer_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t icn, uint8_t ocn,
-    uint8_t mixer_unit_id, uint8_t audio_interface, void* data, uint8_t len,
-    callback_function callback){
-    // check if icn and ocn are valid channels in the audio device 
+    Interface* interface, uint8_t request_form, uint8_t bRequest, 
+    uint8_t icn, uint8_t ocn, int16_t wMixer){
+    // check if icn and ocn are valid channels in the audio device
+    __MIXER_REQUEST_PROTO__(); 
     UsbDev* dev = audio_dev->usb_dev;
-
+    struct MixerUnit* mixer_unit = __RECOVER_MIXER_UNIT__(driver, 
+        audio_dev, interface);
+    __IF_RET_NEG__(__IS_NULL__(mixer_unit));
+    __IF_RET_NEG__(__STRUCT_CALL__(driver, 
+        is_bm_control_programmable, mixer_unit, icn, ocn) <= 0); 
     UsbDeviceRequest* device_req = dev->get_free_device_request(dev);
     __IF_RET_NEG__(__IS_NULL__(device_req));
+    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
+    __MAP_IO_KERNEL_S__(mem_service, MixerControlParameterBlockFirstForm, 
+        mixer_control_block);
+    __build_mixer_control_first_form(driver, mixer_control_block, wMixer);
+    uint8_t audio_interface = dev->__interface_number(dev, 
+        audio_dev->audio_control_interface->active_interface);
+
     __IF_ELSE__(request_form == __SET_REQUEST__,
-        __request_mixer_set(driver, dev, device_req, icn, ocn, mixer_unit_id, audio_interface,
-        data, len, callback, 0),
-        __request_mixer_get(driver, dev, device_req, bRequest, icn, ocn, mixer_unit_id,
-        audio_interface, data, len, callback, 0));
+        __request_mixer_ = &__request_mixer_set,
+        __request_mixer_ = &__request_mixer_get);
+
+    __request_mixer_(driver, dev, interface, device_req, bRequest, 
+        icn, ocn, mixer_unit->mixer_unit_desc.bUnitID, audio_interface,
+        mixer_control_block, sizeof(MixerControlParameterBlockFirstForm), 
+        &mixer_callback, 0);
+    
     return __RET_S__;
 }
 
-static void mixer_callback(UsbDev* dev, uint32_t status, void* data){
-    // mixer transfer checks
-}
-
-static int8_t mixer_first_form_build(AudioDriver* driver, MemoryService_C* mem_service,
-    uint16_t mixer_value, AudioDev* audio_dev, uint8_t request_form, uint8_t bRequest,
-    uint8_t icn, uint8_t ocn, uint8_t audio_interface, uint8_t mixer_unit_id){
-    MixerControlParameterBlockFirstForm* mixer_control_block = 
-        __MAP_IO_KERNEL__(mem_service, MixerControlParameterBlockFirstForm, 
-        sizeof(MixerControlParameterBlockFirstForm));
-    __build_mixer_control_first_form(driver, mixer_control_block, mixer_value);
-    return audio_mixer_control(driver, audio_dev, request_form, bRequest, 
-        icn, ocn, mixer_unit_id, audio_interface, mixer_control_block, 
-        sizeof(MixerControlParameterBlockFirstForm), &mixer_callback);
-}
-
-static int8_t mixer_second_form_build(AudioDriver* driver, MemoryService_C* mem_service,
-    AudioDev* audio_dev, uint8_t request_form, uint8_t bRequest, uint8_t icn,
-    uint8_t ocn, uint8_t mixer_unit_id, uint8_t audio_interface){
-    MixerControlParameterBlockSecondForm* mixer_control_block = 
-        __MAP_IO_KERNEL__(mem_service, MixerControlParameterBlockSecondForm, 
-        sizeof(MixerControlParameterBlockSecondForm));
-    __build_mixer_control_second_form(driver, mixer_control_block, 0, 0);
-    return audio_mixer_control(driver, audio_dev, request_form, bRequest, icn, ocn,
-        mixer_unit_id, audio_interface, mixer_control_block, sizeof(MixerControlParameterBlockSecondForm),
-        &mixer_callback);
-}
 
 static int8_t set_mixer_unit_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint16_t mixer_value, uint8_t icn, uint8_t ocn, uint8_t mixer_unit_id,
-    uint8_t audio_interface){
-    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
-    __IF_ELSE__(((icn == 0xFF) && (ocn == 0xFF)), return mixer_second_form_build(driver,
-        mem_service, audio_dev, __SET_REQUEST__, SET_CUR, icn, ocn, mixer_unit_id,
-            audio_interface),
-        return mixer_first_form_build(driver, mem_service, mixer_value, audio_dev, __SET_REQUEST__,
-            SET_CUR, icn, ocn, audio_interface, mixer_unit_id));
+    Interface* interface, uint8_t icn, uint8_t ocn, int16_t wMixer){
+    
+    return audio_mixer_control(driver, audio_dev, interface, __SET_REQUEST__,
+        SET_CUR, icn, ocn, wMixer);
 }
 
+static int8_t get_mixer_unit_control(AudioDriver* driver, AudioDev* audio_dev,
+    Interface* interface, uint8_t icn, uint8_t ocn){
+    return audio_mixer_control(driver, audio_dev, interface, __GET_REQUEST__,
+        GET_CUR, icn, ocn, 0);
+}
 
-// this request is via the inserted callback registered by the appropriate driver
-static int8_t get_mixer_unit_control(AudioDriver* driver, AudioDev* audio_dev){
-    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
-    MixerControlParameterBlockFirstForm* mixer_control_block = 
-        __MAP_IO_KERNEL__(mem_service, MixerControlParameterBlockFirstForm, 
-        sizeof(MixerControlParameterBlockFirstForm));
-    
+static void selector_control_callback(UsbDev* dev, Interface* interface, uint32_t status, void* data){
+    __IF_RET__(status & E_TRANSFER);
 }
 
 // the res request should not be supported 
 static int8_t audio_selector_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t selector_unit_id, uint8_t audio_interface, 
-    void* data, uint8_t len, callback_function callback){
+    Interface* interface, uint8_t request_form, uint8_t bRequest, uint8_t bSelector){
+    __COMMON_REQUEST_PROTO__(selector);
     UsbDev* dev = audio_dev->usb_dev;
-
     UsbDeviceRequest* device_req = dev->get_free_device_request(dev);
     __IF_RET_NEG__(__IS_NULL__(device_req));
+    struct SelectorUnit* selector_unit = __RECOVER_SELECTOR_UNIT__(
+        driver, audio_dev, interface);
+    __IF_RET_NEG__(__IS_NULL__(selector_unit));
+    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
+    __MAP_IO_KERNEL_S__(mem_service, SelectorControlParameterBlock, selector_block);
+    __build_selector_control_block(driver, selector_block, bSelector);
+    uint8_t audio_interface = dev->__interface_number(dev, 
+        audio_dev->audio_control_interface->active_interface);
     __IF_ELSE__(request_form == __SET_REQUEST__,
-        __request_selector_set(driver, dev, device_req, selector_unit_id, audio_interface,
-        data, len, callback, 0),
-        __request_selector_get(driver, dev, device_req, bRequest, selector_unit_id,
-        audio_interface, data, len, callback, 0));
-    return __RET_S__;
-}
+        __request_common_selector = &__request_common_set,
+        __request_common_selector = &__request_common_get);
+    
+    __request_common_selector(driver, dev, interface, device_req,
+        bRequest, 0, audio_interface, selector_unit->selector_unit_desc.bUnitID,
+        selector_block, sizeof(SelectorControlParameterBlock), 
+        &selector_control_callback, 0);
 
-static void selector_control_callback(UsbDev* dev, uint32_t status, void* data){
-    // transfer checks
-    __IF_RET__(status & E_TRANSFER);
-    // handling
+    return __RET_S__;
 }
 
 static int8_t selector_set_cur(AudioDriver* driver, AudioDev* audio_dev, 
-    uint8_t bSelector, uint8_t selector_unit_id, uint8_t audio_interface){
-    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
-    SelectorControlParameterBlock* selector_block = __MAP_IO_KERNEL__(mem_service,
-        SelectorControlParameterBlock, sizeof(SelectorControlParameterBlock));
-    __build_selector_control_block(driver, selector_block, bSelector);
-    return audio_selector_control(driver, audio_dev, __SET_REQUEST__,
-        SET_CUR, selector_unit_id, audio_interface, selector_block, 
-        sizeof(SelectorControlParameterBlock), &selector_control_callback);
+    Interface* interface, uint8_t bSelector){
+    
+    return audio_selector_control(driver, audio_dev, interface, 
+        __SET_REQUEST__, SET_CUR, bSelector);
+}
+
+static void processing_callback(UsbDev* dev, Interface* interface, uint32_t status, void* data){
+    __IF_RET__(status & E_TRANSFER);
 }
 
 static int8_t audio_processing_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t control_selector,
-    uint8_t processing_unit_id, uint8_t audio_interface,
-    void* data, uint8_t len, callback_function callback){
-    
-    __IF_RET_NEG__(!__processing_unit_present(driver, audio_dev, 
-        processing_unit_id));
-
+    Interface* interface, uint8_t unit_id, uint8_t request_form, uint8_t bRequest, 
+    uint8_t control, void* data, uint8_t len, callback_function callback,
+    uint8_t flags){
+    __COMMON_REQUEST_PROTO__(processing);
     UsbDev* dev = audio_dev->usb_dev;
     UsbDeviceRequest* device_req = dev->get_free_device_request(dev);
     __IF_RET_NEG__(__IS_NULL__(device_req));
+
+    uint8_t audio_interface = dev->__interface_number(dev, 
+        audio_dev->audio_control_interface->active_interface);
     __IF_ELSE__(request_form == __SET_REQUEST__,
-        __request_processing_set(driver, dev, device_req, control_selector,
-            processing_unit_id, audio_interface, data, len, callback,
-            0),
-        __request_processing_get(driver, dev, device_req, bRequest,
-            control_selector, processing_unit_id, audio_interface, data,
-            len, callback, 0));
+        __request_common_processing = &__request_common_set,
+        __request_common_processing = &__request_common_get);
+
+    __request_common_processing(driver, dev, interface, device_req, 
+        bRequest, control, audio_interface, unit_id, data, len, callback, 
+        flags);
 
     return __RET_S__;
+}
+
+static void extension_callback(UsbDev* dev, Interface* interface, uint32_t status, void* data){
+
 }
 
 static int8_t audio_extension_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t control_selector,
-    uint8_t extension_unit_id, uint8_t audio_interface, void* data, uint8_t len,
-    callback_function callback){
-
-    __IF_RET_NEG__(!__extension_unit_present(driver, audio_dev, extension_unit_id));
+    Interface* interface, uint8_t request_form, uint8_t bRequest, uint8_t bOn){
+    __COMMON_REQUEST_PROTO__(extension);
     UsbDev* dev = audio_dev->usb_dev;
     UsbDeviceRequest* device_req = dev->get_free_device_request(dev);
     __IF_RET_NEG__(__IS_NULL__(device_req));
-    __IF_ELSE__(request_form == __SET_REQUEST__, 
-        __request_extension_set(driver, dev, device_req, control_selector,
-            extension_unit_id, audio_interface, data, len, callback, 0), 
-        __request_extension_get(driver, dev, device_req, bRequest,
-            control_selector, extension_unit_id, audio_interface,
-            data, len, callback, 0));
-    return __RET_S__;
-}
+    struct ExtensionUnit* ext_unit = __RECOVER_EXTENSION_UNIT__(driver, 
+        audio_dev, interface);
+    __IF_RET_NEG__(__IS_NULL__(ext_unit));
+    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
+    struct EnableProcessingControlParameterBlock* enable_processing_block = 
+    __MAP_IO_KERNEL__(mem_service, struct EnableProcessingControlParameterBlock, 
+        sizeof(struct EnableProcessingControlParameterBlock));
+    __build_enable_extension_processing_control_block(driver, 
+        enable_processing_block, bOn);
+    uint8_t audio_interface = dev->__interface_number(dev, 
+        audio_dev->audio_control_interface->active_interface);
+    __IF_ELSE__(request_form == __SET_REQUEST__,
+        __request_common_extension = &__request_common_set,
+        __request_common_extension = &__request_common_get);
+    
+    __request_common_extension(driver, dev, interface, device_req,
+        bRequest, XU_ENABLE_CONTROL, audio_interface, 
+        ext_unit->extension_unit_desc.bUnitID, enable_processing_block,
+        sizeof(struct EnableProcessingControlParameterBlock), &extension_callback, 0);
 
-static void processing_callback(UsbDev* dev, uint32_t status, void* data){
-    __IF_RET__(status & E_TRANSFER);
+    return __RET_S__;
 }
 
 // set cur only
 // control selector high byte & 0 low byte
 // processing_unit high byte & interface number low byte
 static int8_t audio_enable_processing_control(AudioDriver* driver, 
-    AudioDev* audio_dev, uint8_t request_form, uint8_t bRequest, 
-    uint8_t processing_unit_id, uint8_t audio_interface, void* data, 
-    uint8_t len, callback_function callback){
+    AudioDev* audio_dev, Interface* interface, uint8_t request_form, 
+    uint8_t bRequest, uint8_t bEnable){
+    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
 
-    return audio_processing_control(driver, audio_dev, request_form, 
-        bRequest, UD_ENABLE_CONTROL, processing_unit_id, audio_interface,
-        data, len, callback);
+    // pass subtype when using this request
+    struct ProcessingUnit* processing_unit = __RECOVER_PROCESSING_UNIT__(driver, 
+        audio_dev, interface, 0);
+    __IF_RET_NEG__(__IS_NULL__(processing_unit));
+    __IF_RET_NEG__(__IS_NEG_ONE__(__support_enable_processing_control(
+        driver, processing_unit)));
+
+    struct EnableProcessingControlParameterBlock* enable_processing_control_block = 
+        __MAP_IO_KERNEL__(mem_service, struct EnableProcessingControlParameterBlock,
+        sizeof(struct EnableProcessingControlParameterBlock));
+    __build_enable_processing_control_block(driver, enable_processing_control_block,
+        bEnable);
+
+    return audio_processing_control(driver, audio_dev, interface, 
+        processing_unit->processing_unit_desc.bUnitID, request_form, 
+        bRequest, UD_ENABLE_CONTROL, enable_processing_control_block, 
+        sizeof(struct EnableProcessingControlParameterBlock), &processing_callback, 0);
 }
 
-static int8_t audio_endpoint_present(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t endpoint_number){
-    UsbDev* dev = audio_dev->usb_dev;
-    uint8_t audio_streaming_num = audio_dev->audio_streaming_interfaces_num;
-    Interface** audio_streaming_itfs = audio_dev->audio_streaming_interfaces;
-    __FOR_RANGE__(i, int, 0, audio_streaming_num){
-        Interface* audio_streaming_itf = audio_streaming_itfs[i];
-        Alternate_Interface* alt_itf = audio_streaming_itf->active_interface;
-        __IF_CONTINUE__(__IS_ZERO__(alt_itf->alternate_interface_desc.bNumEndpoints));
-        uint8_t endpoint_num = alt_itf->alternate_interface_desc.bNumEndpoints;
-        Endpoint** endpoints = alt_itf->endpoints;
-        __FOR_RANGE__(j, int, 0, endpoint_num){
-            if(dev->__endpoint_number(dev, endpoints[j]) == endpoint_number){
-                return __RET_S__;
-            }
-        }
+static Endpoint* get_iso_endpoint(AudioDriver* driver, AudioDev* audio_dev,
+    Interface* as_interface){
+    Endpoint* endpoint;
+    if(__STRUCT_CALL__(driver, __is_zero_bandwidth_active, audio_dev->usb_dev, as_interface) == 1){
+        Alternate_Interface* alt_itf = __STRUCT_CALL__(audio_dev->usb_dev, 
+            __get_alternate_interface_by_setting, as_interface, 1);
+        endpoint = audio_dev->usb_dev->__get_first_endpoint(audio_dev->usb_dev,
+            alt_itf); 
     }
-    return __RET_E__;
+    else 
+        endpoint = audio_dev->usb_dev->__get_first_endpoint(audio_dev->usb_dev,
+            as_interface->active_interface);
+
+    return endpoint;
 }
 
 static int8_t contains_audio_streaming_interface(AudioDriver* driver, AudioDev* audio_dev,
@@ -2045,44 +2344,43 @@ static int8_t support_sampling_freq_control(AudioDriver* driver, AudioDev* audio
     Interface* as_interface){
     __IF_RET_NEG__(__IS_NEG_ONE__(contains_audio_streaming_interface(driver,
         audio_dev, as_interface)));
-    Endpoint* endpoint = audio_dev->usb_dev->__get_first_endpoint(audio_dev->usb_dev,
-        as_interface->active_interface);
-    __IF_RET_NEG__(__IS_NULL__(endpoint));
-    ASEndpoint* as_endpoint = (ASEndpoint*)endpoint->class_specific;
-    __IF_EXT__((__IS_ZERO__((as_endpoint->as_iso_endpoint.bmAttributes & BIT_SAMPLING_FREQ))), -1, 1);
+    
+    Endpoint* endpoint = __STRUCT_CALL__(driver, get_iso_endpoint, audio_dev, as_interface);
+
+    ASEndpoint* as_endpoint = __STRUCT_CALL__(driver, 
+        __convert_to_class_specific_as_endpoint, endpoint);
+    return __IF_EXT__((__IS_ZERO__((as_endpoint->as_iso_endpoint.bmAttributes & BIT_SAMPLING_FREQ))), -1, 1);
 }
 
 static int8_t support_pitch_control(AudioDriver* driver, AudioDev* audio_dev, 
     Interface* as_interface){
     __IF_RET_NEG__(__IS_NEG_ONE__(contains_audio_streaming_interface(driver,
         audio_dev, as_interface)));
-    __IF_RET_NEG__(__IS_NEG_ONE__(audio_dev->usb_dev->__has_endpoints(audio_dev->usb_dev,
-        as_interface->active_interface)));
-    Endpoint* endpoint = audio_dev->usb_dev->__get_first_endpoint(audio_dev->usb_dev,
-        as_interface->active_interface);
-    __IF_RET_NEG__(__IS_NULL__(endpoint));
-    ASEndpoint* as_endpoint = (ASEndpoint*)endpoint->class_specific;
-    __IF_EXT__((__IS_ZERO__((as_endpoint->as_iso_endpoint.bmAttributes & BIT_PITCH))), -1, 1);
+
+    Endpoint* endpoint = __STRUCT_CALL__(driver, get_iso_endpoint, audio_dev, as_interface);
+ 
+    ASEndpoint* as_endpoint = __STRUCT_CALL__(driver, 
+        __convert_to_class_specific_as_endpoint, endpoint);
+    return __IF_EXT__((__IS_ZERO__((as_endpoint->as_iso_endpoint.bmAttributes & BIT_PITCH))), -1, 1);
 }
 
 static int8_t audio_endpoint_controls(AudioDriver* driver, AudioDev* audio_dev,
     uint8_t request_form, uint8_t bRequest, uint8_t control_selector, 
     Interface* as_interface, void* data, uint8_t len, 
-    callback_function callback){
+    callback_function callback, uint8_t flags){
     UsbDev* dev = audio_dev->usb_dev;
     Endpoint* e;
     uint8_t endpoint_number;
-    __IF_RET_NEG__(__IS_NULL__((e = dev->__get_first_endpoint(dev, 
-        as_interface->active_interface))));
+    __ENDPOINT_REQUEST_PROTO__();
+    e = __STRUCT_CALL__(driver, get_iso_endpoint, audio_dev, as_interface);
     UsbDeviceRequest* device_req = dev->get_free_device_request(dev);
     __IF_RET_NEG__(__IS_NULL__(device_req));
     endpoint_number = dev->__endpoint_number(dev, e);
-    __IF_ELSE__(request_form == __SET_REQUEST__, 
-        __request_endpoint_set(driver, dev, device_req, control_selector,
-            endpoint_number, data, len, callback, CONTROL_INITIAL_STATE), 
-        __request_endpoint_get(driver, dev, device_req, bRequest,
-            control_selector, endpoint_number, data, len, callback, 
-                CONTROL_INITIAL_STATE));
+    __IF_ELSE__(request_form == __SET_REQUEST__,
+        __request_endpoint_ = __request_endpoint_set,
+        __request_endpoint_ = __request_endpoint_get);
+    __request_endpoint_(driver, dev, as_interface, device_req, bRequest,
+        control_selector, endpoint_number, data, len, callback, flags);
     return __RET_S__;
 }
 
@@ -2092,31 +2390,31 @@ static void frequency_control_callback(UsbDev* dev, Interface* interface, uint32
     __IF_RET__(status & E_TRANSFER);
     __TYPE_CAST__(struct SamplingFrequencyControlParameterBlock*, 
         samp_control_block, data);
+    ASInterface* as_interface = __STRUCT_CALL__(internal_audio_driver, 
+        __get_class_specific_as_interface,
+        dev, interface);
+    as_interface->current_freq = samp_control_block->tSampleFreq;
 }
 
-static void pitch_control_callback(UsbDev* dev, uint32_t status, void* data){
+static void pitch_control_callback(UsbDev* dev, Interface* interface, uint32_t status, void* data){
     __IF_RET__(status & E_TRANSFER);
 }
 
 static int8_t sampling_frequency_control(AudioDriver* driver, 
     AudioDev* audio_dev, uint8_t request_form, uint8_t bRequest, 
-    Interface* as_interface, struct SampleFrequency sample_freq){
+    Interface* as_interface, struct SampleFrequency sample_freq,
+    uint8_t flags){
     MemoryService_C* m = __DEV_MEMORY(audio_dev->usb_dev);
     __IF_RET_NEG__(__IS_NEG_ONE__(support_sampling_freq_control(driver, audio_dev, 
         as_interface)));
     __MAP_IO_KERNEL_S__(m, struct SamplingFrequencyControlParameterBlock,
         sam_freq_block);
-    sam_freq_block->control_selector = SAMPLING_FREQ_CONTROL;
-    sam_freq_block->wLength = 3;
     sam_freq_block->tSampleFreq = sample_freq;
     audio_endpoint_controls(driver, audio_dev, request_form,
         bRequest, SAMPLING_FREQ_CONTROL, as_interface, sam_freq_block,
         sizeof(struct SamplingFrequencyControlParameterBlock),
-        &frequency_control_callback);
-    __TYPE_CAST__(ASInterface*, class_specific_as, 
-        as_interface->active_interface->class_specific);
-    class_specific_as->current_freq = sample_freq;
-
+        &frequency_control_callback, CONTROL_INITIAL_STATE);
+    
     return __RET_S__;
 }
 
@@ -2128,352 +2426,302 @@ static int8_t sampling_pitch_control(AudioDriver* driver, AudioDev* audio_dev,
         as_interface)));
     __MAP_IO_KERNEL_S__(m, struct PitchControlParameterBlock,
         pitch_control_block);
-    pitch_control_block->control_selector = PITCH_CONTROL;
-    pitch_control_block->wLength = 1;
-    pitch_control_block->bPitchEnable = bPitchEnable;
+    __build_pitch_control_block(driver, pitch_control_block, bPitchEnable);
     audio_endpoint_controls(driver, audio_dev, request_form, bRequest,
         PITCH_CONTROL, as_interface, pitch_control_block, 
-        sizeof(struct PitchControlParameterBlock), &pitch_control_callback);
-    __TYPE_CAST__(ASInterface*, class_specific_as, 
-        as_interface->active_interface->class_specific);
-    class_specific_as->bPitchEnable = bPitchEnable;
+        sizeof(struct PitchControlParameterBlock), &pitch_control_callback, 0);
 
     return __RET_S__;
 }
 
 static int8_t set_sampling_frequency(AudioDriver* driver, AudioDev* audio_dev,
     Interface* as_interface, struct SampleFrequency sample_freq){
+    __IF_RET_NEG__(__IS_NEG_ONE__(is_valid_frequency(driver, as_interface, audio_dev,
+        sample_freq)));
     return sampling_frequency_control(driver, audio_dev, __SET_REQUEST__,
-        SET_CUR, as_interface, sample_freq);
+        SET_CUR, as_interface, sample_freq, 0);
 }
 
-static struct SampleFrequency get_sampling_frequency(AudioDriver* driver,
+static int8_t get_sampling_frequency(AudioDriver* driver,
     AudioDev* audio_dev, Interface* as_interface){
-    sampling_frequency_control(driver, audio_dev, __GET_REQUEST__,
-        GET_CUR, as_interface, (struct SampleFrequency){});
+    return sampling_frequency_control(driver, audio_dev, __GET_REQUEST__,
+        GET_CUR, as_interface, (struct SampleFrequency){}, 
+        CONTROL_INITIAL_STATE);
 }
 
 static int8_t enable_processing_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t processing_unit_id, uint8_t audio_interface){
-    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
-    struct EnableProcessingControlParameterBlock* enable_processing_control_block = 
-        __MAP_IO_KERNEL__(mem_service, struct EnableProcessingControlParameterBlock,
-        sizeof(struct EnableProcessingControlParameterBlock));
-    __build_enable_processing_control_block(driver, enable_processing_control_block,
-        1);
-    return audio_enable_processing_control(driver, audio_dev, __SET_REQUEST__,
-        SET_CUR, processing_unit_id, audio_interface, enable_processing_control_block, 
-        sizeof(struct EnableProcessingControlParameterBlock), &processing_callback);
+    Interface* interface){
+    
+    return audio_enable_processing_control(driver, audio_dev, interface, __SET_REQUEST__,
+        SET_CUR, 1);
 }
 
 static int8_t disable_processing_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t processing_unit_id, uint8_t audio_interface){
-    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
-    __ALLOC_KERNEL_MEM_S__(mem_service, struct EnableProcessingControlParameterBlock,
-        enable_processing_control_block);
-    __build_enable_processing_control_block(driver, enable_processing_control_block,
-        0);
-    return audio_enable_processing_control(driver, audio_dev, __SET_REQUEST__,
-        SET_CUR, processing_unit_id, audio_interface, enable_processing_control_block,
-        sizeof(struct EnableProcessingControlParameterBlock), &processing_callback);
+    Interface* interface){
+    
+    return audio_enable_processing_control(driver, audio_dev, interface, __SET_REQUEST__,
+        SET_CUR, 0);
 }
 
 static int8_t audio_mode_select_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t processing_unit_id,
-    uint8_t audio_interface, void* data, uint8_t len){
-
-    return audio_processing_control(driver, audio_dev, request_form,
-        bRequest, UD_MODE_SELECT_CONTROL, processing_unit_id, audio_interface,
-        data, len, &processing_callback);
-}
-
-static int8_t audio_spaciousness_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t processing_unit_id,
-    uint8_t audio_interface, void* data, uint8_t len){
-
-    return audio_processing_control(driver, audio_dev, request_form,
-        bRequest, STEREO_SPACIOUSNESS_CONTROL, processing_unit_id,
-        audio_interface, data, len, &processing_callback);
-}
-
-static int8_t audio_reverb_type_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t processing_unit_id,
-    uint8_t audio_interface, void* data, uint8_t len){
-
-}
-
-static int8_t audio_reverb_level_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t processing_unit_id,
-    uint8_t audio_interface, void* data, uint8_t len){
-    
-    return audio_processing_control(driver, audio_dev, request_form,
-        bRequest, REVERB_LEVEL_CONTROL, processing_unit_id, audio_interface,
-        data, len, &processing_callback);
-}
-
-static int8_t audio_chorus_level_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t processing_unit_id,
-    uint8_t audio_interface, void* data, uint8_t len){
-    
-    return audio_processing_control(driver, audio_dev, request_form, bRequest,
-        CHORUS_LEVEL_CONTROL, processing_unit_id, audio_interface, data,
-        len, &processing_callback);
-}
-
-// all following request will just support the bRequest of SET_CUR allowing 
-// only to request the current setting in the unit or terminal
-
-// valid range from 0 to 255 % 
-static int8_t audio_set_cur_spaciousness_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t processing_unit_id,
-    uint8_t audio_interface, void* data, uint8_t len, uint8_t bSpaciousness){
-    __IF_RET_NEG__(bSpaciousness > __SPACIOUSNESS_UPPER_BOUND__ || 
-        bSpaciousness < __SPACIOUSNESS_LOWER_BOUND__);
+    Interface* interface, uint8_t request_form, uint8_t bRequest, uint8_t bMode){
     MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
-    struct SpaciousnessControlParameterBlock* mode_select_block = 
-    __MAP_IO_KERNEL__(mem_service, struct SpaciousnessControlParameterBlock, 
-        sizeof(struct SpaciousnessControlParameterBlock));
-    __build_spaciousness_control_block(driver, mode_select_block, bSpaciousness);
-    return audio_spaciousness_control(driver, audio_dev, __SET_REQUEST__,
-        SET_CUR, processing_unit_id, audio_interface, mode_select_block,
-        sizeof(struct ModeSelectControlParameterBlock));
-}
+    // dolby as standard but can also be the other other process type
+    struct ProcessingUnit* processing_unit = __RECOVER_PROCESSING_UNIT__(driver, audio_dev, 
+        interface, DOLBY_PROLOGIC_PROCESS);
+    __IF_RET_NEG__(__IS_NULL__(processing_unit));
+    __IF_RET_NEG__(__IS_NEG_ONE__(__support_mode_select_control(
+        driver, processing_unit)));
 
-static enum ProcessingUnitProcessTypes retrieve_process_type(AudioDriver* driver,
-    uint8_t* pos){
-    uint8_t process_type_offset = 5, descriptor_type = 2, descriptor_subtype = 3;
-    __IF_RET_SELF__(*(pos + descriptor_type) != CS_INTERFACE && 
-        *(pos + descriptor_subtype) != PROCESSING_UNIT, PROCESS_UNDEFINED);
-    return *((enum ProcessingUnitProcessTypes*)(pos + process_type_offset));
-}
+    __TYPE_CAST__(DolbyPrologicProcessingUnitDescriptor*, dolby_unit, 
+        processing_unit->processing_unit_desc.process_specific_descriptor);
+    __IF_RET_NEG__(dolby_unit->bNrModes < bMode);
 
-static int8_t supports_audio_mode(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t processing_unit_id, uint8_t mode_value){
-    // up_down_mix, dolby_prologic, 
-    //__IF_RET_NEG__()
-}
-
-static int8_t set_audio_mode_attribute(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t processing_unit_id, uint8_t audio_interface, uint8_t bMode){
-    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
     struct ModeSelectControlParameterBlock* mode_select_block = 
     __MAP_IO_KERNEL__(mem_service, struct ModeSelectControlParameterBlock, 
         sizeof(struct ModeSelectControlParameterBlock));
     __build_mode_select_control_block(driver, mode_select_block, bMode);
-    return audio_mode_select_control(driver, audio_dev, __SET_REQUEST__,
-        SET_CUR, processing_unit_id, audio_interface, mode_select_block,
-        sizeof(struct ModeSelectControlParameterBlock));
+
+    return audio_processing_control(driver, audio_dev, interface, 
+        processing_unit->processing_unit_desc.bUnitID, request_form,
+        bRequest, UD_MODE_SELECT_CONTROL, mode_select_block, 
+        sizeof(struct ModeSelectControlParameterBlock), &processing_callback, 0);
+}
+
+static int8_t audio_spaciousness_control(AudioDriver* driver, AudioDev* audio_dev,
+    Interface* interface, uint8_t request_form, uint8_t bRequest, uint8_t bSpaciousness){
+    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
+    struct ProcessingUnit* processing_unit = __RECOVER_PROCESSING_UNIT__(driver, 
+        audio_dev, interface, STEREO_EXTENDER_PROCESS);
+    __IF_RET_NEG__(__IS_NULL__(processing_unit));
+    __IF_RET_NEG__(__IS_NEG_ONE__(__support_spaciousness_control(driver, 
+        processing_unit)));
+    __MAP_IO_KERNEL_S__(mem_service, struct SpaciousnessControlParameterBlock,
+        sp_control_block);
+    __build_spaciousness_control_block(driver, sp_control_block, bSpaciousness);
+
+    return audio_processing_control(driver, audio_dev, interface, 
+        processing_unit->processing_unit_desc.bUnitID, request_form, bRequest,
+        STEREO_SPACIOUSNESS_CONTROL, sp_control_block, 
+        sizeof(struct SpaciousnessControlParameterBlock), &processing_callback, 0);
+}
+
+static int8_t audio_reverb_type_control(AudioDriver* driver, AudioDev* audio_dev,
+    Interface* interface, uint8_t request_form, uint8_t bRequest, enum ReverbTypes type){
+    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
+    struct ProcessingUnit* processing_unit = __RECOVER_PROCESSING_UNIT__(driver, 
+        audio_dev, interface, REVERBERATION_PROCESS);
+    __IF_RET_NEG__(processing_unit);
+    __IF_RET_NEG__(__IS_NEG_ONE__(__support_reverb_type_control(driver, 
+        processing_unit)));
+
+    __MAP_IO_KERNEL_S__(mem_service, struct ReverbTypeControlParameterBlock,
+        rv_control_block);
+    __build_reverb_type_control_block(driver, rv_control_block, type);
+
+    // assuming 1 for the control selector -> not sure about it (docs don't specify.)
+    return audio_processing_control(driver, audio_dev, interface, 
+        processing_unit->processing_unit_desc.bUnitID, request_form, bRequest,
+        0, rv_control_block, 
+        sizeof(struct ReverbTypeControlParameterBlock), &processing_callback, 0);
+}
+
+static int8_t audio_reverb_level_control(AudioDriver* driver, AudioDev* audio_dev,
+    Interface* interface, uint8_t request_form, uint8_t bRequest, uint8_t bReverbLevel){
+    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
+    struct ProcessingUnit* processing_unit = __RECOVER_PROCESSING_UNIT__(driver, 
+        audio_dev, interface, REVERBERATION_PROCESS);
+    __IF_RET_NEG__(__IS_NEG_ONE__(__support_reverb_level_control(driver, 
+        processing_unit)));
+
+    __MAP_IO_KERNEL_S__(mem_service, struct ReverbLevelControlParameterBlock,
+        rv_control_block);
+    __build_reverb_level_control_block(driver, rv_control_block, bReverbLevel);
+
+    return audio_processing_control(driver, audio_dev, interface, 
+        processing_unit->processing_unit_desc.bUnitID, request_form, bRequest,
+        REVERB_LEVEL_CONTROL, rv_control_block, 
+        sizeof(struct ReverbTypeControlParameterBlock), &processing_callback, 0);
+}
+
+static int8_t audio_chorus_level_control(AudioDriver* driver, AudioDev* audio_dev,
+    Interface* interface, uint8_t request_form, uint8_t bRequest, uint8_t bChorusLevel){
+    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
+    struct ProcessingUnit* processing_unit = __RECOVER_PROCESSING_UNIT__(driver, 
+        audio_dev, interface, CHORUS_PROCESS);
+    __IF_RET_NEG__(__IS_NEG_ONE__(__support_chorus_level_control(driver, 
+        processing_unit)));
+    __MAP_IO_KERNEL_S__(mem_service, struct ChorusLevelControlParameterBlock,
+        ch_control_block);
+    __build_chorus_level_control_block(driver, ch_control_block, bChorusLevel);
+
+    return audio_processing_control(driver, audio_dev, interface, 
+        processing_unit->processing_unit_desc.bUnitID, request_form, bRequest,
+        CHORUS_LEVEL_CONTROL, ch_control_block, 
+        sizeof(struct ReverbTypeControlParameterBlock), &processing_callback, 0);
+}
+
+// valid range from 0 to 255 % 
+static int8_t audio_set_cur_spaciousness_control(AudioDriver* driver, AudioDev* audio_dev,
+    Interface* interface, uint8_t bSpaciousness){
+    
+    return audio_spaciousness_control(driver, audio_dev, interface, __SET_REQUEST__,
+        SET_CUR, bSpaciousness);
+}
+
+static enum ProcessingUnitProcessTypes retrieve_process_type(AudioDriver* driver,
+    uint8_t* pos){
+    uint8_t process_type_offset = 4, descriptor_type = 1, descriptor_subtype = 2;
+    __IF_RET_SELF__(*(pos + descriptor_type) != CS_INTERFACE && 
+        *(pos + descriptor_subtype) != PROCESSING_UNIT, PROCESS_UNDEFINED);
+    return *((uint16_t*)(pos + process_type_offset));
+}
+
+static int8_t set_audio_mode_attribute(AudioDriver* driver, AudioDev* audio_dev,
+    Interface* interface, uint8_t bMode){
+    return audio_mode_select_control(driver, audio_dev, interface, __SET_REQUEST__,
+        SET_CUR, bMode);
 }
 
 static int8_t enable_extension_unit(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t extension_unit_id, uint8_t audio_interface){
-    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
-    struct EnableProcessingControlParameterBlock* enable_processing_block = 
-    __MAP_IO_KERNEL__(mem_service, struct EnableProcessingControlParameterBlock, 
-        sizeof(struct EnableProcessingControlParameterBlock));
-    __build_enable_extension_processing_control_block(driver, enable_processing_block,
-        1);
-    return audio_extension_control(driver, audio_dev, __SET_REQUEST__,
-        SET_CUR, XU_ENABLE_CONTROL, extension_unit_id, audio_interface,
-        enable_processing_block, sizeof(struct EnableProcessingControlParameterBlock),
-        &extension_callback);
+    Interface* interface){
+    return audio_extension_control(driver, audio_dev, interface, __SET_REQUEST__,
+        SET_CUR, 1);
 }
 
 static int8_t disable_extension_unit(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t extension_unit_id, uint8_t audio_interface){
-    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
-    struct EnableProcessingControlParameterBlock* enable_processing_block = 
-    __MAP_IO_KERNEL__(mem_service, struct EnableProcessingControlParameterBlock, 
-        sizeof(struct EnableProcessingControlParameterBlock));
-    __build_enable_extension_processing_control_block(driver, enable_processing_block,
-        0);
-    return audio_extension_control(driver, audio_dev, __SET_REQUEST__,
-        SET_CUR, XU_ENABLE_CONTROL, extension_unit_id, audio_interface,
-        enable_processing_block, sizeof(struct EnableProcessingControlParameterBlock),
-        &extension_callback);
+    Interface* interface){
+    return audio_extension_control(driver, audio_dev, interface, __SET_REQUEST__,
+        SET_CUR, 0);
+}
+
+static void copy_protect_control_callback(UsbDev* dev, Interface* interface, uint32_t status, void* data){
+    __IF_RET__(status & E_TRANSFER);
+    /*__TYPE_CAST__(CopyProtectControlParameterBlock*, copy_protect_block, data);    
+    MemoryService_C* mem_service = __DEV_MEMORY(dev); */
 }
 
 // input terminal should only support get terminal copy protect control req
 // output terminal should only support set terminal copy protect control req
 static int8_t audio_copy_protect_control(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t request_form, uint8_t bRequest, uint8_t channel_number,
-    uint8_t audio_interface, uint8_t terminal_unit_id, void* data, uint8_t len,
-    callback_function callback, uint8_t flags){
-
+    Interface* interface, uint8_t request_form, uint8_t bRequest, CPL cpl){
+    enum ACInterfaceDescriptorSubtypes subtype;
+    ASInterface* as_interface = __STRUCT_CALL__(driver, 
+        __get_class_specific_as_interface, audio_dev->usb_dev, interface);
+    ACInterface* ac_interface = __STRUCT_CALL__(driver, __convert_to_class_specific_ac_interface, 
+        audio_dev->audio_control_interface);
+    uint8_t terminal_type = as_interface->terminal_type;
     UsbDev* dev = audio_dev->usb_dev;
-
+    __COMMON_REQUEST_PROTO__(terminal);
     UsbDeviceRequest* device_req = dev->get_free_device_request(dev);
     __IF_RET_NEG__(__IS_NULL__(device_req));
-    __IF_ELSE__(request_form == __SET_REQUEST__, 
-        __request_terminal_set(driver, dev, device_req, COPY_PROTECT_CONTROL, 
-        audio_interface, terminal_unit_id, data, len, callback, flags),
-        __request_terminal_get(driver, dev, device_req, bRequest, COPY_PROTECT_CONTROL,
-            audio_interface, terminal_unit_id, data, len, callback, flags));
+    __IF_RET_NEG__((terminal_type == INPUT_TERMINAL) && request_form == __GET_REQUEST__);
+    __IF_RET_NEG__((terminal_type == OUTPUT_TERMINAL) && request_form == __SET_REQUEST__);
+    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
+    CopyProtectControlParameterBlock* copy_protect_block = 
+        __MAP_IO_KERNEL__(mem_service, CopyProtectControlParameterBlock, 
+        sizeof(CopyProtectControlParameterBlock));
+    __build_copy_protect_control(driver, copy_protect_block, cpl);
+    uint8_t terminal_id;
+    void* terminal = __STRUCT_CALL__(driver, find_structure_by_id, 
+        ac_interface, as_interface->as_desc.bTerminalLink, &subtype);
+    __IF_RET_NEG__((subtype != OUTPUT_TERMINAL) && (subtype != INPUT_TERMINAL));
+    if(subtype == OUTPUT_TERMINAL) terminal_id = ((struct OutputTerminal*)terminal)->out_terminal_desc.bTerminalID;
+    else terminal_id = ((struct InputTerminal*)terminal)->in_terminal_desc.bTerminalID;
+    uint8_t audio_interface = dev->__interface_number(dev, 
+        audio_dev->audio_control_interface->active_interface);
+    
+    __IF_ELSE__(request_form == __SET_REQUEST__,
+        __request_common_terminal = &__request_common_set,
+        __request_common_terminal = &__request_common_get);
+
+    __request_common_terminal(driver, dev, interface, device_req, bRequest, COPY_PROTECT_CONTROL,
+        audio_interface, terminal_id, copy_protect_block, sizeof(CopyProtectControlParameterBlock),
+        &copy_protect_control_callback, 0);
+
     return __RET_S__;
 }
 
 static int8_t set_copy_protect(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t output_terminal_id, CPL copy_protect_value, uint8_t channel_number,
-    uint8_t audio_interface){
-    __IF_RET_NEG__(__IS_NEG_ONE__(__output_terminal_present(driver, audio_dev, 
-        output_terminal_id)));
-    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
-    CopyProtectControlParameterBlock* copy_protect_block = 
-        __MAP_IO_KERNEL__(mem_service, CopyProtectControlParameterBlock, 
-        sizeof(CopyProtectControlParameterBlock));
-    __build_copy_protect_control(driver, copy_protect_block, copy_protect_value);
-    return audio_copy_protect_control(driver, audio_dev, __SET_REQUEST__, 
-        COPY_PROTECT_CONTROL, channel_number, audio_interface, output_terminal_id,
-            copy_protect_block, sizeof(CopyProtectControlParameterBlock), 
-            &copy_protect_control_callback, 0);
+    Interface* interface, CPL cpl){
+    
+    return audio_copy_protect_control(driver, audio_dev, interface, __SET_REQUEST__,
+        SET_CUR, cpl);
 }
 
 static int8_t get_copy_protect(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t input_terminal_id, CPL copy_protect_value, uint8_t channel_number,
-    uint8_t audio_interface){
-    __IF_RET_NEG__(__IS_NEG_ONE__(__input_terminal_present(driver, audio_dev, 
-        input_terminal_id)));
-    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
-    CopyProtectControlParameterBlock* copy_protect_block = 
-        __MAP_IO_KERNEL__(mem_service, CopyProtectControlParameterBlock, 
-        sizeof(CopyProtectControlParameterBlock));
-    return audio_copy_protect_control(driver, audio_dev, __GET_REQUEST__, 
-        COPY_PROTECT_CONTROL, channel_number, audio_interface, input_terminal_id,
-            copy_protect_block, sizeof(CopyProtectControlParameterBlock), 
-            &copy_protect_control_callback, 0);
+    Interface* interface, CPL cpl){
+    
+    return audio_copy_protect_control(driver, audio_dev, interface, __GET_REQUEST__,
+        GET_CUR, cpl);
 }
 
 static int8_t set_sound_value(AudioDriver* driver, int16_t value, AudioDev* audio_dev,
-    uint8_t channel_number, uint8_t audio_interface, uint8_t feature_unit_id){
+    Interface* as_interface){
     __IF_RET_NEG__(value > audio_dev->max_volume || value < audio_dev->min_volume);
-    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
-    VolumeControlParameterBlockFirstForm* volume_control_block = 
-        __MAP_IO_KERNEL__(mem_service, VolumeControlParameterBlockFirstForm, 
-        sizeof(VolumeControlParameterBlockFirstForm));
-    
-    __build_volume_control_block(driver, volume_control_block, value);
-    __IF_RET_NEG__(__IS_NEG_ONE__(audio_volume_control(driver, audio_dev,
-        __SET_REQUEST__, SET_CUR, channel_number, audio_interface, feature_unit_id,
-        volume_control_block, sizeof(volume_control_block), &volume_control_block, 0)));
-    audio_dev->curr_volume = value;
-    return __RET_S__;
+    as_interface->data = audio_dev;
+    return audio_volume_control(driver, audio_dev, as_interface, __SET_REQUEST__,
+        SET_CUR, 0, &volume_change_callback, 0, value);
 }
 
 static int8_t set_max_sound_value(AudioDriver* driver, int16_t value, 
-    AudioDev* audio_dev, uint8_t channel_number, uint8_t audio_interface,
-    uint8_t feature_unit_id){
+    AudioDev* audio_dev, Interface* as_interface){
     __IF_RET_NEG__(value < audio_dev->min_volume);
-    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
-    VolumeControlParameterBlockFirstForm* volume_control_block = 
-        __MAP_IO_KERNEL__(mem_service, VolumeControlParameterBlockFirstForm, 
-        sizeof(VolumeControlParameterBlockFirstForm));
-
-    __build_volume_control_block(driver, volume_control_block, value);
-    __IF_RET_NEG__(__IS_NEG_ONE__(audio_volume_control(driver, audio_dev,
-        __SET_REQUEST__, SET_MAX, channel_number, audio_interface, feature_unit_id,
-        volume_control_block, sizeof(volume_control_block), &volume_control_block, 0)));
-    audio_dev->max_volume = value;
-    return __RET_S__;
+    as_interface->data = audio_dev;
+    return audio_volume_control(driver, audio_dev, as_interface, __SET_REQUEST__,
+        SET_MAX, 0, &volume_max_callback, 0, value);
 }
 
 static int8_t set_min_sound_value(AudioDriver* driver, int16_t value,
-    AudioDev* audio_dev, uint8_t channel_number, uint8_t audio_interface, 
-    uint8_t feature_unit_id){
+    AudioDev* audio_dev, Interface* as_interface){
     __IF_RET_NEG__(value > audio_dev->max_volume);
-    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
-    VolumeControlParameterBlockFirstForm* volume_control_block = 
-        __MAP_IO_KERNEL__(mem_service, VolumeControlParameterBlockFirstForm, 
-        sizeof(VolumeControlParameterBlockFirstForm));
-     __build_volume_control_block(driver, volume_control_block, value);
-    __IF_RET_NEG__(__IS_NEG_ONE__(audio_volume_control(driver, audio_dev,
-        __SET_REQUEST__, SET_MIN, channel_number, audio_interface, feature_unit_id,
-        volume_control_block, sizeof(volume_control_block), &volume_control_block, 0)));
-    audio_dev->min_volume = value;
-    return __RET_S__;
+    as_interface->data = audio_dev;
+    return audio_volume_control(driver, audio_dev, as_interface, __SET_REQUEST__,
+        SET_MIN, 0, &volume_min_callback, 0, value);
+}
+
+static int8_t get_max_volume(AudioDriver* driver, AudioDev* audio_dev, 
+    Interface* as_interface){
+    return audio_volume_control(driver, audio_dev, as_interface, __GET_REQUEST__,
+        GET_MAX, 0, &volume_max_callback, CONTROL_INITIAL_STATE, 0);
+}
+
+static int8_t get_min_volume(AudioDriver* driver,
+    AudioDev* audio_dev, Interface* as_interface){
+    as_interface->data = audio_dev;
+    return audio_volume_control(driver, audio_dev, as_interface, __GET_REQUEST__,
+        GET_MIN, 0, &volume_min_callback, CONTROL_INITIAL_STATE, 0);
+}
+
+static int8_t get_current_volume(AudioDriver* driver,
+    AudioDev* audio_dev, Interface* as_interface){
+    as_interface->data = audio_dev;
+    return audio_volume_control(driver, audio_dev, as_interface, __GET_REQUEST__,
+        GET_CUR, 0, &volume_change_callback, CONTROL_INITIAL_STATE, 0);
 }
 
 static int8_t set_volume_resolution(AudioDriver* driver, AudioDev* audio_dev,
-    int16_t resolution_value, uint8_t channel_number, uint8_t audio_interface,
-    uint8_t feature_unit_id){
+    int16_t resolution_value, Interface* as_interface){
     __IF_RET_NEG__(resolution_value <= 0);
-    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
-    VolumeControlParameterBlockFirstForm* volume_control_block = 
-        __MAP_IO_KERNEL__(mem_service, VolumeControlParameterBlockFirstForm, 
-        sizeof(VolumeControlParameterBlockFirstForm));
-    __build_volume_control_block(driver, volume_control_block, resolution_value);
-    
-    __IF_RET_NEG__(__IS_NEG_ONE__(audio_volume_control(driver, audio_dev, __SET_REQUEST__, 
-        SET_RES, channel_number, audio_interface, feature_unit_id, volume_control_block,
-        sizeof(VolumeControlParameterBlockFirstForm), &volume_control_callback, 0)));
-    return __RET_S__;
+    as_interface->data = audio_dev;
+    return audio_volume_control(driver, audio_dev, as_interface, __SET_REQUEST__,
+        SET_RES, 0xFF, 0, resolution_value, 0);
+} 
+
+static int8_t mute(AudioDriver* driver, AudioDev* audio_dev, Interface* interface){
+    interface->data = audio_dev;
+    return audio_mute_control(driver, audio_dev, interface, __SET_REQUEST__,
+        SET_CUR, 0, &mute_control_callback, 0, 1);
 }
 
-static int8_t increment_sound(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t channel_number, uint8_t audio_interface, uint8_t feature_unit_id){ 
-    __IF_RET_NEG__(audio_dev->curr_volume == audio_dev->max_volume);
-    int16_t wVolume = audio_dev->curr_volume + 0x0001;
-
-    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
-    VolumeControlParameterBlockFirstForm* volume_control_block = 
-        __MAP_IO_KERNEL__(mem_service, VolumeControlParameterBlockFirstForm, 
-        sizeof(VolumeControlParameterBlockFirstForm));
-
-    __build_volume_control_block(driver, volume_control_block, wVolume);
-
-    __IF_RET_NEG__(__IS_NEG_ONE__(audio_volume_control(driver, audio_dev, __SET_REQUEST__, 
-    SET_CUR, channel_number, audio_interface, feature_unit_id, volume_control_block, 
-        sizeof(VolumeControlParameterBlockFirstForm), &volume_control_callback, 0)));
-    audio_dev->curr_volume = wVolume;
-    return __RET_S__;
+static int8_t unmute(AudioDriver* driver, AudioDev* audio_dev, Interface* interface){
+    interface->data = audio_dev;
+    return audio_mute_control(driver, audio_dev, interface, __SET_REQUEST__, 
+        SET_CUR, 0, &mute_control_callback, 0, 0);
 }
 
-// for now we just are doing 0x0001 steps
-// implement it in such a way that there are just a fixed number of steps in total !
-static int8_t decrement_sound(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t channel_number, uint8_t audio_interface, uint8_t feature_unit_id){
-    int16_t wVolume;
-    __IF_RET_NEG__(audio_dev->curr_volume == audio_dev->min_volume);
-    __IF_ELSE__((audio_dev->curr_volume - 0x0001) == audio_dev->min_volume, 
-        wVolume = __SILENCE_VOL__, wVolume = audio_dev->curr_volume - 0x0001);
-
-    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
-    VolumeControlParameterBlockFirstForm* volume_control_block = 
-        __MAP_IO_KERNEL__(mem_service, VolumeControlParameterBlockFirstForm, 
-        sizeof(VolumeControlParameterBlockFirstForm));
-
-    __build_volume_control_block(driver, volume_control_block, wVolume);
-
-    __IF_RET_NEG__(__IS_NEG_ONE__(audio_volume_control(driver, audio_dev, __SET_REQUEST__,
-        SET_CUR, channel_number, audio_interface, feature_unit_id, volume_control_block, 
-        sizeof(VolumeControlParameterBlockFirstForm), &volume_control_callback, 0)));
-    audio_dev->curr_volume = wVolume;
-    return __RET_S__;
-}
-
-// just using the first form
-static int8_t mute(AudioDriver* driver, AudioDev* audio_dev, uint8_t channel_number,
-    uint8_t audio_interface, uint8_t feature_unit_id){
-    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
-    MuteControlParameterBlockFirstForm* mute_control_block = 
-    __MAP_IO_KERNEL__(mem_service, MuteControlParameterBlockFirstForm, 
-        sizeof(MuteControlParameterBlockFirstForm));
-    __build_mute_control_block(driver, mute_control_block, 1);
-    return audio_mute_control(driver, audio_dev, __SET_REQUEST__, SET_CUR, 
-        channel_number, audio_interface, feature_unit_id, mute_control_block,
-        sizeof(MuteControlParameterBlockFirstForm), &mute_control_callback,
-        0);
-}
-
-// just using the first form
-static int8_t unmute(AudioDriver* driver, AudioDev* audio_dev,
-    uint8_t channel_number, uint8_t audio_interface, uint8_t feature_unit_id){
-    MemoryService_C* mem_service = __DEV_MEMORY(audio_dev->usb_dev);
-    MuteControlParameterBlockFirstForm* mute_control_block = 
-    __MAP_IO_KERNEL__(mem_service, MuteControlParameterBlockFirstForm, 
-        sizeof(MuteControlParameterBlockFirstForm));
-    __build_mute_control_block(driver, mute_control_block, 0);
-    return audio_mute_control(driver, audio_dev, __SET_REQUEST__, SET_CUR, 
-        channel_number, audio_interface, feature_unit_id, mute_control_block,
-        sizeof(MuteControlParameterBlockFirstForm), &mute_control_callback,
-        0);
+static int8_t get_mute_attribute(AudioDriver* driver, AudioDev* audio_dev, Interface* interface){
+    interface->data = audio_dev;
+    return audio_mute_control(driver, audio_dev, interface, __GET_REQUEST__,
+        GET_CUR, 0, &mute_control_callback, CONTROL_INITIAL_STATE, 0);
 }

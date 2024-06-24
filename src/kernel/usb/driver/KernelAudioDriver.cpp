@@ -2,15 +2,16 @@
 #include "../../service/MemoryService.h"
 #include "../../service/UsbService.h"
 #include "../../system/System.h"
-#include "../../../lib/util/io/stream/QueueInputStream.h"
-#include "../../../lib/util/io/stream/QueueOutputStream.h"
-#include "../../../lib/util/collection/ArrayBlockingQueue.h"
+#include "lib/util/io/stream/QueueInputStream.h"
+#include "lib/util/io/stream/QueueOutputStream.h"
+#include "lib/util/collection/ArrayBlockingQueue.h"
 #include "../UsbRegistry.h"
 #include "../audio/AudioNode.h"
 #include "../../log/Logger.h"
-#include "../../../lib/util/io/key/InputEvents.h"
-#include "../../../lib/util/base/Exception.h"
-#include "../../../lib/util/base/Address.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/base/Address.h"
+#include "lib/util/usb/io_control/AudioControl.h"
+#include "lib/util/time/Timestamp.h"
 
 extern "C" {
 #include "../../../device/usb/driver/audio/AudioDeviceDriver.h"
@@ -60,38 +61,92 @@ int Kernel::Usb::Driver::KernelAudioDriver::initialize() {
   return __RET_S__;
 }
 
-int Kernel::Usb::Driver::KernelAudioDriver::submit(uint8_t minor) {
+void Kernel::Usb::Driver::KernelAudioDriver::clear_buffer(AudioDev* audio_dev, 
+  Interface* as_streaming){
+  void* top_lay_buff = __STRUCT_CALL__(driver, get_top_layer_buffer, as_streaming);
+  Util::ArrayBlockingQueue<uint8_t>* audioBuffer = (Util::ArrayBlockingQueue<uint8_t>*)top_lay_buff;
+  audioBuffer->clear();
+}
+
+bool Kernel::Usb::Driver::KernelAudioDriver::open_audio_stream(AudioDev* audio_dev, 
+  Interface* as_streaming){
+  Kernel::UsbService &u = Kernel::System::getService<Kernel::UsbService>();
+  if(__IS_NEG_ONE__(__STRUCT_CALL__(audio_dev->usb_dev, 
+    __is_class_specific_interface_set,as_streaming->active_interface))){
+    Alternate_Interface* alt_itf = __STRUCT_CALL__(audio_dev->usb_dev, 
+      __get_alternate_interface_by_setting, as_streaming, 1);
+    __TYPE_CAST__(ASInterface*, as_interface, alt_itf->class_specific);
+    __STRUCT_CALL__(audio_dev->usb_dev, request_switch_alternate_setting,
+      as_streaming, 1);
+    __IF_RET_SELF__(audio_dev->usb_dev->error_while_transfering, false);
+    u.reset_transfer(as_interface->qh_id);
+    return true;
+  }
+  return false;
+}
+
+bool Kernel::Usb::Driver::KernelAudioDriver::close_audio_stream(AudioDev* audio_dev, 
+  Interface* as_streaming){
+  __IF_RET_SELF__(__IS_NEG_ONE__(__STRUCT_CALL__(driver, 
+    __has_zero_bandwidth_setting, audio_dev->usb_dev, as_streaming)), false);
+  __IF_RET_SELF__(__STRUCT_CALL__(driver, 
+    __is_zero_bandwidth_active, audio_dev->usb_dev, as_streaming), false);
+  __STRUCT_CALL__(audio_dev->usb_dev, request_switch_alternate_setting,
+    as_streaming, 0);
+  if(audio_dev->usb_dev->error_while_transfering){
+    return false;
+  }
+  clear_buffer(audio_dev, as_streaming);
+  __STRUCT_CALL__(driver, __clear_low_level_buffers, audio_dev);
+  return true;
+}
+
+bool Kernel::Usb::Driver::KernelAudioDriver::remove_transfer(AudioDev* audio_dev,
+  ASInterface* as_interface){
+  Kernel::UsbService &u = Kernel::System::getService<Kernel::UsbService>();
+  return u.remove_transfer(as_interface->qh_id);
+}
+
+bool Kernel::Usb::Driver::KernelAudioDriver::add_transfer(AudioDev* audio_dev, Interface* itf, 
+  ASInterface* as_interface){
   Kernel::UsbService &u = Kernel::System::getService<Kernel::UsbService>();
   Kernel::MemoryService &mem = Kernel::System::getService<Kernel::MemoryService>();
+  UsbDev *dev = audio_dev->usb_dev;
+  uint8_t terminal_typ = as_interface->terminal_type;
+  __IF_RET_SELF__(terminal_typ == OUTPUT_TERMINAL, false); // micro currently not supported
+  uint16_t buffer_size = (driver->__get_1ms_size(driver, as_interface));
+  uint8_t* buffer_first  = (uint8_t*)mem.mapIO(buffer_size);
+  uint8_t* buffer_second = (uint8_t*)mem.mapIO(buffer_size);
+  as_interface->active_buffer = 0x01;
+  as_interface->buffer_first = buffer_first;
+  as_interface->buffer_second = buffer_second;
+  as_interface->buffer_size = buffer_size;
+  
+  unsigned pipe;
+  uint8_t endpoint = dev->__endpoint_number(dev, dev->__get_first_endpoint(dev,
+      itf->active_interface));
+  if(terminal_typ == INPUT_TERMINAL) pipe = usb_sndisopipe(endpoint);
+  else if(terminal_typ == OUTPUT_TERMINAL) pipe = usb_rcvisopipe(endpoint);
+  uint32_t qh_id = u.submit_iso_transfer(itf,
+    pipe, PRIORITY_8, 1, as_interface->buffer_first, as_interface->buffer_size, audio_dev->callback);
+  /*uint32_t qh_id = u.submit_iso_transfer_ext(audio_driver->dev[minor].audio_streaming_interfaces[i],
+    dev->__get_first_endpoint(dev, audio_dev.audio_streaming_interfaces[i]->active_interface),
+    PRIORITY_8, 1, as_interface->buffer_first, as_interface->buffer_size,
+    audio_driver->dev[minor].callback); */
+  as_interface->qh_id = qh_id;
+  driver->sync_streaming_interface(driver, dev, itf);
 
-  AudioDriver* audio_driver = this->driver;
-  UsbDev *dev = audio_driver->dev[minor].usb_dev;
-  AudioDev audio_dev = audio_driver->dev[minor];
-  __FOR_RANGE__(i, int, 0, audio_dev.audio_streaming_interfaces_num){
+  return true;
+}
+
+int Kernel::Usb::Driver::KernelAudioDriver::submit(uint8_t minor) {
+  int num = driver->dev[minor].audio_streaming_interfaces_num;
+  for(int i = 0; i < num; i++){
     ASInterface* as_interface = driver->__convert_to_class_specific_as_interface(driver, 
-      audio_dev.audio_streaming_interfaces[i]);
-    __IF_CONTINUE__(__IS_NEG_ONE__(audio_driver->__is_freq_set(driver, as_interface)));
-    uint16_t buffer_size = (audio_driver->__get_1ms_size(driver, as_interface));
-    uint8_t* buffer_first  = (uint8_t*)mem.mapIO(buffer_size);
-    uint8_t* buffer_second = (uint8_t*)mem.mapIO(buffer_size);
-    as_interface->active_buffer = 0x01;
-    as_interface->buffer_first = buffer_first;
-    as_interface->buffer_second = buffer_second;
-    as_interface->buffer_size = buffer_size;
-    uint8_t terminal_typ = as_interface->terminal_type;
-    unsigned pipe;
-    uint8_t endpoint = dev->__endpoint_number(dev, dev->__get_first_endpoint(dev,
-        audio_dev.audio_streaming_interfaces[i]->active_interface));
-    if(terminal_typ == INPUT_TERMINAL) pipe = usb_sndisopipe(endpoint);
-    else if(terminal_typ == OUTPUT_TERMINAL) pipe = usb_rcvisopipe(endpoint);
-    uint32_t qh_id = u.submit_iso_transfer(audio_driver->dev[minor].audio_streaming_interfaces[i],
-      pipe, PRIORITY_8, 1, as_interface->buffer_first, as_interface->buffer_size, driver->dev[minor].callback);
-    /*uint32_t qh_id = u.submit_iso_transfer_ext(audio_driver->dev[minor].audio_streaming_interfaces[i],
-      dev->__get_first_endpoint(dev, audio_dev.audio_streaming_interfaces[i]->active_interface),
-      PRIORITY_8, 1, as_interface->buffer_first, as_interface->buffer_size,
-      audio_driver->dev[minor].callback); */
-    as_interface->qh_id = qh_id;
-    driver->sync_streaming_interface(driver, dev, audio_dev.audio_streaming_interfaces[i]);
+      driver->dev[minor].audio_streaming_interfaces[i]);
+    __IF_CONTINUE__(__IS_NEG_ONE__(driver->__is_freq_set(driver, as_interface)));
+    add_transfer(driver->dev + minor, driver->dev[minor].audio_streaming_interfaces[i],
+      as_interface);
   }
   
   return __RET_S__;
@@ -109,11 +164,12 @@ Util::Io::QueueOutputStream* Kernel::Usb::Driver::KernelAudioDriver::input_termi
 }
 
 Util::Io::QueueInputStream* Kernel::Usb::Driver::KernelAudioDriver::output_terminal_routine(
-  uint32_t frame_size){
+  Interface* interface, uint32_t frame_size){
   Util::ArrayBlockingQueue<uint8_t>* audioBuffer =
       new Util::ArrayBlockingQueue<uint8_t>(frame_size);
   Util::Io::QueueInputStream* inputStream = new Util::Io::QueueInputStream(*audioBuffer);
-  interface_register_callback(AUDIO_LISTENER, &audio_input_event_callback, audioBuffer);
+  driver_stream_write_register_buffer((UsbDriver*)driver,
+    interface, audioBuffer, &audio_input_event_callback);
 
   return inputStream;
 }
@@ -128,7 +184,7 @@ void* Kernel::Usb::Driver::KernelAudioDriver::terminal_routine(Interface* interf
     return input_terminal_routine(interface, frame_size);
   }
   *type = OUTPUT_TERMINAL;
-  return output_terminal_routine(frame_size);
+  return output_terminal_routine(interface, frame_size);
 }
 
 Kernel::Usb::AudioNode* Kernel::Usb::Driver::KernelAudioDriver::single_terminal_routine(
@@ -186,6 +242,10 @@ void Kernel::Usb::Driver::KernelAudioDriver::create_usb_dev_node() {
         audio_node = mult_terminal_routine(driver->dev[i].audio_streaming_interfaces,
           node_name, i);
       }
+      // switch to zero band width setting when available
+      for(int k = 0; k < streaming_interface_count; k++){
+        close_audio_stream(driver->dev + i, driver->dev[i].audio_streaming_interfaces[k]);
+      }
       audio_node->add_file_node();
       kernel_audio_logger.info("Succesful added audio node : minor %u -> associated "
                              "with 0x%x (%s driver)...",
@@ -207,53 +267,120 @@ void audio_output_event_callback(uint8_t* map_io_buffer, uint16_t len, void* buf
   }
 }
 
-void audio_input_event_callback(void* e, void* buffer){
-  AudioSampleEvent* audio_event = (AudioSampleEvent*)e;
+void audio_input_event_callback(uint8_t* map_io_buffer, uint16_t len, void* buffer){
   Util::ArrayBlockingQueue<uint8_t>* audio_buffer = (Util::ArrayBlockingQueue<uint8_t>*)buffer;
-  uint32_t event_code  = audio_event->super.event_code;
+  __FOR_RANGE__(i, int, 0, len){
+    audio_buffer->add(map_io_buffer[i]);
+  }
+}
 
-  if(audio_event->sub_frame == 0x01){
-    audio_buffer->offer(event_code);
+Interface* Kernel::Usb::Driver::KernelAudioDriver::request_common_routine(
+    const Util::Array<uint32_t>& parameters, AudioDev* audio_dev){
+  if(parameters[0] != OUT_TERMINAL_SELECT && parameters[0] != IN_TERMINAL_SELECT){
+    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT);
   }
-  else if(audio_event->sub_frame == 0x02){
-    audio_buffer->offer(event_code);
-    audio_buffer->offer(__8_BIT_L_SHIFT__(event_code));
+  Interface* as_interface;
+  if(parameters[0] == OUT_TERMINAL_SELECT){
+    as_interface = driver->__get_as_interface_by_terminal(driver, audio_dev,
+      OUTPUT_TERMINAL);
   }
-  else if(audio_event->sub_frame == 0x03){
-    audio_buffer->offer(event_code);
-    audio_buffer->offer(__8_BIT_L_SHIFT__(event_code));
-    audio_buffer->offer(__16_BIT_L_SHIFT__(event_code));
+  else if(parameters[0] == IN_TERMINAL_SELECT){
+    as_interface = driver->__get_as_interface_by_terminal(driver, audio_dev,
+      INPUT_TERMINAL); 
   }
-  else if(audio_event->sub_frame == 0x04){
-    audio_buffer->offer(event_code);
-    audio_buffer->offer(__8_BIT_L_SHIFT__(event_code));
-    audio_buffer->offer(__16_BIT_L_SHIFT__(event_code));
-    audio_buffer->offer(__24_BIT_L_SHIFT__(event_code));
+  return as_interface;
+}
+
+bool Kernel::Usb::Driver::KernelAudioDriver::direct_requests(const Util::Array<uint32_t>& parameters,
+  AudioDev* audio_dev, int8_t (*direct_req)(AudioDriver* driver, AudioDev* audio_dev, 
+    Interface* as_interface)){
+  if(parameters.length() != 0x01){
+    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, 
+      "expecting uint32_t [IN or OUT]");
   }
+  Interface* as_interface = request_common_routine(parameters, audio_dev);
+  if(__IS_NULL__(as_interface)) return false;
+  if(__IS_NEG_ONE__(direct_req(driver, audio_dev, as_interface))) return false;
+  return true;
+}
+
+bool Kernel::Usb::Driver::KernelAudioDriver::set_sound_requests(const Util::Array<uint32_t>& parameters,
+  AudioDev* audio_dev, int8_t (*set_call)(AudioDriver* driver, int16_t wVolume, AudioDev* audio_dev, 
+    Interface* as_interface)){
+  if(parameters.length() != 0x02){
+    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, 
+      "expecting uint32_t [IN or OUT] and uint32_t [target buffer]");
+  }
+  if(parameters[0] != OUT_TERMINAL_SELECT && parameters[0] != IN_TERMINAL_SELECT){
+    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT);
+  }
+  Interface* as_interface = request_common_routine(parameters, audio_dev);
+  if(__IS_NULL__(as_interface)) return false;
+  int16_t sound_value = (int16_t)parameters[1];
+  return __IF_EXT__(__IS_NEG_ONE__(set_call(driver, sound_value, audio_dev, as_interface)), false, true);
+}
+
+bool Kernel::Usb::Driver::KernelAudioDriver::get_sound_requests(const Util::Array<uint32_t>& parameters,
+  AudioDev* audio_dev, uint32_t (*get_sound_call)(AudioDriver* driver, AudioDev* audio_dev)){
+  if(parameters.length() != 0x02){
+    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, 
+      "expecting uint32_t [IN or OUT] and uint32_t [target buffer]");
+  }
+  Interface* as_interface = request_common_routine(parameters, audio_dev);
+  if(__IS_NULL__(as_interface)) return false;
+  uint32_t* __user_buff = (uint32_t*)(uintptr_t)parameters[1];
+  *__user_buff = get_sound_call(driver, audio_dev);
+  return true;
 }
 
 bool Kernel::Usb::Driver::KernelAudioDriver::get_requests(const Util::Array<uint32_t>& parameters,
   AudioDev* audio_dev, uint32_t (*get_call)(AudioDriver* driver, ASInterface* as_interface)){
   if(parameters.length() != 0x02){
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, 
-          "expecting uint32_t [IN or OUT] and uint32_t [target buffer]");
-      }
-      if(parameters[0] != OUT_TERMINAL_SELECT && parameters[0] != IN_TERMINAL_SELECT){
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT);
-      }
-      ASInterface* as_interface;
-      if(parameters[0] == OUT_TERMINAL_SELECT){
-        as_interface = driver->__get_as_interface_by_terminal(driver, audio_dev,
-          OUTPUT_TERMINAL);
-      }
-      else if(parameters[0] == IN_TERMINAL_SELECT){
-        as_interface = driver->__get_as_interface_by_terminal(driver, audio_dev,
-          INPUT_TERMINAL); 
-      }
-      if(__IS_NULL__(as_interface)) return false;
-      uint32_t* __user_buff = (uint32_t*)(uintptr_t)parameters[1];
-      *__user_buff = get_call(driver, as_interface);
-      return true;
+    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, 
+      "expecting uint32_t [IN or OUT] and uint32_t [target buffer]");
+  }
+  Interface* as_interface = request_common_routine(parameters, audio_dev);
+  if(__IS_NULL__(as_interface)) return false;
+  
+  uint32_t* __user_buff = (uint32_t*)(uintptr_t)parameters[1];
+  *__user_buff = get_call(driver, driver->__get_class_specific_as_interface(driver,
+    audio_dev->usb_dev, as_interface));
+  return true;
+}
+
+bool Kernel::Usb::Driver::KernelAudioDriver::set_frequency(const Util::Array<uint32_t>& parameters,
+  AudioDev* audio_dev){
+  if(parameters.length() != 0x02){
+    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, 
+      "expecting uint32_t [IN or OUT] and uint32_t [frequency]");
+  }
+  Interface* as_interface = request_common_routine(parameters, audio_dev);
+  if(__IS_NULL__(as_interface)) return false;
+  SampleFrequency sample_frequency = __SAMPLE_FREQUENCY_OF__(parameters[1]);
+  int8_t status = __IF_EXT__(__IS_NEG_ONE__(driver->set_sampling_frequency(driver, audio_dev, as_interface,
+    sample_frequency)), false, true);
+  __IF_COND__(__IS_NEG_ONE__(status)) return false;
+  ASInterface* as = __STRUCT_CALL__(driver, 
+    __get_class_specific_as_interface, audio_dev->usb_dev, as_interface);
+  if(!remove_transfer(audio_dev, as)) return false;
+  return add_transfer(audio_dev, as_interface, as);
+}
+
+bool Kernel::Usb::Driver::KernelAudioDriver::audio_stream(const Util::Array<uint32_t>& parameters,
+  AudioDev* audio_dev, uint32_t type){
+  if(parameters.length() != 0x01){
+    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, 
+      "expecting uint32_t [IN or OUT]");
+  }
+  Interface* as_interface = request_common_routine(parameters, audio_dev);
+  if(__IS_NULL__(as_interface)) return false;
+  if(type == OPEN){
+    return open_audio_stream(audio_dev, as_interface);
+  }
+  else if(type == CLOSE){
+    return close_audio_stream(audio_dev, as_interface);
+  }
+  return false;
 }
 
 bool Kernel::Usb::Driver::KernelAudioDriver::control(uint32_t request, 
@@ -271,16 +398,31 @@ bool Kernel::Usb::Driver::KernelAudioDriver::control(uint32_t request,
       return get_requests(parameters, audio_dev, driver->__get_bit_depth);
     case GET_TOTAL_FREQ :
       return get_requests(parameters, audio_dev, driver->__get_total_supported_frequencies);
-    case SET_FREQ : // currently not supported -> need to add the actual removal of transfer in the UHCI for this
-      break;
+    case GET_NUM_CHANNELS :
+      return get_requests(parameters, audio_dev, driver->__get_num_channels);
+    case GET_SOUND :
+      return get_sound_requests(parameters, audio_dev, driver->__get_volume);
+    case GET_SOUND_MAX :
+      return get_sound_requests(parameters, audio_dev, driver->__get_max_volume);
+    case GET_SOUND_MIN :
+      return get_sound_requests(parameters, audio_dev, driver->__get_min_volume);
+    /*case SET_FREQ :
+      // strange bug, when using this control 
+      return set_frequency(parameters, audio_dev); */
+    case SET_SOUND :
+      return set_sound_requests(parameters, audio_dev, driver->set_sound_value);
+    case SET_SOUND_MAX :
+      return set_sound_requests(parameters, audio_dev, driver->set_max_sound_value);
+    case SET_SOUND_MIN : 
+      return set_sound_requests(parameters, audio_dev, driver->set_min_sound_value);
     case MUTE :
-      break;
+      return direct_requests(parameters, audio_dev, driver->mute);
     case UNMUTE :
-      break;
-    case VOL_UP :
-      break;
-    case VOL_DOWN :
-      break;
+      return direct_requests(parameters, audio_dev, driver->unmute);
+    case OPEN :
+      return audio_stream(parameters, audio_dev, OPEN);
+    case CLOSE :
+      return audio_stream(parameters, audio_dev, CLOSE);
     default: return false;
   }
 
