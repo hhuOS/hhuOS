@@ -67,6 +67,14 @@ void Kernel::UsbService::submit_control_transfer(Interface *interface,
     prio, data, setup, callback);
 }
 
+int Kernel::UsbService::remove_transfer(uint32_t transfer_id){
+  return __STRUCT_CALL__(usb_service_c, remove_transfer_c, transfer_id);
+}
+
+int Kernel::UsbService::reset_transfer(uint32_t transfer_id){
+  return __STRUCT_CALL__(usb_service_c, reset_transfer_c, transfer_id);
+}
+
 int Kernel::UsbService::register_callback(uint16_t register_type,
                                           event_callback event_c, void* buffer) {
   return usb_service_c->register_callback_c(usb_service_c, register_type,

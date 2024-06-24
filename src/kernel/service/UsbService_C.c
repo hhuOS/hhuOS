@@ -42,6 +42,8 @@ static void submit_control_transfer_c(UsbService_C *usb_service_c,
                                Interface *interface, unsigned int pipe,
                                uint8_t prio, void *data, uint8_t *setup,
                                callback_function callback);
+static int remove_transfer_c(struct UsbService_C* usb_service_c, uint32_t transfer_id);
+static int reset_transfer_c(struct UsbService_C* usb_service_c, uint32_t transfer_id);
 static int register_callback_c(UsbService_C *usb_service_c, uint16_t register_type,
                         event_callback event_c, void* buffer);
 static int deregister_callback_c(UsbService_C *usb_service_c, uint16_t register_type,
@@ -297,5 +299,29 @@ static int deregister_listener_c(UsbService_C *usb_service_c, int id) {
     l_e = l_e->l_e;
   }
 
+  return status;
+}
+
+static int remove_transfer_c(struct UsbService_C* usb_service_c, uint32_t transfer_id){
+  int status = 0;
+  list_element *l_e = usb_service_c->head.l_e;
+  while (__NOT_NULL__(l_e)) {
+    UsbController *controller =
+        (UsbController *)container_of(l_e, UsbController, l_e);
+    status |= controller->remove_transfer(controller, transfer_id);
+    l_e = l_e->l_e;
+  }
+  return status;
+}
+
+static int reset_transfer_c(struct UsbService_C* usb_service_c, uint32_t transfer_id){
+  int status = 0;
+  list_element *l_e = usb_service_c->head.l_e;
+  while (__NOT_NULL__(l_e)) {
+    UsbController *controller =
+        (UsbController *)container_of(l_e, UsbController, l_e);
+    status |= controller->reset_transfer(controller, transfer_id);
+    l_e = l_e->l_e;
+  }
   return status;
 }

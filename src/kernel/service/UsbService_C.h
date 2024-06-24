@@ -39,7 +39,9 @@
   __ENTRY__(usb_service_c, get_dev) = &get_dev; \
   __ENTRY__(usb_service_c, get_driver) = &get_driver; \
   __ENTRY__(usb_service_c, submit_iso_transfer_c) = &submit_iso_transfer_c; \
-  __ENTRY__(usb_service_c, submit_iso_ext_transfer_c) = &submit_iso_ext_transfer_c
+  __ENTRY__(usb_service_c, submit_iso_ext_transfer_c) = &submit_iso_ext_transfer_c; \
+  __ENTRY__(usb_service_c, remove_transfer_c) = &remove_transfer_c; \
+  __ENTRY__(usb_service_c, reset_transfer_c) = &reset_transfer_c
 
 struct UsbService_C {
   void (*new_service)(struct UsbService_C *usb_service_c);
@@ -91,6 +93,8 @@ struct UsbService_C {
                                    list_element *l_e);
   UsbDriver* (*get_driver)(struct UsbService_C* usb_service_c, list_element* l_e);
   UsbDev* (*get_dev)(struct UsbService_C* usb_service_c, list_element* l_e);
+  int (*remove_transfer_c)(struct UsbService_C* usb_service_c, uint32_t transfer_id);
+  int (*reset_transfer_c)(struct UsbService_C* usb_service_c, uint32_t transfer_id);
 
   SystemService_C *mem_service;
   //SystemService_C *interrupt_service;

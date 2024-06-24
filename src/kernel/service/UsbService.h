@@ -47,6 +47,10 @@ public:
                                uint8_t prio, void *data, uint8_t *setup,
                                callback_function callback);
 
+  int remove_transfer(uint32_t transfer_id);
+
+  int reset_transfer(uint32_t transfer_id);
+
   int register_callback(uint16_t register_type, event_callback event_c, void* buffer);
 
   int deregister_callback(uint16_t register_type, event_callback event_c);
