@@ -23,6 +23,8 @@ include_directories(${HHUOS_SRC_DIR})
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
+target_link_libraries(${PROJECT_NAME} lib.user.libc)
+
 # Add subdirectories
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/runtime/runtime.asm

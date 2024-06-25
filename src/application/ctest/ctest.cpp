@@ -5,9 +5,11 @@
 #include <math.h>
 #include <locale.h>
 #include <setjmp.h>
+#include <time.h>
 
 #include "lib/util/base/System.h"
 #include "lib/util/base/String.h"
+#include "lib/util/time/Date.h"
 
 #include "lib/util/io/stream/PrintStream.h"
 
@@ -24,11 +26,29 @@ void longjmp_test() {
 int32_t main(int32_t argc, char *argv[]) {
 	bool t;
 	
+	//Test time
+	time_t testTime;
+	Util::System::out << "----- time.h"<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "time: "<< time(&testTime) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "clock: "<< clock() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	struct tm * tm_ptr = gmtime(&testTime);
+	Util::System::out << "asctime(gmtime(time)): " << asctime(tm_ptr) << Util::Io::PrintStream::flush;
+	testTime = mktime(tm_ptr);
+	Util::System::out << "ctime(mktime(tm_ptr)): " << ctime(&testTime) << Util::Io::PrintStream::flush;
+	
+	char timeBuf[1024];
+	strftime(timeBuf, 1024, "strftime:\nYear: (%Y %y) Month: (%b %B %m) Week: (%U %W)\nDay (%j %d) Weekday (%a %A %w) Time (%H %I %M %S)\nC-Time (%c)\nOther (%% %x %X %p %Z)", tm_ptr);
+	
+	Util::System::out << timeBuf << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	
+	Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	
 	//Test locale
 	Util::System::out << "----- locale.h"<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	Util::System::out << "Current monetary name/symbol: " <<localeconv()->currency_symbol<<"/"<<localeconv()->int_curr_symbol<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	Util::System::out << "Current decimal seperator: " <<localeconv()->decimal_point<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	
+	Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	
 	//Test setjmp 
 	
@@ -148,9 +168,9 @@ int32_t main(int32_t argc, char *argv[]) {
 	Util::System::out << "strxfrm: " << buf << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	
 	Util::System::out << "strlen('Hello World!'): " << (uint32_t)strlen(str1) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-	Util::System::out << "strcmp(''AAB', 'AAC') (HW,HW): " << strcmp("AAB", "AAC")<<" "<<strcmp(str1, str1) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-	Util::System::out << "strncmp(''AAB', 'AAC', 2): " << strncmp("AAB", "AAC", 2)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-	Util::System::out << "strcoll(''AAB', 'AAC'): " << strcoll("AAB", "AAC")<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "strcmp('AAB', 'AAC') (HW,HW): " << strcmp("AAB", "AAC")<<" "<<strcmp(str1, str1) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "strncmp('AAB', 'AAC', 2): " << strncmp("AAB", "AAC", 2)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "strcoll('AAB', 'AAC'): " << strcoll("AAB", "AAC")<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	Util::System::out << "strchr(HW,'o'): " << strchr(str1, 'o')<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	Util::System::out << "strrchr(HW,'o'): " << strrchr(str1, 'o')<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	Util::System::out << "strspn(HW, 'leH'): " << (uint32_t)strspn(str1, "leH")<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;

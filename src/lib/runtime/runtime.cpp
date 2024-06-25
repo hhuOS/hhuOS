@@ -6,6 +6,8 @@
 #include "lib/util/base/System.h"
 #include "lib/util/collection/ArrayList.h"
 
+#include "lib/libc/time.h"
+
 // Export functions
 extern "C" {
 void initMemoryManager(uint8_t *startAddress);
@@ -28,6 +30,7 @@ void _sysExit(int32_t exitCode) {
 
 
 void initLibc() {
+	_time_initialize();
 }
 
 

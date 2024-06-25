@@ -24,8 +24,11 @@ ByteArrayOutputStream::ByteArrayOutputStream() : ByteArrayOutputStream(DEFAULT_B
 
 ByteArrayOutputStream::ByteArrayOutputStream(uint32_t size) : buffer(new uint8_t[size]), size(size) {}
 
+ByteArrayOutputStream::ByteArrayOutputStream(uint8_t * buffer, uint32_t size) : buffer(buffer), size(size), allocatedBuffer(false) {
+}
+
 ByteArrayOutputStream::~ByteArrayOutputStream() {
-    delete[] buffer;
+    if (allocatedBuffer) delete[] buffer;
 }
 
 void ByteArrayOutputStream::getContent(uint8_t *target, uint32_t length) const {
@@ -51,13 +54,20 @@ void ByteArrayOutputStream::reset() {
     position = 0;
 }
 
+bool ByteArrayOutputStream::sizeLimitReached() {
+	return enforceSizeLimit && position == size;
+}
+
+void ByteArrayOutputStream::setEnforceSizeLimit(bool value) {
+	enforceSizeLimit = value;
+}
+
 void ByteArrayOutputStream::write(uint8_t c) {
-    ensureRemainingCapacity(1);
-    buffer[position++] = c;
+    if (ensureRemainingCapacity(1)) buffer[position++] = c;
 }
 
 void ByteArrayOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    ensureRemainingCapacity(length);
+    length = ensureRemainingCapacity(length);
     auto sourceAddress = Address<uint32_t>(sourceBuffer).add(offset);
     auto targetAddress = Address<uint32_t>(buffer).add(position);
     targetAddress.copyRange(sourceAddress, length);
@@ -65,10 +75,14 @@ void ByteArrayOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, 
     position += length;
 }
 
-void ByteArrayOutputStream::ensureRemainingCapacity(uint32_t count) {
+uint32_t ByteArrayOutputStream::ensureRemainingCapacity(uint32_t count) {
     if (position + count < size) {
-        return;
+        return count;
     }
+	
+	if (enforceSizeLimit) return size - position;
+	
+	if (!enforceSizeLimit && !allocatedBuffer) return count; //if no size limits are enforced on remote buffer, writes beyond end are allowed
 
     uint32_t newSize = size * 2;
     while (newSize < position + count) {
@@ -83,6 +97,8 @@ void ByteArrayOutputStream::ensureRemainingCapacity(uint32_t count) {
     delete[] buffer;
     buffer = newBuffer;
     size = newSize;
+	
+	return count;
 }
 
 uint8_t* ByteArrayOutputStream::getBuffer() const {
