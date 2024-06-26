@@ -345,7 +345,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
 
     // Memory management has been set up now, and we continue with the remaining boot process
     LOG_INFO("Welcome to hhuOS!");
-    LOG_INFO("Used kernel heap memory during early boot process: [%u Byte]", kernelHeapManager.getTotalMemory() - kernelHeapManager.getFreeMemory());
+    LOG_INFO("Used kernel heap memory during early boot process: [%u KiB]", (kernelHeapManager.getTotalMemory() - kernelHeapManager.getFreeMemory()) / 1024);
 
     // Create scheduler and process service and register kernel process
     LOG_INFO("Initializing scheduler");
