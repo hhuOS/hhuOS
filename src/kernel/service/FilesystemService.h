@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "filesystem/core/Filesystem.h"
+#include "filesystem/Filesystem.h"
 #include "Service.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/String.h"
@@ -30,6 +30,7 @@ class Node;
 }  // namespace Filesystem
 
 namespace Kernel {
+class FileDescriptor;
 
 class FilesystemService : public Service {
 
@@ -72,7 +73,7 @@ public:
 
     void closeFile(int32_t fileDescriptor);
 
-    Filesystem::Node& getNode(int32_t fileDescriptor);
+    FileDescriptor& getFileDescriptor(int32_t fileDescriptor);
 
     [[nodiscard]] Filesystem::Filesystem& getFilesystem();
 

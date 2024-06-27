@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -34,7 +34,6 @@ add_subdirectory(battlespace)
 add_subdirectory(bug)
 add_subdirectory(beep)
 add_subdirectory(cat)
-add_subdirectory(color)
 add_subdirectory(cp)
 add_subdirectory(demo)
 add_subdirectory(date)
@@ -46,15 +45,14 @@ add_subdirectory(ip)
 add_subdirectory(kill)
 add_subdirectory(ls)
 add_subdirectory(lsusb)
-add_subdirectory(playusb)
-add_subdirectory(msd)
-add_subdirectory(lvgl)
 add_subdirectory(membench)
 add_subdirectory(mkdir)
+add_subdirectory(msd)
 add_subdirectory(mount)
-add_subdirectory(mouse)
+add_subdirectory(nettest)
 add_subdirectory(ping)
 add_subdirectory(play)
+add_subdirectory(playusb)
 add_subdirectory(ps)
 add_subdirectory(pwd)
 add_subdirectory(rm)

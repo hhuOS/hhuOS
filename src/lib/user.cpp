@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -19,7 +19,6 @@
 
 #include "lib/interface.h"
 #include "lib/util/base/System.h"
-#include "lib/util/base/HeapMemoryManager.h"
 #include "lib/util/base/Constants.h"
 #include "lib/util/async/Runnable.h"
 #include "lib/util/io/stream/PrintStream.h"
@@ -33,6 +32,7 @@
 #include "lib/util/network/Socket.h"
 #include "lib/util/time/Date.h"
 #include "lib/util/time/Timestamp.h"
+#include "lib/util/base/FreeListMemoryManager.h"
 
 namespace Util {
 namespace Network {
@@ -41,8 +41,7 @@ class Datagram;
 }  // namespace Util
 
 void* allocateMemory(uint32_t size, uint32_t alignment) {
-    auto *manager = reinterpret_cast<Util::HeapMemoryManager*>(Util::USER_SPACE_MEMORY_MANAGER_ADDRESS);
-    return manager->allocateMemory(size, alignment);
+    return Util::System::getAddressSpaceHeader().memoryManager.allocateMemory(size, alignment);
 }
 
 void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment) {
@@ -50,27 +49,25 @@ void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment) {
         return allocateMemory(size, alignment);
     }
 
-    auto *manager = reinterpret_cast<Util::HeapMemoryManager*>(Util::USER_SPACE_MEMORY_MANAGER_ADDRESS);
-    return manager->reallocateMemory(pointer, size, alignment);
+    return Util::System::getAddressSpaceHeader().memoryManager.reallocateMemory(pointer, size, alignment);
 }
 
 void freeMemory(void *pointer, uint32_t alignment) {
-    auto *manager = reinterpret_cast<Util::HeapMemoryManager*>(Util::USER_SPACE_MEMORY_MANAGER_ADDRESS);
-    manager->freeMemory(pointer, alignment);
+    Util::System::getAddressSpaceHeader().memoryManager.freeMemory(pointer, alignment);
 }
 
-bool isSystemInitialized() {
+bool isMemoryManagementInitialized() {
     return true;
 }
 
-void* mapIO(uint32_t physicalAddress, uint32_t size) {
+void* mapIO(void *physicalAddress, uint32_t pageCount) {
     void *mappedAddress;
-    Util::System::call(Util::System::MAP_IO, 3, physicalAddress, size, &mappedAddress);
+    Util::System::call(Util::System::MAP_IO, 3, physicalAddress, pageCount, &mappedAddress);
     return mappedAddress;
 }
 
-void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount) {
-    Util::System::call(Util::System::UNMAP, 3, virtualStartAddress, virtualEndAddress, breakCount);
+void unmap(void *virtualAddress, uint32_t pageCount, uint32_t breakCount) {
+    Util::System::call(Util::System::UNMAP, 3, virtualAddress, pageCount, breakCount);
 }
 
 bool mount(const Util::String &deviceName, const Util::String &targetPath, const Util::String &driverName) {
@@ -140,6 +137,10 @@ uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t
 
 bool controlFile(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters) {
     return Util::System::call(Util::System::CONTROL_FILE, 3, fileDescriptor, request, &parameters);
+}
+
+bool controlFileDescriptor(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters) {
+    return Util::System::call(Util::System::CONTROL_FILE_DESCRIPTOR, 3, fileDescriptor, request, &parameters);
 }
 
 bool changeDirectory(const Util::String &path) {
@@ -216,6 +217,10 @@ void yield() {
     Util::System::call(Util::System::YIELD, 0);
 }
 
+bool isSchedulerInitialized() {
+    return true;
+}
+
 Util::Time::Timestamp getSystemTime() {
     Util::Time::Timestamp systemTime;
     Util::System::call(Util::System::GET_SYSTEM_TIME, 1, &systemTime);
@@ -233,17 +238,15 @@ void setDate(const Util::Time::Date &date) {
 }
 
 bool shutdown(Util::Hardware::Machine::ShutdownType type) {
-    auto result = Util::System::call(Util::System::SHUTDOWN, 1, type);
-    if (result) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Shutdown system call returned successful!");
-    }
+    Util::System::call(Util::System::SHUTDOWN, 1, type);
 
     // If this code is reached, the shutdown was not successful
     return false;
 }
 
 void throwError(Util::Exception::Error error, const char *message) {
-    Util::System::out << Util::Exception::getExceptionName(error) << ": " << message << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    Util::System::out << Util::Exception::getExceptionName(error) << " (" << message << ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    Util::System::printStackTrace(Util::System::out, Util::USER_SPACE_MEMORY_START_ADDRESS);
     Util::System::call(Util::System::EXIT_PROCESS, 1, -1);
     __builtin_unreachable();
 }

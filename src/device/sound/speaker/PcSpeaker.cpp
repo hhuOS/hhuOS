@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "device/time/Pit.h"
+#include "device/time/pit/Pit.h"
 #include "PcSpeaker.h"
 #include "device/cpu/IoPort.h"
 

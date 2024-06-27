@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -28,6 +28,8 @@
 #include "lib/util/math/Vector2D.h"
 #include "DinoGame.h"
 #include "lib/util/base/String.h"
+#include "lib/util/graphic/Font.h"
+#include "lib/util/graphic/font/Terminal8x16.h"
 
 
 GameOverScreen::GameOverScreen(uint32_t score) : score(score) {
@@ -37,17 +39,18 @@ GameOverScreen::GameOverScreen(uint32_t score) : score(score) {
 void GameOverScreen::update(double delta) {}
 
 void GameOverScreen::initializeBackground(Util::Game::Graphics &graphics) {
+    auto &font = Util::Graphic::Fonts::TERMINAL_8x16;
     auto &resolution = Util::Game::GameManager::getAbsoluteResolution();
     auto lines = sizeof(TEXT) / sizeof(char*);
     auto centerX = resolution.getX() / 2;
     auto centerY = resolution.getY() / 2;
-    auto y = static_cast<uint16_t>(centerY - ((lines * graphics.getCharHeight()) / 2.0));
+    auto y = static_cast<uint16_t>(centerY - ((lines * font.getCharHeight()) / 2.0));
 
     graphics.clear();
     graphics.setColor(Util::Graphic::Colors::GREEN);
     for (uint32_t i = 0; i < lines; i++) {
-        auto x = static_cast<uint16_t>(centerX - (Util::Address<uint32_t>(TEXT[i]).stringLength() * graphics.getCharWidth()) / 2.0);
-        graphics.drawString(Util::Math::Vector2D(x, y + i * graphics.getCharHeight()), i == 4 ? Util::String::format("Score: %d", score) : TEXT[i]);
+        auto x = static_cast<uint16_t>(centerX - (Util::Address<uint32_t>(TEXT[i]).stringLength() * font.getCharWidth()) / 2.0);
+        graphics.drawString(font, Util::Math::Vector2D(x, y + i * font.getCharHeight()), i == 4 ? Util::String::format("Score: %d", score) : TEXT[i]);
     }
 }
 

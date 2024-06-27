@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -25,6 +25,7 @@
 #include "lib/util/time/Timestamp.h"
 
 namespace Device {
+class WaitTimer;
 class DateProvider;
 class TimeProvider;
 class Rtc;
@@ -38,7 +39,7 @@ public:
     /**
      * Constructor.
      */
-    TimeService(Device::TimeProvider *timeProvider, Device::DateProvider *dateProvider);
+    TimeService(Device::WaitTimer *waitTimer, Device::TimeProvider *timeProvider, Device::DateProvider *dateProvider);
 
     /**
      * Copy Constructor.
@@ -53,7 +54,7 @@ public:
     /**
      * Destructor.
      */
-    ~TimeService() override;
+    ~TimeService() override = default;
 
     [[nodiscard]] Util::Time::Timestamp getSystemTime() const;
 
@@ -65,10 +66,9 @@ public:
 
     static const constexpr uint8_t SERVICE_ID = 6;
 
-    Device::Rtc* getRtc();
-
 private:
 
+    Device::WaitTimer *waitTimer;
     Device::TimeProvider *timeProvider;
     Device::DateProvider *dateProvider;
 };

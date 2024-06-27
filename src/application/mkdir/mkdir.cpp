@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -22,7 +22,6 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/base/String.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -51,7 +50,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
         auto success = file.create(Util::Io::File::DIRECTORY);
         if (!success) {
-            Util::System::error << "mkdir: Failed to execute directory '" << path << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::error << "mkdir: Failed to create directory '" << path << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         }
     }
 

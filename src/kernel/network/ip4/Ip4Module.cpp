@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -21,11 +21,10 @@
 #include "Ip4Module.h"
 
 #include "lib/util/network/ip4/Ip4Header.h"
-#include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
 #include "lib/util/network/ip4/Ip4Datagram.h"
 #include "device/network/NetworkDevice.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/io/stream/ByteArrayInputStream.h"
@@ -44,10 +43,9 @@
 #include "lib/util/network/ip4/Ip4Route.h"
 #include "lib/util/network/ip4/Ip4SubnetAddress.h"
 #include "lib/util/collection/Iterator.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel::Network::Ip4 {
-
-Kernel::Logger Ip4Module::log = Kernel::Logger::get("IPv4");
 
 void Ip4Module::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
     auto &tmpStream = reinterpret_cast<Util::Io::ByteArrayInputStream&>(stream);
@@ -57,7 +55,7 @@ void Ip4Module::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformat
     auto receivedChecksum = (buffer[Util::Network::Ip4::Ip4Header::CHECKSUM_OFFSET] << 8) | buffer[Util::Network::Ip4::Ip4Header::CHECKSUM_OFFSET + 1];
 
     if (receivedChecksum != calculatedChecksum) {
-        log.warn("Discarding packet, because of wrong header checksum");
+        LOG_WARN("Discarding packet, because of wrong header checksum");
         return;
     }
 
@@ -65,16 +63,16 @@ void Ip4Module::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformat
     header.read(stream);
 
     if (header.getVersion() != 4) {
-        log.warn("Discarding packet, because of wrong IP version");
+        LOG_WARN("Discarding packet, because of wrong IP version");
         return;
     }
 
     if (header.getTimeToLive() == 1) {
-        log.warn("Discarding packet, because its time to live has expired");
+        LOG_WARN("Discarding packet, because its time to live has expired");
     }
 
     if (getTargetInterfaces(header.getDestinationAddress()).length() == 0) {
-        log.warn("Discarding packet, because of wrong destination address!");
+        LOG_WARN("Discarding packet, because of wrong destination address!");
         return;
     }
 
@@ -94,7 +92,7 @@ void Ip4Module::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformat
 }
 
 Ip4Interface Ip4Module::writeHeader(Util::Io::ByteArrayOutputStream &stream, const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &destinationAddress, Util::Network::Ip4::Ip4Header::Protocol protocol, uint16_t payloadLength) {
-    auto &networkService = Kernel::System::getService<Kernel::NetworkService>();
+    auto &networkService = Kernel::Service::getService<Kernel::NetworkService>();
     auto &arpModule = networkService.getNetworkStack().getArpModule();
     auto &ip4Module = networkService.getNetworkStack().getIp4Module();
     auto route = ip4Module.routingModule.findRoute(sourceAddress, destinationAddress);
@@ -164,7 +162,7 @@ bool Ip4Module::registerInterface(const Util::Network::Ip4::Ip4SubnetAddress &ad
     lock.release();
 
     if (ret) {
-        auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
+        auto &arpModule = Kernel::Service::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
         arpModule.setEntry(address.getIp4Address(), device.getMacAddress());
     }
 
@@ -175,7 +173,7 @@ bool Ip4Module::removeInterface(const Util::Network::Ip4::Ip4SubnetAddress &addr
     lock.acquire();
     for (const auto &interface : interfaces) {
         if (interface.getSubnetAddress() == address && interface.getDeviceIdentifier() == deviceIdentifier) {
-            auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
+            auto &arpModule = Kernel::Service::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
             arpModule.removeEntry(interface.getIp4Address());
 
             routingModule.removeRoute(address, deviceIdentifier);

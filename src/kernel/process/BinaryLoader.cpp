@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -22,14 +22,15 @@
 #include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/file/elf/File.h"
-#include "kernel/system/System.h"
-#include "kernel/paging/Paging.h"
 #include "kernel/service/ProcessService.h"
 #include "kernel/process/Process.h"
 #include "kernel/process/Thread.h"
-#include "kernel/service/SchedulerService.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/base/Address.h"
+#include "kernel/service/Service.h"
+#include "lib/util/base/System.h"
+#include "lib/util/base/Constants.h"
+#include "kernel/process/Scheduler.h"
 
 namespace Kernel {
 
@@ -50,13 +51,35 @@ void BinaryLoader::run() {
     auto binaryStream = Util::Io::FileInputStream(file);
     binaryStream.read(buffer, 0, file.getLength());
 
-    // buffer is automatically deleted by file destructor
+    // Buffer is automatically deleted by file destructor
     auto executable = Util::Io::Elf::File(buffer);
     executable.loadProgram();
 
+    // Needed for allocating memory before user space heap
+    auto *currentAddress = reinterpret_cast<uint8_t*>(executable.getEndAddress());
+
+    auto &addressSpaceHeader = *reinterpret_cast<Util::System::AddressSpaceHeader*>(Util::USER_SPACE_MEMORY_START_ADDRESS);
+
+    // Copy symbol and string table to user space (needed for stack trace with symbol names)
+    auto &symbolTableHeader = executable.getSectionHeader(Util::Io::Elf::SectionHeaderType::SYMTAB);
+    auto &stringTableHeader = executable.getSectionHeader(Util::Io::Elf::SectionHeaderType::STRTAB);
+    addressSpaceHeader.symbolTableSize = symbolTableHeader.size;
+
+    auto symbolTableAddress = Util::Address<uint32_t>(buffer + symbolTableHeader.offset);
+    auto stringTableAddress = Util::Address<uint32_t>(buffer + stringTableHeader.offset);
+
+    Util::Address<uint32_t>(currentAddress).copyRange(symbolTableAddress, symbolTableHeader.size);
+    addressSpaceHeader.symbolTable = reinterpret_cast<const Util::Io::Elf::SymbolEntry*>(currentAddress);
+    currentAddress += symbolTableHeader.size;
+
+    Util::Address<uint32_t>(currentAddress).copyRange(stringTableAddress, stringTableHeader.size);
+    addressSpaceHeader.stringTable = reinterpret_cast<const char*>(currentAddress);
+    currentAddress += stringTableHeader.size;
+
+    // Copy arguments to user space
     uint32_t argc = arguments.length() + 1;
     char **argv = reinterpret_cast<char**>(executable.getEndAddress() + 1);
-    auto currentAddress = reinterpret_cast<uint32_t>(argv) + sizeof(char**) * argc;
+    currentAddress += sizeof(char**) * argc;
 
     for (uint32_t i = 0; i < argc; i++) {
         auto sourceArgument = Util::Address<uint32_t>(static_cast<char*>(i == 0 ? command : arguments[i - 1]));
@@ -67,14 +90,13 @@ void BinaryLoader::run() {
         currentAddress += targetArgument.stringLength() + 1;
     }
 
-    auto &processService = System::getService<ProcessService>();
-    auto &schedulerService = System::getService<SchedulerService>();
+    auto &processService = Service::getService<ProcessService>();
     auto &process = processService.getCurrentProcess();
-    auto heapAddress = Util::Address(currentAddress + 1).alignUp(Kernel::Paging::PAGESIZE).get();
+    auto heapAddress = Util::Address<uint32_t>(currentAddress + 1).alignUp(Util::PAGESIZE).get();
     auto &userThread = Thread::createMainUserThread(file.getName(), process, (uint32_t) executable.getEntryPoint(), argc, argv, nullptr, heapAddress);
 
     processService.getCurrentProcess().setMainThread(userThread);
-    schedulerService.ready(userThread);
+    processService.getScheduler().ready(userThread);
 }
 
 }

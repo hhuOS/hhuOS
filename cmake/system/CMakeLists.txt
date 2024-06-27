@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -25,9 +25,7 @@ include_directories(${HHUOS_SRC_DIR})
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/boot.asm
         ${HHUOS_SRC_DIR}/BuildConfig.cpp
-        ${HHUOS_SRC_DIR}/GatesOfHell.cpp
-        ${HHUOS_SRC_DIR}/asm_interface.cpp
-        ${HHUOS_SRC_DIR}/constants.asm)
+        ${HHUOS_SRC_DIR}/GatesOfHell.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 

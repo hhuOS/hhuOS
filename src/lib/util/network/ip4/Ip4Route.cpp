@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -26,30 +26,32 @@
 
 namespace Util::Network::Ip4 {
 
-Ip4Route::Ip4Route(const Util::Network::Ip4::Ip4SubnetAddress &localAddress, const Util::Network::Ip4::Ip4Address &nextHop, const Util::String &deviceIdentifier) :
-        address(localAddress), nextHop(nextHop), deviceIdentifier(deviceIdentifier), nextHopValid(true) {}
+Ip4Route::Ip4Route(const Util::Network::Ip4::Ip4SubnetAddress &targetAddress, const Util::Network::Ip4::Ip4Address &nextHop, const Util::String &deviceIdentifier) :
+        sourceAddress(targetAddress.getIp4Address()), targetAddress(targetAddress), nextHop(nextHop), deviceIdentifier(deviceIdentifier), nextHopValid(true) {}
 
-Ip4Route::Ip4Route(const Util::Network::Ip4::Ip4SubnetAddress &localAddress, const Util::String &deviceIdentifier) :
-        address(localAddress), nextHop(), deviceIdentifier(deviceIdentifier), nextHopValid(false) {}
+Ip4Route::Ip4Route(const Ip4Address &sourceAddress, const Ip4SubnetAddress &targetAddress, const String &deviceIdentifier) :
+        sourceAddress(sourceAddress), targetAddress(targetAddress), deviceIdentifier(deviceIdentifier), nextHopValid(false) {}
+
+Ip4Route::Ip4Route(const Util::Network::Ip4::Ip4SubnetAddress &targetAddress, const Util::String &deviceIdentifier) :
+        sourceAddress(targetAddress.getIp4Address()), targetAddress(targetAddress), nextHop(), deviceIdentifier(deviceIdentifier), nextHopValid(false) {}
+
+Ip4Route::Ip4Route(const Ip4Address &sourceAddress, const Ip4SubnetAddress &targetAddress, const Ip4Address &nextHop, const String &deviceIdentifier) :
+        sourceAddress(sourceAddress), targetAddress(targetAddress), nextHop(nextHop), deviceIdentifier(deviceIdentifier), nextHopValid(true) {}
 
 bool Ip4Route::operator==(const Ip4Route &other) const {
-    return address == other.address && deviceIdentifier == other.deviceIdentifier && nextHop == other.nextHop;
+    return targetAddress == other.targetAddress && deviceIdentifier == other.deviceIdentifier && nextHop == other.nextHop;
 }
 
 bool Ip4Route::operator!=(const Ip4Route &other) const {
-    return address != other.address || deviceIdentifier != other.deviceIdentifier || nextHop != other.nextHop;
+    return targetAddress != other.targetAddress || deviceIdentifier != other.deviceIdentifier || nextHop != other.nextHop;
 }
 
-const Ip4SubnetAddress& Ip4Route::getAddress() const {
-    return address;
-}
-
-Ip4Address Ip4Route::getSourceAddress() const {
-    return address.getIp4Address();
+const Ip4Address& Ip4Route::getSourceAddress() const {
+    return sourceAddress;
 }
 
 Ip4SubnetAddress Ip4Route::getTargetAddress() const {
-    return address.getSubnetAddress();
+    return targetAddress.getSubnetAddress();
 }
 
 const Ip4::Ip4Address &Ip4Route::getNextHop() const {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -54,6 +54,8 @@ public:
     int16_t read() override;
 
     int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
+
+    bool isReadyToRead() override;
 
 private:
 

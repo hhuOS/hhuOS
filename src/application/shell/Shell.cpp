@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -19,9 +19,12 @@
 #include "lib/util/base/System.h"
 #include "lib/util/async/Process.h"
 #include "lib/util/graphic/Terminal.h"
-#include "Shell.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/PrintStream.h"
+#include "lib/util/io/stream/FileInputStream.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/collection/ArrayList.h"
+#include "Shell.h"
 
 Shell::Shell(const Util::String &path) : startDirectory(path) {}
 
@@ -47,6 +50,8 @@ void Shell::beginCommandLine() {
     sub_index = 0;
     auto currentDirectory = Util::Io::File::getCurrentWorkingDirectory();
 
+    buildAutoCompletionLists();
+
     Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_GREEN << "["
                       << Util::Graphic::Ansi::FOREGROUND_BRIGHT_WHITE << (currentDirectory.getCanonicalPath().isEmpty() ? "/" : currentDirectory.getName())
                       << Util::Graphic::Ansi::FOREGROUND_BRIGHT_GREEN << "]> "
@@ -61,24 +66,34 @@ void Shell::readLine() {
 
     while (isRunning) {
         switch (input) {
-            case Util::Graphic::Ansi::KEY_UP:
+            case Util::Graphic::Ansi::UP:
                 Util::Graphic::Ansi::enableCanonicalMode();
                 handleUpKey();
                 Util::Graphic::Ansi::enableRawMode();
                 break;
-            case Util::Graphic::Ansi::KEY_DOWN:
+            case Util::Graphic::Ansi::DOWN:
                 Util::Graphic::Ansi::enableCanonicalMode();
                 handleDownKey();
                 Util::Graphic::Ansi::enableRawMode();
                 break;
-            case Util::Graphic::Ansi::KEY_RIGHT:
+            case Util::Graphic::Ansi::RIGHT:
                 Util::Graphic::Ansi::enableCanonicalMode();
                 handleRightKey();
                 Util::Graphic::Ansi::enableRawMode();
                 break;
-            case Util::Graphic::Ansi::KEY_LEFT:
+            case Util::Graphic::Ansi::LEFT:
                 Util::Graphic::Ansi::enableCanonicalMode();
                 handleLeftKey();
+                Util::Graphic::Ansi::enableRawMode();
+                break;
+            case Util::Graphic::Ansi::POS1:
+                Util::Graphic::Ansi::enableCanonicalMode();
+                handlePos1();
+                Util::Graphic::Ansi::enableRawMode();
+                break;
+            case Util::Graphic::Ansi::END:
+                Util::Graphic::Ansi::enableCanonicalMode();
+                handleEnd();
                 Util::Graphic::Ansi::enableRawMode();
                 break;
             case 0x08:
@@ -91,16 +106,58 @@ void Shell::readLine() {
                 handleTab();
                 Util::Graphic::Ansi::enableRawMode();
                 break;
-            case 0x0a:
-                currentLine = currentLine.strip();
-                Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            case 0x0a: {
                 Util::Graphic::Ansi::enableCanonicalMode();
+
+                auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
+                auto startPosition = getStartPosition();
+                uint16_t column = startPosition.column + (currentLine.length() % (cursorLimits.column + 1));
+                uint16_t row = startPosition.row + ((currentLine.length() + startPosition.column) / (cursorLimits.column + 1));
+                Util::Graphic::Ansi::setPosition({column, row});
+                Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+
+                currentLine = currentLine.strip();
                 return;
+            }
+            case 0x7f:
+                Util::Graphic::Ansi::enableCanonicalMode();
+                handleDel();
+                Util::Graphic::Ansi::enableRawMode();
             case 0x00 ... 0x06:
             case 0x0b ... 0x1f:
                 break;
             default:
-                buildLine(input);
+                Util::Graphic::Ansi::enableCanonicalMode();
+                auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
+                auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
+                auto scrolledLines = getScrolledLines(); // Amount of lines the screen has been scrolled to display the current line
+                auto startPosition = getStartPosition();
+                auto preCursor = currentLine.substring(0, (cursorPosition.row - startPosition.row) * (cursorLimits.column + 1) + cursorPosition.column - startPosition.column);
+                auto afterCursor = currentLine.substring((cursorPosition.row - startPosition.row) * (cursorLimits.column + 1) + cursorPosition.column - startPosition.column, currentLine.length());
+                currentLine = preCursor + static_cast<char>(input) + afterCursor;
+
+                Util::System::out << static_cast<char>(input) << afterCursor << Util::Io::PrintStream::flush;
+
+                if (getScrolledLines() > scrolledLines) { // The new character caused the screen to scroll up one row
+                    if (cursorPosition.column >= cursorLimits.column) { // The cursor was at the end of the row and should move to the beginning of the next row
+                        Util::Graphic::Ansi::setPosition({0, cursorPosition.row >= cursorLimits.row ? cursorPosition.row : static_cast<uint16_t>(cursorPosition.row + 1)});
+                    } else { // The cursor just needs to advance one column, but we need to decrement the row, because the entire screen has been scrolled up
+                        Util::Graphic::Ansi::setPosition({static_cast<uint16_t>(cursorPosition.column + 1), static_cast<uint16_t>(cursorPosition.row - 1)});
+                    }
+                } else { // The screen did not scroll
+                    if (cursorPosition.column < cursorLimits.column) { // The cursor just needs to advance one column
+                        Util::Graphic::Ansi::setPosition({static_cast<uint16_t>(cursorPosition.column + 1), cursorPosition.row});
+                    } else if (cursorPosition.row < cursorLimits.row){ // The cursor was at the end of the line and should move to the beginning of the next row
+                        Util::Graphic::Ansi::setPosition({0, static_cast<uint16_t>(cursorPosition.row + 1)});
+                    }
+                }
+
+                Util::Graphic::Ansi::enableRawMode();
+        }
+
+        if (input != '\t') {
+            autoCompletionSearchString = "";
+            autoCompletionIndex = 0;
         }
 
         input = Util::Graphic::Ansi::readChar();
@@ -109,40 +166,24 @@ void Shell::readLine() {
     Util::Graphic::Ansi::enableCanonicalMode();
 }
 
-void Shell::buildLine(int16_t input) {
-    uint32_t c_len = currentLine.length();
-    if(sub_index < c_len){
-        currentLine += " ";
-        Util::Graphic::Ansi::clearLineFromCursor();
-        for(uint32_t i = c_len; i > sub_index; i--){
-            currentLine[i] = currentLine[i - 1];
-        }
-        currentLine[sub_index] = static_cast<char>(input);
-        for(uint32_t i = sub_index; i < c_len + 1; i++){
-            Util::System::out << (char)currentLine[i] << Util::Io::PrintStream::flush;
-        }  
-    }
-    else {
-        currentLine += static_cast<char>(input);
-        Util::System::out << static_cast<char>(input) << Util::Io::PrintStream::flush;
-    }
-    sub_index++;
-}
-
 void Shell::parseInput() {
     const auto async = currentLine.endsWith("&");
     const auto pipeSplit = currentLine.substring(0, async ? currentLine.length() - 1 : currentLine.length()).split(">");
+
     if (pipeSplit.length() == 0) {
         return;
     }
 
     const auto command = pipeSplit[0].substring(0, currentLine.indexOf(" "));
     const auto rest = pipeSplit[0].substring(currentLine.indexOf(" "), currentLine.length());
-    auto arguments = rest.split(" ");
 
+    bool valid;
+    auto arguments = parseArguments(rest.strip(), valid);
     const auto targetFile = pipeSplit.length() == 1 ? "/device/terminal" : pipeSplit[1].split(" ")[0];
 
-    if (command == "cd") {
+    if (!valid) {
+        Util::System::out << "Invalid argument string!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    } else if (command == "cd") {
         cd(arguments);
     } else if (command == "exit") {
         isRunning = false;
@@ -160,6 +201,37 @@ void Shell::parseInput() {
     }
 
     historyIndex = history.size();
+}
+
+Util::Array<Util::String> Shell::parseArguments(const Util::String &argumentString, bool &valid) {
+    auto argumentList = Util::ArrayList<Util::String>();
+    auto currentArgument = Util::String();
+    bool inString = false;
+    for (uint32_t i = 0; i < argumentString.length(); i++) {
+        auto currentCharacter = argumentString[i];
+        if (currentCharacter == '"') {
+            if (currentArgument.length() > 0) {
+                argumentList.add(currentArgument);
+                currentArgument = "";
+            }
+
+            inString = !inString;
+        } else if (currentCharacter == ' ' && !inString) {
+            if (currentArgument.length() > 0) {
+                argumentList.add(currentArgument);
+                currentArgument = "";
+            }
+        } else {
+            currentArgument += currentCharacter;
+        }
+    }
+
+    if (!currentArgument.isEmpty()) {
+        argumentList.add(currentArgument);
+    }
+
+    valid = !inString;
+    return argumentList.toArray();
 }
 
 Util::String Shell::checkPath(const Util::String &command) const {
@@ -238,9 +310,37 @@ void Shell::executeBinary(const Util::String &path, const Util::String &command,
         return;
     }
 
+    auto lfbSettingsString = Util::String();
+    auto lfbFile = Util::Io::File("/device/lfb");
+    if (lfbFile.exists()) {
+        bool endOfFile;
+        auto lfbInputStream = Util::Io::FileInputStream(lfbFile);
+        lfbInputStream.readLine(endOfFile); // Skip address
+        lfbSettingsString = lfbInputStream.readLine(endOfFile);
+    }
+
     auto process = Util::Async::Process::execute(binaryFile, inputFile, outputFile, outputFile, command, arguments);
     if (!async) {
         process.join();
+
+        if (lfbFile.exists()) {
+            bool endOfFile;
+            auto lfbInputStreamAfter = Util::Io::FileInputStream(lfbFile);
+            lfbInputStreamAfter.readLine(endOfFile); // Skip address
+            auto lfbSettingsStringAfter = lfbInputStreamAfter.readLine(endOfFile);
+            if (lfbSettingsString != lfbSettingsStringAfter) {
+                auto split1 = lfbSettingsString.split("x");
+                auto split2 = split1[1].split("@");
+
+                uint32_t resolutionX = Util::String::parseInt(split1[0]);
+                uint32_t resolutionY = Util::String::parseInt(split2[0]);
+                uint32_t colorDepth = split2.length() > 1 ? Util::String::parseInt(split2[1]) : 32;
+
+                lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array({resolutionX, resolutionY, colorDepth}));
+            }
+        }
+
+        Util::Graphic::Ansi::cleanupGraphicalApplication();
     }
 }
 
@@ -273,7 +373,7 @@ void Shell::handleDownKey() {
         return;
     }
 
-    Util::Io::File::control(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_ANSI_PARSING, {true});
+    Util::Io::File::controlFile(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_ANSI_PARSING, {true});
     while (Util::Graphic::Ansi::getCursorPosition().row > startPosition.row) {
         Util::Graphic::Ansi::clearLine();
         Util::Graphic::Ansi::moveCursorUp(1);
@@ -297,59 +397,186 @@ void Shell::handleDownKey() {
 }
 
 void Shell::handleLeftKey() {
-    if(!sub_index) return;
+    auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
+    auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
+    auto startPosition = getStartPosition();
 
-    Util::Graphic::Ansi::moveCursorLeft(1);
-    sub_index = sub_index - 1;
+    if (cursorPosition.row <= startPosition.row && cursorPosition.column > startPosition.column) {
+        cursorPosition.column -= 1;
+    } else if (cursorPosition.row > startPosition.row) {
+        if (cursorPosition.column == 0) {
+            cursorPosition.column = cursorLimits.column;
+            cursorPosition.row -= 1;
+        } else {
+            cursorPosition.column -= 1;
+        }
+    }
+
+    Util::Graphic::Ansi::setPosition(cursorPosition);
 }
 
 void Shell::handleRightKey() {
-    if(sub_index == currentLine.length()) return;
+    auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
+    auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
+    auto startPosition = getStartPosition();
+    auto currentLineIndex = static_cast<uint32_t>((cursorPosition.row - startPosition.row) * (cursorLimits.column + 1) + cursorPosition.column - startPosition.column);
 
-    Util::Graphic::Ansi::moveCursorRight(1);
-    sub_index = sub_index + 1;
+    if (currentLineIndex > currentLine.length() - 1) {
+        return;
+    }
+
+    if (cursorPosition.column < cursorLimits.column) {
+        cursorPosition.column += 1;
+    } else {
+        cursorPosition.column = 0;
+        cursorPosition.row += 1;
+    }
+
+    Util::Graphic::Ansi::setPosition(cursorPosition);
 }
 
 // does not handle backspace, when at shifting left
 void Shell::handleBackspace() {
-    if (currentLine.length() > 0 && sub_index > 0) {
-        auto position = Util::Graphic::Ansi::getCursorPosition();
-        auto limits = Util::Graphic::Ansi::getCursorLimits();
-    
-        if (position.column == 0) {
-            position.row = position.row == 0 ? 0 : position.row - 1;
-            position.column = limits.column;
-            Util::Graphic::Ansi::setPosition(position);
-            Util::System::out << ' ' << Util::Io::PrintStream::flush;
-            Util::Graphic::Ansi::setPosition(position);
-        }
+    auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
+    auto startPosition = getStartPosition();
 
-    
-        if(sub_index < currentLine.length()){
-            Util::Graphic::Ansi::clearLineFromCursor();
-            for(uint32_t i = sub_index; i < currentLine.length(); i++)
-                currentLine[i - 1] = currentLine[i];
-            Util::Graphic::Ansi::moveCursorLeft(1);
-            for(uint32_t i = sub_index - 1; i < currentLine.length() - 1; i++){
-                Util::System::out << currentLine[i] << Util::Io::PrintStream::flush;
+    if (currentLine.length() == 0 || cursorPosition == startPosition) {
+        return;
+    }
+
+    handleLeftKey();
+    cursorPosition = Util::Graphic::Ansi::getCursorPosition();
+
+    auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
+    auto preCursor = currentLine.substring(0, (cursorPosition.row - startPosition.row) * (cursorLimits.column + 1) + cursorPosition.column - startPosition.column);
+    auto afterCursor = currentLine.substring(((cursorPosition.row - startPosition.row) * (cursorLimits.column + 1) + cursorPosition.column - startPosition.column) + 1, currentLine.length());
+
+    currentLine = preCursor + afterCursor;
+
+    Util::System::out << afterCursor << ' ' << Util::Io::PrintStream::flush;
+    Util::Graphic::Ansi::setPosition(cursorPosition);
+}
+
+void Shell::handleDel() {
+    auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
+    auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
+
+    auto preCursor = currentLine.substring(0, (cursorPosition.row - startPosition.row) * (cursorLimits.column + 1) + cursorPosition.column - startPosition.column);
+    auto afterCursor = currentLine.substring(((cursorPosition.row - startPosition.row) * (cursorLimits.column + 1) + cursorPosition.column - startPosition.column) + 1, currentLine.length());
+
+    currentLine = preCursor + afterCursor;
+
+    Util::System::out << afterCursor << ' ' << Util::Io::PrintStream::flush;
+    Util::Graphic::Ansi::setPosition(cursorPosition);
+}
+
+void Shell::handleTab() {
+    if (currentLine.isEmpty() || currentLine.contains(' ')) {
+        return;
+    }
+
+    if (autoCompletionSearchString.isEmpty()) {
+        autoCompletionSearchString = currentLine;
+    }
+
+    auto autoCompletionSuggestions = Util::ArrayList<Util::String>();
+    autoCompletionSuggestions.addAll(autoCompletionPathSuggestions);
+    autoCompletionSuggestions.addAll(autoCompletionCurrentWorkingDirectorySuggestions);
+
+    for (uint32_t i = 0; i < autoCompletionSuggestions.size(); i++) {
+        auto index = (autoCompletionIndex + i) % autoCompletionSuggestions.size();
+        const auto &suggestion = autoCompletionSuggestions.get(index);
+
+        if (suggestion.beginsWith(autoCompletionSearchString)) {
+            autoCompletionIndex = index + 1 % autoCompletionSuggestions.size();
+            currentLine = suggestion;
+
+            auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
+            Util::Graphic::Ansi::setPosition(startPosition);
+
+            for (auto row = startPosition.row; row <= cursorPosition.row; row++) {
+                if (row == startPosition.row) {
+                    Util::Graphic::Ansi::clearLineFromCursor();
+                } else {
+                    if (row == cursorPosition.row) {
+                        Util::Graphic::Ansi::clearLineToCursor();
+                    } else {
+                        Util::Graphic::Ansi::clearLine();
+                    }
+
+                    Util::Graphic::Ansi::setPosition(Util::Graphic::Ansi::CursorPosition{cursorPosition.column, static_cast<uint16_t>(row + 1)});
+                }
             }
-            if(sub_index - 1 >= 0) {
-                sub_index = sub_index - 1;
-                Util::Graphic::Ansi::moveCursorLeft(1); 
-            }     
-        }
-    
-        else{
-            Util::Graphic::Ansi::moveCursorLeft(1);
-            Util::System::out << ' ' << Util::Io::PrintStream::flush;
-            Util::Graphic::Ansi::moveCursorLeft(1);
-            sub_index = currentLine.length() - 1;
+
+            Util::Graphic::Ansi::setPosition(startPosition);
+            Util::System::out << suggestion << Util::Io::PrintStream::flush;
+
+            break;
         }
 
         currentLine = currentLine.substring(0, currentLine.length() - 1);
     }
 }
 
-void Shell::handleTab() {
+void Shell::handlePos1() {
+    Util::Graphic::Ansi::setPosition(getStartPosition());
+}
 
+void Shell::handleEnd() {
+    Util::Graphic::Ansi::setPosition(getEndPosition());
+}
+
+uint32_t Shell::getScrolledLines() const {
+    auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
+    auto currentScrolledRow = (startPosition.row + (currentLine.length() + startPosition.column) / (cursorLimits.column + 1));
+    return currentScrolledRow > cursorLimits.row ? currentScrolledRow - cursorLimits.row : 0;
+}
+
+Util::Graphic::Ansi::CursorPosition Shell::getStartPosition() const {
+    auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
+    auto scrolledLines = getScrolledLines();
+    auto startPosition = Util::Graphic::Ansi::CursorPosition{Shell::startPosition.column, static_cast<uint16_t>(Shell::startPosition.row - scrolledLines)};
+    if (startPosition.row > cursorPosition.row) {
+        startPosition.row = cursorPosition.row;
+    }
+
+    return startPosition;
+}
+
+Util::Graphic::Ansi::CursorPosition Shell::getEndPosition() const {
+    auto position = getStartPosition();
+    auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
+
+    position.column += currentLine.length();
+    while (position.column > cursorLimits.column) {
+        position.column -= (cursorLimits.column + 1);
+        position.row++;
+    }
+
+    return position;
+}
+
+void Shell::buildAutoCompletionLists() {
+    autoCompletionPathSuggestions.clear();
+    autoCompletionCurrentWorkingDirectorySuggestions.clear();
+
+    for (const auto &path : Util::String(PATH).split(":")) {
+        auto directory = Util::Io::File(path);
+        if (directory.exists() && directory.isDirectory()) {
+            for (const auto &fileName : directory.getChildren()) {
+                auto file = Util::Io::File(directory.getCanonicalPath() + "/" + fileName);
+                if (file.isFile()) {
+                    autoCompletionPathSuggestions.add(fileName);
+                }
+            }
+        }
+    }
+
+    auto workingDirectory = Util::Io::File::getCurrentWorkingDirectory();
+    for (const auto &fileName : workingDirectory.getChildren()) {
+        auto file = Util::Io::File(workingDirectory.getCanonicalPath() + "/" + fileName);
+        if (file.isFile()) {
+            autoCompletionCurrentWorkingDirectorySuggestions.add(fileName);
+        }
+    }
 }

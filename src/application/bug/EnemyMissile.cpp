@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -30,6 +30,7 @@
 #include "lib/util/math/Vector2D.h"
 #include "application/bug/Explosive.h"
 #include "lib/util/game/2d/Entity.h"
+#include "lib/util/base/String.h"
 
 class Bug;
 
@@ -39,7 +40,7 @@ EnemyMissile::EnemyMissile(const Util::Math::Vector2D &position, Bug &bug) : Exp
 
 void EnemyMissile::initialize() {
     Explosive::initialize();
-    sprite = Util::Game::D2::Sprite("/initrd/bug/enemy_missile.bmp", SIZE_X, SIZE_Y);
+    sprite = Util::Game::D2::Sprite("/user/bug/enemy_missile.bmp", SIZE_X, SIZE_Y);
 }
 
 void EnemyMissile::onUpdate(double delta) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -19,10 +19,25 @@
  */
 
 #include "DropletEmitter.h"
+
 #include "lib/util/math/Math.h"
-#include "lib/util/game/GameManager.h"
-#include "lib/util/game/Scene.h"
 #include "lib/util/game/2d/component/GravityComponent.h"
+#include "lib/util/base/String.h"
+#include "lib/util/game/2d/Sprite.h"
+#include "lib/util/game/2d/collider/RectangleCollider.h"
+#include "lib/util/game/2d/particle/Particle.h"
+#include "lib/util/game/Collider.h"
+#include "lib/util/math/Vector2D.h"
+
+namespace Util {
+namespace Game {
+class Graphics;
+namespace D2 {
+class CollisionEvent;
+class TranslationEvent;
+}  // namespace D2
+}  // namespace Game
+}  // namespace Util
 
 DropletEmitter::DropletEmitter(const Util::Math::Vector2D &position) : Util::Game::D2::SingleTimeEmitter(TAG, PARTICLE_TAG, position) {}
 
@@ -42,7 +57,7 @@ void DropletEmitter::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
 void DropletEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
     auto angle = random.nextRandomNumber() * Util::Math::PI;
 
-    particle.setSprite(Util::Game::D2::Sprite("/initrd/demo/raindrop.bmp", 0.005, 0.005));
+    particle.setSprite(Util::Game::D2::Sprite("/user/demo/raindrop.bmp", 0.005, 0.005));
     particle.setPosition(getPosition());
     particle.setVelocity(Util::Math::Vector2D(Util::Math::cosine(angle), Util::Math::sine(angle)));
     particle.setTimeToLive(-1);

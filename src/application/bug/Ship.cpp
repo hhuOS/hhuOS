@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -31,6 +31,7 @@
 #include "lib/util/math/Vector2D.h"
 #include "application/bug/Explosive.h"
 #include "lib/util/game/2d/Entity.h"
+#include "lib/util/base/String.h"
 
 Ship::Ship(const Util::Math::Vector2D &position) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)) {
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
@@ -39,8 +40,8 @@ Ship::Ship(const Util::Math::Vector2D &position) : Explosive(TAG, position, Util
 void Ship::initialize() {
     Explosive::initialize();
 
-    sprite = Util::Game::D2::Sprite("/initrd/bug/ship.bmp", SIZE_X, SIZE_Y);
-    heart = Util::Game::D2::Sprite("/initrd/bug/heart.bmp", 0.05, 0.05);
+    sprite = Util::Game::D2::Sprite("/user/bug/ship.bmp", SIZE_X, SIZE_Y);
+    heart = Util::Game::D2::Sprite("/user/bug/heart.bmp", 0.05, 0.05);
 }
 
 void Ship::onUpdate(double delta) {

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -16,25 +16,42 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+readonly CONST_OVMF_URL="https://retrage.github.io/edk2-nightly/bin/RELEASEIa32_OVMF.fd"
+
 readonly CONST_QEMU_BIN_I386="qemu-system-i386"
-readonly CONST_QEMU_BIN_X86_64="qemu-system-x86_64"
 readonly CONST_QEMU_MACHINE_PC="pc"
 readonly CONST_QEMU_MACHINE_PC_KVM="pc,accel=kvm,kernel-irqchip=split"
 readonly CONST_QEMU_CPU_I386="base,+fpu,+tsc,+cmov,+fxsr,+mmx,+sse,+apic"
-readonly CONST_QEMU_CPU_X86_64="qemu64"
 readonly CONST_QEMU_DEFAULT_RAM="256M"
 readonly CONST_QEMU_BIOS_PC=""
-readonly CONST_QEMU_BIOS_IA32_EFI="bios/ovmf/ia32/OVMF.fd"
-readonly CONST_QEMU_BIOS_X64_EFI="bios/ovmf/x64/OVMF.fd"
-readonly CONST_QEMU_STORAGE_ARGS="-drive driver=raw,index=0,if=floppy,file=floppy0.img -drive driver=raw,node-name=hdd0,file.driver=file,file.filename=hdd0.img"
-readonly CONST_QEMU_NETWORK_ARGS="-nic model=rtl8139,id=eth0,hostfwd=udp::1797-:1797 -object filter-dump,id=filter0,netdev=eth0,file=eth0.dump"
-readonly CONST_QEMU_ARGS="-boot d -vga std -rtc base=localtime -device isa-debug-exit -smp 2"
-readonly CONST_QEMU_OLD_AUDIO_ARGS="-soundhw pcspk -device sb16,irq=10,dma=1"
-readonly CONST_QEMU_NEW_AUDIO_ARGS="-audiodev id=pa,driver=pa -machine pcspk-audiodev=pa -device sb16,irq=10,dma=1,audiodev=pa"
+readonly CONST_QEMU_BIOS_EFI="RELEASEIa32_OVMF.fd"
+
+readonly CONST_QEMU_ARGS="-vga std -rtc base=localtime -device isa-debug-exit -smp 2"
+
+readonly CONST_QEMU_STORAGE_ARGS="\
+-device ahci,id=ahci \
+-drive driver=raw,if=none,id=floppy0,file.filename=floppy0.img \
+-drive driver=raw,if=none,id=hdd0,file.filename=hdd0.img \
+-device floppy,drive=floppy0 \
+-device ide-hd,bus=ide.0,drive=hdd0 \
+-device ide-cd,bus=ahci.0"
+
+readonly CONST_QEMU_NETWORK_ARGS="\
+-nic model=ne2k_pci,id=ne2k,hostfwd=udp::1797-:1797 -object filter-dump,id=filter0,netdev=ne2k,file=ne2k.dump, \
+-nic model=rtl8139,id=rtl8139,hostfwd=udp::1798-:1798 -object filter-dump,id=filter1,netdev=rtl8139,file=rtl8139.dump"
+
+readonly CONST_QEMU_OLD_AUDIO_ARGS="\
+-soundhw pcspk \
+-device sb16,irq=10,dma=1"
+
+readonly CONST_QEMU_NEW_AUDIO_ARGS="\
+-audiodev id=pa,driver=pa \
+-machine pcspk-audiodev=pa \
+-device sb16,irq=10,dma=1,audiodev=pa"
 
 QEMU_BIN="${CONST_QEMU_BIN_I386}"
 QEMU_MACHINE="${CONST_QEMU_MACHINE_PC}"
-QEMU_BIOS="${CONST_QEMU_BIOS_IA32_EFI}"
+QEMU_BIOS="${CONST_QEMU_BIOS_EFI}"
 QEMU_RAM="${CONST_QEMU_DEFAULT_RAM}"
 QEMU_CPU="${CONST_QEMU_CPU_I386}"
 QEMU_CPU_OVERWRITE="false"
@@ -46,14 +63,6 @@ QEMU_USB_ARGS="-usb -device usb-mouse,bus=usb-bus.0,port=1 -device usb-kbd,bus=u
 QEMU_USB_ARGS_ROOT=""
 
 QEMU_GDB_PORT=""
-
-if [ -f "hhuOS-towboot.img" ]; then
-  QEMU_BOOT_DEVICE="-drive driver=raw,node-name=boot,file.driver=file,file.filename=hhuOS-towboot.img"
-elif [ -f "hhuOS-limine.iso" ]; then
-  QEMU_BOOT_DEVICE="-boot d -cdrom hhuOS-limine.iso"
-elif [ -f "hhuOS-grub.iso" ]; then
-  QEMU_BOOT_DEVICE="-boot d -cdrom hhuOS-grub.iso"
-fi
 
 version_lt() {
   test "$(printf "%s\n" "$@" | sort -V | tr ' ' '\n' | head -n 1)" != "${2}"
@@ -68,9 +77,7 @@ set_audio_parameters() {
 }
 
 get_ovmf() {
-  cd "bios/ovmf" || exit 1
-  ./build.sh || exit 1
-  cd "../.." || exit 1
+  wget -N "${CONST_OVMF_URL}"
 }
 
 check_file() {
@@ -86,44 +93,15 @@ parse_file() {
   local path=$1
   
   if [[ $path == *.iso ]]; then
-    QEMU_BOOT_DEVICE="-boot d -cdrom ${path}"
+    QEMU_BOOT_DEVICE="-boot d -drive driver=raw,if=none,id=boot,file.filename=${path} -device ide-cd,bus=ide.1,drive=boot"
   elif [[ $path == *.img ]]; then
-    QEMU_BOOT_DEVICE="-drive driver=raw,node-name=boot,file.driver=file,file.filename=${path}"
+    QEMU_BOOT_DEVICE="-boot c -drive driver=raw,if=none,id=boot,file.filename=${path} -device ide-hd,bus=ide.0,drive=boot"
   else
     printf "Invalid file '%s'!\\n" "${path}"
     exit 1
   fi
   
   check_file $path
-}
-
-parse_architecture() {
-  local architecture=$1
-
-  if [ "${architecture}" == "i386" ] || [ "${architecture}" == "x86" ] || [ "${architecture}" == "ia32" ]; then
-    QEMU_BIN="${CONST_QEMU_BIN_I386}"
-
-    if [ "${QEMU_CPU_OVERWRITE}" != "true" ]; then
-      QEMU_CPU="${CONST_QEMU_CPU_I386}"
-    fi
-
-    if [ "${QEMU_BIOS}" != "${CONST_QEMU_BIOS_PC}" ]; then
-      QEMU_BIOS="${CONST_QEMU_BIOS_IA32_EFI}"
-    fi
-  elif [ "${architecture}" == "x86_64" ] || [ "${architecture}" == "x64" ]; then
-    QEMU_BIN="${CONST_QEMU_BIN_X86_64}"
-
-    if [ "${QEMU_CPU_OVERWRITE}" != "true" ]; then
-      QEMU_CPU="${CONST_QEMU_CPU_X86_64}"
-    fi
-
-    if [ "${QEMU_BIOS}" != "${CONST_QEMU_BIOS_PC}" ]; then
-      QEMU_BIOS="${CONST_QEMU_BIOS_X64_EFI}"
-    fi
-  else
-    printf "Invalid architecture '%s'!\\n" "${architecture}"
-    exit 1
-  fi
 }
 
 parse_machine() {
@@ -183,8 +161,6 @@ print_usage() {
     Available options:
     -f, --file
         Set the .iso or .img file, which qemu should boot (Default: hhuOS.img)
-    -a, --architecture
-        Set the architecture, which qemu should emulate ([i386,x86,ia32] | [x86_64,x64]) (Default: i386)
     -m, --machine
         Set the machine profile, which qemu should emulate ([pc] | [pc-kvm]) (Defualt: pc)
     -b, --bios
@@ -312,9 +288,6 @@ parse_args() {
     -f | --file)
       parse_file "$val"
       ;;
-    -a | --architecture)
-      parse_architecture "$val"
-      ;;
     -m | --machine)
       parse_machine "$val"
       ;;
@@ -376,6 +349,14 @@ run_qemu() {
   fi
 }
 
+if [ -f "hhuOS-towboot.img" ]; then
+  parse_file "hhuOS-towboot.img"
+elif [ -f "hhuOS-limine.iso" ]; then
+  parse_file "hhuOS-limine.iso"
+elif [ -f "hhuOS-grub.iso" ]; then
+  parse_file "hhuOS-grub.iso"
+fi
+
 parse_args "$@"
 
 if [ "${QEMU_BOOT_DEVICE}" == "" ]; then
@@ -383,7 +364,9 @@ if [ "${QEMU_BOOT_DEVICE}" == "" ]; then
   exit 1
 fi
 
-get_ovmf
+if [ "${QEMU_BIOS}" == "RELEASEIa32_OVMF.fd" ]; then
+  get_ovmf
+fi
 
 QEMU_ARGS="${QEMU_ARGS}"
 set_audio_parameters

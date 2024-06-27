@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -63,6 +63,14 @@ int32_t FileInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t l
     pos += count;
 
     return count > 0 ? count : -1;
+}
+
+bool FileInputStream::setAccessMode(File::AccessMode accessMode) const {
+    return File::setAccessMode(fileDescriptor, accessMode);
+}
+
+bool FileInputStream::isReadyToRead() {
+    return Util::Io::File::isReadyToRead(fileDescriptor);
 }
 
 }

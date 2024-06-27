@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -15,23 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/paging/MemoryLayout.h"
+#include "MemoryLayout.h"
 #include "PagingAreaManager.h"
-#include "kernel/paging/Paging.h"
 #include "lib/util/base/Exception.h"
+#include "lib/util/base/Constants.h"
 
 namespace Kernel {
 
-PagingAreaManager::PagingAreaManager() :
-        BitmapMemoryManager(reinterpret_cast<uint8_t*>(MemoryLayout::PAGING_AREA.startAddress), reinterpret_cast<uint8_t*>(MemoryLayout::PAGING_AREA.endAddress), Kernel::Paging::PAGESIZE, true),
-        blockPool(BLOCK_POOL_SIZE) {
-    // We use already 256 Page Tables for Kernel mappings and one Page Directory as the Kernel´s PD
-    setRange(0, 8 * 32 + 2);
-    refillPool();
-}
-
-void PagingAreaManager::handleError() {
-    Util::Exception::throwException(Util::Exception::OUT_OF_PAGING_MEMORY);
+PagingAreaManager::PagingAreaManager(uint8_t *startAddress, uint32_t mappedPages, uint32_t bootstrapPageCount) : BitmapMemoryManager(startAddress, (startAddress + MemoryLayout::PAGING_AREA_SIZE - 1), Util::PAGESIZE, true), blockPool(BLOCK_POOL_SIZE) {
+    setRange(0, bootstrapPageCount);
+    for (uint32_t i = 0; i < mappedPages - bootstrapPageCount; i++) {
+        void *block = BitmapMemoryManager::allocateBlock();
+        blockPool.push(block);
+    }
 }
 
 void *PagingAreaManager::allocateBlock() {
@@ -49,6 +45,10 @@ void PagingAreaManager::refillPool() {
 
     for (uint32_t i = 0; i < blockPool.getCapacity(); i++) {
         void *block = BitmapMemoryManager::allocateBlock();
+        if (block == nullptr) {
+            Util::Exception::throwException(Util::Exception::OUT_OF_PAGING_MEMORY, "PagingAreaManager: Out of memory!");
+        }
+
         if (!blockPool.push(block)) {
             BitmapMemoryManager::freeBlock(block);
             return;

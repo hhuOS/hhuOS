@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -21,6 +21,8 @@ target_sources(device PUBLIC
         ${HHUOS_SRC_DIR}/device/storage/Partition.cpp
         ${HHUOS_SRC_DIR}/device/storage/PartitionHandler.cpp
         ${HHUOS_SRC_DIR}/device/storage/StorageDevice.cpp
+        ${HHUOS_SRC_DIR}/device/storage/ahci/AhciController.cpp
+        ${HHUOS_SRC_DIR}/device/storage/ahci/AhciDevice.cpp
         ${HHUOS_SRC_DIR}/device/storage/floppy/FloppyController.cpp
         ${HHUOS_SRC_DIR}/device/storage/floppy/FloppyDevice.cpp
         ${HHUOS_SRC_DIR}/device/storage/floppy/FloppyMotorControlRunnable.cpp

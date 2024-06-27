@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -20,25 +20,26 @@
 
 #include "Apic.h"
 
-#include "device/power/acpi/Acpi.h"
-#include "device/time/Cmos.h"
-#include "device/time/Pit.h"
-#include "device/cpu/symmetric_multiprocessing.h"
+#include "device/system/Acpi.h"
+#include "device/time/rtc/Cmos.h"
+#include "device/time/pit/Pit.h"
+#include "device/cpu/SymmetricMultiprocessing.h"
 #include "kernel/interrupt/InterruptVector.h"
-#include "kernel/system/System.h"
-#include "kernel/service/MemoryService.h"
 #include "lib/util/base/Constants.h"
-#include "kernel/paging/Paging.h"
-#include "kernel/system/TaskStateSegment.h"
+#include "kernel/memory/GlobalDescriptorTable.h"
 #include "device/interrupt/apic/IoApic.h"
 #include "device/interrupt/apic/LocalApic.h"
 #include "device/interrupt/apic/LocalApicErrorHandler.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/collection/ArrayList.h"
-#include "kernel/paging/MemoryLayout.h"
+#include "kernel/memory/MemoryLayout.h"
 #include "lib/util/hardware/Acpi.h"
+#include "kernel/service/InformationService.h"
+#include "device/cpu/Cpu.h"
+#include "kernel/service/Service.h"
+#include "kernel/service/TimeService.h"
 
 namespace Kernel {
 enum GlobalSystemInterrupt : uint32_t;
@@ -46,8 +47,6 @@ enum GlobalSystemInterrupt : uint32_t;
 
 namespace Device {
 enum InterruptRequest : uint8_t;
-
-Kernel::Logger Apic::log = Kernel::Logger::get("APIC");
 
 uint8_t initializedApplicationProcessorsCounter = 0; // Used to determine AP GDT/Stack slot
 
@@ -59,13 +58,14 @@ Apic::Apic(const Util::Array<LocalApic*> &localApicsArray, IoApic *ioApic) : loc
 }
 
 bool Apic::isAvailable() {
-    return LocalApic::supportsXApic() && Acpi::isAvailable() && Acpi::hasTable("APIC");
+    const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
+    return LocalApic::supportsXApic() && acpi.hasTable("APIC");
 }
 
 Apic* Apic::initialize() {
     if (!LocalApic::readBaseModelSpecificRegister().isBootstrapProcessor) {
         // IA32_APIC_BASE_MSR is unique (every core has its own)
-        log.error("Apic may only be initialized by the bootstrap processor!");
+        LOG_ERROR("Apic may only be initialized by the bootstrap processor!");
         return nullptr;
     }
 
@@ -82,22 +82,20 @@ Apic* Apic::initialize() {
     auto *apic = new Apic(localApics, ioApic);
 
     // Initialize our local APIC, all others are only initialized when SMP is started up
-    const auto &madt = Acpi::getTable<Util::Hardware::Acpi::Madt>("APIC");
-    log.info("Enabling xAPIC mode");
-    LocalApic::enableXApicMode(madt.localApicAddress);
-    log.info("Initializing local APIC [%u]", apic->getCurrentLocalApic().getCpuId());
+    const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
+    const auto &madt = acpi.getTable<Util::Hardware::Acpi::Madt>("APIC");
+    LOG_INFO("Enabling xAPIC mode");
+    LocalApic::enableXApicMode(reinterpret_cast<void *>(madt.localApicAddress));
+    LOG_INFO("Initializing local APIC [%u]", apic->getCurrentLocalApic().getCpuId());
     apic->initializeCurrentLocalApic();
 
     // Initialize the I/O APIC
-    log.info("Initializing IO APIC");
+    LOG_INFO("Initializing IO APIC");
     ioApic->initialize();
 
     // We only require one error handler, as every AP can only access its own local APIC's error register
     apic->errorHandler.plugin();
     apic->enableCurrentErrorHandler();
-
-    ApicTimer::calibrate();
-    apic->startCurrentTimer();
 
     return apic;
 }
@@ -164,22 +162,23 @@ bool Apic::isExternalInterrupt(Kernel::InterruptVector vector) const {
 }
 
 Util::Array<LocalApic*> Apic::getLocalApics() {
+    const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
     auto localApics = Util::ArrayList<LocalApic*>();
-    auto acpiLocalApics = Acpi::getMadtStructures<Util::Hardware::Acpi::ProcessorLocalApic>(Util::Hardware::Acpi::PROCESSOR_LOCAL_APIC);
-    auto acpiLocalApicNmis = Acpi::getMadtStructures<Util::Hardware::Acpi::LocalApicNmi>(Util::Hardware::Acpi::LOCAL_APIC_NMI);
+    auto acpiLocalApics = acpi.getMadtStructures<Util::Hardware::Acpi::ProcessorLocalApic>(Util::Hardware::Acpi::PROCESSOR_LOCAL_APIC);
+    auto acpiLocalApicNmis = acpi.getMadtStructures<Util::Hardware::Acpi::LocalApicNmi>(Util::Hardware::Acpi::LOCAL_APIC_NMI);
 
     if (acpiLocalApics.length() == 0) {
-        log.error("No local APIC detected");
+        LOG_ERROR("No local APIC detected");
         return Util::Array<LocalApic*>(0);
     }
 
-    log.info("[%u] local %s detected", acpiLocalApics.length(), acpiLocalApics.length() == 1 ? "APIC" : "APICs");
+    LOG_INFO("[%u] local %s detected", acpiLocalApics.length(), acpiLocalApics.length() == 1 ? "APIC" : "APICs");
 
     for (const auto *localInfo : acpiLocalApics) {
         if (!(localInfo->flags & 0x01)) {
             // When ACPI reports this local APIC as disabled, it may not be used by the OS.
             // ACPI 1.0 specification, sec. 5.2.8.1
-            log.info("Local APIC [%u] is marked as disabled", localInfo->apicId);
+            LOG_INFO("Local APIC [%u] is marked as disabled", localInfo->apicId);
             continue;
         }
 
@@ -195,7 +194,7 @@ Util::Array<LocalApic*> Apic::getLocalApics() {
         //     }
         // }
         // if (nmiInfo == nullptr) {
-        //     log.error("Couldn't find NMI info for local APIC [%u]!", localInfo->apicId);
+        //     LOG_ERROR("Couldn't find NMI info for local APIC [%u]!", localInfo->apicId);
         //     return Util::Array<LocalApic*>(0);
         // }
         // localApic->addNonMaskableInterrupt(nmiInfo->localApicLint == 0 ? LocalApic::LINT0 : LocalApic::LINT1,
@@ -224,33 +223,34 @@ Util::Array<LocalApic*> Apic::getLocalApics() {
         localApics.add(localApic);
     }
 
-    log.info("[%u] local %s usable", localApics.size(), localApics.size() == 1 ? "APIC is" : "APICs are");
+    LOG_INFO("[%u] local %s usable", localApics.size(), localApics.size() == 1 ? "APIC is" : "APICs are");
 
     return localApics.toArray();
 }
 
 IoApic *Apic::getIoApic() {
-    auto acpiIoApics = Acpi::getMadtStructures<Util::Hardware::Acpi::IoApic>(Util::Hardware::Acpi::IO_APIC);
-    auto acpiNmiSources = Acpi::getMadtStructures<Util::Hardware::Acpi::NmiSource>(Util::Hardware::Acpi::NON_MASKABLE_INTERRUPT_SOURCE);
-    auto acpiInterruptSourceOverrides = Acpi::getMadtStructures<Util::Hardware::Acpi::InterruptSourceOverride>(Util::Hardware::Acpi::INTERRUPT_SOURCE_OVERRIDE);
+    const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
+    auto acpiIoApics = acpi.getMadtStructures<Util::Hardware::Acpi::IoApic>(Util::Hardware::Acpi::IO_APIC);
+    auto acpiNmiSources = acpi.getMadtStructures<Util::Hardware::Acpi::NmiSource>(Util::Hardware::Acpi::NON_MASKABLE_INTERRUPT_SOURCE);
+    auto acpiInterruptSourceOverrides = acpi.getMadtStructures<Util::Hardware::Acpi::InterruptSourceOverride>(Util::Hardware::Acpi::INTERRUPT_SOURCE_OVERRIDE);
 
     if (acpiIoApics.length() == 0) {
         // This is illegal, because this implementation does not support virtual wire mode
-        log.error("No IO APIC present");
+        LOG_ERROR("No IO APIC present");
         return nullptr;
     }
 
     // Multiple I/O APICs are possible, but in the usual Intel consumer chipsets there is only one
     if (acpiIoApics.length() > 1) {
-        log.error("[%u] IO %s detected, but more than one IO APIC is not supported", acpiIoApics.length(), acpiIoApics.length() == 1 ? "APIC" : "APICs");
+        LOG_ERROR("[%u] IO %s detected, but more than one IO APIC is not supported", acpiIoApics.length(), acpiIoApics.length() == 1 ? "APIC" : "APICs");
         return nullptr;
     }
 
-    log.info("[%u] IO %s detected", acpiIoApics.length(), acpiIoApics.length() == 1 ? "APIC" : "APICs");
-    log.info("[%u] interrupt source %s found", acpiInterruptSourceOverrides.length(), acpiInterruptSourceOverrides.length() == 1 ? "override" : "overrides");
+    LOG_INFO("[%u] IO %s detected", acpiIoApics.length(), acpiIoApics.length() == 1 ? "APIC" : "APICs");
+    LOG_INFO("[%u] interrupt source %s found", acpiInterruptSourceOverrides.length(), acpiInterruptSourceOverrides.length() == 1 ? "override" : "overrides");
 
     const auto *ioInfo = acpiIoApics[0];
-    auto *ioApic = new IoApic(ioInfo->ioApicId, ioInfo->ioApicAddress, static_cast<Kernel::GlobalSystemInterrupt>(ioInfo->globalSystemInterruptBase));
+    auto *ioApic = new IoApic(ioInfo->ioApicId, reinterpret_cast<void*>(ioInfo->ioApicAddress), static_cast<Kernel::GlobalSystemInterrupt>(ioInfo->globalSystemInterruptBase));
 
     // Add all NMIs that belong to this I/O APIC
     for (const auto *nmi : acpiNmiSources) {
@@ -277,7 +277,7 @@ IoApic *Apic::getIoApic() {
             trigger = IoApic::RedirectionTableEntry::TriggerMode::LEVEL;
         }
 
-        log.info("Interrupt source override [%u]->[%u], Polarity: [%s], Trigger: [%s]", override->source, override->globalSystemInterrupt,
+        LOG_INFO("Interrupt source override [%u]->[%u], Polarity: [%s], Trigger: [%s]", override->source, override->globalSystemInterrupt,
                  polarity == IoApic::RedirectionTableEntry::PinPolarity::HIGH ? "High" : "Low", trigger == IoApic::RedirectionTableEntry::TriggerMode::EDGE ? "Edge" : "Level");
         ioApic->addIrqOverride(static_cast<InterruptRequest>(override->source), static_cast<Kernel::GlobalSystemInterrupt>(override->globalSystemInterrupt), polarity, trigger);
     }
@@ -295,11 +295,12 @@ bool Apic::isCurrentTimerRunning() {
 
 void Apic::startCurrentTimer() {
     if (isCurrentTimerRunning()) {
-        log.warn("Trying to start an already running APIC timer");
+        LOG_WARN("Trying to start an already running APIC timer");
         return;
     }
 
-    auto *apicTimer = new Device::ApicTimer(10, 10);
+    ApicTimer::calibrate();
+    auto *apicTimer = new Device::ApicTimer(Util::Time::Timestamp::ofMilliseconds(10), Util::Time::Timestamp::ofMilliseconds(10));
     apicTimer->plugin();
     localTimers.put(LocalApic::getId(), apicTimer);
 }
@@ -313,8 +314,9 @@ bool Apic::isSymmetricMultiprocessingSupported() const {
 }
 
 void Apic::startupApplicationProcessors() {
-    void *gdtPointers = prepareApplicationProcessorGdts();
-    void *stackPointers = prepareApplicationProcessorStacks();
+    auto &timeService = Kernel::Service::getService<Kernel::TimeService>();
+    auto *gdtPointers = prepareApplicationProcessorGdts();
+    auto *stackPointers = prepareApplicationProcessorStacks();
     prepareApplicationProcessorStartupCode(gdtPointers, stackPointers);
     prepareApplicationProcessorWarmReset(); // This is technically only required for discrete APIC, see below
 
@@ -322,7 +324,7 @@ void Apic::startupApplicationProcessors() {
     Cpu::disableInterrupts();
     Cmos::disableNmi();
 
-    log.info("CPU [%u] is the bootstrap processor", LocalApic::getId());
+    LOG_INFO("CPU [%u] is the bootstrap processor", LocalApic::getId());
 
     // Call the startup code on each AP using the INIT-SIPI-SIPI Universal Startup Algorithm
     for (const auto *localApic : localApics.values()) {
@@ -346,15 +348,15 @@ void Apic::startupApplicationProcessors() {
         LocalApic::sendInitInterProcessorInterrupt(localApic->getCpuId(), LocalApic::InterruptCommandRegisterEntry::Level::DEASSERT);
         // Not necessary with 10ms delay
         LocalApic::waitForInterProcessorInterruptDispatch();
-        // 10 ms, xv6 waits 100 us instead.
-        Pit::earlyDelay(10000);
+        // Wait 100 us.
+        timeService.busyWait(Util::Time::Timestamp::ofMicroseconds(100));
 
         // Issue the SIPI twice (for xApic):
         for (uint8_t j = 0; j < 2; ++j) {
             LocalApic::clearErrors();
             LocalApic::sendStartupInterProcessorInterrupt(localApic->getCpuId(), Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress);
             LocalApic::waitForInterProcessorInterruptDispatch();
-            Pit::earlyDelay(200); // 200 us
+            timeService.busyWait(Util::Time::Timestamp::ofMicroseconds(200));
         }
 
         // Wait until the AP marks itself as running, so we can continue to the next one.
@@ -366,16 +368,16 @@ void Apic::startupApplicationProcessors() {
         while (!runningApplicationProcessors[initializedApplicationProcessorsCounter]) {
             if (readCount > 10) {
                 // Waited 10 * 10 ms = 0.1 s in total (pretty arbitrarily chosen by me)
-                log.error("CPU [%u] did not mark itself as running, it could be in undefined state", localApic->getCpuId());
+                LOG_ERROR("CPU [%u] did not mark itself as running, it could be in undefined state", localApic->getCpuId());
                 break;
             }
 
-            Pit::earlyDelay(10000); // 10 ms
+            timeService.busyWait(Util::Time::Timestamp::ofMilliseconds(10));
             readCount++;
         }
 
         initializedApplicationProcessorsCounter++;
-        log.info("CPU [%u] is now online", localApic->getCpuId());
+        LOG_INFO("CPU [%u] is now online", localApic->getCpuId());
     }
 
     Cmos::enableNmi();
@@ -387,16 +389,16 @@ void Apic::startupApplicationProcessors() {
     delete[] reinterpret_cast<uint8_t*>(stackPointers);
 }
 
-void* Apic::prepareApplicationProcessorStacks() {
+uint8_t** Apic::prepareApplicationProcessorStacks() {
     // Allocate the stack pointer array
-    auto **stacks = reinterpret_cast<uint32_t**>(new uint8_t*[localApics.size() - 1]); // Exclude BSP
+    auto **stacks = new uint8_t*[localApics.size() - 1]; // Exclude BSP
 
     // Allocate the stacks
     for (uint32_t i = 0; i < localApics.size() - 1; ++i) {
-        stacks[i] = reinterpret_cast<uint32_t*>(new uint8_t[applicationProcessorStackSize]);
+        stacks[i] = new uint8_t[AP_STACK_SIZE];
     }
 
-    return reinterpret_cast<void*>(stacks);
+    return stacks;
 }
 
 void Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
@@ -405,22 +407,14 @@ void Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
     }
 
     // Prepare the empty variables in the startup routine at their original location
-    asm volatile("sidt %0"
-            : "=m"(boot_ap_idtr));
-    asm volatile("mov %%cr0, %%eax;"
-            : "=a"(boot_ap_cr0));
-    asm volatile("mov %%cr3, %%eax;"
-            : "=a"(boot_ap_cr3));
-    asm volatile("mov %%cr4, %%eax;"
-            : "=a"(boot_ap_cr4));
+    asm volatile("sidt %0" : "=m"(boot_ap_idtr));
+    asm volatile("mov %%cr0, %%eax;" : "=a"(boot_ap_cr0));
+    asm volatile("mov %%cr3, %%eax;" : "=a"(boot_ap_cr3));
+    asm volatile("mov %%cr4, %%eax;" : "=a"(boot_ap_cr4));
     boot_ap_counter = reinterpret_cast<uint32_t>(&initializedApplicationProcessorsCounter);
     boot_ap_gdts = reinterpret_cast<uint32_t>(gdts);
     boot_ap_stacks = reinterpret_cast<uint32_t>(stacks);
     boot_ap_entry = reinterpret_cast<uint32_t>(&applicationProcessorEntry);
-
-    // Identity map the allocated physical memory to the kernel address space (So addresses don't change after enabling paging)
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    memoryService.mapPhysicalAddress(Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress, Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress, Kernel::Paging::PRESENT | Kernel::Paging::READ_WRITE);
 
     // Copy the startup routine and prepared variables to the identity mapped page
     const auto startupCode = Util::Address<uint32_t>(reinterpret_cast<uint32_t>(&boot_ap));
@@ -431,54 +425,30 @@ void Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
 void Apic::prepareApplicationProcessorWarmReset() {
     Cmos::write(0xF, 0x0A); // Shutdown status byte (MPSpec, sec. B.4)
 
-    const uint32_t warmResetVectorPhysical = 0x40 << 4 | 0x67; // MPSpec, sec. B.4
-    const uint32_t warmResetVectorVirtual = Kernel::MemoryLayout::PHYSICAL_TO_VIRTUAL(warmResetVectorPhysical); // Warm reset vector is DWORD
-
-    *reinterpret_cast<volatile uint16_t*>(warmResetVectorVirtual) = Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress;
+    const uint32_t warmResetVector = 0x40 << 4 | 0x67; // MPSpec, sec. B.4
+    *reinterpret_cast<volatile uint16_t*>(warmResetVector) = Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress;
 }
 
-void *Apic::prepareApplicationProcessorGdts() {
+Kernel::GlobalDescriptorTable::Descriptor** Apic::prepareApplicationProcessorGdts() {
     // Allocate descriptor pointer array
-    auto **gdts = reinterpret_cast<Cpu::Descriptor**>(new Cpu::Descriptor*[localApics.size() - 1]); // Skip BSP
+    auto **gdts = new Kernel::GlobalDescriptorTable::Descriptor*[localApics.size() - 1]{}; // Skip BSP
 
+    // Create GDTs for each core
     for (uint32_t i = 0; i < localApics.size() - 1; ++i) {
-        gdts[i] = allocateApplicationProcessorGdt();
+        auto *gdt = new Kernel::GlobalDescriptorTable{};
+        auto *tss = new Kernel::GlobalDescriptorTable::TaskStateSegment{};
+
+        gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x9a, 0x0c)); // Kernel code segment
+        gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x92, 0x0c)); // Kernel data segment
+        gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xfa, 0x0c)); // User code segment
+        gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xf2, 0x0c)); // User data segment
+        gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(reinterpret_cast<uint32_t>(&tss), sizeof(Kernel::GlobalDescriptorTable::TaskStateSegment), 0x89, 0x04));
+
+        // Store current GDT descriptor in array
+        gdts[i] = new Kernel::GlobalDescriptorTable::Descriptor(gdt->getDescriptor());
     }
 
-    return reinterpret_cast<void *>(gdts);
-}
-
-Cpu::Descriptor *Apic::allocateApplicationProcessorGdt() {
-    // Allocate memory for the GDT and TSS. This is never freed, as its used as long as the system runs.
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-
-    auto *gdt = reinterpret_cast<uint16_t*>(memoryService.allocateLowerMemory(48));
-
-    const uint32_t tssSize = sizeof(Kernel::TaskStateSegment);
-    auto *tss = reinterpret_cast<void *>(memoryService.allocateLowerMemory(tssSize));
-
-    // Zero everything
-    Util::Address<uint32_t>(gdt).setRange(0, 48);
-    Util::Address<uint32_t>(tss).setRange(0, tssSize);
-
-    // Set up general GDT for the AP
-    // First entry has to be null
-    Kernel::System::createGlobalDescriptorTableEntry(gdt, 0, 0, 0, 0, 0);
-    // Kernel code segment
-    Kernel::System::createGlobalDescriptorTableEntry(gdt, 1, 0, 0xFFFFFFFF, 0x9A, 0xC);
-    // Kernel data segment
-    Kernel::System::createGlobalDescriptorTableEntry(gdt, 2, 0, 0xFFFFFFFF, 0x92, 0xC);
-    // User code segment
-    Kernel::System::createGlobalDescriptorTableEntry(gdt, 3, 0, 0xFFFFFFFF, 0xFA, 0xC);
-    // User data segment
-    Kernel::System::createGlobalDescriptorTableEntry(gdt, 4, 0, 0xFFFFFFFF, 0xF2, 0xC);
-    // TSS segment
-    Kernel::System::createGlobalDescriptorTableEntry(gdt, 5, reinterpret_cast<uint32_t>(tss), tssSize, 0x89, 0x4);
-
-    return new Cpu::Descriptor {
-            .limit = 6 * 8,
-            .address = reinterpret_cast<uint32_t>(gdt) // + Kernel::MemoryLayout::KERNEL_START
-    };
+    return gdts;
 }
 
 }

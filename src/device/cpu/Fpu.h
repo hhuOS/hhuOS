@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -20,17 +20,9 @@
 
 #include <cstdint>
 
-#include "kernel/interrupt/InterruptHandler.h"
-
-namespace Kernel {
-class Logger;
-class Thread;
-struct InterruptFrame;
-}  // namespace Kernel
-
 namespace Device {
 
-class Fpu : public Kernel::InterruptHandler {
+class Fpu {
 
 public:
     /**
@@ -51,13 +43,7 @@ public:
     /**
      * Destructor.
      */
-    ~Fpu() override = default;
-
-    void plugin() override;
-
-    void trigger(const Kernel::InterruptFrame &frame) override;
-
-    void checkTerminatedThread(Kernel::Thread &thread);
+    ~Fpu() = default;
 
     static bool isAvailable();
 
@@ -67,18 +53,11 @@ public:
 
     static void disarmFpuMonitor();
 
-private:
-
-    void switchContext(Kernel::Thread &currentThread);
-
-    void switchContextFpuOnly(Kernel::Thread &currentThread);
+    void switchContext() const;
 
     static bool probeFpu();
 
-    bool fxsrAvailable = isFxsrAvailable();
-    Kernel::Thread *lastFpuThread = nullptr;
-
-    static Kernel::Logger log;
+    bool fxsrAvailable = false;
 };
 
 }

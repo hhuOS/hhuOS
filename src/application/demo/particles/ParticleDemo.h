@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -23,7 +23,16 @@
 
 #include "lib/util/game/2d/Scene.h"
 #include "lib/util/game/KeyListener.h"
-#include "RainEmitter.h"
+
+class RainEmitter;
+namespace Util {
+namespace Game {
+class Graphics;
+}  // namespace Game
+namespace Io {
+class Key;
+}  // namespace Io
+}  // namespace Util
 
 class ParticleDemo : public Util::Game::D2::Scene, public Util::Game::KeyListener {
 

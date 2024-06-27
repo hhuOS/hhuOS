@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -428,7 +428,7 @@ public:
      * have to be written at all. To enable x2Apic mode, every AP would have to set the x2Apic-enable flag in its
      * IA32_APIC_BASE MSR, without requiring the MMIO region.
      */
-    static void enableXApicMode(uint32_t baseAddress);
+    static void enableXApicMode(void *baseAddress);
 
     /**
      * Read a 32-bit register identified by a memory offset relative to the APIC base address.
@@ -447,7 +447,7 @@ private:
     uint8_t cpuId; // The CPU core this instance belongs to, LocalApic::getId() only returns the current AP's id!
     Util::ArrayList<NmiSource> nmiSources;
 
-    static uint32_t mmioAddress; // The virtual address used to access registers in xApic mode.
+    static void *mmioAddress; // The virtual address used to access registers in xApic mode.
 
     static ModelSpecificRegister ia32ApicBaseMsr; // Core unique MSR (every core can only address its own MSR).
     static Util::Array<Register> lintRegs;

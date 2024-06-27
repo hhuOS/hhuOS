@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -27,9 +27,6 @@ namespace Storage {
 class StorageDevice;
 }  // namespace Storage
 }  // namespace Device
-namespace Kernel {
-class Logger;
-}  // namespace Kernel
 
 namespace Device::Storage {
 
@@ -378,8 +375,6 @@ private:
     void createBootRecord(uint32_t sector);
 
     StorageDevice &device;
-
-    static Kernel::Logger log;
 
     static const constexpr uint32_t PARTITION_TABLE_START = 0x1be;
     static const constexpr uint16_t BOOT_RECORD_SIGNATURE = 0xaa55;

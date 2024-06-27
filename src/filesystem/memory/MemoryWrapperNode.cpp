@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -49,6 +49,10 @@ uint64_t MemoryWrapperNode::writeData(const uint8_t *sourceBuffer, uint64_t pos,
 
 bool MemoryWrapperNode::control(uint32_t request, const Util::Array<uint32_t> &parameters) {
     return node.control(request, parameters);
+}
+
+bool MemoryWrapperNode::isReadyToRead() {
+    return node.isReadyToRead();
 }
 
 }

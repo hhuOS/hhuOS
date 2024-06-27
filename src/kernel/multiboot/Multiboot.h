@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -24,14 +24,15 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/hardware/Acpi.h"
-
-struct CopyInformation;
+#include "lib/util/io/file/elf/File.h"
 
 namespace Kernel {
 
 class Multiboot {
 
 public:
+
+    static const constexpr uint32_t MAGIC = 0x36d76289;
 
     enum TagType : uint32_t {
         TERMINATE = 0,
@@ -72,51 +73,46 @@ public:
         EGA_TEXT = 2
     };
 
-    struct Info {
-        uint32_t size;
-        uint32_t reserved;
-    };
-
     struct TagHeader {
         TagType type;
         uint32_t size;
-    };
+    } __attribute__((packed));
 
     struct BootCommandLine {
         TagHeader header;
         const char string[];
-    };
+    } __attribute__((packed));
 
     struct BootLoaderName {
         TagHeader header;
         const char string[];
-    };
+    } __attribute__((packed));
 
     struct Module {
         TagHeader header;
         uint32_t startAddress;
         uint32_t endAddress;
         const char name[];
-    };
+    } __attribute__((packed));
 
     struct BasicMemoryInformation {
         TagHeader header;
         uint32_t lowerMemory;
         uint32_t upperMemory;
-    };
+    } __attribute__((packed));
 
     struct BiosBootDevice {
         TagHeader header;
         uint32_t biosDevice;
         uint32_t partition;
         uint32_t subPartition;
-    };
+    } __attribute__((packed));
 
     struct MemoryMapHeader {
         TagHeader tagHeader;
         uint32_t entrySize;
         uint32_t entryVersion;
-    };
+    } __attribute__((packed));
 
     struct MemoryMapEntry {
         uint64_t address;
@@ -127,7 +123,7 @@ public:
         bool operator!=(const MemoryMapEntry &other) const {
             return address != other.address;
         }
-    };
+    } __attribute__((packed));
 
     struct VbeInfo {
         TagHeader header;
@@ -137,18 +133,18 @@ public:
         uint16_t interfaceLength;
         uint8_t controlInfo[512];
         uint8_t modeInfo[256];
-    };
+    } __attribute__((packed));
 
     struct FramebufferPalette {
         uint8_t red;
         uint8_t green;
         uint8_t blue;
-    };
+    } __attribute__((packed));
 
     struct IndexedColorInfo {
         uint32_t numColors;
         FramebufferPalette colors[];
-    };
+    } __attribute__((packed));
 
     struct RgbColorInfo {
         uint8_t redFieldPosition;
@@ -157,12 +153,12 @@ public:
         uint8_t greenMaskSize;
         uint8_t blueFieldPosition;
         uint8_t blueMaskSize;
-    };
+    } __attribute__((packed));
 
     union ColorInfo {
         IndexedColorInfo indexInfo;
         RgbColorInfo rgbInfo;
-    };
+    } __attribute__((packed));
 
     struct FramebufferInfo {
         TagHeader header;
@@ -174,7 +170,7 @@ public:
         FrameBufferType type;
         uint8_t reserved;
         ColorInfo colorInfo;
-    };
+    } __attribute__((packed));
 
     struct ApmTable {
         TagHeader header;
@@ -187,17 +183,17 @@ public:
         uint16_t codeSegmentLength;
         uint16_t codeSegment16Length;
         uint16_t dataSegmentLength;
-    };
+    } __attribute__((packed));
 
     struct Efi32BitSystemTablePointer {
         TagHeader header;
         uint32_t address;
-    };
+    } __attribute__((packed));
 
     struct Efi64BitSystemTablePointer {
         TagHeader header;
         uint64_t address;
-    };
+    } __attribute__((packed));
 
     struct SmBiosTables {
         TagHeader header;
@@ -205,45 +201,39 @@ public:
         uint8_t minorVersion;
         uint8_t reserved[6];
         uint8_t tables[];
-    };
+    } __attribute__((packed));
 
     struct AcpiRsdp {
         TagHeader header;
         Util::Hardware::Acpi::Rsdp rsdp;
-    };
+    } __attribute__((packed));
 
     struct Efi32BitImageHandlePointer {
         TagHeader header;
         uint32_t pointer;
-    };
+    } __attribute__((packed));
 
     struct Efi64BitImageHandlePointer {
         TagHeader header;
         uint64_t pointer;
-    };
+    } __attribute__((packed));
 
     struct ImageLoadBasePhysicalAddress {
         TagHeader header;
         uint32_t address;
-    };
+    } __attribute__((packed));
 
-    enum BlockType : uint8_t {
-        MULTIBOOT_RESERVED,
-        HEAP_RESERVED,
-        PAGING_RESERVED
-    };
-
-    struct MemoryBlock {
-        uint32_t startAddress;
-        uint32_t virtualStartAddress;
-        uint32_t blockCount;
-        bool initialMap;
-        BlockType type;
-    };
+    struct ElfSymbols {
+        TagHeader header;
+        uint32_t entryCount;
+        uint32_t entrySize;
+        uint32_t stringSectionIndex;
+        Util::Io::Elf::SectionHeader sectionHeaders[];
+    } __attribute__((packed));
 
     /**
      * Default Constructor.
-     * Deleted, as this class has only static members.
+     * Cannot be constructed manually.
      */
     Multiboot() = delete;
 
@@ -259,56 +249,42 @@ public:
 
     /**
      * Destructor.
-     * Deleted, as this class has only static members.
+     * Cannot be constructed manually.
      */
     ~Multiboot() = delete;
 
-    static void initialize();
+    [[nodiscard]] Util::String getBootloaderName() const;
 
-    static const CopyInformation& getCopyInformation();
+    [[nodiscard]] bool hasKernelOption(const Util::String &key) const;
 
-    static Util::String getBootloaderName();
+    [[nodiscard]] Util::String getKernelOption(const Util::String &key) const;
 
-    static FramebufferInfo getFrameBufferInfo();
+    [[nodiscard]] Util::String getKernelOption(const Util::String &key, const Util::String &defaultValue) const;
 
-    static Util::Array<MemoryMapEntry> getMemoryMap();
+    [[nodiscard]] Util::Array<Util::String> getModuleNames() const;
 
-    static bool hasKernelOption(const Util::String &key);
+    [[nodiscard]] bool isModuleLoaded(const Util::String &moduleName) const;
 
-    static Util::String getKernelOption(const Util::String &key);
+    [[nodiscard]] const Module& getModule(const Util::String &moduleName) const;
 
-    static bool isModuleLoaded(const Util::String &moduleName);
-
-    static const Module& getModule(const Util::String &moduleName);
-
-    static const MemoryBlock* getBlockMap();
-
-    // Used during the bootstrap process
-
-    static void copyMultibootInfo(const Info *source, uint8_t *destination, uint32_t maxBytes);
-
-    static void initializeMemoryBlockMap(const Info *multibootInfo);
-
-    static bool hasTag(TagType type);
+    [[nodiscard]] bool hasTag(TagType type) const;
 
     template<typename T>
-    static const T& getTag(TagType type);
+    const T& getTag(TagType type) const;
 
-    static Util::Array<TagType> getAvailableTagTypes();
+    [[nodiscard]] Util::Array<TagType> getAvailableTagTypes() const;
 
-    static const char* getTagTypeAsString(TagType type);
+    [[nodiscard]] uint32_t getSize() const;
 
 private:
 
-    static const CopyInformation *copyInformation;
-    static const Info *info;
-
-    static const MemoryBlock blockMap[256];
-};
+    uint32_t size;
+    uint32_t reserved;
+} __attribute__ ((packed));
 
 template<typename T>
-const T& Multiboot::getTag(Multiboot::TagType type) {
-    auto currentAddress = reinterpret_cast<uint32_t>(info) + sizeof(Info);
+const T& Multiboot::getTag(Multiboot::TagType type) const {
+    auto currentAddress = reinterpret_cast<uint32_t>(this) + sizeof(Multiboot);
     auto *currentTag = reinterpret_cast<const TagHeader*>(currentAddress);
 
     while (currentTag->type != TERMINATE) {

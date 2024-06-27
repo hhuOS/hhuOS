@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -29,8 +29,8 @@ class Graphics;
 }  // namespace Game
 }  // namespace Util
 
-SpriteDemo::SpriteDemo(uint32_t count) {
-    for (uint32_t i = 0; i < count; i++) {
+SpriteDemo::SpriteDemo(uint32_t initialCount) {
+    for (uint32_t i = 0; i < initialCount; i++) {
         auto *sprite = factory.createSprite();
         entities.offer(sprite);
         addObject(sprite);

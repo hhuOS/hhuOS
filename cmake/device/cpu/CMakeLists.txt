@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -21,5 +21,5 @@ target_sources(device PUBLIC
         ${HHUOS_SRC_DIR}/device/cpu/Fpu.cpp
         ${HHUOS_SRC_DIR}/device/cpu/IoPort.cpp
         ${HHUOS_SRC_DIR}/device/cpu/ModelSpecificRegister.cpp
-        ${HHUOS_SRC_DIR}/device/cpu/symmetric_multiprocessing.cpp
-        ${HHUOS_SRC_DIR}/device/cpu/symmetric_multiprocessing.asm)
+        ${HHUOS_SRC_DIR}/device/cpu/SymmetricMultiprocessing.cpp
+        ${HHUOS_SRC_DIR}/device/cpu/smp.asm)

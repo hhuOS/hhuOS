@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -20,14 +20,28 @@
 #include "device/interrupt/InterruptRequest.h"
 #include "device/interrupt/apic/Apic.h"
 #include "kernel/interrupt/InterruptVector.h"
-#include "kernel/log/Logger.h"
 #include "device/interrupt/apic/LocalApic.h"
+#include "kernel/service/ProcessService.h"
+#include "lib/util/base/System.h"
+#include "device/cpu/Cpu.h"
+#include "device/interrupt/pic/Pic.h"
+#include "kernel/process/Process.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/io/stream/PrintStream.h"
+#include "lib/util/base/Constants.h"
 
 namespace Kernel {
+
 class InterruptHandler;
 struct InterruptFrame;
 
-Kernel::Logger InterruptService::log = Kernel::Logger::get("Interrupt");
+void InterruptService::loadIdt() {
+    idt.load();
+}
+
+void InterruptService::usePic(Device::Pic *pic) {
+    InterruptService::pic = pic;
+}
 
 void InterruptService::useApic(Device::Apic *apic) {
     InterruptService::apic = apic;
@@ -38,22 +52,43 @@ bool InterruptService::usesApic() const {
 }
 
 InterruptService::~InterruptService() {
+    delete pic;
     delete apic;
 }
 
 void InterruptService::assignInterrupt(InterruptVector slot, InterruptHandler &handler) {
-    dispatcher.assign(slot, handler);
+    interruptDispatcher.assign(slot, handler);
 }
 
-void InterruptService::dispatchInterrupt(const InterruptFrame &frame) {
-    dispatcher.dispatch(frame);
+void InterruptService::assignSystemCall(Util::System::Code code, bool(*func)(uint32_t, va_list)) {
+    systemCallDispatcher.assign(code, func);
+}
+
+void InterruptService::handleException(const InterruptFrame &frame, uint32_t errorCode, InterruptVector vector) {
+    auto &processService = Service::getService<ProcessService>();
+    if (processService.getCurrentProcess().isKernelProcess()) {
+        Device::Cpu::disableInterrupts();
+        Util::Exception::throwException(static_cast<Util::Exception::Error>(vector), "CPU exception!");
+    }
+
+    Util::System::out << Util::Exception::getExceptionName(static_cast<Util::Exception::Error>(vector)) << " (CPU exception!)" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    Util::System::printStackTrace(Util::System::out, Util::USER_SPACE_MEMORY_START_ADDRESS);
+    processService.exitCurrentProcess(-1);
+}
+
+void InterruptService::dispatchInterrupt(const InterruptFrame &frame, InterruptVector slot) {
+    interruptDispatcher.dispatch(frame, slot);
+}
+
+void InterruptService::dispatchSystemCall(Util::System::Code code, uint16_t paramCount, va_list params, bool &result) {
+    systemCallDispatcher.dispatch(code, paramCount, params, result);
 }
 
 void InterruptService::allowHardwareInterrupt(Device::InterruptRequest interrupt) {
     if (usesApic()) {
         apic->allow(interrupt);
     } else if (interrupt - 32 <= Device::InterruptRequest::SECONDARY_ATA) {
-        pic.allow(interrupt);
+        pic->allow(interrupt);
     }
 }
 
@@ -61,7 +96,7 @@ void InterruptService::forbidHardwareInterrupt(Device::InterruptRequest interrup
     if (usesApic()) {
         apic->forbid(interrupt);
     } else if (interrupt - 32 <= Device::InterruptRequest::SECONDARY_ATA) {
-        pic.forbid(interrupt);
+        pic->forbid(interrupt);
     }
 }
 
@@ -69,13 +104,8 @@ void InterruptService::sendEndOfInterrupt(InterruptVector interrupt) {
     if (usesApic()) {
         apic->sendEndOfInterrupt(interrupt);
     } else if (interrupt - 32 <= Device::InterruptRequest::SECONDARY_ATA) {
-        pic.sendEndOfInterrupt(static_cast<Device::InterruptRequest>(interrupt - 32));
+        pic->sendEndOfInterrupt(static_cast<Device::InterruptRequest>(interrupt - 32));
     }
-}
-
-void InterruptService::startGdbServer(Device::SerialPort::ComPort port) {
-    gdbServer.plugin();
-    gdbServer.start(port);
 }
 
 bool InterruptService::checkSpuriousInterrupt(InterruptVector interrupt) {
@@ -87,7 +117,7 @@ bool InterruptService::checkSpuriousInterrupt(InterruptVector interrupt) {
         return false;
     }
 
-    return pic.isSpurious(static_cast<Device::InterruptRequest>(interrupt - 32));
+    return pic->isSpurious(static_cast<Device::InterruptRequest>(interrupt - 32));
 
 }
 
@@ -96,7 +126,7 @@ Device::Apic &InterruptService::getApic() {
 }
 
 bool InterruptService::status(Device::InterruptRequest interrupt) {
-    return !(usesApic() ? apic->status(interrupt) : pic.status(interrupt));
+    return !(usesApic() ? apic->status(interrupt) : pic->status(interrupt));
 }
 
 uint16_t InterruptService::getInterruptMask() {

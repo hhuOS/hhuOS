@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -21,29 +21,30 @@
 #include <cstdint>
 
 #include "Service.h"
-#include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/base/FreeListMemoryManager.h"
-#include "kernel/paging/VirtualAddressSpace.h"
+#include "kernel/memory/VirtualAddressSpace.h"
+#include "device/bus/isa/Isa.h"
+#include "kernel/memory/GlobalDescriptorTable.h"
+#include "kernel/memory/Paging.h"
 
 namespace Kernel {
-class PageDirectory;
 class PageFrameAllocator;
 class PagingAreaManager;
-struct InterruptFrame;
 }  // namespace Kernel
 
 namespace Kernel {
 
-class MemoryService : public Service, public InterruptHandler {
+class MemoryService : public Service {
 
 public:
+
+    enum GlobalDescriptorTableType {
+        KERNEL, BIOS_CALL
+    };
 
     struct MemoryStatus {
         uint32_t totalPhysicalMemory;
         uint32_t freePhysicalMemory;
-        uint32_t totalLowerMemory;
-        uint32_t freeLowerMemory;
         uint32_t totalKernelHeapMemory;
         uint32_t freeKernelHeapMemory;
         uint32_t totalPagingAreaMemory;
@@ -53,7 +54,7 @@ public:
     /**
      * Constructor.
      */
-    MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaManager *pagingAreaManager, VirtualAddressSpace *kernelAddressSpace);
+    MemoryService(GlobalDescriptorTable *gdt, GlobalDescriptorTable::TaskStateSegment *tss, PageFrameAllocator *pageFrameAllocator, PagingAreaManager *pagingAreaManager, VirtualAddressSpace *kernelAddressSpace);
 
     /**
      * Copy Constructor.
@@ -72,43 +73,54 @@ public:
 
     void* allocateKernelMemory(uint32_t size, uint32_t alignment = 0);
 
-    void *reallocateKernelMemory(void *pointer, uint32_t size, uint32_t alignment = 0);
+    void* reallocateKernelMemory(void *pointer, uint32_t size, uint32_t alignment = 0);
 
     void freeKernelMemory(void *pointer, uint32_t alignment = 0);
 
     void* allocateUserMemory(uint32_t size, uint32_t alignment = 0);
 
-    void *reallocateUserMemory(void *pointer, uint32_t size, uint32_t alignment = 0);
+    void* reallocateUserMemory(void *pointer, uint32_t size, uint32_t alignment = 0);
 
     void freeUserMemory(void *pointer, uint32_t alignment = 0);
 
-    void* allocateLowerMemory(uint32_t size, uint32_t alignment = 0);
+    void* allocateBiosMemory(uint32_t pageCount);
 
-    void* reallocateLowerMemory(void *pointer, uint32_t size, uint32_t alignment = 0);
+    void* allocateIsaMemory(uint32_t pageCount);
 
-    void freeLowerMemory(void *pointer, uint32_t alignment = 0);
+    void* allocatePhysicalMemory(uint32_t frameCount, void *startAddress = reinterpret_cast<void*>(Device::Isa::MAX_DMA_ADDRESS));
+
+    void freePhysicalMemory(void *pointer, uint32_t frameCount);
 
     /**
      * Allocate space in PageTableArea.
      *
      * @return Address of the allocated page
      */
-    void* allocatePageTable();
+    Paging::Table* allocatePageTable();
 
     /**
      * Free a Page Table/Directory.
      *
-     * @param virtualTableAddress Address of the table/directory that should be freed.
+     * @param pageTable Address of the table/directory that should be freed.
      */
-    void freePageTable(void *virtualTableAddress);
+    void freePageTable(Paging::Table *pageTable);
 
     /**
-     * Create Page Table for a non present entry in Page Directory.
+     * Maps a page into the current page directory at a given virtual address.
      *
-     * @param directory Page Directory where Table should be mapped
-     * @param index Index into the Page Directory
+     * @param virtualAddress Virtual address where a page should be mapped
+     * @param flags Flags for Page Table Entry
      */
-    void createPageTable(PageDirectory *directory, uint32_t index);
+    void map(void *virtualAddress, uint32_t pageCount, uint16_t flags);
+
+    /**
+     * Unmap a page at a given virtual address.
+     *
+     * @param virtualAddress Virtual Address to be unmapped
+     *
+     * @return Physical Address of unmapped page
+     */
+    void* unmap(void *virtualAddress, uint32_t pageCount, uint32_t breakCount = 0);
 
     /**
      * Map a page at a given physical address to a virtual address.
@@ -118,28 +130,11 @@ public:
      * @param flags Flags for Page Table entry
      * @param physicalAddress Physical address that should be mapped
      */
-    void mapPhysicalAddress(uint32_t virtualAddress, uint32_t physicalAddress, uint16_t flags);
-
-    /**
-     * Map a range of virtual addresses into the current Page Directory.
-     *
-     * @param virtualStartAddress Virtual start address of the mapping
-     * @param virtualEndAddress Virtual start address of the mapping
-     * @param flags Flags for the Page Table entries
-     */
-    void mapRange(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint16_t flags);
-
-    /**
-     * Maps a page into the current page directory at a given virtual address.
-     *
-     * @param virtualAddress Virtual address where a page should be mapped
-     * @param flags Flags for Page Table Entry
-     */
-    void map(uint32_t virtualAddress, uint16_t flags, bool interrupt = false);
+    void mapPhysical(void *physicalAddress, void *virtualAddress, uint32_t pageCount, uint16_t flags);
 
     /**
      * Map a physical address into the current address space's heap.
-     * This is usually used to map physical TransferMode memory (e.g. for the LFB) into a virtual address space and be able to access it.
+     * This is usually used for memory mapped IO (e.g. for the LFB).
      * The allocated memory is 4KB-aligned, therefore the returned virtual memory address is also 4KB-aligned.
      * If the given physical address is not 4KB-aligned, one has to add a offset to the returned virtual
      * memory address in order to obtain the corresponding virtual address.
@@ -147,40 +142,21 @@ public:
      * @param physicalAddress Physical address to be mapped. This address is usually given by a hardware device (e.g. for the LFB).
      *                 If the physical address lies in the address range of the installed physical memory of the system,
      *                 please make sure you allocated that memory before!
-     * @param size Amount of memory to be allocated
+     * @param pageCount Amount of memory to be allocated
      *
-     * @return Pointer to virtual TransferMode memory block
+     * @return Pointer to virtual memory block
      */
-    void *mapIO(uint32_t physicalAddress, uint32_t size, bool mapToKernelHeap = true);
+    void* mapIO(void *physicalAddress, uint32_t pageCount, bool mapToKernelHeap = true);
 
     /**
      * Allocate a contiguous block of physical memory and map it into the current address space's  heap.
-     * This is useful for devices, which need memory for TransferMode operations.
+     * This is useful for devices, which need memory for transfer operations.
      *
-     * @param size Amount of memory to be allocated
+     * @param pageCount Amount of memory to be allocated
      *
-     * @return Pointer to virtual TransferMode memory block
+     * @return Pointer to virtual memory block
      */
-    void *mapIO(uint32_t size, bool mapToKernelHeap = true);
-
-    /**
-     * Unmap a page at a given virtual address.
-     *
-     * @param virtualAddress Virtual Address to be unmapped
-     *
-     * @return Physical Address of unmapped page
-     */
-    uint32_t unmap(uint32_t virtualAddress);
-
-    /**
-     * Unmap a range of virtual addresses in the current page directory
-     *
-     * @param startVirtAddress Virtual start address to be unmapped
-     * @param endVirtAddress last address to be unmapped
-     *
-     * @return Physical address of the last unmapped page
-     */
-    uint32_t unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount = 0);
+    void* mapIO(uint32_t pageCount, bool mapToKernelHeap = true);
 
     /**
      * Get the physical address of a given virtual address. The returned physical address is 4 KiB aligned, so sometimes
@@ -190,21 +166,14 @@ public:
      *
      * @return Physical address of the given virtual address (4 KiB aligned)
      */
-    void *getPhysicalAddress(void *virtualAddress);
+    void* getPhysicalAddress(void *virtualAddress);
 
     /**
      * Create a new virtual address space with its required memory managers.
      *
      * @return The new address space
      */
-    VirtualAddressSpace &createAddressSpace();
-
-    /**
-     * Switch to a given address space.
-     *
-     * @param addressSpace The address space to switch to
-     */
-    void switchAddressSpace(VirtualAddressSpace &addressSpace);
+    VirtualAddressSpace& createAddressSpace();
 
     /**
      * Remove an address space from the system.
@@ -216,24 +185,33 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void plugin() override;
+    void handlePageFault(uint32_t errorCode);
 
     /**
-     * Overriding function from InterruptHandler.
+     * Switch to a given address space.
+     *
+     * @param addressSpace The address space to switch to
      */
-    void trigger(const Kernel::InterruptFrame &frame) override;
+    void switchAddressSpace(VirtualAddressSpace &addressSpace);
+
+    void loadGlobalDescriptorTable();
 
     [[nodiscard]] VirtualAddressSpace& getKernelAddressSpace() const;
 
     [[nodiscard]] VirtualAddressSpace& getCurrentAddressSpace() const;
 
+    [[nodiscard]] const Util::ArrayList<VirtualAddressSpace*>& getAllAddressSpaces() const;
+
     MemoryStatus getMemoryStatus();
+
+    void setTaskStateSegmentStackEntry(const uint32_t *stackPointer);
 
     static const constexpr uint8_t SERVICE_ID = 2;
 
 private:
 
-    Util::FreeListMemoryManager lowerMemoryManager;
+    GlobalDescriptorTable *gdt;
+    GlobalDescriptorTable::TaskStateSegment *tss;
 
     PageFrameAllocator &pageFrameAllocator;
     PagingAreaManager &pagingAreaManager;

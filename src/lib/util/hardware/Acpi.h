@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -44,6 +44,11 @@ public:
         uint32_t oemRevision;
         uint32_t creatorId;
         uint32_t creatorRevision;
+    } __attribute__ ((packed));
+
+    struct Rsdt {
+        SdtHeader header;
+        const SdtHeader* tables[];
     } __attribute__ ((packed));
 
     enum PowerManagementProfile : uint8_t {

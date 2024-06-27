@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -21,19 +21,19 @@
 #include "UdpSocket.h"
 
 #include "UdpModule.h"
-#include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
 #include "lib/util/network/Datagram.h"
 #include "kernel/network/NetworkStack.h"
 #include "lib/util/network/ip4/Ip4PortAddress.h"
 #include "lib/util/network/Socket.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel::Network::Udp {
 
-UdpSocket::UdpSocket() : DatagramSocket(System::getService<NetworkService>().getNetworkStack().getUdpModule(), Util::Network::Socket::UDP) {}
+UdpSocket::UdpSocket() : DatagramSocket(Service::getService<NetworkService>().getNetworkStack().getUdpModule(), Util::Network::Socket::UDP) {}
 
 UdpSocket::~UdpSocket() {
-    auto &udpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getUdpModule();
+    auto &udpModule = Kernel::Service::getService<Kernel::NetworkService>().getNetworkStack().getUdpModule();
     udpModule.deregisterSocket(*this);
 }
 

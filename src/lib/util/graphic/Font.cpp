@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -19,9 +19,7 @@
 
 namespace Util::Graphic {
 
-Font::Font(uint8_t charWidth, uint8_t charHeight, uint8_t *fontData) : charWidth(charWidth), charHeight(charHeight), charMemSize((charWidth / 8) * charHeight), fontData(fontData) {
-
-}
+Font::Font(uint8_t charWidth, uint8_t charHeight, uint8_t *fontData) : charWidth(charWidth), charHeight(charHeight), charMemSize((charWidth / 8 + (charWidth % 8 == 0 ? 0 : 1)) * charHeight), fontData(fontData) {}
 
 uint8_t Font::getCharWidth() const {
     return charWidth;

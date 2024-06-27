@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -61,7 +61,7 @@ public:
      *
      * @param lineCount The amount of pixel lines to scroll up
      */
-    void scrollUp(uint16_t lineCount) const;
+    void scrollUp(uint16_t lineCount, bool clearBelow) const;
 
 private:
 

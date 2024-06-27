@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -17,11 +17,13 @@
 
 #include "SmBiosVersionNode.h"
 
-#include "device/bios/SmBios.h"
+#include "device/system/SmBios.h"
+#include "kernel/service/InformationService.h"
+#include "kernel/service/Service.h"
 
 namespace Filesystem::SmBios {
 
-SmBiosVersionNode::SmBiosVersionNode() : Memory::StringNode("version"), versionString(Util::String::format("%u.%u", Device::SmBios::getSmBiosInformation().majorVersion, Device::SmBios::getSmBiosInformation().minorVersion)) {}
+SmBiosVersionNode::SmBiosVersionNode() : Memory::StringNode("version"), versionString(Util::String::format("%u.%u", Kernel::Service::getService<Kernel::InformationService>().getSmBios().getSmBiosInformation().majorVersion, Kernel::Service::getService<Kernel::InformationService>().getSmBios().getSmBiosInformation().minorVersion)) {}
 
 Util::String SmBiosVersionNode::getString() {
     return versionString;

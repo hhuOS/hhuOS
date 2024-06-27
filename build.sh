@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -19,9 +19,14 @@
 BUILD_TYPE="Default"
 TARGET="towboot"
 BUILD_DIR="build"
-CORE_COUNT=$(nproc)
 VALID_TARGETS="grub limine towboot"
 FORBIDDEN_DIR_NAMES="cmake loader media src"
+
+if [[ "${OSTYPE}" == darwin* ]]; then
+  CORE_COUNT="$(sysctl -n hw.logicalcpu)"
+else
+  CORE_COUNT="$(nproc)"
+fi
 
 parse_target() {
     local target=$1
@@ -95,31 +100,25 @@ remove() {
 
 cleanup() {
     remove "hhuOS-grub.iso"
+    remove "hhuOS-grub-vdd.iso"
     remove "hhuOS-limine.iso"
+    remove "hhuOS-limine-vdd.iso"
     remove "hhuOS-towboot.img"
+    remove "hhuOS-towboot-vdd.img"
+    remove "ne2k.dump"
+    remove "rtl8139.dump"
     remove "floppy0.img"
     remove "hdd0.img"
-    remove "loader/grub/boot/hhuOS.bin"
-    remove "loader/grub/boot/hhuOS.initrd"
-    remove "loader/limine/limine"
-    remove "loader/limine/iso/hhuOS.bin"
-    remove "loader/limine/iso/hhuOS.initrd"
-    remove "loader/limine/iso/limine-uefi-cd.bin"
-    remove "loader/limine/iso/limine-bios-cd.bin"
-    remove "loader/limine/iso/limine-bios.sys"
-    remove "loader/limine/iso/EFI"
-    remove "loader/towboot/hhuOS.bin"
-    remove "loader/towboot/hhuOS.initrd"
-    remove "loader/towboot/towboot-ia32.efi"
-    remove "loader/towboot/towboot-x64.efi"
-    remove "initrd/asciimation/"
-    remove "initrd/beep/"
-    remove "initrd/bin/"
-    remove "floppy0/img/bin/"
-    remove "floppy0/img/books/"
-    remove "hdd0/img/bin/"
-    remove "hdd0/img/user/"
-    remove "hdd0/img/media/"
+    remove "RELEASEIa32_OVMF.fd"
+    remove "disk/floppy0/bin/"
+    remove "disk/floppy0/books/"
+    remove "disk/hdd0/bin/"
+    remove "disk/hdd0/user/asciimation"
+    remove "disk/hdd0/user/beep"
+    remove "disk/hdd0/user/books"
+    remove "disk/hdd0/user/wav"
+    remove "disk/hdd0/media/"
+    remove "tools/nettest/nettest-server"
 
     local builddirs="";
 
@@ -154,7 +153,7 @@ print_usage() {
     printf "Usage: ./build.sh [OPTION...]
     Available options:
     -t, --target
-        Set the the build target (grub/towboot, default: towboot).
+        Set the the build target (towboot/limine/grub, default: towboot).
     -d, --directory
         Set the build directory.
     -g, --type

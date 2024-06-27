@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -18,26 +18,25 @@
 #include "kernel/service//InterruptService.h"
 #include "FloppyController.h"
 #include "FloppyDevice.h"
-#include "device/time/Cmos.h"
+#include "device/time/rtc/Cmos.h"
 #include "kernel/service/MemoryService.h"
-#include "kernel/system/System.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/service/StorageService.h"
 #include "lib/util/async/Thread.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/time/Timestamp.h"
 #include "device/interrupt/InterruptRequest.h"
 #include "kernel/interrupt/InterruptVector.h"
+#include "kernel/service/Service.h"
+#include "lib/util/base/Constants.h"
 
 namespace Kernel {
 struct InterruptFrame;
 }  // namespace Kernel
 
 namespace Device::Storage {
-
-Kernel::Logger FloppyController::log = Kernel::Logger::get("Floppy");
 
 bool FloppyController::isAvailable() {
     Cpu::disableInterrupts();
@@ -64,7 +63,8 @@ bool FloppyController::isFifoBufferReady() {
 
 void FloppyController::initializeAvailableDrives() {
     if (!isAvailable()) {
-        log.info("No floppy drives available");
+        LOG_INFO("No floppy drives available");
+        return;
     }
 
     Cpu::disableInterrupts();
@@ -79,29 +79,29 @@ void FloppyController::initializeAvailableDrives() {
     auto secondaryDriveType = static_cast<DriveType>(driveInfo & static_cast<uint8_t>(0xfu));
 
     if (primaryDriveType != NONE && primaryDriveType != UNKNOWN_1 && primaryDriveType != UNKNOWN_2) {
-        log.info("Found primary floppy drive");
+        LOG_INFO("Found primary floppy drive");
 
         auto *device = new FloppyDevice(*this, 0, primaryDriveType);
         auto success = resetDrive(*device);
 
         if (success) {
-            Kernel::System::getService<Kernel::StorageService>().registerDevice(device, DEVICE_CLASS);
+            Kernel::Service::getService<Kernel::StorageService>().registerDevice(device, DEVICE_CLASS);
         } else {
-            log.error("Unable to initialize primary floppy drive");
+            LOG_ERROR("Unable to initialize primary floppy drive");
             delete device;
         }
     }
 
     if (secondaryDriveType != NONE && secondaryDriveType != UNKNOWN_1 && secondaryDriveType != UNKNOWN_2) {
-        log.info("Found secondary floppy drive");
+        LOG_INFO("Found secondary floppy drive");
 
         auto *device = new FloppyDevice(*this, 1, secondaryDriveType);
         auto success = resetDrive(*device);
 
         if (success) {
-            Kernel::System::getService<Kernel::StorageService>().registerDevice(device, DEVICE_CLASS);
+            Kernel::Service::getService<Kernel::StorageService>().registerDevice(device, DEVICE_CLASS);
         } else {
-            log.error("Unable to initialize secondary floppy drive");
+            LOG_ERROR("Unable to initialize secondary floppy drive");
             delete device;
         }
     }
@@ -119,7 +119,7 @@ void FloppyController::writeFifoByte(uint8_t command) {
         timeout += 10;
     }
 
-    log.error("Timeout while issuing write command");
+    LOG_ERROR("Timeout while issuing write command");
 }
 
 uint8_t FloppyController::readFifoByte() {
@@ -133,7 +133,7 @@ uint8_t FloppyController::readFifoByte() {
         timeout += 10;
     }
 
-    log.error("Timeout while reading data from FIFO-buffer");
+    LOG_ERROR("Timeout while reading data from FIFO-buffer");
     return 0;
 }
 
@@ -203,7 +203,7 @@ bool FloppyController::checkMedia(FloppyDevice &device) {
 }
 
 bool FloppyController::resetDrive(FloppyDevice &device) {
-    log.info("Resetting drive %u", device.getDriveNumber());
+    LOG_INFO("Resetting drive %u", device.getDriveNumber());
     receivedInterrupt = false;
 
     digitalOutputRegister.writeByte(0x00); // Disable controller;
@@ -215,7 +215,7 @@ bool FloppyController::resetDrive(FloppyDevice &device) {
         timeout += 10;
 
         if (timeout > TIMEOUT) {
-            log.error("Timeout while resetting drive");
+            LOG_ERROR("Timeout while resetting drive");
             return false;
         }
     }
@@ -254,14 +254,14 @@ bool FloppyController::resetDrive(FloppyDevice &device) {
 
     bool success = calibrateDrive(device);
     if (!success) {
-        log.error("Failed to reset drive %u", device.getDriveNumber());
+        LOG_ERROR("Failed to reset drive %u", device.getDriveNumber());
     }
 
     return success;
 }
 
 bool FloppyController::calibrateDrive(FloppyDevice &device) {
-    log.info("Calibrating drive %u", device.getDriveNumber());
+    LOG_INFO("Calibrating drive %u", device.getDriveNumber());
     setMotorState(device, ON);
 
     for (uint8_t i = 0; i < RETRY_COUNT; i++) {
@@ -291,7 +291,7 @@ bool FloppyController::calibrateDrive(FloppyDevice &device) {
         }
     }
 
-    log.error("Failed to calibrate drive %u", device.getDriveNumber());
+    LOG_ERROR("Failed to calibrate drive %u", device.getDriveNumber());
     setMotorState(device, OFF);
     return false;
 }
@@ -326,27 +326,24 @@ bool FloppyController::seek(FloppyDevice &device, uint8_t cylinder, uint8_t head
         }
     }
 
-    log.error("Failed to seek on drive %u: Did not find cylinder %u", device.getDriveNumber(), cylinder);
+    LOG_ERROR("Failed to seek on drive %u: Did not find cylinder %u", device.getDriveNumber(), cylinder);
     setMotorState(device, OFF);
     return false;
 }
 
 void FloppyController::plugin() {
-    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     interruptService.assignInterrupt(Kernel::InterruptVector::FLOPPY, *this);
     interruptService.allowHardwareInterrupt(Device::InterruptRequest::FLOPPY);
 }
 
-void FloppyController::trigger(const Kernel::InterruptFrame &frame) {
+void FloppyController::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
     receivedInterrupt = true;
 }
 
 void FloppyController::prepareDma(FloppyDevice &device, Isa::TransferMode transferMode, void *dmaMemory, uint8_t sectorCount) {
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    auto *physicalAddress = memoryService.getPhysicalAddress(dmaMemory);
-
     Isa::selectChannel(2);
-    Isa::setAddress(2, static_cast<const uint8_t*>(physicalAddress));
+    Isa::setAddress(2, static_cast<const uint8_t*>(dmaMemory));
     Isa::setCount(2, static_cast<uint16_t>(device.getSectorSize() * sectorCount - 1));
     Isa::setMode(2, transferMode, false, false, Isa::SINGLE_TRANSFER);
     Isa::deselectChannel(2);
@@ -371,20 +368,23 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::Transfe
         return false;
     }
 
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    void *dmaMemory = memoryService.allocateLowerMemory(sectorCount * device.getSectorSize(), Isa::MAX_DMA_PAGESIZE);
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+    const auto dmaSize = sectorCount * device.getSectorSize();
+    const auto dmaPages = dmaSize % Util::PAGESIZE == 0 ? (dmaSize / Util::PAGESIZE) : (dmaSize / Util::PAGESIZE) + 1;
+    void *dmaBuffer = memoryService.allocateIsaMemory(dmaPages);
+    void *physicalDmaAddress = memoryService.getPhysicalAddress(dmaBuffer);
     bool success = false;
 
     if (mode == WRITE) {
         auto sourceAddress = Util::Address<uint32_t>(buffer);
-        auto targetAddress = Util::Address<uint32_t>(dmaMemory);
+        auto targetAddress = Util::Address<uint32_t>(dmaBuffer);
         targetAddress.copyRange(sourceAddress, sectorCount * device.getSectorSize());
     }
 
     setMotorState(device, ON);
     for (uint8_t i = 0; i < RETRY_COUNT; i++) {
         receivedInterrupt = false;
-        prepareDma(device, mode == WRITE ? Isa::READ : Isa::WRITE, dmaMemory, sectorCount);
+        prepareDma(device, mode == WRITE ? Isa::READ : Isa::WRITE, physicalDmaAddress, sectorCount);
 
         writeFifoByte((mode == WRITE ? WRITE_DATA : READ_DATA) | MULTITRACK | MFM);
         writeFifoByte(device.getDriveNumber() | (head << 2u));
@@ -404,7 +404,7 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::Transfe
 
         if (!receivedInterrupt) {
             if (!handleReadWriteError(device, cylinder, head)) {
-                log.error("Timeout while reading/writing on drive %u", device.getDriveNumber());
+                LOG_ERROR("Timeout while reading/writing on drive %u", device.getDriveNumber());
                 break;
             }
             continue;
@@ -413,14 +413,14 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::Transfe
         CommandStatus status = readCommandStatus();
         if ((status.statusRegister0 & 0xc0) != 0) {
             if (!handleReadWriteError(device, cylinder, head)) {
-                log.error("Failed to read/write on drive %u", device.getDriveNumber());
+                LOG_ERROR("Failed to read/write on drive %u", device.getDriveNumber());
                 break;
             }
             continue;
         }
 
         if (mode == READ) {
-            auto sourceAddress = Util::Address<uint32_t>(dmaMemory);
+            auto sourceAddress = Util::Address<uint32_t>(dmaBuffer);
             auto targetAddress = Util::Address<uint32_t>(buffer);
             targetAddress.copyRange(sourceAddress, device.getSectorSize() * sectorCount);
         }
@@ -430,11 +430,11 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::Transfe
     }
 
     if (!success) {
-        log.error("Failed to read/write on drive %u", device.getDriveNumber());
+        LOG_ERROR("Failed to read/write on drive %u", device.getDriveNumber());
     }
 
     setMotorState(device, OFF);
-    memoryService.freeLowerMemory(dmaMemory);
+    delete reinterpret_cast<uint8_t*>(dmaBuffer);
 
     ioLock.release();
     return success;

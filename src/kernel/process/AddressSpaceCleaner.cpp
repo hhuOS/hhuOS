@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -18,22 +18,24 @@
 #include "AddressSpaceCleaner.h"
 
 #include "kernel/service/MemoryService.h"
-#include "kernel/system/System.h"
 #include "kernel/service/ProcessService.h"
 #include "kernel/process/Process.h"
-#include "kernel/service/SchedulerService.h"
+#include "kernel/service/Service.h"
+#include "kernel/memory/MemoryLayout.h"
+#include "lib/util/base/Constants.h"
+#include "kernel/process/Scheduler.h"
 
 namespace Kernel {
 
 void AddressSpaceCleaner::run() {
-    auto &schedulerService = System::getService<SchedulerService>();
-    auto &currentProcess = System::getService<ProcessService>().getCurrentProcess();
+    auto &processService = Service::getService<ProcessService>();
+    auto &currentProcess = Service::getService<ProcessService>().getCurrentProcess();
     while (currentProcess.getThreadCount() > 1) {
-        schedulerService.yield();
+        processService.getScheduler().yield();
     }
 
-    System::getService<MemoryService>().unmap(0, 0xbfffffff, 0);
-    schedulerService.cleanup(&currentProcess);
+    Service::getService<MemoryService>().unmap(reinterpret_cast<void*>(Kernel::MemoryLayout::KERNEL_END), ((Kernel::MemoryLayout::MEMORY_END - Kernel::MemoryLayout::KERNEL_END) + 1) / Util::PAGESIZE, 0);
+    processService.cleanup(&currentProcess);
 }
 
 }

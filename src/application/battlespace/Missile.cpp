@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -24,21 +24,13 @@
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/3d/event/CollisionEvent.h"
 #include "lib/util/math/Vector3D.h"
+#include "application/battlespace/Player.h"
+#include "lib/util/game/3d/Entity.h"
+#include "lib/util/graphic/Colors.h"
 
-namespace Util {
-namespace Game {
-namespace D3 {
-class CollisionEvent;
-}  // namespace D3
-}  // namespace Game
-namespace Graphic {
-class Color;
-}  // namespace Graphic
-}  // namespace Util
+Missile::Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale, Player &player) : Util::Game::D3::Model(TAG, "/user/battlespace/missile.obj", translation, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::RED), player(&player) {}
 
-Missile::Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale, Player &player) : Util::Game::D3::Model(TAG, "/initrd/battlespace/missile.obj", translation, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::RED), player(&player) {}
-
-Missile::Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale) : Util::Game::D3::Model(TAG, "/initrd/battlespace/missile.obj", translation, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::GREEN) {}
+Missile::Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale) : Util::Game::D3::Model(TAG, "/user/battlespace/missile.obj", translation, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::GREEN) {}
 
 void Missile::onUpdate(double delta) {
     if (lifetime > 5) {

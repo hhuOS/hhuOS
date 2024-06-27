@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -47,15 +47,15 @@ void BugDefender::update(double delta) {
 void BugDefender::initializeBackground(Util::Game::Graphics &graphics) {
     auto backgroundSprites = Util::Array<Util::Game::D2::Sprite>(BACKGROUND_TILE_COUNT);
     for (uint32_t i = 0; i < BACKGROUND_TILE_COUNT; i++) {
-        backgroundSprites[i] = Util::Game::D2::Sprite(Util::String::format("/initrd/bug/background%u.bmp", i + 1), BACKGROUND_TILE_WIDTH, BACKGROUND_TILE_HEIGHT);
+        backgroundSprites[i] = Util::Game::D2::Sprite(Util::String::format("/user/bug/background%u.bmp", i + 1), BACKGROUND_TILE_WIDTH, BACKGROUND_TILE_HEIGHT);
     }
 
     auto planetSprites = Util::Array<Util::Game::D2::Sprite>(PLANET_TILE_COUNT);
     for (uint32_t i = 0; i < PLANET_TILE_COUNT; i++) {
-        planetSprites[i] = Util::Game::D2::Sprite(Util::String::format("/initrd/bug/planet%u.bmp", i + 1), PLANET_TILE_WIDTH, PLANET_TILE_HEIGHT);
+        planetSprites[i] = Util::Game::D2::Sprite(Util::String::format("/user/bug/planet%u.bmp", i + 1), PLANET_TILE_WIDTH, PLANET_TILE_HEIGHT);
     }
 
-    auto surfaceSprite = Util::Game::D2::Sprite(Util::String::format("/initrd/bug/surface.bmp"), PLANET_TILE_WIDTH, PLANET_TILE_HEIGHT);
+    auto surfaceSprite = Util::Game::D2::Sprite(Util::String::format("/user/bug/surface.bmp"), PLANET_TILE_WIDTH, PLANET_TILE_HEIGHT);
 
     auto resolution = Util::Game::GameManager::getRelativeResolution();
     auto defaultTilesPerRow = (1 / BACKGROUND_TILE_WIDTH) + 1;

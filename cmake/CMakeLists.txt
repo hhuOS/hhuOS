@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -18,7 +18,7 @@ cmake_minimum_required(VERSION 3.14)
 include(ProcessorCount)
 
 # Set version
-execute_process(COMMAND git describe --tags --abbrev=0 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+execute_process(COMMAND git describe --abbrev=0 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         OUTPUT_VARIABLE HHUOS_VERSION ERROR_QUIET)
 string(STRIP "${HHUOS_VERSION}" HHUOS_VERSION)
 if (HHUOS_VERSION STREQUAL "")
@@ -79,7 +79,7 @@ ENABLE_LANGUAGE(ASM_NASM)
 set(CMAKE_ASM_NASM_OBJECT_FORMAT "elf32")
 set(CMAKE_ASM_NASM_INCLUDES "${HHUOS_SRC_DIR}/")
 set(CMAKE_ASM_NASM_COMPILE_OBJECT "<CMAKE_ASM_NASM_COMPILER> -I${CMAKE_ASM_NASM_INCLUDES} -f ${CMAKE_ASM_NASM_OBJECT_FORMAT} -o <OBJECT> <SOURCE>")
-set(CMAKE_C_FLAGS "-m32 -march=i386 -mfpmath=387 -mno-mmx -mno-sse -mno-avx -Wall -fno-stack-protector -nostdlib -fno-pic -no-pie -ffreestanding")
+set(CMAKE_C_FLAGS "-m32 -march=i386 -mfpmath=387 -mno-mmx -mno-sse -mno-avx -Wall -fno-stack-protector -nostdlib -fno-pic -no-pie -ffreestanding -g")
 if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 9)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mmanual-endbr")
 endif()
@@ -95,21 +95,20 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
 
 # Add include-what-you-use command (if available)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-find_package(PythonInterp)
+find_package(Python3)
 find_program(iwyu_tool_path NAMES iwyu_tool.py iwyu-tool)
 find_program(iwyu_fix_includes_path NAMES fix_includes.py iwyu-fix-includes)
-if (PYTHONINTERP_FOUND AND iwyu_tool_path AND iwyu_fix_includes_path)
+if (Python3_Interpreter_FOUND AND iwyu_tool_path AND iwyu_fix_includes_path)
     ProcessorCount(ncpus)
     add_custom_target(optimize_includes
-            COMMAND "${PYTHON_EXECUTABLE}" "${iwyu_tool_path}" -j "${ncpus}" -p "${CMAKE_BINARY_DIR}" |
-                    "${PYTHON_EXECUTABLE}" "${iwyu_fix_includes_path}" --nocomments --noupdate_comments --blank_lines --nosafe_headers --ignore_re "(.*/ff/source.*)|(.*/_deps/lvgl.*)" -p "${HHUOS_SRC_DIR}"
+            COMMAND "${Python3_EXECUTABLE}" "${iwyu_tool_path}" -j "${ncpus}" -p "${CMAKE_BINARY_DIR}" |
+                    "${Python3_EXECUTABLE}" "${iwyu_fix_includes_path}" --nocomments --noupdate_comments --blank_lines --nosafe_headers --ignore_re "(.*/ff/source.*)|(.*/_deps/lvgl.*)" -p "${HHUOS_SRC_DIR}"
             VERBATIM)
 endif()
 
 find_program(cloc_path NAMES cloc)
 if (cloc_path)
-    add_custom_target(cloc
-            COMMAND "${cloc_path}" "${HHUOS_SRC_DIR}" --exclude-dir=ff VERBATIM)
+    add_custom_target(cloc COMMAND "${cloc_path}" "${HHUOS_SRC_DIR}" --exclude-dir=ff VERBATIM)
 endif()
 
 # Add subdirectories
@@ -118,8 +117,6 @@ add_subdirectory(filesystem)
 add_subdirectory(kernel)
 add_subdirectory(lib)
 add_subdirectory(system)
-
-add_subdirectory(initrd)
 
 add_subdirectory(grub)
 add_subdirectory(limine)

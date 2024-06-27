@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -23,10 +23,6 @@
 #include "device/cpu/IoPort.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/OutputStream.h"
-
-namespace Kernel {
-class Logger;
-}  // namespace Kernel
 
 namespace Device {
 
@@ -88,8 +84,6 @@ private:
     IoPort sppDataPort;
     IoPort sppStatusPort;
     IoPort sppControlPort;
-
-    static Kernel::Logger log;
 
     static const constexpr uint8_t STATUS_REGISTER_IRQ = 0x04;
     static const constexpr uint8_t STATUS_REGISTER_ERROR = 0x08;

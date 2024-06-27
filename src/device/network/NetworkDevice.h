@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -20,12 +20,14 @@
 
 #include <cstdint>
 
-#include "kernel/memory/BitmapMemoryManager.h"
 #include "lib/util/collection/ArrayBlockingQueue.h"
 #include "lib/util/network/MacAddress.h"
-#include "kernel/log/Logger.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/base/String.h"
+
+namespace Kernel {
+class BitmapMemoryManager;
+}  // namespace Kernel
 
 namespace Device {
 namespace Network {
@@ -33,10 +35,6 @@ class PacketReader;
 class PacketWriter;
 }  // namespace Network
 }  // namespace Device
-
-namespace Kernel {
-class NetworkService;
-}  // namespace Kernel
 
 namespace Device::Network {
 
@@ -47,7 +45,6 @@ class NetworkDevice {
 
 friend class PacketReader;
 friend class PacketWriter;
-friend class Kernel::NetworkService;
 
 public:
 
@@ -78,6 +75,8 @@ public:
      */
     virtual ~NetworkDevice();
 
+    void setIdentifier(const Util::String &identifier);
+
     [[nodiscard]] const Util::String& getIdentifier() const;
 
     [[nodiscard]] virtual Util::Network::MacAddress getMacAddress() const = 0;
@@ -96,22 +95,25 @@ protected:
 
     void freeLastSendBuffer();
 
+    static const constexpr uint32_t MIN_ETHERNET_PACKET_SIZE = 64;
+    static const constexpr uint32_t MAX_ETHERNET_PACKET_SIZE = 1522;
+
 private:
+
+    static Kernel::BitmapMemoryManager* createPacketManager(uint32_t packetCount);
 
     void freePacketBuffer(void *buffer);
 
     Util::String identifier;
 
-    uint8_t *packetMemory;
-    Kernel::BitmapMemoryManager packetMemoryManager;
+    Kernel::BitmapMemoryManager &outgoingPacketMemoryManager;
+    Kernel::BitmapMemoryManager &incomingPacketMemoryManager;
     Util::ArrayBlockingQueue<Packet> incomingPacketQueue;
     Util::ArrayBlockingQueue<Packet> outgoingPacketQueue;
     Util::Async::Spinlock outgoingPacketLock;
 
     PacketReader *reader;
     PacketWriter *writer;
-
-    Kernel::Logger log;
 
     static const constexpr uint32_t PACKET_BUFFER_SIZE = 2048;
     static const constexpr uint32_t MAX_BUFFERED_PACKETS = 16;

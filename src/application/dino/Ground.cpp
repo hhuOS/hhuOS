@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -23,6 +23,7 @@
 #include "lib/util/game/2d/event/TranslationEvent.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/math/Vector2D.h"
+#include "lib/util/base/String.h"
 
 namespace Util {
 namespace Game {
@@ -35,7 +36,7 @@ class CollisionEvent;
 Ground::Ground(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(1, 0.2), Util::Game::Collider::STATIC)) {}
 
 void Ground::initialize() {
-    sprite = Util::Game::D2::Sprite("/initrd/dino/ground.bmp", 0.2, 0.2);
+    sprite = Util::Game::D2::Sprite("/user/dino/ground.bmp", 0.2, 0.2);
 }
 
 void Ground::onUpdate(double delta) {}

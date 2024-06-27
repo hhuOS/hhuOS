@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -38,7 +38,7 @@ public:
     /**
      * Constructor.
      */
-    PagingAreaManager();
+    PagingAreaManager(uint8_t *startAddress, uint32_t mappedPages, uint32_t bootstrapPageCount);
 
     /**
      * Copy Constructor.
@@ -58,8 +58,6 @@ public:
     [[nodiscard]] void* allocateBlock() override;
 
      void freeBlock(void *pointer) override;
-
-     void handleError() override;
 
      void refillPool();
 

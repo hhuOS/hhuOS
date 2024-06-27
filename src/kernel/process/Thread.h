@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -21,8 +21,6 @@
 #include <cstdint>
 
 #include "lib/util/base/String.h"
-#include "lib/util/collection/ArrayList.h"
-#include "lib/util/async/Spinlock.h"
 
 namespace Util {
 namespace Async {
@@ -34,42 +32,28 @@ template <typename T> class IdGenerator;
 namespace Kernel {
 
 class Process;
-struct Context;
-struct InterruptFrame;
 
 class Thread {
 
-    friend class ThreadScheduler;
     friend class Scheduler;
 
 public:
 
-    class Stack {
-
-    public:
-
-        Stack(const Stack &other) = delete;
-
-        Stack &operator=(const Stack &other) = delete;
-
-        ~Stack();
-
-        static Stack* createKernelStack(uint32_t size);
-
-        static Stack* createUserStack(uint32_t size);
-
-        static Stack* createMainUserStack();
-
-        [[nodiscard]] uint8_t* getStart() const;
-
-    private:
-
-        explicit Stack(uint8_t *stack, uint32_t size);
-
-        uint8_t *stack;
-        uint32_t size;
-
-    };
+    struct Context {
+        uint32_t ds;
+        uint32_t es;
+        uint32_t fs;
+        uint32_t gs;
+        uint32_t flags;
+        uint32_t edi;
+        uint32_t esi;
+        uint32_t ebp;
+        uint32_t esp;
+        uint32_t ebx;
+        uint32_t edx;
+        uint32_t ecx;
+        uint32_t eax;
+    } __attribute__((packed));
 
     /**
      * Copy Constructor.
@@ -88,8 +72,7 @@ public:
 
     static Thread& createKernelThread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable);
 
-    static Thread &createUserThread(const Util::String &name, Process &parent, uint32_t eip,
-                                    Util::Async::Runnable *runnable);
+    static Thread &createUserThread(const Util::String &name, Process &parent, uint32_t eip, Util::Async::Runnable *runnable);
 
     static Thread& createMainUserThread(const Util::String &name, Process &parent, uint32_t eip, uint32_t argc, char **argv, void *envp, uint32_t heapStartAddress);
 
@@ -97,39 +80,50 @@ public:
 
     [[nodiscard]] Util::String getName() const;
 
-    [[nodiscard]] Context* getContext() const;
-
     [[nodiscard]] Process& getParent() const;
 
     [[nodiscard]] uint8_t* getFpuContext() const;
 
-    void join();
+    [[nodiscard]] bool isKernelThread() const;
 
-    void unblockJoinList();
+    void join();
 
     virtual void run();
 
+    static void startFirstThread(const Thread &thread);
+
+    static void switchThread(Thread &current, const Thread &next);
+
 private:
 
-    Thread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable, Thread::Stack *kernelStack, Thread::Stack *userStack);
+    Thread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable, uint32_t userInstructionPointer, uint32_t *kernelStack, uint32_t *userStack);
+
+    void prepareKernelStack();
+
+    static void kickoffKernelThread();
+
+    void switchToUserMode();
+
+    static uint32_t* createKernelStack(uint32_t size);
+
+    static uint32_t* createUserStack(uint32_t size);
+
+    static uint32_t* createMainUserStack();
 
     uint32_t id;
     Util::String name;
     Process &parent;
     Util::Async::Runnable *runnable;
+    uint32_t userInstructionPointer;
 
-    Stack *kernelStack;
-    Stack *userStack;
+    uint32_t *kernelStack;
+    uint32_t *userStack;
+    uint32_t *oldStackPointer;
 
-    InterruptFrame &interruptFrame;
-    Context *kernelContext;
     uint8_t *fpuContext;
 
-    Util::ArrayList<Thread*> joinList;
-    Util::Async::Spinlock joinLock;
-
     static Util::Async::IdGenerator<uint32_t> idGenerator;
-    static const constexpr uint32_t DEFAULT_STACK_SIZE = 4096;
+    static const constexpr uint32_t STACK_SIZE = 0x10000;
 };
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -33,6 +33,8 @@
 #include "lib/util/game/Graphics.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/math/Vector2D.h"
+#include "lib/util/graphic/Font.h"
+#include "lib/util/graphic/font/Terminal8x16.h"
 
 Player::Player(const Util::ArrayList<Enemy *> &enemies) : Util::Game::D3::Entity(TAG, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0, 0, 0), Util::Game::D3::SphereCollider(Util::Math::Vector3D(0, 0, 0), 0.8)), enemies(enemies) {}
 
@@ -44,6 +46,7 @@ void Player::onUpdate(double delta) {
 }
 
 void Player::draw(Util::Game::Graphics &graphics) {
+    auto &font = Util::Graphic::Fonts::TERMINAL_8x16;
     const auto &resolution = Util::Game::GameManager::getAbsoluteResolution();
     const auto centerX = resolution.getX() / 2;
     const auto centerY = resolution.getY() / 2;
@@ -67,12 +70,12 @@ void Player::draw(Util::Game::Graphics &graphics) {
     graphics.setColor(invulnerabilityTimer > 0 ? Util::Graphic::Colors::RED : Util::Graphic::Colors::GREEN);
 
     // Draw player stats
-    graphics.drawString(Util::Math::Vector2D(10, 20), "Health  : ");
-    graphics.drawString(Util::Math::Vector2D(10, 40), Util::String::format("Score   : %d", score));
-    graphics.drawString(Util::Math::Vector2D(10, 60), Util::String::format("Enemies : %d", enemies.size()));
+    graphics.drawString(font, Util::Math::Vector2D(10, 20), "Health  : ");
+    graphics.drawString(font, Util::Math::Vector2D(10, 40), Util::String::format("Score   : %d", score));
+    graphics.drawString(font, Util::Math::Vector2D(10, 60), Util::String::format("Enemies : %d", enemies.size()));
 
-    graphics.drawRectangle(Util::Math::Vector2D(70, 22), 100, graphics.getCharHeight() - 4);
-    graphics.fillRectangle(Util::Math::Vector2D(70, 22), health, graphics.getCharHeight() - 4);
+    graphics.drawRectangle(Util::Math::Vector2D(70, 22), 100, font.getCharHeight() - 4);
+    graphics.fillRectangle(Util::Math::Vector2D(70, 22), health, font.getCharHeight() - 4);
 
     // Draw speedometer
     const auto speedMeterX = resolution.getX() - 15;
@@ -94,7 +97,7 @@ void Player::draw(Util::Game::Graphics &graphics) {
     auto radarSize = 50;
 
     auto headerSting = Util::String::format("Y: %d  P: %d", static_cast<int32_t>(getRotation().getY()), static_cast<int32_t>(getRotation().getX()));
-    graphics.drawString(Util::Math::Vector2D(radarX - radarSize, radarY - radarSize - 15), headerSting);
+    graphics.drawString(font, Util::Math::Vector2D(radarX - radarSize, radarY - radarSize - 15), headerSting);
 
     graphics.drawLine({radarX - radarSize, radarY - radarSize}, {radarX + radarSize, radarY - radarSize});
     graphics.drawLine({radarX + radarSize, radarY - radarSize}, {radarX + radarSize, radarY + radarSize});
@@ -104,7 +107,7 @@ void Player::draw(Util::Game::Graphics &graphics) {
     graphics.fillSquare(radarLocation, 2);
     graphics.setColor(Util::Graphic::Colors::RED);
 
-    for (uint16_t i = 0; i < enemies.size(); i++) {
+    for (uint32_t i = 0; i < enemies.size(); i++) {
         auto enemyLocation = enemies.get(i)->getPosition();
         auto relativeX = enemyLocation.getX() - getPosition().getX();
         auto relativeY = enemyLocation.getY() - getPosition().getY();
@@ -120,7 +123,7 @@ void Player::draw(Util::Game::Graphics &graphics) {
             if (relativeY > cutoffWhenOnSameHeight) drawString = "^";
             else if (relativeY < -cutoffWhenOnSameHeight) drawString = "v";
 
-            graphics.drawString({radarX + drawX - 3, radarY + drawY - 3}, drawString);
+            graphics.drawString(font, {radarX + drawX - 3, radarY + drawY - 3}, drawString);
         }
     }
 }

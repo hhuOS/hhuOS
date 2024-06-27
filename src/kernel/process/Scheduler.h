@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -23,7 +23,13 @@
 #include "lib/util/collection/ArrayListBlockingQueue.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/HashMap.h"
+#include "lib/util/time/Timestamp.h"
 #include "kernel/process/Thread.h"
+
+namespace Device {
+class Fpu;
+}  // namespace Device
 
 namespace Util {
 namespace Time {
@@ -35,13 +41,11 @@ namespace Kernel {
 
 class Scheduler {
 
-    friend class SchedulerService;
-
 public:
     /**
      * Constructor.
      */
-    explicit Scheduler() = default;
+    explicit Scheduler();
 
     /**
      * Copy Constructor.
@@ -58,6 +62,16 @@ public:
      */
     ~Scheduler();
 
+    /**
+     * Set initialized to 'true'.
+     */
+    void setInitialized();
+
+    bool isInitialized() const;
+
+    /**
+     * Start the first thread.
+     */
     void start();
 
     /**
@@ -72,7 +86,9 @@ public:
      */
     void exit();
 
-    void yield(bool force = false);
+    void yield(bool interrupt = false);
+
+    void switchFpuContext();
 
     /**
      * Kills a specific Thread.
@@ -81,13 +97,13 @@ public:
      */
     void kill(Thread &thread);
 
-    void killWithoutLock(Thread &thread);
-
     void block();
 
     void unblock(Thread &thread);
 
     void sleep(const Util::Time::Timestamp &time);
+
+    void join(const Thread &thread);
 
     /**
      * Returns the activeFlag Thread.
@@ -96,39 +112,48 @@ public:
      */
     Thread& getCurrentThread();
 
-    Thread& getNextThread();
+    Thread* getLastFpuThread();
 
-    Thread * getThread(uint32_t id);
+    Thread* getThread(uint32_t id);
 
     [[nodiscard]] uint32_t getThreadCount() const;
 
+    uint8_t* getDefaultFpuContext();
+
+    void unlockReadyQueue();
+
+    void removeFromJoinMap(uint32_t threadId);
+
 private:
-    /**
-     * Switches to the given Thread.
-     *
-     * @param nextThread A Thread
-     */
-    void dispatch(Thread &nextThread);
+
+    void lockReadyQueue();
 
     void checkSleepList();
 
-private:
+    void resetLastFpuThread(Thread &terminatedThread);
 
     struct SleepEntry {
         Thread *thread;
-        uint32_t wakeupTime;
+        Util::Time::Timestamp wakeupTime;
 
         bool operator!=(const SleepEntry &other) const;
     };
 
-    Util::Async::Spinlock lock;
-    Util::Async::Spinlock sleepLock;
-
-    Util::ArrayListBlockingQueue<Thread*> threadQueue;
-    Util::ArrayList<SleepEntry> sleepList;
+    bool initialized = false;
     Thread *currentThread = nullptr;
 
-    static bool fpuAvailable;
+    Device::Fpu *fpu = nullptr;
+    uint8_t *defaultFpuContext = nullptr;
+    Thread *lastFpuThread = nullptr;
+
+    Util::ArrayListBlockingQueue<Thread*> readyQueue;
+    Util::Async::Spinlock readyQueueLock;
+
+    Util::ArrayList<SleepEntry> sleepList;
+    Util::Async::Spinlock sleepQueueLock;
+
+    Util::HashMap<uint32_t, Util::ArrayList<Thread*>*> joinMap;
+    Util::Async::Spinlock joinLock;
 };
 
 }

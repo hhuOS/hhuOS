@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -28,6 +28,7 @@
 #include "lib/util/graphic/BufferScroller.h"
 #include "lib/util/graphic/Terminal.h"
 #include "lib/util/graphic/Color.h"
+#include "lib/util/graphic/font/Terminal8x16.h"
 
 namespace Util {
 namespace Graphic {
@@ -45,7 +46,7 @@ public:
 
     friend class CursorRunnable;
 
-    explicit LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, Util::Graphic::Font &font, char cursor);
+    explicit LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_8x16, char cursor = static_cast<char>(219));
 
     LinearFrameBufferTerminal(const LinearFrameBufferTerminal &copy) = delete;
 
@@ -55,7 +56,7 @@ public:
 
     void putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) override;
 
-    void clear(const Util::Graphic::Color &backgroundColor) override;
+    void clear(const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor, uint16_t startColumn, uint32_t startRow, uint16_t endColumn, uint16_t endRow) override;
 
     void setPosition(uint16_t column, uint16_t row) override;
 

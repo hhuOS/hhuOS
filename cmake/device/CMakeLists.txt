@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -24,18 +24,15 @@ include_directories(${HHUOS_SRC_DIR})
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
 # Add subdirectories
-add_subdirectory(bios)
+add_subdirectory(bus)
 add_subdirectory(cpu)
-add_subdirectory(debug)
 add_subdirectory(graphic)
 add_subdirectory(hid)
 add_subdirectory(interrupt)
-add_subdirectory(isa)
 add_subdirectory(network)
-add_subdirectory(pci)
 add_subdirectory(port)
-add_subdirectory(power)
 add_subdirectory(sound)
 add_subdirectory(storage)
+add_subdirectory(system)
 add_subdirectory(time)
 add_subdirectory(usb)

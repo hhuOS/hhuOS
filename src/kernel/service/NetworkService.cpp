@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
- * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The UDP/IP stack is based on a bachelor's thesis, written by Hannes Feil.
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
@@ -28,8 +28,6 @@
 #include "lib/util/network/NetworkAddress.h"
 #include "lib/util/network/Socket.h"
 #include "kernel/network/ip4/Ip4Module.h"
-#include "kernel/system/SystemCall.h"
-#include "kernel/system/System.h"
 #include "kernel/network/ethernet/EthernetSocket.h"
 #include "kernel/network/ip4/Ip4Socket.h"
 #include "kernel/network/icmp/IcmpSocket.h"
@@ -40,7 +38,7 @@
 #include "lib/util/base/Address.h"
 #include "lib/util/network/Datagram.h"
 #include "kernel/network/Socket.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "device/network/NetworkFilesystemDriver.h"
 #include "device/network/loopback/Loopback.h"
 #include "kernel/network/arp/ArpModule.h"
@@ -48,6 +46,9 @@
 #include "lib/util/network/ip4/Ip4Route.h"
 #include "lib/util/network/ip4/Ip4SubnetAddress.h"
 #include "lib/util/collection/Array.h"
+#include "InterruptService.h"
+#include "kernel/service/Service.h"
+#include "kernel/process/FileDescriptor.h"
 
 namespace Filesystem {
 class Node;
@@ -55,16 +56,15 @@ class Node;
 
 namespace Kernel {
 
-Logger NetworkService::log = Logger::get("Network");
 Util::HashMap<Util::String, uint32_t> NetworkService::nameMap;
 
 NetworkService::NetworkService() {
-    SystemCall::registerSystemCall(Util::System::CREATE_SOCKET, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::CREATE_SOCKET, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 2) {
             return false;
         }
 
-        auto &networkService = System::getService<NetworkService>();
+        auto &networkService = Service::getService<NetworkService>();
         auto socketType = static_cast<Util::Network::Socket::Type>(va_arg(arguments, int));
         auto &fileDescriptor = *va_arg(arguments, int32_t*);
 
@@ -72,16 +72,16 @@ NetworkService::NetworkService() {
         return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::SEND_DATAGRAM, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::SEND_DATAGRAM, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 2) {
             return false;
         }
 
-        auto &filesystemService = System::getService<FilesystemService>();
+        auto &filesystemService = Service::getService<FilesystemService>();
         auto fileDescriptor = va_arg(arguments, int32_t);
         auto &datagram = *va_arg(arguments, Util::Network::Datagram*);
 
-        auto &socket = reinterpret_cast<Network::Socket&>(filesystemService.getNode(fileDescriptor));
+        auto &socket = reinterpret_cast<Network::Socket&>(filesystemService.getFileDescriptor(fileDescriptor).getNode());
         if (!socket.isBound()) {
             Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
         }
@@ -89,17 +89,17 @@ NetworkService::NetworkService() {
         return socket.send(datagram);
     });
 
-    SystemCall::registerSystemCall(Util::System::RECEIVE_DATAGRAM, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::RECEIVE_DATAGRAM, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 2) {
             return false;
         }
 
-        auto &filesystemService = System::getService<FilesystemService>();
-        auto &memoryService = System::getService<MemoryService>();
+        auto &filesystemService = Service::getService<FilesystemService>();
+        auto &memoryService = Service::getService<MemoryService>();
         auto fileDescriptor = va_arg(arguments, int32_t);
         auto &datagram = *va_arg(arguments, Util::Network::Datagram*);
 
-        auto &socket = reinterpret_cast<Network::Socket &>(filesystemService.getNode(fileDescriptor));
+        auto &socket = reinterpret_cast<Network::Socket&>(filesystemService.getFileDescriptor(fileDescriptor).getNode());
         if (!socket.isBound()) {
             Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
         }
@@ -109,7 +109,8 @@ NetworkService::NetworkService() {
             return false;
         }
 
-        auto *datagramBuffer = reinterpret_cast<uint8_t*>(memoryService.allocateUserMemory(kernelDatagram->getLength()));
+        auto *datagramBuffer = reinterpret_cast<uint8_t *>(memoryService.allocateUserMemory(
+                kernelDatagram->getLength()));
 
         auto source = Util::Address<uint32_t>(kernelDatagram->getData());
         auto target = Util::Address<uint32_t>(datagramBuffer);
@@ -126,11 +127,11 @@ NetworkService::NetworkService() {
 
 void NetworkService::initializeLoopback() {
     auto *loopback = new Device::Network::Loopback();
-    loopback->identifier = "loopback";
+    loopback->setIdentifier("loopback");
 
     lock.acquire();
-    deviceMap.put(loopback->identifier, loopback);
-    log.info("Registered device [%s]",static_cast<char*>(loopback->identifier));
+    deviceMap.put(loopback->getIdentifier(), loopback);
+    LOG_INFO("Registered device [%s]",static_cast<char*>(loopback->getIdentifier()));
     lock.release();
 
     Device::Network::NetworkFilesystemDriver::mount(*loopback);
@@ -148,15 +149,15 @@ Util::String NetworkService::registerNetworkDevice(Device::Network::NetworkDevic
     }
 
     auto value = nameMap.get(deviceClass);
-    device->identifier = Util::String::format("%s%u", static_cast<char*>(deviceClass), value);
-    deviceMap.put(device->identifier, device);
+    device->setIdentifier(Util::String::format("%s%u", static_cast<char*>(deviceClass), value));
+    deviceMap.put(device->getIdentifier(), device);
     nameMap.put(deviceClass, value + 1);
 
-    log.info("Registered device [%s]",static_cast<char*>(device->identifier));
+    LOG_INFO("Registered device [%s]",static_cast<char*>(device->getIdentifier()));
     lock.release();
 
     Device::Network::NetworkFilesystemDriver::mount(*device);
-    return device->identifier;
+    return device->getIdentifier();
 }
 
 Device::Network::NetworkDevice &NetworkService::getNetworkDevice(const Util::String &identifier) {
@@ -205,7 +206,7 @@ int32_t NetworkService::createSocket(Util::Network::Socket::Type socketType) {
             return false;
     }
 
-    auto &filesystemService = System::getService<FilesystemService>();
+    auto &filesystemService = Service::getService<FilesystemService>();
     return filesystemService.registerFile(socket);
 }
 

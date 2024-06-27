@@ -36,7 +36,7 @@ void FloppyMotorControlRunnable::run() {
             remainingTime -= INTERVAL;
         }
 
-        Util::Async::Thread::sleep(Util::Time::Timestamp(0, INTERVAL * 1000000));
+        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(INTERVAL));
     }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -20,12 +20,11 @@
 
 #include "Ground.h"
 
-#include "lib/util/game/Graphics.h"
 #include "lib/util/game/Collider.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
-#include "lib/util/graphic/Colors.h"
 #include "lib/util/math/Vector2D.h"
+#include "lib/util/base/String.h"
 
 namespace Util {
 namespace Game {
@@ -35,10 +34,10 @@ class CollisionEvent;
 }  // namespace Game
 }  // namespace Util
 
-Ground::Ground(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(1, 0.2), Util::Game::Collider::STATIC)) {}
+Ground::Ground(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(2, 0.2), Util::Game::Collider::STATIC)) {}
 
 void Ground::initialize() {
-    sprite = Util::Game::D2::Sprite("/initrd/dino/ground.bmp", 0.2, 0.2);
+    sprite = Util::Game::D2::Sprite("/user/dino/ground.bmp", 0.2, 0.2);
 }
 
 void Ground::onUpdate(double delta) {}
@@ -50,8 +49,8 @@ void Ground::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
 void Ground::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
 
 void Ground::draw(Util::Game::Graphics &graphics) {
-    graphics.setColor(Util::Graphic::Colors::GREEN);
-    for (uint32_t i = 0; i < getCollider().getWidth() / sprite.getSize().getX(); i ++) {
-        sprite.draw(graphics, Util::Math::Vector2D(getPosition().getX() + i * sprite.getSize().getY(), getPosition().getY()));
+    auto startX = getPosition().getX() - (getCollider().getWidth() - 1) / 2;
+    for (uint32_t i = 0; i < getCollider().getWidth() / sprite.getSize().getX(); i++) {
+        sprite.draw(graphics, Util::Math::Vector2D(startX + i * sprite.getSize().getY(), getPosition().getY()));
     }
 }

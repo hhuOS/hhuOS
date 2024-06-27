@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -32,7 +32,7 @@ class PowerManagementService : public Service {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
     explicit PowerManagementService(Device::Machine *machine);
 
@@ -49,7 +49,7 @@ public:
     /**
      * Destructor.
      */
-    ~PowerManagementService() override;
+    ~PowerManagementService() override = default;
 
     void shutdownMachine();
 
@@ -59,7 +59,7 @@ public:
 
 private:
 
-    Device::Machine &machine;
+    Device::Machine *machine;
 };
 
 }

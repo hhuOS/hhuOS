@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -38,6 +38,11 @@ namespace Util::Graphic {
 class LinearFrameBuffer {
 
 public:
+
+    enum Request {
+        SET_RESOLUTION
+    };
+
     /**
      * Constructor.
      *
@@ -126,6 +131,8 @@ public:
     void clear() const;
 
 private:
+
+    static Address<uint32_t>* mapBuffer(void *physicalAddress, uint16_t resolutionY, uint16_t pitch, bool enableAcceleration, bool &useMmx);
 
     bool useMmx = false;
     Address<uint32_t> *buffer = nullptr;

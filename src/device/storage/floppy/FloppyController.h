@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -21,12 +21,12 @@
 #include <cstdint>
 
 #include "device/cpu/IoPort.h"
-#include "device/isa/Isa.h"
+#include "device/bus/isa/Isa.h"
 #include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/async/Spinlock.h"
 
 namespace Kernel {
-class Logger;
+enum InterruptVector : uint8_t;
 struct InterruptFrame;
 }  // namespace Kernel
 
@@ -146,7 +146,7 @@ public:
     /**
      * Overriding function from InterruptDispatcher.
      */
-    void trigger(const Kernel::InterruptFrame &frame) override;
+    void trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) override;
 
     static const constexpr uint32_t SECTOR_SIZE = 512;
 
@@ -321,7 +321,7 @@ private:
      */
     bool handleReadWriteError(FloppyDevice &device, uint8_t cylinder, uint8_t head);
 
-    bool receivedInterrupt = false;
+    volatile bool receivedInterrupt = false;
 
     Device::IoPort statusRegisterA;
     Device::IoPort statusRegisterB;
@@ -334,8 +334,6 @@ private:
     Device::IoPort configControlRegister;
 
     Util::Async::Spinlock ioLock;
-
-    static Kernel::Logger log;
 
     static const constexpr uint16_t IO_BASE_ADDRESS = 0x3f0;
     static const constexpr uint32_t TIMEOUT = 2000;

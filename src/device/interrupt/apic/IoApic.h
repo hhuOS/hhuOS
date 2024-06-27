@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -131,7 +131,7 @@ public:
      * @param ioApicPlatform General information about the I/O APICs, parsed from ACPI
      * @param ioApicInformation Information about the specific I/O APIC, parsed from ACPI
      */
-    IoApic(uint8_t ioId, uint32_t baseAddress, Kernel::GlobalSystemInterrupt gsiBase);
+    IoApic(uint8_t ioId, void *baseAddress, Kernel::GlobalSystemInterrupt gsiBase);
 
     /**
      * Copy Constructor.
@@ -185,7 +185,7 @@ public:
      *
      * Marks entries for all supported interrupt inputs of the IO APIC as edge-triggered, active high,
      * masked, physical destination mode to local APIC of the current CPU and fixed delivery mode,
-     * unless trigger mode or pin polarity are overridden. Sets vector numbers to corresponding InterruptVector.
+     * unless handlePageFault mode or pin polarity are overridden. Sets vector numbers to corresponding InterruptVector.
      */
     void initializeRedirectionTable();
 
@@ -262,7 +262,7 @@ public:
 private:
 
     uint8_t ioId;
-    uint32_t mmioAddress = 0;
+    void *mmioAddress = 0;
 
     Kernel::GlobalSystemInterrupt gsiBase{};
     Kernel::GlobalSystemInterrupt gsiMax{};
@@ -277,12 +277,12 @@ private:
 
 template<typename T>
 T IoApic::readMMIORegister(Register reg) {
-    return *reinterpret_cast<volatile T*>(mmioAddress + reg);
+    return *reinterpret_cast<volatile T*>(static_cast<uint8_t*>(mmioAddress) + reg);
 }
 
 template<typename T>
 void IoApic::writeMMIORegister(Register reg, T val) {
-    *reinterpret_cast<volatile T*>(mmioAddress + reg) = val;
+    *reinterpret_cast<volatile T*>(static_cast<uint8_t*>(mmioAddress) + reg) = val;
 }
 
 }

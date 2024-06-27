@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -40,7 +40,7 @@ public:
     /**
      * Constructor.
      */
-    VirtualDiskDrive(void *address, uint32_t sectorSize, uint32_t sectorCount);
+    VirtualDiskDrive(uint8_t *address, uint32_t sectorSize, uint32_t sectorCount);
 
     /**
      * Copy Constructor.

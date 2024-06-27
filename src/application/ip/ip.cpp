@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -30,7 +30,10 @@ int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.setHelpText("Show and edit IPv4 addresses of network devices.\n"
                                "Usage: ip [COMMAND] [ARGUMENTS...]\n"
-                               "Valid commands: { address | route }"
+                               "Valid commands: { address [add | delete] [address]\n"
+                               "                  route [add | delete] [target address] [device]\n"
+                               "                  route [add | delete] [source address] [target address] [device]\n"
+                               "                  route [add | delete] [source address] [target address] [next hop] [device] }\n"
                                "Options:\n"
                                "  -h, --help: Show this help message");
 

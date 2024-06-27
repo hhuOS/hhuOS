@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -19,11 +19,13 @@
 
 #include <cstdint>
 
-#include "device/power/acpi/Acpi.h"
+#include "device/system/Acpi.h"
 #include "lib/util/hardware/Acpi.h"
+#include "kernel/service/Service.h"
+#include "kernel/service/InformationService.h"
 
 namespace Filesystem::Acpi {
 
-RsdpNode::RsdpNode() : Memory::BufferNode("rsdp", reinterpret_cast<const uint8_t *>(&Device::Acpi::getRsdp()), sizeof(Util::Hardware::Acpi::Rsdp)) {}
+RsdpNode::RsdpNode() : Memory::BufferNode("rsdp", reinterpret_cast<const uint8_t*>(&Kernel::Service::getService<Kernel::InformationService>().getAcpi().getRsdp()), sizeof(Util::Hardware::Acpi::Rsdp)) {}
 
 }

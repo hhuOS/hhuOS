@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -20,7 +20,6 @@
 
 #include "EthernetSocket.h"
 
-#include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
 #include "lib/util/network/ethernet/EthernetDatagram.h"
 #include "device/network/NetworkDevice.h"
@@ -29,6 +28,7 @@
 #include "kernel/network/NetworkStack.h"
 #include "kernel/network/ethernet/EthernetModule.h"
 #include "lib/util/network/Socket.h"
+#include "kernel/service/Service.h"
 
 namespace Util {
 namespace Network {
@@ -38,15 +38,15 @@ class MacAddress;
 
 namespace Kernel::Network::Ethernet {
 
-EthernetSocket::EthernetSocket() : DatagramSocket(System::getService<NetworkService>().getNetworkStack().getEthernetModule(), Util::Network::Socket::ETHERNET) {}
+EthernetSocket::EthernetSocket() : DatagramSocket(Service::getService<NetworkService>().getNetworkStack().getEthernetModule(), Util::Network::Socket::ETHERNET) {}
 
 EthernetSocket::~EthernetSocket() {
-    auto &ethernetModule = System::getService<NetworkService>().getNetworkStack().getEthernetModule();
+    auto &ethernetModule = Service::getService<NetworkService>().getNetworkStack().getEthernetModule();
     ethernetModule.deregisterSocket(*this);
 }
 
 bool EthernetSocket::send(const Util::Network::Datagram &datagram) {
-    auto &networkService = System::getService<NetworkService>();
+    auto &networkService = Service::getService<NetworkService>();
     auto &device = networkService.getNetworkDevice(reinterpret_cast<const Util::Network::MacAddress&>(getAddress()));
     auto packet = Util::Io::ByteArrayOutputStream();
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -17,11 +17,7 @@
 cmake_minimum_required(VERSION 3.14)
  
 target_sources(device PUBLIC
+        ${HHUOS_SRC_DIR}/device/graphic/ColorGraphicsAdapter.cpp
         ${HHUOS_SRC_DIR}/device/graphic/LinearFrameBufferNode.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/LinearFrameBufferProvider.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/LinearFrameBufferTerminalProvider.cpp
         ${HHUOS_SRC_DIR}/device/graphic/TerminalNode.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/TerminalProvider.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/vesa/VesaBiosExtensions.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/cga/ColorGraphicsAdapter.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/cga/ColorGraphicsAdapterProvider.cpp)
+        ${HHUOS_SRC_DIR}/device/graphic/VesaBiosExtensions.cpp)

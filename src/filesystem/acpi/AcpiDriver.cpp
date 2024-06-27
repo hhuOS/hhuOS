@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -19,11 +19,13 @@
 
 #include "RsdpNode.h"
 #include "filesystem/memory/MemoryDirectoryNode.h"
-#include "device/power/acpi/Acpi.h"
+#include "device/system/Acpi.h"
 #include "AcpiTableNode.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/hardware/Acpi.h"
+#include "kernel/service/Service.h"
+#include "kernel/service/InformationService.h"
 
 namespace Filesystem::Acpi {
 
@@ -31,8 +33,9 @@ AcpiDriver::AcpiDriver() {
     addNode("/", new RsdpNode());
     addNode("/", new Memory::MemoryDirectoryNode("tables"));
 
-    for (const auto &tableSignature : Device::Acpi::getAvailableTables()) {
-        const auto &table = Device::Acpi::getTable<Util::Hardware::Acpi::SdtHeader>(static_cast<const char*>(tableSignature));
+    const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
+    for (const auto &tableSignature : acpi.getAvailableTables()) {
+        const auto &table = acpi.getTable<Util::Hardware::Acpi::SdtHeader>(static_cast<const char*>(tableSignature));
         addNode("/tables", new AcpiTableNode(table));
     }
 }

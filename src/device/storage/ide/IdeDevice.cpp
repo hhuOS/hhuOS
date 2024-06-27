@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -16,6 +16,9 @@
  *
  * The IDE driver is based on a bachelor's thesis, written by Tim Laurischkat.
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-tilau101
+ *
+ * The driver has been enhanced with ATAPI capabilities during a bachelor's thesis, written by Moritz Riefer.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-morie103
  */
 
 #include "IdeDevice.h"
@@ -31,15 +34,31 @@ uint32_t IdeDevice::getSectorSize() {
 }
 
 uint64_t IdeDevice::getSectorCount() {
+    if (info.type == IdeController::ATAPI) {
+        return info.atapi.maxSectorsLba;
+    }
+
     return info.maxSectorsLba28;
 }
 
 uint32_t IdeDevice::read(uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
-    return controller.performIO(info, IdeController::READ, buffer, startSector, sectorCount);
+    if (info.type == IdeController::ATAPI) {
+        return controller.performAtapiIO(info, IdeController::READ, buffer, startSector, sectorCount);
+    }
+
+    return controller.performAtaIO(info, IdeController::READ, buffer, startSector, sectorCount);
 }
 
 uint32_t IdeDevice::write(const uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
-    return controller.performIO(info, IdeController::WRITE, const_cast<uint8_t*>(buffer), startSector, sectorCount);
+    if (info.type == IdeController::ATAPI) {
+        return 0;
+    }
+
+    return controller.performAtaIO(info, IdeController::WRITE, const_cast<uint8_t *>(buffer), startSector, sectorCount);
+}
+
+const IdeController::DeviceInfo &IdeDevice::getDeviceInfo() const {
+    return info;
 }
 
 }

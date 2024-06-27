@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -19,13 +19,53 @@ cmake_minimum_required(VERSION 3.14)
 project(towboot)
 message(STATUS "Project " ${PROJECT_NAME})
 
-add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS.img"
-        WORKING_DIRECTORY "${HHUOS_ROOT_DIR}/loader/towboot/"
-        COMMAND /bin/rm -f "${HHUOS_ROOT_DIR}/hhuOS.iso"
-        COMMAND /bin/cp "$<TARGET_FILE:system>" "${HHUOS_ROOT_DIR}/loader/towboot/hhuOS.bin"
-        COMMAND /bin/cp "${CMAKE_BINARY_DIR}/hhuOS.initrd" "${HHUOS_ROOT_DIR}/loader/towboot/hhuOS.initrd"
-        COMMAND "${HHUOS_ROOT_DIR}/loader/towboot/build.sh"
-        COMMAND /bin/mv "${HHUOS_ROOT_DIR}/loader/towboot/hhuOS-towboot.img" "${HHUOS_ROOT_DIR}"
-        DEPENDS system initrd floppy0 hdd0)
+set(TOWBOOT_VERSION "0.8.1")
 
-add_custom_target(${PROJECT_NAME} DEPENDS system initrd floppy0 hdd0 "${HHUOS_ROOT_DIR}/hhuOS.img")
+set(TOWBOOT_CONFIG "\
+default = \"hhuOS\"\\n\
+timeout = 0\\n\
+log_level = \"info\"\\n\
+\\n\
+[entries]\\n\
+[entries.hhuOS]\\n\
+    name = \"hhuOS\"\\n\
+    image = \"hhuOS/kernel.elf\"\\n\
+    argv = \"log_level=inf log_ports=COM1 root=ata1p0,Filesystem::Fat::FatDriver apic=true bios=false apm=false vbe=false\"")
+
+set(TOWBOOT_VDD_CONFIG "\
+default = \"hhuOS\"\\n\
+timeout = 0\\n\
+log_level = \"info\"\\n\
+\\n\
+[entries]\\n\
+[entries.hhuOS]\\n\
+    name = \"hhuOS\"\\n\
+    image = \"hhuOS/kernel.elf\"\\n\
+    argv = \"log_level=inf log_ports=COM1 root=vdd0p0,Filesystem::Fat::FatDriver apic=true bios=false apm=false vbe=false\"\\n\
+    modules = [ { image = \"hhuOS/hdd0.img\", argv = \"vdd0\" } ]")
+
+add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/towboot/towbootctl"
+        COMMAND /bin/mkdir "${CMAKE_BINARY_DIR}/towboot"
+        COMMAND wget -O "${CMAKE_BINARY_DIR}/towboot/towbootctl" "https://github.com/hhuOS/towboot/releases/download/v${TOWBOOT_VERSION}/towbootctl-v${TOWBOOT_VERSION}-x86_64-linux"
+        COMMAND chmod +x "${CMAKE_BINARY_DIR}/towboot/towbootctl")
+
+add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS-towboot.img"
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/towboot/"
+        COMMAND /bin/mkdir -p "hhuOS"
+        COMMAND /bin/cp "$<TARGET_FILE:system>" "hhuOS/kernel.elf"
+        COMMAND /bin/rm -f "hhuOS/hdd0.img"
+        COMMAND /bin/echo -e "'${TOWBOOT_CONFIG}'" | sed -r "s/[\\\\]+//g" > "towboot.toml"
+        COMMAND ./towbootctl image --target "${HHUOS_ROOT_DIR}/hhuOS-towboot.img" -- -config "towboot.toml"
+        DEPENDS system floppy0 hdd0 "${CMAKE_BINARY_DIR}/towboot/towbootctl")
+
+add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS-towboot-vdd.img"
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/towboot/"
+        COMMAND /bin/mkdir -p "hhuOS"
+        COMMAND /bin/cp "$<TARGET_FILE:system>" "hhuOS/kernel.elf"
+        COMMAND /bin/cp "${HHUOS_ROOT_DIR}/hdd0.img" "hhuOS/hdd0.img"
+        COMMAND /bin/echo -e "'${TOWBOOT_VDD_CONFIG}'" | sed -r "s/[\\\\]+//g" > "towboot.toml"
+        COMMAND ./towbootctl image --target "${HHUOS_ROOT_DIR}/hhuOS-towboot-vdd.img" -- -config "towboot.toml"
+        DEPENDS system floppy0 hdd0 "${CMAKE_BINARY_DIR}/towboot/towbootctl")
+
+add_custom_target(${PROJECT_NAME} DEPENDS system floppy0 hdd0 "${HHUOS_ROOT_DIR}/hhuOS-towboot.img")
+add_custom_target(${PROJECT_NAME}-vdd DEPENDS system floppy0 hdd0 "${HHUOS_ROOT_DIR}/hhuOS-towboot-vdd.img")

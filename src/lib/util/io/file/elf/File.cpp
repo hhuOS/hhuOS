@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -22,10 +22,7 @@
 namespace Util::Io::Elf {
 
 bool FileHeader::isValid() {
-    if (magic[0] != 0x7F ||
-        magic[1] != 'E' ||
-        magic[2] != 'L' ||
-        magic[3] != 'F') {
+    if (magic[0] != 0x7F || magic[1] != 'E' || magic[2] != 'L' || magic[3] != 'F') {
         return false;
     }
 
@@ -79,13 +76,13 @@ File::~File() {
 uint32_t File::getEndAddress() {
     uint32_t ret = 0;
 
-    for(int i = 0; i < fileHeader.programHeaderEntries; i++) {
+    for (int i = 0; i < fileHeader.programHeaderEntries; i++) {
         auto header = programHeaders[i];
 
-        if(header.type == ProgramHeaderType::LOAD) {
+        if (header.type == ProgramHeaderType::LOAD) {
             const auto size = header.virtualAddress + header.memorySize;
 
-            if(size > ret) {
+            if (size > ret) {
                 ret = size;
             }
         }
@@ -95,7 +92,7 @@ uint32_t File::getEndAddress() {
 }
 
 void File::loadProgram() {
-    for(int i = 0; i < fileHeader.programHeaderEntries; i++) {
+    for (int i = 0; i < fileHeader.programHeaderEntries; i++) {
         auto header = programHeaders[i];
 
         if(header.type == ProgramHeaderType::LOAD) {
@@ -105,6 +102,17 @@ void File::loadProgram() {
             targetAddress.copyRange(sourceAddress, header.fileSize);
         }
     }
+}
+
+const SectionHeader &File::getSectionHeader(SectionHeaderType headerType) const {
+    for (int i = 0; i < fileHeader.sectionHeaderEntries; i++) {
+        const auto &header = sectionHeaders[i];
+        if (header.type == headerType && i != fileHeader.sectionHeaderStringIndex) {
+            return header;
+        }
+    }
+
+    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "ELF: Section header not found!");
 }
 
 }

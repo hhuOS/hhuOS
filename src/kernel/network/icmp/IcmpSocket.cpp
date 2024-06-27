@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -18,13 +18,14 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "kernel/system/System.h"
+
 #include "kernel/service/NetworkService.h"
 #include "lib/util/network/icmp/IcmpDatagram.h"
 #include "IcmpSocket.h"
 #include "kernel/network/NetworkStack.h"
 #include "kernel/network/icmp/IcmpModule.h"
 #include "lib/util/network/Socket.h"
+#include "kernel/service/Service.h"
 
 namespace Util {
 namespace Network {
@@ -38,10 +39,10 @@ class Ip4Address;
 
 namespace Kernel::Network::Icmp {
 
-IcmpSocket::IcmpSocket() : DatagramSocket(System::getService<NetworkService>().getNetworkStack().getIcmpModule(), Util::Network::Socket::ICMP) {}
+IcmpSocket::IcmpSocket() : DatagramSocket(Service::getService<NetworkService>().getNetworkStack().getIcmpModule(), Util::Network::Socket::ICMP) {}
 
 IcmpSocket::~IcmpSocket() {
-    auto &icmpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getIcmpModule();
+    auto &icmpModule = Kernel::Service::getService<Kernel::NetworkService>().getNetworkStack().getIcmpModule();
     icmpModule.deregisterSocket(*this);
 }
 

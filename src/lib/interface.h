@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -45,9 +45,9 @@ void* allocateMemory(uint32_t size, uint32_t alignment = 0);
 void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment = 0);
 void freeMemory(void *pointer, uint32_t alignment = 0);
 
-bool isSystemInitialized();
-void* mapIO(uint32_t physicalAddress, uint32_t size);
-void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount = 0);
+bool isMemoryManagementInitialized();
+void* mapIO(void *physicalAddress, uint32_t pageCount);
+void unmap(void *virtualAddress, uint32_t pageCount, uint32_t breakCount = 0);
 
 bool mount(const Util::String &deviceName, const Util::String &targetPath, const Util::String &driverName);
 bool unmount(const Util::String &path);
@@ -61,6 +61,7 @@ Util::Array<Util::String> getFileChildren(int32_t fileDescriptor);
 uint64_t readFile(int32_t fileDescriptor, uint8_t *targetBuffer, uint64_t pos, uint64_t length);
 uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t pos, uint64_t length);
 bool controlFile(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters);
+bool controlFileDescriptor(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters);
 bool changeDirectory(const Util::String &path);
 Util::Io::File getCurrentWorkingDirectory();
 
@@ -77,6 +78,7 @@ void joinProcess(uint32_t id);
 void killProcess(uint32_t id);
 void sleep(const Util::Time::Timestamp &time);
 void yield();
+bool isSchedulerInitialized();
 
 Util::Time::Timestamp getSystemTime();
 Util::Time::Date getCurrentDate();

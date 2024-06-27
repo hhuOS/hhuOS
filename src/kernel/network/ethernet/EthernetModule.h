@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -31,9 +31,6 @@ namespace Network {
 class NetworkDevice;
 }  // namespace Network
 }  // namespace Device
-namespace Kernel {
-class Logger;
-}  // namespace Kernel
 namespace Util {
 namespace Network {
 class MacAddress;
@@ -82,8 +79,6 @@ public:
     static void finalizePacket(Util::Io::ByteArrayOutputStream &packet);
 
 private:
-
-    static Kernel::Logger log;
 
     static const constexpr uint32_t MINIMUM_PACKET_SIZE = 64;
 };

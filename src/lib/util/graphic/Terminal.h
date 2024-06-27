@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -47,6 +47,10 @@ public:
         ENABLE_KEYBOARD_SCANCODES
     };
 
+    enum ControllerCommand {
+        CREATE_VIRTUAL_TERMINAL
+    };
+
     Terminal(uint16_t columns, uint16_t rows);
 
     Terminal(const Terminal &copy) = delete;
@@ -63,9 +67,11 @@ public:
 
     int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
 
+    bool isReadyToRead() override;
+
     virtual void putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) = 0;
 
-    virtual void clear(const Util::Graphic::Color &backgroundColor) = 0;
+    virtual void clear(const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor, uint16_t startColumn, uint32_t startRow, uint16_t endColumn, uint16_t endRow) = 0;
 
     virtual void setPosition(uint16_t column, uint16_t row) = 0;
 
@@ -76,6 +82,12 @@ public:
     [[nodiscard]] uint16_t getColumns() const;
 
     [[nodiscard]] uint16_t getRows() const;
+
+    [[nodiscard]] const Color& getForegroundColor() const;
+
+    [[nodiscard]] const Color& getBackgroundColor() const;
+
+    void clear();
 
     void setEcho(bool enabled);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -50,6 +50,7 @@ enum InterruptVector : uint8_t {
     // PC/AT compatible interrupts
     PIT = 32,
     KEYBOARD = 33,
+    CASCADE = 34,
     COM2 = 35,
     COM1 = 36,
     LPT2 = 37,

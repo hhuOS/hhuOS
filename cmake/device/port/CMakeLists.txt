@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -18,4 +18,6 @@ cmake_minimum_required(VERSION 3.14)
 
 target_sources(device PUBLIC
         ${HHUOS_SRC_DIR}/device/port/parallel/ParallelPort.cpp
+        ${HHUOS_SRC_DIR}/device/port/serial/SimpleSerialPort.cpp
+        ${HHUOS_SRC_DIR}/device/port/serial/Serial.cpp
         ${HHUOS_SRC_DIR}/device/port/serial/SerialPort.cpp)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -21,10 +21,6 @@
 #include <cstdint>
 
 #include "device/cpu/IoPort.h"
-
-namespace Kernel {
-class Logger;
-}  // namespace Kernel
 
 namespace Device {
 
@@ -113,8 +109,6 @@ private:
 
     IoPort controlPort = IoPort(0x64);
     IoPort dataPort = IoPort(0x60);
-
-    static Kernel::Logger log;
 
     static const constexpr uint32_t TIMEOUT = 500;
     static const constexpr uint8_t SELF_TEST_OK = 0x55;

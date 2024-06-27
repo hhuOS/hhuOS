@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -29,13 +29,14 @@
 #include "lib/util/math/Vector2D.h"
 #include "EnemyMissile.h"
 #include "Bug.h"
+#include "lib/util/base/String.h"
 
 PlayerMissile::PlayerMissile(const Util::Math::Vector2D &position, Ship &ship) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)), ship(ship) {
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
 }
 
 void PlayerMissile::initialize() {
-    sprite = Util::Game::D2::Sprite("/initrd/bug/player_missile.bmp", SIZE_X, SIZE_Y);
+    sprite = Util::Game::D2::Sprite("/user/bug/player_missile.bmp", SIZE_X, SIZE_Y);
 }
 
 void PlayerMissile::onUpdate(double delta) {
@@ -62,7 +63,6 @@ void PlayerMissile::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
             return;
         }
     }
-
 
     Util::Game::GameManager::getGame().getCurrentScene().removeObject(this);
     ship.allowFireMissile();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -28,11 +28,13 @@ BitmapMemoryManager::BitmapMemoryManager(uint8_t *startAddress, uint8_t *endAddr
 void *BitmapMemoryManager::allocateBlock() {
     uint32_t block = bitmap.findAndSet();
 
-    if (block == bitmap.getSize()) {
-        handleError();
+    if (block == Util::Async::AtomicBitmap::INVALID_INDEX) {
         return nullptr;
     }
 
+    if (freeMemory - blockSize > freeMemory) {
+        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "BitmapMemoryManager: Underflow!");
+    }
     freeMemory -= blockSize;
 
     void *address = reinterpret_cast<void *>(startAddress + block * blockSize);
@@ -55,10 +57,6 @@ void BitmapMemoryManager::freeBlock(void *pointer) {
 
     bitmap.unset(blockNumber);
     freeMemory += blockSize;
-}
-
-void BitmapMemoryManager::handleError() {
-    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "BitmapMemoryManager: Out of memory!");
 }
 
 void BitmapMemoryManager::setRange(uint32_t startBlock, uint32_t blockCount) {

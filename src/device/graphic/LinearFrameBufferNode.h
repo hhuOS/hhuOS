@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -18,8 +18,17 @@
 #ifndef HHUOS_LINEARFRAMEBUFFERNODE_H
 #define HHUOS_LINEARFRAMEBUFFERNODE_H
 
+#include <cstdint>
+
 #include "filesystem/memory/StringNode.h"
 #include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
+
+namespace Device {
+namespace Graphic {
+class VesaBiosExtensions;
+}  // namespace Graphic
+}  // namespace Device
 
 namespace Util {
 namespace Graphic {
@@ -35,7 +44,7 @@ public:
     /**
      * Constructor.
      */
-    explicit LinearFrameBufferNode(const Util::String &name, Util::Graphic::LinearFrameBuffer *lfb);
+    explicit LinearFrameBufferNode(const Util::String &name, const Util::Graphic::LinearFrameBuffer &lfb, const VesaBiosExtensions *vbe);
 
     /**
      * Copy Constructor.
@@ -55,16 +64,22 @@ public:
     /**
      * Overriding function from StringNode.
      */
-    Util::String getString();
+    Util::String getString() override;
+
+    /**
+     * Overriding function from Node.
+     */
+    bool control(uint32_t request, const Util::Array<uint32_t> &parameters) override;
 
 private:
 
-    Util::Graphic::LinearFrameBuffer *lfb;
+    void *physicalAddress;
+    uint16_t resolutionX;
+    uint16_t resolutionY;
+    uint8_t colorDepth;
+    uint16_t pitch;
 
-    const Util::String addressBuffer;
-    const Util::String resolutionBuffer;
-    const Util::String pitchBuffer;
-
+    const Device::Graphic::VesaBiosExtensions *vbe;
 };
 
 }

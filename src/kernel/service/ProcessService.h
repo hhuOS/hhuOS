@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -26,6 +26,7 @@
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/base/String.h"
 #include "kernel/process/Process.h"
+#include "kernel/process/Scheduler.h"
 
 namespace Util {
 namespace Io {
@@ -35,14 +36,16 @@ class File;
 
 namespace Kernel {
 class VirtualAddressSpace;
+class SchedulerCleaner;
+class Thread;
 
 class ProcessService : public Service {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    ProcessService();
+    explicit ProcessService(Process *kernelProcess);
 
     /**
      * Copy Constructor.
@@ -77,13 +80,24 @@ public:
 
     [[nodiscard]] Util::Array<uint32_t> getActiveProcessIds() const;
 
+    [[nodiscard]] Scheduler& getScheduler();
+
+    void cleanup(Thread *thread);
+
+    void cleanup(Process *process);
+
+    void startScheduler();
+
     static const constexpr uint8_t SERVICE_ID = 7;
 
 private:
 
+    Scheduler scheduler;
+    SchedulerCleaner *cleaner = nullptr;
+
     Util::ArrayList<Process*> processList;
     Util::Async::Spinlock lock;
-    Process &kernelProcess;
+    Process *kernelProcess;
 };
 
 }

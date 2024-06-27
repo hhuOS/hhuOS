@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -35,7 +35,7 @@ class CollisionEvent;
 }  // namespace Game
 }  // namespace Util
 
-EnemyDebris::EnemyDebris(const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, double scale, uint8_t modelId) : Util::Game::D3::Model(Enemy::TAG, Util::String::format("/initrd/battlespace/debris%u.obj", modelId), position, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::RED), modelId(modelId) {}
+EnemyDebris::EnemyDebris(const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, double scale, uint8_t modelId) : Util::Game::D3::Model(Enemy::TAG, Util::String::format("/user/battlespace/debris%u.obj", modelId), position, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::RED), modelId(modelId) {}
 
 void EnemyDebris::initialize() {
     Model::initialize();

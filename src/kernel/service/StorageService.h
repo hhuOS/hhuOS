@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -27,7 +27,6 @@
 #include "device/storage/StorageDevice.h"
 
 namespace Kernel {
-class Logger;
 
 class StorageService : public Service {
 
@@ -65,7 +64,6 @@ private:
     Util::Async::ReentrantSpinlock lock;
     Util::HashMap<Util::String, Device::Storage::StorageDevice*> deviceMap;
 
-    static Logger log;
     static Util::HashMap<Util::String, uint32_t> nameMap;
 
 };

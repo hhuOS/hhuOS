@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -17,5 +17,6 @@
 cmake_minimum_required(VERSION 3.14)
 
 target_sources(kernel PUBLIC
+        ${HHUOS_SRC_DIR}/kernel/interrupt/InterruptDescriptorTable.cpp
         ${HHUOS_SRC_DIR}/kernel/interrupt/InterruptDispatcher.cpp
-        ${HHUOS_SRC_DIR}/kernel/interrupt/interrupt.asm)
+        ${HHUOS_SRC_DIR}/kernel/interrupt/SystemCallDispatcher.cpp)

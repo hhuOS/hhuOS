@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -20,12 +20,11 @@
 
 #include "IoApic.h"
 
-#include "kernel/system/System.h"
 #include "kernel/service/MemoryService.h"
-#include "lib/util/base/Constants.h"
 #include "LocalApic.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/collection/Iterator.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel {
 enum GlobalSystemInterrupt : uint32_t;
@@ -35,13 +34,9 @@ enum InterruptVector : uint8_t;
 namespace Device {
 enum InterruptRequest : uint8_t;
 
-IoApic::IoApic(uint8_t ioId, uint32_t baseAddress, Kernel::GlobalSystemInterrupt gsiBase) : ioId(ioId), gsiBase(gsiBase) {
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    void *virtualStartAddress = memoryService.mapIO(baseAddress, Util::PAGESIZE, true);
-
-    // Account for possible misalignment
-    const uint32_t pageOffset = baseAddress % Util::PAGESIZE;
-    mmioAddress = reinterpret_cast<uint32_t>(virtualStartAddress) + pageOffset;
+IoApic::IoApic(uint8_t ioId, void *baseAddress, Kernel::GlobalSystemInterrupt gsiBase) : ioId(ioId), gsiBase(gsiBase) {
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+    mmioAddress = memoryService.mapIO(baseAddress, 1, true);
 }
 
 uint8_t IoApic::getVersion() {

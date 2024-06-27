@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -25,13 +25,12 @@
 
 #include "LocalApic.h"
 #include "LocalApicErrorHandler.h"
-#include "device/time/ApicTimer.h"
-#include "device/cpu/Cpu.h"
+#include "device/time/apic/ApicTimer.h"
 #include "lib/util/collection/HashMap.h"
 #include "lib/util/collection/Array.h"
+#include "kernel/memory/GlobalDescriptorTable.h"
 
 namespace Kernel {
-class Logger;
 enum GlobalSystemInterrupt : uint32_t;
 enum InterruptVector : uint8_t;
 }  // namespace Kernel
@@ -145,7 +144,7 @@ private:
      *
      * @return The virtual address of the stackpointer array
      */
-    void* prepareApplicationProcessorStacks();
+    uint8_t** prepareApplicationProcessorStacks();
 
     /**
      * Copy the AP startup routine to lower physical memory.
@@ -163,16 +162,7 @@ private:
      */
     void prepareApplicationProcessorWarmReset();
 
-    void* prepareApplicationProcessorGdts();
-
-    /**
-     * Sets up the GDT for the AP.
-     *
-     * The memory is allocated by MemoryService::AllocateKernelMemory with enabled paging, so its a virtual address.
-     * This is basically a shorter and slightly modified version of System::InitializeGlobalDescriptorTables.
-     * The main difference is that only a single GDT is used and its memory is allocated by this function.
-     */
-    Cpu::Descriptor* allocateApplicationProcessorGdt();
+    Kernel::GlobalDescriptorTable::Descriptor** prepareApplicationProcessorGdts();
 
     Kernel::GlobalSystemInterrupt getIrqOverride(InterruptRequest interruptRequest);
 
@@ -187,8 +177,6 @@ private:
     Util::HashMap<uint8_t, ApicTimer*> localTimers; // All ApicTimer instances.
     IoApic *ioApic;                      // The IoApic instance responsible for the external interrupts.
     LocalApicErrorHandler errorHandler;  // The interrupt handler that gets triggered on an internal APIC error.
-
-    static Kernel::Logger log;
 
 };
 

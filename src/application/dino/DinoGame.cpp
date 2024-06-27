@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -35,6 +35,7 @@
 #include "lib/util/collection/Iterator.h"
 #include "lib/util/math/Vector3D.h"
 #include "GameOverScreen.h"
+#include "lib/util/game/2d/collider/RectangleCollider.h"
 
 DinoGame::DinoGame() {
     dino->addComponent(new Util::Game::D2::LinearMovementComponent(*dino));
@@ -42,8 +43,8 @@ DinoGame::DinoGame() {
 
     addObject(dino);
 
-    for (uint32_t i = 0; i < 4; i++) {
-        auto *newGround = new Ground(Util::Math::Vector2D(getCamera().getPosition().getX() - 1.5 + i, -1));
+    for (uint32_t i = 0; i < 5; i++) {
+        auto *newGround = new Ground(Util::Math::Vector2D(getCamera().getPosition().getX() - 2 + i, -1));
         ground.offer(newGround);
         addObject(newGround);
     }
@@ -52,9 +53,9 @@ DinoGame::DinoGame() {
 }
 
 void DinoGame::initializeBackground(Util::Game::Graphics &graphics) {
-    auto cloud1 = Util::Game::D2::Sprite("/initrd/dino/cloud1.bmp", 0.45, 0.15);
-    auto cloud3 = Util::Game::D2::Sprite("/initrd/dino/cloud3.bmp", 0.6, 0.15);
-    auto cloud4 = Util::Game::D2::Sprite("/initrd/dino/cloud4.bmp", 0.45, 0.15);
+    auto cloud1 = Util::Game::D2::Sprite("/user/dino/cloud1.bmp", 0.45, 0.15);
+    auto cloud3 = Util::Game::D2::Sprite("/user/dino/cloud3.bmp", 0.6, 0.15);
+    auto cloud4 = Util::Game::D2::Sprite("/user/dino/cloud4.bmp", 0.45, 0.15);
 
     graphics.clear(Util::Graphic::Color(57, 97, 255));
     cloud1.draw(graphics, Util::Math::Vector2D(-1, 0.65));
@@ -89,9 +90,8 @@ void DinoGame::update(double delta) {
             obstacleCooldown -= delta;
         }
 
-        if (ground.peek()->getPosition().getX() < getCamera().getPosition().getX() - 2.5) {
-            auto positionX = (static_cast<uint32_t>((getCamera().getPosition().getX() + 1.5) * 10) / 5) * 5 / 10.0 ;
-            auto *newGround = new Ground(Util::Math::Vector2D(positionX, -1));
+        if (ground.peek()->getPosition().getX() < getCamera().getPosition().getX() - 3) {
+            auto *newGround = new Ground(Util::Math::Vector2D(ground.get(ground.size() - 1)->getPosition().getX() + 1, -1));
             removeObject(ground.poll());
             ground.offer(newGround);
             addObject(newGround);

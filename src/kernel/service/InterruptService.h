@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -18,24 +18,25 @@
 #ifndef HHUOS_INTERRUPTSERVICE_H
 #define HHUOS_INTERRUPTSERVICE_H
 
+#include <cstdarg>
 #include <cstdint>
 
-#include "device/interrupt/Pic.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/service/Service.h"
-#include "device/debug/GdbServer.h"
-#include "device/port/serial/SerialPort.h"
+#include "kernel/interrupt/InterruptDescriptorTable.h"
+#include "lib/util/base/System.h"
+#include "kernel/interrupt/SystemCallDispatcher.h"
 
 namespace Device {
 class Apic;
 enum InterruptRequest : uint8_t;
+class Pic;
 }  // namespace Device
 
 namespace Kernel {
 class InterruptHandler;
-struct InterruptFrame;
-class Logger;
 enum InterruptVector : uint8_t;
+struct InterruptFrame;
 
 class InterruptService : public Service {
 
@@ -60,13 +61,28 @@ public:
      */
     ~InterruptService() override;
 
+    void loadIdt();
+
+    void usePic(Device::Pic *pic);
+
     void useApic(Device::Apic *apic);
 
     [[nodiscard]] bool usesApic() const;
 
     void assignInterrupt(InterruptVector slot, InterruptHandler &handler);
 
-    void dispatchInterrupt(const InterruptFrame &frame);
+    void assignSystemCall(Util::System::Code code, bool(*func)(uint32_t paramCount, va_list params));
+
+#pragma GCC push_options
+#pragma GCC target("general-regs-only")
+
+    [[noreturn]] void handleException(const InterruptFrame &frame, uint32_t errorCode, InterruptVector vector);
+
+    void dispatchInterrupt(const InterruptFrame &frame, InterruptVector slot);
+
+    void dispatchSystemCall(Util::System::Code code, uint16_t paramCount, va_list params, bool &result);
+
+#pragma GCC pop_options
 
     void allowHardwareInterrupt(Device::InterruptRequest interrupt);
 
@@ -79,8 +95,6 @@ public:
     void setInterruptMask(uint16_t mask);
 
     void sendEndOfInterrupt(InterruptVector interrupt);
-
-    void startGdbServer(Device::SerialPort::ComPort port);
 
     [[nodiscard]] bool checkSpuriousInterrupt(InterruptVector interrupt);
 
@@ -96,15 +110,14 @@ public:
 
 private:
 
-    Device::Pic pic;
+    Device::Pic *pic = nullptr;
     Device::Apic *apic = nullptr;
 
-    InterruptDispatcher dispatcher;
-    Device::GdbServer gdbServer = Device::GdbServer();
+    InterruptDescriptorTable idt;
+    InterruptDispatcher interruptDispatcher;
+    SystemCallDispatcher systemCallDispatcher;
 
     bool parallelComputingAllowed = false;
-
-    static Kernel::Logger log;
 };
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -36,7 +36,6 @@ class NetworkDevice;
 }  // namespace Network
 }  // namespace Device
 namespace Kernel {
-class Logger;
 
 namespace Network {
 namespace Ip4 {
@@ -104,8 +103,6 @@ private:
 
     Util::Async::ReentrantSpinlock lock;
     Util::ArrayList<ArpEntry> arpCache;
-
-    static Kernel::Logger log;
 
     static const constexpr uint32_t REQUEST_WAIT_TIME = 100;
     static const constexpr uint32_t MAX_REQUEST_RETRIES = 10;

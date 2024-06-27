@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -21,8 +21,8 @@
 #include "LocalApicErrorHandler.h"
 
 #include "kernel/service/InterruptService.h"
-#include "kernel/system/System.h"
 #include "kernel/interrupt/InterruptVector.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel {
 struct InterruptFrame;
@@ -31,10 +31,10 @@ struct InterruptFrame;
 namespace Device {
 
 void LocalApicErrorHandler::plugin() {
-    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     interruptService.assignInterrupt(Kernel::InterruptVector::ERROR, *this);
 }
 
-void LocalApicErrorHandler::trigger(const Kernel::InterruptFrame &frame) {}
+void LocalApicErrorHandler::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -17,23 +17,23 @@
 
 #include "PowerManagementService.h"
 
-#include <stdarg.h>
+#include <cstdarg>
 
-#include "kernel/system/SystemCall.h"
 #include "lib/util/hardware/Machine.h"
-#include "kernel/system/System.h"
-#include "device/power/Machine.h"
+#include "InterruptService.h"
+#include "kernel/service/Service.h"
 #include "lib/util/base/System.h"
+#include "device/system/Machine.h"
 
 namespace Kernel {
 
-PowerManagementService::PowerManagementService(Device::Machine *machine) : machine(*machine) {
-    SystemCall::registerSystemCall(Util::System::SHUTDOWN, [](uint32_t paramCount, va_list arguments) -> bool {
+PowerManagementService::PowerManagementService(Device::Machine *machine) : machine(machine) {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::SHUTDOWN, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
             return false;
         }
 
-        auto &powerManagementService = System::getService<PowerManagementService>();
+        auto &powerManagementService = Service::getService<PowerManagementService>();
         auto type = static_cast<Util::Hardware::Machine::ShutdownType>(va_arg(arguments, uint32_t));
 
         if (type == Util::Hardware::Machine::SHUTDOWN) {
@@ -47,16 +47,12 @@ PowerManagementService::PowerManagementService(Device::Machine *machine) : machi
     });
 }
 
-PowerManagementService::~PowerManagementService() {
-    delete &machine;
-}
-
 void PowerManagementService::shutdownMachine() {
-    machine.shutdown();
+    machine->shutdown();
 }
 
 void PowerManagementService::rebootMachine() {
-    machine.reboot();
+    machine->reboot();
 }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -19,7 +19,6 @@
 
 #include "lib/util/collection/ArrayList.h"
 #include "filesystem/fat/FatNode.h"
-#include "lib/util/base/Exception.h"
 #include "lib/util/base/String.h"
 
 namespace Filesystem::Fat {
@@ -57,11 +56,11 @@ Util::Array<Util::String> FatDirectory::getChildren() {
 }
 
 uint64_t FatDirectory::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
-    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "FatDriver: Trying to read from a directory!");
+    return 0;
 }
 
 uint64_t FatDirectory::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
-    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "FatDriver: Trying to write to a directory!");
+    return 0;
 }
 
 }

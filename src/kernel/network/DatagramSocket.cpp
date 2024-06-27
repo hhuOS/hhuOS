@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -84,6 +84,10 @@ uint64_t DatagramSocket::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t 
 
 uint64_t DatagramSocket::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
     return 0;
+}
+
+bool DatagramSocket::isReadyToRead() {
+    return !incomingDatagramQueue.isEmpty();
 }
 
 }

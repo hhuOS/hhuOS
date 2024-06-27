@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -23,10 +23,13 @@ include_directories(${HHUOS_SRC_DIR})
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
+target_sources(${PROJECT_NAME} PUBLIC
+        ${HHUOS_SRC_DIR}/filesystem/Filesystem.cpp)
+
 # Add subdirectories
-add_subdirectory(core)
 add_subdirectory(acpi)
 add_subdirectory(fat)
+add_subdirectory(iso9660)
 add_subdirectory(memory)
 add_subdirectory(process)
 add_subdirectory(qemu)

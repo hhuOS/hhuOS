@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner; Olaf Spinczyk, TU Dortmund
  *
@@ -56,7 +56,9 @@ public:
         UP = 0x48,
         DOWN = 0x50,
         LEFT = 0x4b,
-        RIGHT = 0x4d
+        RIGHT = 0x4d,
+        POS1 = 0x47,
+        END = 0x4f
     };
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -15,55 +15,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/service/InterruptService.h"
-#include "kernel/system/System.h"
-#include "device/cpu/Cpu.h"
 #include "lib/util/collection/ArrayList.h"
-#include "kernel/service/ProcessService.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/interrupt/InterruptHandler.h"
-#include "kernel/process/Process.h"
-#include "kernel/process/ThreadState.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/collection/List.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/base/System.h"
-#include "kernel/interrupt/InterruptVector.h"
 
 namespace Kernel {
+struct InterruptFrame;
 
-void InterruptDispatcher::dispatch(const InterruptFrame &frame) {
-    auto &interruptService = System::getService<InterruptService>();
-    auto slot = static_cast<InterruptVector>(frame.interrupt);
-
-    // Handle exceptions
-    if (isUnrecoverableException(slot)) {
-        auto &processService = System::getService<ProcessService>();
-        if (processService.getCurrentProcess().isKernelProcess()) {
-            System::panic(frame);
-        }
-
-        Util::System::out << Device::Cpu::getExceptionName(slot) << ": " << Util::System::errorMessage << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-        processService.exitCurrentProcess(-1);
-    }
-
-    // Ignore spurious interrupts
-    if (interruptService.checkSpuriousInterrupt(slot)) {
-        return;
-    }
-
+void InterruptDispatcher::dispatch(const InterruptFrame &frame, InterruptVector vector) {
     // Throw exception, if there is no handler registered
-    auto *handlerList = handler[slot];
+    auto *handlerList = handler[vector];
     if (handlerList == nullptr) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "No handler registered!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "InterruptDispatcher: No handler registered!");
     }
 
     // Call installed interrupt handlers
     for (uint32_t i = 0; i < handlerList->size(); i++) {
-        handlerList->get(i)->trigger(frame);
+        handlerList->get(i)->trigger(frame, vector);
     }
-
-    interruptService.sendEndOfInterrupt(slot);
 }
 
 void InterruptDispatcher::assign(uint8_t slot, InterruptHandler &isr) {
@@ -72,10 +43,6 @@ void InterruptDispatcher::assign(uint8_t slot, InterruptHandler &isr) {
     }
 
     handler[slot]->add(&isr);
-}
-
-bool InterruptDispatcher::isUnrecoverableException(InterruptVector slot) {
-    return (slot < PIT || (slot >= NULL_POINTER && slot <= UNSUPPORTED_OPERATION)) && handler[slot] == nullptr;
 }
 
 }

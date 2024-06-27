@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -28,7 +28,6 @@
 #include "lib/util/network/MacAddress.h"
 #include "lib/util/network/ip4/Ip4PortAddress.h"
 #include "kernel/network/NetworkModule.h"
-#include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
 #include "device/network/NetworkDevice.h"
 #include "kernel/network/NetworkStack.h"
@@ -40,6 +39,7 @@
 #include "kernel/network/ip4/Ip4RoutingModule.h"
 #include "lib/util/base/String.h"
 #include "lib/util/network/ip4/Ip4Route.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel::Network {
 
@@ -140,7 +140,7 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
                 Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
             }
 
-            auto &networkService = System::getService<NetworkService>();
+            auto &networkService = Service::getService<NetworkService>();
             auto &ip4Module = networkService.getNetworkStack().getIp4Module();
             auto &device = networkService.getNetworkDevice(reinterpret_cast<Util::Network::MacAddress&>(*bindAddress));
 
@@ -164,7 +164,7 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
                 Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
             }
 
-            auto &networkService = System::getService<NetworkService>();
+            auto &networkService = Service::getService<NetworkService>();
             auto &ip4Module = networkService.getNetworkStack().getIp4Module();
             auto &device = networkService.getNetworkDevice(reinterpret_cast<Util::Network::MacAddress&>(*bindAddress));
             auto &address = *reinterpret_cast<Util::Network::Ip4::Ip4SubnetAddress*>(parameters[0]);
@@ -182,7 +182,7 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
                 Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
             }
 
-            auto &networkService = System::getService<NetworkService>();
+            auto &networkService = Service::getService<NetworkService>();
             auto &ip4Module = networkService.getNetworkStack().getIp4Module();
             auto &device = networkService.getNetworkDevice(reinterpret_cast<Util::Network::MacAddress&>(*bindAddress));
             auto &address = *reinterpret_cast<Util::Network::Ip4::Ip4SubnetAddress*>(parameters[0]);
@@ -196,25 +196,27 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
             if (!isBound()) {
                 Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
             }
-            if (parameters.length() < 3) {
+            if (parameters.length() < 4) {
                 Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Missing parameters!");
             }
 
-            auto &memoryService = System::getService<MemoryService>();
-            auto &networkService = System::getService<NetworkService>();
+            auto &memoryService = Service::getService<MemoryService>();
+            auto &networkService = Service::getService<NetworkService>();
             auto &routingModule = networkService.getNetworkStack().getIp4Module().getRoutingModule();
-            auto &targetAddresses = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4SubnetAddress>*>(parameters[0]);
-            auto &targetNextHops = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4Address>*>(parameters[1]);
-            auto &targetDevices = *reinterpret_cast<Util::Array<char*>*>(parameters[2]);
+            auto &sourceAddresses = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4Address>*>(parameters[0]);
+            auto &targetAddresses = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4SubnetAddress>*>(parameters[1]);
+            auto &targetNextHops = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4Address>*>(parameters[2]);
+            auto &targetDevices = *reinterpret_cast<Util::Array<char*>*>(parameters[3]);
 
             auto routes = routingModule.getRoutes(*reinterpret_cast<Util::Network::Ip4::Ip4Address*>(bindAddress));
             for (uint32_t i = 0; i < routes.length() && i < targetAddresses.length(); i++) {
                 auto route = routes[i];
 
-                targetAddresses[i] = route.getAddress();
+                sourceAddresses[i] = route.getSourceAddress();
+                targetAddresses[i] = route.getTargetAddress();
                 targetNextHops[i] = route.hasNextHop() ? route.getNextHop() : Util::Network::Ip4::Ip4Address::ANY;
-
                 targetDevices[i] = static_cast<char*>(memoryService.allocateUserMemory((route.getDeviceIdentifier().length() + 1) * sizeof(char)));
+
                 auto source = Util::Address<uint32_t>(static_cast<const char*>(route.getDeviceIdentifier()));
                 auto target = Util::Address<uint32_t>(targetDevices[i]);
                 target.copyString(source);
@@ -233,7 +235,7 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
                 Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
             }
 
-            auto &networkService = System::getService<NetworkService>();
+            auto &networkService = Service::getService<NetworkService>();
             auto &routingModule = networkService.getNetworkStack().getIp4Module().getRoutingModule();
             auto route = *reinterpret_cast<Util::Network::Ip4::Ip4Route*>(parameters[0]);
 
@@ -250,7 +252,7 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
                 Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
             }
 
-            auto &networkService = System::getService<NetworkService>();
+            auto &networkService = Service::getService<NetworkService>();
             auto &routingModule = networkService.getNetworkStack().getIp4Module().getRoutingModule();
             auto route = *reinterpret_cast<Util::Network::Ip4::Ip4Route*>(parameters[0]);
 

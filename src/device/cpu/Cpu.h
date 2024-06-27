@@ -18,9 +18,7 @@
 #define __CPU_include__
 
 #include <cstdint>
-
-#include "lib/util/base/Exception.h"
-#include "lib/util/collection/Array.h"
+#include "kernel/memory/Paging.h"
 
 namespace Device {
 
@@ -47,6 +45,33 @@ public:
         NOT_WRITE_THROUGH = 0x20000000,
         CACHE_DISABLE = 0x40000000,
         PAGING = 0x80000000
+    };
+
+    enum PrivilegeLevel : uint8_t  {
+        Ring0 = 0,
+        Ring1 = 1,
+        Ring2 = 2,
+        Ring3 = 3
+    };
+
+    struct SegmentSelector {
+    public:
+
+        SegmentSelector(Cpu::PrivilegeLevel privilegeLevel, uint8_t index);
+
+        SegmentSelector(uint16_t selectorBits);
+
+        explicit operator uint16_t() const;
+
+    private:
+
+        uint16_t privilegeLevel: 2;
+        uint16_t type: 1;
+        uint16_t index: 13;
+    } __attribute__((packed));
+
+    enum SegmentRegister {
+        CS, DS, ES, FS, GS, SS
     };
 
     // Descriptor for either GDT or IDT
@@ -87,7 +112,17 @@ public:
      */
     static void disableInterrupts();
 
-    static Util::Array<Configuration0> readCr0();
+    static uint32_t readCr0();
+
+    static void writeCr0(uint32_t value);
+
+    static uint32_t readCr2();
+
+    static Kernel::Paging::Table* readCr3();
+
+    static void writeCr3(const Kernel::Paging::Table *pageDirectory);
+
+    static void loadTaskStateSegment(const SegmentSelector &selector);
 
     /**
      * Stop the processor via hlt instruction.
@@ -132,22 +167,11 @@ public:
         RESERVED_11 = 0x1F,
     };
 
-    /**
-     * Throw an exception.
-     *
-     * @param error The exception number
-     * @param message An error message, that will be shown on the bluescreen
-     */
-    [[noreturn]] static void throwException(Util::Exception::Error error, const char *message);
+    static void writeSegmentRegister(SegmentRegister reg, const SegmentSelector &selector);
 
-    static const char *getExceptionName(uint32_t exception);
+    static SegmentSelector readSegmentRegister(SegmentRegister reg);
 
 private:
-
-    // Pointers to lists with hardware (software) exceptions
-    static const char *hardwareExceptions[];
-    static const char *softwareExceptions[];
-
     /**
      * Keeps track of how often disableInterrupts() and enableInterrupts() have been called.
      * Interrupts stay disabled, as long as this number is greater than zero.

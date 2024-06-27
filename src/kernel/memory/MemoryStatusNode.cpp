@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -17,8 +17,8 @@
 
 #include "MemoryStatusNode.h"
 
-#include "kernel/system/System.h"
 #include "kernel/service/MemoryService.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel {
 
@@ -33,9 +33,8 @@ Util::String MemoryStatusNode::formatMemory(uint32_t value) {
 }
 
 Util::String MemoryStatusNode::getString() {
-    auto memoryStatus = Kernel::System::getService<Kernel::MemoryService>().getMemoryStatus();
+    auto memoryStatus = Kernel::Service::getService<Kernel::MemoryService>().getMemoryStatus();
     return "Physical:      " + formatMemory(memoryStatus.freePhysicalMemory) + " / " + formatMemory(memoryStatus.totalPhysicalMemory) + "\n"
-            + "Lower:         " + formatMemory(memoryStatus.freeLowerMemory) + " / " + formatMemory(memoryStatus.totalLowerMemory) + "\n"
             + "Kernel:        " + formatMemory(memoryStatus.freeKernelHeapMemory) + " / " + formatMemory(memoryStatus.totalKernelHeapMemory) + "\n"
             + "Paging Area:   " + formatMemory(memoryStatus.freePagingAreaMemory) + " / " + formatMemory(memoryStatus.totalPagingAreaMemory) + "\n";
 }

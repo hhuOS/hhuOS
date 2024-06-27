@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -23,50 +23,25 @@
 #include "lib/util/network/Socket.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/network/ip4/Ip4SubnetAddress.h"
+#include "lib/util/async/Process.h"
 
 Route::Route(const Util::Array<Util::String> &arguments) : arguments(arguments) {}
 
 int32_t Route::parse() {
     if (arguments.length() == 0 || Util::String(COMMAND_SHOW).beginsWith(arguments[0])) {
-        return show();
+        printRoutes(arguments.length() > 1 ? Util::Network::Ip4::Ip4Address(arguments[1]) : Util::Network::Ip4::Ip4Address::ANY);
+        return 0;
     } else if (Util::String(COMMAND_REMOVE).beginsWith(arguments[0])) {
-        return remove();
+        return remove(parseRoute(arguments));
     } else if (Util::String(COMMAND_ADD).beginsWith(arguments[0])) {
-        return add();
+        return add(parseRoute(arguments));
     }
 
     Util::System::error << "ip: Invalid argument '" << arguments[0] << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     return -1;
 }
 
-int32_t Route::show() {
-    if (arguments.length() > 1) {
-        printRoutes(Util::Network::Ip4::Ip4Address(arguments[1]));
-    } else {
-        printRoutes(Util::Network::Ip4::Ip4Address::ANY);
-    }
-
-    return 0;
-}
-
-int32_t Route::remove() {
-    if (arguments.length() < 3) {
-        Util::System::error << "ip: Missing arguments for 'route " << COMMAND_REMOVE << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-        return - 1;
-    }
-
-    auto route = Util::Network::Ip4::Ip4Route();
-    if (arguments.length() == 3) {
-        auto address = Util::Network::Ip4::Ip4SubnetAddress(arguments[1]);
-        auto deviceIdentifier = arguments[2];
-        route = Util::Network::Ip4::Ip4Route(address, deviceIdentifier);
-    } else {
-        auto address = Util::Network::Ip4::Ip4SubnetAddress(arguments[1]);
-        auto nextHop = Util::Network::Ip4::Ip4Address(arguments[2]);
-        auto deviceIdentifier = arguments[3];
-        route = Util::Network::Ip4::Ip4Route(address, nextHop, deviceIdentifier);
-    }
-
+int32_t Route::remove(const Util::Network::Ip4::Ip4Route &route) {
     const auto &address = Util::Network::Ip4::Ip4Address::ANY;
     auto ipSocket = Util::Network::Socket::createSocket(Util::Network::Socket::IP4);
     if (!ipSocket.bind(address)) {
@@ -82,24 +57,7 @@ int32_t Route::remove() {
     return 0;
 }
 
-int32_t Route::add() {
-    if (arguments.length() < 3) {
-        Util::System::error << "ip: Missing arguments for 'route " << COMMAND_ADD << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-        return - 1;
-    }
-
-    auto route = Util::Network::Ip4::Ip4Route();
-    if (arguments.length() == 3) {
-        auto address = Util::Network::Ip4::Ip4SubnetAddress(arguments[1]);
-        auto deviceIdentifier = arguments[2];
-        route = Util::Network::Ip4::Ip4Route(address, deviceIdentifier);
-    } else {
-        auto address = Util::Network::Ip4::Ip4SubnetAddress(arguments[1]);
-        auto nextHop = Util::Network::Ip4::Ip4Address(arguments[2]);
-        auto deviceIdentifier = arguments[3];
-        route = Util::Network::Ip4::Ip4Route(address, nextHop, deviceIdentifier);
-    }
-
+int32_t Route::add(const Util::Network::Ip4::Ip4Route &route) {
     const auto &address = Util::Network::Ip4::Ip4Address::ANY;
     auto ipSocket = Util::Network::Socket::createSocket(Util::Network::Socket::IP4);
     if (!ipSocket.bind(address)) {
@@ -115,6 +73,40 @@ int32_t Route::add() {
     return 0;
 }
 
+Util::Network::Ip4::Ip4Route Route::parseRoute(const Util::Array<Util::String> &arguments) {
+    if (arguments.length() < 2) {
+        Util::System::error << "ip: Missing arguments for 'route " << COMMAND_ADD << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::Async::Process::exit(-1);
+    }
+
+    auto route = Util::Network::Ip4::Ip4Route();
+    if (arguments.length() == 3) { // route [add | delete] [target address] [device]
+        const auto targetAddress = Util::Network::Ip4::Ip4SubnetAddress(arguments[1]);
+        const auto &deviceIdentifier = arguments[2];
+        route = Util::Network::Ip4::Ip4Route(targetAddress, deviceIdentifier);
+    } else if (arguments.length() == 4) {
+        if (arguments[1].contains('/')) { // route [add | delete] [target address] [next hop] [device]
+            const auto targetAddress = Util::Network::Ip4::Ip4SubnetAddress(arguments[1]);
+            const auto nextHop = Util::Network::Ip4::Ip4Address(arguments[2]);
+            const auto &deviceIdentifier = arguments[3];
+            route = Util::Network::Ip4::Ip4Route(targetAddress, nextHop, deviceIdentifier);
+        } else { // route [add | delete] [source address] [target address] [device]
+            const auto sourceAddress = Util::Network::Ip4::Ip4Address(arguments[1]);
+            const auto targetAddress = Util::Network::Ip4::Ip4SubnetAddress(arguments[2]);
+            const auto &deviceIdentifier = arguments[3];
+            route = Util::Network::Ip4::Ip4Route(sourceAddress, targetAddress, deviceIdentifier);
+        }
+    } else if (arguments.length() == 5) { // route [add | delete] [source address] [target address] [next hop] [device]
+        const auto sourceAddress = Util::Network::Ip4::Ip4Address(arguments[1]);
+        const auto targetAddress = Util::Network::Ip4::Ip4SubnetAddress(arguments[2]);
+        const auto nextHop = Util::Network::Ip4::Ip4Address(arguments[3]);
+        const auto &deviceIdentifier = arguments[4];
+        route = Util::Network::Ip4::Ip4Route(sourceAddress, targetAddress, nextHop, deviceIdentifier);
+    }
+
+    return route;
+}
+
 int32_t Route::printRoutes(const Util::Network::Ip4::Ip4Address &address) {
     auto ipSocket = Util::Network::Socket::createSocket(Util::Network::Socket::IP4);
     if (!ipSocket.bind(address)) {
@@ -125,7 +117,7 @@ int32_t Route::printRoutes(const Util::Network::Ip4::Ip4Address &address) {
     auto routes = ipSocket.getRoutes();
 
     for (const auto &route : routes) {
-        Util::System::out << (route.getAddress().getBitCount() == 0 ? "default" : route.getTargetAddress().toString());
+        Util::System::out << (route.getTargetAddress().getBitCount() == 0 ? "default" : route.getTargetAddress().toString());
         if (route.hasNextHop()) Util::System::out << " via " << route.getNextHop().toString();
         Util::System::out << " device " << route.getDeviceIdentifier()
                           << " source " << route.getSourceAddress().toString() << Util::Io::PrintStream::endl;

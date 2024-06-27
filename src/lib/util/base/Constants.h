@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -16,17 +16,15 @@
  */
 
 #include <cstdint>
-#include "FreeListMemoryManager.h"
 
 #ifndef HHUOS_CONSTANTS_H
 #define HHUOS_CONSTANTS_H
 
 namespace Util {
 
-// pagesize = 4KB
 static const constexpr uint32_t PAGESIZE = 0x1000;
-static const constexpr uint32_t USER_SPACE_MEMORY_MANAGER_ADDRESS = 0x1000;
-static const constexpr uint32_t USER_SPACE_STACK_INSTANCE_ADDRESS = USER_SPACE_MEMORY_MANAGER_ADDRESS + sizeof(FreeListMemoryManager);
+static const constexpr uint32_t USER_SPACE_MEMORY_START_ADDRESS = 0x8000000;
+static const constexpr uint32_t MAIN_STACK_START_ADDRESS = 0xffff0000;
 
 }
 

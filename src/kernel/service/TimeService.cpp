@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -15,16 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <stdarg.h>
+#include <cstdarg>
 
 #include "lib/util/base/Exception.h"
 #include "TimeService.h"
-#include "kernel/system/SystemCall.h"
-#include "kernel/system/System.h"
 #include "device/time/DateProvider.h"
 #include "device/time/TimeProvider.h"
-#include "kernel/service/SchedulerService.h"
 #include "lib/util/base/System.h"
+#include "InterruptService.h"
+#include "kernel/service/Service.h"
+#include "ProcessService.h"
+#include "kernel/process/Scheduler.h"
+#include "device/time/WaitTimer.h"
 
 namespace Device {
 class Rtc;
@@ -32,47 +34,42 @@ class Rtc;
 
 namespace Kernel {
 
-TimeService::TimeService(Device::TimeProvider *timeProvider, Device::DateProvider *dateProvider) : timeProvider(timeProvider), dateProvider(dateProvider) {
-    SystemCall::registerSystemCall(Util::System::GET_SYSTEM_TIME, [](uint32_t paramCount, va_list arguments) -> bool {
+TimeService::TimeService(Device::WaitTimer *waitTimer, Device::TimeProvider *timeProvider, Device::DateProvider *dateProvider) : waitTimer(waitTimer), timeProvider(timeProvider), dateProvider(dateProvider) {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::GET_SYSTEM_TIME, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
             return false;
         }
 
-        auto &timeService = System::getService<TimeService>();
+        auto &timeService = Service::getService<TimeService>();
         auto &targetTime = *va_arg(arguments, Util::Time::Timestamp*);
 
         targetTime = timeService.getSystemTime();
         return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::GET_CURRENT_DATE, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::GET_CURRENT_DATE, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
             return false;
         }
 
-        auto &timeService = System::getService<TimeService>();
+        auto &timeService = Service::getService<TimeService>();
         auto &targetDate = *va_arg(arguments, Util::Time::Date*);
 
         targetDate = timeService.getCurrentDate();
         return true;
     });
 
-    SystemCall::registerSystemCall(Util::System::SET_DATE, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::SET_DATE, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
             return false;
         }
 
-        auto &timeService = System::getService<TimeService>();
+        auto &timeService = Service::getService<TimeService>();
         auto &date = *va_arg(arguments, Util::Time::Date*);
 
         timeService.setCurrentDate(date);
         return true;
     });
-}
-
-TimeService::~TimeService() {
-    delete timeProvider;
-    delete dateProvider;
 }
 
 Util::Time::Timestamp TimeService::getSystemTime() const {
@@ -100,15 +97,7 @@ void TimeService::setCurrentDate(const Util::Time::Date &date) {
 }
 
 void TimeService::busyWait(const Util::Time::Timestamp &time) const {
-    auto end = getSystemTime().toMilliseconds() + time.toMilliseconds();
-
-    while (getSystemTime().toMilliseconds() < end) {
-        System::getService<SchedulerService>().yield();
-    }
-}
-
-Device::Rtc *TimeService::getRtc() {
-    return reinterpret_cast<Device::Rtc *>(dateProvider);
+    waitTimer->wait(time);
 }
 
 }

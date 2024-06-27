@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -18,7 +18,7 @@
 #ifndef HHUOS_PROCESSDRIVER_H
 #define HHUOS_PROCESSDRIVER_H
 
-#include "filesystem/core/VirtualDriver.h"
+#include "filesystem/VirtualDriver.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/file/File.h"
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -18,21 +18,60 @@
 #include "lib/util/base/Address.h"
 #include "LinearFrameBufferNode.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
+#include "kernel/service/Service.h"
+#include "kernel/service/MemoryService.h"
+#include "device/graphic/VesaBiosExtensions.h"
 
 namespace Device::Graphic {
 
-LinearFrameBufferNode::LinearFrameBufferNode(const Util::String &name, Util::Graphic::LinearFrameBuffer *lfb) :
-        Filesystem::Memory::StringNode(name),
-        addressBuffer(Util::String::format("%u", lfb->getBuffer().get())),
-        resolutionBuffer(Util::String::format("%ux%u@%u", lfb->getResolutionX(), lfb->getResolutionY(), lfb->getColorDepth())),
-        pitchBuffer(Util::String::format("%u", lfb->getPitch())) {}
+LinearFrameBufferNode::LinearFrameBufferNode(const Util::String &name, const Util::Graphic::LinearFrameBuffer &lfb, const VesaBiosExtensions *vbe) : Filesystem::Memory::StringNode(name),
+        physicalAddress(Kernel::Service::getService<Kernel::MemoryService>().getPhysicalAddress(reinterpret_cast<void*>(lfb.getBuffer().get()))),
+        resolutionX(lfb.getResolutionX()), resolutionY(lfb.getResolutionY()), colorDepth(lfb.getColorDepth()), pitch(lfb.getPitch()), vbe(vbe) {}
 
 LinearFrameBufferNode::~LinearFrameBufferNode() {
-    delete lfb;
+    delete vbe;
 }
 
 Util::String LinearFrameBufferNode::getString() {
-    return addressBuffer + "\n" + resolutionBuffer + "\n" + pitchBuffer + "\n";
+    auto buffer = Util::String::format("%u\n%ux%u@%u\n%u\n", physicalAddress, resolutionX, resolutionY, colorDepth, pitch);
+
+    if (vbe != nullptr) {
+        const auto &deviceInfo = vbe->getDeviceInfo();
+
+        buffer += Util::String::format("OEM string: %s\n", deviceInfo.getOemString());
+        if (deviceInfo.vbeVersion >= 0x0200) {
+            buffer += Util::String::format("Vendor: %s\nDevice: %s\nRevision: %s\nSupported modes:\n", deviceInfo.getVendorName(), deviceInfo.getProductName(), deviceInfo.getProductRevision());
+        }
+
+        for (const auto &mode : vbe->getSupportedModes()) {
+            buffer += Util::String::format("%ux%u@%u\n", mode.resolutionX, mode.resolutionY, mode.colorDepth);
+        }
+    }
+
+    return buffer;
+}
+
+bool LinearFrameBufferNode::control(uint32_t request, const Util::Array<uint32_t> &parameters) {
+    switch (request) {
+        case Util::Graphic::LinearFrameBuffer::SET_RESOLUTION: {
+            if (vbe == nullptr || parameters.length() < 3) {
+                return false;
+            }
+
+            const auto &mode = vbe->findMode(parameters[0], parameters[1], parameters[2]);
+            Device::Graphic::VesaBiosExtensions::setMode(mode.modeNumber);
+
+            physicalAddress = reinterpret_cast<void*>(mode.physicalAddress);
+            resolutionX = mode.resolutionX;
+            resolutionY = mode.resolutionY;
+            colorDepth = mode.colorDepth;
+            pitch = mode.pitch;
+
+            return true;
+        }
+        default:
+            return false;
+    }
 }
 
 }

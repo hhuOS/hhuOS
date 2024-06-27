@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -19,10 +19,12 @@
 
 #include "lib/util/collection/Array.h"
 #include "lib/util/game/2d/Sprite.h"
+#include "lib/util/base/String.h"
 
 namespace Util {
 namespace Game {
 class Graphics;
+
 namespace D2 {
 class CollisionEvent;
 class TranslationEvent;
@@ -35,18 +37,18 @@ DemoSprite::DemoSprite(const Util::Math::Vector2D &position, double size, double
 
 void DemoSprite::initialize() {
     animation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
-        Util::Game::D2::Sprite("/initrd/dino/run1.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/initrd/dino/run2.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/initrd/dino/run3.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/initrd/dino/run4.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/initrd/dino/run5.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/initrd/dino/run6.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/initrd/dino/dash1.bmp", 0.24, 0.2),
-        Util::Game::D2::Sprite("/initrd/dino/dash2.bmp", 0.24, 0.2),
-        Util::Game::D2::Sprite("/initrd/dino/dash3.bmp", 0.24, 0.2),
-        Util::Game::D2::Sprite("/initrd/dino/dash4.bmp", 0.24, 0.2),
-        Util::Game::D2::Sprite("/initrd/dino/dash5.bmp", 0.24, 0.2),
-        Util::Game::D2::Sprite("/initrd/dino/dash6.bmp", 0.24, 0.2)}), 1.0);
+        Util::Game::D2::Sprite("/user/dino/run1.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/run2.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/run3.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/run4.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/run5.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/run6.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/dash1.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/user/dino/dash2.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/user/dino/dash3.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/user/dino/dash4.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/user/dino/dash5.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/user/dino/dash6.bmp", 0.24, 0.2)}), 1.0);
 
     if (flipX) {
         animation.flipX();

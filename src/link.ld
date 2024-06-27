@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -20,11 +20,11 @@ OUTPUT_FORMAT(elf32-i386)
 
 SECTIONS
 {
-    . = 0xC0100000;     /* Virtual start address */
+    . = 0x00100000;     /* Virtual start address */
 
     ___KERNEL_DATA_START__ = .;
 
-    .text ALIGN (4K) : AT (ADDR(.text) - 0xC0000000)
+    .text ALIGN (4K) :
     {
         ___WRITE_PROTECTED_START__ = .;
         ___TEXT_START__ = .;
@@ -33,7 +33,7 @@ SECTIONS
         ___TEXT_END__   = .;
     }
 
-    .rodata ALIGN (4K) : AT(ADDR(.rodata) - 0xC0000000)
+    .rodata ALIGN (4K) :
     {
         ___RODATA_START__ = .;
         *(.rodata)
@@ -41,7 +41,7 @@ SECTIONS
         ___RODATA_END__ = .;
     }
     
-    .init_array ALIGN (4K) : AT (ADDR(.init_array) - 0xC0000000)
+    .init_array ALIGN (4K) :
     {
        ___INIT_ARRAY_START__ = .;
        KEEP (*(SORT(.init_array.*)))
@@ -51,7 +51,7 @@ SECTIONS
        ___INIT_ARRAY_END__ = .;
     }
 
-    .fini_array ALIGN (4K) : AT (ADDR(.fini_array) - 0xC0000000)
+    .fini_array ALIGN (4K) :
     {
        ___FINI_ARRAY_START__ = .;
        KEEP (*(SORT(.fini_array.*)))
@@ -63,7 +63,7 @@ SECTIONS
     
     ___WRITE_PROTECTED_END__ = ALIGN(4K);
 
-   .data ALIGN (4K) : AT (ADDR(.data) - 0xC0000000)
+   .data ALIGN (4K) :
     {
         ___DATA_START__ = .;
         *(.data)
@@ -71,7 +71,7 @@ SECTIONS
         ___DATA_END__   = .;
     }
 
-    .bss ALIGN (4K) : AT (ADDR(.bss) - 0xC0000000)
+    .bss ALIGN (4K) :
     {
         ___BSS_START__  = .;
         *(.bss)

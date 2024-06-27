@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -23,6 +23,8 @@
 
 #include "lib/util/io/stream/InputStream.h" // IWYU pragma: keep
 #include "lib/util/io/stream/PrintStream.h" // IWYU pragma: keep
+#include "FreeListMemoryManager.h"
+#include "lib/util/io/file/elf/File.h"
 
 namespace Util {
 namespace Io {
@@ -45,6 +47,7 @@ public:
         JOIN_THREAD,
         CREATE_THREAD,
         EXIT_THREAD,
+        KILL_THREAD,
         JOIN_PROCESS,
         KILL_PROCESS,
         SLEEP,
@@ -56,6 +59,7 @@ public:
         DELETE_FILE,
         OPEN_FILE,
         CLOSE_FILE,
+        CONTROL_FILE_DESCRIPTOR,
         FILE_TYPE,
         FILE_LENGTH,
         FILE_CHILDREN,
@@ -71,6 +75,13 @@ public:
         SET_DATE,
         GET_CURRENT_DATE,
         SHUTDOWN
+    };
+
+    struct AddressSpaceHeader {
+        FreeListMemoryManager memoryManager;
+        uint32_t symbolTableSize;
+        const Util::Io::Elf::SymbolEntry *symbolTable;
+        const char *stringTable;
     };
 
     /**
@@ -96,15 +107,24 @@ public:
 
     static bool call(Code code, uint32_t paramCount...);
 
+    /**
+     * Print application stack trace.
+     * This only works for user space applications, not for the kernel.
+     * See 'lib/kernel.cpp' and 'kernel/service/InformationService' for kernel stack traces.
+     */
+    static void printStackTrace(const Io::PrintStream &stream, uint32_t minEbp);
+
+    static AddressSpaceHeader& getAddressSpaceHeader();
+
     static Io::InputStream &in;
     static Io::PrintStream out;
     static Io::PrintStream error;
 
-    static const char *errorMessage;
-
 private:
 
     static void call(Code code, bool &result, uint32_t paramCount, va_list args);
+
+    static const char* getSymbolName(uint32_t symbolAddress);
 
     static Io::FileInputStream inStream;
     static Io::BufferedInputStream bufferedInStream;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -24,18 +24,18 @@
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/network/NetworkAddress.h"
-#include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
 #include "kernel/network/NetworkStack.h"
 #include "kernel/network/ip4/Ip4Module.h"
 #include "lib/util/network/ip4/Ip4SubnetAddress.h"
 #include "kernel/network/ip4/Ip4Interface.h"
 #include "lib/util/collection/Iterator.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel::Network::Ip4 {
 
 bool Ip4RoutingModule::addRoute(const Util::Network::Ip4::Ip4Route &route) {
-    auto &ip4Module = System::getService<NetworkService>().getNetworkStack().getIp4Module();
+    auto &ip4Module = Service::getService<NetworkService>().getNetworkStack().getIp4Module();
     if (ip4Module.getTargetInterfaces(route.getSourceAddress()).length() == 0) {
         return false;
     }
@@ -43,7 +43,7 @@ bool Ip4RoutingModule::addRoute(const Util::Network::Ip4::Ip4Route &route) {
     bool ret = false;
     lock.acquire();
 
-    if (route.getAddress().getBitCount() == 0) {
+    if (route.getTargetAddress().getBitCount() == 0) {
         routes.remove(route);
         defaultRoute = route;
         ret = true;
@@ -106,8 +106,6 @@ const Util::Network::Ip4::Ip4Route& Ip4RoutingModule::findRoute(const Util::Netw
 
     lock.acquire();
     for (const auto &route : routes) {
-        auto routeAddress = route.getSourceAddress();
-
         if (anySource || sourceAddress == route.getSourceAddress()) {
             auto subnetAddress = route.getTargetAddress();
             auto prefix = address.compareTo(subnetAddress);

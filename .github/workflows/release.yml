@@ -6,28 +6,34 @@ on:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
+      - uses: olegtarasov/get-tag@v2.1.3
+        id: tag
 
-      - uses: awalsh128/cache-apt-pkgs-action@v1
+      - name: Install dependencies
+        uses: amitie10g/install-package@v1.2.5
         with:
-          packages: cmake make nasm gcc-multilib g++-multilib mtools dosfstools
+          apt: build-essential nasm gcc-multilib g++-multilib cmake xorriso dosfstools mtools unzip wget
 
       - name: Build towboot image
-        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target towboot --type Default && wget -O lvgl-licence.txt https://raw.githubusercontent.com/lvgl/lvgl/master/LICENCE.txt
+        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target towboot --type Default
 
       - name: Build limine image
-        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target limine --type Default && wget -O limine-licence.txt https://raw.githubusercontent.com/limine-bootloader/limine/trunk/LICENSE
+        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target limine --type Default
+
+      - name: Download Limine licence
+        run: wget -O limine-licence.txt https://raw.githubusercontent.com/limine-bootloader/limine/trunk/COPYING
 
       - name: Create artifact
-        run: tar -czvf hhuOS.tar.gz hhuOS-limine.iso hhuOS-towboot.img hdd0.img floppy0.img run.sh bios/ovmf/build.sh limine-licence.txt lvgl-licence.txt README.md
+        run: tar -czvf hhuOS-${{ steps.tag.outputs.tag }}.tar.gz hhuOS-limine.iso hhuOS-towboot.img hdd0.img floppy0.img run.sh limine-licence.txt README.md
 
       - name: Publish Release
         uses: softprops/action-gh-release@v1
         with:
-          files: hhuOS.tar.gz
+          files: hhuOS-${{ steps.tag.outputs.tag }}.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.PUBLISH_TOKEN }}

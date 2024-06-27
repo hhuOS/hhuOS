@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -20,29 +20,27 @@
 
 #include "Rtl8139.h"
 
-#include "device/pci/Pci.h"
-#include "device/pci/PciDevice.h"
-#include "kernel/system/System.h"
+#include "device/bus/pci/Pci.h"
+#include "device/bus/pci/PciDevice.h"
 #include "kernel/service/NetworkService.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/async/Thread.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/InterruptService.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/Address.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel {
-struct InterruptFrame;
 enum InterruptVector : uint8_t;
+struct InterruptFrame;
 }  // namespace Kernel
 
 namespace Device::Network {
 
-Kernel::Logger Rtl8139::log = Kernel::Logger::get("RTL8139");
-
 Rtl8139::Rtl8139(const PciDevice &pciDevice) : pciDevice(pciDevice) {
-    log.info("Configuring PCI registers");
+    LOG_INFO("Configuring PCI registers");
     uint16_t command = pciDevice.readWord(Pci::COMMAND);
     command |= Pci::BUS_MASTER | Pci::IO_SPACE;
     pciDevice.writeWord(Pci::COMMAND, command);
@@ -50,24 +48,24 @@ Rtl8139::Rtl8139(const PciDevice &pciDevice) : pciDevice(pciDevice) {
     uint16_t ioBaseAddress = pciDevice.readDoubleWord(Pci::BASE_ADDRESS_0) & ~0x0f;
     baseRegister = IoPort(ioBaseAddress);
 
-    log.info("Powering on device");
+    LOG_INFO("Powering on device");
     baseRegister.writeByte(CONFIG_1, 0x00);
 
-    log.info("Performing software reset");
+    LOG_INFO("Performing software reset");
     baseRegister.writeByte(COMMAND, RESET);
     while (baseRegister.readByte(COMMAND) & RESET) {
         Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
     }
 
-    log.info("Masking interrupts");
+    LOG_INFO("Masking interrupts");
     baseRegister.writeWord(INTERRUPT_MASK, RECEIVE_OK | RECEIVE_ERROR | TRANSMIT_OK | TRANSMIT_ERROR);
 
-    log.info("Enabling receiver/transmitter");
+    LOG_INFO("Enabling receiver/transmitter");
     baseRegister.writeByte(COMMAND, ENABLE_RECEIVER | ENABLE_TRANSMITTER);
 
-    log.info("Configuring receive buffer");
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    receiveBuffer = static_cast<uint8_t*>(memoryService.mapIO(BUFFER_SIZE));
+    LOG_INFO("Configuring receive buffer");
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+    receiveBuffer = static_cast<uint8_t*>(memoryService.mapIO(BUFFER_PAGES));
 
     auto physicalReceiveBufferAddress = reinterpret_cast<uint32_t>(memoryService.getPhysicalAddress(receiveBuffer));
     baseRegister.writeDoubleWord(RECEIVE_BUFFER_START, physicalReceiveBufferAddress);
@@ -75,12 +73,12 @@ Rtl8139::Rtl8139(const PciDevice &pciDevice) : pciDevice(pciDevice) {
 }
 
 void Rtl8139::initializeAvailableCards() {
-    auto &networkService = Kernel::System::getService<Kernel::NetworkService>();
+    auto &networkService = Kernel::Service::getService<Kernel::NetworkService>();
     auto devices = Pci::search(VENDOR_ID, DEVICE_ID);
     for (const auto &device : devices) {
         auto *rtl8139 = new Rtl8139(device);
-        rtl8139->plugin();
         networkService.registerNetworkDevice(rtl8139, "eth");
+        rtl8139->plugin();
     }
 }
 
@@ -102,7 +100,7 @@ void Rtl8139::handleOutgoingPacket(const uint8_t *packet, uint32_t length) {
         Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
     }
 
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     auto physicalAddress = memoryService.getPhysicalAddress(const_cast<uint8_t*>(packet));
     setTransmitAddress(physicalAddress);
     setPacketSize(length);
@@ -111,12 +109,12 @@ void Rtl8139::handleOutgoingPacket(const uint8_t *packet, uint32_t length) {
 }
 
 void Rtl8139::plugin() {
-    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     interruptService.allowHardwareInterrupt(pciDevice.getInterruptLine());
     interruptService.assignInterrupt(static_cast<Kernel::InterruptVector>(pciDevice.getInterruptLine() + 32), *this);
 }
 
-void Rtl8139::trigger(const Kernel::InterruptFrame &frame) {
+void Rtl8139::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
     auto interrupt = baseRegister.readWord(INTERRUPT_STATUS);
     if (interrupt & RECEIVE_OK) {
         while (!(baseRegister.readByte(COMMAND) & BUFFER_EMPTY)) {

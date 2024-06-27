@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -22,6 +22,9 @@
 #include "kernel/process/Thread.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/time/Timestamp.h"
+#include "kernel/service/Service.h"
+#include "kernel/service/ProcessService.h"
+#include "kernel/process/Scheduler.h"
 
 namespace Kernel {
 
@@ -47,7 +50,7 @@ void SchedulerCleaner::run() {
     while (true) {
         cleanupThreads();
         cleanupProcesses();
-        Util::Async::Thread::sleep(Util::Time::Timestamp(1, 0));
+        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
     }
 }
 
@@ -58,8 +61,18 @@ void SchedulerCleaner::cleanupProcesses() {
 }
 
 void SchedulerCleaner::cleanupThreads() {
+    auto &scheduler = Service::getService<ProcessService>().getScheduler();
+
     while (threadQueue.size() > 0) {
-        delete threadQueue.poll();
+        auto *thread = threadQueue.poll();
+
+        if (scheduler.getThread(thread->getId())) {
+            // Thread is still inside ready queue -> Wait until the scheduler has finished blocking the thread
+            threadQueue.add(thread);
+            Util::Async::Thread::yield();
+        } else {
+            delete thread;
+        }
     }
 }
 

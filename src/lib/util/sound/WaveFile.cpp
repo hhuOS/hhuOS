@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -17,6 +17,8 @@
 
 #include "WaveFile.h"
 
+#include "lib/util/base/Exception.h"
+
 namespace Util {
 namespace Io {
 class File;
@@ -26,7 +28,10 @@ class File;
 namespace Util::Sound {
 
 WaveFile::WaveFile(const Io::File &file) : Io::FilterInputStream(stream), stream(file) {
-    read(reinterpret_cast<uint8_t*>(&riffChunk), 0, sizeof(RiffChunk));
+    auto readBytes = read(reinterpret_cast<uint8_t*>(&riffChunk), 0, sizeof(RiffChunk));
+    if (readBytes <= 0) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "WaveFile: No 'data' chunk found!");
+    }
     String signature = String(riffChunk.dataChunk.dataSignature);
     if(signature != chunkIDData){
         uint32_t org_size = riffChunk.dataChunk.chunkSize + sizeof(DataChunk);

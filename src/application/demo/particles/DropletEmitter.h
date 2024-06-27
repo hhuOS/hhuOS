@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -21,7 +21,24 @@
 #ifndef HHUOS_DROPLETEMITTER_H
 #define HHUOS_DROPLETEMITTER_H
 
+#include <cstdint>
+
 #include "lib/util/game/2d/particle/SingleTimeEmitter.h"
+#include "lib/util/math/Random.h"
+
+namespace Util {
+namespace Game {
+class Graphics;
+namespace D2 {
+class CollisionEvent;
+class Particle;
+class TranslationEvent;
+}  // namespace D2
+}  // namespace Game
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
 
 class DropletEmitter : public Util::Game::D2::SingleTimeEmitter {
 

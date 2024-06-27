@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The RTL8139 driver is based on a bachelor's thesis, written by Alexander Hansen.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-alhan100
  */
 
 #ifndef HHUOS_RTL8139_H
@@ -21,13 +24,14 @@
 #include <cstdint>
 
 #include "device/network/NetworkDevice.h"
-#include "device/pci/PciDevice.h"
+#include "device/bus/pci/PciDevice.h"
 #include "kernel/interrupt/InterruptHandler.h"
 #include "device/cpu/IoPort.h"
 #include "lib/util/network/MacAddress.h"
+#include "lib/util/base/Constants.h"
 
 namespace Kernel {
-class Logger;
+enum InterruptVector : uint8_t;
 struct InterruptFrame;
 }  // namespace Kernel
 
@@ -62,7 +66,7 @@ public:
 
     void plugin() override;
 
-    void trigger(const Kernel::InterruptFrame &frame) override;
+    void trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) override;
 
 protected:
 
@@ -157,11 +161,10 @@ private:
     uint8_t *receiveBuffer{};
     IoPort baseRegister = IoPort(0x00);
 
-    static Kernel::Logger log;
-
     static const constexpr uint16_t VENDOR_ID = 0x10ec;
     static const constexpr uint16_t DEVICE_ID = 0x8139;
     static const constexpr uint32_t BUFFER_SIZE = 8 * 1024 + 16 + 1500;
+    static const constexpr uint32_t BUFFER_PAGES = BUFFER_SIZE % Util::PAGESIZE == 0 ? (BUFFER_SIZE / Util::PAGESIZE) : (BUFFER_SIZE / Util::PAGESIZE + 1);
     static const constexpr uint8_t TRANSMIT_DESCRIPTOR_COUNT = 4;
 };
 

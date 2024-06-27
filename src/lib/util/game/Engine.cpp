@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -36,7 +36,6 @@
 #include "GameManager.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/math/Vector2D.h"
-#include "lib/util/base/HeapMemoryManager.h"
 #include "lib/util/base/Constants.h"
 #include "lib/util/base/String.h"
 #include "lib/util/game/Camera.h"
@@ -44,6 +43,9 @@
 #include "lib/util/base/Address.h"
 #include "lib/util/io/key/MouseDecoder.h"
 #include "lib/util/math/Vector3D.h"
+#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
+#include "lib/util/graphic/Font.h"
+#include "lib/util/base/FreeListMemoryManager.h"
 
 namespace Util::Game {
 
@@ -53,27 +55,38 @@ Engine::Engine(const Util::Graphic::LinearFrameBuffer &lfb, const uint8_t target
                                                      lfb.getResolutionY() > lfb.getResolutionX() ? (double) lfb.getResolutionY() / lfb.getResolutionX() : 1);
     GameManager::transformation = (lfb.getResolutionX() > lfb.getResolutionY() ? lfb.getResolutionY() : lfb.getResolutionX()) / 2;
     GameManager::game = &game;
+
+    auto mouseFile = Io::File("/device/mouse");
+    if (mouseFile.exists()) {
+        mouseInputStream = new Util::Io::FileInputStream(mouseFile);
+    }
+}
+
+Engine::~Engine() {
+    delete mouseInputStream;
 }
 
 void Engine::run() {
     const auto delta = 1.0 / targetFrameRate;
-    const auto deltaMilliseconds = static_cast<uint32_t>(delta * 1000);
+    const auto deltaMicroseconds = static_cast<uint64_t>(delta * 1000000);
 
     Graphic::Ansi::prepareGraphicalApplication(true);
     initializeNextScene();
 
-    Async::Thread::createThread("Key-Listener", new KeyListenerRunnable(*this));
-    Async::Thread::createThread("Mouse-Listener", new MouseListenerRunnable(*this));
+    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
+    mouseInputStream->setAccessMode(Io::File::NON_BLOCKING);
 
     while (game.isRunning()) {
-        updateLock.acquire();
         if (game.sceneSwitched) {
             initializeNextScene();
         }
 
         statistics.startFrameTime();
         statistics.startUpdateTime();
-        double frameTime = statistics.getLastFrameTime() / 1000.0;
+        double frameTime = static_cast<double>(statistics.getLastFrameTime().toMicroseconds()) / 1000000;
+
+        checkKeyboard();
+        checkMouse();
 
         graphics.update();
 
@@ -84,7 +97,6 @@ void Engine::run() {
         scene.applyChanges();
         updateStatus();
         statistics.stopUpdateTimeTime();
-        updateLock.release();
 
         statistics.startDrawTime();
         graphics.resetCounters();
@@ -94,18 +106,14 @@ void Engine::run() {
         statistics.stopDrawTime();
 
         statistics.startIdleTime();
-        const auto drawTime = statistics.getLastDrawTime();
-        const auto updateTime = statistics.getLastUpdateTime();
-        if (drawTime + updateTime < deltaMilliseconds) {
-            Async::Thread::sleep(Time::Timestamp::ofMilliseconds(deltaMilliseconds - (drawTime + updateTime)));
+        const auto renderTime = statistics.getLastDrawTime() + statistics.getLastUpdateTime();
+        if (renderTime.toMicroseconds() < deltaMicroseconds) {
+            Async::Thread::sleep(Time::Timestamp::ofMicroseconds(deltaMicroseconds - renderTime.toMicroseconds()));
         }
         statistics.stopIdleTime();
 
-        statistics.incFrames();
         statistics.stopFrameTime();
     }
-
-    Graphic::Ansi::cleanupGraphicalApplication();
 }
 
 void Engine::initializeNextScene() {
@@ -114,11 +122,11 @@ void Engine::initializeNextScene() {
     }
 
     auto resolution = GameManager::getAbsoluteResolution();
-    auto stringPosition = Math::Vector2D((resolution.getX() - Util::Address<uint32_t>(LOADING).stringLength() * graphics.getCharWidth()) / 2.0, resolution.getY() / 2.0);
+    auto stringPosition = Math::Vector2D((resolution.getX() - Util::Address<uint32_t>(LOADING).stringLength() * loadingFont.getCharWidth()) / 2.0, resolution.getY() / 2.0);
 
     graphics.clear();
     graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawString(stringPosition, LOADING);
+    graphics.drawString(loadingFont, stringPosition, LOADING);
     graphics.show();
 
     game.initializeNextScene(graphics);
@@ -127,104 +135,89 @@ void Engine::initializeNextScene() {
 
 void Engine::updateStatus() {
     statusUpdateTimer += statistics.getLastFrameTime();
-    if (statusUpdateTimer > 1000) {
+    if (statusUpdateTimer > Time::Timestamp::ofSeconds(1)) {
         status = statistics.gather();
-        statusUpdateTimer = 0;
+        statusUpdateTimer.reset();
     }
 }
 
 void Engine::drawStatus() {
-    auto charHeight = graphics.getCharHeightSmall() + 2;
+    auto charHeight = statisticsFont.getCharHeight() + 2;
     auto color = graphics.getColor();
 
-    const auto &memoryManager = *reinterpret_cast<HeapMemoryManager*>(USER_SPACE_MEMORY_MANAGER_ADDRESS);
+    const auto &memoryManager = Util::System::getAddressSpaceHeader().memoryManager;
     auto heapUsed = (memoryManager.getTotalMemory() - memoryManager.getFreeMemory());
     auto heapUsedM = heapUsed / 1000 / 1000;
     auto heapUsedK = (heapUsed - heapUsedM * 1000 * 1000) / 1000;
 
     graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawStringSmall(Math::Vector2D(10, 10), String::format("FPS: %u", status.fps));
-    graphics.drawStringSmall(Math::Vector2D(10, 10 + charHeight), String::format("D: %ums | U: %ums | I: %ums", status.drawTime, status.updateTime, status.idleTime));
-    graphics.drawStringSmall(Math::Vector2D(10, 10 + charHeight * 2), String::format("Objects: %u | Edges: %u/%u", game.getCurrentScene().getObjectCount(), graphics.drawnEdgeCounter, graphics.edgeCounter));
-    graphics.drawStringSmall(Math::Vector2D(10, 10 + charHeight * 3), String::format("Heap used: %u.%03u MB", heapUsedM, heapUsedK));
+    graphics.drawString(statisticsFont, Math::Vector2D(10, 10), String::format("FPS: %u", status.framesPerSecond));
+    graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight), String::format("D: %ums | U: %ums | I: %ums", static_cast<uint32_t>(status.drawTime.toMilliseconds()), static_cast<uint32_t>(status.updateTime.toMilliseconds()), static_cast<uint32_t>(status.idleTime.toMilliseconds())));
+    graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight * 2), String::format("Objects: %u | Edges: %u/%u", game.getCurrentScene().getObjectCount(), graphics.drawnEdgeCounter, graphics.edgeCounter));
+    graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight * 3), String::format("Heap used: %u.%03u MB", heapUsedM, heapUsedK));
+    graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight * 4), String::format("Resolution: %ux%u@%u", graphics.lfb.getResolutionX(), graphics.lfb.getResolutionY(), graphics.lfb.getColorDepth()));
     graphics.setColor(color);
 }
 
-Engine::KeyListenerRunnable::KeyListenerRunnable(Engine &engine) : engine(engine) {}
-
-void Engine::KeyListenerRunnable::run() {
-    auto keyDecoder = Io::KeyDecoder();
+void Engine::checkKeyboard() {
     int16_t scancode = Util::System::in.read();
-
-    while (engine.game.isRunning() && scancode != -1) {
+    while (scancode >= 0) {
         if (keyDecoder.parseScancode(scancode)) {
             auto key = keyDecoder.getCurrentKey();
-            auto &scene = engine.game.getCurrentScene();
+            auto &scene = game.getCurrentScene();
 
-                engine.updateLock.acquire();
-                switch (key.getScancode()) {
-                    case Io::Key::F1 :
-                        if (key.isPressed()) engine.showStatus = !engine.showStatus;
-                        break;
-                    default:
-                        if (scene.keyListener != nullptr) {
-                            key.isPressed() ? scene.keyListener->keyPressed(key) : scene.keyListener->keyReleased(key);
-                        }
-                }
-                engine.updateLock.release();
+            switch (key.getScancode()) {
+                case Io::Key::F1 :
+                    if (key.isPressed()) showStatus = !showStatus;
+                    break;
+                default:
+                    if (scene.keyListener != nullptr) {
+                        key.isPressed() ? scene.keyListener->keyPressed(key) : scene.keyListener->keyReleased(key);
+                    }
+            }
+        }
+
+        scancode = Util::System::in.read();
+    }
+}
+
+void Engine::checkMouse() {
+    int16_t value = mouseInputStream->read();
+    while (value >= 0) {
+        mouseValues[mouseValueIndex++] = value;
+        if (mouseValueIndex == 4) {
+            auto mouseUpdate = Io::MouseDecoder::decode(mouseValues);
+
+            auto &scene = game.getCurrentScene();
+            if (scene.mouseListener == nullptr) {
+                continue;
             }
 
-        scancode = System::in.read();
+            checkMouseKey(Io::Mouse::LEFT_BUTTON, lastMouseButtonState, mouseUpdate.buttons);
+            checkMouseKey(Io::Mouse::RIGHT_BUTTON, lastMouseButtonState, mouseUpdate.buttons);
+            checkMouseKey(Io::Mouse::MIDDLE_BUTTON, lastMouseButtonState, mouseUpdate.buttons);
+            checkMouseKey(Io::Mouse::BUTTON_4, lastMouseButtonState, mouseUpdate.buttons);
+            checkMouseKey(Io::Mouse::BUTTON_5, lastMouseButtonState, mouseUpdate.buttons);
+            lastMouseButtonState = mouseUpdate.buttons;
+
+            if (mouseUpdate.xMovement != 0 || mouseUpdate.yMovement != 0) {
+                scene.mouseListener->mouseMoved(Util::Math::Vector2D(mouseUpdate.xMovement / static_cast<double>(UINT8_MAX), mouseUpdate.yMovement / static_cast<double>(UINT8_MAX)));
+            }
+
+            if (mouseUpdate.scroll != 0) {
+                scene.mouseListener->mouseScrolled(mouseUpdate.scroll);
+            }
+
+            Util::Address<uint32_t>(mouseValues).setRange(0, 4);
+            mouseValueIndex = 0;
+        }
+
+        value = mouseInputStream->read();
     }
 }
 
-Engine::MouseListenerRunnable::MouseListenerRunnable(Engine &engine) : engine(engine) {}
-
-void Engine::MouseListenerRunnable::run() {
-    auto file = Io::File("/device/mouse");
-    if (!file.exists()) {
-        return;
-    }
-
-    uint8_t values[4]{};
-    uint8_t lastButtons = 0;
-
-    auto stream = Io::FileInputStream(file);
-    while (engine.game.isRunning()) {
-        values[0] = stream.read();
-        values[1] = stream.read();
-        values[2] = stream.read();
-        values[3] = stream.read();
-
-        auto mouseUpdate = Io::MouseDecoder::decode(values);
-
-        auto &scene = engine.game.getCurrentScene();
-        if (scene.mouseListener == nullptr) {
-            continue;
-        }
-
-        engine.updateLock.acquire();
-        checkKey(Io::Mouse::LEFT_BUTTON, lastButtons, mouseUpdate.buttons);
-        checkKey(Io::Mouse::RIGHT_BUTTON, lastButtons, mouseUpdate.buttons);
-        checkKey(Io::Mouse::MIDDLE_BUTTON, lastButtons, mouseUpdate.buttons);
-        checkKey(Io::Mouse::BUTTON_4, lastButtons, mouseUpdate.buttons);
-        checkKey(Io::Mouse::BUTTON_5, lastButtons, mouseUpdate.buttons);
-        lastButtons = mouseUpdate.buttons;
-
-        if (mouseUpdate.xMovement != 0 || mouseUpdate.yMovement != 0) {
-            scene.mouseListener->mouseMoved(Util::Math::Vector2D(mouseUpdate.xMovement / static_cast<double>(UINT8_MAX), mouseUpdate.yMovement / static_cast<double>(UINT8_MAX)));
-        }
-
-        if (mouseUpdate.scroll != 0) {
-            scene.mouseListener->mouseScrolled(mouseUpdate.scroll);
-        }
-
-        engine.updateLock.release();
-    }
-}
-
-void Engine::MouseListenerRunnable::checkKey(Io::Mouse::Button button, uint8_t lastButtonState, uint8_t currentButtonState) {
-    auto &scene = engine.game.getCurrentScene();
+void Engine::checkMouseKey(Io::Mouse::Button button, uint8_t lastButtonState, uint8_t currentButtonState) {
+    auto &scene = game.getCurrentScene();
     if (!(lastButtonState & button) && (currentButtonState & button)) {
         scene.mouseListener->buttonPressed(button);
     } else if ((lastButtonState & button) && !(currentButtonState & button)) {

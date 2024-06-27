@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -19,17 +19,32 @@
  */
 
 #include "RainEmitter.h"
+
 #include "lib/util/game/2d/event/TranslationEvent.h"
 #include "lib/util/game/2d/component/LinearMovementComponent.h"
 #include "DropletEmitter.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Scene.h"
+#include "lib/util/base/String.h"
+#include "lib/util/game/2d/collider/RectangleCollider.h"
+#include "lib/util/game/2d/particle/Particle.h"
+#include "lib/util/game/Collider.h"
+#include "lib/util/math/Vector2D.h"
+
+namespace Util {
+namespace Game {
+class Graphics;
+namespace D2 {
+class CollisionEvent;
+}  // namespace D2
+}  // namespace Game
+}  // namespace Util
 
 RainEmitter::RainEmitter(const Util::Math::Vector2D &position) : Util::Game::D2::Emitter(TAG, PARTICLE_TAG, position, -1) {}
 
 void RainEmitter::initialize() {
     Emitter::initialize();
-    cloudSprite = Util::Game::D2::Sprite("/initrd/dino/cloud3.bmp", 0.6, 0.15);
+    cloudSprite = Util::Game::D2::Sprite("/user/dino/cloud3.bmp", 0.6, 0.15);
 
     setVelocityX(SPEED);
     setEmissionTime(0.2);
@@ -60,7 +75,7 @@ void RainEmitter::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
 void RainEmitter::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
 
 void RainEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
-    particle.setSprite(Util::Game::D2::Sprite("/initrd/demo/raindrop.bmp", 0.005, 0.03));
+    particle.setSprite(Util::Game::D2::Sprite("/user/demo/raindrop.bmp", 0.005, 0.03));
     particle.setPosition(getPosition() + Util::Math::Vector2D(random.nextRandomNumber() * 0.5, 0));
     particle.setVelocity(Util::Math::Vector2D(0, -0.8));
     particle.setTimeToLive(-1);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -14,10 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
- * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The UDP/IP stack is based on a bachelor's thesis, written by Hannes Feil.
  */
 
-#include "kernel/system/System.h"
+
 #include "kernel/service/NetworkService.h"
 #include "NetworkDevice.h"
 #include "PacketReader.h"
@@ -26,13 +26,14 @@
 #include "kernel/network/NetworkStack.h"
 #include "kernel/network/ethernet/EthernetModule.h"
 #include "kernel/network/NetworkModule.h"
+#include "kernel/service/Service.h"
 
 namespace Device::Network {
 
 PacketReader::PacketReader(Device::Network::NetworkDevice &networkDevice) : networkDevice(networkDevice) {}
 
 void PacketReader::run() {
-    auto &ethernetModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getEthernetModule();
+    auto &ethernetModule = Kernel::Service::getService<Kernel::NetworkService>().getNetworkStack().getEthernetModule();
 
     while (true) {
         const auto &packet = networkDevice.getNextIncomingPacket();

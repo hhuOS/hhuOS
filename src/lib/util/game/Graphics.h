@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -33,7 +33,6 @@
 #include "lib/util/graphic/LineDrawer.h"
 #include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/graphic/Colors.h"
-#include "lib/util/graphic/Fonts.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/PixelDrawer.h"
@@ -95,13 +94,9 @@ public:
 
     void fillSquare(const Math::Vector2D &position, double size) const;
 
-    void drawString(const Math::Vector2D &position, const char *string) const;
+    void drawString(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const;
 
-    void drawString(const Math::Vector2D &position, const String &string) const;
-
-    void drawStringSmall(const Math::Vector2D &position, const char *string) const;
-
-    void drawStringSmall(const Math::Vector2D &position, const String &string) const;
+    void drawString(const Graphic::Font &font, const Math::Vector2D &position, const String &string) const;
 
     /***** 2D drawing functions, respecting the camera position *****/
 
@@ -117,13 +112,9 @@ public:
 
     void fillRectangle2D(const Math::Vector2D &position, double width, double height) const;
 
-    void drawString2D(const Math::Vector2D &position, const char *string) const;
+    void drawString2D(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const;
 
-    void drawString2D(const Math::Vector2D &position, const String &string) const;
-
-    void drawStringSmall2D(const Math::Vector2D &position, const char *string) const;
-
-    void drawStringSmall2D(const Math::Vector2D &position, const String &string) const;
+    void drawString2D(const Graphic::Font &font, const Math::Vector2D &position, const String &string) const;
 
     void drawImage2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX = false, double alpha = 1, const Math::Vector2D &scale = Util::Math::Vector2D(1, 1), double rotationAngle = 0) const;
 
@@ -135,16 +126,7 @@ public:
 
     void drawModel(const Array<Math::Vector3D> &vertices, const Array<Math::Vector2D> &edges);
 
-
     /***** Miscellaneous *****/
-
-    [[nodiscard]] uint8_t getCharWidth() const;
-
-    [[nodiscard]] uint8_t getCharHeight() const;
-
-    [[nodiscard]] uint8_t getCharWidthSmall() const;
-
-    [[nodiscard]] uint8_t getCharHeightSmall() const;
 
     void clear(const Graphic::Color &color = Util::Graphic::Colors::BLACK);
 
@@ -161,10 +143,6 @@ public:
     void clearBackground();
 
 private:
-
-    void drawString(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const;
-
-    void drawString2D(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const;
 
     void drawImageDirect2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, double alpha) const;
 
@@ -186,9 +164,6 @@ private:
     const uint16_t transformation;
     const uint16_t offsetX;
     const uint16_t offsetY;
-
-    const Graphic::Font &font = Graphic::Fonts::TERMINAL_FONT;
-    const Graphic::Font &fontSmall = Graphic::Fonts::TERMINAL_FONT_SMALL;
 
     Math::Vector3D cameraPosition{};
     Math::Vector3D cameraRotation{};

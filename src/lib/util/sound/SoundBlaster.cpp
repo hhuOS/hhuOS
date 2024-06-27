@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -24,7 +24,7 @@ namespace Util::Sound {
 Sound::SoundBlaster::SoundBlaster(const Io::File &soundBlasterFile) : soundBlasterFile(soundBlasterFile), stream(soundBlasterFile) {}
 
 bool SoundBlaster::setAudioParameters(uint32_t sampleRate, uint8_t channels, uint8_t bitsPerSample) {
-    return soundBlasterFile.control(Util::Sound::SoundBlaster::SET_AUDIO_PARAMETERS, Util::Array<uint32_t>({sampleRate, channels, bitsPerSample}));
+    return soundBlasterFile.controlFile(Util::Sound::SoundBlaster::SET_AUDIO_PARAMETERS, Util::Array<uint32_t>({sampleRate, channels, bitsPerSample}));
 }
 
 void Sound::SoundBlaster::play(const uint8_t *data, uint32_t size) {

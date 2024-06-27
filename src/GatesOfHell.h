@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -18,9 +18,16 @@
 #ifndef __KernelEntry_include__
 #define __KernelEntry_include__
 
+#include <cstdint>
+
+#include "kernel/memory/Paging.h"
+
 namespace Kernel {
-class Logger;
+class Multiboot;
 }  // namespace Kernel
+namespace Util {
+class HeapMemoryManager;
+}  // namespace Util
 
 /**
  * Represents the entry point for the operating system.
@@ -54,45 +61,17 @@ public:
      * Entry point for the operating system.
      * This method is invoked by the main() method, after boot strapping process is finished an paging is initializeAvailableControllers.
      */
-    [[noreturn]] static void enter();
+    [[noreturn]] static void enter(uint32_t multibootMagic, const Kernel::Multiboot *multiboot);
+
+    static uint32_t createInitialMapping(Kernel::Paging::Table &pageDirectory, Kernel::Paging::Table *pageTableMemory, uint32_t physicalStartAddress, uint32_t virtualStartAddress, uint32_t pageCount);
+
+    static Util::HeapMemoryManager& getKernelHeap();
+
+    static bool isKernelHeapInitialized();
 
 private:
 
-    static void printMultibootInformation();
-
-    static void printCpuInformation();
-
-    static void printAcpiInformation();
-
-    static void printSmBiosInformation();
-
-    static void enablePortLogging();
-
-    static void initializeFilesystem();
-
-    static void initializePs2Devices();
-
-    static void initializePorts();
-
-    static void initializeTerminal();
-
-    static void initializePowerManagement();
-
-    static void initializeStorage();
-
-    static void initializeNetwork();
-
-    static void initializeSound();
-
-    static void initializeUsb();
-
-    static void mountDevices();
-
-    static void printBanner();
-
-    static void printDefaultBanner();
-
-    static Kernel::Logger log;
+    static Util::HeapMemoryManager *kernelHeap;
 };
 
 

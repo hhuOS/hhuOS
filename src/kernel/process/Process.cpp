@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -15,16 +15,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/system/System.h"
+
 #include "Process.h"
-#include "kernel/paging/VirtualAddressSpace.h"
+
+#include "kernel/memory/VirtualAddressSpace.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/MemoryService.h"
-#include "kernel/service/SchedulerService.h"
 #include "lib/util/async/IdGenerator.h"
 #include "lib/util/collection/Iterator.h"
+#include "kernel/service/Service.h"
+#include "kernel/service/ProcessService.h"
+#include "kernel/process/Scheduler.h"
 
 namespace Kernel {
+class FileDescriptorManager;
 
 Util::Async::IdGenerator<uint32_t> Process::idGenerator;
 
@@ -32,7 +36,7 @@ Process::Process(VirtualAddressSpace &addressSpace, const Util::String &name, co
         id(idGenerator.next()), name(name), addressSpace(addressSpace), workingDirectory(workingDirectory) {}
 
 Process::~Process() {
-    Kernel::System::getService<Kernel::MemoryService>().removeAddressSpace(addressSpace);
+    Kernel::Service::getService<Kernel::MemoryService>().removeAddressSpace(addressSpace);
 }
 
 bool Process::operator==(const Process &other) const {
@@ -99,13 +103,13 @@ void Process::setMainThread(Thread &thread) {
 }
 
 void Process::join() {
-    auto &schedulerService = System::getService<Kernel::SchedulerService>();
+    auto &scheduler = Service::getService<ProcessService>().getScheduler();
     while (mainThread == nullptr) {
         if (finished) {
             return;
         }
 
-        schedulerService.yield();
+        scheduler.yield();
     }
 
     mainThread->join();
@@ -128,12 +132,12 @@ void Process::removeThread(Thread &thread) {
 }
 
 void Process::killAllThreadsButCurrent() {
-    auto &schedulerService = System::getService<SchedulerService>();
-    auto currentThreadId = schedulerService.getCurrentThread().getId();
+    auto &scheduler = Service::getService<ProcessService>().getScheduler();
+    auto currentThreadId = scheduler.getCurrentThread().getId();
 
     for (auto *thread : threads) {
         if (thread->getId() != currentThreadId) {
-            schedulerService.killWithoutLock(*thread);
+            scheduler.kill(*thread);
         }
     }
 }

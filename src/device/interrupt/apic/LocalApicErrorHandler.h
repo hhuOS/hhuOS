@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -21,9 +21,12 @@
 #ifndef HHUOS_LOCALAPICERRORHANDLER_H
 #define HHUOS_LOCALAPICERRORHANDLER_H
 
+#include <cstdint>
+
 #include "kernel/interrupt/InterruptHandler.h"
 
 namespace Kernel {
+enum InterruptVector : uint8_t;
 struct InterruptFrame;
 }  // namespace Kernel
 
@@ -60,7 +63,7 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void trigger(const Kernel::InterruptFrame &frame) override;
+    void trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) override;
 };
 
 }

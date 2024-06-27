@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -19,7 +19,6 @@
 #define HHUOS_DINOGAME_H
 
 #include "lib/util/game/KeyListener.h"
-#include "lib/util/collection/ArrayBlockingQueue.h"
 #include "Ground.h"
 #include "Saw.h"
 #include "Dino.h"
@@ -27,6 +26,7 @@
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/game/2d/Scene.h"
+#include "lib/util/collection/ArrayListBlockingQueue.h"
 
 namespace Util {
 namespace Game {
@@ -73,7 +73,7 @@ private:
 
     Dino *dino = new Dino(Util::Math::Vector2D(-0.8, 0));
 
-    Util::ArrayBlockingQueue<Ground*> ground = Util::ArrayBlockingQueue<Ground*>(4);
+    Util::ArrayListBlockingQueue<Ground*> ground = Util::ArrayListBlockingQueue<Ground*>();
 
     Util::ArrayList<Saw*> obstacles;
     Util::Math::Random random;

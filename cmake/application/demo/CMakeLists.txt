@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -25,6 +25,11 @@ include_directories(${HHUOS_SRC_DIR})
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/demo/demo.cpp
         ${HHUOS_SRC_DIR}/application/demo/ant/Ant.cpp
+        ${HHUOS_SRC_DIR}/application/demo/color/AnsiColorDemo.cpp
+        ${HHUOS_SRC_DIR}/application/demo/fonts/FontDemo.cpp
+        ${HHUOS_SRC_DIR}/application/demo/mouse/Logo.cpp
+        ${HHUOS_SRC_DIR}/application/demo/mouse/MouseCursor.cpp
+        ${HHUOS_SRC_DIR}/application/demo/mouse/MouseDemo.cpp
         ${HHUOS_SRC_DIR}/application/demo/particles/DropletEmitter.cpp
         ${HHUOS_SRC_DIR}/application/demo/particles/Ground.cpp
         ${HHUOS_SRC_DIR}/application/demo/particles/ParticleDemo.cpp
@@ -38,4 +43,4 @@ set(SOURCE_FILES
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} lib.user.crt0 lib.user.base lib.user.game)
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.game)

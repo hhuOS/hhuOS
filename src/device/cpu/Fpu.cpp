@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -15,26 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/service/InterruptService.h"
-#include "kernel/system/System.h"
 #include "lib/util/hardware/CpuId.h"
 #include "Cpu.h"
 #include "Fpu.h"
 #include "device/cpu/Fpu.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "kernel/process/Thread.h"
-#include "kernel/service/SchedulerService.h"
-#include "lib/util/async/Atomic.h"
 #include "lib/util/collection/Array.h"
-#include "kernel/interrupt/InterruptVector.h"
-
-namespace Kernel {
-struct InterruptFrame;
-}  // namespace Kernel
+#include "kernel/service/Service.h"
+#include "kernel/service/ProcessService.h"
+#include "kernel/process/Scheduler.h"
 
 namespace Device {
-
-Kernel::Logger Fpu::log = Kernel::Logger::get("FPU");
 
 Fpu::Fpu(const uint8_t *defaultFpuContext) {
     disarmFpuMonitor();
@@ -48,16 +40,17 @@ Fpu::Fpu(const uint8_t *defaultFpuContext) {
             "eax"
             );
 
-    if (Device::Fpu::isFxsrAvailable()) {
-        log.info("FXSR support detected -> Using FXSAVE/FXRSTR for FPU context switching");
+    if (isFxsrAvailable()) {
+        LOG_INFO("FXSR support detected -> Using FXSAVE/FXRSTR for FPU context switching");
+        fxsrAvailable = true;
 
         auto features = Util::Hardware::CpuId::getCpuFeatures();
         if (features.contains(Util::Hardware::CpuId::MMX)) {
-            log.info("MMX support detected");
+            LOG_INFO("MMX support detected");
         }
 
         if (features.contains(Util::Hardware::CpuId::SSE)) {
-            log.info("SSE support detected -> Activating OSFXSR and OSXMMEXCPT");
+            LOG_INFO("SSE support detected -> Activating OSFXSR and OSXMMEXCPT");
             asm volatile (
                     "mov %%cr4, %%eax;"
                     "or $0x00000600, %%eax;"
@@ -74,7 +67,7 @@ Fpu::Fpu(const uint8_t *defaultFpuContext) {
                 "r"(defaultFpuContext)
                 );
     } else {
-        log.info("FXSR is not supported -> Falling back to FNSAVE/FRSTR for FPU context switching");
+        LOG_INFO("FXSR is not supported -> Falling back to FNSAVE/FRSTR for FPU context switching");
         asm volatile (
                 "fninit;"
                 "fnsave (%0);"
@@ -84,49 +77,17 @@ Fpu::Fpu(const uint8_t *defaultFpuContext) {
     }
 }
 
-void Fpu::plugin() {
-    Kernel::System::getService<Kernel::InterruptService>().assignInterrupt(Kernel::InterruptVector::DEVICE_NOT_AVAILABLE, *this);
-}
-
-void Fpu::trigger(const Kernel::InterruptFrame &frame) {
-    auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
-    schedulerService.lockScheduler();
-
-    // Disable FPU monitoring (will be enabled by scheduler at next thread switch)
-    disarmFpuMonitor();
-
-    auto &currentThread = schedulerService.getCurrentThread();
-    if (&currentThread == lastFpuThread) {
-        schedulerService.unlockScheduler();
-        return;
-    }
-
-    if (fxsrAvailable) {
-        switchContext(currentThread);
-    } else {
-        switchContextFpuOnly(currentThread);
-    }
-
-    lastFpuThread = &currentThread;
-    schedulerService.unlockScheduler();
-}
-
-void Fpu::checkTerminatedThread(Kernel::Thread &thread) {
-    Util::Async::Atomic<uint32_t> wrapper(reinterpret_cast<uint32_t&>(lastFpuThread));
-    wrapper.compareAndSet(reinterpret_cast<uint32_t>(&thread), 0);
-}
-
 bool Fpu::isAvailable() {
     if (Util::Hardware::CpuId::getCpuFeatures().contains(Util::Hardware::CpuId::FPU)) {
         return true;
     }
 
     auto cr0 = Cpu::readCr0();
-    if (cr0.contains(Cpu::X87_FPU_EMULATION)) {
+    if (cr0 & Cpu::X87_FPU_EMULATION) {
         return false;
     }
 
-    if (!cr0.contains(Cpu::EXTENSION_TYPE)) {
+    if (!(cr0 & Cpu::EXTENSION_TYPE)) {
         return false;
     }
 
@@ -154,36 +115,40 @@ bool Fpu::probeFpu() {
     return fpuStatus == 0;
 }
 
-void Fpu::switchContext(Kernel::Thread &currentThread) {
-    if (lastFpuThread != nullptr) {
-        asm volatile (
-                "fxsave (%0)"
+void Fpu::switchContext() const {
+    auto &scheduler = Kernel::Service::getService<Kernel::ProcessService>().getScheduler();
+    auto &currentThread = scheduler.getCurrentThread();
+    auto *lastFpuThread = scheduler.getLastFpuThread();
+
+    if (fxsrAvailable) {
+        if (lastFpuThread != nullptr) {
+            asm volatile (
+                    "fxsave (%0)"
+                    : :
+                    "r"(lastFpuThread->getFpuContext())
+                    );
+        }
+
+        asm volatile(
+                "fxrstor (%0)"
                 : :
-                "r"(lastFpuThread->getFpuContext())
+                "r"(currentThread.getFpuContext())
+                );
+    } else {
+        if (lastFpuThread != nullptr) {
+            asm volatile (
+                    "fnsave (%0)"
+                    : :
+                    "r"(lastFpuThread->getFpuContext())
+                    );
+        }
+
+        asm volatile(
+                "frstor (%0)"
+                : :
+                "r"(currentThread.getFpuContext())
                 );
     }
-
-    asm volatile(
-            "fxrstor (%0)"
-            : :
-            "r"(currentThread.getFpuContext())
-            );
-}
-
-void Fpu::switchContextFpuOnly(Kernel::Thread &currentThread) {
-    if (lastFpuThread != nullptr) {
-        asm volatile (
-                "fnsave (%0)"
-                : :
-                "r"(lastFpuThread->getFpuContext())
-                );
-    }
-
-    asm volatile(
-            "frstor (%0)"
-            : :
-            "r"(currentThread.getFpuContext())
-            );
 }
 
 void Fpu::armFpuMonitor() {

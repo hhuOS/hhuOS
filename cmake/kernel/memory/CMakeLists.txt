@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -18,8 +18,11 @@ cmake_minimum_required(VERSION 3.14)
 
 target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/memory/BitmapMemoryManager.cpp
+        ${HHUOS_SRC_DIR}/kernel/memory/GlobalDescriptorTable.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/MemoryStatusNode.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/PageFrameAllocator.cpp
+        ${HHUOS_SRC_DIR}/kernel/memory/Paging.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/PagingAreaManager.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/PagingAreaManagerRefillRunnable.cpp
-        ${HHUOS_SRC_DIR}/kernel/memory/TableMemoryManager.cpp)
+        ${HHUOS_SRC_DIR}/kernel/memory/TableMemoryManager.cpp
+        ${HHUOS_SRC_DIR}/kernel/memory/VirtualAddressSpace.cpp)

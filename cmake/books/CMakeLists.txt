@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -16,27 +16,29 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-project(books)
+# CMake does not like it, if the project name is part of the target path.
+# So we cannot name the project 'books' while saving files to '${CMAKE_BINARY_DIR}/books/'.
+project(books-gutenberg)
 message(STATUS "Project " ${PROJECT_NAME})
 
-if ($ENV{HHUOS_REDISTRIBUTABLE_BUILD})
-    add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/books/"
-        COMMAND COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/books/")
+add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/books/"
+        COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/books/")
 
+if ($ENV{HHUOS_REDISTRIBUTABLE_BUILD})
     add_custom_target(${PROJECT_NAME} DEPENDS
             "${CMAKE_BINARY_DIR}/books/")
 else()
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/books/alice.txt"
-            COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/books/"
-            COMMAND wget https://www.gutenberg.org/files/11/11-0.txt -O - | iconv -f utf-8 -t ascii//TRANSLIT -o "${CMAKE_BINARY_DIR}/books/alice.txt")
+            COMMAND wget "https://www.gutenberg.org/files/11/11-0.txt" -qO - | recode -f utf-8..ascii > "${CMAKE_BINARY_DIR}/books/alice.txt"
+            DEPENDS "${CMAKE_BINARY_DIR}/books/")
 
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/books/peter_pan.txt"
-            COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/books/"
-            COMMAND wget https://www.gutenberg.org/files/16/16-0.txt -O - | iconv -f utf-8 -t ascii//TRANSLIT -o "${CMAKE_BINARY_DIR}/books/peter_pan.txt")
+            COMMAND wget "https://www.gutenberg.org/files/16/16-0.txt" -qO - | recode -f utf-8..ascii >  "${CMAKE_BINARY_DIR}/books/peter_pan.txt"
+            DEPENDS "${CMAKE_BINARY_DIR}/books/")
 
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/books/sleepy_hollow.txt"
-            COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/books/"
-            COMMAND wget https://www.gutenberg.org/files/41/41-0.txt -O - | iconv -f utf-8 -t ascii//TRANSLIT -o "${CMAKE_BINARY_DIR}/books/sleepy_hollow.txt")
+            COMMAND wget "https://www.gutenberg.org/files/41/41-0.txt" -qO - | recode -f utf-8..ascii >  "${CMAKE_BINARY_DIR}/books/sleepy_hollow.txt"
+            DEPENDS "${CMAKE_BINARY_DIR}/books/")
 
     add_custom_target(${PROJECT_NAME} DEPENDS
             "${CMAKE_BINARY_DIR}/books/alice.txt"

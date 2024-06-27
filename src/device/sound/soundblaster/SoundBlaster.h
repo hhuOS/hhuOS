@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -24,7 +24,7 @@
 #include "device/cpu/IoPort.h"
 
 namespace Kernel {
-class Logger;
+enum InterruptVector : uint8_t;
 struct InterruptFrame;
 }  // namespace Kernel
 
@@ -93,7 +93,7 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void trigger(const Kernel::InterruptFrame &frame) override;
+    void trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) override;
 
     /**
      * Set the audio playback parameters.
@@ -252,13 +252,11 @@ private:
 
     SoundBlasterRunnable *runnable;
 
-    static Kernel::Logger log;
-
     static const constexpr uint16_t FIRST_BASE_ADDRESS = 0x220;
     static const constexpr uint16_t LAST_BASE_ADDRESS = 0x280;
     static const constexpr uint32_t TIMEOUT = 10;
 
-    static const constexpr double AUDIO_BUFFER_SIZE = 0.2;
+    static const constexpr uint32_t AUDIO_BUFFER_SIZE_MS = 200;
 };
 
 }

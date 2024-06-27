@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -35,6 +35,7 @@
 #include "lib/util/math/Vector2D.h"
 #include "application/bug/Explosive.h"
 #include "lib/util/game/2d/Entity.h"
+#include "lib/util/base/String.h"
 
 Bug::Bug(const Util::Math::Vector2D &position, Fleet &fleet) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)), fleet(fleet) {
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
@@ -44,8 +45,8 @@ void Bug::initialize() {
     Explosive::initialize();
 
     animation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
-        Util::Game::D2::Sprite("/initrd/bug/bug1.bmp", SIZE_X, SIZE_Y),
-        Util::Game::D2::Sprite("/initrd/bug/bug2.bmp", SIZE_X, SIZE_Y)}), 0.5);
+        Util::Game::D2::Sprite("/user/bug/bug1.bmp", SIZE_X, SIZE_Y),
+        Util::Game::D2::Sprite("/user/bug/bug2.bmp", SIZE_X, SIZE_Y)}), 0.5);
 }
 
 void Bug::onUpdate(double delta) {

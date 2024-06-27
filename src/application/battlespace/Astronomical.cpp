@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -31,7 +31,7 @@ class Color;
 }  // namespace Graphic
 }  // namespace Util
 
-Astronomical::Astronomical(const Util::String &modelName, const Util::Math::Vector3D &position, double scale, const Util::Math::Vector3D &rotationVector, const Util::Graphic::Color &color) : Util::Game::D3::Model(TAG, Util::String::format("/initrd/battlespace/%s.obj", static_cast<const char*>(modelName)), position, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(scale, scale, scale), color), rotationVector(rotationVector) {}
+Astronomical::Astronomical(const Util::String &modelName, const Util::Math::Vector3D &position, double scale, const Util::Math::Vector3D &rotationVector, const Util::Graphic::Color &color) : Util::Game::D3::Model(TAG, Util::String::format("/user/battlespace/%s.obj", static_cast<const char*>(modelName)), position, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(scale, scale, scale), color), rotationVector(rotationVector) {}
 
 void Astronomical::onUpdate(double delta) {
     rotate(rotationVector * delta);

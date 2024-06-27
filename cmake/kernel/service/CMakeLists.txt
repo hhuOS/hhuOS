@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+# Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 #
@@ -17,13 +17,14 @@
 cmake_minimum_required(VERSION 3.14)
 
 target_sources(kernel PUBLIC
+        ${HHUOS_SRC_DIR}/kernel/service/Service.cpp
         ${HHUOS_SRC_DIR}/kernel/service/FilesystemService.cpp
+        ${HHUOS_SRC_DIR}/kernel/service/InformationService.cpp
         ${HHUOS_SRC_DIR}/kernel/service/InterruptService.cpp
         ${HHUOS_SRC_DIR}/kernel/service/MemoryService.cpp
         ${HHUOS_SRC_DIR}/kernel/service/NetworkService.cpp
         ${HHUOS_SRC_DIR}/kernel/service/PowerManagementService.cpp
         ${HHUOS_SRC_DIR}/kernel/service/ProcessService.cpp
-        ${HHUOS_SRC_DIR}/kernel/service/SchedulerService.cpp
         ${HHUOS_SRC_DIR}/kernel/service/StorageService.cpp
         ${HHUOS_SRC_DIR}/kernel/service/TimeService.cpp
         ${HHUOS_SRC_DIR}/kernel/service/UsbService.cpp

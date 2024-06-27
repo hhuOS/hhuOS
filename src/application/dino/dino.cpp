@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -26,13 +26,18 @@
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "IntroScreen.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.setHelpText("Endless runner game.\n"
                                "Usage: dino\n"
                                "Options:\n"
+                               "  -r, --resolution: Set display resolution"
                                "  -h, --help: Show this help message");
+
+    argumentParser.addArgument("resolution", false, "r");
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
@@ -40,6 +45,18 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     auto lfbFile = Util::Io::File("/device/lfb");
+
+    if (argumentParser.hasArgument("resolution")) {
+        auto split1 = argumentParser.getArgument("resolution").split("x");
+        auto split2 = split1[1].split("@");
+
+        uint32_t resolutionX = Util::String::parseInt(split1[0]);
+        uint32_t resolutionY = Util::String::parseInt(split2[0]);
+        uint32_t colorDepth = split2.length() > 1 ? Util::String::parseInt(split2[1]) : 32;
+
+        lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
+    }
+
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto engine = Util::Game::Engine(lfb, 60);
 

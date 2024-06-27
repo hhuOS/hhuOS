@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -19,19 +19,20 @@
 
 #include "SoundBlasterRunnable.h"
 #include "SoundBlasterNode.h"
-#include "kernel/system/System.h"
 #include "kernel/service/MemoryService.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/time/Timestamp.h"
 #include "kernel/service/InterruptService.h"
-#include "device/isa/Isa.h"
-#include "kernel/service/SchedulerService.h"
+#include "device/bus/isa/Isa.h"
 #include "kernel/service/ProcessService.h"
 #include "kernel/service/FilesystemService.h"
 #include "filesystem/memory/MemoryDriver.h"
-#include "filesystem/core/Filesystem.h"
-#include "kernel/log/Logger.h"
+#include "filesystem/Filesystem.h"
+#include "kernel/log/Log.h"
 #include "kernel/process/Thread.h"
+#include "kernel/service/Service.h"
+#include "lib/util/base/Constants.h"
+#include "kernel/process/Scheduler.h"
 
 namespace Kernel {
 enum InterruptVector : uint8_t;
@@ -40,8 +41,6 @@ struct InterruptFrame;
 
 namespace Device {
 enum InterruptRequest : uint8_t;
-
-Kernel::Logger SoundBlaster::log = Kernel::Logger::get("SoundBlaster");
 
 SoundBlaster::SoundBlaster(uint16_t baseAddress, uint8_t irqNumber, uint8_t dmaChannel) :
         resetPort(baseAddress + 0x06), readDataPort(baseAddress + 0x0a),
@@ -55,22 +54,21 @@ SoundBlaster::SoundBlaster(uint16_t baseAddress, uint8_t irqNumber, uint8_t dmaC
     uint8_t minorVersion = readDataPort.readByte();
 
     dspVersion = (majorVersion << 8) | minorVersion;
-    log.info("DSP version: [%u.%02u]", majorVersion, minorVersion);
+    LOG_INFO("DSP version: [%u.%02u]", majorVersion, minorVersion);
 
     // Create thread and filesystem node
-    auto &processService = Kernel::System::getService<Kernel::ProcessService>();
-    auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
-    auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
+    auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
+    auto &filesystemService = Kernel::Service::getService<Kernel::FilesystemService>();
 
     auto &thread = Kernel::Thread::createKernelThread("Sound-Blaster", processService.getKernelProcess(), runnable);
     auto *soundBlasterNode = new SoundBlasterNode(this, *runnable, thread);
 
     filesystemService.getFilesystem().getVirtualDriver("/device").addNode("/", soundBlasterNode);
-    schedulerService.ready(thread);
+    processService.getScheduler().ready(thread);
 }
 
 SoundBlaster::~SoundBlaster() {
-    Kernel::System::getService<Kernel::MemoryService>().freeLowerMemory(dmaBuffer);
+    delete dmaBuffer;
 }
 
 bool SoundBlaster::isAvailable() {
@@ -134,7 +132,7 @@ bool SoundBlaster::initialize() {
         return false;
     }
 
-    log.info("Found base port at address [0x%x]", baseAddress);
+    LOG_INFO("Found base port at address [0x%x]", baseAddress);
     auto readDataPort = IoPort(baseAddress + 0x0a);
     auto readBufferStatusPort = IoPort(baseAddress + 0x0e);
     auto writeDataPort = IoPort(baseAddress + 0x0c);
@@ -189,7 +187,7 @@ void SoundBlaster::plugin() {
     // Older DSPs (version < 4) don't support manual IRQ- and DMA-configuration.
     // They must be configured via jumpers and there is no real way to get the IRQ- and DMA-numbers in software.
     // We just assume the DSP to use IRQ 10 and DMA channel 1, if not specified else in the constructor.
-    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     interruptService.assignInterrupt(static_cast<Kernel::InterruptVector>(32 + irqNumber), *this);
     interruptService.allowHardwareInterrupt(static_cast<InterruptRequest>(irqNumber));
 }
@@ -224,7 +222,7 @@ void SoundBlaster::waitForInterrupt() {
     receivedInterrupt = false;
 }
 
-void SoundBlaster::trigger(const Kernel::InterruptFrame &frame) {
+void SoundBlaster::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
     receivedInterrupt = true;
     ackInterrupt();
 }
@@ -256,17 +254,20 @@ bool SoundBlaster::setAudioParameters(uint16_t sampleRate, uint8_t channels, uin
     timeConstant = static_cast<uint16_t>(65536 - (256000000 / (sampleRate * channels)));
     numChannels = channels;
 
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    dmaBufferSize = static_cast<uint32_t>(AUDIO_BUFFER_SIZE * sampleRate * (bitsPerSample / 8.0) * channels);
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+    dmaBufferSize = (sampleRate * (bitsPerSample / 8) * channels) / (1000 / AUDIO_BUFFER_SIZE_MS);
     if (dmaBufferSize % 2 == 1) {
         dmaBufferSize++;
+    }
+    if (dmaBufferSize % Util::PAGESIZE != 0) {
+        dmaBufferSize = ((dmaBufferSize + Util::PAGESIZE) / Util::PAGESIZE) * Util::PAGESIZE;
     }
     if (dmaBufferSize > Isa::MAX_DMA_PAGESIZE) {
         dmaBufferSize = Isa::MAX_DMA_PAGESIZE;
     }
 
-    memoryService.freeLowerMemory(dmaBuffer);
-    dmaBuffer = static_cast<uint8_t*>(memoryService.allocateLowerMemory(dmaBufferSize, Isa::MAX_DMA_PAGESIZE));
+    delete dmaBuffer;
+    dmaBuffer = static_cast<uint8_t*>(memoryService.allocateIsaMemory(dmaBufferSize / Util::PAGESIZE));
     physicalDmaAddress = static_cast<uint8_t*>(memoryService.getPhysicalAddress(dmaBuffer));
 
     runnable->adjustInputStreamBuffer(sampleRate, channels, bitsPerSample);

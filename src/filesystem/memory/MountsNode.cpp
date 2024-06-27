@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -18,13 +18,13 @@
 #include "MountsNode.h"
 
 #include "kernel/service/FilesystemService.h"
-#include "kernel/system/System.h"
 #include "lib/util/io/stream/ByteArrayOutputStream.h"
-#include "filesystem/core/Filesystem.h"
+#include "filesystem/Filesystem.h"
 #include "filesystem/memory/MemoryNode.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/io/stream/PrintStream.h"
+#include "kernel/service/Service.h"
 
 namespace Filesystem::Memory {
 
@@ -56,7 +56,7 @@ Util::String MountsNode::buildBuffer() {
     auto stream = Util::Io::ByteArrayOutputStream();
     auto printStream = Util::Io::PrintStream(stream);
 
-    auto mountInformation = Kernel::System::getService<Kernel::FilesystemService>().getMountInformation();
+    auto mountInformation = Kernel::Service::getService<Kernel::FilesystemService>().getMountInformation();
     for (const auto &info : mountInformation) {
         printStream << info.device << " on " << info.target << " type " << info.driver << Util::Io::PrintStream::endl;
     }

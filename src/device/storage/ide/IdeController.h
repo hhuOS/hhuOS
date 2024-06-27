@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -16,6 +16,9 @@
  *
  * The IDE driver is based on a bachelor's thesis, written by Tim Laurischkat.
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-tilau101
+ *
+ * The driver has been enhanced with ATAPI capabilities during a bachelor's thesis, written by Moritz Riefer.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-morie103
  */
 
 #ifndef HHUOS_IDECONTROLLER_H
@@ -27,22 +30,31 @@
 #include "device/cpu/IoPort.h"
 #include "lib/util/async/Spinlock.h"
 
+namespace Kernel {
+enum InterruptVector : uint8_t;
+struct InterruptFrame;
+}  // namespace Kernel
+
 namespace Device {
 class PciDevice;
+
 namespace Storage {
 class IdeDevice;
 }  // namespace Storage
 }  // namespace Device
-namespace Kernel {
-class Logger;
-struct InterruptFrame;
-}  // namespace Kernel
 
 namespace Device::Storage {
 
 class IdeController : public Kernel::InterruptHandler {
 
 public:
+
+    enum DriveType : uint8_t {
+        ATA = 0x00,
+        ATAPI = 0x01,
+        OTHER = 0x02,
+    };
+
     /**
      * Constructor.
      */
@@ -67,7 +79,7 @@ public:
 
     void plugin() override;
 
-    void trigger(const Kernel::InterruptFrame &frame) override;
+    void trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) override;
 
 private:
 
@@ -83,7 +95,7 @@ private:
     static const constexpr uint16_t DEFAULT_CONTROL_BASE_ADDRESSES[DEVICES_PER_CHANNEL] = {0x03f4, 0x0374};
     static const constexpr uint32_t COMMAND_SET_WORD_COUNT = 6;
     static const constexpr uint32_t BUS_MASTER_CHANNEL_OFFSET = 0x08;
-    static const constexpr uint32_t MAX_WAIT_ON_STATUS_RETRIES = 4095;
+    static const constexpr uint32_t WAIT_ON_STATUS_TIMEOUT = 4095;
     static const constexpr uint32_t DMA_TIMEOUT = 30000;
     static const constexpr uint32_t PRD_END_OF_TRANSMISSION = 1 << 31;
 
@@ -91,12 +103,6 @@ private:
         CHS = 0x00,
         LBA28 = 0x01,
         LBA48 = 0x02,
-    };
-
-    enum DriveType : uint8_t {
-        ATA = 0x00,
-        ATAPI = 0x01,
-        OTHER = 0x02,
     };
 
     enum AtapiType {
@@ -171,13 +177,16 @@ private:
     };
 
     struct AtapiValues {
-        uint8_t type;
-        uint8_t packetLength;
+        uint8_t type;                                 // Atapi type
+        uint8_t packetLength;                         // Packet length is 12 or 16
+        uint32_t maxSectorsLba;                       // Size in Sectors
+        uint32_t blockSize;                           // size of data blocks
+        uint32_t capacity;                            // Storage Capacity in Bytes
     };
 
 public:
 
-    enum TransferMode : uint8_t{
+    enum TransferMode : uint8_t {
         READ = 0x0,
         WRITE = 0x1,
     };
@@ -208,13 +217,19 @@ public:
         [[nodiscard]] bool supportsDma() const;
     };
 
-    uint16_t performIO(const DeviceInfo &info, TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount);
+    uint16_t performAtaIO(const DeviceInfo &info, TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount);
+
+    uint16_t performAtapiIO(const DeviceInfo &info, TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount);
 
 private:
 
+    enum AtapiCommand {
+        READ_CAPACITY = 0x25
+    };
+
     struct CommandRegisters {
         explicit CommandRegisters(uint16_t baseAddress);
-        
+
         Device::IoPort data;            // base + 0x00 (read/write)
         Device::IoPort error;           // base + 0x01 (read)
         Device::IoPort features;        // base + 0x01 (write)
@@ -257,13 +272,13 @@ private:
         ChannelRegisters();
         ChannelRegisters(uint16_t commandBaseAddress, uint16_t controlBaseAddress, uint16_t dmaBaseAddress);
 
-        bool receivedInterrupt{};             // Currently received interrupt
-        uint8_t lastDeviceControl{};          // Saves current state of deviceControlRegister
-        bool interruptsDisabled{};            // nIEN (No Interrupt);
-        DriveType driveType[2]{};             // Initially found drive types;
-        CommandRegisters command;             // Command Register Set IoPorts
-        ControlRegisters control;             // Control Register Set IoPorts
-        DmaRegisters dma;                     // DMA Bus Master Register Set IoPorts
+        bool receivedInterrupt = false;         // Currently received interrupt
+        uint8_t lastDeviceControl = UINT8_MAX;  // Saves current state of deviceControlRegister
+        bool interruptsDisabled = false;        // nIEN (No Interrupt);
+        DriveType driveType[2]{};               // Initially found drive types;
+        CommandRegisters command;               // Command Register Set IoPorts
+        ControlRegisters control;               // Control Register Set IoPorts
+        DmaRegisters dma;                       // DMA Bus Master Register Set IoPorts
     };
 
     void initializeDrives();
@@ -276,31 +291,35 @@ private:
 
     bool readAtapiIdentity(uint8_t channel, uint16_t *buffer);
 
+    bool readAtapiCapacity(uint8_t channel, uint8_t packetLength, uint16_t *buffer);
+
     static uint8_t getAtapiType(uint16_t signature);
 
     bool selectDrive(uint8_t channel, uint8_t drive, bool prepareLbaAccess = false, uint8_t lbaHead = 0);
 
     uint16_t determineSectorSize(const DeviceInfo &info);
 
-    bool checkBounds(const DeviceInfo &info, uint64_t startSector, uint32_t sectorCount);
+    static bool checkBounds(const DeviceInfo &info, uint64_t startSector, uint32_t sectorCount);
 
-    void prepareIO(const DeviceInfo &info, uint64_t startSector, uint16_t sectorCount);
+    void prepareAtaIO(const DeviceInfo &info, uint64_t startSector, uint16_t sectorCount);
 
-    uint16_t performProgrammedIO(const DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount);
+    uint16_t performProgrammedAtaIO(const DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount);
 
-    uint16_t performDmaIO(const DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount);
+    uint16_t performDmaAtaIO(const DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount);
 
-    static bool waitStatus(const IoPort &port, Status status, uint16_t retries = MAX_WAIT_ON_STATUS_RETRIES, bool logError = true);
+    void prepareAtapiIO(uint8_t channel, uint16_t len);
 
-    static bool waitBusy(const IoPort &port, uint16_t retries = MAX_WAIT_ON_STATUS_RETRIES, bool logError = true);
+    uint16_t performProgrammedAtapiIO(const DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount);
+
+    static bool waitStatus(const IoPort &port, Status status, uint16_t timeout = WAIT_ON_STATUS_TIMEOUT, bool logError = false);
+
+    static bool waitBusy(const IoPort &port, uint16_t timeout = WAIT_ON_STATUS_TIMEOUT, bool logError = false);
 
     static void copyByteSwappedString(const char *source, char *target, uint32_t length);
 
     ChannelRegisters channels[CHANNELS_PER_CONTROLLER]{};
     Util::Async::Spinlock ioLock;
     bool supportsDma = false;
-
-    static Kernel::Logger log;
 };
 
 }

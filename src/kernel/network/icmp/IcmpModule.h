@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -31,9 +31,6 @@ namespace Network {
 class NetworkDevice;
 }  // namespace Network
 }  // namespace Device
-namespace Kernel {
-class Logger;
-}  // namespace Kernel
 namespace Util {
 namespace Network {
 namespace Icmp {
@@ -82,10 +79,6 @@ public:
 
     static void sendEchoReply(const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &destinationAddress,
                   const Util::Network::Icmp::EchoHeader &requestHeader, const uint8_t *buffer, uint16_t length);
-
-private:
-
-    static Kernel::Logger log;
 };
 
 }

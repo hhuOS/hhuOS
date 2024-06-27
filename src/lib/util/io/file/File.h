@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -35,6 +35,24 @@ public:
         REGULAR,
         DIRECTORY,
         CHARACTER
+    };
+
+    /**
+     * Files can either be accessed blocking or non-blocking.
+     * Blocking reads will return only after at least one byte has been read,
+     * while non-blocking reads will return immediately, even if no bytes were read.
+     */
+    enum AccessMode {
+        BLOCKING,
+        NON_BLOCKING
+    };
+
+    /**
+     * Requests to manipulate a file descriptor
+     */
+    enum Request {
+        SET_ACCESS_MODE,
+        IS_READY_TO_READ
     };
 
     /**
@@ -81,7 +99,13 @@ public:
 
     [[nodiscard]] bool remove();
 
-    [[nodiscard]] bool control(uint32_t request, const Util::Array<uint32_t> &parameters);
+    bool controlFile(uint32_t request, const Util::Array<uint32_t> &parameters);
+
+    bool controlFileDescriptor(uint32_t request, const Util::Array<uint32_t> &parameters);
+
+    bool setAccessMode(AccessMode accessMode);
+
+    bool isReadyToRead();
 
     [[nodiscard]] static String getCanonicalPath(const Util::String &path);
 
@@ -91,9 +115,15 @@ public:
 
     int32_t static open(const Util::String &path);
 
-    bool static control(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters);
+    static bool controlFile(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters);
 
-    void static close(int32_t fileDescriptor);
+    static bool controlFileDescriptor(int32_t fileDescriptor, uint32_t request, const Array<uint32_t> &parameters);
+
+    static bool setAccessMode(int32_t fileDescriptor, AccessMode accessMode);
+
+    static bool isReadyToRead(int32_t fileDescriptor);
+
+    static void close(int32_t fileDescriptor);
 
     static bool mount(const Util::String &device, const Util::String &targetPath, const Util::String &driverName);
 
@@ -111,8 +141,8 @@ private:
     void ensureFileIsOpened();
 };
 
-static const constexpr int32_t STANDARD_OUTPUT = 0;
-static const constexpr int32_t STANDARD_INPUT = 1;
+static const constexpr int32_t STANDARD_INPUT = 0;
+static const constexpr int32_t STANDARD_OUTPUT = 1;
 static const constexpr int32_t STANDARD_ERROR = 2;
 
 }

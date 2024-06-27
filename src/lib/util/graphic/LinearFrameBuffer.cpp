@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -24,11 +24,13 @@
 #include "lib/util/graphic/Color.h"
 #include "lib/util/base/String.h"
 #include "lib/util/base/Address.h"
+#include "lib/util/base/Constants.h"
+#include "lib/util/collection/Array.h"
 
 namespace Util::Graphic {
 
 LinearFrameBuffer::LinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch, bool enableAcceleration) :
-        buffer(enableAcceleration ? Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(mapIO(physicalAddress, pitch * resolutionY)), useMmx) : new Address<uint32_t>(mapIO(physicalAddress, pitch * resolutionY))),
+        buffer(mapBuffer(reinterpret_cast<void*>(physicalAddress), resolutionY, pitch, enableAcceleration, useMmx)),
         resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
 
 LinearFrameBuffer::LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch, bool enableAcceleration) :
@@ -42,72 +44,22 @@ LinearFrameBuffer::LinearFrameBuffer(Io::File &file, bool enableAcceleration) {
         Exception::throwException(Exception::INVALID_ARGUMENT, "LinearFrameBuffer: File does not exist!");
     }
 
-    uint8_t addressBuffer[16];
-    uint8_t xBuffer[16];
-    uint8_t yBuffer[16];
-    uint8_t bppBuffer[16];
-    uint8_t pitchBuffer[16];
-
-    Util::Address<uint32_t>(addressBuffer).setRange(0, sizeof(addressBuffer));
-    Util::Address<uint32_t>(xBuffer).setRange(0, sizeof(xBuffer));
-    Util::Address<uint32_t>(yBuffer).setRange(0, sizeof(yBuffer));
-    Util::Address<uint32_t>(bppBuffer).setRange(0, sizeof(bppBuffer));
-    Util::Address<uint32_t>(pitchBuffer).setRange(0, sizeof(pitchBuffer));
-
     auto stream = Io::FileInputStream(file);
-    int16_t currentChar;
+    bool endOfFile;
 
-    for (unsigned char &i : addressBuffer) {
-        currentChar = stream.read();
-        if (currentChar == '\n') {
-            break;
-        }
+    const auto addressString = stream.readLine(endOfFile);
+    const auto resolutionString = stream.readLine(endOfFile);
+    const auto pitchString = stream.readLine(endOfFile);
 
-        i = currentChar;
-    }
+    const auto colorDepthSplit = resolutionString.split("@");
+    const auto resolutionSplit = colorDepthSplit[0].split("x");
 
-    for (unsigned char &i : xBuffer) {
-        currentChar = stream.read();
-        if (currentChar == 'x') {
-            break;
-        }
-
-        i = currentChar;
-    }
-
-    for (unsigned char & i : yBuffer) {
-        currentChar = stream.read();
-        if (currentChar == '@') {
-            break;
-        }
-
-        i = currentChar;
-    }
-
-    for (unsigned char & i : bppBuffer) {
-        currentChar = stream.read();
-        if (currentChar == '\n') {
-            break;
-        }
-
-        i = currentChar;
-    }
-
-    for (unsigned char & i : pitchBuffer) {
-        currentChar = stream.read();
-        if (currentChar == -1) {
-            break;
-        }
-
-        i = currentChar;
-    }
-
-    uint32_t address = Util::String::parseInt(reinterpret_cast<const char*>(addressBuffer));
-    resolutionX = Util::String::parseInt(reinterpret_cast<const char*>(xBuffer));
-    resolutionY = Util::String::parseInt(reinterpret_cast<const char*>(yBuffer));
-    colorDepth = Util::String::parseInt(reinterpret_cast<const char*>(bppBuffer));
-    pitch = Util::String::parseInt(reinterpret_cast<const char*>(pitchBuffer));
-    buffer = enableAcceleration ? Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(mapIO(address, pitch * resolutionY)), useMmx) : new Address<uint32_t>(mapIO(address, pitch * resolutionY));
+    uint32_t address = Util::String::parseInt(static_cast<const char*>(addressString));
+    resolutionX = Util::String::parseInt(static_cast<const char*>(resolutionSplit[0]));
+    resolutionY = Util::String::parseInt(static_cast<const char*>(resolutionSplit[1]));
+    colorDepth = Util::String::parseInt(static_cast<const char*>(colorDepthSplit[1]));
+    pitch = Util::String::parseInt(static_cast<const char*>(pitchString));
+    buffer = mapBuffer(reinterpret_cast<void*>(address), resolutionY, pitch, enableAcceleration, useMmx);
 }
 
 LinearFrameBuffer::~LinearFrameBuffer() {
@@ -150,6 +102,23 @@ void LinearFrameBuffer::clear() const {
     buffer->setRange(0, getPitch() * getResolutionY());
     if (useMmx) {
         Math::endMmx();
+    }
+}
+
+Address<uint32_t>* LinearFrameBuffer::mapBuffer(void *physicalAddress, uint16_t resolutionY, uint16_t pitch, bool enableAcceleration, bool &useMmx) {
+    if (reinterpret_cast<uint32_t>(physicalAddress) % Util::PAGESIZE != 0) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "LinearFrameBuffer: Physical address is not page aligned!");
+    }
+
+    const auto size = resolutionY * pitch;
+    const auto pageCount = size % Util::PAGESIZE == 0 ? (size / Util::PAGESIZE) : (size / Util::PAGESIZE) + 1;
+    void *virtualAddress = mapIO(physicalAddress, pageCount);
+
+    if (enableAcceleration) {
+        return Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(virtualAddress), useMmx);
+    } else {
+        useMmx = false;
+        return new Address<uint32_t>(virtualAddress);
     }
 }
 

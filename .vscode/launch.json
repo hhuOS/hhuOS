@@ -51,32 +51,6 @@
                 }
             ],
             "preLaunchTask": "qemu-gdb (UEFI)",
-        },
-        {
-            "name": "gdb (serial)",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceRoot}/build/bin/system",
-            "stopAtEntry": false,
-            "cwd": "${workspaceRoot}",
-            "miDebuggerServerAddress": "/dev/ttyUSB0",
-            "externalConsole": true,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": false,
-                },
-                {
-                    "text": "set disassembly-flavor intel"
-                },
-                {
-                    "text": "set architecture i386"
-                },
-                {
-                    "text": "set serial baud 115200"
-                }
-            ]
-        },
+        }
     ]
 }

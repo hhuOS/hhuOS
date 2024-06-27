@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -22,29 +22,104 @@ namespace Util::Time {
 
 Timestamp::Timestamp(uint32_t seconds, uint32_t fraction = 0) : seconds(seconds), fraction(fraction) {}
 
-uint32_t Timestamp::convert(uint32_t value, Timestamp::TimeUnit from, Timestamp::TimeUnit to) {
-    if (from == to) {
-        return value;
-    }
-
-    if (from > to) {
-        return conversionMap[from][to] * value;
-    }
-
-    return value / conversionMap[from][to];
+Timestamp Timestamp::ofSeconds(uint32_t seconds) {
+    return Timestamp(1, 0);
 }
 
-void Timestamp::addNanoseconds(uint32_t value) {
-    fraction += value;
-
-    while (fraction >= 1000000000) {
-        fraction -= 1000000000;
-        seconds++;
-    }
+Timestamp Timestamp::ofMilliseconds(uint64_t milliseconds) {
+    auto seconds = milliseconds / 1000;
+    auto fraction = (milliseconds % 1000) * 1000000;
+    return {static_cast<uint32_t>(seconds), static_cast<uint32_t>(fraction)};
 }
 
-void Timestamp::addSeconds(uint32_t value) {
-    this->seconds += seconds;
+Timestamp Timestamp::ofMicroseconds(uint64_t microseconds) {
+    auto seconds = microseconds / 1000000;
+    auto fraction = (microseconds % 1000000) * 1000;
+    return {static_cast<uint32_t>(seconds), static_cast<uint32_t>(fraction)};
+}
+
+Timestamp Timestamp::ofNanoseconds(uint64_t nanoseconds) {
+    auto seconds = nanoseconds / 1000000000;
+    auto fraction = nanoseconds % 1000000000;
+    return {static_cast<uint32_t>(seconds), static_cast<uint32_t>(fraction)};
+}
+
+Timestamp Timestamp::operator+(const Util::Time::Timestamp &other) const {
+    Timestamp ret;
+
+    if (fraction + other.fraction < NANOSECONDS_PER_SECOND) {
+        ret = Timestamp(seconds + other.seconds, fraction + other.fraction);
+    } else {
+        // Handle fraction overflow
+        ret = Timestamp(seconds + other.seconds + 1, fraction + other.fraction - NANOSECONDS_PER_SECOND);
+    }
+
+    // Handle seconds overflow
+    if (ret.seconds < seconds) {
+        ret = Timestamp(UINT32_MAX, UINT32_MAX);
+    }
+
+    return ret;
+}
+
+Timestamp Timestamp::operator-(const Timestamp &other) const {
+    Timestamp ret;
+
+    if (fraction - other.fraction < fraction) {
+        ret = Timestamp(seconds - other.seconds, fraction - other.fraction);
+    } else {
+        // Handle fraction underflow
+        ret = Timestamp(seconds - other.seconds - 1, NANOSECONDS_PER_SECOND - (other.fraction - fraction));
+    }
+
+    // Handle seconds underflow
+    if (ret.seconds > seconds) {
+        ret = Timestamp(0, 0);
+    }
+
+    return ret;
+}
+
+Timestamp &Timestamp::operator+=(const Timestamp &other) {
+    auto oldSeconds = seconds;
+
+    if (fraction + other.fraction < NANOSECONDS_PER_SECOND) {
+        seconds += other.seconds;
+        fraction += other.fraction;
+    } else {
+        // Handle fraction overflow
+        seconds += other.seconds + 1;
+        fraction = fraction + other.fraction - NANOSECONDS_PER_SECOND;
+    }
+
+    // Handle seconds overflow
+    if (seconds < oldSeconds) {
+        seconds = UINT32_MAX;
+        fraction = UINT32_MAX;
+    }
+
+    return *this;
+}
+
+Timestamp &Timestamp::operator-=(const Timestamp &other) {
+    auto oldSeconds = seconds;
+
+    if (fraction - other.fraction < fraction) {
+        seconds -= other.seconds;
+        fraction -= other.fraction;
+    } else {
+        // Handle fraction overflow
+        seconds -= other.seconds - 1;
+        fraction = NANOSECONDS_PER_SECOND - (other.fraction - fraction);
+    }
+
+    // Handle seconds overflow
+    if (seconds > oldSeconds) {
+        seconds = 0;
+        fraction = 0;
+    }
+
+    return *this;
 }
 
 bool Timestamp::operator>(const Timestamp &other) const {
@@ -79,15 +154,15 @@ bool Timestamp::operator<=(const Timestamp &other) const {
     return seconds == other.seconds && fraction <= other.fraction;
 }
 
-uint32_t Timestamp::toNanoseconds() const {
+uint64_t Timestamp::toNanoseconds() const {
     return seconds * 1000000000 + fraction;
 }
 
-uint32_t Timestamp::toMicroseconds() const {
+uint64_t Timestamp::toMicroseconds() const {
     return seconds * 1000000 + fraction / 1000;
 }
 
-uint32_t Timestamp::toMilliseconds() const {
+uint64_t Timestamp::toMilliseconds() const {
     return seconds * 1000 + fraction / 1000000;
 }
 
@@ -111,10 +186,9 @@ uint32_t Timestamp::toYears() const {
     return seconds / 31536000;
 }
 
-Timestamp Timestamp::ofMilliseconds(uint32_t milliseconds) {
-    auto seconds = milliseconds / 1000;
-    auto fraction = (milliseconds % 1000) * 1000000;
-    return {seconds, fraction};
+void Timestamp::reset() {
+    seconds = 0;
+    fraction = 0;
 }
 
 Timestamp getSystemTime() {

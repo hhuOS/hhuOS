@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -74,15 +74,29 @@ private:
 
     void handleBackspace();
 
+    void handleDel();
+
     void handleTab();
+
+    void handlePos1();
+
+    void handleEnd();
 
     void parseInput();
 
-    void buildLine(int16_t input);
+    Util::Array<Util::String> parseArguments(const Util::String &argumentString, bool &valid);
+
+    [[nodiscard]] uint32_t getScrolledLines() const;
+
+    [[nodiscard]] Util::Graphic::Ansi::CursorPosition getStartPosition() const;
+
+    [[nodiscard]] Util::Graphic::Ansi::CursorPosition getEndPosition() const;
 
     [[nodiscard]] Util::String checkPath(const Util::String &command) const;
 
     Util::String checkDirectory(const Util::String &command, Util::Io::File &directory) const;
+
+    void buildAutoCompletionLists();
 
     static void cd(const Util::Array<Util::String> &arguments);
 
@@ -98,7 +112,12 @@ private:
     uint32_t historyIndex = 0;
     uint32_t sub_index;
 
-    static const constexpr char *PATH = "/initrd/bin:/bin";
+    Util::String autoCompletionSearchString = "";
+    Util::ArrayList<Util::String> autoCompletionPathSuggestions;
+    Util::ArrayList<Util::String> autoCompletionCurrentWorkingDirectorySuggestions;
+    uint32_t autoCompletionIndex = 0;
+
+    static const constexpr char *PATH = "/bin";
 };
 
 

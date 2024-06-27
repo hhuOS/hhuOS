@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -15,15 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/system/System.h"
+
 #include "kernel/service/ProcessService.h"
 #include "FloppyDevice.h"
 #include "FloppyMotorControlRunnable.h"
 #include "device/storage/ChsConverter.h"
 #include "device/storage/floppy/FloppyController.h"
 #include "kernel/process/Thread.h"
-#include "kernel/service/SchedulerService.h"
 #include "lib/util/base/String.h"
+#include "kernel/service/Service.h"
+#include "kernel/process/Scheduler.h"
 
 namespace Device::Storage {
 
@@ -57,8 +58,8 @@ FloppyDevice::FloppyDevice(FloppyController &controller, uint8_t driveNumber, Fl
             gapLength = 27;
     }
 
-    auto &motorControlThread = Kernel::Thread::createKernelThread(Util::String::format("Floppy-%u-Motor-Controller", driveNumber), Kernel::System::getService<Kernel::ProcessService>().getKernelProcess(), motorControlRunnable);
-    Kernel::System::getService<Kernel::SchedulerService>().ready(motorControlThread);
+    auto &motorControlThread = Kernel::Thread::createKernelThread(Util::String::format("Floppy-%u-Motor-Controller", driveNumber), Kernel::Service::getService<Kernel::ProcessService>().getKernelProcess(), motorControlRunnable);
+    Kernel::Service::getService<Kernel::ProcessService>().getScheduler().ready(motorControlThread);
 }
 
 uint32_t FloppyDevice::getSectorSize() {

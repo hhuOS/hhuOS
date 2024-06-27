@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner; Olaf Spinczyk, TU Dortmund
  *
@@ -27,7 +27,7 @@
 #include "lib/util/collection/ArrayBlockingQueue.h"
 
 namespace Kernel {
-class Logger;
+enum InterruptVector : uint8_t;
 struct InterruptFrame;
 }  // namespace Kernel
 
@@ -68,7 +68,7 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void trigger(const Kernel::InterruptFrame &frame) override;
+    void trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) override;
 
 private:
     /**
@@ -134,8 +134,6 @@ private:
 
     Util::ArrayBlockingQueue<uint8_t> keyBuffer;
     Util::Io::QueueInputStream inputStream;
-
-    static Kernel::Logger log;
 
     static const constexpr uint32_t BUFFER_SIZE = 1024;
 };

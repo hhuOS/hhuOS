@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -18,10 +18,10 @@
 #include "MacAddressNode.h"
 #include "NetworkFilesystemDriver.h"
 #include "kernel/service/FilesystemService.h"
-#include "kernel/system/System.h"
 #include "device/network/NetworkDevice.h"
-#include "filesystem/core/Filesystem.h"
+#include "filesystem/Filesystem.h"
 #include "lib/util/base/String.h"
+#include "kernel/service/Service.h"
 
 namespace Device::Network {
 
@@ -30,7 +30,7 @@ NetworkFilesystemDriver::NetworkFilesystemDriver(NetworkDevice &device) : device
 }
 
 bool NetworkFilesystemDriver::mount(NetworkDevice &device) {
-    auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
+    auto &filesystemService = Kernel::Service::getService<Kernel::FilesystemService>();
     auto path = "/device/" + device.getIdentifier();
     auto *driver = new NetworkFilesystemDriver(device);
 

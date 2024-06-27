@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -19,17 +19,15 @@
 
 #include "filesystem/memory/StreamNode.h"
 #include "kernel/service/FilesystemService.h"
-#include "kernel/system/System.h"
 #include "lib/util/async/Thread.h"
-#include "filesystem/core/Filesystem.h"
+#include "filesystem/Filesystem.h"
 #include "filesystem/memory/MemoryDriver.h"
-#include "kernel/log/Logger.h"
+#include "kernel/log/Log.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/time/Timestamp.h"
+#include "kernel/service/Service.h"
 
 namespace Device {
-
-Kernel::Logger ParallelPort::log = Kernel::Logger::get("LPT");
 
 ParallelPort::ParallelPort(ParallelPort::LptPort port) : sppDataPort(port), sppStatusPort(port + 1), sppControlPort(port + 2) {
     uint8_t control = sppControlPort.readByte();
@@ -64,17 +62,17 @@ void ParallelPort::initializePort(ParallelPort::LptPort port) {
         return;
     }
 
-    log.info("Parallel port [%s] detected", portToString(port));
+    LOG_INFO("Parallel port [%s] detected", portToString(port));
 
     auto *parallelPort = new ParallelPort(port);
     auto *streamNode = new Filesystem::Memory::StreamNode(Util::String(portToString(port)).toLowerCase(), reinterpret_cast<Util::Io::OutputStream*>(parallelPort));
 
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+    auto &filesystem = Kernel::Service::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
     bool success = driver.addNode("/", streamNode);
 
     if (!success) {
-        log.error("Failed to initialize virtual node for [%s]", portToString(port));
+        LOG_ERROR("Failed to initialize virtual node for [%s]", portToString(port));
         delete streamNode;
     }
 }
@@ -130,7 +128,7 @@ void ParallelPort::write(uint8_t c) {
     // Pulse the strobe bit, so that the printer knows, that there is data to be fetched on the data port
     uint8_t control = sppControlPort.readByte();
     sppControlPort.writeByte(control | CONTROL_REGISTER_STROBE);
-    Util::Async::Thread::sleep(Util::Time::Timestamp(0, 10000000));
+    Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(10));
     sppControlPort.writeByte(control);
 
     // Wait for the printer to finish reading the data

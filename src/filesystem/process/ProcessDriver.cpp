@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -18,13 +18,13 @@
 #include "ProcessDriver.h"
 
 #include "kernel/service/ProcessService.h"
-#include "kernel/system/System.h"
 #include "ProcessDirectoryNode.h"
 #include "ProcessRootNode.h"
 #include "ProcessFileNode.h"
 #include "kernel/process/Process.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/file/File.h"
+#include "kernel/service/Service.h"
 
 namespace Filesystem {
 class Node;
@@ -37,7 +37,7 @@ Node* ProcessDriver::getNode(const Util::String &path) {
         return new ProcessRootNode();
     }
 
-    auto &processService = Kernel::System::getService<Kernel::ProcessService>();
+    auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
     auto ids = processService.getActiveProcessIds();
     auto splitPath = path.split(Util::Io::File::SEPARATOR);
     auto id = Util::String::parseInt(splitPath[0]);

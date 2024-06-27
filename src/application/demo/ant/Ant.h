@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -19,11 +19,18 @@
 #define HHUOS_ANT_H
 
 #include <cstdint>
+
 #include "lib/util/graphic/Color.h"
 #include "lib/util/math/Random.h"
 #include "lib/util/graphic/Colors.h"
 
-void runAntDemo(uint32_t sleepInterval);
+namespace Util {
+namespace Graphic {
+class LinearFrameBuffer;
+}  // namespace Graphic
+}  // namespace Util
+
+void antDemo(Util::Graphic::LinearFrameBuffer &lfb, uint32_t sleepInterval);
 
 class Ant {
 

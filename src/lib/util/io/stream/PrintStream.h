@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -53,6 +53,10 @@ public:
 
     void print(bool boolean);
 
+    void print(int64_t number);
+
+    void print(uint64_t number);
+
     void print(int32_t number);
 
     void print(uint32_t number);
@@ -74,6 +78,10 @@ public:
     void println(const char *sourceBuffer);
 
     void println(bool boolean);
+
+    void println(int64_t number);
+
+    void println(uint64_t number);
 
     void println(int32_t number);
 
@@ -104,6 +112,10 @@ public:
     PrintStream& operator<<(int32_t value);
 
     PrintStream& operator<<(uint32_t value);
+
+    PrintStream& operator<<(int64_t value);
+
+    PrintStream& operator<<(uint64_t value);
 
     PrintStream& operator<<(void *ptr);
 

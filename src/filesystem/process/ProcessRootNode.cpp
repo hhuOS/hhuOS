@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -16,8 +16,10 @@
  */
 
 #include "ProcessRootNode.h"
+
 #include "kernel/service/ProcessService.h"
-#include "kernel/system/System.h"
+#include "kernel/service/Service.h"
+
 
 namespace Filesystem::Process {
 
@@ -34,7 +36,7 @@ uint64_t ProcessRootNode::getLength() {
 }
 
 Util::Array<Util::String> ProcessRootNode::getChildren() {
-    auto ids = Kernel::System::getService<Kernel::ProcessService>().getActiveProcessIds();
+    auto ids = Kernel::Service::getService<Kernel::ProcessService>().getActiveProcessIds();
     auto ret = Util::Array<Util::String>(ids.length());
 
     for (uint32_t i = 0; i < ids.length(); i++) {
