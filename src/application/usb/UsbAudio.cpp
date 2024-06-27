@@ -66,12 +66,12 @@ int32_t main(uint32_t argc, char* argv[]){
     uint32_t wav_num_ch    = wave.getNumChannels();
 
     uint32_t freq, frame_size, sub_frame_size, bit_depth, total_freq, num_channels;
-    file.control(GET_FREQ, {IN_TERMINAL_SELECT, (uint32_t)&freq});
-    file.control(GET_FRAME_SIZE, {IN_TERMINAL_SELECT, (uint32_t)&frame_size});
-    file.control(GET_SUB_FRAME_SIZE, {IN_TERMINAL_SELECT, (uint32_t)&sub_frame_size});
-    file.control(GET_BIT_DEPTH, {IN_TERMINAL_SELECT, (uint32_t)&bit_depth});
-    file.control(GET_TOTAL_FREQ, {IN_TERMINAL_SELECT, (uint32_t)&total_freq});
-    file.control(GET_NUM_CHANNELS, {IN_TERMINAL_SELECT, (uint32_t)&num_channels});
+    file.controlFile(GET_FREQ, {IN_TERMINAL_SELECT, (uint32_t)&freq});
+    file.controlFile(GET_FRAME_SIZE, {IN_TERMINAL_SELECT, (uint32_t)&frame_size});
+    file.controlFile(GET_SUB_FRAME_SIZE, {IN_TERMINAL_SELECT, (uint32_t)&sub_frame_size});
+    file.controlFile(GET_BIT_DEPTH, {IN_TERMINAL_SELECT, (uint32_t)&bit_depth});
+    file.controlFile(GET_TOTAL_FREQ, {IN_TERMINAL_SELECT, (uint32_t)&total_freq});
+    file.controlFile(GET_NUM_CHANNELS, {IN_TERMINAL_SELECT, (uint32_t)&num_channels});
 
     if(wav_bit_depth != bit_depth){
         Util::System::error << Util::String::format("Bit depth mismatch : passed in %u , but expected %u", 
@@ -84,8 +84,8 @@ int32_t main(uint32_t argc, char* argv[]){
         return -1;
     }
 
-    //file.control(SET_FREQ, {IN_TERMINAL_SELECT, wave.getSamplesPerSecond()});
-    file.control(OPEN, {IN_TERMINAL_SELECT});
+    //file.controlFile(SET_FREQ, {IN_TERMINAL_SELECT, wave.getSamplesPerSecond()});
+    file.controlFile(OPEN, {IN_TERMINAL_SELECT});
     
     Util::System::out << Util::String::format("Frequency    : %u-HZ", freq) << Util::Io::PrintStream::endl;
     Util::System::out << Util::String::format("Frame size   : %u-kB", frame_size / 1000) << Util::Io::PrintStream::endl; 
@@ -117,11 +117,11 @@ int32_t main(uint32_t argc, char* argv[]){
         auto keyDecoder = Util::Io::KeyDecoder();
         int16_t cur_sound, max_sound, min_sound, wVolume;
 
-        file.control(GET_SOUND, {IN_TERMINAL_SELECT, (uint32_t)(uintptr_t)&cur_sound});
+        file.controlFile(GET_SOUND, {IN_TERMINAL_SELECT, (uint32_t)(uintptr_t)&cur_sound});
         //Util::System::out << Util::String::format("Cur volume : %d", cur_sound) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-        file.control(GET_SOUND_MIN, {IN_TERMINAL_SELECT, (uint32_t)(uintptr_t)&min_sound});
+        file.controlFile(GET_SOUND_MIN, {IN_TERMINAL_SELECT, (uint32_t)(uintptr_t)&min_sound});
         //Util::System::out << Util::String::format("Min volume : %d", min_sound) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-        file.control(GET_SOUND_MAX, {IN_TERMINAL_SELECT, (uint32_t)(uintptr_t)&max_sound});
+        file.controlFile(GET_SOUND_MAX, {IN_TERMINAL_SELECT, (uint32_t)(uintptr_t)&max_sound});
         //Util::System::out << Util::String::format("Max volume : %d", max_sound) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         
         uint8_t  total_changes = 10;
@@ -139,20 +139,20 @@ int32_t main(uint32_t argc, char* argv[]){
             auto key = keyDecoder.getCurrentKey().getScancode();
             if(keytype == KEY_PRESSED){
                 if(key == KEY_M){
-                file.control(MUTE, {IN_TERMINAL_SELECT});
+                file.controlFile(MUTE, {IN_TERMINAL_SELECT});
                 }
                 else if(key == KEY_U){
-                    file.control(UNMUTE, {IN_TERMINAL_SELECT});
+                    file.controlFile(UNMUTE, {IN_TERMINAL_SELECT});
                 }
                 else if(key == KEY_PLUS){
                     cur_sound += sound_step;
                     wVolume = cur_sound;
-                    file.control(SET_SOUND, {IN_TERMINAL_SELECT, (uint32_t)wVolume});
+                    file.controlFile(SET_SOUND, {IN_TERMINAL_SELECT, (uint32_t)wVolume});
                 }
                 else if(key == KEY_MINUS){
                     cur_sound -= sound_step;
                     wVolume = cur_sound;
-                    file.control(SET_SOUND, {IN_TERMINAL_SELECT, (uint32_t)wVolume});
+                    file.controlFile(SET_SOUND, {IN_TERMINAL_SELECT, (uint32_t)wVolume});
                 }
                 else if(key == KEY_P){
                     running ^= 1;
@@ -186,7 +186,7 @@ int32_t main(uint32_t argc, char* argv[]){
     Util::Graphic::Ansi::moveCursorToBeginningOfNextLine(0);
     Util::Graphic::Ansi::enableCursor();
 
-    file.control(CLOSE, {IN_TERMINAL_SELECT});
+    file.controlFile(CLOSE, {IN_TERMINAL_SELECT});
 
     return 1;
 }

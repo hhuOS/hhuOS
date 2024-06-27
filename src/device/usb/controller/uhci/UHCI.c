@@ -436,10 +436,10 @@ static inline void __uhci_build(_UHCI* uhci, MemoryService_C* m, PciDevice_Struc
     __INIT_UHCI__(uhci, (SystemService_C*)m, pci_device);
     uhci->qh_len = qh_size;
     uhci->td_len = td_size;
-    uhci->map_io_buffer_qh = __MAP_IO_KERNEL__(m, uint8_t, qh_size);
+    uhci->map_io_buffer_qh = __MAP_IO_KERNEL__(m, uint8_t, qh_size / PAGE_SIZE);
     uhci->map_io_buffer_bit_map_qh = __ALLOC_KERNEL_MEM__(m, uint8_t, qh_size / sizeof(QH));
     
-    uhci->map_io_buffer_td = __MAP_IO_KERNEL__(m, uint8_t, td_size);
+    uhci->map_io_buffer_td = __MAP_IO_KERNEL__(m, uint8_t, td_size / PAGE_SIZE);
     uhci->map_io_buffer_bit_map_td = __ALLOC_KERNEL_MEM__(m, uint8_t, td_size / sizeof(TD));
     
     __STRUCT_CALL__(uhci, __init_buff_mem, qh_size, td_size);
@@ -746,11 +746,11 @@ static QH *request_frames(_UHCI *uhci) {
 
   __UHC_MEMORY__(uhci, m);
 
-  uint8_t* map_io_buffer = __MAP_IO_KERNEL__(m, uint8_t, PAGE_SIZE);
+  uint8_t* map_io_buffer = __MAP_IO_KERNEL__(m, uint8_t, 1);
   QH** physical_addresses = 
     __ALLOC_KERNEL_MEM__(m, QH*, SKELETON_SIZE * sizeof(uint32_t *));
   uint32_t* frame_list_address = __MAP_IO_KERNEL__(m, uint32_t, 
-    sizeof(uint32_t) * TOTAL_FRAMES);
+    (sizeof(uint32_t) * TOTAL_FRAMES) / PAGE_SIZE);
 
   // build bulk qh
   QH* __QH_ASSIGN__(map_io_buffer, map_io_offset, bulk_qh);

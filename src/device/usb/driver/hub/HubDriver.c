@@ -121,7 +121,7 @@ static int configure_hub(HubDriver *driver) {
     HubDev *hub_dev = driver->dev + i;
 
     MemoryService_C *m = __DEV_MEMORY(dev);
-    uint8_t *data = (uint8_t *)m->mapIO(m, PAGE_SIZE * sizeof(uint8_t), 1);
+    __MAP_IO_KERNEL_S__(m, uint8_t, data);
 
     if (driver->read_hub_descriptor(driver, hub_dev, itf, data) == -1)
       return -1;
@@ -196,7 +196,7 @@ static int configure_hub(HubDriver *driver) {
         }
       }
     }
-    m->unmap(m, (uint32_t)(uintptr_t)data);
+    m->unmap(m, data, 1);
   }
 
   return 1;

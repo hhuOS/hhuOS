@@ -118,8 +118,9 @@ extern uint16_t RAW_KEY_SPACE;
 extern uint16_t RAW_KEY_ẞ;
 extern uint16_t RAW_KEY_RIGHT_SINGLE;
 extern uint16_t RAW_KEY_U_DOUBLE_POINTS;
+extern uint16_t RAW_KEY_O_DOUBLE_POINTS;
 extern uint16_t RAW_KEY_PLUS;
-extern uint16_t RAW_KEY_LOWER_THAN; // is this really true ?
+extern uint16_t RAW_KEY_LOWER_THAN;
 extern uint16_t RAW_KEY_A_DOUBLE_POINTS;
 extern uint16_t RAW_KEY_HASH_TAG;
 extern uint16_t RAW_KEY_EXP_SIGN;
@@ -149,6 +150,11 @@ extern uint16_t RAW_KEY_RIGHT_ARROW;
 extern uint16_t RAW_KEY_LEFT_ARROW;
 extern uint16_t RAW_KEY_DOWN_ARROW;
 extern uint16_t RAW_KEY_UP_ARROW;
+
+// further keys can be added here :
+// ====
+//
+// ====
 
 #define LEFT_CONTROL_MASK 0x01
 #define LEFT_SHIFT_MASK 0x02

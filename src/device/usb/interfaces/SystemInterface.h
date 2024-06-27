@@ -17,11 +17,11 @@
 #define __ALLOC_KERNEL_MEM_S__(mem_service, type, name) \
     __ALLOC_KERNEL_MEM_T__(mem_service, type, name, 1)
 
-#define __MAP_IO_KERNEL__(mem_service, type, size) \
-    (type*)mem_service->mapIO(mem_service, size, 1)
+#define __MAP_IO_KERNEL__(mem_service, type, pageCount) \
+    (type*)mem_service->mapIO(mem_service, pageCount, 1)
 
-#define __MAP_IO_KERNEL_T__(mem_service, type, name, size) \
-    type* name = __MAP_IO_KERNEL__(mem_service, type, sizeof(type) * size)
+#define __MAP_IO_KERNEL_T__(mem_service, type, name, pageCount) \
+    type* name = __MAP_IO_KERNEL__(mem_service, type, pageCount)
 
 #define __MAP_IO_KERNEL_S__(mem_service, type, name) \
     __MAP_IO_KERNEL_T__(mem_service, type, name, 1)
@@ -80,15 +80,11 @@ typedef struct SystemService_C SystemService_C;
     __ENTRY__(name, allocateUserMemory_c) = &allocateUserMemory_c; \
     __ENTRY__(name, reallocateUserMemory_c) = &reallocateUserMemory_c; \
     __ENTRY__(name, freeUserMemory_c) = &freeUserMemory_c; \
-    __ENTRY__(name, allocateLowerMemory_c) = &allocateLowerMemory_c; \
-    __ENTRY__(name, reallocateLowerMemory_c) = &reallocateLowerMemory_c; \
-    __ENTRY__(name, freeLowerMemory_c) = &freeLowerMemory_c; \
     __ENTRY__(name, mapPhysicalAddress) = &mapPhysicalAddress; \
     __ENTRY__(name, map) = &map; \
     __ENTRY__(name, mapIO_w_phy) = &mapIO_w_phy; \
     __ENTRY__(name, mapIO) = &mapIO; \
     __ENTRY__(name, unmap) = &unmap; \
-    __ENTRY__(name, unmap_range) = &unmap_range; \
     __ENTRY__(name, getPhysicalAddress) = &getPhysicalAddress; \
     __ENTRY__(name, getVirtualAddress) = &getVirtualAddress; \
     __ENTRY__(name, addVirtualAddress) = &addVirtualAddress; \
@@ -124,23 +120,17 @@ struct MemoryService_C
 
     void (*freeUserMemory_c)(struct MemoryService_C *m, void *pointer, uint32_t alignment);
 
-    void *(*allocateLowerMemory_c)(struct MemoryService_C *m, uint32_t size, uint32_t alignment);
+    void (*mapPhysicalAddress)(struct MemoryService_C *m, void* physicalAddress, void* virtualAddress, uint32_t pageCount, 
+        uint16_t flags);
 
-    void *(*reallocateLowerMemory_c)(struct MemoryService_C *m, void *pointer, uint32_t size, uint32_t alignment);
+    void (*map)(struct MemoryService_C *m, void* virtualAddress, uint32_t pageCount, uint16_t flags);
 
-    void (*freeLowerMemory_c)(struct MemoryService_C *m, void *pointer, uint32_t alignment);
+    void *(*mapIO_w_phy)(struct MemoryService_C *m, void* physicalAddress, uint32_t pageCount, 
+        int mapToKernelHeap);
 
-    void (*mapPhysicalAddress)(struct MemoryService_C *m, uint32_t virtualAddress, uint32_t physicalAddress, uint16_t flags);
+    void *(*mapIO)(struct MemoryService_C *m, uint32_t pageCount, int mapToKernelHeap);
 
-    void (*map)(struct MemoryService_C *m, uint32_t virtualAddress, uint16_t flags, int interrupt);
-
-    void *(*mapIO_w_phy)(struct MemoryService_C *m, uint32_t physicalAddress, uint32_t size, int mapToKernelHeap);
-
-    void *(*mapIO)(struct MemoryService_C *m, uint32_t size, int mapToKernelHeap);
-
-    uint32_t (*unmap)(struct MemoryService_C *m, uint32_t virtualAddress);
-
-    uint32_t (*unmap_range)(struct MemoryService_C *m, uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount);
+    void* (*unmap)(struct MemoryService_C *m, void* virtualAddress, uint32_t pageCount);
 
     void *(*getPhysicalAddress)(struct MemoryService_C *m, void *virtualAddress);
 

@@ -106,7 +106,7 @@ void write_routine(Util::Io::File& msd_file, Util::Io::File& data_file,
 
 void read_routine(Util::Io::File& msd_file, Util::Io::File& target_file,
     uint32_t* lba_arr, uint32_t* block_arr, uint8_t size, uint32_t volume,
-    uint32_t block_len){
+    uint32_t block_len, uint16_t head){
     Util::Io::FileInputStream input_stream = Util::Io::FileInputStream(msd_file);
     uint64_t msd_data;
     for(int i=0; i<size; i++){
@@ -118,6 +118,7 @@ void read_routine(Util::Io::File& msd_file, Util::Io::File& target_file,
         Util::System::out << Util::String::format("Read %u bytes ...", size) 
             << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         if(target_file.getName() == ""){
+            if(head != 0x00 && head < size) size = head;
             Util::String data = build_string(target_buff, size);
             Util::System::out << data << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush; 
         }
@@ -148,6 +149,9 @@ int32_t main(int32_t argc, char* argv[]){
     arg_parser.addSwitch("read");
     arg_parser.addArgument("dir");
     arg_parser.addArgument("file");
+    arg_parser.addSwitch("info");
+    arg_parser.addSwitch("only-info");
+    arg_parser.addArgument("head");
     arg_parser.addArgument("lba-start", true); 
     arg_parser.addArgument("blocks", true);  
     arg_parser.addArgument("volume", true);
@@ -155,30 +159,42 @@ int32_t main(int32_t argc, char* argv[]){
     arg_parser.setHelpText("Usage : msd [--read | --write] [--lba-start x] [--volume x] [--blocks x] [options] [args]\n"
                            "Options:\n"
                            "\t--file [arg]: Specify file to read or write from/to\n"
-                           "\t--dir  [arg]: Specify a directory, to search the file specified via --file\n");
+                           "\t--dir  [arg]: Specify a directory, to search the file specified via --file\n"
+                           "\t--info : Specify if the info block should be display for each io operation\n"
+                           "\t--only-info : Specify if only the info block should be displayed\n"
+                           "\t--head [arg]: Specify how much data (in bytes) to display");
 
     if(!arg_parser.parse(argc, argv)){
         Util::System::error << arg_parser.getErrorString() 
                 << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
+    auto display_volume_info = arg_parser.checkSwitch("info");
+    auto display_k_lines     = arg_parser.hasArgument("head");
+    auto only_display_info   = arg_parser.checkSwitch("only-info");
 
     uint32_t volume_num;
-    msd_file.control(GET_VOLUMES, {(uint32_t)&volume_num});
-    Util::System::out << Util::String::format("Volumes found : %u", volume_num) << Util::Io::PrintStream::endl;
+    msd_file.controlFile(GET_VOLUMES, {(uint32_t)&volume_num});
+    if(display_volume_info || only_display_info)
+        Util::System::out << Util::String::format("Volumes found : %u", 
+            volume_num) << Util::Io::PrintStream::endl;
     uint32_t drive_size[volume_num], block_size[volume_num], 
         blocks_num[volume_num], capacities[volume_num];
     for(uint32_t i = 0; i < volume_num; i++){
-        msd_file.control(GET_SIZE, {(uint32_t)&drive_size[i], i});
-        msd_file.control(GET_BLOCK_LEN, {(uint32_t)&block_size[i], i});
-        msd_file.control(GET_BLOCK_NUM, {(uint32_t)&blocks_num[i], i});
-        msd_file.control(GET_CAPACITIES_FOUND, {(uint32_t)&capacities[i], i});
-        Util::System::out << Util::String::format("Volume %u size             : %u", i, drive_size[i]) << Util::Io::PrintStream::endl;
-        Util::System::out << Util::String::format("Volume %u block size       : %u", i, block_size[i]) << Util::Io::PrintStream::endl;
-        Util::System::out << Util::String::format("Volume %u total blocks     : %u", i, blocks_num[i]) << Util::Io::PrintStream::endl;
-        Util::System::out << Util::String::format("Volume %u total capacities : %u", i, capacities[i]) << Util::Io::PrintStream::endl 
-            << Util::Io::PrintStream::flush;
+        msd_file.controlFile(GET_SIZE, {(uint32_t)&drive_size[i], i});
+        msd_file.controlFile(GET_BLOCK_LEN, {(uint32_t)&block_size[i], i});
+        msd_file.controlFile(GET_BLOCK_NUM, {(uint32_t)&blocks_num[i], i});
+        msd_file.controlFile(GET_CAPACITIES_FOUND, {(uint32_t)&capacities[i], i});
+        if(display_volume_info || only_display_info){
+            Util::System::out << Util::String::format("Volume %u size             : %u", i, drive_size[i]) << Util::Io::PrintStream::endl;
+            Util::System::out << Util::String::format("Volume %u block size       : %u", i, block_size[i]) << Util::Io::PrintStream::endl;
+            Util::System::out << Util::String::format("Volume %u total blocks     : %u", i, blocks_num[i]) << Util::Io::PrintStream::endl;
+            Util::System::out << Util::String::format("Volume %u total capacities : %u", i, capacities[i]) << Util::Io::PrintStream::endl 
+                << Util::Io::PrintStream::flush;
+        }
     }
+
+    if(only_display_info) return 1;
 
     // multiple reads/writes allowed -> lba-start size has to match blocks size
 
@@ -289,16 +305,22 @@ int32_t main(int32_t argc, char* argv[]){
     if(write) {
         Util::System::out << "Starting to write ..." 
             << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-        write_routine(msd_file, file, lba_array, block_array, size, vol, block_size[0], data_written);
+        write_routine(msd_file, file, lba_array, block_array, size, vol, 
+            block_size[0], data_written);
     }
     else {
         Util::System::out << "Starting to read ..." 
             << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-        read_routine(msd_file, file, lba_array, block_array, size, vol, block_size[0]);
+        uint16_t k_lines = 0;
+        if(display_k_lines) k_lines = Util::String::parseInt(
+            arg_parser.getArgument("head"));
+        read_routine(msd_file, file, lba_array, block_array, size, vol, 
+            block_size[0], k_lines);
     }
     
     if(file.getName() == "msd_tmp_data"){
         file.remove();
     }
+
     return 1;
 }

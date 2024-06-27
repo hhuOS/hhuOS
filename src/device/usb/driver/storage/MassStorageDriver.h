@@ -12,7 +12,8 @@
 #define ALLOWED_CAPACITES 31
 #define READ_FORMAT_CAPACITIES_THRESHHOLD 5 // atleast 5 iterations 
 #define MAX_VOLUMES 16
-#define TEST_ON
+// #define TEST_ON ::: this macro is only used for testing purpose inside the kernel 
+// don't activate this macro if you don't know what you are doing !!!
 
 #define __INIT_MSD_DRIVER__(name, driver_name, entry) \
     __ENTRY__(name, configure_device) = &configure_device; \

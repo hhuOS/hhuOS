@@ -1937,7 +1937,7 @@ static int configure_audio_device(AudioDriver* driver){
         // interfaces/endpoints
         UsbDev* dev = driver->dev[i].usb_dev;
         MemoryService_C* mem_service = __DEV_MEMORY(dev);
-        uint8_t* map_io_buffer = __MAP_IO_KERNEL__(mem_service, uint8_t, PAGE_SIZE);
+        uint8_t* map_io_buffer = __MAP_IO_KERNEL__(mem_service, uint8_t, 1);
         uint16_t map_io_offset = 0, total_len;
         uint8_t desc_len, active_config_val = dev->active_config->config_desc.bConfigurationValue;
         uint8_t *start, *end;
@@ -2112,7 +2112,7 @@ static int8_t audio_mute_control(AudioDriver* driver, AudioDev* audio_dev,
     
     feature_control(driver, MUTE_CONTROL, request_form, audio_dev, interface, bRequest,
         channel_number, mute_block,
-        sizeof(struct MuteControlParameterBlockFirstForm), callback, 0);
+        sizeof(struct MuteControlParameterBlockFirstForm), callback, flags);
 
     return __RET_S__;
 }

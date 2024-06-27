@@ -13,13 +13,13 @@ void mdelay(uint32_t millis){
 
 void udelay(uint32_t micro){
     Util::Time::Timestamp t = Util::Time::Timestamp(0,0);
-    t.addNanoseconds(micro * 1000);
+    t.ofNanoseconds(micro * 1000);
     Util::Async::Thread::sleep(t);
 }
 
 void ndelay(uint32_t nanos){
     Util::Time::Timestamp t = Util::Time::Timestamp(0,0);
-    t.addNanoseconds(nanos);
+    t.ofNanoseconds(nanos);
     Util::Async::Thread::sleep(t);
 }
 

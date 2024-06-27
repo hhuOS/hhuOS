@@ -169,7 +169,7 @@ static void msd_match_routine(MassStorageDriver* driver, MemoryService_C* mem_se
   UsbDev* dev, Endpoint* endpoint, MassStorageDev* msd_dev, uint8_t* select, 
   unsigned int* msd_endpoint){
   __IF_CUSTOM__(__IS_NULL__(msd_dev->buffer), msd_dev->buffer = 
-    __MAP_IO_KERNEL__(mem_service, uint8_t, sizeof(uint8_t) * MAX_TRANSFER_BYTES));
+    __MAP_IO_KERNEL__(mem_service, uint8_t, (sizeof(uint8_t) * MAX_TRANSFER_BYTES) / PAGE_SIZE));
   *select = 1;
   *msd_endpoint = __STRUCT_CALL__(dev, 
         __endpoint_number, endpoint);
@@ -178,8 +178,8 @@ static void msd_match_routine(MassStorageDriver* driver, MemoryService_C* mem_se
 static void set_dev_properites(MassStorageDriver *driver, MassStorageDev* msd_dev, 
   UsbDev* dev, Interface* interface) {
   MemoryService_C *m = __DEV_MEMORY(dev);
-  driver->csw_map_io = (uint8_t *)m->mapIO(m, PAGE_SIZE, 1);
-  driver->cbw_map_io = (uint8_t *)m->mapIO(m, PAGE_SIZE, 1);
+  driver->csw_map_io = __MAP_IO_KERNEL__(m, uint8_t, 1);
+  driver->cbw_map_io = __MAP_IO_KERNEL__(m, uint8_t, 1);
 
   msd_dev->usb_dev = dev;
   msd_dev->buffer_size = MAX_TRANSFER_BYTES;
@@ -351,8 +351,7 @@ static int configure_device(MassStorageDriver *driver) {
     MassStorageDev *msd_dev = driver->dev + j;
 
     MemoryService_C *mem_service = __DEV_MEMORY(dev);
-    uint8_t *command = (uint8_t *)mem_service->mapIO(
-        mem_service, PAGE_SIZE * sizeof(uint8_t), 1);
+    __MAP_IO_KERNEL_S__(mem_service, uint8_t, command);
     __IF_RET_NEG__(__IS_NEG_ONE__(
       __STRUCT_CALL__(driver, get_max_logic_unit_numbers, dev, itf, command)));
     __IF_RET_NEG__(!msd_dev->success_transfer);
@@ -425,7 +424,7 @@ static int configure_device(MassStorageDriver *driver) {
         return -1;
     }
 
-    mem_service->unmap(mem_service, (uint32_t)(uintptr_t)command);
+    mem_service->unmap(mem_service, command, 1);
   }
 
   return 1;
@@ -454,7 +453,7 @@ static void callback_mass_storage(UsbDev *dev, Interface* interface, uint32_t st
     *((uint32_t*)(target + (*stored_len)+1)) = 0;
 
     internal_msd_driver->clear_msd_map(internal_msd_driver, *id);
-    mem_service->unmap(mem_service, (uint32_t)(uintptr_t)(uint8_t *)data);
+    mem_service->unmap(mem_service, (uint8_t *)data, 1);
     return;
   }
 
@@ -466,7 +465,7 @@ static void callback_mass_storage(UsbDev *dev, Interface* interface, uint32_t st
     *((uint32_t*)(target + (*stored_len)+1)) = 0;
 
     internal_msd_driver->clear_msd_map(internal_msd_driver, *id);
-    mem_service->unmap(mem_service, (uint32_t)(uintptr_t)(uint8_t *)data);
+    mem_service->unmap(mem_service, (uint8_t *)data, 1);
     internal_msd_driver->free_csw(internal_msd_driver, csw);
     return;
   }
@@ -510,7 +509,7 @@ static void callback_cbw_data_write(UsbDev *dev, Interface* interface, uint32_t 
     *((uint32_t*)(target + (*stored_len)+1)) = 0;
 
     internal_msd_driver->data_map->remove_c(internal_msd_driver->data_map, mm);
-    m->unmap(m, (uint32_t)(uintptr_t)mm);
+    m->unmap(m, mm, 1);
     internal_msd_driver->clear_msd_map(internal_msd_driver, *id);
   }
 
@@ -556,7 +555,7 @@ static void callback_cbw_data_read(UsbDev *dev, Interface* interface, uint32_t s
     *((uint32_t*)(target + (*stored_len)+1)) = 0;
 
     internal_msd_driver->data_map->remove_c(internal_msd_driver->data_map, mm);
-    m->unmap(m, (uint32_t)(uintptr_t)mm);
+    m->unmap(m, mm, 1);
     internal_msd_driver->clear_msd_map(internal_msd_driver, *id);
   }
 
@@ -589,12 +588,12 @@ static void callback_csw(UsbDev *dev, Interface* interface, uint32_t status, voi
     internal_msd_driver->free_csw(internal_msd_driver,
                                   (CommandStatusWrapper *)data);
     internal_msd_driver->clear_msd_map(internal_msd_driver, *id);
-    m->unmap(m, (uint32_t)(uintptr_t)mm);
+    m->unmap(m, mm, 1);
     return;
   }
   __mem_cpy(mm, target, *len);
 
-  m->unmap(m, (uint32_t)(uintptr_t)mm);
+  m->unmap(m, mm, 1);
 
   target[*len] = 0;
   *((uint32_t*)(target + (*len)+1)) = *len;

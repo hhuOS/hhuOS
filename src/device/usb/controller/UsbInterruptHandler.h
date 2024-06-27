@@ -1,7 +1,6 @@
 #ifndef UsbInterruptHandler__include
 #define UsbInterruptHandler__include
 
-#include "../../../kernel/process/ThreadState.h"
 #include "../../../kernel/interrupt/InterruptHandler.h"
 
 extern "C"{
@@ -22,7 +21,7 @@ public:
 
     void plugin() override;
 
-    void trigger(const Kernel::InterruptFrame& frame) override;
+    void trigger(const Kernel::InterruptFrame& frame, Kernel::InterruptVector slot) override;
 
 private:
     uint8_t irq;

@@ -1,7 +1,7 @@
 #include "SystemInterface.h"
 #include "../../../kernel/service/MemoryService.h"
 #include "../../../kernel/service/InterruptService.h"
-#include "../../../kernel/system/System.h"
+#include "../../../kernel/service/Service.h"
 #include "../controller/UsbInterruptHandler.h"
 #include "MapInterface.h"
 
@@ -16,15 +16,13 @@ static void freeKernelMemory_c(MemoryService_C *m, void *pointer, uint32_t align
 static void *allocateUserMemory_c(MemoryService_C *m, uint32_t size, uint32_t alignment);
 static void *reallocateUserMemory_c(MemoryService_C *m, void *pointer, uint32_t size, uint32_t alignment);
 static void freeUserMemory_c(MemoryService_C *m, void *pointer, uint32_t alignment);
-static void *allocateLowerMemory_c(MemoryService_C *m, uint32_t size, uint32_t alignment);
-static void *reallocateLowerMemory_c(MemoryService_C *m, void *pointer, uint32_t size, uint32_t alignment);
-static void freeLowerMemory_c(MemoryService_C *m, void *pointer, uint32_t alignment);
-static void mapPhysicalAddress(MemoryService_C *m, uint32_t virtualAddress, uint32_t physicalAddress, uint16_t flags);
-static void map(MemoryService_C *m, uint32_t virtualAddress, uint16_t flags, int interrupt);
-static void *mapIO_w_phy(MemoryService_C *m, uint32_t physicalAddress, uint32_t size, int mapToKernelHeap);
-static void *mapIO(MemoryService_C *m, uint32_t size, int mapToKernelHeap);
-static uint32_t unmap(MemoryService_C *m, uint32_t virtualAddress);
-static uint32_t unmap_range(MemoryService_C *m, uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount);
+static void mapPhysicalAddress(MemoryService_C *m, void* physicalAddress, void* virtualAddress, 
+    uint32_t pageCount, uint16_t flags);
+static void map(MemoryService_C *m, void* virtualAddress, uint32_t pageCount, uint16_t flags);
+static void *mapIO_w_phy(MemoryService_C *m, void* physicalAddress, uint32_t pageCount, 
+        int mapToKernelHeap);
+static void *mapIO(MemoryService_C *m, uint32_t pageCount, int mapToKernelHeap);
+static void* unmap(MemoryService_C *m, void* virtualAddress, uint32_t pageCount);
 static void* getPhysicalAddress(MemoryService_C *m, void *virtualAddress);
 static void* getVirtualAddress(MemoryService_C* m, uint32_t physical_address);
 static void addVirtualAddress(MemoryService_C* m, uint32_t physical_address, void* qh);
@@ -40,7 +38,7 @@ static inline void new_service(SystemService_C* service_c, SystemServiceP_C serv
 }
 
 MemoryService_C* new_mem_service(){
-    Kernel::MemoryService& mem_service = Kernel::System::getService<Kernel::MemoryService>();
+    Kernel::MemoryService& mem_service = Kernel::Service::getService<Kernel::MemoryService>();
     Kernel::MemoryService* s = &mem_service;
 
     MemoryService_C* mem_c = (MemoryService_C*)mem_service.allocateKernelMemory(sizeof(MemoryService_C));
@@ -66,7 +64,7 @@ void set_address_map(MemoryService_C* mem_service){
 }
 
 void new_interrupt_service(InterruptService_C* interrupt_c){
-    Kernel::InterruptService& interrupt_service = Kernel::System::getService<Kernel::InterruptService>();
+    Kernel::InterruptService& interrupt_service = Kernel::Service::getService<Kernel::InterruptService>();
     Kernel::InterruptService* i = &interrupt_service;
 
     interrupt_c->usb_interrupt_handler = 0;
@@ -115,40 +113,26 @@ void freeUserMemory_c(MemoryService_C* m, void* pointer, uint32_t alignment){
     ((Kernel::MemoryService*)m->super.service_pointer)->freeUserMemory(pointer,alignment);
 }
 
-void* allocateLowerMemory_c(MemoryService_C* m, uint32_t size, uint32_t alignment){
-    return ((Kernel::MemoryService*)m->super.service_pointer)->allocateLowerMemory(size,alignment);
+void mapPhysicalAddress(MemoryService_C* m, void* physicalAddress, void* virtualAddress, uint32_t pageCount, 
+        uint16_t flags){
+    ((Kernel::MemoryService*)m->super.service_pointer)->mapPhysical(physicalAddress, virtualAddress, pageCount, flags);
 }
 
-void* reallocateLowerMemory_c(MemoryService_C* m, void* pointer, uint32_t size, uint32_t alignment){
-    return ((Kernel::MemoryService*)m->super.service_pointer)->reallocateLowerMemory(pointer,size,alignment);
+void map(MemoryService_C* m, void* virtualAddress, uint32_t pageCount, uint16_t flags){
+    ((Kernel::MemoryService*)m->super.service_pointer)->map(virtualAddress,pageCount, flags);
 }
 
-void freeLowerMemory_c(MemoryService_C* m, void* pointer, uint32_t alignment){
-    ((Kernel::MemoryService*)m->super.service_pointer)->freeLowerMemory(pointer,alignment);
+void *mapIO_w_phy(MemoryService_C* m, void* physicalAddress, uint32_t pageCount, 
+        int mapToKernelHeap){
+    return ((Kernel::MemoryService*)m->super.service_pointer)->mapIO(physicalAddress,pageCount,(bool)mapToKernelHeap);
 }
 
-void mapPhysicalAddress(MemoryService_C* m, uint32_t virtualAddress, uint32_t physicalAddress, uint16_t flags){
-    ((Kernel::MemoryService*)m->super.service_pointer)->mapPhysicalAddress(virtualAddress,physicalAddress,flags);
+void *mapIO(MemoryService_C* m, uint32_t pageCount, int mapToKernelHeap){
+    return ((Kernel::MemoryService*)m->super.service_pointer)->mapIO(pageCount,(bool)mapToKernelHeap);
 }
 
-void map(MemoryService_C* m, uint32_t virtualAddress, uint16_t flags, int interrupt){
-    ((Kernel::MemoryService*)m->super.service_pointer)->map(virtualAddress,flags, (bool)interrupt);
-}
-
-void *mapIO_w_phy(MemoryService_C* m, uint32_t physicalAddress, uint32_t size, int mapToKernelHeap){
-    return ((Kernel::MemoryService*)m->super.service_pointer)->mapIO(physicalAddress,size,(bool)mapToKernelHeap);
-}
-
-void *mapIO(MemoryService_C* m, uint32_t size, int mapToKernelHeap){
-    return ((Kernel::MemoryService*)m->super.service_pointer)->mapIO(size,(bool)mapToKernelHeap);
-}
-
-uint32_t unmap(MemoryService_C* m, uint32_t virtualAddress){
-    return ((Kernel::MemoryService*)m->super.service_pointer)->unmap(virtualAddress);
-}
-
-uint32_t unmap_range(MemoryService_C* m, uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount){
-    return ((Kernel::MemoryService*)m->super.service_pointer)->unmap(virtualStartAddress,virtualEndAddress,breakCount);
+void* unmap(MemoryService_C* m, void* virtualAddress, uint32_t pageCount){
+    return ((Kernel::MemoryService*)m->super.service_pointer)->unmap(virtualAddress, pageCount);
 }
 
 void* getPhysicalAddress(MemoryService_C* m, void *virtualAddress){

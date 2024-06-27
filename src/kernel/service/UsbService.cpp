@@ -1,6 +1,6 @@
 #include "UsbService.h"
 #include "../../device/usb/controller/UsbRunnable.h"
-#include "../../filesystem/core/VirtualDriver.h"
+#include "../../filesystem/VirtualDriver.h"
 #include "../../filesystem/memory/MemoryDirectoryNode.h"
 #include "../../filesystem/memory/MemoryDriver.h"
 #include "../../filesystem/memory/MemoryFileNode.h"
@@ -9,14 +9,14 @@
 #include "../../lib/util/base/String.h"
 #include "../../lib/util/io/file/File.h"
 #include "../../lib/util/io/stream/FileOutputStream.h"
-#include "../system/System.h"
+#include "../service/Service.h"
 #include "FilesystemService.h"
 #include "MemoryService.h"
 #include "UsbService_C.h"
 
 Kernel::UsbService::UsbService() {
   Kernel::MemoryService &m =
-      Kernel::System::getService<Kernel::MemoryService>();
+      Kernel::Service::getService<Kernel::MemoryService>();
   usb_service_c =
       (UsbService_C *)m.allocateKernelMemory(sizeof(UsbService_C), 0);
 
@@ -99,7 +99,7 @@ int Kernel::UsbService::deregister_listener(int id) {
 // time ?
 void Kernel::UsbService::create_usb_fs() {
   Kernel::FilesystemService &fs =
-      Kernel::System::getService<Kernel::FilesystemService>();
+      Kernel::Service::getService<Kernel::FilesystemService>();
   list_element *l_e_controller = usb_service_c->head.l_e;
 
   Filesystem::Memory::MemoryDriver *m_driver =

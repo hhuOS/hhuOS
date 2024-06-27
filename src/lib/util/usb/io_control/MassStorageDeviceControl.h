@@ -11,8 +11,8 @@ enum MSD_Params{
   GET_CAPACITY = 0x07,
   GET_SENSE = 0x08, // not implemented -> too lazy :)
   GET_READ_CAPACITY = 0x09,
-  SET_CALLBACK = 0x0A,
-  UNSET_CALLBACK = 0x0B
+  // @deprecated SET_CALLBACK = 0x0A,
+  // @deprecated UNSET_CALLBACK = 0x0B
 };
 
 #endif

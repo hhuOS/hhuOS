@@ -164,6 +164,11 @@ static void look_for_events(KeyBoardDriver *k_driver, KeyBoardDev *kbd_dev,
 
   if ((*key_code == 0x00) && (*modifiers == 0x00))
     return;
+  // for now we don't support to send just the modifiers
+  // this is the only policy that we force
+  // in future this policy should be removed !
+  if ((*key_code == 0x00) && (*modifiers != 0x00))
+    return;
 
   /*if ((*key_code == 0x00) && (*modifiers != 0x00) &&
       (k_driver->current_modifier_state == 0)) {
@@ -172,36 +177,34 @@ static void look_for_events(KeyBoardDriver *k_driver, KeyBoardDev *kbd_dev,
         constructEvent_key_board(key_code, modifiers, &event_value,
                                  &event_type); // just for passing the modifiers
   }*/
-  else {
-    kbd_dev->current_modifier_state = 1;
+  kbd_dev->current_modifier_state = 1;
 
-    if (*key_code == RAW_KEY_CAPS_LOCK) {
-      kbd_dev->current_led_state ^= CAPS_LOCK_MASK;
-    }
-    /*else if(*key_code & RAW_KEY_NUM){
-        k_driver->current_led_state ^= NUM_LOCK_MASK;
-    }*/
-    else if (*key_code == RAW_KEY_SCROLL) {
-      kbd_dev->current_led_state ^= SCROLL_LOCK_MASK;
-    }
+  if (*key_code == RAW_KEY_CAPS_LOCK) {
+    kbd_dev->current_led_state ^= CAPS_LOCK_MASK;
+  }
+  /*else if(*key_code & RAW_KEY_NUM){
+      k_driver->current_led_state ^= NUM_LOCK_MASK;
+  }*/
+  else if (*key_code == RAW_KEY_SCROLL) {
+    kbd_dev->current_led_state ^= SCROLL_LOCK_MASK;
+  }
 
-    int is_pressed = 0;
-    for (int i = 0; i < 6; i++) {
-      if (*(kbd_dev->look_up_buffer + i) == *key_code) {
-        is_pressed = 1;
-      }
+  int is_pressed = 0;
+  for (int i = 0; i < 6; i++) {
+    if (*(kbd_dev->look_up_buffer + i) == *key_code) {
+      is_pressed = 1;
     }
-    if (is_pressed) {
-      event_value = KEY_HOLD;
-      event = k_driver->constructEvent_key_board(k_driver, key_code, modifiers,
-                                                 &event_value,
-                                                 &event_type); // hold event
-    } else if (!is_pressed) {
-      event_value = KEY_PRESSED;
-      event = k_driver->constructEvent_key_board(k_driver, key_code, modifiers,
-                                                 &event_value,
-                                                 &event_type); // pressed event
-    }
+  }
+  if (is_pressed) {
+    event_value = KEY_HOLD;
+    event = k_driver->constructEvent_key_board(k_driver, key_code, modifiers,
+                                                &event_value,
+                                                &event_type); // hold event
+  } else if (!is_pressed) {
+    event_value = KEY_PRESSED;
+    event = k_driver->constructEvent_key_board(k_driver, key_code, modifiers,
+                                                &event_value,
+                                                &event_type); // pressed event
   }
   k_driver->trigger_key_board_event(k_driver, (GenericEvent *)&event);
 }
@@ -232,7 +235,7 @@ static void look_for_released(KeyBoardDriver *k_driver, KeyBoardDev *kbd_dev,
 
 static void key_board_report_callback(UsbDev *dev, Interface* interface, uint32_t status, void *data) {
   MemoryService_C* m = __DEV_MEMORY(dev);
-  m->unmap(m, (uint32_t)(uintptr_t)(uint8_t *)data);
+  m->unmap(m, (uint8_t *)data, 1);
 }
 
 // this method should only be callable inside the interrupt context !!!
@@ -375,8 +378,8 @@ static uint16_t map_to_input_event_value(KeyBoardDriver *k_driver, uint8_t raw_k
   } else if (raw_key == RAW_KEY_7) {
     if (modifiers == LEFT_SHIFT_MASK || modifiers == RIGHT_SHIFT_MASK) {
       input_key = KEY_SLASH;
-    } else if (modifiers == LEFT_CONTROL_MASK ||
-               modifiers == RIGHT_CONTROL_MASK) {
+    } else if (modifiers == LEFT_ALT_MASK ||
+               modifiers == RIGHT_ALT_MASK) {
       input_key = KEY_CURLY_BRACKET_RIGHT;
     } else {
       input_key = KEY_7;
@@ -384,8 +387,8 @@ static uint16_t map_to_input_event_value(KeyBoardDriver *k_driver, uint8_t raw_k
   } else if (raw_key == RAW_KEY_8) {
     if (modifiers == LEFT_SHIFT_MASK || modifiers == RIGHT_SHIFT_MASK) {
       input_key = KEY_PARENTHESIS_RIGHT;
-    } else if (modifiers == LEFT_CONTROL_MASK ||
-               modifiers == RIGHT_CONTROL_MASK) {
+    } else if (modifiers == LEFT_ALT_MASK ||
+               modifiers == RIGHT_ALT_MASK) {
       input_key = KEY_SQUARE_BRACKET_RIGHT;
     } else {
       input_key = KEY_8;
@@ -393,8 +396,8 @@ static uint16_t map_to_input_event_value(KeyBoardDriver *k_driver, uint8_t raw_k
   } else if (raw_key == RAW_KEY_9) {
     if (modifiers == LEFT_SHIFT_MASK || modifiers == RIGHT_SHIFT_MASK) {
       input_key = KEY_PARENTHESIS_LEFT;
-    } else if (modifiers == LEFT_CONTROL_MASK ||
-               modifiers == RIGHT_CONTROL_MASK) {
+    } else if (modifiers == LEFT_ALT_MASK ||
+               modifiers == RIGHT_ALT_MASK) {
       input_key = KEY_SQUARE_BRACKET_LEFT;
     } else {
       input_key = KEY_9;
@@ -402,8 +405,8 @@ static uint16_t map_to_input_event_value(KeyBoardDriver *k_driver, uint8_t raw_k
   } else if (raw_key == RAW_KEY_0) {
     if (modifiers == LEFT_SHIFT_MASK || modifiers == RIGHT_SHIFT_MASK) {
       input_key = KEY_EQUALS_SIGN;
-    } else if (modifiers == LEFT_CONTROL_MASK ||
-               modifiers == RIGHT_CONTROL_MASK) {
+    } else if (modifiers == LEFT_ALT_MASK ||
+               modifiers == RIGHT_ALT_MASK) {
       input_key = KEY_CURLY_BRACKET_LEFT;
     } else {
       input_key = KEY_0;
@@ -411,8 +414,8 @@ static uint16_t map_to_input_event_value(KeyBoardDriver *k_driver, uint8_t raw_k
   } else if (raw_key == RAW_KEY_ẞ) {
     if (modifiers == LEFT_SHIFT_MASK || modifiers == RIGHT_SHIFT_MASK) {
       input_key = KEY_QUESTION_MARK;
-    } else if (modifiers == LEFT_CONTROL_MASK ||
-               modifiers == RIGHT_CONTROL_MASK) {
+    } else if (modifiers == LEFT_ALT_MASK ||
+               modifiers == RIGHT_ALT_MASK) {
       input_key = KEY_BACKSLASH;
     } else {
       input_key = KEY_ẞ;
@@ -438,8 +441,8 @@ static uint16_t map_to_input_event_value(KeyBoardDriver *k_driver, uint8_t raw_k
   } else if (raw_key == RAW_KEY_PLUS) {
     if (modifiers == LEFT_SHIFT_MASK || modifiers == RIGHT_SHIFT_MASK) {
       input_key = KEY_STAR;
-    } else if (modifiers == LEFT_CONTROL_MASK ||
-               modifiers == RIGHT_CONTROL_MASK) {
+    } else if (modifiers == LEFT_ALT_MASK ||
+               modifiers == RIGHT_ALT_MASK) {
       input_key = KEY_TILDE;
     } else {
       input_key = KEY_PLUS;
@@ -447,8 +450,8 @@ static uint16_t map_to_input_event_value(KeyBoardDriver *k_driver, uint8_t raw_k
   } else if (raw_key == RAW_KEY_LOWER_THAN) {
     if (modifiers == LEFT_SHIFT_MASK || modifiers == RIGHT_SHIFT_MASK) {
       input_key = KEY_GREATER_THEN;
-    } else if (modifiers == LEFT_CONTROL_MASK ||
-               modifiers == RIGHT_CONTROL_MASK) {
+    } else if (modifiers == LEFT_ALT_MASK ||
+               modifiers == RIGHT_ALT_MASK) {
       input_key = KEY_PIPE;
     } else {
       input_key = KEY_LOWER_THAN;
@@ -581,9 +584,10 @@ uint16_t RAW_KEY_ẞ = 45;
 uint16_t RAW_KEY_RIGHT_SINGLE = 46;
 uint16_t RAW_KEY_U_DOUBLE_POINTS = 47;
 uint16_t RAW_KEY_PLUS = 48;
-uint16_t RAW_KEY_LOWER_THAN = 49; // is this really true ?
-uint16_t RAW_KEY_A_DOUBLE_POINTS = 51;
-uint16_t RAW_KEY_HASH_TAG = 52;
+uint16_t RAW_KEY_LOWER_THAN = 100;
+uint16_t RAW_KEY_A_DOUBLE_POINTS = 52;
+uint16_t RAW_KEY_O_DOUBLE_POINTS = 51;
+uint16_t RAW_KEY_HASH_TAG = 50;
 uint16_t RAW_KEY_EXP_SIGN = 53;
 uint16_t RAW_KEY_KOMMA = 54;
 uint16_t RAW_KEY_POINT = 55;

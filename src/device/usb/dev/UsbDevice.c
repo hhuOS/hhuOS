@@ -290,11 +290,12 @@ static inline void __request_get_req_status(UsbDev* dev, UsbDeviceRequest* devic
                CONTROL_INITIAL_STATE);
 }
 
+/*
 static void alt_setting_callback(UsbDev* dev, Interface* interface, uint32_t status, void* data){
   __IF_RET__(status & E_TRANSFER);
   Alternate_Interface* alt_itf = (Alternate_Interface*)interface->data;
   interface->active_interface = alt_itf;
-}
+} */
 
 static inline void __request_switch_alt_setting(UsbDev* dev, UsbDeviceRequest* device_req,
   Interface* interface, Alternate_Interface* alt_itf) {
@@ -424,7 +425,7 @@ static inline void __build_dev(UsbDev* dev, uint8_t speed, uint8_t port,
                                uint8_t dev_num, void* controller){
   UsbController* casted_controller = __CAST__(UsbController*, controller);
   __MEM_SERVICE__(casted_controller->mem_service, mem_service);
-  dev->device_request_map_io = __MAP_IO_KERNEL__(mem_service, uint8_t, PAGE_SIZE);
+  dev->device_request_map_io = __MAP_IO_KERNEL__(mem_service, uint8_t, 1);
 
   __mem_set(dev->device_request_map_io, PAGE_SIZE, 0);
   __mem_set(dev->device_request_map_io_bitmap,
@@ -477,7 +478,7 @@ void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port,
   __DEV_MEMORY__(dev, mem_service);
 
   int map_io_offset = 0;
-  uint8_t *map_io_buffer = __MAP_IO_KERNEL__(mem_service, uint8_t, PAGE_SIZE);
+  uint8_t *map_io_buffer = __MAP_IO_KERNEL__(mem_service, uint8_t, 1);
       
   __DEV_IO__ASSIGN__(map_io_buffer, map_io_offset, DeviceDescriptor, device_descriptor);
   __DEV_IO__ASSIGN__(map_io_buffer, map_io_offset, ConfigurationDescriptor, 
@@ -513,7 +514,7 @@ void new_usb_device(struct UsbDev *dev, uint8_t speed, uint8_t port,
   __STRUCT_CALL__(dev, __transition_to_config_state);
 
   __STRUCT_CALL__(__CAST__(__UHC__*, dev->controller), add_device, dev);
-  __STRUCT_CALL__(mem_service, unmap, __PTR_TYPE__(uint32_t, map_io_buffer));
+  __STRUCT_CALL__(mem_service, unmap, map_io_buffer, 1);
 }
 
 static void add_downstream_device(UsbDev *dev, UsbDev *downstream_dev) {
@@ -537,7 +538,7 @@ static void delete_usb_dev(UsbDev *dev) {
   if (dev->downstream_devs != (void *)0)
     m->freeKernelMemory_c(m, dev->downstream_devs, 0);
   m->freeKernelMemory_c(m, dev->device_mutex, 0);
-  m->unmap(m, (uint32_t)(uintptr_t)dev->device_request_map_io);
+  m->unmap(m, dev->device_request_map_io, 1);
   m->freeKernelMemory_c(m, dev->lang_ids, 0);
   m->freeKernelMemory_c(m, dev->device_logger, 0);
   dev->free_usb_dev_strings(dev);

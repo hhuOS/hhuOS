@@ -1,9 +1,9 @@
 #include "PciInterface.h"
 
-#include "../../../device/pci/Pci.h"
-#include "../../../device/pci/PciDevice.h"
+#include "../../../device/bus/pci/Pci.h"
+#include "../../../device/bus/pci/PciDevice.h"
 #include "../../../kernel/service/MemoryService.h"
-#include "../../../kernel/system/System.h"
+#include "../../../kernel/service/Service.h"
 
 Pci_C *conjungt_search(Util::Array<Device::PciDevice> arr);
 
@@ -11,7 +11,7 @@ Pci_C *conjungt_search(Util::Array<Device::PciDevice> arr) {
   if (arr.length() == 0) return nullptr;
   int k = 0;
   Kernel::MemoryService &mem_service =
-      Kernel::System::getService<Kernel::MemoryService>();
+      Kernel::Service::getService<Kernel::MemoryService>();
 
   Pci_C *pci_c = (Pci_C *)mem_service.allocateKernelMemory(sizeof(Pci_C), 0);
   PciDevice_Struct *device_structs =

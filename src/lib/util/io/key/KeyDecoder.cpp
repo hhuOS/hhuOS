@@ -94,7 +94,7 @@ bool Util::Io::KeyDecoder::parseUsbCodes(uint8_t code, uint8_t type){
 void Util::Io::KeyDecoder::parseAsciiUsb(uint8_t event_code){
     char key = 0;
 
-    if(event_code == KEY_CAPS_LOCK){
+    if((event_code == KEY_CAPS_LOCK) && currentKey.isPressed()){
         currentKey.setCapsLock(!currentKey.getCapsLock());
     }
     if (event_code == KEY_A) {
@@ -246,6 +246,7 @@ void Util::Io::KeyDecoder::parseAsciiUsb(uint8_t event_code){
     else if (event_code == KEY_DOUBLE_POINTS) key = ':';
     else if (event_code == KEY_KOMMA) key = ',';
     else if (event_code == KEY_SEMICOLON) key = ';';
+    else if (event_code == KEY_LOWER_THAN) key = '<';
     else if (event_code == KEY_GREATER_THEN) key = '>';
     else if (event_code == KEY_PIPE) key = '|';
     else if (event_code == KEY_CURLY_BRACKET_LEFT) key = '}';
@@ -277,7 +278,13 @@ bool Util::Io::KeyDecoder::isHighLetter(){
 }
 
 void Util::Io::KeyDecoder::defaulting(){
-    currentKey.setDefault();
+    currentKey.setPressed(false);
+    currentKey.setCtrlLeft(false);
+    currentKey.setShift(false);
+    currentKey.setAltLeft(false);
+    currentKey.setCtrlRight(false);
+    currentKey.setAltRight(false);
+    // currentKey.setDefault();
 }
 
 bool Util::Io::KeyDecoder::parseScancode(uint8_t code) {

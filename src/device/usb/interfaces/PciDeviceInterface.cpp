@@ -1,5 +1,5 @@
 #include "PciDeviceInterface.h"
-#include "../../../device/pci/PciDevice.h"
+#include "../../../device/bus/pci/PciDevice.h"
 
 uint8_t readByte_c(struct PciDevice_Struct* pci_struct, uint8_t reg){
     return ((Device::PciDevice*)pci_struct->pci_dev_pointer)->readByte(reg);
