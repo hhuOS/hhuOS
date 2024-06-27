@@ -49,6 +49,14 @@ readonly CONST_QEMU_NEW_AUDIO_ARGS="\
 -machine pcspk-audiodev=pa \
 -device sb16,irq=10,dma=1,audiodev=pa"
 
+readonly CONST_QEMU_USB_AUDIO_ARGS="\
+-usb \
+-device usb-hub,bus=usb-bus.0,port=1 \
+-device usb-hub,bus=usb-bus.0,port=2 \
+-device usb-mouse,bus=usb-bus.0,port=1.1 \
+-device usb-kbd,bus=usb-bus.0,port=1.2 \
+-device usb-audio,bus=usb-bus.0,port=1.3"
+
 QEMU_BIN="${CONST_QEMU_BIN_I386}"
 QEMU_MACHINE="${CONST_QEMU_MACHINE_PC}"
 QEMU_BIOS="${CONST_QEMU_BIOS_EFI}"
@@ -59,7 +67,7 @@ QEMU_STORAGE_ARGS="${CONST_QEMU_STORAGE_ARGS}"
 QEMU_AUDIO_ARGS="${CONST_QEMU_NEW_AUDIO_ARGS}"
 QEMU_NETWORK_ARGS="${CONST_QEMU_NETWORK_ARGS}"
 QEMU_ARGS="${CONST_QEMU_ARGS}"
-QEMU_USB_ARGS="-usb -device usb-mouse,bus=usb-bus.0,port=1 -device usb-kbd,bus=usb-bus.0,port=2"
+QEMU_USB_ARGS="${CONST_QEMU_USB_AUDIO_ARGS}"
 QEMU_USB_ARGS_ROOT=""
 
 QEMU_GDB_PORT=""
@@ -173,6 +181,41 @@ print_usage() {
         Set the port, on which qemu should listen for GDB clients (default: disabled)
     -h, --help
         Show this help message\\n"
+}
+
+parse_usb_fast() {
+  local hub=1
+  local port=1
+  local usb_string="type=$1"
+  python3 -m pip install --upgrade pip > /dev/null
+  python3 -m pip install yq > /dev/null
+  printf "Controller type specified : %s\n" $1
+  while read -r line; do
+    while read -r uline; do
+      if [[ "${line:1:-1}" == "${uline}" ]]; then
+        if [[ "$hub" == 2 && "$port" == 8 ]]; then
+          printf "All ports are in use ...\n";exit 1
+        fi
+        local vendor=$(echo "${uline}" | cut -d ":" -f1)
+        local product=$(echo "${uline}" | cut -d ":" -f2)
+        printf "Found a match : vendor=0x%s , product=0x%s\n" "${vendor}" "${product}"
+        printf "Assigning device to port %d.%d\n" "${hub}" "${port}"
+        if [[ "${hub}" == 1 && "${port}" == 1 ]]; then
+          usb_string="${usb_string},vendorid=0x${vendor},productid=0x${product},port=${hub}.${port};"
+        else
+          usb_string="${usb_string}vendorid=0x${vendor},productid=0x${product},port=${hub}.${port};"
+        fi
+        if [[ "${port}" == 8 ]]; then
+          hub=$((hub+1))
+          port=1
+        else
+          port=$((port+1))
+        fi
+      fi
+    done < <(lsusb | cut -d " " -f6)
+  done < <(yq '(.AUDIO | .[] | .id) , (.STORAGE | .[] | .id), (.HID | (.MOUSE | .[] | .id), (.KEYBOARD | .[] | .id))' */*/*/usb_supported_devices.yml)
+  printf "Finished generating usb string ... printing generated string ...\n"; echo "${usb_string}"
+  parse_usb "$usb_string"
 }
 
 parse_usb() {
@@ -313,6 +356,9 @@ parse_args() {
     -u | --usb)
       parse_usb "$val"
       ;;  
+    --usb-fast)
+      parse_usb_fast "$val"
+      ;;
     *)
       printf "Unknown option '%s'\\n" "${arg}"
       print_usage
