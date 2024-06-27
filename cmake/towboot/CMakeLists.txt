@@ -19,7 +19,7 @@ cmake_minimum_required(VERSION 3.14)
 project(towboot)
 message(STATUS "Project " ${PROJECT_NAME})
 
-set(TOWBOOT_VERSION "0.8.1")
+set(TOWBOOT_VERSION "0.9.0")
 
 set(TOWBOOT_CONFIG "\
 default = \"hhuOS\"\\n\
@@ -45,7 +45,7 @@ log_level = \"info\"\\n\
     modules = [ { image = \"hhuOS/hdd0.img\", argv = \"vdd0\" } ]")
 
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/towboot/towbootctl"
-        COMMAND /bin/mkdir "${CMAKE_BINARY_DIR}/towboot"
+        COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/towboot"
         COMMAND wget -O "${CMAKE_BINARY_DIR}/towboot/towbootctl" "https://github.com/hhuOS/towboot/releases/download/v${TOWBOOT_VERSION}/towbootctl-v${TOWBOOT_VERSION}-x86_64-linux"
         COMMAND chmod +x "${CMAKE_BINARY_DIR}/towboot/towbootctl")
 
