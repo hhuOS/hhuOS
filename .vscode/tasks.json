@@ -33,14 +33,18 @@
                     "value": "pc",
                     "quoting": "escape"
                 },
-                {
+                /*{
                     "value": "--usb",
                     "quoting": "escape"
-                },
+                }, */
                 {
-                    "value": "type=uhci,vendorid=0x1038,productid=0x1614,port=1.1;vendorid=0xabcd,productid=0x1234,port=1.2;vendorid=0x046d,productid=0xc077,port=1.3;vendorid=0x28bd,productid=0x0094,port=1.4;vendorid=0x046d,productid=0x0a9c,port=2.1",
+                    "value": "--usb-fast", //"type=uhci,vendorid=0x1038,productid=0x1614,port=1.1;vendorid=0xabcd,productid=0x1234,port=1.2;vendorid=0x046d,productid=0xc077,port=1.3;vendorid=0x28bd,productid=0x0094,port=1.4;vendorid=0x046d,productid=0x0a9c,port=2.1",
                     "quoting": "escape"
                 },
+                {
+                    "value": "uhci",
+                    "quoting": "escape"
+                }, 
                 {
                     "value": "--debug",
                     "quoting": "escape"
