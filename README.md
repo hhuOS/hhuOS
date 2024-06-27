@@ -48,7 +48,7 @@ If QEMU hangs on a black screen, try executing `./run.sh --bios true --file hhuO
 GCC (>=7), CMake (>=3.14) and some other dependencies are required to compile hhuOS. To install them, you can run the following command (on Ubuntu 22.04):
 
 ```shell
-sudo apt install build-essential nasm gcc-multilib g++-multilib cmake python3 python3-distutils xorriso dosfstools mtools unzip wget ffmpeg git recode
+sudo apt install build-essential nasm gcc-multilib g++-multilib cmake python3 python3-distutils xorriso dosfstools mtools unzip wget ffmpeg git recode jq
 ```
 
 Afterward, clone this repository and execute the included build-script:
@@ -64,6 +64,53 @@ To test hhuOS in QEMU, simply execute the included run-script:
 ```shell
 ./run.sh
 ```
+
+## USB Integration
+
+Controller types :
+- uhci
+- ohci
+- ehci
+- xhci
+
+**Currently only the UHCI driver is implemented.**
+
+### Linux
+
+Uses QEMU's pass-trough mechanism to pass host devices to hhuOS.
+
+Currently there are two script invocations supported . The `manual run` is mainly used to just pass a custom selection of devices to the system.
+
+The `auto run` however will look for every device that matches with a pre-defined device entry and pass them to the system. This approach is handy, if all devices should be passed to the system on the fly.
+
+#### Manual Run
+
+```shell
+./run.sh --type=[controller_type],vendor_id=[],product_id=[],port=[a.b];
+  [vendor_id=[],product_id=[],port=[a.b]...]
+```
+
+Gathering vendor/product id can be done, by executing the command `lsusb`.
+
+`[a.b] : a = [1-2] ; b = [1-8]` -> Allocating a port outside this boundary will not work.
+
+#### Auto Run
+
+```shell
+./run.sh --usb-fast [controller_type]
+```
+
+Auto-matching of all available devices in host system. Extend this **[file](src/device/usb/usb_supported_devices.yml)** to include your device to the auto matching. 
+
+### Other
+
+Due to the fact that QEMU's passthrough mechanism is only supported for Linux, the above described script invocations will **not work**.
+
+**Currently just using emulated devices was not tested sufficiently, meaning that this approach is not guarenteed to work.**
+
+## Custom USB Driver
+
+Want to write a custom USB Driver to extend the USB System ? Follow the instructions in the [USB section](src/kernel/usb/CONTRIBUTE.md), in which the basics of writing a USB Driver are explained.
 
 ## What next?
 
@@ -81,6 +128,26 @@ When you are done tinkering with the OS, why not try to build your own applicati
     <tr>
         <td><img src="media/screenshots/bug.png" width="450px"></td>
         <td><img src="media/screenshots/battlespace.png" width="450px"></td>
+    </tr>
+</table>
+
+## USB Showcase
+
+### USB Information
+
+<table style="margin-left: auto; margin-right: auto">
+    <tr>
+        <td><img src="media/screenshots/usbfs.png" width="450px"></td>
+        <td><img src="media/screenshots/lsusb.png" width="450px"></td>
+    </tr>
+</table>
+
+### USB Devices
+
+<table style="margin-left: auto; margin-right: auto">
+    <tr>
+        <td><img src="media/screenshots/usb_audio.png" width="450px"></td>
+        <td><img src="media/screenshots/usb_msd.png" width="450px"></td>
     </tr>
 </table>
 
