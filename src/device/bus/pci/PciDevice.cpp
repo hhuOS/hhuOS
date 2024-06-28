@@ -153,4 +153,17 @@ Device::InterruptRequest PciDevice::getInterruptLine() const {
     return interruptLine;
 }
 
+uint8_t PciDevice::getBus() const {
+    return bus;
+}
+
+uint8_t PciDevice::getDevice() const {
+    return device;
+}
+
+uint8_t PciDevice::getFunction() const {
+    return function;
+}
+
+
 }

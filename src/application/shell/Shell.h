@@ -110,6 +110,7 @@ private:
 
     Util::ArrayList<Util::String> history;
     uint32_t historyIndex = 0;
+    uint32_t sub_index;
 
     Util::String autoCompletionSearchString = "";
     Util::ArrayList<Util::String> autoCompletionPathSuggestions;

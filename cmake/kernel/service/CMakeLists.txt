@@ -26,4 +26,6 @@ target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/service/PowerManagementService.cpp
         ${HHUOS_SRC_DIR}/kernel/service/ProcessService.cpp
         ${HHUOS_SRC_DIR}/kernel/service/StorageService.cpp
-        ${HHUOS_SRC_DIR}/kernel/service/TimeService.cpp)
+        ${HHUOS_SRC_DIR}/kernel/service/TimeService.cpp
+        ${HHUOS_SRC_DIR}/kernel/service/UsbService.cpp
+        ${HHUOS_SRC_DIR}/kernel/service/UsbService_C.c)

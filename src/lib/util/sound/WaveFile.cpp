@@ -28,50 +28,49 @@ class File;
 namespace Util::Sound {
 
 WaveFile::WaveFile(const Io::File &file) : Io::FilterInputStream(stream), stream(file) {
-    read(reinterpret_cast<uint8_t*>(&riffChunk), 0, sizeof(RiffChunk));
-    read(reinterpret_cast<uint8_t*>(&formatChunk), 0, sizeof(formatChunk));
-
-    auto readBytes = read(reinterpret_cast<uint8_t*>(&dataChunk), 0, sizeof(dataChunk));
-    while (dataChunk.dataSignature[0] != 'd' && dataChunk.dataSignature[1] != 'a' && dataChunk.dataSignature[2] != 't' && dataChunk.dataSignature[3] != 'a') {
-        if (readBytes <= 0) {
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "WaveFile: No 'data' chunk found!");
-        }
-
-        skip(dataChunk.chunkSize);
-        readBytes = read(reinterpret_cast<uint8_t*>(&dataChunk), 0, sizeof(dataChunk));
+    auto readBytes = read(reinterpret_cast<uint8_t*>(&riffChunk), 0, sizeof(RiffChunk));
+    if (readBytes <= 0) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "WaveFile: No 'data' chunk found!");
+    }
+    String signature = String(riffChunk.dataChunk.dataSignature);
+    if(signature != chunkIDData){
+        uint32_t org_size = riffChunk.dataChunk.chunkSize + sizeof(DataChunk);
+        uint8_t* buffer = new uint8_t[org_size];
+        read(buffer, 0, org_size);
+        riffChunk.dataChunk = *((DataChunk*)(buffer + riffChunk.dataChunk.chunkSize));
     }
 }
 
 uint32_t WaveFile::getDataSize() const {
-    return dataChunk.chunkSize;
+    return riffChunk.dataChunk.chunkSize;
 }
 
 WaveFile::AudioFormat WaveFile::getAudioFormat() const {
-    return formatChunk.audioFormat;
+    return riffChunk.formatChunk.audioFormat;
 }
 
 uint16_t WaveFile::getNumChannels() const {
-    return formatChunk.numChannels;
+    return riffChunk.formatChunk.numChannels;
 }
 
 uint32_t WaveFile::getSamplesPerSecond() const {
-    return formatChunk.samplesPerSecond;
+    return riffChunk.formatChunk.samplesPerSecond;
 }
 
 uint32_t WaveFile::getBytesPerSecond() const {
-    return formatChunk.bytesPerSecond;
+    return riffChunk.formatChunk.bytesPerSecond;
 }
 
 uint16_t WaveFile::getBitsPerSample() const {
-    return formatChunk.bitsPerSample;
+    return riffChunk.formatChunk.bitsPerSample;
 }
 
 uint16_t WaveFile::getFrameSize() const {
-    return formatChunk.frameSize;
+    return riffChunk.formatChunk.frameSize;
 }
 
 uint32_t WaveFile::getSampleCount() const {
-    return dataChunk.chunkSize / formatChunk.frameSize;
+    return riffChunk.dataChunk.chunkSize / riffChunk.formatChunk.frameSize;
 }
 
 }

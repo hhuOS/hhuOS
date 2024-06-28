@@ -149,6 +149,13 @@ bool Key::getCtrl() const {
     return getCtrlLeft() || getCtrlRight();
 }
 
+void Key::setDefault(){
+    ascii = 0;
+    scancode = 0;
+    modifier = 0;
+    pressed = false;
+}
+
 Key::operator char() const {
     return(char) ascii;
 }

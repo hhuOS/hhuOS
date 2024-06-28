@@ -1,0 +1,23 @@
+HID :
+  MOUSE :
+    - mouse0 :
+      name : Logitech, Inc. M105 Optical Mouse
+      id   : 046d:c077
+    ## - mouse1 :
+      # name : Shenzhen Rapoo Technology Co., Ltd. Rapoo Gaming Mouse
+      ## id   : 24ae:4108
+  KEYBOARD :
+    - kbd0 :
+      name : SteelSeries ApS SteelSeries Apex Pro TKL
+      id   : 1038:1614
+AUDIO :
+  - audio0 : 
+    name : Logitech, Inc. G432 Gaming Headset
+    id   : 046d:0a9c
+  - audio1 :
+    name : test1
+    id   : 0000:0000
+STORAGE :
+  - storage0 :
+    name : LogiLink UDisk flash drive
+    id   : abcd:1234

@@ -49,6 +49,14 @@ readonly CONST_QEMU_NEW_AUDIO_ARGS="\
 -machine pcspk-audiodev=pa \
 -device sb16,irq=10,dma=1,audiodev=pa"
 
+readonly CONST_QEMU_USB_AUDIO_ARGS="\
+-usb \
+-device usb-hub,bus=usb-bus.0,port=1 \
+-device usb-hub,bus=usb-bus.0,port=2 \
+-device usb-mouse,bus=usb-bus.0,port=1.1 \
+-device usb-kbd,bus=usb-bus.0,port=1.2 \
+-device usb-audio,bus=usb-bus.0,port=1.3"
+
 QEMU_BIN="${CONST_QEMU_BIN_I386}"
 QEMU_MACHINE="${CONST_QEMU_MACHINE_PC}"
 QEMU_BIOS="${CONST_QEMU_BIOS_EFI}"
@@ -59,6 +67,8 @@ QEMU_STORAGE_ARGS="${CONST_QEMU_STORAGE_ARGS}"
 QEMU_AUDIO_ARGS="${CONST_QEMU_NEW_AUDIO_ARGS}"
 QEMU_NETWORK_ARGS="${CONST_QEMU_NETWORK_ARGS}"
 QEMU_ARGS="${CONST_QEMU_ARGS}"
+QEMU_USB_ARGS="${CONST_QEMU_USB_AUDIO_ARGS}"
+QEMU_USB_ARGS_ROOT=""
 
 QEMU_GDB_PORT=""
 
@@ -173,6 +183,145 @@ print_usage() {
         Show this help message\\n"
 }
 
+parse_usb_fast() {
+  local hub=1
+  local port=1
+  local usb_string="type=$1"
+  python3 -m pip install --upgrade pip > /dev/null
+  python3 -m pip install yq > /dev/null
+  printf "Controller type specified : %s\n" $1
+  while read -r line; do
+    while read -r uline; do
+      if [[ "${line:1:-1}" == "${uline}" ]]; then
+        if [[ "$hub" == 2 && "$port" == 8 ]]; then
+          printf "All ports are in use ...\n";exit 1
+        fi
+        local vendor=$(echo "${uline}" | cut -d ":" -f1)
+        local product=$(echo "${uline}" | cut -d ":" -f2)
+        printf "Found a match : vendor=0x%s , product=0x%s\n" "${vendor}" "${product}"
+        printf "Assigning device to port %d.%d\n" "${hub}" "${port}"
+        if [[ "${hub}" == 1 && "${port}" == 1 ]]; then
+          usb_string="${usb_string},vendorid=0x${vendor},productid=0x${product},port=${hub}.${port};"
+        else
+          usb_string="${usb_string}vendorid=0x${vendor},productid=0x${product},port=${hub}.${port};"
+        fi
+        if [[ "${port}" == 8 ]]; then
+          hub=$((hub+1))
+          port=1
+        else
+          port=$((port+1))
+        fi
+      fi
+    done < <(lsusb | cut -d " " -f6)
+  done < <(yq '(.AUDIO | .[] | .id) , (.STORAGE | .[] | .id), (.HID | (.MOUSE | .[] | .id), (.KEYBOARD | .[] | .id))' */*/*/usb_supported_devices.yml)
+  printf "Finished generating usb string ... printing generated string ...\n"; echo "${usb_string}"
+  parse_usb "$usb_string"
+}
+
+parse_usb() {
+  local _type_=""
+  local _vendor_=""
+  local _product_=""
+  local _host_port_=""
+  local _host_addr_=""
+  local _host_bus_=""
+  local _port_=""
+
+  local UHCI_TYPE="uhci"
+  local OHCI_TYPE="ohci"
+  local XHCI_TYPE="xhci"
+  local EHCI_TYPE="ehci"
+  local TYPE_KEY="type"
+  local VENDOR_KEY="vendorid"
+  local PRODUCT_KEY="productid"
+  local HOST_BUS_KEY="hostbus"
+  local HOST_ADDRESS_KEY="hostaddr"
+  local HOST_PORT_KEY="hostport"
+  local PORT_KEY="port"
+
+  local device_msg="-device usb-host"
+  local bus_msg="bus="
+  local uhci_bus="usb-bus.0"
+  local ehci_bus="ehci.0"
+
+  #reset default
+  QEMU_USB_ARGS=""
+
+  OLD_IFS=${IFS}
+  IFS=":"
+  for y in $1; do
+    IFS=";"
+    read -ra controller_entry <<< ${y}
+    for z in "${controller_entry[@]}"; do
+      IFS=","
+      read -ra device_entry <<< ${z}
+      for x in "${device_entry[@]}"; do
+        type=$(expr ${x} : "${TYPE_KEY}=\([a-z]\{4\}\)")
+        if [[ -n "${type}" && -z "${_type_}" ]]; then _type_=${type};
+          case ${type} in
+            ${UHCI_TYPE})
+              _type_="-usb -device usb-hub,bus=usb-bus.0,port=1 -device usb-hub,bus=usb-bus.0,port=2 ";;
+            ${EHCI_TYPE})
+              _type_="-device usb-ehci,id=ehci ";;
+            ${XHCI_TYPE})
+            _type_="-device qemu-xhci ";;
+            *)
+            printf "Unknown controller type '%s'\n" ${type};exit 1;;
+          esac
+          QEMU_USB_ARGS="${QEMU_USB_ARGS}${_type_}"
+        fi
+
+        vendor=$(expr ${x} : "${VENDOR_KEY}=\(0x[0-9a-fA-F]\{1,4\}\)")
+
+        if [[ -n "${vendor}" && -z "${_vendor_}" ]]; then _vendor_=${vendor}; fi
+
+        product=$(expr ${x} : "${PRODUCT_KEY}=\(0x[0-9a-fA-F]\{1,4\}\)")
+
+        if [[ -n "${product}" && -z "${_product_}" ]]; then _product_=${product}; fi
+
+        host_bus=$(expr ${x} : "${HOST_BUS_KEY}=\([0-9]\{1,4\}\)")
+
+        if [[ -n "${host_bus}" && -z "${_host_bus_}" ]]; then _host_bus_=${host_bus}; fi
+
+        host_address=$(expr ${x} : "${HOST_ADDRESS_KEY}=\([0-9]\{1,4\}\)")
+
+        if [[ -n "${host_address}" && -z "${_host_addr_}" ]]; then _host_addr_=${host_address}; fi
+
+        host_port=$(expr ${x} : "${HOST_PORT_KEY}=\([a-zA-Z0-9]\{1,4\}\)")
+
+        if [[ -n ${host_port} && -z "${_host_port_}" ]]; then _host_port_=${host_port}; fi
+
+        port=$(expr ${x} : "${PORT_KEY}=\([0-9]\{1\}[.]\{0,1\}[0-9]\{0,1\}\)")
+
+        if [[ -n "${port}" && -z "${_port_}" ]]; then _port_=${port}; fi
+      done
+      if [ -z "${_type_}" ]; then printf "no controller type inserted ... exiting.\n";exit 1; fi
+      QEMU_USB_ARGS="${QEMU_USB_ARGS}${device_msg}"
+      t=$(grep -e "usb" <<< "${_type_}"); tu=$(grep -e "usb-ehci" <<< "${_type_}")
+
+      if [ -n "${t}" ]; then QEMU_USB_ARGS="${QEMU_USB_ARGS},${bus_msg}${uhci_bus}"; fi
+      if [ -n "${tu}" ]; then QEMU_USB_ARGS="${QEMU_USB_ARGS},${bus_msg}${ehci_bus}"; fi
+      if [ -n "${_port_}" ]; then QEMU_USB_ARGS="${QEMU_USB_ARGS},${PORT_KEY}=${_port_}"; fi
+      if [ -n "${_vendor_}" ]; then QEMU_USB_ARGS="${QEMU_USB_ARGS},${VENDOR_KEY}=${_vendor_}"; fi
+      if [ -n "${_product_}" ]; then QEMU_USB_ARGS="${QEMU_USB_ARGS},${PRODUCT_KEY}=${_product_}"; fi
+      if [ -n "${_host_bus_}" ]; then QEMU_USB_ARGS="${QEMU_USB_ARGS},${HOST_BUS_KEY}=${_host_bus_}"; fi
+      if [ -n "${_host_addr_}" ]; then QEMU_USB_ARGS="${QEMU_USB_ARGS},${HOST_ADDRESS_KEY}=${_host_addr_}"; fi
+      if [ -n "${_host_port_}" ]; then QEMU_USB_ARGS="${QEMU_USB_ARGS},${HOST_PORT_KEY}=${_host_port_}"; fi
+
+      QEMU_USB_ARGS="${QEMU_USB_ARGS} "
+      _port_=""
+      _vendor_=""
+      _product_=""
+      _host_bus_=""
+      _host_addr_=""
+      _host_port_=""
+    done
+    _type_=""
+  done
+  IFS=${OLD_IFS}
+  QEMU_USB_ARGS_ROOT=sudo
+}
+
 parse_args() {
   while [ "${1}" != "" ]; do
     local arg=$1
@@ -204,6 +353,12 @@ parse_args() {
       print_usage
       exit 0
       ;;
+    -u | --usb)
+      parse_usb "$val"
+      ;;  
+    --usb-fast)
+      parse_usb_fast "$val"
+      ;;
     *)
       printf "Unknown option '%s'\\n" "${arg}"
       print_usage
@@ -225,15 +380,15 @@ run_qemu() {
     command="${command} -bios ${QEMU_BIOS}"
   fi
 
-  command="${command} -m ${QEMU_RAM} -cpu ${QEMU_CPU} ${QEMU_ARGS} ${QEMU_BOOT_DEVICE} ${QEMU_STORAGE_ARGS} ${QEMU_NETWORK_ARGS} ${QEMU_AUDIO_ARGS}"
+  command="${command} -m ${QEMU_RAM} -cpu ${QEMU_CPU} ${QEMU_ARGS} ${QEMU_BOOT_DEVICE} ${QEMU_STORAGE_ARGS} ${QEMU_NETWORK_ARGS} ${QEMU_AUDIO_ARGS} ${QEMU_USB_ARGS}"
   
   printf "Running: %s\\n" "${command}"
 
   if [ -n "${QEMU_GDB_PORT}" ]; then
     if [ "${QEMU_GDB_PORT}" == "1234" ]; then
-      $command -gdb tcp::"${QEMU_GDB_PORT}" -S &
+      ${QEMU_USB_ARGS_ROOT} $command -gdb tcp::"${QEMU_GDB_PORT}" -S &
     else
-      $command -gdb tcp::"${QEMU_GDB_PORT}" -S
+      ${QEMU_USB_ARGS_ROOT} $command -gdb tcp::"${QEMU_GDB_PORT}" -S
     fi
   else
     $command

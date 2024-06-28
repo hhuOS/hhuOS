@@ -240,6 +240,8 @@ private:
      */
     void setScrollLock(bool pressed);
 
+    void setDefault();
+
     uint8_t ascii;
     uint8_t scancode;
     uint8_t modifier;

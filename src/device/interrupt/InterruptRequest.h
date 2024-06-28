@@ -39,11 +39,11 @@ enum InterruptRequest : uint8_t {
     RTC = 0x08,
     FREE1 = 0x09,
     FREE2 = 0x0a,
-    FREE3 = 0x0b,
+    UHCI = 0x0b,
     MOUSE = 0x0c,
     FPU = 0x0d,
     PRIMARY_ATA = 0x0e,
-    SECONDARY_ATA = 0x0f,
+    SECONDARY_ATA = 0x0f
     // Other devices
 };
 

@@ -47,6 +47,7 @@ void Shell::run() {
 
 void Shell::beginCommandLine() {
     currentLine = "";
+    sub_index = 0;
     auto currentDirectory = Util::Io::File::getCurrentWorkingDirectory();
 
     buildAutoCompletionLists();
@@ -364,6 +365,7 @@ void Shell::handleUpKey() {
     auto historyLine = history.get(historyIndex);
     Util::System::out << historyLine << Util::Io::PrintStream::flush;
     currentLine = historyLine;
+    sub_index = currentLine.length();
 }
 
 void Shell::handleDownKey() {
@@ -391,6 +393,7 @@ void Shell::handleDownKey() {
 
     Util::System::out << historyLine << Util::Io::PrintStream::flush;
     currentLine = historyLine;
+    sub_index = currentLine.length();
 }
 
 void Shell::handleLeftKey() {
@@ -432,6 +435,7 @@ void Shell::handleRightKey() {
     Util::Graphic::Ansi::setPosition(cursorPosition);
 }
 
+// does not handle backspace, when at shifting left
 void Shell::handleBackspace() {
     auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
     auto startPosition = getStartPosition();
@@ -509,6 +513,8 @@ void Shell::handleTab() {
 
             break;
         }
+
+        currentLine = currentLine.substring(0, currentLine.length() - 1);
     }
 }
 

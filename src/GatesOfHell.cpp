@@ -101,6 +101,21 @@
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/network/ip4/Ip4Route.h"
 #include "lib/util/network/ip4/Ip4SubnetAddress.h"
+#include "device/system/SmBios.h"
+#include "filesystem/smbios/SmBiosDriver.h"
+#include "filesystem/acpi/AcpiDriver.h"
+#include "kernel/service/InterruptService.h"
+#include "lib/util/hardware/Acpi.h"
+#include "lib/util/hardware/SmBios.h"
+#include "device/sound/soundblaster/SoundBlaster.h"
+#include "lib/util/graphic/Ansi.h"
+#include "kernel/service/UsbService.h"
+#include "kernel/usb/driver/hid/KernelKbdDriver.h"
+#include "kernel/usb/driver/hid/KernelMouseDriver.h"
+#include "kernel/usb/driver/storage/KernelMassStorageDriver.h"
+#include "kernel/usb/driver/KernelUsbDriver.h"
+#include "kernel/usb/driver/hub/KernelHubDriver.h"
+#include "kernel/usb/driver/audio/KernelAudioDriver.h"
 #include "device/system/Bios.h"
 #include "kernel/process/Scheduler.h"
 #include "lib/util/base/Constants.h"
@@ -685,7 +700,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     // Add '/device/log' to kernel logger
     Kernel::Log::addOutputStream(*new Util::Io::FileOutputStream("/device/log"));
 
-    // Initialize PS/2 devices
+    /* // Initialize PS/2 devices
     LOG_INFO("Initializing PS/2 devices");
     auto *ps2Controller = Device::Ps2Controller::initialize();
     auto *keyboard = Device::Keyboard::initialize(*ps2Controller);
@@ -702,7 +717,36 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
 
     if (mouse != nullptr) {
         mouse->plugin();
-    }
+    } */
+
+    // Initialize USB
+    LOG_INFO("Initializing USB");
+    int kbd_status = 0, mouse_status = 0, msd_status = 0, audio_status = 0;
+    Kernel::Service::registerService(Kernel::UsbService::SERVICE_ID, new Kernel::UsbService());
+    Kernel::UsbService& usb_service = Kernel::Service::getService<Kernel::UsbService>();
+
+    Kernel::Usb::Driver::KernelUsbDriver* k_driver = new Kernel::Usb::Driver::KernelKbdDriver("keyboard");
+    Kernel::Usb::Driver::KernelUsbDriver* msd_driver = new Kernel::Usb::Driver::KernelMassStorageDriver("msd");
+    Kernel::Usb::Driver::KernelUsbDriver* m_driver = new Kernel::Usb::Driver::KernelMouseDriver("mouse");
+    Kernel::Usb::Driver::KernelUsbDriver* hub_driver = new Kernel::Usb::Driver::KernelHubDriver("hub");
+    Kernel::Usb::Driver::KernelUsbDriver* audio_driver = new Kernel::Usb::Driver::KernelAudioDriver("audio");
+
+    hub_driver->initialize();
+    kbd_status = k_driver->initialize();
+    mouse_status = m_driver->initialize();
+    msd_status = msd_driver->initialize();
+    audio_status = audio_driver->initialize();
+    
+    usb_service.create_usb_fs();
+
+    if(kbd_status != -1)
+        k_driver->create_usb_dev_node();
+    if(mouse_status != -1)
+        m_driver->create_usb_dev_node();
+    if(msd_status != -1)
+        msd_driver->create_usb_dev_node();
+    if(audio_status != -1)
+        audio_driver->create_usb_dev_node();
 
     // Initialize network
     LOG_INFO("Initializing network stack");

@@ -1,4 +1,16 @@
 {
     "cmake.configureOnOpen": true,
-    "cmake.generator": "Unix Makefiles"
+    "cmake.generator": "Unix Makefiles",
+    "files.associations": {
+        "cstdint": "c",
+        "usbcontrollerinclude.h": "c",
+        "mapinterface.h": "c",
+        "loggerinterface.h": "c",
+        "*.tcc": "c",
+        "random": "c",
+        "__hash_table": "cpp",
+        "functional": "c",
+        "__functional_03": "c",
+        "target": "c"
+    }
 }

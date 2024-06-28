@@ -1,0 +1,18 @@
+#ifndef MASS_STORAGE_DEVICE_CONTROL__INCLUDE
+#define MASS_STORAGE_DEVICE_CONTROL__INCLUDE
+
+enum MSD_Params{
+  GET_SIZE = 0x01,
+  GET_BLOCK_NUM = 0x02,
+  GET_BLOCK_LEN = 0x03,
+  GET_VOLUMES = 0x04,
+  GET_CAPACITIES_FOUND = 0x05,
+  GET_INQUIRY = 0x06,
+  GET_CAPACITY = 0x07,
+  GET_SENSE = 0x08, // not implemented -> too lazy :)
+  GET_READ_CAPACITY = 0x09,
+  // @deprecated SET_CALLBACK = 0x0A,
+  // @deprecated UNSET_CALLBACK = 0x0B
+};
+
+#endif

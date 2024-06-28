@@ -41,12 +41,15 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cp "$<TARGET_FILE:ip>" "bin/ip"
         COMMAND /bin/cp "$<TARGET_FILE:kill>" "bin/kill"
         COMMAND /bin/cp "$<TARGET_FILE:ls>" "bin/ls"
+        COMMAND /bin/cp "$<TARGET_FILE:lsusb>" "bin/lsusb"
         COMMAND /bin/cp "$<TARGET_FILE:membench>" "bin/membench"
         COMMAND /bin/cp "$<TARGET_FILE:mkdir>" "bin/mkdir"
+        COMMAND /bin/cp "$<TARGET_FILE:msd>" "bin/msd"
         COMMAND /bin/cp "$<TARGET_FILE:mount>" "bin/mount"
         COMMAND /bin/cp "$<TARGET_FILE:nettest>" "bin/nettest"
         COMMAND /bin/cp "$<TARGET_FILE:ping>" "bin/ping"
         COMMAND /bin/cp "$<TARGET_FILE:play>" "bin/play"
+        COMMAND /bin/cp "$<TARGET_FILE:playusb>" "bin/playusb"
         COMMAND /bin/cp "$<TARGET_FILE:ps>" "bin/ps"
         COMMAND /bin/cp "$<TARGET_FILE:pwd>" "bin/pwd"
         COMMAND /bin/cp "$<TARGET_FILE:rm>" "bin/rm"
@@ -68,7 +71,7 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND fallocate -l 1M "${CMAKE_BINARY_DIR}/fill.img"
         COMMAND /bin/cat "${CMAKE_BINARY_DIR}/fill.img" "${CMAKE_BINARY_DIR}/part.img" "${CMAKE_BINARY_DIR}/fill.img" > "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/rm "${CMAKE_BINARY_DIR}/part.img" "${CMAKE_BINARY_DIR}/fill.img"
-        COMMAND /bin/echo -e "'o\\nn\\np\\n1\\n2048\\n$<IF:$<CONFIG:Debug>,131071,65535>\\nt\\ne\\nw\\n'" | fdisk "${HHUOS_ROOT_DIR}/hdd0.img"
-        DEPENDS asciimation-star-wars books-gutenberg shell asciimate battlespace beep bug cat cp date demo dino echo head hexdump ip kill ls membench mkdir mount nettest ping play ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d)
+        COMMAND /bin/echo -e "'o\\nn\\np\\n1\\n2048\\n131071\\nt\\ne\\nw\\n'" | fdisk "${HHUOS_ROOT_DIR}/hdd0.img"
+        DEPENDS asciimation-star-wars books-gutenberg shell asciimate battlespace beep bug cat cp date demo dino echo head hexdump ip kill ls lsusb membench mkdir msd mount nettest ping play playusb ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d)
 
-add_custom_target(${PROJECT_NAME} DEPENDS asciimation-star-wars books-gutenberg music shell asciimate battlespace beep bug cat cp date demo dino echo head hexdump ip kill ls membench mkdir mount nettest ping play ps  pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d "${HHUOS_ROOT_DIR}/hdd0.img")
+add_custom_target(${PROJECT_NAME} DEPENDS asciimation-star-wars books-gutenberg music shell asciimate battlespace beep bug cat cp date demo dino echo head hexdump ip kill ls lsusb membench mkdir msd mount nettest ping play playusb ps  pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d "${HHUOS_ROOT_DIR}/hdd0.img")
