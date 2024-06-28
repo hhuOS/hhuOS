@@ -168,6 +168,22 @@ private:
             return gather;
         }
 
+        void reset() {
+            frames = 0;
+            framesPerSecond = 0;
+            timeCounter.reset();
+
+            frameTimesIndex = 0;
+            drawTimesIndex = 0;
+            updateTimesIndex = 0;
+            idleTimesIndex = 0;
+
+            frameTimeStart.reset();
+            drawTimeStart.reset();
+            updateTimeStart.reset();
+            idleTimeStart.reset();
+        }
+
     private:
         static const constexpr uint32_t ARRAY_SIZE = 100;
 

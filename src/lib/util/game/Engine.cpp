@@ -129,6 +129,8 @@ void Engine::initializeNextScene() {
     graphics.drawString(loadingFont, stringPosition, LOADING);
     graphics.show();
 
+    statistics.reset();
+
     game.initializeNextScene(graphics);
     game.getCurrentScene().applyChanges();
 }
@@ -151,8 +153,12 @@ void Engine::drawStatus() {
     auto heapUsedK = (heapUsed - heapUsedM * 1000 * 1000) / 1000;
 
     graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawString(statisticsFont, Math::Vector2D(10, 10), String::format("FPS: %u", status.framesPerSecond));
-    graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight), String::format("D: %ums | U: %ums | I: %ums", static_cast<uint32_t>(status.drawTime.toMilliseconds()), static_cast<uint32_t>(status.updateTime.toMilliseconds()), static_cast<uint32_t>(status.idleTime.toMilliseconds())));
+    graphics.drawString(statisticsFont, Math::Vector2D(10, 10), String::format("FPS: %u | Frame time: %u.%ums", status.framesPerSecond,
+            static_cast<uint32_t>(status.frameTime.toMilliseconds()), static_cast<uint32_t>((status.frameTime.toMicroseconds() - status.frameTime.toMilliseconds() * 1000) / 100)));
+    graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight), String::format("Draw: %u.%ums | Update: %u.%ums | Idle: %u.%ums",
+            static_cast<uint32_t>(status.drawTime.toMilliseconds()), static_cast<uint32_t>((status.drawTime.toMicroseconds() - status.drawTime.toMilliseconds() * 1000) / 100),
+            static_cast<uint32_t>(status.updateTime.toMilliseconds()), static_cast<uint32_t>((status.updateTime.toMicroseconds() - status.updateTime.toMilliseconds() * 1000) / 100),
+            static_cast<uint32_t>(status.idleTime.toMilliseconds()), static_cast<uint32_t>((status.idleTime.toMicroseconds() - status.idleTime.toMilliseconds() * 1000) / 100)));
     graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight * 2), String::format("Objects: %u | Edges: %u/%u", game.getCurrentScene().getObjectCount(), graphics.drawnEdgeCounter, graphics.edgeCounter));
     graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight * 3), String::format("Heap used: %u.%03u MB", heapUsedM, heapUsedK));
     graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight * 4), String::format("Resolution: %ux%u@%u", graphics.lfb.getResolutionX(), graphics.lfb.getResolutionY(), graphics.lfb.getColorDepth()));
