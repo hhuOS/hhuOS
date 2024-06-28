@@ -319,7 +319,7 @@ void throwError(Util::Exception::Error error, const char *message) {
             Device::Cpu::halt();
         } else {
             Util::System::out << Util::Exception::getExceptionName(error) << " (" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-            Util::System::printStackTrace(Util::System::out, Kernel::MemoryLayout::KERNEL_START);
+            printKernelStackTrace(false);
             processService.exitCurrentProcess(-1);
         }
 
