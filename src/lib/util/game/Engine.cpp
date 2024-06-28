@@ -46,10 +46,12 @@
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "lib/util/graphic/Font.h"
 #include "lib/util/base/FreeListMemoryManager.h"
+#include "lib/util/graphic/font/Mini4x6.h"
 
 namespace Util::Game {
 
-Engine::Engine(const Util::Graphic::LinearFrameBuffer &lfb, const uint8_t targetFrameRate) : graphics(lfb, game), targetFrameRate(targetFrameRate) {
+Engine::Engine(const Util::Graphic::LinearFrameBuffer &lfb, const uint8_t targetFrameRate) : graphics(lfb, game), targetFrameRate(targetFrameRate),
+        statisticsFont(lfb.getResolutionY() < 400 ? Graphic::Fonts::MINI_4x6 : (lfb.getResolutionY() <= 800 ? Graphic::Fonts::TERMINAL_8x8 : Graphic::Fonts::TERMINAL_8x16)) {
     GameManager::absoluteResolution = Math::Vector2D(lfb.getResolutionX(), lfb.getResolutionY());
     GameManager::relativeResolution = Math::Vector2D(lfb.getResolutionX() > lfb.getResolutionY() ? (double) lfb.getResolutionX() / lfb.getResolutionY() : 1,
                                                      lfb.getResolutionY() > lfb.getResolutionX() ? (double) lfb.getResolutionY() / lfb.getResolutionX() : 1);
