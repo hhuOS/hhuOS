@@ -7,6 +7,7 @@
 #include "lib/util/collection/ArrayList.h"
 
 #include "lib/libc/time.h"
+#include "lib/libc/stdio.h"
 
 // Export functions
 extern "C" {
@@ -31,6 +32,7 @@ void _sysExit(int32_t exitCode) {
 
 void initLibc() {
 	_time_initialize();
+	_init_stdio();
 }
 
 

@@ -242,7 +242,7 @@ void * memmove(void * dest, const void * src, size_t count) {
 //error handling
 
 char * errorStrings[] = {
-	"",
+	"No Error",
 	"Function Domain Error",
 	"Function Range Error",
 	"Illegal Byte Sequence"

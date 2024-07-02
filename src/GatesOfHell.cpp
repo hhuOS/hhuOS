@@ -566,6 +566,10 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     auto *deviceDriver = new Filesystem::Memory::MemoryDriver();
     filesystemService->createDirectory("/device");
     filesystemService->getFilesystem().mountVirtualDriver("/device", deviceDriver);
+	
+	auto *tempDriver = new Filesystem::Memory::MemoryDriver();
+    filesystemService->createDirectory("/temp");
+    filesystemService->getFilesystem().mountVirtualDriver("/temp", tempDriver);
 
     auto *processDriver = new Filesystem::Process::ProcessDriver();
     filesystemService->createDirectory("/process");

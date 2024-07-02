@@ -60,6 +60,8 @@ public:
     bool removeAll(const Collection<T> &other) override;
 
     T removeIndex(uint32_t index) override;
+	
+	T pop();
 
     [[nodiscard]] bool contains(const T &element) const override;
 
@@ -188,6 +190,11 @@ T ArrayList<T>::removeIndex(uint32_t index) {
 
     length--;
     return tmp;
+}
+
+template <class T>
+T ArrayList<T>::pop() {
+	return removeIndex(length-1);
 }
 
 template <class T>

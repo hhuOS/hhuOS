@@ -1,6 +1,7 @@
 #include <cstdint>
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include <locale.h>
@@ -12,6 +13,9 @@
 #include "lib/util/time/Date.h"
 
 #include "lib/util/io/stream/PrintStream.h"
+
+#include "lib/interface.h"
+#include "lib/util/io/file/File.h"
 
 int intComp(const void* a, const void* b) {
 	return (*(int*)a) - (*(int*)b);
@@ -25,6 +29,78 @@ void longjmp_test() {
 
 int32_t main(int32_t argc, char *argv[]) {
 	bool t;
+	
+	//Test stdio
+	char stdioBuf[1024];
+	puts("----- stdio.h\n");
+	puts("fopen, setvbuf, fputs, fflush, freopen, fgets, puts:\n");
+	FILE * tf = fopen("ctest.txt", "w");
+	setvbuf(tf, NULL, _IOFBF, BUFSIZ);
+	fputs("Hello World\n", tf);
+	fflush(tf);
+	tf = freopen("ctest.txt", "r", tf);
+	fgets(stdioBuf, 200, tf);
+	puts(stdioBuf);	
+	fclose(tf);
+	
+	
+	tf = fopen("ctest.txt", "r");
+	puts("fseek 10, SEEK_END: ");
+	fseek(tf, 10, SEEK_END);
+	fgets(stdioBuf, 200, tf);
+	puts(stdioBuf);
+	puts("rewind: ");
+	rewind(tf);
+	fgets(stdioBuf, 200, tf);
+	puts(stdioBuf);
+	Util::System::out << "ftell: "<< ftell(tf) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	
+	fread(stdioBuf, 200, 1, tf);
+	Util::System::out << "feof, ferror: "<< feof(tf)<<" "<<ferror(tf) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	
+	perror("Current errno");
+	fclose(tf);
+	
+	puts("ungetc AB: ");
+	tf = fopen("ctest.txt", "r");
+	ungetc('B', tf);
+	ungetc('A', tf);
+	fgets(stdioBuf, 200, tf);
+	puts(stdioBuf);
+	fclose(tf);
+	
+	puts("append mode, fread:\n");
+	tf = fopen("ctest.txt", "a");
+	fputs("Test\n",tf);
+	fclose(tf);
+	
+	tf = fopen("ctest.txt", "r");
+	fread(stdioBuf, 200, 1,tf);
+	puts(stdioBuf);
+	fclose(tf);
+	
+	remove("ctest.txt"); 
+	
+	
+	puts("rename ctest.txt, abc.txt:\n");
+	rename("ctest.txt", "abc.txt");
+	
+	tf = fopen("abc.txt", "r");
+	fread(stdioBuf, 200, 1,tf);
+	puts(stdioBuf);
+	fclose(tf);
+	
+	remove("abc.txt");
+	
+	puts("gets: ");
+	fflush(stdout);
+	gets(stdioBuf);
+	puts(stdioBuf);
+	puts("\n\n");
+	
+	
+	
+	
 	
 	//Test time
 	time_t testTime;

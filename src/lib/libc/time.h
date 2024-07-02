@@ -1,7 +1,7 @@
 #ifndef LIBC_TIME
 #define LIBC_TIME
 
-#include <stddef.h>
+#include "lib/libc/stddef.h"
 
 struct tm {
 	int tm_sec; //seconds after minutes 0-61
