@@ -42,20 +42,38 @@ public:
     void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
 
     void flush() override;
+	
+	uint32_t getBytesWritten();
 
     void setBase(uint8_t newBase);
 
-    void setNumberPadding(uint8_t padding);
+    void setNumberPadding(int padding);
+	
+	void setNumberJustification(bool leftJustified);
+	
+	void setPositiveSign(char s);
+	
+	void setNegativeSign(char s);
+	
+	void setIntegerPrecision(uint32_t v);
+	
+	void setDecimalPrecision(uint32_t v);
+	
+	void setIntegerPrefix(Util::String str);
+	
+	void setHexNumericBase(char base);
+	
+	void setAlwaysPrintDecimalPoint(bool val);
 
     void print(const Util::String &string);
 
-    void print(const char *string);
+    void print(const char *string, uint32_t maxBytes=-1);
 
     void print(bool boolean);
 
     void print(int32_t number);
 
-    void print(uint32_t number);
+    void print(uint32_t number, char sign='\0');
 
     void print(int16_t number);
 
@@ -133,7 +151,22 @@ private:
     bool autoFlush;
     uint8_t base = 10;
     uint8_t numberPadding = 0;
-
+	
+	bool rightPadding = false;
+	
+	char negativeSign = '-';
+	char positiveSign = '\0';
+	char hexNumericBase = 'A';
+	
+	uint32_t minimumIntegerPrecision = 1;
+	uint32_t decimalPrecision = -1;
+	uint32_t defaultDecimalPrecision = 6;
+	
+	bool alwaysPrintDecimalPoint = false;
+	
+	uint32_t bytesWritten = 0;
+	
+	Util::String integerPrefix = "";
 };
 
 }

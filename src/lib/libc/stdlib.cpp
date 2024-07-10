@@ -173,6 +173,7 @@ ldiv_t ldiv ( long x, long y) {
 
 //String conversion
 int _get_char_value(char c, int base) {
+	char t = c;
 	if (isdigit(c)) c -= 48;
 	else if (isupper(c)) c -= 55;
 	else if (islower(c)) c -= 87;

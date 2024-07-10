@@ -2,14 +2,18 @@
 #define LIBC_STDIO
 
 #include "lib/libc/stdio_def.h"
+#include <stdarg.h>
 
 typedef unsigned long fpos_t;
 
 #ifdef __cplusplus
 
 #include "lib/libc/StdioFileStream.h"
+#include "lib/util/io/stream/OutputStream.h"
 
 typedef Libc::StdioFileStream FILE;
+
+int _stream_vprintf(Util::Io::OutputStream &os, const char* format, va_list vlist);
 
 #else 
 	
@@ -29,6 +33,8 @@ extern FILE * stderr;
 
 
 #ifdef __cplusplus
+
+
 extern "C" {
 #endif
 
@@ -71,6 +77,18 @@ int remove(const char * pathname);
 int rename(const char * old_filename, const char * new_filename);
 char * tmpnam(char * filename);
 FILE * tmpfile();
+
+
+int vprintf(const char * format, va_list vlist);
+int vfprintf(FILE * stream, const char * format, va_list vlist);
+int vsprintf(char * buffer, const char * format, va_list vlist);
+int vsnprintf(char * buffer, size_t bufsz, const char * format, va_list vlist);
+
+int printf(const char * format, ...);
+int fprintf(FILE * stream, const char * format, ...);
+int sprintf(char * buffer, const char * format, ...);
+int snprintf(char * buffer, size_t bufsz, const char * format, ...);
+
 
 #ifdef __cplusplus
 }

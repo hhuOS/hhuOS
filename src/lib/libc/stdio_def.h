@@ -1,7 +1,7 @@
 #ifndef LIBC_STDIO_DEF
 #define LIBC_STDIO_DEF 
 
-#include "lib/libc/stddef.h"
+#include <stddef.h>
 //Contains all definitions necessary for the communication between stdio and StdioFileStream
 
 #define EOF -1

@@ -7,6 +7,7 @@
 #include <locale.h>
 #include <setjmp.h>
 #include <time.h>
+#include <stdarg.h>
 
 #include "lib/util/base/System.h"
 #include "lib/util/base/String.h"
@@ -27,8 +28,11 @@ void longjmp_test() {
 	longjmp(jbuf, 0);
 }
 
+
 int32_t main(int32_t argc, char *argv[]) {
 	bool t;
+	
+	int bw;
 	
 	//Test stdio
 	char stdioBuf[1024];
@@ -92,6 +96,12 @@ int32_t main(int32_t argc, char *argv[]) {
 	
 	remove("abc.txt");
 	
+	puts("printf:\n");
+	printf("Hello %c %s\n", 'A', "Test");
+	printf("%10.2#o%10.2d%+-10.2d%+10.2d%10.2#x%10.2d\n", 115, -115, 16, 1234, 1234, 1);
+	printf("%f %8.2f %F %e %g %G\n%n", 5.343, -21.23456, 1.0/0.0, 123456.0, 123456.0, 0.0235, &bw);
+	printf("Bytes in previous line: %d, addr %p %p\n", bw, &bw, &main);
+	
 	puts("gets: ");
 	fflush(stdout);
 	gets(stdioBuf);
@@ -136,7 +146,8 @@ int32_t main(int32_t argc, char *argv[]) {
 		Util::System::out << "Returned from longjmp"<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	}
 	
-	
+	Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+
 	Util::System::in.readLine(t);
 	
 	
@@ -169,6 +180,9 @@ int32_t main(int32_t argc, char *argv[]) {
 	Util::System::out << "ldexp 2.5, 3: "<< ldexp(2.5, 3)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	r = modf(13.245, &r2);
 	Util::System::out << "modf 13.245: "<< r2 <<" "<<r<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	
+	Util::System::out << "isnan 1, 1/0: "<< isnan(1) <<", "<<isnan(1.0/0.0)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "isinf 1, 1000**1000: " << isinf(1) <<", "<<isinf(pow(1000,1000))<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	
 	Util::System::in.readLine(t);
 	

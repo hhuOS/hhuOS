@@ -31,11 +31,12 @@ double tanh(double arg);
 double ceil(double arg);
 double floor(double arg);
 
-//TODO Start
 double frexp(double arg, int * exp);
 double ldexp(double arg, int exp);
 double modf(double arg, double * iptr);
-//TODO End
+
+int isinf(double arg);
+int isnan(double arg);
 
 #ifdef __cplusplus
 }

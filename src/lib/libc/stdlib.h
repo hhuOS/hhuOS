@@ -1,7 +1,7 @@
 #ifndef _LIBC_STDLIB
 #define _LIBC_STDLIB
 
-#include "lib/libc/stddef.h"
+#include <stddef.h>
 
 #define MB_LEN_MAX 4
 #define MB_CUR_MAX 4

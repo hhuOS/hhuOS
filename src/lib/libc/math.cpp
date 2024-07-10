@@ -4,8 +4,10 @@
 #include "lib/libc/math.h"
 #include "lib/util/math/Math.h"
 #include "lib/libc/errno.h"
+#include "lib/util/base/System.h"
+#include <float.h>
 
-#define HUGE_VAL 1.0/0.0
+#define HUGE_VAL pow(1000, 1000)
 
 double fabs(double a) {
 	return Util::Math::absolute(a);
@@ -129,4 +131,18 @@ double ldexp(double arg, int exp) {
 double modf(double arg, double * iptr) {
 	*iptr = (long long)arg;
 	return arg - *iptr;
+}
+
+int isinf(double arg) {
+	int exp;
+	arg = frexp(arg, &exp);
+
+	return (exp == 1025) && (arg == 0);
+}
+
+int isnan(double arg) {
+	int exp;
+	arg = frexp(arg, &exp);
+	
+	return (exp == 1025) && (arg != 0);
 }

@@ -1,7 +1,7 @@
 #ifndef LIBC_STRING
 #define LIBC_STRING 
 
-#include "lib/libc/stddef.h"
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
