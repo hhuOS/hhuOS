@@ -30,6 +30,8 @@
 #include "lib/util/async/Runnable.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/stream/PipedInputStream.h"
+#include "lib/util/io/key/KeyboardLayout.h"
+#include "lib/util/io/key/layout/DeLayout.h"
 
 namespace Util::Graphic {
 
@@ -44,11 +46,8 @@ public:
         SET_CURSOR,
         ENABLE_RAW_MODE,
         ENABLE_CANONICAL_MODE,
-        ENABLE_KEYBOARD_SCANCODES
-    };
-
-    enum ControllerCommand {
-        CREATE_VIRTUAL_TERMINAL
+        ENABLE_KEYBOARD_SCANCODES,
+        SET_KEYBOARD_LAYOUT
     };
 
     Terminal(uint16_t columns, uint16_t rows);
@@ -96,6 +95,8 @@ public:
     void setAnsiParsing(bool enabled);
 
     void setKeyboardScancodes(bool enabled);
+
+    void setKeyboardLayout(Io::KeyboardLayout *layout);
 
     virtual void setCursor(bool enabled) = 0;
 
@@ -188,6 +189,7 @@ private:
 
     Util::Io::PipedInputStream inputStream;
     TerminalPipedOutputStream outputStream;
+    Io::KeyDecoder keyDecoder = Io::KeyDecoder(new Io::DeLayout());
 
     Util::String currentEscapeSequence;
     bool isEscapeActive = false;

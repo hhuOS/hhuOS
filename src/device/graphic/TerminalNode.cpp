@@ -18,6 +18,7 @@
 #include "TerminalNode.h"
 
 #include "lib/util/graphic/Terminal.h"
+#include "lib/util/io/key/layout/UsLayout.h"
 
 namespace Device::Graphic {
 
@@ -26,15 +27,31 @@ TerminalNode::TerminalNode(const Util::String &name, Util::Graphic::Terminal *te
 bool TerminalNode::control(uint32_t request, const Util::Array<uint32_t> &parameters) {
     switch (request) {
         case Util::Graphic::Terminal::Command::SET_ECHO:
+            if (parameters.length() < 1) {
+                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring echo!");
+            }
+
             terminal->setEcho(parameters[0]);
             return true;
         case Util::Graphic::Terminal::Command::SET_LINE_AGGREGATION:
+            if (parameters.length() < 1) {
+                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring line aggregation!");
+            }
+
             terminal->setLineAggregation(parameters[0]);
             return true;
         case Util::Graphic::Terminal::Command::SET_CURSOR:
+            if (parameters.length() < 1) {
+                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring cursor!");
+            }
+
             terminal->setCursor(parameters[0]);
             return true;
         case Util::Graphic::Terminal::Command::SET_ANSI_PARSING:
+            if (parameters.length() < 1) {
+                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring ANSI parsing!");
+            }
+
             terminal->setAnsiParsing(parameters[0]);
             return true;
         case Util::Graphic::Terminal::Command::ENABLE_RAW_MODE:
@@ -54,8 +71,28 @@ bool TerminalNode::control(uint32_t request, const Util::Array<uint32_t> &parame
             terminal->setAnsiParsing(false);
             terminal->setLineAggregation(false);
             terminal->setKeyboardScancodes(true);
+            return true;
+        case Util::Graphic::Terminal::Command::SET_KEYBOARD_LAYOUT: {
+            if (parameters.length() < 1) {
+                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring keyboard layout!");
+            }
+
+            const auto layoutName = Util::String(reinterpret_cast<const char *>(parameters[0])).toLowerCase();
+            Util::Io::KeyboardLayout *layout = nullptr;
+
+            if (layoutName == "de") {
+                layout = new Util::Io::DeLayout();
+            } else if (layoutName == "us") {
+                layout = new Util::Io::UsLayout();
+            } else {
+                return false;
+            };
+
+            terminal->setKeyboardLayout(layout);
+            return true;
+        }
         default:
-            return false;
+            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Terminal: Invalid control request!");
     }
 }
 

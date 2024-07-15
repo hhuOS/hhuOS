@@ -15,58 +15,52 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_KEYDECODER_H
-#define HHUOS_KEYDECODER_H
+#ifndef HHUOS_KEYBOARDLAYOUT_H
+#define HHUOS_KEYBOARDLAYOUT_H
 
 #include <cstdint>
 #include "Key.h"
+#include "KeyDecoder.h"
 
 namespace Util::Io {
 
-class KeyboardLayout;
-
-class KeyDecoder {
+class KeyboardLayout {
 
 public:
-
-    enum Code : uint8_t {
-        BREAK_BIT = 0x80,
-        PREFIX1 = 0xe0,
-        PREFIX2 = 0xe1
-    };
-
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    explicit KeyDecoder(KeyboardLayout *layout);
+    KeyboardLayout() = default;
 
     /**
      * Copy Constructor.
      */
-    KeyDecoder(const KeyDecoder &other) = delete;
+    KeyboardLayout(const KeyboardLayout &other) = delete;
 
     /**
      * Assignment operator.
      */
-    KeyDecoder &operator=(const KeyDecoder &other) = delete;
+    KeyboardLayout &operator=(const KeyboardLayout &other) = delete;
 
     /**
      * Destructor.
      */
-    ~KeyDecoder() = default;
+    ~KeyboardLayout() = default;
 
-    bool parseScancode(uint8_t code);
+    void parseAsciiCode(uint8_t scancode, uint8_t prefix, Key &key) const;
 
-    [[nodiscard]] Key getCurrentKey() const;
+protected:
 
-    void setLayout(KeyboardLayout *layout);
+    uint8_t normalTab[89];
+    uint8_t shiftTab[89]{};
+    uint8_t altTab[89]{};
+    uint8_t asciiNumTab[13]{};
 
 private:
 
-    uint8_t currentPrefix;
-    Key currentKey{};
-
-    KeyboardLayout *layout;
+    uint8_t scanNumTab[13] = {
+            8, 9, 10, 53, 5, 6, 7, 27, 2, 3, 4, 11, 51
+    };
 };
 
 }

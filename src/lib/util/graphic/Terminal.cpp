@@ -26,6 +26,7 @@
 #include "lib/util/io/key/Key.h"
 #include "lib/util/io/stream/FileOutputStream.h"
 #include "lib/util/io/stream/PrintStream.h"
+#include "lib/util/io/key/layout/DeLayout.h"
 
 namespace Util::Graphic {
 
@@ -433,6 +434,10 @@ void Terminal::setKeyboardScancodes(bool enabled) {
     keyboardScancodes = enabled;
 }
 
+void Terminal::setKeyboardLayout(Io::KeyboardLayout *layout) {
+    keyDecoder.setLayout(layout);
+}
+
 void Terminal::clear() {
     clear(foregroundColor, backgroundColor, 0, 0, getColumns() - 1, getRows() - 1);
     setPosition(0, 0);
@@ -503,14 +508,13 @@ Terminal::KeyboardRunnable::KeyboardRunnable(Terminal &terminal) : terminal(term
 
 void Terminal::KeyboardRunnable::run() {
     auto keyboardStream = Io::FileInputStream("/device/keyboard");
-    auto keyDecoder = Io::KeyDecoder();
     int16_t scancode = keyboardStream.read();
 
     while (scancode != -1) {
         if (terminal.keyboardScancodes) {
             terminal.outputStream.write(scancode);
-        } else if (keyDecoder.parseScancode(scancode)) {
-            auto key = keyDecoder.getCurrentKey();
+        } else if (terminal.keyDecoder.parseScancode(scancode)) {
+            auto key = terminal.keyDecoder.getCurrentKey();
             if (key.isPressed()) {
                 auto c = key.getAscii();
                 if (c == 0) {

@@ -35,6 +35,7 @@
 #include "lib/util/io/key/KeyDecoder.h"
 #include "lib/util/graphic/font/Terminal8x16.h"
 #include "lib/util/graphic/font/Terminal8x8.h"
+#include "lib/util/io/key/layout/DeLayout.h"
 
 namespace Util {
 namespace Io {
@@ -232,7 +233,7 @@ private:
     uint32_t mouseValueIndex = 0;
     uint8_t lastMouseButtonState = 0;
 
-    Io::KeyDecoder keyDecoder;
+    Io::KeyDecoder keyDecoder = Io::KeyDecoder(new Io::DeLayout());
     ArrayList<Io::Key> pressedKeys;
 
     const uint8_t targetFrameRate;
