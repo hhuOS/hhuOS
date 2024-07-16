@@ -7,8 +7,6 @@
 #include "lib/util/base/System.h"
 #include <float.h>
 
-#define HUGE_VAL pow(1000, 1000)
-
 double fabs(double a) {
 	return Util::Math::absolute(a);
 }

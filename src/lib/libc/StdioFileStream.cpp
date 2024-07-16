@@ -158,6 +158,12 @@ int16_t StdioFileStream::read() {
 	return ret;
 }
 
+int16_t StdioFileStream::peek() {
+	int16_t ret = read();
+	ungetChar(ret);
+	return ret;
+}
+
 int32_t StdioFileStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
 	if (!readAllowed()) return EOF;
 	

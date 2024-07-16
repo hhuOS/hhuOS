@@ -27,6 +27,10 @@ int16_t QueueInputStream::read() {
     return queue.poll();
 }
 
+int16_t QueueInputStream::peek() {
+	return queue.peek();
+}
+
 int32_t QueueInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
     for (uint32_t i = 0; i < length; i++) {
         targetBuffer[offset + i] = queue.poll();

@@ -48,13 +48,17 @@ public:
     ~FileInputStream() override;
 
     int16_t read() override;
+	
+	int16_t peek() override;
 
     int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
 
 private:
-
+	
     uint32_t pos = 0;
     int32_t fileDescriptor;
+	
+	int16_t peekedChar = -1;
 
 };
 

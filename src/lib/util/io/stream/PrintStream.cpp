@@ -72,7 +72,7 @@ void PrintStream::setIntegerPrecision(uint32_t v) {
 	minimumIntegerPrecision = v;
 }
 	
-void PrintStream::setDecimalPrecision(uint32_t v) {
+void PrintStream::setDecimalPrecision(int32_t v) {
 	decimalPrecision = v;
 }
 
@@ -206,32 +206,32 @@ void PrintStream::print(double number) {
 		while (Util::Math::powInt(10, mul) <= number) mul++;
 		mul--;
 		
+		
 		while (mul >= 0) {
-			printOut.print(((int)(number/Util::Math::powInt(10, mul)))%10);
+			printOut.write( '0' + ((int)(number/Util::Math::powInt(10, mul)))%10);
 			mul--;
 		}
 		
 		if (decimalPrecision != 0 || alwaysPrintDecimalPoint) printOut.write('.');
 		number -= (int)number;
 		
-		unsigned int i=0;
+		int i=0;
 		for (; i< (decimalPrecision>=0 ? decimalPrecision : defaultDecimalPrecision); i++){
 			number *= 10;
 			
 			if (1 - (number - (uint8_t)number) < 0.0001) {
-				printOut.print((uint8_t) number+1);
+				printOut.write('0' + (uint8_t)number+1);
 				break;
 			}
 			
-			printOut.print((uint8_t) number);
+			printOut.write('0' + (uint8_t) number);
 			number -= (int)number;
 			
 			if (number < 0.0000001) break;
 		}
 		
-		if (decimalPrecision >= 0) for (;i<decimalPrecision; i++) printOut.write('0');
+		if (decimalPrecision >= 0) for (;i<decimalPrecision; i++) printOut.write('0'); 
 	}
-	
 	uint32_t fullNumberLength = numberStream.getLength();
 	if (sign) fullNumberLength++;
 	

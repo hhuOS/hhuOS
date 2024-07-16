@@ -132,10 +132,10 @@ char * _asctime(const struct tm* time_ptr, bool includeNewline) {
 	timeBuf.reset();
 	timeOut << weekdayAbbreviations[time_ptr->tm_wday] << " ";
 	timeOut << monthAbbreviations[time_ptr->tm_mon]<<" ";
-	timeOut.setNumberPadding(2);
+	timeOut.setDecimalPrecision(2);
 	timeOut << time_ptr->tm_mday<<" ";
 	timeOut << time_ptr->tm_hour<<":"<<time_ptr->tm_min<<":"<<time_ptr->tm_sec;
-	timeOut.setNumberPadding(4);
+	timeOut.setDecimalPrecision(4);
 	timeOut << " " << time_ptr->tm_year + 1900;
 	timeOut.flush();
 	if (includeNewline) timeBuf.write('\n');
@@ -187,33 +187,33 @@ size_t strftime(char* str, size_t count, const char* format, const struct tm* tp
 					break;
 					
 				case 'm':
-					printStr.setNumberPadding(2);
+					printStr.setDecimalPrecision(2);
 					printStr << tp->tm_mon;
-					printStr.setNumberPadding(0);
+					printStr.setDecimalPrecision(-1);
 					break;
 					
 				case 'U':
-					printStr.setNumberPadding(2);
+					printStr.setDecimalPrecision(2);
 					printStr << _tm_to_date(tp).getWeekOfYearSunday();
-					printStr.setNumberPadding(0);
+					printStr.setDecimalPrecision(0);
 					break;
 					
 				case 'W':
-					printStr.setNumberPadding(2);
+					printStr.setDecimalPrecision(2);
 					printStr << _tm_to_date(tp).getWeekOfYear();
-					printStr.setNumberPadding(0);
+					printStr.setDecimalPrecision(0);
 					break;
 					
 				case 'j':
-					printStr.setNumberPadding(3);
+					printStr.setDecimalPrecision(3);
 					printStr << tp->tm_yday;
-					printStr.setNumberPadding(0);
+					printStr.setDecimalPrecision(0);
 					break;
 					
 				case 'd':
-					printStr.setNumberPadding(2);
+					printStr.setDecimalPrecision(2);
 					printStr << tp->tm_mday;
-					printStr.setNumberPadding(0);
+					printStr.setDecimalPrecision(0);
 					break;
 					
 				case 'a':
@@ -229,27 +229,27 @@ size_t strftime(char* str, size_t count, const char* format, const struct tm* tp
 					break;
 				
 				case 'H':
-					printStr.setNumberPadding(2);
+					printStr.setDecimalPrecision(2);
 					printStr << tp->tm_hour;
-					printStr.setNumberPadding(0);
+					printStr.setDecimalPrecision(0);
 					break;
 					
 				case 'I':
-					printStr.setNumberPadding(2);
+					printStr.setDecimalPrecision(2);
 					printStr << ((tp->tm_hour - 1) % 12) + 1;
-					printStr.setNumberPadding(0);
+					printStr.setDecimalPrecision(0);
 					break;
 				
 				case 'M':
-					printStr.setNumberPadding(2);
+					printStr.setDecimalPrecision(2);
 					printStr << tp->tm_min;
-					printStr.setNumberPadding(0);
+					printStr.setDecimalPrecision(0);
 					break;
 					
 				case 'S':
-					printStr.setNumberPadding(2);
+					printStr.setDecimalPrecision(2);
 					printStr << tp->tm_sec;
-					printStr.setNumberPadding(0);
+					printStr.setDecimalPrecision(0);
 					break;
 					
 				case 'c':
@@ -257,15 +257,15 @@ size_t strftime(char* str, size_t count, const char* format, const struct tm* tp
 					break;
 				
 				case 'x':
-					printStr.setNumberPadding(2);
+					printStr.setDecimalPrecision(2);
 					printStr << tp->tm_mday << "." << tp->tm_mon << "." << tp->tm_year+1900;
-					printStr.setNumberPadding(0);
+					printStr.setDecimalPrecision(0);
 					break;
 					
 				case 'X':
-					printStr.setNumberPadding(2);
+					printStr.setDecimalPrecision(2);
 					printStr << tp->tm_hour << ":" << tp->tm_min << ":" << tp->tm_sec;
-					printStr.setNumberPadding(0);
+					printStr.setDecimalPrecision(0);
 					break;
 					
 				case 'p':

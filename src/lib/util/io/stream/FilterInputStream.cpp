@@ -27,6 +27,10 @@ int16_t FilterInputStream::read() {
     return stream.read();
 }
 
+int16_t FilterInputStream::peek() {
+	return stream.peek();
+}
+
 int32_t FilterInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
     return stream.read(targetBuffer, offset, length);
 }

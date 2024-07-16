@@ -1,52 +1,53 @@
 #include "lib/libc/ctype.h"
+#include "lib/util/base/CharacterTypes.h"
 
 
 int isalnum(int c) {
-	return (c>=48 && c<=57) || (c>=65 && c<=90) || (c>=97 && c<=122);
+	return Util::CharacterTypes::isAlphaNumeric(c);
 }
 
 int isalpha(int c) {
-	return (c>=65 && c<=90) || (c>=97 && c<=122);
+	return Util::CharacterTypes::isAlphabet(c);
 }
 
 int isdigit(int c) {
-	return (c>=48 && c<=57);
+	return Util::CharacterTypes::isDigit(c);
 }
 
 int islower(int c) {
-	return (c>=97 && c<=122);
+	return Util::CharacterTypes::isLower(c);
 }
 
 int isupper(int c) {
-	return (c>=65 && c<=90);
+	return Util::CharacterTypes::isUpper(c);
 }
 
 int isxdigit(int c) {
-	return (c>=48 && c<=57) || (c>=65 && c<=70) || (c>=97 && c<=102);
+	return Util::CharacterTypes::isHexDigit(c);
 }
 
 int iscntrl(int c) {
-	return (c>=0 && c<=31) || c==127;
+	return Util::CharacterTypes::isControl(c);
 }
 
 int isgraph(int c) {
-	return c>=33 && c <=126;
+	return Util::CharacterTypes::isGraphical(c);
 }
 
 int isspace(int c) {
-	return (c>=9 && c <=13) || c==32;
+	return Util::CharacterTypes::isWhitespace(c);
 }
 
 int isblank(int c) {
-	return c==9 || c==32;
+	return Util::CharacterTypes::isBlank(c);
 }
 
 int isprint(int c) {
-	return c>=32 && c<=126;
+	return Util::CharacterTypes::isPrintable(c);
 }
 
 int ispunct(int c) {
-	return (c>=33 && c<=47) || (c>=58 && c<=64) || (c>=91 && c<=96) || (c>=123 && c<=126);
+	return Util::CharacterTypes::isPunctuation(c);
 }
 
 int tolower(int c) {

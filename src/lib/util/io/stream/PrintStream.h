@@ -57,7 +57,7 @@ public:
 	
 	void setIntegerPrecision(uint32_t v);
 	
-	void setDecimalPrecision(uint32_t v);
+	void setDecimalPrecision(int32_t v);
 	
 	void setIntegerPrefix(Util::String str);
 	
@@ -158,9 +158,9 @@ private:
 	char positiveSign = '\0';
 	char hexNumericBase = 'A';
 	
-	uint32_t minimumIntegerPrecision = 1;
-	uint32_t decimalPrecision = -1;
-	uint32_t defaultDecimalPrecision = 6;
+	int32_t minimumIntegerPrecision = 1;
+	int32_t decimalPrecision = -1;
+	uint32_t defaultDecimalPrecision = 20;
 	
 	bool alwaysPrintDecimalPoint = false;
 	

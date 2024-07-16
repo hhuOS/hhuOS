@@ -10,10 +10,12 @@ typedef unsigned long fpos_t;
 
 #include "lib/libc/StdioFileStream.h"
 #include "lib/util/io/stream/OutputStream.h"
+#include "lib/util/io/stream/InputStream.h"
 
 typedef Libc::StdioFileStream FILE;
 
 int _stream_vprintf(Util::Io::OutputStream &os, const char* format, va_list vlist);
+int _stream_vscanf(Util::Io::InputStream &is, const char* format, va_list vlist);
 
 #else 
 	
@@ -88,6 +90,15 @@ int printf(const char * format, ...);
 int fprintf(FILE * stream, const char * format, ...);
 int sprintf(char * buffer, const char * format, ...);
 int snprintf(char * buffer, size_t bufsz, const char * format, ...);
+
+
+int vscanf(const char* format, va_list args);
+int vfscanf(FILE * stream, const char * format, va_list args);
+int vsscanf(const char * s, const char * format, va_list args);
+
+int scanf(const char* format, ...);
+int fscanf(FILE * stream, const char * format, ...);
+int sscanf(const char * s, const char * format, ...);
 
 
 #ifdef __cplusplus

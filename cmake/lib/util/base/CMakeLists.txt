@@ -30,6 +30,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/base/Address.cpp
         ${HHUOS_SRC_DIR}/lib/util/base/ArgumentParser.cpp
         ${HHUOS_SRC_DIR}/lib/util/base/Exception.cpp
+		${HHUOS_SRC_DIR}/lib/util/base/CharacterTypes.cpp
         ${HHUOS_SRC_DIR}/lib/util/base/FreeListMemoryManager.cpp
         ${HHUOS_SRC_DIR}/lib/util/base/MmxAddress.cpp
         ${HHUOS_SRC_DIR}/lib/util/base/SseAddress.cpp

@@ -43,6 +43,14 @@ int16_t BufferedInputStream::read() {
     return buffer[position++];
 }
 
+int16_t BufferedInputStream::peek() {
+	if (position >= valid && !refill()) {
+        return -1;
+    }
+	
+	return buffer[position];
+}
+
 int32_t BufferedInputStream::read(uint8_t *target, uint32_t offset, uint32_t length) {
     if (length == 0) {
         return 0;

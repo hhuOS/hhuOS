@@ -11,6 +11,8 @@
 #include "lib/util/collection/ArrayList.h"
 #include "lib/runtime/runtime.h"
 #include "lib/util/math/Random.h"
+#include "lib/util/io/stream/ByteArrayInputStream.h"
+#include "lib/util/io/stream/ScanStream.h"
 
 //memory management
 void *malloc(size_t size) {
@@ -172,168 +174,40 @@ ldiv_t ldiv ( long x, long y) {
 
 
 //String conversion
-int _get_char_value(char c, int base) {
-	char t = c;
-	if (isdigit(c)) c -= 48;
-	else if (isupper(c)) c -= 55;
-	else if (islower(c)) c -= 87;
-	else return -1;
-	
-	if (c >= base) return -1;
-	
-	return c;
-}
+
 
 long strtol(const char* str, char **str_end, int base) {
-	while (isspace(*str) && *str != '\0') str++;
+	Util::Io::ByteArrayInputStream is((uint8_t*) str, 0);
+	is.disableSizeLimit();
+	Util::Io::ScanStream ss(is);
 	
-	if (*str == '\0') return 0;
+	long ret = ss.readInt(base);
+	if (ret == LONG_MAX || ret == LONG_MIN) setErrno(ERANGE);
+	if (str_end) *str_end = (char*)(str + ss.getReadBytes());
 	
-	//detect sign
-	int sign = 1;
-	if (*str == '-') {
-		sign = -1;
-		str++;
-	} else if (*str == '+') {
-		str++;
-	}
-	
-	//automatic base detection
-	if (base == 0) {
-		if (*str == '0') {
-			base = 8;
-			if (*(str+1) == 'x' || *(str+1) == 'X') base = 16;
-		} else {
-			base = 10;
-		}
-	}
-	
-	//skip base prefix if existing
-	if (base == 8 && *str == '0') str++;
-	if (base == 16 && *str=='0' && (*(str +1) == 'x' || *(str +1) == 'X')) str +=2;
-	
-	//find end of number
-	char buf[32];
-	char * curr = buf;
-	int len;
-	
-	for (len=0;len<32;len++, str++) {
-		buf[len] = *str;
-		if (!isalnum(*str)) break;
-		if (_get_char_value(*str, base) == -1) break;
-	}
-	
-	if (str_end) *str_end = (char*)str;
-	
-	//interpret number
-	long long ret = 0;
-	long long mul = 1;
-	for (int i=len-1; i >= 0; i--, mul*=base) {
-		ret += _get_char_value(buf[i], base) * mul;
-		
-		//bounds check
-		if (sign == -1 && ret > -LONG_MIN) {
-			setErrno(ERANGE);
-			return LONG_MIN;
-		}
-		if (sign == 1 && ret > LONG_MAX) {
-			setErrno(ERANGE);
-			return LONG_MAX;
-		}
-	}
-	
-	return (long)(sign*ret);
+	return ret;
 }
 
 unsigned long strtoul(const char* str, char **str_end, int base) {
-	while (isspace(*str) && *str != '\0') str++;
+	Util::Io::ByteArrayInputStream is((uint8_t*) str, 0);
+	is.disableSizeLimit();
+	Util::Io::ScanStream ss(is);
 	
-	if (*str == '\0') return 0;
+	unsigned long ret = ss.readUint(base);
+	if (ret == ULONG_MAX) setErrno(ERANGE);
+	if (str_end) *str_end = (char*)(str + ss.getReadBytes());
 	
-	//detect sign
-	int sign = 1;
-	if (*str == '-') {
-		sign = -1;
-		str++;
-	} else if (*str == '+') {
-		str++;
-	}
-	
-	//automatic base detection
-	if (base == 0) {
-		if (*str == '0') {
-			base = 8;
-			if (*(str+1) == 'x' || *(str+1) == 'X') base = 16;
-		} else {
-			base = 10;
-		}
-	}
-	
-	//skip base prefix if existing
-	if (base == 8 && *str == '0') str++;
-	if (base == 16 && *str=='0' && (*(str +1) == 'x' || *(str +1) == 'X')) str +=2;
-	
-	//find end of number
-	char buf[32];
-	int len;
-	
-	for (len=0;len<32;len++, str++) {
-		buf[len] = *str;
-		if (!isalnum(*str)) break;
-		if (_get_char_value(*str, base) == -1) break;
-	}
-	
-	if (str_end) *str_end = (char*)str;
-	
-	//interpret number
-	long long ret = 0;
-	long long mul = 1;
-	for (int i=len-1; i >= 0; i--, mul*=base) {
-		ret += _get_char_value(buf[i], base) * mul;
-		
-		if (ret > ULONG_MAX) {
-			setErrno(ERANGE);
-			return ULONG_MAX;
-		}
-	}
-	
-	return sign == -1 ? ULONG_MAX - ret + 1: ret;
+	return ret;
 }
 
 
 double strtod(const char* str, char **str_end) {
-	while (isspace(*str) && *str != '\0') str++;
+	Util::Io::ByteArrayInputStream is((uint8_t*) str, 0);
+	is.disableSizeLimit();
+	Util::Io::ScanStream ss(is);
 	
-	if (*str == '\0') return 0;
-	
-	int sign = 1;
-	if (*str == '-') {
-		sign = -1;
-		str++;
-	} else if (*str == '+') {
-		str++;
-	}
-	
-	double ret = 0;
-	while (isdigit(*str)) {
-		ret *= 10;
-		ret += _get_char_value(*str, 10);
-		str++;
-	}
-	
-	if (*str == '.') {
-		str++;
-		double mul = 0.1;
-		while (isdigit(*str)) {
-			ret += mul * _get_char_value(*str, 10);
-			mul/=10;
-			str++;
-		}
-	}
-	
-	if (*str == 'e' || *str == 'E') {
-		ret *= Util::Math::powInt(10, strtol(str + 1, NULL, 10));
-	}
+	double ret = ss.readDouble();
+	if (str_end) *str_end = (char*)(str + ss.getReadBytes());
 	
 	return ret;
 }

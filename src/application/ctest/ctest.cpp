@@ -18,6 +18,8 @@
 #include "lib/interface.h"
 #include "lib/util/io/file/File.h"
 
+#include "lib/util/io/stream/ScanStream.h"
+
 int intComp(const void* a, const void* b) {
 	return (*(int*)a) - (*(int*)b);
 }
@@ -28,11 +30,13 @@ void longjmp_test() {
 	longjmp(jbuf, 0);
 }
 
-
 int32_t main(int32_t argc, char *argv[]) {
 	bool t;
 	
 	int bw;
+	
+	
+	
 	
 	//Test stdio
 	char stdioBuf[1024];
@@ -100,9 +104,20 @@ int32_t main(int32_t argc, char *argv[]) {
 	printf("Hello %c %s\n", 'A', "Test");
 	printf("%10.2#o%10.2d%+-10.2d%+10.2d%10.2#x%10.2d\n", 115, -115, 16, 1234, 1234, 1);
 	printf("%f %8.2f %F %e %g %G\n%n", 5.343, -21.23456, 1.0/0.0, 123456.0, 123456.0, 0.0235, &bw);
-	printf("Bytes in previous line: %d, addr %p %p\n", bw, &bw, &main);
+	printf("Bytes in previous line: %d, addr %p %p\n\n", bw, &bw, &main);
 	
-	puts("gets: ");
+	puts("scanf:\n");
+	int i1, i2, i3, i4, i5;
+	double f = 0; 
+	i5 = sscanf("1234 -0x13 100 ffAA -3.414e2\n", "%d %i %o %X %g\n", &i1, &i2, &i3, &i4, &f);
+	printf("%i %i %i %i %g Argument count: %i\n", i1, i2, i3, i4, f, i5);
+	
+	char c1[1024], c2[1024], c3[1024], c4[1024];
+	i5 = sscanf("abc defghij\n 012563abcdef\n", "%3c %s %[0-9]%[^\n]%n\n", c1, c2, c3, c4, &i4);
+	c1[6] = '\0';
+	printf("%s ; %s ; %s ; %s Argument count: %i, Bytes read: %i\n", c1, c2, c3, c4, i5, i4);
+	
+	puts("\ngets: ");
 	fflush(stdout);
 	gets(stdioBuf);
 	puts(stdioBuf);
@@ -182,7 +197,6 @@ int32_t main(int32_t argc, char *argv[]) {
 	Util::System::out << "modf 13.245: "<< r2 <<" "<<r<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	
 	Util::System::out << "isnan 1, 1/0: "<< isnan(1) <<", "<<isnan(1.0/0.0)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-	Util::System::out << "isinf 1, 1000**1000: " << isinf(1) <<", "<<isinf(pow(1000,1000))<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	
 	Util::System::in.readLine(t);
 	

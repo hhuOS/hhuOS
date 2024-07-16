@@ -72,6 +72,8 @@ public:
     void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
 
     int16_t read() override;
+	
+	int16_t peek() override;
 
     int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
 
@@ -86,6 +88,8 @@ public:
     IoPort lineStatusRegister;
     IoPort modemStatusRegister;
     IoPort scratchRegister;
+	
+	int16_t peekedChar = -1;
 };
 
 }

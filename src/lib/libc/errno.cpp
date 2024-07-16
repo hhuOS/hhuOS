@@ -1,11 +1,11 @@
 #include "lib/libc/errno.h"
 
-errno_val_t currentErrno;
+int currentErrno;
 
-void setErrno(errno_val_t val) {
+void setErrno(int val) {
 	currentErrno = val;
  }
  
- errno_val_t getErrno() {
-	 return currentErrno;
+ int * getErrno() {
+	 return &currentErrno;
  }

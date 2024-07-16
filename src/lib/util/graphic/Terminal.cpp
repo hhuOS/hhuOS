@@ -107,6 +107,10 @@ int16_t Terminal::read() {
     return inputStream.read();
 }
 
+int16_t Terminal::peek() {
+	return inputStream.peek();
+}
+
 int32_t Terminal::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
     return inputStream.read(targetBuffer, offset, length);
 }

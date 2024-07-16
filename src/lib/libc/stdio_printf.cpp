@@ -33,6 +33,7 @@ int _stream_vprintf(Util::Io::OutputStream &os, const char* format, va_list args
 			out.setBase(10);
 			out.setNumberPadding(0);
 			out.setIntegerPrecision(0);
+			out.setDecimalPrecision(-1);
 			out.setNumberJustification(false);
 			out.setPositiveSign('\0');
 			out.setNegativeSign('-');
@@ -197,7 +198,8 @@ int _stream_vprintf(Util::Io::OutputStream &os, const char* format, va_list args
 					}
 					
 					scientificNotation = false;
-					exp = floor(log10(dval)); //calculate exponent
+					
+					exp = floor(log10(fabs(dval))); //calculate exponent
 					
 					if (*c == 'e' || *c == 'E') scientificNotation = true;
 					
