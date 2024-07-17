@@ -100,9 +100,9 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     while (length == -1 || readBytes < length) {
-        Util::System::out.setNumberPadding(8);
+        Util::System::out.setIntegerPrecision(8);
         Util::System::out << " " << address << " | ";
-        Util::System::out.setNumberPadding(2);
+        Util::System::out.setIntegerPrecision(2);
 
         char line[LINE_LENGTH];
         uint8_t i;

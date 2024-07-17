@@ -79,7 +79,7 @@ static const constexpr char *tableNames[]{
 };
 
 void dumpTable(const Util::Hardware::SmBios::TableHeader &table) {
-    Util::System::out.setNumberPadding(2);
+    Util::System::out.setIntegerPrecision(2);
     Util::System::out << "\tHeader and Data:" << Util::Io::PrintStream::hex;
 
     for (uint32_t i = 0; i < table.length; i++) {
@@ -101,7 +101,7 @@ void dumpTable(const Util::Hardware::SmBios::TableHeader &table) {
         Util::System::out << "\t\t" << table.getString(i + 1) << Util::Io::PrintStream::endl;
     }
 
-    Util::System::out.setNumberPadding(0);
+    Util::System::out.setIntegerPrecision(0);
 }
 
 void decodeBiosInformation(const Util::Hardware::SmBios::BiosInformation &table) {
@@ -304,11 +304,11 @@ int32_t main(int32_t argc, char *argv[]) {
         tableStream.read(tableBuffer, 0, length);
 
         auto *tableHeader = reinterpret_cast<Util::Hardware::SmBios::TableHeader*>(tableBuffer);
-        Util::System::out.setNumberPadding(4);
+        Util::System::out.setIntegerPrecision(4);
         Util::System::out << "Handle 0x" << Util::Io::PrintStream::hex << tableHeader->handle << Util::Io::PrintStream::dec;
-        Util::System::out.setNumberPadding(2);
+        Util::System::out.setIntegerPrecision(2);
         Util::System::out << ", DMI type " << tableHeader->type << ", " << tableHeader->length << " bytes" << Util::Io::PrintStream::endl;
-        Util::System::out.setNumberPadding(0);
+        Util::System::out.setIntegerPrecision(0);
 
         if (tableHeader->type <= Util::Hardware::SmBios::STRING_PROPERTY) {
             Util::System::out << tableNames[tableHeader->type] << Util::Io::PrintStream::endl;

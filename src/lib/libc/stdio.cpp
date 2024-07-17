@@ -227,12 +227,21 @@ int rename(const char * old_filename, const char * new_filename) {
 
 int lastTmp = 0;
 
+char tmpFileName[L_tmpnam];
+
 char * tmpnam(char * filename) {
-	//TODO wenn sprintf
-	return NULL;
+	if (lastTmp >= TMP_MAX) return NULL;
+	if (!filename) filename = tmpFileName;
+	
+	sprintf(filename, "/temp/tmp%d", lastTmp++);
+	return filename;
 }
 
 FILE * tmpfile() {
-	//TODO wenn sprintf
+	for (char * tmpNam = tmpnam(NULL); tmpNam != NULL ;  tmpNam = tmpnam(NULL))	 {
+		if (!Util::Io::File(Util::String(tmpNam)).exists()) {
+			return fopen(tmpNam, "wb+");
+		}
+	}
 	return NULL;
 }

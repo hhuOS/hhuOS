@@ -2,8 +2,6 @@
 #define LIBC_LIMITS 
 
 
-#define MB_LEN_MAX 16
-
 #define CHAR_BIT 8
 #define CHAR_MIN -128
 #define CHAR_MAX 127

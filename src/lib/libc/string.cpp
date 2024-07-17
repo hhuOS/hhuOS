@@ -241,14 +241,17 @@ void * memmove(void * dest, const void * src, size_t count) {
 
 //error handling
 
-char * errorStrings[] = {
+const char * errorStrings[] = {
 	"No Error",
 	"Function Domain Error",
 	"Function Range Error",
 	"Illegal Byte Sequence"
 };
 
+char errorString[100];
+
 char * strerror(int errnum) {
-	if (errnum>0 && errnum <4) return errorStrings[errnum];
-	return "No Error";
+	if (errnum>0 && errnum <4) strcpy(errorString, errorStrings[errnum]);
+	else strcpy(errorString, errorStrings[0]);
+	return errorString;
 }

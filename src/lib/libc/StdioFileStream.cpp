@@ -179,7 +179,7 @@ int32_t StdioFileStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t l
 		length -= i;
 	}
 	
-	int32_t len = readFile(fileDescriptor, targetBuffer, pos, length);
+	uint32_t len = readFile(fileDescriptor, targetBuffer, pos, length);
 	pos += len;
 	
 	if (len < length) _eof = true;

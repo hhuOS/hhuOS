@@ -160,7 +160,7 @@ private:
 	
 	int32_t minimumIntegerPrecision = 1;
 	int32_t decimalPrecision = -1;
-	uint32_t defaultDecimalPrecision = 20;
+	int32_t defaultDecimalPrecision = 20;
 	
 	bool alwaysPrintDecimalPoint = false;
 	

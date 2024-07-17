@@ -423,13 +423,14 @@ String String::vformat(const char *format, va_list args) {
         printStream.write(reinterpret_cast<const uint8_t*>(format), i, j);
 
         if (format[i + j] == '%') {
+			printStream.setIntegerPrecision(0);
             if (format[i + j + 1] == '0') {
                 uint8_t padding = format[i + j + 2] - '0';
                 if (padding < 0 || padding > 9) {
                     Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "String: Format padding must be between 01 and 09");
                 }
 
-                printStream.setNumberPadding(padding);
+                printStream.setIntegerPrecision(padding);
                 j += 2;
             }
 

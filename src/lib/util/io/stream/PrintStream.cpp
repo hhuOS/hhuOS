@@ -138,7 +138,7 @@ void PrintStream::print(uint32_t number, char sign) {
     }
 
 	
-	uint32_t fullNumberLength = numberStream.getLength();
+	int32_t fullNumberLength = numberStream.getLength();
 	if (fullNumberLength < minimumIntegerPrecision) fullNumberLength = minimumIntegerPrecision;
 	fullNumberLength += integerPrefix.length();
 	if (sign) fullNumberLength++;
@@ -153,7 +153,7 @@ void PrintStream::print(uint32_t number, char sign) {
 
 	if (sign) write(sign);
 	print(integerPrefix);
-	for (unsigned int i=numberStream.getLength(); i < minimumIntegerPrecision; i++) write('0');
+	for (int i=numberStream.getLength(); i < minimumIntegerPrecision; i++) write('0');
 	print(numberStream.getContent());
 	
 	if (rightPadding) {

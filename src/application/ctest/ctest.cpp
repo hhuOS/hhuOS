@@ -8,6 +8,7 @@
 #include <setjmp.h>
 #include <time.h>
 #include <stdarg.h>
+#include <assert.h>
 
 #include "lib/util/base/System.h"
 #include "lib/util/base/String.h"
@@ -66,7 +67,7 @@ int32_t main(int32_t argc, char *argv[]) {
 	fread(stdioBuf, 200, 1, tf);
 	Util::System::out << "feof, ferror: "<< feof(tf)<<" "<<ferror(tf) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	
-	perror("Current errno");
+	perror("perrno");
 	fclose(tf);
 	
 	puts("ungetc AB: ");
@@ -100,6 +101,8 @@ int32_t main(int32_t argc, char *argv[]) {
 	
 	remove("abc.txt");
 	
+	
+	
 	puts("printf:\n");
 	printf("Hello %c %s\n", 'A', "Test");
 	printf("%10.2#o%10.2d%+-10.2d%+10.2d%10.2#x%10.2d\n", 115, -115, 16, 1234, 1234, 1);
@@ -116,6 +119,24 @@ int32_t main(int32_t argc, char *argv[]) {
 	i5 = sscanf("abc defghij\n 012563abcdef\n", "%3c %s %[0-9]%[^\n]%n\n", c1, c2, c3, c4, &i4);
 	c1[6] = '\0';
 	printf("%s ; %s ; %s ; %s Argument count: %i, Bytes read: %i\n", c1, c2, c3, c4, i5, i4);
+	
+	puts("wchar printf/scanf Euro signs: ");
+	wchar_t ws[100];
+	const char * ts = "€€€€€€€€";
+	sscanf(ts, "%ls", ws);
+	printf("%ls\n", ws);
+	
+	printf("temp file name: %s\n", tmpnam(NULL));
+	tf = tmpfile();
+	fprintf(tf, "Write/Read to tmpfile: AAAA\n");
+	rewind(tf);
+	memset(stdioBuf, 0, 200);
+	fread(stdioBuf, 200, 1,tf);
+	puts(stdioBuf);
+	fclose(tf);
+	
+	
+	
 	
 	puts("\ngets: ");
 	fflush(stdout);
@@ -162,9 +183,14 @@ int32_t main(int32_t argc, char *argv[]) {
 	}
 	
 	Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-
-	Util::System::in.readLine(t);
 	
+	
+	//Test assert 
+	printf("----- assert.h\n");
+	assert(0);
+	printf("\n");
+	
+	Util::System::in.readLine(t);
 	
 	//Test math
 	Util::System::out << "----- math.h"<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
@@ -238,7 +264,7 @@ int32_t main(int32_t argc, char *argv[]) {
 	
 	wchar_t ret;
 	char buf[1024];
-	char * wstr = "€$Ä";
+	const char * wstr = "€$Ä";
 	wchar_t wbuf[20];
 	Util::System::out << "mblen euro sign: " << mblen("€", MB_LEN_MAX) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	mbtowc(&ret, "€", MB_LEN_MAX);
@@ -257,8 +283,8 @@ int32_t main(int32_t argc, char *argv[]) {
 	
 	//Test string
 	
-	char * str1 = "Hello World!";
-	char * str2 = "Test";
+	const char * str1 = "Hello World!";
+	const char * str2 = "Test";
 	Util::System::out << "----- string.h" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	strcpy(buf, str1);
 	Util::System::out << "strcpy: " << buf << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;

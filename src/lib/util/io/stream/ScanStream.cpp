@@ -41,7 +41,6 @@ void ScanStream::setReadLimit(uint32_t limit) {
 
 //String conversion
 int _get_char_value(char c, int base) {
-	char t = c;
 	if (CharacterTypes::isDigit(c)) c -= 48;
 	else if (CharacterTypes::isUpper(c)) c -= 55;
 	else if (CharacterTypes::isLower(c)) c -= 87;
@@ -107,7 +106,6 @@ long long ScanStream::readLong(int base) {
 	
 	//find end of number
 	char buf[32];
-	char * curr = buf;
 	int len;
 	
 	for (len=0;len<32;len++) {

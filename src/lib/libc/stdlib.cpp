@@ -92,9 +92,9 @@ void* bsearch(const void* key, const void* ptr, size_t count, size_t size, int (
 	size_t rightMargin = count - leftMargin - 1;
 	
 	while (1) {
-		int compResult = comp(key, ptr + size*index);
+		int compResult = comp(key, (void*)((uint8_t*)ptr + size*index));
 		if (compResult == 0) {
-			return (void*)(ptr + size*index);
+			return (void*)((uint8_t*)ptr + size*index);
 		} else if (compResult < 0) {
 			if (leftMargin == 0) return NULL;
 			index -= (leftMargin+1)/2;
@@ -122,12 +122,12 @@ void _qsort_swap(void * a, void* b, size_t size) {
 }
 
 uint32_t _qsort_partition(void* ptr, size_t count, size_t size, int (*comp)(const void*, const void*)) {
-	void * pivot = ptr + ((count-1)*size);
-	void * i = ptr;
+	uint8_t * pivot = (uint8_t*)ptr + ((count-1)*size);
+	uint8_t * i = (uint8_t*)ptr;
 	
 	uint32_t reti = 0;
 	
-	for (void * j = ptr; j < ptr+(count-1)*size; j+= size) {
+	for (uint8_t * j = (uint8_t*)ptr; j < (uint8_t*)ptr+(count-1)*size; j+= size) {
 		if (comp(j, pivot) <= 0) {
 			_qsort_swap(i, j, size);
 			i += size;
@@ -145,7 +145,7 @@ void qsort(void* ptr, size_t count, size_t size, int (*comp)(const void*, const 
 	uint32_t p = _qsort_partition(ptr, count, size, comp);
 	
 	qsort(ptr, p, size, comp);
-	qsort(ptr + (p+1)*size, count - p - 1, size, comp);
+	qsort((void*)((uint8_t*)ptr + (p+1)*size), count - p - 1, size, comp);
 }
 
 
@@ -252,7 +252,7 @@ int mblen(const char* s, size_t n) {
 int mbtowc(wchar_t * pwc, const char* s, size_t n) {
 	size_t len = mblen(s,n);
 	
-	if (len <= 0 && (*s) != 0) return len; //same error handling as mblen
+	if (len < 0 && (*s) != 0) return len; //same error handling as mblen
 	if (!pwc) return len;
 	
 	size_t first_byte_len = 0;

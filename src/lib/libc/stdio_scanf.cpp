@@ -3,49 +3,28 @@
 
 #include "stdio.h"
 #include "stdlib.h"
+#include "string.h"
 #include "errno.h"
 #include "lib/util/io/stream/ScanStream.h"
 #include "lib/util/io/stream/ByteArrayInputStream.h"
 
 
 wchar_t readWchar(Util::Io::ScanStream &ss) {
-	char wc[4];
+	uint8_t wc[4];
+	memset(wc, 0, 4);
 	wc[0] = ss.read();
 	for (int i=1; i<4; i++) {
-		if (mblen(wc, 4) != -1) break;
+		if (mblen( (const char * )wc, 4) != -1) break;
 		wc[i] = ss.read();
 	}
-	return *(wchar_t*)wc;
-}
-
-wchar_t parseEscapeSequence(const char * s) {
-	switch (*s) {
-		case 'a':
-			return '\a';
-		case 'b':
-			return '\b';
-		case 'e':
-			return '\e';
-		case 'f':
-			return '\f';
-		case 'n':
-			return '\n';
-		case 'r':
-			return '\r';
-		case 't':
-			return '\t';
-		case 'v':
-			return '\v';
-		case '\\':
-			return '\\';
-		case '\'':
-			return '\'';
-		case '"':
-			return '"';
-		case '?':
-			return '?';
+	
+	if (mblen( (const char * )wc, 4) == -1) {
+		errno = EILSEQ;
 	}
-	return '\\';
+	
+	wchar_t ret;
+	mbtowc(&ret, (const char * )wc, 4);
+	return ret;
 }
 
 int _stream_vscanf(Util::Io::InputStream &is, const char* format, va_list vlist) {
@@ -77,6 +56,7 @@ int _stream_vscanf(Util::Io::InputStream &is, const char* format, va_list vlist)
 			
 			while (1) {
 				c++;
+				
 				if (*c == '%') break;
 				else if (*c == 'h') shortParam = true;
 				else if (*c == 'l' || *c == 'L') longParam = true;
@@ -85,6 +65,7 @@ int _stream_vscanf(Util::Io::InputStream &is, const char* format, va_list vlist)
 					c--;
 				} 
 				else if (*c == '*') suppressAssign = true;
+				else if (*c == '\0') return EOF; 
 				else break;
 			}
 			
@@ -113,6 +94,9 @@ int _stream_vscanf(Util::Io::InputStream &is, const char* format, va_list vlist)
 					if (ss.peek() != '%' ) return EOF;
 					ss.read();
 					break;
+					
+				case '\0':
+					return EOF;
 					
 				case 'd':
 					v = ss.readInt(10);
@@ -241,14 +225,16 @@ int _stream_vscanf(Util::Io::InputStream &is, const char* format, va_list vlist)
 						if (!suppressAssign) ws = va_arg(vlist, wchar_t*);
 						i = 0;
 						c2 = ss.peek();
-						while (!isspace(c2)) {
+						while (c2 != '\0' && !isspace(c2)) {
 							if (maxFieldWidth >= 0 && i >= maxFieldWidth) break;
-							c2 = readWchar(ss);
+							w = readWchar(ss);
+							fflush(stdout);
 							if (!suppressAssign) {
-								*ws = c2;
+								*ws = w;
 								ws++;
 							}
 							i++;
+							c2 = ss.peek();
 						}
 						
 						if (!suppressAssign) *ws = '\0';
@@ -302,11 +288,6 @@ int _stream_vscanf(Util::Io::InputStream &is, const char* format, va_list vlist)
 									setp++;
 									if ((setp - set) >= 1024) break;
 								}
-							} else if (*c == '\\') {
-								c++;
-								*setp = parseEscapeSequence(c);
-								setp++;
-								
 							} else {
 								*setp = *c;
 								setp++;
@@ -355,8 +336,13 @@ int _stream_vscanf(Util::Io::InputStream &is, const char* format, va_list vlist)
 }
 
 
-int vscanf(const char* format, va_list args);
-int vfscanf(FILE * stream, const char * format, va_list args);
+int vscanf(const char* format, va_list args) {
+	return vfscanf(stdin, format, args);
+}
+
+int vfscanf(FILE * stream, const char * format, va_list args) {
+	return _stream_vscanf(*stream, format, args);
+}
 
 int vsscanf(const char * s, const char * format, va_list args) {
 	Util::Io::ByteArrayInputStream bs((uint8_t*)s, 0);
@@ -365,8 +351,21 @@ int vsscanf(const char * s, const char * format, va_list args) {
 	return _stream_vscanf(bs, format, args);
 }
 
-int scanf(const char* format, ...);
-int fscanf(FILE * stream, const char * format, ...);
+int scanf(const char* format, ...) {
+	va_list args;
+	va_start(args, format);
+	int ret = vscanf(format, args);
+	va_end(args);
+	return ret;
+}
+
+int fscanf(FILE * stream, const char * format, ...) {
+	va_list args;
+	va_start(args, format);
+	int ret = vfscanf(stream, format, args);
+	va_end(args);
+	return ret;
+}
 
 int sscanf(const char * s, const char * format, ...) {
 	va_list args;
