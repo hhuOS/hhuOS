@@ -382,6 +382,9 @@ String String::strip() const {
         element = buffer[startIndex];
 
         if (element != '\t' && element != '\n' && element != ' ') {
+            if (startIndex == len - 1) {
+                return buffer[startIndex];
+            }
             break;
         }
     }
