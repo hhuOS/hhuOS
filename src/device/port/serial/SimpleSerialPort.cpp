@@ -78,8 +78,20 @@ void SimpleSerialPort::write(const uint8_t *sourceBuffer, uint32_t offset, uint3
 }
 
 int16_t SimpleSerialPort::read() {
+	if (peekedChar != -1) {
+		int16_t ret = peekedChar;
+		peekedChar = -1;
+		return ret;
+	}
+	
     while (!isReadyToRead()) {}
+
     return dataRegister.readByte();
+}
+
+int16_t SimpleSerialPort::peek() {
+	if (peekedChar == -1) peekedChar = read();
+	return peekedChar;
 }
 
 int32_t SimpleSerialPort::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {

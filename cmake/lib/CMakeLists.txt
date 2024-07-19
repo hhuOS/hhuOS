@@ -24,3 +24,4 @@ include_directories(${HHUOS_SRC_DIR})
 # Add subdirectories
 add_subdirectory(runtime)
 add_subdirectory(util)
+add_subdirectory(libc)

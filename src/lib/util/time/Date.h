@@ -34,6 +34,8 @@ public:
     Date() = default;
 
     Date(uint8_t seconds, uint8_t minutes, uint8_t hours, uint8_t dayOfMonth, uint8_t month, uint16_t year);
+	
+	Date(int64_t unixTime);
 
     /**
      * Copy Constructor.
@@ -83,6 +85,16 @@ public:
     [[nodiscard]] uint16_t getYear() const;
 
     void setYear(uint16_t year);
+	
+	int64_t getUnixTime();
+	
+	int8_t getWeekday(); //0 = Monday, 6=Sunday
+	
+	uint16_t getDayOfYear(); //number of days since 1. January
+	
+	uint8_t getWeekOfYear();
+	
+	uint8_t getWeekOfYearSunday(); //Get week of year (Sunday as first day)
 
 private:
 
@@ -98,6 +110,9 @@ private:
 Date getCurrentDate();
 
 void setDate(const Date &date);
+
+uint16_t getLengthOfYear(int16_t year); //returns number of days in that year, in Gregorian calendar
+uint8_t getLengthOfMonth(uint8_t month, int16_t year); //returns number of days that month
 
 }
 

@@ -20,6 +20,7 @@
 #include "ByteArrayOutputStream.h"
 #include "lib/util/io/stream/OutputStream.h"
 #include "lib/util/base/Address.h"
+#include "lib/util/math/Math.h"
 
 namespace Util::Io {
 
@@ -31,22 +32,66 @@ void PrintStream::flush() {
 
 void PrintStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
     stream.write(sourceBuffer, offset, length);
+	bytesWritten += length;
 }
 
 void PrintStream::write(uint8_t c) {
     write(&c, 0, 1);
+	bytesWritten++;
+}
+
+uint32_t PrintStream::getBytesWritten() {
+	return bytesWritten;
 }
 
 void PrintStream::setBase(uint8_t newBase) {
     base = newBase;
 }
 
-void PrintStream::setNumberPadding(uint8_t padding) {
+void PrintStream::setNumberPadding(int padding) {
+	if (padding < 0) {
+		padding *= -1;
+		setNumberJustification(true);
+	}
     numberPadding = padding;
 }
 
-void PrintStream::print(const char *string) {
-    write(reinterpret_cast<const uint8_t*>(string), 0, Address<uint32_t>(string).stringLength());
+void PrintStream::setNumberJustification(bool leftJustified) {
+	rightPadding = leftJustified;
+}
+
+void PrintStream::setPositiveSign(char s) {
+	positiveSign = s;
+}
+	
+void PrintStream::setNegativeSign(char s) {
+	negativeSign = s;
+}
+
+void PrintStream::setIntegerPrecision(uint32_t v) {
+	minimumIntegerPrecision = v;
+}
+	
+void PrintStream::setDecimalPrecision(int32_t v) {
+	decimalPrecision = v;
+}
+
+void PrintStream::setIntegerPrefix(Util::String str) {
+	integerPrefix = str;
+}
+
+void PrintStream::setHexNumericBase(char base) {
+	hexNumericBase = base;
+}
+
+void PrintStream::setAlwaysPrintDecimalPoint(bool val) {
+	alwaysPrintDecimalPoint = val;
+}
+
+void PrintStream::print(const char *string, uint32_t maxBytes) {
+	uint32_t len = Address<uint32_t>(string).stringLength();
+	if (maxBytes >= 0 && len > maxBytes) len = maxBytes;
+    write(reinterpret_cast<const uint8_t*>(string), 0, len);
 }
 
 void PrintStream::print(const String &string) {
@@ -56,17 +101,20 @@ void PrintStream::print(const String &string) {
 void PrintStream::print(bool boolean) {
     print(boolean ? "true" : "false");
 }
-
+	
 void PrintStream::print(int64_t number) {
+  char sign = '\0';
     if (number < 0) {
-        write('-');
+        sign = negativeSign;
         number = -number;
-    }
+    } else {
+		sign = positiveSign;
+	}
 
-    print(static_cast<uint32_t>(number));
+    print(static_cast<uint32_t>(number), sign);
 }
 
-void PrintStream::print(uint64_t number) {
+void PrintStream::print(uint64_t number, char sign) {
     uint32_t div;
     char digit;
     uint8_t currentBase = base;
@@ -83,17 +131,36 @@ void PrintStream::print(uint64_t number) {
             formatStream << static_cast<char>('0' + digit);
         }
         else {
-            formatStream << static_cast<char>('A' + digit - 10);
+            formatStream << static_cast<char>(hexNumericBase + digit - 10);
         }
 
         number %= div;
     }
 
-    for (uint32_t i = numberStream.getLength(); i < numberPadding; i++) {
-        write('0');
-    }
+	
+	int32_t fullNumberLength = numberStream.getLength();
+	if (fullNumberLength < minimumIntegerPrecision) fullNumberLength = minimumIntegerPrecision;
+	fullNumberLength += integerPrefix.length();
+	if (sign) fullNumberLength++;
+	
+	
+	
+	if (!rightPadding) {
+		for (uint32_t i = fullNumberLength; i < numberPadding; i++) {
+			write(' ');
+		}
+	}
 
-    print(numberStream.getContent());
+	if (sign) write(sign);
+	print(integerPrefix);
+	for (int i=numberStream.getLength(); i < minimumIntegerPrecision; i++) write('0');
+	print(numberStream.getContent());
+	
+	if (rightPadding) {
+		for (uint32_t i = numberStream.getLength(); i < numberPadding; i++) {
+			write(' ');
+		}
+	}
 }
 
 void PrintStream::print(int32_t number) {
@@ -122,6 +189,77 @@ void PrintStream::print(uint8_t number) {
 
 void PrintStream::print(void *pointer) {
     print(reinterpret_cast<uint32_t>(pointer));
+}
+
+void PrintStream::print(double number) {
+	
+	ByteArrayOutputStream numberStream;
+	PrintStream printOut(numberStream);
+	
+	char sign = '\0';
+	
+	if (number == 0) {
+		sign = positiveSign;
+		printOut.print("0.0");
+		
+	} else {
+		if (number < 0) {
+			sign = negativeSign;
+			number *= -1;
+		} else {
+			sign = positiveSign;
+		}
+		
+		long mul = 1;
+		while (Util::Math::powInt(10, mul) <= number) mul++;
+		mul--;
+		
+		
+		while (mul >= 0) {
+			printOut.write( '0' + ((int)(number/Util::Math::powInt(10, mul)))%10);
+			mul--;
+		}
+		
+		if (decimalPrecision != 0 || alwaysPrintDecimalPoint) printOut.write('.');
+		number -= (int)number;
+		
+		int i=0;
+		for (; i< (decimalPrecision>=0 ? decimalPrecision : defaultDecimalPrecision); i++){
+			number *= 10;
+			
+			if (1 - (number - (uint8_t)number) < 0.0001) {
+				printOut.write('0' + (uint8_t)number+1);
+				break;
+			}
+			
+			printOut.write('0' + (uint8_t) number);
+			number -= (int)number;
+			
+			if (number < 0.0000001) break;
+		}
+		
+		if (decimalPrecision >= 0) for (;i<decimalPrecision; i++) printOut.write('0'); 
+	}
+	uint32_t fullNumberLength = numberStream.getLength();
+	if (sign) fullNumberLength++;
+	
+	
+	
+	if (!rightPadding) {
+		for (uint32_t i = fullNumberLength; i < numberPadding; i++) {
+			write(' ');
+		}
+	}
+
+	if (sign) write(sign);
+	print(numberStream.getContent());
+	
+	if (rightPadding) {
+		for (uint32_t i = numberStream.getLength(); i < numberPadding; i++) {
+			write(' ');
+		}
+	}
+	
 }
 
 void PrintStream::println() {
@@ -226,6 +364,11 @@ PrintStream& PrintStream::operator<<(int32_t number) {
     return *this;
 }
 
+PrintStream& PrintStream::operator<<(long int value) {
+	print((int32_t)value);
+    return *this;
+}
+
 PrintStream& PrintStream::operator<<(uint32_t number) {
     print(number);
     return *this;
@@ -245,6 +388,12 @@ PrintStream& PrintStream::operator<<(void *pointer) {
     print(pointer);
     return *this;
 }
+
+PrintStream& PrintStream::operator<<(double value) {
+	print(value);
+    return *this;
+}
+
 
 PrintStream& PrintStream::operator<<(PrintStream &(*f)(PrintStream &)) {
     return f(*this);

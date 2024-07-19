@@ -45,8 +45,14 @@ public:
     [[nodiscard]] bool isEmpty() const;
 
     [[nodiscard]] const uint8_t* getBuffer() const;
+	
+	void disableSizeLimit();
+	
+	void makeNullTerminated();
 
     int16_t read() override;
+	
+	int16_t peek() override;
 
     int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
 
@@ -57,6 +63,9 @@ private:
     uint8_t *buffer;
     uint32_t size;
     uint32_t position = 0;
+	
+	bool enforceSizeLimit = true;
+	bool nullTerminated = false;
 };
 
 }

@@ -71,6 +71,84 @@ double max(double first, double second, double third) {
     return max(min(first, second), third);
 }
 
+
+double exp(double arg) {
+	double ret = 0;
+    asm volatile (
+			"fldl (%0);"
+			"fldl2e;"
+			"fmulp;" //st0: ex * log2(e) 
+			"fld1;" //st0: 1, st1: ex * log2(e) 
+			"fld %%st(1);" // st0: ex * log2(e)  st1: 1, st2: ex * log2(e) 
+			"fprem;" // st0: rem(ex * log2(e) ), st: 1, st2: ex * log2(e) 
+			"f2xm1;" //st0: 2 ^ rem(exponent * log2(base)) - 1, s1: 1, s2: ex * log2(e) 
+			"faddp;" //st0: 2 ^ rem(exponent * log2(base)), st1: ex * log2(e) 
+			"fscale;" // st0 *= 2^ int (ex * log2(e) ) 
+			"fxch %%st(1);"
+			"fstp %%st;" //clear st1
+            "fstpl (%1);"
+            : :
+            "r"(&arg),"r"(&ret)
+            );
+
+    return ret;
+}
+
+double ln(double arg) {
+	double ret = 0;
+    asm volatile (
+			"fld1;"
+			"fldl2e;"
+			"fdivrp;" //store 1/log2(e) in stl(0)
+			"fldl (%0);"
+			"fyl2x;" //calculate log
+            "fstpl (%1);"
+            : :
+            "r"(&arg), "r"(&ret)
+            );
+
+    return ret;
+}
+
+
+double log10(double arg) {
+	double ret = 0;
+    asm volatile (
+			"fld1;"
+			"fldl2t;"
+			"fdivrp;" //store 1/log2(e) in stl(0)
+			"fldl (%0);"
+			"fyl2x;" //calculate log
+            "fstpl (%1);"
+            : :
+            "r"(&arg), "r"(&ret)
+            );
+
+    return ret;
+}
+
+double pow(double base, double exponent) {
+	double ret = 0;
+    asm volatile (
+			"fldl (%1);"
+			"fldl (%0);"
+			"fyl2x;" //st0: ex * log2(b) 
+			"fld1;" //st0: 1, st1: ex * log2(b) 
+			"fld %%st(1);" // st0: ex * log2(b)  st1: 1, st2: ex * log2(b) 
+			"fprem;" // st0: rem(ex * log2(b) ), st: 1, st2: ex * log2(b) 
+			"f2xm1;" //st0: 2 ^ rem(exponent * log2(base)) - 1, s1: 1, s2: ex * log2(b) 
+			"faddp;" //st0: 2 ^ rem(exponent * log2(base)), st1: ex * log2(b) 
+			"fscale;" // st0 *= 2^ int (ex * log2(b) ) 
+			"fxch %%st(1);"
+			"fstp %%st;" //clear st1
+            "fstpl (%2);"
+            : :
+            "r"(&base),"r"(&exponent), "r"(&ret)
+            );
+
+    return ret;
+}
+
 float sine(float value) {
     float ret = 0;
     asm volatile (
@@ -207,29 +285,6 @@ double arctangent(double value, double divisor) {
     return ret;
 }
 
-float arcsine(float value) {
-    if (value > 1 || value < -1) {
-        return 0;
-    }
-
-    return arctangent(value, sqrt(1 - value * value));
-}
-
-double arcsine(double value) {
-    if (value > 1 || value < -1) {
-        return 0;
-    }
-
-    return arctangent(value, sqrt(1 - value * value));
-}
-
-float arccosine(float value) {
-    return static_cast<float>(PI / 2.0) - arcsine(value);
-}
-
-double arccosine(double value) {
-    return (PI / 2.0) - arcsine(value);
-}
 
 float sqrt(float value) {
     float ret = 0;
@@ -257,12 +312,44 @@ double sqrt(double value) {
     return ret;
 }
 
-double pow(double value, int exponent) {
-    double ret = 1;
-    for(int i = 1; i <= exponent; i++){
-        ret *= value;
+
+float arcsine(float value) {
+    if (value > 1 || value < -1) {
+        return 0;
     }
 
+    return arctangent(value, sqrt(1 - value * value));
+}
+
+double arcsine(double value) {
+    if (value > 1 || value < -1) {
+        return 0;
+    }
+
+    return arctangent(value, sqrt(1 - value * value));
+}
+
+float arccosine(float value) {
+    return static_cast<float>(PI / 2.0) - arcsine(value);
+}
+
+double arccosine(double value) {
+    return (PI / 2.0) - arcsine(value);
+}
+
+double powInt(double value, int exponent) {
+	double ret = 1;
+	
+	if (exponent < 0) {
+		for(int i = 1; i <= -exponent; i++){
+			ret /= value;
+		}
+	} else {
+		for(int i = 1; i <= exponent; i++){
+			ret *= value;
+		}
+	}
+	
     return ret;
 }
 

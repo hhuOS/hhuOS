@@ -44,6 +44,8 @@ public:
     void connect(PipedOutputStream &outputStream);
 
     int16_t read() override;
+	
+	int16_t peek() override;
 
     int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
 
@@ -66,6 +68,8 @@ private:
 
     int32_t inPosition = -1;
     int32_t outPosition = 0;
+	
+	int16_t peekedCharacter = -1;
 
     static const constexpr uint32_t DEFAULT_BUFFER_SIZE = 1024;
 

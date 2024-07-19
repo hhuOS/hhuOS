@@ -46,9 +46,21 @@ FileInputStream::~FileInputStream() {
 
 int16_t FileInputStream::read() {
     uint8_t c;
+	
+	if (peekedChar != -1) {
+		int16_t ret = peekedChar;
+		peekedChar = -1;
+		return ret;
+	}
+	
     int32_t count = read(&c, 0, 1);
 
     return count > 0 ? c : -1;
+}
+
+int16_t FileInputStream::peek() {
+	if (peekedChar == -1) peekedChar = read();
+	return peekedChar;
 }
 
 int32_t FileInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {

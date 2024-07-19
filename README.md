@@ -55,6 +55,8 @@ Afterward, clone this repository and execute the included build-script:
 
 ```shell
 git clone https://github.com/hhuOS/hhuOS.git
+git submodule init
+git submodule update
 cd hhuOS
 ./build.sh
 ```

@@ -42,20 +42,38 @@ public:
     void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
 
     void flush() override;
+	
+	uint32_t getBytesWritten();
 
     void setBase(uint8_t newBase);
 
-    void setNumberPadding(uint8_t padding);
+    void setNumberPadding(int padding);
+	
+	void setNumberJustification(bool leftJustified);
+	
+	void setPositiveSign(char s);
+	
+	void setNegativeSign(char s);
+	
+	void setIntegerPrecision(uint32_t v);
+	
+	void setDecimalPrecision(int32_t v);
+	
+	void setIntegerPrefix(Util::String str);
+	
+	void setHexNumericBase(char base);
+	
+	void setAlwaysPrintDecimalPoint(bool val);
 
     void print(const Util::String &string);
 
-    void print(const char *string);
+    void print(const char *string, uint32_t maxBytes=-1);
 
     void print(bool boolean);
 
     void print(int64_t number);
 
-    void print(uint64_t number);
+    void print(uint64_t number, char sign='\0');
 
     void print(int32_t number);
 
@@ -68,6 +86,8 @@ public:
     void print(int8_t number);
 
     void print(uint8_t number);
+	
+	void print(double number);
 
     void print(void *pointer);
 
@@ -108,16 +128,21 @@ public:
     PrintStream& operator<<(int16_t value);
 
     PrintStream& operator<<(uint16_t value);
+	
+	PrintStream& operator<<(long int value);
 
     PrintStream& operator<<(int32_t value);
 
     PrintStream& operator<<(uint32_t value);
+	
 
     PrintStream& operator<<(int64_t value);
 
     PrintStream& operator<<(uint64_t value);
 
     PrintStream& operator<<(void *ptr);
+	
+	PrintStream& operator<<(double value);
 
     PrintStream& operator<<(PrintStream& (*f)(PrintStream&));
 
@@ -139,7 +164,22 @@ private:
     bool autoFlush;
     uint8_t base = 10;
     uint8_t numberPadding = 0;
-
+	
+	bool rightPadding = false;
+	
+	char negativeSign = '-';
+	char positiveSign = '\0';
+	char hexNumericBase = 'A';
+	
+	int32_t minimumIntegerPrecision = 1;
+	int32_t decimalPrecision = -1;
+	int32_t defaultDecimalPrecision = 20;
+	
+	bool alwaysPrintDecimalPoint = false;
+	
+	uint32_t bytesWritten = 0;
+	
+	Util::String integerPrefix = "";
 };
 
 }

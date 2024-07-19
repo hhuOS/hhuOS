@@ -32,10 +32,14 @@ public:
     ByteArrayOutputStream();
 
     explicit ByteArrayOutputStream(uint32_t size);
+	
+	ByteArrayOutputStream(uint8_t * buffer, uint32_t size);
 
     ByteArrayOutputStream(const ByteArrayOutputStream &copy) = delete;
 
     ByteArrayOutputStream &operator=(const ByteArrayOutputStream &copy) = delete;
+	
+	
 
     ~ByteArrayOutputStream() override;
 
@@ -46,6 +50,10 @@ public:
     [[nodiscard]] uint32_t getPosition() const;
 
     [[nodiscard]] uint8_t* getBuffer() const;
+	
+	bool sizeLimitReached();
+	
+	void setEnforceSizeLimit(bool value);
 
     void getContent(uint8_t *target, uint32_t length) const;
 
@@ -59,11 +67,14 @@ public:
 
 private:
 
-    void ensureRemainingCapacity(uint32_t);
+    uint32_t ensureRemainingCapacity(uint32_t); //returns number of bytes allowed to be written
 
     uint8_t *buffer;
     uint32_t size;
     uint32_t position = 0;
+	
+	bool allocatedBuffer = true; //has this object allocated its own buffer?
+	bool enforceSizeLimit = false; //should writes stop at size limit?
 
     static const constexpr uint32_t DEFAULT_BUFFER_SIZE = 32;
 };

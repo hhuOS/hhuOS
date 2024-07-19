@@ -75,7 +75,7 @@ public:
      */
     ~File();
 
-    [[nodiscard]] bool exists();
+    bool exists();
 
     [[nodiscard]] Type getType();
 
@@ -95,7 +95,7 @@ public:
 
     [[nodiscard]] File getParentFile() const;
 
-    [[nodiscard]] bool create(Type fileType);
+    bool create(Type fileType);
 
     [[nodiscard]] bool remove();
 
