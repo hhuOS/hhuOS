@@ -18,12 +18,13 @@
 #ifndef HHUOS_SCHEDULER_H
 #define HHUOS_SCHEDULER_H
 
-#include <lib/util/collection/HashMap.h>
 #include <cstdint>
 
 #include "lib/util/collection/ArrayListBlockingQueue.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/HashMap.h"
+#include "lib/util/time/Timestamp.h"
 #include "kernel/process/Thread.h"
 
 namespace Device {
@@ -133,7 +134,7 @@ private:
 
     struct SleepEntry {
         Thread *thread;
-        uint32_t wakeupTime;
+        Util::Time::Timestamp wakeupTime;
 
         bool operator!=(const SleepEntry &other) const;
     };

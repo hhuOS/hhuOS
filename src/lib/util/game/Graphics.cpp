@@ -21,8 +21,8 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
-#include "lib/util/graphic/Fonts.h"
 #include "Graphics.h"
+
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/math/Vector2D.h"
 #include "Game.h"
@@ -31,7 +31,6 @@
 #include "lib/util/base/Address.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/math/Math.h"
-#include "lib/util/graphic/Font.h"
 
 namespace Util::Game {
 
@@ -92,20 +91,8 @@ void Graphics::drawString(const Graphic::Font &font, const Math::Vector2D &posit
     stringDrawer.drawString(font, static_cast<uint16_t>(position.getX()), static_cast<uint16_t>(position.getY()), string, color, Util::Graphic::Colors::INVISIBLE);
 }
 
-void Graphics::drawString(const Math::Vector2D &position, const char *string) const {
-    drawString(Graphic::Fonts::TERMINAL_FONT, position, string);
-}
-
-void Graphics::drawString(const Math::Vector2D &position, const String &string) const {
-    drawString(position, static_cast<const char*>(string));
-}
-
-void Graphics::drawStringSmall(const Math::Vector2D &position, const char *string) const {
-    drawString(Graphic::Fonts::TERMINAL_FONT_SMALL, position, string);
-}
-
-void Graphics::drawStringSmall(const Math::Vector2D &position, const String &string) const {
-    drawStringSmall(position, static_cast<const char*>(string));
+void Graphics::drawString(const Graphic::Font &font, const Math::Vector2D &position, const String &string) const {
+    drawString(font, position, static_cast<const char*>(string));
 }
 
 /***** 2D drawing functions, respecting the camera position *****/
@@ -158,20 +145,8 @@ void Graphics::drawString2D(const Graphic::Font &font, const Math::Vector2D &pos
     stringDrawer.drawString(font, static_cast<int32_t>((position.getX() - cameraPosition.getX()) * transformation + offsetX), static_cast<int32_t>((-position.getY() + cameraPosition.getY()) * transformation + offsetY), string, color, Util::Graphic::Colors::INVISIBLE);
 }
 
-void Graphics::drawString2D(const Math::Vector2D &position, const char *string) const {
-    drawString2D(Graphic::Fonts::TERMINAL_FONT, position, string);
-}
-
-void Graphics::drawString2D(const Math::Vector2D &position, const String &string) const {
-    drawString2D(position, static_cast<const char*>(string));
-}
-
-void Graphics::drawStringSmall2D(const Math::Vector2D &position, const char *string) const {
-    drawString2D(Graphic::Fonts::TERMINAL_FONT_SMALL, position, string);
-}
-
-void Graphics::drawStringSmall2D(const Math::Vector2D &position, const String &string) const {
-    drawStringSmall2D(position, static_cast<const char*>(string));
+void Graphics::drawString2D(const Graphic::Font &font, const Math::Vector2D &position, const String &string) const {
+    drawString2D(font, position, static_cast<const char*>(string));
 }
 
 void Graphics::drawImage2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, double alpha, const Math::Vector2D &scale, double rotationAngle) const {
@@ -331,22 +306,6 @@ void Graphics::update() {
     auto &camera = game.getCurrentScene().getCamera();
     cameraPosition = camera.getPosition();
     cameraRotation = camera.getRotation();
-}
-
-uint8_t Graphics::getCharWidth() const {
-    return font.getCharWidth();
-}
-
-uint8_t Graphics::getCharHeight() const {
-    return font.getCharHeight();
-}
-
-uint8_t Graphics::getCharWidthSmall() const {
-    return fontSmall.getCharWidth();
-}
-
-uint8_t Graphics::getCharHeightSmall() const {
-    return fontSmall.getCharHeight();
 }
 
 void Graphics::resetCounters() {

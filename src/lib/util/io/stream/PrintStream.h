@@ -71,6 +71,10 @@ public:
 
     void print(bool boolean);
 
+    void print(int64_t number);
+
+    void print(uint64_t number);
+
     void print(int32_t number);
 
     void print(uint32_t number, char sign='\0');
@@ -94,6 +98,10 @@ public:
     void println(const char *sourceBuffer);
 
     void println(bool boolean);
+
+    void println(int64_t number);
+
+    void println(uint64_t number);
 
     void println(int32_t number);
 
@@ -126,6 +134,10 @@ public:
     PrintStream& operator<<(int32_t value);
 
     PrintStream& operator<<(uint32_t value);
+
+    PrintStream& operator<<(int64_t value);
+
+    PrintStream& operator<<(uint64_t value);
 
     PrintStream& operator<<(void *ptr);
 	

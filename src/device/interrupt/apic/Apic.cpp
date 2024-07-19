@@ -39,6 +39,7 @@
 #include "kernel/service/InformationService.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/service/Service.h"
+#include "kernel/service/TimeService.h"
 
 namespace Kernel {
 enum GlobalSystemInterrupt : uint32_t;
@@ -95,9 +96,6 @@ Apic* Apic::initialize() {
     // We only require one error handler, as every AP can only access its own local APIC's error register
     apic->errorHandler.plugin();
     apic->enableCurrentErrorHandler();
-
-    ApicTimer::calibrate();
-    apic->startCurrentTimer();
 
     return apic;
 }
@@ -301,7 +299,8 @@ void Apic::startCurrentTimer() {
         return;
     }
 
-    auto *apicTimer = new Device::ApicTimer(10, 10);
+    ApicTimer::calibrate();
+    auto *apicTimer = new Device::ApicTimer(Util::Time::Timestamp::ofMilliseconds(10), Util::Time::Timestamp::ofMilliseconds(10));
     apicTimer->plugin();
     localTimers.put(LocalApic::getId(), apicTimer);
 }
@@ -315,6 +314,7 @@ bool Apic::isSymmetricMultiprocessingSupported() const {
 }
 
 void Apic::startupApplicationProcessors() {
+    auto &timeService = Kernel::Service::getService<Kernel::TimeService>();
     auto *gdtPointers = prepareApplicationProcessorGdts();
     auto *stackPointers = prepareApplicationProcessorStacks();
     prepareApplicationProcessorStartupCode(gdtPointers, stackPointers);
@@ -348,15 +348,15 @@ void Apic::startupApplicationProcessors() {
         LocalApic::sendInitInterProcessorInterrupt(localApic->getCpuId(), LocalApic::InterruptCommandRegisterEntry::Level::DEASSERT);
         // Not necessary with 10ms delay
         LocalApic::waitForInterProcessorInterruptDispatch();
-        // 10 ms, xv6 waits 100 us instead.
-        Pit::earlyDelay(10);
+        // Wait 100 us.
+        timeService.busyWait(Util::Time::Timestamp::ofMicroseconds(100));
 
         // Issue the SIPI twice (for xApic):
         for (uint8_t j = 0; j < 2; ++j) {
             LocalApic::clearErrors();
             LocalApic::sendStartupInterProcessorInterrupt(localApic->getCpuId(), Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress);
             LocalApic::waitForInterProcessorInterruptDispatch();
-            Pit::earlyDelay(1); // 200 us would be enough
+            timeService.busyWait(Util::Time::Timestamp::ofMicroseconds(200));
         }
 
         // Wait until the AP marks itself as running, so we can continue to the next one.
@@ -372,7 +372,7 @@ void Apic::startupApplicationProcessors() {
                 break;
             }
 
-            Pit::earlyDelay(10); // 10 ms
+            timeService.busyWait(Util::Time::Timestamp::ofMilliseconds(10));
             readCount++;
         }
 

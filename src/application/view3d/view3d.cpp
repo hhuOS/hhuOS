@@ -73,7 +73,7 @@ int32_t main(int32_t argc, char *argv[]) {
         uint32_t resolutionY = Util::String::parseInt(split2[0]);
         uint32_t colorDepth = split2.length() > 1 ? Util::String::parseInt(split2[1]) : 32;
 
-        lfbFile.control(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
+        lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
     }
 
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);

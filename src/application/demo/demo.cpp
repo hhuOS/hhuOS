@@ -31,12 +31,15 @@
 #include "application/demo/sprites/SpriteDemo.h"
 #include "application/demo/ant/Ant.h"
 #include "application/demo/particles/ParticleDemo.h"
+#include "application/demo/mouse/MouseDemo.h"
+#include "application/demo/color/AnsiColorDemo.h"
+#include "application/demo/fonts/FontDemo.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.setHelpText("Demo applications, showing off the systems graphical capabilities.\n"
                                "Usage: demo [DEMO] [OPTIONS]...\n"
-                               "Demos: ant, polygons, sprites\n"
+                               "Demos: ant, color, fonts, mouse, polygons, sprites\n"
                                "Options:\n"
                                "  -r, --resolution: Set display resolution"
                                "  -h, --help: Show this help message");
@@ -50,8 +53,15 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "demo: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "demo: No arguments provided! Please specify a demo (ant, color, fonts, mouse, polygons, sprites)." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
+    }
+
+    auto demo = arguments[0];
+
+    if (demo == "color") {
+        ansiColorDemo();
+        return 0;
     }
 
     auto lfbFile = Util::Io::File("/device/lfb");
@@ -64,24 +74,29 @@ int32_t main(int32_t argc, char *argv[]) {
         uint32_t resolutionY = Util::String::parseInt(split2[0]);
         uint32_t colorDepth = split2.length() > 1 ? Util::String::parseInt(split2[1]) : 32;
 
-        lfbFile.control(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
+        lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
     }
 
-    auto demo = arguments[0];
+    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
+
     if (demo == "ant") {
-        auto sleepInterval = arguments.length() <= 1 ? 0 : Util::String::parseInt(arguments[1]);
-        runAntDemo(sleepInterval);
+        auto sleepInterval = arguments.length() <= 1 ? 0 : Util::String::parseInt(arguments[0]);
+        antDemo(lfb, sleepInterval);
+    } else if (demo == "fonts") {
+        fontDemo(lfb);
     } else {
-        auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
         auto engine = Util::Game::Engine(lfb, 60);
 
-        auto count = arguments.length() <= 1 ? 10 : Util::String::parseInt(arguments[1]);
-        if (demo == "particles") {
+        if (demo == "mouse") {
+            Util::Game::GameManager::getGame().pushScene(new MouseDemo());
+        } else if (demo == "particles") {
             Util::Game::GameManager::getGame().pushScene(new ParticleDemo());
         } else if (demo == "polygons") {
-            Util::Game::GameManager::getGame().pushScene(new PolygonDemo(count));
+            auto initialCount = arguments.length() > 1 ? Util::String::parseInt(arguments[1]) : 10;
+            Util::Game::GameManager::getGame().pushScene(new PolygonDemo(initialCount));
         } else if (demo == "sprites") {
-            Util::Game::GameManager::getGame().pushScene(new SpriteDemo(count));
+            auto initialCount = arguments.length() > 1 ? Util::String::parseInt(arguments[1]) : 10;
+            Util::Game::GameManager::getGame().pushScene(new SpriteDemo(initialCount));
         } else {
             Util::System::error << "demo: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
             return -1;

@@ -39,4 +39,8 @@ int32_t QueueInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t 
     return length;
 }
 
+bool QueueInputStream::isReadyToRead() {
+    return !queue.isEmpty();
+}
+
 }

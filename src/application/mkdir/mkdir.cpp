@@ -50,7 +50,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
         auto success = file.create(Util::Io::File::DIRECTORY);
         if (!success) {
-            Util::System::error << "mkdir: Failed to execute directory '" << path << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::error << "mkdir: Failed to create directory '" << path << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         }
     }
 

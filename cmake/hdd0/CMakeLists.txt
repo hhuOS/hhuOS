@@ -31,7 +31,6 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cp "$<TARGET_FILE:beep>" "bin/beep"
         COMMAND /bin/cp "$<TARGET_FILE:bug>" "bin/bug"
         COMMAND /bin/cp "$<TARGET_FILE:cat>" "bin/cat"
-        COMMAND /bin/cp "$<TARGET_FILE:color>" "bin/color"
         COMMAND /bin/cp "$<TARGET_FILE:cp>" "bin/cp"
 		COMMAND /bin/cp "$<TARGET_FILE:ctest>" "bin/ctest"
         COMMAND /bin/cp "$<TARGET_FILE:date>" "bin/date"
@@ -41,12 +40,12 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cp "$<TARGET_FILE:head>" "bin/head"
         COMMAND /bin/cp "$<TARGET_FILE:hexdump>" "bin/hexdump"
         COMMAND /bin/cp "$<TARGET_FILE:ip>" "bin/ip"
+        COMMAND /bin/cp "$<TARGET_FILE:keyboard>" "bin/keyboard"
         COMMAND /bin/cp "$<TARGET_FILE:kill>" "bin/kill"
         COMMAND /bin/cp "$<TARGET_FILE:ls>" "bin/ls"
         COMMAND /bin/cp "$<TARGET_FILE:membench>" "bin/membench"
         COMMAND /bin/cp "$<TARGET_FILE:mkdir>" "bin/mkdir"
         COMMAND /bin/cp "$<TARGET_FILE:mount>" "bin/mount"
-        COMMAND /bin/cp "$<TARGET_FILE:mouse>" "bin/mouse"
         COMMAND /bin/cp "$<TARGET_FILE:nettest>" "bin/nettest"
         COMMAND /bin/cp "$<TARGET_FILE:ping>" "bin/ping"
         COMMAND /bin/cp "$<TARGET_FILE:play>" "bin/play"
@@ -62,15 +61,16 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cp "$<TARGET_FILE:unmount>" "bin/unmount"
         COMMAND /bin/cp "$<TARGET_FILE:uptime>" "bin/uptime"
         COMMAND /bin/cp "$<TARGET_FILE:view3d>" "bin/view3d"
-        COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/beep" "user"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/asciimation" "user"
+        COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/beep" "user"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/books" "user"
-        COMMAND mkfs.fat -C "${CMAKE_BINARY_DIR}/part.img" 63488
+        COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/wav" "user"
+        COMMAND mkfs.fat -C "${CMAKE_BINARY_DIR}/part.img" $<IF:$<CONFIG:Debug>,63488,30720>
         COMMAND mcopy -s -o -i "${CMAKE_BINARY_DIR}/part.img" * ::/
         COMMAND fallocate -l 1M "${CMAKE_BINARY_DIR}/fill.img"
         COMMAND /bin/cat "${CMAKE_BINARY_DIR}/fill.img" "${CMAKE_BINARY_DIR}/part.img" "${CMAKE_BINARY_DIR}/fill.img" > "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/rm "${CMAKE_BINARY_DIR}/part.img" "${CMAKE_BINARY_DIR}/fill.img"
-        COMMAND /bin/echo -e "'o\\nn\\np\\n1\\n2048\\n131071\\nt\\ne\\nw\\n'" | fdisk "${HHUOS_ROOT_DIR}/hdd0.img"
-        DEPENDS asciimation books music shell asciimate battlespace beep bug cat color cp ctest date demo dino echo head hexdump ip kill ls membench mkdir mount mouse nettest ping play ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d)
+        COMMAND /bin/echo -e "'o\\nn\\np\\n1\\n2048\\n$<IF:$<CONFIG:Debug>,131071,65535>\\nt\\ne\\nw\\n'" | fdisk "${HHUOS_ROOT_DIR}/hdd0.img"
+        DEPENDS asciimation-star-wars books-gutenberg shell asciimate battlespace beep bug cat cp ctest date demo dino echo head hexdump ip keyboard kill ls membench mkdir mount nettest ping play ps pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d)
 
-add_custom_target(${PROJECT_NAME} DEPENDS asciimation books music shell asciimate battlespace beep bug cat color cp ctest date demo dino echo head hexdump ip kill ls membench mkdir mount mouse nettest ping play ps  pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d "${HHUOS_ROOT_DIR}/hdd0.img")
+add_custom_target(${PROJECT_NAME} DEPENDS asciimation-star-wars books-gutenberg music shell asciimate battlespace beep bug cat cp ctest date demo dino echo head hexdump ip keyboard kill ls membench mkdir mount nettest ping play ps  pwd rm rmdir shutdown smbios touch tree uecho unmount uptime view3d "${HHUOS_ROOT_DIR}/hdd0.img")

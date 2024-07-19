@@ -160,57 +160,57 @@ const Graphic::Color Ansi::colorTable256[256] = {
 };
 
 void Ansi::enableEcho() {
-    Io::File::control(Io::STANDARD_INPUT, Graphic::Terminal::SET_ECHO, {true});
+    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::SET_ECHO, {true});
 }
 
 void Ansi::disableEcho() {
-    Io::File::control(Io::STANDARD_INPUT, Graphic::Terminal::SET_ECHO, {false});
+    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::SET_ECHO, {false});
 }
 
 void Ansi::enableLineAggregation() {
-    Io::File::control(Io::STANDARD_INPUT, Graphic::Terminal::SET_LINE_AGGREGATION, {true});
+    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::SET_LINE_AGGREGATION, {true});
 }
 
 void Ansi::disableLineAggregation() {
-    Io::File::control(Io::STANDARD_INPUT, Graphic::Terminal::SET_LINE_AGGREGATION, {false});
+    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::SET_LINE_AGGREGATION, {false});
 }
 
 void Ansi::enableCursor() {
-    Io::File::control(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_CURSOR, {true});
+    Io::File::controlFile(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_CURSOR, {true});
 }
 
 void Ansi::disableCursor() {
-    Io::File::control(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_CURSOR, {false});
+    Io::File::controlFile(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_CURSOR, {false});
 }
 
 void Ansi::enableAnsiParsing() {
-    Io::File::control(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_ANSI_PARSING, {true});
+    Io::File::controlFile(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_ANSI_PARSING, {true});
 }
 
 void Ansi::disableAnsiParsing() {
-    Io::File::control(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_ANSI_PARSING, {false});
+    Io::File::controlFile(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_ANSI_PARSING, {false});
 }
 
 void Ansi::prepareGraphicalApplication(bool enableScancodes) {
     if (enableScancodes) {
-        Io::File::control(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_KEYBOARD_SCANCODES, {});
+        Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_KEYBOARD_SCANCODES, {});
     } else {
-        Io::File::control(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_RAW_MODE, {});
+        Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_RAW_MODE, {});
     }
     disableCursor();
 }
 
 void Ansi::cleanupGraphicalApplication() {
-    Io::File::control(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_CANONICAL_MODE, {});
+    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_CANONICAL_MODE, {});
     enableCursor();
 }
 
 void Ansi::enableRawMode() {
-    Io::File::control(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_RAW_MODE, {});
+    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_RAW_MODE, {});
 }
 
 void Ansi::enableCanonicalMode() {
-    Io::File::control(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_CANONICAL_MODE, {});
+    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_CANONICAL_MODE, {});
 }
 
 String Ansi::foreground8BitColor(uint8_t colorIndex) {
@@ -353,34 +353,42 @@ Ansi::CursorPosition Ansi::getCursorLimits() {
     return size;
 }
 
-int16_t Ansi::readChar() {
-    char input = System::in.read();
+int16_t Ansi::readChar(Util::Io::InputStream &stream) {
+    char input = stream.read();
     if (input == ESCAPE_SEQUENCE_START) {
         String escapeSequence = input;
 
         do {
-            input = System::in.read();
+            input = stream.read();
             escapeSequence += input;
         } while (!escapeEndCodes.contains(input));
 
         switch (input) {
             case 'A':
-                return KEY_UP;
+                return UP;
             case 'B':
-                return KEY_DOWN;
+                return DOWN;
             case 'C':
-                return KEY_RIGHT;
+                return RIGHT;
             case 'D':
-                return KEY_LEFT;
+                return LEFT;
+            case 'H':
+                return POS1;
+            case 'F':
+                return END;
             default:
                 enableAnsiParsing();
                 System::out << escapeSequence << Io::PrintStream::flush;
                 disableAnsiParsing();
-                return readChar();
+                return readChar(stream);
         }
     }
 
     return input;
+}
+
+bool Ansi::CursorPosition::operator==(const Ansi::CursorPosition &other) {
+    return column == other.column && row == other.row;
 }
 
 }

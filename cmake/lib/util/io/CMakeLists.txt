@@ -29,6 +29,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/io/file/tar/Archive.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/key/Key.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/key/KeyDecoder.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/key/KeyboardLayout.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/key/MouseDecoder.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/stream/BufferedInputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/stream/BufferedOutputStream.cpp

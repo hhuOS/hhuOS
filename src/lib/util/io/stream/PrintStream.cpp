@@ -103,7 +103,9 @@ void PrintStream::print(bool boolean) {
 }
 
 void PrintStream::print(int32_t number) {
-	char sign = '\0';
+	
+void PrintStream::print(int64_t number) {
+  char sign = '\0';
     if (number < 0) {
         sign = negativeSign;
         number = -number;
@@ -114,13 +116,13 @@ void PrintStream::print(int32_t number) {
     print(static_cast<uint32_t>(number), sign);
 }
 
-void PrintStream::print(uint32_t number, char sign) {
+void PrintStream::print(uint64_t number, char sign) {
     uint32_t div;
     char digit;
     uint8_t currentBase = base;
 
     auto numberStream = Io::ByteArrayOutputStream();
-    auto numberstream = Io::PrintStream(numberStream);
+    auto formatStream = Io::PrintStream(numberStream);
 
     for (div = 1; number / div >= currentBase; div *= currentBase);
 
@@ -128,7 +130,7 @@ void PrintStream::print(uint32_t number, char sign) {
         digit = static_cast<char>(number / div);
 
         if (digit < 10) {
-            numberstream << static_cast<char>('0' + digit);
+            formatStream << static_cast<char>('0' + digit);
         }
         else {
             numberstream << static_cast<char>(hexNumericBase + digit - 10);
@@ -163,20 +165,28 @@ void PrintStream::print(uint32_t number, char sign) {
 	}
 }
 
+void PrintStream::print(int32_t number) {
+    print(static_cast<int64_t>(number));
+}
+
+void PrintStream::print(uint32_t number) {
+    print(static_cast<uint64_t>(number));
+}
+
 void PrintStream::print(int16_t number) {
-    print(static_cast<int32_t>(number));
+    print(static_cast<int64_t>(number));
 }
 
 void PrintStream::print(uint16_t number) {
-    print(static_cast<uint32_t>(number));
+    print(static_cast<uint64_t>(number));
 }
 
 void PrintStream::print(int8_t number) {
-    print(static_cast<uint32_t>(number));
+    print(static_cast<int64_t>(number));
 }
 
 void PrintStream::print(uint8_t number) {
-    print(static_cast<uint32_t>(number));
+    print(static_cast<uint64_t>(number));
 }
 
 void PrintStream::print(void *pointer) {
@@ -276,6 +286,16 @@ void PrintStream::println(bool boolean) {
     println();
 }
 
+void PrintStream::println(int64_t number) {
+    print(number);
+    println();
+}
+
+void PrintStream::println(uint64_t number) {
+    print(number);
+    println();
+}
+
 void PrintStream::println(int32_t number) {
     print(number);
     println();
@@ -352,6 +372,16 @@ PrintStream& PrintStream::operator<<(long int value) {
 }
 
 PrintStream& PrintStream::operator<<(uint32_t number) {
+    print(number);
+    return *this;
+}
+
+PrintStream &PrintStream::operator<<(int64_t number) {
+    print(number);
+    return *this;
+}
+
+PrintStream &PrintStream::operator<<(uint64_t number) {
     print(number);
     return *this;
 }

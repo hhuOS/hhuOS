@@ -58,7 +58,7 @@ void Cpu::halt() {
     __builtin_unreachable();
 }
 
-void Cpu::setSegmentRegister(SegmentRegister reg, const SegmentSelector &selector) {
+void Cpu::writeSegmentRegister(SegmentRegister reg, const SegmentSelector &selector) {
     switch (reg) {
         case CS:
             asm volatile(
@@ -106,6 +106,56 @@ void Cpu::setSegmentRegister(SegmentRegister reg, const SegmentSelector &selecto
                     );
             break;
     }
+}
+
+Cpu::SegmentSelector Cpu::readSegmentRegister(Cpu::SegmentRegister reg) {
+    uint16_t selector = 0;
+    switch (reg) {
+        case CS:
+            asm volatile(
+                    "mov %%cs, (%0)"
+                    : :
+                    "r"(&selector)
+                    );
+            break;
+        case DS:
+            asm volatile(
+                    "mov %%ds, (%0)"
+                    : :
+                    "r"(&selector)
+                    );
+            break;
+        case ES:
+            asm volatile(
+                    "mov %%es, (%0)"
+                    : :
+                    "r"(&selector)
+                    );
+            break;
+        case FS:
+            asm volatile(
+                    "mov %%fs, (%0)"
+                    : :
+                    "r"(&selector)
+                    );
+            break;
+        case GS:
+            asm volatile(
+                    "mov %%gs, (%0)"
+                    : :
+                    "r"(&selector)
+                    );
+            break;
+        case SS:
+            asm volatile(
+                    "mov %%ss, (%0)"
+                    : :
+                    "r"(&selector)
+                    );
+            break;
+    }
+
+    return *reinterpret_cast<SegmentSelector*>(&selector);
 }
 
 uint32_t Cpu::readCr0() {

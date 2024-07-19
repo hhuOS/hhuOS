@@ -42,20 +42,24 @@ void StringDrawer::drawString(const Font &font, uint16_t x, uint16_t y, const ch
 }
 
 void StringDrawer::drawMonoBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const Color &fgColor, const Color &bgColor, uint8_t *bitmap) const {
-    auto widthInBytes = width / 8 + ((width % 8 != 0) ? 1 : 0);
+    uint32_t widthInBytes = width / 8 + ((width % 8 != 0) ? 1 : 0);
 
     for (uint32_t offsetY = 0; offsetY < height; ++offsetY) {
         uint32_t posX = x;
         uint32_t posY = y + offsetY;
 
-        for (int32_t xb = 0; xb < widthInBytes; ++xb) {
-            for (int8_t src = 7; src >= 0; --src) {
-                if ((1 << src) & *bitmap)
+        for (uint32_t xByte = 0; xByte < widthInBytes; ++xByte) {
+            uint8_t bitLimit = (xByte == widthInBytes - 1) ? width % 8 : 0;
+            for (int8_t bit = 7; bit >= bitLimit; --bit) {
+                if ((1 << bit) & *bitmap) {
                     pixelDrawer.drawPixel(posX, posY, fgColor);
-                else
+                } else {
                     pixelDrawer.drawPixel(posX, posY, bgColor);
+                }
+
                 posX++;
             }
+
             bitmap++;
         }
     }

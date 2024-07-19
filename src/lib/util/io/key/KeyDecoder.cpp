@@ -16,45 +16,14 @@
  */
 
 #include "KeyDecoder.h"
-
 #include "lib/util/io/key/Key.h"
+#include "lib/util/io/key/KeyboardLayout.h"
 
 namespace Util::Io {
 
-uint8_t KeyDecoder::normalTab[] = {
-        0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 225, 39, '\b',
-        '\t', 'q', 'w', 'e', 'r', 't', 'z', 'u', 'i', 'o', 'p', 129, '+', '\n',
-        0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 148, 132, '^', 0, '#',
-        'y', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '-', 0,
-        '*', 0, ' ', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '-',
-        0, 0, 0, '+', 0, 0, 0, 0, 0, 0, 0, '<', 0, 0
-};
-
-uint8_t KeyDecoder::shiftTab[] = {
-        0, 0, '!', '"', 21, '$', '%', '&', '/', '(', ')', '=', '?', 96, 0,
-        0, 'Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P', 154, '*', 0,
-        0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 153, 142, 248, 0, 39,
-        'Y', 'X', 'C', 'V', 'B', 'N', 'M', ';', ':', '_', 0,
-        0, 0, ' ', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '>', 0, 0
-};
-
-uint8_t KeyDecoder::altTab[] = {
-        0, 0, 0, 253, 0, 0, 0, 0, '{', '[', ']', '}', '\\', 0, 0,
-        0, '@', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '~', 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 230, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '|', 0, 0
-};
-
-uint8_t KeyDecoder::asciiNumTab[] = {
-        '7', '8', '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', ','
-};
-
-uint8_t KeyDecoder::scanNumTab[] = {
-        8, 9, 10, 53, 5, 6, 7, 27, 2, 3, 4, 11, 51
-};
+KeyDecoder::KeyDecoder(KeyboardLayout *layout) {
+    KeyDecoder::layout = layout;
+}
 
 bool Util::Io::KeyDecoder::parseScancode(uint8_t code) {
     bool done = false;
@@ -128,7 +97,7 @@ bool Util::Io::KeyDecoder::parseScancode(uint8_t code) {
             break;
         case 69:
             if (currentKey.getCtrlLeft()) {
-                parseAsciiCode(code);
+                layout->parseAsciiCode(code, currentPrefix, currentKey);
                 done = true;
             } else {
                 currentKey.setNumLock(!currentKey.getNumLock());
@@ -136,7 +105,7 @@ bool Util::Io::KeyDecoder::parseScancode(uint8_t code) {
             break;
 
         default:
-            parseAsciiCode(code);
+            layout->parseAsciiCode(code, currentPrefix, currentKey);
             done = true;
     }
 
@@ -144,35 +113,13 @@ bool Util::Io::KeyDecoder::parseScancode(uint8_t code) {
     return done;
 }
 
-void Util::Io::KeyDecoder::parseAsciiCode(uint8_t code) {
-    if(code == 53 && currentPrefix == PREFIX1) {
-        currentKey.setAscii('/');
-        currentKey.setScancode(Util::Io::Key::DIV);
-    } else if(currentKey.getNumLock() && !currentPrefix && code >= 71 && code <= 83) {
-        currentKey.setAscii(asciiNumTab[code-71]);
-        currentKey.setScancode(scanNumTab[code-71]);
-    } else if(currentKey.getAltRight()) {
-        currentKey.setAscii(altTab[code]);
-        currentKey.setScancode(code);
-    } else if(currentKey.getShift()) {
-        currentKey.setAscii(shiftTab[code]);
-        currentKey.setScancode(code);
-    } else if(currentKey.getCapsLock()) {
-        if((code >= 16 && code <= 26) ||(code >= 30 && code <= 40) ||(code >= 44 && code <= 50)) {
-            currentKey.setAscii(shiftTab[code]);
-            currentKey.setScancode(code);
-        } else {
-            currentKey.setAscii(normalTab[code]);
-            currentKey.setScancode(code);
-        }
-    } else {
-        currentKey.setAscii(normalTab[code]);
-        currentKey.setScancode(code);
-    }
-}
-
 Util::Io::Key Util::Io::KeyDecoder::getCurrentKey() const {
     return currentKey;
+}
+
+void KeyDecoder::setLayout(KeyboardLayout *layout) {
+    delete KeyDecoder::layout;
+    KeyDecoder::layout = layout;
 }
 
 }

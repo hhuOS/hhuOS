@@ -97,7 +97,7 @@ private:
 
     void activateScrollWheel();
 
-    void activeAdditionalButtons();
+    void activateAdditionalButtons();
 
     uint32_t cycle = 1;
     uint32_t flags = 0;

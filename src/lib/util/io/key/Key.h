@@ -31,8 +31,23 @@ namespace Util::Io {
 class Key {
 
 friend class KeyDecoder;
+friend class KeyboardLayout;
 
 public:
+    /**
+     * Bit-masks for key-modifiers.
+     */
+    enum Modifier {
+        SHIFT = 1,
+        ALT_LEFT = 2,
+        ALT_RIGHT = 4,
+        CTRL_LEFT = 8,
+        CTRL_RIGHT = 16,
+        CAPS_LOCK = 32,
+        NUM_LOCK = 64,
+        SCROLL_LOCK = 128
+    };
+
     /**
      * Some pre-defined scancodes.
      */
@@ -56,7 +71,9 @@ public:
         UP = 0x48,
         DOWN = 0x50,
         LEFT = 0x4b,
-        RIGHT = 0x4d
+        RIGHT = 0x4d,
+        POS1 = 0x47,
+        END = 0x4f
     };
 
     /**
@@ -164,20 +181,6 @@ public:
     bool operator!=(const Key &other) const;
 
 private:
-    /**
-     * Bit-masks for key-modifiers.
-     */
-    enum Modifier {
-        SHIFT = 1,
-        ALT_LEFT = 2,
-        ALT_RIGHT = 4,
-        CTRL_LEFT = 8,
-        CTRL_RIGHT = 16,
-        CAPS_LOCK = 32,
-        NUM_LOCK = 64,
-        SCROLL_LOCK = 128
-    };
-
     /**
      * Set the pressed-value.
      */

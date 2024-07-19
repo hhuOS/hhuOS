@@ -61,6 +61,7 @@ Util::Array<Util::String> getFileChildren(int32_t fileDescriptor);
 uint64_t readFile(int32_t fileDescriptor, uint8_t *targetBuffer, uint64_t pos, uint64_t length);
 uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t pos, uint64_t length);
 bool controlFile(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters);
+bool controlFileDescriptor(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters);
 bool changeDirectory(const Util::String &path);
 Util::Io::File getCurrentWorkingDirectory();
 

@@ -22,6 +22,13 @@
 
 #include "lib/util/base/String.h"
 #include "Color.h"
+#include "lib/util/base/System.h"
+
+namespace Util {
+namespace Io {
+class InputStream;
+}  // namespace Io
+}  // namespace Util
 
 namespace Util::Graphic {
 
@@ -57,14 +64,18 @@ public:
     };
 
     enum Key : int16_t {
-        KEY_UP = 0x0100,
-        KEY_DOWN = 0x0101,
-        KEY_RIGHT = 0x0102,
-        KEY_LEFT = 0x0103
+        UP = 0x0100,
+        DOWN = 0x0101,
+        RIGHT = 0x0102,
+        LEFT = 0x0103,
+        POS1 = 0x0104,
+        END = 0x0105
     };
 
     struct CursorPosition {
         uint16_t column, row;
+
+        bool operator==(const CursorPosition &other);
     };
 
     /**
@@ -174,7 +185,7 @@ public:
 
     [[nodiscard]] static CursorPosition getCursorLimits();
 
-    [[nodiscard]] static int16_t readChar();
+    [[nodiscard]] static int16_t readChar(Util::Io::InputStream &stream = Util::System::in);
 
     static const constexpr char ESCAPE_SEQUENCE_START = 0x1b;
     static const constexpr char *RESET = "\u001b[0m";

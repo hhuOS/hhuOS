@@ -93,4 +93,8 @@ bool BufferedInputStream::refill() {
     return true;
 }
 
+bool BufferedInputStream::isReadyToRead() {
+    return valid > position || refill();
+}
+
 }

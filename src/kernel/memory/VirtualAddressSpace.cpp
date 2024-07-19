@@ -18,6 +18,7 @@
 #include "VirtualAddressSpace.h"
 
 #include "lib/util/base/Constants.h"
+#include "lib/util/base/System.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/ProcessService.h"
 #include "MemoryLayout.h"
@@ -38,7 +39,7 @@ namespace Kernel {
 VirtualAddressSpace::VirtualAddressSpace(Paging::Table *physicalPageDirectory, Paging::Table *virtualPageDirectory, Util::HeapMemoryManager &kernelHeapMemoryManager) :
         kernelAddressSpace(true), physicalPageDirectory(physicalPageDirectory), virtualPageDirectory(virtualPageDirectory), memoryManager(kernelHeapMemoryManager) {}
 
-VirtualAddressSpace::VirtualAddressSpace() : kernelAddressSpace(false), physicalPageDirectory(Service::getService<MemoryService>().allocatePageTable()), virtualPageDirectory(new Paging::Table()), memoryManager(*reinterpret_cast<Util::FreeListMemoryManager*>(Util::USER_SPACE_MEMORY_MANAGER_ADDRESS)) {
+VirtualAddressSpace::VirtualAddressSpace() : kernelAddressSpace(false), physicalPageDirectory(Service::getService<MemoryService>().allocatePageTable()), virtualPageDirectory(new Paging::Table()), memoryManager(Util::System::getAddressSpaceHeader().memoryManager) {
     auto &kernelSpace = Service::getService<ProcessService>().getKernelProcess().getAddressSpace();
 
     for (uint32_t address = MemoryLayout::KERNEL_AREA.startAddress; address < MemoryLayout::KERNEL_AREA.endAddress; address += 1024 * Util::PAGESIZE) {
@@ -100,16 +101,29 @@ void VirtualAddressSpace::map(const void *physicalAddress, const void *virtualAd
         void *virtualPageTable = memoryService.allocatePageTable();
         void *physicalPageTable = getPhysicalAddress(virtualPageTable);
 
-        // Set table address in page directory
+        // Calculate page directory flags
         auto pageDirectoryFlags = Paging::PRESENT | Paging::WRITABLE | (reinterpret_cast<uint32_t>(virtualAddress) >= Kernel::MemoryLayout::KERNEL_AREA.endAddress ? Paging::USER_ACCESSIBLE : 0);
-        (*virtualPageDirectory)[pageDirectoryIndex].set(reinterpret_cast<uint32_t>(virtualPageTable), pageDirectoryFlags);
-        (*physicalPageDirectory)[pageDirectoryIndex].set(reinterpret_cast<uint32_t>(physicalPageTable), pageDirectoryFlags);
+
+        // Check if the virtual address is inside kernel memory.
+        // In this case, we need to propagate the mapping to all active address spaces, because the kernel is mapped into each address space.
+        if (reinterpret_cast<uint32_t>(virtualAddress) <= MemoryLayout::KERNEL_AREA.endAddress) {
+            const auto &addressSpaces = memoryService.getAllAddressSpaces();
+            for (uint32_t i = 0; i < addressSpaces.size(); i++) { // Do not use a for-each loop, since the iterator itself requires memory and may cause a deadlock
+                auto &addressSpace = *addressSpaces.get(i);
+                (*addressSpace.virtualPageDirectory)[pageDirectoryIndex].set(reinterpret_cast<uint32_t>(virtualPageTable), pageDirectoryFlags);
+                (*addressSpace.physicalPageDirectory)[pageDirectoryIndex].set(reinterpret_cast<uint32_t>(physicalPageTable), pageDirectoryFlags);
+            }
+        } else {
+            // The virtual address concerns user space memory, and must not be visible to any other address space
+            (*virtualPageDirectory)[pageDirectoryIndex].set(reinterpret_cast<uint32_t>(virtualPageTable), pageDirectoryFlags);
+            (*physicalPageDirectory)[pageDirectoryIndex].set(reinterpret_cast<uint32_t>(physicalPageTable), pageDirectoryFlags);
+        }
     }
 
     // Get corresponding page table
     auto &pageTable = *reinterpret_cast<Paging::Table*>((*virtualPageDirectory)[pageDirectoryIndex].getAddress());
 
-    // Check if the requests page is already mapped
+    // Check if the requested page is already mapped
     if (!pageTable[pageTableIndex].isUnused()) {
         Util::Exception::throwException(Util::Exception::PAGING_ERROR, "PageDirectory: Requested page is already mapped!");
     }
@@ -149,15 +163,29 @@ void* VirtualAddressSpace::unmap(const void *virtualAddress) {
 
     // Delete page table, if it is empty
     if (pageTable.isEmpty()) {
-        (*virtualPageDirectory)[pageDirectoryIndex].clear();
-        (*physicalPageDirectory)[pageDirectoryIndex].clear();
-        Service::getService<MemoryService>().freePageTable(&pageTable);
+        auto &memoryService = Service::getService<MemoryService>();
+
+        // Check if the virtual address is inside kernel memory.
+        // In this case, we need to propagate the mapping to all active address spaces, because the kernel is mapped into each address space.
+        if (reinterpret_cast<uint32_t>(virtualAddress) <= MemoryLayout::KERNEL_AREA.endAddress) {
+            const auto &addressSpaces = memoryService.getAllAddressSpaces();
+            for (uint32_t i = 0; i < addressSpaces.size(); i++) { // Do not use a for-each loop, since the iterator itself requires memory and may cause a deadlock
+                auto &addressSpace = *addressSpaces.get(i);
+                (*addressSpace.virtualPageDirectory)[pageDirectoryIndex].clear();
+                (*addressSpace.physicalPageDirectory)[pageDirectoryIndex].clear();
+            }
+        } else {
+            (*virtualPageDirectory)[pageDirectoryIndex].clear();
+            (*physicalPageDirectory)[pageDirectoryIndex].clear();
+        }
+
+        memoryService.freePageTable(&pageTable);
     }
 
     return reinterpret_cast<void*>(physicalAddress);
 }
 
-const Paging::Table& VirtualAddressSpace::getPageDirectory() const {
+const Paging::Table& VirtualAddressSpace::getPageDirectoryPhysical() const {
     return *physicalPageDirectory;
 }
 

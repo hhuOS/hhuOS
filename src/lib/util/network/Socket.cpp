@@ -105,42 +105,33 @@ bool Socket::addIp4Address(const Ip4::Ip4SubnetAddress &address) const {
 }
 
 Array<Ip4::Ip4Route> Socket::getRoutes() const {
+    auto sourceAddresses = Array<Ip4::Ip4Address>(0);
+    auto targetAddresses = Array<Ip4::Ip4SubnetAddress>(0);
+    auto nextHops = Array<Ip4::Ip4Address>(0);
+    auto devices = Array<char*>(0);
     uint32_t size = 1;
-    auto sourceAddresses = Array<Ip4::Ip4SubnetAddress>(size);
-    auto nextHops = Array<Ip4::Ip4Address>(size);
-    auto devices = Array<char*>(size);
-    for (auto &string : devices) {
-        string = nullptr;
-    }
 
-    if (!::controlFile(fileDescriptor, GET_ROUTES, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&sourceAddresses), reinterpret_cast<uint32_t>(&nextHops), reinterpret_cast<uint32_t>(&devices)}))) {
-        return Array<Ip4::Ip4Route>(0);
-    }
-
-    while (!String(devices[size - 1]).isEmpty()) {
-        for (auto *string : devices) {
-            delete string;
-        }
-
+    do {
         size *= 2;
-        sourceAddresses = Array<Ip4::Ip4SubnetAddress>(size);
+        sourceAddresses = Array<Ip4::Ip4Address>(size);
+        targetAddresses = Array<Ip4::Ip4SubnetAddress>(size);
         nextHops = Array<Ip4::Ip4Address>(size);
         devices = Array<char*>(size);
-        for (auto &string : devices) {
+        for (auto &string: devices) {
             string = nullptr;
         }
 
-        if (!::controlFile(fileDescriptor, GET_ROUTES, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&sourceAddresses), reinterpret_cast<uint32_t>(&nextHops), reinterpret_cast<uint32_t>(&devices)}))) {
+        if (!::controlFile(fileDescriptor, GET_ROUTES, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&sourceAddresses), reinterpret_cast<uint32_t>(&targetAddresses), reinterpret_cast<uint32_t>(&nextHops), reinterpret_cast<uint32_t>(&devices)}))) {
             return Array<Ip4::Ip4Route>(0);
         }
-    }
+    } while (!String(devices[size - 1]).isEmpty());
 
     auto ret = Util::ArrayList<Ip4::Ip4Route>(sourceAddresses.length());
     for (uint32_t i = 0; i < sourceAddresses.length() && !String(devices[i]).isEmpty(); i++) {
         if (nextHops[i] == Ip4::Ip4Address::ANY) {
-            ret.add(Ip4::Ip4Route(sourceAddresses[i], devices[i]));
+            ret.add(Ip4::Ip4Route(sourceAddresses[i], targetAddresses[i], devices[i]));
         } else {
-            ret.add(Ip4::Ip4Route(sourceAddresses[i], nextHops[i], devices[i]));
+            ret.add(Ip4::Ip4Route(sourceAddresses[i], targetAddresses[i], nextHops[i], devices[i]));
         }
 
         delete devices[i];

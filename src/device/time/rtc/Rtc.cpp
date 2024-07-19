@@ -37,7 +37,7 @@ struct InterruptFrame;
 
 namespace Device {
 
-Rtc::Rtc(uint32_t timerInterval) {
+Rtc::Rtc(const Util::Time::Timestamp &timerInterval) {
     const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
     if (acpi.hasTable("FADT")) {
         const auto &fadt = acpi.getTable<Util::Hardware::Acpi::Fadt>("FADT");
@@ -78,7 +78,7 @@ void Rtc::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector s
     }
 
     if ((interruptStatus & INTERRUPT_PERIODIC) != 0) {
-        time.addNanoseconds(timerInterval);
+        time += timerInterval;
     }
 }
 
@@ -217,15 +217,15 @@ void Rtc::alarm() {
     Kernel::Service::getService<Kernel::ProcessService>().getScheduler().ready(alarmThread);
 }
 
-void Rtc::setInterruptRate(uint32_t interval) {
+void Rtc::setInterruptRate(const Util::Time::Timestamp &interval) {
     Cpu::disableInterrupts();
     Cmos::disableNmi();
 
-    if (interval == 0) {
+    if (interval.toNanoseconds() == 0) {
         // Periodic interrupts are disabled
-        timerInterval = 0;
+        timerInterval = Util::Time::Timestamp::ofMilliseconds(0);
     } else {
-        auto divisor = static_cast<uint32_t>(BASE_FREQUENCY * (interval / 1000.0));
+        auto divisor = interval.toNanoseconds() / NANOSECONDS_PER_TICK;
         uint32_t divisorLog;
         for (divisorLog = 1; divisor >= 2; divisorLog++) {
             divisor /= 2;
@@ -234,8 +234,8 @@ void Rtc::setInterruptRate(uint32_t interval) {
         if (divisorLog < 3) divisorLog = 3;
         if (divisorLog > 15) divisorLog = 15;
 
-        timerInterval = static_cast<uint32_t>(1000000000 / (static_cast<double>(BASE_FREQUENCY) / (1 << (divisorLog - 1))));
-        LOG_INFO("Setting RTC interval to [%ums] (Divisor: [%u])", timerInterval / 1000000 < 1 ? 1 : timerInterval / 1000000, divisorLog);
+        timerInterval = Util::Time::Timestamp::ofNanoseconds(static_cast<uint32_t>(NANOSECONDS_PER_TICK * (1 << (divisorLog - 1))));
+        LOG_INFO("Setting RTC interval to [%ums] (Divisor: [%u])", timerInterval.toMilliseconds() < 1 ? 1 : timerInterval.toMilliseconds(), divisorLog);
 
         // Set periodic interrupt rate
         auto oldValue = Cmos::read(STATUS_REGISTER_A);
@@ -245,7 +245,7 @@ void Rtc::setInterruptRate(uint32_t interval) {
     // Enable 'update ended interrupts': An Interrupt will be triggered after every RTC-update.
     // Enable 'periodic interrupts': Periodic interrupts will be triggered at the set rate.
     auto oldValue = Cmos::read(STATUS_REGISTER_B);
-    Cmos::write(STATUS_REGISTER_B, oldValue | INTERRUPT_UPDATE_ENDED | (timerInterval == 0 ? 0 : INTERRUPT_PERIODIC));
+    Cmos::write(STATUS_REGISTER_B, oldValue | INTERRUPT_UPDATE_ENDED | (timerInterval.toNanoseconds() == 0 ? 0 : INTERRUPT_PERIODIC));
 
     // Read status register C. This will clear the data-flag.
     // As long as this flag is set, the RTC won't trigger any interrupts.

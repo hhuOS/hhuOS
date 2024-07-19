@@ -109,6 +109,8 @@
 #include "device/network/ne2000/Ne2000.h"
 #include "filesystem/iso9660/IsoDriver.h"
 #include "device/time/rtc/Cmos.h"
+#include "device/graphic/VesaBiosExtensions.h"
+#include "device/time/acpi/AcpiTimer.h"
 
 namespace Util {
 class HeapMemoryManager;
@@ -137,7 +139,7 @@ extern "C" int32_t atexit (void (*func)()) noexcept {
 
 Util::HeapMemoryManager *GatesOfHell::kernelHeap = nullptr;
 
-extern "C" void start(uint32_t multibootMagic, const Kernel::Multiboot *multiboot) {
+extern "C" void main(uint32_t multibootMagic, const Kernel::Multiboot *multiboot) {
     GatesOfHell::enter(multibootMagic, multiboot);
 }
 
@@ -246,12 +248,12 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     Device::Cpu::loadTaskStateSegment(Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 5));
 
     // Set segment registers
-    Device::Cpu::setSegmentRegister(Device::Cpu::CS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 1));
-    Device::Cpu::setSegmentRegister(Device::Cpu::SS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-    Device::Cpu::setSegmentRegister(Device::Cpu::DS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-    Device::Cpu::setSegmentRegister(Device::Cpu::ES, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-    Device::Cpu::setSegmentRegister(Device::Cpu::FS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-    Device::Cpu::setSegmentRegister(Device::Cpu::GS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    Device::Cpu::writeSegmentRegister(Device::Cpu::CS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 1));
+    Device::Cpu::writeSegmentRegister(Device::Cpu::SS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    Device::Cpu::writeSegmentRegister(Device::Cpu::DS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    Device::Cpu::writeSegmentRegister(Device::Cpu::ES, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    Device::Cpu::writeSegmentRegister(Device::Cpu::FS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    Device::Cpu::writeSegmentRegister(Device::Cpu::GS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
 
     // Initialize Paging Area Manager -> Manages the virtual addresses of all page tables and directories
     LOG_INFO("Initializing paging area manager");
@@ -300,9 +302,8 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
 
     // Initialize the classic PIC and interrupt service
     // Needs to be done before memory service initialization, so that the memory service can register its system calls
-    LOG_INFO("Initializing classic PIC");
-    auto *pic = new Device::Pic();
-    auto *interruptService = new Kernel::InterruptService(pic);
+    LOG_INFO("Initializing interrupt service");
+    auto *interruptService = new Kernel::InterruptService();
     Kernel::Service::registerService(Kernel::InterruptService::SERVICE_ID, interruptService);
 
     LOG_INFO("Loading interrupt descriptor table");
@@ -344,7 +345,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
 
     // Memory management has been set up now, and we continue with the remaining boot process
     LOG_INFO("Welcome to hhuOS!");
-    LOG_INFO("Used kernel heap memory during early boot process: [%u Byte]", kernelHeapManager.getTotalMemory() - kernelHeapManager.getFreeMemory());
+    LOG_INFO("Used kernel heap memory during early boot process: [%u KiB]", (kernelHeapManager.getTotalMemory() - kernelHeapManager.getFreeMemory()) / 1024);
 
     // Create scheduler and process service and register kernel process
     LOG_INFO("Initializing scheduler");
@@ -444,6 +445,72 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     auto *powerManagementService = new Kernel::PowerManagementService(machine);
     Kernel::Service::registerService(Kernel::PowerManagementService::SERVICE_ID, powerManagementService);
 
+    Device::Graphic::VesaBiosExtensions *vbe = nullptr;
+    if (multiboot->getKernelOption("vbe", "true") == "true" && Device::Graphic::VesaBiosExtensions::isAvailable()) {
+        LOG_INFO("Initializing Vesa BIOS Extensions");
+        vbe = Device::Graphic::VesaBiosExtensions::initialize();
+
+        if (multiboot->hasKernelOption("resolution")) {
+            auto split1 = multiboot->getKernelOption("resolution").split("@");
+            auto split2 = split1[0].split("x");
+
+            if (split2.length() < 2) {
+                LOG_WARN("Ignoring invalid 'resolution' parameter");
+            } else {
+                auto resolutionX = Util::String::parseInt(split2[0]);
+                auto resolutionY = Util::String::parseInt(split2[1]);
+                auto colorDepth = split1.length() > 1 ? Util::String::parseInt(split1[1]) : 32;
+
+                if (lfb == nullptr || (lfb->getResolutionX() != resolutionX || lfb->getResolutionY() != resolutionY || lfb->getColorDepth() != colorDepth)) {
+                    Kernel::Log::removeOutputStream(*terminal);
+                    delete terminal;
+
+                    auto mode = vbe->findMode(resolutionX, resolutionY, colorDepth);
+                    Device::Graphic::VesaBiosExtensions::setMode(mode.modeNumber);
+
+                    lfb = new Util::Graphic::LinearFrameBuffer(mode.physicalAddress, mode.resolutionX, mode.resolutionY, mode.colorDepth, mode.pitch, false);
+                    terminal = new Util::Graphic::LinearFrameBufferTerminal(lfb);
+                    Kernel::Log::addOutputStream(*terminal);
+                }
+            }
+        }
+    }
+
+    auto *lfbNode = lfb == nullptr ? nullptr : new Device::Graphic::LinearFrameBufferNode("lfb", *lfb, vbe);
+
+    // Setup time and date devices
+    // Needs to be done before PIC/APIC initialization, since they call 'TimeService::busyWait()'
+    LOG_INFO("Initializing PIT");
+    auto *pit = new Device::Pit(Util::Time::Timestamp::ofMilliseconds(1), Util::Time::Timestamp::ofMilliseconds(10));
+
+    Device::Rtc *rtc = nullptr;
+    if (Device::Rtc::isAvailable()) {
+        LOG_INFO("Initializing RTC");
+        rtc = new Device::Rtc();
+
+        if (!Device::Rtc::isValid()) {
+            LOG_WARN("CMOS has been cleared -> RTC is probably providing invalid date and time");
+        }
+    } else {
+        LOG_INFO("RTC not available");
+    }
+
+    Device::AcpiTimer *acpiTimer = nullptr;
+    if (Device::AcpiTimer::isAvailable()) {
+        LOG_INFO("Initializing ACPI timer");
+        acpiTimer = new Device::AcpiTimer();
+    }
+
+    Device::WaitTimer *waitTimer = acpiTimer == nullptr ? static_cast<Device::WaitTimer*>(pit) : static_cast<Device::WaitTimer*>(acpiTimer);
+    auto *timeService = new Kernel::TimeService(waitTimer, pit, rtc);
+    Kernel::Service::registerService(Kernel::TimeService::SERVICE_ID, timeService);
+
+    // Initialize classic PIC
+    LOG_INFO("Initializing PIC");
+    auto *pic = new Device::Pic();
+    interruptService->usePic(pic);
+
+    // Check if APIC exists and initialize it
     if (multiboot->getKernelOption("apic", "true") == "true" && Device::Apic::isAvailable()) {
         LOG_INFO("APIC detected");
         auto *apic = Device::Apic::initialize();
@@ -451,6 +518,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
             LOG_WARN("Failed to initialize APIC -> Falling back to PIC");
         } else {
             interruptService->useApic(apic);
+            apic->startCurrentTimer();
 
             if (apic->isSymmetricMultiprocessingSupported()) {
                 apic->startupApplicationProcessors();
@@ -484,25 +552,10 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     Device::Cpu::enableInterrupts();
     Device::Cmos::enableNmi();
 
-    // Setup time and date devices
-    LOG_INFO("Initializing PIT");
-    auto *pit = new Device::Pit(1, 10);
     pit->plugin();
-
-    Device::Rtc *rtc = nullptr;
-    if (Device::Rtc::isAvailable()) {
-        LOG_INFO("Initializing RTC");
-        rtc = new Device::Rtc();
+    if (rtc != nullptr) {
         rtc->plugin();
-
-        if (!Device::Rtc::isValid()) {
-            LOG_WARN("CMOS has been cleared -> RTC is probably providing invalid date and time");
-        }
-    } else {
-        LOG_INFO("RTC not available");
     }
-
-    Kernel::Service::registerService(Kernel::TimeService::SERVICE_ID, new Kernel::TimeService(pit, rtc));
 
     // Scan PCI bus
     Device::Pci::scan();
@@ -602,7 +655,6 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     }
 
     if (lfb != nullptr) {
-        auto *lfbNode = new Device::Graphic::LinearFrameBufferNode("lfb", *lfb);
         deviceDriver->addNode("/", lfbNode);
     }
 

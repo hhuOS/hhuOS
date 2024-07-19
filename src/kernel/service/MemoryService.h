@@ -200,6 +200,8 @@ public:
 
     [[nodiscard]] VirtualAddressSpace& getCurrentAddressSpace() const;
 
+    [[nodiscard]] const Util::ArrayList<VirtualAddressSpace*>& getAllAddressSpaces() const;
+
     MemoryStatus getMemoryStatus();
 
     void setTaskStateSegmentStackEntry(const uint32_t *stackPointer);

@@ -26,6 +26,7 @@
 #include "lib/util/io/key/Key.h"
 #include "lib/util/io/stream/FileOutputStream.h"
 #include "lib/util/io/stream/PrintStream.h"
+#include "lib/util/io/key/layout/DeLayout.h"
 
 namespace Util::Graphic {
 
@@ -113,6 +114,10 @@ int16_t Terminal::peek() {
 
 int32_t Terminal::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
     return inputStream.read(targetBuffer, offset, length);
+}
+
+bool Terminal::isReadyToRead() {
+    return inputStream.isReadyToRead();
 }
 
 void Terminal::handleBell() {
@@ -433,6 +438,10 @@ void Terminal::setKeyboardScancodes(bool enabled) {
     keyboardScancodes = enabled;
 }
 
+void Terminal::setKeyboardLayout(Io::KeyboardLayout *layout) {
+    keyDecoder.setLayout(layout);
+}
+
 void Terminal::clear() {
     clear(foregroundColor, backgroundColor, 0, 0, getColumns() - 1, getRows() - 1);
     setPosition(0, 0);
@@ -503,30 +512,37 @@ Terminal::KeyboardRunnable::KeyboardRunnable(Terminal &terminal) : terminal(term
 
 void Terminal::KeyboardRunnable::run() {
     auto keyboardStream = Io::FileInputStream("/device/keyboard");
-    auto keyDecoder = Io::KeyDecoder();
     int16_t scancode = keyboardStream.read();
 
     while (scancode != -1) {
         if (terminal.keyboardScancodes) {
             terminal.outputStream.write(scancode);
-        } else if (keyDecoder.parseScancode(scancode)) {
-            auto key = keyDecoder.getCurrentKey();
+        } else if (terminal.keyDecoder.parseScancode(scancode)) {
+            auto key = terminal.keyDecoder.getCurrentKey();
             if (key.isPressed()) {
                 auto c = key.getAscii();
                 if (c == 0) {
                     switch (key.getScancode()) {
-                        case 0x48:
+                        case Io::Key::UP:
                             terminal.outputStream.write(reinterpret_cast<const uint8_t *>("\u001b[1A"), 0, 4);
                             break;
-                        case 0x50:
-                            terminal.outputStream.write(reinterpret_cast<const uint8_t *>("\u001b[1B"), 0, 4);
+                        case Io::Key::DOWN:
+                            terminal.outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1B"), 0, 4);
                             break;
-                        case 0x4D:
-                            terminal.outputStream.write(reinterpret_cast<const uint8_t *>("\u001b[1C"), 0, 4);
+                        case Io::Key::RIGHT:
+                            terminal.outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1C"), 0, 4);
                             break;
-                        case 0x4B:
-                            terminal.outputStream.write(reinterpret_cast<const uint8_t *>("\u001b[1D"), 0, 4);
+                        case Io::Key::LEFT:
+                            terminal.outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1D"), 0, 4);
                             break;
+                        case Io::Key::END:
+                            terminal.outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1F"), 0, 4);
+                            break;
+                        case Io::Key::POS1:
+                            terminal.outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1H"), 0, 4);
+                            break;
+                        case Io::Key::DEL:
+                            terminal.outputStream.write(0x7f);
                     }
                 } else {
                     if (key.getCtrl()) {

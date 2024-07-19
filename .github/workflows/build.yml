@@ -17,13 +17,13 @@ jobs:
           apt: build-essential nasm gcc-multilib g++-multilib cmake xorriso dosfstools mtools unzip wget grub-pc-bin grub-efi-ia32-bin
 
       - name: Build towboot image
-        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target towboot --type Debug
+        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target towboot --type Default
 
       - name: Build limine image
-        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target limine --type Debug
+        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target limine --type Default
 
       - name: Build grub image
-        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target grub --type Debug
+        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target grub --type Default
 
       - name: Download Limine licence
         run: wget -O limine-licence.txt https://raw.githubusercontent.com/limine-bootloader/limine/trunk/COPYING
@@ -36,3 +36,19 @@ jobs:
         with:
           name: hhuOS-${{ steps.commit.outputs.short }}
           path: hhuOS-${{ steps.commit.outputs.short }}
+
+      - name: Create nightly
+        if: github.ref_name == 'master' || github.ref_name == 'development'
+        run: tar -czvf hhuOS-${{ github.ref_name }}.tar.gz hhuOS-limine.iso hhuOS-towboot.img hdd0.img floppy0.img run.sh limine-licence.txt README.md
+
+      - name: Release nightly
+        if: github.ref_name == 'master' || github.ref_name == 'development'
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: true
+          name: nightly-${{ github.ref_name }}
+          tag_name: nightly-${{ github.ref_name }}
+          files: hhuOS-${{ github.ref_name }}.tar.gz
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.PUBLISH_TOKEN }}

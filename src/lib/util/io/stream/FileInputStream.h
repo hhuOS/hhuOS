@@ -22,12 +22,7 @@
 
 #include "InputStream.h"
 #include "lib/util/base/String.h"
-
-namespace Util {
-namespace Io {
-class File;
-}  // namespace File
-}  // namespace Util
+#include "lib/util/io/file/File.h"
 
 namespace Util::Io {
 
@@ -52,6 +47,10 @@ public:
 	int16_t peek() override;
 
     int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
+
+    bool setAccessMode(File::AccessMode accessMode) const;
+
+    bool isReadyToRead() override;
 
 private:
 	

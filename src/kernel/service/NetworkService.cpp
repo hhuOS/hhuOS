@@ -48,6 +48,7 @@
 #include "lib/util/collection/Array.h"
 #include "InterruptService.h"
 #include "kernel/service/Service.h"
+#include "kernel/process/FileDescriptor.h"
 
 namespace Filesystem {
 class Node;
@@ -80,7 +81,7 @@ NetworkService::NetworkService() {
         auto fileDescriptor = va_arg(arguments, int32_t);
         auto &datagram = *va_arg(arguments, Util::Network::Datagram*);
 
-        auto &socket = reinterpret_cast<Network::Socket &>(filesystemService.getNode(fileDescriptor));
+        auto &socket = reinterpret_cast<Network::Socket&>(filesystemService.getFileDescriptor(fileDescriptor).getNode());
         if (!socket.isBound()) {
             Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
         }
@@ -98,7 +99,7 @@ NetworkService::NetworkService() {
         auto fileDescriptor = va_arg(arguments, int32_t);
         auto &datagram = *va_arg(arguments, Util::Network::Datagram*);
 
-        auto &socket = reinterpret_cast<Network::Socket &>(filesystemService.getNode(fileDescriptor));
+        auto &socket = reinterpret_cast<Network::Socket&>(filesystemService.getFileDescriptor(fileDescriptor).getNode());
         if (!socket.isBound()) {
             Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
         }

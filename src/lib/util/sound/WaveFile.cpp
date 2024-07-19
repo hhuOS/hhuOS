@@ -17,6 +17,8 @@
 
 #include "WaveFile.h"
 
+#include "lib/util/base/Exception.h"
+
 namespace Util {
 namespace Io {
 class File;
@@ -27,38 +29,49 @@ namespace Util::Sound {
 
 WaveFile::WaveFile(const Io::File &file) : Io::FilterInputStream(stream), stream(file) {
     read(reinterpret_cast<uint8_t*>(&riffChunk), 0, sizeof(RiffChunk));
+    read(reinterpret_cast<uint8_t*>(&formatChunk), 0, sizeof(formatChunk));
+
+    auto readBytes = read(reinterpret_cast<uint8_t*>(&dataChunk), 0, sizeof(dataChunk));
+    while (dataChunk.dataSignature[0] != 'd' && dataChunk.dataSignature[1] != 'a' && dataChunk.dataSignature[2] != 't' && dataChunk.dataSignature[3] != 'a') {
+        if (readBytes <= 0) {
+            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "WaveFile: No 'data' chunk found!");
+        }
+
+        skip(dataChunk.chunkSize);
+        readBytes = read(reinterpret_cast<uint8_t*>(&dataChunk), 0, sizeof(dataChunk));
+    }
 }
 
 uint32_t WaveFile::getDataSize() const {
-    return riffChunk.dataChunk.chunkSize;
+    return dataChunk.chunkSize;
 }
 
 WaveFile::AudioFormat WaveFile::getAudioFormat() const {
-    return riffChunk.formatChunk.audioFormat;
+    return formatChunk.audioFormat;
 }
 
 uint16_t WaveFile::getNumChannels() const {
-    return riffChunk.formatChunk.numChannels;
+    return formatChunk.numChannels;
 }
 
 uint32_t WaveFile::getSamplesPerSecond() const {
-    return riffChunk.formatChunk.samplesPerSecond;
+    return formatChunk.samplesPerSecond;
 }
 
 uint32_t WaveFile::getBytesPerSecond() const {
-    return riffChunk.formatChunk.bytesPerSecond;
+    return formatChunk.bytesPerSecond;
 }
 
 uint16_t WaveFile::getBitsPerSample() const {
-    return riffChunk.formatChunk.bitsPerSample;
+    return formatChunk.bitsPerSample;
 }
 
 uint16_t WaveFile::getFrameSize() const {
-    return riffChunk.formatChunk.frameSize;
+    return formatChunk.frameSize;
 }
 
 uint32_t WaveFile::getSampleCount() const {
-    return riffChunk.dataChunk.chunkSize / riffChunk.formatChunk.frameSize;
+    return dataChunk.chunkSize / formatChunk.frameSize;
 }
 
 }

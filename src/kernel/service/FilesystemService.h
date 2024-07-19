@@ -30,6 +30,7 @@ class Node;
 }  // namespace Filesystem
 
 namespace Kernel {
+class FileDescriptor;
 
 class FilesystemService : public Service {
 
@@ -72,7 +73,7 @@ public:
 
     void closeFile(int32_t fileDescriptor);
 
-    Filesystem::Node& getNode(int32_t fileDescriptor);
+    FileDescriptor& getFileDescriptor(int32_t fileDescriptor);
 
     [[nodiscard]] Filesystem::Filesystem& getFilesystem();
 

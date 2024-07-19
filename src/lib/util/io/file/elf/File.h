@@ -226,6 +226,8 @@ public:
 
     void loadProgram();
 
+    [[nodiscard]] const SectionHeader& getSectionHeader(SectionHeaderType headerType) const;
+
     [[nodiscard]] int32_t (*getEntryPoint() const)(int, char**) {
         return reinterpret_cast<int (*)(int, char**)>(fileHeader.entry);
     }

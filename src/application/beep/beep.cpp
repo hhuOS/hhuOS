@@ -19,8 +19,6 @@
 
 #include "lib/util/base/System.h"
 #include "lib/util/time/Timestamp.h"
-#include "lib/util/async/Thread.h"
-#include "lib/util/async/FunctionPointerRunnable.h"
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/file/File.h"
@@ -33,8 +31,6 @@
 #include "lib/util/sound/PcSpeaker.h"
 
 static const constexpr uint8_t BAR_LENGTH = 25;
-
-bool isRunning = true;
 
 void printStatusLine(uint32_t passedTime, uint32_t songLength) {
     auto passedSeconds = passedTime / 1000;
@@ -102,21 +98,21 @@ int32_t main(int32_t argc, char *argv[]) {
     uint32_t passedTime = 0;
     auto songLength = calculateLength(beepFile);
 
-    Util::Async::Thread::createThread("Key-Listener", new Util::Async::FunctionPointerRunnable([]{
-        Util::System::in.read();
-        isRunning = false;
-    }));
-
     Util::Graphic::Ansi::disableCursor();
+    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
+
     Util::System::out << "Playing '" << beepFile.getName() << "'... Press <ENTER> to stop." << Util::Io::PrintStream::endl;
 
-    bool endOfLine = false;
-    auto line = stream.readLine(endOfLine);
-    while (isRunning && !endOfLine) {
+    bool endOfFile = false;
+    auto line = stream.readLine(endOfFile);
+    while (!endOfFile) {
+        if (Util::System::in.read() > 0) {
+            break;
+        }
+
         auto split = line.split(",");
         auto frequency = Util::String::parseInt(split[0]);
         auto length = Util::String::parseInt(split[1]);
-
 
         Util::Graphic::Ansi::saveCursorPosition();
         printStatusLine(passedTime, songLength);
@@ -125,7 +121,7 @@ int32_t main(int32_t argc, char *argv[]) {
         speaker.play(frequency, Util::Time::Timestamp::ofMilliseconds(length));
         passedTime += length;
 
-        line = stream.readLine(endOfLine);
+        line = stream.readLine(endOfFile);
     }
 
     speaker.turnOff();

@@ -25,6 +25,7 @@
 #include "lib/util/base/String.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/base/Constants.h"
+#include "lib/util/collection/Array.h"
 
 namespace Util::Graphic {
 

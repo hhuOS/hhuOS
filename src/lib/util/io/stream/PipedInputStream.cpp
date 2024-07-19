@@ -164,6 +164,10 @@ void PipedInputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint3
     lock.release();
 }
 
+bool PipedInputStream::isReadyToRead() {
+    return available() > 0;
+}
+
 uint32_t PipedInputStream::available() {
     uint32_t ret;
     lock.acquire();

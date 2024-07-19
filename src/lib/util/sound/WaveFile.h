@@ -139,13 +139,13 @@ private:
         char riffSignature[4];
         uint32_t chunkSize;
         char waveSignature[4];
-        FormatChunk formatChunk;
-        DataChunk dataChunk;
     } __attribute__ ((packed));
 
     Io::FileInputStream stream;
 
     RiffChunk riffChunk{};
+    FormatChunk formatChunk{};
+    DataChunk dataChunk{};
 };
 
 }

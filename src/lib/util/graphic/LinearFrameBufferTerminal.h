@@ -28,7 +28,7 @@
 #include "lib/util/graphic/BufferScroller.h"
 #include "lib/util/graphic/Terminal.h"
 #include "lib/util/graphic/Color.h"
-#include "lib/util/graphic/Fonts.h"
+#include "lib/util/graphic/font/Terminal8x16.h"
 
 namespace Util {
 namespace Graphic {
@@ -46,7 +46,7 @@ public:
 
     friend class CursorRunnable;
 
-    explicit LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_FONT, char cursor = static_cast<char>(219));
+    explicit LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_8x16, char cursor = static_cast<char>(219));
 
     LinearFrameBufferTerminal(const LinearFrameBufferTerminal &copy) = delete;
 

@@ -21,24 +21,28 @@
 #include "lib/util/io/stream/BufferedOutputStream.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/stream/FileOutputStream.h"
+#include "lib/util/io/file/File.h"
 #include "lib/util/base/String.h"
+#include "lib/util/io/file/elf/File.h"
+#include "Constants.h"
+#include "Address.h"
 
 namespace Util {
 
-Io::FileInputStream System::inStream(0);
+Io::FileInputStream System::inStream(Util::Io::STANDARD_INPUT);
 Io::BufferedInputStream System::bufferedInStream(inStream);
 Io::InputStream &System::in = System::bufferedInStream;
-Io::FileOutputStream System::outStream(1);
+Io::FileOutputStream System::outStream(Util::Io::STANDARD_OUTPUT);
 Io::BufferedOutputStream System::bufferedOutStream(outStream);
 Io::PrintStream System::out(bufferedOutStream);
-Io::FileOutputStream System::errorStream(2);
+Io::FileOutputStream System::errorStream(Util::Io::STANDARD_ERROR);
 Io::BufferedOutputStream System::bufferedErrorStream(errorStream);
 Io::PrintStream System::error(bufferedErrorStream);
 
 bool System::call(System::Code code, uint32_t paramCount...) {
     va_list args;
     va_start(args, paramCount);
-    bool result;
+    bool result = false;
 
     call(code, result, paramCount, args);
 
@@ -83,16 +87,47 @@ void System::printStackTrace(const Io::PrintStream &stream, uint32_t minEbp) {
             );
 
 
-    // If we handle a CPU exception in user space, we skip the kernel space exception handler
+    // If we handle an exception in user space, we skip the kernel space exception handler
     while (reinterpret_cast<uint32_t>(ebp) < minEbp) {
         ebp = reinterpret_cast<uint32_t*>(ebp[0]);
     }
 
     while (reinterpret_cast<uint32_t>(ebp) >= minEbp) {
         auto eip = ebp[1];
-        Util::System::out << Util::String::format("0x%08x", eip) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::out << Util::String::format("0x%08x", eip) << Util::Io::PrintStream::flush;
+
+        auto *symbolName = getSymbolName(eip);
+        while (symbolName == nullptr && eip >= Util::USER_SPACE_MEMORY_START_ADDRESS) {
+            symbolName = getSymbolName(--eip);
+        }
+
+        Util::System::out << " " << symbolName << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+
+        if (!Util::Address<uint32_t>(symbolName).compareString("main")) {
+            break;
+        }
+
         ebp = reinterpret_cast<uint32_t*>(ebp[0]);
     }
+}
+
+const char* System::getSymbolName(uint32_t symbolAddress) {
+    auto &addressSpaceHeader = Util::System::getAddressSpaceHeader();
+
+    for (uint32_t i = 0; i < addressSpaceHeader.symbolTableSize / sizeof(Util::Io::Elf::SymbolEntry); i++) {
+        const auto &symbol = *(addressSpaceHeader.symbolTable + i);
+        if (symbol.value == symbolAddress && symbol.getSymbolType() == Util::Io::Elf::SymbolType::FUNC) {
+            if (symbol.getSymbolType() == Util::Io::Elf::SymbolType::FUNC) {
+                return addressSpaceHeader.stringTable + symbol.nameOffset;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+System::AddressSpaceHeader &System::getAddressSpaceHeader() {
+    return *reinterpret_cast<AddressSpaceHeader*>(USER_SPACE_MEMORY_START_ADDRESS);
 }
 
 }

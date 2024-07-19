@@ -102,9 +102,11 @@ public:
 
 private:
 
-    static void logEarly(const Record &record, const char *message);
+    static void logDefault(const Record &record, const char *message, va_list args);
 
-    static void logEarlyWithHeap(const Record &record, const char *message...);
+    static void logEarlyWithHeap(const Record &record, const char *message, va_list args);
+
+    static void logEarly(const Record &record, const char *message);
 
     static void writeStringEarly(const char *string);
 

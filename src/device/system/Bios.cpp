@@ -30,7 +30,6 @@
 #include "kernel/service/InformationService.h"
 #include "lib/util/base/String.h"
 #include "lib/util/async/Spinlock.h"
-#include "kernel/log/Log.h"
 
 extern "C" {
     void protected_mode_call(Kernel::Thread::Context *stack, uint32_t entryPoint);
@@ -109,11 +108,23 @@ Kernel::Thread::Context Bios::interrupt(int interruptNumber, const Kernel::Threa
     Cmos::disableNmi();
 
     // Save interrupt mask
-    auto interruptMask = interruptService.getInterruptMask();
+    const auto interruptMask = interruptService.getInterruptMask();
     interruptService.setInterruptMask(0x0000);
 
     // Load BIOS call IDT
     biosIdtDescriptor->load();
+
+    // Load extra segment registers with kernel data segment selector,
+    // as they might contain a user data selector, which is not valid with the BIOS GDT
+    const auto ds = Device::Cpu::readSegmentRegister(Device::Cpu::DS);
+    const auto es = Device::Cpu::readSegmentRegister(Device::Cpu::ES);
+    const auto fs = Device::Cpu::readSegmentRegister(Device::Cpu::FS);
+    const auto gs = Device::Cpu::readSegmentRegister(Device::Cpu::GS);
+
+    Device::Cpu::writeSegmentRegister(Device::Cpu::DS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    Device::Cpu::writeSegmentRegister(Device::Cpu::ES, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    Device::Cpu::writeSegmentRegister(Device::Cpu::FS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    Device::Cpu::writeSegmentRegister(Device::Cpu::GS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
 
     // Switch to bios call GDT
     biosGdt.load();
@@ -123,6 +134,12 @@ Kernel::Thread::Context Bios::interrupt(int interruptNumber, const Kernel::Threa
 
     // Switch back to kernel GDT
     memoryService.loadGlobalDescriptorTable();
+
+    // Restore extra segment registers
+    Device::Cpu::writeSegmentRegister(Device::Cpu::DS, ds);
+    Device::Cpu::writeSegmentRegister(Device::Cpu::ES, es);
+    Device::Cpu::writeSegmentRegister(Device::Cpu::FS, fs);
+    Device::Cpu::writeSegmentRegister(Device::Cpu::GS, gs);
 
     // Load kernel IDT
     interruptService.loadIdt();
@@ -167,6 +184,18 @@ Kernel::Thread::Context Bios::protectedModeCall(const Kernel::GlobalDescriptorTa
     // Load BIOS call IDT
     biosIdtDescriptor->load();
 
+    // Load extra segment registers with kernel data segment selector,
+    // as they might contain a user data selector, which is not valid with the BIOS GDT
+    const auto ds = Device::Cpu::readSegmentRegister(Device::Cpu::DS);
+    const auto es = Device::Cpu::readSegmentRegister(Device::Cpu::ES);
+    const auto fs = Device::Cpu::readSegmentRegister(Device::Cpu::FS);
+    const auto gs = Device::Cpu::readSegmentRegister(Device::Cpu::GS);
+
+    Device::Cpu::writeSegmentRegister(Device::Cpu::DS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    Device::Cpu::writeSegmentRegister(Device::Cpu::ES, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    Device::Cpu::writeSegmentRegister(Device::Cpu::FS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    Device::Cpu::writeSegmentRegister(Device::Cpu::GS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+
     // Switch to bios call GDT
     gdt.load();
 
@@ -175,6 +204,12 @@ Kernel::Thread::Context Bios::protectedModeCall(const Kernel::GlobalDescriptorTa
 
     // Switch back to kernel GDT
     memoryService.loadGlobalDescriptorTable();
+
+    // Restore extra segment registers
+    Device::Cpu::writeSegmentRegister(Device::Cpu::DS, ds);
+    Device::Cpu::writeSegmentRegister(Device::Cpu::ES, es);
+    Device::Cpu::writeSegmentRegister(Device::Cpu::FS, fs);
+    Device::Cpu::writeSegmentRegister(Device::Cpu::GS, gs);
 
     // Load kernel IDT
     interruptService.loadIdt();

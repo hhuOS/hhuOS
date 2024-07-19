@@ -28,29 +28,26 @@
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/graphic/StringDrawer.h"
-#include "lib/util/graphic/Fonts.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/time/Timestamp.h"
-#include "lib/util/async/FunctionPointerRunnable.h"
 #include "lib/util/graphic/LineDrawer.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Font.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/InputStream.h"
+#include "lib/util/graphic/font/Terminal8x16.h"
 
 static const constexpr uint16_t DEFAULT_FPS = 15;
 
-bool isRunning = true;
-
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
-    argumentParser.addArgument("fps", false, "f");
+    argumentParser.addArgument("framesPerSecond", false, "f");
     argumentParser.setHelpText("Play asciimation movies from text-files.\n"
                                "See https://http://www.asciimation.co.nz for more information\n"
                                "Usage: asciimate [FILE]\n"
                                "Options:\n"
-                               "  -f, --fps: Set the target framerate (Default: 15)\n"
+                               "  -f, --framesPerSecond: Set the target framerate (Default: 15)\n"
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
@@ -83,11 +80,11 @@ int32_t main(int32_t argc, char *argv[]) {
     auto lineDrawer = Util::Graphic::LineDrawer(pixelDrawer);
     auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
 
-    const auto &font = Util::Graphic::Fonts::TERMINAL_FONT;
+    const auto &font = Util::Graphic::Fonts::TERMINAL_8x16;
     auto charWidth = font.getCharWidth();
     auto charHeight = font.getCharHeight();
 
-    double fps = argumentParser.hasArgument("fps") ? Util::String::parseInt(argumentParser.getArgument("fps")) : DEFAULT_FPS;
+    double fps = argumentParser.hasArgument("framesPerSecond") ? Util::String::parseInt(argumentParser.getArgument("framesPerSecond")) : DEFAULT_FPS;
     uint16_t rows = Util::String::parseInt(frameInfo[0]);
     uint16_t columns = Util::String::parseInt(frameInfo[1]);
     uint16_t frameStartX = (((lfb.getResolutionX() / charWidth) - columns) / 2) * charWidth;
@@ -96,13 +93,13 @@ int32_t main(int32_t argc, char *argv[]) {
     uint16_t frameEndY = frameStartY + (rows * charHeight);
 
     Util::Graphic::Ansi::prepareGraphicalApplication(false);
+    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
-    Util::Async::Thread::createThread("Key-Listener", new Util::Async::FunctionPointerRunnable([]{
-        Util::System::in.read();
-        isRunning = false;
-    }));
+    while (true) {
+        if (Util::System::in.read() > 0) {
+            break;
+        }
 
-    while (isRunning) {
         auto delayLine = bufferedStream.readLine(endOfFile);
         if (delayLine.length() == 0) {
             break;

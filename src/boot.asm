@@ -25,7 +25,7 @@
 [EXTERN ___INIT_ARRAY_END__]
 [EXTERN ___FINI_ARRAY_START__]
 [EXTERN ___FINI_ARRAY_END__]
-[EXTERN start]
+[EXTERN main]
 
 [GLOBAL boot]
 [GLOBAL _init]
@@ -96,23 +96,6 @@ multiboot2_header:
     dd MULTIBOOT2_HEADER_LENGTH
     dd MULTIBOOT2_HEADER_CHECKSUM
 
-    ; Address tag
-    align 8
-    dw MULTIBOOT2_TAG_ADDRESS
-    dw MULTIBOOT2_TAG_FLAG_OPTIONAL
-    dd 24
-    dd (multiboot2_header)
-    dd (___KERNEL_DATA_START__)
-    dd (___KERNEL_DATA_END__)
-    dd (___BSS_END__)
-
-    ; Entry address tag
-    align 8
-    dw MULTIBOOT2_TAG_ENTRY_ADDRESS
-    dw MULTIBOOT2_TAG_FLAG_OPTIONAL
-    dd 12
-    dd (boot)
-
     ; Flags tag
     align 8
     dw MULTIBOOT2_TAG_FLAGS
@@ -134,11 +117,12 @@ multiboot2_header:
     align 8
     dw MULTIBOOT2_TAG_INFORMATION_REQUEST
     dw MULTIBOOT2_TAG_FLAG_OPTIONAL
-    dd 24
+    dd 28
     dd MULTIBOOT2_REQUEST_BOOT_LOADER_NAME
     dd MULTIBOOT2_REQUEST_SMBIOS_TABLES
     dd MULTIBOOT2_REQUEST_ACPI_OLD_RSDP
     dd MULTIBOOT2_REQUEST_ACPI_NEW_RSDP
+    dd MULTIBOOT2_REQUEST_ELF_SYMBOLS
 
     ; Framebuffer tag (Delete to let GRUB boot in CGA text mode)
     align 8
@@ -179,7 +163,7 @@ clear_bss_loop:
     ; Call C function with multiboot2 magic number and address (located in eax and ebx)
     push ebx
     push eax
-    call start
+    call main
 
 ; Call constructors of global objects
 _init:

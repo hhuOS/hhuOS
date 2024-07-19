@@ -86,4 +86,8 @@ uint64_t DatagramSocket::writeData(const uint8_t *sourceBuffer, uint64_t pos, ui
     return 0;
 }
 
+bool DatagramSocket::isReadyToRead() {
+    return !incomingDatagramQueue.isEmpty();
+}
+
 }

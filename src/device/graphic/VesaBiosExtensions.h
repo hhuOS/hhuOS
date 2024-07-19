@@ -21,7 +21,6 @@
 #include <cstdint>
 
 #include "lib/util/collection/Array.h"
-#include "lib/util/base/String.h"
 #include "kernel/process/Thread.h"
 
 namespace Device::Graphic {

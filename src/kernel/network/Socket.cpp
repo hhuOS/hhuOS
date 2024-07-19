@@ -196,25 +196,27 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
             if (!isBound()) {
                 Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
             }
-            if (parameters.length() < 3) {
+            if (parameters.length() < 4) {
                 Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Missing parameters!");
             }
 
             auto &memoryService = Service::getService<MemoryService>();
             auto &networkService = Service::getService<NetworkService>();
             auto &routingModule = networkService.getNetworkStack().getIp4Module().getRoutingModule();
-            auto &targetAddresses = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4SubnetAddress>*>(parameters[0]);
-            auto &targetNextHops = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4Address>*>(parameters[1]);
-            auto &targetDevices = *reinterpret_cast<Util::Array<char*>*>(parameters[2]);
+            auto &sourceAddresses = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4Address>*>(parameters[0]);
+            auto &targetAddresses = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4SubnetAddress>*>(parameters[1]);
+            auto &targetNextHops = *reinterpret_cast<Util::Array<Util::Network::Ip4::Ip4Address>*>(parameters[2]);
+            auto &targetDevices = *reinterpret_cast<Util::Array<char*>*>(parameters[3]);
 
             auto routes = routingModule.getRoutes(*reinterpret_cast<Util::Network::Ip4::Ip4Address*>(bindAddress));
             for (uint32_t i = 0; i < routes.length() && i < targetAddresses.length(); i++) {
                 auto route = routes[i];
 
-                targetAddresses[i] = route.getAddress();
+                sourceAddresses[i] = route.getSourceAddress();
+                targetAddresses[i] = route.getTargetAddress();
                 targetNextHops[i] = route.hasNextHop() ? route.getNextHop() : Util::Network::Ip4::Ip4Address::ANY;
-
                 targetDevices[i] = static_cast<char*>(memoryService.allocateUserMemory((route.getDeviceIdentifier().length() + 1) * sizeof(char)));
+
                 auto source = Util::Address<uint32_t>(static_cast<const char*>(route.getDeviceIdentifier()));
                 auto target = Util::Address<uint32_t>(targetDevices[i]);
                 target.copyString(source);

@@ -47,8 +47,10 @@ File::~File() {
 }
 
 bool File::exists() {
-    ensureFileIsOpened();
-    if (fileDescriptor >= 0) {
+    auto tempDescriptor = ::openFile(path);
+
+    if (tempDescriptor > 0) {
+        ::closeFile(tempDescriptor);
         return true;
     }
 
@@ -121,13 +123,40 @@ bool File::remove() {
     return ret;
 }
 
-bool File::control(uint32_t request, const Array<uint32_t> &parameters) {
+bool File::controlFile(uint32_t request, const Util::Array<uint32_t> &parameters) {
     ensureFileIsOpened();
     if (fileDescriptor < 0) {
         Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
     }
 
     return ::controlFile(fileDescriptor, request, parameters);
+}
+
+bool File::controlFileDescriptor(uint32_t request, const Array<uint32_t> &parameters) {
+    ensureFileIsOpened();
+    if (fileDescriptor < 0) {
+        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
+    }
+
+    return ::controlFileDescriptor(fileDescriptor, request, parameters);
+}
+
+bool File::setAccessMode(File::AccessMode accessMode) {
+    ensureFileIsOpened();
+    if (fileDescriptor < 0) {
+        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
+    }
+
+    return controlFileDescriptor(fileDescriptor, Util::Io::File::SET_ACCESS_MODE, Util::Array<uint32_t>({accessMode}));
+}
+
+bool File::isReadyToRead() {
+    ensureFileIsOpened();
+    if (fileDescriptor < 0) {
+        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
+    }
+
+    return isReadyToRead(fileDescriptor);
 }
 
 Util::String File::getCanonicalPath(const Util::String &path) {
@@ -177,8 +206,25 @@ int32_t File::open(const String &path) {
     return ::openFile(path);
 }
 
-bool File::control(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters) {
+bool File::controlFile(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters) {
     return ::controlFile(fileDescriptor, request, parameters);
+}
+
+bool File::controlFileDescriptor(int32_t fileDescriptor, uint32_t request, const Array<uint32_t> &parameters) {
+    return ::controlFileDescriptor(fileDescriptor, request, parameters);
+}
+
+bool File::setAccessMode(int32_t fileDescriptor, File::AccessMode accessMode) {
+    return controlFileDescriptor(fileDescriptor, SET_ACCESS_MODE, Util::Array<uint32_t>({accessMode}));
+}
+
+bool File::isReadyToRead(int32_t fileDescriptor) {
+    bool readyToRead;
+    if (!controlFileDescriptor(fileDescriptor, Util::Io::File::IS_READY_TO_READ, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&readyToRead)}))) {
+        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Failed to query readiness!");
+    }
+
+    return readyToRead;
 }
 
 void File::close(int32_t fileDescriptor) {

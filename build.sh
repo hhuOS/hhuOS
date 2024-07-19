@@ -116,6 +116,7 @@ cleanup() {
     remove "disk/hdd0/user/asciimation"
     remove "disk/hdd0/user/beep"
     remove "disk/hdd0/user/books"
+    remove "disk/hdd0/user/wav"
     remove "disk/hdd0/media/"
     remove "tools/nettest/nettest-server"
 
@@ -152,7 +153,7 @@ print_usage() {
     printf "Usage: ./build.sh [OPTION...]
     Available options:
     -t, --target
-        Set the the build target (grub/towboot, default: towboot).
+        Set the the build target (towboot/limine/grub, default: towboot).
     -d, --directory
         Set the build directory.
     -g, --type

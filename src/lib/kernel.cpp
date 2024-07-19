@@ -48,6 +48,9 @@
 #include "lib/util/io/stream/PrintStream.h"
 #include "kernel/process/Scheduler.h"
 #include "kernel/memory/MemoryLayout.h"
+#include "device/cpu/Cpu.h"
+#include "kernel/process/FileDescriptor.h"
+#include "kernel/service/InformationService.h"
 
 namespace Util {
 namespace Async {
@@ -115,27 +118,38 @@ void closeFile(int32_t fileDescriptor) {
 }
 
 Util::Io::File::Type getFileType(int32_t fileDescriptor) {
-    return Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor).getType();
+    return Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor).getNode().getType();
 }
 
 uint32_t getFileLength(int32_t fileDescriptor) {
-    return Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor).getLength();
+    return Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor).getNode().getLength();
 }
 
 Util::Array<Util::String> getFileChildren(int32_t fileDescriptor) {
-    return Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor).getChildren();
+    return Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor).getNode().getChildren();
 }
 
 uint64_t readFile(int32_t fileDescriptor, uint8_t *targetBuffer, uint64_t pos, uint64_t length) {
-    return Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor).readData(targetBuffer, pos, length);
+    uint32_t read = 0;
+
+    auto &descriptor = Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor);
+    if (descriptor.getAccessMode() == Util::Io::File::BLOCKING || descriptor.getNode().isReadyToRead()) {
+        read = descriptor.getNode().readData(targetBuffer, pos, length);
+    }
+
+    return read;
 }
 
 uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t pos, uint64_t length) {
-    return Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor).writeData(sourceBuffer, pos, length);
+    return Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor).getNode().writeData(sourceBuffer, pos, length);
 }
 
 bool controlFile(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters) {
-    return Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor).control(request, parameters);
+    return Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor).getNode().control(request, parameters);
+}
+
+bool controlFileDescriptor(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters) {
+    return Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor).control(request, parameters);
 }
 
 bool changeDirectory(const Util::String &path) {
@@ -151,12 +165,12 @@ int32_t createSocket(Util::Network::Socket::Type socketType) {
 }
 
 bool sendDatagram(int32_t fileDescriptor, const Util::Network::Datagram &datagram) {
-    auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor));
+    auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor).getNode());
     return socket.send(datagram);
 }
 
 bool receiveDatagram(int32_t fileDescriptor, Util::Network::Datagram &datagram) {
-    auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::Service::getService<Kernel::FilesystemService>().getNode(fileDescriptor));
+    auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor).getNode());
     auto *kernelDatagram = socket.receive();
     auto *datagramBuffer = new uint8_t[kernelDatagram->getLength()];
 
@@ -255,7 +269,7 @@ bool shutdown(Util::Hardware::Machine::ShutdownType type) {
     return false;
 }
 
-void logStackTrace() {
+void printKernelStackTrace(bool log) {
     uint32_t *ebp = nullptr;
     asm volatile (
             "mov %%ebp, (%0);"
@@ -265,23 +279,55 @@ void logStackTrace() {
             "eax"
             );
 
-
-    uint32_t eip = ebp[1];
     while (reinterpret_cast<uint32_t>(ebp) >= Kernel::MemoryLayout::KERNEL_START) {
-        LOG_ERROR("0x%08x", eip);
+        uint32_t eip = ebp[1];
+
+        if (eip == 0x0000DEAD) {
+            break;
+        }
+
+        const char *symbolName = "";
+        if (Kernel::Service::isServiceRegistered(Kernel::InformationService::SERVICE_ID)) {
+            uint32_t symbolEip = eip;
+            auto &informationService = Kernel::Service::getService<Kernel::InformationService>();
+            symbolName = informationService.getSymbolName(symbolEip);
+            while (symbolName == nullptr && symbolEip >= Kernel::MemoryLayout::KERNEL_START) {
+                symbolName = informationService.getSymbolName(--symbolEip);
+            }
+        }
+
+        if (log) {
+            LOG_ERROR("0x%08x %s", eip, symbolName);
+        } else {
+            Util::System::out << Util::String::format("0x%08x", eip) << " " << symbolName << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        }
+
         ebp = reinterpret_cast<uint32_t*>(ebp[0]);
-        eip = ebp[1];
     }
 }
 
 void throwError(Util::Exception::Error error, const char *message) {
     if (Kernel::Service::isServiceRegistered(Kernel::ProcessService::SERVICE_ID) && Kernel::Service::getService<Kernel::ProcessService>().getScheduler().isInitialized()) {
-        Util::System::out << Util::Exception::getExceptionName(error) << " (" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-        Util::System::printStackTrace(Util::System::out, Kernel::MemoryLayout::KERNEL_START);
-    } else {
-        LOG_ERROR("%s (%s)", Util::Exception::getExceptionName(error), message);
-        logStackTrace();
-    }
+        auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
+        if (processService.getCurrentProcess().isKernelProcess()) {
+            Device::Cpu::disableInterrupts();
 
-    while (true) {}
+            Util::System::out << "Kernel Panic: " << Util::Exception::getExceptionName(error) << " (" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            printKernelStackTrace(false);
+
+            Util::System::out << "System halt!" << Util::Io::PrintStream::flush;
+            Device::Cpu::halt();
+        } else {
+            Util::System::out << Util::Exception::getExceptionName(error) << " (" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            printKernelStackTrace(false);
+            processService.exitCurrentProcess(-1);
+        }
+
+    } else {
+        LOG_ERROR("Kernel Panic: %s (%s)", Util::Exception::getExceptionName(error), message);
+        printKernelStackTrace(true);
+
+        Device::Cpu::disableInterrupts();
+        Device::Cpu::halt();
+    }
 }

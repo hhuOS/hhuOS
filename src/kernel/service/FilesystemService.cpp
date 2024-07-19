@@ -28,6 +28,7 @@
 #include "lib/util/base/System.h"
 #include "InterruptService.h"
 #include "kernel/service/Service.h"
+#include "kernel/process/FileDescriptor.h"
 
 namespace Kernel {
 
@@ -117,7 +118,7 @@ FilesystemService::FilesystemService() {
         auto fileDescriptor = va_arg(arguments, int32_t);
         auto &type = *va_arg(arguments, Util::Io::File::Type*);
 
-        type = Service::getService<FilesystemService>().getNode(fileDescriptor).getType();
+        type = Service::getService<FilesystemService>().getFileDescriptor(fileDescriptor).getNode().getType();
         return true;
     });
 
@@ -130,7 +131,7 @@ FilesystemService::FilesystemService() {
         auto fileDescriptor = va_arg(arguments, int32_t);
         auto &length = *va_arg(arguments, uint64_t*);
 
-        length = filesystemService.getNode(fileDescriptor).getLength();
+        length = filesystemService.getFileDescriptor(fileDescriptor).getNode().getLength();
         return true;
     });
 
@@ -145,7 +146,7 @@ FilesystemService::FilesystemService() {
         auto **&targetChildren = *va_arg(arguments, char***);
         auto &count = *va_arg(arguments, uint32_t*);
 
-        auto children = filesystemService.getNode(fileDescriptor).getChildren();
+        auto children = filesystemService.getFileDescriptor(fileDescriptor).getNode().getChildren();
         count = children.length();
         targetChildren = static_cast<char **>(memoryService.allocateUserMemory(children.length() * sizeof(char *)));
 
@@ -172,7 +173,7 @@ FilesystemService::FilesystemService() {
         auto length = va_arg(arguments, uint64_t);
         auto &written = *va_arg(arguments, uint64_t*);
 
-        written = filesystemService.getNode(fileDescriptor).writeData(sourceBuffer, pos, length);
+        written = filesystemService.getFileDescriptor(fileDescriptor).getNode().writeData(sourceBuffer, pos, length);
         return true;
     });
 
@@ -188,7 +189,13 @@ FilesystemService::FilesystemService() {
         auto length = va_arg(arguments, uint64_t);
         auto &read = *va_arg(arguments, uint64_t*);
 
-        read = filesystemService.getNode(fileDescriptor).readData(targetBuffer, pos, length);
+        auto &descriptor = filesystemService.getFileDescriptor(fileDescriptor);
+        if (descriptor.getAccessMode() == Util::Io::File::BLOCKING || descriptor.getNode().isReadyToRead()) {
+            read = descriptor.getNode().readData(targetBuffer, pos, length);
+        } else {
+            read = 0;
+        }
+
         return true;
     });
 
@@ -202,7 +209,20 @@ FilesystemService::FilesystemService() {
         auto request = va_arg(arguments, uint32_t);
         auto &parameters = *va_arg(arguments, const Util::Array<uint32_t>*);
 
-        return filesystemService.getNode(fileDescriptor).control(request, parameters);
+        return filesystemService.getFileDescriptor(fileDescriptor).getNode().control(request, parameters);
+    });
+
+    Service::getService<InterruptService>().assignSystemCall(Util::System::CONTROL_FILE_DESCRIPTOR, [](uint32_t paramCount, va_list arguments) -> bool {
+        if (paramCount < 3) {
+            return false;
+        }
+
+        auto &filesystemService = Service::getService<FilesystemService>();
+        auto fileDescriptor = va_arg(arguments, int32_t);
+        auto request = va_arg(arguments, uint32_t);
+        auto &parameters = *va_arg(arguments, const Util::Array<uint32_t>*);
+
+        return filesystemService.getFileDescriptor(fileDescriptor).control(request, parameters);
     });
 
     Service::getService<InterruptService>().assignSystemCall(Util::System::CHANGE_DIRECTORY, [](uint32_t paramCount, va_list arguments) -> bool {
@@ -216,25 +236,24 @@ FilesystemService::FilesystemService() {
         return processService.getCurrentProcess().setWorkingDirectory(path);
     });
 
-    Service::getService<InterruptService>().assignSystemCall(Util::System::GET_CURRENT_WORKING_DIRECTORY,
-                                 [](uint32_t paramCount, va_list arguments) -> bool {
-                           if (paramCount < 1) {
-                               return false;
-                           }
+    Service::getService<InterruptService>().assignSystemCall(Util::System::GET_CURRENT_WORKING_DIRECTORY, [](uint32_t paramCount, va_list arguments) -> bool {
+        if (paramCount < 1) {
+           return false;
+        }
 
-                           auto &processService = Service::getService<ProcessService>();
-                           auto &memoryService = Service::getService<MemoryService>();
-                           auto *&targetPath = *va_arg(arguments, char**);
-                           auto path = processService.getCurrentProcess().getWorkingDirectory().getCanonicalPath();
+        auto &processService = Service::getService<ProcessService>();
+        auto &memoryService = Service::getService<MemoryService>();
+        auto *&targetPath = *va_arg(arguments, char**);
+        auto path = processService.getCurrentProcess().getWorkingDirectory().getCanonicalPath();
 
-                           targetPath = static_cast<char *>(memoryService.allocateUserMemory(
-                                   (path.length() + 1) * sizeof(char)));
-                           auto source = Util::Address<uint32_t>(static_cast<char *>(path));
-                           auto target = Util::Address<uint32_t>(targetPath);
-                           target.copyString(source);
+        targetPath = static_cast<char *>(memoryService.allocateUserMemory(
+               (path.length() + 1) * sizeof(char)));
+        auto source = Util::Address<uint32_t>(static_cast<char *>(path));
+        auto target = Util::Address<uint32_t>(targetPath);
+        target.copyString(source);
 
-                           return true;
-                       });
+        return true;
+    });
 }
 
 bool FilesystemService::mount(const Util::String &deviceName, const Util::String &targetPath, const Util::String &driverName) {
@@ -273,8 +292,8 @@ void FilesystemService::closeFile(int32_t fileDescriptor) {
     return Service::getService<ProcessService>().getCurrentProcess().getFileDescriptorManager().closeFile(fileDescriptor);
 }
 
-Filesystem::Node& FilesystemService::getNode(int32_t fileDescriptor) {
-    return Service::getService<ProcessService>().getCurrentProcess().getFileDescriptorManager().getNode(fileDescriptor);
+FileDescriptor& FilesystemService::getFileDescriptor(int32_t fileDescriptor) {
+    return Service::getService<ProcessService>().getCurrentProcess().getFileDescriptorManager().getDescriptor(fileDescriptor);
 }
 
 Filesystem::Filesystem& FilesystemService::getFilesystem() {

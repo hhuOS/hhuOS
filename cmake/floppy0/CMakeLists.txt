@@ -27,6 +27,6 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/floppy0.img"
         COMMAND /bin/rm -f "${HHUOS_ROOT_DIR}/floppy0.img"
         COMMAND mkfs.fat -F 12 -C "${HHUOS_ROOT_DIR}/floppy0.img" 2880
         COMMAND mcopy -s -o -i "${HHUOS_ROOT_DIR}/floppy0.img" "floppy0/*" ::/
-        DEPENDS books echo)
+        DEPENDS books-gutenberg echo)
 
-add_custom_target(${PROJECT_NAME} DEPENDS books echo "${HHUOS_ROOT_DIR}/floppy0.img")
+add_custom_target(${PROJECT_NAME} DEPENDS books-gutenberg echo "${HHUOS_ROOT_DIR}/floppy0.img")

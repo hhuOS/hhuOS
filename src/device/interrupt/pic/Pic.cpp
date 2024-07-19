@@ -21,39 +21,44 @@
 #include "device/interrupt/InterruptRequest.h"
 #include "kernel/interrupt/InterruptVector.h"
 #include "device/time/pit/Pit.h"
+#include "kernel/service/Service.h"
+#include "kernel/service/TimeService.h"
 
 namespace Device {
 
 Pic::Pic() {
+    auto &timeService = Kernel::Service::getService<Kernel::TimeService>();
+    auto delay = Util::Time::Timestamp::ofMicroseconds(10);
+
     // Start initialization sequence on both PICs (ICW1)
     masterCommandPort.writeByte(INITIALIZE);
-    Pit::earlyDelay(1);
+    timeService.busyWait(delay);
     slaveCommandPort.writeByte(INITIALIZE);
-    Pit::earlyDelay(1);
+    timeService.busyWait(delay);
 
     // Set interrupt offsets (ICW2)
     masterDataPort.writeByte(Kernel::InterruptVector::PIT);
-    Pit::earlyDelay(1);
+    timeService.busyWait(delay);
     slaveDataPort.writeByte(Kernel::InterruptVector::RTC);
-    Pit::earlyDelay(1);
+    timeService.busyWait(delay);
 
     // Setup cascading PICs (ICW3)
     masterDataPort.writeByte(0x04);
-    Pit::earlyDelay(1);
+    timeService.busyWait(delay);
     slaveDataPort.writeByte(0x02);
-    Pit::earlyDelay(1);
+    timeService.busyWait(delay);
 
     // Enable 8086-mode (ICW4)
     masterDataPort.writeByte(0x01);
-    Pit::earlyDelay(1);
+    timeService.busyWait(delay);
     slaveDataPort.writeByte(0x01);
-    Pit::earlyDelay(1);
+    timeService.busyWait(delay);
 
     // Disable all interrupt lines
-    masterDataPort.writeByte(0xff);
-    Pit::earlyDelay(1);
+    masterDataPort.writeByte(0xfb); // Allow cascading interrupts
+    timeService.busyWait(delay);
     slaveDataPort.writeByte(0xff);
-    Pit::earlyDelay(1);
+    timeService.busyWait(delay);
 }
 
 void Pic::allow(InterruptRequest interrupt) {

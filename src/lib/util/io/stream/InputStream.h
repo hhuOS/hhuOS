@@ -41,6 +41,8 @@ public:
 	
 	virtual int16_t peek() = 0;
 
+    virtual bool isReadyToRead() = 0;
+
     String readString(uint32_t length);
 
     String readLine(bool &endOfFile);

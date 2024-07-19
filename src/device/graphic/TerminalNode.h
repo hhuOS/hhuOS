@@ -57,6 +57,8 @@ public:
 
     bool control(uint32_t request, const Util::Array<uint32_t> &parameters) override;
 
+    bool isReadyToRead() override;
+
 private:
 
     Util::Graphic::Terminal *terminal;

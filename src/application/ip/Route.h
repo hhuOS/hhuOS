@@ -22,6 +22,7 @@
 
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/String.h"
+#include "lib/util/network/ip4/Ip4Route.h"
 
 namespace Util {
 namespace Network {
@@ -54,19 +55,19 @@ public:
      */
     ~Route() = default;
 
-    int32_t parse();
-
-    int32_t show();
-
-    int32_t remove();
-
-    int32_t add();
-
     static const constexpr char *COMMAND = "route";
+
+    int32_t parse();
 
 private:
 
     static int32_t printRoutes(const Util::Network::Ip4::Ip4Address &address);
+
+    static int32_t remove(const Util::Network::Ip4::Ip4Route &route);
+
+    static int32_t add(const Util::Network::Ip4::Ip4Route &route);
+
+    static Util::Network::Ip4::Ip4Route parseRoute(const Util::Array<Util::String> &arguments);
 
     const Util::Array<Util::String> arguments;
 

@@ -23,13 +23,22 @@
 
 namespace Util::Io {
 
+class KeyboardLayout;
+
 class KeyDecoder {
 
 public:
+
+    enum Code : uint8_t {
+        BREAK_BIT = 0x80,
+        PREFIX1 = 0xe0,
+        PREFIX2 = 0xe1
+    };
+
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    KeyDecoder() = default;
+    explicit KeyDecoder(KeyboardLayout *layout);
 
     /**
      * Copy Constructor.
@@ -50,24 +59,14 @@ public:
 
     [[nodiscard]] Key getCurrentKey() const;
 
+    void setLayout(KeyboardLayout *layout);
+
 private:
 
-    void parseAsciiCode(uint8_t code);
-
-    enum Code : uint8_t {
-        BREAK_BIT = 0x80,
-        PREFIX1 = 0xe0,
-        PREFIX2 = 0xe1
-    };
-
     uint8_t currentPrefix;
-    Key currentKey;
+    Key currentKey{};
 
-    static uint8_t normalTab[];
-    static uint8_t shiftTab[];
-    static uint8_t altTab[];
-    static uint8_t asciiNumTab[];
-    static uint8_t scanNumTab[];
+    KeyboardLayout *layout;
 };
 
 }

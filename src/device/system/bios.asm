@@ -15,15 +15,11 @@ protected_mode_call:
     ; Store registers
     pushad
     pushfd
-    push gs
-    push fs
-    push es
-    push ds
 
     ; Switch stack to prepared stack for BIOS call
     mov [esp_backup],esp ; Store ESP
-    mov edx,[(esp + 52) + 8] ; Store second parameter (entry point) in EDX
-    mov esp,[(esp + 52) + 4] ; First parameter (Pointer to prepared stack for BIOS call)
+    mov edx,[(esp + 36) + 8] ; Store second parameter (entry point) in EDX
+    mov esp,[(esp + 36) + 4] ; First parameter (Pointer to prepared stack for BIOS call)
     push edx ; Store entry point on new stack
 
     ; Pop parameters from the struct (now on stack) into the CPU registers
@@ -74,10 +70,6 @@ protected_mode_call_return:
     mov esp,[esp_backup]
 
     ; Restore registers
-    pop ds
-    pop es
-    pop fs
-    pop gs
     popfd
     popad
 
@@ -87,14 +79,10 @@ real_mode_call:
     ; Store registers
     pushad
     pushfd
-    push gs
-    push fs
-    push es
-    push ds
 
     ; Switch stack to prepared stack for BIOS call
     mov [esp_backup],esp ; Store ESP
-    mov esp,[(esp + 52) + 4] ; First parameter (Pointer to prepared stack for BIOS call)
+    mov esp,[(esp + 36) + 4] ; First parameter (Pointer to prepared stack for BIOS call)
 
     ; Disable paging and backup CR3
     mov eax,cr0
@@ -120,10 +108,6 @@ real_mode_call_return:
     mov esp,[esp_backup]
 
     ; Restore registers
-    pop ds
-    pop es
-    pop fs
-    pop gs
     popfd
     popad
 
@@ -178,12 +162,15 @@ bios_call_16_interrupt:
     ; Disable interrupts (might have been enabled by the BIOS)
     cli
 
+    ; Store flags (might be affected by the next instruction)
+    pushf
+
     ; Restore ESP
-    add esp,50
+    add esp,50 + 2
 
     ; Push registers into the parameter struct, which then holds return values from the BIOS call
     pushad
-    pushf ; Do not skip flags this time
+    push word [esp - 50 + (32 - 2)] ; Push stored flags
     push gs
     push fs
     push es

@@ -27,6 +27,8 @@
 #include "lib/util/io/key/Key.h"
 #include "lib/util/math/Vector2D.h"
 #include "DinoGame.h"
+#include "lib/util/graphic/Font.h"
+#include "lib/util/graphic/font/Terminal8x16.h"
 
 IntroScreen::IntroScreen() {
     setKeyListener(*this);
@@ -35,17 +37,18 @@ IntroScreen::IntroScreen() {
 void IntroScreen::update(double delta) {}
 
 void IntroScreen::initializeBackground(Util::Game::Graphics &graphics) {
+    auto &font = Util::Graphic::Fonts::TERMINAL_8x16;
     auto &resolution = Util::Game::GameManager::getAbsoluteResolution();
     auto lines = sizeof(INTRO_TEXT) / sizeof(char*);
     auto centerX = resolution.getX() / 2;
     auto centerY = resolution.getY() / 2;
-    auto y = static_cast<uint16_t>(centerY - ((lines * graphics.getCharHeight()) / 2.0));
+    auto y = static_cast<uint16_t>(centerY - ((lines * font.getCharHeight()) / 2.0));
 
     graphics.clear();
     graphics.setColor(Util::Graphic::Colors::GREEN);
     for (uint32_t i = 0; i < lines; i++) {
-        auto x = static_cast<uint16_t>(centerX - (Util::Address<uint32_t>(INTRO_TEXT[i]).stringLength() * graphics.getCharWidth()) / 2.0);
-        graphics.drawString(Util::Math::Vector2D(x, y + i * graphics.getCharHeight()), INTRO_TEXT[i]);
+        auto x = static_cast<uint16_t>(centerX - (Util::Address<uint32_t>(INTRO_TEXT[i]).stringLength() * font.getCharWidth()) / 2.0);
+        graphics.drawString(font, Util::Math::Vector2D(x, y + i * font.getCharHeight()), INTRO_TEXT[i]);
     }
 }
 

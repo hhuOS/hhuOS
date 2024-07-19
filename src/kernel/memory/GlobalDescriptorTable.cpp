@@ -32,13 +32,7 @@ GlobalDescriptorTable::SegmentDescriptor::SegmentDescriptor(uint32_t base, uint3
 GlobalDescriptorTable::Descriptor::Descriptor(const void *address, uint16_t entries) : size((entries * sizeof(uint64_t)) - 1), offset(reinterpret_cast<uint32_t>(address)) {}
 
 GlobalDescriptorTable::SegmentDescriptor::operator uint64_t() const {
-return static_cast<uint64_t>(limit1) |
-       static_cast<uint64_t>(base1) << 16 |
-       static_cast<uint64_t>(base2) << 32 |
-       static_cast<uint64_t>(access) << 40 |
-       static_cast<uint64_t>(limit2) << 48 |
-       static_cast<uint64_t>(flags) << 52 |
-       static_cast<uint64_t>(base3) << 56;
+    return *reinterpret_cast<const uint64_t*>(this);
 }
 
 void GlobalDescriptorTable::addSegment(const GlobalDescriptorTable::SegmentDescriptor &descriptor) {
