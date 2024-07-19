@@ -73,11 +73,11 @@ public:
 
     void print(int64_t number);
 
-    void print(uint64_t number);
+    void print(uint64_t number, char sign='\0');
 
     void print(int32_t number);
 
-    void print(uint32_t number, char sign='\0');
+    void print(uint32_t number);
 
     void print(int16_t number);
 
@@ -134,6 +134,7 @@ public:
     PrintStream& operator<<(int32_t value);
 
     PrintStream& operator<<(uint32_t value);
+	
 
     PrintStream& operator<<(int64_t value);
 

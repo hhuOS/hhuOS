@@ -101,8 +101,6 @@ void PrintStream::print(const String &string) {
 void PrintStream::print(bool boolean) {
     print(boolean ? "true" : "false");
 }
-
-void PrintStream::print(int32_t number) {
 	
 void PrintStream::print(int64_t number) {
   char sign = '\0';
@@ -133,7 +131,7 @@ void PrintStream::print(uint64_t number, char sign) {
             formatStream << static_cast<char>('0' + digit);
         }
         else {
-            numberstream << static_cast<char>(hexNumericBase + digit - 10);
+            formatStream << static_cast<char>(hexNumericBase + digit - 10);
         }
 
         number %= div;

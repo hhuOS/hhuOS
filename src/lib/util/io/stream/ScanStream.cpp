@@ -25,6 +25,10 @@ int16_t ScanStream::peek() {
 	return stream.peek();
 }
 
+bool ScanStream::isReadyToRead() {
+	return stream.isReadyToRead();
+}
+
 int32_t ScanStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
 	readChars += length;
 	return stream.read(targetBuffer, offset, length);

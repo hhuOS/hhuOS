@@ -24,6 +24,8 @@ public:
     int16_t read() override;
 	
 	int16_t peek() override;
+	
+	bool isReadyToRead() override;
 
     int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
 	
@@ -38,6 +40,8 @@ public:
 	uint32_t readUint(int base=0);
 	
 	double readDouble();
+	
+	
 
 	
 

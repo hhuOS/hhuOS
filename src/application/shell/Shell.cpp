@@ -25,10 +25,12 @@
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/collection/ArrayList.h"
 #include "Shell.h"
+#include "lib/util/sound/PcSpeaker.h"
 
 Shell::Shell(const Util::String &path) : startDirectory(path) {}
 
 void Shell::run() {
+	Util::Sound::PcSpeaker(Util::io::File("/device/speaker")).play(440);
     if (!Util::Io::File::changeDirectory(startDirectory)) {
         Util::System::error << "Unable to start shell in '" << startDirectory << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return;

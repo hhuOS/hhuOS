@@ -76,6 +76,7 @@ bool ByteArrayInputStream::isEmpty() const {
 
 void ByteArrayInputStream::disableSizeLimit() {
 	enforceSizeLimit = false;
+}
 
   bool ByteArrayInputStream::isReadyToRead() {
     return !isEmpty();
