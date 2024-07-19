@@ -433,17 +433,20 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     // Initialize power management (APM needs BIOS calls)
     LOG_INFO("Initializing power management");
     Device::Machine *machine = nullptr;
-    if (multiboot->getKernelOption("apm", "true") == "true" && Device::AdvancedPowerManagement::isAvailable()) {
+   if (multiboot->getKernelOption("apm", "true") == "true" && Device::AdvancedPowerManagement::isAvailable()) {
         LOG_INFO("APM is available");
         machine = Device::AdvancedPowerManagement::initialize();
     }
-
+	
+	
     if (machine == nullptr) {
         machine = new Device::Machine();
     }
+	
 
     auto *powerManagementService = new Kernel::PowerManagementService(machine);
     Kernel::Service::registerService(Kernel::PowerManagementService::SERVICE_ID, powerManagementService);
+
 
     Device::Graphic::VesaBiosExtensions *vbe = nullptr;
     if (multiboot->getKernelOption("vbe", "true") == "true" && Device::Graphic::VesaBiosExtensions::isAvailable()) {
