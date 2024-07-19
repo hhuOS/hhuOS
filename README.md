@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://github.com/hhuOS/hhuOS/actions/workflows/build.yml"><img src="https://github.com/hhuOS/hhuOS/actions/workflows/build.yml/badge.svg"></a>
-  <img src="https://img.shields.io/badge/C%2B%2B-17-blue.svg">
+  <img src="https://img.shields.io/badge/C%2B%2B-20-blue.svg">
   <img src="https://img.shields.io/badge/license-GPLv3-orange.svg">
 </p>
 
@@ -45,7 +45,7 @@ If QEMU hangs on a black screen, try executing `./run.sh --bios true --file hhuO
 
 ## Build from source
 
-GCC (>=7), CMake (>=3.14) and some other dependencies are required to compile hhuOS. To install them, you can run the following command (on Ubuntu 22.04):
+GCC (compatible with C++20), CMake (>=3.14) and some other dependencies are required to compile hhuOS. To install them, you can run the following command (on Ubuntu 22.04):
 
 ```shell
 sudo apt install build-essential nasm gcc-multilib g++-multilib cmake python3 python3-distutils xorriso dosfstools mtools unzip wget ffmpeg git recode

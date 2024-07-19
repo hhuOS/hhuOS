@@ -386,7 +386,7 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::Transfe
         receivedInterrupt = false;
         prepareDma(device, mode == WRITE ? Isa::READ : Isa::WRITE, physicalDmaAddress, sectorCount);
 
-        writeFifoByte((mode == WRITE ? WRITE_DATA : READ_DATA) | MULTITRACK | MFM);
+        writeFifoByte(static_cast<uint8_t>(mode == WRITE ? WRITE_DATA : READ_DATA) | MULTITRACK | MFM);
         writeFifoByte(device.getDriveNumber() | (head << 2u));
         writeFifoByte(cylinder);
         writeFifoByte(head);

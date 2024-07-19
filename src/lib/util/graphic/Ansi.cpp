@@ -387,7 +387,7 @@ int16_t Ansi::readChar(Util::Io::InputStream &stream) {
     return input;
 }
 
-bool Ansi::CursorPosition::operator==(const Ansi::CursorPosition &other) {
+bool Ansi::CursorPosition::operator==(const Ansi::CursorPosition &other) const {
     return column == other.column && row == other.row;
 }
 
