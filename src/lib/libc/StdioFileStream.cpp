@@ -1,4 +1,5 @@
 #include "lib/libc/StdioFileStream.h"
+#include "lib/libc/errno.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/String.h"
 #include "lib/interface.h"
@@ -11,11 +12,18 @@ namespace Libc {
 StdioFileStream::StdioFileStream(const char* filename, FileMode mode) {
 	auto file = Util::Io::File(Util::String(filename));
 	
+	if (file.exists() && file.isDirectory()) {
+		errno = EISDIR;
+		_error = true;
+		return;
+	}
+	
 	if (mode == WRITE || mode == WRITE_EXTEND) {
 		file.create(Util::Io::File::REGULAR);
 	}
 	
 	fileDescriptor = Util::Io::File::open(file.getCanonicalPath());
+	
 	if (fileDescriptor < 0) return;
 	
 	switch (mode) {
@@ -65,7 +73,7 @@ StdioFileStream::~StdioFileStream() {
 
 
 int StdioFileStream::setBuffer(char* newBuffer, int mode, size_t size) {
-	if (!_bufferChangeAllowed) return -1;
+	if (!_bufferChangeAllowed || isError()) return -1;
 	
 	if (mode == _IONBF) {
 		buffer = NULL;
@@ -90,7 +98,7 @@ int StdioFileStream::setBuffer(char* newBuffer, int mode, size_t size) {
 
 
 int StdioFileStream::fflush() {
-	if (!buffer || !writeAllowed()) return EOF;
+	if (!buffer || !writeAllowed() || isError()) return EOF;
 	
 	
 	_bufferChangeAllowed = false;
@@ -106,7 +114,7 @@ void StdioFileStream::flush() {
 
 
 int StdioFileStream::fputc(int c) {
-	if (!isOpen() || !writeAllowed()) {
+	if (!isOpen() || !writeAllowed() || isError()) {
 		_error = true;
 		return EOF;
 	}
@@ -132,6 +140,7 @@ void StdioFileStream::write(uint8_t c) {
 
 
 void StdioFileStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+	if (isError() || !writeAllowed()) return;
 	if (offset) flush();
 	pos += offset;
 	
@@ -143,7 +152,7 @@ int16_t StdioFileStream::read() {
 	uint8_t ret;
 	_bufferChangeAllowed = false;
 	
-	if (!readAllowed()) return EOF;
+	if (!readAllowed() || isError()) return EOF;
 	
 	if (!ungottenChars.isEmpty()) {
 		return ungottenChars.pop();
@@ -169,7 +178,7 @@ bool StdioFileStream::isReadyToRead() {
 }
 
 int32_t StdioFileStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
-	if (!readAllowed()) return EOF;
+	if (!readAllowed() || isError()) return EOF;
 	
 	pos += offset;
 	_bufferChangeAllowed = false;

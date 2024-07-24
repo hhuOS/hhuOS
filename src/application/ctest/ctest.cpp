@@ -9,6 +9,8 @@
 #include <time.h>
 #include <stdarg.h>
 #include <assert.h>
+#include <errno.h>
+#include <sys/stat.h>
 
 #include "lib/util/base/System.h"
 #include "lib/util/base/String.h"
@@ -35,8 +37,6 @@ int32_t main(int32_t argc, char *argv[]) {
 	bool t;
 	
 	int bw;
-	
-	
 	
 	
 	//Test stdio
@@ -100,6 +100,9 @@ int32_t main(int32_t argc, char *argv[]) {
 	fclose(tf);
 	
 	remove("abc.txt");
+	
+	tf = fopen("/bin", "w");
+	Util::System::out << "Errno after trying to fopen /bin: "<< errno << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	
 	
 	
@@ -183,6 +186,11 @@ int32_t main(int32_t argc, char *argv[]) {
 	}
 	
 	Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	
+	//Test sys/stat 
+	mkdir("/ctest", 0);
+	
+	Util::System::out << "----- sys/stat.h\nmkdir: Created /ctest"<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	
 	
 	//Test assert 
@@ -297,9 +305,13 @@ int32_t main(int32_t argc, char *argv[]) {
 	strxfrm(buf, str1, 5);
 	Util::System::out << "strxfrm: " << buf << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	
+	Util::System::out << "strdup: " << strdup(str1) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	
 	Util::System::out << "strlen('Hello World!'): " << (uint32_t)strlen(str1) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	Util::System::out << "strcmp('AAB', 'AAC') (HW,HW): " << strcmp("AAB", "AAC")<<" "<<strcmp(str1, str1) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	Util::System::out << "strncmp('AAB', 'AAC', 2): " << strncmp("AAB", "AAC", 2)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "strcasecmp('AAB', 'aAb'): " << strcasecmp("AAB", "aAb")<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << "strncasecmp('AAB', 'AaC', 2): " << strncasecmp("AAB", "AaC", 2)<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	Util::System::out << "strcoll('AAB', 'AAC'): " << strcoll("AAB", "AAC")<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	Util::System::out << "strchr(HW,'o'): " << strchr(str1, 'o')<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 	Util::System::out << "strrchr(HW,'o'): " << strrchr(str1, 'o')<< Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;

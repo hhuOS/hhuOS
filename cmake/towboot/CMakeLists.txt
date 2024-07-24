@@ -46,7 +46,9 @@ log_level = \"info\"\\n\
 
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/towboot/towbootctl"
         COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/towboot"
-        COMMAND wget -O "${CMAKE_BINARY_DIR}/towboot/towbootctl" "https://github.com/hhuOS/towboot/releases/download/v${TOWBOOT_VERSION}/towbootctl-v${TOWBOOT_VERSION}-x86_64-linux"
+        #COMMAND wget -O "${CMAKE_BINARY_DIR}/towboot/towbootctl" "https://github.com/hhuOS/towboot/releases/download/v${TOWBOOT_VERSION}/towbootctl-v${TOWBOOT_VERSION}-x86_64-linux"
+        #COMMAND wget -O "${CMAKE_BINARY_DIR}/towboot/towbootctl" "https://github.com/hhuOS/towboot/actions/runs/10009490279/artifacts/1719367201"
+        COMMAND /bin/cp /home/tobi/towbootctl "${CMAKE_BINARY_DIR}/towboot/towbootctl"
         COMMAND chmod +x "${CMAKE_BINARY_DIR}/towboot/towbootctl")
 
 add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS-towboot.img"
