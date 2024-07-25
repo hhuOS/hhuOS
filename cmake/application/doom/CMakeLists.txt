@@ -30,6 +30,8 @@ include_directories(${HHUOS_SRC_DIR})
 #		COMMAND rm "${CMAKE_BINARY_DIR}/doom/wad.zip"
 #		DEPENDS "${CMAKE_BINARY_DIR}/doom/")
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D FEATURE_SOUND")
+
 # Set source files
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/doom/am_map.c
@@ -119,4 +121,4 @@ set(SOURCE_FILES
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.libc)
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.libc lib.sound)

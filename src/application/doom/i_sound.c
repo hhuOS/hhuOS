@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if defined(FEATURE_SOUND) && !defined(__DJGPP__)
+#if defined(FEATURE_SOUND) && (!defined(__DJGPP__) && !defined(__HHUOS__))
 #include <SDL_mixer.h>
 #endif
 
@@ -73,9 +73,9 @@ static int snd_mport = 0;
 
 static sound_module_t *sound_modules[] = 
 {
-    #ifdef FEATURE_SOUND
+    /*#ifdef FEATURE_SOUND
     &DG_sound_module,
-    #endif
+    #endif*/
     NULL,
 };
 
@@ -394,8 +394,8 @@ boolean I_MusicIsPlaying(void)
 
 void I_BindSoundVariables(void)
 {
-    extern int use_libsamplerate;
-    extern float libsamplerate_scale;
+   // extern int use_libsamplerate;
+    //extern float libsamplerate_scale;
 
     M_BindVariable("snd_musicdevice",   &snd_musicdevice);
     M_BindVariable("snd_sfxdevice",     &snd_sfxdevice);
@@ -409,8 +409,8 @@ void I_BindSoundVariables(void)
     M_BindVariable("snd_cachesize",     &snd_cachesize);
 
 #ifdef FEATURE_SOUND
-    M_BindVariable("use_libsamplerate",   &use_libsamplerate);
-    M_BindVariable("libsamplerate_scale", &libsamplerate_scale);
+    //M_BindVariable("use_libsamplerate",   &use_libsamplerate);
+    //M_BindVariable("libsamplerate_scale", &libsamplerate_scale);
 #endif
 
     // Before SDL_mixer version 1.2.11, MIDI music caused the game

@@ -32,6 +32,13 @@
 #define SYS_LITTLE_ENDIAN
 
 
+#elif defined(__HHUOS__)
+
+#define SHORT(x)  ((signed short) (x))
+#define LONG(x)   ((signed int) (x))
+
+#define SYS_LITTLE_ENDIAN
+
 #else  // __DJGPP__
 
 
