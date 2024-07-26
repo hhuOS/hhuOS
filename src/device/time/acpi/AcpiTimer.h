@@ -19,10 +19,15 @@
 #define HHUOS_ACPITIMER_H
 
 #include <cstdint>
+
 #include "device/cpu/IoPort.h"
-#include "lib/util/time/Timestamp.h"
 #include "device/time/WaitTimer.h"
-#include "kernel/interrupt/InterruptHandler.h"
+
+namespace Util {
+namespace Time {
+class Timestamp;
+}  // namespace Time
+}  // namespace Util
 
 namespace Device {
 

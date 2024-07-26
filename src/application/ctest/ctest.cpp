@@ -1,5 +1,3 @@
-#include <cstdint>
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -7,21 +5,15 @@
 #include <locale.h>
 #include <setjmp.h>
 #include <time.h>
-#include <stdarg.h>
 #include <assert.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <cstdint>
 
 #include "lib/util/base/System.h"
-#include "lib/util/base/String.h"
-#include "lib/util/time/Date.h"
-
 #include "lib/util/io/stream/PrintStream.h"
-
-#include "lib/interface.h"
-#include "lib/util/io/file/File.h"
-
-#include "lib/util/io/stream/ScanStream.h"
+#include "lib/util/io/stream/InputStream.h"
+#include "stdio_def.h"
 
 int intComp(const void* a, const void* b) {
 	return (*(int*)a) - (*(int*)b);

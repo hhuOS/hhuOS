@@ -15,14 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
 #include <string.h>
+#include <cstdint>
 
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/base/System.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "Shell.h"
+#include "lib/util/base/String.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();

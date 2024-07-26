@@ -23,6 +23,7 @@
 #include "lib/util/game/MouseListener.h"
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/game/2d/Sprite.h"
+#include "lib/util/base/String.h"
 
 class Logo;
 
@@ -40,6 +41,7 @@ class Vector2D;
 
 namespace Game {
 class Graphics;
+
 namespace D2 {
 class CollisionEvent;
 class TranslationEvent;

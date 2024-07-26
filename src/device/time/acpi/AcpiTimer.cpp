@@ -16,11 +16,14 @@
  */
 
 #include "AcpiTimer.h"
+
 #include "device/system/Acpi.h"
 #include "kernel/service/Service.h"
 #include "kernel/service/InformationService.h"
 #include "kernel/log/Log.h"
-#include "kernel/service/InterruptService.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/hardware/Acpi.h"
+#include "lib/util/time/Timestamp.h"
 
 Device::AcpiTimer::AcpiTimer() {
     if (!isAvailable()) {

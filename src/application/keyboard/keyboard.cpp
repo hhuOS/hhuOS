@@ -21,6 +21,9 @@
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/Terminal.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/io/stream/PrintStream.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();

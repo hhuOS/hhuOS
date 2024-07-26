@@ -23,6 +23,7 @@
 #include "kernel/process/Thread.h"
 #include "lib/util/io/stream/PipedInputStream.h"
 #include "lib/util/io/stream/PipedOutputStream.h"
+#include "lib/util/base/String.h"
 
 namespace Device {
 

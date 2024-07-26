@@ -19,14 +19,15 @@
 #define HHUOS_DINOGAME_H
 
 #include "lib/util/game/KeyListener.h"
-#include "Ground.h"
-#include "Saw.h"
 #include "Dino.h"
 #include "lib/util/math/Random.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/game/2d/Scene.h"
 #include "lib/util/collection/ArrayListBlockingQueue.h"
+
+class Ground;
+class Saw;
 
 namespace Util {
 namespace Game {

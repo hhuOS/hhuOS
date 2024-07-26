@@ -36,6 +36,7 @@
 #include "lib/util/math/Vector3D.h"
 #include "GameOverScreen.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
+#include "lib/util/base/String.h"
 
 DinoGame::DinoGame() {
     dino->addComponent(new Util::Game::D2::LinearMovementComponent(*dino));

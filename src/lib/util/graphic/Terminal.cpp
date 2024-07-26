@@ -26,7 +26,12 @@
 #include "lib/util/io/key/Key.h"
 #include "lib/util/io/stream/FileOutputStream.h"
 #include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/io/key/layout/DeLayout.h"
+
+namespace Util {
+namespace Io {
+class KeyboardLayout;
+}  // namespace Io
+}  // namespace Util
 
 namespace Util::Graphic {
 

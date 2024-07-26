@@ -22,9 +22,10 @@
 
 #include "lib/util/game/2d/Scene.h"
 #include "lib/util/game/KeyListener.h"
-#include "DemoSprite.h"
 #include "DemoSpriteFactory.h"
 #include "lib/util/collection/ArrayListBlockingQueue.h"
+
+class DemoSprite;
 
 namespace Util {
 namespace Game {

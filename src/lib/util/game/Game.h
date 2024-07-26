@@ -24,12 +24,12 @@
 #ifndef HHUOS_GAME_H
 #define HHUOS_GAME_H
 
-#include "Scene.h"
 #include "lib/util/collection/ArrayListBlockingQueue.h"
 
 namespace Util {
 namespace Game {
 class Graphics;
+class Scene;
 }  // namespace Game
 }  // namespace Util
 

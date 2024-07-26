@@ -28,13 +28,13 @@
 
 #include "Camera.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/game/Entity.h"
 
 namespace Util {
 namespace Game {
 class Graphics;
 class KeyListener;
 class MouseListener;
+class Entity;
 }  // namespace Game
 }  // namespace Util
 

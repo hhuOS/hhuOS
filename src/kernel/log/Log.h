@@ -18,6 +18,8 @@
 #ifndef LOG_H
 #define LOG_H
 
+#include <stdarg.h>
+
 #include "lib/util/base/String.h"
 
 namespace Device {

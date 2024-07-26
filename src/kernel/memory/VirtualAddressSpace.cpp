@@ -27,6 +27,7 @@
 #include "kernel/service/Service.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/base/FreeListMemoryManager.h"
+#include "lib/util/collection/ArrayList.h"
 
 namespace Util {
 

@@ -4,3 +4,6 @@
 [submodule "src/application/doomgeneric"]
 	path = src/application/doomgeneric
 	url = https://github.com/hhuOS/doomgeneric.git
+[submodule "src/application/quakegeneric"]
+	path = src/application/quakegeneric
+	url = https://github.com/hhuOS/quakegeneric

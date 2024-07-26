@@ -19,6 +19,14 @@
 
 #include "lib/util/graphic/Terminal.h"
 #include "lib/util/io/key/layout/UsLayout.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/io/key/layout/DeLayout.h"
+
+namespace Util {
+namespace Io {
+class KeyboardLayout;
+}  // namespace Io
+}  // namespace Util
 
 namespace Device::Graphic {
 

@@ -25,7 +25,6 @@
 
 #include "LocalApic.h"
 #include "LocalApicErrorHandler.h"
-#include "device/time/apic/ApicTimer.h"
 #include "lib/util/collection/HashMap.h"
 #include "lib/util/collection/Array.h"
 #include "kernel/memory/GlobalDescriptorTable.h"
@@ -38,6 +37,7 @@ enum InterruptVector : uint8_t;
 namespace Device {
 class IoApic;
 enum InterruptRequest : uint8_t;
+class ApicTimer;
 
 class Apic {
 

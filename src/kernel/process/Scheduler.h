@@ -25,19 +25,13 @@
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/collection/HashMap.h"
 #include "lib/util/time/Timestamp.h"
-#include "kernel/process/Thread.h"
 
 namespace Device {
 class Fpu;
 }  // namespace Device
 
-namespace Util {
-namespace Time {
-class Timestamp;
-}  // namespace Time
-}  // namespace Util
-
 namespace Kernel {
+class Thread;
 
 class Scheduler {
 

@@ -27,9 +27,10 @@
 #include "lib/util/game/KeyListener.h"
 #include "lib/util/math/Random.h"
 #include "Player.h"
-#include "Enemy.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/math/Vector3D.h"
+
+class Enemy;
 
 namespace Util {
 namespace Io {

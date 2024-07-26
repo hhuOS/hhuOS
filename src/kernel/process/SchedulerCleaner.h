@@ -20,10 +20,10 @@
 
 #include "lib/util/collection/ArrayBlockingQueue.h"
 #include "lib/util/async/Runnable.h"
-#include "kernel/process/Process.h"
-#include "kernel/process/Thread.h"
 
 namespace Kernel {
+class Process;
+class Thread;
 
 class SchedulerCleaner : public Util::Async::Runnable {
 

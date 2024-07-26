@@ -6,9 +6,9 @@
 #include "lib/util/base/System.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/graphic/Ansi.h"
-
 #include "lib/libc/time.h"
 #include "lib/libc/stdio.h"
+#include "lib/util/collection/Iterator.h"
 
 // Export functions
 extern "C" {

@@ -32,6 +32,7 @@
 #include "lib/util/game/3d/Entity.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/math/Vector3D.h"
+#include "lib/util/base/String.h"
 
 const Util::Math::Vector3D Enemy::MAX_ROTATION_DELTA = Util::Math::Vector3D(1, 1, 0);
 

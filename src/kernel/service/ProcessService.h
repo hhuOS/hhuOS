@@ -25,7 +25,6 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/base/String.h"
-#include "kernel/process/Process.h"
 #include "kernel/process/Scheduler.h"
 
 namespace Util {
@@ -38,6 +37,7 @@ namespace Kernel {
 class VirtualAddressSpace;
 class SchedulerCleaner;
 class Thread;
+class Process;
 
 class ProcessService : public Service {
 

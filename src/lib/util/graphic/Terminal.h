@@ -30,8 +30,14 @@
 #include "lib/util/async/Runnable.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/stream/PipedInputStream.h"
-#include "lib/util/io/key/KeyboardLayout.h"
 #include "lib/util/io/key/layout/DeLayout.h"
+#include "lib/util/io/key/KeyDecoder.h"
+
+namespace Util {
+namespace Io {
+class KeyboardLayout;
+}  // namespace Io
+}  // namespace Util
 
 namespace Util::Graphic {
 

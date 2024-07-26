@@ -19,8 +19,12 @@
 #define HHUOS_KEYBOARDLAYOUT_H
 
 #include <cstdint>
-#include "Key.h"
-#include "KeyDecoder.h"
+
+namespace Util {
+namespace Io {
+class Key;
+}  // namespace Io
+}  // namespace Util
 
 namespace Util::Io {
 

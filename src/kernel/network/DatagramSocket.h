@@ -28,9 +28,14 @@
 #include "lib/util/collection/ArrayListBlockingQueue.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/String.h"
-#include "lib/util/network/Datagram.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/network/Socket.h"
+
+namespace Util {
+namespace Network {
+class Datagram;
+}  // namespace Network
+}  // namespace Util
 
 namespace Kernel {
 namespace Network {

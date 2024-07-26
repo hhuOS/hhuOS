@@ -28,6 +28,7 @@
 #include "device/interrupt/InterruptRequest.h"
 #include "kernel/interrupt/InterruptVector.h"
 #include "kernel/service/Service.h"
+#include "lib/util/base/String.h"
 
 namespace Kernel {
 struct InterruptFrame;

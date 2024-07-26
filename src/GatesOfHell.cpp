@@ -111,6 +111,11 @@
 #include "device/time/rtc/Cmos.h"
 #include "device/graphic/VesaBiosExtensions.h"
 #include "device/time/acpi/AcpiTimer.h"
+#include "lib/util/time/Timestamp.h"
+
+namespace Device {
+class WaitTimer;
+}  // namespace Device
 
 namespace Util {
 class HeapMemoryManager;

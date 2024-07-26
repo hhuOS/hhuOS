@@ -34,7 +34,6 @@
 #include "Game.h"
 #include "lib/util/io/key/KeyDecoder.h"
 #include "lib/util/graphic/font/Terminal8x16.h"
-#include "lib/util/graphic/font/Terminal8x8.h"
 #include "lib/util/io/key/layout/DeLayout.h"
 
 namespace Util {

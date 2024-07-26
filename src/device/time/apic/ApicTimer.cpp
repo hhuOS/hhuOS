@@ -21,7 +21,6 @@
 #include "ApicTimer.h"
 
 #include "device/interrupt/apic/LocalApic.h"
-#include "device/time/pit/Pit.h"
 #include "kernel/service/InterruptService.h"
 #include "kernel/interrupt/InterruptVector.h"
 #include "kernel/log/Log.h"

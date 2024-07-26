@@ -117,6 +117,7 @@ cleanup() {
     remove "disk/hdd0/user/beep"
     remove "disk/hdd0/user/books"
     remove "disk/hdd0/user/doom"
+    remove "disk/hdd0/user/quake"
     remove "disk/hdd0/user/wav"
     remove "disk/hdd0/media/"
     remove "tools/nettest/nettest-server"

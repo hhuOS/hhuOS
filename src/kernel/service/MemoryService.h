@@ -22,7 +22,6 @@
 
 #include "Service.h"
 #include "lib/util/collection/ArrayList.h"
-#include "kernel/memory/VirtualAddressSpace.h"
 #include "device/bus/isa/Isa.h"
 #include "kernel/memory/GlobalDescriptorTable.h"
 #include "kernel/memory/Paging.h"
@@ -33,6 +32,7 @@ class PagingAreaManager;
 }  // namespace Kernel
 
 namespace Kernel {
+class VirtualAddressSpace;
 
 class MemoryService : public Service {
 

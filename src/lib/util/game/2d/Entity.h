@@ -29,13 +29,13 @@
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
-#include "lib/util/game/2d/component/Component.h"
 #include "lib/util/game/Entity.h"
 
 namespace Util {
 namespace Game {
 namespace D2 {
 class TranslationEvent;
+class Component;
 }  // namespace D2
 }  // namespace Game
 }  // namespace Util

@@ -23,6 +23,7 @@
 #include "lib/util/hardware/Acpi.h"
 #include "kernel/service/Service.h"
 #include "kernel/service/InformationService.h"
+#include "lib/util/base/String.h"
 
 namespace Filesystem::Acpi {
 

@@ -22,9 +22,14 @@
 
 #include "lib/util/async/Thread.h"
 #include "lib/util/network/NetworkAddress.h"
-#include "lib/util/network/Datagram.h"
 #include "kernel/network/Socket.h"
 #include "lib/util/time/Timestamp.h"
+
+namespace Util {
+namespace Network {
+class Datagram;
+}  // namespace Network
+}  // namespace Util
 
 namespace Kernel {
 namespace Network {

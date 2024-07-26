@@ -24,13 +24,7 @@
 #include "lib/util/base/System.h"
 #include "InterruptService.h"
 #include "kernel/service/Service.h"
-#include "ProcessService.h"
-#include "kernel/process/Scheduler.h"
 #include "device/time/WaitTimer.h"
-
-namespace Device {
-class Rtc;
-}  // namespace Device
 
 namespace Kernel {
 

@@ -28,7 +28,6 @@ namespace Device {
 class WaitTimer;
 class DateProvider;
 class TimeProvider;
-class Rtc;
 }  // namespace Device
 
 namespace Kernel {

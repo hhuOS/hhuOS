@@ -1,7 +1,9 @@
 #include "ScanStream.h"
+
 #include "lib/util/base/CharacterTypes.h"
 #include "lib/util/math/Math.h"
-#include <climits>
+#include "lib/util/io/stream/InputStream.h"
+#include "limits.h"
 
 #define EOF -1
 

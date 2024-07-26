@@ -17,6 +17,9 @@
 
 #include "KeyboardLayout.h"
 
+#include "lib/util/io/key/Key.h"
+#include "lib/util/io/key/KeyDecoder.h"
+
 void Util::Io::KeyboardLayout::parseAsciiCode(uint8_t scancode, uint8_t prefix, Util::Io::Key &key) const {
     if (scancode == 53 && prefix == KeyDecoder::PREFIX1) {
         key.setAscii('/');

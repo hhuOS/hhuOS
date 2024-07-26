@@ -16,9 +16,12 @@
  */
 
 #include "InformationService.h"
+
 #include "kernel/multiboot/Multiboot.h"
 #include "MemoryService.h"
 #include "lib/util/base/Constants.h"
+#include "kernel/service/Service.h"
+#include "lib/util/io/file/elf/File.h"
 
 namespace Device {
 class Acpi;

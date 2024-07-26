@@ -22,7 +22,6 @@
 
 #include "device/system/Acpi.h"
 #include "device/time/rtc/Cmos.h"
-#include "device/time/pit/Pit.h"
 #include "device/cpu/SymmetricMultiprocessing.h"
 #include "kernel/interrupt/InterruptVector.h"
 #include "lib/util/base/Constants.h"
@@ -40,6 +39,8 @@
 #include "device/cpu/Cpu.h"
 #include "kernel/service/Service.h"
 #include "kernel/service/TimeService.h"
+#include "device/time/apic/ApicTimer.h"
+#include "lib/util/time/Timestamp.h"
 
 namespace Kernel {
 enum GlobalSystemInterrupt : uint32_t;

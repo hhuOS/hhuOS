@@ -20,9 +20,9 @@
 #include "device/cpu/IoPort.h"
 #include "device/interrupt/InterruptRequest.h"
 #include "kernel/interrupt/InterruptVector.h"
-#include "device/time/pit/Pit.h"
 #include "kernel/service/Service.h"
 #include "kernel/service/TimeService.h"
+#include "lib/util/time/Timestamp.h"
 
 namespace Device {
 

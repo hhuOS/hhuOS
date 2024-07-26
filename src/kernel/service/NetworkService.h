@@ -27,9 +27,14 @@
 #include "kernel/network/NetworkStack.h"
 #include "lib/util/base/String.h"
 #include "lib/util/network/Socket.h"
-#include "device/network/NetworkDevice.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/collection/HashMap.h"
+
+namespace Device {
+namespace Network {
+class NetworkDevice;
+}  // namespace Network
+}  // namespace Device
 
 namespace Util {
 namespace Network {

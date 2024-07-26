@@ -25,10 +25,15 @@
 
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/math/Random.h"
-#include "Particle.h"
 #include "lib/util/collection/ArrayList.h"
 
 namespace Util {
+namespace Game {
+namespace D2 {
+class Particle;
+}  // namespace D2
+}  // namespace Game
+
 namespace Math {
 class Vector2D;
 }  // namespace Math

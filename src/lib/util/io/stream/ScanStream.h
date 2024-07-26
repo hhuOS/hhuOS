@@ -5,8 +5,6 @@
 #include <cstdint>
 
 #include "InputStream.h"
-#include "lib/util/base/String.h"
-#include "lib/util/collection/ArrayList.h"
 
 namespace Util::Io {
 

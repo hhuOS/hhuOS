@@ -24,7 +24,6 @@
 #include "lib/util/io/stream/InputStream.h" // IWYU pragma: keep
 #include "lib/util/io/stream/PrintStream.h" // IWYU pragma: keep
 #include "FreeListMemoryManager.h"
-#include "lib/util/io/file/elf/File.h"
 
 namespace Util {
 namespace Io {
@@ -32,6 +31,9 @@ class BufferedInputStream;
 class BufferedOutputStream;
 class FileInputStream;
 class FileOutputStream;
+namespace Elf {
+struct SymbolEntry;
+}  // namespace Elf
 }  // namespace Stream
 
 class System {

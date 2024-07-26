@@ -36,7 +36,6 @@
 #include "GameManager.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/math/Vector2D.h"
-#include "lib/util/base/Constants.h"
 #include "lib/util/base/String.h"
 #include "lib/util/game/Camera.h"
 #include "lib/util/game/Scene.h"
@@ -47,6 +46,7 @@
 #include "lib/util/graphic/Font.h"
 #include "lib/util/base/FreeListMemoryManager.h"
 #include "lib/util/graphic/font/Mini4x6.h"
+#include "lib/util/graphic/font/Terminal8x8.h"
 
 namespace Util::Game {
 

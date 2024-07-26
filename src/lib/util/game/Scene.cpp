@@ -24,6 +24,7 @@
 #include "Scene.h"
 
 #include "lib/util/collection/Iterator.h"
+#include "lib/util/game/Entity.h"
 
 namespace Util {
 namespace Game {

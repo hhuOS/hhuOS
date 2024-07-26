@@ -27,6 +27,7 @@
 #include "application/battlespace/Player.h"
 #include "lib/util/game/3d/Entity.h"
 #include "lib/util/graphic/Colors.h"
+#include "lib/util/base/String.h"
 
 Missile::Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale, Player &player) : Util::Game::D3::Model(TAG, "/user/battlespace/missile.obj", translation, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::RED), player(&player) {}
 

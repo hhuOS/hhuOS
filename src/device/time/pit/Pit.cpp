@@ -18,7 +18,6 @@
 #include "kernel/service/InterruptService.h"
 #include "Pit.h"
 #include "kernel/log/Log.h"
-#include "device/system/FirmwareConfiguration.h"
 #include "device/interrupt/InterruptRequest.h"
 #include "kernel/interrupt/InterruptVector.h"
 #include "kernel/service/Service.h"

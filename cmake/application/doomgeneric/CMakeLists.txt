@@ -25,13 +25,13 @@ add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/doom/"
        COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/doom/")
 		
 if ($ENV{HHUOS_REDISTRIBUTABLE_BUILD})
-		add_custom_target(doom1-wad DEPENDS "${CMAKE_BINARY_DIR}/doom/")
+		add_custom_target(doom-wad DEPENDS "${CMAKE_BINARY_DIR}/doom/")
 else()
 	add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/doom/DOOM.WAD"
 		COMMAND wget "https://archive.org/download/DoomsharewareEpisode/doom.ZIP/DOOM1.WAD" -O "${CMAKE_BINARY_DIR}/doom/DOOM.WAD"
 		DEPENDS "${CMAKE_BINARY_DIR}/doom/")
 
-	add_custom_target(doom1-wad DEPENDS "${CMAKE_BINARY_DIR}/doom/DOOM.WAD")
+	add_custom_target(doom-wad DEPENDS "${CMAKE_BINARY_DIR}/doom/DOOM.WAD")
 endif()
 
 # Uncomment to activate sound via PC Speaker (experimental)

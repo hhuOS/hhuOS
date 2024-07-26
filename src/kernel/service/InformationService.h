@@ -21,7 +21,15 @@
 #include <cstdint>
 
 #include "Service.h"
-#include "lib/util/io/file/elf/File.h"
+
+namespace Util {
+namespace Io {
+namespace Elf {
+struct SectionHeader;
+struct SymbolEntry;
+}  // namespace Elf
+}  // namespace Io
+}  // namespace Util
 
 namespace Device {
 class Acpi;

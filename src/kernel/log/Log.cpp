@@ -18,7 +18,6 @@
 #include "Log.h"
 
 #include <cstdint>
-#include <cstdarg>
 
 #include "lib/util/graphic/Ansi.h"
 #include "device/port/serial/SerialPort.h"
@@ -32,7 +31,6 @@
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/collection/HashMap.h"
 #include "lib/util/collection/Iterator.h"
-#include "lib/util/io/stream/OutputStream.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/time/Timestamp.h"
 

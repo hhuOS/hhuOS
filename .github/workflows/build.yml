@@ -26,7 +26,11 @@ jobs:
         run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target grub --type Default
 
       - name: Download licenses
-        run: mkdir -p license && cp LICENSE license/hhuOS.txt && wget -O license/Limine.txt https://raw.githubusercontent.com/limine-bootloader/limine/trunk/COPYING && wget -O license/FatFs.txt https://raw.githubusercontent.com/hhuOS/FatFs/master/LICENSE
+        run: mkdir -p license && cp LICENSE license/hhuOS.txt &&
+          wget -O license/Limine.txt https://raw.githubusercontent.com/limine-bootloader/limine/trunk/COPYING &&
+          wget -O license/FatFs.txt https://raw.githubusercontent.com/hhuOS/FatFs/master/LICENSE &&
+          wget -O license/doomgeneric.txt https://raw.githubusercontent.com/hhuOS/doomgeneric/master/LICENSE &&
+          wget -O license/quakegeneric.txt https://raw.githubusercontent.com/hhuOS/quakegeneric/master/LICENSE
 
       - name: Create artifact
         run: mkdir -p hhuOS-${{ steps.commit.outputs.short }} && cp -r hhuOS-limine.iso hhuOS-towboot.img hdd0.img floppy0.img run.sh README.md license hhuOS-${{ steps.commit.outputs.short }}
