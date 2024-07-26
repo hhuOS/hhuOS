@@ -1,3 +1,6 @@
 [submodule "src/filesystem/fat/ff"]
 	path = src/filesystem/fat/ff
 	url = https://github.com/hhuos/fatfs
+[submodule "src/application/doomgeneric"]
+	path = src/application/doomgeneric
+	url = https://github.com/hhuOS/doomgeneric.git

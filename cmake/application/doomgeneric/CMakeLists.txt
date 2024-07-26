@@ -1,0 +1,129 @@
+# Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
+# Institute of Computer Science, Department Operating Systems
+# Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+#
+#
+# This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>
+
+cmake_minimum_required(VERSION 3.14)
+
+project(doomgeneric)
+message(STATUS "Project " ${PROJECT_NAME})
+
+include_directories(${HHUOS_SRC_DIR})
+
+add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/doom/"
+       COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/doom/")
+		
+if ($ENV{HHUOS_REDISTRIBUTABLE_BUILD})
+		add_custom_target(doom1-wad DEPENDS "${CMAKE_BINARY_DIR}/doom/")
+else()
+	add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/doom/DOOM.WAD"
+		COMMAND wget "https://archive.org/download/2020_03_22_DOOM/DOOM%20WADs/Doom%20%28v1.9%29.zip/DOOM.WAD" -O "${CMAKE_BINARY_DIR}/doom/DOOM.WAD"
+
+		DEPENDS "${CMAKE_BINARY_DIR}/doom/")
+	add_custom_target(doom1-wad DEPENDS "${CMAKE_BINARY_DIR}/doom/DOOM.WAD")
+endif()
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D FEATURE_SOUND")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/doom/")
+
+# Set source files
+set(SOURCE_FILES
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/am_map.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/d_event.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/d_items.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/d_iwad.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/d_loop.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/d_main.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/d_mode.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/d_net.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/doomdef.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/doomgeneric.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/doomgeneric_hhuos.cpp
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/doomstat.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/dstrings.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/dummy.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/f_finale.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/f_wipe.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/g_game.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/gusconf.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/hu_lib.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/hu_stuff.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/i_cdmus.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/icon.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/i_endoom.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/i_input.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/i_joystick.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/info.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/i_scale.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/i_sound.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/i_system.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/i_timer.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/i_video.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/m_argv.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/m_bbox.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/m_cheat.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/m_config.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/m_controls.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/memio.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/m_fixed.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/m_menu.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/m_misc.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/m_random.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/mus2mid.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/p_ceilng.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/p_doors.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/p_enemy.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/p_floor.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/p_inter.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/p_lights.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/p_map.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/p_maputl.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/p_mobj.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/p_plats.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/p_pspr.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/p_saveg.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/p_setup.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/p_sight.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/p_spec.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/p_switch.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/p_telept.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/p_tick.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/p_user.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/r_bsp.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/r_data.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/r_draw.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/r_main.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/r_plane.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/r_segs.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/r_sky.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/r_things.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/sha1.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/sounds.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/s_sound.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/statdump.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/st_lib.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/st_stuff.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/tables.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/v_video.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/w_checksum.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/w_file.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/w_file_stdc.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/wi_stuff.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/w_main.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/w_wad.c
+        ${HHUOS_SRC_DIR}/application/doomgeneric/doomgeneric/z_zone.c)
+
+add_executable(doom ${SOURCE_FILES})
+
+target_link_libraries(doom lib.user.runtime lib.user.base lib.user.libc lib.sound)
