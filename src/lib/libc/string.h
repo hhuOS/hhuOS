@@ -13,11 +13,14 @@ char * strncpy(char * dest, const char* src, size_t count);
 char * strcat(char * dest, const char * src);
 char * strncat(char * dest, const char * src, size_t count);
 size_t strxfrm(char * dest, const char *src, size_t count);
+char * strdup(const char * str1);
 
 //string examination
 size_t strlen(const char* str);
 int strcmp(const char* lhs, const char* rhs);
 int strncmp(const char* lhs, const char* rhs, size_t count);
+int strcasecmp(const char* lhs, const char* rhs);
+int strncasecmp(const char* lhs, const char* rhs, size_t count);
 int strcoll(const char* lhs, const char* rhs);
 char * strchr(const char * str, int ch);
 char * strrchr(const char * str, int ch);

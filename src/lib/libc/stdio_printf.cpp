@@ -247,13 +247,17 @@ int vprintf(const char * format, va_list vlist) {
 
 int vsprintf(char * buffer, const char * format, va_list vlist) {
 	Util::Io::ByteArrayOutputStream os((uint8_t*)buffer, -1);
-	return _stream_vprintf(os, format, vlist);
+	int ret = _stream_vprintf(os, format, vlist);
+	os.write('\0');
+	return ret;
 }
 
 int vsnprintf(char * buffer, size_t bufsz, const char * format, va_list vlist) {
 	Util::Io::ByteArrayOutputStream os((uint8_t*)buffer, bufsz);
 	os.setEnforceSizeLimit(true);
-	return _stream_vprintf(os, format, vlist);
+	int ret = _stream_vprintf(os, format, vlist);
+	os.write('\0');
+	return ret;
 }
 
 int printf(const char * format, ...) {

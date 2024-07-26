@@ -5,6 +5,7 @@
 #define EDOM  1 //parameter outside function domain
 #define ERANGE  2 //result outside of function range
 #define EILSEQ  3 //illegal byte sequence
+#define EISDIR 4 //file being opened is a directory
  
  
  

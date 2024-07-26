@@ -23,7 +23,7 @@ include_directories(${HHUOS_SRC_DIR})
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} lib.user.libc)
+target_link_libraries(${PROJECT_NAME} lib.user.libc lib.graphic)
 
 # Add subdirectories
 target_sources(${PROJECT_NAME} PUBLIC

@@ -1,5 +1,7 @@
 #include <cstdint>
 #include "lib/libc/string.h"
+#include "lib/libc/stdlib.h"
+#include "lib/libc/ctype.h"
 
 #include "lib/util/base/Address.h"
 
@@ -57,6 +59,12 @@ size_t strxfrm(char * dest, const char *src, size_t count) {
 	return count-1;
 }
 
+char * strdup(const char * str1) {
+	char * ret = (char*) malloc(sizeof(char) * (strlen(str1) + 1));
+	strcpy(ret, str1);
+	return ret;
+}
+
 
 
 //string examination
@@ -81,6 +89,23 @@ int strcmp(const char* lhs, const char* rhs) {
 int strncmp(const char* lhs, const char* rhs, size_t count) {
 	for (size_t i=0; i<count; i++, lhs++, rhs++) {
 		if ((*lhs) != (*rhs)) return (*lhs) - (*rhs);
+		if ((*lhs)=='\0' && (*rhs)=='\0') return 0;
+	}
+	return 0;
+}
+
+int strcasecmp(const char* lhs, const char* rhs) {
+	while ((*lhs) != '\0' || (*rhs) != '\0') {
+		if (tolower((*lhs)) != tolower((*rhs))) return tolower((*lhs)) - tolower((*rhs));
+		lhs++;
+		rhs++;
+	}
+	return 0;
+}
+
+int strncasecmp(const char* lhs, const char* rhs, size_t count) {
+	for (size_t i=0; i<count; i++, lhs++, rhs++) {
+		if (tolower((*lhs)) != tolower((*rhs))) return tolower((*lhs)) - tolower((*rhs));
 		if ((*lhs)=='\0' && (*rhs)=='\0') return 0;
 	}
 	return 0;

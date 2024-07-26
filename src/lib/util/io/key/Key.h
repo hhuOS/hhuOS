@@ -73,7 +73,9 @@ public:
         LEFT = 0x4b,
         RIGHT = 0x4d,
         POS1 = 0x47,
-        END = 0x4f
+        END = 0x4f,
+		TAB = 0x0f,
+		BACKSPACE = 0x0e
     };
 
     /**
