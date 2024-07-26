@@ -28,14 +28,14 @@ if ($ENV{HHUOS_REDISTRIBUTABLE_BUILD})
 		add_custom_target(doom1-wad DEPENDS "${CMAKE_BINARY_DIR}/doom/")
 else()
 	add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/doom/DOOM.WAD"
-		COMMAND wget "https://archive.org/download/2020_03_22_DOOM/DOOM%20WADs/Doom%20%28v1.9%29.zip/DOOM.WAD" -O "${CMAKE_BINARY_DIR}/doom/DOOM.WAD"
-
+		COMMAND wget "https://archive.org/download/DoomsharewareEpisode/doom.ZIP/DOOM1.WAD" -O "${CMAKE_BINARY_DIR}/doom/DOOM.WAD"
 		DEPENDS "${CMAKE_BINARY_DIR}/doom/")
+
 	add_custom_target(doom1-wad DEPENDS "${CMAKE_BINARY_DIR}/doom/DOOM.WAD")
 endif()
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D FEATURE_SOUND")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/doom/")
+# Uncomment to activate sound via PC Speaker (experimental)
+# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D FEATURE_SOUND")
 
 # Set source files
 set(SOURCE_FILES
@@ -126,4 +126,4 @@ set(SOURCE_FILES
 
 add_executable(doom ${SOURCE_FILES})
 
-target_link_libraries(doom lib.user.runtime lib.user.base lib.user.libc lib.sound)
+target_link_libraries(doom lib.user.runtime lib.user.base lib.user.sound lib.user.libc)
