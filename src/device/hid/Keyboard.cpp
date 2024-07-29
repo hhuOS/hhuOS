@@ -162,12 +162,13 @@ void Keyboard::plugin() {
 }
 
 void Keyboard::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
-    uint8_t control = controller.readControlByte();
+    auto control = controller.readControlByte();
     if (!(control & 0x01) || (control & 0x20)) {
         return;
     }
 
-    keyBuffer.offer(controller.readDataByte());
+    auto data = controller.readDataByte();
+    keyBuffer.offer(data);
 }
 
 }

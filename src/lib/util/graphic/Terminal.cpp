@@ -543,7 +543,7 @@ void Terminal::KeyboardRunnable::run() {
                         case Io::Key::END:
                             terminal.outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1F"), 0, 4);
                             break;
-                        case Io::Key::POS1:
+                        case Io::Key::HOME:
                             terminal.outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1H"), 0, 4);
                             break;
                         case Io::Key::DEL:
