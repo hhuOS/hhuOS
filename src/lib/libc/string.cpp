@@ -189,9 +189,9 @@ char * strstr(const char * str, const char *substr) {
 			strCurrent++;
 			if (!next && (*strCurrent) == (*substr)) next = strCurrent; //find next occurence of first substr char
 		}
-		
+
+        if (!(*strCurrent)) return NULL; //string end reached
 		if (!fault) return current; //substring found
-		if (!(*strCurrent)) return NULL; //string end reached 
 		
 		if (next) {
 			current = next;
