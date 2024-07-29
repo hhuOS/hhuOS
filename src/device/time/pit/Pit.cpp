@@ -58,19 +58,32 @@ void Pit::plugin() {
 }
 
 void Pit::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
-    time += timerInterval;
+    intervals++;
+
+    if (readerCount == 0) {
+        while (intervals > 0) {
+            time += timerInterval;
+            intervals--;
+        }
+    }
 
     if (!Kernel::Service::getService<Kernel::InterruptService>().usesApic()) {
         timeSinceLastYield += timerInterval;
         if (timeSinceLastYield > yieldInterval) {
-            timeSinceLastYield = Util::Time::Timestamp::ofMilliseconds(0);
+            timeSinceLastYield.reset();
             Kernel::Service::getService<Kernel::ProcessService>().getScheduler().yield();
         }
     }
 }
 
 Util::Time::Timestamp Pit::getTime() {
-    return time;
+    auto readerCountAtomic = Util::Async::Atomic<uint32_t>(readerCount);
+
+    readerCountAtomic.inc();
+    auto ret = time;
+    readerCountAtomic.dec();
+
+    return ret;
 }
 
 void Pit::wait(const Util::Time::Timestamp &waitTime) {

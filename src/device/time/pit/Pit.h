@@ -24,6 +24,7 @@
 #include "device/cpu/IoPort.h"
 #include "device/time/TimeProvider.h"
 #include "lib/util/time/Timestamp.h"
+#include "lib/util/async/Atomic.h"
 #include "lib/util/async/Spinlock.h"
 #include "device/time/WaitTimer.h"
 
@@ -152,6 +153,9 @@ private:
     Util::Time::Timestamp timeSinceLastYield;
     Util::Time::Timestamp timerInterval;
     Util::Time::Timestamp yieldInterval;
+
+    uint32_t intervals = 0;
+    uint32_t readerCount = 0;
 
     IoPort controlPort = IoPort(0x43);
     IoPort dataPort0 = IoPort(0x40);
