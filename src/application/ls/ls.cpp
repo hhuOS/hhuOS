@@ -41,7 +41,7 @@ void lsDirectory(const Util::String &path) {
 
         string = string.substring(0, string.length() - 1);
     } else {
-        string += Util::Graphic::Ansi::FOREGROUND_BRIGHT_YELLOW + file.getName() + Util::Graphic::Ansi::FOREGROUND_DEFAULT;
+        string = file.getName();
     }
 
     if (!string.isEmpty()) {

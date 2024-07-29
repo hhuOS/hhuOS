@@ -438,7 +438,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     // Initialize power management (APM needs BIOS calls)
     LOG_INFO("Initializing power management");
     Device::Machine *machine = nullptr;
-   if (multiboot->getKernelOption("apm", "true") == "true" && Device::AdvancedPowerManagement::isAvailable()) {
+    if (multiboot->getKernelOption("apm", "true") == "true" && Device::AdvancedPowerManagement::isAvailable()) {
         LOG_INFO("APM is available");
         machine = Device::AdvancedPowerManagement::initialize();
     }
@@ -627,8 +627,8 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     auto *deviceDriver = new Filesystem::Memory::MemoryDriver();
     filesystemService->createDirectory("/device");
     filesystemService->getFilesystem().mountVirtualDriver("/device", deviceDriver);
-	
-	auto *tempDriver = new Filesystem::Memory::MemoryDriver();
+
+    auto *tempDriver = new Filesystem::Memory::MemoryDriver();
     filesystemService->createDirectory("/temp");
     filesystemService->getFilesystem().mountVirtualDriver("/temp", tempDriver);
 
@@ -802,6 +802,14 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
                           << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")" << Util::Io::PrintStream::endl
                           << "Git revision: " << BuildConfig::getGitRevision() << Util::Io::PrintStream::endl
                           << "Build date: " << BuildConfig::getBuildDate() << Util::Io::PrintStream::endl << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    }
+
+    if (interruptService->usesApic() && Device::Bios::isAvailable() && !Device::FirmwareConfiguration::isAvailable()) {
+        Util::System::out << Util::Graphic::Ansi::FOREGROUND_YELLOW
+            << "Warning: Both APIC and BIOS calls are enabled!" << Util::Io::PrintStream::endl
+            << "Changing display resolution on real hardware will probably cause the system to hang." << Util::Io::PrintStream::endl
+            << "Pass 'apic=false' as a boot parameter, if you need VBE support." << Util::Io::PrintStream::endl
+            << Util::Graphic::Ansi::RESET << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     }
 
     LOG_INFO("Starting scheduler");
