@@ -1,4 +1,5 @@
 #include <cstdint>
+#include "lib/libc/string.h"
 #include "lib/libc/stdlib.h"
 #include "lib/libc/ctype.h"
 #include "lib/libc/limits.h"
@@ -20,6 +21,9 @@ void *malloc(size_t size) {
 }
 
 void *calloc(size_t num, size_t size) {
+    void *buf = allocateMemory(size * num);
+    memset(buf, 0, size * num);
+
 	return allocateMemory(size * num);
 }
 
