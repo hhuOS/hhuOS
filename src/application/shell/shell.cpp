@@ -31,30 +31,28 @@ int32_t main(int32_t argc, char *argv[]) {
                                "Usage: shell [-h] [cwd] [-c command...]\n"
                                "Options:\n"
                                "  -h, --help: Show this help message\n");
-                          
-    if (argc > 2) {
-      for (int32_t i=2; i<argc;i++) {
-        if (strcmp(argv[i], "-c") == 0) {
-          Util::ArrayList<Util::String> commandParts = Util::ArrayList<Util::String>();
-          for (int32_t j=i+1; j<argc;j++) {
-            commandParts.add(Util::String(argv[j]));
-          }
-          
-          Util::String command = Util::String::join(Util::String(" "), commandParts.toArray());
-          Shell shell = Shell(argv[1]);
-          shell.runCommand(command);
-          return 0;
-        }
-      }
-    }
 
+    // Execute application and exit (required by libc `system()`)
+    if (argc > 2) {
+        for (int32_t i = 2; i < argc; i++) {
+            if (strcmp(argv[i], "-c") == 0) {
+                Util::ArrayList<Util::String> commandParts = Util::ArrayList<Util::String>();
+                for (int32_t j = i + 1; j < argc; j++) {
+                    commandParts.add(Util::String(argv[j]));
+                }
+
+            Util::String command = Util::String::join(Util::String(" "), commandParts.toArray());
+            Shell shell = Shell(argv[1]);
+            shell.runCommand(command);
+            return 0;
+            }
+        }
+    }
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
-    
-    
 
     Shell shell(argc > 1 ? argv[1] : "/");
     shell.run();

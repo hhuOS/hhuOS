@@ -7,3 +7,6 @@
 [submodule "src/application/quakegeneric"]
 	path = src/application/quakegeneric
 	url = https://github.com/hhuOS/quakegeneric
+[submodule "src/lib/tinygl"]
+	path = src/lib/tinygl
+	url = https://github.com/hhuOS/tinygl.git

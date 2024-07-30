@@ -25,7 +25,6 @@ add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
 target_link_libraries(${PROJECT_NAME} lib.user.base lib.user.time lib.user.math lib.user.runtime)
 
-# Add subdirectories
 target_sources(${PROJECT_NAME} PUBLIC
 		${HHUOS_SRC_DIR}/lib/libc/errno.cpp
 		${HHUOS_SRC_DIR}/lib/libc/ctype.cpp
@@ -40,5 +39,4 @@ target_sources(${PROJECT_NAME} PUBLIC
 		${HHUOS_SRC_DIR}/lib/libc/stdio_scanf.cpp
 		${HHUOS_SRC_DIR}/lib/libc/StdioFileStream.cpp
 		${HHUOS_SRC_DIR}/lib/libc/stdarg.cpp
-		${HHUOS_SRC_DIR}/lib/libc/sys/stat.cpp
-		)
+		${HHUOS_SRC_DIR}/lib/libc/sys/stat.cpp)

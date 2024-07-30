@@ -69,8 +69,7 @@ Engine::~Engine() {
 }
 
 void Engine::run() {
-    const auto delta = 1.0 / targetFrameRate;
-    const auto deltaMicroseconds = static_cast<uint64_t>(delta * 1000000);
+    const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / targetFrameRate));
 
     Graphic::Ansi::prepareGraphicalApplication(true);
     initializeNextScene();
@@ -109,8 +108,8 @@ void Engine::run() {
 
         statistics.startIdleTime();
         const auto renderTime = statistics.getLastDrawTime() + statistics.getLastUpdateTime();
-        if (renderTime.toMicroseconds() < deltaMicroseconds) {
-            Async::Thread::sleep(Time::Timestamp::ofMicroseconds(deltaMicroseconds - renderTime.toMicroseconds()));
+        if (renderTime < targetFrameTime) {
+            Async::Thread::sleep(targetFrameTime - renderTime);
         }
         statistics.stopIdleTime();
 

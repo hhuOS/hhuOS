@@ -16,30 +16,16 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-project(lib.sound)
+project(opengl)
 message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR})
 
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+# Set source files
+set(SOURCE_FILES
+        ${HHUOS_SRC_DIR}/application/opengl/opengl.cpp
+        ${HHUOS_SRC_DIR}/application/opengl/triangle.cpp)
 
-target_sources(${PROJECT_NAME} PUBLIC
-        ${HHUOS_SRC_DIR}/lib/util/sound/PcSpeaker.cpp
-        ${HHUOS_SRC_DIR}/lib/util/sound/SoundBlaster.cpp
-        ${HHUOS_SRC_DIR}/lib/util/sound/WaveFile.cpp)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-# Kernel space version
-project(lib.kernel.sound)
-message(STATUS "Project " ${PROJECT_NAME})
-include_directories(${HHUOS_SRC_DIR})
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} lib.sound)
-target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/kernel.cpp)
-
-# User space sound
-project(lib.user.sound)
-message(STATUS "Project " ${PROJECT_NAME})
-include_directories(${HHUOS_SRC_DIR})
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} lib.sound)
-target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/user.cpp)
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.tinygl)
