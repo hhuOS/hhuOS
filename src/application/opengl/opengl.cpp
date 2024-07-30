@@ -15,19 +15,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <stdint.h>
+
 #include "lib/util/base/System.h"
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/tinygl/include/GL/gl.h"
 #include "lib/util/graphic/Ansi.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/io/stream/PrintStream.h"
 
 extern void triangle(const Util::Graphic::LinearFrameBuffer &lfb);
+extern void gears(const Util::Graphic::LinearFrameBuffer &lfb);
 
 void info() {
-    Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Version: " << Util::Graphic::Ansi::RESET << reinterpret_cast<const char*>(glGetString(GL_VERSION)) << Util::Io::PrintStream::endl
-            << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Vendor: " << Util::Graphic::Ansi::RESET << reinterpret_cast<const char*>(glGetString(GL_VENDOR)) << Util::Io::PrintStream::endl
+    Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Vendor: " << Util::Graphic::Ansi::RESET << reinterpret_cast<const char*>(glGetString(GL_VENDOR)) << Util::Io::PrintStream::endl
             << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Renderer: " << Util::Graphic::Ansi::RESET << reinterpret_cast<const char*>(glGetString(GL_RENDERER)) << Util::Io::PrintStream::endl
+            << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Version: " << Util::Graphic::Ansi::RESET << reinterpret_cast<const char*>(glGetString(GL_VERSION)) << Util::Io::PrintStream::endl
             << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Extensions: " << Util::Graphic::Ansi::RESET << reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS)) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 }
 
@@ -35,7 +41,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.setHelpText("OpenGL demo application.\n\n"
                                "Usage: opengl <demo>\n"
-                               "Demos: info\n"
+                               "Demos: info, triangle, gears\n"
                                "Options:\n"
                                "  -r, --resolution: Set display resolution"
                                "  -h, --help: Show this help message");
@@ -49,7 +55,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "opengl: No arguments provided! Please specify a demo (info)." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "opengl: No arguments provided! Please specify a demo (info, triangle, gears)." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -77,6 +83,11 @@ int32_t main(int32_t argc, char *argv[]) {
 
     if (demo == "triangle") {
         triangle(lfb);
+    } else if (demo == "gears") {
+        gears(lfb);
+    } else {
+        Util::System::error << "opengl: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        return -1;
     }
 
     Util::Graphic::Ansi::cleanupGraphicalApplication();

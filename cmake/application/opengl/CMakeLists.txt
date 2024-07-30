@@ -24,6 +24,7 @@ include_directories(${HHUOS_SRC_DIR})
 # Set source files
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/opengl/opengl.cpp
+        ${HHUOS_SRC_DIR}/application/opengl/gears.cpp
         ${HHUOS_SRC_DIR}/application/opengl/triangle.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})

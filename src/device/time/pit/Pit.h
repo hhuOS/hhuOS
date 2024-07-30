@@ -24,7 +24,6 @@
 #include "device/cpu/IoPort.h"
 #include "device/time/TimeProvider.h"
 #include "lib/util/time/Timestamp.h"
-#include "lib/util/async/Atomic.h"
 #include "lib/util/async/Spinlock.h"
 #include "device/time/WaitTimer.h"
 

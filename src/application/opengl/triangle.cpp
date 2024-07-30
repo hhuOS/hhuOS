@@ -15,6 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <stdint.h>
+
 #include "lib/tinygl/include/GL/gl.h"
 #include "lib/tinygl/include/zbuffer.h"
 #include "lib/util/base/Address.h"
@@ -24,14 +26,17 @@
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/System.h"
+#include "lib/util/base/String.h"
+#include "lib/util/graphic/Color.h"
+#include "lib/util/io/stream/InputStream.h"
 
-const uint32_t TARGET_FRAME_RATE = 60;
+const constexpr uint32_t TARGET_FRAME_RATE = 60;
 
-Util::Time::Timestamp passedTime{};
-uint32_t fps = 0;
+static Util::Time::Timestamp lastFrameTime;
+static GLfloat rotationAngle = 0;
 
-void draw() {
-    auto rotationAngle = (static_cast<float>(passedTime.toMilliseconds()) / 1000) * 40;
+void drawTriangle() {
+    rotationAngle += (static_cast<GLfloat>(lastFrameTime.toMicroseconds()) / 1000000) * 40;
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
@@ -50,7 +55,8 @@ void draw() {
     glVertex3f(0, 0.8, 0);
     glEnd();
 
-    auto infoString = Util::String::format("OpenGL Version:  %s\nOpenGL Vendor:   %s\nOpenGL Renderer: %s\nFPS: %u", glGetString(GL_VERSION), glGetString(GL_VENDOR), glGetString(GL_RENDERER), fps);
+    auto fps = static_cast<uint32_t>(lastFrameTime.toMicroseconds() == 0 ? 0 : 1000000 / lastFrameTime.toMicroseconds());
+    auto infoString = Util::String::format("OpenGL Vendor:   %s\nOpenGL Renderer: %s\nOpenGL Version:  %s\nFPS: %u", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION), fps);
     glDrawText(reinterpret_cast<const GLubyte*>(static_cast<const char*>(infoString)), 0, 0, Util::Graphic::Colors::WHITE.getRGB32());
 }
 
@@ -74,16 +80,14 @@ void triangle(const Util::Graphic::LinearFrameBuffer &lfb) {
             break;
         }
 
-        draw();
+        drawTriangle();
         ZB_copyFrameBuffer(frameBuffer, reinterpret_cast<void*>(lfb.getBuffer().get()), lfb.getPitch());
 
-        auto frameTime = Util::Time::getSystemTime() - startTime;
-        if (frameTime < targetFrameTime) {
-            Util::Async::Thread::sleep(targetFrameTime - frameTime);
+        auto renderTime = Util::Time::getSystemTime() - startTime;
+        if (renderTime < targetFrameTime) {
+            Util::Async::Thread::sleep(targetFrameTime - renderTime);
         }
 
-        auto endTime = Util::Time::getSystemTime();
-        passedTime += endTime - startTime;
-        fps = 1000000 / (endTime.toMicroseconds() - startTime.toMicroseconds());
+        lastFrameTime = Util::Time::getSystemTime() - startTime;
     }
 }

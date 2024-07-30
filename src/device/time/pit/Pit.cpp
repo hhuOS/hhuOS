@@ -23,6 +23,7 @@
 #include "kernel/service/Service.h"
 #include "kernel/service/ProcessService.h"
 #include "kernel/process/Scheduler.h"
+#include "lib/util/async/Atomic.h"
 
 namespace Kernel {
 struct InterruptFrame;
