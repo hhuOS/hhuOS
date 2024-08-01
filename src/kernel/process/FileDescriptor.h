@@ -18,7 +18,7 @@
 #ifndef HHUOS_FILEDESCRIPTOR_H
 #define HHUOS_FILEDESCRIPTOR_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/file/File.h"

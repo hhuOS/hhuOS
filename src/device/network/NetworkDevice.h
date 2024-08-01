@@ -18,7 +18,7 @@
 #ifndef HHUOS_NETWORKDEVICE_H
 #define HHUOS_NETWORKDEVICE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/collection/ArrayBlockingQueue.h"
 #include "lib/util/network/MacAddress.h"
@@ -106,14 +106,13 @@ private:
 
     Util::String identifier;
 
-    Kernel::BitmapMemoryManager &outgoingPacketMemoryManager;
     Kernel::BitmapMemoryManager &incomingPacketMemoryManager;
     Util::ArrayBlockingQueue<Packet> incomingPacketQueue;
     Util::ArrayBlockingQueue<Packet> outgoingPacketQueue;
     Util::Async::Spinlock outgoingPacketLock;
+    uint32_t outgoingPacketsToFree = 0;
 
     PacketReader *reader;
-    PacketWriter *writer;
 
     static const constexpr uint32_t PACKET_BUFFER_SIZE = 2048;
     static const constexpr uint32_t MAX_BUFFERED_PACKETS = 16;

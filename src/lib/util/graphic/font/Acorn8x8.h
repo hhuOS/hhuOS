@@ -18,7 +18,7 @@
 #ifndef HHUOS_ACORN8X8_H
 #define HHUOS_ACORN8X8_H
 
-#include <cstdint>
+#include <stdint.h>
 #include "lib/util/graphic/Font.h"
 
 namespace Util::Graphic::Fonts {

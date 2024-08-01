@@ -24,7 +24,7 @@
 #ifndef HHUOS_SCENE_H
 #define HHUOS_SCENE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "Camera.h"
 #include "lib/util/collection/ArrayList.h"

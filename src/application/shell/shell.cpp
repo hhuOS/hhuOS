@@ -16,7 +16,7 @@
  */
 
 #include <string.h>
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/base/System.h"

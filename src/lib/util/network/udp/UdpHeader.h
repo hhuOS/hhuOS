@@ -21,7 +21,7 @@
 #ifndef HHUOS_UDPHEADER_H
 #define HHUOS_UDPHEADER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util {
 namespace Io {

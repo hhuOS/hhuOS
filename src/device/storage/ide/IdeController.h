@@ -24,7 +24,7 @@
 #ifndef HHUOS_IDECONTROLLER_H
 #define HHUOS_IDECONTROLLER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "kernel/interrupt/InterruptHandler.h"
 #include "device/cpu/IoPort.h"

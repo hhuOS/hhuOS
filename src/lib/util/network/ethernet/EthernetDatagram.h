@@ -21,7 +21,7 @@
 #ifndef HHUOS_ETHERNETDATAGRAM_H
 #define HHUOS_ETHERNETDATAGRAM_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/network/ethernet/EthernetHeader.h"
 #include "lib/util/network/Datagram.h"

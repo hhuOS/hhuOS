@@ -21,7 +21,6 @@ target_sources(device PUBLIC
         ${HHUOS_SRC_DIR}/device/network/NetworkDevice.cpp
         ${HHUOS_SRC_DIR}/device/network/NetworkFilesystemDriver.cpp
         ${HHUOS_SRC_DIR}/device/network/PacketReader.cpp
-        ${HHUOS_SRC_DIR}/device/network/PacketWriter.cpp
         ${HHUOS_SRC_DIR}/device/network/loopback/Loopback.cpp
         ${HHUOS_SRC_DIR}/device/network/ne2000/Ne2000.cpp
         ${HHUOS_SRC_DIR}/device/network/rtl8139/Rtl8139.cpp)

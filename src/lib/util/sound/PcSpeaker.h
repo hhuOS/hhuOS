@@ -18,7 +18,7 @@
 #ifndef HHUOS_UTIL_PCSPEAKER_H
 #define HHUOS_UTIL_PCSPEAKER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/io/stream/FileOutputStream.h"
 

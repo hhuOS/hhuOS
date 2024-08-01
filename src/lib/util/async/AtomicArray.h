@@ -18,7 +18,7 @@
 #ifndef HHUOS_ATOMICARRAY_H
 #define HHUOS_ATOMICARRAY_H
 
-#include <cstdint>
+#include <stdint.h>
 #include "Atomic.h"
 
 namespace Util::Async {

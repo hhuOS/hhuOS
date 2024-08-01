@@ -18,7 +18,7 @@
 #ifndef HHUOS_ANT_H
 #define HHUOS_ANT_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/graphic/Color.h"
 #include "lib/util/math/Random.h"

@@ -8,7 +8,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <sys/stat.h>
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/base/System.h"
 #include "lib/util/io/stream/PrintStream.h"

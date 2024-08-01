@@ -21,7 +21,7 @@
 #ifndef HHUOS_RTL8139_H
 #define HHUOS_RTL8139_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "device/network/NetworkDevice.h"
 #include "device/bus/pci/PciDevice.h"

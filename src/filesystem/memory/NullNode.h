@@ -18,7 +18,7 @@
 #ifndef HHUOS_NULLNODE_H
 #define HHUOS_NULLNODE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "MemoryNode.h"
 #include "lib/util/base/String.h"

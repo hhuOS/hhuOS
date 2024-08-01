@@ -21,7 +21,7 @@
 #ifndef HHUOS_UDPDATAGRAM_H
 #define HHUOS_UDPDATAGRAM_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/network/Datagram.h"
 

@@ -17,7 +17,7 @@
 
 #include "BinaryLoader.h"
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/FileInputStream.h"

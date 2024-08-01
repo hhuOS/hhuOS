@@ -18,7 +18,7 @@
 #ifndef HHUOS_PRINTSTREAM_H
 #define HHUOS_PRINTSTREAM_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "OutputStream.h"
 #include "lib/util/base/String.h"

@@ -24,7 +24,7 @@
 #ifndef HHUOS_SPRITEANIMATION_H
 #define HHUOS_SPRITEANIMATION_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/collection/Array.h"
 #include "lib/util/game/2d/Sprite.h"

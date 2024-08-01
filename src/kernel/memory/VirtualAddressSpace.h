@@ -18,7 +18,7 @@
 #ifndef __VIRTUALADDRESSSPACE__
 #define __VIRTUALADDRESSSPACE__
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "Paging.h"
 

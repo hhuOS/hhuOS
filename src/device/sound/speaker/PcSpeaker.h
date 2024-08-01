@@ -18,7 +18,7 @@
 #ifndef HHUOS_PCSPEAKER_H
 #define HHUOS_PCSPEAKER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Device {
 class IoPort;

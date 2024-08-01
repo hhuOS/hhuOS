@@ -18,7 +18,7 @@
 #ifndef HHUOS_QUEUEINPUTSTREAM_H
 #define HHUOS_QUEUEINPUTSTREAM_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "InputStream.h"
 

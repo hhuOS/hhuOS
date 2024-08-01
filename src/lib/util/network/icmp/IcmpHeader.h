@@ -21,7 +21,7 @@
 #ifndef HHUOS_ICMPHEADER_H
 #define HHUOS_ICMPHEADER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util {
 namespace Io {

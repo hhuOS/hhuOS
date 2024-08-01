@@ -21,7 +21,7 @@
 #ifndef HHUOS_PLAYER_H
 #define HHUOS_PLAYER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/game/3d/Entity.h"
 #include "lib/util/math/Vector3D.h"

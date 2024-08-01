@@ -18,7 +18,7 @@
 #ifndef HHUOS_DINO_GROUND_H
 #define HHUOS_DINO_GROUND_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/game/2d/Sprite.h"

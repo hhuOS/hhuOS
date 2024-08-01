@@ -18,7 +18,7 @@
 #ifndef HHUOS_DEMOSPRITE_H
 #define HHUOS_DEMOSPRITE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/game/2d/SpriteAnimation.h"

@@ -18,7 +18,7 @@
 #ifndef HHUOS_SERIALPORT_H
 #define HHUOS_SERIALPORT_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/io/stream/FilterInputStream.h"

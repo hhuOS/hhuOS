@@ -18,7 +18,7 @@
 #ifndef HHUOS_GLOBALDESCRIPTORTABLE_H
 #define HHUOS_GLOBALDESCRIPTORTABLE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Kernel {
 

@@ -18,7 +18,7 @@
 #ifndef __LinearFrameBuffer_include__
 #define __LinearFrameBuffer_include__
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "Color.h"
 

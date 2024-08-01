@@ -18,7 +18,7 @@
 #ifndef HHUOS_FLEET_H
 #define HHUOS_FLEET_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/math/Random.h"
 

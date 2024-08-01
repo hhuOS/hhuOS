@@ -21,7 +21,7 @@
 #ifndef HHUOS_SINGLETIMEEMITTER_H
 #define HHUOS_SINGLETIMEEMITTER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "Emitter.h"
 

@@ -21,7 +21,7 @@
 #ifndef HHUOS_UDPSOCKET_H
 #define HHUOS_UDPSOCKET_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "kernel/network/DatagramSocket.h"
 

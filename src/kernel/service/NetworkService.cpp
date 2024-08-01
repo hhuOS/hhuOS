@@ -20,7 +20,7 @@
 
 #include "NetworkService.h"
 
-#include <cstdarg>
+#include <stdarg.h>
 
 #include "device/network/NetworkDevice.h"
 #include "lib/util/base/Exception.h"

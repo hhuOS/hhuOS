@@ -18,7 +18,7 @@
 #ifndef HHUOS_APMMACHINE_H
 #define HHUOS_APMMACHINE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "Machine.h"
 #include "kernel/process/Thread.h"

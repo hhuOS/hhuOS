@@ -18,7 +18,7 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "Ip4RoutingModule.h"
 #include "lib/util/network/ip4/Ip4Address.h"

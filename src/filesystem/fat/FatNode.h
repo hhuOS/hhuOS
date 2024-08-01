@@ -18,7 +18,7 @@
 #ifndef HHUOS_FATNODE_H
 #define HHUOS_FATNODE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "filesystem/fat/ff/source/ff.h"
 #include "filesystem/Node.h"

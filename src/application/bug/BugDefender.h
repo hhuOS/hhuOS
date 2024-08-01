@@ -18,7 +18,7 @@
 #ifndef HHUOS_BUGDEFENDER_H
 #define HHUOS_BUGDEFENDER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/game/2d/Scene.h"
 #include "lib/util/game/KeyListener.h"

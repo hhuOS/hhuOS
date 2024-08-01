@@ -18,7 +18,7 @@
 #ifndef HHUOS_ELFFILE_H
 #define HHUOS_ELFFILE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util::Io::Elf {
 

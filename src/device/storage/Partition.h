@@ -18,7 +18,7 @@
 #ifndef HHUOS_PARTITION_H
 #define HHUOS_PARTITION_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "StorageDevice.h"
 

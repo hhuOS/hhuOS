@@ -18,7 +18,7 @@
 #ifndef HHUOS_INPUTSTREAM_H
 #define HHUOS_INPUTSTREAM_H
 
-#include <cstdint>
+#include <stdint.h>
 #include "lib/util/base/String.h"
 
 namespace Util::Io {

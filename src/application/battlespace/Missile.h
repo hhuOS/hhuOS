@@ -21,7 +21,7 @@
 #ifndef HHUOS_MISSILE_H
 #define HHUOS_MISSILE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/game/3d/Model.h"
 

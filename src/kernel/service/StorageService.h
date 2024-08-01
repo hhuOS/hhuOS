@@ -18,7 +18,7 @@
 #ifndef HHUOS_STORAGESERVICE_H
 #define HHUOS_STORAGESERVICE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "Service.h"
 #include "lib/util/collection/HashMap.h"

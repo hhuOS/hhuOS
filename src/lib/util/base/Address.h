@@ -18,7 +18,7 @@
 #ifndef __Address_include__
 #define __Address_include__
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util {
 

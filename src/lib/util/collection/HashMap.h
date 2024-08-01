@@ -24,7 +24,7 @@
 #include "Map.h"
 #include "Pair.h"
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util {
 

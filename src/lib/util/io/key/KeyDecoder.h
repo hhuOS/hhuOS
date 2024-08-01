@@ -18,7 +18,7 @@
 #ifndef HHUOS_KEYDECODER_H
 #define HHUOS_KEYDECODER_H
 
-#include <cstdint>
+#include <stdint.h>
 #include "Key.h"
 
 namespace Util::Io {

@@ -24,7 +24,7 @@
 #ifndef HHUOS_ENTITY_2D_H
 #define HHUOS_ENTITY_2D_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/collection/ArrayList.h"

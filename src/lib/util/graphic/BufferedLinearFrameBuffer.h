@@ -18,7 +18,7 @@
 #ifndef HHUOS_BUFFEREDLINEARFRAMEBUFFER_H
 #define HHUOS_BUFFEREDLINEARFRAMEBUFFER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "LinearFrameBuffer.h"
 

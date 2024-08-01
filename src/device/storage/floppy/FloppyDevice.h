@@ -18,7 +18,7 @@
 #ifndef __VirtualDiskDrive_include__
 #define __VirtualDiskDrive_include__
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "device/storage/StorageDevice.h"
 #include "FloppyController.h"

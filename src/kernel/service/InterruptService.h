@@ -18,8 +18,8 @@
 #ifndef HHUOS_INTERRUPTSERVICE_H
 #define HHUOS_INTERRUPTSERVICE_H
 
-#include <cstdarg>
-#include <cstdint>
+#include <stdarg.h>
+#include <stdint.h>
 
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/service/Service.h"

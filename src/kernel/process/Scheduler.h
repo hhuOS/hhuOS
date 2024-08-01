@@ -18,7 +18,7 @@
 #ifndef HHUOS_SCHEDULER_H
 #define HHUOS_SCHEDULER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/collection/ArrayListBlockingQueue.h"
 #include "lib/util/async/Spinlock.h"

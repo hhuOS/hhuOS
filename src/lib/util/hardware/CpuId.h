@@ -18,7 +18,7 @@
 #ifndef HHUOS_CPUID_H
 #define HHUOS_CPUID_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"

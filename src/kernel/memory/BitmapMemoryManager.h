@@ -18,7 +18,7 @@
 #ifndef __BITMAPMEMORYMANAGER_H__
 #define __BITMAPMEMORYMANAGER_H__
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/async/AtomicBitmap.h"
 #include "BlockMemoryManager.h"

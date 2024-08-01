@@ -1,6 +1,6 @@
 #include "DemoPolygonFactory.h"
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Color.h"

@@ -21,7 +21,7 @@
 #ifndef HHUOS_NETWORKSERVICE_H
 #define HHUOS_NETWORKSERVICE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "Service.h"
 #include "kernel/network/NetworkStack.h"

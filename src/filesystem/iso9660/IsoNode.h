@@ -21,7 +21,7 @@
 #ifndef HHUOS_ISONODE_H
 #define HHUOS_ISONODE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "filesystem/Node.h"
 #include "IsoDriver.h"

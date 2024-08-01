@@ -18,7 +18,7 @@
 #ifndef HHUOS_FPU_H
 #define HHUOS_FPU_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Device {
 

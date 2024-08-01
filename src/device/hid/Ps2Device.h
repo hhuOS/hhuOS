@@ -18,7 +18,7 @@
 #ifndef HHUOS_PS2DEVICE_H
 #define HHUOS_PS2DEVICE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "Ps2Controller.h"
 

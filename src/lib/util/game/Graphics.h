@@ -27,7 +27,7 @@
 #ifndef HHUOS_GRAPHICS_H
 #define HHUOS_GRAPHICS_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "lib/util/graphic/LineDrawer.h"

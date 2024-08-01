@@ -18,7 +18,7 @@
 #ifndef HHUOS_MODELVIEWER_H
 #define HHUOS_MODELVIEWER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/game/3d/Scene.h"
 #include "lib/util/game/KeyListener.h"

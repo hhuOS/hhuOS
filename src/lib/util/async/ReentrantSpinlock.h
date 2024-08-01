@@ -18,7 +18,7 @@
 #ifndef HHUOS_REENTRANTSPINLOCK_H
 #define HHUOS_REENTRANTSPINLOCK_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "Spinlock.h"
 

@@ -18,7 +18,7 @@
 #ifndef HHUOS_INTERFACE_H
 #define HHUOS_INTERFACE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/base/Exception.h"
 #include "lib/util/io/file/File.h"

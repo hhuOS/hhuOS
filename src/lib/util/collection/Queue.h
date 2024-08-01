@@ -17,7 +17,7 @@
 #ifndef __Queue_include__
 #define __Queue_include__
 
-#include <cstdint>
+#include <stdint.h>
 #include "Collection.h"
 
 namespace Util {

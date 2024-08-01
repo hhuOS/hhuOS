@@ -24,7 +24,7 @@
 #ifndef HHUOS_ENGINE_H
 #define HHUOS_ENGINE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/async/Runnable.h"
 #include "lib/util/time/Timestamp.h"

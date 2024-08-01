@@ -17,7 +17,7 @@
 
 #include "AcpiTableNode.h"
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/base/String.h"
 

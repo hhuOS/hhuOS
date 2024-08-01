@@ -18,7 +18,7 @@
 #ifndef HHUOS_SIMPLESERIALPORT_H
 #define HHUOS_SIMPLESERIALPORT_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "device/cpu/IoPort.h"
 #include "lib/util/io/stream/OutputStream.h"

@@ -17,7 +17,7 @@
 #ifndef __Tar_Archive_include__
 #define __Tar_Archive_include__
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/String.h"

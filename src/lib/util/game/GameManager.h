@@ -24,7 +24,7 @@
 #ifndef HHUOS_GAMEMANAGER_H
 #define HHUOS_GAMEMANAGER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util {
 namespace Math {

@@ -21,7 +21,7 @@
 #ifndef HHUOS_IP4ADDRESS_H
 #define HHUOS_IP4ADDRESS_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/network/NetworkAddress.h"
 #include "lib/util/base/String.h"

@@ -1,7 +1,7 @@
 #ifndef LIBC_STDIO_FILE_STREAM
 #define LIBC_STDIO_FILE_STREAM
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/io/stream/InputStream.h"
 #include "lib/util/io/stream/OutputStream.h"

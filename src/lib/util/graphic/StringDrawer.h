@@ -18,7 +18,7 @@
 #ifndef HHUOS_STRINGDRAWER_H
 #define HHUOS_STRINGDRAWER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util {
 namespace Graphic {

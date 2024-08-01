@@ -18,7 +18,7 @@
 #ifndef HHUOS_PROCESSSERVICE_H
 #define HHUOS_PROCESSSERVICE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "Service.h"
 #include "lib/util/async/Spinlock.h"

@@ -18,7 +18,7 @@
 #ifndef HHUOS_SOUNDBLASTERRUNNABLE_H
 #define HHUOS_SOUNDBLASTERRUNNABLE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/async/Runnable.h"
 #include "lib/util/io/stream/PipedOutputStream.h"

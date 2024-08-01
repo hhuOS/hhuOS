@@ -18,7 +18,7 @@
 #ifndef HHUOS_UTIL_SOUNDBLASTER_H
 #define HHUOS_UTIL_SOUNDBLASTER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/FileOutputStream.h"

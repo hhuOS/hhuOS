@@ -21,7 +21,7 @@
 #ifndef HHUOS_ARPMODULE_H
 #define HHUOS_ARPMODULE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/async/ReentrantSpinlock.h"
 #include "kernel/network/NetworkModule.h"

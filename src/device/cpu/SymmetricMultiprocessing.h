@@ -21,7 +21,7 @@
 #ifndef HHUOS_SYMMETRICMULTIPROCESSING_H
 #define HHUOS_SYMMETRICMULTIPROCESSING_H
 
-#include <cstdint>
+#include <stdint.h>
 #include "Cpu.h"
 
 // Import from symmetric_multiprocessing.asm

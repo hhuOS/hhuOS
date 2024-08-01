@@ -18,7 +18,7 @@
 #ifndef HHUOS_POWERMANAGEMENTSERVICE_H
 #define HHUOS_POWERMANAGEMENTSERVICE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "Service.h"
 

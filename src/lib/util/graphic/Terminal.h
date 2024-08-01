@@ -18,7 +18,7 @@
 #ifndef HHUOS_TERMINAL_H
 #define HHUOS_TERMINAL_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/io/stream/OutputStream.h"
 #include "lib/util/io/stream/InputStream.h"

@@ -18,7 +18,7 @@
 #ifndef HHUOS_KEYBOARD_H
 #define HHUOS_KEYBOARD_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "kernel/interrupt/InterruptHandler.h"
 #include "Ps2Device.h"

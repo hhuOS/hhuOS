@@ -21,7 +21,7 @@
 #ifndef HHUOS_MACADDRESS_H
 #define HHUOS_MACADDRESS_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "NetworkAddress.h"
 #include "lib/util/base/String.h"

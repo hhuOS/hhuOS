@@ -18,7 +18,7 @@
 #ifndef HHUOS_SHIP_H
 #define HHUOS_SHIP_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/game/2d/Sprite.h"
 #include "Explosive.h"

@@ -18,7 +18,7 @@
 #ifndef HHUOS_TERMINALNODE_H
 #define HHUOS_TERMINALNODE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "filesystem/memory/StreamNode.h"
 #include "lib/util/collection/Array.h"

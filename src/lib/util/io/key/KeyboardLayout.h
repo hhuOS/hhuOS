@@ -18,7 +18,7 @@
 #ifndef HHUOS_KEYBOARDLAYOUT_H
 #define HHUOS_KEYBOARDLAYOUT_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util {
 namespace Io {

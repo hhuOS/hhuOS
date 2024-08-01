@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdarg>
+#include <stdarg.h>
 
 #include "lib/util/base/Exception.h"
 #include "TimeService.h"

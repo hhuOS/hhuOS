@@ -18,7 +18,7 @@
 #ifndef HHUOS_INTERRUPTFRAME_H
 #define HHUOS_INTERRUPTFRAME_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Kernel {
 

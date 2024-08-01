@@ -17,7 +17,7 @@
 #ifndef HHUOS_CMOS_H
 #define HHUOS_CMOS_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Device {
 class IoPort;

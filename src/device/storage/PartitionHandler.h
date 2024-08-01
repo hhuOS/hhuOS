@@ -18,7 +18,7 @@
 #ifndef HHUOS_PARTITIONHANDLER_H
 #define HHUOS_PARTITIONHANDLER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/collection/Array.h"
 

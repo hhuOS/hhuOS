@@ -21,7 +21,7 @@
 #ifndef HHUOS_UDPMODULE_H
 #define HHUOS_UDPMODULE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "kernel/network/NetworkModule.h"
 

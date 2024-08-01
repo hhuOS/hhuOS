@@ -18,7 +18,7 @@
 #ifndef HHUOS_TIMESTAMP_H
 #define HHUOS_TIMESTAMP_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util::Time {
 

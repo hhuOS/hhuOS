@@ -2,7 +2,7 @@
 #define HHUOS_SCANSTREAM_H
 
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "InputStream.h"
 

@@ -17,7 +17,7 @@
 
 #include "PowerManagementService.h"
 
-#include <cstdarg>
+#include <stdarg.h>
 
 #include "lib/util/hardware/Machine.h"
 #include "InterruptService.h"

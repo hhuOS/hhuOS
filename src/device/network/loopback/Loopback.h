@@ -21,7 +21,7 @@
 #ifndef HHUOS_LOOPBACK_H
 #define HHUOS_LOOPBACK_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "device/network/NetworkDevice.h"
 #include "lib/util/network/MacAddress.h"
@@ -62,6 +62,10 @@ protected:
      * Overriding function from NetworkDevice.
      */
     void handleOutgoingPacket(const uint8_t *packet, uint32_t length) override;
+
+private:
+
+    Util::Async::Spinlock lock;
 };
 
 }

@@ -18,7 +18,7 @@
 #ifndef __IoPort_include__
 #define __IoPort_include__
 
-#include <cstdint>
+#include <stdint.h>
 #include "lib/util/base/Address.h"
 
 namespace Device {

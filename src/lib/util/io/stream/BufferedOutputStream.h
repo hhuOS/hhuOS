@@ -18,7 +18,7 @@
 #ifndef HHUOS_BUFFEREDOUTPUTSTREAM_H
 #define HHUOS_BUFFEREDOUTPUTSTREAM_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "FilterOutputStream.h"
 

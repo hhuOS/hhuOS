@@ -18,7 +18,7 @@
 #ifndef __KernelEntry_include__
 #define __KernelEntry_include__
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "kernel/memory/Paging.h"
 

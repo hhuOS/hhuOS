@@ -21,7 +21,7 @@
 #ifndef HHUOS_ISODRIVER_H
 #define HHUOS_ISODRIVER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "filesystem/PhysicalDriver.h"
 #include "lib/util/collection/ArrayList.h"

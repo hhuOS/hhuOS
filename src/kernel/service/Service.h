@@ -18,7 +18,7 @@
 #ifndef __KernelService_include__
 #define __KernelService_include__
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/base/Exception.h"
 

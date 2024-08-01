@@ -18,7 +18,7 @@
 #ifndef HHUOS_UTIL_SMBIOS_H
 #define HHUOS_UTIL_SMBIOS_H
 
-#include <cstdint>
+#include <stdint.h>
 #include "lib/util/math/Math.h"
 
 namespace Util::Hardware {

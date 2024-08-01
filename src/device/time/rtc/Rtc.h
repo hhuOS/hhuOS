@@ -18,7 +18,7 @@
 #ifndef HHUOS_RTC_H
 #define HHUOS_RTC_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "kernel/interrupt/InterruptHandler.h"
 #include "device/time/DateProvider.h"

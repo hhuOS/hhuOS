@@ -18,7 +18,7 @@
 #ifndef HHUOS_FILESYSTEMSERVICE_H
 #define HHUOS_FILESYSTEMSERVICE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "filesystem/Filesystem.h"
 #include "Service.h"

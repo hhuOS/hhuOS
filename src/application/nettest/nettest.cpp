@@ -18,7 +18,7 @@
  * The original source code can be found here: https://github.com/Spectranis/bachelorthesis-mthiel/tree/ne2k_dev
  */
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/base/System.h"
 #include "lib/util/time/Timestamp.h"
@@ -135,7 +135,7 @@ int32_t sendTraffic(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4
     uint32_t bytesSendInInterval = 0;
 
     /** First 4 Bytes are PacketNum and are filled in the loop, all others are filled with 0 */
-    for(int i = 4; i < packetLength; i++){
+    for (int i = 4; i < packetLength; i++) {
         packet[i] = 0;
     }
 
@@ -378,7 +378,7 @@ int32_t main(int32_t argc, char *argv[]) {
     uint16_t timingInterval = DEFAULT_INTERVAL;
     if (argumentParser.hasArgument("time")) {
         timingInterval = Util::String::parseInt(argumentParser.getArgument("time"));
-        if(timingInterval == 0){
+        if (timingInterval == 0) {
             timingInterval = DEFAULT_INTERVAL;
         }
     }

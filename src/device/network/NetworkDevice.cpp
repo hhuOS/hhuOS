@@ -20,7 +20,9 @@
 #include "kernel/service/ProcessService.h"
 #include "lib/util/async/Thread.h"
 #include "device/network/PacketReader.h"
-#include "device/network/PacketWriter.h"
+#include "kernel/process/Process.h"
+#include "kernel/memory/VirtualAddressSpace.h"
+#include "lib/util/base/HeapMemoryManager.h"
 #include "kernel/process/Thread.h"
 #include "lib/util/base/Address.h"
 #include "kernel/network/ethernet/EthernetModule.h"
@@ -34,23 +36,18 @@
 namespace Device::Network {
 
 NetworkDevice::NetworkDevice() :
-        outgoingPacketMemoryManager(*createPacketManager(MAX_BUFFERED_PACKETS)),
         incomingPacketMemoryManager(*createPacketManager(MAX_BUFFERED_PACKETS)),
         incomingPacketQueue(MAX_BUFFERED_PACKETS),
         outgoingPacketQueue(MAX_BUFFERED_PACKETS),
-        reader(new PacketReader(*this)),
-        writer(new PacketWriter(*this)) {
+        reader(new PacketReader(*this)) {
     auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
     auto &readerThread = Kernel::Thread::createKernelThread("Packet-Reader", processService.getKernelProcess(), reader);
-    auto &writerThread = Kernel::Thread::createKernelThread("Packet-Writer", processService.getKernelProcess(), writer);
 
     processService.getScheduler().ready(readerThread);
-    processService.getScheduler().ready(writerThread);
 }
 
 NetworkDevice::~NetworkDevice() {
     delete &incomingPacketMemoryManager;
-    delete &outgoingPacketMemoryManager;
 }
 
 void NetworkDevice::setIdentifier(const Util::String &identifier) {
@@ -67,12 +64,8 @@ void NetworkDevice::sendPacket(const uint8_t *packet, uint32_t length) {
     }
 
     // Allocate kernel buffer to copy and send packet
-    auto *buffer = reinterpret_cast<uint8_t*>(outgoingPacketMemoryManager.allocateBlock());
-    while (buffer == nullptr) {
-        // No packet memory available -> Retry
-        Util::Async::Thread::yield();
-        buffer = reinterpret_cast<uint8_t*>(outgoingPacketMemoryManager.allocateBlock());
-    }
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+    auto *buffer = static_cast<uint8_t*>(memoryService.mapIO(1));
 
     // Copy packet into kernel buffer
     auto source = Util::Address<uint32_t>(packet);
@@ -87,6 +80,7 @@ void NetworkDevice::sendPacket(const uint8_t *packet, uint32_t length) {
 
     outgoingPacketLock.acquire();
     outgoingPacketQueue.add(Packet{buffer, length});
+    handleOutgoingPacket(buffer, length);
     outgoingPacketLock.release();
 }
 
@@ -130,9 +124,7 @@ NetworkDevice::Packet NetworkDevice::getNextOutgoingPacket() {
 }
 
 void NetworkDevice::freePacketBuffer(void *buffer) {
-    if (buffer >= outgoingPacketMemoryManager.getStartAddress() && buffer <= outgoingPacketMemoryManager.getEndAddress()) {
-        outgoingPacketMemoryManager.freeBlock(buffer);
-    } else if (buffer >= incomingPacketMemoryManager.getStartAddress() && buffer <= incomingPacketMemoryManager.getEndAddress()) {
+    if (buffer >= incomingPacketMemoryManager.getStartAddress() && buffer <= incomingPacketMemoryManager.getEndAddress()) {
         incomingPacketMemoryManager.freeBlock(buffer);
     } else {
         Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "NetworkDevice: Trying to free an invalid packet buffer!");
@@ -140,7 +132,16 @@ void NetworkDevice::freePacketBuffer(void *buffer) {
 }
 
 void NetworkDevice::freeLastSendBuffer() {
-    writer->freeLastSendBuffer();
+    outgoingPacketsToFree++;
+
+    auto &kernelProcess = Kernel::Service::getService<Kernel::ProcessService>().getKernelProcess();
+    if (!kernelProcess.getAddressSpace().getMemoryManager().isLocked()) {
+        while (outgoingPacketsToFree > 0) {
+            const auto &packet = outgoingPacketQueue.poll();
+            delete packet.buffer;
+            outgoingPacketsToFree--;
+        }
+    }
 }
 
 Kernel::BitmapMemoryManager* NetworkDevice::createPacketManager(uint32_t packetCount) {

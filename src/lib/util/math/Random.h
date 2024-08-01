@@ -18,7 +18,7 @@
 #ifndef HHUOS_RANDOM_H
 #define HHUOS_RANDOM_H
 
-#include <cstdint>
+#include <stdint.h>
 #include "lib/util/time/Timestamp.h"
 
 namespace Util::Math {

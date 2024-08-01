@@ -18,7 +18,7 @@
 #ifndef HHUOS_USER_MACHINE_H
 #define HHUOS_USER_MACHINE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util::Hardware {
 

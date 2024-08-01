@@ -18,7 +18,7 @@
 #ifndef HHUOS_MOUSE_H
 #define HHUOS_MOUSE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/io/stream/FilterInputStream.h"

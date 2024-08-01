@@ -21,7 +21,7 @@
 #ifndef HHUOS_APICTIMER_H
 #define HHUOS_APICTIMER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "kernel/interrupt/InterruptHandler.h"
 #include "device/time/TimeProvider.h"

@@ -18,7 +18,7 @@
 #ifndef HHUOS_FLOPPY_H
 #define HHUOS_FLOPPY_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "device/cpu/IoPort.h"
 #include "device/bus/isa/Isa.h"

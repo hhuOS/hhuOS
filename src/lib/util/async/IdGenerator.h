@@ -18,7 +18,7 @@
 #ifndef HHUOS_IDGENERATOR_H
 #define HHUOS_IDGENERATOR_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util::Async {
 

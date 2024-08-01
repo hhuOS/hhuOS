@@ -21,7 +21,7 @@
 #ifndef HHUOS_SOCKET_H
 #define HHUOS_SOCKET_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "filesystem/Node.h"
 #include "lib/util/collection/Array.h"

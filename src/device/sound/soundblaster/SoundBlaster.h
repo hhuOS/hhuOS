@@ -18,7 +18,7 @@
 #ifndef HHUOS_SOUNDBLASTER_H
 #define HHUOS_SOUNDBLASTER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "kernel/interrupt/InterruptHandler.h"
 #include "device/cpu/IoPort.h"

@@ -18,7 +18,7 @@
 #ifndef HHUOS_MINI4x6_H
 #define HHUOS_MINI4x6_H
 
-#include <cstdint>
+#include <stdint.h>
 #include "lib/util/graphic/Font.h"
 
 namespace Util::Graphic::Fonts {

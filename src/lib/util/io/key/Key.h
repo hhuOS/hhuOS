@@ -18,7 +18,7 @@
 #ifndef HHUOS_KEY_H
 #define HHUOS_KEY_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util::Io {
 

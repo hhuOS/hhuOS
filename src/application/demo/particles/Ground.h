@@ -21,7 +21,7 @@
 #ifndef HHUOS_PARTICLES_GROUND_H
 #define HHUOS_PARTICLES_GROUND_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/game/2d/Sprite.h"

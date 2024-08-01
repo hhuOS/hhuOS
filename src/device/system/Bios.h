@@ -18,7 +18,7 @@
 #ifndef HHUOS_DEVICE_BIOS_H
 #define HHUOS_DEVICE_BIOS_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "kernel/interrupt/InterruptDescriptorTable.h"
 #include "kernel/process/Thread.h"

@@ -21,7 +21,7 @@
 #ifndef HHUOS_ARPHEADER_H
 #define HHUOS_ARPHEADER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/network/MacAddress.h"
 #include "lib/util/network/ip4/Ip4Address.h"

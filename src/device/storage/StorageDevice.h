@@ -18,7 +18,7 @@
 #ifndef HHUOS_STORAGEDEVICE_H
 #define HHUOS_STORAGEDEVICE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Device::Storage {
 

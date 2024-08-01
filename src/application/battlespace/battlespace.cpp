@@ -18,7 +18,7 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "IntroScreen.h"
 #include "lib/util/base/System.h"

@@ -17,7 +17,7 @@
 #ifndef __CPU_include__
 #define __CPU_include__
 
-#include <cstdint>
+#include <stdint.h>
 #include "kernel/memory/Paging.h"
 
 namespace Device {

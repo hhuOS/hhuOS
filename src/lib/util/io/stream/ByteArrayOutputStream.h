@@ -18,7 +18,7 @@
 #ifndef HHUOS_BYTEARRAYOUTPUTSTREAM_H
 #define HHUOS_BYTEARRAYOUTPUTSTREAM_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/base/String.h"
 #include "OutputStream.h"

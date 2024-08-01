@@ -18,7 +18,7 @@
 #ifndef HHUOS_PROCESS_H
 #define HHUOS_PROCESS_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/io/file/File.h"
 #include "FileDescriptorManager.h"

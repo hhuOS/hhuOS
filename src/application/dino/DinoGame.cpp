@@ -17,7 +17,7 @@
 
 #include "DinoGame.h"
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "application/dino/Dino.h"
 #include "lib/util/io/key/Key.h"

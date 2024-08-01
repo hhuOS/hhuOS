@@ -18,7 +18,7 @@
 #ifndef HHUOS_INTERRUPTDESCRIPTORTABLE_H
 #define HHUOS_INTERRUPTDESCRIPTORTABLE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "device/cpu/Cpu.h"
 

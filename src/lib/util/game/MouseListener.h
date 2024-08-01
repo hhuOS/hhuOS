@@ -24,7 +24,7 @@
 #ifndef HHUOS_MOUSELISTENER_H
 #define HHUOS_MOUSELISTENER_H
 
-#include <cstdint>
+#include <stdint.h>
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/io/key/MouseDecoder.h"
 

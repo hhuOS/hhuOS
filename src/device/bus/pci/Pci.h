@@ -18,7 +18,7 @@
 #ifndef HHUOS_PCI_H
 #define HHUOS_PCI_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/collection/Array.h"
 

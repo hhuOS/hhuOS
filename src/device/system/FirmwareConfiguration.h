@@ -18,7 +18,7 @@
 #ifndef HHUOS_FIRMWARECONFIGURATION_H
 #define HHUOS_FIRMWARECONFIGURATION_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "device/cpu/IoPort.h"
 #include "lib/util/collection/Array.h"

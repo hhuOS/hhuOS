@@ -19,7 +19,7 @@
 #define HHUOS_SHELL_H
 
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/async/Runnable.h"
 #include "lib/util/collection/ArrayList.h"

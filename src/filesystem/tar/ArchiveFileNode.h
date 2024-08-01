@@ -1,7 +1,7 @@
 #ifndef HHUOS_ARCHIVEFILENODE_H
 #define HHUOS_ARCHIVEFILENODE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "ArchiveNode.h"
 #include "lib/util/collection/Array.h"

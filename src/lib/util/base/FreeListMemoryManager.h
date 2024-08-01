@@ -18,7 +18,7 @@
 #ifndef __FREELISTMEMORYMANAGER_H__
 #define __FREELISTMEMORYMANAGER_H__
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/async/Spinlock.h"
 #include "HeapMemoryManager.h"

@@ -21,7 +21,7 @@
 #ifndef HHUOS_ECHOHEADER_H
 #define HHUOS_ECHOHEADER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util {
 namespace Io {

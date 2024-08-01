@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/graphic/Color.h"

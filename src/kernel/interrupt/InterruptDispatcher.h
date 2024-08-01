@@ -18,7 +18,7 @@
 #ifndef __InterruptDispatcher_include__
 #define __InterruptDispatcher_include__
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util {
 

@@ -21,7 +21,7 @@
 #ifndef HHUOS_ENEMY_H
 #define HHUOS_ENEMY_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/game/3d/Model.h"
 #include "lib/util/math/Random.h"

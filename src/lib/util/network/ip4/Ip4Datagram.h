@@ -21,7 +21,7 @@
 #ifndef HHUOS_IP4DATAGRAM_H
 #define HHUOS_IP4DATAGRAM_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/network/Datagram.h"
 #include "lib/util/network/ip4/Ip4Header.h"

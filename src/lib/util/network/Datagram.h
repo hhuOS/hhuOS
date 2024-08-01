@@ -21,7 +21,7 @@
 #ifndef HHUOS_DATAGRAM_H
 #define HHUOS_DATAGRAM_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "NetworkAddress.h"
 

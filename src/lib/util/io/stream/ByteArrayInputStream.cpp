@@ -27,7 +27,9 @@ int16_t ByteArrayInputStream::read() {
         return -1;
     }
 	
-	if (buffer[position] == '\0') return 0;
+	if (nullTerminated && buffer[position] == '\0') {
+        return 0;
+    }
 
     return buffer[position++];
 }

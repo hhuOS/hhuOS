@@ -18,7 +18,7 @@
 #ifndef HHUOS_BUG_H
 #define HHUOS_BUG_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/game/2d/SpriteAnimation.h"
 #include "Explosive.h"

@@ -18,7 +18,7 @@
 #ifndef __Collection_include__
 #define __Collection_include__
 
-#include <cstdint>
+#include <stdint.h>
 #include "Iterator.h"
 #include "Array.h"
 

@@ -17,7 +17,7 @@
 
 #include "FirmwareConfigurationDriver.h"
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "FirmwareConfigurationNode.h"
 #include "device/system/FirmwareConfiguration.h"

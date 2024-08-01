@@ -18,7 +18,7 @@
 #ifndef HHUOS_ENEMYMISSILE_H
 #define HHUOS_ENEMYMISSILE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/game/2d/Sprite.h"
 #include "Explosive.h"

@@ -18,7 +18,7 @@
 #ifndef __Array_include__
 #define __Array_include__
 
-#include <cstdint>
+#include <stdint.h>
 #include <initializer_list>
 #include "lib/util/base/Exception.h"
 

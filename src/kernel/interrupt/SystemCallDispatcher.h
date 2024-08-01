@@ -18,8 +18,8 @@
 #ifndef HHUOS_SYSTEMCALLDISPATCHER_H
 #define HHUOS_SYSTEMCALLDISPATCHER_H
 
-#include <cstdint>
-#include <cstdarg>
+#include <stdint.h>
+#include <stdarg.h>
 
 #include "lib/util/base/System.h"
 

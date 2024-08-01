@@ -21,7 +21,7 @@
 #ifndef HHUOS_IOAPIC_H
 #define HHUOS_IOAPIC_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/collection/ArrayList.h"

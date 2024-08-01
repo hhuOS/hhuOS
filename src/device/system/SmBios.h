@@ -18,7 +18,7 @@
 #ifndef HHUOS_SMBIOS_H
 #define HHUOS_SMBIOS_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/collection/Array.h"
 #include "lib/util/hardware/SmBios.h"

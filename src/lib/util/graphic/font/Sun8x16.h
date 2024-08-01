@@ -18,7 +18,7 @@
 #ifndef HHUOS_SUN8x16_H
 #define HHUOS_SUN8x16_H
 
-#include <cstdint>
+#include <stdint.h>
 #include "lib/util/graphic/Font.h"
 
 namespace Util::Graphic::Fonts {

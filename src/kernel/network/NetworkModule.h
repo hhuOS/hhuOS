@@ -21,7 +21,7 @@
 #ifndef HHUOS_NETWORKMODULE_H
 #define HHUOS_NETWORKMODULE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/collection/HashMap.h"
 #include "lib/util/async/Spinlock.h"

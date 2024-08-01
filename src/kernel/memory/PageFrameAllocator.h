@@ -18,7 +18,7 @@
 #ifndef __PAGEFRAMEALLOCATOR_H__
 #define __PAGEFRAMEALLOCATOR_H__
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "TableMemoryManager.h"
 

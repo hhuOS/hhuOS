@@ -21,7 +21,7 @@
 #ifndef HHUOS_LOCALAPIC_H
 #define HHUOS_LOCALAPIC_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/collection/ArrayList.h"
 

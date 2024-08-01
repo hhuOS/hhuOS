@@ -18,7 +18,7 @@
 #ifndef HHUOS_MEMORYDIRECTORYNODE_H
 #define HHUOS_MEMORYDIRECTORYNODE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "MemoryNode.h"
 #include "lib/util/collection/Array.h"

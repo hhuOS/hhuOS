@@ -21,7 +21,7 @@
 #ifndef HHUOS_ETHERNETHEADER_H
 #define HHUOS_ETHERNETHEADER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/network/MacAddress.h"
 

@@ -18,8 +18,8 @@
 #ifndef HHUOS_USER_SYSTEMCALL_H
 #define HHUOS_USER_SYSTEMCALL_H
 
-#include <cstdint>
-#include <cstdarg>
+#include <stdint.h>
+#include <stdarg.h>
 
 #include "lib/util/io/stream/InputStream.h" // IWYU pragma: keep
 #include "lib/util/io/stream/PrintStream.h" // IWYU pragma: keep

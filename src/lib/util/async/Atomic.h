@@ -1,7 +1,7 @@
 #ifndef HHUOS_ATOMIC_H
 #define HHUOS_ATOMIC_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util::Async {
 

@@ -21,7 +21,7 @@
 #ifndef HHUOS_AHCIDEVICE_H
 #define HHUOS_AHCIDEVICE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "AhciController.h"
 #include "device/storage/StorageDevice.h"

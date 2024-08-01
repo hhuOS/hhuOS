@@ -18,7 +18,7 @@
 #ifndef HHUOS_THREAD_H
 #define HHUOS_THREAD_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/base/String.h"
 

@@ -24,7 +24,7 @@
 #ifndef HHUOS_ENTITY_H
 #define HHUOS_ENTITY_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "Drawable.h"
 

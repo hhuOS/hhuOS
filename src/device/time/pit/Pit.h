@@ -18,7 +18,7 @@
 #ifndef HHUOS_PIT_H
 #define HHUOS_PIT_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "kernel/interrupt/InterruptHandler.h"
 #include "device/cpu/IoPort.h"

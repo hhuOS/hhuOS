@@ -18,7 +18,7 @@
 #ifndef HHUOS_PIPEDOUTPUTSTREAM_H
 #define HHUOS_PIPEDOUTPUTSTREAM_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "OutputStream.h"
 

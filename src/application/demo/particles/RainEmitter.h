@@ -21,7 +21,7 @@
 #ifndef HHUOS_RAINEMITTER_H
 #define HHUOS_RAINEMITTER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/game/2d/particle/Emitter.h"
 #include "lib/util/game/2d/Sprite.h"

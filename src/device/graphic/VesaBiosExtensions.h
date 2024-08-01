@@ -18,7 +18,7 @@
 #ifndef HHUOS_VESABIOSEXTENSIONS_H
 #define HHUOS_VESABIOSEXTENSIONS_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/collection/Array.h"
 #include "kernel/process/Thread.h"

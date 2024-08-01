@@ -1,7 +1,7 @@
 #ifndef __Lock_include__
 #define __Lock_include__
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util::Async {
 

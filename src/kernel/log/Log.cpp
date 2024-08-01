@@ -17,7 +17,7 @@
  
 #include "Log.h"
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/graphic/Ansi.h"
 #include "device/port/serial/SerialPort.h"

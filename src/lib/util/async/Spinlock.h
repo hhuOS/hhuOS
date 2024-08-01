@@ -18,7 +18,7 @@
 #ifndef __Spinlock_include__
 #define __Spinlock_include__
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/async/Atomic.h"
 #include "Lock.h"

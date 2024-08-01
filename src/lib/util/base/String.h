@@ -18,8 +18,8 @@
 #ifndef __String_include__
 #define __String_include__
 
-#include <cstdint>
-#include <cstdarg>
+#include <stdint.h>
+#include <stdarg.h>
 #include "lib/util/collection/Array.h"
 
 namespace Util {

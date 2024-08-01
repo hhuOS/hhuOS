@@ -18,7 +18,7 @@
 #ifndef HHUOS_TABLEMEMORYMANAGER_H
 #define HHUOS_TABLEMEMORYMANAGER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/async/Atomic.h"
 #include "kernel/memory/BlockMemoryManager.h"

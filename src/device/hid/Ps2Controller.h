@@ -18,7 +18,7 @@
 #ifndef HHUOS_PS2CONTROLLER_H
 #define HHUOS_PS2CONTROLLER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "device/cpu/IoPort.h"
 

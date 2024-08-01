@@ -17,7 +17,7 @@
 
 #include "Vector3D.h"
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "Math.h"
 #include "lib/util/math/Vector2D.h"

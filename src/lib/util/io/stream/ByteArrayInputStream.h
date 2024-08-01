@@ -18,7 +18,7 @@
 #ifndef HHUOS_BYTEARRAYINPUTSTREAM_H
 #define HHUOS_BYTEARRAYINPUTSTREAM_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "InputStream.h"
 

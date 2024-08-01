@@ -18,7 +18,7 @@
 #ifndef HHUOS_EXPLOSIVE_H
 #define HHUOS_EXPLOSIVE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/game/2d/SpriteAnimation.h"
 #include "lib/util/game/2d/Entity.h"

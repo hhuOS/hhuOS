@@ -18,7 +18,7 @@
 #ifndef HHUOS_TIMESERVICE_H
 #define HHUOS_TIMESERVICE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "Service.h"
 #include "lib/util/time/Date.h"

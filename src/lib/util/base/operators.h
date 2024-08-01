@@ -18,7 +18,7 @@
 #ifndef HHUOS_OPERATORS_H
 #define HHUOS_OPERATORS_H
 
-#include <cstdint>
+#include <stdint.h>
 
 void* operator new(uint32_t size);
 void* operator new[](uint32_t size);

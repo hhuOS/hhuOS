@@ -18,7 +18,7 @@
 #ifndef HHUOS_FIRMWARECONFIGURATIONNODE_H
 #define HHUOS_FIRMWARECONFIGURATIONNODE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "filesystem/memory/MemoryNode.h"
 #include "device/system/FirmwareConfiguration.h"

@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdarg>
-#include <cstdint>
+#include <stdarg.h>
+#include <stdint.h>
 
 #include "lib/interface.h"
 #include "lib/util/io/stream/ByteArrayOutputStream.h"

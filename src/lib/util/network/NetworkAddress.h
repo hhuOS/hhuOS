@@ -21,7 +21,7 @@
 #ifndef HHUOS_NETWORKADDRESS_H
 #define HHUOS_NETWORKADDRESS_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/base/String.h"
 

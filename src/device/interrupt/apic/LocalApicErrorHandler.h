@@ -21,7 +21,7 @@
 #ifndef HHUOS_LOCALAPICERRORHANDLER_H
 #define HHUOS_LOCALAPICERRORHANDLER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "kernel/interrupt/InterruptHandler.h"
 

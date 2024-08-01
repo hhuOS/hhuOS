@@ -21,7 +21,7 @@
 #ifndef HHUOS_DROPLETEMITTER_H
 #define HHUOS_DROPLETEMITTER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/game/2d/particle/SingleTimeEmitter.h"
 #include "lib/util/math/Random.h"

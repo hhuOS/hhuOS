@@ -18,7 +18,7 @@
 #ifndef HHUOS_BUFFERSCROLLER_H
 #define HHUOS_BUFFERSCROLLER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util {
 namespace Graphic {

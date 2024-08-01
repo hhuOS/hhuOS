@@ -21,7 +21,7 @@
 #ifndef HHUOS_APIC_H
 #define HHUOS_APIC_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "LocalApic.h"
 #include "LocalApicErrorHandler.h"

@@ -18,7 +18,7 @@
 #ifndef HHUOS_PROCESSDIRECTORYNODE_H
 #define HHUOS_PROCESSDIRECTORYNODE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "filesystem/Node.h"
 #include "lib/util/collection/Array.h"

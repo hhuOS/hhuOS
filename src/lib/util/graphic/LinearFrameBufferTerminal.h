@@ -18,7 +18,7 @@
 #ifndef HHUOS_LINEARFRAMEBUFFERTERMINAL_H
 #define HHUOS_LINEARFRAMEBUFFERTERMINAL_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/graphic/PixelDrawer.h"

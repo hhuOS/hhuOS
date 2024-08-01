@@ -18,7 +18,7 @@
 #ifndef HHUOS_ROUTE_H
 #define HHUOS_ROUTE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/String.h"

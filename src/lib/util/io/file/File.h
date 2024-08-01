@@ -18,7 +18,7 @@
 #ifndef HHUOS_BMP_FILE_H
 #define HHUOS_BMP_FILE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"

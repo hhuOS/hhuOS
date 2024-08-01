@@ -18,7 +18,7 @@
 #ifndef HHUOS_MOUSEDECODER_H
 #define HHUOS_MOUSEDECODER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util::Io {
 

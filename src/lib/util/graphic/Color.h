@@ -18,7 +18,7 @@
 #ifndef __Color_include__
 #define __Color_include__
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util::Graphic {
 

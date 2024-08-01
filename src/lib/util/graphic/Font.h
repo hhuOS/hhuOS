@@ -18,7 +18,7 @@
 #ifndef HHUOS_FONT_H
 #define HHUOS_FONT_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util::Graphic {
 

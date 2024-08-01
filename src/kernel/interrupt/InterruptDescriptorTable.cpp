@@ -17,7 +17,7 @@
 
 #include "InterruptDescriptorTable.h"
 
-#include <cstdarg>
+#include <stdarg.h>
 
 #include "kernel/service/Service.h"
 #include "kernel/service/InterruptService.h"

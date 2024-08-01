@@ -18,7 +18,7 @@
 #ifndef HHUOS_FATDRIVER_H
 #define HHUOS_FATDRIVER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "filesystem/fat/ff/source/ff.h"
 #include "filesystem/PhysicalDriver.h"

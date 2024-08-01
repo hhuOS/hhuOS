@@ -21,7 +21,7 @@
 #ifndef HHUOS_ETHERNETMODULE_H
 #define HHUOS_ETHERNETMODULE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "kernel/network/NetworkModule.h"
 #include "lib/util/network/ethernet/EthernetHeader.h"

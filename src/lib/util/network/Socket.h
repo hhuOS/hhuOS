@@ -21,7 +21,7 @@
 #ifndef HHUOS_LIB_SOCKET_H
 #define HHUOS_LIB_SOCKET_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util {
 template <typename T> class Array;

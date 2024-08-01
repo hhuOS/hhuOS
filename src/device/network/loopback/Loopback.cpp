@@ -30,14 +30,10 @@ Util::Network::MacAddress Loopback::getMacAddress() const {
 }
 
 void Loopback::handleOutgoingPacket(const uint8_t *packet, uint32_t length) {
-    Util::Io::ByteArrayOutputStream stream;
-    stream.write(packet, 0, length);
-
-    auto checkSequence = Kernel::Network::Ethernet::EthernetModule::calculateCheckSequence(packet, length);
-    Util::Network::NumberUtil::writeUnsigned32BitValue(checkSequence, stream);
-
-    handleIncomingPacket(stream.getBuffer(), stream.getLength());
+    lock.acquire();
+    handleIncomingPacket(packet, length);
     freeLastSendBuffer();
+    lock.release();
 }
 
 }

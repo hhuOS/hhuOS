@@ -18,7 +18,7 @@
 #ifndef HHUOS_PCSPEAKERNODE_H
 #define HHUOS_PCSPEAKERNODE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "filesystem/memory/StringNode.h"
 #include "lib/util/base/String.h"

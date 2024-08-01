@@ -18,7 +18,7 @@
 #ifndef HHUOS_ATOMICBITMAP_H
 #define HHUOS_ATOMICBITMAP_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util::Async {
 

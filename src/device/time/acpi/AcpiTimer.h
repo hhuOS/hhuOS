@@ -18,7 +18,7 @@
 #ifndef HHUOS_ACPITIMER_H
 #define HHUOS_ACPITIMER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "device/cpu/IoPort.h"
 #include "device/time/WaitTimer.h"

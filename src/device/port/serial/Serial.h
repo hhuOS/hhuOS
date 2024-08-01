@@ -18,7 +18,7 @@
 #ifndef HHUOS_SERIAL_H
 #define HHUOS_SERIAL_H
 
-#include <cstdint>
+#include <stdint.h>
 #include "lib/util/base/String.h"
 
 namespace Device::Serial {

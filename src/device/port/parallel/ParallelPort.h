@@ -18,7 +18,7 @@
 #ifndef HHUOS_PARALLELPORT_H
 #define HHUOS_PARALLELPORT_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "device/cpu/IoPort.h"
 #include "lib/util/base/String.h"

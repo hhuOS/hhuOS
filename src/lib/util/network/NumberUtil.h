@@ -21,7 +21,7 @@
 #ifndef HHUOS_UTIL_H
 #define HHUOS_UTIL_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util {
 namespace Io {

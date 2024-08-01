@@ -24,7 +24,7 @@
 #ifndef HHUOS_MODEL_H
 #define HHUOS_MODEL_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/math/Vector3D.h"
 #include "lib/util/graphic/Color.h"

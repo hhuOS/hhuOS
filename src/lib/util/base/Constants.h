@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
+#include <stdint.h>
 
 #ifndef HHUOS_CONSTANTS_H
 #define HHUOS_CONSTANTS_H

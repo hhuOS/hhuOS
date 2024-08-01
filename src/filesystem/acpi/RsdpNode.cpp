@@ -17,7 +17,7 @@
 
 #include "RsdpNode.h"
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "device/system/Acpi.h"
 #include "lib/util/hardware/Acpi.h"

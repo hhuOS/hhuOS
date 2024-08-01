@@ -18,7 +18,7 @@
 #ifndef HHUOS_ACPI_H
 #define HHUOS_ACPI_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/Address.h"

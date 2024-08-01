@@ -21,7 +21,7 @@
 #ifndef HHUOS_BATTLESPACE_H
 #define HHUOS_BATTLESPACE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/game/3d/Scene.h"
 #include "lib/util/game/KeyListener.h"

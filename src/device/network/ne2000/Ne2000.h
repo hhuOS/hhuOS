@@ -21,7 +21,7 @@
 #ifndef HHUOS_NE2000_H
 #define HHUOS_NE2000_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "device/network/NetworkDevice.h"
 #include "device/cpu/IoPort.h"

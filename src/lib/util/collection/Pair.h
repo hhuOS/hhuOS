@@ -18,7 +18,7 @@
 #ifndef __Pair_include__
 #define __Pair_include__
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util {
 

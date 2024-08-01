@@ -23,7 +23,7 @@
 
 #include "ObjectFile.h"
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/stream/BufferedInputStream.h"

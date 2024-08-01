@@ -19,7 +19,7 @@
 #define HHUOS_MATH_H
 
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util::Math {
 

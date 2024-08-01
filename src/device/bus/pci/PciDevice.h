@@ -18,7 +18,7 @@
 #ifndef HHUOS_PCIDEVICE_H
 #define HHUOS_PCIDEVICE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "Pci.h"
 #include "lib/util/collection/Array.h"

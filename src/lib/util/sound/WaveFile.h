@@ -18,7 +18,7 @@
 #ifndef HHUOS_WAVEFILE_H
 #define HHUOS_WAVEFILE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/io/stream/FilterInputStream.h"
 #include "lib/util/io/stream/FileInputStream.h"

@@ -21,7 +21,7 @@
 #ifndef HHUOS_DATAGRAMSOCKET_H
 #define HHUOS_DATAGRAMSOCKET_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "Socket.h"
 #include "lib/util/async/Spinlock.h"

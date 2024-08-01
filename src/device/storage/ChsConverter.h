@@ -19,7 +19,7 @@
 #define HHUOS_CHSCONVERTER_H
 
 
-#include <cstdint>
+#include <stdint.h>
 
 class ChsConverter {
 

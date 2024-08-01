@@ -18,7 +18,7 @@
 #ifndef __Ansi_include__
 #define __Ansi_include__
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/base/String.h"
 #include "Color.h"

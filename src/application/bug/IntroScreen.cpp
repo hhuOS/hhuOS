@@ -17,7 +17,7 @@
 
 #include "IntroScreen.h"
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "BugDefender.h"
 #include "lib/util/game/Game.h"

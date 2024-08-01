@@ -18,7 +18,7 @@
 #ifndef HHUOS_LINEDRAWER_H
 #define HHUOS_LINEDRAWER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util {
 namespace Graphic {

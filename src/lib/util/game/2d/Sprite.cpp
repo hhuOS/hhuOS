@@ -23,7 +23,7 @@
 
 #include "Sprite.h"
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/game/GameManager.h"
 #include "lib/util/graphic/BitmapFile.h"

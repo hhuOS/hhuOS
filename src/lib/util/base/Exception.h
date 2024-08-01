@@ -18,7 +18,7 @@
 #ifndef HHUOS_EXCEPTION_H
 #define HHUOS_EXCEPTION_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util {
 

@@ -18,7 +18,7 @@
 #ifndef HHUOS_UTIL_PROCESS_H
 #define HHUOS_UTIL_PROCESS_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/base/String.h"
 

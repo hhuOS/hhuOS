@@ -23,7 +23,7 @@ namespace Util::Time {
 Timestamp::Timestamp(uint32_t seconds, uint32_t fraction = 0) : seconds(seconds), fraction(fraction) {}
 
 Timestamp Timestamp::ofSeconds(uint32_t seconds) {
-    return Timestamp(1, 0);
+    return Timestamp(seconds, 0);
 }
 
 Timestamp Timestamp::ofMilliseconds(uint64_t milliseconds) {

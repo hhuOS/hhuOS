@@ -18,7 +18,7 @@
 #ifndef HHUOS_OUTPUTSTREAM_H
 #define HHUOS_OUTPUTSTREAM_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Util::Io {
 

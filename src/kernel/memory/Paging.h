@@ -24,7 +24,7 @@
 #ifndef __PAGING_H__
 #define __PAGING_H__
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace Kernel {
 

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdarg>
+#include <stdarg.h>
 
 #include "kernel/memory/Paging.h"
 #include "kernel/service/InterruptService.h"

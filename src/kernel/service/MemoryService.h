@@ -18,7 +18,7 @@
 #ifndef HHUOS_MEMORYSERVICE_H
 #define HHUOS_MEMORYSERVICE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "Service.h"
 #include "lib/util/collection/ArrayList.h"

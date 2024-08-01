@@ -17,7 +17,7 @@
 
 #include "FontDemo.h"
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/graphic/StringDrawer.h"

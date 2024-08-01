@@ -17,7 +17,7 @@
 #ifndef HHUOS_ISA_H
 #define HHUOS_ISA_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "device/cpu/IoPort.h"
 

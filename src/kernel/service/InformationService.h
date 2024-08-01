@@ -18,7 +18,7 @@
 #ifndef HHUOS_INFORMATIONSERVICE_H
 #define HHUOS_INFORMATIONSERVICE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "Service.h"
 

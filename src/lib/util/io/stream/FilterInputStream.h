@@ -18,7 +18,7 @@
 #ifndef HHUOS_FILTERINPUTSTREAM_H
 #define HHUOS_FILTERINPUTSTREAM_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "InputStream.h"
 

@@ -18,7 +18,7 @@
 #ifndef HHUOS_COLORGRAPHICSADAPTER_H
 #define HHUOS_COLORGRAPHICSADAPTER_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/graphic/Terminal.h"
 #include "device/cpu/IoPort.h"

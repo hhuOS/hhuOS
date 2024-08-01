@@ -18,7 +18,7 @@
 #ifndef HHUOS_MACHINE_H
 #define HHUOS_MACHINE_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "device/cpu/IoPort.h"
 

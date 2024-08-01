@@ -18,7 +18,7 @@
 #ifndef HHUOS_ALARMRUNNABLE_H
 #define HHUOS_ALARMRUNNABLE_H
 
-#include <cstdint>
+#include <stdint.h>
 #include "lib/util/async/Runnable.h"
 
 namespace Device {

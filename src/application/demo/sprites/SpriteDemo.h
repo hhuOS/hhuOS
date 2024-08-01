@@ -18,7 +18,7 @@
 #ifndef HHUOS_SPRITEDEMO_H
 #define HHUOS_SPRITEDEMO_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/game/2d/Scene.h"
 #include "lib/util/game/KeyListener.h"

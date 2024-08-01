@@ -18,7 +18,7 @@
 #ifndef HHUOS_POLYGONDEMO_H
 #define HHUOS_POLYGONDEMO_H
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "lib/util/collection/ArrayListBlockingQueue.h"
 #include "DemoPolygonFactory.h"
