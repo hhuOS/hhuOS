@@ -23,7 +23,7 @@
 #include "lib/util/game/2d/Sprite.h"
 #include "Explosive.h"
 
-class Bug;
+class EnemyBug;
 
 namespace Util {
 namespace Game {
@@ -44,7 +44,7 @@ public:
     /**
      * Constructor.
      */
-    explicit EnemyMissile(const Util::Math::Vector2D &position, Bug &bug);
+    explicit EnemyMissile(const Util::Math::Vector2D &position, EnemyBug &bug);
 
     /**
      * Copy Constructor.
@@ -78,7 +78,7 @@ public:
 private:
 
     Util::Game::D2::Sprite sprite;
-    Bug &bug;
+    EnemyBug &bug;
 };
 
 #endif

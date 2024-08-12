@@ -18,8 +18,8 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
-#ifndef HHUOS_BATTLESPACE_H
-#define HHUOS_BATTLESPACE_H
+#ifndef HHUOS_BATTLESPACEGAME_H
+#define HHUOS_BATTLESPACEGAME_H
 
 #include <stdint.h>
 
@@ -38,28 +38,28 @@ class Key;
 }  // namespace Io
 }  // namespace Util
 
-class BattleSpace : public Util::Game::D3::Scene, public Util::Game::KeyListener {
+class BattleSpaceGame : public Util::Game::D3::Scene, public Util::Game::KeyListener {
 
 public:
     /**
      * Default Constructor.
      */
-    BattleSpace();
+    BattleSpaceGame();
 
     /**
      * Copy Constructor.
      */
-    BattleSpace(const BattleSpace &other) = delete;
+    BattleSpaceGame(const BattleSpaceGame &other) = delete;
 
     /**
      * Assignment operator.
      */
-    BattleSpace &operator=(const BattleSpace &other) = delete;
+    BattleSpaceGame &operator=(const BattleSpaceGame &other) = delete;
 
     /**
      * Destructor.
      */
-    ~BattleSpace() override = default;
+    ~BattleSpaceGame() override = default;
 
     void update(double delta) override;
 

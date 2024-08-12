@@ -70,7 +70,7 @@ private:
             "",
             "",
             "",
-            "Dino runs automatically. Jump using SPACEBAR.",
+            "PlayerDino runs automatically. Jump using SPACEBAR.",
             "",
             "Press SPACE to start or ESC to exit!"
     };

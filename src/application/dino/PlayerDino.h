@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_DINO_H
-#define HHUOS_DINO_H
+#ifndef HHUOS_PLAYERDINO_H
+#define HHUOS_PLAYERDINO_H
 
 #include <stdint.h>
 
@@ -37,28 +37,28 @@ class TranslationEvent;
 }  // namespace Game
 }  // namespace Util
 
-class Dino : public Util::Game::D2::Entity {
+class PlayerDino : public Util::Game::D2::Entity {
 
 public:
     /**
      * Default Constructor.
      */
-    explicit Dino(const Util::Math::Vector2D &position);
+    explicit PlayerDino(const Util::Math::Vector2D &position);
 
     /**
      * Copy Constructor.
      */
-    Dino(const Dino &other) = delete;
+    PlayerDino(const PlayerDino &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Dino &operator=(const Dino &other) = delete;
+    PlayerDino &operator=(const PlayerDino &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Dino() override = default;
+    ~PlayerDino() override = default;
 
     void initialize() override;
 

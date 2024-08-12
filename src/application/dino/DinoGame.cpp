@@ -19,7 +19,7 @@
 
 #include <stdint.h>
 
-#include "application/dino/Dino.h"
+#include "application/dino/PlayerDino.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/game/Camera.h"
 #include "lib/util/game/2d/component/LinearMovementComponent.h"

@@ -24,11 +24,11 @@
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/collection/ArrayList.h"
-#include "Shell.h"
+#include "CommandLine.h"
 
-Shell::Shell(const Util::String &path) : startDirectory(path) {}
+CommandLine::CommandLine(const Util::String &path) : startDirectory(path) {}
 
-void Shell::run() {
+void CommandLine::run() {
     if (!Util::Io::File::changeDirectory(startDirectory)) {
         Util::System::error << "Unable to start shell in '" << startDirectory << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return;
@@ -45,7 +45,7 @@ void Shell::run() {
     }
 }
 
-void Shell::runCommand(Util::String command) {
+void CommandLine::runCommand(Util::String command) {
 	if (!Util::Io::File::changeDirectory(startDirectory)) {
         Util::System::error << "Unable to start shell in '" << startDirectory << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return;
@@ -56,7 +56,7 @@ void Shell::runCommand(Util::String command) {
 }
 
 
-void Shell::beginCommandLine() {
+void CommandLine::beginCommandLine() {
     currentLine = "";
     auto currentDirectory = Util::Io::File::getCurrentWorkingDirectory();
 
@@ -70,7 +70,7 @@ void Shell::beginCommandLine() {
     startPosition = Util::Graphic::Ansi::getCursorPosition();
 }
 
-void Shell::readLine() {
+void CommandLine::readLine() {
     Util::Graphic::Ansi::enableRawMode();
     int16_t input = Util::Graphic::Ansi::readChar();
 
@@ -176,7 +176,7 @@ void Shell::readLine() {
     Util::Graphic::Ansi::enableCanonicalMode();
 }
 
-void Shell::parseInput() {
+void CommandLine::parseInput() {
     const auto async = currentLine.endsWith("&");
     const auto pipeSplit = currentLine.substring(0, async ? currentLine.length() - 1 : currentLine.length()).split(">");
 
@@ -213,7 +213,7 @@ void Shell::parseInput() {
     historyIndex = history.size();
 }
 
-Util::Array<Util::String> Shell::parseArguments(const Util::String &argumentString, bool &valid) {
+Util::Array<Util::String> CommandLine::parseArguments(const Util::String &argumentString, bool &valid) {
     auto argumentList = Util::ArrayList<Util::String>();
     auto currentArgument = Util::String();
     bool inString = false;
@@ -244,7 +244,7 @@ Util::Array<Util::String> Shell::parseArguments(const Util::String &argumentStri
     return argumentList.toArray();
 }
 
-Util::String Shell::checkPath(const Util::String &command) const {
+Util::String CommandLine::checkPath(const Util::String &command) const {
     for (const auto &path : Util::String(PATH).split(":")) {
         auto file = Util::Io::File(path);
         auto binaryPath = checkDirectory(command, file);
@@ -256,7 +256,7 @@ Util::String Shell::checkPath(const Util::String &command) const {
     return "";
 }
 
-Util::String Shell::checkDirectory(const Util::String &command, Util::Io::File &directory) const {
+Util::String CommandLine::checkDirectory(const Util::String &command, Util::Io::File &directory) const {
     if (!directory.exists() || !directory.isDirectory()) {
         return "";
     }
@@ -275,7 +275,7 @@ Util::String Shell::checkDirectory(const Util::String &command, Util::Io::File &
     return "";
 }
 
-void Shell::cd(const Util::Array<Util::String> &arguments) {
+void CommandLine::cd(const Util::Array<Util::String> &arguments) {
     if (arguments.length() == 0) {
         return;
     }
@@ -300,7 +300,7 @@ void Shell::cd(const Util::Array<Util::String> &arguments) {
     }
 }
 
-void Shell::executeBinary(const Util::String &path, const Util::String &command, const Util::Array<Util::String> &arguments, const Util::String &outputPath, bool async) {
+void CommandLine::executeBinary(const Util::String &path, const Util::String &command, const Util::Array<Util::String> &arguments, const Util::String &outputPath, bool async) {
     auto binaryFile = Util::Io::File(path);
     auto inputFile = Util::Io::File("/device/terminal");
     auto outputFile = Util::Io::File(outputPath);
@@ -354,7 +354,7 @@ void Shell::executeBinary(const Util::String &path, const Util::String &command,
     }
 }
 
-void Shell::handleUpKey() {
+void CommandLine::handleUpKey() {
     if (history.isEmpty()) {
         return;
     }
@@ -377,7 +377,7 @@ void Shell::handleUpKey() {
     currentLine = historyLine;
 }
 
-void Shell::handleDownKey() {
+void CommandLine::handleDownKey() {
     if (history.isEmpty()) {
         return;
     }
@@ -404,7 +404,7 @@ void Shell::handleDownKey() {
     currentLine = historyLine;
 }
 
-void Shell::handleLeftKey() {
+void CommandLine::handleLeftKey() {
     auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
     auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
     auto startPosition = getStartPosition();
@@ -423,7 +423,7 @@ void Shell::handleLeftKey() {
     Util::Graphic::Ansi::setPosition(cursorPosition);
 }
 
-void Shell::handleRightKey() {
+void CommandLine::handleRightKey() {
     auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
     auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
     auto startPosition = getStartPosition();
@@ -443,7 +443,7 @@ void Shell::handleRightKey() {
     Util::Graphic::Ansi::setPosition(cursorPosition);
 }
 
-void Shell::handleBackspace() {
+void CommandLine::handleBackspace() {
     auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
     auto startPosition = getStartPosition();
 
@@ -464,7 +464,7 @@ void Shell::handleBackspace() {
     Util::Graphic::Ansi::setPosition(cursorPosition);
 }
 
-void Shell::handleDel() {
+void CommandLine::handleDel() {
     auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
     auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
 
@@ -477,7 +477,7 @@ void Shell::handleDel() {
     Util::Graphic::Ansi::setPosition(cursorPosition);
 }
 
-void Shell::handleTab() {
+void CommandLine::handleTab() {
     if (currentLine.isEmpty() || currentLine.contains(' ')) {
         return;
     }
@@ -523,24 +523,24 @@ void Shell::handleTab() {
     }
 }
 
-void Shell::handlePos1() {
+void CommandLine::handlePos1() {
     Util::Graphic::Ansi::setPosition(getStartPosition());
 }
 
-void Shell::handleEnd() {
+void CommandLine::handleEnd() {
     Util::Graphic::Ansi::setPosition(getEndPosition());
 }
 
-uint32_t Shell::getScrolledLines() const {
+uint32_t CommandLine::getScrolledLines() const {
     auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
     auto currentScrolledRow = (startPosition.row + (currentLine.length() + startPosition.column) / (cursorLimits.column + 1));
     return currentScrolledRow > cursorLimits.row ? currentScrolledRow - cursorLimits.row : 0;
 }
 
-Util::Graphic::Ansi::CursorPosition Shell::getStartPosition() const {
+Util::Graphic::Ansi::CursorPosition CommandLine::getStartPosition() const {
     auto cursorPosition = Util::Graphic::Ansi::getCursorPosition();
     auto scrolledLines = getScrolledLines();
-    auto startPosition = Util::Graphic::Ansi::CursorPosition{Shell::startPosition.column, static_cast<uint16_t>(Shell::startPosition.row - scrolledLines)};
+    auto startPosition = Util::Graphic::Ansi::CursorPosition{CommandLine::startPosition.column, static_cast<uint16_t>(CommandLine::startPosition.row - scrolledLines)};
     if (startPosition.row > cursorPosition.row) {
         startPosition.row = cursorPosition.row;
     }
@@ -548,7 +548,7 @@ Util::Graphic::Ansi::CursorPosition Shell::getStartPosition() const {
     return startPosition;
 }
 
-Util::Graphic::Ansi::CursorPosition Shell::getEndPosition() const {
+Util::Graphic::Ansi::CursorPosition CommandLine::getEndPosition() const {
     auto position = getStartPosition();
     auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
 
@@ -561,7 +561,7 @@ Util::Graphic::Ansi::CursorPosition Shell::getEndPosition() const {
     return position;
 }
 
-void Shell::buildAutoCompletionLists() {
+void CommandLine::buildAutoCompletionLists() {
     autoCompletionPathSuggestions.clear();
     autoCompletionCurrentWorkingDirectorySuggestions.clear();
 

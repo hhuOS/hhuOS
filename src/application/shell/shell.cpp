@@ -22,7 +22,7 @@
 #include "lib/util/base/System.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/io/stream/PrintStream.h"
-#include "Shell.h"
+#include "CommandLine.h"
 #include "lib/util/base/String.h"
 
 int32_t main(int32_t argc, char *argv[]) {
@@ -42,7 +42,7 @@ int32_t main(int32_t argc, char *argv[]) {
                 }
 
             Util::String command = Util::String::join(Util::String(" "), commandParts.toArray());
-            Shell shell = Shell(argv[1]);
+            CommandLine shell = CommandLine(argv[1]);
             shell.runCommand(command);
             return 0;
             }
@@ -54,7 +54,7 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    Shell shell(argc > 1 ? argv[1] : "/");
+    CommandLine shell(argc > 1 ? argv[1] : "/");
     shell.run();
 
     return 0;

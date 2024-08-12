@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Dino.h"
+#include "PlayerDino.h"
 
 #include "lib/util/collection/Array.h"
 #include "lib/util/game/Graphics.h"
@@ -31,9 +31,9 @@
 #include "Saw.h"
 #include "lib/util/graphic/font/Terminal8x16.h"
 
-Dino::Dino(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(0.2, 0.2), Util::Game::Collider::DYNAMIC)) {}
+PlayerDino::PlayerDino(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(0.2, 0.2), Util::Game::Collider::DYNAMIC)) {}
 
-void Dino::initialize() {
+void PlayerDino::initialize() {
     runAnimation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
         Util::Game::D2::Sprite("/user/dino/run1.bmp", 0.2, 0.2267),
         Util::Game::D2::Sprite("/user/dino/run2.bmp", 0.2, 0.2267),
@@ -73,25 +73,25 @@ void Dino::initialize() {
         Util::Game::D2::Sprite("/user/dino/death5.bmp", 0.2, 0.2267)}), 0.5);
 }
 
-void Dino::dash() {
+void PlayerDino::dash() {
     currentAnimation = &dashAnimation;
 }
 
-void Dino::jump() {
+void PlayerDino::jump() {
     if (onGround && hatched && !dying && !dead) {
         setVelocityY(JUMP_VELOCITY);
         onGround = false;
     }
 }
 
-void Dino::hatch() {
+void PlayerDino::hatch() {
     if (!hatching && !hatched && !dying && !dead) {
         currentAnimation = &crackAnimation;
         hatching = true;
     }
 }
 
-void Dino::onUpdate(double delta) {
+void PlayerDino::onUpdate(double delta) {
     if (dead) {
         return;
     }
@@ -123,14 +123,14 @@ void Dino::onUpdate(double delta) {
     getCollider().setSize(currentAnimation->getOriginalSize());
 }
 
-void Dino::draw(Util::Game::Graphics &graphics) {
+void PlayerDino::draw(Util::Game::Graphics &graphics) {
     currentAnimation->draw(graphics, getPosition());
 
     graphics.setColor(Util::Graphic::Colors::GREEN);
     graphics.drawString(Util::Graphic::Fonts::TERMINAL_8x16, Util::Math::Vector2D(10, 10), Util::String::format("Points: %u", points));
 }
 
-void Dino::die() {
+void PlayerDino::die() {
     if (hatched && !dying && !dead) {
         time = 0;
         dying = true;
@@ -139,7 +139,7 @@ void Dino::die() {
     }
 }
 
-void Dino::reset() {
+void PlayerDino::reset() {
     if (!hatching) {
         time = 0;
         hatching = false;
@@ -157,13 +157,13 @@ void Dino::reset() {
     }
 }
 
-void Dino::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
+void PlayerDino::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     if (dying || dead) {
         event.cancel();
     }
 }
 
-void Dino::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
+void PlayerDino::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == Ground::TAG) {
         onGround = true;
     } else if(event.getCollidedWidth().getTag() == Saw::TAG) {
@@ -171,22 +171,22 @@ void Dino::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
     }
 }
 
-bool Dino::hasHatched() const {
+bool PlayerDino::hasHatched() const {
     return hatched;
 }
 
-bool Dino::isDying() const {
+bool PlayerDino::isDying() const {
     return dying;
 }
 
-bool Dino::isDead() const {
+bool PlayerDino::isDead() const {
     return dead;
 }
 
-void Dino::setPoints(uint32_t points) {
-    Dino::points = points;
+void PlayerDino::setPoints(uint32_t points) {
+    PlayerDino::points = points;
 }
 
-uint32_t Dino::getPoints() const {
+uint32_t PlayerDino::getPoints() const {
     return points;
 }

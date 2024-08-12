@@ -18,7 +18,7 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
-#include "BattleSpace.h"
+#include "BattleSpaceGame.h"
 
 #include "lib/util/game/Game.h"
 #include "lib/util/game/GameManager.h"
@@ -33,7 +33,7 @@
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/Key.h"
 
-BattleSpace::BattleSpace() {
+BattleSpaceGame::BattleSpaceGame() {
     addObject(new Astronomical("planet1", Util::Math::Vector3D(13, 16, 1000), 150, Util::Math::Vector3D(0, 0, 0), Util::Graphic::Colors::BLUE));
     addObject(new Astronomical("planet1", Util::Math::Vector3D(37, -8, -3000), 400, Util::Math::Vector3D(0, 0, 0), Util::Graphic::Colors::YELLOW));
 
@@ -72,7 +72,7 @@ BattleSpace::BattleSpace() {
     setKeyListener(*this);
 }
 
-void BattleSpace::update(double delta) {
+void BattleSpaceGame::update(double delta) {
     if (player->getHealth() <= 0) {
         Util::Game::GameManager::getGame().pushScene(new GameOverScreen(player->getScore()));
         Util::Game::GameManager::getGame().switchToNextScene();
@@ -125,7 +125,7 @@ void BattleSpace::update(double delta) {
     }
 }
 
-void BattleSpace::keyPressed(Util::Io::Key key) {
+void BattleSpaceGame::keyPressed(Util::Io::Key key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC:
             Util::Game::GameManager::getGame().stop();
@@ -173,7 +173,7 @@ void BattleSpace::keyPressed(Util::Io::Key key) {
     }
 }
 
-void BattleSpace::keyReleased(Util::Io::Key key) {
+void BattleSpaceGame::keyReleased(Util::Io::Key key) {
     switch (key.getScancode()) {
         case Util::Io::Key::LEFT:
         case Util::Io::Key::RIGHT:

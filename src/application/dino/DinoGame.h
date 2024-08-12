@@ -19,7 +19,7 @@
 #define HHUOS_DINOGAME_H
 
 #include "lib/util/game/KeyListener.h"
-#include "Dino.h"
+#include "PlayerDino.h"
 #include "lib/util/math/Random.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/math/Vector2D.h"
@@ -72,7 +72,7 @@ public:
 
 private:
 
-    Dino *dino = new Dino(Util::Math::Vector2D(-0.8, 0));
+    PlayerDino *dino = new PlayerDino(Util::Math::Vector2D(-0.8, 0));
 
     Util::ArrayListBlockingQueue<Ground*> ground = Util::ArrayListBlockingQueue<Ground*>();
 

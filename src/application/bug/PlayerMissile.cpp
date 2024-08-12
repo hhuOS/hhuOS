@@ -28,7 +28,7 @@
 #include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2D.h"
 #include "EnemyMissile.h"
-#include "Bug.h"
+#include "EnemyBug.h"
 #include "lib/util/base/String.h"
 
 PlayerMissile::PlayerMissile(const Util::Math::Vector2D &position, Ship &ship) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)), ship(ship) {
@@ -57,8 +57,8 @@ void PlayerMissile::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
         if (missile.isExploding()) {
             return;
         }
-    } else if (tag == Bug::TAG) {
-        const auto &bug = event.getCollidedWidth<const Bug&>();
+    } else if (tag == EnemyBug::TAG) {
+        const auto &bug = event.getCollidedWidth<const EnemyBug&>();
         if (bug.isExploding()) {
             return;
         }

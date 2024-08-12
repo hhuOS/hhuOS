@@ -31,7 +31,7 @@
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Bug Defender - A space invaders clone.\n"
+    argumentParser.setHelpText("EnemyBug Defender - A space invaders clone.\n"
                                "Usage: bug\n"
                                "Options:\n"
                                "  -r, --resolution: Set display resolution"

@@ -22,7 +22,7 @@
 
 #include "lib/util/game/Game.h"
 #include "lib/util/game/GameManager.h"
-#include "BattleSpace.h"
+#include "BattleSpaceGame.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/base/String.h"
 #include "lib/util/game/Graphics.h"
@@ -61,7 +61,7 @@ void GameOverScreen::keyPressed(Util::Io::Key key) {
             break;
         case Util::Io::Key::SPACE:
             auto &game = Util::Game::GameManager::getGame();
-            game.pushScene(new BattleSpace());
+            game.pushScene(new BattleSpaceGame());
             game.switchToNextScene();
     }
 }

@@ -32,9 +32,9 @@
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/base/String.h"
 
-class Bug;
+class EnemyBug;
 
-EnemyMissile::EnemyMissile(const Util::Math::Vector2D &position, Bug &bug) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)), bug(bug) {
+EnemyMissile::EnemyMissile(const Util::Math::Vector2D &position, EnemyBug &bug) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)), bug(bug) {
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
 }
 

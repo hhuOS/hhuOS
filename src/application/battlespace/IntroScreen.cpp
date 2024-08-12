@@ -24,7 +24,7 @@
 
 #include "lib/util/game/Game.h"
 #include "lib/util/game/GameManager.h"
-#include "BattleSpace.h"
+#include "BattleSpaceGame.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/graphic/Colors.h"
@@ -61,7 +61,7 @@ void IntroScreen::keyPressed(Util::Io::Key key) {
             Util::Game::GameManager::getGame().stop();
             break;
         case Util::Io::Key::SPACE:
-            Util::Game::GameManager::getGame().pushScene(new BattleSpace());
+            Util::Game::GameManager::getGame().pushScene(new BattleSpaceGame());
             Util::Game::GameManager::getGame().switchToNextScene();
             break;
     }

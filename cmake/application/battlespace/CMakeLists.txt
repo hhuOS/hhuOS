@@ -23,9 +23,9 @@ include_directories(${HHUOS_SRC_DIR})
 
 # Set source files
 set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/battlespace/Astronomical.cpp
         ${HHUOS_SRC_DIR}/application/battlespace/battlespace.cpp
-        ${HHUOS_SRC_DIR}/application/battlespace/BattleSpace.cpp
+        ${HHUOS_SRC_DIR}/application/battlespace/Astronomical.cpp
+        ${HHUOS_SRC_DIR}/application/battlespace/BattleSpaceGame.cpp
         ${HHUOS_SRC_DIR}/application/battlespace/Enemy.cpp
         ${HHUOS_SRC_DIR}/application/battlespace/EnemyDebris.cpp
         ${HHUOS_SRC_DIR}/application/battlespace/GameOverScreen.cpp

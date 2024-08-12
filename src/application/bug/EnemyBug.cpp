@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Bug.h"
+#include "EnemyBug.h"
 
 #include "lib/util/game/2d/component/LinearMovementComponent.h"
 #include "lib/util/game/2d/event/CollisionEvent.h"
@@ -37,11 +37,11 @@
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/base/String.h"
 
-Bug::Bug(const Util::Math::Vector2D &position, Fleet &fleet) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)), fleet(fleet) {
+EnemyBug::EnemyBug(const Util::Math::Vector2D &position, Fleet &fleet) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)), fleet(fleet) {
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
 }
 
-void Bug::initialize() {
+void EnemyBug::initialize() {
     Explosive::initialize();
 
     animation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
@@ -49,7 +49,7 @@ void Bug::initialize() {
         Util::Game::D2::Sprite("/user/bug/bug2.bmp", SIZE_X, SIZE_Y)}), 0.5);
 }
 
-void Bug::onUpdate(double delta) {
+void EnemyBug::onUpdate(double delta) {
     Explosive::onUpdate(delta);
 
     if (hasExploded()) {
@@ -77,7 +77,7 @@ void Bug::onUpdate(double delta) {
     }
 }
 
-void Bug::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
+void EnemyBug::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     if (isExploding()) {
         event.cancel();
         return;
@@ -93,13 +93,13 @@ void Bug::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     }
 }
 
-void Bug::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
+void EnemyBug::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == PlayerMissile::TAG) {
         explode();
     }
 }
 
-void Bug::draw(Util::Game::Graphics &graphics) {
+void EnemyBug::draw(Util::Game::Graphics &graphics) {
     if (isExploding()) {
         Explosive::draw(graphics);
     } else {
@@ -107,7 +107,7 @@ void Bug::draw(Util::Game::Graphics &graphics) {
     }
 }
 
-void Bug::fireMissile() {
+void EnemyBug::fireMissile() {
     auto *missile = new EnemyMissile(getPosition() + Util::Math::Vector2D((SIZE_X / 2) - (EnemyMissile::SIZE_X / 2), -SIZE_Y), *this);
     Util::Game::GameManager::getCurrentScene().addObject(missile);
     missile->setVelocityY(-1);

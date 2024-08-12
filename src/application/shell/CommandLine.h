@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_SHELL_H
-#define HHUOS_SHELL_H
+#ifndef HHUOS_COMMANDLINE_H
+#define HHUOS_COMMANDLINE_H
 
 
 #include <stdint.h>
@@ -33,28 +33,28 @@ class File;
 }  // namespace File
 }  // namespace Util
 
-class Shell : public Util::Async::Runnable {
+class CommandLine : public Util::Async::Runnable {
 
 public:
     /**
      * Default Constructor.
      */
-    explicit Shell(const Util::String &path = "/");
+    explicit CommandLine(const Util::String &path = "/");
 
     /**
      * Copy Constructor.
      */
-    Shell(const Shell &other) = delete;
+    CommandLine(const CommandLine &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Shell &operator=(const Shell &other) = delete;
+    CommandLine &operator=(const CommandLine &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Shell() override = default;
+    ~CommandLine() override = default;
 
     void run() override;
 	

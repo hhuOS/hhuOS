@@ -21,7 +21,7 @@
 #include "lib/util/math/Random.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
-#include "Bug.h"
+#include "EnemyBug.h"
 #include "application/bug/Fleet.h"
 #include "application/bug/Ship.h"
 #include "lib/util/base/String.h"
@@ -33,7 +33,7 @@ BugDefender::BugDefender() {
 
     for (uint32_t i = 0; i < BUGS_PER_COLUMN; i++) {
         for (uint32_t j = 0; j < BUGS_PER_ROW; j++) {
-            addObject(new Bug(Util::Math::Vector2D(-1.0 + j * (Bug::SIZE_X + 0.05), 0.8 - i * (Bug::SIZE_Y + 0.05)), enemyFleet));
+            addObject(new EnemyBug(Util::Math::Vector2D(-1.0 + j * (EnemyBug::SIZE_X + 0.05), 0.8 - i * (EnemyBug::SIZE_Y + 0.05)), enemyFleet));
         }
     }
 

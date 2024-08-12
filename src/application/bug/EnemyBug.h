@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_BUG_H
-#define HHUOS_BUG_H
+#ifndef HHUOS_ENEMYBUG_H
+#define HHUOS_ENEMYBUG_H
 
 #include <stdint.h>
 
@@ -38,28 +38,28 @@ class Vector2D;
 }  // namespace Math
 }  // namespace Util
 
-class Bug : public Explosive {
+class EnemyBug : public Explosive {
 
 public:
     /**
      * Constructor.
      */
-    explicit Bug(const Util::Math::Vector2D &position, Fleet &fleet);
+    explicit EnemyBug(const Util::Math::Vector2D &position, Fleet &fleet);
 
     /**
      * Copy Constructor.
      */
-    Bug(const Bug &other) = delete;
+    EnemyBug(const EnemyBug &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Bug &operator=(const Bug &other) = delete;
+    EnemyBug &operator=(const EnemyBug &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Bug() override = default;
+    ~EnemyBug() override = default;
 
     void initialize() override;
 

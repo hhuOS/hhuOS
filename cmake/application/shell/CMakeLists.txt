@@ -24,7 +24,7 @@ include_directories(${HHUOS_SRC_DIR})
 # Set source files
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/shell/shell.cpp
-        ${HHUOS_SRC_DIR}/application/shell/Shell.cpp)
+        ${HHUOS_SRC_DIR}/application/shell/CommandLine.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
