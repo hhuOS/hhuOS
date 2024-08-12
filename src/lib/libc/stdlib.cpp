@@ -24,7 +24,7 @@ void *calloc(size_t num, size_t size) {
     void *buf = allocateMemory(size * num);
     memset(buf, 0, size * num);
 
-	return allocateMemory(size * num);
+	return buf;
 }
 
 void *realloc(void *ptr, size_t new_size) {
