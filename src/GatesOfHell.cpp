@@ -112,6 +112,7 @@
 #include "device/graphic/VesaBiosExtensions.h"
 #include "device/time/acpi/AcpiTimer.h"
 #include "lib/util/time/Timestamp.h"
+#include "device/time/hpet/Hpet.h"
 
 namespace Device {
 class WaitTimer;
@@ -509,7 +510,17 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         acpiTimer = new Device::AcpiTimer();
     }
 
-    Device::WaitTimer *waitTimer = acpiTimer == nullptr ? static_cast<Device::WaitTimer*>(pit) : static_cast<Device::WaitTimer*>(acpiTimer);
+    Device::Hpet *hpet = nullptr;
+    if (Device::Hpet::isAvailable()) {
+        LOG_INFO("Initializing HPET");
+        hpet = new Device::Hpet();
+    }
+
+    Device::WaitTimer *waitTimer = hpet;
+    if (waitTimer == nullptr) {
+        waitTimer = acpiTimer == nullptr ? static_cast<Device::WaitTimer*>(pit) : static_cast<Device::WaitTimer*>(acpiTimer);
+    }
+
     auto *timeService = new Kernel::TimeService(waitTimer, pit, rtc);
     Kernel::Service::registerService(Kernel::TimeService::SERVICE_ID, timeService);
 

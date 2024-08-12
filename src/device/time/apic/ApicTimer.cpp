@@ -86,7 +86,7 @@ Util::Time::Timestamp ApicTimer::getTime() {
 
 void ApicTimer::calibrate() {
     if (BASE_FREQUENCY != 0) {
-        return; // Timer is already calibrated
+        return; // PeriodicTimer is already calibrated
     }
 
     // Prepare calibration
@@ -102,7 +102,7 @@ void ApicTimer::calibrate() {
     timeService.busyWait(waitTime);
     BASE_FREQUENCY = (0xffffffff - LocalApic::readDoubleWord(LocalApic::TIMER_CURRENT)) * 10; // Ticks in 1 ms
 
-    LOG_INFO("Apic Timer frequency: [%u MHz]", BASE_FREQUENCY / 1000000);
+    LOG_INFO("Apic PeriodicTimer frequency: [%u MHz]", BASE_FREQUENCY / 1000000);
 }
 
 uint8_t ApicTimer::getCpuId() const {

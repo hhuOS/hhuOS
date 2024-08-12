@@ -199,6 +199,19 @@ public:
         ApicStructureHeader apicStructure; // Is a list
     } __attribute__ ((packed));
 
+    struct Hpet : public SdtHeader {
+        uint8_t hardwareRevision;
+        uint8_t comparatorCount: 5;
+        uint8_t counterSize: 1;
+        uint8_t reserved: 1;
+        uint8_t legacy_replacement: 1;
+        uint16_t pciVendorId;
+        GenericAddressStructure address;
+        uint8_t hpetNumber;
+        uint16_t minimumTick;
+        uint8_t pageProtection;
+    } __attribute__((packed));
+
     /**
      * Default Constructor.
      * Deleted, as this class has only static members.

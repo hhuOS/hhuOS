@@ -73,7 +73,7 @@ public:
 
     [[nodiscard]] Util::Network::MacAddress getMacAddress() const override;
 
-    void plugin();
+    void plugin() override;
 
     /**
      * Implemented according to flow Chart "Interrupt Service Routine" Page 2
