@@ -17,25 +17,22 @@
 
 #include <stdint.h>
 
+#include "opengl.h"
+#include "lib/util/base/Address.h"
 #include "lib/util/base/System.h"
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/tinygl/include/GL/gl.h"
 #include "lib/util/graphic/Ansi.h"
+#include "lib/tinygl/include/zbuffer.h"
+#include "lib/tinygl/include/GL/gl.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/stream/PrintStream.h"
 
-extern void triangle(const Util::Graphic::LinearFrameBuffer &lfb);
-extern void gears(const Util::Graphic::LinearFrameBuffer &lfb);
-
-void info() {
-    Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Vendor: " << Util::Graphic::Ansi::RESET << reinterpret_cast<const char*>(glGetString(GL_VENDOR)) << Util::Io::PrintStream::endl
-            << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Renderer: " << Util::Graphic::Ansi::RESET << reinterpret_cast<const char*>(glGetString(GL_RENDERER)) << Util::Io::PrintStream::endl
-            << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Version: " << Util::Graphic::Ansi::RESET << reinterpret_cast<const char*>(glGetString(GL_VERSION)) << Util::Io::PrintStream::endl
-            << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Extensions: " << Util::Graphic::Ansi::RESET << reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS)) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-}
+extern void info();
+extern void triangle(void *frameBuffer, const Util::Graphic::LinearFrameBuffer &lfb);
+extern void gears(void *frameBuffer, const Util::Graphic::LinearFrameBuffer &lfb);
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -80,11 +77,13 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
+    auto *glBuffer = ZB_open(lfb.getResolutionX(), lfb.getResolutionY(), ZB_MODE_RGBA, nullptr);
+    glInit(glBuffer);
 
     if (demo == "triangle") {
-        triangle(lfb);
+        triangle(glBuffer, lfb);
     } else if (demo == "gears") {
-        gears(lfb);
+        gears(glBuffer, lfb);
     } else {
         Util::System::error << "opengl: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
@@ -92,4 +91,8 @@ int32_t main(int32_t argc, char *argv[]) {
 
     Util::Graphic::Ansi::cleanupGraphicalApplication();
     return 0;
+}
+
+void flush(void *glBuffer, const Util::Graphic::LinearFrameBuffer &lfb) {
+    ZB_copyFrameBuffer(reinterpret_cast<ZBuffer*>(glBuffer), reinterpret_cast<void*>(lfb.getBuffer().get()), lfb.getPitch());
 }

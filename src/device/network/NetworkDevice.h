@@ -32,7 +32,6 @@ class BitmapMemoryManager;
 namespace Device {
 namespace Network {
 class PacketReader;
-class PacketWriter;
 }  // namespace Network
 }  // namespace Device
 

@@ -282,7 +282,7 @@ void printKernelStackTrace(bool log) {
     while (reinterpret_cast<uint32_t>(ebp) >= Kernel::MemoryLayout::KERNEL_START) {
         uint32_t eip = ebp[1];
 
-        if (eip == 0x0000DEAD) {
+        if (eip == 0x0000DEAD || eip < Kernel::MemoryLayout::KERNEL_START || eip > Kernel::MemoryLayout::KERNEL_END) {
             break;
         }
 

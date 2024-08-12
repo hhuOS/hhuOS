@@ -4,10 +4,9 @@
 
 #include <math.h>
 #include <stdint.h>
+#include <GL/gl.h>
 
-#include "lib/tinygl/include/GL/gl.h"
-#include "lib/tinygl/include/zbuffer.h"
-#include "lib/util/base/Address.h"
+#include "opengl.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/time/Timestamp.h"
@@ -16,8 +15,10 @@
 #include "lib/util/base/System.h"
 #include "lib/util/math/Math.h"
 #include "lib/util/base/String.h"
-#include "lib/util/graphic/Color.h"
 #include "lib/util/io/stream/InputStream.h"
+#include "lib/util/graphic/PixelDrawer.h"
+#include "lib/util/graphic/StringDrawer.h"
+#include "lib/util/graphic/font/Terminal8x8.h"
 
 const constexpr uint32_t TARGET_FRAME_RATE = 60;
 const constexpr GLfloat VIEW_ROTATION_X = 20.0;
@@ -155,19 +156,15 @@ void drawGears() {
     glPopMatrix();
 
     glPopMatrix();
-
-    auto fps = static_cast<uint32_t>(lastFrameTime.toMicroseconds() == 0 ? 0 : 1000000 / lastFrameTime.toMicroseconds());
-    auto infoString = Util::String::format("OpenGL Vendor:   %s\nOpenGL Renderer: %s\nOpenGL Version:  %s\nFPS: %u", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION), fps);
-    glDrawText(reinterpret_cast<const GLubyte*>(static_cast<const char*>(infoString)), 0, 0, Util::Graphic::Colors::WHITE.getRGB32());
 }
 
-void gears(const Util::Graphic::LinearFrameBuffer &lfb) {
+void gears(void *frameBuffer, const Util::Graphic::LinearFrameBuffer &lfb) {
     const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / TARGET_FRAME_RATE));
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
-    // Initialize frame buffer
-    auto* frameBuffer = ZB_open(lfb.getResolutionX(), lfb.getResolutionY(), ZB_MODE_RGBA, nullptr);
-    glInit(frameBuffer);
+    // Create string drawer to draw FPS
+    auto pixelDrawer = Util::Graphic::PixelDrawer(lfb);
+    auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
 
     // Initialize GL
     glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -237,7 +234,11 @@ void gears(const Util::Graphic::LinearFrameBuffer &lfb) {
         }
 
         drawGears();
-        ZB_copyFrameBuffer(frameBuffer, reinterpret_cast<void*>(lfb.getBuffer().get()), lfb.getPitch());
+        flush(frameBuffer, lfb);
+
+        auto fps = static_cast<uint32_t>(lastFrameTime.toMicroseconds() == 0 ? 0 : 1000000 / lastFrameTime.toMicroseconds());
+        auto fpsString = Util::String::format("FPS: %u", fps);
+        stringDrawer.drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(fpsString), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
 
         auto frameTime = Util::Time::getSystemTime() - startTime;
         if (frameTime < targetFrameTime) {
