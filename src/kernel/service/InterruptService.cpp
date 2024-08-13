@@ -126,7 +126,11 @@ Device::Apic &InterruptService::getApic() {
 }
 
 bool InterruptService::status(Device::InterruptRequest interrupt) {
-    return !(usesApic() ? apic->status(interrupt) : pic->status(interrupt));
+    if (usesApic()) {
+        return !apic->status(interrupt);
+    }
+
+    return !pic->status(interrupt);
 }
 
 uint16_t InterruptService::getInterruptMask() {
@@ -161,6 +165,30 @@ bool InterruptService::isParallelComputingAllowed() const {
 
 void InterruptService::allowParallelComputing() {
     InterruptService::parallelComputingAllowed = true;
+}
+
+Device::InterruptRequest InterruptService::getInterruptSource(GlobalSystemInterrupt gsi) {
+    if (usesApic()) {
+        return apic->getIrqSource(gsi);
+    }
+
+    return static_cast<Device::InterruptRequest>(gsi);
+}
+
+GlobalSystemInterrupt InterruptService::getInterruptTarget(Device::InterruptRequest interrupt) {
+    if (usesApic()) {
+        return apic->getIrqOverride(interrupt);
+    }
+
+    return static_cast<Kernel::GlobalSystemInterrupt>(interrupt);
+}
+
+GlobalSystemInterrupt InterruptService::getMaxInterruptTarget() {
+    if (usesApic()) {
+        return apic->getMaxInterruptTarget();
+    }
+
+    return static_cast<GlobalSystemInterrupt>(Device::InterruptRequest::SECONDARY_ATA);
 }
 
 }

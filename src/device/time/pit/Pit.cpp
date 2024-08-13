@@ -31,12 +31,18 @@ struct InterruptFrame;
 
 namespace Device {
 
-Pit::Pit(const Util::Time::Timestamp &timerInterval, const Util::Time::Timestamp &yieldInterval) : timerInterval(timerInterval), yieldInterval(yieldInterval) {
-    setInterruptRate(timerInterval);
+void Pit::disable() {
+    auto controlPort = IoPort(0x43);
+    auto command = Command(OperatingMode::INTERRUPT_ON_TERMINAL_COUNT, AccessMode::LOW_BYTE_ONLY);
+
+    controlPort.writeByte(static_cast<uint8_t>(command));
 }
 
-void Pit::setInterruptRate(const Util::Time::Timestamp &interval) {
-    auto divisor = interval.toNanoseconds() / NANOSECONDS_PER_TICK;
+void Pit::setInterruptRate(const Util::Time::Timestamp &timerInterval, const Util::Time::Timestamp &yieldInterval) {
+    Pit::timerInterval = timerInterval;
+    Pit::yieldInterval = yieldInterval;
+
+    auto divisor = timerInterval.toNanoseconds() / NANOSECONDS_PER_TICK;
     if (divisor > UINT16_MAX) divisor = UINT16_MAX;
 
     setDivisor(divisor);

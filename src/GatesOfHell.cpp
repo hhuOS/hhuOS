@@ -116,6 +116,8 @@
 
 namespace Device {
 class WaitTimer;
+class DateProvider;
+class TimeProvider;
 }  // namespace Device
 
 namespace Util {
@@ -443,16 +445,13 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         LOG_INFO("APM is available");
         machine = Device::AdvancedPowerManagement::initialize();
     }
-	
-	
+
     if (machine == nullptr) {
         machine = new Device::Machine();
     }
-	
 
     auto *powerManagementService = new Kernel::PowerManagementService(machine);
     Kernel::Service::registerService(Kernel::PowerManagementService::SERVICE_ID, powerManagementService);
-
 
     Device::Graphic::VesaBiosExtensions *vbe = nullptr;
     if (multiboot->getKernelOption("vbe", "true") == "true" && Device::Graphic::VesaBiosExtensions::isAvailable()) {
@@ -487,41 +486,24 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
 
     auto *lfbNode = lfb == nullptr ? nullptr : new Device::Graphic::LinearFrameBufferNode("lfb", *lfb, vbe);
 
-    // Setup time and date devices
-    // Needs to be done before PIC/APIC initialization, since they call 'TimeService::busyWait()'
-    LOG_INFO("Initializing PIT");
-    auto *pit = new Device::Pit(Util::Time::Timestamp::ofMilliseconds(1), Util::Time::Timestamp::ofMilliseconds(10));
+    // Set up a timer device for busy wait functionality.
+    // Needs to be done before PIC/APIC initialization, since they call 'TimeService::busyWait()'.
+    // System timer and date provider can be initialized later on
+    LOG_INFO("Searching for timer device suitable for busy waiting");
+    Device::WaitTimer *waitTimer = nullptr;
 
-    Device::Rtc *rtc = nullptr;
-    if (Device::Rtc::isAvailable()) {
-        LOG_INFO("Initializing RTC");
-        rtc = new Device::Rtc();
-
-        if (!Device::Rtc::isValid()) {
-            LOG_WARN("CMOS has been cleared -> RTC is probably providing invalid date and time");
-        }
-    } else {
-        LOG_INFO("RTC not available");
-    }
-
-    Device::AcpiTimer *acpiTimer = nullptr;
-    if (Device::AcpiTimer::isAvailable()) {
-        LOG_INFO("Initializing ACPI timer");
-        acpiTimer = new Device::AcpiTimer();
-    }
-
-    Device::Hpet *hpet = nullptr;
     if (Device::Hpet::isAvailable()) {
-        LOG_INFO("Initializing HPET");
-        hpet = new Device::Hpet();
+        LOG_INFO("Using HPET for busy waiting");
+        waitTimer = new Device::Hpet();
+    } else if (Device::AcpiTimer::isAvailable()) {
+        LOG_INFO("Using ACPI timer for busy waiting");
+        waitTimer = new Device::AcpiTimer();
+    } else {
+        LOG_INFO("Using PIT for busy waiting");
+        waitTimer = new Device::Pit();
     }
 
-    Device::WaitTimer *waitTimer = hpet;
-    if (waitTimer == nullptr) {
-        waitTimer = acpiTimer == nullptr ? static_cast<Device::WaitTimer*>(pit) : static_cast<Device::WaitTimer*>(acpiTimer);
-    }
-
-    auto *timeService = new Kernel::TimeService(waitTimer, pit, rtc);
+    auto *timeService = new Kernel::TimeService(waitTimer);
     Kernel::Service::registerService(Kernel::TimeService::SERVICE_ID, timeService);
 
     // Initialize classic PIC
@@ -571,10 +553,49 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     Device::Cpu::enableInterrupts();
     Device::Cmos::enableNmi();
 
-    pit->plugin();
-    if (rtc != nullptr) {
-        rtc->plugin();
+    // Set up system timer
+    LOG_INFO("Searching for timer device suitable as system timer");
+    Device::TimeProvider *systemTimer = nullptr;
+
+    if (Device::Hpet::isAvailable()) {
+        LOG_INFO("Using HPET as system timer");
+        Device::Pit::disable();
+        auto *hpet = reinterpret_cast<Device::Hpet*>(waitTimer);
+        hpet->pluginSystemTimer();
+        systemTimer = hpet;
+    } else if (Device::AcpiTimer::isAvailable()) {
+        LOG_INFO("Using PIT as system timer");
+        auto *pit = new Device::Pit();
+        pit->setInterruptRate(Util::Time::Timestamp::ofMilliseconds(1), Util::Time::Timestamp::ofMilliseconds(10));
+        pit->plugin();
+        systemTimer = pit;
+    } else {
+        LOG_INFO("Using PIT as system timer");
+        auto *pit = (Device::Pit*) waitTimer;
+        pit->setInterruptRate(Util::Time::Timestamp::ofMilliseconds(1), Util::Time::Timestamp::ofMilliseconds(10));
+        pit->plugin();
+        systemTimer = pit;
     }
+    timeService->setTimeProvider(systemTimer);
+
+    // Set up date provider
+    LOG_INFO("Searching for date provider device");
+    Device::DateProvider *dateProvider = nullptr;
+
+    if (Device::Rtc::isAvailable()) {
+        LOG_INFO("Using RTC as date provider");
+        auto *rtc = new Device::Rtc();
+        rtc->plugin();
+
+        if (!Device::Rtc::isValid()) {
+            LOG_WARN("CMOS has been cleared -> RTC is probably providing invalid date and time");
+        }
+
+        dateProvider = rtc;
+    } else {
+        LOG_ERROR("No date provider available");
+    }
+    timeService->setDateProvider(dateProvider);
 
     // Scan PCI bus
     Device::Pci::scan();

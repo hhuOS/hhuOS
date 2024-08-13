@@ -28,7 +28,7 @@
 
 namespace Kernel {
 
-TimeService::TimeService(Device::WaitTimer *waitTimer, Device::TimeProvider *timeProvider, Device::DateProvider *dateProvider) : waitTimer(waitTimer), timeProvider(timeProvider), dateProvider(dateProvider) {
+TimeService::TimeService(Device::WaitTimer *waitTimer) : waitTimer(waitTimer) {
     Service::getService<InterruptService>().assignSystemCall(Util::System::GET_SYSTEM_TIME, [](uint32_t paramCount, va_list arguments) -> bool {
         if (paramCount < 1) {
             return false;
@@ -66,12 +66,22 @@ TimeService::TimeService(Device::WaitTimer *waitTimer, Device::TimeProvider *tim
     });
 }
 
+void TimeService::setTimeProvider(Device::TimeProvider *timeProvider) {
+    delete TimeService::timeProvider;
+    TimeService::timeProvider = timeProvider;
+}
+
+void TimeService::setDateProvider(Device::DateProvider *dateProvider) {
+    delete TimeService::dateProvider;
+    TimeService::dateProvider = dateProvider;
+}
+
 Util::Time::Timestamp TimeService::getSystemTime() const {
-    if (timeProvider != nullptr) {
-        return timeProvider->getTime();
+    if (timeProvider == nullptr) {
+        return Util::Time::Timestamp::ofSeconds(0);
     }
 
-    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "TimeService: No time provider available!");
+    return timeProvider->getTime();
 }
 
 Util::Time::Date TimeService::getCurrentDate() const {

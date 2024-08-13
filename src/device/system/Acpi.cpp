@@ -70,7 +70,7 @@ bool Acpi::hasTable(const char *signature) const {
 
 Util::Array<Util::String> Acpi::getAvailableTables() const {
     if (rsdt == nullptr) {
-        Util::Array<Util::String>(0);
+        return Util::Array<Util::String>(0);
     }
 
     auto numTables = (rsdt->header.length - sizeof(Util::Hardware::Acpi::SdtHeader)) / sizeof(uint32_t);

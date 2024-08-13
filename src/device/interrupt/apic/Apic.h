@@ -136,6 +136,12 @@ public:
     [[nodiscard]] bool isSymmetricMultiprocessingSupported() const;
     
     void startupApplicationProcessors();
+
+    Kernel::GlobalSystemInterrupt getIrqOverride(InterruptRequest interruptRequest);
+
+    InterruptRequest getIrqSource(Kernel::GlobalSystemInterrupt gsi);
+
+    Kernel::GlobalSystemInterrupt getMaxInterruptTarget();
     
 private:
 
@@ -163,8 +169,6 @@ private:
     void prepareApplicationProcessorWarmReset();
 
     Kernel::GlobalDescriptorTable::Descriptor** prepareApplicationProcessorGdts();
-
-    Kernel::GlobalSystemInterrupt getIrqOverride(InterruptRequest interruptRequest);
 
     static Util::Array<LocalApic*> getLocalApics();
 

@@ -290,6 +290,14 @@ Kernel::GlobalSystemInterrupt Apic::getIrqOverride(InterruptRequest interruptReq
     return ioApic->hasOverride(interruptRequest) ? ioApic->getOverride(interruptRequest).target : static_cast<Kernel::GlobalSystemInterrupt>(interruptRequest);
 }
 
+InterruptRequest Apic::getIrqSource(Kernel::GlobalSystemInterrupt gsi) {
+    return ioApic->hasOverride(gsi) ? ioApic->getOverride(gsi).source : static_cast<InterruptRequest>(gsi);
+}
+
+Kernel::GlobalSystemInterrupt Apic::getMaxInterruptTarget() {
+    return ioApic->getMaxGlobalSystemInterruptNumber();
+}
+
 bool Apic::isCurrentTimerRunning() {
     return localTimers.get(LocalApic::getId()) != nullptr;
 }

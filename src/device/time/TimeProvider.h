@@ -20,6 +20,7 @@
 
 #include <stdint.h>
 #include "lib/util/time/Timestamp.h"
+#include "kernel/interrupt/InterruptHandler.h"
 
 namespace Device {
 

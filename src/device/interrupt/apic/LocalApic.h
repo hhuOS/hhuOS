@@ -127,9 +127,9 @@ public:
         ICR_HIGH = 0x310, // Interrupt Command Register (upper 32 bit)
 
         // These are located here, instead of in the ApicTimer class, because this class does the register access
-        TIMER_INITIAL = 0x380, // PeriodicTimer Initial Count Register
-        TIMER_CURRENT = 0x390, // PeriodicTimer Current Count Register
-        TIMER_DIVIDE = 0x3E0   // PeriodicTimer Divide Configuration Register
+        TIMER_INITIAL = 0x380, // Timer Initial Count Register
+        TIMER_CURRENT = 0x390, // Timer Current Count Register
+        TIMER_DIVIDE = 0x3E0   // Timer Divide Configuration Register
     };
 
     /**

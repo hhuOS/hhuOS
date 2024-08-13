@@ -36,7 +36,7 @@ namespace Device {
 /**
  * Driver for the CMOS Realtime clock.
  */
-class Rtc : public DateProvider, public TimeProvider, public Kernel::InterruptHandler {
+class Rtc : public Kernel::InterruptHandler,  public TimeProvider, public DateProvider {
 
 public:
     /**

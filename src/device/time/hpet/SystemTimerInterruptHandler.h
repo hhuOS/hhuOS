@@ -13,67 +13,62 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The HPET driver is based on a bachelor's thesis, written by Suratsch Hassan.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-suhas102
  */
 
-#ifndef HHUOS_TIMESERVICE_H
-#define HHUOS_TIMESERVICE_H
+#ifndef HHUOS_SYSTEMTIMERINTERRUPTHANDLER_H
+#define HHUOS_SYSTEMTIMERINTERRUPTHANDLER_H
 
 #include <stdint.h>
 
-#include "Service.h"
-#include "lib/util/time/Date.h"
+#include "lib/util/async/Runnable.h"
 #include "lib/util/time/Timestamp.h"
 
 namespace Device {
-class WaitTimer;
-class DateProvider;
-class TimeProvider;
-}  // namespace Device
+class Hpet;
+class Timer;
 
-namespace Kernel {
-
-class TimeService : public Service {
+class SystemTimerInterruptHandler : public Util::Async::Runnable {
 
 public:
     /**
      * Constructor.
      */
-    explicit TimeService(Device::WaitTimer *waitTimer);
+    explicit SystemTimerInterruptHandler(Hpet &hpet, Timer &timer);
 
     /**
      * Copy Constructor.
      */
-    TimeService(const TimeService &copy) = delete;
+    SystemTimerInterruptHandler(const SystemTimerInterruptHandler &other) = delete;
 
     /**
      * Assignment operator.
      */
-    TimeService& operator=(const TimeService &other) = delete;
+    SystemTimerInterruptHandler &operator=(const SystemTimerInterruptHandler &other) = delete;
 
     /**
      * Destructor.
      */
-    ~TimeService() override = default;
+    ~SystemTimerInterruptHandler() override = default;
 
-    void setTimeProvider(Device::TimeProvider *timeProvider);
+    void run() override;
 
-    void setDateProvider(Device::DateProvider *dateProvider);
+    void armTimer();
 
-    [[nodiscard]] Util::Time::Timestamp getSystemTime() const;
-
-    [[nodiscard]] Util::Time::Date getCurrentDate() const;
-
-    void setCurrentDate(const Util::Time::Date &date);
-
-    void busyWait(const Util::Time::Timestamp &time) const;
-
-    static const constexpr uint8_t SERVICE_ID = 6;
+    [[nodiscard]] Util::Time::Timestamp getTime();
 
 private:
 
-    Device::WaitTimer *waitTimer;
-    Device::TimeProvider *timeProvider = nullptr;
-    Device::DateProvider *dateProvider = nullptr;
+    Hpet &hpet;
+    Timer &timer;
+    uint64_t ticksPerSecond = 0;
+    uint32_t interruptCount = 0;
+    uint64_t lastCounterValue = 0;
+
+    uint32_t pendingInterrupts = 0;
+    uint32_t readerCount = 0;
 };
 
 }

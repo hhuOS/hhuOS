@@ -21,15 +21,17 @@
 #ifndef HHUOS_HPET_H
 #define HHUOS_HPET_H
 
+#include <stdint.h>
+
 #include "device/time/TimeProvider.h"
 #include "device/time/WaitTimer.h"
-#include "kernel/interrupt/InterruptFrame.h"
-#include "kernel/interrupt/InterruptVector.h"
-#include "kernel/interrupt/InterruptHandler.h"
+#include "lib/util/time/Timestamp.h"
 
 namespace Device {
+class SystemTimerInterruptHandler;
+class Timer;
 
-class Hpet : public WaitTimer {
+class Hpet : public WaitTimer, public TimeProvider {
 
 public:
 
@@ -71,10 +73,23 @@ public:
 
     uint64_t readCounter();
 
+    [[nodiscard]] uint64_t getFemtosecondsPerTick() const;
+
+    [[nodiscard]] uint64_t getMaxValue() const;
+
+    bool usableAsSystemTimer();
+
+    void pluginSystemTimer();
+
     /**
      * Overriding function from WaitTimer.
      */
-    void wait(const Util::Time::Timestamp &waitTime) override;
+    void wait(const Util::Time::Timestamp &time) override;
+
+    /**
+     * Overriding function from TimeProvider.
+     */
+    Util::Time::Timestamp getTime() override;
 
 private:
 
@@ -84,8 +99,11 @@ private:
     };
 
     uint8_t *baseAddress = nullptr;
-    uint64_t counterClockPeriod = 0;
+    uint64_t femtosecondsPerTick = 0;
     uint64_t maxValue = 0;
+
+    Timer *systemTimer = nullptr;
+    SystemTimerInterruptHandler *systemTimerInterruptHandler = nullptr;
 };
 
 }

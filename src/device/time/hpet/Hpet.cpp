@@ -19,32 +19,42 @@
  */
 
 #include "Hpet.h"
+
+#include "Timer.h"
 #include "device/system/Acpi.h"
 #include "kernel/service/InformationService.h"
 #include "kernel/log/Log.h"
 #include "kernel/service/MemoryService.h"
+#include "kernel/service/InterruptService.h"
+#include "device/interrupt/InterruptRequest.h"
+#include "device/time/hpet/SystemTimerInterruptHandler.h"
+#include "kernel/service/Service.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/hardware/Acpi.h"
 
 namespace Device {
 
-Hpet::Hpet() : baseAddress() {
+Hpet::Hpet() {
     auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
     if (!acpi.hasTable("HPET")) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Trying to initialize non-existent HPET!");
     }
 
     const auto &hpetTable = acpi.getTable<Util::Hardware::Acpi::Hpet>("HPET");
-    LOG_INFO("Found HPET (Address: [0x%08x])", hpetTable.address.address);
-
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     baseAddress = static_cast<uint8_t*>(memoryService.mapIO(reinterpret_cast<uint8_t*>(hpetTable.address.address), 1));
 
     auto capabilities = readRegister(GENERAL_CAPABILITIES_ID);
-    auto timerCount = static_cast<uint8_t>((capabilities >> 8) & 0x1f);
     bool bits64 = capabilities & (1 << 13);
-    counterClockPeriod = static_cast<uint32_t>((capabilities >> 32) & 0xffffffff);
-    LOG_INFO("Vendor: [0x%04x], Revision: [%u], Comparators: [%u], Counter clock period: [%u fs], Counter size: [%s]",
-             static_cast<uint32_t>((capabilities >> 16) & 0xffff), static_cast<uint32_t>(capabilities & 0xff),
-             timerCount, counterClockPeriod, bits64 ? "64-bit" : "32-bit");
+    femtosecondsPerTick = (capabilities >> 32) & 0xffffffff;
+
+    LOG_INFO("Vendor: [0x%04x], Revision: [%u], Comparators: [%u], Counter clock period: [%u ns], Counter size: [%s]",
+             static_cast<uint32_t>((capabilities >> 16) & 0xffff),
+             static_cast<uint32_t>(capabilities & 0xff),
+             static_cast<uint32_t>((capabilities >> 8) & 0x1f),
+             static_cast<uint32_t>(femtosecondsPerTick / 1000000),
+             bits64 ? "64-bit" : "32-bit");
 
     maxValue = bits64 ? UINT64_MAX : UINT32_MAX;
 
@@ -77,6 +87,80 @@ uint64_t Hpet::readCounter() {
     return counterLow | (static_cast<uint64_t>(counterHigh) << 32);
 }
 
+uint64_t Hpet::getFemtosecondsPerTick() const {
+    return femtosecondsPerTick;
+}
+
+uint64_t Hpet::getMaxValue() const {
+    return maxValue;
+}
+
+bool Hpet::usableAsSystemTimer() {
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
+    if (!interruptService.usesApic()) {
+        return false;
+    }
+
+    if (systemTimer == nullptr) {
+        auto capabilities = readRegister(GENERAL_CAPABILITIES_ID);
+        auto timerCount = static_cast<uint8_t>((capabilities >> 8) & 0x1f);
+
+        for (uint8_t i = 0; i < timerCount; i++) {
+            auto validInterrupts = Timer::getValidInterruptLines(*this, i);
+            if (validInterrupts.contains(InterruptRequest::PIT)) {
+                systemTimer = new Timer(*this, i, InterruptRequest::PIT);
+                systemTimerInterruptHandler = new SystemTimerInterruptHandler(*this, *systemTimer);
+
+                break;
+            }
+        }
+    }
+
+    return systemTimer != nullptr;
+}
+
+void Hpet::pluginSystemTimer() {
+    // Setup first available timer as system timer
+    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
+    auto validInterrupts = Timer::getValidInterruptLines(*this, 0);
+    InterruptRequest interrupt = validInterrupts[0];
+    bool interruptFound = false;
+
+    if (validInterrupts.contains(InterruptRequest::PIT)) {
+        // Try to use the PIT interrupt, since the PIT is definitely not in use when the HPET is used
+        interrupt = InterruptRequest::PIT;
+        interruptFound = true;
+    } else {
+        // Timer cannot be used with the PIT interrupt -> Try to find an interrupt number above the classic PC/AT interrupts
+        for (const auto &currentInterrupt: validInterrupts) {
+            if (currentInterrupt > InterruptRequest::SECONDARY_ATA && currentInterrupt <= static_cast<uint32_t>(interruptService.getMaxInterruptTarget())) {
+                interrupt = currentInterrupt;
+                interruptFound = true;
+                break;
+            }
+        }
+    }
+
+    if (!interruptFound) {
+        // As a last resort, try to use one of the three free PC/AT interrupts
+        if (validInterrupts.contains(InterruptRequest::FREE1)) {
+            interrupt = InterruptRequest::FREE1;
+        } else if (validInterrupts.contains(InterruptRequest::FREE2)) {
+            interrupt = InterruptRequest::FREE2;
+        } else if (validInterrupts.contains(InterruptRequest::FREE3)) {
+            interrupt = InterruptRequest::FREE3;
+        }
+    }
+
+    LOG_INFO("Using interrupt [%u] for system timer", interrupt);
+
+    systemTimer = new Timer(*this, 0, interrupt);
+    systemTimerInterruptHandler = new SystemTimerInterruptHandler(*this, *systemTimer);
+
+    systemTimer->plugin();
+    systemTimerInterruptHandler->armTimer();
+}
+
 void Hpet::wait(const Util::Time::Timestamp &waitTime) {
     Util::Time::Timestamp elapsedTime;
     auto lastTimerValue = readCounter();
@@ -85,9 +169,13 @@ void Hpet::wait(const Util::Time::Timestamp &waitTime) {
         auto timerValue = readCounter();
         auto ticks = timerValue >= lastTimerValue ? timerValue - lastTimerValue : maxValue - lastTimerValue + timerValue;
 
-        elapsedTime += Util::Time::Timestamp::ofNanoseconds((ticks * counterClockPeriod) / 1000000);
+        elapsedTime += Util::Time::Timestamp::ofNanoseconds((ticks * femtosecondsPerTick) / 1000000);
         lastTimerValue = timerValue;
     }
+}
+
+Util::Time::Timestamp Hpet::getTime() {
+    return systemTimerInterruptHandler->getTime();
 }
 
 }

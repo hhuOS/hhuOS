@@ -26,6 +26,7 @@
 #include "kernel/interrupt/InterruptDescriptorTable.h"
 #include "lib/util/base/System.h"
 #include "kernel/interrupt/SystemCallDispatcher.h"
+#include "kernel/interrupt/GlobalSystemInterrupt.h"
 
 namespace Device {
 class Apic;
@@ -93,6 +94,12 @@ public:
     uint16_t getInterruptMask();
 
     void setInterruptMask(uint16_t mask);
+
+    Device::InterruptRequest getInterruptSource(GlobalSystemInterrupt gsi);
+
+    GlobalSystemInterrupt getInterruptTarget(Device::InterruptRequest interrupt);
+
+    GlobalSystemInterrupt getMaxInterruptTarget();
 
     void sendEndOfInterrupt(InterruptVector interrupt);
 

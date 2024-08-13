@@ -38,13 +38,9 @@ class Pit : public Kernel::InterruptHandler, public TimeProvider, public WaitTim
 
 public:
     /**
-     * Constructor with interval rate.
-     * Configures the PIT to generate periodic interrupts at a given rate and drive the scheduler
-     *
-     * @param timerInterval The interval at which the PIT shall trigger interrupts.
-     * @param yieldInterval The interval at which the scheduler shall be yielded.
+     * Default Constructor.
      */
-    explicit Pit(const Util::Time::Timestamp &timerInterval, const Util::Time::Timestamp &yieldInterval);
+    Pit() = default;
 
     /**
      * Copy Constructor.
@@ -60,6 +56,15 @@ public:
      * Destructor.
      */
     ~Pit() override = default;
+
+    /**
+     * Sets the interval at which the PIT fires interrupts.
+     * Also configures the PIT to drive the scheduler at a given rate, if the system uses the classic PIC.
+     *
+     * @param timerInterval The interval at which the PIT shall trigger interrupts.
+     * @param yieldInterval The interval at which the scheduler shall be yielded.
+     */
+    void setInterruptRate(const Util::Time::Timestamp &interval, const Util::Time::Timestamp &yieldInterval);
 
     /**
      * Overriding function from InterruptHandler.
@@ -90,6 +95,8 @@ public:
      * @param ms The delay in microseconds
      */
     void wait(const Util::Time::Timestamp &waitTime) override;
+
+    static void disable();
 
     static const constexpr uint32_t BASE_FREQUENCY = 1193182;
 
@@ -137,13 +144,6 @@ private:
     } __attribute__ ((packed));
 
     uint16_t readTimer();
-
-    /**
-     * Sets the interval at which the PIT fires interrupts.
-     *
-     * @param interval The interval
-     */
-    void setInterruptRate(const Util::Time::Timestamp &interval);
 
     void setDivisor(uint16_t divisor);
 
