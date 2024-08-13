@@ -63,12 +63,14 @@ private:
 
     Hpet &hpet;
     Timer &timer;
-    uint64_t ticksPerSecond = 0;
+    uint64_t ticksPerInterrupt = 0;
     uint32_t interruptCount = 0;
     uint64_t lastCounterValue = 0;
 
     uint32_t pendingInterrupts = 0;
     uint32_t readerCount = 0;
+
+    static const constexpr uint32_t SECONDS_PER_INTERRUPT = 10;
 };
 
 }

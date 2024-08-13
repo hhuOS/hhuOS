@@ -27,14 +27,14 @@
 namespace Device {
 
 SystemTimerInterruptHandler::SystemTimerInterruptHandler(Hpet &hpet, Timer &timer) : hpet(hpet), timer(timer) {
-    ticksPerSecond = 1000000000000000 / hpet.getFemtosecondsPerTick();
+    ticksPerInterrupt = (1000000000000000 / hpet.getFemtosecondsPerTick()) * SECONDS_PER_INTERRUPT;
 }
 
 void SystemTimerInterruptHandler::run() {
     auto counterValue = hpet.readCounter();
-    if (lastCounterValue + ticksPerSecond > counterValue && lastCounterValue + ticksPerSecond > lastCounterValue) {
+    if (lastCounterValue + ticksPerInterrupt > counterValue && lastCounterValue + ticksPerInterrupt > lastCounterValue) {
         // Less than a second has passed since the last interrupt (for some reason, this happens right after enabling the timer in QEMU)
-        timer.arm(lastCounterValue + ticksPerSecond, *this);
+        timer.arm(lastCounterValue + ticksPerInterrupt, *this);
         return;
     }
 
@@ -46,12 +46,12 @@ void SystemTimerInterruptHandler::run() {
         pendingInterrupts = 0;
     }
 
-    timer.arm(lastCounterValue + ticksPerSecond, *this);
+    timer.arm(lastCounterValue + ticksPerInterrupt, *this);
 }
 
 void SystemTimerInterruptHandler::armTimer() {
     lastCounterValue = hpet.readCounter();
-    timer.arm(lastCounterValue + ticksPerSecond, *this);
+    timer.arm(lastCounterValue + ticksPerInterrupt, *this);
 }
 
 Util::Time::Timestamp SystemTimerInterruptHandler::getTime() {
@@ -65,7 +65,7 @@ Util::Time::Timestamp SystemTimerInterruptHandler::getTime() {
     auto currentCounter = hpet.readCounter();
     auto ticksSinceLastInterrupt = currentCounter >= lastCounter ? currentCounter - lastCounter : hpet.getMaxValue() - lastCounter + currentCounter;
 
-    return Util::Time::Timestamp::ofNanoseconds(((interrupts * ticksPerSecond + ticksSinceLastInterrupt) * hpet.getFemtosecondsPerTick()) / 1000000);
+    return Util::Time::Timestamp::ofNanoseconds(((interrupts * ticksPerInterrupt + ticksSinceLastInterrupt) * hpet.getFemtosecondsPerTick()) / 1000000);
 }
 
 }
