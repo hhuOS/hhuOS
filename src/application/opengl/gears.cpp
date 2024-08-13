@@ -25,7 +25,10 @@ const constexpr GLfloat VIEW_ROTATION_X = 20.0;
 const constexpr GLfloat VIEW_ROTATION_Y = 30.0;
 const constexpr GLfloat PI = Util::Math::PI;
 
-static Util::Time::Timestamp lastFrameTime;
+static Util::Time::Timestamp fpsTimer;
+static uint32_t fpsCounter = 0;
+static uint32_t fps = 0;
+
 static GLfloat rotationAngle = 0;
 static GLuint gear1, gear2, gear3;
 
@@ -132,7 +135,6 @@ static void gear(GLfloat innerRadius, GLfloat outerRadius, GLfloat width, GLint 
 void drawGears() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    rotationAngle += (static_cast<GLfloat>(lastFrameTime.toMicroseconds()) / 1000000) * 70;
     glPushMatrix();
     glRotatef(VIEW_ROTATION_X, 1.0, 0.0, 0.0);
     glRotatef(VIEW_ROTATION_Y, 0.0, 1.0, 0.0);
@@ -236,20 +238,23 @@ void gears(void *frameBuffer, const Util::Graphic::LinearFrameBuffer &lfb) {
         drawGears();
         flush(frameBuffer, lfb);
 
-        auto fps = static_cast<uint32_t>(lastFrameTime.toMicroseconds() == 0 ? 0 : 1000000 / lastFrameTime.toMicroseconds());
-        auto fpsString = Util::String::format("FPS: %u", fps);
-        stringDrawer.drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(fpsString), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
-
-        auto frameTime = Util::Time::getSystemTime() - startTime;
-        if (frameTime < targetFrameTime) {
-            Util::Async::Thread::sleep(targetFrameTime - frameTime);
-        }
+        stringDrawer.drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
 
         auto renderTime = Util::Time::getSystemTime() - startTime;
         if (renderTime < targetFrameTime) {
             Util::Async::Thread::sleep(targetFrameTime - renderTime);
         }
 
-        lastFrameTime = Util::Time::getSystemTime() - startTime;
+        fpsCounter++;
+        auto frameTime = Util::Time::getSystemTime() - startTime;
+        fpsTimer += frameTime;
+
+        if (fpsTimer >= Util::Time::Timestamp::ofSeconds(1)) {
+            fps = fpsCounter;
+            fpsCounter = 0;
+            fpsTimer.reset();
+        }
+
+        rotationAngle += (static_cast<GLfloat>(frameTime.toMicroseconds()) / 1000000) * 75;
     }
 }
