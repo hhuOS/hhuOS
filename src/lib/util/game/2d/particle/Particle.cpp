@@ -61,7 +61,7 @@ void Particle::draw(Graphics &graphics) {
 void Particle::onTranslationEvent(TranslationEvent &event) {}
 
 void Particle::onCollisionEvent(CollisionEvent &event) {
-    parent.removeParticle(this);
+    parent.onParticleCollision(*this, event);
 }
 
 bool Particle::isParticle() const {

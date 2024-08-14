@@ -57,7 +57,7 @@ public:
     /**
      * Destructor.
      */
-    ~Component() = default;
+    virtual ~Component() = default;
 
 protected:
 

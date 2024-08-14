@@ -37,18 +37,18 @@ DemoSprite::DemoSprite(const Util::Math::Vector2D &position, double size, double
 
 void DemoSprite::initialize() {
     animation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
-        Util::Game::D2::Sprite("/user/dino/run1.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/user/dino/run2.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/user/dino/run3.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/user/dino/run4.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/user/dino/run5.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/user/dino/run6.bmp", 0.2, 0.2267),
-        Util::Game::D2::Sprite("/user/dino/dash1.bmp", 0.24, 0.2),
-        Util::Game::D2::Sprite("/user/dino/dash2.bmp", 0.24, 0.2),
-        Util::Game::D2::Sprite("/user/dino/dash3.bmp", 0.24, 0.2),
-        Util::Game::D2::Sprite("/user/dino/dash4.bmp", 0.24, 0.2),
-        Util::Game::D2::Sprite("/user/dino/dash5.bmp", 0.24, 0.2),
-        Util::Game::D2::Sprite("/user/dino/dash6.bmp", 0.24, 0.2)}), 1.0);
+        Util::Game::D2::Sprite("/user/dino/player/run1.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/player/run2.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/player/run3.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/player/run4.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/player/run5.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/player/run6.bmp", 0.2, 0.2267),
+        Util::Game::D2::Sprite("/user/dino/player/dash1.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/user/dino/player/dash2.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/user/dino/player/dash3.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/user/dino/player/dash4.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/user/dino/player/dash5.bmp", 0.24, 0.2),
+        Util::Game::D2::Sprite("/user/dino/player/dash6.bmp", 0.24, 0.2)}), 1.0);
 
     if (flipX) {
         animation.flipX();

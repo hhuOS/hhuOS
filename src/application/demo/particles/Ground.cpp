@@ -34,10 +34,10 @@ class CollisionEvent;
 }  // namespace Game
 }  // namespace Util
 
-Ground::Ground(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(2, 0.2), Util::Game::Collider::STATIC)) {}
+Ground::Ground(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(2, SIZE), Util::Game::Collider::STATIC)) {}
 
 void Ground::initialize() {
-    sprite = Util::Game::D2::Sprite("/user/dino/ground.bmp", 0.2, 0.2);
+    sprite = Util::Game::D2::Sprite("/user/dino/block/grass.bmp", SIZE, SIZE);
 }
 
 void Ground::onUpdate(double delta) {}

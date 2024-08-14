@@ -39,7 +39,7 @@ class Collider {
 public:
 
     enum Type {
-        STATIC, DYNAMIC
+        PERMEABLE, STATIC, DYNAMIC,
     };
 
     /**

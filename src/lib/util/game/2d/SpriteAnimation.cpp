@@ -90,6 +90,10 @@ void SpriteAnimation::flipX() {
     xFlipped = !xFlipped;
 }
 
+void SpriteAnimation::setXFlipped(bool flipped) {
+    xFlipped = flipped;
+}
+
 void SpriteAnimation::draw(const Graphics &graphics, const Math::Vector2D &position) const {
     graphics.drawImage2D(position, sprites[currentSprite].getImage(), xFlipped, alpha, scale, rotationAngle);
 }

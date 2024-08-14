@@ -94,6 +94,8 @@ public:
 
     void flipX();
 
+    void setXFlipped(bool flipped);
+
     void draw(const Graphics &graphics, const Math::Vector2D &position) const;
 
 private:

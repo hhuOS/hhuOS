@@ -120,6 +120,7 @@ void Engine::run() {
 void Engine::initializeNextScene() {
     if (!game.firstScene) {
         game.getCurrentScene().getCamera().setPosition(Math::Vector3D(0, 0, 0));
+        graphics.update();
     }
 
     auto resolution = GameManager::getAbsoluteResolution();

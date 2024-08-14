@@ -73,6 +73,7 @@ public:
     void draw(Util::Game::Graphics &graphics) override;
 
     static const constexpr uint32_t TAG = 1;
+    static const constexpr double SIZE = 0.1;
 
 private:
 

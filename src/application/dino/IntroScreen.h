@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The dino game is based on a bachelor's thesis, written by Malte Sehmer.
+ * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
 #ifndef HHUOS_DINO_INTROSCREEN_H
@@ -63,14 +66,16 @@ public:
 
 private:
 
-    static const constexpr char *INTRO_TEXT[9] = {
+    static const constexpr char *INTRO_TEXT[11] = {
             "___  _ _  _ ____",
             "|  \\ | |\\ | |  |",
             "|__/ | | \\| |__|",
             "",
             "",
             "",
-            "PlayerDino runs automatically. Jump using SPACEBAR.",
+            "Let dino hatch by pressing SPACE.",
+            "Use ARROW KEYS to move and SPACE to jump.",
+            "Collect coins to earns points and fruit to finish a level!",
             "",
             "Press SPACE to start or ESC to exit!"
     };

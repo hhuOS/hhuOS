@@ -35,6 +35,12 @@ Entity::Entity(uint32_t tag, const Math::Vector2D &position) : Util::Game::Entit
 
 Entity::Entity(uint32_t tag, const Math::Vector2D &position, const RectangleCollider &collider) : Util::Game::Entity(tag), position(position), colliderPresent(true), collider(collider) {}
 
+Entity::~Entity() {
+    for (auto *component : components) {
+        delete component;
+    }
+}
+
 void Entity::translate(const Math::Vector2D &translation) {
     auto newPosition = position + translation;
     auto event = TranslationEvent(newPosition);
@@ -123,7 +129,7 @@ void Entity::update(double delta) {
 }
 
 void Entity::onCollision(CollisionEvent &event) {
-    if (collider.getType() == Collider::DYNAMIC) {
+    if (collider.getType() == Collider::DYNAMIC && event.getCollidedWidth().getCollider().getType() != Collider::PERMEABLE) {
         switch (event.getSide()) {
             case RectangleCollider::BOTTOM:
                 setPosition(Math::Vector2D(position.getX(), event.getCollidedWidth().getPosition().getY() + event.getCollidedWidth().getCollider().getHeight()));

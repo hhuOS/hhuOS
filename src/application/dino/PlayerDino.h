@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The dino game is based on a bachelor's thesis, written by Malte Sehmer.
+ * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
 #ifndef HHUOS_PLAYERDINO_H
@@ -40,8 +43,14 @@ class TranslationEvent;
 class PlayerDino : public Util::Game::D2::Entity {
 
 public:
+
+    enum Direction : int32_t {
+        RIGHT = 1,
+        LEFT = -1
+    };
+
     /**
-     * Default Constructor.
+     * Constructor.
      */
     explicit PlayerDino(const Util::Math::Vector2D &position);
 
@@ -64,7 +73,9 @@ public:
 
     void onUpdate(double delta) override;
 
-    void dash();
+    void idle();
+
+    void run();
 
     void jump();
 
@@ -74,15 +85,19 @@ public:
 
     void reset();
 
-    void setPoints(uint32_t points);
+    void setDirection(Direction direction);
 
-    [[nodiscard]] uint32_t getPoints() const;
+    [[nodiscard]] Direction getDirection() const;
 
     [[nodiscard]] bool hasHatched() const;
 
     [[nodiscard]] bool isDying() const;
 
     [[nodiscard]] bool isDead() const;
+
+    [[nodiscard]] uint32_t getPoints() const;
+
+    void setPoints(uint32_t points);
 
     void onTranslationEvent(Util::Game::D2::TranslationEvent &event) override;
 
@@ -91,6 +106,7 @@ public:
     void draw(Util::Game::Graphics &graphics) override;
 
     static const constexpr uint32_t TAG = 0;
+    static const constexpr double SIZE = 0.1;
 
 private:
 
@@ -99,18 +115,22 @@ private:
     bool hatched = false;
     bool dead = false;
     bool onGround = false;
+    bool running = false;
+
+    Direction direction = RIGHT;
 
     uint32_t points = 0;
 
     double time = 0;
     Util::Game::D2::SpriteAnimation *currentAnimation = &eggAnimation;
+    Util::Game::D2::SpriteAnimation idleAnimation;
     Util::Game::D2::SpriteAnimation runAnimation;
-    Util::Game::D2::SpriteAnimation dashAnimation;
     Util::Game::D2::SpriteAnimation eggAnimation;
     Util::Game::D2::SpriteAnimation crackAnimation;
     Util::Game::D2::SpriteAnimation hatchAnimation;
     Util::Game::D2::SpriteAnimation deathAnimation;
 
+    static const constexpr double MAX_VELOCITY = 0.3;
     static const constexpr double JUMP_VELOCITY = 0.75;
 };
 

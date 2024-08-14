@@ -30,6 +30,7 @@
 #include "lib/util/graphic/Color.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/math/Vector2D.h"
+#include "Dino.h"
 
 ParticleDemo::ParticleDemo() {
     cloud = new RainEmitter(Util::Math::Vector2D(0, 0.8));
@@ -39,6 +40,9 @@ ParticleDemo::ParticleDemo() {
         auto *newGround = new Ground(Util::Math::Vector2D(-1.5 + i, -1));
         addObject(newGround);
     }
+
+    addObject(new Dino(Util::Math::Vector2D(-0.7, -1 + Ground::SIZE), false));
+    addObject(new Dino(Util::Math::Vector2D(0.5, -1 + Ground::SIZE), true));
 
     setKeyListener(*this);
 }

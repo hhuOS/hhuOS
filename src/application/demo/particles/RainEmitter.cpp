@@ -44,7 +44,7 @@ RainEmitter::RainEmitter(const Util::Math::Vector2D &position) : Util::Game::D2:
 
 void RainEmitter::initialize() {
     Emitter::initialize();
-    cloudSprite = Util::Game::D2::Sprite("/user/dino/cloud3.bmp", 0.6, 0.15);
+    cloudSprite = Util::Game::D2::Sprite("/user/dino/background/cloud3.bmp", 0.6, 0.15);
 
     setVelocityX(SPEED);
     setEmissionTime(0.2);
@@ -66,7 +66,7 @@ void RainEmitter::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     if (event.getTargetPosition().getX() < -1) {
         setPositionX(-1);
         setVelocityX(SPEED);
-    } else if (event.getTargetPosition().getX() > 0.6){
+    } else if (event.getTargetPosition().getX() > 0.6) {
         setPositionX(0.6);
         setVelocityX(-SPEED);
     }
@@ -75,7 +75,7 @@ void RainEmitter::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
 void RainEmitter::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
 
 void RainEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
-    particle.setSprite(Util::Game::D2::Sprite("/user/demo/raindrop.bmp", 0.005, 0.03));
+    particle.setSprite(Util::Game::D2::Sprite("/user/dino/particle/water.bmp", 0.005, 0.03));
     particle.setPosition(getPosition() + Util::Math::Vector2D(random.nextRandomNumber() * 0.5, 0));
     particle.setVelocity(Util::Math::Vector2D(0, -0.8));
     particle.setTimeToLive(-1);
@@ -85,6 +85,10 @@ void RainEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
 }
 
 void RainEmitter::onParticleUpdate(Util::Game::D2::Particle &particle, double delta) {}
+
+void RainEmitter::onParticleCollision(Util::Game::D2::Particle &particle, Util::Game::D2::CollisionEvent &event) {
+    removeParticle(&particle);
+}
 
 void RainEmitter::onParticleDestruction(Util::Game::D2::Particle &particle) {
     auto *dropletEmitter = new DropletEmitter(particle.getPosition());

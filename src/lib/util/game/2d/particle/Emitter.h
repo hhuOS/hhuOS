@@ -76,6 +76,8 @@ public:
 
     virtual void onParticleUpdate(Particle &particle, double delta) = 0;
 
+    virtual void onParticleCollision(Particle &particle, CollisionEvent &event) = 0;
+
     virtual void onParticleDestruction(Particle &particle) = 0;
 
     [[nodiscard]] uint32_t getMinEmissionRate() const;

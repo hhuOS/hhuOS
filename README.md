@@ -69,7 +69,7 @@ To test hhuOS in QEMU, simply execute the included run-script:
 
 ## What next?
 
-Congratulations! If you have made it this far, you have successfully compiled and run hhuOS! If you have not done so yet, you should definitely try out the included games `bug`, `battlespace` and `dino`, as well as the `demo` command, to see the capabilities of our user space game engine.
+Congratulations! If you have made it this far, you have successfully compiled and run hhuOS! If you have not done so yet, you should definitely try out the included games `bug`, `battlespace` and `player`, as well as the `demo` command, to see the capabilities of our user space game engine.
 
 When you are done tinkering with the OS, why not try to build your own application for hhuOS? Our [wiki](https://github.com/hhuOS/hhuOS/wiki/) provides tutorials on how to set up a development environment and get started with app development for hhuOS.
 
@@ -89,9 +89,10 @@ When you are done tinkering with the OS, why not try to build your own applicati
 ## Notes
 
 Assets for the dino game have been taken from [itch.io](https://itch.io):
- - [PlayerDino Characters](https://arks.itch.io/dino-characters) by [*@ScissorMarks*](https://twitter.com/ScissorMarks) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
- - [PlayerDino Family](https://demching.itch.io/dino-family) by [*DemChing*](https://demching.itch.io/) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
+ - [Dino Characters](https://arks.itch.io/player-characters) by [*@ScissorMarks*](https://twitter.com/ScissorMarks) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
+ - [Dino Family](https://demching.itch.io/player-family) by [*DemChing*](https://demching.itch.io/) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
  - [Pixel Adventure](https://pixelfrog-assets.itch.io/pixel-adventure-1) by [*Pixel Frog*](https://pixelfrog-assets.itch.io/) ([CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/legalcode))
+ - [Pixel Platformer](https://kenney-assets.itch.io/pixel-platformer) by [*Kenney*](https://kenney-assets.itch.io/) ([CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/legalcode))
  - [Retro Cloud Tileset](https://ohnoponogames.itch.io/retro-cloud-tileset) by [*ohnoponogames*](https://ohnoponogames.itch.io/)
 
 Assets for the bug defender game have been taken from [itch.io](https://itch.io):

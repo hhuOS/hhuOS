@@ -78,6 +78,8 @@ public:
 
     void onParticleUpdate(Util::Game::D2::Particle &particle, double delta) override;
 
+    void onParticleCollision(Util::Game::D2::Particle &particle, Util::Game::D2::CollisionEvent &event) override;
+
     void onParticleDestruction(Util::Game::D2::Particle &particle) override;
 
     static const constexpr uint32_t TAG = 0;

@@ -72,7 +72,7 @@ public:
     /**
      * Destructor.
      */
-    ~Entity() override = default;
+    ~Entity() override;
 
     virtual void onTranslationEvent(TranslationEvent &event) = 0;
 

@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The dino game is based on a bachelor's thesis, written by Malte Sehmer.
+ * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
 #include "IntroScreen.h"
@@ -26,9 +29,10 @@
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/math/Vector2D.h"
-#include "DinoGame.h"
+#include "Level.h"
 #include "lib/util/graphic/Font.h"
 #include "lib/util/graphic/font/Terminal8x16.h"
+#include "lib/util/io/file/File.h"
 
 IntroScreen::IntroScreen() {
     setKeyListener(*this);
@@ -59,7 +63,7 @@ void IntroScreen::keyPressed(Util::Io::Key key) {
             break;
         case Util::Io::Key::SPACE:
             auto &game = Util::Game::GameManager::getGame();
-            game.pushScene(new DinoGame());
+            game.pushScene(new Level(Util::Io::File("/user/dino/level/level1.txt"), 0));
             game.switchToNextScene();
     }
 }
