@@ -42,7 +42,7 @@ public:
     /**
      * Default Constructor.
      */
-    BugDefender();
+    BugDefender() = default;
 
     /**
      * Copy Constructor.
@@ -58,6 +58,8 @@ public:
      * Destructor.
      */
     ~BugDefender() override = default;
+
+    void initialize() override;
 
     void update(double delta) override;
 

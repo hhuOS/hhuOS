@@ -38,7 +38,7 @@ namespace Device {
 Hpet::Hpet() {
     auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
     if (!acpi.hasTable("HPET")) {
-        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Trying to initialize non-existent HPET!");
+        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Trying to initializeScene non-existent HPET!");
     }
 
     const auto &hpetTable = acpi.getTable<Util::Hardware::Acpi::Hpet>("HPET");

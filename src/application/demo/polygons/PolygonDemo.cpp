@@ -28,7 +28,9 @@ class Graphics;
 }  // namespace Game
 }  // namespace Util
 
-PolygonDemo::PolygonDemo(uint32_t initialCount) {
+PolygonDemo::PolygonDemo(uint32_t initialCount) : initialCount(initialCount) {}
+
+void PolygonDemo::initialize() {
     for (uint32_t i = 0; i < initialCount; i++) {
         auto *polygon = factory.createPolygon();
         polygons.offer(polygon);

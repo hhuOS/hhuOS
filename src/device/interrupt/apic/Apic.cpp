@@ -369,7 +369,7 @@ void Apic::startupApplicationProcessors() {
         }
 
         // Wait until the AP marks itself as running, so we can continue to the next one.
-        // Because we initialize the APs one at a time, runningAPs is not synchronized.
+        // Because we initializeScene the APs one at a time, runningAPs is not synchronized.
         // If the AP initialization fails (and the system doesn't crash), this will lock the BSP,
         // the same will happen if the SIPI does not reach its target. That's why we abort.
         // Because the system time is not yet functional, we delay to measure the time.

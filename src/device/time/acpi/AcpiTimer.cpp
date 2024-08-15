@@ -27,7 +27,7 @@
 
 Device::AcpiTimer::AcpiTimer() {
     if (!isAvailable()) {
-        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Trying to initialize unavailable ACPI timer!");
+        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Trying to initializeScene unavailable ACPI timer!");
     }
 
     auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();

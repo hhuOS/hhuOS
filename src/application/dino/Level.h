@@ -21,21 +21,19 @@
 #ifndef HHUOS_LEVEL_H
 #define HHUOS_LEVEL_H
 
-#include "lib/util/game/KeyListener.h"
-#include "PlayerDino.h"
-#include "lib/util/math/Random.h"
-#include "lib/util/collection/ArrayList.h"
-#include "lib/util/math/Vector2D.h"
-#include "lib/util/game/2d/Scene.h"
-#include "lib/util/collection/ArrayListBlockingQueue.h"
-#include "Block.h"
-#include "lib/util/collection/Pair.h"
-#include "lib/util/io/file/File.h"
+#include <stdint.h>
 
-class Ground;
-class Saw;
+#include "lib/util/game/KeyListener.h"
+#include "lib/util/game/2d/Scene.h"
+#include "lib/util/io/file/File.h"
+#include "application/dino/entity/Block.h"
+
+class PlayerDino;
 
 namespace Util {
+template <typename T, typename U> class Pair;
+template <typename T> class ArrayList;
+
 namespace Game {
 class Graphics;
 }  // namespace Game
@@ -68,6 +66,8 @@ public:
      */
     ~Level() override = default;
 
+    void initialize() override;
+
     void update(double delta) override;
 
     void initializeBackground(Util::Game::Graphics &graphics) override;
@@ -79,6 +79,9 @@ public:
 private:
 
     void spawnMergedBlocks(Util::ArrayList<Util::Pair<int32_t, double>> &positions, Block::Tag tag);
+
+    Util::Io::File levelFile;
+    uint32_t startPoints;
 
     PlayerDino *player = nullptr;
 

@@ -34,7 +34,8 @@
 
 namespace Util::Game::D3 {
 
-void Scene::initialize(Graphics &graphics) {
+void Scene::initializeScene(Graphics &graphics) {
+    initialize();
     graphics.clear();
 
     for (auto *entity : entities) {

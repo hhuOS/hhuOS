@@ -64,7 +64,7 @@ void Game::initializeNextScene(Graphics &graphics) {
 
     auto &scene = *scenes.peek();
     graphics.clearBackground();
-    scene.initialize(graphics);
+    scene.initializeScene(graphics);
 
     firstScene = false;
     sceneSwitched = false;

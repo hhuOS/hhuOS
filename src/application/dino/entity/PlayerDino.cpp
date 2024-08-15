@@ -34,13 +34,14 @@
 #include "lib/util/game/Game.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Scene.h"
-#include "GameOverScreen.h"
 #include "Block.h"
-#include "EnemyFrog.h"
 #include "lib/util/game/2d/component/LinearMovementComponent.h"
 #include "lib/util/game/2d/component/GravityComponent.h"
+#include "application/dino/GameOverScreen.h"
 
-PlayerDino::PlayerDino(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE, SIZE * 1.133), Util::Game::Collider::DYNAMIC)) {}
+PlayerDino::PlayerDino(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE, SIZE * 1.133), Util::Game::Collider::DYNAMIC)) {
+    Util::Game::GameManager::getCurrentScene().addObject(grassEmitter);
+}
 
 void PlayerDino::initialize() {
     idleAnimation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
@@ -215,7 +216,13 @@ void PlayerDino::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
         onGround = true;
     }
 
-    if (event.getCollidedWidth().getTag() == Block::WATER || (event.getCollidedWidth().getTag() == EnemyFrog::TAG && event.getSide() != Util::Game::D2::RectangleCollider::BOTTOM)) {
+    if (event.getCollidedWidth().getTag() == Block::GRASS && event.getSide() == Util::Game::D2::RectangleCollider::BOTTOM && running) {
+        auto currentTime = Util::Time::getSystemTime();
+        if ((currentTime - lastEmissionTime).toMilliseconds() > EMISSION_INTERVAL_MS) {
+            lastEmissionTime = currentTime;
+            grassEmitter->emitOnce();
+        }
+    } else if (event.getCollidedWidth().getTag() == Block::WATER) {
         die();
     }
 }
@@ -246,4 +253,8 @@ uint32_t PlayerDino::getPoints() const {
 
 void PlayerDino::setPoints(uint32_t points) {
     PlayerDino::points = points;
+}
+
+void PlayerDino::addPoints(uint32_t points) {
+    PlayerDino::points += points;
 }

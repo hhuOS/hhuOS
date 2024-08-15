@@ -339,7 +339,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     }
 
     // Identity map BIOS related parts of the lower 1 MiB
-    // Depending on the system and bootloader, this may be necessary to initialize ACPI and SMBIOS data structures
+    // Depending on the system and bootloader, this may be necessary to initializeScene ACPI and SMBIOS data structures
     // The BIOS call code and startup code for application processors is also located there
     memoryService->mapPhysical(nullptr, nullptr, Kernel::MemoryLayout::USABLE_LOWER_MEMORY.startAddress / Util::PAGESIZE, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
     memoryService->mapPhysical(reinterpret_cast<void*>(Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1), reinterpret_cast<void*>(Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1),
@@ -511,12 +511,12 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     auto *pic = new Device::Pic();
     interruptService->usePic(pic);
 
-    // Check if APIC exists and initialize it
+    // Check if APIC exists and initializeScene it
     if (multiboot->getKernelOption("apic", "true") == "true" && Device::Apic::isAvailable()) {
         LOG_INFO("APIC detected");
         auto *apic = Device::Apic::initialize();
         if (apic == nullptr) {
-            LOG_WARN("Failed to initialize APIC -> Falling back to PIC");
+            LOG_WARN("Failed to initializeScene APIC -> Falling back to PIC");
         } else {
             interruptService->useApic(apic);
             apic->startCurrentTimer();
@@ -548,7 +548,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         entry.set(entry.getAddress(), entry.getFlags() & (~Kernel::Paging::WRITABLE));
     }
 
-    // The base system is initialized -> We can now enable interrupts and initialize timer devices
+    // The base system is initialized -> We can now enable interrupts and initializeScene timer devices
     LOG_INFO("Enabling interrupts");
     Device::Cpu::enableInterrupts();
     Device::Cmos::enableNmi();

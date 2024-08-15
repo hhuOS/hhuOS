@@ -28,7 +28,7 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/key/Key.h"
 
-BugDefender::BugDefender() {
+void BugDefender::initialize() {
     addObject(ship);
 
     for (uint32_t i = 0; i < BUGS_PER_COLUMN; i++) {

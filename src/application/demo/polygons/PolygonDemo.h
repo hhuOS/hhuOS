@@ -60,6 +60,8 @@ public:
      */
     ~PolygonDemo() override = default;
 
+    void initialize() override;
+
     void update(double delta) override;
 
     void initializeBackground(Util::Game::Graphics &graphics) override;
@@ -70,6 +72,7 @@ public:
 
 private:
 
+    uint32_t initialCount;
     DemoPolygonFactory factory;
     Util::ArrayListBlockingQueue<DemoPolygon*> polygons;
 };

@@ -34,7 +34,8 @@
 
 namespace Util::Game::D2 {
 
-void Scene::initialize(Graphics &graphics) {
+void Scene::initializeScene(Graphics &graphics) {
+    initialize();
     initializeBackground(graphics);
     graphics.saveCurrentStateAsBackground();
 

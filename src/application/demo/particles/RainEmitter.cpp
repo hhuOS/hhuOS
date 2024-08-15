@@ -91,6 +91,6 @@ void RainEmitter::onParticleCollision(Util::Game::D2::Particle &particle, Util::
 }
 
 void RainEmitter::onParticleDestruction(Util::Game::D2::Particle &particle) {
-    auto *dropletEmitter = new DropletEmitter(particle.getPosition());
+    auto *dropletEmitter = new BloodEmitter(particle.getPosition());
     Util::Game::GameManager::getCurrentScene().addObject(dropletEmitter);
 }

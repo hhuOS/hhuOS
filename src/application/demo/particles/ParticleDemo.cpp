@@ -32,7 +32,7 @@
 #include "lib/util/math/Vector2D.h"
 #include "Dino.h"
 
-ParticleDemo::ParticleDemo() {
+void ParticleDemo::initialize() {
     cloud = new RainEmitter(Util::Math::Vector2D(0, 0.8));
     addObject(cloud);
 

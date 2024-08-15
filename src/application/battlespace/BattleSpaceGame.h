@@ -44,7 +44,7 @@ public:
     /**
      * Default Constructor.
      */
-    BattleSpaceGame();
+    BattleSpaceGame() = default;
 
     /**
      * Copy Constructor.
@@ -60,6 +60,8 @@ public:
      * Destructor.
      */
     ~BattleSpaceGame() override = default;
+
+    void initialize() override;
 
     void update(double delta) override;
 

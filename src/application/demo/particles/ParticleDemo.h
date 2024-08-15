@@ -40,7 +40,7 @@ public:
     /**
      * Default Constructor.
      */
-    ParticleDemo();
+    ParticleDemo() = default;
 
     /**
      * Copy Constructor.
@@ -56,6 +56,8 @@ public:
      * Destructor.
      */
     ~ParticleDemo() override = default;
+
+    void initialize() override;
 
     void update(double delta) override;
 

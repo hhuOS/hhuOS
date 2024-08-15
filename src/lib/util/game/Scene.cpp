@@ -57,22 +57,25 @@ void Scene::removeObject(Entity *object) {
 }
 
 void Scene::applyChanges() {
-    for (auto *entity : addList) {
-        entity->initialize();
-        entities.add(entity);
+    while (addList.size() > 0) {
+        for (auto *entity: addList) {
+            entity->initialize();
+            entities.add(entity);
+            addList.remove(entity);
+        }
     }
 
-    for (auto *object : removeList) {
-        bool removed;
-        do {
-            removed = entities.remove(object);
-        } while (removed);
+    while (removeList.size() > 0) {
+        for (auto *object: removeList) {
+            bool removed;
+            do {
+                removed = entities.remove(object);
+                removeList.remove(object);
+            } while (removed);
 
-        delete object;
+            delete object;
+        }
     }
-
-    addList.clear();
-    removeList.clear();
 }
 
 void Scene::draw(Graphics &graphics) {

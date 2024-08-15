@@ -24,15 +24,16 @@ include_directories(${HHUOS_SRC_DIR})
 # Set source files
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/dino/dino.cpp
-        ${HHUOS_SRC_DIR}/application/dino/Block.cpp
-        ${HHUOS_SRC_DIR}/application/dino/Coin.cpp
-        ${HHUOS_SRC_DIR}/application/dino/DropletEmitter.cpp
-        ${HHUOS_SRC_DIR}/application/dino/EnemyFrog.cpp
-        ${HHUOS_SRC_DIR}/application/dino/Fruit.cpp
+        ${HHUOS_SRC_DIR}/application/dino/entity/Block.cpp
+        ${HHUOS_SRC_DIR}/application/dino/entity/Coin.cpp
+        ${HHUOS_SRC_DIR}/application/dino/entity/EnemyFrog.cpp
+        ${HHUOS_SRC_DIR}/application/dino/entity/Fruit.cpp
+        ${HHUOS_SRC_DIR}/application/dino/entity/PlayerDino.cpp
+        ${HHUOS_SRC_DIR}/application/dino/particle/BloodEmitter.cpp
+        ${HHUOS_SRC_DIR}/application/dino/particle/GrassEmitter.cpp
         ${HHUOS_SRC_DIR}/application/dino/GameOverScreen.cpp
         ${HHUOS_SRC_DIR}/application/dino/IntroScreen.cpp
-        ${HHUOS_SRC_DIR}/application/dino/Level.cpp
-        ${HHUOS_SRC_DIR}/application/dino/PlayerDino.cpp)
+        ${HHUOS_SRC_DIR}/application/dino/Level.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 

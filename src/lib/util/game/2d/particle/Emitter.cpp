@@ -49,7 +49,7 @@ void Emitter::onUpdate(double delta) {
         }
     }
 
-    if (emissionTime >= 0) {
+     if (emissionTime >= 0) {
         timeSinceLastEmission += delta;
         if (timeSinceLastEmission >= emissionTime && (!timeLimited || timeToLive > 0)) {
             emitParticles();
@@ -65,7 +65,7 @@ void Emitter::removeParticle(Particle *particle) {
 }
 
 void Emitter::emitParticles() {
-    uint32_t emissionRate = minEmissionRate + static_cast<uint32_t>(random.nextRandomNumber() * (maxEmissionRate - minEmissionRate));
+    uint32_t emissionRate = minEmissionRate + static_cast<uint32_t>(random.nextRandomNumber() * ((maxEmissionRate + 1) - minEmissionRate));
 
     for (uint32_t i = 0; i < emissionRate; i++) {
         auto *particle = new Particle(particleTag, *this);

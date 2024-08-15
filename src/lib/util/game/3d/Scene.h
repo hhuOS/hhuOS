@@ -57,7 +57,7 @@ public:
      */
     ~Scene() override = default;
 
-    void initialize(Graphics &graphics) override;
+    void initializeScene(Graphics &graphics) override;
 
     void updateEntities(double delta) override;
 

@@ -33,7 +33,7 @@
 #include "lib/util/graphic/Font.h"
 #include "lib/util/graphic/font/Terminal8x16.h"
 
-IntroScreen::IntroScreen() {
+void IntroScreen::initialize() {
     setKeyListener(*this);
 }
 

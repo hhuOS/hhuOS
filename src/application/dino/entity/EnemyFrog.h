@@ -21,8 +21,25 @@
 #ifndef HHUOS_ENEMYFROG_H
 #define HHUOS_ENEMYFROG_H
 
+#include <stdint.h>
+
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/game/2d/SpriteAnimation.h"
+#include "application/dino/particle/GrassEmitter.h"
+#include "lib/util/time/Timestamp.h"
+
+namespace Util {
+namespace Game {
+class Graphics;
+namespace D2 {
+class CollisionEvent;
+class TranslationEvent;
+}  // namespace D2
+}  // namespace Game
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
 
 class EnemyFrog : public Util::Game::D2::Entity {
 
@@ -30,7 +47,7 @@ public:
     /**
      * Constructor.
      */
-    EnemyFrog(const Util::Math::Vector2D &position);
+    explicit EnemyFrog(const Util::Math::Vector2D &position);
 
     /**
      * Copy Constructor.
@@ -68,8 +85,12 @@ private:
     Util::Game::D2::SpriteAnimation animation;
     Direction direction = LEFT;
 
-    static const constexpr double SIZE = 0.069;
+    GrassEmitter *grassEmitter = new GrassEmitter(*this);
+    Util::Time::Timestamp lastEmissionTime;
+
+    static const constexpr double SIZE = 0.08;
     static const constexpr double VELOCITY = 0.25;
+    static const constexpr uint32_t EMISSION_INTERVAL_MS = 500;
 };
 
 #endif

@@ -11,53 +11,56 @@
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
  * details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
  * The dino game is based on a bachelor's thesis, written by Malte Sehmer.
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_BLOCK_H
-#define HHUOS_BLOCK_H
+#ifndef HHUOS_GRASSEMITTER_H
+#define HHUOS_GRASSEMITTER_H
 
-#include "lib/util/game/2d/Entity.h"
-#include "lib/util/game/2d/Sprite.h"
+#include <stdint.h>
 
-class Block : public Util::Game::D2::Entity {
+#include "lib/util/math/Random.h"
+#include "BloodEmitter.h"
+#include "lib/util/game/2d/particle/Emitter.h"
+
+namespace Util {
+namespace Game {
+class Graphics;
+
+namespace D2 {
+class CollisionEvent;
+class Particle;
+class TranslationEvent;
+class Entity;
+}  // namespace D2
+}  // namespace Game
+}  // namespace Util
+
+class GrassEmitter : public Util::Game::D2::Emitter {
 
 public:
-
-    enum Tag : uint32_t {
-        BOX = 1,
-        GRASS = 2,
-        DIRT = 3,
-        WATER = 4
-    };
-
     /**
      * Constructor.
      */
-    Block(Tag tag, const Util::Math::Vector2D &position, uint32_t countX, uint32_t countY);
+    explicit GrassEmitter(const Entity &parent);
 
     /**
      * Copy Constructor.
      */
-    Block(const Block &other) = delete;
+    GrassEmitter(const GrassEmitter &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Block &operator=(const Block &other) = delete;
+    GrassEmitter &operator=(const GrassEmitter &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Block() override = default;
+    ~GrassEmitter() override = default;
 
     void initialize() override;
-
-    void onUpdate(double delta) override;
 
     void draw(Util::Game::Graphics &graphics) override;
 
@@ -65,15 +68,23 @@ public:
 
     void onCollisionEvent(Util::Game::D2::CollisionEvent &event) override;
 
-    static const constexpr double SIZE = 0.08;
+    void onParticleInitialization(Util::Game::D2::Particle &particle) override;
+
+    void onParticleUpdate(Util::Game::D2::Particle &particle, double delta) override;
+
+    void onParticleCollision(Util::Game::D2::Particle &particle, Util::Game::D2::CollisionEvent &event) override;
+
+    void onParticleDestruction(Util::Game::D2::Particle &particle) override;
+
+    static const constexpr uint32_t TAG = BloodEmitter::TAG;
+    static const constexpr uint32_t PARTICLE_TAG = BloodEmitter::PARTICLE_TAG;
 
 private:
 
-    static Util::String getSpritePath(Tag tag);
+    const Entity &parent;
+    Util::Math::Random random;
 
-    uint32_t countX;
-    uint32_t countY;
-    Util::Game::D2::Sprite sprite;
+    static const constexpr double PARTICLE_SIZE = 0.01;
 };
 
 #endif

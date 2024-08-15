@@ -27,7 +27,7 @@
 
 void MouseDemo::update(double delta) {}
 
-MouseDemo::MouseDemo() {
+void MouseDemo::initialize() {
     addObject(logo);
     addObject(cursor);
     setKeyListener(*this);

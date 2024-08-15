@@ -59,6 +59,8 @@ public:
      */
     ~SpriteDemo() override = default;
 
+    void initialize() override;
+
     void update(double delta) override;
 
     void initializeBackground(Util::Game::Graphics &graphics) override;
@@ -69,6 +71,7 @@ public:
 
 private:
 
+    uint32_t initialCount;
     DemoSpriteFactory factory;
     Util::ArrayListBlockingQueue<DemoSprite*> entities;
 };

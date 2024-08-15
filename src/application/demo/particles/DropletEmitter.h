@@ -18,7 +18,7 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_DROPLETEMITTER_H
+#ifndef HHUOS_BLOODEMITTER_H
 #define HHUOS_DROPLETEMITTER_H
 
 #include <stdint.h>
@@ -40,28 +40,28 @@ class Vector2D;
 }  // namespace Math
 }  // namespace Util
 
-class DropletEmitter : public Util::Game::D2::SingleTimeEmitter {
+class BloodEmitter : public Util::Game::D2::SingleTimeEmitter {
 
 public:
     /**
      * Default.
      */
-    explicit DropletEmitter(const Util::Math::Vector2D &position);
+    explicit BloodEmitter(const Util::Math::Vector2D &position);
 
     /**
      * Copy Constructor.
      */
-    DropletEmitter(const DropletEmitter &other) = delete;
+    BloodEmitter(const BloodEmitter &other) = delete;
 
     /**
      * Assignment operator.
      */
-    DropletEmitter &operator=(const DropletEmitter &other) = delete;
+    BloodEmitter &operator=(const BloodEmitter &other) = delete;
 
     /**
      * Destructor.
      */
-    ~DropletEmitter() override = default;
+    ~BloodEmitter() override = default;
 
     void initialize() override;
 

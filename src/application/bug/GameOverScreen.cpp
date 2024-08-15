@@ -31,7 +31,9 @@
 #include "lib/util/graphic/font/Terminal8x16.h"
 
 
-GameOverScreen::GameOverScreen(bool won) : won(won) {
+GameOverScreen::GameOverScreen(bool won) : won(won) {}
+
+void GameOverScreen::initialize() {
     setKeyListener(*this);
 }
 

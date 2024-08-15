@@ -36,7 +36,7 @@ public:
     /**
      * Default Constructor.
      */
-    explicit IntroScreen();
+    explicit IntroScreen() = default;
 
     /**
      * Copy Constructor.
@@ -52,6 +52,8 @@ public:
      * Destructor.
      */
     ~IntroScreen() override = default;
+
+    void initialize() override;
 
     void update(double delta) override;
 

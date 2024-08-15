@@ -22,8 +22,23 @@
 #define HHUOS_COIN_H
 
 
+#include <stdint.h>
+
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/game/2d/SpriteAnimation.h"
+
+namespace Util {
+namespace Game {
+class Graphics;
+namespace D2 {
+class CollisionEvent;
+class TranslationEvent;
+}  // namespace D2
+}  // namespace Game
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
 
 class Coin : public Util::Game::D2::Entity {
 

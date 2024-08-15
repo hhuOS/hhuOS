@@ -32,7 +32,9 @@
 #include "lib/util/graphic/Font.h"
 #include "lib/util/graphic/font/Terminal8x16.h"
 
-GameOverScreen::GameOverScreen(uint32_t score) : score(score) {
+GameOverScreen::GameOverScreen(uint32_t score) : score(score) {}
+
+void GameOverScreen::initialize() {
     setKeyListener(*this);
 }
 

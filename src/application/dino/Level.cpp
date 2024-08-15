@@ -22,30 +22,28 @@
 
 #include <stdint.h>
 
-#include "application/dino/PlayerDino.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/game/Camera.h"
-#include "lib/util/game/2d/component/LinearMovementComponent.h"
-#include "lib/util/game/2d/component/GravityComponent.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/game/2d/Sprite.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/math/Vector2D.h"
-#include "lib/util/collection/Iterator.h"
 #include "lib/util/math/Vector3D.h"
-#include "GameOverScreen.h"
-#include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/FileInputStream.h"
-#include "Block.h"
 #include "lib/util/collection/Pair.h"
-#include "Fruit.h"
-#include "Coin.h"
-#include "EnemyFrog.h"
+#include "application/dino/entity/Coin.h"
+#include "application/dino/entity/Fruit.h"
+#include "application/dino/entity/EnemyFrog.h"
+#include "application/dino/entity/PlayerDino.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/collection/ArrayList.h"
 
-Level::Level(const Util::Io::File &levelFile, uint32_t points) {
+Level::Level(const Util::Io::File &levelFile, uint32_t points) : levelFile(levelFile), startPoints(points) {}
+
+void Level::initialize() {
     auto fileStream = Util::Io::FileInputStream(levelFile);
     auto levelNumber = Util::String::parseInt(levelFile.getName().substring(5, 6));
     auto nextLevelFile =  Util::Io::File(Util::String::format("/user/dino/level/level%u.txt", levelNumber + 1));
@@ -114,7 +112,7 @@ Level::Level(const Util::Io::File &levelFile, uint32_t points) {
     playerMinY = minY;
 
     player = new PlayerDino(Util::Math::Vector2D(playerMinX, 0));
-    player->setPoints(points);
+    player->setPoints(startPoints);
     addObject(player);
 
     setKeyListener(*this);

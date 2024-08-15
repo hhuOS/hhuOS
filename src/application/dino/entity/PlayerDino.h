@@ -25,6 +25,8 @@
 
 #include "lib/util/game/2d/SpriteAnimation.h"
 #include "lib/util/game/2d/Entity.h"
+#include "application/dino/particle/GrassEmitter.h"
+#include "lib/util/time/Timestamp.h"
 
 namespace Util {
 namespace Math {
@@ -33,6 +35,7 @@ class Vector2D;
 
 namespace Game {
 class Graphics;
+
 namespace D2 {
 class CollisionEvent;
 class TranslationEvent;
@@ -99,6 +102,8 @@ public:
 
     void setPoints(uint32_t points);
 
+    void addPoints(uint32_t points);
+
     void onTranslationEvent(Util::Game::D2::TranslationEvent &event) override;
 
     void onCollisionEvent(Util::Game::D2::CollisionEvent &event) override;
@@ -130,8 +135,12 @@ private:
     Util::Game::D2::SpriteAnimation hatchAnimation;
     Util::Game::D2::SpriteAnimation deathAnimation;
 
+    GrassEmitter *grassEmitter = new GrassEmitter(*this);
+    Util::Time::Timestamp lastEmissionTime;
+
     static const constexpr double MAX_VELOCITY = 0.3;
     static const constexpr double JUMP_VELOCITY = 0.75;
+    static const constexpr uint32_t EMISSION_INTERVAL_MS = 500;
 };
 
 #endif

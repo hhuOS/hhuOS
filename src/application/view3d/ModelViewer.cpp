@@ -25,8 +25,10 @@
 #include "lib/util/io/key/MouseDecoder.h"
 #include "lib/util/math/Vector2D.h"
 
-ModelViewer::ModelViewer(const Util::String &path) {
-    model = new ModelEntity(path);
+ModelViewer::ModelViewer(const Util::String &path) : modelPath(path) {}
+
+void ModelViewer::initialize() {
+    model = new ModelEntity(modelPath);
     addObject(model);
 
     setKeyListener(*this);

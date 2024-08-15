@@ -72,7 +72,7 @@ void ParallelPort::initializePort(ParallelPort::LptPort port) {
     bool success = driver.addNode("/", streamNode);
 
     if (!success) {
-        LOG_ERROR("Failed to initialize virtual node for [%s]", portToString(port));
+        LOG_ERROR("Failed to initializeScene virtual node for [%s]", portToString(port));
         delete streamNode;
     }
 }

@@ -19,18 +19,33 @@
  */
 
 #include "Block.h"
+
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/2d/event/CollisionEvent.h"
-#include "DropletEmitter.h"
 #include "PlayerDino.h"
+#include "application/dino/particle/BloodEmitter.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/game/2d/collider/RectangleCollider.h"
+#include "lib/util/math/Vector2D.h"
+
+namespace Util {
+namespace Game {
+class Graphics;
+namespace D2 {
+class TranslationEvent;
+}  // namespace D2
+}  // namespace Game
+}  // namespace Util
 
 Block::Block(Tag tag, const Util::Math::Vector2D &position, uint32_t countX, uint32_t countY) :
         Util::Game::D2::Entity(tag, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE * countX, SIZE * countY), Util::Game::D2::RectangleCollider::STATIC)),
-        countX(countX), countY(countY), sprite(getSpritePath(static_cast<Block::Tag>(tag)), SIZE, SIZE) {}
+        countX(countX), countY(countY) {}
 
-void Block::initialize() {}
+void Block::initialize() {
+    sprite = Util::Game::D2::Sprite(getSpritePath(static_cast<Block::Tag>(getTag())), SIZE, SIZE);
+}
 
 void Block::onUpdate(double delta) {}
 
@@ -47,7 +62,7 @@ void Block::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {}
 void Block::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
     if (getTag() == WATER && event.getCollidedWidth().getTag() == PlayerDino::TAG && event.getSide() == Util::Game::D2::RectangleCollider::TOP) {
         auto &scene = Util::Game::GameManager::getGame().getCurrentScene();
-        scene.addObject(new DropletEmitter(event.getCollidedWidth().getPosition(), DropletEmitter::WATER));
+        scene.addObject(new BloodEmitter(event.getCollidedWidth().getPosition(), BloodEmitter::WATER));
     }
 }
 

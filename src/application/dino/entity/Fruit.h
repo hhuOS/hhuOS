@@ -21,9 +21,24 @@
 #ifndef HHUOS_FRUIT_H
 #define HHUOS_FRUIT_H
 
+#include <stdint.h>
+
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/game/2d/SpriteAnimation.h"
 #include "lib/util/io/file/File.h"
+
+namespace Util {
+namespace Game {
+class Graphics;
+namespace D2 {
+class CollisionEvent;
+class TranslationEvent;
+}  // namespace D2
+}  // namespace Game
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
 
 class Fruit : public Util::Game::D2::Entity {
 

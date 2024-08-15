@@ -19,12 +19,27 @@
  */
 
 #include "Coin.h"
+
 #include "Block.h"
 #include "PlayerDino.h"
 #include "lib/util/game/2d/event/CollisionEvent.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/Scene.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/game/2d/Sprite.h"
+#include "lib/util/game/2d/collider/RectangleCollider.h"
+#include "lib/util/math/Vector2D.h"
+
+namespace Util {
+namespace Game {
+class Graphics;
+namespace D2 {
+class TranslationEvent;
+}  // namespace D2
+}  // namespace Game
+}  // namespace Util
 
 Coin::Coin(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(Block::SIZE, Block::SIZE), Util::Game::D2::RectangleCollider::PERMEABLE)) {}
 

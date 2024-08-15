@@ -65,7 +65,9 @@ public:
      */
     virtual ~Scene();
 
-    virtual void initialize(Graphics &graphics) = 0;
+    virtual void initialize() = 0;
+
+    virtual void initializeScene(Graphics &graphics) = 0;
 
     virtual void updateEntities(double delta) = 0;
 

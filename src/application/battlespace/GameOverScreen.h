@@ -58,6 +58,8 @@ public:
      */
     ~GameOverScreen() override = default;
 
+    void initialize() override;
+
     void update(double delta) override;
 
     void keyPressed(Util::Io::Key key) override;

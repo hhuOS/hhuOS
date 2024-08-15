@@ -33,7 +33,7 @@
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/Key.h"
 
-BattleSpaceGame::BattleSpaceGame() {
+void BattleSpaceGame::initialize() {
     addObject(new Astronomical("planet1", Util::Math::Vector3D(13, 16, 1000), 150, Util::Math::Vector3D(0, 0, 0), Util::Graphic::Colors::BLUE));
     addObject(new Astronomical("planet1", Util::Math::Vector3D(37, -8, -3000), 400, Util::Math::Vector3D(0, 0, 0), Util::Graphic::Colors::YELLOW));
 

@@ -65,6 +65,8 @@ public:
      */
     ~ModelViewer() override = default;
 
+    void initialize() override;
+
     void update(double delta) override;
 
     void keyPressed(Util::Io::Key key) override;
@@ -81,7 +83,8 @@ public:
 
 private:
 
-    ModelEntity *model;
+    Util::String modelPath;
+    ModelEntity *model = nullptr;
 
     double zoom = 0;
     Util::Math::Vector3D rotation = Util::Math::Vector3D(0, 0, 0);

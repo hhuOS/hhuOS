@@ -29,7 +29,10 @@ class Graphics;
 }  // namespace Game
 }  // namespace Util
 
-SpriteDemo::SpriteDemo(uint32_t initialCount) {
+SpriteDemo::SpriteDemo(uint32_t initialCount) : initialCount(initialCount) {
+}
+
+void SpriteDemo::initialize() {
     for (uint32_t i = 0; i < initialCount; i++) {
         auto *sprite = factory.createSprite();
         entities.offer(sprite);

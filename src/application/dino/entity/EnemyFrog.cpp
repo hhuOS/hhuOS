@@ -19,6 +19,7 @@
  */
 
 #include "EnemyFrog.h"
+
 #include "lib/util/game/2d/event/CollisionEvent.h"
 #include "PlayerDino.h"
 #include "lib/util/game/GameManager.h"
@@ -26,9 +27,26 @@
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/2d/component/LinearMovementComponent.h"
 #include "lib/util/game/2d/component/GravityComponent.h"
-#include "DropletEmitter.h"
+#include "application/dino/particle/BloodEmitter.h"
+#include "Block.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/game/2d/Sprite.h"
+#include "lib/util/game/2d/collider/RectangleCollider.h"
+#include "lib/util/math/Vector2D.h"
 
-EnemyFrog::EnemyFrog(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE, SIZE * 1.12), Util::Game::D2::RectangleCollider::DYNAMIC)) {}
+namespace Util {
+namespace Game {
+class Graphics;
+namespace D2 {
+class TranslationEvent;
+}  // namespace D2
+}  // namespace Game
+}  // namespace Util
+
+EnemyFrog::EnemyFrog(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE, SIZE * 1.12), Util::Game::D2::RectangleCollider::DYNAMIC)) {
+    Util::Game::GameManager::getCurrentScene().addObject(grassEmitter);
+}
 
 void EnemyFrog::initialize() {
     animation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
@@ -61,7 +79,7 @@ void EnemyFrog::draw(Util::Game::Graphics &graphics) {
 void EnemyFrog::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {}
 
 void EnemyFrog::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
-    if (event.getCollidedWidth().getTag() == DropletEmitter::PARTICLE_TAG) {
+    if (event.getCollidedWidth().getTag() == BloodEmitter::PARTICLE_TAG) {
         return;
     }
 
@@ -73,9 +91,30 @@ void EnemyFrog::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
         animation.setXFlipped(true);
     }
 
-    if (event.getCollidedWidth().getTag() == PlayerDino::TAG && event.getSide() == Util::Game::D2::RectangleCollider::TOP) {
+    if (event.getCollidedWidth().getTag() == Block::GRASS && event.getSide() == Util::Game::D2::RectangleCollider::BOTTOM) {
+        auto currentTime = Util::Time::getSystemTime();
+        if ((currentTime - lastEmissionTime).toMilliseconds() > EMISSION_INTERVAL_MS) {
+            lastEmissionTime = currentTime;
+            grassEmitter->emitOnce();
+        }
+    }
+
+    if (event.getCollidedWidth().getTag() == PlayerDino::TAG) {
+        auto &player = reinterpret_cast<PlayerDino &>(event.getCollidedWidth());
         auto &scene = Util::Game::GameManager::getGame().getCurrentScene();
-        scene.addObject(new DropletEmitter(getPosition() + Util::Math::Vector2D(SIZE / 2, SIZE), DropletEmitter::BLOOD));
-        scene.removeObject(this);
+
+        if (player.isDying() || player.isDead()) {
+            return;
+        }
+
+        if (player.getPosition().getY() >= (getPosition().getY() + SIZE / 2)) {
+            player.addPoints(5);
+            player.setVelocityY(0.5);
+            scene.addObject(new BloodEmitter(getPosition(), BloodEmitter::ENEMY));
+            scene.removeObject(this);
+        } else {
+            player.die();
+            scene.addObject(new BloodEmitter(player.getPosition(), BloodEmitter::PLAYER));
+        }
     }
 }

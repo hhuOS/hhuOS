@@ -187,7 +187,7 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
     auto header = reinterpret_cast<FreeListHeader*>(reinterpret_cast<uint8_t*>(ptr) - HEADER_SIZE);
 
     // Place free block at the right position in free list
-    // if there is no free list -> initialize one
+    // if there is no free list -> initializeScene one
     if (firstChunk == nullptr) {
         firstChunk = header;
         // if freed block is before first entry of free list -> freed block is new anchor

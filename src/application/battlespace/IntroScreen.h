@@ -39,7 +39,7 @@ public:
     /**
      * Default Constructor.
      */
-    IntroScreen();
+    IntroScreen() = default;
 
     /**
      * Copy Constructor.
@@ -55,6 +55,8 @@ public:
      * Destructor.
      */
     ~IntroScreen() override = default;
+
+    void initialize() override;
 
     void initializeBackground(Util::Game::Graphics &graphics) override;
 

@@ -39,7 +39,7 @@ public:
     /**
      * Default Constructor.
      */
-    MouseDemo();
+    MouseDemo() = default;
 
     /**
      * Copy Constructor.
@@ -55,6 +55,8 @@ public:
      * Destructor.
      */
     ~MouseDemo() override = default;
+
+    void initialize() override;
 
     void update(double delta) override;
 

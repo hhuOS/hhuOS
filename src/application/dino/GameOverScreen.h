@@ -58,6 +58,8 @@ public:
      */
     ~GameOverScreen() override = default;
 
+    void initialize() override;
+
     void update(double delta) override;
 
     void initializeBackground(Util::Game::Graphics &graphics) override;

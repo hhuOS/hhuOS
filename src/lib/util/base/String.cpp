@@ -16,7 +16,6 @@
  */
 
 #include <stdarg.h>
-#include <stdint.h>
 
 #include "lib/interface.h"
 #include "lib/util/io/stream/ByteArrayOutputStream.h"

@@ -11,24 +11,27 @@
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
  * details.
  *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
  * The dino game is based on a bachelor's thesis, written by Malte Sehmer.
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_DROPLETEMITTER_H
-#define HHUOS_DROPLETEMITTER_H
+#ifndef HHUOS_BLOCK_H
+#define HHUOS_BLOCK_H
 
 #include <stdint.h>
 
-#include "lib/util/game/2d/particle/SingleTimeEmitter.h"
-#include "lib/util/math/Random.h"
+#include "lib/util/game/2d/Entity.h"
+#include "lib/util/game/2d/Sprite.h"
+#include "lib/util/base/String.h"
 
 namespace Util {
 namespace Game {
 class Graphics;
 namespace D2 {
 class CollisionEvent;
-class Particle;
 class TranslationEvent;
 }  // namespace D2
 }  // namespace Game
@@ -37,35 +40,40 @@ class Vector2D;
 }  // namespace Math
 }  // namespace Util
 
-class DropletEmitter : public Util::Game::D2::SingleTimeEmitter {
+class Block : public Util::Game::D2::Entity {
 
 public:
 
-    enum Type {
-        WATER, BLOOD
+    enum Tag : uint32_t {
+        BOX = 1,
+        GRASS = 2,
+        DIRT = 3,
+        WATER = 4
     };
 
     /**
      * Constructor.
      */
-    explicit DropletEmitter(const Util::Math::Vector2D &position, Type type);
+    Block(Tag tag, const Util::Math::Vector2D &position, uint32_t countX, uint32_t countY);
 
     /**
      * Copy Constructor.
      */
-    DropletEmitter(const DropletEmitter &other) = delete;
+    Block(const Block &other) = delete;
 
     /**
      * Assignment operator.
      */
-    DropletEmitter &operator=(const DropletEmitter &other) = delete;
+    Block &operator=(const Block &other) = delete;
 
     /**
      * Destructor.
      */
-    ~DropletEmitter() override = default;
+    ~Block() override = default;
 
     void initialize() override;
+
+    void onUpdate(double delta) override;
 
     void draw(Util::Game::Graphics &graphics) override;
 
@@ -73,23 +81,15 @@ public:
 
     void onCollisionEvent(Util::Game::D2::CollisionEvent &event) override;
 
-    void onParticleInitialization(Util::Game::D2::Particle &particle) override;
-
-    void onParticleUpdate(Util::Game::D2::Particle &particle, double delta) override;
-
-    void onParticleCollision(Util::Game::D2::Particle &particle, Util::Game::D2::CollisionEvent &event) override;
-
-    void onParticleDestruction(Util::Game::D2::Particle &particle) override;
-
-    static const constexpr uint32_t TAG = 8;
-    static const constexpr uint32_t PARTICLE_TAG = 9;
+    static const constexpr double SIZE = 0.08;
 
 private:
 
-    Type type;
-    Util::Math::Random random;
+    static Util::String getSpritePath(Tag tag);
 
-    static const constexpr double SIZE = 0.01;
+    uint32_t countX;
+    uint32_t countY;
+    Util::Game::D2::Sprite sprite;
 };
 
 #endif
