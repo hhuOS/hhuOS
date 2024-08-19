@@ -63,7 +63,7 @@ public:
     /**
      * Destructor.
      */
-    ~Hpet() = default;
+    ~Hpet() override = default;
 
     static bool isAvailable();
 
@@ -76,8 +76,6 @@ public:
     [[nodiscard]] uint64_t getFemtosecondsPerTick() const;
 
     [[nodiscard]] uint64_t getMaxValue() const;
-
-    bool usableAsSystemTimer();
 
     void pluginSystemTimer();
 

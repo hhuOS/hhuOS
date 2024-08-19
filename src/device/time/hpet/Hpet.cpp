@@ -95,30 +95,6 @@ uint64_t Hpet::getMaxValue() const {
     return maxValue;
 }
 
-bool Hpet::usableAsSystemTimer() {
-    auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
-    if (!interruptService.usesApic()) {
-        return false;
-    }
-
-    if (systemTimer == nullptr) {
-        auto capabilities = readRegister(GENERAL_CAPABILITIES_ID);
-        auto timerCount = static_cast<uint8_t>((capabilities >> 8) & 0x1f);
-
-        for (uint8_t i = 0; i < timerCount; i++) {
-            auto validInterrupts = Timer::getValidInterruptLines(*this, i);
-            if (validInterrupts.contains(InterruptRequest::PIT)) {
-                systemTimer = new Timer(*this, i, InterruptRequest::PIT);
-                systemTimerInterruptHandler = new SystemTimerInterruptHandler(*this, *systemTimer);
-
-                break;
-            }
-        }
-    }
-
-    return systemTimer != nullptr;
-}
-
 void Hpet::pluginSystemTimer() {
     // Setup first available timer as system timer
     auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();

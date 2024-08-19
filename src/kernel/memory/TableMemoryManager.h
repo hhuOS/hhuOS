@@ -143,7 +143,7 @@ private:
 
     private:
         /**
-         * 0:       reserved
+         * 0:       reserved memory
          * 1-15:    useCount
          */
         uint16_t value;

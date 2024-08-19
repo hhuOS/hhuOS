@@ -339,7 +339,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     }
 
     // Identity map BIOS related parts of the lower 1 MiB
-    // Depending on the system and bootloader, this may be necessary to initializeScene ACPI and SMBIOS data structures
+    // Depending on the system and bootloader, this may be necessary to initialize ACPI and SMBIOS data structures
     // The BIOS call code and startup code for application processors is also located there
     memoryService->mapPhysical(nullptr, nullptr, Kernel::MemoryLayout::USABLE_LOWER_MEMORY.startAddress / Util::PAGESIZE, Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
     memoryService->mapPhysical(reinterpret_cast<void*>(Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1), reinterpret_cast<void*>(Kernel::MemoryLayout::USABLE_LOWER_MEMORY.endAddress + 1),

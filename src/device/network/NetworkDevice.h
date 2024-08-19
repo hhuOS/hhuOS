@@ -24,6 +24,7 @@
 #include "lib/util/network/MacAddress.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/base/String.h"
+#include "lib/util/base/Constants.h"
 
 namespace Kernel {
 class BitmapMemoryManager;
@@ -114,6 +115,7 @@ private:
     PacketReader *reader;
 
     static const constexpr uint32_t PACKET_BUFFER_SIZE = 2048;
+    static const constexpr uint32_t PACKETS_PER_PAGE = Util::PAGESIZE % PACKET_BUFFER_SIZE == 0 ? Util::PAGESIZE / PACKET_BUFFER_SIZE : Util::PAGESIZE / PACKET_BUFFER_SIZE + 1;
     static const constexpr uint32_t MAX_BUFFERED_PACKETS = 16;
 };
 

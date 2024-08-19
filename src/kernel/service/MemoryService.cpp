@@ -291,7 +291,16 @@ void *Kernel::MemoryService::mapIO(void *physicalAddress, uint32_t pageCount, bo
 
     // Create mapping
     uint32_t flags = Paging::PRESENT | Paging::WRITABLE | Paging::CACHE_DISABLE | (reinterpret_cast<uint32_t>(virtualAddress) >= Kernel::MemoryLayout::KERNEL_END ? Paging::USER_ACCESSIBLE : 0);
-    mapPhysical(physicalAddress, virtualAddress, pageCount, flags);
+    for (uint32_t i = 0; i < pageCount; i++) {
+        void *currentPhysicalAddress = reinterpret_cast<uint8_t*>(physicalAddress) + i * Util::PAGESIZE;
+        void *currentVirtualAddress = reinterpret_cast<uint8_t*>(virtualAddress) + i * Util::PAGESIZE;
+
+        // If the virtual address is already mapped, we have to unmap it.
+        // This can happen because the headers of the free list are mapped to arbitrary physical addresses, but the memory should be mapped to the given physical addresses.
+        unmap(currentVirtualAddress, 1);
+        // Map the page into the current address space
+        currentAddressSpace->map(currentPhysicalAddress, currentVirtualAddress, flags);
+    }
 
     return virtualAddress;
 }

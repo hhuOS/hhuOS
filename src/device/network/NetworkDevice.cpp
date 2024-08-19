@@ -146,8 +146,8 @@ void NetworkDevice::freeLastSendBuffer() {
 
 Kernel::BitmapMemoryManager* NetworkDevice::createPacketManager(uint32_t packetCount) {
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    auto *startAddress = static_cast<uint8_t*>(memoryService.allocateKernelMemory(packetCount * PACKET_BUFFER_SIZE, Util::PAGESIZE));
-    auto *endAddress = startAddress + packetCount * PACKET_BUFFER_SIZE - 1;
+    auto *startAddress = static_cast<uint8_t*>(memoryService.mapIO(packetCount / PACKETS_PER_PAGE));
+    auto *endAddress = startAddress + (packetCount / PACKETS_PER_PAGE) * Util::PAGESIZE - 1;
 
     return new Kernel::BitmapMemoryManager(startAddress, endAddress);
 }
