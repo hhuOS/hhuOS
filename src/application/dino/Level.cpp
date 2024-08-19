@@ -72,30 +72,30 @@ void Level::initialize() {
             case '0':
                 break;
             case '1':
-                addObject(new Block(Block::BOX, position, 1, 1));
-                break;
-            case '2':
-                addObject(new Coin(position));
-                break;
-            case '3':
                 dirtPositions.add(Util::Pair(x, y));
                 minX = x < minX ? x : minX;
                 minY = y < minY ? y : minY;
                 break;
-            case '4':
+            case '2':
                 grassPositions.add(Util::Pair(x, y));
                 minX = x < minX ? x : minX;
                 break;
+            case '3':
+                waterPositions.add(Util::Pair(x, y));
+                break;
+            case '4':
+                addObject(new Block(Block::BOX, position, 1, 1));
+                break;
             case '5':
+                addObject(new Coin(position));
+                break;
+            case '6':
                 addObject(new Fruit(position, nextLevelFile));
                 break;
-            case '6': {
+            case '7': {
                 addObject(new EnemyFrog(position));
                 break;
             }
-            case '7':
-                waterPositions.add(Util::Pair(x, y));
-                break;
             default:
                 Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Invalid character in level file!");
         }
