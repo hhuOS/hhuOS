@@ -1,12 +1,15 @@
 [submodule "src/filesystem/fat/ff"]
 	path = src/filesystem/fat/ff
 	url = https://github.com/hhuos/fatfs
-[submodule "src/application/doomgeneric"]
-	path = src/application/doomgeneric
-	url = https://github.com/hhuOS/doomgeneric.git
-[submodule "src/application/quakegeneric"]
-	path = src/application/quakegeneric
-	url = https://github.com/hhuOS/quakegeneric
 [submodule "src/lib/tinygl"]
 	path = src/lib/tinygl
 	url = https://github.com/hhuOS/tinygl.git
+[submodule "src/application/peanut-gb/Peanut-GB"]
+	path = src/application/peanut-gb/Peanut-GB
+	url = https://github.com/hhuOS/Peanut-GB.git
+[submodule "src/application/quake/quakegeneric"]
+	path = src/application/quake/quakegeneric
+	url = https://github.com/hhuOS/quakegeneric
+[submodule "src/application/doom/doomgeneric"]
+	path = src/application/doom/doomgeneric
+	url = https://github.com/hhuOS/doomgeneric

@@ -41,7 +41,7 @@ int32_t main(int32_t argc, char *argv[]) {
                                "Usage: demo [DEMO] [OPTIONS]...\n"
                                "Demos: ant, color, fonts, mouse, polygons, sprites\n"
                                "Options:\n"
-                               "  -r, --resolution: Set display resolution"
+                               "  -r, --resolution: Set display resolution\n"
                                "  -h, --help: Show this help message");
 
     argumentParser.addArgument("resolution", false, "r");

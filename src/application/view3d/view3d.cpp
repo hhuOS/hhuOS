@@ -40,7 +40,7 @@ int32_t main(int32_t argc, char *argv[]) {
                                "ESC to exit.\n\n"
                                "Usage: view3do [FILE]\n"
                                "Options:\n"
-                               "  -r, --resolution: Set display resolution"
+                               "  -r, --resolution: Set display resolution\n"
                                "  -h, --help: Show this help message");
 
     argumentParser.addArgument("resolution", false, "r");

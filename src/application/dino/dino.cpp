@@ -37,7 +37,7 @@ int32_t main(int32_t argc, char *argv[]) {
     argumentParser.setHelpText("Endless runner game.\n"
                                "Usage: dino\n"
                                "Options:\n"
-                               "  -r, --resolution: Set display resolution"
+                               "  -r, --resolution: Set display resolution\n"
                                "  -h, --help: Show this help message");
 
     argumentParser.addArgument("resolution", false, "r");

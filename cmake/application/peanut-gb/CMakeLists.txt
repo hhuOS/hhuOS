@@ -16,15 +16,30 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-project(lib.user.runtime)
+project(peanut-gb)
 message(STATUS "Project " ${PROJECT_NAME})
+
+add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/gameboy"
+        COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/gameboy")
+
+add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/gameboy/2048.gb"
+        COMMAND wget "http://sanqui.rustedlogic.net/etc/2048.gb" -O "${CMAKE_BINARY_DIR}/gameboy/2048.gb"
+        DEPENDS "${CMAKE_BINARY_DIR}/gameboy")
+
+add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/gameboy/5-mazes.gb"
+        COMMAND wget "https://hh3.gbdev.io/static/database-gb/entries/5-mazes/5%20mazes.gb" -O "${CMAKE_BINARY_DIR}/gameboy/5-mazes.gb"
+        DEPENDS "${CMAKE_BINARY_DIR}/gameboy")
+
+add_custom_target(gameboy-roms DEPENDS
+        "${CMAKE_BINARY_DIR}/gameboy/2048.gb"
+        "${CMAKE_BINARY_DIR}/gameboy/5-mazes.gb")
 
 include_directories(${HHUOS_SRC_DIR})
 
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+# Set source files
+set(SOURCE_FILES
+        ${HHUOS_SRC_DIR}/application/peanut-gb/peanut_gb.cpp)
 
-target_link_libraries(${PROJECT_NAME} lib.graphic lib.user.libc)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-target_sources(${PROJECT_NAME} PUBLIC
-        ${HHUOS_SRC_DIR}/lib/runtime/runtime.asm
-        ${HHUOS_SRC_DIR}/lib/runtime/runtime.cpp)
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.libc)

@@ -113,7 +113,23 @@ Assets for the mouse demo haven been taken from [Icons8](https://icons8.com/).
 Music for the SoundBlaster demo has been taken from [Bensound](https://www.bensound.com/royalty-free-music):
 - Ukulele license code: 3M7PXYPYNOTSIGNQ
 
-Ported software:
-- Doom has been ported to hhuOS using [doomgeneric](https://github.com/ozkl/doomgeneric) by [*ozkl*](https://github.com/ozkl/) ([GPLv2](https://github.com/ozkl/doomgeneric/blob/master/LICENSE))
-- Quake has been ported to hhuOS using [quakegeneric](https://github.com/erysdren/quakegeneric) by [*erysdren*](https://github.com/erysdren/) ([GPLv2](https://github.com/erysdren/quakegeneric/blob/master/LICENSE))
-- [TinyGL](https://github.com/C-Chads/tinygl) by [*C-Chads*](https://github.com/C-Chads/) ([License](https://github.com/C-Chads/tinygl/blob/main/LICENSE))
+## Ported software:
+
+Doom has been ported to hhuOS using [doomgeneric](https://github.com/ozkl/doomgeneric) by [*ozkl*](https://github.com/ozkl/) ([GPLv2](https://github.com/ozkl/doomgeneric/blob/master/LICENSE))
+- Available as `doom` command in hhuOS.
+- Prebuilt versions of hhuOS on [GitHub Releases](https://github.com/hhuOS/hhuOS/releases) do not include a WAD file. If you want to play Doom, build hhuOS from source. The shareware WAD file will be downloaded automatically.
+
+Quake has been ported to hhuOS using [quakegeneric](https://github.com/erysdren/quakegeneric) by [*erysdren*](https://github.com/erysdren/) ([GPLv2](https://github.com/erysdren/quakegeneric/blob/master/LICENSE))
+- Available as `quake` command in hhuOS.
+- Prebuilt versions of hhuOS on [GitHub Releases](https://github.com/hhuOS/hhuOS/releases) do not include a PAK file. If you want to play Quake, build hhuOS from source. The shareware PAK file will be downloaded automatically.
+
+[TinyGL](https://github.com/C-Chads/tinygl) by [*C-Chads*](https://github.com/C-Chads/) ([License](https://github.com/C-Chads/tinygl/blob/main/LICENSE))
+- Try out the `opengl` command in hhuOS for some demos.
+
+[Peanut-GB](https://github.com/deltabeard/Peanut-GB) by [*deltabeard*](https://github.com/deltabeard):
+- Available as `peanut-gb` command in hhuOS.
+- Arrow keys are mapped to WASD, A and B are mapped to K and J, Start is mapped to Space, Select is mapped to Enter. Use '+' and '-' to adjust screen scaling.
+- Place your own ROM files in `disk/hdd0/user/gameboy/` before building hhuOS to include them in the HDD image.
+- The following games are included in `/user/gameboy/`:
+  - [2048-gb](https://github.com/Sanqui/2048-gb) by [*Sanqui*](https://github.com/Sanqui) ([zlib](https://github.com/Sanqui/2048-gb/blob/master/LICENSE))
+  - [5 Mazes](https://github.com/godai78/5-Mazes/) by [*godai78*](https://github.com/godai78) ([MIT](https://github.com/godai78/5-Mazes/blob/main/LICENSE))

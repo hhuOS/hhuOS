@@ -34,7 +34,7 @@ int32_t main(int32_t argc, char *argv[]) {
     argumentParser.setHelpText("EnemyBug Defender - A space invaders clone.\n"
                                "Usage: bug\n"
                                "Options:\n"
-                               "  -r, --resolution: Set display resolution"
+                               "  -r, --resolution: Set display resolution\n"
                                "  -h, --help: Show this help message");
 
     argumentParser.addArgument("resolution", false, "r");

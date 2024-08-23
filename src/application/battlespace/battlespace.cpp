@@ -37,7 +37,7 @@ int32_t main(int32_t argc, char *argv[]) {
     argumentParser.setHelpText("Battlespace.\nFly around and shoot enemies.\nTurn using ARROW KEYS or the MOUSE. Fire using SPACEBAR.\nStrafe using WASD. Change speed using Q and E.\n\n"
                                "Usage: battlespace\n"
                                "Options:\n"
-                               "  -r, --resolution: Set display resolution"
+                               "  -r, --resolution: Set display resolution\n"
                                "  -h, --help: Show this help message");
 
     argumentParser.addArgument("resolution", false, "r");

@@ -50,6 +50,7 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cp "$<TARGET_FILE:mount>" "bin/mount"
 		COMMAND /bin/cp "$<TARGET_FILE:nettest>" "bin/nettest"
 		COMMAND /bin/cp "$<TARGET_FILE:opengl>" "bin/opengl"
+		COMMAND /bin/cp "$<TARGET_FILE:peanut-gb>" "bin/peanut-gb"
         COMMAND /bin/cp "$<TARGET_FILE:ping>" "bin/ping"
         COMMAND /bin/cp "$<TARGET_FILE:play>" "bin/play"
         COMMAND /bin/cp "$<TARGET_FILE:ps>" "bin/ps"
@@ -69,6 +70,7 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/beep" "user"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/books" "user"
 		COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/doom" "user"
+		COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/gameboy" "user"
 		COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/quake" "user"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/wav" "user"
 		COMMAND /bin/rm -f "${CMAKE_BINARY_DIR}/part.img"
@@ -78,6 +80,6 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cat "${CMAKE_BINARY_DIR}/fill.img" "${CMAKE_BINARY_DIR}/part.img" "${CMAKE_BINARY_DIR}/fill.img" > "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/rm "${CMAKE_BINARY_DIR}/part.img" "${CMAKE_BINARY_DIR}/fill.img"
         COMMAND /bin/echo -e "'o\\nn\\np\\n1\\n2048\\n$<IF:$<CONFIG:Debug>,196607,131071>\\nt\\ne\\nw\\n'" | fdisk "${HHUOS_ROOT_DIR}/hdd0.img"
-        DEPENDS asciimation-star-wars books-gutenberg doom-wad quake-pak music shell asciimate battlespace beep bug cat cp ctest date demo dino doom echo head hexdump ip keyboard kill ls membench mkdir mount nettest opengl ping play ps pwd quake rm rmdir shutdown smbios touch tree uecho unmount uptime view3d doom-wad)
+        DEPENDS asciimation-star-wars books-gutenberg doom-wad gameboy-roms music quake-pak shell asciimate battlespace beep bug cat cp ctest date demo dino doom echo head hexdump ip keyboard kill ls membench mkdir mount nettest opengl peanut-gb ping play ps pwd quake rm rmdir shutdown smbios touch tree uecho unmount uptime view3d doom-wad)
 
-add_custom_target(${PROJECT_NAME} DEPENDS asciimation-star-wars books-gutenberg doom-wad music quake-pak shell asciimate battlespace beep bug cat cp ctest date demo dino doom echo head hexdump ip keyboard kill ls membench mkdir mount nettest opengl ping play ps pwd quake rm rmdir shutdown smbios touch tree uecho unmount uptime view3d "${HHUOS_ROOT_DIR}/hdd0.img")
+add_custom_target(${PROJECT_NAME} DEPENDS asciimation-star-wars books-gutenberg doom-wad gameboy-roms music quake-pak shell asciimate battlespace beep bug cat cp ctest date demo dino doom echo head hexdump ip keyboard kill ls membench mkdir mount nettest opengl peanut-gb ping play ps pwd quake rm rmdir shutdown smbios touch tree uecho unmount uptime view3d "${HHUOS_ROOT_DIR}/hdd0.img")

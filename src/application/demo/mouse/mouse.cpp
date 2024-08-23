@@ -34,7 +34,7 @@ int32_t main(int32_t argc, char *argv[]) {
     argumentParser.setHelpText("Test application for the mouse.\n"
                                "Usage: mouse\n"
                                "Options:\n"
-                               "  -r, --resolution: Set display resolution"
+                               "  -r, --resolution: Set display resolution\n"
                                "  -h, --help: Show this help message");
 
     argumentParser.addArgument("resolution", false, "r");
