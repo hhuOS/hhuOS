@@ -34,6 +34,7 @@
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/graphic/font/Terminal8x8.h"
+#include "lib/util/io/stream/FileOutputStream.h"
 
 const constexpr uint32_t TARGET_FRAME_RATE = 60;
 const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / TARGET_FRAME_RATE));
@@ -494,25 +495,27 @@ uint8_t scale = 1;
 uint8_t maxScale = 1;
 uint16_t offsetX = 0;
 uint16_t offsetY = 0;
+bool cartRamWritten = false;;
 Util::Graphic::LinearFrameBuffer *lfb = nullptr;
+Util::String saveFilePath;
 
 Util::Time::Timestamp fpsTimer;
 uint32_t fpsCounter = 0;
 uint32_t fps = 0;
 
-uint8_t gb_rom_read(struct gb_s* gb, const uint_fast32_t addr) {
+uint8_t gb_rom_read(gb_s* gb, const uint_fast32_t addr) {
     return rom[addr];
 }
 
-uint8_t gb_cart_ram_read(struct gb_s* gb, const uint_fast32_t addr) {
+uint8_t gb_cart_ram_read(gb_s* gb, const uint_fast32_t addr) {
     return ram[addr];
 }
 
-void gb_cart_ram_write(struct gb_s* gb, const uint_fast32_t addr, const uint8_t val) {
+void gb_cart_ram_write(gb_s* gb, const uint_fast32_t addr, const uint8_t val) {
     ram[addr] = val;
 }
 
-void gb_error(struct gb_s* gb, const enum gb_error_e error, const uint16_t addr) {
+void gb_error(gb_s* gb, const enum gb_error_e error, const uint16_t addr) {
     switch (error) {
         case GB_UNKNOWN_ERROR:
             printf("Unknown error at address 0x%04X\n", addr);
@@ -537,7 +540,7 @@ void gb_error(struct gb_s* gb, const enum gb_error_e error, const uint16_t addr)
     exit(error);
 }
 
-void lcd_draw_line(struct gb_s *gb, const uint8_t *pixels, const uint_fast8_t line) {
+void lcd_draw_line(gb_s *gb, const uint8_t *pixels, const uint_fast8_t line) {
     auto screenBuffer = reinterpret_cast<uint32_t*>(lfb->getBuffer().add(offsetX * 4 + (offsetY + line * scale) * lfb->getPitch()).get());
     uint32_t resX = LCD_WIDTH * scale;
 
@@ -554,15 +557,44 @@ void lcd_draw_line(struct gb_s *gb, const uint8_t *pixels, const uint_fast8_t li
     }
 }
 
+void write_ram_to_file(gb_s *gb) {
+    auto saveSize = gb_get_save_size(gb);
+    if (saveSize == 0) {
+        return;
+    }
+
+    auto saveFile = Util::Io::File(saveFilePath);
+    if (!saveFile.exists()) {
+        saveFile.create(Util::Io::File::REGULAR);
+    }
+
+    auto saveStream = Util::Io::FileOutputStream(saveFile);
+    saveStream.write(ram, 0, saveSize);
+}
+
+void read_ram_from_file(gb_s *gb) {
+    auto saveSize = gb_get_save_size(gb);
+    ram = new uint8_t[saveSize];
+
+    auto saveFile = Util::Io::File(saveFilePath);
+    if (saveFile.exists()) {
+        auto saveStream = Util::Io::FileInputStream(saveFile);
+        saveStream.read(ram, 0, saveSize);
+    }
+}
+
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.setHelpText("GameBoy emulator by 'deltabeard' (https://github.com/deltabeard/Peanut-GB).\n"
-                               "Arrow keys are mapped to WASD, A and B are mapped to K and J, Start is mapped to Space, Select is mapped to Enter. Use '+' and '-' to adjust screen scaling.\n"
+                               "Arrow keys are mapped to WASD, A and B are mapped to K and J, Start is mapped to Space, Select is mapped to Enter.\n"
+                               "Use 'F1' and 'F2' to adjust screen scaling. Use 'F3' to cycle through color palettes and 'F4' to reset to default palette.\n"
                                "Usage: peanut-gb [FILE]...\n"
                                "Options:\n"
+                               "  -s, --save: Path to save file\n"
                                "  -r, --resolution: Set display resolution\n"
                                "  -h, --help: Show this help message");
 
+    argumentParser.addArgument("save", false, "s");
     argumentParser.addArgument("resolution", false, "r");
 
     if (!argumentParser.parse(argc, argv)) {
@@ -576,11 +608,11 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto file = Util::Io::File(arguments[0]);
-    auto stream = Util::Io::FileInputStream(file);
+    auto romFile = Util::Io::File(arguments[0]);
+    auto stream = Util::Io::FileInputStream(romFile);
 
-    rom = new uint8_t[file.getLength()];
-    stream.read(rom, 0, file.getLength());
+    rom = new uint8_t[romFile.getLength()];
+    stream.read(rom, 0, romFile.getLength());
 
     auto lfbFile = Util::Io::File("/device/lfb");
 
@@ -609,7 +641,16 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    ram = new uint8_t[gb_get_save_size(&gb)];
+    if (argumentParser.hasArgument("save")) {
+        saveFilePath = argumentParser.getArgument("save");
+    } else {
+        char title[16]{};
+        gb_get_rom_name(&gb, title);
+
+        saveFilePath = romFile.getParent() + "/" + Util::String(title).strip() + ".sav";
+    }
+
+    read_ram_from_file(&gb);
 
     Util::Graphic::Ansi::prepareGraphicalApplication(true);
     gb_init_lcd(&gb, &lcd_draw_line);
@@ -689,6 +730,7 @@ int32_t main(int32_t argc, char *argv[]) {
                     }
                     break;
                 case Util::Io::Key::ESC:
+                    write_ram_to_file(&gb);
                     return 0;
                 default:
                     break;

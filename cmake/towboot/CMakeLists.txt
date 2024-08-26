@@ -53,7 +53,6 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS-towboot.img"
         WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/towboot/"
         COMMAND /bin/mkdir -p "hhuOS"
         COMMAND /bin/cp "$<TARGET_FILE:system>" "hhuOS/kernel.elf"
-        COMMAND /bin/rm -f "hhuOS/hdd0.img"
         COMMAND /bin/echo -e "'${TOWBOOT_CONFIG}'" | sed -r "s/[\\\\]+//g" > "towboot.toml"
         COMMAND ./towbootctl image --target "${HHUOS_ROOT_DIR}/hhuOS-towboot.img" -- -config "towboot.toml"
         DEPENDS system floppy0 hdd0 "${CMAKE_BINARY_DIR}/towboot/towbootctl")
