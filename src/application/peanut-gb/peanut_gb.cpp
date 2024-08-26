@@ -35,6 +35,7 @@
 #include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/graphic/font/Terminal8x8.h"
 #include "lib/util/io/stream/FileOutputStream.h"
+#include "lib/util/time/Date.h"
 
 const constexpr uint32_t TARGET_FRAME_RATE = 60;
 const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / TARGET_FRAME_RATE));
@@ -714,6 +715,10 @@ int32_t main(int32_t argc, char *argv[]) {
 
     uint8_t manualPaletteIndex = UINT8_MAX;
     palette = gb_get_palette(&gb);
+
+    auto timer = time(nullptr);
+    auto date = localtime(&timer);
+    gb_set_rtc(&gb, date);
 
     while (true) {
         auto startTime = Util::Time::getSystemTime();

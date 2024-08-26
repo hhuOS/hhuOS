@@ -128,7 +128,7 @@ Quake has been ported to hhuOS using [quakegeneric](https://github.com/erysdren/
 
 [Peanut-GB](https://github.com/deltabeard/Peanut-GB) by [*deltabeard*](https://github.com/deltabeard):
 - Available as `peanut-gb` command in hhuOS.
-- Arrow keys are mapped to WASD, A and B are mapped to K and J, Start is mapped to Space, Select is mapped to Enter. Use '+' and '-' to adjust screen scaling.
+- Arrow keys are mapped to WASD, A and B are mapped to K and J, Start is mapped to Space, Select is mapped to Enter. Use 'F1' and 'F2' to adjust screen scaling. Use 'F3' to cycle through color palettes and 'F4' to reset to default palette.
 - Place your own ROM files in `disk/hdd0/user/gameboy/` before building hhuOS to include them in the HDD image.
 - The following games are included in `/user/gameboy/`:
   - [2048-gb](https://github.com/Sanqui/2048-gb) by [*Sanqui*](https://github.com/Sanqui) ([zlib](https://github.com/Sanqui/2048-gb/blob/master/LICENSE))
