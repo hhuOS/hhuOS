@@ -214,13 +214,27 @@ const auto manualPalettes = new uint16_t[14] {
     0x13 << 8 | 0x00 // B + Right
 };
 
+uint32_t *palette = nullptr;
+uint8_t *rom = nullptr;
+uint8_t *ram = nullptr;
+uint8_t scale = 1;
+uint8_t maxScale = 1;
+uint16_t offsetX = 0;
+uint16_t offsetY = 0;
+Util::Graphic::LinearFrameBuffer *lfb = nullptr;
+Util::String saveFilePath;
+
+Util::Time::Timestamp fpsTimer;
+uint32_t fpsCounter = 0;
+uint32_t fps = 0;
+
 uint32_t* get_palette(uint8_t index, uint8_t flags) {
-    auto *palette = palettes[index];
+    auto *pal = palettes[index];
     auto ret = new uint32_t[3][4];
 
     for (uint8_t i = 0; i < 3; i++) {
         for (uint8_t j = 0; j < 4; j++) {
-            ret[i][j] = palette[i][j].getRGB32();
+            ret[i][j] = pal[i][j].getColorForDepth(lfb->getColorDepth());
         }
     }
 
@@ -488,21 +502,6 @@ uint32_t* gb_get_palette(gb_s *gb) {
     return get_palette(0x1c, 0x03);
 }
 
-uint32_t *palette = nullptr;
-uint8_t *rom = nullptr;
-uint8_t *ram = nullptr;
-uint8_t scale = 1;
-uint8_t maxScale = 1;
-uint16_t offsetX = 0;
-uint16_t offsetY = 0;
-bool cartRamWritten = false;;
-Util::Graphic::LinearFrameBuffer *lfb = nullptr;
-Util::String saveFilePath;
-
-Util::Time::Timestamp fpsTimer;
-uint32_t fpsCounter = 0;
-uint32_t fps = 0;
-
 uint8_t gb_rom_read(gb_s* gb, const uint_fast32_t addr) {
     return rom[addr];
 }
@@ -540,20 +539,59 @@ void gb_error(gb_s* gb, const enum gb_error_e error, const uint16_t addr) {
     exit(error);
 }
 
-void lcd_draw_line(gb_s *gb, const uint8_t *pixels, const uint_fast8_t line) {
+void lcd_draw_line_32bit(gb_s *gb, const uint8_t *pixels, const uint_fast8_t line) {
     auto screenBuffer = reinterpret_cast<uint32_t*>(lfb->getBuffer().add(offsetX * 4 + (offsetY + line * scale) * lfb->getPitch()).get());
-    uint32_t resX = LCD_WIDTH * scale;
+    uint16_t resX = LCD_WIDTH * scale;
 
-    for (uint32_t y = 0; y < scale; y++) {
-        for (uint32_t x = 0; x < resX; x++) {
+    for (uint16_t y = 0; y < scale; y++) {
+        for (uint16_t x = 0; x < resX; x++) {
             uint8_t pixel = pixels[x / scale];
             auto paletteIndex = (pixel & 0x30) >> 4;
             auto colorIndex = pixel & 0x03;
             auto color = palette[4 * paletteIndex + colorIndex];
+
             screenBuffer[x] = color;
         }
 
-        screenBuffer += (lfb->getPitch() / sizeof(uint32_t));
+        screenBuffer += (lfb->getPitch() / 4);
+    }
+}
+
+void lcd_draw_line_24bit(gb_s *gb, const uint8_t *pixels, const uint_fast8_t line) {
+    auto screenBuffer = reinterpret_cast<uint8_t*>(lfb->getBuffer().add(offsetX * 3 + (offsetY + line * scale) * lfb->getPitch()).get());
+    uint16_t resX = LCD_WIDTH * scale;
+
+    for (uint16_t y = 0; y < scale; y++) {
+        for (uint16_t x = 0; x < resX; x++) {
+            uint8_t pixel = pixels[x / scale];
+            auto paletteIndex = (pixel & 0x30) >> 4;
+            auto colorIndex = pixel & 0x03;
+            auto color = palette[4 * paletteIndex + colorIndex];
+
+            screenBuffer[x * 3] = color & 0xff;
+            screenBuffer[x * 3 + 1] = (color >> 8) & 0xff;
+            screenBuffer[x * 3 + 2] = (color >> 16) & 0xff;
+        }
+
+        screenBuffer += (lfb->getPitch());
+    }
+}
+
+void lcd_draw_line_16bit(gb_s *gb, const uint8_t *pixels, const uint_fast8_t line) {
+    auto screenBuffer = reinterpret_cast<uint16_t*>(lfb->getBuffer().add(offsetX * 2 + (offsetY + line * scale) * lfb->getPitch()).get());
+    uint16_t resX = LCD_WIDTH * scale;
+
+    for (uint16_t y = 0; y < scale; y++) {
+        for (uint16_t x = 0; x < resX; x++) {
+            uint8_t pixel = pixels[x / scale];
+            auto paletteIndex = (pixel & 0x30) >> 4;
+            auto colorIndex = pixel & 0x03;
+            auto color = palette[4 * paletteIndex + colorIndex];
+
+            screenBuffer[x] = color;
+        }
+
+        screenBuffer += (lfb->getPitch() / 2);
     }
 }
 
@@ -653,7 +691,20 @@ int32_t main(int32_t argc, char *argv[]) {
     read_ram_from_file(&gb);
 
     Util::Graphic::Ansi::prepareGraphicalApplication(true);
-    gb_init_lcd(&gb, &lcd_draw_line);
+    switch (lfb->getColorDepth()) {
+        case 32:
+            gb_init_lcd(&gb, &lcd_draw_line_32bit);
+            break;
+        case 24:
+            gb_init_lcd(&gb, &lcd_draw_line_24bit);
+            break;
+        case 15:
+        case 16:
+            gb_init_lcd(&gb, &lcd_draw_line_16bit);
+            break;
+        default:
+            Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Unsupported color depth!");
+    }
 
     lfb->clear();
 

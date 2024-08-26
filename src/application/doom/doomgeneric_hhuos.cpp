@@ -4,6 +4,8 @@
 #include <ctype.h>
 #include <math.h>
 
+#include "doomgeneric/doomgeneric/doomtype.h"
+#include "doomgeneric/doomgeneric/i_video.h"
 #include "doomgeneric/doomgeneric/doomgeneric.h"
 #include "doomgeneric/doomgeneric/doomkeys.h"
 #include "doomgeneric/doomgeneric/doomtype.h"
@@ -20,6 +22,7 @@
 #include "lib/util/sound/PcSpeaker.h"
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 
+uint32_t palette[256];
 Util::Graphic::LinearFrameBuffer *lfb;
 Util::Graphic::BufferedLinearFrameBuffer *bufferedlfb;
 Util::Io::KeyDecoder *kd;
@@ -27,6 +30,79 @@ Util::Io::KeyDecoder *kd;
 uint32_t scaleFactor = 1;
 uint32_t offsetX = 0;
 uint32_t offsetY = 0;
+
+void (*drawFrame)();
+
+void DG_DrawFrame32() {
+    if (bufferedlfb == nullptr) {
+        return;
+    }
+
+    auto screenBuffer = reinterpret_cast<uint32_t*>(bufferedlfb->getBuffer().add(offsetX * 4 + offsetY * bufferedlfb->getPitch()).get());
+    auto resX = DOOMGENERIC_RESX * scaleFactor > bufferedlfb->getResolutionX() ? bufferedlfb->getResolutionX() : DOOMGENERIC_RESX * scaleFactor;
+    auto resY = DOOMGENERIC_RESY * scaleFactor > bufferedlfb->getResolutionY() ? bufferedlfb->getResolutionY() : DOOMGENERIC_RESY * scaleFactor;
+
+    for (uint32_t y = 0; y < resY; y++) {
+        for (uint32_t x = 0; x < resX; x++) {
+            auto pixel = DG_ScreenBuffer[(y / scaleFactor) * DOOMGENERIC_RESX + (x / scaleFactor)];
+            auto color = palette[pixel];
+
+            screenBuffer[x] = color;
+        }
+
+        screenBuffer += (bufferedlfb->getPitch() / 4);
+    }
+
+    bufferedlfb->flush();
+}
+
+void DG_DrawFrame24() {
+    if (bufferedlfb == nullptr) {
+        return;
+    }
+
+    auto screenBuffer = reinterpret_cast<uint8_t*>(bufferedlfb->getBuffer().add(offsetX * 3 + offsetY * bufferedlfb->getPitch()).get());
+    auto resX = DOOMGENERIC_RESX * scaleFactor > bufferedlfb->getResolutionX() ? bufferedlfb->getResolutionX() : DOOMGENERIC_RESX * scaleFactor;
+    auto resY = DOOMGENERIC_RESY * scaleFactor > bufferedlfb->getResolutionY() ? bufferedlfb->getResolutionY() : DOOMGENERIC_RESY * scaleFactor;
+
+    for (uint32_t y = 0; y < resY; y++) {
+        for (uint32_t x = 0; x < resX; x++) {
+            auto pixel = DG_ScreenBuffer[(y / scaleFactor) * DOOMGENERIC_RESX + (x / scaleFactor)];
+            auto color = palette[pixel];
+
+            screenBuffer[x * 3] = color & 0xff;
+            screenBuffer[x * 3 + 1] = (color >> 8) & 0xff;
+            screenBuffer[x * 3 + 2] = (color >> 16) & 0xff;
+        }
+
+        screenBuffer += (bufferedlfb->getPitch());
+    }
+
+    bufferedlfb->flush();
+}
+
+void DG_DrawFrame16() {
+    if (bufferedlfb == nullptr) {
+        return;
+    }
+
+    auto screenBuffer = reinterpret_cast<uint16_t*>(bufferedlfb->getBuffer().add(offsetX * 2 + offsetY * bufferedlfb->getPitch()).get());
+    auto resX = DOOMGENERIC_RESX * scaleFactor > bufferedlfb->getResolutionX() ? bufferedlfb->getResolutionX() : DOOMGENERIC_RESX * scaleFactor;
+    auto resY = DOOMGENERIC_RESY * scaleFactor > bufferedlfb->getResolutionY() ? bufferedlfb->getResolutionY() : DOOMGENERIC_RESY * scaleFactor;
+
+    for (uint32_t y = 0; y < resY; y++) {
+        for (uint32_t x = 0; x < resX; x++) {
+            auto pixel = DG_ScreenBuffer[(y / scaleFactor) * DOOMGENERIC_RESX + (x / scaleFactor)];
+            auto color = palette[pixel];
+
+            screenBuffer[x] = color;
+        }
+
+        screenBuffer += (bufferedlfb->getPitch() / 2);
+    }
+
+    bufferedlfb->flush();
+}
 
 int32_t main(int argc, char **argv) {
     if (!Util::Io::File::changeDirectory("/user/doom")) {
@@ -40,14 +116,17 @@ int32_t main(int argc, char **argv) {
     Util::Graphic::Ansi::prepareGraphicalApplication(true);
     auto lfbFile = new Util::Io::File("/device/lfb");
 
-    // If '-res is given, try to change display resolution
+    // If '-res' is given, try to change display resolution
     for (int32_t i = 0; i < argc; i++) {
         if (!strcmp(argv[i], "-res") && i < argc - 1) {
-            auto resSplit = Util::String(argv[i + 1]).split("x");
-            uint32_t x = Util::String::parseInt(resSplit[0]);
-            uint32_t y = Util::String::parseInt(resSplit[1]);
-            lfbFile->controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({x, y, 32}));
+            auto split1 = Util::String(argv[i + 1]).split("x");
+            auto split2 = split1[1].split("@");
 
+            uint32_t resolutionX = Util::String::parseInt(split1[0]);
+            uint32_t resolutionY = Util::String::parseInt(split2[0]);
+            uint32_t colorDepth = split2.length() > 1 ? Util::String::parseInt(split2[1]) : 32;
+
+            lfbFile->controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
             break;
         }
     }
@@ -68,6 +147,28 @@ int32_t main(int argc, char **argv) {
     // Calculate offset to center the game
     offsetX = lfb->getResolutionX() - DOOMGENERIC_RESX * scaleFactor > 0 ? (lfb->getResolutionX() - DOOMGENERIC_RESX * scaleFactor) / 2 : 0;
     offsetY = lfb->getResolutionY() - DOOMGENERIC_RESY * scaleFactor > 0 ? (lfb->getResolutionY() - DOOMGENERIC_RESY * scaleFactor) / 2 : 0;
+
+    // Generate color palette
+    for (uint32_t i = 0; i < 256; i++) {
+        auto color = Util::Graphic::Color(colors[i].r, colors[i].g, colors[i].b, colors[i].a);
+        palette[i] = color.getColorForDepth(lfb->getColorDepth());
+    }
+
+    // Set draw method based on color depth
+    switch (lfb->getColorDepth()) {
+        case 32:
+            drawFrame = &DG_DrawFrame32;
+            break;
+        case 24:
+            drawFrame = &DG_DrawFrame24;
+            break;
+        case 15:
+        case 16:
+            drawFrame = &DG_DrawFrame16;
+            break;
+        default:
+            Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Unsupported color depth!");
+    }
 
     // Run game loop
     auto oldTime = clock();
@@ -91,18 +192,7 @@ void DG_DrawFrame() {
         return;
     }
 
-    auto screenBuffer = reinterpret_cast<uint32_t*>(bufferedlfb->getBuffer().add(offsetX * 4 + offsetY * bufferedlfb->getPitch()).get());
-    auto resX = DOOMGENERIC_RESX * scaleFactor > bufferedlfb->getResolutionX() ? bufferedlfb->getResolutionX() : DOOMGENERIC_RESX * scaleFactor;
-    auto resY = DOOMGENERIC_RESY * scaleFactor > bufferedlfb->getResolutionY() ? bufferedlfb->getResolutionY() : DOOMGENERIC_RESY * scaleFactor;
-
-    for (uint32_t y = 0; y < resY; y++) {
-        for (uint32_t x = 0; x < resX; x++) {
-            screenBuffer[x] = DG_ScreenBuffer[(y / scaleFactor) * DOOMGENERIC_RESX + (x / scaleFactor)];
-        }
-
-        screenBuffer += (bufferedlfb->getPitch() / sizeof(uint32_t));
-    }
-
+    drawFrame();
     bufferedlfb->flush();
 }
 
