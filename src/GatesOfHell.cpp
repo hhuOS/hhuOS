@@ -754,8 +754,8 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     Kernel::Service::registerService(Kernel::NetworkService::SERVICE_ID, networkService);
 
     networkService->initializeLoopback();
-    Device::Network::Ne2000::initializeAvailableCards();
     Device::Network::Rtl8139::initializeAvailableCards();
+    Device::Network::Ne2000::initializeAvailableCards();
 
     if (Device::FirmwareConfiguration::isAvailable() && networkService->isNetworkDeviceRegistered("eth0")) {
         // Configure eth0 for QEMU virtual network
@@ -843,6 +843,8 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
             << "Pass 'apic=false' as a boot parameter, if you need VBE support." << Util::Io::PrintStream::endl
             << Util::Graphic::Ansi::RESET << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     }
+
+    memoryService->enableSlabAllocator();
 
     LOG_INFO("Starting scheduler");
     processService->startScheduler();

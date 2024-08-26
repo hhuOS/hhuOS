@@ -194,7 +194,7 @@ void *TableMemoryManager::allocateBlockAfterAddress(void *address) {
         }
     }
 
-    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "TableMemoryManager: Allocation failed!");
+    return nullptr;
 }
 
 uint32_t TableMemoryManager::getTotalMemory() const {

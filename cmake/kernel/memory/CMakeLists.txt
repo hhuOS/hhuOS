@@ -24,5 +24,6 @@ target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/memory/Paging.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/PagingAreaManager.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/PagingAreaManagerRefillRunnable.cpp
+        ${HHUOS_SRC_DIR}/kernel/memory/SlabAllocator.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/TableMemoryManager.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/VirtualAddressSpace.cpp)

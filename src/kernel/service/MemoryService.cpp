@@ -37,8 +37,9 @@
 
 namespace Kernel {
 
-MemoryService::MemoryService(GlobalDescriptorTable *gdt, GlobalDescriptorTable::TaskStateSegment *tss, PageFrameAllocator *pageFrameAllocator, PagingAreaManager *pagingAreaManager, VirtualAddressSpace *kernelAddressSpace)
-        : gdt(gdt), tss(tss), pageFrameAllocator(*pageFrameAllocator), pagingAreaManager(*pagingAreaManager), currentAddressSpace(kernelAddressSpace), kernelAddressSpace(*kernelAddressSpace) {
+MemoryService::MemoryService(GlobalDescriptorTable *gdt, GlobalDescriptorTable::TaskStateSegment *tss, PageFrameAllocator *pageFrameAllocator, PagingAreaManager *pagingAreaManager, VirtualAddressSpace *kernelAddressSpace) :
+        gdt(gdt), tss(tss), pageFrameAllocator(*pageFrameAllocator), pagingAreaManager(*pagingAreaManager), pageFrameSlabAllocator(reinterpret_cast<uint8_t*>(allocatePhysicalMemory(SlabAllocator::MAX_SLAB_SIZE / Util::PAGESIZE))),
+        currentAddressSpace(kernelAddressSpace), kernelAddressSpace(*kernelAddressSpace) {
     addressSpaces.add(kernelAddressSpace);
 
     Service::getService<InterruptService>().assignSystemCall(Util::System::UNMAP, [](uint32_t paramCount, va_list arguments) -> bool {
@@ -165,6 +166,13 @@ void* MemoryService::allocateIsaMemory(uint32_t pageCount) {
 }
 
 void* MemoryService::allocatePhysicalMemory(uint32_t frameCount, void *startAddress) {
+    if (slabAllocatorEnabled) {
+        void *physicalStartAddress = pageFrameSlabAllocator.allocateBlock(frameCount);
+        if (physicalStartAddress != nullptr) {
+            return physicalStartAddress;
+        }
+    }
+
     void *physicalStartAddress = pageFrameAllocator.allocateBlockAfterAddress(startAddress);
     void *currentPhysicalAddress = physicalStartAddress;
     void *lastPhysicalAddress;
@@ -195,6 +203,10 @@ void* MemoryService::allocatePhysicalMemory(uint32_t frameCount, void *startAddr
 }
 
 void MemoryService::freePhysicalMemory(void *pointer, uint32_t frameCount) {
+    if (slabAllocatorEnabled && pageFrameSlabAllocator.freeBlock(pointer)) {
+        return;
+    }
+
     for (uint32_t i = 0; i < frameCount; i++) {
         pageFrameAllocator.freeBlock(static_cast<uint8_t*>(pointer) + i * Util::PAGESIZE);
     }
@@ -247,7 +259,7 @@ void* Kernel::MemoryService::unmap(void *virtualAddress, uint32_t pageCount, uin
             nonMappedCount++;
         } else {
             nonMappedCount = 0;
-            pageFrameAllocator.freeBlock(physicalAddress);
+            freePhysicalMemory(physicalAddress, 1);
         }
 
         // TODO: This is ugly! We need a proper management for mapped/unmapped pages
@@ -386,6 +398,10 @@ void MemoryService::setTaskStateSegmentStackEntry(const uint32_t *stackPointer) 
 
 void MemoryService::loadGlobalDescriptorTable() {
     gdt->load();
+}
+
+void MemoryService::enableSlabAllocator() {
+    slabAllocatorEnabled = true;
 }
 
 }

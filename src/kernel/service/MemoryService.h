@@ -25,6 +25,7 @@
 #include "device/bus/isa/Isa.h"
 #include "kernel/memory/GlobalDescriptorTable.h"
 #include "kernel/memory/Paging.h"
+#include "kernel/memory/SlabAllocator.h"
 
 namespace Kernel {
 class PageFrameAllocator;
@@ -206,6 +207,8 @@ public:
 
     void setTaskStateSegmentStackEntry(const uint32_t *stackPointer);
 
+    void enableSlabAllocator();
+
     static const constexpr uint8_t SERVICE_ID = 2;
 
 private:
@@ -213,8 +216,10 @@ private:
     GlobalDescriptorTable *gdt;
     GlobalDescriptorTable::TaskStateSegment *tss;
 
+    bool slabAllocatorEnabled = false;
     PageFrameAllocator &pageFrameAllocator;
     PagingAreaManager &pagingAreaManager;
+    SlabAllocator pageFrameSlabAllocator;
 
     Util::ArrayList<VirtualAddressSpace*> addressSpaces;
     VirtualAddressSpace *currentAddressSpace;
