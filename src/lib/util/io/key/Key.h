@@ -95,7 +95,22 @@ public:
         F9 = 0x43,
         F10 = 0x44,
         F11 = 0x57,
-        F12 = 0x58
+        F12 = 0x58,
+        NUM_1 = 0x4f,
+        NUM_2 = 0x50,
+        NUM_3 = 0x51,
+        NUM_4 = 0x4b,
+        NUM_5 = 0x4c,
+        NUM_6 = 0x4d,
+        NUM_7 = 0x47,
+        NUM_8 = 0x48,
+        NUM_9 = 0x49,
+        NUM_0 = 0x52,
+        NUM_PLUS = 0x4e,
+        NUM_MINUS = 0x4a,
+        NUM_DIV = 0x35,
+        NUM_MUL = 0x37,
+        NUM_COMMA = 0x53
     };
 
     /**

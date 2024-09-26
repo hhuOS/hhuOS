@@ -113,10 +113,6 @@ bool Pit::isLocked() const {
 uint16_t Pit::readTimer() {
     const auto latchCountCommand = Command(OperatingMode::INTERRUPT_ON_TERMINAL_COUNT, AccessMode::LATCH_COUNT);
 
-    // We need to make sure, that no other thread is accessing the PIT, while the timer value is read.
-    // However, the scheduler relies on system time for updating its sleep list, potentially causing a deadlock.
-    // Circumventing the deadlock using `tryAcquire()` works, but messes up the scheduler's timing, leading to threads sleeping much longer than they anticipated.
-    // The best option so far is to just disable interrupts for a short amount of time, while reading the timer value.
     readTimerLock.acquire();
     controlPort.writeByte(static_cast<uint8_t>(latchCountCommand));
     uint16_t lowByte = dataPort0.readByte();

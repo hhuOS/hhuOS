@@ -19,7 +19,7 @@ cmake_minimum_required(VERSION 3.14)
 project(limine)
 message(STATUS "Project " ${PROJECT_NAME})
 
-set(LIMINE_VERSION "8.0.6")
+set(LIMINE_VERSION "8.0.13")
 
 set(LIMINE_CONFIG "\
 default_entry: 1\\n\
