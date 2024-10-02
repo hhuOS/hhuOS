@@ -13,3 +13,6 @@
 [submodule "src/application/doom/doomgeneric"]
 	path = src/application/doom/doomgeneric
 	url = https://github.com/hhuOS/doomgeneric
+[submodule "src/lib/portablegl"]
+	path = src/lib/portablegl
+	url = https://github.com/hhuOS/PortableGL.git

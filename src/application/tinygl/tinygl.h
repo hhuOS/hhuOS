@@ -15,4 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Matrix3x3.h"
+#ifndef HHUOS_TINYGL_H
+#define HHUOS_TINYGL_H
+
+namespace Util {
+namespace Graphic {
+class LinearFrameBuffer;
+}  // namespace Graphic
+}  // namespace Util
+
+void flush(void *glBuffer, const Util::Graphic::LinearFrameBuffer &lfb);
+
+#endif

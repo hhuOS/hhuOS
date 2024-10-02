@@ -122,7 +122,7 @@ public:
         }
 
         [[nodiscard]] uint32_t calculateRomSize() const {
-            return static_cast<uint32_t>(Math::pow(65536, romSize + 1));
+            return static_cast<uint32_t>(Math::pow(65536.0, romSize + 1));
         }
     } __attribute__ ((packed));
 

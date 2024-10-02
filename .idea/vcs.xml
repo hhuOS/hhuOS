@@ -6,6 +6,7 @@
     <mapping directory="$PROJECT_DIR$/src/application/peanut-gb/Peanut-GB" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/application/quake/quakegeneric" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/filesystem/fat/ff" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/lib/portablegl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/lib/tinygl" vcs="Git" />
   </component>
 </project>

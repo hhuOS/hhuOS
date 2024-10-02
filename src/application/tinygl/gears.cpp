@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <GL/gl.h>
 
-#include "opengl.h"
+#include "tinygl.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/time/Timestamp.h"

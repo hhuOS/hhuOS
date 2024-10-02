@@ -71,6 +71,27 @@ double max(double first, double second, double third) {
     return max(min(first, second), third);
 }
 
+float exp(float arg) {
+    float ret = 0;
+    asm volatile (
+            "flds (%0);"
+            "fldl2e;"
+            "fmulp;" //st0: ex * log2(e)
+            "fld1;" //st0: 1, st1: ex * log2(e)
+            "fld %%st(1);" // st0: ex * log2(e)  st1: 1, st2: ex * log2(e)
+            "fprem;" // st0: rem(ex * log2(e) ), st: 1, st2: ex * log2(e)
+            "f2xm1;" //st0: 2 ^ rem(exponent * log2(base)) - 1, s1: 1, s2: ex * log2(e)
+            "faddp;" //st0: 2 ^ rem(exponent * log2(base)), st1: ex * log2(e)
+            "fscale;" // st0 *= 2^ int (ex * log2(e) )
+            "fxch %%st(1);"
+            "fstp %%st;" //clear st1
+            "fstps (%1);"
+            : :
+            "r"(&arg),"r"(&ret)
+            );
+
+    return ret;
+}
 
 double exp(double arg) {
 	double ret = 0;
@@ -94,6 +115,64 @@ double exp(double arg) {
     return ret;
 }
 
+float exp2(float arg) {
+    float ret = 0;
+    asm volatile (
+            "flds (%0);"
+            "fld1;"
+            "fscale;" // st0 = 2 ^ int(ex), st1 = ex
+            "fld1;" // st0 = 1, st1 = 2 ^ int(ex), st2 = ex
+            "fld %%st(2);" // st0 = ex, st1 = 1, st2 = 2 ^ int(ex), st3 = ex
+            "fprem;" // st0 = rem(ex), st1 = 1, st2 = 2 ^ int(ex), st3 = ex
+            "f2xm1;" // st0 = 2 ^ rem(ex) - 1, st1 = 1, st2 = 2 ^ int(ex), st3 = ex
+            "faddp;" // st0 = 2 ^ rem(ex), st1 = 2 ^ int(ex), st2 = ex
+            "fmulp;" // st0 = 2 ^ ex; st1 = ex
+            "fstps (%1);"
+            "fstp %%st;" //clear st1
+            : :
+            "r"(&arg),"r"(&ret)
+            );
+
+    return ret;
+}
+
+double exp2(double arg) {
+    double ret = 0;
+    asm volatile (
+            "fldl (%0);"
+            "fld1;"
+            "fscale;" // st0 = 2 ^ int(ex), st1 = ex
+            "fld1;" // st0 = 1, st1 = 2 ^ int(ex), st2 = ex
+            "fld %%st(2);" // st0 = ex, st1 = 1, st2 = 2 ^ int(ex), st3 = ex
+            "fprem;" // st0 = rem(ex), st1 = 1, st2 = 2 ^ int(ex), st3 = ex
+            "f2xm1;" // st0 = 2 ^ rem(ex) - 1, st1 = 1, st2 = 2 ^ int(ex), st3 = ex
+            "faddp;" // st0 = 2 ^ rem(ex), st1 = 2 ^ int(ex), st2 = ex
+            "fmulp;" // st0 = 2 ^ ex; st1 = ex
+            "fstpl (%1);"
+            "fstp %%st;" //clear st1
+            : :
+            "r"(&arg),"r"(&ret)
+            );
+
+    return ret;
+}
+
+float ln(float arg) {
+    float ret = 0;
+    asm volatile (
+            "fld1;"
+            "fldl2e;"
+            "fdivrp;" //store 1/log2(e) in stl(0)
+            "flds (%0);"
+            "fyl2x;" //calculate log
+            "fstps (%1);"
+            : :
+            "r"(&arg), "r"(&ret)
+            );
+
+    return ret;
+}
+
 double ln(double arg) {
 	double ret = 0;
     asm volatile (
@@ -110,6 +189,21 @@ double ln(double arg) {
     return ret;
 }
 
+float log10(float arg) {
+    float ret = 0;
+    asm volatile (
+            "fld1;"
+            "fldl2t;"
+            "fdivrp;" //store 1/log2(e) in stl(0)
+            "flds (%0);"
+            "fyl2x;" //calculate log
+            "fstps (%1);"
+            : :
+            "r"(&arg), "r"(&ret)
+            );
+
+    return ret;
+}
 
 double log10(double arg) {
 	double ret = 0;
@@ -122,6 +216,28 @@ double log10(double arg) {
             "fstpl (%1);"
             : :
             "r"(&arg), "r"(&ret)
+            );
+
+    return ret;
+}
+
+float pow(float base, float exponent) {
+    float ret = 0;
+    asm volatile (
+            "flds (%1);"
+            "flds (%0);"
+            "fyl2x;" //st0: ex * log2(b)
+            "fld1;" //st0: 1, st1: ex * log2(b)
+            "fld %%st(1);" // st0: ex * log2(b)  st1: 1, st2: ex * log2(b)
+            "fprem;" // st0: rem(ex * log2(b) ), st: 1, st2: ex * log2(b)
+            "f2xm1;" //st0: 2 ^ rem(exponent * log2(base)) - 1, s1: 1, s2: ex * log2(b)
+            "faddp;" //st0: 2 ^ rem(exponent * log2(base)), st1: ex * log2(b)
+            "fscale;" // st0 *= 2^ int (ex * log2(b) )
+            "fxch %%st(1);"
+            "fstp %%st;" //clear st1
+            "fstps (%2);"
+            : :
+            "r"(&base),"r"(&exponent), "r"(&ret)
             );
 
     return ret;
@@ -367,6 +483,40 @@ bool equals(float first, float second, float epsilon) {
 
 bool equals(double first, double second, double epsilon) {
     return absolute(first - second)  < epsilon;
+}
+
+double round(double value) {
+    double ret = 0;
+    asm volatile(
+            "fldl (%0);"
+            "frndint;"
+            "fstpl (%1)"
+            : :
+            "r"(&value), "r"(&ret)
+            );
+
+    return ret;
+}
+
+float round(float value) {
+    float ret = 0;
+    asm volatile(
+            "flds (%0);"
+            "frndint;"
+            "fstps (%1)"
+            : :
+            "r"(&value), "r"(&ret)
+            );
+
+    return ret;
+}
+
+double truncate(double value) {
+    return ((double) ((uint64_t) value));
+}
+
+float truncate(float value) {
+    return ((float) ((uint64_t) value));
 }
 
 }

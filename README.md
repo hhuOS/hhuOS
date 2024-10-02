@@ -124,7 +124,10 @@ Quake has been ported to hhuOS using [quakegeneric](https://github.com/erysdren/
 - Prebuilt versions of hhuOS on [GitHub Releases](https://github.com/hhuOS/hhuOS/releases) do not include a PAK file. If you want to play Quake, build hhuOS from source. The shareware PAK file will be downloaded automatically.
 
 [TinyGL](https://github.com/C-Chads/tinygl) by [*C-Chads*](https://github.com/C-Chads/) ([License](https://github.com/C-Chads/tinygl/blob/main/LICENSE))
-- Try out the `opengl` command in hhuOS for some demos.
+- Try out the `tinygl` command in hhuOS for some demos.
+
+[PortableGL](https://github.com/rswinkle/PortableGL) by [*rswinkle*](https://github.com/rswinkle/) ([MIT](https://github.com/rswinkle/PortableGL/blob/master/LICENSE))
+- Try out the `portablegl` command in hhuOS for some demos.
 
 [Peanut-GB](https://github.com/deltabeard/Peanut-GB) by [*deltabeard*](https://github.com/deltabeard):
 - Available as `peanut-gb` command in hhuOS.

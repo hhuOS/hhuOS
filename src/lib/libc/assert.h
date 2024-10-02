@@ -5,11 +5,11 @@
 
 #ifdef NDEBUG
 
-#define assert(condition) ((void)0)
+#define assert(condition) ((void) 0)
 
 #else 
 	
-#define assert(condition) if (condition == 0) fprintf(stderr, "%s:%d Assert failed in function %s\n", __FILE__, __LINE__, __func__)
+#define assert(condition) if ((condition) == 0) fprintf(stderr, "%s:%d Assert failed in function %s\n", __FILE__, __LINE__, __func__)
 
 #endif
 

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MATH_H
+#ifndef HHUOS_GLMATH_H
 #define HHUOS_MATH_H
 
 
@@ -32,12 +32,24 @@ namespace Util::Math {
     float absolute(float value);
 
     double absolute(double value);
+
+    float exp(float arg);
 	
 	double exp(double arg);
 
+    float exp2(float arg);
+
+    double exp2(double arg);
+
+    float ln(float arg);
+
 	double ln(double arg);
 
+    float log10(float arg);
+
 	double log10(double arg);
+
+    float pow(float base, float exponent);
 
 	double pow(double base, double exponent);
 
@@ -98,6 +110,14 @@ namespace Util::Math {
     bool equals(float first, float second, float epsilon);
 
     bool equals(double first, double second, double epsilon);
+
+    double round(double value);
+
+    float round(float value);
+
+    double truncate(double value);
+
+    float truncate(float value);
 
     static const constexpr double PI = 3.14159265358979323846;
 	static const constexpr double E = 2.718281828459045235360;

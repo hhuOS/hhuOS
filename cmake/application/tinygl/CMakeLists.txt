@@ -16,17 +16,17 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-project(opengl)
+project(tinygl)
 message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR})
 
 # Set source files
 set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/opengl/opengl.cpp
-        ${HHUOS_SRC_DIR}/application/opengl/gears.cpp
-        ${HHUOS_SRC_DIR}/application/opengl/info.cpp
-        ${HHUOS_SRC_DIR}/application/opengl/triangle.cpp)
+        ${HHUOS_SRC_DIR}/application/tinygl/tinygl.cpp
+        ${HHUOS_SRC_DIR}/application/tinygl/gears.cpp
+        ${HHUOS_SRC_DIR}/application/tinygl/info.cpp
+        ${HHUOS_SRC_DIR}/application/tinygl/triangle.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 

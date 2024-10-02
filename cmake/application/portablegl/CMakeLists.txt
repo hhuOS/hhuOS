@@ -16,32 +16,17 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-project(lib.math)
+project(portablegl)
 message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR})
 
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+# Set source files
+set(SOURCE_FILES
+        ${HHUOS_SRC_DIR}/application/portablegl/portablegl.cpp
+        ${HHUOS_SRC_DIR}/application/portablegl/info.cpp
+        ${HHUOS_SRC_DIR}/application/portablegl/triangle.cpp)
 
-target_sources(${PROJECT_NAME} PUBLIC
-        ${HHUOS_SRC_DIR}/lib/util/math/arith64.c
-        ${HHUOS_SRC_DIR}/lib/util/math/Math.cpp
-        ${HHUOS_SRC_DIR}/lib/util/math/Random.cpp
-        ${HHUOS_SRC_DIR}/lib/util/math/Vector2D.cpp
-        ${HHUOS_SRC_DIR}/lib/util/math/Vector3D.cpp)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-# Kernel space version
-project(lib.kernel.math)
-message(STATUS "Project " ${PROJECT_NAME})
-include_directories(${HHUOS_SRC_DIR})
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} lib.math)
-target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/kernel.cpp)
-
-# User space version
-project(lib.user.math)
-message(STATUS "Project " ${PROJECT_NAME})
-include_directories(${HHUOS_SRC_DIR})
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} lib.math)
-target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/user.cpp)
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base)

@@ -32,6 +32,7 @@ jobs:
           wget -O license/doomgeneric.txt https://raw.githubusercontent.com/hhuOS/doomgeneric/master/LICENSE &&
           wget -O license/quakegeneric.txt https://raw.githubusercontent.com/hhuOS/quakegeneric/master/LICENSE &&
           wget -O license/tinygl.txt https://raw.githubusercontent.com/C-Chads/tinygl/main/LICENSE &&
+          wget -O license/portablegl.txt https://raw.githubusercontent.com/rswinkle/PortableGL/refs/heads/master/LICENSE &&
           head -n 30 src/application/peanut-gb/Peanut-GB/peanut_gb.h > license/peanut-gb.txt &&
           wget -O license/2048-gb.txt https://raw.githubusercontent.com/Sanqui/2048-gb/master/LICENSE &&
           wget -O license/5-mazes.txt https://raw.githubusercontent.com/godai78/5-Mazes/main/LICENSE
