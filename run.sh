@@ -44,10 +44,10 @@ readonly CONST_QEMU_OLD_AUDIO_ARGS="\
 -soundhw pcspk \
 -device sb16,irq=10,dma=1"
 
-readonly CONST_QEMU_NEW_AUDIO_ARGS="\
--audiodev id=pa,driver=pa \
--machine pcspk-audiodev=pa \
--device sb16,irq=10,dma=1,audiodev=pa"
+#readonly CONST_QEMU_NEW_AUDIO_ARGS="\
+#-audiodev id=pa,driver=pa \
+#-machine pcspk-audiodev=pa \
+#-device sb16,irq=10,dma=1,audiodev=pa"
 
 QEMU_BIN="${CONST_QEMU_BIN_I386}"
 QEMU_MACHINE="${CONST_QEMU_MACHINE_PC}"

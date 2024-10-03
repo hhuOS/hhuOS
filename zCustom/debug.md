@@ -1,0 +1,1 @@
+add-symbol-file disk/hdd0/bin/pic
