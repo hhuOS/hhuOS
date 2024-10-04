@@ -7,7 +7,11 @@ include_directories(${HHUOS_SRC_DIR})
 
 # Set source files
 set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/pic/pic.cpp)
+        ${HHUOS_SRC_DIR}/application/pic/Pic.cpp
+        ${HHUOS_SRC_DIR}/application/pic/pic_copy.cpp
+        ${HHUOS_SRC_DIR}/application/pic/Renderer.cpp
+        ${HHUOS_SRC_DIR}/application/pic/Gui.cpp
+        ${HHUOS_SRC_DIR}/application/pic/Layer.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
