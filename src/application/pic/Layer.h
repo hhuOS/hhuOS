@@ -19,6 +19,8 @@ public:
     [[nodiscard]] int getHeight() const { return height; }
     [[nodiscard]] int getPosX() const { return posX; }
     [[nodiscard]] int getPosY() const { return posY; }
+    void setPosX(int x) { posX = x; }
+    void setPosY(int y) { posY = y; }
     [[nodiscard]] uint32_t * getPixelData() const { return pixelData; }
 
     void setPosition(int x, int y);

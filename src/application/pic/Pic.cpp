@@ -89,19 +89,23 @@ Pic::Pic(Util::Graphic::LinearFrameBuffer *lfb, Util::Io::FileInputStream *mouse
     unsigned char *data = stbi_load("/user/pic/test.jpg", &width, &height, &channels, 0);
     print("Loaded image with width " << width << ", height " << height << ", and channels " << channels);
     auto *argbData = new uint32_t[width * height];
-    for (int i = 0; i < width * height; i++) {
-        argbData[i] = (0xFF000000 |                   // Alpha: 255
-                       (data[i * channels] << 16) |    // Red
-                       (data[i * channels + 1] << 8) | // Green
-                       data[i * channels + 2]);        // Blue
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int i = y * width + x;
+            int j = (height - 1 - y) * width + x;
+            argbData[i] = (0xFF000000 |                   // Alpha: 255
+                           (data[j * channels] << 16) |    // Red
+                           (data[j * channels + 1] << 8) | // Green
+                           data[j * channels + 2]);        // Blue
+        }
     }
     auto **layers = new Layer *[6];
     auto *layer1 = new Layer(width, height, 0, 0, argbData);
-    auto *layer2 = new Layer(width, height, 50, 0, argbData);
-    auto *layer3 = new Layer(width, height, 100, 0, argbData);
-    auto *layer4 = new Layer(width, height, 150, 0, argbData);
-    auto *layer5 = new Layer(width, height, 200, 0, argbData);
-    auto *layer6 = new Layer(width, height, 250, 0, argbData);
+    auto *layer2 = new Layer(width, height, 50, 50, argbData);
+    auto *layer3 = new Layer(width, height, 100, 100, argbData);
+    auto *layer4 = new Layer(width, height, 150, 150, argbData);
+    auto *layer5 = new Layer(width, height, 200, 200, argbData);
+    auto *layer6 = new Layer(width, height, 250, 250, argbData);
     layers[0] = layer1;
     layers[1] = layer2;
     layers[2] = layer3;
@@ -145,14 +149,36 @@ void Pic::checkMouseInput() {
     }
 }
 
+// TODO: nur einmal pro Tastendruck ausführen (wie gedrückt halten dann?)
 void Pic::checkKeyboardInput() {
     int16_t scancode = Util::System::in.read();
     while (scancode >= 0) {
         if (keyDecoder->parseScancode(scancode)) {
             auto key = keyDecoder->getCurrentKey();
+            auto currentLayer = rData->layers[rData->currentLayer];
             switch (key.getScancode()) {
                 case Util::Io::Key::ESC:
                     running = false;
+                    break;
+                case Util::Io::Key::UP:
+                    currentLayer->setPosY(currentLayer->getPosY() - 10);
+                    rData->flags->currentLayerChanged();
+                    break;
+                case Util::Io::Key::DOWN:
+                    currentLayer->setPosY(currentLayer->getPosY() + 10);
+                    rData->flags->currentLayerChanged();
+                    break;
+                case Util::Io::Key::LEFT:
+                    currentLayer->setPosX(currentLayer->getPosX() - 10);
+                    rData->flags->currentLayerChanged();
+                    break;
+                case Util::Io::Key::RIGHT:
+                    currentLayer->setPosX(currentLayer->getPosX() + 10);
+                    rData->flags->currentLayerChanged();
+                    break;
+                case Util::Io::Key::TAB:
+                    rData->currentLayer = (rData->currentLayer + 1) % rData->layerCount;
+                    rData->flags->layerOrderChanged();
                     break;
             }
         }
