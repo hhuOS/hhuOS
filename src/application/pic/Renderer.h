@@ -22,7 +22,7 @@
 
 class Renderer : public Util::Async::Runnable {
 public:
-    explicit Renderer(Layer **layers, int layerCount, Util::Graphic::LinearFrameBuffer *lfb, MouseInfo *mouse);
+    explicit Renderer(RenderData *renderData, Util::Graphic::LinearFrameBuffer *lfb);
 
     ~Renderer() override = default;
 
@@ -30,15 +30,38 @@ public:
 
     void prepareBase();
 
+    static uint32_t *newBuffer(int size);
+
+    void renderMouse();
+
+    void removeMouse();
+
+    void renderResult();
+
+    void renderWorkArea();
+
+    void renderOverlay();
+
+    void renderLayers();
+
+    static uint32_t blendPixels(uint32_t lower, uint32_t upper);
+
+    static void blendBuffers(uint32_t *lower, const uint32_t *upper, int size);
+
+    static void blendBuffers(uint32_t *lower, const uint32_t *upper, int lx, int ly, int ux, int uy, int px, int py);
+
+
 private:
     int screenX, screenY, pitch;
+    int workAreaX, workAreaY;
     Util::Graphic::LinearFrameBuffer *lfb;
-    Layer **layers;
-    int layerCount;
-    uint32_t *buffer;
-    uint32_t *base;
-    MouseInfo *mouse;
-
+    RenderData *rData;
+    uint32_t *buff_lfb;
+    uint32_t *buff_result;
+    uint32_t *buff_base, *buff_workarea, *buff_gui;
+    uint32_t *buff_overlay, *buff_layers;
+    uint32_t *buff_under_current, *buff_over_current;
+    int lastMouseX, lastMouseY;
 };
 
 #endif // RENDERER_H

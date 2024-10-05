@@ -95,14 +95,24 @@ Pic::Pic(Util::Graphic::LinearFrameBuffer *lfb, Util::Io::FileInputStream *mouse
                        (data[i * channels + 1] << 8) | // Green
                        data[i * channels + 2]);        // Blue
     }
-    auto **layers = new Layer *[2];
+    auto **layers = new Layer *[6];
     auto *layer1 = new Layer(width, height, 0, 0, argbData);
-    auto *layer2 = new Layer(width, height, 200, 0, argbData);
+    auto *layer2 = new Layer(width, height, 50, 0, argbData);
+    auto *layer3 = new Layer(width, height, 100, 0, argbData);
+    auto *layer4 = new Layer(width, height, 150, 0, argbData);
+    auto *layer5 = new Layer(width, height, 200, 0, argbData);
+    auto *layer6 = new Layer(width, height, 250, 0, argbData);
     layers[0] = layer1;
     layers[1] = layer2;
+    layers[2] = layer3;
+    layers[3] = layer4;
+    layers[4] = layer5;
+    layers[5] = layer6;
     stbi_image_free(data);
 
-    auto renderer = new Renderer(layers, 2, lfb, mouse);
+    rData = new RenderData(mouse, layers, 6, 3, new RenderFlags());
+
+    auto renderer = new Renderer(rData, lfb);
     auto renderThread = Util::Async::Thread::createThread("renderer", renderer);
 }
 
@@ -131,6 +141,7 @@ void Pic::checkMouseInput() {
             mouseValueIndex = 0;
         }
         value = mouseInputStream->read();
+        rData->flags->mouseChanged();
     }
 }
 

@@ -29,6 +29,7 @@ private:
     Util::Io::FileInputStream *mouseInputStream;
     MouseInfo *mouse;
     Util::Io::KeyDecoder *keyDecoder;
+    RenderData *rData;
 };
 
 #endif // PIC_H
