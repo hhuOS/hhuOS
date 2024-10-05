@@ -33,8 +33,6 @@
 #include "stb_image.h"
 #include "stb_image_write.h"
 #include "Pic.h"
-#include "Layer.h"
-#include "Renderer.h"
 
 #define print(i) Util::System::out << i << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush
 
@@ -53,8 +51,39 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
+    if (argumentParser.hasArgument("number")) {
+        auto arg = argumentParser.getArgument("number")[0];
+        print("you called with number: " << arg);
+    }
+
+    auto lfbFile = Util::Io::File("/device/lfb");
+    auto lfb = new LinearFrameBuffer(lfbFile);
+//    auto blfb = new BufferedLinearFrameBuffer(lfb, true);
+    Util::Graphic::Ansi::prepareGraphicalApplication(true);
+
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
+    auto mouseFile = Util::Io::File("/device/mouse");
+    auto mouseInputStream = new Util::Io::FileInputStream(mouseFile);
+    mouseInputStream->setAccessMode(Util::Io::File::NON_BLOCKING);
+
+    auto pic = new Pic(lfb, mouseInputStream);
+    pic->run();
+    delete pic;
+
+    return 0;
+}
+
+
+Pic::Pic(Util::Graphic::LinearFrameBuffer *lfb, Util::Io::FileInputStream *mouseInputStream) {
+    this->running = true;
+    this->lfb = lfb;
+    this->screenX = lfb->getResolutionX();
+    this->screenY = lfb->getResolutionY();
+    this->pitch = lfb->getPitch();
+    this->mouseInputStream = mouseInputStream;
+    this->mouse = new MouseInfo();
+    this->keyDecoder = new Util::Io::KeyDecoder(new Util::Io::DeLayout());
 
     int width, height, channels;
     unsigned char *data = stbi_load("/user/pic/test.jpg", &width, &height, &channels, 0);
@@ -66,22 +95,56 @@ int32_t main(int32_t argc, char *argv[]) {
                        (data[i * channels + 1] << 8) | // Green
                        data[i * channels + 2]);        // Blue
     }
-    auto** layers = new Layer*[2];
+    auto **layers = new Layer *[2];
     auto *layer1 = new Layer(width, height, 0, 0, argbData);
     auto *layer2 = new Layer(width, height, 200, 0, argbData);
     layers[0] = layer1;
     layers[1] = layer2;
     stbi_image_free(data);
 
-    auto renderer = new Renderer(layers, 2);
+    auto renderer = new Renderer(layers, 2, lfb, mouse);
     auto renderThread = Util::Async::Thread::createThread("renderer", renderer);
+}
 
-    while (true) {
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1000));
+void Pic::run() {
+    while (running) {
+        this->checkMouseInput();
+        this->checkKeyboardInput();
+        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
     }
+}
 
+void Pic::checkMouseInput() {
+    uint8_t mouseValues[4]{};
+    uint32_t mouseValueIndex = 0;
+    int16_t value = mouseInputStream->read();
+    while (value >= 0) {
+        mouseValues[mouseValueIndex++] = value;
+        if (mouseValueIndex == 4) {
+            auto mouseUpdate = Util::Io::MouseDecoder::decode(mouseValues);
+            auto min = [](int a, int b) { return a < b ? a : b; };
+            auto max = [](int a, int b) { return a > b ? a : b; };
+            mouse->X = max(0, min(screenX - 1, mouse->X + mouseUpdate.xMovement));
+            mouse->Y = max(0, min(screenY - 1, mouse->Y - mouseUpdate.yMovement));
+            mouse->leftButtonPressed = mouseUpdate.buttons & Util::Io::Mouse::LEFT_BUTTON;
+            Util::Address<uint32_t>(mouseValues).setRange(0, 4);
+            mouseValueIndex = 0;
+        }
+        value = mouseInputStream->read();
+    }
+}
 
-
-
-    return 0;
+void Pic::checkKeyboardInput() {
+    int16_t scancode = Util::System::in.read();
+    while (scancode >= 0) {
+        if (keyDecoder->parseScancode(scancode)) {
+            auto key = keyDecoder->getCurrentKey();
+            switch (key.getScancode()) {
+                case Util::Io::Key::ESC:
+                    running = false;
+                    break;
+            }
+        }
+        scancode = Util::System::in.read();
+    }
 }

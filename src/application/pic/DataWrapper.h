@@ -6,8 +6,12 @@
 #define HHUOS_DATAWRAPPER_H
 
 
-class DataWrapper {
+class MouseInfo {
+public:
+    MouseInfo() : X(0), Y(0), leftButtonPressed(false) {}
 
+    int X, Y;
+    bool leftButtonPressed;
 };
 
 

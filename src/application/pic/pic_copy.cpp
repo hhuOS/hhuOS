@@ -26,8 +26,6 @@
 #include <lib/util/time/Timestamp.h>
 #include "lib/util/async/Process.h"
 
-//#define STB_IMAGE_IMPLEMENTATION
-//#define STB_IMAGE_WRITE_IMPLEMENTATION
 
 #include "stb_image.h"
 #include "stb_image_write.h"
@@ -35,6 +33,7 @@
 #include "lib/util/io/key/layout/DeLayout.h"
 #include "lib/util/graphic/font/Terminal8x16.h"
 #include "lib/util/graphic/font/Sun8x16.h"
+#include "lib/libc/math.h"
 
 #define print(i) Util::System::out << i << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush
 
@@ -410,10 +409,8 @@ void calcPicData(int *picData, const unsigned char *data) {
     int centerX = posX + width * scale / 2;
     int centerY = posY + height * scale / 2;
     double rotationRad = rotationDegree * M_PI / 180.0;
-//    double cosTheta = cos(rotationRad);
-//    double sinTheta = sin(rotationRad);
-    double cosTheta = 1;
-    double sinTheta = 1;
+    double cosTheta = cos(rotationRad);
+    double sinTheta = sin(rotationRad);
 
     int resX = blfb->getResolutionX();
     int resY = blfb->getResolutionY();
