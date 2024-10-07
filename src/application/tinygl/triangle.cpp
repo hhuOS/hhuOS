@@ -18,7 +18,6 @@
 #include <stdint.h>
 #include <GL/gl.h>
 
-#include "tinygl.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/time/Timestamp.h"
@@ -30,6 +29,7 @@
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/InputStream.h"
+#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 
 const constexpr uint32_t TARGET_FRAME_RATE = 60;
 
@@ -58,7 +58,7 @@ void drawTriangle() {
     glEnd();
 }
 
-void triangle(void *frameBuffer, const Util::Graphic::LinearFrameBuffer &lfb) {
+void triangle(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / TARGET_FRAME_RATE));
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
@@ -78,10 +78,12 @@ void triangle(void *frameBuffer, const Util::Graphic::LinearFrameBuffer &lfb) {
             break;
         }
 
+        // Draw the triangle
         drawTriangle();
-        flush(frameBuffer, lfb);
 
+        // Draw the FPS string on top of the rendered OpenGL scene
         stringDrawer.drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
+        lfb.flush(); // Flushes the buffered frame buffer to the screen
 
         auto renderTime = Util::Time::getSystemTime() - startTime;
         if (renderTime < targetFrameTime) {

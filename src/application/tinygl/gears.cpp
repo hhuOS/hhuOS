@@ -6,7 +6,6 @@
 #include <stdint.h>
 #include <GL/gl.h>
 
-#include "tinygl.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/time/Timestamp.h"
@@ -19,6 +18,7 @@
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/graphic/font/Terminal8x8.h"
+#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 
 const constexpr uint32_t TARGET_FRAME_RATE = 60;
 const constexpr GLfloat VIEW_ROTATION_X = 20.0;
@@ -160,7 +160,7 @@ void drawGears() {
     glPopMatrix();
 }
 
-void gears(void *frameBuffer, const Util::Graphic::LinearFrameBuffer &lfb) {
+void gears(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / TARGET_FRAME_RATE));
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
@@ -201,14 +201,14 @@ void gears(void *frameBuffer, const Util::Graphic::LinearFrameBuffer &lfb) {
 
     glEnable(GL_LIGHT0);
 
-    /* make the gears */
+    // Create the gears
     gear1 = glGenLists(1);
     glNewList(gear1, GL_COMPILE);
     glMaterialfv(GL_FRONT, GL_DIFFUSE, red);
     glMaterialfv(GL_FRONT, GL_SPECULAR, white);
     glMaterialfv(GL_FRONT, GL_SHININESS, &shininess);
     glColor3fv(blue);
-    gear(1.0, 4.0, 1.0, 20, 0.7); // The largest gear.
+    gear(1.0, 4.0, 1.0, 20, 0.7); // The largest gear
     glEndList();
 
     gear2 = glGenLists(1);
@@ -216,7 +216,7 @@ void gears(void *frameBuffer, const Util::Graphic::LinearFrameBuffer &lfb) {
     glMaterialfv(GL_FRONT, GL_DIFFUSE, green);
     glMaterialfv(GL_FRONT, GL_SPECULAR, white);
     glColor3fv(red);
-    gear(0.5, 2.0, 2.0, 10, 0.7); // The small gear with the smaller hole, to the right.
+    gear(0.5, 2.0, 2.0, 10, 0.7); // The small gear with the smaller hole, to the right
     glEndList();
 
     gear3 = glGenLists(1);
@@ -224,7 +224,7 @@ void gears(void *frameBuffer, const Util::Graphic::LinearFrameBuffer &lfb) {
     glMaterialfv(GL_FRONT, GL_DIFFUSE, blue);
     glMaterialfv(GL_FRONT, GL_SPECULAR, white);
     glColor3fv(green);
-    gear(1.3, 2.0, 0.5, 10, 0.7); // The small gear above with the large hole.
+    gear(1.3, 2.0, 0.5, 10, 0.7); // The small gear above with the large hole
     glEndList();
 
     // Draw scene
@@ -235,10 +235,12 @@ void gears(void *frameBuffer, const Util::Graphic::LinearFrameBuffer &lfb) {
             break;
         }
 
+        // Draw the gears
         drawGears();
-        flush(frameBuffer, lfb);
 
+        // Draw the FPS string on top of the rendered OpenGL scene
         stringDrawer.drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
+        lfb.flush(); // Flushes the buffered frame buffer to the screen
 
         auto renderTime = Util::Time::getSystemTime() - startTime;
         if (renderTime < targetFrameTime) {

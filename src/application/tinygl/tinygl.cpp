@@ -17,7 +17,6 @@
 
 #include <stdint.h>
 
-#include "tinygl.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/base/System.h"
 #include "lib/util/base/ArgumentParser.h"
@@ -29,10 +28,12 @@
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/stream/PrintStream.h"
+#include "lib/util/graphic/PixelDrawer.h"
+#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 
 extern void info();
-extern void triangle(void *frameBuffer, const Util::Graphic::LinearFrameBuffer &lfb);
-extern void gears(void *frameBuffer, const Util::Graphic::LinearFrameBuffer &lfb);
+extern void triangle(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
+extern void gears(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -77,13 +78,19 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
-    auto *glBuffer = ZB_open(lfb.getResolutionX(), lfb.getResolutionY(), ZB_MODE_RGBA, nullptr);
+    if (lfb.getColorDepth() != TGL_FEATURE_RENDER_BITS) {
+        Util::System::error << "tinygl: Color depth not supported (Required: " << TGL_FEATURE_RENDER_BITS << ", Got: " << lfb.getColorDepth() << ")!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        return -1;
+    }
+
+    auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(lfb);
+    auto *glBuffer = ZB_open(lfb.getResolutionX(), lfb.getResolutionY(), ZB_MODE_RGBA, reinterpret_cast<void*>(bufferedLfb.getBuffer().get()));
     glInit(glBuffer);
 
     if (demo == "triangle") {
-        triangle(glBuffer, lfb);
+        triangle(bufferedLfb);
     } else if (demo == "gears") {
-        gears(glBuffer, lfb);
+        gears(bufferedLfb);
     } else {
         Util::System::error << "opengl: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
@@ -91,8 +98,4 @@ int32_t main(int32_t argc, char *argv[]) {
 
     Util::Graphic::Ansi::cleanupGraphicalApplication();
     return 0;
-}
-
-void flush(void *glBuffer, const Util::Graphic::LinearFrameBuffer &lfb) {
-    ZB_copyFrameBuffer(reinterpret_cast<ZBuffer*>(glBuffer), reinterpret_cast<void*>(lfb.getBuffer().get()), lfb.getPitch());
 }
