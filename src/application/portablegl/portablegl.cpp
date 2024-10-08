@@ -71,6 +71,8 @@ int32_t main(int32_t argc, char *argv[]) {
 
     if (demo == "triangle") {
         triangle(lfb);
+    } else if (demo == "gears") {
+        gears(lfb);
     } else {
         Util::System::error << "opengl: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;

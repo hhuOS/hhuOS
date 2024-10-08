@@ -19,7 +19,7 @@ cmake_minimum_required(VERSION 3.14)
 project(limine)
 message(STATUS "Project " ${PROJECT_NAME})
 
-set(LIMINE_VERSION "8.0.13")
+set(LIMINE_VERSION "8.0.14")
 
 set(LIMINE_CONFIG "\
 default_entry: 1\\n\
@@ -41,7 +41,7 @@ verbose: yes\\n\
     comment: Boot hhuOS.\\n\
     protocol: multiboot2\\n\
     kernel_path: boot():/hhuOS/kernel.elf\\n\
-    kernel_cmdline: log_level=inf log_ports=COM1 root=vdd0p0,Filesystem::Fat::FatDriver apic=true bios=true apm=true vbe=true\\n\
+    kernel_cmdline: log_level=inf log_ports=COM1 root=vdd0p0,Filesystem::Fat::FatDriver apic=false bios=true apm=true vbe=true\\n\
     module_path: boot():/hhuOS/hdd0.img\\n\
     module_string: vdd0")
 

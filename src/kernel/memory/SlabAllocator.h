@@ -18,8 +18,10 @@
 #ifndef HHUOS_SLABALLOCATOR_H
 #define HHUOS_SLABALLOCATOR_H
 
+#include <stdint.h>
+
 #include "BitmapMemoryManager.h"
-#include "lib/util/base/Constants.h"
+#include "lib/util/base/MemoryManager.h"
 
 namespace Kernel {
 

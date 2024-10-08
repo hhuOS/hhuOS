@@ -17,6 +17,8 @@
 
 #include "SlabAllocator.h"
 
+#include "kernel/memory/BitmapMemoryManager.h"
+
 namespace Kernel {
 
 SlabAllocator::SlabAllocator(uint8_t *slabMemory) :

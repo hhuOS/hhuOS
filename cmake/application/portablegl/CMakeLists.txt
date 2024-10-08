@@ -25,6 +25,7 @@ include_directories(${HHUOS_SRC_DIR})
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/portablegl/portablegl.cpp
         ${HHUOS_SRC_DIR}/application/portablegl/info.cpp
+        ${HHUOS_SRC_DIR}/application/portablegl/gears.cpp
         ${HHUOS_SRC_DIR}/application/portablegl/triangle.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})

@@ -22,14 +22,22 @@
 #include <stdio.h>
 
 #include "quakegeneric/source/quakegeneric.h"
-
 #include "lib/util/base/Address.h"
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/io/key/KeyDecoder.h"
 #include "lib/util/io/key/layout/DeLayout.h"
-#include "lib/util/game/Engine.h"
+#include "application/quake/quakegeneric/source/quakekeys.h"
+#include "lib/util/async/Thread.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/base/String.h"
+#include "lib/util/base/System.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
+#include "lib/util/graphic/Color.h"
+#include "lib/util/io/key/Key.h"
+#include "lib/util/io/stream/PrintStream.h"
 
 uint32_t palette[256];
 Util::Graphic::LinearFrameBuffer *lfb;
