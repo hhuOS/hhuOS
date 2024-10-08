@@ -34,12 +34,13 @@
 extern void info();
 extern void triangle(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
 extern void gears(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
+extern void texture(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.setHelpText("TinyGL demo application.\n\n"
                                "Usage: tinygl <demo>\n"
-                               "Demos: info, triangle, gears\n"
+                               "Demos: info, triangle, gears, texture\n"
                                "Options:\n"
                                "  -r, --resolution: Set display resolution\n"
                                "  -h, --help: Show this help message");
@@ -53,7 +54,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "tinygl: No arguments provided! Please specify a demo (info, triangle, gears)." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "tinygl: No arguments provided! Please specify a demo (info, triangle, gears, texture)." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -91,10 +92,15 @@ int32_t main(int32_t argc, char *argv[]) {
         triangle(bufferedLfb);
     } else if (demo == "gears") {
         gears(bufferedLfb);
+    } else if (demo == "texture") {
+        texture(bufferedLfb);
     } else {
         Util::System::error << "opengl: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
+
+    ZB_close(glBuffer);
+    glClose();
 
     Util::Graphic::Ansi::cleanupGraphicalApplication();
     return 0;
