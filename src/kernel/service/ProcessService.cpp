@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <stdarg.h>>
+#include <stdarg.h>
 
 #include "kernel/process/AddressSpaceCleaner.h"
 #include "kernel/process/BinaryLoader.h"

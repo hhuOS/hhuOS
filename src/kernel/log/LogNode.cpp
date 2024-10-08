@@ -15,52 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MEMORYSTATUSNODE_H
-#define HHUOS_MEMORYSTATUSNODE_H
-
-#include <stdint.h>
-
-#include "filesystem/memory/StringNode.h"
-#include "lib/util/base/String.h"
+#include "Log.h"
+#include "LogNode.h"
 
 namespace Kernel {
 
-class MemoryStatusNode : public Filesystem::Memory::StringNode {
+LogNode::LogNode(const Util::String &name) : StringNode(name) {}
 
-public:
-    /**
-     * Constructor.
-     */
-    explicit MemoryStatusNode(const Util::String &name = "memory");
-
-    /**
-     * Copy Constructor.
-     */
-    MemoryStatusNode(const MemoryStatusNode &copy) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    MemoryStatusNode& operator=(const MemoryStatusNode &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~MemoryStatusNode() override = default;
-
-    /**
-     * Overriding function from StringNode.
-     */
-     Util::String getString() override;
-
-private:
-
-    static Util::String formatMemory(uint32_t value);
-
-    Util::String memoryStatusBuffer;
-
-};
-
+Util::String LogNode::getString() {
+    return Log::getLog();
 }
 
-#endif
+}

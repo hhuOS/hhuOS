@@ -102,6 +102,8 @@ public:
 
     static const Device::SimpleSerialPort& getEarlyLogSerialPort();
 
+    static Util::String getLog();
+
 private:
 
     static void logDefault(const Record &record, const char *message, va_list args);

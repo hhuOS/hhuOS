@@ -113,6 +113,7 @@
 #include "device/time/acpi/AcpiTimer.h"
 #include "lib/util/time/Timestamp.h"
 #include "device/time/hpet/Hpet.h"
+#include "kernel/log/LogNode.h"
 
 namespace Device {
 class WaitTimer;
@@ -668,12 +669,12 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     filesystemService->createDirectory("/process");
     filesystemService->getFilesystem().mountVirtualDriver("/process", processDriver);
 
-    filesystemService->createFile("/device/log");
     deviceDriver->addNode("/", new Filesystem::Memory::NullNode());
     deviceDriver->addNode("/", new Filesystem::Memory::ZeroNode());
     deviceDriver->addNode("/", new Filesystem::Memory::RandomNode());
     deviceDriver->addNode("/", new Filesystem::Memory::MountsNode());
-    deviceDriver->addNode("/", new Kernel::MemoryStatusNode("memory"));
+    deviceDriver->addNode("", new Kernel::LogNode());
+    deviceDriver->addNode("/", new Kernel::MemoryStatusNode());
 
     if (Device::FirmwareConfiguration::isAvailable()) {
         auto *fwCfg = new Device::FirmwareConfiguration();

@@ -246,4 +246,13 @@ const Device::SimpleSerialPort &Log::getEarlyLogSerialPort() {
     return *serial;
 }
 
+Util::String Log::getLog() {
+    Util::String log;
+    for (const auto &message: buffer) {
+        log += message + "\n";
+    }
+
+    return log;
+}
+
 }
