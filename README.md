@@ -127,6 +127,8 @@ Assets for the battlespace game have been taken from [itch.io](https://itch.io):
 
 Assets for the mouse demo haven been taken from [Icons8](https://icons8.com/).
 
+TinyGL demos starting with `lesson` are ported tutorial lessons from [videotutorialsrock.com](http://www.videotutorialsrock.com/).
+
 Music for the SoundBlaster demo has been taken from [Bensound](https://www.bensound.com/royalty-free-music):
 - Ukulele license code: 3M7PXYPYNOTSIGNQ
 
