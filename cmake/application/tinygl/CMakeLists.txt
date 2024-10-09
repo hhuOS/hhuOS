@@ -31,10 +31,12 @@ add_compile_options(
 # Set source files
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/tinygl/tinygl.cpp
+        ${HHUOS_SRC_DIR}/application/tinygl/util.cpp
         ${HHUOS_SRC_DIR}/application/tinygl/cubes.cpp
         ${HHUOS_SRC_DIR}/application/tinygl/gears.cpp
         ${HHUOS_SRC_DIR}/application/tinygl/info.cpp
-        ${HHUOS_SRC_DIR}/application/tinygl/triangle.cpp)
+        ${HHUOS_SRC_DIR}/application/tinygl/triangle.cpp
+        ${HHUOS_SRC_DIR}/application/tinygl/tutorial/lesson1.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
