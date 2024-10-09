@@ -49,37 +49,26 @@ static Util::Math::Random random;
 
 struct Cube {
     GLfloat size = random.nextRandomNumber() * 10 + 1;
-    GLfloat coordinates[3] = { static_cast<GLfloat>(random.nextRandomNumber() * 50 - 25), static_cast<GLfloat>(random.nextRandomNumber() * 50 - 25), -(static_cast<GLfloat>(random.nextRandomNumber() * 100 + 10)) };
+    GLfloat coordinates[3] = { static_cast<GLfloat>(random.nextRandomNumber() * 50 - 25), static_cast<GLfloat>(random.nextRandomNumber() * 50 - 25), -(static_cast<GLfloat>(random.nextRandomNumber() * 100 + 20)) };
 
     GLfloat rotationAngle = 0;
-    GLfloat rotationSpeed[3] = { static_cast<GLfloat>(random.nextRandomNumber() * 100), static_cast<GLfloat>(random.nextRandomNumber() * 100), static_cast<GLfloat>(random.nextRandomNumber() * 100) };
+    GLfloat rotationSpeed = random.nextRandomNumber() * 100 + 10;
+    GLfloat rotationAxes[3] = {static_cast<GLfloat>(random.nextRandomNumber() * 200) - 100, static_cast<GLfloat>(random.nextRandomNumber() * 200) - 100, static_cast<GLfloat>(random.nextRandomNumber() * 200) - 100 };
 
     GLuint texture = 0;
+    GLuint displayList = 0;
 
     Cube() = default;
 
-    explicit Cube(GLuint texture) : texture(texture) {}
+    explicit Cube(GLuint texture) : texture(texture) {
+        displayList = glGenLists(1);
+        glNewList(displayList, GL_COMPILE);
 
-    bool operator!=(const Cube &other) {
-        return size != other.size || rotationAngle != other.rotationAngle || texture != other.texture ||
-                coordinates[0] != other.coordinates[0] || coordinates[1] != other.coordinates[1] || coordinates[2] != other.coordinates[2] ||
-                rotationSpeed[0] != other.rotationSpeed[0] || rotationSpeed[1] != other.rotationSpeed[1] || rotationSpeed[2] != other.rotationSpeed[2];
-    }
-
-    void update(const Util::Time::Timestamp &frameTime) {
-        rotationAngle += (static_cast<GLfloat>(frameTime.toMicroseconds()) / 1000000) * 40;
-    }
-    
-    void draw() const {
-        glLoadIdentity();
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, texture);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glColor3f(1.0f, 1.0f, 1.0f);
-
-        glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
-        glRotatef(rotationAngle, rotationSpeed[0], rotationSpeed[1], rotationSpeed[2]);
 
         glBegin(GL_QUADS);
 
@@ -155,6 +144,23 @@ struct Cube {
 
         glEnd();
         glDisable(GL_TEXTURE_2D);
+
+        glEndList();
+    }
+
+    bool operator!=(const Cube &other) {
+        return displayList != other.displayList;
+    }
+
+    void update(const Util::Time::Timestamp &frameTime) {
+        rotationAngle += (static_cast<GLfloat>(frameTime.toMicroseconds()) / 1000000) * rotationSpeed;
+    }
+    
+    void draw() const {
+        glLoadIdentity();
+        glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
+        glRotatef(rotationAngle, rotationAxes[0], rotationAxes[1], rotationAxes[2]);
+        glCallList(displayList);
     }
 };
 
@@ -176,7 +182,7 @@ GLuint loadTexture(Util::Graphic::Image *image) {
     return textureId;
 }
 
-void texture(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
+void cubes(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / TARGET_FRAME_RATE));
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 

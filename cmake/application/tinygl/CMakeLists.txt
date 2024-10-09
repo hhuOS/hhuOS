@@ -24,9 +24,9 @@ include_directories(${HHUOS_SRC_DIR})
 # Set source files
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/tinygl/tinygl.cpp
+        ${HHUOS_SRC_DIR}/application/tinygl/cubes.cpp
         ${HHUOS_SRC_DIR}/application/tinygl/gears.cpp
         ${HHUOS_SRC_DIR}/application/tinygl/info.cpp
-        ${HHUOS_SRC_DIR}/application/tinygl/texture.cpp
         ${HHUOS_SRC_DIR}/application/tinygl/triangle.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})

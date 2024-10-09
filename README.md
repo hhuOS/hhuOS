@@ -77,12 +77,29 @@ When you are done tinkering with the OS, why not try to build your own applicati
 
 <table style="margin-left: auto; margin-right: auto">
     <tr>
-        <td><img src="media/screenshots/shell.png" width="450px"></td>
-        <td><img src="media/screenshots/network.png" width="450px"></td>
+        <td>
+        <img src="media/screenshots/shell.png" width="450px"></br>
+        <p align="center">Demonstration of some shell commands in hhuOS</p>
+        </td>
+        <td><img src="media/screenshots/network.png" width="450px"></br>
+        <p align="center">Network stack demo</p>
+        </td>
     </tr>
     <tr>
-        <td><img src="media/screenshots/bug.png" width="450px"></td>
-        <td><img src="media/screenshots/battlespace.png" width="450px"></td>
+        <td><img src="media/screenshots/bug.png" width="450px"></br>
+        <p align="center"><i>Bug Defender</i> is a Space Invaders clone</p>
+        </td>
+        <td><img src="media/screenshots/battlespace.png" width="450px"></br>
+        <p align="center"><i>Battlespace</i> is a 3D space shooter</p>
+        </td>
+    </tr>
+    <tr>
+        <td><img src="media/screenshots/gears.png" width="450px"></br>
+        <p align="center">The classic <i>gears</i> demo using <a href="https://github.com/C-Chads/tinygl">TinyGL</a></p>
+        </td>
+        <td><img src="media/screenshots/cubes.png" width="450px"></br>
+        <p align="center">Rotating textured cubes using <a href="https://github.com/C-Chads/tinygl">TinyGL</a></p>
+        </td>
     </tr>
 </table>
 
