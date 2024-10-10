@@ -25,4 +25,9 @@
  */
 void gluPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 
+/**
+ * Loads a texture from a bitmap file and returns the texture ID.
+ */
+GLuint gluLoadTexture(const char *path);
+
 #endif
