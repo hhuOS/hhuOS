@@ -19,6 +19,22 @@ cmake_minimum_required(VERSION 3.14)
 project(play)
 message(STATUS "Project " ${PROJECT_NAME})
 
+add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/wav/"
+        COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/wav/")
+
+if ($ENV{HHUOS_REDISTRIBUTABLE_BUILD})
+    add_custom_target(wav-files DEPENDS
+            "${CMAKE_BINARY_DIR}/wav/")
+else()
+    add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/wav/ukulele.wav"
+            COMMAND wget "https://www.bensound.com/bensound-music/bensound-ukulele.mp3" -O "ukulele.mp3"
+            COMMAND ffmpeg -i "ukulele.mp3" -acodec pcm_u8 -ar 22050 -ac 1 "${CMAKE_BINARY_DIR}/wav/ukulele.wav"
+            DEPENDS "${CMAKE_BINARY_DIR}/wav/")
+
+    add_custom_target(wav-files DEPENDS
+            "${CMAKE_BINARY_DIR}/wav/ukulele.wav")
+endif()
+
 include_directories(${HHUOS_SRC_DIR})
 
 # Set source files

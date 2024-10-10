@@ -100,7 +100,7 @@ find_program(iwyu_tool_path NAMES iwyu_tool.py iwyu-tool)
 find_program(iwyu_fix_includes_path NAMES fix_includes.py iwyu-fix-includes)
 if (Python3_Interpreter_FOUND AND iwyu_tool_path AND iwyu_fix_includes_path)
     ProcessorCount(ncpus)
-    add_custom_target(optimize_includes
+    add_custom_target(optimize-includes
             COMMAND "${Python3_EXECUTABLE}" "${iwyu_tool_path}" -j "${ncpus}" -p "${CMAKE_BINARY_DIR}" |
                     "${Python3_EXECUTABLE}" "${iwyu_fix_includes_path}" --nocomments --noupdate_comments --blank_lines --nosafe_headers --ignore_re "(.*/ff/source.*)|(.*/tinygl.*)|(.*/portablegl.*)|(.*/libc.*)|(.*/doomgeneric/doomgeneric.*)|(.*/quakegeneric/source.*)|(.*/Peanut-GB.*)" -p "${HHUOS_SRC_DIR}"
             VERBATIM)
@@ -125,8 +125,6 @@ add_subdirectory(towboot)
 
 add_subdirectory(application)
 
-add_subdirectory(asciimation)
-add_subdirectory(music)
 add_subdirectory(books)
 
 add_subdirectory(hdd0)

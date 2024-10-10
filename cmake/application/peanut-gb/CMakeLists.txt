@@ -23,7 +23,7 @@ add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/gameboy"
         COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/gameboy")
 
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/gameboy/2048.gb"
-        COMMAND wget "http://sanqui.rustedlogic.net/etc/2048.gb" -O "${CMAKE_BINARY_DIR}/gameboy/2048.gb"
+        COMMAND wget "https://sanqui.net/etc/2048.gb" -O "${CMAKE_BINARY_DIR}/gameboy/2048.gb"
         DEPENDS "${CMAKE_BINARY_DIR}/gameboy")
 
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/gameboy/5-mazes.gb"

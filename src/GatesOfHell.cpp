@@ -755,8 +755,8 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     Kernel::Service::registerService(Kernel::NetworkService::SERVICE_ID, networkService);
 
     networkService->initializeLoopback();
-    Device::Network::Rtl8139::initializeAvailableCards();
     Device::Network::Ne2000::initializeAvailableCards();
+    Device::Network::Rtl8139::initializeAvailableCards();
 
     if (Device::FirmwareConfiguration::isAvailable() && networkService->isNetworkDeviceRegistered("eth0")) {
         // Configure eth0 for QEMU virtual network
