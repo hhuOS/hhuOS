@@ -1,5 +1,5 @@
 /*
- * Lesson 4: Lighting (https://videotutorialsrock.com/opengl_tutorial/lighting/home.php)
+ * Lesson 6: Putting It All Together (https://videotutorialsrock.com/opengl_tutorial/cube/home.php)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -50,10 +50,20 @@
 const constexpr uint32_t TARGET_FRAME_RATE = 60;
 
 /**
- * The current rotation angle of the box.
- * This angle is increased continuously to rotate the box.
+ * The size of the cube.
  */
-static GLfloat rotationAngle = -70;
+const constexpr float CUBE_SIZE = 7.0f;
+
+/**
+ * The current rotation angle of the cube.
+ * This angle is increased continuously to rotate the cube.
+ */
+static GLfloat rotationAngle = 0;
+
+/**
+ * The texture that will be applied to one side of the cube.
+ */
+static GLuint textureId;
 
 /**
  * Called before the main loop to initialize the OpenGL scene.
@@ -78,12 +88,13 @@ static void initRendering(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
 
     // Enable required OpenGL features
     glEnable(GL_DEPTH_TEST); // Depth testing to make sure the shapes are drawn in the correct order
-    glEnable(GL_COLOR_MATERIAL); // Enable color
     glEnable(GL_LIGHTING); // Enable lighting
     glEnable(GL_LIGHT0); // Enable light #0
-    glEnable(GL_LIGHT1); // Enable light #1
     glEnable(GL_NORMALIZE); // Automatically normalize normals
-    glShadeModel(GL_SMOOTH); // Enable smooth shading
+    glEnable(GL_COLOR_MATERIAL); // Enable color
+
+    // Load the texture
+    textureId = gluLoadTexture("/user/demo/vtr.bmp");
 }
 
 /**
@@ -100,8 +111,8 @@ static void handleKeypress(const Util::Io::Key &key) {
  * Called by the main loop before drawing the scene to apply updates to all objects.
  */
 static void update(const Util::Time::Timestamp &time) {
-    // Rotate the box
-    rotationAngle += (static_cast<GLfloat>(time.toMicroseconds()) / 1000000) * 60;
+    // Rotate the cube
+    rotationAngle += (static_cast<GLfloat>(time.toMicroseconds()) / 1000000) * 40;
     if (rotationAngle > 360) {
         rotationAngle -= 360;
     }
@@ -117,77 +128,95 @@ static void drawScene() {
     glMatrixMode(GL_MODELVIEW); // Switch to drawing perspective
     glLoadIdentity(); // Reset the drawing perspective
 
-    // Set z-coordinate to -8.0 for all shapes
-    glTranslatef(0.0f, 0.0f, -8.0f);
+    // Set z-coordinate to -20.0
+    glTranslatef(0.0f, 0.0f, -20.0f);
 
     // Add ambient light
-    GLfloat ambientColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+    GLfloat ambientColor[] = { 0.3f, 0.3f, 0.3f, 1.0f };
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientColor);
 
     // Add positioned light
-    GLfloat lightColor0[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-    GLfloat lightPosition0[] = { 4.0f, 0.0f, 8.0f, 1.0f };
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor0);
-    glLightfv(GL_LIGHT0, GL_POSITION, lightPosition0);
+    GLfloat lightColor[] = { 0.7f, 0.7f, 0.7f, 1.0f };
+    GLfloat lightPosition[] = { -2 * CUBE_SIZE, CUBE_SIZE, 4 * CUBE_SIZE, 1.0f };
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor);
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 
-    // Add directed light
-    GLfloat lightColor1[] = { 0.5f, 0.2f, 0.2f, 1.0f };
-    GLfloat lightPosition1[] = { -1.0f, 0.5f, 0.5f, 0.0f };
-    glLightfv(GL_LIGHT1, GL_DIFFUSE, lightColor1);
-    glLightfv(GL_LIGHT1, GL_POSITION, lightPosition1);
-
-    // Draw the box
-    glRotatef(rotationAngle, 0.0f, 1.0f, 0.0f); // Rotate around the y-axis
+    // Draw the cube
+    glRotatef(rotationAngle, 1.0f, 1.0f, 0.0f); // Rotate around the y-axis
     glColor3f(1.0f, 1.0f, 0.0f); // Yellow
     glBegin(GL_QUADS);
 
-    // Front face
-    glNormal3f(-1.0f, 0.0f, 1.0f);
-    glVertex3f(-1.5f, -1.0f, 1.5f);
-    glNormal3f(1.0f, 0.0f, 1.0f);
-    glVertex3f(1.5f, -1.0f, 1.5f);
-    glNormal3f(1.0f, 0.0f, 1.0f);
-    glVertex3f(1.5f, 1.0f, 1.5f);
-    glNormal3f(-1.0f, 0.0f, 1.0f);
-    glVertex3f(-1.5f, 1.0f, 1.5f);
+    // Top face
+    glColor3f(1.0f, 1.0f, 0.0f);
+    glNormal3f(0.0f, 1.0f, 0.0f);
+    glVertex3f(-CUBE_SIZE / 2, CUBE_SIZE / 2, -CUBE_SIZE / 2);
+    glVertex3f(-CUBE_SIZE / 2, CUBE_SIZE / 2, CUBE_SIZE / 2);
+    glVertex3f(CUBE_SIZE / 2, CUBE_SIZE / 2, CUBE_SIZE / 2);
+    glVertex3f(CUBE_SIZE / 2, CUBE_SIZE / 2, -CUBE_SIZE / 2);
 
-    // Right face
-    glNormal3f(1.0f, 0.0f, -1.0f);
-    glVertex3f(1.5f, -1.0f, -1.5f);
-    glNormal3f(1.0f, 0.0f, -1.0f);
-    glVertex3f(1.5f, 1.0f, -1.5f);
-    glNormal3f(1.0f, 0.0f, 1.0f);
-    glVertex3f(1.5f, 1.0f, 1.5f);
-    glNormal3f(1.0f, 0.0f, 1.0f);
-    glVertex3f(1.5f, -1.0f, 1.5f);
-
-    // Back face
-    glNormal3f(-1.0f, 0.0f, -1.0f);
-    glVertex3f(-1.5f, -1.0f, -1.5f);
-    glNormal3f(-1.0f, 0.0f, -1.0f);
-    glVertex3f(-1.5f, 1.0f, -1.5f);
-    glNormal3f(1.0f, 0.0f, -1.0f);
-    glVertex3f(1.5f, 1.0f, -1.5f);
-    glNormal3f(1.0f, 0.0f, -1.0f);
-    glVertex3f(1.5f, -1.0f, -1.5f);
+    // Bottom face
+    glColor3f(1.0f, 0.0f, 1.0f);
+    glNormal3f(0.0f, -1.0f, 0.0f);
+    glVertex3f(-CUBE_SIZE / 2, -CUBE_SIZE / 2, -CUBE_SIZE / 2);
+    glVertex3f(CUBE_SIZE / 2, -CUBE_SIZE / 2, -CUBE_SIZE / 2);
+    glVertex3f(CUBE_SIZE / 2, -CUBE_SIZE / 2, CUBE_SIZE / 2);
+    glVertex3f(-CUBE_SIZE / 2, -CUBE_SIZE / 2, CUBE_SIZE / 2);
 
     // Left face
-    glNormal3f(-1.0f, 0.0f, -1.0f);
-    glVertex3f(-1.5f, -1.0f, -1.5f);
-    glNormal3f(-1.0f, 0.0f, 1.0f);
-    glVertex3f(-1.5f, -1.0f, 1.5f);
-    glNormal3f(-1.0f, 0.0f, 1.0f);
-    glVertex3f(-1.5f, 1.0f, 1.5f);
-    glNormal3f(-1.0f, 0.0f, -1.0f);
-    glVertex3f(-1.5f, 1.0f, -1.5f);
+    glColor3f(0.0f, 1.0f, 1.0f);
+    glNormal3f(-1.0f, 0.0f, 0.0f);
+    glVertex3f(-CUBE_SIZE / 2, -CUBE_SIZE / 2, -CUBE_SIZE / 2);
+    glVertex3f(-CUBE_SIZE / 2, -CUBE_SIZE / 2, CUBE_SIZE / 2);
+    glColor3f(0.0f, 0.0f, 1.0f);
+    glVertex3f(-CUBE_SIZE / 2, CUBE_SIZE / 2, CUBE_SIZE / 2);
+    glVertex3f(-CUBE_SIZE / 2, CUBE_SIZE / 2, -CUBE_SIZE / 2);
+
+    // Right face
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glNormal3f(1.0f, 0.0f, 0.0f);
+    glVertex3f(CUBE_SIZE / 2, -CUBE_SIZE / 2, -CUBE_SIZE / 2);
+    glVertex3f(CUBE_SIZE / 2, CUBE_SIZE / 2, -CUBE_SIZE / 2);
+    glColor3f(0.0f, 1.0f, 0.0f);
+    glVertex3f(CUBE_SIZE / 2, CUBE_SIZE / 2, CUBE_SIZE / 2);
+    glVertex3f(CUBE_SIZE / 2, -CUBE_SIZE / 2, CUBE_SIZE / 2);
+
+    // Prepare texture
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glColor3f(1.0f, 1.0f, 1.0f); // White, so that the texture will appear as it is
+
+    // Front face
+    glNormal3f(0.0f, 0.0f, 1.0f);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(-CUBE_SIZE / 2, -CUBE_SIZE / 2, CUBE_SIZE / 2);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(CUBE_SIZE / 2, -CUBE_SIZE / 2, CUBE_SIZE / 2);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(CUBE_SIZE / 2, CUBE_SIZE / 2, CUBE_SIZE / 2);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(-CUBE_SIZE / 2, CUBE_SIZE / 2, CUBE_SIZE / 2);
+
+    // Back face
+    glNormal3f(0.0f, 0.0f, -1.0f);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(-CUBE_SIZE / 2, -CUBE_SIZE / 2, -CUBE_SIZE / 2);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(-CUBE_SIZE / 2, CUBE_SIZE / 2, -CUBE_SIZE / 2);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(CUBE_SIZE / 2, CUBE_SIZE / 2, -CUBE_SIZE / 2);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(CUBE_SIZE / 2, -CUBE_SIZE / 2, -CUBE_SIZE / 2);
 
     glEnd();
+    glDisable(GL_TEXTURE_2D);
 }
 
 /**
- * Lesson 4: Lighting (https://videotutorialsrock.com/opengl_tutorial/lighting/home.php)
+ * Lesson 6: Putting It All Together (https://videotutorialsrock.com/opengl_tutorial/cube/home.php)
  */
-void lesson4(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
+void lesson6(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / TARGET_FRAME_RATE));
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
