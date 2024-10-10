@@ -41,6 +41,7 @@ extern void lesson2(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
 extern void lesson3(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
 extern void lesson4(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
 extern void lesson5(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
+extern void lesson6(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -115,6 +116,8 @@ int32_t main(int32_t argc, char *argv[]) {
         lesson4(bufferedLfb);
     } else if (demo == "lesson5") {
         lesson5(bufferedLfb);
+    } else if (demo == "lesson6") {
+        lesson6(bufferedLfb);
     } else {
         Util::System::error << "opengl: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
