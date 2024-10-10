@@ -1,5 +1,5 @@
 /*
- * Lesson 2: Transformation and Timers (https://videotutorialsrock.com/opengl_tutorial/transform/home.php)
+ * Lesson 3: Color (https://videotutorialsrock.com/opengl_tutorial/color/home.php)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- * Ported to hhuOS by Fabian Ruhland, 09.10.2024
+ * Ported to hhuOS by Fabian Ruhland, 10.10.2024
  */
 
 #include <stdint.h>
@@ -62,8 +62,8 @@ static void initRendering(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     const auto width = static_cast<GLdouble>(lfb.getResolutionX());
     const auto height = static_cast<GLdouble>(lfb.getResolutionY());
 
-    // Set clear color to black
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    // Set clear color to sky blue
+    glClearColor(0.7f, 0.9f, 1.0f, 1.0f);
 
     // Set up the view port to match the resolution of the frame buffer
     glViewport(0, 0, lfb.getResolutionX(), lfb.getResolutionY());
@@ -78,6 +78,7 @@ static void initRendering(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
 
     // Enable required OpenGL features
     glEnable(GL_DEPTH_TEST); // Depth testing to make sure the shapes are drawn in the correct order
+    glEnable(GL_COLOR_MATERIAL); // Enable color
 }
 
 /**
@@ -120,9 +121,13 @@ static void drawScene() {
     glRotatef(rotationAngle, 0.0f, 0.0f, 1.0f); // Rotate around the z-axis
     glBegin(GL_QUADS);
 
+    glColor3f(0.5f, 0.0f, 0.8f);
     glVertex3f(-0.7f, -0.5f, 0.0f);
+    glColor3f(0.0f, 0.9f, 0.0f);
     glVertex3f(0.7f, -0.5f, 0.0f);
+    glColor3f(1.0f, 0.0f, 0.0f);
     glVertex3f(0.4f, 0.5f, 0.0f);
+    glColor3f(0.0f, 0.65f, 0.65f);
     glVertex3f(-0.4f, 0.5f, 0.0f);
 
     glEnd();
@@ -133,6 +138,8 @@ static void drawScene() {
     glTranslatef(1.0f, 1.0f, 0.0f); // Translate to center of pentagon
     glRotatef(rotationAngle, 0.0f, 1.0f, 0.0f); // Rotate around the y-axis
     glBegin(GL_TRIANGLES);
+
+    glColor3f(0.0f, 0.75f, 0.0f);
 
     glVertex3f(-0.5f, -0.5f, 0.0f);
     glVertex3f(0.5f, -0.5f, 0.0f);
@@ -155,8 +162,11 @@ static void drawScene() {
     glRotatef(rotationAngle, 1.0f, 2.0f, 3.0f); // Rotate around all three axes
     glBegin(GL_TRIANGLES);
 
+    glColor3f(1.0f, 0.7f, 0.0f);
     glVertex3f(0.5f, -0.5f, 0.0f);
+    glColor3f(1.0f, 1.0f, 1.0f);
     glVertex3f(0.0f, 0.5f, 0.0f);
+    glColor3f(0.0f, 0.0f, 1.0f);
     glVertex3f(-0.5f, -0.5f, 0.0f);
 
     glEnd();
@@ -164,9 +174,9 @@ static void drawScene() {
 }
 
 /**
- * Lesson 2: Transformation and Timers (https://videotutorialsrock.com/opengl_tutorial/transform/home.php)
+ * Lesson 3: Color (https://videotutorialsrock.com/opengl_tutorial/color/home.php)
  */
-void lesson2(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
+void lesson3(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / TARGET_FRAME_RATE));
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
