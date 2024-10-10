@@ -1,6 +1,7 @@
 #include "Layer.h"
 
-Layer::Layer(int width, int height, int posX, int posY) : width(width), height(height), posX(posX), posY(posY) {
+Layer::Layer(int width, int height, int posX, int posY, int visible) : width(width), height(height), posX(posX),
+                                                                       posY(posY), isVisible(visible) {
     int size = width * height;
     pixelData = new uint32_t[size];
     for (int i = 0; i < size; ++i) {
@@ -8,8 +9,8 @@ Layer::Layer(int width, int height, int posX, int posY) : width(width), height(h
     }
 }
 
-Layer::Layer(int width, int height, int posX, int posY, const uint32_t *pixelData)
-        : width(width), height(height), posX(posX), posY(posY) {
+Layer::Layer(int width, int height, int posX, int posY, int visible, const uint32_t *pixelData)
+        : width(width), height(height), posX(posX), posY(posY), isVisible(visible) {
     int size = width * height;
     this->pixelData = new uint32_t[size];
     for (int i = 0; i < size; ++i) {

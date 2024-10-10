@@ -27,8 +27,8 @@
 #include "lib/util/async/Process.h"
 
 
-#include "stb_image.h"
-#include "stb_image_write.h"
+#include "lib/util/graphic/stb_image.h"
+#include "lib/util/graphic/stb_image_write.h"
 #include "lib/util/io/key/KeyDecoder.h"
 #include "lib/util/io/key/layout/DeLayout.h"
 #include "lib/util/graphic/font/Terminal8x16.h"

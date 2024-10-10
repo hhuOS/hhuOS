@@ -56,7 +56,7 @@ void Renderer::prepareBase() {
     }
 }
 
-
+// TODO: alles durchgehen, ob in keiner Situation zu viel gerendert wird
 void Renderer::run() {
     while (true) {
         if (rData->flags->anyChange) {
@@ -111,6 +111,9 @@ void Renderer::renderResult() {
     for (int i = 0; i < screenX * screenY; i++) {
         buff_result[i] = buff_base[i];
     }
+    if (rData->flags->gui) {
+        renderGui();
+    }
 
     blendBuffers(buff_result, buff_workarea, screenX, screenY, workAreaX, workAreaY, 200, 0);
     blendBuffers(buff_result, buff_gui, screenX, screenY, 200, screenY, 0, 0);
@@ -131,6 +134,20 @@ void Renderer::renderWorkArea() {
     rData->flags->workArea = false;
 }
 
+void Renderer::renderGui() {
+    for (int i = 0; i < 200 * screenY; i++) {
+        buff_gui[i] = 0x00000000;
+    }
+    auto guiLayer = rData->uiData->currentGuiLayer;
+    for (int i = 0; i < guiLayer->buttonCount; ++i) {
+        if (guiLayer->buttons[i]->bufferChanged) {
+            blendBuffers(buff_gui, guiLayer->buttons[i]->getBuffer(), 200, screenY, 200, 30, 0, i * 30);
+            guiLayer->buttons[i]->bufferChanged = false;
+        }
+    }
+    rData->flags->gui = false;
+}
+
 void Renderer::renderOverlay() {
     for (int i = workAreaX * workAreaY - 10 * workAreaX; i < workAreaX * workAreaY; i++) {
         buff_overlay[i] = 0x80FF0000;
@@ -146,13 +163,15 @@ void Renderer::renderLayers() {
         }
         for (int i = 0; i < rData->currentLayer; i++) { // für buff_under_current
             auto layer = rData->layers[i];
-            blendBuffers(buff_under_current, layer->getPixelData(), workAreaX, workAreaY, layer->getWidth(),
-                         layer->getHeight(), layer->getPosX(), layer->getPosY());
+            if (layer->getVisibility())
+                blendBuffers(buff_under_current, layer->getPixelData(), workAreaX, workAreaY, layer->getWidth(),
+                             layer->getHeight(), layer->getPosX(), layer->getPosY());
         }
         for (int i = rData->currentLayer + 1; i < rData->layerCount; i++) { // für buff_over_current
             auto layer = rData->layers[i];
-            blendBuffers(buff_over_current, layer->getPixelData(), workAreaX, workAreaY, layer->getWidth(),
-                         layer->getHeight(), layer->getPosX(), layer->getPosY());
+            if (layer->getVisibility())
+                blendBuffers(buff_over_current, layer->getPixelData(), workAreaX, workAreaY, layer->getWidth(),
+                             layer->getHeight(), layer->getPosX(), layer->getPosY());
         }
     }
     for (int i = 0; i < workAreaX * workAreaY; i++) {
@@ -160,8 +179,9 @@ void Renderer::renderLayers() {
     }
     auto currentLayer = rData->layers[rData->currentLayer];
     blendBuffers(buff_layers, buff_under_current, workAreaX * workAreaY);
-    blendBuffers(buff_layers, currentLayer->getPixelData(), workAreaX, workAreaY, currentLayer->getWidth(),
-                 currentLayer->getHeight(), currentLayer->getPosX(), currentLayer->getPosY());
+    if (currentLayer->getVisibility())
+        blendBuffers(buff_layers, currentLayer->getPixelData(), workAreaX, workAreaY, currentLayer->getWidth(),
+                     currentLayer->getHeight(), currentLayer->getPosX(), currentLayer->getPosY());
     blendBuffers(buff_layers, buff_over_current, workAreaX * workAreaY);
     rData->flags->layers = false;
 }
@@ -198,3 +218,4 @@ void Renderer::blendBuffers(uint32_t *lower, const uint32_t *upper, int lx, int 
         }
     }
 }
+

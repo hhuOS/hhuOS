@@ -40,6 +40,8 @@ public:
 
     void renderWorkArea();
 
+    void renderGui();
+
     void renderOverlay();
 
     void renderLayers();

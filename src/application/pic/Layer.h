@@ -5,8 +5,8 @@
 
 class Layer {
 public:
-    Layer(int width, int height, int posX, int posY);
-    Layer(int width, int height, int posX, int posY, const uint32_t * pixelData);
+    Layer(int width, int height, int posX, int posY, int visible);
+    Layer(int width, int height, int posX, int posY, int visible, const uint32_t * pixelData);
     ~Layer();
 
     // Copy constructor
@@ -19,18 +19,21 @@ public:
     [[nodiscard]] int getHeight() const { return height; }
     [[nodiscard]] int getPosX() const { return posX; }
     [[nodiscard]] int getPosY() const { return posY; }
-    void setPosX(int x) { posX = x; }
-    void setPosY(int y) { posY = y; }
     [[nodiscard]] uint32_t * getPixelData() const { return pixelData; }
+    [[nodiscard]] int getVisibility() const { return isVisible; }
 
     void setPosition(int x, int y);
+    void setPosX(int x) { posX = x; }
+    void setPosY(int y) { posY = y; }
     void setPixel(int x, int y, unsigned int color);
+    void setVisibility(int visible) { isVisible = visible; }
 
 private:
     int width;
     int height;
     int posX;
     int posY;
+    int isVisible;
     uint32_t * pixelData; // ARGB format, 32 bits per pixel
 };
 
