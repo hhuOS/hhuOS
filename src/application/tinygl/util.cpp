@@ -16,6 +16,8 @@
  */
 
 #include "lib/util/math/Math.h"
+#include "lib/util/graphic/BitmapFile.h"
+#include "lib/util/graphic/Color.h"
 #include "util.h"
 
 /**
@@ -29,4 +31,40 @@ void gluPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFa
     fW = fH * aspect;
 
     glFrustum(-fW, fW, -fH, fH, zNear, zFar);
+}
+
+GLuint gluLoadTexture(const char *path) {
+    auto *image = Util::Graphic::BitmapFile::open(path);
+    auto *imagePixels = image->getPixelBuffer();
+
+    // The Image class stores pixels as an array of the struct 'Color'.
+    // We need to convert this to an array of bytes in the RGB format (24-bit).
+    auto *textureData = new uint8_t[image->getWidth() * image->getHeight() * 3];
+    for (uint32_t i = 0; i < image->getWidth() * image->getHeight(); i++) {
+        auto color = imagePixels[i];
+        textureData[i * 3] = color.getRed();
+        textureData[i * 3 + 1] = color.getGreen();
+        textureData[i * 3 + 2] = color.getBlue();
+    }
+
+    // Generate the OpenGL texture
+    GLuint textureId;
+    glGenTextures(1, &textureId); // Generate a texture ID
+    glBindTexture(GL_TEXTURE_2D, textureId); // Tell OpenGL which texture to edit
+    glTexImage2D(GL_TEXTURE_2D, // Type of texture
+        0,                      // Mipmap level, 0 for base
+        3,                      // Number of color components in texture
+        image->getWidth(),      // Width of the texture
+        image->getHeight(),     // Height of the texture
+        0,                      // Border width in pixels
+        GL_RGB,                 // Format of pixel data
+        GL_UNSIGNED_BYTE,       // Type of pixel data
+        textureData);           // Pointer to the image data
+
+    // The texture data is now stored by OpenGL, we can delete our copy
+    delete image;
+    delete[] textureData;
+
+    // This ID can be used to refer to the texture
+    return textureId;
 }
