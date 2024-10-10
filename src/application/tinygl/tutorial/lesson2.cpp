@@ -71,10 +71,10 @@ static void initRendering(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     // Set the camera perspective
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glPerspective(45.0,             // Camera angle
-                  width / height,   // Width to height ratio
-                  1.0,              // Near z-clipping coordinate (Object nearer than that will not be drawn)
-                  200.0);           // Far z-clipping coordinate (Object farther than that will not be drawn)
+    gluPerspective(45.0,             // Camera angle
+                   width / height,   // Width to height ratio
+                   1.0,              // Near z-clipping coordinate (Object nearer than that will not be drawn)
+                   200.0);           // Far z-clipping coordinate (Object farther than that will not be drawn)
 
     // Enable required OpenGL features
     glEnable(GL_DEPTH_TEST); // Depth testing to make sure the shapes are drawn in the correct order

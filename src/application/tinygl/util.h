@@ -23,6 +23,6 @@
 /**
  * Taken from https://stackoverflow.com/questions/12943164/replacement-for-gluperspective-with-glfrustrum
  */
-void glPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar);
+void gluPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 
 #endif
