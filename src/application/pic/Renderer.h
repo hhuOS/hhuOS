@@ -17,17 +17,21 @@
 #include "lib/libc/stdlib.h"
 
 #include "Layer.h"
-#include "Pic.h"
+//#include "Pic.h"
 #include "DataWrapper.h"
 
-class Renderer : public Util::Async::Runnable {
+//class Renderer : public Util::Async::Runnable {
+class Renderer{
 public:
-    explicit Renderer(RenderData *renderData, Util::Graphic::LinearFrameBuffer *lfb);
+    explicit Renderer(DataWrapper *data);
 
-    ~Renderer() override = default;
+//    ~Renderer() override = default;
+    ~Renderer()= default;
 
-    void run() override;
+//    void run() override;
+    void render();
 
+private:
     void prepareBase();
 
     static uint32_t *newBuffer(int size);
@@ -52,18 +56,12 @@ public:
 
     static void blendBuffers(uint32_t *lower, const uint32_t *upper, int lx, int ly, int ux, int uy, int px, int py);
 
-
-private:
-    int screenX, screenY, pitch;
-    int workAreaX, workAreaY;
-    Util::Graphic::LinearFrameBuffer *lfb;
-    RenderData *rData;
+    DataWrapper *data;
     uint32_t *buff_lfb;
     uint32_t *buff_result;
     uint32_t *buff_base, *buff_workarea, *buff_gui;
     uint32_t *buff_overlay, *buff_layers;
     uint32_t *buff_under_current, *buff_over_current;
-    int lastMouseX, lastMouseY;
 };
 
 #endif // RENDERER_H

@@ -5,7 +5,7 @@
 #include "Button.h"
 
 
-Button::Button(void (*clickMethod)(UiData *uiData), UiData *uiData) : clickMethod(clickMethod), uiData(uiData) {
+Button::Button(void (*clickMethod)(DataWrapper *data), DataWrapper *data) : clickMethod(clickMethod), data(data) {
     this->buffer = new uint32_t[30 * 200];
     this->bufferChanged = true;
     this->click = false;
@@ -14,7 +14,7 @@ Button::Button(void (*clickMethod)(UiData *uiData), UiData *uiData) : clickMetho
 }
 
 void Button::processClick(int relX, int relY) {
-    clickMethod(uiData);
+    clickMethod(data);
     render();
 }
 

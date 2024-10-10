@@ -8,8 +8,7 @@
 #include <cstdint>
 
 // Forward declaration since otherwise circular dependency
-class Pic;
-class UiData;
+class DataWrapper;
 
 enum ButtonType {
     NAVIGATION,
@@ -23,7 +22,7 @@ enum ButtonType {
 class Button {
 public:
 
-    explicit Button(void (*clickMethod)(UiData *), UiData *uiData);
+    explicit Button(void (*clickMethod)(DataWrapper *), DataWrapper *data);
 
     ~Button() = default;
 
@@ -40,9 +39,9 @@ public:
     bool bufferChanged;
 
 private:
-    void (*clickMethod)(UiData *data);
-    UiData *uiData;
+    void (*clickMethod)(DataWrapper *data);
 
+    DataWrapper *data;
     bool click;
     bool hover;
 

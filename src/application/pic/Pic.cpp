@@ -10,56 +10,12 @@
 #define print(i) Util::System::out << i << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush
 
 using namespace Util;
-using namespace Graphic;;
+using namespace Graphic;
 
-int32_t main(int32_t argc, char *argv[]) {
 
-    auto argumentParser = Util::ArgumentParser();
-    argumentParser.setHelpText("Test\n");
-    argumentParser.addArgument("test", false, "t");
-
-    if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl
-                            << Util::Io::PrintStream::flush;
-        return -1;
-    }
-
-    if (argumentParser.hasArgument("number")) {
-        auto arg = argumentParser.getArgument("number")[0];
-        print("you called with number: " << arg);
-    }
-
-    auto lfbFile = Util::Io::File("/device/lfb");
-    auto lfb = new LinearFrameBuffer(lfbFile);
-//    auto blfb = new BufferedLinearFrameBuffer(lfb, true);
-    Util::Graphic::Ansi::prepareGraphicalApplication(true);
-
-    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
-
-    auto mouseFile = Util::Io::File("/device/mouse");
-    auto mouseInputStream = new Util::Io::FileInputStream(mouseFile);
-    mouseInputStream->setAccessMode(Util::Io::File::NON_BLOCKING);
-
-    auto pic = new Pic(lfb, mouseInputStream);
-    pic->run();
-    delete pic;
-
-    return 0;
-}
-
-Pic::Pic(Util::Graphic::LinearFrameBuffer *lfb, Util::Io::FileInputStream *mouseInputStream) {
-    this->running = true;
-    this->lfb = lfb;
-    this->screenX = lfb->getResolutionX();
-    this->screenY = lfb->getResolutionY();
-    this->pitch = lfb->getPitch();
-    this->mouseInputStream = mouseInputStream;
-    this->mouse = new MouseData();
-    this->keyDecoder = new Util::Io::KeyDecoder(new Util::Io::DeLayout());
-    this->uiData = new UiData(new Util::HashMap<Util::String, GuiLayer *>());
-
+Layer **makeTestLayers() {
     int width, height, channels;
-    unsigned char *data = stbi_load("/user/pic/test.jpg", &width, &height, &channels, 0);
+    unsigned char *img = stbi_load("/user/pic/test.jpg", &width, &height, &channels, 0);
     print("Loaded image with width " << width << ", height " << height << ", and channels " << channels);
     auto *argbData = new uint32_t[width * height];
     for (int y = 0; y < height; y++) {
@@ -67,9 +23,9 @@ Pic::Pic(Util::Graphic::LinearFrameBuffer *lfb, Util::Io::FileInputStream *mouse
             int i = y * width + x;
             int j = (height - 1 - y) * width + x;
             argbData[i] = (0xFF000000 |                   // Alpha: 255
-                           (data[j * channels] << 16) |    // Red
-                           (data[j * channels + 1] << 8) | // Green
-                           data[j * channels + 2]);        // Blue
+                           (img[j * channels] << 16) |    // Red
+                           (img[j * channels + 1] << 8) | // Green
+                           img[j * channels + 2]);        // Blue
         }
     }
     auto **layers = new Layer *[7];
@@ -85,21 +41,54 @@ Pic::Pic(Util::Graphic::LinearFrameBuffer *lfb, Util::Io::FileInputStream *mouse
     layers[3] = layer4;
     layers[4] = layer5;
     layers[5] = layer6;
-    stbi_image_free(data);
+    stbi_image_free(img);
+    return layers;
+}
+
+int32_t main(int32_t argc, char *argv[]) {
+
+//    auto argumentParser = Util::ArgumentParser();
+//    argumentParser.setHelpText("Test\n");
+//    argumentParser.addArgument("test", false, "t");
+//
+//    if (!argumentParser.parse(argc, argv)) {
+//        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl
+//                            << Util::Io::PrintStream::flush;
+//        return -1;
+//    }
+//
+//    if (argumentParser.hasArgument("number")) {
+//        auto arg = argumentParser.getArgument("number")[0];
+//        print("you called with number: " << arg);
+//    }
+
+    auto pic = new Pic();
+    pic->run();
+    delete pic;
+
+    return 0;
+}
+
+Pic::Pic() {
+    this->data = new DataWrapper();
+    this->renderer = new Renderer(data);
 
     init_gui();
 
-    rData = new RenderData(mouse, layers, 6, 3, new RenderFlags(), uiData);
+    data->layers = makeTestLayers();
+    data->layerCount = 6;
+    data->currentLayer = 3;
 
-    auto renderer = new Renderer(rData, lfb);
-    auto renderThread = Util::Async::Thread::createThread("renderer", renderer);
+//    auto renderer = new Renderer(data);
+//    auto renderThread = Util::Async::Thread::createThread("renderer", renderer);
 }
 
 
 void Pic::run() {
-    while (running) {
+    while (data->running) {
         this->checkMouseInput();
         this->checkKeyboardInput();
+        this->renderer->render();
         Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
     }
 }
@@ -107,23 +96,30 @@ void Pic::run() {
 void Pic::checkMouseInput() {
     uint8_t mouseValues[4]{};
     uint32_t mouseValueIndex = 0;
-    int16_t value = mouseInputStream->read();
+    int16_t value = data->mouseInputStream->read();
     bool mouseChanged = false;
+    bool oldUpdated = false;
     while (value >= 0) {
         mouseValues[mouseValueIndex++] = value;
         if (mouseValueIndex == 4) {
             auto mouseUpdate = Util::Io::MouseDecoder::decode(mouseValues);
             auto min = [](int a, int b) { return a < b ? a : b; };
             auto max = [](int a, int b) { return a > b ? a : b; };
-            mouse->X = max(0, min(screenX - 1, mouse->X + mouseUpdate.xMovement));
-            mouse->Y = max(0, min(screenY - 1, mouse->Y - mouseUpdate.yMovement));
-            mouse->leftButtonPressed = mouseUpdate.buttons & Util::Io::Mouse::LEFT_BUTTON;
+            if (!oldUpdated) {
+                data->oldMouseX = data->mouseX;
+                data->oldMouseY = data->mouseY;
+                data->oldLeftButtonPressed = data->leftButtonPressed;
+                oldUpdated = true;
+            }
+            data->mouseX = max(0, min(data->screenX - 1, data->mouseX + mouseUpdate.xMovement));
+            data->mouseY = max(0, min(data->screenY - 1, data->mouseY - mouseUpdate.yMovement));
+            data->leftButtonPressed = mouseUpdate.buttons & Util::Io::Mouse::LEFT_BUTTON;
             Util::Address<uint32_t>(mouseValues).setRange(0, 4);
             mouseValueIndex = 0;
             mouseChanged = true;
         }
-        value = mouseInputStream->read();
-        rData->flags->mouseChanged();
+        value = data->mouseInputStream->read();
+        data->flags->mouseChanged();
     }
     if (mouseChanged) {
         parseMouseToGui();
@@ -131,15 +127,15 @@ void Pic::checkMouseInput() {
 }
 
 void Pic::parseMouseToGui() {
-    if (mouse->X < 200) { // Buttons
-        for (int i = 0; i < uiData->currentGuiLayer->buttonCount; ++i) {
-            auto button = uiData->currentGuiLayer->buttons[i];
+    if (data->mouseX < 200) { // Buttons
+        for (int i = 0; i < data->currentGuiLayer->buttonCount; ++i) {
+            auto button = data->currentGuiLayer->buttons[i];
             button->removeInteraction();
-            if (mouse->Y >= i * 30 && mouse->Y < (i + 1) * 30) {
-                if (mouse->leftButtonPressed) {
-                    button->processClick(mouse->X, mouse->Y - i * 30);
+            if (data->mouseY >= i * 30 && data->mouseY < (i + 1) * 30) {
+                if (data->leftButtonPressed) {
+                    button->processClick(data->mouseX, data->mouseY - i * 30);
                 } else {
-                    button->showHover(mouse->X, mouse->Y - i * 30);
+                    button->showHover(data->mouseX, data->mouseY - i * 30);
                 }
             }
             button->bufferChanged = true;  // TODO fix when actually changed
@@ -147,66 +143,65 @@ void Pic::parseMouseToGui() {
     } else { // workArea
 
     }
-    rData->flags->guiChanged(); // TODO fix when actually changed
+    data->flags->guiChanged(); // TODO fix when actually changed
 }
 
 
 void Pic::init_gui() {
     auto *gui_top = new GuiLayer();
     for (int i = 0; i < 15; ++i) {
-        auto *button = new Button([](UiData *data) {
+        auto *button = new Button([](DataWrapper *data) {
             data->currentGuiLayer = data->guiLayers->get("second");
-        }, uiData);
+        }, data);
         gui_top->addButton(button);
     }
     auto *gui_second = new GuiLayer();
     for (int i = 0; i < 10; ++i) {
-        auto *button = new Button([](UiData *data) {
+        auto *button = new Button([](DataWrapper *data) {
             data->currentGuiLayer = data->guiLayers->get("top");
-        }, uiData);
+        }, data);
         gui_second->addButton(button);
     }
-    uiData->guiLayers->put("top", gui_top);
-    uiData->guiLayers->put("second", gui_second);
-    uiData->currentGuiLayer = gui_second;
-
+    data->guiLayers->put("top", gui_top);
+    data->guiLayers->put("second", gui_second);
+    data->currentGuiLayer = gui_second;
 }
 
 // TODO: nur einmal pro Tastendruck ausführen (wie gedrückt halten dann?)
 void Pic::checkKeyboardInput() {
     int16_t scancode = Util::System::in.read();
     while (scancode >= 0) {
-        if (keyDecoder->parseScancode(scancode)) {
-            auto key = keyDecoder->getCurrentKey();
-            auto currentLayer = rData->layers[rData->currentLayer];
+        if (data->keyDecoder->parseScancode(scancode)) {
+            auto key = data->keyDecoder->getCurrentKey();
+            auto currentLayer = data->layers[data->currentLayer];
             switch (key.getScancode()) {
                 case Util::Io::Key::ESC:
-                    running = false;
+                    data->running = false;
                     break;
                 case Util::Io::Key::UP:
                     currentLayer->setPosY(currentLayer->getPosY() - 10);
-                    rData->flags->currentLayerChanged();
+                    data->flags->currentLayerChanged();
                     break;
                 case Util::Io::Key::DOWN:
                     currentLayer->setPosY(currentLayer->getPosY() + 10);
-                    rData->flags->currentLayerChanged();
+                    data->flags->currentLayerChanged();
                     break;
                 case Util::Io::Key::LEFT:
                     currentLayer->setPosX(currentLayer->getPosX() - 10);
-                    rData->flags->currentLayerChanged();
+                    data->flags->currentLayerChanged();
                     break;
                 case Util::Io::Key::RIGHT:
                     currentLayer->setPosX(currentLayer->getPosX() + 10);
-                    rData->flags->currentLayerChanged();
+                    data->flags->currentLayerChanged();
                     break;
                 case Util::Io::Key::TAB:
-                    rData->currentLayer = (rData->currentLayer + 1) % rData->layerCount;
-                    rData->flags->layerOrderChanged();
+                    data->currentLayer = (data->currentLayer + 1) % data->layerCount;
+                    data->flags->layerOrderChanged();
                     break;
                 case Util::Io::Key::SPACE:
-                    rData->layers[rData->currentLayer]->setVisibility(
-                            !rData->layers[rData->currentLayer]->getVisibility());
-                    rData->flags->currentLayerChanged();
+                    data->layers[data->currentLayer]->setVisibility(
+                            !data->layers[data->currentLayer]->getVisibility());
+                    data->flags->currentLayerChanged();
                     break;
             }
         }

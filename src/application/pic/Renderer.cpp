@@ -7,25 +7,17 @@
 #define print(i) Util::System::out << i << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush
 
 
-Renderer::Renderer(RenderData *renderData, Util::Graphic::LinearFrameBuffer *lfb) {
-    this->rData = renderData;
-    this->lfb = lfb;
-    this->buff_lfb = reinterpret_cast<uint32_t *>(lfb->getBuffer().get());
-    this->screenX = lfb->getResolutionX();
-    this->screenY = lfb->getResolutionY();
-    this->workAreaX = screenX - 200;
-    this->workAreaY = screenY;
-    this->lastMouseX = -1;
-    this->lastMouseY = -1;
-    this->pitch = lfb->getPitch();
-    this->buff_result = newBuffer(screenX * screenY);
-    this->buff_base = newBuffer(screenX * screenY);
-    this->buff_workarea = newBuffer(workAreaX * workAreaY);
-    this->buff_gui = newBuffer(200 * screenY);
-    this->buff_overlay = newBuffer(workAreaX * workAreaY);
-    this->buff_layers = newBuffer(workAreaX * workAreaY);
-    this->buff_under_current = newBuffer(workAreaX * workAreaY);
-    this->buff_over_current = newBuffer(workAreaX * workAreaY);
+Renderer::Renderer(DataWrapper *data) {
+    this->data = data;
+    this->buff_lfb = reinterpret_cast<uint32_t *>(data->lfb->getBuffer().get());
+    this->buff_result = newBuffer(data->screenAll);
+    this->buff_base = newBuffer(data->screenAll);
+    this->buff_workarea = newBuffer(data->workAreaAll);
+    this->buff_gui = newBuffer(data->guiAll);
+    this->buff_overlay = newBuffer(data->workAreaAll);
+    this->buff_layers = newBuffer(data->workAreaAll);
+    this->buff_under_current = newBuffer(data->workAreaAll);
+    this->buff_over_current = newBuffer(data->workAreaAll);
     prepareBase();
 }
 
@@ -42,13 +34,13 @@ void Renderer::prepareBase() {
     const int squareSize = 10;
     const uint32_t lightGray = 0xFFC0C0C0, darkGray = 0xFF404040, Gray = 0xFF808080;
     int offset = 0;
-    for (int y = 0; y < screenY; y++) {
+    for (int y = 0; y < data->screenY; y++) {
         for (int x = 0; x < 200; x++) { // Gray for GUI
             buff_base[offset++] = Gray;
         }
         bool light = (y / squareSize) % 2;
-        for (int x = 200; x < screenX;) { // Alternating squares for Background
-            for (int k = 0; k < 10 && x < screenX; k++, x++) {
+        for (int x = 200; x < data->screenX;) { // Alternating squares for Background
+            for (int k = 0; k < 10 && x < data->screenX; k++, x++) {
                 buff_base[offset++] = light ? lightGray : darkGray;
             }
             light = !light;
@@ -57,47 +49,46 @@ void Renderer::prepareBase() {
 }
 
 // TODO: alles durchgehen, ob in keiner Situation zu viel gerendert wird
-void Renderer::run() {
-    while (true) {
-        if (rData->flags->anyChange) {
-            if (rData->flags->result) {
+//void Renderer::run() {
+void Renderer::render() {
+//    while (true) {
+        if (data->flags->anyChange) {
+            if (data->flags->result) {
                 renderResult();
-                for (int i = 0; i < screenX * screenY; i++) {
+                for (int i = 0; i < data->screenAll; i++) {
                     buff_lfb[i] = buff_result[i];
                 }
             } else {
                 removeMouse();
             }
             renderMouse();
-            lastMouseX = rData->mouse->X;
-            lastMouseY = rData->mouse->Y;
-            rData->flags->mouse = false;
-            rData->flags->anyChange = false;
+            data->flags->mouse = false;
+            data->flags->anyChange = false;
         }
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
-    }
+//        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
+//    }
 }
 
 
 void Renderer::renderMouse() {
-    int mouseX = rData->mouse->X;
-    int mouseY = rData->mouse->Y;
+    int mouseX = data->mouseX;
+    int mouseY = data->mouseY;
 
-    for (int y = mouseY; y < mouseY + 10 && y < screenY; y++) {
-        for (int x = mouseX; x < mouseX + 10 && x < screenX; x++) {
-            int offset = y * screenX + x;
-            buff_lfb[offset] = rData->mouse->leftButtonPressed ? 0xFFFF0000 : 0xFF00FF00;
+    for (int y = mouseY; y < mouseY + 10 && y < data->screenY; y++) {
+        for (int x = mouseX; x < mouseX + 10 && x < data->screenX; x++) {
+            int offset = y * data->screenX + x;
+            buff_lfb[offset] = data->leftButtonPressed ? 0xFFFF0000 : 0xFF00FF00;
         }
     }
 }
 
 void Renderer::removeMouse() {
-    int mouseX = lastMouseX;
-    int mouseY = lastMouseY;
+    int mouseX = data->oldMouseX;
+    int mouseY = data->oldMouseY;
 
-    for (int y = mouseY; y < mouseY + 10 && y < screenY; y++) {
-        for (int x = mouseX; x < mouseX + 10 && x < screenX; x++) {
-            int offset = y * screenX + x;
+    for (int y = mouseY; y < mouseY + 10 && y < data->screenY; y++) {
+        for (int x = mouseX; x < mouseX + 10 && x < data->screenX; x++) {
+            int offset = y * data->screenX + x;
             buff_lfb[offset] = buff_result[offset];
         }
     }
@@ -105,85 +96,89 @@ void Renderer::removeMouse() {
 
 // TODO: jeweils nur rechte oder linke Seite neu rendern, wenn nur 1 flag gesetzt
 void Renderer::renderResult() {
-    if (rData->flags->workArea) {
+    if (data->flags->workArea) {
         renderWorkArea();
     }
-    for (int i = 0; i < screenX * screenY; i++) {
+    for (int i = 0; i < data->screenAll; i++) {
         buff_result[i] = buff_base[i];
     }
-    if (rData->flags->gui) {
+    if (data->flags->gui) {
         renderGui();
     }
 
-    blendBuffers(buff_result, buff_workarea, screenX, screenY, workAreaX, workAreaY, 200, 0);
-    blendBuffers(buff_result, buff_gui, screenX, screenY, 200, screenY, 0, 0);
-    rData->flags->result = false;
+    blendBuffers(buff_result, buff_workarea, data->screenX, data->screenY, data->workAreaX, data->workAreaY, 200, 0);
+    blendBuffers(buff_result, buff_gui, data->screenX, data->screenY, 200, data->screenY, 0, 0);
+    data->flags->result = false;
 }
 
 void Renderer::renderWorkArea() {
-    if (rData->flags->layers) {
+    if (data->flags->layers) {
         renderLayers();
     }
-    if (rData->flags->overlay) {
+    if (data->flags->overlay) {
         renderOverlay();
     }
-    for (int i = 0; i < workAreaX * workAreaY; i++) {
+    for (int i = 0; i < data->workAreaAll; i++) {
         buff_workarea[i] = buff_layers[i];
     }
-    blendBuffers(buff_workarea, buff_overlay, workAreaX * workAreaY);
-    rData->flags->workArea = false;
+    blendBuffers(buff_workarea, buff_overlay, data->workAreaAll);
+    data->flags->workArea = false;
 }
 
+// TODO: flags neu machen
 void Renderer::renderGui() {
-    for (int i = 0; i < 200 * screenY; i++) {
+    for (int i = 0; i < data->guiX * data->screenY; i++) {
         buff_gui[i] = 0x00000000;
     }
-    auto guiLayer = rData->uiData->currentGuiLayer;
+    auto guiLayer = data->currentGuiLayer;
     for (int i = 0; i < guiLayer->buttonCount; ++i) {
         if (guiLayer->buttons[i]->bufferChanged) {
-            blendBuffers(buff_gui, guiLayer->buttons[i]->getBuffer(), 200, screenY, 200, 30, 0, i * 30);
+            blendBuffers(buff_gui, guiLayer->buttons[i]->getBuffer(), data->guiX, data->screenY, 200, 30, 0, i * 30);
             guiLayer->buttons[i]->bufferChanged = false;
         }
     }
-    rData->flags->gui = false;
+    data->flags->gui = false;
 }
 
 void Renderer::renderOverlay() {
-    for (int i = workAreaX * workAreaY - 10 * workAreaX; i < workAreaX * workAreaY; i++) {
+    for (int i = data->workAreaAll - 10 * data->workAreaX; i < data->workAreaAll; i++) {
         buff_overlay[i] = 0x80FF0000;
     }
-    rData->flags->overlay = false;
+    data->flags->overlay = false;
 }
 
 void Renderer::renderLayers() {
-    if (rData->flags->layerOrder) {
-        for (int i = 0; i < workAreaX * workAreaY; i++) {
+    if (data->flags->layerOrder) {
+        for (int i = 0; i < data->workAreaAll; i++) {
             buff_over_current[i] = 0x00000000;
             buff_under_current[i] = 0x00000000;
         }
-        for (int i = 0; i < rData->currentLayer; i++) { // für buff_under_current
-            auto layer = rData->layers[i];
+        for (int i = 0; i < data->currentLayer; i++) { // für buff_under_current
+            auto layer = data->layers[i];
             if (layer->getVisibility())
-                blendBuffers(buff_under_current, layer->getPixelData(), workAreaX, workAreaY, layer->getWidth(),
+                blendBuffers(buff_under_current, layer->getPixelData(), data->workAreaX, data->workAreaY,
+                             layer->getWidth(),
                              layer->getHeight(), layer->getPosX(), layer->getPosY());
         }
-        for (int i = rData->currentLayer + 1; i < rData->layerCount; i++) { // für buff_over_current
-            auto layer = rData->layers[i];
+        for (int i = data->currentLayer + 1; i < data->layerCount; i++) { // für buff_over_current
+            auto layer = data->layers[i];
             if (layer->getVisibility())
-                blendBuffers(buff_over_current, layer->getPixelData(), workAreaX, workAreaY, layer->getWidth(),
+                blendBuffers(buff_over_current, layer->getPixelData(), data->workAreaX, data->workAreaY,
+                             layer->getWidth(),
                              layer->getHeight(), layer->getPosX(), layer->getPosY());
         }
     }
-    for (int i = 0; i < workAreaX * workAreaY; i++) {
+    for (int i = 0; i < data->workAreaAll; i++) {
         buff_layers[i] = 0x00000000;
     }
-    auto currentLayer = rData->layers[rData->currentLayer];
-    blendBuffers(buff_layers, buff_under_current, workAreaX * workAreaY);
+    auto currentLayer = data->layers[data->currentLayer];
+    blendBuffers(buff_layers, buff_under_current, data->workAreaAll);
     if (currentLayer->getVisibility())
-        blendBuffers(buff_layers, currentLayer->getPixelData(), workAreaX, workAreaY, currentLayer->getWidth(),
+        blendBuffers(buff_layers, currentLayer->getPixelData(), data->workAreaX, data->workAreaY,
+                     currentLayer->getWidth(),
                      currentLayer->getHeight(), currentLayer->getPosX(), currentLayer->getPosY());
-    blendBuffers(buff_layers, buff_over_current, workAreaX * workAreaY);
-    rData->flags->layers = false;
+    blendBuffers(buff_layers, buff_over_current, data->workAreaAll);
+    data->flags->layers = false;
 }
 
 uint32_t Renderer::blendPixels(uint32_t lower, uint32_t upper) {
