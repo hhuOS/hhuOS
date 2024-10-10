@@ -43,21 +43,21 @@
 #include "lib/util/io/key/layout/DeLayout.h"
 #include "application/tinygl/util.h"
 
+/**
+ * The target frame rate of the application.
+ * If the application achieves this frame rate, it will sleep for the remaining time of the frame.
+ */
 const constexpr uint32_t TARGET_FRAME_RATE = 60;
 
-static void handleKeypress(const Util::Io::Key &key) {
-    switch (key.getScancode()) {
-        case Util::Io::Key::ESC:
-            Util::Async::Process::exit(0);
-    }
-}
-
+/**
+ * Called before the main loop to initialize the OpenGL scene.
+ */
 static void initRendering(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     const auto width = static_cast<GLdouble>(lfb.getResolutionX());
     const auto height = static_cast<GLdouble>(lfb.getResolutionY());
 
     // Set clear color to black
-    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     // Set up the view port to match the resolution of the frame buffer
     glViewport(0, 0, lfb.getResolutionX(), lfb.getResolutionY());
@@ -70,10 +70,23 @@ static void initRendering(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
                   1.0,              // Near z-clipping coordinate (Object nearer than that will not be drawn)
                   200.0);           // Far z-clipping coordinate (Object farther than that will not be drawn)
 
-    // Enable depth testing, so that objects are occluded based on depth instead of drawing order
-    glEnable(GL_DEPTH_TEST);
+    // Enable required OpenGL features
+    glEnable(GL_DEPTH_TEST); // Depth testing to make sure the shapes are drawn in the correct order
 }
 
+/**
+ * Called by the main loop before updating the scene, when a key is pressed.
+ */
+static void handleKeypress(const Util::Io::Key &key) {
+    switch (key.getScancode()) {
+        case Util::Io::Key::ESC:
+            Util::Async::Process::exit(0);
+    }
+}
+
+/**
+ * Called in each iteration of the main loop to draw the scene.
+ */
 static void drawScene() {
     // Clear information from the last draw
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -114,6 +127,9 @@ static void drawScene() {
     glEnd(); // End triangle coordinates
 }
 
+/**
+ * Lesson 1: Basic Shapes (https://videotutorialsrock.com/opengl_tutorial/basic_shapes/home.php)
+ */
 void lesson1(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / TARGET_FRAME_RATE));
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);

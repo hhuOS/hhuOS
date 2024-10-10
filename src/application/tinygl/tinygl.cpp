@@ -38,12 +38,13 @@ extern void gears(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
 extern void cubes(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
 extern void lesson1(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
 extern void lesson2(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
+extern void lesson3(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.setHelpText("TinyGL demo application.\n\n"
                                "Usage: tinygl <demo>\n"
-                               "Demos: info, triangle, gears, cubes, lesson[1-2]\n"
+                               "Demos: info, triangle, gears, cubes, lesson[1-3]\n"
                                "Options:\n"
                                "  -r, --resolution: Set display resolution\n"
                                "  -s, --scale: Set display scale factor (Must be <= 1; The application will be rendered at a lower internal resolution and scaled up/centered to fill the screen)\n"
@@ -59,7 +60,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "tinygl: No arguments provided! Please specify a demo (info, triangle, gears, cubes, lesson[1-2])." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "tinygl: No arguments provided! Please specify a demo (info, triangle, gears, cubes, lesson[1-3])." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -106,6 +107,8 @@ int32_t main(int32_t argc, char *argv[]) {
         lesson1(bufferedLfb);
     } else if (demo == "lesson2") {
         lesson2(bufferedLfb);
+    } else if (demo == "lesson3") {
+        lesson3(bufferedLfb);
     } else {
         Util::System::error << "opengl: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
