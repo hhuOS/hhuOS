@@ -17,7 +17,7 @@ public:
 
 private:
     DataWrapper *data;
-    Renderer *renderer;
+//    Renderer *renderer;
 
     void init_gui();
 

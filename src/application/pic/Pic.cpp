@@ -71,7 +71,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
 Pic::Pic() {
     this->data = new DataWrapper();
-    this->renderer = new Renderer(data);
+//    this->renderer = new Renderer(data);
 
     init_gui();
 
@@ -79,8 +79,8 @@ Pic::Pic() {
     data->layerCount = 6;
     data->currentLayer = 3;
 
-//    auto renderer = new Renderer(data);
-//    auto renderThread = Util::Async::Thread::createThread("renderer", renderer);
+    auto renderer = new Renderer(data);
+    auto renderThread = Util::Async::Thread::createThread("renderer", renderer);
 }
 
 
@@ -88,7 +88,7 @@ void Pic::run() {
     while (data->running) {
         this->checkMouseInput();
         this->checkKeyboardInput();
-        this->renderer->render();
+//        this->renderer->render();
         Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
     }
 }

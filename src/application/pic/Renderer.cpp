@@ -49,9 +49,9 @@ void Renderer::prepareBase() {
 }
 
 // TODO: alles durchgehen, ob in keiner Situation zu viel gerendert wird
-//void Renderer::run() {
-void Renderer::render() {
-//    while (true) {
+void Renderer::run() {
+//void Renderer::render() {
+    while (true) {
         if (data->flags->anyChange) {
             if (data->flags->result) {
                 renderResult();
@@ -65,8 +65,8 @@ void Renderer::render() {
             data->flags->mouse = false;
             data->flags->anyChange = false;
         }
-//        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
-//    }
+        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
+    }
 }
 
 

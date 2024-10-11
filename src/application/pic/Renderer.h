@@ -17,19 +17,18 @@
 #include "lib/libc/stdlib.h"
 
 #include "Layer.h"
-//#include "Pic.h"
 #include "DataWrapper.h"
 
-//class Renderer : public Util::Async::Runnable {
-class Renderer{
+class Renderer : public Util::Async::Runnable {
+//class Renderer{
 public:
     explicit Renderer(DataWrapper *data);
 
-//    ~Renderer() override = default;
-    ~Renderer()= default;
+    ~Renderer() override = default;
+//    ~Renderer()= default;
 
-//    void run() override;
-    void render();
+    void run() override;
+//    void render();
 
 private:
     void prepareBase();
