@@ -80,6 +80,14 @@ Button *Button::setInputButton(Util::String *s, bool *capture) {
     return this;
 }
 
+Button *Button::setConfirmButton(void (*cancel)(DataWrapper *), void (*ok)(DataWrapper *)){
+    this->type = CONFIRM;
+    this->method1 = cancel;
+    this->method2 = ok;
+    render();
+    return this;
+}
+
 uint32_t *Button::getBuffer() {
     return this->buffer;
 }
@@ -96,6 +104,8 @@ void Button::processClick(int relX, int relY) {
                 *intValue -= 1;
             } else if (relX > 160) {
                 *intValue += 1;
+            } else {
+                *intValue = Util::String::parseInt(*data->currentInput);
             }
             break;
         case DOUBLE_VALUE:
@@ -103,6 +113,8 @@ void Button::processClick(int relX, int relY) {
                 *doubleValue -= 1;
             } else if (relX > 160) {
                 *doubleValue += 1;
+            } else {
+                *doubleValue = Util::String::parseDouble(*data->currentInput);
             }
             break;
         case CONFIRM:
@@ -293,15 +305,16 @@ const char *double_to_string(double value, int decimal_places) {
 }
 
 void Button::renderValue(const char *text) {
-    renderBackground(0, 200, gray);
     renderBackground(0, 40, mouseX < 40 ? (click ? green : hover ? darkgray : gray) : gray);
     renderBackground(160, 200, mouseX > 160 ? (click ? green : hover ? darkgray : gray) : gray);
+    renderBackground(40, 160, mouseX >= 40 && mouseX <= 160 ? (click ? green : hover ? darkgray : gray) : gray);
     renderBorder(0xFF000000);
     lineDrawer->drawLine(39, 0, 39, 30, cblack);
     lineDrawer->drawLine(40, 0, 40, 30, cblack);
     lineDrawer->drawLine(160, 0, 160, 30, cblack);
     lineDrawer->drawLine(161, 0, 161, 30, cblack);
-    stringDrawer->drawString(Fonts::TERMINAL_8x16, 100 - (strlen(text) * 4), 7, text, cblack, cgray);
+    stringDrawer->drawString(Fonts::TERMINAL_8x16, 100 - (strlen(text) * 4), 7, text, cblack,
+                             mouseX >= 40 && mouseX <= 160 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
 }
 
 void Button::renderIntValue() {

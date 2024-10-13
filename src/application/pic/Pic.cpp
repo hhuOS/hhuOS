@@ -135,18 +135,47 @@ void Pic::checkMouseInput() {
 
 // TODO guiButtonChanged muss theoretisch nicht immer, wenn button selbst sich gar net ändert
 void Pic::parseMouse(bool clicked) {
-    if (data->mouseX < 200 && !(data->leftButtonPressed && !data->clickStartedOnGui)) {
-        int buttonIndex = data->mouseY / 30;
-        if (buttonIndex != data->lastInteractedButton) {
-            if (data->lastInteractedButton != -1 && data->lastInteractedButton < data->currentGuiLayer->buttonCount) {
+    int buttonIndex = data->mouseY / 30;
+    int buttonIndexBottom = buttonIndex - 19 + data->currentGuiLayerBottom->buttonCount;
+    int lastInteractedBottom = data->lastInteractedButton - 19 + data->currentGuiLayerBottom->buttonCount;
+
+    if (buttonIndex != data->lastInteractedButton || data->mouseX >= 200) {
+        if (data->lastInteractedButton != -1) {
+            if (data->lastInteractedButton < data->currentGuiLayer->buttonCount) {
                 data->currentGuiLayer->buttons[data->lastInteractedButton]->removeInteraction();
-            } else if (data->lastInteractedButton != -1 && data->lastInteractedButton == 19) {
+            } else if (lastInteractedBottom >= 0 && lastInteractedBottom < data->currentGuiLayerBottom->buttonCount) {
+                data->currentGuiLayerBottom->buttons[lastInteractedBottom]->removeInteraction();
+            } else if (data->lastInteractedButton == 19) {
                 data->textButton->removeInteraction();
             }
-            data->lastInteractedButton = buttonIndex;
         }
+        data->lastInteractedButton = buttonIndex;
+    }
+
+    if (data->mouseX < 200 && !(data->leftButtonPressed && !data->clickStartedOnGui)) {
+//        if (buttonIndex != data->lastInteractedButton) {
+//            int bottomLast = data->lastInteractedButton - 19 + data->currentGuiLayerBottom->buttonCount;
+//            if (bottomLast < 0) bottomLast = 0;
+//            if (data->lastInteractedButton != -1 && data->lastInteractedButton < data->currentGuiLayer->buttonCount) {
+//                data->currentGuiLayer->buttons[data->lastInteractedButton]->removeInteraction();
+//            } else if (data->lastInteractedButton != -1 && bottomLast < data->currentGuiLayerBottom->buttonCount) {
+//                data->currentGuiLayerBottom->buttons[bottomLast]->removeInteraction();
+//            } else if (data->lastInteractedButton != -1 && data->lastInteractedButton == 19) {
+//                data->textButton->removeInteraction();
+//            }
+//            data->lastInteractedButton = buttonIndex;
+//        }
+        Button *button = nullptr;
         if (buttonIndex < data->currentGuiLayer->buttonCount) { // top buttons
-            auto button = data->currentGuiLayer->buttons[buttonIndex];
+            button = data->currentGuiLayer->buttons[buttonIndex];
+        }
+        if (buttonIndexBottom >= 0 && buttonIndexBottom < data->currentGuiLayerBottom->buttonCount) { // bottom buttons
+            button = data->currentGuiLayerBottom->buttons[buttonIndexBottom];
+        }
+        if (buttonIndex == 19) { // text input button
+            button = data->textButton;
+        }
+        if (button != nullptr) {
             if (data->leftButtonPressed)
                 button->showClick(data->mouseX, data->mouseY - buttonIndex * 30);
             else
@@ -154,23 +183,21 @@ void Pic::parseMouse(bool clicked) {
             if (clicked)
                 button->processClick(data->mouseX, data->mouseY - buttonIndex * 30);
         }
-        if (buttonIndex == 19) { // text input button
-            if (data->leftButtonPressed)
-                data->textButton->showClick(data->mouseX, data->mouseY - buttonIndex * 30);
-            else
-                data->textButton->showHover(data->mouseX, data->mouseY - buttonIndex * 30);
-            if (clicked)
-                data->textButton->processClick(data->mouseX, data->mouseY - buttonIndex * 30);
-        }
     } else {
-        if (data->lastInteractedButton != -1 && data->lastInteractedButton < data->currentGuiLayer->buttonCount) {
-            data->currentGuiLayer->buttons[data->lastInteractedButton]->removeInteraction();
-            data->lastInteractedButton = -1;
-        }
-        if (data->lastInteractedButton == 19) {
-            data->textButton->removeInteraction();
-            data->lastInteractedButton = -1;
-        }
+//        if (data->lastInteractedButton != -1 && data->lastInteractedButton < data->currentGuiLayer->buttonCount) {
+//            data->currentGuiLayer->buttons[data->lastInteractedButton]->removeInteraction();
+//            data->lastInteractedButton = -1;
+//        }
+//        int buttonIndexBottom = data->lastInteractedButton - 19 + data->currentGuiLayerBottom->buttonCount;
+//        if (buttonIndexBottom < 0) buttonIndexBottom = 0;
+//        if (buttonIndexBottom < data->currentGuiLayerBottom->buttonCount) {
+//            data->currentGuiLayerBottom->buttons[buttonIndexBottom]->removeInteraction();
+//            data->lastInteractedButton = -1;
+//        }
+//        if (data->lastInteractedButton == 19) {
+//            data->textButton->removeInteraction();
+//            data->lastInteractedButton = -1;
+//        }
         // TODO do stuff in workArea
     }
     data->debugString = String::format("Mouse: %d %d, LastButton: %d", data->mouseX, data->mouseY,
@@ -242,9 +269,46 @@ void Pic::checkKeyboardInput() {
     }
 }
 
+void swapTool(DataWrapper *data, Tool tool) {
+    if (data->currentTool == tool) {
+        data->currentTool = Tool::NOTHING;
+        data->currentGuiLayerBottom = data->guiLayers->get("empty");
+    } else {
+        data->currentTool = tool;
+        switch (tool) {
+            case Tool::MOVE:
+                data->currentGuiLayerBottom = data->guiLayers->get("bottom_move");
+                break;
+            case Tool::ROTATE:
+                data->currentGuiLayerBottom = data->guiLayers->get("bottom_rotate");
+                break;
+            case Tool::SCALE:
+                data->currentGuiLayerBottom = data->guiLayers->get("bottom_scale");
+                break;
+            case Tool::CROP:
+                data->currentGuiLayerBottom = data->guiLayers->get("bottom_crop");
+                break;
+            case Tool::PEN:
+                data->currentGuiLayerBottom = data->guiLayers->get("bottom_pen");
+                break;
+            case Tool::ERASER:
+                data->currentGuiLayerBottom = data->guiLayers->get("bottom_eraser");
+                break;
+            case Tool::COLOR_PICKER:
+                data->currentGuiLayerBottom = data->guiLayers->get("bottom_color_picker");
+                break;
+            case Tool::NOTHING:
+                data->currentGuiLayerBottom = data->guiLayers->get("empty");
+                break;
+        }
+    }
+    data->currentGuiLayerBottom->appear();
+}
+
 void changeGuiLayerTo(DataWrapper *data, const char *layer) {
     data->currentGuiLayer = data->guiLayers->get(layer);
     data->currentGuiLayer->appear();
+    swapTool(data, Tool::NOTHING);
 }
 
 void Pic::init_gui() {
@@ -337,15 +401,67 @@ void Pic::init_gui() {
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
     gui_tools->addButton((new Button(data))
-                                 ->setInfo("currPosX")
-                                 ->setIntValueButton(&data->layers[data->currentLayer]->posX)
-                                 ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+                                 ->setInfo("move")
+                                 ->setMethodButton([](DataWrapper *data) {
+                                     data->moveX = data->layers[data->currentLayer]->posX;
+                                     data->moveY = data->layers[data->currentLayer]->posY;
+                                     swapTool(data, Tool::MOVE);
+                                 })
+                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
     gui_tools->addButton((new Button(data))
-                                 ->setInfo("currPosY")
-                                 ->setIntValueButton(&data->layers[data->currentLayer]->posY)
-                                 ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+                                 ->setInfo("rotate")
+                                 ->setMethodButton([](DataWrapper *data) {
+                                     data->rotateDeg = 0;
+                                     swapTool(data, Tool::ROTATE);
+                                 })
+                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
+    gui_tools->addButton((new Button(data))
+                                 ->setInfo("scale")
+                                 ->setMethodButton([](DataWrapper *data) {
+                                     data->scale = 1.0;
+                                     swapTool(data, Tool::SCALE);
+                                 })
+                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+    );
+    gui_tools->addButton((new Button(data))
+                                 ->setInfo("crop")
+                                 ->setMethodButton([](DataWrapper *data) {
+                                     data->cropLeft = 0;
+                                     data->cropRight = 0;
+                                     data->cropTop = 0;
+                                     data->cropBottom = 0;
+                                     swapTool(data, Tool::CROP);
+                                 })
+                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+    );
+    gui_tools->addButton((new Button(data))
+                                 ->setInfo("pen")
+                                 ->setMethodButton([](DataWrapper *data) {
+                                     data->penSize = 1;
+                                     data->penColor = 0xFFFFFFFF;
+                                     swapTool(data, Tool::PEN);
+                                 })
+                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+    );
+    gui_tools->addButton((new Button(data))
+                                 ->setInfo("eraser")
+                                 ->setMethodButton([](DataWrapper *data) {
+                                     data->penSize = 1;
+                                     data->penColor = 0x00000000;
+                                     swapTool(data, Tool::ERASER);
+                                 })
+                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+    );
+    gui_tools->addButton((new Button(data))
+                                 ->setInfo("color picker")
+                                 ->setMethodButton([](DataWrapper *data) {
+                                     swapTool(data, Tool::COLOR_PICKER);
+                                 })
+                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+    );
+
 
     auto *gui_layers = new GuiLayer();
     gui_layers->addButton((new Button(data))
@@ -355,6 +471,49 @@ void Pic::init_gui() {
                                   })
                                   ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
+    gui_layers->addButton((new Button(data))
+                                  ->setInfo("currPosX")
+                                  ->setIntValueButton(&data->layers[data->currentLayer]->posX)
+                                  ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+    );
+    gui_layers->addButton((new Button(data))
+                                  ->setInfo("currPosY")
+                                  ->setIntValueButton(&data->layers[data->currentLayer]->posY)
+                                  ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+    );
+
+    auto gui_bottom_move = new GuiLayer();
+    gui_bottom_move->addButton((new Button(data))
+                                       ->setInfo("moveX")
+                                       ->setIntValueButton(&data->moveX)
+                                       ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
+    );
+    gui_bottom_move->addButton((new Button(data))
+                                       ->setInfo("moveY")
+                                       ->setIntValueButton(&data->moveY)
+                                       ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
+    );
+    gui_bottom_move->addButton((new Button(data))
+                                       ->setInfo("MOVE")
+                                       ->setConfirmButton([](DataWrapper *data) {
+                                           data->moveX = data->layers[data->currentLayer]->posX;
+                                           data->moveY = data->layers[data->currentLayer]->posY;
+                                           data->currentGuiLayerBottom->appear();
+                                       }, [](DataWrapper *data) {
+                                           data->layers[data->currentLayer]->posX = data->moveX;
+                                           data->layers[data->currentLayer]->posY = data->moveY;
+                                       })
+                                       ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+    );
+
+    auto gui_bottom_rotate = new GuiLayer();
+    auto gui_bottom_scale = new GuiLayer();
+    auto gui_bottom_crop = new GuiLayer();
+    auto gui_bottom_pen = new GuiLayer();
+    auto gui_bottom_eraser = new GuiLayer();
+    auto gui_bottom_color_picker = new GuiLayer();
+
+    auto gui_empty = new GuiLayer();
 
     data->textButton = (new Button(data))
             ->setInfo("input: ")
@@ -365,7 +524,14 @@ void Pic::init_gui() {
     data->guiLayers->put("file", gui_file);
     data->guiLayers->put("tools", gui_tools);
     data->guiLayers->put("layers", gui_layers);
+    data->guiLayers->put("empty", gui_empty);
+    data->guiLayers->put("bottom_move", gui_bottom_move);
+    data->guiLayers->put("bottom_rotate", gui_bottom_rotate);
+    data->guiLayers->put("bottom_scale", gui_bottom_scale);
+    data->guiLayers->put("bottom_crop", gui_bottom_crop);
+    data->guiLayers->put("bottom_pen", gui_bottom_pen);
+    data->guiLayers->put("bottom_eraser", gui_bottom_eraser);
+    data->guiLayers->put("bottom_color_picker", gui_bottom_color_picker);
     data->currentGuiLayer = gui_main;
+    data->currentGuiLayerBottom = gui_empty;
 }
-
-

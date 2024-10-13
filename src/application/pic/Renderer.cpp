@@ -140,6 +140,7 @@ void Renderer::renderWorkArea() {
 
 void Renderer::renderGui() {
     auto guiLayer = data->currentGuiLayer;
+    auto guiLayerBottom = data->currentGuiLayerBottom;
     if (data->flags->guiLayer) {
         for (int i = 0; i < data->guiX * data->screenY; i++) {
             buff_gui[i] = 0x00000000;
@@ -147,6 +148,13 @@ void Renderer::renderGui() {
         for (int i = 0; i < guiLayer->buttonCount; ++i) {
             blendBuffers(buff_gui, guiLayer->buttons[i]->getBuffer(), data->guiX, data->screenY, 200, 30, 0, i * 30);
             guiLayer->buttons[i]->bufferChanged = false;
+        }
+        int b = 19 - guiLayerBottom->buttonCount;
+        for (int i = b; i <= 18; ++i) {
+            int x = i - b;
+            blendBuffers(buff_gui, guiLayerBottom->buttons[x]->getBuffer(), data->guiX, data->screenY, 200, 30, 0,
+                         i * 30);
+            guiLayerBottom->buttons[x]->bufferChanged = false;
         }
         blendBuffers(buff_gui, data->textButton->getBuffer(), data->guiX, data->screenY, 200, 30, 0, data->guiY - 30);
         data->flags->guiLayer = false;
@@ -159,6 +167,18 @@ void Renderer::renderGui() {
                 blendBuffers(buff_gui, guiLayer->buttons[i]->getBuffer(), data->guiX, data->screenY, 200, 30, 0,
                              i * 30);
                 guiLayer->buttons[i]->bufferChanged = false;
+            }
+        }
+        int b = 19 - guiLayerBottom->buttonCount;
+        for (int i = b; i <= 18; ++i) {
+            int x = i - b;
+            if (guiLayerBottom->buttons[x]->bufferChanged) {
+                for (int j = i * 30 * 200; j < (i + 1) * 30 * 200; j++) {
+                    buff_gui[j] = 0x00000000;
+                }
+                blendBuffers(buff_gui, guiLayerBottom->buttons[x]->getBuffer(), data->guiX, data->screenY, 200, 30, 0,
+                             i * 30);
+                guiLayerBottom->buttons[x]->bufferChanged = false;
             }
         }
         if (data->textButton->bufferChanged) {
