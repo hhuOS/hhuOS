@@ -49,10 +49,6 @@ Layer &Layer::operator=(const Layer &other) {
     return *this;
 }
 
-void Layer::setPosition(int x, int y) {
-    posX = x;
-    posY = y;
-}
 
 void Layer::setPixel(int x, int y, unsigned int color) {
     if (x < 0 || x >= width || y < 0 || y >= height) {

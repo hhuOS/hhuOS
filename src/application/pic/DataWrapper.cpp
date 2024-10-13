@@ -22,6 +22,12 @@ DataWrapper::DataWrapper() {
     keyDecoder = new Util::Io::KeyDecoder(new Util::Io::DeLayout());
     mouseX = 0, mouseY = 0, oldMouseX = 0, oldMouseY = 0;
     leftButtonPressed = false, oldLeftButtonPressed = false;
+    mouseClicks = new Util::ArrayBlockingQueue<Util::Pair<int, int>>(50); // should be more than enough :D
+    clickStartedOnGui = true;
+    lastInteractedButton = -1;
+    currentInput = new Util::String();
+    captureInput = false;
+    lastScancode = 0;
 
     // rendering
     flags = new RenderFlags();
@@ -34,10 +40,14 @@ DataWrapper::DataWrapper() {
     // gui
     guiLayers = new Util::HashMap<Util::String, GuiLayer *>();
     currentGuiLayer = nullptr;
+    currentGuiLayerBottom = nullptr;
+
+    // overlay
+    debugString = nullptr;
 
     // work vars
     running = true;
-    currentTool = NONE;
+    currentTool = Tool::NOTHING;
     moveX = -1;
     moveY = -1;
     rotateDeg = -1;

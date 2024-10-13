@@ -3,6 +3,7 @@
 
 #include "Button.h"
 #include "Layer.h"
+#include "GuiLayer.h"
 #include "Renderer.h"
 #include "DataWrapper.h"
 
@@ -17,7 +18,7 @@ public:
 
 private:
     DataWrapper *data;
-//    Renderer *renderer;
+    Renderer *renderer;
 
     void init_gui();
 
@@ -25,7 +26,7 @@ private:
 
     void checkKeyboardInput();
 
-    void parseMouseToGui();
+    void parseMouse(bool clicked);
 };
 
 #endif // PIC_H

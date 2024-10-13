@@ -6,13 +6,24 @@
 #define HHUOS_BUTTON_H
 
 #include <cstdint>
+#include "Layer.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/graphic/PixelDrawer.h"
+#include "lib/util/graphic/StringDrawer.h"
+#include "lib/util/graphic/Font.h"
+#include "lib/util/graphic/font/Terminal8x16.h"
+#include "lib/util/graphic/LineDrawer.h"
 
-// Forward declaration since otherwise circular dependency
-class DataWrapper;
+
+#include "DataWrapper.h"
+
+using namespace Util::Graphic;
 
 enum ButtonType {
-    NAVIGATION,
-    VALUE,
+    NONE,
+    METHOD,
+    INT_VALUE,
+    DOUBLE_VALUE,
     CONFIRM,
     COLOR,
     LAYER,
@@ -22,7 +33,7 @@ enum ButtonType {
 class Button {
 public:
 
-    explicit Button(void (*clickMethod)(DataWrapper *), DataWrapper *data);
+    explicit Button(DataWrapper *data);
 
     ~Button() = default;
 
@@ -36,20 +47,82 @@ public:
 
     uint32_t *getBuffer();
 
+    Button *setInfo(const char *string);
+
+    Button *setHotkey(char hotkey);
+
+    Button *setMethodButton(void (*method)(DataWrapper *));
+
+    Button *setIntValueButton(int *value);
+
+    Button *setDoubleValueButton(double *dvalue);
+
+    Button *setConfirmButton(void (*cancel)(DataWrapper *), void (*ok)(DataWrapper *));
+
+    Button *setColorButton(uint32_t *color);
+
+    Button *setLayerButton(Layer **layer, int layerCount, int whichLayer);
+
+    Button *setInputButton(Util::String *input, bool *captureInput);
+
+    Button *setRenderFlagMethod(void (RenderFlags::*rFlagMethod)());
+
     bool bufferChanged;
 
-private:
-    void (*clickMethod)(DataWrapper *data);
-
-    DataWrapper *data;
-    bool click;
-    bool hover;
-
-
-protected:
     void render();
 
+private:
+
+    void renderBorder(uint32_t color);
+
+    void renderBackground(int x1, int x2, uint32_t color);
+
+    void renderMethod();
+
+    void renderValue(const char *text);
+
+    void renderIntValue();
+
+    void renderDoubleValue();
+
+    void renderConfirm();
+
+    void renderColor();
+
+    void renderLayer();
+
+    void renderInput();
+
+    DataWrapper *data;
     uint32_t *buffer;
+    LinearFrameBuffer *lfb;
+    PixelDrawer *pixelDrawer;
+    LineDrawer *lineDrawer;
+    StringDrawer *stringDrawer;
+    Color cblack, cgray, cgreen, cdarkgray;
+    uint32_t black, gray, green, darkgray;
+    ButtonType type;
+    bool click;
+    bool hover;
+    int mouseX, mouseY;
+
+    // optionals
+    const char *info;
+    char hotkey;
+    bool hasHotkey;
+    int *intValue = nullptr;
+    double *doubleValue = nullptr;
+    Util::String *input = nullptr;
+    bool *captureInput = nullptr;
+
+    void (*method1)(DataWrapper *data) = nullptr;
+
+    void (*method2)(DataWrapper *data) = nullptr;
+
+    void (*method3)(DataWrapper *data) = nullptr;
+
+    void (RenderFlags::*rFlagMethod)() = nullptr;
+
 };
 
 #endif // HHUOS_BUTTON_H

@@ -5,8 +5,6 @@
 #ifndef HHUOS_DATAWRAPPER_H
 #define HHUOS_DATAWRAPPER_H
 
-#include "Layer.h"
-#include "GuiLayer.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Map.h"
 #include "lib/util/collection/HashMap.h"
@@ -17,11 +15,21 @@
 #include "lib/util/io/key/layout/DeLayout.h"
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/io/key/MouseDecoder.h"
+#include "lib/util/collection/Queue.h"
+#include "lib/util/collection/Pair.h"
+#include "lib/util/collection/ArrayBlockingQueue.h"
+
+// Forward declaration since otherwise circular dependency
+class Layer;
+
+class GuiLayer;
+
+class Button;
 
 class RenderFlags;
 
 enum Tool {
-    NONE, MOVE, ROTATE, SCALE, CROP, PEN, ERASER, COLOR_PICKER,
+    NOTHING = 0, MOVE = 1, ROTATE = 2, SCALE = 3, CROP = 4, PEN = 5, ERASER = 6, COLOR_PICKER = 7,
 };
 
 class DataWrapper {
@@ -41,6 +49,12 @@ public:
     Util::Io::KeyDecoder *keyDecoder;
     int mouseX, mouseY, oldMouseX, oldMouseY;
     bool leftButtonPressed, oldLeftButtonPressed;
+    Util::Queue<Util::Pair<int, int>> *mouseClicks;
+    bool clickStartedOnGui;
+    int lastInteractedButton;
+    Util::String *currentInput;
+    bool captureInput;
+    int16_t lastScancode;
 
     // rendering
     RenderFlags *flags;
@@ -53,6 +67,11 @@ public:
     // gui
     Util::Map<Util::String, GuiLayer *> *guiLayers;
     GuiLayer *currentGuiLayer;
+    GuiLayer *currentGuiLayerBottom;
+    Button *textButton;
+
+    // overlay
+    const char *debugString;
 
     // work vars
     bool running;
@@ -73,6 +92,8 @@ public:
     bool result = true;
     bool mouse = true;
     bool gui = true;
+    bool guiLayer = true;
+    bool guiJustButton = true;
     bool workArea = true;
     bool base = true;
     bool overlay = true;
@@ -81,7 +102,9 @@ public:
 
     void mouseChanged() { anyChange = true, mouse = true; }
 
-    void guiChanged() { anyChange = true, result = true, gui = true; }
+    void guiButtonChanged() { anyChange = true, result = true, gui = true, guiJustButton = true; }
+
+    void guiLayerChanged() { anyChange = true, result = true, gui = true, guiLayer = true; }
 
     void baseChanged() { anyChange = true, result = true, base = true; }
 

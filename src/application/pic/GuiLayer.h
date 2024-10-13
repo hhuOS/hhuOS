@@ -17,6 +17,11 @@ public:
         buttons[buttonCount] = button;
         buttonCount++;
     }
+    void appear() const{
+        for(int i = 0; i < buttonCount; i++){
+            buttons[i]->removeInteraction();
+        }
+    }
     Button ** buttons;
     int buttonCount;
 };

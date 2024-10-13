@@ -15,20 +15,26 @@
 #include "lib/util/base/Address.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/libc/stdlib.h"
-
-#include "Layer.h"
 #include "DataWrapper.h"
+#include "lib/util/graphic/PixelDrawer.h"
+#include "lib/util/graphic/LineDrawer.h"
+#include "lib/util/graphic/StringDrawer.h"
 
-class Renderer : public Util::Async::Runnable {
-//class Renderer{
+#include "GuiLayer.h"
+
+
+using namespace Util::Graphic;
+
+//class Renderer : public Util::Async::Runnable {
+class Renderer{
 public:
     explicit Renderer(DataWrapper *data);
 
-    ~Renderer() override = default;
-//    ~Renderer()= default;
+//    ~Renderer() override = default;
+    ~Renderer()= default;
 
-    void run() override;
-//    void render();
+//    void run() override;
+    void render();
 
 private:
     void prepareBase();
@@ -61,6 +67,11 @@ private:
     uint32_t *buff_base, *buff_workarea, *buff_gui;
     uint32_t *buff_overlay, *buff_layers;
     uint32_t *buff_under_current, *buff_over_current;
+    int lastRenderedMouseX, lastRenderedMouseY;
+    LinearFrameBuffer *lfb;
+    PixelDrawer *pixelDrawer;
+    LineDrawer *lineDrawer;
+    StringDrawer *stringDrawer;
 };
 
 #endif // RENDERER_H
