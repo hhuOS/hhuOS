@@ -28,7 +28,6 @@
 #include "lib/util/time/Timestamp.h"
 #include "kernel/log/Log.h"
 #include "kernel/service/InterruptService.h"
-#include "kernel/interrupt/InterruptVector.h"
 #include "kernel/service/Service.h"
 #include "lib/util/async/Atomic.h"
 #include "lib/util/collection/Array.h"
@@ -176,11 +175,7 @@ void Scheduler::kill(Thread &thread) {
 }
 
 void Scheduler::yield(bool interrupt) {
-    if (!initialized) {
-        return;
-    }
-
-    if (!readyQueueLock.tryAcquire()) {
+    if (!initialized || !readyQueueLock.tryAcquire()) {
         return;
     }
 
@@ -198,8 +193,7 @@ void Scheduler::yield(bool interrupt) {
 
     if (interrupt) {
         auto &interruptService = Service::getService<InterruptService>();
-        auto vector = interruptService.usesApic() ? InterruptVector::APICTIMER : InterruptVector::PIT;
-        interruptService.sendEndOfInterrupt(vector);
+        interruptService.sendEndOfInterrupt(timerInterrupt);
     }
 
     Thread::switchThread(*current, *next);

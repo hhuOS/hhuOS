@@ -78,7 +78,7 @@ void Pit::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector s
         timeSinceLastYield += timerInterval;
         if (timeSinceLastYield > yieldInterval) {
             timeSinceLastYield.reset();
-            Kernel::Service::getService<Kernel::ProcessService>().getScheduler().yield();
+            Kernel::Service::getService<Kernel::ProcessService>().getScheduler().yield(true);
         }
     }
 }

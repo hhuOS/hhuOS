@@ -25,6 +25,8 @@
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/collection/HashMap.h"
 #include "lib/util/time/Timestamp.h"
+#include "kernel/service/InterruptService.h"
+#include "kernel/service/Service.h"
 
 namespace Device {
 class Fpu;
@@ -32,6 +34,7 @@ class Fpu;
 
 namespace Kernel {
 class Thread;
+enum InterruptVector : uint8_t;
 
 class Scheduler {
 
@@ -139,6 +142,8 @@ private:
     Device::Fpu *fpu = nullptr;
     uint8_t *defaultFpuContext = nullptr;
     Thread *lastFpuThread = nullptr;
+
+    InterruptVector timerInterrupt = Service::getService<InterruptService>().getTimerInterrupt();
 
     Util::ArrayListBlockingQueue<Thread*> readyQueue;
     Util::Async::Spinlock readyQueueLock;

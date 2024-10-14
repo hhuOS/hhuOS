@@ -51,6 +51,10 @@ bool InterruptService::usesApic() const {
     return apic != nullptr;
 }
 
+InterruptVector InterruptService::getTimerInterrupt() const {
+    return apic == nullptr ? InterruptVector::PIT : InterruptVector::APICTIMER;
+}
+
 InterruptService::~InterruptService() {
     delete pic;
     delete apic;

@@ -26,5 +26,7 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+
+    while (true);
     return 0;
 }
