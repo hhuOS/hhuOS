@@ -27,10 +27,12 @@ Button::Button(DataWrapper *data) {
     this->cgray = Color(128, 128, 128);
     this->cdarkgray = Color(80, 80, 80);
     this->cgreen = Color(0, 255, 0);
+    this->cred = Color(255, 0, 0);
     this->black = cblack.getRGB32();
     this->gray = cgray.getRGB32();
     this->darkgray = cdarkgray.getRGB32();
     this->green = cgreen.getRGB32();
+    this->red = cred.getRGB32();
     this->mouseX = 0;
     this->mouseY = 0;
     render();
@@ -80,7 +82,7 @@ Button *Button::setInputButton(Util::String *s, bool *capture) {
     return this;
 }
 
-Button *Button::setConfirmButton(void (*cancel)(DataWrapper *), void (*ok)(DataWrapper *)){
+Button *Button::setConfirmButton(void (*cancel)(DataWrapper *), void (*ok)(DataWrapper *)) {
     this->type = CONFIRM;
     this->method1 = cancel;
     this->method2 = ok;
@@ -125,8 +127,10 @@ void Button::processClick(int relX, int relY) {
             }
             break;
         case COLOR:
+            // TODO
             break;
         case LAYER:
+            // TODO
             break;
         case INPUT:
             if (relX < 40) {
@@ -315,6 +319,10 @@ void Button::renderValue(const char *text) {
     lineDrawer->drawLine(161, 0, 161, 30, cblack);
     stringDrawer->drawString(Fonts::TERMINAL_8x16, 100 - (strlen(text) * 4), 7, text, cblack,
                              mouseX >= 40 && mouseX <= 160 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
+    stringDrawer->drawString(Fonts::SUN_12x22, 14, 4, "-", cred,
+                             mouseX < 40 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
+    stringDrawer->drawString(Fonts::SUN_12x22, 174, 4, "+", cgreen,
+                             mouseX > 160 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
 }
 
 void Button::renderIntValue() {
@@ -328,6 +336,15 @@ void Button::renderDoubleValue() {
 }
 
 void Button::renderConfirm() {
+    renderBackground(0, 100, mouseX < 100 ? (click ? green : hover ? darkgray : gray) : gray);
+    renderBackground(100, 200, mouseX >= 100 ? (click ? green : hover ? darkgray : gray) : gray);
+    renderBorder(0xFF000000);
+    lineDrawer->drawLine(99, 0, 99, 30, cblack);
+    lineDrawer->drawLine(100, 0, 100, 30, cblack);
+    stringDrawer->drawString(Fonts::TERMINAL_8x16, 50 - (strlen("CANCEL") * 4), 7, "CANCEL", cred,
+                             mouseX < 100 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
+    stringDrawer->drawString(Fonts::TERMINAL_8x16, 150 - (strlen("OK") * 4), 7, "OK", cgreen,
+                             mouseX >= 100 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
 
 }
 
@@ -345,7 +362,7 @@ void Button::renderInput() {
     renderBorder(*captureInput ? 0xFF00FF00 : 0xFF000000);
     lineDrawer->drawLine(39, 0, 39, 30, *captureInput ? cgreen : cblack);
     lineDrawer->drawLine(40, 0, 40, 30, *captureInput ? cgreen : cblack);
-    stringDrawer->drawString(Fonts::TERMINAL_8x16, 8, 7, "DEL", cblack,
+    stringDrawer->drawString(Fonts::TERMINAL_8x16, 8, 7, "DEL", cred,
                              mouseX < 40 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
     stringDrawer->drawString(Fonts::TERMINAL_8x16, 48, 7, input->operator const char *(), cblack,
                              mouseX >= 40 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);

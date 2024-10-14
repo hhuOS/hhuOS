@@ -46,22 +46,6 @@ Layer **makeTestLayers() {
 }
 
 int32_t main(int32_t argc, char *argv[]) {
-
-//    auto argumentParser = Util::ArgumentParser();
-//    argumentParser.setHelpText("Test\n");
-//    argumentParser.addArgument("test", false, "t");
-//
-//    if (!argumentParser.parse(argc, argv)) {
-//        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl
-//                            << Util::Io::PrintStream::flush;
-//        return -1;
-//    }
-//
-//    if (argumentParser.hasArgument("number")) {
-//        auto arg = argumentParser.getArgument("number")[0];
-//        print("you called with number: " << arg);
-//    }
-
     auto pic = new Pic();
     pic->run();
     delete pic;
@@ -153,26 +137,14 @@ void Pic::parseMouse(bool clicked) {
     }
 
     if (data->mouseX < 200 && !(data->leftButtonPressed && !data->clickStartedOnGui)) {
-//        if (buttonIndex != data->lastInteractedButton) {
-//            int bottomLast = data->lastInteractedButton - 19 + data->currentGuiLayerBottom->buttonCount;
-//            if (bottomLast < 0) bottomLast = 0;
-//            if (data->lastInteractedButton != -1 && data->lastInteractedButton < data->currentGuiLayer->buttonCount) {
-//                data->currentGuiLayer->buttons[data->lastInteractedButton]->removeInteraction();
-//            } else if (data->lastInteractedButton != -1 && bottomLast < data->currentGuiLayerBottom->buttonCount) {
-//                data->currentGuiLayerBottom->buttons[bottomLast]->removeInteraction();
-//            } else if (data->lastInteractedButton != -1 && data->lastInteractedButton == 19) {
-//                data->textButton->removeInteraction();
-//            }
-//            data->lastInteractedButton = buttonIndex;
-//        }
         Button *button = nullptr;
-        if (buttonIndex < data->currentGuiLayer->buttonCount) { // top buttons
+        if (buttonIndex < data->currentGuiLayer->buttonCount) {
             button = data->currentGuiLayer->buttons[buttonIndex];
         }
-        if (buttonIndexBottom >= 0 && buttonIndexBottom < data->currentGuiLayerBottom->buttonCount) { // bottom buttons
+        if (buttonIndexBottom >= 0 && buttonIndexBottom < data->currentGuiLayerBottom->buttonCount) {
             button = data->currentGuiLayerBottom->buttons[buttonIndexBottom];
         }
-        if (buttonIndex == 19) { // text input button
+        if (buttonIndex == 19) {
             button = data->textButton;
         }
         if (button != nullptr) {
@@ -184,20 +156,6 @@ void Pic::parseMouse(bool clicked) {
                 button->processClick(data->mouseX, data->mouseY - buttonIndex * 30);
         }
     } else {
-//        if (data->lastInteractedButton != -1 && data->lastInteractedButton < data->currentGuiLayer->buttonCount) {
-//            data->currentGuiLayer->buttons[data->lastInteractedButton]->removeInteraction();
-//            data->lastInteractedButton = -1;
-//        }
-//        int buttonIndexBottom = data->lastInteractedButton - 19 + data->currentGuiLayerBottom->buttonCount;
-//        if (buttonIndexBottom < 0) buttonIndexBottom = 0;
-//        if (buttonIndexBottom < data->currentGuiLayerBottom->buttonCount) {
-//            data->currentGuiLayerBottom->buttons[buttonIndexBottom]->removeInteraction();
-//            data->lastInteractedButton = -1;
-//        }
-//        if (data->lastInteractedButton == 19) {
-//            data->textButton->removeInteraction();
-//            data->lastInteractedButton = -1;
-//        }
         // TODO do stuff in workArea
     }
     data->debugString = String::format("Mouse: %d %d, LastButton: %d", data->mouseX, data->mouseY,

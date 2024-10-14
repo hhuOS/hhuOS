@@ -12,6 +12,7 @@
 #include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/graphic/Font.h"
 #include "lib/util/graphic/font/Terminal8x16.h"
+#include "lib/util/graphic/font/Sun12x22.h"
 #include "lib/util/graphic/LineDrawer.h"
 
 
@@ -99,8 +100,8 @@ private:
     PixelDrawer *pixelDrawer;
     LineDrawer *lineDrawer;
     StringDrawer *stringDrawer;
-    Color cblack, cgray, cgreen, cdarkgray;
-    uint32_t black, gray, green, darkgray;
+    Color cblack, cgray, cgreen, cdarkgray, cred;
+    uint32_t black, gray, green, darkgray, red;
     ButtonType type;
     bool click;
     bool hover;
