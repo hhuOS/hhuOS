@@ -30,10 +30,6 @@ Vector3D Vector3D::operator*(double value) const {
     return {x * value, y * value, z * value};
 }
 
-double Vector3D::operator*(const Vector3D &other) const {
-    return x * other.x + y * other.y + z * other.z;
-}
-
 Vector3D Vector3D::operator/(double value) const {
     return {x / value, y / value, z / value};
 }
@@ -126,6 +122,14 @@ Vector3D Vector3D::normalize() const {
     return *this * (1 / length());
 }
 
+Vector3D Vector3D::cross(const Vector3D &other) const {
+    return Vector3D(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x);
+}
+
+double Vector3D::dot(const Vector3D &other) const {
+    return x * other.x + y * other.y + z * other.z;
+}
+
 double Vector3D::length() const {
     return sqrt(x * x + y * y + z * z);
 }
@@ -142,8 +146,7 @@ double Vector3D::getZ() const {
     return z;
 }
 
-Matrix3x3::Matrix3x3(double x1, double y1, double z1, double x2, double y2, double z2, double x3, double y3,
-                                 double z3)
+Matrix3x3::Matrix3x3(double x1, double y1, double z1, double x2, double y2, double z2, double x3, double y3, double z3)
         : d11(x1), d12(y1), d13(z1), d21(x2), d22(y2), d23(z2), d31(x3), d32(y3), d33(z3) {}
 
 Matrix3x3 Matrix3x3::operator*(double value) const {
@@ -167,12 +170,9 @@ Vector3D Matrix3x3::operator*(const Vector3D &v) const {
 Matrix3x3 Matrix3x3::operator*(const Matrix3x3 &b) const {
     Matrix3x3 a = *this;
     return {
-            a.d11 * b.d11 + a.d12 * b.d21 + a.d13 * b.d31, a.d11 * b.d12 + a.d12 * b.d22 + a.d13 * b.d32,
-            a.d11 * b.d13 + a.d12 * b.d23 + a.d13 * b.d33,
-            a.d21 * b.d11 + a.d22 * b.d21 + a.d23 * b.d31, a.d21 * b.d12 + a.d22 * b.d22 + a.d23 * b.d32,
-            a.d21 * b.d13 + a.d22 * b.d23 + a.d23 * b.d33,
-            a.d31 * b.d11 + a.d32 * b.d21 + a.d33 * b.d31, a.d31 * b.d12 + a.d32 * b.d22 + a.d33 * b.d32,
-            a.d31 * b.d13 + a.d32 * b.d23 + a.d33 * b.d33
+            a.d11 * b.d11 + a.d12 * b.d21 + a.d13 * b.d31, a.d11 * b.d12 + a.d12 * b.d22 + a.d13 * b.d32, a.d11 * b.d13 + a.d12 * b.d23 + a.d13 * b.d33,
+            a.d21 * b.d11 + a.d22 * b.d21 + a.d23 * b.d31, a.d21 * b.d12 + a.d22 * b.d22 + a.d23 * b.d32, a.d21 * b.d13 + a.d22 * b.d23 + a.d23 * b.d33,
+            a.d31 * b.d11 + a.d32 * b.d21 + a.d33 * b.d31, a.d31 * b.d12 + a.d32 * b.d22 + a.d33 * b.d32, a.d31 * b.d13 + a.d32 * b.d23 + a.d33 * b.d33
     };
 }
 

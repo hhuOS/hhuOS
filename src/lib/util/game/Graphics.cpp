@@ -168,7 +168,7 @@ void Graphics::drawImage2D(const Math::Vector2D &position, const Graphic::Image 
 Math::Vector2D Graphics::projectPoint(const Math::Vector3D &vertex, const Math::Vector3D &cameraPosition, const Math::Vector3D &cameraRotation) {
     const auto unitVector = Math::Vector3D(0, 0, 1);
     const auto lineDirection = unitVector.rotate(cameraRotation);
-    const auto distanceToClosestPointOnLine = (vertex - cameraPosition) * lineDirection;
+    const auto distanceToClosestPointOnLine = (vertex - cameraPosition).dot(lineDirection);
 
     if (distanceToClosestPointOnLine <= 0) {
         return Util::Math::Vector2D(-2, -2);

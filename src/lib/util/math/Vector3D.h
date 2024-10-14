@@ -58,8 +58,6 @@ public:
 
     Vector3D operator*(double value) const;
 
-    double operator*(const Vector3D &other) const;
-
     Vector3D operator/(double value) const;
 
     Vector3D operator%(double value) const;
@@ -81,6 +79,10 @@ public:
     [[nodiscard]] Vector3D rotate(const Vector3D &rotation) const;
 
     [[nodiscard]] Vector3D normalize() const;
+
+    [[nodiscard]] Vector3D cross(const Vector3D &other) const;
+
+    [[nodiscard]] double dot(const Vector3D &other) const;
 
     [[nodiscard]] double length() const;
 
