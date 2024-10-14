@@ -134,7 +134,7 @@ private:
     EXCEPTION_HANDLER(4, handleException)
     EXCEPTION_HANDLER(5, handleException)
     EXCEPTION_HANDLER(6, handleException)
-    EXCEPTION_HANDLER(7, handleException)
+    // Interrupt vector 7 is used for FPU exceptions and has a specific handler
     EXCEPTION_HANDLER_WITH_ERROR_CODE(8, handleException)
     EXCEPTION_HANDLER(9, handleException)
     EXCEPTION_HANDLER_WITH_ERROR_CODE(10, handleException)

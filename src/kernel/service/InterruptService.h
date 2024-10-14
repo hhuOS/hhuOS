@@ -70,6 +70,8 @@ public:
 
     [[nodiscard]] bool usesApic() const;
 
+    [[nodiscard]] InterruptVector getTimerInterrupt() const;
+
     void assignInterrupt(InterruptVector slot, InterruptHandler &handler);
 
     void assignSystemCall(Util::System::Code code, bool(*func)(uint32_t paramCount, va_list params));

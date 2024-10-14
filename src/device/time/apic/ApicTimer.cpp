@@ -62,7 +62,7 @@ void ApicTimer::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVe
         return;
     }
 
-    // Increase the "core-local" time, the system time is still managed by the PIT.
+    // Increase the "core-local" time, the system time is still managed by the PIT/HPET.
     time += timerInterval;
 
     if (cpuId != 0) {
@@ -76,7 +76,7 @@ void ApicTimer::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVe
     if (timeSinceLastYield >= yieldInterval) {
         timeSinceLastYield.reset();
         // Currently there is only one main scheduler, for SMP systems this should yield the core scheduler or something similar.
-        Kernel::Service::getService<Kernel::ProcessService>().getScheduler().yield();
+        Kernel::Service::getService<Kernel::ProcessService>().getScheduler().yield(true);
     }
 }
 
