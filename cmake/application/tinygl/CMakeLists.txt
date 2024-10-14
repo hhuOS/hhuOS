@@ -36,7 +36,8 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/tinygl/tutorial/lesson3.cpp
         ${HHUOS_SRC_DIR}/application/tinygl/tutorial/lesson4.cpp
         ${HHUOS_SRC_DIR}/application/tinygl/tutorial/lesson5.cpp
-        ${HHUOS_SRC_DIR}/application/tinygl/tutorial/lesson6.cpp)
+        ${HHUOS_SRC_DIR}/application/tinygl/tutorial/lesson6.cpp
+        ${HHUOS_SRC_DIR}/application/tinygl/tutorial/lesson7.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
