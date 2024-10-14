@@ -20,8 +20,7 @@ Renderer::Renderer(DataWrapper *data) {
     this->buff_over_current = newBuffer(data->workAreaAll);
     this->lastRenderedMouseX = 0;
     this->lastRenderedMouseY = 0;
-    this->lfb = new LinearFrameBuffer(this->buff_overlay, data->workAreaX, data->workAreaY, 32, data->workAreaX * 4,
-                                      false);
+    this->lfb = new LinearFrameBuffer(this->buff_overlay, data->workAreaX, data->workAreaY, 32, data->workAreaX * 4, false);
     this->pixelDrawer = new PixelDrawer(*lfb);
     this->lineDrawer = new LineDrawer(*pixelDrawer);
     this->stringDrawer = new StringDrawer(*pixelDrawer);
@@ -107,20 +106,27 @@ void Renderer::removeMouse() {
     }
 }
 
-// TODO: jeweils nur rechte oder linke Seite neu rendern, wenn nur 1 flag gesetzt
 void Renderer::renderResult() {
+    for (int i = 0; i < data->screenAll;) {
+        if (data->flags->gui) {
+            for (int j = 0; j < data->guiX; j++) {
+                buff_result[i++] = buff_base[i];
+            }
+        } else i += data->guiX;
+        if (data->flags->workArea) {
+            for (int j = 0; j < data->workAreaX; j++) {
+                buff_result[i++] = buff_base[i];
+            }
+        } else i += data->workAreaX;
+    }
     if (data->flags->workArea) {
         renderWorkArea();
-    }
-    for (int i = 0; i < data->screenAll; i++) {
-        buff_result[i] = buff_base[i];
+        blendBuffers(buff_result, buff_workarea, data->screenX, data->screenY, data->workAreaX, data->workAreaY, 200, 0);
     }
     if (data->flags->gui) {
         renderGui();
+        blendBuffers(buff_result, buff_gui, data->screenX, data->screenY, 200, data->screenY, 0, 0);
     }
-
-    blendBuffers(buff_result, buff_workarea, data->screenX, data->screenY, data->workAreaX, data->workAreaY, 200, 0);
-    blendBuffers(buff_result, buff_gui, data->screenX, data->screenY, 200, data->screenY, 0, 0);
     data->flags->result = false;
 }
 
@@ -141,63 +147,62 @@ void Renderer::renderWorkArea() {
 void Renderer::renderGui() {
     auto guiLayer = data->currentGuiLayer;
     auto guiLayerBottom = data->currentGuiLayerBottom;
-    if (data->flags->guiLayer) {
-        for (int i = 0; i < data->guiX * data->screenY; i++) {
-            buff_gui[i] = 0x00000000;
-        }
-        for (int i = 0; i < guiLayer->buttonCount; ++i) {
+
+    if (data->flags->guiLayer) for (int i = 0; i < data->guiX * data->screenY; i++) buff_gui[i] = 0x00000000;
+
+    for (int i = 0; i < guiLayer->buttonCount; i++) { // top buttons
+        if (data->flags->guiLayer || guiLayer->buttons[i]->bufferChanged) {
+            for (int j = i * 30 * 200; j < (i + 1) * 30 * 200; j++) buff_gui[j] = 0x00000000;
             blendBuffers(buff_gui, guiLayer->buttons[i]->getBuffer(), data->guiX, data->screenY, 200, 30, 0, i * 30);
             guiLayer->buttons[i]->bufferChanged = false;
         }
-        int b = 19 - guiLayerBottom->buttonCount;
-        for (int i = b; i <= 18; ++i) {
-            int x = i - b;
+    }
+    int b = 19 - guiLayerBottom->buttonCount;
+    for (int i = b; i <= 18; i++) { // bottom buttons
+        int x = i - b;
+        if (data->flags->guiLayer || guiLayerBottom->buttons[x]->bufferChanged) {
+            for (int j = i * 30 * 200; j < (i + 1) * 30 * 200; j++) buff_gui[j] = 0x00000000;
             blendBuffers(buff_gui, guiLayerBottom->buttons[x]->getBuffer(), data->guiX, data->screenY, 200, 30, 0,
                          i * 30);
             guiLayerBottom->buttons[x]->bufferChanged = false;
         }
-        blendBuffers(buff_gui, data->textButton->getBuffer(), data->guiX, data->screenY, 200, 30, 0, data->guiY - 30);
-        data->flags->guiLayer = false;
-    } else if (data->flags->guiJustButton) {
-        for (int i = 0; i < guiLayer->buttonCount; ++i) {
-            if (guiLayer->buttons[i]->bufferChanged) {
-                for (int j = i * 30 * 200; j < (i + 1) * 30 * 200; j++) {
-                    buff_gui[j] = 0x00000000;
-                }
-                blendBuffers(buff_gui, guiLayer->buttons[i]->getBuffer(), data->guiX, data->screenY, 200, 30, 0,
-                             i * 30);
-                guiLayer->buttons[i]->bufferChanged = false;
-            }
-        }
-        int b = 19 - guiLayerBottom->buttonCount;
-        for (int i = b; i <= 18; ++i) {
-            int x = i - b;
-            if (guiLayerBottom->buttons[x]->bufferChanged) {
-                for (int j = i * 30 * 200; j < (i + 1) * 30 * 200; j++) {
-                    buff_gui[j] = 0x00000000;
-                }
-                blendBuffers(buff_gui, guiLayerBottom->buttons[x]->getBuffer(), data->guiX, data->screenY, 200, 30, 0,
-                             i * 30);
-                guiLayerBottom->buttons[x]->bufferChanged = false;
-            }
-        }
-        if (data->textButton->bufferChanged) {
-            for (int i = (data->guiY - 30) * 200; i < data->guiY * 200; i++) {
-                buff_gui[i] = 0x00000000;
-            }
-            blendBuffers(buff_gui, data->textButton->getBuffer(), data->guiX, data->screenY, 200, 30, 0,
-                         data->guiY - 30);
-            data->textButton->bufferChanged = false;
-        }
-        data->flags->guiJustButton = false;
     }
+    if (data->flags->guiLayer || data->textButton->bufferChanged) { // text button
+        for (int i = (data->guiY - 30) * 200; i < data->guiY * 200; i++) buff_gui[i] = 0x00000000;
+        blendBuffers(buff_gui, data->textButton->getBuffer(), data->guiX, data->screenY, 200, 30, 0, data->guiY - 30);
+        data->textButton->bufferChanged = false;
+    }
+
     data->flags->gui = false;
+    data->flags->guiLayer = false;
+    data->flags->guiJustButton = false;
+}
+
+void Renderer::drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Color color) {
+    lineDrawer->drawLine(x1, y1, x2, y2, color);
+    lineDrawer->drawLine(x2, y2, x3, y3, color);
+    lineDrawer->drawLine(x3, y3, x4, y4, color);
+    lineDrawer->drawLine(x4, y4, x1, y1, color);
 }
 
 void Renderer::renderOverlay() {
-    for (int i = 0; i < data->workAreaX * 16; i++) {
+    for (int i = 0; i < data->workAreaAll; i++) {
         buff_overlay[i] = 0x00000000;
     }
+    // border for current layer
+    auto l = data->layers[data->currentLayer];
+    int x = l->posX, y = l->posY, w = l->width, h = l->height;
+    drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, Color(255, 0, 0));
+    drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, Color(255, 0, 0));
+
+    switch (data->currentTool) {
+        case Tool::MOVE:
+            x = data->moveX, y = data->moveY;
+            drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, Color(0, 255, 0));
+            drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, Color(0, 255, 0));
+            break;
+    }
+
     if (data->debugString != nullptr) {
         stringDrawer->drawString(Fonts::TERMINAL_8x16, 0, 0, data->debugString, Color(0, 0, 0), Color(255, 255, 255));
     }

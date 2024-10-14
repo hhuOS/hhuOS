@@ -68,6 +68,8 @@ public:
 
     Button *setRenderFlagMethod(void (RenderFlags::*rFlagMethod)());
 
+    Button *changeGreenIfTool(Tool tool);
+
     bool bufferChanged;
 
     void render();
@@ -115,6 +117,7 @@ private:
     double *doubleValue = nullptr;
     Util::String *input = nullptr;
     bool *captureInput = nullptr;
+    Tool setGreenTool = Tool::NOTHING;
 
     void (*method1)(DataWrapper *data) = nullptr;
 

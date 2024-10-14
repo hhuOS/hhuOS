@@ -90,6 +90,12 @@ Button *Button::setConfirmButton(void (*cancel)(DataWrapper *), void (*ok)(DataW
     return this;
 }
 
+Button *Button::changeGreenIfTool(Tool tool) {
+    this->setGreenTool = tool;
+    render();
+    return this;
+}
+
 uint32_t *Button::getBuffer() {
     return this->buffer;
 }
@@ -229,7 +235,7 @@ void Button::renderBackground(int x1, int x2, uint32_t color) {
 
 void Button::renderMethod() {
     renderBackground(0, 200, click ? green : hover ? darkgray : gray);
-    renderBorder(0xFF000000);
+    renderBorder(this->setGreenTool != Tool::NOTHING ? this->setGreenTool == data->currentTool ? 0xFF00FF00 : 0xFF000000 : 0xFF000000);
     int xStringpos = 100 - (strlen(info) * 4);
     stringDrawer->drawString(Fonts::TERMINAL_8x16, xStringpos, 7, info, cblack,
                              click ? cgreen : hover ? cdarkgray : cgray);
@@ -341,7 +347,7 @@ void Button::renderConfirm() {
     renderBorder(0xFF000000);
     lineDrawer->drawLine(99, 0, 99, 30, cblack);
     lineDrawer->drawLine(100, 0, 100, 30, cblack);
-    stringDrawer->drawString(Fonts::TERMINAL_8x16, 50 - (strlen("CANCEL") * 4), 7, "CANCEL", cred,
+    stringDrawer->drawString(Fonts::TERMINAL_8x16, 50 - (strlen("RESET") * 4), 7, "RESET", cred,
                              mouseX < 100 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
     stringDrawer->drawString(Fonts::TERMINAL_8x16, 150 - (strlen("OK") * 4), 7, "OK", cgreen,
                              mouseX >= 100 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);

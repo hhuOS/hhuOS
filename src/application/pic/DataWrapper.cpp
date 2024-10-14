@@ -20,6 +20,7 @@ DataWrapper::DataWrapper() {
     mouseInputStream->setAccessMode(Util::Io::File::NON_BLOCKING);
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
     keyDecoder = new Util::Io::KeyDecoder(new Util::Io::DeLayout());
+    xMovement = 0, yMovement = 0;
     mouseX = 0, mouseY = 0, oldMouseX = 0, oldMouseY = 0;
     leftButtonPressed = false, oldLeftButtonPressed = false;
     mouseClicks = new Util::ArrayBlockingQueue<Util::Pair<int, int>>(500); // should be more than enough :D

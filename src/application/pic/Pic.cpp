@@ -73,7 +73,7 @@ void Pic::run() {
         this->checkMouseInput();
         this->checkKeyboardInput();
         this->renderer->render();
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
+//        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1) );
     }
 }
 
@@ -85,6 +85,7 @@ void Pic::checkMouseInput() {
     int16_t value = data->mouseInputStream->read();
     bool mouseChanged = false;
     bool clicked = false;
+    data->xMovement = 0, data->yMovement = 0;
     while (value >= 0) {
         mouseValues[mouseValueIndex++] = value;
         if (mouseValueIndex == 4) {
@@ -92,6 +93,8 @@ void Pic::checkMouseInput() {
             data->oldMouseX = data->mouseX;
             data->oldMouseY = data->mouseY;
             data->oldLeftButtonPressed = data->leftButtonPressed;
+            data->xMovement += mouseUpdate.xMovement;
+            data->yMovement -= mouseUpdate.yMovement;
             data->mouseX = max(0, min(data->screenX - 1, data->mouseX + mouseUpdate.xMovement));
             data->mouseY = max(0, min(data->screenY - 1, data->mouseY - mouseUpdate.yMovement));
             data->leftButtonPressed = mouseUpdate.buttons & Util::Io::Mouse::LEFT_BUTTON;
@@ -117,12 +120,12 @@ void Pic::checkMouseInput() {
     }
 }
 
-// TODO guiButtonChanged muss theoretisch nicht immer, wenn button selbst sich gar net ändert
 void Pic::parseMouse(bool clicked) {
     int buttonIndex = data->mouseY / 30;
     int buttonIndexBottom = buttonIndex - 19 + data->currentGuiLayerBottom->buttonCount;
     int lastInteractedBottom = data->lastInteractedButton - 19 + data->currentGuiLayerBottom->buttonCount;
 
+    // reset all old button interactions
     if (buttonIndex != data->lastInteractedButton || data->mouseX >= 200) {
         if (data->lastInteractedButton != -1) {
             if (data->lastInteractedButton < data->currentGuiLayer->buttonCount) {
@@ -136,6 +139,7 @@ void Pic::parseMouse(bool clicked) {
         data->lastInteractedButton = buttonIndex;
     }
 
+    // set new button interactions
     if (data->mouseX < 200 && !(data->leftButtonPressed && !data->clickStartedOnGui)) {
         Button *button = nullptr;
         if (buttonIndex < data->currentGuiLayer->buttonCount) {
@@ -155,13 +159,35 @@ void Pic::parseMouse(bool clicked) {
             if (clicked)
                 button->processClick(data->mouseX, data->mouseY - buttonIndex * 30);
         }
-    } else {
-        // TODO do stuff in workArea
+    } else if (data->mouseX >= 200 && data->leftButtonPressed && !data->clickStartedOnGui) {
+        switch (data->currentTool) {
+            case Tool::MOVE:
+                data->moveX += data->xMovement;
+                data->moveY += data->yMovement;
+                data->flags->guiButtonChanged();
+                data->flags->overlayChanged();
+                data->currentGuiLayerBottom->appear();
+                break;
+            case Tool::ROTATE:
+                break;
+            case Tool::SCALE:
+                break;
+            case Tool::CROP:
+                break;
+            case Tool::PEN:
+                break;
+            case Tool::ERASER:
+                break;
+            case Tool::COLOR_PICKER:
+                break;
+            case NOTHING:
+                break;
+        }
     }
-    data->debugString = String::format("Mouse: %d %d, LastButton: %d", data->mouseX, data->mouseY,
-                                       data->lastInteractedButton).operator const char *();
-    data->flags->overlayChanged();
 
+    data->debugString = String::format("Mouse: %d %d, LastButton: %d, currentTool: %d", data->mouseX, data->mouseY,
+                                       data->lastInteractedButton, data->currentTool).operator const char *();
+    data->flags->overlayChanged();
 }
 
 // TODO: nur einmal pro Tastendruck ausführen (wie gedrückt halten dann?)
@@ -199,26 +225,32 @@ void Pic::checkKeyboardInput() {
                     case Util::Io::Key::UP:
                         currentLayer->posY = currentLayer->posY - 10;
                         data->flags->currentLayerChanged();
+                        data->flags->overlayChanged();
                         break;
                     case Util::Io::Key::DOWN:
                         currentLayer->posY = currentLayer->posY + 10;
                         data->flags->currentLayerChanged();
+                        data->flags->overlayChanged();
                         break;
                     case Util::Io::Key::LEFT:
                         currentLayer->posX = currentLayer->posX - 10;
                         data->flags->currentLayerChanged();
+                        data->flags->overlayChanged();
                         break;
                     case Util::Io::Key::RIGHT:
                         currentLayer->posX = currentLayer->posX + 10;
                         data->flags->currentLayerChanged();
+                        data->flags->overlayChanged();
                         break;
                     case Util::Io::Key::TAB:
                         data->currentLayer = (data->currentLayer + 1) % data->layerCount;
                         data->flags->layerOrderChanged();
+                        data->flags->overlayChanged();
                         break;
                     case Util::Io::Key::SPACE:
                         data->layers[data->currentLayer]->isVisible = !data->layers[data->currentLayer]->isVisible;
                         data->flags->currentLayerChanged();
+                        data->flags->overlayChanged();
                         break;
                 }
             }
@@ -261,6 +293,7 @@ void swapTool(DataWrapper *data, Tool tool) {
         }
     }
     data->currentGuiLayerBottom->appear();
+    data->currentGuiLayer->appear();
 }
 
 void changeGuiLayerTo(DataWrapper *data, const char *layer) {
@@ -365,6 +398,7 @@ void Pic::init_gui() {
                                      data->moveY = data->layers[data->currentLayer]->posY;
                                      swapTool(data, Tool::MOVE);
                                  })
+                                 ->changeGreenIfTool(Tool::MOVE)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
     gui_tools->addButton((new Button(data))
@@ -373,6 +407,7 @@ void Pic::init_gui() {
                                      data->rotateDeg = 0;
                                      swapTool(data, Tool::ROTATE);
                                  })
+                                 ->changeGreenIfTool(Tool::ROTATE)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
     gui_tools->addButton((new Button(data))
@@ -381,6 +416,7 @@ void Pic::init_gui() {
                                      data->scale = 1.0;
                                      swapTool(data, Tool::SCALE);
                                  })
+                                 ->changeGreenIfTool(Tool::SCALE)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
     gui_tools->addButton((new Button(data))
@@ -392,6 +428,7 @@ void Pic::init_gui() {
                                      data->cropBottom = 0;
                                      swapTool(data, Tool::CROP);
                                  })
+                                 ->changeGreenIfTool(Tool::CROP)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
     gui_tools->addButton((new Button(data))
@@ -401,6 +438,7 @@ void Pic::init_gui() {
                                      data->penColor = 0xFFFFFFFF;
                                      swapTool(data, Tool::PEN);
                                  })
+                                 ->changeGreenIfTool(Tool::PEN)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
     gui_tools->addButton((new Button(data))
@@ -410,6 +448,7 @@ void Pic::init_gui() {
                                      data->penColor = 0x00000000;
                                      swapTool(data, Tool::ERASER);
                                  })
+                                 ->changeGreenIfTool(Tool::ERASER)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
     gui_tools->addButton((new Button(data))
@@ -417,6 +456,7 @@ void Pic::init_gui() {
                                  ->setMethodButton([](DataWrapper *data) {
                                      swapTool(data, Tool::COLOR_PICKER);
                                  })
+                                 ->changeGreenIfTool(Tool::COLOR_PICKER)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
 

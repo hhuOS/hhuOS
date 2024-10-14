@@ -53,6 +53,8 @@ private:
 
     void renderOverlay();
 
+    void drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Color color);
+
     void renderLayers();
 
     static uint32_t blendPixels(uint32_t lower, uint32_t upper);
@@ -68,6 +70,7 @@ private:
     uint32_t *buff_overlay, *buff_layers;
     uint32_t *buff_under_current, *buff_over_current;
     int lastRenderedMouseX, lastRenderedMouseY;
+    // for overlay
     LinearFrameBuffer *lfb;
     PixelDrawer *pixelDrawer;
     LineDrawer *lineDrawer;

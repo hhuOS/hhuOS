@@ -47,6 +47,7 @@ public:
     // input
     Util::Io::FileInputStream *mouseInputStream;
     Util::Io::KeyDecoder *keyDecoder;
+    int xMovement, yMovement;
     int mouseX, mouseY, oldMouseX, oldMouseY;
     bool leftButtonPressed, oldLeftButtonPressed;
     Util::Queue<Util::Pair<int, int>> *mouseClicks;
