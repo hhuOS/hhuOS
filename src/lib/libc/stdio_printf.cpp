@@ -71,7 +71,7 @@ int _stream_vprintf(Util::Io::OutputStream &os, const char* format, va_list args
 			}
 			
 			char mbBuffer[4];
-			unsigned long int val;
+			unsigned long int val = 0;
 			double dval;
 			int exp;
 			bool scientificNotation;

@@ -79,19 +79,47 @@ ENABLE_LANGUAGE(ASM_NASM)
 set(CMAKE_ASM_NASM_OBJECT_FORMAT "elf32")
 set(CMAKE_ASM_NASM_INCLUDES "${HHUOS_SRC_DIR}/")
 set(CMAKE_ASM_NASM_COMPILE_OBJECT "<CMAKE_ASM_NASM_COMPILER> -I${CMAKE_ASM_NASM_INCLUDES} -f ${CMAKE_ASM_NASM_OBJECT_FORMAT} -o <OBJECT> <SOURCE>")
-set(CMAKE_C_FLAGS "-m32 -march=i386 -mfpmath=387 -mno-mmx -mno-sse -mno-avx -Wall -fno-stack-protector -nostdlib -fno-pic -no-pie -ffreestanding")
-if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 9)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mmanual-endbr")
-endif()
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wl,--build-id=none -Wno-non-virtual-dtor -fno-threadsafe-statics -Wplacement-new=0 -fno-use-cxa-atexit -fno-rtti -fno-exceptions -std=c++20 -T ${HHUOS_SRC_DIR}/link.ld")
 
-# Set preprocessor defines
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
-    -DHHUOS_VERSION='${HHUOS_VERSION}'\
-    -DHHUOS_CODENAME='${HHUOS_CODENAME}'\
-    -DHHUOS_GIT_REV='${HHUOS_GIT_REV}'\
-    -DHHUOS_GIT_BRANCH='${HHUOS_GIT_BRANCH}'\
-    -DHHUOS_BUILD_DATE='${HHUOS_BUILD_DATE}'")
+add_compile_options(
+        -m32
+        -march=i386
+        -mfpmath=387
+        -mno-mmx
+        -mno-sse
+        -mno-avx
+        -Wall
+        -fno-stack-protector
+        -fno-pic
+        -no-pie
+        -ffreestanding
+        -DHHUOS_VERSION=${HHUOS_VERSION}
+        -DHHUOS_CODENAME=${HHUOS_CODENAME}
+        -DHHUOS_GIT_REV=${HHUOS_GIT_REV}
+        -DHHUOS_GIT_BRANCH=${HHUOS_GIT_BRANCH}
+        -DHHUOS_BUILD_DATE=${HHUOS_BUILD_DATE}
+        $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
+        $<$<COMPILE_LANGUAGE:CXX>:-fno-threadsafe-statics>
+        $<$<COMPILE_LANGUAGE:CXX>:-fno-use-cxa-atexit>
+        $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
+        $<$<COMPILE_LANGUAGE:CXX>:-std=c++20>
+)
+if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 9)
+    add_compile_options(-mmanual-endbr)
+endif()
+
+add_link_options(
+        -nostartfiles
+        -nodefaultlibs
+        -nolibc
+        -nostdlib
+        -no-pie
+        -Wl,--build-id=none
+        -Wl,-m,elf_i386
+        -T $<IF:$<STREQUAL:$<TARGET_PROPERTY:NAME>,system>,${HHUOS_SRC_DIR}/link.ld,${HHUOS_SRC_DIR}/application/link.ld>
+)
+if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 13)
+    add_compile_options(-nostdlib++)
+endif()
 
 # Add include-what-you-use command (if available)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

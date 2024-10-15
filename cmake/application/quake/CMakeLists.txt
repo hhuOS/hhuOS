@@ -36,6 +36,8 @@ endif()
 
 include_directories(${HHUOS_SRC_DIR})
 
+add_compile_options(-w)
+
 # Set source files
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/quake/quakegeneric_hhuos.cpp

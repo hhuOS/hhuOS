@@ -34,8 +34,10 @@ else()
 	add_custom_target(doom-wad DEPENDS "${CMAKE_BINARY_DIR}/doom/DOOM.WAD")
 endif()
 
+add_compile_options(-w -D __HHUOS__)
+
 # Uncomment to activate sound via PC Speaker (experimental)
-# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D FEATURE_SOUND")
+# add_compile_options(-D FEATURE_SOUND)
 
 # Set source files
 set(SOURCE_FILES

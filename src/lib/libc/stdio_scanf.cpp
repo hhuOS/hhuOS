@@ -76,9 +76,9 @@ int _stream_vscanf(Util::Io::InputStream &is, const char* format, va_list vlist)
 			}
 			
 			int i;
-			char * s;
+			char * s = nullptr;
 			char c2;
-			wchar_t * ws;
+			wchar_t * ws = nullptr;
 			wchar_t w;
 			long v;
 			unsigned long v2;
