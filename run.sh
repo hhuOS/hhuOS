@@ -31,7 +31,7 @@ readonly CONST_QEMU_ARGS="-vga std -rtc base=localtime -device isa-debug-exit -s
 readonly CONST_QEMU_STORAGE_ARGS="\
 -device ahci,id=ahci \
 -drive driver=raw,if=none,id=floppy0,file.filename=floppy0.img \
--drive driver=raw,if=none,id=hdd0,file.filename=hdd0.img \
+-drive driver=raw,if=none,id=hdd0,file.filename=hdd0_doom.img \
 -device floppy,drive=floppy0 \
 -device ide-hd,bus=ide.0,drive=hdd0 \
 -device ide-cd,bus=ahci.0"

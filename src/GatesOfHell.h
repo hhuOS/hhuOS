@@ -21,6 +21,7 @@
 #include <stdint.h>
 
 #include "kernel/memory/Paging.h"
+#include "kernel/memory/GlobalDescriptorTable.h"
 
 namespace Kernel {
 class Multiboot;
@@ -71,6 +72,8 @@ public:
 
 private:
 
+    static Kernel::GlobalDescriptorTable gdt;
+    static Kernel::GlobalDescriptorTable::TaskStateSegment tss;
     static Util::HeapMemoryManager *kernelHeap;
 };
 

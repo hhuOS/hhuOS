@@ -222,7 +222,7 @@ void Cpu::loadTaskStateSegment(const Cpu::SegmentSelector &selector) {
     asm volatile(
             "ltr %0"
             : :
-            "r"(static_cast<uint16_t>(selector))
+            "r"(static_cast<uint16_t>(selector)), "m"(selector)
             :
             );
 }

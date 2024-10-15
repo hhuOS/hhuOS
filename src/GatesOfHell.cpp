@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/memory/GlobalDescriptorTable.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/log/Log.h"
 #include "GatesOfHell.h"
@@ -146,6 +145,8 @@ extern "C" int32_t atexit ([[maybe_unused]] void (*func)()) noexcept {
     return 0;
 }
 
+Kernel::GlobalDescriptorTable GatesOfHell::gdt;
+Kernel::GlobalDescriptorTable::TaskStateSegment GatesOfHell::tss;
 Util::HeapMemoryManager *GatesOfHell::kernelHeap = nullptr;
 
 extern "C" void main(uint32_t multibootMagic, const Kernel::Multiboot *multiboot) {
@@ -158,6 +159,26 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     if (multibootMagic != Kernel::Multiboot::MAGIC) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Multiboot2 magic number is invalid!");
     }
+
+    // Setup GDT
+    LOG_INFO("Setting up global descriptor table");
+    gdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x9a, 0x0c)); // Kernel code segment
+    gdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x92, 0x0c)); // Kernel data segment
+    gdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xfa, 0x0c)); // User code segment
+    gdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xf2, 0x0c)); // User data segment
+    gdt.addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(reinterpret_cast<uint32_t>(&tss), sizeof(Kernel::GlobalDescriptorTable::TaskStateSegment), 0x89, 0x04));
+    gdt.load();
+
+    // Load task state segment
+    Device::Cpu::loadTaskStateSegment(Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 5));
+
+    // Set segment registers
+    Device::Cpu::writeSegmentRegister(Device::Cpu::CS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 1));
+    Device::Cpu::writeSegmentRegister(Device::Cpu::SS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    Device::Cpu::writeSegmentRegister(Device::Cpu::DS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    Device::Cpu::writeSegmentRegister(Device::Cpu::ES, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    Device::Cpu::writeSegmentRegister(Device::Cpu::FS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    Device::Cpu::writeSegmentRegister(Device::Cpu::GS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
 
     // Needed later for mapping the multiboot header into virtual memory
     auto multibootAddress = reinterpret_cast<uint32_t>(multiboot);
@@ -242,28 +263,6 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     kernelHeap = &kernelHeapManager;
     LOG_INFO("Kernel heap initialized (Bootstrap memory: [0x%08x])", bootstrapMemory);
 
-    // Setup GDT
-    LOG_INFO("Setting up global descriptor table");
-    auto *gdt = new Kernel::GlobalDescriptorTable();
-    auto *tss = new Kernel::GlobalDescriptorTable::TaskStateSegment();
-    gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x9a, 0x0c)); // Kernel code segment
-    gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x92, 0x0c)); // Kernel data segment
-    gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xfa, 0x0c)); // User code segment
-    gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xf2, 0x0c)); // User data segment
-    gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(reinterpret_cast<uint32_t>(tss), sizeof(Kernel::GlobalDescriptorTable::TaskStateSegment), 0x89, 0x04));
-    gdt->load();
-
-    // Load task state segment
-    Device::Cpu::loadTaskStateSegment(Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 5));
-
-    // Set segment registers
-    Device::Cpu::writeSegmentRegister(Device::Cpu::CS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 1));
-    Device::Cpu::writeSegmentRegister(Device::Cpu::SS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-    Device::Cpu::writeSegmentRegister(Device::Cpu::DS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-    Device::Cpu::writeSegmentRegister(Device::Cpu::ES, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-    Device::Cpu::writeSegmentRegister(Device::Cpu::FS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-    Device::Cpu::writeSegmentRegister(Device::Cpu::GS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-
     // Initialize Paging Area Manager -> Manages the virtual addresses of all page tables and directories
     LOG_INFO("Initializing paging area manager");
     auto usedPagingAreaPages = (reinterpret_cast<uint32_t>(pageTableMemory) - pagingAreaPhysical) / Util::PAGESIZE;
@@ -327,8 +326,10 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     Kernel::Service::registerService(Kernel::MemoryService::SERVICE_ID, memoryService);
 
     // Map Multiboot2 tags
+    const auto multibootStartPage = reinterpret_cast<uint32_t>(multiboot) & 0xfffff000;
+    const auto multibootEndPage = (reinterpret_cast<uint32_t>(multiboot) + multibootSize + Util::PAGESIZE - 1) & 0xfffff000;
+    const auto multibootPages = (multibootEndPage - multibootStartPage) / Util::PAGESIZE;
     const auto multibootPageOffset = reinterpret_cast<uint32_t>(multiboot) % Util::PAGESIZE;
-    const auto multibootPages = multibootSize % Util::PAGESIZE == 0 ? multibootSize / Util::PAGESIZE : multibootSize / Util::PAGESIZE + 1;
     const auto *multibootVirtualAddress = static_cast<const uint8_t*>(memoryService->mapIO(const_cast<void*>(reinterpret_cast<const void*>(multiboot)), multibootPages, true)) + multibootPageOffset;
     multiboot = reinterpret_cast<const Kernel::Multiboot*>(multibootVirtualAddress);
 
@@ -336,7 +337,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     // Otherwise, parts of the modules might be overwritten
     for (const auto &name : multiboot->getModuleNames()) {
         auto &module = multiboot->getModule(name);
-        pageFrameAllocator->setMemory(reinterpret_cast<uint8_t *>(module.startAddress), reinterpret_cast<uint8_t *>(module.endAddress - 1), 0, true);
+        pageFrameAllocator->setMemory(reinterpret_cast<uint8_t*>(module.startAddress), reinterpret_cast<uint8_t*>(module.endAddress - 1), 0, true);
     }
 
     // Identity map BIOS related parts of the lower 1 MiB
@@ -355,6 +356,9 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     // Memory management has been set up now, and we continue with the remaining boot process
     LOG_INFO("Welcome to hhuOS!");
     LOG_INFO("Used kernel heap memory during early boot process: [%u KiB]", (kernelHeapManager.getTotalMemory() - kernelHeapManager.getFreeMemory()) / 1024);
+
+    auto x = 0;
+    LOG_INFO("Test: %u", 5 / x);
 
     // Create scheduler and process service and register kernel process
     LOG_INFO("Initializing scheduler");

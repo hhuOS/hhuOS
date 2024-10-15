@@ -55,7 +55,7 @@ public:
     /**
      * Constructor.
      */
-    MemoryService(GlobalDescriptorTable *gdt, GlobalDescriptorTable::TaskStateSegment *tss, PageFrameAllocator *pageFrameAllocator, PagingAreaManager *pagingAreaManager, VirtualAddressSpace *kernelAddressSpace);
+    MemoryService(GlobalDescriptorTable &gdt, GlobalDescriptorTable::TaskStateSegment &tss, PageFrameAllocator *pageFrameAllocator, PagingAreaManager *pagingAreaManager, VirtualAddressSpace *kernelAddressSpace);
 
     /**
      * Copy Constructor.
@@ -213,8 +213,8 @@ public:
 
 private:
 
-    GlobalDescriptorTable *gdt;
-    GlobalDescriptorTable::TaskStateSegment *tss;
+    GlobalDescriptorTable &gdt;
+    GlobalDescriptorTable::TaskStateSegment &tss;
 
     bool slabAllocatorEnabled = false;
     PageFrameAllocator &pageFrameAllocator;

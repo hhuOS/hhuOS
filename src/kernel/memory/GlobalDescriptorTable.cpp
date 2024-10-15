@@ -51,7 +51,7 @@ void GlobalDescriptorTable::Descriptor::load() {
     asm volatile(
             "lgdt (%0)"
             : :
-            "r"(this)
+            "r"(this), "m"(*this)  // input
             :
             );
 }

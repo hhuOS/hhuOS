@@ -319,7 +319,7 @@ void InterruptDescriptorTable::Descriptor::load() {
     asm volatile(
             "lidt (%0)"
             : :
-            "r"(this)
+            "r"(this), "m"(*this) // input
             :
             );
 }
