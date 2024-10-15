@@ -122,16 +122,17 @@ void Button::processClick(int relX, int relY) {
             break;
         case DOUBLE_VALUE:
             if (relX < 40) {
-                *doubleValue -= 0.1;
+                *doubleValue -= 0.05;
             } else if (relX > 160) {
-                *doubleValue += 0.1;
+                *doubleValue += 0.05;
             } else {
                 if (data->currentInput->length() > 0) {
                     *doubleValue = Util::String::parseDouble(*data->currentInput);
                 } else {
-                    *doubleValue = 0.0;
+                    *doubleValue = 0.01;
                 }
             }
+            if (*doubleValue < 0.01) *doubleValue = 0.01;
             break;
         case CONFIRM:
             if (relX < 100) {

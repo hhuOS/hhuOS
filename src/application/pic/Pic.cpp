@@ -164,12 +164,15 @@ void Pic::parseMouse(bool clicked) {
             case Tool::MOVE:
                 data->moveX += data->xMovement;
                 data->moveY += data->yMovement;
-                data->flags->guiButtonChanged();
-                data->flags->overlayChanged();
-                data->currentGuiLayerBottom->appear();
+                break;
+            case Tool::SCALE:
+                if (data->scaleKind == ScaleKind::TOP_LEFT) data->scale += (-data->xMovement - data->yMovement) * 0.005;
+                else if (data->scaleKind == ScaleKind::TOP_RIGHT) data->scale += (data->xMovement - data->yMovement) * 0.005;
+                else if (data->scaleKind == ScaleKind::BOTTOM_LEFT) data->scale += (-data->xMovement + data->yMovement) * 0.005;
+                else if (data->scaleKind == ScaleKind::BOTTOM_RIGHT) data->scale += (data->xMovement + data->yMovement) * 0.005;
+                if (data->scale < 0.01) data->scale = 0.01;
                 break;
             case Tool::ROTATE:
-            case Tool::SCALE:
             case Tool::CROP:
             case Tool::PEN:
             case Tool::ERASER:
@@ -177,6 +180,9 @@ void Pic::parseMouse(bool clicked) {
             case NOTHING:
                 break;
         }
+        data->flags->guiButtonChanged();
+        data->flags->overlayChanged();
+        data->currentGuiLayerBottom->appear();
     }
 
     data->debugString = String::format("Mouse: %d %d, LastButton: %d, currentTool: %d", data->mouseX, data->mouseY,
@@ -508,10 +514,10 @@ void Pic::init_gui() {
     gui_bottom_scale->addButton((new Button(data))
                                         ->setInfo("switch Corner")
                                         ->setMethodButton([](DataWrapper *data) {
-                                            if(data->scaleKind == ScaleKind::TOP_LEFT) data->scaleKind = ScaleKind::TOP_RIGHT;
-                                            else if(data->scaleKind == ScaleKind::TOP_RIGHT) data->scaleKind = ScaleKind::BOTTOM_RIGHT;
-                                            else if(data->scaleKind == ScaleKind::BOTTOM_RIGHT) data->scaleKind = ScaleKind::BOTTOM_LEFT;
-                                            else if(data->scaleKind == ScaleKind::BOTTOM_LEFT) data->scaleKind = ScaleKind::TOP_LEFT;
+                                            if (data->scaleKind == ScaleKind::TOP_LEFT) data->scaleKind = ScaleKind::TOP_RIGHT;
+                                            else if (data->scaleKind == ScaleKind::TOP_RIGHT) data->scaleKind = ScaleKind::BOTTOM_RIGHT;
+                                            else if (data->scaleKind == ScaleKind::BOTTOM_RIGHT) data->scaleKind = ScaleKind::BOTTOM_LEFT;
+                                            else if (data->scaleKind == ScaleKind::BOTTOM_LEFT) data->scaleKind = ScaleKind::TOP_LEFT;
                                         })
                                         ->setRenderFlagMethod(&RenderFlags::overlayChanged)
     );

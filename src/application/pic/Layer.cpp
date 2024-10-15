@@ -59,6 +59,9 @@ void Layer::setPixel(int x, int y, unsigned int color) {
 }
 
 void Layer::scale(double factor, ScaleKind kind) {
+    if(factor <= 0) {
+        return;
+    }
     int newWidth = ceil(width * factor);
     int newHeight = ceil(height * factor);
     uint32_t *newPixelData = new uint32_t[newWidth * newHeight];
