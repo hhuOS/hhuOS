@@ -94,11 +94,8 @@ add_compile_options(
         -Wall
         -Wextra
         -Werror
-        -DHHUOS_VERSION=${HHUOS_VERSION}
-        -DHHUOS_CODENAME=${HHUOS_CODENAME}
-        -DHHUOS_GIT_REV=${HHUOS_GIT_REV}
-        -DHHUOS_GIT_BRANCH=${HHUOS_GIT_BRANCH}
-        -DHHUOS_BUILD_DATE=${HHUOS_BUILD_DATE}
+        -O1
+        -g
         $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
         $<$<COMPILE_LANGUAGE:CXX>:-fno-threadsafe-statics>
         $<$<COMPILE_LANGUAGE:CXX>:-fno-use-cxa-atexit>
