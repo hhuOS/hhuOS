@@ -32,6 +32,10 @@ enum Tool {
     NOTHING = 0, MOVE = 1, ROTATE = 2, SCALE = 3, CROP = 4, PEN = 5, ERASER = 6, COLOR_PICKER = 7,
 };
 
+enum ScaleKind {
+    TOP_LEFT = 0, TOP_RIGHT = 1, BOTTOM_LEFT = 2, BOTTOM_RIGHT = 3,
+};
+
 class DataWrapper {
 public:
     DataWrapper();
@@ -80,6 +84,7 @@ public:
     int moveX, moveY;
     int rotateDeg;
     double scale;
+    ScaleKind scaleKind;
     int cropLeft, cropRight, cropTop, cropBottom;
     int penSize;
     uint32_t penColor;

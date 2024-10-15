@@ -2,6 +2,8 @@
 #define LAYER_H
 
 #include <cstdint>
+#include "DataWrapper.h"
+#include "lib/libc/math.h"
 
 class Layer {
 public:
@@ -18,6 +20,8 @@ public:
     [[nodiscard]] uint32_t * getPixelData() const { return pixelData; }
 
     void setPixel(int x, int y, unsigned int color);
+
+    void scale(double factor, ScaleKind kind);
 
     int width;
     int height;

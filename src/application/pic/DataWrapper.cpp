@@ -42,6 +42,7 @@ DataWrapper::DataWrapper() {
     guiLayers = new Util::HashMap<Util::String, GuiLayer *>();
     currentGuiLayer = nullptr;
     currentGuiLayerBottom = nullptr;
+    textButton = nullptr;
 
     // overlay
     debugString = nullptr;
@@ -53,6 +54,7 @@ DataWrapper::DataWrapper() {
     moveY = -1;
     rotateDeg = -1;
     scale = -1.0;
+    scaleKind = ScaleKind::BOTTOM_RIGHT;
     cropLeft = -1;
     cropRight = -1;
     cropTop = -1;

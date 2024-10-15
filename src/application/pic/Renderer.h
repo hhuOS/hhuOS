@@ -19,6 +19,7 @@
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/graphic/LineDrawer.h"
 #include "lib/util/graphic/StringDrawer.h"
+#include "lib/libc/math.h"
 
 #include "GuiLayer.h"
 
@@ -26,12 +27,12 @@
 using namespace Util::Graphic;
 
 //class Renderer : public Util::Async::Runnable {
-class Renderer{
+class Renderer {
 public:
     explicit Renderer(DataWrapper *data);
 
 //    ~Renderer() override = default;
-    ~Renderer()= default;
+    ~Renderer() = default;
 
 //    void run() override;
     void render();
@@ -55,6 +56,8 @@ private:
 
     void drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Color color);
 
+    void drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Color c1, Color c2, Color c3, Color c4);
+
     void renderLayers();
 
     static uint32_t blendPixels(uint32_t lower, uint32_t upper);
@@ -69,6 +72,7 @@ private:
     uint32_t *buff_base, *buff_workarea, *buff_gui;
     uint32_t *buff_overlay, *buff_layers;
     uint32_t *buff_under_current, *buff_over_current;
+    Color cblack, cgreen, cwhite, cred;
     int lastRenderedMouseX, lastRenderedMouseY;
     // for overlay
     LinearFrameBuffer *lfb;

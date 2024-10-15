@@ -45,7 +45,7 @@ Layer **makeTestLayers() {
     return layers;
 }
 
-int32_t main(int32_t argc, char *argv[]) {
+int32_t main([[maybe_unused]] int32_t argc, [[maybe_unused]] char *argv[]) {
     auto pic = new Pic();
     pic->run();
     delete pic;
@@ -169,17 +169,11 @@ void Pic::parseMouse(bool clicked) {
                 data->currentGuiLayerBottom->appear();
                 break;
             case Tool::ROTATE:
-                break;
             case Tool::SCALE:
-                break;
             case Tool::CROP:
-                break;
             case Tool::PEN:
-                break;
             case Tool::ERASER:
-                break;
             case Tool::COLOR_PICKER:
-                break;
             case NOTHING:
                 break;
         }
@@ -190,7 +184,6 @@ void Pic::parseMouse(bool clicked) {
     data->flags->overlayChanged();
 }
 
-// TODO: nur einmal pro Tastendruck ausführen (wie gedrückt halten dann?)
 void Pic::checkKeyboardInput() {
     int16_t scancode = Util::System::in.read();
     while (scancode >= 0) {
@@ -206,7 +199,7 @@ void Pic::checkKeyboardInput() {
                 continue;
             }
             auto currentLayer = data->layers[data->currentLayer];
-            if (data->captureInput) {
+            if (data->captureInput) { // TODO: kaputt, wenn man tab drückt (ist vll riesen char?? :D)
                 if (key.getScancode() == Util::Io::Key::BACKSPACE) {
                     *data->currentInput = data->currentInput->substring(0, data->currentInput->length() - 1);
                     data->textButton->render();
@@ -251,6 +244,8 @@ void Pic::checkKeyboardInput() {
                         data->layers[data->currentLayer]->isVisible = !data->layers[data->currentLayer]->isVisible;
                         data->flags->currentLayerChanged();
                         data->flags->overlayChanged();
+                        break;
+                    default:
                         break;
                 }
             }
@@ -504,8 +499,36 @@ void Pic::init_gui() {
                                        ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
     );
 
-    auto gui_bottom_rotate = new GuiLayer();
     auto gui_bottom_scale = new GuiLayer();
+    gui_bottom_scale->addButton((new Button(data))
+                                        ->setInfo("scale")
+                                        ->setDoubleValueButton(&data->scale)
+                                        ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
+    );
+    gui_bottom_scale->addButton((new Button(data))
+                                        ->setInfo("switch Corner")
+                                        ->setMethodButton([](DataWrapper *data) {
+                                            if(data->scaleKind == ScaleKind::TOP_LEFT) data->scaleKind = ScaleKind::TOP_RIGHT;
+                                            else if(data->scaleKind == ScaleKind::TOP_RIGHT) data->scaleKind = ScaleKind::BOTTOM_RIGHT;
+                                            else if(data->scaleKind == ScaleKind::BOTTOM_RIGHT) data->scaleKind = ScaleKind::BOTTOM_LEFT;
+                                            else if(data->scaleKind == ScaleKind::BOTTOM_LEFT) data->scaleKind = ScaleKind::TOP_LEFT;
+                                        })
+                                        ->setRenderFlagMethod(&RenderFlags::overlayChanged)
+    );
+    gui_bottom_scale->addButton((new Button(data))
+                                        ->setInfo("SCALE")
+                                        ->setConfirmButton([](DataWrapper *data) {
+                                            data->scale = 1.0;
+                                            data->currentGuiLayerBottom->appear();
+                                        }, [](DataWrapper *data) {
+                                            data->layers[data->currentLayer]->scale(data->scale, data->scaleKind);
+                                            data->scale = 1.0;
+                                            data->currentGuiLayerBottom->appear();
+                                        })
+                                        ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+    );
+
+    auto gui_bottom_rotate = new GuiLayer();
     auto gui_bottom_crop = new GuiLayer();
     auto gui_bottom_pen = new GuiLayer();
     auto gui_bottom_eraser = new GuiLayer();

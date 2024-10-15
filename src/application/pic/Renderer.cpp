@@ -24,6 +24,10 @@ Renderer::Renderer(DataWrapper *data) {
     this->pixelDrawer = new PixelDrawer(*lfb);
     this->lineDrawer = new LineDrawer(*pixelDrawer);
     this->stringDrawer = new StringDrawer(*pixelDrawer);
+    this->cblack = Color(0, 0, 0);
+    this->cwhite = Color(255, 255, 255);
+    this->cgreen = Color(0, 255, 0);
+    this->cred = Color(255, 0, 0);
     prepareBase();
 }
 
@@ -54,10 +58,15 @@ void Renderer::prepareBase() {
     }
 }
 
-// TODO: alles durchgehen, ob in keiner Situation zu viel gerendert wird
 //void Renderer::run() {
-void Renderer::render() {
 //    while (true) {
+//        render();
+//        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
+//    }
+//}
+
+// TODO: alles durchgehen, ob in keiner Situation zu viel gerendert wird
+void Renderer::render() {
     if (data->flags->anyChange) {
         if (data->flags->result) {
             renderResult();
@@ -71,8 +80,6 @@ void Renderer::render() {
         data->flags->mouse = false;
         data->flags->anyChange = false;
     }
-//        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
-//    }
 }
 
 
@@ -179,10 +186,14 @@ void Renderer::renderGui() {
 }
 
 void Renderer::drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Color color) {
-    lineDrawer->drawLine(x1, y1, x2, y2, color);
-    lineDrawer->drawLine(x2, y2, x3, y3, color);
-    lineDrawer->drawLine(x3, y3, x4, y4, color);
-    lineDrawer->drawLine(x4, y4, x1, y1, color);
+    drawOverlayBox(x1, y1, x2, y2, x3, y3, x4, y4, color, color, color, color);
+}
+
+void Renderer::drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Color c1, Color c2,Color c3,Color c4) {
+    lineDrawer->drawLine(x1, y1, x2, y2, c1);
+    lineDrawer->drawLine(x2, y2, x3, y3, c2);
+    lineDrawer->drawLine(x3, y3, x4, y4, c3);
+    lineDrawer->drawLine(x4, y4, x1, y1, c4);
 }
 
 void Renderer::renderOverlay() {
@@ -192,19 +203,38 @@ void Renderer::renderOverlay() {
     // border for current layer
     auto l = data->layers[data->currentLayer];
     int x = l->posX, y = l->posY, w = l->width, h = l->height;
-    drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, Color(255, 0, 0));
-    drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, Color(255, 0, 0));
+    drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, cred);
+    drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, cred);
 
     switch (data->currentTool) {
         case Tool::MOVE:
             x = data->moveX, y = data->moveY;
-            drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, Color(0, 255, 0));
-            drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, Color(0, 255, 0));
+            drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, cgreen);
+            drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, cgreen);
+            break;
+        case Tool::SCALE:
+            double factor = data->scale;
+            w = ceil(w * factor);
+            h = ceil(h * factor);
+            if (data->scaleKind == ScaleKind::TOP_LEFT || data->scaleKind == ScaleKind::BOTTOM_LEFT) {
+                x = floor(l->posX + l->width * (1 - factor));
+            }
+            if (data->scaleKind == ScaleKind::TOP_LEFT || data->scaleKind == ScaleKind::TOP_RIGHT) {
+                y = floor(l->posY + l->height * (1 - factor));
+            }
+            Color top = data->scaleKind == ScaleKind::TOP_LEFT || data->scaleKind == ScaleKind::TOP_RIGHT ? cgreen : cred;
+            Color bottom = data->scaleKind == ScaleKind::BOTTOM_LEFT || data->scaleKind == ScaleKind::BOTTOM_RIGHT ? cgreen : cred;
+            Color left = data->scaleKind == ScaleKind::TOP_LEFT || data->scaleKind == ScaleKind::BOTTOM_LEFT ? cgreen : cred;
+            Color right = data->scaleKind == ScaleKind::TOP_RIGHT || data->scaleKind == ScaleKind::BOTTOM_RIGHT ? cgreen : cred;
+            drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, top, right, bottom, left);
+            drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, top, right, bottom, left);
+//            drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, cgreen);
+//            drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, cgreen);
             break;
     }
 
     if (data->debugString != nullptr) {
-        stringDrawer->drawString(Fonts::TERMINAL_8x16, 0, 0, data->debugString, Color(0, 0, 0), Color(255, 255, 255));
+        stringDrawer->drawString(Fonts::TERMINAL_8x16, 0, 0, data->debugString, cblack, cwhite);
     }
     data->flags->overlay = false;
 }

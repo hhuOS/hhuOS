@@ -57,3 +57,43 @@ void Layer::setPixel(int x, int y, unsigned int color) {
     int index = y * width + x;
     pixelData[index] = color;
 }
+
+void Layer::scale(double factor, ScaleKind kind) {
+    int newWidth = ceil(width * factor);
+    int newHeight = ceil(height * factor);
+    uint32_t *newPixelData = new uint32_t[newWidth * newHeight];
+
+    for (int y = 0; y < newHeight; ++y) {
+        for (int x = 0; x < newWidth; ++x) {
+            int oldX = floor(x / factor);
+            int oldY = floor(y / factor);
+            if (oldX < width && oldY < height) {
+                newPixelData[y * newWidth + x] = pixelData[oldY * width + oldX];
+            } else {
+                newPixelData[y * newWidth + x] = 0;
+            }
+        }
+    }
+
+    delete[] pixelData;
+    pixelData = newPixelData;
+
+    switch (kind) {
+        case TOP_LEFT:
+            posX = posX + width - newWidth;
+            posY = posY + height - newHeight;
+            break;
+        case TOP_RIGHT:
+            posY = posY + height - newHeight;
+            break;
+        case BOTTOM_LEFT:
+            posX = posX + width - newWidth;
+            break;
+        case BOTTOM_RIGHT:
+            // No change in position
+            break;
+    }
+
+    width = newWidth;
+    height = newHeight;
+}
