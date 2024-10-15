@@ -10,9 +10,7 @@ template<typename T>
 void Atomic<T>::exchange(volatile void *ptr, T newValue) {
     asm volatile (
     "lock xchg %0, %1"
-    :
-    : "q"(newValue), "m"(*(volatile T *) ptr)
-    : "memory"
+    : "+r"(newValue), "+m"(*reinterpret_cast<volatile T*>(ptr))
     );
 }
 
@@ -20,9 +18,7 @@ template<typename T>
 T Atomic<T>::fetchAndAdd(volatile void *ptr, T addend) {
     asm volatile (
     "lock xadd %0, %1"
-    : "+r" (addend), "+m" (*(volatile T *) ptr)
-    :
-    : "memory"
+    : "+r" (addend), "+m" (*reinterpret_cast<volatile T*>(ptr))
     );
 
     return addend;
@@ -34,9 +30,8 @@ T Atomic<T>::compareAndExchange(volatile void *ptr, T oldValue, T newValue) {
 
     asm volatile (
     "lock cmpxchg %2, %1"
-    : "=a"(ret), "+m"(*(volatile T *) ptr)
+    : "=a"(ret), "+m"(*reinterpret_cast<volatile T*>(ptr))
     : "r"(newValue), "0"(oldValue)
-    : "memory"
     );
 
     return ret;
@@ -98,8 +93,7 @@ bool Atomic<T>::bitTest(T index) {
 
     asm volatile (
     "bt %1, %0;"
-    : "+m"(value)
-    : "r"(index)
+    : : "m"(value), "r"(index)
     );
 
     asm volatile (

@@ -272,7 +272,7 @@ void LocalApic::waitForInterProcessorInterruptDispatch() {
         // Spinloop: Pause prevents speculative memory reads, memory prevents compiler memory reordering,
         //           so the ICR polls (simple memory reads after all) should happen as intended.
         // I am actually not sure if this is necessary, since the MMIO read address is marked volatile?
-        asm volatile("pause"
+    asm volatile ("pause"
                 :
                 :
                 : "memory");

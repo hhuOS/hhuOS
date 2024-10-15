@@ -20,10 +20,10 @@ jobs:
           apt: build-essential nasm gcc-multilib g++-multilib cmake libgl-dev python3 python3-distutils xorriso dosfstools mtools unzip wget ffmpeg git recode
 
       - name: Build towboot image
-        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target towboot --type Default
+        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target towboot --type Release
 
       - name: Build limine image
-        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target limine --type Default
+        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target limine --type Release
 
       - name: Download licenses
         run: mkdir -p license && cp LICENSE license/hhuOS.txt &&

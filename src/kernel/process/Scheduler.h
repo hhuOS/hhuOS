@@ -109,7 +109,7 @@ public:
      */
     Thread& getCurrentThread();
 
-    Thread* getLastFpuThread();
+    Thread* getLastFpuThread() const;
 
     Thread* getThread(uint32_t id);
 
@@ -141,7 +141,7 @@ private:
 
     Device::Fpu *fpu = nullptr;
     uint8_t *defaultFpuContext = nullptr;
-    Thread *lastFpuThread = nullptr;
+    uint32_t lastFpuThread = 0; // Actually a pointer, but needs to be a uint32_t for atomic operations
 
     InterruptVector timerInterrupt = Service::getService<InterruptService>().getTimerInterrupt();
 

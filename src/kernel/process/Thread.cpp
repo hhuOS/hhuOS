@@ -166,7 +166,7 @@ void Thread::switchToUserMode() {
 
     oldStackPointer = kernelStack + (capacity - 6);
 
-    asm volatile ("cli");
+    asm volatile ( "cli" ); // Interrupts are enabled again by iret in start_user_thread -> Do not use Device::Cpu::disableInterrupts() here
     Device::Cpu::writeSegmentRegister(Device::Cpu::DS, Device::Cpu::SegmentSelector(Device::Cpu::Ring3, 4));
     Device::Cpu::writeSegmentRegister(Device::Cpu::ES, Device::Cpu::SegmentSelector(Device::Cpu::Ring3, 4));
     Device::Cpu::writeSegmentRegister(Device::Cpu::FS, Device::Cpu::SegmentSelector(Device::Cpu::Ring3, 4));

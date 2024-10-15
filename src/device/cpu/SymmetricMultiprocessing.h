@@ -22,12 +22,12 @@
 #define HHUOS_SYMMETRICMULTIPROCESSING_H
 
 #include <stdint.h>
-#include "Cpu.h"
+#include "kernel/interrupt/InterruptDescriptorTable.h"
 
 // Import from symmetric_multiprocessing.asm
 extern "C" void boot_ap(void);
 extern const uint16_t boot_ap_size;
-extern Device::Cpu::Descriptor boot_ap_idtr;
+extern Kernel::InterruptDescriptorTable::Descriptor boot_ap_idt;
 extern uint32_t boot_ap_cr0;
 extern uint32_t boot_ap_cr3;
 extern uint32_t boot_ap_cr4;

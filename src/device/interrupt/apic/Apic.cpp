@@ -416,10 +416,10 @@ void Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
     }
 
     // Prepare the empty variables in the startup routine at their original location
-    asm volatile("sidt %0" : "=m"(boot_ap_idtr));
-    asm volatile("mov %%cr0, %%eax;" : "=a"(boot_ap_cr0));
-    asm volatile("mov %%cr3, %%eax;" : "=a"(boot_ap_cr3));
-    asm volatile("mov %%cr4, %%eax;" : "=a"(boot_ap_cr4));
+    boot_ap_idt = Kernel::InterruptDescriptorTable::Descriptor::read();
+    boot_ap_cr0 = Device::Cpu::readCr0();
+    boot_ap_cr3 = reinterpret_cast<uint32_t>(Device::Cpu::readCr3());
+    boot_ap_cr4 = Device::Cpu::readCr4();
     boot_ap_counter = reinterpret_cast<uint32_t>(&initializedApplicationProcessorsCounter);
     boot_ap_gdts = reinterpret_cast<uint32_t>(gdts);
     boot_ap_stacks = reinterpret_cast<uint32_t>(stacks);
@@ -434,8 +434,12 @@ void Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
 void Apic::prepareApplicationProcessorWarmReset() {
     Cmos::write(0xF, 0x0A); // Shutdown status byte (MPSpec, sec. B.4)
 
-    const uint32_t warmResetVector = 0x40 << 4 | 0x67; // MPSpec, sec. B.4
-    *reinterpret_cast<volatile uint16_t*>(warmResetVector) = Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress;
+    auto *warmResetVector = reinterpret_cast<uint16_t*>(0x40 << 4 | 0x67); // MPSpec, sec. B.4
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds" // GCC complains about the reset vector being out of bounds, but it is not (it is just located at a very low address)
+    *warmResetVector = Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress;
+#pragma GCC diagnostic pop
 }
 
 Kernel::GlobalDescriptorTable::Descriptor** Apic::prepareApplicationProcessorGdts() {

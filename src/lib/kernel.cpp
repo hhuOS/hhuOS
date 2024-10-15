@@ -241,11 +241,13 @@ void sleep(const Util::Time::Timestamp &time) {
 }
 
 void yield() {
-    Kernel::Service::getService<Kernel::ProcessService>().getScheduler().yield();
+    if (Kernel::Service::isServiceRegistered(Kernel::ProcessService::SERVICE_ID)) {
+        Kernel::Service::getService<Kernel::ProcessService>().getScheduler().yield();
+    }
 }
 
 bool isSchedulerInitialized() {
-    return Kernel::Service::getService<Kernel::ProcessService>().getScheduler().isInitialized();
+    return Kernel::Service::isServiceRegistered(Kernel::ProcessService::SERVICE_ID) && Kernel::Service::getService<Kernel::ProcessService>().getScheduler().isInitialized();
 }
 
 Util::Time::Timestamp getSystemTime() {
@@ -276,11 +278,8 @@ bool shutdown(Util::Hardware::Machine::ShutdownType type) {
 void printKernelStackTrace(bool log) {
     uint32_t *ebp = nullptr;
     asm volatile (
-            "mov %%ebp, (%0);"
-            : :
-            "r"(&ebp)
-            :
-            "eax"
+            "mov %%ebp, %0;"
+            : "=r"(ebp)
             );
 
     while (reinterpret_cast<uint32_t>(ebp) >= Kernel::MemoryLayout::KERNEL_START) {

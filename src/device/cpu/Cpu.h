@@ -35,7 +35,7 @@ public:
 
     enum Configuration0 {
         PROTECTED_MODE_ENABLE = 0x01,
-        MONITOR_CO_PROCESSOR = 0x02,
+        MONITOR_COPROCESSOR = 0x02,
         X87_FPU_EMULATION = 0x04,
         TASK_SWITCHED = 0x08,
         EXTENSION_TYPE = 0x10,
@@ -45,6 +45,22 @@ public:
         NOT_WRITE_THROUGH = 0x20000000,
         CACHE_DISABLE = 0x40000000,
         PAGING = 0x80000000
+    };
+
+    enum Configuration4 {
+        VIRTUAL_8086_MODE_EXTENSIONS = 0x00000001,
+        PROTECTED_MODE_VIRTUAL_INTERRUPTS = 0x00000002,
+        TIME_STAMP_DISABLE = 0x00000004,
+        DEBUGGING_EXTENSIONS = 0x00000008,
+        PAGE_SIZE_EXTENSIONS = 0x00000010,
+        PHYSICAL_ADDRESS_EXTENSION = 0x00000020,
+        MACHINE_CHECK_ENABLE = 0x00000040,
+        PAGE_GLOBAL_ENABLE = 0x00000080,
+        PERFORMANCE_MONITOR_COUNTER_ENABLE = 0x00000100,
+        OS_FXSR = 0x00000200,
+        OS_XMM_EXCEPTIONS = 0x00000400,
+        USER_MODE_INSTRUCTION_PREVENTION = 0x00001000,
+        FIVE_LEVEL_PAGING_ENABLE = 0x00002000,
     };
 
     enum PrivilegeLevel : uint8_t  {
@@ -59,7 +75,7 @@ public:
 
         SegmentSelector(Cpu::PrivilegeLevel privilegeLevel, uint8_t index);
 
-        SegmentSelector(uint16_t selectorBits);
+        explicit SegmentSelector(uint16_t selectorBits);
 
         explicit operator uint16_t() const;
 
@@ -73,12 +89,6 @@ public:
     enum SegmentRegister {
         CS, DS, ES, FS, GS, SS
     };
-
-    // Descriptor for either GDT or IDT
-    struct Descriptor {
-        uint16_t limit;
-        uint32_t address;
-    } __attribute__((packed));
 
     /**
      * Default Constructor.
@@ -121,6 +131,10 @@ public:
     static Kernel::Paging::Table* readCr3();
 
     static void writeCr3(const Kernel::Paging::Table *pageDirectory);
+
+    static uint32_t readCr4();
+
+    static void writeCr4(uint32_t value);
 
     static void loadTaskStateSegment(const SegmentSelector &selector);
 

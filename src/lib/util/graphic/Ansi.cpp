@@ -193,24 +193,24 @@ void Ansi::disableAnsiParsing() {
 
 void Ansi::prepareGraphicalApplication(bool enableScancodes) {
     if (enableScancodes) {
-        Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_KEYBOARD_SCANCODES, {});
+        Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_KEYBOARD_SCANCODES, Util::Array<uint32_t>(0));
     } else {
-        Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_RAW_MODE, {});
+        Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_RAW_MODE, Util::Array<uint32_t>(0));
     }
     disableCursor();
 }
 
 void Ansi::cleanupGraphicalApplication() {
-    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_CANONICAL_MODE, {});
+    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_CANONICAL_MODE, Util::Array<uint32_t>(0));
     enableCursor();
 }
 
 void Ansi::enableRawMode() {
-    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_RAW_MODE, {});
+    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_RAW_MODE, Util::Array<uint32_t>(0));
 }
 
 void Ansi::enableCanonicalMode() {
-    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_CANONICAL_MODE, {});
+    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_CANONICAL_MODE, Util::Array<uint32_t>(0));
 }
 
 String Ansi::foreground8BitColor(uint8_t colorIndex) {

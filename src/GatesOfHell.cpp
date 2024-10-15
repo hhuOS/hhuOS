@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/memory/GlobalDescriptorTable.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/log/Log.h"
 #include "GatesOfHell.h"
@@ -327,8 +326,10 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     Kernel::Service::registerService(Kernel::MemoryService::SERVICE_ID, memoryService);
 
     // Map Multiboot2 tags
+    const auto multibootStartPage = reinterpret_cast<uint32_t>(multiboot) & 0xfffff000;
+    const auto multibootEndPage = (reinterpret_cast<uint32_t>(multiboot) + multibootSize + Util::PAGESIZE - 1) & 0xfffff000;
+    const auto multibootPages = (multibootEndPage - multibootStartPage) / Util::PAGESIZE;
     const auto multibootPageOffset = reinterpret_cast<uint32_t>(multiboot) % Util::PAGESIZE;
-    const auto multibootPages = multibootSize % Util::PAGESIZE == 0 ? multibootSize / Util::PAGESIZE : multibootSize / Util::PAGESIZE + 1;
     const auto *multibootVirtualAddress = static_cast<const uint8_t*>(memoryService->mapIO(const_cast<void*>(reinterpret_cast<const void*>(multiboot)), multibootPages, true)) + multibootPageOffset;
     multiboot = reinterpret_cast<const Kernel::Multiboot*>(multibootVirtualAddress);
 
@@ -336,7 +337,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     // Otherwise, parts of the modules might be overwritten
     for (const auto &name : multiboot->getModuleNames()) {
         auto &module = multiboot->getModule(name);
-        pageFrameAllocator->setMemory(reinterpret_cast<uint8_t *>(module.startAddress), reinterpret_cast<uint8_t *>(module.endAddress - 1), 0, true);
+        pageFrameAllocator->setMemory(reinterpret_cast<uint8_t*>(module.startAddress), reinterpret_cast<uint8_t*>(module.endAddress - 1), 0, true);
     }
 
     // Identity map BIOS related parts of the lower 1 MiB
@@ -827,14 +828,16 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
 
         auto banner = bufferedStream.readString(bannerFile.getLength());
         Util::System::out << Util::String::format(static_cast<const char*>(banner),
-                          BuildConfig::getVersion(), BuildConfig::getCodename(), BuildConfig::getBuildDate(),
+                          BuildConfig::getVersion(), BuildConfig::getCodename(), BuildConfig::getBuildDate(), BuildConfig::getBuildType(),
                           BuildConfig::getGitBranch(), BuildConfig::getGitRevision(), static_cast<const char*>(multiboot->getBootloaderName()))
                           << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     } else {
         Util::System::out << "Welcome to hhuOS!" << Util::Io::PrintStream::endl
-                          << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")" << Util::Io::PrintStream::endl
-                          << "Git revision: " << BuildConfig::getGitRevision() << Util::Io::PrintStream::endl
-                          << "Build date: " << BuildConfig::getBuildDate() << Util::Io::PrintStream::endl << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+                          << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getCodename() << ")" << Util::Io::PrintStream::endl
+                          << "Build Date: " << BuildConfig::getBuildDate() << " (" << BuildConfig::getBuildType() << ")" << Util::Io::PrintStream::endl
+                          << "Git Branch: " << BuildConfig::getGitBranch() << Util::Io::PrintStream::endl
+                          << "Git Commit: " << BuildConfig::getGitRevision() << Util::Io::PrintStream::endl
+                          << "Bootloader: " << multiboot->getBootloaderName() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     }
 
     if (interruptService->usesApic() && Device::Bios::isAvailable() && !Device::FirmwareConfiguration::isAvailable()) {

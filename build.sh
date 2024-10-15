@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-BUILD_TYPE="Default"
+BUILD_TYPE="Debug"
 TARGET="towboot"
 BUILD_DIR="build"
 VALID_TARGETS="grub limine towboot"
@@ -81,9 +81,9 @@ parse_ncores() {
 }
 
 parse_build_type() {
-    local debug=$1
+    local type=$1
 
-    BUILD_TYPE="${debug}"
+    BUILD_TYPE="${type}"
 }
 
 remove() {

@@ -48,12 +48,15 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-variable>
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-but-set-variable>
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-parameter>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-maybe-uninitialized>
         $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
         $<$<COMPILE_LANGUAGE:C>:-Wno-misleading-indentation>
         $<$<COMPILE_LANGUAGE:C>:-Wno-pointer-sign>
         $<$<COMPILE_LANGUAGE:C>:-Wno-array-parameter>
         $<$<COMPILE_LANGUAGE:C>:-Wno-dangling-pointer>
         $<$<COMPILE_LANGUAGE:C>:-Wno-shift-overflow>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-strict-aliasing>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-aggressive-loop-optimizations>
 )
 
 # Set source files

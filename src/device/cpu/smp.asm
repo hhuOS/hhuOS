@@ -27,7 +27,7 @@
 ; Export
 global boot_ap
 global boot_ap_size
-global boot_ap_idtr
+global boot_ap_idt
 global boot_ap_cr0
 global boot_ap_cr3
 global boot_ap_cr4
@@ -88,7 +88,7 @@ boot_ap32:
     mov cr4, eax
 
     ; Load the system IDT
-    lidt [boot_ap_idtr - boot_ap + startup_address]
+    lidt [boot_ap_idt - boot_ap + startup_address]
 
     ; Get the processor id to identify stack
     mov eax, [(boot_ap_counter - boot_ap) + startup_address]
@@ -144,7 +144,7 @@ align 8
 boot_ap_cr4:
     dd 0
 align 8
-boot_ap_idtr:
+boot_ap_idt:
     dw 0
     dd 0
 align 8

@@ -28,27 +28,27 @@ Util::Address<uint16_t> IoPort::getAddress() const {
 }
 
 void IoPort::writeByte(uint8_t value) const {
-    asm volatile ("outb %0, %1" : : "a"(value), "Nd"(address.get()));
+    asm volatile ("outb %0, %1" : : "a"(value), "d"(address.get()));
 }
 
 void IoPort::writeByte(uint16_t offset, uint8_t value) const {
-    asm volatile ("outb %0, %1" : : "a"(value), "Nd"(address.add(offset).get()));
+    asm volatile ("outb %0, %1" : : "a"(value), "d"(address.add(offset).get()));
 }
 
 void IoPort::writeWord(uint16_t value) const {
-    asm volatile ("outw %0, %1" : : "a"(value), "Nd"(address.get()));
+    asm volatile ("outw %0, %1" : : "a"(value), "d"(address.get()));
 }
 
 void IoPort::writeWord(uint16_t offset, uint16_t value) const {
-    asm volatile ("outw %0, %1" : : "a"(value), "Nd"(address.add(offset).get()));
+    asm volatile ("outw %0, %1" : : "a"(value), "d"(address.add(offset).get()));
 }
 
 void IoPort::writeDoubleWord(uint32_t value) const {
-    asm volatile ("outl %0, %1" : : "a"(value), "Nd"(address.get()));
+    asm volatile ("outl %0, %1" : : "a"(value), "d"(address.get()));
 }
 
 void IoPort::writeDoubleWord(uint16_t offset, uint32_t value) const {
-    asm volatile ("outl %0, %1" : : "a"(value), "Nd"(address.add(offset).get()));
+    asm volatile ("outl %0, %1" : : "a"(value), "d"(address.add(offset).get()));
 }
 
 uint8_t IoPort::readByte() const {
@@ -56,7 +56,7 @@ uint8_t IoPort::readByte() const {
 
     asm volatile ("inb %1, %0"
     : "=a"(ret)
-    : "Nd"(address.get()));
+    : "d"(address.get()));
 
     return ret;
 }
@@ -67,7 +67,7 @@ uint8_t IoPort::readByte(uint16_t offset) const {
 
     asm volatile ("inb %1, %0"
     : "=a"(ret)
-    : "Nd"(addr));
+    : "d"(addr));
 
     return ret;
 }
@@ -77,7 +77,7 @@ uint16_t IoPort::readWord() const {
 
     asm volatile ("inw %1, %0"
     : "=a"(ret)
-    : "Nd"(address.get()));
+    : "d"(address.get()));
     return ret;
 }
 
@@ -87,7 +87,7 @@ uint16_t IoPort::readWord(uint16_t offset) const {
 
     asm volatile ("inw %1, %0"
     : "=a"(ret)
-    : "Nd"(addr));
+    : "d"(addr));
 
     return ret;
 }
@@ -97,7 +97,7 @@ uint32_t IoPort::readDoubleWord() const {
 
     asm volatile ("inl %1, %0"
     : "=a"(ret)
-    : "Nd"(address.get()));
+    : "d"(address.get()));
     return ret;
 }
 
@@ -107,7 +107,7 @@ uint32_t IoPort::readDoubleWord(uint16_t offset) const {
 
     asm volatile ("inl %1, %0"
     : "=a"(ret)
-    : "Nd"(addr));
+    : "d"(addr));
 
     return ret;
 }

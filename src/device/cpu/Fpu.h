@@ -28,7 +28,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Fpu(const uint8_t *defaultFpuContext);
+    explicit Fpu(uint8_t *defaultFpuContext);
 
     /**
      * Copy Constructor.

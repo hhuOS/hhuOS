@@ -316,12 +316,23 @@ InterruptDescriptorTable::Descriptor InterruptDescriptorTable::getDescriptor() {
 }
 
 void InterruptDescriptorTable::Descriptor::load() {
-    asm volatile(
-            "lidt (%0)"
+    asm volatile (
+            "lidt %0"
             : :
-            "r"(this)
+            "m"(*this)
             :
             );
+}
+
+InterruptDescriptorTable::Descriptor InterruptDescriptorTable::Descriptor::read() {
+    auto descriptor = Descriptor(nullptr, 0);
+
+    asm volatile (
+            "sidt %0"
+            : "=m"(descriptor)
+            );
+
+    return descriptor;
 }
 
 void InterruptDescriptorTable::load() {
@@ -356,21 +367,19 @@ void InterruptDescriptorTable::handleFpuException([[maybe_unused]] InterruptFram
 }
 
 void InterruptDescriptorTable::handleSystemCall([[maybe_unused]] InterruptFrame *frame) {
-    uint32_t ebxValue;
-    uint32_t ecxValue;
-    uint32_t edxValue;
+    uint32_t codeAndParamCount;
+    va_list args;
+    bool *result;
 
     asm volatile (
-            "mov %%ebx, (%0);"
-            "mov %%ecx, (%1);"
-            "mov %%edx, (%2);"
-            : :
-            "r"(&ebxValue), "r"(&ecxValue), "r"(&edxValue)
-            :
-            "ebx", "ecx", "edx"
+            ""
+            : "=b"(codeAndParamCount), "=c"(args), "=d"(result)
             );
 
-    Service::getService<InterruptService>().dispatchSystemCall(static_cast<Util::System::Code>(ebxValue), ebxValue >> 8, reinterpret_cast<va_list>(ecxValue), *reinterpret_cast<bool *>(edxValue));
+    auto code = static_cast<Util::System::Code>(codeAndParamCount);
+    auto paramCount = codeAndParamCount >> 8;
+
+    Service::getService<InterruptService>().dispatchSystemCall(code, paramCount, args, *result);
 }
 
 }

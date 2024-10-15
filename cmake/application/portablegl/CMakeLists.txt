@@ -22,6 +22,7 @@ message(STATUS "Project " ${PROJECT_NAME})
 include_directories(${HHUOS_SRC_DIR})
 
 add_compile_options(
+        -Wno-maybe-uninitialized
         -Wno-unknown-pragmas
         -Wno-unused-parameter
         -Wno-missing-field-initializers

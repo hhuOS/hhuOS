@@ -48,12 +48,22 @@ GlobalDescriptorTable::Descriptor GlobalDescriptorTable::getDescriptor() const {
 }
 
 void GlobalDescriptorTable::Descriptor::load() {
-    asm volatile(
-            "lgdt (%0)"
-            : :
-            "r"(this)
+    asm volatile (
+            "lgdt %0"
             :
+            : "m"(*this)
             );
+}
+
+GlobalDescriptorTable::Descriptor GlobalDescriptorTable::Descriptor::read() {
+    auto descriptor = Descriptor(nullptr, 0);
+
+    asm volatile (
+            "sgdt %0"
+            : "=m"(descriptor)
+            );
+
+    return descriptor;
 }
 
 void GlobalDescriptorTable::load() const {

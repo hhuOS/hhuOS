@@ -156,10 +156,10 @@ void* VirtualAddressSpace::unmap(const void *virtualAddress) {
     pageTable[pageTableIndex].clear();
 
     // Invalidate entry in TLB
-    asm volatile(
+    asm volatile (
             "invlpg (%0)"
-            : :
-            "r"(virtualAddress)
+            :
+            : "r"(virtualAddress)
             );
 
     // Delete page table, if it is empty

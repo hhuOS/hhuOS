@@ -31,7 +31,12 @@ const char *BuildConfig::GIT_BRANCH = "unknown";
 const char *BuildConfig::BUILD_DATE = XSTRINGIFY(HHUOS_BUILD_DATE);
 #else
 const char *BuildConfig::BUILD_DATE = "0000-00-00 00:00:00";
+#endif
 
+#ifdef HHUOS_BUILD_TYPE
+const char *BuildConfig::BUILD_TYPE = XSTRINGIFY(HHUOS_BUILD_TYPE);
+#else
+const char *BuildConfig::BUILD_TYPE = "unknown";
 #endif
 
 #undef STRINGIFY

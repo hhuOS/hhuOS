@@ -50,39 +50,18 @@ bool System::call(System::Code code, uint32_t paramCount...) {
 }
 
 void System::call(Code code, bool &result, uint32_t paramCount, va_list args) {
-    auto ebxValue = static_cast<uint32_t>(code | (paramCount << 8));
-    auto ecxValue = reinterpret_cast<uint32_t>(args);
-    auto edxValue = reinterpret_cast<uint32_t>(&result);
-
     asm volatile (
-            "push %%ebx;"
-            "push %%ecx;"
-            "push %%edx;"
-
-            "mov %0, %%ebx;"
-            "mov %1, %%ecx;"
-            "mov %2, %%edx;"
             "int $0x86;"
-
-            "pop %%edx;"
-            "pop %%ecx;"
-            "pop %%ebx;"
-            : :
-            "r"(ebxValue),
-            "r"(ecxValue),
-            "r"(edxValue)
-            : "eax", "ebx", "ecx"
+            : "=m"(result)
+            : "b"(code | (paramCount << 8)), "c"(args), "d"(&result)
             );
 }
 
 void System::printStackTrace(Io::PrintStream &stream, uint32_t minEbp) {
     uint32_t *ebp = nullptr;
     asm volatile (
-            "mov %%ebp, (%0);"
-            : :
-            "r"(&ebp)
-            :
-            "eax"
+            "mov %%ebp, %0;"
+            : "=r"(ebp)
             );
 
 

@@ -21,6 +21,7 @@
 #include <stdint.h>
 
 #include "kernel/memory/Paging.h"
+#include "kernel/memory/GlobalDescriptorTable.h"
 
 namespace Kernel {
 class Multiboot;

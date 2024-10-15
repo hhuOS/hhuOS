@@ -83,7 +83,7 @@ Util::Array<Pci::Command> PciDevice::readCommand() const {
 
     for (uint16_t i = 1; i > 0; i *= 2) {
         if ((value & i) != 0) {
-            command.add(*reinterpret_cast<const Pci::Command*>(&i));
+            command.add(static_cast<Pci::Command>(i));
         }
     }
 
@@ -96,7 +96,7 @@ Util::Array<Pci::Status> PciDevice::readStatus() const {
 
     for (uint16_t i = 1; i > 0; i *= 2) {
         if ((value & i) != 0) {
-            status.add(*reinterpret_cast<const Pci::Status*>(&i));
+            status.add(static_cast<Pci::Status>(i));
         }
     }
 
@@ -105,7 +105,7 @@ Util::Array<Pci::Status> PciDevice::readStatus() const {
 
 Util::Array<uint8_t> PciDevice::readCapabilities() const {
     if (!readStatus().contains(Pci::CAPABILITIES_LIST)) {
-        return {};
+        return Util::Array<uint8_t>(0);
     }
 
     auto capabilities = Util::ArrayList<uint8_t>();

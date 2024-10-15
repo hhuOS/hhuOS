@@ -65,6 +65,15 @@ public:
         return BUILD_DATE;
     }
 
+    /**
+     * Get the build type.
+     *
+     * @return The build type
+     */
+    static inline const char* getBuildType() {
+        return BUILD_TYPE;
+    }
+
 private:
 
     static const char *VERSION;
@@ -72,6 +81,7 @@ private:
     static const char *GIT_REV;
     static const char *GIT_BRANCH;
     static const char *BUILD_DATE;
+    static const char *BUILD_TYPE;
 };
 
 #undef STRINGIFY

@@ -33,7 +33,7 @@ Util::String CpuId::getVendorString() {
     }
 
     uint32_t vendor[3];
-    asm volatile(
+    asm volatile (
     "mov $0,%%eax;"
     "cpuid;"
     "mov %%ebx,%0;"
@@ -59,7 +59,7 @@ uint64_t CpuId::getCpuFeatureBits() {
     auto features = Util::ArrayList<CpuFeature>();
 
     uint32_t ecx, edx;
-    asm volatile(
+    asm volatile (
             "mov $1,%%eax;"
             "cpuid;"
             "mov %%edx,%0;"
@@ -96,7 +96,7 @@ CpuId::CpuInfo CpuId::getCpuInfo() {
     }
 
     uint32_t eax;
-    asm volatile(
+    asm volatile (
     "mov $1,%%eax;"
     "cpuid;"
     "mov %%eax,%0;"

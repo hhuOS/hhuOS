@@ -61,7 +61,7 @@ void Cpu::halt() {
 void Cpu::writeSegmentRegister(SegmentRegister reg, const SegmentSelector &selector) {
     switch (reg) {
         case CS:
-            asm volatile(
+            asm volatile (
                     "push %0;"
                     "push $cs_return;"
                     "retf;"
@@ -71,35 +71,35 @@ void Cpu::writeSegmentRegister(SegmentRegister reg, const SegmentSelector &selec
                     );
             break;
         case DS:
-            asm volatile(
+            asm volatile (
                     "mov %0, %%ds"
                     : :
                     "r"(static_cast<uint16_t>(selector))
                     );
             break;
         case ES:
-            asm volatile(
+            asm volatile (
                     "mov %0, %%es"
                     : :
                     "r"(static_cast<uint16_t>(selector))
                     );
             break;
         case FS:
-            asm volatile(
+            asm volatile (
                     "mov %0, %%fs"
                     : :
                     "r"(static_cast<uint16_t>(selector))
                     );
             break;
         case GS:
-            asm volatile(
+            asm volatile (
                     "mov %0, %%gs"
                     : :
                     "r"(static_cast<uint16_t>(selector))
                     );
             break;
         case SS:
-            asm volatile(
+            asm volatile (
                     "mov %0, %%ss"
                     : :
                     "r"(static_cast<uint16_t>(selector))
@@ -112,68 +112,60 @@ Cpu::SegmentSelector Cpu::readSegmentRegister(Cpu::SegmentRegister reg) {
     uint16_t selector = 0;
     switch (reg) {
         case CS:
-            asm volatile(
-                    "mov %%cs, (%0)"
-                    : :
-                    "r"(&selector)
+            asm volatile (
+                    "mov %%cs, %0"
+                    : "=r"(selector)
                     );
             break;
         case DS:
-            asm volatile(
-                    "mov %%ds, (%0)"
-                    : :
-                    "r"(&selector)
+            asm volatile (
+                    "mov %%ds, %0"
+                    : "=r"(selector)
                     );
             break;
         case ES:
-            asm volatile(
-                    "mov %%es, (%0)"
-                    : :
-                    "r"(&selector)
+            asm volatile (
+                    "mov %%es, %0"
+                    : "=r"(selector)
                     );
             break;
         case FS:
-            asm volatile(
-                    "mov %%fs, (%0)"
-                    : :
-                    "r"(&selector)
+            asm volatile (
+                    "mov %%fs, %0"
+                    : "=r"(selector)
                     );
             break;
         case GS:
-            asm volatile(
-                    "mov %%gs, (%0)"
-                    : :
-                    "r"(&selector)
+            asm volatile (
+                    "mov %%gs, %0"
+                    : "=r"(selector)
                     );
             break;
         case SS:
-            asm volatile(
-                    "mov %%ss, (%0)"
-                    : :
-                    "r"(&selector)
+            asm volatile (
+                    "mov %%ss, %0"
+                    : "=r"(selector)
                     );
             break;
     }
 
-    return *reinterpret_cast<SegmentSelector*>(&selector);
+    return SegmentSelector(selector);
 }
 
 uint32_t Cpu::readCr0() {
     uint32_t cr0 = 0;
     asm volatile (
-            "mov %%cr0, %%eax;"
-            "mov %%eax, (%0);"
-            : :
-            "r"(&cr0)
+            "mov %%cr0, %0"
+            : "=r"(cr0)
             :
-            "eax"
+            :
             );
 
     return cr0;
 }
 
 void Cpu::writeCr0(uint32_t value) {
-    asm volatile(
+    asm volatile (
             "mov %0, %%cr0"
             : :
             "r"(value)
@@ -184,12 +176,10 @@ void Cpu::writeCr0(uint32_t value) {
 uint32_t Cpu::readCr2() {
     uint32_t cr2 = 0;
     asm volatile (
-            "mov %%cr2, %%eax;"
-            "mov %%eax, (%0);"
-            : :
-            "r"(&cr2)
+            "mov %%cr2, %0"
+            : "=r"(cr2)
             :
-            "eax"
+            :
             );
 
     return cr2;
@@ -198,19 +188,17 @@ uint32_t Cpu::readCr2() {
 Kernel::Paging::Table *Cpu::readCr3() {
     uint32_t cr3 = 0;
     asm volatile (
-            "mov %%cr3, %%eax;"
-            "mov %%eax, (%0);"
-            : :
-            "r"(&cr3)
+            "mov %%cr3, %0"
+            : "=r"(cr3)
             :
-            "eax"
+            :
             );
 
     return reinterpret_cast<Kernel::Paging::Table*>(cr3);
 }
 
 void Cpu::writeCr3(const Kernel::Paging::Table *pageDirectory) {
-    asm volatile(
+    asm volatile (
             "mov %0, %%cr3"
             : :
             "r"(pageDirectory)
@@ -218,17 +206,41 @@ void Cpu::writeCr3(const Kernel::Paging::Table *pageDirectory) {
             );
 }
 
+uint32_t Cpu::readCr4() {
+    uint32_t cr4 = 0;
+    asm volatile (
+            "mov %%cr4, %0"
+            : "=r"(cr4)
+            :
+            :
+            );
+
+    return cr4;
+}
+
+
+void Cpu::writeCr4(uint32_t value) {
+    asm volatile (
+            "mov %0, %%cr4"
+            : :
+            "r"(value)
+            :
+            );
+}
 void Cpu::loadTaskStateSegment(const Cpu::SegmentSelector &selector) {
-    asm volatile(
+    asm volatile (
             "ltr %0"
             : :
-            "r"(static_cast<uint16_t>(selector))
+            "r"(static_cast<uint16_t>(selector)), "m"(selector)
             :
             );
 }
 
 Cpu::SegmentSelector::SegmentSelector(Cpu::PrivilegeLevel privilegeLevel, uint8_t index) :
     privilegeLevel(privilegeLevel), type(0), index(index) {}
+
+Cpu::SegmentSelector::SegmentSelector(uint16_t selectorBits) :
+    privilegeLevel(selectorBits & 0x3), type((selectorBits >> 2) & 0x1), index((selectorBits >> 3) & 0x1fff) {}
 
 Cpu::SegmentSelector::operator uint16_t() const {
     return privilegeLevel | type << 2 | index << 3;

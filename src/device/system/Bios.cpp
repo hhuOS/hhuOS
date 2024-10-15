@@ -96,12 +96,14 @@ Kernel::Thread::Context Bios::interrupt(int interruptNumber, const Kernel::Threa
     auto biosCodeStart = Kernel::MemoryLayout::BIOS_CALL_CODE_AREA.toAddress();
     auto interruptNumberAddress = biosCodeStart.add(reinterpret_cast<uint32_t>(&bios_call_16_interrupt) - reinterpret_cast<uint32_t>(&bios_call_16_start));
     interruptNumberAddress.setByte(interruptNumber, 1);
-
     // Get pointer to BIOS context inside lower memory
     auto *biosContext = reinterpret_cast<RealModeContext*>(Kernel::MemoryLayout::BIOS_CALL_STACK.endAddress - sizeof(RealModeContext) + 1);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds" // GCC complains about the bios context being out of bounds, but it is not (it is just located at a very low address)
     // Copy given context into lower memory
     *biosContext = context;
+#pragma GCC diagnostic pop
 
     // Disable interrupts during the bios call, since our protected mode handler cannot be called
     Cpu::disableInterrupts();
@@ -164,6 +166,9 @@ Kernel::Thread::Context Bios::protectedModeCall(const Kernel::GlobalDescriptorTa
     // Get pointer to BIOS context inside lower memory
     auto *biosContext = reinterpret_cast<Kernel::Thread::Context*>(Kernel::MemoryLayout::BIOS_CALL_STACK.endAddress - sizeof(Kernel::Thread::Context) + 1);
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds" // GCC complains about the bios context being out of bounds, but it is not (it is just located at a very low address)
     // Copy given context into lower memory
     *biosContext = context;
 
@@ -172,6 +177,7 @@ Kernel::Thread::Context Bios::protectedModeCall(const Kernel::GlobalDescriptorTa
     biosContext->es = 0x10;
     biosContext->fs = 0x10;
     biosContext->gs = 0x10;
+#pragma GCC diagnostic pop
 
     // Disable interrupts during the bios call, since our protected mode handler cannot be called
     Cpu::disableInterrupts();

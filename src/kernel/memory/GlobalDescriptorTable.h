@@ -95,6 +95,7 @@ public:
 
         Descriptor(const void *address, uint16_t entries);
         void load();
+        static Descriptor read();
     } __attribute__((packed));
 
     /**

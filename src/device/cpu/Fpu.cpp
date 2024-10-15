@@ -28,17 +28,11 @@
 
 namespace Device {
 
-Fpu::Fpu(const uint8_t *defaultFpuContext) {
+Fpu::Fpu(uint8_t *defaultFpuContext) {
     disarmFpuMonitor();
 
     // Make sure FPU emulation is disabled
-    asm volatile (
-            "mov %%cr0, %%eax;"
-            "and $0xfffffffb, %%eax;"
-            "mov %%eax, %%cr0;"
-            : : :
-            "eax"
-            );
+    Device::Cpu::writeCr0(Device::Cpu::readCr0() & ~Device::Cpu::X87_FPU_EMULATION);
 
     if (isFxsrAvailable()) {
         LOG_INFO("FXSR support detected -> Using FXSAVE/FXRSTR for FPU context switching");
@@ -51,28 +45,20 @@ Fpu::Fpu(const uint8_t *defaultFpuContext) {
 
         if (features.contains(Util::Hardware::CpuId::SSE)) {
             LOG_INFO("SSE support detected -> Activating OSFXSR and OSXMMEXCPT");
-            asm volatile (
-                    "mov %%cr4, %%eax;"
-                    "or $0x00000600, %%eax;"
-                    "mov %%eax, %%cr4;"
-                    : : :
-                    "eax"
-                    );
+            Device::Cpu::writeCr4(Device::Cpu::readCr4() | Device::Cpu::OS_FXSR | Device::Cpu::OS_XMM_EXCEPTIONS);
         }
 
         asm volatile (
                 "fninit;"
-                "fxsave (%0);"
-                : :
-                "r"(defaultFpuContext)
+                "fxsave %0;"
+                : "=m"(*defaultFpuContext)
                 );
     } else {
         LOG_INFO("FXSR is not supported -> Falling back to FNSAVE/FRSTR for FPU context switching");
         asm volatile (
                 "fninit;"
-                "fnsave (%0);"
-                : :
-                "r"(defaultFpuContext)
+                "fnsave %0;"
+                : "=m"(*defaultFpuContext)
                 );
     }
 }
@@ -105,10 +91,9 @@ bool Fpu::probeFpu() {
             "and $0xfffffff3, %%eax;"
             "mov %%eax, %%cr0;"
             "fninit;"
-            "fnstsw (%0);"
+            "fnstsw %0;"
+            : "=m"(fpuStatus)
             : :
-            "r"(&fpuStatus)
-            :
             "eax"
             );
 
@@ -123,52 +108,38 @@ void Fpu::switchContext() const {
     if (fxsrAvailable) {
         if (lastFpuThread != nullptr) {
             asm volatile (
-                    "fxsave (%0)"
-                    : :
-                    "r"(lastFpuThread->getFpuContext())
+                    "fxsave %0;"
+                    : "=m"(*lastFpuThread->getFpuContext())
                     );
         }
 
-        asm volatile(
-                "fxrstor (%0)"
+        asm volatile (
+                "fxrstor %0"
                 : :
-                "r"(currentThread.getFpuContext())
+                "m"(*currentThread.getFpuContext())
                 );
     } else {
         if (lastFpuThread != nullptr) {
             asm volatile (
-                    "fnsave (%0)"
-                    : :
-                    "r"(lastFpuThread->getFpuContext())
+                    "fnsave %0;"
+                    : "=m"(*lastFpuThread->getFpuContext())
                     );
         }
 
-        asm volatile(
-                "frstor (%0)"
+        asm volatile (
+                "frstor %0"
                 : :
-                "r"(currentThread.getFpuContext())
+                "m"(*currentThread.getFpuContext())
                 );
     }
 }
 
 void Fpu::armFpuMonitor() {
-    asm volatile (
-            "mov %%cr0, %%eax;"
-            "or $0xa, %%eax;"
-            "mov %%eax, %%cr0;"
-            : : :
-            "%eax"
-            );
+    Device::Cpu::writeCr0(Device::Cpu::readCr0() | Device::Cpu::MONITOR_COPROCESSOR);
 }
 
 void Fpu::disarmFpuMonitor() {
-    asm volatile (
-            "mov %%cr0, %%eax;"
-            "and $0xfffffff7, %%eax;"
-            "mov %%eax, %%cr0;"
-            : : :
-            "%eax"
-            );
+    Device::Cpu::writeCr0(Device::Cpu::readCr0() & ~Device::Cpu::MONITOR_COPROCESSOR);
 }
 
 }

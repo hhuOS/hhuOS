@@ -204,7 +204,7 @@ uint16_t Ip4Module::calculateChecksum(const uint8_t *buffer, uint32_t offset, ui
     }
 
     // Add overflow bits
-    checksum += reinterpret_cast<uint16_t*>(&checksum)[1];
+    checksum += checksum >> 16;
 
     // Cut off high bytes
     checksum = static_cast<uint16_t>(checksum);

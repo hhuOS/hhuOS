@@ -121,7 +121,10 @@ const Util::Hardware::Acpi::Rsdp* Acpi::findRsdp() {
     }
 
     // Search for RSDP the "traditional" way
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds" // GCC complains about the rsdp address being out of bounds, but it is not (it is just located at a very low address)
     auto ebdaStartAddress = *reinterpret_cast<uint16_t*>(0x0000040e) << 4;
+#pragma GCC diagnostic pop
     auto rsdpAddress = searchRsdp(ebdaStartAddress, ebdaStartAddress + 1023);
     if (rsdpAddress != nullptr) {
         LOG_INFO("Found RSDP in extended bios area");

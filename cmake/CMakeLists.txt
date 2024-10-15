@@ -99,6 +99,7 @@ add_compile_options(
         -DHHUOS_GIT_REV=${HHUOS_GIT_REV}
         -DHHUOS_GIT_BRANCH=${HHUOS_GIT_BRANCH}
         -DHHUOS_BUILD_DATE=${HHUOS_BUILD_DATE}
+        -DHHUOS_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
         $<$<COMPILE_LANGUAGE:CXX>:-fno-threadsafe-statics>
         $<$<COMPILE_LANGUAGE:CXX>:-fno-use-cxa-atexit>

@@ -77,8 +77,8 @@ Thread& Scheduler::getCurrentThread() {
     return *currentThread;
 }
 
-Thread* Scheduler::getLastFpuThread() {
-    return lastFpuThread;
+Thread* Scheduler::getLastFpuThread() const {
+    return reinterpret_cast<Thread*>(lastFpuThread);
 }
 
 void Scheduler::start() {
@@ -209,14 +209,15 @@ void Scheduler::switchFpuContext() {
     // Disable FPU monitoring (will be enabled by scheduler at next thread switch)
     Device::Fpu::disarmFpuMonitor();
 
-    if (currentThread == lastFpuThread) {
+    auto current = reinterpret_cast<uint32_t>(currentThread);
+    if (current == lastFpuThread) {
         readyQueueLock.release();
         return;
     }
 
     fpu->switchContext();
 
-    lastFpuThread = currentThread;
+    lastFpuThread = current;
     readyQueueLock.release();
 }
 
@@ -298,7 +299,7 @@ void Scheduler::checkSleepList() {
 }
 
 void Scheduler::resetLastFpuThread(Thread &terminatedThread) {
-    Util::Async::Atomic<uint32_t> wrapper(reinterpret_cast<uint32_t&>(lastFpuThread));
+    Util::Async::Atomic<uint32_t> wrapper(lastFpuThread);
     wrapper.compareAndSet(reinterpret_cast<uint32_t>(&terminatedThread), 0);
 }
 

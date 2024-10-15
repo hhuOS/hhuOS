@@ -26,9 +26,11 @@ uint64_t ModelSpecificRegister::readQuadWord() const {
     uint32_t high;
 
     // rdmsr writes read value to eax/edx from register specified in ecx; it has no operands
-    asm volatile ("rdmsr"
+    asm volatile (
+            "rdmsr"
             : "=a"(low), "=d"(high)
-            : "c"(address));
+            : "c"(address)
+            );
 
     return low | (static_cast<uint64_t>(high) << 32);
 }
@@ -38,9 +40,11 @@ void ModelSpecificRegister::writeQuadWord(uint64_t value) const {
     const uint32_t high = value >> 32;
 
     // wrmsr writes values from eax/edx to register specified in ecx; it has no operands
-    asm volatile ("wrmsr"
+    asm volatile (
+            "wrmsr"
             :
-            : "a"(low), "d"(high), "c"(address));
+            : "a"(low), "d"(high), "c"(address)
+            );
 
 }
 

@@ -16,12 +16,13 @@
  */
 
 #include "Math.h"
+#include "lib/util/base/Exception.h"
 #include <bit>
 
 namespace Util::Math {
 
 void endMmx() {
-    asm volatile ("emms");
+    asm volatile ( "emms" );
 }
 
 uint32_t absolute(int32_t value) {
@@ -72,55 +73,52 @@ double max(double first, double second, double third) {
     return max(max(first, second), third);
 }
 
-float exp(float arg) {
-    float ret = 0;
+float exp(float value) {
+    float result = 0;
     asm volatile (
-            "flds (%0);"
-            "fldl2e;"
-            "fmulp;" //st0: ex * log2(e)
-            "fld1;" //st0: 1, st1: ex * log2(e)
-            "fld %%st(1);" // st0: ex * log2(e)  st1: 1, st2: ex * log2(e)
-            "fprem;" // st0: rem(ex * log2(e) ), st: 1, st2: ex * log2(e)
-            "f2xm1;" //st0: 2 ^ rem(exponent * log2(base)) - 1, s1: 1, s2: ex * log2(e)
-            "faddp;" //st0: 2 ^ rem(exponent * log2(base)), st1: ex * log2(e)
-            "fscale;" // st0 *= 2^ int (ex * log2(e) )
+            "fldl2e;" // st0: log2(e), st1: value
+            "fmulp;" // st0: ex * log2(e)
+            "fld1;" // st0: 1, st1: ex * log2(e)
+            "fld %%st(1);" // st0: ex * log2(e), st1: 1, st2: ex * log2(e)
+            "fprem;" // st0: rem(ex * log2(e)), st: 1, st2: ex * log2(e)
+            "f2xm1;" // st0: 2 ^ rem(exponent * log2(base)) - 1, s1: 1, s2: ex * log2(e)
+            "faddp;" // st0: 2 ^ rem(exponent * log2(base)), st1: ex * log2(e)
+            "fscale;" // st0 *= 2^ int (ex * log2(e)), st1: ex * log2(e)
             "fxch %%st(1);"
-            "fstp %%st;" //clear st1
-            "fstps (%1);"
-            : :
-            "r"(&arg),"r"(&ret)
+            "fstp %%st;" // clear st1
+            "fstps %0;"
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
-double exp(double arg) {
-	double ret = 0;
+double exp(double value) {
+    double result = 0;
     asm volatile (
-			"fldl (%0);"
-			"fldl2e;"
-			"fmulp;" //st0: ex * log2(e) 
-			"fld1;" //st0: 1, st1: ex * log2(e) 
-			"fld %%st(1);" // st0: ex * log2(e)  st1: 1, st2: ex * log2(e) 
-			"fprem;" // st0: rem(ex * log2(e) ), st: 1, st2: ex * log2(e) 
-			"f2xm1;" //st0: 2 ^ rem(exponent * log2(base)) - 1, s1: 1, s2: ex * log2(e) 
-			"faddp;" //st0: 2 ^ rem(exponent * log2(base)), st1: ex * log2(e) 
-			"fscale;" // st0 *= 2^ int (ex * log2(e) ) 
-			"fxch %%st(1);"
-			"fstp %%st;" //clear st1
-            "fstpl (%1);"
-            : :
-            "r"(&arg),"r"(&ret)
+            "fldl2e;" // st0: log2(e), st1: value
+            "fmulp;" // st0: ex * log2(e)
+            "fld1;" // st0: 1, st1: ex * log2(e)
+            "fld %%st(1);" // st0: ex * log2(e), st1: 1, st2: ex * log2(e)
+            "fprem;" // st0: rem(ex * log2(e)), st: 1, st2: ex * log2(e)
+            "f2xm1;" // st0: 2 ^ rem(ex * log2(e)) - 1, s1: 1, s2: ex * log2(e)
+            "faddp;" // st0: 2 ^ rem(ex * log2(e)), st1: ex * log2(e)
+            "fscale;" // st0 *= 2 ^ int(ex * log2(e)), st1: ex * log2(e)
+            "fxch %%st(1);"
+            "fstp %%st;" // clear st1
+            "fstpl %0;"
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
-float exp2(float arg) {
-    float ret = 0;
+float exp2(float value) {
+    float result = 0;
     asm volatile (
-            "flds (%0);"
-            "fld1;"
+            "fld1;" // st0 = 1, st1 = value
             "fscale;" // st0 = 2 ^ int(ex), st1 = ex
             "fld1;" // st0 = 1, st1 = 2 ^ int(ex), st2 = ex
             "fld %%st(2);" // st0 = ex, st1 = 1, st2 = 2 ^ int(ex), st3 = ex
@@ -128,20 +126,19 @@ float exp2(float arg) {
             "f2xm1;" // st0 = 2 ^ rem(ex) - 1, st1 = 1, st2 = 2 ^ int(ex), st3 = ex
             "faddp;" // st0 = 2 ^ rem(ex), st1 = 2 ^ int(ex), st2 = ex
             "fmulp;" // st0 = 2 ^ ex; st1 = ex
-            "fstps (%1);"
+            "fstps %0;"
             "fstp %%st;" //clear st1
-            : :
-            "r"(&arg),"r"(&ret)
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
-double exp2(double arg) {
-    double ret = 0;
+double exp2(double value) {
+    double result = 0;
     asm volatile (
-            "fldl (%0);"
-            "fld1;"
+            "fld1;" // st0 = 1, st1 = value
             "fscale;" // st0 = 2 ^ int(ex), st1 = ex
             "fld1;" // st0 = 1, st1 = 2 ^ int(ex), st2 = ex
             "fld %%st(2);" // st0 = ex, st1 = 1, st2 = 2 ^ int(ex), st3 = ex
@@ -149,290 +146,279 @@ double exp2(double arg) {
             "f2xm1;" // st0 = 2 ^ rem(ex) - 1, st1 = 1, st2 = 2 ^ int(ex), st3 = ex
             "faddp;" // st0 = 2 ^ rem(ex), st1 = 2 ^ int(ex), st2 = ex
             "fmulp;" // st0 = 2 ^ ex; st1 = ex
-            "fstpl (%1);"
+            "fstpl %0;"
             "fstp %%st;" //clear st1
-            : :
-            "r"(&arg),"r"(&ret)
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
-float ln(float arg) {
-    float ret = 0;
+float ln(float value) {
+    float result = 0;
     asm volatile (
             "fld1;"
             "fldl2e;"
-            "fdivrp;" //store 1/log2(e) in stl(0)
-            "flds (%0);"
-            "fyl2x;" //calculate log
-            "fstps (%1);"
-            : :
-            "r"(&arg), "r"(&ret)
+            "fdivrp;" // store 1/log2(e) in st(0)
+            "fxch %%st(1);"
+            "fyl2x;" // calculate log
+            "fstps %0;"
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
-double ln(double arg) {
-	double ret = 0;
+double ln(double value) {
+    double result = 0;
     asm volatile (
-			"fld1;"
-			"fldl2e;"
-			"fdivrp;" //store 1/log2(e) in stl(0)
-			"fldl (%0);"
-			"fyl2x;" //calculate log
-            "fstpl (%1);"
-            : :
-            "r"(&arg), "r"(&ret)
+            "fld1;"
+            "fldl2e;"
+            "fdivrp;" // store 1/log2(e) in st(0)
+            "fxch %%st(1);"
+            "fyl2x;" // calculate log
+            "fstpl %0;"
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
-float log10(float arg) {
-    float ret = 0;
+float log10(float value) {
+    float result = 0;
     asm volatile (
             "fld1;"
             "fldl2t;"
-            "fdivrp;" //store 1/log2(e) in stl(0)
-            "flds (%0);"
-            "fyl2x;" //calculate log
-            "fstps (%1);"
-            : :
-            "r"(&arg), "r"(&ret)
+            "fdivrp;" // store 1/log2(e) in st(0)
+            "fxch %%st(1);"
+            "fyl2x;" // calculate log
+            "fstps %0;"
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
-double log10(double arg) {
-	double ret = 0;
+double log10(double value) {
+    double result = 0;
     asm volatile (
-			"fld1;"
-			"fldl2t;"
-			"fdivrp;" //store 1/log2(e) in stl(0)
-			"fldl (%0);"
-			"fyl2x;" //calculate log
-            "fstpl (%1);"
-            : :
-            "r"(&arg), "r"(&ret)
+            "fld1;"
+            "fldl2t;"
+            "fdivrp;" // store 1/log2(e) in st(0)
+            "fxch %%st(1);"
+            "fyl2x;" // calculate log
+            "fstpl %0;"
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
 float pow(float base, float exponent) {
-    float ret = 0;
+    float result = 0;
     asm volatile (
-            "flds (%1);"
-            "flds (%0);"
-            "fyl2x;" //st0: ex * log2(b)
-            "fld1;" //st0: 1, st1: ex * log2(b)
+            "fyl2x;" // st0: ex * log2(b)
+            "fld1;" // st0: 1, st1: ex * log2(b)
             "fld %%st(1);" // st0: ex * log2(b)  st1: 1, st2: ex * log2(b)
             "fprem;" // st0: rem(ex * log2(b) ), st: 1, st2: ex * log2(b)
-            "f2xm1;" //st0: 2 ^ rem(exponent * log2(base)) - 1, s1: 1, s2: ex * log2(b)
-            "faddp;" //st0: 2 ^ rem(exponent * log2(base)), st1: ex * log2(b)
+            "f2xm1;" // st0: 2 ^ rem(exponent * log2(base)) - 1, s1: 1, s2: ex * log2(b)
+            "faddp;" // st0: 2 ^ rem(exponent * log2(base)), st1: ex * log2(b)
             "fscale;" // st0 *= 2^ int (ex * log2(b) )
             "fxch %%st(1);"
             "fstp %%st;" //clear st1
-            "fstps (%2);"
-            : :
-            "r"(&base),"r"(&exponent), "r"(&ret)
+            "fstps %0;"
+            : "=m"(result)
+            : "t"(base),"u"(exponent)
             );
 
-    return ret;
+    return result;
 }
 
 double pow(double base, double exponent) {
-	double ret = 0;
+    double result = 0;
     asm volatile (
-			"fldl (%1);"
-			"fldl (%0);"
-			"fyl2x;" //st0: ex * log2(b) 
-			"fld1;" //st0: 1, st1: ex * log2(b) 
-			"fld %%st(1);" // st0: ex * log2(b)  st1: 1, st2: ex * log2(b) 
-			"fprem;" // st0: rem(ex * log2(b) ), st: 1, st2: ex * log2(b) 
-			"f2xm1;" //st0: 2 ^ rem(exponent * log2(base)) - 1, s1: 1, s2: ex * log2(b) 
-			"faddp;" //st0: 2 ^ rem(exponent * log2(base)), st1: ex * log2(b) 
-			"fscale;" // st0 *= 2^ int (ex * log2(b) ) 
-			"fxch %%st(1);"
-			"fstp %%st;" //clear st1
-            "fstpl (%2);"
-            : :
-            "r"(&base),"r"(&exponent), "r"(&ret)
+            "fyl2x;" // st0: ex * log2(b)
+            "fld1;" // st0: 1, st1: ex * log2(b)
+            "fld %%st(1);" // st0: ex * log2(b)  st1: 1, st2: ex * log2(b)
+            "fprem;" // st0: rem(ex * log2(b) ), st: 1, st2: ex * log2(b)
+            "f2xm1;" // st0: 2 ^ rem(exponent * log2(base)) - 1, s1: 1, s2: ex * log2(b)
+            "faddp;" // st0: 2 ^ rem(exponent * log2(base)), st1: ex * log2(b)
+            "fscale;" // st0 *= 2^ int (ex * log2(b) )
+            "fxch %%st(1);"
+            "fstp %%st;" //clear st1
+            "fstpl %0;"
+            : "=m"(result)
+            : "t"(base),"u"(exponent)
             );
 
-    return ret;
+    return result;
 }
 
 float sine(float value) {
-    float ret = 0;
+    float result = 0;
     asm volatile (
-            "flds (%0);"
             "fsin;"
-            "fstps (%1)"
-            : :
-            "r"(&value), "r"(&ret)
+            "fstps %0;"
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
 double sine(double value) {
-    double ret = 0;
+    double result = 0;
     asm volatile (
-            "fldl (%0);"
             "fsin;"
-            "fstpl (%1);"
-            : :
-            "r"(&value), "r"(&ret)
+            "fstpl %0;"
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
 float cosine(float value) {
-    float ret = 0;
+    float result = 0;
     asm volatile (
-            "flds (%0);"
             "fcos;"
-            "fstps (%1);"
-            : :
-            "r"(&value), "r"(&ret)
+            "fstps %0;"
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
 double cosine(double value) {
-    double ret = 0;
+    double result = 0;
     asm volatile (
-            "fldl (%0);"
             "fcos;"
-            "fstpl (%1)"
-            : :
-            "r"(&value), "r"(&ret)
+            "fstpl %0;"
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
 float tangent(float value) {
-    float ret = 0;
+    float result = 0;
     asm volatile (
-            "flds (%0);"
             "fptan;"
-            "fstps (%1);"
-            "fstps (%1);" // Pop twice, because fptan pushes the result and 1.0 onto the stack
-            : :
-            "r"(&value), "r"(&ret)
+            "fstps %0;"
+            "fstps %0;" // Pop twice, because fptan pushes the result and 1.0 onto the stack
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
 double tangent(double value) {
-    double ret = 0;
+    double result = 0;
     asm volatile (
-            "fldl (%0);"
             "fptan;"
-            "fstpl (%1);"
-            "fstpl (%1);" // Pop twice, because fptan pushes the result and 1.0 onto the stack
-            : :
-            "r"(&value), "r"(&ret)
+            "fstpl %0;"
+            "fstpl %0;" // Pop twice, because fptan pushes the result and 1.0 onto the stack
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
 float cotangent(float value) {
-    float ret = 0;
+    float result = 0;
     asm volatile (
-            "flds (%0);"
             "fptan;"
             "fdivp;" // fptan pushes the result and 1.0 onto the stack
-            "fstps (%1);"
-            : :
-            "r"(&value), "r"(&ret)
+            "fstps %0;"
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
 double cotangent(double value) {
-    double ret = 0;
+    double result = 0;
     asm volatile (
-            "fldl (%0);"
             "fptan;"
             "fdivp;" // fptan pushes the result and 1.0 onto the stack
-            "fstpl (%1);"
-            : :
-            "r"(&value), "r"(&ret)
+            "fstpl %0;"
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
 float arctangent(float value, float divisor) {
-    float ret = 0;
+    float result = 0;
     asm volatile (
-            "flds (%0);"
-            "flds (%1);"
             "fpatan;"
-            "fstps (%2);"
-            : :
-            "r"(&value), "r"(&divisor), "r"(&ret)
+            "fstps %0;"
+            : "=m"(result)
+            : "u"(value), "t"(divisor)
             );
 
-    return ret;
+    return result;
 }
 
 double arctangent(double value, double divisor) {
-    double ret = 0;
+    double result = 0;
     asm volatile (
-            "fldl (%0);"
-            "fldl (%1);"
             "fpatan;"
-            "fstpl (%2);"
-            : :
-            "r"(&value), "r"(&divisor), "r"(&ret)
+            "fstpl %0;"
+            : "=m"(result)
+            : "u"(value), "t"(divisor)
             );
 
-    return ret;
+    return result;
 }
 
-
 float sqrt(float value) {
-    float ret = 0;
-    asm volatile(
-            "flds (%0);"
+    if (value < 0) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Math: Square root of negative number!");
+    }
+
+    float result = 0;
+    asm volatile (
             "fsqrt;"
-            "fstps (%1)"
-            : :
-            "r"(&value), "r"(&ret)
+            "fstps %0;"
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
 double sqrt(double value) {
-    double ret = 0;
-    asm volatile(
-            "fldl (%0);"
+    if (value < 0) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Math: Square root of negative number!");
+    }
+
+    double result = 0;
+    asm volatile (
             "fsqrt;"
-            "fstpl (%1)"
-            : :
-            "r"(&value), "r"(&ret)
+            "fstpl %0;"
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
 
 float arcsine(float value) {
     if (value > 1 || value < -1) {
-        return 0;
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Math: Arcsine of value outside of [-1, 1]!");
     }
 
     return arctangent(value, sqrt(1 - value * value));
@@ -440,7 +426,7 @@ float arcsine(float value) {
 
 double arcsine(double value) {
     if (value > 1 || value < -1) {
-        return 0;
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Math: Arcsine of value outside of [-1, 1]!");
     }
 
     return arctangent(value, sqrt(1 - value * value));
@@ -486,30 +472,28 @@ bool equals(double first, double second, double epsilon) {
     return absolute(first - second)  < epsilon;
 }
 
-double round(double value) {
-    double ret = 0;
-    asm volatile(
-            "fldl (%0);"
+float round(float value) {
+    float result = 0;
+    asm volatile (
             "frndint;"
-            "fstpl (%1)"
-            : :
-            "r"(&value), "r"(&ret)
+            "fstpl %0;"
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
-float round(float value) {
-    float ret = 0;
-    asm volatile(
-            "flds (%0);"
+double round(double value) {
+    double result = 0;
+    asm volatile (
             "frndint;"
-            "fstps (%1)"
-            : :
-            "r"(&value), "r"(&ret)
+            "fstpl %0;"
+            : "=m"(result)
+            : "t"(value)
             );
 
-    return ret;
+    return result;
 }
 
 double truncate(double value) {
