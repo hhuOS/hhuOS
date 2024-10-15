@@ -17,7 +17,6 @@
 
 #include <assert.h>
 
-#define PORTABLEGL_IMPLEMENTATION
 #define PGL_ASSERT(x) assert(x)
 #include "lib/portablegl/portablegl.h"
 

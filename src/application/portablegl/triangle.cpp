@@ -27,8 +27,6 @@ static uint32_t fps = 0;
 
 static GLfloat rotationAngle = 0;
 
-static glContext context{};
-
 void vertexShader(float *output, vec4 *vertexAttributes, Shader_Builtins *builtins, void *uniforms) {
     reinterpret_cast<vec4*>(output)[0] = vertexAttributes[4]; // Color
     builtins->gl_Position = mult_mat4_vec4(static_cast<float*>(uniforms), vertexAttributes[0]);
@@ -38,24 +36,13 @@ void fragmentShader(float *input, Shader_Builtins *builtins, void *uniforms) {
     builtins->gl_FragColor = reinterpret_cast<vec4*>(input)[0];
 }
 
-void triangle(const Util::Graphic::LinearFrameBuffer &lfb) {
+void triangle(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / TARGET_FRAME_RATE));
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
-    // Use double buffering
-    auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(lfb);
-
     // Create string drawer to draw FPS
-    auto pixelDrawer = Util::Graphic::PixelDrawer(bufferedLfb);
+    auto pixelDrawer = Util::Graphic::PixelDrawer(lfb);
     auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
-
-    // Initialize PortableGL context
-    auto *screenBuffer = reinterpret_cast<u32*>(bufferedLfb.getBuffer().get());
-    auto success = init_glContext(&context, &screenBuffer, bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY(), bufferedLfb.getColorDepth(), 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
-    if (!success) {
-        Util::System::error << "portablegl: Failed to initialize GL context!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-        exit(-1);
-    }
 
     // Set up shaders
     GLenum smooth[4] = { PGL_SMOOTH4 };
@@ -119,7 +106,7 @@ void triangle(const Util::Graphic::LinearFrameBuffer &lfb) {
         stringDrawer.drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
 
         // Flush double buffer to screen
-        bufferedLfb.flush();
+        lfb.flush();
 
         // Measure frame time and sleep to achieve target frame rate
         auto renderTime = Util::Time::getSystemTime() - startTime;
@@ -144,6 +131,4 @@ void triangle(const Util::Graphic::LinearFrameBuffer &lfb) {
     glDeleteBuffers(1, &triangleVbo);
     glDeleteBuffers(1, &colorVbo);
     glDeleteProgram(shaderProgram);
-
-    free_glContext(&context);
 }

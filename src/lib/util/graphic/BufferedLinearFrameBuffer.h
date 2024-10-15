@@ -41,6 +41,13 @@ public:
     explicit BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, bool enableAcceleration = true);
 
     /**
+     * Constructor using a different pitch than the target lfb.
+     *
+     * @param lfb The linear frame buffer, that shall be double buffered.
+     */
+    BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, uint16_t pitch, bool enableAcceleration = true);
+
+    /**
      * Assignment operator.
      */
     BufferedLinearFrameBuffer& operator=(const BufferedLinearFrameBuffer &other) = delete;
@@ -62,6 +69,8 @@ public:
 private:
 
     bool useMmx = false;
+    const uint16_t pitch;
+    const uint16_t targetPitch;
     const Address<uint32_t> &targetBuffer;
 };
 

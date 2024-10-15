@@ -15,15 +15,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <assert.h>
+
+#define PORTABLEGL_IMPLEMENTATION
+#define PGL_ASSERT(x) assert(x)
+#include "lib/portablegl/portablegl.h"
+
 #include "lib/util/base/System.h"
+#include "lib/util/base/Address.h"
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 
 extern void info();
-extern void triangle(const Util::Graphic::LinearFrameBuffer &lfb);
-extern void gears(const Util::Graphic::LinearFrameBuffer &lfb);
+extern void triangle(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
+extern void gears(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
+
+static glContext context{};
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -47,7 +57,7 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto demo = arguments[0];
+    const auto &demo = arguments[0];
     if (demo == "info") {
         info();
         return 0;
@@ -69,15 +79,30 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
 
+    // PortableGL expects line pitch to be exactly the same as the resolution width in bytes.
+    // However, the LFB might have a different pitch, so we need to create a buffered LFB with the correct pitch.
+    // The buffered LFB will take the different pitch into account when copying the buffer to the LFB.
+    uint16_t pitch = lfb.getResolutionX() * ((lfb.getColorDepth() == 15 ? 16 : lfb.getColorDepth()) / 8);
+    auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(lfb, pitch);
+
+    // Initialize PortableGL context
+    auto *screenBuffer = reinterpret_cast<uint32_t*>(bufferedLfb.getBuffer().get());
+    auto success = init_glContext(&context, &screenBuffer, bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY(), bufferedLfb.getColorDepth(), 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+    if (!success) {
+        Util::System::error << "portablegl: Failed to initialize GL context!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        exit(-1);
+    }
+
     if (demo == "triangle") {
-        triangle(lfb);
+        triangle(bufferedLfb);
     } else if (demo == "gears") {
-        gears(lfb);
+        gears(bufferedLfb);
     } else {
         Util::System::error << "opengl: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
+    free_glContext(&context);
     Util::Graphic::Ansi::cleanupGraphicalApplication();
     return 0;
 }

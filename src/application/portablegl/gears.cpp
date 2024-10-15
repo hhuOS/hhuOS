@@ -99,7 +99,7 @@ void sin_cos(double x, double* s, double* c)
 #define M_PI 3.14159265
 #endif
 
-Util::Graphic::BufferedLinearFrameBuffer *bufferedLfb;
+const Util::Graphic::BufferedLinearFrameBuffer *bufferedLfb;
 
 glContext the_context;
 
@@ -796,14 +796,12 @@ void setup_context()
     }
 }
 
-void gears(const Util::Graphic::LinearFrameBuffer &lfb) {
+void gears(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / TARGET_FRAME_RATE));
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
-    // Use double buffering
-    bufferedLfb = new Util::Graphic::BufferedLinearFrameBuffer(lfb);
-
     // Create string drawer to draw FPS
+    bufferedLfb = &lfb;
     auto pixelDrawer = Util::Graphic::PixelDrawer(*bufferedLfb);
     auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
 

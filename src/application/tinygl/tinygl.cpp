@@ -58,7 +58,7 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto demo = arguments[0];
+    const auto &demo = arguments[0];
     if (demo == "info") {
         info();
         return 0;
@@ -84,7 +84,11 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(lfb);
+    // TinyGL expects line pitch to be exactly the same as the resolution width in bytes.
+    // However, the LFB might have a different pitch, so we need to create a buffered LFB with the correct pitch.
+    // The buffered LFB will take the different pitch into account when copying the buffer to the LFB.
+    uint16_t pitch = lfb.getResolutionX() * ((lfb.getColorDepth() == 15 ? 16 : lfb.getColorDepth()) / 8);
+    auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(lfb, pitch);
     auto *glBuffer = ZB_open(lfb.getResolutionX(), lfb.getResolutionY(), ZB_MODE_RGBA, reinterpret_cast<void*>(bufferedLfb.getBuffer().get()));
     glInit(glBuffer);
 

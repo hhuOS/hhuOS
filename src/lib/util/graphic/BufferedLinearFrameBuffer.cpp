@@ -22,8 +22,11 @@
 
 namespace Util::Graphic {
 
-BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, bool enableAcceleration) :
-        LinearFrameBuffer(new uint8_t[lfb.getPitch() * lfb.getResolutionY()], lfb.getResolutionX(), lfb.getResolutionY(), lfb.getColorDepth(), lfb.getPitch()),
+BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, bool enableAcceleration) : BufferedLinearFrameBuffer(lfb, lfb.getPitch(), enableAcceleration) {}
+
+BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, uint16_t pitch, bool enableAcceleration) :
+        LinearFrameBuffer(new uint8_t[pitch * lfb.getResolutionY()], lfb.getResolutionX(), lfb.getResolutionY(), lfb.getColorDepth(), pitch),
+        pitch(pitch), targetPitch(lfb.getPitch()),
         targetBuffer(enableAcceleration ? *Address<uint32_t>::createAcceleratedAddress(lfb.getBuffer().get(), useMmx) : *new Address<uint32_t>(lfb.getBuffer())) {
     clear();
 }
@@ -33,7 +36,21 @@ BufferedLinearFrameBuffer::~BufferedLinearFrameBuffer() {
 }
 
 void BufferedLinearFrameBuffer::flush() const {
-    targetBuffer.copyRange(getBuffer(), getPitch() * getResolutionY());
+    if (pitch == targetPitch) {
+        targetBuffer.copyRange(getBuffer(), getPitch() * getResolutionY());
+    } else {
+        auto source = getBuffer();
+        auto target = targetBuffer;
+
+        for (uint32_t i = 0; i < getResolutionY(); i++) {
+            target.copyRange(source, pitch);
+            target.add(pitch).setRange(0, targetPitch - pitch);
+
+            source = source.add(pitch);
+            target = target.add(targetPitch);
+        }
+    }
+
     if (useMmx) {
         Math::endMmx();
     }
