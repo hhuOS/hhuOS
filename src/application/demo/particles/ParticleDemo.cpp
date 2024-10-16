@@ -47,13 +47,13 @@ void ParticleDemo::initialize() {
     setKeyListener(*this);
 }
 
-void ParticleDemo::update(double delta) {}
+void ParticleDemo::update([[maybe_unused]] double delta) {}
 
 void ParticleDemo::initializeBackground(Util::Game::Graphics &graphics) {
     graphics.clear(Util::Graphic::Color(153, 221, 255));
 }
 
-void ParticleDemo::keyPressed(Util::Io::Key key) {
+void ParticleDemo::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC:
             Util::Game::GameManager::getGame().stop();
@@ -63,4 +63,4 @@ void ParticleDemo::keyPressed(Util::Io::Key key) {
     }
 }
 
-void ParticleDemo::keyReleased(Util::Io::Key key) {}
+void ParticleDemo::keyReleased([[maybe_unused]] const Util::Io::Key &key) {}

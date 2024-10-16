@@ -72,7 +72,7 @@ void RainEmitter::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     }
 }
 
-void RainEmitter::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
+void RainEmitter::onCollisionEvent([[maybe_unused]] Util::Game::D2::CollisionEvent &event) {}
 
 void RainEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
     particle.setSprite(Util::Game::D2::Sprite("/user/dino/particle/water.bmp", 0.005, 0.03));
@@ -84,9 +84,9 @@ void RainEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
     particle.addComponent(new Util::Game::D2::LinearMovementComponent(particle));
 }
 
-void RainEmitter::onParticleUpdate(Util::Game::D2::Particle &particle, double delta) {}
+void RainEmitter::onParticleUpdate([[maybe_unused]] Util::Game::D2::Particle &particle, [[maybe_unused]] double delta) {}
 
-void RainEmitter::onParticleCollision(Util::Game::D2::Particle &particle, Util::Game::D2::CollisionEvent &event) {
+void RainEmitter::onParticleCollision(Util::Game::D2::Particle &particle, [[maybe_unused]] Util::Game::D2::CollisionEvent &event) {
     removeParticle(&particle);
 }
 

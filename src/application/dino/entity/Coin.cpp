@@ -67,9 +67,7 @@ void Coin::draw(Util::Game::Graphics &graphics) {
     animation.draw(graphics, getPosition());
 }
 
-void Coin::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
-
-}
+void Coin::onTranslationEvent([[maybe_unused]] Util::Game::D2::TranslationEvent &event) {}
 
 void Coin::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == PlayerDino::TAG) {

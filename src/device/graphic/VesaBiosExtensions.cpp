@@ -77,7 +77,11 @@ VesaBiosExtensions::DeviceInfo* VesaBiosExtensions::getVbeInfo() {
     // Allocate space for VBE info struct inside lower memory
     auto *vbeInfo = reinterpret_cast<DeviceInfo*>(memoryService.allocateBiosMemory(1));
     auto vbeInfoPhysicalAddress = memoryService.getPhysicalAddress(vbeInfo);
-    *vbeInfo = DeviceInfo{.signature = {'V', 'B', 'E', '2'}};
+    *vbeInfo = DeviceInfo{};
+    vbeInfo->signature[0] = 'V';
+    vbeInfo->signature[1] = 'B';
+    vbeInfo->signature[2] = 'E';
+    vbeInfo->signature[3] = '2';
 
     // Prepare bios parameters: Store function code in AX and return data address in ES:DI
     Kernel::Thread::Context biosContext{};

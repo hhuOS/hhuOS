@@ -56,9 +56,9 @@ void Dino::onUpdate(double delta) {
     animation.update(delta);
 }
 
-void Dino::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {}
+void Dino::onTranslationEvent([[maybe_unused]] Util::Game::D2::TranslationEvent &event) {}
 
-void Dino::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
+void Dino::onCollisionEvent([[maybe_unused]] Util::Game::D2::CollisionEvent &event) {}
 
 void Dino::draw(Util::Game::Graphics &graphics) {
     animation.draw(graphics, getPosition());

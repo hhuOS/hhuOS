@@ -42,11 +42,11 @@ void SpriteDemo::initialize() {
     setKeyListener(*this);
 }
 
-void SpriteDemo::update(double delta) {}
+void SpriteDemo::update([[maybe_unused]] double delta) {}
 
-void SpriteDemo::initializeBackground(Util::Game::Graphics &graphics) {}
+void SpriteDemo::initializeBackground([[maybe_unused]] Util::Game::Graphics &graphics) {}
 
-void SpriteDemo::keyPressed(Util::Io::Key key) {
+void SpriteDemo::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::PLUS: {
             auto *sprite = factory.createSprite();
@@ -68,4 +68,4 @@ void SpriteDemo::keyPressed(Util::Io::Key key) {
     }
 }
 
-void SpriteDemo::keyReleased(Util::Io::Key key) {}
+void SpriteDemo::keyReleased([[maybe_unused]] const Util::Io::Key &key) {}

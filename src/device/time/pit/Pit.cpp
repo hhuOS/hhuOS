@@ -64,7 +64,7 @@ void Pit::plugin() {
     interruptService.allowHardwareInterrupt(Device::InterruptRequest::PIT);
 }
 
-void Pit::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
+void Pit::trigger([[maybe_unused]] const Kernel::InterruptFrame &frame, [[maybe_unused]] Kernel::InterruptVector slot) {
     intervals++;
 
     if (readerCount == 0) {

@@ -37,11 +37,11 @@ Util::Array<Util::String> MemoryNode::getChildren() {
     return Util::Array<Util::String>(0);
 }
 
-uint64_t MemoryNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
+uint64_t MemoryNode::readData([[maybe_unused]] uint8_t *targetBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
     return 0;
 }
 
-uint64_t MemoryNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
+uint64_t MemoryNode::writeData([[maybe_unused]] const uint8_t *sourceBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
     return 0;
 }
 

@@ -47,7 +47,7 @@ bool IsoDriver::mount(Device::Storage::StorageDevice &device) {
     return true;
 }
 
-bool IsoDriver::createFilesystem(Device::Storage::StorageDevice &device) {
+bool IsoDriver::createFilesystem([[maybe_unused]] Device::Storage::StorageDevice &device) {
     return false;
 }
 
@@ -125,11 +125,11 @@ Node* IsoDriver::getNode(const Util::String &path) {
     return nullptr;
 }
 
-bool IsoDriver::createNode(const Util::String &path, Util::Io::File::Type type) {
+bool IsoDriver::createNode([[maybe_unused]] const Util::String &path, [[maybe_unused]] Util::Io::File::Type type) {
     return false;
 }
 
-bool IsoDriver::deleteNode(const Util::String &path) {
+bool IsoDriver::deleteNode([[maybe_unused]] const Util::String &path) {
     return false;
 }
 

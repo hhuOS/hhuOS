@@ -103,7 +103,7 @@ void VirtualAddressSpace::map(const void *physicalAddress, const void *virtualAd
         void *physicalPageTable = getPhysicalAddress(virtualPageTable);
 
         // Calculate page directory flags
-        auto pageDirectoryFlags = Paging::PRESENT | Paging::WRITABLE | (reinterpret_cast<uint32_t>(virtualAddress) >= Kernel::MemoryLayout::KERNEL_AREA.endAddress ? Paging::USER_ACCESSIBLE : 0);
+        auto pageDirectoryFlags = Paging::PRESENT | Paging::WRITABLE | (reinterpret_cast<uint32_t>(virtualAddress) >= Kernel::MemoryLayout::KERNEL_AREA.endAddress ? Paging::USER_ACCESSIBLE : Paging::NONE);
 
         // Check if the virtual address is inside kernel memory.
         // In this case, we need to propagate the mapping to all active address spaces, because the kernel is mapped into each address space.

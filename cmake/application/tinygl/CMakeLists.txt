@@ -21,7 +21,7 @@ message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR})
 
-add_compile_options(-Wno-unused-function -Wno-unused-variable)
+add_compile_options(-Wno-unused-function -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-fallthrough)
 
 # Set source files
 set(SOURCE_FILES

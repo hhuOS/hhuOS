@@ -3,7 +3,7 @@
 #include "lib/util/base/CharacterTypes.h"
 #include "lib/util/math/Math.h"
 #include "lib/util/io/stream/InputStream.h"
-#include "limits.h"
+#include <limits.h>
 
 #define EOF -1
 
@@ -13,16 +13,23 @@ ScanStream::ScanStream(InputStream &stream) : stream(stream){
 }
 
 int16_t ScanStream::read() {
-	if (readLimit >= 0 && readChars >= readLimit) return EOF;
+	if (readLimit >= 0 && readChars >= readLimit) {
+        return EOF;
+    }
 	
 	int16_t ret = stream.read();
 	
-	if (ret >=0) readChars++;
+	if (ret >= 0) {
+        readChars++;
+    }
+
 	return ret;
 }
 
 int16_t ScanStream::peek() {
-	if (readLimit >= 0 && readChars >= readLimit) return EOF;
+	if (readLimit >= 0 && readChars >= readLimit) {
+        return EOF;
+    }
 	
 	return stream.peek();
 }
@@ -36,11 +43,11 @@ int32_t ScanStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length
 	return stream.read(targetBuffer, offset, length);
 }
 
-uint32_t ScanStream::getReadBytes() {
+uint32_t ScanStream::getReadBytes() const {
 	return readChars;
 }
 
-void ScanStream::setReadLimit(uint32_t limit) {
+void ScanStream::setReadLimit(int64_t limit) {
 	readLimit = limit;
 }
 

@@ -36,6 +36,8 @@ add_custom_target(gameboy-roms DEPENDS
 
 include_directories(${HHUOS_SRC_DIR})
 
+add_compile_options(-Wno-unused-parameter -Wno-implicit-fallthrough)
+
 # Set source files
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/peanut-gb/peanut_gb.cpp)

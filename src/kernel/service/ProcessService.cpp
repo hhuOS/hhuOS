@@ -112,7 +112,7 @@ ProcessService::ProcessService(Process *kernelProcess) : kernelProcess(kernelPro
         return true;
     });
 
-    Service::getService<InterruptService>().assignSystemCall(Util::System::EXIT_THREAD, [](uint32_t paramCount, va_list arguments) -> bool {
+    Service::getService<InterruptService>().assignSystemCall(Util::System::EXIT_THREAD, []([[maybe_unused]] uint32_t paramCount, [[maybe_unused]] va_list arguments) -> bool {
         Service::getService<ProcessService>().getScheduler().exit();
         return true;
     });

@@ -53,7 +53,7 @@ void* FreeListMemoryManager::allocateMemory(uint32_t size, uint32_t alignment) {
     return ret;
 }
 
-void FreeListMemoryManager::freeMemory(void *ptr, uint32_t alignment) {
+void FreeListMemoryManager::freeMemory(void *ptr, [[maybe_unused]] uint32_t alignment) {
     lock.acquire();
     freeAlgorithm(ptr);
     lock.release();

@@ -55,7 +55,7 @@ void ApicTimer::plugin() {
     LocalApic::allow(LocalApic::TIMER);
 }
 
-void ApicTimer::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
+void ApicTimer::trigger([[maybe_unused]] const Kernel::InterruptFrame &frame, [[maybe_unused]] Kernel::InterruptVector slot) {
     if (cpuId != LocalApic::getId()) {
         // Every core's timer uses the same (this) handler, but it exists once per core (each core has its own ApicTimer instance).
         // All handlers are registered to the same interrupt vector, we only want to reach the instance belonging to this core.

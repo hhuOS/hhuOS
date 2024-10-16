@@ -41,11 +41,11 @@ Util::Array<Util::String> MemoryDirectoryNode::getChildren() {
     return ret;
 }
 
-uint64_t MemoryDirectoryNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
+uint64_t MemoryDirectoryNode::readData([[maybe_unused]] uint8_t *targetBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
     Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "MemoryDriver: Trying to read from a directory!");
 }
 
-uint64_t MemoryDirectoryNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
+uint64_t MemoryDirectoryNode::writeData([[maybe_unused]] const uint8_t *sourceBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
     Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "MemoryDriver: Trying to write to a directory!");
 }
 

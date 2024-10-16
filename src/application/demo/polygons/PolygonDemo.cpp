@@ -40,9 +40,9 @@ void PolygonDemo::initialize() {
     setKeyListener(*this);
 }
 
-void PolygonDemo::update(double delta) {}
+void PolygonDemo::update([[maybe_unused]] double delta) {}
 
-void PolygonDemo::keyPressed(Util::Io::Key key) {
+void PolygonDemo::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::PLUS: {
             auto *polygon = factory.createPolygon();
@@ -64,6 +64,6 @@ void PolygonDemo::keyPressed(Util::Io::Key key) {
     }
 }
 
-void PolygonDemo::keyReleased(Util::Io::Key key) {}
+void PolygonDemo::keyReleased([[maybe_unused]] const Util::Io::Key &key) {}
 
-void PolygonDemo::initializeBackground(Util::Game::Graphics &graphics) {}
+void PolygonDemo::initializeBackground([[maybe_unused]] Util::Game::Graphics &graphics) {}

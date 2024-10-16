@@ -49,11 +49,11 @@ void BloodEmitter::initialize() {
     setMaxEmissionRate(50);
 }
 
-void BloodEmitter::draw(Util::Game::Graphics &graphics) {}
+void BloodEmitter::draw([[maybe_unused]] Util::Game::Graphics &graphics) {}
 
-void BloodEmitter::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {}
+void BloodEmitter::onTranslationEvent([[maybe_unused]] Util::Game::D2::TranslationEvent &event) {}
 
-void BloodEmitter::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
+void BloodEmitter::onCollisionEvent([[maybe_unused]] Util::Game::D2::CollisionEvent &event) {}
 
 void BloodEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
     auto angle = random.nextRandomNumber() * Util::Math::PI;
@@ -77,7 +77,7 @@ void BloodEmitter::onParticleCollision(Util::Game::D2::Particle &particle, Util:
     }
 }
 
-void BloodEmitter::onParticleDestruction(Util::Game::D2::Particle &particle) {}
+void BloodEmitter::onParticleDestruction([[maybe_unused]] Util::Game::D2::Particle &particle) {}
 
 const char* BloodEmitter::getParticleSpritePath(BloodEmitter::Type type) {
     switch (type) {

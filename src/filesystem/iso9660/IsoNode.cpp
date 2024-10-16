@@ -104,7 +104,7 @@ uint64_t IsoNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numByte
     return numBytes;
 }
 
-uint64_t IsoNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
+uint64_t IsoNode::writeData([[maybe_unused]] const uint8_t *sourceBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
     return 0;
 }
 

@@ -347,15 +347,15 @@ void InterruptDescriptorTable::handleInterrupt(const InterruptFrame &frame, Inte
     interruptService.sendEndOfInterrupt(vector);
 }
 
-void InterruptDescriptorTable::handlePageFault(InterruptFrame *frame, uint32_t errorCode) {
+void InterruptDescriptorTable::handlePageFault([[maybe_unused]] InterruptFrame *frame, uint32_t errorCode) {
     Service::getService<MemoryService>().handlePageFault(errorCode);
 }
 
-void InterruptDescriptorTable::handleFpuException(InterruptFrame *frame) {
+void InterruptDescriptorTable::handleFpuException([[maybe_unused]] InterruptFrame *frame) {
     Kernel::Service::getService<Kernel::ProcessService>().getScheduler().switchFpuContext();
 }
 
-void InterruptDescriptorTable::handleSystemCall(InterruptFrame *frame) {
+void InterruptDescriptorTable::handleSystemCall([[maybe_unused]] InterruptFrame *frame) {
     uint32_t ebxValue;
     uint32_t ecxValue;
     uint32_t edxValue;

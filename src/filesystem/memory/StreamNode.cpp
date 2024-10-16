@@ -33,11 +33,11 @@ Util::Io::File::Type StreamNode::getType() {
     return Util::Io::File::CHARACTER;
 }
 
-uint64_t StreamNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
+uint64_t StreamNode::readData(uint8_t *targetBuffer, [[maybe_unused]] uint64_t pos, uint64_t numBytes) {
     return inputStream->read(targetBuffer, 0, numBytes);
 }
 
-uint64_t StreamNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
+uint64_t StreamNode::writeData(const uint8_t *sourceBuffer, [[maybe_unused]] uint64_t pos, uint64_t numBytes) {
     outputStream->write(sourceBuffer, 0, numBytes);
     return numBytes;
 }

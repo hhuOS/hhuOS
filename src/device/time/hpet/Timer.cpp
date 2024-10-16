@@ -79,7 +79,7 @@ void Timer::plugin() {
     interruptService.allowHardwareInterrupt(interrupt);
 }
 
-void Timer::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
+void Timer::trigger([[maybe_unused]] const Kernel::InterruptFrame &frame, [[maybe_unused]] Kernel::InterruptVector slot) {
     onInterrupt->run();
 }
 

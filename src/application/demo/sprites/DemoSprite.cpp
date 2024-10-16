@@ -75,6 +75,6 @@ void DemoSprite::draw(Util::Game::Graphics &graphics) {
     animation.draw(graphics, getPosition());
 }
 
-void DemoSprite::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {}
+void DemoSprite::onTranslationEvent([[maybe_unused]] Util::Game::D2::TranslationEvent &event) {}
 
-void DemoSprite::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
+void DemoSprite::onCollisionEvent([[maybe_unused]] Util::Game::D2::CollisionEvent &event) {}

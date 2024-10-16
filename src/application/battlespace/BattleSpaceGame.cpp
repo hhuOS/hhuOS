@@ -125,7 +125,7 @@ void BattleSpaceGame::update(double delta) {
     }
 }
 
-void BattleSpaceGame::keyPressed(Util::Io::Key key) {
+void BattleSpaceGame::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC:
             Util::Game::GameManager::getGame().stop();
@@ -173,7 +173,7 @@ void BattleSpaceGame::keyPressed(Util::Io::Key key) {
     }
 }
 
-void BattleSpaceGame::keyReleased(Util::Io::Key key) {
+void BattleSpaceGame::keyReleased(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::LEFT:
         case Util::Io::Key::RIGHT:

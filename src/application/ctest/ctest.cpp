@@ -25,7 +25,7 @@ void longjmp_test() {
 	longjmp(jbuf, 0);
 }
 
-int32_t main(int32_t argc, char *argv[]) {
+int32_t main() {
 	bool t;
 	
 	int bw;

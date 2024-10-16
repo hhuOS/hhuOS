@@ -57,11 +57,11 @@ char* strchr(const char *str, int c) {
     return reinterpret_cast<char*>(Util::Address<uint32_t>(str).searchCharacter(c).get());
 }
 
-DSTATUS disk_status(BYTE driveNumber) {
+DSTATUS disk_status([[maybe_unused]] BYTE driveNumber) {
     return RES_OK;
 }
 
-DSTATUS disk_initialize(BYTE driveNumber) {
+DSTATUS disk_initialize([[maybe_unused]] BYTE driveNumber) {
     return RES_OK;
 }
 

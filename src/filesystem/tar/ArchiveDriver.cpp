@@ -44,11 +44,11 @@ Node *ArchiveDriver::getNode(const Util::String &path) {
     return nullptr;
 }
 
-bool ArchiveDriver::createNode(const Util::String &path, Util::Io::File::Type type) {
+bool ArchiveDriver::createNode([[maybe_unused]] const Util::String &path, [[maybe_unused]] Util::Io::File::Type type) {
     return false;
 }
 
-bool ArchiveDriver::deleteNode(const Util::String &path) {
+bool ArchiveDriver::deleteNode([[maybe_unused]] const Util::String &path) {
     return false;
 }
 }

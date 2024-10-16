@@ -35,11 +35,11 @@ void operator delete[](void *pointer) {
     freeMemory(pointer);
 }
 
-void *operator new(uint32_t size, void *pointer) {
+void *operator new([[maybe_unused]] uint32_t size, void *pointer) {
     return pointer;
 }
 
-void *operator new[](uint32_t size, void *pointer) {
+void *operator new[]([[maybe_unused]] uint32_t size, void *pointer) {
     return pointer;
 }
 
@@ -47,10 +47,10 @@ void operator delete(void *, void *) {}
 
 void operator delete[](void *, void *) {}
 
-void operator delete(void *pointer, uint32_t size) {
+void operator delete(void *pointer, [[maybe_unused]] uint32_t size) {
     freeMemory(pointer);
 }
 
-void operator delete[](void *pointer, uint32_t size) {
+void operator delete[](void *pointer, [[maybe_unused]] uint32_t size) {
     freeMemory(pointer);
 }

@@ -40,7 +40,7 @@ MouseCursor::MouseCursor(Logo &logo) : Util::Game::D2::Entity(0, Util::Math::Vec
 
 void MouseCursor::initialize() {}
 
-void MouseCursor::onUpdate(double delta) {}
+void MouseCursor::onUpdate([[maybe_unused]] double delta) {}
 
 void MouseCursor::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     const auto &resolution = Util::Game::GameManager::getRelativeResolution();
@@ -54,7 +54,7 @@ void MouseCursor::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     }
 }
 
-void MouseCursor::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
+void MouseCursor::onCollisionEvent([[maybe_unused]] Util::Game::D2::CollisionEvent &event) {}
 
 void MouseCursor::draw(Util::Game::Graphics &graphics) {
     auto &font = Util::Graphic::Fonts::TERMINAL_8x16;

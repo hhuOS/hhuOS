@@ -39,7 +39,7 @@ void IntroScreen::initialize() {
     setKeyListener(*this);
 }
 
-void IntroScreen::update(double delta) {}
+void IntroScreen::update([[maybe_unused]] double delta) {}
 
 void IntroScreen::initializeBackground(Util::Game::Graphics &graphics) {
     auto &font = Util::Graphic::Fonts::TERMINAL_8x16;
@@ -57,7 +57,7 @@ void IntroScreen::initializeBackground(Util::Game::Graphics &graphics) {
     }
 }
 
-void IntroScreen::keyPressed(Util::Io::Key key) {
+void IntroScreen::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC:
             Util::Game::GameManager::getGame().stop();
@@ -69,4 +69,4 @@ void IntroScreen::keyPressed(Util::Io::Key key) {
     }
 }
 
-void IntroScreen::keyReleased(Util::Io::Key key) {}
+void IntroScreen::keyReleased([[maybe_unused]] const Util::Io::Key &key) {}

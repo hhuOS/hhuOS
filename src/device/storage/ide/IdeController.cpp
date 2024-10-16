@@ -430,7 +430,7 @@ void IdeController::plugin() {
     interruptService.allowHardwareInterrupt(Device::InterruptRequest::SECONDARY_ATA);
 }
 
-void IdeController::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
+void IdeController::trigger([[maybe_unused]] const Kernel::InterruptFrame &frame, [[maybe_unused]] Kernel::InterruptVector slot) {
     if (slot == Kernel::InterruptVector::PRIMARY_ATA) {
         channels[0].receivedInterrupt = true;
     } else if (slot == Kernel::InterruptVector::SECONDARY_ATA) {
@@ -786,6 +786,10 @@ uint16_t IdeController::performAtapiIO(const IdeController::DeviceInfo &info, Id
 
 uint16_t IdeController::performProgrammedAtapiIO(const IdeController::DeviceInfo &info, IdeController::TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount) {
     auto &registers = channels[info.channel];
+
+    if (mode != READ) {
+        return 0;
+    }
 
     prepareAtapiIO(info.channel, static_cast<uint16_t>(sectorCount * info.sectorSize));
 

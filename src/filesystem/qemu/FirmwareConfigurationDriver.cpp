@@ -40,11 +40,11 @@ FirmwareConfigurationDriver::FirmwareConfigurationDriver(Device::FirmwareConfigu
     }
 }
 
-bool FirmwareConfigurationDriver::createNode(const Util::String &path, Util::Io::File::Type type) {
+bool FirmwareConfigurationDriver::createNode([[maybe_unused]] const Util::String &path, [[maybe_unused]] Util::Io::File::Type type) {
     return false;
 }
 
-bool FirmwareConfigurationDriver::deleteNode(const Util::String &path) {
+bool FirmwareConfigurationDriver::deleteNode([[maybe_unused]] const Util::String &path) {
     return false;
 }
 

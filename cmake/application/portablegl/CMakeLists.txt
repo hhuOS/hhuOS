@@ -21,7 +21,7 @@ message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR})
 
-add_compile_options(-Wno-unknown-pragmas)
+add_compile_options(-Wno-unknown-pragmas -Wno-unused-parameter -Wno-missing-field-initializers)
 
 # Set source files
 set(SOURCE_FILES

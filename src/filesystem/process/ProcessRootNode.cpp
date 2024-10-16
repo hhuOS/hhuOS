@@ -46,11 +46,11 @@ Util::Array<Util::String> ProcessRootNode::getChildren() {
     return ret;
 }
 
-uint64_t ProcessRootNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
+uint64_t ProcessRootNode::readData([[maybe_unused]] uint8_t *targetBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
     return 0;
 }
 
-uint64_t ProcessRootNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
+uint64_t ProcessRootNode::writeData([[maybe_unused]] const uint8_t *sourceBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
     return 0;
 }
 

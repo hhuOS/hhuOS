@@ -48,7 +48,7 @@ uint64_t ArchiveFileNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t
     return numBytes;
 }
 
-uint64_t ArchiveFileNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
+uint64_t ArchiveFileNode::writeData([[maybe_unused]] const uint8_t *sourceBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
     return 0;
 }
 

@@ -222,7 +222,7 @@ void SoundBlaster::waitForInterrupt() {
     receivedInterrupt = false;
 }
 
-void SoundBlaster::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
+void SoundBlaster::trigger([[maybe_unused]] const Kernel::InterruptFrame &frame, [[maybe_unused]] Kernel::InterruptVector slot) {
     receivedInterrupt = true;
     ackInterrupt();
 }

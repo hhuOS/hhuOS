@@ -108,12 +108,16 @@ void Enemy::onUpdate(double delta) {
     switch (type) {
         case ORBIT_PLAYER_CLOCKWISE:
             translateLocal(Util::Math::Vector3D(0.03, 0, 0));
+            break;
         case ORBIT_PLAYER_COUNTER_CLOCKWISE:
             translateLocal(Util::Math::Vector3D(-0.03, 0, 0));
+            break;
         case FLY_TOWARDS_PLAYER:
             translateLocal(Util::Math::Vector3D(0, 0, 0.015));
+            break;
         case KEEP_DISTANCE:
             translateLocal(distance > 3 ? Util::Math::Vector3D(0, 0, -0.015) : Util::Math::Vector3D(0, 0, 0.015));
+            break;
         case STATIONARY:
         default:
             break;

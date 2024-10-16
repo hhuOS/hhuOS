@@ -29,10 +29,10 @@ class CollisionEvent;
 }  // namespace Game
 }  // namespace Util
 
-DemoPolygon::DemoPolygon() : Util::Game::D2::Entity(0, Util::Math::Vector2D(0, 0)), polygon(0, Util::Array<Util::Math::Vector2D>(0)), color(0, 0, 0), rotationSpeed(0), scaleSpeed(0) {}
+DemoPolygon::DemoPolygon() : Util::Game::D2::Entity(0, Util::Math::Vector2D(0, 0)), polygon(Util::Array<Util::Math::Vector2D>(0)), color(0, 0, 0), rotationSpeed(0), scaleSpeed(0) {}
 
 DemoPolygon::DemoPolygon(const Util::Array<Util::Math::Vector2D> &vertices, const Util::Math::Vector2D &position, const Util::Graphic::Color &color, double initialScaleFactor, double scaleSpeed, double rotationSpeed) :
-        Util::Game::D2::Entity(0, Util::Math::Vector2D(0, 0)), polygon(0, vertices), color(color), rotationSpeed(rotationSpeed), scaleSpeed(scaleSpeed) {
+        Util::Game::D2::Entity(0, Util::Math::Vector2D(0, 0)), polygon(vertices), color(color), rotationSpeed(rotationSpeed), scaleSpeed(scaleSpeed) {
     setPosition(position);
     polygon.setPosition(getPosition());
     polygon.scale(initialScaleFactor);
@@ -63,4 +63,4 @@ void DemoPolygon::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     polygon.setPosition(event.getTargetPosition());
 }
 
-void DemoPolygon::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
+void DemoPolygon::onCollisionEvent([[maybe_unused]] Util::Game::D2::CollisionEvent &event) {}

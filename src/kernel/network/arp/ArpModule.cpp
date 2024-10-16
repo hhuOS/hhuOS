@@ -44,7 +44,7 @@ class OutputStream;
 
 namespace Kernel::Network::Arp {
 
-void ArpModule::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
+void ArpModule::readPacket(Util::Io::ByteArrayInputStream &stream, [[maybe_unused]] LayerInformation information, Device::Network::NetworkDevice &device) {
     auto arpHeader = ArpHeader();
     arpHeader.read(stream);
 

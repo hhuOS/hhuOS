@@ -34,7 +34,6 @@ void LocalApicErrorHandler::plugin() {
     auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     interruptService.assignInterrupt(Kernel::InterruptVector::ERROR, *this);
 }
-
-void LocalApicErrorHandler::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {}
+void LocalApicErrorHandler::trigger([[maybe_unused]] const Kernel::InterruptFrame &frame, [[maybe_unused]] Kernel::InterruptVector slot) {}
 
 }

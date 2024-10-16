@@ -65,7 +65,7 @@ bool UdpModule::registerSocket(Socket &socket) {
     return socketLock.releaseAndReturn(true);
 }
 
-void UdpModule::readPacket(Util::Io::ByteArrayInputStream &stream, NetworkModule::LayerInformation information, Device::Network::NetworkDevice &device) {
+void UdpModule::readPacket(Util::Io::ByteArrayInputStream &stream, NetworkModule::LayerInformation information, [[maybe_unused]] Device::Network::NetworkDevice &device) {
     auto pseudoHeader = Ip4PseudoHeader(information);
     auto header = Util::Network::Udp::UdpHeader();
     header.read(stream);

@@ -43,10 +43,6 @@ void BufferedOutputStream::write(uint8_t c) {
 }
 
 void BufferedOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    if (offset < 0 || length < 0) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "BufferedOutputStream: Negative offset or size!");
-    }
-
     if (length < (size - position)) {
         Address<uint32_t> sourceAddress(sourceBuffer + offset);
         Address<uint32_t> targetAddress(buffer + position);

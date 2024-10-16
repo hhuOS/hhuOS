@@ -63,11 +63,11 @@ Node* ProcessDriver::getNode(const Util::String &path) {
     return nullptr;
 }
 
-bool ProcessDriver::createNode(const Util::String &path, Util::Io::File::Type type) {
+bool ProcessDriver::createNode([[maybe_unused]] const Util::String &path, [[maybe_unused]] Util::Io::File::Type type) {
     return false;
 }
 
-bool ProcessDriver::deleteNode(const Util::String &path) {
+bool ProcessDriver::deleteNode([[maybe_unused]] const Util::String &path) {
     return false;
 }
 

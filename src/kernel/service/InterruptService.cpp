@@ -75,7 +75,13 @@ void InterruptService::handleException(const InterruptFrame &frame, uint32_t err
         Util::Exception::throwException(static_cast<Util::Exception::Error>(vector), "CPU exception!");
     }
 
-    Util::System::out << Util::Exception::getExceptionName(static_cast<Util::Exception::Error>(vector)) << " (CPU exception!)" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    Util::System::out << Util::Exception::getExceptionName(static_cast<Util::Exception::Error>(vector)) << " (CPU exception!)" << Util::Io::PrintStream::endl
+        << Util::Io::PrintStream::hex << "Error code: 0x" << errorCode
+        << Util::Io::PrintStream::endl << " EIP: 0x" << frame.instructionPointer
+        << Util::Io::PrintStream::endl << " CS: 0x" << frame.codeSegment
+        << Util::Io::PrintStream::endl << " EFLAGS: 0x" << frame.flags
+        << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+
     Util::System::printStackTrace(Util::System::out, Util::USER_SPACE_MEMORY_START_ADDRESS);
     processService.exitCurrentProcess(-1);
 }

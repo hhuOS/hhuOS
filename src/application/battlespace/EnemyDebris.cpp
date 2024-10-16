@@ -77,4 +77,4 @@ void EnemyDebris::onUpdate(double delta) {
     rotate(rotationDirection);
 }
 
-void EnemyDebris::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {}
+void EnemyDebris::onCollisionEvent([[maybe_unused]] Util::Game::D3::CollisionEvent &event) {}

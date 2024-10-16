@@ -11,6 +11,7 @@ namespace Util::Io {
 class ScanStream : public InputStream {
 
 public:
+
     explicit ScanStream(InputStream &stream);
 
     ScanStream(const ScanStream &copy) = delete;
@@ -27,9 +28,9 @@ public:
 
     int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
 	
-	uint32_t getReadBytes();
+	[[nodiscard]] uint32_t getReadBytes() const;
 	
-	void setReadLimit(uint32_t limit); //limit is compared to readBytes, -1 = no limit
+	void setReadLimit(int64_t limit); //limit is compared to readBytes, -1 = no limit
 	
 	long long readLong(int base=0);
 	
@@ -38,15 +39,11 @@ public:
 	uint32_t readUint(int base=0);
 	
 	double readDouble();
-	
-	
-
-	
 
 private:
+
 	uint32_t readChars = 0;
-	
-	uint32_t readLimit = -1; //-1 = no limit 
+	int64_t readLimit = -1; // -1 = no limit
 	
     InputStream &stream;
 };

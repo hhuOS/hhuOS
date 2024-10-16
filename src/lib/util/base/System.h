@@ -114,7 +114,7 @@ public:
      * This only works for user space applications, not for the kernel.
      * See 'lib/kernel.cpp' and 'kernel/service/InformationService' for kernel stack traces.
      */
-    static void printStackTrace(const Io::PrintStream &stream, uint32_t minEbp);
+    static void printStackTrace(Io::PrintStream &stream, uint32_t minEbp);
 
     static AddressSpaceHeader& getAddressSpaceHeader();
 

@@ -40,13 +40,13 @@ void Ground::initialize() {
     sprite = Util::Game::D2::Sprite("/user/dino/block/grass.bmp", SIZE, SIZE);
 }
 
-void Ground::onUpdate(double delta) {}
+void Ground::onUpdate([[maybe_unused]] double delta) {}
 
 void Ground::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     event.cancel();
 }
 
-void Ground::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
+void Ground::onCollisionEvent([[maybe_unused]] Util::Game::D2::CollisionEvent &event) {}
 
 void Ground::draw(Util::Game::Graphics &graphics) {
     auto startX = getPosition().getX() - (getCollider().getWidth() - 1) / 2;

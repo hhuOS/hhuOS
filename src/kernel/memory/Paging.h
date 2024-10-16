@@ -36,6 +36,7 @@ public:
 
     enum Flags : uint32_t {
         // System defined flags
+        NONE = 0x00,
         PRESENT = 0x01,
         WRITABLE = 0x02,
         USER_ACCESSIBLE = 0x04,
@@ -45,9 +46,6 @@ public:
         DIRTY = 0x40,
         HUGE_PAGE = 0x80,
         GLOBAL = 0x100,
-
-        // User defined flags
-        DO_NOT_UNMAP = 0x200
     };
 
     struct Entry {

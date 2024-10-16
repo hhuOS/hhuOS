@@ -219,7 +219,7 @@ void Ne2000::dummyReadBeforeWrite() {
     }
 }
 
-void Ne2000::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
+void Ne2000::trigger([[maybe_unused]] const Kernel::InterruptFrame &frame, [[maybe_unused]] Kernel::InterruptVector slot) {
     /** Just to be sure go to Page0 and disable remote DMA */
     baseRegister.writeByte(COMMAND, STOP_DMA | PAGE0);
     /** Disable all Interrupts */

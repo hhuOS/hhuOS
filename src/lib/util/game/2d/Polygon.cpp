@@ -28,7 +28,7 @@
 
 namespace Util::Game::D2 {
 
-Polygon::Polygon(uint32_t tag, const Array<Math::Vector2D> &vertices) : vertices(vertices) {
+Polygon::Polygon(const Array<Math::Vector2D> &vertices) : vertices(vertices) {
     calculateCenter();
 }
 

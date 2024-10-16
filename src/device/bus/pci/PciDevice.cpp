@@ -83,7 +83,7 @@ Util::Array<Pci::Command> PciDevice::readCommand() const {
 
     for (uint16_t i = 1; i > 0; i *= 2) {
         if ((value & i) != 0) {
-            command.add(static_cast<const Pci::Command>(i));
+            command.add(*reinterpret_cast<const Pci::Command*>(&i));
         }
     }
 
@@ -96,7 +96,7 @@ Util::Array<Pci::Status> PciDevice::readStatus() const {
 
     for (uint16_t i = 1; i > 0; i *= 2) {
         if ((value & i) != 0) {
-            status.add(static_cast<const Pci::Status>(i));
+            status.add(*reinterpret_cast<const Pci::Status*>(&i));
         }
     }
 

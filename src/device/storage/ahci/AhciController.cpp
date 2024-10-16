@@ -463,7 +463,7 @@ void *AhciController::allocateDmaBuffer(uint32_t size) {
     return Kernel::Service::getService<Kernel::MemoryService>().mapIO(dmaPages);
 }
 
-void AhciController::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {}
+void AhciController::trigger([[maybe_unused]] const Kernel::InterruptFrame &frame, [[maybe_unused]] Kernel::InterruptVector slot) {}
 
 void AhciController::plugin() {
     auto &interruptService = Kernel::InterruptService::getService<Kernel::InterruptService>();

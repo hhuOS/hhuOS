@@ -40,11 +40,11 @@ template <typename T> class ArrayList;
 #define LOG_XSTRINGIFY(a) LOG_STRINGIFY(a)
 #define LOG_STRINGIFY(a) #a
 
-#define LOG_TRACE(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::TRACE, __FILE__, LOG_XSTRINGIFY(__LINE__) }, message)
-#define LOG_DEBUG(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::DEBUG, __FILE__, LOG_XSTRINGIFY(__LINE__) }, message)
-#define LOG_INFO(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::INFO, __FILE__, LOG_XSTRINGIFY(__LINE__) }, message)
-#define LOG_WARN(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::WARN, __FILE__, LOG_XSTRINGIFY(__LINE__) }, message)
-#define LOG_ERROR(message...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::ERROR, __FILE__, LOG_XSTRINGIFY(__LINE__) }, message)
+#define LOG_TRACE(...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::TRACE, __FILE__, LOG_XSTRINGIFY(__LINE__) }, __VA_ARGS__)
+#define LOG_DEBUG(...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::DEBUG, __FILE__, LOG_XSTRINGIFY(__LINE__) }, __VA_ARGS__)
+#define LOG_INFO(...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::INFO, __FILE__, LOG_XSTRINGIFY(__LINE__) }, __VA_ARGS__)
+#define LOG_WARN(...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::WARN, __FILE__, LOG_XSTRINGIFY(__LINE__) }, __VA_ARGS__)
+#define LOG_ERROR(...) Kernel::Log::log(Kernel::Log::Record{ Kernel::Log::ERROR, __FILE__, LOG_XSTRINGIFY(__LINE__) }, __VA_ARGS__)
 
 namespace Kernel {
 

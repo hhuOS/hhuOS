@@ -46,6 +46,6 @@ uint16_t UdpDatagram::getRemotePort() const {
     return reinterpret_cast<const Util::Network::Ip4::Ip4PortAddress*>(remoteAddress)->getPort();
 }
 
-void UdpDatagram::setAttributes(const Datagram &datagram) {}
+void UdpDatagram::setAttributes([[maybe_unused]] const Datagram &datagram) {}
 
 }

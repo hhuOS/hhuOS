@@ -37,11 +37,11 @@ Util::Array<Util::String> ProcessDirectoryNode::getChildren() {
     return Util::Array<Util::String>({"name", "cwd", "thread_count"});
 }
 
-uint64_t ProcessDirectoryNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
+uint64_t ProcessDirectoryNode::readData([[maybe_unused]] uint8_t *targetBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
     return 0;
 }
 
-uint64_t ProcessDirectoryNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
+uint64_t ProcessDirectoryNode::writeData([[maybe_unused]] const uint8_t *sourceBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
     return 0;
 }
 

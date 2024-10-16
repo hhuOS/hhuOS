@@ -129,7 +129,7 @@ void Level::initializeBackground(Util::Game::Graphics &graphics) {
     cloud4.draw(graphics, Util::Math::Vector2D(0.65, 0.7));
 }
 
-void Level::update(double delta) {
+void Level::update([[maybe_unused]] double delta) {
     if (player->isDead()) {
         auto &game = Util::Game::GameManager::getGame();
         game.switchToNextScene();
@@ -169,7 +169,7 @@ void Level::update(double delta) {
     getCamera().setPosition(Util::Math::Vector2D(player->getPosition().getX() + 0.8, cameraPosY));
 }
 
-void Level::keyPressed(Util::Io::Key key) {
+void Level::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC:
             Util::Game::GameManager::getGame().stop();
@@ -190,7 +190,7 @@ void Level::keyPressed(Util::Io::Key key) {
     }
 }
 
-void Level::keyReleased(Util::Io::Key key) {
+void Level::keyReleased(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::RIGHT:
             rightPressed = false;

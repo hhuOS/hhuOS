@@ -43,7 +43,7 @@ class OutputStream;
 
 namespace Kernel::Network::Ethernet {
 
-bool EthernetModule::checkPacket(const uint8_t *packet, uint32_t length) {
+bool EthernetModule::checkPacket([[maybe_unused]] const uint8_t *packet, [[maybe_unused]] uint32_t length) {
     // TODO: Uncomment once checksum calculation is implemented;
     // uint32_t frameCheckSequence = (packet[length - 4] << 24) | (packet[length - 3] << 16) | (packet[length - 2] << 8) | packet[length - 1];
     // uint32_t calculatedCheckSequence = calculateCheckSequence(packet, length - 4);
@@ -77,7 +77,7 @@ void EthernetModule::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInf
     invokeNextLayerModule(header.getEtherType(), {header.getSourceAddress(), header.getDestinationAddress(), payloadLength}, stream, device);
 }
 
-uint32_t EthernetModule::calculateCheckSequence(const uint8_t *packet, uint32_t length) {
+uint32_t EthernetModule::calculateCheckSequence([[maybe_unused]] const uint8_t *packet, [[maybe_unused]] uint32_t length) {
     // TODO: Calculate check sequence
     return 0;
 }

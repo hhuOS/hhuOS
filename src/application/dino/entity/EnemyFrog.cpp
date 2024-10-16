@@ -76,7 +76,7 @@ void EnemyFrog::draw(Util::Game::Graphics &graphics) {
     animation.draw(graphics, getPosition());
 }
 
-void EnemyFrog::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {}
+void EnemyFrog::onTranslationEvent([[maybe_unused]] Util::Game::D2::TranslationEvent &event) {}
 
 void EnemyFrog::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == BloodEmitter::PARTICLE_TAG) {

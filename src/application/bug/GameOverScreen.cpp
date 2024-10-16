@@ -37,7 +37,7 @@ void GameOverScreen::initialize() {
     setKeyListener(*this);
 }
 
-void GameOverScreen::update(double delta) {}
+void GameOverScreen::update([[maybe_unused]] double delta) {}
 
 void GameOverScreen::initializeBackground(Util::Game::Graphics &graphics) {
     auto **text = won ? WIN_TEXT : LOOSE_TEXT;
@@ -56,7 +56,7 @@ void GameOverScreen::initializeBackground(Util::Game::Graphics &graphics) {
     }
 }
 
-void GameOverScreen::keyPressed(Util::Io::Key key) {
+void GameOverScreen::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC:
             Util::Game::GameManager::getGame().stop();
@@ -68,4 +68,4 @@ void GameOverScreen::keyPressed(Util::Io::Key key) {
     }
 }
 
-void GameOverScreen::keyReleased(Util::Io::Key key) {}
+void GameOverScreen::keyReleased([[maybe_unused]] const Util::Io::Key &key) {}

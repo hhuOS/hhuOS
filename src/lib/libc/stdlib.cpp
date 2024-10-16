@@ -73,7 +73,7 @@ int system(const char* command) {
 	return 0; //process return type not preserved currently
 }
 
-char * getenv(const char* name) {
+char * getenv([[maybe_unused]] const char* name) {
 	return NULL; //unimplemented
 }
 
@@ -256,7 +256,7 @@ int mblen(const char* s, size_t n) {
 int mbtowc(wchar_t * pwc, const char* s, size_t n) {
 	size_t len = mblen(s,n);
 	
-	if (len < 0 && (*s) != 0) return len; //same error handling as mblen
+	if ((*s) == '\0') return len; //same error handling as mblen
 	if (!pwc) return len;
 	
 	size_t first_byte_len = 0;

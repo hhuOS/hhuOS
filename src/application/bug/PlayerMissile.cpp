@@ -39,9 +39,7 @@ void PlayerMissile::initialize() {
     sprite = Util::Game::D2::Sprite("/user/bug/player_missile.bmp", SIZE_X, SIZE_Y);
 }
 
-void PlayerMissile::onUpdate(double delta) {
-
-}
+void PlayerMissile::onUpdate([[maybe_unused]] double delta) {}
 
 void PlayerMissile::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     if (event.getTargetPosition().getY() > 1.0) {

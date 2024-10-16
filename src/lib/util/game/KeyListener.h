@@ -51,9 +51,9 @@ public:
      */
     ~KeyListener() = default;
 
-    virtual void keyPressed(Io::Key key) = 0;
+    virtual void keyPressed(const Util::Io::Key &key) = 0;
 
-    virtual void keyReleased(Io::Key key) = 0;
+    virtual void keyReleased(const Util::Io::Key &key) = 0;
 };
 
 }

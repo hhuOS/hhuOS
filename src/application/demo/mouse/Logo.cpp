@@ -36,7 +36,7 @@ void Logo::initialize() {
     sprite = Util::Game::D2::Sprite("user/mouse/logo.bmp", 1, 0.626);
 }
 
-void Logo::onUpdate(double delta) {}
+void Logo::onUpdate([[maybe_unused]] double delta) {}
 
 void Logo::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     const auto &resolution = Util::Game::GameManager::getRelativeResolution();
@@ -50,7 +50,7 @@ void Logo::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     }
 }
 
-void Logo::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
+void Logo::onCollisionEvent([[maybe_unused]] Util::Game::D2::CollisionEvent &event) {}
 
 void Logo::draw(Util::Game::Graphics &graphics) {
     sprite.draw(graphics, getPosition());

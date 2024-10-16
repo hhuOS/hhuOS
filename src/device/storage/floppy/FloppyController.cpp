@@ -337,7 +337,7 @@ void FloppyController::plugin() {
     interruptService.allowHardwareInterrupt(Device::InterruptRequest::FLOPPY);
 }
 
-void FloppyController::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
+void FloppyController::trigger([[maybe_unused]] const Kernel::InterruptFrame &frame, [[maybe_unused]] Kernel::InterruptVector slot) {
     receivedInterrupt = true;
 }
 

@@ -25,7 +25,7 @@
 #include "lib/util/graphic/Colors.h"
 #include "application/demo/mouse/Logo.h"
 
-void MouseDemo::update(double delta) {}
+void MouseDemo::update([[maybe_unused]] double delta) {}
 
 void MouseDemo::initialize() {
     addObject(logo);
@@ -34,13 +34,13 @@ void MouseDemo::initialize() {
     setMouseListener(*cursor);
 }
 
-void MouseDemo::keyPressed(Util::Io::Key key) {
+void MouseDemo::keyPressed(const Util::Io::Key &key) {
     if (key.getScancode() == Util::Io::Key::ESC) {
         Util::Game::GameManager::getGame().stop();
     }
 }
 
-void MouseDemo::keyReleased(Util::Io::Key key) {}
+void MouseDemo::keyReleased([[maybe_unused]] const Util::Io::Key &key) {}
 
 void MouseDemo::initializeBackground(Util::Game::Graphics &graphics) {
     graphics.clear(Util::Graphic::Colors::HHU_BLUE_30);

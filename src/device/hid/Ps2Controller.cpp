@@ -161,14 +161,11 @@ uint8_t Ps2Controller::writeCommand(uint8_t firstByte, uint8_t secondByte) {
         writeDataByte(secondByte);
     }
 
-    switch (firstByte) {
-        case 0x20 ... 0x3f:
-        case 0xa9 ... 0xab:
-        case 0xd0:
-            return readDataByte();
-        default:
-            return 0;
+    if ((firstByte >= 0x20 && firstByte <= 0x3f) || (firstByte >= 0xa9 && firstByte <= 0xab) || firstByte == 0xd0) {
+        return readDataByte();
     }
+
+    return 0;
 }
 
 void Ps2Controller::writeDataToPort(Ps2Controller::Port port, uint8_t data) {

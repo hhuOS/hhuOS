@@ -40,7 +40,7 @@ void ModelViewer::update(double delta) {
     model->rotate(rotation * delta * 50);
 }
 
-void ModelViewer::keyPressed(Util::Io::Key key) {
+void ModelViewer::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::W:
             if (rotation.getX() == 0) rotation = rotation - Util::Math::Vector3D(1, 0, 0);
@@ -81,7 +81,7 @@ void ModelViewer::keyPressed(Util::Io::Key key) {
 
 }
 
-void ModelViewer::keyReleased(Util::Io::Key key) {
+void ModelViewer::keyReleased(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::W:
             if (rotation.getX() == -1) rotation = rotation + Util::Math::Vector3D(1, 0, 0);
@@ -129,6 +129,6 @@ void ModelViewer::mouseScrolled(Util::Io::Mouse::ScrollDirection direction) {
     }
 }
 
-void ModelViewer::buttonPressed(Util::Io::Mouse::Button button) {}
+void ModelViewer::buttonPressed([[maybe_unused]] Util::Io::Mouse::Button button) {}
 
-void ModelViewer::buttonReleased(Util::Io::Mouse::Button button) {}
+void ModelViewer::buttonReleased([[maybe_unused]] Util::Io::Mouse::Button button) {}

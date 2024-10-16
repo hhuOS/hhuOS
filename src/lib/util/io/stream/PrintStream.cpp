@@ -90,7 +90,10 @@ void PrintStream::setAlwaysPrintDecimalPoint(bool val) {
 
 void PrintStream::print(const char *string, uint32_t maxBytes) {
 	uint32_t len = Address<uint32_t>(string).stringLength();
-	if (maxBytes >= 0 && len > maxBytes) len = maxBytes;
+	if (len > maxBytes) {
+        len = maxBytes;
+    }
+
     write(reinterpret_cast<const uint8_t*>(string), 0, len);
 }
 

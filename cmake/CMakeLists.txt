@@ -87,11 +87,13 @@ add_compile_options(
         -mno-mmx
         -mno-sse
         -mno-avx
-        -Wall
         -fno-stack-protector
         -fno-pic
         -no-pie
         -ffreestanding
+        -Wall
+        -Wextra
+        -Werror
         -DHHUOS_VERSION=${HHUOS_VERSION}
         -DHHUOS_CODENAME=${HHUOS_CODENAME}
         -DHHUOS_GIT_REV=${HHUOS_GIT_REV}
@@ -101,7 +103,7 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:CXX>:-fno-threadsafe-statics>
         $<$<COMPILE_LANGUAGE:CXX>:-fno-use-cxa-atexit>
         $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
-        $<$<COMPILE_LANGUAGE:CXX>:-std=c++20>
+        $<$<COMPILE_LANGUAGE:CXX>:-std=gnu++20>
 )
 if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 9)
     add_compile_options(-mmanual-endbr)

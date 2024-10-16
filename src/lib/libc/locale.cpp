@@ -32,7 +32,7 @@ struct lconv current_locale = {
 };
 
 
-char * setlocale(int category, const char* locale) {
+char * setlocale([[maybe_unused]] int category, [[maybe_unused]] const char* locale) {
 	return NULL; //Always fails
 }
 

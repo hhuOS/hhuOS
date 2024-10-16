@@ -302,7 +302,7 @@ void *Kernel::MemoryService::mapIO(void *physicalAddress, uint32_t pageCount, bo
     void *virtualAddress = manager.allocateMemory(pageCount * Util::PAGESIZE, Util::PAGESIZE);
 
     // Create mapping
-    uint32_t flags = Paging::PRESENT | Paging::WRITABLE | Paging::CACHE_DISABLE | (reinterpret_cast<uint32_t>(virtualAddress) >= Kernel::MemoryLayout::KERNEL_END ? Paging::USER_ACCESSIBLE : 0);
+    uint32_t flags = Paging::PRESENT | Paging::WRITABLE | Paging::CACHE_DISABLE | (reinterpret_cast<uint32_t>(virtualAddress) >= Kernel::MemoryLayout::KERNEL_END ? Paging::USER_ACCESSIBLE : Paging::NONE);
     for (uint32_t i = 0; i < pageCount; i++) {
         void *currentPhysicalAddress = reinterpret_cast<uint8_t*>(physicalAddress) + i * Util::PAGESIZE;
         void *currentVirtualAddress = reinterpret_cast<uint8_t*>(virtualAddress) + i * Util::PAGESIZE;
@@ -370,7 +370,7 @@ void MemoryService::handlePageFault(uint32_t errorCode) {
     }
 
     // Map the faulted Page
-    map(reinterpret_cast<void*>(faultAddress), 1, Paging::PRESENT | Paging::WRITABLE | (faultAddress >= Kernel::MemoryLayout::KERNEL_AREA.endAddress ? Paging::USER_ACCESSIBLE : 0));
+    map(reinterpret_cast<void*>(faultAddress), 1, Paging::PRESENT | Paging::WRITABLE | (faultAddress >= Kernel::MemoryLayout::KERNEL_AREA.endAddress ? Paging::USER_ACCESSIBLE : Paging::NONE));
 }
 
 MemoryService::MemoryStatus MemoryService::getMemoryStatus() {

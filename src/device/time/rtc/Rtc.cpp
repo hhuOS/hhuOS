@@ -67,7 +67,7 @@ void Rtc::plugin() {
     Cpu::enableInterrupts();
 }
 
-void Rtc::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
+void Rtc::trigger([[maybe_unused]] const Kernel::InterruptFrame &frame, [[maybe_unused]] Kernel::InterruptVector slot) {
     uint8_t interruptStatus = Cmos::read(STATUS_REGISTER_C);
     if ((interruptStatus & INTERRUPT_UPDATE_ENDED) != 0) {
         currentDate = readDate();

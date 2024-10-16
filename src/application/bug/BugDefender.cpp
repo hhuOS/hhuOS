@@ -40,7 +40,7 @@ void BugDefender::initialize() {
     setKeyListener(*this);
 }
 
-void BugDefender::update(double delta) {
+void BugDefender::update([[maybe_unused]] double delta) {
     enemyFleet.applyChanges();
 }
 
@@ -81,7 +81,7 @@ void BugDefender::initializeBackground(Util::Game::Graphics &graphics) {
     }
 }
 
-void BugDefender::keyPressed(Util::Io::Key key) {
+void BugDefender::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC :
             Util::Game::GameManager::getGame().stop();
@@ -99,7 +99,7 @@ void BugDefender::keyPressed(Util::Io::Key key) {
     }
 }
 
-void BugDefender::keyReleased(Util::Io::Key key) {
+void BugDefender::keyReleased(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::LEFT:
             if (ship->getVelocity().getX() < 0) {

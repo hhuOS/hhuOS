@@ -114,7 +114,7 @@ void Rtl8139::plugin() {
     interruptService.assignInterrupt(static_cast<Kernel::InterruptVector>(pciDevice.getInterruptLine() + 32), *this);
 }
 
-void Rtl8139::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
+void Rtl8139::trigger([[maybe_unused]] const Kernel::InterruptFrame &frame, [[maybe_unused]] Kernel::InterruptVector slot) {
     auto interrupt = baseRegister.readWord(INTERRUPT_STATUS);
     if (interrupt & RECEIVE_OK) {
         while (!(baseRegister.readByte(COMMAND) & BUFFER_EMPTY)) {

@@ -37,4 +37,4 @@ void Astronomical::onUpdate(double delta) {
     rotate(rotationVector * delta);
 }
 
-void Astronomical::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {}
+void Astronomical::onCollisionEvent([[maybe_unused]] Util::Game::D3::CollisionEvent &event) {}

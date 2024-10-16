@@ -125,8 +125,7 @@ void Mouse::plugin() {
     interruptService.assignInterrupt(Kernel::InterruptVector::MOUSE, *this);
     interruptService.allowHardwareInterrupt(Device::InterruptRequest::MOUSE);
 }
-
-void Mouse::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
+void Mouse::trigger([[maybe_unused]] const Kernel::InterruptFrame &frame, [[maybe_unused]] Kernel::InterruptVector slot) {
     auto status = controller.readControlByte();
     if (!(status & 0x20)) {
         return;

@@ -29,6 +29,6 @@ class CollisionEvent;
 
 ModelEntity::ModelEntity(const Util::String &modelPath) : Util::Game::D3::Model(0, modelPath, Util::Math::Vector3D(0, 0, 3), Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(1, 1, 1)) {}
 
-void ModelEntity::onUpdate(double delta) {}
+void ModelEntity::onUpdate([[maybe_unused]] double delta) {}
 
-void ModelEntity::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {}
+void ModelEntity::onCollisionEvent([[maybe_unused]] Util::Game::D3::CollisionEvent &event) {}

@@ -47,7 +47,7 @@ void Block::initialize() {
     sprite = Util::Game::D2::Sprite(getSpritePath(static_cast<Block::Tag>(getTag())), SIZE, SIZE);
 }
 
-void Block::onUpdate(double delta) {}
+void Block::onUpdate([[maybe_unused]] double delta) {}
 
 void Block::draw(Util::Game::Graphics &graphics) {
     for (uint32_t x = 0; x < countX; x++) {
@@ -57,7 +57,7 @@ void Block::draw(Util::Game::Graphics &graphics) {
     }
 }
 
-void Block::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {}
+void Block::onTranslationEvent([[maybe_unused]] Util::Game::D2::TranslationEvent &event) {}
 
 void Block::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
     if (getTag() == WATER && event.getCollidedWidth().getTag() == PlayerDino::TAG && event.getSide() == Util::Game::D2::RectangleCollider::TOP) {

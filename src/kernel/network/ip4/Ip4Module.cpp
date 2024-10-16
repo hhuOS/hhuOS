@@ -47,7 +47,7 @@
 
 namespace Kernel::Network::Ip4 {
 
-void Ip4Module::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
+void Ip4Module::readPacket(Util::Io::ByteArrayInputStream &stream, [[maybe_unused]] LayerInformation information, Device::Network::NetworkDevice &device) {
     auto &tmpStream = reinterpret_cast<Util::Io::ByteArrayInputStream&>(stream);
     auto *buffer = tmpStream.getBuffer() + tmpStream.getPosition();
     uint8_t headerLength = (buffer[0] & 0x0f) * sizeof(uint32_t);

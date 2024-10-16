@@ -47,11 +47,11 @@ void GrassEmitter::initialize() {
     setEmissionTime(-1);
 }
 
-void GrassEmitter::draw(Util::Game::Graphics &graphics) {}
+void GrassEmitter::draw([[maybe_unused]] Util::Game::Graphics &graphics) {}
 
-void GrassEmitter::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {}
+void GrassEmitter::onTranslationEvent([[maybe_unused]] Util::Game::D2::TranslationEvent &event) {}
 
-void GrassEmitter::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {}
+void GrassEmitter::onCollisionEvent([[maybe_unused]] Util::Game::D2::CollisionEvent &event) {}
 
 void GrassEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
     auto angle = random.nextRandomNumber() * (Util::Math::PI / 4) + (Util::Math::PI / 8);
@@ -77,4 +77,4 @@ void GrassEmitter::onParticleCollision(Util::Game::D2::Particle &particle, Util:
     }
 }
 
-void GrassEmitter::onParticleDestruction(Util::Game::D2::Particle &particle) {}
+void GrassEmitter::onParticleDestruction([[maybe_unused]] Util::Game::D2::Particle &particle) {}

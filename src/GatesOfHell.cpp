@@ -142,7 +142,7 @@ extern "C" {
     void _init();
 }
 
-extern "C" int32_t atexit (void (*func)()) noexcept {
+extern "C" int32_t atexit ([[maybe_unused]] void (*func)()) noexcept {
     return 0;
 }
 

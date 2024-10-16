@@ -44,7 +44,7 @@ public:
     /**
      * Constructor.
      */
-    Polygon(uint32_t tag, const Array<Math::Vector2D> &vertices);
+    explicit Polygon(const Array<Math::Vector2D> &vertices);
 
     /**
      * Copy Constructor.

@@ -58,7 +58,7 @@ void Particle::draw(Graphics &graphics) {
     sprite.draw(graphics, getPosition());
 }
 
-void Particle::onTranslationEvent(TranslationEvent &event) {}
+void Particle::onTranslationEvent([[maybe_unused]] TranslationEvent &event) {}
 
 void Particle::onCollisionEvent(CollisionEvent &event) {
     parent.onParticleCollision(*this, event);

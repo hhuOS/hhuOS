@@ -27,7 +27,7 @@ Util::Io::File::Type NullNode::getType() {
     return Util::Io::File::CHARACTER;
 }
 
-uint64_t NullNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
+uint64_t NullNode::writeData([[maybe_unused]] const uint8_t *sourceBuffer, [[maybe_unused]] uint64_t pos, uint64_t numBytes) {
     return numBytes;
 }
 

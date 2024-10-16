@@ -78,25 +78,15 @@ void Terminal::write(uint8_t c) {
             currentEscapeSequence += c;
         }
     } else {
-        switch (c) {
-            case 0x07:
-                handleBell();
-                return;
-            case 0x09:
-                handleTab();
-                return;
-            case 0x00 ... 0x06:
-            case 0x08:
-            case 0x0b ... 0x1a:
-            case 0x1c ... 0x1f:
-                return;
-            default:
-                break;
-        }
-
-        if (c == '\n') {
+        if (c == 0x07) {
+            handleBell();
+        } else if (c == 0x09) {
+            handleTab();
+        } else if (c == '\n') {
             clear(foregroundColor, backgroundColor, getCurrentColumn(), getCurrentRow(), columns, getCurrentRow());
             setPosition(0, getCurrentRow() + 1);
+        } else if (c <= 0x06 || c == 0x08 || (c >= 0x0b && c <= 0x1a) || (c >= 0x1c && c <= 0x1f)) {
+            return;
         } else {
             putChar(c, foregroundColor, backgroundColor);
         }

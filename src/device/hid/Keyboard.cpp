@@ -161,7 +161,7 @@ void Keyboard::plugin() {
     interruptService.allowHardwareInterrupt(Device::InterruptRequest::KEYBOARD);
 }
 
-void Keyboard::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
+void Keyboard::trigger([[maybe_unused]] const Kernel::InterruptFrame &frame, [[maybe_unused]] Kernel::InterruptVector slot) {
     auto control = controller.readControlByte();
     if (!(control & 0x01) || (control & 0x20)) {
         return;

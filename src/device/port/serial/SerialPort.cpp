@@ -93,7 +93,7 @@ void SerialPort::plugin() {
     port.interruptRegister.writeByte(0x01);
 }
 
-void SerialPort::trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) {
+void SerialPort::trigger([[maybe_unused]] const Kernel::InterruptFrame &frame, [[maybe_unused]] Kernel::InterruptVector slot) {
     if (port.fifoControlRegister.readByte() & 0x01) {
         return;
     }
