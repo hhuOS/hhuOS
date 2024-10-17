@@ -21,7 +21,11 @@ public:
 
     void setPixel(int x, int y, unsigned int color);
 
-    void scale(double factor, ScaleKind kind);
+    uint32_t getPixel(int x, int y) const;
+
+    void scale(double factor, ToolCorner kind);
+
+    void crop (int left, int right, int top, int bottom);
 
     int width;
     int height;

@@ -3,6 +3,7 @@
 //
 
 #include <string.h>
+#include <cstdio>
 #include "Button.h"
 
 
@@ -67,9 +68,29 @@ Button *Button::setIntValueButton(int *value) {
     return this;
 }
 
+Button *Button::setIntValueButton(int *value, int limit_low, int limit_high) {
+    this->type = INT_VALUE;
+    this->intValue = value;
+    this->intLimitLow = limit_low;
+    this->intLimitHigh = limit_high;
+    this->hasIntLimits = true;
+    render();
+    return this;
+}
+
 Button *Button::setDoubleValueButton(double *dvalue) {
     this->type = DOUBLE_VALUE;
     this->doubleValue = dvalue;
+    render();
+    return this;
+}
+
+Button *Button::setDoubleValueButton(double *dvalue, double limit_low, double limit_high) {
+    this->type = DOUBLE_VALUE;
+    this->doubleValue = dvalue;
+    this->doubleLimitLow = limit_low;
+    this->doubleLimitHigh = limit_high;
+    this->hasDoubleLimits = true;
     render();
     return this;
 }
@@ -96,6 +117,18 @@ Button *Button::changeGreenIfTool(Tool tool) {
     return this;
 }
 
+Button *Button::setColor(int *a, int *r, int *g, int *b) {
+    colorA = a, colorR = r, colorG = g, colorB = b;
+    showcolor = true;
+    render();
+    return this;
+}
+
+Button *Button::setAppearTopOnChange(bool set) {
+    this->appearTopOnChange = set;
+    return this;
+}
+
 uint32_t *Button::getBuffer() {
     return this->buffer;
 }
@@ -119,6 +152,10 @@ void Button::processClick(int relX, int relY) {
                     *intValue = 0;
                 }
             }
+            if (hasIntLimits) {
+                if (*intValue > intLimitHigh) *intValue = intLimitHigh;
+                if (*intValue < intLimitLow) *intValue = intLimitLow;
+            }
             break;
         case DOUBLE_VALUE:
             if (relX < 40) {
@@ -132,7 +169,10 @@ void Button::processClick(int relX, int relY) {
                     *doubleValue = 0.01;
                 }
             }
-            if (*doubleValue < 0.01) *doubleValue = 0.01;
+            if (hasDoubleLimits) {
+                if (*doubleValue > doubleLimitHigh) *doubleValue = doubleLimitHigh;
+                if (*doubleValue < doubleLimitLow) *doubleValue = doubleLimitLow;
+            }
             break;
         case CONFIRM:
             if (relX < 100) {
@@ -159,6 +199,9 @@ void Button::processClick(int relX, int relY) {
     }
     if (rFlagMethod != nullptr) {
         (data->flags->*rFlagMethod)();
+    }
+    if (appearTopOnChange) {
+        data->currentGuiLayer->appear();
     }
     render();
 }
@@ -244,8 +287,17 @@ void Button::renderBackground(int x1, int x2, uint32_t color) {
 
 void Button::renderMethod() {
     renderBackground(0, 200, click ? green : hover ? darkgray : gray);
-    renderBorder(this->setGreenTool != Tool::NOTHING ? this->setGreenTool == data->currentTool ? 0xFF00FF00 : 0xFF000000 : 0xFF000000);
     int xStringpos = 100 - (strlen(info) * 4);
+    if (showcolor) {
+//        uint32_t color = (*colorA << 24) | (*colorR << 16) | (*colorG << 8) | *colorB;
+        uint32_t color = 0xFF000000 | (*colorR << 16) | (*colorG << 8) | *colorB;
+        renderBackground(0, 80, color);
+        Color c = this->setGreenTool == data->currentTool ? cgreen : cblack;
+        lineDrawer->drawLine(79, 0, 79, 30, c);
+        lineDrawer->drawLine(80, 0, 80, 30, c);
+        xStringpos = 140 - (strlen(info) * 4);
+    }
+    renderBorder(this->setGreenTool != Tool::NOTHING ? this->setGreenTool == data->currentTool ? 0xFF00FF00 : 0xFF000000 : 0xFF000000);
     stringDrawer->drawString(Fonts::TERMINAL_8x16, xStringpos, 7, info, cblack,
                              click ? cgreen : hover ? cdarkgray : cgray);
 }
@@ -342,12 +394,16 @@ void Button::renderValue(const char *text) {
 
 void Button::renderIntValue() {
     const char *int_string = int_to_string(*intValue);
-    renderValue(int_string);
+    char text[256];
+    snprintf(text, sizeof(text), "%s: %s", info, int_string);
+    renderValue(text);
 }
 
 void Button::renderDoubleValue() {
     const char *double_string = double_to_string(*doubleValue, 2);
-    renderValue(double_string);
+    char text[256];
+    snprintf(text, sizeof(text), "%s: %s", info, double_string);
+    renderValue(text);
 }
 
 void Button::renderConfirm() {

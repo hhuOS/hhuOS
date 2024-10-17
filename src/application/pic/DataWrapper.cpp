@@ -54,11 +54,11 @@ DataWrapper::DataWrapper() {
     moveY = -1;
     rotateDeg = -1;
     scale = -1.0;
-    scaleKind = ScaleKind::BOTTOM_RIGHT;
+    toolCorner = ToolCorner::BOTTOM_RIGHT;
     cropLeft = -1;
     cropRight = -1;
     cropTop = -1;
     cropBottom = -1;
     penSize = -1;
-    penColor = 0xFFFFFFFF;
+    colorA = 255, colorR = 255, colorG = 0, colorB = 0;
 }

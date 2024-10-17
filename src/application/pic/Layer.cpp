@@ -58,8 +58,8 @@ void Layer::setPixel(int x, int y, unsigned int color) {
     pixelData[index] = color;
 }
 
-void Layer::scale(double factor, ScaleKind kind) {
-    if(factor <= 0) {
+void Layer::scale(double factor, ToolCorner kind) {
+    if (factor <= 0) {
         return;
     }
     int newWidth = ceil(width * factor);
@@ -99,4 +99,30 @@ void Layer::scale(double factor, ScaleKind kind) {
 
     width = newWidth;
     height = newHeight;
+}
+
+void Layer::crop(int left, int right, int top, int bottom) {
+    int newWidth = width - left - right, newHeight = height - top - bottom;
+    if (newWidth <= 0 || newHeight <= 0) return;
+    uint32_t *newPixelData = new uint32_t[newWidth * newHeight];
+    for (int i = 0; i < newWidth * newHeight; ++i) newPixelData[i] = 0x00000000;
+    for (int y = 0; y < newHeight; ++y) {
+        for (int x = 0; x < newWidth; ++x) {
+            int oldX = x + left, oldY = y + top;
+            if (oldX >= 0 && oldX < width && oldY >= 0 && oldY < height) {
+                newPixelData[y * newWidth + x] = pixelData[oldY * width + oldX];
+            }
+        }
+    }
+    delete[] pixelData;
+    pixelData = newPixelData;
+    width = newWidth, height = newHeight;
+    posX += left, posY += top;
+}
+
+uint32_t Layer::getPixel(int x, int y) const {
+    if (x < 0 || x >= width || y < 0 || y >= height) {
+        return 0;
+    }
+    return pixelData[y * width + x];
 }

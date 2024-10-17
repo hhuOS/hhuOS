@@ -205,7 +205,8 @@ void Renderer::renderOverlay() {
     int x = l->posX, y = l->posY, w = l->width, h = l->height;
     drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, cred);
     drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, cred);
-
+    Color top, bottom, left, right;
+    double factor;
     switch (data->currentTool) {
         case Tool::MOVE:
             x = data->moveX, y = data->moveY;
@@ -213,24 +214,36 @@ void Renderer::renderOverlay() {
             drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, cgreen);
             break;
         case Tool::SCALE:
-            double factor = data->scale;
+            factor = data->scale;
             w = ceil(w * factor);
             h = ceil(h * factor);
-            if (data->scaleKind == ScaleKind::TOP_LEFT || data->scaleKind == ScaleKind::BOTTOM_LEFT) {
+            if (data->toolCorner == ToolCorner::TOP_LEFT || data->toolCorner == ToolCorner::BOTTOM_LEFT) {
                 x = floor(l->posX + l->width * (1 - factor));
             }
-            if (data->scaleKind == ScaleKind::TOP_LEFT || data->scaleKind == ScaleKind::TOP_RIGHT) {
+            if (data->toolCorner == ToolCorner::TOP_LEFT || data->toolCorner == ToolCorner::TOP_RIGHT) {
                 y = floor(l->posY + l->height * (1 - factor));
             }
-            Color top = data->scaleKind == ScaleKind::TOP_LEFT || data->scaleKind == ScaleKind::TOP_RIGHT ? cgreen : cred;
-            Color bottom = data->scaleKind == ScaleKind::BOTTOM_LEFT || data->scaleKind == ScaleKind::BOTTOM_RIGHT ? cgreen : cred;
-            Color left = data->scaleKind == ScaleKind::TOP_LEFT || data->scaleKind == ScaleKind::BOTTOM_LEFT ? cgreen : cred;
-            Color right = data->scaleKind == ScaleKind::TOP_RIGHT || data->scaleKind == ScaleKind::BOTTOM_RIGHT ? cgreen : cred;
+            top = data->toolCorner == ToolCorner::TOP_LEFT || data->toolCorner == ToolCorner::TOP_RIGHT ? cgreen : cred;
+            bottom = data->toolCorner == ToolCorner::BOTTOM_LEFT || data->toolCorner == ToolCorner::BOTTOM_RIGHT ? cgreen : cred;
+            left = data->toolCorner == ToolCorner::TOP_LEFT || data->toolCorner == ToolCorner::BOTTOM_LEFT ? cgreen : cred;
+            right = data->toolCorner == ToolCorner::TOP_RIGHT || data->toolCorner == ToolCorner::BOTTOM_RIGHT ? cgreen : cred;
             drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, top, right, bottom, left);
             drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, top, right, bottom, left);
-//            drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, cgreen);
-//            drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, cgreen);
             break;
+        case Tool::CROP:
+            x = l->posX + data->cropLeft;
+            y = l->posY + data->cropTop;
+            w = l->width - data->cropLeft - data->cropRight;
+            h = l->height - data->cropTop - data->cropBottom;
+            top = data->toolCorner == ToolCorner::TOP_LEFT || data->toolCorner == ToolCorner::TOP_RIGHT ? cgreen : cred;
+            bottom = data->toolCorner == ToolCorner::BOTTOM_LEFT || data->toolCorner == ToolCorner::BOTTOM_RIGHT ? cgreen : cred;
+            left = data->toolCorner == ToolCorner::TOP_LEFT || data->toolCorner == ToolCorner::BOTTOM_LEFT ? cgreen : cred;
+            right = data->toolCorner == ToolCorner::TOP_RIGHT || data->toolCorner == ToolCorner::BOTTOM_RIGHT ? cgreen : cred;
+            drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, top, right, bottom, left);
+            drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, top, right, bottom, left);
+            break;
+        case Tool::COLOR:
+            break; // do no overlay
     }
 
     if (data->debugString != nullptr) {

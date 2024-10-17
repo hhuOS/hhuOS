@@ -9,20 +9,13 @@
 
 class GuiLayer {
 public:
-    GuiLayer(){
-        this->buttonCount = 0;
-        this->buttons = new Button*[20];
-    }
-    void addButton(Button *button){
-        buttons[buttonCount] = button;
-        buttonCount++;
-    }
-    void appear() const{
-        for(int i = 0; i < buttonCount; i++){
-            buttons[i]->removeInteraction();
-        }
-    }
-    Button ** buttons;
+    GuiLayer();
+
+    void addButton(Button *button);
+
+    void appear() const;
+
+    Button **buttons;
     int buttonCount;
 };
 

@@ -17,6 +17,7 @@
 
 
 #include "DataWrapper.h"
+#include "GuiLayer.h"
 
 using namespace Util::Graphic;
 
@@ -26,7 +27,6 @@ enum ButtonType {
     INT_VALUE,
     DOUBLE_VALUE,
     CONFIRM,
-    COLOR,
     LAYER,
     INPUT
 };
@@ -56,11 +56,13 @@ public:
 
     Button *setIntValueButton(int *value);
 
+    Button *setIntValueButton(int *value, int limit_low, int limit_high);
+
     Button *setDoubleValueButton(double *dvalue);
 
-    Button *setConfirmButton(void (*cancel)(DataWrapper *), void (*ok)(DataWrapper *));
+    Button *setDoubleValueButton(double *dvalue, double limit_low, double limit_high);
 
-    Button *setColorButton(uint32_t *color);
+    Button *setConfirmButton(void (*cancel)(DataWrapper *), void (*ok)(DataWrapper *));
 
     Button *setLayerButton(Layer **layer, int layerCount, int whichLayer);
 
@@ -69,6 +71,10 @@ public:
     Button *setRenderFlagMethod(void (RenderFlags::*rFlagMethod)());
 
     Button *changeGreenIfTool(Tool tool);
+
+    Button *setColor(int *colorA, int *colorR, int *colorG, int *colorB);
+
+    Button *setAppearTopOnChange(bool set);
 
     bool bufferChanged;
 
@@ -114,10 +120,17 @@ private:
     char hotkey;
     bool hasHotkey;
     int *intValue = nullptr;
+    int intLimitLow = 0, intLimitHigh = 0;
+    bool hasIntLimits = false;
     double *doubleValue = nullptr;
+    double doubleLimitLow = 0, doubleLimitHigh = 0;
+    bool hasDoubleLimits = false;
     Util::String *input = nullptr;
     bool *captureInput = nullptr;
     Tool setGreenTool = Tool::NOTHING;
+    bool showcolor = false;
+    int *colorA = nullptr, *colorR = nullptr, *colorG = nullptr, *colorB = nullptr;
+    bool appearTopOnChange = false;
 
     void (*method1)(DataWrapper *data) = nullptr;
 
