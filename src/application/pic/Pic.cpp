@@ -188,7 +188,9 @@ void Pic::parseMouse(bool clicked) {
             data->colorB = c & 0xFF;
             data->currentGuiLayer->appear();
         } else if (data->currentTool == Tool::ROTATE) {
-            // TODO
+            data->rotateDeg += data->xMovement;
+            if(data->rotateDeg > 180) data->rotateDeg -= 360;
+            if(data->rotateDeg < -180) data->rotateDeg += 360;
         } else if (data->currentTool == Tool::PEN) {
             // TODO
         } else if (data->currentTool == Tool::ERASER) {
@@ -626,6 +628,24 @@ void Pic::init_gui() {
     );
 
     auto gui_bottom_rotate = new GuiLayer();
+    gui_bottom_rotate->addButton((new Button(data))
+                                         ->setInfo("rotate")
+                                         ->setIntValueButton(&data->rotateDeg, -180, 180)
+                                         ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
+    );
+    gui_bottom_rotate->addButton((new Button(data))
+                                         ->setInfo("ROTATE")
+                                         ->setConfirmButton([](DataWrapper *data) {
+                                             data->rotateDeg = 0;
+                                             data->currentGuiLayerBottom->appear();
+                                         }, [](DataWrapper *data) {
+                                             data->layers[data->currentLayer]->rotate(data->rotateDeg);
+                                             data->rotateDeg = 0;
+                                             data->currentGuiLayerBottom->appear();
+                                         })
+                                         ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+    );
+
     auto gui_bottom_pen = new GuiLayer();
     auto gui_bottom_eraser = new GuiLayer();
 

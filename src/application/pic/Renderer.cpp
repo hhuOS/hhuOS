@@ -189,7 +189,7 @@ void Renderer::drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, in
     drawOverlayBox(x1, y1, x2, y2, x3, y3, x4, y4, color, color, color, color);
 }
 
-void Renderer::drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Color c1, Color c2,Color c3,Color c4) {
+void Renderer::drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Color c1, Color c2, Color c3, Color c4) {
     lineDrawer->drawLine(x1, y1, x2, y2, c1);
     lineDrawer->drawLine(x2, y2, x3, y3, c2);
     lineDrawer->drawLine(x3, y3, x4, y4, c3);
@@ -244,6 +244,18 @@ void Renderer::renderOverlay() {
             break;
         case Tool::COLOR:
             break; // do no overlay
+        case Tool::ROTATE:
+            double angle = data->rotateDeg * PI / 180.0;
+            int centerX = l->posX + l->width / 2, centerY = l->posY + l->height / 2;
+            double cosAngle = cos(angle), sinAngle = sin(angle);
+            int dx1 = l->posX - centerX, dy1 = l->posY - centerY, dx2 = l->posX + l->width - centerX, dy2 = l->posY + l->height - centerY;
+            int newX1 = centerX + dx1 * cosAngle - dy1 * sinAngle, newY1 = centerY + dx1 * sinAngle + dy1 * cosAngle;
+            int newX2 = centerX + dx2 * cosAngle - dy1 * sinAngle, newY2 = centerY + dx2 * sinAngle + dy1 * cosAngle;
+            int newX3 = centerX + dx2 * cosAngle - dy2 * sinAngle, newY3 = centerY + dx2 * sinAngle + dy2 * cosAngle;
+            int newX4 = centerX + dx1 * cosAngle - dy2 * sinAngle, newY4 = centerY + dx1 * sinAngle + dy2 * cosAngle;
+            drawOverlayBox(newX1 - 1, newY1 - 1, newX2, newY2 - 1, newX3, newY3, newX4 - 1, newY4, cgreen);
+            drawOverlayBox(newX1 - 2, newY1 - 2, newX2 + 1, newY2 - 2, newX3 + 1, newY3 + 1, newX4 - 2, newY4 + 1, cgreen);
+            break;
     }
 
     if (data->debugString != nullptr) {

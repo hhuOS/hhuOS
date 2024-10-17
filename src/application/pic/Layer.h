@@ -27,6 +27,8 @@ public:
 
     void crop (int left, int right, int top, int bottom);
 
+    void rotate(int degree);
+
     int width;
     int height;
     int posX;

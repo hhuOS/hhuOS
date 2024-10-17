@@ -126,3 +126,40 @@ uint32_t Layer::getPixel(int x, int y) const {
     }
     return pixelData[y * width + x];
 }
+
+void Layer::rotate(int degree) {
+    degree = (degree % 360 + 360) % 360;  // Normalize degree to 0-359
+    if (degree == 0) return;  // No rotation needed
+
+    int newSize = ceil(sqrt(width * width + height * height));
+    uint32_t *newPixelData = new uint32_t[newSize * newSize];
+    for (int i = 0; i < newSize * newSize; ++i) newPixelData[i] = 0x00000000;
+
+    double radians = degree * PI / 180.0;
+    double cosTheta = cos(radians);
+    double sinTheta = sin(radians);
+
+    int centerX = width / 2;
+    int centerY = height / 2;
+    int newCenterX = newSize / 2;
+    int newCenterY = newSize / 2;
+
+    for (int y = 0; y < newSize; ++y) {
+        for (int x = 0; x < newSize; ++x) {
+            int srcX = static_cast<int>((x - newCenterX) * cosTheta + (y - newCenterY) * sinTheta) + centerX;
+            int srcY = static_cast<int>(-(x - newCenterX) * sinTheta + (y - newCenterY) * cosTheta) + centerY;
+
+            if (srcX >= 0 && srcX < width && srcY >= 0 && srcY < height) {
+                newPixelData[y * newSize + x] = pixelData[srcY * width + srcX];
+            }
+        }
+    }
+
+    delete[] pixelData;
+    pixelData = newPixelData;
+    width = height = newSize;
+
+    // Adjust position to keep the center of the layer in the same place
+    posX -= (newSize - width) / 2;
+    posY -= (newSize - height) / 2;
+}

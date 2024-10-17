@@ -19,6 +19,8 @@
 #include "lib/util/collection/Pair.h"
 #include "lib/util/collection/ArrayBlockingQueue.h"
 
+#define  PI 3.14159265358979323846
+
 // Forward declaration since otherwise circular dependency
 class Layer;
 
