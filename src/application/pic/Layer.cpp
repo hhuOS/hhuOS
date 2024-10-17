@@ -59,12 +59,10 @@ void Layer::setPixel(int x, int y, unsigned int color) {
 }
 
 void Layer::scale(double factor, ToolCorner kind) {
-    if (factor <= 0) {
-        return;
-    }
+    if (factor <= 0) return;
     int newWidth = ceil(width * factor);
     int newHeight = ceil(height * factor);
-    uint32_t *newPixelData = new uint32_t[newWidth * newHeight];
+    auto *newPixelData = new uint32_t[newWidth * newHeight];
 
     for (int y = 0; y < newHeight; ++y) {
         for (int x = 0; x < newWidth; ++x) {
@@ -81,21 +79,10 @@ void Layer::scale(double factor, ToolCorner kind) {
     delete[] pixelData;
     pixelData = newPixelData;
 
-    switch (kind) {
-        case TOP_LEFT:
-            posX = posX + width - newWidth;
-            posY = posY + height - newHeight;
-            break;
-        case TOP_RIGHT:
-            posY = posY + height - newHeight;
-            break;
-        case BOTTOM_LEFT:
-            posX = posX + width - newWidth;
-            break;
-        case BOTTOM_RIGHT:
-            // No change in position
-            break;
-    }
+    if (kind == TOP_LEFT || kind == BOTTOM_LEFT)
+        posX = posX + width - newWidth;
+    if (kind == TOP_LEFT || kind == TOP_RIGHT)
+        posY = posY + height - newHeight;
 
     width = newWidth;
     height = newHeight;
@@ -131,9 +118,10 @@ void Layer::rotate(int degree) {
     degree = (degree % 360 + 360) % 360;  // Normalize degree to 0-359
     if (degree == 0) return;  // No rotation needed
 
-    int newSize = ceil(sqrt(width * width + height * height));
-    uint32_t *newPixelData = new uint32_t[newSize * newSize];
-    for (int i = 0; i < newSize * newSize; ++i) newPixelData[i] = 0x00000000;
+    int newWidth = abs(width * cos(degree * PI / 180.0)) + abs(height * sin(degree * PI / 180.0));
+    int newHeight = abs(width * sin(degree * PI / 180.0)) + abs(height * cos(degree * PI / 180.0));
+    auto *newPixelData = new uint32_t[newWidth * newHeight];
+    for (int i = 0; i < newWidth * newHeight; ++i) newPixelData[i] = 0x00000000;
 
     double radians = degree * PI / 180.0;
     double cosTheta = cos(radians);
@@ -141,25 +129,25 @@ void Layer::rotate(int degree) {
 
     int centerX = width / 2;
     int centerY = height / 2;
-    int newCenterX = newSize / 2;
-    int newCenterY = newSize / 2;
+    int newCenterX = newWidth / 2;
+    int newCenterY = newHeight / 2;
 
-    for (int y = 0; y < newSize; ++y) {
-        for (int x = 0; x < newSize; ++x) {
+    for (int y = 0; y < newHeight; ++y) {
+        for (int x = 0; x < newWidth; ++x) {
             int srcX = static_cast<int>((x - newCenterX) * cosTheta + (y - newCenterY) * sinTheta) + centerX;
             int srcY = static_cast<int>(-(x - newCenterX) * sinTheta + (y - newCenterY) * cosTheta) + centerY;
 
             if (srcX >= 0 && srcX < width && srcY >= 0 && srcY < height) {
-                newPixelData[y * newSize + x] = pixelData[srcY * width + srcX];
+                newPixelData[y * newWidth + x] = pixelData[srcY * width + srcX];
             }
         }
     }
 
     delete[] pixelData;
     pixelData = newPixelData;
-    width = height = newSize;
 
-    // Adjust position to keep the center of the layer in the same place
-    posX -= (newSize - width) / 2;
-    posY -= (newSize - height) / 2;
+    posX -= (newWidth - width) / 2;
+    posY -= (newHeight - height) / 2;
+    width = newWidth;
+    height = newHeight;
 }

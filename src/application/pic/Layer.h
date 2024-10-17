@@ -4,6 +4,7 @@
 #include <cstdint>
 #include "DataWrapper.h"
 #include "lib/libc/math.h"
+#include "stdlib.h"
 
 class Layer {
 public:
