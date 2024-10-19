@@ -60,5 +60,5 @@ DataWrapper::DataWrapper() {
     cropTop = -1;
     cropBottom = -1;
     penSize = -1;
-    colorA = 255, colorR = 255, colorG = 0, colorB = 0;
+    colorA = 128, colorR = 0, colorG = 255, colorB = 0;
 }

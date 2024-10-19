@@ -28,19 +28,15 @@ Layer **makeTestLayers() {
                            img[j * channels + 2]);        // Blue
         }
     }
-    auto **layers = new Layer *[7];
-    auto *layer1 = new Layer(width, height, 0, 0, true, argbData);
-    auto *layer2 = new Layer(width, height, 50, 50, true, argbData);
-    auto *layer3 = new Layer(width, height, 100, 100, true, argbData);
-    auto *layer4 = new Layer(width, height, 150, 150, true, argbData);
-    auto *layer5 = new Layer(width, height, 200, 200, true, argbData);
-    auto *layer6 = new Layer(width, height, 250, 250, true, argbData);
+    auto **layers = new Layer *[4];
+    auto *layer1 = new Layer(width, height, 50, 50, true, argbData);
+    auto *layer2 = new Layer(width, height, 150, 150, true, argbData);
+    auto *layer3 = new Layer(width, height, 250, 250, true, argbData);
+    auto *layer4 = new Layer(500, 500, 50, 50, true);
     layers[0] = layer1;
     layers[1] = layer2;
     layers[2] = layer3;
     layers[3] = layer4;
-    layers[4] = layer5;
-    layers[5] = layer6;
     stbi_image_free(img);
     return layers;
 }
@@ -58,7 +54,7 @@ Pic::Pic() {
     this->renderer = new Renderer(data);
 
     data->layers = makeTestLayers();
-    data->layerCount = 6;
+    data->layerCount = 4;
     data->currentLayer = 3;
 
     init_gui();
@@ -157,6 +153,9 @@ void Pic::parseMouse(bool clicked) {
         if (data->currentTool == Tool::MOVE) {
             data->moveX += data->xMovement;
             data->moveY += data->yMovement;
+            data->flags->guiButtonChanged();
+            data->flags->overlayChanged();
+            data->currentGuiLayerBottom->appear();
         } else if (data->currentTool == Tool::SCALE) {
             if (data->toolCorner == ToolCorner::TOP_LEFT)
                 data->scale += (-data->xMovement - data->yMovement) * 0.005;
@@ -167,6 +166,9 @@ void Pic::parseMouse(bool clicked) {
             else if (data->toolCorner == ToolCorner::BOTTOM_RIGHT)
                 data->scale += (data->xMovement + data->yMovement) * 0.005;
             if (data->scale < 0.01) data->scale = 0.01;
+            data->flags->guiButtonChanged();
+            data->flags->overlayChanged();
+            data->currentGuiLayerBottom->appear();
         } else if (data->currentTool == Tool::CROP) {
             if (data->toolCorner == ToolCorner::TOP_LEFT)
                 data->cropLeft += data->xMovement, data->cropTop += data->yMovement;
@@ -176,6 +178,9 @@ void Pic::parseMouse(bool clicked) {
                 data->cropLeft += data->xMovement, data->cropBottom -= data->yMovement;
             else if (data->toolCorner == ToolCorner::BOTTOM_RIGHT)
                 data->cropRight -= data->xMovement, data->cropBottom -= data->yMovement;
+            data->flags->guiButtonChanged();
+            data->flags->overlayChanged();
+            data->currentGuiLayerBottom->appear();
         } else if (data->currentTool == Tool::COLOR) {
             Layer *l = data->layers[data->currentLayer];
             int relX = data->mouseX - 200 - l->posX;
@@ -187,18 +192,39 @@ void Pic::parseMouse(bool clicked) {
             data->colorG = (c >> 8) & 0xFF;
             data->colorB = c & 0xFF;
             data->currentGuiLayer->appear();
+            data->flags->guiButtonChanged();
+            data->flags->overlayChanged();
+            data->currentGuiLayerBottom->appear();
         } else if (data->currentTool == Tool::ROTATE) {
             data->rotateDeg += data->xMovement;
-            if(data->rotateDeg > 180) data->rotateDeg -= 360;
-            if(data->rotateDeg < -180) data->rotateDeg += 360;
-        } else if (data->currentTool == Tool::PEN) {
-            // TODO
-        } else if (data->currentTool == Tool::ERASER) {
-            // TODO
+            if (data->rotateDeg > 180) data->rotateDeg -= 360;
+            if (data->rotateDeg < -180) data->rotateDeg += 360;
+            data->flags->guiButtonChanged();
+            data->flags->overlayChanged();
+            data->currentGuiLayerBottom->appear();
+        } else if ((data->currentTool == Tool::PEN || data->currentTool == Tool::ERASER) && data->mouseClicks->size() > 0) {
+            // ✅ TODO bug: sometimes skips some points?
+            // ❎ TODO fix: if alpha!=FF: circles from drawing blend onto themselves -> should only blend once
+            Layer *l = data->layers[data->currentLayer];
+            auto click = data->mouseClicks->peek();
+            int lastX = click.first - l->posX - 200;
+            int lastY = click.second - l->posY;
+            while (data->mouseClicks->size() > 0) {
+                click = data->mouseClicks->poll();
+                int relX = click.first - l->posX - 200;
+                int relY = click.second - l->posY;
+                if ((relX < 0 || relX >= l->width || relY < 0 || relY >= l->height) &&
+                    (lastX < 0 || lastX >= l->width || lastY < 0 || lastY >= l->height)) {
+                    continue; // both points are outside of the layer
+                }
+                uint32_t penColor = (data->colorA << 24) | (data->colorR << 16) | (data->colorG << 8) | data->colorB;
+                l->drawLine(lastX, lastY, relX, relY, data->currentTool == Tool::PEN ? penColor : 0x00000000, data->penSize);
+                lastX = relX, lastY = relY;
+            }
+            // put last click back for next iteration
+            data->mouseClicks->offer(Util::Pair<int, int>(data->mouseX, data->mouseY));
+            data->flags->currentLayerChanged();
         }
-        data->flags->guiButtonChanged();
-        data->flags->overlayChanged();
-        data->currentGuiLayerBottom->appear();
     }
 
     data->debugString = String::format(
@@ -298,10 +324,8 @@ void swapTool(DataWrapper *data, Tool tool) {
                 data->currentGuiLayerBottom = data->guiLayers->get("bottom_crop");
                 break;
             case Tool::PEN:
-                data->currentGuiLayerBottom = data->guiLayers->get("bottom_pen");
-                break;
             case Tool::ERASER:
-                data->currentGuiLayerBottom = data->guiLayers->get("bottom_eraser");
+                data->currentGuiLayerBottom = data->guiLayers->get("bottom_pen");
                 break;
             case Tool::COLOR:
                 data->currentGuiLayerBottom = data->guiLayers->get("bottom_color");
@@ -453,7 +477,7 @@ void Pic::init_gui() {
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Pen")
                                  ->setMethodButton([](DataWrapper *data) {
-                                     data->penSize = 1;
+                                     data->penSize = 10;
                                      swapTool(data, Tool::PEN);
                                  })
                                  ->changeGreenIfTool(Tool::PEN)
@@ -462,7 +486,7 @@ void Pic::init_gui() {
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Eraser")
                                  ->setMethodButton([](DataWrapper *data) {
-                                     data->penSize = 1;
+                                     data->penSize = 10;
                                      swapTool(data, Tool::ERASER);
                                  })
                                  ->changeGreenIfTool(Tool::ERASER)
@@ -647,7 +671,11 @@ void Pic::init_gui() {
     );
 
     auto gui_bottom_pen = new GuiLayer();
-    auto gui_bottom_eraser = new GuiLayer();
+    gui_bottom_pen->addButton((new Button(data))
+                                      ->setInfo("Pen Size")
+                                      ->setIntValueButton(&data->penSize, 1, 100)
+                                      ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
+    );
 
     auto gui_empty = new GuiLayer();
 
@@ -666,7 +694,6 @@ void Pic::init_gui() {
     data->guiLayers->put("bottom_scale", gui_bottom_scale);
     data->guiLayers->put("bottom_crop", gui_bottom_crop);
     data->guiLayers->put("bottom_pen", gui_bottom_pen);
-    data->guiLayers->put("bottom_eraser", gui_bottom_eraser);
     data->guiLayers->put("bottom_color", gui_bottom_color);
     data->currentGuiLayer = gui_main;
     data->currentGuiLayerBottom = gui_empty;

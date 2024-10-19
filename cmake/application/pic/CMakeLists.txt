@@ -12,6 +12,7 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/pic/Renderer.cpp
         ${HHUOS_SRC_DIR}/application/pic/DataWrapper.cpp
         ${HHUOS_SRC_DIR}/application/pic/GuiLayer.cpp
+        ${HHUOS_SRC_DIR}/application/pic/helper.cpp
         ${HHUOS_SRC_DIR}/application/pic/Button.cpp
         ${HHUOS_SRC_DIR}/application/pic/Layer.cpp)
 

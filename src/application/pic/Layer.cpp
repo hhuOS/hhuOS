@@ -151,3 +151,37 @@ void Layer::rotate(int degree) {
     width = newWidth;
     height = newHeight;
 }
+
+void Layer::drawCircle(int x, int y, uint32_t color, int thickness) {
+    int r = thickness / 2;
+    int rr = r * r;
+    for (int ty = -r; ty <= r; ty++) {
+        for (int tx = -r; tx <= r; tx++) {
+            if (tx * tx + ty * ty <= rr) {
+                int px = x + tx;
+                int py = y + ty;
+                if (px >= 0 && px < width && py >= 0 && py < height) {
+                    uint32_t oldColor = pixelData[py * width + px];
+                    pixelData[py * width + px] = color == 0x00000000 ? 0x00000000 : blendPixels(oldColor, color);
+                }
+            }
+        }
+    }
+}
+
+void Layer::drawLine(int x1, int y1, int x2, int y2, uint32_t color, int thickness) {
+    // Bressenham's line algorithm
+    // https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm#cite_note-Zingl-3
+    // http://members.chello.at/~easyfilter/Bresenham.pdf
+    // seite Page 13 of 98
+    int dx = abs(x2 - x1), sx = x1 < x2 ? 1 : -1;
+    int dy = -abs(y2 - y1), sy = y1 < y2 ? 1 : -1;
+    int err = dx + dy, e2;
+    while (true) {
+        drawCircle(x1, y1, color, thickness);
+        if (x1 == x2 && y1 == y2) break;
+        e2 = 2 * err;
+        if (e2 >= dy) err += dy, x1 += sx;
+        if (e2 <= dx) err += dx, y1 += sy;
+    }
+}

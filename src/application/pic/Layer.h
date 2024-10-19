@@ -5,20 +5,23 @@
 #include "DataWrapper.h"
 #include "lib/libc/math.h"
 #include "stdlib.h"
+#include "helper.h"
 
 class Layer {
 public:
     Layer(int width, int height, int posX, int posY, int visible);
-    Layer(int width, int height, int posX, int posY, int visible, const uint32_t * pixelData);
+
+    Layer(int width, int height, int posX, int posY, int visible, const uint32_t *pixelData);
+
     ~Layer();
 
     // Copy constructor
-    Layer(const Layer& other);
+    Layer(const Layer &other);
 
     // Assignment operator
-    Layer& operator=(const Layer& other);
+    Layer &operator=(const Layer &other);
 
-    [[nodiscard]] uint32_t * getPixelData() const { return pixelData; }
+    [[nodiscard]] uint32_t *getPixelData() const { return pixelData; }
 
     void setPixel(int x, int y, unsigned int color);
 
@@ -26,9 +29,13 @@ public:
 
     void scale(double factor, ToolCorner kind);
 
-    void crop (int left, int right, int top, int bottom);
+    void crop(int left, int right, int top, int bottom);
 
     void rotate(int degree);
+
+    void drawCircle(int x, int y, uint32_t color, int thickness);
+
+    void drawLine(int x1, int y1, int x2, int y2, uint32_t color, int thickness);
 
     int width;
     int height;
@@ -36,7 +43,7 @@ public:
     int posY;
     int isVisible;
 private:
-    uint32_t * pixelData; // ARGB format, 32 bits per pixel
+    uint32_t *pixelData; // ARGB format, 32 bits per pixel
 };
 
 #endif // LAYER_H
