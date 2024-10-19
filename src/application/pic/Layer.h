@@ -37,6 +37,8 @@ public:
 
     void drawLine(int x1, int y1, int x2, int y2, uint32_t color, int thickness);
 
+    void prepareNextDrawing();
+
     int width;
     int height;
     int posX;
@@ -44,6 +46,7 @@ public:
     int isVisible;
 private:
     uint32_t *pixelData; // ARGB format, 32 bits per pixel
+    uint32_t *tempPixelData; // for pen blending
 };
 
 #endif // LAYER_H

@@ -203,8 +203,13 @@ void Pic::parseMouse(bool clicked) {
             data->flags->overlayChanged();
             data->currentGuiLayerBottom->appear();
         } else if ((data->currentTool == Tool::PEN || data->currentTool == Tool::ERASER) && data->mouseClicks->size() > 0) {
-            // ✅ TODO bug: sometimes skips some points?
-            // ❎ TODO fix: if alpha!=FF: circles from drawing blend onto themselves -> should only blend once
+            // TODO fix: if alpha!=FF: circles from drawing blend onto themselves -> should only blend once
+            // idee: layer speichert buffer ohne aktuelle zeichnung zwischen:
+            // - layer->prepareNextDrawing() kopiert aktuellen buffer in tempBuffer
+            //    delete tempBuffer, copy buffer in neuen tempBuffer
+            //    aufrufen, wenn tool (PEN, ERASER) ausgewählt wird)
+            //    aufrufen, wenn maus losgelassen wird -> nächster strich wird dann über aktuelle zeichnung geblendet
+            // - layer->drawLine() zeichnet in richtigen buffer, aber blendet mit tempBuffer
             Layer *l = data->layers[data->currentLayer];
             auto click = data->mouseClicks->peek();
             int lastX = click.first - l->posX - 200;
@@ -225,6 +230,9 @@ void Pic::parseMouse(bool clicked) {
             data->mouseClicks->offer(Util::Pair<int, int>(data->mouseX, data->mouseY));
             data->flags->currentLayerChanged();
         }
+    } else if (data->mouseX >= 200 && !data->clickStartedOnGui && clicked &&
+               (data->currentTool == Tool::PEN || data->currentTool == Tool::ERASER)) {
+        data->layers[this->data->currentLayer]->prepareNextDrawing(); // proper blending for the next drawing
     }
 
     data->debugString = String::format(
@@ -287,6 +295,7 @@ void Pic::checkKeyboardInput() {
                         break;
                     case Util::Io::Key::TAB:
                         data->currentLayer = (data->currentLayer + 1) % data->layerCount;
+                        data->layers[data->currentLayer]->prepareNextDrawing();
                         data->flags->layerOrderChanged();
                         data->flags->overlayChanged();
                         break;
@@ -326,6 +335,7 @@ void swapTool(DataWrapper *data, Tool tool) {
             case Tool::PEN:
             case Tool::ERASER:
                 data->currentGuiLayerBottom = data->guiLayers->get("bottom_pen");
+                data->layers[data->currentLayer]->prepareNextDrawing();
                 break;
             case Tool::COLOR:
                 data->currentGuiLayerBottom = data->guiLayers->get("bottom_color");

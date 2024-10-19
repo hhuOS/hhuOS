@@ -7,6 +7,7 @@ Layer::Layer(int width, int height, int posX, int posY, int visible) : width(wid
     for (int i = 0; i < size; ++i) {
         pixelData[i] = 0;
     }
+    tempPixelData = new uint32_t[0];
 }
 
 Layer::Layer(int width, int height, int posX, int posY, int visible, const uint32_t *pixelData)
@@ -16,6 +17,7 @@ Layer::Layer(int width, int height, int posX, int posY, int visible, const uint3
     for (int i = 0; i < size; ++i) {
         this->pixelData[i] = pixelData[i];
     }
+    tempPixelData = new uint32_t[0];
 }
 
 Layer::~Layer() {
@@ -161,7 +163,7 @@ void Layer::drawCircle(int x, int y, uint32_t color, int thickness) {
                 int px = x + tx;
                 int py = y + ty;
                 if (px >= 0 && px < width && py >= 0 && py < height) {
-                    uint32_t oldColor = pixelData[py * width + px];
+                    uint32_t oldColor = tempPixelData[py * width + px];
                     pixelData[py * width + px] = color == 0x00000000 ? 0x00000000 : blendPixels(oldColor, color);
                 }
             }
@@ -183,5 +185,13 @@ void Layer::drawLine(int x1, int y1, int x2, int y2, uint32_t color, int thickne
         e2 = 2 * err;
         if (e2 >= dy) err += dy, x1 += sx;
         if (e2 <= dx) err += dx, y1 += sy;
+    }
+}
+
+void Layer::prepareNextDrawing() {
+    delete[] tempPixelData;
+    tempPixelData = new uint32_t[width * height];
+    for (int i = 0; i < width * height; ++i) {
+        tempPixelData[i] = pixelData[i];
     }
 }
