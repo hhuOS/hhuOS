@@ -116,6 +116,10 @@ public:
     void println(uint8_t number);
 
     void println(void *pointer);
+	
+	int vprintf(const char* format, va_list args);
+	
+	int printf(const char * format, ...) ;
 
     PrintStream& operator<<(char c);
 

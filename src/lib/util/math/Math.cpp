@@ -16,6 +16,7 @@
  */
 
 #include "Math.h"
+#include <bit>
 
 namespace Util::Math {
 
@@ -517,6 +518,42 @@ double truncate(double value) {
 
 float truncate(float value) {
     return ((float) ((uint64_t) value));
+}
+
+double floor(double arg) {
+	double ret = (double)((long long)arg);
+	if (ret > arg) ret--;
+	return ret;
+}
+	
+float floor(float arg) {
+	float ret = (float)((long long)arg);
+    if (ret > arg) ret--;
+    return ret;
+}
+
+double getDoubleInternals(double arg, int * exponent) {
+	long long argb = std::bit_cast<long long>(arg);
+	
+	*exponent = ((int)((argb >> 52) & ((1<<11)-1))) - 1022; //get exponent bits
+	
+	argb &= ~(((1LL<<11)-1)<<52); //clear exponent bits
+	argb |= (1022LL<<52); // set exponent to -1
+	return std::bit_cast<double>(argb);
+}
+
+int isInfinity(double arg) {
+	int exp;
+	arg = getDoubleInternals(arg, &exp);
+
+	return (exp == 1025) && (arg == 0);
+}
+
+int isNan(double arg) {
+	int exp;
+	arg = getDoubleInternals(arg, &exp);
+	
+	return (exp == 1025) && (arg != 0);
 }
 
 }
