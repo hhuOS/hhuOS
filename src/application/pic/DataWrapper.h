@@ -22,7 +22,7 @@
 #define  PI 3.14159265358979323846
 
 // Forward declaration since otherwise circular dependency
-class Layer;
+class Layers;
 
 class GuiLayer;
 
@@ -67,9 +67,7 @@ public:
     RenderFlags *flags;
 
     // layers
-    Layer **layers;
-    int layerCount;
-    int currentLayer;
+    Layers *layers;
 
     // gui
     Util::Map<Util::String, GuiLayer *> *guiLayers;

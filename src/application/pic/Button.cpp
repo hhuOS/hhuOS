@@ -242,9 +242,6 @@ void Button::render() {
         case CONFIRM:
             renderConfirm();
             break;
-        case COLOR:
-            renderColor();
-            break;
         case LAYER:
             renderLayer();
             break;
@@ -343,10 +340,6 @@ void Button::renderConfirm() {
                              mouseX < 100 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
     stringDrawer->drawString(Fonts::TERMINAL_8x16, 150 - (strlen("OK") * 4), 7, "OK", cgreen,
                              mouseX >= 100 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
-
-}
-
-void Button::renderColor() {
 
 }
 

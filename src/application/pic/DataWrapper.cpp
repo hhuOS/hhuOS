@@ -35,8 +35,6 @@ DataWrapper::DataWrapper() {
 
     // layers
     layers = nullptr;
-    layerCount = 0;
-    currentLayer = 0;
 
     // gui
     guiLayers = new Util::HashMap<Util::String, GuiLayer *>();

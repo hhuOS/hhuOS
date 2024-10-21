@@ -201,7 +201,7 @@ void Renderer::renderOverlay() {
         buff_overlay[i] = 0x00000000;
     }
     // border for current layer
-    auto l = data->layers[data->currentLayer];
+    Layer* l = data->layers->current();
     int x = l->posX, y = l->posY, w = l->width, h = l->height;
     drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, cred);
     drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, cred);
@@ -270,15 +270,15 @@ void Renderer::renderLayers() {
             buff_over_current[i] = 0x00000000;
             buff_under_current[i] = 0x00000000;
         }
-        for (int i = 0; i < data->currentLayer; i++) { // für buff_under_current
-            auto layer = data->layers[i];
+        for (int i = 0; i < data->layers->currentNum(); i++) { // für buff_under_current
+            auto layer = data->layers->at(i);
             if (layer->isVisible)
                 blendBuffers(buff_under_current, layer->getPixelData(), data->workAreaX, data->workAreaY,
                              layer->width,
                              layer->height, layer->posX, layer->posY);
         }
-        for (int i = data->currentLayer + 1; i < data->layerCount; i++) { // für buff_over_current
-            auto layer = data->layers[i];
+        for (int i = data->layers->currentNum() + 1; i < data->layers->countNum(); i++) { // für buff_over_current
+            auto layer = data->layers->at(i);
             if (layer->isVisible)
                 blendBuffers(buff_over_current, layer->getPixelData(), data->workAreaX, data->workAreaY,
                              layer->width,
@@ -288,7 +288,7 @@ void Renderer::renderLayers() {
     for (int i = 0; i < data->workAreaAll; i++) {
         buff_layers[i] = 0x00000000;
     }
-    auto currentLayer = data->layers[data->currentLayer];
+    auto currentLayer = data->layers->current();
     blendBuffers(buff_layers, buff_under_current, data->workAreaAll);
     if (currentLayer->isVisible)
         blendBuffers(buff_layers, currentLayer->getPixelData(), data->workAreaX, data->workAreaY,

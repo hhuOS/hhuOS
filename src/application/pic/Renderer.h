@@ -23,6 +23,7 @@
 
 #include "GuiLayer.h"
 #include "helper.h"
+#include "Layers.h"
 
 
 using namespace Util::Graphic;

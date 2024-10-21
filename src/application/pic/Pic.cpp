@@ -1,45 +1,8 @@
 #include "Pic.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-
-#include "lib/util/graphic/stb_image.h"
-#include "lib/util/graphic/stb_image_write.h"
-
-
-#define print(i) Util::System::out << i << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush
-
 using namespace Util;
 using namespace Graphic;
 
-
-Layer **makeTestLayers() {
-    int width, height, channels;
-    unsigned char *img = stbi_load("/user/pic/test.jpg", &width, &height, &channels, 0);
-    print("Loaded image with width " << width << ", height " << height << ", and channels " << channels);
-    auto *argbData = new uint32_t[width * height];
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            int i = y * width + x;
-            int j = (height - 1 - y) * width + x;
-            argbData[i] = (0xFF000000 |                   // Alpha: 255
-                           (img[j * channels] << 16) |    // Red
-                           (img[j * channels + 1] << 8) | // Green
-                           img[j * channels + 2]);        // Blue
-        }
-    }
-    auto **layers = new Layer *[4];
-    auto *layer1 = new Layer(width, height, 50, 50, true, argbData);
-    auto *layer2 = new Layer(width, height, 150, 150, true, argbData);
-    auto *layer3 = new Layer(width, height, 250, 250, true, argbData);
-    auto *layer4 = new Layer(500, 500, 50, 50, true);
-    layers[0] = layer1;
-    layers[1] = layer2;
-    layers[2] = layer3;
-    layers[3] = layer4;
-    stbi_image_free(img);
-    return layers;
-}
 
 int32_t main([[maybe_unused]] int32_t argc, [[maybe_unused]] char *argv[]) {
     auto pic = new Pic();
@@ -53,9 +16,11 @@ Pic::Pic() {
     this->data = new DataWrapper();
     this->renderer = new Renderer(data);
 
-    data->layers = makeTestLayers();
-    data->layerCount = 4;
-    data->currentLayer = 3;
+    data->layers = new Layers();
+    data->layers->addPicture("/user/pic/test.jpg", 0, 0);
+    data->layers->addPicture("/user/pic/test.jpg", 100, 100);
+    data->layers->addPicture("/user/pic/test.jpg", 400, 100);
+    data->layers->addEmpty(data->workAreaX - 100, data->workAreaY - 100, 50, 50);
 
     init_gui();
 
@@ -182,7 +147,7 @@ void Pic::parseMouse(bool clicked) {
             data->flags->overlayChanged();
             data->currentGuiLayerBottom->appear();
         } else if (data->currentTool == Tool::COLOR) {
-            Layer *l = data->layers[data->currentLayer];
+            Layer *l = data->layers->current();
             int relX = data->mouseX - 200 - l->posX;
             int relY = data->mouseY - l->posY;
             if (relX < 0 || relX >= l->width || relY < 0 || relY >= l->height) return;
@@ -203,14 +168,7 @@ void Pic::parseMouse(bool clicked) {
             data->flags->overlayChanged();
             data->currentGuiLayerBottom->appear();
         } else if ((data->currentTool == Tool::PEN || data->currentTool == Tool::ERASER) && data->mouseClicks->size() > 0) {
-            // TODO fix: if alpha!=FF: circles from drawing blend onto themselves -> should only blend once
-            // idee: layer speichert buffer ohne aktuelle zeichnung zwischen:
-            // - layer->prepareNextDrawing() kopiert aktuellen buffer in tempBuffer
-            //    delete tempBuffer, copy buffer in neuen tempBuffer
-            //    aufrufen, wenn tool (PEN, ERASER) ausgewählt wird)
-            //    aufrufen, wenn maus losgelassen wird -> nächster strich wird dann über aktuelle zeichnung geblendet
-            // - layer->drawLine() zeichnet in richtigen buffer, aber blendet mit tempBuffer
-            Layer *l = data->layers[data->currentLayer];
+            Layer *l = data->layers->current();
             auto click = data->mouseClicks->peek();
             int lastX = click.first - l->posX - 200;
             int lastY = click.second - l->posY;
@@ -232,7 +190,7 @@ void Pic::parseMouse(bool clicked) {
         }
     } else if (data->mouseX >= 200 && !data->clickStartedOnGui && clicked &&
                (data->currentTool == Tool::PEN || data->currentTool == Tool::ERASER)) {
-        data->layers[this->data->currentLayer]->prepareNextDrawing(); // proper blending for the next drawing
+        data->layers->current()->prepareNextDrawing(); // proper blending for the next drawing
     }
 
     data->debugString = String::format(
@@ -256,7 +214,7 @@ void Pic::checkKeyboardInput() {
                 scancode = Util::System::in.read();
                 continue;
             }
-            auto currentLayer = data->layers[data->currentLayer];
+            auto currentLayer = data->layers->current();
             if (data->captureInput) { // TODO: kaputt, wenn man tab drückt (ist vll riesen char?? :D)
                 if (key.getScancode() == Util::Io::Key::BACKSPACE) {
                     *data->currentInput = data->currentInput->substring(0, data->currentInput->length() - 1);
@@ -294,13 +252,13 @@ void Pic::checkKeyboardInput() {
                         data->flags->overlayChanged();
                         break;
                     case Util::Io::Key::TAB:
-                        data->currentLayer = (data->currentLayer + 1) % data->layerCount;
-                        data->layers[data->currentLayer]->prepareNextDrawing();
+                        data->layers->setCurrentToNext();
+                        data->layers->current()->prepareNextDrawing();
                         data->flags->layerOrderChanged();
                         data->flags->overlayChanged();
                         break;
                     case Util::Io::Key::SPACE:
-                        data->layers[data->currentLayer]->isVisible = !data->layers[data->currentLayer]->isVisible;
+                        data->layers->current()->isVisible = !data->layers->current()->isVisible;
                         data->flags->currentLayerChanged();
                         data->flags->overlayChanged();
                         break;
@@ -335,7 +293,7 @@ void swapTool(DataWrapper *data, Tool tool) {
             case Tool::PEN:
             case Tool::ERASER:
                 data->currentGuiLayerBottom = data->guiLayers->get("bottom_pen");
-                data->layers[data->currentLayer]->prepareNextDrawing();
+                data->layers->current()->prepareNextDrawing();
                 break;
             case Tool::COLOR:
                 data->currentGuiLayerBottom = data->guiLayers->get("bottom_color");
@@ -447,8 +405,8 @@ void Pic::init_gui() {
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Move")
                                  ->setMethodButton([](DataWrapper *data) {
-                                     data->moveX = data->layers[data->currentLayer]->posX;
-                                     data->moveY = data->layers[data->currentLayer]->posY;
+                                     data->moveX = data->layers->current()->posX;
+                                     data->moveY = data->layers->current()->posY;
                                      swapTool(data, Tool::MOVE);
                                  })
                                  ->changeGreenIfTool(Tool::MOVE)
@@ -523,12 +481,12 @@ void Pic::init_gui() {
     );
     gui_layers->addButton((new Button(data))
                                   ->setInfo("currPosX")
-                                  ->setIntValueButton(&data->layers[data->currentLayer]->posX)
+                                  ->setIntValueButton(&data->layers->current()->posX)
                                   ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
     );
     gui_layers->addButton((new Button(data))
                                   ->setInfo("currPosY")
-                                  ->setIntValueButton(&data->layers[data->currentLayer]->posY)
+                                  ->setIntValueButton(&data->layers->current()->posY)
                                   ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
     );
 
@@ -546,12 +504,12 @@ void Pic::init_gui() {
     gui_bottom_move->addButton((new Button(data))
                                        ->setInfo("MOVE")
                                        ->setConfirmButton([](DataWrapper *data) {
-                                           data->moveX = data->layers[data->currentLayer]->posX;
-                                           data->moveY = data->layers[data->currentLayer]->posY;
+                                           data->moveX = data->layers->current()->posX;
+                                           data->moveY = data->layers->current()->posY;
                                            data->currentGuiLayerBottom->appear();
                                        }, [](DataWrapper *data) {
-                                           data->layers[data->currentLayer]->posX = data->moveX;
-                                           data->layers[data->currentLayer]->posY = data->moveY;
+                                           data->layers->current()->posX = data->moveX;
+                                           data->layers->current()->posY = data->moveY;
                                        })
                                        ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
     );
@@ -582,7 +540,7 @@ void Pic::init_gui() {
                                             data->scale = 1.0;
                                             data->currentGuiLayerBottom->appear();
                                         }, [](DataWrapper *data) {
-                                            data->layers[data->currentLayer]->scale(data->scale, data->toolCorner);
+                                            data->layers->current()->scale(data->scale, data->toolCorner);
                                             data->scale = 1.0;
                                             data->currentGuiLayerBottom->appear();
                                         })
@@ -627,8 +585,8 @@ void Pic::init_gui() {
                                            data->cropLeft = 0, data->cropRight = 0, data->cropTop = 0, data->cropBottom = 0;
                                            data->currentGuiLayerBottom->appear();
                                        }, [](DataWrapper *data) {
-                                           data->layers[data->currentLayer]->crop(data->cropLeft, data->cropRight, data->cropTop,
-                                                                                  data->cropBottom);
+                                           data->layers->current()->crop(data->cropLeft, data->cropRight, data->cropTop,
+                                                                         data->cropBottom);
                                            data->cropLeft = 0, data->cropRight = 0, data->cropTop = 0, data->cropBottom = 0;
                                            data->currentGuiLayerBottom->appear();
                                        })
@@ -673,7 +631,7 @@ void Pic::init_gui() {
                                              data->rotateDeg = 0;
                                              data->currentGuiLayerBottom->appear();
                                          }, [](DataWrapper *data) {
-                                             data->layers[data->currentLayer]->rotate(data->rotateDeg);
+                                             data->layers->current()->rotate(data->rotateDeg);
                                              data->rotateDeg = 0;
                                              data->currentGuiLayerBottom->appear();
                                          })

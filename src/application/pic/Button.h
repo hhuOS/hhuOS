@@ -96,8 +96,6 @@ private:
 
     void renderConfirm();
 
-    void renderColor();
-
     void renderLayer();
 
     void renderInput();
