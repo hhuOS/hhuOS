@@ -59,4 +59,6 @@ DataWrapper::DataWrapper() {
     cropBottom = -1;
     penSize = -1;
     colorA = 128, colorR = 0, colorG = 255, colorB = 0;
+    combineFirst = 0;
+    combineSecond = 1;
 }

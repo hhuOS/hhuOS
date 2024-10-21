@@ -14,10 +14,14 @@
 #include "lib/util/graphic/font/Terminal8x16.h"
 #include "lib/util/graphic/font/Sun12x22.h"
 #include "lib/util/graphic/LineDrawer.h"
+#include <string.h>
+#include <cstdio>
 
 
 #include "DataWrapper.h"
 #include "GuiLayer.h"
+#include "Layers.h"
+#include "Bitmaps.h"
 
 using namespace Util::Graphic;
 
@@ -64,7 +68,7 @@ public:
 
     Button *setConfirmButton(void (*cancel)(DataWrapper *), void (*ok)(DataWrapper *));
 
-    Button *setLayerButton(Layer **layer, int layerCount, int whichLayer);
+    Button *setLayerButton(int layerNum);
 
     Button *setInputButton(Util::String *input, bool *captureInput);
 
@@ -75,6 +79,8 @@ public:
     Button *setColor(int *colorA, int *colorR, int *colorG, int *colorB);
 
     Button *setAppearTopOnChange(bool set);
+
+    Button *setAppearBottomOnChange(bool set);
 
     bool bufferChanged;
 
@@ -128,7 +134,8 @@ private:
     Tool setGreenTool = Tool::NOTHING;
     bool showcolor = false;
     int *colorA = nullptr, *colorR = nullptr, *colorG = nullptr, *colorB = nullptr;
-    bool appearTopOnChange = false;
+    bool appearTopOnChange = false, appearBottomOnChange = false;
+    int layerNum = -1;
 
     void (*method1)(DataWrapper *data) = nullptr;
 

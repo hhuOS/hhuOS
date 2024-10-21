@@ -256,11 +256,13 @@ void Pic::checkKeyboardInput() {
                         data->layers->current()->prepareNextDrawing();
                         data->flags->layerOrderChanged();
                         data->flags->overlayChanged();
+                        data->currentGuiLayer->appear();
                         break;
                     case Util::Io::Key::SPACE:
                         data->layers->current()->isVisible = !data->layers->current()->isVisible;
                         data->flags->currentLayerChanged();
                         data->flags->overlayChanged();
+                        data->currentGuiLayer->appear();
                         break;
                     default:
                         break;
@@ -340,6 +342,7 @@ void Pic::init_gui() {
                                 ->setInfo("layers")
                                 ->setMethodButton([](DataWrapper *data) {
                                     changeGuiLayerTo(data, "layers");
+                                    data->currentGuiLayerBottom = data->guiLayers->get("bottom_layers");
                                 })
                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
@@ -476,49 +479,45 @@ void Pic::init_gui() {
                                   ->setInfo("back")
                                   ->setMethodButton([](DataWrapper *data) {
                                       changeGuiLayerTo(data, "main");
+                                      data->currentGuiLayerBottom = data->guiLayers->get("empty");
                                   })
                                   ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
-    gui_layers->addButton((new Button(data))
-                                  ->setInfo("currPosX")
-                                  ->setIntValueButton(&data->layers->current()->posX)
-                                  ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
-    );
-    gui_layers->addButton((new Button(data))
-                                  ->setInfo("currPosY")
-                                  ->setIntValueButton(&data->layers->current()->posY)
-                                  ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
-    );
+    for (int i = 0; i < data->layers->maxNum(); i++) {
+        gui_layers->addButton((new Button(data))
+                                      ->setInfo("LayerButton")
+                                      ->setLayerButton(i)
+                                      ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
+                                      ->setAppearTopOnChange(true)
+        );
+    }
 
     auto gui_bottom_move = new GuiLayer();
     gui_bottom_move->addButton((new Button(data))
                                        ->setInfo("moveX")
                                        ->setIntValueButton(&data->moveX)
-                                       ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
     );
     gui_bottom_move->addButton((new Button(data))
                                        ->setInfo("moveY")
                                        ->setIntValueButton(&data->moveY)
-                                       ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
     );
     gui_bottom_move->addButton((new Button(data))
                                        ->setInfo("MOVE")
                                        ->setConfirmButton([](DataWrapper *data) {
                                            data->moveX = data->layers->current()->posX;
                                            data->moveY = data->layers->current()->posY;
-                                           data->currentGuiLayerBottom->appear();
                                        }, [](DataWrapper *data) {
                                            data->layers->current()->posX = data->moveX;
                                            data->layers->current()->posY = data->moveY;
                                        })
                                        ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+                                       ->setAppearBottomOnChange(true)
     );
 
     auto gui_bottom_scale = new GuiLayer();
     gui_bottom_scale->addButton((new Button(data))
                                         ->setInfo("scale")
                                         ->setDoubleValueButton(&data->scale, 0.1, 10.0)
-                                        ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
     );
     gui_bottom_scale->addButton((new Button(data))
                                         ->setInfo("switch Corner")
@@ -538,35 +537,30 @@ void Pic::init_gui() {
                                         ->setInfo("SCALE")
                                         ->setConfirmButton([](DataWrapper *data) {
                                             data->scale = 1.0;
-                                            data->currentGuiLayerBottom->appear();
                                         }, [](DataWrapper *data) {
                                             data->layers->current()->scale(data->scale, data->toolCorner);
                                             data->scale = 1.0;
-                                            data->currentGuiLayerBottom->appear();
                                         })
                                         ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+                                        ->setAppearBottomOnChange(true)
     );
 
     auto gui_bottom_crop = new GuiLayer();
     gui_bottom_crop->addButton((new Button(data))
                                        ->setInfo("cropLeft")
                                        ->setIntValueButton(&data->cropLeft)
-                                       ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
     );
     gui_bottom_crop->addButton((new Button(data))
                                        ->setInfo("cropRight")
                                        ->setIntValueButton(&data->cropRight)
-                                       ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
     );
     gui_bottom_crop->addButton((new Button(data))
                                        ->setInfo("cropTop")
                                        ->setIntValueButton(&data->cropTop)
-                                       ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
     );
     gui_bottom_crop->addButton((new Button(data))
                                        ->setInfo("cropBottom")
                                        ->setIntValueButton(&data->cropBottom)
-                                       ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
     );
     gui_bottom_crop->addButton((new Button(data))
                                        ->setInfo("switch Corner")
@@ -577,45 +571,39 @@ void Pic::init_gui() {
                                                data->toolCorner = ToolCorner::BOTTOM_LEFT;
                                            else if (data->toolCorner == ToolCorner::BOTTOM_LEFT) data->toolCorner = ToolCorner::TOP_LEFT;
                                        })
-                                       ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
     );
     gui_bottom_crop->addButton((new Button(data))
                                        ->setInfo("CROP")
                                        ->setConfirmButton([](DataWrapper *data) {
                                            data->cropLeft = 0, data->cropRight = 0, data->cropTop = 0, data->cropBottom = 0;
-                                           data->currentGuiLayerBottom->appear();
                                        }, [](DataWrapper *data) {
                                            data->layers->current()->crop(data->cropLeft, data->cropRight, data->cropTop,
                                                                          data->cropBottom);
                                            data->cropLeft = 0, data->cropRight = 0, data->cropTop = 0, data->cropBottom = 0;
-                                           data->currentGuiLayerBottom->appear();
                                        })
                                        ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+                                       ->setAppearBottomOnChange(true)
     );
 
     auto gui_bottom_color = new GuiLayer();
     gui_bottom_color->addButton((new Button(data))
                                         ->setInfo("Alpha")
                                         ->setIntValueButton(&data->colorA, 0, 255)
-                                        ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
                                         ->setAppearTopOnChange(true)
     );
     gui_bottom_color->addButton((new Button(data))
                                         ->setInfo("Red")
                                         ->setIntValueButton(&data->colorR, 0, 255)
-                                        ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
                                         ->setAppearTopOnChange(true)
     );
     gui_bottom_color->addButton((new Button(data))
                                         ->setInfo("Green")
                                         ->setIntValueButton(&data->colorG, 0, 255)
-                                        ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
                                         ->setAppearTopOnChange(true)
     );
     gui_bottom_color->addButton((new Button(data))
                                         ->setInfo("Blue")
                                         ->setIntValueButton(&data->colorB, 0, 255)
-                                        ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
                                         ->setAppearTopOnChange(true)
     );
 
@@ -623,34 +611,54 @@ void Pic::init_gui() {
     gui_bottom_rotate->addButton((new Button(data))
                                          ->setInfo("rotate")
                                          ->setIntValueButton(&data->rotateDeg, -180, 180)
-                                         ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
     );
     gui_bottom_rotate->addButton((new Button(data))
                                          ->setInfo("ROTATE")
                                          ->setConfirmButton([](DataWrapper *data) {
                                              data->rotateDeg = 0;
-                                             data->currentGuiLayerBottom->appear();
                                          }, [](DataWrapper *data) {
                                              data->layers->current()->rotate(data->rotateDeg);
                                              data->rotateDeg = 0;
-                                             data->currentGuiLayerBottom->appear();
                                          })
                                          ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+                                         ->setAppearBottomOnChange(true)
     );
 
     auto gui_bottom_pen = new GuiLayer();
     gui_bottom_pen->addButton((new Button(data))
                                       ->setInfo("Pen Size")
                                       ->setIntValueButton(&data->penSize, 1, 100)
-                                      ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
+    );
+
+    auto gui_bottom_layers = new GuiLayer();
+    gui_bottom_layers->addButton((new Button(data))
+                                         ->setInfo("combine 1")
+                                         ->setIntValueButton(&data->combineFirst, 0, data->layers->maxNum())
+    );
+    gui_bottom_layers->addButton((new Button(data))
+                                         ->setInfo("combine 2")
+                                         ->setIntValueButton(&data->combineSecond, 0, data->layers->maxNum())
+    );
+    gui_bottom_layers->addButton((new Button(data))
+                                         ->setInfo("Combine")
+                                         ->setConfirmButton([](DataWrapper *data) {
+                                             data->combineFirst = 0;
+                                             data->combineSecond = 1;
+                                         }, [](DataWrapper *data) {
+                                             data->layers->combine(data->combineFirst, data->combineSecond);
+                                             data->combineFirst = 0;
+                                             data->combineSecond = 1;
+                                         })
+                                         ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
+                                         ->setAppearTopOnChange(true)
+                                         ->setAppearBottomOnChange(true)
     );
 
     auto gui_empty = new GuiLayer();
 
     data->textButton = (new Button(data))
             ->setInfo("input: ")
-            ->setInputButton(data->currentInput, &data->captureInput)
-            ->setRenderFlagMethod(&RenderFlags::guiButtonChanged);
+            ->setInputButton(data->currentInput, &data->captureInput);
 
     data->guiLayers->put("main", gui_main);
     data->guiLayers->put("file", gui_file);
@@ -663,6 +671,7 @@ void Pic::init_gui() {
     data->guiLayers->put("bottom_crop", gui_bottom_crop);
     data->guiLayers->put("bottom_pen", gui_bottom_pen);
     data->guiLayers->put("bottom_color", gui_bottom_color);
+    data->guiLayers->put("bottom_layers", gui_bottom_layers);
     data->currentGuiLayer = gui_main;
     data->currentGuiLayerBottom = gui_empty;
 }

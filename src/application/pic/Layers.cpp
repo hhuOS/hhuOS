@@ -11,22 +11,22 @@
 #include "lib/util/graphic/stb_image_write.h"
 
 Layers::Layers() {
-    this->layers = new Layer *[20];
+    this->layers = new Layer *[15];
     this->layerCount = 0;
-    this->maxLayerCount = 20;
+    this->maxLayerCount = 15;
     this->currentLayer = 0;
 }
 
 Layer *Layers::current() {
-    return layers[this->currentLayer];
+    return layers[currentLayer];
 }
 
 void Layers::addEmpty(int width, int height, int posX, int posY) {
-    if (this->layerCount >= this->maxLayerCount) {
+    if (layerCount >= maxLayerCount) {
         return;
     }
-    this->layers[this->layerCount] = new Layer(width, height, posX, posY, 1);
-    this->layerCount++;
+    layers[layerCount] = new Layer(width, height, posX, posY, 1);
+    layerCount++;
 }
 
 void Layers::addPicture(const char *path, int posX, int posY) {
@@ -44,41 +44,65 @@ void Layers::addPicture(const char *path, int posX, int posY) {
                            img[j * channels + 2]);
         }
     }
-    this->layers[this->layerCount] = new Layer(width, height, posX, posY, 1, argbData);
-    this->layerCount++;
+    layers[layerCount] = new Layer(width, height, posX, posY, 1, argbData);
+    layerCount++;
     stbi_image_free(img);
 }
 
 Layer *Layers::at(int index) {
-    if (index >= this->layerCount) {
+    if (index >= layerCount) {
         return nullptr;
     }
-    return this->layers[index];
+    return layers[index];
 }
 
 int Layers::countNum() const {
-    return this->layerCount;
+    return layerCount;
 }
 
 int Layers::currentNum() const {
-    return this->currentLayer;
+    return currentLayer;
 }
 
 int Layers::maxNum() const {
-    return this->maxLayerCount;
+    return maxLayerCount;
 }
 
 void Layers::setCurrent(int index) {
-    if (index < 0 || index >= this->layerCount) {
+    if (index < 0 || index >= layerCount) {
         return;
     }
-    this->currentLayer = index;
+    currentLayer = index;
 }
 
 void Layers::setCurrentToNext() {
-    this->currentLayer++;
-    if (this->currentLayer >= this->layerCount) {
-        this->currentLayer = 0;
+    currentLayer++;
+    if (currentLayer >= layerCount) {
+        currentLayer = 0;
     }
+}
+
+void Layers::deletetAt(int index) {
+    if (index < 0 || index >= layerCount) {
+        return;
+    }
+    delete layers[index];
+    for (int i = index; i < layerCount - 1; i++) {
+        layers[i] = layers[i + 1];
+    }
+    layerCount--;
+}
+
+void Layers::swap(int index1, int index2) {
+    if (index1 < 0 || index1 >= layerCount || index2 < 0 || index2 >= layerCount || index1 == index2) {
+        return;
+    }
+    Layer *temp = layers[index1];
+    layers[index1] = layers[index2];
+    layers[index2] = temp;
+}
+
+void Layers::combine(int index1, int index2) {
+// TODO
 }
 

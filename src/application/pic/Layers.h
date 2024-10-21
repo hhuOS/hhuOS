@@ -24,6 +24,12 @@ public:
 
     void setCurrentToNext();
 
+    void deletetAt(int index);
+
+    void swap(int index1, int index2);
+
+    void combine(int index1, int index2);
+
     Layer *current();
 
     Layer *at(int index);

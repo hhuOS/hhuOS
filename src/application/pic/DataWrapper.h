@@ -88,6 +88,7 @@ public:
     int cropLeft, cropRight, cropTop, cropBottom;
     int penSize;
     int colorA, colorR, colorG, colorB;
+    int combineFirst, combineSecond;
 };
 
 

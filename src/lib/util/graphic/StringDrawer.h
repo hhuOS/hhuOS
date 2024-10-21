@@ -83,8 +83,6 @@ public:
      */
     void drawString(const Font &font, uint16_t x, uint16_t y, const char *string, const Color &fgColor, const Color &bgColor) const;
 
-private:
-
     /**
      * Draw a monochrome bitmap at a given position. Each pixel to be drawn is represented by a single bit in the bitmap.
      * If the bit is set to 1, the foreground color is used to draw the pixel, else the background color is used.
@@ -98,6 +96,8 @@ private:
      * @param bitmap The bitmap's data.
      */
     void drawMonoBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const Color &fgColor, const Color &bgColor, uint8_t *bitmap) const;
+
+private:
 
     const PixelDrawer &pixelDrawer;
 };

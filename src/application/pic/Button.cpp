@@ -2,8 +2,6 @@
 // Created by Rafael Reip on 06.10.24.
 //
 
-#include <string.h>
-#include <cstdio>
 #include "Button.h"
 
 
@@ -111,6 +109,13 @@ Button *Button::setConfirmButton(void (*cancel)(DataWrapper *), void (*ok)(DataW
     return this;
 }
 
+Button *Button::setLayerButton(int num) {
+    this->type = LAYER;
+    this->layerNum = num;
+    render();
+    return this;
+}
+
 Button *Button::changeGreenIfTool(Tool tool) {
     this->setGreenTool = tool;
     render();
@@ -126,6 +131,11 @@ Button *Button::setColor(int *a, int *r, int *g, int *b) {
 
 Button *Button::setAppearTopOnChange(bool set) {
     this->appearTopOnChange = set;
+    return this;
+}
+
+Button *Button::setAppearBottomOnChange(bool set) {
+    this->appearBottomOnChange = set;
     return this;
 }
 
@@ -181,11 +191,21 @@ void Button::processClick(int relX, int relY) {
                 method2(data);
             }
             break;
-        case COLOR:
-            // TODO
-            break;
         case LAYER:
-            // TODO
+            if (layerNum > data->layers->countNum()) return;
+            if (relX < 40) {
+                data->layers->setCurrent(layerNum);
+            } else if (relX < 80) {
+                data->layers->swap(layerNum, layerNum - 1);
+                if (layerNum == data->layers->currentNum()) data->layers->setCurrent(layerNum - 1);
+            } else if (relX < 120) {
+                data->layers->swap(layerNum, layerNum + 1);
+                if (layerNum == data->layers->currentNum()) data->layers->setCurrent(layerNum + 1);
+            } else if (relX < 160) {
+                data->layers->deletetAt(layerNum);
+            } else {
+                data->layers->at(layerNum)->isVisible = !data->layers->at(layerNum)->isVisible;
+            }
             break;
         case INPUT:
             if (relX < 40) {
@@ -202,6 +222,9 @@ void Button::processClick(int relX, int relY) {
     }
     if (appearTopOnChange) {
         data->currentGuiLayer->appear();
+    }
+    if (appearBottomOnChange) {
+        data->currentGuiLayerBottom->appear();
     }
     render();
 }
@@ -344,7 +367,39 @@ void Button::renderConfirm() {
 }
 
 void Button::renderLayer() {
-
+    if (layerNum > data->layers->countNum() - 1) {
+        for (int i = 0; i < 30 * 200; i++) {
+            this->buffer[i] = 0x00000000;
+        }
+        return;
+    }
+    renderBackground(0, 40, mouseX < 40 ? (click ? green : hover ? darkgray : gray) : gray);
+    renderBackground(40, 80, mouseX >= 40 && mouseX < 80 ? (click ? green : hover ? darkgray : gray) : gray);
+    renderBackground(80, 120, mouseX >= 80 && mouseX < 120 ? (click ? green : hover ? darkgray : gray) : gray);
+    renderBackground(120, 160, mouseX >= 120 && mouseX < 160 ? (click ? green : hover ? darkgray : gray) : gray);
+    renderBackground(160, 200, mouseX >= 160 ? (click ? green : hover ? darkgray : gray) : gray);
+    renderBorder(0xFF000000);
+    lineDrawer->drawLine(39, 0, 39, 30, cblack);
+    lineDrawer->drawLine(40, 0, 40, 30, cblack);
+    lineDrawer->drawLine(79, 0, 79, 30, cblack);
+    lineDrawer->drawLine(80, 0, 80, 30, cblack);
+    lineDrawer->drawLine(119, 0, 119, 30, cblack);
+    lineDrawer->drawLine(120, 0, 120, 30, cblack);
+    lineDrawer->drawLine(159, 0, 159, 30, cblack);
+    lineDrawer->drawLine(160, 0, 160, 30, cblack);
+    const char *num = int_to_string(layerNum);
+    int xStringpos = 20 - (strlen(num) * 4);
+    stringDrawer->drawString(Fonts::TERMINAL_8x16, xStringpos, 7, num, data->layers->currentNum() == layerNum ? cgreen : cblack,
+                             mouseX < 40 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
+    stringDrawer->drawMonoBitmap(52, 7, 16, 16, cblack, mouseX >= 40 && mouseX < 80 ?
+                                                        (click ? cgreen : hover ? cdarkgray : cgray) : cgray, Bitmaps::arrow_up);
+    stringDrawer->drawMonoBitmap(92, 7, 16, 16, cblack, mouseX >= 80 && mouseX < 120 ?
+                                                        (click ? cgreen : hover ? cdarkgray : cgray) : cgray, Bitmaps::arrow_down);
+    stringDrawer->drawMonoBitmap(132, 7, 16, 16, cblack, mouseX >= 120 && mouseX < 160 ?
+                                                         (click ? cgreen : hover ? cdarkgray : cgray) : cgray, Bitmaps::trashcan);
+    Color eyeFG = data->layers->at(layerNum)->isVisible ? cgreen : cblack;
+    stringDrawer->drawMonoBitmap(172, 7, 16, 16, eyeFG, mouseX >= 160 ?
+                                                        (click ? cgreen : hover ? cdarkgray : cgray) : cgray, Bitmaps::eye);
 }
 
 void Button::renderInput() {

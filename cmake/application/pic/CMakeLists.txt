@@ -10,6 +10,7 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/pic/Pic.cpp
 #        ${HHUOS_SRC_DIR}/application/pic/pic_copy.cpp
         ${HHUOS_SRC_DIR}/application/pic/Renderer.cpp
+        ${HHUOS_SRC_DIR}/application/pic/Bitmaps.cpp
         ${HHUOS_SRC_DIR}/application/pic/DataWrapper.cpp
         ${HHUOS_SRC_DIR}/application/pic/GuiLayer.cpp
         ${HHUOS_SRC_DIR}/application/pic/helper.cpp
