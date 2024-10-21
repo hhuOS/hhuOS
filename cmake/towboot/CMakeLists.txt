@@ -19,7 +19,7 @@ cmake_minimum_required(VERSION 3.14)
 project(towboot)
 message(STATUS "Project " ${PROJECT_NAME})
 
-set(TOWBOOT_VERSION "0.9.0")
+set(TOWBOOT_VERSION "0.9.1")
 
 set(TOWBOOT_CONFIG "\
 default = \"hhuOS\"\\n\

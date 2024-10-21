@@ -28,7 +28,14 @@ if ($ENV{HHUOS_REDISTRIBUTABLE_BUILD})
 		add_custom_target(doom-wad DEPENDS "${CMAKE_BINARY_DIR}/doom/")
 else()
 	add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/doom/DOOM.WAD"
-		COMMAND wget "https://archive.org/download/DoomsharewareEpisode/doom.ZIP/DOOM1.WAD" -O "${CMAKE_BINARY_DIR}/doom/DOOM.WAD"
+		# COMMAND wget "https://archive.org/download/DoomsharewareEpisode/doom.ZIP/DOOM1.WAD" -O "${CMAKE_BINARY_DIR}/doom/DOOM.WAD"
+		COMMAND wget "https://www.jbserver.com/downloads/games/doom/misc/shareware/doom1.wad.zip" -O "${CMAKE_BINARY_DIR}/doom/doom1.wad.zip"
+		COMMAND unzip -o "${CMAKE_BINARY_DIR}/doom/doom1.wad.zip" -d "${CMAKE_BINARY_DIR}/doom/"
+		COMMAND /bin/rm "${CMAKE_BINARY_DIR}/doom/doom1.wad.zip"
+		COMMAND /bin/mv "${CMAKE_BINARY_DIR}/doom/DOOM1.WAD" "${CMAKE_BINARY_DIR}/doom/DOOM.WAD"
+		COMMAND /bin/touch -a -m "${CMAKE_BINARY_DIR}/doom/DOOM.WAD"
+		COMMAND /bin/echo "f0cefca49926d00903cf57551d901abe ${CMAKE_BINARY_DIR}/doom/DOOM.WAD" > "DOOM.WAD.md5"
+		COMMAND md5sum -c "DOOM.WAD.md5"
 		DEPENDS "${CMAKE_BINARY_DIR}/doom/")
 
 	add_custom_target(doom-wad DEPENDS "${CMAKE_BINARY_DIR}/doom/DOOM.WAD")

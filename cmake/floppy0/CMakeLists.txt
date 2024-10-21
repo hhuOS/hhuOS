@@ -20,7 +20,7 @@ project(floppy0)
 message(STATUS "Project " ${PROJECT_NAME})
 
 add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/floppy0.img"
-        WORKING_DIRECTORY "${HHUOS_ROOT_DIR}/disk"
+        WORKING_DIRECTORY "${HHUOS_ROOT_DIR}/disk/"
         COMMAND /bin/mkdir -p "floppy0/bin/"
         COMMAND /bin/cp "$<TARGET_FILE:echo>" "floppy0/bin/echo"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/books" "floppy0/"

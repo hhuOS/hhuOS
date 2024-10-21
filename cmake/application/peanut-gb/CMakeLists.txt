@@ -24,10 +24,12 @@ add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/gameboy"
 
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/gameboy/2048.gb"
         COMMAND wget "https://sanqui.net/etc/2048.gb" -O "${CMAKE_BINARY_DIR}/gameboy/2048.gb"
+        COMMAND /bin/touch -a -m "${CMAKE_BINARY_DIR}/gameboy/2048.gb"
         DEPENDS "${CMAKE_BINARY_DIR}/gameboy")
 
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/gameboy/5-mazes.gb"
         COMMAND wget "https://hh3.gbdev.io/static/database-gb/entries/5-mazes/5%20mazes.gb" -O "${CMAKE_BINARY_DIR}/gameboy/5-mazes.gb"
+        COMMAND /bin/touch -a -m "${CMAKE_BINARY_DIR}/gameboy/5-mazes.gb"
         DEPENDS "${CMAKE_BINARY_DIR}/gameboy")
 
 add_custom_target(gameboy-roms DEPENDS

@@ -27,7 +27,11 @@ if ($ENV{HHUOS_REDISTRIBUTABLE_BUILD})
             "${CMAKE_BINARY_DIR}/quake/id1")
 else()
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/quake/id1/pak0.pak"
-            COMMAND wget "https://archive.org/download/quake_pak_202306/quake_pak.zip/pak0.pak" -O "${CMAKE_BINARY_DIR}/quake/id1/pak0.pak"
+            # COMMAND wget "https://archive.org/download/quake_pak_202306/quake_pak.zip/pak0.pak" -O "${CMAKE_BINARY_DIR}/quake/id1/pak0.pak"
+            COMMAND wget "https://github.com/pweil-/origin-quake/raw/refs/heads/master/id1/pak0.pak" -O "${CMAKE_BINARY_DIR}/quake/id1/pak0.pak"
+            COMMAND /bin/touch -a -m "${CMAKE_BINARY_DIR}/quake/id1/pak0.pak"
+            COMMAND /bin/echo "5906e5998fc3d896ddaf5e6a62e03abb ${CMAKE_BINARY_DIR}/quake/id1/pak0.pak" > "pak0.pak.md5"
+            COMMAND md5sum -c "pak0.pak.md5"
             DEPENDS "${CMAKE_BINARY_DIR}/quake/id1")
 
     add_custom_target(quake-pak DEPENDS
