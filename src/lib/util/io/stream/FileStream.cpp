@@ -1,4 +1,4 @@
-#include "lib/libc/StdioFileStream.h"
+#include "lib/util/io/stream/FileStream.h"
 #include "lib/libc/errno.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/String.h"
@@ -6,51 +6,51 @@
 #include "lib/util/base/System.h"
 
 
-namespace Libc {
+namespace Util::Io {
 
 
-StdioFileStream::StdioFileStream(const char* filename, FileMode mode) {
-	auto file = Util::Io::File(Util::String(filename));
+FileStream::FileStream(const char* filename, FileMode mode) {
+	auto file = File(Util::String(filename));
 	
 	if (file.exists() && file.isDirectory()) {
-		errno = EISDIR;
+		//errno = EISDIR; //TODO errno
 		_error = true;
 		return;
 	}
 	
-	if (mode == WRITE || mode == WRITE_EXTEND) {
-		file.create(Util::Io::File::REGULAR);
+	if (mode == FileMode::WRITE || mode == FileMode::WRITE_EXTEND) {
+		file.create(File::REGULAR);
 	}
 	
-	fileDescriptor = Util::Io::File::open(file.getCanonicalPath());
+	fileDescriptor = File::open(file.getCanonicalPath());
 	
 	if (fileDescriptor < 0) return;
 	
 	switch (mode) {
-		case READ:
+		case FileMode::READ:
 			_readAllowed  = true;
 			break;
 			
-		case WRITE:
+		case FileMode::WRITE:
 			_writeAllowed = true;
 			break;
 			
-		case APPEND:
+		case FileMode::APPEND:
 			_writeAllowed = true;
 			pos = file.getLength();
 			break;
 			
-		case READ_EXTEND:
+		case FileMode::READ_EXTEND:
 			_readAllowed  = true;
 			_writeAllowed = true;
 			break;
 		
-		case WRITE_EXTEND:
+		case FileMode::WRITE_EXTEND:
 			_readAllowed  = true;
 			_writeAllowed = true;
 			break; 
 			
-		case APPEND_EXTEND:
+		case FileMode::APPEND_EXTEND:
 			_readAllowed  = true;
 			_writeAllowed = true;
 			pos = file.getLength();
@@ -58,24 +58,24 @@ StdioFileStream::StdioFileStream(const char* filename, FileMode mode) {
 	}
 }
 
-StdioFileStream::StdioFileStream(int32_t fileDescriptor, bool allowRead, bool allowWrite) {
+FileStream::FileStream(int32_t fileDescriptor, bool allowRead, bool allowWrite) {
 	this->fileDescriptor = fileDescriptor;
 	_readAllowed = allowRead;
 	_writeAllowed = allowWrite;
 }
 
 
-StdioFileStream::~StdioFileStream() {
+FileStream::~FileStream() {
 	flush();
-	Util::Io::File::close(fileDescriptor);
+	File::close(fileDescriptor);
 	if (_freeBufferOnDelete && buffer) delete [] buffer;
 }
 
 
-int StdioFileStream::setBuffer(char* newBuffer, int mode, size_t size) {
+int FileStream::setBuffer(char* newBuffer, BufferMode mode, size_t size) {
 	if (!_bufferChangeAllowed || isError()) return -1;
 	
-	if (mode == _IONBF) {
+	if (mode == BufferMode::NONE) {
 		buffer = NULL;
 		return 0;
 	}
@@ -97,7 +97,7 @@ int StdioFileStream::setBuffer(char* newBuffer, int mode, size_t size) {
 }
 
 
-int StdioFileStream::fflush() {
+int FileStream::fflush() {
 	if (!buffer || !writeAllowed() || isError()) return EOF;
 	
 	
@@ -108,12 +108,12 @@ int StdioFileStream::fflush() {
 	return 0;
 }
 
-void StdioFileStream::flush() {
+void FileStream::flush() {
 	fflush();
 }
 
 
-int StdioFileStream::fputc(int c) {
+int FileStream::fputc(int c) {
 	if (!isOpen() || !writeAllowed() || isError()) {
 		_error = true;
 		return EOF;
@@ -124,7 +124,7 @@ int StdioFileStream::fputc(int c) {
 		
 		if (bufferPos == bufferSize) flush(); //flush if buffer is full
 		buffer[bufferPos++] = c;
-		if (bufferMode == _IOLBF && c == '\n') flush(); //flush if line mode and end of line
+		if (bufferMode == BufferMode::LINE && c == '\n') flush(); //flush if line mode and end of line
 		
 	} else {
 		writeFile(fileDescriptor, (const uint8_t*)&c, pos++, 1);
@@ -134,12 +134,12 @@ int StdioFileStream::fputc(int c) {
 }
 
 
-void StdioFileStream::write(uint8_t c) {
+void FileStream::write(uint8_t c) {
 	fputc(c);
 }
 
 
-void StdioFileStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+void FileStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
 	if (isError() || !writeAllowed()) return;
 	if (offset) flush();
 	pos += offset;
@@ -148,7 +148,7 @@ void StdioFileStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32
 }
 
 
-int16_t StdioFileStream::read() {
+int16_t FileStream::read() {
 	uint8_t ret;
 	_bufferChangeAllowed = false;
 	
@@ -167,17 +167,17 @@ int16_t StdioFileStream::read() {
 	return ret;
 }
 
-int16_t StdioFileStream::peek() {
+int16_t FileStream::peek() {
 	int16_t ret = read();
 	ungetChar(ret);
 	return ret;
 }
 
-bool StdioFileStream::isReadyToRead() {
+bool FileStream::isReadyToRead() {
 	return Util::Io::File::isReadyToRead(fileDescriptor);
 }
 
-int32_t StdioFileStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
+int32_t FileStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
 	if (!readAllowed() || isError()) return EOF;
 	
 	pos += offset;
@@ -199,28 +199,28 @@ int32_t StdioFileStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t l
 	return len;
 }
 
-int StdioFileStream::ungetChar(int ch) {
+int FileStream::ungetChar(int ch) {
 	ungottenChars.add(ch);
 	return ch;
 }
 
 
-uint32_t StdioFileStream::getPos() {
+uint32_t FileStream::getPos() {
 	return pos;
 }
 
-void StdioFileStream::setPos(uint32_t newPos, int mode) {
+void FileStream::setPos(uint32_t newPos, SeekMode mode) {
 	flush();
 	_eof = false;
 	ungottenChars.clear();
 	
 	switch (mode) {
-		case SEEK_SET:
+		case SeekMode::SET:
 			break;
-		case SEEK_CUR:
+		case SeekMode::CURRENT:
 			newPos += pos;
 			break;
-		case SEEK_END:
+		case SeekMode::END:
 			newPos = getFileLength(fileDescriptor) - newPos;
 			break;
 	}
@@ -228,30 +228,35 @@ void StdioFileStream::setPos(uint32_t newPos, int mode) {
 	pos = newPos;
 }
 
-void StdioFileStream::clearError() {
+void FileStream::clearError() {
 	_eof = false;
 	_error = false;
 }
 
 
-bool StdioFileStream::readAllowed() {
+bool FileStream::readAllowed() {
 	return _readAllowed;
 }
 
-bool StdioFileStream::writeAllowed() {
+bool FileStream::writeAllowed() {
 	return _writeAllowed;
 }
 
-bool StdioFileStream::isError() {
+bool FileStream::isError() {
 	return _error;
 }
 
-bool StdioFileStream::isEOF() {
+bool FileStream::isEOF() {
 	return _eof;
 }
 
-bool StdioFileStream::isOpen() {
+bool FileStream::isOpen() {
 	return fileDescriptor >= 0;
 }
+
+bool FileStream::setAccessMode(File::AccessMode accessMode) const {
+    return File::setAccessMode(fileDescriptor, accessMode);
+}
+
 
 }

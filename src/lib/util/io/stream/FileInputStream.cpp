@@ -17,72 +17,48 @@
 
 #include "lib/interface.h"
 #include "FileInputStream.h"
+#include "FileStream.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/io/file/File.h"
 
 namespace Util::Io {
 
-FileInputStream::FileInputStream(const Io::File &file) : fileDescriptor(Io::File::open(file.getCanonicalPath())) {
-    if (fileDescriptor < 0) {
+FileInputStream::FileInputStream(const Io::File &file) : fileStream((char*)file.getCanonicalPath(), FileStream::FileMode::READ) {
+    if (fileStream.isError()) {
         Util::Exception::throwException(Exception::INVALID_ARGUMENT, "FileInputStream: Unable to open file!");
     }
 }
 
-FileInputStream::FileInputStream(const String &path) : fileDescriptor(Io::File::open(path)) {
-    if (fileDescriptor < 0) {
+FileInputStream::FileInputStream(const String &path) : fileStream((char*)path, FileStream::FileMode::READ) {
+    if (fileStream.isError()) {
         Util::Exception::throwException(Exception::INVALID_ARGUMENT, "FileInputStream: Unable to open file!");
     }
 }
 
-FileInputStream::FileInputStream(int32_t fileDescriptor) : fileDescriptor(fileDescriptor) {
-    if (fileDescriptor < 0) {
+FileInputStream::FileInputStream(int32_t fileDescriptor) : fileStream(fileDescriptor, true, false) {
+    if (fileStream.isError()) {
         Util::Exception::throwException(Exception::INVALID_ARGUMENT, "FileInputStream: Unable to open file!");
     }
-}
-
-FileInputStream::~FileInputStream() {
-    Io::File::close(fileDescriptor);
 }
 
 int16_t FileInputStream::read() {
-    uint8_t c;
-	
-	if (peekedChar != -1) {
-		int16_t ret = peekedChar;
-		peekedChar = -1;
-		return ret;
-	}
-	
-    int32_t count = read(&c, 0, 1);
-
-    return count > 0 ? c : -1;
+    return fileStream.read();
 }
 
 int16_t FileInputStream::peek() {
-	if (peekedChar == -1) peekedChar = read();
-	return peekedChar;
+	return fileStream.peek();
 }
 
 int32_t FileInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
-    auto fileType = getFileType(fileDescriptor);
-    auto fileLength = getFileLength(fileDescriptor);
-
-    if (fileType == Io::File::REGULAR && pos >= fileLength) {
-        return -1;
-    }
-
-    uint32_t count = readFile(fileDescriptor, targetBuffer + offset, pos, length);
-    pos += count;
-
-    return count > 0 ? count : -1;
+    return fileStream.read(targetBuffer, offset, length);
 }
 
 bool FileInputStream::setAccessMode(File::AccessMode accessMode) const {
-    return File::setAccessMode(fileDescriptor, accessMode);
+    return fileStream.setAccessMode(accessMode);
 }
 
 bool FileInputStream::isReadyToRead() {
-    return Util::Io::File::isReadyToRead(fileDescriptor);
+    return fileStream.isReadyToRead();
 }
 
 }

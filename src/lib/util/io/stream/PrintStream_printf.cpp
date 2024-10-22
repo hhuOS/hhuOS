@@ -9,7 +9,7 @@
 #include <stddef.h>
  
  
- long strtol(const char* str, char **str_end, int base) {
+ long printf_strtol(const char* str, char **str_end, int base) {
 	Util::Io::ByteArrayInputStream is((uint8_t*) str, 0);
 	is.disableSizeLimit();
 	Util::Io::ScanStream ss(is);
@@ -61,7 +61,7 @@ int PrintStream::vprintf(const char* format, va_list args) {
 				else if (*c == '#') alternateConversion = true;
 				else if (*c == '0') zeroPadding = true;
 				else if (Util::CharacterTypes::isDigit(*c)) {
-					padding = strtol(c, (char**)&c, 10);
+					padding = printf_strtol(c, (char**)&c, 10);
 					c--;
 				} else if (*c == '*') padding = va_arg(args, int);
 				else if (*c == '.') {
@@ -69,7 +69,7 @@ int PrintStream::vprintf(const char* format, va_list args) {
 					if (*c == '*') {
 						precision = va_arg(args, int);
 					} else if (Util::CharacterTypes::isDigit(*c)) {
-						precision = strtol(c, (char**)&c, 10);
+						precision = printf_strtol(c, (char**)&c, 10);
 						c--;
 					} else {
 						precision = 0;

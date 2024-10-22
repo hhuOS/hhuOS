@@ -21,6 +21,7 @@
 #include <stdint.h>
 
 #include "InputStream.h"
+#include "FileStream.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/file/File.h"
 
@@ -40,8 +41,6 @@ public:
 
     FileInputStream &operator=(const FileInputStream &copy) = delete;
 
-    ~FileInputStream() override;
-
     int16_t read() override;
 	
 	int16_t peek() override;
@@ -53,11 +52,7 @@ public:
     bool isReadyToRead() override;
 
 private:
-	
-    uint32_t pos = 0;
-    int32_t fileDescriptor;
-	
-	int16_t peekedChar = -1;
+	FileStream fileStream;
 
 };
 

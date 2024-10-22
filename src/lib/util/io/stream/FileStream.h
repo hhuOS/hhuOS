@@ -1,29 +1,55 @@
-#ifndef LIBC_STDIO_FILE_STREAM
-#define LIBC_STDIO_FILE_STREAM
+#ifndef  HHUOS_FILE_STREAM
+#define HHUOS_FILE_STREAM
 
 #include <stdint.h>
+#include <stddef.h>
 
 #include "lib/util/io/stream/InputStream.h"
 #include "lib/util/io/stream/OutputStream.h"
+#include "lib/util/io/file/File.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/libc/stdio_def.h"
 
 
+#ifndef EOF 
+#define EOF -1
+#endif
 
-namespace Libc {
+namespace Util::Io {
 
 	
-class StdioFileStream : public Util::Io::InputStream, public Util::Io::OutputStream {
+class FileStream : public InputStream, public OutputStream {
 public:
-	explicit StdioFileStream(const char* filename, FileMode mode);
-	
-	explicit StdioFileStream(int32_t fileDescriptor, bool allowRead, bool allowWrite);
-	
-	StdioFileStream(const OutputStream &copy) = delete;
 
-    StdioFileStream &operator=(const OutputStream &copy) = delete;
+	enum class FileMode {
+		READ,
+		WRITE,
+		APPEND,
+		READ_EXTEND,
+		WRITE_EXTEND,
+		APPEND_EXTEND
+	};	
 	
-	~StdioFileStream();
+	enum class SeekMode {
+		SET,
+		CURRENT,
+		END
+	};
+	
+	enum class BufferMode {
+		FULL,
+		LINE,
+		NONE
+	};
+
+	explicit FileStream(const char* filename, FileMode mode);
+	
+	explicit FileStream(int32_t fileDescriptor, bool allowRead, bool allowWrite);
+	
+	FileStream(const OutputStream &copy) = delete;
+
+    FileStream &operator=(const OutputStream &copy) = delete;
+	
+	~FileStream();
 
 	virtual void write(uint8_t c);
 
@@ -52,12 +78,13 @@ public:
 	bool isOpen();
 	
 	uint32_t getPos();
-	void setPos(uint32_t newPos, int mode);
+	void setPos(uint32_t newPos, SeekMode mode);
 	
-	int setBuffer(char* newBuffer, int mode, size_t size);
+	int setBuffer(char* newBuffer, BufferMode mode, size_t size);
 	
 	void clearError();
 	
+	bool setAccessMode(File::AccessMode accessMode) const; 
 	
 private:
 
@@ -69,7 +96,7 @@ private:
 	bool _error = false;
 	bool _eof = false;
 	
-	int bufferMode;
+	BufferMode bufferMode;
 	bool _bufferChangeAllowed = true;
 	bool _freeBufferOnDelete = false;
 	

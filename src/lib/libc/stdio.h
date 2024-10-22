@@ -1,18 +1,18 @@
 #ifndef LIBC_STDIO
 #define LIBC_STDIO
 
-#include "lib/libc/stdio_def.h"
 #include <stdarg.h>
+#include <stddef.h>
 
 typedef unsigned long fpos_t;
 
 #ifdef __cplusplus
 
-#include "lib/libc/StdioFileStream.h"
+#include "lib/util/io/stream/FileStream.h"
 #include "lib/util/io/stream/OutputStream.h"
 #include "lib/util/io/stream/InputStream.h"
 
-typedef Libc::StdioFileStream FILE;
+typedef Util::Io::FileStream FILE;
 
 int _stream_vprintf(Util::Io::OutputStream &os, const char* format, va_list vlist);
 int _stream_vscanf(Util::Io::InputStream &is, const char* format, va_list vlist);
@@ -32,6 +32,23 @@ extern FILE * stderr;
 #define FILENAME_MAX 1024
 #define TMP_MAX 9999
 #define L_tmpnam 1024
+
+#define BUFSIZ 1024
+
+#ifndef EOF
+#define EOF -1
+#endif
+
+
+#define _IOFBF 0
+#define _IOLBF 1
+#define _IONBF 2
+
+#define SEEK_SET 0
+#define SEEK_CUR 1
+#define SEEK_END 2
+	
+
 
 
 #ifdef __cplusplus
