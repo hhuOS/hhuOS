@@ -10,7 +10,7 @@
 
 class Layers {
 public:
-    Layers();
+    Layers(MessageHandler *mHandler);
 
     ~Layers() = default;
 
@@ -39,6 +39,7 @@ public:
     void addEmpty(int width, int height, int posX, int posY);
 
 private:
+    MessageHandler *mHandler;
     Layer **layers;
     int layerCount;
     int maxLayerCount;

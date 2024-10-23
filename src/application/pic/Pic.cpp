@@ -16,7 +16,7 @@ Pic::Pic() {
     this->data = new DataWrapper();
     this->renderer = new Renderer(data);
 
-    data->layers = new Layers();
+    data->layers = new Layers(data->mHandler);
     data->layers->addPicture("/user/pic/test.jpg", 0, 0);
     data->layers->addPicture("/user/pic/test.jpg", 100, 100);
     data->layers->addPicture("/user/pic/test.jpg", 400, 100);
@@ -33,6 +33,8 @@ void Pic::run() {
     while (data->running) {
         this->checkMouseInput();
         this->checkKeyboardInput();
+        this->data->mHandler->update();
+        if (data->mHandler->bufferChanged()) data->flags->messagesChanged();
         this->renderer->render();
 //        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1) );
     }

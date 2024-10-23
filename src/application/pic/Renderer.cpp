@@ -114,17 +114,20 @@ void Renderer::removeMouse() {
 }
 
 void Renderer::renderResult() {
-    for (int i = 0; i < data->screenAll;) {
-        if (data->flags->gui) {
-            for (int j = 0; j < data->guiX; j++) {
-                buff_result[i++] = buff_base[i];
-            }
-        } else i += data->guiX;
-        if (data->flags->workArea) {
-            for (int j = 0; j < data->workAreaX; j++) {
-                buff_result[i++] = buff_base[i];
-            }
-        } else i += data->workAreaX;
+    if (data->flags->gui || data->flags->workArea) {
+        for (int i = 0; i < data->screenAll;) {
+            if (data->flags->gui) {
+                for (int j = 0; j < data->guiX; j++) {
+                    buff_result[i++] = buff_base[i];
+                }
+            } else i += data->guiX;
+            if (data->flags->workArea) {
+                for (int j = 0; j < data->workAreaX; j++) {
+                    buff_result[i++] = buff_base[i];
+                }
+            } else i += data->workAreaX;
+        }
+
     }
     if (data->flags->workArea) {
         renderWorkArea();
@@ -148,6 +151,9 @@ void Renderer::renderWorkArea() {
         buff_workarea[i] = buff_layers[i];
     }
     blendBuffers(buff_workarea, buff_overlay, data->workAreaAll);
+    uint32_t *buff_message = data->mHandler->getBuffer();
+    blendBuffers(buff_workarea, buff_message, data->workAreaAll);
+    data->flags->messages = false;
     data->flags->workArea = false;
 }
 
@@ -201,7 +207,7 @@ void Renderer::renderOverlay() {
         buff_overlay[i] = 0x00000000;
     }
     // border for current layer
-    Layer* l = data->layers->current();
+    Layer *l = data->layers->current();
     int x = l->posX, y = l->posY, w = l->width, h = l->height;
     drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, cred);
     drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, cred);
@@ -259,7 +265,7 @@ void Renderer::renderOverlay() {
     }
 
     if (data->debugString != nullptr) {
-        stringDrawer->drawString(Fonts::TERMINAL_8x16, 0, 0, data->debugString, cblack, cwhite);
+        stringDrawer->drawString(Fonts::TERMINAL_8x16, 0, data->workAreaY - 16, data->debugString, cblack, cwhite);
     }
     data->flags->overlay = false;
 }

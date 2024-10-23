@@ -14,6 +14,7 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/pic/helper.cpp
         ${HHUOS_SRC_DIR}/application/pic/Button.cpp
         ${HHUOS_SRC_DIR}/application/pic/Layer.cpp
+        ${HHUOS_SRC_DIR}/application/pic/MessageHandler.cpp
         ${HHUOS_SRC_DIR}/application/pic/Layers.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})

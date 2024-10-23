@@ -32,6 +32,7 @@ DataWrapper::DataWrapper() {
 
     // rendering
     flags = new RenderFlags();
+    mHandler = new MessageHandler(workAreaX, workAreaY);
 
     // layers
     layers = nullptr;

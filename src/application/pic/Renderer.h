@@ -24,6 +24,7 @@
 #include "GuiLayer.h"
 #include "helper.h"
 #include "Layers.h"
+#include "MessageHandler.h"
 
 
 using namespace Util::Graphic;
@@ -55,6 +56,8 @@ private:
     void renderGui();
 
     void renderOverlay();
+
+    void renderMessages();
 
     void drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Color color);
 

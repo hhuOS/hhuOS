@@ -18,6 +18,7 @@
 #include "lib/util/collection/Queue.h"
 #include "lib/util/collection/Pair.h"
 #include "lib/util/collection/ArrayBlockingQueue.h"
+#include "MessageHandler.h"
 
 #define  PI 3.14159265358979323846
 
@@ -29,6 +30,8 @@ class GuiLayer;
 class Button;
 
 class RenderFlags;
+
+class MessageHandler;
 
 enum Tool {
     NOTHING = 0, MOVE = 1, ROTATE = 2, SCALE = 3, CROP = 4, PEN = 5, ERASER = 6, COLOR = 7,
@@ -65,6 +68,7 @@ public:
 
     // rendering
     RenderFlags *flags;
+    MessageHandler *mHandler;
 
     // layers
     Layers *layers;
@@ -104,6 +108,7 @@ public:
     bool workArea = true;
     bool base = true;
     bool overlay = true;
+    bool messages = true;
     bool layers = true;
     bool layerOrder = true;
 
@@ -116,6 +121,8 @@ public:
     void baseChanged() { anyChange = true, result = true, base = true; }
 
     void overlayChanged() { anyChange = true, result = true, workArea = true, overlay = true; }
+
+    void messagesChanged() { anyChange = true, result = true, workArea = true, messages = true; }
 
     void currentLayerChanged() { anyChange = true, result = true, workArea = true, layers = true; }
 

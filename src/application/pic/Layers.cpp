@@ -10,11 +10,12 @@
 #include "lib/util/graphic/stb_image.h"
 #include "lib/util/graphic/stb_image_write.h"
 
-Layers::Layers() {
+Layers::Layers(MessageHandler *mHandler) {
     this->layers = new Layer *[15];
     this->layerCount = 0;
     this->maxLayerCount = 15;
     this->currentLayer = 0;
+    this->mHandler = mHandler;
 }
 
 Layer *Layers::current() {
@@ -23,6 +24,7 @@ Layer *Layers::current() {
 
 void Layers::addEmpty(int width, int height, int posX, int posY) {
     if (layerCount >= maxLayerCount) {
+        mHandler->addMessage(Util::String::format("Maximum number of layers reached: %d", maxLayerCount).operator const char *());
         return;
     }
     layers[layerCount] = new Layer(width, height, posX, posY, 1);
@@ -30,6 +32,10 @@ void Layers::addEmpty(int width, int height, int posX, int posY) {
 }
 
 void Layers::addPicture(const char *path, int posX, int posY) {
+    if (layerCount >= maxLayerCount) {
+        mHandler->addMessage(Util::String::format("Maximum number of layers reached: %d", maxLayerCount).operator const char *());
+        return;
+    }
     int width, height, channels;
     unsigned char *img = stbi_load(path, &width, &height, &channels, 0);
     print("Loaded image with width " << width << ", height " << height << ", and channels " << channels);
@@ -84,6 +90,7 @@ void Layers::setCurrentToNext() {
 
 void Layers::deletetAt(int index) {
     if (index < 0 || index >= layerCount) {
+        mHandler->addMessage(Util::String::format("Layer index out of bounds: %d", index).operator const char *());
         return;
     }
     delete layers[index];
@@ -95,6 +102,7 @@ void Layers::deletetAt(int index) {
 
 void Layers::swap(int index1, int index2) {
     if (index1 < 0 || index1 >= layerCount || index2 < 0 || index2 >= layerCount || index1 == index2) {
+        mHandler->addMessage(Util::String::format("Invalid layer indices: %d, %d", index1, index2).operator const char *());
         return;
     }
     Layer *temp = layers[index1];
@@ -104,6 +112,7 @@ void Layers::swap(int index1, int index2) {
 
 void Layers::combine(int index1, int index2) {
     if (index1 < 0 || index1 >= layerCount || index2 < 0 || index2 >= layerCount || index1 == index2) {
+        mHandler->addMessage(Util::String::format("Invalid layer indices: %d, %d", index1, index2));
         return;
     }
     if (index1 > index2) { // to preserve the order of the layers
