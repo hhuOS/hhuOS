@@ -60,9 +60,11 @@ void MessageHandler::update() {
         }
     }
 
-    if (deleted || this->messageAdded) {
-        for (int i = 0; i < width * height; i++) {
-            this->buffer[i] = 0;
+    if (deleted || this->messageAdded) { // need to redraw
+        if (deleted) {
+            for (int i = 0; i < width * height; i++) {
+                this->buffer[i] = 0;
+            }
         }
 
         for (int i = 0; i < this->messageCount; i++) {

@@ -370,10 +370,19 @@ void Pic::init_gui() {
                                 })
     );
     gui_file->addButton((new Button(data))
-                                ->setInfo("import Image")
+                                ->setInfo("add Image Layer")
                                 ->setMethodButton([](DataWrapper *data) {
-                                    // TODO
-                                }));
+                                    data->layers->addPicture(data->currentInput->operator const char *(), 0, 0);
+                                })
+                                ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
+    );
+    gui_file->addButton((new Button(data))
+                                ->setInfo("add Empty Layer")
+                                ->setMethodButton([](DataWrapper *data) {
+                                    data->layers->addEmpty(data->workAreaX - 100, data->workAreaY - 100, 50, 50);
+                                })
+                                ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
+    );
     gui_file->addButton((new Button(data))
                                 ->setInfo("export Image as PNG")
                                 ->setMethodButton([](DataWrapper *data) {

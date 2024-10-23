@@ -38,7 +38,13 @@ void Layers::addPicture(const char *path, int posX, int posY) {
     }
     int width, height, channels;
     unsigned char *img = stbi_load(path, &width, &height, &channels, 0);
-    print("Loaded image with width " << width << ", height " << height << ", and channels " << channels);
+    if (img == nullptr) {
+        mHandler->addMessage(Util::String::format("Failed to load image: %s", path).operator const char *());
+        mHandler->addMessage(Util::String::format("stbi_error: %s", stbi_failure_reason()).operator const char *());
+        return;
+    }
+    mHandler->addMessage(Util::String::format("Loaded image with width %d, height %d, and channels %d", width, height,
+                                              channels).operator const char *());
     auto *argbData = new uint32_t[width * height];
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
@@ -92,6 +98,9 @@ void Layers::deletetAt(int index) {
     if (index < 0 || index >= layerCount) {
         mHandler->addMessage(Util::String::format("Layer index out of bounds: %d", index).operator const char *());
         return;
+    }
+    if (index == currentLayer) {
+        currentLayer = 0;
     }
     delete layers[index];
     for (int i = index; i < layerCount - 1; i++) {
