@@ -21,8 +21,6 @@
 #include "DataWrapper.h"
 #include "GuiLayer.h"
 #include "Layers.h"
-#include "Bitmaps.h"
-
 using namespace Util::Graphic;
 
 enum ButtonType {
@@ -55,6 +53,8 @@ public:
     Button *setInfo(const char *string);
 
     Button *setHotkey(char hotkey);
+
+    Button *set16Bitmap(uint8_t *bitmap);
 
     Button *setMethodButton(void (*method)(DataWrapper *));
 
@@ -122,6 +122,7 @@ private:
     // optionals
     const char *info;
     char hotkey;
+    uint8_t *bitmap;
     bool hasHotkey;
     int *intValue = nullptr;
     int intLimitLow = 0, intLimitHigh = 0;

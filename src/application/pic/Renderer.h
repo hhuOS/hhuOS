@@ -62,10 +62,6 @@ private:
 
     void renderLayers();
 
-    static void blendBuffers(uint32_t *lower, const uint32_t *upper, int size);
-
-    static void blendBuffers(uint32_t *lower, const uint32_t *upper, int lx, int ly, int ux, int uy, int px, int py);
-
     DataWrapper *data;
     uint32_t *buff_lfb;
     uint32_t *buff_result;

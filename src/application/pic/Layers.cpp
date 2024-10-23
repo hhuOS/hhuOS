@@ -103,6 +103,32 @@ void Layers::swap(int index1, int index2) {
 }
 
 void Layers::combine(int index1, int index2) {
-// TODO
-}
+    if (index1 < 0 || index1 >= layerCount || index2 < 0 || index2 >= layerCount || index1 == index2) {
+        return;
+    }
+    if (index1 > index2) { // to preserve the order of the layers
+        int temp = index1;
+        index1 = index2;
+        index2 = temp;
+    }
+    Layer *l1 = layers[index1], *l2 = layers[index2];
 
+    int newX = min(l1->posX, l2->posX);
+    int newY = min(l1->posY, l2->posY);
+    int newWidth = max(l1->posX + l1->width, l2->posX + l2->width) - newX;
+    int newHeight = max(l1->posY + l1->height, l2->posY + l2->height) - newY;
+
+    auto *combinedLayer = new Layer(newWidth, newHeight, newX, newY, 1);
+    auto *b = combinedLayer->getPixelData();
+    auto *b1 = l1->getPixelData();
+    auto *b2 = l2->getPixelData();
+
+    for (int i = 0; i < newWidth * newHeight; i++) b[i] = 0x00000000;
+
+    blendBuffers(b, b1, newWidth, newHeight, l1->width, l1->height, l1->posX - newX, l1->posY - newY);
+    blendBuffers(b, b2, newWidth, newHeight, l2->width, l2->height, l2->posX - newX, l2->posY - newY);
+
+    delete l1;
+    layers[index1] = combinedLayer;
+    deletetAt(index2);
+}

@@ -39,8 +39,6 @@ void Pic::run() {
 }
 
 void Pic::checkMouseInput() {
-    auto min = [](int a, int b) { return a < b ? a : b; };
-    auto max = [](int a, int b) { return a > b ? a : b; };
     uint8_t mouseValues[4]{};
     uint32_t mouseValueIndex = 0;
     int16_t value = data->mouseInputStream->read();
@@ -323,6 +321,7 @@ void Pic::init_gui() {
                                     data->running = false;
                                 })
                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                ->set16Bitmap(Bitmaps::cross)
     );
     gui_main->addButton((new Button(data))
                                 ->setInfo("file")
@@ -354,6 +353,7 @@ void Pic::init_gui() {
                                     changeGuiLayerTo(data, "main");
                                 })
                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                ->set16Bitmap(Bitmaps::arrow_back)
     );
     gui_file->addButton((new Button(data))
                                 ->setInfo("load Project")
@@ -404,6 +404,7 @@ void Pic::init_gui() {
                                      changeGuiLayerTo(data, "main");
                                  })
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                 ->set16Bitmap(Bitmaps::arrow_back)
     );
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Move")
@@ -482,6 +483,7 @@ void Pic::init_gui() {
                                       data->currentGuiLayerBottom = data->guiLayers->get("empty");
                                   })
                                   ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                  ->set16Bitmap(Bitmaps::arrow_back)
     );
     for (int i = 0; i < data->layers->maxNum(); i++) {
         gui_layers->addButton((new Button(data))
@@ -658,7 +660,8 @@ void Pic::init_gui() {
 
     data->textButton = (new Button(data))
             ->setInfo("input: ")
-            ->setInputButton(data->currentInput, &data->captureInput);
+            ->setInputButton(data->currentInput, &data->captureInput)
+            ->set16Bitmap(Bitmaps::cross);
 
     data->guiLayers->put("main", gui_main);
     data->guiLayers->put("file", gui_file);
@@ -674,4 +677,7 @@ void Pic::init_gui() {
     data->guiLayers->put("bottom_layers", gui_bottom_layers);
     data->currentGuiLayer = gui_main;
     data->currentGuiLayerBottom = gui_empty;
+    data->currentGuiLayer->appear();
+    data->currentGuiLayerBottom->appear();
+    data->textButton->removeInteraction();
 }

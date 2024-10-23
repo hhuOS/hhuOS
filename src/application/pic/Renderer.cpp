@@ -297,23 +297,3 @@ void Renderer::renderLayers() {
     blendBuffers(buff_layers, buff_over_current, data->workAreaAll);
     data->flags->layers = false;
 }
-
-void Renderer::blendBuffers(uint32_t *lower, const uint32_t *upper, int size) {
-    for (int i = 0; i < size; i++) {
-        lower[i] = blendPixels(lower[i], upper[i]);
-    }
-}
-
-void Renderer::blendBuffers(uint32_t *lower, const uint32_t *upper, int lx, int ly, int ux, int uy, int px, int py) {
-    for (int y = 0; y < uy; y++) {
-        int lowerY = y + py;
-        if (lowerY < 0 || lowerY >= ly) continue;
-        for (int x = 0; x < ux; x++) {
-            int lowerX = x + px;
-            if (lowerX < 0 || lowerX >= lx) continue;
-            int upperIndex = y * ux + x;
-            int lowerIndex = lowerY * lx + lowerX;
-            lower[lowerIndex] = blendPixels(lower[lowerIndex], upper[upperIndex]);
-        }
-    }
-}

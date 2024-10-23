@@ -12,7 +12,7 @@ class Layers {
 public:
     Layers();
 
-//    ~Layers() = default;
+    ~Layers() = default;
 
     int countNum() const;
 

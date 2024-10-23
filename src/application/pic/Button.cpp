@@ -34,11 +34,17 @@ Button::Button(DataWrapper *data) {
     this->red = cred.getRGB32();
     this->mouseX = 0;
     this->mouseY = 0;
+    this->bitmap = nullptr;
     render();
 }
 
 Button *Button::setHotkey(char h) {
     this->hotkey = h;
+    return this;
+}
+
+Button *Button::set16Bitmap(uint8_t *b) {
+    this->bitmap = b;
     return this;
 }
 
@@ -317,6 +323,9 @@ void Button::renderMethod() {
         lineDrawer->drawLine(80, 0, 80, 30, c);
         xStringpos = 140 - (strlen(info) * 4);
     }
+    if (bitmap != nullptr) {
+        stringDrawer->drawMonoBitmap(10, 7, 16, 16, cblack, click ? cgreen : hover ? cdarkgray : cgray, bitmap);
+    }
     renderBorder(this->setGreenTool != Tool::NOTHING ? this->setGreenTool == data->currentTool ? 0xFF00FF00 : 0xFF000000 : 0xFF000000);
     stringDrawer->drawString(Fonts::TERMINAL_8x16, xStringpos, 7, info, cblack,
                              click ? cgreen : hover ? cdarkgray : cgray);
@@ -408,8 +417,12 @@ void Button::renderInput() {
     renderBorder(*captureInput ? 0xFF00FF00 : 0xFF000000);
     lineDrawer->drawLine(39, 0, 39, 30, *captureInput ? cgreen : cblack);
     lineDrawer->drawLine(40, 0, 40, 30, *captureInput ? cgreen : cblack);
-    stringDrawer->drawString(Fonts::TERMINAL_8x16, 8, 7, "DEL", cred,
-                             mouseX < 40 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
+    if (bitmap != nullptr) {
+        stringDrawer->drawMonoBitmap(12, 7, 16, 16, cred, mouseX < 40 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray, bitmap);
+    } else {
+        stringDrawer->drawString(Fonts::TERMINAL_8x16, 8, 7, "DEL", cred,
+                                 mouseX < 40 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
+    }
     stringDrawer->drawString(Fonts::TERMINAL_8x16, 48, 7, input->operator const char *(), cblack,
                              mouseX >= 40 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
 
