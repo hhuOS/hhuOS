@@ -122,4 +122,12 @@ Address<uint32_t>* LinearFrameBuffer::mapBuffer(void *physicalAddress, uint16_t 
     }
 }
 
+uint8_t LinearFrameBuffer::getBytesPerPixel() const {
+    return (colorDepth == 15 ? 16 : colorDepth) / 8;
+}
+
+bool LinearFrameBuffer::isCompatibleWith(const LinearFrameBuffer &other) const {
+    return resolutionX == other.resolutionX && resolutionY == other.resolutionY && colorDepth == other.colorDepth && pitch == other.pitch;
+}
+
 }

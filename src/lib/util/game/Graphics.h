@@ -156,7 +156,7 @@ private:
 
     Game &game;
 
-    const Graphic::BufferedLinearFrameBuffer lfb;
+    const Graphic::BufferedLinearFrameBuffer bufferedLfb;
     const Graphic::PixelDrawer pixelDrawer;
     const Graphic::LineDrawer lineDrawer;
     const Graphic::StringDrawer stringDrawer;

@@ -113,6 +113,13 @@ public:
     [[nodiscard]] uint16_t getPitch() const;
 
     /**
+     * Get the amount of bytes per pixel.
+     *
+     * @return The amount of bytes per pixel
+     */
+    [[nodiscard]] uint8_t getBytesPerPixel() const;
+
+    /**
      * Get the buffer address.
      *
      * @return The buffer address
@@ -127,6 +134,8 @@ public:
      * @param color A reference to the variable, that the pixel's color will be written to
      */
     [[nodiscard]] Color readPixel(uint16_t x, uint16_t y) const;
+
+    [[nodiscard]] bool isCompatibleWith(const LinearFrameBuffer &other) const;
 
     void clear() const;
 

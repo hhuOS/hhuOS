@@ -42,6 +42,7 @@ namespace Util::Game {
 class GameManager {
 
 friend class Engine;
+friend class Graphics;
 
 public:
     /**

@@ -31,14 +31,21 @@
 #include "lib/util/base/Address.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/math/Math.h"
+#include "GameManager.h"
 
 namespace Util::Game {
 
 Graphics::Graphics(const Graphic::LinearFrameBuffer &lfb, Game &game) :
-        game(game), lfb(lfb), pixelDrawer(Graphics::lfb), lineDrawer(pixelDrawer), stringDrawer(pixelDrawer),
-        transformation((lfb.getResolutionX() > lfb.getResolutionY() ? lfb.getResolutionY() : lfb.getResolutionX()) / 2),
-        offsetX(transformation + (lfb.getResolutionX() > lfb.getResolutionY() ? (lfb.getResolutionX() - lfb.getResolutionY()) / 2 : 0)),
-        offsetY(transformation + (lfb.getResolutionY() > lfb.getResolutionX() ? (lfb.getResolutionY() - lfb.getResolutionX()) / 2 : 0)) {}
+        game(game), bufferedLfb(lfb), pixelDrawer(bufferedLfb), lineDrawer(pixelDrawer), stringDrawer(pixelDrawer),
+        transformation((bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ? bufferedLfb.getResolutionY() : bufferedLfb.getResolutionX()) / 2),
+        offsetX(transformation + (bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ? (bufferedLfb.getResolutionX() - bufferedLfb.getResolutionY()) / 2 : 0)),
+        offsetY(transformation + (bufferedLfb.getResolutionY() > bufferedLfb.getResolutionX() ? (bufferedLfb.getResolutionY() - bufferedLfb.getResolutionX()) / 2 : 0)) {
+    GameManager::absoluteResolution = Math::Vector2D(bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY());
+    GameManager::relativeResolution = Math::Vector2D(bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ? (double) bufferedLfb.getResolutionX() / bufferedLfb.getResolutionY() : 1,
+                                                     bufferedLfb.getResolutionY() > bufferedLfb.getResolutionX() ? (double) bufferedLfb.getResolutionY() / bufferedLfb.getResolutionX() : 1);
+    GameManager::transformation = transformation;
+    lfb.clear();
+}
 
 /***** Basic functions to draw directly on the screen ******/
 
@@ -214,10 +221,10 @@ void Graphics::drawLine3D(const Math::Vector3D &from, const Math::Vector3D &to) 
     }
 
     // map the points of range (-1, 1) to actual screen coordinates
-    const auto x1 = static_cast<int32_t>((v1.getX() + 1) * (lfb.getResolutionX() / 2.0));
-    const auto y1 = static_cast<int32_t>(lfb.getResolutionY() - (v1.getY() + 1) * (lfb.getResolutionY() / 2.0));
-    const auto x2 = static_cast<int32_t>((v2.getX() + 1) * (lfb.getResolutionX() / 2.0));
-    const auto y2 = static_cast<int32_t>(lfb.getResolutionY() - (v2.getY() + 1) * (lfb.getResolutionY() / 2.0));
+    const auto x1 = static_cast<int32_t>((v1.getX() + 1) * (bufferedLfb.getResolutionX() / 2.0));
+    const auto y1 = static_cast<int32_t>(bufferedLfb.getResolutionY() - (v1.getY() + 1) * (bufferedLfb.getResolutionY() / 2.0));
+    const auto x2 = static_cast<int32_t>((v2.getX() + 1) * (bufferedLfb.getResolutionX() / 2.0));
+    const auto y2 = static_cast<int32_t>(bufferedLfb.getResolutionY() - (v2.getY() + 1) * (bufferedLfb.getResolutionY() / 2.0));
 
     lineDrawer.drawLine(x1, y1, x2, y2, color);
     drawnEdgeCounter++;
@@ -242,28 +249,28 @@ void Graphics::drawModel(const Array<Math::Vector3D> &vertices, const Array<Math
 }
 
 void Graphics::show() const {
-    lfb.flush();
+    bufferedLfb.flush();
 
     if (backgroundBuffer == nullptr) {
-        lfb.clear();
+        bufferedLfb.clear();
     } else if (Math::Vector2D(cameraPosition.getX(), cameraPosition.getY()) == Math::Vector2D(0, 0)) {
         auto source = Address<uint32_t>(backgroundBuffer);
-        lfb.getBuffer().copyRange(source, lfb.getResolutionY() * lfb.getPitch());
+        bufferedLfb.getBuffer().copyRange(source, bufferedLfb.getResolutionY() * bufferedLfb.getPitch());
     } else {
-        auto pitch = lfb.getPitch();
-        auto colorDepthDivisor = (lfb.getColorDepth() == 15 ? 16 : lfb.getColorDepth()) / 8;
+        auto pitch = bufferedLfb.getPitch();
+        auto colorDepthDivisor = (bufferedLfb.getColorDepth() == 15 ? 16 : bufferedLfb.getColorDepth()) / 8;
         auto xOffset = static_cast<uint32_t>(game.getCurrentScene().getCamera().getPosition().getX() * static_cast<uint32_t>(pitch / colorDepthDivisor)) % pitch;
         xOffset -= xOffset % colorDepthDivisor;
 
-        for (uint32_t i = 0; i < lfb.getResolutionY(); i++) {
+        for (uint32_t i = 0; i < bufferedLfb.getResolutionY(); i++) {
             auto yOffset = pitch * i;
 
             auto source = Address<uint32_t>(backgroundBuffer + yOffset + xOffset);
-            auto target = lfb.getBuffer().add(yOffset);
+            auto target = bufferedLfb.getBuffer().add(yOffset);
             target.copyRange(source, pitch - xOffset);
 
             source = Address<uint32_t>(backgroundBuffer + yOffset);
-            target = lfb.getBuffer().add(yOffset + (pitch - xOffset));
+            target = bufferedLfb.getBuffer().add(yOffset + (pitch - xOffset));
             target.copyRange(source, pitch - (pitch - xOffset));
         }
     }
@@ -279,10 +286,10 @@ Graphic::Color Graphics::getColor() const {
 
 void Graphics::saveCurrentStateAsBackground() {
     if (backgroundBuffer == nullptr) {
-        backgroundBuffer = new uint8_t[lfb.getPitch() * lfb.getResolutionY()];
+        backgroundBuffer = new uint8_t[bufferedLfb.getPitch() * bufferedLfb.getResolutionY()];
     }
 
-    Address<uint32_t>(backgroundBuffer).copyRange(lfb.getBuffer(), lfb.getPitch() * lfb.getResolutionY());
+    Address<uint32_t>(backgroundBuffer).copyRange(bufferedLfb.getBuffer(), bufferedLfb.getPitch() * bufferedLfb.getResolutionY());
 }
 
 void Graphics::clearBackground() {
@@ -292,10 +299,10 @@ void Graphics::clearBackground() {
 
 void Graphics::clear(const Graphic::Color &color) {
     if (color == Util::Graphic::Colors::BLACK) {
-        lfb.clear();
+        bufferedLfb.clear();
     } else {
-        for (uint32_t i = 0; i < lfb.getResolutionX(); i++) {
-            for (uint32_t j = 0; j < lfb.getResolutionY(); j++) {
+        for (uint32_t i = 0; i < bufferedLfb.getResolutionX(); i++) {
+            for (uint32_t j = 0; j < bufferedLfb.getResolutionY(); j++) {
                 pixelDrawer.drawPixel(i, j, color);
             }
         }
@@ -318,7 +325,7 @@ void Graphics::drawImageDirect2D(const Math::Vector2D &position, const Graphic::
     const auto xPixelOffset = static_cast<int32_t>((position.getX() - cameraPosition.getX()) * transformation + offsetX);
     const auto yPixelOffset = static_cast<int32_t>((-position.getY() + cameraPosition.getY()) * transformation + offsetY);
 
-    if (xPixelOffset + image.getWidth() < 0 || xPixelOffset > lfb.getResolutionX() || yPixelOffset - image.getHeight() > lfb.getResolutionY() || yPixelOffset < 0) {
+    if (xPixelOffset + image.getWidth() < 0 || xPixelOffset > bufferedLfb.getResolutionX() || yPixelOffset - image.getHeight() > bufferedLfb.getResolutionY() || yPixelOffset < 0) {
         return;
     }
 
@@ -338,7 +345,7 @@ void Graphics::drawImageScaled2D(const Math::Vector2D &position, const Graphic::
     const auto scaledWidth = static_cast<uint16_t>(image.getWidth() * scale.getX());
     const auto scaledHeight = static_cast<uint16_t>(image.getHeight() * scale.getY());
 
-    if (xPixelOffset + scaledWidth < 0 || xPixelOffset > lfb.getResolutionX() || yPixelOffset - scaledHeight > lfb.getResolutionY() || yPixelOffset < 0) {
+    if (xPixelOffset + scaledWidth < 0 || xPixelOffset > bufferedLfb.getResolutionX() || yPixelOffset - scaledHeight > bufferedLfb.getResolutionY() || yPixelOffset < 0) {
         return;
     }
 
@@ -366,7 +373,7 @@ void Graphics::drawImageRotated2D(const Math::Vector2D &position, const Graphic:
     const auto rotatedHeight = static_cast<uint16_t>(image.getWidth() * Math::absolute(Math::sine(rotationAngle)) + image.getHeight() * Math::absolute(Math::cosine(rotationAngle)));
     const auto rotatedWidth = static_cast<uint16_t>(image.getWidth() * Math::absolute(Math::cosine(rotationAngle)) + image.getHeight() * Math::absolute(Math::sine(rotationAngle)));
 
-    if (xPixelOffset + rotatedWidth < 0 || xPixelOffset > lfb.getResolutionX() || yPixelOffset - rotatedHeight > lfb.getResolutionY() || yPixelOffset < 0) {
+    if (xPixelOffset + rotatedWidth < 0 || xPixelOffset > bufferedLfb.getResolutionX() || yPixelOffset - rotatedHeight > bufferedLfb.getResolutionY() || yPixelOffset < 0) {
         return;
     }
 
@@ -400,7 +407,7 @@ void Graphics::drawImageScaledAndRotated2D(const Math::Vector2D &position, const
     const auto rotatedHeight = static_cast<uint16_t>(scaledWidth * Math::absolute(Math::sine(rotationAngle)) + scaledHeight * Math::absolute(Math::cosine(rotationAngle)));
     const auto rotatedWidth = static_cast<uint16_t>(scaledWidth * Math::absolute(Math::cosine(rotationAngle)) + scaledHeight * Math::absolute(Math::sine(rotationAngle)));
 
-    if (xPixelOffset + rotatedWidth < 0 || xPixelOffset > lfb.getResolutionX() || yPixelOffset - rotatedHeight > lfb.getResolutionY() || yPixelOffset < 0) {
+    if (xPixelOffset + rotatedWidth < 0 || xPixelOffset > bufferedLfb.getResolutionX() || yPixelOffset - rotatedHeight > bufferedLfb.getResolutionY() || yPixelOffset < 0) {
         return;
     }
 
