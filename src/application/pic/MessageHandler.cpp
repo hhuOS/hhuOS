@@ -27,11 +27,11 @@ uint32_t *MessageHandler::getBuffer() {
     return this->buffer;
 }
 
-void MessageHandler::addMessage(Util::String message) {
+void MessageHandler::addMessage(const Util::String& message) {
     this->addMessage(message, 5);
 }
 
-void MessageHandler::addMessage(Util::String message, int duration) {
+void MessageHandler::addMessage(const Util::String& message, int duration) {
     auto *newMessage = new Message();
     newMessage->message = message;
     newMessage->expiration = time(nullptr) + duration;
@@ -40,8 +40,10 @@ void MessageHandler::addMessage(Util::String message, int duration) {
     this->messageAdded = true;
 }
 
-bool MessageHandler::bufferChanged() {
-    return this->changed;
+bool MessageHandler::hasChangedAndReset() {
+    bool temp = changed;
+    changed = false;
+    return temp;
 }
 
 void MessageHandler::update() {

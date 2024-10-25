@@ -34,7 +34,7 @@ void Pic::run() {
         this->checkMouseInput();
         this->checkKeyboardInput();
         this->data->mHandler->update();
-        if (data->mHandler->bufferChanged()) data->flags->messagesChanged();
+        if (data->mHandler->hasChangedAndReset()) data->flags->messagesChanged();
         this->renderer->render();
 //        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1) );
     }
@@ -181,7 +181,8 @@ void Pic::parseMouse(bool clicked) {
                     continue; // both points are outside of the layer
                 }
                 uint32_t penColor = (data->colorA << 24) | (data->colorR << 16) | (data->colorG << 8) | data->colorB;
-                l->drawLine(lastX, lastY, relX, relY, data->currentTool == Tool::PEN ? penColor : 0x00000000, data->penSize);
+                data->layers->drawLineCurrent(lastX, lastY, relX, relY, data->currentTool == Tool::PEN ? penColor : 0x00000000,
+                                              data->penSize);
                 lastX = relX, lastY = relY;
             }
             // put last click back for next iteration
@@ -190,7 +191,7 @@ void Pic::parseMouse(bool clicked) {
         }
     } else if (data->mouseX >= 200 && !data->clickStartedOnGui && clicked &&
                (data->currentTool == Tool::PEN || data->currentTool == Tool::ERASER)) {
-        data->layers->current()->prepareNextDrawing(); // proper blending for the next drawing
+        data->layers->prepareNextDrawingCurrent(); // proper blending for the next drawing
     }
 
     data->debugString = String::format(
@@ -214,7 +215,6 @@ void Pic::checkKeyboardInput() {
                 scancode = Util::System::in.read();
                 continue;
             }
-            auto currentLayer = data->layers->current();
             if (data->captureInput) { // TODO: kaputt, wenn man tab drückt (ist vll riesen char?? :D)
                 if (key.getScancode() == Util::Io::Key::BACKSPACE) {
                     *data->currentInput = data->currentInput->substring(0, data->currentInput->length() - 1);
@@ -227,33 +227,34 @@ void Pic::checkKeyboardInput() {
                     }
                 }
             } else {
+                auto currentLayer = data->layers->current();
                 switch (scancode) {
                     case Util::Io::Key::ESC:
                         data->running = false;
                         break;
                     case Util::Io::Key::UP:
-                        currentLayer->posY = currentLayer->posY - 10;
+                        data->layers->moveCurrent(currentLayer->posX, currentLayer->posY - 10);
                         data->flags->currentLayerChanged();
                         data->flags->overlayChanged();
                         break;
                     case Util::Io::Key::DOWN:
-                        currentLayer->posY = currentLayer->posY + 10;
+                        data->layers->moveCurrent(currentLayer->posX, currentLayer->posY + 10);
                         data->flags->currentLayerChanged();
                         data->flags->overlayChanged();
                         break;
                     case Util::Io::Key::LEFT:
-                        currentLayer->posX = currentLayer->posX - 10;
+                        data->layers->moveCurrent(currentLayer->posX - 10, currentLayer->posY);
                         data->flags->currentLayerChanged();
                         data->flags->overlayChanged();
                         break;
                     case Util::Io::Key::RIGHT:
-                        currentLayer->posX = currentLayer->posX + 10;
+                        data->layers->moveCurrent(currentLayer->posX + 10, currentLayer->posY);
                         data->flags->currentLayerChanged();
                         data->flags->overlayChanged();
                         break;
                     case Util::Io::Key::TAB:
                         data->layers->setCurrentToNext();
-                        data->layers->current()->prepareNextDrawing();
+                        data->layers->prepareNextDrawingCurrent();
                         data->flags->layerOrderChanged();
                         data->flags->overlayChanged();
                         data->currentGuiLayer->appear();
@@ -295,7 +296,7 @@ void swapTool(DataWrapper *data, Tool tool) {
             case Tool::PEN:
             case Tool::ERASER:
                 data->currentGuiLayerBottom = data->guiLayers->get("bottom_pen");
-                data->layers->current()->prepareNextDrawing();
+                data->layers->prepareNextDrawingCurrent();
                 break;
             case Tool::COLOR:
                 data->currentGuiLayerBottom = data->guiLayers->get("bottom_color");
@@ -520,8 +521,7 @@ void Pic::init_gui() {
                                            data->moveX = data->layers->current()->posX;
                                            data->moveY = data->layers->current()->posY;
                                        }, [](DataWrapper *data) {
-                                           data->layers->current()->posX = data->moveX;
-                                           data->layers->current()->posY = data->moveY;
+                                             data->layers->moveCurrent(data->moveX, data->moveY);
                                        })
                                        ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
                                        ->setAppearBottomOnChange(true)
@@ -551,7 +551,7 @@ void Pic::init_gui() {
                                         ->setConfirmButton([](DataWrapper *data) {
                                             data->scale = 1.0;
                                         }, [](DataWrapper *data) {
-                                            data->layers->current()->scale(data->scale, data->toolCorner);
+                                            data->layers->scaleCurrent(data->scale, data->toolCorner);
                                             data->scale = 1.0;
                                         })
                                         ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
@@ -590,8 +590,7 @@ void Pic::init_gui() {
                                        ->setConfirmButton([](DataWrapper *data) {
                                            data->cropLeft = 0, data->cropRight = 0, data->cropTop = 0, data->cropBottom = 0;
                                        }, [](DataWrapper *data) {
-                                           data->layers->current()->crop(data->cropLeft, data->cropRight, data->cropTop,
-                                                                         data->cropBottom);
+                                           data->layers->cropCurrent(data->cropLeft, data->cropRight, data->cropTop, data->cropBottom);
                                            data->cropLeft = 0, data->cropRight = 0, data->cropTop = 0, data->cropBottom = 0;
                                        })
                                        ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
@@ -630,7 +629,7 @@ void Pic::init_gui() {
                                          ->setConfirmButton([](DataWrapper *data) {
                                              data->rotateDeg = 0;
                                          }, [](DataWrapper *data) {
-                                             data->layers->current()->rotate(data->rotateDeg);
+                                             data->layers->rotateCurrent(data->rotateDeg);
                                              data->rotateDeg = 0;
                                          })
                                          ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)

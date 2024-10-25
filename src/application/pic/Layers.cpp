@@ -29,6 +29,7 @@ void Layers::addEmpty(int width, int height, int posX, int posY) {
     }
     layers[layerCount] = new Layer(width, height, posX, posY, 1);
     layerCount++;
+    currentLayer = layerCount - 1;
 }
 
 void Layers::addPicture(const char *path, int posX, int posY) {
@@ -59,6 +60,7 @@ void Layers::addPicture(const char *path, int posX, int posY) {
     layers[layerCount] = new Layer(width, height, posX, posY, 1, argbData);
     layerCount++;
     stbi_image_free(img);
+    currentLayer = layerCount - 1;
 }
 
 Layer *Layers::at(int index) {
@@ -99,14 +101,13 @@ void Layers::deletetAt(int index) {
         mHandler->addMessage(Util::String::format("Layer index out of bounds: %d", index).operator const char *());
         return;
     }
-    if (index == currentLayer) {
-        currentLayer = 0;
-    }
+    if (index == currentLayer) currentLayer = 0;
     delete layers[index];
     for (int i = index; i < layerCount - 1; i++) {
         layers[i] = layers[i + 1];
     }
     layerCount--;
+    if (currentLayer >= layerCount) currentLayer = layerCount - 1;
 }
 
 void Layers::swap(int index1, int index2) {
@@ -149,4 +150,179 @@ void Layers::combine(int index1, int index2) {
     delete l1;
     layers[index1] = combinedLayer;
     deletetAt(index2);
+}
+
+void Layers::move(int index, int x, int y) {
+    if (index < 0 || index >= layerCount) return;
+    Layer *layer = layers[index];
+    layer->posX += x;
+    layer->posY += y;
+}
+
+void Layers::moveCurrent(int x, int y) {
+    move(currentLayer, x, y);
+}
+
+void Layers::scale(int index, double factor, ToolCorner kind) {
+    if (index < 0 || index >= layerCount) return;
+    Layer *layer = layers[index];
+
+    if (factor <= 0) return;
+    int newWidth = ceil(layer->width * factor);
+    int newHeight = ceil(layer->height * factor);
+    auto *newPixelData = new uint32_t[newWidth * newHeight];
+
+    for (int y = 0; y < newHeight; ++y) {
+        for (int x = 0; x < newWidth; ++x) {
+            int oldX = floor(x / factor);
+            int oldY = floor(y / factor);
+            if (oldX < layer->width && oldY < layer->height) {
+                newPixelData[y * newWidth + x] = layer->getPixel(oldX, oldY);
+            } else {
+                newPixelData[y * newWidth + x] = 0;
+            }
+        }
+    }
+
+    int newX = layer->posX;
+    int newY = layer->posY;
+    if (kind == TOP_LEFT || kind == BOTTOM_LEFT)
+        newX = layer->posX + layer->width - newWidth;
+    if (kind == TOP_LEFT || kind == TOP_RIGHT)
+        newY = layer->posY + layer->height - newHeight;
+
+    layer->setNewBuffer(newPixelData, newX, newY, newWidth, newHeight);
+}
+
+void Layers::scaleCurrent(double factor, ToolCorner kind) {
+    scale(currentLayer, factor, kind);
+}
+
+void Layers::crop(int index, int left, int right, int top, int bottom) {
+    if (index < 0 || index >= layerCount) return;
+    Layer *layer = layers[index];
+
+    int newWidth = layer->width - left - right;
+    int newHeight = layer->height - top - bottom;
+    if (newWidth <= 0 || newHeight <= 0) return;
+
+    auto *newPixelData = new uint32_t[newWidth * newHeight];
+    for (int i = 0; i < newWidth * newHeight; ++i) newPixelData[i] = 0x00000000;
+
+    for (int y = 0; y < newHeight; ++y) {
+        for (int x = 0; x < newWidth; ++x) {
+            int oldX = x + left, oldY = y + top;
+            if (oldX >= 0 && oldX < layer->width && oldY >= 0 && oldY < layer->height) {
+                newPixelData[y * newWidth + x] = layer->getPixel(oldX, oldY);
+            }
+        }
+    }
+
+    layer->setNewBuffer(newPixelData, layer->posX + left, layer->posY + top, newWidth, newHeight);
+}
+
+void Layers::cropCurrent(int left, int right, int top, int bottom) {
+    crop(currentLayer, left, right, top, bottom);
+}
+
+void Layers::rotate(int index, int degree) {
+    if (index < 0 || index >= layerCount) return;
+    Layer *layer = layers[index];
+
+    degree = (degree % 360 + 360) % 360;  // Normalize degree to 0-359
+    if (degree == 0) return;  // No rotation needed
+
+    int newWidth = abs(layer->width * cos(degree * PI / 180.0)) + abs(layer->height * sin(degree * PI / 180.0));
+    int newHeight = abs(layer->width * sin(degree * PI / 180.0)) + abs(layer->height * cos(degree * PI / 180.0));
+    auto *newPixelData = new uint32_t[newWidth * newHeight];
+    for (int i = 0; i < newWidth * newHeight; ++i) newPixelData[i] = 0x00000000;
+
+    double radians = degree * PI / 180.0;
+    double cosTheta = cos(radians);
+    double sinTheta = sin(radians);
+
+    int centerX = layer->width / 2;
+    int centerY = layer->height / 2;
+    int newCenterX = newWidth / 2;
+    int newCenterY = newHeight / 2;
+
+    for (int y = 0; y < newHeight; ++y) {
+        for (int x = 0; x < newWidth; ++x) {
+            int srcX = static_cast<int>((x - newCenterX) * cosTheta + (y - newCenterY) * sinTheta) + centerX;
+            int srcY = static_cast<int>(-(x - newCenterX) * sinTheta + (y - newCenterY) * cosTheta) + centerY;
+
+            if (srcX >= 0 && srcX < layer->width && srcY >= 0 && srcY < layer->height) {
+                newPixelData[y * newWidth + x] = layer->getPixel(srcX, srcY);
+            }
+        }
+    }
+
+    layer->setNewBuffer(newPixelData,
+                        layer->posX - (newWidth - layer->width) / 2, layer->posY - (newHeight - layer->height) / 2,
+                        newWidth, newHeight);
+}
+
+void Layers::rotateCurrent(int degree) {
+    rotate(currentLayer, degree);
+}
+
+void Layers::drawCircle(int index, int x, int y, uint32_t color, int thickness) {
+    if (index < 0 || index >= layerCount) return;
+    Layer *layer = layers[index];
+    auto pixelData = layer->getPixelData();
+    auto tempPixelData = layer->getTempPixelData();
+
+    int r = thickness / 2;
+    int rr = r * r;
+    for (int ty = -r; ty <= r; ty++) {
+        for (int tx = -r; tx <= r; tx++) {
+            if (tx * tx + ty * ty <= rr) {
+                int px = x + tx;
+                int py = y + ty;
+                if (px >= 0 && px < layer->width && py >= 0 && py < layer->height) {
+                    uint32_t oldColor = layer->getTempPixel(px, py);
+                    layer->setPixel(px, py, color == 0x00000000 ? 0x00000000 : blendPixels(oldColor, color));
+                }
+            }
+        }
+    }
+}
+
+void Layers::drawCircleCurrent(int x, int y, uint32_t color, int thickness) {
+    drawCircle(currentLayer, x, y, color, thickness);
+}
+
+void Layers::drawLine(int index, int x1, int y1, int x2, int y2, uint32_t color, int thickness) {
+    if (index < 0 || index >= layerCount) return;
+
+    // Bressenham's line algorithm
+    // https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm#cite_note-Zingl-3
+    // http://members.chello.at/~easyfilter/Bresenham.pdf
+    // seite Page 13 of 98
+
+    int dx = abs(x2 - x1), sx = x1 < x2 ? 1 : -1;
+    int dy = -abs(y2 - y1), sy = y1 < y2 ? 1 : -1;
+    int err = dx + dy, e2;
+
+    while (true) {
+        drawCircle(index, x1, y1, color, thickness);
+        if (x1 == x2 && y1 == y2) break;
+        e2 = 2 * err;
+        if (e2 >= dy) err += dy, x1 += sx;
+        if (e2 <= dx) err += dx, y1 += sy;
+    }
+}
+
+void Layers::drawLineCurrent(int x1, int y1, int x2, int y2, uint32_t color, int thickness) {
+    drawLine(currentLayer, x1, y1, x2, y2, color, thickness);
+}
+
+void Layers::prepareNextDrawing(int index) {
+    if (index < 0 || index >= layerCount) return;
+    Layer *layer = layers[index];
+    layer->prepareNextDrawing();
+}
+
+void Layers::prepareNextDrawingCurrent() {
+    prepareNextDrawing(currentLayer);
 }

@@ -38,6 +38,36 @@ public:
 
     void addEmpty(int width, int height, int posX, int posY);
 
+    // Layer operations:
+
+    void move(int index, int x, int y);
+
+    void moveCurrent(int x, int y);
+
+    void scale(int index, double factor, ToolCorner kind);
+
+    void scaleCurrent(double factor, ToolCorner kind);
+
+    void crop(int index, int left, int right, int top, int bottom);
+
+    void cropCurrent(int left, int right, int top, int bottom);
+
+    void rotate(int index, int degree);
+
+    void rotateCurrent(int degree);
+
+    void drawCircle(int index, int x, int y, uint32_t color, int thickness);
+
+    void drawCircleCurrent(int x, int y, uint32_t color, int thickness);
+
+    void drawLine(int index, int x1, int y1, int x2, int y2, uint32_t color, int thickness);
+
+    void drawLineCurrent(int x1, int y1, int x2, int y2, uint32_t color, int thickness);
+
+    void prepareNextDrawing(int index);
+
+    void prepareNextDrawingCurrent();
+
 private:
     MessageHandler *mHandler;
     Layer **layers;

@@ -21,21 +21,17 @@ public:
     // Assignment operator
     Layer &operator=(const Layer &other);
 
-    [[nodiscard]] uint32_t *getPixelData() const { return pixelData; }
+    [[nodiscard]] uint32_t *getPixelData() const;
+
+    [[nodiscard]] uint32_t *getTempPixelData() const;
+
+    [[nodiscard]] uint32_t getPixel(int x, int y) const;
+
+    [[nodiscard]] uint32_t getTempPixel(int x, int y) const;
+
+    void setNewBuffer(uint32_t *newBuffer, int x, int y, int w, int h);
 
     void setPixel(int x, int y, unsigned int color);
-
-    uint32_t getPixel(int x, int y) const;
-
-    void scale(double factor, ToolCorner kind);
-
-    void crop(int left, int right, int top, int bottom);
-
-    void rotate(int degree);
-
-    void drawCircle(int x, int y, uint32_t color, int thickness);
-
-    void drawLine(int x1, int y1, int x2, int y2, uint32_t color, int thickness);
 
     void prepareNextDrawing();
 

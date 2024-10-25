@@ -27,13 +27,13 @@ public:
 
     void update();
 
-    bool bufferChanged();
+    bool hasChangedAndReset();
 
     uint32_t *getBuffer();
 
-    void addMessage(Util::String message);
+    void addMessage(const Util::String& message);
 
-    void addMessage(Util::String message, int duration);
+    void addMessage(const Util::String& message, int duration);
 
 private:
     int width, height;
