@@ -466,6 +466,13 @@ void Pic::init_gui() {
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
     gui_tools->addButton((new Button(data))
+                                 ->setInfo("auto Crop")
+                                 ->setMethodButton([](DataWrapper *data) {
+                                     // TODO
+                                 })
+                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+    );
+    gui_tools->addButton((new Button(data))
                                  ->setInfo("Pen")
                                  ->setMethodButton([](DataWrapper *data) {
                                      data->penSize = 10;

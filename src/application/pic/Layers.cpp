@@ -198,8 +198,8 @@ void Layers::combine(int index1, int index2) {
 void Layers::move(int index, int x, int y) {
     if (index < 0 || index >= layerCount) return;
     Layer *layer = layers[index];
-    layer->posX += x;
-    layer->posY += y;
+    layer->posX = x;
+    layer->posY = y;
 }
 
 void Layers::moveCurrent(int x, int y) {
