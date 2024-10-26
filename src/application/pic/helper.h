@@ -20,7 +20,11 @@ const char *double_to_string(double value, int decimal_places);
 
 int min(int a, int b);
 
+double min(double a, double b);
+
 int max(int a, int b);
+
+double max(double a, double b);
 
 namespace Bitmaps {
 

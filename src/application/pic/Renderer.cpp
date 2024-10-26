@@ -209,8 +209,8 @@ void Renderer::renderOverlay() {
     // border for current layer
     Layer *l = data->layers->current();
     int x = l->posX, y = l->posY, w = l->width, h = l->height;
-    drawOverlayBox(x, y, x + w - 2, y, x + w - 2, y + h - 2, x, y + h - 2, cred);
-    drawOverlayBox(x - 1, y - 1, x + w - 1, y - 1, x + w - 1, y + h - 1, x - 1, y + h - 1, cred);
+    drawOverlayBox(x, y, x + w - 1, y, x + w - 1, y + h - 1, x, y + h - 1, cred);
+    drawOverlayBox(x + 1, y + 1, x + w - 2, y + 1, x + w - 2, y + h - 2, x + 1, y + h - 2, cred);
     Color top, bottom, left, right;
     if (data->currentTool == Tool::MOVE) {
         x = data->moveX, y = data->moveY;

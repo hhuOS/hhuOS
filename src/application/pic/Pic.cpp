@@ -456,6 +456,19 @@ void Pic::init_gui() {
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
     gui_tools->addButton((new Button(data))
+                                 ->setInfo("auto Scale and to (0,0)")
+                                 ->setMethodButton([](DataWrapper *data) {
+                                     data->layers->moveCurrent(0, 0);
+                                     auto l = data->layers->current();
+                                     if (l->posX + l->width > data->workAreaX || l->posY + l->height > data->workAreaY) {
+                                         double factor = min((double) data->workAreaX / (double) l->width,
+                                                             (double) data->workAreaY / (double) l->height);
+                                         data->layers->scaleCurrent(factor, ToolCorner::BOTTOM_RIGHT);
+                                     }
+                                 })
+                                 ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+    );
+    gui_tools->addButton((new Button(data))
                                  ->setInfo("Crop")
                                  ->setMethodButton([](DataWrapper *data) {
                                      data->cropLeft = 0;

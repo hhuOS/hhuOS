@@ -150,6 +150,7 @@ void Layers::deletetAt(int index) {
         layers[i] = layers[i + 1];
     }
     layerCount--;
+    if(layerCount == 0) addEmpty(0, 0, 100, 100);
     if (currentLayer >= layerCount) currentLayer = layerCount - 1;
 }
 
