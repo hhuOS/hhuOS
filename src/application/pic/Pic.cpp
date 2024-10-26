@@ -31,11 +31,11 @@ Pic::Pic() {
 
 void Pic::run() {
     while (data->running) {
-        this->checkMouseInput();
-        this->checkKeyboardInput();
-        this->data->mHandler->update();
+        checkMouseInput();
+        checkKeyboardInput();
+        data->mHandler->update();
         if (data->mHandler->hasChangedAndReset()) data->flags->messagesChanged();
-        this->renderer->render();
+        renderer->render();
 //        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1) );
     }
 }
@@ -521,7 +521,7 @@ void Pic::init_gui() {
                                            data->moveX = data->layers->current()->posX;
                                            data->moveY = data->layers->current()->posY;
                                        }, [](DataWrapper *data) {
-                                             data->layers->moveCurrent(data->moveX, data->moveY);
+                                           data->layers->moveCurrent(data->moveX, data->moveY);
                                        })
                                        ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
                                        ->setAppearBottomOnChange(true)

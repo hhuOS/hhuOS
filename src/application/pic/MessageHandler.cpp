@@ -12,32 +12,43 @@ MessageHandler::MessageHandler(int width, int height) {
     for (int i = 0; i < width * height; i++) {
         this->buffer[i] = 0;
     }
-    this->lfb = new LinearFrameBuffer(this->buffer, width, height, 32, width * 4, false);
+    this->lfb = new LinearFrameBuffer(buffer, width, height, 32, width * 4, false);
     this->pixelDrawer = new PixelDrawer(*lfb);
     this->stringDrawer = new StringDrawer(*pixelDrawer);
-    this->messages = new Message *[20];
+    this->maxMessages = height / 16;
+    this->messages = new Message *[maxMessages];
     this->messageCount = 0;
     this->changed = false;
     this->messageAdded = false;
-    this->addMessage("hello to Pic!!! :D");
+    this->overflowed = false;
+    addMessage("hello to Pic!!! :D");
 
 }
 
 uint32_t *MessageHandler::getBuffer() {
-    return this->buffer;
+    return buffer;
 }
 
-void MessageHandler::addMessage(const Util::String& message) {
-    this->addMessage(message, 5);
+void MessageHandler::addMessage(const Util::String &message) {
+    addMessage(message, 5);
 }
 
-void MessageHandler::addMessage(const Util::String& message, int duration) {
+void MessageHandler::addMessage(const Util::String &message, int duration) {
+    if (messageCount >= maxMessages) {
+        delete messages[0];
+        for (int i = 0; i < messageCount - 1; i++) {
+            messages[i] = messages[i + 1];
+        }
+        messageCount--;
+        overflowed = true;
+    }
+
     auto *newMessage = new Message();
     newMessage->message = message;
     newMessage->expiration = time(nullptr) + duration;
-    this->messages[this->messageCount] = newMessage;
-    this->messageCount++;
-    this->messageAdded = true;
+    messages[messageCount] = newMessage;
+    messageCount++;
+    messageAdded = true;
 }
 
 bool MessageHandler::hasChangedAndReset() {
@@ -50,33 +61,33 @@ void MessageHandler::update() {
     bool deleted = false;
     auto currentTime = time(nullptr);
 
-    for (int i = 0; i < this->messageCount; i++) {
-        if (this->messages[i]->expiration <= currentTime) {
-            delete this->messages[i];
-            for (int j = i; j < this->messageCount - 1; j++) {
-                this->messages[j] = this->messages[j + 1];
+    for (int i = 0; i < messageCount; i++) {
+        if (messages[i]->expiration <= currentTime) {
+            delete messages[i];
+            for (int j = i; j < messageCount - 1; j++) {
+                messages[j] = messages[j + 1];
             }
-            this->messageCount--;
+            messageCount--;
             i--;
             deleted = true;
         }
     }
 
-    if (deleted || this->messageAdded) { // need to redraw
-        if (deleted) {
+    if (deleted || messageAdded) { // need to redraw
+        if (deleted || overflowed) {
             for (int i = 0; i < width * height; i++) {
-                this->buffer[i] = 0;
+                buffer[i] = 0;
             }
         }
 
-        for (int i = 0; i < this->messageCount; i++) {
+        for (int i = 0; i < messageCount; i++) {
             int xStringpos = (width / 2) - (messages[i]->message.length() * 4);
             if (xStringpos < 0) xStringpos = 0;
             stringDrawer->drawString(Fonts::TERMINAL_8x16, xStringpos, i * 16, messages[i]->message.operator const char *(),
                                      Color(0, 0, 0), Color(255, 255, 255));
         }
 
-        this->changed = true;
-        this->messageAdded = false;
+        changed = true;
+        messageAdded = false;
     }
 }

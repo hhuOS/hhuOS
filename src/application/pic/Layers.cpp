@@ -269,8 +269,6 @@ void Layers::rotateCurrent(int degree) {
 void Layers::drawCircle(int index, int x, int y, uint32_t color, int thickness) {
     if (index < 0 || index >= layerCount) return;
     Layer *layer = layers[index];
-    auto pixelData = layer->getPixelData();
-    auto tempPixelData = layer->getTempPixelData();
 
     int r = thickness / 2;
     int rr = r * r;

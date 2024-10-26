@@ -43,12 +43,12 @@ private:
     StringDrawer *stringDrawer;
 
     bool changed;
+    bool overflowed;
     bool messageAdded;
 
     Message **messages;
     int messageCount;
-
-
+    int maxMessages;
 };
 
 
