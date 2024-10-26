@@ -11,9 +11,9 @@
 #include "lib/util/graphic/stb_image_write.h"
 
 Layers::Layers(MessageHandler *mHandler) {
-    this->layers = new Layer *[15];
+    this->layers = new Layer *[18];
     this->layerCount = 0;
-    this->maxLayerCount = 15;
+    this->maxLayerCount = 18;
     this->currentLayer = 0;
     this->mHandler = mHandler;
 }

@@ -260,6 +260,19 @@ void Renderer::renderOverlay() {
         x = data->layerX, y = data->layerY, w = data->layerW, h = data->layerH;
         drawOverlayBox(x, y, x + w - 2, y, x + w - 2, y + h - 2, x, y + h - 2, cgreen);
         drawOverlayBox(x - 1, y - 1, x + w - 1, y - 1, x + w - 1, y + h - 1, x - 1, y + h - 1, cgreen);
+    } else if (data->currentTool == Tool::COMBINE) {
+        if (data->combineFirst < data->layers->countNum()) {
+            Layer *l1 = data->layers->at(data->combineFirst);
+            int x1 = l1->posX, y1 = l1->posY, w1 = l1->width, h1 = l1->height;
+            drawOverlayBox(x1, y1, x1 + w1 - 2, y1, x1 + w1 - 2, y1 + h1 - 2, x1, y1 + h1 - 2, cgreen);
+            drawOverlayBox(x1 - 1, y1 - 1, x1 + w1 - 1, y1 - 1, x1 + w1 - 1, y1 + h1 - 1, x1 - 1, y1 + h1 - 1, cgreen);
+        }
+        if (data->combineSecond < data->layers->countNum()) {
+            Layer *l2 = data->layers->at(data->combineSecond);
+            int x2 = l2->posX, y2 = l2->posY, w2 = l2->width, h2 = l2->height;
+            drawOverlayBox(x2, y2, x2 + w2 - 2, y2, x2 + w2 - 2, y2 + h2 - 2, x2, y2 + h2 - 2, cgreen);
+            drawOverlayBox(x2 - 1, y2 - 1, x2 + w2 - 1, y2 - 1, x2 + w2 - 1, y2 + h2 - 1, x2 - 1, y2 + h2 - 1, cgreen);
+        }
     }
 
     if (data->debugString != nullptr) {

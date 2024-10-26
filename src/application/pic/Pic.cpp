@@ -327,6 +327,9 @@ void swapTool(DataWrapper *data, Tool tool) {
             case Tool::NEW_EMPTY:
                 data->currentGuiLayerBottom = data->guiLayers->get("bottom_xywh");
                 break;
+            case Tool::COMBINE:
+                data->currentGuiLayerBottom = data->guiLayers->get("bottom_combine");
+                break;
             case Tool::NOTHING:
                 data->currentGuiLayerBottom = data->guiLayers->get("empty");
                 break;
@@ -370,7 +373,6 @@ void Pic::init_gui() {
                                 ->setInfo("layers")
                                 ->setMethodButton([](DataWrapper *data) {
                                     changeGuiLayerTo(data, "layers");
-                                    data->currentGuiLayerBottom = data->guiLayers->get("bottom_layers");
                                 })
                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
@@ -704,6 +706,17 @@ void Pic::init_gui() {
                                       ->changeGreenIfTool(Tool::EXPORT_BMP)
                                       ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
+    gui_layerTools->addButton((new Button(data))
+                                      ->setInfo("combine Layers")
+                                      ->setMethodButton([](DataWrapper *data) {
+                                          data->combineFirst = 0;
+                                          data->combineSecond = 1;
+                                          swapTool(data, Tool::COMBINE);
+                                      })
+                                      ->changeGreenIfTool(Tool::COMBINE)
+                                      ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+    );
+
 
     auto gui_bottom_xywh = new GuiLayer();
     gui_bottom_xywh->addButton((new Button(data))
@@ -742,28 +755,28 @@ void Pic::init_gui() {
                                        ->setAppearBottomOnChange(true)
     );
 
-    auto gui_bottom_layers = new GuiLayer();
-    gui_bottom_layers->addButton((new Button(data))
-                                         ->setInfo("combine 1")
-                                         ->setIntValueButton(&data->combineFirst, 0, data->layers->maxNum())
+    auto gui_bottom_combine = new GuiLayer();
+    gui_bottom_combine->addButton((new Button(data))
+                                          ->setInfo("first")
+                                          ->setIntValueButton(&data->combineFirst, 0, data->layers->maxNum())
     );
-    gui_bottom_layers->addButton((new Button(data))
-                                         ->setInfo("combine 2")
-                                         ->setIntValueButton(&data->combineSecond, 0, data->layers->maxNum())
+    gui_bottom_combine->addButton((new Button(data))
+                                          ->setInfo("second")
+                                          ->setIntValueButton(&data->combineSecond, 0, data->layers->maxNum())
     );
-    gui_bottom_layers->addButton((new Button(data))
-                                         ->setInfo("Combine")
-                                         ->setConfirmButton([](DataWrapper *data) {
-                                             data->combineFirst = 0;
-                                             data->combineSecond = 1;
-                                         }, [](DataWrapper *data) {
-                                             data->layers->combine(data->combineFirst, data->combineSecond);
-                                             data->combineFirst = 0;
-                                             data->combineSecond = 1;
-                                         })
-                                         ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
-                                         ->setAppearTopOnChange(true)
-                                         ->setAppearBottomOnChange(true)
+    gui_bottom_combine->addButton((new Button(data))
+                                          ->setInfo("Combine")
+                                          ->setConfirmButton([](DataWrapper *data) {
+                                              data->combineFirst = 0;
+                                              data->combineSecond = 1;
+                                          }, [](DataWrapper *data) {
+                                              data->layers->combine(data->combineFirst, data->combineSecond);
+                                              data->combineFirst = 0;
+                                              data->combineSecond = 1;
+                                          })
+                                          ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
+                                          ->setAppearTopOnChange(true)
+                                          ->setAppearBottomOnChange(true)
     );
 
     auto gui_empty = new GuiLayer();
@@ -785,8 +798,8 @@ void Pic::init_gui() {
     data->guiLayers->put("bottom_crop", gui_bottom_crop);
     data->guiLayers->put("bottom_pen", gui_bottom_pen);
     data->guiLayers->put("bottom_color", gui_bottom_color);
-    data->guiLayers->put("bottom_layers", gui_bottom_layers);
     data->guiLayers->put("bottom_xywh", gui_bottom_xywh);
+    data->guiLayers->put("bottom_combine", gui_bottom_combine);
     data->currentGuiLayer = gui_main;
     data->currentGuiLayerBottom = gui_empty;
     data->currentGuiLayer->appear();
