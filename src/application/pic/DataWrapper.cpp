@@ -22,7 +22,7 @@ DataWrapper::DataWrapper() {
     keyDecoder = new Util::Io::KeyDecoder(new Util::Io::DeLayout());
     xMovement = 0, yMovement = 0;
     mouseX = 0, mouseY = 0, oldMouseX = 0, oldMouseY = 0;
-    leftButtonPressed = false, oldLeftButtonPressed = false;
+    leftButtonPressed = false, oldLeftButtonPressed = false, newlyPressed = false;
     mouseClicks = new Util::ArrayBlockingQueue<Util::Pair<int, int>>(500); // should be more than enough :D
     clickStartedOnGui = true;
     lastInteractedButton = -1;
@@ -62,4 +62,5 @@ DataWrapper::DataWrapper() {
     colorA = 128, colorR = 0, colorG = 255, colorB = 0;
     combineFirst = 0;
     combineSecond = 1;
+    layerX = 0, layerY = 0, layerW = workAreaX, layerH = workAreaY;
 }

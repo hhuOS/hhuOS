@@ -36,7 +36,9 @@ public:
 
     void addPicture(const char *path, int posX, int posY);
 
-    void addEmpty(int width, int height, int posX, int posY);
+    void addEmpty(int posX, int posY, int width, int height);
+
+    void exportPicture(const char *path, int x, int y, int w, int h, bool png, bool jpg, bool bmp);
 
     // Layer operations:
 

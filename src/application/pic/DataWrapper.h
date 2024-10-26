@@ -34,7 +34,10 @@ class RenderFlags;
 class MessageHandler;
 
 enum Tool {
+    // tools
     NOTHING = 0, MOVE = 1, ROTATE = 2, SCALE = 3, CROP = 4, PEN = 5, ERASER = 6, COLOR = 7,
+    // layer tools
+    EXPORT_PNG = 8, EXPORT_JPG = 9, EXPORT_BMP = 10, NEW_EMPTY = 11,
 };
 
 enum ToolCorner {
@@ -58,7 +61,7 @@ public:
     Util::Io::KeyDecoder *keyDecoder;
     int xMovement, yMovement;
     int mouseX, mouseY, oldMouseX, oldMouseY;
-    bool leftButtonPressed, oldLeftButtonPressed;
+    bool leftButtonPressed, oldLeftButtonPressed, newlyPressed;
     Util::Queue<Util::Pair<int, int>> *mouseClicks;
     bool clickStartedOnGui;
     int lastInteractedButton;
@@ -93,6 +96,7 @@ public:
     int penSize;
     int colorA, colorR, colorG, colorB;
     int combineFirst, combineSecond;
+    int layerX, layerY, layerW, layerH; // for layer export / new empty layer (LAYER-Tool)
 };
 
 

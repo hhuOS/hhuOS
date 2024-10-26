@@ -22,7 +22,7 @@ Layer *Layers::current() {
     return layers[currentLayer];
 }
 
-void Layers::addEmpty(int width, int height, int posX, int posY) {
+void Layers::addEmpty(int posX, int posY, int width, int height) {
     if (layerCount >= maxLayerCount) {
         mHandler->addMessage(Util::String::format("Maximum number of layers reached: %d", maxLayerCount).operator const char *());
         return;
@@ -61,6 +61,49 @@ void Layers::addPicture(const char *path, int posX, int posY) {
     layerCount++;
     stbi_image_free(img);
     currentLayer = layerCount - 1;
+}
+
+void Layers::exportPicture(const char *path, int x, int y, int w, int h, bool png, bool jpg, bool bmp) {
+    if (w < 0) w = -w, x -= w;
+    if (h < 0) h = -h, y -= h;
+
+    auto *pixels = new uint32_t[w * h];
+    for (int i = 0; i < w * h; i++) pixels[i] = 0x00000000;
+
+    for (int i = 0; i < layerCount; i++) {
+        Layer *layer = layers[i];
+        blendBuffers(pixels, layer->getPixelData(), w, h, layer->width, layer->height, layer->posX - x, layer->posY - y);
+    }
+
+    int channels = 4;
+    auto *rgbaData = new unsigned char[w * h * channels];
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            int i = y * w + x;
+            int j = y * w + x;
+            uint32_t pixel = pixels[i];
+            rgbaData[j * channels] = (pixel >> 16) & 0xFF;     // R
+            rgbaData[j * channels + 1] = (pixel >> 8) & 0xFF;  // G
+            rgbaData[j * channels + 2] = pixel & 0xFF;         // B
+            rgbaData[j * channels + 3] = (pixel >> 24) & 0xFF; // A
+        }
+    }
+
+    if (png && !jpg && !bmp) {
+        Util::String filename = Util::String::format("%s.png", path);
+        stbi_write_png(filename.operator const char *(), w, h, channels, rgbaData, w * channels);
+    } else if (jpg && !png && !bmp) {
+        Util::String filename = Util::String::format("%s.jpg", path);
+        stbi_write_jpg(filename.operator const char *(), w, h, channels, rgbaData, 100);
+    } else if (bmp && !png && !jpg) {
+        Util::String filename = Util::String::format("%s.bmp", path);
+        stbi_write_bmp(filename.operator const char *(), w, h, channels, rgbaData);
+    } else {
+        mHandler->addMessage("Invalid export format");
+    }
+
+    delete[] rgbaData;
+    delete[] pixels;
 }
 
 Layer *Layers::at(int index) {

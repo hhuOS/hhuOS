@@ -20,7 +20,7 @@ Pic::Pic() {
     data->layers->addPicture("/user/pic/test.jpg", 0, 0);
     data->layers->addPicture("/user/pic/test.jpg", 100, 100);
     data->layers->addPicture("/user/pic/test.jpg", 400, 100);
-    data->layers->addEmpty(data->workAreaX - 100, data->workAreaY - 100, 50, 50);
+    data->layers->addEmpty(50, 50, data->workAreaX - 100, data->workAreaY - 100);
 
     init_gui();
 
@@ -46,6 +46,7 @@ void Pic::checkMouseInput() {
     int16_t value = data->mouseInputStream->read();
     bool mouseChanged = false;
     bool clicked = false;
+    data->newlyPressed = false;
     data->xMovement = 0, data->yMovement = 0;
     while (value >= 0) {
         mouseValues[mouseValueIndex++] = value;
@@ -65,6 +66,7 @@ void Pic::checkMouseInput() {
             if (data->leftButtonPressed && !data->oldLeftButtonPressed) { // if newly clicked
                 data->mouseClicks->clear();
                 data->clickStartedOnGui = data->mouseX < 200;
+                data->newlyPressed = true;
             }
             if (!data->leftButtonPressed && data->oldLeftButtonPressed) { // if newly released
                 clicked = true;
@@ -188,6 +190,24 @@ void Pic::parseMouse(bool clicked) {
             // put last click back for next iteration
             data->mouseClicks->offer(Util::Pair<int, int>(data->mouseX, data->mouseY));
             data->flags->currentLayerChanged();
+        } else if (data->currentTool == Tool::EXPORT_PNG || data->currentTool == Tool::EXPORT_JPG ||
+                   data->currentTool == Tool::EXPORT_BMP || data->currentTool == Tool::NEW_EMPTY) {
+            if (data->newlyPressed) {
+                auto click = data->mouseClicks->peek();
+                data->layerX = click.first - 200;
+                data->layerY = click.second;
+                while (data->mouseClicks->size() > 0) {
+                    click = data->mouseClicks->poll();
+                    data->layerW = click.first - 200 - data->layerX;
+                    data->layerH = click.second - data->layerY;
+                }
+            } else {
+                data->layerW = data->mouseX - 200 - data->layerX;
+                data->layerH = data->mouseY - data->layerY;
+            }
+            data->flags->guiButtonChanged();
+            data->flags->overlayChanged();
+            data->currentGuiLayerBottom->appear();
         }
     } else if (data->mouseX >= 200 && !data->clickStartedOnGui && clicked &&
                (data->currentTool == Tool::PEN || data->currentTool == Tool::ERASER)) {
@@ -301,6 +321,12 @@ void swapTool(DataWrapper *data, Tool tool) {
             case Tool::COLOR:
                 data->currentGuiLayerBottom = data->guiLayers->get("bottom_color");
                 break;
+            case Tool::EXPORT_PNG:
+            case Tool::EXPORT_JPG:
+            case Tool::EXPORT_BMP:
+            case Tool::NEW_EMPTY:
+                data->currentGuiLayerBottom = data->guiLayers->get("bottom_xywh");
+                break;
             case Tool::NOTHING:
                 data->currentGuiLayerBottom = data->guiLayers->get("empty");
                 break;
@@ -348,6 +374,13 @@ void Pic::init_gui() {
                                 })
                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
+    gui_main->addButton((new Button(data))
+                                ->setInfo("layer-Tools")
+                                ->setMethodButton([](DataWrapper *data) {
+                                    changeGuiLayerTo(data, "layerTools");
+                                })
+                                ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+    );
 
     auto *gui_file = new GuiLayer();
     gui_file->addButton((new Button(data))
@@ -366,32 +399,6 @@ void Pic::init_gui() {
     );
     gui_file->addButton((new Button(data))
                                 ->setInfo("save Project")
-                                ->setMethodButton([](DataWrapper *data) {
-                                    // TODO
-                                })
-    );
-    gui_file->addButton((new Button(data))
-                                ->setInfo("add Image Layer")
-                                ->setMethodButton([](DataWrapper *data) {
-                                    data->layers->addPicture(data->currentInput->operator const char *(), 0, 0);
-                                })
-                                ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
-    );
-    gui_file->addButton((new Button(data))
-                                ->setInfo("add Empty Layer")
-                                ->setMethodButton([](DataWrapper *data) {
-                                    data->layers->addEmpty(data->workAreaX - 100, data->workAreaY - 100, 50, 50);
-                                })
-                                ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
-    );
-    gui_file->addButton((new Button(data))
-                                ->setInfo("export Image as PNG")
-                                ->setMethodButton([](DataWrapper *data) {
-                                    // TODO
-                                })
-    );
-    gui_file->addButton((new Button(data))
-                                ->setInfo("export Image as JPEG")
                                 ->setMethodButton([](DataWrapper *data) {
                                     // TODO
                                 })
@@ -642,6 +649,92 @@ void Pic::init_gui() {
                                       ->setIntValueButton(&data->penSize, 1, 100)
     );
 
+    auto gui_layerTools = new GuiLayer();
+    gui_layerTools->addButton((new Button(data))
+                                      ->setInfo("Back")
+                                      ->setMethodButton([](DataWrapper *data) {
+                                          changeGuiLayerTo(data, "main");
+                                      })
+                                      ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                      ->set16Bitmap(Bitmaps::arrow_back)
+    );
+    gui_layerTools->addButton((new Button(data))
+                                      ->setInfo("new Empty Layer")
+                                      ->setMethodButton([](DataWrapper *data) {
+                                          swapTool(data, Tool::NEW_EMPTY);
+                                      })
+                                      ->changeGreenIfTool(Tool::NEW_EMPTY)
+                                      ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+    );
+    gui_layerTools->addButton((new Button(data))
+                                      ->setInfo("new Image Layer (path)")
+                                      ->setMethodButton([](DataWrapper *data) {
+                                          data->layers->addPicture(data->currentInput->operator const char *(), 0, 0);
+                                      })
+                                      ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
+    );
+    gui_layerTools->addButton((new Button(data))
+                                      ->setInfo("Export all PNG (path)")
+                                      ->setMethodButton([](DataWrapper *data) {
+                                          swapTool(data, Tool::EXPORT_PNG);
+                                      })
+                                      ->changeGreenIfTool(Tool::EXPORT_PNG)
+                                      ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+    );
+    gui_layerTools->addButton((new Button(data))
+                                      ->setInfo("Export all JPG (path)")
+                                      ->setMethodButton([](DataWrapper *data) {
+                                          swapTool(data, Tool::EXPORT_JPG);
+                                      })
+                                      ->changeGreenIfTool(Tool::EXPORT_JPG)
+                                      ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+    );
+    gui_layerTools->addButton((new Button(data))
+                                      ->setInfo("Export all BMP (path)")
+                                      ->setMethodButton([](DataWrapper *data) {
+                                          swapTool(data, Tool::EXPORT_BMP);
+                                      })
+                                      ->changeGreenIfTool(Tool::EXPORT_BMP)
+                                      ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+    );
+
+    auto gui_bottom_xywh = new GuiLayer();
+    gui_bottom_xywh->addButton((new Button(data))
+                                       ->setInfo("X")
+                                       ->setIntValueButton(&data->layerX)
+    );
+    gui_bottom_xywh->addButton((new Button(data))
+                                       ->setInfo("Y")
+                                       ->setIntValueButton(&data->layerY)
+    );
+    gui_bottom_xywh->addButton((new Button(data))
+                                       ->setInfo("Width")
+                                       ->setIntValueButton(&data->layerW)
+    );
+    gui_bottom_xywh->addButton((new Button(data))
+                                       ->setInfo("Height")
+                                       ->setIntValueButton(&data->layerH)
+    );
+    gui_bottom_xywh->addButton((new Button(data))
+                                       ->setInfo("EXPORT")
+                                       ->setConfirmButton([](DataWrapper *data) {
+                                           data->layerX = 0, data->layerY = 0, data->layerW = data->workAreaX, data->layerH = data->workAreaY;
+                                       }, [](DataWrapper *data) {
+                                           if (data->currentTool == Tool::NEW_EMPTY) {
+                                               data->layers->addEmpty(data->layerX, data->layerY, data->layerW, data->layerH);
+                                           } else {
+                                               data->layers->exportPicture(data->currentInput->operator const char *(),
+                                                                           data->layerX, data->layerY, data->layerW, data->layerH,
+                                                                           data->currentTool == Tool::EXPORT_PNG,
+                                                                           data->currentTool == Tool::EXPORT_JPG,
+                                                                           data->currentTool == Tool::EXPORT_BMP);
+                                           }
+                                           data->layerX = 0, data->layerY = 0, data->layerW = data->workAreaX, data->layerH = data->workAreaY;
+                                       })
+                                       ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+                                       ->setAppearBottomOnChange(true)
+    );
+
     auto gui_bottom_layers = new GuiLayer();
     gui_bottom_layers->addButton((new Button(data))
                                          ->setInfo("combine 1")
@@ -677,6 +770,7 @@ void Pic::init_gui() {
     data->guiLayers->put("file", gui_file);
     data->guiLayers->put("tools", gui_tools);
     data->guiLayers->put("layers", gui_layers);
+    data->guiLayers->put("layerTools", gui_layerTools);
     data->guiLayers->put("empty", gui_empty);
     data->guiLayers->put("bottom_move", gui_bottom_move);
     data->guiLayers->put("bottom_rotate", gui_bottom_rotate);
@@ -685,6 +779,7 @@ void Pic::init_gui() {
     data->guiLayers->put("bottom_pen", gui_bottom_pen);
     data->guiLayers->put("bottom_color", gui_bottom_color);
     data->guiLayers->put("bottom_layers", gui_bottom_layers);
+    data->guiLayers->put("bottom_xywh", gui_bottom_xywh);
     data->currentGuiLayer = gui_main;
     data->currentGuiLayerBottom = gui_empty;
     data->currentGuiLayer->appear();

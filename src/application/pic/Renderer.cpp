@@ -212,56 +212,53 @@ void Renderer::renderOverlay() {
     drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, cred);
     drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, cred);
     Color top, bottom, left, right;
-    double factor;
-    switch (data->currentTool) {
-        case Tool::MOVE:
-            x = data->moveX, y = data->moveY;
-            drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, cgreen);
-            drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, cgreen);
-            break;
-        case Tool::SCALE:
-            factor = data->scale;
-            w = ceil(w * factor);
-            h = ceil(h * factor);
-            if (data->toolCorner == ToolCorner::TOP_LEFT || data->toolCorner == ToolCorner::BOTTOM_LEFT) {
-                x = floor(l->posX + l->width * (1 - factor));
-            }
-            if (data->toolCorner == ToolCorner::TOP_LEFT || data->toolCorner == ToolCorner::TOP_RIGHT) {
-                y = floor(l->posY + l->height * (1 - factor));
-            }
-            top = data->toolCorner == ToolCorner::TOP_LEFT || data->toolCorner == ToolCorner::TOP_RIGHT ? cgreen : cred;
-            bottom = data->toolCorner == ToolCorner::BOTTOM_LEFT || data->toolCorner == ToolCorner::BOTTOM_RIGHT ? cgreen : cred;
-            left = data->toolCorner == ToolCorner::TOP_LEFT || data->toolCorner == ToolCorner::BOTTOM_LEFT ? cgreen : cred;
-            right = data->toolCorner == ToolCorner::TOP_RIGHT || data->toolCorner == ToolCorner::BOTTOM_RIGHT ? cgreen : cred;
-            drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, top, right, bottom, left);
-            drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, top, right, bottom, left);
-            break;
-        case Tool::CROP:
-            x = l->posX + data->cropLeft;
-            y = l->posY + data->cropTop;
-            w = l->width - data->cropLeft - data->cropRight;
-            h = l->height - data->cropTop - data->cropBottom;
-            top = data->toolCorner == ToolCorner::TOP_LEFT || data->toolCorner == ToolCorner::TOP_RIGHT ? cgreen : cred;
-            bottom = data->toolCorner == ToolCorner::BOTTOM_LEFT || data->toolCorner == ToolCorner::BOTTOM_RIGHT ? cgreen : cred;
-            left = data->toolCorner == ToolCorner::TOP_LEFT || data->toolCorner == ToolCorner::BOTTOM_LEFT ? cgreen : cred;
-            right = data->toolCorner == ToolCorner::TOP_RIGHT || data->toolCorner == ToolCorner::BOTTOM_RIGHT ? cgreen : cred;
-            drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, top, right, bottom, left);
-            drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, top, right, bottom, left);
-            break;
-        case Tool::COLOR:
-            break; // do no overlay
-        case Tool::ROTATE:
-            double angle = data->rotateDeg * PI / 180.0;
-            int centerX = l->posX + l->width / 2, centerY = l->posY + l->height / 2;
-            double cosAngle = cos(angle), sinAngle = sin(angle);
-            int dx1 = l->posX - centerX, dy1 = l->posY - centerY, dx2 = l->posX + l->width - centerX, dy2 = l->posY + l->height - centerY;
-            int newX1 = centerX + dx1 * cosAngle - dy1 * sinAngle, newY1 = centerY + dx1 * sinAngle + dy1 * cosAngle;
-            int newX2 = centerX + dx2 * cosAngle - dy1 * sinAngle, newY2 = centerY + dx2 * sinAngle + dy1 * cosAngle;
-            int newX3 = centerX + dx2 * cosAngle - dy2 * sinAngle, newY3 = centerY + dx2 * sinAngle + dy2 * cosAngle;
-            int newX4 = centerX + dx1 * cosAngle - dy2 * sinAngle, newY4 = centerY + dx1 * sinAngle + dy2 * cosAngle;
-            drawOverlayBox(newX1 - 1, newY1 - 1, newX2, newY2 - 1, newX3, newY3, newX4 - 1, newY4, cgreen);
-            drawOverlayBox(newX1 - 2, newY1 - 2, newX2 + 1, newY2 - 2, newX3 + 1, newY3 + 1, newX4 - 2, newY4 + 1, cgreen);
-            break;
+    if (data->currentTool == Tool::MOVE) {
+        x = data->moveX, y = data->moveY;
+        drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, cgreen);
+        drawOverlayBox(x - 2, y - 2, x + w + 1, y - 2, x + w + 1, y + h + 1, x - 2, y + h + 1, cgreen);
+    } else if (data->currentTool == Tool::SCALE) {
+        double factor = data->scale;
+        w = ceil(w * factor);
+        h = ceil(h * factor);
+        if (data->toolCorner == ToolCorner::TOP_LEFT || data->toolCorner == ToolCorner::BOTTOM_LEFT) {
+            x = floor(l->posX + l->width * (1 - factor));
+        }
+        if (data->toolCorner == ToolCorner::TOP_LEFT || data->toolCorner == ToolCorner::TOP_RIGHT) {
+            y = floor(l->posY + l->height * (1 - factor));
+        }
+        top = data->toolCorner == ToolCorner::TOP_LEFT || data->toolCorner == ToolCorner::TOP_RIGHT ? cgreen : cred;
+        bottom = data->toolCorner == ToolCorner::BOTTOM_LEFT || data->toolCorner == ToolCorner::BOTTOM_RIGHT ? cgreen : cred;
+        left = data->toolCorner == ToolCorner::TOP_LEFT || data->toolCorner == ToolCorner::BOTTOM_LEFT ? cgreen : cred;
+        right = data->toolCorner == ToolCorner::TOP_RIGHT || data->toolCorner == ToolCorner::BOTTOM_RIGHT ? cgreen : cred;
+        drawOverlayBox(x, y, x + w, y, x + w, y + h, x, y + h, top, right, bottom, left);
+        drawOverlayBox(x - 1, y - 1, x + w + 1, y - 1, x + w + 1, y + h + 1, x - 1, y + h + 1, top, right, bottom, left);
+    } else if (data->currentTool == Tool::CROP) {
+        x = l->posX + data->cropLeft;
+        y = l->posY + data->cropTop;
+        w = l->width - data->cropLeft - data->cropRight;
+        h = l->height - data->cropTop - data->cropBottom;
+        top = data->toolCorner == ToolCorner::TOP_LEFT || data->toolCorner == ToolCorner::TOP_RIGHT ? cgreen : cred;
+        bottom = data->toolCorner == ToolCorner::BOTTOM_LEFT || data->toolCorner == ToolCorner::BOTTOM_RIGHT ? cgreen : cred;
+        left = data->toolCorner == ToolCorner::TOP_LEFT || data->toolCorner == ToolCorner::BOTTOM_LEFT ? cgreen : cred;
+        right = data->toolCorner == ToolCorner::TOP_RIGHT || data->toolCorner == ToolCorner::BOTTOM_RIGHT ? cgreen : cred;
+        drawOverlayBox(x, y, x + w, y, x + w, y + h, x, y + h, top, right, bottom, left);
+        drawOverlayBox(x - 1, y - 1, x + w + 1, y - 1, x + w + 1, y + h + 1, x - 1, y + h + 1, top, right, bottom, left);
+    } else if (data->currentTool == Tool::ROTATE) {
+        double angle = data->rotateDeg * PI / 180.0;
+        int centerX = l->posX + l->width / 2, centerY = l->posY + l->height / 2;
+        double cosAngle = cos(angle), sinAngle = sin(angle);
+        int dx1 = l->posX - centerX, dy1 = l->posY - centerY, dx2 = l->posX + l->width - centerX, dy2 = l->posY + l->height - centerY;
+        int newX1 = centerX + dx1 * cosAngle - dy1 * sinAngle, newY1 = centerY + dx1 * sinAngle + dy1 * cosAngle;
+        int newX2 = centerX + dx2 * cosAngle - dy1 * sinAngle, newY2 = centerY + dx2 * sinAngle + dy1 * cosAngle;
+        int newX3 = centerX + dx2 * cosAngle - dy2 * sinAngle, newY3 = centerY + dx2 * sinAngle + dy2 * cosAngle;
+        int newX4 = centerX + dx1 * cosAngle - dy2 * sinAngle, newY4 = centerY + dx1 * sinAngle + dy2 * cosAngle;
+        drawOverlayBox(newX1, newY1, newX2, newY2, newX3, newY3, newX4, newY4, cgreen);
+        drawOverlayBox(newX1 - 1, newY1 - 1, newX2 + 1, newY2 - 1, newX3 + 1, newY3 + 1, newX4 - 1, newY4 + 1, cgreen);
+    } else if (data->currentTool == Tool::EXPORT_PNG || data->currentTool == Tool::EXPORT_JPG ||
+               data->currentTool == Tool::EXPORT_BMP || data->currentTool == Tool::NEW_EMPTY) {
+        x = data->layerX, y = data->layerY, w = data->layerW, h = data->layerH;
+        drawOverlayBox(x, y, x + w - 1, y, x + w - 1, y + h - 1, x, y + h - 1, cgreen);
+        drawOverlayBox(x - 1, y - 1, x + w, y - 1, x + w, y + h, x - 1, y + h, cgreen);
     }
 
     if (data->debugString != nullptr) {
