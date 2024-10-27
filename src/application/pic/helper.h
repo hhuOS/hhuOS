@@ -33,8 +33,11 @@ namespace Bitmaps {
     extern uint8_t trashcan[];
     extern uint8_t eye[];
     extern uint8_t arrow_back[];
+    extern uint8_t arrow_forward[];
     extern uint8_t cross[];
     extern uint8_t checkmark[];
+    extern uint8_t tool[];
+    extern uint8_t play[];
 
 } // namespace Bitmaps
 

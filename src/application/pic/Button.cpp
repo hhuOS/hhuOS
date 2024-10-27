@@ -322,8 +322,10 @@ void Button::renderMethod() {
         lineDrawer->drawLine(79, 0, 79, 30, c);
         lineDrawer->drawLine(80, 0, 80, 30, c);
         xStringpos = 140 - (strlen(info) * 4);
-    }
-    if (bitmap != nullptr) {
+        if (bitmap != nullptr) {
+            stringDrawer->drawMonoBitmap(90, 7, 16, 16, cblack, click ? cgreen : hover ? cdarkgray : cgray, bitmap);
+        }
+    } else if (bitmap != nullptr) {
         stringDrawer->drawMonoBitmap(10, 7, 16, 16, cblack, click ? cgreen : hover ? cdarkgray : cgray, bitmap);
     }
     renderBorder(this->setGreenTool != Tool::NOTHING ? this->setGreenTool == data->currentTool ? 0xFF00FF00 : 0xFF000000 : 0xFF000000);

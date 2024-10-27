@@ -364,6 +364,7 @@ void Pic::init_gui() {
                                     changeGuiLayerTo(data, "file");
                                 })
                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                ->set16Bitmap(Bitmaps::arrow_forward)
     );
     gui_main->addButton((new Button(data))
                                 ->setInfo("tools")
@@ -371,6 +372,7 @@ void Pic::init_gui() {
                                     changeGuiLayerTo(data, "tools");
                                 })
                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                ->set16Bitmap(Bitmaps::arrow_forward)
     );
     gui_main->addButton((new Button(data))
                                 ->setInfo("layers")
@@ -378,6 +380,7 @@ void Pic::init_gui() {
                                     changeGuiLayerTo(data, "layers");
                                 })
                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                ->set16Bitmap(Bitmaps::arrow_forward)
     );
     gui_main->addButton((new Button(data))
                                 ->setInfo("layer-Tools")
@@ -385,6 +388,7 @@ void Pic::init_gui() {
                                     changeGuiLayerTo(data, "layerTools");
                                 })
                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                ->set16Bitmap(Bitmaps::arrow_forward)
     );
 
     auto *gui_file = new GuiLayer();
@@ -401,24 +405,28 @@ void Pic::init_gui() {
                                 ->setMethodButton([](DataWrapper *data) {
                                     // TODO
                                 })
+                                ->set16Bitmap(Bitmaps::play)
     );
     gui_file->addButton((new Button(data))
                                 ->setInfo("save Project")
                                 ->setMethodButton([](DataWrapper *data) {
                                     // TODO
                                 })
+                                ->set16Bitmap(Bitmaps::play)
     );
     gui_file->addButton((new Button(data))
                                 ->setInfo("undo")
                                 ->setMethodButton([](DataWrapper *data) {
                                     // TODO
                                 })
+                                ->set16Bitmap(Bitmaps::play)
     );
     gui_file->addButton((new Button(data))
                                 ->setInfo("redo")
                                 ->setMethodButton([](DataWrapper *data) {
                                     // TODO
                                 })
+                                ->set16Bitmap(Bitmaps::play)
     );
 
     auto *gui_tools = new GuiLayer();
@@ -439,6 +447,7 @@ void Pic::init_gui() {
                                  })
                                  ->changeGreenIfTool(Tool::MOVE)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                 ->set16Bitmap(Bitmaps::tool)
     );
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Rotate")
@@ -448,6 +457,7 @@ void Pic::init_gui() {
                                  })
                                  ->changeGreenIfTool(Tool::ROTATE)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                 ->set16Bitmap(Bitmaps::tool)
     );
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Scale")
@@ -457,19 +467,27 @@ void Pic::init_gui() {
                                  })
                                  ->changeGreenIfTool(Tool::SCALE)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                 ->set16Bitmap(Bitmaps::tool)
     );
     gui_tools->addButton((new Button(data))
-                                 ->setInfo("auto Scale & to (0,0)")
+                                 ->setInfo("auto Scale")
                                  ->setMethodButton([](DataWrapper *data) {
-                                     data->layers->moveCurrent(0, 0);
                                      auto l = data->layers->current();
-                                     if (l->posX + l->width > data->workAreaX || l->posY + l->height > data->workAreaY) {
+                                     if (l->width > data->workAreaX || l->height > data->workAreaY) {
+                                         data->layers->moveCurrent(0, 0);
                                          double factor = min((double) data->workAreaX / (double) l->width,
                                                              (double) data->workAreaY / (double) l->height);
                                          data->layers->scaleCurrent(factor, ToolCorner::BOTTOM_RIGHT);
                                      }
+                                     else if (l->posX + l->width > data->workAreaX || l->posY + l->height > data->workAreaY){
+                                         data->layers->moveCurrent(0, 0);
+                                         data->mHandler->addMessage("Layer was just moved onto Screen, no scaling needed");
+                                     } else {
+                                         data->mHandler->addMessage("No scaling or moving needed");
+                                     }
                                  })
                                  ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+                                 ->set16Bitmap(Bitmaps::play)
     );
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Crop")
@@ -482,6 +500,7 @@ void Pic::init_gui() {
                                  })
                                  ->changeGreenIfTool(Tool::CROP)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                 ->set16Bitmap(Bitmaps::tool)
     );
     gui_tools->addButton((new Button(data))
                                  ->setInfo("auto Crop")
@@ -489,6 +508,7 @@ void Pic::init_gui() {
                                      data->layers->autoCropCurrent();
                                  })
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                 ->set16Bitmap(Bitmaps::play)
     );
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Pen")
@@ -498,6 +518,7 @@ void Pic::init_gui() {
                                  })
                                  ->changeGreenIfTool(Tool::PEN)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                 ->set16Bitmap(Bitmaps::tool)
     );
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Eraser")
@@ -507,6 +528,7 @@ void Pic::init_gui() {
                                  })
                                  ->changeGreenIfTool(Tool::ERASER)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                 ->set16Bitmap(Bitmaps::tool)
     );
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Color")
@@ -516,6 +538,7 @@ void Pic::init_gui() {
                                  ->changeGreenIfTool(Tool::COLOR)
                                  ->setColor(&data->colorA, &data->colorR, &data->colorG, &data->colorB)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                 ->set16Bitmap(Bitmaps::tool)
     );
 
 
@@ -690,37 +713,42 @@ void Pic::init_gui() {
                                       })
                                       ->changeGreenIfTool(Tool::NEW_EMPTY)
                                       ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                      ->set16Bitmap(Bitmaps::tool)
     );
     gui_layerTools->addButton((new Button(data))
-                                      ->setInfo("new Image Layer (path)")
+                                      ->setInfo("load Image (path)")
                                       ->setMethodButton([](DataWrapper *data) {
                                           data->layers->addPicture(data->currentInput->operator const char *(), 0, 0);
                                       })
                                       ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
+                                      ->set16Bitmap(Bitmaps::play)
     );
     gui_layerTools->addButton((new Button(data))
-                                      ->setInfo("Export all PNG (path)")
+                                      ->setInfo("Export PNG (path)")
                                       ->setMethodButton([](DataWrapper *data) {
                                           swapTool(data, Tool::EXPORT_PNG);
                                       })
                                       ->changeGreenIfTool(Tool::EXPORT_PNG)
                                       ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                      ->set16Bitmap(Bitmaps::tool)
     );
     gui_layerTools->addButton((new Button(data))
-                                      ->setInfo("Export all JPG (path)")
+                                      ->setInfo("Export JPG (path)")
                                       ->setMethodButton([](DataWrapper *data) {
                                           swapTool(data, Tool::EXPORT_JPG);
                                       })
                                       ->changeGreenIfTool(Tool::EXPORT_JPG)
                                       ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                      ->set16Bitmap(Bitmaps::tool)
     );
     gui_layerTools->addButton((new Button(data))
-                                      ->setInfo("Export all BMP (path)")
+                                      ->setInfo("Export BMP (path)")
                                       ->setMethodButton([](DataWrapper *data) {
                                           swapTool(data, Tool::EXPORT_BMP);
                                       })
                                       ->changeGreenIfTool(Tool::EXPORT_BMP)
                                       ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                      ->set16Bitmap(Bitmaps::tool)
     );
     gui_layerTools->addButton((new Button(data))
                                       ->setInfo("combine Layers")
@@ -731,6 +759,7 @@ void Pic::init_gui() {
                                       })
                                       ->changeGreenIfTool(Tool::COMBINE)
                                       ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                      ->set16Bitmap(Bitmaps::tool)
     );
     gui_layerTools->addButton((new Button(data))
                                       ->setInfo("duplicate Layer")
@@ -740,6 +769,7 @@ void Pic::init_gui() {
                                       })
                                       ->changeGreenIfTool(Tool::DUPLICATE)
                                       ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                      ->set16Bitmap(Bitmaps::tool)
     );
 
 
@@ -805,19 +835,19 @@ void Pic::init_gui() {
 
     auto gui_bottom_duplicate = new GuiLayer();
     gui_bottom_duplicate->addButton((new Button(data))
-                                          ->setInfo("index")
-                                          ->setIntValueButton(&data->dupeIndex, 0, data->layers->maxNum())
+                                            ->setInfo("index")
+                                            ->setIntValueButton(&data->dupeIndex, 0, data->layers->maxNum())
     );
     gui_bottom_duplicate->addButton((new Button(data))
-                                          ->setInfo("Duplicate")
-                                          ->setConfirmButton([](DataWrapper *data) {
-                                              data->dupeIndex = 0;
-                                          }, [](DataWrapper *data) {
-                                              data->layers->duplicate(data->dupeIndex);
-                                              data->dupeIndex = 0;
-                                          })
-                                          ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
-                                          ->setAppearBottomOnChange(true)
+                                            ->setInfo("Duplicate")
+                                            ->setConfirmButton([](DataWrapper *data) {
+                                                data->dupeIndex = 0;
+                                            }, [](DataWrapper *data) {
+                                                data->layers->duplicate(data->dupeIndex);
+                                                data->dupeIndex = 0;
+                                            })
+                                            ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
+                                            ->setAppearBottomOnChange(true)
     );
 
 
