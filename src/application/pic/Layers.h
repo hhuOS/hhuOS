@@ -56,6 +56,10 @@ public:
 
     void cropCurrent(int left, int right, int top, int bottom);
 
+    void autoCrop(int index);
+
+    void autoCropCurrent();
+
     void rotate(int index, int degree);
 
     void rotateCurrent(int degree);

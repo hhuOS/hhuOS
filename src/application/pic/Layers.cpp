@@ -150,7 +150,7 @@ void Layers::deletetAt(int index) {
         layers[i] = layers[i + 1];
     }
     layerCount--;
-    if(layerCount == 0) addEmpty(0, 0, 100, 100);
+    if (layerCount == 0) addEmpty(0, 0, 100, 100);
     if (currentLayer >= layerCount) currentLayer = layerCount - 1;
 }
 
@@ -284,6 +284,63 @@ void Layers::crop(int index, int left, int right, int top, int bottom) {
 
 void Layers::cropCurrent(int left, int right, int top, int bottom) {
     crop(currentLayer, left, right, top, bottom);
+}
+
+void Layers::autoCrop(int index) {
+    if (index < 0 || index >= layerCount) return;
+    Layer *layer = layers[index];
+
+    int left = 0, right = 0, top = 0, bottom = 0;
+    for (int x = 0; x < layer->width; x++) {
+        bool hasNonAlpha = false;
+        for (int y = 0; y < layer->height; y++) {
+            if ((layer->getPixel(x, y) >> 24) & 0xFF) {
+                hasNonAlpha = true;
+                break;
+            }
+        }
+        if (hasNonAlpha) break;
+        left++;
+    }
+    for (int x = layer->width - 1; x >= left; x--) {
+        bool hasNonAlpha = false;
+        for (int y = 0; y < layer->height; y++) {
+            if ((layer->getPixel(x, y) >> 24) & 0xFF) {
+                hasNonAlpha = true;
+                break;
+            }
+        }
+        if (hasNonAlpha) break;
+        right++;
+    }
+    for (int y = 0; y < layer->height; y++) {
+        bool hasNonAlpha = false;
+        for (int x = left; x < layer->width - right; x++) {
+            if ((layer->getPixel(x, y) >> 24) & 0xFF) {
+                hasNonAlpha = true;
+                break;
+            }
+        }
+        if (hasNonAlpha) break;
+        top++;
+    }
+    for (int y = layer->height - 1; y >= top; y--) {
+        bool hasNonAlpha = false;
+        for (int x = left; x < layer->width - right; x++) {
+            if ((layer->getPixel(x, y) >> 24) & 0xFF) {
+                hasNonAlpha = true;
+                break;
+            }
+        }
+        if (hasNonAlpha) break;
+        bottom++;
+    }
+
+    crop(index, left, right, top, bottom);
+}
+
+void Layers::autoCropCurrent() {
+    autoCrop(currentLayer);
 }
 
 void Layers::rotate(int index, int degree) {

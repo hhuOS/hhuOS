@@ -459,7 +459,7 @@ void Pic::init_gui() {
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
     gui_tools->addButton((new Button(data))
-                                 ->setInfo("auto Scale and to (0,0)")
+                                 ->setInfo("auto Scale & to (0,0)")
                                  ->setMethodButton([](DataWrapper *data) {
                                      data->layers->moveCurrent(0, 0);
                                      auto l = data->layers->current();
@@ -486,7 +486,7 @@ void Pic::init_gui() {
     gui_tools->addButton((new Button(data))
                                  ->setInfo("auto Crop")
                                  ->setMethodButton([](DataWrapper *data) {
-                                     // TODO
+                                     data->layers->autoCropCurrent();
                                  })
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
