@@ -330,6 +330,9 @@ void swapTool(DataWrapper *data, Tool tool) {
             case Tool::COMBINE:
                 data->currentGuiLayerBottom = data->guiLayers->get("bottom_combine");
                 break;
+            case Tool::DUPLICATE:
+                data->currentGuiLayerBottom = data->guiLayers->get("bottom_duplicate");
+                break;
             case Tool::NOTHING:
                 data->currentGuiLayerBottom = data->guiLayers->get("empty");
                 break;
@@ -729,6 +732,15 @@ void Pic::init_gui() {
                                       ->changeGreenIfTool(Tool::COMBINE)
                                       ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
     );
+    gui_layerTools->addButton((new Button(data))
+                                      ->setInfo("duplicate Layer")
+                                      ->setMethodButton([](DataWrapper *data) {
+                                          data->dupeIndex = 0;
+                                          swapTool(data, Tool::DUPLICATE);
+                                      })
+                                      ->changeGreenIfTool(Tool::DUPLICATE)
+                                      ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+    );
 
 
     auto gui_bottom_xywh = new GuiLayer();
@@ -788,9 +800,26 @@ void Pic::init_gui() {
                                               data->combineSecond = 1;
                                           })
                                           ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
-                                          ->setAppearTopOnChange(true)
                                           ->setAppearBottomOnChange(true)
     );
+
+    auto gui_bottom_duplicate = new GuiLayer();
+    gui_bottom_duplicate->addButton((new Button(data))
+                                          ->setInfo("index")
+                                          ->setIntValueButton(&data->dupeIndex, 0, data->layers->maxNum())
+    );
+    gui_bottom_duplicate->addButton((new Button(data))
+                                          ->setInfo("Duplicate")
+                                          ->setConfirmButton([](DataWrapper *data) {
+                                              data->dupeIndex = 0;
+                                          }, [](DataWrapper *data) {
+                                              data->layers->duplicate(data->dupeIndex);
+                                              data->dupeIndex = 0;
+                                          })
+                                          ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
+                                          ->setAppearBottomOnChange(true)
+    );
+
 
     auto gui_empty = new GuiLayer();
 
@@ -813,6 +842,7 @@ void Pic::init_gui() {
     data->guiLayers->put("bottom_color", gui_bottom_color);
     data->guiLayers->put("bottom_xywh", gui_bottom_xywh);
     data->guiLayers->put("bottom_combine", gui_bottom_combine);
+    data->guiLayers->put("bottom_duplicate", gui_bottom_duplicate);
     data->currentGuiLayer = gui_main;
     data->currentGuiLayerBottom = gui_empty;
     data->currentGuiLayer->appear();

@@ -63,4 +63,5 @@ DataWrapper::DataWrapper() {
     combineFirst = 0;
     combineSecond = 1;
     layerX = 0, layerY = 0, layerW = workAreaX, layerH = workAreaY;
+    dupeIndex = 0;
 }

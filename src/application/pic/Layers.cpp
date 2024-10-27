@@ -196,6 +196,23 @@ void Layers::combine(int index1, int index2) {
     deletetAt(index2);
 }
 
+void Layers::duplicate(int index) {
+    if (layerCount >= maxLayerCount) {
+        mHandler->addMessage(Util::String::format("Maximum number of layers reached: %d", maxLayerCount).operator const char *());
+        return;
+    }
+    if (index < 0 || index >= layerCount) {
+        mHandler->addMessage(Util::String::format("Layer index out of bounds: %d", index).operator const char *());
+        return;
+    }
+    Layer *layer = layers[index];
+    auto *newPixelData = new uint32_t[layer->width * layer->height];
+    for (int i = 0; i < layer->width * layer->height; i++) newPixelData[i] = layer->getPixelData()[i];
+    layers[layerCount] = new Layer(layer->width, layer->height, layer->posX, layer->posY, 1, newPixelData);
+    layerCount++;
+    currentLayer = layerCount - 1;
+}
+
 void Layers::move(int index, int x, int y) {
     if (index < 0 || index >= layerCount) return;
     Layer *layer = layers[index];

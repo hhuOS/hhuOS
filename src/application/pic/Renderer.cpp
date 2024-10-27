@@ -273,6 +273,13 @@ void Renderer::renderOverlay() {
             drawOverlayBox(x2, y2, x2 + w2 - 2, y2, x2 + w2 - 2, y2 + h2 - 2, x2, y2 + h2 - 2, cgreen);
             drawOverlayBox(x2 - 1, y2 - 1, x2 + w2 - 1, y2 - 1, x2 + w2 - 1, y2 + h2 - 1, x2 - 1, y2 + h2 - 1, cgreen);
         }
+    } else if (data->currentTool == Tool::DUPLICATE) {
+        if (data->dupeIndex < data->layers->countNum()) {
+            l = data->layers->at(data->dupeIndex);
+            x = l->posX, y = l->posY, w = l->width, h = l->height;
+            drawOverlayBox(x, y, x + w - 2, y, x + w - 2, y + h - 2, x, y + h - 2, cgreen);
+            drawOverlayBox(x - 1, y - 1, x + w - 1, y - 1, x + w - 1, y + h - 1, x - 1, y + h - 1, cgreen);
+        }
     }
 
     if (data->debugString != nullptr) {

@@ -37,7 +37,7 @@ enum Tool {
     // tools
     NOTHING = 0, MOVE = 1, ROTATE = 2, SCALE = 3, CROP = 4, PEN = 5, ERASER = 6, COLOR = 7,
     // layer tools
-    EXPORT_PNG = 8, EXPORT_JPG = 9, EXPORT_BMP = 10, NEW_EMPTY = 11, COMBINE = 12,
+    EXPORT_PNG = 8, EXPORT_JPG = 9, EXPORT_BMP = 10, NEW_EMPTY = 11, COMBINE = 12, DUPLICATE = 13,
 };
 
 enum ToolCorner {
@@ -97,6 +97,7 @@ public:
     int colorA, colorR, colorG, colorB;
     int combineFirst, combineSecond;
     int layerX, layerY, layerW, layerH; // for layer export / new empty layer (LAYER-Tool)
+    int dupeIndex;
 };
 
 

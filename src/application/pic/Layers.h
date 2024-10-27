@@ -30,6 +30,8 @@ public:
 
     void combine(int index1, int index2);
 
+    void duplicate(int index);
+
     Layer *current();
 
     Layer *at(int index);
