@@ -91,6 +91,8 @@ int32_t main(int32_t argc, char *argv[]) {
         exit(-1);
     }
 
+    lfb.clear();
+
     if (demo == "triangle") {
         triangle(bufferedLfb);
     } else if (demo == "gears") {

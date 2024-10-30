@@ -129,6 +129,8 @@ int32_t main(int argc, char **argv) {
             Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Unsupported color depth!");
     }
 
+    lfb->clear();
+
     // Run game loop
     auto oldTime = clock();
     while (true) {

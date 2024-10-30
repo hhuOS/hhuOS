@@ -27,8 +27,8 @@ namespace Util::Graphic {
 
 LinearFrameBufferTerminal::LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, char cursor) :
         Terminal(lfb->getResolutionX() / Font::getFontForResolution(lfb->getResolutionY()).getCharWidth(), lfb->getResolutionY() / Font::getFontForResolution(lfb->getResolutionY()).getCharHeight()),
-        characterBuffer(new Character[getColumns() * getRows()]), lfb(*lfb), pixelDrawer(*lfb), stringDrawer(pixelDrawer), shadowLfb(*lfb, false),
-        shadowPixelDrawer(shadowLfb), shadowStringDrawer(shadowPixelDrawer), shadowScroller(shadowLfb, false), font(Font::getFontForResolution(lfb->getResolutionY())), cursor(cursor) {
+        characterBuffer(new Character[getColumns() * getRows()]), lfb(*lfb), pixelDrawer(*lfb), stringDrawer(pixelDrawer), shadowLfb(*lfb),
+        shadowPixelDrawer(shadowLfb), shadowStringDrawer(shadowPixelDrawer), shadowScroller(shadowLfb), font(Font::getFontForResolution(lfb->getResolutionY())), cursor(cursor) {
     Terminal::clear();
     LinearFrameBufferTerminal::setCursor(true);
 }

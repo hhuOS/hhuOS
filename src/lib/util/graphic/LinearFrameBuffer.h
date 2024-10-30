@@ -21,6 +21,7 @@
 #include <stdint.h>
 
 #include "Color.h"
+#include "lib/util/base/Address.h"
 
 namespace Util {
 template <typename T> class Address;
@@ -52,7 +53,7 @@ public:
      * @param colorDepth The color colorDepth
      * @param pitch The pitch
      */
-    LinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch, bool enableAcceleration = true);
+    LinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch);
 
     /**
      * Constructor.
@@ -63,11 +64,11 @@ public:
      * @param colorDepth The color colorDepth
      * @param pitch The pitch
      */
-    LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch, bool enableAcceleration = true);
+    LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch);
 
     LinearFrameBuffer(Util::Address<uint32_t> *address, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch);
 
-    explicit LinearFrameBuffer(Io::File &file, bool enableAcceleration = true);
+    explicit LinearFrameBuffer(Io::File &file);
 
     /**
      * Assignment operator.
@@ -141,10 +142,9 @@ public:
 
 private:
 
-    static Address<uint32_t>* mapBuffer(void *physicalAddress, uint16_t resolutionY, uint16_t pitch, bool enableAcceleration, bool &useMmx);
+    static Address<uint32_t> mapBuffer(void *physicalAddress, uint16_t resolutionY, uint16_t pitch);
 
-    bool useMmx = false;
-    Address<uint32_t> *buffer = nullptr;
+    Address<uint32_t> buffer;
 
     uint16_t resolutionX = 0;
     uint16_t resolutionY = 0;

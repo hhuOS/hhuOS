@@ -91,6 +91,8 @@ int32_t main(int32_t argc, char *argv[]) {
     auto *glBuffer = ZB_open(bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY(), ZB_MODE_RGBA, reinterpret_cast<void*>(bufferedLfb.getBuffer().get()));
     glInit(glBuffer);
 
+    lfb.clear();
+
     if (demo == "triangle") {
         triangle(bufferedLfb);
     } else if (demo == "gears") {

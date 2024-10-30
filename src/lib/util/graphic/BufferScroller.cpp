@@ -22,20 +22,12 @@
 
 namespace Util::Graphic {
 
-BufferScroller::BufferScroller(const LinearFrameBuffer &lfb, bool enableAcceleration) :
-        lfb(lfb), targetBuffer(enableAcceleration ? *Address<uint32_t>::createAcceleratedAddress(lfb.getBuffer().get(), useMmx) : *new Address<uint32_t>(lfb.getBuffer())) {}
-
-BufferScroller::~BufferScroller() {
-    delete &targetBuffer;
-}
+BufferScroller::BufferScroller(const LinearFrameBuffer &lfb) : lfb(lfb) {}
 
 void BufferScroller::scrollUp(uint16_t lineCount, bool clearBelow) const {
     // Move screen buffer upwards by the given amount of lines
     auto source = lfb.getBuffer().add(lfb.getPitch() * lineCount);
-    targetBuffer.copyRange(source, lfb.getPitch() * (lfb.getResolutionY() - lineCount));
-    if (useMmx) {
-        Math::endMmx();
-    }
+    lfb.getBuffer().copyRange(source, lfb.getPitch() * (lfb.getResolutionY() - lineCount));
 
     // Clear lower part of the screen
     if (clearBelow) {

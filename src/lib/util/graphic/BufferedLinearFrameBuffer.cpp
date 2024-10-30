@@ -23,20 +23,19 @@
 
 namespace Util::Graphic {
 
-BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, bool enableAcceleration) :
-    BufferedLinearFrameBuffer(lfb, lfb.getResolutionX(), lfb.getResolutionY(), lfb.getPitch(), enableAcceleration) {}
+BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb) :
+        BufferedLinearFrameBuffer(lfb, lfb.getResolutionX(), lfb.getResolutionY(), lfb.getPitch()) {}
 
-BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, uint16_t resolutionX, uint16_t resolutionY, bool enableAcceleration) :
-    BufferedLinearFrameBuffer(lfb, resolutionX, resolutionY, resolutionX * lfb.getBytesPerPixel(), enableAcceleration) {}
+BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, uint16_t resolutionX, uint16_t resolutionY) :
+        BufferedLinearFrameBuffer(lfb, resolutionX, resolutionY, resolutionX * lfb.getBytesPerPixel()) {}
 
-BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, double scaleFactor, bool enableAcceleration) :
-        BufferedLinearFrameBuffer(lfb, lfb.getResolutionX() * scaleFactor, lfb.getResolutionY() * scaleFactor, lfb.getResolutionX() * scaleFactor * lfb.getBytesPerPixel(), enableAcceleration) {}
+BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, double scaleFactor) :
+        BufferedLinearFrameBuffer(lfb, lfb.getResolutionX() * scaleFactor, lfb.getResolutionY() * scaleFactor) {}
 
-BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, uint16_t resolutionX, uint16_t resolutionY, uint16_t pitch, bool enableAcceleration) :
+BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, uint16_t resolutionX, uint16_t resolutionY, uint16_t pitch) :
         LinearFrameBuffer(new uint8_t[pitch * resolutionY], resolutionX, resolutionY, lfb.getColorDepth(), pitch),
         scale(lfb.getResolutionX() / resolutionX > lfb.getResolutionY() / resolutionY ? lfb.getResolutionY() / resolutionY : lfb.getResolutionX() / resolutionX),
-        offsetX((lfb.getResolutionX() - resolutionX * scale) / 2), offsetY((lfb.getResolutionY() - resolutionY * scale) / 2),
-        target(lfb), targetBuffer(enableAcceleration ? *Address<uint32_t>::createAcceleratedAddress(lfb.getBuffer().get(), useMmx) : *new Address<uint32_t>(lfb.getBuffer())) {
+        offsetX((lfb.getResolutionX() - resolutionX * scale) / 2), offsetY((lfb.getResolutionY() - resolutionY * scale) / 2), target(lfb) {
     if (getResolutionX() > target.getResolutionX() || getResolutionY() > target.getResolutionY()) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "BufferedLinearFrameBuffer: Buffered resolution must not be larger than target resolution!");
     }
@@ -44,11 +43,9 @@ BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(const LinearFrameBuffer &lf
     clear();
 }
 
-BufferedLinearFrameBuffer::~BufferedLinearFrameBuffer() {
-    delete &targetBuffer;
-}
-
 void BufferedLinearFrameBuffer::flush() const {
+    const auto &targetBuffer = target.getBuffer();
+
     if (isCompatibleWith(target)) {
         targetBuffer.copyRange(getBuffer(), getPitch() * getResolutionY());
     } else if (getResolutionX() == target.getResolutionX() && getResolutionY() == target.getResolutionY()) {
@@ -80,17 +77,13 @@ void BufferedLinearFrameBuffer::flush() const {
                 Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "BufferedLinearFrameBuffer: Unsupported color depth!");
         }
     }
-
-    if (useMmx) {
-        Math::endMmx();
-    }
 }
 
 void BufferedLinearFrameBuffer::scalingFlush32() const {
     const uint16_t targetWidth = getResolutionX() * scale;
     const uint16_t targetHeight = getResolutionY() * scale;
     auto *sourceAddress = reinterpret_cast<uint32_t*>(getBuffer().get());
-    auto *targetAddress = reinterpret_cast<uint32_t*>(targetBuffer.add(offsetX * 4 + offsetY * target.getPitch()).get());
+    auto *targetAddress = reinterpret_cast<uint32_t*>(target.getBuffer().add(offsetX * 4 + offsetY * target.getPitch()).get());
 
     for (uint16_t y = 0; y < targetHeight; y++) {
         for (uint16_t x = 0; x < targetWidth; x++) {
@@ -108,7 +101,7 @@ void BufferedLinearFrameBuffer::scalingFlush24() const {
     const uint16_t targetWidth = getResolutionX() * scale;
     const uint16_t targetHeight = getResolutionY() * scale;
     auto *sourceAddress = reinterpret_cast<uint8_t*>(getBuffer().get());
-    auto *targetAddress = reinterpret_cast<uint8_t*>(targetBuffer.add(offsetX * 3 + offsetY * target.getPitch()).get());
+    auto *targetAddress = reinterpret_cast<uint8_t*>(target.getBuffer().add(offsetX * 3 + offsetY * target.getPitch()).get());
 
     for (uint16_t y = 0; y < targetHeight; y++) {
         for (uint16_t x = 0; x < targetWidth; x++) {
@@ -131,7 +124,7 @@ void BufferedLinearFrameBuffer::scalingFlush16() const {
     const uint16_t targetWidth = getResolutionX() * scale;
     const uint16_t targetHeight = getResolutionY() * scale;
     auto *sourceAddress = reinterpret_cast<uint16_t*>(getBuffer().get());
-    auto *targetAddress = reinterpret_cast<uint16_t*>(targetBuffer.add(offsetX * 2 + offsetY * target.getPitch()).get());
+    auto *targetAddress = reinterpret_cast<uint16_t*>(target.getBuffer().add(offsetX * 2 + offsetY * target.getPitch()).get());
 
     for (uint16_t y = 0; y < targetHeight; y++) {
         for (uint16_t x = 0; x < targetWidth; x++) {

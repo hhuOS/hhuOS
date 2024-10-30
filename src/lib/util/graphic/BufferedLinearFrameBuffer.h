@@ -38,19 +38,19 @@ public:
      *
      * @param lfb The linear frame buffer, that shall be double buffered.
      */
-    explicit BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, bool enableAcceleration = true);
+    explicit BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb);
 
     /**
      * Constructor using a different resolution (must be smaller) than the target lfb.
      * The picture will be centered and scaled to the target resolution.
      */
-    BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, uint16_t resolutionX, uint16_t resolutionY, bool enableAcceleration = true);
+    BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, uint16_t resolutionX, uint16_t resolutionY);
 
     /**
      * Constructor using a scaled down resolution.
      * The picture will be centered and scaled to the target resolution.
      */
-    BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, double scaleFactor, bool enableAcceleration = true);
+    BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, double scaleFactor);
 
     /**
      * Assignment operator.
@@ -65,7 +65,7 @@ public:
     /**
      * Destructor.
      */
-    ~BufferedLinearFrameBuffer() override;
+    ~BufferedLinearFrameBuffer() override = default;
 
     void flush() const;
 
@@ -74,7 +74,7 @@ private:
     /**
      * Private constructor with all possible parameters to avoid duplicate code.
      */
-    BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, uint16_t resolutionX, uint16_t resolutionY, uint16_t pitch, bool enableAcceleration);
+    BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, uint16_t resolutionX, uint16_t resolutionY, uint16_t pitch);
 
     void scalingFlush32() const;
 
@@ -82,14 +82,11 @@ private:
 
     void scalingFlush16() const;
 
-    bool useMmx = false;
-
     const uint8_t scale;
     const uint16_t offsetX;
     const uint16_t offsetY;
 
     const LinearFrameBuffer &target;
-    const Address<uint32_t> &targetBuffer;
 };
 
 }

@@ -17,8 +17,6 @@
 
 #include "lib/util/hardware/CpuId.h"
 #include "Address.h"
-#include "SseAddress.h"
-#include "MmxAddress.h"
 
 namespace Util {
 
@@ -138,50 +136,87 @@ T Address<T>::stringLength() const {
 
 template<typename T>
 void Address<T>::setRange(uint8_t value, T length) const {
-    auto *target = reinterpret_cast<uint64_t*>(address);
-    auto longValue = static_cast<uint64_t>(value);
-    longValue = longValue | longValue << 8 | longValue << 16 | longValue << 24 | longValue << 32 | longValue << 40 | longValue << 48 | longValue << 56;
+    // Just set very small memory blocks byte by byte
+    if (length < 16) {
+        auto target = reinterpret_cast<uint8_t*>(address);
+        while (length-- > 0) {
+            *target++ = value;
+        }
 
-    while (length - sizeof(uint64_t) < length) {
-        *target++ = longValue;
-        length -= sizeof(uint64_t);
+        return;
     }
 
-    auto *rest = reinterpret_cast<uint8_t*>(target);
-    while (length-- > 0) {
-        *rest++ = value;
+    // Variables needed to fill the bytes up to the next 8-byte aligned address
+    auto alignDifference = address % 8; // Number of bytes to next 8-byte aligned address
+    auto beforeAlignTarget = reinterpret_cast<uint8_t*>(address); // Start of the memory block (used to fill the bytes before the 8-byte aligned address)
+
+    // Variables needed to fill the 8-byte aligned memory blocks
+    auto remainingBlocks = (length - alignDifference) / 8; // Number of 8-byte blocks to fill
+    auto *target = reinterpret_cast<uint64_t*>(address + alignDifference); // Start of the 8-byte aligned memory block
+    auto longValue = static_cast<uint64_t>(value); // 8-byte value to fill the memory block
+    longValue = longValue | longValue << 8 | longValue << 16 | longValue << 24 | longValue << 32 | longValue << 40 | longValue << 48 | longValue << 56;
+
+    // Variables needed to fill the remaining bytes
+    auto remainingBytes = (length - alignDifference) % 8; // Number of remaining bytes to fill
+    auto *restTarget = reinterpret_cast<uint8_t*>(target) + (remainingBlocks * 8); // Start of the remaining memory block (used to fill the remaining bytes)
+
+    // First fill the bytes up to the next 8-byte aligned address
+    while (alignDifference-- > 0) {
+        *beforeAlignTarget++ = value;
+    }
+
+    // Now fill the 8-byte aligned memory blocks
+    while (remainingBlocks-- > 0) {
+        *target++ = longValue;
+    }
+
+    // Finally fill the remaining bytes
+    while (remainingBytes-- > 0) {
+        *restTarget++ = value;
     }
 }
 
 template<typename T>
 void Address<T>::copyRange(const Address<T> &sourceAddress, T length) const {
-    auto *target = reinterpret_cast<uint32_t*>(address);
-    auto *source = reinterpret_cast<uint32_t*>(sourceAddress.get());
+    // Just copy very small memory blocks byte by byte
+    if (length < 16) {
+        auto source = reinterpret_cast<uint8_t*>(sourceAddress.get());
+        auto target = reinterpret_cast<uint8_t*>(address);
+        while (length-- > 0) {
+            *target++ = *source++;
+        }
 
-    while (length - 4 * sizeof(uint32_t) < length) {
-        asm volatile (
-                "mov (%0), %%eax;"
-                "mov 4(%0), %%ebx;"
-                "mov 8(%0), %%ecx;"
-                "mov 12(%0), %%edx;"
-                "mov %%eax, (%1);"
-                "mov %%ebx, 4(%1);"
-                "mov %%ecx, 8(%1);"
-                "mov %%edx, 12(%1);"
-                : :
-                "r"(source),
-                "r"(target)
-                : "eax", "ebx", "ecx", "edx"
-                );
-        source += 4;
-        target += 4;
-        length -= 4 * sizeof(uint32_t);
+        return;
     }
 
-    auto *targetRest = reinterpret_cast<uint8_t*>(target);
-    auto *sourceRest = reinterpret_cast<uint8_t*>(source);
-    while (length-- > 0) {
-        *targetRest++ = *sourceRest++;
+    // Variables needed to fill the bytes up to the next 8-byte aligned address
+    auto alignDifference = address % 8; // Number of bytes to next 8-byte aligned address
+    auto beforeAlignSource = reinterpret_cast<uint8_t*>(sourceAddress.get()); // Start of the source memory block (used to copy the bytes before the 8-byte aligned address)
+    auto beforeAlignTarget = reinterpret_cast<uint8_t*>(address); // Start of the target memory block (used to copy the bytes before the 8-byte aligned address)
+
+    // Variables needed to fill the 8-byte aligned memory blocks
+    auto remainingBlocks = (length - alignDifference) / 8; // Number of 8-byte blocks to fill
+    auto *source = reinterpret_cast<uint64_t*>(sourceAddress.get() + alignDifference); // Start of the 8-byte aligned source memory block
+    auto *target = reinterpret_cast<uint64_t*>(address + alignDifference); // Start of the 8-byte aligned target memory block
+
+    // Variables needed to fill the remaining bytes
+    auto remainingBytes = (length - alignDifference) % 8; // Number of remaining bytes to fill
+    auto *restSource = reinterpret_cast<uint8_t*>(source) + (remainingBlocks * 8); // Start of the remaining source memory block (used to copy the remaining bytes)
+    auto *restTarget = reinterpret_cast<uint8_t*>(target) + (remainingBlocks * 8); // Start of the remaining target memory block (used to copy the remaining bytes)
+
+    // First fill the bytes up to the next 8-byte aligned address
+    while (alignDifference-- > 0) {
+        *beforeAlignTarget++ = *beforeAlignSource++;
+    }
+
+    // Now fill the 8-byte aligned memory blocks
+    while (remainingBlocks-- > 0) {
+        *target++ = *source++;
+    }
+
+    // Finally fill the remaining bytes
+    while (remainingBytes-- > 0) {
+        *restTarget++ = *restSource++;
     }
 }
 
@@ -245,21 +280,6 @@ Address<T> Address<T>::searchCharacter(uint8_t character) const {
     T i;
     for (i = 0; pointer[i] != 0 && pointer[i] != character; i++) {}
     return pointer[i] == 0 ? set(0) : add(i);
-}
-
-template<typename T>
-Address<T> *Address<T>::createAcceleratedAddress(T address, bool &useMmx) {
-    useMmx = false;
-    auto features = Hardware::CpuId::getCpuFeatureBits();
-
-    if ((features & Hardware::CpuId::SSE) != 0) {
-        return new SseAddress<T>(address);
-    } else if ((features & Hardware::CpuId::MMX) != 0) {
-        useMmx = true;
-        return new MmxAddress<T>(address);
-    }
-
-    return new Address<T>(address);
 }
 
 }
