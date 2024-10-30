@@ -41,15 +41,16 @@ public:
     explicit BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, bool enableAcceleration = true);
 
     /**
-     * Constructor using a different pitch than the target lfb.
-     */
-    BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, uint16_t pitch, bool enableAcceleration = true);
-
-    /**
-     * Constructor using a different resolution than the target lfb.
+     * Constructor using a different resolution (must be smaller) than the target lfb.
      * The picture will be centered and scaled to the target resolution.
      */
     BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, uint16_t resolutionX, uint16_t resolutionY, bool enableAcceleration = true);
+
+    /**
+     * Constructor using a scaled down resolution.
+     * The picture will be centered and scaled to the target resolution.
+     */
+    BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, double scaleFactor, bool enableAcceleration = true);
 
     /**
      * Assignment operator.

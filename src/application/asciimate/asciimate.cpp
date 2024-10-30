@@ -42,13 +42,18 @@ static const constexpr uint16_t DEFAULT_FPS = 15;
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
-    argumentParser.addArgument("framesPerSecond", false, "f");
     argumentParser.setHelpText("Play asciimation movies from text-files.\n"
                                "See https://http://www.asciimation.co.nz for more information\n"
                                "Usage: asciimate [FILE]\n"
                                "Options:\n"
                                "  -f, --framesPerSecond: Set the target framerate (Default: 15)\n"
+                               "  -r, --resolution: Set display resolution\n"
+                               "  -s, --scale: Set display scale factor (Must be <= 1; The application will be rendered at a lower internal resolution and scaled up/centered to fill the screen)\n"
                                "  -h, --help: Show this help message");
+
+    argumentParser.addArgument("framesPerSecond", false, "f");
+    argumentParser.addArgument("resolution", false, "r");
+    argumentParser.addArgument("scale", false, "s");
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
@@ -67,28 +72,41 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
+    auto lfbFile = Util::Io::File("/device/lfb");
+
+    if (argumentParser.hasArgument("resolution")) {
+        auto split1 = argumentParser.getArgument("resolution").split("x");
+        auto split2 = split1[1].split("@");
+
+        uint32_t resolutionX = Util::String::parseInt(split1[0]);
+        uint32_t resolutionY = Util::String::parseInt(split2[0]);
+        uint32_t colorDepth = split2.length() > 1 ? Util::String::parseInt(split2[1]) : 32;
+
+        lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
+    }
+
+    auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseDouble(argumentParser.getArgument("scale")) : 1.0;
+    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
+    auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(lfb, scaleFactor);
+    auto pixelDrawer = Util::Graphic::PixelDrawer(bufferedLfb);
+    auto lineDrawer = Util::Graphic::LineDrawer(pixelDrawer);
+    auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
+
     auto inputStream = Util::Io::FileInputStream(file);
     auto bufferedStream = Util::Io::BufferedInputStream(inputStream);
     bool endOfFile = false;
 
     auto frameInfo = bufferedStream.readLine(endOfFile).split(",");
 
-    auto lfbFile = Util::Io::File("/device/lfb");
-    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
-    auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(lfb);
-    auto pixelDrawer = Util::Graphic::PixelDrawer(bufferedLfb);
-    auto lineDrawer = Util::Graphic::LineDrawer(pixelDrawer);
-    auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
-
-    const auto &font = Util::Graphic::Fonts::TERMINAL_8x16;
+    const auto &font = Util::Graphic::Font::getFontForResolution(bufferedLfb.getResolutionY());
     auto charWidth = font.getCharWidth();
     auto charHeight = font.getCharHeight();
 
     double fps = argumentParser.hasArgument("framesPerSecond") ? Util::String::parseInt(argumentParser.getArgument("framesPerSecond")) : DEFAULT_FPS;
     uint16_t rows = Util::String::parseInt(frameInfo[0]);
     uint16_t columns = Util::String::parseInt(frameInfo[1]);
-    uint16_t frameStartX = (((lfb.getResolutionX() / charWidth) - columns) / 2) * charWidth;
-    uint16_t frameStartY = (((lfb.getResolutionY() / charHeight) - rows) / 2) * charHeight;
+    uint16_t frameStartX = (((bufferedLfb.getResolutionX() / charWidth) - columns) / 2) * charWidth;
+    uint16_t frameStartY = (((bufferedLfb.getResolutionY() / charHeight) - rows) / 2) * charHeight;
     uint16_t frameEndX = frameStartX + (columns * charWidth);
     uint16_t frameEndY = frameStartY + (rows * charHeight);
 

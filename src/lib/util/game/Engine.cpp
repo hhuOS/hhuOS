@@ -50,8 +50,8 @@
 
 namespace Util::Game {
 
-Engine::Engine(const Util::Graphic::LinearFrameBuffer &lfb, const uint8_t targetFrameRate) : graphics(lfb, game), targetFrameRate(targetFrameRate),
-        statisticsFont(GameManager::absoluteResolution.getY() < 400 ? Graphic::Fonts::MINI_4x6 : (GameManager::absoluteResolution.getY() <= 800 ? Graphic::Fonts::TERMINAL_8x8 : Graphic::Fonts::TERMINAL_8x16)) {
+Engine::Engine(const Graphic::LinearFrameBuffer &lfb, uint8_t targetFrameRate, double scaleFactor) : graphics(lfb, game, scaleFactor), targetFrameRate(targetFrameRate),
+        statisticsFont(Graphic::Font::getFontForResolution(lfb.getResolutionY() * scaleFactor)) {
     GameManager::game = &game;
 
     auto mouseFile = Io::File("/device/mouse");
@@ -120,11 +120,11 @@ void Engine::initializeNextScene() {
     }
 
     auto resolution = GameManager::getAbsoluteResolution();
-    auto stringPosition = Math::Vector2D((resolution.getX() - Util::Address<uint32_t>(LOADING).stringLength() * loadingFont.getCharWidth()) / 2.0, resolution.getY() / 2.0);
+    auto stringPosition = Math::Vector2D((resolution.getX() - Util::Address<uint32_t>(LOADING).stringLength() * statisticsFont.getCharWidth()) / 2.0, resolution.getY() / 2.0);
 
     graphics.clear();
     graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawString(loadingFont, stringPosition, LOADING);
+    graphics.drawString(statisticsFont, stringPosition, LOADING);
     graphics.show();
 
     statistics.reset();

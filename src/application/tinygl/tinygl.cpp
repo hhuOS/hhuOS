@@ -43,9 +43,11 @@ int32_t main(int32_t argc, char *argv[]) {
                                "Demos: info, triangle, gears, cubes\n"
                                "Options:\n"
                                "  -r, --resolution: Set display resolution\n"
+                               "  -s, --scale: Set display scale factor (Must be <= 1; The application will be rendered at a lower internal resolution and scaled up/centered to fill the screen)\n"
                                "  -h, --help: Show this help message");
 
     argumentParser.addArgument("resolution", false, "r");
+    argumentParser.addArgument("scale", false, "s");
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
@@ -84,12 +86,9 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    // TinyGL expects line pitch to be exactly the same as the resolution width in bytes.
-    // However, the LFB might have a different pitch, so we need to create a buffered LFB with the correct pitch.
-    // The buffered LFB will take the different pitch into account when copying the buffer to the LFB.
-    uint16_t pitch = lfb.getResolutionX() * ((lfb.getColorDepth() == 15 ? 16 : lfb.getColorDepth()) / 8);
-    auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(lfb, pitch);
-    auto *glBuffer = ZB_open(lfb.getResolutionX(), lfb.getResolutionY(), ZB_MODE_RGBA, reinterpret_cast<void*>(bufferedLfb.getBuffer().get()));
+    auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseDouble(argumentParser.getArgument("scale")) : 1.0;
+    auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(lfb, scaleFactor);
+    auto *glBuffer = ZB_open(bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY(), ZB_MODE_RGBA, reinterpret_cast<void*>(bufferedLfb.getBuffer().get()));
     glInit(glBuffer);
 
     if (demo == "triangle") {

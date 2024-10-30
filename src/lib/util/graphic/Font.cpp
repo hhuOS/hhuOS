@@ -16,6 +16,9 @@
  */
 
 #include "Font.h"
+#include "lib/util/graphic/font/Mini4x6.h"
+#include "lib/util/graphic/font/Terminal8x8.h"
+#include "lib/util/graphic/font/Terminal8x16.h"
 
 namespace Util::Graphic {
 
@@ -29,8 +32,18 @@ uint8_t Font::getCharHeight() const {
     return charHeight;
 }
 
-uint8_t *Font::getChar(uint8_t c) const {
+uint8_t* Font::getChar(uint8_t c) const {
     return &fontData[charMemSize * c];
+}
+
+const Font& Font::getFontForResolution(uint16_t resolutionY) {
+    if (resolutionY < 350) {
+        return Fonts::MINI_4x6;
+    } else if (resolutionY < 500) {
+        return Fonts::TERMINAL_8x8;
+    } else {
+        return Fonts::TERMINAL_8x16;
+    }
 }
 
 }

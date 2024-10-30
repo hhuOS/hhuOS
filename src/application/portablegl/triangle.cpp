@@ -43,6 +43,7 @@ void triangle(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     // Create string drawer to draw FPS
     auto pixelDrawer = Util::Graphic::PixelDrawer(lfb);
     auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
+    auto &font = Util::Graphic::Font::getFontForResolution(lfb.getResolutionY());
 
     // Set up shaders
     GLenum smooth[4] = { PGL_SMOOTH4 };
@@ -103,7 +104,7 @@ void triangle(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         // Draw FPS string
-        stringDrawer.drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
+        stringDrawer.drawString(font, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
 
         // Flush double buffer to screen
         lfb.flush();

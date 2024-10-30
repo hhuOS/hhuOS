@@ -25,10 +25,10 @@
 
 namespace Util::Graphic {
 
-LinearFrameBufferTerminal::LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, Util::Graphic::Font &font, char cursor) :
-        Terminal(lfb->getResolutionX() / font.getCharWidth(), lfb->getResolutionY() / font.getCharHeight()),
+LinearFrameBufferTerminal::LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, char cursor) :
+        Terminal(lfb->getResolutionX() / Font::getFontForResolution(lfb->getResolutionY()).getCharWidth(), lfb->getResolutionY() / Font::getFontForResolution(lfb->getResolutionY()).getCharHeight()),
         characterBuffer(new Character[getColumns() * getRows()]), lfb(*lfb), pixelDrawer(*lfb), stringDrawer(pixelDrawer), shadowLfb(*lfb, false),
-        shadowPixelDrawer(shadowLfb), shadowStringDrawer(shadowPixelDrawer), shadowScroller(shadowLfb, false), font(font), cursor(cursor) {
+        shadowPixelDrawer(shadowLfb), shadowStringDrawer(shadowPixelDrawer), shadowScroller(shadowLfb, false), font(Font::getFontForResolution(lfb->getResolutionY())), cursor(cursor) {
     Terminal::clear();
     LinearFrameBufferTerminal::setCursor(true);
 }

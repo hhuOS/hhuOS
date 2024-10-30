@@ -44,10 +44,6 @@ Util::Graphic::LinearFrameBuffer *lfb;
 Util::Graphic::BufferedLinearFrameBuffer *bufferedlfb;
 Util::Io::KeyDecoder *kd;
 
-uint32_t scaleFactor = 1;
-uint32_t offsetX = 0;
-uint32_t offsetY = 0;
-
 void (*drawFrame)(void *pixels);
 
 int32_t main(int argc, char *argv[]) {
@@ -75,22 +71,9 @@ int32_t main(int argc, char *argv[]) {
         }
     }
 
-    // Use double buffering to avoid tearing
+    // Use double buffering to improve tearing and automatically scale the image to the screen
     lfb = new Util::Graphic::LinearFrameBuffer(*lfbFile);
-    bufferedlfb = new Util::Graphic::BufferedLinearFrameBuffer(*lfb);
-
-    // Calculate scale factor the game as large as possible
-    scaleFactor = lfb->getResolutionX() / QUAKEGENERIC_RES_X;
-    if (lfb->getResolutionY() / QUAKEGENERIC_RES_Y < scaleFactor) {
-        scaleFactor = lfb->getResolutionY() / QUAKEGENERIC_RES_Y;
-    }
-    if (scaleFactor == 0) {
-        scaleFactor = 1;
-    }
-
-    // Calculate offset to center the game
-    offsetX = lfb->getResolutionX() - QUAKEGENERIC_RES_X * scaleFactor > 0 ? (lfb->getResolutionX() - QUAKEGENERIC_RES_X * scaleFactor) / 2 : 0;
-    offsetY = lfb->getResolutionY() - QUAKEGENERIC_RES_Y * scaleFactor > 0 ? (lfb->getResolutionY() - QUAKEGENERIC_RES_Y * scaleFactor) / 2 : 0;
+    bufferedlfb = new Util::Graphic::BufferedLinearFrameBuffer(*lfb, static_cast<uint16_t>(QUAKEGENERIC_RES_X), static_cast<uint16_t>(QUAKEGENERIC_RES_Y));
 
     // Initialize game
     QG_Create(argc, argv);
@@ -126,13 +109,11 @@ void QG_DrawFrame(void *pixels) {
 
 void QG_DrawFrame32(void *pixels) {
     auto pixelBuffer = reinterpret_cast<const uint8_t*>(pixels);
-    auto screenBuffer = reinterpret_cast<uint32_t*>(bufferedlfb->getBuffer().add(offsetX * 4 + offsetY * bufferedlfb->getPitch()).get());
-    auto resX = QUAKEGENERIC_RES_X * scaleFactor > bufferedlfb->getResolutionX() ? bufferedlfb->getResolutionX() : QUAKEGENERIC_RES_X * scaleFactor;
-    auto resY = QUAKEGENERIC_RES_Y * scaleFactor > bufferedlfb->getResolutionY() ? bufferedlfb->getResolutionY() : QUAKEGENERIC_RES_Y * scaleFactor;
+    auto screenBuffer = reinterpret_cast<uint32_t*>(bufferedlfb->getBuffer().get());
 
-    for (uint32_t y = 0; y < resY; y++) {
-        for (uint32_t x = 0; x < resX; x++) {
-            auto pixel = pixelBuffer[(y / scaleFactor) * QUAKEGENERIC_RES_X + (x / scaleFactor)];
+    for (uint32_t y = 0; y < QUAKEGENERIC_RES_Y; y++) {
+        for (uint32_t x = 0; x < QUAKEGENERIC_RES_X; x++) {
+            auto pixel = pixelBuffer[y * QUAKEGENERIC_RES_X + x];
             auto color = palette[pixel];
 
             screenBuffer[x] = color;
@@ -144,13 +125,11 @@ void QG_DrawFrame32(void *pixels) {
 
 void QG_DrawFrame24(void *pixels) {
     auto pixelBuffer = reinterpret_cast<const uint8_t*>(pixels);
-    auto screenBuffer = reinterpret_cast<uint8_t*>(bufferedlfb->getBuffer().add(offsetX * 3 + offsetY * bufferedlfb->getPitch()).get());
-    auto resX = QUAKEGENERIC_RES_X * scaleFactor > bufferedlfb->getResolutionX() ? bufferedlfb->getResolutionX() : QUAKEGENERIC_RES_X * scaleFactor;
-    auto resY = QUAKEGENERIC_RES_Y * scaleFactor > bufferedlfb->getResolutionY() ? bufferedlfb->getResolutionY() : QUAKEGENERIC_RES_Y * scaleFactor;
+    auto screenBuffer = reinterpret_cast<uint8_t*>(bufferedlfb->getBuffer().get());
 
-    for (uint32_t y = 0; y < resY; y++) {
-        for (uint32_t x = 0; x < resX; x++) {
-            auto pixel = pixelBuffer[(y / scaleFactor) * QUAKEGENERIC_RES_X + (x / scaleFactor)];
+    for (uint32_t y = 0; y < QUAKEGENERIC_RES_Y; y++) {
+        for (uint32_t x = 0; x < QUAKEGENERIC_RES_X; x++) {
+            auto pixel = pixelBuffer[y * QUAKEGENERIC_RES_X + x];
             auto color = palette[pixel];
 
             screenBuffer[x * 3] = color & 0xff;
@@ -164,13 +143,11 @@ void QG_DrawFrame24(void *pixels) {
 
 void QG_DrawFrame16(void *pixels) {
     auto pixelBuffer = reinterpret_cast<const uint8_t*>(pixels);
-    auto screenBuffer = reinterpret_cast<uint16_t *>(bufferedlfb->getBuffer().add(offsetX * 2 + offsetY * bufferedlfb->getPitch()).get());
-    auto resX = QUAKEGENERIC_RES_X * scaleFactor > bufferedlfb->getResolutionX() ? bufferedlfb->getResolutionX() : QUAKEGENERIC_RES_X * scaleFactor;
-    auto resY = QUAKEGENERIC_RES_Y * scaleFactor > bufferedlfb->getResolutionY() ? bufferedlfb->getResolutionY() : QUAKEGENERIC_RES_Y * scaleFactor;
+    auto screenBuffer = reinterpret_cast<uint16_t *>(bufferedlfb->getBuffer().get());
 
-    for (uint32_t y = 0; y < resY; y++) {
-        for (uint32_t x = 0; x < resX; x++) {
-            auto pixel = pixelBuffer[(y / scaleFactor) * QUAKEGENERIC_RES_X + (x / scaleFactor)];
+    for (uint32_t y = 0; y < QUAKEGENERIC_RES_Y; y++) {
+        for (uint32_t x = 0; x < QUAKEGENERIC_RES_X; x++) {
+            auto pixel = pixelBuffer[y * QUAKEGENERIC_RES_X + x];
             auto color = palette[pixel];
 
             screenBuffer[x] = color;

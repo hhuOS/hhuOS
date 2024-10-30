@@ -35,8 +35,8 @@
 
 namespace Util::Game {
 
-Graphics::Graphics(const Graphic::LinearFrameBuffer &lfb, Game &game) :
-        game(game), bufferedLfb(lfb), pixelDrawer(bufferedLfb), lineDrawer(pixelDrawer), stringDrawer(pixelDrawer),
+Graphics::Graphics(const Util::Graphic::LinearFrameBuffer &lfb, Game &game, double scaleFactor) :
+        game(game), bufferedLfb(lfb, scaleFactor), pixelDrawer(bufferedLfb), lineDrawer(pixelDrawer), stringDrawer(pixelDrawer),
         transformation((bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ? bufferedLfb.getResolutionY() : bufferedLfb.getResolutionX()) / 2),
         offsetX(transformation + (bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ? (bufferedLfb.getResolutionX() - bufferedLfb.getResolutionY()) / 2 : 0)),
         offsetY(transformation + (bufferedLfb.getResolutionY() > bufferedLfb.getResolutionX() ? (bufferedLfb.getResolutionY() - bufferedLfb.getResolutionX()) / 2 : 0)) {

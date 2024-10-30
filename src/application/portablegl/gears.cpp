@@ -804,6 +804,7 @@ void gears(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     bufferedLfb = &lfb;
     auto pixelDrawer = Util::Graphic::PixelDrawer(*bufferedLfb);
     auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
+    auto &font = Util::Graphic::Font::getFontForResolution(lfb.getResolutionY());
 
     /* Initialize the window */
     setup_context();
@@ -827,7 +828,7 @@ void gears(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
         gears_draw();
 
         // Draw FPS string
-        stringDrawer.drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", static_cast<uint32_t>(fps))), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
+        stringDrawer.drawString(font, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", static_cast<uint32_t>(fps))), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
 
         // Flush double buffer to screen
         bufferedLfb->flush();

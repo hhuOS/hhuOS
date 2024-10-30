@@ -38,9 +38,11 @@ int32_t main(int32_t argc, char *argv[]) {
                                "Usage: dino\n"
                                "Options:\n"
                                "  -r, --resolution: Set display resolution\n"
+                               "  -s, --scale: Set display scale factor (Must be <= 1; The application will be rendered at a lower internal resolution and scaled up/centered to fill the screen)\n"
                                "  -h, --help: Show this help message");
 
     argumentParser.addArgument("resolution", false, "r");
+    argumentParser.addArgument("scale", false, "s");
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
@@ -60,8 +62,9 @@ int32_t main(int32_t argc, char *argv[]) {
         lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
     }
 
+    auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseDouble(argumentParser.getArgument("scale")) : 1.0;
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
-    auto engine = Util::Game::Engine(lfb, 60);
+    auto engine = Util::Game::Engine(lfb, 60, scaleFactor);
 
     Util::Game::GameManager::getGame().pushScene(new IntroScreen());
     engine.run();

@@ -53,13 +53,13 @@ class Font;
 
 namespace Util::Game {
 
-class Engine : public Util::Async::Runnable {
+class Engine : public Async::Runnable {
 
 public:
     /**
      * Constructor.
      */
-    Engine(const Util::Graphic::LinearFrameBuffer &lfb, uint8_t targetFrameRate);
+    Engine(const Graphic::LinearFrameBuffer &lfb, uint8_t targetFrameRate, double scaleFactor);
 
     /**
      * Copy Constructor.
@@ -227,7 +227,7 @@ private:
     Time::Timestamp statusUpdateTimer;
     Statistics::Gather status = statistics.gather();
 
-    Util::Io::FileInputStream *mouseInputStream;
+    Io::FileInputStream *mouseInputStream;
     uint8_t mouseValues[4]{};
     uint32_t mouseValueIndex = 0;
     uint8_t lastMouseButtonState = 0;
@@ -237,7 +237,6 @@ private:
 
     const uint8_t targetFrameRate;
 
-    const Graphic::Font &loadingFont = Graphic::Fonts::TERMINAL_8x16;
     const Graphic::Font &statisticsFont;
 
     static const constexpr char *LOADING = "Loading...";

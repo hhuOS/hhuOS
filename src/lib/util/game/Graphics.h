@@ -63,7 +63,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Graphics(const Util::Graphic::LinearFrameBuffer &lfb, Game &game);
+    explicit Graphics(const Util::Graphic::LinearFrameBuffer &lfb, Game &game, double scaleFactor);
 
     /**
      * Copy Constructor.

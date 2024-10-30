@@ -189,6 +189,7 @@ void cubes(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     // Create string drawer to draw FPS
     auto pixelDrawer = Util::Graphic::PixelDrawer(lfb);
     auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
+    auto &font = Util::Graphic::Font::getFontForResolution(lfb.getResolutionY());
 
     // Initialize GL
     glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -262,8 +263,8 @@ void cubes(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
         }
 
         // Draw the FPS string on top of the rendered OpenGL scene
-        stringDrawer.drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
-        stringDrawer.drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 8, static_cast<const char*>(Util::String::format("Cubes: %u", cubes->size())), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
+        stringDrawer.drawString(font, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
+        stringDrawer.drawString(font, 0, font.getCharHeight(), static_cast<const char*>(Util::String::format("Cubes: %u", cubes->size())), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
         lfb.flush(); // Flushes the buffered frame buffer to the screen
 
         auto renderTime = Util::Time::getSystemTime() - startTime;
