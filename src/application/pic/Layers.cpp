@@ -442,3 +442,45 @@ void Layers::prepareNextDrawing(int index) {
 void Layers::prepareNextDrawingCurrent() {
     prepareNextDrawing(currentLayer);
 }
+
+void Layers::drawShape(int index, Shape shape, int x, int y, int w, int h, uint32_t color) {
+    Layer *l = layers[index];
+    if(w < 0) w = -w, x -= w;
+    if(h < 0) h = -h, y -= h;
+    if (shape == Shape::SQUARE || shape == Shape::RECTANGLE) {
+        if (shape == Shape::SQUARE) {
+            w = max(abs(w), abs(h));
+            h = max(abs(w), abs(h));
+        }
+        for (int px = x; px < x + w; px++) {
+            for (int py = y; py < y + h; py++) {
+                    uint32_t oldColor = l->getPixel(px, py);
+                    l->setPixel(px, py, color == 0x00000000 ? 0x00000000 : blendPixels(oldColor, color));
+            }
+        }
+    }
+    else if (shape == Shape::CIRCLE || shape == Shape::ELLIPSE) {
+        if (shape == Shape::CIRCLE) {
+            w = max(abs(w), abs(h));
+            h = max(abs(w), abs(h));
+        }
+        double a = w / 2.0;
+        double b = h / 2.0;
+        double centerX = x + a;
+        double centerY = y + b;
+        for (int px = x; px < x + w; px++) {
+            for (int py = y; py < y + h; py++) {
+                double p = ((px - centerX) * (px - centerX)) / (a * a);
+                double q = ((py - centerY) * (py - centerY)) / (b * b);
+                if (p + q <= 1.0) {
+                    uint32_t oldColor = l->getPixel(px, py);
+                    l->setPixel(px, py, color == 0x00000000 ? 0x00000000 : blendPixels(oldColor, color));
+                }
+            }
+        }
+    }
+}
+
+void Layers::drawShapeCurrent(Shape shape, int x, int y, int w, int h, uint32_t color) {
+    drawShape(currentLayer, shape, x, y, w, h, color);
+}

@@ -35,13 +35,17 @@ class MessageHandler;
 
 enum Tool {
     // tools
-    NOTHING = 0, MOVE = 1, ROTATE = 2, SCALE = 3, CROP = 4, PEN = 5, ERASER = 6, COLOR = 7,
+    NOTHING = 0, MOVE = 1, ROTATE = 2, SCALE = 3, CROP = 4, PEN = 5, ERASER = 6, COLOR = 7, SHAPE = 8,
     // layer tools
-    EXPORT_PNG = 8, EXPORT_JPG = 9, EXPORT_BMP = 10, NEW_EMPTY = 11, COMBINE = 12, DUPLICATE = 13,
+    EXPORT_PNG = 9, EXPORT_JPG = 10, EXPORT_BMP = 11, NEW_EMPTY = 12, COMBINE = 13, DUPLICATE = 14,
 };
 
 enum ToolCorner {
     TOP_LEFT = 0, TOP_RIGHT = 1, BOTTOM_LEFT = 2, BOTTOM_RIGHT = 3,
+};
+
+enum Shape {
+    DEFAULT = 0, RECTANGLE = 1, SQUARE = 2, CIRCLE = 3, ELLIPSE = 4,
 };
 
 class DataWrapper {
@@ -98,6 +102,8 @@ public:
     int combineFirst, combineSecond;
     int layerX, layerY, layerW, layerH; // for layer export / new empty layer (LAYER-Tool)
     int dupeIndex;
+    int shapeX, shapeY, shapeW, shapeH;
+    Shape currentShape;
 };
 
 

@@ -21,6 +21,7 @@
 #include "DataWrapper.h"
 #include "GuiLayer.h"
 #include "Layers.h"
+
 using namespace Util::Graphic;
 
 enum ButtonType {
@@ -75,6 +76,8 @@ public:
     Button *setRenderFlagMethod(void (RenderFlags::*rFlagMethod)());
 
     Button *changeGreenIfTool(Tool tool);
+
+    Button *changeGreenIfShape(Shape shape);
 
     Button *setColor(int *colorA, int *colorR, int *colorG, int *colorB);
 
@@ -133,6 +136,7 @@ private:
     Util::String *input = nullptr;
     bool *captureInput = nullptr;
     Tool setGreenTool = Tool::NOTHING;
+    Shape setGreenShape = Shape::DEFAULT;
     bool showcolor = false;
     int *colorA = nullptr, *colorR = nullptr, *colorG = nullptr, *colorB = nullptr;
     bool appearTopOnChange = false, appearBottomOnChange = false;

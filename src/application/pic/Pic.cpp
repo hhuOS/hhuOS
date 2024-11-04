@@ -208,6 +208,23 @@ void Pic::parseMouse(bool clicked) {
             data->flags->guiButtonChanged();
             data->flags->overlayChanged();
             data->currentGuiLayerBottom->appear();
+        } else if (data->currentTool == Tool::SHAPE) {
+            if (data->newlyPressed) {
+                auto click = data->mouseClicks->peek();
+                data->shapeX = click.first - 200;
+                data->shapeY = click.second;
+                while (data->mouseClicks->size() > 0) {
+                    click = data->mouseClicks->poll();
+                    data->shapeW = click.first - 200 - data->shapeX;
+                    data->shapeH = click.second - data->shapeY;
+                }
+            } else {
+                data->shapeW = data->mouseX - 200 - data->shapeX;
+                data->shapeH = data->mouseY - data->shapeY;
+            }
+            data->flags->guiButtonChanged();
+            data->flags->overlayChanged();
+            data->currentGuiLayerBottom->appear();
         }
     } else if (data->mouseX >= 200 && !data->clickStartedOnGui && clicked &&
                (data->currentTool == Tool::PEN || data->currentTool == Tool::ERASER)) {
@@ -332,6 +349,9 @@ void swapTool(DataWrapper *data, Tool tool) {
                 break;
             case Tool::DUPLICATE:
                 data->currentGuiLayerBottom = data->guiLayers->get("bottom_duplicate");
+                break;
+            case Tool::SHAPE:
+                data->currentGuiLayerBottom = data->guiLayers->get("bottom_shape");
                 break;
             case Tool::NOTHING:
                 data->currentGuiLayerBottom = data->guiLayers->get("empty");
@@ -478,8 +498,7 @@ void Pic::init_gui() {
                                          double factor = min((double) data->workAreaX / (double) l->width,
                                                              (double) data->workAreaY / (double) l->height);
                                          data->layers->scaleCurrent(factor, ToolCorner::BOTTOM_RIGHT);
-                                     }
-                                     else if (l->posX + l->width > data->workAreaX || l->posY + l->height > data->workAreaY){
+                                     } else if (l->posX + l->width > data->workAreaX || l->posY + l->height > data->workAreaY) {
                                          data->layers->moveCurrent(0, 0);
                                          data->mHandler->addMessage("Layer was just moved onto Screen, no scaling needed");
                                      } else {
@@ -509,6 +528,18 @@ void Pic::init_gui() {
                                  })
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
                                  ->set16Bitmap(Bitmaps::play)
+    );
+    gui_tools->addButton((new Button(data))
+                                 ->setInfo("Shapes")
+                                 ->setMethodButton([](DataWrapper *data) {
+                                     data->shapeX = 0;
+                                     data->shapeY = 0;
+                                     data->shapeW = 0;
+                                     data->shapeH = 0;
+                                     swapTool(data, Tool::SHAPE);
+                                 })
+                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                 ->set16Bitmap(Bitmaps::tool)
     );
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Pen")
@@ -697,6 +728,55 @@ void Pic::init_gui() {
                                       ->setIntValueButton(&data->penSize, 1, 100)
     );
 
+    auto gui_bottom_shape = new GuiLayer();
+    gui_bottom_shape->addButton((new Button(data))
+                                        ->setInfo("Rectangle")
+                                        ->setMethodButton([](DataWrapper *data) {
+                                            data->currentShape = Shape::RECTANGLE;
+                                        })
+                                        ->changeGreenIfShape(Shape::RECTANGLE)
+                                        ->setAppearBottomOnChange(true)
+    );
+    gui_bottom_shape->addButton((new Button(data))
+                                        ->setInfo("Square")
+                                        ->setMethodButton([](DataWrapper *data) {
+                                            data->currentShape = Shape::SQUARE;
+                                        })
+                                        ->changeGreenIfShape(Shape::SQUARE)
+                                        ->setAppearBottomOnChange(true)
+    );
+    gui_bottom_shape->addButton((new Button(data))
+                                        ->setInfo("Ellipse")
+                                        ->setMethodButton([](DataWrapper *data) {
+                                            data->currentShape = Shape::ELLIPSE;
+                                        })
+                                        ->changeGreenIfShape(Shape::ELLIPSE)
+                                        ->setAppearBottomOnChange(true)
+    );
+    gui_bottom_shape->addButton((new Button(data))
+                                        ->setInfo("Circle")
+                                        ->setMethodButton([](DataWrapper *data) {
+                                            data->currentShape = Shape::CIRCLE;
+                                        })
+                                        ->changeGreenIfShape(Shape::CIRCLE)
+                                        ->setAppearBottomOnChange(true)
+    );
+    gui_bottom_shape->addButton((new Button(data))
+                                        ->setInfo("SHAPE")
+                                        ->setConfirmButton([](DataWrapper *data) {
+                                            data->shapeX = 0, data->shapeY = 0, data->shapeW = 0, data->shapeH = 0;
+                                        }, [](DataWrapper *data) {
+                                            uint32_t penColor = (data->colorA << 24) | (data->colorR << 16) | (data->colorG << 8) | data->colorB;
+                                            Layer *l = data->layers->current();
+                                            int relX = data->shapeX - l->posX, relY = data->shapeY - l->posY;
+                                            data->layers->drawShapeCurrent(data->currentShape, relX, relY, data->shapeW,data->shapeH,penColor);
+                                            data->shapeX = 0, data->shapeY = 0, data->shapeW = 0, data->shapeH = 0;
+                                        })
+                                        ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+                                        ->setAppearBottomOnChange(true)
+    );
+
+
     auto gui_layerTools = new GuiLayer();
     gui_layerTools->addButton((new Button(data))
                                       ->setInfo("Back")
@@ -873,6 +953,7 @@ void Pic::init_gui() {
     data->guiLayers->put("bottom_xywh", gui_bottom_xywh);
     data->guiLayers->put("bottom_combine", gui_bottom_combine);
     data->guiLayers->put("bottom_duplicate", gui_bottom_duplicate);
+    data->guiLayers->put("bottom_shape", gui_bottom_shape);
     data->currentGuiLayer = gui_main;
     data->currentGuiLayerBottom = gui_empty;
     data->currentGuiLayer->appear();

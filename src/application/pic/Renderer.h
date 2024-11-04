@@ -74,7 +74,7 @@ private:
     Color cblack, cgreen, cwhite, cred;
     int lastRenderedMouseX, lastRenderedMouseY;
     // for overlay
-    LinearFrameBuffer *lfb;
+    LinearFrameBuffer *lfb_overlay;
     PixelDrawer *pixelDrawer;
     LineDrawer *lineDrawer;
     StringDrawer *stringDrawer;

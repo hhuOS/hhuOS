@@ -72,6 +72,10 @@ public:
 
     void drawLineCurrent(int x1, int y1, int x2, int y2, uint32_t color, int thickness);
 
+    void drawShape(int index, Shape shape, int x, int y, int w, int h, uint32_t color);
+
+    void drawShapeCurrent(Shape shape, int x, int y, int w, int h, uint32_t color);
+
     void prepareNextDrawing(int index);
 
     void prepareNextDrawingCurrent();

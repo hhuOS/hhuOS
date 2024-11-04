@@ -64,4 +64,6 @@ DataWrapper::DataWrapper() {
     combineSecond = 1;
     layerX = 0, layerY = 0, layerW = workAreaX, layerH = workAreaY;
     dupeIndex = 0;
+    shapeX = -1, shapeY = -1, shapeW = -1, shapeH = -1;
+    currentShape = Shape::RECTANGLE;
 }

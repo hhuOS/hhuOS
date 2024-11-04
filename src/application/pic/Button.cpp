@@ -128,6 +128,12 @@ Button *Button::changeGreenIfTool(Tool tool) {
     return this;
 }
 
+Button *Button::changeGreenIfShape(Shape shape) {
+    setGreenShape = shape;
+    render();
+    return this;
+}
+
 Button *Button::setColor(int *a, int *r, int *g, int *b) {
     colorA = a, colorR = r, colorG = g, colorB = b;
     showcolor = true;
@@ -319,6 +325,9 @@ void Button::renderMethod() {
         uint32_t color = 0xFF000000 | (*colorR << 16) | (*colorG << 8) | *colorB;
         renderBackground(0, 80, color);
         Color c = this->setGreenTool == data->currentTool ? cgreen : cblack;
+        if (c != cgreen && setGreenShape != Shape::DEFAULT) {
+            c = setGreenShape == data->currentShape ? cgreen : cblack;
+        }
         lineDrawer->drawLine(79, 0, 79, 30, c);
         lineDrawer->drawLine(80, 0, 80, 30, c);
         xStringpos = 140 - (strlen(info) * 4);
@@ -328,7 +337,11 @@ void Button::renderMethod() {
     } else if (bitmap != nullptr) {
         stringDrawer->drawMonoBitmap(10, 7, 16, 16, cblack, click ? cgreen : hover ? cdarkgray : cgray, bitmap);
     }
-    renderBorder(this->setGreenTool != Tool::NOTHING ? this->setGreenTool == data->currentTool ? 0xFF00FF00 : 0xFF000000 : 0xFF000000);
+    uint32_t borderColor = this->setGreenTool != Tool::NOTHING ? this->setGreenTool == data->currentTool ? 0xFF00FF00 : 0xFF000000 : 0xFF000000;
+    if(borderColor == 0xFF000000 && setGreenShape != Shape::DEFAULT) {
+        borderColor = setGreenShape == data->currentShape ? 0xFF00FF00 : 0xFF000000;
+    }
+    renderBorder(borderColor);
     stringDrawer->drawString(Fonts::TERMINAL_8x16, xStringpos, 7, info, cblack,
                              click ? cgreen : hover ? cdarkgray : cgray);
 }
