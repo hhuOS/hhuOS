@@ -75,77 +75,13 @@ time_t mktime(struct tm* arg) {
 Util::Io::ByteArrayOutputStream timeBuf(1024);
 Util::Io::PrintStream timeOut = Util::Io::PrintStream(timeBuf);
 
-const char * weekdayAbbreviations[7] = {
-	"Sun",
-	"Mon",
-	"Tue",
-	"Wed",
-	"Thu",
-	"Fri",
-	"Sat"
-};
-
-const char * weekdayNames[7] = {
-	"Sunday",
-	"Monday",
-	"Tuesday",
-	"Wednesday",
-	"Thursday",
-	"Friday",
-	"Saturday"
-};
-
-const char * monthAbbreviations[13] = {
-	"",
-	"Jan",
-	"Feb",
-	"Mar",
-	"Apr",
-	"May",
-	"Jun",
-	"Jul",
-	"Aug",
-	"Sep",
-	"Oct",
-	"Nov",
-	"Dec"
-};
-
-const char * monthNames[13] = {
-	"",
-	"January",
-	"February",
-	"March",
-	"April",
-	"May",
-	"June",
-	"July",
-	"August",
-	"September",
-	"October",
-	"November",
-	"December"
-};
-
-
-char * _asctime(const struct tm* time_ptr, bool includeNewline) {
-	timeBuf.reset();
-	timeOut << weekdayAbbreviations[time_ptr->tm_wday] << " ";
-	timeOut << monthAbbreviations[time_ptr->tm_mon]<<" ";
-	timeOut.setIntegerPrecision(2);
-	timeOut << time_ptr->tm_mday<<" ";
-	timeOut << time_ptr->tm_hour<<":"<<time_ptr->tm_min<<":"<<time_ptr->tm_sec;
-	timeOut.setIntegerPrecision(4);
-	timeOut << " " << time_ptr->tm_year + 1900;
-	timeOut.flush();
-	if (includeNewline) timeBuf.write('\n');
-	timeBuf.write('\0');
-	return (char*)timeBuf.getBuffer();
-}
-
 
 char * asctime(const struct tm* time_ptr) {
-	return _asctime(time_ptr, true);
+	timeBuf.reset();
+	timeOut.print(_tm_to_date(time_ptr));
+	timeBuf.write('\n');
+	timeBuf.write('\0');
+	return (char*)timeBuf.getBuffer();
 }
 
 
@@ -160,130 +96,8 @@ size_t strftime(char* str, size_t count, const char* format, const struct tm* tp
 	
 	auto printStr = Util::Io::PrintStream(byteBuf);
 	
-	for (; *format; format++) {
-		if (*format != '%') {
-			printStr << *format;
-		} else {
-			format++;
-			switch (*format) {
-				case '%':
-					printStr << '%';
-					break;
-					
-				case 'Y':
-					printStr << tp->tm_year + 1900;
-					break;
-				
-				case 'y':
-					printStr << (tp->tm_year)%100;
-					break;
-				
-				case 'b':
-					printStr << monthAbbreviations[tp->tm_mon];
-					break;
-					
-				case 'B':
-					printStr << monthNames[tp->tm_mon];
-					break;
-					
-				case 'm':
-					printStr.setIntegerPrecision(2);
-					printStr << tp->tm_mon;
-					printStr.setIntegerPrecision(-1);
-					break;
-					
-				case 'U':
-					printStr.setIntegerPrecision(2);
-					printStr << _tm_to_date(tp).getWeekOfYearSunday();
-					printStr.setIntegerPrecision(0);
-					break;
-					
-				case 'W':
-					printStr.setIntegerPrecision(2);
-					printStr << _tm_to_date(tp).getWeekOfYear();
-					printStr.setIntegerPrecision(0);
-					break;
-					
-				case 'j':
-					printStr.setIntegerPrecision(3);
-					printStr << tp->tm_yday;
-					printStr.setIntegerPrecision(0);
-					break;
-					
-				case 'd':
-					printStr.setIntegerPrecision(2);
-					printStr << tp->tm_mday;
-					printStr.setIntegerPrecision(0);
-					break;
-					
-				case 'a':
-					printStr << weekdayAbbreviations[tp->tm_wday];
-					break;
-					
-				case 'A':
-					printStr << weekdayNames[tp->tm_wday];
-					break;
-					
-				case 'w':
-					printStr << tp->tm_wday;
-					break;
-				
-				case 'H':
-					printStr.setIntegerPrecision(2);
-					printStr << tp->tm_hour;
-					printStr.setIntegerPrecision(0);
-					break;
-					
-				case 'I':
-					printStr.setIntegerPrecision(2);
-					printStr << ((tp->tm_hour - 1) % 12) + 1;
-					printStr.setIntegerPrecision(0);
-					break;
-				
-				case 'M':
-					printStr.setIntegerPrecision(2);
-					printStr << tp->tm_min;
-					printStr.setIntegerPrecision(0);
-					break;
-					
-				case 'S':
-					printStr.setIntegerPrecision(2);
-					printStr << tp->tm_sec;
-					printStr.setIntegerPrecision(0);
-					break;
-					
-				case 'c':
-					printStr << _asctime(tp, false);
-					break;
-				
-				case 'x':
-					printStr.setIntegerPrecision(2);
-					printStr << tp->tm_mday << "." << tp->tm_mon << "." << tp->tm_year+1900;
-					printStr.setIntegerPrecision(0);
-					break;
-					
-				case 'X':
-					printStr.setIntegerPrecision(2);
-					printStr << tp->tm_hour << ":" << tp->tm_min << ":" << tp->tm_sec;
-					printStr.setIntegerPrecision(0);
-					break;
-					
-				case 'p':
-					if (tp->tm_hour >= 13) printStr << "p.m.";
-					else printStr << "a.m.";
-					break;
-					
-				case 'Z':
-					printStr << "UTC+0";
-					break;
-					
-				default:
-					break;
-			}
-		}
-	}
-	
-	
+	printStr.printFormatted(format,  _tm_to_date(tp));
+	printStr.flush();
 	
 	byteBuf.write('\0');
 	

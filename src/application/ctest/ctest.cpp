@@ -13,7 +13,6 @@
 #include "lib/util/base/System.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/io/stream/InputStream.h"
-#include "stdio_def.h"
 
 int intComp(const void* a, const void* b) {
 	return (*(int*)a) - (*(int*)b);

@@ -45,6 +45,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/io/stream/PipedOutputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/stream/PrintStream.cpp
 		${HHUOS_SRC_DIR}/lib/util/io/stream/PrintStream_printf.cpp
+		${HHUOS_SRC_DIR}/lib/util/io/stream/PrintStream_time.cpp
 		${HHUOS_SRC_DIR}/lib/util/io/stream/ScanStream.cpp
 		${HHUOS_SRC_DIR}/lib/util/io/stream/ScanStream_scanf.cpp
 		${HHUOS_SRC_DIR}/lib/util/io/stream/FileStream.cpp
