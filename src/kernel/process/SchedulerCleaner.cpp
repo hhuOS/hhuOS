@@ -50,7 +50,7 @@ void SchedulerCleaner::run() {
     while (true) {
         cleanupThreads();
         cleanupProcesses();
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
+        Util::Async::Thread::sleep(Util::Time::Timestamp::ofSeconds(1));
     }
 }
 

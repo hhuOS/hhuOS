@@ -42,9 +42,11 @@ int32_t main(int32_t argc, char *argv[]) {
                                "Demos: info, triangle\n"
                                "Options:\n"
                                "  -r, --resolution: Set display resolution\n"
+                               "  -s, --scale: Set display scale factor (Must be <= 1; The application will be rendered at a lower internal resolution and scaled up/centered to fill the screen)\n"
                                "  -h, --help: Show this help message");
 
     argumentParser.addArgument("resolution", false, "r");
+    argumentParser.addArgument("scale", false, "s");
 
     if (!argumentParser.parse(argc, argv)) {
         Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
@@ -77,13 +79,9 @@ int32_t main(int32_t argc, char *argv[]) {
         lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
     }
 
+    auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseDouble(argumentParser.getArgument("scale")) : 1.0;
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
-
-    // PortableGL expects line pitch to be exactly the same as the resolution width in bytes.
-    // However, the LFB might have a different pitch, so we need to create a buffered LFB with the correct pitch.
-    // The buffered LFB will take the different pitch into account when copying the buffer to the LFB.
-    uint16_t pitch = lfb.getResolutionX() * ((lfb.getColorDepth() == 15 ? 16 : lfb.getColorDepth()) / 8);
-    auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(lfb, pitch);
+    auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(lfb, scaleFactor);
 
     // Initialize PortableGL context
     auto *screenBuffer = reinterpret_cast<uint32_t*>(bufferedLfb.getBuffer().get());
@@ -92,6 +90,8 @@ int32_t main(int32_t argc, char *argv[]) {
         Util::System::error << "portablegl: Failed to initialize GL context!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         exit(-1);
     }
+
+    lfb.clear();
 
     if (demo == "triangle") {
         triangle(bufferedLfb);

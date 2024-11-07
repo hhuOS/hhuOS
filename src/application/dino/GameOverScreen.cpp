@@ -34,6 +34,8 @@
 #include "lib/util/graphic/Font.h"
 #include "lib/util/graphic/font/Terminal8x16.h"
 #include "lib/util/io/file/File.h"
+#include "lib/util/graphic/font/Mini4x6.h"
+#include "lib/util/graphic/font/Terminal8x8.h"
 
 GameOverScreen::GameOverScreen(uint32_t score) : score(score) {}
 
@@ -44,7 +46,7 @@ void GameOverScreen::initialize() {
 void GameOverScreen::update([[maybe_unused]] double delta) {}
 
 void GameOverScreen::initializeBackground(Util::Game::Graphics &graphics) {
-    auto &font = Util::Graphic::Fonts::TERMINAL_8x16;
+    auto &font = Util::Graphic::Font::getFontForResolution(static_cast<uint32_t>(Util::Game::GameManager::getAbsoluteResolution().getY()));
     auto &resolution = Util::Game::GameManager::getAbsoluteResolution();
     auto lines = sizeof(TEXT) / sizeof(char*);
     auto centerX = resolution.getX() / 2;

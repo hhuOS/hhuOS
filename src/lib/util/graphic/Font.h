@@ -77,6 +77,13 @@ public:
      */
     [[nodiscard]] uint8_t getCharHeight() const;
 
+    /**
+     * Get a font that is suitable for a given vertical display resolution.
+     *
+     * @return A reference to the font
+     */
+    [[nodiscard]] static const Font& getFontForResolution(uint16_t resolutionY);
+
 private:
 
     const uint8_t charWidth;

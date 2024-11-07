@@ -29,17 +29,17 @@
 
 namespace Util::Graphic {
 
-LinearFrameBuffer::LinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch, bool enableAcceleration) :
-        buffer(mapBuffer(reinterpret_cast<void*>(physicalAddress), resolutionY, pitch, enableAcceleration, useMmx)),
+LinearFrameBuffer::LinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch) :
+        buffer(mapBuffer(reinterpret_cast<void*>(physicalAddress), resolutionY, pitch)),
         resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
 
-LinearFrameBuffer::LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch, bool enableAcceleration) :
-        buffer(enableAcceleration ? Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(virtualAddress), useMmx) : new Address<uint32_t>(virtualAddress)), resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
+LinearFrameBuffer::LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch) :
+        buffer(virtualAddress), resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
 
 LinearFrameBuffer::LinearFrameBuffer(Util::Address<uint32_t> *address, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch) :
         buffer(address), resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
 
-LinearFrameBuffer::LinearFrameBuffer(Io::File &file, bool enableAcceleration) {
+LinearFrameBuffer::LinearFrameBuffer(Io::File &file) {
     if (!file.exists()) {
         Exception::throwException(Exception::INVALID_ARGUMENT, "LinearFrameBuffer: File does not exist!");
     }
@@ -59,12 +59,11 @@ LinearFrameBuffer::LinearFrameBuffer(Io::File &file, bool enableAcceleration) {
     resolutionY = Util::String::parseInt(static_cast<const char*>(resolutionSplit[1]));
     colorDepth = Util::String::parseInt(static_cast<const char*>(colorDepthSplit[1]));
     pitch = Util::String::parseInt(static_cast<const char*>(pitchString));
-    buffer = mapBuffer(reinterpret_cast<void*>(address), resolutionY, pitch, enableAcceleration, useMmx);
+    buffer = mapBuffer(reinterpret_cast<void *>(address), resolutionY, pitch);
 }
 
 LinearFrameBuffer::~LinearFrameBuffer() {
-    delete reinterpret_cast<uint8_t*>(buffer->get());
-    delete buffer;
+    delete reinterpret_cast<uint8_t*>(buffer.get());
 }
 
 uint16_t LinearFrameBuffer::getResolutionX() const {
@@ -84,7 +83,7 @@ uint16_t LinearFrameBuffer::getPitch() const {
 }
 
 const Address<uint32_t> &LinearFrameBuffer::getBuffer() const {
-    return *buffer;
+    return buffer;
 }
 
 Color LinearFrameBuffer::readPixel(uint16_t x, uint16_t y) const {
@@ -93,19 +92,16 @@ Color LinearFrameBuffer::readPixel(uint16_t x, uint16_t y) const {
     }
 
     auto bpp = static_cast<uint8_t>(colorDepth == 15 ? 16 : colorDepth);
-    auto address = buffer->add((x * (bpp / 8)) + y * pitch);
+    auto address = buffer.add((x * (bpp / 8)) + y * pitch);
 
     return Color::fromRGB(*(reinterpret_cast<uint32_t*>(address.get())), colorDepth);
 }
 
 void LinearFrameBuffer::clear() const {
-    buffer->setRange(0, getPitch() * getResolutionY());
-    if (useMmx) {
-        Math::endMmx();
-    }
+    buffer.setRange(0, getPitch() * getResolutionY());
 }
 
-Address<uint32_t>* LinearFrameBuffer::mapBuffer(void *physicalAddress, uint16_t resolutionY, uint16_t pitch, bool enableAcceleration, bool &useMmx) {
+Address<uint32_t> LinearFrameBuffer::mapBuffer(void *physicalAddress, uint16_t resolutionY, uint16_t pitch) {
     if (reinterpret_cast<uint32_t>(physicalAddress) % Util::PAGESIZE != 0) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "LinearFrameBuffer: Physical address is not page aligned!");
     }
@@ -114,12 +110,15 @@ Address<uint32_t>* LinearFrameBuffer::mapBuffer(void *physicalAddress, uint16_t 
     const auto pageCount = size % Util::PAGESIZE == 0 ? (size / Util::PAGESIZE) : (size / Util::PAGESIZE) + 1;
     void *virtualAddress = mapIO(physicalAddress, pageCount);
 
-    if (enableAcceleration) {
-        return Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(virtualAddress), useMmx);
-    } else {
-        useMmx = false;
-        return new Address<uint32_t>(virtualAddress);
-    }
+    return Address<uint32_t>(virtualAddress);
+}
+
+uint8_t LinearFrameBuffer::getBytesPerPixel() const {
+    return (colorDepth == 15 ? 16 : colorDepth) / 8;
+}
+
+bool LinearFrameBuffer::isCompatibleWith(const LinearFrameBuffer &other) const {
+    return resolutionX == other.resolutionX && resolutionY == other.resolutionY && colorDepth == other.colorDepth && pitch == other.pitch;
 }
 
 }

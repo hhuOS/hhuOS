@@ -35,6 +35,8 @@
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/graphic/Font.h"
 #include "lib/util/graphic/font/Terminal8x16.h"
+#include "lib/util/graphic/font/Mini4x6.h"
+#include "lib/util/graphic/font/Terminal8x8.h"
 
 Player::Player(const Util::ArrayList<Enemy *> &enemies) : Util::Game::D3::Entity(TAG, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0, 0, 0), Util::Game::D3::SphereCollider(Util::Math::Vector3D(0, 0, 0), 0.8)), enemies(enemies) {}
 
@@ -46,7 +48,7 @@ void Player::onUpdate(double delta) {
 }
 
 void Player::draw(Util::Game::Graphics &graphics) {
-    auto &font = Util::Graphic::Fonts::TERMINAL_8x16;
+    auto &font = Util::Graphic::Font::getFontForResolution(static_cast<uint32_t>(Util::Game::GameManager::getAbsoluteResolution().getY()));
     const auto &resolution = Util::Game::GameManager::getAbsoluteResolution();
     const auto centerX = resolution.getX() / 2;
     const auto centerY = resolution.getY() / 2;
@@ -71,8 +73,8 @@ void Player::draw(Util::Game::Graphics &graphics) {
 
     // Draw player stats
     graphics.drawString(font, Util::Math::Vector2D(10, 20), "Health  : ");
-    graphics.drawString(font, Util::Math::Vector2D(10, 40), Util::String::format("Score   : %d", score));
-    graphics.drawString(font, Util::Math::Vector2D(10, 60), Util::String::format("Enemies : %d", enemies.size()));
+    graphics.drawString(font, Util::Math::Vector2D(10, 24 + 1 * font.getCharHeight()), Util::String::format("Score   : %d", score));
+    graphics.drawString(font, Util::Math::Vector2D(10, 28 + 2 * font.getCharHeight()), Util::String::format("Enemies : %d", enemies.size()));
 
     graphics.drawRectangle(Util::Math::Vector2D(70, 22), 100, font.getCharHeight() - 4);
     graphics.fillRectangle(Util::Math::Vector2D(70, 22), health, font.getCharHeight() - 4);

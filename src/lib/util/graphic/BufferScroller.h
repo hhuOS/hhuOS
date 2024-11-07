@@ -39,7 +39,7 @@ public:
      *
      * @param lfb The linear frame buffer on which to draw pixels.
      */
-    explicit BufferScroller(const LinearFrameBuffer &lfb, bool enableAcceleration = true);
+    explicit BufferScroller(const LinearFrameBuffer &lfb);
 
     /**
      * Copy Constructor.
@@ -54,7 +54,7 @@ public:
     /**
      * Destructor.
      */
-    ~BufferScroller();
+    ~BufferScroller() = default;
 
     /**
      * Scroll the buffer upwards by a given amount of pixel lines.
@@ -67,7 +67,6 @@ private:
 
     bool useMmx = false;
     const LinearFrameBuffer &lfb;
-    const Address<uint32_t> &targetBuffer;
 };
 
 }

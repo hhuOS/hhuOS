@@ -46,7 +46,7 @@ public:
 
     friend class CursorRunnable;
 
-    explicit LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_8x16, char cursor = static_cast<char>(219));
+    explicit LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, char cursor = static_cast<char>(219));
 
     LinearFrameBufferTerminal(const LinearFrameBufferTerminal &copy) = delete;
 
@@ -93,7 +93,7 @@ private:
     Util::Graphic::StringDrawer shadowStringDrawer;
     Util::Graphic::BufferScroller shadowScroller;
 
-    Util::Graphic::Font &font;
+    const Util::Graphic::Font &font;
     uint16_t currentColumn = 0;
     uint16_t currentRow = 0;
 

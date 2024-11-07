@@ -61,7 +61,7 @@ float min(float first, float second, float third) {
 }
 
 float max(float first, float second, float third) {
-    return max(min(first, second), third);
+    return max(max(first, second), third);
 }
 
 double min(double first, double second, double third) {
@@ -69,7 +69,7 @@ double min(double first, double second, double third) {
 }
 
 double max(double first, double second, double third) {
-    return max(min(first, second), third);
+    return max(max(first, second), third);
 }
 
 float exp(float arg) {

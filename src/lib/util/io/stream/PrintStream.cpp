@@ -140,14 +140,11 @@ void PrintStream::print(uint64_t number, char sign) {
         number %= div;
     }
 
-	
 	int32_t fullNumberLength = numberStream.getLength();
 	if (fullNumberLength < minimumIntegerPrecision) fullNumberLength = minimumIntegerPrecision;
 	fullNumberLength += integerPrefix.length();
 	if (sign) fullNumberLength++;
-	
-	
-	
+
 	if (!rightPadding) {
 		for (uint32_t i = fullNumberLength; i < numberPadding; i++) {
 			write(' ');

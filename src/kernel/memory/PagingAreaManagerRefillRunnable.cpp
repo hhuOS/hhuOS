@@ -28,7 +28,7 @@ PagingAreaManagerRefillRunnable::PagingAreaManagerRefillRunnable(PagingAreaManag
 void PagingAreaManagerRefillRunnable::run() {
     while (true) {
         pagingAreaManager.refillPool();
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
+        Util::Async::Thread::sleep(Util::Time::Timestamp::ofSeconds(1));
     }
 }
 

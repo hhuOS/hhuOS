@@ -381,7 +381,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         } else if (tag.type == Kernel::Multiboot::RGB) {
             LOG_INFO("Framebuffer info provided by bootloader (Type: [RGB], Resolution: [%ux%u@%u], Address: [0x%08x])", tag.width, tag.height, tag.bpp, tag.address);
 
-            lfb = new Util::Graphic::LinearFrameBuffer(tag.address, tag.width, tag.height, tag.bpp, tag.pitch, false);
+            lfb = new Util::Graphic::LinearFrameBuffer(tag.address, tag.width, tag.height, tag.bpp, tag.pitch);
             terminal = new Util::Graphic::LinearFrameBufferTerminal(lfb);
         } else {
             Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Unsupported frame buffer type!");
@@ -477,7 +477,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
                     auto mode = vbe->findMode(resolutionX, resolutionY, colorDepth);
                     Device::Graphic::VesaBiosExtensions::setMode(mode.modeNumber);
 
-                    lfb = new Util::Graphic::LinearFrameBuffer(mode.physicalAddress, mode.resolutionX, mode.resolutionY, mode.colorDepth, mode.pitch, false);
+                    lfb = new Util::Graphic::LinearFrameBuffer(mode.physicalAddress, mode.resolutionX, mode.resolutionY, mode.colorDepth, mode.pitch);
                     terminal = new Util::Graphic::LinearFrameBufferTerminal(lfb);
                     Kernel::Log::addOutputStream(*terminal);
                 }

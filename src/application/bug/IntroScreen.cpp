@@ -29,6 +29,8 @@
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/graphic/Font.h"
 #include "lib/util/graphic/font/Terminal8x16.h"
+#include "lib/util/graphic/font/Mini4x6.h"
+#include "lib/util/graphic/font/Terminal8x8.h"
 
 void IntroScreen::initialize() {
     setKeyListener(*this);
@@ -37,7 +39,7 @@ void IntroScreen::initialize() {
 void IntroScreen::update([[maybe_unused]] double delta) {}
 
 void IntroScreen::initializeBackground(Util::Game::Graphics &graphics) {
-    auto &font = Util::Graphic::Fonts::TERMINAL_8x16;
+    auto &font = Util::Graphic::Font::getFontForResolution(static_cast<uint32_t>(Util::Game::GameManager::getAbsoluteResolution().getY()));
     auto &resolution = Util::Game::GameManager::getAbsoluteResolution();
     auto lines = sizeof(INTRO_TEXT) / sizeof(char*);
     auto centerX = resolution.getX() / 2;

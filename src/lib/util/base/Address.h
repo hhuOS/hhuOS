@@ -96,8 +96,6 @@ public:
 
     [[nodiscard]] Address<T> searchCharacter(uint8_t character) const;
 
-    static Address<T>* createAcceleratedAddress(T address, bool &useMmx);
-
 protected:
 
     T address{};

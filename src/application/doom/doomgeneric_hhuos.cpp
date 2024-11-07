@@ -27,10 +27,6 @@ Util::Graphic::LinearFrameBuffer *lfb;
 Util::Graphic::BufferedLinearFrameBuffer *bufferedlfb;
 Util::Io::KeyDecoder *kd;
 
-uint32_t scaleFactor = 1;
-uint32_t offsetX = 0;
-uint32_t offsetY = 0;
-
 void (*drawFrame)();
 
 void DG_DrawFrame32() {
@@ -38,22 +34,14 @@ void DG_DrawFrame32() {
         return;
     }
 
-    auto screenBuffer = reinterpret_cast<uint32_t*>(bufferedlfb->getBuffer().add(offsetX * 4 + offsetY * bufferedlfb->getPitch()).get());
-    auto resX = DOOMGENERIC_RESX * scaleFactor > bufferedlfb->getResolutionX() ? bufferedlfb->getResolutionX() : DOOMGENERIC_RESX * scaleFactor;
-    auto resY = DOOMGENERIC_RESY * scaleFactor > bufferedlfb->getResolutionY() ? bufferedlfb->getResolutionY() : DOOMGENERIC_RESY * scaleFactor;
+    auto screenBuffer = reinterpret_cast<uint32_t*>(bufferedlfb->getBuffer().get());
 
-    for (uint32_t y = 0; y < resY; y++) {
-        for (uint32_t x = 0; x < resX; x++) {
-            auto pixel = DG_ScreenBuffer[(y / scaleFactor) * DOOMGENERIC_RESX + (x / scaleFactor)];
-            auto color = palette[pixel];
+    for (uint32_t i = 0; i < DOOMGENERIC_RESX * DOOMGENERIC_RESY; i++) {
+        auto pixel = DG_ScreenBuffer[i];
+        auto color = palette[pixel];
 
-            screenBuffer[x] = color;
-        }
-
-        screenBuffer += (bufferedlfb->getPitch() / 4);
+        screenBuffer[i] = color;
     }
-
-    bufferedlfb->flush();
 }
 
 void DG_DrawFrame24() {
@@ -61,24 +49,16 @@ void DG_DrawFrame24() {
         return;
     }
 
-    auto screenBuffer = reinterpret_cast<uint8_t*>(bufferedlfb->getBuffer().add(offsetX * 3 + offsetY * bufferedlfb->getPitch()).get());
-    auto resX = DOOMGENERIC_RESX * scaleFactor > bufferedlfb->getResolutionX() ? bufferedlfb->getResolutionX() : DOOMGENERIC_RESX * scaleFactor;
-    auto resY = DOOMGENERIC_RESY * scaleFactor > bufferedlfb->getResolutionY() ? bufferedlfb->getResolutionY() : DOOMGENERIC_RESY * scaleFactor;
+    auto screenBuffer = reinterpret_cast<uint8_t*>(bufferedlfb->getBuffer().get());
 
-    for (uint32_t y = 0; y < resY; y++) {
-        for (uint32_t x = 0; x < resX; x++) {
-            auto pixel = DG_ScreenBuffer[(y / scaleFactor) * DOOMGENERIC_RESX + (x / scaleFactor)];
-            auto color = palette[pixel];
+    for (uint32_t i = 0; i < DOOMGENERIC_RESX * DOOMGENERIC_RESY; i++) {
+        auto pixel = DG_ScreenBuffer[i];
+        auto color = palette[pixel];
 
-            screenBuffer[x * 3] = color & 0xff;
-            screenBuffer[x * 3 + 1] = (color >> 8) & 0xff;
-            screenBuffer[x * 3 + 2] = (color >> 16) & 0xff;
-        }
-
-        screenBuffer += (bufferedlfb->getPitch());
+        screenBuffer[i * 3] = color & 0xff;
+        screenBuffer[i * 3 + 1] = (color >> 8) & 0xff;
+        screenBuffer[i * 3 + 2] = (color >> 16) & 0xff;
     }
-
-    bufferedlfb->flush();
 }
 
 void DG_DrawFrame16() {
@@ -86,22 +66,14 @@ void DG_DrawFrame16() {
         return;
     }
 
-    auto screenBuffer = reinterpret_cast<uint16_t*>(bufferedlfb->getBuffer().add(offsetX * 2 + offsetY * bufferedlfb->getPitch()).get());
-    auto resX = DOOMGENERIC_RESX * scaleFactor > bufferedlfb->getResolutionX() ? bufferedlfb->getResolutionX() : DOOMGENERIC_RESX * scaleFactor;
-    auto resY = DOOMGENERIC_RESY * scaleFactor > bufferedlfb->getResolutionY() ? bufferedlfb->getResolutionY() : DOOMGENERIC_RESY * scaleFactor;
+    auto screenBuffer = reinterpret_cast<uint16_t*>(bufferedlfb->getBuffer().get());
 
-    for (uint32_t y = 0; y < resY; y++) {
-        for (uint32_t x = 0; x < resX; x++) {
-            auto pixel = DG_ScreenBuffer[(y / scaleFactor) * DOOMGENERIC_RESX + (x / scaleFactor)];
-            auto color = palette[pixel];
+    for (uint32_t i = 0; i < DOOMGENERIC_RESX * DOOMGENERIC_RESY; i++) {
+        auto pixel = DG_ScreenBuffer[i];
+        auto color = palette[pixel];
 
-            screenBuffer[x] = color;
-        }
-
-        screenBuffer += (bufferedlfb->getPitch() / 2);
+        screenBuffer[i] = color;
     }
-
-    bufferedlfb->flush();
 }
 
 int32_t main(int argc, char **argv) {
@@ -131,22 +103,9 @@ int32_t main(int argc, char **argv) {
         }
     }
 
-    // Use double buffering to avoid tearing
+    // Use double buffering to improve tearing and automatically scale the image to the screen
     lfb = new Util::Graphic::LinearFrameBuffer(*lfbFile);
-    bufferedlfb = new Util::Graphic::BufferedLinearFrameBuffer(*lfb);
-
-    // Calculate scale factor to display the game as large as possible
-    scaleFactor = lfb->getResolutionX() / DOOMGENERIC_RESX;
-    if (lfb->getResolutionY() / DOOMGENERIC_RESY < scaleFactor) {
-        scaleFactor = lfb->getResolutionY() / DOOMGENERIC_RESY;
-    }
-    if (scaleFactor == 0) {
-        scaleFactor = 1;
-    }
-
-    // Calculate offset to center the game
-    offsetX = lfb->getResolutionX() - DOOMGENERIC_RESX * scaleFactor > 0 ? (lfb->getResolutionX() - DOOMGENERIC_RESX * scaleFactor) / 2 : 0;
-    offsetY = lfb->getResolutionY() - DOOMGENERIC_RESY * scaleFactor > 0 ? (lfb->getResolutionY() - DOOMGENERIC_RESY * scaleFactor) / 2 : 0;
+    bufferedlfb = new Util::Graphic::BufferedLinearFrameBuffer(*lfb, static_cast<uint16_t>(DOOMGENERIC_RESX), static_cast<uint16_t>(DOOMGENERIC_RESY));
 
     // Generate color palette
     for (uint32_t i = 0; i < 256; i++) {
@@ -169,6 +128,8 @@ int32_t main(int argc, char **argv) {
         default:
             Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Unsupported color depth!");
     }
+
+    lfb->clear();
 
     // Run game loop
     auto oldTime = clock();

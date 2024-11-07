@@ -35,7 +35,7 @@ void CursorRunnable::run() {
         visible = !visible;
         terminal.cursorLock.release();
 
-        Util::Async::Thread::sleep(Util::Time::Timestamp(0, 250000000));
+        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(250));
     }
 
     visible = false;

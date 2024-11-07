@@ -27,6 +27,7 @@
 #include "lib/util/game/2d/Entity.h"
 #include "application/dino/particle/GrassEmitter.h"
 #include "lib/util/time/Timestamp.h"
+#include "lib/util/graphic/Font.h"
 
 namespace Util {
 namespace Math {
@@ -134,6 +135,8 @@ private:
     Util::Game::D2::SpriteAnimation crackAnimation;
     Util::Game::D2::SpriteAnimation hatchAnimation;
     Util::Game::D2::SpriteAnimation deathAnimation;
+
+    const Util::Graphic::Font &pointsFont;
 
     GrassEmitter *grassEmitter = new GrassEmitter(*this);
     Util::Time::Timestamp lastEmissionTime;

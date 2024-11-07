@@ -50,12 +50,8 @@
 
 namespace Util::Game {
 
-Engine::Engine(const Util::Graphic::LinearFrameBuffer &lfb, const uint8_t targetFrameRate) : graphics(lfb, game), targetFrameRate(targetFrameRate),
-        statisticsFont(lfb.getResolutionY() < 400 ? Graphic::Fonts::MINI_4x6 : (lfb.getResolutionY() <= 800 ? Graphic::Fonts::TERMINAL_8x8 : Graphic::Fonts::TERMINAL_8x16)) {
-    GameManager::absoluteResolution = Math::Vector2D(lfb.getResolutionX(), lfb.getResolutionY());
-    GameManager::relativeResolution = Math::Vector2D(lfb.getResolutionX() > lfb.getResolutionY() ? (double) lfb.getResolutionX() / lfb.getResolutionY() : 1,
-                                                     lfb.getResolutionY() > lfb.getResolutionX() ? (double) lfb.getResolutionY() / lfb.getResolutionX() : 1);
-    GameManager::transformation = (lfb.getResolutionX() > lfb.getResolutionY() ? lfb.getResolutionY() : lfb.getResolutionX()) / 2;
+Engine::Engine(const Graphic::LinearFrameBuffer &lfb, uint8_t targetFrameRate, double scaleFactor) : graphics(lfb, game, scaleFactor), targetFrameRate(targetFrameRate),
+        statisticsFont(Graphic::Font::getFontForResolution(lfb.getResolutionY() * scaleFactor)) {
     GameManager::game = &game;
 
     auto mouseFile = Io::File("/device/mouse");
@@ -124,11 +120,11 @@ void Engine::initializeNextScene() {
     }
 
     auto resolution = GameManager::getAbsoluteResolution();
-    auto stringPosition = Math::Vector2D((resolution.getX() - Util::Address<uint32_t>(LOADING).stringLength() * loadingFont.getCharWidth()) / 2.0, resolution.getY() / 2.0);
+    auto stringPosition = Math::Vector2D((resolution.getX() - Util::Address<uint32_t>(LOADING).stringLength() * statisticsFont.getCharWidth()) / 2.0, resolution.getY() / 2.0);
 
     graphics.clear();
     graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawString(loadingFont, stringPosition, LOADING);
+    graphics.drawString(statisticsFont, stringPosition, LOADING);
     graphics.show();
 
     statistics.reset();
@@ -163,7 +159,7 @@ void Engine::drawStatus() {
             static_cast<uint32_t>(status.idleTime.toMilliseconds()), static_cast<uint32_t>((status.idleTime.toMicroseconds() - status.idleTime.toMilliseconds() * 1000) / 100)));
     graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight * 2), String::format("Objects: %u | Edges: %u/%u", game.getCurrentScene().getObjectCount(), graphics.drawnEdgeCounter, graphics.edgeCounter));
     graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight * 3), String::format("Heap used: %u.%03u MB", heapUsedM, heapUsedK));
-    graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight * 4), String::format("Resolution: %ux%u@%u", graphics.lfb.getResolutionX(), graphics.lfb.getResolutionY(), graphics.lfb.getColorDepth()));
+    graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight * 4), String::format("Resolution: %ux%u@%u", graphics.bufferedLfb.getResolutionX(), graphics.bufferedLfb.getResolutionY(), graphics.bufferedLfb.getColorDepth()));
     graphics.setColor(color);
 }
 
