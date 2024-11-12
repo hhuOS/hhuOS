@@ -98,7 +98,8 @@ NetworkAddress::Type NetworkAddress::getType() const {
 }
 
 uint8_t NetworkAddress::compareTo(const NetworkAddress &other) const {
-    uint8_t i, j;
+    uint8_t i = 0;
+    uint8_t j = 0;
 
     for (i = 0; i < getLength() || i < other.getLength(); i++) {
         for (j = 0; j < 8; j++) {
