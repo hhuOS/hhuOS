@@ -13,7 +13,6 @@
 #include "lib/util/base/System.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/io/stream/InputStream.h"
-#include "stdio_def.h"
 
 int intComp(const void* a, const void* b) {
 	return (*(int*)a) - (*(int*)b);
@@ -101,6 +100,7 @@ int32_t main() {
 	puts("printf:\n");
 	printf("Hello %c %s\n", 'A', "Test");
 	printf("%10.2#o%10.2d%+-10.2d%+10.2d%10.2#x%10.2d\n", 115, -115, 16, 1234, 1234, 1);
+	
 	printf("%f %8.2f %F %e %g %G\n%n", 5.343, -21.23456, 1.0/0.0, 123456.0, 123456.0, 0.0235, &bw);
 	printf("Bytes in previous line: %d, addr %p %p\n\n", bw, &bw, &main);
 	

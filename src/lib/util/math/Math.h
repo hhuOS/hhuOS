@@ -118,6 +118,16 @@ namespace Util::Math {
     double truncate(double value);
 
     float truncate(float value);
+	
+	double floor(double arg);
+	
+	float floor(float arg);
+	
+	double getDoubleInternals(double arg, int * exponent); //returns the mantissa
+	
+	int isInfinity(double arg);
+	
+	int isNan(double arg);
 
     static const constexpr double PI = 3.14159265358979323846;
 	static const constexpr double E = 2.718281828459045235360;

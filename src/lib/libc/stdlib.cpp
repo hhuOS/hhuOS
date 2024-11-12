@@ -14,6 +14,7 @@
 #include "lib/util/math/Random.h"
 #include "lib/util/io/stream/ByteArrayInputStream.h"
 #include "lib/util/io/stream/ScanStream.h"
+#include "lib/util/base/WideChar.h"
 
 //memory management
 void *malloc(size_t size) {
@@ -233,91 +234,15 @@ long atol (const char *str) {
 
 //multibyte utf-8 strings 
 int mblen(const char* s, size_t n) {
-	if (!s) return 0;
-	if ((*s) == '\0') return 0;
-	if (n==0) return -1;
-	
-	size_t len = 0;
-	
-	if (((*s) & 0b10000000) == 0b00000000) len = 1; //of type 0b0xxxxxxx
-	else if (((*s) & 0b11100000) == 0b11000000) len=2; //of type 0b110xxxxx
-	else if (((*s) & 0b11110000) == 0b11100000) len=3; //of type 0b1110xxxx
-	else if (((*s) & 0b11111000) == 0b11110000) len=4; //of type 0b11110xxx
-	
-	if (len > n) return -1;
-	
-	for (size_t i=1; i<len; i++) {
-		if (((*(s + i)) & 0b11000000) != 0b10000000) return -1; //check that following bytes have 0x10xxxxxx form
-	}
-	
-	return len;
+	return Util::WideChar::utf8Length(s,n);
 }
 
 int mbtowc(wchar_t * pwc, const char* s, size_t n) {
-	size_t len = mblen(s,n);
-	
-	if ((*s) == '\0') return len; //same error handling as mblen
-	if (!pwc) return len;
-	
-	size_t first_byte_len = 0;
-	switch (len) {
-		case 1:
-			(*pwc) = (wchar_t)(*s);
-			if ((*s) == 0) return 0;
-			return len;
-			
-		case 2:
-			first_byte_len = 5;
-			break;
-		case 3:
-			first_byte_len = 4;
-			break;
-		case 4:
-			first_byte_len = 3;
-			break;
-	}
-	
-	(*pwc) = 0;
-	size_t offset = 0;
-	for (int i = len-1; i>0; i--, offset += 6) {
-		(*pwc) |= (((wchar_t)(*(s + i))) & 0b00111111) << offset; // assemble the values of the following bytes
-	}
-	
-	(*pwc) |= (((wchar_t)(*s)) & ((1 << first_byte_len) - 1)) << offset; // add first byte value
-	return len;
+	return Util::WideChar::utf8ToWchar(pwc, s, n);
 }
 
 int wctomb(char * s, wchar_t wc) {
-	if (wc >= 0x110000) return -1;
-	if (!s) return 0;
-	
-	size_t len = 1;
-	if (wc >= 0x10000) len = 4;
-	else if (wc >= 0x800) len = 3;
-	else if (wc >= 0x80) len=2;
-	
-	switch (len) {
-		case 1:
-			(*s) = (char)wc;
-			return len;
-			
-		case 2:
-			(*s) = 0b11000000 | ((wc >> 6) & 0b00011111);
-			(*(s+1)) = 0b10000000 | (wc & 0b00111111);
-			return 2;
-		case 3:
-			(*s) = 0b11100000 | ((wc >> 12) & 0b1111);
-			(*(s+1)) = 0b10000000 | ((wc >> 6) & 0b111111);
-			(*(s+2)) = 0b10000000 | (wc & 0b111111);
-			return 3;
-		case 4:
-			(*s) = 0b11110000 | ((wc >> 18) & 0b111);
-			(*(s+1)) = 0b10000000 | ((wc >> 12) & 0b111111);
-			(*(s+2)) = 0b10000000 | ((wc >> 6) & 0b111111);
-			(*(s+3)) = 0b10000000 | (wc & 0b111111);		
-			return 4;
-	}
-	return -1;
+	return Util::WideChar::wcharToUtf8(s, wc);
 }
 
 size_t mbstowcs(wchar_t * dst, const char * s, size_t len) {

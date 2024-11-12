@@ -6,45 +6,46 @@
 #include "lib/interface.h"
 #include "lib/util/base/String.h"
 
+using namespace Util::Io;
 
 FILE * stdin;
 FILE * stdout;
 FILE * stderr;
 
 void _init_stdio() {
-	stdin = new Libc::StdioFileStream(Util::Io::STANDARD_INPUT, true, false);
+	stdin = new FileStream(STANDARD_INPUT, true, false);
 	setvbuf(stdin, NULL, _IOLBF, BUFSIZ);
 	
-	stdout = new Libc::StdioFileStream(Util::Io::STANDARD_OUTPUT, false, true);
+	stdout = new FileStream(STANDARD_OUTPUT, false, true);
 	setvbuf(stdout, NULL, _IOLBF, BUFSIZ);
 	
-	stderr = new Libc::StdioFileStream(Util::Io::STANDARD_ERROR, false, true);
+	stderr = new FileStream(STANDARD_ERROR, false, true);
 }
 
 
 FILE * fopen(const char* filename, const char* mode) {
-	FileMode fmode = READ;
+	FileStream::FileMode fmode = FileStream::FileMode::READ;
 	
 	for (;*mode != '\0'; mode++) {
 		switch (*mode) {
 			case 'r':
-				fmode = READ;
+				fmode = FileStream::FileMode::READ;
 				break;
 			case 'w':
-				fmode = WRITE;
+				fmode = FileStream::FileMode::WRITE;
 				break;
 			case 'a':
-				fmode = APPEND;
+				fmode = FileStream::FileMode::APPEND;
 				break;
 			case '+':
-				if (fmode == READ) fmode = READ_EXTEND;
-				if (fmode == WRITE) fmode = WRITE_EXTEND;
-				if (fmode == APPEND) fmode = APPEND_EXTEND;
+				if (fmode == FileStream::FileMode::READ) fmode = FileStream::FileMode::READ_EXTEND;
+				if (fmode == FileStream::FileMode::WRITE) fmode = FileStream::FileMode::WRITE_EXTEND;
+				if (fmode == FileStream::FileMode::APPEND) fmode = FileStream::FileMode::APPEND_EXTEND;
 				break;
 		}
 	}
 	
-	FILE * ret = new Libc::StdioFileStream(filename, fmode);
+	FILE * ret = new FileStream(filename, fmode);
 	return ret->isOpen() ? ret : NULL;
 }
 
@@ -71,7 +72,24 @@ void setbuf(FILE * stream, char * buf) {
 }
 
 int setvbuf (FILE * stream, char * buf, int mode, size_t size) {
-	return stream->setBuffer(buf, mode, size);
+	FileStream::BufferMode bmode;
+	
+	switch (mode) {
+		case _IOFBF:
+			bmode = FileStream::BufferMode::FULL;
+			break;
+			
+		case _IOLBF:
+			bmode = FileStream::BufferMode::LINE;
+			break;
+			
+		case _IONBF:
+		default:
+			bmode = FileStream::BufferMode::NONE;
+			break;
+	}
+	
+	return stream->setBuffer(buf, bmode, size);
 }
 
 
@@ -169,17 +187,34 @@ int fgetpos(FILE * stream, fpos_t * pos) {
 }
 
 int fseek(FILE * stream, long offset, int origin) {
-	stream->setPos(offset, origin);
+	FileStream::SeekMode smode;
+	
+	switch (origin) {
+		case SEEK_SET:
+		default:
+			smode = FileStream::SeekMode::SET;
+			break;
+			
+		case SEEK_CUR:
+			smode = FileStream::SeekMode::CURRENT;
+			break;
+			
+		case SEEK_END:
+			smode = FileStream::SeekMode::END;
+			break;
+	}
+	
+	stream->setPos(offset, smode);
 	return 0;
 }
 
 int fsetpos(FILE * stream, const fpos_t * pos) {
-	stream->setPos(*pos, SEEK_SET);
+	stream->setPos(*pos, FileStream::SeekMode::SET);
 	return 0;
 }
 
 void rewind(FILE * stream) {
-	stream->setPos(0, SEEK_SET);
+	stream->setPos(0, FileStream::SeekMode::SET);
 	stream->clearError();
 }
 

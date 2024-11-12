@@ -216,9 +216,7 @@ double ceil(double arg) {
 }
 
 double floor(double arg) {
-	double ret = (double)((long long)arg);
-	if (ret > arg) ret--;
-	return ret;
+	return Util::Math::floor(arg);
 }
 
 double round(double arg) {
@@ -241,9 +239,7 @@ float ceilf(float arg) {
 }
 
 float floorf(float arg) {
-    float ret = (float)((long long)arg);
-    if (ret > arg) ret--;
-    return ret;
+    return Util::Math::floor(arg);
 }
 
 float roundf(float arg) {
@@ -260,13 +256,7 @@ float nearbyint(float arg) {
 
 
 double frexp(double arg, int * exp) {
-	long long argb = std::bit_cast<long long>(arg);
-	
-	*exp = ((int)((argb >> 52) & ((1<<11)-1))) - 1022; //get exponent bits
-	
-	argb &= ~(((1LL<<11)-1)<<52); //clear exponent bits
-	argb |= (1022LL<<52); // set exponent to -1
-	return std::bit_cast<double>(argb);
+	return Util::Math::getDoubleInternals(arg, exp);
 }
 
 double ldexp(double arg, int exp) {
@@ -285,15 +275,9 @@ double modf(double arg, double * iptr) {
 }
 
 int isinf(double arg) {
-	int exp;
-	arg = frexp(arg, &exp);
-
-	return (exp == 1025) && (arg == 0);
+	return Util::Math::isInfinity(arg);
 }
 
 int isnan(double arg) {
-	int exp;
-	arg = frexp(arg, &exp);
-	
-	return (exp == 1025) && (arg != 0);
+	return Util::Math::isNan(arg);
 }

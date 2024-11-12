@@ -37,6 +37,5 @@ target_sources(${PROJECT_NAME} PUBLIC
 		${HHUOS_SRC_DIR}/lib/libc/stdio.cpp
 		${HHUOS_SRC_DIR}/lib/libc/stdio_printf.cpp
 		${HHUOS_SRC_DIR}/lib/libc/stdio_scanf.cpp
-		${HHUOS_SRC_DIR}/lib/libc/StdioFileStream.cpp
 		${HHUOS_SRC_DIR}/lib/libc/stdarg.cpp
 		${HHUOS_SRC_DIR}/lib/libc/sys/stat.cpp)

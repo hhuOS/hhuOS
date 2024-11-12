@@ -3,6 +3,7 @@
 
 
 #include <stdint.h>
+#include <stdarg.h>
 
 #include "InputStream.h"
 
@@ -39,6 +40,9 @@ public:
 	uint32_t readUint(int base=0);
 	
 	double readDouble();
+	
+	int vscanf(const char* format, va_list vlist);
+	int scanf(const char* format, ...);
 
 private:
 

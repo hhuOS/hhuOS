@@ -70,7 +70,7 @@ int32_t main(int32_t argc, char *argv[]) {
         Util::System::error << "cp: Failed to create file '" << arguments[1] << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
-
+	
     auto source = Util::Io::FileInputStream(sourceFile);
     auto target = Util::Io::FileOutputStream(targetFile);
 
