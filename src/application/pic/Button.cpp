@@ -216,7 +216,7 @@ void Button::processClick(int relX, int relY) {
             } else if (relX < 160) {
                 data->layers->deletetAt(layerNum);
             } else {
-                data->layers->at(layerNum)->isVisible = !data->layers->at(layerNum)->isVisible;
+                data->layers->changeVisibleAt(layerNum);
             }
             break;
         case INPUT:

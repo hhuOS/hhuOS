@@ -16,6 +16,7 @@ Layers::Layers(MessageHandler *mHandler) {
     this->maxLayerCount = 18;
     this->currentLayer = 0;
     this->mHandler = mHandler;
+    this->history = new History(mHandler);
 }
 
 Layer *Layers::current() {
@@ -30,6 +31,7 @@ void Layers::addEmpty(int posX, int posY, int width, int height) {
     layers[layerCount] = new Layer(width, height, posX, posY, 1);
     layerCount++;
     currentLayer = layerCount - 1;
+    history->addCommand(Util::String::format("addEmpty %d %d %d %d", posX, posY, width, height));
 }
 
 void Layers::addPicture(const char *path, int posX, int posY) {
@@ -61,6 +63,7 @@ void Layers::addPicture(const char *path, int posX, int posY) {
     layerCount++;
     stbi_image_free(img);
     currentLayer = layerCount - 1;
+    history->addCommand(Util::String::format("addPicture %s %d %d", path, posX, posY));
 }
 
 void Layers::exportPicture(const char *path, int x, int y, int w, int h, bool png, bool jpg, bool bmp) {
@@ -152,6 +155,7 @@ void Layers::deletetAt(int index) {
     layerCount--;
     if (layerCount == 0) addEmpty(0, 0, 100, 100);
     if (currentLayer >= layerCount) currentLayer = layerCount - 1;
+    history->addCommand(Util::String::format("delete %d", index));
 }
 
 void Layers::swap(int index1, int index2) {
@@ -162,6 +166,15 @@ void Layers::swap(int index1, int index2) {
     Layer *temp = layers[index1];
     layers[index1] = layers[index2];
     layers[index2] = temp;
+    if (currentLayer == index1) currentLayer = index2;
+    else if (currentLayer == index2) currentLayer = index1;
+    history->addCommand(Util::String::format("swap %d %d", index1, index2));
+}
+
+void Layers::changeVisibleAt(int index) {
+    if (index < 0 || index >= layerCount) return;
+    layers[index]->isVisible = !layers[index]->isVisible;
+    history->addCommand(Util::String::format("visible %d", index));
 }
 
 void Layers::combine(int index1, int index2) {
@@ -194,6 +207,7 @@ void Layers::combine(int index1, int index2) {
     delete l1;
     layers[index1] = combinedLayer;
     deletetAt(index2);
+    history->addCommand(Util::String::format("combine %d %d", index1, index2));
 }
 
 void Layers::duplicate(int index) {
@@ -211,6 +225,7 @@ void Layers::duplicate(int index) {
     layers[layerCount] = new Layer(layer->width, layer->height, layer->posX, layer->posY, 1, newPixelData);
     layerCount++;
     currentLayer = layerCount - 1;
+    history->addCommand(Util::String::format("duplicate %d", index));
 }
 
 void Layers::move(int index, int x, int y) {
@@ -218,6 +233,7 @@ void Layers::move(int index, int x, int y) {
     Layer *layer = layers[index];
     layer->posX = x;
     layer->posY = y;
+    history->addCommand(Util::String::format("move %d %d %d", index, x, y));
 }
 
 void Layers::moveCurrent(int x, int y) {
@@ -253,6 +269,7 @@ void Layers::scale(int index, double factor, ToolCorner kind) {
         newY = layer->posY + layer->height - newHeight;
 
     layer->setNewBuffer(newPixelData, newX, newY, newWidth, newHeight);
+    history->addCommand(Util::String::format("scale %d %f %d", index, factor, kind));
 }
 
 void Layers::scaleCurrent(double factor, ToolCorner kind) {
@@ -280,6 +297,7 @@ void Layers::crop(int index, int left, int right, int top, int bottom) {
     }
 
     layer->setNewBuffer(newPixelData, layer->posX + left, layer->posY + top, newWidth, newHeight);
+    history->addCommand(Util::String::format("crop %d %d %d %d %d", index, left, right, top, bottom));
 }
 
 void Layers::cropCurrent(int left, int right, int top, int bottom) {
@@ -337,6 +355,7 @@ void Layers::autoCrop(int index) {
     }
 
     crop(index, left, right, top, bottom);
+    history->addCommand(Util::String::format("autoCrop %d", index));
 }
 
 void Layers::autoCropCurrent() {
@@ -378,6 +397,7 @@ void Layers::rotate(int index, int degree) {
     layer->setNewBuffer(newPixelData,
                         layer->posX - (newWidth - layer->width) / 2, layer->posY - (newHeight - layer->height) / 2,
                         newWidth, newHeight);
+    history->addCommand(Util::String::format("rotate %d %d", index, degree));
 }
 
 void Layers::rotateCurrent(int degree) {
@@ -427,6 +447,7 @@ void Layers::drawLine(int index, int x1, int y1, int x2, int y2, uint32_t color,
         if (e2 >= dy) err += dy, x1 += sx;
         if (e2 <= dx) err += dx, y1 += sy;
     }
+    history->addCommand(Util::String::format("line %d %d %d %d %d %d", index, x1, y1, x2, y2, color, thickness));
 }
 
 void Layers::drawLineCurrent(int x1, int y1, int x2, int y2, uint32_t color, int thickness) {
@@ -437,6 +458,7 @@ void Layers::prepareNextDrawing(int index) {
     if (index < 0 || index >= layerCount) return;
     Layer *layer = layers[index];
     layer->prepareNextDrawing();
+    history->addCommand(Util::String::format("prepareNextDrawing %d", index));
 }
 
 void Layers::prepareNextDrawingCurrent() {
@@ -445,8 +467,8 @@ void Layers::prepareNextDrawingCurrent() {
 
 void Layers::drawShape(int index, Shape shape, int x, int y, int w, int h, uint32_t color) {
     Layer *l = layers[index];
-    if(w < 0) w = -w, x -= w;
-    if(h < 0) h = -h, y -= h;
+    if (w < 0) w = -w, x -= w;
+    if (h < 0) h = -h, y -= h;
     if (shape == Shape::SQUARE || shape == Shape::RECTANGLE) {
         if (shape == Shape::SQUARE) {
             w = max(abs(w), abs(h));
@@ -454,12 +476,11 @@ void Layers::drawShape(int index, Shape shape, int x, int y, int w, int h, uint3
         }
         for (int px = x; px < x + w; px++) {
             for (int py = y; py < y + h; py++) {
-                    uint32_t oldColor = l->getPixel(px, py);
-                    l->setPixel(px, py, color == 0x00000000 ? 0x00000000 : blendPixels(oldColor, color));
+                uint32_t oldColor = l->getPixel(px, py);
+                l->setPixel(px, py, color == 0x00000000 ? 0x00000000 : blendPixels(oldColor, color));
             }
         }
-    }
-    else if (shape == Shape::CIRCLE || shape == Shape::ELLIPSE) {
+    } else if (shape == Shape::CIRCLE || shape == Shape::ELLIPSE) {
         if (shape == Shape::CIRCLE) {
             w = max(abs(w), abs(h));
             h = max(abs(w), abs(h));
@@ -479,6 +500,7 @@ void Layers::drawShape(int index, Shape shape, int x, int y, int w, int h, uint3
             }
         }
     }
+    history->addCommand(Util::String::format("shape %d %d %d %d %d %d %d", index, shape, x, y, w, h, color));
 }
 
 void Layers::drawShapeCurrent(Shape shape, int x, int y, int w, int h, uint32_t color) {

@@ -7,6 +7,9 @@
 
 
 #include "Layer.h"
+#include "History.h"
+
+class History;
 
 class Layers {
 public:
@@ -27,6 +30,8 @@ public:
     void deletetAt(int index);
 
     void swap(int index1, int index2);
+
+    void changeVisibleAt(int index);
 
     void combine(int index1, int index2);
 
@@ -79,6 +84,8 @@ public:
     void prepareNextDrawing(int index);
 
     void prepareNextDrawingCurrent();
+
+    History *history; // TODO set private
 
 private:
     MessageHandler *mHandler;

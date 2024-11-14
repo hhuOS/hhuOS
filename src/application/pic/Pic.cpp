@@ -302,6 +302,9 @@ void Pic::checkKeyboardInput() {
                         data->flags->overlayChanged();
                         data->currentGuiLayer->appear();
                         break;
+                    case Util::Io::Key::X:
+                        this->data->layers->history->printCommands();
+                        break;
                     default:
                         break;
                 }
