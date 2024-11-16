@@ -16,27 +16,28 @@ public:
 
     ~History() = default;
 
-    void addCommand(const Util::String& command);
+    void addCommand(const Util::String &command);
 
     void reset();
 
-    void execCommandOn(Layers *layers, const Util::String& command);
+    void execCommandOn(Layers *layers, const Util::String &command);
 
     void undo(Layers *layers);
 
     void redo(Layers *layers);
 
-    void saveToFile(const Util::String& path);
+    void saveToFile(const Util::String &path);
 
-    void loadFromFileInto(Layers * layers, const Util::String& path);
+    void loadFromFileInto(Layers *layers, const Util::String &path);
 
     void printCommands();
 
 private:
     Util::List<Util::String> *commands;
     uint32_t currentCommand;
-    MessageHandler* mHandler;
+    MessageHandler *mHandler;
     static const int SNAPSHOT_INTERVAL = 5;
+    Util::List<Util::String> *lines;
 };
 
 

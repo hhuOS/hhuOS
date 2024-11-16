@@ -10,6 +10,7 @@ History::History(MessageHandler *mHandler) {
     this->commands = new ArrayList<String>();
     this->currentCommand = 0;
     this->mHandler = mHandler;
+    this->lines = new ArrayList<Util::String>();
 }
 
 void History::addCommand(const String &command) {
@@ -18,7 +19,19 @@ void History::addCommand(const String &command) {
             commands->removeIndex(i);
         }
     }
-    commands->add(command);
+    if (command.beginsWith("line")) {
+        lines->add(command.substring(5, command.length()));
+    } else {
+        if (command.beginsWith("prepareNextDrawing") && lines->size() > 0) {
+            String linestogether = "line";
+            for (int i = 0; i < lines->size(); i++) {
+                linestogether += " " + lines->get(i);
+            }
+            commands->add(linestogether);
+            lines->clear();
+        }
+        commands->add(command);
+    }
     currentCommand = commands->size();
     if (currentCommand % SNAPSHOT_INTERVAL == 0) {
         // TODO make snapshot of layers
@@ -72,10 +85,15 @@ void History::execCommandOn(Layers *layers, const String &command) {
         if (comm.length() != 3) mHandler->addMessage("Invalid command: " + command);
         else layers->rotate(String::parseInt(comm[1]), String::parseInt(comm[2]));
     } else if (comm[0] == "line") {
-        if (comm.length() != 8) mHandler->addMessage("Invalid command: " + command);
-        else
-            layers->drawLine(String::parseInt(comm[1]), String::parseInt(comm[2]), String::parseInt(comm[3]), String::parseInt(comm[4]),
-                             String::parseInt(comm[5]), String::parseInt(comm[6]), String::parseInt(comm[7]));
+        if ((comm.length() - 1) % 7 != 0) mHandler->addMessage("Invalid command: " + command);
+        else {
+            for (int i = 1; i < comm.length(); i += 7) {
+                layers->drawLine(String::parseInt(comm[i]), String::parseInt(comm[i + 1]), String::parseInt(comm[i + 2]),
+                                 String::parseInt(comm[i + 3]),
+                                 String::parseInt(comm[i + 4]), String::parseInt(comm[i + 5]), String::parseInt(comm[i + 6]));
+            }
+        }
+
     } else if (comm[0] == "prepareNextDrawing") {
         if (comm.length() != 2) mHandler->addMessage("Invalid command: " + command);
         else layers->prepareNextDrawing(String::parseInt(comm[1]));
