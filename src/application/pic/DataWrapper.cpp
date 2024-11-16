@@ -33,9 +33,11 @@ DataWrapper::DataWrapper() {
     // rendering
     flags = new RenderFlags();
     mHandler = new MessageHandler(workAreaX, workAreaY);
+//    mHandler->setPrintBool(true);
 
     // layers
     layers = nullptr;
+    history = nullptr;
 
     // gui
     guiLayers = new Util::HashMap<Util::String, GuiLayer *>();

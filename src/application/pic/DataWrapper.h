@@ -25,6 +25,8 @@
 // Forward declaration since otherwise circular dependency
 class Layers;
 
+class History;
+
 class GuiLayer;
 
 class Button;
@@ -79,6 +81,7 @@ public:
 
     // layers
     Layers *layers;
+    History *history;
 
     // gui
     Util::Map<Util::String, GuiLayer *> *guiLayers;

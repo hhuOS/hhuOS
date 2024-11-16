@@ -16,11 +16,12 @@ Pic::Pic() {
     this->data = new DataWrapper();
     this->renderer = new Renderer(data);
 
-    data->layers = new Layers(data->mHandler);
+    data->history = new History(data->mHandler);
+    data->layers = new Layers(data->mHandler, data->history);
     data->layers->addPicture("/user/pic/test.jpg", 0, 0);
-    data->layers->addPicture("/user/pic/test.jpg", 100, 100);
-    data->layers->addPicture("/user/pic/test.jpg", 400, 100);
-    data->layers->addEmpty(50, 50, data->workAreaX - 100, data->workAreaY - 100);
+//    data->layers->addPicture("/user/pic/test.jpg", 100, 100);
+//    data->layers->addPicture("/user/pic/test.jpg", 400, 100);
+//    data->layers->addEmpty(50, 50, data->workAreaX - 100, data->workAreaY - 100);
 
     init_gui();
 
@@ -302,8 +303,15 @@ void Pic::checkKeyboardInput() {
                         data->flags->overlayChanged();
                         data->currentGuiLayer->appear();
                         break;
-                    case Util::Io::Key::X:
+                    case Util::Io::Key::X: // TODO remove
                         this->data->layers->history->printCommands();
+                        break;
+                    case Util::Io::Key::A: // TODO remove
+                        data->history->loadFromFileInto(data->layers, data->currentInput->operator const char *());
+                        data->flags->layerOrderChanged();
+                        break;
+                    case Util::Io::Key::S: // TODO remove
+                        data->history->saveToFile(data->currentInput->operator const char *());
                         break;
                     default:
                         break;
@@ -426,30 +434,33 @@ void Pic::init_gui() {
     gui_file->addButton((new Button(data))
                                 ->setInfo("load Project")
                                 ->setMethodButton([](DataWrapper *data) {
-                                    // TODO
+                                    data->history->loadFromFileInto(data->layers, data->currentInput->operator const char *());
                                 })
                                 ->set16Bitmap(Bitmaps::play)
+                                ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
     );
     gui_file->addButton((new Button(data))
                                 ->setInfo("save Project")
                                 ->setMethodButton([](DataWrapper *data) {
-                                    // TODO
+                                    data->history->saveToFile(data->currentInput->operator const char *());
                                 })
                                 ->set16Bitmap(Bitmaps::play)
     );
     gui_file->addButton((new Button(data))
                                 ->setInfo("undo")
                                 ->setMethodButton([](DataWrapper *data) {
-                                    // TODO
+                                    data->history->undo(data->layers);
                                 })
                                 ->set16Bitmap(Bitmaps::play)
+                                ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
     );
     gui_file->addButton((new Button(data))
                                 ->setInfo("redo")
                                 ->setMethodButton([](DataWrapper *data) {
-                                    // TODO
+                                    data->history->redo(data->layers);
                                 })
                                 ->set16Bitmap(Bitmaps::play)
+                                ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
     );
 
     auto *gui_tools = new GuiLayer();
@@ -769,10 +780,12 @@ void Pic::init_gui() {
                                         ->setConfirmButton([](DataWrapper *data) {
                                             data->shapeX = 0, data->shapeY = 0, data->shapeW = 0, data->shapeH = 0;
                                         }, [](DataWrapper *data) {
-                                            uint32_t penColor = (data->colorA << 24) | (data->colorR << 16) | (data->colorG << 8) | data->colorB;
+                                            uint32_t penColor =
+                                                    (data->colorA << 24) | (data->colorR << 16) | (data->colorG << 8) | data->colorB;
                                             Layer *l = data->layers->current();
                                             int relX = data->shapeX - l->posX, relY = data->shapeY - l->posY;
-                                            data->layers->drawShapeCurrent(data->currentShape, relX, relY, data->shapeW,data->shapeH,penColor);
+                                            data->layers->drawShapeCurrent(data->currentShape, relX, relY, data->shapeW, data->shapeH,
+                                                                           penColor);
                                             data->shapeX = 0, data->shapeY = 0, data->shapeW = 0, data->shapeH = 0;
                                         })
                                         ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)

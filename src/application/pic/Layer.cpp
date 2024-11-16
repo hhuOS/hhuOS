@@ -8,6 +8,7 @@ Layer::Layer(int width, int height, int posX, int posY, int visible) : width(wid
         pixelData[i] = 0;
     }
     tempPixelData = new uint32_t[0];
+    prepareNextDrawing();
 }
 
 Layer::Layer(int width, int height, int posX, int posY, int visible, const uint32_t *pixelData)
@@ -18,6 +19,7 @@ Layer::Layer(int width, int height, int posX, int posY, int visible, const uint3
         this->pixelData[i] = pixelData[i];
     }
     tempPixelData = new uint32_t[0];
+    prepareNextDrawing();
 }
 
 Layer::~Layer() {

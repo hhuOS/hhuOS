@@ -21,8 +21,12 @@ MessageHandler::MessageHandler(int width, int height) {
     this->changed = false;
     this->messageAdded = false;
     this->overflowed = false;
+    this->shouldPrint = false;
     addMessage("hello to Pic!!! :D");
+}
 
+void MessageHandler::setPrintBool(bool p) {
+    shouldPrint = p;
 }
 
 uint32_t *MessageHandler::getBuffer() {
@@ -30,6 +34,9 @@ uint32_t *MessageHandler::getBuffer() {
 }
 
 void MessageHandler::addMessage(const Util::String &message) {
+    if (shouldPrint) {
+        print(message);
+    }
     addMessage(message, 5);
 }
 

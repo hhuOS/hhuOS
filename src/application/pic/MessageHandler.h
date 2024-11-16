@@ -11,6 +11,7 @@
 #include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/graphic/font/Terminal8x16.h"
 #include "DataWrapper.h"
+#include "helper.h"
 
 using namespace Util::Graphic;
 
@@ -31,9 +32,11 @@ public:
 
     uint32_t *getBuffer();
 
-    void addMessage(const Util::String& message);
+    void addMessage(const Util::String &message);
 
-    void addMessage(const Util::String& message, int duration);
+    void addMessage(const Util::String &message, int duration);
+
+    void setPrintBool(bool print);
 
 private:
     int width, height;
@@ -49,6 +52,8 @@ private:
     Message **messages;
     int messageCount;
     int maxMessages;
+
+    bool shouldPrint;
 };
 
 

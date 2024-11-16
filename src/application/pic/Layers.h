@@ -13,7 +13,7 @@ class History;
 
 class Layers {
 public:
-    Layers(MessageHandler *mHandler);
+    Layers(MessageHandler *mHandler, History *history);
 
     ~Layers() = default;
 
@@ -26,6 +26,8 @@ public:
     void setCurrent(int index);
 
     void setCurrentToNext();
+
+    void reset();
 
     void deletetAt(int index);
 

@@ -6,6 +6,8 @@
 #define HHUOS_HISTORY_H
 
 #include "Layers.h"
+#include "lib/libc/stdio.h"
+#include "lib/util/io/stream/BufferedInputStream.h"
 
 
 class History {
@@ -16,15 +18,17 @@ public:
 
     void addCommand(const Util::String& command);
 
+    void reset();
+
     void execCommandOn(Layers *layers, const Util::String& command);
 
     void undo(Layers *layers);
 
     void redo(Layers *layers);
 
-    void saveToFile(Util::String path);
+    void saveToFile(const Util::String& path);
 
-    void loadFromFile(Util::String path);
+    void loadFromFileInto(Layers * layers, const Util::String& path);
 
     void printCommands();
 
