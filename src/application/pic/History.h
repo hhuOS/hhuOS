@@ -16,11 +16,11 @@ public:
 
     ~History() = default;
 
-    void addCommand(const Util::String &command);
+    void addCommand(const Util::String &command, Layer*** layers, int* layerCount);
 
     void reset();
 
-    void execCommandOn(Layers *layers, const Util::String &command);
+    void execCommandOn(Layers *layers, const Util::String &command, bool writeHistory = true);
 
     void undo(Layers *layers);
 
@@ -38,6 +38,7 @@ private:
     MessageHandler *mHandler;
     static const int SNAPSHOT_INTERVAL = 5;
     Util::List<Util::String> *lines;
+    Util::List<Util::Pair<Layer**, int>> *snapshots;
 };
 
 

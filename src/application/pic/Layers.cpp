@@ -15,7 +15,7 @@ Layers::Layers(MessageHandler *mHandler, History *history) {
     this->layers = new Layer *[18];
     this->layerCount = 0;
     this->maxLayerCount = 18;
-    this->currentLayer = 0;
+    this->currentLayer = -1;
     this->mHandler = mHandler;
     this->history = history;
 }
@@ -25,14 +25,15 @@ void Layers::reset() {
         delete layers[i];
     }
     layerCount = 0;
-    currentLayer = 0;
+    currentLayer = -1;
 }
 
 Layer *Layers::current() {
+    if (currentLayer == -1) return nullptr;
     return layers[currentLayer];
 }
 
-void Layers::addEmpty(int posX, int posY, int width, int height) {
+void Layers::addEmpty(int posX, int posY, int width, int height, bool writeHistory) {
     if (layerCount >= maxLayerCount) {
         mHandler->addMessage(Util::String::format("Maximum number of layers reached: %d", maxLayerCount).operator const char *());
         return;
@@ -40,10 +41,11 @@ void Layers::addEmpty(int posX, int posY, int width, int height) {
     layers[layerCount] = new Layer(width, height, posX, posY, 1);
     layerCount++;
     currentLayer = layerCount - 1;
-    history->addCommand(Util::String::format("addEmpty %d %d %d %d", posX, posY, width, height));
+    if (writeHistory)
+        history->addCommand(Util::String::format("addEmpty %d %d %d %d", posX, posY, width, height), &layers, &layerCount);
 }
 
-void Layers::addPicture(const char *path, int posX, int posY) {
+void Layers::addPicture(const char *path, int posX, int posY, bool writeHistory) {
     if (layerCount >= maxLayerCount) {
         mHandler->addMessage(Util::String::format("Maximum number of layers reached: %d", maxLayerCount).operator const char *());
         return;
@@ -72,7 +74,8 @@ void Layers::addPicture(const char *path, int posX, int posY) {
     layerCount++;
     stbi_image_free(img);
     currentLayer = layerCount - 1;
-    history->addCommand(Util::String::format("addPicture %s %d %d", path, posX, posY));
+    if (writeHistory)
+        history->addCommand(Util::String::format("addPicture %s %d %d", path, posX, posY), &layers, &layerCount);
 }
 
 void Layers::exportPicture(const char *path, int x, int y, int w, int h, bool png, bool jpg, bool bmp) {
@@ -153,7 +156,7 @@ void Layers::setCurrentToNext() {
     }
 }
 
-void Layers::deletetAt(int index) {
+void Layers::deletetAt(int index, bool writeHistory) {
     if (index < 0 || index >= layerCount) {
         mHandler->addMessage(Util::String::format("Layers::deletetAt(%d) index out of bounds", index).operator const char *());
         return;
@@ -164,12 +167,12 @@ void Layers::deletetAt(int index) {
         layers[i] = layers[i + 1];
     }
     layerCount--;
-    if (layerCount == 0) addEmpty(0, 0, 100, 100);
     if (currentLayer >= layerCount) currentLayer = layerCount - 1;
-    history->addCommand(Util::String::format("delete %d", index));
+    if (writeHistory)
+        history->addCommand(Util::String::format("delete %d", index), &layers, &layerCount);
 }
 
-void Layers::swap(int index1, int index2) {
+void Layers::swap(int index1, int index2, bool writeHistory) {
     if (index1 < 0 || index1 >= layerCount || index2 < 0 || index2 >= layerCount || index1 == index2) {
         mHandler->addMessage(Util::String::format("Layers::swap(%d, %d) invalid layer indices", index1, index2).operator const char *());
         return;
@@ -179,19 +182,21 @@ void Layers::swap(int index1, int index2) {
     layers[index2] = temp;
     if (currentLayer == index1) currentLayer = index2;
     else if (currentLayer == index2) currentLayer = index1;
-    history->addCommand(Util::String::format("swap %d %d", index1, index2));
+    if (writeHistory)
+        history->addCommand(Util::String::format("swap %d %d", index1, index2), &layers, &layerCount);
 }
 
-void Layers::changeVisibleAt(int index) {
+void Layers::changeVisibleAt(int index, bool writeHistory) {
     if (index < 0 || index >= layerCount) {
         mHandler->addMessage(Util::String::format("Layers::changeVisibleAt(%d) index out of bounds", index).operator const char *());
         return;
     }
     layers[index]->isVisible = !layers[index]->isVisible;
-    history->addCommand(Util::String::format("visible %d", index));
+    if (writeHistory)
+        history->addCommand(Util::String::format("visible %d", index), &layers, &layerCount);
 }
 
-void Layers::combine(int index1, int index2) {
+void Layers::combine(int index1, int index2, bool writeHistory) {
     if (index1 < 0 || index1 >= layerCount || index2 < 0 || index2 >= layerCount || index1 == index2) {
         mHandler->addMessage(Util::String::format("Layers::combine(%d, %d) invalid layer indices", index1, index2));
         return;
@@ -228,13 +233,13 @@ void Layers::combine(int index1, int index2) {
         layers[i] = layers[i + 1];
     }
     layerCount--;
-    if (layerCount == 0) addEmpty(0, 0, 100, 100);
     if (currentLayer >= layerCount) currentLayer = layerCount - 1;
 
-    history->addCommand(Util::String::format("combine %d %d", index1, index2));
+    if (writeHistory)
+        history->addCommand(Util::String::format("combine %d %d", index1, index2), &layers, &layerCount);
 }
 
-void Layers::duplicate(int index) {
+void Layers::duplicate(int index, bool writeHistory) {
     if (layerCount >= maxLayerCount) {
         mHandler->addMessage(
                 Util::String::format("Layers::duplicate(%d) max number of layers reached", maxLayerCount).operator const char *());
@@ -250,10 +255,11 @@ void Layers::duplicate(int index) {
     layers[layerCount] = new Layer(layer->width, layer->height, layer->posX, layer->posY, 1, newPixelData);
     layerCount++;
     currentLayer = layerCount - 1;
-    history->addCommand(Util::String::format("duplicate %d", index));
+    if (writeHistory)
+        history->addCommand(Util::String::format("duplicate %d", index), &layers, &layerCount);
 }
 
-void Layers::move(int index, int x, int y) {
+void Layers::move(int index, int x, int y, bool writeHistory) {
     if (index < 0 || index >= layerCount) {
         mHandler->addMessage(Util::String::format("Layers::move(%d, %d, %d) index out of bounds", index, x, y).operator const char *());
         return;
@@ -261,14 +267,15 @@ void Layers::move(int index, int x, int y) {
     Layer *layer = layers[index];
     layer->posX = x;
     layer->posY = y;
-    history->addCommand(Util::String::format("move %d %d %d", index, x, y));
+    if (writeHistory)
+        history->addCommand(Util::String::format("move %d %d %d", index, x, y), &layers, &layerCount);
 }
 
 void Layers::moveCurrent(int x, int y) {
     move(currentLayer, x, y);
 }
 
-void Layers::scale(int index, double factor, ToolCorner kind) {
+void Layers::scale(int index, double factor, ToolCorner kind, bool writeHistory) {
     if (index < 0 || index >= layerCount) {
         auto fac = double_to_string(factor, 2);
         mHandler->addMessage(
@@ -307,16 +314,18 @@ void Layers::scale(int index, double factor, ToolCorner kind) {
 
     layer->setNewBuffer(newPixelData, newX, newY, newWidth, newHeight);
     auto scaleString = double_to_string(factor, 2);
-    history->addCommand(Util::String::format("scale %d %s %d", index, scaleString, kind));
+    if (writeHistory)
+        history->addCommand(Util::String::format("scale %d %s %d", index, scaleString, kind), &layers, &layerCount);
 }
 
 void Layers::scaleCurrent(double factor, ToolCorner kind) {
     scale(currentLayer, factor, kind);
 }
 
-void Layers::crop(int index, int left, int right, int top, int bottom) {
+void Layers::crop(int index, int left, int right, int top, int bottom, bool writeHistory) {
     if (index < 0 || index >= layerCount) {
-        mHandler->addMessage(Util::String::format("Layers::crop(%d, %d, %d, %d, %d) index out of bounds", index, left, right, top, bottom).operator const char *());
+        mHandler->addMessage(Util::String::format("Layers::crop(%d, %d, %d, %d, %d) index out of bounds", index, left, right, top,
+                                                  bottom).operator const char *());
         return;
     }
     Layer *layer = layers[index];
@@ -324,7 +333,8 @@ void Layers::crop(int index, int left, int right, int top, int bottom) {
     int newWidth = layer->width - left - right;
     int newHeight = layer->height - top - bottom;
     if (newWidth <= 0 || newHeight <= 0) {
-        mHandler->addMessage(Util::String::format("Layers::crop(%d, %d, %d, %d, %d) invalid crop", index, left, right, top, bottom).operator const char *());
+        mHandler->addMessage(Util::String::format("Layers::crop(%d, %d, %d, %d, %d) invalid crop", index, left, right, top,
+                                                  bottom).operator const char *());
         return;
     }
 
@@ -341,14 +351,15 @@ void Layers::crop(int index, int left, int right, int top, int bottom) {
     }
 
     layer->setNewBuffer(newPixelData, layer->posX + left, layer->posY + top, newWidth, newHeight);
-    history->addCommand(Util::String::format("crop %d %d %d %d %d", index, left, right, top, bottom));
+    if (writeHistory)
+        history->addCommand(Util::String::format("crop %d %d %d %d %d", index, left, right, top, bottom), &layers, &layerCount);
 }
 
 void Layers::cropCurrent(int left, int right, int top, int bottom) {
     crop(currentLayer, left, right, top, bottom);
 }
 
-void Layers::autoCrop(int index) {
+void Layers::autoCrop(int index, bool writeHistory) {
     if (index < 0 || index >= layerCount) {
         mHandler->addMessage(Util::String::format("Layers::autoCrop(%d) index out of bounds", index).operator const char *());
         return;
@@ -402,14 +413,15 @@ void Layers::autoCrop(int index) {
     }
 
     crop(index, left, right, top, bottom);
-    history->addCommand(Util::String::format("autoCrop %d", index));
+    if (writeHistory)
+        history->addCommand(Util::String::format("autoCrop %d", index), &layers, &layerCount);
 }
 
 void Layers::autoCropCurrent() {
     autoCrop(currentLayer);
 }
 
-void Layers::rotate(int index, int degree) {
+void Layers::rotate(int index, int degree, bool writeHistory) {
     if (index < 0 || index >= layerCount) {
         mHandler->addMessage(Util::String::format("Layers::rotate(%d, %d) index out of bounds", index, degree).operator const char *());
         return;
@@ -447,7 +459,8 @@ void Layers::rotate(int index, int degree) {
     layer->setNewBuffer(newPixelData,
                         layer->posX - (newWidth - layer->width) / 2, layer->posY - (newHeight - layer->height) / 2,
                         newWidth, newHeight);
-    history->addCommand(Util::String::format("rotate %d %d", index, degree));
+    if (writeHistory)
+        history->addCommand(Util::String::format("rotate %d %d", index, degree), &layers, &layerCount);
 }
 
 void Layers::rotateCurrent(int degree) {
@@ -478,7 +491,7 @@ void Layers::drawCircleCurrent(int x, int y, uint32_t color, int thickness) {
     drawCircle(currentLayer, x, y, color, thickness);
 }
 
-void Layers::drawLine(int index, int x1, int y1, int x2, int y2, uint32_t color, int thickness) {
+void Layers::drawLine(int index, int x1, int y1, int x2, int y2, uint32_t color, int thickness, bool writeHistory) {
     if (index < 0 || index >= layerCount) return;
     int x1c = x1, y1c = y1, x2c = x2, y2c = y2; // for history
 
@@ -498,28 +511,31 @@ void Layers::drawLine(int index, int x1, int y1, int x2, int y2, uint32_t color,
         if (e2 >= dy) err += dy, x1 += sx;
         if (e2 <= dx) err += dx, y1 += sy;
     }
-    history->addCommand(Util::String::format("line %d %d %d %d %d %d %d", index, x1c, y1c, x2c, y2c, color, thickness));
+    if (writeHistory)
+        history->addCommand(Util::String::format("line %d %d %d %d %d %d %d", index, x1c, y1c, x2c, y2c, color, thickness), &layers,
+                            &layerCount);
 }
 
 void Layers::drawLineCurrent(int x1, int y1, int x2, int y2, uint32_t color, int thickness) {
     drawLine(currentLayer, x1, y1, x2, y2, color, thickness);
 }
 
-void Layers::prepareNextDrawing(int index) {
+void Layers::prepareNextDrawing(int index, bool writeHistory) {
     if (index < 0 || index >= layerCount) {
         mHandler->addMessage(Util::String::format("Layers::prepareNextDrawing(%d) index out of bounds", index).operator const char *());
         return;
     }
     Layer *layer = layers[index];
     layer->prepareNextDrawing();
-    history->addCommand(Util::String::format("prepareNextDrawing %d", index));
+    if (writeHistory)
+        history->addCommand(Util::String::format("prepareNextDrawing %d", index), &layers, &layerCount);
 }
 
 void Layers::prepareNextDrawingCurrent() {
     prepareNextDrawing(currentLayer);
 }
 
-void Layers::drawShape(int index, Shape shape, int x, int y, int w, int h, uint32_t color) {
+void Layers::drawShape(int index, Shape shape, int x, int y, int w, int h, uint32_t color, bool writeHistory) {
     Layer *l = layers[index];
     if (w < 0) w = -w, x -= w;
     if (h < 0) h = -h, y -= h;
@@ -554,7 +570,8 @@ void Layers::drawShape(int index, Shape shape, int x, int y, int w, int h, uint3
             }
         }
     }
-    history->addCommand(Util::String::format("shape %d %d %d %d %d %d %d", index, shape, x, y, w, h, color));
+    if (writeHistory)
+        history->addCommand(Util::String::format("shape %d %d %d %d %d %d %d", index, shape, x, y, w, h, color), &layers, &layerCount);
 }
 
 void Layers::drawShapeCurrent(Shape shape, int x, int y, int w, int h, uint32_t color) {

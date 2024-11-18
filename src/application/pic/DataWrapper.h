@@ -140,7 +140,7 @@ public:
 
     void currentLayerChanged() { anyChange = true, result = true, workArea = true, layers = true; }
 
-    void layerOrderChanged() { anyChange = true, result = true, workArea = true, layers = true, layerOrder = true; }
+    void layerOrderChanged() { anyChange = true, result = true, workArea = true, overlay = true, layers = true, layerOrder = true; }
 
 };
 

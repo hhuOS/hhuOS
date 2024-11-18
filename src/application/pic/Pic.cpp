@@ -18,7 +18,7 @@ Pic::Pic() {
 
     data->history = new History(data->mHandler);
     data->layers = new Layers(data->mHandler, data->history);
-    data->layers->addPicture("/user/pic/test.jpg", 0, 0);
+//    data->layers->addPicture("/user/pic/test.jpg", 0, 0);
 //    data->layers->addPicture("/user/pic/test.jpg", 100, 100);
 //    data->layers->addPicture("/user/pic/test.jpg", 400, 100);
 //    data->layers->addEmpty(50, 50, data->workAreaX - 100, data->workAreaY - 100);
@@ -150,19 +150,21 @@ void Pic::parseMouse(bool clicked) {
             data->flags->overlayChanged();
             data->currentGuiLayerBottom->appear();
         } else if (data->currentTool == Tool::COLOR) {
-            Layer *l = data->layers->current();
-            int relX = data->mouseX - 200 - l->posX;
-            int relY = data->mouseY - l->posY;
-            if (relX < 0 || relX >= l->width || relY < 0 || relY >= l->height) return;
-            uint32_t c = l->getPixel(relX, relY);
-            data->colorA = (c >> 24) & 0xFF;
-            data->colorR = (c >> 16) & 0xFF;
-            data->colorG = (c >> 8) & 0xFF;
-            data->colorB = c & 0xFF;
-            data->currentGuiLayer->appear();
-            data->flags->guiButtonChanged();
-            data->flags->overlayChanged();
-            data->currentGuiLayerBottom->appear();
+            if (data->layers->currentNum() >= 0) {
+                Layer *l = data->layers->current();
+                int relX = data->mouseX - 200 - l->posX;
+                int relY = data->mouseY - l->posY;
+                if (relX < 0 || relX >= l->width || relY < 0 || relY >= l->height) return;
+                uint32_t c = l->getPixel(relX, relY);
+                data->colorA = (c >> 24) & 0xFF;
+                data->colorR = (c >> 16) & 0xFF;
+                data->colorG = (c >> 8) & 0xFF;
+                data->colorB = c & 0xFF;
+                data->currentGuiLayer->appear();
+                data->flags->guiButtonChanged();
+                data->flags->overlayChanged();
+                data->currentGuiLayerBottom->appear();
+            }
         } else if (data->currentTool == Tool::ROTATE) {
             data->rotateDeg += data->xMovement;
             if (data->rotateDeg > 180) data->rotateDeg -= 360;
@@ -171,26 +173,28 @@ void Pic::parseMouse(bool clicked) {
             data->flags->overlayChanged();
             data->currentGuiLayerBottom->appear();
         } else if ((data->currentTool == Tool::PEN || data->currentTool == Tool::ERASER) && data->mouseClicks->size() > 0) {
-            Layer *l = data->layers->current();
-            auto click = data->mouseClicks->peek();
-            int lastX = click.first - l->posX - 200;
-            int lastY = click.second - l->posY;
-            while (data->mouseClicks->size() > 0) {
-                click = data->mouseClicks->poll();
-                int relX = click.first - l->posX - 200;
-                int relY = click.second - l->posY;
-                if ((relX < 0 || relX >= l->width || relY < 0 || relY >= l->height) &&
-                    (lastX < 0 || lastX >= l->width || lastY < 0 || lastY >= l->height)) {
-                    continue; // both points are outside of the layer
+            if (data->layers->currentNum() >= 0) {
+                Layer *l = data->layers->current();
+                auto click = data->mouseClicks->peek();
+                int lastX = click.first - l->posX - 200;
+                int lastY = click.second - l->posY;
+                while (data->mouseClicks->size() > 0) {
+                    click = data->mouseClicks->poll();
+                    int relX = click.first - l->posX - 200;
+                    int relY = click.second - l->posY;
+                    if ((relX < 0 || relX >= l->width || relY < 0 || relY >= l->height) &&
+                        (lastX < 0 || lastX >= l->width || lastY < 0 || lastY >= l->height)) {
+                        continue; // both points are outside of the layer
+                    }
+                    uint32_t penColor = (data->colorA << 24) | (data->colorR << 16) | (data->colorG << 8) | data->colorB;
+                    data->layers->drawLineCurrent(lastX, lastY, relX, relY, data->currentTool == Tool::PEN ? penColor : 0x00000000,
+                                                  data->penSize);
+                    lastX = relX, lastY = relY;
                 }
-                uint32_t penColor = (data->colorA << 24) | (data->colorR << 16) | (data->colorG << 8) | data->colorB;
-                data->layers->drawLineCurrent(lastX, lastY, relX, relY, data->currentTool == Tool::PEN ? penColor : 0x00000000,
-                                              data->penSize);
-                lastX = relX, lastY = relY;
+                // put last click back for next iteration
+                data->mouseClicks->offer(Util::Pair<int, int>(data->mouseX, data->mouseY));
+                data->flags->currentLayerChanged();
             }
-            // put last click back for next iteration
-            data->mouseClicks->offer(Util::Pair<int, int>(data->mouseX, data->mouseY));
-            data->flags->currentLayerChanged();
         } else if (data->currentTool == Tool::EXPORT_PNG || data->currentTool == Tool::EXPORT_JPG ||
                    data->currentTool == Tool::EXPORT_BMP || data->currentTool == Tool::NEW_EMPTY) {
             if (data->newlyPressed) {
@@ -265,30 +269,42 @@ void Pic::checkKeyboardInput() {
                     }
                 }
             } else {
-                auto currentLayer = data->layers->current();
+                Layer *currentLayer;
                 switch (scancode) {
                     case Util::Io::Key::ESC:
                         data->running = false;
                         break;
                     case Util::Io::Key::UP:
-                        data->layers->moveCurrent(currentLayer->posX, currentLayer->posY - 10);
-                        data->flags->currentLayerChanged();
-                        data->flags->overlayChanged();
+                        if (data->layers->currentNum() >= 0) {
+                            currentLayer = data->layers->current();
+                            data->layers->moveCurrent(currentLayer->posX, currentLayer->posY - 10);
+                            data->flags->currentLayerChanged();
+                            data->flags->overlayChanged();
+                        }
                         break;
                     case Util::Io::Key::DOWN:
-                        data->layers->moveCurrent(currentLayer->posX, currentLayer->posY + 10);
-                        data->flags->currentLayerChanged();
-                        data->flags->overlayChanged();
+                        if (data->layers->currentNum() >= 0) {
+                            currentLayer = data->layers->current();
+                            data->layers->moveCurrent(currentLayer->posX, currentLayer->posY + 10);
+                            data->flags->currentLayerChanged();
+                            data->flags->overlayChanged();
+                        }
                         break;
                     case Util::Io::Key::LEFT:
-                        data->layers->moveCurrent(currentLayer->posX - 10, currentLayer->posY);
-                        data->flags->currentLayerChanged();
-                        data->flags->overlayChanged();
+                        if (data->layers->currentNum() >= 0) {
+                            currentLayer = data->layers->current();
+                            data->layers->moveCurrent(currentLayer->posX - 10, currentLayer->posY);
+                            data->flags->currentLayerChanged();
+                            data->flags->overlayChanged();
+                        }
                         break;
                     case Util::Io::Key::RIGHT:
-                        data->layers->moveCurrent(currentLayer->posX + 10, currentLayer->posY);
-                        data->flags->currentLayerChanged();
-                        data->flags->overlayChanged();
+                        if (data->layers->currentNum() >= 0) {
+                            currentLayer = data->layers->current();
+                            data->layers->moveCurrent(currentLayer->posX + 10, currentLayer->posY);
+                            data->flags->currentLayerChanged();
+                            data->flags->overlayChanged();
+                        }
                         break;
                     case Util::Io::Key::TAB:
                         data->layers->setCurrentToNext();
@@ -307,11 +323,14 @@ void Pic::checkKeyboardInput() {
                         this->data->layers->history->printCommands();
                         break;
                     case Util::Io::Key::A: // TODO remove
-                        data->history->loadFromFileInto(data->layers, data->currentInput->operator const char *());
+                        data->history->undo(data->layers);
                         data->flags->layerOrderChanged();
+                        data->flags->guiButtonChanged();
                         break;
                     case Util::Io::Key::S: // TODO remove
-                        data->history->saveToFile(data->currentInput->operator const char *());
+                        data->history->redo(data->layers);
+                        data->flags->layerOrderChanged();
+                        data->flags->guiButtonChanged();
                         break;
                     default:
                         break;
@@ -475,8 +494,13 @@ void Pic::init_gui() {
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Move")
                                  ->setMethodButton([](DataWrapper *data) {
-                                     data->moveX = data->layers->current()->posX;
-                                     data->moveY = data->layers->current()->posY;
+                                     if (data->layers->currentNum() >= 0) {
+                                         data->moveX = data->layers->current()->posX;
+                                         data->moveY = data->layers->current()->posY;
+                                     } else {
+                                         data->moveX = 0;
+                                         data->moveY = 0;
+                                     }
                                      swapTool(data, Tool::MOVE);
                                  })
                                  ->changeGreenIfTool(Tool::MOVE)
@@ -506,17 +530,19 @@ void Pic::init_gui() {
     gui_tools->addButton((new Button(data))
                                  ->setInfo("auto Scale")
                                  ->setMethodButton([](DataWrapper *data) {
-                                     auto l = data->layers->current();
-                                     if (l->width > data->workAreaX || l->height > data->workAreaY) {
-                                         data->layers->moveCurrent(0, 0);
-                                         double factor = min((double) data->workAreaX / (double) l->width,
-                                                             (double) data->workAreaY / (double) l->height);
-                                         data->layers->scaleCurrent(factor, ToolCorner::BOTTOM_RIGHT);
-                                     } else if (l->posX + l->width > data->workAreaX || l->posY + l->height > data->workAreaY) {
-                                         data->layers->moveCurrent(0, 0);
-                                         data->mHandler->addMessage("Layer was just moved onto Screen, no scaling needed");
-                                     } else {
-                                         data->mHandler->addMessage("No scaling or moving needed");
+                                     if (data->layers->currentNum() >= 0) {
+                                         auto l = data->layers->current();
+                                         if (l->width > data->workAreaX || l->height > data->workAreaY) {
+                                             data->layers->moveCurrent(0, 0);
+                                             double factor = min((double) data->workAreaX / (double) l->width,
+                                                                 (double) data->workAreaY / (double) l->height);
+                                             data->layers->scaleCurrent(factor, ToolCorner::BOTTOM_RIGHT);
+                                         } else if (l->posX + l->width > data->workAreaX || l->posY + l->height > data->workAreaY) {
+                                             data->layers->moveCurrent(0, 0);
+                                             data->mHandler->addMessage("Layer was just moved onto Screen, no scaling needed");
+                                         } else {
+                                             data->mHandler->addMessage("No scaling or moving needed");
+                                         }
                                      }
                                  })
                                  ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
@@ -618,8 +644,13 @@ void Pic::init_gui() {
     gui_bottom_move->addButton((new Button(data))
                                        ->setInfo("MOVE")
                                        ->setConfirmButton([](DataWrapper *data) {
-                                           data->moveX = data->layers->current()->posX;
-                                           data->moveY = data->layers->current()->posY;
+                                           if (data->layers->currentNum() >= 0) {
+                                               data->moveX = data->layers->current()->posX;
+                                               data->moveY = data->layers->current()->posY;
+                                           } else {
+                                               data->moveX = 0;
+                                               data->moveY = 0;
+                                           }
                                        }, [](DataWrapper *data) {
                                            data->layers->moveCurrent(data->moveX, data->moveY);
                                        })
@@ -780,13 +811,15 @@ void Pic::init_gui() {
                                         ->setConfirmButton([](DataWrapper *data) {
                                             data->shapeX = 0, data->shapeY = 0, data->shapeW = 0, data->shapeH = 0;
                                         }, [](DataWrapper *data) {
-                                            uint32_t penColor =
-                                                    (data->colorA << 24) | (data->colorR << 16) | (data->colorG << 8) | data->colorB;
-                                            Layer *l = data->layers->current();
-                                            int relX = data->shapeX - l->posX, relY = data->shapeY - l->posY;
-                                            data->layers->drawShapeCurrent(data->currentShape, relX, relY, data->shapeW, data->shapeH,
-                                                                           penColor);
-                                            data->shapeX = 0, data->shapeY = 0, data->shapeW = 0, data->shapeH = 0;
+                                            if (data->layers->currentNum() >= 0) {
+                                                uint32_t penColor =
+                                                        (data->colorA << 24) | (data->colorR << 16) | (data->colorG << 8) | data->colorB;
+                                                Layer *l = data->layers->current();
+                                                int relX = data->shapeX - l->posX, relY = data->shapeY - l->posY;
+                                                data->layers->drawShapeCurrent(data->currentShape, relX, relY, data->shapeW, data->shapeH,
+                                                                               penColor);
+                                                data->shapeX = 0, data->shapeY = 0, data->shapeW = 0, data->shapeH = 0;
+                                            }
                                         })
                                         ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
                                         ->setAppearBottomOnChange(true)
