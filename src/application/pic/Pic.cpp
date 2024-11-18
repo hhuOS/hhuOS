@@ -19,9 +19,9 @@ Pic::Pic() {
     data->history = new History(data->mHandler);
     data->layers = new Layers(data->mHandler, data->history);
 //    data->layers->addPicture("/user/pic/test.jpg", 0, 0);
-//    data->layers->addPicture("/user/pic/test.jpg", 100, 100);
+    data->layers->addPicture("/user/pic/test.jpg", 100, 100);
 //    data->layers->addPicture("/user/pic/test.jpg", 400, 100);
-//    data->layers->addEmpty(50, 50, data->workAreaX - 100, data->workAreaY - 100);
+    data->layers->addEmpty(50, 50, data->workAreaX - 100, data->workAreaY - 100);
 
     init_gui();
 

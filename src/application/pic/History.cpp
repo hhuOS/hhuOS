@@ -19,6 +19,17 @@ void History::addCommand(const String &command, Layer ***layers, int *layerCount
         for (uint32_t i = commands->size() - 1; i > currentCommand - 1; i--) {
             commands->removeIndex(i);
         }
+        if (snapshots->size() > 0) {
+            for (uint32_t i = snapshots->size(); i > currentCommand / SNAPSHOT_INTERVAL; i--) {
+                auto *snapshot = snapshots->get(i - 1).first;
+                for (int j = 0; j < snapshots->get(i - 1).second; j++) {
+                    delete[] snapshot[j]->getPixelData();
+                    delete snapshot[j];
+                }
+                delete[] snapshot;
+                snapshots->removeIndex(i - 1);
+            }
+        }
     }
     bool added = false;
     if (command.beginsWith("line")) { // special case for lines
@@ -112,8 +123,7 @@ void History::execCommandOn(Layers *layers, const String &command, bool writeHis
                                  String::parseInt(comm[i + 4]), String::parseInt(comm[i + 5]), String::parseInt(comm[i + 6]), writeHistory);
             }
         }
-    }
-    else if (comm[0] == "shape") {
+    } else if (comm[0] == "shape") {
         if (comm.length() != 8) mHandler->addMessage("Invalid command: " + command);
         else
             layers->drawShape(String::parseInt(comm[1]), static_cast<Shape>(String::parseInt(comm[2])), String::parseInt(comm[3]),
@@ -126,8 +136,10 @@ void History::printCommands() {
     mHandler->addMessage(Util::String::format("currentCommand: %d, commands size: %d, snapshot count: %d", currentCommand, commands->size(),
                                               snapshots->size()));
     for (int i = 0; i < commands->size(); i++) {
-        if (i == currentCommand - 1) mHandler->addMessage("-> " + commands->get(i));
-        else mHandler->addMessage(commands->get(i));
+        auto m = commands->get(i);
+        if ((i + 1) == currentCommand) m = ">> " + m;
+        if ((i + 1) % SNAPSHOT_INTERVAL == 0) m = "SAVE " + m;
+        mHandler->addMessage(m);
     }
 }
 
