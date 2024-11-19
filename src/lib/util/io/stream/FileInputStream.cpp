@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/interface.h"
 #include "FileInputStream.h"
 #include "FileStream.h"
 #include "lib/util/base/Exception.h"

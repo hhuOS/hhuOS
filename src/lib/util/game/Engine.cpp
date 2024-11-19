@@ -45,8 +45,6 @@
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "lib/util/graphic/Font.h"
 #include "lib/util/base/FreeListMemoryManager.h"
-#include "lib/util/graphic/font/Mini4x6.h"
-#include "lib/util/graphic/font/Terminal8x8.h"
 
 namespace Util::Game {
 

@@ -22,12 +22,6 @@
 
 #include "LinearFrameBuffer.h"
 
-namespace Util {
-
-template <typename T> class Address;
-
-}  // namespace Util
-
 namespace Util::Graphic {
 
 class BufferedLinearFrameBuffer : public LinearFrameBuffer {

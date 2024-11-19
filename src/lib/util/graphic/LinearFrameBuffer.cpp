@@ -18,7 +18,6 @@
 #include "lib/util/base/Exception.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/interface.h"
-#include "lib/util/math/Math.h"
 #include "LinearFrameBuffer.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/Color.h"

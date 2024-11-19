@@ -1,10 +1,10 @@
+#include <stdarg.h>
+#include <stdint.h>
+
  #include "ScanStream.h"
- 
   #include "ByteArrayInputStream.h"
  #include "lib/util/base/WideChar.h"
   #include "lib/util/base/CharacterTypes.h"
- 
- #include <stddef.h>
  
  #define EOF -1
  

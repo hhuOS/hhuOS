@@ -16,7 +16,6 @@
  */
 
 #include "lib/util/base/Address.h"
-#include "lib/util/math/Math.h"
 #include "BufferScroller.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 

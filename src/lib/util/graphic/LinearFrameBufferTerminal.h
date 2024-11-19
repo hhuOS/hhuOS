@@ -28,7 +28,6 @@
 #include "lib/util/graphic/BufferScroller.h"
 #include "lib/util/graphic/Terminal.h"
 #include "lib/util/graphic/Color.h"
-#include "lib/util/graphic/font/Terminal8x16.h"
 
 namespace Util {
 namespace Graphic {

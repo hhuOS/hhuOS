@@ -30,9 +30,6 @@
 #include "lib/util/io/key/Key.h"
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/graphic/Font.h"
-#include "lib/util/graphic/font/Terminal8x16.h"
-#include "lib/util/graphic/font/Mini4x6.h"
-#include "lib/util/graphic/font/Terminal8x8.h"
 
 GameOverScreen::GameOverScreen(uint32_t score) : score(score) {}
 

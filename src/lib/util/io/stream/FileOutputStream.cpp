@@ -15,10 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/interface.h"
 #include "FileOutputStream.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/io/file/File.h"
+#include "lib/util/io/stream/FileStream.h"
 
 namespace Util::Io {
 

@@ -172,6 +172,10 @@ bool sendDatagram(int32_t fileDescriptor, const Util::Network::Datagram &datagra
 bool receiveDatagram(int32_t fileDescriptor, Util::Network::Datagram &datagram) {
     auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::Service::getService<Kernel::FilesystemService>().getFileDescriptor(fileDescriptor).getNode());
     auto *kernelDatagram = socket.receive();
+    if (kernelDatagram == nullptr) {
+        return false;
+    }
+
     auto *datagramBuffer = new uint8_t[kernelDatagram->getLength()];
 
     auto source = Util::Address<uint32_t>(kernelDatagram->getData());

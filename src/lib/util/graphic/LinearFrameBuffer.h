@@ -24,7 +24,6 @@
 #include "lib/util/base/Address.h"
 
 namespace Util {
-template <typename T> class Address;
 
 namespace Io {
 class File;

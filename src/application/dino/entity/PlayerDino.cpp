@@ -30,7 +30,6 @@
 #include "lib/util/game/2d/event/TranslationEvent.h"
 #include "lib/util/base/String.h"
 #include "lib/util/graphic/Colors.h"
-#include "lib/util/graphic/font/Terminal8x16.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Scene.h"
@@ -38,6 +37,7 @@
 #include "lib/util/game/2d/component/LinearMovementComponent.h"
 #include "lib/util/game/2d/component/GravityComponent.h"
 #include "application/dino/GameOverScreen.h"
+#include "lib/util/graphic/Font.h"
 
 PlayerDino::PlayerDino(const Util::Math::Vector2D &position) :
         Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE, SIZE * 1.133), Util::Game::Collider::DYNAMIC)),

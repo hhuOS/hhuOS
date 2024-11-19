@@ -27,9 +27,12 @@
 #include "lib/util/game/2d/Entity.h"
 #include "application/dino/particle/GrassEmitter.h"
 #include "lib/util/time/Timestamp.h"
-#include "lib/util/graphic/Font.h"
 
 namespace Util {
+namespace Graphic {
+class Font;
+}  // namespace Graphic
+
 namespace Math {
 class Vector2D;
 }  // namespace Math

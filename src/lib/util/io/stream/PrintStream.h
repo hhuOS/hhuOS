@@ -19,6 +19,7 @@
 #define HHUOS_PRINTSTREAM_H
 
 #include <stdint.h>
+#include <stdarg.h>
 
 #include "OutputStream.h"
 #include "lib/util/base/String.h"

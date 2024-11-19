@@ -16,7 +16,6 @@
  */
 
 #include "System.h"
-
 #include "lib/util/io/stream/BufferedInputStream.h"
 #include "lib/util/io/stream/BufferedOutputStream.h"
 #include "lib/util/io/stream/FileInputStream.h"

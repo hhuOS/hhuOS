@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/hardware/CpuId.h"
 #include "Address.h"
 
 namespace Util {

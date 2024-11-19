@@ -25,8 +25,6 @@ namespace Graphic {
 class LinearFrameBuffer;
 }  // namespace Graphic
 
-template <typename T> class Address;
-
 }  // namespace Util
 
 namespace Util::Graphic {

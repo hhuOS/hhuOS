@@ -36,7 +36,6 @@
 #include "lib/util/graphic/Font.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/InputStream.h"
-#include "lib/util/graphic/font/Terminal8x16.h"
 
 static const constexpr uint16_t DEFAULT_FPS = 15;
 

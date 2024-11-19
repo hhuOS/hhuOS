@@ -109,8 +109,7 @@ NetworkService::NetworkService() {
             return false;
         }
 
-        auto *datagramBuffer = reinterpret_cast<uint8_t *>(memoryService.allocateUserMemory(
-                kernelDatagram->getLength()));
+        auto *datagramBuffer = reinterpret_cast<uint8_t *>(memoryService.allocateUserMemory(kernelDatagram->getLength()));
 
         auto source = Util::Address<uint32_t>(kernelDatagram->getData());
         auto target = Util::Address<uint32_t>(datagramBuffer);

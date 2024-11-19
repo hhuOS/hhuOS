@@ -16,7 +16,6 @@
  */
 
 #include "lib/util/base/Address.h"
-#include "lib/util/base/Exception.h"
 #include "BufferedOutputStream.h"
 #include "lib/util/io/stream/FilterOutputStream.h"
 
