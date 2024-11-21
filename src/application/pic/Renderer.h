@@ -63,6 +63,8 @@ private:
 
     void drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Color c1, Color c2, Color c3, Color c4);
 
+    void drawFilledOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, uint32_t color);
+
     void renderLayers();
 
     DataWrapper *data;

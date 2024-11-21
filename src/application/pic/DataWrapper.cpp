@@ -68,4 +68,6 @@ DataWrapper::DataWrapper() {
     dupeIndex = 0;
     shapeX = -1, shapeY = -1, shapeW = -1, shapeH = -1;
     currentShape = Shape::RECTANGLE;
+    replaceColorX = -1, replaceColorY = -1;
+    replaceColorTolerance = 0.0;
 }

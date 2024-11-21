@@ -18,10 +18,10 @@ Pic::Pic() {
 
     data->history = new History(data->mHandler);
     data->layers = new Layers(data->mHandler, data->history);
+    data->layers->addEmpty(50, 50, data->workAreaX - 100, data->workAreaY - 100);
 //    data->layers->addPicture("/user/pic/test.jpg", 0, 0);
     data->layers->addPicture("/user/pic/test.jpg", 100, 100);
 //    data->layers->addPicture("/user/pic/test.jpg", 400, 100);
-    data->layers->addEmpty(50, 50, data->workAreaX - 100, data->workAreaY - 100);
 
     init_gui();
 
@@ -230,6 +230,14 @@ void Pic::parseMouse(bool clicked) {
             data->flags->guiButtonChanged();
             data->flags->overlayChanged();
             data->currentGuiLayerBottom->appear();
+        } else if (data->currentTool == Tool::REPLACE_COLOR) {
+            if (data->layers->currentNum() >= 0) {
+                data->replaceColorX = data->mouseX - 200;
+                data->replaceColorY = data->mouseY;
+                data->flags->guiButtonChanged();
+                data->flags->overlayChanged();
+                data->currentGuiLayerBottom->appear();
+            }
         }
     } else if (data->mouseX >= 200 && !data->clickStartedOnGui && clicked &&
                (data->currentTool == Tool::PEN || data->currentTool == Tool::ERASER)) {
@@ -382,6 +390,9 @@ void swapTool(DataWrapper *data, Tool tool) {
                 break;
             case Tool::SHAPE:
                 data->currentGuiLayerBottom = data->guiLayers->get("bottom_shape");
+                break;
+            case Tool::REPLACE_COLOR:
+                data->currentGuiLayerBottom = data->guiLayers->get("bottom_replace_color");
                 break;
             case Tool::NOTHING:
                 data->currentGuiLayerBottom = data->guiLayers->get("empty");
@@ -568,6 +579,17 @@ void Pic::init_gui() {
                                  })
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
                                  ->set16Bitmap(Bitmaps::play)
+    );
+    gui_tools->addButton((new Button(data))
+                                 ->setInfo("replace Color")
+                                 ->setMethodButton([](DataWrapper *data) {
+                                     data->replaceColorX = 0;
+                                     data->replaceColorY = 0;
+                                     data->replaceColorTolerance = 0.0;
+                                     swapTool(data, Tool::REPLACE_COLOR);
+                                 })
+                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                 ->set16Bitmap(Bitmaps::tool)
     );
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Shapes")
@@ -979,6 +1001,40 @@ void Pic::init_gui() {
                                             ->setAppearBottomOnChange(true)
     );
 
+    auto gui_bottom_replace_color = new GuiLayer();
+    gui_bottom_replace_color->addButton((new Button(data))
+                                                ->setInfo("X")
+                                                ->setIntValueButton(&data->replaceColorX)
+    );
+    gui_bottom_replace_color->addButton((new Button(data))
+                                                ->setInfo("Y")
+                                                ->setIntValueButton(&data->replaceColorY)
+    );
+    gui_bottom_replace_color->addButton((new Button(data))
+                                                ->setInfo("Tolerance")
+                                                ->setDoubleValueButton(&data->replaceColorTolerance, 0.0, 1.0)
+    );
+    gui_bottom_replace_color->addButton((new Button(data))
+                                                ->setInfo("Replace")
+                                                ->setConfirmButton([](DataWrapper *data) {
+                                                    data->replaceColorX = 0;
+                                                    data->replaceColorY = 0;
+                                                    data->replaceColorTolerance = 0.0;
+                                                }, [](DataWrapper *data) {
+                                                    if (data->layers->currentNum() >= 0) {
+                                                        uint32_t penColor =
+                                                                (data->colorA << 24) | (data->colorR << 16) | (data->colorG << 8) |
+                                                                data->colorB;
+                                                        Layer *l = data->layers->current();
+                                                        int relX = data->replaceColorX - l->posX, relY = data->replaceColorY - l->posY;
+                                                        data->layers->replaceColorCurrent(relX, relY, penColor,
+                                                                                          data->replaceColorTolerance);
+                                                    }
+                                                })
+                                                ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+                                                ->setAppearBottomOnChange(true)
+    );
+
 
     auto gui_empty = new GuiLayer();
 
@@ -1003,6 +1059,7 @@ void Pic::init_gui() {
     data->guiLayers->put("bottom_combine", gui_bottom_combine);
     data->guiLayers->put("bottom_duplicate", gui_bottom_duplicate);
     data->guiLayers->put("bottom_shape", gui_bottom_shape);
+    data->guiLayers->put("bottom_replace_color", gui_bottom_replace_color);
     data->currentGuiLayer = gui_main;
     data->currentGuiLayerBottom = gui_empty;
     data->currentGuiLayer->appear();

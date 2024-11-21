@@ -87,6 +87,10 @@ public:
 
     void prepareNextDrawingCurrent();
 
+    void replaceColor(int index, int x, int y, uint32_t penColor, double tolerance, bool writeHistory = true);
+
+    void replaceColorCurrent(int x, int y, uint32_t penColor, double tolerance);
+
     History *history;
     Layer **layers;
     int layerCount;

@@ -202,6 +202,14 @@ void Renderer::drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, in
     lineDrawer->drawLine(x4, y4, x1, y1, c4);
 }
 
+void Renderer::drawFilledOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, uint32_t color) {
+    for (int y = y1; y <= y3; y++) {
+        for (int x = x1; x <= x2; x++) {
+            buff_overlay[y * data->workAreaX + x] = color;
+        }
+    }
+}
+
 void Renderer::renderOverlay() {
     for (int i = 0; i < data->workAreaAll; i++) {
         buff_overlay[i] = 0x00000000;
@@ -350,6 +358,14 @@ void Renderer::renderOverlay() {
                     pixelDrawer->drawPixel(px + 1, py, cgreen);
                 }
             }
+        } else if (data->currentTool == Tool::REPLACE_COLOR) {
+            x = data->replaceColorX, y = data->replaceColorY;
+            int relX = x - l->posX, relY = y - l->posY;
+            uint32_t oldColor = l->getPixel(relX, relY);
+            drawFilledOverlayBox(x, y, x + 10, y, x + 10, y + 10, x, y + 10, oldColor);
+            drawFilledOverlayBox(x + 1, y + 1, x + 9, y + 1, x + 9, y + 9, x + 1, y + 9, oldColor);
+            drawOverlayBox(x, y, x + 10, y, x + 10, y + 10, x, y + 10, cgreen);
+            drawOverlayBox(x + 1, y + 1, x + 9, y + 1, x + 9, y + 9, x + 1, y + 9, cgreen);
         }
     }
     if (data->debugString != nullptr) {

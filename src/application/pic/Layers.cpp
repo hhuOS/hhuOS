@@ -577,3 +577,33 @@ void Layers::drawShape(int index, Shape shape, int x, int y, int w, int h, uint3
 void Layers::drawShapeCurrent(Shape shape, int x, int y, int w, int h, uint32_t color) {
     drawShape(currentLayer, shape, x, y, w, h, color);
 }
+
+void Layers::replaceColor(int index, int x, int y, uint32_t penColor, double tolerance, bool writeHistory) {
+    if (index < 0 || index >= layerCount) {
+        mHandler->addMessage(Util::String::format("Layers::replaceColor(%d, %d, %d, %d, %d, %f) index out of bounds", index, x, y,
+                                                  penColor, tolerance).operator const char *());
+        return;
+    }
+    Layer *layer = layers[index];
+    uint32_t targetColor = layer->getPixel(x, y);
+    if (targetColor == penColor) return;
+    tolerance = max(0.0, min(1.0, tolerance));
+    int maxDiff = 255 * tolerance;
+    for (int i = 0; i < layer->width * layer->height; i++) {
+        uint32_t pixel = layer->getPixelData()[i];
+        uint32_t rDiff = abs(((targetColor >> 16) & 0xFF) - ((pixel >> 16) & 0xFF));
+        uint32_t gDiff = abs(((targetColor >> 8) & 0xFF) - ((pixel >> 8) & 0xFF));
+        uint32_t bDiff = abs((targetColor & 0xFF) - (pixel & 0xFF));
+        if (rDiff <= maxDiff && gDiff <= maxDiff && bDiff <= maxDiff) {
+            layer->getPixelData()[i] = penColor;
+        }
+    }
+    auto toleranceString = double_to_string(tolerance, 2);
+    if (writeHistory)
+        history->addCommand(Util::String::format("replaceColor %d %d %d %d %s", index, x, y, penColor, toleranceString), &layers,
+                            &layerCount);
+}
+
+void Layers::replaceColorCurrent(int x, int y, uint32_t penColor, double tolerance) {
+    replaceColor(currentLayer, x, y, penColor, tolerance);
+}

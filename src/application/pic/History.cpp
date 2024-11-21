@@ -129,6 +129,11 @@ void History::execCommandOn(Layers *layers, const String &command, bool writeHis
             layers->drawShape(String::parseInt(comm[1]), static_cast<Shape>(String::parseInt(comm[2])), String::parseInt(comm[3]),
                               String::parseInt(comm[4]), String::parseInt(comm[5]), String::parseInt(comm[6]), String::parseInt(comm[7]),
                               writeHistory);
+    } else if (comm[0] == "replaceColor") {
+        if (comm.length() != 6) mHandler->addMessage("Invalid command: " + command);
+        else
+            layers->replaceColor(String::parseInt(comm[1]), String::parseInt(comm[2]), String::parseInt(comm[3]), String::parseInt(comm[4]),
+                                 String::parseDouble(comm[5]), writeHistory);
     } else mHandler->addMessage("Unknown command: " + command);
 }
 

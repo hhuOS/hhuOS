@@ -37,7 +37,7 @@ class MessageHandler;
 
 enum Tool {
     // tools
-    NOTHING = 0, MOVE = 1, ROTATE = 2, SCALE = 3, CROP = 4, PEN = 5, ERASER = 6, COLOR = 7, SHAPE = 8,
+    NOTHING = 0, MOVE = 1, ROTATE = 2, SCALE = 3, CROP = 4, PEN = 5, ERASER = 6, COLOR = 7, SHAPE = 8, REPLACE_COLOR = 15,
     // layer tools
     EXPORT_PNG = 9, EXPORT_JPG = 10, EXPORT_BMP = 11, NEW_EMPTY = 12, COMBINE = 13, DUPLICATE = 14,
 };
@@ -107,6 +107,8 @@ public:
     int dupeIndex;
     int shapeX, shapeY, shapeW, shapeH;
     Shape currentShape;
+    int replaceColorX, replaceColorY;
+    double replaceColorTolerance;
 };
 
 
