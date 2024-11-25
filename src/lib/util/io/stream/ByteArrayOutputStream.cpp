@@ -63,7 +63,9 @@ void ByteArrayOutputStream::setEnforceSizeLimit(bool value) {
 }
 
 void ByteArrayOutputStream::write(uint8_t c) {
-    if (ensureRemainingCapacity(1)) buffer[position++] = c;
+    if (ensureRemainingCapacity(1)) {
+        buffer[position++] = c;
+    }
 }
 
 void ByteArrayOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {

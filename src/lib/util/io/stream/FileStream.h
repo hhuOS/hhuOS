@@ -16,8 +16,12 @@
 
 namespace Util::Io {
 
-	
+/**
+ * A stream that can read from and write to a file.
+ * Exposes libc compatible functions (fflush, fputc, ungetc, etc.)
+ */
 class FileStream : public InputStream, public OutputStream {
+
 public:
 
 	enum class FileMode {
@@ -45,39 +49,44 @@ public:
 	
 	explicit FileStream(int32_t fileDescriptor, bool allowRead, bool allowWrite);
 	
-	FileStream(const OutputStream &copy) = delete;
+	FileStream(const FileStream &copy) = delete;
 
-    FileStream &operator=(const OutputStream &copy) = delete;
+    FileStream &operator=(const FileStream &copy) = delete;
 	
-	~FileStream();
+	~FileStream() override;
 
-	virtual void write(uint8_t c);
+	void write(uint8_t c) override;
 
-    virtual void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length);
+    void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
 	
 	int fputc(int c);
 
-    virtual void flush();
+    void flush() override;
 	
 	int fflush();
 	
-	virtual int16_t read(); 
+	int16_t read() override;
 	
-	virtual int16_t peek();
+	int16_t peek() override;
 	
-	virtual bool isReadyToRead();
+	bool isReadyToRead() override;
 
-    virtual int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length);
+    int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
 	
 	int ungetChar(int ch);
 	
-	bool readAllowed();
-	bool writeAllowed();
-	bool isError();
-	bool isEOF();
-	bool isOpen();
+	[[nodiscard]] bool isReadAllowed() const;
+
+	[[nodiscard]] bool isWriteAllowed() const;
+
+	[[nodiscard]] bool isError() const;
+
+	[[nodiscard]] bool isEOF() const;
+
+	[[nodiscard]] bool isOpen() const;
 	
-	uint32_t getPos();
+	[[nodiscard]] uint32_t getPos() const;
+
 	void setPos(uint32_t newPos, SeekMode mode);
 	
 	int setBuffer(char* newBuffer, BufferMode mode, size_t size);
@@ -89,21 +98,20 @@ public:
 private:
 
 	int32_t fileDescriptor;
-	uint32_t pos = 0; //next position to be written to, or start of buffer 
+	uint32_t pos = 0; // next position to be written to, or start of buffer
 	
-	bool _readAllowed = false;
-	bool _writeAllowed = false;
-	bool _error = false;
-	bool _eof = false;
+	bool readAllowed = false;
+	bool writeAllowed = false;
+	bool error = false;
+	bool eof = false;
 	
 	BufferMode bufferMode;
-	bool _bufferChangeAllowed = true;
-	bool _freeBufferOnDelete = false;
-	
-	
-	uint32_t bufferPos; //current position inside buffer
+	bool bufferChangeAllowed = true;
+	bool freeBufferOnDelete = false;
+
+	uint32_t bufferPos; // current position inside buffer
 	uint32_t bufferSize;
-	char* buffer = NULL;
+	uint8_t *buffer = nullptr;
 	
 	Util::ArrayList<int> ungottenChars;
 	

@@ -22,13 +22,13 @@
 
 namespace Util::Io {
 
-FileInputStream::FileInputStream(const Io::File &file) : fileStream((char*)file.getCanonicalPath(), FileStream::FileMode::READ) {
+FileInputStream::FileInputStream(const Io::File &file) : fileStream(static_cast<const char*>(file.getCanonicalPath()), FileStream::FileMode::READ) {
     if (fileStream.isError()) {
         Util::Exception::throwException(Exception::INVALID_ARGUMENT, "FileInputStream: Unable to open file!");
     }
 }
 
-FileInputStream::FileInputStream(const String &path) : fileStream((char*)path, FileStream::FileMode::READ) {
+FileInputStream::FileInputStream(const String &path) : fileStream(static_cast<const char*>(path), FileStream::FileMode::READ) {
     if (fileStream.isError()) {
         Util::Exception::throwException(Exception::INVALID_ARGUMENT, "FileInputStream: Unable to open file!");
     }

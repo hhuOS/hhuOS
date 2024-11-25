@@ -22,13 +22,13 @@
 
 namespace Util::Io {
 
-FileOutputStream::FileOutputStream(const Io::File &file) : fileStream((char*)file.getCanonicalPath(), FileStream::FileMode::WRITE) {
+FileOutputStream::FileOutputStream(const Io::File &file) : fileStream(static_cast<const char*>(file.getCanonicalPath()), FileStream::FileMode::WRITE) {
     if (fileStream.isError()) {
         Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileOutputStream: Unable to open file!");
     }
 }
 
-FileOutputStream::FileOutputStream(const String &path) : fileStream((char*)path, FileStream::FileMode::WRITE) {
+FileOutputStream::FileOutputStream(const String &path) : fileStream(static_cast<const char*>(path), FileStream::FileMode::WRITE) {
     if (fileStream.isError()) {
         Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileOutputStream: Unable to open file!");
     }

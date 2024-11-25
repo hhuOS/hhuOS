@@ -6,16 +6,14 @@
 #include "lib/util/base/String.h"
 #include "lib/interface.h"
 
-
 namespace Util::Io {
-
 
 FileStream::FileStream(const char* filename, FileMode mode) {
 	auto file = File(Util::String(filename));
 	
 	if (file.exists() && file.isDirectory()) {
-		//errno = EISDIR; //TODO errno
-		_error = true;
+		// errno = EISDIR; // TODO errno
+		error = true;
 		return;
 	}
 	
@@ -25,87 +23,83 @@ FileStream::FileStream(const char* filename, FileMode mode) {
 	
 	fileDescriptor = File::open(file.getCanonicalPath());
 	
-	if (fileDescriptor < 0) return;
+	if (fileDescriptor < 0) {
+        error = true;
+        return;
+    }
 	
 	switch (mode) {
 		case FileMode::READ:
-			_readAllowed  = true;
+            readAllowed  = true;
 			break;
-			
 		case FileMode::WRITE:
-			_writeAllowed = true;
+            writeAllowed = true;
 			break;
-			
 		case FileMode::APPEND:
-			_writeAllowed = true;
+            writeAllowed = true;
 			pos = file.getLength();
 			break;
-			
 		case FileMode::READ_EXTEND:
-			_readAllowed  = true;
-			_writeAllowed = true;
+            readAllowed  = true;
+            writeAllowed = true;
 			break;
-		
-		case FileMode::WRITE_EXTEND:
-			_readAllowed  = true;
-			_writeAllowed = true;
-			break; 
-			
+        case FileMode::WRITE_EXTEND:
+            readAllowed  = true;
+            writeAllowed = true;
+            break;
 		case FileMode::APPEND_EXTEND:
-			_readAllowed  = true;
-			_writeAllowed = true;
+            readAllowed  = true;
+            writeAllowed = true;
 			pos = file.getLength();
 			break; 
 	}
 }
 
-FileStream::FileStream(int32_t fileDescriptor, bool allowRead, bool allowWrite) {
-	this->fileDescriptor = fileDescriptor;
-	_readAllowed = allowRead;
-	_writeAllowed = allowWrite;
-}
-
+FileStream::FileStream(int32_t fileDescriptor, bool allowRead, bool allowWrite) : fileDescriptor(fileDescriptor), readAllowed(allowRead), writeAllowed(allowWrite) {}
 
 FileStream::~FileStream() {
 	flush();
 	File::close(fileDescriptor);
-	if (_freeBufferOnDelete && buffer) delete [] buffer;
+
+	if (freeBufferOnDelete && buffer) {
+        delete[] buffer;
+    }
 }
 
-
 int FileStream::setBuffer(char* newBuffer, BufferMode mode, size_t size) {
-	if (!_bufferChangeAllowed || isError()) return -1;
+	if (!bufferChangeAllowed || isError()) return -1;
 	
 	if (mode == BufferMode::NONE) {
-		buffer = NULL;
+		buffer = nullptr;
 		return 0;
 	}
 	
-	if (!newBuffer) {
-		buffer = (char*) new uint8_t[size];
-		_freeBufferOnDelete = true;
+	if (newBuffer == nullptr) {
+		buffer = new uint8_t[size];
+        freeBufferOnDelete = true;
 	} else {
-		buffer = newBuffer;
+		buffer = reinterpret_cast<uint8_t*>(newBuffer);
 		this->bufferSize = size;
 	}
 	
 	bufferMode = mode;
 	bufferSize = size;
 	bufferPos = 0;
-	
-	_bufferChangeAllowed = false;
+
+    bufferChangeAllowed = false;
 	return 0;
 }
 
-
 int FileStream::fflush() {
-	if (!buffer || !writeAllowed() || isError()) return EOF;
-	
-	
-	_bufferChangeAllowed = false;
+	if (buffer == nullptr || !isWriteAllowed() || isError()) {
+        return EOF;
+    }
+
+    bufferChangeAllowed = false;
 	writeFile(fileDescriptor, (const uint8_t*)buffer, pos, bufferPos);
 	pos += bufferPos;
 	bufferPos = 0;
+
 	return 0;
 }
 
@@ -113,47 +107,51 @@ void FileStream::flush() {
 	fflush();
 }
 
-
 int FileStream::fputc(int c) {
-	if (!isOpen() || !writeAllowed() || isError()) {
-		_error = true;
-		return EOF;
-	}
-	
-	_bufferChangeAllowed = false;
-	if (buffer) {
-		
-		if (bufferPos == bufferSize) flush(); //flush if buffer is full
-		buffer[bufferPos++] = c;
-		if (bufferMode == BufferMode::LINE && c == '\n') flush(); //flush if line mode and end of line
-		
-	} else {
-		writeFile(fileDescriptor, (const uint8_t*)&c, pos++, 1);
-	}
-	
-	return 0;
+	write(c);
+	return error ? EOF : c;
 }
-
 
 void FileStream::write(uint8_t c) {
-	fputc(c);
+	write(&c, 0, 1);
 }
-
 
 void FileStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-	if (isError() || !writeAllowed()) return;
-	if (offset) flush();
-	pos += offset;
-	
-	for (uint32_t i=0; i<length; i++) write(sourceBuffer[i]);
-}
+    if (!isOpen() || !isWriteAllowed() || isError()) {
+        error = true;
+    }
 
+    if (offset > 0) {
+        flush();
+        pos += offset;
+    }
+
+    bufferChangeAllowed = false;
+    if (buffer) {
+        for (uint32_t i = 0; i < length; i++) {
+            if (bufferPos >= bufferSize) {
+                flush(); // Flush if buffer is full
+            }
+
+            auto c = sourceBuffer[i];
+            buffer[bufferPos++] = c;
+
+            if (bufferMode == BufferMode::LINE && c == '\n') {
+                flush(); // Flush if line mode and end of line
+            }
+        }
+    } else {
+        pos += writeFile(fileDescriptor, sourceBuffer, pos, length);
+    }
+}
 
 int16_t FileStream::read() {
 	uint8_t ret;
-	_bufferChangeAllowed = false;
+    bufferChangeAllowed = false;
 	
-	if (!readAllowed() || isError()) return EOF;
+	if (!isReadAllowed() || isError()) {
+        return EOF;
+    }
 	
 	if (!ungottenChars.isEmpty()) {
 		return ungottenChars.pop();
@@ -161,7 +159,7 @@ int16_t FileStream::read() {
 	
 	int32_t len = readFile(fileDescriptor, &ret, pos++, 1);
 	if (len == 0) {
-		_eof = true;
+        eof = true;
 		return EOF;
 	} 
 	
@@ -171,6 +169,7 @@ int16_t FileStream::read() {
 int16_t FileStream::peek() {
 	int16_t ret = read();
 	ungetChar(ret);
+
 	return ret;
 }
 
@@ -179,10 +178,12 @@ bool FileStream::isReadyToRead() {
 }
 
 int32_t FileStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
-	if (!readAllowed() || isError()) return EOF;
+	if (!isReadAllowed() || isError()) {
+        return EOF;
+    }
 	
 	pos += offset;
-	_bufferChangeAllowed = false;
+    bufferChangeAllowed = false;
 	
 	if (!offset) {
 		uint32_t i = 0;
@@ -196,7 +197,7 @@ int32_t FileStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length
 	uint32_t len = readFile(fileDescriptor, targetBuffer, pos, length);
 	pos += len;
 	
-	if (len < length) _eof = true;
+	if (len < length) eof = true;
 	return len;
 }
 
@@ -205,14 +206,13 @@ int FileStream::ungetChar(int ch) {
 	return ch;
 }
 
-
-uint32_t FileStream::getPos() {
+uint32_t FileStream::getPos() const {
 	return pos;
 }
 
 void FileStream::setPos(uint32_t newPos, SeekMode mode) {
 	flush();
-	_eof = false;
+    eof = false;
 	ungottenChars.clear();
 	
 	switch (mode) {
@@ -230,34 +230,33 @@ void FileStream::setPos(uint32_t newPos, SeekMode mode) {
 }
 
 void FileStream::clearError() {
-	_eof = false;
-	_error = false;
+    eof = false;
+    error = false;
 }
 
 
-bool FileStream::readAllowed() {
-	return _readAllowed;
+bool FileStream::isReadAllowed() const {
+	return readAllowed;
 }
 
-bool FileStream::writeAllowed() {
-	return _writeAllowed;
+bool FileStream::isWriteAllowed() const {
+	return writeAllowed;
 }
 
-bool FileStream::isError() {
-	return _error;
+bool FileStream::isError() const {
+	return error;
 }
 
-bool FileStream::isEOF() {
-	return _eof;
+bool FileStream::isEOF() const {
+	return eof;
 }
 
-bool FileStream::isOpen() {
+bool FileStream::isOpen() const {
 	return fileDescriptor >= 0;
 }
 
 bool FileStream::setAccessMode(File::AccessMode accessMode) const {
     return File::setAccessMode(fileDescriptor, accessMode);
 }
-
 
 }

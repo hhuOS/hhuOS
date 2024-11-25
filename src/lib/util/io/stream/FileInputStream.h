@@ -27,6 +27,10 @@
 
 namespace Util::Io {
 
+/**
+ * A stream that reads data from a file.
+ * It is essentially a wrapper for FileStream, that opens the file in read mode.
+ */
 class FileInputStream : public InputStream {
 
 public:

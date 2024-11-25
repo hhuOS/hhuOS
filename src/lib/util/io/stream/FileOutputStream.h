@@ -32,6 +32,10 @@ class File;
 
 namespace Util::Io {
 
+/**
+ * A stream that writes data to a file.
+ * It is essentially a wrapper for FileStream, that opens the file in write mode.
+ */
 class FileOutputStream : public OutputStream {
 
 public:
