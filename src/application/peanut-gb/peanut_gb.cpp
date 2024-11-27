@@ -632,9 +632,9 @@ void read_ram_from_file(gb_s *gb) {
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.setHelpText("GameBoy emulator by 'deltabeard' (https://github.com/deltabeard/Peanut-GB).\n"
-                               "Arrow keys are mapped to WASD, A and B are mapped to K and J, Start is mapped to Space, Select is mapped to Enter.\n"
+                               "Joypad is mapped to WASD; A and B are mapped to K and J; Start is mapped to Space and Select is mapped to Enter.\n"
                                "Use 'F1' and 'F2' to adjust screen scaling. Use 'F3' to cycle through color palettes and 'F4' to reset to default palette.\n"
-                               "Usage: peanut-gb [FILE]...\n"
+                               "Usage: peanut-gb [FILE]\n"
                                "Options:\n"
                                "  -s, --save: Path to save file\n"
                                "  -r, --resolution: Set display resolution\n"

@@ -7,7 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: true
+          submodules: recursive
       - id: commit
         uses: prompt/actions-commit-hash@v3
 
@@ -35,7 +35,10 @@ jobs:
           wget -O license/portablegl.txt https://raw.githubusercontent.com/rswinkle/PortableGL/refs/heads/master/LICENSE &&
           head -n 30 src/application/peanut-gb/Peanut-GB/peanut_gb.h > license/peanut-gb.txt &&
           wget -O license/2048-gb.txt https://raw.githubusercontent.com/Sanqui/2048-gb/master/LICENSE &&
-          wget -O license/5-mazes.txt https://raw.githubusercontent.com/godai78/5-Mazes/main/LICENSE
+          wget -O license/5-mazes.txt https://raw.githubusercontent.com/godai78/5-Mazes/main/LICENSE &&
+          wget -O license/clownmdemu.txt https://raw.githubusercontent.com/Clownacy/clownmdemu/refs/heads/master/LICENCE.txt &&
+          wget -O license/dragons-castle.txt https://raw.githubusercontent.com/sikthehedgehog/dragon/refs/heads/master/LICENSE &&
+          wget -O license/miniplanets.txt https://raw.githubusercontent.com/sikthehedgehog/miniplanets/refs/heads/master/LICENSE.txt
 
       - name: Create artifact
         run: mkdir -p hhuOS-${{ steps.commit.outputs.short }} && cp -r hhuOS-limine.iso hhuOS-towboot.img hdd0.img floppy0.img run.sh README.md license hhuOS-${{ steps.commit.outputs.short }}

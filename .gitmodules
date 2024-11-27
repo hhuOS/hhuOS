@@ -16,3 +16,6 @@
 [submodule "src/lib/portablegl"]
 	path = src/lib/portablegl
 	url = https://github.com/hhuOS/PortableGL.git
+[submodule "src/application/clownmdemu/clownmdemu"]
+	path = src/application/clownmdemu/clownmdemu
+	url = https://github.com/hhuOS/clownmdemu.git

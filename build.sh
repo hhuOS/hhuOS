@@ -118,6 +118,7 @@ cleanup() {
     remove "disk/hdd0/user/books"
     remove "disk/hdd0/user/doom"
     remove "disk/hdd0/user/gameboy"
+    remove "disk/hdd0/user/megadrive"
     remove "disk/hdd0/user/quake"
     remove "disk/hdd0/user/wav"
     remove "disk/hdd0/media/"
