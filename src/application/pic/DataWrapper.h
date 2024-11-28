@@ -88,6 +88,7 @@ public:
     GuiLayer *currentGuiLayer;
     GuiLayer *currentGuiLayerBottom;
     Button *textButton;
+    bool inMainMenu;
 
     // overlay
     const char *debugString;

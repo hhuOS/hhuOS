@@ -44,6 +44,7 @@ DataWrapper::DataWrapper() {
     currentGuiLayer = nullptr;
     currentGuiLayerBottom = nullptr;
     textButton = nullptr;
+    inMainMenu = true;
 
     // overlay
     debugString = nullptr;

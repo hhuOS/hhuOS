@@ -251,104 +251,6 @@ void Pic::parseMouse(bool clicked) {
     data->flags->overlayChanged();
 }
 
-void Pic::checkKeyboardInput() {
-    int16_t scancode = Util::System::in.read();
-    while (scancode >= 0) {
-        if (scancode == data->lastScancode) {
-            scancode = Util::System::in.read();
-            continue;
-        }
-        data->lastScancode = scancode;
-        if (data->keyDecoder->parseScancode(scancode)) {
-            auto key = data->keyDecoder->getCurrentKey();
-            if (!key.isPressed()) {
-                scancode = Util::System::in.read();
-                continue;
-            }
-            if (data->captureInput) { // TODO: kaputt, wenn man tab drückt (ist vll riesen char?? :D)
-                if (key.getScancode() == Util::Io::Key::BACKSPACE) {
-                    *data->currentInput = data->currentInput->substring(0, data->currentInput->length() - 1);
-                    data->textButton->render();
-                } else {
-                    char c = key.getAscii();
-                    if (c != 0) {
-                        *data->currentInput += c;
-                        data->textButton->render();
-                    }
-                }
-            } else {
-                Layer *currentLayer;
-                switch (scancode) {
-                    case Util::Io::Key::ESC:
-                        data->running = false;
-                        break;
-                    case Util::Io::Key::UP:
-                        if (data->layers->currentNum() >= 0) {
-                            currentLayer = data->layers->current();
-                            data->layers->moveCurrent(currentLayer->posX, currentLayer->posY - 10);
-                            data->flags->currentLayerChanged();
-                            data->flags->overlayChanged();
-                        }
-                        break;
-                    case Util::Io::Key::DOWN:
-                        if (data->layers->currentNum() >= 0) {
-                            currentLayer = data->layers->current();
-                            data->layers->moveCurrent(currentLayer->posX, currentLayer->posY + 10);
-                            data->flags->currentLayerChanged();
-                            data->flags->overlayChanged();
-                        }
-                        break;
-                    case Util::Io::Key::LEFT:
-                        if (data->layers->currentNum() >= 0) {
-                            currentLayer = data->layers->current();
-                            data->layers->moveCurrent(currentLayer->posX - 10, currentLayer->posY);
-                            data->flags->currentLayerChanged();
-                            data->flags->overlayChanged();
-                        }
-                        break;
-                    case Util::Io::Key::RIGHT:
-                        if (data->layers->currentNum() >= 0) {
-                            currentLayer = data->layers->current();
-                            data->layers->moveCurrent(currentLayer->posX + 10, currentLayer->posY);
-                            data->flags->currentLayerChanged();
-                            data->flags->overlayChanged();
-                        }
-                        break;
-                    case Util::Io::Key::TAB:
-                        data->layers->setCurrentToNext();
-                        data->layers->prepareNextDrawingCurrent();
-                        data->flags->layerOrderChanged();
-                        data->flags->overlayChanged();
-                        data->currentGuiLayer->appear();
-                        break;
-                    case Util::Io::Key::SPACE:
-                        data->layers->current()->isVisible = !data->layers->current()->isVisible;
-                        data->flags->currentLayerChanged();
-                        data->flags->overlayChanged();
-                        data->currentGuiLayer->appear();
-                        break;
-                    case Util::Io::Key::X: // TODO remove
-                        this->data->layers->history->printCommands();
-                        break;
-                    case Util::Io::Key::A: // TODO remove
-                        data->history->undo(data->layers);
-                        data->flags->layerOrderChanged();
-                        data->flags->guiButtonChanged();
-                        break;
-                    case Util::Io::Key::S: // TODO remove
-                        data->history->redo(data->layers);
-                        data->flags->layerOrderChanged();
-                        data->flags->guiButtonChanged();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-        scancode = Util::System::in.read();
-    }
-}
-
 void swapTool(DataWrapper *data, Tool tool) {
     if (data->currentTool == tool) {
         data->currentTool = Tool::NOTHING;
@@ -404,9 +306,162 @@ void swapTool(DataWrapper *data, Tool tool) {
 }
 
 void changeGuiLayerTo(DataWrapper *data, const char *layer) {
+    if (String(layer) == "main") {
+        data->inMainMenu = true;
+    } else {
+        data->inMainMenu = false;
+    }
     data->currentGuiLayer = data->guiLayers->get(layer);
     data->currentGuiLayer->appear();
     swapTool(data, Tool::NOTHING);
+}
+
+void Pic::checkKeyboardInput() {
+    int16_t scancode = Util::System::in.read();
+    while (scancode >= 0) {
+        if (scancode == data->lastScancode) {
+            scancode = Util::System::in.read();
+            continue;
+        }
+        data->lastScancode = scancode;
+        if (data->keyDecoder->parseScancode(scancode)) {
+            auto key = data->keyDecoder->getCurrentKey();
+            if (!key.isPressed()) {
+                scancode = Util::System::in.read();
+                continue;
+            }
+            if (data->captureInput) { // TODO: kaputt, wenn man tab drückt (ist vll riesen char?? :D)
+                if (key.getScancode() == Util::Io::Key::BACKSPACE) {
+                    *data->currentInput = data->currentInput->substring(0, data->currentInput->length() - 1);
+                    data->textButton->render();
+                } else {
+                    char c = key.getAscii();
+                    if (c != 0) {
+                        *data->currentInput += c;
+                        data->textButton->render();
+                    }
+                }
+            } else {
+                switch (scancode) {
+                    case 2: // 1
+                        changeGuiLayerTo(data, "file");
+                        data->flags->guiLayerChanged();
+                        break;
+                    case 3: // 2
+                        changeGuiLayerTo(data, "tools");
+                        data->flags->guiLayerChanged();
+                        break;
+                    case 4: // 3
+                        changeGuiLayerTo(data, "layers");
+                        data->flags->guiLayerChanged();
+                        break;
+                    case 5: // 4
+                        changeGuiLayerTo(data, "layerTools");
+                        data->flags->guiLayerChanged();
+                        break;
+                    case Util::Io::Key::ESC:
+                        if (data->inMainMenu) {
+                            data->running = false;
+                        } else {
+                            changeGuiLayerTo(data, "main");
+                            data->flags->guiLayerChanged();
+                        }
+                        break;
+                    case Util::Io::Key::Z: // undo
+                        data->history->undo(data->layers);
+                        data->flags->layerOrderChanged();
+                        break;
+                    case Util::Io::Key::Y: // redo
+                        data->history->redo(data->layers);
+                        data->flags->layerOrderChanged();
+                        break;
+                    case Util::Io::Key::TAB: // switch layer
+                        data->layers->setCurrentToNext();
+                        data->layers->prepareNextDrawingCurrent();
+                        data->flags->layerOrderChanged();
+                        data->flags->overlayChanged();
+                        data->currentGuiLayer->appear();
+                        break;
+                    case Util::Io::Key::Q: // new empty layer
+                        changeGuiLayerTo(data, "layerTools");
+                        swapTool(data, Tool::NEW_EMPTY);
+                        data->flags->guiLayerChanged();
+                        data->flags->overlayChanged();
+                        data->currentGuiLayerBottom->appear();
+                        data->currentGuiLayer->appear();
+                        break;
+                    case Util::Io::Key::W: // new img layer
+                        data->layers->addPicture(data->currentInput->operator const char *(), 0, 0);
+                        data->flags->layerOrderChanged();
+                        break;
+                    case Util::Io::Key::P: // pen
+                        changeGuiLayerTo(data, "tools");
+                        data->penSize = 10;
+                        swapTool(data, Tool::PEN);
+                        break;
+                    case Util::Io::Key::E: // eraser
+                        changeGuiLayerTo(data, "tools");
+                        data->penSize = 10;
+                        swapTool(data, Tool::ERASER);
+                        break;
+                    case Util::Io::Key::N: // shapes
+                        changeGuiLayerTo(data, "tools");
+                        data->shapeX = 0;
+                        data->shapeY = 0;
+                        data->shapeW = 0;
+                        data->shapeH = 0;
+                        swapTool(data, Tool::SHAPE);
+                        break;
+                    case Util::Io::Key::C: // color
+                        changeGuiLayerTo(data, "tools");
+                        swapTool(data, Tool::COLOR);
+                        break;
+                    case Util::Io::Key::M: // move
+                        changeGuiLayerTo(data, "tools");
+                        if (data->layers->currentNum() >= 0) {
+                            data->moveX = data->layers->current()->posX;
+                            data->moveY = data->layers->current()->posY;
+                        } else {
+                            data->moveX = 0;
+                            data->moveY = 0;
+                        }
+                        swapTool(data, Tool::MOVE);
+                        break;
+                    case Util::Io::Key::R: // rotate
+                        changeGuiLayerTo(data, "tools");
+                        data->rotateDeg = 0;
+                        swapTool(data, Tool::ROTATE);
+                        break;
+                    case Util::Io::Key::S: // scale
+                        changeGuiLayerTo(data, "tools");
+                        data->scale = 1.0;
+                        swapTool(data, Tool::SCALE);
+                        break;
+                    case Util::Io::Key::O: // crop
+                        changeGuiLayerTo(data, "tools");
+                        data->cropLeft = 0;
+                        data->cropRight = 0;
+                        data->cropTop = 0;
+                        data->cropBottom = 0;
+                        swapTool(data, Tool::CROP);
+                        break;
+                    case Util::Io::Key::T: // replace color
+                        changeGuiLayerTo(data, "tools");
+                        data->replaceColorX = 0;
+                        data->replaceColorY = 0;
+                        data->replaceColorTolerance = 0.0;
+                        swapTool(data, Tool::REPLACE_COLOR);
+                        break;
+                    case Util::Io::Key::X: // TODO remove
+                        this->data->layers->history->printCommands();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        scancode = Util::System::in.read();
+    }
 }
 
 void Pic::init_gui() {
@@ -426,6 +481,7 @@ void Pic::init_gui() {
                                 })
                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
                                 ->set16Bitmap(Bitmaps::arrow_forward)
+                                ->setHotkey('1')
     );
     gui_main->addButton((new Button(data))
                                 ->setInfo("tools")
@@ -434,6 +490,7 @@ void Pic::init_gui() {
                                 })
                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
                                 ->set16Bitmap(Bitmaps::arrow_forward)
+                                ->setHotkey('2')
     );
     gui_main->addButton((new Button(data))
                                 ->setInfo("layers")
@@ -442,6 +499,7 @@ void Pic::init_gui() {
                                 })
                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
                                 ->set16Bitmap(Bitmaps::arrow_forward)
+                                ->setHotkey('3')
     );
     gui_main->addButton((new Button(data))
                                 ->setInfo("layer-Tools")
@@ -450,6 +508,7 @@ void Pic::init_gui() {
                                 })
                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
                                 ->set16Bitmap(Bitmaps::arrow_forward)
+                                ->setHotkey('4')
     );
 
     auto *gui_file = new GuiLayer();
@@ -483,6 +542,7 @@ void Pic::init_gui() {
                                 })
                                 ->set16Bitmap(Bitmaps::play)
                                 ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
+                                ->setHotkey('Z')
     );
     gui_file->addButton((new Button(data))
                                 ->setInfo("redo")
@@ -491,6 +551,7 @@ void Pic::init_gui() {
                                 })
                                 ->set16Bitmap(Bitmaps::play)
                                 ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
+                                ->setHotkey('Y')
     );
 
     auto *gui_tools = new GuiLayer();
@@ -517,6 +578,7 @@ void Pic::init_gui() {
                                  ->changeGreenIfTool(Tool::MOVE)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
                                  ->set16Bitmap(Bitmaps::tool)
+                                 ->setHotkey('M')
     );
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Rotate")
@@ -527,6 +589,7 @@ void Pic::init_gui() {
                                  ->changeGreenIfTool(Tool::ROTATE)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
                                  ->set16Bitmap(Bitmaps::tool)
+                                 ->setHotkey('R')
     );
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Scale")
@@ -537,6 +600,7 @@ void Pic::init_gui() {
                                  ->changeGreenIfTool(Tool::SCALE)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
                                  ->set16Bitmap(Bitmaps::tool)
+                                 ->setHotkey('S')
     );
     gui_tools->addButton((new Button(data))
                                  ->setInfo("auto Scale")
@@ -571,6 +635,7 @@ void Pic::init_gui() {
                                  ->changeGreenIfTool(Tool::CROP)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
                                  ->set16Bitmap(Bitmaps::tool)
+                                 ->setHotkey('O')
     );
     gui_tools->addButton((new Button(data))
                                  ->setInfo("auto Crop")
@@ -588,8 +653,10 @@ void Pic::init_gui() {
                                      data->replaceColorTolerance = 0.0;
                                      swapTool(data, Tool::REPLACE_COLOR);
                                  })
+                                 ->changeGreenIfTool(Tool::REPLACE_COLOR)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
                                  ->set16Bitmap(Bitmaps::tool)
+                                 ->setHotkey('T')
     );
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Shapes")
@@ -600,8 +667,10 @@ void Pic::init_gui() {
                                      data->shapeH = 0;
                                      swapTool(data, Tool::SHAPE);
                                  })
+                                 ->changeGreenIfTool(Tool::SHAPE)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
                                  ->set16Bitmap(Bitmaps::tool)
+                                 ->setHotkey('N')
     );
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Pen")
@@ -612,6 +681,7 @@ void Pic::init_gui() {
                                  ->changeGreenIfTool(Tool::PEN)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
                                  ->set16Bitmap(Bitmaps::tool)
+                                 ->setHotkey('P')
     );
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Eraser")
@@ -622,6 +692,7 @@ void Pic::init_gui() {
                                  ->changeGreenIfTool(Tool::ERASER)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
                                  ->set16Bitmap(Bitmaps::tool)
+                                 ->setHotkey('E')
     );
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Color")
@@ -632,6 +703,7 @@ void Pic::init_gui() {
                                  ->setColor(&data->colorA, &data->colorR, &data->colorG, &data->colorB)
                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
                                  ->set16Bitmap(Bitmaps::tool)
+                                 ->setHotkey('C')
     );
 
 
@@ -865,6 +937,7 @@ void Pic::init_gui() {
                                       ->changeGreenIfTool(Tool::NEW_EMPTY)
                                       ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
                                       ->set16Bitmap(Bitmaps::tool)
+                                      ->setHotkey('Q')
     );
     gui_layerTools->addButton((new Button(data))
                                       ->setInfo("load Image (path)")
@@ -873,6 +946,7 @@ void Pic::init_gui() {
                                       })
                                       ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
                                       ->set16Bitmap(Bitmaps::play)
+                                      ->setHotkey('W')
     );
     gui_layerTools->addButton((new Button(data))
                                       ->setInfo("Export PNG (path)")

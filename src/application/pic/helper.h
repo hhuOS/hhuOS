@@ -38,6 +38,7 @@ namespace Bitmaps {
     extern uint8_t checkmark[];
     extern uint8_t tool[];
     extern uint8_t play[];
+    extern uint8_t brackets[];
 
 } // namespace Bitmaps
 

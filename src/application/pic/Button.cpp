@@ -337,8 +337,14 @@ void Button::renderMethod() {
     } else if (bitmap != nullptr) {
         stringDrawer->drawMonoBitmap(10, 7, 16, 16, cblack, click ? cgreen : hover ? cdarkgray : cgray, bitmap);
     }
-    uint32_t borderColor = this->setGreenTool != Tool::NOTHING ? this->setGreenTool == data->currentTool ? 0xFF00FF00 : 0xFF000000 : 0xFF000000;
-    if(borderColor == 0xFF000000 && setGreenShape != Shape::DEFAULT) {
+    if (hotkey != 0) {
+        stringDrawer->drawMonoBitmap(180, 7, 16, 16, cblack, click ? cgreen : hover ? cdarkgray : cgray, Bitmaps::brackets);
+        char hotkeyString[2] = {hotkey, '\0'};
+        stringDrawer->drawString(Fonts::TERMINAL_8x16, 184, 7, hotkeyString, cblack, click ? cgreen : hover ? cdarkgray : cgray);
+    }
+    uint32_t borderColor =
+            this->setGreenTool != Tool::NOTHING ? this->setGreenTool == data->currentTool ? 0xFF00FF00 : 0xFF000000 : 0xFF000000;
+    if (borderColor == 0xFF000000 && setGreenShape != Shape::DEFAULT) {
         borderColor = setGreenShape == data->currentShape ? 0xFF00FF00 : 0xFF000000;
     }
     renderBorder(borderColor);
