@@ -37,6 +37,8 @@ class RenderFlags;
 
 class MessageHandler;
 
+class Settings;
+
 enum Tool {
     // tools
     NOTHING = 0, MOVE = 1, ROTATE = 2, SCALE = 3, CROP = 4, PEN = 5, ERASER = 6, COLOR = 7, SHAPE = 8, REPLACE_COLOR = 15,
@@ -150,6 +152,9 @@ public:
     void currentLayerChanged() { anyChange = true, result = true, workArea = true, layers = true; }
 
     void layerOrderChanged() { anyChange = true, result = true, workArea = true, overlay = true, layers = true, layerOrder = true; }
+
+    void
+    allChanged() { anyChange = true, result = true, mouse = true, gui = true, guiLayer = true, guiJustButton = true, workArea = true, base = true, overlay = true, messages = true, layers = true, layerOrder = true; }
 
 };
 

@@ -41,6 +41,13 @@ void Pic::run() {
     }
 }
 
+Pic::~Pic() {
+    data->settings->saveToFile();
+    print("bye :)");
+    delete data;
+    delete renderer;
+}
+
 void Pic::checkMouseInput() {
     uint8_t mouseValues[4]{};
     uint32_t mouseValueIndex = 0;
@@ -1145,6 +1152,33 @@ void Pic::init_gui() {
                                     })
                                     ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
                                     ->set16Bitmap(Bitmaps::arrow_back)
+    );
+    gui_settings->addButton((new Button(data))
+                                    ->setInfo("reset Settings")
+                                    ->setMethodButton([](DataWrapper *data) {
+                                        data->settings->resetToDefault();
+                                    })
+                                    ->setRenderFlagMethod(&RenderFlags::allChanged)
+                                    ->setAppearTopOnChange(true)
+                                    ->set16Bitmap(Bitmaps::play)
+    );
+    gui_settings->addButton((new Button(data))
+                                    ->setInfo("load Settings")
+                                    ->setMethodButton([](DataWrapper *data) {
+                                        data->settings->loadFromFile();
+                                    })
+                                    ->setRenderFlagMethod(&RenderFlags::allChanged)
+                                    ->setAppearTopOnChange(true)
+                                    ->set16Bitmap(Bitmaps::play)
+    );
+    gui_settings->addButton((new Button(data))
+                                    ->setInfo("save Settings")
+                                    ->setMethodButton([](DataWrapper *data) {
+                                        data->settings->saveToFile();
+                                    })
+                                    ->setRenderFlagMethod(&RenderFlags::allChanged)
+                                    ->setAppearTopOnChange(true)
+                                    ->set16Bitmap(Bitmaps::play)
     );
     gui_settings->addButton((new Button(data))
                                     ->setInfo("checkeredBackground")

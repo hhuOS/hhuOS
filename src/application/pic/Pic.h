@@ -12,7 +12,7 @@ class Pic {
 public:
     explicit Pic();
 
-    ~Pic() = default;
+    ~Pic();
 
     void run();
 

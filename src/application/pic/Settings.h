@@ -5,10 +5,24 @@
 #ifndef HHUOS_SETTINGS_H
 #define HHUOS_SETTINGS_H
 
+#include "lib/libc/stdio.h"
+
+#include "MessageHandler.h"
+#include "lib/util/io/stream/BufferedInputStream.h"
+
+class MessageHandler;
 
 class Settings {
 public:
-    Settings();
+    explicit Settings(MessageHandler *mHandler);
+
+    ~Settings() = default;
+
+    void resetToDefault();
+
+    void loadFromFile();
+
+    void saveToFile();
 
     bool checkeredBackground;
     bool optimizeRendering;
@@ -18,6 +32,10 @@ public:
     bool textCaptureAfterUse;
     bool resetValuesAfterConfirm;
     bool useBufferedBuffer;
+
+private:
+    MessageHandler *mHandler;
+    Util::String path;
 };
 
 

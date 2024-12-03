@@ -51,7 +51,7 @@ DataWrapper::DataWrapper() {
     debugString = nullptr;
 
     // settings
-    settings = new Settings();
+    settings = new Settings(mHandler);
 
     // work vars
     running = true;

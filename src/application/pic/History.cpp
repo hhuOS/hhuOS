@@ -160,7 +160,7 @@ void History::saveToFile(const Util::String &path) {
             fputs("\n", file);
         }
         fclose(file);
-    }
+    } else mHandler->addMessage("Error: Could not open file: " + path);
 }
 
 void History::loadFromFileInto(Layers *layers, const Util::String &path) {
