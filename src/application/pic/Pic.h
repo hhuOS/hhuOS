@@ -6,11 +6,12 @@
 #include "GuiLayer.h"
 #include "Renderer.h"
 #include "DataWrapper.h"
+#include "lib/util/base/ArgumentParser.h"
 
 
 class Pic {
 public:
-    explicit Pic();
+    explicit Pic(Util::Io::File *lfbFile);
 
     ~Pic();
 

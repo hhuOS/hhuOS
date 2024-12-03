@@ -4,10 +4,9 @@
 
 #include "DataWrapper.h"
 
-DataWrapper::DataWrapper() {
+DataWrapper::DataWrapper(Util::Io::File *lfbFile) {
     // screen
-    auto lfbFile = Util::Io::File("/device/lfb");
-    lfb = new Util::Graphic::LinearFrameBuffer(lfbFile);
+    lfb = new Util::Graphic::LinearFrameBuffer(*lfbFile);
     blfb = new Util::Graphic::BufferedLinearFrameBuffer(*lfb);
     screenX = lfb->getResolutionX(), screenY = lfb->getResolutionY(), pitch = lfb->getPitch(), screenAll =
             screenX * screenY;

@@ -56,7 +56,7 @@ enum Shape {
 
 class DataWrapper {
 public:
-    DataWrapper();
+    DataWrapper(Util::Io::File *lfbFile);
 
     ~DataWrapper() = default;
 

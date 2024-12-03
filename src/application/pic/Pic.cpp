@@ -5,15 +5,47 @@ using namespace Graphic;
 
 
 int32_t main([[maybe_unused]] int32_t argc, [[maybe_unused]] char *argv[]) {
-    auto pic = new Pic();
+    auto argumentParser = Util::ArgumentParser();
+    argumentParser.setHelpText("Pic - A Basic Image Editing Program.\n"
+                               "Usage: pic\n"
+                               "Options:\n"
+                               "  -r, --resolution: Set display resolution\n"
+                               "  -h, --help: Show this help message");
+
+    argumentParser.addArgument("resolution", false, "r");
+
+    if (!argumentParser.parse(argc, argv)) {
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        return -1;
+    }
+
+    auto lfbFile = new Util::Io::File("/device/lfb");
+
+    if (argumentParser.hasArgument("resolution")) {
+        auto split1 = argumentParser.getArgument("resolution").split("x");
+        auto split2 = split1[1].split("@");
+
+        uint32_t resolutionX = Util::String::parseInt(split1[0]);
+        uint32_t resolutionY = Util::String::parseInt(split2[0]);
+        uint32_t colorDepth = split2.length() > 1 ? Util::String::parseInt(split2[1]) : 32;
+        if(resolutionX<800 || resolutionY<600){
+            resolutionX = 800;
+            resolutionY = 600;
+        }
+
+        lfbFile->controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION,
+                             Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
+    }
+
+    auto pic = new Pic(lfbFile);
     pic->run();
     delete pic;
 
     return 0;
 }
 
-Pic::Pic() {
-    this->data = new DataWrapper();
+Pic::Pic(Util::Io::File *lfbFile) {
+    this->data = new DataWrapper(lfbFile);
     this->renderer = new Renderer(data);
 
     data->history = new History(data->mHandler);
