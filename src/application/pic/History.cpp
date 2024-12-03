@@ -134,6 +134,24 @@ void History::execCommandOn(Layers *layers, const String &command, bool writeHis
         else
             layers->replaceColor(String::parseInt(comm[1]), String::parseInt(comm[2]), String::parseInt(comm[3]), String::parseInt(comm[4]),
                                  String::parseDouble(comm[5]), writeHistory);
+    } else if (comm[0] == "filterBlackWhite") {
+        if (comm.length() != 2) mHandler->addMessage("Invalid command: " + command);
+        else layers->filterBlackWhite(String::parseInt(comm[1]), writeHistory);
+    } else if (comm[0] == "filterInvert") {
+        if (comm.length() != 2) mHandler->addMessage("Invalid command: " + command);
+        else layers->filterInvert(String::parseInt(comm[1]), writeHistory);
+    } else if (comm[0] == "filterSepia") {
+        if (comm.length() != 2) mHandler->addMessage("Invalid command: " + command);
+        else layers->filterSepia(String::parseInt(comm[1]), writeHistory);
+    } else if (comm[0] == "filterKernel") {
+        if (comm.length() != 13) mHandler->addMessage("Invalid command: " + command);
+        else {
+            int kernel[9];
+            for (int i = 0; i < 9; i++) {
+                kernel[i] = String::parseInt(comm[i + 2]);
+            }
+            layers->filterKernel(String::parseInt(comm[1]), kernel, String::parseInt(comm[11]), String::parseInt(comm[12]), writeHistory);
+        }
     } else mHandler->addMessage("Unknown command: " + command);
 }
 

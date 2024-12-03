@@ -91,6 +91,22 @@ public:
 
     void replaceColorCurrent(int x, int y, uint32_t penColor, double tolerance);
 
+    void filterBlackWhite(int index, bool writeHistory = true);
+
+    void filterBlackWhiteCurrent();
+
+    void filterInvert(int index, bool writeHistory = true);
+
+    void filterInvertCurrent();
+
+    void filterSepia(int index, bool writeHistory = true);
+
+    void filterSepiaCurrent();
+
+    void filterKernel(int index, int kernel[9], int divisor, int offset, bool writeHistory = true);
+
+    void filterKernelCurrent(int kernel[9], int divisor, int offset);
+
     History *history;
     Layer **layers;
     int layerCount;

@@ -400,6 +400,10 @@ void Pic::checkKeyboardInput() {
                             data->flags->guiLayerChanged();
                             break;
                         case 6: // 5
+                            changeGuiLayerTo(data, "filter");
+                            data->flags->guiLayerChanged();
+                            break;
+                        case 7: // 6
                             changeGuiLayerTo(data, "settings");
                             data->flags->guiLayerChanged();
                             break;
@@ -557,13 +561,22 @@ void Pic::init_gui() {
                                 ->setHotkey('4')
     );
     gui_main->addButton((new Button(data))
+                                ->setInfo("filter")
+                                ->setMethodButton([](DataWrapper *data) {
+                                    changeGuiLayerTo(data, "filter");
+                                })
+                                ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                ->set16Bitmap(Bitmaps::arrow_forward)
+                                ->setHotkey('5')
+    );
+    gui_main->addButton((new Button(data))
                                 ->setInfo("settings")
                                 ->setMethodButton([](DataWrapper *data) {
                                     changeGuiLayerTo(data, "settings");
                                 })
                                 ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
                                 ->set16Bitmap(Bitmaps::arrow_forward)
-                                ->setHotkey('5')
+                                ->setHotkey('6')
     );
 
     auto *gui_file = new GuiLayer();
@@ -1176,6 +1189,96 @@ void Pic::init_gui() {
                                                 ->setAppearBottomOnChange(true)
     );
 
+    auto gui_filter = new GuiLayer();
+    gui_filter->addButton((new Button(data))
+                                  ->setInfo("Back")
+                                  ->setMethodButton([](DataWrapper *data) {
+                                      changeGuiLayerTo(data, "main");
+                                  })
+                                  ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                  ->set16Bitmap(Bitmaps::arrow_back)
+    );
+    gui_filter->addButton((new Button(data))
+                                  ->setInfo("BlackWhite")
+                                  ->setMethodButton([](DataWrapper *data) {
+                                      data->layers->filterBlackWhiteCurrent();
+                                  })
+                                  ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+                                  ->set16Bitmap(Bitmaps::play)
+    );
+    gui_filter->addButton((new Button(data))
+                                  ->setInfo("Invert")
+                                  ->setMethodButton([](DataWrapper *data) {
+                                      data->layers->filterInvertCurrent();
+                                  })
+                                  ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+                                  ->set16Bitmap(Bitmaps::play)
+    );
+    gui_filter->addButton((new Button(data))
+                                  ->setInfo("Sepia")
+                                  ->setMethodButton([](DataWrapper *data) {
+                                      data->layers->filterSepiaCurrent();
+                                  })
+                                  ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+                                  ->set16Bitmap(Bitmaps::play)
+    );
+    // kernels from:
+    // https://medium.com/@timothy_terati/image-convolution-filtering-a54dce7c786b
+    // https://en.wikipedia.org/wiki/Kernel_(image_processing)
+    gui_filter->addButton((new Button(data))
+                                  ->setInfo("Box Blur")
+                                  ->setMethodButton([](DataWrapper *data) {
+                                      int boxBlurKernel[9] = {
+                                              1, 1, 1,
+                                              1, 1, 1,
+                                              1, 1, 1
+                                      };
+                                      data->layers->filterKernelCurrent(boxBlurKernel, 9, 0);
+                                  })
+                                  ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+                                  ->set16Bitmap(Bitmaps::play)
+    );
+    gui_filter->addButton((new Button(data))
+                                  ->setInfo("Gaussian Blur")
+                                  ->setMethodButton([](DataWrapper *data) {
+                                      int boxBlurKernel[9] = {
+                                              1, 2, 1,
+                                              2, 4, 2,
+                                              1, 2, 1
+                                      };
+                                      data->layers->filterKernelCurrent(boxBlurKernel, 16, 0);
+                                  })
+                                  ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+                                  ->set16Bitmap(Bitmaps::play)
+    );
+    gui_filter->addButton((new Button(data))
+                                  ->setInfo("Sharpen")
+                                  ->setMethodButton([](DataWrapper *data) {
+                                      int boxBlurKernel[9] = {
+                                              0, -1, 0,
+                                              -1, 5, -1,
+                                              0, -1, 0
+                                      };
+                                      data->layers->filterKernelCurrent(boxBlurKernel, 1, 0);
+                                  })
+                                  ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+                                  ->set16Bitmap(Bitmaps::play)
+    );
+    gui_filter->addButton((new Button(data))
+                                  ->setInfo("Edge Detection")
+                                  ->setMethodButton([](DataWrapper *data) {
+                                      int boxBlurKernel[9] = {
+                                              -1, -1, -1,
+                                              -1, 8, -1,
+                                              -1, -1, -1
+                                      };
+                                      data->layers->filterKernelCurrent(boxBlurKernel, 1, 0);
+                                  })
+                                  ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
+                                  ->set16Bitmap(Bitmaps::play)
+    );
+
+
     auto gui_settings = new GuiLayer();
     gui_settings->addButton((new Button(data))
                                     ->setInfo("Back")
@@ -1268,6 +1371,7 @@ void Pic::init_gui() {
     data->guiLayers->put("tools", gui_tools);
     data->guiLayers->put("layers", gui_layers);
     data->guiLayers->put("layerTools", gui_layerTools);
+    data->guiLayers->put("filter", gui_filter);
     data->guiLayers->put("settings", gui_settings);
     data->guiLayers->put("empty", gui_empty);
     data->guiLayers->put("bottom_move", gui_bottom_move);

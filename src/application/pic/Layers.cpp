@@ -602,3 +602,117 @@ void Layers::replaceColor(int index, int x, int y, uint32_t penColor, double tol
 void Layers::replaceColorCurrent(int x, int y, uint32_t penColor, double tolerance) {
     replaceColor(currentLayer, x, y, penColor, tolerance);
 }
+
+void Layers::filterBlackWhite(int index, bool writeHistory) {
+    if (index < 0 || index >= layerCount) {
+        mHandler->addMessage(Util::String::format("Layers::filterBlackWhite(%d) index out of bounds", index).operator const char *());
+        return;
+    }
+    Layer *layer = layers[index];
+    for (int i = 0; i < layer->width * layer->height; i++) {
+        uint32_t pixel = layer->getPixelData()[i];
+        uint32_t a = (pixel >> 24) & 0xFF;
+        uint32_t r = (pixel >> 16) & 0xFF;
+        uint32_t g = (pixel >> 8) & 0xFF;
+        uint32_t b = pixel & 0xFF;
+        uint32_t avg = (r + g + b) / 3;
+        layer->getPixelData()[i] = ((a << 24) | (avg << 16) | (avg << 8) | avg);
+    }
+    if (writeHistory)
+        history->addCommand(Util::String::format("filterBlackWhite %d", index), &layers, &layerCount);
+}
+
+void Layers::filterBlackWhiteCurrent() {
+    filterBlackWhite(currentLayer);
+}
+
+void Layers::filterInvert(int index, bool writeHistory) {
+    if (index < 0 || index >= layerCount) {
+        mHandler->addMessage(Util::String::format("Layers::filterInvert(%d) index out of bounds", index).operator const char *());
+        return;
+    }
+    Layer *layer = layers[index];
+    for (int i = 0; i < layer->width * layer->height; i++) {
+        uint32_t pixel = layer->getPixelData()[i];
+        uint32_t a = (pixel >> 24) & 0xFF;
+        uint32_t r = 0xFF - ((pixel >> 16) & 0xFF);
+        uint32_t g = 0xFF - ((pixel >> 8) & 0xFF);
+        uint32_t b = 0xFF - (pixel & 0xFF);
+        layer->getPixelData()[i] = ((a << 24) | (r << 16) | (g << 8) | b);
+    }
+    if (writeHistory)
+        history->addCommand(Util::String::format("filterInvert %d", index), &layers, &layerCount);
+}
+
+void Layers::filterInvertCurrent() {
+    filterInvert(currentLayer);
+}
+
+void Layers::filterSepia(int index, bool writeHistory) {
+    if (index < 0 || index >= layerCount) {
+        mHandler->addMessage(Util::String::format("Layers::filterSepia(%d) index out of bounds", index).operator const char *());
+        return;
+    }
+    Layer *layer = layers[index];
+    for (int i = 0; i < layer->width * layer->height; i++) {
+        uint32_t pixel = layer->getPixelData()[i];
+        uint32_t a = (pixel >> 24) & 0xFF;
+        // floating values from: https://stackoverflow.com/a/9449159/18030268
+        uint32_t r = min(0xFF, (uint32_t) (0.393 * ((pixel >> 16) & 0xFF) + 0.769 * ((pixel >> 8) & 0xFF) + 0.189 * (pixel & 0xFF)));
+        uint32_t g = min(0xFF, (uint32_t) (0.349 * ((pixel >> 16) & 0xFF) + 0.686 * ((pixel >> 8) & 0xFF) + 0.168 * (pixel & 0xFF)));
+        uint32_t b = min(0xFF, (uint32_t) (0.272 * ((pixel >> 16) & 0xFF) + 0.534 * ((pixel >> 8) & 0xFF) + 0.131 * (pixel & 0xFF)));
+        layer->getPixelData()[i] = ((a << 24) | (r << 16) | (g << 8) | b);
+    }
+    if (writeHistory)
+        history->addCommand(Util::String::format("filterSepia %d", index), &layers, &layerCount);
+}
+
+void Layers::filterSepiaCurrent() {
+    filterSepia(currentLayer);
+}
+
+void Layers::filterKernel(int index, int kernel[9], int divisor, int offset, bool writeHistory) {
+    if (index < 0 || index >= layerCount) {
+        mHandler->addMessage(Util::String::format("Layers::filterKernel(%d, %d, %d, %d) index out of bounds", index, kernel, divisor,
+                                                  offset).operator const char *());
+        return;
+    }
+    Layer *layer = layers[index];
+    auto *newPixelData = new uint32_t[layer->width * layer->height];
+    for (int i = 0; i < layer->width * layer->height; i++) {
+        newPixelData[i] = 0x00000000;
+    }
+    int kernelRadius = 3 / 2;
+    for (int y = 0; y < layer->height; y++) {
+        for (int x = 0; x < layer->width; x++) {
+            int r = 0, g = 0, b = 0;
+            for (int ky = 0; ky < 3; ky++) {
+                for (int kx = 0; kx < 3; kx++) {
+                    int px = x + kx - kernelRadius;
+                    int py = y + ky - kernelRadius;
+                    if (px >= 0 && px < layer->width && py >= 0 && py < layer->height) {
+                        uint32_t pixel = layer->getPixel(px, py);
+                        r += ((pixel >> 16) & 0xFF) * kernel[ky * 3 + kx];
+                        g += ((pixel >> 8) & 0xFF) * kernel[ky * 3 + kx];
+                        b += (pixel & 0xFF) * kernel[ky * 3 + kx];
+                    }
+                }
+            }
+            r = min(0xFF, max(0, r / divisor + offset));
+            g = min(0xFF, max(0, g / divisor + offset));
+            b = min(0xFF, max(0, b / divisor + offset));
+            newPixelData[y * layer->width + x] = (0xFF000000 | (r << 16) | (g << 8) | b);
+        }
+    }
+    layer->setNewBuffer(newPixelData, layer->posX, layer->posY, layer->width, layer->height);
+
+    if (writeHistory) {
+        history->addCommand(
+                Util::String::format("filterKernel %d %d %d %d %d %d %d %d %d %d %d %d", index, kernel[0], kernel[1], kernel[2], kernel[3],
+                                     kernel[4], kernel[5], kernel[6], kernel[7], kernel[8], divisor, offset), &layers, &layerCount);
+    }
+}
+
+void Layers::filterKernelCurrent(int kernel[9], int divisor, int offset) {
+    filterKernel(currentLayer, kernel, divisor, offset);
+}
