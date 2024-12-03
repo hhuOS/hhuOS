@@ -537,13 +537,11 @@ void Layers::prepareNextDrawingCurrent() {
 
 void Layers::drawShape(int index, Shape shape, int x, int y, int w, int h, uint32_t color, bool writeHistory) {
     Layer *l = layers[index];
-    if (w < 0) w = -w, x -= w;
-    if (h < 0) h = -h, y -= h;
+    int size = max(abs(w), abs(h));
+    if (w < 0) w = -w, x -= (shape == Shape::CIRCLE || shape == Shape::SQUARE) ? size : w;
+    if (h < 0) h = -h, y -= (shape == Shape::CIRCLE || shape == Shape::SQUARE) ? size : h;
     if (shape == Shape::SQUARE || shape == Shape::RECTANGLE) {
-        if (shape == Shape::SQUARE) {
-            w = max(abs(w), abs(h));
-            h = max(abs(w), abs(h));
-        }
+        if (shape == Shape::SQUARE) w = size, h = size;
         for (int px = x; px < x + w; px++) {
             for (int py = y; py < y + h; py++) {
                 uint32_t oldColor = l->getPixel(px, py);
@@ -551,10 +549,7 @@ void Layers::drawShape(int index, Shape shape, int x, int y, int w, int h, uint3
             }
         }
     } else if (shape == Shape::CIRCLE || shape == Shape::ELLIPSE) {
-        if (shape == Shape::CIRCLE) {
-            w = max(abs(w), abs(h));
-            h = max(abs(w), abs(h));
-        }
+        if (shape == Shape::CIRCLE) w = size, h = size;
         double a = w / 2.0;
         double b = h / 2.0;
         double centerX = x + a;
