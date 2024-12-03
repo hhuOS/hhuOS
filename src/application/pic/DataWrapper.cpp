@@ -12,6 +12,7 @@ DataWrapper::DataWrapper(Util::Io::File *lfbFile) {
             screenX * screenY;
     workAreaX = screenX - 200, workAreaY = screenY, workAreaAll = workAreaX * workAreaY;
     guiX = 200, guiY = screenY, guiAll = guiX * guiY;
+    buttonCount = screenY / 30;
     Util::Graphic::Ansi::prepareGraphicalApplication(true);
 
     // input

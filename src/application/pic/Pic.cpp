@@ -28,7 +28,7 @@ int32_t main([[maybe_unused]] int32_t argc, [[maybe_unused]] char *argv[]) {
         uint32_t resolutionX = Util::String::parseInt(split1[0]);
         uint32_t resolutionY = Util::String::parseInt(split2[0]);
         uint32_t colorDepth = split2.length() > 1 ? Util::String::parseInt(split2[1]) : 32;
-        if(resolutionX<800 || resolutionY<600){
+        if (resolutionX < 800 || resolutionY < 600) {
             resolutionX = 800;
             resolutionY = 600;
         }
@@ -125,8 +125,8 @@ void Pic::checkMouseInput() {
 
 void Pic::parseMouse(bool clicked) {
     int buttonIndex = data->mouseY / 30;
-    int buttonIndexBottom = buttonIndex - 19 + data->currentGuiLayerBottom->buttonCount;
-    int lastInteractedBottom = data->lastInteractedButton - 19 + data->currentGuiLayerBottom->buttonCount;
+    int buttonIndexBottom = buttonIndex - (data->buttonCount - 1) + data->currentGuiLayerBottom->buttonCount;
+    int lastInteractedBottom = data->lastInteractedButton - (data->buttonCount - 1) + data->currentGuiLayerBottom->buttonCount;
 
     if (buttonIndex != data->lastInteractedButton || data->mouseX >= 200) {
         if (data->lastInteractedButton != -1) {
@@ -134,7 +134,7 @@ void Pic::parseMouse(bool clicked) {
                 data->currentGuiLayer->buttons[data->lastInteractedButton]->removeInteraction();
             else if (lastInteractedBottom >= 0 && lastInteractedBottom < data->currentGuiLayerBottom->buttonCount)
                 data->currentGuiLayerBottom->buttons[lastInteractedBottom]->removeInteraction();
-            else if (data->lastInteractedButton == 19)
+            else if (data->lastInteractedButton == (data->buttonCount - 1))
                 data->textButton->removeInteraction();
         }
         data->lastInteractedButton = buttonIndex;
@@ -146,7 +146,7 @@ void Pic::parseMouse(bool clicked) {
             button = data->currentGuiLayer->buttons[buttonIndex];
         if (buttonIndexBottom >= 0 && buttonIndexBottom < data->currentGuiLayerBottom->buttonCount)
             button = data->currentGuiLayerBottom->buttons[buttonIndexBottom];
-        if (buttonIndex == 19)
+        if (buttonIndex == (data->buttonCount - 1))
             button = data->textButton;
         if (button != nullptr) {
             if (data->leftButtonPressed)

@@ -66,6 +66,7 @@ public:
     int screenX, screenY, pitch, screenAll;
     int workAreaX, workAreaY, workAreaAll;
     int guiX, guiY, guiAll;
+    int buttonCount;
 
     // input
     Util::Io::FileInputStream *mouseInputStream;

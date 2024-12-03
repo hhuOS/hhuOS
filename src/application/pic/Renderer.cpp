@@ -218,8 +218,8 @@ void Renderer::renderGui() {
             guiLayer->buttons[i]->bufferChanged = false;
         }
     }
-    int b = 19 - guiLayerBottom->buttonCount;
-    for (int i = b; i <= 18; i++) { // bottom buttons
+    int b = (data->buttonCount - 1) - guiLayerBottom->buttonCount;
+    for (int i = b; i < (data->buttonCount - 1); i++) { // bottom buttons
         int x = i - b;
         if (data->flags->guiLayer || guiLayerBottom->buttons[x]->bufferChanged || !data->settings->optimizeRendering) {
             for (int j = i * 30 * 200; j < (i + 1) * 30 * 200; j++) buff_gui[j] = 0x00000000;

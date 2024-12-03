@@ -9,3 +9,10 @@ add-symbol-file disk/hdd0/bin/pic
 ```bash
 cloc /Users/rafaelreip/Documents/git/CLionProjects/hhuOS/src/application/pic
 ```
+
+# starting with differen resolution:
+
+```hhuos
+pic -r 1440x900@32
+```
+
