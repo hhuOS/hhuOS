@@ -8,6 +8,7 @@ DataWrapper::DataWrapper() {
     // screen
     auto lfbFile = Util::Io::File("/device/lfb");
     lfb = new Util::Graphic::LinearFrameBuffer(lfbFile);
+    blfb = new Util::Graphic::BufferedLinearFrameBuffer(*lfb);
     screenX = lfb->getResolutionX(), screenY = lfb->getResolutionY(), pitch = lfb->getPitch(), screenAll =
             screenX * screenY;
     workAreaX = screenX - 200, workAreaY = screenY, workAreaAll = workAreaX * workAreaY;
@@ -48,6 +49,9 @@ DataWrapper::DataWrapper() {
 
     // overlay
     debugString = nullptr;
+
+    // settings
+    settings = new Settings();
 
     // work vars
     running = true;

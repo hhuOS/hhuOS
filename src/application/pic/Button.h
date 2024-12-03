@@ -29,6 +29,7 @@ enum ButtonType {
     METHOD,
     INT_VALUE,
     DOUBLE_VALUE,
+    BOOLEAN,
     CONFIRM,
     LAYER,
     INPUT
@@ -67,6 +68,8 @@ public:
 
     Button *setDoubleValueButton(double *dvalue, double limit_low, double limit_high);
 
+    Button *setBooleanButton(bool *bvalue);
+
     Button *setConfirmButton(void (*cancel)(DataWrapper *), void (*ok)(DataWrapper *));
 
     Button *setLayerButton(int layerNum);
@@ -74,6 +77,8 @@ public:
     Button *setInputButton(Util::String *input, bool *captureInput);
 
     Button *setRenderFlagMethod(void (RenderFlags::*rFlagMethod)());
+
+    Button *setSecondRenderFlagMethod(void (RenderFlags::*rFlagMethod)());
 
     Button *changeGreenIfTool(Tool tool);
 
@@ -102,6 +107,8 @@ private:
     void renderIntValue();
 
     void renderDoubleValue();
+
+    void renderBoolean();
 
     void renderConfirm();
 
@@ -133,6 +140,7 @@ private:
     double *doubleValue = nullptr;
     double doubleLimitLow = 0, doubleLimitHigh = 0;
     bool hasDoubleLimits = false;
+    bool *boolValue = nullptr;
     Util::String *input = nullptr;
     bool *captureInput = nullptr;
     Tool setGreenTool = Tool::NOTHING;
@@ -149,6 +157,8 @@ private:
     void (*method3)(DataWrapper *data) = nullptr;
 
     void (RenderFlags::*rFlagMethod)() = nullptr;
+
+    void (RenderFlags::*rFlagMethod2)() = nullptr;
 
 };
 

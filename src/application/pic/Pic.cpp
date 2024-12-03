@@ -342,121 +342,128 @@ void Pic::checkKeyboardInput() {
                     }
                 }
             } else {
-                switch (scancode) {
-                    case 2: // 1
-                        changeGuiLayerTo(data, "file");
-                        data->flags->guiLayerChanged();
-                        break;
-                    case 3: // 2
-                        changeGuiLayerTo(data, "tools");
-                        data->flags->guiLayerChanged();
-                        break;
-                    case 4: // 3
-                        changeGuiLayerTo(data, "layers");
-                        data->flags->guiLayerChanged();
-                        break;
-                    case 5: // 4
-                        changeGuiLayerTo(data, "layerTools");
-                        data->flags->guiLayerChanged();
-                        break;
-                    case Util::Io::Key::ESC:
-                        if (data->inMainMenu) {
-                            data->running = false;
-                        } else {
-                            changeGuiLayerTo(data, "main");
+                if (data->settings->activateHotkeys) {
+                    switch (scancode) {
+                        case 2: // 1
+                            changeGuiLayerTo(data, "file");
                             data->flags->guiLayerChanged();
-                        }
-                        break;
-                    case Util::Io::Key::Z: // undo
-                        data->history->undo(data->layers);
-                        data->flags->layerOrderChanged();
-                        break;
-                    case Util::Io::Key::Y: // redo
-                        data->history->redo(data->layers);
-                        data->flags->layerOrderChanged();
-                        break;
-                    case Util::Io::Key::TAB: // switch layer
-                        data->layers->setCurrentToNext();
-                        data->layers->prepareNextDrawingCurrent();
-                        data->flags->layerOrderChanged();
-                        data->flags->overlayChanged();
-                        data->currentGuiLayer->appear();
-                        break;
-                    case Util::Io::Key::Q: // new empty layer
-                        changeGuiLayerTo(data, "layerTools");
-                        swapTool(data, Tool::NEW_EMPTY);
-                        data->flags->guiLayerChanged();
-                        data->flags->overlayChanged();
-                        data->currentGuiLayerBottom->appear();
-                        data->currentGuiLayer->appear();
-                        break;
-                    case Util::Io::Key::W: // new img layer
-                        data->layers->addPicture(data->currentInput->operator const char *(), 0, 0);
-                        data->flags->layerOrderChanged();
-                        break;
-                    case Util::Io::Key::P: // pen
-                        changeGuiLayerTo(data, "tools");
-                        data->penSize = 10;
-                        swapTool(data, Tool::PEN);
-                        break;
-                    case Util::Io::Key::E: // eraser
-                        changeGuiLayerTo(data, "tools");
-                        data->penSize = 10;
-                        swapTool(data, Tool::ERASER);
-                        break;
-                    case Util::Io::Key::N: // shapes
-                        changeGuiLayerTo(data, "tools");
-                        data->shapeX = 0;
-                        data->shapeY = 0;
-                        data->shapeW = 0;
-                        data->shapeH = 0;
-                        swapTool(data, Tool::SHAPE);
-                        break;
-                    case Util::Io::Key::C: // color
-                        changeGuiLayerTo(data, "tools");
-                        swapTool(data, Tool::COLOR);
-                        break;
-                    case Util::Io::Key::M: // move
-                        changeGuiLayerTo(data, "tools");
-                        if (data->layers->currentNum() >= 0) {
-                            data->moveX = data->layers->current()->posX;
-                            data->moveY = data->layers->current()->posY;
-                        } else {
-                            data->moveX = 0;
-                            data->moveY = 0;
-                        }
-                        swapTool(data, Tool::MOVE);
-                        break;
-                    case Util::Io::Key::R: // rotate
-                        changeGuiLayerTo(data, "tools");
-                        data->rotateDeg = 0;
-                        swapTool(data, Tool::ROTATE);
-                        break;
-                    case Util::Io::Key::S: // scale
-                        changeGuiLayerTo(data, "tools");
-                        data->scale = 1.0;
-                        swapTool(data, Tool::SCALE);
-                        break;
-                    case Util::Io::Key::O: // crop
-                        changeGuiLayerTo(data, "tools");
-                        data->cropLeft = 0;
-                        data->cropRight = 0;
-                        data->cropTop = 0;
-                        data->cropBottom = 0;
-                        swapTool(data, Tool::CROP);
-                        break;
-                    case Util::Io::Key::T: // replace color
-                        changeGuiLayerTo(data, "tools");
-                        data->replaceColorX = 0;
-                        data->replaceColorY = 0;
-                        data->replaceColorTolerance = 0.0;
-                        swapTool(data, Tool::REPLACE_COLOR);
-                        break;
-                    case Util::Io::Key::X: // TODO remove
-                        this->data->layers->history->printCommands();
-                        break;
-                    default:
-                        break;
+                            break;
+                        case 3: // 2
+                            changeGuiLayerTo(data, "tools");
+                            data->flags->guiLayerChanged();
+                            break;
+                        case 4: // 3
+                            changeGuiLayerTo(data, "layers");
+                            data->flags->guiLayerChanged();
+                            break;
+                        case 5: // 4
+                            changeGuiLayerTo(data, "layerTools");
+                            data->flags->guiLayerChanged();
+                            break;
+                        case 6: // 5
+                            changeGuiLayerTo(data, "settings");
+                            data->flags->guiLayerChanged();
+                            break;
+                        case Util::Io::Key::ESC:
+                            if (data->inMainMenu) {
+                                data->running = false;
+                            } else {
+                                changeGuiLayerTo(data, "main");
+                                data->flags->guiLayerChanged();
+                            }
+                            break;
+                        case Util::Io::Key::Z: // undo
+                            data->history->undo(data->layers);
+                            data->flags->layerOrderChanged();
+                            break;
+                        case Util::Io::Key::Y: // redo
+                            data->history->redo(data->layers);
+                            data->flags->layerOrderChanged();
+                            break;
+                        case Util::Io::Key::TAB: // switch layer
+                            data->layers->setCurrentToNext();
+                            data->layers->prepareNextDrawingCurrent();
+                            data->flags->layerOrderChanged();
+                            data->flags->overlayChanged();
+                            data->currentGuiLayer->appear();
+                            break;
+                        case Util::Io::Key::Q: // new empty layer
+                            changeGuiLayerTo(data, "layerTools");
+                            swapTool(data, Tool::NEW_EMPTY);
+                            data->flags->guiLayerChanged();
+                            data->flags->overlayChanged();
+                            data->currentGuiLayerBottom->appear();
+                            data->currentGuiLayer->appear();
+                            break;
+                        case Util::Io::Key::W: // new img layer
+                            data->layers->addPicture(data->currentInput->operator const char *(), 0, 0);
+                            if (!data->settings->textCaptureAfterUse) data->captureInput = false, data->textButton->render(), data->flags->guiButtonChanged();
+                            data->flags->layerOrderChanged();
+                            break;
+                        case Util::Io::Key::P: // pen
+                            changeGuiLayerTo(data, "tools");
+                            data->penSize = 10;
+                            swapTool(data, Tool::PEN);
+                            break;
+                        case Util::Io::Key::E: // eraser
+                            changeGuiLayerTo(data, "tools");
+                            data->penSize = 10;
+                            swapTool(data, Tool::ERASER);
+                            break;
+                        case Util::Io::Key::N: // shapes
+                            changeGuiLayerTo(data, "tools");
+                            data->shapeX = 0;
+                            data->shapeY = 0;
+                            data->shapeW = 0;
+                            data->shapeH = 0;
+                            swapTool(data, Tool::SHAPE);
+                            break;
+                        case Util::Io::Key::C: // color
+                            changeGuiLayerTo(data, "tools");
+                            swapTool(data, Tool::COLOR);
+                            break;
+                        case Util::Io::Key::M: // move
+                            changeGuiLayerTo(data, "tools");
+                            if (data->layers->currentNum() >= 0) {
+                                data->moveX = data->layers->current()->posX;
+                                data->moveY = data->layers->current()->posY;
+                            } else {
+                                data->moveX = 0;
+                                data->moveY = 0;
+                            }
+                            swapTool(data, Tool::MOVE);
+                            break;
+                        case Util::Io::Key::R: // rotate
+                            changeGuiLayerTo(data, "tools");
+                            data->rotateDeg = 0;
+                            swapTool(data, Tool::ROTATE);
+                            break;
+                        case Util::Io::Key::S: // scale
+                            changeGuiLayerTo(data, "tools");
+                            data->scale = 1.0;
+                            swapTool(data, Tool::SCALE);
+                            break;
+                        case Util::Io::Key::O: // crop
+                            changeGuiLayerTo(data, "tools");
+                            data->cropLeft = 0;
+                            data->cropRight = 0;
+                            data->cropTop = 0;
+                            data->cropBottom = 0;
+                            swapTool(data, Tool::CROP);
+                            break;
+                        case Util::Io::Key::T: // replace color
+                            changeGuiLayerTo(data, "tools");
+                            data->replaceColorX = 0;
+                            data->replaceColorY = 0;
+                            data->replaceColorTolerance = 0.0;
+                            swapTool(data, Tool::REPLACE_COLOR);
+                            break;
+                        case Util::Io::Key::X:
+                            this->data->layers->history->printCommands();
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
         }
@@ -510,6 +517,15 @@ void Pic::init_gui() {
                                 ->set16Bitmap(Bitmaps::arrow_forward)
                                 ->setHotkey('4')
     );
+    gui_main->addButton((new Button(data))
+                                ->setInfo("settings")
+                                ->setMethodButton([](DataWrapper *data) {
+                                    changeGuiLayerTo(data, "settings");
+                                })
+                                ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                ->set16Bitmap(Bitmaps::arrow_forward)
+                                ->setHotkey('5')
+    );
 
     auto *gui_file = new GuiLayer();
     gui_file->addButton((new Button(data))
@@ -524,6 +540,7 @@ void Pic::init_gui() {
                                 ->setInfo("load Project")
                                 ->setMethodButton([](DataWrapper *data) {
                                     data->history->loadFromFileInto(data->layers, data->currentInput->operator const char *());
+                                    if (!data->settings->textCaptureAfterUse) data->captureInput = false, data->textButton->render(), data->flags->guiButtonChanged();
                                 })
                                 ->set16Bitmap(Bitmaps::play)
                                 ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
@@ -532,6 +549,7 @@ void Pic::init_gui() {
                                 ->setInfo("save Project")
                                 ->setMethodButton([](DataWrapper *data) {
                                     data->history->saveToFile(data->currentInput->operator const char *());
+                                    if (!data->settings->textCaptureAfterUse) data->captureInput = false, data->textButton->render(), data->flags->guiButtonChanged();
                                 })
                                 ->set16Bitmap(Bitmaps::play)
     );
@@ -777,7 +795,8 @@ void Pic::init_gui() {
                                             data->scale = 1.0;
                                         }, [](DataWrapper *data) {
                                             data->layers->scaleCurrent(data->scale, data->toolCorner);
-                                            data->scale = 1.0;
+                                            if (data->settings->resetValuesAfterConfirm)
+                                                data->scale = 1.0;
                                         })
                                         ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
                                         ->setAppearBottomOnChange(true)
@@ -816,7 +835,8 @@ void Pic::init_gui() {
                                            data->cropLeft = 0, data->cropRight = 0, data->cropTop = 0, data->cropBottom = 0;
                                        }, [](DataWrapper *data) {
                                            data->layers->cropCurrent(data->cropLeft, data->cropRight, data->cropTop, data->cropBottom);
-                                           data->cropLeft = 0, data->cropRight = 0, data->cropTop = 0, data->cropBottom = 0;
+                                           if (data->settings->resetValuesAfterConfirm)
+                                               data->cropLeft = 0, data->cropRight = 0, data->cropTop = 0, data->cropBottom = 0;
                                        })
                                        ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
                                        ->setAppearBottomOnChange(true)
@@ -855,7 +875,8 @@ void Pic::init_gui() {
                                              data->rotateDeg = 0;
                                          }, [](DataWrapper *data) {
                                              data->layers->rotateCurrent(data->rotateDeg);
-                                             data->rotateDeg = 0;
+                                             if (data->settings->resetValuesAfterConfirm)
+                                                 data->rotateDeg = 0;
                                          })
                                          ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
                                          ->setAppearBottomOnChange(true)
@@ -912,7 +933,8 @@ void Pic::init_gui() {
                                                 int relX = data->shapeX - l->posX, relY = data->shapeY - l->posY;
                                                 data->layers->drawShapeCurrent(data->currentShape, relX, relY, data->shapeW, data->shapeH,
                                                                                penColor);
-                                                data->shapeX = 0, data->shapeY = 0, data->shapeW = 0, data->shapeH = 0;
+                                                if (data->settings->resetValuesAfterConfirm)
+                                                    data->shapeX = 0, data->shapeY = 0, data->shapeW = 0, data->shapeH = 0;
                                             }
                                         })
                                         ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
@@ -943,6 +965,7 @@ void Pic::init_gui() {
                                       ->setInfo("load Image (path)")
                                       ->setMethodButton([](DataWrapper *data) {
                                           data->layers->addPicture(data->currentInput->operator const char *(), 0, 0);
+                                          if (!data->settings->textCaptureAfterUse) data->captureInput = false, data->textButton->render(), data->flags->guiButtonChanged();
                                       })
                                       ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
                                       ->set16Bitmap(Bitmaps::play)
@@ -1028,8 +1051,10 @@ void Pic::init_gui() {
                                                                            data->currentTool == Tool::EXPORT_PNG,
                                                                            data->currentTool == Tool::EXPORT_JPG,
                                                                            data->currentTool == Tool::EXPORT_BMP);
+                                               if (!data->settings->textCaptureAfterUse) data->captureInput = false, data->textButton->render(), data->flags->guiButtonChanged();
                                            }
-                                           data->layerX = 0, data->layerY = 0, data->layerW = data->workAreaX, data->layerH = data->workAreaY;
+                                           if (data->settings->resetValuesAfterConfirm)
+                                               data->layerX = 0, data->layerY = 0, data->layerW = data->workAreaX, data->layerH = data->workAreaY;
                                        })
                                        ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
                                        ->setAppearBottomOnChange(true)
@@ -1051,8 +1076,8 @@ void Pic::init_gui() {
                                               data->combineSecond = 1;
                                           }, [](DataWrapper *data) {
                                               data->layers->combine(data->combineFirst, data->combineSecond);
-                                              data->combineFirst = 0;
-                                              data->combineSecond = 1;
+                                              if (data->settings->resetValuesAfterConfirm)
+                                                  data->combineFirst = 0, data->combineSecond = 1;
                                           })
                                           ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
                                           ->setAppearBottomOnChange(true)
@@ -1069,7 +1094,8 @@ void Pic::init_gui() {
                                                 data->dupeIndex = 0;
                                             }, [](DataWrapper *data) {
                                                 data->layers->duplicate(data->dupeIndex);
-                                                data->dupeIndex = 0;
+                                                if (data->settings->resetValuesAfterConfirm)
+                                                    data->dupeIndex = 0;
                                             })
                                             ->setRenderFlagMethod(&RenderFlags::layerOrderChanged)
                                             ->setAppearBottomOnChange(true)
@@ -1104,9 +1130,63 @@ void Pic::init_gui() {
                                                         data->layers->replaceColorCurrent(relX, relY, penColor,
                                                                                           data->replaceColorTolerance);
                                                     }
+                                                    if (data->settings->resetValuesAfterConfirm)
+                                                        data->replaceColorX = 0, data->replaceColorY = 0, data->replaceColorTolerance = 0.0;
                                                 })
                                                 ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
                                                 ->setAppearBottomOnChange(true)
+    );
+
+    auto gui_settings = new GuiLayer();
+    gui_settings->addButton((new Button(data))
+                                    ->setInfo("Back")
+                                    ->setMethodButton([](DataWrapper *data) {
+                                        changeGuiLayerTo(data, "main");
+                                    })
+                                    ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
+                                    ->set16Bitmap(Bitmaps::arrow_back)
+    );
+    gui_settings->addButton((new Button(data))
+                                    ->setInfo("checkeredBackground")
+                                    ->setBooleanButton(&data->settings->checkeredBackground)
+                                    ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
+                                    ->setSecondRenderFlagMethod(&RenderFlags::baseChanged)
+    );
+    gui_settings->addButton((new Button(data))
+                                    ->setInfo("optimizeRendering")
+                                    ->setBooleanButton(&data->settings->optimizeRendering)
+                                    ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
+    );
+    gui_settings->addButton((new Button(data))
+                                    ->setInfo("currentLayerOverlay")
+                                    ->setBooleanButton(&data->settings->currentLayerOverlay)
+                                    ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
+                                    ->setSecondRenderFlagMethod(&RenderFlags::overlayChanged)
+    );
+    gui_settings->addButton((new Button(data))
+                                    ->setInfo("activateHotkeys")
+                                    ->setBooleanButton(&data->settings->activateHotkeys)
+                                    ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
+    );
+    gui_settings->addButton((new Button(data))
+                                    ->setInfo("showFPS")
+                                    ->setBooleanButton(&data->settings->showFPS)
+                                    ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
+    );
+    gui_settings->addButton((new Button(data))
+                                    ->setInfo("textCaptureAfterUse")
+                                    ->setBooleanButton(&data->settings->textCaptureAfterUse)
+                                    ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
+    );
+    gui_settings->addButton((new Button(data))
+                                    ->setInfo("resetValuesAfterConfirm")
+                                    ->setBooleanButton(&data->settings->resetValuesAfterConfirm)
+                                    ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
+    );
+    gui_settings->addButton((new Button(data))
+                                    ->setInfo("useBufferedBuffer")
+                                    ->setBooleanButton(&data->settings->useBufferedBuffer)
+                                    ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
     );
 
 
@@ -1122,6 +1202,7 @@ void Pic::init_gui() {
     data->guiLayers->put("tools", gui_tools);
     data->guiLayers->put("layers", gui_layers);
     data->guiLayers->put("layerTools", gui_layerTools);
+    data->guiLayers->put("settings", gui_settings);
     data->guiLayers->put("empty", gui_empty);
     data->guiLayers->put("bottom_move", gui_bottom_move);
     data->guiLayers->put("bottom_rotate", gui_bottom_rotate);

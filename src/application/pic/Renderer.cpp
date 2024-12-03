@@ -24,10 +24,18 @@ Renderer::Renderer(DataWrapper *data) {
     this->pixelDrawer = new PixelDrawer(*lfb_overlay);
     this->lineDrawer = new LineDrawer(*pixelDrawer);
     this->stringDrawer = new StringDrawer(*pixelDrawer);
+    this->pixelDrawer_lfb = new PixelDrawer(*data->lfb);
+    this->stringDrawer_lfb = new StringDrawer(*pixelDrawer_lfb);
+    this->pixelDrawer_blfb = new PixelDrawer(*data->blfb);
+    this->stringDrawer_blfb = new StringDrawer(*pixelDrawer_blfb);
     this->cblack = Color(0, 0, 0);
     this->cwhite = Color(255, 255, 255);
     this->cgreen = Color(0, 255, 0);
     this->cred = Color(255, 0, 0);
+    this->lastTime = time(nullptr);
+    this->usingBufferedBuffer = false;
+    this->frames = 0;
+    this->fps = 0;
     prepareBase();
 }
 
@@ -48,12 +56,18 @@ void Renderer::prepareBase() {
         for (int x = 0; x < 200; x++) { // Gray for GUI
             buff_base[offset++] = Gray;
         }
-        bool light = (y / squareSize) % 2;
-        for (int x = 200; x < data->screenX;) { // Alternating squares for Background
-            for (int k = 0; k < 10 && x < data->screenX; k++, x++) {
-                buff_base[offset++] = light ? lightGray : darkGray;
+        if (data->settings->checkeredBackground) {
+            bool light = (y / squareSize) % 2;
+            for (int x = 200; x < data->screenX;) { // Alternating squares for Background
+                for (int k = 0; k < 10 && x < data->screenX; k++, x++) {
+                    buff_base[offset++] = light ? lightGray : darkGray;
+                }
+                light = !light;
             }
-            light = !light;
+        } else {
+            for (int x = 200; x < data->screenX; x++) { // No Color for Background
+                buff_base[offset++] = 0x00000000;
+            }
         }
     }
 }
@@ -67,8 +81,16 @@ void Renderer::prepareBase() {
 
 // TODO: alles durchgehen, ob in keiner Situation zu viel gerendert wird
 void Renderer::render() {
-    if (data->flags->anyChange) {
-        if (data->flags->result) {
+    if (data->settings->useBufferedBuffer != usingBufferedBuffer) {
+        usingBufferedBuffer = data->settings->useBufferedBuffer;
+        if (usingBufferedBuffer) {
+            buff_lfb = reinterpret_cast<uint32_t *>(data->blfb->getBuffer().get());
+        } else {
+            buff_lfb = reinterpret_cast<uint32_t *>(data->lfb->getBuffer().get());
+        }
+    }
+    if (data->flags->anyChange || !data->settings->optimizeRendering) {
+        if (data->flags->result || !data->settings->optimizeRendering) {
             renderResult();
             for (int i = 0; i < data->screenAll; i++) {
                 buff_lfb[i] = buff_result[i];
@@ -79,6 +101,26 @@ void Renderer::render() {
         renderMouse();
         data->flags->mouse = false;
         data->flags->anyChange = false;
+    }
+    if (data->settings->showFPS) {
+        time_t now = time(nullptr);
+        time_t delta = now - lastTime;
+        if (delta >= 1) {
+            fps = frames / delta;
+            frames = 0;
+        }
+        auto fpsString = Util::String::format("FPS: %d", fps).operator const char *();
+        while (strlen(fpsString) < 15) fpsString = Util::String::format("%s ", fpsString).operator const char *();
+        frames++;
+        if (usingBufferedBuffer) {
+            stringDrawer_blfb->drawString(Fonts::TERMINAL_8x16, 200, 0, fpsString, cblack, cwhite);
+        } else {
+            stringDrawer_lfb->drawString(Fonts::TERMINAL_8x16, 200, 0, fpsString, cblack, cwhite);
+        }
+        lastTime = now;
+    }
+    if (usingBufferedBuffer) {
+        data->blfb->flush();
     }
 }
 
@@ -114,14 +156,18 @@ void Renderer::removeMouse() {
 }
 
 void Renderer::renderResult() {
-    if (data->flags->gui || data->flags->workArea) {
+    if (data->flags->gui || data->flags->workArea || !data->settings->optimizeRendering) {
+        if (data->flags->base || !data->settings->optimizeRendering) {
+            prepareBase();
+            data->flags->base = false;
+        }
         for (int i = 0; i < data->screenAll;) {
-            if (data->flags->gui) {
+            if (data->flags->gui || !data->settings->optimizeRendering) {
                 for (int j = 0; j < data->guiX; j++) {
                     buff_result[i++] = buff_base[i];
                 }
             } else i += data->guiX;
-            if (data->flags->workArea) {
+            if (data->flags->workArea || !data->settings->optimizeRendering) {
                 for (int j = 0; j < data->workAreaX; j++) {
                     buff_result[i++] = buff_base[i];
                 }
@@ -129,11 +175,11 @@ void Renderer::renderResult() {
         }
 
     }
-    if (data->flags->workArea) {
+    if (data->flags->workArea || !data->settings->optimizeRendering) {
         renderWorkArea();
         blendBuffers(buff_result, buff_workarea, data->screenX, data->screenY, data->workAreaX, data->workAreaY, 200, 0);
     }
-    if (data->flags->gui) {
+    if (data->flags->gui || !data->settings->optimizeRendering) {
         renderGui();
         blendBuffers(buff_result, buff_gui, data->screenX, data->screenY, 200, data->screenY, 0, 0);
     }
@@ -141,10 +187,10 @@ void Renderer::renderResult() {
 }
 
 void Renderer::renderWorkArea() {
-    if (data->flags->layers) {
+    if (data->flags->layers || !data->settings->optimizeRendering) {
         renderLayers();
     }
-    if (data->flags->overlay) {
+    if (data->flags->overlay || !data->settings->optimizeRendering) {
         renderOverlay();
     }
     for (int i = 0; i < data->workAreaAll; i++) {
@@ -161,10 +207,12 @@ void Renderer::renderGui() {
     auto guiLayer = data->currentGuiLayer;
     auto guiLayerBottom = data->currentGuiLayerBottom;
 
-    if (data->flags->guiLayer) for (int i = 0; i < data->guiX * data->screenY; i++) buff_gui[i] = 0x00000000;
+    if (data->flags->guiLayer || !data->settings->optimizeRendering)
+        for (int i = 0; i < data->guiX * data->screenY; i++)
+            buff_gui[i] = 0x00000000;
 
     for (int i = 0; i < guiLayer->buttonCount; i++) { // top buttons
-        if (data->flags->guiLayer || guiLayer->buttons[i]->bufferChanged) {
+        if (data->flags->guiLayer || guiLayer->buttons[i]->bufferChanged || !data->settings->optimizeRendering) {
             for (int j = i * 30 * 200; j < (i + 1) * 30 * 200; j++) buff_gui[j] = 0x00000000;
             blendBuffers(buff_gui, guiLayer->buttons[i]->getBuffer(), data->guiX, data->screenY, 200, 30, 0, i * 30);
             guiLayer->buttons[i]->bufferChanged = false;
@@ -173,14 +221,14 @@ void Renderer::renderGui() {
     int b = 19 - guiLayerBottom->buttonCount;
     for (int i = b; i <= 18; i++) { // bottom buttons
         int x = i - b;
-        if (data->flags->guiLayer || guiLayerBottom->buttons[x]->bufferChanged) {
+        if (data->flags->guiLayer || guiLayerBottom->buttons[x]->bufferChanged || !data->settings->optimizeRendering) {
             for (int j = i * 30 * 200; j < (i + 1) * 30 * 200; j++) buff_gui[j] = 0x00000000;
             blendBuffers(buff_gui, guiLayerBottom->buttons[x]->getBuffer(), data->guiX, data->screenY, 200, 30, 0,
                          i * 30);
             guiLayerBottom->buttons[x]->bufferChanged = false;
         }
     }
-    if (data->flags->guiLayer || data->textButton->bufferChanged) { // text button
+    if (data->flags->guiLayer || data->textButton->bufferChanged || !data->settings->optimizeRendering) { // text button
         for (int i = (data->guiY - 30) * 200; i < data->guiY * 200; i++) buff_gui[i] = 0x00000000;
         blendBuffers(buff_gui, data->textButton->getBuffer(), data->guiX, data->screenY, 200, 30, 0, data->guiY - 30);
         data->textButton->bufferChanged = false;
@@ -215,12 +263,14 @@ void Renderer::renderOverlay() {
         buff_overlay[i] = 0x00000000;
     }
     if (data->layers->currentNum() >= 0) {
-        // border for current layer
         Layer *l = data->layers->current();
         int x = l->posX, y = l->posY, w = l->width, h = l->height;
-        drawOverlayBox(x, y, x + w - 1, y, x + w - 1, y + h - 1, x, y + h - 1, cred);
-        drawOverlayBox(x + 1, y + 1, x + w - 2, y + 1, x + w - 2, y + h - 2, x + 1, y + h - 2,
-                       cred);
+        if (data->settings->currentLayerOverlay) {
+            // border for current layer
+            drawOverlayBox(x, y, x + w - 1, y, x + w - 1, y + h - 1, x, y + h - 1, cred);
+            drawOverlayBox(x + 1, y + 1, x + w - 2, y + 1, x + w - 2, y + h - 2, x + 1, y + h - 2,
+                           cred);
+        }
         Color top, bottom, left, right;
         if (data->currentTool == Tool::MOVE) {
             x = data->moveX, y = data->moveY;
@@ -375,7 +425,7 @@ void Renderer::renderOverlay() {
 }
 
 void Renderer::renderLayers() {
-    if (data->flags->layerOrder) {
+    if (data->flags->layerOrder || !data->settings->optimizeRendering) {
         for (int i = 0; i < data->workAreaAll; i++) {
             buff_over_current[i] = 0x00000000;
             buff_under_current[i] = 0x00000000;

@@ -9,6 +9,7 @@
 #include "lib/util/collection/Map.h"
 #include "lib/util/collection/HashMap.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/key/KeyDecoder.h"
 #include "lib/util/io/file/File.h"
@@ -19,6 +20,7 @@
 #include "lib/util/collection/Pair.h"
 #include "lib/util/collection/ArrayBlockingQueue.h"
 #include "MessageHandler.h"
+#include "Settings.h"
 
 #define  PI 3.14159265358979323846
 
@@ -58,6 +60,7 @@ public:
 
     // screen
     Util::Graphic::LinearFrameBuffer *lfb;
+    Util::Graphic::BufferedLinearFrameBuffer *blfb;
     int screenX, screenY, pitch, screenAll;
     int workAreaX, workAreaY, workAreaAll;
     int guiX, guiY, guiAll;
@@ -92,6 +95,9 @@ public:
 
     // overlay
     const char *debugString;
+
+    // settings
+    Settings *settings;
 
     // work vars
     bool running;

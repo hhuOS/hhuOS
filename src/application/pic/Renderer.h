@@ -57,8 +57,6 @@ private:
 
     void renderOverlay();
 
-    void renderMessages();
-
     void drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Color color);
 
     void drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Color c1, Color c2, Color c3, Color c4);
@@ -75,11 +73,19 @@ private:
     uint32_t *buff_under_current, *buff_over_current;
     Color cblack, cgreen, cwhite, cred;
     int lastRenderedMouseX, lastRenderedMouseY;
+    bool usingBufferedBuffer;
     // for overlay
     LinearFrameBuffer *lfb_overlay;
     PixelDrawer *pixelDrawer;
     LineDrawer *lineDrawer;
     StringDrawer *stringDrawer;
+    // fps
+    PixelDrawer *pixelDrawer_lfb;
+    StringDrawer *stringDrawer_lfb;
+    PixelDrawer *pixelDrawer_blfb;
+    StringDrawer *stringDrawer_blfb;
+    time_t lastTime;
+    int frames, fps;
 };
 
 #endif // RENDERER_H

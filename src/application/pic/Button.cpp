@@ -65,6 +65,11 @@ Button *Button::setRenderFlagMethod(void (RenderFlags::*m)()) {
     return this;
 }
 
+Button *Button::setSecondRenderFlagMethod(void (RenderFlags::*m)()) {
+    this->rFlagMethod2 = m;
+    return this;
+}
+
 Button *Button::setIntValueButton(int *value) {
     this->type = INT_VALUE;
     this->intValue = value;
@@ -95,6 +100,13 @@ Button *Button::setDoubleValueButton(double *dvalue, double limit_low, double li
     this->doubleLimitLow = limit_low;
     this->doubleLimitHigh = limit_high;
     this->hasDoubleLimits = true;
+    render();
+    return this;
+}
+
+Button *Button::setBooleanButton(bool *bvalue) {
+    this->type = BOOLEAN;
+    this->boolValue = bvalue;
     render();
     return this;
 }
@@ -170,6 +182,7 @@ void Button::processClick(int relX, int relY) {
             } else {
                 if (data->currentInput->length() > 0) {
                     *intValue = Util::String::parseInt(*data->currentInput);
+                    if (!data->settings->textCaptureAfterUse) data->captureInput = false, data->textButton->render(), data->flags->guiButtonChanged();
                 } else {
                     *intValue = 0;
                 }
@@ -187,6 +200,7 @@ void Button::processClick(int relX, int relY) {
             } else {
                 if (data->currentInput->length() > 0) {
                     *doubleValue = Util::String::parseDouble(*data->currentInput);
+                    if (!data->settings->textCaptureAfterUse) data->captureInput = false, data->textButton->render(), data->flags->guiButtonChanged();
                 } else {
                     *doubleValue = 0.01;
                 }
@@ -195,6 +209,9 @@ void Button::processClick(int relX, int relY) {
                 if (*doubleValue > doubleLimitHigh) *doubleValue = doubleLimitHigh;
                 if (*doubleValue < doubleLimitLow) *doubleValue = doubleLimitLow;
             }
+            break;
+        case BOOLEAN:
+            *boolValue = !*boolValue;
             break;
         case CONFIRM:
             if (relX < 100) {
@@ -231,6 +248,9 @@ void Button::processClick(int relX, int relY) {
     }
     if (rFlagMethod != nullptr) {
         (data->flags->*rFlagMethod)();
+    }
+    if (rFlagMethod2 != nullptr) {
+        (data->flags->*rFlagMethod2)();
     }
     if (appearTopOnChange) {
         data->currentGuiLayer->appear();
@@ -273,6 +293,9 @@ void Button::render() {
             break;
         case DOUBLE_VALUE:
             renderDoubleValue();
+            break;
+        case BOOLEAN:
+            renderBoolean();
             break;
         case CONFIRM:
             renderConfirm();
@@ -381,6 +404,12 @@ void Button::renderDoubleValue() {
     char text[256];
     snprintf(text, sizeof(text), "%s: %s", info, double_string);
     renderValue(text);
+}
+
+void Button::renderBoolean() {
+    renderBackground(0, 200, click ? green : hover ? darkgray : gray);
+    renderBorder(*boolValue ? 0xFF00FF00 : 0xFFFF0000);
+    stringDrawer->drawString(Fonts::TERMINAL_8x16, 100 - (strlen(info) * 4), 7, info, cblack, click ? cgreen : hover ? cdarkgray : cgray);
 }
 
 void Button::renderConfirm() {
