@@ -30,6 +30,8 @@ namespace Bitmaps {
 
     extern uint8_t arrow_up[];
     extern uint8_t arrow_down[];
+    extern uint8_t arrow_right[];
+    extern uint8_t arrow_left[];
     extern uint8_t trashcan[];
     extern uint8_t eye[];
     extern uint8_t arrow_back[];
@@ -39,6 +41,7 @@ namespace Bitmaps {
     extern uint8_t tool[];
     extern uint8_t play[];
     extern uint8_t brackets[];
+    extern uint8_t mouse[];
 
 } // namespace Bitmaps
 

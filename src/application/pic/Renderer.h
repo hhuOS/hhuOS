@@ -71,7 +71,7 @@ private:
     uint32_t *buff_base, *buff_workarea, *buff_gui;
     uint32_t *buff_overlay, *buff_layers;
     uint32_t *buff_under_current, *buff_over_current;
-    Color cblack, cgreen, cwhite, cred;
+    Color cblack, cgreen, cwhite, cred, cgray;
     int lastRenderedMouseX, lastRenderedMouseY;
     bool usingBufferedBuffer;
     // for overlay

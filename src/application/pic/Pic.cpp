@@ -342,6 +342,7 @@ void swapTool(DataWrapper *data, Tool tool) {
     }
     data->currentGuiLayerBottom->appear();
     data->currentGuiLayer->appear();
+    data->flags->overlayChanged();
 }
 
 void changeGuiLayerTo(DataWrapper *data, const char *layer) {
@@ -1356,6 +1357,12 @@ void Pic::init_gui() {
                                     ->setInfo("useBufferedBuffer")
                                     ->setBooleanButton(&data->settings->useBufferedBuffer)
                                     ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
+    );
+    gui_settings->addButton((new Button(data))
+                                    ->setInfo("showMouseHelper")
+                                    ->setBooleanButton(&data->settings->showMouseHelper)
+                                    ->setRenderFlagMethod(&RenderFlags::guiButtonChanged)
+                                    ->setSecondRenderFlagMethod(&RenderFlags::overlayChanged)
     );
 
 

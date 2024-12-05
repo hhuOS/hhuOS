@@ -32,6 +32,7 @@ Renderer::Renderer(DataWrapper *data) {
     this->cwhite = Color(255, 255, 255);
     this->cgreen = Color(0, 255, 0);
     this->cred = Color(255, 0, 0);
+    this->cgray = Color(128, 128, 128);
     this->lastTime = time(nullptr);
     this->usingBufferedBuffer = false;
     this->frames = 0;
@@ -418,6 +419,28 @@ void Renderer::renderOverlay() {
             drawOverlayBox(x + 1, y + 1, x + 9, y + 1, x + 9, y + 9, x + 1, y + 9, cgreen);
         }
     }
+
+    // mouse Helper
+    if (data->settings->showMouseHelper) {
+        int xPos = data->workAreaX - 48, yPos = data->workAreaY - 48;
+        auto xColor = data->currentTool == Tool::MOVE || data->currentTool == Tool::ROTATE || data->currentTool == Tool::SCALE ||
+                      data->currentTool == Tool::CROP || data->currentTool == Tool::PEN || data->currentTool == Tool::ERASER ||
+                      data->currentTool == Tool::COLOR || data->currentTool == Tool::SHAPE || data->currentTool == Tool::REPLACE_COLOR ||
+                      data->currentTool == Tool::EXPORT_PNG || data->currentTool == Tool::EXPORT_JPG ||
+                      data->currentTool == Tool::EXPORT_BMP || data->currentTool == Tool::NEW_EMPTY ? cgreen : cgray;
+        auto yColor = data->currentTool == Tool::MOVE || data->currentTool == Tool::SCALE ||
+                      data->currentTool == Tool::CROP || data->currentTool == Tool::PEN || data->currentTool == Tool::ERASER ||
+                      data->currentTool == Tool::COLOR || data->currentTool == Tool::SHAPE || data->currentTool == Tool::REPLACE_COLOR ||
+                      data->currentTool == Tool::EXPORT_PNG || data->currentTool == Tool::EXPORT_JPG ||
+                      data->currentTool == Tool::EXPORT_BMP || data->currentTool == Tool::NEW_EMPTY ? cgreen : cgray;
+        stringDrawer->drawMonoBitmap(xPos + 16, yPos + 0, 16, 16, yColor, cwhite, Bitmaps::arrow_up);
+        stringDrawer->drawMonoBitmap(xPos + 0, yPos + 16, 16, 16, xColor, cwhite, Bitmaps::arrow_left);
+        stringDrawer->drawMonoBitmap(xPos + 16, yPos + 16, 16, 16, cblack, cwhite, Bitmaps::mouse);
+        stringDrawer->drawMonoBitmap(xPos + 32, yPos + 16, 16, 16, xColor, cwhite, Bitmaps::arrow_right);
+        stringDrawer->drawMonoBitmap(xPos + 16, yPos + 32, 16, 16, yColor, cwhite, Bitmaps::arrow_down);
+    }
+
+    // debug String
     if (data->debugString != nullptr) {
         stringDrawer->drawString(Fonts::TERMINAL_8x16, 0, data->workAreaY - 16, data->debugString, cblack, cwhite);
     }

@@ -23,6 +23,7 @@ void Settings::resetToDefault() {
     textCaptureAfterUse = false;
     resetValuesAfterConfirm = false;
     useBufferedBuffer = false;
+    showMouseHelper = true;
 }
 
 void Settings::loadFromFile() {
@@ -57,6 +58,7 @@ void Settings::loadFromFile() {
             else if (parts[0] == "textCaptureAfterUse") textCaptureAfterUse = parts[1] == "true";
             else if (parts[0] == "resetValuesAfterConfirm") resetValuesAfterConfirm = parts[1] == "true";
             else if (parts[0] == "useBufferedBuffer") useBufferedBuffer = parts[1] == "true";
+            else if (parts[0] == "showMouseHelper") showMouseHelper = parts[1] == "true";
             else mHandler->addMessage("Settings Error: Unknown setting: " + parts[0]);
         }
         line = stream.readLine(eof);
@@ -91,6 +93,7 @@ void Settings::saveToFile() {
     fputs(Util::String::format("textCaptureAfterUse %s\n", textCaptureAfterUse ? "true" : "false").operator const char *(), file);
     fputs(Util::String::format("resetValuesAfterConfirm %s\n", resetValuesAfterConfirm ? "true" : "false").operator const char *(), file);
     fputs(Util::String::format("useBufferedBuffer %s\n", useBufferedBuffer ? "true" : "false").operator const char *(), file);
+    fputs(Util::String::format("showMouseHelper %s\n", showMouseHelper ? "true" : "false").operator const char *(), file);
     fflush(file);
     fclose(file);
 }

@@ -32,6 +32,7 @@ public:
     bool textCaptureAfterUse;
     bool resetValuesAfterConfirm;
     bool useBufferedBuffer;
+    bool showMouseHelper;
 
 private:
     MessageHandler *mHandler;
