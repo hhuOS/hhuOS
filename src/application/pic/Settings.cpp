@@ -24,20 +24,21 @@ void Settings::resetToDefault() {
     resetValuesAfterConfirm = false;
     useBufferedBuffer = false;
     showMouseHelper = true;
+    mHandler->addMessage("Settings restored to default values");
 }
 
 void Settings::loadFromFile() {
     if (Util::String(path).length() == 0) {
-        mHandler->addMessage("Settings Error: No path given");
+        mHandler->addMessage("Settings::loadFromFile Error: No path given");
         return;
     }
     auto file = Util::Io::File(path);
     if (!file.exists()) {
-        mHandler->addMessage("Settings Error: File not found: " + path);
+        mHandler->addMessage("Settings::loadFromFile Error: File not found: " + path);
         return;
     }
     if (file.isDirectory()) {
-        mHandler->addMessage("Settings Error: File is a directory: " + path);
+        mHandler->addMessage("Settings::loadFromFile Error: File is a directory: " + path);
         return;
     }
 
@@ -63,26 +64,27 @@ void Settings::loadFromFile() {
         }
         line = stream.readLine(eof);
     }
-
+    mHandler->addMessage("Settings loaded from: " + path);
 }
 
 void Settings::saveToFile() {
     if (Util::String(path).length() == 0) {
-        mHandler->addMessage("Settings Error: No path given");
+        mHandler->addMessage("Settings::saveToFile Error: No path given");
         return;
     }
     auto picfolder = Util::Io::File("pic");
     if (!picfolder.exists()) {
+        mHandler->addMessage("Settings::saveToFile: Creating directory: pic");
         auto success = picfolder.create(Util::Io::File::DIRECTORY);
         if (!success) {
-            mHandler->addMessage("Settings Error: Could not create directory: pic");
+            mHandler->addMessage("Settings::saveToFile Error: Could not create directory: pic");
             return;
         }
     }
 
     FILE *file = fopen(path.operator const char *(), "w");
     if (!file) {
-        mHandler->addMessage("Settings Error: Could not open file: " + path);
+        mHandler->addMessage("Settings::saveToFile Error: Could not open file: " + path);
         return;
     }
     fputs(Util::String::format("checkeredBackground %s\n", checkeredBackground ? "true" : "false").operator const char *(), file);
@@ -96,4 +98,5 @@ void Settings::saveToFile() {
     fputs(Util::String::format("showMouseHelper %s\n", showMouseHelper ? "true" : "false").operator const char *(), file);
     fflush(file);
     fclose(file);
+    mHandler->addMessage("Settings saved to: " + path);
 }

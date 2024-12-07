@@ -38,6 +38,7 @@ int32_t main([[maybe_unused]] int32_t argc, [[maybe_unused]] char *argv[]) {
     }
 
     auto pic = new Pic(lfbFile);
+    print("starting render loop...");
     pic->run();
     delete pic;
 
@@ -63,6 +64,7 @@ Pic::Pic(Util::Io::File *lfbFile) {
 
 
 void Pic::run() {
+    data->mHandler->setPrintBool(false); // only write to logs before and after render loop
     while (data->running) {
         checkMouseInput();
         checkKeyboardInput();
@@ -71,13 +73,18 @@ void Pic::run() {
         renderer->render();
 //        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1) );
     }
+    data->mHandler->setPrintBool(true); // only write to logs before and after render loop
 }
 
 Pic::~Pic() {
+    print("saving settings...");
     data->settings->saveToFile();
-    print("bye :)");
+    print("done");
+    print("freeing memory...");
     delete data;
     delete renderer;
+    print("done");
+    print("bye :)");
 }
 
 void Pic::checkMouseInput() {

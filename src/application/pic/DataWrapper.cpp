@@ -34,7 +34,7 @@ DataWrapper::DataWrapper(Util::Io::File *lfbFile) {
     // rendering
     flags = new RenderFlags();
     mHandler = new MessageHandler(workAreaX, workAreaY);
-//    mHandler->setPrintBool(true);
+    mHandler->setPrintBool(true);
 
     // layers
     layers = nullptr;
