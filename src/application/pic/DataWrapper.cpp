@@ -4,6 +4,20 @@
 
 #include "DataWrapper.h"
 
+#include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
+#include "lib/util/io/stream/FileInputStream.h"
+#include "lib/util/io/key/KeyDecoder.h"
+#include "lib/util/io/key/layout/DeLayout.h"
+#include "lib/util/graphic/Ansi.h"
+
+#include "MessageHandler.h"
+#include "Settings.h"
+#include "History.h"
+#include "Button.h"
+#include "GuiLayer.h"
+#include "Layers.h"
+
 DataWrapper::DataWrapper(Util::Io::File *lfbFile) {
     // screen
     lfb = new Util::Graphic::LinearFrameBuffer(*lfbFile);
@@ -22,7 +36,7 @@ DataWrapper::DataWrapper(Util::Io::File *lfbFile) {
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
     keyDecoder = new Util::Io::KeyDecoder(new Util::Io::DeLayout());
     xMovement = 0, yMovement = 0;
-    mouseX = 0, mouseY = 0, oldMouseX = 0, oldMouseY = 0;
+    mouseX = 0, mouseY = 0;
     leftButtonPressed = false, oldLeftButtonPressed = false, newlyPressed = false;
     mouseClicks = new Util::ArrayBlockingQueue<Util::Pair<int, int>>(500); // should be more than enough :D
     clickStartedOnGui = true;
@@ -75,4 +89,20 @@ DataWrapper::DataWrapper(Util::Io::File *lfbFile) {
     currentShape = Shape::RECTANGLE;
     replaceColorX = -1, replaceColorY = -1;
     replaceColorTolerance = 0.0;
+}
+
+DataWrapper::~DataWrapper() {
+    delete lfb;
+    delete blfb;
+    delete mouseInputStream;
+    delete keyDecoder;
+    delete mouseClicks;
+    delete currentInput;
+    delete flags;
+    delete mHandler;
+    delete layers;
+    delete history;
+    delete settings;
+    delete guiLayers;
+    delete debugString;
 }

@@ -4,17 +4,37 @@
 
 #include "History.h"
 
-using namespace Util;
+#include "lib/util/io/stream/BufferedInputStream.h"
+#include "lib/util/io/stream/FileInputStream.h"
+
+#include "helper.h"
+#include "MessageHandler.h"
+#include "Layer.h"
+#include "Layers.h"
 
 History::History(MessageHandler *mHandler) {
-    this->commands = new ArrayList<String>();
+    this->commands = new Util::ArrayList<Util::String>();
     this->currentCommand = 0;
     this->mHandler = mHandler;
-    this->lines = new ArrayList<Util::String>();
-    this->snapshots = new ArrayList<Pair<Layer **, int>>();
+    this->lines = new Util::ArrayList<Util::String>();
+    this->snapshots = new Util::ArrayList<Util::Pair<Layer **, int>>();
 }
 
-void History::addCommand(const String &command, Layer ***layers, int *layerCount) {
+History::~History() {
+    for (uint32_t i = 0; i < snapshots->size(); i++) {
+        auto *snapshot = snapshots->get(i).first;
+        for (int j = 0; j < snapshots->get(i).second; j++) {
+            delete[] snapshot[j]->getPixelData();
+            delete snapshot[j];
+        }
+        delete[] snapshot;
+    }
+    delete snapshots;
+    delete lines;
+    delete commands;
+}
+
+void History::addCommand(const Util::String &command, Layer ***layers, int *layerCount) {
     if (commands->size() > currentCommand - 1) {
         for (uint32_t i = commands->size() - 1; i > currentCommand - 1; i--) {
             commands->removeIndex(i);
@@ -36,8 +56,8 @@ void History::addCommand(const String &command, Layer ***layers, int *layerCount
         lines->add(command.substring(5, command.length()));
     } else if (command.beginsWith("prepareNextDrawing")) {
         if (lines->size() > 0) {
-            String linestogether = "line";
-            for (int i = 0; i < lines->size(); i++) {
+            Util::String linestogether = "line";
+            for (uint32_t i = 0; i < lines->size(); i++) {
                 linestogether += " " + lines->get(i);
             }
             commands->add(linestogether);
@@ -59,7 +79,7 @@ void History::addCommand(const String &command, Layer ***layers, int *layerCount
             }
             snapshot[i] = new Layer((*layers)[i]->width, (*layers)[i]->height, (*layers)[i]->posX, (*layers)[i]->posY, 1, newPixelData);
         }
-        snapshots->add(Pair<Layer **, int>(snapshot, *layerCount));
+        snapshots->add(Util::Pair<Layer **, int>(snapshot, *layerCount));
     }
 }
 
@@ -68,97 +88,100 @@ void History::reset() {
     currentCommand = 0;
 }
 
-void History::execCommandOn(Layers *layers, const String &command, bool writeHistory) {
+void History::execCommandOn(Layers *layers, const Util::String &command, bool writeHistory) {
     if (!writeHistory) currentCommand++;
     auto comm = command.split(" ");
     if (comm.length() == 0) return;
     if (comm[0] == "addEmpty") {
         if (comm.length() != 5) mHandler->addMessage("Invalid command: " + command);
         else
-            layers->addEmpty(String::parseInt(comm[1]), String::parseInt(comm[2]), String::parseInt(comm[3]), String::parseInt(comm[4]),
-                             writeHistory);
+            layers->addEmpty(Util::String::parseInt(comm[1]), Util::String::parseInt(comm[2]),
+                             Util::String::parseInt(comm[3]), Util::String::parseInt(comm[4]), writeHistory);
     } else if (comm[0] == "addPicture") {
         if (comm.length() != 4) mHandler->addMessage("Invalid command: " + command);
-        else layers->addPicture(comm[1].operator const char *(), String::parseInt(comm[2]), String::parseInt(comm[3]), writeHistory);
+        else
+            layers->addPicture(comm[1].operator const char *(), Util::String::parseInt(comm[2]), Util::String::parseInt(comm[3]),
+                               writeHistory);
     } else if (comm[0] == "delete") {
         if (comm.length() != 2) mHandler->addMessage("Invalid command: " + command);
-        else layers->deletetAt(String::parseInt(comm[1]), writeHistory);
+        else layers->deletetAt(Util::String::parseInt(comm[1]), writeHistory);
     } else if (comm[0] == "swap") {
         if (comm.length() != 3) mHandler->addMessage("Invalid command: " + command);
-        else layers->swap(String::parseInt(comm[1]), String::parseInt(comm[2]), writeHistory);
+        else layers->swap(Util::String::parseInt(comm[1]), Util::String::parseInt(comm[2]), writeHistory);
     } else if (comm[0] == "visible") {
         if (comm.length() != 2) mHandler->addMessage("Invalid command: " + command);
-        else layers->changeVisibleAt(String::parseInt(comm[1]), writeHistory);
+        else layers->changeVisibleAt(Util::String::parseInt(comm[1]), writeHistory);
     } else if (comm[0] == "combine") {
         if (comm.length() != 3) mHandler->addMessage("Invalid command: " + command);
-        else layers->combine(String::parseInt(comm[1]), String::parseInt(comm[2]), writeHistory);
+        else layers->combine(Util::String::parseInt(comm[1]), Util::String::parseInt(comm[2]), writeHistory);
     } else if (comm[0] == "duplicate") {
         if (comm.length() != 2) mHandler->addMessage("Invalid command: " + command);
-        else layers->duplicate(String::parseInt(comm[1]), writeHistory);
+        else layers->duplicate(Util::String::parseInt(comm[1]), writeHistory);
     } else if (comm[0] == "move") {
         if (comm.length() != 4) mHandler->addMessage("Invalid command: " + command);
-        else layers->move(String::parseInt(comm[1]), String::parseInt(comm[2]), String::parseInt(comm[3]), writeHistory);
+        else layers->move(Util::String::parseInt(comm[1]), Util::String::parseInt(comm[2]), Util::String::parseInt(comm[3]), writeHistory);
     } else if (comm[0] == "scale") {
         if (comm.length() != 4) mHandler->addMessage("Invalid command: " + command);
         else
-            layers->scale(String::parseInt(comm[1]), String::parseDouble(comm[2]), static_cast<ToolCorner>(String::parseInt(comm[3])),
-                          writeHistory);
+            layers->scale(Util::String::parseInt(comm[1]), Util::String::parseDouble(comm[2]),
+                          static_cast<ToolCorner>(Util::String::parseInt(comm[3])), writeHistory);
     } else if (comm[0] == "crop") {
         if (comm.length() != 6) mHandler->addMessage("Invalid command: " + command);
         else
-            layers->crop(String::parseInt(comm[1]), String::parseInt(comm[2]), String::parseInt(comm[3]), String::parseInt(comm[4]),
-                         String::parseInt(comm[5]), writeHistory);
+            layers->crop(Util::String::parseInt(comm[1]), Util::String::parseInt(comm[2]), Util::String::parseInt(comm[3]),
+                         Util::String::parseInt(comm[4]), Util::String::parseInt(comm[5]), writeHistory);
     } else if (comm[0] == "autoCrop") {
         if (comm.length() != 2) mHandler->addMessage("Invalid command: " + command);
-        else layers->autoCrop(String::parseInt(comm[1]), writeHistory);
+        else layers->autoCrop(Util::String::parseInt(comm[1]), writeHistory);
     } else if (comm[0] == "rotate") {
         if (comm.length() != 3) mHandler->addMessage("Invalid command: " + command);
-        else layers->rotate(String::parseInt(comm[1]), String::parseInt(comm[2]), writeHistory);
+        else layers->rotate(Util::String::parseInt(comm[1]), Util::String::parseInt(comm[2]), writeHistory);
     } else if (comm[0] == "line") {
         if ((comm.length() - 1) % 7 != 0) mHandler->addMessage("Invalid command: " + command);
         else {
-            for (int i = 1; i < comm.length(); i += 7) {
-                layers->drawLine(String::parseInt(comm[i]), String::parseInt(comm[i + 1]), String::parseInt(comm[i + 2]),
-                                 String::parseInt(comm[i + 3]),
-                                 String::parseInt(comm[i + 4]), String::parseInt(comm[i + 5]), String::parseInt(comm[i + 6]), writeHistory);
+            for (uint32_t i = 1; i < comm.length(); i += 7) {
+                layers->drawLine(Util::String::parseInt(comm[i]), Util::String::parseInt(comm[i + 1]), Util::String::parseInt(comm[i + 2]),
+                                 Util::String::parseInt(comm[i + 3]), Util::String::parseInt(comm[i + 4]),
+                                 Util::String::parseInt(comm[i + 5]), Util::String::parseInt(comm[i + 6]), writeHistory);
             }
         }
     } else if (comm[0] == "shape") {
         if (comm.length() != 8) mHandler->addMessage("Invalid command: " + command);
         else
-            layers->drawShape(String::parseInt(comm[1]), static_cast<Shape>(String::parseInt(comm[2])), String::parseInt(comm[3]),
-                              String::parseInt(comm[4]), String::parseInt(comm[5]), String::parseInt(comm[6]), String::parseInt(comm[7]),
-                              writeHistory);
+            layers->drawShape(Util::String::parseInt(comm[1]), static_cast<Shape>(Util::String::parseInt(comm[2])),
+                              Util::String::parseInt(comm[3]), Util::String::parseInt(comm[4]), Util::String::parseInt(comm[5]),
+                              Util::String::parseInt(comm[6]), Util::String::parseInt(comm[7]), writeHistory);
     } else if (comm[0] == "replaceColor") {
         if (comm.length() != 6) mHandler->addMessage("Invalid command: " + command);
         else
-            layers->replaceColor(String::parseInt(comm[1]), String::parseInt(comm[2]), String::parseInt(comm[3]), String::parseInt(comm[4]),
-                                 String::parseDouble(comm[5]), writeHistory);
+            layers->replaceColor(Util::String::parseInt(comm[1]), Util::String::parseInt(comm[2]), Util::String::parseInt(comm[3]),
+                                 Util::String::parseInt(comm[4]), Util::String::parseDouble(comm[5]), writeHistory);
     } else if (comm[0] == "filterBlackWhite") {
         if (comm.length() != 2) mHandler->addMessage("Invalid command: " + command);
-        else layers->filterBlackWhite(String::parseInt(comm[1]), writeHistory);
+        else layers->filterBlackWhite(Util::String::parseInt(comm[1]), writeHistory);
     } else if (comm[0] == "filterInvert") {
         if (comm.length() != 2) mHandler->addMessage("Invalid command: " + command);
-        else layers->filterInvert(String::parseInt(comm[1]), writeHistory);
+        else layers->filterInvert(Util::String::parseInt(comm[1]), writeHistory);
     } else if (comm[0] == "filterSepia") {
         if (comm.length() != 2) mHandler->addMessage("Invalid command: " + command);
-        else layers->filterSepia(String::parseInt(comm[1]), writeHistory);
+        else layers->filterSepia(Util::String::parseInt(comm[1]), writeHistory);
     } else if (comm[0] == "filterKernel") {
         if (comm.length() != 13) mHandler->addMessage("Invalid command: " + command);
         else {
             int kernel[9];
             for (int i = 0; i < 9; i++) {
-                kernel[i] = String::parseInt(comm[i + 2]);
+                kernel[i] = Util::String::parseInt(comm[i + 2]);
             }
-            layers->filterKernel(String::parseInt(comm[1]), kernel, String::parseInt(comm[11]), String::parseInt(comm[12]), writeHistory);
+            layers->filterKernel(Util::String::parseInt(comm[1]), kernel, Util::String::parseInt(comm[11]),
+                                 Util::String::parseInt(comm[12]), writeHistory);
         }
     } else mHandler->addMessage("Unknown command: " + command);
 }
 
 void History::printCommands() {
-    mHandler->addMessage(Util::String::format("currentCommand: %d, commands size: %d, snapshot count: %d", currentCommand, commands->size(),
-                                              snapshots->size()));
-    for (int i = 0; i < commands->size(); i++) {
+    mHandler->addMessage(Util::String::format(
+            "currentCommand: %d, commands size: %d, snapshot count: %d", currentCommand, commands->size(), snapshots->size()));
+    for (uint32_t i = 0; i < commands->size(); i++) {
         auto m = commands->get(i);
         if ((i + 1) == currentCommand) m = ">> " + m;
         if ((i + 1) % SNAPSHOT_INTERVAL == 0) m = "SAVE " + m;
@@ -173,7 +196,7 @@ void History::saveToFile(const Util::String &path) {
     }
     FILE *file = fopen(path.operator const char *(), "w");
     if (file) {
-        for (int i = 0; i < commands->size(); i++) {
+        for (uint32_t i = 0; i < commands->size(); i++) {
             fputs(commands->get(i).operator const char *(), file);
             fputs("\n", file);
         }
@@ -209,7 +232,10 @@ void History::loadFromFileInto(Layers *layers, const Util::String &path) {
     while (!eof) {
         if (line.length() > 0) {
             print(line);
-            execCommandOn(layers, line);
+            execCommandOn(layers, line, true);
+            if (line.beginsWith("line")) { // special case for lines
+                addCommand(Util::String("prepareNextDrawing"), &layers->layers, &layers->layerCount);
+            }
         }
         line = stream.readLine(eof);
     }

@@ -16,3 +16,5 @@ cloc /Users/rafaelreip/Documents/git/CLionProjects/hhuOS/src/application/pic
 pic -r 1440x900@32
 ```
 
+./run.sh --file hhuOS-limine-vdd.iso --bios true --ram 1
+

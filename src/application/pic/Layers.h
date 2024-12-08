@@ -5,23 +5,27 @@
 #ifndef HHUOS_LAYERS_H
 #define HHUOS_LAYERS_H
 
+#include <cstdint>
 
-#include "Layer.h"
-#include "History.h"
+#include "helper.h"
 
 class History;
+
+class MessageHandler;
+
+class Layer;
 
 class Layers {
 public:
     Layers(MessageHandler *mHandler, History *history);
 
-    ~Layers() = default;
+    ~Layers();
 
-    int countNum() const;
+    [[nodiscard]] int countNum() const;
 
-    int currentNum() const;
+    [[nodiscard]] int currentNum() const;
 
-    int maxNum() const;
+    [[nodiscard]] int maxNum() const;
 
     void setCurrent(int index);
 
@@ -39,7 +43,7 @@ public:
 
     void duplicate(int index, bool writeHistory = true);
 
-    Layer *current();
+    [[nodiscard]] Layer *current() const;
 
     Layer *at(int index);
 
@@ -71,9 +75,9 @@ public:
 
     void rotateCurrent(int degree);
 
-    void drawCircle(int index, int x, int y, uint32_t color, int thickness);
+    void drawCircle(int index, int x, int y, uint32_t color, int thickness) const;
 
-    void drawCircleCurrent(int x, int y, uint32_t color, int thickness);
+    void drawCircleCurrent(int x, int y, uint32_t color, int thickness) const;
 
     void drawLine(int index, int x1, int y1, int x2, int y2, uint32_t color, int thickness, bool writeHistory = true);
 

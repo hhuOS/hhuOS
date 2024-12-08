@@ -4,6 +4,20 @@
 
 #include "Button.h"
 
+#include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/graphic/PixelDrawer.h"
+#include "lib/util/graphic/StringDrawer.h"
+#include "lib/util/graphic/Font.h"
+#include "lib/util/graphic/font/Terminal8x16.h"
+#include "lib/util/graphic/font/Sun12x22.h"
+#include "lib/util/graphic/LineDrawer.h"
+#include "string.h"
+
+#include "GuiLayer.h"
+#include "Layers.h"
+#include "Layer.h"
+#include "DataWrapper.h"
+#include "Settings.h"
 
 Button::Button(DataWrapper *data) {
     this->data = data;
@@ -11,10 +25,10 @@ Button::Button(DataWrapper *data) {
     for (int i = 0; i < 30 * 200; i++) {
         this->buffer[i] = 0x00000000;
     }
-    this->lfb = new LinearFrameBuffer(this->buffer, 200, 30, 32, 200 * 4, false);
-    this->pixelDrawer = new PixelDrawer(*lfb);
-    this->lineDrawer = new LineDrawer(*pixelDrawer);
-    this->stringDrawer = new StringDrawer(*pixelDrawer);
+    this->lfb = new Util::Graphic::LinearFrameBuffer(this->buffer, 200, 30, 32, 200 * 4, false);
+    this->pixelDrawer = new Util::Graphic::PixelDrawer(*lfb);
+    this->lineDrawer = new Util::Graphic::LineDrawer(*pixelDrawer);
+    this->stringDrawer = new Util::Graphic::StringDrawer(*pixelDrawer);
     this->bufferChanged = true;
     this->click = false;
     this->hover = false;
@@ -22,11 +36,11 @@ Button::Button(DataWrapper *data) {
     this->info = "Button";
     this->hotkey = 0;
     this->hasHotkey = false;
-    this->cblack = Color(0, 0, 0);
-    this->cgray = Color(128, 128, 128);
-    this->cdarkgray = Color(80, 80, 80);
-    this->cgreen = Color(0, 255, 0);
-    this->cred = Color(255, 0, 0);
+    this->cblack = Util::Graphic::Color(0, 0, 0);
+    this->cgray = Util::Graphic::Color(128, 128, 128);
+    this->cdarkgray = Util::Graphic::Color(80, 80, 80);
+    this->cgreen = Util::Graphic::Color(0, 255, 0);
+    this->cred = Util::Graphic::Color(255, 0, 0);
     this->black = cblack.getRGB32();
     this->gray = cgray.getRGB32();
     this->darkgray = cdarkgray.getRGB32();
@@ -36,6 +50,14 @@ Button::Button(DataWrapper *data) {
     this->mouseY = 0;
     this->bitmap = nullptr;
     render();
+}
+
+Button::~Button() {
+//    delete[] buffer; // dont delete, since lfb destructor will delete it
+    delete lfb;
+    delete pixelDrawer;
+    delete lineDrawer;
+    delete stringDrawer;
 }
 
 Button *Button::setHotkey(char h) {
@@ -347,7 +369,7 @@ void Button::renderMethod() {
 //        uint32_t color = (*colorA << 24) | (*colorR << 16) | (*colorG << 8) | *colorB;
         uint32_t color = 0xFF000000 | (*colorR << 16) | (*colorG << 8) | *colorB;
         renderBackground(0, 80, color);
-        Color c = this->setGreenTool == data->currentTool ? cgreen : cblack;
+        Util::Graphic::Color c = this->setGreenTool == data->currentTool ? cgreen : cblack;
         if (c != cgreen && setGreenShape != Shape::DEFAULT) {
             c = setGreenShape == data->currentShape ? cgreen : cblack;
         }
@@ -363,7 +385,8 @@ void Button::renderMethod() {
     if (hotkey != 0) {
         stringDrawer->drawMonoBitmap(180, 7, 16, 16, cblack, click ? cgreen : hover ? cdarkgray : cgray, Bitmaps::brackets);
         char hotkeyString[2] = {hotkey, '\0'};
-        stringDrawer->drawString(Fonts::TERMINAL_8x16, 184, 7, hotkeyString, cblack, click ? cgreen : hover ? cdarkgray : cgray);
+        stringDrawer->drawString(Util::Graphic::Fonts::TERMINAL_8x16, 184, 7, hotkeyString,
+                                 cblack, click ? cgreen : hover ? cdarkgray : cgray);
     }
     uint32_t borderColor =
             this->setGreenTool != Tool::NOTHING ? this->setGreenTool == data->currentTool ? 0xFF00FF00 : 0xFF000000 : 0xFF000000;
@@ -371,8 +394,8 @@ void Button::renderMethod() {
         borderColor = setGreenShape == data->currentShape ? 0xFF00FF00 : 0xFF000000;
     }
     renderBorder(borderColor);
-    stringDrawer->drawString(Fonts::TERMINAL_8x16, xStringpos, 7, info, cblack,
-                             click ? cgreen : hover ? cdarkgray : cgray);
+    stringDrawer->drawString(Util::Graphic::Fonts::TERMINAL_8x16, xStringpos, 7, info,
+                             cblack, click ? cgreen : hover ? cdarkgray : cgray);
 }
 
 void Button::renderValue(const char *text) {
@@ -384,11 +407,11 @@ void Button::renderValue(const char *text) {
     lineDrawer->drawLine(40, 0, 40, 30, cblack);
     lineDrawer->drawLine(160, 0, 160, 30, cblack);
     lineDrawer->drawLine(161, 0, 161, 30, cblack);
-    stringDrawer->drawString(Fonts::TERMINAL_8x16, 100 - (strlen(text) * 4), 7, text, cblack,
+    stringDrawer->drawString(Util::Graphic::Fonts::TERMINAL_8x16, 100 - (strlen(text) * 4), 7, text, cblack,
                              mouseX >= 40 && mouseX <= 160 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
-    stringDrawer->drawString(Fonts::SUN_12x22, 14, 4, "-", cred,
+    stringDrawer->drawString(Util::Graphic::Fonts::SUN_12x22, 14, 4, "-", cred,
                              mouseX < 40 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
-    stringDrawer->drawString(Fonts::SUN_12x22, 174, 4, "+", cgreen,
+    stringDrawer->drawString(Util::Graphic::Fonts::SUN_12x22, 174, 4, "+", cgreen,
                              mouseX > 160 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
 }
 
@@ -409,7 +432,8 @@ void Button::renderDoubleValue() {
 void Button::renderBoolean() {
     renderBackground(0, 200, click ? green : hover ? darkgray : gray);
     renderBorder(*boolValue ? 0xFF00FF00 : 0xFFFF0000);
-    stringDrawer->drawString(Fonts::TERMINAL_8x16, 100 - (strlen(info) * 4), 7, info, cblack, click ? cgreen : hover ? cdarkgray : cgray);
+    stringDrawer->drawString(Util::Graphic::Fonts::TERMINAL_8x16, 100 - (strlen(info) * 4), 7, info,
+                             cblack, click ? cgreen : hover ? cdarkgray : cgray);
 }
 
 void Button::renderConfirm() {
@@ -418,9 +442,9 @@ void Button::renderConfirm() {
     renderBorder(0xFF000000);
     lineDrawer->drawLine(99, 0, 99, 30, cblack);
     lineDrawer->drawLine(100, 0, 100, 30, cblack);
-    stringDrawer->drawString(Fonts::TERMINAL_8x16, 50 - (strlen("RESET") * 4), 7, "RESET", cred,
+    stringDrawer->drawString(Util::Graphic::Fonts::TERMINAL_8x16, 50 - (strlen("RESET") * 4), 7, "RESET", cred,
                              mouseX < 100 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
-    stringDrawer->drawString(Fonts::TERMINAL_8x16, 150 - (strlen("OK") * 4), 7, "OK", cgreen,
+    stringDrawer->drawString(Util::Graphic::Fonts::TERMINAL_8x16, 150 - (strlen("OK") * 4), 7, "OK", cgreen,
                              mouseX >= 100 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
 
 }
@@ -448,7 +472,8 @@ void Button::renderLayer() {
     lineDrawer->drawLine(160, 0, 160, 30, cblack);
     const char *num = int_to_string(layerNum);
     int xStringpos = 20 - (strlen(num) * 4);
-    stringDrawer->drawString(Fonts::TERMINAL_8x16, xStringpos, 7, num, data->layers->currentNum() == layerNum ? cgreen : cblack,
+    stringDrawer->drawString(Util::Graphic::Fonts::TERMINAL_8x16, xStringpos, 7, num,
+                             data->layers->currentNum() == layerNum ? cgreen : cblack,
                              mouseX < 40 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
     stringDrawer->drawMonoBitmap(52, 7, 16, 16, cblack, mouseX >= 40 && mouseX < 80 ?
                                                         (click ? cgreen : hover ? cdarkgray : cgray) : cgray, Bitmaps::arrow_up);
@@ -456,7 +481,7 @@ void Button::renderLayer() {
                                                         (click ? cgreen : hover ? cdarkgray : cgray) : cgray, Bitmaps::arrow_down);
     stringDrawer->drawMonoBitmap(132, 7, 16, 16, cblack, mouseX >= 120 && mouseX < 160 ?
                                                          (click ? cgreen : hover ? cdarkgray : cgray) : cgray, Bitmaps::trashcan);
-    Color eyeFG = data->layers->at(layerNum)->isVisible ? cgreen : cblack;
+    Util::Graphic::Color eyeFG = data->layers->at(layerNum)->isVisible ? cgreen : cblack;
     stringDrawer->drawMonoBitmap(172, 7, 16, 16, eyeFG, mouseX >= 160 ?
                                                         (click ? cgreen : hover ? cdarkgray : cgray) : cgray, Bitmaps::eye);
 }
@@ -470,10 +495,10 @@ void Button::renderInput() {
     if (bitmap != nullptr) {
         stringDrawer->drawMonoBitmap(12, 7, 16, 16, cred, mouseX < 40 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray, bitmap);
     } else {
-        stringDrawer->drawString(Fonts::TERMINAL_8x16, 8, 7, "DEL", cred,
+        stringDrawer->drawString(Util::Graphic::Fonts::TERMINAL_8x16, 8, 7, "DEL", cred,
                                  mouseX < 40 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
     }
-    stringDrawer->drawString(Fonts::TERMINAL_8x16, 48, 7, input->operator const char *(), cblack,
+    stringDrawer->drawString(Util::Graphic::Fonts::TERMINAL_8x16, 48, 7, input->operator const char *(), cblack,
                              mouseX >= 40 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
 
 }

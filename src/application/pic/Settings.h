@@ -7,16 +7,13 @@
 
 #include "lib/libc/stdio.h"
 
-#include "MessageHandler.h"
-#include "lib/util/io/stream/BufferedInputStream.h"
-
 class MessageHandler;
 
 class Settings {
 public:
     explicit Settings(MessageHandler *mHandler);
 
-    ~Settings() = default;
+    ~Settings();
 
     void resetToDefault();
 
@@ -24,15 +21,15 @@ public:
 
     void saveToFile();
 
-    bool checkeredBackground;
-    bool optimizeRendering;
-    bool currentLayerOverlay;
-    bool activateHotkeys;
-    bool showFPS;
-    bool textCaptureAfterUse;
-    bool resetValuesAfterConfirm;
-    bool useBufferedBuffer;
-    bool showMouseHelper;
+    bool checkeredBackground{};
+    bool optimizeRendering{};
+    bool currentLayerOverlay{};
+    bool activateHotkeys{};
+    bool showFPS{};
+    bool textCaptureAfterUse{};
+    bool resetValuesAfterConfirm{};
+    bool useBufferedBuffer{};
+    bool showMouseHelper{};
 
 private:
     MessageHandler *mHandler;

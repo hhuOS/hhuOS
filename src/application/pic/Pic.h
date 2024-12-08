@@ -1,13 +1,13 @@
 #ifndef PIC_H
 #define PIC_H
 
-#include "Button.h"
-#include "Layers.h"
-#include "GuiLayer.h"
-#include "Renderer.h"
-#include "DataWrapper.h"
-#include "lib/util/base/ArgumentParser.h"
+namespace Util::Io {
+    class File;
+}
 
+class DataWrapper;
+
+class Renderer;
 
 class Pic {
 public:

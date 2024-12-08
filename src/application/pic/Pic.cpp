@@ -1,8 +1,21 @@
 #include "Pic.h"
 
-using namespace Util;
-using namespace Graphic;
+#include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/base/ArgumentParser.h"
+#include "lib/util/io/stream/FileInputStream.h"
+#include "lib/util/io/key/KeyDecoder.h"
+#include "lib/util/io/key/layout/DeLayout.h"
+#include "lib/util/io/key/MouseDecoder.h"
 
+#include "Button.h"
+#include "Layers.h"
+#include "Layer.h"
+#include "GuiLayer.h"
+#include "Renderer.h"
+#include "DataWrapper.h"
+#include "History.h"
+#include "Settings.h"
+#include "MessageHandler.h"
 
 int32_t main([[maybe_unused]] int32_t argc, [[maybe_unused]] char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -42,6 +55,8 @@ int32_t main([[maybe_unused]] int32_t argc, [[maybe_unused]] char *argv[]) {
     pic->run();
     delete pic;
 
+    Util::System::out << Util::Io::PrintStream::flush;
+
     return 0;
 }
 
@@ -52,14 +67,9 @@ Pic::Pic(Util::Io::File *lfbFile) {
     data->history = new History(data->mHandler);
     data->layers = new Layers(data->mHandler, data->history);
     data->layers->addEmpty(50, 50, data->workAreaX - 100, data->workAreaY - 100);
-//    data->layers->addPicture("/user/pic/test.jpg", 0, 0);
     data->layers->addPicture("/user/pic/test.jpg", 100, 100);
-//    data->layers->addPicture("/user/pic/test.jpg", 400, 100);
 
     init_gui();
-
-//    auto renderer = new Renderer(data);
-//    auto renderThread = Util::Async::Thread::createThread("renderer", renderer);
 }
 
 
@@ -71,7 +81,6 @@ void Pic::run() {
         data->mHandler->update();
         if (data->mHandler->hasChangedAndReset()) data->flags->messagesChanged();
         renderer->render();
-//        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1) );
     }
     data->mHandler->setPrintBool(true); // only write to logs before and after render loop
 }
@@ -80,10 +89,19 @@ Pic::~Pic() {
     print("saving settings...");
     data->settings->saveToFile();
     print("done");
+
     print("freeing memory...");
+    auto keys = data->guiLayers->keys();
+    for (uint32_t i = 0; i < keys.length(); i++) {
+        GuiLayer *layer = data->guiLayers->get(keys[i]);
+        delete layer;
+    }
+    delete data->textButton;
+    data->guiLayers->clear();
     delete data;
     delete renderer;
     print("done");
+
     print("bye :)");
 }
 
@@ -99,8 +117,6 @@ void Pic::checkMouseInput() {
         mouseValues[mouseValueIndex++] = value;
         if (mouseValueIndex == 4) {
             auto mouseUpdate = Util::Io::MouseDecoder::decode(mouseValues);
-            data->oldMouseX = data->mouseX;
-            data->oldMouseY = data->mouseY;
             data->oldLeftButtonPressed = data->leftButtonPressed;
             data->xMovement += mouseUpdate.xMovement;
             data->yMovement -= mouseUpdate.yMovement;
@@ -233,8 +249,8 @@ void Pic::parseMouse(bool clicked) {
                         continue; // both points are outside of the layer
                     }
                     uint32_t penColor = (data->colorA << 24) | (data->colorR << 16) | (data->colorG << 8) | data->colorB;
-                    data->layers->drawLineCurrent(lastX, lastY, relX, relY, data->currentTool == Tool::PEN ? penColor : 0x00000000,
-                                                  data->penSize);
+                    data->layers->drawLineCurrent(lastX, lastY, relX, relY,
+                                                  data->currentTool == Tool::PEN ? penColor : 0x00000000, data->penSize);
                     lastX = relX, lastY = relY;
                 }
                 // put last click back for next iteration
@@ -290,7 +306,7 @@ void Pic::parseMouse(bool clicked) {
         data->layers->prepareNextDrawingCurrent(); // proper blending for the next drawing
     }
 
-    data->debugString = String::format(
+    data->debugString = Util::String::format(
             "Mouse: %d %d, currentTool: %d, queueLength: %d, clickStartedOnGui: %d",
             data->mouseX, data->mouseY, data->currentTool, data->mouseClicks->size(), data->clickStartedOnGui
     ).operator const char *();
@@ -353,7 +369,7 @@ void swapTool(DataWrapper *data, Tool tool) {
 }
 
 void changeGuiLayerTo(DataWrapper *data, const char *layer) {
-    if (String(layer) == "main") {
+    if (Util::String(layer) == "main") {
         data->inMainMenu = true;
     } else {
         data->inMainMenu = false;
@@ -882,11 +898,14 @@ void Pic::init_gui() {
     gui_bottom_crop->addButton((new Button(data))
                                        ->setInfo("switch Corner")
                                        ->setMethodButton([](DataWrapper *data) {
-                                           if (data->toolCorner == ToolCorner::TOP_LEFT) data->toolCorner = ToolCorner::TOP_RIGHT;
-                                           else if (data->toolCorner == ToolCorner::TOP_RIGHT) data->toolCorner = ToolCorner::BOTTOM_RIGHT;
+                                           if (data->toolCorner == ToolCorner::TOP_LEFT)
+                                               data->toolCorner = ToolCorner::TOP_RIGHT;
+                                           else if (data->toolCorner == ToolCorner::TOP_RIGHT)
+                                               data->toolCorner = ToolCorner::BOTTOM_RIGHT;
                                            else if (data->toolCorner == ToolCorner::BOTTOM_RIGHT)
                                                data->toolCorner = ToolCorner::BOTTOM_LEFT;
-                                           else if (data->toolCorner == ToolCorner::BOTTOM_LEFT) data->toolCorner = ToolCorner::TOP_LEFT;
+                                           else if (data->toolCorner == ToolCorner::BOTTOM_LEFT)
+                                               data->toolCorner = ToolCorner::TOP_LEFT;
                                        })
     );
     gui_bottom_crop->addButton((new Button(data))
@@ -988,7 +1007,10 @@ void Pic::init_gui() {
                                         }, [](DataWrapper *data) {
                                             if (data->layers->currentNum() >= 0) {
                                                 uint32_t penColor =
-                                                        (data->colorA << 24) | (data->colorR << 16) | (data->colorG << 8) | data->colorB;
+                                                        (data->colorA << 24) |
+                                                        (data->colorR << 16) |
+                                                        (data->colorG << 8) |
+                                                        data->colorB;
                                                 Layer *l = data->layers->current();
                                                 int relX = data->shapeX - l->posX, relY = data->shapeY - l->posY;
                                                 data->layers->drawShapeCurrent(data->currentShape, relX, relY, data->shapeW, data->shapeH,

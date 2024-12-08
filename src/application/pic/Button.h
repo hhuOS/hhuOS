@@ -6,23 +6,21 @@
 #define HHUOS_BUTTON_H
 
 #include <cstdint>
-#include "Layer.h"
-#include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/graphic/PixelDrawer.h"
-#include "lib/util/graphic/StringDrawer.h"
-#include "lib/util/graphic/Font.h"
-#include "lib/util/graphic/font/Terminal8x16.h"
-#include "lib/util/graphic/font/Sun12x22.h"
-#include "lib/util/graphic/LineDrawer.h"
-#include <string.h>
-#include <cstdio>
+#include "lib/util/graphic/Color.h"
 
+#include "helper.h"
 
-#include "DataWrapper.h"
-#include "GuiLayer.h"
-#include "Layers.h"
+namespace Util::Graphic {
+    class LinearFrameBuffer;
 
-using namespace Util::Graphic;
+    class PixelDrawer;
+
+    class StringDrawer;
+
+    class LineDrawer;
+}
+
+class DataWrapper;
 
 enum ButtonType {
     NONE,
@@ -40,7 +38,7 @@ public:
 
     explicit Button(DataWrapper *data);
 
-    ~Button() = default;
+    ~Button();
 
     void processClick(int relX, int relY);
 
@@ -118,11 +116,11 @@ private:
 
     DataWrapper *data;
     uint32_t *buffer;
-    LinearFrameBuffer *lfb;
-    PixelDrawer *pixelDrawer;
-    LineDrawer *lineDrawer;
-    StringDrawer *stringDrawer;
-    Color cblack, cgray, cgreen, cdarkgray, cred;
+    Util::Graphic::LinearFrameBuffer *lfb;
+    Util::Graphic::PixelDrawer *pixelDrawer;
+    Util::Graphic::LineDrawer *lineDrawer;
+    Util::Graphic::StringDrawer *stringDrawer;
+    Util::Graphic::Color cblack, cgray, cgreen, cdarkgray, cred;
     uint32_t black, gray, green, darkgray, red;
     ButtonType type;
     bool click;

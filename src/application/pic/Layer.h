@@ -2,10 +2,6 @@
 #define LAYER_H
 
 #include <cstdint>
-#include "DataWrapper.h"
-#include "lib/libc/math.h"
-#include "stdlib.h"
-#include "helper.h"
 
 class Layer {
 public:

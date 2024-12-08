@@ -5,18 +5,22 @@
 #ifndef HHUOS_MESSAGEHANDLER_H
 #define HHUOS_MESSAGEHANDLER_H
 
+#include <cstdint>
 #include "lib/libc/time.h"
-#include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/graphic/PixelDrawer.h"
-#include "lib/util/graphic/StringDrawer.h"
-#include "lib/util/graphic/font/Terminal8x16.h"
-#include "DataWrapper.h"
-#include "helper.h"
+#include "lib/util/base/String.h"
 
-using namespace Util::Graphic;
+namespace Util::Graphic {
+    class LinearFrameBuffer;
+
+    class PixelDrawer;
+
+    class StringDrawer;
+}
 
 class Message {
 public:
+    Message(const Util::String &message, int duration);
+    ~Message();
     Util::String message;
     time_t expiration;
 };
@@ -25,6 +29,8 @@ class MessageHandler {
 public:
 
     MessageHandler(int width, int height);
+
+    ~MessageHandler();
 
     void update();
 
@@ -39,11 +45,11 @@ public:
     void setPrintBool(bool print);
 
 private:
-    int width, height;
+    uint32_t width, height;
     uint32_t *buffer;
-    LinearFrameBuffer *lfb;
-    PixelDrawer *pixelDrawer;
-    StringDrawer *stringDrawer;
+    Util::Graphic::LinearFrameBuffer *lfb;
+    Util::Graphic::PixelDrawer *pixelDrawer;
+    Util::Graphic::StringDrawer *stringDrawer;
 
     bool changed;
     bool overflowed;

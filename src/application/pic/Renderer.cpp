@@ -4,7 +4,26 @@
 
 #include "Renderer.h"
 
-#define print(i) Util::System::out << i << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush
+#include "string.h"
+#include "lib/libc/stdlib.h"
+#include "lib/libc/math.h"
+#include "lib/util/graphic/Ansi.h"
+#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
+#include "lib/util/graphic/PixelDrawer.h"
+#include "lib/util/graphic/LineDrawer.h"
+#include "lib/util/graphic/StringDrawer.h"
+#include "lib/util/graphic/Font.h"
+#include "lib/util/graphic/font/Terminal8x16.h"
+#include "lib/util/base/Address.h"
+
+#include "DataWrapper.h"
+#include "helper.h"
+#include "Button.h"
+#include "GuiLayer.h"
+#include "Layer.h"
+#include "Settings.h"
+#include "Layers.h"
+#include "MessageHandler.h"
 
 
 Renderer::Renderer(DataWrapper *data) {
@@ -20,24 +39,44 @@ Renderer::Renderer(DataWrapper *data) {
     this->buff_over_current = newBuffer(data->workAreaAll);
     this->lastRenderedMouseX = 0;
     this->lastRenderedMouseY = 0;
-    this->lfb_overlay = new LinearFrameBuffer(this->buff_overlay, data->workAreaX, data->workAreaY, 32, data->workAreaX * 4, false);
-    this->pixelDrawer = new PixelDrawer(*lfb_overlay);
-    this->lineDrawer = new LineDrawer(*pixelDrawer);
-    this->stringDrawer = new StringDrawer(*pixelDrawer);
-    this->pixelDrawer_lfb = new PixelDrawer(*data->lfb);
-    this->stringDrawer_lfb = new StringDrawer(*pixelDrawer_lfb);
-    this->pixelDrawer_blfb = new PixelDrawer(*data->blfb);
-    this->stringDrawer_blfb = new StringDrawer(*pixelDrawer_blfb);
-    this->cblack = Color(0, 0, 0);
-    this->cwhite = Color(255, 255, 255);
-    this->cgreen = Color(0, 255, 0);
-    this->cred = Color(255, 0, 0);
-    this->cgray = Color(128, 128, 128);
+    this->lfb_overlay = new Util::Graphic::LinearFrameBuffer(this->buff_overlay, data->workAreaX, data->workAreaY,
+                                                             32, data->workAreaX * 4, false);
+    this->pixelDrawer_overlay = new Util::Graphic::PixelDrawer(*lfb_overlay);
+    this->lineDrawer_overlay = new Util::Graphic::LineDrawer(*pixelDrawer_overlay);
+    this->stringDrawer_overlay = new Util::Graphic::StringDrawer(*pixelDrawer_overlay);
+    this->pixelDrawer_lfb = new Util::Graphic::PixelDrawer(*data->lfb);
+    this->stringDrawer_lfb = new Util::Graphic::StringDrawer(*pixelDrawer_lfb);
+    this->pixelDrawer_blfb = new Util::Graphic::PixelDrawer(*data->blfb);
+    this->stringDrawer_blfb = new Util::Graphic::StringDrawer(*pixelDrawer_blfb);
+    this->cblack = Util::Graphic::Color(0, 0, 0);
+    this->cwhite = Util::Graphic::Color(255, 255, 255);
+    this->cgreen = Util::Graphic::Color(0, 255, 0);
+    this->cred = Util::Graphic::Color(255, 0, 0);
+    this->cgray = Util::Graphic::Color(128, 128, 128);
     this->lastTime = time(nullptr);
     this->usingBufferedBuffer = false;
     this->frames = 0;
     this->fps = 0;
     prepareBase();
+}
+
+Renderer::~Renderer() {
+    delete[] buff_result;
+    delete[] buff_base;
+    delete[] buff_workarea;
+    delete[] buff_gui;
+    delete[] buff_overlay;
+    delete[] buff_layers;
+    delete[] buff_under_current;
+    delete[] buff_over_current;
+    delete lfb_overlay;
+    delete pixelDrawer_overlay;
+    delete lineDrawer_overlay;
+    delete stringDrawer_overlay;
+    delete pixelDrawer_lfb;
+    delete stringDrawer_lfb;
+    delete pixelDrawer_blfb;
+    delete stringDrawer_blfb;
 }
 
 uint32_t *Renderer::newBuffer(int size) {
@@ -73,13 +112,6 @@ void Renderer::prepareBase() {
     }
 }
 
-//void Renderer::run() {
-//    while (true) {
-//        render();
-//        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
-//    }
-//}
-
 // TODO: alles durchgehen, ob in keiner Situation zu viel gerendert wird
 void Renderer::render() {
     if (data->settings->useBufferedBuffer != usingBufferedBuffer) {
@@ -114,9 +146,9 @@ void Renderer::render() {
         while (strlen(fpsString) < 15) fpsString = Util::String::format("%s ", fpsString).operator const char *();
         frames++;
         if (usingBufferedBuffer) {
-            stringDrawer_blfb->drawString(Fonts::TERMINAL_8x16, 200, 0, fpsString, cblack, cwhite);
+            stringDrawer_blfb->drawString(Util::Graphic::Fonts::TERMINAL_8x16, 200, 0, fpsString, cblack, cwhite);
         } else {
-            stringDrawer_lfb->drawString(Fonts::TERMINAL_8x16, 200, 0, fpsString, cblack, cwhite);
+            stringDrawer_lfb->drawString(Util::Graphic::Fonts::TERMINAL_8x16, 200, 0, fpsString, cblack, cwhite);
         }
         lastTime = now;
     }
@@ -165,12 +197,14 @@ void Renderer::renderResult() {
         for (int i = 0; i < data->screenAll;) {
             if (data->flags->gui || !data->settings->optimizeRendering) {
                 for (int j = 0; j < data->guiX; j++) {
-                    buff_result[i++] = buff_base[i];
+                    buff_result[i] = buff_base[i];
+                    i++;
                 }
             } else i += data->guiX;
             if (data->flags->workArea || !data->settings->optimizeRendering) {
                 for (int j = 0; j < data->workAreaX; j++) {
-                    buff_result[i++] = buff_base[i];
+                    buff_result[i] = buff_base[i];
+                    i++;
                 }
             } else i += data->workAreaX;
         }
@@ -224,8 +258,7 @@ void Renderer::renderGui() {
         int x = i - b;
         if (data->flags->guiLayer || guiLayerBottom->buttons[x]->bufferChanged || !data->settings->optimizeRendering) {
             for (int j = i * 30 * 200; j < (i + 1) * 30 * 200; j++) buff_gui[j] = 0x00000000;
-            blendBuffers(buff_gui, guiLayerBottom->buttons[x]->getBuffer(), data->guiX, data->screenY, 200, 30, 0,
-                         i * 30);
+            blendBuffers(buff_gui, guiLayerBottom->buttons[x]->getBuffer(), data->guiX, data->screenY, 200, 30, 0, i * 30);
             guiLayerBottom->buttons[x]->bufferChanged = false;
         }
     }
@@ -237,18 +270,18 @@ void Renderer::renderGui() {
 
     data->flags->gui = false;
     data->flags->guiLayer = false;
-    data->flags->guiJustButton = false;
 }
 
-void Renderer::drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Color color) {
+void Renderer::drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Util::Graphic::Color color) {
     drawOverlayBox(x1, y1, x2, y2, x3, y3, x4, y4, color, color, color, color);
 }
 
-void Renderer::drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Color c1, Color c2, Color c3, Color c4) {
-    lineDrawer->drawLine(x1, y1, x2, y2, c1);
-    lineDrawer->drawLine(x2, y2, x3, y3, c2);
-    lineDrawer->drawLine(x3, y3, x4, y4, c3);
-    lineDrawer->drawLine(x4, y4, x1, y1, c4);
+void Renderer::drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4,
+                              Util::Graphic::Color c1, Util::Graphic::Color c2, Util::Graphic::Color c3, Util::Graphic::Color c4) {
+    lineDrawer_overlay->drawLine(x1, y1, x2, y2, c1);
+    lineDrawer_overlay->drawLine(x2, y2, x3, y3, c2);
+    lineDrawer_overlay->drawLine(x3, y3, x4, y4, c3);
+    lineDrawer_overlay->drawLine(x4, y4, x1, y1, c4);
 }
 
 void Renderer::drawFilledOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, uint32_t color) {
@@ -269,15 +302,13 @@ void Renderer::renderOverlay() {
         if (data->settings->currentLayerOverlay) {
             // border for current layer
             drawOverlayBox(x, y, x + w - 1, y, x + w - 1, y + h - 1, x, y + h - 1, cred);
-            drawOverlayBox(x + 1, y + 1, x + w - 2, y + 1, x + w - 2, y + h - 2, x + 1, y + h - 2,
-                           cred);
+            drawOverlayBox(x + 1, y + 1, x + w - 2, y + 1, x + w - 2, y + h - 2, x + 1, y + h - 2, cred);
         }
-        Color top, bottom, left, right;
+        Util::Graphic::Color top, bottom, left, right;
         if (data->currentTool == Tool::MOVE) {
             x = data->moveX, y = data->moveY;
             drawOverlayBox(x, y, x + w - 1, y, x + w - 1, y + h - 1, x, y + h - 1, cgreen);
-            drawOverlayBox(x + 1, y + 1, x + w - 2, y + 1, x + w - 2, y + h - 2, x + 1, y + h - 2,
-                           cgreen);
+            drawOverlayBox(x + 1, y + 1, x + w - 2, y + 1, x + w - 2, y + h - 2, x + 1, y + h - 2, cgreen);
         } else if (data->currentTool == Tool::SCALE) {
             double factor = data->scale;
             w = ceil(w * factor);
@@ -298,10 +329,8 @@ void Renderer::renderOverlay() {
                    data->toolCorner == ToolCorner::BOTTOM_LEFT ? cgreen : cred;
             right = data->toolCorner == ToolCorner::TOP_RIGHT ||
                     data->toolCorner == ToolCorner::BOTTOM_RIGHT ? cgreen : cred;
-            drawOverlayBox(x, y, x + w - 1, y, x + w - 1, y + h - 1, x, y + h - 1, top, right,
-                           bottom, left);
-            drawOverlayBox(x + 1, y + 1, x + w - 2, y + 1, x + w - 2, y + h - 2, x + 1, y + h - 2,
-                           top, right, bottom, left);
+            drawOverlayBox(x, y, x + w - 1, y, x + w - 1, y + h - 1, x, y + h - 1, top, right, bottom, left);
+            drawOverlayBox(x + 1, y + 1, x + w - 2, y + 1, x + w - 2, y + h - 2, x + 1, y + h - 2, top, right, bottom, left);
         } else if (data->currentTool == Tool::CROP) {
             x = l->posX + data->cropLeft;
             y = l->posY + data->cropTop;
@@ -315,10 +344,8 @@ void Renderer::renderOverlay() {
                    data->toolCorner == ToolCorner::BOTTOM_LEFT ? cgreen : cred;
             right = data->toolCorner == ToolCorner::TOP_RIGHT ||
                     data->toolCorner == ToolCorner::BOTTOM_RIGHT ? cgreen : cred;
-            drawOverlayBox(x, y, x + w - 1, y, x + w - 1, y + h - 1, x, y + h - 1, top, right,
-                           bottom, left);
-            drawOverlayBox(x + 1, y + 1, x + w - 2, y + 1, x + w - 2, y + h - 2, x + 1, y + h - 2,
-                           top, right, bottom, left);
+            drawOverlayBox(x, y, x + w - 1, y, x + w - 1, y + h - 1, x, y + h - 1, top, right, bottom, left);
+            drawOverlayBox(x + 1, y + 1, x + w - 2, y + 1, x + w - 2, y + h - 2, x + 1, y + h - 2, top, right, bottom, left);
         } else if (data->currentTool == Tool::ROTATE) {
             double angle = data->rotateDeg * PI / 180.0;
             int centerX = l->posX + l->width / 2, centerY = l->posY + l->height / 2;
@@ -333,8 +360,7 @@ void Renderer::renderOverlay() {
                     centerY + dx2 * sinAngle + dy2 * cosAngle;
             int newX4 = centerX + dx1 * cosAngle - dy2 * sinAngle, newY4 =
                     centerY + dx1 * sinAngle + dy2 * cosAngle;
-            drawOverlayBox(newX1 + 1, newY1 + 1, newX2 - 1, newY2 + 1, newX3 - 1, newY3 - 1, newX4,
-                           newY4 - 1, cgreen);
+            drawOverlayBox(newX1 + 1, newY1 + 1, newX2 - 1, newY2 + 1, newX3 - 1, newY3 - 1, newX4, newY4 - 1, cgreen);
             drawOverlayBox(newX1, newY1, newX2, newY2, newX3, newY3, newX4 + 1, newY4, cgreen);
         } else if (data->currentTool == Tool::EXPORT_PNG || data->currentTool == Tool::EXPORT_JPG ||
                    data->currentTool == Tool::EXPORT_BMP || data->currentTool == Tool::NEW_EMPTY) {
@@ -346,41 +372,33 @@ void Renderer::renderOverlay() {
             if (data->combineFirst < data->layers->countNum()) {
                 Layer *l1 = data->layers->at(data->combineFirst);
                 int x1 = l1->posX, y1 = l1->posY, w1 = l1->width, h1 = l1->height;
-                drawOverlayBox(x1, y1, x1 + w1 - 1, y1, x1 + w1 - 1, y1 + h1 - 1, x1, y1 + h1 - 1,
-                               cgreen);
-                drawOverlayBox(x1 + 1, y1 + 1, x1 + w1 - 2, y1 + 1, x1 + w1 - 2, y1 + h1 - 2,
-                               x1 + 1, y1 + h1 - 2, cgreen);
+                drawOverlayBox(x1, y1, x1 + w1 - 1, y1, x1 + w1 - 1, y1 + h1 - 1, x1, y1 + h1 - 1, cgreen);
+                drawOverlayBox(x1 + 1, y1 + 1, x1 + w1 - 2, y1 + 1, x1 + w1 - 2, y1 + h1 - 2, x1 + 1, y1 + h1 - 2, cgreen);
             }
             if (data->combineSecond < data->layers->countNum()) {
                 Layer *l2 = data->layers->at(data->combineSecond);
                 int x2 = l2->posX, y2 = l2->posY, w2 = l2->width, h2 = l2->height;
-                drawOverlayBox(x2, y2, x2 + w2 - 1, y2, x2 + w2 - 1, y2 + h2 - 1, x2, y2 + h2 - 1,
-                               cgreen);
-                drawOverlayBox(x2 + 1, y2 + 1, x2 + w2 - 2, y2 + 1, x2 + w2 - 2, y2 + h2 - 2,
-                               x2 + 1, y2 + h2 - 2, cgreen);
+                drawOverlayBox(x2, y2, x2 + w2 - 1, y2, x2 + w2 - 1, y2 + h2 - 1, x2, y2 + h2 - 1, cgreen);
+                drawOverlayBox(x2 + 1, y2 + 1, x2 + w2 - 2, y2 + 1, x2 + w2 - 2, y2 + h2 - 2, x2 + 1, y2 + h2 - 2, cgreen);
             }
         } else if (data->currentTool == Tool::DUPLICATE) {
             if (data->dupeIndex < data->layers->countNum()) {
                 l = data->layers->at(data->dupeIndex);
                 x = l->posX, y = l->posY, w = l->width, h = l->height;
                 drawOverlayBox(x, y, x + w - 1, y, x + w - 1, y + h - 1, x, y + h - 1, cgreen);
-                drawOverlayBox(x + 1, y + 1, x + w - 2, y + 1, x + w - 2, y + h - 2, x + 1,
-                               y + h - 2, cgreen);
+                drawOverlayBox(x + 1, y + 1, x + w - 2, y + 1, x + w - 2, y + h - 2, x + 1, y + h - 2, cgreen);
             }
         } else if (data->currentTool == Tool::SHAPE) {
             x = data->shapeX, y = data->shapeY, w = data->shapeW, h = data->shapeH;
             if (data->currentShape == Shape::RECTANGLE) {
                 drawOverlayBox(x, y, x + w - 1, y, x + w - 1, y + h - 1, x, y + h - 1, cgreen);
-                drawOverlayBox(x + 1, y + 1, x + w - 2, y + 1, x + w - 2, y + h - 2, x + 1,
-                               y + h - 2, cgreen);
+                drawOverlayBox(x + 1, y + 1, x + w - 2, y + 1, x + w - 2, y + h - 2, x + 1, y + h - 2, cgreen);
             } else if (data->currentShape == Shape::SQUARE) {
                 int size = max(abs(w), abs(h));
                 int newX = w < 0 ? x - size : x;
                 int newY = h < 0 ? y - size : y;
-                drawOverlayBox(newX, newY, newX + size - 1, newY, newX + size - 1, newY + size - 1,
-                               newX, newY + size - 1, cgreen);
-                drawOverlayBox(newX + 1, newY + 1, newX + size - 2, newY + 1, newX + size - 2,
-                               newY + size - 2, newX + 1, newY + size - 2,
+                drawOverlayBox(newX, newY, newX + size - 1, newY, newX + size - 1, newY + size - 1, newX, newY + size - 1, cgreen);
+                drawOverlayBox(newX + 1, newY + 1, newX + size - 2, newY + 1, newX + size - 2, newY + size - 2, newX + 1, newY + size - 2,
                                cgreen);
             } else if (data->currentShape == Shape::ELLIPSE) {
                 int rx = abs(w) / 2;
@@ -391,8 +409,8 @@ void Renderer::renderOverlay() {
                 for (double angle = 0; angle < 2 * PI; angle += 0.005) {
                     int px = cx + rx * cos(angle);
                     int py = cy + ry * sin(angle);
-                    pixelDrawer->drawPixel(px, py, cgreen);
-                    pixelDrawer->drawPixel(px + 1, py, cgreen);
+                    pixelDrawer_overlay->drawPixel(px, py, cgreen);
+                    pixelDrawer_overlay->drawPixel(px + 1, py, cgreen);
                 }
             } else if (data->currentShape == Shape::CIRCLE) {
                 int size = max(abs(w), abs(h));
@@ -405,8 +423,8 @@ void Renderer::renderOverlay() {
                 for (double angle = 0; angle < 2 * PI; angle += 0.005) {
                     int px = cx + r * cos(angle);
                     int py = cy + r * sin(angle);
-                    pixelDrawer->drawPixel(px, py, cgreen);
-                    pixelDrawer->drawPixel(px + 1, py, cgreen);
+                    pixelDrawer_overlay->drawPixel(px, py, cgreen);
+                    pixelDrawer_overlay->drawPixel(px + 1, py, cgreen);
                 }
             }
         } else if (data->currentTool == Tool::REPLACE_COLOR) {
@@ -433,16 +451,16 @@ void Renderer::renderOverlay() {
                       data->currentTool == Tool::COLOR || data->currentTool == Tool::SHAPE || data->currentTool == Tool::REPLACE_COLOR ||
                       data->currentTool == Tool::EXPORT_PNG || data->currentTool == Tool::EXPORT_JPG ||
                       data->currentTool == Tool::EXPORT_BMP || data->currentTool == Tool::NEW_EMPTY ? cgreen : cgray;
-        stringDrawer->drawMonoBitmap(xPos + 16, yPos + 0, 16, 16, yColor, cwhite, Bitmaps::arrow_up);
-        stringDrawer->drawMonoBitmap(xPos + 0, yPos + 16, 16, 16, xColor, cwhite, Bitmaps::arrow_left);
-        stringDrawer->drawMonoBitmap(xPos + 16, yPos + 16, 16, 16, cblack, cwhite, Bitmaps::mouse);
-        stringDrawer->drawMonoBitmap(xPos + 32, yPos + 16, 16, 16, xColor, cwhite, Bitmaps::arrow_right);
-        stringDrawer->drawMonoBitmap(xPos + 16, yPos + 32, 16, 16, yColor, cwhite, Bitmaps::arrow_down);
+        stringDrawer_overlay->drawMonoBitmap(xPos + 16, yPos + 0, 16, 16, yColor, cwhite, Bitmaps::arrow_up);
+        stringDrawer_overlay->drawMonoBitmap(xPos + 0, yPos + 16, 16, 16, xColor, cwhite, Bitmaps::arrow_left);
+        stringDrawer_overlay->drawMonoBitmap(xPos + 16, yPos + 16, 16, 16, cblack, cwhite, Bitmaps::mouse);
+        stringDrawer_overlay->drawMonoBitmap(xPos + 32, yPos + 16, 16, 16, xColor, cwhite, Bitmaps::arrow_right);
+        stringDrawer_overlay->drawMonoBitmap(xPos + 16, yPos + 32, 16, 16, yColor, cwhite, Bitmaps::arrow_down);
     }
 
     // debug String
     if (data->debugString != nullptr) {
-        stringDrawer->drawString(Fonts::TERMINAL_8x16, 0, data->workAreaY - 16, data->debugString, cblack, cwhite);
+        stringDrawer_overlay->drawString(Util::Graphic::Fonts::TERMINAL_8x16, 0, data->workAreaY - 16, data->debugString, cblack, cwhite);
     }
     data->flags->overlay = false;
 }
@@ -456,16 +474,14 @@ void Renderer::renderLayers() {
         for (int i = 0; i < data->layers->currentNum(); i++) { // für buff_under_current
             auto layer = data->layers->at(i);
             if (layer->isVisible)
-                blendBuffers(buff_under_current, layer->getPixelData(), data->workAreaX, data->workAreaY,
-                             layer->width,
-                             layer->height, layer->posX, layer->posY);
+                blendBuffers(buff_under_current, layer->getPixelData(), data->workAreaX, data->workAreaY, layer->width, layer->height,
+                             layer->posX, layer->posY);
         }
         for (int i = data->layers->currentNum() + 1; i < data->layers->countNum(); i++) { // für buff_over_current
             auto layer = data->layers->at(i);
             if (layer->isVisible)
-                blendBuffers(buff_over_current, layer->getPixelData(), data->workAreaX, data->workAreaY,
-                             layer->width,
-                             layer->height, layer->posX, layer->posY);
+                blendBuffers(buff_over_current, layer->getPixelData(), data->workAreaX, data->workAreaY, layer->width, layer->height,
+                             layer->posX, layer->posY);
         }
     }
     for (int i = 0; i < data->workAreaAll; i++) {
@@ -476,8 +492,7 @@ void Renderer::renderLayers() {
         auto currentLayer = data->layers->current();
         if (currentLayer->isVisible)
             blendBuffers(buff_layers, currentLayer->getPixelData(), data->workAreaX, data->workAreaY,
-                         currentLayer->width,
-                         currentLayer->height, currentLayer->posX, currentLayer->posY);
+                         currentLayer->width, currentLayer->height, currentLayer->posX, currentLayer->posY);
     }
     blendBuffers(buff_layers, buff_over_current, data->workAreaAll);
     data->flags->layers = false;

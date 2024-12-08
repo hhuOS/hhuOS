@@ -4,6 +4,10 @@
 
 #include "Layers.h"
 
+#include "Layer.h"
+#include "History.h"
+#include "MessageHandler.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STBI_ASSERT(x) ((void)0)  // Do nothing when assert fails
@@ -20,6 +24,10 @@ Layers::Layers(MessageHandler *mHandler, History *history) {
     this->history = history;
 }
 
+Layers::~Layers() {
+    delete[] layers;
+}
+
 void Layers::reset() {
     for (int i = 0; i < layerCount; i++) {
         delete layers[i];
@@ -28,7 +36,7 @@ void Layers::reset() {
     currentLayer = -1;
 }
 
-Layer *Layers::current() {
+Layer *Layers::current() const {
     if (currentLayer == -1) return nullptr;
     return layers[currentLayer];
 }
@@ -226,7 +234,6 @@ void Layers::combine(int index1, int index2, bool writeHistory) {
     delete l1;
     layers[index1] = combinedLayer;
 
-    // delete l2;
     if (index2 == currentLayer) currentLayer = 0;
     delete layers[index2];
     for (int i = index2; i < layerCount - 1; i++) {
@@ -333,8 +340,8 @@ void Layers::crop(int index, int left, int right, int top, int bottom, bool writ
     int newWidth = layer->width - left - right;
     int newHeight = layer->height - top - bottom;
     if (newWidth <= 0 || newHeight <= 0) {
-        mHandler->addMessage(Util::String::format("Layers::crop(%d, %d, %d, %d, %d) invalid crop", index, left, right, top,
-                                                  bottom).operator const char *());
+        mHandler->addMessage(Util::String::format("Layers::crop(%d, %d, %d, %d, %d) invalid crop",
+                                                  index, left, right, top, bottom).operator const char *());
         return;
     }
 
@@ -467,7 +474,7 @@ void Layers::rotateCurrent(int degree) {
     rotate(currentLayer, degree);
 }
 
-void Layers::drawCircle(int index, int x, int y, uint32_t color, int thickness) {
+void Layers::drawCircle(int index, int x, int y, uint32_t color, int thickness) const {
     if (index < 0 || index >= layerCount) return;
     Layer *layer = layers[index];
 
@@ -487,7 +494,7 @@ void Layers::drawCircle(int index, int x, int y, uint32_t color, int thickness) 
     }
 }
 
-void Layers::drawCircleCurrent(int x, int y, uint32_t color, int thickness) {
+void Layers::drawCircleCurrent(int x, int y, uint32_t color, int thickness) const {
     drawCircle(currentLayer, x, y, color, thickness);
 }
 
@@ -512,8 +519,8 @@ void Layers::drawLine(int index, int x1, int y1, int x2, int y2, uint32_t color,
         if (e2 <= dx) err += dx, y1 += sy;
     }
     if (writeHistory)
-        history->addCommand(Util::String::format("line %d %d %d %d %d %d %d", index, x1c, y1c, x2c, y2c, color, thickness), &layers,
-                            &layerCount);
+        history->addCommand(Util::String::format("line %d %d %d %d %d %d %d",
+                                                 index, x1c, y1c, x2c, y2c, color, thickness), &layers, &layerCount);
 }
 
 void Layers::drawLineCurrent(int x1, int y1, int x2, int y2, uint32_t color, int thickness) {
@@ -575,15 +582,15 @@ void Layers::drawShapeCurrent(Shape shape, int x, int y, int w, int h, uint32_t 
 
 void Layers::replaceColor(int index, int x, int y, uint32_t penColor, double tolerance, bool writeHistory) {
     if (index < 0 || index >= layerCount) {
-        mHandler->addMessage(Util::String::format("Layers::replaceColor(%d, %d, %d, %d, %d, %f) index out of bounds", index, x, y,
-                                                  penColor, tolerance).operator const char *());
+        mHandler->addMessage(Util::String::format("Layers::replaceColor(%d, %d, %d, %d, %d, %f) index out of bounds",
+                                                  index, x, y, penColor, tolerance).operator const char *());
         return;
     }
     Layer *layer = layers[index];
     uint32_t targetColor = layer->getPixel(x, y);
     if (targetColor == penColor) return;
     tolerance = max(0.0, min(1.0, tolerance));
-    int maxDiff = 255 * tolerance;
+    uint32_t maxDiff = 255 * tolerance;
     for (int i = 0; i < layer->width * layer->height; i++) {
         uint32_t pixel = layer->getPixelData()[i];
         uint32_t rDiff = abs(((targetColor >> 16) & 0xFF) - ((pixel >> 16) & 0xFF));
@@ -595,8 +602,8 @@ void Layers::replaceColor(int index, int x, int y, uint32_t penColor, double tol
     }
     auto toleranceString = double_to_string(tolerance, 2);
     if (writeHistory)
-        history->addCommand(Util::String::format("replaceColor %d %d %d %d %s", index, x, y, penColor, toleranceString), &layers,
-                            &layerCount);
+        history->addCommand(Util::String::format("replaceColor %d %d %d %d %s",
+                                                 index, x, y, penColor, toleranceString), &layers, &layerCount);
 }
 
 void Layers::replaceColorCurrent(int x, int y, uint32_t penColor, double tolerance) {
@@ -673,8 +680,8 @@ void Layers::filterSepiaCurrent() {
 
 void Layers::filterKernel(int index, int kernel[9], int divisor, int offset, bool writeHistory) {
     if (index < 0 || index >= layerCount) {
-        mHandler->addMessage(Util::String::format("Layers::filterKernel(%d, %d, %d, %d) index out of bounds", index, kernel, divisor,
-                                                  offset).operator const char *());
+        mHandler->addMessage(Util::String::format("Layers::filterKernel(%d, %d, %d, %d) index out of bounds",
+                                                  index, kernel, divisor, offset).operator const char *());
         return;
     }
     Layer *layer = layers[index];

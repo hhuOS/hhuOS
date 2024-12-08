@@ -30,6 +30,8 @@ class Map {
 
 public:
 
+    virtual ~Map() = default;
+
     virtual void put(const K &key, const V &value) = 0;
 
     [[nodiscard]] virtual V get(const K &key) const = 0;

@@ -5,39 +5,28 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include "lib/util/collection/ArrayList.h"
-#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
-#include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/async/Runnable.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/async/Thread.h"
-#include "lib/util/graphic/Ansi.h"
-#include "lib/util/base/Address.h"
-#include "lib/util/time/Timestamp.h"
-#include "lib/libc/stdlib.h"
-#include "DataWrapper.h"
-#include "lib/util/graphic/PixelDrawer.h"
-#include "lib/util/graphic/LineDrawer.h"
-#include "lib/util/graphic/StringDrawer.h"
-#include "lib/libc/math.h"
+#include <cstdint>
+#include <lib/libc/time.h>
+#include "lib/util/graphic/Color.h"
 
-#include "GuiLayer.h"
-#include "helper.h"
-#include "Layers.h"
-#include "MessageHandler.h"
+namespace Util::Graphic {
+    class LinearFrameBuffer;
 
+    class PixelDrawer;
 
-using namespace Util::Graphic;
+    class LineDrawer;
 
-//class Renderer : public Util::Async::Runnable {
+    class StringDrawer;
+}
+
+class DataWrapper;
+
 class Renderer {
 public:
     explicit Renderer(DataWrapper *data);
 
-//    ~Renderer() override = default;
-    ~Renderer() = default;
+    ~Renderer();
 
-//    void run() override;
     void render();
 
 private:
@@ -57,9 +46,10 @@ private:
 
     void renderOverlay();
 
-    void drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Color color);
+    void drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Util::Graphic::Color color);
 
-    void drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Color c1, Color c2, Color c3, Color c4);
+    void drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4,
+                        Util::Graphic::Color c1, Util::Graphic::Color c2, Util::Graphic::Color c3, Util::Graphic::Color c4);
 
     void drawFilledOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, uint32_t color);
 
@@ -71,19 +61,19 @@ private:
     uint32_t *buff_base, *buff_workarea, *buff_gui;
     uint32_t *buff_overlay, *buff_layers;
     uint32_t *buff_under_current, *buff_over_current;
-    Color cblack, cgreen, cwhite, cred, cgray;
+    Util::Graphic::Color cblack, cgreen, cwhite, cred, cgray;
     int lastRenderedMouseX, lastRenderedMouseY;
     bool usingBufferedBuffer;
     // for overlay
-    LinearFrameBuffer *lfb_overlay;
-    PixelDrawer *pixelDrawer;
-    LineDrawer *lineDrawer;
-    StringDrawer *stringDrawer;
+    Util::Graphic::LinearFrameBuffer *lfb_overlay;
+    Util::Graphic::PixelDrawer *pixelDrawer_overlay;
+    Util::Graphic::LineDrawer *lineDrawer_overlay;
+    Util::Graphic::StringDrawer *stringDrawer_overlay;
     // fps
-    PixelDrawer *pixelDrawer_lfb;
-    StringDrawer *stringDrawer_lfb;
-    PixelDrawer *pixelDrawer_blfb;
-    StringDrawer *stringDrawer_blfb;
+    Util::Graphic::PixelDrawer *pixelDrawer_lfb;
+    Util::Graphic::StringDrawer *stringDrawer_lfb;
+    Util::Graphic::PixelDrawer *pixelDrawer_blfb;
+    Util::Graphic::StringDrawer *stringDrawer_blfb;
     time_t lastTime;
     int frames, fps;
 };

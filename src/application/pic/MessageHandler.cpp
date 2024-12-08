@@ -2,8 +2,21 @@
 // Created by Rafael Reip on 23.10.24.
 //
 
-#include <cstring>
 #include "MessageHandler.h"
+
+#include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/graphic/PixelDrawer.h"
+#include "lib/util/graphic/StringDrawer.h"
+#include "lib/util/graphic/font/Terminal8x16.h"
+
+#include "helper.h"
+
+Message::Message(const Util::String &message, int duration) {
+    this->message = message;
+    this->expiration = duration;
+}
+
+Message::~Message() = default;
 
 MessageHandler::MessageHandler(int width, int height) {
     this->width = width;
@@ -12,9 +25,9 @@ MessageHandler::MessageHandler(int width, int height) {
     for (int i = 0; i < width * height; i++) {
         this->buffer[i] = 0;
     }
-    this->lfb = new LinearFrameBuffer(buffer, width, height, 32, width * 4, false);
-    this->pixelDrawer = new PixelDrawer(*lfb);
-    this->stringDrawer = new StringDrawer(*pixelDrawer);
+    this->lfb = new Util::Graphic::LinearFrameBuffer(buffer, width, height, 32, width * 4, false);
+    this->pixelDrawer = new Util::Graphic::PixelDrawer(*lfb);
+    this->stringDrawer = new Util::Graphic::StringDrawer(*pixelDrawer);
     this->maxMessages = height / 16;
     this->messages = new Message *[maxMessages];
     this->messageCount = 0;
@@ -23,6 +36,17 @@ MessageHandler::MessageHandler(int width, int height) {
     this->overflowed = false;
     this->shouldPrint = false;
     addMessage("hello to Pic!!! :D");
+}
+
+MessageHandler::~MessageHandler() {
+    for (int i = 0; i < messageCount; i++) {
+        delete messages[i];
+    }
+    delete[] messages;
+    delete pixelDrawer;
+    delete stringDrawer;
+    delete lfb;
+    delete[] buffer;
 }
 
 void MessageHandler::setPrintBool(bool p) {
@@ -50,9 +74,14 @@ void MessageHandler::addMessage(const Util::String &message, int duration) {
         overflowed = true;
     }
 
-    auto *newMessage = new Message();
-    newMessage->message = message;
-    newMessage->expiration = time(nullptr) + duration;
+    if (message.length() * 8 > width) {
+        uint32_t maxChars = width / 8;
+        Util::String newMessage = message.substring(0, maxChars);
+        addMessage(newMessage, duration);
+        return;
+    }
+
+    auto *newMessage = new Message(message, time(nullptr) + duration);
     messages[messageCount] = newMessage;
     messageCount++;
     messageAdded = true;
@@ -82,7 +111,7 @@ void MessageHandler::update() {
 
     if (deleted || messageAdded) { // need to redraw
         if (deleted || overflowed) {
-            for (int i = 0; i < width * height; i++) {
+            for (uint32_t i = 0; i < width * height; i++) {
                 buffer[i] = 0;
             }
         }
@@ -90,8 +119,8 @@ void MessageHandler::update() {
         for (int i = 0; i < messageCount; i++) {
             int xStringpos = (width / 2) - (messages[i]->message.length() * 4);
             if (xStringpos < 0) xStringpos = 0;
-            stringDrawer->drawString(Fonts::TERMINAL_8x16, xStringpos, i * 16, messages[i]->message.operator const char *(),
-                                     Color(0, 0, 0), Color(255, 255, 255));
+            stringDrawer->drawString(Util::Graphic::Fonts::TERMINAL_8x16, xStringpos, i * 16, messages[i]->message.operator const char *(),
+                                     Util::Graphic::Color(0, 0, 0), Util::Graphic::Color(255, 255, 255));
         }
 
         changed = true;

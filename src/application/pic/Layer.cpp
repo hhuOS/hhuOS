@@ -1,33 +1,29 @@
 #include "Layer.h"
 
+#include "helper.h"
+
 Layer::Layer(int width, int height, int posX, int posY, int visible) : width(width), height(height), posX(posX),
-                                                                       posY(posY), isVisible(visible) {
+                                                                       posY(posY), isVisible(visible), tempPixelData(new uint32_t[0]) {
     int size = width * height;
     pixelData = new uint32_t[size];
     for (int i = 0; i < size; ++i) {
         pixelData[i] = 0;
     }
-    tempPixelData = new uint32_t[0];
     prepareNextDrawing();
 }
 
 Layer::Layer(int width, int height, int posX, int posY, int visible, const uint32_t *pixelData)
-        : width(width), height(height), posX(posX), posY(posY), isVisible(visible) {
+        : width(width), height(height), posX(posX), posY(posY), isVisible(visible), tempPixelData(new uint32_t[0]) {
     int size = width * height;
     this->pixelData = new uint32_t[size];
     for (int i = 0; i < size; ++i) {
         this->pixelData[i] = pixelData[i];
     }
-    tempPixelData = new uint32_t[0];
     prepareNextDrawing();
 }
 
-Layer::~Layer() {
-    delete[] pixelData;
-}
-
 Layer::Layer(const Layer &other)
-        : width(other.width), height(other.height), posX(other.posX), posY(other.posY) {
+        : width(other.width), height(other.height), posX(other.posX), posY(other.posY), isVisible(other.isVisible), tempPixelData(new uint32_t[0]) {
     int size = width * height;
     pixelData = new uint32_t[size];
     for (int i = 0; i < size; ++i) {
@@ -51,6 +47,11 @@ Layer &Layer::operator=(const Layer &other) {
         }
     }
     return *this;
+}
+
+Layer::~Layer() {
+    delete[] pixelData;
+    delete[] tempPixelData;
 }
 
 uint32_t *Layer::getPixelData() const {

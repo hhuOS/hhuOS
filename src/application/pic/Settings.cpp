@@ -4,8 +4,13 @@
 
 #include "Settings.h"
 
+#include "lib/util/io/stream/BufferedInputStream.h"
+#include "lib/util/io/stream/FileInputStream.h"
+
+#include "MessageHandler.h"
+#include "helper.h"
+
 Settings::Settings(MessageHandler *mHandler) {
-    // TODO load and save settings from/to file
     this->mHandler = mHandler;
     this->path = "/pic/settings";
 
@@ -13,6 +18,8 @@ Settings::Settings(MessageHandler *mHandler) {
     loadFromFile();
     saveToFile();
 }
+
+Settings::~Settings() = default;
 
 void Settings::resetToDefault() {
     checkeredBackground = true;
@@ -72,10 +79,10 @@ void Settings::saveToFile() {
         mHandler->addMessage("Settings::saveToFile Error: No path given");
         return;
     }
-    auto picfolder = Util::Io::File("pic");
-    if (!picfolder.exists()) {
+    auto picFolder = Util::Io::File("pic");
+    if (!picFolder.exists()) {
         mHandler->addMessage("Settings::saveToFile: Creating directory: pic");
-        auto success = picfolder.create(Util::Io::File::DIRECTORY);
+        auto success = picFolder.create(Util::Io::File::DIRECTORY);
         if (!success) {
             mHandler->addMessage("Settings::saveToFile Error: Could not create directory: pic");
             return;

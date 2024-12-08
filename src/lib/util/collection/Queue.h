@@ -32,6 +32,8 @@ class Queue : Collection<T> {
 
 public:
 
+    virtual ~Queue() = default;
+
     virtual bool offer(const T &element) = 0;
 
     virtual T poll() = 0;

@@ -5,11 +5,13 @@
 #ifndef HHUOS_GUI_LAYER_H
 #define HHUOS_GUI_LAYER_H
 
-#include "Button.h"
+class Button;
 
 class GuiLayer {
 public:
     GuiLayer();
+
+    ~GuiLayer();
 
     void addButton(Button *button);
 
