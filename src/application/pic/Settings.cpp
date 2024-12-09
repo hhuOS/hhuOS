@@ -8,8 +8,12 @@
 #include "lib/util/io/stream/FileInputStream.h"
 
 #include "MessageHandler.h"
-#include "helper.h"
 
+/**
+ * \brief Constructor for the Settings class.
+ *
+ * \param mHandler Pointer to a MessageHandler object used for logging messages.
+ */
 Settings::Settings(MessageHandler *mHandler) {
     this->mHandler = mHandler;
     this->path = "/pic/settings";
@@ -21,6 +25,11 @@ Settings::Settings(MessageHandler *mHandler) {
 
 Settings::~Settings() = default;
 
+/**
+ * \brief Resets all settings to their default values.
+ *
+ * This method initializes all settings to their default values and logs it to the message handler.
+ */
 void Settings::resetToDefault() {
     checkeredBackground = true;
     optimizeRendering = true;
@@ -34,6 +43,13 @@ void Settings::resetToDefault() {
     mHandler->addMessage("Settings restored to default values");
 }
 
+/**
+ * \brief Loads settings from a file.
+ *
+ * This method reads settings from a file specified by the path member variable.
+ * It logs errors if the path is invalid, the file does not exist, or the file is a directory.
+ * The settings are read line by line and parsed into the corresponding member variables.
+ */
 void Settings::loadFromFile() {
     if (Util::String(path).length() == 0) {
         mHandler->addMessage("Settings::loadFromFile Error: No path given");
@@ -74,6 +90,13 @@ void Settings::loadFromFile() {
     mHandler->addMessage("Settings loaded from: " + path);
 }
 
+/**
+ * \brief Saves the current settings to a file.
+ *
+ * This method writes the current settings to a file specified by the path member variable.
+ * It creates the directory if it does not exist and logs errors if the path is invalid,
+ * the file cannot be opened, or the directory cannot be created.
+ */
 void Settings::saveToFile() {
     if (Util::String(path).length() == 0) {
         mHandler->addMessage("Settings::saveToFile Error: No path given");

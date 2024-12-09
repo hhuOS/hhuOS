@@ -57,6 +57,7 @@ Renderer::Renderer(DataWrapper *data) {
     this->usingBufferedBuffer = false;
     this->frames = 0;
     this->fps = 0;
+    this->debugString = nullptr;
     prepareBase();
 }
 
@@ -459,8 +460,11 @@ void Renderer::renderOverlay() {
     }
 
     // debug String
-    if (data->debugString != nullptr) {
-        stringDrawer_overlay->drawString(Util::Graphic::Fonts::TERMINAL_8x16, 0, data->workAreaY - 16, data->debugString, cblack, cwhite);
+//    if (data->debugString != nullptr) {
+//        stringDrawer_overlay->drawString(Util::Graphic::Fonts::TERMINAL_8x16, 0, data->workAreaY - 16, data->debugString, cblack, cwhite);
+//    }
+    if (debugString != nullptr) {
+        stringDrawer_overlay->drawString(Util::Graphic::Fonts::TERMINAL_8x16, 0, data->workAreaY - 16, debugString.operator const char *(), cblack, cwhite);
     }
     data->flags->overlay = false;
 }
@@ -496,4 +500,8 @@ void Renderer::renderLayers() {
     }
     blendBuffers(buff_layers, buff_over_current, data->workAreaAll);
     data->flags->layers = false;
+}
+
+void Renderer::setDebugString(Util::String dString) {
+    debugString = dString;
 }

@@ -22,8 +22,7 @@ DataWrapper::DataWrapper(Util::Io::File *lfbFile) {
     // screen
     lfb = new Util::Graphic::LinearFrameBuffer(*lfbFile);
     blfb = new Util::Graphic::BufferedLinearFrameBuffer(*lfb);
-    screenX = lfb->getResolutionX(), screenY = lfb->getResolutionY(), pitch = lfb->getPitch(), screenAll =
-            screenX * screenY;
+    screenX = lfb->getResolutionX(), screenY = lfb->getResolutionY(), pitch = lfb->getPitch(), screenAll = screenX * screenY;
     workAreaX = screenX - 200, workAreaY = screenY, workAreaAll = workAreaX * workAreaY;
     guiX = 200, guiY = screenY, guiAll = guiX * guiY;
     buttonCount = screenY / 30;
@@ -51,8 +50,8 @@ DataWrapper::DataWrapper(Util::Io::File *lfbFile) {
     mHandler->setPrintBool(true);
 
     // layers
-    layers = nullptr;
-    history = nullptr;
+    history = new History(mHandler);
+    layers = new Layers(mHandler, history);
 
     // gui
     guiLayers = new Util::HashMap<Util::String, GuiLayer *>();
@@ -60,9 +59,6 @@ DataWrapper::DataWrapper(Util::Io::File *lfbFile) {
     currentGuiLayerBottom = nullptr;
     textButton = nullptr;
     inMainMenu = true;
-
-    // overlay
-    debugString = nullptr;
 
     // settings
     settings = new Settings(mHandler);
@@ -104,5 +100,4 @@ DataWrapper::~DataWrapper() {
     delete history;
     delete settings;
     delete guiLayers;
-    delete debugString;
 }

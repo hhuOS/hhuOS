@@ -77,7 +77,6 @@ public:
     // rendering
     RenderFlags *flags;
     MessageHandler *mHandler;
-    const char *debugString;
 
     // layers
     Layers *layers;

@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <lib/libc/time.h>
 #include "lib/util/graphic/Color.h"
+#include "lib/util/base/String.h"
 
 namespace Util::Graphic {
     class LinearFrameBuffer;
@@ -28,6 +29,8 @@ public:
     ~Renderer();
 
     void render();
+
+    void setDebugString(Util::String debugString);
 
 private:
     void prepareBase();
@@ -69,6 +72,7 @@ private:
     Util::Graphic::PixelDrawer *pixelDrawer_overlay;
     Util::Graphic::LineDrawer *lineDrawer_overlay;
     Util::Graphic::StringDrawer *stringDrawer_overlay;
+    Util::String debugString;
     // fps
     Util::Graphic::PixelDrawer *pixelDrawer_lfb;
     Util::Graphic::StringDrawer *stringDrawer_lfb;

@@ -17,6 +17,16 @@
 #include "Settings.h"
 #include "MessageHandler.h"
 
+/**
+ * \brief Main function for the Pic application.
+ *
+ * This function initializes the argument parser, processes command-line arguments,
+ * sets the display resolution if specified, and starts the Pic application.
+ *
+ * \param argc Number of command-line arguments.
+ * \param argv Array of command-line arguments.
+ * \return int32_t Exit status of the application.
+ */
 int32_t main([[maybe_unused]] int32_t argc, [[maybe_unused]] char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.setHelpText("Pic - A Basic Image Editing Program.\n"
@@ -60,12 +70,18 @@ int32_t main([[maybe_unused]] int32_t argc, [[maybe_unused]] char *argv[]) {
     return 0;
 }
 
+/**
+ * \brief Constructor for the Pic class.
+ *
+ * Initializes the data wrapper and Renderer.
+ * Adds an empty layer and a picture layer for testing.
+ *
+ * @param lfbFile Pointer to the Linear Frame Buffer file.
+ */
 Pic::Pic(Util::Io::File *lfbFile) {
     this->data = new DataWrapper(lfbFile);
     this->renderer = new Renderer(data);
 
-    data->history = new History(data->mHandler);
-    data->layers = new Layers(data->mHandler, data->history);
     data->layers->addEmpty(50, 50, data->workAreaX - 100, data->workAreaY - 100);
     data->layers->addPicture("/user/pic/test.jpg", 100, 100);
 
@@ -73,6 +89,12 @@ Pic::Pic(Util::Io::File *lfbFile) {
 }
 
 
+/**
+ * \brief  Runs the main loop of the Pic application.
+
+ * This loop handles mouse and keyboard input, updates the message handler,
+ * and renders the current state until the application is no longer running.
+ */
 void Pic::run() {
     data->mHandler->setPrintBool(false); // only write to logs before and after render loop
     while (data->running) {
@@ -85,6 +107,12 @@ void Pic::run() {
     data->mHandler->setPrintBool(true); // only write to logs before and after render loop
 }
 
+/**
+ * \brief Destructor for the Pic class.
+ *
+ * This destructor saves the current settings to a file, frees allocated memory,
+ * and prints status messages to the console.
+ */
 Pic::~Pic() {
     print("saving settings...");
     data->settings->saveToFile();
@@ -105,6 +133,13 @@ Pic::~Pic() {
     print("bye :)");
 }
 
+/**
+ * \brief Checks and processes mouse input.
+ *
+ * This function reads mouse input values, decodes them, and updates the mouse state.
+ * It handles mouse movements, button presses, and releases, and updates the relevant
+ * data structures and flags.
+ */
 void Pic::checkMouseInput() {
     uint8_t mouseValues[4]{};
     uint32_t mouseValueIndex = 0;
@@ -146,11 +181,20 @@ void Pic::checkMouseInput() {
     }
 }
 
+/**
+ * \brief Parses mouse input and processes interactions.
+ *
+ * This function handles mouse input and processes interactions with the GUI and work area.
+ * It updates the state of buttons and tools based on mouse movements and clicks.
+ *
+ * \param clicked Indicates if the mouse was clicked. (to trigger button presses)
+ */
 void Pic::parseMouse(bool clicked) {
     int buttonIndex = data->mouseY / 30;
     int buttonIndexBottom = buttonIndex - (data->buttonCount - 1) + data->currentGuiLayerBottom->buttonCount;
     int lastInteractedBottom = data->lastInteractedButton - (data->buttonCount - 1) + data->currentGuiLayerBottom->buttonCount;
 
+    // remove interaction from last interacted button on GUI if necessary
     if (buttonIndex != data->lastInteractedButton || data->mouseX >= 200) {
         if (data->lastInteractedButton != -1) {
             if (data->lastInteractedButton < data->currentGuiLayer->buttonCount)
@@ -163,6 +207,7 @@ void Pic::parseMouse(bool clicked) {
         data->lastInteractedButton = buttonIndex;
     }
 
+    // process interaction with GUI
     if (data->mouseX < 200 && !(data->leftButtonPressed && !data->clickStartedOnGui)) {
         Button *button = nullptr;
         if (buttonIndex < data->currentGuiLayer->buttonCount)
@@ -179,13 +224,17 @@ void Pic::parseMouse(bool clicked) {
             if (clicked && data->clickStartedOnGui)
                 button->processClick(data->mouseX, data->mouseY - buttonIndex * 30);
         }
-    } else if (data->mouseX >= 200 && data->leftButtonPressed && !data->clickStartedOnGui) {
+    }
+
+        // process interaction with work area depending on current tool
+    else if (data->mouseX >= 200 && data->leftButtonPressed && !data->clickStartedOnGui) {
         if (data->currentTool == Tool::MOVE) {
             data->moveX += data->xMovement;
             data->moveY += data->yMovement;
             data->flags->guiButtonChanged();
             data->flags->overlayChanged();
             data->currentGuiLayerBottom->appear();
+
         } else if (data->currentTool == Tool::SCALE) {
             if (data->toolCorner == ToolCorner::TOP_LEFT)
                 data->scale += (-data->xMovement - data->yMovement) * 0.005;
@@ -199,6 +248,7 @@ void Pic::parseMouse(bool clicked) {
             data->flags->guiButtonChanged();
             data->flags->overlayChanged();
             data->currentGuiLayerBottom->appear();
+
         } else if (data->currentTool == Tool::CROP) {
             if (data->toolCorner == ToolCorner::TOP_LEFT)
                 data->cropLeft += data->xMovement, data->cropTop += data->yMovement;
@@ -211,6 +261,7 @@ void Pic::parseMouse(bool clicked) {
             data->flags->guiButtonChanged();
             data->flags->overlayChanged();
             data->currentGuiLayerBottom->appear();
+
         } else if (data->currentTool == Tool::COLOR) {
             if (data->layers->currentNum() >= 0) {
                 Layer *l = data->layers->current();
@@ -227,6 +278,7 @@ void Pic::parseMouse(bool clicked) {
                 data->flags->overlayChanged();
                 data->currentGuiLayerBottom->appear();
             }
+
         } else if (data->currentTool == Tool::ROTATE) {
             data->rotateDeg += data->xMovement;
             if (data->rotateDeg > 180) data->rotateDeg -= 360;
@@ -234,6 +286,7 @@ void Pic::parseMouse(bool clicked) {
             data->flags->guiButtonChanged();
             data->flags->overlayChanged();
             data->currentGuiLayerBottom->appear();
+
         } else if ((data->currentTool == Tool::PEN || data->currentTool == Tool::ERASER) && data->mouseClicks->size() > 0) {
             if (data->layers->currentNum() >= 0) {
                 Layer *l = data->layers->current();
@@ -257,6 +310,7 @@ void Pic::parseMouse(bool clicked) {
                 data->mouseClicks->offer(Util::Pair<int, int>(data->mouseX, data->mouseY));
                 data->flags->currentLayerChanged();
             }
+
         } else if (data->currentTool == Tool::EXPORT_PNG || data->currentTool == Tool::EXPORT_JPG ||
                    data->currentTool == Tool::EXPORT_BMP || data->currentTool == Tool::NEW_EMPTY) {
             if (data->newlyPressed) {
@@ -275,6 +329,7 @@ void Pic::parseMouse(bool clicked) {
             data->flags->guiButtonChanged();
             data->flags->overlayChanged();
             data->currentGuiLayerBottom->appear();
+
         } else if (data->currentTool == Tool::SHAPE) {
             if (data->newlyPressed) {
                 auto click = data->mouseClicks->peek();
@@ -292,6 +347,7 @@ void Pic::parseMouse(bool clicked) {
             data->flags->guiButtonChanged();
             data->flags->overlayChanged();
             data->currentGuiLayerBottom->appear();
+
         } else if (data->currentTool == Tool::REPLACE_COLOR) {
             if (data->layers->currentNum() >= 0) {
                 data->replaceColorX = data->mouseX - 200;
@@ -300,19 +356,30 @@ void Pic::parseMouse(bool clicked) {
                 data->flags->overlayChanged();
                 data->currentGuiLayerBottom->appear();
             }
+
         }
     } else if (data->mouseX >= 200 && !data->clickStartedOnGui && clicked &&
                (data->currentTool == Tool::PEN || data->currentTool == Tool::ERASER)) {
         data->layers->prepareNextDrawingCurrent(); // proper blending for the next drawing
     }
 
-    data->debugString = Util::String::format(
+    // show debug infos
+    renderer->setDebugString(Util::String::format(
             "Mouse: %d %d, currentTool: %d, queueLength: %d, clickStartedOnGui: %d",
             data->mouseX, data->mouseY, data->currentTool, data->mouseClicks->size(), data->clickStartedOnGui
-    ).operator const char *();
+    ));
     data->flags->overlayChanged();
 }
 
+/**
+ * \brief Swaps the current tool in the Pic application.
+ *
+ * This function changes the current tool to the specified tool and updates the current bottom GUI layer accordingly.
+ * If the specified tool is already the current tool, it resets the tool to Tool::NOTHING.
+ *
+ * \param data Pointer to the DataWrapper object containing application data.
+ * \param tool The tool to be set as the current tool.
+ */
 void swapTool(DataWrapper *data, Tool tool) {
     if (data->currentTool == tool) {
         data->currentTool = Tool::NOTHING;
@@ -368,6 +435,15 @@ void swapTool(DataWrapper *data, Tool tool) {
     data->flags->overlayChanged();
 }
 
+/**
+ * \brief Changes the current GUI layer.
+ *
+ * This function changes the current GUI layer, renders the new layer and resets the current tool to Tool::NOTHING
+ * If also sets the flag wether the application is in the main menu or not.
+ *
+ * \param data Pointer to the DataWrapper object containing application data.
+ * \param layer The name of the layer to switch to.
+ */
 void changeGuiLayerTo(DataWrapper *data, const char *layer) {
     if (Util::String(layer) == "main") {
         data->inMainMenu = true;
@@ -379,6 +455,12 @@ void changeGuiLayerTo(DataWrapper *data, const char *layer) {
     swapTool(data, Tool::NOTHING);
 }
 
+/**
+ * \brief Checks and processes keyboard input.
+ *
+ * This function reads keyboard input values, decodes them, and updates the keyboard state.
+ * It either handles input into GUI text fields or processes hotkeys for the application.
+ */
 void Pic::checkKeyboardInput() {
     int16_t scancode = Util::System::in.read();
     while (scancode >= 0) {
@@ -393,7 +475,9 @@ void Pic::checkKeyboardInput() {
                 scancode = Util::System::in.read();
                 continue;
             }
-            if (data->captureInput) { // TODO: kaputt, wenn man tab drückt (ist vll riesen char?? :D)
+
+            if (data->captureInput) { // handle input into GUIs text field
+                // TODO: kaputt, wenn man tab drückt (ist vll riesen char?? :D)
                 if (key.getScancode() == Util::Io::Key::BACKSPACE) {
                     *data->currentInput = data->currentInput->substring(0, data->currentInput->length() - 1);
                     data->textButton->render();
@@ -404,7 +488,8 @@ void Pic::checkKeyboardInput() {
                         data->textButton->render();
                     }
                 }
-            } else {
+            }
+            else { // handle hotkeys
                 if (data->settings->activateHotkeys) {
                     switch (scancode) {
                         case 2: // 1
@@ -538,6 +623,11 @@ void Pic::checkKeyboardInput() {
     }
 }
 
+/**
+ * \brief Initializes the GUI layers for the Pic application.
+ *
+ * This function creates all GUI layers and buttons for the application and defines their behavior.
+ */
 void Pic::init_gui() {
     auto *gui_main = new GuiLayer();
     gui_main->addButton((new Button(data))
