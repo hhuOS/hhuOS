@@ -33,7 +33,7 @@ public:
 
     void reset();
 
-    void deletetAt(int index, bool writeHistory = true);
+    void deleteAt(int index, bool writeHistory = true);
 
     void swap(int index1, int index2, bool writeHistory = true);
 
@@ -71,7 +71,7 @@ public:
 
     void autoCropCurrent();
 
-    void rotate(int index, int degree, bool writewriteHistory = true);
+    void rotate(int index, int degree, bool writeHistory = true);
 
     void rotateCurrent(int degree);
 
@@ -89,7 +89,7 @@ public:
 
     void prepareNextDrawing(int index, bool writeHistory = true);
 
-    void prepareNextDrawingCurrent();
+    void prepareNextDrawingCurrent(bool writeHistory = true);
 
     void replaceColor(int index, int x, int y, uint32_t penColor, double tolerance, bool writeHistory = true);
 

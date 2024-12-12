@@ -43,7 +43,6 @@ Button::Button(DataWrapper *data) {
     this->type = NONE;
     this->info = "Button";
     this->hotkey = 0;
-    this->hasHotkey = false;
     this->cblack = Util::Graphic::Color(0, 0, 0);
     this->cgray = Util::Graphic::Color(128, 128, 128);
     this->cdarkgray = Util::Graphic::Color(80, 80, 80);
@@ -402,7 +401,7 @@ void Button::processClick(int relX, int relY) {
                 data->layers->swap(layerNum, layerNum + 1);
                 if (layerNum == data->layers->currentLayerNum()) data->layers->setCurrent(layerNum + 1);
             } else if (relX < 160) {
-                data->layers->deletetAt(layerNum);
+                data->layers->deleteAt(layerNum);
             } else {
                 data->layers->changeVisibleAt(layerNum);
             }
@@ -555,17 +554,17 @@ void Button::renderBackground(int x1, int x2, uint32_t color) {
  */
 void Button::renderMethod() {
     renderBackground(0, 200, click ? green : hover ? darkgray : gray);
-    int xStringpos = 100 - (strlen(info) * 4);
+    int xStringpos = int(100 - (strlen(info) * 4));
     if (showcolor) {
         uint32_t color = 0xFF000000 | (*colorR << 16) | (*colorG << 8) | *colorB;
         renderBackground(0, 80, color);
         Util::Graphic::Color c = this->setGreenTool == data->currentTool ? cgreen : cblack;
-        if (c != cgreen && setGreenShape != Shape::DEFAULT) {
+        if (c != cgreen && setGreenShape != DEFAULT) {
             c = setGreenShape == data->currentShape ? cgreen : cblack;
         }
         lineDrawer->drawLine(79, 0, 79, 30, c);
         lineDrawer->drawLine(80, 0, 80, 30, c);
-        xStringpos = 140 - (strlen(info) * 4);
+        xStringpos = int(140 - (strlen(info) * 4));
         if (bitmap != nullptr) {
             stringDrawer->drawMonoBitmap(90, 7, 16, 16, cblack, click ? cgreen : hover ? cdarkgray : cgray, bitmap);
         }
@@ -579,8 +578,8 @@ void Button::renderMethod() {
                                  cblack, click ? cgreen : hover ? cdarkgray : cgray);
     }
     uint32_t borderColor =
-            this->setGreenTool != Tool::NOTHING ? this->setGreenTool == data->currentTool ? 0xFF00FF00 : 0xFF000000 : 0xFF000000;
-    if (borderColor == 0xFF000000 && setGreenShape != Shape::DEFAULT) {
+            this->setGreenTool != NOTHING ? this->setGreenTool == data->currentTool ? 0xFF00FF00 : 0xFF000000 : 0xFF000000;
+    if (borderColor == 0xFF000000 && setGreenShape != DEFAULT) {
         borderColor = setGreenShape == data->currentShape ? 0xFF00FF00 : 0xFF000000;
     }
     renderBorder(borderColor);
@@ -680,7 +679,7 @@ void Button::renderLayer() {
     lineDrawer->drawLine(159, 0, 159, 30, cblack);
     lineDrawer->drawLine(160, 0, 160, 30, cblack);
     const char *num = int_to_string(layerNum);
-    int xStringpos = 20 - (strlen(num) * 4);
+    int xStringpos = int(20 - (strlen(num) * 4));
     stringDrawer->drawString(Util::Graphic::Fonts::TERMINAL_8x16, xStringpos, 7, num,
                              data->layers->currentLayerNum() == layerNum ? cgreen : cblack,
                              mouseX < 40 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);

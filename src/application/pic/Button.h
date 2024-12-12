@@ -131,7 +131,6 @@ private:
     const char *info;
     char hotkey;
     uint8_t *bitmap;
-    bool hasHotkey;
     int *intValue = nullptr;
     int intLimitLow = 0, intLimitHigh = 0;
     bool hasIntLimits = false;
@@ -151,8 +150,6 @@ private:
     void (*method1)(DataWrapper *data) = nullptr;
 
     void (*method2)(DataWrapper *data) = nullptr;
-
-    void (*method3)(DataWrapper *data) = nullptr;
 
     void (RenderFlags::*rFlagMethod)() = nullptr;
 

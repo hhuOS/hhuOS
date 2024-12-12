@@ -71,12 +71,12 @@ DataWrapper::DataWrapper(Util::Io::File *lfbFile) {
 
     // work vars
     running = true;
-    currentTool = Tool::NOTHING;
+    currentTool = NOTHING;
     moveX = -1;
     moveY = -1;
     rotateDeg = -1;
     scale = -1.0;
-    toolCorner = ToolCorner::BOTTOM_RIGHT;
+    toolCorner = BOTTOM_RIGHT;
     cropLeft = -1;
     cropRight = -1;
     cropTop = -1;
@@ -88,7 +88,7 @@ DataWrapper::DataWrapper(Util::Io::File *lfbFile) {
     layerX = 0, layerY = 0, layerW = workAreaX, layerH = workAreaY;
     dupeIndex = 0;
     shapeX = -1, shapeY = -1, shapeW = -1, shapeH = -1;
-    currentShape = Shape::RECTANGLE;
+    currentShape = RECTANGLE;
     replaceColorX = -1, replaceColorY = -1;
     replaceColorTolerance = 0.0;
 }

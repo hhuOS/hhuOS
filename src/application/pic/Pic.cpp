@@ -189,10 +189,10 @@ void Pic::checkMouseInput() {
  *
  * \param clicked Indicates if the mouse was clicked. (to trigger button presses)
  */
-void Pic::parseMouse(bool clicked) {
-    int buttonIndex = data->mouseY / 30;
-    int buttonIndexBottom = buttonIndex - (data->buttonCount - 1) + data->currentGuiLayerBottom->buttonCount;
-    int lastInteractedBottom = data->lastInteractedButton - (data->buttonCount - 1) + data->currentGuiLayerBottom->buttonCount;
+void Pic::parseMouse(const bool clicked) const{
+    const int buttonIndex = data->mouseY / 30;
+    const int buttonIndexBottom = buttonIndex - (data->buttonCount - 1) + data->currentGuiLayerBottom->buttonCount;
+    const int lastInteractedBottom = data->lastInteractedButton - (data->buttonCount - 1) + data->currentGuiLayerBottom->buttonCount;
 
     // remove interaction from last interacted button on GUI if necessary
     if (buttonIndex != data->lastInteractedButton || data->mouseX >= 200) {
@@ -269,10 +269,10 @@ void Pic::parseMouse(bool clicked) {
                 int relY = data->mouseY - l->posY;
                 if (relX < 0 || relX >= l->width || relY < 0 || relY >= l->height) return;
                 uint32_t c = l->getPixel(relX, relY);
-                data->colorA = (c >> 24) & 0xFF;
-                data->colorR = (c >> 16) & 0xFF;
-                data->colorG = (c >> 8) & 0xFF;
-                data->colorB = c & 0xFF;
+                data->colorA = (int) (c >> 24) & 0xFF;
+                data->colorR = (int) (c >> 16) & 0xFF;
+                data->colorG = (int) (c >> 8) & 0xFF;
+                data->colorB = (int) c & 0xFF;
                 data->currentGuiLayer->appear();
                 data->flags->guiButtonChanged();
                 data->flags->overlayChanged();
@@ -402,7 +402,7 @@ void swapTool(DataWrapper *data, Tool tool) {
             case Tool::PEN:
             case Tool::ERASER:
                 data->currentGuiLayerBottom = data->guiLayers->get("bottom_pen");
-                data->layers->prepareNextDrawingCurrent();
+                data->layers->prepareNextDrawingCurrent(false); // dont trigger history
                 break;
             case Tool::COLOR:
                 data->currentGuiLayerBottom = data->guiLayers->get("bottom_color");
@@ -536,7 +536,7 @@ void Pic::checkKeyboardInput() {
                             break;
                         case Util::Io::Key::TAB: // switch layer
                             data->layers->setCurrentToNext();
-                            data->layers->prepareNextDrawingCurrent();
+                            data->layers->prepareNextDrawingCurrent(false); // dont trigger history
                             data->flags->layerOrderChanged();
                             data->flags->overlayChanged();
                             data->currentGuiLayer->appear();

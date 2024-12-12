@@ -11,7 +11,7 @@ uint32_t blendPixels(uint32_t lower, uint32_t upper) {
     uint8_t upperAlpha = (upper >> 24) & 0xFF;
     uint8_t lowerAlpha = (lower >> 24) & 0xFF;
     if (upperAlpha == 0xFF || lowerAlpha == 0x00) return upper;
-    else if (upperAlpha == 0x00) return lower;
+    if (upperAlpha == 0x00) return lower;
     uint8_t inverseAlpha = 255 - upperAlpha;
     uint8_t r = ((upper >> 16) & 0xFF) * upperAlpha / 255 + ((lower >> 16) & 0xFF) * inverseAlpha / 255;
     uint8_t g = ((upper >> 8) & 0xFF) * upperAlpha / 255 + ((lower >> 8) & 0xFF) * inverseAlpha / 255;

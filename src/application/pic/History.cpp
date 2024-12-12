@@ -54,7 +54,7 @@ History::~History() {
  * @param layers Pointer to the layers.
  * @param layerCount Pointer to the number of layers.
  */
-void History::addCommand(const Util::String &command, Layer ***layers, int *layerCount) {
+void History::addCommand(const Util::String &command, Layer ***layers, const int *layerCount) {
     if (commands->size() > currentCommand - 1) { // remove all commands after current command
         for (uint32_t i = commands->size() - 1; i > currentCommand - 1; i--) {
             commands->removeIndex(i);
@@ -140,7 +140,7 @@ void History::execCommandOn(Layers *layers, const Util::String &command, bool wr
                                writeHistory);
     } else if (comm[0] == "delete") {
         if (comm.length() != 2) mHandler->addMessage("Invalid command: " + command);
-        else layers->deletetAt(Util::String::parseInt(comm[1]), writeHistory);
+        else layers->deleteAt(Util::String::parseInt(comm[1]), writeHistory);
     } else if (comm[0] == "swap") {
         if (comm.length() != 3) mHandler->addMessage("Invalid command: " + command);
         else layers->swap(Util::String::parseInt(comm[1]), Util::String::parseInt(comm[2]), writeHistory);

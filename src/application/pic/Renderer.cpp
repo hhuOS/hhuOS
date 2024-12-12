@@ -388,14 +388,10 @@ void Renderer::drawOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, in
  * \param y1 The y-coordinate of the first corner.
  * \param x2 The x-coordinate of the second corner.
  * \param y2 The y-coordinate of the second corner.
- * \param x3 The x-coordinate of the third corner.
- * \param y3 The y-coordinate of the third corner.
- * \param x4 The x-coordinate of the fourth corner.
- * \param y4 The y-coordinate of the fourth corner.
  * \param color The color to fill the box with.
  */
-void Renderer::drawFilledOverlayBox(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, uint32_t color) {
-    for (int y = y1; y <= y3; y++) {
+void Renderer::drawFilledOverlayBox(int x1, int y1, int x2, int y2, uint32_t color) {
+    for (int y = y1; y <= y2; y++) {
         for (int x = x1; x <= x2; x++) {
             buff_overlay[y * data->workAreaX + x] = color;
         }
@@ -506,10 +502,10 @@ void Renderer::renderToolsOverlay() {
         double cosAngle = cos(angle), sinAngle = sin(angle);
         int dx1 = l->posX - centerX, dy1 = l->posY - centerY;
         int dx2 = l->posX + l->width - centerX - 1, dy2 = l->posY + l->height - centerY - 1;
-        int newX1 = centerX + dx1 * cosAngle - dy1 * sinAngle, newY1 = centerY + dx1 * sinAngle + dy1 * cosAngle;
-        int newX2 = centerX + dx2 * cosAngle - dy1 * sinAngle, newY2 = centerY + dx2 * sinAngle + dy1 * cosAngle;
-        int newX3 = centerX + dx2 * cosAngle - dy2 * sinAngle, newY3 = centerY + dx2 * sinAngle + dy2 * cosAngle;
-        int newX4 = centerX + dx1 * cosAngle - dy2 * sinAngle, newY4 = centerY + dx1 * sinAngle + dy2 * cosAngle;
+        int newX1 = int(centerX + dx1 * cosAngle - dy1 * sinAngle), newY1 = int(centerY + dx1 * sinAngle + dy1 * cosAngle);
+        int newX2 = int(centerX + dx2 * cosAngle - dy1 * sinAngle), newY2 = int(centerY + dx2 * sinAngle + dy1 * cosAngle);
+        int newX3 = int(centerX + dx2 * cosAngle - dy2 * sinAngle), newY3 = int(centerY + dx2 * sinAngle + dy2 * cosAngle);
+        int newX4 = int(centerX + dx1 * cosAngle - dy2 * sinAngle), newY4 = int(centerY + dx1 * sinAngle + dy2 * cosAngle);
         drawOverlayBox(newX1 + 1, newY1 + 1, newX2 - 1, newY2 + 1, newX3 - 1, newY3 - 1, newX4, newY4 - 1, cgreen);
         drawOverlayBox(newX1, newY1, newX2, newY2, newX3, newY3, newX4 + 1, newY4, cgreen);
         return;
@@ -567,11 +563,12 @@ void Renderer::renderToolsOverlay() {
             int cx = x + (w > 0 ? rx : -rx);
             int cy = y + (h > 0 ? ry : -ry);
 
-            for (double angle = 0; angle < 2 * PI; angle += 0.005) {
-                int px = cx + rx * cos(angle);
-                int py = cy + ry * sin(angle);
+            for (double angle = 0; angle < 2 * PI;) {
+                int px = int(cx + rx * cos(angle));
+                int py = int(cy + ry * sin(angle));
                 pixelDrawer_overlay->drawPixel(px, py, cgreen);
                 pixelDrawer_overlay->drawPixel(px + 1, py, cgreen);
+                angle += 0.005;
             }
         } else if (data->currentShape == Shape::CIRCLE) {
             int size = max(abs(w), abs(h));
@@ -581,11 +578,12 @@ void Renderer::renderToolsOverlay() {
             int cx = newX + r;
             int cy = newY + r;
 
-            for (double angle = 0; angle < 2 * PI; angle += 0.005) {
-                int px = cx + r * cos(angle);
-                int py = cy + r * sin(angle);
+            for (double angle = 0; angle < 2 * PI;) {
+                int px = int(cx + r * cos(angle));
+                int py = int(cy + r * sin(angle));
                 pixelDrawer_overlay->drawPixel(px, py, cgreen);
                 pixelDrawer_overlay->drawPixel(px + 1, py, cgreen);
+                angle += 0.005;
             }
         }
         return;
@@ -595,11 +593,10 @@ void Renderer::renderToolsOverlay() {
         x = data->replaceColorX, y = data->replaceColorY;
         int relX = x - l->posX, relY = y - l->posY;
         uint32_t oldColor = l->getPixel(relX, relY);
-        drawFilledOverlayBox(x, y, x + 10, y, x + 10, y + 10, x, y + 10, oldColor);
-        drawFilledOverlayBox(x + 1, y + 1, x + 9, y + 1, x + 9, y + 9, x + 1, y + 9, oldColor);
+        drawFilledOverlayBox(x, y, x + 10, y + 10, oldColor);
+        drawFilledOverlayBox(x + 1, y + 1, x + 9, y + 9, oldColor);
         drawOverlayBox(x, y, x + 10, y, x + 10, y + 10, x, y + 10, cgreen);
         drawOverlayBox(x + 1, y + 1, x + 9, y + 1, x + 9, y + 9, x + 1, y + 9, cgreen);
-        return;
     }
 }
 
@@ -623,7 +620,8 @@ void Renderer::renderLayers() {
                              layer->posX, layer->posY);
         }
 
-        for (int i = data->layers->currentLayerNum() + 1; i < data->layers->countLayersNum(); i++) { // render over current layer to buff_over_current
+        for (int i = data->layers->currentLayerNum() + 1;
+             i < data->layers->countLayersNum(); i++) { // render over current layer to buff_over_current
             auto layer = data->layers->at(i);
             if (layer->isVisible)
                 blendBuffers(buff_over_current, layer->getPixelData(), data->workAreaX, data->workAreaY, layer->width, layer->height,

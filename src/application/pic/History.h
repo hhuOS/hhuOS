@@ -20,7 +20,7 @@ public:
 
     ~History();
 
-    void addCommand(const Util::String &command, Layer ***layers, int *layerCount);
+    void addCommand(const Util::String &command, Layer ***layers, const int *layerCount);
 
     void reset();
 

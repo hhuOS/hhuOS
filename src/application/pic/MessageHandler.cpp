@@ -145,7 +145,7 @@ bool MessageHandler::hasChangedAndReset() {
  * This function checks for expired messages and removes them. If any messages
  * were deleted or added, it redraws the buffer.
  *
- * The funciton should be called once per frame.
+ * The function should be called once per frame.
  */
 void MessageHandler::update() {
     bool deleted = false;
@@ -171,7 +171,7 @@ void MessageHandler::update() {
         }
 
         for (int i = 0; i < messageCount; i++) {
-            int xStringpos = (width / 2) - (messages[i]->message.length() * 4);
+            int xStringpos = int((width / 2) - (messages[i]->message.length() * 4));
             if (xStringpos < 0) xStringpos = 0;
             stringDrawer->drawString(Util::Graphic::Fonts::TERMINAL_8x16, xStringpos, i * 16, messages[i]->message.operator const char *(),
                                      Util::Graphic::Color(0, 0, 0), Util::Graphic::Color(255, 255, 255));

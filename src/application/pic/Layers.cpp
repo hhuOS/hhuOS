@@ -150,15 +150,14 @@ void Layers::exportPicture(const char *path, int x, int y, int w, int h, bool pn
 
     int channels = 4;
     auto *rgbaData = new unsigned char[w * h * channels];
-    for (int y = 0; y < h; y++) { // convert ARGB to RGBA
-        for (int x = 0; x < w; x++) {
-            int i = y * w + x;
-            int j = y * w + x;
+    for (int yy = 0; yy < h; yy++) { // convert ARGB to RGBA
+        for (int xx = 0; xx < w; xx++) {
+            int i = yy * w + xx;
             uint32_t pixel = pixels[i];
-            rgbaData[j * channels] = (pixel >> 16) & 0xFF;     // R
-            rgbaData[j * channels + 1] = (pixel >> 8) & 0xFF;  // G
-            rgbaData[j * channels + 2] = pixel & 0xFF;         // B
-            rgbaData[j * channels + 3] = (pixel >> 24) & 0xFF; // A
+            rgbaData[i * channels] = (pixel >> 16) & 0xFF;         // R
+            rgbaData[i * channels + 1] = (pixel >> 8) & 0xFF;    // G
+            rgbaData[i * channels + 2] = pixel & 0xFF;               // B
+            rgbaData[i * channels + 3] = (pixel >> 24) & 0xFF; // A
         }
     }
 
@@ -250,9 +249,9 @@ void Layers::setCurrentToNext() {
  * @param index The index of the layer to delete.
  * @param writeHistory A boolean indicating whether to write this action to the history.
  */
-void Layers::deletetAt(int index, bool writeHistory) {
+void Layers::deleteAt(int index, bool writeHistory) {
     if (index < 0 || index >= layerCount) {
-        mHandler->addMessage(Util::String::format("Layers::deletetAt(%d) index out of bounds", index).operator const char *());
+        mHandler->addMessage(Util::String::format("Layers::deleteAt(%d) index out of bounds", index).operator const char *());
         return;
     }
     if (index == currentLayer) currentLayer = 0;
@@ -647,8 +646,8 @@ void Layers::rotate(int index, int degree, bool writeHistory) {
     if (degree == 0) return;  // No rotation needed
 
     // prepare new buffer
-    int newWidth = abs(layer->width * cos(degree * PI / 180.0)) + abs(layer->height * sin(degree * PI / 180.0));
-    int newHeight = abs(layer->width * sin(degree * PI / 180.0)) + abs(layer->height * cos(degree * PI / 180.0));
+    int newWidth = abs(static_cast<int>(layer->width * cos(degree * PI / 180.0))) + abs(static_cast<int>(layer->height * sin(degree * PI / 180.0)));
+    int newHeight = abs(static_cast<int>(layer->width * sin(degree * PI / 180.0))) + abs(static_cast<int>(layer->height * cos(degree * PI / 180.0)));
     auto *newPixelData = new uint32_t[newWidth * newHeight];
     for (int i = 0; i < newWidth * newHeight; ++i) newPixelData[i] = 0x00000000; // clear buffer
 
@@ -753,7 +752,7 @@ void Layers::drawLine(int index, int x1, int y1, int x2, int y2, uint32_t color,
     if (index < 0 || index >= layerCount) return;
     int x1c = x1, y1c = y1, x2c = x2, y2c = y2; // for history
 
-    // Bressenham's line algorithm
+    // Bresenham's line algorithm
     // https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm#cite_note-Zingl-3
     // http://members.chello.at/~easyfilter/Bresenham.pdf
     // seite Page 13 of 98
@@ -811,8 +810,8 @@ void Layers::prepareNextDrawing(int index, bool writeHistory) {
 /**
  * Prepares the next drawing operation on the current layer to indicate the current line is finished.
  */
-void Layers::prepareNextDrawingCurrent() {
-    prepareNextDrawing(currentLayer);
+void Layers::prepareNextDrawingCurrent(bool writeHistory) {
+    prepareNextDrawing(currentLayer, writeHistory);
 }
 
 /**
@@ -907,12 +906,12 @@ void Layers::replaceColor(int index, int x, int y, uint32_t penColor, double tol
     uint32_t targetColor = layer->getPixel(x, y);
     if (targetColor == penColor) return;
     tolerance = max(0.0, min(1.0, tolerance));
-    uint32_t maxDiff = 255 * tolerance;
+    auto maxDiff = uint32_t(255 * tolerance);
     for (int i = 0; i < layer->width * layer->height; i++) {
         uint32_t pixel = layer->getPixelData()[i];
-        uint32_t rDiff = abs(((targetColor >> 16) & 0xFF) - ((pixel >> 16) & 0xFF));
-        uint32_t gDiff = abs(((targetColor >> 8) & 0xFF) - ((pixel >> 8) & 0xFF));
-        uint32_t bDiff = abs((targetColor & 0xFF) - (pixel & 0xFF));
+        uint32_t rDiff = abs(int(((targetColor >> 16) & 0xFF) - ((pixel >> 16) & 0xFF)));
+        uint32_t gDiff = abs(int(((targetColor >> 8) & 0xFF) - ((pixel >> 8) & 0xFF)));
+        uint32_t bDiff = abs(int((targetColor & 0xFF) - (pixel & 0xFF)));
         if (rDiff <= maxDiff && gDiff <= maxDiff && bDiff <= maxDiff) { // check if pixel is within tolerance and if so replace it
             layer->getPixelData()[i] = penColor;
         }
@@ -1017,9 +1016,9 @@ void Layers::filterInvertCurrent() {
  * \brief Applies a sepia filter to the specified layer.
  *
  * This function converts the colors of the specified layer to sepia tones. The formula used is:
- * R = 0.393 * R + 0.769 * G + 0.189 * B
- * G = 0.349 * R + 0.686 * G + 0.168 * B
- * B = 0.272 * R + 0.534 * G + 0.131 * B
+ * R = 0.393*R + 0.769*G + 0.189*B;
+ * G = 0.349*R + 0.686*G + 0.168*B;
+ * B = 0.272*R + 0.534*G + 0.131*B;
  *
  * \param index The index of the layer to apply the filter to.
  * \param writeHistory A boolean indicating whether to write this action to the history.
@@ -1035,9 +1034,9 @@ void Layers::filterSepia(int index, bool writeHistory) {
         uint32_t pixel = layer->getPixelData()[i];
         uint32_t a = (pixel >> 24) & 0xFF;
         // floating values from: https://stackoverflow.com/a/9449159/18030268
-        uint32_t r = min(0xFF, (uint32_t) (0.393 * ((pixel >> 16) & 0xFF) + 0.769 * ((pixel >> 8) & 0xFF) + 0.189 * (pixel & 0xFF)));
-        uint32_t g = min(0xFF, (uint32_t) (0.349 * ((pixel >> 16) & 0xFF) + 0.686 * ((pixel >> 8) & 0xFF) + 0.168 * (pixel & 0xFF)));
-        uint32_t b = min(0xFF, (uint32_t) (0.272 * ((pixel >> 16) & 0xFF) + 0.534 * ((pixel >> 8) & 0xFF) + 0.131 * (pixel & 0xFF)));
+        uint32_t r = min(0xFF, int((uint32_t) (0.393 * ((pixel >> 16) & 0xFF) + 0.769 * ((pixel >> 8) & 0xFF) + 0.189 * (pixel & 0xFF))));
+        uint32_t g = min(0xFF, int((uint32_t) (0.349 * ((pixel >> 16) & 0xFF) + 0.686 * ((pixel >> 8) & 0xFF) + 0.168 * (pixel & 0xFF))));
+        uint32_t b = min(0xFF, int((uint32_t) (0.272 * ((pixel >> 16) & 0xFF) + 0.534 * ((pixel >> 8) & 0xFF) + 0.131 * (pixel & 0xFF))));
         layer->getPixelData()[i] = ((a << 24) | (r << 16) | (g << 8) | b);
     }
 
@@ -1089,9 +1088,9 @@ void Layers::filterKernel(int index, int kernel[9], int divisor, int offset, boo
                     int py = y + ky - kernelRadius;
                     if (px >= 0 && px < layer->width && py >= 0 && py < layer->height) {
                         uint32_t pixel = layer->getPixel(px, py);
-                        r += ((pixel >> 16) & 0xFF) * kernel[ky * 3 + kx];
-                        g += ((pixel >> 8) & 0xFF) * kernel[ky * 3 + kx];
-                        b += (pixel & 0xFF) * kernel[ky * 3 + kx];
+                        r += int(((pixel >> 16) & 0xFF) * kernel[ky * 3 + kx]);
+                        g += int(((pixel >> 8) & 0xFF) * kernel[ky * 3 + kx]);
+                        b += int((pixel & 0xFF) * kernel[ky * 3 + kx]);
                     }
                 }
             }

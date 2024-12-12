@@ -27,7 +27,7 @@ private:
 
     void checkKeyboardInput();
 
-    void parseMouse(bool clicked);
+    void parseMouse(bool clicked) const;
 };
 
 #endif // PIC_H
