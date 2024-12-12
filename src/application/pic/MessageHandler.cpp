@@ -11,6 +11,12 @@
 
 #include "helper.h"
 
+/**
+ * Constructor for the Message class.
+ *
+ * @param message The message content as a Util::String.
+ * @param duration The duration for which the message should be displayed.
+ */
 Message::Message(const Util::String &message, int duration) {
     this->message = message;
     this->expiration = duration;
@@ -18,6 +24,12 @@ Message::Message(const Util::String &message, int duration) {
 
 Message::~Message() = default;
 
+/**
+ * Constructor for the MessageHandler class.
+ *
+ * @param width The width of the message handler render buffer..
+ * @param height The height of the message handler render buffer.
+ */
 MessageHandler::MessageHandler(int width, int height) {
     this->width = width;
     this->height = height;
@@ -38,6 +50,9 @@ MessageHandler::MessageHandler(int width, int height) {
     addMessage("hello to Pic!!! :D");
 }
 
+/**
+ * Destructor for the MessageHandler class.
+ */
 MessageHandler::~MessageHandler() {
     for (int i = 0; i < messageCount; i++) {
         delete messages[i];
@@ -49,14 +64,31 @@ MessageHandler::~MessageHandler() {
     delete[] buffer;
 }
 
+/**
+ * Sets the print flag for the MessageHandler.
+ *
+ * @param p Boolean flag wether messages should be printed to the console.
+ */
 void MessageHandler::setPrintBool(bool p) {
     shouldPrint = p;
 }
 
+/**
+ * Returns the render buffer of the MessageHandler.
+ *
+ * @return Pointer to the buffer.
+ */
 uint32_t *MessageHandler::getBuffer() {
     return buffer;
 }
 
+/**
+ * \brief Adds a message to the MessageHandler.
+ *
+ * The message is added with a default duration of 5 seconds.
+ *
+ * @param message The message content as a Util::String.
+ */
 void MessageHandler::addMessage(const Util::String &message) {
     if (shouldPrint) {
         print(message);
@@ -64,6 +96,15 @@ void MessageHandler::addMessage(const Util::String &message) {
     addMessage(message, 5);
 }
 
+/**
+ * Adds a message to the MessageHandler with a specified duration.
+ *
+ * If the message count exceeds the maximum allowed messages, the oldest message is removed.
+ * If the message length exceeds the width of the buffer, it is truncated.
+ *
+ * @param message The message content as a Util::String.
+ * @param duration The duration for which the message should be displayed.
+ */
 void MessageHandler::addMessage(const Util::String &message, int duration) {
     if (messageCount >= maxMessages) {
         delete messages[0];
@@ -87,12 +128,25 @@ void MessageHandler::addMessage(const Util::String &message, int duration) {
     messageAdded = true;
 }
 
+/**
+ * Checks if the MessageHandler render buffer has changed and resets the changed flag.
+ *
+ * @return True if the buffer has changed, false otherwise.
+ */
 bool MessageHandler::hasChangedAndReset() {
     bool temp = changed;
     changed = false;
     return temp;
 }
 
+/**
+ * \brief Updates the render buffer of the MessageHandler.
+ *
+ * This function checks for expired messages and removes them. If any messages
+ * were deleted or added, it redraws the buffer.
+ *
+ * The funciton should be called once per frame.
+ */
 void MessageHandler::update() {
     bool deleted = false;
     auto currentTime = time(nullptr);

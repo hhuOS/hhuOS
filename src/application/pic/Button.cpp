@@ -19,6 +19,14 @@
 #include "DataWrapper.h"
 #include "Settings.h"
 
+/**
+ * \brief Constructor for the Button class.
+ *
+ * Initializes the Button with the provided DataWrapper, sets up the buffer,
+ * and initializes various graphic components for rendering.
+ *
+ * \param data Pointer to the DataWrapper object.
+ */
 Button::Button(DataWrapper *data) {
     this->data = data;
     this->buffer = new uint32_t[30 * 200];
@@ -52,6 +60,9 @@ Button::Button(DataWrapper *data) {
     render();
 }
 
+/**
+ * \brief Destructor for the Button class.
+ */
 Button::~Button() {
 //    delete[] buffer; // dont delete, since lfb destructor will delete it
     delete lfb;
@@ -60,21 +71,69 @@ Button::~Button() {
     delete stringDrawer;
 }
 
+/**
+ * \brief Sets optional hotkey rendering for the Button.
+ *
+ * \param h The character representing the hotkey.
+ * \return A pointer to the Button object.
+ */
 Button *Button::setHotkey(char h) {
     this->hotkey = h;
     return this;
 }
 
+/**
+ * \brief Sets optional bitmap rendering for the Button.
+ *
+ * \param b Pointer to the bitmap data.
+ * \return A pointer to the Button object.
+ */
 Button *Button::set16Bitmap(uint8_t *b) {
     this->bitmap = b;
     return this;
 }
 
+/**
+ * \brief Sets optional information string to be displayed on the Button.
+ *
+ * \param string Pointer to the information string.
+ * \return A pointer to the Button object.
+ */
 Button *Button::setInfo(const char *string) {
     this->info = string;
     return this;
 }
 
+/**
+ * \brief Sets optional render flag method for the Button that is called on click.
+ *
+ * \param m Pointer to the RenderFlags method.
+ * \return A pointer to the Button object.
+ */
+Button *Button::setRenderFlagMethod(void (RenderFlags::*m)()) {
+    this->rFlagMethod = m;
+    return this;
+}
+
+/**
+ * \brief Sets optional second render flag method for the Button that is called on click.
+ *
+ * \param m Pointer to the RenderFlags method.
+ * \return A pointer to the Button object.
+ */
+Button *Button::setSecondRenderFlagMethod(void (RenderFlags::*m)()) {
+    this->rFlagMethod2 = m;
+    return this;
+}
+
+/**
+ * \brief Sets the Button to be a method button.
+ *
+ * The specified method is called on click.
+ *
+ * \param method Pointer to the method to be called on click.
+ * \return A pointer to the Button object.
+ */
 Button *Button::setMethodButton(void (*method)(DataWrapper *)) {
     this->type = METHOD;
     this->method1 = method;
@@ -82,16 +141,14 @@ Button *Button::setMethodButton(void (*method)(DataWrapper *)) {
     return this;
 }
 
-Button *Button::setRenderFlagMethod(void (RenderFlags::*m)()) {
-    this->rFlagMethod = m;
-    return this;
-}
-
-Button *Button::setSecondRenderFlagMethod(void (RenderFlags::*m)()) {
-    this->rFlagMethod2 = m;
-    return this;
-}
-
+/**
+ * \brief Sets the Button to be an integer value button.
+ *
+ * The integer value is modified on click by 1.
+ *
+ * \param value Pointer to the integer value.
+ * \return A pointer to the Button object.
+ */
 Button *Button::setIntValueButton(int *value) {
     this->type = INT_VALUE;
     this->intValue = value;
@@ -99,6 +156,16 @@ Button *Button::setIntValueButton(int *value) {
     return this;
 }
 
+/**
+ * \brief Sets the Button to be an integer value button with limits.
+ *
+ * The integer value is modified on click by 1.
+ *
+ * \param value Pointer to the integer value.
+ * \param limit_low The lower limit for the integer value.
+ * \param limit_high The upper limit for the integer value.
+ * \return A pointer to the Button object.
+ */
 Button *Button::setIntValueButton(int *value, int limit_low, int limit_high) {
     this->type = INT_VALUE;
     this->intValue = value;
@@ -109,6 +176,14 @@ Button *Button::setIntValueButton(int *value, int limit_low, int limit_high) {
     return this;
 }
 
+/**
+ * \brief Sets the Button to be a double value button.
+ *
+ * The double value is modified on click by 0.05.
+ *
+ * \param dvalue Pointer to the double value.
+ * \return A pointer to the Button object.
+ */
 Button *Button::setDoubleValueButton(double *dvalue) {
     this->type = DOUBLE_VALUE;
     this->doubleValue = dvalue;
@@ -116,6 +191,16 @@ Button *Button::setDoubleValueButton(double *dvalue) {
     return this;
 }
 
+/**
+ * \brief Sets the Button to be a double value button with limits.
+ *
+ * The double value is modified on click by 0.05.
+ *
+ * \param dvalue Pointer to the double value.
+ * \param limit_low The lower limit for the double value.
+ * \param limit_high The upper limit for the double value.
+ * \return A pointer to the Button object.
+ */
 Button *Button::setDoubleValueButton(double *dvalue, double limit_low, double limit_high) {
     this->type = DOUBLE_VALUE;
     this->doubleValue = dvalue;
@@ -126,6 +211,14 @@ Button *Button::setDoubleValueButton(double *dvalue, double limit_low, double li
     return this;
 }
 
+/**
+ * \brief Sets the Button to be a boolean value button.
+ *
+ * The boolean value is toggled on click.
+ *
+ * \param bvalue Pointer to the boolean value.
+ * \return A pointer to the Button object.
+ */
 Button *Button::setBooleanButton(bool *bvalue) {
     this->type = BOOLEAN;
     this->boolValue = bvalue;
@@ -133,6 +226,15 @@ Button *Button::setBooleanButton(bool *bvalue) {
     return this;
 }
 
+/**
+ * \brief Sets the Button to be an input button.
+ *
+ * The input string is cleared by clicking the left side and the captureInput flag is toggled by clicking the right side.
+ *
+ * \param s Pointer to the input string.
+ * \param capture Pointer to the captureInput flag.
+ * \return A pointer to the Button object.
+ */
 Button *Button::setInputButton(Util::String *s, bool *capture) {
     this->type = INPUT;
     this->input = s;
@@ -141,6 +243,15 @@ Button *Button::setInputButton(Util::String *s, bool *capture) {
     return this;
 }
 
+/**
+ * \brief Sets the Button to be a confirm button.
+ *
+ * The first method is called on click on the left side and the second method is called on click on the right side.
+ *
+ * \param cancel Pointer to the cancel method.
+ * \param ok Pointer to the ok method.
+ * \return A pointer to the Button object.
+ */
 Button *Button::setConfirmButton(void (*cancel)(DataWrapper *), void (*ok)(DataWrapper *)) {
     this->type = CONFIRM;
     this->method1 = cancel;
@@ -149,6 +260,14 @@ Button *Button::setConfirmButton(void (*cancel)(DataWrapper *), void (*ok)(DataW
     return this;
 }
 
+/**
+ * \brief Sets the Button to be a layer button.
+ *
+ * The layerNum is used to identify the layer to be modified.
+ *
+ * \param num The number of the layer.
+ * \return A pointer to the Button object.
+ */
 Button *Button::setLayerButton(int num) {
     this->type = LAYER;
     this->layerNum = num;
@@ -156,18 +275,27 @@ Button *Button::setLayerButton(int num) {
     return this;
 }
 
+/**
+ * \brief Renders the Button Border green if the current tool is the specified tool.
+ */
 Button *Button::changeGreenIfTool(Tool tool) {
     this->setGreenTool = tool;
     render();
     return this;
 }
 
+/**
+ * \brief Renders the Button Border green if the current shape is the specified shape.
+ */
 Button *Button::changeGreenIfShape(Shape shape) {
     setGreenShape = shape;
     render();
     return this;
 }
 
+/**
+ * \brief Sets the color of the Button to the specified ARGB values.
+ */
 Button *Button::setColor(int *a, int *r, int *g, int *b) {
     colorA = a, colorR = r, colorG = g, colorB = b;
     showcolor = true;
@@ -175,20 +303,41 @@ Button *Button::setColor(int *a, int *r, int *g, int *b) {
     return this;
 }
 
+/**
+ * \brief Sets the Button to appear the top GUI layer on change.
+ */
 Button *Button::setAppearTopOnChange(bool set) {
     this->appearTopOnChange = set;
     return this;
 }
 
+/**
+ * \brief Sets the Button to appear the bottom GUI layer on change.
+ */
 Button *Button::setAppearBottomOnChange(bool set) {
     this->appearBottomOnChange = set;
     return this;
 }
 
+/**
+ * \brief Returns the render buffer of the Button.
+ *
+ * \return Pointer to the buffer.
+ */
 uint32_t *Button::getBuffer() {
     return this->buffer;
 }
 
+/**
+ * \brief Processes a click event on the Button.
+ *
+ * Updates the Button state based on the relative click coordinates and the Button type.
+ * Executes associated methods or modifies values as needed.
+ * Renders the Button after processing the click.
+ *
+ * \param relX The relative X coordinate of the click.
+ * \param relY The relative Y coordinate of the click.
+ */
 void Button::processClick(int relX, int relY) {
     this->mouseX = relX;
     this->mouseY = relY;
@@ -243,15 +392,15 @@ void Button::processClick(int relX, int relY) {
             }
             break;
         case LAYER:
-            if (layerNum > data->layers->countNum()) return;
+            if (layerNum > data->layers->countLayersNum()) return;
             if (relX < 40) {
                 data->layers->setCurrent(layerNum);
             } else if (relX < 80) {
                 data->layers->swap(layerNum, layerNum - 1);
-                if (layerNum == data->layers->currentNum()) data->layers->setCurrent(layerNum - 1);
+                if (layerNum == data->layers->currentLayerNum()) data->layers->setCurrent(layerNum - 1);
             } else if (relX < 120) {
                 data->layers->swap(layerNum, layerNum + 1);
-                if (layerNum == data->layers->currentNum()) data->layers->setCurrent(layerNum + 1);
+                if (layerNum == data->layers->currentLayerNum()) data->layers->setCurrent(layerNum + 1);
             } else if (relX < 160) {
                 data->layers->deletetAt(layerNum);
             } else {
@@ -283,6 +432,14 @@ void Button::processClick(int relX, int relY) {
     render();
 }
 
+/**
+ * \brief Shows the Button as clicked.
+ *
+ * Updates the Button state to reflect a click event and triggers a render.
+ *
+ * \param relX The relative X coordinate of the click.
+ * \param relY The relative Y coordinate of the click.
+ */
 void Button::showClick(int relX, int relY) {
     this->mouseX = relX;
     this->mouseY = relY;
@@ -291,6 +448,14 @@ void Button::showClick(int relX, int relY) {
     render();
 }
 
+/**
+ * \brief Shows the Button as hovered.
+ *
+ * Updates the Button state to reflect a hover event and triggers a render.
+ *
+ * \param relX The relative X coordinate of the hover.
+ * \param relY The relative Y coordinate of the hover.
+ */
 void Button::showHover(int relX, int relY) {
     this->mouseX = relX;
     this->mouseY = relY;
@@ -299,12 +464,23 @@ void Button::showHover(int relX, int relY) {
     render();
 }
 
+/**
+ * \brief Removes any interaction state from the Button.
+ *
+ * Resets the Button state to reflect no interaction and triggers a render.
+ */
 void Button::removeInteraction() {
     hover = false;
     click = false;
     render();
 }
 
+/**
+ * \brief Renders the Button based on its type.
+ *
+ * Calls the appropriate render method for the Button type.
+ * Sets the bufferChanged flag to true and notifies the GUI that the Button has changed.
+ */
 void Button::render() {
     switch (type) {
         case METHOD:
@@ -338,6 +514,11 @@ void Button::render() {
     data->flags->guiButtonChanged();
 }
 
+/**
+ * \brief Renders the border of the Button with the specified color.
+ *
+ * \param color The color to use for the border.
+ */
 void Button::renderBorder(uint32_t color) {
     int border = 2;
     for (int i = 0; i < border * 200; i++) { // top border
@@ -354,6 +535,13 @@ void Button::renderBorder(uint32_t color) {
     }
 }
 
+/**
+ * \brief Renders the background of the Button with the specified color.
+ *
+ * \param x1 The starting X coordinate.
+ * \param x2 The ending X coordinate.
+ * \param color The color to use for the background.
+ */
 void Button::renderBackground(int x1, int x2, uint32_t color) {
     for (int i = 0; i < 30 * 200; i += 200) {
         for (int j = i + x1; j < i + x2; j++) {
@@ -362,11 +550,13 @@ void Button::renderBackground(int x1, int x2, uint32_t color) {
     }
 }
 
+/**
+ * \brief Renders the Button when it is of type METHOD.
+ */
 void Button::renderMethod() {
     renderBackground(0, 200, click ? green : hover ? darkgray : gray);
     int xStringpos = 100 - (strlen(info) * 4);
     if (showcolor) {
-//        uint32_t color = (*colorA << 24) | (*colorR << 16) | (*colorG << 8) | *colorB;
         uint32_t color = 0xFF000000 | (*colorR << 16) | (*colorG << 8) | *colorB;
         renderBackground(0, 80, color);
         Util::Graphic::Color c = this->setGreenTool == data->currentTool ? cgreen : cblack;
@@ -398,6 +588,11 @@ void Button::renderMethod() {
                              cblack, click ? cgreen : hover ? cdarkgray : cgray);
 }
 
+/**
+ * \brief Renders the value of the Button.
+ *
+ * \param text The text to display on the Button.
+ */
 void Button::renderValue(const char *text) {
     renderBackground(0, 40, mouseX < 40 ? (click ? green : hover ? darkgray : gray) : gray);
     renderBackground(160, 200, mouseX > 160 ? (click ? green : hover ? darkgray : gray) : gray);
@@ -415,6 +610,9 @@ void Button::renderValue(const char *text) {
                              mouseX > 160 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
 }
 
+/**
+ * \brief Renders the Button when it is of type INT_VALUE.
+ */
 void Button::renderIntValue() {
     const char *int_string = int_to_string(*intValue);
     char text[256];
@@ -422,6 +620,9 @@ void Button::renderIntValue() {
     renderValue(text);
 }
 
+/**
+ * \brief Renders the Button when it is of type DOUBLE_VALUE.
+ */
 void Button::renderDoubleValue() {
     const char *double_string = double_to_string(*doubleValue, 2);
     char text[256];
@@ -429,6 +630,9 @@ void Button::renderDoubleValue() {
     renderValue(text);
 }
 
+/**
+ * \brief Renders the Button when it is of type BOOLEAN.
+ */
 void Button::renderBoolean() {
     renderBackground(0, 200, click ? green : hover ? darkgray : gray);
     renderBorder(*boolValue ? 0xFF00FF00 : 0xFFFF0000);
@@ -436,6 +640,9 @@ void Button::renderBoolean() {
                              cblack, click ? cgreen : hover ? cdarkgray : cgray);
 }
 
+/**
+ * \brief Renders the Button when it is of type CONFIRM.
+ */
 void Button::renderConfirm() {
     renderBackground(0, 100, mouseX < 100 ? (click ? green : hover ? darkgray : gray) : gray);
     renderBackground(100, 200, mouseX >= 100 ? (click ? green : hover ? darkgray : gray) : gray);
@@ -446,11 +653,13 @@ void Button::renderConfirm() {
                              mouseX < 100 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
     stringDrawer->drawString(Util::Graphic::Fonts::TERMINAL_8x16, 150 - (strlen("OK") * 4), 7, "OK", cgreen,
                              mouseX >= 100 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
-
 }
 
+/**
+ * \brief Renders the Button when it is of type LAYER.
+ */
 void Button::renderLayer() {
-    if (layerNum > data->layers->countNum() - 1) {
+    if (layerNum > data->layers->countLayersNum() - 1) {
         for (int i = 0; i < 30 * 200; i++) {
             this->buffer[i] = 0x00000000;
         }
@@ -473,7 +682,7 @@ void Button::renderLayer() {
     const char *num = int_to_string(layerNum);
     int xStringpos = 20 - (strlen(num) * 4);
     stringDrawer->drawString(Util::Graphic::Fonts::TERMINAL_8x16, xStringpos, 7, num,
-                             data->layers->currentNum() == layerNum ? cgreen : cblack,
+                             data->layers->currentLayerNum() == layerNum ? cgreen : cblack,
                              mouseX < 40 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
     stringDrawer->drawMonoBitmap(52, 7, 16, 16, cblack, mouseX >= 40 && mouseX < 80 ?
                                                         (click ? cgreen : hover ? cdarkgray : cgray) : cgray, Bitmaps::arrow_up);
@@ -486,6 +695,9 @@ void Button::renderLayer() {
                                                         (click ? cgreen : hover ? cdarkgray : cgray) : cgray, Bitmaps::eye);
 }
 
+/**
+ * \brief Renders the Button when it is of type INPUT.
+ */
 void Button::renderInput() {
     renderBackground(0, 40, mouseX < 40 ? (click ? green : hover ? darkgray : gray) : gray);
     renderBackground(40, 200, mouseX >= 40 ? (click ? green : hover ? darkgray : gray) : gray);
@@ -500,5 +712,4 @@ void Button::renderInput() {
     }
     stringDrawer->drawString(Util::Graphic::Fonts::TERMINAL_8x16, 48, 7, input->operator const char *(), cblack,
                              mouseX >= 40 ? (click ? cgreen : hover ? cdarkgray : cgray) : cgray);
-
 }

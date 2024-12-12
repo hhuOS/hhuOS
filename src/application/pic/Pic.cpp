@@ -263,7 +263,7 @@ void Pic::parseMouse(bool clicked) {
             data->currentGuiLayerBottom->appear();
 
         } else if (data->currentTool == Tool::COLOR) {
-            if (data->layers->currentNum() >= 0) {
+            if (data->layers->currentLayerNum() >= 0) {
                 Layer *l = data->layers->current();
                 int relX = data->mouseX - 200 - l->posX;
                 int relY = data->mouseY - l->posY;
@@ -288,7 +288,7 @@ void Pic::parseMouse(bool clicked) {
             data->currentGuiLayerBottom->appear();
 
         } else if ((data->currentTool == Tool::PEN || data->currentTool == Tool::ERASER) && data->mouseClicks->size() > 0) {
-            if (data->layers->currentNum() >= 0) {
+            if (data->layers->currentLayerNum() >= 0) {
                 Layer *l = data->layers->current();
                 auto click = data->mouseClicks->peek();
                 int lastX = click.first - l->posX - 200;
@@ -349,7 +349,7 @@ void Pic::parseMouse(bool clicked) {
             data->currentGuiLayerBottom->appear();
 
         } else if (data->currentTool == Tool::REPLACE_COLOR) {
-            if (data->layers->currentNum() >= 0) {
+            if (data->layers->currentLayerNum() >= 0) {
                 data->replaceColorX = data->mouseX - 200;
                 data->replaceColorY = data->mouseY;
                 data->flags->guiButtonChanged();
@@ -477,19 +477,21 @@ void Pic::checkKeyboardInput() {
             }
 
             if (data->captureInput) { // handle input into GUIs text field
-                // TODO: kaputt, wenn man tab drückt (ist vll riesen char?? :D)
                 if (key.getScancode() == Util::Io::Key::BACKSPACE) {
                     *data->currentInput = data->currentInput->substring(0, data->currentInput->length() - 1);
                     data->textButton->render();
-                } else {
+                } else if (key.getScancode() == Util::Io::Key::ESC) { // end capture
+                    data->captureInput = false;
+                    data->textButton->render();
+                    data->flags->guiButtonChanged();
+                } else if (key.getScancode() != Util::Io::Key::TAB) { // ignore tab
                     char c = key.getAscii();
                     if (c != 0) {
                         *data->currentInput += c;
                         data->textButton->render();
                     }
                 }
-            }
-            else { // handle hotkeys
+            } else { // handle hotkeys
                 if (data->settings->activateHotkeys) {
                     switch (scancode) {
                         case 2: // 1
@@ -576,7 +578,7 @@ void Pic::checkKeyboardInput() {
                             break;
                         case Util::Io::Key::M: // move
                             changeGuiLayerTo(data, "tools");
-                            if (data->layers->currentNum() >= 0) {
+                            if (data->layers->currentLayerNum() >= 0) {
                                 data->moveX = data->layers->current()->posX;
                                 data->moveY = data->layers->current()->posY;
                             } else {
@@ -750,7 +752,7 @@ void Pic::init_gui() {
     gui_tools->addButton((new Button(data))
                                  ->setInfo("Move")
                                  ->setMethodButton([](DataWrapper *data) {
-                                     if (data->layers->currentNum() >= 0) {
+                                     if (data->layers->currentLayerNum() >= 0) {
                                          data->moveX = data->layers->current()->posX;
                                          data->moveY = data->layers->current()->posY;
                                      } else {
@@ -789,7 +791,7 @@ void Pic::init_gui() {
     gui_tools->addButton((new Button(data))
                                  ->setInfo("auto Scale")
                                  ->setMethodButton([](DataWrapper *data) {
-                                     if (data->layers->currentNum() >= 0) {
+                                     if (data->layers->currentLayerNum() >= 0) {
                                          auto l = data->layers->current();
                                          if (l->width > data->workAreaX || l->height > data->workAreaY) {
                                              data->layers->moveCurrent(0, 0);
@@ -901,7 +903,7 @@ void Pic::init_gui() {
                                   ->setRenderFlagMethod(&RenderFlags::guiLayerChanged)
                                   ->set16Bitmap(Bitmaps::arrow_back)
     );
-    for (int i = 0; i < data->layers->maxNum(); i++) {
+    for (int i = 0; i < data->layers->maxLayersNum(); i++) {
         gui_layers->addButton((new Button(data))
                                       ->setInfo("LayerButton")
                                       ->setLayerButton(i)
@@ -922,7 +924,7 @@ void Pic::init_gui() {
     gui_bottom_move->addButton((new Button(data))
                                        ->setInfo("MOVE")
                                        ->setConfirmButton([](DataWrapper *data) {
-                                           if (data->layers->currentNum() >= 0) {
+                                           if (data->layers->currentLayerNum() >= 0) {
                                                data->moveX = data->layers->current()->posX;
                                                data->moveY = data->layers->current()->posY;
                                            } else {
@@ -1095,7 +1097,7 @@ void Pic::init_gui() {
                                         ->setConfirmButton([](DataWrapper *data) {
                                             data->shapeX = 0, data->shapeY = 0, data->shapeW = 0, data->shapeH = 0;
                                         }, [](DataWrapper *data) {
-                                            if (data->layers->currentNum() >= 0) {
+                                            if (data->layers->currentLayerNum() >= 0) {
                                                 uint32_t penColor =
                                                         (data->colorA << 24) |
                                                         (data->colorR << 16) |
@@ -1235,11 +1237,11 @@ void Pic::init_gui() {
     auto gui_bottom_combine = new GuiLayer();
     gui_bottom_combine->addButton((new Button(data))
                                           ->setInfo("first")
-                                          ->setIntValueButton(&data->combineFirst, 0, data->layers->maxNum())
+                                          ->setIntValueButton(&data->combineFirst, 0, data->layers->maxLayersNum())
     );
     gui_bottom_combine->addButton((new Button(data))
                                           ->setInfo("second")
-                                          ->setIntValueButton(&data->combineSecond, 0, data->layers->maxNum())
+                                          ->setIntValueButton(&data->combineSecond, 0, data->layers->maxLayersNum())
     );
     gui_bottom_combine->addButton((new Button(data))
                                           ->setInfo("Combine")
@@ -1258,7 +1260,7 @@ void Pic::init_gui() {
     auto gui_bottom_duplicate = new GuiLayer();
     gui_bottom_duplicate->addButton((new Button(data))
                                             ->setInfo("index")
-                                            ->setIntValueButton(&data->dupeIndex, 0, data->layers->maxNum())
+                                            ->setIntValueButton(&data->dupeIndex, 0, data->layers->maxLayersNum())
     );
     gui_bottom_duplicate->addButton((new Button(data))
                                             ->setInfo("Duplicate")
@@ -1293,7 +1295,7 @@ void Pic::init_gui() {
                                                     data->replaceColorY = 0;
                                                     data->replaceColorTolerance = 0.0;
                                                 }, [](DataWrapper *data) {
-                                                    if (data->layers->currentNum() >= 0) {
+                                                    if (data->layers->currentLayerNum() >= 0) {
                                                         uint32_t penColor =
                                                                 (data->colorA << 24) | (data->colorR << 16) | (data->colorG << 8) |
                                                                 data->colorB;

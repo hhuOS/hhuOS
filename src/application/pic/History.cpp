@@ -12,6 +12,12 @@
 #include "Layer.h"
 #include "Layers.h"
 
+/**
+ * Constructor for the History class.
+ * Initializes the command list, current command index, message handler, line list, and snapshot list.
+ *
+ * @param mHandler Pointer to the MessageHandler object.
+ */
 History::History(MessageHandler *mHandler) {
     this->commands = new Util::ArrayList<Util::String>();
     this->currentCommand = 0;
@@ -20,6 +26,9 @@ History::History(MessageHandler *mHandler) {
     this->snapshots = new Util::ArrayList<Util::Pair<Layer **, int>>();
 }
 
+/**
+ * Destructor for the History class.
+ */
 History::~History() {
     for (uint32_t i = 0; i < snapshots->size(); i++) {
         auto *snapshot = snapshots->get(i).first;
@@ -34,12 +43,23 @@ History::~History() {
     delete commands;
 }
 
+/**
+ * Adds a command to the history.
+ * If the command is a line command, it saves the line points.
+ * If the command is to prepare the next drawing, it combines all line points into one line command.
+ * Otherwise, it adds the command normally.
+ * It also creates a snapshot every SNAPSHOT_INTERVAL commands.
+ *
+ * @param command The command to add.
+ * @param layers Pointer to the layers.
+ * @param layerCount Pointer to the number of layers.
+ */
 void History::addCommand(const Util::String &command, Layer ***layers, int *layerCount) {
-    if (commands->size() > currentCommand - 1) {
+    if (commands->size() > currentCommand - 1) { // remove all commands after current command
         for (uint32_t i = commands->size() - 1; i > currentCommand - 1; i--) {
             commands->removeIndex(i);
         }
-        if (snapshots->size() > 0) {
+        if (snapshots->size() > 0) { // remove all snapshots after current command
             for (uint32_t i = snapshots->size(); i > currentCommand / SNAPSHOT_INTERVAL; i--) {
                 auto *snapshot = snapshots->get(i - 1).first;
                 for (int j = 0; j < snapshots->get(i - 1).second; j++) {
@@ -51,10 +71,11 @@ void History::addCommand(const Util::String &command, Layer ***layers, int *laye
             }
         }
     }
+
     bool added = false;
-    if (command.beginsWith("line")) { // special case for lines
+    if (command.beginsWith("line")) { // special case for lines - just save line points
         lines->add(command.substring(5, command.length()));
-    } else if (command.beginsWith("prepareNextDrawing")) {
+    } else if (command.beginsWith("prepareNextDrawing")) { // add all line points together to one line command
         if (lines->size() > 0) {
             Util::String linestogether = "line";
             for (uint32_t i = 0; i < lines->size(); i++) {
@@ -65,12 +86,13 @@ void History::addCommand(const Util::String &command, Layer ***layers, int *laye
             lines->clear();
             added = true;
         }
-    } else {
+    } else { // add normal command
         commands->add(command);
         currentCommand = commands->size();
         added = true;
     }
-    if (added && currentCommand % SNAPSHOT_INTERVAL == 0) {
+
+    if (added && currentCommand % SNAPSHOT_INTERVAL == 0) { // create snapshot every SNAPSHOT_INTERVAL commands
         auto **snapshot = new Layer *[18];
         for (int i = 0; i < *layerCount; i++) {
             auto *newPixelData = new uint32_t[(*layers)[i]->width * (*layers)[i]->height];
@@ -83,11 +105,25 @@ void History::addCommand(const Util::String &command, Layer ***layers, int *laye
     }
 }
 
+/**
+ * Resets the history by clearing all commands and snapshots.
+ * Sets the current command index to 0.
+ */
 void History::reset() {
     commands->clear();
+    snapshots->clear();
     currentCommand = 0;
 }
 
+/**
+ * \brief Executes a command on the given layers.
+ *
+ * This function decodes the command String and executes the corresponding command on the given Layers object.
+ *
+ * @param layers Pointer to the Layers object.
+ * @param command The command to execute.
+ * @param writeHistory Boolean indicating whether to write the command to history.
+ */
 void History::execCommandOn(Layers *layers, const Util::String &command, bool writeHistory) {
     if (!writeHistory) currentCommand++;
     auto comm = command.split(" ");
@@ -178,6 +214,14 @@ void History::execCommandOn(Layers *layers, const Util::String &command, bool wr
     } else mHandler->addMessage("Unknown command: " + command);
 }
 
+/**
+ * \brief Prints the list of commands in the history.
+ *
+ * This function prints the current command index, the size of the command list,
+ * and the number of snapshots. It also prints each command in the history.
+ * Commands that are at the current command index are prefixed with ">> ".
+ * Commands that are at snapshot intervals are prefixed with "SAVE ".
+ */
 void History::printCommands() {
     mHandler->addMessage(Util::String::format(
             "currentCommand: %d, commands size: %d, snapshot count: %d", currentCommand, commands->size(), snapshots->size()));
@@ -189,6 +233,13 @@ void History::printCommands() {
     }
 }
 
+/**
+ * \brief Saves the command history to a file.
+ *
+ * This function writes the list of commands in the history to a specified file.
+ *
+ * \param path The file path where the command history will be saved.
+ */
 void History::saveToFile(const Util::String &path) {
     if (Util::String(path).length() == 0) {
         mHandler->addMessage("Error: No path given");
@@ -204,6 +255,15 @@ void History::saveToFile(const Util::String &path) {
     } else mHandler->addMessage("Error: Could not open file: " + path);
 }
 
+/**
+ * \brief Loads the command history from a file and executes the commands on the given layers.
+ *
+ * This function reads the list of commands from a specified file and executes each command on the provided Layers object after resetting the layers.
+ * This results in the layers being in the same state as when the commands were saved.
+ *
+ * \param layers Pointer to the Layers object.
+ * \param path The file path from which the command history will be loaded.
+ */
 void History::loadFromFileInto(Layers *layers, const Util::String &path) {
     if (Util::String(path).length() == 0) {
         mHandler->addMessage("Error: No path given");
@@ -241,40 +301,59 @@ void History::loadFromFileInto(Layers *layers, const Util::String &path) {
     }
 }
 
+/**
+ * \brief Undoes the last command executed on the given layers.
+ *
+ * This function reverts the state of the layers to the state before the last command was executed.
+ * If the current command index is 0, it indicates that there are no more commands to undo.
+ *
+ * @param layers Pointer to the Layers object.
+ */
 void History::undo(Layers *layers) {
-    if (currentCommand == 0) mHandler->addMessage("No more commands to undo");
-    else {
-        uint32_t executeCounter;
-        currentCommand--;
-        if (currentCommand < SNAPSHOT_INTERVAL) { // dont use snapshots
-            layers->reset();
-            executeCounter = currentCommand;
-        } else {
-            auto snapshot = snapshots->get(currentCommand / SNAPSHOT_INTERVAL - 1);
-            auto snapLayers = snapshot.first;
-            for (int i = 0; i < snapshot.second; i++) {
-                delete layers->layers[i];
-                auto pixelData = new uint32_t[snapLayers[i]->width * snapLayers[i]->height];
-                auto snapPixelData = snapLayers[i]->getPixelData();
-                for (int j = 0; j < snapLayers[i]->width * snapLayers[i]->height; j++) {
-                    pixelData[j] = snapPixelData[j];
-                }
-                layers->layers[i] = new Layer(snapLayers[i]->width, snapLayers[i]->height, snapLayers[i]->posX, snapLayers[i]->posY, 1,
-                                              pixelData);
-            }
-            layers->layerCount = snapshot.second;
-            if (layers->currentLayer >= layers->layerCount) layers->currentLayer = layers->layerCount - 1;
-            executeCounter = currentCommand % SNAPSHOT_INTERVAL;
-        }
-
-        uint32_t tempCurrent = currentCommand;
-        currentCommand -= executeCounter;
-        for (uint32_t i = tempCurrent - executeCounter; i < tempCurrent; i++) {
-            execCommandOn(layers, commands->get(i), false);
-        }
+    if (currentCommand == 0) {
+        mHandler->addMessage("No more commands to undo");
+        return;
     }
+
+    uint32_t executeCounter;
+    currentCommand--;
+    if (currentCommand < SNAPSHOT_INTERVAL) { // dont use snapshots before first snapshot is taken
+        layers->reset();
+        executeCounter = currentCommand;
+    } else { // apply last snapshot before current command
+        auto snapshot = snapshots->get(currentCommand / SNAPSHOT_INTERVAL - 1);
+        auto snapLayers = snapshot.first;
+        for (int i = 0; i < snapshot.second; i++) {
+            delete layers->layers[i];
+            auto pixelData = new uint32_t[snapLayers[i]->width * snapLayers[i]->height];
+            auto snapPixelData = snapLayers[i]->getPixelData();
+            for (int j = 0; j < snapLayers[i]->width * snapLayers[i]->height; j++) {
+                pixelData[j] = snapPixelData[j];
+            }
+            layers->layers[i] = new Layer(snapLayers[i]->width, snapLayers[i]->height, snapLayers[i]->posX, snapLayers[i]->posY, 1,
+                                          pixelData);
+        }
+        layers->layerCount = snapshot.second;
+        if (layers->currentLayer >= layers->layerCount) layers->currentLayer = layers->layerCount - 1;
+        executeCounter = currentCommand % SNAPSHOT_INTERVAL;
+    }
+
+    uint32_t tempCurrent = currentCommand;
+    currentCommand -= executeCounter;
+    for (uint32_t i = tempCurrent - executeCounter; i < tempCurrent; i++) { // execute commands between snapshot and current command
+        execCommandOn(layers, commands->get(i), false);
+    }
+
 }
 
+/**
+ * \brief Redoes the last undone command on the given layers.
+ *
+ * This function re-executes the command that was last undone, if there are any commands to redo.
+ * If the current command index is at the end of the command list, it indicates that there are no more commands to redo.
+ *
+ * @param layers Pointer to the Layers object.
+ */
 void History::redo(Layers *layers) {
     if (currentCommand < commands->size()) {
         execCommandOn(layers, commands->get(currentCommand), false);

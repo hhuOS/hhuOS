@@ -21,11 +21,11 @@ public:
 
     ~Layers();
 
-    [[nodiscard]] int countNum() const;
+    [[nodiscard]] int countLayersNum() const;
 
-    [[nodiscard]] int currentNum() const;
+    [[nodiscard]] int currentLayerNum() const;
 
-    [[nodiscard]] int maxNum() const;
+    [[nodiscard]] int maxLayersNum() const;
 
     void setCurrent(int index);
 

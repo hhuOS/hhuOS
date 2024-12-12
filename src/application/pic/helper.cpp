@@ -1,5 +1,12 @@
 #include "helper.h"
 
+/**
+ * Blends two pixels together using alpha blending.
+ *
+ * @param lower The lower pixel value in ARGB format.
+ * @param upper The upper pixel value in ARGB format.
+ * @return The blended pixel value in ARGB format.
+ */
 uint32_t blendPixels(uint32_t lower, uint32_t upper) {
     uint8_t upperAlpha = (upper >> 24) & 0xFF;
     uint8_t lowerAlpha = (lower >> 24) & 0xFF;
@@ -13,12 +20,31 @@ uint32_t blendPixels(uint32_t lower, uint32_t upper) {
     return (a << 24) | (r << 16) | (g << 8) | b;
 }
 
+/**
+ * Blends two buffers together using alpha blending.
+ *
+ * @param lower The lower buffer in ARGB format.
+ * @param upper The upper buffer in ARGB format.
+ * @param size The size of the buffers.
+ */
 void blendBuffers(uint32_t *lower, const uint32_t *upper, int size) {
     for (int i = 0; i < size; i++) {
         lower[i] = blendPixels(lower[i], upper[i]);
     }
 }
 
+/**
+ * Blends two buffers together using alpha blending with specified offsets.
+ *
+ * @param lower The lower buffer in ARGB format.
+ * @param upper The upper buffer in ARGB format.
+ * @param lx The width of the lower buffer.
+ * @param ly The height of the lower buffer.
+ * @param ux The width of the upper buffer.
+ * @param uy The height of the upper buffer.
+ * @param px The x offset for the upper buffer.
+ * @param py The y offset for the upper buffer.
+ */
 void blendBuffers(uint32_t *lower, const uint32_t *upper, int lx, int ly, int ux, int uy, int px, int py) {
     for (int y = 0; y < uy; y++) {
         int lowerY = y + py;
@@ -33,6 +59,12 @@ void blendBuffers(uint32_t *lower, const uint32_t *upper, int lx, int ly, int ux
     }
 }
 
+/**
+ * Converts an integer to a string.
+ *
+ * @param value The integer value to convert.
+ * @return A pointer to the resulting null-terminated string.
+ */
 const char *int_to_string(int value) {
     static char buffer[12];
     char *p = buffer + 11;
@@ -55,24 +87,28 @@ const char *int_to_string(int value) {
     return p;
 }
 
+/**
+ * Converts a double to a string with a specified number of decimal places.
+ *
+ * @param value The double value to convert.
+ * @param decimal_places The number of decimal places to include in the string.
+ * @return A pointer to the resulting null-terminated string.
+ */
 const char *double_to_string(double value, int decimal_places) {
-    static char buffer[32];  // Adjust size as needed
+    static char buffer[32];
     char *p = buffer;
     int integer_part;
     double fractional_part;
     int i, digit;
 
-    // Handle negative numbers
     if (value < 0) {
         *p++ = '-';
         value = -value;
     }
 
-    // Split into integer and fractional parts
     integer_part = (int) value;
     fractional_part = value - integer_part;
 
-    // Convert integer part
     if (integer_part == 0) {
         *p++ = '0';
     } else {
@@ -87,12 +123,10 @@ const char *double_to_string(double value, int decimal_places) {
         }
     }
 
-    // Add decimal point if needed
     if (decimal_places > 0) {
         *p++ = '.';
     }
 
-    // Convert fractional part
     for (i = 0; i < decimal_places; i++) {
         fractional_part *= 10;
         digit = (int) fractional_part;
@@ -100,24 +134,35 @@ const char *double_to_string(double value, int decimal_places) {
         fractional_part -= digit;
     }
 
-    // Null terminate
     *p = '\0';
 
     return buffer;
 }
 
+/**
+ * Returns the minimum of two integer values.
+ */
 int min(int a, int b) {
     return a < b ? a : b;
 }
 
+/**
+ * Returns the minimum of two double values.
+ */
 double min(double a, double b) {
     return a < b ? a : b;
 }
 
+/**
+ * Returns the maximum of two integer values.
+ */
 int max(int a, int b) {
     return a > b ? a : b;
 }
 
+/**
+ * Returns the maximum of two double values.
+ */
 double max(double a, double b) {
     return a > b ? a : b;
 }

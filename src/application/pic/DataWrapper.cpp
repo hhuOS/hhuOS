@@ -18,6 +18,12 @@
 #include "GuiLayer.h"
 #include "Layers.h"
 
+/**
+ * Constructor for DataWrapper.
+ * Initializes screen, input, rendering, layers, GUI, settings, and work variables.
+ *
+ * @param lfbFile Pointer to the file used for the LinearFrameBuffer.
+ */
 DataWrapper::DataWrapper(Util::Io::File *lfbFile) {
     // screen
     lfb = new Util::Graphic::LinearFrameBuffer(*lfbFile);
@@ -87,6 +93,10 @@ DataWrapper::DataWrapper(Util::Io::File *lfbFile) {
     replaceColorTolerance = 0.0;
 }
 
+/**
+ * Destructor for DataWrapper.
+ * Cleans up dynamically allocated resources.
+ */
 DataWrapper::~DataWrapper() {
     delete lfb;
     delete blfb;
