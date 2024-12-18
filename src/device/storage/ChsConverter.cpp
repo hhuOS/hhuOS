@@ -25,5 +25,4 @@ ChsConverter::CylinderHeadSector ChsConverter::lbaToChs(uint32_t lbaSector) cons
             static_cast<uint8_t>((lbaSector % (heads * sectorsPerTrack)) / sectorsPerTrack),
             static_cast<uint8_t>((lbaSector % sectorsPerTrack) + 1)
     };
-
 }

@@ -112,7 +112,7 @@ IdeController::CommandRegisters::CommandRegisters() :
         command(0) {}
 
 IdeController::ControlRegisters::ControlRegisters(uint16_t baseAddress) :
-        alternateStatus(baseAddress + 0x02), deviceControl(baseAddress + 0x02), deviceAddress(baseAddress + 0x02) {}
+        alternateStatus(baseAddress + 0x02), deviceControl(baseAddress + 0x02), deviceAddress(baseAddress + 0x03) {}
 
 IdeController::ControlRegisters::ControlRegisters() :
         alternateStatus(0), deviceControl(0), deviceAddress(0) {}
@@ -470,15 +470,13 @@ uint16_t IdeController::determineSectorSize(const DeviceInfo &info) {
     prepareAtaIO(info, 0, 1);
     registers.command.command.writeByte(READ_PIO_LBA28);
 
-    bool logError = true;
     uint16_t timeout = WAIT_ON_STATUS_TIMEOUT;
-    while (waitStatus(registers.control.alternateStatus, DATA_REQUEST, timeout, logError)) {
+    while (waitStatus(registers.control.alternateStatus, DATA_REQUEST, timeout)) {
         for (uint32_t i = 0; i < 128; i++) {
             registers.command.data.readWord();
         }
 
         sectorSize += 256;
-        logError = false;
         timeout = 0xff;
     }
 
@@ -518,14 +516,16 @@ uint16_t IdeController::performAtaIO(const DeviceInfo &info, TransferMode mode, 
         uint32_t start = startSector + processedSectors;
         uint32_t count = sectorsLeft > maxSectorCount ? maxSectorCount : sectorsLeft;
 
-        uint16_t sectors;
+        // DMA transfers sometimes have issues on real hardware, and are actually slower than programmed I/O, because of the overhead of copying data to/from the DMA buffer.
+        // Therefore, we use programmed I/O for now, until we hava a proper I/O management that can handle DMA transfers more efficiently.
+        uint16_t sectors = performDmaAtaIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
+
+        /*uint16_t sectors;
         if (supportsDma && info.supportsDma()) {
-            // TODO: Reactivate DMA once issues on real hardware have been fixed
-            // sectors = performDmaAtaIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
-            sectors = performProgrammedAtaIO(info, mode, reinterpret_cast<uint16_t *>(buffer + (processedSectors * info.sectorSize)), start, count);
+            sectors = performDmaAtaIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
         } else {
-            sectors = performProgrammedAtaIO(info, mode, reinterpret_cast<uint16_t *>(buffer + (processedSectors * info.sectorSize)), start, count);
-        }
+            sectors = performProgrammedAtaIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
+        }*/
 
         processedSectors += sectors;
         if (sectors == 0) {
@@ -632,7 +632,9 @@ uint16_t IdeController::performDmaAtaIO(const DeviceInfo &info, TransferMode mod
     auto pages = size / Util::PAGESIZE + (size % Util::PAGESIZE == 0 ? 0 : 1);
 
     // Each page corresponds to an 8-byte entry in the PRD
-    auto prdVirtual = reinterpret_cast<uint32_t*>(memoryService.mapIO(pages));
+    auto prdSize = pages * 8;
+    auto prdPages = prdSize / Util::PAGESIZE + (prdSize % Util::PAGESIZE == 0 ? 0 : 1);
+    auto prdVirtual = reinterpret_cast<uint32_t*>(memoryService.mapIO(prdPages));
     auto prdPhysical = reinterpret_cast<uint32_t>(memoryService.getPhysicalAddress(prdVirtual));
 
     // Allocate memory for the DMA transfer
@@ -677,13 +679,13 @@ uint16_t IdeController::performDmaAtaIO(const DeviceInfo &info, TransferMode mod
     }
 
     // Start DMA transfer
+    registers.receivedInterrupt = false;
     registers.dma.command.writeByte(DmaCommand::ENABLE);
 
-    registers.receivedInterrupt = false;
     uint32_t timeout = Util::Time::getSystemTime().toMilliseconds() + DMA_TIMEOUT;
     do {
         if (registers.receivedInterrupt) {
-            // Stop DMA and check flags
+            // Stop DMA transfer and check flags
             registers.dma.command.writeByte(0x00);
 
             auto dmaStatus = registers.dma.status.readByte();
@@ -839,30 +841,32 @@ uint16_t IdeController::performProgrammedAtapiIO(const IdeController::DeviceInfo
     return transferredBytes / info.sectorSize;
 }
 
-bool IdeController::waitStatus(const IoPort &port, Status status, uint16_t timeout, bool logError) {
+bool IdeController::waitStatus(const IoPort &port, Status status, uint16_t timeout) {
     uint32_t endTime = Util::Time::getSystemTime().toMilliseconds() + timeout;
-    while (Util::Time::getSystemTime().toMilliseconds() < endTime) {
+
+    do {
         auto currentStatus = port.readByte();
         if ((currentStatus & BUSY) == BUSY) {
             continue;
         }
 
         if ((currentStatus & ERROR) == ERROR) {
-            if (logError) LOG_ERROR("Error while waiting on status [0x%02x]", status);
+            LOG_ERROR("Error while waiting on status [0x%02x]", status);
             return false;
         }
 
         if ((currentStatus & status) == status) {
             return true;
         }
-    }
+    } while (timeout == 0 || Util::Time::getSystemTime().toMilliseconds() < endTime);
 
-    if (logError) LOG_ERROR("Timeout while waiting on status [0x%02x]", status);
+    // Timeout occurred
+    // Do not log an error, as this may be normal behavior (e.g. in 'determine_ata_sector_size()')
     return false;
 }
 
-bool IdeController::waitBusy(const IoPort &port, uint16_t timeout, bool logError) {
-    return waitStatus(port, NONE, timeout, logError);
+bool IdeController::waitBusy(const IoPort &port, uint16_t timeout) {
+    return waitStatus(port, NONE, timeout);
 }
 
 void IdeController::copyByteSwappedString(const char *source, char *target, uint32_t length) {

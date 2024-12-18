@@ -123,16 +123,16 @@ private:
         READ_DMA_LBA48 = 0x25,
         WRITE_PIO_LBA28 = 0x30,
         WRITE_PIO_LBA48 = 0x34,
-        WRITE_DMA_LBA28 = 0xCA,
+        WRITE_DMA_LBA28 = 0xca,
         WRITE_DMA_LBA48 = 0x35,
         EXECUTE_DRIVE_DIAGNOSE = 0x90,
-        FLUSH_CACHE = 0xE7,
-        IDENTIFY_ATA_DRIVE = 0xEC,
-        IDENTIFY_ATAPI_DRIVE = 0xA1,
-        EJECT_MEDIA = 0xED,
-        SET_FEATURES = 0xEF,
-        ATAPI_READ = 0xA8,
-        ATA_SEND_PACKET = 0xA0,
+        FLUSH_CACHE = 0xe7,
+        IDENTIFY_ATA_DRIVE = 0xec,
+        IDENTIFY_ATAPI_DRIVE = 0xa1,
+        EJECT_MEDIA = 0xed,
+        SET_FEATURES = 0xef,
+        ATAPI_READ = 0xa8,
+        ATA_SEND_PACKET = 0xa0,
     };
 
     enum Status : uint8_t {
@@ -252,7 +252,7 @@ private:
         ControlRegisters();
         explicit ControlRegisters(uint16_t baseAddress);
         
-        Device::IoPort alternateStatus;   // base + 0x02 (read)
+        Device::IoPort alternateStatus;     // base + 0x02 (read)
         Device::IoPort deviceControl;       // base + 0x02 (write);
         Device::IoPort deviceAddress;       // base + 0x03 (read)
     };
@@ -311,9 +311,9 @@ private:
 
     uint16_t performProgrammedAtapiIO(const DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount);
 
-    static bool waitStatus(const IoPort &port, Status status, uint16_t timeout = WAIT_ON_STATUS_TIMEOUT, bool logError = false);
+    static bool waitStatus(const IoPort &port, Status status, uint16_t timeout = WAIT_ON_STATUS_TIMEOUT);
 
-    static bool waitBusy(const IoPort &port, uint16_t timeout = WAIT_ON_STATUS_TIMEOUT, bool logError = false);
+    static bool waitBusy(const IoPort &port, uint16_t timeout = WAIT_ON_STATUS_TIMEOUT);
 
     static void copyByteSwappedString(const char *source, char *target, uint32_t length);
 
