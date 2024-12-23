@@ -22,6 +22,7 @@
 #define HHUOS_LIB_SOCKET_H
 
 #include <stdint.h>
+#include "lib/util/io/file/File.h"
 
 namespace Util {
 template <typename T> class Array;
@@ -92,6 +93,10 @@ public:
     [[nodiscard]] bool removeRoute(const Ip4::Ip4Route &route) const;
 
     [[nodiscard]] bool addRoute(const Ip4::Ip4Route &route) const;
+
+    bool setAccessMode(Util::Io::File::AccessMode accessMode) const;
+
+    [[nodiscard]] bool isReadyToRead() const;
 
 private:
     /**

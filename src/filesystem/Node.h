@@ -32,7 +32,6 @@ namespace Filesystem {
 class Node {
 
 public:
-
     /**
      * Constructor.
      */

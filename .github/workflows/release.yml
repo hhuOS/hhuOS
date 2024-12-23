@@ -41,7 +41,7 @@ jobs:
           wget -O license/miniplanets.txt https://raw.githubusercontent.com/sikthehedgehog/miniplanets/refs/heads/master/LICENSE.txt
 
       - name: Create artifact
-        run: mkdir -p hhuOS-${{ steps.commit.outputs.short }} && cp -r hhuOS-limine.iso hhuOS-towboot.img hdd0.img floppy0.img run.sh README.md license hhuOS-${{ steps.commit.outputs.short }}
+        run: tar -czvf hhuOS-${{ github.ref_name }}.tar.gz hhuOS-limine.iso hhuOS-towboot.img hdd0.img floppy0.img run.sh README.md license
 
       - name: Publish Release
         uses: softprops/action-gh-release@v1

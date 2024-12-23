@@ -41,8 +41,6 @@ The OS will boot into a shell with some UNIX-like commands. Run `ls /bin` to see
 
 If QEMU hangs on a black screen, try executing `./run.sh --bios true --file hhuOS-limine.iso`. There seems to be a problem with older QEMU versions and new OVMF images.
 
-
-
 ## Build from source
 
 GCC (compatible with C++20), CMake (>=3.14) and some other dependencies are required to compile hhuOS. To install them, you can run the following command (on Ubuntu 22.04):
@@ -65,6 +63,13 @@ To test hhuOS in QEMU, simply execute the included run-script:
 ```shell
 ./run.sh
 ```
+
+If QEMU hangs on a black screen, try building an image with [Limine](https://github.com/limine-bootloader/limine) bootloader and then running QEMU with a classic BIOS:
+```
+./build.sh --target limine
+./run.sh --bios true --file hhuOS-limine.iso
+```
+There seems to be a problem with older QEMU versions and new OVMF images.
 
 ## What next?
 

@@ -99,28 +99,36 @@ NetworkService::NetworkService() {
         auto fileDescriptor = va_arg(arguments, int32_t);
         auto &datagram = *va_arg(arguments, Util::Network::Datagram*);
 
-        auto &socket = reinterpret_cast<Network::Socket&>(filesystemService.getFileDescriptor(fileDescriptor).getNode());
+        auto &socketDescriptor = filesystemService.getFileDescriptor(fileDescriptor);
+        auto &socket = reinterpret_cast<Network::Socket&>(socketDescriptor.getNode());
         if (!socket.isBound()) {
             Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
         }
 
-        auto *kernelDatagram = socket.receive();
-        if (kernelDatagram == nullptr) {
+        if (socketDescriptor.getAccessMode() == Util::Io::File::BLOCKING || socket.isReadyToRead()) {
+            // Receive the datagram from the socket (will block if no datagram is available)
+            // If the descriptor is non-blocking, we have already checked if the socket is ready to read
+            auto *kernelDatagram = socket.receive();
+            if (kernelDatagram == nullptr) {
+                return false;
+            }
+
+            auto *datagramBuffer = reinterpret_cast<uint8_t *>(memoryService.allocateUserMemory(kernelDatagram->getLength()));
+
+            auto source = Util::Address<uint32_t>(kernelDatagram->getData());
+            auto target = Util::Address<uint32_t>(datagramBuffer);
+            target.copyRange(source, kernelDatagram->getLength());
+
+            datagram.setData(datagramBuffer, kernelDatagram->getLength());
+            datagram.setRemoteAddress(kernelDatagram->getRemoteAddress());
+            datagram.setAttributes(*kernelDatagram);
+
+            delete kernelDatagram;
+            return true;
+        } else {
+            // The descriptor is non-blocking and the socket is not ready to read
             return false;
         }
-
-        auto *datagramBuffer = reinterpret_cast<uint8_t *>(memoryService.allocateUserMemory(kernelDatagram->getLength()));
-
-        auto source = Util::Address<uint32_t>(kernelDatagram->getData());
-        auto target = Util::Address<uint32_t>(datagramBuffer);
-        target.copyRange(source, kernelDatagram->getLength());
-
-        datagram.setData(datagramBuffer, kernelDatagram->getLength());
-        datagram.setRemoteAddress(kernelDatagram->getRemoteAddress());
-        datagram.setAttributes(*kernelDatagram);
-
-        delete kernelDatagram;
-        return true;
     });
 }
 

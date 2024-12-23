@@ -148,4 +148,12 @@ bool Socket::addRoute(const Ip4::Ip4Route &route) const {
     return ::controlFile(fileDescriptor, ADD_ROUTE, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&route)}));
 }
 
+bool Socket::setAccessMode(Util::Io::File::AccessMode accessMode) const {
+    return Util::Io::File::setAccessMode(fileDescriptor, accessMode);
+}
+
+bool Socket::isReadyToRead() const {
+    return Util::Io::File::isReadyToRead(fileDescriptor);
+}
+
 }
