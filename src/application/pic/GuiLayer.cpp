@@ -30,9 +30,10 @@ void GuiLayer::addButton(Button *button) {
     buttons[buttonCount] = button;
     buttonCount++;
 }
- /**
- * Makes all buttons in the GuiLayer appear by removing their interaction and therefore making them rerender.
- */
+
+/**
+* Makes all buttons in the GuiLayer appear by removing their interaction and therefore making them rerender.
+*/
 void GuiLayer::appear() const {
     for (int i = 0; i < buttonCount; i++) {
         buttons[i]->removeInteraction();

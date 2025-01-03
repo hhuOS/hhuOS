@@ -107,9 +107,9 @@ public:
 
     void filterSepiaCurrent();
 
-    void filterKernel(int index, int kernel[9], int divisor, int offset, bool writeHistory = true);
+    void filterKernel(int index, int kernel[9], int divisor, int offset, bool kernelAlpha = true, bool writeHistory = true);
 
-    void filterKernelCurrent(int kernel[9], int divisor, int offset);
+    void filterKernelCurrent(int kernel[9], int divisor, int offset, bool kernelAlpha = true);
 
     History *history;
     Layer **layers;

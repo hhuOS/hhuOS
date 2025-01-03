@@ -32,6 +32,29 @@ public:
 
     void setDebugString(Util::String debugString);
 
+    // for screenshots
+    enum showType {
+        BASE,
+        MOUSE,
+        BUTTONS,
+        OVERLAY,
+        LAYER_UNDERCURRENT,
+        LAYER_CURRENT,
+        LAYER_OVERCURRENT,
+    };
+
+    bool show = true;
+
+    bool dontShow[7] = {
+            false, // BASE
+            false, // MOUSE
+            false, // BUTTONS
+            false, // OVERLAY
+            false, // LAYER_UNDERCURRENT
+            false, // LAYER_CURRENT
+            false, // LAYER_OVERCURRENT
+    };
+
 private:
     void prepareBase();
 
@@ -82,6 +105,13 @@ private:
     Util::Graphic::StringDrawer *stringDrawer_blfb;
     time_t lastTime;
     int frames, fps;
+    // fps testing
+    int framesAllTime;
+    int framesAllTimeOnlyActualRender;
+    time_t startTime;
+    bool noChange;
+    uint64_t noChangeStartTime;
+    uint64_t noChangeAddedTime;
 };
 
 #endif // RENDERER_H

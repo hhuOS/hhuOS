@@ -24,8 +24,6 @@ public:
 
     void reset();
 
-    void execCommandOn(Layers *layers, const Util::String &command, bool writeHistory);
-
     void undo(Layers *layers);
 
     void redo(Layers *layers);
@@ -37,6 +35,9 @@ public:
     void printCommands();
 
 private:
+
+    void execCommandOn(Layers *layers, const Util::String &command, bool writeHistory);
+
     Util::List<Util::String> *commands;
     uint32_t currentCommand;
     MessageHandler *mHandler;

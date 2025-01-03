@@ -13,10 +13,12 @@ uint32_t blendPixels(uint32_t lower, uint32_t upper) {
     if (upperAlpha == 0xFF || lowerAlpha == 0x00) return upper;
     if (upperAlpha == 0x00) return lower;
     uint8_t inverseAlpha = 255 - upperAlpha;
-    uint8_t r = ((upper >> 16) & 0xFF) * upperAlpha / 255 + ((lower >> 16) & 0xFF) * inverseAlpha / 255;
-    uint8_t g = ((upper >> 8) & 0xFF) * upperAlpha / 255 + ((lower >> 8) & 0xFF) * inverseAlpha / 255;
-    uint8_t b = (upper & 0xFF) * upperAlpha / 255 + (lower & 0xFF) * inverseAlpha / 255;
-    uint8_t a = upperAlpha + (lowerAlpha * inverseAlpha) / 255;
+
+#define DIV255(color, alpha) (((color) * (alpha) + 128) * 257 >> 16) // approx. division by 255
+    uint8_t r = DIV255((upper >> 16) & 0xFF, upperAlpha) + DIV255((lower >> 16) & 0xFF, inverseAlpha);
+    uint8_t g = DIV255((upper >> 8) & 0xFF, upperAlpha) + DIV255((lower >> 8) & 0xFF, inverseAlpha);
+    uint8_t b = DIV255(upper & 0xFF, upperAlpha) + DIV255(lower & 0xFF, inverseAlpha);
+    uint8_t a = upperAlpha + DIV255(lowerAlpha, inverseAlpha);
     return (a << 24) | (r << 16) | (g << 8) | b;
 }
 

@@ -3,31 +3,30 @@ FROM amd64/ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
-RUN apt-get install -y  \
-    build-essential \
-    nasm  \
-    gcc-multilib  \
-    g++-multilib  \
-    cmake  \
-    python3  \
-    python3-pip  \
-    python3-distutils  \
-    xorriso  \
-    dosfstools  \
-    mtools  \
-    unzip  \
-    wget  \
-    ffmpeg  \
-    git  \
-    recode  \
-    fdisk  \
-    gdb \
-    clang \
-    gdbserver \
-    libssl-dev \
-    zlib1g-dev \
-    pkg-config \
-    libgl-dev
+RUN apt-get install -y build-essential
+RUN apt-get install -y nasm
+RUN apt-get install -y gcc-multilib
+RUN apt-get install -y g++-multilib
+RUN apt-get install -y cmake
+RUN apt-get install -y python3
+RUN apt-get install -y python3-pip
+RUN apt-get install -y python3-distutils
+RUN apt-get install -y xorriso
+RUN apt-get install -y dosfstools
+RUN apt-get install -y mtools
+RUN apt-get install -y unzip
+RUN apt-get install -y wget
+RUN apt-get install -y ffmpeg
+RUN apt-get install -y git
+RUN apt-get install -y recode
+RUN apt-get install -y fdisk
+RUN apt-get install -y gdb
+RUN apt-get install -y clang
+RUN apt-get install -y gdbserver
+RUN apt-get install -y libssl-dev
+RUN apt-get install -y zlib1g-dev
+RUN apt-get install -y pkg-config
+RUN apt-get install -y libgl-dev
 
 #install openssl1.1.1
 RUN wget https://www.openssl.org/source/openssl-1.1.1.tar.gz -O /tmp/openssl-1.1.1.tar.gz

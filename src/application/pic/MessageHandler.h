@@ -20,7 +20,9 @@ namespace Util::Graphic {
 class Message {
 public:
     Message(const Util::String &message, int duration);
+
     ~Message();
+
     Util::String message;
     time_t expiration;
 };

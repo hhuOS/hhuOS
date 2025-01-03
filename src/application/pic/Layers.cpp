@@ -645,16 +645,17 @@ void Layers::rotate(int index, int degree, bool writeHistory) {
     degree = (degree % 360 + 360) % 360;  // Normalize degree to 0-359
     if (degree == 0) return;  // No rotation needed
 
+    double radians = degree * PI / 180.0;
+    double cosTheta = cos(radians);
+    double sinTheta = sin(radians);
+
     // prepare new buffer
-    int newWidth = abs(static_cast<int>(layer->width * cos(degree * PI / 180.0))) + abs(static_cast<int>(layer->height * sin(degree * PI / 180.0)));
-    int newHeight = abs(static_cast<int>(layer->width * sin(degree * PI / 180.0))) + abs(static_cast<int>(layer->height * cos(degree * PI / 180.0)));
+    int newWidth = abs(static_cast<int>(layer->width * cosTheta)) + abs(static_cast<int>(layer->height * sinTheta));
+    int newHeight = abs(static_cast<int>(layer->width * sinTheta)) + abs(static_cast<int>(layer->height * cosTheta));
     auto *newPixelData = new uint32_t[newWidth * newHeight];
     for (int i = 0; i < newWidth * newHeight; ++i) newPixelData[i] = 0x00000000; // clear buffer
 
     // rotate pixel data
-    double radians = degree * PI / 180.0;
-    double cosTheta = cos(radians);
-    double sinTheta = sin(radians);
     int centerX = layer->width / 2;
     int centerY = layer->height / 2;
     int newCenterX = newWidth / 2;
@@ -1065,7 +1066,7 @@ void Layers::filterSepiaCurrent() {
  * \param offset The offset to add to the resulting pixel values.
  * \param writeHistory A boolean indicating whether to write this action to the history.
  */
-void Layers::filterKernel(int index, int kernel[9], int divisor, int offset, bool writeHistory) {
+void Layers::filterKernel(int index, int kernel[9], int divisor, int offset, bool kernelAlpha, bool writeHistory) {
     if (index < 0 || index >= layerCount) {
         mHandler->addMessage(Util::String::format("Layers::filterKernel(%d, %d, %d, %d) index out of bounds",
                                                   index, kernel, divisor, offset).operator const char *());
@@ -1075,29 +1076,33 @@ void Layers::filterKernel(int index, int kernel[9], int divisor, int offset, boo
     // prepare new buffer
     Layer *layer = layers[index];
     auto *newPixelData = new uint32_t[layer->width * layer->height];
-    for (int i = 0; i < layer->width * layer->height; i++)newPixelData[i] = 0x00000000;
+    for (int i = 0; i < layer->width * layer->height; i++) newPixelData[i] = 0x00000000;
 
     // apply kernel to each pixel
     int kernelRadius = 3 / 2;
     for (int y = 0; y < layer->height; y++) {
         for (int x = 0; x < layer->width; x++) {
-            int r = 0, g = 0, b = 0;
+            int r = 0, g = 0, b = 0, a = 0;
+
             for (int ky = 0; ky < 3; ky++) {
                 for (int kx = 0; kx < 3; kx++) {
                     int px = x + kx - kernelRadius;
                     int py = y + ky - kernelRadius;
                     if (px >= 0 && px < layer->width && py >= 0 && py < layer->height) {
                         uint32_t pixel = layer->getPixel(px, py);
+                        a += int(((pixel >> 24) & 0xFF) * kernel[ky * 3 + kx]);
                         r += int(((pixel >> 16) & 0xFF) * kernel[ky * 3 + kx]);
                         g += int(((pixel >> 8) & 0xFF) * kernel[ky * 3 + kx]);
                         b += int((pixel & 0xFF) * kernel[ky * 3 + kx]);
                     }
                 }
             }
+
+            a = kernelAlpha ? min(0xFF, max(0, a / divisor + offset)) : 0xFF;
             r = min(0xFF, max(0, r / divisor + offset));
             g = min(0xFF, max(0, g / divisor + offset));
             b = min(0xFF, max(0, b / divisor + offset));
-            newPixelData[y * layer->width + x] = (0xFF000000 | (r << 16) | (g << 8) | b);
+            newPixelData[y * layer->width + x] = (a << 24) | (r << 16) | (g << 8) | b;
         }
     }
 
@@ -1120,6 +1125,6 @@ void Layers::filterKernel(int index, int kernel[9], int divisor, int offset, boo
  * \param divisor The divisor to normalize the kernel values.
  * \param offset The offset to add to the resulting pixel values.
  */
-void Layers::filterKernelCurrent(int kernel[9], int divisor, int offset) {
-    filterKernel(currentLayer, kernel, divisor, offset);
+void Layers::filterKernelCurrent(int kernel[9], int divisor, int offset, bool kernelAlpha) {
+    filterKernel(currentLayer, kernel, divisor, offset, kernelAlpha);
 }

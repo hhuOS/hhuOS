@@ -86,6 +86,12 @@ Pic::Pic(Util::Io::File *lfbFile) {
     data->layers->addPicture("/user/pic/test.jpg", 100, 100);
 
     init_gui();
+
+    // clear mouse buffer
+    int16_t value = data->mouseInputStream->read();
+    while (value >= 0) {
+        value = data->mouseInputStream->read();
+    }
 }
 
 
@@ -189,7 +195,7 @@ void Pic::checkMouseInput() {
  *
  * \param clicked Indicates if the mouse was clicked. (to trigger button presses)
  */
-void Pic::parseMouse(const bool clicked) const{
+void Pic::parseMouse(const bool clicked) const {
     const int buttonIndex = data->mouseY / 30;
     const int buttonIndexBottom = buttonIndex - (data->buttonCount - 1) + data->currentGuiLayerBottom->buttonCount;
     const int lastInteractedBottom = data->lastInteractedButton - (data->buttonCount - 1) + data->currentGuiLayerBottom->buttonCount;
@@ -364,10 +370,10 @@ void Pic::parseMouse(const bool clicked) const{
     }
 
     // show debug infos
-    renderer->setDebugString(Util::String::format(
-            "Mouse: %d %d, currentTool: %d, queueLength: %d, clickStartedOnGui: %d",
-            data->mouseX, data->mouseY, data->currentTool, data->mouseClicks->size(), data->clickStartedOnGui
-    ));
+//    renderer->setDebugString(Util::String::format(
+//            "Mouse: %d %d, currentTool: %d, queueLength: %d, clickStartedOnGui: %d",
+//            data->mouseX, data->mouseY, data->currentTool, data->mouseClicks->size(), data->clickStartedOnGui
+//    ));
     data->flags->overlayChanged();
 }
 
@@ -492,7 +498,26 @@ void Pic::checkKeyboardInput() {
                     }
                 }
             } else { // handle hotkeys
-                if (data->settings->activateHotkeys) {
+                if (key.getCtrlLeft()) {
+                    if (key.getScancode() == 1) {  // ctrl + esc
+                        data->mHandler->addMessage("This is a test Message for the MessageHandler");
+                    }
+                    if (key.getScancode() == 2) // ctrl + 1
+                        renderer->dontShow[Renderer::showType::BASE] = !renderer->dontShow[Renderer::showType::BASE];
+                    else if (key.getScancode() == 3) // ctrl + 2
+                        renderer->dontShow[Renderer::showType::MOUSE] = !renderer->dontShow[Renderer::showType::MOUSE];
+                    else if (key.getScancode() == 4) // ctrl + 3
+                        renderer->dontShow[Renderer::showType::BUTTONS] = !renderer->dontShow[Renderer::showType::BUTTONS];
+                    else if (key.getScancode() == 5) // ctrl + 4
+                        renderer->dontShow[Renderer::showType::OVERLAY] = !renderer->dontShow[Renderer::showType::OVERLAY];
+                    else if (key.getScancode() == 6) // ctrl + 5
+                        renderer->dontShow[Renderer::showType::LAYER_UNDERCURRENT] = !renderer->dontShow[Renderer::showType::LAYER_UNDERCURRENT];
+                    else if (key.getScancode() == 7) // ctrl + 6
+                        renderer->dontShow[Renderer::showType::LAYER_CURRENT] = !renderer->dontShow[Renderer::showType::LAYER_CURRENT];
+                    else if (key.getScancode() == 8) // ctrl + 7
+                        renderer->dontShow[Renderer::showType::LAYER_OVERCURRENT] = !renderer->dontShow[Renderer::showType::LAYER_OVERCURRENT];
+                    data->flags->allChanged();
+                } else if (data->settings->activateHotkeys) {
                     switch (scancode) {
                         case 2: // 1
                             changeGuiLayerTo(data, "file");
@@ -1105,8 +1130,7 @@ void Pic::init_gui() {
                                                         data->colorB;
                                                 Layer *l = data->layers->current();
                                                 int relX = data->shapeX - l->posX, relY = data->shapeY - l->posY;
-                                                data->layers->drawShapeCurrent(data->currentShape, relX, relY, data->shapeW, data->shapeH,
-                                                                               penColor);
+                                                data->layers->drawShapeCurrent(data->currentShape, relX, relY, data->shapeW, data->shapeH, penColor);
                                                 if (data->settings->resetValuesAfterConfirm)
                                                     data->shapeX = 0, data->shapeY = 0, data->shapeW = 0, data->shapeH = 0;
                                             }
@@ -1363,12 +1387,12 @@ void Pic::init_gui() {
     gui_filter->addButton((new Button(data))
                                   ->setInfo("Gaussian Blur")
                                   ->setMethodButton([](DataWrapper *data) {
-                                      int boxBlurKernel[9] = {
+                                      int gaussianBlurKernel[9] = {
                                               1, 2, 1,
                                               2, 4, 2,
                                               1, 2, 1
                                       };
-                                      data->layers->filterKernelCurrent(boxBlurKernel, 16, 0);
+                                      data->layers->filterKernelCurrent(gaussianBlurKernel, 16, 0);
                                   })
                                   ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
                                   ->set16Bitmap(Bitmaps::play)
@@ -1376,12 +1400,12 @@ void Pic::init_gui() {
     gui_filter->addButton((new Button(data))
                                   ->setInfo("Sharpen")
                                   ->setMethodButton([](DataWrapper *data) {
-                                      int boxBlurKernel[9] = {
+                                      int sharpenKernel[9] = {
                                               0, -1, 0,
                                               -1, 5, -1,
                                               0, -1, 0
                                       };
-                                      data->layers->filterKernelCurrent(boxBlurKernel, 1, 0);
+                                      data->layers->filterKernelCurrent(sharpenKernel, 1, 0);
                                   })
                                   ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
                                   ->set16Bitmap(Bitmaps::play)
@@ -1389,12 +1413,12 @@ void Pic::init_gui() {
     gui_filter->addButton((new Button(data))
                                   ->setInfo("Edge Detection")
                                   ->setMethodButton([](DataWrapper *data) {
-                                      int boxBlurKernel[9] = {
+                                      int edgeDetectionKernel[9] = {
                                               -1, -1, -1,
                                               -1, 8, -1,
                                               -1, -1, -1
                                       };
-                                      data->layers->filterKernelCurrent(boxBlurKernel, 1, 0);
+                                      data->layers->filterKernelCurrent(edgeDetectionKernel, 1, 0, false);
                                   })
                                   ->setRenderFlagMethod(&RenderFlags::currentLayerChanged)
                                   ->set16Bitmap(Bitmaps::play)

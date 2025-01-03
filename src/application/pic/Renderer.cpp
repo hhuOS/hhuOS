@@ -15,6 +15,7 @@
 #include "lib/util/graphic/Font.h"
 #include "lib/util/graphic/font/Terminal8x16.h"
 #include "lib/util/base/Address.h"
+#include "lib/util/time/Timestamp.h"
 
 #include "DataWrapper.h"
 #include "helper.h"
@@ -65,12 +66,21 @@ Renderer::Renderer(DataWrapper *data) {
     this->fps = 0;
     this->debugString = nullptr;
     prepareBase();
+    // fps testing
+    framesAllTime = 0;
+    framesAllTimeOnlyActualRender = 0;
+    startTime = time(nullptr);
+    noChange = false;
+    noChangeStartTime = 0;
+    noChangeAddedTime = 0;
 }
 
 /**
  * Destructor for the Renderer class.
  */
 Renderer::~Renderer() {
+    print(Util::String::format("render()-calls: %d, framesAlltime: %d, RenderLifespan: %d, NotRenderingDuration: %d msec", framesAllTime, framesAllTimeOnlyActualRender,
+                               time(nullptr) - startTime, noChangeAddedTime).operator const char *());
     delete[] buff_result;
     delete[] buff_base;
     delete[] buff_workarea;
@@ -112,6 +122,11 @@ uint32_t *Renderer::newBuffer(int size) {
  * depending on the `checkeredBackground` setting.
  */
 void Renderer::prepareBase() {
+    if (dontShow[BASE]) {
+        for (int i = 0; i < data->screenAll; i++) buff_base[i] = 0x00000000;
+        data->flags->base = true;
+        return;
+    }
     const int squareSize = 10;
     const uint32_t lightGray = 0xFFC0C0C0, darkGray = 0xFF404040, Gray = 0xFF808080;
     int offset = 0;
@@ -143,6 +158,7 @@ void Renderer::prepareBase() {
  * between buffered and unbuffered buffers, rendering the result, mouse, and FPS overlay.
  */
 void Renderer::render() {
+    framesAllTime++;
     if (data->settings->useBufferedBuffer != usingBufferedBuffer) { // check if lfb/blfb setting differs
         usingBufferedBuffer = data->settings->useBufferedBuffer;
         if (usingBufferedBuffer) {
@@ -153,6 +169,11 @@ void Renderer::render() {
     }
 
     if (data->flags->anyChange || !data->settings->optimizeRendering) { // main render step
+        framesAllTimeOnlyActualRender++;
+        if (noChange) {
+            noChangeAddedTime += Util::Time::getSystemTime().toMilliseconds() - noChangeStartTime;
+            noChange = false;
+        }
         if (data->flags->result || !data->settings->optimizeRendering) {
             renderResult();
             for (int i = 0; i < data->screenAll; i++) {
@@ -164,6 +185,9 @@ void Renderer::render() {
         renderMouse();
         data->flags->mouse = false;
         data->flags->anyChange = false;
+    } else if (!noChange) {
+        noChange = true;
+        noChangeStartTime = Util::Time::getSystemTime().toMilliseconds();
     }
 
     if (data->settings->showFPS) { // fps Overlay
@@ -199,6 +223,10 @@ void Renderer::render() {
  * button is pressed.
  */
 void Renderer::renderMouse() {
+    if (dontShow[MOUSE]) {
+        data->flags->mouse = false;
+        return;
+    }
     lastRenderedMouseX = data->mouseX;
     lastRenderedMouseY = data->mouseY;
     int mouseX = data->mouseX;
@@ -307,6 +335,12 @@ void Renderer::renderGui() {
             buff_gui[i] = 0x00000000;
     }
 
+    if (dontShow[BUTTONS]) {
+        data->flags->gui = false;
+        data->flags->guiLayer = false;
+        return;
+    }
+
     for (int i = 0; i < guiLayer->buttonCount; i++) { // top buttons
         if (data->flags->guiLayer || guiLayer->buttons[i]->bufferChanged || !data->settings->optimizeRendering) {
             for (int j = i * 30 * 200; j < (i + 1) * 30 * 200; j++) buff_gui[j] = 0x00000000;
@@ -407,6 +441,11 @@ void Renderer::drawFilledOverlayBox(int x1, int y1, int x2, int y2, uint32_t col
 void Renderer::renderOverlay() {
     for (int i = 0; i < data->workAreaAll; i++) { // clear overlay buffer
         buff_overlay[i] = 0x00000000;
+    }
+
+    if (dontShow[OVERLAY]) {
+        data->flags->overlay = false;
+        return;
     }
 
     if (data->layers->currentLayerNum() >= 0) {
@@ -613,19 +652,23 @@ void Renderer::renderLayers() {
             buff_under_current[i] = 0x00000000;
         }
 
-        for (int i = 0; i < data->layers->currentLayerNum(); i++) { // render under current layer to buff_under_current
-            auto layer = data->layers->at(i);
-            if (layer->isVisible)
-                blendBuffers(buff_under_current, layer->getPixelData(), data->workAreaX, data->workAreaY, layer->width, layer->height,
-                             layer->posX, layer->posY);
+        if (!dontShow[LAYER_UNDERCURRENT]) {
+            // render under current layer to buff_under_current
+            for (int i = 0; i < data->layers->currentLayerNum(); i++) {
+                auto layer = data->layers->at(i);
+                if (layer->isVisible)
+                    blendBuffers(buff_under_current, layer->getPixelData(), data->workAreaX, data->workAreaY, layer->width, layer->height, layer->posX, layer->posY);
+            }
         }
 
-        for (int i = data->layers->currentLayerNum() + 1;
-             i < data->layers->countLayersNum(); i++) { // render over current layer to buff_over_current
-            auto layer = data->layers->at(i);
-            if (layer->isVisible)
-                blendBuffers(buff_over_current, layer->getPixelData(), data->workAreaX, data->workAreaY, layer->width, layer->height,
-                             layer->posX, layer->posY);
+        if (!dontShow[LAYER_OVERCURRENT]) {
+            for (int i = data->layers->currentLayerNum() + 1;
+                // render over current layer to buff_over_current
+                 i < data->layers->countLayersNum(); i++) {
+                auto layer = data->layers->at(i);
+                if (layer->isVisible)
+                    blendBuffers(buff_over_current, layer->getPixelData(), data->workAreaX, data->workAreaY, layer->width, layer->height, layer->posX, layer->posY);
+            }
         }
     }
 
@@ -634,11 +677,13 @@ void Renderer::renderLayers() {
     }
 
     blendBuffers(buff_layers, buff_under_current, data->workAreaAll); // first under current layer
-    if (data->layers->currentLayerNum() >= 0) { // then current layer
-        auto currentLayer = data->layers->current();
-        if (currentLayer->isVisible)
-            blendBuffers(buff_layers, currentLayer->getPixelData(), data->workAreaX, data->workAreaY,
-                         currentLayer->width, currentLayer->height, currentLayer->posX, currentLayer->posY);
+    if (!dontShow[LAYER_CURRENT]) {
+        if (data->layers->currentLayerNum() >= 0) { // then current layer
+            auto currentLayer = data->layers->current();
+            if (currentLayer->isVisible)
+                blendBuffers(buff_layers, currentLayer->getPixelData(), data->workAreaX, data->workAreaY,
+                             currentLayer->width, currentLayer->height, currentLayer->posX, currentLayer->posY);
+        }
     }
     blendBuffers(buff_layers, buff_over_current, data->workAreaAll); // then over current layer
 
