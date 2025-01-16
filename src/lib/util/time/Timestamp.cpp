@@ -29,19 +29,19 @@ Timestamp Timestamp::ofSeconds(uint32_t seconds) {
 Timestamp Timestamp::ofMilliseconds(uint64_t milliseconds) {
     auto seconds = milliseconds / 1000;
     auto fraction = (milliseconds % 1000) * 1000000;
-    return {static_cast<uint32_t>(seconds), static_cast<uint32_t>(fraction)};
+    return Timestamp(static_cast<uint32_t>(seconds), static_cast<uint32_t>(fraction));
 }
 
 Timestamp Timestamp::ofMicroseconds(uint64_t microseconds) {
     auto seconds = microseconds / 1000000;
     auto fraction = (microseconds % 1000000) * 1000;
-    return {static_cast<uint32_t>(seconds), static_cast<uint32_t>(fraction)};
+    return Timestamp(static_cast<uint32_t>(seconds), static_cast<uint32_t>(fraction));
 }
 
 Timestamp Timestamp::ofNanoseconds(uint64_t nanoseconds) {
     auto seconds = nanoseconds / 1000000000;
     auto fraction = nanoseconds % 1000000000;
-    return {static_cast<uint32_t>(seconds), static_cast<uint32_t>(fraction)};
+    return Timestamp(static_cast<uint32_t>(seconds), static_cast<uint32_t>(fraction));
 }
 
 Timestamp Timestamp::operator+(const Util::Time::Timestamp &other) const {
@@ -155,15 +155,15 @@ bool Timestamp::operator<=(const Timestamp &other) const {
 }
 
 uint64_t Timestamp::toNanoseconds() const {
-    return seconds * 1000000000 + fraction;
+    return static_cast<uint64_t>(seconds) * 1000000000 + fraction;
 }
 
 uint64_t Timestamp::toMicroseconds() const {
-    return seconds * 1000000 + fraction / 1000;
+    return static_cast<uint64_t>(seconds) * 1000000 + fraction / 1000;
 }
 
 uint64_t Timestamp::toMilliseconds() const {
-    return seconds * 1000 + fraction / 1000000;
+    return static_cast<uint64_t>(seconds) * 1000 + fraction / 1000000;
 }
 
 uint32_t Timestamp::toSeconds() const {
