@@ -38,7 +38,10 @@ add_custom_target(megadrive-roms DEPENDS
 
 include_directories(${HHUOS_SRC_DIR})
 
-add_compile_options(-Wno-unused-but-set-variable -Wno-parentheses)
+add_compile_options(
+        $<$<COMPILE_LANGUAGE:C>:-Wno-unused-but-set-variable>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
+)
 
 # Set source files
 set(SOURCE_FILES
@@ -51,38 +54,23 @@ set(SOURCE_FILES
 
         # Emulator
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/bus-common.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/bus-common.h
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/bus-main-m68k.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/bus-main-m68k.h
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/bus-sub-m68k.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/bus-sub-m68k.h
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/bus-z80.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/bus-z80.h
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/clowncommon/clowncommon.h
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/cdc.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/cdda.c
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/clownmdemu.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/clownmdemu.h
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/controller.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/controller.h
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm.h
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm-channel.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm-channel.h
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm-operator.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm-operator.h
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm-phase.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm-phase.h
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/io-port.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/io-port.h
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/log.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/log.h
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/pcm.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/pcm.h
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/psg.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/psg.h
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/vdp.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/vdp.h
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/z80.c
-        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/z80.h)
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/z80.c)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 

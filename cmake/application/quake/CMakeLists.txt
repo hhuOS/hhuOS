@@ -19,6 +19,8 @@ cmake_minimum_required(VERSION 3.14)
 project(quakegeneric)
 message(STATUS "Project " ${PROJECT_NAME})
 
+include_directories(${HHUOS_SRC_DIR})
+
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/quake/id1"
         COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/quake/id1")
 
@@ -38,9 +40,21 @@ else()
             "${CMAKE_BINARY_DIR}/quake/id1/pak0.pak")
 endif()
 
-include_directories(${HHUOS_SRC_DIR})
-
-add_compile_options(-w)
+add_compile_options(
+        $<$<COMPILE_LANGUAGE:C>:-Wno-unused-parameter>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-missing-field-initializers>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-dangling-else>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-sign-compare>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-unused-variable>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-unused-but-set-variable>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-unused-parameter>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-misleading-indentation>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-pointer-sign>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-array-parameter>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-dangling-pointer>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-shift-overflow>
+)
 
 # Set source files
 set(SOURCE_FILES

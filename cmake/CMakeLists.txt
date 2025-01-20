@@ -104,10 +104,9 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:CXX>:-fno-use-cxa-atexit>
         $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
         $<$<COMPILE_LANGUAGE:CXX>:-std=gnu++20>
+        $<$<VERSION_GREATER_EQUAL:${CMAKE_C_COMPILER_VERSION},9>:-mmanual-endbr>
+        $<$<VERSION_GREATER_EQUAL:${CMAKE_C_COMPILER_VERSION},13>:-nostdlib++>
 )
-if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 9)
-    add_compile_options(-mmanual-endbr)
-endif()
 
 add_link_options(
         -nostartfiles
@@ -119,9 +118,6 @@ add_link_options(
         -Wl,-m,elf_i386
         -T $<IF:$<STREQUAL:$<TARGET_PROPERTY:NAME>,system>,${HHUOS_SRC_DIR}/link.ld,${HHUOS_SRC_DIR}/application/link.ld>
 )
-if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 13)
-    add_compile_options(-nostdlib++)
-endif()
 
 # Add include-what-you-use command (if available)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

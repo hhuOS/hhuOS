@@ -35,7 +35,11 @@
 #include "lib/util/io/key/layout/DeLayout.h"
 #include "lib/util/io/key/KeyDecoder.h"
 
-const ClownMDEmu_Constant constants = ClownMDEmu_Constant_Initialise();
+const ClownMDEmu_Constant constants = []() {
+    ClownMDEmu_Constant constants{};
+    ClownMDEmu_Constant_Initialise(&constants);
+    return constants;
+}();
 ClownMDEmu emulator{};
 ClownMDEmu_State state{};
 ClownMDEmu_Configuration configuration{};
@@ -165,9 +169,7 @@ void CDDAAudioCallback([[maybe_unused]] void *user_data, [[maybe_unused]] const 
 
 void CDSeekCallback([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u32f sector_index) {}
 
-const cc_u8l* CDSectorReadCallback([[maybe_unused]] void *user_data) {
-    return nullptr;
-}
+void CDSectorReadCallback([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u16l *buffer) {}
 
 cc_bool CDSeekTrackCallback([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u16f track_index, [[maybe_unused]] ClownMDEmu_CDDAMode mode) {
     return false;
@@ -238,20 +240,20 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     callbacks = {
-        nullptr,
-                CartridgeReadCallback,
-                CartridgeWrittenCallback,
-                ColourUpdatedCallback,
-                scanlineCallback,
-                ReadInputCallback,
-                FMAudioCallback,
-                PSGAudioCallback,
-                PCMAudioCallback,
-                CDDAAudioCallback,
-                CDSeekCallback,
-                CDSectorReadCallback,
-                CDSeekTrackCallback,
-                CDAudioReadCallback
+            nullptr,
+            CartridgeReadCallback,
+            CartridgeWrittenCallback,
+            ColourUpdatedCallback,
+            scanlineCallback,
+            ReadInputCallback,
+            FMAudioCallback,
+            PSGAudioCallback,
+            PCMAudioCallback,
+            CDDAAudioCallback,
+            CDSeekCallback,
+            CDSectorReadCallback,
+            CDSeekTrackCallback,
+            CDAudioReadCallback
     };
 
     configuration.general.region = CLOWNMDEMU_REGION_OVERSEAS;

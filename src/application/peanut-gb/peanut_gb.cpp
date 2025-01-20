@@ -269,6 +269,7 @@ uint32_t* get_palette(uint8_t index, uint8_t flags) {
             ret[0][0] = ret[2][0];
             ret[0][1] = ret[2][1];
             ret[0][2] = ret[2][2];
+            break;
         case 0x03: // OBJ1 = OBJ0
             ret[1][0] = ret[0][0];
             ret[1][1] = ret[0][1];
@@ -510,19 +511,19 @@ uint32_t* gb_get_palette(gb_s *gb) {
     return get_palette(0x1c, 0x03);
 }
 
-uint8_t gb_rom_read(gb_s* gb, const uint_fast32_t addr) {
+uint8_t gb_rom_read([[maybe_unused]] gb_s* gb, const uint_fast32_t addr) {
     return rom[addr];
 }
 
-uint8_t gb_cart_ram_read(gb_s* gb, const uint_fast32_t addr) {
+uint8_t gb_cart_ram_read([[maybe_unused]] gb_s* gb, const uint_fast32_t addr) {
     return ram[addr];
 }
 
-void gb_cart_ram_write(gb_s* gb, const uint_fast32_t addr, const uint8_t val) {
+void gb_cart_ram_write([[maybe_unused]] gb_s* gb, const uint_fast32_t addr, const uint8_t val) {
     ram[addr] = val;
 }
 
-void gb_error(gb_s* gb, const enum gb_error_e error, const uint16_t addr) {
+void gb_error([[maybe_unused]] gb_s* gb, const enum gb_error_e error, const uint16_t addr) {
     switch (error) {
         case GB_UNKNOWN_ERROR:
             printf("Unknown error at address 0x%04X\n", addr);
@@ -536,9 +537,6 @@ void gb_error(gb_s* gb, const enum gb_error_e error, const uint16_t addr) {
         case GB_INVALID_WRITE:
             printf("Invalid write at address 0x%04X\n", addr);
             break;
-        case GB_HALT_FOREVER:
-            printf("Halting forever at address 0x%04X\n", addr);
-            break;
         case GB_INVALID_MAX:
             printf("Invalid max at address 0x%04X\n", addr);
             break;
@@ -547,7 +545,7 @@ void gb_error(gb_s* gb, const enum gb_error_e error, const uint16_t addr) {
     exit(error);
 }
 
-void lcd_draw_line_32bit(gb_s *gb, const uint8_t *pixels, const uint_fast8_t line) {
+void lcd_draw_line_32bit([[maybe_unused]] gb_s *gb, const uint8_t *pixels, const uint_fast8_t line) {
     auto screenBuffer = reinterpret_cast<uint32_t*>(lfb->getBuffer().add(offsetX * 4 + (offsetY + line * scale) * lfb->getPitch()).get());
     uint16_t resX = LCD_WIDTH * scale;
 
@@ -565,7 +563,7 @@ void lcd_draw_line_32bit(gb_s *gb, const uint8_t *pixels, const uint_fast8_t lin
     }
 }
 
-void lcd_draw_line_24bit(gb_s *gb, const uint8_t *pixels, const uint_fast8_t line) {
+void lcd_draw_line_24bit([[maybe_unused]] gb_s *gb, const uint8_t *pixels, const uint_fast8_t line) {
     auto screenBuffer = reinterpret_cast<uint8_t*>(lfb->getBuffer().add(offsetX * 3 + (offsetY + line * scale) * lfb->getPitch()).get());
     uint16_t resX = LCD_WIDTH * scale;
 
@@ -585,7 +583,7 @@ void lcd_draw_line_24bit(gb_s *gb, const uint8_t *pixels, const uint_fast8_t lin
     }
 }
 
-void lcd_draw_line_16bit(gb_s *gb, const uint8_t *pixels, const uint_fast8_t line) {
+void lcd_draw_line_16bit([[maybe_unused]] gb_s *gb, const uint8_t *pixels, const uint_fast8_t line) {
     auto screenBuffer = reinterpret_cast<uint16_t*>(lfb->getBuffer().add(offsetX * 2 + (offsetY + line * scale) * lfb->getPitch()).get());
     uint16_t resX = LCD_WIDTH * scale;
 

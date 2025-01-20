@@ -21,7 +21,12 @@ message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR})
 
-add_compile_options(-Wno-unused-function -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-fallthrough)
+add_compile_options(
+        $<$<COMPILE_LANGUAGE:C>:-Wno-unused-function>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-unused-variable>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-unused-parameter>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
+)
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 

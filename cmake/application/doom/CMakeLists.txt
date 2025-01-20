@@ -41,10 +41,19 @@ else()
 	add_custom_target(doom-wad DEPENDS "${CMAKE_BINARY_DIR}/doom/DOOM.WAD")
 endif()
 
-add_compile_options(-w -D __HHUOS__)
-
-# Uncomment to activate sound via PC Speaker (experimental)
-# add_compile_options(-D FEATURE_SOUND)
+add_compile_options(
+		$<$<COMPILE_LANGUAGE:C>:-Wno-sign-compare>
+		$<$<COMPILE_LANGUAGE:C>:-Wno-unused-parameter>
+		$<$<COMPILE_LANGUAGE:C>:-Wno-unused-but-set-parameter>
+		$<$<COMPILE_LANGUAGE:C>:-Wno-unused-variable>
+		$<$<COMPILE_LANGUAGE:C>:-Wno-unused-but-set-variable>
+		$<$<COMPILE_LANGUAGE:C>:-Wno-enum-conversion>
+		$<$<COMPILE_LANGUAGE:C>:-Wno-unused-const-variable>
+		$<$<COMPILE_LANGUAGE:C>:-Wno-missing-field-initializers>
+		$<$<COMPILE_LANGUAGE:C>:-Wno-type-limits>
+		$<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
+		$<$<COMPILE_LANGUAGE:C>:-Wno-dangling-pointer>
+)
 
 # Set source files
 set(SOURCE_FILES

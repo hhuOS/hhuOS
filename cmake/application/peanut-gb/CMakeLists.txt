@@ -38,7 +38,9 @@ add_custom_target(gameboy-roms DEPENDS
 
 include_directories(${HHUOS_SRC_DIR})
 
-add_compile_options(-Wno-unused-parameter -Wno-implicit-fallthrough)
+add_compile_options(
+        -Wno-switch
+)
 
 # Set source files
 set(SOURCE_FILES
