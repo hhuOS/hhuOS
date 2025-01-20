@@ -41,6 +41,7 @@ include_directories(${HHUOS_SRC_DIR})
 add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-but-set-variable>
         $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
+        $<$<COMPILE_LANGUAGE:C>:-O0> # ClownMDEmu does not work with compiler optimizations
 )
 
 # Set source files

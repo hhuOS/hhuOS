@@ -716,7 +716,8 @@ int32_t main(int32_t argc, char *argv[]) {
 
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
     auto keyDecoder = Util::Io::KeyDecoder(new Util::Io::DeLayout());
-    auto stringDrawer = Util::Graphic::StringDrawer(Util::Graphic::PixelDrawer(*lfb));
+    auto pixelDrawer = Util::Graphic::PixelDrawer(*lfb);
+    auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
 
     uint8_t manualPaletteIndex = UINT8_MAX;
     palette = gb_get_palette(&gb);

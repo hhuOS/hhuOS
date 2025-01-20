@@ -500,7 +500,7 @@ float round(float value) {
     float result = 0;
     asm volatile (
             "frndint;"
-            "fstpl %0;"
+            "fstps %0;"
             : "=m"(result)
             : "t"(value)
             );
