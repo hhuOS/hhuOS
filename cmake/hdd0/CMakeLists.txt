@@ -77,12 +77,12 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
 		COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/quake" "user"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/wav" "user"
 		COMMAND /bin/rm -f "${CMAKE_BINARY_DIR}/part.img"
-        COMMAND mkfs.fat -C "${CMAKE_BINARY_DIR}/part.img" $<IF:$<CONFIG:Debug>,1028744,1028744>
+        COMMAND mkfs.fat -C "${CMAKE_BINARY_DIR}/part.img" $<IF:$<CONFIG:Debug>,129024,63488>
         COMMAND mcopy -s -o -i "${CMAKE_BINARY_DIR}/part.img" * ::/
         COMMAND fallocate -l 1M "${CMAKE_BINARY_DIR}/fill.img"
         COMMAND /bin/cat "${CMAKE_BINARY_DIR}/fill.img" "${CMAKE_BINARY_DIR}/part.img" "${CMAKE_BINARY_DIR}/fill.img" > "${HHUOS_ROOT_DIR}/hdd0.img"
-        COMMAND /bin/rm "${CMAKE_BINARY_DIR}/part.img" "${CMAKE_BINARY_DIR}/fill.img"
-        COMMAND /bin/echo -e "'o\\nn\\np\\n1\\n2048\\n$<IF:$<CONFIG:Debug>,327678,327678>\\nt\\ne\\nw\\n'" | fdisk "${HHUOS_ROOT_DIR}/hdd0.img"
+		COMMAND /bin/rm "${CMAKE_BINARY_DIR}/part.img" "${CMAKE_BINARY_DIR}/fill.img"
+        COMMAND /bin/echo -e "'o\\nn\\np\\n1\\n2048\\n\\nt\\ne\\nw\\n'" | fdisk "${HHUOS_ROOT_DIR}/hdd0.img"
         DEPENDS asciimation-star-wars beep-files books-gutenberg doom-wad gameboy-roms quake-pak wav-files shell asciimate battlespace beep bug cat cp ctest date demo dino doom echo head hexdump ip keyboard kill ls membench mkdir mount nettest peanut-gb ping play portablegl ps pwd quake rm rmdir shutdown smbios tinygl touch tree uecho unmount uptime view3d doom-wad)
 
 add_custom_target(${PROJECT_NAME}
