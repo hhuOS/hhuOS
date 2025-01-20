@@ -220,6 +220,12 @@ double log10(double value) {
 }
 
 float pow(float base, float exponent) {
+    auto isExponentInteger = modulo(exponent, 1) == 0;
+    if (base < 0 && !isExponentInteger) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Math: Negative base with non-integer exponent!");
+    }
+
+    auto baseAbs = absolute(base);
     float result = 0;
     asm volatile (
             "fyl2x;" // st0: ex * log2(b)
@@ -233,13 +239,25 @@ float pow(float base, float exponent) {
             "fstp %%st;" //clear st1
             "fstps %0;"
             : "=m"(result)
-            : "t"(base),"u"(exponent)
+            : "t"(baseAbs),"u"(exponent)
             );
+
+    if (base < 0) {
+        if (static_cast<int64_t>(exponent) % 2 == 1) {
+            result *= -1;
+        }
+    }
 
     return result;
 }
 
 double pow(double base, double exponent) {
+    auto isExponentInteger = modulo(exponent, 1) == 0;
+    if (base < 0 && !isExponentInteger) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Math: Negative base with non-integer exponent!");
+    }
+
+    auto baseAbs = absolute(base);
     double result = 0;
     asm volatile (
             "fyl2x;" // st0: ex * log2(b)
@@ -253,8 +271,14 @@ double pow(double base, double exponent) {
             "fstp %%st;" //clear st1
             "fstpl %0;"
             : "=m"(result)
-            : "t"(base),"u"(exponent)
+            : "t"(baseAbs),"u"(exponent)
             );
+
+    if (base < 0) {
+        if (static_cast<int64_t>(exponent) % 2 == 1) {
+            result *= -1;
+        }
+    }
 
     return result;
 }
