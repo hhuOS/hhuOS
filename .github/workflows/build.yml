@@ -3,7 +3,7 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -14,16 +14,16 @@ jobs:
       - name: Install dependencies
         uses: amitie10g/install-package@v1.2.5
         with:
-          apt: build-essential nasm gcc-multilib g++-multilib cmake libgl-dev python3 python3-distutils xorriso dosfstools mtools unzip wget ffmpeg git recode grub-pc-bin grub-efi-ia32-bin
+          apt: build-essential nasm gcc-multilib g++-multilib cmake libgl-dev python3 python3-setuptools xorriso dosfstools mtools unzip wget ffmpeg git recode grub-pc-bin grub-efi-ia32-bin
 
       - name: Build towboot image
-        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target towboot --type Debug
+        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target towboot --type Release
 
       - name: Build limine image
-        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target limine --type Debug
+        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target limine --type Release
 
       - name: Build grub image
-        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target grub --type Debug
+        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target grub --type Release
 
       - name: Download licenses
         run: mkdir -p license && cp LICENSE license/hhuOS.txt &&
