@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 readonly VALID_BUILD_TYPES=("Debug" "Default" "Release" "RelWithDebInfo" "MinSizeRel")
-readonly VALID_TARGETS=("grub" "limine" "towboot")
+readonly VALID_TARGETS=("grub" "grub-vdd" "grub-floppy" "limine" "limine-vdd" "towboot" "towboot-vdd")
 readonly VALID_GENERATORS=("Unix Makefiles" "Ninja")
 
 BUILD_TYPE="Release"
@@ -31,14 +31,14 @@ fi
 
 parse_target() {
     local target="${1}"
-    
+
     for name in "${VALID_TARGETS[@]}"; do
         if [ "${target}" == "${name}" ]; then
             TARGET="${target}"
             return
         fi
     done
-    
+
     printf "Invalid target '%s'!\\n" "${target}"
     exit 1
 }
@@ -91,6 +91,7 @@ cleanup() {
     remove "cmake-build-minsizerel"
     remove "hhuOS-grub.iso"
     remove "hhuOS-grub-vdd.iso"
+    remove "hhuOS-grub-floppy.img"
     remove "hhuOS-limine.iso"
     remove "hhuOS-limine-vdd.iso"
     remove "hhuOS-towboot.img"
@@ -119,8 +120,8 @@ print_usage() {
     printf "Usage: ./build.sh [OPTION...]
     Available options:
     -t, --target
-        Set the the build target (towboot/limine/grub, default: towboot).
-    -b, --type
+        Set the the build target (grub/grub-vdd/grub-floppy/limine/limine-vdd/towboot/towboot-vdd, default: towboot).
+    -b, --build-type
         Set the build type (Debug/Default/Release/RelWithDebInfo/MinSizeRel, default: Release).
     -g, --generator
         Set the generator used by cmake ('Unix Makefiles'/Ninja, default: Unix Makefiles).
@@ -141,7 +142,7 @@ parse_args() {
             -t|--target)
             parse_target "${val}"
             ;;
-            -b|--type)
+            -b|--build-type)
             parse_build_type "${val}"
             ;;
             -g|--generator)
@@ -183,7 +184,7 @@ build() {
     cd "${build_dir}" || exit
 
     if [[ -f "build.ninja" ]]; then
-        ninja
+        ninja "${TARGET}"
     elif [[ -f "Makefile" ]]; then
         make -j "$(nproc)" "${TARGET}"
     else

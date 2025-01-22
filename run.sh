@@ -89,17 +89,22 @@ check_file() {
 
 parse_file() {
   local path=$1
-  
-  if [[ $path == *.iso ]]; then
+
+  if [[ "${path}" == *floppy.img ]]; then
+    QEMU_BOOT_DEVICE="-boot a -drive driver=raw,if=none,id=boot,file.filename=${path} -device floppy,drive=boot"
+    QEMU_STORAGE_ARGS="-device ahci,id=ahci -device ide-cd,bus=ahci.0"
+    QEMU_CPU="base,+fpu,+tsc,+cmov,+fxsr,+mmx,+sse"
+    QEMU_ARGS="-vga std -rtc base=localtime -device isa-debug-exit"
+  elif [[ "${path}" == *.iso ]]; then
     QEMU_BOOT_DEVICE="-boot d -drive driver=raw,if=none,id=boot,file.filename=${path} -device ide-cd,bus=ide.1,drive=boot"
-  elif [[ $path == *.img ]]; then
+  elif [[ "${path}" == *.img ]]; then
     QEMU_BOOT_DEVICE="-boot c -drive driver=raw,if=none,id=boot,file.filename=${path} -device ide-hd,bus=ide.0,drive=boot"
   else
     printf "Invalid file '%s'!\\n" "${path}"
     exit 1
   fi
   
-  check_file $path
+  check_file "${path}"
 }
 
 parse_machine() {
@@ -136,7 +141,6 @@ parse_cpu() {
   local cpu=$1
 
   QEMU_CPU="${cpu}"
-  QEMU_CPU_OVERWRITE="true"
 }
 
 parse_debug() {
@@ -175,27 +179,27 @@ print_usage() {
 
 parse_args() {
   while [ "${1}" != "" ]; do
-    local arg=$1
-    local val=$2
+    local arg="${1}"
+    local val="${2}"
 
     case $arg in
     -f | --file)
-      parse_file "$val"
+      parse_file "${val}"
       ;;
     -m | --machine)
-      parse_machine "$val"
+      parse_machine "${val}"
       ;;
     -b | --bios)
-      parse_bios "$val"
+      parse_bios "${val}"
       ;;
     -r | --ram)
-      parse_ram "$val"
+      parse_ram "${val}"
       ;;
     -c | --cpu)
-      parse_cpu "$val"
+      parse_cpu "${val}"
       ;;
     -d | --debug)
-      parse_debug "$val"
+      parse_debug "${val}"
       ;;
     -g | --gdb)
       start_gdb
@@ -259,7 +263,6 @@ if [ "${QEMU_BIOS}" == "RELEASEIa32_OVMF.fd" ]; then
   get_ovmf
 fi
 
-QEMU_ARGS="${QEMU_ARGS}"
 set_audio_parameters
 
 run_qemu
