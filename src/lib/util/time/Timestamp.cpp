@@ -122,6 +122,10 @@ Timestamp &Timestamp::operator-=(const Timestamp &other) {
     return *this;
 }
 
+bool Timestamp::operator==(const Timestamp &other) const {
+    return seconds == other.seconds && fraction == other.fraction;
+}
+
 bool Timestamp::operator>(const Timestamp &other) const {
     if (seconds > other.seconds) {
         return true;

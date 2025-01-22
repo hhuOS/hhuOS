@@ -64,6 +64,8 @@ public:
 
     Timestamp& operator-=(const Timestamp &other);
 
+    bool operator==(const Timestamp &other) const;
+
     bool operator>(const Timestamp &other) const;
 
     bool operator>=(const Timestamp &other) const;

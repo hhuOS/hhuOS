@@ -38,11 +38,26 @@
 #include "lib/util/graphic/Color.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/io/stream/PrintStream.h"
+#include "lib/util/graphic/PixelDrawer.h"
+#include "lib/util/graphic/StringDrawer.h"
+#include "lib/util/time/Timestamp.h"
+#include "lib/util/graphic/font/Terminal8x8.h"
+#include "lib/util/graphic/Colors.h"
 
 uint32_t palette[256];
 Util::Graphic::LinearFrameBuffer *lfb;
-Util::Graphic::BufferedLinearFrameBuffer *bufferedlfb;
+Util::Graphic::PixelDrawer *pixelDrawer;
+Util::Graphic::StringDrawer *stringDrawer;
 Util::Io::KeyDecoder *kd;
+
+uint8_t scaleFactor = 0;
+uint16_t offsetX = 0;
+uint16_t offsetY = 0;
+
+Util::Time::Timestamp lastFrameTime;
+Util::Time::Timestamp fpsTimer;
+uint32_t fpsCounter = 0;
+uint32_t fps = 0;
 
 void (*drawFrame)(void *pixels);
 
@@ -71,9 +86,22 @@ int32_t main(int argc, char *argv[]) {
         }
     }
 
-    // Use double buffering to improve tearing and automatically scale the image to the screen
     lfb = new Util::Graphic::LinearFrameBuffer(*lfbFile);
-    bufferedlfb = new Util::Graphic::BufferedLinearFrameBuffer(*lfb, static_cast<uint16_t>(QUAKEGENERIC_RES_X), static_cast<uint16_t>(QUAKEGENERIC_RES_Y));
+    pixelDrawer = new Util::Graphic::PixelDrawer(*lfb);
+    stringDrawer = new Util::Graphic::StringDrawer(*pixelDrawer);
+
+    // Calculate scale factor the game as large as possible
+    scaleFactor = lfb->getResolutionX() / QUAKEGENERIC_RES_X;
+    if (lfb->getResolutionY() / QUAKEGENERIC_RES_Y < scaleFactor) {
+        scaleFactor = lfb->getResolutionY() / QUAKEGENERIC_RES_Y;
+    }
+    if (scaleFactor == 0) {
+        scaleFactor = 1;
+    }
+
+    // Calculate offset to center the game
+    offsetX = lfb->getResolutionX() - QUAKEGENERIC_RES_X * scaleFactor > 0 ? (lfb->getResolutionX() - QUAKEGENERIC_RES_X * scaleFactor) / 2 : 0;
+    offsetY = lfb->getResolutionY() - QUAKEGENERIC_RES_Y * scaleFactor > 0 ? (lfb->getResolutionY() - QUAKEGENERIC_RES_Y * scaleFactor) / 2 : 0;
 
     // Initialize game
     QG_Create(argc, argv);
@@ -99,37 +127,52 @@ void QG_SetPalette(uint8_t source[768]) {
 }
 
 void QG_DrawFrame(void *pixels) {
-    if (bufferedlfb == nullptr) {
+    if (lfb == nullptr) {
         return;
     }
 
     drawFrame(pixels);
-    bufferedlfb->flush();
+
+    stringDrawer->drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+
+    fpsCounter++;
+    fpsTimer += (Util::Time::getSystemTime() - lastFrameTime);
+    lastFrameTime = Util::Time::getSystemTime();
+
+    if (fpsTimer >= Util::Time::Timestamp::ofSeconds(1)) {
+        fps = fpsCounter;
+        fpsCounter = 0;
+        fpsTimer.reset();
+    }
 }
 
 void QG_DrawFrame32(void *pixels) {
     auto pixelBuffer = reinterpret_cast<const uint8_t*>(pixels);
-    auto screenBuffer = reinterpret_cast<uint32_t*>(bufferedlfb->getBuffer().get());
+    auto screenBuffer = reinterpret_cast<uint32_t*>(lfb->getBuffer().add(offsetX * 4 + offsetY * lfb->getPitch()).get());
+    uint16_t resX = QUAKEGENERIC_RES_X * scaleFactor > lfb->getResolutionX() ? lfb->getResolutionX() : QUAKEGENERIC_RES_X * scaleFactor;
+    uint16_t resY = QUAKEGENERIC_RES_Y * scaleFactor > lfb->getResolutionY() ? lfb->getResolutionY() : QUAKEGENERIC_RES_Y * scaleFactor;
 
-    for (uint32_t y = 0; y < QUAKEGENERIC_RES_Y; y++) {
-        for (uint32_t x = 0; x < QUAKEGENERIC_RES_X; x++) {
-            auto pixel = pixelBuffer[y * QUAKEGENERIC_RES_X + x];
+    for (uint16_t y = 0; y < resY; y++) {
+        for (uint16_t x = 0; x < resX; x++) {
+            auto pixel = pixelBuffer[(y / scaleFactor) * QUAKEGENERIC_RES_X + (x / scaleFactor)];
             auto color = palette[pixel];
 
             screenBuffer[x] = color;
         }
 
-        screenBuffer += (bufferedlfb->getPitch() / 4);
+        screenBuffer += (lfb->getPitch() / 4);
     }
 }
 
 void QG_DrawFrame24(void *pixels) {
     auto pixelBuffer = reinterpret_cast<const uint8_t*>(pixels);
-    auto screenBuffer = reinterpret_cast<uint8_t*>(bufferedlfb->getBuffer().get());
+    auto screenBuffer = reinterpret_cast<uint8_t*>(lfb->getBuffer().add(offsetX * 3 + offsetY * lfb->getPitch()).get());
+    uint16_t resX = QUAKEGENERIC_RES_X * scaleFactor > lfb->getResolutionX() ? lfb->getResolutionX() : QUAKEGENERIC_RES_X * scaleFactor;
+    uint16_t resY = QUAKEGENERIC_RES_Y * scaleFactor > lfb->getResolutionY() ? lfb->getResolutionY() : QUAKEGENERIC_RES_Y * scaleFactor;
 
-    for (uint32_t y = 0; y < QUAKEGENERIC_RES_Y; y++) {
-        for (uint32_t x = 0; x < QUAKEGENERIC_RES_X; x++) {
-            auto pixel = pixelBuffer[y * QUAKEGENERIC_RES_X + x];
+    for (uint16_t y = 0; y < resY; y++) {
+        for (uint16_t x = 0; x < resX; x++) {
+            auto pixel = pixelBuffer[(y / scaleFactor) * QUAKEGENERIC_RES_X + (x / scaleFactor)];
             auto color = palette[pixel];
 
             screenBuffer[x * 3] = color & 0xff;
@@ -137,23 +180,25 @@ void QG_DrawFrame24(void *pixels) {
             screenBuffer[x * 3 + 2] = (color >> 16) & 0xff;
         }
 
-        screenBuffer += (bufferedlfb->getPitch());
+        screenBuffer += (lfb->getPitch());
     }
 }
 
 void QG_DrawFrame16(void *pixels) {
     auto pixelBuffer = reinterpret_cast<const uint8_t*>(pixels);
-    auto screenBuffer = reinterpret_cast<uint16_t *>(bufferedlfb->getBuffer().get());
+    auto screenBuffer = reinterpret_cast<uint16_t*>(lfb->getBuffer().add(offsetX * 2 + offsetY * lfb->getPitch()).get());
+    uint16_t resX = QUAKEGENERIC_RES_X * scaleFactor > lfb->getResolutionX() ? lfb->getResolutionX() : QUAKEGENERIC_RES_X * scaleFactor;
+    uint16_t resY = QUAKEGENERIC_RES_Y * scaleFactor > lfb->getResolutionY() ? lfb->getResolutionY() : QUAKEGENERIC_RES_Y * scaleFactor;
 
-    for (uint32_t y = 0; y < QUAKEGENERIC_RES_Y; y++) {
-        for (uint32_t x = 0; x < QUAKEGENERIC_RES_X; x++) {
-            auto pixel = pixelBuffer[y * QUAKEGENERIC_RES_X + x];
+    for (uint16_t y = 0; y < resY; y++) {
+        for (uint16_t x = 0; x < resX; x++) {
+            auto pixel = pixelBuffer[(y / scaleFactor) * QUAKEGENERIC_RES_X + (x / scaleFactor)];
             auto color = palette[pixel];
 
             screenBuffer[x] = color;
         }
 
-        screenBuffer += (bufferedlfb->getPitch() / 2);
+        screenBuffer += (lfb->getPitch() / 2);
     }
 }
 
@@ -295,6 +340,7 @@ void QG_GetMouseMove(int *x, int *y) {
 void QG_Init(void) {
     kd = new Util::Io::KeyDecoder(new Util::Io::DeLayout());
 
+    // Set draw method based on color depth
     switch (lfb->getColorDepth()) {
         case 32:
             drawFrame = &QG_DrawFrame32;
