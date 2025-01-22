@@ -53,7 +53,7 @@ void Cpu::halt() {
     asm volatile (
             "cli;"
             "hlt;"
-    );
+            );
 
     __builtin_unreachable();
 }

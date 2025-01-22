@@ -27,12 +27,6 @@
 #include "kernel/service/ProcessService.h"
 #include "kernel/process/Scheduler.h"
 
-extern "C" {
-    void start_kernel_thread(uint32_t *oldStackPointer);
-    void start_user_thread(uint32_t *oldStackPointer);
-    void switch_thread(uint32_t **currentStackPointer, uint32_t *nextStackPointer, uint32_t *nextStackEndPointer);
-}
-
 extern "C" void set_tss_stack_entry(uint32_t *stackPointer) {
     Kernel::Service::getService<Kernel::MemoryService>().setTaskStateSegmentStackEntry(stackPointer);
 }
@@ -172,16 +166,16 @@ void Thread::switchToUserMode() {
     Device::Cpu::writeSegmentRegister(Device::Cpu::FS, Device::Cpu::SegmentSelector(Device::Cpu::Ring3, 4));
     Device::Cpu::writeSegmentRegister(Device::Cpu::GS, Device::Cpu::SegmentSelector(Device::Cpu::Ring3, 4));
 
-    start_user_thread(oldStackPointer);
+    startUserThread(oldStackPointer);
 }
 
 void Thread::startFirstThread(const Thread &thread) {
-    start_kernel_thread(thread.oldStackPointer);
+    startKernelThread(thread.oldStackPointer);
 }
 
 void Thread::switchThread(Thread &current, const Thread &next) {
     Service::getService<MemoryService>().switchAddressSpace(next.parent.getAddressSpace());
-    switch_thread(&current.oldStackPointer, next.oldStackPointer, next.kernelStack + (STACK_SIZE / sizeof(uint32_t)));
+    switchThread(&current.oldStackPointer, next.oldStackPointer, next.kernelStack + (STACK_SIZE / sizeof(uint32_t)));
 }
 
 uint32_t Thread::getId() const {
@@ -224,6 +218,65 @@ uint32_t* Thread::createUserStack(uint32_t size) {
 
 uint32_t* Thread::createMainUserStack() {
     return reinterpret_cast<uint32_t*>(Util::MAIN_STACK_START_ADDRESS);
+}
+
+void Thread::startKernelThread([[maybe_unused]] uint32_t *oldStackPointer) {
+    asm volatile (
+            "mov 4(%esp), %esp;" // First parameter -> load 'oldStackPointer'
+
+            // Load registers from prepared stack
+            "pop %ds;"
+            "pop %es;"
+            "pop %fs;"
+            "pop %gs;"
+            "popfl;"
+            "popal;"
+
+            "call release_scheduler_lock;"
+
+            "ret;"
+            );
+}
+
+void Thread::startUserThread([[maybe_unused]] uint32_t *oldStackPointer) {
+    asm volatile (
+            "mov 4(%esp), %esp;" // First parameter -> load 'oldStackPointer'
+            "iret;" // Switch to user mode
+            );
+}
+
+void Thread::switchThread([[maybe_unused]] uint32_t **oldStackPointer, [[maybe_unused]] uint32_t *newStackPointer, [[maybe_unused]] uint32_t *stackEnd) {
+    asm volatile (
+            // Save registers of current thread (Total size of all registers: 32 + 4 + 16 = 52 bytes)
+            "pushal;" // Pushes 32 bytes (8 registers * 4 bytes)
+            "pushfl;" // Pushes 4 bytes (eflags)
+            // Push segment registers (4 * 4 bytes)
+            "push %gs;"
+            "push %fs;"
+            "push %es;"
+            "push %ds;"
+
+            // Save stack pointer in first parameter 'currentStackPointer'
+            "mov 56(%esp), %eax;" // 52 bytes of saved registers + 4 bytes for first parameter
+            "mov %esp, (%eax);"
+
+            // Set TSS stack entry using third parameter 'nextStackEndPointer'
+            "push 64(%esp);" // 52 bytes of saved registers + 3 * 4 bytes for third parameter
+            "call set_tss_stack_entry;"
+            "add $4, %esp;"
+
+            // Load registers of next thread using second parameter 'nextStackPointer'
+            "mov 60(%esp), %esp;" // 52 bytes of saved registers + 2 * 4 bytes for second parameter
+            "pop %ds;"
+            "pop %es;"
+            "pop %fs;"
+            "pop %gs;"
+            "popfl;"
+            "popal;"
+
+            "call release_scheduler_lock;"
+            "ret;"
+            );
 }
 
 }

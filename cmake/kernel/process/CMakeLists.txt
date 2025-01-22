@@ -24,5 +24,4 @@ target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/process/Process.cpp
         ${HHUOS_SRC_DIR}/kernel/process/SchedulerCleaner.cpp
         ${HHUOS_SRC_DIR}/kernel/process/Scheduler.cpp
-        ${HHUOS_SRC_DIR}/kernel/process/Thread.cpp
-        ${HHUOS_SRC_DIR}/kernel/process/thread.asm)
+        ${HHUOS_SRC_DIR}/kernel/process/Thread.cpp)

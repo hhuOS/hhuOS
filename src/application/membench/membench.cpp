@@ -62,7 +62,6 @@ Util::String powerAsString(uint8_t power) {
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.setHelpText("Memory bandwidth benchmark comparing different acceleration techniques.\n"
-                               "Each iteration operates on 1 MiB of memory (Default: 100 iterations).\n"
                                "Usage: membench [memset/memcpy] [Minimimum power of 2] [Maximum power of 2]\n"
                                "Options:\n"
                                "  -h, --help: Show this help message");

@@ -110,6 +110,12 @@ private:
 
     static uint32_t* createMainUserStack();
 
+    [[gnu::naked]] static void startKernelThread(uint32_t *oldStackPointer);
+
+    [[gnu::naked]] static void startUserThread(uint32_t *oldStackPointer);
+
+    [[gnu::naked]] static void switchThread(uint32_t **oldStackPointer, uint32_t *newStackPointer, uint32_t *stackEnd);
+
     uint32_t id;
     Util::String name;
     Process &parent;
@@ -124,6 +130,9 @@ private:
 
     static Util::Async::IdGenerator<uint32_t> idGenerator;
     static const constexpr uint32_t STACK_SIZE = 0x10000;
+    static const constexpr uint32_t PUSHAD_STACK_SPACE = 8 * 4;
+    static const constexpr uint32_t PUSHF_STACK_SPACE = 1 * 4;
+    static const constexpr uint32_t PUSH_SEGMENT_REGISTERS_SPACE = 4 * 4;
 };
 
 }
