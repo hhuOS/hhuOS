@@ -207,7 +207,7 @@ int PrintStream::vprintf(const char* format, va_list args) {
 
                     scientificNotation = false;
 
-                    exp = Util::Math::floor(Util::Math::log10(Util::Math::absolute(dval))); //calculate exponent
+                    exp = dval == 0 ? 0 : Util::Math::floor(Util::Math::log10(Util::Math::absolute(dval))); //calculate exponent
 
                     if (*c == 'e' || *c == 'E') scientificNotation = true;
 

@@ -24,14 +24,12 @@ double fmod(double x, double y) {
 	return Util::Math::modulo(x, y);
 }
 
-
-
 double exp(double arg) {
 	return Util::Math::exp(arg);
 }
 
 double exp2(double arg) {
-    return Util::Math::pow(2, arg);
+    return Util::Math::exp2(arg);
 }
 
 double log(double arg) {

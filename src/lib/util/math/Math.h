@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_GLMATH_H
+#ifndef HHUOS_MATH_H
 #define HHUOS_MATH_H
 
 

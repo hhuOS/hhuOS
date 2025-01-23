@@ -113,6 +113,7 @@
 #include "lib/util/time/Timestamp.h"
 #include "device/time/hpet/Hpet.h"
 #include "kernel/log/LogNode.h"
+#include "lib/util/graphic/font/Terminal8x8.h"
 
 namespace Device {
 class WaitTimer;
