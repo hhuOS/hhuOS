@@ -31,10 +31,13 @@ Util::Graphic::LinearFrameBuffer *lfb;
 Util::Graphic::PixelDrawer *pixelDrawer;
 Util::Graphic::StringDrawer *stringDrawer;
 Util::Io::KeyDecoder *kd;
+const Util::Graphic::Font *fpsFont;
 
 uint8_t scaleFactor = 0;
 uint16_t offsetX = 0;
 uint16_t offsetY = 0;
+uint16_t drawResX = 0;
+uint16_t drawResY = 0;
 
 Util::Time::Timestamp lastFrameTime;
 Util::Time::Timestamp fpsTimer;
@@ -45,11 +48,9 @@ void (*drawFrame)();
 
 void DG_DrawFrame32() {
     auto screenBuffer = reinterpret_cast<uint32_t*>(lfb->getBuffer().add(offsetX * 4 + offsetY * lfb->getPitch()).get());
-    uint16_t resX = DOOMGENERIC_RESX * scaleFactor > lfb->getResolutionX() ? lfb->getResolutionX() : DOOMGENERIC_RESX * scaleFactor;
-    uint16_t resY = DOOMGENERIC_RESY * scaleFactor > lfb->getResolutionY() ? lfb->getResolutionY() : DOOMGENERIC_RESY * scaleFactor;
 
-    for (uint16_t y = 0; y < resY; y++) {
-        for (uint16_t x = 0; x < resX; x++) {
+    for (uint16_t y = 0; y < drawResY; y++) {
+        for (uint16_t x = 0; x < drawResX; x++) {
             auto pixel = DG_ScreenBuffer[(y / scaleFactor) * DOOMGENERIC_RESX + (x / scaleFactor)];
             auto color = palette[pixel];
 
@@ -62,11 +63,9 @@ void DG_DrawFrame32() {
 
 void DG_DrawFrame24() {
     auto screenBuffer = reinterpret_cast<uint8_t*>(lfb->getBuffer().add(offsetX * 3 + offsetY * lfb->getPitch()).get());
-    uint16_t resX = DOOMGENERIC_RESX * scaleFactor > lfb->getResolutionX() ? lfb->getResolutionX() : DOOMGENERIC_RESX * scaleFactor;
-    uint16_t resY = DOOMGENERIC_RESY * scaleFactor > lfb->getResolutionY() ? lfb->getResolutionY() : DOOMGENERIC_RESY * scaleFactor;
 
-    for (uint16_t y = 0; y < resY; y++) {
-        for (uint16_t x = 0; x < resX; x++) {
+    for (uint16_t y = 0; y < drawResY; y++) {
+        for (uint16_t x = 0; x < drawResX; x++) {
             auto pixel = DG_ScreenBuffer[(y / scaleFactor) * DOOMGENERIC_RESX + (x / scaleFactor)];
             auto color = palette[pixel];
 
@@ -81,11 +80,9 @@ void DG_DrawFrame24() {
 
 void DG_DrawFrame16() {
     auto screenBuffer = reinterpret_cast<uint16_t*>(lfb->getBuffer().add(offsetX * 2 + offsetY * lfb->getPitch()).get());
-    uint16_t resX = DOOMGENERIC_RESX * scaleFactor > lfb->getResolutionX() ? lfb->getResolutionX() : DOOMGENERIC_RESX * scaleFactor;
-    uint16_t resY = DOOMGENERIC_RESY * scaleFactor > lfb->getResolutionY() ? lfb->getResolutionY() : DOOMGENERIC_RESY * scaleFactor;
 
-    for (uint16_t y = 0; y < resY; y++) {
-        for (uint16_t x = 0; x < resX; x++) {
+    for (uint16_t y = 0; y < drawResY; y++) {
+        for (uint16_t x = 0; x < drawResX; x++) {
             auto pixel = DG_ScreenBuffer[(y / scaleFactor) * DOOMGENERIC_RESX + (x / scaleFactor)];
             auto color = palette[pixel];
 
@@ -126,6 +123,7 @@ int32_t main(int argc, char **argv) {
     lfb = new Util::Graphic::LinearFrameBuffer(*lfbFile);
     pixelDrawer = new Util::Graphic::PixelDrawer(*lfb);
     stringDrawer = new Util::Graphic::StringDrawer(*pixelDrawer);
+    fpsFont = &Util::Graphic::Font::getFontForResolution(lfb->getResolutionY());
 
     // Calculate scale factor the game as large as possible
     scaleFactor = lfb->getResolutionX() / DOOMGENERIC_RESX;
@@ -139,6 +137,10 @@ int32_t main(int argc, char **argv) {
     // Calculate offset to center the game
     offsetX = lfb->getResolutionX() - DOOMGENERIC_RESX * scaleFactor > 0 ? (lfb->getResolutionX() - DOOMGENERIC_RESX * scaleFactor) / 2 : 0;
     offsetY = lfb->getResolutionY() - DOOMGENERIC_RESY * scaleFactor > 0 ? (lfb->getResolutionY() - DOOMGENERIC_RESY * scaleFactor) / 2 : 0;
+
+    // Calculate resolution to draw
+    drawResX = DOOMGENERIC_RESX * scaleFactor > lfb->getResolutionX() ? lfb->getResolutionX() : DOOMGENERIC_RESX * scaleFactor;
+    drawResY = DOOMGENERIC_RESY * scaleFactor > lfb->getResolutionY() ? lfb->getResolutionY() : DOOMGENERIC_RESY * scaleFactor;
 
     // Generate color palette
     for (uint32_t i = 0; i < 256; i++) {
@@ -187,7 +189,7 @@ void DG_DrawFrame() {
 
     drawFrame();
 
-    stringDrawer->drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+    stringDrawer->drawString(*fpsFont, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
 
     fpsCounter++;
     fpsTimer += (Util::Time::getSystemTime() - lastFrameTime);
