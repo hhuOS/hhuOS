@@ -30,6 +30,7 @@
 #include "kernel/service/InformationService.h"
 #include "lib/util/base/String.h"
 #include "lib/util/async/Spinlock.h"
+#include "kernel/service/CpuService.h"
 
 extern "C" {
     void protected_mode_call(Kernel::Thread::Context *stack, uint32_t entryPoint);
@@ -88,7 +89,7 @@ void Bios::initialize() {
 
 Kernel::Thread::Context Bios::interrupt(int interruptNumber, const Kernel::Thread::Context &context) {
     auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
-    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+    auto &cpuService = Kernel::Service::getService<Kernel::CpuService>();
 
     lock.acquire();
 
@@ -135,7 +136,7 @@ Kernel::Thread::Context Bios::interrupt(int interruptNumber, const Kernel::Threa
     real_mode_call(biosContext);
 
     // Switch back to kernel GDT
-    memoryService.loadGlobalDescriptorTable();
+    cpuService.loadGdt();
 
     // Restore extra segment registers
     Device::Cpu::writeSegmentRegister(Device::Cpu::DS, ds);
@@ -159,13 +160,12 @@ Kernel::Thread::Context Bios::interrupt(int interruptNumber, const Kernel::Threa
 
 Kernel::Thread::Context Bios::protectedModeCall(const Kernel::GlobalDescriptorTable &gdt, uint32_t entryPoint, const Kernel::Thread::Context &context) {
     auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
-    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+    auto &cpuService = Kernel::Service::getService<Kernel::CpuService>();
 
     lock.acquire();
 
     // Get pointer to BIOS context inside lower memory
     auto *biosContext = reinterpret_cast<Kernel::Thread::Context*>(Kernel::MemoryLayout::BIOS_CALL_STACK.endAddress - sizeof(Kernel::Thread::Context) + 1);
-
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds" // GCC complains about the bios context being out of bounds, but it is not (it is just located at a very low address)
@@ -209,7 +209,7 @@ Kernel::Thread::Context Bios::protectedModeCall(const Kernel::GlobalDescriptorTa
     protected_mode_call(biosContext, entryPoint);
 
     // Switch back to kernel GDT
-    memoryService.loadGlobalDescriptorTable();
+    cpuService.loadGdt();
 
     // Restore extra segment registers
     Device::Cpu::writeSegmentRegister(Device::Cpu::DS, ds);

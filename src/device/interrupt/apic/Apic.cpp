@@ -51,12 +51,7 @@ enum InterruptRequest : uint8_t;
 
 uint8_t initializedApplicationProcessorsCounter = 0; // Used to determine AP GDT/Stack slot
 
-Apic::Apic(const Util::Array<LocalApic*> &localApicsArray, IoApic *ioApic) : localApics(localApicsArray.length()), localTimers(localApicsArray.length()), ioApic(ioApic) {
-    for (auto localApic : localApicsArray) {
-        localApics.put(localApic->getCpuId(), localApic);
-        localTimers.put(localApic->getCpuId(), nullptr);
-    }
-}
+Apic::Apic(const Util::Array<LocalApic*> &localApics, IoApic *ioApic) : localApics(localApics), ioApic(ioApic) {}
 
 bool Apic::isAvailable() {
     const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
@@ -70,12 +65,12 @@ Apic* Apic::initialize() {
         return nullptr;
     }
 
-    auto localApics = getLocalApics();
+    auto localApics = initializeLocalApics();
     if (localApics.length() == 0) {
         return nullptr;
     }
 
-    auto *ioApic = getIoApic();
+    auto *ioApic = initializeIoApic();
     if (ioApic == nullptr) {
         return nullptr;
     }
@@ -106,7 +101,13 @@ void Apic::initializeCurrentLocalApic() {
 }
 
 LocalApic& Apic::getCurrentLocalApic() {
-    return *localApics.get(LocalApic::getId());
+    for (auto *localApic : localApics) {
+        if (localApic->getCpuId() == LocalApic::getId()) {
+            return *localApic;
+        }
+    }
+
+    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Apic: Local APIC not found!");
 }
 
 void Apic::enableCurrentErrorHandler() {
@@ -162,7 +163,7 @@ bool Apic::isExternalInterrupt(Kernel::InterruptVector vector) const {
     return static_cast<Kernel::GlobalSystemInterrupt>(vector - 32) <= ioApic->getMaxGlobalSystemInterruptNumber();
 }
 
-Util::Array<LocalApic*> Apic::getLocalApics() {
+Util::Array<LocalApic*> Apic::initializeLocalApics() {
     const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
     auto localApics = Util::ArrayList<LocalApic*>();
     auto acpiLocalApics = acpi.getMadtStructures<Util::Hardware::Acpi::ProcessorLocalApic>(Util::Hardware::Acpi::PROCESSOR_LOCAL_APIC);
@@ -229,7 +230,7 @@ Util::Array<LocalApic*> Apic::getLocalApics() {
     return localApics.toArray();
 }
 
-IoApic *Apic::getIoApic() {
+IoApic *Apic::initializeIoApic() {
     const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
     auto acpiIoApics = acpi.getMadtStructures<Util::Hardware::Acpi::IoApic>(Util::Hardware::Acpi::IO_APIC);
     auto acpiNmiSources = acpi.getMadtStructures<Util::Hardware::Acpi::NmiSource>(Util::Hardware::Acpi::NON_MASKABLE_INTERRUPT_SOURCE);
@@ -298,28 +299,20 @@ Kernel::GlobalSystemInterrupt Apic::getMaxInterruptTarget() {
     return ioApic->getMaxGlobalSystemInterruptNumber();
 }
 
-bool Apic::isCurrentTimerRunning() {
-    return localTimers.get(LocalApic::getId()) != nullptr;
-}
-
 void Apic::startCurrentTimer() {
-    if (isCurrentTimerRunning()) {
-        LOG_WARN("Trying to start an already running APIC timer");
-        return;
-    }
-
-    ApicTimer::calibrate();
-    auto *apicTimer = new Device::ApicTimer(Util::Time::Timestamp::ofMilliseconds(10), Util::Time::Timestamp::ofMilliseconds(10));
-    apicTimer->plugin();
-    localTimers.put(LocalApic::getId(), apicTimer);
+    getCurrentLocalApic().startTimer();
 }
 
 ApicTimer& Apic::getCurrentTimer() {
-    return *localTimers.get(LocalApic::getId());
+    return getCurrentLocalApic().getTimer();
 }
 
 bool Apic::isSymmetricMultiprocessingSupported() const {
-    return localApics.size() > 1;
+    return localApics.length() > 1;
+}
+
+uint8_t Apic::getCoreCount() const {
+    return localApics.length();
 }
 
 void Apic::startupApplicationProcessors() {
@@ -336,7 +329,7 @@ void Apic::startupApplicationProcessors() {
     LOG_INFO("CPU [%u] is the bootstrap processor", LocalApic::getId());
 
     // Call the startup code on each AP using the INIT-SIPI-SIPI Universal Startup Algorithm
-    for (const auto *localApic : localApics.values()) {
+    for (const auto *localApic : localApics) {
         if (localApic->getCpuId() == LocalApic::getId()) {
             // Skip this AP if it's the BSP
             continue;
@@ -369,7 +362,7 @@ void Apic::startupApplicationProcessors() {
         }
 
         // Wait until the AP marks itself as running, so we can continue to the next one.
-        // Because we initializeScene the APs one at a time, runningAPs is not synchronized.
+        // Because we initialize the APs one at a time, runningAPs is not synchronized.
         // If the AP initialization fails (and the system doesn't crash), this will lock the BSP,
         // the same will happen if the SIPI does not reach its target. That's why we abort.
         // Because the system time is not yet functional, we delay to measure the time.
@@ -400,10 +393,10 @@ void Apic::startupApplicationProcessors() {
 
 uint8_t** Apic::prepareApplicationProcessorStacks() {
     // Allocate the stack pointer array
-    auto **stacks = new uint8_t*[localApics.size() - 1]; // Exclude BSP
+    auto **stacks = new uint8_t*[localApics.length() - 1]; // Exclude BSP
 
     // Allocate the stacks
-    for (uint32_t i = 0; i < localApics.size() - 1; ++i) {
+    for (uint32_t i = 0; i < localApics.length() - 1; ++i) {
         stacks[i] = new uint8_t[AP_STACK_SIZE];
     }
 
@@ -420,7 +413,6 @@ void Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
     boot_ap_cr0 = Device::Cpu::readCr0();
     boot_ap_cr3 = reinterpret_cast<uint32_t>(Device::Cpu::readCr3());
     boot_ap_cr4 = Device::Cpu::readCr4();
-    boot_ap_counter = reinterpret_cast<uint32_t>(&initializedApplicationProcessorsCounter);
     boot_ap_gdts = reinterpret_cast<uint32_t>(gdts);
     boot_ap_stacks = reinterpret_cast<uint32_t>(stacks);
     boot_ap_entry = reinterpret_cast<uint32_t>(&applicationProcessorEntry);
@@ -444,10 +436,10 @@ void Apic::prepareApplicationProcessorWarmReset() {
 
 Kernel::GlobalDescriptorTable::Descriptor** Apic::prepareApplicationProcessorGdts() {
     // Allocate descriptor pointer array
-    auto **gdts = new Kernel::GlobalDescriptorTable::Descriptor*[localApics.size() - 1]{}; // Skip BSP
+    auto **gdts = new Kernel::GlobalDescriptorTable::Descriptor*[localApics.length() - 1]{}; // Skip BSP
 
     // Create GDTs for each core
-    for (uint32_t i = 0; i < localApics.size() - 1; ++i) {
+    for (uint32_t i = 0; i < localApics.length() - 1; ++i) {
         auto *gdt = new Kernel::GlobalDescriptorTable{};
         auto *tss = new Kernel::GlobalDescriptorTable::TaskStateSegment{};
 
@@ -462,6 +454,10 @@ Kernel::GlobalDescriptorTable::Descriptor** Apic::prepareApplicationProcessorGdt
     }
 
     return gdts;
+}
+
+const Util::Array<LocalApic *> &Apic::getLocalApics() const {
+    return localApics;
 }
 
 }

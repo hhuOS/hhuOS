@@ -37,8 +37,8 @@
 
 namespace Kernel {
 
-MemoryService::MemoryService(GlobalDescriptorTable *gdt, GlobalDescriptorTable::TaskStateSegment *tss, PageFrameAllocator *pageFrameAllocator, PagingAreaManager *pagingAreaManager, VirtualAddressSpace *kernelAddressSpace) :
-        gdt(gdt), tss(tss), pageFrameAllocator(*pageFrameAllocator), pagingAreaManager(*pagingAreaManager), pageFrameSlabAllocator(reinterpret_cast<uint8_t*>(allocatePhysicalMemory(SlabAllocator::MAX_SLAB_SIZE / Util::PAGESIZE))),
+MemoryService::MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaManager *pagingAreaManager, VirtualAddressSpace *kernelAddressSpace) :
+        pageFrameAllocator(*pageFrameAllocator), pagingAreaManager(*pagingAreaManager), pageFrameSlabAllocator(reinterpret_cast<uint8_t*>(allocatePhysicalMemory(SlabAllocator::MAX_SLAB_SIZE / Util::PAGESIZE))),
         currentAddressSpace(kernelAddressSpace), kernelAddressSpace(*kernelAddressSpace) {
     addressSpaces.add(kernelAddressSpace);
 
@@ -389,15 +389,6 @@ VirtualAddressSpace &MemoryService::getCurrentAddressSpace() const {
 
 const Util::ArrayList<VirtualAddressSpace *> &MemoryService::getAllAddressSpaces() const {
     return addressSpaces;
-}
-
-void MemoryService::setTaskStateSegmentStackEntry(const uint32_t *stackPointer) {
-    tss->esp0 = reinterpret_cast<uint32_t>(stackPointer);
-    tss->ss0 = static_cast<uint16_t>(Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-}
-
-void MemoryService::loadGlobalDescriptorTable() {
-    gdt->load();
 }
 
 void MemoryService::enableSlabAllocator() {

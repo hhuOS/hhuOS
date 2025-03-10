@@ -24,6 +24,7 @@
 #include <stdint.h>
 
 #include "lib/util/collection/ArrayList.h"
+#include "device/time/apic/ApicTimer.h"
 
 namespace Kernel {
 enum InterruptVector : uint8_t;
@@ -442,10 +443,15 @@ public:
 
     [[nodiscard]] uint8_t getCpuId() const;
 
+    void startTimer();
+
+    ApicTimer& getTimer();
+
 private:
 
     uint8_t cpuId; // The CPU core this instance belongs to, LocalApic::getId() only returns the current AP's id!
     Util::ArrayList<NmiSource> nmiSources;
+    ApicTimer* timer = nullptr;
 
     static void *mmioAddress; // The virtual address used to access registers in xApic mode.
 

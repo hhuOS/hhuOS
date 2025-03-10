@@ -45,7 +45,7 @@ public:
     /**
      * Constructor.
      */
-    Apic(const Util::Array<LocalApic*> &localApicsArray, IoApic *ioApic);
+    Apic(const Util::Array<LocalApic*> &localApics, IoApic *ioApic);
 
     /**
      * Copy Constructor.
@@ -119,11 +119,6 @@ public:
     bool isExternalInterrupt(Kernel::InterruptVector vector) const;
 
     /**
-     * Check if this core's local APIC timer has been initialized.
-     */
-    bool isCurrentTimerRunning();
-
-    /**
      * Initialize the current processor's local APIC timer.
      */
     void startCurrentTimer();
@@ -131,9 +126,11 @@ public:
     /**
      * Get the ApicTimer instance that belongs to the current CPU.
      */
-    ApicTimer &getCurrentTimer();
+    ApicTimer& getCurrentTimer();
 
     [[nodiscard]] bool isSymmetricMultiprocessingSupported() const;
+
+    [[nodiscard]] uint8_t getCoreCount() const;
     
     void startupApplicationProcessors();
 
@@ -142,6 +139,8 @@ public:
     InterruptRequest getIrqSource(Kernel::GlobalSystemInterrupt gsi);
 
     Kernel::GlobalSystemInterrupt getMaxInterruptTarget();
+
+    [[nodiscard]] const Util::Array<LocalApic*>& getLocalApics() const;
     
 private:
 
@@ -170,15 +169,14 @@ private:
 
     Kernel::GlobalDescriptorTable::Descriptor** prepareApplicationProcessorGdts();
 
-    static Util::Array<LocalApic*> getLocalApics();
+    static Util::Array<LocalApic*> initializeLocalApics();
 
-    static IoApic* getIoApic();
+    static IoApic* initializeIoApic();
 
     // Memory allocated for or by instances contained in these lists is never freed,
     // this implementation doesn't support disabling the APIC at all.
     // Once the switch from PIC to APIC is done, it can't be switched back.
-    Util::HashMap<uint8_t, LocalApic*> localApics;  // All LocalApic instances.
-    Util::HashMap<uint8_t, ApicTimer*> localTimers; // All ApicTimer instances.
+    Util::Array<LocalApic*> localApics;  // All LocalApic instances.
     IoApic *ioApic;                      // The IoApic instance responsible for the external interrupts.
     LocalApicErrorHandler errorHandler;  // The interrupt handler that gets triggered on an internal APIC error.
 

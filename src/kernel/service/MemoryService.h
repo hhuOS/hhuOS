@@ -55,7 +55,7 @@ public:
     /**
      * Constructor.
      */
-    MemoryService(GlobalDescriptorTable *gdt, GlobalDescriptorTable::TaskStateSegment *tss, PageFrameAllocator *pageFrameAllocator, PagingAreaManager *pagingAreaManager, VirtualAddressSpace *kernelAddressSpace);
+    MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaManager *pagingAreaManager, VirtualAddressSpace *kernelAddressSpace);
 
     /**
      * Copy Constructor.
@@ -195,8 +195,6 @@ public:
      */
     void switchAddressSpace(VirtualAddressSpace &addressSpace);
 
-    void loadGlobalDescriptorTable();
-
     [[nodiscard]] VirtualAddressSpace& getKernelAddressSpace() const;
 
     [[nodiscard]] VirtualAddressSpace& getCurrentAddressSpace() const;
@@ -205,16 +203,11 @@ public:
 
     MemoryStatus getMemoryStatus();
 
-    void setTaskStateSegmentStackEntry(const uint32_t *stackPointer);
-
     void enableSlabAllocator();
 
     static const constexpr uint8_t SERVICE_ID = 2;
 
 private:
-
-    GlobalDescriptorTable *gdt;
-    GlobalDescriptorTable::TaskStateSegment *tss;
 
     bool slabAllocatorEnabled = false;
     PageFrameAllocator &pageFrameAllocator;

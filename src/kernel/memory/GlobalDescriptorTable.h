@@ -93,6 +93,7 @@ public:
         uint16_t size;
         uint32_t offset;
 
+        Descriptor() = default;
         Descriptor(const void *address, uint16_t entries);
         void load();
         static Descriptor read();

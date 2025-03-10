@@ -31,7 +31,7 @@ extern Kernel::InterruptDescriptorTable::Descriptor boot_ap_idt;
 extern uint32_t boot_ap_cr0;
 extern uint32_t boot_ap_cr3;
 extern uint32_t boot_ap_cr4;
-extern volatile uint32_t boot_ap_counter;
+extern volatile uint32_t boot_ap_virtual_id;
 extern volatile uint32_t boot_ap_gdts; // Not written by asm volatile (), so add volatile here
 extern volatile uint32_t boot_ap_stacks; // Not written by asm volatile (), so add volatile here
 extern volatile uint32_t boot_ap_entry; // Not written by asm volatile (), so add volatile here

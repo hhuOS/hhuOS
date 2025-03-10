@@ -26,9 +26,10 @@
 #include "kernel/service/Service.h"
 #include "kernel/service/ProcessService.h"
 #include "kernel/process/Scheduler.h"
+#include "kernel/service/CpuService.h"
 
 extern "C" void set_tss_stack_entry(uint32_t *stackPointer) {
-    Kernel::Service::getService<Kernel::MemoryService>().setTaskStateSegmentStackEntry(stackPointer);
+    Kernel::Service::getService<Kernel::CpuService>().setTssStackEntry(stackPointer);
 }
 
 extern "C" void release_scheduler_lock() {
