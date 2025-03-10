@@ -20,6 +20,8 @@
 
 #include "SymmetricMultiprocessing.h"
 
+#include <kernel/log/Log.h>
+
 #include "device/interrupt/apic/Apic.h"
 #include "kernel/service/InterruptService.h"
 #include "kernel/service/Service.h"
@@ -28,8 +30,8 @@ namespace Device {
 
 volatile bool runningApplicationProcessors[256]{}; // Once an AP is running it sets its corresponding entry to true
 
-[[noreturn]] void applicationProcessorEntry(uint8_t initializedApplicationProcessorsCounter) {
-    runningApplicationProcessors[initializedApplicationProcessorsCounter] = true; // Mark this AP as running
+[[noreturn]] void applicationProcessorEntry(uint8_t virtualCpuId) {
+    runningApplicationProcessors[virtualCpuId] = true; // Mark this AP as running
     while (true) {}
 
     // Initialize this AP's APIC

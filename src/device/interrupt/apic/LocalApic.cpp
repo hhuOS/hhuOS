@@ -30,6 +30,7 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/Iterator.h"
 #include "kernel/service/Service.h"
+#include "kernel/log/Log.h"
 
 namespace Device {
 enum InterruptRequest : uint8_t;
@@ -281,6 +282,21 @@ void LocalApic::waitForInterProcessorInterruptDispatch() {
 
 uint8_t LocalApic::getCpuId() const {
     return cpuId;
+}
+
+void LocalApic::startTimer() {
+    if (timer != nullptr) {
+        LOG_WARN("Trying to start an already running APIC timer");
+        return;
+    }
+
+    ApicTimer::calibrate();
+    timer = new Device::ApicTimer(Util::Time::Timestamp::ofMilliseconds(10), Util::Time::Timestamp::ofMilliseconds(10));
+    timer->plugin();
+}
+
+ApicTimer &LocalApic::getTimer() {
+    return *timer;
 }
 
 LocalApic::BaseModelSpecificRegisterEntry::BaseModelSpecificRegisterEntry(uint64_t registerValue) :

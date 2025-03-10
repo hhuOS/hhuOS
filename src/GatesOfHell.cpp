@@ -115,6 +115,7 @@
 #include "device/time/hpet/Hpet.h"
 #include "kernel/log/LogNode.h"
 #include "lib/util/graphic/font/Terminal8x8.h"
+#include "kernel/service/CpuService.h"
 
 namespace Device {
 class WaitTimer;
@@ -243,27 +244,12 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     kernelHeap = &kernelHeapManager;
     LOG_INFO("Kernel heap initialized (Bootstrap memory: [0x%08x])", bootstrapMemory);
 
-    // Setup GDT
-    LOG_INFO("Setting up global descriptor table");
-    auto *gdt = new Kernel::GlobalDescriptorTable();
-    auto *tss = new Kernel::GlobalDescriptorTable::TaskStateSegment();
-    gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x9a, 0x0c)); // Kernel code segment
-    gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x92, 0x0c)); // Kernel data segment
-    gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xfa, 0x0c)); // User code segment
-    gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0xf2, 0x0c)); // User data segment
-    gdt->addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(reinterpret_cast<uint32_t>(tss), sizeof(Kernel::GlobalDescriptorTable::TaskStateSegment), 0x89, 0x04));
-    gdt->load();
+    // Initialize GDT
+    LOG_INFO("Initializing CPU service");
+    auto *cpuService = new Kernel::CpuService();
 
-    // Load task state segment
-    Device::Cpu::loadTaskStateSegment(Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 5));
-
-    // Set segment registers
-    Device::Cpu::writeSegmentRegister(Device::Cpu::CS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 1));
-    Device::Cpu::writeSegmentRegister(Device::Cpu::SS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-    Device::Cpu::writeSegmentRegister(Device::Cpu::DS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-    Device::Cpu::writeSegmentRegister(Device::Cpu::ES, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-    Device::Cpu::writeSegmentRegister(Device::Cpu::FS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
-    Device::Cpu::writeSegmentRegister(Device::Cpu::GS, Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 2));
+    LOG_INFO("Loading Global Descriptor Table");
+    cpuService->loadGdt();
 
     // Initialize Paging Area Manager -> Manages the virtual addresses of all page tables and directories
     LOG_INFO("Initializing paging area manager");
@@ -315,6 +301,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     LOG_INFO("Initializing interrupt service");
     auto *interruptService = new Kernel::InterruptService();
     Kernel::Service::registerService(Kernel::InterruptService::SERVICE_ID, interruptService);
+    Kernel::Service::registerService(Kernel::CpuService::SERVICE_ID, cpuService);
 
     LOG_INFO("Loading interrupt descriptor table");
     interruptService->loadIdt();
@@ -322,7 +309,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     // Create kernel address space and memory service
     LOG_INFO("Initializing kernel address space");
     auto *kernelAddressSpace = new Kernel::VirtualAddressSpace(pageDirectory, virtualPageDirectory, *kernelHeap);
-    auto *memoryService = new Kernel::MemoryService(gdt, tss, pageFrameAllocator, pagingAreaManager, kernelAddressSpace);
+    auto *memoryService = new Kernel::MemoryService(pageFrameAllocator, pagingAreaManager, kernelAddressSpace);
 
     // The memory service and IDT are initialized and after registering the memory service, page faults can be handled, allowing us to fully use the kernel heap
     Kernel::Service::registerService(Kernel::MemoryService::SERVICE_ID, memoryService);
@@ -526,7 +513,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
             apic->startCurrentTimer();
 
             if (apic->isSymmetricMultiprocessingSupported()) {
-                apic->startupApplicationProcessors();
+                cpuService->startupApplicationProcessors();
             }
         }
     } else {

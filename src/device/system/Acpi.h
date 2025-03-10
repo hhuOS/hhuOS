@@ -100,6 +100,10 @@ template<typename T>
 Util::Array<const T*> Acpi::getMadtStructures(Util::Hardware::Acpi::ApicStructureType type) const {
     auto structures = Util::ArrayList<const T*>();
 
+    if (!hasTable("APIC")) {
+        return structures.toArray();
+    }
+
     const auto &madt = getTable<Util::Hardware::Acpi::Madt>("APIC");
     const auto *madtEndAddress = reinterpret_cast<const uint8_t*>(&madt) + madt.header.length;
 

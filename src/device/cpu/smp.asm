@@ -31,7 +31,7 @@ global boot_ap_idt
 global boot_ap_cr0
 global boot_ap_cr3
 global boot_ap_cr4
-global boot_ap_counter ; This is used to identify an APs GDT/Stack and "runningAPs" entry
+global boot_ap_virtual_id ; This is used to identify an APs GDT/Stack and "runningAPs" entry
 global boot_ap_gdts
 global boot_ap_stacks
 global boot_ap_entry
@@ -91,20 +91,30 @@ boot_ap32:
     lidt [boot_ap_idt - boot_ap + startup_address]
 
     ; Get the processor id to identify stack
-    mov eax, [(boot_ap_counter - boot_ap) + startup_address]
+    mov eax, [(boot_ap_virtual_id - boot_ap) + startup_address]
     mov edi, [eax]
 
     ; Load the AP's prepared GDT and TSS
-    mov ebx, [(boot_ap_gdts - boot_ap) + startup_address] ; GDT descriptor array
-    mov eax, [ebx + (edi * 0x4)] ; Choose correct GDT, each boot_ap_gdts entry is a 4 byte pointer to a descriptor
+    mov ebx, [(boot_ap_gdts - boot_ap) + startup_address] ; Load GDT descriptor array into ebx
+
+    mov eax, edi ; Load the CPU id into eax
+    mov ecx, 6 ; Size of a GDT descriptor
+    mul ecx ; Multiply by 6 (size of GDT descriptor)
+    add eax, ebx ; Add the base address of the GDT descriptor array
+
+    ; Load the GDT descriptor and TSS descriptor
     lgdt [eax]
     mov ax, 0x28
     ltr ax
 
     ; Load the correct stack for this AP
-    mov ebx, [(boot_ap_stacks - boot_ap) + startup_address] ; Stackpointer array
-    mov esp, [ebx + (edi * 4)] ; Choose correct stack, each boot_ap_stacks entry is a 4 byte pointer to a stack
-    add esp, stack_size ; Stack starts at the bottom
+    mov ebx, [(boot_ap_stacks - boot_ap) + startup_address] ; Stack space for all cores
+    mov eax, edi ; Load the CPU id into eax
+    mov ecx, stack_size ; Load stack size into ecx
+    mul ecx ; Multiply by stack size -> eax now points to the stack of this core
+    add eax, stack_size ; Add stack size to point to the top of the stack
+    add ebx, eax ; Add the base address of the stack space
+    mov esp, ebx ; Set stack pointer
     mov ebp, esp ; Update base pointer
 
     ; Call entry function (C++)
@@ -148,7 +158,7 @@ boot_ap_idt:
     dw 0
     dd 0
 align 8
-boot_ap_counter:
+boot_ap_virtual_id:
     dd 0
 align 8
 boot_ap_stacks:
