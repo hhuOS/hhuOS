@@ -88,7 +88,7 @@ const T& Acpi::getTable(const char *signature) const {
     auto numTables = (rsdt->header.length - sizeof(Util::Hardware::Acpi::SdtHeader)) / sizeof(uint32_t);
 
     for (uint32_t i = 0; i < numTables; i++) {
-        if (Util::Address<uint32_t>(rsdt->tables[i]->signature).compareRange(Util::Address<uint32_t>(signature), sizeof(Util::Hardware::Acpi::SdtHeader::signature)) == 0) {
+        if (Util::Address(rsdt->tables[i]->signature).compareRange(Util::Address(signature), sizeof(Util::Hardware::Acpi::SdtHeader::signature)) == 0) {
             return *reinterpret_cast<const T*>(rsdt->tables[i]);
         }
     }

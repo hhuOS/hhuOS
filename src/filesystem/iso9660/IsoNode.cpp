@@ -96,8 +96,8 @@ uint64_t IsoNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numByte
         return 0;
     }
 
-    auto sourceAddress = Util::Address<uint32_t>(buffer).add(static_cast<uint32_t>(pos) % device.getSectorSize());
-    auto targetAddress = Util::Address<uint32_t>(targetBuffer);
+    auto sourceAddress = Util::Address(buffer).add(static_cast<uint32_t>(pos) % device.getSectorSize());
+    auto targetAddress = Util::Address(targetBuffer);
     targetAddress.copyRange(sourceAddress, numBytes);
 
     delete[] buffer;

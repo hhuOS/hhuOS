@@ -153,7 +153,7 @@ void LinearFrameBufferTerminal::setCursor(bool enabled) {
 
 void LinearFrameBufferTerminal::scrollUp() {
     // Scroll character buffer
-    auto characterAddress = Util::Address<uint32_t>(characterBuffer);
+    auto characterAddress = Util::Address(characterBuffer);
     characterAddress.copyRange(characterAddress.add(getColumns() * sizeof(Character)), getColumns() * (getRows() - 1) * sizeof(Character));
 
     // Scroll shadow LFB

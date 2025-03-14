@@ -28,7 +28,7 @@ Ip4SubnetAddress::Ip4SubnetAddress() : Ip4SubnetAddress(32) {}
 Ip4SubnetAddress::Ip4SubnetAddress(uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, IP4_SUBNET) {}
 
 Ip4SubnetAddress::Ip4SubnetAddress(const String &string) : NetworkAddress(ADDRESS_LENGTH, IP4_SUBNET) {
-    auto bufferAddress = Util::Address<uint32_t>(buffer);
+    auto bufferAddress = Util::Address(buffer);
     auto ip4Address = Ip4Address();
     uint8_t bitCount = 32;
 
@@ -50,8 +50,8 @@ Ip4SubnetAddress::Ip4SubnetAddress(const Ip4Address &address, uint8_t bitCount) 
     uint8_t addressBuffer[Ip4Address::ADDRESS_LENGTH];
     address.getAddress(addressBuffer);
 
-    auto bufferAddress = Address<uint32_t>(buffer);
-    bufferAddress.copyRange(Address<uint32_t>(addressBuffer), Ip4Address::ADDRESS_LENGTH);
+    auto bufferAddress = Address(buffer);
+    bufferAddress.copyRange(Address(addressBuffer), Ip4Address::ADDRESS_LENGTH);
     bufferAddress.setByte(bitCount, Ip4Address::ADDRESS_LENGTH);
 }
 
@@ -64,7 +64,7 @@ Ip4Address Ip4SubnetAddress::getIp4Address() const {
 }
 
 uint8_t Ip4SubnetAddress::getBitCount() const {
-    return Util::Address<uint32_t>(buffer).getByte(Ip4Address::ADDRESS_LENGTH);
+    return Util::Address(buffer).getByte(Ip4Address::ADDRESS_LENGTH);
 }
 
 Ip4SubnetAddress Ip4SubnetAddress::getSubnetAddress() const {

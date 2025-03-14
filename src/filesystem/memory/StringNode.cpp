@@ -39,8 +39,8 @@ uint64_t StringNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numB
         numBytes = buffer.length() - pos;
     }
 
-    auto sourceAddress = Util::Address<uint32_t>(static_cast<const char*>(buffer)).add(pos);
-    auto targetAddress = Util::Address<uint32_t>(targetBuffer);
+    auto sourceAddress = Util::Address(static_cast<const char*>(buffer)).add(pos);
+    auto targetAddress = Util::Address(targetBuffer);
     targetAddress.copyRange(sourceAddress, numBytes);
 
     return numBytes;

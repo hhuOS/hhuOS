@@ -31,7 +31,7 @@ Ip4PortAddress::Ip4PortAddress() : NetworkAddress(ADDRESS_LENGTH, IP4_PORT) {}
 Ip4PortAddress::Ip4PortAddress(uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, IP4_PORT) {}
 
 Ip4PortAddress::Ip4PortAddress(const String &string) : NetworkAddress(ADDRESS_LENGTH, IP4_PORT) {
-    auto bufferAddress = Util::Address<uint32_t>(buffer);
+    auto bufferAddress = Util::Address(buffer);
     auto ip4Address = Ip4Address();
     uint16_t port = 0;
 
@@ -53,8 +53,8 @@ Ip4PortAddress::Ip4PortAddress(const Ip4Address &address, uint16_t port) : Netwo
     uint8_t addressBuffer[Ip4Address::ADDRESS_LENGTH];
     address.getAddress(addressBuffer);
 
-    auto bufferAddress = Address<uint32_t>(buffer);
-    bufferAddress.copyRange(Address<uint32_t>(addressBuffer), Ip4Address::ADDRESS_LENGTH);
+    auto bufferAddress = Address(buffer);
+    bufferAddress.copyRange(Address(addressBuffer), Ip4Address::ADDRESS_LENGTH);
     bufferAddress.setShort(port, Ip4Address::ADDRESS_LENGTH);
 }
 
@@ -67,11 +67,11 @@ Ip4Address Ip4PortAddress::getIp4Address() const {
 }
 
 uint16_t Ip4PortAddress::getPort() const {
-    return Util::Address<uint32_t>(buffer).getShort(Ip4Address::ADDRESS_LENGTH);
+    return Util::Address(buffer).getShort(Ip4Address::ADDRESS_LENGTH);
 }
 
 void Ip4PortAddress::setPort(uint16_t port) {
-    Util::Address<uint32_t>(buffer).setShort(port, Ip4Address::ADDRESS_LENGTH);
+    Util::Address(buffer).setShort(port, Ip4Address::ADDRESS_LENGTH);
 }
 
 NetworkAddress* Ip4PortAddress::createCopy() const {

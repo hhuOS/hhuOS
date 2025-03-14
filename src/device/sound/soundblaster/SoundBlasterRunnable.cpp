@@ -70,7 +70,7 @@ void SoundBlasterRunnable::run() {
         inputStreamLock.release();
 
         if (available < bufferSize / 2) {
-            Util::Address<uint32_t>(dmaBuffer + dmaOffset + available).setRange(0, bufferSize / 2 - available);
+            Util::Address(dmaBuffer + dmaOffset + available).setRange(0, bufferSize / 2 - available);
         }
 
         if (!isPlaying) {

@@ -80,7 +80,7 @@ public:
 
     [[nodiscard]] uint16_t getCurrentRow() const override;
 
-    [[nodiscard]] Util::Address<uint32_t> getAddress();
+    [[nodiscard]] Util::Address getAddress();
 
 private:
 
@@ -88,12 +88,12 @@ private:
 
     void scrollUp();
 
-    static Util::Address<uint32_t> mapBuffer(void *physicalAddress, uint16_t columns, uint16_t rows);
+    static Util::Address mapBuffer(void *physicalAddress, uint16_t columns, uint16_t rows);
 
     uint16_t currentColumn = 0;
     uint16_t currentRow = 0;
 
-    Util::Address<uint32_t> cgaMemory;
+    Util::Address cgaMemory;
     IoPort indexPort = IoPort(0x3d4);
     IoPort dataPort = IoPort(0x3d5);
 

@@ -33,7 +33,7 @@ static const constexpr char LINE_SEPARATOR = '-';
 static const constexpr char *HEXDUMP_HEADER = "  OFFSET  | 00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F |   ANSI  ASCII   ";
 
 void printSeparationLine() {
-    auto length = Util::Address<uint32_t>(HEXDUMP_HEADER).stringLength();
+    auto length = Util::Address(HEXDUMP_HEADER).stringLength();
     for (uint32_t i = 0; i < length; i++) {
         Util::System::out << LINE_SEPARATOR;
     }

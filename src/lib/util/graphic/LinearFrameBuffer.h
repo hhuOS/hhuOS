@@ -111,7 +111,7 @@ public:
      *
      * @return The buffer address
      */
-    [[nodiscard]] const Address<uint32_t>& getBuffer() const;
+    [[nodiscard]] const Address& getBuffer() const;
 
     /**
      * Read the color of a pixel at a given position.
@@ -199,7 +199,7 @@ private:
      */
     void drawMonoBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const Color &fgColor, const Color &bgColor, uint8_t *bitmap) const;
 
-    Address<uint32_t> buffer;
+    Address buffer;
 
     uint16_t resolutionX = 0;
     uint16_t resolutionY = 0;

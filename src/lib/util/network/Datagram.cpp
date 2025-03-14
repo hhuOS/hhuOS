@@ -48,7 +48,7 @@ Datagram::Datagram(NetworkAddress::Type type) {
 
 Datagram::Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::NetworkAddress &remoteAddress) :
         remoteAddress(remoteAddress.createCopy()), buffer(new uint8_t[length]), length(length) {
-    Util::Address<uint32_t>(Datagram::buffer).copyRange(Util::Address<uint32_t>(buffer), length);
+    Util::Address(Datagram::buffer).copyRange(Util::Address(buffer), length);
 }
 
 Datagram::Datagram(uint8_t *buffer, uint16_t length, const NetworkAddress &remoteAddress) :
@@ -56,7 +56,7 @@ Datagram::Datagram(uint8_t *buffer, uint16_t length, const NetworkAddress &remot
 
 Datagram::Datagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress) :
         remoteAddress(remoteAddress.createCopy()), buffer(new uint8_t[stream.getLength()]), length(stream.getLength()) {
-    Util::Address<uint32_t>(Datagram::buffer).copyRange(Util::Address<uint32_t>(stream.getBuffer()), stream.getLength());
+    Util::Address(Datagram::buffer).copyRange(Util::Address(stream.getBuffer()), stream.getLength());
 }
 
 Datagram::~Datagram() {

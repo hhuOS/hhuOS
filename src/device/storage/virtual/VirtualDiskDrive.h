@@ -81,7 +81,7 @@ private:
 
     Util::Async::Spinlock ioLock;
 
-    Util::Address<uint32_t> address;
+    Util::Address address;
     bool freeAddress;
 
     uint32_t sectorSize;

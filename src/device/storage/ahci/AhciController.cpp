@@ -209,7 +209,7 @@ void AhciController::rebasePort(uint32_t portNumber) {
     // Allocate memory for command list
     virtualCommandLists[portNumber] = static_cast<HbaCommandHeader*>(memoryService.mapIO(1));
     port.commandListBaseAddress = reinterpret_cast<uint32_t>(memoryService.getPhysicalAddress(virtualCommandLists[portNumber]));
-    Util::Address<uint32_t>(virtualCommandLists[portNumber]).setRange(0, Util::PAGESIZE);
+    Util::Address(virtualCommandLists[portNumber]).setRange(0, Util::PAGESIZE);
 
     // Port may now process commands again
     port.startCommandEngine();
@@ -309,8 +309,8 @@ uint16_t AhciController::performAtaIO(uint32_t portNumber, const DeviceInfo &dev
             return 0;
         }
 
-        auto sourceAddress = Util::Address<uint32_t>(dmaBuffer);
-        auto targetAddress = Util::Address<uint32_t>(buffer);
+        auto sourceAddress = Util::Address(dmaBuffer);
+        auto targetAddress = Util::Address(buffer);
         targetAddress.copyRange(sourceAddress, deviceInfo.bytesPerSector * sectorCount);
 
         delete reinterpret_cast<uint8_t*>(dmaBuffer);
@@ -320,8 +320,8 @@ uint16_t AhciController::performAtaIO(uint32_t portNumber, const DeviceInfo &dev
         auto *dmaBuffer = allocateDmaBuffer(dmaSize);
         auto *physicalDmaAddress = Kernel::Service::getService<Kernel::MemoryService>().getPhysicalAddress(dmaBuffer);
 
-        auto sourceAddress = Util::Address<uint32_t>(buffer);
-        auto targetAddress = Util::Address<uint32_t>(dmaBuffer);
+        auto sourceAddress = Util::Address(buffer);
+        auto targetAddress = Util::Address(dmaBuffer);
         targetAddress.copyRange(sourceAddress, sectorCount * deviceInfo.bytesPerSector);
 
         auto success = writeToDevice(portNumber, physicalDmaAddress, dmaSize, commandFis, atapiCommand);
@@ -364,8 +364,8 @@ uint16_t AhciController::performAtapiIO(uint32_t portNumber, const AhciControlle
         return 0;
     }
 
-    auto sourceAddress = Util::Address<uint32_t>(dmaBuffer);
-    auto targetAddress = Util::Address<uint32_t>(buffer);
+    auto sourceAddress = Util::Address(dmaBuffer);
+    auto targetAddress = Util::Address(buffer);
     targetAddress.copyRange(sourceAddress, deviceInfo.bytesPerSector * sectorCount);
 
     delete reinterpret_cast<uint8_t*>(dmaBuffer);
@@ -394,8 +394,8 @@ void* AhciController::readFromDevice(uint32_t portNumber, uint32_t byteCount, co
     auto *physicalDmaAddress = memoryService.getPhysicalAddress(dmaBuffer);
 
     auto *commandTable = HbaCommandTable::createCommandTable(byteCount, physicalDmaAddress);
-    Util::Address<uint32_t>(commandTable->commandFis).copyRange(Util::Address<uint32_t>(commandFis), sizeof(HbaCommandTable::commandFis));
-    Util::Address<uint32_t>(commandTable->atapiCommand).copyRange(Util::Address<uint32_t>(atapiCommand), sizeof(HbaCommandTable::atapiCommand));
+    Util::Address(commandTable->commandFis).copyRange(Util::Address(commandFis), sizeof(HbaCommandTable::commandFis));
+    Util::Address(commandTable->atapiCommand).copyRange(Util::Address(atapiCommand), sizeof(HbaCommandTable::atapiCommand));
 
     auto &commandHeader = commandList[slot];
     commandHeader.clear();
@@ -436,8 +436,8 @@ bool AhciController::writeToDevice(uint32_t portNumber, void *physicalDmaAddress
     }
 
     auto *commandTable = HbaCommandTable::createCommandTable(byteCount, physicalDmaAddress);
-    Util::Address<uint32_t>(commandTable->commandFis).copyRange(Util::Address<uint32_t>(commandFis), sizeof(HbaCommandTable::commandFis));
-    Util::Address<uint32_t>(commandTable->atapiCommand).copyRange(Util::Address<uint32_t>(atapiCommand), sizeof(HbaCommandTable::atapiCommand));
+    Util::Address(commandTable->commandFis).copyRange(Util::Address(commandFis), sizeof(HbaCommandTable::commandFis));
+    Util::Address(commandTable->atapiCommand).copyRange(Util::Address(atapiCommand), sizeof(HbaCommandTable::atapiCommand));
 
     auto &commandHeader = commandList[slot];
     commandHeader.clear();
@@ -544,7 +544,7 @@ AhciController::DeviceSignature AhciController::HbaPort::checkType() const {
 }
 
 void AhciController::HbaCommandHeader::clear() {
-    Util::Address<uint32_t>(this).setRange(0, sizeof(uint32_t) * 2);
+    Util::Address(this).setRange(0, sizeof(uint32_t) * 2);
 }
 
 AhciController::HbaCommandTable * AhciController::HbaCommandTable::createCommandTable(uint32_t byteCount, void *physicalDmaBuffer) {
@@ -554,7 +554,7 @@ AhciController::HbaCommandTable * AhciController::HbaCommandTable::createCommand
     auto tableSize = sizeof(commandFis) + sizeof(atapiCommand) + sizeof(reserved) + descriptorCount * sizeof(HbaPhysicalRegionDescriptorTableEntry);
     auto tablePages = tableSize % Util::PAGESIZE == 0 ? (tableSize / Util::PAGESIZE) : (tableSize / Util::PAGESIZE) + 1;
     auto *commandTable = reinterpret_cast<HbaCommandTable*>(memoryService.mapIO(tablePages));
-    Util::Address<uint32_t>(commandTable).setRange(0, tableSize);
+    Util::Address(commandTable).setRange(0, tableSize);
 
     for (uint32_t i = 0; i < descriptorCount; i++) {
         auto &entry = commandTable->physicalRegionDescriptorTable[i];

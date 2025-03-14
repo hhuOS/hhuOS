@@ -42,7 +42,7 @@ String::String(char character) noexcept {
 }
 
 String::String(const char *string) noexcept {
-    auto address = Address<uint32_t>(string);
+    auto address = Address(string);
 
     if (string == nullptr) {
         len = 0;
@@ -51,23 +51,23 @@ String::String(const char *string) noexcept {
     }
 
     buffer = new char[len + 1];
-    Address<uint32_t>(buffer).copyRange(address, len);
+    Address(buffer).copyRange(address, len);
     buffer[len] = '\0';
 }
 
 String::String(const uint8_t *data, uint32_t length) noexcept {
-    auto address = Address<uint32_t>(data);
+    auto address = Address(data);
 
     len = length;
     buffer = new char[len + 1];
-    Address<uint32_t>(buffer).copyRange(address, len);
+    Address(buffer).copyRange(address, len);
     buffer[len] = '\0';
 }
 
 String::String(const String &other) noexcept {
     len = other.len;
     buffer = new char[len + 1];
-    Address<uint32_t>(buffer).copyRange(Address<uint32_t>(other.buffer), len);
+    Address(buffer).copyRange(Address(other.buffer), len);
     buffer[len] = '\0';
 }
 
@@ -100,7 +100,7 @@ String String::substring(uint32_t begin, uint32_t end) const {
 
     uint32_t length = end - begin;
     char *newBuffer = new char[length + 1];
-    Address<uint32_t>(newBuffer).copyRange(Address<uint32_t>(this->buffer + begin), length);
+    Address(newBuffer).copyRange(Address(this->buffer + begin), length);
     newBuffer[length] = '\0';
 
     String ret(newBuffer);
@@ -216,11 +216,11 @@ uint32_t String::length() const {
 }
 
 bool String::operator==(const String &other) const {
-    return Address<uint32_t>(buffer).compareString(Address<uint32_t>(other.buffer)) == 0;
+    return Address(buffer).compareString(Address(other.buffer)) == 0;
 }
 
 bool String::operator!=(const String &other) const {
-    return Address<uint32_t>(buffer).compareString(Address<uint32_t>(other.buffer)) != 0;
+    return Address(buffer).compareString(Address(other.buffer)) != 0;
 }
 
 String &String::operator=(const String &other) {
@@ -234,7 +234,7 @@ String &String::operator=(const String &other) {
     buffer = new char[len + 1];
 
     if (other.buffer != nullptr) {
-        Address<uint32_t>(buffer).copyRange(Address<uint32_t>(other.buffer), len + 1);
+        Address(buffer).copyRange(Address(other.buffer), len + 1);
     }
 
     return *this;
@@ -242,7 +242,7 @@ String &String::operator=(const String &other) {
 
 String &String::operator+=(const String &other) {
     buffer = static_cast<char*>(reallocateMemory(buffer, len + other.len + 1));
-    Address<uint32_t>(buffer + len).copyRange(Address<uint32_t>(other.buffer), other.len + 1);
+    Address(buffer + len).copyRange(Address(other.buffer), other.len + 1);
     len += other.len;
 
     return *this;

@@ -81,7 +81,7 @@ void System::printStackTrace(Io::PrintStream &stream, uint32_t minEbp) {
 
         stream << " " << symbolName << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 
-        if (!Util::Address<uint32_t>(symbolName).compareString("main")) {
+        if (!Util::Address(symbolName).compareString("main")) {
             break;
         }
 

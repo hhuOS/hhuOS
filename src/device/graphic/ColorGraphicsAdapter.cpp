@@ -109,11 +109,11 @@ uint16_t ColorGraphicsAdapter::getCurrentRow() const {
     return currentRow;
 }
 
-Util::Address<uint32_t> ColorGraphicsAdapter::getAddress() {
+Util::Address ColorGraphicsAdapter::getAddress() {
     return cgaMemory;
 }
 
-Util::Address<uint32_t> ColorGraphicsAdapter::mapBuffer(void *physicalAddress, uint16_t columns, uint16_t rows) {
+Util::Address ColorGraphicsAdapter::mapBuffer(void *physicalAddress, uint16_t columns, uint16_t rows) {
     if (reinterpret_cast<uint32_t>(physicalAddress) % Util::PAGESIZE != 0) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "ColorGraphicsAdapter: Physical address is not page aligned!");
     }
@@ -122,7 +122,7 @@ Util::Address<uint32_t> ColorGraphicsAdapter::mapBuffer(void *physicalAddress, u
     const auto pageCount = size % Util::PAGESIZE == 0 ? (size / Util::PAGESIZE) : (size / Util::PAGESIZE) + 1;
     void *virtualAddress = mapIO(physicalAddress, pageCount);
 
-    return Util::Address<uint32_t>(virtualAddress);
+    return Util::Address(virtualAddress);
 }
 
 ColorGraphicsAdapter::VideoCardType ColorGraphicsAdapter::getVideoCardType() {

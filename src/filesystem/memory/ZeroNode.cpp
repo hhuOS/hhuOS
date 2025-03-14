@@ -29,7 +29,7 @@ Util::Io::File::Type ZeroNode::getType() {
 }
 
 uint64_t ZeroNode::readData(uint8_t *targetBuffer, [[maybe_unused]] uint64_t pos, uint64_t numBytes) {
-    Util::Address<uint32_t>(targetBuffer).setRange(0, numBytes);
+    Util::Address(targetBuffer).setRange(0, numBytes);
     return numBytes;
 }
 

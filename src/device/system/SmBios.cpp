@@ -109,11 +109,11 @@ Util::Array<Util::Hardware::SmBios::HeaderType> SmBios::getAvailableTables() con
 
 const SmBios::EntryPoint* SmBios::searchEntryPoint(uint32_t startAddress, uint32_t endAddress) {
     char signature[sizeof(EntryPoint::smSignature)] = {'_', 'S', 'M', '_'};
-    auto signatureAddress = Util::Address<uint32_t>(signature);
-    startAddress = Util::Address<uint32_t>(startAddress).alignUp(16).get();
+    auto signatureAddress = Util::Address(signature);
+    startAddress = Util::Address(startAddress).alignUp(16).get();
 
     for (uint32_t i = startAddress; i <= endAddress - sizeof(signature); i += 16) {
-        auto address = Util::Address<uint32_t>(i);
+        auto address = Util::Address(i);
         if (address.compareRange(signatureAddress, sizeof(EntryPoint::smSignature)) == 0) {
             if (checkEntryPoint(reinterpret_cast<EntryPoint*>(i))) {
                 return reinterpret_cast<EntryPoint*>(i);
@@ -135,11 +135,11 @@ bool SmBios::checkEntryPoint(SmBios::EntryPoint *entryPoint) {
 
 const SmBios::EntryPoint3* SmBios::searchEntryPoint3(uint32_t startAddress, uint32_t endAddress) {
     char signature[sizeof(EntryPoint3::smSignature)] = {'_', 'S', 'M', '3', '_'};
-    auto signatureAddress = Util::Address<uint32_t>(signature);
-    startAddress = Util::Address<uint32_t>(startAddress).alignUp(16).get();
+    auto signatureAddress = Util::Address(signature);
+    startAddress = Util::Address(startAddress).alignUp(16).get();
 
     for (uint32_t i = startAddress; i <= endAddress - sizeof(signature); i += 16) {
-        auto address = Util::Address<uint32_t>(i);
+        auto address = Util::Address(i);
         if (address.compareRange(signatureAddress, sizeof(EntryPoint3::smSignature)) == 0) {
             if (checkEntryPoint3(reinterpret_cast<EntryPoint3*>(i))) {
                 return reinterpret_cast<EntryPoint3*>(i);

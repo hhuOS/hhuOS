@@ -68,7 +68,7 @@ public:
 private:
 
     uint32_t length = 0;
-    Util::Address<uint32_t> dataAddress;
+    Util::Address dataAddress;
     Util::String name;
 };
 

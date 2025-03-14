@@ -61,10 +61,10 @@ public:
                 '7', '8', '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', ','
         };
 
-        Util::Address<uint32_t>(KeyboardLayout::normalTab).copyRange(Util::Address<uint32_t>(normalTab), sizeof(KeyboardLayout::normalTab));
-        Util::Address<uint32_t>(KeyboardLayout::shiftTab).copyRange(Util::Address<uint32_t>(shiftTab), sizeof(KeyboardLayout::shiftTab));
-        Util::Address<uint32_t>(KeyboardLayout::altTab).copyRange(Util::Address<uint32_t>(altTab), sizeof(KeyboardLayout::altTab));
-        Util::Address<uint32_t>(KeyboardLayout::asciiNumTab).copyRange(Util::Address<uint32_t>(asciiNumTab), sizeof(KeyboardLayout::asciiNumTab));
+        Util::Address(KeyboardLayout::normalTab).copyRange(Util::Address(normalTab), sizeof(KeyboardLayout::normalTab));
+        Util::Address(KeyboardLayout::shiftTab).copyRange(Util::Address(shiftTab), sizeof(KeyboardLayout::shiftTab));
+        Util::Address(KeyboardLayout::altTab).copyRange(Util::Address(altTab), sizeof(KeyboardLayout::altTab));
+        Util::Address(KeyboardLayout::asciiNumTab).copyRange(Util::Address(asciiNumTab), sizeof(KeyboardLayout::asciiNumTab));
     }
 
     /**

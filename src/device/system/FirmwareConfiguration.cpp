@@ -160,8 +160,8 @@ uint64_t Device::FirmwareConfiguration::performDmaAccess(Device::FirmwareConfigu
     uint64_t max = pos + numBytes > file.size ? (file.size - pos) : (numBytes);
 
     if (command == WRITE) {
-        auto source = Util::Address<uint32_t>(targetBuffer);
-        auto target = Util::Address<uint32_t>(virtualAddress);
+        auto source = Util::Address(targetBuffer);
+        auto target = Util::Address(virtualAddress);
         target.copyRange(source, max);
     }
 
@@ -177,8 +177,8 @@ uint64_t Device::FirmwareConfiguration::performDmaAccess(Device::FirmwareConfigu
     }
 
     if (command == READ) {
-        auto source = Util::Address<uint32_t>(virtualAddress);
-        auto target = Util::Address<uint32_t>(targetBuffer);
+        auto source = Util::Address(virtualAddress);
+        auto target = Util::Address(targetBuffer);
         target.copyRange(source, max);
     }
 

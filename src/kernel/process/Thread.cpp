@@ -42,8 +42,8 @@ Util::Async::IdGenerator<uint32_t> Thread::idGenerator;
 Thread::Thread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable, uint32_t userInstructionPointer, uint32_t *kernelStack, uint32_t *userStack) :
         id(idGenerator.next()), name(name), parent(parent), runnable(runnable), userInstructionPointer(userInstructionPointer), kernelStack(kernelStack), userStack(userStack),
         fpuContext(static_cast<uint8_t*>(Service::getService<MemoryService>().allocateKernelMemory(512, 16))) {
-    auto defaultFpuContext = Util::Address<uint32_t>(Service::getService<ProcessService>().getScheduler().getDefaultFpuContext());
-    Util::Address<uint32_t>(fpuContext).copyRange(defaultFpuContext, 512);
+    auto defaultFpuContext = Util::Address(Service::getService<ProcessService>().getScheduler().getDefaultFpuContext());
+    Util::Address(fpuContext).copyRange(defaultFpuContext, 512);
 }
 
 Thread::~Thread() {
@@ -72,7 +72,7 @@ Thread& Thread::createUserThread(const Util::String &name, Process &parent, uint
     thread->prepareKernelStack();
 
     // Prepare user stack
-    Util::Address<uint32_t>(thread->userStack).setRange(0, STACK_SIZE);
+    Util::Address(thread->userStack).setRange(0, STACK_SIZE);
 
     const auto capacity = STACK_SIZE / sizeof(uint32_t);
     thread->userStack[capacity - 1] = 0x00DEAD00; // Dummy return address
@@ -91,7 +91,7 @@ Thread& Thread::createMainUserThread(const Util::String &name, Process &parent, 
     thread->prepareKernelStack();
 
     // Prepare user stack
-    Util::Address<uint32_t>(thread->userStack).setRange(0, STACK_SIZE);
+    Util::Address(thread->userStack).setRange(0, STACK_SIZE);
 
     const auto capacity = STACK_SIZE / sizeof(uint32_t);
     thread->userStack[capacity - 1] = 0x00DEAD00; // Dummy return address
@@ -108,7 +108,7 @@ Thread& Thread::createMainUserThread(const Util::String &name, Process &parent, 
 }
 
 void Thread::prepareKernelStack() {
-    Util::Address<uint32_t>(kernelStack).setRange(0, STACK_SIZE);
+    Util::Address(kernelStack).setRange(0, STACK_SIZE);
 
     const auto capacity = STACK_SIZE / sizeof(uint32_t);
     kernelStack[capacity - 1] = 0x0000DEAD; // Dummy return address

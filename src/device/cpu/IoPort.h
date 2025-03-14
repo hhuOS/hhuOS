@@ -19,7 +19,6 @@
 #define __IoPort_include__
 
 #include <stdint.h>
-#include "lib/util/base/Address.h"
 
 namespace Device {
 
@@ -56,7 +55,7 @@ public:
      *
      * @return The address of this port
      */
-    [[nodiscard]] Util::Address<uint16_t> getAddress() const;
+    [[nodiscard]] uint16_t getAddress() const;
 
     /**
      * Write a byte to this TransferMode-port.
@@ -150,7 +149,7 @@ public:
 
 private:
 
-    Util::Address<uint16_t> address;
+    uint16_t address;
 };
 
 }

@@ -149,7 +149,7 @@ void Rtl8139::processIncomingPacket() {
     if (header.status & RECEIVE_OK) {
         handleIncomingPacket(receiveBuffer + receiveIndex + sizeof(PacketHeader), header.length);
         receiveIndex += header.length + sizeof (PacketHeader); // Add packet length
-        receiveIndex = Util::Address<uint32_t>(receiveIndex).alignUp(4).get(); // Align to next double word
+        receiveIndex = Util::Address(receiveIndex).alignUp(4).get(); // Align to next double word
         if (receiveIndex >= 8192) receiveIndex %= 8192; // Wrap around
         baseRegister.writeWord(CURRENT_READ_ADDRESS, receiveIndex - 16);
     }

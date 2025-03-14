@@ -3,12 +3,12 @@
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ * uint32_this program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * uint32_this program is distributed in the hope that it will be useful, but WIuint32_tHOUuint32_t ANY WARRANuint32_tY; without even the implied
+ * warranty of MERCHANuint32_tABILIuint32_tY or FIuint32_tNESS FOR A PARuint32_tICULAR PURPOSE.  See the GNU General Public License for more
  * details.
  *
  * You should have received a copy of the GNU General Public License
@@ -22,7 +22,6 @@
 
 namespace Util {
 
-template<typename T>
 class Address {
 
 public:
@@ -37,8 +36,7 @@ public:
 
     explicit Address(const void *pointer);
 
-    explicit Address(T address);
-
+    explicit Address(uint32_t address);
     
     virtual ~Address() = default;
 
@@ -46,66 +44,60 @@ public:
 
     bool operator!=(const Address &other) const;
 
-    bool operator==(T otherAddress) const;
+    bool operator==(uint32_t otherAddress) const;
 
-    bool operator!=(T otherAddress) const;
+    bool operator!=(uint32_t otherAddress) const;
 
-    explicit operator T() const;
+    explicit operator uint32_t() const;
 
-    [[nodiscard]] T get() const;
+    [[nodiscard]] uint32_t get() const;
 
-    [[nodiscard]] Address<T> set(T newAddress) const;
+    [[nodiscard]] Address set(uint32_t newAddress) const;
 
-    [[nodiscard]] Address<T> add(T value) const;
+    [[nodiscard]] Address add(uint32_t value) const;
 
-    [[nodiscard]] Address<T> subtract(T value) const;
+    [[nodiscard]] Address subtract(uint32_t value) const;
 
-    [[nodiscard]] Address<T> alignUp(T alignment) const;
+    [[nodiscard]] Address alignUp(uint32_t alignment) const;
 
-    [[nodiscard]] T stringLength() const;
+    [[nodiscard]] uint32_t stringLength() const;
 
-    [[nodiscard]] int32_t compareRange(const Address<T> &otherAddress, T length) const;
+    [[nodiscard]] int32_t compareRange(const Address &otherAddress, uint32_t length) const;
 
-    [[nodiscard]] int32_t compareString(const Address<T> &otherAddress) const;
+    [[nodiscard]] int32_t compareString(const Address &otherAddress) const;
 
     [[nodiscard]] int32_t compareString(const char *otherString) const;
 
-    [[nodiscard]] uint8_t getByte(T offset = 0) const;
+    [[nodiscard]] uint8_t getByte(uint32_t offset = 0) const;
 
-    [[nodiscard]] uint16_t getShort(T offset = 0) const;
+    [[nodiscard]] uint16_t getShort(uint32_t offset = 0) const;
 
-    [[nodiscard]] uint32_t getInt(T offset = 0) const;
+    [[nodiscard]] uint32_t getInt(uint32_t offset = 0) const;
 
-    [[nodiscard]] uint64_t getLong(T offset = 0) const;
+    [[nodiscard]] uint64_t getLong(uint32_t offset = 0) const;
 
-    void setByte(uint8_t value, T offset = 0) const;
+    void setByte(uint8_t value, uint32_t offset = 0) const;
 
-    void setShort(uint16_t value, T offset = 0) const;
+    void setShort(uint16_t value, uint32_t offset = 0) const;
 
-    void setInt(uint32_t value, T offset = 0) const;
+    void setInt(uint32_t value, uint32_t offset = 0) const;
 
-    void setLong(uint64_t value, T offset = 0) const;
+    void setLong(uint64_t value, uint32_t offset = 0) const;
 
-    virtual void setRange(uint8_t value, T length) const;
+    virtual void setRange(uint8_t value, uint32_t length) const;
 
-    virtual void copyRange(const Address<T> &sourceAddress, T length) const;
+    virtual void copyRange(const Address &sourceAddress, uint32_t length) const;
 
-    void copyString(const Address<T> &sourceAddress) const;
+    void copyString(const Address &sourceAddress) const;
 
-    void copyString(const Address<T> &sourceAddress, T maxBytes) const;
+    void copyString(const Address &sourceAddress, uint32_t maxBytes) const;
 
-    [[nodiscard]] Address<T> searchCharacter(uint8_t character) const;
+    [[nodiscard]] Address searchCharacter(uint8_t character) const;
 
 protected:
 
-    T address{};
+    uint32_t address = 0;
 };
-
-template
-class Address<uint16_t>;
-
-template
-class Address<uint32_t>;
 
 }
 

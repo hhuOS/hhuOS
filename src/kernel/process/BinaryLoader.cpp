@@ -65,14 +65,14 @@ void BinaryLoader::run() {
     auto &stringTableHeader = executable.getSectionHeader(Util::Io::Elf::SectionHeaderType::STRTAB);
     addressSpaceHeader.symbolTableSize = symbolTableHeader.size;
 
-    auto symbolTableAddress = Util::Address<uint32_t>(buffer + symbolTableHeader.offset);
-    auto stringTableAddress = Util::Address<uint32_t>(buffer + stringTableHeader.offset);
+    auto symbolTableAddress = Util::Address(buffer + symbolTableHeader.offset);
+    auto stringTableAddress = Util::Address(buffer + stringTableHeader.offset);
 
-    Util::Address<uint32_t>(currentAddress).copyRange(symbolTableAddress, symbolTableHeader.size);
+    Util::Address(currentAddress).copyRange(symbolTableAddress, symbolTableHeader.size);
     addressSpaceHeader.symbolTable = reinterpret_cast<const Util::Io::Elf::SymbolEntry*>(currentAddress);
     currentAddress += symbolTableHeader.size;
 
-    Util::Address<uint32_t>(currentAddress).copyRange(stringTableAddress, stringTableHeader.size);
+    Util::Address(currentAddress).copyRange(stringTableAddress, stringTableHeader.size);
     addressSpaceHeader.stringTable = reinterpret_cast<const char*>(currentAddress);
     currentAddress += stringTableHeader.size;
 
@@ -82,8 +82,8 @@ void BinaryLoader::run() {
     currentAddress += sizeof(char**) * argc;
 
     for (uint32_t i = 0; i < argc; i++) {
-        auto sourceArgument = Util::Address<uint32_t>(static_cast<char*>(i == 0 ? command : arguments[i - 1]));
-        auto targetArgument = Util::Address<uint32_t>(currentAddress);
+        auto sourceArgument = Util::Address(static_cast<char*>(i == 0 ? command : arguments[i - 1]));
+        auto targetArgument = Util::Address(currentAddress);
 
         targetArgument.copyString(sourceArgument);
         argv[i] = reinterpret_cast<char*>(currentAddress);
@@ -92,7 +92,7 @@ void BinaryLoader::run() {
 
     auto &processService = Service::getService<ProcessService>();
     auto &process = processService.getCurrentProcess();
-    auto heapAddress = Util::Address<uint32_t>(currentAddress + 1).alignUp(Util::PAGESIZE).get();
+    auto heapAddress = Util::Address(currentAddress + 1).alignUp(Util::PAGESIZE).get();
     auto &userThread = Thread::createMainUserThread(file.getName(), process, (uint32_t) executable.getEntryPoint(), argc, argv, nullptr, heapAddress);
 
     processService.getCurrentProcess().setMainThread(userThread);

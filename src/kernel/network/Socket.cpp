@@ -217,8 +217,8 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
                 targetNextHops[i] = route.hasNextHop() ? route.getNextHop() : Util::Network::Ip4::Ip4Address::ANY;
                 targetDevices[i] = static_cast<char*>(memoryService.allocateUserMemory((route.getDeviceIdentifier().length() + 1) * sizeof(char)));
 
-                auto source = Util::Address<uint32_t>(static_cast<const char*>(route.getDeviceIdentifier()));
-                auto target = Util::Address<uint32_t>(targetDevices[i]);
+                auto source = Util::Address(static_cast<const char*>(route.getDeviceIdentifier()));
+                auto target = Util::Address(targetDevices[i]);
                 target.copyString(source);
             }
 

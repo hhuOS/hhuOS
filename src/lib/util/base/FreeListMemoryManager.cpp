@@ -86,7 +86,7 @@ void* FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
     }
 
     // align requested size to 4 byte
-    size = Util::Address<uint32_t>(size).alignUp(sizeof(uint32_t)).get();
+    size = Util::Address(size).alignUp(sizeof(uint32_t)).get();
 
     FreeListHeader *current = startChunk;
     FreeListHeader *aligned;
@@ -95,7 +95,7 @@ void* FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
     while (current != nullptr) {
         if (current->size >= size) {
             auto data = (reinterpret_cast<uint8_t*>(current)) + HEADER_SIZE;
-            auto alignedData = reinterpret_cast<uint8_t*>(Util::Address<uint32_t>(data).alignUp(alignment).get());
+            auto alignedData = reinterpret_cast<uint8_t*>(Util::Address(data).alignUp(alignment).get());
 
             // Found free Memory Block with required alignment
             if (data == alignedData) {
@@ -356,7 +356,7 @@ void* FreeListMemoryManager::reallocateMemory(void *ptr, uint32_t size, uint32_t
             Util::Exception::throwException(Exception::OUT_OF_BOUNDS, "realloc: Allocated memory outside of heap boundaries");
         }
 
-        Util::Address<uint32_t>(ret).copyRange(Util::Address<uint32_t>(ptr), (size < oldHeader->size) ? size : oldHeader->size);
+        Util::Address(ret).copyRange(Util::Address(ptr), (size < oldHeader->size) ? size : oldHeader->size);
         freeMemory(ptr, 0);
     }
 

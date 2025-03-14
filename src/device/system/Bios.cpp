@@ -80,7 +80,7 @@ void Bios::initialize() {
     *biosIdtDescriptor = Kernel::InterruptDescriptorTable::Descriptor(nullptr, 256 / 2); // Real mode entries are only half as wide
 
     // Copy 16-bit code to lower memory
-    const auto sourceAddress = Util::Address<uint32_t>(reinterpret_cast<uint32_t>(&bios_call_16_start));
+    const auto sourceAddress = Util::Address(reinterpret_cast<uint32_t>(&bios_call_16_start));
     const auto targetAddress = Kernel::MemoryLayout::BIOS_CALL_CODE_AREA.toAddress();
     const auto size = reinterpret_cast<uint32_t>(&bios_call_16_end) - reinterpret_cast<uint32_t>(&bios_call_16_start);
     targetAddress.copyRange(sourceAddress, size);

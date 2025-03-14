@@ -178,8 +178,8 @@ bool receiveDatagram(int32_t fileDescriptor, Util::Network::Datagram &datagram) 
 
     auto *datagramBuffer = new uint8_t[kernelDatagram->getLength()];
 
-    auto source = Util::Address<uint32_t>(kernelDatagram->getData());
-    auto target = Util::Address<uint32_t>(datagramBuffer);
+    auto source = Util::Address(kernelDatagram->getData());
+    auto target = Util::Address(datagramBuffer);
     target.copyRange(source, kernelDatagram->getLength());
 
     datagram.setData(datagramBuffer, kernelDatagram->getLength());

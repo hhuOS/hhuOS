@@ -34,27 +34,27 @@ int32_t memcmp(const void *str1, const void *str2, uint32_t n);
 static const constexpr DWORD DEFAULT_BLOCK_SIZE = 1;
 
 void* memset(void *str, int32_t c, uint32_t n) {
-    Util::Address<uint32_t>(str).setRange(c, n);
+    Util::Address(str).setRange(c, n);
     return str;
 }
 
 void* memcpy(void *dest, const void *src, uint32_t n) {
-    Util::Address<uint32_t> source(src);
-    Util::Address<uint32_t> target(dest);
+    Util::Address source(src);
+    Util::Address target(dest);
     target.copyRange(source, n);
 
     return dest;
 }
 
 int32_t memcmp(const void *str1, const void *str2, uint32_t n) {
-    Util::Address<uint32_t> address1(str1);
-    Util::Address<uint32_t> address2(str2);
+    Util::Address address1(str1);
+    Util::Address address2(str2);
 
     return address1.compareRange(address2, n);
 }
 
 char* strchr(const char *str, int c) {
-    return reinterpret_cast<char*>(Util::Address<uint32_t>(str).searchCharacter(c).get());
+    return reinterpret_cast<char*>(Util::Address(str).searchCharacter(c).get());
 }
 
 DSTATUS disk_status([[maybe_unused]] BYTE driveNumber) {

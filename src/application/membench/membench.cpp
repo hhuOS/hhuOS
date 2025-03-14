@@ -32,7 +32,7 @@ const constexpr uint8_t BENCHMARK_REPETITIONS = 10;
 
 Util::Math::Random random;
 
-Util::Time::Timestamp benchmarkMemset(const Util::Address<uint32_t> &address, uint32_t length) {
+Util::Time::Timestamp benchmarkMemset(const Util::Address &address, uint32_t length) {
     auto value = static_cast<uint32_t>(random.nextRandomNumber() * 0xff);
 
     auto start = Util::Time::getSystemTime();
@@ -40,7 +40,7 @@ Util::Time::Timestamp benchmarkMemset(const Util::Address<uint32_t> &address, ui
     return Util::Time::getSystemTime() - start;
 }
 
-Util::Time::Timestamp benchmarkMemcpy(const Util::Address<uint32_t> &source, const Util::Address<uint32_t> &target, uint32_t length) {
+Util::Time::Timestamp benchmarkMemcpy(const Util::Address &source, const Util::Address &target, uint32_t length) {
     auto start = Util::Time::getSystemTime();
     target.copyRange(source, length);
     return Util::Time::getSystemTime() - start;
@@ -91,7 +91,7 @@ int32_t main(int32_t argc, char *argv[]) {
             if (benchmarkType == "memset") {
                 // Allocate buffer
                 auto buffer = ::allocateMemory(size, Util::PAGESIZE);
-                auto address = Util::Address<uint32_t>(buffer);
+                auto address = Util::Address(buffer);
 
                 // Warmup round to make sure the memory is mapped
                 benchmarkMemset(address, size);
@@ -103,8 +103,8 @@ int32_t main(int32_t argc, char *argv[]) {
                 // Allocate source and target buffer
                 auto source = ::allocateMemory(size, Util::PAGESIZE);
                 auto target = ::allocateMemory(size, Util::PAGESIZE);
-                auto sourceAddress = Util::Address<uint32_t>(source);
-                auto targetAddress = Util::Address<uint32_t>(target);
+                auto sourceAddress = Util::Address(source);
+                auto targetAddress = Util::Address(target);
 
                 // Warmup round to make sure the memory is mapped
                 sourceAddress.setRange(static_cast<uint8_t>(random.nextRandomNumber() * 0xff), size);

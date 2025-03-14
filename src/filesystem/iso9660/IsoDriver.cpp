@@ -199,7 +199,7 @@ uint32_t IsoDriver::PathTableEntry::getLength() const {
 
 IsoDriver::PathTableEntry* IsoDriver::PathTableEntry::createCopy() const {
     auto copyBuffer = new uint8_t[getLength()];
-    Util::Address<uint32_t>(copyBuffer).copyRange(Util::Address<uint32_t>(this), getLength());
+    Util::Address(copyBuffer).copyRange(Util::Address(this), getLength());
 
     return reinterpret_cast<PathTableEntry*>(copyBuffer);
 }
@@ -219,7 +219,7 @@ Util::String IsoDriver::DirectoryRecord::getName() const {
 
 IsoDriver::DirectoryRecord* IsoDriver::DirectoryRecord::createCopy() const {
     auto copyBuffer = new uint8_t[recordLength];
-    Util::Address<uint32_t>(copyBuffer).copyRange(Util::Address<uint32_t>(this), recordLength);
+    Util::Address(copyBuffer).copyRange(Util::Address(this), recordLength);
 
     return reinterpret_cast<DirectoryRecord*>(copyBuffer);
 }

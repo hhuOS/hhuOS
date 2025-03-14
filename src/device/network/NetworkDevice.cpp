@@ -68,8 +68,8 @@ void NetworkDevice::sendPacket(const uint8_t *packet, uint32_t length) {
     auto *buffer = static_cast<uint8_t*>(memoryService.mapIO(1));
 
     // Copy packet into kernel buffer
-    auto source = Util::Address<uint32_t>(packet);
-    auto target = Util::Address<uint32_t>(buffer);
+    auto source = Util::Address(packet);
+    auto target = Util::Address(buffer);
     target.copyRange(source, length);
 
     // Add padding, if necessary
@@ -98,8 +98,8 @@ void NetworkDevice::handleIncomingPacket(const uint8_t *packet, uint32_t length)
         return; // No packet memory available -> Discard packet
     }
 
-    auto source = Util::Address<uint32_t>(packet);
-    auto target = Util::Address<uint32_t>(buffer);
+    auto source = Util::Address(packet);
+    auto target = Util::Address(buffer);
     target.copyRange(source, length);
 
     if (!incomingPacketQueue.offer(Packet{buffer, length})) {

@@ -40,7 +40,7 @@ namespace Kernel {
 
 Scheduler::Scheduler() {
     defaultFpuContext = static_cast<uint8_t*>(Service::getService<MemoryService>().allocateKernelMemory(512, 16));
-    Util::Address<uint32_t>(defaultFpuContext).setRange(0, 512);
+    Util::Address(defaultFpuContext).setRange(0, 512);
 
     if (Device::Fpu::isAvailable()) {
         LOG_INFO("FPU detected -> Enabling FPU context switching");

@@ -426,8 +426,8 @@ void Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
     boot_ap_entry = reinterpret_cast<uint32_t>(&applicationProcessorEntry);
 
     // Copy the startup routine and prepared variables to the identity mapped page
-    const auto startupCode = Util::Address<uint32_t>(reinterpret_cast<uint32_t>(&boot_ap));
-    const auto destination = Util::Address<uint32_t>(Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress);
+    const auto startupCode = Util::Address(reinterpret_cast<uint32_t>(&boot_ap));
+    const auto destination = Util::Address(Kernel::MemoryLayout::APPLICATION_PROCESSOR_STARTUP_CODE.startAddress);
     destination.copyRange(startupCode, boot_ap_size);
 }
 

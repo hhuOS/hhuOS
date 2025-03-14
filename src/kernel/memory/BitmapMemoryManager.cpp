@@ -40,7 +40,7 @@ void *BitmapMemoryManager::allocateBlock() {
     void *address = reinterpret_cast<void *>(startAddress + block * blockSize);
 
     if (zeroMemory) {
-        Util::Address<uint32_t>(address).setRange(0, blockSize);
+        Util::Address(address).setRange(0, blockSize);
     }
 
     return address;

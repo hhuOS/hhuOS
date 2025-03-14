@@ -21,7 +21,7 @@
 namespace Util::Io::Tar {
 
 Archive::Archive(uint32_t address) {
-    auto archiveAddress = Util::Address<uint32_t>(address);
+    auto archiveAddress = Util::Address(address);
 
     while (true) {
         auto *header = reinterpret_cast<Header*>(archiveAddress.get());

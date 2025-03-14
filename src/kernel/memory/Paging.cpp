@@ -22,7 +22,7 @@
 namespace Kernel {
 
 void Paging::Table::clear() {
-    Util::Address<uint32_t>(this).setRange(0, sizeof(Paging::Table));
+    Util::Address(this).setRange(0, sizeof(Paging::Table));
 }
 
 Paging::Entry &Paging::Table::operator[](uint32_t index) {

@@ -376,8 +376,8 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::Transfe
     bool success = false;
 
     if (mode == WRITE) {
-        auto sourceAddress = Util::Address<uint32_t>(buffer);
-        auto targetAddress = Util::Address<uint32_t>(dmaBuffer);
+        auto sourceAddress = Util::Address(buffer);
+        auto targetAddress = Util::Address(dmaBuffer);
         targetAddress.copyRange(sourceAddress, sectorCount * device.getSectorSize());
     }
 
@@ -420,8 +420,8 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::Transfe
         }
 
         if (mode == READ) {
-            auto sourceAddress = Util::Address<uint32_t>(dmaBuffer);
-            auto targetAddress = Util::Address<uint32_t>(buffer);
+            auto sourceAddress = Util::Address(dmaBuffer);
+            auto targetAddress = Util::Address(buffer);
             targetAddress.copyRange(sourceAddress, device.getSectorSize() * sectorCount);
         }
 

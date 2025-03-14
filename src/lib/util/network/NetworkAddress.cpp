@@ -26,7 +26,7 @@
 namespace Util::Network {
 
 NetworkAddress::NetworkAddress(uint8_t length, NetworkAddress::Type type) : buffer(new uint8_t[length]), length(length), type(type) {
-    Util::Address<uint32_t>(buffer).setRange(0, length);
+    Util::Address(buffer).setRange(0, length);
 }
 
 NetworkAddress::NetworkAddress(const uint8_t *buffer, uint8_t length, NetworkAddress::Type type) : NetworkAddress(length, type) {
@@ -58,8 +58,8 @@ bool NetworkAddress::operator==(const NetworkAddress &other) const {
         return false;
     }
 
-    auto first = Util::Address<uint32_t>(buffer);
-    auto second = Util::Address<uint32_t>(other.buffer);
+    auto first = Util::Address(buffer);
+    auto second = Util::Address(other.buffer);
     auto result = first.compareRange(second, getLength());
 
     return result == 0;
@@ -78,14 +78,14 @@ void NetworkAddress::write(Util::Io::OutputStream &stream) const {
 }
 
 void NetworkAddress::setAddress(const uint8_t *buffer) {
-    auto source = Util::Address<uint32_t>(buffer);
-    auto destination = Util::Address<uint32_t>(NetworkAddress::buffer);
+    auto source = Util::Address(buffer);
+    auto destination = Util::Address(NetworkAddress::buffer);
     destination.copyRange(source, length);
 }
 
 void NetworkAddress::getAddress(uint8_t *buffer) const {
-    auto source = Util::Address<uint32_t>(NetworkAddress::buffer);
-    auto destination = Util::Address<uint32_t>(buffer);
+    auto source = Util::Address(NetworkAddress::buffer);
+    auto destination = Util::Address(buffer);
     destination.copyRange(source, length);
 }
 

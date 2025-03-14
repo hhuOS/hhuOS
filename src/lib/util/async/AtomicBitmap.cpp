@@ -24,7 +24,7 @@ namespace Util::Async {
 AtomicBitmap::AtomicBitmap(uint32_t blockCount) : blocks(blockCount) {
     arraySize = (blockCount % 32 == 0) ? (blockCount / 32) : (blockCount / 32 + 1);
     bitmap = new uint32_t[arraySize];
-    Address<uint32_t>(bitmap).setRange(0, arraySize * sizeof(uint32_t));
+    Address(bitmap).setRange(0, arraySize * sizeof(uint32_t));
 }
 
 uint32_t AtomicBitmap::getSize() const {

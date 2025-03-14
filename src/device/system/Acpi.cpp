@@ -60,7 +60,7 @@ bool Acpi::hasTable(const char *signature) const {
     auto numTables = (rsdt->header.length - sizeof(Util::Hardware::Acpi::SdtHeader)) / sizeof(uint32_t);
 
     for (uint32_t i = 0; i < numTables; i++) {
-        if (Util::Address<uint32_t>(rsdt->tables[i]->signature).compareRange(Util::Address<uint32_t>(signature), sizeof(Util::Hardware::Acpi::SdtHeader::signature)) == 0) {
+        if (Util::Address(rsdt->tables[i]->signature).compareRange(Util::Address(signature), sizeof(Util::Hardware::Acpi::SdtHeader::signature)) == 0) {
             return true;
         }
     }
@@ -143,11 +143,11 @@ const Util::Hardware::Acpi::Rsdp* Acpi::findRsdp() {
 
 const Util::Hardware::Acpi::Rsdp* Acpi::searchRsdp(uint32_t startAddress, uint32_t endAddress) {
     char signature[sizeof(Util::Hardware::Acpi::Rsdp::signature)] = {'R', 'S', 'D', ' ', 'P', 'T', 'R', ' '};
-    auto signatureAddress = Util::Address<uint32_t>(signature);
-    startAddress = Util::Address<uint32_t>(startAddress).alignUp(16).get();
+    auto signatureAddress = Util::Address(signature);
+    startAddress = Util::Address(startAddress).alignUp(16).get();
 
     for (uint32_t i = startAddress; i <= endAddress - sizeof(signature); i += 16) {
-        auto address = Util::Address<uint32_t>(i);
+        auto address = Util::Address(i);
         if (address.compareRange(signatureAddress, sizeof(Util::Hardware::Acpi::Rsdp::signature)) == 0) {
             if (checkRsdp(reinterpret_cast<const Util::Hardware::Acpi::Rsdp*>(i))) {
                 return reinterpret_cast<const Util::Hardware::Acpi::Rsdp*>(i);

@@ -122,7 +122,7 @@ void Engine::initializeNextScene() {
     }
 
     auto resolution = GameManager::getAbsoluteResolution();
-    auto stringPositionX = static_cast<uint16_t>((resolution.getX() - Util::Address<uint32_t>(LOADING).stringLength() * statisticsFont.getCharWidth()) / 2.0);
+    auto stringPositionX = static_cast<uint16_t>((resolution.getX() - Util::Address(LOADING).stringLength() * statisticsFont.getCharWidth()) / 2.0);
     auto stringPositionY = static_cast<uint16_t>(resolution.getY() / 2.0);
 
     graphics.clear();
@@ -256,7 +256,7 @@ void Engine::checkMouse() {
                 scene.mouseListener->mouseScrolled(mouseUpdate.scroll);
             }
 
-            Util::Address<uint32_t>(mouseValues).setRange(0, 4);
+            Util::Address(mouseValues).setRange(0, 4);
             mouseValueIndex = 0;
         }
 

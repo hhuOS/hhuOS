@@ -244,7 +244,7 @@ void* Kernel::MemoryService::unmap(void *virtualAddress, uint32_t pageCount, uin
 
     // Align virtual address to page size
     if (reinterpret_cast<uint32_t>(virtualAddress) % Util::PAGESIZE != 0) {
-        virtualAddress = reinterpret_cast<void *>(Util::Address<uint32_t>(virtualAddress).alignUp(Util::PAGESIZE).get());
+        virtualAddress = reinterpret_cast<void *>(Util::Address(virtualAddress).alignUp(Util::PAGESIZE).get());
         pageCount -= 1;
     }
 

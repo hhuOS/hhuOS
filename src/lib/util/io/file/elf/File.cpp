@@ -96,8 +96,8 @@ void File::loadProgram() {
         auto header = programHeaders[i];
 
         if(header.type == ProgramHeaderType::LOAD) {
-            auto sourceAddress = Util::Address<uint32_t>(buffer + header.offset);
-            auto targetAddress = Util::Address<uint32_t>(header.virtualAddress);
+            auto sourceAddress = Util::Address(buffer + header.offset);
+            auto targetAddress = Util::Address(header.virtualAddress);
 
             targetAddress.copyRange(sourceAddress, header.fileSize);
         }

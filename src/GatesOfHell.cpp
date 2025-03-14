@@ -165,12 +165,12 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
 
     // Check if multiboot struct interferes with BIOS or SMP code
     if (multibootAddress < Kernel::MemoryLayout::USABLE_LOWER_MEMORY.startAddress) {
-        multibootAddress = Util::Address<uint32_t>(multibootAddress + multibootSize).alignUp(Util::PAGESIZE).get();
+        multibootAddress = Util::Address(multibootAddress + multibootSize).alignUp(Util::PAGESIZE).get();
         if (multibootAddress < Kernel::MemoryLayout::USABLE_LOWER_MEMORY.startAddress) {
             multibootAddress = Kernel::MemoryLayout::USABLE_LOWER_MEMORY.startAddress;
         }
 
-        Util::Address<uint32_t>(multibootAddress).copyRange(Util::Address<uint32_t>(multiboot), multiboot->getSize());
+        Util::Address(multibootAddress).copyRange(Util::Address(multiboot), multiboot->getSize());
         multiboot = reinterpret_cast<const Kernel::Multiboot*>(multibootAddress);
     }
 
@@ -197,7 +197,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         // Check free space before multiboot info
         if (multibootAddress - Kernel::MemoryLayout::USABLE_LOWER_MEMORY.startAddress < INITIAL_PAGING_AREA_SIZE + INITIAL_KERNEL_HEAP_SIZE) {
             // Not enough space before multiboot info -> Use memory after multiboot info
-            bootstrapMemory = Util::Address<uint32_t>(multibootAddress + multibootSize).alignUp(Util::PAGESIZE).get();
+            bootstrapMemory = Util::Address(multibootAddress + multibootSize).alignUp(Util::PAGESIZE).get();
         }
     }
 
@@ -214,11 +214,11 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     auto *pageTableMemory = reinterpret_cast<Kernel::Paging::Table*>(pagingAreaPhysical + sizeof(Kernel::Paging::Table));
 
     // Create identity mapping for kernel
-    const auto kernelSize = Util::Address<uint32_t>(KERNEL_DATA_END - KERNEL_DATA_START).alignUp(Util::PAGESIZE).get();
+    const auto kernelSize = Util::Address(KERNEL_DATA_END - KERNEL_DATA_START).alignUp(Util::PAGESIZE).get();
     pageTableMemory += createInitialMapping(*pageDirectory, pageTableMemory, KERNEL_DATA_START, KERNEL_DATA_START, kernelSize / Util::PAGESIZE);
 
     // Map beginning of paging area
-    const auto pagingAreaVirtual = Util::Address<uint32_t>(KERNEL_DATA_END).alignUp(Util::PAGESIZE).get();
+    const auto pagingAreaVirtual = Util::Address(KERNEL_DATA_END).alignUp(Util::PAGESIZE).get();
     pageTableMemory += createInitialMapping(*pageDirectory, pageTableMemory, pagingAreaPhysical, pagingAreaVirtual, INITIAL_PAGING_AREA_SIZE / Util::PAGESIZE);
 
     // Map beginning of kernel heap
@@ -226,8 +226,8 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     pageTableMemory += createInitialMapping(*pageDirectory, pageTableMemory, kernelHeapPhysical, kernelHeapVirtual, INITIAL_KERNEL_HEAP_SIZE / Util::PAGESIZE);
 
     // Copy memory map to end of initial kernel heap area (will be overwritten later on!)
-    auto memoryMapTarget = Util::Address<uint32_t>((kernelHeapPhysical + INITIAL_KERNEL_HEAP_SIZE) - memoryMap->tagHeader.size);
-    memoryMapTarget.copyRange(Util::Address<uint32_t>(memoryMap), memoryMap->tagHeader.size);
+    auto memoryMapTarget = Util::Address((kernelHeapPhysical + INITIAL_KERNEL_HEAP_SIZE) - memoryMap->tagHeader.size);
+    memoryMapTarget.copyRange(Util::Address(memoryMap), memoryMap->tagHeader.size);
     memoryMap = reinterpret_cast<Kernel::Multiboot::MemoryMapHeader*>((kernelHeapVirtual + INITIAL_KERNEL_HEAP_SIZE) - memoryMap->tagHeader.size);
 
     // Enable paging

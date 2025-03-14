@@ -35,8 +35,8 @@ uint64_t Filesystem::Memory::BufferNode::readData(uint8_t *targetBuffer, uint64_
         numBytes = length - pos;
     }
 
-    auto sourceAddress = Util::Address<uint32_t>(buffer).add(pos);
-    auto targetAddress = Util::Address<uint32_t>(targetBuffer);
+    auto sourceAddress = Util::Address(buffer).add(pos);
+    auto targetAddress = Util::Address(targetBuffer);
     targetAddress.copyRange(sourceAddress, numBytes);
 
     return numBytes;

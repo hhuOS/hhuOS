@@ -40,8 +40,8 @@ public:
             return endAddress - startAddress + 1;
         }
 
-        [[nodiscard]] Util::Address<uint32_t> toAddress() const {
-            return Util::Address<uint32_t>(startAddress);
+        [[nodiscard]] Util::Address toAddress() const {
+            return Util::Address(startAddress);
         }
     };
 
