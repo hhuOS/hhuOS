@@ -29,9 +29,11 @@
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/base/String.h"
 
-Missile::Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale, Player &player) : Util::Game::D3::Model(TAG, "/user/battlespace/missile.obj", translation, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::RED), player(&player) {}
+Missile::Missile(const Util::Math::Vector3D &position, const Util::Math::Vector3D &direction, Player &player) :
+    Util::Game::D3::Model(TAG, "/user/battlespace/missile.obj", position, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0.2, 0.2, 0.2), Util::Graphic::Colors::RED), player(&player), direction(direction) {}
 
-Missile::Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale) : Util::Game::D3::Model(TAG, "/user/battlespace/missile.obj", translation, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::GREEN) {}
+Missile::Missile(const Util::Math::Vector3D &position, const Util::Math::Vector3D &direction) :
+    Util::Game::D3::Model(TAG, "/user/battlespace/missile.obj", position, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0.2, 0.2, 0.2), Util::Graphic::Colors::GREEN), direction(direction) {}
 
 void Missile::onUpdate(double delta) {
     if (lifetime > 5) {
@@ -39,8 +41,8 @@ void Missile::onUpdate(double delta) {
     } else {
         lifetime += delta;
 
-        auto translation = lifetime < 0.5 ? Util::Math::Vector3D(0, 0, 0.04) : Util::Math::Vector3D(0, 0, 0.2);
-        translateLocal(translation * delta * 60);
+        auto speed = lifetime < START_SPEED_TIME ? START_SPEED : FULL_SPEED;
+        translate(direction * speed * delta * 60);
     }
 }
 

@@ -44,12 +44,12 @@ public:
     /**
      * Constructor.
      */
-    Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale, Player &player);
+    Missile(const Util::Math::Vector3D &position, const Util::Math::Vector3D &direction, Player &player);
 
     /**
      * Constructor.
      */
-    Missile(const Util::Math::Vector3D &translation, const Util::Math::Vector3D &rotation, double scale);
+    Missile(const Util::Math::Vector3D &position, const Util::Math::Vector3D &direction);
 
     /**
      * Copy Constructor.
@@ -80,6 +80,8 @@ private:
 
     Player *player = nullptr;
     double lifetime = 0;
+
+    Util::Math::Vector3D direction;
 };
 
 #endif

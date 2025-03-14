@@ -77,7 +77,7 @@ private:
     Util::ArrayList<Enemy*> enemies;
 
     Util::Math::Vector3D inputRotation = Util::Math::Vector3D(0, 0, 0);
-    Util::Math::Vector3D inputTranslate = Util::Math::Vector3D(0, 0, 0);
+    Util::Math::Vector3D inputTranslation = Util::Math::Vector3D(0, 0, 0);
     double inputSpeed = 1.0;
     uint16_t difficulty = 0;
 

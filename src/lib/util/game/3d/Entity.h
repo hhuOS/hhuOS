@@ -19,6 +19,9 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
 #ifndef HHUOS_ENTITY_3D_H
@@ -65,8 +68,6 @@ public:
      */
     ~Entity() override = default;
 
-    virtual void onTransformChange() = 0;
-
     virtual void onCollisionEvent(CollisionEvent &event) = 0;
 
     [[nodiscard]] const Math::Vector3D& getPosition() const;
@@ -79,9 +80,9 @@ public:
 
     [[nodiscard]] const Math::Vector3D& getRotation() const;
 
-    void setRotation(const Math::Vector3D &rotation);
+    void setRotation(const Math::Vector3D &angle);
 
-    void rotate(const Math::Vector3D &rotation);
+    void rotate(const Math::Vector3D &angle);
 
     [[nodiscard]] const Math::Vector3D& getScale() const;
 

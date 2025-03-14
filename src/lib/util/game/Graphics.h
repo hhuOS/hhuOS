@@ -22,6 +22,9 @@
  *
  * It has been enhanced with image rotation and scaling capabilities during a bachelor's thesis by Abdulbasir Gümüs
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
 #ifndef HHUOS_GRAPHICS_H
@@ -29,6 +32,7 @@
 
 #include <stdint.h>
 
+#include "lib/tinygl/include/zbuffer.h"
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "lib/util/graphic/LineDrawer.h"
 #include "lib/util/graphic/StringDrawer.h"
@@ -39,6 +43,9 @@
 #include "lib/util/base/String.h"
 #include "lib/util/math/Vector3D.h"
 #include "lib/util/math/Vector2D.h"
+#include "Camera.h"
+#include "lib/util/game/3d/Model.h"
+#include "lib/util/game/3d/Light.h"
 
 namespace Util {
 
@@ -82,21 +89,33 @@ public:
 
     /***** Basic functions to draw directly on the screen ******/
 
-    void drawLine(const Math::Vector2D &from, const Math::Vector2D &to) const;
+    void drawLineDirectAbsolute(uint16_t fromX, uint16_t fromY, uint16_t toX, uint16_t toY) const;
 
-    void drawPolygon(const Array<Math::Vector2D> &vertices) const;
+    void drawRectangleDirectAbsolute(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height) const;
 
-    void drawRectangle(const Math::Vector2D &position, double width, double height) const;
+    void drawSquareDirectAbsolute(uint16_t posX, uint16_t posY, uint16_t size) const;
 
-    void drawSquare(const Math::Vector2D &position, double size) const;
+    void fillRectangleDirectAbsolute(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height) const;
 
-    void fillRectangle(const Math::Vector2D &position, double width, double height) const;
+    void fillSquareDirectAbsolute(uint16_t posX, uint16_t posY, uint16_t size) const;
 
-    void fillSquare(const Math::Vector2D &position, double size) const;
+    void drawStringDirectAbsolute(const Graphic::Font &font, uint16_t posX, uint16_t posY, const char *string) const;
 
-    void drawString(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const;
+    void drawStringDirectAbsolute(const Graphic::Font &font, uint16_t posX, uint16_t posY, const String &string) const;
 
-    void drawString(const Graphic::Font &font, const Math::Vector2D &position, const String &string) const;
+    void drawLineDirect(const Math::Vector2D &from, const Math::Vector2D &to) const;
+
+    void drawRectangleDirect(const Math::Vector2D &position, double width, double height) const;
+
+    void drawSquareDirect(const Math::Vector2D &position, double size) const;
+
+    void fillRectangleDirect(const Math::Vector2D &position, double width, double height) const;
+
+    void fillSquareDirect(const Math::Vector2D &position, double size) const;
+
+    void drawStringDirect(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const;
+
+    void drawStringDirect(const Graphic::Font &font, const Math::Vector2D &position, const String &string) const;
 
     /***** 2D drawing functions, respecting the camera position *****/
 
@@ -118,15 +137,17 @@ public:
 
     void drawImage2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX = false, double alpha = 1, const Math::Vector2D &scale = Util::Math::Vector2D(1, 1), double rotationAngle = 0) const;
 
-    /***** 2D drawing functions *****/
+    /***** 3D drawing functions *****/
 
-    [[nodiscard]] static Math::Vector2D projectPoint(const Math::Vector3D &vertex, const Math::Vector3D &cameraPosition, const Math::Vector3D &cameraRotation) ;
-
-    void drawLine3D(const Math::Vector3D &from, const Math::Vector3D &to);
-
-    void drawModel(const Array<Math::Vector3D> &vertices, const Array<Math::Vector2D> &edges);
+    void drawModel(const D3::Model &model);
 
     /***** Miscellaneous *****/
+
+    void initializeGl();
+
+    void closeGl();
+
+    [[nodiscard]] bool glEnabled() const;
 
     void clear(const Graphic::Color &color = Util::Graphic::Colors::BLACK);
 
@@ -152,9 +173,11 @@ private:
 
     void drawImageScaledAndRotated2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, double alpha, const Util::Math::Vector2D &scale, double rotationAngle) const;
 
-    void resetCounters();
+    void gluPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar) const;
 
     Game &game;
+
+    ZBuffer *glBuffer = nullptr;
 
     const Graphic::BufferedLinearFrameBuffer bufferedLfb;
     const Graphic::PixelDrawer pixelDrawer;
@@ -165,13 +188,10 @@ private:
     const uint16_t offsetX;
     const uint16_t offsetY;
 
-    Math::Vector3D cameraPosition{};
-    Math::Vector3D cameraRotation{};
+    const Math::Vector3D worldUpVecotor = Math::Vector3D(0, 1, 0);
+    Camera camera;
 
     uint8_t *backgroundBuffer = nullptr;
-
-    uint32_t edgeCounter = 0;
-    uint32_t drawnEdgeCounter = 0;
 
     Graphic::Color color = Graphic::Colors::WHITE;
 

@@ -66,8 +66,6 @@ public:
 
     void draw(Util::Game::Graphics &graphics) override;
 
-    void onTransformChange() override;
-
     void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
 
     bool mayFireMissile();
@@ -84,7 +82,9 @@ public:
 
     void setMovementDirection(Util::Math::Vector3D direction);
 
-    void setSpeedDisplay(double speed);
+    void setSpeed(double speed);
+
+    [[nodiscard]] double getSpeed() const;
 
     static const constexpr uint32_t TAG = 0;
 
@@ -94,7 +94,7 @@ private:
 
     int16_t health = 100;
     uint32_t score = 0;
-    double speedDisplay = 0.0;
+    double speed = 0.0;
     double invulnerabilityTimer = 0;
     double missileTimer = 0;
     Util::Math::Vector3D currentMovementDirection;

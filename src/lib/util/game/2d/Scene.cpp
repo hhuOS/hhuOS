@@ -35,9 +35,10 @@
 namespace Util::Game::D2 {
 
 void Scene::initializeScene(Graphics &graphics) {
-    initialize();
     initializeBackground(graphics);
     graphics.saveCurrentStateAsBackground();
+
+    initialize();
 
     for (auto *entity : entities) {
         entity->initialize();

@@ -177,7 +177,7 @@ void PlayerDino::draw(Util::Game::Graphics &graphics) {
     currentAnimation->draw(graphics, getPosition());
 
     graphics.setColor(Util::Graphic::Colors::GREEN);
-    graphics.drawString(pointsFont, Util::Math::Vector2D(10, 10), Util::String::format("Points: %u", points));
+    graphics.drawStringDirectAbsolute(pointsFont, 10, 10, Util::String::format("Points: %u", points));
 }
 
 void PlayerDino::die() {

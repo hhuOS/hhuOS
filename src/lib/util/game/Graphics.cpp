@@ -25,13 +25,15 @@
 
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/math/Vector2D.h"
-#include "Game.h"
 #include "lib/util/game/Camera.h"
 #include "lib/util/graphic/Image.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/math/Math.h"
 #include "GameManager.h"
+#include "Game.h"
+#include "lib/util/game/3d/Scene.h"
+#include "lib/util/base/System.h"
 
 namespace Util::Game {
 
@@ -49,66 +51,102 @@ Graphics::Graphics(const Util::Graphic::LinearFrameBuffer &lfb, Game &game, doub
 
 /***** Basic functions to draw directly on the screen ******/
 
-void Graphics::drawLine(const Math::Vector2D &from, const Math::Vector2D &to) const {
-    lineDrawer.drawLine(static_cast<int32_t>(from.getX()), static_cast<int32_t>(from.getY()),
-                        static_cast<int32_t>(to.getX()), static_cast<int32_t>(to.getY()), color);
-
+void Graphics::drawLineDirectAbsolute(uint16_t fromX, uint16_t fromY, uint16_t toX, uint16_t toY) const {
+    lineDrawer.drawLine(fromX, fromY, toX, toY, color);
 }
 
-void Graphics::drawPolygon(const Array<Math::Vector2D> &vertices) const {
-    for (uint32_t i = 0; i < vertices.length() - 1; i++) {
-        drawLine(vertices[i], vertices[i + 1]);
+void Graphics::drawRectangleDirectAbsolute(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height) const {
+    drawLineDirectAbsolute(posX, posY, posX + width, posY);
+    drawLineDirectAbsolute(posX, posY + height, posX + width, posY + height);
+    drawLineDirectAbsolute(posX, posY, posX, posY + height);
+    drawLineDirectAbsolute(posX + width, posY, posX + width, posY + height);
+}
+
+void Graphics::drawSquareDirectAbsolute(uint16_t posX, uint16_t posY, uint16_t size) const {
+    drawRectangleDirectAbsolute(posX, posY, size, size);
+}
+
+void Graphics::fillRectangleDirectAbsolute(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height) const {
+    const uint16_t endX = posX + width;
+    const uint16_t endY = posY + height;
+
+    for (uint16_t i = posY; i < endY; i++) {
+        lineDrawer.drawLine(posX, i, endX, i, color);
     }
-
-    drawLine(vertices[vertices.length() - 1], vertices[0]);
 }
 
-void Graphics::drawRectangle(const Math::Vector2D &position, double width, double height) const {
+void Graphics::fillSquareDirectAbsolute(uint16_t posX, uint16_t posY, uint16_t size) const {
+    fillRectangleDirectAbsolute(posX, posY, size, size);
+}
+
+void Graphics::drawStringDirectAbsolute(const Graphic::Font &font, uint16_t posX, uint16_t posY, const char *string) const {
+    stringDrawer.drawString(font, posX, posY, string, color, Util::Graphic::Colors::INVISIBLE);
+}
+
+void Graphics::drawStringDirectAbsolute(const Graphic::Font &font, uint16_t posX, uint16_t posY, const String &string) const {
+    drawStringDirectAbsolute(font, posX, posY, static_cast<const char*>(string));
+}
+
+void Graphics::drawLineDirect(const Math::Vector2D &from, const Math::Vector2D &to) const {
+    drawLineDirectAbsolute(static_cast<uint16_t>(from.getX() * transformation + offsetX),
+                           static_cast<uint16_t>(-from.getY() * transformation + offsetY),
+                           static_cast<uint16_t>(to.getX() * transformation + offsetX),
+                           static_cast<uint16_t>(-to.getY() * transformation + offsetY));
+}
+
+void Graphics::drawRectangleDirect(const Math::Vector2D &position, double width, double height) const {
     const auto x = position.getX();
     const auto y = position.getY();
 
-    drawLine(position, Math::Vector2D(x + width, y));
-    drawLine(Math::Vector2D(x, y + height), Math::Vector2D(x + width, y + height));
-    drawLine(position, Math::Vector2D(x, y + height));
-    drawLine(Math::Vector2D(x + width, y), Math::Vector2D(x + width, y + height));
-
+    drawLineDirect(position, Math::Vector2D(x + width, y));
+    drawLineDirect(Math::Vector2D(x, y + height), Math::Vector2D(x + width, y + height));
+    drawLineDirect(position, Math::Vector2D(x, y + height));
+    drawLineDirect(Math::Vector2D(x + width, y), Math::Vector2D(x + width, y + height));
 }
 
-void Graphics::drawSquare(const Math::Vector2D &position, double size) const {
-    drawRectangle(position, size, size);
+void Graphics::drawSquareDirect(const Math::Vector2D &position, double size) const {
+    drawRectangleDirect(position, size, size);
 }
 
-void Graphics::fillRectangle(const Math::Vector2D &position, double width, double height) const {
-    const auto startX = static_cast<int32_t>(position.getX());
-    const auto endX = static_cast<int32_t>(position.getX() + width);
-    const auto startY = static_cast<int32_t>(position.getY());
-    const auto endY = static_cast<int32_t>(position.getY() + height);
+void Graphics::fillRectangleDirect(const Math::Vector2D &position, double width, double height) const {
+    auto startX = static_cast<int32_t>(position.getX() * transformation + offsetX);
+    auto endX = static_cast<int32_t>((position.getX() + width) * transformation + offsetX);
+    auto startY = static_cast<int32_t>(-position.getY() * transformation + offsetY);
+    auto endY = static_cast<int32_t>(-(position.getY() + height) * transformation + offsetY);
+
+    if (startY > endY) {
+        int32_t temp = startY;
+        startY = endY;
+        endY = temp;
+    }
 
     for (int32_t i = startY; i < endY; i++) {
         lineDrawer.drawLine(startX, i, endX, i, color);
     }
-
 }
 
-void Graphics::fillSquare(const Math::Vector2D &position, double size) const {
-    fillRectangle(position, size, size);
+void Graphics::fillSquareDirect(const Math::Vector2D &position, double size) const {
+    fillRectangleDirect(position, size, size);
 }
 
-void Graphics::drawString(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const {
-    stringDrawer.drawString(font, static_cast<uint16_t>(position.getX()), static_cast<uint16_t>(position.getY()), string, color, Util::Graphic::Colors::INVISIBLE);
+void Graphics::drawStringDirect(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const {
+    drawStringDirectAbsolute(font,
+                             static_cast<uint16_t>(position.getX() * transformation + offsetX),
+                             static_cast<uint16_t>(-position.getY() * transformation + offsetY),
+                             string);
 }
 
-void Graphics::drawString(const Graphic::Font &font, const Math::Vector2D &position, const String &string) const {
-    drawString(font, position, static_cast<const char*>(string));
+void Graphics::drawStringDirect(const Graphic::Font &font, const Math::Vector2D &position, const String &string) const {
+    drawStringDirect(font, position, static_cast<const char*>(string));
 }
 
 /***** 2D drawing functions, respecting the camera position *****/
 
 void Graphics::drawLine2D(const Math::Vector2D &from, const Math::Vector2D &to) const {
-    lineDrawer.drawLine(static_cast<int32_t>((from.getX() - cameraPosition.getX()) * transformation + offsetX),
-                        static_cast<int32_t>((-from.getY() + cameraPosition.getY()) * transformation + offsetY),
-                        static_cast<int32_t>((to.getX() - cameraPosition.getX()) * transformation + offsetX),
-                        static_cast<int32_t>((-to.getY() + cameraPosition.getY()) * transformation + offsetY), color);
+    lineDrawer.drawLine(static_cast<int32_t>((from.getX() - camera.getPosition().getX()) * transformation + offsetX),
+                        static_cast<int32_t>(-(from.getY() - camera.getPosition().getY()) * transformation + offsetY),
+                        static_cast<int32_t>((to.getX() - camera.getPosition().getX()) * transformation + offsetX),
+                        static_cast<int32_t>(-(to.getY() - camera.getPosition().getY()) * transformation + offsetY), color);
 }
 
 void Graphics::drawPolygon2D(const Array<Math::Vector2D> &vertices) const {
@@ -138,10 +176,16 @@ void Graphics::fillSquare2D(const Math::Vector2D &position, double size) const {
 }
 
 void Graphics::fillRectangle2D(const Math::Vector2D &position, double width, double height) const {
-    auto startX = static_cast<int32_t>((position.getX() - cameraPosition.getX()) * transformation + offsetX);
-    auto endX = static_cast<int32_t>((position.getX() + width - cameraPosition.getX()) * transformation + offsetX);
-    auto startY = static_cast<int32_t>((-position.getY() + cameraPosition.getY()) * transformation + offsetY);
-    auto endY = static_cast<int32_t>((-position.getY() + height + cameraPosition.getY()) * transformation + offsetY);
+    auto startX = static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX);
+    auto endX = static_cast<int32_t>((position.getX() + width - camera.getPosition().getX()) * transformation + offsetX);
+    auto startY = static_cast<int32_t>(-(position.getY() - camera.getPosition().getY()) * transformation + offsetY);
+    auto endY = static_cast<int32_t>(-(position.getY() + height - camera.getPosition().getY()) * transformation + offsetY);
+
+    if (startY > endY) {
+        int32_t temp = startY;
+        startY = endY;
+        endY = temp;
+    }
 
     for (int32_t i = startY; i < endY; i++) {
         lineDrawer.drawLine(startX, i, endX, i, color);
@@ -149,7 +193,10 @@ void Graphics::fillRectangle2D(const Math::Vector2D &position, double width, dou
 }
 
 void Graphics::drawString2D(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const {
-    stringDrawer.drawString(font, static_cast<int32_t>((position.getX() - cameraPosition.getX()) * transformation + offsetX), static_cast<int32_t>((-position.getY() + cameraPosition.getY()) * transformation + offsetY), string, color, Util::Graphic::Colors::INVISIBLE);
+    stringDrawer.drawString(font,
+        static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX),
+        static_cast<int32_t>(-(position.getY() - camera.getPosition().getY()) * transformation + offsetY),
+        string, color, Util::Graphic::Colors::INVISIBLE);
 }
 
 void Graphics::drawString2D(const Graphic::Font &font, const Math::Vector2D &position, const String &string) const {
@@ -171,89 +218,101 @@ void Graphics::drawImage2D(const Math::Vector2D &position, const Graphic::Image 
     }
 }
 
-// Based on https://en.wikipedia.org/wiki/3D_projection#Perspective_projection
-Math::Vector2D Graphics::projectPoint(const Math::Vector3D &vertex, const Math::Vector3D &cameraPosition, const Math::Vector3D &cameraRotation) {
-    const auto unitVector = Math::Vector3D(0, 0, 1);
-    const auto lineDirection = unitVector.rotate(cameraRotation);
-    const auto distanceToClosestPointOnLine = (vertex - cameraPosition).dot(lineDirection);
-
-    if (distanceToClosestPointOnLine <= 0) {
-        return Util::Math::Vector2D(-2, -2);
+void Graphics::drawModel(const D3::Model &model) {
+    if (!glEnabled()) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Graphics: OpenGL is not enabled");
     }
 
-    // Convert degree to radians
-    const auto cameraRotationRadians = cameraRotation * (Math::PI / 180);
+    const auto &position = model.getPosition();
+    const auto &rotation = model.getRotation();
+    const auto &scale = model.getScale();
+    const auto &vertices = model.getVertices();
+    const auto &normals = model.getVertexNormals();
+    // const auto &textureCoordinates = model.getVertexTextures();
+    const auto &vertexDrawOrder = model.getVertexDrawOrder();
+    const auto &normalDrawOrder = model.getNormalDrawOrder();
+    // const auto &textureDrawOrder = model.getTextureDrawOrder();
 
-    const double x = cameraRotationRadians.getX();
-    const double y = cameraRotationRadians.getY();
-    const double z = cameraRotationRadians.getZ();
+    glPushMatrix();
+    glTranslatef(position.getX(), position.getY(), position.getZ());
+    glRotatef(rotation.getX(), 0.0f, 0.0f, 1.0f);
+    glRotatef(rotation.getY(), 1.0f, 0.0f, 0.0f);
+    glRotatef(rotation.getZ(), 0.0f, 1.0f, 0.0f);
+    glScalef(scale.getX(), scale.getY(), scale.getZ());
+    glColor3f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
+    glBegin(GL_TRIANGLES);
 
-    const double sinX = Util::Math::sine(x);
-    const double cosX = Util::Math::cosine(x);
-    const double sinY = Util::Math::sine(y);
-    const double cosY = Util::Math::cosine(y);
-    const double sinZ = Util::Math::sine(z);
-    const double cosZ = Util::Math::cosine(z);
+    for (uint32_t i = 0; i < vertexDrawOrder.length(); i++) {
+        if (normalDrawOrder.length() > i) {
+            const auto &normal = normals[normalDrawOrder[i]];
+            glNormal3f(normal.getX(), normal.getY(), normal.getZ());
+        }
 
-    const auto rotationMatrix = Math::Matrix3x3 {
-            cosY * cosZ, cosY * sinZ, -sinY,
-            sinX * sinY * cosZ - cosX * sinZ, sinX * sinY * sinZ + cosX * cosZ, sinX * cosY,
-            cosX * sinY * cosZ + sinX * sinZ, cosX * sinY * sinZ - sinX * cosZ, cosX * cosY
-    };
+        const auto &vertex = vertices[vertexDrawOrder[i]];
+        glVertex3f(vertex.getX(), vertex.getY(), vertex.getZ());
+    }
 
-    const auto d = rotationMatrix * (vertex - cameraPosition);
-    const auto e = Util::Math::Vector3D(0, 0, FIELD_OF_VIEW);
-    const auto a = d.getZ() == 0 ? 1 : e.getZ() / d.getZ();
+    glEnd();
+    glPopMatrix();
+}
+void Graphics::initializeGl() {
+    glBuffer = ZB_open(bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY(), ZB_MODE_RGBA, reinterpret_cast<void*>(bufferedLfb.getBuffer().get()));
+    glInit(glBuffer);
 
-    return {
-            a * d.getX() + e.getX(),
-            a * d.getY() + e.getY()
-    };
+    const auto width = static_cast<GLdouble>(bufferedLfb.getResolutionX());
+    const auto height = static_cast<GLdouble>(bufferedLfb.getResolutionY());
+
+    // Set clear color to black
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+    // Set up the view port to match the resolution of the frame buffer
+    glViewport(0, 0, bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY());
+
+    // Set the camera perspective
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45.0,             // Camera angle
+                   width / height,   // Width to height ratio
+                   1.0,              // Near z-clipping coordinate (Object nearer than that will not be drawn)
+                   10000.0);         // Far z-clipping coordinate (Object farther than that will not be drawn)
+
+    // Enable required OpenGL features
+    glEnable(GL_DEPTH_TEST); // Depth testing to make sure the shapes are drawn in the correct order
+    glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_LIGHTING); // Enable lighting
+    glEnable(GL_NORMALIZE); // Automatically normalize normals
+
+    // Set shade model and render style
+    const auto &scene = reinterpret_cast<D3::Scene&>(game.getCurrentScene());
+    glShadeModel(scene.getGlShadeModel());
+    glPolygonMode(GL_FRONT_AND_BACK, scene.getGlRenderStyle());
 }
 
-void Graphics::drawLine3D(const Math::Vector3D &from, const Math::Vector3D &to) {
-    const auto v1 = projectPoint(from, cameraPosition, cameraRotation);
-    const auto v2 = projectPoint(to, cameraPosition, cameraRotation);
-
-    // Do not draw line, if both points are outside the camera view range
-    if ((v1.getX() < -1 || v1.getX() > 1 || v1.getY() < -1 || v1.getY() > 1) && (v2.getX() < -1 || v2.getX() > 1 || v2.getY() < -1 || v2.getY() > 1)) {
+void Graphics::closeGl() {
+    if (!glEnabled()) {
         return;
     }
 
-    // map the points of range (-1, 1) to actual screen coordinates
-    const auto x1 = static_cast<int32_t>((v1.getX() + 1) * (bufferedLfb.getResolutionX() / 2.0));
-    const auto y1 = static_cast<int32_t>(bufferedLfb.getResolutionY() - (v1.getY() + 1) * (bufferedLfb.getResolutionY() / 2.0));
-    const auto x2 = static_cast<int32_t>((v2.getX() + 1) * (bufferedLfb.getResolutionX() / 2.0));
-    const auto y2 = static_cast<int32_t>(bufferedLfb.getResolutionY() - (v2.getY() + 1) * (bufferedLfb.getResolutionY() / 2.0));
-
-    lineDrawer.drawLine(x1, y1, x2, y2, color);
-    drawnEdgeCounter++;
+    glClose();
+    ZB_close(glBuffer);
+    glBuffer = nullptr;
 }
 
-void Graphics::drawModel(const Array<Math::Vector3D> &vertices, const Array<Math::Vector2D> &edges) {
-    const auto numEdges = edges.length();
-    edgeCounter += numEdges;
-
-    for (uint32_t i = 0; i < numEdges; i++) {
-        const auto edge = edges[i];
-        const auto x = static_cast<int32_t>(edge.getX());
-        const auto y = static_cast<int32_t>(edge.getY());
-
-        // Do not draw edges where the vertices are the same
-        if (x == y) {
-            continue;
-        }
-
-        drawLine3D(vertices[x], vertices[y]);
-    }
+bool Graphics::glEnabled() const {
+    return glBuffer != nullptr;
 }
 
 void Graphics::show() const {
     bufferedLfb.flush();
 
+    if (glBuffer != nullptr) {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        return;
+    }
+
     if (backgroundBuffer == nullptr) {
         bufferedLfb.clear();
-    } else if (Math::Vector2D(cameraPosition.getX(), cameraPosition.getY()) == Math::Vector2D(0, 0)) {
+    } else if (Math::Vector2D(camera.getPosition().getX(), camera.getPosition().getY()) == Math::Vector2D(0, 0)) {
         auto source = Address<uint32_t>(backgroundBuffer);
         bufferedLfb.getBuffer().copyRange(source, bufferedLfb.getResolutionY() * bufferedLfb.getPitch());
     } else {
@@ -298,6 +357,11 @@ void Graphics::clearBackground() {
 }
 
 void Graphics::clear(const Graphic::Color &color) {
+    if (glBuffer != nullptr) {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        return;
+    }
+
     if (color == Util::Graphic::Colors::BLACK) {
         bufferedLfb.clear();
     } else {
@@ -310,20 +374,43 @@ void Graphics::clear(const Graphic::Color &color) {
 }
 
 void Graphics::update() {
-    auto &camera = game.getCurrentScene().getCamera();
-    cameraPosition = camera.getPosition();
-    cameraRotation = camera.getRotation();
-}
+    camera = game.getCurrentScene().getCamera();
 
-void Graphics::resetCounters() {
-    edgeCounter = 0;
-    drawnEdgeCounter = 0;
+    if (glEnabled()) {
+        // Set drawing perspective
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+
+        // Set camera position and rotation
+        glRotatef(camera.getRotation().getZ(), worldUpVecotor.getX(), worldUpVecotor.getY(), worldUpVecotor.getZ()); // Yaw
+        glRotatef(camera.getRotation().getY(), camera.getRightVector().getX(), camera.getRightVector().getY(), camera.getRightVector().getZ()); // Pitch
+        glTranslatef(-camera.getPosition().getX(), -camera.getPosition().getY(), -camera.getPosition().getZ()); // Position
+
+        // Lights
+        auto &scene = reinterpret_cast<D3::Scene &>(game.getCurrentScene());
+        GLfloat ambientColor[4] = { scene.getAmbientLight().getRed() / 255.0f, scene.getAmbientLight().getGreen() / 255.0f, scene.getAmbientLight().getBlue() / 255.0f, 1.0f };
+        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientColor);
+
+        for (uint32_t i = 0; i < 16; i++) {
+            if (scene.hasLight(i)) {
+                const auto &light = scene.getLight(i);
+                GLfloat position[4] = {static_cast<GLfloat>(light.getPosition().getX()), static_cast<GLfloat>(light.getPosition().getY()),
+                                       static_cast<GLfloat>(light.getPosition().getZ()), static_cast<GLfloat>(light.getType())};
+                GLfloat diffuse[4] = {light.getDiffuseColor().getRed() / 255.0f, light.getDiffuseColor().getGreen() / 255.0f, light.getDiffuseColor().getBlue() / 255.0f, 1.0f};
+                GLfloat specular[4] = {light.getSpecularColor().getRed() / 255.0f, light.getSpecularColor().getGreen() / 255.0f, light.getSpecularColor().getBlue() / 255.0f, 1.0f};
+
+                glLightfv(GL_LIGHT0 + i, GL_POSITION, position);
+                glLightfv(GL_LIGHT0 + i, GL_DIFFUSE, diffuse);
+                glLightfv(GL_LIGHT0 + i, GL_SPECULAR, specular);
+            }
+        }
+    }
 }
 
 void Graphics::drawImageDirect2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, double alpha) const {
     const auto *pixelBuffer = image.getPixelBuffer();
-    const auto xPixelOffset = static_cast<int32_t>((position.getX() - cameraPosition.getX()) * transformation + offsetX);
-    const auto yPixelOffset = static_cast<int32_t>((-position.getY() + cameraPosition.getY()) * transformation + offsetY);
+    const auto xPixelOffset = static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX);
+    const auto yPixelOffset = static_cast<int32_t>(-(position.getY() - camera.getPosition().getY()) * transformation + offsetY);
 
     if (xPixelOffset + image.getWidth() < 0 || xPixelOffset > bufferedLfb.getResolutionX() || yPixelOffset - image.getHeight() > bufferedLfb.getResolutionY() || yPixelOffset < 0) {
         return;
@@ -339,8 +426,8 @@ void Graphics::drawImageDirect2D(const Math::Vector2D &position, const Graphic::
 
 void Graphics::drawImageScaled2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, double alpha, const Math::Vector2D &scale) const {
     const auto *pixelBuffer = image.getPixelBuffer();
-    const auto xPixelOffset = static_cast<int16_t>((position.getX() - cameraPosition.getX()) * transformation + offsetX);
-    const auto yPixelOffset = static_cast<int16_t>((-position.getY() + cameraPosition.getY()) * transformation + offsetY);
+    const auto xPixelOffset = static_cast<int16_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX);
+    const auto yPixelOffset = static_cast<int16_t>(-(position.getY() - camera.getPosition().getY()) * transformation + offsetY);
 
     const auto scaledWidth = static_cast<uint16_t>(image.getWidth() * scale.getX());
     const auto scaledHeight = static_cast<uint16_t>(image.getHeight() * scale.getY());
@@ -365,8 +452,8 @@ void Graphics::drawImageScaled2D(const Math::Vector2D &position, const Graphic::
 
 void Graphics::drawImageRotated2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, double alpha, double rotationAngle) const {
     const auto *pixelBuffer = image.getPixelBuffer();
-    const auto xPixelOffset = static_cast<int32_t>((position.getX() - cameraPosition.getX()) * transformation + offsetX);
-    const auto yPixelOffset = static_cast<int32_t>((-position.getY() + cameraPosition.getY()) * transformation + offsetY);
+    const auto xPixelOffset = static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX);
+    const auto yPixelOffset = static_cast<int32_t>(-(position.getY() - camera.getPosition().getY()) * transformation + offsetY);
 
     const auto centerX = image.getWidth() / 2.0;
     const auto centerY = image.getHeight() / 2.0;
@@ -396,8 +483,8 @@ void Graphics::drawImageRotated2D(const Math::Vector2D &position, const Graphic:
 
 void Graphics::drawImageScaledAndRotated2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, double alpha, const Math::Vector2D &scale, double rotationAngle) const {
     const auto *pixelBuffer = image.getPixelBuffer();
-    const auto xPixelOffset = static_cast<int32_t>((position.getX() - cameraPosition.getX()) * transformation + offsetX);
-    const auto yPixelOffset = static_cast<int32_t>((-position.getY() + cameraPosition.getY()) * transformation + offsetY);
+    const auto xPixelOffset = static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX);
+    const auto yPixelOffset = static_cast<int32_t>(-(position.getY() - camera.getPosition().getY()) * transformation + offsetY);
 
     const auto scaledWidth = static_cast<uint16_t>(image.getWidth() * scale.getX());
     const auto scaledHeight = static_cast<uint16_t>(image.getHeight() * scale.getY());
@@ -442,6 +529,19 @@ void Graphics::drawImageScaledAndRotated2D(const Math::Vector2D &position, const
     }
 
     delete[] scaledPixelBuffer;
+}
+
+/**
+ * Taken from https://stackoverflow.com/questions/12943164/replacement-for-gluperspective-with-glfrustrum
+ */
+void Graphics::gluPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar) const {
+    const GLdouble pi = Util::Math::PI;
+    GLdouble fW, fH;
+
+    fH = Util::Math::tangent(fovY / 360 * pi) * zNear;
+    fW = fH * aspect;
+
+    glFrustum(-fW, fW, -fH, fH, zNear, zFar);
 }
 
 }

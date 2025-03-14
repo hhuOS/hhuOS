@@ -19,12 +19,18 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
 #ifndef HHUOS_SCENE_3D_H
 #define HHUOS_SCENE_3D_H
 
+#include "lib/tinygl/include/GL/gl.h"
 #include "lib/util/game/Scene.h"
+#include "Light.h"
+#include "lib/util/graphic/Colors.h"
 
 namespace Util {
 namespace Game {
@@ -37,6 +43,18 @@ namespace Util::Game::D3 {
 class Scene : public Util::Game::Scene {
 
 public:
+
+    enum GlRenderStyle : GLint {
+        POINTS = GL_POINT,
+        LINES = GL_LINE,
+        FILL = GL_FILL
+    };
+
+    enum GlShadeModel : GLint {
+        FLAT = GL_FLAT,
+        SMOOTH = GL_SMOOTH
+    };
+
     /**
      * Default Constructor.
      */
@@ -62,6 +80,41 @@ public:
     void updateEntities(double delta) override;
 
     void checkCollisions() override;
+
+    void setAmbientLight(const Graphic::Color &ambientLight);
+
+    Light& addLight(Light::Type type, const Math::Vector3D &position, const Graphic::Color &diffuseColor, const Graphic::Color &specularColor);
+
+    void removeLight(const Light &light);
+
+    [[nodiscard]] bool hasLight(uint32_t index) const;
+
+    [[nodiscard]] const Graphic::Color &getAmbientLight() const;
+
+    Light& getLight(uint32_t index);
+
+    [[nodiscard]] bool glEnabled() const;
+
+    [[nodiscard]] GlRenderStyle getGlRenderStyle() const;
+
+    void setGlRenderStyle(GlRenderStyle renderStyle);
+
+    [[nodiscard]] GlShadeModel getGlShadeModel() const;
+
+    void setGlShadeModel(GlShadeModel shadeModel);
+
+    [[nodiscard]] bool isLightEnabled() const;
+
+    void setLightEnabled(bool enabled);
+
+private:
+
+    bool lightEnabled = true;
+    Graphic::Color ambientLight = Graphic::Colors::WHITE.dim();
+    Light* lights[16]{};
+
+    GlRenderStyle renderStyle = FILL;
+    GlShadeModel shadeModel = SMOOTH;
 };
 
 }

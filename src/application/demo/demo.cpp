@@ -39,7 +39,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.setHelpText("Demo applications, showing off the systems graphical capabilities.\n"
                                "Usage: demo [DEMO] [OPTIONS]...\n"
-                               "Demos: ant, color, fonts, mouse, polygons, sprites\n"
+                               "Demos: ant, color, fonts, mouse, particles, polygons, sprites\n"
                                "Options:\n"
                                "  -r, --resolution: Set display resolution\n"
                                "  -s, --scale: Set display scale factor (Must be <= 1; The application will be rendered at a lower internal resolution and scaled up/centered to fill the screen)\n"
@@ -55,7 +55,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "demo: No arguments provided! Please specify a demo (ant, color, fonts, mouse, polygons, sprites)." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "demo: No arguments provided! Please specify a demo (ant, color, fonts, mouse, particles, polygons, sprites)." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 

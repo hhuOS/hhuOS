@@ -24,7 +24,11 @@
 #ifndef HHUOS_DRAWABLE_H
 #define HHUOS_DRAWABLE_H
 
-#include "Graphics.h"
+namespace Util {
+namespace Game {
+class Graphics;
+}
+}
 
 namespace Util::Game {
 

@@ -19,20 +19,36 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
 #include "Camera.h"
 
 #include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Math.h"
 
 namespace Util::Game {
 
-const Math::Vector3D &Camera::getPosition() const {
+Camera::Camera() {
+    reset();
+}
+
+const Math::Vector3D& Camera::getPosition() const {
     return position;
 }
 
-const Math::Vector3D &Camera::getRotation() const {
+const Math::Vector3D& Camera::getRotation() const {
     return rotation;
+}
+
+const Math::Vector3D& Camera::getTargetVector() const {
+    return targetVector;
+}
+
+const Math::Vector3D& Camera::getRightVector() const {
+    return rightVector;
 }
 
 void Camera::setPosition(const Math::Vector3D &position) {
@@ -43,8 +59,14 @@ void Camera::setPosition(const Math::Vector2D &position) {
     Camera::position = Math::Vector3D(position.getX(), position.getY(), 0);
 }
 
-void Camera::setRotation(const Math::Vector3D &rotation) {
-    this->rotation = rotation % 360;
+void Camera::setRotation(const Math::Vector3D &angle) {
+    rotation = angle % 360;
+
+    targetVector = Util::Math::Vector3D(
+            Util::Math::sine(Util::Math::toRadians(rotation.getZ())) * Util::Math::cosine(Util::Math::toRadians(rotation.getY())),
+            Util::Math::sine(Util::Math::toRadians(rotation.getY())),
+            -Util::Math::cosine(Util::Math::toRadians(rotation.getZ())) * Util::Math::cosine(Util::Math::toRadians(rotation.getY()))).normalize();
+    rightVector = targetVector.cross(Util::Math::Vector3D(0, 1, 0)).normalize();
 }
 
 void Camera::translate(const Math::Vector3D &translation) {
@@ -52,11 +74,15 @@ void Camera::translate(const Math::Vector3D &translation) {
 }
 
 void Camera::rotate(const Math::Vector3D &angle) {
-    rotation = (rotation + angle) % 360;
+    setRotation(rotation + angle);
 }
 
-void Camera::translateLocal(const Math::Vector3D &translation) {
-    translate(translation.rotate(rotation));
+void Camera::reset() {
+    position = { 0.0, 0.0, 0.0 };
+    rotation = { 0.0, 0.0, 0.0 };
+
+    targetVector = { 0.0, 0.0, -1.0 };
+    rightVector = { 1.0f, 0.0f, 0.0f };
 }
 
 }

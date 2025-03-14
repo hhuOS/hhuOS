@@ -19,6 +19,13 @@ cmake_minimum_required(VERSION 3.14)
 project(dino)
 message(STATUS "Project " ${PROJECT_NAME})
 
+add_compile_options(
+        -Wno-unused-function
+        $<$<COMPILE_LANGUAGE:C>:-Wno-unused-variable>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-unused-parameter>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
+)
+
 include_directories(${HHUOS_SRC_DIR})
 
 # Set source files

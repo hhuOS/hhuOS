@@ -19,6 +19,9 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
 #include "Model.h"
@@ -46,45 +49,35 @@ void Model::initialize() {
     }
 
     objectFile = ResourceManager::getObjectFile(modelPath);
-    transformedBuffer = Util::Array<Math::Vector3D>(objectFile->getVertices().length());
-    calculateTransformedVertices();
-}
-
-void Model::calculateTransformedVertices() {
-    const auto &vertices = objectFile->getVertices();
-    for (uint32_t i = 0; i < vertices.length(); i++) {
-        auto vertex = vertices[i];
-
-        vertex = vertex.scale(getScale());
-        vertex = vertex.rotate(getRotation());
-        vertex = vertex + getPosition();
-
-        transformedBuffer[i] = vertex;
-    }
 }
 
 void Model::draw(Graphics &graphics) {
-    auto &camera = Util::Game::GameManager::getCurrentScene().getCamera();
-    auto minXProjection = Util::Game::Graphics::projectPoint(getPosition() + Util::Math::Vector3D(-getCollider().getRadius(), 0, 0), camera.getPosition(), camera.getRotation());
-    auto maxXProjection = Util::Game::Graphics::projectPoint(getPosition() + Util::Math::Vector3D(getCollider().getRadius(), 0, 0), camera.getPosition(), camera.getRotation());
-    auto minYProjection = Util::Game::Graphics::projectPoint(getPosition() + Util::Math::Vector3D(0, -getCollider().getRadius(), 0), camera.getPosition(), camera.getRotation());
-    auto maxYProjection = Util::Game::Graphics::projectPoint(getPosition() + Util::Math::Vector3D(0, getCollider().getRadius(), 0), camera.getPosition(), camera.getRotation());
-    auto minZProjection = Util::Game::Graphics::projectPoint(getPosition() + Util::Math::Vector3D(0, 0, -getCollider().getRadius()), camera.getPosition(), camera.getRotation());
-    auto maxZProjection = Util::Game::Graphics::projectPoint(getPosition() + Util::Math::Vector3D(0, 0, getCollider().getRadius()), camera.getPosition(), camera.getRotation());
-
-    if (((minXProjection.getX() >= -1 && minXProjection.getX() <= 1) && (minXProjection.getY() >= -1 && minXProjection.getY() <= 1)) ||
-            ((maxXProjection.getX() >= -1 && maxXProjection.getX() <= 1) && (maxXProjection.getY() >= -1 && maxXProjection.getY() <= 1)) ||
-            ((minYProjection.getX() >= -1 && minYProjection.getX() <= 1) && (minYProjection.getY() >= -1 && minYProjection.getY() <= 1)) ||
-            ((maxYProjection.getX() >= -1 && maxYProjection.getX() <= 1) && (maxYProjection.getY() >= -1 && maxYProjection.getY() <= 1)) ||
-            ((minZProjection.getX() >= -1 && minZProjection.getX() <= 1) && (minZProjection.getY() >= -1 && minZProjection.getY() <= 1)) ||
-            ((maxZProjection.getX() >= -1 && maxZProjection.getX() <= 1) && (maxZProjection.getY() >= -1 && maxZProjection.getY() <= 1))) {
-        graphics.setColor(color);
-        graphics.drawModel(transformedBuffer, objectFile->getEdges());
-    }
+    graphics.setColor(color);
+    graphics.drawModel(*this);
 }
 
-void Model::onTransformChange() {
-    calculateTransformedVertices();
+const Array<Math::Vector3D> &Model::getVertices() const {
+    return objectFile->getVertices();
+}
+
+const Array<Math::Vector3D> &Model::getVertexNormals() const {
+    return objectFile->getVertexNormals();
+}
+
+const Array<Math::Vector3D> &Model::getVertexTextures() const {
+    return objectFile->getVertexTextures();
+}
+
+const Array<uint32_t> &Model::getVertexDrawOrder() const {
+    return objectFile->getVertexDrawOrder();
+}
+
+const Array<uint32_t> &Model::getNormalDrawOrder() const {
+    return objectFile->getNormalDrawOrder();
+}
+
+const Array<uint32_t> &Model::getTextureDrawOrder() const {
+    return objectFile->getTextureDrawOrder();
 }
 
 }

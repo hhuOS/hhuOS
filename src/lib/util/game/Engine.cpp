@@ -45,6 +45,7 @@
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "lib/util/graphic/Font.h"
 #include "lib/util/base/FreeListMemoryManager.h"
+#include "lib/util/game/3d/Scene.h"
 
 namespace Util::Game {
 
@@ -65,11 +66,12 @@ Engine::~Engine() {
 void Engine::run() {
     const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / targetFrameRate));
 
+    // Initialize screen and standard input
     Graphic::Ansi::prepareGraphicalApplication(true);
-    initializeNextScene();
-
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
     mouseInputStream->setAccessMode(Io::File::NON_BLOCKING);
+
+    initializeNextScene();
 
     while (game.isRunning()) {
         if (game.sceneSwitched) {
@@ -94,7 +96,6 @@ void Engine::run() {
         statistics.stopUpdateTimeTime();
 
         statistics.startDrawTime();
-        graphics.resetCounters();
         scene.draw(graphics);
         if (showStatus) drawStatus();
         graphics.show();
@@ -109,20 +110,24 @@ void Engine::run() {
 
         statistics.stopFrameTime();
     }
+
+    graphics.closeGl();
 }
 
 void Engine::initializeNextScene() {
     if (!game.firstScene) {
+        graphics.closeGl();
         game.getCurrentScene().getCamera().setPosition(Math::Vector3D(0, 0, 0));
         graphics.update();
     }
 
     auto resolution = GameManager::getAbsoluteResolution();
-    auto stringPosition = Math::Vector2D((resolution.getX() - Util::Address<uint32_t>(LOADING).stringLength() * statisticsFont.getCharWidth()) / 2.0, resolution.getY() / 2.0);
+    auto stringPositionX = static_cast<uint16_t>((resolution.getX() - Util::Address<uint32_t>(LOADING).stringLength() * statisticsFont.getCharWidth()) / 2.0);
+    auto stringPositionY = static_cast<uint16_t>(resolution.getY() / 2.0);
 
     graphics.clear();
     graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawString(statisticsFont, stringPosition, LOADING);
+    graphics.drawStringDirectAbsolute(statisticsFont, stringPositionX, stringPositionY, LOADING);
     graphics.show();
 
     statistics.reset();
@@ -143,21 +148,25 @@ void Engine::drawStatus() {
     auto charHeight = statisticsFont.getCharHeight() + 2;
     auto color = graphics.getColor();
 
+    const auto &camera = game.getCurrentScene().getCamera();
     const auto &memoryManager = Util::System::getAddressSpaceHeader().memoryManager;
-    auto heapUsed = (memoryManager.getTotalMemory() - memoryManager.getFreeMemory());
-    auto heapUsedM = heapUsed / 1000 / 1000;
-    auto heapUsedK = (heapUsed - heapUsedM * 1000 * 1000) / 1000;
+    const auto heapUsed = (memoryManager.getTotalMemory() - memoryManager.getFreeMemory());
+    const auto heapUsedM = heapUsed / 1000 / 1000;
+    const auto heapUsedK = (heapUsed - heapUsedM * 1000 * 1000) / 1000;
 
     graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawString(statisticsFont, Math::Vector2D(10, 10), String::format("FPS: %u | Frame time: %u.%ums", status.framesPerSecond,
+    graphics.drawStringDirectAbsolute(statisticsFont, 10, 10, String::format("FPS: %u | Frame time: %u.%ums", status.framesPerSecond,
             static_cast<uint32_t>(status.frameTime.toMilliseconds()), static_cast<uint32_t>((status.frameTime.toMicroseconds() - status.frameTime.toMilliseconds() * 1000) / 100)));
-    graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight), String::format("Draw: %u.%ums | Update: %u.%ums | Idle: %u.%ums",
+    graphics.drawStringDirectAbsolute(statisticsFont, 10, 10 + charHeight, String::format("Draw: %u.%ums | Update: %u.%ums | Idle: %u.%ums",
             static_cast<uint32_t>(status.drawTime.toMilliseconds()), static_cast<uint32_t>((status.drawTime.toMicroseconds() - status.drawTime.toMilliseconds() * 1000) / 100),
             static_cast<uint32_t>(status.updateTime.toMilliseconds()), static_cast<uint32_t>((status.updateTime.toMicroseconds() - status.updateTime.toMilliseconds() * 1000) / 100),
             static_cast<uint32_t>(status.idleTime.toMilliseconds()), static_cast<uint32_t>((status.idleTime.toMicroseconds() - status.idleTime.toMilliseconds() * 1000) / 100)));
-    graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight * 2), String::format("Objects: %u | Edges: %u/%u", game.getCurrentScene().getObjectCount(), graphics.drawnEdgeCounter, graphics.edgeCounter));
-    graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight * 3), String::format("Heap used: %u.%03u MB", heapUsedM, heapUsedK));
-    graphics.drawString(statisticsFont, Math::Vector2D(10, 10 + charHeight * 4), String::format("Resolution: %ux%u@%u", graphics.bufferedLfb.getResolutionX(), graphics.bufferedLfb.getResolutionY(), graphics.bufferedLfb.getColorDepth()));
+    graphics.drawStringDirectAbsolute(statisticsFont, 10, 10 + charHeight * 2, String::format("Objects: %u", game.getCurrentScene().getObjectCount()));
+    graphics.drawStringDirectAbsolute(statisticsFont, 10, 10 + charHeight * 3, String::format("Heap used: %u.%03u MB", heapUsedM, heapUsedK));
+    graphics.drawStringDirectAbsolute(statisticsFont, 10, 10 + charHeight * 4, String::format("Resolution: %ux%u@%u", graphics.bufferedLfb.getResolutionX(), graphics.bufferedLfb.getResolutionY(), graphics.bufferedLfb.getColorDepth()));
+    graphics.drawStringDirectAbsolute(statisticsFont, 10, 10 + charHeight * 5, String::format("Camera: Position(%d, %d, %d), Rotation(%d, %d, %d)",
+            static_cast<int32_t>(camera.getPosition().getX()), static_cast<int32_t>(camera.getPosition().getY()), static_cast<int32_t>(camera.getPosition().getZ()),
+            static_cast<int32_t>(camera.getRotation().getX()), static_cast<int32_t>(camera.getRotation().getY()), static_cast<int32_t>(camera.getRotation().getZ())));
     graphics.setColor(color);
 }
 
@@ -169,9 +178,46 @@ void Engine::checkKeyboard() {
             auto &scene = game.getCurrentScene();
 
             switch (key.getScancode()) {
-                case Io::Key::F1 :
-                    if (key.isPressed()) showStatus = !showStatus;
+                case Io::Key::F1:
+                    if (key.isPressed()) {
+                        showStatus = !showStatus;
+                    }
                     break;
+                case Io::Key::F2:
+                    if (key.isPressed() && graphics.glEnabled()) {
+                        auto &scene3d = reinterpret_cast<D3::Scene&>(scene);
+                        switch (scene3d.getGlRenderStyle()) {
+                            case D3::Scene::GlRenderStyle::POINTS:
+                                scene3d.setGlRenderStyle(D3::Scene::GlRenderStyle::LINES);
+                                break;
+                            case D3::Scene::GlRenderStyle::LINES:
+                                scene3d.setGlRenderStyle(D3::Scene::GlRenderStyle::FILL);
+                                break;
+                            case D3::Scene::GlRenderStyle::FILL:
+                                scene3d.setGlRenderStyle(D3::Scene::GlRenderStyle::POINTS);
+                                break;
+                        }
+                    }
+                    break;
+                case Io::Key::F3:
+                    if (key.isPressed() && graphics.glEnabled()) {
+                        auto &scene3d = reinterpret_cast<D3::Scene&>(scene);
+                        scene3d.setLightEnabled(!scene3d.isLightEnabled());
+                    }
+                break;
+                case Io::Key::F4:
+                    if (key.isPressed() && graphics.glEnabled()) {
+                        auto &scene3d = reinterpret_cast<D3::Scene&>(scene);
+                        switch (scene3d.getGlShadeModel()) {
+                            case D3::Scene::GlShadeModel::FLAT:
+                                scene3d.setGlShadeModel(D3::Scene::GlShadeModel::SMOOTH);
+                                break;
+                            case D3::Scene::GlShadeModel::SMOOTH:
+                                scene3d.setGlShadeModel(D3::Scene::GlShadeModel::FLAT);
+                                break;
+                        }
+                    }
+                break;
                 default:
                     if (scene.keyListener != nullptr) {
                         key.isPressed() ? scene.keyListener->keyPressed(key) : scene.keyListener->keyReleased(key);

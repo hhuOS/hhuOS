@@ -34,6 +34,7 @@
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/graphic/Font.h"
+#include "lib/util/game/Scene.h"
 
 Player::Player(const Util::ArrayList<Enemy *> &enemies) : Util::Game::D3::Entity(TAG, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0, 0, 0), Util::Game::D3::SphereCollider(Util::Math::Vector3D(0, 0, 0), 0.8)), enemies(enemies) {}
 
@@ -45,89 +46,71 @@ void Player::onUpdate(double delta) {
 }
 
 void Player::draw(Util::Game::Graphics &graphics) {
-    auto &font = Util::Graphic::Font::getFontForResolution(static_cast<uint32_t>(Util::Game::GameManager::getAbsoluteResolution().getY()));
-    const auto &resolution = Util::Game::GameManager::getAbsoluteResolution();
-    const auto centerX = resolution.getX() / 2;
-    const auto centerY = resolution.getY() / 2;
-
+    const auto &font = Util::Graphic::Font::getFontForResolution(static_cast<uint32_t>(Util::Game::GameManager::getAbsoluteResolution().getY()));
     graphics.setColor(Util::Graphic::Colors::GREEN);
 
     // Draw reticle
-    auto raytraceDirection = Util::Math::Vector3D(0, 0, 1).rotate(getRotation());
-    auto raytraceOffset = raytraceDirection + getPosition();
-    auto *aimTarget = Util::Game::D3::Util::findEntityUsingRaytrace(reinterpret_cast<const Util::ArrayList<Util::Game::D3::Entity*>&>(enemies), raytraceOffset, raytraceDirection, 20, 0.5);
+    auto raytraceDirection = Util::Game::GameManager::getCurrentScene().getCamera().getTargetVector();
+    auto *aimTarget = Util::Game::D3::Util::findEntityUsingRaytrace(reinterpret_cast<const Util::ArrayList<Util::Game::D3::Entity*>&>(enemies), getPosition() + raytraceDirection, raytraceDirection, 20, 0.1);
 
     if (aimTarget != nullptr) {
         graphics.setColor(Util::Graphic::Colors::RED);
     }
 
-    graphics.drawLine({centerX - 20, centerY}, {centerX - 50, centerY});
-    graphics.drawLine({centerX + 20, centerY}, {centerX + 50, centerY});
-    graphics.drawLine({centerX, centerY + 20}, {centerX, centerY + 50});
-    graphics.drawLine({centerX, centerY - 20}, {centerX, centerY - 50});
+    graphics.drawLineDirect(Util::Math::Vector2D(-0.025, 0), Util::Math::Vector2D(-0.1, 0));
+    graphics.drawLineDirect(Util::Math::Vector2D(0.025, 0), Util::Math::Vector2D(0.1, 0));
+    graphics.drawLineDirect(Util::Math::Vector2D(0, 0.025), Util::Math::Vector2D(0, 0.1));
+    graphics.drawLineDirect(Util::Math::Vector2D(0, -0.025), Util::Math::Vector2D(0, -0.1));
 
     graphics.setColor(invulnerabilityTimer > 0 ? Util::Graphic::Colors::RED : Util::Graphic::Colors::GREEN);
 
     // Draw player stats
-    graphics.drawString(font, Util::Math::Vector2D(10, 20), "Health  : ");
-    graphics.drawString(font, Util::Math::Vector2D(10, 24 + 1 * font.getCharHeight()), Util::String::format("Score   : %d", score));
-    graphics.drawString(font, Util::Math::Vector2D(10, 28 + 2 * font.getCharHeight()), Util::String::format("Enemies : %d", enemies.size()));
+    graphics.drawStringDirect(font, Util::Math::Vector2D(-0.95, 0.95), Util::String("Health  : "));
+    graphics.drawStringDirect(font, Util::Math::Vector2D(-0.95, 0.89), Util::String::format("Score   : %d", score));
+    graphics.drawStringDirect(font, Util::Math::Vector2D(-0.95, 0.83), Util::String::format("Enemies : %d", enemies.size()));
 
-    graphics.drawRectangle(Util::Math::Vector2D(70, 22), 100, font.getCharHeight() - 4);
-    graphics.fillRectangle(Util::Math::Vector2D(70, 22), health, font.getCharHeight() - 4);
+    graphics.drawRectangleDirect(Util::Math::Vector2D(-0.7, 0.94), 0.3, -0.025);
+    graphics.fillRectangleDirect(Util::Math::Vector2D(-0.7, 0.94), 0.3 * (getHealth() / 100.0), -0.025);
 
     // Draw speedometer
-    const auto speedMeterX = resolution.getX() - 15;
-    const auto speedMeterScalar = 120;
-    const auto speedMeterY = speedDisplay > 0 ? centerY - (speedDisplay * speedMeterScalar * 2) : centerY;
-    const auto speedMeterExtend = Util::Math::absolute(speedDisplay) * speedMeterScalar * 2;
-    graphics.fillRectangle(Util::Math::Vector2D(speedMeterX, speedMeterY), 10, speedMeterExtend);
+    graphics.fillRectangleDirect(Util::Math::Vector2D(0.9375, 0), 0.025, speed * 0.95);
 
-    graphics.drawLine(Util::Math::Vector2D(speedMeterX - 10, centerY - speedMeterScalar * 2), Util::Math::Vector2D(speedMeterX + 10, centerY - speedMeterScalar * 2));
-    graphics.drawLine(Util::Math::Vector2D(speedMeterX - 8, centerY - speedMeterScalar), Util::Math::Vector2D(speedMeterX + 8, centerY - speedMeterScalar));
-    graphics.drawLine(Util::Math::Vector2D(speedMeterX - 10, centerY), Util::Math::Vector2D(speedMeterX + 10, centerY));
-    graphics.drawLine(Util::Math::Vector2D(speedMeterX - 8, centerY + speedMeterScalar), Util::Math::Vector2D(speedMeterX + 8, centerY + speedMeterScalar));
-    graphics.drawLine(Util::Math::Vector2D(speedMeterX - 10, centerY + speedMeterScalar * 2), Util::Math::Vector2D(speedMeterX + 10, centerY + speedMeterScalar * 2));
+    graphics.drawLineDirect(Util::Math::Vector2D(0.925, 0.95), Util::Math::Vector2D(0.975, 0.95));
+    graphics.drawLineDirect(Util::Math::Vector2D(0.925, 0.5), Util::Math::Vector2D(0.975, 0.5));
+    graphics.drawLineDirect(Util::Math::Vector2D(0.925, 0), Util::Math::Vector2D(0.975, 0));
+    graphics.drawLineDirect(Util::Math::Vector2D(0.925, -0.5), Util::Math::Vector2D(0.975, -0.5));
+    graphics.drawLineDirect(Util::Math::Vector2D(0.925, -0.95), Util::Math::Vector2D(0.975, -0.95));
 
     // Draw radar
-    auto radarLocation = Util::Math::Vector2D(55, resolution.getY() - 55);
-    auto radarX = radarLocation.getX();
-    auto radarY = radarLocation.getY();
-    auto radarSize = 50;
+    auto headerSting = Util::String::format("P: %d  Y: %d", static_cast<int32_t>(getRotation().getY()), static_cast<int32_t>(getRotation().getZ()));
+    graphics.drawStringDirect(font, Util::Math::Vector2D(-0.95, -0.6), headerSting);
 
-    auto headerSting = Util::String::format("Y: %d  P: %d", static_cast<int32_t>(getRotation().getY()), static_cast<int32_t>(getRotation().getX()));
-    graphics.drawString(font, Util::Math::Vector2D(radarX - radarSize, radarY - radarSize - 15), headerSting);
+    graphics.drawSquareDirect(Util::Math::Vector2D(-0.95, -0.95), 0.3);
 
-    graphics.drawLine({radarX - radarSize, radarY - radarSize}, {radarX + radarSize, radarY - radarSize});
-    graphics.drawLine({radarX + radarSize, radarY - radarSize}, {radarX + radarSize, radarY + radarSize});
-    graphics.drawLine({radarX + radarSize, radarY + radarSize}, {radarX - radarSize, radarY + radarSize});
-    graphics.drawLine({radarX - radarSize, radarY + radarSize}, {radarX - radarSize, radarY - radarSize});
-
-    graphics.fillSquare(radarLocation, 2);
+    graphics.fillSquareDirect(Util::Math::Vector2D(-0.8, -0.8), 0.003);
     graphics.setColor(Util::Graphic::Colors::RED);
 
     for (uint32_t i = 0; i < enemies.size(); i++) {
-        auto enemyLocation = enemies.get(i)->getPosition();
-        auto relativeX = enemyLocation.getX() - getPosition().getX();
-        auto relativeY = enemyLocation.getY() - getPosition().getY();
-        auto relativeZ = enemyLocation.getZ() - getPosition().getZ();
-        auto relativeOnPlane = Util::Math::Vector3D(relativeX, 0, relativeZ).rotate(Util::Math::Vector3D(0, -getRotation().getY(), 0));
-        auto drawX = relativeOnPlane.getX() / 20.0 * radarSize;
-        auto drawY = -relativeOnPlane.getZ() / 20.0 * radarSize;
+        auto enemyTargetVector = enemies.get(i)->getPosition() - getPosition();
+        auto relativeOnPlane = Util::Math::Vector3D(enemyTargetVector.getX(), 0, -enemyTargetVector.getZ()).rotate(Util::Math::Vector3D(0, -getRotation().getZ(), 0));
+        auto drawX = relativeOnPlane.getX() / 20 * 0.15;
+        auto drawY = relativeOnPlane.getZ() / 20 * 0.15;
 
-        if (Util::Math::absolute(drawX) <= radarSize - 5 && Util::Math::absolute(drawY) <= radarSize - 5) {
-            Util::String drawString = "X";
-
+        if (Util::Math::absolute(drawX) < 0.13 && Util::Math::absolute(drawY) < 0.13) {
             auto cutoffWhenOnSameHeight = 3;
-            if (relativeY > cutoffWhenOnSameHeight) drawString = "^";
-            else if (relativeY < -cutoffWhenOnSameHeight) drawString = "v";
-
-            graphics.drawString(font, {radarX + drawX - 3, radarY + drawY - 3}, drawString);
+            if (enemyTargetVector.getY() > cutoffWhenOnSameHeight) {
+                graphics.drawLineDirect(Util::Math::Vector2D(-0.8 + drawX + 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2D(-0.8 + drawX, -0.8 + drawY));
+                graphics.drawLineDirect(Util::Math::Vector2D(-0.8 + drawX - 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2D(-0.8 + drawX, -0.8 + drawY));
+            } else if (enemyTargetVector.getY() < -cutoffWhenOnSameHeight) {
+                graphics.drawLineDirect(Util::Math::Vector2D(-0.8 + drawX - 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2D(-0.8 + drawX, -0.8 + drawY));
+                graphics.drawLineDirect(Util::Math::Vector2D(-0.8 + drawX + 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2D(-0.8 + drawX, -0.8 + drawY));
+            } else {
+                graphics.drawLineDirect(Util::Math::Vector2D(-0.8 + drawX - 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2D(-0.8 + drawX + 0.02, -0.8 + drawY + 0.02));
+                graphics.drawLineDirect(Util::Math::Vector2D(-0.8 + drawX + 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2D(-0.8 + drawX - 0.02, -0.8 + drawY + 0.02));
+            }
         }
     }
 }
-
-void Player::onTransformChange() {}
 
 void Player::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {
     switch (event.getCollidedWidth().getTag()) {
@@ -179,6 +162,10 @@ void Player::setMovementDirection(Util::Math::Vector3D direction) {
     currentMovementDirection = direction;
 }
 
-void Player::setSpeedDisplay(double speed) {
-    speedDisplay = speed;
+void Player::setSpeed(double speed) {
+    Player::speed = speed;
+}
+
+double Player::getSpeed() const {
+    return speed;
 }

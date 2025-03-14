@@ -19,11 +19,18 @@ cmake_minimum_required(VERSION 3.14)
 project(lib.game)
 message(STATUS "Project " ${PROJECT_NAME})
 
-include_directories(${HHUOS_SRC_DIR})
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc)
+
+add_compile_options(
+        -Wno-unused-function
+        $<$<COMPILE_LANGUAGE:C>:-Wno-unused-variable>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-unused-parameter>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
+)
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} lib.graphic)
+target_link_libraries(${PROJECT_NAME} lib.graphic lib.user.tinygl lib.user.libc)
 
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/game/Camera.cpp
@@ -52,6 +59,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/game/2d/particle/Particle.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/particle/SingleTimeEmitter.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/3d/Entity.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/3d/Light.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/3d/Model.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/3d/ObjectFile.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/3d/Scene.cpp

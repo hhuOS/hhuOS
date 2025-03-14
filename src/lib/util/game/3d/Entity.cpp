@@ -19,15 +19,23 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
+#include "lib/util/math/Math.h"
 #include "Entity.h"
 
 namespace Util::Game::D3 {
 
-Entity::Entity(uint32_t tag, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale) : Util::Game::Entity(tag), position(position), rotation(rotation), scale(scale), collider(Math::Vector3D(0, 0, 0), 0) {}
+Entity::Entity(uint32_t tag, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale) : Util::Game::Entity(tag), position(position), rotation(rotation), scale(scale), collider(Math::Vector3D(0, 0, 0), 0) {
+    setRotation(rotation);
+}
 
-Entity::Entity(uint32_t tag, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const SphereCollider &collider) : Util::Game::Entity(tag), position(position), rotation(rotation), scale(scale), colliderPresent(true), collider(collider) {}
+Entity::Entity(uint32_t tag, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const SphereCollider &collider) : Util::Game::Entity(tag), position(position), rotation(rotation), scale(scale), colliderPresent(true), collider(collider) {
+    setRotation(rotation);
+}
 
 const Math::Vector3D &Entity::getPosition() const {
     return position;
@@ -35,7 +43,6 @@ const Math::Vector3D &Entity::getPosition() const {
 
 void Entity::setPosition(const Math::Vector3D &position) {
     Entity::position = position;
-    onTransformChange();
 }
 
 void Entity::translate(const Math::Vector3D &translation) {
@@ -53,13 +60,12 @@ const Math::Vector3D &Entity::getRotation() const {
     return rotation;
 }
 
-void Entity::setRotation(const Math::Vector3D &rotation) {
-    Entity::rotation = rotation % 360;
-    onTransformChange();
+void Entity::setRotation(const Math::Vector3D &angle) {
+    rotation = angle % 360;
 }
 
-void Entity::rotate(const Math::Vector3D &rotation) {
-    setRotation(Entity::rotation + rotation);
+void Entity::rotate(const Math::Vector3D &angle) {
+    setRotation(rotation + angle);
 }
 
 const Math::Vector3D &Entity::getScale() const {
@@ -68,7 +74,6 @@ const Math::Vector3D &Entity::getScale() const {
 
 void Entity::setScale(const Math::Vector3D &scale) {
     Entity::scale = scale;
-    onTransformChange();
 }
 
 void Entity::update(double delta) {

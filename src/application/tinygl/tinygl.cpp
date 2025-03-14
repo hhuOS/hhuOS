@@ -24,12 +24,12 @@
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/graphic/Ansi.h"
 #include "lib/tinygl/include/zbuffer.h"
-#include "lib/tinygl/include/GL/gl.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
+#include "lib/tinygl/include/zbuffer.h"
 
 extern void info();
 extern void triangle(const Util::Graphic::BufferedLinearFrameBuffer &lfb);

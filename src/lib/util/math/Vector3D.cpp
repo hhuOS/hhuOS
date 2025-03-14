@@ -119,7 +119,12 @@ Vector3D Vector3D::rotate(const Vector3D &rotation) const {
 }
 
 Vector3D Vector3D::normalize() const {
-    return *this * (1 / length());
+    const auto len = length();
+    if (len == 0) {
+        return *this;
+    }
+
+    return *this * (1 / len);
 }
 
 Vector3D Vector3D::cross(const Vector3D &other) const {

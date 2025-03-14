@@ -73,6 +73,10 @@ namespace Util::Math {
 
     double arctangent(double value, double divisor = 1);
 
+	float arctangent2(float x, float y);
+
+	double arctangent2(double x, double y);
+
     float arcsine(float value);
 
     double arcsine(double value);
@@ -122,6 +126,14 @@ namespace Util::Math {
 	double floor(double arg);
 	
 	float floor(float arg);
+
+    float toRadians(float degrees);
+
+    double toRadians(double degrees);
+
+	float toDegrees(float radians);
+
+	double toDegrees(double radians);
 	
 	double getDoubleInternals(double arg, int * exponent); //returns the mantissa
 	

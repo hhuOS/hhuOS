@@ -19,6 +19,9 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
 #ifndef HHUOS_MODEL_H
@@ -76,17 +79,24 @@ public:
 
     void draw(Graphics &graphics) override;
 
-    void onTransformChange() override;
+    [[nodiscard]] const Array<Math::Vector3D>& getVertices() const;
+
+    [[nodiscard]] const Array<Math::Vector3D>& getVertexNormals() const;
+
+    [[nodiscard]] const Array<Math::Vector3D>& getVertexTextures() const;
+
+    [[nodiscard]] const Array<uint32_t>& getVertexDrawOrder() const;
+
+    [[nodiscard]] const Array<uint32_t>& getNormalDrawOrder() const;
+
+    [[nodiscard]] const Array<uint32_t>& getTextureDrawOrder() const;
 
 private:
 
-    void calculateTransformedVertices();
-
     String modelPath;
-    const Graphic::Color color = Graphic::Colors::GREEN;
+    const Graphic::Color color = Graphic::Colors::WHITE;
 
     ObjectFile *objectFile = nullptr;
-    Array<Math::Vector3D> transformedBuffer = Array<Math::Vector3D>(0);
 };
 
 }

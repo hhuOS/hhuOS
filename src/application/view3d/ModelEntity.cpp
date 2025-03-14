@@ -27,7 +27,7 @@ class CollisionEvent;
 }  // namespace Game
 }  // namespace Util
 
-ModelEntity::ModelEntity(const Util::String &modelPath) : Util::Game::D3::Model(0, modelPath, Util::Math::Vector3D(0, 0, 3), Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(1, 1, 1)) {}
+ModelEntity::ModelEntity(const Util::String &modelPath) : Util::Game::D3::Model(0, modelPath, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(1, 1, 1)) {}
 
 void ModelEntity::onUpdate([[maybe_unused]] double delta) {}
 

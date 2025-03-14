@@ -19,6 +19,9 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
 #include "Scene.h"
@@ -35,8 +38,10 @@
 namespace Util::Game::D3 {
 
 void Scene::initializeScene(Graphics &graphics) {
-    initialize();
+    graphics.initializeGl();
     graphics.clear();
+
+    initialize();
 
     for (auto *entity : entities) {
         entity->initialize();
@@ -74,7 +79,74 @@ void Scene::checkCollisions() {
             }
         }
     }
+}
 
+void Scene::setAmbientLight(const Graphic::Color &ambientLight) {
+    Scene::ambientLight = ambientLight;
+}
+
+Light &Scene::addLight(Light::Type type, const Math::Vector3D &position, const Graphic::Color &diffuseColor, const Graphic::Color &specularColor) {
+    for (uint32_t i = 0; i < 16; i++) {
+        if (lights[i] == nullptr) {
+            glEnable(GL_LIGHT0 + i);
+            lights[i] = new Light(i, type, position, diffuseColor, specularColor);
+            return *lights[i];
+        }
+    }
+
+    Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "Game: Maximum number of lights reached!");
+}
+
+void Scene::removeLight(const Light &light) {
+    glDisable(GL_LIGHT0 + light.getIndex());
+    delete lights[light.getIndex()];
+}
+
+bool Scene::hasLight(uint32_t index) const {
+    return lights[index] != nullptr;
+}
+
+const Graphic::Color &Scene::getAmbientLight() const {
+    return ambientLight;
+}
+
+D3::Light &Scene::getLight(uint32_t index) {
+    if (lights[index] == nullptr) {
+        Exception::throwException(Util::Exception::NULL_POINTER, "Scene: Light does not exist!");
+    }
+
+    return *lights[index];
+}
+
+Scene::GlRenderStyle Scene::getGlRenderStyle() const {
+    return renderStyle;
+}
+
+void Scene::setGlRenderStyle(GlRenderStyle renderStyle) {
+    Scene::renderStyle = renderStyle;
+    glPolygonMode(GL_FRONT_AND_BACK, renderStyle);
+}
+
+Scene::GlShadeModel Scene::getGlShadeModel() const {
+    return shadeModel;
+}
+
+void Scene::setGlShadeModel(GlShadeModel shadeModel) {
+    Scene::shadeModel = shadeModel;
+    glShadeModel(shadeModel);
+}
+
+bool Scene::isLightEnabled() const {
+    return lightEnabled;
+}
+
+void Scene::setLightEnabled(bool enabled) {
+    lightEnabled = enabled;
+    if (lightEnabled) {
+        glEnable(GL_LIGHTING);
+    } else {
+        glDisable(GL_LIGHTING);
+    }
 }
 
 }

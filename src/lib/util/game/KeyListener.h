@@ -49,7 +49,7 @@ public:
     /**
      * Destructor.
      */
-    ~KeyListener() = default;
+    virtual ~KeyListener() = default;
 
     virtual void keyPressed(const Util::Io::Key &key) = 0;
 

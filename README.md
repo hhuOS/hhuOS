@@ -123,12 +123,6 @@ Assets for the bug defender game have been taken from [itch.io](https://itch.io)
 Assets for the battlespace game have been taken from [itch.io](https://itch.io):
 - [Lowpoly - 3D Space Assets Pack](https://ejgarner118.itch.io/spacepack) by [*ejgarner118*](https://ejgarner118.itch.io/)
 
-3D-demo assets haven been taken from [itch.io](https://itch.io):
-- [M1 Tank](https://alstrainfinite.itch.io/m1-tank) by [*Alstra Infinite*](https://alstrainfinite.itch.io/) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
-- [Shark](https://alstrainfinite.itch.io/fish) by [*Alstra Infinite*](https://alstrainfinite.itch.io/) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
-- [Plane](https://alstrainfinite.itch.io/planes) by [*Alstra Infinite*](https://alstrainfinite.itch.io/) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
-- [Coffee Maker](https://alstrainfinite.itch.io/kitchen-appliance-2) by [*Alstra Infinite*](https://alstrainfinite.itch.io/) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
-
 Assets for the mouse demo haven been taken from [Icons8](https://icons8.com/).
 
 Music for the SoundBlaster demo has been taken from [Bensound](https://www.bensound.com/royalty-free-music):

@@ -42,7 +42,7 @@ class Vector2D;
 }  // namespace Math
 }  // namespace Util
 
-class ModelViewer : public Util::Game::D3::Scene, public Util::Game::KeyListener, public Util::Game::MouseListener {
+class ModelViewer : public Util::Game::D3::Scene, public Util::Game::KeyListener {
 
 public:
     /**
@@ -73,21 +73,15 @@ public:
 
     void keyReleased(const Util::Io::Key &key) override;
 
-    void buttonPressed(Util::Io::Mouse::Button button) override;
-
-    void buttonReleased(Util::Io::Mouse::Button button) override;
-
-    void mouseMoved(const Util::Math::Vector2D &relativeMovement) override;
-
-    void mouseScrolled(Util::Io::Mouse::ScrollDirection direction) override;
-
 private:
 
     Util::String modelPath;
     ModelEntity *model = nullptr;
+    Util::Game::D3::Light *light = nullptr;
 
-    double zoom = 0;
-    Util::Math::Vector3D rotation = Util::Math::Vector3D(0, 0, 0);
+    Util::Math::Vector3D modelRotation = Util::Math::Vector3D(0, 0, 0);
+    Util::Math::Vector3D cameraRotation = Util::Math::Vector3D(0, 0, 0);
+    Util::Math::Vector3D cameraTranslation = Util::Math::Vector3D(0, 0, 0);
 };
 
 

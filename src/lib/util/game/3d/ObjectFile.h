@@ -19,6 +19,9 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
 #ifndef HHUOS_OBJECTFILE_H
@@ -53,14 +56,26 @@ public:
 
     [[nodiscard]] const Array<Math::Vector3D>& getVertices() const;
 
-    [[nodiscard]] const Array<Math::Vector2D>& getEdges() const;
+    [[nodiscard]] const Array<Math::Vector3D>& getVertexNormals() const;
 
-    ObjectFile(const Array<Math::Vector3D> &vertices, const Array<Math::Vector2D> &edges);
+    [[nodiscard]] const Array<Math::Vector3D>& getVertexTextures() const;
+
+    [[nodiscard]] const Array<uint32_t>& getVertexDrawOrder() const;
+
+    [[nodiscard]] const Array<uint32_t>& getNormalDrawOrder() const;
+
+    [[nodiscard]] const Array<uint32_t>& getTextureDrawOrder() const;
+
+    ObjectFile(const Array<Math::Vector3D> &vertices, const Array<Math::Vector3D> &vertexNormals, const Array<Math::Vector3D> &vertexTextures, const Array<uint32_t> &vertexDrawOrder, const Array<uint32_t> &normalDrawOrder, const Array<uint32_t> &textureDrawOrder);
 
 private:
 
     Array<Math::Vector3D> vertices;
-    Array<Math::Vector2D> edges;
+    Array<Math::Vector3D> vertexNormals;
+    Array<Math::Vector3D> vertexTextures;
+    Array<uint32_t> vertexDrawOrder;
+    Array<uint32_t> normalDrawOrder;
+    Array<uint32_t> textureDrawOrder;
 };
 
 }

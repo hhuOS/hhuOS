@@ -19,6 +19,9 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
 #ifndef HHUOS_CAMERA_H
@@ -40,17 +43,17 @@ public:
     /**
      * Default Constructor.
      */
-    Camera() = default;
+    Camera();
 
     /**
      * Copy Constructor.
      */
-    Camera(const Camera &other) = delete;
+    Camera(const Camera &other) = default;
 
     /**
      * Assignment operator.
      */
-    Camera &operator=(const Camera &other) = delete;
+    Camera &operator=(const Camera &other) = default;
 
     /**
      * Destructor.
@@ -61,22 +64,30 @@ public:
 
     [[nodiscard]] const Math::Vector3D& getRotation() const;
 
+    [[nodiscard]] const Math::Vector3D& getTargetVector() const;
+
+    [[nodiscard]] const Math::Vector3D& getRightVector() const;
+
     void setPosition(const Math::Vector3D &position);
 
     void setPosition(const Math::Vector2D &position);
 
-    void setRotation(const Math::Vector3D &rotation);
+    void setRotation(const Math::Vector3D &angle);
 
     void translate(const Math::Vector3D &translation);
 
-    void translateLocal(const Math::Vector3D &translation);
-
     void rotate(const Math::Vector3D &angle);
+
+    void reset();
 
 private:
 
-    Math::Vector3D position{};
-    Math::Vector3D rotation{};
+    Math::Vector3D position;
+    Math::Vector3D rotation;
+
+    Math::Vector3D targetVector;
+    Math::Vector3D rightVector;
+
 };
 
 }

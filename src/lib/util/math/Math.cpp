@@ -352,6 +352,46 @@ double arctangent(double value, double divisor) {
     return result;
 }
 
+float arctangent2(float x, float y) {
+    if (x > 0) {
+        return arctangent(y / x);
+    }
+    if (x < 0 && y >= 0) {
+        return arctangent(y / x) + PI;
+    }
+    if (x < 0 && y < 0) {
+        return arctangent(y / x) - PI;
+    }
+    if (x == 0 && y > 0) {
+        return PI / 2;
+    }
+    if (x == 0 && y < 0) {
+        return -PI / 2;
+    }
+
+    return 0; // x == 0 && y == 0
+}
+
+double arctangent2(double x, double y) {
+    if (x > 0) {
+        return arctangent(y / x);
+    }
+    if (x < 0 && y >= 0) {
+        return arctangent(y / x) + PI;
+    }
+    if (x < 0 && y < 0) {
+        return arctangent(y / x) - PI;
+    }
+    if (x == 0 && y > 0) {
+        return PI / 2;
+    }
+    if (x == 0 && y < 0) {
+        return -PI / 2;
+    }
+
+    return 0; // x == 0 && y == 0
+}
+
 #define SQRT(VALUE, RESULT) asm volatile ( \
         "fsqrt;" \
         : "=t"(RESULT) \
@@ -491,6 +531,22 @@ float floor(float arg) {
     };
 
     return ret;
+}
+
+float toRadians(float degrees) {
+    return degrees * (static_cast<float>(PI) / 180.0f);
+}
+
+double toRadians(double degrees) {
+    return degrees * (PI / 180.0);
+}
+
+float toDegrees(float radians) {
+    return radians * (180.0f / PI);
+}
+
+double toDegrees(double radians) {
+    return radians * (180.0f / PI);
 }
 
 double getDoubleInternals(double arg, int *exponent) {

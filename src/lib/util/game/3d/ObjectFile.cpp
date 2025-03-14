@@ -19,6 +19,9 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
 #include "ObjectFile.h"
@@ -33,15 +36,23 @@
 
 namespace Util::Game::D3 {
 
-ObjectFile::ObjectFile(const Array<Math::Vector3D> &vertices, const Array<Math::Vector2D> &edges) : vertices(vertices), edges(edges) {}
+ObjectFile::ObjectFile(const Array<Math::Vector3D> &vertices, const Array<Math::Vector3D> &vertexNormals, const Array<Math::Vector3D> &vertexTextures,
+                       const Array<uint32_t> &vertexDrawOrder, const Array<uint32_t> &normalDrawOrder, const Array<uint32_t> &textureDrawOrder) :
+        vertices(vertices), vertexNormals(vertexNormals), vertexTextures(vertexTextures), vertexDrawOrder(vertexDrawOrder), normalDrawOrder(normalDrawOrder), textureDrawOrder(textureDrawOrder) {}
 
 ObjectFile* ObjectFile::open(const String &path) {
     auto fileStream = Io::FileInputStream(path);
     auto stream = Io::BufferedInputStream(fileStream);
-    auto vertexList = ArrayList<Math::Vector3D>();
-    auto edgeList = ArrayList<Math::Vector2D>();
     bool endOfFile = false;
 
+    auto vertexList = ArrayList<Math::Vector3D>();
+    auto normalList = ArrayList<Math::Vector3D>();
+    auto textureList = ArrayList<Math::Vector3D>();
+    auto vertexDrawOrder = ArrayList<uint32_t>();
+    auto normalDrawOrder = ArrayList<uint32_t>();
+    auto textureDrawOrder = ArrayList<uint32_t>();
+
+    // Read the file line by line
     auto currentLine = stream.readLine(endOfFile);
     while (!endOfFile) {
         auto lineSplit = currentLine.substring(2).split(" ");
@@ -50,24 +61,62 @@ ObjectFile* ObjectFile::open(const String &path) {
             auto vertex = Math::Vector3D(String::parseDouble(lineSplit[0]), String::parseDouble(lineSplit[1]), String::parseDouble(lineSplit[2]));
             vertexList.add(vertex);
         } else if (currentLine.beginsWith("f ")) {
-            for (uint32_t i = 0; i < lineSplit.length() - 1; i++) {
-                auto point1 = String::parseInt(lineSplit[i].split("/")[0]) - 1;
-                auto point2 = String::parseInt(lineSplit[i + 1].split("/")[0]) - 1;
-                auto edge = Util::Math::Vector2D(point1, point2);
+            // Fill list with the correct order to draw triangles properly
+            for (uint32_t i = 0; i < lineSplit.length(); i++) {
+                if(i > 2) {
+                    // Vertex normals order
+                    if(lineSplit[i].split("/").length() == 3){
+                        if(lineSplit[i].split("/")[1] != ""){
+                            auto textureIndex0 = String::parseInt(lineSplit[0].split("/")[1]) - 1;
+                            auto textureIndex1 = String::parseInt(lineSplit[i - 1].split("/")[1]) - 1;
+                            auto textureIndex2 = String::parseInt(lineSplit[i].split("/")[1]) - 1;
+                            // Add entries into the texture order
+                            textureDrawOrder.add(textureIndex0);
+                            textureDrawOrder.add(textureIndex1);
+                            textureDrawOrder.add(textureIndex2);
+                        }
 
-                if (!edgeList.contains(Math::Vector2D(point1, point2)) && !edgeList.contains(Math::Vector2D(point2, point1))) {
-                    edgeList.add(edge);
+                        auto normalIndex0 = String::parseInt(lineSplit[0].split("/")[2]) - 1;
+                        auto normalIndex1 = String::parseInt(lineSplit[i-1].split("/")[2]) - 1;
+                        auto normalIndex2 = String::parseInt(lineSplit[i].split("/")[2]) - 1;
+                        normalDrawOrder.add(normalIndex0);
+                        normalDrawOrder.add(normalIndex1);
+                        normalDrawOrder.add(normalIndex2);
+                    }
+
+                    auto firstVertex = String::parseInt(lineSplit[0].split("/")[0]) - 1;
+                    auto lastParsedVertex = String::parseInt(lineSplit[i-1].split("/")[0]) - 1;
+                    auto currentVertex = String::parseInt(lineSplit[i].split("/")[0]) - 1;
+
+                    vertexDrawOrder.add(firstVertex);
+                    vertexDrawOrder.add(lastParsedVertex);
+                    vertexDrawOrder.add(currentVertex);
+                } else {
+                    // Check if the face data has at least 2 entries
+                    if (lineSplit[i].split("/").length() >= 2){
+                        // Check if the vt entry is empty
+                        if(lineSplit[i].split("/")[1] != ""){
+                            auto textureIndex = String::parseInt(lineSplit[i].split("/")[1]) - 1;
+                            textureDrawOrder.add(textureIndex); // Add entry into the texture Order
+                        }
+                    }
+
+                    // Vertex normals order
+                    if (lineSplit[i].split("/").length() == 3){
+                        auto normalIndex = String::parseInt(lineSplit[i].split("/")[2]) - 1;
+                        normalDrawOrder.add(normalIndex);
+                    }
+
+                    auto vertexIndex = String::parseInt(lineSplit[i].split("/")[0]) - 1;
+                    vertexDrawOrder.add(vertexIndex);
                 }
             }
-
-            // Add connection from last vertex to first vertex
-            auto point1 = String::parseInt(lineSplit[lineSplit.length() - 1].split("/")[0]) - 1;
-            auto point2 = String::parseInt(lineSplit[0].split("/")[0]) - 1;
-            auto edge = Util::Math::Vector2D(point1, point2);
-
-            if (!edgeList.contains(edge)) {
-                edgeList.add(edge);
-            }
+        } else if(currentLine.beginsWith("vn ")){
+            auto vertex = Math::Vector3D(String::parseDouble(lineSplit[0]), String::parseDouble(lineSplit[1]), String::parseDouble(lineSplit[2]));
+            normalList.add(vertex);
+        } else if(currentLine.beginsWith("vt ")){
+            auto vertex = Math::Vector3D(String::parseDouble(lineSplit[0]), String::parseDouble(lineSplit[1]), 0.0);
+            textureList.add(vertex);
         }
 
         currentLine = stream.readLine(endOfFile);
@@ -76,9 +125,13 @@ ObjectFile* ObjectFile::open(const String &path) {
     // Normalize model size
     double maxCoordinate = 0;
     for (const auto &vertex : vertexList) {
-        if (Math::absolute(vertex.getX()) > maxCoordinate) maxCoordinate = vertex.getX();
-        if (Math::absolute(vertex.getY()) > maxCoordinate) maxCoordinate = vertex.getY();
-        if (Math::absolute(vertex.getZ()) > maxCoordinate) maxCoordinate = vertex.getZ();
+        auto absX = Math::absolute(vertex.getX());
+        auto absY = Math::absolute(vertex.getY());
+        auto absZ = Math::absolute(vertex.getZ());
+
+        if (absX > maxCoordinate) maxCoordinate = absX;
+        if (absY > maxCoordinate) maxCoordinate = absY;
+        if (absZ > maxCoordinate) maxCoordinate = absZ;
     }
 
     for (uint32_t i = 0; i < vertexList.size(); i++) {
@@ -86,15 +139,31 @@ ObjectFile* ObjectFile::open(const String &path) {
         vertexList.set(i, Math::Vector3D(vertex.getX() / maxCoordinate, vertex.getY() / maxCoordinate, vertex.getZ() / maxCoordinate));
     }
 
-    return new ObjectFile(vertexList.toArray(), edgeList.toArray());
+    return new ObjectFile(vertexList.toArray(), normalList.toArray(), textureList.toArray(), vertexDrawOrder.toArray(), normalDrawOrder.toArray(), textureDrawOrder.toArray());
 }
 
 const Array<Math::Vector3D>& ObjectFile::getVertices() const {
     return vertices;
 }
 
-const Array<Math::Vector2D>& ObjectFile::getEdges() const {
-    return edges;
+const Array<Math::Vector3D> &ObjectFile::getVertexNormals() const {
+    return vertexNormals;
+}
+
+const Array<Math::Vector3D> &ObjectFile::getVertexTextures() const {
+    return vertexTextures;
+}
+
+const Array<uint32_t> &ObjectFile::getVertexDrawOrder() const {
+    return vertexDrawOrder;
+}
+
+const Array<uint32_t> &ObjectFile::getNormalDrawOrder() const {
+    return normalDrawOrder;
+}
+
+const Array<uint32_t> &ObjectFile::getTextureDrawOrder() const {
+    return textureDrawOrder;
 }
 
 }
