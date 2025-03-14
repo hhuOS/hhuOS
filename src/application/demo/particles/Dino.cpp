@@ -25,20 +25,10 @@
 #include "lib/util/game/2d/Sprite.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/game/Collider.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 
-namespace Util {
-namespace Game {
-class Graphics;
-namespace D2 {
-class CollisionEvent;
-class TranslationEvent;
-}  // namespace D2
-}  // namespace Game
-}  // namespace Util
-
-Dino::Dino(const Util::Math::Vector2D &position, bool flipX) :
-        Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE, SIZE * 1.133), Util::Game::Collider::STATIC)),
+Dino::Dino(const Util::Math::Vector2<double> &position, bool flipX) :
+        Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE * 1.133), Util::Game::Collider::STATIC)),
         flipX(flipX) {}
 
 void Dino::initialize() {

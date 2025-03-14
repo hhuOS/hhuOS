@@ -37,7 +37,6 @@ class MacAddress;
 }  // namespace Network
 
 namespace Io {
-class ByteArrayInputStream;
 class ByteArrayOutputStream;
 class OutputStream;
 }  // namespace Stream

@@ -20,6 +20,8 @@
 
 #include "Loopback.h"
 
+#include "lib/util/network/MacAddress.h"
+
 namespace Device::Network {
 
 Util::Network::MacAddress Loopback::getMacAddress() const {

@@ -21,6 +21,7 @@
 #include "lib/util/io/key/layout/UsLayout.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/io/key/layout/DeLayout.h"
+#include "lib/util/collection/Array.h"
 
 namespace Util {
 namespace Io {

@@ -29,16 +29,18 @@
 
 #include <stdint.h>
 
-#include "lib/util/math/Vector3D.h"
 #include "lib/util/graphic/Color.h"
 #include "Entity.h"
 #include "lib/util/base/String.h"
-#include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Colors.h"
 
 namespace Util {
+namespace Math {
+template <typename T> class Vector3;
+}  // namespace Math
+template <typename T> class Array;
+
 namespace Game {
-class Graphics;
 namespace D3 {
 class ObjectFile;
 }  // namespace D3
@@ -53,12 +55,12 @@ public:
     /**
      * Constructor.
      */
-    Model(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale);
+    Model(uint32_t tag, const String &modelPath, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale);
 
     /**
      * Constructor.
      */
-    Model(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const Graphic::Color &color);
+    Model(uint32_t tag, const String &modelPath, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale, const Graphic::Color &color);
 
     /**
      * Copy Constructor.
@@ -79,11 +81,11 @@ public:
 
     void draw(Graphics &graphics) override;
 
-    [[nodiscard]] const Array<Math::Vector3D>& getVertices() const;
+    [[nodiscard]] const Array<Math::Vector3<double>>& getVertices() const;
 
-    [[nodiscard]] const Array<Math::Vector3D>& getVertexNormals() const;
+    [[nodiscard]] const Array<Math::Vector3<double>>& getVertexNormals() const;
 
-    [[nodiscard]] const Array<Math::Vector3D>& getVertexTextures() const;
+    [[nodiscard]] const Array<Math::Vector3<double>>& getVertexTextures() const;
 
     [[nodiscard]] const Array<uint32_t>& getVertexDrawOrder() const;
 

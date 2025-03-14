@@ -18,36 +18,12 @@
 #ifndef HHUOS_MOUSECURSOR_H
 #define HHUOS_MOUSECURSOR_H
 
-#include <stdint.h>
-
 #include "lib/util/game/MouseListener.h"
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/game/2d/Sprite.h"
 #include "lib/util/base/String.h"
 
 class Logo;
-
-namespace Util {
-namespace Io {
-namespace Mouse {
-enum Button : uint8_t;
-enum ScrollDirection : uint8_t;
-}  // namespace Mouse
-}  // namespace Io
-
-namespace Math {
-class Vector2D;
-}  // namespace Math
-
-namespace Game {
-class Graphics;
-
-namespace D2 {
-class CollisionEvent;
-class TranslationEvent;
-}  // namespace D2
-}  // namespace Game
-}  // namespace Util
 
 class MouseCursor : public Util::Game::D2::Entity, public Util::Game::MouseListener {
 
@@ -86,7 +62,7 @@ public:
 
     void buttonReleased(Util::Io::Mouse::Button button) override;
 
-    void mouseMoved(const Util::Math::Vector2D &relativeMovement) override;
+    void mouseMoved(const Util::Math::Vector2<double> &relativeMovement) override;
 
     void mouseScrolled(Util::Io::Mouse::ScrollDirection direction) override;
 

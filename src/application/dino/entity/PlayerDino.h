@@ -29,22 +29,13 @@
 #include "lib/util/time/Timestamp.h"
 
 namespace Util {
+namespace Math {
+template <typename T> class Vector2;
+}  // namespace Math
+
 namespace Graphic {
 class Font;
 }  // namespace Graphic
-
-namespace Math {
-class Vector2D;
-}  // namespace Math
-
-namespace Game {
-class Graphics;
-
-namespace D2 {
-class CollisionEvent;
-class TranslationEvent;
-}  // namespace D2
-}  // namespace Game
 }  // namespace Util
 
 class PlayerDino : public Util::Game::D2::Entity {
@@ -59,7 +50,7 @@ public:
     /**
      * Constructor.
      */
-    explicit PlayerDino(const Util::Math::Vector2D &position);
+    explicit PlayerDino(const Util::Math::Vector2<double> &position);
 
     /**
      * Copy Constructor.

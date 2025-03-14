@@ -24,6 +24,7 @@
 #include "lib/util/io/stream/PipedInputStream.h"
 #include "lib/util/io/stream/PipedOutputStream.h"
 #include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
 
 namespace Device {
 

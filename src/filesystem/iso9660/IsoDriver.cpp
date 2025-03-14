@@ -27,10 +27,6 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/Iterator.h"
 
-namespace Filesystem {
-class Node;
-}  // namespace Filesystem
-
 namespace Filesystem::Iso {
 
 bool IsoDriver::mount(Device::Storage::StorageDevice &device) {

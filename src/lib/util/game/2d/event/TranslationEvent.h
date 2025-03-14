@@ -23,7 +23,7 @@
 #ifndef HHUOS_TRANSLATIONEVENT_H
 #define HHUOS_TRANSLATIONEVENT_H
 
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 #include "lib/util/game/CancelableEvent.h"
 
 namespace Util::Game::D2 {
@@ -34,7 +34,7 @@ public:
     /**
     * Constructor.
     */
-    explicit TranslationEvent(const Math::Vector2D &targetPosition);
+    explicit TranslationEvent(const Math::Vector2<double> &targetPosition);
 
     /**
      * Copy Constructor.
@@ -51,11 +51,11 @@ public:
      */
     ~TranslationEvent() = default;
 
-    [[nodiscard]] const Math::Vector2D& getTargetPosition() const;
+    [[nodiscard]] const Math::Vector2<double>& getTargetPosition() const;
 
 private:
 
-    Math::Vector2D targetPosition;
+    Math::Vector2<double> targetPosition;
 };
 
 }

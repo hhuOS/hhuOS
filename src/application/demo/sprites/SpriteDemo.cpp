@@ -23,12 +23,6 @@
 #include "application/demo/sprites/DemoSpriteFactory.h"
 #include "lib/util/io/key/Key.h"
 
-namespace Util {
-namespace Game {
-class Graphics;
-}  // namespace Game
-}  // namespace Util
-
 SpriteDemo::SpriteDemo(uint32_t initialCount) : initialCount(initialCount) {
 }
 

@@ -28,15 +28,15 @@
 
 namespace Util::Game::D2 {
 
-Polygon::Polygon(const Array<Math::Vector2D> &vertices) : vertices(vertices) {
+Polygon::Polygon(const Array<Math::Vector2<double>> &vertices) : vertices(vertices) {
     calculateCenter();
 }
 
-const Math::Vector2D &Polygon::getCenter() const {
+const Math::Vector2<double> &Polygon::getCenter() const {
     return center;
 }
 
-const Util::Array<Math::Vector2D>& Polygon::getVertices() const {
+const Util::Array<Math::Vector2<double>>& Polygon::getVertices() const {
     return vertices;
 }
 
@@ -46,7 +46,7 @@ void Polygon::draw(Graphics &graphics) {
 
 void Polygon::scale(double factor) {
     for (auto &vertex : vertices) {
-        vertex = Math::Vector2D(center.getX() + factor * (vertex.getX() - center.getX()),
+        vertex = Math::Vector2<double>(center.getX() + factor * (vertex.getX() - center.getX()),
                                 center.getY() + factor * (vertex.getY() - center.getY()));
     }
 }
@@ -57,12 +57,12 @@ void Polygon::rotate(double angle) {
 
     for (auto &vertex : vertices) {
         auto d = vertex - center;
-        vertex = Math::Vector2D(d.getX() * cosine - d.getY() * sine + center.getX(),
+        vertex = Math::Vector2<double>(d.getX() * cosine - d.getY() * sine + center.getX(),
                                 d.getX() * sine + d.getY() * cosine + center.getY());
     }
 }
 
-void Polygon::translate(Math::Vector2D translation) {
+void Polygon::translate(Math::Vector2<double> translation) {
     for (auto &vertex: vertices) {
         vertex = vertex + translation;
     }
@@ -70,13 +70,13 @@ void Polygon::translate(Math::Vector2D translation) {
     center = center + translation;
 }
 
-void Polygon::setPosition(const Math::Vector2D &newPosition) {
+void Polygon::setPosition(const Math::Vector2<double> &newPosition) {
     auto translation = newPosition - getTopLeft();
     translate(translation);
 }
 
 void Polygon::calculateCenter() {
-    auto sum = Math::Vector2D();
+    auto sum = Math::Vector2<double>();
     for (const auto &vertex: vertices) {
         sum = sum + vertex;
     }
@@ -84,15 +84,15 @@ void Polygon::calculateCenter() {
     center = sum / vertices.length();
 }
 
-Math::Vector2D Polygon::getTopLeft() {
-    Math::Vector2D topLeft = vertices[0];
+Math::Vector2<double> Polygon::getTopLeft() {
+    Math::Vector2<double> topLeft = vertices[0];
     for (auto &vertex: vertices) {
         if (vertex.getX() < topLeft.getX()) {
-            topLeft = Math::Vector2D(vertex.getX(), topLeft.getY());
+            topLeft = Math::Vector2<double>(vertex.getX(), topLeft.getY());
         }
 
         if (vertex.getY() < topLeft.getY()) {
-            topLeft = Math::Vector2D(topLeft.getX(), vertex.getY());
+            topLeft = Math::Vector2<double>(topLeft.getX(), vertex.getY());
         }
     }
 

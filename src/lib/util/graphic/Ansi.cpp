@@ -17,8 +17,6 @@
 
 #include "Ansi.h"
 
-#include <initializer_list>
-
 #include "lib/util/base/System.h"
 #include "Terminal.h"
 #include "lib/util/collection/Array.h"

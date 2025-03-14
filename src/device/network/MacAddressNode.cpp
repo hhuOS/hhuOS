@@ -16,8 +16,10 @@
  */
 
 #include "MacAddressNode.h"
+
 #include "device/network/NetworkDevice.h"
 #include "lib/util/network/MacAddress.h"
+#include "lib/util/base/String.h"
 
 namespace Device::Network {
 

@@ -24,55 +24,54 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
-#include "lib/util/math/Math.h"
 #include "Entity.h"
 
 namespace Util::Game::D3 {
 
-Entity::Entity(uint32_t tag, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale) : Util::Game::Entity(tag), position(position), rotation(rotation), scale(scale), collider(Math::Vector3D(0, 0, 0), 0) {
+Entity::Entity(uint32_t tag, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale) : Util::Game::Entity(tag), position(position), rotation(rotation), scale(scale), collider(Math::Vector3<double>(0, 0, 0), 0) {
     setRotation(rotation);
 }
 
-Entity::Entity(uint32_t tag, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const SphereCollider &collider) : Util::Game::Entity(tag), position(position), rotation(rotation), scale(scale), colliderPresent(true), collider(collider) {
+Entity::Entity(uint32_t tag, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale, const SphereCollider &collider) : Util::Game::Entity(tag), position(position), rotation(rotation), scale(scale), colliderPresent(true), collider(collider) {
     setRotation(rotation);
 }
 
-const Math::Vector3D &Entity::getPosition() const {
+const Math::Vector3<double> &Entity::getPosition() const {
     return position;
 }
 
-void Entity::setPosition(const Math::Vector3D &position) {
+void Entity::setPosition(const Math::Vector3<double> &position) {
     Entity::position = position;
 }
 
-void Entity::translate(const Math::Vector3D &translation) {
+void Entity::translate(const Math::Vector3<double> &translation) {
     setPosition(position + translation);
     if (colliderPresent) {
         collider.setPosition(position);
     }
 }
 
-void Entity::translateLocal(const Math::Vector3D &translation) {
+void Entity::translateLocal(const Math::Vector3<double> &translation) {
     translate(translation.rotate(getRotation()));
 }
 
-const Math::Vector3D &Entity::getRotation() const {
+const Math::Vector3<double> &Entity::getRotation() const {
     return rotation;
 }
 
-void Entity::setRotation(const Math::Vector3D &angle) {
+void Entity::setRotation(const Math::Vector3<double> &angle) {
     rotation = angle % 360;
 }
 
-void Entity::rotate(const Math::Vector3D &angle) {
+void Entity::rotate(const Math::Vector3<double> &angle) {
     setRotation(rotation + angle);
 }
 
-const Math::Vector3D &Entity::getScale() const {
+const Math::Vector3<double> &Entity::getScale() const {
     return scale;
 }
 
-void Entity::setScale(const Math::Vector3D &scale) {
+void Entity::setScale(const Math::Vector3<double> &scale) {
     Entity::scale = scale;
 }
 

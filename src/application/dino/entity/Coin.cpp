@@ -30,18 +30,9 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/game/2d/Sprite.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 
-namespace Util {
-namespace Game {
-class Graphics;
-namespace D2 {
-class TranslationEvent;
-}  // namespace D2
-}  // namespace Game
-}  // namespace Util
-
-Coin::Coin(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(Block::SIZE, Block::SIZE), Util::Game::D2::RectangleCollider::PERMEABLE)) {}
+Coin::Coin(const Util::Math::Vector2<double> &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(Block::SIZE, Block::SIZE), Util::Game::D2::RectangleCollider::PERMEABLE)) {}
 
 void Coin::initialize() {
     animation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({

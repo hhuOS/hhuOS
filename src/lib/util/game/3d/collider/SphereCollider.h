@@ -28,7 +28,7 @@
 
 namespace Util {
 namespace Math {
-class Vector3D;
+template <typename T> class Vector3;
 }  // namespace Math
 }  // namespace Util
 
@@ -40,7 +40,7 @@ public:
     /**
      * Constructor.
      */
-    SphereCollider(const Math::Vector3D &position, double radius);
+    SphereCollider(const Math::Vector3<double> &position, double radius);
 
     /**
      * Copy Constructor.

@@ -34,13 +34,12 @@
 #include "lib/util/base/String.h"
 #include "lib/util/base/System.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/time/Timestamp.h"
-#include "lib/util/graphic/font/Terminal8x8.h"
 #include "lib/util/graphic/Colors.h"
+#include "lib/util/graphic/Font.h"
 
 uint32_t palette[256];
 Util::Graphic::LinearFrameBuffer *lfb;

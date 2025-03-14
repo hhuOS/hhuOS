@@ -24,11 +24,11 @@
 
 namespace Util {
 namespace Math {
-class Vector2D;
+template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
-Explosive::Explosive(uint32_t tag, const Util::Math::Vector2D &position, const Util::Game::D2::RectangleCollider &collider) : Entity(tag, position, collider) {}
+Explosive::Explosive(uint32_t tag, const Util::Math::Vector2<double> &position, const Util::Game::D2::RectangleCollider &collider) : Entity(tag, position, collider) {}
 
 void Explosive::initialize() {
     auto size = getCollider().getHeight() > getCollider().getWidth() ? getCollider().getHeight() : getCollider().getWidth();

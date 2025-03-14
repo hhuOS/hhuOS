@@ -1,5 +1,7 @@
 #include "ArchiveFileNode.h"
 
+#include "lib/util/collection/Array.h"
+
 namespace Filesystem::Tar {
 
 ArchiveFileNode::ArchiveFileNode(Util::Io::Tar::Archive &archive, Util::Io::Tar::Archive::Header fileHeader) {

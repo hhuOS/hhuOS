@@ -17,6 +17,8 @@
 
 #include "ProcessDirectoryNode.h"
 
+#include "lib/util/collection/Array.h"
+
 namespace Filesystem::Process {
 
 ProcessDirectoryNode::ProcessDirectoryNode(uint32_t processId) : name(Util::String::format("%u", processId)) {}

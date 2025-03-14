@@ -25,7 +25,7 @@
 #define HHUOS_RECTANGLECOLLIDER_H
 
 #include "lib/util/game/Collider.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 
 namespace Util::Game::D2 {
 
@@ -40,7 +40,7 @@ public:
     /**
      * Constructor.
      */
-    RectangleCollider(const Math::Vector2D &position, const Math::Vector2D &size, Collider::Type type);
+    RectangleCollider(const Math::Vector2<double> &position, const Math::Vector2<double> &size, Collider::Type type);
 
     /**
      * Copy Constructor.
@@ -63,19 +63,19 @@ public:
 
     [[nodiscard]] double getHeight() const;
 
-    [[nodiscard]] const Math::Vector2D& getSize() const;
+    [[nodiscard]] const Math::Vector2<double>& getSize() const;
 
     void setWidth(double width);
 
     void setHeight(double height);
 
-    void setSize(const Math::Vector2D &size);
+    void setSize(const Math::Vector2<double> &size);
 
     [[nodiscard]] Side isColliding(const RectangleCollider &other) const;
 
 private:
 
-    Math::Vector2D size;
+    Math::Vector2<double> size;
 };
 
 }

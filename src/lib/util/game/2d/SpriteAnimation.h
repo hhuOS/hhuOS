@@ -28,7 +28,7 @@
 
 #include "lib/util/collection/Array.h"
 #include "lib/util/game/2d/Sprite.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 
 namespace Util {
 namespace Game {
@@ -72,17 +72,17 @@ public:
 
     [[nodiscard]] double getAnimationTime() const;
 
-    [[nodiscard]] const Math::Vector2D& getScale() const;
+    [[nodiscard]] const Math::Vector2<double>& getScale() const;
 
-    [[nodiscard]] const Math::Vector2D& getOriginalSize() const;
+    [[nodiscard]] const Math::Vector2<double>& getOriginalSize() const;
 
-    [[nodiscard]] Math::Vector2D getSize() const;
+    [[nodiscard]] Math::Vector2<double> getSize() const;
 
     [[nodiscard]] double getRotation() const;
 
     [[nodiscard]] double getAlpha() const;
 
-    void setScale(const Math::Vector2D &scale);
+    void setScale(const Math::Vector2<double> &scale);
 
     void setScale(double scale);
 
@@ -96,11 +96,11 @@ public:
 
     void setXFlipped(bool flipped);
 
-    void draw(const Graphics &graphics, const Math::Vector2D &position) const;
+    void draw(const Graphics &graphics, const Math::Vector2<double> &position) const;
 
 private:
 
-    Math::Vector2D scale = Math::Vector2D(1, 1);
+    Math::Vector2<double> scale = Math::Vector2<double>(1, 1);
     double rotationAngle = 0;
     double alpha = 1;
     bool xFlipped = false;

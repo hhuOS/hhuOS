@@ -24,7 +24,6 @@
 #include <stdint.h>
 
 #include "filesystem/Node.h"
-#include "lib/util/collection/Array.h"
 #include "lib/util/network/Socket.h"
 
 namespace Kernel {

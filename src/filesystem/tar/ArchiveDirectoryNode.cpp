@@ -2,6 +2,7 @@
 
 #include "lib/util/base/Exception.h"
 #include "lib/util/io/file/tar/Archive.h"
+#include "lib/util/collection/Array.h"
 
 namespace Filesystem::Tar {
 

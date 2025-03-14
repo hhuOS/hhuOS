@@ -21,7 +21,9 @@
 #ifndef HHUOS_LIGHT_H
 #define HHUOS_LIGHT_H
 
-#include "lib/util/math/Vector3D.h"
+#include <stdint.h>
+
+#include "lib/util/math/Vector3.h"
 #include "lib/util/graphic/Color.h"
 
 namespace Util::Game::D3 {
@@ -38,7 +40,7 @@ public:
     /**
      * Constructor.
      */
-    Light(uint8_t index, Type type, const Math::Vector3D &position, const Graphic::Color &diffuseColor, const Graphic::Color &specularColor);
+    Light(uint8_t index, Type type, const Math::Vector3<double> &position, const Graphic::Color &diffuseColor, const Graphic::Color &specularColor);
 
     /**
      * Copy Constructor.
@@ -59,13 +61,13 @@ public:
 
     [[nodiscard]] Type getType() const;
 
-    [[nodiscard]] const Math::Vector3D& getPosition() const;
+    [[nodiscard]] const Math::Vector3<double>& getPosition() const;
 
     [[nodiscard]] const Graphic::Color& getDiffuseColor() const;
 
     [[nodiscard]] const Graphic::Color& getSpecularColor() const;
 
-    void setPosition(const Math::Vector3D &position);
+    void setPosition(const Math::Vector3<double> &position);
 
     void setDiffuseColor(const Graphic::Color &diffuseColor);
 
@@ -76,7 +78,7 @@ private:
     const uint8_t index;
     const Type type;
 
-    Math::Vector3D position;
+    Math::Vector3<double> position;
     Graphic::Color diffuseColor;
     Graphic::Color specularColor;
 };

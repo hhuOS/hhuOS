@@ -21,17 +21,7 @@
 #include "Particle.h"
 
 #include "Emitter.h"
-#include "lib/util/math/Vector2D.h"
-
-namespace Util {
-namespace Game {
-class Graphics;
-namespace D2 {
-class CollisionEvent;
-class TranslationEvent;
-}  // namespace D2
-}  // namespace Game
-}  // namespace Util
+#include "lib/util/math/Vector2.h"
 
 namespace Util::Game::D2 {
 

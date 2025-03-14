@@ -28,15 +28,8 @@
 #include "lib/util/io/file/File.h"
 
 namespace Util {
-namespace Game {
-class Graphics;
-namespace D2 {
-class CollisionEvent;
-class TranslationEvent;
-}  // namespace D2
-}  // namespace Game
 namespace Math {
-class Vector2D;
+template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
@@ -46,7 +39,7 @@ public:
     /**
      * Constructor.
      */
-    Fruit(const Util::Math::Vector2D &position, const Util::Io::File &nextLevelFile);
+    Fruit(const Util::Math::Vector2<double> &position, const Util::Io::File &nextLevelFile);
 
     /**
      * Copy Constructor.

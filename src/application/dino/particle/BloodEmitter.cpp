@@ -25,22 +25,12 @@
 #include "lib/util/game/2d/particle/Particle.h"
 #include "lib/util/game/2d/event/CollisionEvent.h"
 #include "lib/util/game/Collider.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 #include "application/dino/entity/Block.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/game/2d/Entity.h"
 
-namespace Util {
-namespace Game {
-class Graphics;
-
-namespace D2 {
-class TranslationEvent;
-}  // namespace D2
-}  // namespace Game
-}  // namespace Util
-
-BloodEmitter::BloodEmitter(const Util::Math::Vector2D &position, Type type) : Util::Game::D2::SingleTimeEmitter(TAG, PARTICLE_TAG, position), type(type) {}
+BloodEmitter::BloodEmitter(const Util::Math::Vector2<double> &position, Type type) : Util::Game::D2::SingleTimeEmitter(TAG, PARTICLE_TAG, position), type(type) {}
 
 void BloodEmitter::initialize() {
     SingleTimeEmitter::initialize();
@@ -60,9 +50,9 @@ void BloodEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) 
 
     particle.setSprite(Util::Game::D2::Sprite(getParticleSpritePath(type), PARTICLE_SIZE, PARTICLE_SIZE));
     particle.setPosition(getPosition());
-    particle.setVelocity(Util::Math::Vector2D(Util::Math::cosine(angle), Util::Math::sine(angle)));
+    particle.setVelocity(Util::Math::Vector2<double>(Util::Math::cosine(angle), Util::Math::sine(angle)));
     particle.setTimeToLive(10);
-    particle.setCollider(Util::Game::D2::RectangleCollider(particle.getPosition(), Util::Math::Vector2D(PARTICLE_SIZE, PARTICLE_SIZE), Util::Game::Collider::PERMEABLE));
+    particle.setCollider(Util::Game::D2::RectangleCollider(particle.getPosition(), Util::Math::Vector2<double>(PARTICLE_SIZE, PARTICLE_SIZE), Util::Game::Collider::PERMEABLE));
 
     particle.addComponent(new Util::Game::D2::GravityComponent(particle, 2.5, 0.0025));
 }

@@ -24,16 +24,11 @@
 #include <stdint.h>
 
 #include "lib/util/game/3d/Entity.h"
-#include "lib/util/math/Vector3D.h"
+#include "lib/util/math/Vector3.h"
 
 class Enemy;
+
 namespace Util {
-namespace Game {
-class Graphics;
-namespace D3 {
-class CollisionEvent;
-}  // namespace D3
-}  // namespace Game
 template <typename T> class ArrayList;
 }  // namespace Util
 
@@ -78,9 +73,9 @@ public:
 
     [[nodiscard]] uint32_t getScore() const;
 
-    Util::Math::Vector3D getCurrentMovementDirection();
+    Util::Math::Vector3<double> getCurrentMovementDirection();
 
-    void setMovementDirection(Util::Math::Vector3D direction);
+    void setMovementDirection(Util::Math::Vector3<double> direction);
 
     void setSpeed(double speed);
 
@@ -97,7 +92,7 @@ private:
     double speed = 0.0;
     double invulnerabilityTimer = 0;
     double missileTimer = 0;
-    Util::Math::Vector3D currentMovementDirection;
+    Util::Math::Vector3<double> currentMovementDirection;
 };
 
 #endif

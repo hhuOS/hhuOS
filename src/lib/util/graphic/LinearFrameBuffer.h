@@ -21,10 +21,12 @@
 #include <stdint.h>
 
 #include "Color.h"
-#include "Font.h"
 #include "lib/util/base/Address.h"
 
 namespace Util {
+namespace Graphic {
+class Font;
+}  // namespace Graphic
 
 namespace Io {
 class File;

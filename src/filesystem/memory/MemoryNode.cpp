@@ -17,6 +17,8 @@
 
 #include "MemoryNode.h"
 
+#include "lib/util/collection/Array.h"
+
 namespace Filesystem::Memory {
 
 MemoryNode::MemoryNode(const Util::String &name) : name(name) {}

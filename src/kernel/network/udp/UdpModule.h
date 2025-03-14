@@ -25,14 +25,6 @@
 
 #include "kernel/network/NetworkModule.h"
 
-namespace Device {
-namespace Network {
-class NetworkDevice;
-}  // namespace Network
-}  // namespace Device
-namespace Kernel::Network {
-class Socket;
-}  // namespace Network
 namespace Util {
 namespace Network {
 namespace Ip4 {
@@ -40,10 +32,6 @@ class Ip4Address;
 class Ip4PortAddress;
 }  // namespace Ip4
 }  // namespace Network
-
-namespace Io {
-class ByteArrayInputStream;
-}  // namespace Stream
 }  // namespace Util
 
 namespace Kernel::Network::Udp {

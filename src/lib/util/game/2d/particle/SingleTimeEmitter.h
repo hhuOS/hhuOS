@@ -27,7 +27,7 @@
 
 namespace Util {
 namespace Math {
-class Vector2D;
+template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
@@ -39,7 +39,7 @@ public:
     /**
      * Default Constructor.
      */
-    SingleTimeEmitter(uint32_t tag, uint32_t particleTag, const Util::Math::Vector2D &position);
+    SingleTimeEmitter(uint32_t tag, uint32_t particleTag, const Util::Math::Vector2<double> &position);
 
     /**
      * Copy Constructor.

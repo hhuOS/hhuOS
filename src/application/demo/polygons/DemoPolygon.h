@@ -22,20 +22,7 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/game/2d/Entity.h"
-
-namespace Util {
-namespace Math {
-class Vector2D;
-}  // namespace Math
-
-namespace Game {
-class Graphics;
-namespace D2 {
-class CollisionEvent;
-class TranslationEvent;
-}  // namespace D2
-}  // namespace Game
-}  // namespace Util
+#include "lib/util/math/Vector2.h"
 
 class DemoPolygon : public Util::Game::D2::Entity {
 
@@ -48,7 +35,7 @@ public:
     /**
      * Constructor.
      */
-    DemoPolygon(const Util::Array<Util::Math::Vector2D> &vertices, const Util::Math::Vector2D &position, const Util::Graphic::Color &color, double initialScaleFactor, double scaleSpeed, double rotationSpeed);
+    DemoPolygon(const Util::Array<Util::Math::Vector2<double>> &vertices, const Util::Math::Vector2<double> &position, const Util::Graphic::Color &color, double initialScaleFactor, double scaleSpeed, double rotationSpeed);
 
     /**
      * Copy Constructor.

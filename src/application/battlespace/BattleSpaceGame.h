@@ -28,15 +28,9 @@
 #include "lib/util/math/Random.h"
 #include "Player.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/math/Vector3D.h"
+#include "lib/util/math/Vector3.h"
 
 class Enemy;
-
-namespace Util {
-namespace Io {
-class Key;
-}  // namespace Io
-}  // namespace Util
 
 class BattleSpaceGame : public Util::Game::D3::Scene, public Util::Game::KeyListener {
 
@@ -76,8 +70,8 @@ private:
     Player *player = new Player(enemies);
     Util::ArrayList<Enemy*> enemies;
 
-    Util::Math::Vector3D inputRotation = Util::Math::Vector3D(0, 0, 0);
-    Util::Math::Vector3D inputTranslation = Util::Math::Vector3D(0, 0, 0);
+    Util::Math::Vector3<double> inputRotation = Util::Math::Vector3<double>(0, 0, 0);
+    Util::Math::Vector3<double> inputTranslation = Util::Math::Vector3<double>(0, 0, 0);
     double inputSpeed = 1.0;
     uint16_t difficulty = 0;
 

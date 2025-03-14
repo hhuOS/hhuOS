@@ -27,10 +27,6 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/ArrayList.h"
 
-namespace Filesystem {
-class Node;
-}  // namespace Filesystem
-
 namespace Filesystem::Memory {
 
 MemoryDriver::MemoryDriver() : rootNode(new MemoryDirectoryNode("")) {}

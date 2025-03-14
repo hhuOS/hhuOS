@@ -31,17 +31,17 @@
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/game/3d/Entity.h"
 #include "lib/util/graphic/Colors.h"
-#include "lib/util/math/Vector3D.h"
+#include "lib/util/math/Vector3.h"
 #include "lib/util/base/String.h"
 
-const Util::Math::Vector3D Enemy::MAX_ROTATION_DELTA = Util::Math::Vector3D(1, 1, 0);
+const Util::Math::Vector3<double> Enemy::MAX_ROTATION_DELTA = Util::Math::Vector3<double>(1, 1, 0);
 
-Enemy::Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, double scale, Enemy::Type type) : Util::Game::D3::Model(2, "/user/battlespace/enemy.obj", position, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::RED), player(player), enemies(enemies), goalScale(scale), type(type) {}
+Enemy::Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, double scale, Enemy::Type type) : Util::Game::D3::Model(2, "/user/battlespace/enemy.obj", position, rotation, Util::Math::Vector3<double>(scale, scale, scale), Util::Graphic::Colors::RED), player(player), enemies(enemies), goalScale(scale), type(type) {}
 
 void Enemy::initialize() {
     Model::initialize();
 
-    setScale(Util::Math::Vector3D(goalScale * 0.1, goalScale * 0.1, goalScale * 0.1));
+    setScale(Util::Math::Vector3<double>(goalScale * 0.1, goalScale * 0.1, goalScale * 0.1));
 }
 
 void Enemy::onUpdate(double delta) {
@@ -102,21 +102,21 @@ void Enemy::onUpdate(double delta) {
             relativeY = -MAX_ROTATION_DELTA.getY();
         }
 
-        rotate(Util::Math::Vector3D(relativeX, relativeY, 0));
+        rotate(Util::Math::Vector3<double>(relativeX, relativeY, 0));
     }
 
     switch (type) {
         case ORBIT_PLAYER_CLOCKWISE:
-            translateLocal(Util::Math::Vector3D(0.03, 0, 0));
+            translateLocal(Util::Math::Vector3<double>(0.03, 0, 0));
             break;
         case ORBIT_PLAYER_COUNTER_CLOCKWISE:
-            translateLocal(Util::Math::Vector3D(-0.03, 0, 0));
+            translateLocal(Util::Math::Vector3<double>(-0.03, 0, 0));
             break;
         case FLY_TOWARDS_PLAYER:
-            translateLocal(Util::Math::Vector3D(0, 0, 0.015));
+            translateLocal(Util::Math::Vector3<double>(0, 0, 0.015));
             break;
         case KEEP_DISTANCE:
-            translateLocal(distance > 3 ? Util::Math::Vector3D(0, 0, -0.015) : Util::Math::Vector3D(0, 0, 0.015));
+            translateLocal(distance > 3 ? Util::Math::Vector3<double>(0, 0, -0.015) : Util::Math::Vector3<double>(0, 0, 0.015));
             break;
         case STATIONARY:
         default:
@@ -125,7 +125,7 @@ void Enemy::onUpdate(double delta) {
 
     if (missileTimer <= 0 && relativeRotation.length() < 2) {
         missileTimer = 2 + random.nextRandomNumber() * 2.5;
-        auto offset = Util::Math::Vector3D(0, 0, 1.5).rotate(getRotation());
+        auto offset = Util::Math::Vector3<double>(0, 0, 1.5).rotate(getRotation());
         Util::Game::GameManager::getCurrentScene().addObject(new Missile(getPosition() + offset, (player.getPosition() - getPosition()).normalize(), player));
     }
 }
@@ -154,9 +154,9 @@ void Enemy::takeDamage(uint8_t damage) {
             player.addScore(1000);
             enemies.remove(this);
 
-            auto offset1 = Util::Math::Vector3D(-0.3, 0.03, 0.03).rotate(getRotation());
-            auto offset2 = Util::Math::Vector3D(0.3, -0.02, 0.04).rotate(getRotation());
-            auto offset3 = Util::Math::Vector3D(-0.01, 0.17, -0.4).rotate(getRotation());
+            auto offset1 = Util::Math::Vector3<double>(-0.3, 0.03, 0.03).rotate(getRotation());
+            auto offset2 = Util::Math::Vector3<double>(0.3, -0.02, 0.04).rotate(getRotation());
+            auto offset3 = Util::Math::Vector3<double>(-0.01, 0.17, -0.4).rotate(getRotation());
 
             auto &scene = Util::Game::GameManager::getCurrentScene();
             scene.addObject(new EnemyDebris(getPosition() + offset1, getRotation(), 0.3, 1));

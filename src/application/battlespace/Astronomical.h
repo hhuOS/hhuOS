@@ -25,14 +25,9 @@
 
 #include "lib/util/game/3d/Model.h"
 #include "lib/util/base/String.h"
-#include "lib/util/math/Vector3D.h"
+#include "lib/util/math/Vector3.h"
 
 namespace Util {
-namespace Game {
-namespace D3 {
-class CollisionEvent;
-}  // namespace D3
-}  // namespace Game
 namespace Graphic {
 class Color;
 }  // namespace Graphic
@@ -44,7 +39,7 @@ public:
     /**
      * Constructor.
      */
-    Astronomical(const Util::String &modelName, const Util::Math::Vector3D &position, double scale, const Util::Math::Vector3D &rotationVector, const Util::Graphic::Color &color);
+    Astronomical(const Util::String &modelName, const Util::Math::Vector3<double> &position, double scale, const Util::Math::Vector3<double> &rotationVector, const Util::Graphic::Color &color);
 
     /**
      * Copy Constructor.
@@ -69,7 +64,7 @@ public:
 
 private:
 
-    Util::Math::Vector3D rotationVector;
+    Util::Math::Vector3<double> rotationVector;
 };
 
 #endif

@@ -32,12 +32,12 @@
 #include "lib/util/game/2d/Sprite.h"
 #include "lib/util/game/Collider.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 #include "application/bug/Explosive.h"
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/base/String.h"
 
-EnemyBug::EnemyBug(const Util::Math::Vector2D &position, Fleet &fleet) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)), fleet(fleet) {
+EnemyBug::EnemyBug(const Util::Math::Vector2<double> &position, Fleet &fleet) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)), fleet(fleet) {
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
 }
 
@@ -108,7 +108,7 @@ void EnemyBug::draw(Util::Game::Graphics &graphics) {
 }
 
 void EnemyBug::fireMissile() {
-    auto *missile = new EnemyMissile(getPosition() + Util::Math::Vector2D((SIZE_X / 2) - (EnemyMissile::SIZE_X / 2), -SIZE_Y), *this);
+    auto *missile = new EnemyMissile(getPosition() + Util::Math::Vector2<double>((SIZE_X / 2) - (EnemyMissile::SIZE_X / 2), -SIZE_Y), *this);
     Util::Game::GameManager::getCurrentScene().addObject(missile);
     missile->setVelocityY(-1);
 }

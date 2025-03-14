@@ -26,11 +26,6 @@
 #include "kernel/network/NetworkModule.h"
 #include "lib/util/network/icmp/IcmpHeader.h"
 
-namespace Device {
-namespace Network {
-class NetworkDevice;
-}  // namespace Network
-}  // namespace Device
 namespace Util {
 namespace Network {
 namespace Icmp {
@@ -41,10 +36,6 @@ namespace Ip4 {
 class Ip4Address;
 }  // namespace Ip4
 }  // namespace Network
-
-namespace Io {
-class ByteArrayInputStream;
-}  // namespace Stream
 }  // namespace Util
 
 namespace Kernel::Network::Icmp {

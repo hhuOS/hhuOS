@@ -27,15 +27,6 @@
 
 class DemoSprite;
 
-namespace Util {
-namespace Game {
-class Graphics;
-}  // namespace Game
-namespace Io {
-class Key;
-}  // namespace Io
-}  // namespace Util
-
 class SpriteDemo : public Util::Game::D2::Scene, public Util::Game::KeyListener {
 
 public:

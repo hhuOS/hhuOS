@@ -29,20 +29,20 @@
 #include "lib/util/game/Graphics.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/io/key/Key.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 #include "Dino.h"
 
 void ParticleDemo::initialize() {
-    cloud = new RainEmitter(Util::Math::Vector2D(0, 0.8));
+    cloud = new RainEmitter(Util::Math::Vector2<double>(0, 0.8));
     addObject(cloud);
 
     for (uint32_t i = 0; i < 3; i++) {
-        auto *newGround = new Ground(Util::Math::Vector2D(-1.5 + i, -1));
+        auto *newGround = new Ground(Util::Math::Vector2<double>(-1.5 + i, -1));
         addObject(newGround);
     }
 
-    addObject(new Dino(Util::Math::Vector2D(-0.7, -1 + Ground::SIZE), false));
-    addObject(new Dino(Util::Math::Vector2D(0.5, -1 + Ground::SIZE), true));
+    addObject(new Dino(Util::Math::Vector2<double>(-0.7, -1 + Ground::SIZE), false));
+    addObject(new Dino(Util::Math::Vector2<double>(0.5, -1 + Ground::SIZE), true));
 
     setKeyListener(*this);
 }

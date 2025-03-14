@@ -28,15 +28,8 @@
 #include "lib/util/game/2d/SpriteAnimation.h"
 
 namespace Util {
-namespace Game {
-class Graphics;
-namespace D2 {
-class CollisionEvent;
-class TranslationEvent;
-}  // namespace D2
-}  // namespace Game
 namespace Math {
-class Vector2D;
+template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
@@ -46,7 +39,7 @@ public:
     /**
      * Constructor.
      */
-    Coin(const Util::Math::Vector2D &position);
+    Coin(const Util::Math::Vector2<double> &position);
 
     /**
      * Copy Constructor.

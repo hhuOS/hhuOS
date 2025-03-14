@@ -25,12 +25,12 @@
 
 #include "lib/util/math/Math.h"
 #include "lib/util/game/Collider.h"
-#include "lib/util/math/Vector2D.h"
-#include "lib/util/math/Vector3D.h"
+#include "lib/util/math/Vector2.h"
+#include "lib/util/math/Vector3.h"
 
 namespace Util::Game::D2 {
 
-RectangleCollider::RectangleCollider(const Math::Vector2D &position, const Math::Vector2D &size, Collider::Type type) :
+RectangleCollider::RectangleCollider(const Math::Vector2<double> &position, const Math::Vector2<double> &size, Collider::Type type) :
         Collider(position, type), size(size) {}
 
 RectangleCollider::Side RectangleCollider::getOpposite(RectangleCollider::Side side) {
@@ -56,16 +56,16 @@ double RectangleCollider::getHeight() const {
     return size.getY();
 }
 
-const Math::Vector2D &RectangleCollider::getSize() const {
+const Math::Vector2<double> &RectangleCollider::getSize() const {
     return size;
 }
 
 void RectangleCollider::setWidth(double width) {
-    size = Math::Vector2D(width, size.getY());
+    size = Math::Vector2<double>(width, size.getY());
 }
 
 void RectangleCollider::setHeight(double height) {
-    size = Math::Vector2D(size.getX(), height);
+    size = Math::Vector2<double>(size.getX(), height);
 }
 
 RectangleCollider::Side RectangleCollider::isColliding(const RectangleCollider &other) const {
@@ -74,8 +74,8 @@ RectangleCollider::Side RectangleCollider::isColliding(const RectangleCollider &
         getPosition().getY() < other.getPosition().getY() + other.getHeight() &&
         getHeight() + getPosition().getY() > other.getPosition().getY()) {
 
-        auto lastCenter = getPosition() + Math::Vector2D(getWidth() / 2, getHeight() / 2);
-        auto otherLastCenter = other.getPosition() + Math::Vector2D(other.getWidth() / 2, other.getHeight() / 2);
+        auto lastCenter = getPosition() + Math::Vector2<double>(getWidth() / 2, getHeight() / 2);
+        auto otherLastCenter = other.getPosition() + Math::Vector2<double>(other.getWidth() / 2, other.getHeight() / 2);
 
         auto centerXDistance = lastCenter.getX() - otherLastCenter.getX();
         auto centerYDistance = lastCenter.getY() - otherLastCenter.getY();
@@ -101,7 +101,7 @@ RectangleCollider::Side RectangleCollider::isColliding(const RectangleCollider &
     return NONE;
 }
 
-void RectangleCollider::setSize(const Math::Vector2D &size) {
+void RectangleCollider::setSize(const Math::Vector2<double> &size) {
     RectangleCollider::size = size;
 }
 

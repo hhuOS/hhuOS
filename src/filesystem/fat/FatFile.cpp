@@ -19,6 +19,7 @@
 
 #include "filesystem/fat/FatNode.h"
 #include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
 
 namespace Filesystem::Fat {
 

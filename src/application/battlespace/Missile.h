@@ -24,19 +24,9 @@
 #include <stdint.h>
 
 #include "lib/util/game/3d/Model.h"
+#include "lib/util/math/Vector3.h"
 
 class Player;
-
-namespace Util {
-namespace Game {
-namespace D3 {
-class CollisionEvent;
-}  // namespace D3
-}  // namespace Game
-namespace Math {
-class Vector3D;
-}  // namespace Math
-}  // namespace Util
 
 class Missile : public Util::Game::D3::Model {
 
@@ -44,12 +34,12 @@ public:
     /**
      * Constructor.
      */
-    Missile(const Util::Math::Vector3D &position, const Util::Math::Vector3D &direction, Player &player);
+    Missile(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &direction, Player &player);
 
     /**
      * Constructor.
      */
-    Missile(const Util::Math::Vector3D &position, const Util::Math::Vector3D &direction);
+    Missile(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &direction);
 
     /**
      * Copy Constructor.
@@ -81,7 +71,7 @@ private:
     Player *player = nullptr;
     double lifetime = 0;
 
-    Util::Math::Vector3D direction;
+    Util::Math::Vector3<double> direction;
 };
 
 #endif

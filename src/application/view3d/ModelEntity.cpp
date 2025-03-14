@@ -17,17 +17,9 @@
 
 #include "ModelEntity.h"
 
-#include "lib/util/math/Vector3D.h"
+#include "lib/util/math/Vector3.h"
 
-namespace Util {
-namespace Game {
-namespace D3 {
-class CollisionEvent;
-}  // namespace D3
-}  // namespace Game
-}  // namespace Util
-
-ModelEntity::ModelEntity(const Util::String &modelPath) : Util::Game::D3::Model(0, modelPath, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(1, 1, 1)) {}
+ModelEntity::ModelEntity(const Util::String &modelPath) : Util::Game::D3::Model(0, modelPath, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1)) {}
 
 void ModelEntity::onUpdate([[maybe_unused]] double delta) {}
 

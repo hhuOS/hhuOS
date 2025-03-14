@@ -28,7 +28,7 @@
 
 namespace Util {
 namespace Math {
-class Vector2D;
+template <typename T> class Vector2;
 }  // namespace Math
 
 namespace Game {
@@ -68,9 +68,9 @@ public:
 
     [[nodiscard]] static uint16_t getTransformation();
 
-    [[nodiscard]] static const Math::Vector2D& getAbsoluteResolution();
+    [[nodiscard]] static const Math::Vector2<double>& getAbsoluteResolution();
 
-    [[nodiscard]] static const Math::Vector2D& getRelativeResolution();
+    [[nodiscard]] static const Math::Vector2<double>& getRelativeResolution();
 
     [[nodiscard]] static Game& getGame();
 
@@ -79,8 +79,8 @@ public:
 private:
 
     static Game *game;
-    static Math::Vector2D absoluteResolution;
-    static Math::Vector2D relativeResolution;
+    static Math::Vector2<double> absoluteResolution;
+    static Math::Vector2<double> relativeResolution;
     static uint16_t transformation;
 };
 

@@ -25,9 +25,9 @@
 
 namespace Util::Game::D2 {
 
-TranslationEvent::TranslationEvent(const Math::Vector2D &targetPosition) : targetPosition(targetPosition) {}
+TranslationEvent::TranslationEvent(const Math::Vector2<double> &targetPosition) : targetPosition(targetPosition) {}
 
-const Math::Vector2D& TranslationEvent::getTargetPosition() const {
+const Math::Vector2<double>& TranslationEvent::getTargetPosition() const {
     return targetPosition;
 }
 

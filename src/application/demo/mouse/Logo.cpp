@@ -19,18 +19,10 @@
 
 #include "lib/util/game/2d/event/TranslationEvent.h"
 #include "lib/util/game/GameManager.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 #include "lib/util/base/String.h"
 
-namespace Util {
-namespace Game {
-namespace D2 {
-class CollisionEvent;
-}  // namespace D2
-}  // namespace Game
-}  // namespace Util
-
-Logo::Logo() : Util::Game::D2::Entity(0, Util::Math::Vector2D(-0.5, -0.313)) {}
+Logo::Logo() : Util::Game::D2::Entity(0, Util::Math::Vector2<double>(-0.5, -0.313)) {}
 
 void Logo::initialize() {
     sprite = Util::Game::D2::Sprite("user/mouse/logo.bmp", 1, 0.626);

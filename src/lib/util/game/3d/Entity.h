@@ -31,7 +31,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/math/Vector3D.h"
+#include "lib/util/math/Vector3.h"
 #include "lib/util/game/3d/collider/SphereCollider.h"
 
 namespace Util::Game::D3 {
@@ -46,12 +46,12 @@ public:
     /**
      * Constructor.
      */
-    Entity(uint32_t tag, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale);
+    Entity(uint32_t tag, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale);
 
     /**
      * Constructor.
      */
-    Entity(uint32_t tag, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const SphereCollider &collider);
+    Entity(uint32_t tag, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale, const SphereCollider &collider);
 
     /**
      * Copy Constructor.
@@ -70,23 +70,23 @@ public:
 
     virtual void onCollisionEvent(CollisionEvent &event) = 0;
 
-    [[nodiscard]] const Math::Vector3D& getPosition() const;
+    [[nodiscard]] const Math::Vector3<double>& getPosition() const;
 
-    void setPosition(const Math::Vector3D &position);
+    void setPosition(const Math::Vector3<double> &position);
 
-    void translate(const Math::Vector3D &translation);
+    void translate(const Math::Vector3<double> &translation);
 
-    void translateLocal(const Math::Vector3D &translation);
+    void translateLocal(const Math::Vector3<double> &translation);
 
-    [[nodiscard]] const Math::Vector3D& getRotation() const;
+    [[nodiscard]] const Math::Vector3<double>& getRotation() const;
 
-    void setRotation(const Math::Vector3D &angle);
+    void setRotation(const Math::Vector3<double> &angle);
 
-    void rotate(const Math::Vector3D &angle);
+    void rotate(const Math::Vector3<double> &angle);
 
-    [[nodiscard]] const Math::Vector3D& getScale() const;
+    [[nodiscard]] const Math::Vector3<double>& getScale() const;
 
-    void setScale(const Math::Vector3D &scale);
+    void setScale(const Math::Vector3<double> &scale);
 
     [[nodiscard]] bool hasCollider() const;
 
@@ -96,9 +96,9 @@ private:
 
     void update(double delta);
 
-    Math::Vector3D position{};
-    Math::Vector3D rotation{};
-    Math::Vector3D scale{1, 1, 1};
+    Math::Vector3<double> position{};
+    Math::Vector3<double> rotation{};
+    Math::Vector3<double> scale{1, 1, 1};
 
     bool colliderPresent = false;
     SphereCollider collider;

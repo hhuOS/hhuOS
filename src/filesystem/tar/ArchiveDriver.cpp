@@ -19,10 +19,7 @@
 
 #include "ArchiveFileNode.h"
 #include "ArchiveDirectoryNode.h"
-
-namespace Filesystem {
-class Node;
-}  // namespace Filesystem
+#include "lib/util/base/String.h"
 
 namespace Filesystem::Tar {
 

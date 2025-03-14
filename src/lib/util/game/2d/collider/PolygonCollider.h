@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 #include "lib/util/collection/Pair.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/game/Collider.h"
@@ -43,7 +43,7 @@ namespace Util::Game::D2 {
 
 struct Collision {
     double overlap;
-    Math::Vector2D axis;
+    Math::Vector2<double> axis;
 };
 
 class PolygonCollider : public Collider {
@@ -75,9 +75,9 @@ public:
 
 private:
 
-    static Pair<double, double> projectPolygonOnAxis(Util::Array<Math::Vector2D> vertices, const Math::Vector2D &axis);
+    static Pair<double, double> projectPolygonOnAxis(Util::Array<Math::Vector2<double>> vertices, const Math::Vector2<double> &axis);
 
-    static Math::Vector2D getAxes(Util::Array<Math::Vector2D> vertices, uint32_t index);
+    static Math::Vector2<double> getAxes(Util::Array<Math::Vector2<double>> vertices, uint32_t index);
 
     static double getOverlap(Util::Pair<double, double> range, Util::Pair<double, double> rangeOther);
 

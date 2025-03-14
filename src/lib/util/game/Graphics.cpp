@@ -24,7 +24,7 @@
 #include "Graphics.h"
 
 #include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 #include "lib/util/game/Camera.h"
 #include "lib/util/graphic/Image.h"
 #include "lib/util/base/Address.h"
@@ -33,7 +33,9 @@
 #include "GameManager.h"
 #include "Game.h"
 #include "lib/util/game/3d/Scene.h"
-#include "lib/util/base/System.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/game/3d/Light.h"
+#include "lib/util/game/3d/Model.h"
 
 namespace Util::Game {
 
@@ -41,8 +43,8 @@ Graphics::Graphics(const Util::Graphic::LinearFrameBuffer &lfb, Game &game, doub
         transformation((bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ? bufferedLfb.getResolutionY() : bufferedLfb.getResolutionX()) / 2),
         offsetX(transformation + (bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ? (bufferedLfb.getResolutionX() - bufferedLfb.getResolutionY()) / 2 : 0)),
         offsetY(transformation + (bufferedLfb.getResolutionY() > bufferedLfb.getResolutionX() ? (bufferedLfb.getResolutionY() - bufferedLfb.getResolutionX()) / 2 : 0)) {
-    GameManager::absoluteResolution = Math::Vector2D(bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY());
-    GameManager::relativeResolution = Math::Vector2D(bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ? (double) bufferedLfb.getResolutionX() / bufferedLfb.getResolutionY() : 1,
+    GameManager::absoluteResolution = Math::Vector2<double>(bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY());
+    GameManager::relativeResolution = Math::Vector2<double>(bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ? (double) bufferedLfb.getResolutionX() / bufferedLfb.getResolutionY() : 1,
                                                      bufferedLfb.getResolutionY() > bufferedLfb.getResolutionX() ? (double) bufferedLfb.getResolutionY() / bufferedLfb.getResolutionX() : 1);
     GameManager::transformation = transformation;
     lfb.clear();
@@ -86,28 +88,28 @@ void Graphics::drawStringDirectAbsolute(const Graphic::Font &font, uint16_t posX
     drawStringDirectAbsolute(font, posX, posY, static_cast<const char*>(string));
 }
 
-void Graphics::drawLineDirect(const Math::Vector2D &from, const Math::Vector2D &to) const {
+void Graphics::drawLineDirect(const Math::Vector2<double> &from, const Math::Vector2<double> &to) const {
     drawLineDirectAbsolute(static_cast<uint16_t>(from.getX() * transformation + offsetX),
                            static_cast<uint16_t>(-from.getY() * transformation + offsetY),
                            static_cast<uint16_t>(to.getX() * transformation + offsetX),
                            static_cast<uint16_t>(-to.getY() * transformation + offsetY));
 }
 
-void Graphics::drawRectangleDirect(const Math::Vector2D &position, double width, double height) const {
+void Graphics::drawRectangleDirect(const Math::Vector2<double> &position, double width, double height) const {
     const auto x = position.getX();
     const auto y = position.getY();
 
-    drawLineDirect(position, Math::Vector2D(x + width, y));
-    drawLineDirect(Math::Vector2D(x, y + height), Math::Vector2D(x + width, y + height));
-    drawLineDirect(position, Math::Vector2D(x, y + height));
-    drawLineDirect(Math::Vector2D(x + width, y), Math::Vector2D(x + width, y + height));
+    drawLineDirect(position, Math::Vector2<double>(x + width, y));
+    drawLineDirect(Math::Vector2<double>(x, y + height), Math::Vector2<double>(x + width, y + height));
+    drawLineDirect(position, Math::Vector2<double>(x, y + height));
+    drawLineDirect(Math::Vector2<double>(x + width, y), Math::Vector2<double>(x + width, y + height));
 }
 
-void Graphics::drawSquareDirect(const Math::Vector2D &position, double size) const {
+void Graphics::drawSquareDirect(const Math::Vector2<double> &position, double size) const {
     drawRectangleDirect(position, size, size);
 }
 
-void Graphics::fillRectangleDirect(const Math::Vector2D &position, double width, double height) const {
+void Graphics::fillRectangleDirect(const Math::Vector2<double> &position, double width, double height) const {
     auto startX = static_cast<int32_t>(position.getX() * transformation + offsetX);
     auto endX = static_cast<int32_t>((position.getX() + width) * transformation + offsetX);
     auto startY = static_cast<int32_t>(-position.getY() * transformation + offsetY);
@@ -124,31 +126,31 @@ void Graphics::fillRectangleDirect(const Math::Vector2D &position, double width,
     }
 }
 
-void Graphics::fillSquareDirect(const Math::Vector2D &position, double size) const {
+void Graphics::fillSquareDirect(const Math::Vector2<double> &position, double size) const {
     fillRectangleDirect(position, size, size);
 }
 
-void Graphics::drawStringDirect(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const {
+void Graphics::drawStringDirect(const Graphic::Font &font, const Math::Vector2<double> &position, const char *string) const {
     drawStringDirectAbsolute(font,
                              static_cast<uint16_t>(position.getX() * transformation + offsetX),
                              static_cast<uint16_t>(-position.getY() * transformation + offsetY),
                              string);
 }
 
-void Graphics::drawStringDirect(const Graphic::Font &font, const Math::Vector2D &position, const String &string) const {
+void Graphics::drawStringDirect(const Graphic::Font &font, const Math::Vector2<double> &position, const String &string) const {
     drawStringDirect(font, position, static_cast<const char*>(string));
 }
 
 /***** 2D drawing functions, respecting the camera position *****/
 
-void Graphics::drawLine2D(const Math::Vector2D &from, const Math::Vector2D &to) const {
+void Graphics::drawLine2D(const Math::Vector2<double> &from, const Math::Vector2<double> &to) const {
     bufferedLfb.drawLine(static_cast<int32_t>((from.getX() - camera.getPosition().getX()) * transformation + offsetX),
                         static_cast<int32_t>(-(from.getY() - camera.getPosition().getY()) * transformation + offsetY),
                         static_cast<int32_t>((to.getX() - camera.getPosition().getX()) * transformation + offsetX),
                         static_cast<int32_t>(-(to.getY() - camera.getPosition().getY()) * transformation + offsetY), color);
 }
 
-void Graphics::drawPolygon2D(const Array<Math::Vector2D> &vertices) const {
+void Graphics::drawPolygon2D(const Array<Math::Vector2<double>> &vertices) const {
     for (uint32_t i = 0; i < vertices.length() - 1; i++) {
         drawLine2D(vertices[i], vertices[i + 1]);
     }
@@ -156,25 +158,25 @@ void Graphics::drawPolygon2D(const Array<Math::Vector2D> &vertices) const {
     drawLine2D(vertices[vertices.length() - 1], vertices[0]);
 }
 
-void Graphics::drawSquare2D(const Math::Vector2D &position, double size) const {
+void Graphics::drawSquare2D(const Math::Vector2<double> &position, double size) const {
     drawRectangle2D(position, size, size);
 }
 
-void Graphics::drawRectangle2D(const Math::Vector2D &position, double width, double height) const {
+void Graphics::drawRectangle2D(const Math::Vector2<double> &position, double width, double height) const {
     auto x = position.getX();
     auto y = position.getY();
 
-    drawLine2D(position, Math::Vector2D(x + width, y));
-    drawLine2D(Math::Vector2D(x, y - height), Math::Vector2D(x + width, y - height));
-    drawLine2D(position, Math::Vector2D(x, y - height));
-    drawLine2D(Math::Vector2D(x + width, y), Math::Vector2D(x + width, y - height));
+    drawLine2D(position, Math::Vector2<double>(x + width, y));
+    drawLine2D(Math::Vector2<double>(x, y - height), Math::Vector2<double>(x + width, y - height));
+    drawLine2D(position, Math::Vector2<double>(x, y - height));
+    drawLine2D(Math::Vector2<double>(x + width, y), Math::Vector2<double>(x + width, y - height));
 }
 
-void Graphics::fillSquare2D(const Math::Vector2D &position, double size) const {
+void Graphics::fillSquare2D(const Math::Vector2<double> &position, double size) const {
     fillRectangle2D(position, size, size);
 }
 
-void Graphics::fillRectangle2D(const Math::Vector2D &position, double width, double height) const {
+void Graphics::fillRectangle2D(const Math::Vector2<double> &position, double width, double height) const {
     auto startX = static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX);
     auto endX = static_cast<int32_t>((position.getX() + width - camera.getPosition().getX()) * transformation + offsetX);
     auto startY = static_cast<int32_t>(-(position.getY() - camera.getPosition().getY()) * transformation + offsetY);
@@ -191,18 +193,18 @@ void Graphics::fillRectangle2D(const Math::Vector2D &position, double width, dou
     }
 }
 
-void Graphics::drawString2D(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const {
+void Graphics::drawString2D(const Graphic::Font &font, const Math::Vector2<double> &position, const char *string) const {
     bufferedLfb.drawString(font,
         static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX),
         static_cast<int32_t>(-(position.getY() - camera.getPosition().getY()) * transformation + offsetY),
         string, color, Util::Graphic::Colors::INVISIBLE);
 }
 
-void Graphics::drawString2D(const Graphic::Font &font, const Math::Vector2D &position, const String &string) const {
+void Graphics::drawString2D(const Graphic::Font &font, const Math::Vector2<double> &position, const String &string) const {
     drawString2D(font, position, static_cast<const char*>(string));
 }
 
-void Graphics::drawImage2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, double alpha, const Math::Vector2D &scale, double rotationAngle) const {
+void Graphics::drawImage2D(const Math::Vector2<double> &position, const Graphic::Image &image, bool flipX, double alpha, const Math::Vector2<double> &scale, double rotationAngle) const {
     bool notScaled = Math::equals(scale.getX(), 1, 0.00001) && Math::equals(scale.getY(), 1, 0.00001);
     bool notRotated = Math::equals(rotationAngle, 0, 0.00001);
 
@@ -311,7 +313,7 @@ void Graphics::show() const {
 
     if (backgroundBuffer == nullptr) {
         bufferedLfb.clear();
-    } else if (Math::Vector2D(camera.getPosition().getX(), camera.getPosition().getY()) == Math::Vector2D(0, 0)) {
+    } else if (Math::Vector2<double>(camera.getPosition().getX(), camera.getPosition().getY()) == Math::Vector2<double>(0, 0)) {
         auto source = Address(backgroundBuffer);
         bufferedLfb.getBuffer().copyRange(source, bufferedLfb.getResolutionY() * bufferedLfb.getPitch());
     } else {
@@ -406,7 +408,7 @@ void Graphics::update() {
     }
 }
 
-void Graphics::drawImageDirect2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, double alpha) const {
+void Graphics::drawImageDirect2D(const Math::Vector2<double> &position, const Graphic::Image &image, bool flipX, double alpha) const {
     const auto *pixelBuffer = image.getPixelBuffer();
     const auto xPixelOffset = static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX);
     const auto yPixelOffset = static_cast<int32_t>(-(position.getY() - camera.getPosition().getY()) * transformation + offsetY);
@@ -423,7 +425,7 @@ void Graphics::drawImageDirect2D(const Math::Vector2D &position, const Graphic::
     }
 }
 
-void Graphics::drawImageScaled2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, double alpha, const Math::Vector2D &scale) const {
+void Graphics::drawImageScaled2D(const Math::Vector2<double> &position, const Graphic::Image &image, bool flipX, double alpha, const Math::Vector2<double> &scale) const {
     const auto *pixelBuffer = image.getPixelBuffer();
     const auto xPixelOffset = static_cast<int16_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX);
     const auto yPixelOffset = static_cast<int16_t>(-(position.getY() - camera.getPosition().getY()) * transformation + offsetY);
@@ -449,7 +451,7 @@ void Graphics::drawImageScaled2D(const Math::Vector2D &position, const Graphic::
     }
 }
 
-void Graphics::drawImageRotated2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, double alpha, double rotationAngle) const {
+void Graphics::drawImageRotated2D(const Math::Vector2<double> &position, const Graphic::Image &image, bool flipX, double alpha, double rotationAngle) const {
     const auto *pixelBuffer = image.getPixelBuffer();
     const auto xPixelOffset = static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX);
     const auto yPixelOffset = static_cast<int32_t>(-(position.getY() - camera.getPosition().getY()) * transformation + offsetY);
@@ -480,7 +482,7 @@ void Graphics::drawImageRotated2D(const Math::Vector2D &position, const Graphic:
     }
 }
 
-void Graphics::drawImageScaledAndRotated2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, double alpha, const Math::Vector2D &scale, double rotationAngle) const {
+void Graphics::drawImageScaledAndRotated2D(const Math::Vector2<double> &position, const Graphic::Image &image, bool flipX, double alpha, const Math::Vector2<double> &scale, double rotationAngle) const {
     const auto *pixelBuffer = image.getPixelBuffer();
     const auto xPixelOffset = static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX);
     const auto yPixelOffset = static_cast<int32_t>(-(position.getY() - camera.getPosition().getY()) * transformation + offsetY);

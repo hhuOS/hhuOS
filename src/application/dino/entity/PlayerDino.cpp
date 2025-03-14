@@ -23,7 +23,7 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/game/2d/Sprite.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 #include "lib/util/game/2d/event/CollisionEvent.h"
 #include "lib/util/game/Collider.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
@@ -39,8 +39,8 @@
 #include "application/dino/GameOverScreen.h"
 #include "lib/util/graphic/Font.h"
 
-PlayerDino::PlayerDino(const Util::Math::Vector2D &position) :
-        Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE, SIZE * 1.133), Util::Game::Collider::DYNAMIC)),
+PlayerDino::PlayerDino(const Util::Math::Vector2<double> &position) :
+        Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE * 1.133), Util::Game::Collider::DYNAMIC)),
         pointsFont(Util::Graphic::Font::getFontForResolution(static_cast<uint32_t>(Util::Game::GameManager::getAbsoluteResolution().getY()))) {
     Util::Game::GameManager::getCurrentScene().addObject(grassEmitter);
 }
@@ -184,7 +184,7 @@ void PlayerDino::die() {
     if (hatched && !dying && !dead) {
         time = 0;
         dying = true;
-        setVelocity(Util::Math::Vector2D(0, 0));
+        setVelocity(Util::Math::Vector2<double>(0, 0));
         currentAnimation = &deathAnimation;
     }
 }
@@ -203,7 +203,7 @@ void PlayerDino::reset() {
         hatchAnimation.reset();
         deathAnimation.reset();
         currentAnimation = &eggAnimation;
-        setVelocity(Util::Math::Vector2D(0, 0));
+        setVelocity(Util::Math::Vector2<double>(0, 0));
     }
 }
 

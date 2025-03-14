@@ -18,12 +18,11 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
-#include "lib/util/graphic/Colors.h"
 #include "Light.h"
 
 namespace Util::Game::D3 {
 
-Light::Light(uint8_t index, Type type, const Math::Vector3D &position, const Graphic::Color &diffuseColor, const Graphic::Color &specularColor) : index(index), type(type), position(position), diffuseColor(diffuseColor), specularColor(specularColor) {}
+Light::Light(uint8_t index, Type type, const Math::Vector3<double> &position, const Graphic::Color &diffuseColor, const Graphic::Color &specularColor) : index(index), type(type), position(position), diffuseColor(diffuseColor), specularColor(specularColor) {}
 
 uint8_t Light::getIndex() const {
     return index;
@@ -33,7 +32,7 @@ Light::Type Light::getType() const {
     return type;
 }
 
-const Math::Vector3D &Light::getPosition() const {
+const Math::Vector3<double> &Light::getPosition() const {
     return position;
 }
 
@@ -45,7 +44,7 @@ const Graphic::Color &Light::getSpecularColor() const {
     return specularColor;
 }
 
-void Light::setPosition(const Math::Vector3D &position) {
+void Light::setPosition(const Math::Vector3<double> &position) {
     Light::position = position;
 }
 

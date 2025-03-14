@@ -22,17 +22,7 @@
 
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/game/2d/SpriteAnimation.h"
-#include "lib/util/math/Vector2D.h"
-
-namespace Util {
-namespace Game {
-class Graphics;
-namespace D2 {
-class CollisionEvent;
-class TranslationEvent;
-}  // namespace D2
-}  // namespace Game
-}  // namespace Util
+#include "lib/util/math/Vector2.h"
 
 class DemoSprite : public Util::Game::D2::Entity {
 
@@ -40,7 +30,7 @@ public:
     /**
      * Default Constructor.
      */
-    DemoSprite(const Util::Math::Vector2D &position, double size, double rotationSpeed, double scaleSpeed, bool flipX);
+    DemoSprite(const Util::Math::Vector2<double> &position, double size, double rotationSpeed, double scaleSpeed, bool flipX);
 
     /**
      * Copy Constructor.
@@ -73,7 +63,7 @@ private:
 
     Util::Game::D2::SpriteAnimation animation;
 
-    Util::Math::Vector2D initialPosition;
+    Util::Math::Vector2<double> initialPosition;
     double size;
     double rotationSpeed;
     double scaleSpeed;

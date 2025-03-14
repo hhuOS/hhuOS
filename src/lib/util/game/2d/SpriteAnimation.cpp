@@ -49,16 +49,16 @@ double SpriteAnimation::getAnimationTime() const {
     return animationTime;
 }
 
-const Math::Vector2D &SpriteAnimation::getOriginalSize() const {
+const Math::Vector2<double> &SpriteAnimation::getOriginalSize() const {
     return sprites[currentSprite].getOriginalSize();
 }
 
-Math::Vector2D SpriteAnimation::getSize() const {
+Math::Vector2<double> SpriteAnimation::getSize() const {
     auto size = sprites[currentSprite].getSize();
-    return Math::Vector2D(size.getX() * scale.getX(), size.getY() * scale.getY());
+    return Math::Vector2<double>(size.getX() * scale.getX(), size.getY() * scale.getY());
 }
 
-const Math::Vector2D &SpriteAnimation::getScale() const {
+const Math::Vector2<double> &SpriteAnimation::getScale() const {
     return scale;
 }
 
@@ -70,12 +70,12 @@ double SpriteAnimation::getAlpha() const {
     return alpha;
 }
 
-void SpriteAnimation::setScale(const Math::Vector2D &scale) {
+void SpriteAnimation::setScale(const Math::Vector2<double> &scale) {
     SpriteAnimation::scale = scale;
 }
 
 void SpriteAnimation::setScale(double scale) {
-    SpriteAnimation::scale = Math::Vector2D(scale, scale);
+    SpriteAnimation::scale = Math::Vector2<double>(scale, scale);
 }
 
 void SpriteAnimation::setRotation(double angle) {
@@ -94,7 +94,7 @@ void SpriteAnimation::setXFlipped(bool flipped) {
     xFlipped = flipped;
 }
 
-void SpriteAnimation::draw(const Graphics &graphics, const Math::Vector2D &position) const {
+void SpriteAnimation::draw(const Graphics &graphics, const Math::Vector2<double> &position) const {
     graphics.drawImage2D(position, sprites[currentSprite].getImage(), xFlipped, alpha, scale, rotationAngle);
 }
 

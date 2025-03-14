@@ -27,15 +27,7 @@
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/math/Random.h"
 
-namespace Util {
-namespace Game {
-namespace D3 {
-class CollisionEvent;
-}  // namespace D3
-}  // namespace Game
-}  // namespace Util
-
-EnemyDebris::EnemyDebris(const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, double scale, uint8_t modelId) : Util::Game::D3::Model(Enemy::TAG, Util::String::format("/user/battlespace/debris%u.obj", modelId), position, rotation, Util::Math::Vector3D(scale, scale, scale), Util::Graphic::Colors::RED), modelId(modelId) {}
+EnemyDebris::EnemyDebris(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, double scale, uint8_t modelId) : Util::Game::D3::Model(Enemy::TAG, Util::String::format("/user/battlespace/debris%u.obj", modelId), position, rotation, Util::Math::Vector3<double>(scale, scale, scale), Util::Graphic::Colors::RED), modelId(modelId) {}
 
 void EnemyDebris::initialize() {
     Model::initialize();
@@ -44,19 +36,19 @@ void EnemyDebris::initialize() {
         case 1: {
             auto r = Util::Math::Random().nextRandomNumber();
             auto r2 = (r - 0.5) * 2.0;
-            translateDirection = Util::Math::Vector3D(-0.05 - 0.1 * r, 0.05 * r2, 0.05 + 0.05 * r);
+            translateDirection = Util::Math::Vector3<double>(-0.05 - 0.1 * r, 0.05 * r2, 0.05 + 0.05 * r);
             break;
         }
         case 2: {
             auto r = Util::Math::Random().nextRandomNumber();
             auto r2 = (r - 0.5) * 2.0;
-            translateDirection = Util::Math::Vector3D(0.05 + 0.1 * r, 0.05 * r2, 0.05 + 0.05 * r);
+            translateDirection = Util::Math::Vector3<double>(0.05 + 0.1 * r, 0.05 * r2, 0.05 + 0.05 * r);
             break;
         }
         case 3: {
             auto r = Util::Math::Random().nextRandomNumber();
             auto r2 = (r - 0.5) * 2.0;
-            translateDirection = Util::Math::Vector3D(-0.05 - 0.1 * r, 0.05 * r2, 0.05 + 0.05 * r);
+            translateDirection = Util::Math::Vector3<double>(-0.05 - 0.1 * r, 0.05 * r2, 0.05 + 0.05 * r);
             break;
         }
         default:
@@ -64,7 +56,7 @@ void EnemyDebris::initialize() {
     }
 
     auto r = Util::Math::Random().nextRandomNumber() * 35;;
-    rotationDirection = Util::Math::Vector3D(r, r, r);
+    rotationDirection = Util::Math::Vector3<double>(r, r, r);
 }
 
 void EnemyDebris::onUpdate(double delta) {

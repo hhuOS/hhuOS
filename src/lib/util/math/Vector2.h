@@ -20,61 +20,65 @@
 
 namespace Util::Math {
 
-class Vector2D {
+template <typename T>
+class Vector2 {
 
 public:
     /**
      * Default Constructor.
      */
-    Vector2D() = default;
+    Vector2() = default;
 
     /**
      * Constructor.
      */
-    Vector2D(double x, double y);
+    Vector2(T x, T y);
 
     /**
      * Copy Constructor.
      */
-    Vector2D(const Vector2D &other) = default;
+    Vector2(const Vector2 &other) = default;
 
     /**
      * Assignment operator.
      */
-    Vector2D &operator=(const Vector2D &other) = default;
+    Vector2 &operator=(const Vector2 &other) = default;
 
     /**
      * Destructor.
      */
-    ~Vector2D() = default;
+    ~Vector2() = default;
 
-    Vector2D operator*(double value) const;
+    Vector2 operator*(T value) const;
 
-    Vector2D operator/(double value) const;
+    Vector2 operator/(T value) const;
 
-    Vector2D operator+(const Vector2D &other) const;
+    Vector2 operator+(const Vector2 &other) const;
 
-    Vector2D operator-(const Vector2D &other) const;
+    Vector2 operator-(const Vector2 &other) const;
 
-    bool operator==(const Vector2D &other) const;
+    bool operator==(const Vector2 &other) const;
 
-    bool operator!=(const Vector2D &other) const;
+    bool operator!=(const Vector2 &other) const;
 
-    [[nodiscard]] Vector2D normalize() const;
+    [[nodiscard]] Vector2 normalize() const;
 
-    [[nodiscard]] double dotProduct(const Vector2D &other) const;
+    [[nodiscard]] T dotProduct(const Vector2 &other) const;
 
-    [[nodiscard]] double length() const;
+    [[nodiscard]] T length() const;
 
-    [[nodiscard]] double getX() const;
+    [[nodiscard]] T getX() const;
 
-    [[nodiscard]] double getY() const;
+    [[nodiscard]] T getY() const;
 
 private:
 
-    double x = 0;
-    double y = 0;
+    T x = 0;
+    T y = 0;
 };
+
+template class Vector2<float>;
+template class Vector2<double>;
 
 }
 

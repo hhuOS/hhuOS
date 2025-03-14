@@ -29,15 +29,8 @@
 #include "lib/util/time/Timestamp.h"
 
 namespace Util {
-namespace Game {
-class Graphics;
-namespace D2 {
-class CollisionEvent;
-class TranslationEvent;
-}  // namespace D2
-}  // namespace Game
 namespace Math {
-class Vector2D;
+template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
@@ -47,7 +40,7 @@ public:
     /**
      * Constructor.
      */
-    explicit EnemyFrog(const Util::Math::Vector2D &position);
+    explicit EnemyFrog(const Util::Math::Vector2<double> &position);
 
     /**
      * Copy Constructor.

@@ -24,7 +24,7 @@
 #ifndef HHUOS_UTIL_H
 #define HHUOS_UTIL_H
 
-#include "lib/util/math/Vector3D.h"
+#include "lib/util/math/Vector3.h"
 
 namespace Util {
 namespace Game {
@@ -62,22 +62,22 @@ public:
      */
     ~Util() = delete;
 
-    static Entity* findEntityUsingRaytrace(const ArrayList<Entity*> &entities, Math::Vector3D from, Math::Vector3D direction, double length, double precision = 0.1);
+    static Entity* findEntityUsingRaytrace(const ArrayList<Entity*> &entities, Math::Vector3<double> from, Math::Vector3<double> direction, double length, double precision = 0.1);
 
-    static Math::Vector3D findLookAt(const Math::Vector3D &from, const Math::Vector3D &to);
+    static Math::Vector3<double> findLookAt(const Math::Vector3<double> &from, const Math::Vector3<double> &to);
 
     /**
      * Calculates an orbit location of start around orbitCenter at angle location orbitAngle.
      * orbitAngle should be angles in degrees; {0, 0, 1} is the forward Direction; roll values will be ignored.
      */
-    static Math::Vector3D findOrbitLocation(const Math::Vector3D &start, const Math::Vector3D &orbitCenter, const Math::Vector3D &orbitAngle);
+    static Math::Vector3<double> findOrbitLocation(const Math::Vector3<double> &start, const Math::Vector3<double> &orbitCenter, const Math::Vector3<double> &orbitAngle);
 
     /**
      * Calculates an orbit location of start around orbitCenter at angle location orbitAngle.
      * orbitAngle should be angles in degrees; {0, 0, 1} is the forward Direction; roll values will be ignored.
      * orbitAngle will be interpreted as relative to the current start angle around the orbitCenter.
      */
-    static Math::Vector3D findOrbitLocationRelative(const Math::Vector3D &start, const Math::Vector3D &orbitCenter, const Math::Vector3D &orbitAngleRelative);
+    static Math::Vector3<double> findOrbitLocationRelative(const Math::Vector3<double> &start, const Math::Vector3<double> &orbitCenter, const Math::Vector3<double> &orbitAngleRelative);
 };
 
 }

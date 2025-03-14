@@ -26,13 +26,13 @@
 
 namespace Util {
 namespace Math {
-class Vector2D;
+template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
 namespace Util::Game::D2 {
 
-SingleTimeEmitter::SingleTimeEmitter(uint32_t tag, uint32_t particleTag, const Math::Vector2D &position) : Emitter(tag, particleTag, position, -1) {}
+SingleTimeEmitter::SingleTimeEmitter(uint32_t tag, uint32_t particleTag, const Math::Vector2<double> &position) : Emitter(tag, particleTag, position, -1) {}
 
 void SingleTimeEmitter::initialize() {
     Emitter::initialize();

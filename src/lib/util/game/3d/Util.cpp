@@ -31,8 +31,8 @@
 
 namespace Util::Game::D3 {
 
-Entity* Util::findEntityUsingRaytrace(const ArrayList<Entity*> &entities, Math::Vector3D from, Math::Vector3D direction, double length, double precision) {
-    auto collider = SphereCollider(Math::Vector3D(0, 0, 0), precision);
+Entity* Util::findEntityUsingRaytrace(const ArrayList<Entity*> &entities, Math::Vector3<double> from, Math::Vector3<double> direction, double length, double precision) {
+    auto collider = SphereCollider(Math::Vector3<double>(0, 0, 0), precision);
     auto normalizedDirection = direction.normalize();
 
     for (double x = 0; x < length; x += precision) {
@@ -53,9 +53,9 @@ Entity* Util::findEntityUsingRaytrace(const ArrayList<Entity*> &entities, Math::
 
 }
 
-Math::Vector3D Util::findLookAt(const Math::Vector3D &from, const Math::Vector3D &to) {
-    Math::Vector3D v = to - from;
-    Math::Vector3D norm = v.normalize();
+Math::Vector3<double> Util::findLookAt(const Math::Vector3<double> &from, const Math::Vector3<double> &to) {
+    Math::Vector3<double> v = to - from;
+    Math::Vector3<double> norm = v.normalize();
 
     auto x = norm.getX();
     auto y = norm.getY();
@@ -80,20 +80,20 @@ Math::Vector3D Util::findLookAt(const Math::Vector3D &from, const Math::Vector3D
     return { -pitch, yaw, 0 };
 }
 
-Math::Vector3D Util::findOrbitLocation(const Math::Vector3D &start, const Math::Vector3D &orbitCenter, const Math::Vector3D &orbitAngle) {
-    auto orbitAngleCleaned = Math::Vector3D(orbitAngle.getX(), orbitAngle.getY(), 0);
-    auto normAngleLocation = Math::Vector3D(0, 0, 1).rotate(orbitAngleCleaned);
+Math::Vector3<double> Util::findOrbitLocation(const Math::Vector3<double> &start, const Math::Vector3<double> &orbitCenter, const Math::Vector3<double> &orbitAngle) {
+    auto orbitAngleCleaned = Math::Vector3<double>(orbitAngle.getX(), orbitAngle.getY(), 0);
+    auto normAngleLocation = Math::Vector3<double>(0, 0, 1).rotate(orbitAngleCleaned);
     auto radius = start.distance(orbitCenter);
 
     return orbitCenter + (normAngleLocation * radius);
 }
 
-Math::Vector3D Util::findOrbitLocationRelative(const Math::Vector3D &start, const Math::Vector3D &orbitCenter, const Math::Vector3D &orbitAngleRelative) {
+Math::Vector3<double> Util::findOrbitLocationRelative(const Math::Vector3<double> &start, const Math::Vector3<double> &orbitCenter, const Math::Vector3<double> &orbitAngleRelative) {
     auto currentOrbitAngle = findLookAt(orbitCenter, start);
 
     auto radius = start.distance(orbitCenter);
-    auto orbitAngleCleaned = Math::Vector3D(currentOrbitAngle.getX() + orbitAngleRelative.getX(), currentOrbitAngle.getY() + orbitAngleRelative.getY(), 0) % 360;
-    auto normAngleLocation = Math::Vector3D(0, 0, 1).rotate(orbitAngleCleaned);
+    auto orbitAngleCleaned = Math::Vector3<double>(currentOrbitAngle.getX() + orbitAngleRelative.getX(), currentOrbitAngle.getY() + orbitAngleRelative.getY(), 0) % 360;
+    auto normAngleLocation = Math::Vector3<double>(0, 0, 1).rotate(orbitAngleCleaned);
 
     return normAngleLocation * radius;
 

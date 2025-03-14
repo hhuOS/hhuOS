@@ -27,7 +27,7 @@
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/game/2d/component/Component.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 
 namespace Util::Game::D2 {
 
@@ -36,14 +36,14 @@ GravityComponent::GravityComponent(Entity &entity, double gravityValue, double s
 
 void GravityComponent::update(double delta) {
     auto &entity = getEntity();
-    auto velocity = entity.getVelocity() - Math::Vector2D(0, Math::absolute(gravityValue * delta));
-    auto newPosition = entity.getPosition() + Math::Vector2D(velocity.getX() * delta, velocity.getY() * delta);
+    auto velocity = entity.getVelocity() - Math::Vector2<double>(0, Math::absolute(gravityValue * delta));
+    auto newPosition = entity.getPosition() + Math::Vector2<double>(velocity.getX() * delta, velocity.getY() * delta);
 
     auto event = TranslationEvent(newPosition);
     entity.onTranslationEvent(event);
     
     if (!event.isCanceled()) {
-        velocity = Math::Vector2D(velocity.getX() * (1 - stopFactorX), velocity.getY());
+        velocity = Math::Vector2<double>(velocity.getX() * (1 - stopFactorX), velocity.getY());
         entity.setPosition(newPosition);
         entity.setVelocity(velocity);
     }

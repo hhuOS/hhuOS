@@ -28,12 +28,12 @@
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/Collider.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 #include "application/bug/Explosive.h"
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/base/String.h"
 
-Ship::Ship(const Util::Math::Vector2D &position) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)) {
+Ship::Ship(const Util::Math::Vector2<double> &position) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)) {
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
 }
 
@@ -96,7 +96,7 @@ void Ship::draw(Util::Game::Graphics &graphics) {
     sprite.draw(graphics, getPosition());
 
     for (uint32_t i = 0; i < lives; i++) {
-        heart.draw(graphics, Util::Math::Vector2D(-0.9 + i * 1.5 * heart.getSize().getX(), -0.9));
+        heart.draw(graphics, Util::Math::Vector2<double>(-0.9 + i * 1.5 * heart.getSize().getX(), -0.9));
     }
 }
 
@@ -106,7 +106,7 @@ void Ship::fireMissile() {
     }
 
     mayFireMissile = false;
-    auto *missile = new PlayerMissile(getPosition() + Util::Math::Vector2D((SIZE_X / 2) - (PlayerMissile::SIZE_X / 2), SIZE_Y), *this);
+    auto *missile = new PlayerMissile(getPosition() + Util::Math::Vector2<double>((SIZE_X / 2) - (PlayerMissile::SIZE_X / 2), SIZE_Y), *this);
     Util::Game::GameManager::getCurrentScene().addObject(missile);
     missile->setVelocityY(2);
 }

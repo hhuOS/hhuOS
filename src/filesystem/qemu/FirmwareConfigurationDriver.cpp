@@ -23,6 +23,7 @@
 #include "device/system/FirmwareConfiguration.h"
 #include "filesystem/memory/MemoryDirectoryNode.h"
 #include "lib/util/collection/Array.h"
+#include "lib/util/base/String.h"
 
 namespace Filesystem::Qemu {
 

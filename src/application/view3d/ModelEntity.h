@@ -21,14 +21,6 @@
 #include "lib/util/game/3d/Model.h"
 #include "lib/util/base/String.h"
 
-namespace Util {
-namespace Game {
-namespace D3 {
-class CollisionEvent;
-}  // namespace D3
-}  // namespace Game
-}  // namespace Util
-
 class ModelEntity : public Util::Game::D3::Model {
 
 public:

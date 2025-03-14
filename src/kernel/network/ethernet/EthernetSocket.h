@@ -23,12 +23,6 @@
 
 #include "kernel/network/DatagramSocket.h"
 
-namespace Util {
-namespace Network {
-class Datagram;
-}  // namespace Network
-}  // namespace Util
-
 namespace Kernel::Network::Ethernet {
 
 class EthernetSocket : public DatagramSocket {

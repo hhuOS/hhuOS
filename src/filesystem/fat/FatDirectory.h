@@ -22,14 +22,7 @@
 
 #include "FatNode.h"
 #include "filesystem/fat/ff/source/ff.h"
-#include "lib/util/collection/Array.h"
 #include "lib/util/io/file/File.h"
-
-namespace Util {
-
-class String;
-
-}  // namespace Util
 
 namespace Filesystem::Fat {
 

@@ -15,55 +15,67 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Vector2D.h"
+#include "Vector2.h"
 #include "Math.h"
 
 namespace Util::Math {
 
-Vector2D::Vector2D(double x, double y) : x(x), y(y) {}
+template <typename T>
+Vector2<T>::Vector2(T x, T y) : x(x), y(y) {}
 
-Vector2D Vector2D::operator*(double value) const {
+template <typename T>
+Vector2<T> Vector2<T>::operator*(T value) const {
     return { x * value, y * value };
 }
 
-Vector2D Vector2D::operator/(double value) const {
+template <typename T>
+Vector2<T> Vector2<T>::operator/(T value) const {
     return { x / value, y / value};
 }
 
-Vector2D Vector2D::operator+(const Vector2D &other) const {
+template <typename T>
+Vector2<T> Vector2<T>::operator+(const Vector2 &other) const {
     return { x + other.x, y + other.y };
 }
 
-Vector2D Vector2D::operator-(const Vector2D &other) const {
+template <typename T>
+Vector2<T> Vector2<T>::operator-(const Vector2 &other) const {
     return { x - other.x, y - other.y };
 }
 
-bool Vector2D::operator==(const Vector2D &other) const {
+template <typename T>
+bool Vector2<T>::operator==(const Vector2 &other) const {
     return x == other.x && y == other.y;
 }
 
-bool Vector2D::operator!=(const Vector2D &other) const {
+template <typename T>
+bool Vector2<T>::operator!=(const Vector2 &other) const {
     return x != other.x || y != other.y;
 }
 
-Vector2D Vector2D::normalize() const {
+template <typename T>
+Vector2<T> Vector2<T>::normalize() const {
     auto len = length();
     return len == 0 ? *this : *this / len;
 }
 
-double Vector2D::dotProduct(const Vector2D &other) const {
+template <typename T>
+T Vector2<T>::dotProduct(const Vector2 &other) const {
     return (x * other.x) + (y * other.y);
 }
 
-double Vector2D::length() const {
+template <typename T>
+T Vector2<T>::length() const {
     return sqrt(x * x + y * y);
 }
 
-double Vector2D::getX() const {
+template <typename T>
+T Vector2<T>::getX() const {
     return x;
 }
 
-double Vector2D::getY() const {
+template <typename T>
+T Vector2<T>::getY() const {
     return y;
 }
 

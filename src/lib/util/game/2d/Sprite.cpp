@@ -64,15 +64,15 @@ const Graphic::Image& Sprite::getImage() const {
     return *image;
 }
 
-const Math::Vector2D &Sprite::getOriginalSize() const {
+const Math::Vector2<double> &Sprite::getOriginalSize() const {
     return size;
 }
 
-Math::Vector2D Sprite::getSize() const {
-    return Math::Vector2D(size.getX() * scale.getX(), size.getY() * scale.getY());
+Math::Vector2<double> Sprite::getSize() const {
+    return Math::Vector2<double>(size.getX() * scale.getX(), size.getY() * scale.getY());
 }
 
-const Math::Vector2D &Sprite::getScale() const {
+const Math::Vector2<double> &Sprite::getScale() const {
     return scale;
 }
 
@@ -84,12 +84,12 @@ double Sprite::getAlpha() const {
     return alpha;
 }
 
-void Sprite::setScale(const Math::Vector2D &scale) {
+void Sprite::setScale(const Math::Vector2<double> &scale) {
     Sprite::scale = scale;
 }
 
 void Sprite::setScale(double scale) {
-    Sprite::scale = Math::Vector2D(scale, scale);
+    Sprite::scale = Math::Vector2<double>(scale, scale);
 }
 
 void Sprite::setRotation(double angle) {
@@ -108,7 +108,7 @@ void Sprite::flipX() {
     xFlipped = !xFlipped;
 }
 
-void Sprite::draw(const Graphics &graphics, const Math::Vector2D &position) const {
+void Sprite::draw(const Graphics &graphics, const Math::Vector2<double> &position) const {
     graphics.drawImage2D(position, *image, xFlipped, alpha, scale, rotationAngle);
 }
 

@@ -18,6 +18,7 @@
 #include "lib/util/base/Address.h"
 #include "MemoryFileNode.h"
 #include "filesystem/memory/MemoryNode.h"
+#include "lib/util/collection/Array.h"
 
 namespace Filesystem::Memory {
 

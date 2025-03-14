@@ -24,11 +24,11 @@
 #ifndef HHUOS_COLLIDER_H
 #define HHUOS_COLLIDER_H
 
-#include "lib/util/math/Vector3D.h"
+#include "lib/util/math/Vector3.h"
 
 namespace Util {
 namespace Math {
-class Vector2D;
+template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
@@ -45,12 +45,12 @@ public:
     /**
      * Constructor.
      */
-    Collider(const Math::Vector2D &position, Type type);
+    Collider(const Math::Vector2<double> &position, Type type);
 
     /**
      * Constructor.
      */
-    Collider(const Math::Vector3D &position, Type type);
+    Collider(const Math::Vector3<double> &position, Type type);
 
     /**
      * Copy Constructor.
@@ -67,17 +67,17 @@ public:
      */
     ~Collider() = default;
 
-    void setPosition(const Math::Vector2D &position);
+    void setPosition(const Math::Vector2<double> &position);
 
-    void setPosition(const Math::Vector3D &position);
+    void setPosition(const Math::Vector3<double> &position);
 
-    [[nodiscard]] const Math::Vector3D& getPosition() const;
+    [[nodiscard]] const Math::Vector3<double>& getPosition() const;
 
     [[nodiscard]] Type getType() const;
 
 private:
 
-    Math::Vector3D position;
+    Math::Vector3<double> position;
     Type type;
 };
 

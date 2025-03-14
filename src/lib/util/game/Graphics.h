@@ -38,11 +38,10 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/base/String.h"
-#include "lib/util/math/Vector3D.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector3.h"
+#include "lib/util/math/Vector2.h"
 #include "Camera.h"
-#include "lib/util/game/3d/Model.h"
-#include "lib/util/game/3d/Light.h"
+#include "lib/tinygl/include/GL/gl.h"
 
 namespace Util {
 
@@ -54,6 +53,9 @@ class Image;
 
 namespace Game {
 class Game;
+namespace D3 {
+class Model;
+}  // namespace D3
 }  // namespace Game
 }  // namespace Util
 
@@ -100,39 +102,39 @@ public:
 
     void drawStringDirectAbsolute(const Graphic::Font &font, uint16_t posX, uint16_t posY, const String &string) const;
 
-    void drawLineDirect(const Math::Vector2D &from, const Math::Vector2D &to) const;
+    void drawLineDirect(const Math::Vector2<double> &from, const Math::Vector2<double> &to) const;
 
-    void drawRectangleDirect(const Math::Vector2D &position, double width, double height) const;
+    void drawRectangleDirect(const Math::Vector2<double> &position, double width, double height) const;
 
-    void drawSquareDirect(const Math::Vector2D &position, double size) const;
+    void drawSquareDirect(const Math::Vector2<double> &position, double size) const;
 
-    void fillRectangleDirect(const Math::Vector2D &position, double width, double height) const;
+    void fillRectangleDirect(const Math::Vector2<double> &position, double width, double height) const;
 
-    void fillSquareDirect(const Math::Vector2D &position, double size) const;
+    void fillSquareDirect(const Math::Vector2<double> &position, double size) const;
 
-    void drawStringDirect(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const;
+    void drawStringDirect(const Graphic::Font &font, const Math::Vector2<double> &position, const char *string) const;
 
-    void drawStringDirect(const Graphic::Font &font, const Math::Vector2D &position, const String &string) const;
+    void drawStringDirect(const Graphic::Font &font, const Math::Vector2<double> &position, const String &string) const;
 
     /***** 2D drawing functions, respecting the camera position *****/
 
-    void drawLine2D(const Math::Vector2D &from, const Math::Vector2D &to) const;
+    void drawLine2D(const Math::Vector2<double> &from, const Math::Vector2<double> &to) const;
 
-    void drawPolygon2D(const Array<Math::Vector2D> &vertices) const;
+    void drawPolygon2D(const Array<Math::Vector2<double>> &vertices) const;
 
-    void drawSquare2D(const Math::Vector2D &position, double size) const;
+    void drawSquare2D(const Math::Vector2<double> &position, double size) const;
 
-    void drawRectangle2D(const Math::Vector2D &position, double width, double height) const;
+    void drawRectangle2D(const Math::Vector2<double> &position, double width, double height) const;
 
-    void fillSquare2D(const Math::Vector2D &position, double size) const;
+    void fillSquare2D(const Math::Vector2<double> &position, double size) const;
 
-    void fillRectangle2D(const Math::Vector2D &position, double width, double height) const;
+    void fillRectangle2D(const Math::Vector2<double> &position, double width, double height) const;
 
-    void drawString2D(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const;
+    void drawString2D(const Graphic::Font &font, const Math::Vector2<double> &position, const char *string) const;
 
-    void drawString2D(const Graphic::Font &font, const Math::Vector2D &position, const String &string) const;
+    void drawString2D(const Graphic::Font &font, const Math::Vector2<double> &position, const String &string) const;
 
-    void drawImage2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX = false, double alpha = 1, const Math::Vector2D &scale = Util::Math::Vector2D(1, 1), double rotationAngle = 0) const;
+    void drawImage2D(const Math::Vector2<double> &position, const Graphic::Image &image, bool flipX = false, double alpha = 1, const Math::Vector2<double> &scale = Util::Math::Vector2<double>(1, 1), double rotationAngle = 0) const;
 
     /***** 3D drawing functions *****/
 
@@ -162,13 +164,13 @@ public:
 
 private:
 
-    void drawImageDirect2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, double alpha) const;
+    void drawImageDirect2D(const Math::Vector2<double> &position, const Graphic::Image &image, bool flipX, double alpha) const;
 
-    void drawImageScaled2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, double alpha, const Util::Math::Vector2D &scale) const;
+    void drawImageScaled2D(const Math::Vector2<double> &position, const Graphic::Image &image, bool flipX, double alpha, const Util::Math::Vector2<double> &scale) const;
 
-    void drawImageRotated2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, double alpha, double rotationAngle) const;
+    void drawImageRotated2D(const Math::Vector2<double> &position, const Graphic::Image &image, bool flipX, double alpha, double rotationAngle) const;
 
-    void drawImageScaledAndRotated2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, double alpha, const Util::Math::Vector2D &scale, double rotationAngle) const;
+    void drawImageScaledAndRotated2D(const Math::Vector2<double> &position, const Graphic::Image &image, bool flipX, double alpha, const Util::Math::Vector2<double> &scale, double rotationAngle) const;
 
     static void gluPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 
@@ -184,7 +186,7 @@ private:
 
     Graphic::Color color = Graphic::Colors::WHITE;
 
-    const Math::Vector3D worldUpVecotor = Math::Vector3D(0, 1, 0);
+    const Math::Vector3<double> worldUpVecotor = Math::Vector3<double>(0, 1, 0);
     Camera camera;
 };
 

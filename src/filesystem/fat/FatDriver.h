@@ -31,12 +31,10 @@ namespace Storage {
 class StorageDevice;
 }  // namespace Storage
 }  // namespace Device
-namespace Filesystem {
-class Node;
-}  // namespace Filesystem
 namespace Util {
 
 template <typename T> class Array;
+
 namespace Async {
 class AtomicBitmap;
 }  // namespace Async

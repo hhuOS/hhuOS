@@ -34,9 +34,6 @@ namespace Storage {
 class StorageDevice;
 }  // namespace Storage
 }  // namespace Device
-namespace Filesystem {
-class Node;
-}  // namespace Filesystem
 
 namespace Filesystem::Iso {
 

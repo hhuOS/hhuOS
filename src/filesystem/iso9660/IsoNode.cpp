@@ -24,6 +24,8 @@
 #include "device/storage/StorageDevice.h"
 #include "filesystem/iso9660/IsoDriver.h"
 #include "lib/util/collection/ArrayList.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
 
 namespace Filesystem::Iso {
 

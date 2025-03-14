@@ -26,16 +26,6 @@
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/game/2d/Sprite.h"
 
-namespace Util {
-namespace Game {
-class Graphics;
-namespace D2 {
-class CollisionEvent;
-class TranslationEvent;
-}  // namespace D2
-}  // namespace Game
-}  // namespace Util
-
 namespace Util::Game::D2 {
 
 class Emitter;

@@ -26,12 +26,8 @@
 
 namespace Util {
 namespace Game {
-class Graphics;
 
 namespace D2 {
-class CollisionEvent;
-class Particle;
-class TranslationEvent;
 class Entity;
 }  // namespace D2
 }  // namespace Game

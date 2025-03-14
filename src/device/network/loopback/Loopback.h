@@ -24,7 +24,6 @@
 #include <stdint.h>
 
 #include "device/network/NetworkDevice.h"
-#include "lib/util/network/MacAddress.h"
 #include "lib/util/async/Spinlock.h"
 
 namespace Device::Network {

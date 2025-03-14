@@ -26,7 +26,7 @@
 
 #include "Camera.h"
 
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 #include "lib/util/math/Math.h"
 
 namespace Util::Game {
@@ -35,45 +35,45 @@ Camera::Camera() {
     reset();
 }
 
-const Math::Vector3D& Camera::getPosition() const {
+const Math::Vector3<double>& Camera::getPosition() const {
     return position;
 }
 
-const Math::Vector3D& Camera::getRotation() const {
+const Math::Vector3<double>& Camera::getRotation() const {
     return rotation;
 }
 
-const Math::Vector3D& Camera::getTargetVector() const {
+const Math::Vector3<double>& Camera::getTargetVector() const {
     return targetVector;
 }
 
-const Math::Vector3D& Camera::getRightVector() const {
+const Math::Vector3<double>& Camera::getRightVector() const {
     return rightVector;
 }
 
-void Camera::setPosition(const Math::Vector3D &position) {
+void Camera::setPosition(const Math::Vector3<double> &position) {
     Camera::position = position;
 }
 
-void Camera::setPosition(const Math::Vector2D &position) {
-    Camera::position = Math::Vector3D(position.getX(), position.getY(), 0);
+void Camera::setPosition(const Math::Vector2<double> &position) {
+    Camera::position = Math::Vector3<double>(position.getX(), position.getY(), 0);
 }
 
-void Camera::setRotation(const Math::Vector3D &angle) {
+void Camera::setRotation(const Math::Vector3<double> &angle) {
     rotation = angle % 360;
 
-    targetVector = Util::Math::Vector3D(
+    targetVector = Util::Math::Vector3<double>(
             Util::Math::sine(Util::Math::toRadians(rotation.getZ())) * Util::Math::cosine(Util::Math::toRadians(rotation.getY())),
             Util::Math::sine(Util::Math::toRadians(rotation.getY())),
             -Util::Math::cosine(Util::Math::toRadians(rotation.getZ())) * Util::Math::cosine(Util::Math::toRadians(rotation.getY()))).normalize();
-    rightVector = targetVector.cross(Util::Math::Vector3D(0, 1, 0)).normalize();
+    rightVector = targetVector.cross(Util::Math::Vector3<double>(0, 1, 0)).normalize();
 }
 
-void Camera::translate(const Math::Vector3D &translation) {
+void Camera::translate(const Math::Vector3<double> &translation) {
     position = position + translation;
 }
 
-void Camera::rotate(const Math::Vector3D &angle) {
+void Camera::rotate(const Math::Vector3<double> &angle) {
     setRotation(rotation + angle);
 }
 

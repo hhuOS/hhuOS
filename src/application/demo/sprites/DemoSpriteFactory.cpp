@@ -18,13 +18,13 @@
 #include "DemoSpriteFactory.h"
 
 #include "application/demo/sprites/DemoSprite.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 
 DemoSprite *DemoSpriteFactory::createSprite() {
     const auto size = random.nextRandomNumber() * 0.15 + 0.1;
     const auto rotationSpeed = (random.nextRandomNumber() + 0.1) * (random.nextRandomNumber() < 0.5 ? -1 : 1);
     const auto scaleSpeed = random.nextRandomNumber();
-    const auto position = Util::Math::Vector2D(random.nextRandomNumber() * 2 - 1 - size / 2, random.nextRandomNumber() * 2 - 1 - size / 2);
+    const auto position = Util::Math::Vector2<double>(random.nextRandomNumber() * 2 - 1 - size / 2, random.nextRandomNumber() * 2 - 1 - size / 2);
     const auto flipX = random.nextRandomNumber() < 0.5;
 
     return new DemoSprite(position, size, rotationSpeed, scaleSpeed, flipX);

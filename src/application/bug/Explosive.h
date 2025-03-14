@@ -24,15 +24,15 @@
 #include "lib/util/game/2d/Entity.h"
 
 namespace Util {
+namespace Math {
+template <typename T> class Vector2;
+}  // namespace Math
+
 namespace Game {
-class Graphics;
 namespace D2 {
 class RectangleCollider;
 }  // namespace D2
 }  // namespace Game
-namespace Math {
-class Vector2D;
-}  // namespace Math
 }  // namespace Util
 
 class Explosive : public Util::Game::D2::Entity {
@@ -41,7 +41,7 @@ public:
     /**
      * Constructor.
      */
-    Explosive(uint32_t tag, const Util::Math::Vector2D &position, const Util::Game::D2::RectangleCollider &collider);
+    Explosive(uint32_t tag, const Util::Math::Vector2<double> &position, const Util::Game::D2::RectangleCollider &collider);
 
     /**
      * Copy Constructor.

@@ -32,11 +32,12 @@
 #include "lib/util/game/3d/collider/SphereCollider.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/graphic/Colors.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 #include "lib/util/graphic/Font.h"
 #include "lib/util/game/Scene.h"
+#include "lib/util/game/Camera.h"
 
-Player::Player(const Util::ArrayList<Enemy *> &enemies) : Util::Game::D3::Entity(TAG, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0, 0, 0), Util::Game::D3::SphereCollider(Util::Math::Vector3D(0, 0, 0), 0.8)), enemies(enemies) {}
+Player::Player(const Util::ArrayList<Enemy *> &enemies) : Util::Game::D3::Entity(TAG, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Game::D3::SphereCollider(Util::Math::Vector3<double>(0, 0, 0), 0.8)), enemies(enemies) {}
 
 void Player::initialize() {}
 
@@ -57,56 +58,56 @@ void Player::draw(Util::Game::Graphics &graphics) {
         graphics.setColor(Util::Graphic::Colors::RED);
     }
 
-    graphics.drawLineDirect(Util::Math::Vector2D(-0.025, 0), Util::Math::Vector2D(-0.1, 0));
-    graphics.drawLineDirect(Util::Math::Vector2D(0.025, 0), Util::Math::Vector2D(0.1, 0));
-    graphics.drawLineDirect(Util::Math::Vector2D(0, 0.025), Util::Math::Vector2D(0, 0.1));
-    graphics.drawLineDirect(Util::Math::Vector2D(0, -0.025), Util::Math::Vector2D(0, -0.1));
+    graphics.drawLineDirect(Util::Math::Vector2<double>(-0.025, 0), Util::Math::Vector2<double>(-0.1, 0));
+    graphics.drawLineDirect(Util::Math::Vector2<double>(0.025, 0), Util::Math::Vector2<double>(0.1, 0));
+    graphics.drawLineDirect(Util::Math::Vector2<double>(0, 0.025), Util::Math::Vector2<double>(0, 0.1));
+    graphics.drawLineDirect(Util::Math::Vector2<double>(0, -0.025), Util::Math::Vector2<double>(0, -0.1));
 
     graphics.setColor(invulnerabilityTimer > 0 ? Util::Graphic::Colors::RED : Util::Graphic::Colors::GREEN);
 
     // Draw player stats
-    graphics.drawStringDirect(font, Util::Math::Vector2D(-0.95, 0.95), Util::String("Health  : "));
-    graphics.drawStringDirect(font, Util::Math::Vector2D(-0.95, 0.89), Util::String::format("Score   : %d", score));
-    graphics.drawStringDirect(font, Util::Math::Vector2D(-0.95, 0.83), Util::String::format("Enemies : %d", enemies.size()));
+    graphics.drawStringDirect(font, Util::Math::Vector2<double>(-0.95, 0.95), Util::String("Health  : "));
+    graphics.drawStringDirect(font, Util::Math::Vector2<double>(-0.95, 0.89), Util::String::format("Score   : %d", score));
+    graphics.drawStringDirect(font, Util::Math::Vector2<double>(-0.95, 0.83), Util::String::format("Enemies : %d", enemies.size()));
 
-    graphics.drawRectangleDirect(Util::Math::Vector2D(-0.7, 0.94), 0.3, -0.025);
-    graphics.fillRectangleDirect(Util::Math::Vector2D(-0.7, 0.94), 0.3 * (getHealth() / 100.0), -0.025);
+    graphics.drawRectangleDirect(Util::Math::Vector2<double>(-0.7, 0.94), 0.3, -0.025);
+    graphics.fillRectangleDirect(Util::Math::Vector2<double>(-0.7, 0.94), 0.3 * (getHealth() / 100.0), -0.025);
 
     // Draw speedometer
-    graphics.fillRectangleDirect(Util::Math::Vector2D(0.9375, 0), 0.025, speed * 0.95);
+    graphics.fillRectangleDirect(Util::Math::Vector2<double>(0.9375, 0), 0.025, speed * 0.95);
 
-    graphics.drawLineDirect(Util::Math::Vector2D(0.925, 0.95), Util::Math::Vector2D(0.975, 0.95));
-    graphics.drawLineDirect(Util::Math::Vector2D(0.925, 0.5), Util::Math::Vector2D(0.975, 0.5));
-    graphics.drawLineDirect(Util::Math::Vector2D(0.925, 0), Util::Math::Vector2D(0.975, 0));
-    graphics.drawLineDirect(Util::Math::Vector2D(0.925, -0.5), Util::Math::Vector2D(0.975, -0.5));
-    graphics.drawLineDirect(Util::Math::Vector2D(0.925, -0.95), Util::Math::Vector2D(0.975, -0.95));
+    graphics.drawLineDirect(Util::Math::Vector2<double>(0.925, 0.95), Util::Math::Vector2<double>(0.975, 0.95));
+    graphics.drawLineDirect(Util::Math::Vector2<double>(0.925, 0.5), Util::Math::Vector2<double>(0.975, 0.5));
+    graphics.drawLineDirect(Util::Math::Vector2<double>(0.925, 0), Util::Math::Vector2<double>(0.975, 0));
+    graphics.drawLineDirect(Util::Math::Vector2<double>(0.925, -0.5), Util::Math::Vector2<double>(0.975, -0.5));
+    graphics.drawLineDirect(Util::Math::Vector2<double>(0.925, -0.95), Util::Math::Vector2<double>(0.975, -0.95));
 
     // Draw radar
     auto headerSting = Util::String::format("P: %d  Y: %d", static_cast<int32_t>(getRotation().getY()), static_cast<int32_t>(getRotation().getZ()));
-    graphics.drawStringDirect(font, Util::Math::Vector2D(-0.95, -0.6), headerSting);
+    graphics.drawStringDirect(font, Util::Math::Vector2<double>(-0.95, -0.6), headerSting);
 
-    graphics.drawSquareDirect(Util::Math::Vector2D(-0.95, -0.95), 0.3);
+    graphics.drawSquareDirect(Util::Math::Vector2<double>(-0.95, -0.95), 0.3);
 
-    graphics.fillSquareDirect(Util::Math::Vector2D(-0.8, -0.8), 0.003);
+    graphics.fillSquareDirect(Util::Math::Vector2<double>(-0.8, -0.8), 0.003);
     graphics.setColor(Util::Graphic::Colors::RED);
 
     for (uint32_t i = 0; i < enemies.size(); i++) {
         auto enemyTargetVector = enemies.get(i)->getPosition() - getPosition();
-        auto relativeOnPlane = Util::Math::Vector3D(enemyTargetVector.getX(), 0, -enemyTargetVector.getZ()).rotate(Util::Math::Vector3D(0, -getRotation().getZ(), 0));
+        auto relativeOnPlane = Util::Math::Vector3<double>(enemyTargetVector.getX(), 0, -enemyTargetVector.getZ()).rotate(Util::Math::Vector3<double>(0, -getRotation().getZ(), 0));
         auto drawX = relativeOnPlane.getX() / 20 * 0.15;
         auto drawY = relativeOnPlane.getZ() / 20 * 0.15;
 
         if (Util::Math::absolute(drawX) < 0.13 && Util::Math::absolute(drawY) < 0.13) {
             auto cutoffWhenOnSameHeight = 3;
             if (enemyTargetVector.getY() > cutoffWhenOnSameHeight) {
-                graphics.drawLineDirect(Util::Math::Vector2D(-0.8 + drawX + 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2D(-0.8 + drawX, -0.8 + drawY));
-                graphics.drawLineDirect(Util::Math::Vector2D(-0.8 + drawX - 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2D(-0.8 + drawX, -0.8 + drawY));
+                graphics.drawLineDirect(Util::Math::Vector2<double>(-0.8 + drawX + 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<double>(-0.8 + drawX, -0.8 + drawY));
+                graphics.drawLineDirect(Util::Math::Vector2<double>(-0.8 + drawX - 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<double>(-0.8 + drawX, -0.8 + drawY));
             } else if (enemyTargetVector.getY() < -cutoffWhenOnSameHeight) {
-                graphics.drawLineDirect(Util::Math::Vector2D(-0.8 + drawX - 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2D(-0.8 + drawX, -0.8 + drawY));
-                graphics.drawLineDirect(Util::Math::Vector2D(-0.8 + drawX + 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2D(-0.8 + drawX, -0.8 + drawY));
+                graphics.drawLineDirect(Util::Math::Vector2<double>(-0.8 + drawX - 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<double>(-0.8 + drawX, -0.8 + drawY));
+                graphics.drawLineDirect(Util::Math::Vector2<double>(-0.8 + drawX + 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<double>(-0.8 + drawX, -0.8 + drawY));
             } else {
-                graphics.drawLineDirect(Util::Math::Vector2D(-0.8 + drawX - 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2D(-0.8 + drawX + 0.02, -0.8 + drawY + 0.02));
-                graphics.drawLineDirect(Util::Math::Vector2D(-0.8 + drawX + 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2D(-0.8 + drawX - 0.02, -0.8 + drawY + 0.02));
+                graphics.drawLineDirect(Util::Math::Vector2<double>(-0.8 + drawX - 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<double>(-0.8 + drawX + 0.02, -0.8 + drawY + 0.02));
+                graphics.drawLineDirect(Util::Math::Vector2<double>(-0.8 + drawX + 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<double>(-0.8 + drawX - 0.02, -0.8 + drawY + 0.02));
             }
         }
     }
@@ -154,11 +155,11 @@ uint32_t Player::getScore() const {
     return score;
 }
 
-Util::Math::Vector3D Player::getCurrentMovementDirection() {
+Util::Math::Vector3<double> Player::getCurrentMovementDirection() {
     return currentMovementDirection;
 }
 
-void Player::setMovementDirection(Util::Math::Vector3D direction) {
+void Player::setMovementDirection(Util::Math::Vector3<double> direction) {
     currentMovementDirection = direction;
 }
 

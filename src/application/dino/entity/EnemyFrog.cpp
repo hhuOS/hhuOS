@@ -33,18 +33,9 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/game/2d/Sprite.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 
-namespace Util {
-namespace Game {
-class Graphics;
-namespace D2 {
-class TranslationEvent;
-}  // namespace D2
-}  // namespace Game
-}  // namespace Util
-
-EnemyFrog::EnemyFrog(const Util::Math::Vector2D &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE, SIZE * 1.12), Util::Game::D2::RectangleCollider::DYNAMIC)) {
+EnemyFrog::EnemyFrog(const Util::Math::Vector2<double> &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE * 1.12), Util::Game::D2::RectangleCollider::DYNAMIC)) {
     Util::Game::GameManager::getCurrentScene().addObject(grassEmitter);
 }
 

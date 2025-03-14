@@ -19,7 +19,6 @@
 #define HHUOS_SMBIOSDRIVER_H
 
 #include "filesystem/memory/MemoryDriver.h"
-#include "lib/util/base/String.h"
 #include "lib/util/io/file/File.h"
 
 namespace Filesystem::SmBios {

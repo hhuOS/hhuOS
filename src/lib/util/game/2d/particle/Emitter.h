@@ -28,6 +28,10 @@
 #include "lib/util/collection/ArrayList.h"
 
 namespace Util {
+namespace Math {
+template <typename T> class Vector2;
+}  // namespace Math
+
 namespace Game {
 namespace D2 {
 class Particle;
@@ -35,9 +39,6 @@ class CollisionEvent;
 }  // namespace D2
 }  // namespace Game
 
-namespace Math {
-class Vector2D;
-}  // namespace Math
 }  // namespace Util
 
 namespace Util::Game::D2 {
@@ -48,7 +49,7 @@ public:
     /**
      * Constructor.
      */
-    Emitter(uint32_t tag, uint32_t particleTag, const Util::Math::Vector2D &position, double timeToLive);
+    Emitter(uint32_t tag, uint32_t particleTag, const Util::Math::Vector2<double> &position, double timeToLive);
 
     /**
      * Copy Constructor.

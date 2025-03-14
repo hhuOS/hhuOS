@@ -16,6 +16,8 @@
  */
 
 #include <stdint.h>
+#include <stdarg.h>
+#include <cstddef>
 
 #include "lib/util/base/System.h"
 #include "lib/util/io/stream/PrintStream.h"
@@ -32,6 +34,12 @@
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/layout/DeLayout.h"
 #include "lib/util/io/key/KeyDecoder.h"
+#include "lib/util/base/Address.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/graphic/Color.h"
+#include "lib/util/io/key/Key.h"
+#include "lib/util/io/stream/InputStream.h"
 
 const ClownMDEmu_Constant constants = []() {
     ClownMDEmu_Constant constants{};

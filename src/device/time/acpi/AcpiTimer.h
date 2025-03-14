@@ -23,12 +23,6 @@
 #include "device/cpu/IoPort.h"
 #include "device/time/WaitTimer.h"
 
-namespace Util {
-namespace Time {
-class Timestamp;
-}  // namespace Time
-}  // namespace Util
-
 namespace Device {
 
 class AcpiTimer : public WaitTimer {

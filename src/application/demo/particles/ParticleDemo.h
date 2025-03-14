@@ -25,14 +25,6 @@
 #include "lib/util/game/KeyListener.h"
 
 class RainEmitter;
-namespace Util {
-namespace Game {
-class Graphics;
-}  // namespace Game
-namespace Io {
-class Key;
-}  // namespace Io
-}  // namespace Util
 
 class ParticleDemo : public Util::Game::D2::Scene, public Util::Game::KeyListener {
 

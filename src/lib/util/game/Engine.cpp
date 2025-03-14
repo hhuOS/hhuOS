@@ -35,13 +35,13 @@
 #include "lib/util/io/stream/InputStream.h"
 #include "GameManager.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 #include "lib/util/base/String.h"
 #include "lib/util/game/Camera.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/io/key/MouseDecoder.h"
-#include "lib/util/math/Vector3D.h"
+#include "lib/util/math/Vector3.h"
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "lib/util/graphic/Font.h"
 #include "lib/util/base/FreeListMemoryManager.h"
@@ -117,7 +117,7 @@ void Engine::run() {
 void Engine::initializeNextScene() {
     if (!game.firstScene) {
         graphics.closeGl();
-        game.getCurrentScene().getCamera().setPosition(Math::Vector3D(0, 0, 0));
+        game.getCurrentScene().getCamera().setPosition(Math::Vector3<double>(0, 0, 0));
         graphics.update();
     }
 
@@ -249,7 +249,7 @@ void Engine::checkMouse() {
             lastMouseButtonState = mouseUpdate.buttons;
 
             if (mouseUpdate.xMovement != 0 || mouseUpdate.yMovement != 0) {
-                scene.mouseListener->mouseMoved(Util::Math::Vector2D(mouseUpdate.xMovement / static_cast<double>(UINT8_MAX), mouseUpdate.yMovement / static_cast<double>(UINT8_MAX)));
+                scene.mouseListener->mouseMoved(Util::Math::Vector2<double>(mouseUpdate.xMovement / static_cast<double>(UINT8_MAX), mouseUpdate.yMovement / static_cast<double>(UINT8_MAX)));
             }
 
             if (mouseUpdate.scroll != 0) {

@@ -19,6 +19,7 @@
 
 #include "filesystem/memory/MemoryNode.h"
 #include "lib/util/base/Exception.h"
+#include "lib/util/collection/Array.h"
 
 namespace Filesystem::Memory {
 

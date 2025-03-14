@@ -23,11 +23,11 @@
 
 #include "SphereCollider.h"
 
-#include "lib/util/math/Vector3D.h"
+#include "lib/util/math/Vector3.h"
 
 namespace Util::Game::D3 {
 
-SphereCollider::SphereCollider(const Math::Vector3D &position, double radius) : Collider(position, STATIC), radius(radius) {}
+SphereCollider::SphereCollider(const Math::Vector3<double> &position, double radius) : Collider(position, STATIC), radius(radius) {}
 
 bool SphereCollider::isColliding(const SphereCollider &other) const {
     return getPosition().distance(other.getPosition()) - (radius + other.radius) <= 0;

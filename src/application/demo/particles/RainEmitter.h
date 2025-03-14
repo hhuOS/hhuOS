@@ -28,16 +28,8 @@
 #include "lib/util/math/Random.h"
 
 namespace Util {
-namespace Game {
-class Graphics;
-namespace D2 {
-class CollisionEvent;
-class Particle;
-class TranslationEvent;
-}  // namespace D2
-}  // namespace Game
 namespace Math {
-class Vector2D;
+template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
@@ -47,7 +39,7 @@ public:
     /**
      * Default.
      */
-    explicit RainEmitter(const Util::Math::Vector2D &position);
+    explicit RainEmitter(const Util::Math::Vector2<double> &position);
 
     /**
      * Copy Constructor.

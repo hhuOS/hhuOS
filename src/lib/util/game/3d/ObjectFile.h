@@ -27,10 +27,11 @@
 #ifndef HHUOS_OBJECTFILE_H
 #define HHUOS_OBJECTFILE_H
 
+#include <stdint.h>
+
 #include "lib/util/base/String.h"
-#include "lib/util/math/Vector3D.h"
+#include "lib/util/math/Vector3.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/math/Vector2D.h"
 
 namespace Util::Game::D3 {
 
@@ -54,11 +55,11 @@ public:
 
     static ObjectFile* open(const String &path);
 
-    [[nodiscard]] const Array<Math::Vector3D>& getVertices() const;
+    [[nodiscard]] const Array<Math::Vector3<double>>& getVertices() const;
 
-    [[nodiscard]] const Array<Math::Vector3D>& getVertexNormals() const;
+    [[nodiscard]] const Array<Math::Vector3<double>>& getVertexNormals() const;
 
-    [[nodiscard]] const Array<Math::Vector3D>& getVertexTextures() const;
+    [[nodiscard]] const Array<Math::Vector3<double>>& getVertexTextures() const;
 
     [[nodiscard]] const Array<uint32_t>& getVertexDrawOrder() const;
 
@@ -66,13 +67,13 @@ public:
 
     [[nodiscard]] const Array<uint32_t>& getTextureDrawOrder() const;
 
-    ObjectFile(const Array<Math::Vector3D> &vertices, const Array<Math::Vector3D> &vertexNormals, const Array<Math::Vector3D> &vertexTextures, const Array<uint32_t> &vertexDrawOrder, const Array<uint32_t> &normalDrawOrder, const Array<uint32_t> &textureDrawOrder);
+    ObjectFile(const Array<Math::Vector3<double>> &vertices, const Array<Math::Vector3<double>> &vertexNormals, const Array<Math::Vector3<double>> &vertexTextures, const Array<uint32_t> &vertexDrawOrder, const Array<uint32_t> &normalDrawOrder, const Array<uint32_t> &textureDrawOrder);
 
 private:
 
-    Array<Math::Vector3D> vertices;
-    Array<Math::Vector3D> vertexNormals;
-    Array<Math::Vector3D> vertexTextures;
+    Array<Math::Vector3<double>> vertices;
+    Array<Math::Vector3<double>> vertexNormals;
+    Array<Math::Vector3<double>> vertexTextures;
     Array<uint32_t> vertexDrawOrder;
     Array<uint32_t> normalDrawOrder;
     Array<uint32_t> textureDrawOrder;

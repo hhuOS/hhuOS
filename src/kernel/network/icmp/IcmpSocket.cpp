@@ -29,7 +29,6 @@
 
 namespace Util {
 namespace Network {
-class Datagram;
 
 namespace Ip4 {
 class Ip4Address;

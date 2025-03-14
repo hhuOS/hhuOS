@@ -29,18 +29,9 @@
 #include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/game/2d/particle/Particle.h"
 #include "lib/util/game/Collider.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 
-namespace Util {
-namespace Game {
-class Graphics;
-namespace D2 {
-class CollisionEvent;
-}  // namespace D2
-}  // namespace Game
-}  // namespace Util
-
-RainEmitter::RainEmitter(const Util::Math::Vector2D &position) : Util::Game::D2::Emitter(TAG, PARTICLE_TAG, position, -1) {}
+RainEmitter::RainEmitter(const Util::Math::Vector2<double> &position) : Util::Game::D2::Emitter(TAG, PARTICLE_TAG, position, -1) {}
 
 void RainEmitter::initialize() {
     Emitter::initialize();
@@ -76,10 +67,10 @@ void RainEmitter::onCollisionEvent([[maybe_unused]] Util::Game::D2::CollisionEve
 
 void RainEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
     particle.setSprite(Util::Game::D2::Sprite("/user/dino/particle/water.bmp", 0.005, 0.03));
-    particle.setPosition(getPosition() + Util::Math::Vector2D(random.nextRandomNumber() * 0.5, 0));
-    particle.setVelocity(Util::Math::Vector2D(0, -0.8));
+    particle.setPosition(getPosition() + Util::Math::Vector2<double>(random.nextRandomNumber() * 0.5, 0));
+    particle.setVelocity(Util::Math::Vector2<double>(0, -0.8));
     particle.setTimeToLive(-1);
-    particle.setCollider(Util::Game::D2::RectangleCollider(particle.getPosition(), Util::Math::Vector2D(0.005, 0.03), Util::Game::Collider::STATIC));
+    particle.setCollider(Util::Game::D2::RectangleCollider(particle.getPosition(), Util::Math::Vector2<double>(0.005, 0.03), Util::Game::Collider::STATIC));
 
     particle.addComponent(new Util::Game::D2::LinearMovementComponent(particle));
 }

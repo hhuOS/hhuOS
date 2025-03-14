@@ -25,14 +25,8 @@
 #define HHUOS_POLYGON_H
 
 #include "lib/util/collection/Array.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 #include "lib/util/game/Drawable.h"
-
-namespace Util {
-namespace Game {
-class Graphics;
-}  // namespace Game
-}  // namespace Util
 
 namespace Util::Game::D2 {
 
@@ -42,7 +36,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Polygon(const Array<Math::Vector2D> &vertices);
+    explicit Polygon(const Array<Math::Vector2<double>> &vertices);
 
     /**
      * Copy Constructor.
@@ -59,17 +53,17 @@ public:
      */
     ~Polygon() override = default;
 
-    [[nodiscard]] const Math::Vector2D& getCenter() const;
+    [[nodiscard]] const Math::Vector2<double>& getCenter() const;
 
-    [[nodiscard]] const Util::Array<Math::Vector2D>& getVertices() const;
+    [[nodiscard]] const Util::Array<Math::Vector2<double>>& getVertices() const;
 
     void scale(double factor);
 
     void rotate(double angle);
 
-    void translate(Math::Vector2D translation);
+    void translate(Math::Vector2<double> translation);
 
-    void setPosition(const Math::Vector2D &newPosition);
+    void setPosition(const Math::Vector2<double> &newPosition);
 
     void draw(Graphics &graphics) override;
 
@@ -77,10 +71,10 @@ private:
 
     void calculateCenter();
 
-    Math::Vector2D getTopLeft();
+    Math::Vector2<double> getTopLeft();
 
-    Array<Math::Vector2D> vertices;
-    Math::Vector2D center;
+    Array<Math::Vector2<double>> vertices;
+    Math::Vector2<double> center;
 };
 
 }

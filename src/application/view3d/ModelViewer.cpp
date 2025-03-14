@@ -21,11 +21,9 @@
 #include "lib/util/game/GameManager.h"
 #include "application/view3d/ModelEntity.h"
 #include "lib/util/game/Camera.h"
-#include "lib/util/game/Graphics.h"
 #include "lib/util/io/key/Key.h"
-#include "lib/util/io/key/MouseDecoder.h"
-#include "lib/util/math/Vector2D.h"
-#include "lib/util/math/Math.h"
+#include "lib/util/game/3d/Light.h"
+#include "lib/util/graphic/Colors.h"
 
 ModelViewer::ModelViewer(const Util::String &path) : modelPath(path) {}
 
@@ -50,22 +48,22 @@ void ModelViewer::update(double delta) {
 void ModelViewer::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::LEFT:
-            cameraRotation = Util::Math::Vector3D(cameraRotation.getX(), cameraRotation.getY(), -1);
+            cameraRotation = Util::Math::Vector3<double>(cameraRotation.getX(), cameraRotation.getY(), -1);
             break;
         case Util::Io::Key::RIGHT:
-            cameraRotation = Util::Math::Vector3D(cameraRotation.getX(), cameraRotation.getY(), 1);
+            cameraRotation = Util::Math::Vector3<double>(cameraRotation.getX(), cameraRotation.getY(), 1);
             break;
         case Util::Io::Key::UP:
-            cameraRotation = Util::Math::Vector3D(cameraRotation.getX(), -1, cameraRotation.getZ());
+            cameraRotation = Util::Math::Vector3<double>(cameraRotation.getX(), -1, cameraRotation.getZ());
             break;
         case Util::Io::Key::DOWN:
-            cameraRotation = Util::Math::Vector3D(cameraRotation.getX(), 1, cameraRotation.getZ());
+            cameraRotation = Util::Math::Vector3<double>(cameraRotation.getX(), 1, cameraRotation.getZ());
             break;
         case Util::Io::Key::W:
-            cameraTranslation = Util::Math::Vector3D(0, 1, 0);
+            cameraTranslation = Util::Math::Vector3<double>(0, 1, 0);
             break;
         case Util::Io::Key::S:
-            cameraTranslation = Util::Math::Vector3D(0, -1, 0);
+            cameraTranslation = Util::Math::Vector3<double>(0, -1, 0);
             break;
         case Util::Io::Key::A:
             cameraTranslation = camera.getRightVector() * -1;
@@ -80,28 +78,28 @@ void ModelViewer::keyPressed(const Util::Io::Key &key) {
             cameraTranslation = camera.getTargetVector() * -1;
             break;
         case Util::Io::Key::O:
-            modelRotation = Util::Math::Vector3D(-1, modelRotation.getY(), modelRotation.getZ());
+            modelRotation = Util::Math::Vector3<double>(-1, modelRotation.getY(), modelRotation.getZ());
             break;
         case Util::Io::Key::U:
-            modelRotation = Util::Math::Vector3D(1, modelRotation.getY(), modelRotation.getZ());
+            modelRotation = Util::Math::Vector3<double>(1, modelRotation.getY(), modelRotation.getZ());
             break;
         case Util::Io::Key::I:
-            modelRotation = Util::Math::Vector3D(modelRotation.getX(), -1, modelRotation.getZ());
+            modelRotation = Util::Math::Vector3<double>(modelRotation.getX(), -1, modelRotation.getZ());
             break;
         case Util::Io::Key::K:
-            modelRotation = Util::Math::Vector3D(modelRotation.getX(), 1, modelRotation.getZ());
+            modelRotation = Util::Math::Vector3<double>(modelRotation.getX(), 1, modelRotation.getZ());
             break;
         case Util::Io::Key::J:
-            modelRotation = Util::Math::Vector3D(modelRotation.getX(), modelRotation.getY(), -1);
+            modelRotation = Util::Math::Vector3<double>(modelRotation.getX(), modelRotation.getY(), -1);
             break;
         case Util::Io::Key::L:
-            modelRotation = Util::Math::Vector3D(modelRotation.getX(), modelRotation.getY(), 1);
+            modelRotation = Util::Math::Vector3<double>(modelRotation.getX(), modelRotation.getY(), 1);
             break;
         case Util::Io::Key::SPACE:
             camera.reset();
-            camera.setPosition(Util::Math::Vector3D(0, 0, 0.0));
+            camera.setPosition(Util::Math::Vector3<double>(0, 0, 0.0));
             model->setPosition(camera.getTargetVector() * 5);
-            model->setRotation(Util::Math::Vector3D(0, 0, 0));
+            model->setRotation(Util::Math::Vector3<double>(0, 0, 0));
             break;
         case Util::Io::Key::ESC:
             Util::Game::GameManager::getGame().stop();
@@ -116,17 +114,17 @@ void ModelViewer::keyReleased(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::LEFT:
         case Util::Io::Key::RIGHT:
-            cameraRotation = Util::Math::Vector3D(cameraRotation.getX(), cameraRotation.getY(), 0);
+            cameraRotation = Util::Math::Vector3<double>(cameraRotation.getX(), cameraRotation.getY(), 0);
             break;
         case Util::Io::Key::UP:
         case Util::Io::Key::DOWN:
-            cameraRotation = Util::Math::Vector3D(cameraRotation.getX(), 0, cameraRotation.getZ());
+            cameraRotation = Util::Math::Vector3<double>(cameraRotation.getX(), 0, cameraRotation.getZ());
             break;
         case Util::Io::Key::W:
-            cameraTranslation = cameraTranslation - Util::Math::Vector3D(0, 1, 0);
+            cameraTranslation = cameraTranslation - Util::Math::Vector3<double>(0, 1, 0);
             break;
         case Util::Io::Key::S:
-            cameraTranslation = cameraTranslation + Util::Math::Vector3D(0, 1, 0);
+            cameraTranslation = cameraTranslation + Util::Math::Vector3<double>(0, 1, 0);
             break;
         case Util::Io::Key::A:
             cameraTranslation = cameraTranslation + camera.getRightVector();
@@ -142,15 +140,15 @@ void ModelViewer::keyReleased(const Util::Io::Key &key) {
             break;
         case Util::Io::Key::O:
         case Util::Io::Key::U:
-            modelRotation = Util::Math::Vector3D(0, modelRotation.getY(), modelRotation.getZ());
+            modelRotation = Util::Math::Vector3<double>(0, modelRotation.getY(), modelRotation.getZ());
             break;
         case Util::Io::Key::I:
         case Util::Io::Key::K:
-            modelRotation = Util::Math::Vector3D(modelRotation.getX(), 0, modelRotation.getZ());
+            modelRotation = Util::Math::Vector3<double>(modelRotation.getX(), 0, modelRotation.getZ());
             break;
         case Util::Io::Key::J:
         case Util::Io::Key::L:
-            modelRotation = Util::Math::Vector3D(modelRotation.getX(), modelRotation.getY(), 0);
+            modelRotation = Util::Math::Vector3<double>(modelRotation.getX(), modelRotation.getY(), 0);
             break;
         default:
             break;

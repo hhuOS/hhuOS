@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/game/Entity.h"
@@ -52,12 +52,12 @@ public:
     /**
      * Constructor.
      */
-    explicit Entity(uint32_t tag, const Math::Vector2D &position);
+    explicit Entity(uint32_t tag, const Math::Vector2<double> &position);
 
     /**
      * Constructor.
      */
-    Entity(uint32_t tag, const Math::Vector2D &position, const RectangleCollider &collider);
+    Entity(uint32_t tag, const Math::Vector2<double> &position, const RectangleCollider &collider);
 
     /**
      * Copy Constructor.
@@ -78,19 +78,19 @@ public:
 
     virtual void onCollisionEvent(CollisionEvent &event) = 0;
 
-    void translate(const Math::Vector2D &translation);
+    void translate(const Math::Vector2<double> &translation);
 
     void translateX(double x);
 
     void translateY(double y);
 
-    void setPosition(const Math::Vector2D &position);
+    void setPosition(const Math::Vector2<double> &position);
 
     void setPositionX(double x);
 
     void setPositionY(double y);
 
-    void setVelocity(const Math::Vector2D &velocity);
+    void setVelocity(const Math::Vector2<double> &velocity);
 
     void setVelocityX(double x);
 
@@ -100,9 +100,9 @@ public:
 
     void addComponent(Component *component);
 
-    [[nodiscard]] const Math::Vector2D& getPosition() const;
+    [[nodiscard]] const Math::Vector2<double>& getPosition() const;
 
-    [[nodiscard]] const Math::Vector2D& getVelocity() const;
+    [[nodiscard]] const Math::Vector2<double>& getVelocity() const;
 
     [[nodiscard]] bool hasCollider() const;
 
@@ -115,8 +115,8 @@ private:
     void onCollision(CollisionEvent &event);
 
     bool positionChanged = false;
-    Math::Vector2D position{};
-    Math::Vector2D velocity{};
+    Math::Vector2<double> position{};
+    Math::Vector2<double> velocity{};
 
     bool colliderPresent;
     RectangleCollider collider;

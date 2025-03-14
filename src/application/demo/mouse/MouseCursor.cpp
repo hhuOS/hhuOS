@@ -17,8 +17,10 @@
 
 #include "MouseCursor.h"
 
+#include <stdint.h>
+
 #include "lib/util/game/Graphics.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
 #include "lib/util/game/GameManager.h"
 #include "Logo.h"
@@ -27,15 +29,7 @@
 #include "lib/util/io/key/MouseDecoder.h"
 #include "lib/util/graphic/Font.h"
 
-namespace Util {
-namespace Game {
-namespace D2 {
-class CollisionEvent;
-}  // namespace D2
-}  // namespace Game
-}  // namespace Util
-
-MouseCursor::MouseCursor(Logo &logo) : Util::Game::D2::Entity(0, Util::Math::Vector2D(0, 0)), logo(logo) {}
+MouseCursor::MouseCursor(Logo &logo) : Util::Game::D2::Entity(0, Util::Math::Vector2<double>(0, 0)), logo(logo) {}
 
 void MouseCursor::initialize() {}
 
@@ -62,7 +56,7 @@ void MouseCursor::draw(Util::Game::Graphics &graphics) {
 
     currentSprite->draw(graphics, getPosition());
     graphics.setColor(Util::Graphic::Colors::HHU_TURQUOISE);
-    graphics.drawString2D(font, getPosition() + Util::Math::Vector2D(currentSprite->getSize().getX() / 2 - charWidth, currentSprite->getSize().getY() / 3), additionalButtons);
+    graphics.drawString2D(font, getPosition() + Util::Math::Vector2<double>(currentSprite->getSize().getX() / 2 - charWidth, currentSprite->getSize().getY() / 3), additionalButtons);
 }
 
 void MouseCursor::buttonPressed(Util::Io::Mouse::Button button) {
@@ -101,7 +95,7 @@ void MouseCursor::buttonReleased(Util::Io::Mouse::Button button) {
     }
 }
 
-void MouseCursor::mouseMoved(const Util::Math::Vector2D &relativeMovement) {
+void MouseCursor::mouseMoved(const Util::Math::Vector2<double> &relativeMovement) {
     translate(relativeMovement);
 }
 

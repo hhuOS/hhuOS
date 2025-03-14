@@ -25,19 +25,9 @@
 #include "lib/util/game/2d/particle/Particle.h"
 #include "lib/util/game/2d/event/CollisionEvent.h"
 #include "lib/util/game/Collider.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 #include "application/dino/entity/Block.h"
 #include "lib/util/game/2d/Entity.h"
-
-namespace Util {
-namespace Game {
-class Graphics;
-
-namespace D2 {
-class TranslationEvent;
-}  // namespace D2
-}  // namespace Game
-}  // namespace Util
 
 GrassEmitter::GrassEmitter(const Entity &parent) : Util::Game::D2::Emitter(TAG, PARTICLE_TAG, parent.getPosition(), -1), parent(parent) {}
 
@@ -60,9 +50,9 @@ void GrassEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) 
 
     particle.setSprite(Util::Game::D2::Sprite("/user/dino/particle/grass.bmp", PARTICLE_SIZE, PARTICLE_SIZE));
     particle.setPosition(parent.getPosition());
-    particle.setVelocity(Util::Math::Vector2D(velocityX, velocityY));
+    particle.setVelocity(Util::Math::Vector2<double>(velocityX, velocityY));
     particle.setTimeToLive(10);
-    particle.setCollider(Util::Game::D2::RectangleCollider(particle.getPosition(), Util::Math::Vector2D(PARTICLE_SIZE, PARTICLE_SIZE), Util::Game::Collider::PERMEABLE));
+    particle.setCollider(Util::Game::D2::RectangleCollider(particle.getPosition(), Util::Math::Vector2<double>(PARTICLE_SIZE, PARTICLE_SIZE), Util::Game::Collider::PERMEABLE));
 
     particle.addComponent(new Util::Game::D2::GravityComponent(particle, 2.5, 0.0025));
 }

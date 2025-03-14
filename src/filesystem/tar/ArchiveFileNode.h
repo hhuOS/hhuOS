@@ -4,7 +4,6 @@
 #include <stdint.h>
 
 #include "ArchiveNode.h"
-#include "lib/util/collection/Array.h"
 #include "lib/util/io/file/tar/Archive.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/base/String.h"

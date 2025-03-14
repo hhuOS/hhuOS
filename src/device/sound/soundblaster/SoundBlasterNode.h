@@ -21,7 +21,6 @@
 #include <stdint.h>
 
 #include "filesystem/memory/StreamNode.h"
-#include "lib/util/collection/Array.h"
 
 namespace Kernel {
 class Thread;

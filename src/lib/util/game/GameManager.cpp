@@ -24,7 +24,7 @@
 #include "GameManager.h"
 
 #include "Game.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 
 namespace Util {
 namespace Game {
@@ -35,19 +35,19 @@ class Scene;
 namespace Util::Game {
 
 Game* GameManager::game = nullptr;
-Math::Vector2D GameManager::absoluteResolution = Math::Vector2D();
-Math::Vector2D GameManager::relativeResolution = Math::Vector2D();
+Math::Vector2<double> GameManager::absoluteResolution = Math::Vector2<double>();
+Math::Vector2<double> GameManager::relativeResolution = Math::Vector2<double>();
 uint16_t GameManager::transformation = 0;
 
 uint16_t GameManager::getTransformation() {
     return transformation;
 }
 
-const Math::Vector2D &GameManager::getAbsoluteResolution() {
+const Math::Vector2<double> &GameManager::getAbsoluteResolution() {
     return absoluteResolution;
 }
 
-const Math::Vector2D &GameManager::getRelativeResolution() {
+const Math::Vector2<double> &GameManager::getRelativeResolution() {
     return relativeResolution;
 }
 

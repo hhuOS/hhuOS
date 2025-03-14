@@ -33,7 +33,7 @@ void BugDefender::initialize() {
 
     for (uint32_t i = 0; i < BUGS_PER_COLUMN; i++) {
         for (uint32_t j = 0; j < BUGS_PER_ROW; j++) {
-            addObject(new EnemyBug(Util::Math::Vector2D(-1.0 + j * (EnemyBug::SIZE_X + 0.05), 0.8 - i * (EnemyBug::SIZE_Y + 0.05)), enemyFleet));
+            addObject(new EnemyBug(Util::Math::Vector2<double>(-1.0 + j * (EnemyBug::SIZE_X + 0.05), 0.8 - i * (EnemyBug::SIZE_Y + 0.05)), enemyFleet));
         }
     }
 
@@ -65,7 +65,7 @@ void BugDefender::initializeBackground(Util::Game::Graphics &graphics) {
 
     for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
         for (int32_t y = -tilesPerColumn; y < tilesPerColumn; y++) {
-            backgroundSprites[static_cast<uint32_t>(random.nextRandomNumber() * BACKGROUND_TILE_COUNT)].draw(graphics, Util::Math::Vector2D(x * BACKGROUND_TILE_WIDTH, y * BACKGROUND_TILE_HEIGHT));
+            backgroundSprites[static_cast<uint32_t>(random.nextRandomNumber() * BACKGROUND_TILE_COUNT)].draw(graphics, Util::Math::Vector2<double>(x * BACKGROUND_TILE_WIDTH, y * BACKGROUND_TILE_HEIGHT));
         }
     }
 
@@ -73,11 +73,11 @@ void BugDefender::initializeBackground(Util::Game::Graphics &graphics) {
     tilesPerRow = static_cast<int32_t>(resolution.getX() > resolution.getY() ? resolution.getX() * defaultTilesPerRow : defaultTilesPerRow);
 
     for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
-        surfaceSprite.draw(graphics, Util::Math::Vector2D(x * PLANET_TILE_WIDTH, -1 + PLANET_TILE_HEIGHT));
+        surfaceSprite.draw(graphics, Util::Math::Vector2<double>(x * PLANET_TILE_WIDTH, -1 + PLANET_TILE_HEIGHT));
     }
 
     for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
-        planetSprites[static_cast<uint32_t>(random.nextRandomNumber() * PLANET_TILE_COUNT)].draw(graphics, Util::Math::Vector2D(x * PLANET_TILE_WIDTH, -1));
+        planetSprites[static_cast<uint32_t>(random.nextRandomNumber() * PLANET_TILE_COUNT)].draw(graphics, Util::Math::Vector2<double>(x * PLANET_TILE_WIDTH, -1));
     }
 }
 

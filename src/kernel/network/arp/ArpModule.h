@@ -51,7 +51,6 @@ class Ip4Address;
 }  // namespace Network
 
 namespace Io {
-class ByteArrayInputStream;
 class OutputStream;
 }  // namespace Stream
 }  // namespace Util

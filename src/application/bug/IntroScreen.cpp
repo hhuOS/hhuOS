@@ -26,7 +26,7 @@
 #include "lib/util/game/Graphics.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/Key.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 #include "lib/util/graphic/Font.h"
 
 void IntroScreen::initialize() {

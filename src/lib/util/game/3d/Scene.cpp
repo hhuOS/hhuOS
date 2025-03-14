@@ -34,6 +34,14 @@
 #include "lib/util/game/3d/collider/SphereCollider.h"
 #include "lib/util/game/Entity.h"
 #include "lib/util/game/Graphics.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/game/3d/Light.h"
+
+namespace Util {
+namespace Math {
+template <typename T> class Vector3;
+}  // namespace Math
+}  // namespace Util
 
 namespace Util::Game::D3 {
 
@@ -85,7 +93,7 @@ void Scene::setAmbientLight(const Graphic::Color &ambientLight) {
     Scene::ambientLight = ambientLight;
 }
 
-Light &Scene::addLight(Light::Type type, const Math::Vector3D &position, const Graphic::Color &diffuseColor, const Graphic::Color &specularColor) {
+Light &Scene::addLight(Light::Type type, const Math::Vector3<double> &position, const Graphic::Color &diffuseColor, const Graphic::Color &specularColor) {
     for (uint32_t i = 0; i < 16; i++) {
         if (lights[i] == nullptr) {
             glEnable(GL_LIGHT0 + i);

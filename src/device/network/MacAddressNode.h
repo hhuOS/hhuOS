@@ -19,7 +19,6 @@
 #define HHUOS_MACADDRESSNODE_H
 
 #include "filesystem/memory/StringNode.h"
-#include "lib/util/base/String.h"
 
 namespace Device {
 namespace Network {

@@ -28,15 +28,8 @@
 #include "lib/util/base/String.h"
 
 namespace Util {
-namespace Game {
-class Graphics;
-namespace D2 {
-class CollisionEvent;
-class TranslationEvent;
-}  // namespace D2
-}  // namespace Game
 namespace Math {
-class Vector2D;
+template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
@@ -54,7 +47,7 @@ public:
     /**
      * Constructor.
      */
-    Block(Tag tag, const Util::Math::Vector2D &position, uint32_t countX, uint32_t countY);
+    Block(Tag tag, const Util::Math::Vector2<double> &position, uint32_t countX, uint32_t countY);
 
     /**
      * Copy Constructor.

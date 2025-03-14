@@ -22,7 +22,6 @@
 
 #include "filesystem/memory/StringNode.h"
 #include "lib/util/base/String.h"
-#include "lib/util/collection/Array.h"
 
 namespace Device {
 namespace Graphic {

@@ -24,15 +24,7 @@
 #include <stdint.h>
 
 #include "lib/util/game/3d/Model.h"
-#include "lib/util/math/Vector3D.h"
-
-namespace Util {
-namespace Game {
-namespace D3 {
-class CollisionEvent;
-}  // namespace D3
-}  // namespace Game
-}  // namespace Util
+#include "lib/util/math/Vector3.h"
 
 class EnemyDebris : public Util::Game::D3::Model {
 
@@ -40,7 +32,7 @@ public:
     /**
      * Constructor.
      */
-    EnemyDebris(const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, double scale, uint8_t modelId);
+    EnemyDebris(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, double scale, uint8_t modelId);
 
     /**
      * Copy Constructor.
@@ -68,8 +60,8 @@ private:
     uint8_t modelId;
     double lifetime = 0;
 
-    Util::Math::Vector3D translateDirection;
-    Util::Math::Vector3D rotationDirection;
+    Util::Math::Vector3<double> translateDirection;
+    Util::Math::Vector3<double> rotationDirection;
 };
 
 #endif

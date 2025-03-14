@@ -28,19 +28,10 @@
 #include "application/dino/particle/BloodEmitter.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 
-namespace Util {
-namespace Game {
-class Graphics;
-namespace D2 {
-class TranslationEvent;
-}  // namespace D2
-}  // namespace Game
-}  // namespace Util
-
-Block::Block(Tag tag, const Util::Math::Vector2D &position, uint32_t countX, uint32_t countY) :
-        Util::Game::D2::Entity(tag, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2D(SIZE * countX, SIZE * countY), Util::Game::D2::RectangleCollider::STATIC)),
+Block::Block(Tag tag, const Util::Math::Vector2<double> &position, uint32_t countX, uint32_t countY) :
+        Util::Game::D2::Entity(tag, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE * countX, SIZE * countY), Util::Game::D2::RectangleCollider::STATIC)),
         countX(countX), countY(countY) {}
 
 void Block::initialize() {
@@ -52,7 +43,7 @@ void Block::onUpdate([[maybe_unused]] double delta) {}
 void Block::draw(Util::Game::Graphics &graphics) {
     for (uint32_t x = 0; x < countX; x++) {
         for (uint32_t y = 0; y < countY; y++) {
-            sprite.draw(graphics, getPosition() + Util::Math::Vector2D(x * SIZE, y * SIZE));
+            sprite.draw(graphics, getPosition() + Util::Math::Vector2<double>(x * SIZE, y * SIZE));
         }
     }
 }

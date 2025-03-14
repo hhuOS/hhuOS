@@ -18,28 +18,19 @@
 #ifndef HHUOS_MODELVIEWER_H
 #define HHUOS_MODELVIEWER_H
 
-#include <stdint.h>
-
 #include "lib/util/game/3d/Scene.h"
 #include "lib/util/game/KeyListener.h"
-#include "lib/util/game/MouseListener.h"
 #include "lib/util/base/String.h"
-#include "lib/util/math/Vector3D.h"
+#include "lib/util/math/Vector3.h"
 
 class ModelEntity;
 
 namespace Util {
-namespace Io {
-class Key;
-
-namespace Mouse {
-enum Button : uint8_t;
-enum ScrollDirection : uint8_t;
-}  // namespace Mouse
-}  // namespace Io
-namespace Math {
-class Vector2D;
-}  // namespace Math
+namespace Game {
+namespace D3 {
+class Light;
+}  // namespace D3
+}  // namespace Game
 }  // namespace Util
 
 class ModelViewer : public Util::Game::D3::Scene, public Util::Game::KeyListener {
@@ -79,9 +70,9 @@ private:
     ModelEntity *model = nullptr;
     Util::Game::D3::Light *light = nullptr;
 
-    Util::Math::Vector3D modelRotation = Util::Math::Vector3D(0, 0, 0);
-    Util::Math::Vector3D cameraRotation = Util::Math::Vector3D(0, 0, 0);
-    Util::Math::Vector3D cameraTranslation = Util::Math::Vector3D(0, 0, 0);
+    Util::Math::Vector3<double> modelRotation = Util::Math::Vector3<double>(0, 0, 0);
+    Util::Math::Vector3<double> cameraRotation = Util::Math::Vector3<double>(0, 0, 0);
+    Util::Math::Vector3<double> cameraTranslation = Util::Math::Vector3<double>(0, 0, 0);
 };
 
 

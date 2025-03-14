@@ -27,16 +27,6 @@
 
 class DemoPolygon;
 
-namespace Util {
-namespace Game {
-class Graphics;
-}  // namespace Game
-
-namespace Io {
-class Key;
-}  // namespace Io
-}  // namespace Util
-
 class PolygonDemo : public Util::Game::D2::Scene, public Util::Game::KeyListener {
 
 public:

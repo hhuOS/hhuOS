@@ -16,17 +16,12 @@
  */
 
 #include "PolygonDemo.h"
+
 #include "DemoPolygon.h"
 #include "DemoPolygonFactory.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
-
-namespace Util {
-namespace Game {
-class Graphics;
-}  // namespace Game
-}  // namespace Util
 
 PolygonDemo::PolygonDemo(uint32_t initialCount) : initialCount(initialCount) {}
 

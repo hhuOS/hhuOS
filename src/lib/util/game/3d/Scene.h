@@ -27,15 +27,18 @@
 #ifndef HHUOS_SCENE_3D_H
 #define HHUOS_SCENE_3D_H
 
+#include <stdint.h>
+
 #include "lib/tinygl/include/GL/gl.h"
 #include "lib/util/game/Scene.h"
 #include "Light.h"
 #include "lib/util/graphic/Colors.h"
+#include "lib/util/graphic/Color.h"
 
 namespace Util {
-namespace Game {
-class Graphics;
-}  // namespace Game
+namespace Math {
+template <typename T> class Vector3;
+}  // namespace Math
 }  // namespace Util
 
 namespace Util::Game::D3 {
@@ -83,7 +86,7 @@ public:
 
     void setAmbientLight(const Graphic::Color &ambientLight);
 
-    Light& addLight(Light::Type type, const Math::Vector3D &position, const Graphic::Color &diffuseColor, const Graphic::Color &specularColor);
+    Light& addLight(Light::Type type, const Math::Vector3<double> &position, const Graphic::Color &diffuseColor, const Graphic::Color &specularColor);
 
     void removeLight(const Light &light);
 

@@ -58,8 +58,6 @@ private:
 
     T &value;
 
-private:
-
     static T compareAndExchange(volatile void *ptr, T oldValue, T newValue);
 
     static void exchange(volatile void *ptr, T newValue);

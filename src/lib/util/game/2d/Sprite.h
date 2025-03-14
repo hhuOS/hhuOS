@@ -25,7 +25,7 @@
 #define HHUOS_SPRITE_H
 
 #include "lib/util/base/String.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 
 namespace Util {
 namespace Game {
@@ -69,17 +69,17 @@ public:
 
     [[nodiscard]] const Graphic::Image& getImage() const;
 
-    [[nodiscard]] const Math::Vector2D& getOriginalSize() const;
+    [[nodiscard]] const Math::Vector2<double>& getOriginalSize() const;
 
-    [[nodiscard]] Math::Vector2D getSize() const;
+    [[nodiscard]] Math::Vector2<double> getSize() const;
 
-    [[nodiscard]] const Math::Vector2D& getScale() const;
+    [[nodiscard]] const Math::Vector2<double>& getScale() const;
 
     [[nodiscard]] double getRotation() const;
 
     [[nodiscard]] double getAlpha() const;
 
-    void setScale(const Math::Vector2D &scale);
+    void setScale(const Math::Vector2<double> &scale);
 
     void setScale(double scale);
 
@@ -91,14 +91,14 @@ public:
 
     void flipX();
 
-    void draw(const Graphics &graphics, const Math::Vector2D &position) const;
+    void draw(const Graphics &graphics, const Math::Vector2<double> &position) const;
 
 private:
 
     Graphic::Image *image;
 
-    Math::Vector2D size;
-    Math::Vector2D scale = Math::Vector2D(1, 1);
+    Math::Vector2<double> size;
+    Math::Vector2<double> scale = Math::Vector2<double>(1, 1);
     double rotationAngle = 0;
     double alpha = 1;
     bool xFlipped = false;

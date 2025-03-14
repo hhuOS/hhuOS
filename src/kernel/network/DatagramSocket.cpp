@@ -24,6 +24,8 @@
 #include "lib/util/network/NetworkAddress.h"
 #include "kernel/network/Socket.h"
 #include "lib/util/time/Timestamp.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
 
 namespace Util {
 namespace Network {

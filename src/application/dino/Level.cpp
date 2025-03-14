@@ -29,8 +29,8 @@
 #include "lib/util/game/Graphics.h"
 #include "lib/util/game/2d/Sprite.h"
 #include "lib/util/graphic/Color.h"
-#include "lib/util/math/Vector2D.h"
-#include "lib/util/math/Vector3D.h"
+#include "lib/util/math/Vector2.h"
+#include "lib/util/math/Vector3.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/collection/Pair.h"
@@ -63,7 +63,7 @@ void Level::initialize() {
 
     auto c = fileStream.read();
     while (c != -1) {
-        auto position = Util::Math::Vector2D(x * Block::SIZE - (Util::Game::GameManager::getRelativeResolution().getX() / 2), y);
+        auto position = Util::Math::Vector2<double>(x * Block::SIZE - (Util::Game::GameManager::getRelativeResolution().getX() / 2), y);
         switch (c) {
             case '\n':
                 x = -1;
@@ -111,7 +111,7 @@ void Level::initialize() {
     playerMinX = minX * Block::SIZE;
     playerMinY = minY;
 
-    player = new PlayerDino(Util::Math::Vector2D(playerMinX, 0));
+    player = new PlayerDino(Util::Math::Vector2<double>(playerMinX, 0));
     player->setPoints(startPoints);
     addObject(player);
 
@@ -124,9 +124,9 @@ void Level::initializeBackground(Util::Game::Graphics &graphics) {
     auto cloud4 = Util::Game::D2::Sprite("/user/dino/background/cloud4.bmp", 0.45, 0.15);
 
     graphics.clear(Util::Graphic::Color(57, 97, 255));
-    cloud1.draw(graphics, Util::Math::Vector2D(-1, 0.65));
-    cloud3.draw(graphics, Util::Math::Vector2D(0.2, 0.3));
-    cloud4.draw(graphics, Util::Math::Vector2D(0.65, 0.7));
+    cloud1.draw(graphics, Util::Math::Vector2<double>(-1, 0.65));
+    cloud3.draw(graphics, Util::Math::Vector2<double>(0.2, 0.3));
+    cloud4.draw(graphics, Util::Math::Vector2<double>(0.65, 0.7));
 }
 
 void Level::update([[maybe_unused]] double delta) {
@@ -148,7 +148,7 @@ void Level::update([[maybe_unused]] double delta) {
     }
 
     if (player->getPosition().getX() < playerMinX) {
-        player->setPosition(Util::Math::Vector2D(playerMinX, player->getPosition().getY()));
+        player->setPosition(Util::Math::Vector2<double>(playerMinX, player->getPosition().getY()));
     }
 
     if (player->getPosition().getY() < playerMinY) {
@@ -166,7 +166,7 @@ void Level::update([[maybe_unused]] double delta) {
         cameraPosY = playerMinY + 1;
     }
 
-    getCamera().setPosition(Util::Math::Vector2D(player->getPosition().getX() + 0.8, cameraPosY));
+    getCamera().setPosition(Util::Math::Vector2<double>(player->getPosition().getX() + 0.8, cameraPosY));
 }
 
 void Level::keyPressed(const Util::Io::Key &key) {
@@ -212,7 +212,7 @@ void Level::spawnMergedBlocks(Util::ArrayList<Util::Pair<int32_t, double>> &posi
         auto position = positions.get(i);
         lastPosition = positions.get(i - 1);
         if (position.first - 1 != lastPosition.first) {
-            auto mergedBlockStart = Util::Math::Vector2D(rectangleStartPosition.first * Block::SIZE - (Util::Game::GameManager::getRelativeResolution().getX()) / 2, rectangleStartPosition.second);
+            auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.first * Block::SIZE - (Util::Game::GameManager::getRelativeResolution().getX()) / 2, rectangleStartPosition.second);
             auto countX = lastPosition.first - rectangleStartPosition.first + 1;
             addObject(new Block(tag, mergedBlockStart, countX, 1));
 
@@ -220,7 +220,7 @@ void Level::spawnMergedBlocks(Util::ArrayList<Util::Pair<int32_t, double>> &posi
         }
     }
 
-    auto mergedBlockStart = Util::Math::Vector2D(rectangleStartPosition.first * Block::SIZE - (Util::Game::GameManager::getRelativeResolution().getX()) / 2, rectangleStartPosition.second);
+    auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.first * Block::SIZE - (Util::Game::GameManager::getRelativeResolution().getX()) / 2, rectangleStartPosition.second);
     auto countX = lastPosition.first - rectangleStartPosition.first + 1;
     addObject(new Block(tag, mergedBlockStart, countX, 1));
 }

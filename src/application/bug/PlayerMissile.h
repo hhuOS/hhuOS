@@ -24,17 +24,9 @@
 #include "lib/util/game/2d/Sprite.h"
 
 class Ship;
-
 namespace Util {
-namespace Game {
-class Graphics;
-namespace D2 {
-class CollisionEvent;
-class TranslationEvent;
-}  // namespace D2
-}  // namespace Game
 namespace Math {
-class Vector2D;
+template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
@@ -44,7 +36,7 @@ public:
     /**
      * Constructor.
      */
-    PlayerMissile(const Util::Math::Vector2D &position, Ship &ship);
+    PlayerMissile(const Util::Math::Vector2<double> &position, Ship &ship);
 
     /**
      * Copy Constructor.

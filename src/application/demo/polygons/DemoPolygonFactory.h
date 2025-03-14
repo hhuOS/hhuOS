@@ -26,7 +26,7 @@ namespace Util {
 
 template <typename T> class Array;
 namespace Math {
-class Vector2D;
+template <typename T> class Vector2;
 }  // namespace Math
 
 }  // namespace Util
@@ -60,13 +60,13 @@ private:
 
     Util::Math::Random random = Util::Math::Random();
 
-    static const Util::Array<Util::Math::Vector2D> shape1;
-    static const Util::Array<Util::Math::Vector2D> shape2;
-    static const Util::Array<Util::Math::Vector2D> shape3;
-    static const Util::Array<Util::Math::Vector2D> shape4;
-    static const Util::Array<Util::Math::Vector2D> shape5;
+    static const Util::Array<Util::Math::Vector2<double>> shape1;
+    static const Util::Array<Util::Math::Vector2<double>> shape2;
+    static const Util::Array<Util::Math::Vector2<double>> shape3;
+    static const Util::Array<Util::Math::Vector2<double>> shape4;
+    static const Util::Array<Util::Math::Vector2<double>> shape5;
 
-    static const Util::Array<const Util::Array<Util::Math::Vector2D>*> shapes;
+    static const Util::Array<const Util::Array<Util::Math::Vector2<double>>*> shapes;
 };
 
 #endif

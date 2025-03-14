@@ -23,7 +23,6 @@
 #include "lib/util/io/file/File.h"
 
 namespace Filesystem {
-class Node;
 
 namespace Memory {
 class MemoryDirectoryNode;

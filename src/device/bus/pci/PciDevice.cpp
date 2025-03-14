@@ -17,8 +17,6 @@
 
 #include "PciDevice.h"
 
-#include <initializer_list>
-
 #include "Pci.h"
 #include "lib/util/collection/ArrayList.h"
 

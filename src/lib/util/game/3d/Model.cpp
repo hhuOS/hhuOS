@@ -26,22 +26,23 @@
 
 #include "Model.h"
 
-#include "lib/util/game/GameManager.h"
-#include "lib/util/math/Vector2D.h"
 #include "lib/util/math/Math.h"
 #include "lib/util/game/ResourceManager.h"
 #include "lib/util/game/3d/Entity.h"
 #include "lib/util/game/3d/ObjectFile.h"
 #include "lib/util/game/3d/collider/SphereCollider.h"
-#include "lib/util/game/Camera.h"
 #include "lib/util/game/Graphics.h"
-#include "lib/util/game/Scene.h"
+#include "lib/util/math/Vector3.h"
+
+namespace Util {
+template <typename T> class Array;
+}  // namespace Util
 
 namespace Util::Game::D3 {
 
-Model::Model(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale) : Entity(tag, position, rotation, scale, SphereCollider(position, Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath) {}
+Model::Model(uint32_t tag, const String &modelPath, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale) : Entity(tag, position, rotation, scale, SphereCollider(position, Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath) {}
 
-Model::Model(uint32_t tag, const String &modelPath, const Math::Vector3D &position, const Math::Vector3D &rotation, const Math::Vector3D &scale, const Graphic::Color &color) : Entity(tag, position, rotation, scale, SphereCollider(position, Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath), color(color) {}
+Model::Model(uint32_t tag, const String &modelPath, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale, const Graphic::Color &color) : Entity(tag, position, rotation, scale, SphereCollider(position, Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath), color(color) {}
 
 void Model::initialize() {
     if (!ResourceManager::hasObjectFile(modelPath)) {
@@ -56,15 +57,15 @@ void Model::draw(Graphics &graphics) {
     graphics.drawModel(*this);
 }
 
-const Array<Math::Vector3D> &Model::getVertices() const {
+const Array<Math::Vector3<double>> &Model::getVertices() const {
     return objectFile->getVertices();
 }
 
-const Array<Math::Vector3D> &Model::getVertexNormals() const {
+const Array<Math::Vector3<double>> &Model::getVertexNormals() const {
     return objectFile->getVertexNormals();
 }
 
-const Array<Math::Vector3D> &Model::getVertexTextures() const {
+const Array<Math::Vector3<double>> &Model::getVertexTextures() const {
     return objectFile->getVertexTextures();
 }
 

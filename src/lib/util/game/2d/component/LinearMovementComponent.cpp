@@ -26,7 +26,7 @@
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/game/2d/component/Component.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 
 namespace Util::Game::D2 {
 

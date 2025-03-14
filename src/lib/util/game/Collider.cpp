@@ -23,15 +23,15 @@
 
 #include "Collider.h"
 
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 
 namespace Util::Game {
 
-Collider::Collider(const Math::Vector2D &position, Collider::Type type) : position(position.getX(), position.getY(), 0), type(type) {}
+Collider::Collider(const Math::Vector2<double> &position, Collider::Type type) : position(position.getX(), position.getY(), 0), type(type) {}
 
-Collider::Collider(const Math::Vector3D &position, Collider::Type type) : position(position), type(type) {}
+Collider::Collider(const Math::Vector3<double> &position, Collider::Type type) : position(position), type(type) {}
 
-const Math::Vector3D &Collider::getPosition() const {
+const Math::Vector3<double> &Collider::getPosition() const {
     return position;
 }
 
@@ -39,11 +39,11 @@ Collider::Type Collider::getType() const {
     return type;
 }
 
-void Collider::setPosition(const Math::Vector2D &position) {
-    Collider::position = Math::Vector3D(position.getX(), position.getY(), 0);
+void Collider::setPosition(const Math::Vector2<double> &position) {
+    Collider::position = Math::Vector3<double>(position.getX(), position.getY(), 0);
 }
 
-void Collider::setPosition(const Math::Vector3D &position) {
+void Collider::setPosition(const Math::Vector3<double> &position) {
     Collider::position = position;
 }
 

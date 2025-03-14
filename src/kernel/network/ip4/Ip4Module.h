@@ -46,7 +46,6 @@ class Ip4SubnetAddress;
 }  // namespace Network
 
 namespace Io {
-class ByteArrayInputStream;
 class ByteArrayOutputStream;
 }  // namespace Stream
 }  // namespace Util

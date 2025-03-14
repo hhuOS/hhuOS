@@ -40,6 +40,7 @@
 #include "lib/util/base/String.h"
 #include "lib/util/network/ip4/Ip4Route.h"
 #include "kernel/service/Service.h"
+#include "lib/util/collection/Array.h"
 
 namespace Kernel::Network {
 

@@ -27,16 +27,12 @@
 #include "lib/util/math/Random.h"
 
 class Player;
+
 namespace Util {
-namespace Game {
-namespace D3 {
-class CollisionEvent;
-}  // namespace D3
-}  // namespace Game
-namespace Math {
-class Vector3D;
-}  // namespace Math
 template <typename T> class ArrayList;
+namespace Math {
+template <typename T> class Vector3;
+}  // namespace Math
 }  // namespace Util
 
 class Enemy : public Util::Game::D3::Model {
@@ -54,7 +50,7 @@ public:
     /**
      * Constructor.
      */
-    Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, const Util::Math::Vector3D &position, const Util::Math::Vector3D &rotation, double scale, Type type);
+    Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, double scale, Type type);
 
     /**
      * Copy Constructor.
@@ -96,7 +92,7 @@ private:
     double missileTimer = 0;
     double spawnTimer = 0.5;
 
-    static const Util::Math::Vector3D MAX_ROTATION_DELTA;
+    static const Util::Math::Vector3<double> MAX_ROTATION_DELTA;
 };
 
 #endif

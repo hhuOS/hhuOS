@@ -22,6 +22,7 @@
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/graphic/Font.h"
 #include "lib/util/time/Timestamp.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
 
 namespace Util::Graphic {
 

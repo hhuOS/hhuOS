@@ -36,7 +36,7 @@
 
 namespace Util::Game::D3 {
 
-ObjectFile::ObjectFile(const Array<Math::Vector3D> &vertices, const Array<Math::Vector3D> &vertexNormals, const Array<Math::Vector3D> &vertexTextures,
+ObjectFile::ObjectFile(const Array<Math::Vector3<double>> &vertices, const Array<Math::Vector3<double>> &vertexNormals, const Array<Math::Vector3<double>> &vertexTextures,
                        const Array<uint32_t> &vertexDrawOrder, const Array<uint32_t> &normalDrawOrder, const Array<uint32_t> &textureDrawOrder) :
         vertices(vertices), vertexNormals(vertexNormals), vertexTextures(vertexTextures), vertexDrawOrder(vertexDrawOrder), normalDrawOrder(normalDrawOrder), textureDrawOrder(textureDrawOrder) {}
 
@@ -45,9 +45,9 @@ ObjectFile* ObjectFile::open(const String &path) {
     auto stream = Io::BufferedInputStream(fileStream);
     bool endOfFile = false;
 
-    auto vertexList = ArrayList<Math::Vector3D>();
-    auto normalList = ArrayList<Math::Vector3D>();
-    auto textureList = ArrayList<Math::Vector3D>();
+    auto vertexList = ArrayList<Math::Vector3<double>>();
+    auto normalList = ArrayList<Math::Vector3<double>>();
+    auto textureList = ArrayList<Math::Vector3<double>>();
     auto vertexDrawOrder = ArrayList<uint32_t>();
     auto normalDrawOrder = ArrayList<uint32_t>();
     auto textureDrawOrder = ArrayList<uint32_t>();
@@ -58,7 +58,7 @@ ObjectFile* ObjectFile::open(const String &path) {
         auto lineSplit = currentLine.substring(2).split(" ");
 
         if (currentLine.beginsWith("v ")) {
-            auto vertex = Math::Vector3D(String::parseDouble(lineSplit[0]), String::parseDouble(lineSplit[1]), String::parseDouble(lineSplit[2]));
+            auto vertex = Math::Vector3<double>(String::parseDouble(lineSplit[0]), String::parseDouble(lineSplit[1]), String::parseDouble(lineSplit[2]));
             vertexList.add(vertex);
         } else if (currentLine.beginsWith("f ")) {
             // Fill list with the correct order to draw triangles properly
@@ -112,10 +112,10 @@ ObjectFile* ObjectFile::open(const String &path) {
                 }
             }
         } else if(currentLine.beginsWith("vn ")){
-            auto vertex = Math::Vector3D(String::parseDouble(lineSplit[0]), String::parseDouble(lineSplit[1]), String::parseDouble(lineSplit[2]));
+            auto vertex = Math::Vector3<double>(String::parseDouble(lineSplit[0]), String::parseDouble(lineSplit[1]), String::parseDouble(lineSplit[2]));
             normalList.add(vertex);
         } else if(currentLine.beginsWith("vt ")){
-            auto vertex = Math::Vector3D(String::parseDouble(lineSplit[0]), String::parseDouble(lineSplit[1]), 0.0);
+            auto vertex = Math::Vector3<double>(String::parseDouble(lineSplit[0]), String::parseDouble(lineSplit[1]), 0.0);
             textureList.add(vertex);
         }
 
@@ -136,21 +136,21 @@ ObjectFile* ObjectFile::open(const String &path) {
 
     for (uint32_t i = 0; i < vertexList.size(); i++) {
         auto vertex = vertexList.get(i);
-        vertexList.set(i, Math::Vector3D(vertex.getX() / maxCoordinate, vertex.getY() / maxCoordinate, vertex.getZ() / maxCoordinate));
+        vertexList.set(i, Math::Vector3<double>(vertex.getX() / maxCoordinate, vertex.getY() / maxCoordinate, vertex.getZ() / maxCoordinate));
     }
 
     return new ObjectFile(vertexList.toArray(), normalList.toArray(), textureList.toArray(), vertexDrawOrder.toArray(), normalDrawOrder.toArray(), textureDrawOrder.toArray());
 }
 
-const Array<Math::Vector3D>& ObjectFile::getVertices() const {
+const Array<Math::Vector3<double>>& ObjectFile::getVertices() const {
     return vertices;
 }
 
-const Array<Math::Vector3D> &ObjectFile::getVertexNormals() const {
+const Array<Math::Vector3<double>> &ObjectFile::getVertexNormals() const {
     return vertexNormals;
 }
 
-const Array<Math::Vector3D> &ObjectFile::getVertexTextures() const {
+const Array<Math::Vector3<double>> &ObjectFile::getVertexTextures() const {
     return vertexTextures;
 }
 

@@ -23,17 +23,17 @@
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/3d/event/CollisionEvent.h"
-#include "lib/util/math/Vector3D.h"
+#include "lib/util/math/Vector3.h"
 #include "application/battlespace/Player.h"
 #include "lib/util/game/3d/Entity.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/base/String.h"
 
-Missile::Missile(const Util::Math::Vector3D &position, const Util::Math::Vector3D &direction, Player &player) :
-    Util::Game::D3::Model(TAG, "/user/battlespace/missile.obj", position, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0.2, 0.2, 0.2), Util::Graphic::Colors::RED), player(&player), direction(direction) {}
+Missile::Missile(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &direction, Player &player) :
+    Util::Game::D3::Model(TAG, "/user/battlespace/missile.obj", position, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0.2, 0.2, 0.2), Util::Graphic::Colors::RED), player(&player), direction(direction) {}
 
-Missile::Missile(const Util::Math::Vector3D &position, const Util::Math::Vector3D &direction) :
-    Util::Game::D3::Model(TAG, "/user/battlespace/missile.obj", position, Util::Math::Vector3D(0, 0, 0), Util::Math::Vector3D(0.2, 0.2, 0.2), Util::Graphic::Colors::GREEN), direction(direction) {}
+Missile::Missile(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &direction) :
+    Util::Game::D3::Model(TAG, "/user/battlespace/missile.obj", position, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0.2, 0.2, 0.2), Util::Graphic::Colors::GREEN), direction(direction) {}
 
 void Missile::onUpdate(double delta) {
     if (lifetime > 5) {

@@ -27,11 +27,11 @@
 #ifndef HHUOS_CAMERA_H
 #define HHUOS_CAMERA_H
 
-#include "lib/util/math/Vector3D.h"
+#include "lib/util/math/Vector3.h"
 
 namespace Util {
 namespace Math {
-class Vector2D;
+template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
@@ -60,33 +60,33 @@ public:
      */
     ~Camera() = default;
 
-    [[nodiscard]] const Math::Vector3D& getPosition() const;
+    [[nodiscard]] const Math::Vector3<double>& getPosition() const;
 
-    [[nodiscard]] const Math::Vector3D& getRotation() const;
+    [[nodiscard]] const Math::Vector3<double>& getRotation() const;
 
-    [[nodiscard]] const Math::Vector3D& getTargetVector() const;
+    [[nodiscard]] const Math::Vector3<double>& getTargetVector() const;
 
-    [[nodiscard]] const Math::Vector3D& getRightVector() const;
+    [[nodiscard]] const Math::Vector3<double>& getRightVector() const;
 
-    void setPosition(const Math::Vector3D &position);
+    void setPosition(const Math::Vector3<double> &position);
 
-    void setPosition(const Math::Vector2D &position);
+    void setPosition(const Math::Vector2<double> &position);
 
-    void setRotation(const Math::Vector3D &angle);
+    void setRotation(const Math::Vector3<double> &angle);
 
-    void translate(const Math::Vector3D &translation);
+    void translate(const Math::Vector3<double> &translation);
 
-    void rotate(const Math::Vector3D &angle);
+    void rotate(const Math::Vector3<double> &angle);
 
     void reset();
 
 private:
 
-    Math::Vector3D position;
-    Math::Vector3D rotation;
+    Math::Vector3<double> position;
+    Math::Vector3<double> rotation;
 
-    Math::Vector3D targetVector;
-    Math::Vector3D rightVector;
+    Math::Vector3<double> targetVector;
+    Math::Vector3<double> rightVector;
 
 };
 

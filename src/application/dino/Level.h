@@ -33,14 +33,6 @@ class PlayerDino;
 namespace Util {
 template <typename T, typename U> class Pair;
 template <typename T> class ArrayList;
-
-namespace Game {
-class Graphics;
-}  // namespace Game
-
-namespace Io {
-class Key;
-}  // namespace Io
 }  // namespace Util
 
 class Level : public Util::Game::D2::Scene, public Util::Game::KeyListener {

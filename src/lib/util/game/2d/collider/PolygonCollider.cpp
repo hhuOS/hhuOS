@@ -31,7 +31,7 @@ namespace Util::Game::D2 {
 PolygonCollider::PolygonCollider(Polygon &polygon, Collider::Type colliderType) : Collider(polygon.getCenter(), colliderType), polygon(polygon) {}
 
 Collision PolygonCollider::isColliding(PolygonCollider &other) {
-    Collision smallestOverlap = { INT16_MAX, Math::Vector2D() };
+    Collision smallestOverlap = { INT16_MAX, Math::Vector2<double>() };
 
     for (uint32_t i = 0; i < polygon.getVertices().length(); i++) {
         auto axis = getAxes(polygon.getVertices(), i);
@@ -41,7 +41,7 @@ Collision PolygonCollider::isColliding(PolygonCollider &other) {
 
 
         if ((range.first - rangeOther.second > 0) || (rangeOther.first - range.second > 0)) {
-            return { 0, Math::Vector2D() };
+            return { 0, Math::Vector2<double>() };
         }
 
         double overlap = getOverlap(range, rangeOther);
@@ -57,7 +57,7 @@ Polygon &PolygonCollider::getPolygon() {
     return polygon;
 }
 
-Pair<double, double> PolygonCollider::projectPolygonOnAxis(Util::Array<Math::Vector2D> vertices, const Math::Vector2D &axis) {
+Pair<double, double> PolygonCollider::projectPolygonOnAxis(Util::Array<Math::Vector2<double>> vertices, const Math::Vector2<double> &axis) {
     double pMin = axis.dotProduct(vertices[0]);
     double pMax = INT16_MIN;
 
@@ -70,10 +70,10 @@ Pair<double, double> PolygonCollider::projectPolygonOnAxis(Util::Array<Math::Vec
     return {pMin, pMax};
 }
 
-Math::Vector2D PolygonCollider::getAxes(Util::Array<Math::Vector2D> vertices, uint32_t index) {
+Math::Vector2<double> PolygonCollider::getAxes(Util::Array<Math::Vector2<double>> vertices, uint32_t index) {
     auto point1 = vertices[index];
     auto point2 = index >= vertices.length() - 1 ? vertices[0] : vertices[index + 1];
-    auto axis = Math::Vector2D(-(point2.getY() - point1.getY()), point2.getX() - point1.getX());
+    auto axis = Math::Vector2<double>(-(point2.getY() - point1.getY()), point2.getX() - point1.getX());
     return axis.normalize();
 }
 

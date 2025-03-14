@@ -18,21 +18,13 @@
 #include "DemoPolygon.h"
 
 #include "lib/util/game/Graphics.h"
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
 
-namespace Util {
-namespace Game {
-namespace D2 {
-class CollisionEvent;
-}  // namespace D2
-}  // namespace Game
-}  // namespace Util
+DemoPolygon::DemoPolygon() : Util::Game::D2::Entity(0, Util::Math::Vector2<double>(0, 0)), polygon(Util::Array<Util::Math::Vector2<double>>(0)), color(0, 0, 0), rotationSpeed(0), scaleSpeed(0) {}
 
-DemoPolygon::DemoPolygon() : Util::Game::D2::Entity(0, Util::Math::Vector2D(0, 0)), polygon(Util::Array<Util::Math::Vector2D>(0)), color(0, 0, 0), rotationSpeed(0), scaleSpeed(0) {}
-
-DemoPolygon::DemoPolygon(const Util::Array<Util::Math::Vector2D> &vertices, const Util::Math::Vector2D &position, const Util::Graphic::Color &color, double initialScaleFactor, double scaleSpeed, double rotationSpeed) :
-        Util::Game::D2::Entity(0, Util::Math::Vector2D(0, 0)), polygon(vertices), color(color), rotationSpeed(rotationSpeed), scaleSpeed(scaleSpeed) {
+DemoPolygon::DemoPolygon(const Util::Array<Util::Math::Vector2<double>> &vertices, const Util::Math::Vector2<double> &position, const Util::Graphic::Color &color, double initialScaleFactor, double scaleSpeed, double rotationSpeed) :
+        Util::Game::D2::Entity(0, Util::Math::Vector2<double>(0, 0)), polygon(vertices), color(color), rotationSpeed(rotationSpeed), scaleSpeed(scaleSpeed) {
     setPosition(position);
     polygon.setPosition(getPosition());
     polygon.scale(initialScaleFactor);

@@ -26,15 +26,6 @@
 #include "lib/util/game/2d/Scene.h"
 #include "lib/util/game/KeyListener.h"
 
-namespace Util {
-namespace Game {
-class Graphics;
-}  // namespace Game
-namespace Io {
-class Key;
-}  // namespace Io
-}  // namespace Util
-
 class GameOverScreen : public Util::Game::D2::Scene, public Util::Game::KeyListener {
 
 public:

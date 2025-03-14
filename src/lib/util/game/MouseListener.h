@@ -25,7 +25,7 @@
 #define HHUOS_MOUSELISTENER_H
 
 #include <stdint.h>
-#include "lib/util/math/Vector2D.h"
+#include "lib/util/math/Vector2.h"
 #include "lib/util/io/key/MouseDecoder.h"
 
 namespace Util::Game {
@@ -57,7 +57,7 @@ public:
 
     virtual void buttonReleased(Io::Mouse::Button button) = 0;
 
-    virtual void mouseMoved(const Math::Vector2D &relativeMovement) = 0;
+    virtual void mouseMoved(const Math::Vector2<double> &relativeMovement) = 0;
 
     virtual void mouseScrolled(Io::Mouse::ScrollDirection direction) = 0;
 };

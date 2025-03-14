@@ -15,19 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <lib/util/math/Math.h>
+
 #include "lib/util/base/Exception.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/interface.h"
 #include "LinearFrameBuffer.h"
-
-#include <lib/util/math/Math.h>
-
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/base/String.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/base/Constants.h"
 #include "lib/util/collection/Array.h"
+#include "lib/util/graphic/Font.h"
 
 void swap(int32_t *a, int32_t *b) {
     auto h = *a;
