@@ -38,16 +38,12 @@
 #include "lib/util/graphic/Color.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/graphic/PixelDrawer.h"
-#include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/graphic/font/Terminal8x8.h"
 #include "lib/util/graphic/Colors.h"
 
 uint32_t palette[256];
 Util::Graphic::LinearFrameBuffer *lfb;
-Util::Graphic::PixelDrawer *pixelDrawer;
-Util::Graphic::StringDrawer *stringDrawer;
 Util::Io::KeyDecoder *kd;
 const Util::Graphic::Font *fpsFont;
 
@@ -89,9 +85,8 @@ int32_t main(int argc, char *argv[]) {
         }
     }
 
-    lfb = new Util::Graphic::LinearFrameBuffer(*lfbFile);
-    pixelDrawer = new Util::Graphic::PixelDrawer(*lfb);
-    stringDrawer = new Util::Graphic::StringDrawer(*pixelDrawer);
+    auto buffer = Util::Graphic::LinearFrameBuffer::open(*lfbFile);
+    lfb = &buffer;
     fpsFont = &Util::Graphic::Font::getFontForResolution(lfb->getResolutionY());
 
     // Calculate scale factor the game as large as possible
@@ -141,7 +136,7 @@ void QG_DrawFrame(void *pixels) {
 
     drawFrame(pixels);
 
-    stringDrawer->drawString(*fpsFont, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+    lfb->drawString(*fpsFont, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
 
     fpsCounter++;
     fpsTimer += (Util::Time::getSystemTime() - lastFrameTime);

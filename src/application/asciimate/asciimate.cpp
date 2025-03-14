@@ -26,12 +26,9 @@
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/stream/BufferedInputStream.h"
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
-#include "lib/util/graphic/PixelDrawer.h"
-#include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/time/Timestamp.h"
-#include "lib/util/graphic/LineDrawer.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Font.h"
 #include "lib/util/base/String.h"
@@ -85,11 +82,8 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseDouble(argumentParser.getArgument("scale")) : 1.0;
-    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
+    auto lfb = Util::Graphic::LinearFrameBuffer::open(lfbFile);
     auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(lfb, scaleFactor);
-    auto pixelDrawer = Util::Graphic::PixelDrawer(bufferedLfb);
-    auto lineDrawer = Util::Graphic::LineDrawer(pixelDrawer);
-    auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
 
     auto inputStream = Util::Io::FileInputStream(file);
     auto bufferedStream = Util::Io::BufferedInputStream(inputStream);
@@ -125,13 +119,13 @@ int32_t main(int32_t argc, char *argv[]) {
         uint32_t delay = Util::String::parseInt(delayLine);
         bufferedLfb.clear();
 
-        lineDrawer.drawLine(frameStartX - charWidth, frameStartY - charHeight, frameEndX + charWidth, frameStartY - charHeight, Util::Graphic::Colors::WHITE);
-        lineDrawer.drawLine(frameStartX - charWidth, frameEndY + charHeight, frameEndX + charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
-        lineDrawer.drawLine(frameStartX - charWidth, frameStartY - charHeight, frameStartX - charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
-        lineDrawer.drawLine(frameEndX + charWidth, frameStartY - charHeight, frameEndX + charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
+        bufferedLfb.drawLine(frameStartX - charWidth, frameStartY - charHeight, frameEndX + charWidth, frameStartY - charHeight, Util::Graphic::Colors::WHITE);
+        bufferedLfb.drawLine(frameStartX - charWidth, frameEndY + charHeight, frameEndX + charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
+        bufferedLfb.drawLine(frameStartX - charWidth, frameStartY - charHeight, frameStartX - charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
+        bufferedLfb.drawLine(frameEndX + charWidth, frameStartY - charHeight, frameEndX + charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
 
         for (int16_t i = 0; i < rows - 1; i++) {
-            stringDrawer.drawString(font, frameStartX, frameStartY + charHeight * i, static_cast<const char*>(bufferedStream.readLine(endOfFile)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+            bufferedLfb.drawString(font, frameStartX, frameStartY + charHeight * i, static_cast<const char*>(bufferedStream.readLine(endOfFile)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
         }
 
         bufferedLfb.flush();

@@ -21,6 +21,7 @@
 #include <stdint.h>
 
 #include "Color.h"
+#include "Font.h"
 #include "lib/util/base/Address.h"
 
 namespace Util {
@@ -45,29 +46,15 @@ public:
 
     /**
      * Constructor.
-     *
-     * @param physicalAddress The buffer address
-     * @param resolutionX The horizontal resolution
-     * @param resolutionY The vertical resolution
-     * @param colorDepth The color colorDepth
-     * @param pitch The pitch
-     */
-    LinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch);
-
-    /**
-     * Constructor.
-     *
-     * @param physicalAddress The buffer address
-     * @param resolutionX The horizontal resolution
-     * @param resolutionY The vertical resolution
-     * @param colorDepth The color colorDepth
-     * @param pitch The pitch
      */
     LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch);
 
-    LinearFrameBuffer(Util::Address<uint32_t> *address, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch);
+    /**
+     * Constructor.
+     */
+    LinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch);
 
-    explicit LinearFrameBuffer(Io::File &file);
+    static LinearFrameBuffer open(Io::File &file);
 
     /**
      * Assignment operator.
@@ -139,9 +126,78 @@ public:
 
     void clear() const;
 
+    void drawPixel(uint16_t x, uint16_t y, const Color &color) const;
+
+    void drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const Color &color) const;
+
+    void drawRectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const Color &color) const;
+
+    void drawSquare(uint16_t x, uint16_t y, uint16_t size, const Color &color) const;
+
+    void fillRectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const Color &color) const;
+
+    void fillSquare(uint16_t x, uint16_t y, uint16_t size, const Color &color) const;
+
+    /**
+     * Draw a character at a given position.
+     *
+     * @param font The font
+     * @param x The x coordinate of upper left corner
+     * @param y The y coordinate of upper left corner
+     * @param c The character
+     * @param fgColor The foreground color
+     * @param bgColor The background color
+     */
+    void drawChar(const Font &font, uint16_t x, uint16_t y, char c, const Color &fgColor, const Color &bgColor) const;
+
+    /**
+     * Draw a null-terminated string at a given position.
+     *
+     * @param font The font
+     * @param x The x coordinate of upper left corner
+     * @param y The y coordinate of upper left corner
+     * @param string The string
+     * @param fgColor The foreground color
+     * @param bgColor The background color
+     */
+    void drawString(const Font &font, uint16_t x, uint16_t y, const char *string, const Color &fgColor, const Color &bgColor) const;
+
+    /**
+     * Scroll the buffer upwards by a given amount of pixel lines.
+     *
+     * @param lineCount The amount of pixel lines to scroll up
+     */
+    void scrollUp(uint16_t lineCount, bool clearBelow) const;
+
 private:
 
-    static Address<uint32_t> mapBuffer(void *physicalAddress, uint16_t resolutionY, uint16_t pitch);
+    static void* mapBuffer(void *physicalAddress, uint16_t resolutionY, uint16_t pitch);
+
+    static void drawPixel15Bit(uint8_t *buffer, uint16_t pitch, uint16_t x, uint16_t y, const Color &color);
+
+    static void drawPixel16Bit(uint8_t *buffer, uint16_t pitch, uint16_t x, uint16_t y, const Color &color);
+
+    static void drawPixel24Bit(uint8_t *buffer, uint16_t pitch, uint16_t x, uint16_t y, const Color &color);
+
+    static void drawPixel32Bit(uint8_t *buffer, uint16_t pitch, uint16_t x, uint16_t y, const Color &color);
+
+    void drawLineMajorAxis(int32_t x, int32_t y, int8_t xMovement, int8_t yMovement, int32_t dx, int32_t dy, bool majorAxisX, const Color &color) const;
+
+    void drawLineSingleAxis(int32_t x, int32_t y, int8_t movement, int32_t dx, bool majorAxisX, const Color &color) const;
+
+    /**
+     * Draw a monochrome bitmap at a given position. Each pixel to be drawn is represented by a single bit in the bitmap.
+     * If the bit is set to 1, the foreground color is used to draw the pixel, else the background color is used.
+     *
+     * @param x The x coordinate of upper left corner
+     * @param y The y coordinate of upper left corner
+     * @param width The bitmap's width
+     * @param height The bitmap's height
+     * @param fgColor The foreground color
+     * @param bgColor The background color
+     * @param bitmap The bitmap's data.
+     */
+    void drawMonoBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const Color &fgColor, const Color &bgColor, uint8_t *bitmap) const;
 
     Address<uint32_t> buffer;
 
@@ -150,6 +206,7 @@ private:
     uint8_t colorDepth = 0;
     uint16_t pitch = 0;
 
+    void (*drawFunction)(uint8_t *buffer, uint16_t width, uint16_t x, uint16_t y, const Color &color);
 };
 
 }

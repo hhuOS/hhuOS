@@ -21,11 +21,8 @@
 #include <stdint.h>
 
 #include "lib/util/graphic/Colors.h"
-#include "lib/util/graphic/PixelDrawer.h"
-#include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
-#include "lib/util/graphic/BufferScroller.h"
 #include "lib/util/graphic/Terminal.h"
 #include "lib/util/graphic/Color.h"
 
@@ -39,13 +36,13 @@ class LinearFrameBuffer;
 
 namespace Util::Graphic {
 
-class LinearFrameBufferTerminal : public Util::Graphic::Terminal {
+class LinearFrameBufferTerminal : public Terminal {
 
 public:
 
     friend class CursorRunnable;
 
-    explicit LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, char cursor = static_cast<char>(219));
+    explicit LinearFrameBufferTerminal(LinearFrameBuffer *lfb, char cursor = static_cast<char>(219));
 
     LinearFrameBufferTerminal(const LinearFrameBufferTerminal &copy) = delete;
 
@@ -53,9 +50,9 @@ public:
 
     ~LinearFrameBufferTerminal() override;
 
-    void putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) override;
+    void putChar(char c, const Color &foregroundColor, const Color &backgroundColor) override;
 
-    void clear(const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor, uint16_t startColumn, uint32_t startRow, uint16_t endColumn, uint16_t endRow) override;
+    void clear(const Color &foregroundColor, const Color &backgroundColor, uint16_t startColumn, uint32_t startRow, uint16_t endColumn, uint16_t endRow) override;
 
     void setPosition(uint16_t column, uint16_t row) override;
 
@@ -69,13 +66,13 @@ private:
 
     struct Character {
         char value;
-        Util::Graphic::Color foregroundColor;
-        Util::Graphic::Color backgroundColor;
+        Color foregroundColor;
+        Color backgroundColor;
 
         void clear() {
             value = 0;
-            foregroundColor = Util::Graphic::Colors::WHITE;
-            backgroundColor = Util::Graphic::Colors::BLACK;
+            foregroundColor = Colors::WHITE;
+            backgroundColor = Colors::BLACK;
         }
     };
 
@@ -83,16 +80,10 @@ private:
 
     Character *characterBuffer;
 
-    Util::Graphic::LinearFrameBuffer &lfb;
-    Util::Graphic::PixelDrawer pixelDrawer;
-    Util::Graphic::StringDrawer stringDrawer;
+    LinearFrameBuffer &lfb;
+    BufferedLinearFrameBuffer shadowLfb;
 
-    Util::Graphic::BufferedLinearFrameBuffer shadowLfb;
-    Util::Graphic::PixelDrawer shadowPixelDrawer;
-    Util::Graphic::StringDrawer shadowStringDrawer;
-    Util::Graphic::BufferScroller shadowScroller;
-
-    const Util::Graphic::Font &font;
+    const Font &font;
     uint16_t currentColumn = 0;
     uint16_t currentRow = 0;
 

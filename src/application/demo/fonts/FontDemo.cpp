@@ -19,8 +19,6 @@
 
 #include <stdint.h>
 
-#include "lib/util/graphic/PixelDrawer.h"
-#include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/base/System.h"
 #include "lib/util/graphic/font/Mini4x6.h"
@@ -38,28 +36,26 @@
 
 const char *string = "The quick brown fox jumps over the lazy dog 1234567890";
 
-uint16_t testFont(const Util::Graphic::StringDrawer &stringDrawer, const Util::Graphic::Font &font, const char *fontName, uint16_t y) {
-    stringDrawer.drawString(font, 0, y, static_cast<const char*>(Util::String::format("%s:", fontName)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
-    stringDrawer.drawString(font, 0, y + font.getCharHeight(), string, Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
+uint16_t testFont(Util::Graphic::LinearFrameBuffer &lfb, const Util::Graphic::Font &font, const char *fontName, uint16_t y) {
+    lfb.drawString(font, 0, y, static_cast<const char*>(Util::String::format("%s:", fontName)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
+    lfb.drawString(font, 0, y + font.getCharHeight(), string, Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
 
     return y + 2 * font.getCharHeight();
 }
 
 void fontDemo(Util::Graphic::LinearFrameBuffer &lfb) {
-    auto pixelDrawer = Util::Graphic::PixelDrawer(lfb);
-    auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
     uint16_t yPosition = 0;
 
     Util::Graphic::Ansi::prepareGraphicalApplication(false);
     lfb.clear();
 
-    yPosition = testFont(stringDrawer, Util::Graphic::Fonts::MINI_4x6, "Mini 4x6", yPosition) + 16;
-    yPosition = testFont(stringDrawer, Util::Graphic::Fonts::ACORN_8x8, "Acorn 8x8", yPosition) + 16;
-    yPosition = testFont(stringDrawer, Util::Graphic::Fonts::PEARL_8x8, "Pearl 8x8", yPosition) + 16;
-    yPosition = testFont(stringDrawer, Util::Graphic::Fonts::TERMINAL_8x8, "Terminal 8x8", yPosition) + 16;
-    yPosition = testFont(stringDrawer, Util::Graphic::Fonts::TERMINAL_8x16, "Terminal 8x16", yPosition) + 16;
-    yPosition = testFont(stringDrawer, Util::Graphic::Fonts::SUN_8x16, "Sun 8x16", yPosition) + 16;
-    testFont(stringDrawer, Util::Graphic::Fonts::SUN_12x22, "Sun 12x22", yPosition);
+    yPosition = testFont(lfb, Util::Graphic::Fonts::MINI_4x6, "Mini 4x6", yPosition) + 16;
+    yPosition = testFont(lfb, Util::Graphic::Fonts::ACORN_8x8, "Acorn 8x8", yPosition) + 16;
+    yPosition = testFont(lfb, Util::Graphic::Fonts::PEARL_8x8, "Pearl 8x8", yPosition) + 16;
+    yPosition = testFont(lfb, Util::Graphic::Fonts::TERMINAL_8x8, "Terminal 8x8", yPosition) + 16;
+    yPosition = testFont(lfb, Util::Graphic::Fonts::TERMINAL_8x16, "Terminal 8x16", yPosition) + 16;
+    yPosition = testFont(lfb, Util::Graphic::Fonts::SUN_8x16, "Sun 8x16", yPosition) + 16;
+    testFont(lfb, Util::Graphic::Fonts::SUN_12x22, "Sun 12x22", yPosition);
 
     Util::System::in.read();
     Util::Graphic::Ansi::cleanupGraphicalApplication();

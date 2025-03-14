@@ -80,7 +80,7 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseDouble(argumentParser.getArgument("scale")) : 1.0;
-    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
+    auto lfb = Util::Graphic::LinearFrameBuffer::open(lfbFile);
     auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(lfb, scaleFactor);
 
     // Initialize PortableGL context

@@ -27,7 +27,6 @@
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "lib/tinygl/include/zbuffer.h"
 
@@ -80,7 +79,7 @@ int32_t main(int32_t argc, char *argv[]) {
         lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
     }
 
-    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
+    auto lfb = Util::Graphic::LinearFrameBuffer::open(lfbFile);
     if (lfb.getColorDepth() != TGL_FEATURE_RENDER_BITS) {
         Util::System::error << "tinygl: Color depth not supported (Required: " << TGL_FEATURE_RENDER_BITS << ", Got: " << lfb.getColorDepth() << ")!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;

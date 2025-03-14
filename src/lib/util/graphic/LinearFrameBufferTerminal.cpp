@@ -25,10 +25,9 @@
 
 namespace Util::Graphic {
 
-LinearFrameBufferTerminal::LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, char cursor) :
+LinearFrameBufferTerminal::LinearFrameBufferTerminal(LinearFrameBuffer *lfb, char cursor) :
         Terminal(lfb->getResolutionX() / Font::getFontForResolution(lfb->getResolutionY()).getCharWidth(), lfb->getResolutionY() / Font::getFontForResolution(lfb->getResolutionY()).getCharHeight()),
-        characterBuffer(new Character[getColumns() * getRows()]), lfb(*lfb), pixelDrawer(*lfb), stringDrawer(pixelDrawer), shadowLfb(*lfb),
-        shadowPixelDrawer(shadowLfb), shadowStringDrawer(shadowPixelDrawer), shadowScroller(shadowLfb), font(Font::getFontForResolution(lfb->getResolutionY())), cursor(cursor) {
+        characterBuffer(new Character[getColumns() * getRows()]), lfb(*lfb), shadowLfb(*lfb), font(Font::getFontForResolution(lfb->getResolutionY())), cursor(cursor) {
     Terminal::clear();
     LinearFrameBufferTerminal::setCursor(true);
 }
@@ -47,8 +46,8 @@ void LinearFrameBufferTerminal::putChar(char c, const Util::Graphic::Color &fore
 
     characterBuffer[currentRow * getColumns() + currentColumn] = {c, foregroundColor, backgroundColor};
 
-    stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), c, foregroundColor, backgroundColor);
-    shadowStringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), c, foregroundColor, backgroundColor);
+    lfb.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), c, foregroundColor, backgroundColor);
+    shadowLfb.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), c, foregroundColor, backgroundColor);
     currentColumn++;
 
     if (currentColumn >= getColumns()) {
@@ -75,32 +74,32 @@ void LinearFrameBufferTerminal::clear(const Util::Graphic::Color &foregroundColo
         // Clear from start column to end column
         for (uint32_t i = 0; i < static_cast<uint32_t>(endColumn - startColumn + 1) * font.getCharWidth(); i++) {
             for (uint32_t j = 0; j < font.getCharHeight(); j++) {
-                shadowPixelDrawer.drawPixel((startColumn * font.getCharWidth()) + i, (startRow * font.getCharHeight()) + j, backgroundColor);
+                shadowLfb.drawPixel((startColumn * font.getCharWidth()) + i, (startRow * font.getCharHeight()) + j, backgroundColor);
             }
         }
     } else if (startRow < endRow) {
         // Clear from start position to end of line
         for (uint32_t y = 0; y < font.getCharHeight(); y++) {
             for (uint32_t x = 0; x < static_cast<uint32_t>(getColumns() - startColumn) * font.getCharWidth(); x++) {
-                shadowPixelDrawer.drawPixel((startColumn * font.getCharWidth()) + x, (startRow * font.getCharHeight()) + y, backgroundColor);
+                shadowLfb.drawPixel((startColumn * font.getCharWidth()) + x, (startRow * font.getCharHeight()) + y, backgroundColor);
             }
         }
 
         // Clear from next line to before last line
         for (uint32_t y = 0; y < (endRow - startRow - 1) * font.getCharHeight(); y++) {
             for (uint32_t x = 0; x < getColumns() * font.getCharWidth(); x++) {
-                shadowPixelDrawer.drawPixel(x, ((startRow + 1) * font.getCharHeight()) + y, backgroundColor);
+                shadowLfb.drawPixel(x, ((startRow + 1) * font.getCharHeight()) + y, backgroundColor);
             }
         }
 
         // Clear from beginning of last line to end position
         for (uint32_t y = 0; y < font.getCharHeight(); y++) {
             for (uint32_t x = 0; x < endColumn * font.getCharWidth(); x++) {
-                shadowPixelDrawer.drawPixel(x, (endRow * font.getCharHeight()) + y, backgroundColor);
+                shadowLfb.drawPixel(x, (endRow * font.getCharHeight()) + y, backgroundColor);
             }
         }
     } else {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Terminal: Invalid arguments for clear()!");
+        Exception::throwException(Exception::INVALID_ARGUMENT, "Terminal: Invalid arguments for clear()!");
     }
 
     for (uint32_t i = startRow * getColumns() + startColumn; i < static_cast<uint32_t>(endRow * getColumns()) + endColumn + 1; i++) {
@@ -118,7 +117,7 @@ void LinearFrameBufferTerminal::setPosition(uint16_t column, uint16_t row) {
     }
 
     auto character = characterBuffer[currentRow * getColumns() + currentColumn];
-    stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), character.value, character.foregroundColor, character.backgroundColor);
+    lfb.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), character.value, character.foregroundColor, character.backgroundColor);
 
     currentColumn = column;
     currentRow = row;
@@ -143,7 +142,7 @@ void LinearFrameBufferTerminal::setCursor(bool enabled) {
         }
 
         cursorRunnable = new CursorRunnable(*this, cursor);
-        Util::Async::Thread::createThread("Cursor", cursorRunnable);
+        Async::Thread::createThread("Cursor", cursorRunnable);
     } else if (cursorRunnable != nullptr) {
         cursorRunnable->stop();
         cursorRunnable = nullptr;
@@ -158,7 +157,7 @@ void LinearFrameBufferTerminal::scrollUp() {
     characterAddress.copyRange(characterAddress.add(getColumns() * sizeof(Character)), getColumns() * (getRows() - 1) * sizeof(Character));
 
     // Scroll shadow LFB
-    shadowScroller.scrollUp(font.getCharHeight(), false);
+    shadowLfb.scrollUp(font.getCharHeight(), false);
 
     // Clear last line (Also flushes shadow buffer)
     clear(getForegroundColor(), getBackgroundColor(), 0, getRows() - 1, getColumns() - 1, getRows() - 1);

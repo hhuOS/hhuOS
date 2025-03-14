@@ -19,7 +19,6 @@
 
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/base/System.h"
@@ -88,9 +87,7 @@ const Util::Graphic::Color &Ant::getColor() const {
     return color;
 }
 
-void antDemo(Util::Graphic::LinearFrameBuffer &lfb, uint32_t sleepInterval) {
-    auto pixelDrawer = Util::Graphic::PixelDrawer(lfb);
-
+void antDemo(const Util::Graphic::LinearFrameBuffer &lfb, uint32_t sleepInterval) {
     Util::Graphic::Ansi::prepareGraphicalApplication(false);
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
@@ -104,10 +101,10 @@ void antDemo(Util::Graphic::LinearFrameBuffer &lfb, uint32_t sleepInterval) {
 
         auto pixel = lfb.readPixel(ant.getX(), ant.getY());
         if (pixel == Util::Graphic::Colors::BLACK) {
-            pixelDrawer.drawPixel(ant.getX(), ant.getY(), ant.getColor());
+            lfb.drawPixel(ant.getX(), ant.getY(), ant.getColor());
             ant.turnClockWise();
         } else {
-            pixelDrawer.drawPixel(ant.getX(), ant.getY(), Util::Graphic::Colors::BLACK);
+            lfb.drawPixel(ant.getX(), ant.getY(), Util::Graphic::Colors::BLACK);
             ant.turnCounterClockWise();
         }
 

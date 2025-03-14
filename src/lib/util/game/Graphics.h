@@ -34,12 +34,9 @@
 
 #include "lib/tinygl/include/zbuffer.h"
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
-#include "lib/util/graphic/LineDrawer.h"
-#include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Color.h"
-#include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/base/String.h"
 #include "lib/util/math/Vector3D.h"
 #include "lib/util/math/Vector2D.h"
@@ -173,29 +170,22 @@ private:
 
     void drawImageScaledAndRotated2D(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, double alpha, const Util::Math::Vector2D &scale, double rotationAngle) const;
 
-    void gluPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar) const;
+    static void gluPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 
     Game &game;
 
-    ZBuffer *glBuffer = nullptr;
-
     const Graphic::BufferedLinearFrameBuffer bufferedLfb;
-    const Graphic::PixelDrawer pixelDrawer;
-    const Graphic::LineDrawer lineDrawer;
-    const Graphic::StringDrawer stringDrawer;
+    ZBuffer *glBuffer = nullptr;
+    uint8_t *backgroundBuffer = nullptr;
 
     const uint16_t transformation;
     const uint16_t offsetX;
     const uint16_t offsetY;
 
-    const Math::Vector3D worldUpVecotor = Math::Vector3D(0, 1, 0);
-    Camera camera;
-
-    uint8_t *backgroundBuffer = nullptr;
-
     Graphic::Color color = Graphic::Colors::WHITE;
 
-    static const constexpr double FIELD_OF_VIEW = 1.3;
+    const Math::Vector3D worldUpVecotor = Math::Vector3D(0, 1, 0);
+    Camera camera;
 };
 
 }

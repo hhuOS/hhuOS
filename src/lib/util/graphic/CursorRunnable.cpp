@@ -21,7 +21,6 @@
 #include "lib/util/async/Thread.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/graphic/Font.h"
-#include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/time/Timestamp.h"
 
 namespace Util::Graphic {
@@ -48,12 +47,12 @@ void CursorRunnable::stop() {
 
 void CursorRunnable::draw() {
     const auto character = terminal.characterBuffer[terminal.currentRow * terminal.getColumns() + terminal.currentColumn];
-    terminal.stringDrawer.drawChar(terminal.font,
-                                   terminal.currentColumn * terminal.font.getCharWidth(),
-                                   terminal.currentRow * terminal.font.getCharHeight(),
-                                   visible ? cursor : character.value,
-                                   character.foregroundColor,
-                                   character.backgroundColor);
+    terminal.lfb.drawChar(terminal.font,
+        terminal.currentColumn * terminal.font.getCharWidth(),
+        terminal.currentRow * terminal.font.getCharHeight(),
+        visible ? cursor : character.value,
+        character.foregroundColor,
+        character.backgroundColor);
 }
 
 }

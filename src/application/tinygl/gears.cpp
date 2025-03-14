@@ -15,8 +15,6 @@
 #include "lib/util/math/Math.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/InputStream.h"
-#include "lib/util/graphic/PixelDrawer.h"
-#include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/graphic/font/Terminal8x8.h"
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 
@@ -161,13 +159,9 @@ void drawGears() {
 }
 
 void gears(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
+    auto &font = Util::Graphic::Font::getFontForResolution(lfb.getResolutionY());
     const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / TARGET_FRAME_RATE));
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
-
-    // Create string drawer to draw FPS
-    auto pixelDrawer = Util::Graphic::PixelDrawer(lfb);
-    auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
-    auto &font = Util::Graphic::Font::getFontForResolution(lfb.getResolutionY());
 
     // Initialize GL
     glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -240,7 +234,7 @@ void gears(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
         drawGears();
 
         // Draw the FPS string on top of the rendered OpenGL scene
-        stringDrawer.drawString(font, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
+        lfb.drawString(font, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
         lfb.flush(); // Flushes the buffered frame buffer to the screen
 
         auto renderTime = Util::Time::getSystemTime() - startTime;

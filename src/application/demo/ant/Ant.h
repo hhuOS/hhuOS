@@ -30,7 +30,7 @@ class LinearFrameBuffer;
 }  // namespace Graphic
 }  // namespace Util
 
-void antDemo(Util::Graphic::LinearFrameBuffer &lfb, uint32_t sleepInterval);
+void antDemo(const Util::Graphic::LinearFrameBuffer &lfb, uint32_t sleepInterval);
 
 class Ant {
 

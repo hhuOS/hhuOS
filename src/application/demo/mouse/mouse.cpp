@@ -57,7 +57,7 @@ int32_t main(int32_t argc, char *argv[]) {
         lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
     }
 
-    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
+    auto lfb = Util::Graphic::LinearFrameBuffer::open(lfbFile);
     auto engine = Util::Game::Engine(lfb, 60);
 
     Util::Game::GameManager::getGame().pushScene(new MouseDemo());

@@ -70,8 +70,6 @@
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
-#include "lib/util/graphic/PixelDrawer.h"
-#include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/base/System.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/graphic/Colors.h"
@@ -797,14 +795,9 @@ void setup_context()
 }
 
 void gears(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
-    const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / TARGET_FRAME_RATE));
-    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
-
-    // Create string drawer to draw FPS
-    bufferedLfb = &lfb;
-    auto pixelDrawer = Util::Graphic::PixelDrawer(*bufferedLfb);
-    auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
     auto &font = Util::Graphic::Font::getFontForResolution(lfb.getResolutionY());
+    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
+    bufferedLfb = &lfb;
 
     /* Initialize the window */
     setup_context();
@@ -828,7 +821,7 @@ void gears(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
         gears_draw();
 
         // Draw FPS string
-        stringDrawer.drawString(font, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", static_cast<uint32_t>(fps))), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
+        bufferedLfb->drawString(font, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", static_cast<uint32_t>(fps))), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
 
         // Flush double buffer to screen
         bufferedLfb->flush();

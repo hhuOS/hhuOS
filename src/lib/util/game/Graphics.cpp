@@ -37,8 +37,7 @@
 
 namespace Util::Game {
 
-Graphics::Graphics(const Util::Graphic::LinearFrameBuffer &lfb, Game &game, double scaleFactor) :
-        game(game), bufferedLfb(lfb, scaleFactor), pixelDrawer(bufferedLfb), lineDrawer(pixelDrawer), stringDrawer(pixelDrawer),
+Graphics::Graphics(const Util::Graphic::LinearFrameBuffer &lfb, Game &game, double scaleFactor) : game(game), bufferedLfb(lfb, scaleFactor),
         transformation((bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ? bufferedLfb.getResolutionY() : bufferedLfb.getResolutionX()) / 2),
         offsetX(transformation + (bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ? (bufferedLfb.getResolutionX() - bufferedLfb.getResolutionY()) / 2 : 0)),
         offsetY(transformation + (bufferedLfb.getResolutionY() > bufferedLfb.getResolutionX() ? (bufferedLfb.getResolutionY() - bufferedLfb.getResolutionX()) / 2 : 0)) {
@@ -52,7 +51,7 @@ Graphics::Graphics(const Util::Graphic::LinearFrameBuffer &lfb, Game &game, doub
 /***** Basic functions to draw directly on the screen ******/
 
 void Graphics::drawLineDirectAbsolute(uint16_t fromX, uint16_t fromY, uint16_t toX, uint16_t toY) const {
-    lineDrawer.drawLine(fromX, fromY, toX, toY, color);
+    bufferedLfb.drawLine(fromX, fromY, toX, toY, color);
 }
 
 void Graphics::drawRectangleDirectAbsolute(uint16_t posX, uint16_t posY, uint16_t width, uint16_t height) const {
@@ -71,7 +70,7 @@ void Graphics::fillRectangleDirectAbsolute(uint16_t posX, uint16_t posY, uint16_
     const uint16_t endY = posY + height;
 
     for (uint16_t i = posY; i < endY; i++) {
-        lineDrawer.drawLine(posX, i, endX, i, color);
+        bufferedLfb.drawLine(posX, i, endX, i, color);
     }
 }
 
@@ -80,7 +79,7 @@ void Graphics::fillSquareDirectAbsolute(uint16_t posX, uint16_t posY, uint16_t s
 }
 
 void Graphics::drawStringDirectAbsolute(const Graphic::Font &font, uint16_t posX, uint16_t posY, const char *string) const {
-    stringDrawer.drawString(font, posX, posY, string, color, Util::Graphic::Colors::INVISIBLE);
+    bufferedLfb.drawString(font, posX, posY, string, color, Util::Graphic::Colors::INVISIBLE);
 }
 
 void Graphics::drawStringDirectAbsolute(const Graphic::Font &font, uint16_t posX, uint16_t posY, const String &string) const {
@@ -121,7 +120,7 @@ void Graphics::fillRectangleDirect(const Math::Vector2D &position, double width,
     }
 
     for (int32_t i = startY; i < endY; i++) {
-        lineDrawer.drawLine(startX, i, endX, i, color);
+        bufferedLfb.drawLine(startX, i, endX, i, color);
     }
 }
 
@@ -143,7 +142,7 @@ void Graphics::drawStringDirect(const Graphic::Font &font, const Math::Vector2D 
 /***** 2D drawing functions, respecting the camera position *****/
 
 void Graphics::drawLine2D(const Math::Vector2D &from, const Math::Vector2D &to) const {
-    lineDrawer.drawLine(static_cast<int32_t>((from.getX() - camera.getPosition().getX()) * transformation + offsetX),
+    bufferedLfb.drawLine(static_cast<int32_t>((from.getX() - camera.getPosition().getX()) * transformation + offsetX),
                         static_cast<int32_t>(-(from.getY() - camera.getPosition().getY()) * transformation + offsetY),
                         static_cast<int32_t>((to.getX() - camera.getPosition().getX()) * transformation + offsetX),
                         static_cast<int32_t>(-(to.getY() - camera.getPosition().getY()) * transformation + offsetY), color);
@@ -188,12 +187,12 @@ void Graphics::fillRectangle2D(const Math::Vector2D &position, double width, dou
     }
 
     for (int32_t i = startY; i < endY; i++) {
-        lineDrawer.drawLine(startX, i, endX, i, color);
+        bufferedLfb.drawLine(startX, i, endX, i, color);
     }
 }
 
 void Graphics::drawString2D(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const {
-    stringDrawer.drawString(font,
+    bufferedLfb.drawString(font,
         static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX),
         static_cast<int32_t>(-(position.getY() - camera.getPosition().getY()) * transformation + offsetY),
         string, color, Util::Graphic::Colors::INVISIBLE);
@@ -367,7 +366,7 @@ void Graphics::clear(const Graphic::Color &color) {
     } else {
         for (uint32_t i = 0; i < bufferedLfb.getResolutionX(); i++) {
             for (uint32_t j = 0; j < bufferedLfb.getResolutionY(); j++) {
-                pixelDrawer.drawPixel(i, j, color);
+                bufferedLfb.drawPixel(i, j, color);
             }
         }
     }
@@ -419,7 +418,7 @@ void Graphics::drawImageDirect2D(const Math::Vector2D &position, const Graphic::
     for (uint32_t i = 0; i < image.getHeight(); i++) {
         for (uint32_t j = 0; j < image.getWidth(); j++) {
             const auto &pixel = pixelBuffer[i * image.getWidth() + (flipX ? image.getWidth() - j : j)];
-            pixelDrawer.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(static_cast<uint8_t>(pixel.getAlpha() * alpha)));
+            bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(static_cast<uint8_t>(pixel.getAlpha() * alpha)));
         }
     }
 }
@@ -445,7 +444,7 @@ void Graphics::drawImageScaled2D(const Math::Vector2D &position, const Graphic::
             const auto imageY = static_cast<uint16_t>(i / factorY);
 
             const auto &pixel = pixelBuffer[imageY * image.getWidth() + (flipX ? (image.getWidth() - imageX) : imageX)];
-            pixelDrawer.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(static_cast<uint8_t>(pixel.getAlpha() * alpha)));
+            bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(static_cast<uint8_t>(pixel.getAlpha() * alpha)));
         }
     }
 }
@@ -476,7 +475,7 @@ void Graphics::drawImageRotated2D(const Math::Vector2D &position, const Graphic:
             }
 
             const auto &pixel = pixelBuffer[imageY * image.getWidth() + (flipX ? (image.getWidth() - imageX) : imageX)];
-            pixelDrawer.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(static_cast<uint8_t>(pixel.getAlpha() * alpha)));
+            bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(static_cast<uint8_t>(pixel.getAlpha() * alpha)));
         }
     }
 }
@@ -524,7 +523,7 @@ void Graphics::drawImageScaledAndRotated2D(const Math::Vector2D &position, const
             }
 
             const auto &pixel = scaledPixelBuffer[imageY * scaledWidth + (flipX ? (scaledWidth - imageX) : imageX)];
-            pixelDrawer.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(static_cast<uint8_t>(pixel.getAlpha() * alpha)));
+            bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(static_cast<uint8_t>(pixel.getAlpha() * alpha)));
         }
     }
 
@@ -534,12 +533,9 @@ void Graphics::drawImageScaledAndRotated2D(const Math::Vector2D &position, const
 /**
  * Taken from https://stackoverflow.com/questions/12943164/replacement-for-gluperspective-with-glfrustrum
  */
-void Graphics::gluPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar) const {
-    const GLdouble pi = Util::Math::PI;
-    GLdouble fW, fH;
-
-    fH = Util::Math::tangent(fovY / 360 * pi) * zNear;
-    fW = fH * aspect;
+void Graphics::gluPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar) {
+    const GLdouble fH = Math::tangent(fovY / 360 * Math::PI) * zNear;
+    const GLdouble fW = fH * aspect;
 
     glFrustum(-fW, fW, -fH, fH, zNear, zFar);
 }

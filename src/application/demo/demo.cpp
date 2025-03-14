@@ -79,7 +79,7 @@ int32_t main(int32_t argc, char *argv[]) {
         lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
     }
 
-    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
+    auto lfb = Util::Graphic::LinearFrameBuffer::open(lfbFile);
 
     if (demo == "ant") {
         auto sleepInterval = arguments.length() <= 1 ? 0 : Util::String::parseInt(arguments[0]);

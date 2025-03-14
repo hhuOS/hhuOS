@@ -28,8 +28,6 @@
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/async/Thread.h"
-#include "lib/util/graphic/PixelDrawer.h"
-#include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/graphic/font/Terminal8x8.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/layout/DeLayout.h"
@@ -225,13 +223,12 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     Util::Graphic::Ansi::prepareGraphicalApplication(true);
-    lfb = new Util::Graphic::LinearFrameBuffer(lfbFile);
+    auto buffer = Util::Graphic::LinearFrameBuffer::open(lfbFile);
+    lfb = &buffer;
     lfb->clear();
 
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
     auto keyDecoder = Util::Io::KeyDecoder(new Util::Io::DeLayout());
-    auto pixelDrawer = Util::Graphic::PixelDrawer(*lfb);
-    auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
 
     auto scanlineCallback = ScanlineRenderedCallback32;
     if (lfb->getColorDepth() == 24) {
@@ -331,7 +328,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
         ClownMDEmu_Iterate(&emulator);
 
-        stringDrawer.drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+        lfb->drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
 
         auto renderTime = Util::Time::getSystemTime() - startTime;
         if (renderTime < targetFrameTime) {

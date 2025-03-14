@@ -25,14 +25,12 @@
 #include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/io/key/KeyDecoder.h"
 #include "lib/util/io/key/layout/DeLayout.h"
-#include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/graphic/font/Terminal8x8.h"
 #include "lib/util/io/stream/FileOutputStream.h"
 #include "lib/util/base/String.h"
@@ -671,7 +669,8 @@ int32_t main(int32_t argc, char *argv[]) {
         lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
     }
 
-    lfb = new Util::Graphic::LinearFrameBuffer(lfbFile);
+    auto buffer = Util::Graphic::LinearFrameBuffer::open(lfbFile);
+    lfb = &buffer;
     maxScale = lfb->getResolutionX() / LCD_WIDTH > lfb->getResolutionY() / LCD_HEIGHT ? lfb->getResolutionY() / LCD_HEIGHT : lfb->getResolutionX() / LCD_WIDTH;
     scale = maxScale;
     offsetX = lfb->getResolutionX() - LCD_WIDTH * scale > 0 ? (lfb->getResolutionX() - LCD_WIDTH * scale) / 2 : 0;
@@ -716,8 +715,6 @@ int32_t main(int32_t argc, char *argv[]) {
 
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
     auto keyDecoder = Util::Io::KeyDecoder(new Util::Io::DeLayout());
-    auto pixelDrawer = Util::Graphic::PixelDrawer(*lfb);
-    auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
 
     uint8_t manualPaletteIndex = UINT8_MAX;
     palette = gb_get_palette(&gb);
@@ -806,7 +803,7 @@ int32_t main(int32_t argc, char *argv[]) {
         }
 
         gb_run_frame(&gb);
-        stringDrawer.drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+        lfb->drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
 
         auto renderTime = Util::Time::getSystemTime() - startTime;
         if (renderTime < targetFrameTime) {
