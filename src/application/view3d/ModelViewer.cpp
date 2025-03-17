@@ -17,6 +17,8 @@
 
 #include "ModelViewer.h"
 
+#include <lib/util/io/file/File.h>
+
 #include "lib/util/game/Game.h"
 #include "lib/util/game/GameManager.h"
 #include "application/view3d/ModelEntity.h"
@@ -28,11 +30,19 @@
 ModelViewer::ModelViewer(const Util::String &path) : modelPath(path) {}
 
 void ModelViewer::initialize() {
-    light = &addLight(Util::Game::D3::Light::POINT, camera.getPosition(), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::WHITE);
+    const auto texturePath = modelPath.split(".")[0] + ".bmp";
+    auto textureFile = Util::Io::File(texturePath);
+    if (textureFile.exists()) {
+        model = new ModelEntity(modelPath, texturePath);
+    } else {
+        model = new ModelEntity(modelPath);
+    }
 
-    model = new ModelEntity(modelPath);
     model->setPosition(camera.getTargetVector() * 5);
     addObject(model);
+
+    setAmbientLight(Util::Graphic::Colors::WHITE);
+    light = &addLight(Util::Game::D3::Light::POINT, camera.getPosition(), Util::Graphic::Color(255, 255, 255), Util::Graphic::Color(255, 255, 255));
 
     setKeyListener(*this);
 }

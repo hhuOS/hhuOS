@@ -32,6 +32,7 @@ namespace Util::Game {
 
 HashMap<String, Graphic::Image*> ResourceManager::images;
 HashMap<String, D3::ObjectFile*> ResourceManager::objectFiles;
+HashMap<String, GLuint> ResourceManager::textures;
 
 void ResourceManager::addImage(const String &key, Graphic::Image *image) {
     images.put(key, image);
@@ -41,11 +42,11 @@ bool ResourceManager::hasImage(const String &key) {
     return images.containsKey(key);
 }
 
-Util::Graphic::Image *Util::Game::ResourceManager::getImage(const Util::String &key) {
+Graphic::Image* ResourceManager::getImage(const Util::String &key) {
     return images.get(key);
 }
 
-void Util::Game::ResourceManager::deleteImage(const Util::String &key) {
+void ResourceManager::deleteImage(const Util::String &key) {
     if (images.containsKey(key)) {
         delete images.remove(key);
     }
@@ -78,6 +79,24 @@ D3::ObjectFile * ResourceManager::getObjectFile(const String &key) {
 
 void ResourceManager::deleteObjectFile(const String &key) {
     objectFiles.remove(key);
+}
+
+void ResourceManager::addTexture(const String &key, GLuint texture) {
+    textures.put(key, texture);
+}
+
+bool ResourceManager::hasTexture(const String &key) {
+    return textures.containsKey(key);
+}
+
+GLuint ResourceManager::getTexture(const String &key) {
+    return textures.get(key);
+}
+
+void ResourceManager::deleteTexture(const String &key) {
+    if (textures.containsKey(key)) {
+        glDisable(textures.remove(key));
+    }
 }
 
 }

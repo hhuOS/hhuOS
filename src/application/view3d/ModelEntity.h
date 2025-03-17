@@ -30,6 +30,11 @@ public:
     explicit ModelEntity(const Util::String &modelPath);
 
     /**
+     * Constructor.
+     */
+    explicit ModelEntity(const Util::String &modelPath, const Util::String &texturePath);
+
+    /**
      * Copy Constructor.
      */
     ModelEntity(const ModelEntity &other) = delete;

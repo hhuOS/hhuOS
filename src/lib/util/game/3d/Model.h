@@ -33,6 +33,7 @@
 #include "Entity.h"
 #include "lib/util/base/String.h"
 #include "lib/util/graphic/Colors.h"
+#include "lib/tinygl/include/GL/gl.h"
 
 namespace Util {
 namespace Math {
@@ -55,12 +56,12 @@ public:
     /**
      * Constructor.
      */
-    Model(uint32_t tag, const String &modelPath, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale);
+    Model(uint32_t tag, const String &modelPath, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale, const Graphic::Color &color = Graphic::Colors::WHITE);
 
     /**
      * Constructor.
      */
-    Model(uint32_t tag, const String &modelPath, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale, const Graphic::Color &color);
+    Model(uint32_t tag, const String &modelPath, const String &texturePath, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale);
 
     /**
      * Copy Constructor.
@@ -93,10 +94,15 @@ public:
 
     [[nodiscard]] const Array<uint32_t>& getTextureDrawOrder() const;
 
+    [[nodiscard]] GLuint getTextureID() const;
+
 private:
 
     String modelPath;
-    const Graphic::Color color = Graphic::Colors::WHITE;
+    String texturePath;
+
+    GLuint textureID = 0;
+    const Graphic::Color color = Graphic::Color(255, 255, 255);
 
     ObjectFile *objectFile = nullptr;
 };

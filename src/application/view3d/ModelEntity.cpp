@@ -19,7 +19,9 @@
 
 #include "lib/util/math/Vector3.h"
 
-ModelEntity::ModelEntity(const Util::String &modelPath) : Util::Game::D3::Model(0, modelPath, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1)) {}
+ModelEntity::ModelEntity(const Util::String &modelPath) : Model(0, modelPath, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1)) {}
+
+ModelEntity::ModelEntity(const Util::String &modelPath, const Util::String &texturePath) : Model(0, modelPath, texturePath, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1)) {}
 
 void ModelEntity::onUpdate([[maybe_unused]] double delta) {}
 

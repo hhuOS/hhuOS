@@ -138,7 +138,7 @@ public:
 
     /***** 3D drawing functions *****/
 
-    void drawModel(const D3::Model &model);
+    void drawModel(const D3::Model &model) const;
 
     /***** Miscellaneous *****/
 

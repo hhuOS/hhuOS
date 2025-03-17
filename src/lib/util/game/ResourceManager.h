@@ -25,6 +25,7 @@
 #define HHUOS_RESOURCEMANAGER_H
 
 #include "lib/util/base/String.h"
+#include "lib/tinygl/include/GL/gl.h"
 
 namespace Util {
 namespace Graphic {
@@ -80,12 +81,21 @@ public:
 
     static void deleteObjectFile(const String &key);
 
+    static void addTexture(const String &key, GLuint texture);
+
+    static bool hasTexture(const String &key);
+
+    static GLuint getTexture(const String &key);
+
+    static void deleteTexture(const String &key);
+
     static void clear();
 
 private:
 
     static HashMap<String, Graphic::Image*> images;
     static HashMap<String, D3::ObjectFile*> objectFiles;
+    static HashMap<String, GLuint> textures;
 };
 
 }

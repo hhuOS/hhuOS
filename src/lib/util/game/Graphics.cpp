@@ -219,9 +219,9 @@ void Graphics::drawImage2D(const Math::Vector2<double> &position, const Graphic:
     }
 }
 
-void Graphics::drawModel(const D3::Model &model) {
+void Graphics::drawModel(const D3::Model &model) const {
     if (!glEnabled()) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Graphics: OpenGL is not enabled");
+        Exception::throwException(Exception::ILLEGAL_STATE, "Graphics: OpenGL is not enabled");
     }
 
     const auto &position = model.getPosition();
@@ -229,31 +229,55 @@ void Graphics::drawModel(const D3::Model &model) {
     const auto &scale = model.getScale();
     const auto &vertices = model.getVertices();
     const auto &normals = model.getVertexNormals();
-    // const auto &textureCoordinates = model.getVertexTextures();
+    const auto &textureCoordinates = model.getVertexTextures();
     const auto &vertexDrawOrder = model.getVertexDrawOrder();
     const auto &normalDrawOrder = model.getNormalDrawOrder();
-    // const auto &textureDrawOrder = model.getTextureDrawOrder();
+    const auto &textureDrawOrder = model.getTextureDrawOrder();
+    const auto textureID = model.getTextureID();
 
     glPushMatrix();
+
+    // Translate, Rotate, Scale
     glTranslatef(position.getX(), position.getY(), position.getZ());
     glRotatef(rotation.getX(), 0.0f, 0.0f, 1.0f);
     glRotatef(rotation.getY(), 1.0f, 0.0f, 0.0f);
     glRotatef(rotation.getZ(), 0.0f, 1.0f, 0.0f);
     glScalef(scale.getX(), scale.getY(), scale.getZ());
-    glColor3f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
-    glBegin(GL_TRIANGLES);
 
+    // Set texture or color
+    if (textureID != 0) {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glColor3f(1.0f, 1.0f, 1.0f);
+    } else {
+        glColor3f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
+    }
+
+    // Draw triangles
+    glBegin(GL_TRIANGLES);
     for (uint32_t i = 0; i < vertexDrawOrder.length(); i++) {
         if (normalDrawOrder.length() > i) {
             const auto &normal = normals[normalDrawOrder[i]];
             glNormal3f(normal.getX(), normal.getY(), normal.getZ());
         }
 
+        if (textureID != 0 && textureCoordinates.length() > i) {
+            const auto &textureCoordinate = textureCoordinates[textureDrawOrder[i]];
+            glTexCoord2f(textureCoordinate.getX(), textureCoordinate.getY());
+        }
+
         const auto &vertex = vertices[vertexDrawOrder[i]];
         glVertex3f(vertex.getX(), vertex.getY(), vertex.getZ());
     }
-
     glEnd();
+
+    // Disable texture (if enabled)
+    if (textureID != 0) {
+        glDisable(GL_TEXTURE_2D);
+    }
+
     glPopMatrix();
 }
 void Graphics::initializeGl() {

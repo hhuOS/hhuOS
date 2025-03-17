@@ -26,6 +26,8 @@
 
 #include "Model.h"
 
+#include <lib/util/graphic/BitmapFile.h>
+
 #include "lib/util/math/Math.h"
 #include "lib/util/game/ResourceManager.h"
 #include "lib/util/game/3d/Entity.h"
@@ -40,9 +42,9 @@ template <typename T> class Array;
 
 namespace Util::Game::D3 {
 
-Model::Model(uint32_t tag, const String &modelPath, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale) : Entity(tag, position, rotation, scale, SphereCollider(position, Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath) {}
-
 Model::Model(uint32_t tag, const String &modelPath, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale, const Graphic::Color &color) : Entity(tag, position, rotation, scale, SphereCollider(position, Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath), color(color) {}
+
+Model::Model(uint32_t tag, const String &modelPath, const String &texturePath, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale) : Entity(tag, position, rotation, scale, SphereCollider(position, Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath), texturePath(texturePath) {}
 
 void Model::initialize() {
     if (!ResourceManager::hasObjectFile(modelPath)) {
@@ -50,6 +52,46 @@ void Model::initialize() {
     }
 
     objectFile = ResourceManager::getObjectFile(modelPath);
+
+    if (!texturePath.isEmpty()) {
+        if (!ResourceManager::hasTexture(texturePath)) {
+            const auto *image = Graphic::BitmapFile::open(texturePath);
+            const auto *imagePixels = image->getPixelBuffer();
+
+            // The Image class stores pixels as an array of the struct 'Color'.
+            // We need to convert this to an array of bytes in the RGB format (24-bit).
+            auto *textureData = new uint8_t[image->getWidth() * image->getHeight() * 3];
+            for (uint32_t i = 0; i < image->getWidth() * image->getHeight(); i++) {
+                auto color = imagePixels[i];
+                textureData[i * 3] = color.getRed();
+                textureData[i * 3 + 1] = color.getGreen();
+                textureData[i * 3 + 2] = color.getBlue();
+            }
+
+            // Generate the OpenGL texture
+            GLuint textureID;
+            glGenTextures(1, &textureID); // Generate a texture ID
+            glBindTexture(GL_TEXTURE_2D, textureID); // Tell OpenGL which texture to edit
+            glTexImage2D(GL_TEXTURE_2D, // Type of texture
+                0,                      // Mipmap level, 0 for base
+                3,                      // Number of color components in texture
+                image->getWidth(),      // Width of the texture
+                image->getHeight(),     // Height of the texture
+                0,                      // Border width in pixels
+                GL_RGB,                 // Format of pixel data
+                GL_UNSIGNED_BYTE,       // Type of pixel data
+                textureData);           // Pointer to the image data
+
+            // The texture data is now stored by OpenGL, we can delete our copy
+            delete image;
+            delete[] textureData;
+
+            // Add texture to the ResourceManager
+            ResourceManager::addTexture(texturePath, textureID);
+        }
+
+        textureID = ResourceManager::getTexture(texturePath);
+    }
 }
 
 void Model::draw(Graphics &graphics) {
@@ -79,6 +121,10 @@ const Array<uint32_t> &Model::getNormalDrawOrder() const {
 
 const Array<uint32_t> &Model::getTextureDrawOrder() const {
     return objectFile->getTextureDrawOrder();
+}
+
+GLuint Model::getTextureID() const {
+    return textureID;
 }
 
 }
