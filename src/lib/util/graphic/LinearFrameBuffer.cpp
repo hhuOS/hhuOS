@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2025 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -15,8 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/math/Math.h>
-
+#include "lib/util/math/Math.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/interface.h"

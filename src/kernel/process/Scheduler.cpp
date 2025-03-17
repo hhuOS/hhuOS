@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2025 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -17,8 +17,7 @@
 
 #include "Scheduler.h"
 
-#include <lib/util/base/Address.h>
-
+#include "lib/util/base/Address.h"
 #include "kernel/service/TimeService.h"
 #include "device/cpu/Fpu.h"
 #include "kernel/process/Process.h"

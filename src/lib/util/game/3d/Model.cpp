@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2024 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2025 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -26,8 +26,7 @@
 
 #include "Model.h"
 
-#include <lib/util/graphic/BitmapFile.h>
-
+#include "lib/util/graphic/BitmapFile.h"
 #include "lib/util/math/Math.h"
 #include "lib/util/game/ResourceManager.h"
 #include "lib/util/game/3d/Entity.h"
