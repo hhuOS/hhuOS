@@ -51,7 +51,7 @@ void Player::draw(Util::Game::Graphics &graphics) {
     graphics.setColor(Util::Graphic::Colors::GREEN);
 
     // Draw reticle
-    auto raytraceDirection = Util::Game::GameManager::getCurrentScene().getCamera().getTargetVector();
+    auto raytraceDirection = Util::Game::GameManager::getCurrentScene().getCamera().getFrontVector();
     auto *aimTarget = Util::Game::D3::Util::findEntityUsingRaytrace(reinterpret_cast<const Util::ArrayList<Util::Game::D3::Entity*>&>(enemies), getPosition() + raytraceDirection, raytraceDirection, 20, 0.1);
 
     if (aimTarget != nullptr) {
@@ -70,11 +70,11 @@ void Player::draw(Util::Game::Graphics &graphics) {
     graphics.drawStringDirect(font, Util::Math::Vector2<double>(-0.95, 0.89), Util::String::format("Score   : %d", score));
     graphics.drawStringDirect(font, Util::Math::Vector2<double>(-0.95, 0.83), Util::String::format("Enemies : %d", enemies.size()));
 
-    graphics.drawRectangleDirect(Util::Math::Vector2<double>(-0.7, 0.94), 0.3, -0.025);
-    graphics.fillRectangleDirect(Util::Math::Vector2<double>(-0.7, 0.94), 0.3 * (getHealth() / 100.0), -0.025);
+    graphics.drawRectangleDirect(Util::Math::Vector2<double>(-0.7, 0.94), Util::Math::Vector2<double>(0.3, -0.025));
+    graphics.fillRectangleDirect(Util::Math::Vector2<double>(-0.7, 0.94), Util::Math::Vector2<double>(0.3 * (getHealth() / 100.0), -0.025));
 
     // Draw speedometer
-    graphics.fillRectangleDirect(Util::Math::Vector2<double>(0.9375, 0), 0.025, speed * 0.95);
+    graphics.fillRectangleDirect(Util::Math::Vector2<double>(0.9375, 0), Util::Math::Vector2<double>(0.025, speed * 0.95));
 
     graphics.drawLineDirect(Util::Math::Vector2<double>(0.925, 0.95), Util::Math::Vector2<double>(0.975, 0.95));
     graphics.drawLineDirect(Util::Math::Vector2<double>(0.925, 0.5), Util::Math::Vector2<double>(0.975, 0.5));

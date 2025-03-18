@@ -32,6 +32,7 @@
 #include "lib/util/math/Math.h"
 #include "GameManager.h"
 #include "Game.h"
+#include "3d/Orientation.h"
 #include "lib/util/game/3d/Scene.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/game/3d/Light.h"
@@ -81,7 +82,7 @@ void Graphics::fillSquareDirectAbsolute(uint16_t posX, uint16_t posY, uint16_t s
 }
 
 void Graphics::drawStringDirectAbsolute(const Graphic::Font &font, uint16_t posX, uint16_t posY, const char *string) const {
-    bufferedLfb.drawString(font, posX, posY, string, color, Util::Graphic::Colors::INVISIBLE);
+    bufferedLfb.drawString(font, posX, posY, string, color, Graphic::Colors::INVISIBLE);
 }
 
 void Graphics::drawStringDirectAbsolute(const Graphic::Font &font, uint16_t posX, uint16_t posY, const String &string) const {
@@ -95,9 +96,11 @@ void Graphics::drawLineDirect(const Math::Vector2<double> &from, const Math::Vec
                            static_cast<uint16_t>(-to.getY() * transformation + offsetY));
 }
 
-void Graphics::drawRectangleDirect(const Math::Vector2<double> &position, double width, double height) const {
+void Graphics::drawRectangleDirect(const Math::Vector2<double> &position, const Math::Vector2<double> &size) const {
     const auto x = position.getX();
     const auto y = position.getY();
+    const auto width = size.getX();
+    const auto height = size.getY();
 
     drawLineDirect(position, Math::Vector2<double>(x + width, y));
     drawLineDirect(Math::Vector2<double>(x, y + height), Math::Vector2<double>(x + width, y + height));
@@ -106,12 +109,14 @@ void Graphics::drawRectangleDirect(const Math::Vector2<double> &position, double
 }
 
 void Graphics::drawSquareDirect(const Math::Vector2<double> &position, double size) const {
-    drawRectangleDirect(position, size, size);
+    drawRectangleDirect(position, Math::Vector2<double>(size, size));
 }
 
-void Graphics::fillRectangleDirect(const Math::Vector2<double> &position, double width, double height) const {
-    auto startX = static_cast<int32_t>(position.getX() * transformation + offsetX);
-    auto endX = static_cast<int32_t>((position.getX() + width) * transformation + offsetX);
+void Graphics::fillRectangleDirect(const Math::Vector2<double> &position, const Math::Vector2<double> &size) const {
+    const auto width = size.getX();
+    const auto height = size.getY();
+    const auto startX = static_cast<int32_t>(position.getX() * transformation + offsetX);
+    const auto endX = static_cast<int32_t>((position.getX() + width) * transformation + offsetX);
     auto startY = static_cast<int32_t>(-position.getY() * transformation + offsetY);
     auto endY = static_cast<int32_t>(-(position.getY() + height) * transformation + offsetY);
 
@@ -127,7 +132,7 @@ void Graphics::fillRectangleDirect(const Math::Vector2<double> &position, double
 }
 
 void Graphics::fillSquareDirect(const Math::Vector2<double> &position, double size) const {
-    fillRectangleDirect(position, size, size);
+    fillRectangleDirect(position, Math::Vector2<double>(size, size));
 }
 
 void Graphics::drawStringDirect(const Graphic::Font &font, const Math::Vector2<double> &position, const char *string) const {
@@ -159,12 +164,14 @@ void Graphics::drawPolygon2D(const Array<Math::Vector2<double>> &vertices) const
 }
 
 void Graphics::drawSquare2D(const Math::Vector2<double> &position, double size) const {
-    drawRectangle2D(position, size, size);
+    drawRectangle2D(position, Math::Vector2<double>(size, size));
 }
 
-void Graphics::drawRectangle2D(const Math::Vector2<double> &position, double width, double height) const {
-    auto x = position.getX();
-    auto y = position.getY();
+void Graphics::drawRectangle2D(const Math::Vector2<double> &position, const Math::Vector2<double> &size) const {
+    const auto x = position.getX();
+    const auto y = position.getY();
+    const auto width = size.getX();
+    const auto height = size.getY();
 
     drawLine2D(position, Math::Vector2<double>(x + width, y));
     drawLine2D(Math::Vector2<double>(x, y - height), Math::Vector2<double>(x + width, y - height));
@@ -173,17 +180,19 @@ void Graphics::drawRectangle2D(const Math::Vector2<double> &position, double wid
 }
 
 void Graphics::fillSquare2D(const Math::Vector2<double> &position, double size) const {
-    fillRectangle2D(position, size, size);
+    fillRectangle2D(position, Math::Vector2<double>(size, size));
 }
 
-void Graphics::fillRectangle2D(const Math::Vector2<double> &position, double width, double height) const {
-    auto startX = static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX);
-    auto endX = static_cast<int32_t>((position.getX() + width - camera.getPosition().getX()) * transformation + offsetX);
+void Graphics::fillRectangle2D(const Math::Vector2<double> &position, const Math::Vector2<double> &size) const {
+    const auto width = size.getX();
+    const auto height = size.getY();
+    const auto startX = static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX);
+    const auto endX = static_cast<int32_t>((position.getX() + width - camera.getPosition().getX()) * transformation + offsetX);
     auto startY = static_cast<int32_t>(-(position.getY() - camera.getPosition().getY()) * transformation + offsetY);
     auto endY = static_cast<int32_t>(-(position.getY() + height - camera.getPosition().getY()) * transformation + offsetY);
 
     if (startY > endY) {
-        int32_t temp = startY;
+        const int32_t temp = startY;
         startY = endY;
         endY = temp;
     }
@@ -219,7 +228,7 @@ void Graphics::drawImage2D(const Math::Vector2<double> &position, const Graphic:
     }
 }
 
-void Graphics::drawModel(const D3::Model &model) const {
+void Graphics::drawModel3D(const D3::Model &model) const {
     if (!glEnabled()) {
         Exception::throwException(Exception::ILLEGAL_STATE, "Graphics: OpenGL is not enabled");
     }
@@ -233,7 +242,7 @@ void Graphics::drawModel(const D3::Model &model) const {
     const auto &vertexDrawOrder = model.getVertexDrawOrder();
     const auto &normalDrawOrder = model.getNormalDrawOrder();
     const auto &textureDrawOrder = model.getTextureDrawOrder();
-    const auto textureID = model.getTextureID();
+    const auto textureID = model.getTexture().getTextureID();
 
     glPushMatrix();
 
@@ -263,7 +272,7 @@ void Graphics::drawModel(const D3::Model &model) const {
             glNormal3f(normal.getX(), normal.getY(), normal.getZ());
         }
 
-        if (textureID != 0 && textureCoordinates.length() > i) {
+        if (textureID != 0 && textureDrawOrder.length() > i) {
             const auto &textureCoordinate = textureCoordinates[textureDrawOrder[i]];
             glTexCoord2f(textureCoordinate.getX(), textureCoordinate.getY());
         }
@@ -280,15 +289,175 @@ void Graphics::drawModel(const D3::Model &model) const {
 
     glPopMatrix();
 }
+
+void Graphics::drawCuboid3D(const Math::Vector3<double> &position, const Math::Vector3<double> &size, const D3::Orientation &orientation, const D3::Texture &texture) const {
+    if (!glEnabled()) {
+        Exception::throwException(Exception::ILLEGAL_STATE, "Graphics: OpenGL is not enabled");
+    }
+
+    const auto width = size.getX();
+    const auto height = size.getY();
+    const auto depth = size.getZ();
+    const auto xLeft= -width / 2;
+    const auto yLeft= -height / 2;
+    const auto zLeft= depth / 2;
+    const auto textureID = texture.getTextureID();
+    const auto &rotation = orientation.getRotation();
+
+    glPushMatrix();
+
+    // Translate, Rotate
+    glTranslatef(position.getX(), position.getY(), position.getZ());
+    glRotatef(rotation.getX(), 0.0f, 0.0f, 1.0f);
+    glRotatef(rotation.getY(), 1.0f, 0.0f, 0.0f);
+    glRotatef(rotation.getZ(), 0.0f, 1.0f, 0.0f);
+
+    // Set color or color
+    if (textureID != 0) {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glColor3f(1.0f, 1.0f, 1.0f);
+    } else {
+        glColor3f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
+    }
+
+    // Draw cuboid
+    glBegin(GL_QUADS);
+
+    //Front-Face
+    glNormal3f(0.0f,0.0f,1.0f);
+    if (textureID != 0) glTexCoord2f(0.0f,0.0f);
+    glVertex3f(xLeft,yLeft,zLeft);
+    if (textureID != 0) glTexCoord2f(1.0f,0.0f);
+    glVertex3f(xLeft+width,yLeft,zLeft);
+    if (textureID != 0) glTexCoord2f(1.0f,1.0f);
+    glVertex3f(xLeft+width,yLeft+height,zLeft);
+    if (textureID != 0) glTexCoord2f(0.0f,1.0f);
+    glVertex3f(xLeft,yLeft+height,zLeft);
+    
+    //Back-Face 
+    glNormal3f(0.0f,0.0f,-1.0f);
+    if (textureID != 0) glTexCoord2f(0.0f,0.0f);
+    glVertex3f(xLeft,yLeft,zLeft-depth);
+    if (textureID != 0) glTexCoord2f(1.0f,0.0f);
+    glVertex3f(xLeft+width,yLeft,zLeft-depth);
+    if (textureID != 0) glTexCoord2f(1.0f,1.0f);
+    glVertex3f(xLeft+width,yLeft+height,zLeft-depth);
+    if (textureID != 0) glTexCoord2f(0.0f,1.0f);
+    glVertex3f(xLeft,yLeft+height,zLeft-depth);
+    
+    //Top-Face
+    glNormal3f(0.0f,1.0f,0.0f);
+    if (textureID != 0) glTexCoord2f(0.0f,0.0f);
+    glVertex3f(xLeft,yLeft+height,zLeft-depth);
+    if (textureID != 0) glTexCoord2f(1.0f,0.0f);
+    glVertex3f(xLeft+width,yLeft+height,zLeft-depth);
+    if (textureID != 0) glTexCoord2f(1.0f,1.0f);
+    glVertex3f(xLeft+width,yLeft+height,zLeft);
+    if (textureID != 0) glTexCoord2f(0.0f,1.0f);
+    glVertex3f(xLeft,yLeft+height,zLeft);
+
+    
+    //Down-Face
+    glNormal3f(0.0f,-1.0f,0.0f);
+    if (textureID != 0) glTexCoord2f(0.0f,0.0f);
+    glVertex3f(xLeft,yLeft,zLeft-depth);
+    if (textureID != 0) glTexCoord2f(1.0f,0.0f);
+    glVertex3f(xLeft+width,yLeft,zLeft-depth);
+    if (textureID != 0) glTexCoord2f(1.0f,1.0f);
+    glVertex3f(xLeft+width,yLeft,zLeft);
+    if (textureID != 0) glTexCoord2f(0.0f,1.0f);
+    glVertex3f(xLeft,yLeft,zLeft);
+    //Left-Face
+    glNormal3f(-1.0f,0.0f,0.0f);
+    if (textureID != 0) glTexCoord2f(0.0f,0.0f);
+    glVertex3f(xLeft,yLeft,zLeft);
+    if (textureID != 0) glTexCoord2f(1.0f,0.0f);
+    glVertex3f(xLeft,yLeft+height,zLeft);
+    if (textureID != 0) glTexCoord2f(1.0f,1.0f);
+    glVertex3f(xLeft,yLeft+height,zLeft-depth);
+    if (textureID != 0) glTexCoord2f(0.0f,1.0f);
+    glVertex3f(xLeft,yLeft,zLeft-depth);
+    //Right-Face
+    glNormal3f(1.0f,0.0f,0.0f);
+    if (textureID != 0) glTexCoord2f(0.0f,0.0f);
+    glVertex3f(xLeft+width,yLeft,zLeft);
+    if (textureID != 0) glTexCoord2f(1.0f,0.0f);
+    glVertex3f(xLeft+width,yLeft+height,zLeft);
+    if (textureID != 0) glTexCoord2f(1.0f,1.0f);
+    glVertex3f(xLeft+width,yLeft+height,zLeft-depth);
+    if (textureID != 0) glTexCoord2f(0.0f,1.0f);
+    glVertex3f(xLeft+width,yLeft,zLeft-depth);
+
+    glEnd();
+
+    // Disable texture (if enabled)
+    if (textureID != 0) {
+        glDisable(GL_TEXTURE_2D);
+    }
+    glPopMatrix();
+}
+
+void Graphics::drawRectangle3D(const Math::Vector3<double> &position, const Math::Vector2<double> &size, const D3::Orientation &orientation, const D3::Texture &texture) const {
+    const auto xLeft = -size.getX() / 2;
+    const auto yLeft = -size.getY() / 2;
+    const auto z = static_cast<float>(position.getZ());
+    const auto width = size.getX();
+    const auto height = size.getY();
+    const auto textureID = texture.getTextureID();
+    const auto &rotation = orientation.getRotation();
+
+    glPushMatrix();
+
+    // Translate, Rotate
+    glTranslatef(position.getX(), position.getY(), position.getZ());
+    glRotatef(rotation.getX(), 0.0f, 0.0f, 1.0f);
+    glRotatef(rotation.getY(), 1.0f, 0.0f, 0.0f);
+    glRotatef(rotation.getZ(), 0.0f, 1.0f, 0.0f);
+
+    // Set color or color
+    if (textureID != 0) {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glColor3f(1.0f, 1.0f, 1.0f);
+    } else {
+        glColor3f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
+    }
+
+    glBegin(GL_QUADS);
+    glNormal3f(0.0f, 0.0f, 1.0f);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(xLeft, yLeft, z);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(xLeft + width, yLeft, z);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(xLeft + width, yLeft + height, z);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(xLeft, yLeft + height, z);
+    glEnd();
+
+    // Disable texture (if enabled)
+    if (textureID != 0) {
+        glDisable(GL_TEXTURE_2D);
+    }
+    glPopMatrix();
+}
+
 void Graphics::initializeGl() {
     glBuffer = ZB_open(bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY(), ZB_MODE_RGBA, reinterpret_cast<void*>(bufferedLfb.getBuffer().get()));
     glInit(glBuffer);
 
+    const auto &scene = reinterpret_cast<D3::Scene&>(game.getCurrentScene());
     const auto width = static_cast<GLdouble>(bufferedLfb.getResolutionX());
     const auto height = static_cast<GLdouble>(bufferedLfb.getResolutionY());
 
-    // Set clear color to black
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    // Set clear color
+    auto &clearColor = scene.getBackgroundColor();
+    glClearColor(clearColor.getRed() / 255.0f, clearColor.getGreen() / 255.0f, clearColor.getBlue() / 255.0f, 1.0f);
 
     // Set up the view port to match the resolution of the frame buffer
     glViewport(0, 0, bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY());
@@ -299,7 +468,7 @@ void Graphics::initializeGl() {
     gluPerspective(45.0,             // Camera angle
                    width / height,   // Width to height ratio
                    1.0,              // Near z-clipping coordinate (Object nearer than that will not be drawn)
-                   10000.0);         // Far z-clipping coordinate (Object farther than that will not be drawn)
+                   10000.0);    // Far z-clipping coordinate (Object farther than that will not be drawn)
 
     // Enable required OpenGL features
     glEnable(GL_DEPTH_TEST); // Depth testing to make sure the shapes are drawn in the correct order
@@ -308,7 +477,6 @@ void Graphics::initializeGl() {
     glEnable(GL_NORMALIZE); // Automatically normalize normals
 
     // Set shade model and render style
-    const auto &scene = reinterpret_cast<D3::Scene&>(game.getCurrentScene());
     glShadeModel(scene.getGlShadeModel());
     glPolygonMode(GL_FRONT_AND_BACK, scene.getGlRenderStyle());
 }
@@ -407,7 +575,7 @@ void Graphics::update() {
         glLoadIdentity();
 
         // Set camera position and rotation
-        glRotatef(camera.getRotation().getZ(), worldUpVecotor.getX(), worldUpVecotor.getY(), worldUpVecotor.getZ()); // Yaw
+        glRotatef(camera.getRotation().getZ(), D3::Orientation::WORLD_UP.getX(), D3::Orientation::WORLD_UP.getY(), D3::Orientation::WORLD_UP.getZ()); // Yaw
         glRotatef(camera.getRotation().getY(), camera.getRightVector().getX(), camera.getRightVector().getY(), camera.getRightVector().getZ()); // Pitch
         glTranslatef(-camera.getPosition().getX(), -camera.getPosition().getY(), -camera.getPosition().getZ()); // Position
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2025 Heinrich-Heine-Universitaet Duesseldorf,
+* Copyright (C) 2018-2025 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -14,58 +14,45 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
- * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
- *
- * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
- * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ * The OpenGL demo has been created during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
-#ifndef HHUOS_ENTITY_H
-#define HHUOS_ENTITY_H
+#ifndef DEMOMODEL_H
+#define DEMOMODEL_H
 
-#include <stdint.h>
+#include "lib/util/game/3d/Model.h"
+#include "lib/util/graphic/Color.h"
+#include "lib/util/math/Vector3.h"
 
-#include "Drawable.h"
-
-namespace Util::Game {
-
-class Entity : public Drawable {
+class DemoModel : public Util::Game::D3::Model {
 
 public:
     /**
      * Constructor.
      */
-    explicit Entity(uint32_t tag);
+    DemoModel(const Util::String &modelPath, const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, const Util::Math::Vector3<double> &scale, const Util::Graphic::Color &color);
 
     /**
      * Copy Constructor.
      */
-    Entity(const Entity &other) = delete;
+    DemoModel(const DemoModel &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Entity &operator=(const Entity &other) = delete;
+    DemoModel &operator=(const DemoModel &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Entity() override = default;
+    ~DemoModel() override = default;
 
-    virtual void initialize() = 0;
+    void onUpdate(double delta) override;
 
-    virtual void onUpdate(double delta) = 0;
-
-    [[nodiscard]] virtual bool isParticle() const;
-
-    [[nodiscard]] uint32_t getTag() const;
-
-private:
-
-    uint32_t tag;
+    void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
 };
 
-}
+
 
 #endif

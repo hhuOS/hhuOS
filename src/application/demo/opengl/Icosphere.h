@@ -14,58 +14,43 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
- * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
- *
- * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
- * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ * The OpenGL demo has been created during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
-#ifndef HHUOS_SCENE_2D_H
-#define HHUOS_SCENE_2D_H
+#ifndef ICOSPHERE_H
+#define ICOSPHERE_H
 
-#include "lib/util/game/Scene.h"
+#include "DemoModel.h"
 
-namespace Util {
-namespace Game {
-class Graphics;
-}  // namespace Game
-}  // namespace Util
-
-namespace Util::Game::D2 {
-
-class Scene : public Util::Game::Scene {
+class Icosphere : public Util::Game::D3::Model {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    Scene() = default;
+    Icosphere(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &scale);
 
     /**
      * Copy Constructor.
      */
-    Scene(const Scene &other) = delete;
+    Icosphere(const Icosphere &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Scene &operator=(const Scene &other) = delete;
+    Icosphere &operator=(const Icosphere &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Scene() override = default;
+    ~Icosphere() override = default;
 
-    void initializeScene(Graphics &graphics) final;
+    void onUpdate(double delta) override;
 
-    void updateEntities(double delta) final;
-
-    void checkCollisions() final;
-
-    virtual void initializeBackground(Graphics &graphics) = 0;
+    void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
 };
 
-}
+
 
 #endif

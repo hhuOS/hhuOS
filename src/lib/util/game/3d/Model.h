@@ -31,6 +31,7 @@
 
 #include "lib/util/graphic/Color.h"
 #include "Entity.h"
+#include "Texture.h"
 #include "lib/util/base/String.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/tinygl/include/GL/gl.h"
@@ -94,14 +95,14 @@ public:
 
     [[nodiscard]] const Array<uint32_t>& getTextureDrawOrder() const;
 
-    [[nodiscard]] GLuint getTextureID() const;
+    [[nodiscard]] const Texture& getTexture() const;
 
 private:
 
     String modelPath;
     String texturePath;
 
-    GLuint textureID = 0;
+    Texture texture;
     const Graphic::Color color = Graphic::Color(255, 255, 255);
 
     ObjectFile *objectFile = nullptr;

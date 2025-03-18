@@ -31,6 +31,7 @@
 
 #include <stdint.h>
 
+#include "Orientation.h"
 #include "lib/util/math/Vector3.h"
 #include "lib/util/game/3d/collider/SphereCollider.h"
 
@@ -78,7 +79,17 @@ public:
 
     void translateLocal(const Math::Vector3<double> &translation);
 
+    [[nodiscard]] const Orientation& getOrientation() const;
+
+    [[nodiscard]] const Math::Vector3<double>& getUpVector() const;
+
+    [[nodiscard]] const Math::Vector3<double>& getRightVector() const;
+
+    [[nodiscard]] const Math::Vector3<double>& getFrontVector() const;
+
     [[nodiscard]] const Math::Vector3<double>& getRotation() const;
+
+    void setFrontVector(const Math::Vector3<double> &front);
 
     void setRotation(const Math::Vector3<double> &angle);
 
@@ -97,8 +108,8 @@ private:
     void update(double delta);
 
     Math::Vector3<double> position{};
-    Math::Vector3<double> rotation{};
     Math::Vector3<double> scale{1, 1, 1};
+    Orientation orientation;
 
     bool colliderPresent = false;
     SphereCollider collider;

@@ -37,6 +37,11 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/demo/mouse/Logo.cpp
         ${HHUOS_SRC_DIR}/application/demo/mouse/MouseCursor.cpp
         ${HHUOS_SRC_DIR}/application/demo/mouse/MouseDemo.cpp
+        ${HHUOS_SRC_DIR}/application/demo/opengl/Cuboid.cpp
+        ${HHUOS_SRC_DIR}/application/demo/opengl/DemoModel.cpp
+        ${HHUOS_SRC_DIR}/application/demo/opengl/Icosphere.cpp
+        ${HHUOS_SRC_DIR}/application/demo/opengl/Rectangle.cpp
+        ${HHUOS_SRC_DIR}/application/demo/opengl/OpenGLDemo.cpp
         ${HHUOS_SRC_DIR}/application/demo/particles/Dino.cpp
         ${HHUOS_SRC_DIR}/application/demo/particles/DropletEmitter.cpp
         ${HHUOS_SRC_DIR}/application/demo/particles/Ground.cpp

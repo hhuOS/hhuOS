@@ -53,49 +53,13 @@ void Model::initialize() {
     objectFile = ResourceManager::getObjectFile(modelPath);
 
     if (!texturePath.isEmpty()) {
-        if (!ResourceManager::hasTexture(texturePath)) {
-            const auto *image = Graphic::BitmapFile::open(texturePath);
-            const auto *imagePixels = image->getPixelBuffer();
-
-            // The Image class stores pixels as an array of the struct 'Color'.
-            // We need to convert this to an array of bytes in the RGB format (24-bit).
-            auto *textureData = new uint8_t[image->getWidth() * image->getHeight() * 3];
-            for (uint32_t i = 0; i < image->getWidth() * image->getHeight(); i++) {
-                auto color = imagePixels[i];
-                textureData[i * 3] = color.getRed();
-                textureData[i * 3 + 1] = color.getGreen();
-                textureData[i * 3 + 2] = color.getBlue();
-            }
-
-            // Generate the OpenGL texture
-            GLuint textureID;
-            glGenTextures(1, &textureID); // Generate a texture ID
-            glBindTexture(GL_TEXTURE_2D, textureID); // Tell OpenGL which texture to edit
-            glTexImage2D(GL_TEXTURE_2D, // Type of texture
-                0,                      // Mipmap level, 0 for base
-                3,                      // Number of color components in texture
-                image->getWidth(),      // Width of the texture
-                image->getHeight(),     // Height of the texture
-                0,                      // Border width in pixels
-                GL_RGB,                 // Format of pixel data
-                GL_UNSIGNED_BYTE,       // Type of pixel data
-                textureData);           // Pointer to the image data
-
-            // The texture data is now stored by OpenGL, we can delete our copy
-            delete image;
-            delete[] textureData;
-
-            // Add texture to the ResourceManager
-            ResourceManager::addTexture(texturePath, textureID);
-        }
-
-        textureID = ResourceManager::getTexture(texturePath);
+        texture = Texture(texturePath);
     }
 }
 
 void Model::draw(Graphics &graphics) {
     graphics.setColor(color);
-    graphics.drawModel(*this);
+    graphics.drawModel3D(*this);
 }
 
 const Array<Math::Vector3<double>> &Model::getVertices() const {
@@ -122,8 +86,8 @@ const Array<uint32_t> &Model::getTextureDrawOrder() const {
     return objectFile->getTextureDrawOrder();
 }
 
-GLuint Model::getTextureID() const {
-    return textureID;
+const Texture& Model::getTexture() const {
+    return texture;
 }
 
 }

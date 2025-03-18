@@ -70,8 +70,6 @@ private:
 
     Player *player = nullptr;
     double lifetime = 0;
-
-    Util::Math::Vector3<double> direction;
 };
 
 #endif

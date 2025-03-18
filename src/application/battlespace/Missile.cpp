@@ -30,10 +30,14 @@
 #include "lib/util/base/String.h"
 
 Missile::Missile(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &direction, Player &player) :
-    Util::Game::D3::Model(TAG, "/user/battlespace/missile.obj", position, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0.2, 0.2, 0.2), Util::Graphic::Colors::RED), player(&player), direction(direction) {}
+    Model(TAG, "/user/battlespace/missile.obj", position, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0.2, 0.2, 0.2), Util::Graphic::Colors::RED), player(&player) {
+    setFrontVector(direction);
+}
 
 Missile::Missile(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &direction) :
-    Util::Game::D3::Model(TAG, "/user/battlespace/missile.obj", position, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0.2, 0.2, 0.2), Util::Graphic::Colors::GREEN), direction(direction) {}
+    Model(TAG, "/user/battlespace/missile.obj", position, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0.2, 0.2, 0.2), Util::Graphic::Colors::GREEN) {
+    setFrontVector(direction);
+}
 
 void Missile::onUpdate(double delta) {
     if (lifetime > 5) {
@@ -42,12 +46,12 @@ void Missile::onUpdate(double delta) {
         lifetime += delta;
 
         auto speed = lifetime < START_SPEED_TIME ? START_SPEED : FULL_SPEED;
-        translate(direction * speed * delta * 60);
+        translate(getFrontVector() * speed * delta * 60);
     }
 }
 
 void Missile::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {
-    if (event.getCollidedWidth().getTag() == Missile::TAG && player != nullptr) {
+    if (event.getCollidedWidth().getTag() == TAG && player != nullptr) {
         player->addScore(250);
     }
 

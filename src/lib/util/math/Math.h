@@ -73,9 +73,9 @@ namespace Util::Math {
 
     double arctangent(double value, double divisor = 1);
 
-	float arctangent2(float x, float y);
+	float arctangent2(float y, float x);
 
-	double arctangent2(double x, double y);
+	double arctangent2(double y, double x);
 
     float arcsine(float value);
 

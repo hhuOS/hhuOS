@@ -40,15 +40,15 @@ const Math::Vector3<double>& Camera::getPosition() const {
 }
 
 const Math::Vector3<double>& Camera::getRotation() const {
-    return rotation;
+    return orientation.getRotation();
 }
 
-const Math::Vector3<double>& Camera::getTargetVector() const {
-    return targetVector;
+const Math::Vector3<double>& Camera::getFrontVector() const {
+    return orientation.getFront();
 }
 
 const Math::Vector3<double>& Camera::getRightVector() const {
-    return rightVector;
+    return orientation.getRight();
 }
 
 void Camera::setPosition(const Math::Vector3<double> &position) {
@@ -60,13 +60,7 @@ void Camera::setPosition(const Math::Vector2<double> &position) {
 }
 
 void Camera::setRotation(const Math::Vector3<double> &angle) {
-    rotation = angle % 360;
-
-    targetVector = Util::Math::Vector3<double>(
-            Util::Math::sine(Util::Math::toRadians(rotation.getZ())) * Util::Math::cosine(Util::Math::toRadians(rotation.getY())),
-            Util::Math::sine(Util::Math::toRadians(rotation.getY())),
-            -Util::Math::cosine(Util::Math::toRadians(rotation.getZ())) * Util::Math::cosine(Util::Math::toRadians(rotation.getY()))).normalize();
-    rightVector = targetVector.cross(Util::Math::Vector3<double>(0, 1, 0)).normalize();
+    orientation.setRotation(angle);
 }
 
 void Camera::translate(const Math::Vector3<double> &translation) {
@@ -74,15 +68,12 @@ void Camera::translate(const Math::Vector3<double> &translation) {
 }
 
 void Camera::rotate(const Math::Vector3<double> &angle) {
-    setRotation(rotation + angle);
+    orientation.rotate(angle);
 }
 
 void Camera::reset() {
     position = { 0.0, 0.0, 0.0 };
-    rotation = { 0.0, 0.0, 0.0 };
-
-    targetVector = { 0.0, 0.0, -1.0 };
-    rightVector = { 1.0f, 0.0f, 0.0f };
+    orientation.reset();
 }
 
 }

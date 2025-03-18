@@ -13,57 +13,49 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
- *
- * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
- * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
-#ifndef HHUOS_SCENE_2D_H
-#define HHUOS_SCENE_2D_H
+#ifndef TEXTURE_H
+#define TEXTURE_H
 
-#include "lib/util/game/Scene.h"
+#include "lib/util/base/String.h"
+#include "lib/tinygl/include/GL/gl.h"
 
-namespace Util {
-namespace Game {
-class Graphics;
-}  // namespace Game
-}  // namespace Util
+namespace Util::Game::D3 {
 
-namespace Util::Game::D2 {
-
-class Scene : public Util::Game::Scene {
+class Texture {
 
 public:
     /**
      * Default Constructor.
      */
-    Scene() = default;
+    Texture() = default;
+
+    /**
+     * Constructor.
+     */
+    explicit Texture(const String &path);
 
     /**
      * Copy Constructor.
      */
-    Scene(const Scene &other) = delete;
+    Texture(const Texture &other) = default;
 
     /**
      * Assignment operator.
      */
-    Scene &operator=(const Scene &other) = delete;
+    Texture &operator=(const Texture &other) = default;
 
     /**
      * Destructor.
      */
-    ~Scene() override = default;
+    ~Texture() = default;
 
-    void initializeScene(Graphics &graphics) final;
+    [[nodiscard]] GLuint getTextureID() const;
 
-    void updateEntities(double delta) final;
+private:
 
-    void checkCollisions() final;
-
-    virtual void initializeBackground(Graphics &graphics) = 0;
+    GLuint textureID = 0;
 };
 
 }

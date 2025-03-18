@@ -96,7 +96,7 @@ void BattleSpaceGame::update(double delta) {
 
         camera.setRotation(Util::Math::Vector3<double>(newRotation.getX(), newPitch, newRotation.getZ()));
 
-        auto translation = inputTranslation + camera.getTargetVector() * player->getSpeed();
+        auto translation = inputTranslation + camera.getFrontVector() * player->getSpeed();
         camera.translate(translation * delta);
 
         player->setPosition(camera.getPosition());
@@ -129,28 +129,28 @@ void BattleSpaceGame::keyPressed(const Util::Io::Key &key) {
             break;
         case Util::Io::Key::LEFT:
             inputRotation = Util::Math::Vector3<double>(inputRotation.getX(), inputRotation.getY(), -1);
-            break;
+        break;
         case Util::Io::Key::RIGHT:
             inputRotation = Util::Math::Vector3<double>(inputRotation.getX(), inputRotation.getY(), 1);
-            break;
+        break;
         case Util::Io::Key::UP:
             inputRotation = Util::Math::Vector3<double>(inputRotation.getX(), 1, inputRotation.getZ());
-            break;
+        break;
         case Util::Io::Key::DOWN:
             inputRotation = Util::Math::Vector3<double>(inputRotation.getX(), -1, inputRotation.getZ());
-            break;
+        break;
         case Util::Io::Key::W:
-            inputTranslation = Util::Math::Vector3<double>(0, 1, 0);
-            break;
+            inputTranslation = Util::Math::Vector3<double>(inputTranslation.getX(), 1, inputTranslation.getZ());
+        break;
         case Util::Io::Key::S:
-            inputTranslation = Util::Math::Vector3<double>(0, -1, 0);
-            break;
+            inputTranslation = Util::Math::Vector3<double>(inputTranslation.getX(), -1, inputTranslation.getZ());
+        break;
         case Util::Io::Key::A:
-            inputTranslation = camera.getRightVector() * -1;
-            break;
+            inputTranslation = Util::Math::Vector3<double>(-1, inputTranslation.getY(), inputTranslation.getZ());
+        break;
         case Util::Io::Key::D:
-            inputTranslation = camera.getRightVector();
-            break;
+            inputTranslation = Util::Math::Vector3<double>(1, inputTranslation.getY(), inputTranslation.getZ());
+        break;
         case Util::Io::Key::Q:
             inputSpeed -= 0.1;
             if (inputSpeed < -1) inputSpeed = -1;
@@ -161,12 +161,12 @@ void BattleSpaceGame::keyPressed(const Util::Io::Key &key) {
             break;
         case Util::Io::Key::SPACE:
             if (player->mayFireMissile()) {
-                addObject(new Missile(player->getPosition() + camera.getTargetVector() * 2, camera.getTargetVector()));
+                addObject(new Missile(player->getPosition() + camera.getFrontVector() * 2, camera.getFrontVector()));
             }
             break;
 
         case Util::Io::Key::ENTER: {
-            auto *enemy = new Enemy(*player, enemies, camera.getPosition() + camera.getTargetVector() * 10, Util::Math::Vector3<double>(0, 0, 0), 1, Enemy::Type::STATIONARY);
+            auto *enemy = new Enemy(*player, enemies, camera.getPosition() + camera.getFrontVector() * 10, Util::Math::Vector3<double>(0, 0, 0), 1, Enemy::Type::STATIONARY);
             enemies.add(enemy);
             addObject(enemy);
         }
@@ -180,23 +180,19 @@ void BattleSpaceGame::keyReleased(const Util::Io::Key &key) {
         case Util::Io::Key::LEFT:
         case Util::Io::Key::RIGHT:
             inputRotation = Util::Math::Vector3<double>(inputRotation.getX(), inputRotation.getY(), 0);
-            break;
+        break;
         case Util::Io::Key::UP:
         case Util::Io::Key::DOWN:
             inputRotation = Util::Math::Vector3<double>(inputRotation.getX(), 0, inputRotation.getZ());
-            break;
+        break;
         case Util::Io::Key::W:
-            inputTranslation = inputTranslation - Util::Math::Vector3<double>(0, 1, 0);
-            break;
         case Util::Io::Key::S:
-            inputTranslation = inputTranslation + Util::Math::Vector3<double>(0, 1, 0);
-            break;
+            inputTranslation = Util::Math::Vector3<double>(inputTranslation.getX(), 0, inputTranslation.getZ());
+        break;
         case Util::Io::Key::A:
-            inputTranslation = inputTranslation + camera.getRightVector();
-            break;
         case Util::Io::Key::D:
-            inputTranslation = inputTranslation - camera.getRightVector();
-            break;
+            inputTranslation = Util::Math::Vector3<double>(0, inputTranslation.getY(), inputTranslation.getZ());
+        break;
         default:
             break;
     }

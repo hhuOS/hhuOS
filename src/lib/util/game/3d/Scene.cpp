@@ -157,4 +157,13 @@ void Scene::setLightEnabled(bool enabled) {
     }
 }
 
+const Graphic::Color& Scene::getBackgroundColor() const {
+    return backgroundColor;
+}
+
+void Scene::setBackgroundColor(const Graphic::Color &backgroundColor) {
+    Scene::backgroundColor = backgroundColor;
+    glClearColor(backgroundColor.getRed() / 255.0f, backgroundColor.getGreen() / 255.0f, backgroundColor.getBlue() / 255.0f, 1.0f);
+}
+
 }

@@ -14,58 +14,52 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
- * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
- *
- * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
- * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ * The OpenGL demo has been created during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
-#ifndef HHUOS_SCENE_2D_H
-#define HHUOS_SCENE_2D_H
+#ifndef OPENGLDEMO_H
+#define OPENGLDEMO_H
 
-#include "lib/util/game/Scene.h"
+#include <lib/util/game/KeyListener.h>
 
-namespace Util {
-namespace Game {
-class Graphics;
-}  // namespace Game
-}  // namespace Util
+#include "lib/util/game/3d/Scene.h"
 
-namespace Util::Game::D2 {
-
-class Scene : public Util::Game::Scene {
+class OpenGLDemo : public Util::Game::D3::Scene, public Util::Game::KeyListener {
 
 public:
     /**
      * Default Constructor.
      */
-    Scene() = default;
+    OpenGLDemo() = default;
 
     /**
      * Copy Constructor.
      */
-    Scene(const Scene &other) = delete;
+    OpenGLDemo(const OpenGLDemo &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Scene &operator=(const Scene &other) = delete;
+    OpenGLDemo &operator=(const OpenGLDemo &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Scene() override = default;
+    ~OpenGLDemo() override = default;
 
-    void initializeScene(Graphics &graphics) final;
+    void initialize() override;
 
-    void updateEntities(double delta) final;
+    void update(double delta) override;
 
-    void checkCollisions() final;
+    void keyPressed(const Util::Io::Key &key) override;
 
-    virtual void initializeBackground(Graphics &graphics) = 0;
+    void keyReleased(const Util::Io::Key &key) override;
+
+private:
+
+    Util::Math::Vector3<double> cameraRotation = Util::Math::Vector3<double>(0, 0, 0);
+    Util::Math::Vector3<double> cameraTranslation = Util::Math::Vector3<double>(0, 0, 0);
 };
-
-}
 
 #endif

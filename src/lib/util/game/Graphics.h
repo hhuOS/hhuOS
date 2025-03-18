@@ -41,6 +41,7 @@
 #include "lib/util/math/Vector3.h"
 #include "lib/util/math/Vector2.h"
 #include "Camera.h"
+#include "3d/Texture.h"
 #include "lib/tinygl/include/GL/gl.h"
 
 namespace Util {
@@ -104,11 +105,11 @@ public:
 
     void drawLineDirect(const Math::Vector2<double> &from, const Math::Vector2<double> &to) const;
 
-    void drawRectangleDirect(const Math::Vector2<double> &position, double width, double height) const;
+    void drawRectangleDirect(const Math::Vector2<double> &position, const Math::Vector2<double> &size) const;
 
     void drawSquareDirect(const Math::Vector2<double> &position, double size) const;
 
-    void fillRectangleDirect(const Math::Vector2<double> &position, double width, double height) const;
+    void fillRectangleDirect(const Math::Vector2<double> &position, const Math::Vector2<double> &size) const;
 
     void fillSquareDirect(const Math::Vector2<double> &position, double size) const;
 
@@ -124,11 +125,11 @@ public:
 
     void drawSquare2D(const Math::Vector2<double> &position, double size) const;
 
-    void drawRectangle2D(const Math::Vector2<double> &position, double width, double height) const;
+    void drawRectangle2D(const Math::Vector2<double> &position, const Math::Vector2<double> &size) const;
 
     void fillSquare2D(const Math::Vector2<double> &position, double size) const;
 
-    void fillRectangle2D(const Math::Vector2<double> &position, double width, double height) const;
+    void fillRectangle2D(const Math::Vector2<double> &position, const Math::Vector2<double> &size) const;
 
     void drawString2D(const Graphic::Font &font, const Math::Vector2<double> &position, const char *string) const;
 
@@ -138,7 +139,11 @@ public:
 
     /***** 3D drawing functions *****/
 
-    void drawModel(const D3::Model &model) const;
+    void drawModel3D(const D3::Model &model) const;
+
+    void drawCuboid3D(const Math::Vector3<double> &position, const Math::Vector3<double> &size, const D3::Orientation &orientation, const D3::Texture &texture = D3::Texture()) const;
+
+    void drawRectangle3D(const Math::Vector3<double> &position, const Math::Vector2<double> &size, const D3::Orientation &orientation, const D3::Texture &texture = D3::Texture()) const;
 
     /***** Miscellaneous *****/
 
@@ -186,7 +191,6 @@ private:
 
     Graphic::Color color = Graphic::Colors::WHITE;
 
-    const Math::Vector3<double> worldUpVecotor = Math::Vector3<double>(0, 1, 0);
     Camera camera;
 };
 

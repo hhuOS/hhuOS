@@ -19,51 +19,65 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
-#ifndef HHUOS_SCENE_2D_H
-#define HHUOS_SCENE_2D_H
+#ifndef ORIENTATION_H
+#define ORIENTATION_H
 
-#include "lib/util/game/Scene.h"
+#include "lib/util/math/Vector3.h"
 
-namespace Util {
-namespace Game {
-class Graphics;
-}  // namespace Game
-}  // namespace Util
+namespace Util::Game::D3 {
 
-namespace Util::Game::D2 {
-
-class Scene : public Util::Game::Scene {
+class Orientation {
 
 public:
     /**
      * Default Constructor.
      */
-    Scene() = default;
+    Orientation();
 
     /**
      * Copy Constructor.
      */
-    Scene(const Scene &other) = delete;
+    Orientation(const Orientation &other) = default;
 
     /**
      * Assignment operator.
      */
-    Scene &operator=(const Scene &other) = delete;
+    Orientation &operator=(const Orientation &other) = default;
 
     /**
      * Destructor.
      */
-    ~Scene() override = default;
+    ~Orientation() = default;
 
-    void initializeScene(Graphics &graphics) final;
+    void setRotation(const Math::Vector3<double> &angle);
 
-    void updateEntities(double delta) final;
+    void rotate(const Math::Vector3<double> &angle);
 
-    void checkCollisions() final;
+    void reset();
 
-    virtual void initializeBackground(Graphics &graphics) = 0;
+    [[nodiscard]] const Math::Vector3<double>& getRotation() const;
+
+    [[nodiscard]] const Math::Vector3<double>& getUp() const;
+
+    [[nodiscard]] const Math::Vector3<double>& getRight() const;
+
+    [[nodiscard]] const Math::Vector3<double>& getFront() const;
+
+    void setFront(const Math::Vector3<double> &front);
+
+    static const Math::Vector3<double> WORLD_UP;
+
+private:
+
+    Math::Vector3<double> rotation;
+    Math::Vector3<double> up;
+    Math::Vector3<double> right;
+    Math::Vector3<double> front;
 };
 
 }

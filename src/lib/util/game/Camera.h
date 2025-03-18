@@ -27,6 +27,7 @@
 #ifndef HHUOS_CAMERA_H
 #define HHUOS_CAMERA_H
 
+#include "3d/Orientation.h"
 #include "lib/util/math/Vector3.h"
 
 namespace Util {
@@ -64,7 +65,7 @@ public:
 
     [[nodiscard]] const Math::Vector3<double>& getRotation() const;
 
-    [[nodiscard]] const Math::Vector3<double>& getTargetVector() const;
+    [[nodiscard]] const Math::Vector3<double>& getFrontVector() const;
 
     [[nodiscard]] const Math::Vector3<double>& getRightVector() const;
 
@@ -83,11 +84,7 @@ public:
 private:
 
     Math::Vector3<double> position;
-    Math::Vector3<double> rotation;
-
-    Math::Vector3<double> targetVector;
-    Math::Vector3<double> rightVector;
-
+    D3::Orientation orientation;
 };
 
 }

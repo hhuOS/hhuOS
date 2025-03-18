@@ -123,6 +123,10 @@ Assets for the bug defender game have been taken from [itch.io](https://itch.io)
 Assets for the battlespace game have been taken from [itch.io](https://itch.io):
 - [Lowpoly - 3D Space Assets Pack](https://ejgarner118.itch.io/spacepack) by [*ejgarner118*](https://ejgarner118.itch.io/)
 
+3D-demo assets haven been taken from [itch.io](https://itch.io):
+- [Spaceship](https://psionicgames.itch.io/low-poly-space-ship-pack) by [*Psionic Games*](http://www.psionicgames.com/)
+- [Low Poly Foliage Pack](https://emerald-eel-entertainment.itch.io/low-poly-foliage-pack-001) by [*Emerald Eel Entertainment*](https://emerald-eel-entertainment.itch.io/)
+
 Assets for the mouse demo haven been taken from [Icons8](https://icons8.com/).
 
 Music for the SoundBlaster demo has been taken from [Bensound](https://www.bensound.com/royalty-free-music):

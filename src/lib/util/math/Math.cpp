@@ -352,7 +352,7 @@ double arctangent(double value, double divisor) {
     return result;
 }
 
-float arctangent2(float x, float y) {
+float arctangent2(float y, float x) {
     if (x > 0) {
         return arctangent(y / x);
     }
@@ -372,7 +372,7 @@ float arctangent2(float x, float y) {
     return 0; // x == 0 && y == 0
 }
 
-double arctangent2(double x, double y) {
+double arctangent2(double y, double x) {
     if (x > 0) {
         return arctangent(y / x);
     }

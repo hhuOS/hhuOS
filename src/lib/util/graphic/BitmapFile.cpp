@@ -44,11 +44,13 @@ BitmapFile* BitmapFile::open(const String &path) {
         Exception::throwException(Exception::UNSUPPORTED_OPERATION, "BitmapFile: Unsupported color depth");
     }
 
+    auto padding = (4 - ((bitmapWidth * pixelLength) % 4)) % 4;
     auto bitmap = buffer + dataOffset;
     auto *pixelBuffer = new Graphic::Color[bitmapWidth * bitmapHeight];
-    for (auto y = bitmapHeight - 1; y >= 0; y--) {
+
+    for (auto y = 0; y < bitmapHeight; y++) {
         for (auto x = 0; x < bitmapWidth; x++) {
-            uint32_t pos = (y * bitmapWidth * pixelLength) + (pixelLength * x);
+            uint32_t pos = (y * bitmapWidth * pixelLength) + (pixelLength * x) + y * padding;
 
             auto blue = *(bitmap + pos);
             auto green = *(bitmap + pos + 1);

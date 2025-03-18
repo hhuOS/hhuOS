@@ -78,11 +78,11 @@ public:
      */
     ~Scene() override = default;
 
-    void initializeScene(Graphics &graphics) override;
+    void initializeScene(Graphics &graphics) final;
 
-    void updateEntities(double delta) override;
+    void updateEntities(double delta) final;
 
-    void checkCollisions() override;
+    void checkCollisions() final;
 
     void setAmbientLight(const Graphic::Color &ambientLight);
 
@@ -110,7 +110,13 @@ public:
 
     void setLightEnabled(bool enabled);
 
+    [[nodiscard]] const Graphic::Color &getBackgroundColor() const;
+
+    void setBackgroundColor(const Graphic::Color &backgroundColor);
+
 private:
+
+    Graphic::Color backgroundColor = Graphic::Colors::BLACK;
 
     bool lightEnabled = true;
     Graphic::Color ambientLight = Graphic::Colors::WHITE.dim();
