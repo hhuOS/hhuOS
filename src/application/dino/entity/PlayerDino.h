@@ -130,8 +130,6 @@ private:
     Util::Game::D2::SpriteAnimation hatchAnimation;
     Util::Game::D2::SpriteAnimation deathAnimation;
 
-    const Util::Graphic::Font &pointsFont;
-
     GrassEmitter *grassEmitter = new GrassEmitter(*this);
     Util::Time::Timestamp lastEmissionTime;
 

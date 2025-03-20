@@ -39,9 +39,7 @@
 #include "application/dino/GameOverScreen.h"
 #include "lib/util/graphic/Font.h"
 
-PlayerDino::PlayerDino(const Util::Math::Vector2<double> &position) :
-        Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE * 1.133), Util::Game::Collider::DYNAMIC)),
-        pointsFont(Util::Graphic::Font::getFontForResolution(static_cast<uint32_t>(Util::Game::GameManager::getAbsoluteResolution().getY()))) {
+PlayerDino::PlayerDino(const Util::Math::Vector2<double> &position) : Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE * 1.133), Util::Game::Collider::DYNAMIC)) {
     Util::Game::GameManager::getCurrentScene().addObject(grassEmitter);
 }
 
@@ -177,7 +175,7 @@ void PlayerDino::draw(Util::Game::Graphics &graphics) {
     currentAnimation->draw(graphics, getPosition());
 
     graphics.setColor(Util::Graphic::Colors::GREEN);
-    graphics.drawStringDirectAbsolute(pointsFont, 10, 10, Util::String::format("Points: %u", points));
+    graphics.drawStringDirectAbsolute(10, 10, Util::String::format("Points: %u", points));
 }
 
 void PlayerDino::die() {

@@ -50,13 +50,12 @@ void MouseCursor::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
 void MouseCursor::onCollisionEvent([[maybe_unused]] Util::Game::D2::CollisionEvent &event) {}
 
 void MouseCursor::draw(Util::Game::Graphics &graphics) {
-    auto &font = Util::Graphic::Font::getFontForResolution(static_cast<uint32_t>(Util::Game::GameManager::getAbsoluteResolution().getY()));
-    auto charWidth = font.getCharWidth() / static_cast<double>(Util::Game::GameManager::getTransformation());
+    auto charWidth = Util::Game::Graphics::FONT_SIZE / static_cast<double>(Util::Game::GameManager::getTransformation());
     auto additionalButtons = Util::String::format("%c%c", button4Pressed ? '4' : ' ', button5Pressed ? '5' : ' ');
 
     currentSprite->draw(graphics, getPosition());
     graphics.setColor(Util::Graphic::Colors::HHU_TURQUOISE);
-    graphics.drawString2D(font, getPosition() + Util::Math::Vector2<double>(currentSprite->getSize().getX() / 2 - charWidth, currentSprite->getSize().getY() / 3), additionalButtons);
+    graphics.drawString2D(getPosition() + Util::Math::Vector2<double>(currentSprite->getSize().getX() / 2 - charWidth, currentSprite->getSize().getY() / 3), additionalButtons);
 }
 
 void MouseCursor::buttonPressed(Util::Io::Mouse::Button button) {

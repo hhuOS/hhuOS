@@ -47,7 +47,6 @@ void Player::onUpdate(double delta) {
 }
 
 void Player::draw(Util::Game::Graphics &graphics) {
-    const auto &font = Util::Graphic::Font::getFontForResolution(static_cast<uint32_t>(Util::Game::GameManager::getAbsoluteResolution().getY()));
     graphics.setColor(Util::Graphic::Colors::GREEN);
 
     // Draw reticle
@@ -66,12 +65,14 @@ void Player::draw(Util::Game::Graphics &graphics) {
     graphics.setColor(invulnerabilityTimer > 0 ? Util::Graphic::Colors::RED : Util::Graphic::Colors::GREEN);
 
     // Draw player stats
-    graphics.drawStringDirect(font, Util::Math::Vector2<double>(-0.95, 0.95), Util::String("Health  : "));
-    graphics.drawStringDirect(font, Util::Math::Vector2<double>(-0.95, 0.89), Util::String::format("Score   : %d", score));
-    graphics.drawStringDirect(font, Util::Math::Vector2<double>(-0.95, 0.83), Util::String::format("Enemies : %d", enemies.size()));
+    graphics.drawStringDirect(Util::Math::Vector2<double>(-0.95, 0.95), Util::String("Health  : "));
+    graphics.drawStringDirect(Util::Math::Vector2<double>(-0.95, 0.9), Util::String::format("Score   : %d", score));
+    graphics.drawStringDirect(Util::Math::Vector2<double>(-0.95, 0.85), Util::String::format("Enemies : %d", enemies.size()));
 
-    graphics.drawRectangleDirect(Util::Math::Vector2<double>(-0.7, 0.94), Util::Math::Vector2<double>(0.3, -0.025));
-    graphics.fillRectangleDirect(Util::Math::Vector2<double>(-0.7, 0.94), Util::Math::Vector2<double>(0.3 * (getHealth() / 100.0), -0.025));
+    const auto relativeCharWidth = static_cast<double>(Util::Game::Graphics::FONT_SIZE) / Util::Game::GameManager::getTransformation();
+    const auto healthBarStart = -0.95 + 10 * relativeCharWidth;
+    graphics.drawRectangleDirect(Util::Math::Vector2<double>(healthBarStart, 0.95), Util::Math::Vector2<double>(0.3, -0.025));
+    graphics.fillRectangleDirect(Util::Math::Vector2<double>(healthBarStart, 0.95), Util::Math::Vector2<double>(0.3 * (getHealth() / 100.0), -0.025));
 
     // Draw speedometer
     graphics.fillRectangleDirect(Util::Math::Vector2<double>(0.9375, 0), Util::Math::Vector2<double>(0.025, speed * 0.95));
@@ -84,7 +85,7 @@ void Player::draw(Util::Game::Graphics &graphics) {
 
     // Draw radar
     auto headerSting = Util::String::format("P: %d  Y: %d", static_cast<int32_t>(getRotation().getY()), static_cast<int32_t>(getRotation().getZ()));
-    graphics.drawStringDirect(font, Util::Math::Vector2<double>(-0.95, -0.6), headerSting);
+    graphics.drawStringDirect(Util::Math::Vector2<double>(-0.95, -0.96), headerSting);
 
     graphics.drawSquareDirect(Util::Math::Vector2<double>(-0.95, -0.95), 0.3);
 

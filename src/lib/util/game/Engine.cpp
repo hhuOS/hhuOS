@@ -49,8 +49,7 @@
 
 namespace Util::Game {
 
-Engine::Engine(const Graphic::LinearFrameBuffer &lfb, uint8_t targetFrameRate, double scaleFactor) : graphics(lfb, game, scaleFactor), targetFrameRate(targetFrameRate),
-        statisticsFont(Graphic::Font::getFontForResolution(lfb.getResolutionY() * scaleFactor)) {
+Engine::Engine(const Graphic::LinearFrameBuffer &lfb, uint8_t targetFrameRate, double scaleFactor) : graphics(lfb, game, scaleFactor), targetFrameRate(targetFrameRate) {
     GameManager::game = &game;
 
     auto mouseFile = Io::File("/device/mouse");
@@ -122,12 +121,12 @@ void Engine::initializeNextScene() {
     }
 
     auto resolution = GameManager::getAbsoluteResolution();
-    auto stringPositionX = static_cast<uint16_t>((resolution.getX() - Util::Address(LOADING).stringLength() * statisticsFont.getCharWidth()) / 2.0);
+    auto stringPositionX = static_cast<uint16_t>((resolution.getX() - Util::Address(LOADING).stringLength() * Util::Game::Graphics::FONT_SIZE) / 2.0);
     auto stringPositionY = static_cast<uint16_t>(resolution.getY() / 2.0);
 
     graphics.clear();
     graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawStringDirectAbsolute(statisticsFont, stringPositionX, stringPositionY, LOADING);
+    graphics.drawStringDirectAbsolute(stringPositionX, stringPositionY, LOADING);
     graphics.show();
 
     statistics.reset();
@@ -145,9 +144,7 @@ void Engine::updateStatus() {
 }
 
 void Engine::drawStatus() {
-    auto charHeight = statisticsFont.getCharHeight() + 2;
-    auto color = graphics.getColor();
-
+    const auto color = graphics.getColor();
     const auto &camera = game.getCurrentScene().getCamera();
     const auto &memoryManager = Util::System::getAddressSpaceHeader().memoryManager;
     const auto heapUsed = (memoryManager.getTotalMemory() - memoryManager.getFreeMemory());
@@ -155,16 +152,16 @@ void Engine::drawStatus() {
     const auto heapUsedK = (heapUsed - heapUsedM * 1000 * 1000) / 1000;
 
     graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawStringDirectAbsolute(statisticsFont, 10, 10, String::format("FPS: %u | Frame time: %u.%ums", status.framesPerSecond,
+    graphics.drawStringDirectAbsolute(10, 10, String::format("FPS: %u | Frame time: %u.%ums", status.framesPerSecond,
             static_cast<uint32_t>(status.frameTime.toMilliseconds()), static_cast<uint32_t>((status.frameTime.toMicroseconds() - status.frameTime.toMilliseconds() * 1000) / 100)));
-    graphics.drawStringDirectAbsolute(statisticsFont, 10, 10 + charHeight, String::format("Draw: %u.%ums | Update: %u.%ums | Idle: %u.%ums",
+    graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE, String::format("Draw: %u.%ums | Update: %u.%ums | Idle: %u.%ums",
             static_cast<uint32_t>(status.drawTime.toMilliseconds()), static_cast<uint32_t>((status.drawTime.toMicroseconds() - status.drawTime.toMilliseconds() * 1000) / 100),
             static_cast<uint32_t>(status.updateTime.toMilliseconds()), static_cast<uint32_t>((status.updateTime.toMicroseconds() - status.updateTime.toMilliseconds() * 1000) / 100),
             static_cast<uint32_t>(status.idleTime.toMilliseconds()), static_cast<uint32_t>((status.idleTime.toMicroseconds() - status.idleTime.toMilliseconds() * 1000) / 100)));
-    graphics.drawStringDirectAbsolute(statisticsFont, 10, 10 + charHeight * 2, String::format("Objects: %u", game.getCurrentScene().getObjectCount()));
-    graphics.drawStringDirectAbsolute(statisticsFont, 10, 10 + charHeight * 3, String::format("Heap used: %u.%03u MB", heapUsedM, heapUsedK));
-    graphics.drawStringDirectAbsolute(statisticsFont, 10, 10 + charHeight * 4, String::format("Resolution: %ux%u@%u", graphics.bufferedLfb.getResolutionX(), graphics.bufferedLfb.getResolutionY(), graphics.bufferedLfb.getColorDepth()));
-    graphics.drawStringDirectAbsolute(statisticsFont, 10, 10 + charHeight * 5, String::format("Camera: Position(%d, %d, %d), Rotation(%d, %d, %d)",
+    graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 2, String::format("Objects: %u", game.getCurrentScene().getObjectCount()));
+    graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 3, String::format("Heap used: %u.%03u MB", heapUsedM, heapUsedK));
+    graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 4, String::format("Resolution: %ux%u@%u", graphics.bufferedLfb.getResolutionX(), graphics.bufferedLfb.getResolutionY(), graphics.bufferedLfb.getColorDepth()));
+    graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 5, String::format("Camera: Position(%d, %d, %d), Rotation(%d, %d, %d)",
             static_cast<int32_t>(camera.getPosition().getX()), static_cast<int32_t>(camera.getPosition().getY()), static_cast<int32_t>(camera.getPosition().getZ()),
             static_cast<int32_t>(camera.getRotation().getX()), static_cast<int32_t>(camera.getRotation().getY()), static_cast<int32_t>(camera.getRotation().getZ())));
     graphics.setColor(color);

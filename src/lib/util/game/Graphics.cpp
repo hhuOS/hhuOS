@@ -23,6 +23,7 @@
 
 #include "Graphics.h"
 
+#include "lib/util/graphic/font/Terminal8x8.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/math/Vector2.h"
 #include "lib/util/game/Camera.h"
@@ -33,7 +34,7 @@
 #include "GameManager.h"
 #include "Game.h"
 #include "3d/Orientation.h"
-#include "lib/util/game/3d/Scene.h"
+#include "3d/Scene.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/game/3d/Light.h"
 #include "lib/util/game/3d/Model.h"
@@ -44,16 +45,23 @@ Graphics::Graphics(const Util::Graphic::LinearFrameBuffer &lfb, Game &game, doub
         transformation((bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ? bufferedLfb.getResolutionY() : bufferedLfb.getResolutionX()) / 2),
         offsetX(transformation + (bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ? (bufferedLfb.getResolutionX() - bufferedLfb.getResolutionY()) / 2 : 0)),
         offsetY(transformation + (bufferedLfb.getResolutionY() > bufferedLfb.getResolutionX() ? (bufferedLfb.getResolutionY() - bufferedLfb.getResolutionX()) / 2 : 0)) {
-    GameManager::absoluteResolution = Math::Vector2<double>(bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY());
-    GameManager::relativeResolution = Math::Vector2<double>(bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ? (double) bufferedLfb.getResolutionX() / bufferedLfb.getResolutionY() : 1,
-                                                     bufferedLfb.getResolutionY() > bufferedLfb.getResolutionX() ? (double) bufferedLfb.getResolutionY() / bufferedLfb.getResolutionX() : 1);
     GameManager::transformation = transformation;
+    GameManager::absoluteResolution = Math::Vector2<double>(bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY());
+    GameManager::relativeResolution = Math::Vector2<double>(
+        bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ? static_cast<double>(bufferedLfb.getResolutionX()) / bufferedLfb.getResolutionY() : 1,
+        bufferedLfb.getResolutionY() > bufferedLfb.getResolutionX() ? static_cast<double>(bufferedLfb.getResolutionY()) / bufferedLfb.getResolutionX() : 1
+    );
+
     lfb.clear();
 }
 
 /***** Basic functions to draw directly on the screen ******/
 
 void Graphics::drawLineDirectAbsolute(uint16_t fromX, uint16_t fromY, uint16_t toX, uint16_t toY) const {
+    if (glEnabled()) {
+        Exception::throwException(Exception::ILLEGAL_STATE, "Graphics: Drawing with absolute coordinates is not supported in OpenGL mode!");
+    }
+
     bufferedLfb.drawLine(fromX, fromY, toX, toY, color);
 }
 
@@ -81,19 +89,35 @@ void Graphics::fillSquareDirectAbsolute(uint16_t posX, uint16_t posY, uint16_t s
     fillRectangleDirectAbsolute(posX, posY, size, size);
 }
 
-void Graphics::drawStringDirectAbsolute(const Graphic::Font &font, uint16_t posX, uint16_t posY, const char *string) const {
-    bufferedLfb.drawString(font, posX, posY, string, color, Graphic::Colors::INVISIBLE);
+void Graphics::drawStringDirectAbsolute(uint16_t posX, uint16_t posY, const char *string) const {
+    if (glEnabled()) {
+        glDrawText(reinterpret_cast<const GLubyte*>(string), posX, posY, color.getRGB32());
+    } else {
+        bufferedLfb.drawString(Graphic::Fonts::TERMINAL_8x8, posX, posY, string, color, Graphic::Colors::INVISIBLE);
+    }
 }
 
-void Graphics::drawStringDirectAbsolute(const Graphic::Font &font, uint16_t posX, uint16_t posY, const String &string) const {
-    drawStringDirectAbsolute(font, posX, posY, static_cast<const char*>(string));
+void Graphics::drawStringDirectAbsolute(uint16_t posX, uint16_t posY, const String &string) const {
+    drawStringDirectAbsolute(posX, posY, static_cast<const char*>(string));
 }
 
 void Graphics::drawLineDirect(const Math::Vector2<double> &from, const Math::Vector2<double> &to) const {
-    drawLineDirectAbsolute(static_cast<uint16_t>(from.getX() * transformation + offsetX),
-                           static_cast<uint16_t>(-from.getY() * transformation + offsetY),
-                           static_cast<uint16_t>(to.getX() * transformation + offsetX),
-                           static_cast<uint16_t>(-to.getY() * transformation + offsetY));
+    if (glEnabled()) {
+        gluPrepareDirectDraw(D3::Scene::LINES);
+
+        glColor3f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
+        glBegin(GL_LINES);
+        glVertex2f(static_cast<float>(from.getX()), static_cast<float>(from.getY()));
+        glVertex2f(static_cast<float>(to.getX()), static_cast<float>(to.getY()));
+        glEnd();
+
+        gluFinishDirectDraw();
+    } else {
+        drawLineDirectAbsolute(static_cast<uint16_t>(from.getX() * transformation + offsetX),
+                               static_cast<uint16_t>(-from.getY() * transformation + offsetY),
+                               static_cast<uint16_t>(to.getX() * transformation + offsetX),
+                               static_cast<uint16_t>(-to.getY() * transformation + offsetY));
+    }
 }
 
 void Graphics::drawRectangleDirect(const Math::Vector2<double> &position, const Math::Vector2<double> &size) const {
@@ -102,10 +126,26 @@ void Graphics::drawRectangleDirect(const Math::Vector2<double> &position, const 
     const auto width = size.getX();
     const auto height = size.getY();
 
-    drawLineDirect(position, Math::Vector2<double>(x + width, y));
-    drawLineDirect(Math::Vector2<double>(x, y + height), Math::Vector2<double>(x + width, y + height));
-    drawLineDirect(position, Math::Vector2<double>(x, y + height));
-    drawLineDirect(Math::Vector2<double>(x + width, y), Math::Vector2<double>(x + width, y + height));
+    if (glEnabled()) {
+        gluPrepareDirectDraw(D3::Scene::LINES);
+
+        glColor3f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
+        glBegin(GL_QUADS);
+
+        glVertex2f(x, y);
+        glVertex2f(x + width, y);
+        glVertex2f(x + width, y + height);
+        glVertex2f(x, y + height);
+
+        glEnd();
+
+        gluFinishDirectDraw();
+    } else {
+        drawLineDirect(position, Math::Vector2<double>(x + width, y));
+        drawLineDirect(Math::Vector2<double>(x, y + height), Math::Vector2<double>(x + width, y + height));
+        drawLineDirect(position, Math::Vector2<double>(x, y + height));
+        drawLineDirect(Math::Vector2<double>(x + width, y), Math::Vector2<double>(x + width, y + height));
+    }
 }
 
 void Graphics::drawSquareDirect(const Math::Vector2<double> &position, double size) const {
@@ -113,21 +153,40 @@ void Graphics::drawSquareDirect(const Math::Vector2<double> &position, double si
 }
 
 void Graphics::fillRectangleDirect(const Math::Vector2<double> &position, const Math::Vector2<double> &size) const {
+    const auto x = position.getX();
+    const auto y = position.getY();
     const auto width = size.getX();
     const auto height = size.getY();
-    const auto startX = static_cast<int32_t>(position.getX() * transformation + offsetX);
-    const auto endX = static_cast<int32_t>((position.getX() + width) * transformation + offsetX);
-    auto startY = static_cast<int32_t>(-position.getY() * transformation + offsetY);
-    auto endY = static_cast<int32_t>(-(position.getY() + height) * transformation + offsetY);
 
-    if (startY > endY) {
-        int32_t temp = startY;
-        startY = endY;
-        endY = temp;
-    }
+    if (glEnabled()) {
+        gluPrepareDirectDraw(D3::Scene::FILL);
 
-    for (int32_t i = startY; i < endY; i++) {
-        bufferedLfb.drawLine(startX, i, endX, i, color);
+        glColor3f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
+        glBegin(GL_QUADS);
+
+        glVertex2f(x, y);
+        glVertex2f(x + width, y);
+        glVertex2f(x + width, y + height);
+        glVertex2f(x, y + height);
+
+        glEnd();
+
+        gluFinishDirectDraw();
+    } else {
+        const auto startX = static_cast<int32_t>(x * transformation + offsetX);
+        const auto endX = static_cast<int32_t>((x + width) * transformation + offsetX);
+        auto startY = static_cast<int32_t>(-y * transformation + offsetY);
+        auto endY = static_cast<int32_t>(-(y + height) * transformation + offsetY);
+
+        if (startY > endY) {
+            int32_t temp = startY;
+            startY = endY;
+            endY = temp;
+        }
+
+        for (int32_t i = startY; i < endY; i++) {
+            bufferedLfb.drawLine(startX, i, endX, i, color);
+        }
     }
 }
 
@@ -135,15 +194,21 @@ void Graphics::fillSquareDirect(const Math::Vector2<double> &position, double si
     fillRectangleDirect(position, Math::Vector2<double>(size, size));
 }
 
-void Graphics::drawStringDirect(const Graphic::Font &font, const Math::Vector2<double> &position, const char *string) const {
-    drawStringDirectAbsolute(font,
-                             static_cast<uint16_t>(position.getX() * transformation + offsetX),
-                             static_cast<uint16_t>(-position.getY() * transformation + offsetY),
-                             string);
+void Graphics::drawStringDirect(const Math::Vector2<double> &position, const char *string) const {
+    if (glEnabled()) {
+        glDrawText(reinterpret_cast<const GLubyte*>(string),
+                 static_cast<uint16_t>(position.getX() * transformation + offsetX),
+                 static_cast<uint16_t>(-position.getY() * transformation + offsetY),
+                 color.getRGB32());
+    } else {
+        drawStringDirectAbsolute(static_cast<uint16_t>(position.getX() * transformation + offsetX),
+                                 static_cast<uint16_t>(-position.getY() * transformation + offsetY),
+                                 string);
+    }
 }
 
-void Graphics::drawStringDirect(const Graphic::Font &font, const Math::Vector2<double> &position, const String &string) const {
-    drawStringDirect(font, position, static_cast<const char*>(string));
+void Graphics::drawStringDirect(const Math::Vector2<double> &position, const String &string) const {
+    drawStringDirect(position, static_cast<const char*>(string));
 }
 
 /***** 2D drawing functions, respecting the camera position *****/
@@ -202,15 +267,15 @@ void Graphics::fillRectangle2D(const Math::Vector2<double> &position, const Math
     }
 }
 
-void Graphics::drawString2D(const Graphic::Font &font, const Math::Vector2<double> &position, const char *string) const {
-    bufferedLfb.drawString(font,
+void Graphics::drawString2D(const Math::Vector2<double> &position, const char *string) const {
+    bufferedLfb.drawString(Graphic::Fonts::TERMINAL_8x8,
         static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX),
         static_cast<int32_t>(-(position.getY() - camera.getPosition().getY()) * transformation + offsetY),
-        string, color, Util::Graphic::Colors::INVISIBLE);
+        string, color, Graphic::Colors::INVISIBLE);
 }
 
-void Graphics::drawString2D(const Graphic::Font &font, const Math::Vector2<double> &position, const String &string) const {
-    drawString2D(font, position, static_cast<const char*>(string));
+void Graphics::drawString2D(const Math::Vector2<double> &position, const String &string) const {
+    drawString2D(position, static_cast<const char*>(string));
 }
 
 void Graphics::drawImage2D(const Math::Vector2<double> &position, const Graphic::Image &image, bool flipX, double alpha, const Math::Vector2<double> &scale, double rotationAngle) const {
@@ -401,6 +466,10 @@ void Graphics::drawCuboid3D(const Math::Vector3<double> &position, const Math::V
 }
 
 void Graphics::drawRectangle3D(const Math::Vector3<double> &position, const Math::Vector2<double> &size, const D3::Orientation &orientation, const D3::Texture &texture) const {
+    if (!glEnabled()) {
+        Exception::throwException(Exception::ILLEGAL_STATE, "Graphics: OpenGL is not enabled");
+    }
+
     const auto xLeft = -size.getX() / 2;
     const auto yLeft = -size.getY() / 2;
     const auto z = static_cast<float>(position.getZ());
@@ -732,6 +801,60 @@ void Graphics::gluPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GL
     const GLdouble fW = fH * aspect;
 
     glFrustum(-fW, fW, -fH, fH, zNear, zFar);
+}
+
+void Graphics::gluMultOrthoMatrix(float left, float right, float bottom, float top, float near, float far) {
+    const float tx= -((right + left) / (right - left));
+    const float ty= -((top + bottom) / (top - bottom));
+    const float tz= -((far + near) / (far - near));
+
+    const GLfloat ortho[16] = {
+        2.0f / (right - left), 0.0f, 0.0f, tx,
+        0.0f, 2.0f / (top - bottom), 0.0f, ty,
+        0.0f, 0.0f, -2.0f / (far - near), tz,
+        0.0f, 0.0f, 0.0f, 1.0f
+    };
+
+    glMultMatrixf(ortho);
+}
+
+void Graphics::gluPrepareDirectDraw(GLint renderStyle) const {
+    const auto &scene = reinterpret_cast<D3::Scene&>(game.getCurrentScene());
+
+    glPolygonMode(GL_FRONT_AND_BACK, renderStyle);
+    glDisable(GL_DEPTH_TEST);
+    if (scene.isLightEnabled()) {
+        glDisable(GL_LIGHTING);
+    }
+
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+
+    // Ortho matrix for 2D element
+    gluMultOrthoMatrix(
+        -GameManager::relativeResolution.getX(), GameManager::relativeResolution.getX(),
+        -GameManager::relativeResolution.getY(), GameManager::relativeResolution.getY(),
+        -1.0f, 1.0f);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+}
+
+void Graphics::gluFinishDirectDraw() const {
+    const auto &scene = reinterpret_cast<D3::Scene&>(game.getCurrentScene());
+
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+
+    if (scene.isLightEnabled()) {
+        glEnable(GL_LIGHTING);
+    }
+    glEnable(GL_DEPTH_TEST);
+    glPolygonMode(GL_FRONT_AND_BACK, scene.getGlRenderStyle());
 }
 
 }

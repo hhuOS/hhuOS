@@ -99,9 +99,9 @@ public:
 
     void fillSquareDirectAbsolute(uint16_t posX, uint16_t posY, uint16_t size) const;
 
-    void drawStringDirectAbsolute(const Graphic::Font &font, uint16_t posX, uint16_t posY, const char *string) const;
+    void drawStringDirectAbsolute(uint16_t posX, uint16_t posY, const char *string) const;
 
-    void drawStringDirectAbsolute(const Graphic::Font &font, uint16_t posX, uint16_t posY, const String &string) const;
+    void drawStringDirectAbsolute(uint16_t posX, uint16_t posY, const String &string) const;
 
     void drawLineDirect(const Math::Vector2<double> &from, const Math::Vector2<double> &to) const;
 
@@ -113,9 +113,9 @@ public:
 
     void fillSquareDirect(const Math::Vector2<double> &position, double size) const;
 
-    void drawStringDirect(const Graphic::Font &font, const Math::Vector2<double> &position, const char *string) const;
+    void drawStringDirect(const Math::Vector2<double> &position, const char *string) const;
 
-    void drawStringDirect(const Graphic::Font &font, const Math::Vector2<double> &position, const String &string) const;
+    void drawStringDirect(const Math::Vector2<double> &position, const String &string) const;
 
     /***** 2D drawing functions, respecting the camera position *****/
 
@@ -131,9 +131,9 @@ public:
 
     void fillRectangle2D(const Math::Vector2<double> &position, const Math::Vector2<double> &size) const;
 
-    void drawString2D(const Graphic::Font &font, const Math::Vector2<double> &position, const char *string) const;
+    void drawString2D(const Math::Vector2<double> &position, const char *string) const;
 
-    void drawString2D(const Graphic::Font &font, const Math::Vector2<double> &position, const String &string) const;
+    void drawString2D(const Math::Vector2<double> &position, const String &string) const;
 
     void drawImage2D(const Math::Vector2<double> &position, const Graphic::Image &image, bool flipX = false, double alpha = 1, const Math::Vector2<double> &scale = Util::Math::Vector2<double>(1, 1), double rotationAngle = 0) const;
 
@@ -167,6 +167,8 @@ public:
 
     void clearBackground();
 
+    static const constexpr uint8_t FONT_SIZE = 8;
+
 private:
 
     void drawImageDirect2D(const Math::Vector2<double> &position, const Graphic::Image &image, bool flipX, double alpha) const;
@@ -177,7 +179,13 @@ private:
 
     void drawImageScaledAndRotated2D(const Math::Vector2<double> &position, const Graphic::Image &image, bool flipX, double alpha, const Util::Math::Vector2<double> &scale, double rotationAngle) const;
 
+    void gluPrepareDirectDraw(GLint renderStyle) const;
+
+    void gluFinishDirectDraw() const;
+
     static void gluPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar);
+
+    static void gluMultOrthoMatrix(float left, float right, float bottom, float top, float near, float far);
 
     Game &game;
 
