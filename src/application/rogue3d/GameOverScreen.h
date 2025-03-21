@@ -14,14 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
- * The dino game is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
+ * The rogue game has been implemented during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
-#ifndef HHUOS_BUG_DEFENDER_GAMEOVERSCREEN_H
-#define HHUOS_BUG_DEFENDER_GAMEOVERSCREEN_H
-
-#include <stdint.h>
+#ifndef HHUOS_ROGUE_GAMEOVERSCREEN_H
+#define HHUOS_ROGUE_GAMEOVERSCREEN_H
 
 #include "lib/util/game/2d/Scene.h"
 #include "lib/util/game/KeyListener.h"
@@ -32,7 +30,7 @@ public:
     /**
      * Constructor.
      */
-    explicit GameOverScreen(uint32_t score);
+    explicit GameOverScreen(uint32_t level);
 
     /**
      * Copy Constructor.
@@ -61,16 +59,16 @@ public:
 
 private:
 
-    uint32_t score;
+    uint32_t level;
 
     const char* TEXT[7] = {
             "____ ____ _  _ ____    ____ _  _ ____ ____ ",
             "| __ |__| |\\/| |___    |  | |  | |___ |__/ ",
             "|__] |  | |  | |___    |__|  \\/  |___ |  \\ ",
             "",
-            "Score : %u",
+            "You died at level %u!",
             "",
-            "Press SPACE to play again or ESC to exit!"
+            "Press SPACE to enter the dungeon again, or ESC to run like a coward..."
     };
 };
 

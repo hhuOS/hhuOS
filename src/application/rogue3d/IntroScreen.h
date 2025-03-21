@@ -14,40 +14,38 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
- * The dino game is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
+ * The rogue game has been implemented during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
-#ifndef HHUOS_BUG_DEFENDER_GAMEOVERSCREEN_H
-#define HHUOS_BUG_DEFENDER_GAMEOVERSCREEN_H
-
-#include <stdint.h>
+#ifndef HHUOS_ROGUE_INTROSCREEN_H
+#define HHUOS_ROGUE_INTROSCREEN_H
 
 #include "lib/util/game/2d/Scene.h"
 #include "lib/util/game/KeyListener.h"
 
-class GameOverScreen : public Util::Game::D2::Scene, public Util::Game::KeyListener {
+class IntroScreen : public Util::Game::D2::Scene, public Util::Game::KeyListener {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    explicit GameOverScreen(uint32_t score);
+    IntroScreen() = default;
 
     /**
      * Copy Constructor.
      */
-    GameOverScreen(const GameOverScreen &other) = delete;
+    IntroScreen(const IntroScreen &other) = delete;
 
     /**
      * Assignment operator.
      */
-    GameOverScreen &operator=(const GameOverScreen &other) = delete;
+    IntroScreen &operator=(const IntroScreen &other) = delete;
 
     /**
      * Destructor.
      */
-    ~GameOverScreen() override = default;
+    ~IntroScreen() override = default;
 
     void initialize() override;
 
@@ -61,16 +59,17 @@ public:
 
 private:
 
-    uint32_t score;
-
-    const char* TEXT[7] = {
-            "____ ____ _  _ ____    ____ _  _ ____ ____ ",
-            "| __ |__| |\\/| |___    |  | |  | |___ |__/ ",
-            "|__] |  | |  | |___    |__|  \\/  |___ |  \\ ",
+    static const constexpr char *INTRO_TEXT[10] = {
+            "____ ____ ____ _  _ ____ ",
+            "|__/ |  | | __ |  | |___ ",
+            "|  \\ |__| |__] |__| |___ ",
             "",
-            "Score : %u",
             "",
-            "Press SPACE to play again or ESC to exit!"
+            "",
+            "Use WASD to move and arrow keys to shoot in a specific direction.",
+            "Defeat all enemies to leave the current room.",
+            "",
+            "Press SPACE to start or ESC to exit!"
     };
 };
 

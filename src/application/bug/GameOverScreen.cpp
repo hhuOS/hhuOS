@@ -29,7 +29,6 @@
 #include "lib/util/math/Vector2.h"
 #include "lib/util/graphic/Font.h"
 
-
 GameOverScreen::GameOverScreen(bool won) : won(won) {}
 
 void GameOverScreen::initialize() {

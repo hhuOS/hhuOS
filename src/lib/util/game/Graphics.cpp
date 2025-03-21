@@ -59,7 +59,7 @@ Graphics::Graphics(const Util::Graphic::LinearFrameBuffer &lfb, Game &game, doub
 
 void Graphics::drawLineDirectAbsolute(uint16_t fromX, uint16_t fromY, uint16_t toX, uint16_t toY) const {
     if (glEnabled()) {
-        Exception::throwException(Exception::ILLEGAL_STATE, "Graphics: Drawing with absolute coordinates is not supported in OpenGL mode!");
+        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: Drawing with absolute coordinates is not supported in OpenGL mode!");
     }
 
     bufferedLfb.drawLine(fromX, fromY, toX, toY, color);
@@ -214,6 +214,10 @@ void Graphics::drawStringDirect(const Math::Vector2<double> &position, const Str
 /***** 2D drawing functions, respecting the camera position *****/
 
 void Graphics::drawLine2D(const Math::Vector2<double> &from, const Math::Vector2<double> &to) const {
+    if (glEnabled()) {
+        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 2D drawing functions are not supported in OpenGL mode!");
+    }
+
     bufferedLfb.drawLine(static_cast<int32_t>((from.getX() - camera.getPosition().getX()) * transformation + offsetX),
                         static_cast<int32_t>(-(from.getY() - camera.getPosition().getY()) * transformation + offsetY),
                         static_cast<int32_t>((to.getX() - camera.getPosition().getX()) * transformation + offsetX),
@@ -228,10 +232,6 @@ void Graphics::drawPolygon2D(const Array<Math::Vector2<double>> &vertices) const
     drawLine2D(vertices[vertices.length() - 1], vertices[0]);
 }
 
-void Graphics::drawSquare2D(const Math::Vector2<double> &position, double size) const {
-    drawRectangle2D(position, Math::Vector2<double>(size, size));
-}
-
 void Graphics::drawRectangle2D(const Math::Vector2<double> &position, const Math::Vector2<double> &size) const {
     const auto x = position.getX();
     const auto y = position.getY();
@@ -244,11 +244,15 @@ void Graphics::drawRectangle2D(const Math::Vector2<double> &position, const Math
     drawLine2D(Math::Vector2<double>(x + width, y), Math::Vector2<double>(x + width, y - height));
 }
 
-void Graphics::fillSquare2D(const Math::Vector2<double> &position, double size) const {
-    fillRectangle2D(position, Math::Vector2<double>(size, size));
+void Graphics::drawSquare2D(const Math::Vector2<double> &position, double size) const {
+    drawRectangle2D(position, Math::Vector2<double>(size, size));
 }
 
 void Graphics::fillRectangle2D(const Math::Vector2<double> &position, const Math::Vector2<double> &size) const {
+    if (glEnabled()) {
+        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 2D drawing functions are not supported in OpenGL mode!");
+    }
+    
     const auto width = size.getX();
     const auto height = size.getY();
     const auto startX = static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX);
@@ -267,7 +271,15 @@ void Graphics::fillRectangle2D(const Math::Vector2<double> &position, const Math
     }
 }
 
+void Graphics::fillSquare2D(const Math::Vector2<double> &position, double size) const {
+    fillRectangle2D(position, Math::Vector2<double>(size, size));
+}
+
 void Graphics::drawString2D(const Math::Vector2<double> &position, const char *string) const {
+    if (glEnabled()) {
+        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 2D drawing functions are not supported in OpenGL mode!");
+    }
+    
     bufferedLfb.drawString(Graphic::Fonts::TERMINAL_8x8,
         static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX),
         static_cast<int32_t>(-(position.getY() - camera.getPosition().getY()) * transformation + offsetY),
@@ -279,6 +291,10 @@ void Graphics::drawString2D(const Math::Vector2<double> &position, const String 
 }
 
 void Graphics::drawImage2D(const Math::Vector2<double> &position, const Graphic::Image &image, bool flipX, double alpha, const Math::Vector2<double> &scale, double rotationAngle) const {
+    if (glEnabled()) {
+        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 2D drawing functions are not supported in OpenGL mode!");
+    }
+    
     bool notScaled = Math::equals(scale.getX(), 1, 0.00001) && Math::equals(scale.getY(), 1, 0.00001);
     bool notRotated = Math::equals(rotationAngle, 0, 0.00001);
 
@@ -295,7 +311,7 @@ void Graphics::drawImage2D(const Math::Vector2<double> &position, const Graphic:
 
 void Graphics::drawModel3D(const D3::Model &model) const {
     if (!glEnabled()) {
-        Exception::throwException(Exception::ILLEGAL_STATE, "Graphics: OpenGL is not enabled");
+        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 3D drawing functions are only supported in OpenGL mode!");
     }
 
     const auto &position = model.getPosition();
@@ -355,9 +371,9 @@ void Graphics::drawModel3D(const D3::Model &model) const {
     glPopMatrix();
 }
 
-void Graphics::drawCuboid3D(const Math::Vector3<double> &position, const Math::Vector3<double> &size, const D3::Orientation &orientation, const D3::Texture &texture) const {
+void Graphics::drawCuboid3D(const Math::Vector3<double> &position, const Math::Vector3<double> &size, const Math::Vector3<double> &rotation, const D3::Texture &texture) const {
     if (!glEnabled()) {
-        Exception::throwException(Exception::ILLEGAL_STATE, "Graphics: OpenGL is not enabled");
+        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 3D drawing functions are only supported in OpenGL mode!");
     }
 
     const auto width = size.getX();
@@ -367,7 +383,6 @@ void Graphics::drawCuboid3D(const Math::Vector3<double> &position, const Math::V
     const auto yLeft= -height / 2;
     const auto zLeft= depth / 2;
     const auto textureID = texture.getTextureID();
-    const auto &rotation = orientation.getRotation();
 
     glPushMatrix();
 
@@ -377,7 +392,7 @@ void Graphics::drawCuboid3D(const Math::Vector3<double> &position, const Math::V
     glRotatef(rotation.getY(), 1.0f, 0.0f, 0.0f);
     glRotatef(rotation.getZ(), 0.0f, 1.0f, 0.0f);
 
-    // Set color or color
+    // Set texture or color
     if (textureID != 0) {
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
@@ -392,38 +407,37 @@ void Graphics::drawCuboid3D(const Math::Vector3<double> &position, const Math::V
     glBegin(GL_QUADS);
 
     //Front-Face
-    glNormal3f(0.0f,0.0f,1.0f);
-    if (textureID != 0) glTexCoord2f(0.0f,0.0f);
-    glVertex3f(xLeft,yLeft,zLeft);
-    if (textureID != 0) glTexCoord2f(1.0f,0.0f);
-    glVertex3f(xLeft+width,yLeft,zLeft);
-    if (textureID != 0) glTexCoord2f(1.0f,1.0f);
-    glVertex3f(xLeft+width,yLeft+height,zLeft);
-    if (textureID != 0) glTexCoord2f(0.0f,1.0f);
-    glVertex3f(xLeft,yLeft+height,zLeft);
+    glNormal3f(0.0f, 0.0f, 1.0f);
+    if (textureID != 0) glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(xLeft, yLeft, zLeft);
+    if (textureID != 0) glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(xLeft + width, yLeft, zLeft);
+    if (textureID != 0) glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(xLeft + width, yLeft + height, zLeft);
+    if (textureID != 0) glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(xLeft, yLeft + height, zLeft);
     
     //Back-Face 
-    glNormal3f(0.0f,0.0f,-1.0f);
-    if (textureID != 0) glTexCoord2f(0.0f,0.0f);
-    glVertex3f(xLeft,yLeft,zLeft-depth);
-    if (textureID != 0) glTexCoord2f(1.0f,0.0f);
-    glVertex3f(xLeft+width,yLeft,zLeft-depth);
-    if (textureID != 0) glTexCoord2f(1.0f,1.0f);
-    glVertex3f(xLeft+width,yLeft+height,zLeft-depth);
-    if (textureID != 0) glTexCoord2f(0.0f,1.0f);
-    glVertex3f(xLeft,yLeft+height,zLeft-depth);
+    glNormal3f(0.0f, 0.0f, -1.0f);
+    if (textureID != 0) glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(xLeft, yLeft, zLeft - depth);
+    if (textureID != 0) glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(xLeft + width, yLeft, zLeft - depth);
+    if (textureID != 0) glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(xLeft + width,yLeft + height, zLeft - depth);
+    if (textureID != 0) glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(xLeft, yLeft + height, zLeft - depth);
     
     //Top-Face
-    glNormal3f(0.0f,1.0f,0.0f);
-    if (textureID != 0) glTexCoord2f(0.0f,0.0f);
-    glVertex3f(xLeft,yLeft+height,zLeft-depth);
-    if (textureID != 0) glTexCoord2f(1.0f,0.0f);
-    glVertex3f(xLeft+width,yLeft+height,zLeft-depth);
-    if (textureID != 0) glTexCoord2f(1.0f,1.0f);
-    glVertex3f(xLeft+width,yLeft+height,zLeft);
-    if (textureID != 0) glTexCoord2f(0.0f,1.0f);
-    glVertex3f(xLeft,yLeft+height,zLeft);
-
+    glNormal3f(0.0f ,1.0f, 0.0f);
+    if (textureID != 0) glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(xLeft, yLeft + height, zLeft - depth);
+    if (textureID != 0) glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(xLeft + width, yLeft + height,zLeft - depth);
+    if (textureID != 0) glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(xLeft + width, yLeft + height, zLeft);
+    if (textureID != 0) glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(xLeft, yLeft + height, zLeft);
     
     //Down-Face
     glNormal3f(0.0f,-1.0f,0.0f);
@@ -435,26 +449,28 @@ void Graphics::drawCuboid3D(const Math::Vector3<double> &position, const Math::V
     glVertex3f(xLeft+width,yLeft,zLeft);
     if (textureID != 0) glTexCoord2f(0.0f,1.0f);
     glVertex3f(xLeft,yLeft,zLeft);
+
     //Left-Face
-    glNormal3f(-1.0f,0.0f,0.0f);
-    if (textureID != 0) glTexCoord2f(0.0f,0.0f);
+    glNormal3f(-1.0f, 0.0f, 0.0f);
+    if (textureID != 0) glTexCoord2f(0.0f, 0.0f);
     glVertex3f(xLeft,yLeft,zLeft);
-    if (textureID != 0) glTexCoord2f(1.0f,0.0f);
-    glVertex3f(xLeft,yLeft+height,zLeft);
-    if (textureID != 0) glTexCoord2f(1.0f,1.0f);
-    glVertex3f(xLeft,yLeft+height,zLeft-depth);
-    if (textureID != 0) glTexCoord2f(0.0f,1.0f);
-    glVertex3f(xLeft,yLeft,zLeft-depth);
+    if (textureID != 0) glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(xLeft, yLeft + height, zLeft);
+    if (textureID != 0) glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(xLeft, yLeft + height, zLeft - depth);
+    if (textureID != 0) glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(xLeft, yLeft, zLeft - depth);
+
     //Right-Face
-    glNormal3f(1.0f,0.0f,0.0f);
-    if (textureID != 0) glTexCoord2f(0.0f,0.0f);
-    glVertex3f(xLeft+width,yLeft,zLeft);
-    if (textureID != 0) glTexCoord2f(1.0f,0.0f);
-    glVertex3f(xLeft+width,yLeft+height,zLeft);
-    if (textureID != 0) glTexCoord2f(1.0f,1.0f);
-    glVertex3f(xLeft+width,yLeft+height,zLeft-depth);
-    if (textureID != 0) glTexCoord2f(0.0f,1.0f);
-    glVertex3f(xLeft+width,yLeft,zLeft-depth);
+    glNormal3f(1.0f, 0.0f, 0.0f);
+    if (textureID != 0) glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(xLeft + width, yLeft, zLeft);
+    if (textureID != 0) glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(xLeft + width, yLeft + height, zLeft);
+    if (textureID != 0) glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(xLeft + width, yLeft + height, zLeft - depth);
+    if (textureID != 0) glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(xLeft + width, yLeft, zLeft - depth);
 
     glEnd();
 
@@ -465,9 +481,9 @@ void Graphics::drawCuboid3D(const Math::Vector3<double> &position, const Math::V
     glPopMatrix();
 }
 
-void Graphics::drawRectangle3D(const Math::Vector3<double> &position, const Math::Vector2<double> &size, const D3::Orientation &orientation, const D3::Texture &texture) const {
+void Graphics::drawRectangle3D(const Math::Vector3<double> &position, const Math::Vector2<double> &size, const Math::Vector3<double> &rotation, const D3::Texture &texture) const {
     if (!glEnabled()) {
-        Exception::throwException(Exception::ILLEGAL_STATE, "Graphics: OpenGL is not enabled");
+        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 3D drawing functions are only supported in OpenGL mode!");
     }
 
     const auto xLeft = -size.getX() / 2;
@@ -476,7 +492,6 @@ void Graphics::drawRectangle3D(const Math::Vector3<double> &position, const Math
     const auto width = size.getX();
     const auto height = size.getY();
     const auto textureID = texture.getTextureID();
-    const auto &rotation = orientation.getRotation();
 
     glPushMatrix();
 
@@ -486,7 +501,7 @@ void Graphics::drawRectangle3D(const Math::Vector3<double> &position, const Math
     glRotatef(rotation.getY(), 1.0f, 0.0f, 0.0f);
     glRotatef(rotation.getZ(), 0.0f, 1.0f, 0.0f);
 
-    // Set color or color
+    // Set texture or color
     if (textureID != 0) {
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
@@ -513,6 +528,35 @@ void Graphics::drawRectangle3D(const Math::Vector3<double> &position, const Math
     if (textureID != 0) {
         glDisable(GL_TEXTURE_2D);
     }
+    glPopMatrix();
+}
+
+void Graphics::drawCustomShape3D(const Math::Vector3<double> &position, const Math::Vector3<double> &scale, const Math::Vector3<double> &rotation, const Array<Math::Vector3<double>> &vertices) const {
+    if (!glEnabled()) {
+        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 3D drawing functions are only supported in OpenGL mode!");
+    }
+
+    glPushMatrix();
+
+    // Translate, Rotate, Scale
+    glTranslatef(position.getX(), position.getY(), position.getZ());
+    glRotatef(rotation.getX(), 0.0f, 0.0f, 1.0f);
+    glRotatef(rotation.getY(), 1.0f, 0.0f, 0.0f);
+    glRotatef(rotation.getZ(), 0.0f, 1.0f, 0.0f);
+    glScalef(scale.getX(), scale.getY(), scale.getZ());
+
+    // Set color
+    glColor3f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
+
+    // Draw shape (consistig of triangles)
+    glBegin(GL_TRIANGLES);
+
+    for (uint32_t i = 0; i < vertices.length(); i++) {
+        const auto &vertex = vertices[i];
+        glVertex3f(vertex.getX(), vertex.getY(), vertex.getZ());
+    }
+
+    glEnd();
     glPopMatrix();
 }
 
@@ -616,6 +660,10 @@ void Graphics::saveCurrentStateAsBackground() {
 void Graphics::clearBackground() {
     delete backgroundBuffer;
     backgroundBuffer = nullptr;
+}
+
+const Camera& Graphics::getCamera() const {
+    return camera;
 }
 
 void Graphics::clear(const Graphic::Color &color) {

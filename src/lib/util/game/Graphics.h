@@ -141,9 +141,11 @@ public:
 
     void drawModel3D(const D3::Model &model) const;
 
-    void drawCuboid3D(const Math::Vector3<double> &position, const Math::Vector3<double> &size, const D3::Orientation &orientation, const D3::Texture &texture = D3::Texture()) const;
+    void drawCuboid3D(const Math::Vector3<double> &position, const Math::Vector3<double> &size, const Math::Vector3<double> &rotation, const D3::Texture &texture = D3::Texture()) const;
 
-    void drawRectangle3D(const Math::Vector3<double> &position, const Math::Vector2<double> &size, const D3::Orientation &orientation, const D3::Texture &texture = D3::Texture()) const;
+    void drawRectangle3D(const Math::Vector3<double> &position, const Math::Vector2<double> &size, const Math::Vector3<double> &rotation, const D3::Texture &texture = D3::Texture()) const;
+
+    void drawCustomShape3D(const Math::Vector3<double> &position, const Math::Vector3<double> &scale, const Math::Vector3<double> &rotation, const Array<Math::Vector3<double>> &vertices) const;
 
     /***** Miscellaneous *****/
 
@@ -166,6 +168,8 @@ public:
     void saveCurrentStateAsBackground();
 
     void clearBackground();
+
+    [[nodiscard]] const Camera& getCamera() const;
 
     static const constexpr uint8_t FONT_SIZE = 8;
 

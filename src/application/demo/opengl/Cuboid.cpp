@@ -39,7 +39,7 @@ void Cuboid::onUpdate(double delta) {
 
 void Cuboid::draw(Util::Game::Graphics &graphics) {
     graphics.setColor(color);
-    graphics.drawCuboid3D(getPosition(), getScale(), getOrientation(), texture);
+    graphics.drawCuboid3D(getPosition(), getScale(), getOrientation().getRotation(), texture);
 }
 
 void Cuboid::onCollisionEvent([[maybe_unused]] Util::Game::D3::CollisionEvent &event) {}

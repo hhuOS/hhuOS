@@ -63,11 +63,11 @@ Engine::~Engine() {
 }
 
 void Engine::run() {
-    const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / targetFrameRate));
+    const auto targetFrameTime = Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / targetFrameRate));
 
     // Initialize screen and standard input
     Graphic::Ansi::prepareGraphicalApplication(true);
-    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
+    Io::File::setAccessMode(Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
     mouseInputStream->setAccessMode(Io::File::NON_BLOCKING);
 
     initializeNextScene();
@@ -116,7 +116,7 @@ void Engine::run() {
 void Engine::initializeNextScene() {
     if (!game.firstScene) {
         graphics.closeGl();
-        game.getCurrentScene().getCamera().setPosition(Math::Vector3<double>(0, 0, 0));
+        game.getCurrentScene().getCamera().reset();
         graphics.update();
     }
 

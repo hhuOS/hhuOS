@@ -129,13 +129,13 @@ if (Python3_Interpreter_FOUND AND iwyu_tool_path AND iwyu_fix_includes_path)
     ProcessorCount(ncpus)
     add_custom_target(optimize-includes
             COMMAND "${Python3_EXECUTABLE}" "${iwyu_tool_path}" -j "${ncpus}" -p "${CMAKE_BINARY_DIR}" |
-                    "${Python3_EXECUTABLE}" "${iwyu_fix_includes_path}" --nocomments --noupdate_comments --blank_lines --nosafe_headers --ignore_re "(.*/ff/source.*)|(.*/tinygl.*)|(.*/portablegl.*)|(.*/libc.*)|(.*/doomgeneric/doomgeneric.*)|(.*/quakegeneric/source.*)|(.*/Peanut-GB.*)" -p "${HHUOS_SRC_DIR}"
+                    "${Python3_EXECUTABLE}" "${iwyu_fix_includes_path}" --nocomments --noupdate_comments --blank_lines --nosafe_headers --ignore_re "(.*/ff/source.*)|(.*/tinygl.*)|(.*/portablegl.*)|(.*/libc.*)|(.*/doomgeneric/doomgeneric.*)|(.*/quakegeneric/source.*)|(.*/Peanut-GB.*)|(.*/clownmdemu/clownmdemu.*)" -p "${HHUOS_SRC_DIR}"
             VERBATIM)
 endif()
 
 find_program(cloc_path NAMES cloc)
 if (cloc_path)
-    add_custom_target(cloc COMMAND "${cloc_path}" "${HHUOS_SRC_DIR}" --exclude-dir=ff,tinygl,portablegl,doomgeneric,quakegeneric,Peanut-GB VERBATIM)
+    add_custom_target(cloc COMMAND "${cloc_path}" "${HHUOS_SRC_DIR}" --exclude-dir=ff,tinygl,portablegl,doomgeneric,quakegeneric,Peanut-GB,clownmdemu VERBATIM)
 endif()
 
 

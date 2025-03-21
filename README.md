@@ -105,6 +105,14 @@ When you are done tinkering with the OS, why not try to build your own applicati
         <p align="center">Rotating textured cubes using <a href="https://github.com/C-Chads/tinygl">TinyGL</a></p>
         </td>
     </tr>
+    <tr>
+        <td><img src="media/screenshots/demo3d.png" width="450px"></br>
+        <p align="center">3D demo scene rendered with our game engine</p>
+        </td>
+        <td><img src="media/screenshots/rogue3d.png" width="450px"></br>
+        <p align="center"><i>Rogue3D</i> is roguelike game</p>
+        </td>
+    </tr>
 </table>
 
 ## Notes
@@ -144,6 +152,7 @@ Quake has been ported to hhuOS using [quakegeneric](https://github.com/erysdren/
 
 [TinyGL](https://github.com/C-Chads/tinygl) by [*C-Chads*](https://github.com/C-Chads/) ([License](https://github.com/C-Chads/tinygl/blob/main/LICENSE))
 - Try out the `tinygl` command in hhuOS for some demos.
+- Used by our game engine to render 3D graphics.
 
 [PortableGL](https://github.com/rswinkle/PortableGL) by [*rswinkle*](https://github.com/rswinkle/) ([MIT](https://github.com/rswinkle/PortableGL/blob/master/LICENSE))
 - Try out the `portablegl` command in hhuOS for some demos.

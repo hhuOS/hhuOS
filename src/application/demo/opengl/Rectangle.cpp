@@ -37,7 +37,7 @@ void Rectangle::onUpdate(double delta) {
 
 void Rectangle::draw(Util::Game::Graphics &graphics) {
     graphics.setColor(color);
-    graphics.drawRectangle3D(getPosition(), Util::Math::Vector2<double>(getScale().getX(), getScale().getY()), getOrientation(), texture);
+    graphics.drawRectangle3D(getPosition(), Util::Math::Vector2<double>(getScale().getX(), getScale().getY()), getOrientation().getRotation(), texture);
 }
 
 void Rectangle::onCollisionEvent([[maybe_unused]] Util::Game::D3::CollisionEvent &event) {

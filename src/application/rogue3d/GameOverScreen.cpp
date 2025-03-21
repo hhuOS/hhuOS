@@ -14,14 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
- * The dino game is based on a bachelor's thesis, written by Malte Sehmer.
- * The original source code can be found here: https://github.com/Malte2036/hhuOS
+ * The rogue game has been implemented during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
-
-#include "GameOverScreen.h"
 
 #include <stdint.h>
 
+#include "GameOverScreen.h"
+#include "Rogue3D.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/base/Address.h"
@@ -29,12 +29,9 @@
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/math/Vector2.h"
-#include "Level.h"
-#include "lib/util/base/String.h"
 #include "lib/util/graphic/Font.h"
-#include "lib/util/io/file/File.h"
 
-GameOverScreen::GameOverScreen(uint32_t score) : score(score) {}
+GameOverScreen::GameOverScreen(uint32_t level) : level(level) {}
 
 void GameOverScreen::initialize() {
     setKeyListener(*this);
@@ -53,7 +50,7 @@ void GameOverScreen::initializeBackground(Util::Game::Graphics &graphics) {
     graphics.setColor(Util::Graphic::Colors::GREEN);
     for (uint32_t i = 0; i < lines; i++) {
         auto x = static_cast<uint16_t>(centerX - (Util::Address(TEXT[i]).stringLength() * Util::Game::Graphics::FONT_SIZE) / 2.0);
-        graphics.drawStringDirectAbsolute(x, y + i * Util::Game::Graphics::FONT_SIZE, i == 4 ? Util::String::format("Score: %u", score) : TEXT[i]);
+        graphics.drawStringDirectAbsolute(x, y + i * Util::Game::Graphics::FONT_SIZE, i == 4 ? Util::String::format("You died at level %u!", level) : TEXT[i]);
     }
 }
 
@@ -64,7 +61,7 @@ void GameOverScreen::keyPressed(const Util::Io::Key &key) {
             break;
         case Util::Io::Key::SPACE:
             auto &game = Util::Game::GameManager::getGame();
-            game.pushScene(new Level(Util::Io::File("/user/dino/level/level1.txt"), 0));
+            game.pushScene(new Rogue3D());
             game.switchToNextScene();
     }
 }

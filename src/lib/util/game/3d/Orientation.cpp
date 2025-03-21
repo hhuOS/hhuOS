@@ -72,10 +72,11 @@ const Math::Vector3<double>& Orientation::getFront() const {
 }
 
 void Orientation::setFront(const Math::Vector3<double> &front) {
+    const auto normalizedFront = front.normalize();
     const auto rotation = Math::Vector3<double>(
         Orientation::rotation.getX(),
-        Math::toDegrees(Math::arcsine(front.getY())),
-        Math::toDegrees(Math::arctangent2(front.getX(), -front.getZ()))
+        Math::toDegrees(Math::arcsine(normalizedFront.getY())),
+        Math::toDegrees(Math::arctangent2(normalizedFront.getX(), -normalizedFront.getZ()))
         );
 
     setRotation(rotation);
