@@ -23,6 +23,13 @@
 #include "lib/util/base/String.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/game/3d/Entity.h"
+#include "lib/util/math/Vector3.h"
+
+namespace Util {
+namespace Math {
+template <typename T> class Vector2;
+}  // namespace Math
+}  // namespace Util
 
 class Rectangle : public Util::Game::D3::Entity {
 

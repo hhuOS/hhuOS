@@ -18,16 +18,16 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
-#include "lib/util/game/3d/event/CollisionEvent.h"
-#include "lib/util/math/Math.h"
 #include "lib/util/base/String.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/math/Vector2.h"
-#include "lib/util/graphic/Font.h"
 #include "Hud.h"
 #include "lib/util/game/GameManager.h"
 #include "Player.h"
 #include "Room.h"
+#include "lib/util/graphic/Color.h"
+#include "lib/util/graphic/Colors.h"
+#include "lib/util/math/Vector3.h"
 
 Hud::Hud(Room::Type map[4][4], const Player &player) : Entity(TAG, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0)), player(player) {
     for (uint32_t row = 0; row < 4; row++) {

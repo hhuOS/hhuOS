@@ -26,13 +26,7 @@
 #include "Room.h"
 #include "lib/util/game/3d/Entity.h"
 
-namespace Util::Game
-{
-    class Graphics;
-    namespace D3 {
-        class CollisionEvent;
-    }  // namespace D3
-}
+class Player;
 
 class Hud : public Util::Game::D3::Entity {
 

@@ -38,6 +38,7 @@
 #include "lib/util/base/Exception.h"
 #include "lib/util/game/3d/Light.h"
 #include "lib/util/game/3d/Model.h"
+#include "lib/util/game/3d/Texture.h"
 
 namespace Util::Game {
 
@@ -58,7 +59,7 @@ Graphics::Graphics(const Util::Graphic::LinearFrameBuffer &lfb, Game &game, doub
 /***** Basic functions to draw directly on the screen ******/
 
 void Graphics::drawLineDirectAbsolute(uint16_t fromX, uint16_t fromY, uint16_t toX, uint16_t toY) const {
-    if (glEnabled()) {
+    if (isGlEnabled()) {
         Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: Drawing with absolute coordinates is not supported in OpenGL mode!");
     }
 
@@ -90,7 +91,7 @@ void Graphics::fillSquareDirectAbsolute(uint16_t posX, uint16_t posY, uint16_t s
 }
 
 void Graphics::drawStringDirectAbsolute(uint16_t posX, uint16_t posY, const char *string) const {
-    if (glEnabled()) {
+    if (isGlEnabled()) {
         glDrawText(reinterpret_cast<const GLubyte*>(string), posX, posY, color.getRGB32());
     } else {
         bufferedLfb.drawString(Graphic::Fonts::TERMINAL_8x8, posX, posY, string, color, Graphic::Colors::INVISIBLE);
@@ -102,7 +103,7 @@ void Graphics::drawStringDirectAbsolute(uint16_t posX, uint16_t posY, const Stri
 }
 
 void Graphics::drawLineDirect(const Math::Vector2<double> &from, const Math::Vector2<double> &to) const {
-    if (glEnabled()) {
+    if (isGlEnabled()) {
         gluPrepareDirectDraw(D3::Scene::LINES);
 
         glColor3f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
@@ -126,7 +127,7 @@ void Graphics::drawRectangleDirect(const Math::Vector2<double> &position, const 
     const auto width = size.getX();
     const auto height = size.getY();
 
-    if (glEnabled()) {
+    if (isGlEnabled()) {
         gluPrepareDirectDraw(D3::Scene::LINES);
 
         glColor3f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
@@ -158,7 +159,7 @@ void Graphics::fillRectangleDirect(const Math::Vector2<double> &position, const 
     const auto width = size.getX();
     const auto height = size.getY();
 
-    if (glEnabled()) {
+    if (isGlEnabled()) {
         gluPrepareDirectDraw(D3::Scene::FILL);
 
         glColor3f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
@@ -170,7 +171,6 @@ void Graphics::fillRectangleDirect(const Math::Vector2<double> &position, const 
         glVertex2f(x, y + height);
 
         glEnd();
-
         gluFinishDirectDraw();
     } else {
         const auto startX = static_cast<int32_t>(x * transformation + offsetX);
@@ -195,7 +195,7 @@ void Graphics::fillSquareDirect(const Math::Vector2<double> &position, double si
 }
 
 void Graphics::drawStringDirect(const Math::Vector2<double> &position, const char *string) const {
-    if (glEnabled()) {
+    if (isGlEnabled()) {
         glDrawText(reinterpret_cast<const GLubyte*>(string),
                  static_cast<uint16_t>(position.getX() * transformation + offsetX),
                  static_cast<uint16_t>(-position.getY() * transformation + offsetY),
@@ -214,7 +214,7 @@ void Graphics::drawStringDirect(const Math::Vector2<double> &position, const Str
 /***** 2D drawing functions, respecting the camera position *****/
 
 void Graphics::drawLine2D(const Math::Vector2<double> &from, const Math::Vector2<double> &to) const {
-    if (glEnabled()) {
+    if (isGlEnabled()) {
         Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 2D drawing functions are not supported in OpenGL mode!");
     }
 
@@ -249,7 +249,7 @@ void Graphics::drawSquare2D(const Math::Vector2<double> &position, double size) 
 }
 
 void Graphics::fillRectangle2D(const Math::Vector2<double> &position, const Math::Vector2<double> &size) const {
-    if (glEnabled()) {
+    if (isGlEnabled()) {
         Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 2D drawing functions are not supported in OpenGL mode!");
     }
     
@@ -276,7 +276,7 @@ void Graphics::fillSquare2D(const Math::Vector2<double> &position, double size) 
 }
 
 void Graphics::drawString2D(const Math::Vector2<double> &position, const char *string) const {
-    if (glEnabled()) {
+    if (isGlEnabled()) {
         Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 2D drawing functions are not supported in OpenGL mode!");
     }
     
@@ -291,7 +291,7 @@ void Graphics::drawString2D(const Math::Vector2<double> &position, const String 
 }
 
 void Graphics::drawImage2D(const Math::Vector2<double> &position, const Graphic::Image &image, bool flipX, double alpha, const Math::Vector2<double> &scale, double rotationAngle) const {
-    if (glEnabled()) {
+    if (isGlEnabled()) {
         Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 2D drawing functions are not supported in OpenGL mode!");
     }
     
@@ -310,20 +310,13 @@ void Graphics::drawImage2D(const Math::Vector2<double> &position, const Graphic:
 }
 
 void Graphics::drawModel3D(const D3::Model &model) const {
-    if (!glEnabled()) {
+    if (!isGlEnabled()) {
         Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 3D drawing functions are only supported in OpenGL mode!");
     }
 
     const auto &position = model.getPosition();
     const auto &rotation = model.getRotation();
     const auto &scale = model.getScale();
-    const auto &vertices = model.getVertices();
-    const auto &normals = model.getVertexNormals();
-    const auto &textureCoordinates = model.getVertexTextures();
-    const auto &vertexDrawOrder = model.getVertexDrawOrder();
-    const auto &normalDrawOrder = model.getNormalDrawOrder();
-    const auto &textureDrawOrder = model.getTextureDrawOrder();
-    const auto textureID = model.getTexture().getTextureID();
 
     glPushMatrix();
 
@@ -334,164 +327,20 @@ void Graphics::drawModel3D(const D3::Model &model) const {
     glRotatef(rotation.getZ(), 0.0f, 1.0f, 0.0f);
     glScalef(scale.getX(), scale.getY(), scale.getZ());
 
-    // Set texture or color
-    if (textureID != 0) {
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glColor3f(1.0f, 1.0f, 1.0f);
-    } else {
+    // Set color
+    if (model.getTexture().getTextureID() == 0) {
         glColor3f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
     }
 
-    // Draw triangles
-    glBegin(GL_TRIANGLES);
-    for (uint32_t i = 0; i < vertexDrawOrder.length(); i++) {
-        if (normalDrawOrder.length() > i) {
-            const auto &normal = normals[normalDrawOrder[i]];
-            glNormal3f(normal.getX(), normal.getY(), normal.getZ());
-        }
+    listModel3D(model);
 
-        if (textureID != 0 && textureDrawOrder.length() > i) {
-            const auto &textureCoordinate = textureCoordinates[textureDrawOrder[i]];
-            glTexCoord2f(textureCoordinate.getX(), textureCoordinate.getY());
-        }
-
-        const auto &vertex = vertices[vertexDrawOrder[i]];
-        glVertex3f(vertex.getX(), vertex.getY(), vertex.getZ());
-    }
-    glEnd();
-
-    // Disable texture (if enabled)
-    if (textureID != 0) {
-        glDisable(GL_TEXTURE_2D);
-    }
-
-    glPopMatrix();
-}
-
-void Graphics::drawCuboid3D(const Math::Vector3<double> &position, const Math::Vector3<double> &size, const Math::Vector3<double> &rotation, const D3::Texture &texture) const {
-    if (!glEnabled()) {
-        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 3D drawing functions are only supported in OpenGL mode!");
-    }
-
-    const auto width = size.getX();
-    const auto height = size.getY();
-    const auto depth = size.getZ();
-    const auto xLeft= -width / 2;
-    const auto yLeft= -height / 2;
-    const auto zLeft= depth / 2;
-    const auto textureID = texture.getTextureID();
-
-    glPushMatrix();
-
-    // Translate, Rotate
-    glTranslatef(position.getX(), position.getY(), position.getZ());
-    glRotatef(rotation.getX(), 0.0f, 0.0f, 1.0f);
-    glRotatef(rotation.getY(), 1.0f, 0.0f, 0.0f);
-    glRotatef(rotation.getZ(), 0.0f, 1.0f, 0.0f);
-
-    // Set texture or color
-    if (textureID != 0) {
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glColor3f(1.0f, 1.0f, 1.0f);
-    } else {
-        glColor3f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
-    }
-
-    // Draw cuboid
-    glBegin(GL_QUADS);
-
-    //Front-Face
-    glNormal3f(0.0f, 0.0f, 1.0f);
-    if (textureID != 0) glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(xLeft, yLeft, zLeft);
-    if (textureID != 0) glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(xLeft + width, yLeft, zLeft);
-    if (textureID != 0) glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(xLeft + width, yLeft + height, zLeft);
-    if (textureID != 0) glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(xLeft, yLeft + height, zLeft);
-    
-    //Back-Face 
-    glNormal3f(0.0f, 0.0f, -1.0f);
-    if (textureID != 0) glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(xLeft, yLeft, zLeft - depth);
-    if (textureID != 0) glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(xLeft + width, yLeft, zLeft - depth);
-    if (textureID != 0) glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(xLeft + width,yLeft + height, zLeft - depth);
-    if (textureID != 0) glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(xLeft, yLeft + height, zLeft - depth);
-    
-    //Top-Face
-    glNormal3f(0.0f ,1.0f, 0.0f);
-    if (textureID != 0) glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(xLeft, yLeft + height, zLeft - depth);
-    if (textureID != 0) glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(xLeft + width, yLeft + height,zLeft - depth);
-    if (textureID != 0) glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(xLeft + width, yLeft + height, zLeft);
-    if (textureID != 0) glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(xLeft, yLeft + height, zLeft);
-    
-    //Down-Face
-    glNormal3f(0.0f,-1.0f,0.0f);
-    if (textureID != 0) glTexCoord2f(0.0f,0.0f);
-    glVertex3f(xLeft,yLeft,zLeft-depth);
-    if (textureID != 0) glTexCoord2f(1.0f,0.0f);
-    glVertex3f(xLeft+width,yLeft,zLeft-depth);
-    if (textureID != 0) glTexCoord2f(1.0f,1.0f);
-    glVertex3f(xLeft+width,yLeft,zLeft);
-    if (textureID != 0) glTexCoord2f(0.0f,1.0f);
-    glVertex3f(xLeft,yLeft,zLeft);
-
-    //Left-Face
-    glNormal3f(-1.0f, 0.0f, 0.0f);
-    if (textureID != 0) glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(xLeft,yLeft,zLeft);
-    if (textureID != 0) glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(xLeft, yLeft + height, zLeft);
-    if (textureID != 0) glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(xLeft, yLeft + height, zLeft - depth);
-    if (textureID != 0) glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(xLeft, yLeft, zLeft - depth);
-
-    //Right-Face
-    glNormal3f(1.0f, 0.0f, 0.0f);
-    if (textureID != 0) glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(xLeft + width, yLeft, zLeft);
-    if (textureID != 0) glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(xLeft + width, yLeft + height, zLeft);
-    if (textureID != 0) glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(xLeft + width, yLeft + height, zLeft - depth);
-    if (textureID != 0) glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(xLeft + width, yLeft, zLeft - depth);
-
-    glEnd();
-
-    // Disable texture (if enabled)
-    if (textureID != 0) {
-        glDisable(GL_TEXTURE_2D);
-    }
     glPopMatrix();
 }
 
 void Graphics::drawRectangle3D(const Math::Vector3<double> &position, const Math::Vector2<double> &size, const Math::Vector3<double> &rotation, const D3::Texture &texture) const {
-    if (!glEnabled()) {
+    if (!isGlEnabled()) {
         Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 3D drawing functions are only supported in OpenGL mode!");
     }
-
-    const auto xLeft = -size.getX() / 2;
-    const auto yLeft = -size.getY() / 2;
-    const auto z = static_cast<float>(position.getZ());
-    const auto width = size.getX();
-    const auto height = size.getY();
-    const auto textureID = texture.getTextureID();
 
     glPushMatrix();
 
@@ -501,38 +350,16 @@ void Graphics::drawRectangle3D(const Math::Vector3<double> &position, const Math
     glRotatef(rotation.getY(), 1.0f, 0.0f, 0.0f);
     glRotatef(rotation.getZ(), 0.0f, 1.0f, 0.0f);
 
-    // Set texture or color
-    if (textureID != 0) {
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glColor3f(1.0f, 1.0f, 1.0f);
-    } else {
-        glColor3f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
-    }
+    // Set color
+    glColor3f(color.getRed() / 255.0, color.getGreen() / 255.0, color.getBlue() / 255.0);
 
-    glBegin(GL_QUADS);
-    glNormal3f(0.0f, 0.0f, 1.0f);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(xLeft, yLeft, z);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(xLeft + width, yLeft, z);
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(xLeft + width, yLeft + height, z);
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(xLeft, yLeft + height, z);
-    glEnd();
+    listRectangle3D(size, texture);
 
-    // Disable texture (if enabled)
-    if (textureID != 0) {
-        glDisable(GL_TEXTURE_2D);
-    }
     glPopMatrix();
 }
 
 void Graphics::drawCustomShape3D(const Math::Vector3<double> &position, const Math::Vector3<double> &scale, const Math::Vector3<double> &rotation, const Array<Math::Vector3<double>> &vertices) const {
-    if (!glEnabled()) {
+    if (!isGlEnabled()) {
         Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 3D drawing functions are only supported in OpenGL mode!");
     }
 
@@ -546,9 +373,261 @@ void Graphics::drawCustomShape3D(const Math::Vector3<double> &position, const Ma
     glScalef(scale.getX(), scale.getY(), scale.getZ());
 
     // Set color
-    glColor3f(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
+    glColor3f(color.getRed() / 255.0, color.getGreen() / 255.0, color.getBlue() / 255.0);
 
-    // Draw shape (consistig of triangles)
+    // Draw shape (consisting of triangles)
+    listCustomShape3D(vertices);
+
+    glPopMatrix();
+}
+
+void Graphics::drawCuboid3D(const Math::Vector3<double> &position, const Math::Vector3<double> &size, const Math::Vector3<double> &rotation, const D3::Texture &texture) const {
+    if (!isGlEnabled()) {
+        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 3D drawing functions are only supported in OpenGL mode!");
+    }
+
+    glPushMatrix();
+
+    // Translate, Rotate
+    glTranslatef(position.getX(), position.getY(), position.getZ());
+    glRotatef(rotation.getX(), 0.0f, 0.0f, 1.0f);
+    glRotatef(rotation.getY(), 1.0f, 0.0f, 0.0f);
+    glRotatef(rotation.getZ(), 0.0f, 1.0f, 0.0f);
+
+    // Set color
+    glColor3f(color.getRed() / 255.0, color.getGreen() / 255.0, color.getBlue() / 255.0);
+
+    listCuboid3D(size, texture);
+
+    glPopMatrix();
+}
+
+void Graphics::drawList3D(const Math::Vector3<double> &position, const Math::Vector3<double> &scale, const Math::Vector3<double> &rotation, GLuint list) const {
+    glPushMatrix();
+
+    // Translate, Rotate, Scale
+    glTranslatef(position.getX(), position.getY(), position.getZ());
+    glRotatef(rotation.getX(), 0.0f, 0.0f, 1.0f);
+    glRotatef(rotation.getY(), 1.0f, 0.0f, 0.0f);
+    glRotatef(rotation.getZ(), 0.0f, 1.0f, 0.0f);
+    glScalef(scale.getX(), scale.getY(), scale.getZ());
+
+    // Set color
+    glColor3f(color.getRed() / 255.0, color.getGreen() / 255.0, color.getBlue() / 255.0);
+
+    glCallList(list);
+
+    glPopMatrix();
+}
+
+GLuint Graphics::startList3D() {
+    const auto list = glGenLists(1);
+    glNewList(list, GL_COMPILE);
+
+    return list;
+}
+
+void Graphics::endList3D() {
+    glEndList();
+}
+
+void Graphics::listModel3D(const D3::Model &model) {
+    const auto &vertices = model.getVertices();
+    const auto &normals = model.getVertexNormals();
+    const auto &textureCoordinates = model.getVertexTextures();
+    const auto &vertexDrawOrder = model.getVertexDrawOrder();
+    const auto &normalDrawOrder = model.getNormalDrawOrder();
+    const auto &textureDrawOrder = model.getTextureDrawOrder();
+    const auto textureId = model.getTexture().getTextureID();
+
+    // Set texture or color
+    if (textureId != 0) {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, textureId);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glColor3f(1.0f, 1.0f, 1.0f);
+    }
+
+    // Draw triangles
+    glBegin(GL_TRIANGLES);
+    for (uint32_t i = 0; i < vertexDrawOrder.length(); i++) {
+        if (normalDrawOrder.length() > i) {
+            const auto &normal = normals[normalDrawOrder[i]];
+            glNormal3f(normal.getX(), normal.getY(), normal.getZ());
+        }
+
+        if (textureId != 0 && textureDrawOrder.length() > i) {
+            const auto &textureCoordinate = textureCoordinates[textureDrawOrder[i]];
+            glTexCoord2f(textureCoordinate.getX(), textureCoordinate.getY());
+        }
+
+        const auto &vertex = vertices[vertexDrawOrder[i]];
+        glVertex3f(vertex.getX(), vertex.getY(), vertex.getZ());
+    }
+    glEnd();
+
+    // Disable texture (if enabled)
+    if (textureId != 0) {
+        glDisable(GL_TEXTURE_2D);
+    }
+}
+
+void Graphics::listCuboid3D(const Math::Vector3<double> &size, const Graphic::Color &color) {
+    glColor3f(color.getRed() / 255.0, color.getGreen() / 255.0, color.getBlue() / 255.0);
+    listCuboid3D(size, D3::Texture());
+}
+
+void Graphics::listCuboid3D(const Math::Vector3<double> &translation, const Math::Vector3<double> &size, const Graphic::Color &color) {
+    glColor3f(color.getRed() / 255.0, color.getGreen() / 255.0, color.getBlue() / 255.0);
+    listCuboid3D(translation, size, D3::Texture());
+}
+
+void Graphics::listCuboid3D(const Math::Vector3<double> &size, const D3::Texture &texture) {
+    const auto width = size.getX();
+    const auto height = size.getY();
+    const auto depth = size.getZ();
+    const auto xLeft= -width / 2;
+    const auto yLeft= -height / 2;
+    const auto zLeft= depth / 2;
+    const auto textureId = texture.getTextureID();
+
+    // Set texture
+    if (textureId != 0) {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glColor3f(1.0f, 1.0f, 1.0f);
+    }
+
+    // Draw cuboid
+    glBegin(GL_QUADS);
+
+    //Front-Face
+    glNormal3f(0.0f, 0.0f, 1.0f);
+    if (textureId != 0) glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(xLeft, yLeft, zLeft);
+    if (textureId != 0) glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(xLeft + width, yLeft, zLeft);
+    if (textureId != 0) glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(xLeft + width, yLeft + height, zLeft);
+    if (textureId != 0) glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(xLeft, yLeft + height, zLeft);
+
+    //Back-Face
+    glNormal3f(0.0f, 0.0f, -1.0f);
+    if (textureId != 0) glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(xLeft, yLeft, zLeft - depth);
+    if (textureId != 0) glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(xLeft + width, yLeft, zLeft - depth);
+    if (textureId != 0) glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(xLeft + width,yLeft + height, zLeft - depth);
+    if (textureId != 0) glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(xLeft, yLeft + height, zLeft - depth);
+
+    //Top-Face
+    glNormal3f(0.0f ,1.0f, 0.0f);
+    if (textureId != 0) glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(xLeft, yLeft + height, zLeft - depth);
+    if (textureId != 0) glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(xLeft + width, yLeft + height,zLeft - depth);
+    if (textureId != 0) glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(xLeft + width, yLeft + height, zLeft);
+    if (textureId != 0) glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(xLeft, yLeft + height, zLeft);
+
+    //Down-Face
+    glNormal3f(0.0f,-1.0f,0.0f);
+    if (textureId != 0) glTexCoord2f(0.0f,0.0f);
+    glVertex3f(xLeft,yLeft,zLeft-depth);
+    if (textureId != 0) glTexCoord2f(1.0f,0.0f);
+    glVertex3f(xLeft+width,yLeft,zLeft-depth);
+    if (textureId != 0) glTexCoord2f(1.0f,1.0f);
+    glVertex3f(xLeft+width,yLeft,zLeft);
+    if (textureId != 0) glTexCoord2f(0.0f,1.0f);
+    glVertex3f(xLeft,yLeft,zLeft);
+
+    //Left-Face
+    glNormal3f(-1.0f, 0.0f, 0.0f);
+    if (textureId != 0) glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(xLeft,yLeft,zLeft);
+    if (textureId != 0) glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(xLeft, yLeft + height, zLeft);
+    if (textureId != 0) glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(xLeft, yLeft + height, zLeft - depth);
+    if (textureId != 0) glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(xLeft, yLeft, zLeft - depth);
+
+    //Right-Face
+    glNormal3f(1.0f, 0.0f, 0.0f);
+    if (textureId != 0) glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(xLeft + width, yLeft, zLeft);
+    if (textureId != 0) glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(xLeft + width, yLeft + height, zLeft);
+    if (textureId != 0) glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(xLeft + width, yLeft + height, zLeft - depth);
+    if (textureId != 0) glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(xLeft + width, yLeft, zLeft - depth);
+
+    glEnd();
+
+    // Disable texture (if enabled)
+    if (textureId != 0) {
+        glDisable(GL_TEXTURE_2D);
+    }
+}
+
+void Graphics::listCuboid3D(const Math::Vector3<double> &translation, const Math::Vector3<double> &size, const D3::Texture &texture) {
+    glPushMatrix();
+
+    glTranslatef(translation.getX(), translation.getY(), translation.getZ());
+    listCuboid3D(size, texture);
+
+    glPopMatrix();
+}
+
+void Graphics::listRectangle3D(const Math::Vector2<double> &size, const Graphic::Color &color) {
+    glColor3f(color.getRed() / 255.0, color.getGreen() / 255.0, color.getBlue() / 255.0);
+    listRectangle3D(size, D3::Texture());
+}
+
+void Graphics::listRectangle3D(const Math::Vector2<double> &size, const D3::Texture &texture) {
+    const auto xLeft = -size.getX() / 2;
+    const auto yLeft = -size.getY() / 2;
+    const auto width = size.getX();
+    const auto height = size.getY();
+    const auto textureId = texture.getTextureID();
+
+    // Set texture
+    if (textureId != 0) {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glColor3f(1.0f, 1.0f, 1.0f);
+    }
+
+    glBegin(GL_QUADS);
+    glNormal3f(0.0f, 0.0f, 1.0f);
+    if (textureId != 0) glTexCoord2f(0.0f, 0.0f);
+    glVertex2f(xLeft, yLeft);
+    if (textureId != 0) glTexCoord2f(1.0f, 0.0f);
+    glVertex2f(xLeft + width, yLeft);
+    if (textureId != 0) glTexCoord2f(1.0f, 1.0f);
+    glVertex2f(xLeft + width, yLeft + height);
+    if (textureId != 0) glTexCoord2f(0.0f, 1.0f);
+    glVertex2f(xLeft, yLeft + height);
+    glEnd();
+
+    // Disable texture (if enabled)
+    if (textureId != 0) {
+        glDisable(GL_TEXTURE_2D);
+    }
+}
+
+void Graphics::listCustomShape3D(const Array<Math::Vector3<double>> &vertices) {
+    // Draw shape (consisting of triangles)
     glBegin(GL_TRIANGLES);
 
     for (uint32_t i = 0; i < vertices.length(); i++) {
@@ -557,12 +636,13 @@ void Graphics::drawCustomShape3D(const Math::Vector3<double> &position, const Ma
     }
 
     glEnd();
-    glPopMatrix();
 }
 
 void Graphics::initializeGl() {
-    glBuffer = ZB_open(bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY(), ZB_MODE_RGBA, reinterpret_cast<void*>(bufferedLfb.getBuffer().get()));
-    glInit(glBuffer);
+    if (glBuffer == nullptr) {
+        glBuffer = ZB_open(bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY(), ZB_MODE_RGBA, reinterpret_cast<void*>(bufferedLfb.getBuffer().get()));
+        glInit(glBuffer);
+    }
 
     const auto &scene = reinterpret_cast<D3::Scene&>(game.getCurrentScene());
     const auto width = static_cast<GLdouble>(bufferedLfb.getResolutionX());
@@ -592,26 +672,22 @@ void Graphics::initializeGl() {
     // Set shade model and render style
     glShadeModel(scene.getGlShadeModel());
     glPolygonMode(GL_FRONT_AND_BACK, scene.getGlRenderStyle());
+
+    glEnabled = true;
 }
 
-void Graphics::closeGl() {
-    if (!glEnabled()) {
-        return;
-    }
-
-    glClose();
-    ZB_close(glBuffer);
-    glBuffer = nullptr;
+void Graphics::disableGl() {
+    glEnabled = false;
 }
 
-bool Graphics::glEnabled() const {
-    return glBuffer != nullptr;
+bool Graphics::isGlEnabled() const {
+    return glEnabled;
 }
 
 void Graphics::show() const {
     bufferedLfb.flush();
 
-    if (glBuffer != nullptr) {
+    if (glEnabled) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         return;
     }
@@ -686,7 +762,7 @@ void Graphics::clear(const Graphic::Color &color) {
 void Graphics::update() {
     camera = game.getCurrentScene().getCamera();
 
-    if (glEnabled()) {
+    if (isGlEnabled()) {
         // Set drawing perspective
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
@@ -704,10 +780,10 @@ void Graphics::update() {
         for (uint32_t i = 0; i < 16; i++) {
             if (scene.hasLight(i)) {
                 const auto &light = scene.getLight(i);
-                GLfloat position[4] = {static_cast<GLfloat>(light.getPosition().getX()), static_cast<GLfloat>(light.getPosition().getY()),
-                                       static_cast<GLfloat>(light.getPosition().getZ()), static_cast<GLfloat>(light.getType())};
-                GLfloat diffuse[4] = {light.getDiffuseColor().getRed() / 255.0f, light.getDiffuseColor().getGreen() / 255.0f, light.getDiffuseColor().getBlue() / 255.0f, 1.0f};
-                GLfloat specular[4] = {light.getSpecularColor().getRed() / 255.0f, light.getSpecularColor().getGreen() / 255.0f, light.getSpecularColor().getBlue() / 255.0f, 1.0f};
+                GLfloat position[4] = { static_cast<GLfloat>(light.getPosition().getX()), static_cast<GLfloat>(light.getPosition().getY()),
+                                       static_cast<GLfloat>(light.getPosition().getZ()), static_cast<GLfloat>(light.getType()) };
+                GLfloat diffuse[4] = { light.getDiffuseColor().getRed() / 255.0f, light.getDiffuseColor().getGreen() / 255.0f, light.getDiffuseColor().getBlue() / 255.0f, 1.0f };
+                GLfloat specular[4] = { light.getSpecularColor().getRed() / 255.0f, light.getSpecularColor().getGreen() / 255.0f, light.getSpecularColor().getBlue() / 255.0f, 1.0f };
 
                 glLightfv(GL_LIGHT0 + i, GL_POSITION, position);
                 glLightfv(GL_LIGHT0 + i, GL_DIFFUSE, diffuse);

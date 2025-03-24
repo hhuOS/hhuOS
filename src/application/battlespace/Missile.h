@@ -24,9 +24,13 @@
 #include <stdint.h>
 
 #include "lib/util/game/3d/Model.h"
-#include "lib/util/math/Vector3.h"
 
 class Player;
+namespace Util {
+namespace Math {
+template <typename T> class Vector3;
+}  // namespace Math
+}  // namespace Util
 
 class Missile : public Util::Game::D3::Model {
 

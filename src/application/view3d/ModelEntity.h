@@ -13,10 +13,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * view3d has originally been implemented during a bachelor's thesis by Richard Josef Schweitzer
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
 #ifndef HHUOS_VIEW3D_MODEL_H
 #define HHUOS_VIEW3D_MODEL_H
+
+#include <stdint.h>
 
 #include "lib/util/game/3d/Model.h"
 #include "lib/util/base/String.h"
@@ -49,9 +54,17 @@ public:
      */
     ~ModelEntity() override = default;
 
+    void initialize() override;
+
+    void draw(Util::Game::Graphics &graphics) override;
+
     void onUpdate(double delta) override;
 
     void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
+
+private:
+
+    uint32_t drawListID = UINT32_MAX;
 };
 
 #endif

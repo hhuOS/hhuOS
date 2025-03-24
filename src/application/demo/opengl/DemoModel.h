@@ -21,17 +21,29 @@
 #ifndef DEMOMODEL_H
 #define DEMOMODEL_H
 
+#include <stdint.h>
+
 #include "lib/util/game/3d/Model.h"
 #include "lib/util/graphic/Color.h"
-#include "lib/util/math/Vector3.h"
+#include "lib/util/graphic/Colors.h"
+
+namespace Util {
+namespace Math {
+template <typename T> class Vector3;
+}  // namespace Math
+}  // namespace Util
 
 class DemoModel : public Util::Game::D3::Model {
 
 public:
+    enum Type {
+        TREE, LANTERN, ICOSPHERE
+    };
+
     /**
      * Constructor.
      */
-    DemoModel(const Util::String &modelPath, const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, const Util::Math::Vector3<double> &scale, const Util::Graphic::Color &color);
+    DemoModel(Type type, const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, const Util::Math::Vector3<double> &scale, const Util::Graphic::Color &color = Util::Graphic::Colors::WHITE);
 
     /**
      * Copy Constructor.
@@ -48,9 +60,25 @@ public:
      */
     ~DemoModel() override = default;
 
+    void initialize() override;
+
+    void draw(Util::Game::Graphics &graphics) override;
+
     void onUpdate(double delta) override;
 
     void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
+
+private:
+
+    Type type;
+    uint32_t drawListID = UINT32_MAX;
+    Util::Graphic::Color color;
+
+    static const char* pathForType(Type type);
+
+    static uint32_t TREE_DRAW_LIST_ID;
+    static uint32_t LANTERN_DRAW_LIST_ID;
+    static uint32_t ICOSPHERE_DRAW_LIST_ID;
 };
 
 

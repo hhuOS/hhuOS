@@ -27,7 +27,7 @@
 #include "Camera.h"
 
 #include "lib/util/math/Vector2.h"
-#include "lib/util/math/Math.h"
+#include "lib/util/game/3d/Orientation.h"
 
 namespace Util::Game {
 
@@ -45,6 +45,10 @@ const Math::Vector3<double>& Camera::getRotation() const {
 
 const Math::Vector3<double>& Camera::getFrontVector() const {
     return orientation.getFront();
+}
+
+const Math::Vector3<double> & Camera::getUpVector() const {
+    return orientation.getUp();
 }
 
 const Math::Vector3<double>& Camera::getRightVector() const {

@@ -25,13 +25,6 @@
 
 #include "lib/util/game/3d/Entity.h"
 
-namespace Util::Game {
-class Graphics;
-namespace D3 {
-class CollisionEvent;
-}  // namespace D3
-} // namespace Util::Game
-
 class Player : public Util::Game::D3::Entity {
 
 public:
@@ -95,6 +88,8 @@ private:
 
     uint32_t level = 1;
     double invulnerabilityTime = 0;
+
+    static uint32_t DRAW_LIST_ID;
 };
 
 #endif

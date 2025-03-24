@@ -21,24 +21,17 @@
 #ifndef HHUOS_ROGUE3D_H
 #define HHUOS_ROGUE3D_H
 
-#include "application/rogue3d/entities/Hud.h"
+#include <stdint.h>
+
 #include "application/rogue3d/entities/Room.h"
 #include "lib/util/game/3d/Scene.h"
 #include "lib/util/game/KeyListener.h"
 #include "lib/util/math/Random.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/math/Vector2.h"
 #include "lib/util/math/Vector3.h"
 
-namespace Util {
-namespace Game{
-class Graphics;
-}
-
-namespace Io {
-class Key;
-}  // namespace Io
-}  // namespace Util
+class Hud;
+class Player;
 
 class Rogue3D : public Util::Game::D3::Scene, public Util::Game::KeyListener {
 

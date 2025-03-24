@@ -22,6 +22,7 @@
 #define HHUOS_ROGUE3D_ROGUEENEMY_H
 
 #include <stdint.h>
+
 #include "lib/util/game/3d/Entity.h"
 #include "lib/util/math/Vector3.h"
 
@@ -31,13 +32,6 @@ class Color;
 
 class Room;
 class Player;
-
-namespace Util::Game {
-class Graphics;
-namespace D3 {
-class CollisionEvent;
-}  // namespace D3
-} // namespace Util::Game
 
 class Enemy : public Util::Game::D3::Entity {
 
@@ -98,20 +92,22 @@ public:
 
 private:
 
-  Type type = CHASING;
-  bool active = false;
-  double damage = 1;
-  
-  double health = 3;
-  double initHealth = 3;
+    Type type = CHASING;
+    bool active = false;
+    double damage = 1;
 
-  double cooldown = 0.9;
+    double health = 3;
+    double initHealth = 3;
 
-  Player &player;
-  Room &room;
+    double cooldown = 0.9;
 
-  Util::Math::Vector3<double> bossMovement={1, 0, 0};
+    Player &player;
+    Room &room;
 
+    Util::Math::Vector3<double> bossMovement = Util::Math::Vector3<double>(1, 0, 0);
+
+    static uint32_t ENEMY_LIST_ID;
+    static uint32_t BOSS_LIST_ID;
 };
 
 #endif

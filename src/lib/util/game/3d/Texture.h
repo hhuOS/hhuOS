@@ -55,7 +55,7 @@ public:
 
 private:
 
-    GLuint textureID = 0;
+    GLuint textureId = 0;
 };
 
 }

@@ -1,14 +1,15 @@
-#include "application/rogue3d//entities/Item.h"
 #include "application/rogue3d/entities/Player.h"
 #include "application/rogue3d/entities/Projectile.h"
-#include "entities/Enemy.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Camera.h"
-#include "lib/util/game/Scene.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/math/Math.h"
 #include "Rogue3D.h"
+#include "application/rogue3d/entities/Hud.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/game/3d/Light.h"
+#include "lib/util/graphic/Color.h"
 
 Rogue3D::Rogue3D() : player(new Player) {}
 
@@ -21,7 +22,7 @@ void Rogue3D::initialize() {
     // Setup camera
     camera.reset();
     camera.setPosition(Util::Math::Vector3<double>(player->getPosition().getX(), 34, player->getPosition().getZ() + 21));
-    camera.setRotation(Util::Math::Vector3<double>(0, 60, 0));
+    camera.setRotation(Util::Math::Vector3<double>(0, -60, 0));
 
     hud = new Hud(levelGen, *player);
     hud->setCurrentPosition(currentRoom->getRow(), currentRoom->getColumn());
@@ -218,7 +219,7 @@ void Rogue3D::update(double delta) {
 }
 
 void Rogue3D::swapRooms(Util::Math::Vector3<double> &newPosition, double &roomCenterX, double &roomCenterZ) {
-    //Go to Right room
+    // Go to Right room
     if (newPosition.getX() == roomCenterX + 9.25 && Util::Math::absolute(newPosition.getZ() - roomCenterZ) < 0.5) {
         if (currentRoom->hasRightRoom()) {
             currentRoom->leaveRoom();
@@ -231,7 +232,7 @@ void Rogue3D::swapRooms(Util::Math::Vector3<double> &newPosition, double &roomCe
         }
     }
 
-    //Go to Left room
+    // Go to Left room
     if (newPosition.getX() == roomCenterX - 9.25 && Util::Math::absolute(newPosition.getZ() - roomCenterZ) < 0.5){
         if (currentRoom->hasLeftRoom()) {
             currentRoom->leaveRoom();
@@ -244,7 +245,7 @@ void Rogue3D::swapRooms(Util::Math::Vector3<double> &newPosition, double &roomCe
         }
     }
 
-    //Go to Bottom room
+    // Go to Bottom room
     if (newPosition.getZ() == roomCenterZ + 9.25 && Util::Math::absolute(newPosition.getX() - roomCenterX) < 0.5){
         if (currentRoom->hasDownRoom()) {
             currentRoom->leaveRoom();
@@ -262,7 +263,7 @@ void Rogue3D::swapRooms(Util::Math::Vector3<double> &newPosition, double &roomCe
         }
     }
 
-    //Go to Top room
+    // Go to Top room
     if (newPosition.getZ() == roomCenterZ - 9.25 && Util::Math::absolute(newPosition.getX() - roomCenterX) < 0.5) {
         if (currentRoom->hasTopRoom()) {
             currentRoom->leaveRoom();
@@ -302,16 +303,16 @@ void Rogue3D::keyPressed(const Util::Io::Key &key) {
             }
             break;
         case Util::Io::Key::W:
-            inputTranslate = Util::Math::Vector3<double>(0, 0, -1);
+            inputTranslate = Util::Math::Vector3<double>(inputTranslate.getX(), inputTranslate.getY(), -1);
             break;
         case Util::Io::Key::S:
-            inputTranslate = Util::Math::Vector3<double>(0, 0, 1);
+            inputTranslate = Util::Math::Vector3<double>(inputTranslate.getX(), inputTranslate.getY(), 1);
             break;
         case Util::Io::Key::A:
-            inputTranslate = Util::Math::Vector3<double>(-1, 0, 0);
+            inputTranslate = Util::Math::Vector3<double>(-1, inputTranslate.getY(), inputTranslate.getZ());
             break;
         case Util::Io::Key::D:
-            inputTranslate = Util::Math::Vector3<double>(1, 0, 0);
+            inputTranslate = Util::Math::Vector3<double>(1, inputTranslate.getY(), inputTranslate.getZ());
             break;
         default:
             break;

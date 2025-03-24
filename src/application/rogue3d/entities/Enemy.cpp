@@ -19,20 +19,39 @@
  */
 
 #include "Enemy.h"
+
 #include "Player.h"
 #include "Projectile.h"
-
 #include "lib/util/game/3d/Entity.h"
 #include "lib/util/game/3d/event/CollisionEvent.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/math/Math.h"
-
 #include "lib/util/game/Graphics.h"
 #include "lib/util/math/Vector3.h"
 #include "Room.h"
+#include "lib/util/game/3d/collider/SphereCollider.h"
+#include "lib/util/graphic/Color.h"
+#include "lib/util/math/Vector2.h"
+
+uint32_t Enemy::ENEMY_LIST_ID = UINT32_MAX;
+uint32_t Enemy::BOSS_LIST_ID = UINT32_MAX;
 
 Enemy::Enemy(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, Room &pRoom, Player &curPlayer, double radius) : Entity(TAG, position, rotation, Util::Math::Vector3<double>(1,1,1), Util::Game::D3::SphereCollider(position, radius)), player(curPlayer), room(pRoom) {}
+
+void Enemy::initialize() {
+    if (ENEMY_LIST_ID == UINT32_MAX) {
+        ENEMY_LIST_ID = Util::Game::Graphics::startList3D();
+        Util::Game::Graphics::listCuboid3D(Util::Math::Vector3<double>(1.5, 1.5, 1.5));
+        Util::Game::Graphics::endList3D();
+    }
+
+    if (BOSS_LIST_ID == UINT32_MAX) {
+        BOSS_LIST_ID = Util::Game::Graphics::startList3D();
+        Util::Game::Graphics::listCuboid3D(Util::Math::Vector3<double>(3, 3, 3));
+        Util::Game::Graphics::endList3D();
+    }
+}
 
 void Enemy::draw(Util::Game::Graphics &graphics) {
     if (!active) {
@@ -40,22 +59,20 @@ void Enemy::draw(Util::Game::Graphics &graphics) {
     }
 
     if (type == BOSS) {
-        graphics.setColor(Util::Graphic::Color(153,0,0));
-        graphics.drawCuboid3D(getPosition() + Util::Math::Vector3<double>(0, 1.5, 0), Util::Math::Vector3<double>(3, 3, 3), getRotation());
+        graphics.setColor(Util::Graphic::Color(153, 0, 0));
+        graphics.drawList3D(getPosition() + Util::Math::Vector3<double>(0, 1.5, 0), getScale(), getRotation(), BOSS_LIST_ID);
 
-        // Boss HealthBar
+        // Boss health bar
         graphics.setColor(Util::Graphic::Color(1, 117, 0));
         graphics.drawRectangleDirect(Util::Math::Vector2<double>(-0.50, 0.85), Util::Math::Vector2<double>(1.0, 0.1));
 
         graphics.setColor(Util::Graphic::Color(255,0,0));
         graphics.fillRectangleDirect(Util::Math::Vector2<double>(-0.475, 0.875), Util::Math::Vector2<double>(0.95 * (health / initHealth), 0.05));
     } else {
-        graphics.setColor(Util::Graphic::Color(255,0,0));
-        graphics.drawCuboid3D(getPosition(), Util::Math::Vector3<double>(1.5, 1.5, 1.5), getRotation());
+        graphics.setColor(Util::Graphic::Color(255, 0, 0));
+        graphics.drawList3D(getPosition(), getScale(), getRotation(), ENEMY_LIST_ID);
     }
 }
-
-void Enemy::initialize() {}
 
 void Enemy::setType(Type type) {
     Enemy::type = type;

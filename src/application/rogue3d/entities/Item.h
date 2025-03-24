@@ -23,16 +23,14 @@
 
 #include <stdint.h>
 
-#include "lib/util/collection/Array.h"
 #include "lib/util/game/3d/Entity.h"
-#include "lib/util/math/Vector3.h"
 
-namespace Util::Game {
-class Graphics;
-namespace D3 {
-class CollisionEvent;
-}  // namespace D3
-} // namespace Util::Game
+namespace Util {
+namespace Math {
+template <typename T> class Vector3;
+}  // namespace Math
+template <typename T> class Array;
+}  // namespace Util
 
 class Item : public Util::Game::D3::Entity {
 
@@ -71,33 +69,12 @@ public:
 
 private:
 
-    Util::Array<Util::Math::Vector3<double>> heart = {
-        Util::Math::Vector3<double>(0.0f, 0.0f, 0.0f),
-        Util::Math::Vector3<double>(-0.5f, 1.0f, 0.0f),
-        Util::Math::Vector3<double>(0.5f, 1.0f, 0.0f),
+    static Util::Array<Util::Math::Vector3<double>> HEART;
+    static Util::Array<Util::Math::Vector3<double>> DMG_UP;
 
-        Util::Math::Vector3<double>(0.0f, 1.0f, 0.0f),
-        Util::Math::Vector3<double>(-0.5f, 1.0f, 0.0f),
-        Util::Math::Vector3<double>(-0.25, 1.33f, 0.0f),
-
-        Util::Math::Vector3<double>(0.0f, 1.0f, 0.0f),
-        Util::Math::Vector3<double>(0.50f, 1.0f, 0.0f),
-        Util::Math::Vector3<double>(0.25, 1.33f, 0.0f)
-    };
-
-    Util::Array<Util::Math::Vector3<double>> dmgUp = {
-        Util::Math::Vector3<double>(-0.5f, 0.0f, 0.0f),
-        Util::Math::Vector3<double>(-0.5f, 1.0f, 0.0f),
-        Util::Math::Vector3<double>(0.5f, 1.0f, 0.0f),
-
-        Util::Math::Vector3<double>(0.5f, 0.0f, 0.0f),
-        Util::Math::Vector3<double>(0.5f, 1.0f, 0.0f),
-        Util::Math::Vector3<double>(-0.5f, 1.0f, 0.0f),
-
-        Util::Math::Vector3<double>(0.5f, 1.0f, 0.0f),
-        Util::Math::Vector3<double>(0.0f, 1.5f, 0.0f),
-        Util::Math::Vector3<double>(-0.5f, 1.0f, 0.0f)
-    };
+    static uint32_t HEALTH_LIST_ID;
+    static uint32_t DMG_UP_LIST_ID;
+    static uint32_t NEXT_LVL_LIST_ID;
 };
 
 #endif

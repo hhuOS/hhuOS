@@ -21,15 +21,10 @@
 #ifndef HHUOS_ROGUE3D_PROJECTILE_H
 #define HHUOS_ROGUE3D_PROJECTILE_H
 
+#include <stdint.h>
+
 #include "lib/util/game/3d/Entity.h"
 #include "lib/util/math/Vector3.h"
-
-namespace Util::Game {
-class Graphics;
-namespace D3 {
-class CollisionEvent;
-}  // namespace D3
-} // namespace Util::Game
 
 class Projectile : public Util::Game::D3::Entity {
 
@@ -76,6 +71,8 @@ private:
 
     Util::Math::Vector3<double> direction;
     Util::Math::Vector3<double> origin;
+
+    static uint32_t DRAW_LIST_ID;
 };
 
 #endif

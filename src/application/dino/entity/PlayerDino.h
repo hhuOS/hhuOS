@@ -32,10 +32,6 @@ namespace Util {
 namespace Math {
 template <typename T> class Vector2;
 }  // namespace Math
-
-namespace Graphic {
-class Font;
-}  // namespace Graphic
 }  // namespace Util
 
 class PlayerDino : public Util::Game::D2::Entity {

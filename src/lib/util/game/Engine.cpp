@@ -34,7 +34,6 @@
 #include "lib/util/base/System.h"
 #include "lib/util/io/stream/InputStream.h"
 #include "GameManager.h"
-#include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/math/Vector2.h"
 #include "lib/util/base/String.h"
 #include "lib/util/game/Camera.h"
@@ -43,7 +42,6 @@
 #include "lib/util/io/key/MouseDecoder.h"
 #include "lib/util/math/Vector3.h"
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
-#include "lib/util/graphic/Font.h"
 #include "lib/util/base/FreeListMemoryManager.h"
 #include "lib/util/game/3d/Scene.h"
 
@@ -110,18 +108,18 @@ void Engine::run() {
         statistics.stopFrameTime();
     }
 
-    graphics.closeGl();
+    graphics.disableGl();
 }
 
 void Engine::initializeNextScene() {
     if (!game.firstScene) {
-        graphics.closeGl();
+        graphics.disableGl();
         game.getCurrentScene().getCamera().reset();
         graphics.update();
     }
 
     auto resolution = GameManager::getAbsoluteResolution();
-    auto stringPositionX = static_cast<uint16_t>((resolution.getX() - Util::Address(LOADING).stringLength() * Util::Game::Graphics::FONT_SIZE) / 2.0);
+    auto stringPositionX = static_cast<uint16_t>((resolution.getX() - Address(LOADING).stringLength() * Graphics::FONT_SIZE) / 2.0);
     auto stringPositionY = static_cast<uint16_t>(resolution.getY() / 2.0);
 
     graphics.clear();
@@ -161,9 +159,20 @@ void Engine::drawStatus() {
     graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 2, String::format("Objects: %u", game.getCurrentScene().getObjectCount()));
     graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 3, String::format("Heap used: %u.%03u MB", heapUsedM, heapUsedK));
     graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 4, String::format("Resolution: %ux%u@%u", graphics.bufferedLfb.getResolutionX(), graphics.bufferedLfb.getResolutionY(), graphics.bufferedLfb.getColorDepth()));
-    graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 5, String::format("Camera: Position(%d, %d, %d), Rotation(%d, %d, %d)",
-            static_cast<int32_t>(camera.getPosition().getX()), static_cast<int32_t>(camera.getPosition().getY()), static_cast<int32_t>(camera.getPosition().getZ()),
-            static_cast<int32_t>(camera.getRotation().getX()), static_cast<int32_t>(camera.getRotation().getY()), static_cast<int32_t>(camera.getRotation().getZ())));
+
+    if (graphics.isGlEnabled()) {
+        graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 5, String::format("Camera: Position(%d, %d, %d), Rotation(%d, %d, %d)",
+                static_cast<int32_t>(camera.getPosition().getX()), static_cast<int32_t>(camera.getPosition().getY()), static_cast<int32_t>(camera.getPosition().getZ()),
+                static_cast<int32_t>(camera.getRotation().getX()), static_cast<int32_t>(camera.getRotation().getY()), static_cast<int32_t>(camera.getRotation().getZ())));
+        graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 6, String::format("Camera: Front(%d, %d, %d), Up(%d, %d, %d), Right(%d, %d, %d)",
+                static_cast<int32_t>(camera.getFrontVector().getX() * 100), static_cast<int32_t>(camera.getFrontVector().getY() * 100), static_cast<int32_t>(camera.getFrontVector().getZ() * 100),
+                static_cast<int32_t>(camera.getUpVector().getX() * 100), static_cast<int32_t>(camera.getUpVector().getY() * 100), static_cast<int32_t>(camera.getUpVector().getZ() * 100),
+                static_cast<int32_t>(camera.getRightVector().getX() * 100), static_cast<int32_t>(camera.getRightVector().getY() * 100), static_cast<int32_t>(camera.getRightVector().getZ() * 100)));
+    } else {
+        graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 5, String::format("Camera: Position(%d, %d)",
+                static_cast<int32_t>(camera.getPosition().getX()), static_cast<int32_t>(camera.getPosition().getY())));
+    }
+
     graphics.setColor(color);
 }
 
@@ -181,7 +190,7 @@ void Engine::checkKeyboard() {
                     }
                     break;
                 case Io::Key::F2:
-                    if (key.isPressed() && graphics.glEnabled()) {
+                    if (key.isPressed() && graphics.isGlEnabled()) {
                         auto &scene3d = reinterpret_cast<D3::Scene&>(scene);
                         switch (scene3d.getGlRenderStyle()) {
                             case D3::Scene::GlRenderStyle::POINTS:
@@ -197,13 +206,13 @@ void Engine::checkKeyboard() {
                     }
                     break;
                 case Io::Key::F3:
-                    if (key.isPressed() && graphics.glEnabled()) {
+                    if (key.isPressed() && graphics.isGlEnabled()) {
                         auto &scene3d = reinterpret_cast<D3::Scene&>(scene);
                         scene3d.setLightEnabled(!scene3d.isLightEnabled());
                     }
                 break;
                 case Io::Key::F4:
-                    if (key.isPressed() && graphics.glEnabled()) {
+                    if (key.isPressed() && graphics.isGlEnabled()) {
                         auto &scene3d = reinterpret_cast<D3::Scene&>(scene);
                         switch (scene3d.getGlShadeModel()) {
                             case D3::Scene::GlShadeModel::FLAT:

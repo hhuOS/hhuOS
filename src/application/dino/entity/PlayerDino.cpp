@@ -37,7 +37,6 @@
 #include "lib/util/game/2d/component/LinearMovementComponent.h"
 #include "lib/util/game/2d/component/GravityComponent.h"
 #include "application/dino/GameOverScreen.h"
-#include "lib/util/graphic/Font.h"
 
 PlayerDino::PlayerDino(const Util::Math::Vector2<double> &position) : Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE * 1.133), Util::Game::Collider::DYNAMIC)) {
     Util::Game::GameManager::getCurrentScene().addObject(grassEmitter);

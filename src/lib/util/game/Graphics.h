@@ -47,13 +47,13 @@
 namespace Util {
 
 namespace Graphic {
-class Font;
 class LinearFrameBuffer;
 class Image;
 }  // namespace Graphic
 
 namespace Game {
 class Game;
+
 namespace D3 {
 class Model;
 }  // namespace D3
@@ -70,7 +70,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Graphics(const Util::Graphic::LinearFrameBuffer &lfb, Game &game, double scaleFactor);
+    explicit Graphics(const Graphic::LinearFrameBuffer &lfb, Game &game, double scaleFactor);
 
     /**
      * Copy Constructor.
@@ -147,13 +147,35 @@ public:
 
     void drawCustomShape3D(const Math::Vector3<double> &position, const Math::Vector3<double> &scale, const Math::Vector3<double> &rotation, const Array<Math::Vector3<double>> &vertices) const;
 
+    void drawList3D(const Math::Vector3<double> &position, const Math::Vector3<double> &scale, const Math::Vector3<double> &rotation, GLuint list) const;
+
+    static GLuint startList3D();
+
+    static void endList3D();
+
+    static void listModel3D(const D3::Model &model);
+
+    static void listCuboid3D(const Math::Vector3<double> &size, const Graphic::Color &color);
+
+    static void listCuboid3D(const Math::Vector3<double> &translation, const Math::Vector3<double> &size, const Graphic::Color &color);
+
+    static void listCuboid3D(const Math::Vector3<double> &size, const D3::Texture &texture = D3::Texture());
+
+    static void listCuboid3D(const Math::Vector3<double> &translation, const Math::Vector3<double> &size, const D3::Texture &texture = D3::Texture());
+
+    static void listRectangle3D(const Math::Vector2<double> &size, const Graphic::Color &color);
+
+    static void listRectangle3D(const Math::Vector2<double> &size, const D3::Texture &texture = D3::Texture());
+
+    static void listCustomShape3D(const Array<Math::Vector3<double>> &vertices);
+
     /***** Miscellaneous *****/
 
     void initializeGl();
 
-    void closeGl();
+    void disableGl();
 
-    [[nodiscard]] bool glEnabled() const;
+    [[nodiscard]] bool isGlEnabled() const;
 
     void clear(const Graphic::Color &color = Util::Graphic::Colors::BLACK);
 
@@ -196,6 +218,7 @@ private:
     const Graphic::BufferedLinearFrameBuffer bufferedLfb;
     ZBuffer *glBuffer = nullptr;
     uint8_t *backgroundBuffer = nullptr;
+    bool glEnabled = false;
 
     const uint16_t transformation;
     const uint16_t offsetX;

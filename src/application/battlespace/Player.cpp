@@ -33,7 +33,6 @@
 #include "lib/util/game/Graphics.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/math/Vector2.h"
-#include "lib/util/graphic/Font.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/Camera.h"
 

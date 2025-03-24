@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * view3d has originally been implemented during a bachelor's thesis by Richard Josef Schweitzer
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
 #include "ModelViewer.h"
@@ -25,6 +28,8 @@
 #include "lib/util/io/key/Key.h"
 #include "lib/util/game/3d/Light.h"
 #include "lib/util/graphic/Colors.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/graphic/Color.h"
 
 ModelViewer::ModelViewer(const Util::String &path) : modelPath(path) {}
 

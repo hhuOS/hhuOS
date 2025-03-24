@@ -39,6 +39,12 @@ Orientation::Orientation() {
 void Orientation::setRotation(const Math::Vector3<double> &angle) {
     rotation = angle % 360;
 
+    // If z is exactly 0, rotation behavior is weird (z-axis inverted) and I don't know why.
+    // A dirty workaround is to set z to a very small value instead of 0.
+    if (rotation.getZ() == 0) {
+        rotation = Math::Vector3<double>(rotation.getX(), rotation.getY(), 0.000001);
+    }
+
     front = Math::Vector3<double>(
             Math::sine(Math::toRadians(rotation.getZ())) * Math::cosine(Math::toRadians(rotation.getY())),
             Math::sine(Math::toRadians(rotation.getY())),

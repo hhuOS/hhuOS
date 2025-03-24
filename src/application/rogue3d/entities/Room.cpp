@@ -18,7 +18,6 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
-#include "lib/util/game/3d/event/CollisionEvent.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/Scene.h"
@@ -27,12 +26,26 @@
 #include "Enemy.h"
 #include "lib/util/math/Random.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/game/3d/collider/SphereCollider.h"
 #include "lib/util/game/Graphics.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/graphic/Color.h"
+#include "lib/util/math/Vector3.h"
+
+uint32_t Room::DRAW_LIST_ID = UINT32_MAX;
 
 Room::Room(const Util::Math::Vector3<double> &position, Type type, uint32_t pRow, uint32_t pColumn) : Entity(TAG, position, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1)), type(type), row(pRow), column(pColumn) {}
 
-void Room::initialize() {}
+void Room::initialize() {
+    if (DRAW_LIST_ID == UINT32_MAX) {
+        DRAW_LIST_ID = Util::Game::Graphics::startList3D();
+        Util::Game::Graphics::listCuboid3D(Util::Math::Vector3<double>(20, 1, 20), Util::Graphic::Color(156, 109, 55)); // Floor
+        Util::Game::Graphics::listCuboid3D(Util::Math::Vector3<double>(0, 1.5, -11.5), Util::Math::Vector3<double>(20, 4, 3), Util::Graphic::Color(204, 124, 64)); // Northern wall
+        Util::Game::Graphics::listCuboid3D(Util::Math::Vector3<double>(-11.5, 1.5, 0), Util::Math::Vector3<double>(3, 4, 26), Util::Graphic::Color(204, 124, 64)); // Western wall
+        Util::Game::Graphics::listCuboid3D(Util::Math::Vector3<double>(11.5, 1.5, 0), Util::Math::Vector3<double>(3, 4, 26), Util::Graphic::Color(204, 124, 64)); // Eastern wall
+        Util::Game::Graphics::listCuboid3D(Util::Math::Vector3<double>(0, 1.5, 11.5), Util::Math::Vector3<double>(20, 4, 3), Util::Graphic::Color(204, 124, 64)); // Southern wall
+        Util::Game::Graphics::endList3D();
+    }
+}
 
 void Room::onUpdate([[maybe_unused]] double delta) {
     if (enemies.isEmpty() && cleared == false){
@@ -45,16 +58,7 @@ void Room::draw(Util::Game::Graphics &graphics) {
         return;
     }
 
-    // Draw floor
-    graphics.setColor(Util::Graphic::Color(156, 109, 55));
-    graphics.drawCuboid3D(getPosition(), Util::Math::Vector3<double>(20,1,20), Util::Math::Vector3<double>(0,0,0));
-
-    // Draw walls
-    graphics.setColor(Util::Graphic::Color(204, 124, 64));
-    graphics.drawCuboid3D(getPosition() + Util::Math::Vector3<double>(0, 1.5, -11.5), Util::Math::Vector3<double>(20, 4, 3), Util::Math::Vector3<double>(0,0,0)); // Northern wall
-    graphics.drawCuboid3D(getPosition() + Util::Math::Vector3<double>(-11.5, 1.5, 0), Util::Math::Vector3<double>(3, 4, 26), Util::Math::Vector3<double>(0,0,0)); // Western wall
-    graphics.drawCuboid3D(getPosition() + Util::Math::Vector3<double>(11.5, 1.5, 0), Util::Math::Vector3<double>(3, 4, 26), Util::Math::Vector3<double>(0,0,0)); // Eastern wall
-    graphics.drawCuboid3D(getPosition() + Util::Math::Vector3<double>(0, 1.5, 11.5), Util::Math::Vector3<double>(20, 4, 3), Util::Math::Vector3<double>(0,0,0)); // Southern wall
+    graphics.drawList3D(getPosition(), getScale(), getRotation(), DRAW_LIST_ID);
 
     if (cleared) {
         graphics.setColor(Util::Graphic::Color(0, 255, 0));

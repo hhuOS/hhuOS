@@ -29,7 +29,6 @@
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/math/Vector2.h"
-#include "lib/util/graphic/Font.h"
 
 GameOverScreen::GameOverScreen(uint32_t score) : score(score) {}
 

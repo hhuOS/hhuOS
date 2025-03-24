@@ -24,29 +24,30 @@
 #include <lib/util/game/KeyListener.h>
 
 #include "lib/util/game/3d/Scene.h"
+#include "lib/util/math/Vector3.h"
 
-class OpenGLDemo : public Util::Game::D3::Scene, public Util::Game::KeyListener {
+class OpenGlDemo : public Util::Game::D3::Scene, public Util::Game::KeyListener {
 
 public:
     /**
      * Default Constructor.
      */
-    OpenGLDemo() = default;
+    OpenGlDemo() = default;
 
     /**
      * Copy Constructor.
      */
-    OpenGLDemo(const OpenGLDemo &other) = delete;
+    OpenGlDemo(const OpenGlDemo &other) = delete;
 
     /**
      * Assignment operator.
      */
-    OpenGLDemo &operator=(const OpenGLDemo &other) = delete;
+    OpenGlDemo &operator=(const OpenGlDemo &other) = delete;
 
     /**
      * Destructor.
      */
-    ~OpenGLDemo() override = default;
+    ~OpenGlDemo() override = default;
 
     void initialize() override;
 

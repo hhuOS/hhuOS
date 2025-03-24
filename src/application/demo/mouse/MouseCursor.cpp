@@ -17,8 +17,6 @@
 
 #include "MouseCursor.h"
 
-#include <stdint.h>
-
 #include "lib/util/game/Graphics.h"
 #include "lib/util/math/Vector2.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
@@ -27,7 +25,6 @@
 #include "lib/util/base/String.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/MouseDecoder.h"
-#include "lib/util/graphic/Font.h"
 
 MouseCursor::MouseCursor(Logo &logo) : Util::Game::D2::Entity(0, Util::Math::Vector2<double>(0, 0)), logo(logo) {}
 

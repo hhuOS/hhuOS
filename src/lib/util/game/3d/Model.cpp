@@ -26,7 +26,6 @@
 
 #include "Model.h"
 
-#include "lib/util/graphic/BitmapFile.h"
 #include "lib/util/math/Math.h"
 #include "lib/util/game/ResourceManager.h"
 #include "lib/util/game/3d/Entity.h"
@@ -34,6 +33,7 @@
 #include "lib/util/game/3d/collider/SphereCollider.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/math/Vector3.h"
+#include "lib/util/game/3d/Texture.h"
 
 namespace Util {
 template <typename T> class Array;
@@ -88,6 +88,10 @@ const Array<uint32_t> &Model::getTextureDrawOrder() const {
 
 const Texture& Model::getTexture() const {
     return texture;
+}
+
+const Graphic::Color& Model::getColor() const {
+    return color;
 }
 
 }

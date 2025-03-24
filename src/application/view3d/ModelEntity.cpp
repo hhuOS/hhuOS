@@ -13,15 +13,33 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * view3d has originally been implemented during a bachelor's thesis by Richard Josef Schweitzer
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
 #include "ModelEntity.h"
+
+#include <lib/util/game/Graphics.h>
 
 #include "lib/util/math/Vector3.h"
 
 ModelEntity::ModelEntity(const Util::String &modelPath) : Model(0, modelPath, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1)) {}
 
 ModelEntity::ModelEntity(const Util::String &modelPath, const Util::String &texturePath) : Model(0, modelPath, texturePath, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1)) {}
+
+void ModelEntity::initialize() {
+    Model::initialize();
+
+    drawListID = Util::Game::Graphics::startList3D();
+    Util::Game::Graphics::listModel3D(*this);
+    Util::Game::Graphics::endList3D();
+}
+
+void ModelEntity::draw(Util::Game::Graphics &graphics) {
+    graphics.setColor(getColor());
+    graphics.drawList3D(getPosition(), getScale(), getRotation(), drawListID);
+}
 
 void ModelEntity::onUpdate([[maybe_unused]] double delta) {}
 

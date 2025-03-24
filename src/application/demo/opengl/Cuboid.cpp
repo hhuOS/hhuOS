@@ -19,7 +19,10 @@
  */
 
 #include "Cuboid.h"
+
 #include "lib/util/game/Graphics.h"
+#include "lib/util/game/3d/Orientation.h"
+#include "lib/util/game/3d/Texture.h"
 
 Cuboid::Cuboid(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &startRotation, const Util::Math::Vector3<double> &rotationAngle, const Util::Math::Vector3<double> &size, const Util::Graphic::Color &color) :
         Entity(0, position, startRotation, size), rotationAngle(rotationAngle), color(color) {}

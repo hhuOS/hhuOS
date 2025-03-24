@@ -18,18 +18,22 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
-#include "OpenGLDemo.h"
+#include "OpenGlDemo.h"
 
 #include "Cuboid.h"
 #include "DemoModel.h"
-#include "Icosphere.h"
 #include "Rectangle.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
-#include "lib/util/game/3d/Model.h"
 #include "lib/util/math/Vector2.h"
+#include "lib/util/base/String.h"
+#include "lib/util/game/3d/Light.h"
+#include "lib/util/game/Camera.h"
+#include "lib/util/graphic/Color.h"
+#include "lib/util/graphic/Colors.h"
+#include "lib/util/io/key/Key.h"
 
-void OpenGLDemo::initialize() {
+void OpenGlDemo::initialize() {
     setKeyListener(*this);
     setBackgroundColor(Util::Graphic::Color(176, 252, 255));
 
@@ -50,9 +54,9 @@ void OpenGLDemo::initialize() {
 
     auto *texturedCube = new Cuboid(Util::Math::Vector3<double>(-10, 0, 5.5), Util::Math::Vector3<double>(45,45,0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1,1), "/user/dino/block/box.bmp");
 
-    auto *tree = new DemoModel("/user/demo/tree.obj", Util::Math::Vector3<double>(25, -5, 0), Util::Math::Vector3<double>(0, 0, -90), Util::Math::Vector3<double>(10, 10, 10), Util::Graphic::Colors::WHITE);
-    auto *lantern = new DemoModel("/user/demo/lantern.obj", Util::Math::Vector3<double>(3, -5, -2), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(7, 7, 7), Util::Graphic::Colors::BROWN);
-    auto *fighter = new Icosphere(Util::Math::Vector3<double>(35, 20, -2), Util::Math::Vector3<double>(5, 5, 5));
+    auto *tree = new DemoModel(DemoModel::TREE, Util::Math::Vector3<double>(25, -5, 0), Util::Math::Vector3<double>(0, 0, -90), Util::Math::Vector3<double>(10, 10, 10), Util::Graphic::Colors::WHITE);
+    auto *lantern = new DemoModel(DemoModel::LANTERN, Util::Math::Vector3<double>(3, -5, -2), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(7, 7, 7), Util::Graphic::Colors::BROWN);
+    auto *icosphere = new DemoModel(DemoModel::ICOSPHERE, Util::Math::Vector3<double>(35, 20, -2), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(5, 5, 5));
 
     auto *logo = new Rectangle(Util::Math::Vector3<double>(15, 5, -15), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector2<double>(10, 2.62), "/user/demo/hhu2.bmp");
 
@@ -66,11 +70,11 @@ void OpenGLDemo::initialize() {
     addObject(texturedCube);
     addObject(tree);
     addObject(lantern);
-    addObject(fighter);
+    addObject(icosphere);
     addObject(logo);
 }
 
-void OpenGLDemo::update([[maybe_unused]] double delta) {
+void OpenGlDemo::update([[maybe_unused]] double delta) {
     auto translation = Util::Math::Vector3<double>(0, 0, 0);
     if (cameraTranslation.getZ() != 0) {
         translation = translation + camera.getFrontVector() * cameraTranslation.getZ();
@@ -83,7 +87,7 @@ void OpenGLDemo::update([[maybe_unused]] double delta) {
     camera.translate(translation * delta * 10);
 }
 
-void OpenGLDemo::keyPressed(const Util::Io::Key &key) {
+void OpenGlDemo::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::LEFT:
             cameraRotation = Util::Math::Vector3<double>(cameraRotation.getX(), cameraRotation.getY(), -1);
@@ -121,7 +125,7 @@ void OpenGLDemo::keyPressed(const Util::Io::Key &key) {
     }
 }
 
-void OpenGLDemo::keyReleased(const Util::Io::Key &key) {
+void OpenGlDemo::keyReleased(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::LEFT:
         case Util::Io::Key::RIGHT:

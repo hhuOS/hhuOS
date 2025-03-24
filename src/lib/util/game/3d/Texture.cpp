@@ -17,13 +17,17 @@
 
 #include "Texture.h"
 
+#include <stdint.h>
+
 #include "lib/util/game/ResourceManager.h"
 #include "lib/util/graphic/BitmapFile.h"
 #include "lib/util/graphic/Color.h"
 
-Util::Game::D3::Texture::Texture(const String &path) {
+namespace Util::Game::D3 {
+
+Texture::Texture(const String &path) {
     if (ResourceManager::hasTexture(path)) {
-        textureID = ResourceManager::getTexture(path);
+        textureId = ResourceManager::getTexture(path);
     } else {
         const auto *image = Graphic::BitmapFile::open(path);
         const auto *imagePixels = image->getPixelBuffer();
@@ -39,8 +43,8 @@ Util::Game::D3::Texture::Texture(const String &path) {
         }
 
         // Generate the OpenGL texture
-        glGenTextures(1, &textureID); // Generate a texture ID
-        glBindTexture(GL_TEXTURE_2D, textureID); // Tell OpenGL which texture to edit
+        glGenTextures(1, &textureId); // Generate a texture ID
+        glBindTexture(GL_TEXTURE_2D, textureId); // Tell OpenGL which texture to edit
         glTexImage2D(GL_TEXTURE_2D, // Type of texture
             0,                      // Mipmap level, 0 for base
             3,                      // Number of color components in texture
@@ -56,10 +60,12 @@ Util::Game::D3::Texture::Texture(const String &path) {
         delete[] textureData;
 
         // Add texture to the ResourceManager
-        ResourceManager::addTexture(path, textureID);
+        ResourceManager::addTexture(path, textureId);
     }
 }
 
-GLuint Util::Game::D3::Texture::getTextureID() const {
-    return textureID;
+GLuint Texture::getTextureID() const {
+    return textureId;
+}
+
 }

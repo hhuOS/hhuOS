@@ -29,9 +29,6 @@
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/math/Vector2.h"
-#include "lib/util/graphic/Font.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/base/String.h"
 
 void IntroScreen::initialize() {
     setKeyListener(*this);

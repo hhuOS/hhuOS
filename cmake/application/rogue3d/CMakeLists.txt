@@ -30,7 +30,7 @@ add_compile_options(
 
 # Set source files
 set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/rogue3d/rogue3d.cpp
+        ${HHUOS_SRC_DIR}/application/rogue3d/rogue.cpp
         ${HHUOS_SRC_DIR}/application/rogue3d/GameOverScreen.cpp
         ${HHUOS_SRC_DIR}/application/rogue3d/IntroScreen.cpp
         ${HHUOS_SRC_DIR}/application/rogue3d/Rogue3D.cpp

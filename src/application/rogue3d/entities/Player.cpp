@@ -29,12 +29,22 @@
 #include "Projectile.h"
 #include "Item.h"
 #include "Player.h"
+#include "lib/util/graphic/Color.h"
+#include "lib/util/math/Vector3.h"
+
+uint32_t Player::DRAW_LIST_ID = UINT32_MAX;
 
 Player::Player() : Entity(TAG, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1), Util::Game::D3::SphereCollider(Util::Math::Vector3<double>(0, 0, 0), 0.8)) {}
 
 Player::Player(uint32_t damage, uint32_t health, uint32_t level) : Entity(TAG, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1), Util::Game::D3::SphereCollider(Util::Math::Vector3<double>(0, 0, 0), 0.8)), health(health), damage(damage), level(level) {}
 
-void Player::initialize() {}
+void Player::initialize() {
+    if (DRAW_LIST_ID == UINT32_MAX) {
+        DRAW_LIST_ID = Util::Game::Graphics::startList3D();
+        Util::Game::Graphics::listCuboid3D(Util::Math::Vector3<double>(1.5, 1.5, 1.5));
+        Util::Game::Graphics::endList3D();
+    }
+}
 
 void Player::onUpdate(double delta) {
     if (health <= 0) {
@@ -53,7 +63,7 @@ void Player::onUpdate(double delta) {
 
 void Player::draw(Util::Game::Graphics &graphics) {
     graphics.setColor(invulnerabilityTime > 0 ? Util::Graphic::Color(255, 102, 102) : Util::Graphic::Color(68, 195, 212));
-    graphics.drawCuboid3D(getPosition(), Util::Math::Vector3<double>(1.5, 1.5, 1.5), getRotation());
+    graphics.drawList3D(getPosition(), getScale(), getRotation(), DRAW_LIST_ID);
 }
 
 void Player::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {

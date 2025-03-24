@@ -16,8 +16,11 @@
  */
 
 #include "Rectangle.h"
+
 #include "lib/util/game/Graphics.h"
-#include "lib/util/game/3d/event/CollisionEvent.h"
+#include "lib/util/game/3d/Orientation.h"
+#include "lib/util/game/3d/Texture.h"
+#include "lib/util/math/Vector2.h"
 
 Rectangle::Rectangle(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &startRotation, const Util::Math::Vector3<double> &rotationAngle, const Util::Math::Vector2<double> &size, const Util::Graphic::Color &color)  :
         Entity(0, position, startRotation, Util::Math::Vector3<double>(size.getX(), size.getY(), 0)), rotationAngle(rotationAngle), color(color) {}

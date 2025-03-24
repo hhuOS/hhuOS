@@ -20,9 +20,74 @@
 
 #include "DemoModel.h"
 
-DemoModel::DemoModel(const Util::String &modelPath, const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, const Util::Math::Vector3<double> &scale, const Util::Graphic::Color &color) :
-        Model(0, modelPath, position, rotation, scale, color) {}
+#include "lib/util/game/Graphics.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/base/String.h"
+#include "lib/util/math/Vector3.h"
 
-void DemoModel::onUpdate([[maybe_unused]] double delta) {}
+uint32_t DemoModel::TREE_DRAW_LIST_ID = UINT32_MAX;
+uint32_t DemoModel::LANTERN_DRAW_LIST_ID = UINT32_MAX;
+uint32_t DemoModel::ICOSPHERE_DRAW_LIST_ID = UINT32_MAX;
+
+DemoModel::DemoModel(Type type, const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, const Util::Math::Vector3<double> &scale, const Util::Graphic::Color &color) :
+        Model(0, Util::String::format("%s.obj", pathForType(type)), type == ICOSPHERE ? Util::String::format("%s.bmp", pathForType(type)) : Util::String(), position, rotation, scale), type(type), color(color) {}
+
+void DemoModel::initialize() {
+    Model::initialize();
+
+    switch (type) {
+        case TREE:
+            if (TREE_DRAW_LIST_ID == UINT32_MAX) {
+                TREE_DRAW_LIST_ID = Util::Game::Graphics::startList3D();
+                Util::Game::Graphics::listModel3D(*this);
+                Util::Game::Graphics::endList3D();
+            }
+            drawListID = TREE_DRAW_LIST_ID;
+            break;
+        case LANTERN:
+            if (LANTERN_DRAW_LIST_ID == UINT32_MAX) {
+                LANTERN_DRAW_LIST_ID = Util::Game::Graphics::startList3D();
+                Util::Game::Graphics::listModel3D(*this);
+                Util::Game::Graphics::endList3D();
+            }
+            drawListID = LANTERN_DRAW_LIST_ID;
+            break;
+        case ICOSPHERE:
+            if (ICOSPHERE_DRAW_LIST_ID == UINT32_MAX) {
+                ICOSPHERE_DRAW_LIST_ID = Util::Game::Graphics::startList3D();
+                Util::Game::Graphics::listModel3D(*this);
+                Util::Game::Graphics::endList3D();
+            }
+            drawListID = ICOSPHERE_DRAW_LIST_ID;
+            break;
+        default:
+            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "DemoModel: Invalid type!");
+    }
+}
+
+void DemoModel::draw(Util::Game::Graphics &graphics) {
+    graphics.setColor(color);
+    graphics.drawList3D(getPosition(), getScale(), getRotation(), drawListID);
+}
+
+void DemoModel::onUpdate([[maybe_unused]] double delta) {
+    if (type == ICOSPHERE) {
+        rotate(Util::Math::Vector3<double>(0, 0, 1) * delta * 30);
+        translate(getFrontVector() * delta * 10);
+    }
+}
 
 void DemoModel::onCollisionEvent([[maybe_unused]] Util::Game::D3::CollisionEvent &event) {}
+
+const char* DemoModel::pathForType(Type type) {
+    switch (type) {
+        case TREE:
+            return "/user/demo/tree";
+        case LANTERN:
+            return "/user/demo/lantern";
+        case ICOSPHERE:
+            return "/user/demo/icosphere";
+        default:
+            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "DemoModel: Invalid type!");
+    }
+}

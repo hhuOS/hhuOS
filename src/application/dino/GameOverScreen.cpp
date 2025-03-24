@@ -31,7 +31,6 @@
 #include "lib/util/math/Vector2.h"
 #include "Level.h"
 #include "lib/util/base/String.h"
-#include "lib/util/graphic/Font.h"
 #include "lib/util/io/file/File.h"
 
 GameOverScreen::GameOverScreen(uint32_t score) : score(score) {}

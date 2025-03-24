@@ -17,7 +17,6 @@
 
 #include "Vector3.h"
 
-#include "Vector2.h"
 #include "Math.h"
 
 namespace Util::Math {

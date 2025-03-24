@@ -21,21 +21,18 @@
 #ifndef HHUOS_ROGUE3D_ROOM_H
 #define HHUOS_ROGUE3D_ROOM_H
 
+#include <stdint.h>
+
 #include "lib/util/game/3d/Entity.h"
-#include "lib/util/math/Vector3.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/math/Random.h"
 
 class Enemy;
 class Player;
-
 namespace Util {
-namespace Game {
-class Graphics;
-namespace D3 {
-class CollisionEvent;
-}  // namespace D3
-}  // namespace Game
+namespace Math {
+class Random;
+template <typename T> class Vector3;
+}  // namespace Math
 }  // namespace Util
 
 class Room : public Util::Game::D3::Entity {
@@ -129,7 +126,7 @@ public:
     static const constexpr uint32_t TAG = 1;
 
 private:
-    enum Type type;
+    Type type;
 
     bool cleared = false;
     bool entered = false;
@@ -144,6 +141,8 @@ private:
     Room *rightRoom = nullptr;
     Room *topRoom = nullptr;
     Room *downRoom = nullptr;
+
+    static uint32_t DRAW_LIST_ID;
 };
 
 #endif

@@ -18,11 +18,7 @@
 #ifndef HHUOS_VECTOR3D_H
 #define HHUOS_VECTOR3D_H
 
-namespace Util {
-namespace Math {
-template <typename T> class Vector2;
-}  // namespace Math
-}  // namespace Util
+#include "Vector2.h"
 
 namespace Util::Math {
 

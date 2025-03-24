@@ -67,6 +67,8 @@ public:
 
     [[nodiscard]] const Math::Vector3<double>& getFrontVector() const;
 
+    [[nodiscard]] const Math::Vector3<double>& getUpVector() const;
+
     [[nodiscard]] const Math::Vector3<double>& getRightVector() const;
 
     void setPosition(const Math::Vector3<double> &position);

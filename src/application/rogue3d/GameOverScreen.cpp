@@ -29,7 +29,7 @@
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/math/Vector2.h"
-#include "lib/util/graphic/Font.h"
+#include "lib/util/base/String.h"
 
 GameOverScreen::GameOverScreen(uint32_t level) : level(level) {}
 

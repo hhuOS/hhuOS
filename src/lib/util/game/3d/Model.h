@@ -34,7 +34,6 @@
 #include "Texture.h"
 #include "lib/util/base/String.h"
 #include "lib/util/graphic/Colors.h"
-#include "lib/tinygl/include/GL/gl.h"
 
 namespace Util {
 namespace Math {
@@ -96,6 +95,10 @@ public:
     [[nodiscard]] const Array<uint32_t>& getTextureDrawOrder() const;
 
     [[nodiscard]] const Texture& getTexture() const;
+
+protected:
+
+    [[nodiscard]] const Graphic::Color& getColor() const;
 
 private:
 

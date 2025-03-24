@@ -34,7 +34,7 @@
 #include "application/demo/mouse/MouseDemo.h"
 #include "application/demo/color/AnsiColorDemo.h"
 #include "application/demo/fonts/FontDemo.h"
-#include "opengl/OpenGLDemo.h"
+#include "opengl/OpenGlDemo.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -94,7 +94,7 @@ int32_t main(int32_t argc, char *argv[]) {
         if (demo == "mouse") {
             Util::Game::GameManager::getGame().pushScene(new MouseDemo());
         } else if (demo == "opengl") {
-            Util::Game::GameManager::getGame().pushScene(new OpenGLDemo());
+            Util::Game::GameManager::getGame().pushScene(new OpenGlDemo());
         } else if (demo == "particles") {
             Util::Game::GameManager::getGame().pushScene(new ParticleDemo());
         } else if (demo == "polygons") {

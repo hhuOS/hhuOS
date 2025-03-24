@@ -46,7 +46,6 @@ enum Button : uint8_t;
 
 namespace Graphic {
 class LinearFrameBuffer;
-class Font;
 }  // namespace Graphic
 }  // namespace Util
 
