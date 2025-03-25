@@ -34,6 +34,7 @@ template <typename T> class Vector2;
 namespace Game {
 class Game;
 class Scene;
+class Graphics;
 }  // namespace Game
 }  // namespace Util
 
@@ -66,22 +67,18 @@ public:
      */
     ~GameManager() = default;
 
-    [[nodiscard]] static uint16_t getTransformation();
-
-    [[nodiscard]] static const Math::Vector2<double>& getAbsoluteResolution();
-
-    [[nodiscard]] static const Math::Vector2<double>& getRelativeResolution();
-
     [[nodiscard]] static Game& getGame();
 
     [[nodiscard]] static Scene& getCurrentScene();
 
+    [[nodiscard]] static uint16_t getTransformation();
+
+    [[nodiscard]] static const Math::Vector2<double>& getDimensions();
+
 private:
 
     static Game *game;
-    static Math::Vector2<double> absoluteResolution;
-    static Math::Vector2<double> relativeResolution;
-    static uint16_t transformation;
+    static Graphics *graphics;
 };
 
 }

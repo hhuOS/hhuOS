@@ -22,7 +22,6 @@
 #include "lib/util/game/Graphics.h"
 #include "lib/util/math/Vector2.h"
 #include "Hud.h"
-#include "Enemy.h"
 #include "lib/util/game/GameManager.h"
 #include "Player.h"
 #include "Room.h"
@@ -42,7 +41,7 @@ void Hud::initialize() {}
 
 void Hud::draw(Util::Game::Graphics &graphics) {
     const auto charSize = Util::Game::Graphics::FONT_SIZE / static_cast<double>(Util::Game::GameManager::getTransformation());
-    const auto resolution = Util::Game::GameManager::getRelativeResolution();
+    const auto dimensions = graphics.getDimensions();
 
     graphics.setColor(Util::Graphic::Colors::WHITE);
     graphics.drawStringDirect(Util::Math::Vector2<double>(-0.9, -0.875 + (charSize / 2)), "HP:");
@@ -51,7 +50,7 @@ void Hud::draw(Util::Game::Graphics &graphics) {
     // Health
     graphics.setColor(Util::Graphic::Color(255, 117, 0));
     graphics.drawRectangleDirect(Util::Math::Vector2<double>(-0.95, -0.95), Util::Math::Vector2<double>(1.9, 0.15));
-    
+
     graphics.setColor(Util::Graphic::Color(255, 0, 0));
     for (uint32_t i = 0; i < player.getHealth(); i++) {
         graphics.fillRectangleDirect(Util::Math::Vector2<double>(-0.75 + (0.075 * i), -0.9), Util::Math::Vector2<double>(0.05, 0.05));
@@ -59,10 +58,10 @@ void Hud::draw(Util::Game::Graphics &graphics) {
 
     // Minimap Background
     graphics.setColor(Util::Graphic::Color(255, 117, 0));
-    graphics.drawRectangleDirect(Util::Math::Vector2<double>(resolution.getX() - 0.425, 0.575), Util::Math::Vector2<double>(0.4, 0.4));
+    graphics.drawRectangleDirect(Util::Math::Vector2<double>(dimensions.getX() - 0.425, 0.575), Util::Math::Vector2<double>(0.4, 0.4));
 
     graphics.setColor(Util::Graphic::Colors::WHITE);
-    graphics.drawStringDirect(Util::Math::Vector2<double>(resolution.getX() - 0.425, 0.575 - charSize), Util::String::format("Level: %u", player.getLevel()));
+    graphics.drawStringDirect(Util::Math::Vector2<double>(dimensions.getX() - 0.425, 0.575 - charSize), Util::String::format("Level: %u", player.getLevel()));
 
     // Rooms
     for (uint32_t i = 0; i < 4; i++) {
@@ -81,7 +80,7 @@ void Hud::draw(Util::Game::Graphics &graphics) {
                 graphics.setColor(Util::Graphic::Color(68, 195, 212));
             }
 
-            graphics.fillRectangleDirect(Util::Math::Vector2<double>(resolution.getX() - 0.4 + (0.1 * j), 0.9 - (0.1 * i)), Util::Math::Vector2<double>(0.05, 0.05));
+            graphics.fillRectangleDirect(Util::Math::Vector2<double>(dimensions.getX() - 0.4 + (0.1 * j), 0.9 - (0.1 * i)), Util::Math::Vector2<double>(0.05, 0.05));
         }
     }
 }

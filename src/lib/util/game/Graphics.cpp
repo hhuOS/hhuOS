@@ -24,14 +24,12 @@
 #include "Graphics.h"
 
 #include "lib/util/graphic/font/Terminal8x8.h"
-#include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/math/Vector2.h"
 #include "lib/util/game/Camera.h"
 #include "lib/util/graphic/Image.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/math/Math.h"
-#include "GameManager.h"
 #include "Game.h"
 #include "3d/Orientation.h"
 #include "3d/Scene.h"
@@ -45,16 +43,10 @@ namespace Util::Game {
 Graphics::Graphics(const Util::Graphic::LinearFrameBuffer &lfb, Game &game, double scaleFactor) : game(game), bufferedLfb(lfb, scaleFactor),
         transformation((bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ? bufferedLfb.getResolutionY() : bufferedLfb.getResolutionX()) / 2),
         offsetX(transformation + (bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ? (bufferedLfb.getResolutionX() - bufferedLfb.getResolutionY()) / 2 : 0)),
-        offsetY(transformation + (bufferedLfb.getResolutionY() > bufferedLfb.getResolutionX() ? (bufferedLfb.getResolutionY() - bufferedLfb.getResolutionX()) / 2 : 0)) {
-    GameManager::transformation = transformation;
-    GameManager::absoluteResolution = Math::Vector2<double>(bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY());
-    GameManager::relativeResolution = Math::Vector2<double>(
+        offsetY(transformation + (bufferedLfb.getResolutionY() > bufferedLfb.getResolutionX() ? (bufferedLfb.getResolutionY() - bufferedLfb.getResolutionX()) / 2 : 0)),
+        dimensions(
         bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ? static_cast<double>(bufferedLfb.getResolutionX()) / bufferedLfb.getResolutionY() : 1,
-        bufferedLfb.getResolutionY() > bufferedLfb.getResolutionX() ? static_cast<double>(bufferedLfb.getResolutionY()) / bufferedLfb.getResolutionX() : 1
-    );
-
-    lfb.clear();
-}
+        bufferedLfb.getResolutionY() > bufferedLfb.getResolutionX() ? static_cast<double>(bufferedLfb.getResolutionY()) / bufferedLfb.getResolutionX() : 1) {}
 
 /***** Basic functions to draw directly on the screen ******/
 
@@ -742,6 +734,26 @@ const Camera& Graphics::getCamera() const {
     return camera;
 }
 
+uint16_t Graphics::getAbsoluteResolutionX() const {
+    return bufferedLfb.getResolutionX();
+}
+
+uint16_t Graphics::getAbsoluteResolutionY() const {
+    return bufferedLfb.getResolutionY();
+}
+
+const Math::Vector2<double>& Graphics::getDimensions() const {
+    return dimensions;
+}
+
+uint16_t Graphics::getTransformation() const {
+    return transformation;
+}
+
+double Graphics::getRelativeFontSize() const {
+    return FONT_SIZE / static_cast<double>(transformation);
+}
+
 void Graphics::clear(const Graphic::Color &color) {
     if (glBuffer != nullptr) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -957,8 +969,8 @@ void Graphics::gluPrepareDirectDraw(GLint renderStyle) const {
 
     // Ortho matrix for 2D element
     gluMultOrthoMatrix(
-        -GameManager::relativeResolution.getX(), GameManager::relativeResolution.getX(),
-        -GameManager::relativeResolution.getY(), GameManager::relativeResolution.getY(),
+        -dimensions.getX(), dimensions.getX(),
+        -dimensions.getY(), dimensions.getY(),
         -1.0f, 1.0f);
 
     glMatrixMode(GL_MODELVIEW);

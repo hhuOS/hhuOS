@@ -65,7 +65,7 @@ void Ship::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     }
 
     const auto targetX = event.getTargetPosition().getX();
-    const auto maxX = Util::Game::GameManager::getRelativeResolution().getX();
+    const auto maxX = Util::Game::GameManager::getDimensions().getX();
 
     if (targetX > maxX - SIZE_X || targetX < -maxX) {
         event.cancel();

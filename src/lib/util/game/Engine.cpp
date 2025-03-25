@@ -49,10 +49,11 @@ namespace Util::Game {
 
 Engine::Engine(const Graphic::LinearFrameBuffer &lfb, uint8_t targetFrameRate, double scaleFactor) : graphics(lfb, game, scaleFactor), targetFrameRate(targetFrameRate) {
     GameManager::game = &game;
+    GameManager::graphics = &graphics;
 
     auto mouseFile = Io::File("/device/mouse");
     if (mouseFile.exists()) {
-        mouseInputStream = new Util::Io::FileInputStream(mouseFile);
+        mouseInputStream = new Io::FileInputStream(mouseFile);
     }
 }
 
@@ -118,13 +119,12 @@ void Engine::initializeNextScene() {
         graphics.update();
     }
 
-    auto resolution = GameManager::getAbsoluteResolution();
-    auto stringPositionX = static_cast<uint16_t>((resolution.getX() - Address(LOADING).stringLength() * Graphics::FONT_SIZE) / 2.0);
-    auto stringPositionY = static_cast<uint16_t>(resolution.getY() / 2.0);
+    const double stringLength = Address(LOADING).stringLength();
+    const auto stringPos = Math::Vector2<double>(-stringLength * graphics.getRelativeFontSize() / 2, -graphics.getRelativeFontSize() / 2);
 
     graphics.clear();
     graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawStringDirectAbsolute(stringPositionX, stringPositionY, LOADING);
+    graphics.drawStringDirect(stringPos, LOADING);
     graphics.show();
 
     statistics.reset();

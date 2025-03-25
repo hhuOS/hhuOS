@@ -19,6 +19,12 @@
 
 #include "Math.h"
 
+namespace Util {
+namespace Math {
+template <typename T> class Vector2;
+}  // namespace Math
+}  // namespace Util
+
 namespace Util::Math {
 
 template<class T>

@@ -27,6 +27,7 @@
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/key/Key.h"
+#include "lib/util/game/Graphics.h"
 
 void BugDefender::initialize() {
     addObject(ship);
@@ -57,11 +58,11 @@ void BugDefender::initializeBackground(Util::Game::Graphics &graphics) {
 
     auto surfaceSprite = Util::Game::D2::Sprite(Util::String::format("/user/bug/surface.bmp"), PLANET_TILE_WIDTH, PLANET_TILE_HEIGHT);
 
-    auto resolution = Util::Game::GameManager::getRelativeResolution();
+    auto dimensions = graphics.getDimensions();
     auto defaultTilesPerRow = (1 / BACKGROUND_TILE_WIDTH) + 1;
     auto defaultTilePerColumn = (1 / BACKGROUND_TILE_HEIGHT) + 1;
-    auto tilesPerRow = static_cast<int32_t>(resolution.getX() > resolution.getY() ? resolution.getX() * defaultTilesPerRow : defaultTilesPerRow);
-    auto tilesPerColumn = static_cast<int32_t>(resolution.getY() > resolution.getX() ? resolution.getY() * defaultTilePerColumn : defaultTilePerColumn);
+    auto tilesPerRow = static_cast<int32_t>(dimensions.getX() > dimensions.getY() ? dimensions.getX() * defaultTilesPerRow : defaultTilesPerRow);
+    auto tilesPerColumn = static_cast<int32_t>(dimensions.getY() > dimensions.getX() ? dimensions.getY() * defaultTilePerColumn : defaultTilePerColumn);
 
     for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
         for (int32_t y = -tilesPerColumn; y < tilesPerColumn; y++) {
@@ -70,7 +71,7 @@ void BugDefender::initializeBackground(Util::Game::Graphics &graphics) {
     }
 
     defaultTilesPerRow = (1 / PLANET_TILE_WIDTH) + 1;
-    tilesPerRow = static_cast<int32_t>(resolution.getX() > resolution.getY() ? resolution.getX() * defaultTilesPerRow : defaultTilesPerRow);
+    tilesPerRow = static_cast<int32_t>(dimensions.getX() > dimensions.getY() ? dimensions.getX() * defaultTilesPerRow : defaultTilesPerRow);
 
     for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
         surfaceSprite.draw(graphics, Util::Math::Vector2<double>(x * PLANET_TILE_WIDTH, -1 + PLANET_TILE_HEIGHT));

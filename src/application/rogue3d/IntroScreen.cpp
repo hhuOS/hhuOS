@@ -28,7 +28,6 @@
 #include "lib/util/game/Graphics.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/Key.h"
-#include "lib/util/math/Vector2.h"
 
 void IntroScreen::initialize() {
     setKeyListener(*this);
@@ -37,10 +36,9 @@ void IntroScreen::initialize() {
 void IntroScreen::update([[maybe_unused]] double delta) {}
 
 void IntroScreen::initializeBackground(Util::Game::Graphics &graphics) {
-    auto &resolution = Util::Game::GameManager::getAbsoluteResolution();
     auto lines = sizeof(INTRO_TEXT) / sizeof(char*);
-    auto centerX = resolution.getX() / 2;
-    auto centerY = resolution.getY() / 2;
+    auto centerX = graphics.getAbsoluteResolutionX() / 2;
+    auto centerY = graphics.getAbsoluteResolutionY() / 2;
     auto y = static_cast<uint16_t>(centerY - ((lines * Util::Game::Graphics::FONT_SIZE) / 2.0));
 
     graphics.clear();

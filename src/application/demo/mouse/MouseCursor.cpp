@@ -33,13 +33,13 @@ void MouseCursor::initialize() {}
 void MouseCursor::onUpdate([[maybe_unused]] double delta) {}
 
 void MouseCursor::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
-    const auto &resolution = Util::Game::GameManager::getRelativeResolution();
+    const auto &dimensions = Util::Game::GameManager::getDimensions();
     const auto &newPosition = event.getTargetPosition();
 
-    if (newPosition.getX() < -resolution.getX() ||
-        newPosition.getX() > resolution.getX() - currentSprite->getSize().getX() ||
-        newPosition.getY() < -resolution.getY() ||
-        newPosition.getY() > resolution.getY() - currentSprite->getSize().getY()) {
+    if (newPosition.getX() < -dimensions.getX() ||
+        newPosition.getX() > dimensions.getX() - currentSprite->getSize().getX() ||
+        newPosition.getY() < -dimensions.getY() ||
+        newPosition.getY() > dimensions.getY() - currentSprite->getSize().getY()) {
         event.cancel();
     }
 }

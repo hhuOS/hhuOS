@@ -84,7 +84,7 @@ void EnemyBug::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     }
 
     const auto targetX = event.getTargetPosition().getX();
-    const auto maxX = Util::Game::GameManager::getRelativeResolution().getX() - SIZE_X;
+    const auto maxX = Util::Game::GameManager::getDimensions().getX() - SIZE_X;
 
     if ((fleet.getVelocity() > 0 && targetX > maxX - SIZE_X) || (fleet.getVelocity() < 0 && targetX < -maxX)) {
         fleet.moveDown();

@@ -52,7 +52,7 @@ void Level::initialize() {
     }
 
     int32_t x = -1;
-    double y = Util::Game::GameManager::getRelativeResolution().getY() / 2;
+    double y = Util::Game::GameManager::getDimensions().getY() / 2;
 
     int32_t minX = x;
     double minY = y;
@@ -63,7 +63,7 @@ void Level::initialize() {
 
     auto c = fileStream.read();
     while (c != -1) {
-        auto position = Util::Math::Vector2<double>(x * Block::SIZE - (Util::Game::GameManager::getRelativeResolution().getX() / 2), y);
+        auto position = Util::Math::Vector2<double>(x * Block::SIZE - (Util::Game::GameManager::getDimensions().getX() / 2), y);
         switch (c) {
             case '\n':
                 x = -1;
@@ -212,7 +212,7 @@ void Level::spawnMergedBlocks(Util::ArrayList<Util::Pair<int32_t, double>> &posi
         auto position = positions.get(i);
         lastPosition = positions.get(i - 1);
         if (position.first - 1 != lastPosition.first) {
-            auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.first * Block::SIZE - (Util::Game::GameManager::getRelativeResolution().getX()) / 2, rectangleStartPosition.second);
+            auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.first * Block::SIZE - (Util::Game::GameManager::getDimensions().getX()) / 2, rectangleStartPosition.second);
             auto countX = lastPosition.first - rectangleStartPosition.first + 1;
             addObject(new Block(tag, mergedBlockStart, countX, 1));
 
@@ -220,7 +220,7 @@ void Level::spawnMergedBlocks(Util::ArrayList<Util::Pair<int32_t, double>> &posi
         }
     }
 
-    auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.first * Block::SIZE - (Util::Game::GameManager::getRelativeResolution().getX()) / 2, rectangleStartPosition.second);
+    auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.first * Block::SIZE - (Util::Game::GameManager::getDimensions().getX()) / 2, rectangleStartPosition.second);
     auto countX = lastPosition.first - rectangleStartPosition.first + 1;
     addObject(new Block(tag, mergedBlockStart, countX, 1));
 }

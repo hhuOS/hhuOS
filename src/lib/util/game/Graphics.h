@@ -193,6 +193,16 @@ public:
 
     [[nodiscard]] const Camera& getCamera() const;
 
+    [[nodiscard]] uint16_t getAbsoluteResolutionX() const;
+
+    [[nodiscard]] uint16_t getAbsoluteResolutionY() const;
+
+    [[nodiscard]] const Math::Vector2<double>& getDimensions() const;
+
+    [[nodiscard]] uint16_t getTransformation() const;
+
+    [[nodiscard]] double getRelativeFontSize() const;
+
     static const constexpr uint8_t FONT_SIZE = 8;
 
 private:
@@ -223,6 +233,7 @@ private:
     const uint16_t transformation;
     const uint16_t offsetX;
     const uint16_t offsetY;
+    const Math::Vector2<double> dimensions;
 
     Graphic::Color color = Graphic::Colors::WHITE;
 

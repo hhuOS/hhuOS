@@ -43,7 +43,7 @@ Sprite::Sprite() : size(0, 0) {
     }
 }
 
-Sprite::Sprite(const Util::String &path, double width, double height) : size(width, height) {
+Sprite::Sprite(const String &path, double width, double height) : size(width, height) {
     auto transformation = GameManager::getTransformation();
     auto pixelWidth = static_cast<uint16_t>(width * transformation) + 1;
     auto pixelHeight = static_cast<uint16_t>(height * transformation) + 1;
