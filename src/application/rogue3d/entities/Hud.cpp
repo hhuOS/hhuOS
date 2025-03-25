@@ -22,6 +22,7 @@
 #include "lib/util/game/Graphics.h"
 #include "lib/util/math/Vector2.h"
 #include "Hud.h"
+#include "Enemy.h"
 #include "lib/util/game/GameManager.h"
 #include "Player.h"
 #include "Room.h"
@@ -40,7 +41,7 @@ Hud::Hud(Room::Type map[4][4], const Player &player) : Entity(TAG, Util::Math::V
 void Hud::initialize() {}
 
 void Hud::draw(Util::Game::Graphics &graphics) {
-    const auto charSize = Util::Game::Graphics::FONT_SIZE / Util::Game::GameManager::getAbsoluteResolution().getY();
+    const auto charSize = Util::Game::Graphics::FONT_SIZE / static_cast<double>(Util::Game::GameManager::getTransformation());
     const auto resolution = Util::Game::GameManager::getRelativeResolution();
 
     graphics.setColor(Util::Graphic::Colors::WHITE);

@@ -37,7 +37,7 @@
 uint32_t Enemy::ENEMY_LIST_ID = UINT32_MAX;
 uint32_t Enemy::BOSS_LIST_ID = UINT32_MAX;
 
-Enemy::Enemy(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, Room &pRoom, Player &curPlayer, double radius) : Entity(TAG, position, rotation, Util::Math::Vector3<double>(1,1,1), Util::Game::D3::SphereCollider(position, radius)), player(curPlayer), room(pRoom) {}
+Enemy::Enemy(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, Room &pRoom, Player &curPlayer, double radius) : Entity(TAG, position, rotation, Util::Math::Vector3<double>(1,1,1), Util::Game::D3::SphereCollider(position, radius)), player(curPlayer), room(pRoom), health(ENEMY_INIT_HEALTH + (player.getLevel() - 1)), initHealth(health) {}
 
 void Enemy::initialize() {
     if (ENEMY_LIST_ID == UINT32_MAX) {
@@ -78,15 +78,15 @@ void Enemy::setType(Type type) {
     Enemy::type = type;
 
     if (type == BOSS) {
-        initHealth = 20;
-        health = 20;
+        initHealth = BOSS_INIT_HEALTH + 10 * (player.getLevel() - 1);
+        health = initHealth;
     }
 }
 
 void Enemy::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {
     switch (event.getCollidedWidth().getTag()) {
         case Projectile::TAG_PLAYER:
-            takeDamage(1);
+            takeDamage(player.getDamage());
             break;
         default:
             break;
@@ -158,8 +158,8 @@ void Enemy::setActive() {
     active = true;
 }
 
-void Enemy::takeDamage([[maybe_unused]] double damage) {
-    health -= player.getDamage();
+void Enemy::takeDamage(double damage) {
+    health -= damage;
     if (health <= 0) {
         auto &scene = Util::Game::GameManager::getCurrentScene();
         room.removeEnemyFromList(this);

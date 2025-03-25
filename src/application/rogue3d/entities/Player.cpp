@@ -70,7 +70,7 @@ void Player::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {
     switch (event.getCollidedWidth().getTag()) {
         case Projectile::TAG_ENEMY:
         case Enemy::TAG:
-            takeDamage(1);
+            takeDamage(1 + (level - 1) / 3);
             break;
         case Item::TAG_HEALTH_UP:
             healthUp();

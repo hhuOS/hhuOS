@@ -90,19 +90,22 @@ public:
 
     static const constexpr uint32_t TAG = 3;
 
+    static const constexpr uint32_t ENEMY_INIT_HEALTH = 3;
+    static const constexpr uint32_t BOSS_INIT_HEALTH = 20;
+
 private:
 
     Type type = CHASING;
     bool active = false;
     double damage = 1;
 
-    double health = 3;
-    double initHealth = 3;
-
-    double cooldown = 0.9;
-
     Player &player;
     Room &room;
+
+    double health = ENEMY_INIT_HEALTH;
+    double initHealth = ENEMY_INIT_HEALTH;
+
+    double cooldown = 0.9;
 
     Util::Math::Vector3<double> bossMovement = Util::Math::Vector3<double>(1, 0, 0);
 
