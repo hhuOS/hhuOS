@@ -86,7 +86,7 @@ void Player::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {
     }
 }
 
-void Player::takeDamage(uint32_t damage) {
+void Player::takeDamage(uint8_t damage) {
     if (invulnerabilityTime <= 0) {
         health -= damage;
         invulnerabilityTime = 0.7;

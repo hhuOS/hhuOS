@@ -86,12 +86,12 @@ public:
 
     void setActive();
 
-    void takeDamage(double damage);
+    void takeDamage(uint8_t damage);
 
     static const constexpr uint32_t TAG = 3;
 
-    static const constexpr uint32_t ENEMY_INIT_HEALTH = 3;
-    static const constexpr uint32_t BOSS_INIT_HEALTH = 20;
+    static const constexpr int32_t ENEMY_INIT_HEALTH = 3;
+    static const constexpr int32_t BOSS_INIT_HEALTH = 20;
 
 private:
 
@@ -102,8 +102,8 @@ private:
     Player &player;
     Room &room;
 
-    double health = ENEMY_INIT_HEALTH;
-    double initHealth = ENEMY_INIT_HEALTH;
+    int32_t health = ENEMY_INIT_HEALTH;
+    int32_t initHealth = ENEMY_INIT_HEALTH;
 
     double cooldown = 0.9;
 

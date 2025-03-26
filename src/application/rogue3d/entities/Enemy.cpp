@@ -67,7 +67,7 @@ void Enemy::draw(Util::Game::Graphics &graphics) {
         graphics.drawRectangleDirect(Util::Math::Vector2<double>(-0.50, 0.85), Util::Math::Vector2<double>(1.0, 0.1));
 
         graphics.setColor(Util::Graphic::Color(255,0,0));
-        graphics.fillRectangleDirect(Util::Math::Vector2<double>(-0.475, 0.875), Util::Math::Vector2<double>(0.95 * (health / initHealth), 0.05));
+        graphics.fillRectangleDirect(Util::Math::Vector2<double>(-0.475, 0.875), Util::Math::Vector2<double>(0.95 * (static_cast<double>(health) / initHealth), 0.05));
     } else {
         graphics.setColor(Util::Graphic::Color(255, 0, 0));
         graphics.drawList3D(getPosition(), getScale(), getRotation(), ENEMY_LIST_ID);
@@ -158,7 +158,7 @@ void Enemy::setActive() {
     active = true;
 }
 
-void Enemy::takeDamage(double damage) {
+void Enemy::takeDamage(uint8_t damage) {
     health -= damage;
     if (health <= 0) {
         auto &scene = Util::Game::GameManager::getCurrentScene();

@@ -58,7 +58,7 @@ public:
 
     void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
 
-    void takeDamage(uint32_t damage);
+    void takeDamage(uint8_t damage);
 
     bool shoot();
 
@@ -80,8 +80,8 @@ private:
     uint32_t projectileCounter = 0;
     double shootTimer = 0;
 
-    uint32_t health = 3;
-    uint32_t maxHealth = 10;
+    int32_t health = 3;
+    int32_t maxHealth = 10;
 
     uint32_t damage = 1;
     uint32_t maxDmg = 10;
