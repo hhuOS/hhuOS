@@ -250,6 +250,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
 
     LOG_INFO("Loading Global Descriptor Table");
     cpuService->loadGdt();
+    cpuService->loadGdt();
 
     // Initialize Paging Area Manager -> Manages the virtual addresses of all page tables and directories
     LOG_INFO("Initializing paging area manager");

@@ -41,7 +41,7 @@ CpuService::CpuService() {
     // Allocate GDT and Descriptor arrays for a single core (bootstrap processor)
     gdt = new Kernel::GlobalDescriptorTable[1];
     gdtDescriptor = new Kernel::GlobalDescriptorTable::Descriptor[1];
-    tss = new Kernel::GlobalDescriptorTable::TaskStateSegment[1];
+    tss = new Kernel::GlobalDescriptorTable::TaskStateSegment[1]{};
 
     gdt[0].addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x9a, 0x0c)); // Kernel code segment
     gdt[0].addSegment(Kernel::GlobalDescriptorTable::SegmentDescriptor(0x00000000, 0xffffffff, 0x92, 0x0c)); // Kernel data segment
@@ -54,11 +54,15 @@ CpuService::CpuService() {
 }
 
 void CpuService::loadGdt() {
-    // Load GDT
     auto cpuId = getVirtualCpuId();
+
+    // Overwrite TSS entry to make sure it is not marked as busy
+    gdt[cpuId].overwriteSegment(5, Kernel::GlobalDescriptorTable::SegmentDescriptor(reinterpret_cast<uint32_t>(&tss[cpuId]), sizeof(Kernel::GlobalDescriptorTable::TaskStateSegment), 0x89, 0x04));
+
+    // Load GDT
     gdt[cpuId].load();
 
-    // Load task state segment
+    // Load TSS
     Device::Cpu::loadTaskStateSegment(Device::Cpu::SegmentSelector(Device::Cpu::Ring0, 5));
 
     // Set segment registers

@@ -121,6 +121,10 @@ public:
 
     void addSegment(const SegmentDescriptor &descriptor);
 
+    void overwriteSegment(uint8_t index, const SegmentDescriptor &descriptor);
+
+    [[nodiscard]] SegmentDescriptor& getSegment(uint8_t index);
+
     [[nodiscard]] Descriptor getDescriptor() const;
 
     void load() const;

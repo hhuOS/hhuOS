@@ -16,6 +16,9 @@
  */
 
 #include "GlobalDescriptorTable.h"
+
+#include <lib/util/math/Math.h>
+
 #include "lib/util/base/Exception.h"
 
 namespace Kernel {
@@ -41,6 +44,17 @@ void GlobalDescriptorTable::addSegment(const GlobalDescriptorTable::SegmentDescr
     }
 
     table[index++] = descriptor;
+}
+
+void GlobalDescriptorTable::overwriteSegment(uint8_t index, const SegmentDescriptor &descriptor) {
+    if (index == 0) {
+        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "GDT: First descriptor may not be overwritten!");
+    }
+    if (index >= GlobalDescriptorTable::index) {
+        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "GDT: Overwriting beyond table size!");
+    }
+
+    table[index] = descriptor;
 }
 
 GlobalDescriptorTable::Descriptor GlobalDescriptorTable::getDescriptor() const {

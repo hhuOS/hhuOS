@@ -110,13 +110,6 @@ Kernel::Thread::Context Bios::interrupt(int interruptNumber, const Kernel::Threa
     Cpu::disableInterrupts();
     Cmos::disableNmi();
 
-    // Save interrupt mask
-    const auto interruptMask = interruptService.getInterruptMask();
-    interruptService.setInterruptMask(0x0000);
-
-    // Load BIOS call IDT
-    biosIdtDescriptor->load();
-
     // Load extra segment registers with kernel data segment selector,
     // as they might contain a user data selector, which is not valid with the BIOS GDT
     const auto ds = Device::Cpu::readSegmentRegister(Device::Cpu::DS);
@@ -132,8 +125,21 @@ Kernel::Thread::Context Bios::interrupt(int interruptNumber, const Kernel::Threa
     // Switch to bios call GDT
     biosGdt.load();
 
+    // Save interrupt mask
+    const auto interruptMask = interruptService.getInterruptMask();
+    interruptService.setInterruptMask(0x0000);
+
+    // Load BIOS call IDT
+    biosIdtDescriptor->load();
+
     // Call assembly code
     real_mode_call(biosContext);
+
+    // Restore interrupt mask
+    interruptService.setInterruptMask(interruptMask);
+
+    // Load kernel IDT
+    interruptService.loadIdt();
 
     // Switch back to kernel GDT
     cpuService.loadGdt();
@@ -143,12 +149,6 @@ Kernel::Thread::Context Bios::interrupt(int interruptNumber, const Kernel::Threa
     Device::Cpu::writeSegmentRegister(Device::Cpu::ES, es);
     Device::Cpu::writeSegmentRegister(Device::Cpu::FS, fs);
     Device::Cpu::writeSegmentRegister(Device::Cpu::GS, gs);
-
-    // Load kernel IDT
-    interruptService.loadIdt();
-
-    // Restore interrupt mask
-    interruptService.setInterruptMask(interruptMask);
 
     // Enable interrupts
     Cmos::enableNmi();
