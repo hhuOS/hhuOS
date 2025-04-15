@@ -105,20 +105,9 @@ void VirtualAddressSpace::map(const void *physicalAddress, const void *virtualAd
         // Calculate page directory flags
         auto pageDirectoryFlags = Paging::PRESENT | Paging::WRITABLE | (reinterpret_cast<uint32_t>(virtualAddress) >= Kernel::MemoryLayout::KERNEL_AREA.endAddress ? Paging::USER_ACCESSIBLE : Paging::NONE);
 
-        // Check if the virtual address is inside kernel memory.
-        // In this case, we need to propagate the mapping to all active address spaces, because the kernel is mapped into each address space.
-        if (reinterpret_cast<uint32_t>(virtualAddress) <= MemoryLayout::KERNEL_AREA.endAddress) {
-            const auto &addressSpaces = memoryService.getAllAddressSpaces();
-            for (uint32_t i = 0; i < addressSpaces.size(); i++) { // Do not use a for-each loop, since the iterator itself requires memory and may cause a deadlock
-                auto &addressSpace = *addressSpaces.get(i);
-                (*addressSpace.virtualPageDirectory)[pageDirectoryIndex].set(reinterpret_cast<uint32_t>(virtualPageTable), pageDirectoryFlags);
-                (*addressSpace.physicalPageDirectory)[pageDirectoryIndex].set(reinterpret_cast<uint32_t>(physicalPageTable), pageDirectoryFlags);
-            }
-        } else {
-            // The virtual address concerns user space memory, and must not be visible to any other address space
-            (*virtualPageDirectory)[pageDirectoryIndex].set(reinterpret_cast<uint32_t>(virtualPageTable), pageDirectoryFlags);
-            (*physicalPageDirectory)[pageDirectoryIndex].set(reinterpret_cast<uint32_t>(physicalPageTable), pageDirectoryFlags);
-        }
+        // Set page directory entry
+        (*virtualPageDirectory)[pageDirectoryIndex].set(reinterpret_cast<uint32_t>(virtualPageTable), pageDirectoryFlags);
+        (*physicalPageDirectory)[pageDirectoryIndex].set(reinterpret_cast<uint32_t>(physicalPageTable), pageDirectoryFlags);
     }
 
     // Get corresponding page table
@@ -163,24 +152,11 @@ void* VirtualAddressSpace::unmap(const void *virtualAddress) {
             );
 
     // Delete page table, if it is empty
-    if (pageTable.isEmpty()) {
-        auto &memoryService = Service::getService<MemoryService>();
+    if (!kernelAddressSpace && pageTable.isEmpty()) {
+        (*virtualPageDirectory)[pageDirectoryIndex].clear();
+        (*physicalPageDirectory)[pageDirectoryIndex].clear();
 
-        // Check if the virtual address is inside kernel memory.
-        // In this case, we need to propagate the mapping to all active address spaces, because the kernel is mapped into each address space.
-        if (reinterpret_cast<uint32_t>(virtualAddress) <= MemoryLayout::KERNEL_AREA.endAddress) {
-            const auto &addressSpaces = memoryService.getAllAddressSpaces();
-            for (uint32_t i = 0; i < addressSpaces.size(); i++) { // Do not use a for-each loop, since the iterator itself requires memory and may cause a deadlock
-                auto &addressSpace = *addressSpaces.get(i);
-                (*addressSpace.virtualPageDirectory)[pageDirectoryIndex].clear();
-                (*addressSpace.physicalPageDirectory)[pageDirectoryIndex].clear();
-            }
-        } else {
-            (*virtualPageDirectory)[pageDirectoryIndex].clear();
-            (*physicalPageDirectory)[pageDirectoryIndex].clear();
-        }
-
-        memoryService.freePageTable(&pageTable);
+        Service::getService<MemoryService>().freePageTable(&pageTable);
     }
 
     return reinterpret_cast<void*>(physicalAddress);

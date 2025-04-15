@@ -19,6 +19,8 @@
 #include "kernel/log/Log.h"
 #include "GatesOfHell.h"
 
+#include <device/cpu/SymmetricMultiprocessing.h>
+
 #include "kernel/memory/MemoryLayout.h"
 #include "kernel/memory/Paging.h"
 #include "kernel/memory/PagingAreaManager.h"
@@ -215,6 +217,15 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     // Page tables will be allocated in bootstrap memory, directly after the page directory
     auto *pageTableMemory = reinterpret_cast<Kernel::Paging::Table*>(pagingAreaPhysical + sizeof(Kernel::Paging::Table));
 
+    // Allocate page tables for the whole kernel area
+    for (uint32_t i = 0; i < Kernel::MemoryLayout::KERNEL_END / (Util::PAGESIZE * 1024); i++) {
+        auto &pageTable = *pageTableMemory++;
+        pageTable.clear();
+
+        auto &directory= *pageDirectory;
+        directory[i].set(reinterpret_cast<uint32_t>(&pageTable), Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
+    }
+
     // Create identity mapping for kernel
     const auto kernelSize = Util::Address(KERNEL_DATA_END - KERNEL_DATA_START).alignUp(Util::PAGESIZE).get();
     pageTableMemory += createInitialMapping(*pageDirectory, pageTableMemory, KERNEL_DATA_START, KERNEL_DATA_START, kernelSize / Util::PAGESIZE);
@@ -249,7 +260,6 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     auto *cpuService = new Kernel::CpuService();
 
     LOG_INFO("Loading Global Descriptor Table");
-    cpuService->loadGdt();
     cpuService->loadGdt();
 
     // Initialize Paging Area Manager -> Manages the virtual addresses of all page tables and directories
