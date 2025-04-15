@@ -19,6 +19,7 @@
 #define __VIRTUALADDRESSSPACE__
 
 #include <stdint.h>
+#include <lib/util/async/Spinlock.h>
 
 #include "Paging.h"
 
@@ -68,7 +69,7 @@ public:
 
     void* getPhysicalAddress(void *virtualAddress) const;
 
-    void map(const void *physicalAddress, const void *virtualAddress, uint16_t flags);
+    void map(const void *physicalAddress, const void *virtualAddress, uint16_t flags, bool abortIfLocked = false);
 
     void* unmap(const void *virtualAddress);
 
@@ -83,6 +84,7 @@ private:
     bool kernelAddressSpace;
     Paging::Table *physicalPageDirectory;
     Paging::Table *virtualPageDirectory;
+    Util::Async::Spinlock pageDirectoryLock;
     Util::HeapMemoryManager &memoryManager;
 };
 

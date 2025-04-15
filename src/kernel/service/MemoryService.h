@@ -112,7 +112,7 @@ public:
      * @param virtualAddress Virtual address where a page should be mapped
      * @param flags Flags for Page Table Entry
      */
-    void map(void *virtualAddress, uint32_t pageCount, uint16_t flags);
+    void map(void *virtualAddress, uint32_t pageCount, uint16_t flags, bool abortIfLocked = false);
 
     /**
      * Unmap a page at a given virtual address.

@@ -24,6 +24,10 @@
 #include <stdint.h>
 #include "kernel/interrupt/InterruptDescriptorTable.h"
 
+namespace Kernel {
+class VirtualAddressSpace;
+}
+
 // Import from symmetric_multiprocessing.asm
 extern "C" void boot_ap(void);
 extern const uint16_t boot_ap_size;

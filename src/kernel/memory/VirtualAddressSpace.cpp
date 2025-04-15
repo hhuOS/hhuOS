@@ -90,11 +90,20 @@ void* VirtualAddressSpace::getPhysicalAddress(void *virtualAddress) const {
     return reinterpret_cast<void*>(pageTable[pageTableIndex].getAddress() | (reinterpret_cast<uint32_t>(virtualAddress) & 0x00000fff));
 }
 
-void VirtualAddressSpace::map(const void *physicalAddress, const void *virtualAddress, uint16_t flags) {
+void VirtualAddressSpace::map(const void *physicalAddress, const void *virtualAddress, uint16_t flags, bool abortIfLocked) {
     // Get indices into page table and directory
     uint32_t pageDirectoryIndex = Paging::DIRECTORY_INDEX(reinterpret_cast<uint32_t>(virtualAddress));
     uint32_t pageTableIndex = Paging::TABLE_INDEX(reinterpret_cast<uint32_t>(virtualAddress));
     auto &memoryService = Service::getService<MemoryService>();
+
+    // Lock page directory
+    if (abortIfLocked) {
+        if (!pageDirectoryLock.tryAcquire()) {
+            return;
+        }
+    } else {
+        pageDirectoryLock.acquire();
+    }
 
     // Check if the requested page table is present and allocate a new one, if necessary
     if ((*virtualPageDirectory)[pageDirectoryIndex].isUnused()) {
@@ -115,11 +124,13 @@ void VirtualAddressSpace::map(const void *physicalAddress, const void *virtualAd
 
     // Check if the requested page is already mapped
     if (!pageTable[pageTableIndex].isUnused()) {
+        pageDirectoryLock.release();
         Util::Exception::throwException(Util::Exception::PAGING_ERROR, "PageDirectory: Requested page is already mapped!");
     }
 
     // Set entry in page table
     pageTable[pageTableIndex].set(reinterpret_cast<uint32_t>(physicalAddress), flags);
+    pageDirectoryLock.release();
 }
 
 void* VirtualAddressSpace::unmap(const void *virtualAddress) {
@@ -127,8 +138,12 @@ void* VirtualAddressSpace::unmap(const void *virtualAddress) {
     uint32_t pageDirectoryIndex = Paging::DIRECTORY_INDEX(reinterpret_cast<uint32_t>(virtualAddress));
     uint32_t pageTableIndex = Paging::TABLE_INDEX(reinterpret_cast<uint32_t>(virtualAddress));
 
+    // Lock page directory
+    pageDirectoryLock.acquire();
+
     // Check if the requested page table is present
     if ((*virtualPageDirectory)[pageDirectoryIndex].isUnused()) {
+        pageDirectoryLock.release();
         return nullptr;
     }
 
@@ -137,6 +152,7 @@ void* VirtualAddressSpace::unmap(const void *virtualAddress) {
 
     // Check if the requested page is present
     if (pageTable[pageTableIndex].isUnused()) {
+        pageDirectoryLock.release();
         return nullptr;
     }
 
@@ -162,6 +178,7 @@ void* VirtualAddressSpace::unmap(const void *virtualAddress) {
         Service::getService<MemoryService>().freePageTable(&pageTable);
     }*/
 
+    pageDirectoryLock.release();
     return reinterpret_cast<void*>(physicalAddress);
 }
 

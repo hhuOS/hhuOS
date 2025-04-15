@@ -20,6 +20,9 @@
 
 #include "SymmetricMultiprocessing.h"
 #include "kernel/log/Log.h"
+#include "kernel/memory/MemoryLayout.h"
+#include "kernel/memory/VirtualAddressSpace.h"
+#include "lib/util/base/Constants.h"
 #include "device/interrupt/apic/Apic.h"
 #include "kernel/service/InterruptService.h"
 #include "kernel/service/Service.h"
@@ -30,6 +33,7 @@ volatile bool runningApplicationProcessors[256]{}; // Once an AP is running it s
 
 [[noreturn]] void applicationProcessorEntry(uint8_t virtualCpuId) {
     runningApplicationProcessors[virtualCpuId] = true; // Mark this AP as running
+
     while (true) {}
 
     // Initialize this AP's APIC

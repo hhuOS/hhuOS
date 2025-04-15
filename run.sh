@@ -26,7 +26,7 @@ readonly CONST_QEMU_DEFAULT_RAM="256M"
 readonly CONST_QEMU_BIOS_PC=""
 readonly CONST_QEMU_BIOS_EFI="RELEASEIa32_OVMF.fd"
 
-readonly CONST_QEMU_ARGS="-vga std -rtc base=localtime -device isa-debug-exit -smp 2"
+readonly CONST_QEMU_ARGS="-vga std -rtc base=localtime -device isa-debug-exit -smp 3"
 
 readonly CONST_QEMU_STORAGE_ARGS="\
 -device ahci,id=ahci \

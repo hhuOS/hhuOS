@@ -229,12 +229,12 @@ void MemoryService::freePageTable(Paging::Table *pageTable) {
     pagingAreaManager.freeBlock(pageTable);
 }
 
-void Kernel::MemoryService::map(void *virtualAddress, uint32_t pageCount, uint16_t flags) {
+void Kernel::MemoryService::map(void *virtualAddress, uint32_t pageCount, uint16_t flags, bool abortIfLocked) {
     for (uint32_t i = 0; i < pageCount; i++) {
         // Allocate a physical page frames to where the page should be mapped
         auto *physicalAddress = pageFrameAllocator.allocateBlock();
         // Map the frame to given virtual address
-        currentAddressSpace->map(physicalAddress, reinterpret_cast<uint8_t*>(virtualAddress) + i * Util::PAGESIZE, flags);
+        currentAddressSpace->map(physicalAddress, reinterpret_cast<uint8_t*>(virtualAddress) + i * Util::PAGESIZE, flags, abortIfLocked);
     }
 }
 
@@ -370,7 +370,7 @@ void MemoryService::handlePageFault(uint32_t errorCode) {
     }
 
     // Map the faulted Page
-    map(reinterpret_cast<void*>(faultAddress), 1, Paging::PRESENT | Paging::WRITABLE | (faultAddress >= Kernel::MemoryLayout::KERNEL_AREA.endAddress ? Paging::USER_ACCESSIBLE : Paging::NONE));
+    map(reinterpret_cast<void*>(faultAddress), 1, Paging::PRESENT | Paging::WRITABLE | (faultAddress >= Kernel::MemoryLayout::KERNEL_AREA.endAddress ? Paging::USER_ACCESSIBLE : Paging::NONE), true);
 }
 
 MemoryService::MemoryStatus MemoryService::getMemoryStatus() {
