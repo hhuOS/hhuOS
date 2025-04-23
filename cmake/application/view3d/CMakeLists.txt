@@ -28,7 +28,6 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
 )
 
-# Set source files
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/view3d/ModelEntity.cpp
         ${HHUOS_SRC_DIR}/application/view3d/ModelViewer.cpp

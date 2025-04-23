@@ -60,7 +60,6 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-O0> # Quake does not work with compiler optimizations
 )
 
-# Set source files
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/quake/quakegeneric_hhuos.cpp
         ${HHUOS_SRC_DIR}/application/quake/quakegeneric/source/cd_null.c

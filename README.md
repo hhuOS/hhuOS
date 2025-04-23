@@ -33,7 +33,7 @@ tar -xzf hhuOS-master.tar.gz
 ./run.sh
 ```
 
-The OS will boot into a shell with some UNIX-like commands. Run `ls /bin` to see all available applications. Try out `bug` and `battlespace` for some old-fashioned games!
+The OS will boot into a shell with some UNIX-like commands. Run `ls /bin` to see all available applications. Try out `bug` and `dino` for some old-fashioned games!
 
 <p align="center">
   <img src="media/screenshots/shell.png" width="600px">
@@ -73,7 +73,7 @@ There seems to be a problem with older QEMU versions and new OVMF images.
 
 ## What next?
 
-Congratulations! If you have made it this far, you have successfully compiled and run hhuOS! If you have not done so yet, you should definitely try out the included games `bug`, `battlespace` and `dino`, as well as the `demo` command, to see the capabilities of our user space game engine.
+Congratulations! If you have made it this far, you have successfully compiled and run hhuOS! If you have not done so yet, you should definitely try out the included games `bug`, `battlespace`, `dino` and `rogue3d`, as well as the `demo` command, to see the capabilities of our user space game engine. There is also some ported software available for hhuOS (Scroll down for an exhaustive list).
 
 When you are done tinkering with the OS, why not try to build your own application for hhuOS? Our [wiki](https://github.com/hhuOS/hhuOS/wiki/) provides tutorials on how to set up a development environment and get started with app development for hhuOS.
 
@@ -110,7 +110,7 @@ When you are done tinkering with the OS, why not try to build your own applicati
         <p align="center">3D demo scene rendered with our game engine</p>
         </td>
         <td><img src="media/screenshots/rogue3d.png" width="450px"></br>
-        <p align="center"><i>Rogue3D</i> is roguelike game</p>
+        <p align="center"><i>Rogue3D</i> is a roguelike game</p>
         </td>
     </tr>
 </table>
@@ -150,12 +150,10 @@ Quake has been ported to hhuOS using [quakegeneric](https://github.com/erysdren/
 - Available as `quake` command in hhuOS.
 - Prebuilt versions of hhuOS on [GitHub Releases](https://github.com/hhuOS/hhuOS/releases) do not include a PAK file. If you want to play Quake, build hhuOS from source. The shareware PAK file will be downloaded automatically.
 
-[TinyGL](https://github.com/C-Chads/tinygl) by [*C-Chads*](https://github.com/C-Chads/) ([License](https://github.com/C-Chads/tinygl/blob/main/LICENSE))
-- Try out the `tinygl` command in hhuOS for some demos.
-- Used by our game engine to render 3D graphics.
-
-[PortableGL](https://github.com/rswinkle/PortableGL) by [*rswinkle*](https://github.com/rswinkle/) ([MIT](https://github.com/rswinkle/PortableGL/blob/master/LICENSE))
-- Try out the `portablegl` command in hhuOS for some demos.
+[ClassiCube](https://github.com/ClassiCube/ClassiCube) by [*UnknownShadow200*](https://github.com/UnknownShadow200/) ([License](https://github.com/ClassiCube/ClassiCube/blob/master/license.txt)):
+- Available as `classicube` command in hhuOS.
+- Only single player mode is working (network functionality is currently not supported).
+- Performance and visuals are limited by the software renderer.
 
 [Peanut-GB](https://github.com/deltabeard/Peanut-GB) by [*deltabeard*](https://github.com/deltabeard) ([MIT](https://github.com/deltabeard/Peanut-GB/blob/master/peanut_gb.h)):
 - Available as `peanut-gb` command in hhuOS.
@@ -172,3 +170,10 @@ Quake has been ported to hhuOS using [quakegeneric](https://github.com/erysdren/
 - The following games are included in `/user/megadrive/`:
   - [Dragon's Castle](https://github.com/sikthehedgehog/dragon) by [*sikthehedgehog*](https://github.com/sikthehedgehog/) ([zlib](https://github.com/sikthehedgehog/dragon/blob/master/LICENSE))
   - [Miniplanets](https://github.com/sikthehedgehog/miniplanets) by [*sikthehedgehog*](https://github.com/sikthehedgehog/) ([zlib](https://github.com/sikthehedgehog/miniplanets/blob/master/LICENSE.txt))
+
+[TinyGL](https://github.com/C-Chads/tinygl) by [*C-Chads*](https://github.com/C-Chads/) ([License](https://github.com/C-Chads/tinygl/blob/main/LICENSE))
+- Try out the `tinygl` command in hhuOS for some demos.
+- Used by our game engine to render 3D graphics.
+
+[PortableGL](https://github.com/rswinkle/PortableGL) by [*rswinkle*](https://github.com/rswinkle/) ([MIT](https://github.com/rswinkle/PortableGL/blob/master/LICENSE))
+- Try out the `portablegl` command in hhuOS for some demos.

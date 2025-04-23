@@ -64,7 +64,6 @@ public:
     void flush() const;
 
 private:
-
     /**
      * Private constructor with all possible parameters to avoid duplicate code.
      */

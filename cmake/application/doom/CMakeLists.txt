@@ -55,7 +55,6 @@ add_compile_options(
 		$<$<COMPILE_LANGUAGE:C>:-Wno-dangling-pointer>
 )
 
-# Set source files
 set(SOURCE_FILES
 		${HHUOS_SRC_DIR}/application/doom/doomgeneric_hhuos.cpp
         ${HHUOS_SRC_DIR}/application/doom/doomgeneric/doomgeneric/am_map.c

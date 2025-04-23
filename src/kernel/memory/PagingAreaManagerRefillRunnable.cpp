@@ -19,7 +19,6 @@
 
 #include "lib/util/async/Thread.h"
 #include "kernel/memory/PagingAreaManager.h"
-#include "lib/util/time/Timestamp.h"
 
 namespace Kernel {
 

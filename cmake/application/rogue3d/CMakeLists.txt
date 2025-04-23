@@ -28,7 +28,6 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
 )
 
-# Set source files
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/rogue3d/rogue.cpp
         ${HHUOS_SRC_DIR}/application/rogue3d/GameOverScreen.cpp

@@ -19,3 +19,6 @@
 [submodule "src/application/clownmdemu/clownmdemu"]
 	path = src/application/clownmdemu/clownmdemu
 	url = https://github.com/hhuOS/clownmdemu.git
+[submodule "src/application/classicube/ClassiCube"]
+	path = src/application/classicube/ClassiCube
+	url = https://github.com/hhu-bsinfo/ClassiCube.git

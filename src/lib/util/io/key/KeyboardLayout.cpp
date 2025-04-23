@@ -23,7 +23,7 @@
 void Util::Io::KeyboardLayout::parseAsciiCode(uint8_t scancode, uint8_t prefix, Util::Io::Key &key) const {
     if (scancode == 53 && prefix == KeyDecoder::PREFIX1) {
         key.setAscii('/');
-        key.setScancode(Util::Io::Key::DIV);
+        key.setScancode(53);
     } else if (key.getNumLock() && !prefix && scancode >= 71 && scancode <= 83) {
         key.setAscii(asciiNumTab[scancode - 71]);
         key.setScancode(scanNumTab[scancode - 71]);

@@ -28,7 +28,6 @@ add_compile_options(
         -Wno-missing-field-initializers
 )
 
-# Set source files
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/portablegl/portablegl.cpp
         ${HHUOS_SRC_DIR}/application/portablegl/info.cpp

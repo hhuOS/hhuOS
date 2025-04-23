@@ -28,7 +28,7 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
 )
 
-# Set source files
+
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/battlespace/battlespace.cpp
         ${HHUOS_SRC_DIR}/application/battlespace/Astronomical.cpp

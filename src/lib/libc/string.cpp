@@ -270,13 +270,15 @@ const char * errorStrings[] = {
 	"No Error",
 	"Function Domain Error",
 	"Function Range Error",
-	"Illegal Byte Sequence"
+	"Illegal Byte Sequence",
+	"File Not Found",
+	"File Already Exists"
 };
 
 char errorString[100];
 
 char * strerror(int errnum) {
-	if (errnum>0 && errnum <4) strcpy(errorString, errorStrings[errnum]);
+	if (errnum>0 && errnum <6) strcpy(errorString, errorStrings[errnum]);
 	else strcpy(errorString, errorStrings[0]);
 	return errorString;
 }

@@ -38,7 +38,8 @@ jobs:
           wget -O license/5-mazes.txt https://raw.githubusercontent.com/godai78/5-Mazes/main/LICENSE &&
           wget -O license/clownmdemu.txt https://raw.githubusercontent.com/Clownacy/clownmdemu/refs/heads/master/LICENCE.txt &&
           wget -O license/dragons-castle.txt https://raw.githubusercontent.com/sikthehedgehog/dragon/refs/heads/master/LICENSE &&
-          wget -O license/miniplanets.txt https://raw.githubusercontent.com/sikthehedgehog/miniplanets/refs/heads/master/LICENSE.txt
+          wget -O license/miniplanets.txt https://raw.githubusercontent.com/sikthehedgehog/miniplanets/refs/heads/master/LICENSE.txt &&
+          wget -O license/classicube.txt https://raw.githubusercontent.com/ClassiCube/ClassiCube/refs/heads/master/license.txt
 
       - name: Create artifact
         run: tar -czvf hhuOS-${{ github.ref_name }}.tar.gz hhuOS-limine.iso hhuOS-towboot.img hdd0.img floppy0.img run.sh README.md license

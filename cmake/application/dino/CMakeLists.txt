@@ -28,7 +28,6 @@ add_compile_options(
 
 include_directories(${HHUOS_SRC_DIR})
 
-# Set source files
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/dino/dino.cpp
         ${HHUOS_SRC_DIR}/application/dino/entity/Block.cpp

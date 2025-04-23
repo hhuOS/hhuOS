@@ -2,6 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/application/classicube/ClassiCube" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/application/clownmdemu/clownmdemu" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/application/clownmdemu/clownmdemu/clown68000" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/application/clownmdemu/clownmdemu/clown68000/common/clowncommon" vcs="Git" />

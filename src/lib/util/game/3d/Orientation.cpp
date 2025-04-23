@@ -25,8 +25,7 @@
  */
 
 #include "Orientation.h"
-
-#include <lib/util/math/Math.h>
+#include "lib/util/math/Math.h"
 
 namespace Util::Game::D3 {
 

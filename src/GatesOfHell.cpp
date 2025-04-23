@@ -18,9 +18,7 @@
 #include "device/cpu/Cpu.h"
 #include "kernel/log/Log.h"
 #include "GatesOfHell.h"
-
-#include <device/cpu/SymmetricMultiprocessing.h>
-
+#include "device/cpu/SymmetricMultiprocessing.h"
 #include "kernel/memory/MemoryLayout.h"
 #include "kernel/memory/Paging.h"
 #include "kernel/memory/PagingAreaManager.h"

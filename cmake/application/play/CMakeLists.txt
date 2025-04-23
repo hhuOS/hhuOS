@@ -37,7 +37,6 @@ endif()
 
 include_directories(${HHUOS_SRC_DIR})
 
-# Set source files
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/play/play.cpp)
 

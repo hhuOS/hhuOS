@@ -42,7 +42,6 @@ add_compile_options(
         -Wno-switch
 )
 
-# Set source files
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/peanut-gb/peanut_gb.cpp)
 

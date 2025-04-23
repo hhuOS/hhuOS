@@ -44,7 +44,6 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-O0> # ClownMDEmu does not work with compiler optimizations
 )
 
-# Set source files
 set(SOURCE_FILES
         # Application frontend
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu.cpp

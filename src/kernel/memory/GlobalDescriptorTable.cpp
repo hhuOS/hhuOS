@@ -17,8 +17,6 @@
 
 #include "GlobalDescriptorTable.h"
 
-#include <lib/util/math/Math.h>
-
 #include "lib/util/base/Exception.h"
 
 namespace Kernel {

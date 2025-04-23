@@ -21,7 +21,6 @@ message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR})
 
-# Set source files
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/kernel/network/DatagramSocket.cpp
         ${HHUOS_SRC_DIR}/kernel/network/NetworkModule.cpp
