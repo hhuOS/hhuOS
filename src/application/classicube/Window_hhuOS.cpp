@@ -102,6 +102,18 @@ void pollKeyboard() {
 				case Util::Io::Key::BACKSPACE:
 					ccCode = CCKEY_BACKSPACE;
 					break;
+				case Util::Io::Key::UP:
+					ccCode = CCKEY_UP;
+					break;
+				case Util::Io::Key::DOWN:
+					ccCode = CCKEY_UP;
+					break;
+				case Util::Io::Key::LEFT:
+					ccCode = CCKEY_UP;
+					break;
+				case Util::Io::Key::RIGHT:
+					ccCode = CCKEY_UP;
+					break;
 				case Util::Io::Key::ZERO:
 					ccCode = CCKEY_0;
 					break;
@@ -221,9 +233,9 @@ void pollKeyboard() {
 			} else {
 				Input_SetReleased(ccCode);
 			}
-
-			scancode = keyboardInputStream.read();
 		}
+
+		scancode = keyboardInputStream.read();
 	}
 }
 
