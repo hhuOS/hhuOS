@@ -152,12 +152,15 @@ void* VirtualAddressSpace::unmap(const void *virtualAddress) {
             );
 
     // Delete page table, if it is empty
-    if (!kernelAddressSpace && pageTable.isEmpty()) {
+    // TODO: When running doom or classicube twice in a release build,
+    //       the system crashes with "Requested page is already mapped!".
+    //       It works if we comment out the following lines, but I don't know why.
+    /*if (!kernelAddressSpace && pageTable.isEmpty()) {
         (*virtualPageDirectory)[pageDirectoryIndex].clear();
         (*physicalPageDirectory)[pageDirectoryIndex].clear();
 
         Service::getService<MemoryService>().freePageTable(&pageTable);
-    }
+    }*/
 
     return reinterpret_cast<void*>(physicalAddress);
 }
