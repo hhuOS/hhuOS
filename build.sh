@@ -22,6 +22,7 @@ readonly VALID_GENERATORS=("Unix Makefiles" "Ninja")
 
 BUILD_TYPE="Release"
 TARGET="towboot"
+CORES="$(nproc)"
 
 if command -v ninja > /dev/null 2>&1; then
   GENERATOR="Ninja"
@@ -69,6 +70,10 @@ parse_generator() {
 
     printf "Invalid generator '%s'!\\n" "${generator}"
     exit 1
+}
+
+parse_ncores() {
+    NCORES="${1}"
 }
 
 remove() {
@@ -186,7 +191,7 @@ build() {
     if [[ -f "build.ninja" ]]; then
         ninja "${TARGET}"
     elif [[ -f "Makefile" ]]; then
-        make -j "$(nproc)" "${TARGET}"
+        make -j "${NCORES}" "${TARGET}"
     else
         echo "No build system found in '${build_dir}'! Try a clean build by executing 'build.sh --clean' first."
         exit 1

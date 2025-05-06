@@ -18,7 +18,7 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_BLOODEMITTER_H
+#ifndef HHUOS_DROPLETEMITTER_H
 #define HHUOS_DROPLETEMITTER_H
 
 #include <stdint.h>

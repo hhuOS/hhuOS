@@ -81,6 +81,7 @@ set(CMAKE_ASM_NASM_INCLUDES "${HHUOS_SRC_DIR}/")
 set(CMAKE_ASM_NASM_COMPILE_OBJECT "<CMAKE_ASM_NASM_COMPILER> -I${CMAKE_ASM_NASM_INCLUDES} -f ${CMAKE_ASM_NASM_OBJECT_FORMAT} -o <OBJECT> <SOURCE>")
 
 add_compile_options(
+        # General compiler flags
         -m32
         -march=i386
         -mfpmath=387
@@ -94,6 +95,17 @@ add_compile_options(
         -Wall
         -Wextra
         -Werror
+        $<$<VERSION_GREATER_EQUAL:${CMAKE_C_COMPILER_VERSION},9>:-mmanual-endbr>
+
+        # C++ compiler flags
+        $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
+        $<$<COMPILE_LANGUAGE:CXX>:-fno-threadsafe-statics>
+        $<$<COMPILE_LANGUAGE:CXX>:-fno-use-cxa-atexit>
+        $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
+        $<$<COMPILE_LANGUAGE:CXX>:-std=gnu++20>
+        $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<VERSION_GREATER_EQUAL:${CMAKE_C_COMPILER_VERSION},15>>:-fno-assume-sane-operators-new-delete>
+
+        # Macro definitions
         -U__linux__
         -DHHUOS_VERSION=${HHUOS_VERSION}
         -DHHUOS_CODENAME=${HHUOS_CODENAME}
@@ -101,13 +113,6 @@ add_compile_options(
         -DHHUOS_GIT_BRANCH=${HHUOS_GIT_BRANCH}
         -DHHUOS_BUILD_DATE=${HHUOS_BUILD_DATE}
         -DHHUOS_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
-        $<$<COMPILE_LANGUAGE:CXX>:-fno-threadsafe-statics>
-        $<$<COMPILE_LANGUAGE:CXX>:-fno-use-cxa-atexit>
-        $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
-        $<$<COMPILE_LANGUAGE:CXX>:-std=gnu++20>
-        $<$<VERSION_GREATER_EQUAL:${CMAKE_C_COMPILER_VERSION},9>:-mmanual-endbr>
-        $<$<VERSION_GREATER_EQUAL:${CMAKE_C_COMPILER_VERSION},13>:-nostdlib++>
 )
 
 add_link_options(
@@ -115,6 +120,7 @@ add_link_options(
         -nodefaultlibs
         -nolibc
         -nostdlib
+        $<$<VERSION_GREATER_EQUAL:${CMAKE_C_COMPILER_VERSION},13>:-nostdlib++>
         -no-pie
         -Wl,--build-id=none
         -Wl,-m,elf_i386

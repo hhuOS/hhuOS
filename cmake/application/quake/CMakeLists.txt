@@ -41,6 +41,8 @@ else()
 endif()
 
 add_compile_options(
+        $<$<COMPILE_LANGUAGE:C>:-std=c17>
+        $<$<COMPILE_LANGUAGE:C>:-O0> # Quake does not work with compiler optimizations
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-parameter>
         $<$<COMPILE_LANGUAGE:C>:-Wno-missing-field-initializers>
         $<$<COMPILE_LANGUAGE:C>:-Wno-dangling-else>
@@ -57,7 +59,6 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-Wno-shift-overflow>
         $<$<COMPILE_LANGUAGE:C>:-Wno-strict-aliasing>
         $<$<COMPILE_LANGUAGE:C>:-Wno-aggressive-loop-optimizations>
-        $<$<COMPILE_LANGUAGE:C>:-O0> # Quake does not work with compiler optimizations
 )
 
 set(SOURCE_FILES

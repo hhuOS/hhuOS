@@ -42,6 +42,7 @@ else()
 endif()
 
 add_compile_options(
+		$<$<COMPILE_LANGUAGE:C>:-std=c17>
 		$<$<COMPILE_LANGUAGE:C>:-Wno-sign-compare>
 		$<$<COMPILE_LANGUAGE:C>:-Wno-unused-parameter>
 		$<$<COMPILE_LANGUAGE:C>:-Wno-unused-but-set-parameter>
@@ -52,6 +53,7 @@ add_compile_options(
 		$<$<COMPILE_LANGUAGE:C>:-Wno-missing-field-initializers>
 		$<$<COMPILE_LANGUAGE:C>:-Wno-type-limits>
 		$<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
+		$<$<COMPILE_LANGUAGE:C>:-Wno-unterminated-string-initialization>
 		$<$<COMPILE_LANGUAGE:C>:-Wno-dangling-pointer>
 )
 
