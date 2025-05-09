@@ -22,7 +22,7 @@ readonly VALID_GENERATORS=("Unix Makefiles" "Ninja")
 
 BUILD_TYPE="Release"
 TARGET="towboot"
-CORES="$(nproc)"
+NCORES="$(nproc)"
 
 if command -v ninja > /dev/null 2>&1; then
   GENERATOR="Ninja"
@@ -130,7 +130,7 @@ print_usage() {
         Set the build type (Debug/Default/Release/RelWithDebInfo/MinSizeRel, default: Release).
     -g, --generator
         Set the generator used by cmake ('Unix Makefiles'/Ninja, default: Unix Makefiles).
-    -n, --ncore
+    -n, --ncores
         Set the number of cores used by make (default: Output of nproc).
     -c, --clean
         Remove all build files
@@ -189,7 +189,7 @@ build() {
     cd "${build_dir}" || exit
 
     if [[ -f "build.ninja" ]]; then
-        ninja "${TARGET}"
+        ninja -j "${NCORES}" "${TARGET}"
     elif [[ -f "Makefile" ]]; then
         make -j "${NCORES}" "${TARGET}"
     else

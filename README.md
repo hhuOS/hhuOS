@@ -53,8 +53,8 @@ Afterward, clone this repository and execute the included build-script:
 
 ```shell
 git clone https://github.com/hhuOS/hhuOS.git
-git submodule update --init --recursive
 cd hhuOS
+git submodule update --init --recursive
 ./build.sh
 ```
 
