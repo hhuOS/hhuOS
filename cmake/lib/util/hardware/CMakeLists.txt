@@ -19,7 +19,7 @@ cmake_minimum_required(VERSION 3.14)
 project(lib.hardware)
 message(STATUS "Project " ${PROJECT_NAME})
 
-include_directories(${HHUOS_SRC_DIR})
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
@@ -34,7 +34,7 @@ target_sources(${PROJECT_NAME} PUBLIC
 # Kernel space version
 project(lib.kernel.hardware)
 message(STATUS "Project " ${PROJECT_NAME})
-include_directories(${HHUOS_SRC_DIR})
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} lib.hardware)
 target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/kernel.cpp)
@@ -42,7 +42,7 @@ target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/kernel.cpp)
 # User space version
 project(lib.user.hardware)
 message(STATUS "Project " ${PROJECT_NAME})
-include_directories(${HHUOS_SRC_DIR})
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} lib.hardware)
 target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/user.cpp)

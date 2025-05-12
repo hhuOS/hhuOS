@@ -15,14 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Atomic.h"
 #include "IdGenerator.h"
+
+#include "async/Atomic.h"
 
 namespace Util::Async {
 
-template<typename T>
-T IdGenerator<T>::next() {
-    return Atomic<T>(idCounter).fetchAndInc();
+size_t IdGenerator::next() {
+    return Atomic<size_t>(idCounter).fetchAndInc();
 }
 
 }

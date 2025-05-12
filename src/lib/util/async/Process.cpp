@@ -15,13 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/base/System.h"
+#include "Process.h"
+
 #include "lib/interface.h"
-#include "lib/util/async/Process.h"
+#include "base/System.h"
 
 namespace Util {
 
 template <typename T> class Array;
+class String;
 
 namespace Io {
 class File;
@@ -30,34 +32,32 @@ class File;
 
 namespace Util::Async {
 
-Process::Process(uint32_t id) : id(id) {}
+Process::Process(const size_t id) : id(id) {}
 
-Process Process::execute(const Io::File &binaryFile, const Io::File &inpuputFile, const Io::File &outputFile, const Io::File &errorFile, const Util::String &command, const Util::Array<Util::String> &arguments) {
-    return ::executeBinary(binaryFile, inpuputFile, outputFile, errorFile, command, arguments);
+Process Process::execute(const Io::File &binaryFile, const Io::File &inputFile, const Io::File &outputFile,
+    const Io::File &errorFile, const String &command, const Array<String> &arguments)
+{
+    return executeBinary(binaryFile, inputFile, outputFile, errorFile, command, arguments);
 }
 
 Process Process::getCurrentProcess() {
     return ::getCurrentProcess();
 }
 
-void Process::yield() {
-    System::System::call(System::System::YIELD, 0);
-}
-
 void Process::exit(int32_t exitCode) {
-    System::System::call(System::System::EXIT_PROCESS, 1, exitCode);
-}
-
-uint32_t Process::getId() const {
-    return id;
+    System::call(System::System::EXIT_PROCESS, 1, exitCode);
 }
 
 void Process::join() const {
-    ::joinProcess(id);
+    joinProcess(id);
 }
 
 void Process::kill() const {
-    ::killProcess(id);
+    killProcess(id);
+}
+
+size_t Process::getId() const {
+    return id;
 }
 
 }

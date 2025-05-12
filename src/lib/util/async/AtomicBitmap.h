@@ -15,47 +15,63 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_ATOMICBITMAP_H
-#define HHUOS_ATOMICBITMAP_H
+#ifndef HHUOS_LIB_UTIL_ASYNC_ATOMICBITMAP_H
+#define HHUOS_LIB_UTIL_ASYNC_ATOMICBITMAP_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 namespace Util::Async {
 
+/// A bitmap that can be used to manage a set of blocks (e.g. page frames).
+/// It uses atomic operations to ensure thread-safety.
 class AtomicBitmap {
 
 public:
+    /// Create a new bitmap with the given number of blocks (bits).
+    /// The bitmap is allocated on the heap and deleted in the destructor.
+    explicit AtomicBitmap(size_t blockCount);
 
-    AtomicBitmap() = default;
-
-    explicit AtomicBitmap(uint32_t blockCount);
-
+    /// Bitmaps should not be copied, since copies would share the same memory.
     AtomicBitmap(const AtomicBitmap &copy) = delete;
 
-    AtomicBitmap &operator=(const AtomicBitmap &other) = delete;
+    /// Bitmaps should not be copied, since copies would share the same memory.
+    AtomicBitmap& operator=(const AtomicBitmap &other) = delete;
 
-    ~AtomicBitmap() = default;
+    /// Destructor that frees the allocated memory.
+    ~AtomicBitmap();
 
-    [[nodiscard]] uint32_t getSize() const;
+    /// Get the number of blocks (bits) in the bitmap.
+    [[nodiscard]] size_t getSize() const;
 
-    void set(uint32_t block);
+    /// Set the bit at the given index to 1.
+    void set(size_t block) const;
 
-    void unset(uint32_t block);
+    /// Set the bit at the given index to 0.
+    void unset(size_t block) const;
 
-    bool check(uint32_t block, bool set);
+    /// Check if the bit at the given index is set/unset.
+    /// The boolean value `set` indicates whether to check for set or unset.
+    bool check(size_t block, bool set) const;
 
-    uint32_t findAndSet();
+    /// Find the first unset bit and set it to 1.
+    /// Return the index of the bit that was set or INVALID_INDEX if no unset bit was found.
+    size_t findAndSet() const;
 
-    uint32_t findAndUnset();
+    /// Find the first set bit and set it to 0.
+    /// Return the index of the bit that was unset or INVALID_INDEX if no set bit was found.
+    size_t findAndUnset() const;
 
-    static const constexpr uint32_t INVALID_INDEX = 0xffffffff;
+    /// Indicates that no suitable bit was found.
+    static constexpr size_t INVALID_INDEX = SIZE_MAX;
 
 private:
 
-    uint32_t *bitmap = nullptr;
-    uint32_t arraySize = 0;
-    uint32_t blocks = 0;
+    size_t *bitmap = nullptr;
+    size_t arraySize = 0;
+    size_t blocks = 0;
 
+    static constexpr size_t SIZE_BITS = sizeof(size_t) * 8;
 };
 
 }

@@ -19,7 +19,7 @@ cmake_minimum_required(VERSION 3.14)
 project(battlespace)
 message(STATUS "Project " ${PROJECT_NAME})
 
-include_directories(${HHUOS_SRC_DIR})
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
 
 add_compile_options(
         -Wno-unused-function

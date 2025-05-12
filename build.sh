@@ -119,6 +119,9 @@ cleanup() {
     remove "disk/hdd0/user/wav"
     remove "disk/hdd0/media/"
     remove "tools/nettest/nettest-server"
+    remove "docs/"
+    remove "site/"
+    remove "doxygen/"
 }
 
 print_usage() {

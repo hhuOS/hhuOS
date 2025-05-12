@@ -15,36 +15,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_RUNNABLE_H
-#define HHUOS_RUNNABLE_H
+#ifndef HHUOS_LIB_UTIL_ASYNC_RUNNABLE_H
+#define HHUOS_LIB_UTIL_ASYNC_RUNNABLE_H
 
 namespace Util::Async {
 
+/// Interface for a Runnable, which can be run in a thread.
 class Runnable {
 
-public:
-    /**
-     * Default Constructor.
-     */
+protected:
+    /// The Runnable interface has no state, so the default constructor is empty.
     Runnable() = default;
 
-    /**
-     * Copy Constructor.
-     */
-    Runnable(const Runnable &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Runnable &operator=(const Runnable &other) = delete;
-
-    /**
-     * Destructor.
-     */
+public:
+    /// The Runnable interface has no state, so the destructor is empty.
     virtual ~Runnable() = default;
 
+    /// Run the Runnable.
+    /// This is called by a thread when it starts.
     virtual void run() = 0;
-
 };
 
 }

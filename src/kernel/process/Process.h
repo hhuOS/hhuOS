@@ -29,7 +29,7 @@
 
 namespace Util {
 namespace Async {
-template <typename T> class IdGenerator;
+class IdGenerator;
 }  // namespace Async
 }  // namespace Util
 
@@ -110,7 +110,7 @@ private:
     bool finished = false;
     int32_t exitCode = -1;
 
-    static Util::Async::IdGenerator<uint32_t> idGenerator;
+    static Util::Async::IdGenerator idGenerator;
 };
 
 }

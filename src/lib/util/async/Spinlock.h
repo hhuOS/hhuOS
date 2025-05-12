@@ -15,49 +15,74 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __Spinlock_include__
-#define __Spinlock_include__
+#ifndef HHUOS_LIB_UTIL_ASYNC_SPINLOCK_H
+#define HHUOS_LIB_UTIL_ASYNC_SPINLOCK_H
 
 #include <stdint.h>
 
-#include "lib/util/async/Atomic.h"
-#include "Lock.h"
+#include "async/Lock.h"
+#include "async/Atomic.h"
 
 namespace Util::Async {
 
-/**
- * A simple spinlock implemented using test&set instructions.
- *
- * @author Michael Schoettner, Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski
- * @date HHU, 2018
- */
+/// A simple spinlock implementation.
+/// It is implemented using Util::Async::Atomic on an 8-bit integer.
+///
+/// ## Example
+///
+/// ```c++
+/// int value = 0; // Global variable
+/// Spinlock lock; // Lock to synchronize access to the global variable
+///
+/// // Function that runs in a thread.
+/// // The spinlock is used to synchronize access to the global variable.
+/// // The final value should be 1000 times the amount of threads executing this function.
+/// // If we would not use the lock, the final value would be undefined due to the `Lost Update` problem.
+/// void threadFunction() {
+///     for (size_t i = 0; i < 1000; i++) {
+///         lock.acquire();
+///         const auto oldValue = value++;
+///         lock.release();
+///
+///         printf("Incremented value from [%u] to [%u]: %u\n", oldValue, oldValue + 1);
+///     }
+/// }
+/// ```
 class Spinlock : public Lock {
 
 public:
+    /// Create a new spinlock.
+    Spinlock() = default;
 
-    Spinlock();
+    /// Acquire the lock.
+    /// This function calls `tryAcquire()` in a loop until the lock is acquired.
+    /// Every time `tryAcquire()` fails, `Thread::yield()` is called to allow other threads to run.
+    void acquire() final;
 
-    Spinlock(const Spinlock &other) = delete;
-
-    Spinlock &operator=(const Spinlock &other) = delete;
-
-    ~Spinlock() override = default;
-
-    void acquire() override;
-
+    /// Try to acquire the lock once.
+    /// If the lock is not available, the function does not block and returns false.
     bool tryAcquire() override;
 
+    /// Release the lock.
+    /// If the lock is not held, this function does nothing.
     void release() override;
 
-    bool isLocked() const override;
+    /// Check if the lock is currently held.
+    bool isLocked() const final;
 
 protected:
 
-    uint32_t lockVar = SPINLOCK_UNLOCK;
-    Atomic<uint32_t> lockVarWrapper;
+    /// Grant access to the lock variable for subclasses.
+    Atomic<uint8_t> lockVarWrapper = Atomic<uint8_t>(lockVar);
 
-    static const constexpr uint32_t SPINLOCK_UNLOCK = UINT32_MAX;
-    static const constexpr uint32_t SPINLOCK_LOCK = 0x01;
+    /// The unlocked state is represented by the value `UINT8_MAX`.
+    static constexpr uint8_t SPINLOCK_UNLOCK = UINT8_MAX;
+
+private:
+
+    uint8_t lockVar = SPINLOCK_UNLOCK;
+
+    static constexpr uint8_t SPINLOCK_LOCK = 0x01;
 };
 
 }

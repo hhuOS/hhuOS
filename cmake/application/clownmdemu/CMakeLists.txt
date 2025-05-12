@@ -36,7 +36,7 @@ add_custom_target(megadrive-roms DEPENDS
         "${CMAKE_BINARY_DIR}/megadrive/miniplanets.bin"
         "${CMAKE_BINARY_DIR}/megadrive/witch.bin")
 
-include_directories(${HHUOS_SRC_DIR})
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
 
 add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-but-set-variable>

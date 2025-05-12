@@ -6,6 +6,7 @@
 #include "lib/libc/errno.h"
 #include "lib/util/base/System.h"
 #include <float.h>
+#include <string.h>
 
 double fabs(double a) {
 	return Util::Math::absolute(a);
@@ -258,13 +259,16 @@ double frexp(double arg, int * exp) {
 }
 
 double ldexp(double arg, int exp) {
-	long long argb = std::bit_cast<long long>(arg);
+	long long argb;
+    memcpy(&argb, &arg, sizeof(arg));
 	
 	exp += ((int)((argb >> 52) & ((1<<11)-1))); //get exponent bits
 	argb &= ~(((1LL<<11)-1)<<52); //clear exponent bits
 	argb |= (((long long)exp)<<52); // set exponent to new value
-	
-	return std::bit_cast<double>(argb);
+
+    double ret;
+    memcpy(&ret, &argb, sizeof(ret));
+	return ret;
 }
 
 double modf(double arg, double * iptr) {

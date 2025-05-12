@@ -30,7 +30,7 @@
 namespace Kernel {
 class FileDescriptorManager;
 
-Util::Async::IdGenerator<uint32_t> Process::idGenerator;
+Util::Async::IdGenerator Process::idGenerator;
 
 Process::Process(VirtualAddressSpace &addressSpace, const Util::String &name, const Util::Io::File &workingDirectory) :
         id(idGenerator.next()), name(name), addressSpace(addressSpace), workingDirectory(workingDirectory) {}

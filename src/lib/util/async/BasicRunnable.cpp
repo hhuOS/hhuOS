@@ -15,13 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "FunctionPointerRunnable.h"
+#include "BasicRunnable.h"
 
 namespace Util::Async {
 
-FunctionPointerRunnable::FunctionPointerRunnable(void (*function)()) : function(function) {}
+BasicRunnable::BasicRunnable(void (*function)()) : function(function) {}
 
-void FunctionPointerRunnable::run() {
+void BasicRunnable::run() {
     function();
 }
 

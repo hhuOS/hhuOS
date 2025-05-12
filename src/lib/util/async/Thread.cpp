@@ -15,10 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include "Thread.h"
+
 #include "lib/interface.h"
-#include "lib/util/async/Thread.h"
 
 namespace Util {
+class String;
+
 namespace Async {
 class Runnable;
 }  // namespace Async
@@ -29,14 +32,14 @@ class Timestamp;
 
 namespace Util::Async {
 
-Thread::Thread(uint32_t id) : id(id) {}
+Thread::Thread(const size_t id) : id(id) {}
 
-Thread Util::Async::Thread::getCurrentThread() {
-    return ::getCurrentThread();
+Thread Thread::createThread(const String &name, Runnable *runnable) {
+    return ::createThread(name, runnable);
 }
 
-uint32_t Thread::getId() const {
-    return id;
+Thread Thread::getCurrentThread() {
+    return ::getCurrentThread();
 }
 
 void Thread::sleep(const Time::Timestamp &time) {
@@ -47,12 +50,12 @@ void Thread::yield() {
     ::yield();
 }
 
-Thread Thread::createThread(const Util::String &name, Runnable *runnable) {
-    return ::createThread(name, runnable);
+void Thread::join() const {
+    joinThread(id);
 }
 
-void Thread::join() const {
-    ::joinThread(id);
+size_t Thread::getId() const {
+    return id;
 }
 
 }

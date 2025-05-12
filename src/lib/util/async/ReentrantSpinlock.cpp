@@ -17,15 +17,17 @@
 
 #include "ReentrantSpinlock.h"
 
-#include "Thread.h"
-#include "lib/util/async/Atomic.h"
 #include "lib/interface.h"
+#include "async/Atomic.h"
+#include "async/Thread.h"
 
 namespace Util::Async {
 
 bool ReentrantSpinlock::tryAcquire() {
-    auto threadId = isSchedulerInitialized() ? Thread::getCurrentThread().getId() : 0;
-    auto success = lockVarWrapper.compareAndSet(SPINLOCK_UNLOCK, threadId) || lockVarWrapper.compareAndSet(threadId, threadId);
+    const auto threadId = isSchedulerInitialized() ? Thread::getCurrentThread().getId() : 0;
+    const auto success = lockVarWrapper.compareAndSet(SPINLOCK_UNLOCK, threadId) ||
+        lockVarWrapper.compareAndSet(threadId, threadId);
+
     if (success) {
         depth++;
     }
@@ -34,7 +36,8 @@ bool ReentrantSpinlock::tryAcquire() {
 }
 
 void ReentrantSpinlock::release() {
-    auto threadId = isSchedulerInitialized() ? Thread::getCurrentThread().getId() : 0;
+    const auto threadId = isSchedulerInitialized() ? Thread::getCurrentThread().getId() : 0;
+
     if (lockVarWrapper.get() == threadId) {
         depth--;
     }
@@ -44,7 +47,7 @@ void ReentrantSpinlock::release() {
     }
 }
 
-uint32_t ReentrantSpinlock::getDepth() const {
+size_t ReentrantSpinlock::getDepth() const {
     return depth;
 }
 

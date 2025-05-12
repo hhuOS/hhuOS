@@ -17,7 +17,7 @@
 
 #include "lib/util/base/Exception.h"
 #include "lib/util/async/Thread.h"
-#include "lib/util/async/FunctionPointerRunnable.h"
+#include "lib/util/async/BasicRunnable.h"
 #include "Terminal.h"
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/io/stream/FileInputStream.h"
@@ -116,7 +116,7 @@ bool Terminal::isReadyToRead() {
 }
 
 void Terminal::handleBell() {
-    Async::Thread::createThread("Terminal-Bell", new Async::FunctionPointerRunnable([](){
+    Async::Thread::createThread("Terminal-Bell", new Async::BasicRunnable([](){
         auto stream = Io::FileOutputStream("/device/speaker");
         auto printStream = Io::PrintStream(stream);
 

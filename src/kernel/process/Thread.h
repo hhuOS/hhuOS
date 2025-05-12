@@ -25,7 +25,7 @@
 namespace Util {
 namespace Async {
 class Runnable;
-template <typename T> class IdGenerator;
+class IdGenerator;
 }  // namespace Async
 }  // namespace Util
 
@@ -128,7 +128,7 @@ private:
 
     uint8_t *fpuContext;
 
-    static Util::Async::IdGenerator<uint32_t> idGenerator;
+    static Util::Async::IdGenerator idGenerator;
     static const constexpr uint32_t STACK_SIZE = 0x10000;
     static const constexpr uint32_t PUSHAD_STACK_SPACE = 8 * 4;
     static const constexpr uint32_t PUSHF_STACK_SPACE = 1 * 4;

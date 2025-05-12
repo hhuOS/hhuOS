@@ -19,15 +19,17 @@ cmake_minimum_required(VERSION 3.14)
 project(lib.async)
 message(STATUS "Project " ${PROJECT_NAME})
 
-include_directories(${HHUOS_SRC_DIR})
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 90)
+
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/async/Atomic.cpp
-        ${HHUOS_SRC_DIR}/lib/util/async/AtomicArray.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/AtomicBitmap.cpp
-        ${HHUOS_SRC_DIR}/lib/util/async/FunctionPointerRunnable.cpp
+        ${HHUOS_SRC_DIR}/lib/util/async/BasicRunnable.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/IdGenerator.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/Process.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/ReentrantSpinlock.cpp
@@ -37,7 +39,6 @@ target_sources(${PROJECT_NAME} PUBLIC
 # Kernel space version
 project(lib.kernel.async)
 message(STATUS "Project " ${PROJECT_NAME})
-include_directories(${HHUOS_SRC_DIR})
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} lib.async)
 target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/kernel.cpp)
@@ -45,7 +46,6 @@ target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/kernel.cpp)
 # User space version
 project(lib.user.async)
 message(STATUS "Project " ${PROJECT_NAME})
-include_directories(${HHUOS_SRC_DIR})
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} lib.async)
 target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/user.cpp)

@@ -117,7 +117,12 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/clion
 
-build/
+# Documentation folders
+docs/
+doxygen/
+site/
+
+# Generated disk files
 disk/floppy0/bin
 disk/floppy0/books
 disk/hdd0/bin
@@ -130,8 +135,14 @@ disk/hdd0/user/gameboy
 disk/hdd0/user/megadrive
 disk/hdd0/user/quake
 disk/hdd0/user/wav
+
+# Tools
 tools/nettest/nettest-server
-RELEASEIa32_OVMF.fd
+
+# Build artifacts
 *.img
 *.iso
+
+# QEMU files
+RELEASEIa32_OVMF.fd
 *.dump

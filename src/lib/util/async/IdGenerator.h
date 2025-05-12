@@ -15,61 +15,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_IDGENERATOR_H
-#define HHUOS_IDGENERATOR_H
+#ifndef HHUOS_LIB_UTIL_ASYNC_IDGENERATOR_H
+#define HHUOS_LIB_UTIL_ASYNC_IDGENERATOR_H
 
-#include <stdint.h>
+#include <stddef.h>
 
 namespace Util::Async {
 
-template<typename T>
+/// A simple thread-safe ID generator that generates unique identifiers.
+/// It works by incrementing a counter atomically.
+///
+/// ## Example
+///
+/// ```c++
+/// auto idGenerator = Util::Async::IdGenerator();
+/// const auto id1 = idGenerator.next(); // id1 = 0
+/// const auto id2 = idGenerator.next(); // id2 = 1
+/// const auto id3 = idGenerator.next(); // id3 = 2
+/// ```
 class IdGenerator {
 
 public:
-    /**
-     * Default Constructor.
-     */
+    /// Create a new ID generator with the initial value of 0.
     IdGenerator() = default;
 
-    /**
-     * Copy Constructor.
-     */
+    /// ID generators should not be copied, since the generated values would not be unique between the copies.
     IdGenerator(const IdGenerator &other) = delete;
 
-    /**
-     * Assignment operator.
-     */
+    /// ID generators should not be copied, since the generated values would not be unique between the copies.
     IdGenerator &operator=(const IdGenerator &other) = delete;
 
-    /**
-     * Destructor.
-     */
-    ~IdGenerator() = default;
-
-    [[nodiscard]] T next();
+    /// Generate the next unique ID.
+    [[nodiscard]] size_t next();
 
 private:
 
-    T idCounter = 0;
+    size_t idCounter = 0;
 };
-
-template
-class IdGenerator<int8_t>;
-
-template
-class IdGenerator<uint8_t>;
-
-template
-class IdGenerator<int16_t>;
-
-template
-class IdGenerator<uint16_t>;
-
-template
-class IdGenerator<int32_t>;
-
-template
-class IdGenerator<uint32_t>;
 
 }
 

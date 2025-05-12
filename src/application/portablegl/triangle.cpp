@@ -89,7 +89,7 @@ void triangle(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
 
         // Create rotation matrix
         mat4 rotationMatrix = IDENTITY_MAT4();
-        load_rotation_mat4(rotationMatrix, vec3(0.0f, 1.0f, 0.0f), DEG_TO_RAD(rotationAngle));
+        load_rotation_mat4(rotationMatrix, vec3{0.0f, 1.0f, 0.0f}, DEG_TO_RAD(rotationAngle));
 
         mat4 rotatedUniformMatrix = IDENTITY_MAT4();
         mult_mat4_mat4(uniformMatrix, rotatedUniformMatrix, rotationMatrix);

@@ -15,12 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_UTIL_THREAD_H
-#define HHUOS_UTIL_THREAD_H
+#ifndef HHUOS_LIB_UTIL_ASYNC_THREAD_H
+#define HHUOS_LIB_UTIL_ASYNC_THREAD_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "lib/util/base/String.h"
+#include "base/String.h"
 
 namespace Util {
 namespace Async {
@@ -33,44 +33,70 @@ class Timestamp;
 
 namespace Util::Async {
 
+/// Create and manipulate threads from the user space.
+/// This class just wraps a thread ID and uses systems calls to manipulate the thread referenced by the ID.
 class Thread {
 
 public:
-    /**
-     * Constructor.
-     */
-    explicit Thread(uint32_t id);
+    /// Create an instance with the given ID.
+    /// This constructor does not create a new thread, it just wraps the given ID.
+    explicit Thread(size_t id);
 
-    /**
-     * Copy Constructor.
-     */
-    Thread(const Thread &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Thread &operator=(const Thread &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Thread() = default;
-
+    /// Start a new thread with the given name and runnable.
+    /// The runnable must be heap allocated and will be deleted by the thread when it is done.
     static Thread createThread(const String &name, Runnable *runnable);
 
+    /// Get access to the current thread.
+    ///
+    /// ### Example
+    ///
+    /// ```c++
+    /// auto thread = Util::Async::Thread::getCurrentThread();
+    /// printf("Current thread ID: %u\n", thread.getId());
+    /// ```
     static Thread getCurrentThread();
 
+    /// Let the current thread sleep for the given time.
+    ///
+    /// ### Example
+    ///
+    /// ```c++
+    /// Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(100)); // Sleep for 100 ms
+    /// ```
     static void sleep(const Time::Timestamp &time);
 
+    /// Switch to another thread.
+    ///
+    /// ### Example
+    ///
+    /// ```c++
+    /// Util::Async::Thread::yield();
+    /// ```
     static void yield();
 
-    [[nodiscard]] uint32_t getId() const;
-
+    /// Join the thread by blocking until it has finished.
+    ///
+    /// ### Example
+    ///
+    /// ```c++
+    /// // A basic runnable that prints a message.
+    /// auto runnable = new Util::Async::BasicRunnable([]() {
+    ///     printf("Hello from a new thread!\n");
+    /// });
+    ///
+    /// auto thread = Util::Async::Thread::createThread("Test", runnable);
+    ///
+    /// thread.join(); // Wait for the thread to finish
+    /// printf("Thread 'Test' has finished!");
+    /// ```
     void join() const;
+
+    /// Get the ID of the thread.
+    [[nodiscard]] size_t getId() const;
 
 private:
 
-    uint32_t id;
+    const size_t id;
 };
 
 }

@@ -102,7 +102,7 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:CXX>:-fno-threadsafe-statics>
         $<$<COMPILE_LANGUAGE:CXX>:-fno-use-cxa-atexit>
         $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
-        $<$<COMPILE_LANGUAGE:CXX>:-std=gnu++20>
+        # $<$<COMPILE_LANGUAGE:CXX>:-std=gnu++20>
         $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<VERSION_GREATER_EQUAL:${CMAKE_C_COMPILER_VERSION},15>>:-fno-assume-sane-operators-new-delete>
 
         # Macro definitions
@@ -134,12 +134,13 @@ find_program(iwyu_tool_path NAMES iwyu_tool.py iwyu-tool)
 find_program(iwyu_fix_includes_path NAMES fix_includes.py iwyu-fix-includes)
 if (Python3_Interpreter_FOUND AND iwyu_tool_path AND iwyu_fix_includes_path)
     ProcessorCount(ncpus)
-    add_custom_target(optimize-includes
+    add_custom_target(include-what-you-use
             COMMAND "${Python3_EXECUTABLE}" "${iwyu_tool_path}" -j "${ncpus}" -p "${CMAKE_BINARY_DIR}" |
-                    "${Python3_EXECUTABLE}" "${iwyu_fix_includes_path}" --nocomments --noupdate_comments --blank_lines --nosafe_headers --ignore_re "(.*/ff/source.*)|(.*/tinygl.*)|(.*/portablegl.*)|(.*/libc.*)|(.*/doomgeneric/doomgeneric.*)|(.*/quakegeneric/source.*)|(.*/Peanut-GB.*)|(.*/clownmdemu/clownmdemu.*)|(.*/classicube/ClassiCube.*)" -p "${HHUOS_SRC_DIR}"
+                    "${Python3_EXECUTABLE}" "${iwyu_fix_includes_path}" --nocomments --no_fwd_decls --noupdate_comments --blank_lines --nosafe_headers --ignore_re "(.*/ff/source.*)|(.*/tinygl.*)|(.*/portablegl.*)|(.*/libc.*)|(.*/doomgeneric/doomgeneric.*)|(.*/quakegeneric/source.*)|(.*/Peanut-GB.*)|(.*/clownmdemu/clownmdemu.*)|(.*/classicube/ClassiCube.*)" -p "${HHUOS_SRC_DIR}"
             VERBATIM)
 endif()
 
+# Add cloc command (if available)
 find_program(cloc_path NAMES cloc)
 if (cloc_path)
     add_custom_target(cloc COMMAND "${cloc_path}" "${HHUOS_SRC_DIR}" --exclude-dir=ff,tinygl,portablegl,doomgeneric,quakegeneric,Peanut-GB,clownmdemu,ClassiCube VERBATIM)
@@ -147,6 +148,7 @@ endif()
 
 
 # Add subdirectories
+add_subdirectory(application)
 add_subdirectory(device)
 add_subdirectory(filesystem)
 add_subdirectory(kernel)
@@ -157,9 +159,8 @@ add_subdirectory(grub)
 add_subdirectory(limine)
 add_subdirectory(towboot)
 
-add_subdirectory(application)
-
 add_subdirectory(books)
-
-add_subdirectory(hdd0)
 add_subdirectory(floppy0)
+add_subdirectory(hdd0)
+
+add_subdirectory(documentation)

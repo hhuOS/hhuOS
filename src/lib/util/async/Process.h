@@ -15,12 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_UTIL_PROCESS_H
-#define HHUOS_UTIL_PROCESS_H
+#ifndef HHUOS_LIB_UTIL_ASYNC_PROCESS_H
+#define HHUOS_LIB_UTIL_ASYNC_PROCESS_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "lib/util/base/String.h"
+#include "base/String.h"
 
 namespace Util {
 
@@ -33,46 +33,70 @@ class File;
 
 namespace Util::Async {
 
+/// Create and manipulate processes from the user space.
+/// This class just wraps a process ID and uses systems calls to manipulate the process referenced by the ID.
 class Process {
 
 public:
-    /**
-     * Constructor.
-     */
-    explicit Process(uint32_t id);
+    /// Create an instance with the given ID.
+    /// This constructor does not create a new process, it just wraps the given ID.
+    explicit Process(size_t id);
 
-    /**
-     * Copy Constructor.
-     */
-    Process(const Process &other) = default;
+    /// Load a program from an executable file and run it as a new process.
+    ///
+    /// @param binaryFile The executable file to load.
+    /// @param inputFile The standard input file for the process (e.g. "/device/terminal").
+    /// @param outputFile The standard output file for the process (e.g "/device/terminal").
+    /// @param errorFile The standard error file for the process (e.g "/device/terminal").
+    /// @param command The path/name that the program was called with.
+    /// @param arguments The arguments to pass to the program.
+    ///
+    /// ### Example
+    ///
+    /// ```c++
+    /// auto echoProcess = Util::Async::Process::execute(
+    ///     "/bin/echo", "/dev/terminal", "/dev/terminal", "/dev/terminal", "echo", {"Hello", "World"});
+    /// ```
+    static Process execute(const Io::File &binaryFile, const Io::File &inputFile, const Io::File &outputFile,
+        const Io::File &errorFile, const String &command, const Array<String> &arguments);
 
-    /**
-     * Assignment operator.
-     */
-    Process &operator=(const Process &other) = default;
-
-    /**
-     * Destructor.
-     */
-    ~Process() = default;
-
-    static Process execute(const Io::File &binaryFile, const Io::File &inputFile, const Io::File &outputFile, const Io::File &errorFile, const Util::String &command, const Util::Array<Util::String> &arguments);
-
+    /// Get access to the current process.
+    ///
+    /// ### Example
+    ///
+    /// ```c++
+    /// auto process = Util::Async::Process::getCurrentProcess();
+    /// process.exit(0); // Exit the current process with exit code 0
+    /// ```
     static Process getCurrentProcess();
 
-    static void yield();
-
+    /// Exit the current process.
+    /// This function does not return.
     static void exit(int32_t exitCode);
 
-    [[nodiscard]] uint32_t getId() const;
-
+    /// Join the process by blocking until it has finished.
+    ///
+    /// ### Example
+    ///
+    /// ```c++
+    /// auto echoProcess = Util::Async::Process::execute(
+    ///     "/bin/echo", "/dev/terminal", "/dev/terminal", "/dev/terminal", "echo", {"Hello", "World"});
+    ///
+    /// echoProcess.join(); // Wait for the process to finish
+    /// printf("Process 'echo' has finished!");
+    /// ```
     void join() const;
 
+    /// Kill the process.
+    /// The current process cannot be killed. Use `exit()` instead.
     void kill() const;
+
+    /// Get the ID of the process.
+    [[nodiscard]] size_t getId() const;
 
 private:
 
-    uint32_t id;
+    const size_t id;
 };
 
 }

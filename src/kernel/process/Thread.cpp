@@ -38,7 +38,7 @@ extern "C" void release_scheduler_lock() {
 
 namespace Kernel {
 
-Util::Async::IdGenerator<uint32_t> Thread::idGenerator;
+Util::Async::IdGenerator Thread::idGenerator;
 
 Thread::Thread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable, uint32_t userInstructionPointer, uint32_t *kernelStack, uint32_t *userStack) :
         id(idGenerator.next()), name(name), parent(parent), runnable(runnable), userInstructionPointer(userInstructionPointer), kernelStack(kernelStack), userStack(userStack),

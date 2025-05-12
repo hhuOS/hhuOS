@@ -15,12 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Thread.h"
 #include "Spinlock.h"
 
-namespace Util::Async {
+#include "async/Thread.h"
+#include "async/Atomic.h"
 
-Spinlock::Spinlock() : lockVarWrapper(lockVar) {}
+namespace Util::Async {
 
 void Spinlock::acquire() {
     while (!tryAcquire()) {

@@ -87,7 +87,7 @@ else()
     endif()
 endif()
 
-include_directories(${HHUOS_SRC_DIR})
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
 
 
 set(SOURCE_FILES

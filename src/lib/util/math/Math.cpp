@@ -18,6 +18,7 @@
 #include "Math.h"
 #include "lib/util/base/Exception.h"
 #include <bit>
+#include <base/Address.h>
 
 namespace Util::Math {
 
@@ -550,13 +551,17 @@ double toDegrees(double radians) {
 }
 
 double getDoubleInternals(double arg, int *exponent) {
-	auto argb = std::bit_cast<long long>(arg);
+    long long argb;
+    Address(&argb).copyRange(Address(&arg), sizeof(arg));
 	
 	*exponent = ((int)((argb >> 52) & ((1<<11)-1))) - 1022; // get exponent bits
 	
 	argb &= ~(((1LL<<11)-1)<<52); // clear exponent bits
 	argb |= (1022LL<<52); // set exponent to -1
-	return std::bit_cast<double>(argb);
+
+    double ret;
+    Address(&ret).copyRange(Address(&argb), sizeof(argb));
+	return ret;
 }
 
 int isInfinity(double arg) {

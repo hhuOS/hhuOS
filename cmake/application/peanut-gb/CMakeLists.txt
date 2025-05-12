@@ -36,7 +36,7 @@ add_custom_target(gameboy-roms DEPENDS
         "${CMAKE_BINARY_DIR}/gameboy/2048.gb"
         "${CMAKE_BINARY_DIR}/gameboy/5-mazes.gb")
 
-include_directories(${HHUOS_SRC_DIR})
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
 
 add_compile_options(
         -Wno-switch

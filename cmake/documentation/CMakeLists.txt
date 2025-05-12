@@ -16,14 +16,29 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-project(hexdump)
-message(STATUS "Project " ${PROJECT_NAME})
+# Add doxide (if available)
+find_program(doxide_path NAMES doxide)
+find_program(mkdocs_path NAMES mkdocs)
+if (doxide_path)
+    project(docs-doxide)
+    message(STATUS "Project " ${PROJECT_NAME})
 
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
+    add_custom_target(${PROJECT_NAME} ALL
+            WORKING_DIRECTORY "${HHUOS_ROOT_DIR}/"
+            COMMAND /bin/rm -rf "docs/" "site/"
+            COMMAND "${doxide_path}" init
+            COMMAND "${doxide_path}" build
+            COMMAND "${mkdocs_path}" build)
+endif()
 
-set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/hexdump/hexdump.cpp)
+# Add doxygen (if available)
+find_program(doxygen_path NAMES doxygen)
+if (doxygen_path)
+    project(docs-doxygen)
+    message(STATUS "Project " ${PROJECT_NAME})
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-
-target_link_libraries(${PROJECT_NAME}  lib.user.runtime lib.user.base)
+    add_custom_target(${PROJECT_NAME} ALL
+            WORKING_DIRECTORY "${HHUOS_ROOT_DIR}/"
+            COMMAND /bin/rm -rf "doxygen/"
+            COMMAND "${doxygen_path}" doxygen.conf)
+endif()

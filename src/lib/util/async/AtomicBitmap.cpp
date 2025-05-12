@@ -15,96 +15,94 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/base/Address.h"
-#include "lib/util/async/Atomic.h"
 #include "AtomicBitmap.h"
+
+#include "async/Atomic.h"
+#include "base/Address.h"
+#include "base/Exception.h"
 
 namespace Util::Async {
 
-AtomicBitmap::AtomicBitmap(uint32_t blockCount) : blocks(blockCount) {
-    arraySize = (blockCount % 32 == 0) ? (blockCount / 32) : (blockCount / 32 + 1);
-    bitmap = new uint32_t[arraySize];
-    Address(bitmap).setRange(0, arraySize * sizeof(uint32_t));
+AtomicBitmap::AtomicBitmap(const size_t blockCount) : blocks(blockCount) {
+    arraySize = blockCount % SIZE_BITS == 0 ? blockCount / SIZE_BITS : blockCount / SIZE_BITS + 1;
+    bitmap = new size_t[arraySize];
+    Address(bitmap).setRange(0, arraySize * sizeof(size_t));
 }
 
-uint32_t AtomicBitmap::getSize() const {
+AtomicBitmap::~AtomicBitmap() {
+    delete[] bitmap;
+}
+
+size_t AtomicBitmap::getSize() const {
     return blocks;
 }
 
-void AtomicBitmap::set(uint32_t block) {
+void AtomicBitmap::set(const size_t block) const {
     if (block >= blocks) {
-        return;
+        Exception::throwException(Exception::OUT_OF_BOUNDS, "AtomicBitmap: Block index out of bounds!");
     }
 
-    uint32_t index = block / 32;
-    uint32_t bit = block % 32;
+    const size_t index = block / SIZE_BITS;
+    const size_t bit = block % SIZE_BITS;
 
-    Async::Atomic<uint32_t> bitmapWrapper(bitmap[index]);
-    bitmapWrapper.bitSet(31 - bit);
+    Atomic<size_t> bitmapWrapper(bitmap[index]);
+    bitmapWrapper.bitSet(SIZE_BITS - 1 - bit);
 }
 
-void AtomicBitmap::unset(uint32_t block) {
+void AtomicBitmap::unset(const size_t block) const {
     if (block >= blocks) {
-        return;
+        Exception::throwException(Exception::OUT_OF_BOUNDS, "AtomicBitmap: Block index out of bounds!");
     }
 
-    uint32_t index = block / 32;
-    uint32_t bit = block % 32;
+    const size_t index = block / SIZE_BITS;
+    const size_t bit = block % SIZE_BITS;
 
-    Async::Atomic<uint32_t> bitmapWrapper(bitmap[index]);
-    bitmapWrapper.bitReset(31 - bit);
+    Atomic<size_t> bitmapWrapper(bitmap[index]);
+    bitmapWrapper.bitUnset(SIZE_BITS - 1 - bit);
 }
 
-bool AtomicBitmap::check(uint32_t block, bool set) {
+bool AtomicBitmap::check(const size_t block, const bool set) const {
     if (block >= blocks) {
-        return false;
+        Exception::throwException(Exception::OUT_OF_BOUNDS, "AtomicBitmap: Block index out of bounds!");
     }
 
-    uint32_t index = block / 32;
-    uint32_t bit = block % 32;
+    const size_t index = block / SIZE_BITS;
+    const size_t bit = block % SIZE_BITS;
 
-    Async::Atomic<uint32_t> bitmapWrapper(bitmap[index]);
-    return bitmapWrapper.bitTest(31 - bit) == set;
+    Atomic<size_t> bitmapWrapper(bitmap[index]);
+    return bitmapWrapper.bitTest(SIZE_BITS - 1 - bit) == set;
 }
 
-uint32_t AtomicBitmap::findAndSet() {
-    uint32_t i;
+size_t AtomicBitmap::findAndSet() const {
+    size_t i;
 
     for (i = 0; i < blocks; i++) {
-        uint32_t index = i / 32;
-        uint32_t bit = i % 32;
+        const size_t index = i / SIZE_BITS;
+        const size_t bit = i % SIZE_BITS;
 
-        Async::Atomic<uint32_t> bitmapWrapper(bitmap[index]);
-        if (!bitmapWrapper.bitTestAndSet(31 - bit)) {
+        Atomic<size_t> bitmapWrapper(bitmap[index]);
+        if (!bitmapWrapper.bitTestAndSet(SIZE_BITS - 1 - bit)) {
             break;
         }
     }
 
-    if (i == blocks) {
-        return INVALID_INDEX;
-    }
-
-    return i;
+    return i == blocks ? INVALID_INDEX : i;
 }
 
-uint32_t AtomicBitmap::findAndUnset() {
-    uint32_t i;
+size_t AtomicBitmap::findAndUnset() const {
+    size_t i;
 
     for (i = 0; i < blocks; i++) {
-        uint32_t index = i / 32;
-        uint32_t bit = i % 32;
+        const size_t index = i / SIZE_BITS;
+        const size_t bit = i % SIZE_BITS;
 
-        Async::Atomic<uint32_t> bitmapWrapper(bitmap[index]);
-        if (bitmapWrapper.bitTestAndReset(31 - bit)) {
+        Atomic<size_t> bitmapWrapper(bitmap[index]);
+        if (bitmapWrapper.bitTestAndUnset(SIZE_BITS - 1 - bit)) {
             break;
         }
     }
 
-    if (i == blocks) {
-        return INVALID_INDEX;
-    }
-
-    return i;
+    return i == blocks ? INVALID_INDEX : i;
 }
 
 }

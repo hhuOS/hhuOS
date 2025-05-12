@@ -19,7 +19,7 @@ cmake_minimum_required(VERSION 3.14)
 project(quakegeneric)
 message(STATUS "Project " ${PROJECT_NAME})
 
-include_directories(${HHUOS_SRC_DIR})
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
 
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/quake/id1"
         COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/quake/id1")

@@ -105,7 +105,7 @@ private:
             if (installed) {
                 valueWrapper.bitSet(3);
             } else {
-                valueWrapper.bitReset(3);
+                valueWrapper.bitUnset(3);
             }
         }
 
@@ -120,7 +120,7 @@ private:
 
         void releaseLock() {
             auto valueWrapper = Util::Async::Atomic<uint32_t>(value);
-            valueWrapper.bitReset(2);
+            valueWrapper.bitUnset(2);
         }
 
         [[nodiscard]] uint32_t getAddress() {
@@ -155,7 +155,7 @@ private:
             if (reserved) {
                 valueWrapper.bitSet(0);
             } else {
-                valueWrapper.bitReset(0);
+                valueWrapper.bitUnset(0);
             }
         }
 
