@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2018-2025 Heinrich-Heine-Universitaet Duesseldorf,
+* Copyright (C) 2017-2025 Heinrich Heine University Düsseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
