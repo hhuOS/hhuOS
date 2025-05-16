@@ -675,7 +675,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     deviceDriver->addNode("/", new Filesystem::Memory::ZeroNode());
     deviceDriver->addNode("/", new Filesystem::Memory::RandomNode());
     deviceDriver->addNode("/", new Filesystem::Memory::MountsNode());
-    deviceDriver->addNode("", new Kernel::LogNode());
+    deviceDriver->addNode("/", new Kernel::LogNode());
     deviceDriver->addNode("/", new Kernel::MemoryStatusNode());
 
     if (Device::FirmwareConfiguration::isAvailable()) {
@@ -718,19 +718,23 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     if (multiboot->hasKernelOption("log_ports")) {
         const auto ports = multiboot->getKernelOption("log_ports").split(",");
         for (const auto &port : ports) {
-            auto file = Util::Io::File("/device/" + port.toLowerCase());
-            if (!file.exists()) {
+            if (!Util::Io::File("/device/" + port.toLowerCase()).exists()) {
                 LOG_ERROR("Logging port [%s] not present", static_cast<const char*>(port));
                 break;
             }
 
-            auto *stream = new Util::Io::FileOutputStream(file);
-            Kernel::Log::addOutputStream(*stream, Util::String(Device::Serial::portToString(Kernel::Log::getEarlyLogSerialPort().getPort())) != port.toUpperCase());
+            if (port.toLowerCase().beginsWith("com")) {
+                auto comPort = Device::Serial::portFromString(port);
+                auto *serialPort = new Device::SerialPort(comPort);
+                bool append = Util::String(Device::Serial::portToString(Kernel::Log::getEarlyLogSerialPort().getPort())) != port.toUpperCase();
+                Kernel::Log::addOutputStream(*serialPort, append);
+            } else if (port.toLowerCase().beginsWith("lpt")) {
+                auto lptPort = Device::ParallelPort::portFromString(port);
+                auto *parallelPort = new Device::ParallelPort(lptPort);
+                Kernel::Log::addOutputStream(*parallelPort);
+            }
         }
     }
-
-    // Add '/device/log' to kernel logger
-    Kernel::Log::addOutputStream(*new Util::Io::FileOutputStream("/device/log"));
 
     // Initialize PS/2 devices
     LOG_INFO("Initializing PS/2 devices");

@@ -135,6 +135,13 @@ enum class BaudRate : uint16_t {
 
 [[nodiscard]] const char* portToString(Serial::ComPort port);
 
+/**
+ * Check if a COM-port exists.
+ * Always check if the COM-port exists before creating an instance of this class!
+ *
+ */
+[[nodiscard]] bool checkPort(Serial::ComPort port);
+
 }
 
 #endif

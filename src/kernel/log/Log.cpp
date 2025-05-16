@@ -155,16 +155,16 @@ void Log::logEarly(const Log::Record &record, const char *message) {
 
 void Log::writeStringEarly(const char *string) {
     if (!serialChecked) {
-        if (Device::SerialPort::checkPort(Device::Serial::COM1)) {
+        if (Device::Serial::checkPort(Device::Serial::COM1)) {
             static auto serial = Device::SimpleSerialPort(Device::Serial::COM1);
             Kernel::Log::serial = &serial;
-        } else if (Device::SerialPort::checkPort(Device::Serial::COM2)) {
+        } else if (Device::Serial::checkPort(Device::Serial::COM2)) {
             static auto serial = Device::SimpleSerialPort(Device::Serial::COM2);
             Kernel::Log::serial = &serial;
-        } else if (Device::SerialPort::checkPort(Device::Serial::COM3)) {
+        } else if (Device::Serial::checkPort(Device::Serial::COM3)) {
             static auto serial = Device::SimpleSerialPort(Device::Serial::COM3);
             Kernel::Log::serial = &serial;
-        } else if (Device::SerialPort::checkPort(Device::Serial::COM4)) {
+        } else if (Device::Serial::checkPort(Device::Serial::COM4)) {
             static auto serial = Device::SimpleSerialPort(Device::Serial::COM4);
             Kernel::Log::serial = &serial;
         }

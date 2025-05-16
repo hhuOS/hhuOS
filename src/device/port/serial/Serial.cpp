@@ -20,6 +20,7 @@
 
 #include "Serial.h"
 
+#include "device/cpu/IoPort.h"
 #include "lib/util/base/Exception.h"
 
 namespace Device::Serial {
@@ -53,6 +54,19 @@ const char* portToString(const ComPort port) {
         default:
             Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "COM: Invalid port!");
     }
+}
+
+bool checkPort(Serial::ComPort port) {
+    IoPort scratchRegister(port + 7);
+
+    for (uint8_t i = 0; i < 0xff; i++) {
+        scratchRegister.writeByte(i);
+        if (scratchRegister.readByte() != i) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 }

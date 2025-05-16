@@ -47,13 +47,6 @@ public:
 
     explicit SerialPort(Serial::ComPort port, Serial::BaudRate dataRate = Serial::BaudRate::BAUD_115200);
 
-    /**
-     * Check if a COM-port exists.
-     * Always check if the COM-port exists before creating an instance of this class!
-     *
-     */
-    static bool checkPort(Serial::ComPort port);
-
     static void initializeAvailablePorts();
 
     /**

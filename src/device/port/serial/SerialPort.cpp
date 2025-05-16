@@ -41,19 +41,6 @@ namespace Device {
 
 SerialPort::SerialPort(Serial::ComPort port, Serial::BaudRate dataRate) : Util::Io::FilterInputStream(inputStream), inputBuffer(BUFFER_SIZE), inputStream(inputBuffer), port(port, dataRate) {}
 
-bool SerialPort::checkPort(Serial::ComPort port) {
-    IoPort scratchRegister(port + 7);
-
-    for (uint8_t i = 0; i < 0xff; i++) {
-        scratchRegister.writeByte(i);
-        if (scratchRegister.readByte() != i) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 void SerialPort::initializePort(Serial::ComPort port) {
     if (!checkPort(port)) {
         return;
