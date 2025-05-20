@@ -28,7 +28,7 @@
 #include "kernel/process/Process.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/MemoryService.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/System.h"
 #include "lib/util/collection/Iterator.h"
@@ -224,7 +224,7 @@ Process& ProcessService::loadBinary(const Util::Io::File &binaryFile, const Util
 
 void ProcessService::killProcess(Process &process) {
     if (process == getCurrentProcess()) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "A process cannot kill itself!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "A process cannot kill itself!");
     }
 
     for (auto *thread : process.getThreads()) {

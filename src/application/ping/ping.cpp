@@ -57,7 +57,7 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    uint32_t count = argumentParser.hasArgument("count") ? Util::String::parseInt(argumentParser.getArgument("count")) : 10;
+    uint32_t count = argumentParser.hasArgument("count") ? Util::String::parseNumber<uint32_t>(argumentParser.getArgument("count")) : 10;
     auto destinationAddress = Util::Network::Ip4::Ip4Address(arguments[0]);
 
     auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::ICMP);

@@ -28,7 +28,7 @@
 #include "lib/util/network/ip4/Ip4Datagram.h"
 #include "device/network/NetworkDevice.h"
 #include "kernel/log/Log.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/io/stream/ByteArrayInputStream.h"
 #include "lib/util/io/stream/ByteArrayOutputStream.h"
@@ -103,7 +103,7 @@ Ip4Interface Ip4Module::writeHeader(Util::Io::ByteArrayOutputStream &stream, con
 
     auto destinationMacAddress = Util::Network::MacAddress();
     if (!arpModule.resolveAddress(route.hasNextHop() ? route.getNextHop() : destinationAddress, destinationMacAddress, interface)) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Discarding packet, because the destination IPv4 address could not be resolved");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Discarding packet, because the destination IPv4 address could not be resolved");
     }
 
     Ethernet::EthernetModule::writeHeader(stream, interface.getDevice(), destinationMacAddress, Util::Network::Ethernet::EthernetHeader::IP4);

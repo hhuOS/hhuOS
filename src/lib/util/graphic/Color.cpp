@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "Color.h"
 #include "Colors.h"
 
@@ -49,7 +49,7 @@ Color Color::fromRGB(uint32_t rgb, uint8_t depth) {
         case 1:
             return fromRGB1(rgb);
         default:
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Color: Invalid depth!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Color: Invalid depth!");
     }
 }
 

@@ -29,7 +29,7 @@
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/network/ip4/Ip4PortAddress.h"
 #include "lib/util/io/stream/ByteArrayOutputStream.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 
 namespace Util::Network {
 
@@ -45,7 +45,7 @@ Datagram::Datagram(NetworkAddress::Type type) {
             remoteAddress = new Util::Network::Ip4::Ip4PortAddress();
             break;
         default:
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Illegal address type for bind!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: Illegal address type for bind!");
     }
 }
 

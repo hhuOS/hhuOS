@@ -226,9 +226,9 @@ int32_t main(int32_t argc, char *argv[]) {
         auto split1 = argumentParser.getArgument("resolution").split("x");
         auto split2 = split1[1].split("@");
 
-        uint32_t resolutionX = Util::String::parseInt(split1[0]);
-        uint32_t resolutionY = Util::String::parseInt(split2[0]);
-        uint32_t colorDepth = split2.length() > 1 ? Util::String::parseInt(split2[1]) : 32;
+        auto resolutionX = Util::String::parseNumber<uint16_t>(split1[0]);
+        auto resolutionY = Util::String::parseNumber<uint16_t>(split2[0]);
+        uint8_t colorDepth = split2.length() > 1 ? Util::String::parseNumber<uint8_t>(split2[1]) : 32;
 
         lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
     }

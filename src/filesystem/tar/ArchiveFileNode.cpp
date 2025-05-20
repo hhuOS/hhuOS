@@ -32,7 +32,7 @@ Util::Array<Util::String> ArchiveFileNode::getChildren() {
 }
 
 uint64_t ArchiveFileNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
-    if (dataAddress == 0) {
+    if (dataAddress.get() == 0) {
         return 0;
     }
 

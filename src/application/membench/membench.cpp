@@ -81,8 +81,8 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     const auto &benchmarkType = arguments[0];
-    const uint8_t minPower = arguments.length() > 1 ? Util::String::parseInt(static_cast<const char*>(arguments[1])) : 10;
-    const uint8_t maxPower = arguments.length() > 2 ? Util::String::parseInt(static_cast<const char*>(arguments[2])) : 24;
+    const uint8_t minPower = arguments.length() > 1 ? Util::String::parseNumber<uint8_t>(arguments[1]) : 10;
+    const uint8_t maxPower = arguments.length() > 2 ? Util::String::parseNumber<uint8_t>(arguments[2]) : 24;
 
     if (benchmarkType == "memset" || benchmarkType == "memcpy") {
         for (uint8_t i = minPower; i <= maxPower; i++) {

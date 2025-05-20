@@ -251,7 +251,7 @@ FilesystemService::FilesystemService() {
 
         targetPath = static_cast<char *>(memoryService.allocateUserMemory(
                (path.length() + 1) * sizeof(char)));
-        auto source = Util::Address(static_cast<char *>(path));
+        auto source = Util::Address(static_cast<const char*>(path));
         auto target = Util::Address(targetPath);
         target.copyString(source);
 

@@ -6,3 +6,4 @@ description:
   This is a project by the [Operating Systems group](https://www.cs.hhu.de/en/research-groups/operating-systems.html) at the Heinrich Heine University Düsseldorf.
 files:
   - "src/lib/util/async/*.h"
+  - "src/lib/util/base/*.h"

@@ -92,7 +92,7 @@ int FileStream::setBuffer(char* newBuffer, BufferMode mode, size_t size) {
 
 int FileStream::fflush() {
 	if (buffer == nullptr || !isWriteAllowed() || isError()) {
-        return EOF;
+        return END_OF_FILE;
     }
 
     bufferChangeAllowed = false;
@@ -109,7 +109,7 @@ void FileStream::flush() {
 
 int FileStream::fputc(int c) {
 	write(c);
-	return error ? EOF : c;
+	return error ? END_OF_FILE : c;
 }
 
 void FileStream::write(uint8_t c) {
@@ -150,7 +150,7 @@ int16_t FileStream::read() {
     bufferChangeAllowed = false;
 	
 	if (!isReadAllowed() || isError()) {
-        return EOF;
+        return END_OF_FILE;
     }
 	
 	if (!ungottenChars.isEmpty()) {
@@ -160,7 +160,7 @@ int16_t FileStream::read() {
 	int32_t len = readFile(fileDescriptor, &ret, pos++, 1);
 	if (len == 0) {
         eof = true;
-		return EOF;
+		return END_OF_FILE;
 	} 
 	
 	return ret;
@@ -179,7 +179,7 @@ bool FileStream::isReadyToRead() {
 
 int32_t FileStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
 	if (!isReadAllowed() || isError()) {
-        return EOF;
+        return END_OF_FILE;
     }
 	
 	pos += offset;
@@ -247,7 +247,7 @@ bool FileStream::isError() const {
 	return error;
 }
 
-bool FileStream::isEOF() const {
+bool FileStream::endOfFileReached() const {
 	return eof;
 }
 

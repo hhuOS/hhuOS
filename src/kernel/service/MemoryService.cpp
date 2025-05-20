@@ -28,7 +28,7 @@
 #include "kernel/memory/PageFrameAllocator.h"
 #include "kernel/memory/PagingAreaManager.h"
 #include "kernel/memory/VirtualAddressSpace.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/base/HeapMemoryManager.h"
 #include "lib/util/base/System.h"
 #include "lib/util/collection/Iterator.h"
@@ -351,7 +351,7 @@ void MemoryService::switchAddressSpace(VirtualAddressSpace &addressSpace) {
 
 void MemoryService::removeAddressSpace(VirtualAddressSpace &addressSpace) {
     if (currentAddressSpace == &addressSpace) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "MemoryService: Trying to delete the currently active address space!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "MemoryService: Trying to delete the currently active address space!");
     }
 
     addressSpaces.remove(&addressSpace);
@@ -364,12 +364,12 @@ void MemoryService::handlePageFault(uint32_t errorCode) {
 
     // Check for null pointer access
     if (faultAddress == 0) {
-        Util::Exception::throwException(Util::Exception::NULL_POINTER, "Page fault at address 0x00000000!");
+        Util::Panic::fire(Util::Panic::NULL_POINTER, "Page fault at address 0x00000000!");
     }
 
     // Check if page fault was caused by an illegal page access
     if ((errorCode & 0x00000001u) > 0) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_PAGE_ACCESS, "Privilege level not sufficient to access page!");
+        Util::Panic::fire(Util::Panic::PAGING_ERROR, "Privilege level not sufficient to access page!");
     }
 
     // Map the faulted Page

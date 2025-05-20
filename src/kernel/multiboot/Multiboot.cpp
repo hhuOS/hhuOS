@@ -20,7 +20,7 @@
 
 #include "Multiboot.h"
 #include "kernel/multiboot/Multiboot.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/collection/ArrayList.h"
 
 namespace Kernel {
@@ -52,7 +52,7 @@ bool Multiboot::hasKernelOption(const Util::String &key) const {
 
 Util::String Multiboot::getKernelOption(const Util::String &key) const {
     if (!hasTag(BOOT_COMMAND_LINE)) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Multiboot: Kernel options are not available!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Multiboot: Kernel options are not available!");
     }
 
     auto commandLine = getTag<BootCommandLine>(BOOT_COMMAND_LINE).string;
@@ -65,7 +65,7 @@ Util::String Multiboot::getKernelOption(const Util::String &key) const {
         }
     }
 
-    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Multiboot: Requested kernel option is not available!");
+    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Multiboot: Requested kernel option is not available!");
 }
 
 Util::String Multiboot::getKernelOption(const Util::String &key, const Util::String &defaultValue) const {
@@ -128,7 +128,7 @@ const Multiboot::Module& Multiboot::getModule(const Util::String &moduleName) co
         currentTag = reinterpret_cast<const TagHeader*>(currentAddress);
     }
 
-    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Multiboot: Requested module is not loaded!");
+    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Multiboot: Requested module is not loaded!");
 }
 
 bool Multiboot::hasTag(Multiboot::TagType type) const {

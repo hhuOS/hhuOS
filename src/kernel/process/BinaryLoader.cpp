@@ -28,7 +28,7 @@
 #include "kernel/service/ProcessService.h"
 #include "kernel/process/Process.h"
 #include "kernel/process/Thread.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/base/Address.h"
 #include "kernel/service/Service.h"
 #include "lib/util/base/System.h"
@@ -43,11 +43,11 @@ BinaryLoader::BinaryLoader(const Util::String &path, const Util::String &command
 void BinaryLoader::run() {
     auto file = Util::Io::File(path);
     if (!file.exists()) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "BinaryLoader: File not found!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "BinaryLoader: File not found!");
     }
 
     if (!file.isFile()) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "BinaryLoader: Not a file!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "BinaryLoader: Not a file!");
     }
 
     auto *buffer = new uint8_t[file.getLength()];
@@ -85,7 +85,7 @@ void BinaryLoader::run() {
     currentAddress += sizeof(char**) * argc;
 
     for (uint32_t i = 0; i < argc; i++) {
-        auto sourceArgument = Util::Address(static_cast<char*>(i == 0 ? command : arguments[i - 1]));
+        auto sourceArgument = Util::Address(static_cast<const char*>(i == 0 ? command : arguments[i - 1]));
         auto targetArgument = Util::Address(currentAddress);
 
         targetArgument.copyString(sourceArgument);

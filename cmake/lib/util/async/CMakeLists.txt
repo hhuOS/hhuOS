@@ -16,8 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-cmake_minimum_required(VERSION 3.14)
-
 project(lib.async)
 message(STATUS "Project " ${PROJECT_NAME})
 
@@ -25,9 +23,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_STANDARD 90)
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
-
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/async/Atomic.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/AtomicBitmap.cpp

@@ -26,7 +26,7 @@
 #include "filesystem/Filesystem.h"
 #include "filesystem/memory/MemoryDriver.h"
 #include "kernel/log/Log.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/time/Timestamp.h"
 #include "kernel/service/Service.h"
 
@@ -96,7 +96,7 @@ ParallelPort::LptPort ParallelPort::portFromString(const Util::String &portName)
     } else if (port == "lpt3") {
         return LPT3;
     } else {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "LPT: Invalid port!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "LPT: Invalid port!");
     }
 }
 
@@ -109,7 +109,7 @@ const char *ParallelPort::portToString(ParallelPort::LptPort port) {
         case LPT3:
             return "LPT3";
         default:
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "LPT: Invalid port!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "LPT: Invalid port!");
     }
 }
 

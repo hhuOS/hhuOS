@@ -36,7 +36,7 @@
 #include "Game.h"
 #include "3d/Orientation.h"
 #include "3d/Scene.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/game/3d/Light.h"
 #include "lib/util/game/3d/Model.h"
 #include "lib/util/game/3d/Texture.h"
@@ -55,7 +55,7 @@ Graphics::Graphics(const Util::Graphic::LinearFrameBuffer &lfb, Game &game, doub
 
 void Graphics::drawLineDirectAbsolute(uint16_t fromX, uint16_t fromY, uint16_t toX, uint16_t toY) const {
     if (isGlEnabled()) {
-        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: Drawing with absolute coordinates is not supported in OpenGL mode!");
+        Panic::fire(Panic::UNSUPPORTED_OPERATION, "Graphics: Drawing with absolute coordinates is not supported in OpenGL mode!");
     }
 
     bufferedLfb.drawLine(fromX, fromY, toX, toY, color);
@@ -210,7 +210,7 @@ void Graphics::drawStringDirect(const Math::Vector2<double> &position, const Str
 
 void Graphics::drawLine2D(const Math::Vector2<double> &from, const Math::Vector2<double> &to) const {
     if (isGlEnabled()) {
-        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 2D drawing functions are not supported in OpenGL mode!");
+        Panic::fire(Panic::UNSUPPORTED_OPERATION, "Graphics: 2D drawing functions are not supported in OpenGL mode!");
     }
 
     bufferedLfb.drawLine(static_cast<int32_t>((from.getX() - camera.getPosition().getX()) * transformation + offsetX),
@@ -245,7 +245,7 @@ void Graphics::drawSquare2D(const Math::Vector2<double> &position, double size) 
 
 void Graphics::fillRectangle2D(const Math::Vector2<double> &position, const Math::Vector2<double> &size) const {
     if (isGlEnabled()) {
-        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 2D drawing functions are not supported in OpenGL mode!");
+        Panic::fire(Panic::UNSUPPORTED_OPERATION, "Graphics: 2D drawing functions are not supported in OpenGL mode!");
     }
     
     const auto width = size.getX();
@@ -272,7 +272,7 @@ void Graphics::fillSquare2D(const Math::Vector2<double> &position, double size) 
 
 void Graphics::drawString2D(const Math::Vector2<double> &position, const char *string) const {
     if (isGlEnabled()) {
-        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 2D drawing functions are not supported in OpenGL mode!");
+        Panic::fire(Panic::UNSUPPORTED_OPERATION, "Graphics: 2D drawing functions are not supported in OpenGL mode!");
     }
     
     bufferedLfb.drawString(Graphic::Fonts::TERMINAL_8x8,
@@ -287,7 +287,7 @@ void Graphics::drawString2D(const Math::Vector2<double> &position, const String 
 
 void Graphics::drawImage2D(const Math::Vector2<double> &position, const Graphic::Image &image, bool flipX, double alpha, const Math::Vector2<double> &scale, double rotationAngle) const {
     if (isGlEnabled()) {
-        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 2D drawing functions are not supported in OpenGL mode!");
+        Panic::fire(Panic::UNSUPPORTED_OPERATION, "Graphics: 2D drawing functions are not supported in OpenGL mode!");
     }
     
     bool notScaled = Math::equals(scale.getX(), 1, 0.00001) && Math::equals(scale.getY(), 1, 0.00001);
@@ -306,7 +306,7 @@ void Graphics::drawImage2D(const Math::Vector2<double> &position, const Graphic:
 
 void Graphics::drawModel3D(const D3::Model &model) const {
     if (!isGlEnabled()) {
-        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 3D drawing functions are only supported in OpenGL mode!");
+        Panic::fire(Panic::UNSUPPORTED_OPERATION, "Graphics: 3D drawing functions are only supported in OpenGL mode!");
     }
 
     const auto &position = model.getPosition();
@@ -334,7 +334,7 @@ void Graphics::drawModel3D(const D3::Model &model) const {
 
 void Graphics::drawRectangle3D(const Math::Vector3<double> &position, const Math::Vector2<double> &size, const Math::Vector3<double> &rotation, const D3::Texture &texture) const {
     if (!isGlEnabled()) {
-        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 3D drawing functions are only supported in OpenGL mode!");
+        Panic::fire(Panic::UNSUPPORTED_OPERATION, "Graphics: 3D drawing functions are only supported in OpenGL mode!");
     }
 
     glPushMatrix();
@@ -355,7 +355,7 @@ void Graphics::drawRectangle3D(const Math::Vector3<double> &position, const Math
 
 void Graphics::drawCustomShape3D(const Math::Vector3<double> &position, const Math::Vector3<double> &scale, const Math::Vector3<double> &rotation, const Array<Math::Vector3<double>> &vertices) const {
     if (!isGlEnabled()) {
-        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 3D drawing functions are only supported in OpenGL mode!");
+        Panic::fire(Panic::UNSUPPORTED_OPERATION, "Graphics: 3D drawing functions are only supported in OpenGL mode!");
     }
 
     glPushMatrix();
@@ -378,7 +378,7 @@ void Graphics::drawCustomShape3D(const Math::Vector3<double> &position, const Ma
 
 void Graphics::drawCuboid3D(const Math::Vector3<double> &position, const Math::Vector3<double> &size, const Math::Vector3<double> &rotation, const D3::Texture &texture) const {
     if (!isGlEnabled()) {
-        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Graphics: 3D drawing functions are only supported in OpenGL mode!");
+        Panic::fire(Panic::UNSUPPORTED_OPERATION, "Graphics: 3D drawing functions are only supported in OpenGL mode!");
     }
 
     glPushMatrix();

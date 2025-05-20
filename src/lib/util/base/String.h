@@ -18,127 +18,580 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __String_include__
-#define __String_include__
+#ifndef HHUOS_LIB_UTIL_STRING_H
+#define HHUOS_LIB_UTIL_STRING_H
 
-#include <stdint.h>
+#include <stddef.h>
 #include <stdarg.h>
-#include "lib/util/collection/Array.h"
+
+#include "base/Address.h"
+#include "base/CharacterTypes.h"
+#include "collection/Array.h"
 
 namespace Util {
 
-/**
- * @author Filip Krakowski
- */
+/// This class wraps a string on the heap and provides methods to manipulate it.
+/// For example, string concatenation, substring extraction, and string splitting.
+/// If required, the heap memory is automatically reallocated.
+///
+/// ## Example
+/// ```
+/// // Create a string and print it.
+/// const auto string = Util::String("Hello, World!");
+/// Util::System::out << string << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+/// ```
 class String {
 
 public:
+    /// Create a new empty string, consisting only of the null terminator.
+    String();
 
-    String() noexcept;
+    /// Create a new string containing only the given character.
+    String(char c);
 
-    String(char character) noexcept;
+    /// Create a new string from the given C-style string.
+    /// The given string is copied to the heap.
+    String(const char *string);
 
-    String(const char string[]) noexcept;
+    /// Create a new string from the given byte array.
+    /// The given byte array is copied to the heap.
+    String(const uint8_t *data, size_t length);
 
-    String(const uint8_t *data, uint32_t length) noexcept;
+    /// Create a new string from an existing string.
+    String(const String &other);
 
-    String(const String &other) noexcept;
-
+    /// Delete the string and free the heap memory.
     ~String();
 
-    [[nodiscard]] uint32_t hashCode() const;
+    /// Assign the given string to this string, overwriting the existing string.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string1 = Util::String("Hello");
+    /// const auto string2 = Util::String("World");
+    ///
+    /// string1 = string2; // string1 = "World"
+    /// ```
+    String& operator=(const String &other);
 
-    [[nodiscard]] uint32_t length() const;
+    /// Append the given string to this string.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string1 = Util::String("Hello");
+    /// const auto string2 = Util::String("World");
+    ///
+    /// const auto string3 = string1 + string2; // string3 = "HelloWorld"
+    /// ```
+    String& operator+=(const String &other);
 
-    [[nodiscard]] uint32_t indexOf(char character, uint32_t start = 0) const;
-
-    [[nodiscard]] uint32_t indexOf(const String &other, uint32_t start = 0) const;
-
-    [[nodiscard]] bool isEmpty() const;
-
-    [[nodiscard]] String substring(uint32_t begin) const;
-
-    [[nodiscard]] String substring(uint32_t begin, uint32_t end) const;
-
-    [[nodiscard]] String strip() const;
-
-    [[nodiscard]] Array<String> split(const String &delimiter, uint32_t limit = 0) const;
-
-    [[nodiscard]] String remove(const String &string) const;
-
-    [[nodiscard]] String removeAll(const String &string) const;
-
-    [[nodiscard]] bool beginsWith(const String &string) const;
-
-    [[nodiscard]] bool endsWith(const String &string) const;
-
-    [[nodiscard]] bool contains(char c) const;
-
-    [[nodiscard]] static String join(const String &separator, const Util::Array<String> &elements);
-
-    [[nodiscard]] static String format(const char *format, ...);
-
-    [[nodiscard]] static String vformat(const char *format, va_list args);
-
-    [[nodiscard]] static bool isAlpha(char c);
-
-    [[nodiscard]] static bool isNumeric(char c);
-
-    [[nodiscard]] static int32_t parseInt(const char *string);
-
-    [[nodiscard]] static int32_t parseInt(const String &string);
-
-    [[nodiscard]] static int32_t parseHexInt(const char *string);
-
-    [[nodiscard]] static int32_t parseHexInt(const String &string);
-
-    [[nodiscard]] static double parseDouble(const char *string);
-
-    [[nodiscard]] static double parseDouble(const String &string);
-
-    [[nodiscard]] String toUpperCase() const;
-
-    [[nodiscard]] String toLowerCase() const;
-
+    /// Compare the string with another string for equality.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string1 = Util::String("Hello");
+    /// const auto string2 = Util::String("Hello");
+    /// const auto string3 = Util::String("World");
+    ///
+    /// const auto equal1 = string1 == string2; // equal1 = true
+    /// const auto equal2 = string1 == string3; // equal2 = false
+    /// ```
     bool operator==(const String &other) const;
 
+    /// Compare the string with another string for inequality.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string1 = Util::String("Hello");
+    /// const auto string2 = Util::String("Hello");
+    /// const auto string3 = Util::String("World");
+    ///
+    /// const auto equal1 = string1 != string2; // equal1 = false
+    /// const auto equal2 = string1 != string3; // equal2 = true
+    /// ```
     bool operator!=(const String &other) const;
 
-    String &operator=(const String &other);
-
-    String &operator+=(const String &other);
-
+    /// Create a new string by concatenating two strings.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string1 = Util::String("Hello");
+    /// const auto string2 = Util::String("World");
+    ///
+    /// const auto string3 = string1 + string2; // string3 = "HelloWorld"
+    /// ```
     friend String operator+(const String &first, const String &second);
 
+    /// Create a new string by concatenating a string with a character.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string1 = Util::String("Hello");
+    /// const auto character = '!';
+    ///
+    /// const auto string2 = string1 + character; // string2 = "Hello!"
+    /// ```
     friend String operator+(const String &first, char second);
 
+    /// Create a new string by concatenating a string with a C-style string.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string1 = Util::String("Hello");
+    /// const char *string2 = "World";
+    ///
+    /// const auto string3 = string1 + string2; // string3 = "HelloWorld"
+    /// ```
     friend String operator+(const String &first, const char *second);
 
+    /// Create a new string by concatenating a character with a string.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto character = 'H';
+    /// const auto string1 = Util::String("ello");
+    ///
+    /// const auto string2 = character + string1; // string2 = "Hello"
+    /// ```
     friend String operator+(char first, const String &string);
 
+    /// Create a new string by concatenating a C-style string with a string.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const char *string1 = "Hello";
+    /// const auto string2 = Util::String("World");
+    ///
+    /// const auto string3 = string1 + string2; // string3 = "HelloWorld"
+    /// ```
     friend String operator+(const char *first, const String &second);
 
-    char operator[](uint32_t index) const;
+    /// Get the character at the given index.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string = Util::String("Hello, World!");
+    /// const auto character = string[0]; // character = 'H'
+    /// ```
+    char operator[](size_t index) const;
 
-    char &operator[](uint32_t index);
+    /// Get a reference to the character at the given index.
+    /// This allows modifying the character at the given index.
+    ///
+    /// ### Example
+    /// ```c++
+    /// auto string = Util::String("Hello, World!");
+    /// string[1] = 'A'; // string = "HAllo, World!"
+    /// ```
+    char& operator[](size_t index);
 
-    explicit operator char *() const;
+    /// Convert the string to a C-style string.
+    /// This is done by returning a pointer to the internal buffer.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string = Util::String("Hello, World!");
+    /// printf("String: '%s'", static_cast<const char*>(string)); // prints "String: 'Hello, World!'"
+    /// ```
+    explicit operator const char*() const;
 
-    explicit operator const char *() const;
+    /// Convert the string to a byte array.
+    /// This is done by returning a pointer to the internal buffer.
+    explicit operator const uint8_t*() const;
 
-    explicit operator uint8_t *() const;
+    /// Get the hash code of the string (see `hashCode()`).
+    explicit operator size_t() const;
 
-    explicit operator const uint8_t *() const;
+    /// Get the length of the string (excluding the null terminator).
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string = Util::String("Hello, World!");
+    /// const auto length = string.length(); // length = 13
+    /// ```
+    [[nodiscard]] size_t length() const;
 
-    explicit operator uint32_t() const;
+    /// Check if the string is empty (length == 0).
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string1 = Util::String("Hello, World");
+    /// const auto string2 = Util::String("");
+    ///
+    /// const auto empty1 = string1.isEmpty(); // empty1 = false
+    /// const auto empty2 = string2.isEmpty(); // empty2 = true
+    /// ```
+    [[nodiscard]] bool isEmpty() const;
+
+    /// Calculate a simple hash sum of the string.
+    /// This is used to implement the `size_t()` operator, which is for example used by `Util::HashMap`.
+    [[nodiscard]] size_t hashCode() const;
+
+    /// Get the index of the first occurrence of the given character in the string.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string = Util::String("Hello, World!");
+    /// const auto index = string.indexOf('o'); // index = 4
+    /// ```
+    [[nodiscard]] size_t indexOf(char character, size_t start = 0) const;
+
+    /// Get the index of the first occurrence of the given other string in the string.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string = Util::String("Hello, World!");
+    /// const auto index = string.indexOf("World"); // index = 7
+    /// ```
+    [[nodiscard]] size_t indexOf(const String &other, size_t start = 0) const;
+
+    /// Get a substring of the string, beginning at the given index and ending at the end of the string.
+    /// The character at the given index is included in the substring.
+    /// If the given index is greater than the length of the string, an empty string is returned.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string = Util::String("Hello, World!");
+    /// const auto substring = string.substring(7); // substring = "World!"
+    /// ```
+    [[nodiscard]] String substring(size_t begin) const;
+
+
+    /// Get a substring of the string, beginning and ending at the given indices.
+    /// The substring is inclusive at the beginning and exclusive at the end.
+    /// If the `begin` index is greater than the end index, an empty string is returned.
+    /// If the `begin` index is greater than the length of the string, an empty string is returned.
+    /// If the `end` index is greater than the length of the string, it is set to the length of the string.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string = Util::String("Hello, World!");
+    /// const auto substring1 = string.substring(7, 12); // substring1 = "World"
+    /// const auto substring2 = string.substring(7, 15); // substring2 = "World"
+    /// const auto substring3 = string.substring(2, 9); // substring3 = "llo, Wo"
+    /// ```
+    [[nodiscard]] String substring(size_t begin, size_t end) const;
+
+    /// Create a copy of the string with leading and trailing whitespaces ('\t', '\n', ' ') removed.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string = Util::String("   Hello, World!   ");
+    /// const auto stripped = string.strip(); // stripped = "Hello, World!"
+    /// ```
+    [[nodiscard]] String strip() const;
+
+    /// Split the string into an array of strings using the given delimiter.
+    /// The delimiter itself is not included in the resulting strings.
+    /// If the delimiter is not found, the array only contains the original string.
+    /// If the string is empty, an empty array is returned.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string = Util::String("abc,def,ghi");
+    /// const auto tokens = string.split(","); // tokens = { "abc", "def", "ghi" }
+    /// ```
+    [[nodiscard]] Array<String> split(const String &delimiter) const;
+
+    /// Create a copy of the string with the first occurrence of the given string removed.
+    /// If the given string is not found, a copy the original string is returned.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string = Util::String("Hello, World!");
+    /// const auto removed = string.remove(", World"); // removed = "Hello!"
+    /// ```
+    [[nodiscard]] String remove(const String &string) const;
+
+    /// Create a copy of the string with all occurrences of the given string removed.
+    /// This is effectively the same as calling `split()` with the given string as the delimiter
+    /// and then concatenating the resulting strings.
+    /// If the given string is not found, a copy of the original string is returned.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string = Util::String("TestHello, TestWorldTest!");
+    /// const auto removed = string.removeAll("Test"); // removed = "Hello, World!"
+    /// ```
+    [[nodiscard]] String removeAll(const String &string) const;
+
+    /// Check if the string begins with the given string.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string = Util::String("Hello, World!");
+    /// const auto beginsWith1 = string.beginsWith("Hello"); // beginsWith1 = true
+    /// const auto beginsWith2 = string.beginsWith("hello"); // beginsWith2 = false
+    /// ```
+    [[nodiscard]] bool beginsWith(const String &string) const;
+
+    /// Check if the string ends with the given string.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string = Util::String("Hello, World!");
+    /// const auto endsWith1 = string.endsWith("World"); // endsWith1 = true
+    /// const auto endsWith2 = string.endsWith("world"); // endsWith2 = false
+    /// ```
+    [[nodiscard]] bool endsWith(const String &string) const;
+
+    /// Check if the string contains the given character.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string = Util::String("Hello, World!");
+    /// const auto contains1 = string.contains('o'); // contains1 = true
+    /// const auto contains2 = string.contains('x'); // contains2 = false
+    /// ```
+    [[nodiscard]] bool contains(char c) const;
+
+    /// Create a copy of the string with all characters converted to uppercase.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string = Util::String("Hello, World!");
+    /// const auto upper = string.toUpperCase(); // upper = "HELLO, WORLD!"
+    /// ```
+    [[nodiscard]] String toUpperCase() const;
+
+    /// Create a copy of the string with all characters converted to lowercase.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string = Util::String("Hello, World!");
+    /// const auto lower = string.toLowerCase(); // lower = "hello, world!"
+    /// ```
+    [[nodiscard]] String toLowerCase() const;
+
+    /// Concatenate a given array of strings with the given separator between them.
+    /// The separator is not included at the beginning or end of the resulting string.
+    /// The separator may be empty, in which case the strings are concatenated without any separator.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto strings = Util::Array<String>({ "Hello", "World" });
+    /// const auto joined = Util::String::join(", ", strings); // joined = "Hello, World"
+    /// ```
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto strings = Util::Array<String>({ "Hello, ", "World", "!" });
+    /// const auto joined = Util::String::join("", strings); // joined = "Hello, World!"
+    /// ```
+    [[nodiscard]] static String join(const String &separator, const Array<String> &elements);
+
+    /// Format a string using the given format string and arguments.
+    /// Supported format specifiers:
+    /// %c - character
+    /// %s - string
+    /// %B - boolean
+    /// %d - signed decimal integer
+    /// %u - unsigned decimal integer
+    /// %o - unsigned octal integer
+    /// %x - unsigned hexadecimal integer
+    /// %b - unsigned binary integer
+    ///
+    /// ### Example
+    /// ```c++
+    /// // string = "Hello, World! You are 42 years old."
+    /// const auto string = Util::String::format("Hello, %s! You are %u years old.", "World", 42);
+    /// ```
+    [[nodiscard]] static String format(const char *format, ...);
+
+    /// The same as `format()`, but takes a `va_list` instead of a variable number of arguments.
+    /// This is useful if the calling function itself is variadic and wants to pass the arguments to this function.
+    /// For example, `printf()` is implemented using this function.
+    [[nodiscard]] static String vformat(const char *format, va_list args);
+
+    /// Parse a signed number from the given string.
+    /// If the string is not a valid number, a `Panic` is fired.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto number1 = Util::String::parseNumber<int32_t>("42"); // number1 = 42
+    /// const auto number2 = Util::String::parseNumber<int32_t>("-42"); // number2 = -42
+    /// const auto number3 = Util::String::parseNumber<int32_t>("Hello, World!"); // Panic fired
+    /// ```
+    template<typename T>
+    [[nodiscard]] static T parseNumber(const char *string);
+
+    /// Parse a signed number from the given string.
+    /// If the string is not a valid number, a `Panic` is fired.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string1 = Util::String("42");
+    /// const auto string2 = Util::String("-42");
+    /// const auto string3 = Util::String("Hello, World!");
+    ///
+    /// const auto number1 = Util::String::parseNumber<int32_t>(string1); // number1 = 42
+    /// const auto number2 = Util::String::parseNumber<int32_t>(string2); // number2 = -42
+    /// const auto number3 = Util::String::parseNumber<int32_t>(string3); // Panic fired
+    /// ```
+    template<typename T>
+    [[nodiscard]] static T parseNumber(const String &string);
+
+    /// Parse an unsigned hexadecimal number from the given string.
+    /// If the string is not a valid hexadecimal number, a `Panic` is fired.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto number1 = Util::String::parseHexNumber<uint32_t>("0x42"); // number1 = 66
+    /// const auto number2 = Util::String::parseHexNumber<uint32_t>("Hello, World"); // Panic fired
+    /// ```
+    template<typename T>
+    [[nodiscard]] static T parseHexNumber(const char *string);
+
+    /// Parse an unsigned hexadecimal number from the given string.
+    /// If the string is not a valid hexadecimal number, a `Panic` is fired.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string1 = Util::String("0x42");
+    /// const auto string2 = Util::String("Hello, World");
+    ///
+    /// const auto number1 = Util::String::parseHexNumber<uint32_t>(string1); // number1 = 66
+    /// const auto number2 = Util::String::parseHexNumber<uint32_t>(string2); // Panic fired
+    /// ```
+    template<typename T>
+    [[nodiscard]] static T parseHexNumber(const String &string);
+
+    /// Parse a signed floating point number from the given string.
+    /// If the string is not a valid floating point number, a `Panic` is fired.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto number1 = Util::String::parseFloat<double>("42.0"); // number1 = 42.0
+    /// const auto number2 = Util::String::parseFloat<double>("-42.0"); // number2 = -42.0
+    /// const auto number3 = Util::String::parseFloat<double>("Hello, World!"); // Panic fired
+    /// ```
+    template<typename T>
+    [[nodiscard]] static T parseFloat(const char *string);
+
+    /// Parse a signed floating point number from the given string.
+    /// If the string is not a valid floating point number, a `Panic` is fired.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto string1 = Util::String("42.0");
+    /// const auto string2 = Util::String("-42.0");
+    /// const auto string3 = Util::String("Hello, World!");
+    ///
+    /// const auto number1 = Util::String::parseFloat<double>(string1); // number1 = 42.0
+    /// const auto number2 = Util::String::parseFloat<double>(string2); // number2 = -42.0
+    /// const auto number3 = Util::String::parseFloat<double>(string3); // Panic fired
+    /// ```
+    template<typename T>
+    [[nodiscard]] static T parseFloat(const String &string);
 
 private:
 
-    char *buffer;
-    uint32_t len;
+    template<typename T>
+    [[nodiscard]] static T parseNumber(const char *string, size_t length);
 
-    static const constexpr uint8_t CASE_OFFSET = 32;
+    template<typename T>
+    [[nodiscard]] static T parseHexNumber(const char *string, size_t length);
+
+    char *buffer;
+    size_t len;
+
+    static constexpr uint8_t CASE_OFFSET = 32;
 };
+
+template<typename T>
+T String::parseNumber(const char *string, const size_t length) {
+    const size_t limit = string[0] == '-' ? 1 : 0;
+    const auto sign = string[0] == '-' ? -1 : 1;
+
+    T result = 0;
+    T decimalPower = 1;
+
+    for (size_t i = length - 1; i > limit; i--) {
+        if (!CharacterTypes::isDigit(string[i])) {
+            Panic::fire(Panic::INVALID_ARGUMENT, "String: Invalid number format!");
+        }
+
+        result += (string[i] - '0') * decimalPower;
+        decimalPower *= 10;
+    }
+
+    if (!CharacterTypes::isDigit(string[limit])) {
+        Panic::fire(Panic::INVALID_ARGUMENT, "String: Invalid number format!");
+    }
+    result += (string[limit] - '0') * decimalPower;
+
+    return result * sign;
+}
+
+template<typename T>
+T String::parseNumber(const char *string) {
+    return parseNumber<T>(string, Address(string).stringLength());
+}
+
+template<typename T>
+T String::parseNumber(const String &string) {
+    return parseNumber<T>(static_cast<const char*>(string), string.len);
+}
+
+template<typename T>
+T String::parseHexNumber(const char *string, const size_t length) {
+    long result = 0;
+    long hexPower = 1;
+
+    for (long i = static_cast<long>(length - 1); i >= 0; i--) {
+        if (CharacterTypes::isDigit(string[i])) {
+            result += (string[i] - '0') * hexPower;
+        } else if (string[i] >= 'A' && string[i] <= 'F') {
+            result += (10 + string[i] - 'A') * hexPower;
+        } else if (string[i] >= 'a' && string[i] <= 'f') {
+            result += (10 + string[i] - 'a') * hexPower;
+        } else {
+            Panic::fire(Panic::INVALID_ARGUMENT, "String: Invalid hex number format!");
+        }
+
+        hexPower *= 16;
+    }
+
+    return result;
+}
+
+template<typename T>
+T String::parseHexNumber(const char *string) {
+    return parseHexNumber<T>(string, Address(string).stringLength());
+}
+
+template<typename T>
+T String::parseHexNumber(const String &string) {
+    return parseHexNumber<T>(static_cast<const char*>(string), string.len);
+}
+
+template<typename T>
+T String::parseFloat(const char *string) {
+    return parseFloat<T>(String(string));
+}
+
+template<typename T>
+T String::parseFloat(const String &string) {
+    auto parts = string.split(".");
+    int64_t firstNumber, secondNumber;
+
+    if (string.beginsWith(".")) {
+        firstNumber = 0;
+        secondNumber = parseNumber<int64_t>(parts[0]);
+    } else {
+        firstNumber = parts[0][0] == '.' ? 0 : parseNumber<int64_t>(parts[0]);
+        secondNumber = parts.length() > 1 ? parseNumber<int64_t>(parts[1]) : 0;
+    }
+
+    T exp = 1;
+    if (parts.length() > 1) {
+        for (size_t i = 0; i < parts[1].length(); i++) {
+            exp *= 10;
+        }
+    }
+
+    return firstNumber < 0 ? firstNumber - secondNumber / exp : firstNumber + secondNumber / exp;
+}
 
 }
 

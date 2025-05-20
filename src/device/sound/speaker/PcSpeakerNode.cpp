@@ -35,7 +35,7 @@ Util::Io::File::Type PcSpeakerNode::getType() {
 
 uint64_t PcSpeakerNode::writeData(const uint8_t *sourceBuffer, [[maybe_unused]] uint64_t pos, uint64_t numBytes) {
     auto data = Util::String(sourceBuffer, numBytes);
-    currentFrequency = Util::String::parseInt(data);
+    currentFrequency = Util::String::parseNumber<uint32_t>(data);
     buffer = Util::String::format("%u\n", currentFrequency);
 
     PcSpeaker::play(currentFrequency);

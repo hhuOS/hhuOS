@@ -3,7 +3,7 @@
 #include "lib/util/graphic/Color.h"
 #include "lib/interface.h"
 #include "lib/util/base/Constants.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "device/system/Bios.h"
 #include "kernel/process/Thread.h"
 
@@ -22,8 +22,8 @@ void ColorGraphicsAdapter::putChar(char c, const Util::Graphic::Color &foregroun
     uint16_t position = (currentRow * getColumns() + currentColumn) * BYTES_PER_CHARACTER;
     uint8_t colorAttribute = (backgroundColor.getRGB4() << 4) | foregroundColor.getRGB4();
 
-    cgaMemory.setByte(c, position);
-    cgaMemory.setByte(colorAttribute, position + 1);
+    cgaMemory.write8(c, position);
+    cgaMemory.write8(colorAttribute, position + 1);
     currentColumn++;
 
     if (currentColumn >= getColumns()) {
@@ -46,8 +46,8 @@ void ColorGraphicsAdapter::clear(const Util::Graphic::Color &foregroundColor, co
     uint16_t endPosition = (endRow * getColumns() + endColumn + 1) * BYTES_PER_CHARACTER;
 
     for (uint32_t i = startPosition; i < endPosition; i += 2) {
-        cgaMemory.setByte(' ', i);
-        cgaMemory.setByte(colorAttribute, i + 1);
+        cgaMemory.write8(' ', i);
+        cgaMemory.write8(colorAttribute, i + 1);
     }
 }
 
@@ -115,7 +115,7 @@ Util::Address ColorGraphicsAdapter::getAddress() {
 
 Util::Address ColorGraphicsAdapter::mapBuffer(void *physicalAddress, uint16_t columns, uint16_t rows) {
     if (reinterpret_cast<uint32_t>(physicalAddress) % Util::PAGESIZE != 0) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "ColorGraphicsAdapter: Physical address is not page aligned!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "ColorGraphicsAdapter: Physical address is not page aligned!");
     }
 
     const auto size = columns * rows * BYTES_PER_CHARACTER;

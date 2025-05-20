@@ -34,7 +34,7 @@
 #include "device/interrupt/apic/LocalApicErrorHandler.h"
 #include "kernel/log/Log.h"
 #include "lib/util/base/Address.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/collection/ArrayList.h"
 #include "kernel/memory/MemoryLayout.h"
 #include "lib/util/hardware/Acpi.h"
@@ -110,7 +110,7 @@ LocalApic& Apic::getCurrentLocalApic() {
         }
     }
 
-    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Apic: Local APIC not found!");
+    Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Apic: Local APIC not found!");
 }
 
 void Apic::enableCurrentErrorHandler() {
@@ -122,7 +122,7 @@ void Apic::enableCurrentErrorHandler() {
 void Apic::allow(InterruptRequest interruptRequest) {
     auto gsi = getIrqOverride(interruptRequest);
     if (ioApic->isNonMaskableInterrupt(gsi)) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Apic: GSI is non maskable!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Apic: GSI is non maskable!");
     }
 
     ioApic->allow(gsi);
@@ -131,7 +131,7 @@ void Apic::allow(InterruptRequest interruptRequest) {
 void Apic::forbid(InterruptRequest interruptRequest) {
     auto gsi = getIrqOverride(interruptRequest);
     if (ioApic->isNonMaskableInterrupt(gsi)) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Apic: GSI is non maskable!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Apic: GSI is non maskable!");
     }
 
     ioApic->forbid(gsi);
@@ -408,7 +408,7 @@ uint8_t** Apic::prepareApplicationProcessorStacks() {
 
 void Apic::prepareApplicationProcessorStartupCode(void *gdts, void *stacks) {
     if (boot_ap_size > Util::PAGESIZE) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Startup code does not fit into one page!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Startup code does not fit into one page!");
     }
 
     // Prepare the empty variables in the startup routine at their original location

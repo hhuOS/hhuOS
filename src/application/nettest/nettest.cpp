@@ -380,7 +380,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
     uint16_t timingInterval = DEFAULT_INTERVAL;
     if (argumentParser.hasArgument("time")) {
-        timingInterval = Util::String::parseInt(argumentParser.getArgument("time"));
+        timingInterval = Util::String::parseNumber<uint16_t>(argumentParser.getArgument("time"));
         if (timingInterval == 0) {
             timingInterval = DEFAULT_INTERVAL;
         }
@@ -417,7 +417,7 @@ int32_t main(int32_t argc, char *argv[]) {
         }
 
         if(argumentParser.hasArgument("packetLength")){
-            packetLength = Util::String::parseInt(argumentParser.getArgument("packetLength"));
+            packetLength = Util::String::parseNumber<uint16_t>(argumentParser.getArgument("packetLength"));
             if (packetLength < 64 || packetLength > 1450) {
                 Util::System::error << "nettest: Unsupported packet length!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
                 return -1;

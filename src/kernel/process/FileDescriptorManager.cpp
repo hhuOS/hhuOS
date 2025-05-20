@@ -2,7 +2,7 @@
 #include "kernel/service/FilesystemService.h"
 #include "FileDescriptorManager.h"
 #include "filesystem/Filesystem.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "kernel/service/Service.h"
 #include "kernel/process/FileDescriptor.h"
 
@@ -10,7 +10,7 @@ namespace Kernel {
 
 FileDescriptorManager::FileDescriptorManager(int32_t size) : size(size), descriptorTable(new FileDescriptor[size]{}) {
     if (size < 0) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "FileDescriptorManager: Size is negative!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "FileDescriptorManager: Size is negative!");
     }
 }
 
@@ -42,7 +42,7 @@ int32_t FileDescriptorManager::openFile(const Util::String &path) const {
 
 void FileDescriptorManager::closeFile(int32_t fileDescriptor) const {
     if (fileDescriptor < 0) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Invalid file descriptor!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Invalid file descriptor!");
     }
 
     descriptorTable[fileDescriptor].clear();
@@ -50,12 +50,12 @@ void FileDescriptorManager::closeFile(int32_t fileDescriptor) const {
 
 FileDescriptor& FileDescriptorManager::getDescriptor(int32_t fileDescriptor) const {
     if (fileDescriptor == -1) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Invalid file descriptor!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Invalid file descriptor!");
     }
 
     auto &descriptor = descriptorTable[fileDescriptor];
     if (!descriptor.isValid()) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Invalid file descriptor!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Invalid file descriptor!");
     }
 
     return descriptor;

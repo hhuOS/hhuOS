@@ -67,9 +67,9 @@ public:
 
     [[nodiscard]] uint32_t getBlockSize() const override;
 
-    [[nodiscard]] uint8_t* getStartAddress() const override;
+    [[nodiscard]] void* getStartAddress() const override;
 
-    [[nodiscard]] uint8_t* getEndAddress() const override;
+    [[nodiscard]] void* getEndAddress() const override;
 
 protected:
 

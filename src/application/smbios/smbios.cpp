@@ -279,22 +279,22 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto targetType = Util::Hardware::SmBios::END_OF_TABLE;
     if (argumentParser.hasArgument("type")) {
-        targetType = static_cast<Util::Hardware::SmBios::HeaderType>(Util::String::parseInt(argumentParser.getArgument("type")));
+        targetType = static_cast<Util::Hardware::SmBios::HeaderType>(Util::String::parseNumber<uint8_t>(argumentParser.getArgument("type")));
     }
 
     bool endOfFile = false;
     auto versionStream = Util::Io::FileInputStream(versionFile);
     auto versionString = versionStream.readLine(endOfFile);
     auto versionSplit = versionString.split(".");
-    uint8_t majorVersion = Util::String::parseInt(versionSplit[0]);
-    uint8_t minorVersion = Util::String::parseInt(versionSplit[1]);
+    auto majorVersion = Util::String::parseNumber<uint8_t>(versionSplit[0]);
+    auto minorVersion = Util::String::parseNumber<uint8_t>(versionSplit[1]);
     version = majorVersion + (minorVersion / 10.0);
 
     Util::System::out << "SMBIOS " << majorVersion << "." << minorVersion << " present." << Util::Io::PrintStream::endl << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 
     auto tableDirectory = Util::Io::File("/device/smbios/tables");
     for (const auto &tableId : tableDirectory.getChildren()) {
-        auto tableType = Util::String::parseInt(tableId.split("-")[0]);
+        auto tableType = Util::String::parseNumber<uint32_t>(tableId.split("-")[0]);
         if (targetType != Util::Hardware::SmBios::END_OF_TABLE && targetType != tableType) {
             continue;
         }

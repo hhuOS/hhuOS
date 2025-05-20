@@ -16,8 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-cmake_minimum_required(VERSION 3.14)
-
 target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/log/Log.cpp
         ${HHUOS_SRC_DIR}/kernel/log/LogNode.cpp)

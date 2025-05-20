@@ -18,19 +18,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_EXCEPTION_H
-#define HHUOS_EXCEPTION_H
+#ifndef HHUOS_LIB_UTIL_PANIC_H
+#define HHUOS_LIB_UTIL_PANIC_H
 
 #include <stdint.h>
 
-namespace Util {
+/// Provides functions to indicate critical errors.
+namespace Util::Panic {
 
-class Exception {
-
-public:
-
+    /// Contains the error codes that can be used to indicate a critical error.
+    /// The first 32 error codes are reserved for CPU exceptions.
     enum Error : uint32_t {
-        // Hardware exceptions
+        // CPU exceptions
         DIVIDE_BY_ZERO = 0x00,
         DEBUG = 0x01,
         NON_MASKABLE_INTERRUPT = 0x02,
@@ -41,12 +40,12 @@ public:
         DEVICE_NOT_AVAILABLE = 0x07,
         DOUBLE_FAULT = 0x08,
         COPROCESSOR_SEGMENT_OVERRUN = 0x09,
-        INVALID_TSS = 0x0A,
-        SEGMENT_NOT_PRESENT = 0x0B,
-        STACK_SEGMENT_FAULT = 0x0C,
-        GENERAL_PROTECTION_FAULT = 0x0D,
-        PAGE_FAULT = 0x0E,
-        RESERVED_01 = 0x0F,
+        INVALID_TSS = 0x0a,
+        SEGMENT_NOT_PRESENT = 0x0b,
+        STACK_SEGMENT_FAULT = 0x0c,
+        GENERAL_PROTECTION_FAULT = 0x0d,
+        PAGE_FAULT = 0x0e,
+        RESERVED_01 = 0x0f,
         X87_FLOATING_POINT_EXCEPTION = 0x10,
         ALIGNMENT_CHECK = 0x11,
         MACHINE_CHECK = 0x12,
@@ -57,38 +56,39 @@ public:
         RESERVED_04 = 0x17,
         RESERVED_05 = 0x18,
         RESERVED_06 = 0x19,
-        RESERVED_07 = 0x1A,
-        RESERVED_08 = 0x1B,
-        RESERVED_09 = 0x1C,
-        RESERVED_10 = 0x1D,
-        SECURITY_EXCEPTION = 0x1E,
-        RESERVED_11 = 0x1F,
+        RESERVED_07 = 0x1a,
+        RESERVED_08 = 0x1b,
+        RESERVED_09 = 0x1c,
+        RESERVED_10 = 0x1d,
+        SECURITY_EXCEPTION = 0x1e,
+        RESERVED_11 = 0x1f,
 
-        // Software exceptions
-        NULL_POINTER = 0xc8,
-        OUT_OF_BOUNDS = 0xc9,
-        INVALID_ARGUMENT = 0xca,
-        KEY_NOT_FOUND = 0xcb,
-        ILLEGAL_STATE = 0xcc,
-        OUT_OF_MEMORY = 0Xcd,
-        OUT_OF_PHYSICAL_MEMORY = 0xce,
-        OUT_OF_PAGING_MEMORY = 0xcf,
-        ILLEGAL_PAGE_ACCESS = 0xd0,
-        CLASS_NOT_FOUND = 0xd1,
-        PAGING_ERROR = 0xd2,
-        UNSUPPORTED_OPERATION = 0xd3
+        // Software defined errors
+        NULL_POINTER,
+        OUT_OF_BOUNDS,
+        INVALID_ARGUMENT,
+        KEY_NOT_FOUND,
+        ILLEGAL_STATE,
+        OUT_OF_MEMORY,
+        PAGING_ERROR,
+        UNSUPPORTED_OPERATION
     };
 
-    [[noreturn]] static void throwException(Error error, const char *message = "");
+    /// This function can be called to indicate a critical (unrecoverable) error.
+    /// This will terminate the program and print the error message to the standard error output.
+    ///
+    /// ### Example
+    /// ```c++
+    /// void someFunction(int positiveNumber) {
+    ///     if (positiveNumber < 0) {
+    ///         Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Negative number given!");
+    ///     }
+    /// }
+    /// ```
+    [[noreturn]] void fire(Error error, const char *message = "");
 
-    [[nodiscard]] static const char* getExceptionName(Error error);
-
-private:
-
-    static const char *hardwareExceptions[];
-    static const char *softwareExceptions[];
-
-};
+    /// Return the string representation of the given error.
+    [[nodiscard]] const char* getErrorAsString(Error error);
 
 }
 

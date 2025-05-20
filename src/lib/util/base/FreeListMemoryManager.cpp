@@ -18,55 +18,59 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/base/Address.h"
-#include "lib/interface.h"
-#include "lib/util/base/Constants.h"
 #include "FreeListMemoryManager.h"
-#include "lib/util/base/Exception.h"
+
+#include "lib/interface.h"
+#include "base/Address.h"
+#include "base/Constants.h"
+#include "base/Panic.h"
 
 namespace Util {
 
-void FreeListMemoryManager::initialize(uint8_t *startAddress, uint8_t *endAddress) {
-    this->startAddress = startAddress;
-    this->endAddress = endAddress;
-
+FreeListMemoryManager::FreeListMemoryManager(void *startAddress, void *endAddress) :
+    startAddress(startAddress), endAddress(endAddress)
+{
     if (getTotalMemory() < sizeof(FreeListHeader)) {
-        // Available memory is too small for a chunk
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "FreeListMemoryManager: Heap is too small!");
-    } else {
-        // set up first Chunk of memory
-        firstChunk = reinterpret_cast<FreeListHeader*>(startAddress);
-        firstChunk->size = getTotalMemory() - sizeof(FreeListHeader);
-        firstChunk->next = nullptr;
-        firstChunk->prev = nullptr;
+        // Available memory is too small to fit even a single header
+        Panic::fire(Panic::ILLEGAL_STATE, "FreeListMemoryManager: Heap is too small!");
     }
+
+    // Set up the first chunk of memory containing the whole heap
+    firstChunk = static_cast<FreeListHeader*>(startAddress);
+    firstChunk->size = getTotalMemory() - sizeof(FreeListHeader);
+    firstChunk->next = nullptr;
+    firstChunk->prev = nullptr;
 }
 
-void* FreeListMemoryManager::allocateMemory(uint32_t size, uint32_t alignment) {
+void* FreeListMemoryManager::allocateMemory(const size_t size, const size_t alignment) {
     lock.acquire();
     void *ret = allocAlgorithm(size, alignment, firstChunk);
     lock.release();
 
     if (size > 0 && ret == nullptr) {
-        Util::Exception::throwException(Exception::OUT_OF_MEMORY, "FreeListMemoryManager: Allocation failed!");
-    } else if (size > 0 && (ret < getStartAddress() || ret > getEndAddress())) {
-        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FreeListMemoryManager: Allocated memory outside of heap boundaries!");
+        // No suitable memory block was found
+        Panic::fire(Panic::OUT_OF_MEMORY, "FreeListMemoryManager: Allocation failed!");
+    }
+
+    if (size > 0 && (ret < getStartAddress() || ret > getEndAddress())) {
+        // Sanity check, should never happen if the memory manager is used correctly
+        Panic::fire(Panic::ILLEGAL_STATE,
+            "FreeListMemoryManager: Allocated memory outside of heap boundaries!");
     }
 
     return ret;
 }
 
-void FreeListMemoryManager::freeMemory(void *ptr, [[maybe_unused]] uint32_t alignment) {
+void FreeListMemoryManager::freeMemory(void *ptr, [[maybe_unused]] const size_t alignment) {
     lock.acquire();
     freeAlgorithm(ptr);
     lock.release();
 }
 
-FreeListMemoryManager::FreeListHeader* FreeListMemoryManager::findNext(FreeListHeader *start, uint32_t reqSize) {
-    // set start point
-    FreeListHeader *current = start;
+FreeListMemoryManager::FreeListHeader* FreeListMemoryManager::findNext(FreeListHeader *start, const size_t reqSize) {
+    auto *current = start;
 
-    // run through free list and look for free block with correct size
+    // Go through free list and look for a block of sufficient size
     while (current != nullptr) {
         if (current->size >= reqSize) {
             return current;
@@ -78,8 +82,7 @@ FreeListMemoryManager::FreeListHeader* FreeListMemoryManager::findNext(FreeListH
     return current;
 }
 
-void* FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, FreeListHeader *startChunk) {
-    // check for invalid requests
+void* FreeListMemoryManager::allocAlgorithm(const size_t size, const size_t alignment, FreeListHeader *startChunk) {
     if (size == 0) {
         return nullptr;
     }
@@ -88,36 +91,39 @@ void* FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
         startChunk = firstChunk;
     }
 
-    // align requested size to 4 byte
-    size = Util::Address(size).alignUp(sizeof(uint32_t)).get();
+    auto *current = startChunk;
 
-    FreeListHeader *current = startChunk;
-    FreeListHeader *aligned;
-
-    // run through list and look for memory block
+    // Go through list and look for a suitable memory block
     while (current != nullptr) {
         if (current->size >= size) {
-            auto data = (reinterpret_cast<uint8_t*>(current)) + HEADER_SIZE;
-            auto alignedData = reinterpret_cast<uint8_t*>(Util::Address(data).alignUp(alignment).get());
+            const auto data = reinterpret_cast<uint8_t*>(current) + HEADER_SIZE;
+            auto alignedData = reinterpret_cast<uint8_t*>(Address(data).alignUp(alignment).get());
 
-            // Found free Memory Block with required alignment
+            // Found free memory block with required alignment and sufficient space
             if (data == alignedData) {
                 break;
             }
 
-            // We want to place the header in front of alignedData, so we need to check, if there is enough space
-            // If the space is not sufficient, we align the address up until it is
+            // Check if there is enough free space before alignedData to fit in a header.
+            // If not, align it to the next possible address until a valid header can be created.
             while (alignedData - HEADER_SIZE < data + MIN_BLOCK_SIZE) {
                 alignedData += alignment;
             }
 
-            aligned = reinterpret_cast<FreeListHeader*>(alignedData - HEADER_SIZE);
+            auto *aligned = reinterpret_cast<FreeListHeader*>(alignedData - HEADER_SIZE);
 
-            // Check if current block has enough free data space to fit in the aligned block
-            if (reinterpret_cast<uint8_t*>(aligned) + HEADER_SIZE + size <= reinterpret_cast<uint8_t*>(current) + HEADER_SIZE + current->size) {
-                aligned->size = reinterpret_cast<uint8_t*>(current) + current->size - reinterpret_cast<uint8_t*>(aligned);
-                current->size = reinterpret_cast<uint8_t*>(aligned) - (reinterpret_cast<uint8_t*>(current) + HEADER_SIZE);
+            // Check if the aligned block still has sufficient space
+            if (reinterpret_cast<uint8_t*>(aligned) + HEADER_SIZE + size <=
+                reinterpret_cast<uint8_t*>(current) + HEADER_SIZE + current->size)
+            {
+                // Create a new header for the aligned block and update the current block to hold the remaining space
+                aligned->size = reinterpret_cast<uint8_t*>(current)
+                                + current->size
+                                - reinterpret_cast<uint8_t*>(aligned);
+                current->size = reinterpret_cast<uint8_t*>(aligned)
+                                - (reinterpret_cast<uint8_t*>(current) + HEADER_SIZE);
 
+                // Chain the new header into the free list with the current block as its predecessor
                 aligned->prev = current;
                 aligned->next = current->next;
 
@@ -127,22 +133,26 @@ void* FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
 
                 aligned->prev->next = aligned;
                 current = aligned;
+
                 break;
             }
         }
 
+        // The current block was not suitable. Continue with the next one.
         current = findNext(current->next, size);
     }
 
-    // No memory left
+    // No suitable block found
     if (current == nullptr) {
         return nullptr;
     }
 
-    // Check if the chosen chunk can be sliced in two parts
+    // Check if the chosen chunk can be split in two parts
     if (current->size - size >= MIN_BLOCK_SIZE + HEADER_SIZE) {
-        auto slice = reinterpret_cast<FreeListHeader*>(reinterpret_cast<uint8_t*>(current) + HEADER_SIZE + size);
+        // Create a new header for the remaining free memory
+        const auto slice = reinterpret_cast<FreeListHeader*>(reinterpret_cast<uint8_t*>(current) + HEADER_SIZE + size);
 
+        // Chain the new header into the free list
         slice->size = current->size - size - HEADER_SIZE;
         slice->next = current->next;
         slice->prev = current->prev;
@@ -159,6 +169,7 @@ void* FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
 
         current->size = size;
     } else {
+        // The current block is too small to be split, we just remove it from the free list
         if (current->next != nullptr) {
             current->next->prev = current->prev;
         }
@@ -173,40 +184,36 @@ void* FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
     current->next = nullptr;
     current->prev = nullptr;
 
-    return reinterpret_cast<void*>(reinterpret_cast<uint8_t*>(current) + HEADER_SIZE);
+    return reinterpret_cast<uint8_t*>(current) + HEADER_SIZE;
 }
 
 void FreeListMemoryManager::freeAlgorithm(void *ptr) {
-    // check for nullpointer
     if (ptr == nullptr) {
         return;
     }
-    // check if address points to valid memory for this manager
+
+    // Check if address points to valid memory for this manager
     if (ptr < startAddress || ptr > endAddress) {
-        Util::Exception::throwException(Exception::OUT_OF_BOUNDS, "free: Trying to free memory outside of heap boundaries");
+        Panic::fire(Panic::OUT_OF_BOUNDS, "free: Trying to free memory outside of heap boundaries");
     }
 
-    // get pointer to header of allocated block
-    auto header = reinterpret_cast<FreeListHeader*>(reinterpret_cast<uint8_t*>(ptr) - HEADER_SIZE);
+    // Get pointer to header of allocated block (always in front of the data)
+    const auto header = reinterpret_cast<FreeListHeader*>(static_cast<uint8_t*>(ptr) - HEADER_SIZE);
 
-    // Place free block at the right position in free list
-    // if there is no free list -> initializeScene one
-    if (firstChunk == nullptr) {
+    // Place free block at the right position in free list.
+    if (firstChunk == nullptr) { // Empty list -> Freed block is the new anchor
         firstChunk = header;
-        // if freed block is before first entry of free list -> freed block is new anchor
-    } else if (header < firstChunk) {
+    } else if (header < firstChunk) { // Freed block lies before the current anchor
         header->next = firstChunk;
         header->prev = nullptr;
         firstChunk->prev = header;
         firstChunk = header;
-        // else: search for correct position of freed block in free list and place it there
-    } else {
-        FreeListHeader *tmp = firstChunk;
-        while (tmp != nullptr) {
-
-            if (header > tmp && (header < tmp->next || tmp->next == nullptr)) {
-                header->next = tmp->next;
-                header->prev = tmp;
+    } else { // Freed block lies somewhere in the list -> We need to find the right position
+        FreeListHeader *current = firstChunk;
+        while (current != nullptr) {
+            if (header > current && (header < current->next || current->next == nullptr)) {
+                header->next = current->next;
+                header->prev = current;
 
                 if (header->next != nullptr) {
                     header->next->prev = header;
@@ -216,95 +223,104 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
                 break;
             }
 
-            tmp = tmp->next;
+            current = current->next;
         }
     }
 
-    // merge freed block of memory with neighbours if possible
+    // Merge the freed block with its neighbours if possible
     auto *mergedHeader = merge(header);
 
-    // if the free chunk has more than 4KB of memory, a page can possibly be unmapped
-    if (unmapFreedMemory && mergedHeader->size >= Util::PAGESIZE && isMemoryManagementInitialized()) {
-        auto mergedAddress = reinterpret_cast<uint8_t*>(mergedHeader);
-        auto size = HEADER_SIZE + mergedHeader->size;
+    // If the free memory block is larger than a page try to unmap it (freeing up physical memory)
+    if (unmapFreedMemory && mergedHeader->size >= PAGESIZE && isMemoryManagementInitialized()) {
+        const auto mergedAddress = reinterpret_cast<uint8_t*>(mergedHeader);
+        const auto size = HEADER_SIZE + mergedHeader->size;
 
-        // try to unmap the free memory, not the list header!
-        unmap(mergedAddress + HEADER_SIZE, size / Util::PAGESIZE, 8);
+        unmap(mergedAddress + HEADER_SIZE, size / PAGESIZE, 8);
     }
 }
 
-/**
- * Merge all free blocks of free memory if possible
- */
-FreeListMemoryManager::FreeListHeader* FreeListMemoryManager::merge(FreeListHeader *origin) {
+FreeListMemoryManager::FreeListHeader* FreeListMemoryManager::merge(FreeListHeader *block) const {
     if (firstChunk == nullptr) {
         return nullptr;
     }
 
-    auto *tmp = origin;
+    auto *current = block;
 
-    // merge with next block if possible
-    if (tmp->next != nullptr && (reinterpret_cast<uint8_t*>(tmp) + HEADER_SIZE + tmp->size == reinterpret_cast<uint8_t*>(tmp->next))) {
-        tmp->size += tmp->next->size + HEADER_SIZE;
+    // Merge with next block if possible
+    if (current->next != nullptr &&
+        reinterpret_cast<uint8_t*>(current) + HEADER_SIZE + current->size == reinterpret_cast<uint8_t*>(current->next))
+    {
+        current->size += current->next->size + HEADER_SIZE;
 
-        if (tmp->next->next != nullptr) {
-            tmp->next->next->prev = tmp;
+        if (current->next->next != nullptr) {
+            current->next->next->prev = current;
         }
 
-        tmp->next = tmp->next->next;
+        current->next = current->next->next;
     }
 
-    tmp = tmp->prev;
+    current = current->prev;
 
-    // merge with previous block if possible
-    if (tmp != nullptr && reinterpret_cast<uint8_t*>(tmp) + HEADER_SIZE + tmp->size == reinterpret_cast<uint8_t*>(origin)) {
-        tmp->size += tmp->next->size + HEADER_SIZE;
+    // Merge with previous block if possible
+    if (current != nullptr &&
+        reinterpret_cast<uint8_t*>(current) + HEADER_SIZE + current->size == reinterpret_cast<uint8_t*>(block))
+    {
+        current->size += current->next->size + HEADER_SIZE;
 
-        if (tmp->next->next != nullptr) {
-            tmp->next->next->prev = tmp;
+        if (current->next->next != nullptr) {
+            current->next->next->prev = current;
         }
 
-        tmp->next = tmp->next->next;
-        origin = tmp;
+        current->next = current->next->next;
+        block = current;
     }
 
-    return origin;
+    return block;
 }
 
-void* FreeListMemoryManager::reallocateMemory(void *ptr, uint32_t size, uint32_t alignment) {
+void* FreeListMemoryManager::reallocateMemory(void *ptr, const size_t size, const size_t alignment) {
     void *ret = nullptr;
 
+    // realloc(ptr, 0) is equivalent to free(ptr)
     if (size == 0) {
         freeMemory(ptr, 0);
         return ret;
     }
 
-    auto oldHeader = reinterpret_cast<FreeListHeader*>(reinterpret_cast<uint8_t*>(ptr) - HEADER_SIZE);
+    const auto oldHeader = reinterpret_cast<FreeListHeader*>(static_cast<uint8_t*>(ptr) - HEADER_SIZE);
 
     if (oldHeader->size == size) {
-        if (alignment == 0 || (uint32_t) ptr % alignment == 0) {
+        if (alignment == 0 || reinterpret_cast<uint32_t>(ptr) % alignment == 0) {
+            // Size and alignment are already correct
             return ptr;
-        } else {
-            ret = allocateMemory(size, alignment);
         }
+
+        ret = allocateMemory(size, alignment);
     } else if (size < oldHeader->size) {
-        if (alignment == 0 || (uint32_t) ptr % alignment == 0) {
+        if (alignment == 0 || reinterpret_cast<uint32_t>(ptr) % alignment == 0) {
+            // The new size is smaller than the old size, so we can shrink the block
             if (oldHeader->size - size > MIN_BLOCK_SIZE + HEADER_SIZE) {
-                auto newHeader = reinterpret_cast<FreeListHeader*>(reinterpret_cast<uint8_t*>(ptr) + size);
+                // The remaining block is large enough to be split
+                const auto newHeader = reinterpret_cast<FreeListHeader*>(static_cast<uint8_t*>(ptr) + size);
                 newHeader->size = oldHeader->size - size - HEADER_SIZE;
 
                 freeMemory(reinterpret_cast<uint8_t*>(newHeader) + HEADER_SIZE, 0);
                 oldHeader->size = size;
 
                 return ptr;
-            } else {
-                return ptr;
             }
-        } else {
-            ret = allocateMemory(size, alignment);
+
+            // The remaining block is too small to be split, so we just return the original pointer
+            return ptr;
         }
+
+        ret = allocateMemory(size, alignment);
     } else {
-        if (alignment == 0 || (uint32_t) ptr % alignment == 0) {
+        // The new size is larger than the old size.
+        // We check if the next block is free and can be merged with the current block.
+        // This way we can avoid allocating a new block and copying the data.
+        // This only works if the current block is aligned correctly.
+        if (alignment == 0 || reinterpret_cast<uint32_t>(ptr) % alignment == 0) {
             lock.acquire();
             FreeListHeader *currentChunk = firstChunk;
             FreeListHeader *returnChunk = nullptr;
@@ -320,8 +336,9 @@ void* FreeListMemoryManager::reallocateMemory(void *ptr, uint32_t size, uint32_t
             } while (currentChunk != nullptr && currentChunk < ptr);
 
             if (currentChunk != nullptr) {
-                if (((uint32_t) ptr + oldHeader->size == (uint32_t) currentChunk) && (oldHeader->size + currentChunk->size + HEADER_SIZE >= size)) {
-
+                if (reinterpret_cast<uint32_t>(ptr) + oldHeader->size == reinterpret_cast<uint32_t>(currentChunk) &&
+                    oldHeader->size + currentChunk->size + HEADER_SIZE >= size)
+                {
                     currentChunk->prev->next = currentChunk->next;
 
                     if (currentChunk->next != nullptr) {
@@ -331,19 +348,17 @@ void* FreeListMemoryManager::reallocateMemory(void *ptr, uint32_t size, uint32_t
                     oldHeader->size += currentChunk->size + HEADER_SIZE;
 
                     if (oldHeader->size - size > HEADER_SIZE + MIN_BLOCK_SIZE) {
-                        auto newHeader = reinterpret_cast<FreeListHeader*>(reinterpret_cast<uint8_t*>(ptr) + size);
+                        const auto newHeader = reinterpret_cast<FreeListHeader*>(static_cast<uint8_t*>(ptr) + size);
                         newHeader->size = oldHeader->size - size - HEADER_SIZE;
-
                         freeAlgorithm(reinterpret_cast<uint8_t*>(newHeader) + HEADER_SIZE);
-
                         oldHeader->size = size;
                     }
 
                     lock.release();
                     return ptr;
-                } else {
-                    ret = allocAlgorithm(size, alignment, returnChunk);
                 }
+
+                ret = allocAlgorithm(size, alignment, returnChunk);
             } else {
                 ret = allocAlgorithm(size, alignment, returnChunk);
             }
@@ -354,30 +369,31 @@ void* FreeListMemoryManager::reallocateMemory(void *ptr, uint32_t size, uint32_t
         }
     }
 
-    if (ret != nullptr) {
+    if (ret != nullptr) { // Copy the data from the old block to the new block
         if (ret < getStartAddress() || ret > getEndAddress()) {
-            Util::Exception::throwException(Exception::OUT_OF_BOUNDS, "realloc: Allocated memory outside of heap boundaries");
+            Panic::fire(Panic::OUT_OF_BOUNDS, "realloc: Allocated memory outside of heap boundaries");
         }
 
-        Util::Address(ret).copyRange(Util::Address(ptr), (size < oldHeader->size) ? size : oldHeader->size);
+        Address(ret).copyRange(Address(ptr), size < oldHeader->size ? size : oldHeader->size);
         freeMemory(ptr, 0);
     }
 
     return ret;
 }
 
-uint8_t* FreeListMemoryManager::getStartAddress() const {
+void* FreeListMemoryManager::getStartAddress() const {
     return startAddress;
 }
 
-uint32_t FreeListMemoryManager::getTotalMemory() const {
-    return endAddress - startAddress + 1;
+size_t FreeListMemoryManager::getTotalMemory() const {
+    return reinterpret_cast<uint32_t>(endAddress) - reinterpret_cast<uint32_t>(startAddress);
 }
 
-uint32_t FreeListMemoryManager::getFreeMemory() const {
-     uint32_t freeMemory = 0;
+size_t FreeListMemoryManager::getFreeMemory() const {
+     size_t freeMemory = 0;
 
-    FreeListHeader *current = firstChunk;
+    // Go through the list and sum up the sizes of all free blocks
+    const auto *current = firstChunk;
     while (current != nullptr) {
         freeMemory  += current->size;
         current = current->next;
@@ -386,7 +402,7 @@ uint32_t FreeListMemoryManager::getFreeMemory() const {
     return freeMemory;
 }
 
-uint8_t* FreeListMemoryManager::getEndAddress() const {
+void* FreeListMemoryManager::getEndAddress() const {
     return endAddress;
 }
 

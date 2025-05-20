@@ -63,7 +63,7 @@ uint32_t calculateLength(const Util::Io::File &beepFile) {
 
     auto line = stream.readLine(endOfFile);
     while (!endOfFile) {
-        length += Util::String::parseInt(line.split(",")[1]);
+        length += Util::String::parseNumber<uint32_t>(line.split(",")[1]);
         line = stream.readLine(endOfFile);
     }
 
@@ -114,8 +114,8 @@ int32_t main(int32_t argc, char *argv[]) {
         }
 
         auto split = line.split(",");
-        auto frequency = Util::String::parseInt(split[0]);
-        auto length = Util::String::parseInt(split[1]);
+        auto frequency = Util::String::parseNumber<uint32_t>(split[0]);
+        auto length = Util::String::parseNumber<uint32_t>(split[1]);
 
         Util::Graphic::Ansi::saveCursorPosition();
         printStatusLine(passedTime, songLength);

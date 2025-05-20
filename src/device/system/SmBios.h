@@ -25,7 +25,7 @@
 
 #include "lib/util/collection/Array.h"
 #include "lib/util/hardware/SmBios.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 
 namespace Device {
 
@@ -123,7 +123,7 @@ const T& SmBios::getTable(Util::Hardware::SmBios::HeaderType headerType) const {
         currentTable = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(reinterpret_cast<uint32_t>(currentTable) + currentTable->calculateFullLength());
     }
 
-    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "SmBios: Table not found!");
+    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "SmBios: Table not found!");
 }
 
 }

@@ -22,7 +22,7 @@
 #include "FatNode.h"
 #include "FatDriver.h"
 #include "filesystem/fat/ff/source/ffconf.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/async/AtomicBitmap.h"
 
@@ -49,7 +49,7 @@ Device::Storage::StorageDevice& FatDriver::getStorageDevice(uint8_t volumeId) {
 bool FatDriver::mount(Device::Storage::StorageDevice &device) {
     volumeId = volumeIdAllocator.findAndSet();
     if (volumeId == Util::Async::AtomicBitmap::INVALID_INDEX) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Maximum amount of fat volumes reached!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Maximum amount of fat volumes reached!");
     }
 
     deviceMap[volumeId] = &device;
@@ -61,7 +61,7 @@ bool FatDriver::mount(Device::Storage::StorageDevice &device) {
 bool FatDriver::createFilesystem(Device::Storage::StorageDevice &device) {
     volumeId = volumeIdAllocator.findAndSet();
     if (volumeId == Util::Async::AtomicBitmap::INVALID_INDEX) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Maximum amount of fat volumes reached!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Maximum amount of fat volumes reached!");
     }
 
     deviceMap[volumeId] = &device;

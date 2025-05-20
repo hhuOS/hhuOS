@@ -21,7 +21,7 @@
 #include "DemoModel.h"
 
 #include "lib/util/game/Graphics.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/base/String.h"
 #include "lib/util/math/Vector3.h"
 
@@ -61,7 +61,7 @@ void DemoModel::initialize() {
             drawListID = ICOSPHERE_DRAW_LIST_ID;
             break;
         default:
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "DemoModel: Invalid type!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "DemoModel: Invalid type!");
     }
 }
 
@@ -88,6 +88,6 @@ const char* DemoModel::pathForType(Type type) {
         case ICOSPHERE:
             return "/user/demo/icosphere";
         default:
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "DemoModel: Invalid type!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "DemoModel: Invalid type!");
     }
 }

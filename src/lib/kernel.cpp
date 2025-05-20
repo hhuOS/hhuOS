@@ -35,7 +35,7 @@
 #include "lib/util/network/Datagram.h"
 #include "lib/util/async/Process.h"
 #include "lib/util/async/Thread.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/hardware/Machine.h"
@@ -312,25 +312,25 @@ void printKernelStackTrace(bool log) {
     }
 }
 
-void throwError(Util::Exception::Error error, const char *message) {
+void throwError(Util::Panic::Error error, const char *message) {
     if (Kernel::Service::isServiceRegistered(Kernel::ProcessService::SERVICE_ID) && Kernel::Service::getService<Kernel::ProcessService>().getScheduler().isInitialized()) {
         auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
         if (processService.getCurrentProcess().isKernelProcess()) {
             Device::Cpu::disableInterrupts();
 
-            Util::System::out << "Kernel Panic: " << Util::Exception::getExceptionName(error) << " (" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::out << "Kernel Panic: " << Util::Panic::getErrorAsString(error) << " (" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
             printKernelStackTrace(false);
 
             Util::System::out << "System halt!" << Util::Io::PrintStream::flush;
             Device::Cpu::halt();
         } else {
-            Util::System::out << Util::Exception::getExceptionName(error) << " (" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::out << Util::Panic::getErrorAsString(error) << " (" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
             printKernelStackTrace(false);
             processService.exitCurrentProcess(-1);
         }
 
     } else {
-        LOG_ERROR("Kernel Panic: %s (%s)", Util::Exception::getExceptionName(error), message);
+        LOG_ERROR("Kernel Panic: %s (%s)", Util::Panic::getErrorAsString(error), message);
         printKernelStackTrace(true);
 
         Device::Cpu::disableInterrupts();

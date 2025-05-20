@@ -34,12 +34,12 @@ MacAddress::MacAddress(const uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_L
 
 MacAddress::MacAddress(const Util::String &string) : NetworkAddress(ADDRESS_LENGTH, MAC) {
     auto split = string.split(":");
-    uint8_t buffer[6] = {static_cast<uint8_t>(Util::String::parseHexInt(split[0])),
-                         static_cast<uint8_t>(Util::String::parseHexInt(split[1])),
-                         static_cast<uint8_t>(Util::String::parseHexInt(split[2])),
-                         static_cast<uint8_t>(Util::String::parseHexInt(split[3])),
-                         static_cast<uint8_t>(Util::String::parseHexInt(split[4])),
-                         static_cast<uint8_t>(Util::String::parseHexInt(split[5]))};
+    uint8_t buffer[6] = {String::parseHexNumber<uint8_t>(split[0]),
+                         String::parseHexNumber<uint8_t>(split[1]),
+                         String::parseHexNumber<uint8_t>(split[2]),
+                         String::parseHexNumber<uint8_t>(split[3]),
+                         String::parseHexNumber<uint8_t>(split[4]),
+                         String::parseHexNumber<uint8_t>(split[5])};
     NetworkAddress::setAddress(buffer);
 }
 

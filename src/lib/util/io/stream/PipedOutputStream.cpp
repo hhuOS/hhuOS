@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "PipedOutputStream.h"
 #include "lib/util/io/stream/PipedInputStream.h"
 
@@ -30,7 +30,7 @@ PipedOutputStream::PipedOutputStream(PipedInputStream &inputStream) : sink(&inpu
 
 void PipedOutputStream::connect(PipedInputStream &inputStream) {
     if (sink != nullptr) {
-        Exception::throwException(Exception::ILLEGAL_STATE, "PipedOutputStream: Already connected!");
+        Panic::fire(Panic::ILLEGAL_STATE, "PipedOutputStream: Already connected!");
     }
 
     inputStream.connect(*this);

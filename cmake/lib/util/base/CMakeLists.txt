@@ -16,24 +16,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-cmake_minimum_required(VERSION 3.14)
-
 project(lib.base)
 message(STATUS "Project " ${PROJECT_NAME})
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 90)
+
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
-
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-
 target_link_libraries(${PROJECT_NAME} lib.async lib.hardware lib.io lib.reflection)
-
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/base/operators.cpp
         ${HHUOS_SRC_DIR}/lib/util/base/Address.cpp
         ${HHUOS_SRC_DIR}/lib/util/base/ArgumentParser.cpp
 		${HHUOS_SRC_DIR}/lib/util/base/CharacterTypes.cpp
-        ${HHUOS_SRC_DIR}/lib/util/base/Exception.cpp
         ${HHUOS_SRC_DIR}/lib/util/base/FreeListMemoryManager.cpp
+		${HHUOS_SRC_DIR}/lib/util/base/Panic.cpp
         ${HHUOS_SRC_DIR}/lib/util/base/String.cpp
         ${HHUOS_SRC_DIR}/lib/util/base/System.cpp
 		${HHUOS_SRC_DIR}/lib/util/base/WideChar.cpp)
@@ -41,7 +39,6 @@ target_sources(${PROJECT_NAME} PUBLIC
 # Kernel space version
 project(lib.kernel.base)
 message(STATUS "Project " ${PROJECT_NAME})
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} lib.base)
 target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/kernel.cpp)
@@ -49,7 +46,6 @@ target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/kernel.cpp)
 # User space version
 project(lib.user.base)
 message(STATUS "Project " ${PROJECT_NAME})
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} lib.base)
 target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/user.cpp)

@@ -21,7 +21,7 @@
 #include "Serial.h"
 
 #include "device/cpu/IoPort.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 
 namespace Device::Serial {
 
@@ -37,7 +37,7 @@ ComPort portFromString(const Util::String &portName) {
     } else if (port == "com4") {
         return Serial::COM4;
     } else {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "COM: Invalid port!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "COM: Invalid port!");
     }
 }
 
@@ -52,7 +52,7 @@ const char* portToString(const ComPort port) {
         case COM4:
             return "COM4";
         default:
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "COM: Invalid port!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "COM: Invalid port!");
     }
 }
 

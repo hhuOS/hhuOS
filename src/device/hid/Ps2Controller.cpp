@@ -22,7 +22,7 @@
 
 #include "lib/util/async/Thread.h"
 #include "kernel/log/Log.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/time/Timestamp.h"
 
 namespace Device {
@@ -177,7 +177,7 @@ void Ps2Controller::writeDataToPort(Ps2Controller::Port port, uint8_t data) {
     } else if (port == SECOND) {
         writeCommand(WRITE_TO_SECOND_PORT_INPUT_BUFFER, data);
     } else {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ps2Controller: Invalid port!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Ps2Controller: Invalid port!");
     }
 }
 
@@ -193,7 +193,7 @@ bool Ps2Controller::isPortAvailable(Port port) const {
     } else if (port == SECOND) {
         return secondPortAvailable;
     } else {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ps2Controller: Invalid port!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Ps2Controller: Invalid port!");
     }
 }
 

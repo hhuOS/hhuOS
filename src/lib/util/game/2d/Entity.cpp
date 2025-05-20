@@ -27,7 +27,7 @@
 #include "lib/util/game/2d/component/Component.h"
 #include "lib/util/game/2d/event/CollisionEvent.h"
 #include "lib/util/game/2d/Entity.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
 #include "lib/util/collection/Iterator.h"
 #include "lib/util/game/Collider.h"
@@ -110,7 +110,7 @@ const Math::Vector2<double> &Entity::getVelocity() const {
 
 RectangleCollider& Entity::getCollider() {
     if (!colliderPresent) {
-        Exception::throwException(Exception::NULL_POINTER, "Entity: Has no collider!");
+        Panic::fire(Panic::NULL_POINTER, "Entity: Has no collider!");
     }
 
     return collider;

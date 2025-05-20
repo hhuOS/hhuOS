@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/async/BasicRunnable.h"
 #include "Terminal.h"
@@ -141,7 +141,7 @@ void Terminal::parseColorEscapeSequence(const Util::String &escapeSequence) {
     const auto codes = escapeSequence.split(';');
 
     for (uint32_t i = 0; i < codes.length(); i++) {
-        int32_t code = Util::String::parseInt(codes[i]);
+        auto code = String::parseNumber<size_t>(codes[i]);
 
         if (code < 30) {
             parseGraphicRendition(code);
@@ -188,40 +188,38 @@ void Terminal::parseColorEscapeSequence(const Util::String &escapeSequence) {
 void Terminal::parseCursorEscapeSequence(const Util::String &escapeSequence, char endCode) {
     switch (endCode) {
         case 'A': {
-            const auto row = getCurrentRow() - Util::String::parseInt(escapeSequence);
+            const auto row = getCurrentRow() - Util::String::parseNumber<uint16_t>(escapeSequence);
             setPosition(getCurrentColumn(), row > 0 ? row : 0);
             break;
         }
         case 'B': {
-            const auto row = getCurrentRow() + Util::String::parseInt(escapeSequence);
+            const auto row = getCurrentRow() + Util::String::parseNumber<uint16_t>(escapeSequence);
             setPosition(getCurrentColumn(), row < getRows() ? row : getRows() - 1);
             break;
         }
         case 'C': {
-            const auto column = getCurrentColumn() + Util::String::parseInt(escapeSequence);
+            const auto column = getCurrentColumn() + Util::String::parseNumber<uint16_t>(escapeSequence);
             setPosition(column < getColumns() ? column : getColumns() - 1, getCurrentRow());
             break;
         }
         case 'D': {
-            const auto column = getCurrentColumn() - Util::String::parseInt(escapeSequence);
+            const auto column = getCurrentColumn() - Util::String::parseNumber<uint16_t>(escapeSequence);
             setPosition(column > 0 ? column : 0, getCurrentRow());
             break;
         }
         case 'E': {
-            const auto row = getCurrentRow() + Util::String::parseInt(escapeSequence) + 1;
+            const auto row = getCurrentRow() + Util::String::parseNumber<uint16_t>(escapeSequence) + 1;
             setPosition(0, row < getRows() ? row : getRows() - 1);
             break;
         }
         case 'F': {
-            const auto row = getCurrentRow() - Util::String::parseInt(escapeSequence) - 1;
+            const auto row = getCurrentRow() - Util::String::parseNumber<uint16_t>(escapeSequence) - 1;
             setPosition(0, row > 0 ? row : 0);
             break;
         }
         case 'G': {
-            auto column = Util::String::parseInt(escapeSequence);
-            if (column < 0) {
-                column = 0;
-            } else if (column > getColumns()) {
+            auto column = Util::String::parseNumber<uint16_t>(escapeSequence);
+            if (column > getColumns()) {
                 column = getColumns() - 1;
             }
 
@@ -239,18 +237,14 @@ void Terminal::parseCursorEscapeSequence(const Util::String &escapeSequence, cha
                 return;
             }
 
-            auto column = Util::String::parseInt(codes[1]);
-            auto row = Util::String::parseInt(codes[0]);
+            auto column = Util::String::parseNumber<uint16_t>(codes[1]);
+            auto row = Util::String::parseNumber<uint16_t>(codes[0]);
 
-            if (column < 0) {
-                column = 0;
-            } else if (column > getColumns()) {
+            if (column > getColumns()) {
                 column = getColumns() - 1;
             }
 
-            if (row < 0) {
-                row = 0;
-            } else if (row > getRows()) {
+            if (row > getRows()) {
                 row = getRows() - 1;
             }
 
@@ -258,7 +252,7 @@ void Terminal::parseCursorEscapeSequence(const Util::String &escapeSequence, cha
             break;
         }
         case 'n': {
-            if (Util::String::parseInt(escapeSequence) == 6) {
+            if (Util::String::parseNumber<size_t>(escapeSequence) == 6) {
                 auto positionString = Util::String::format("\u001b[%u;%uR", getCurrentRow(), getCurrentColumn());
                 outputStream.write(reinterpret_cast<const uint8_t*>(static_cast<const char*>(positionString)), 0, positionString.length());
                 outputStream.flush();
@@ -280,7 +274,7 @@ void Terminal::parseCursorEscapeSequence(const Util::String &escapeSequence, cha
 }
 
 void Terminal::parseEraseSequence(const Util::String &escapeSequence, char endCode) {
-    const auto code = escapeSequence.isEmpty() ? 0 : Util::String::parseInt(escapeSequence);
+    const auto code = escapeSequence.isEmpty() ? 0 : Util::String::parseNumber<size_t>(escapeSequence);
 
     switch (endCode) {
         case 'J': {
@@ -357,31 +351,31 @@ Util::Graphic::Color Terminal::getColor(uint8_t colorCode, const Util::Graphic::
         case 9:
             return defaultColor;
         default:
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ansi: Invalid color!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Ansi: Invalid color!");
     }
 }
 
 Util::Graphic::Color Terminal::parseComplexColor(const Util::Array<Util::String> &codes, uint32_t &index) {
-    int32_t mode = Util::String::parseInt(codes[index++]);
+    auto mode = Util::String::parseNumber<size_t>(codes[index++]);
     switch (mode) {
         case 2:
             return parseTrueColor(codes, index);
         case 5:
             return parse256Color(codes, index);
         default:
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ansi: Invalid color mode!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Ansi: Invalid color mode!");
     }
 }
 
 Util::Graphic::Color Terminal::parse256Color(const Util::Array<Util::String> &codes, uint32_t &index) {
-    int32_t colorIndex = Util::String::parseInt(codes[index++]);
+    auto colorIndex = Util::String::parseNumber<uint8_t>(codes[index++]);
     return Util::Graphic::Ansi::colorTable256[colorIndex];
 }
 
 Util::Graphic::Color Terminal::parseTrueColor(const Util::Array<Util::String> &codes, uint32_t &index) {
-    int32_t red = Util::String::parseInt(codes[index++]);;
-    int32_t green = Util::String::parseInt(codes[index++]);
-    int32_t blue = Util::String::parseInt(codes[index++]);
+    auto red = Util::String::parseNumber<uint8_t>(codes[index++]);;
+    auto green = Util::String::parseNumber<uint8_t>(codes[index++]);
+    auto blue = Util::String::parseNumber<uint8_t>(codes[index++]);
 
     return {static_cast<uint8_t>(red), static_cast<uint8_t>(green), static_cast<uint8_t>(blue)};
 }
@@ -502,7 +496,7 @@ void Terminal::TerminalPipedOutputStream::write(const uint8_t *sourceBuffer, uin
 }
 
 void Terminal::TerminalPipedOutputStream::flush() {
-    PipedOutputStream::write(static_cast<uint8_t*>(lineBufferStream.getContent()), 0, lineBufferStream.getLength());
+    PipedOutputStream::write(static_cast<const uint8_t*>(lineBufferStream.getContent()), 0, lineBufferStream.getLength());
     lineBufferStream.reset();
 }
 

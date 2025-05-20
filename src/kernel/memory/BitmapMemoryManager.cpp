@@ -20,7 +20,7 @@
 
 #include "lib/util/base/Address.h"
 #include "BitmapMemoryManager.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 
 namespace Kernel {
 
@@ -36,7 +36,7 @@ void *BitmapMemoryManager::allocateBlock() {
     }
 
     if (freeMemory - blockSize > freeMemory) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "BitmapMemoryManager: Underflow!");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "BitmapMemoryManager: Underflow!");
     }
     freeMemory -= blockSize;
 
@@ -52,7 +52,7 @@ void *BitmapMemoryManager::allocateBlock() {
 void BitmapMemoryManager::freeBlock(void *pointer) {
     // check if pointer points to valid memory
     if (reinterpret_cast<uint8_t*>(pointer) < startAddress || reinterpret_cast<uint8_t*>(pointer) >= endAddress) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "free: Trying to free memory outside of heap boundaries");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "free: Trying to free memory outside of heap boundaries");
     }
 
     // find number of block corresponding to physical address
@@ -86,11 +86,11 @@ uint32_t BitmapMemoryManager::getBlockSize() const {
     return blockSize;
 }
 
-uint8_t * BitmapMemoryManager::getStartAddress() const {
+void* BitmapMemoryManager::getStartAddress() const {
     return startAddress;
 }
 
-uint8_t * BitmapMemoryManager::getEndAddress() const {
+void* BitmapMemoryManager::getEndAddress() const {
     return endAddress;
 }
 

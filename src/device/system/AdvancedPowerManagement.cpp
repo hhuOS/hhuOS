@@ -21,7 +21,7 @@
 #include "AdvancedPowerManagement.h"
 
 #include "Bios.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "kernel/log/Log.h"
 #include "kernel/process/Thread.h"
 #include "device/system/Machine.h"
@@ -146,7 +146,7 @@ Kernel::Thread::Context AdvancedPowerManagement::callApmFunction(ConnectionType 
     } else if (connectionType == PROTECTED_MODE) {
         return Bios::protectedModeCall(apmGdt, entryPoint, biosContext);
     } else {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "APM: Invalid connection type!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "APM: Invalid connection type!");
     }
 }
 

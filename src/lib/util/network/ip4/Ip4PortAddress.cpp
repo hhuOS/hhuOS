@@ -39,17 +39,17 @@ Ip4PortAddress::Ip4PortAddress(const String &string) : NetworkAddress(ADDRESS_LE
     uint16_t port = 0;
 
     if (string.beginsWith(":")) {
-        port = String::parseInt(string.substring(1));
+        port = String::parseNumber<uint16_t>(string.substring(1));
     } else {
         auto split = string.split(":");
         ip4Address = Ip4Address(split[0]);
         if (split.length() > 1) {
-            port = String::parseInt(split[1]);
+            port = String::parseNumber<uint16_t>(split[1]);
         }
     }
 
     ip4Address.getAddress(buffer);
-    bufferAddress.setShort(port, Ip4Address::ADDRESS_LENGTH);
+    bufferAddress.write16(port, Ip4Address::ADDRESS_LENGTH);
 }
 
 Ip4PortAddress::Ip4PortAddress(const Ip4Address &address, uint16_t port) : NetworkAddress(Ip4Address::ADDRESS_LENGTH + 2, IP4_PORT) {
@@ -58,7 +58,7 @@ Ip4PortAddress::Ip4PortAddress(const Ip4Address &address, uint16_t port) : Netwo
 
     auto bufferAddress = Address(buffer);
     bufferAddress.copyRange(Address(addressBuffer), Ip4Address::ADDRESS_LENGTH);
-    bufferAddress.setShort(port, Ip4Address::ADDRESS_LENGTH);
+    bufferAddress.write16(port, Ip4Address::ADDRESS_LENGTH);
 }
 
 Ip4PortAddress::Ip4PortAddress(const Ip4Address &address) : Ip4PortAddress(address, 0) {}
@@ -70,11 +70,11 @@ Ip4Address Ip4PortAddress::getIp4Address() const {
 }
 
 uint16_t Ip4PortAddress::getPort() const {
-    return Util::Address(buffer).getShort(Ip4Address::ADDRESS_LENGTH);
+    return Util::Address(buffer).read16(Ip4Address::ADDRESS_LENGTH);
 }
 
 void Ip4PortAddress::setPort(uint16_t port) {
-    Util::Address(buffer).setShort(port, Ip4Address::ADDRESS_LENGTH);
+    Util::Address(buffer).write16(port, Ip4Address::ADDRESS_LENGTH);
 }
 
 NetworkAddress* Ip4PortAddress::createCopy() const {

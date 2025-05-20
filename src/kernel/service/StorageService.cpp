@@ -24,7 +24,7 @@
 #include "device/storage/Partition.h"
 #include "device/storage/StorageDevice.h"
 #include "kernel/log/Log.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/collection/Array.h"
 
 namespace Kernel {
@@ -44,14 +44,14 @@ Util::String StorageService::registerDevice(Device::Storage::StorageDevice *devi
     }
 
     auto value = nameMap.get(deviceClass);
-    auto name = Util::String::format("%s%u", static_cast<char*>(deviceClass), value);
+    auto name = Util::String::format("%s%u", static_cast<const char*>(deviceClass), value);
     deviceMap.put(name, device);
     nameMap.put(deviceClass, value + 1);
 
-    LOG_INFO("Registered device [%s]",static_cast<char*>(name));
+    LOG_INFO("Registered device [%s]",static_cast<const char*>(name));
 
     if (lock.getDepth() == 1) {
-        LOG_INFO("Scanning device [%s] for partitions", static_cast<char *>(name));
+        LOG_INFO("Scanning device [%s] for partitions", static_cast<const char *>(name));
         auto partitionReader = Device::Storage::PartitionHandler(*device);
         for (const auto &info: partitionReader.readPartitionTable()) {
             auto *partition = new Device::Storage::Partition(*device, info.startSector, info.sectorCount);
@@ -67,7 +67,7 @@ Device::Storage::StorageDevice &StorageService::getDevice(const Util::String &de
     lock.acquire();
     if (!deviceMap.containsKey(deviceName)) {
         lock.release();
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "StorageService: Device not found!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "StorageService: Device not found!");
     }
 
     auto &result = *deviceMap.get(deviceName);

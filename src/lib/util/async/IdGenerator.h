@@ -46,7 +46,7 @@ public:
     IdGenerator(const IdGenerator &other) = delete;
 
     /// ID generators should not be copied, since the generated values would not be unique between the copies.
-    IdGenerator &operator=(const IdGenerator &other) = delete;
+    IdGenerator& operator=(const IdGenerator &other) = delete;
 
     /// Generate the next unique ID.
     [[nodiscard]] size_t next();

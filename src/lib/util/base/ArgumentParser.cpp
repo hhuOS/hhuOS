@@ -18,9 +18,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "ArgumentParser.h"
+#include <stddef.h>
 
-#include "lib/util/collection/Iterator.h"
+#include "ArgumentParser.h"
 
 namespace Util {
 
@@ -28,7 +28,7 @@ void ArgumentParser::setHelpText(const String &text) {
     helpText = text;
 }
 
-void ArgumentParser::addArgument(const String &name, bool required, const String &abbreviation) {
+void ArgumentParser::addArgument(const String &name, const bool required, const String &abbreviation) {
     parameters.add(name);
     abbreviationMap.put(abbreviation, name);
     if (required) {
@@ -45,12 +45,12 @@ const String& ArgumentParser::getErrorString() const {
     return errorString;
 }
 
-bool ArgumentParser::parse(uint32_t argc, char *argv[]) {
+bool ArgumentParser::parse(const uint32_t argc, char *argv[]) {
     namedArguments.clear();
     parsedSwitches.clear();
     unnamedArguments.clear();
 
-    for (uint32_t i = 1; i < argc; i++){
+    for (size_t i = 1; i < argc; i++){
         String currentArg = argv[i];
 
         if (!currentArg.beginsWith("-") || currentArg == "-") {
@@ -113,11 +113,7 @@ bool ArgumentParser::hasArgument(const String &name) const {
 }
 
 String ArgumentParser::getArgument(const String &name) const {
-    if (namedArguments.containsKey(name)) {
-        return namedArguments.get(name);
-    }
-
-    return "";
+    return namedArguments.containsKey(name) ? namedArguments.get(name) : "";
 }
 
 bool ArgumentParser::checkSwitch(const String &name) const {

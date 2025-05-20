@@ -47,8 +47,8 @@ Process Process::getCurrentProcess() {
     return ::getCurrentProcess();
 }
 
-void Process::exit(int32_t exitCode) {
-    System::call(System::System::EXIT_PROCESS, 1, exitCode);
+void Process::exit(const int32_t exitCode) {
+    System::call(System::EXIT_PROCESS, 1, exitCode);
 }
 
 void Process::join() const {

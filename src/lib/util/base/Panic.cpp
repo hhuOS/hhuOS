@@ -18,12 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Exception.h"
+#include "Panic.h"
+
 #include "lib/interface.h"
 
-namespace Util {
+namespace Util::Panic {
 
-const char *Exception::hardwareExceptions[] = {
+constexpr const char *hardwareExceptions[] = {
         "Divide-by-zero Error", "Debug", "Non-maskable Interrupt", "Breakpoint",
         "Overflow", "Bound Range Exceeded", "Invalid Opcode", "Device not available",
         "Double Fault", "Coprocessor Segment Overrun", "Invalid TSS", "Segment Not Present",
@@ -33,25 +34,27 @@ const char *Exception::hardwareExceptions[] = {
         "Reserved", "Reserved", "Reserved", "Security Exception", "Reserved"
 };
 
-const char *Exception::softwareExceptions[]{
+constexpr const char *softwareExceptions[]{
         "NullPointer Exception", "IndexOutOfBounds Exception", "InvalidArgument Exception", "KeyNotFound Exception",
         "IllegalState Exception", "OutOfMemoryException", "OutOfPhysicalMemory Exception",
         "OutOfPageTableMemory Exception", "IllegalPageAccess Exception", "UnknownType Exception",
         "PagingError Exception", "UnsupportedOperation Exception"
 };
 
-void Exception::throwException(Error error, const char *message) {
+void fire(const Error error, const char *message) {
     throwError(error, message);
 }
 
-const char *Exception::getExceptionName(Error error) {
+const char* getErrorAsString(const Error error) {
     if (error <= RESERVED_11) {
         return hardwareExceptions[error];
-    } else if (error >= NULL_POINTER && error <= UNSUPPORTED_OPERATION){
-        return softwareExceptions[error - NULL_POINTER];
-    } else {
-        throwException(INVALID_ARGUMENT, "Trying to throw an invalid exception!");
     }
+
+    if (error >= NULL_POINTER && error <= UNSUPPORTED_OPERATION){
+        return softwareExceptions[error - NULL_POINTER];
+    }
+
+    fire(INVALID_ARGUMENT, "Trying to throw an invalid exception!");
 }
 
 }

@@ -20,26 +20,26 @@
 
 #include "FileInputStream.h"
 #include "FileStream.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/io/file/File.h"
 
 namespace Util::Io {
 
 FileInputStream::FileInputStream(const Io::File &file) : fileStream(static_cast<const char*>(file.getCanonicalPath()), FileStream::FileMode::READ) {
     if (fileStream.isError()) {
-        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "FileInputStream: Unable to open file!");
+        Util::Panic::fire(Panic::INVALID_ARGUMENT, "FileInputStream: Unable to open file!");
     }
 }
 
 FileInputStream::FileInputStream(const String &path) : fileStream(static_cast<const char*>(path), FileStream::FileMode::READ) {
     if (fileStream.isError()) {
-        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "FileInputStream: Unable to open file!");
+        Util::Panic::fire(Panic::INVALID_ARGUMENT, "FileInputStream: Unable to open file!");
     }
 }
 
 FileInputStream::FileInputStream(int32_t fileDescriptor) : fileStream(fileDescriptor, true, false) {
     if (fileStream.isError()) {
-        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "FileInputStream: Unable to open file!");
+        Util::Panic::fire(Panic::INVALID_ARGUMENT, "FileInputStream: Unable to open file!");
     }
 }
 

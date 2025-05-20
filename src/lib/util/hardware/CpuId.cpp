@@ -59,7 +59,7 @@ uint64_t CpuId::getCpuFeatureBits() {
         return 0;
     }
 
-    auto features = Util::ArrayList<CpuFeature>();
+    ArrayList<CpuFeature> features{};
 
     uint32_t ecx, edx;
     asm volatile (
@@ -80,7 +80,7 @@ Util::Array<CpuId::CpuFeature> CpuId::getCpuFeatures() {
         return Util::Array<CpuId::CpuFeature>(0);
     }
 
-    auto features = Util::ArrayList<CpuFeature>();
+    ArrayList<CpuFeature> features{};
     auto featureBits = getCpuFeatureBits();
 
     uint64_t i;

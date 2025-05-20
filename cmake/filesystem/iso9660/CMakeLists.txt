@@ -16,8 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-cmake_minimum_required(VERSION 3.14)
-
 target_sources(filesystem PUBLIC
         ${HHUOS_SRC_DIR}/filesystem/iso9660/IsoDriver.cpp
         ${HHUOS_SRC_DIR}/filesystem/iso9660/IsoNode.cpp)

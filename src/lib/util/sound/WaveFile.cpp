@@ -20,7 +20,7 @@
 
 #include "WaveFile.h"
 
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 
 namespace Util {
 namespace Io {
@@ -37,7 +37,7 @@ WaveFile::WaveFile(const Io::File &file) : Io::FilterInputStream(stream), stream
     auto readBytes = read(reinterpret_cast<uint8_t*>(&dataChunk), 0, sizeof(dataChunk));
     while (dataChunk.dataSignature[0] != 'd' && dataChunk.dataSignature[1] != 'a' && dataChunk.dataSignature[2] != 't' && dataChunk.dataSignature[3] != 'a') {
         if (readBytes <= 0) {
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "WaveFile: No 'data' chunk found!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "WaveFile: No 'data' chunk found!");
         }
 
         skip(dataChunk.chunkSize);

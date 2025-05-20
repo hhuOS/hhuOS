@@ -19,7 +19,7 @@
  */
 
 #include "lib/util/base/Address.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "PipedOutputStream.h"
 #include "PipedInputStream.h"
 #include "lib/util/async/Thread.h"
@@ -38,7 +38,7 @@ PipedInputStream::~PipedInputStream() {
 
 void PipedInputStream::connect(PipedOutputStream &outputStream) {
     if (source != nullptr) {
-        Exception::throwException(Exception::ILLEGAL_STATE, "PipedOutputStream: Already connected!");
+        Panic::fire(Panic::ILLEGAL_STATE, "PipedOutputStream: Already connected!");
     }
 
     source = &outputStream;
@@ -65,7 +65,7 @@ int16_t PipedInputStream::peek() {
 
 int32_t PipedInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
     if (source == nullptr) {
-        Exception::throwException(Exception::ILLEGAL_STATE, "PipedOutputStream: Source is null!");
+        Panic::fire(Panic::ILLEGAL_STATE, "PipedOutputStream: Source is null!");
     }
 
     if (length == 0) {

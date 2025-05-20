@@ -29,7 +29,7 @@
 #include "lib/util/game/2d/event/CollisionEvent.h"
 #include "PlayerDino.h"
 #include "application/dino/particle/BloodEmitter.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2.h"
 
@@ -71,6 +71,6 @@ Util::String Block::getSpritePath(Tag tag) {
         case WATER:
             return "/user/dino/block/water.bmp";
         default:
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Invalid block tag!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Invalid block tag!");
     }
 }

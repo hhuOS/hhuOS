@@ -18,16 +18,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <stdint.h>
+#include "operators.h"
 
 #include "lib/interface.h"
 
-void* operator new(uint32_t size) {
+void* operator new(const size_t size) {
     return allocateMemory(size);
 }
 
-void* operator new[](uint32_t size) {
+void* operator new[](const size_t size) {
     return allocateMemory(size);
+}
+
+void *operator new([[maybe_unused]] const size_t size, void *pointer) {
+    return pointer;
+}
+
+void *operator new[]([[maybe_unused]] const size_t size, void *pointer) {
+    return pointer;
 }
 
 void operator delete(void *pointer) {
@@ -38,22 +46,10 @@ void operator delete[](void *pointer) {
     freeMemory(pointer);
 }
 
-void *operator new([[maybe_unused]] uint32_t size, void *pointer) {
-    return pointer;
-}
-
-void *operator new[]([[maybe_unused]] uint32_t size, void *pointer) {
-    return pointer;
-}
-
-void operator delete(void *, void *) {}
-
-void operator delete[](void *, void *) {}
-
-void operator delete(void *pointer, [[maybe_unused]] uint32_t size) {
+void operator delete(void *pointer, [[maybe_unused]] const size_t size) {
     freeMemory(pointer);
 }
 
-void operator delete[](void *pointer, [[maybe_unused]] uint32_t size) {
+void operator delete[](void *pointer, [[maybe_unused]] const size_t size) {
     freeMemory(pointer);
 }

@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-cmake_minimum_required(VERSION 3.14)
 include(ProcessorCount)
 
 # Set version
@@ -130,7 +129,6 @@ add_link_options(
 )
 
 # Add include-what-you-use command (if available)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(Python3)
 find_program(iwyu_tool_path NAMES iwyu_tool.py iwyu-tool)
 find_program(iwyu_fix_includes_path NAMES fix_includes.py iwyu-fix-includes)

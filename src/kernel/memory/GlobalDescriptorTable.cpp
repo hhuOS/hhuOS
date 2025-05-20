@@ -20,7 +20,7 @@
 
 #include "GlobalDescriptorTable.h"
 
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 
 namespace Kernel {
 
@@ -41,7 +41,7 @@ GlobalDescriptorTable::SegmentDescriptor::operator uint64_t() const {
 
 void GlobalDescriptorTable::addSegment(const GlobalDescriptorTable::SegmentDescriptor &descriptor) {
     if (index >= sizeof(table)) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "GDT: Table is full!");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "GDT: Table is full!");
     }
 
     table[index++] = descriptor;
@@ -49,10 +49,10 @@ void GlobalDescriptorTable::addSegment(const GlobalDescriptorTable::SegmentDescr
 
 void GlobalDescriptorTable::overwriteSegment(uint8_t index, const SegmentDescriptor &descriptor) {
     if (index == 0) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "GDT: First descriptor may not be overwritten!");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "GDT: First descriptor may not be overwritten!");
     }
     if (index >= GlobalDescriptorTable::index) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "GDT: Overwriting beyond table size!");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "GDT: Overwriting beyond table size!");
     }
 
     table[index] = descriptor;

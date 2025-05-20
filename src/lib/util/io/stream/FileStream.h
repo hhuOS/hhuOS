@@ -9,11 +9,6 @@
 #include "lib/util/io/file/File.h"
 #include "lib/util/collection/ArrayList.h"
 
-
-#ifndef EOF 
-#define EOF -1
-#endif
-
 namespace Util::Io {
 
 /**
@@ -81,7 +76,7 @@ public:
 
 	[[nodiscard]] bool isError() const;
 
-	[[nodiscard]] bool isEOF() const;
+	[[nodiscard]] bool endOfFileReached() const;
 
 	[[nodiscard]] bool isOpen() const;
 	
@@ -93,7 +88,9 @@ public:
 	
 	void clearError();
 	
-	bool setAccessMode(File::AccessMode accessMode) const; 
+	bool setAccessMode(File::AccessMode accessMode) const;
+
+	static constexpr int16_t END_OF_FILE = -1;
 	
 private:
 

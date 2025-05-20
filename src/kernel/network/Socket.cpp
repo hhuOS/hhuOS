@@ -23,7 +23,7 @@
 
 #include "Socket.h"
 
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "lib/util/network/Socket.h"
 #include "lib/util/network/ip4/Ip4Address.h"
@@ -51,7 +51,7 @@ Socket::Socket(NetworkModule &networkModule, Util::Network::Socket::Type type) :
 
 void Socket::bind(const Util::Network::NetworkAddress &address) {
     if (bindAddress != nullptr) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Already bound!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Already bound!");
     }
 
     /*
@@ -74,11 +74,11 @@ void Socket::bind(const Util::Network::NetworkAddress &address) {
             bindAddress = new Util::Network::Ip4::Ip4PortAddress(addressStream.getBuffer());
             break;
         default:
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Illegal address type for bind()!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: Illegal address type for bind()!");
     }
 
     if (!networkModule.registerSocket(*this)) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Failed to register socket!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Failed to register socket!");
     }
 }
 
@@ -89,7 +89,7 @@ Socket::~Socket() {
 
 const Util::Network::NetworkAddress& Socket::getAddress() const {
     if (!isBound()) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
     }
 
     return *bindAddress;
@@ -107,7 +107,7 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
     switch (request) {
         case Util::Network::Socket::Request::SET_TIMEOUT: {
             if (parameters.length() < 1) {
-                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Missing parameters!");
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: Missing parameters!");
             }
 
             timeout = parameters[0];
@@ -115,7 +115,7 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
         }
         case Util::Network::Socket::Request::BIND: {
             if (parameters.length() < 1) {
-                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Missing parameters!");
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: Missing parameters!");
             }
 
             bind(*reinterpret_cast<Util::Network::NetworkAddress*>(parameters[0]));
@@ -123,10 +123,10 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
         }
         case Util::Network::Socket::Request::GET_LOCAL_ADDRESS: {
             if (!isBound()) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
             }
             if (parameters.length() < 1) {
-                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Missing parameters!");
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: Missing parameters!");
             }
 
             auto &address = *reinterpret_cast<Util::Network::NetworkAddress*>(parameters[0]);
@@ -135,13 +135,13 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
         }
         case Util::Network::Socket::Request::GET_IP4_ADDRESSES: {
             if (type != Util::Network::Socket::ETHERNET) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not an ethernet socket!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not an ethernet socket!");
             }
             if (!isBound()) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
             }
             if (parameters.length() < 1) {
-                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: No parameter given!");
             }
 
             auto &networkService = Service::getService<NetworkService>();
@@ -159,13 +159,13 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
         }
         case Util::Network::Socket::Request::REMOVE_IP4_ADDRESS: {
             if (type != Util::Network::Socket::ETHERNET) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not an ethernet socket!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not an ethernet socket!");
             }
             if (!isBound()) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
             }
             if (parameters.length() < 1) {
-                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: No parameter given!");
             }
 
             auto &networkService = Service::getService<NetworkService>();
@@ -177,13 +177,13 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
         }
         case Util::Network::Socket::Request::ADD_IP4_ADDRESS: {
             if (type != Util::Network::Socket::ETHERNET) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not an ethernet socket!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not an ethernet socket!");
             }
             if (!isBound()) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
             }
             if (parameters.length() < 1) {
-                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: No parameter given!");
             }
 
             auto &networkService = Service::getService<NetworkService>();
@@ -195,13 +195,13 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
         }
         case Util::Network::Socket::Request::GET_ROUTES: {
             if (type != Util::Network::Socket::IP4) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not an IPv4 socket!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not an IPv4 socket!");
             }
             if (!isBound()) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
             }
             if (parameters.length() < 4) {
-                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Missing parameters!");
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: Missing parameters!");
             }
 
             auto &memoryService = Service::getService<MemoryService>();
@@ -230,13 +230,13 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
         }
         case Util::Network::Socket::Request::REMOVE_ROUTE: {
             if (type != Util::Network::Socket::IP4) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not an IPv4 socket!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not an IPv4 socket!");
             }
             if (!isBound()) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
             }
             if (parameters.length() < 1) {
-                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: No parameter given!");
             }
 
             auto &networkService = Service::getService<NetworkService>();
@@ -247,13 +247,13 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
         }
         case Util::Network::Socket::Request::ADD_ROUTE: {
             if (type != Util::Network::Socket::IP4) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not an IPv4 socket!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not an IPv4 socket!");
             }
             if (!isBound()) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
             }
             if (parameters.length() < 1) {
-                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: No parameter given!");
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: No parameter given!");
             }
 
             auto &networkService = Service::getService<NetworkService>();

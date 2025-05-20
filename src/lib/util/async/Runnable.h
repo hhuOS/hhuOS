@@ -23,15 +23,15 @@
 
 namespace Util::Async {
 
-/// Interface for a Runnable, which can be run in a thread.
+/// Base class for a Runnable, which can be run in a thread.
 class Runnable {
 
 protected:
-    /// The Runnable interface has no state, so the default constructor is empty.
+    /// The Runnable base class has no state, so the default constructor is sufficient.
     Runnable() = default;
 
 public:
-    /// The Runnable interface has no state, so the destructor is empty.
+    /// The Runnable base class has no state, so the default destructor is sufficient.
     virtual ~Runnable() = default;
 
     /// Run the Runnable.

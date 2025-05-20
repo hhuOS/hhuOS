@@ -22,7 +22,7 @@
 #include "kernel/memory/MemoryLayout.h"
 #include "lib/util/base/Address.h"
 #include "device/cpu/Cpu.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "device/time/rtc/Cmos.h"
 #include "kernel/service/InterruptService.h"
 #include "Bios.h"
@@ -60,7 +60,7 @@ uint8_t Bios::get8BitRegister(uint16_t value, Bios::RegisterHalf half) {
         return (value & 0xff00) >> 8;
     }
 
-    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "BIOS: Invalid register half!");
+    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "BIOS: Invalid register half!");
 }
 
 bool Bios::isAvailable() {
@@ -70,7 +70,7 @@ bool Bios::isAvailable() {
 
 void Bios::initialize() {
     if (!isAvailable()) {
-        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "BIOS calls are disabled!");
+        Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "BIOS calls are disabled!");
     }
 
     // Setup special GDT, only used for BIOS calls
@@ -99,7 +99,7 @@ Kernel::Thread::Context Bios::interrupt(int interruptNumber, const Kernel::Threa
     // Write number of bios interrupt manually into code
     auto biosCodeStart = Kernel::MemoryLayout::BIOS_CALL_CODE_AREA.toAddress();
     auto interruptNumberAddress = biosCodeStart.add(reinterpret_cast<uint32_t>(&bios_call_16_interrupt) - reinterpret_cast<uint32_t>(&bios_call_16_start));
-    interruptNumberAddress.setByte(interruptNumber, 1);
+    interruptNumberAddress.write8(interruptNumber, 1);
     // Get pointer to BIOS context inside lower memory
     auto *biosContext = reinterpret_cast<RealModeContext*>(Kernel::MemoryLayout::BIOS_CALL_STACK.endAddress - sizeof(RealModeContext) + 1);
 

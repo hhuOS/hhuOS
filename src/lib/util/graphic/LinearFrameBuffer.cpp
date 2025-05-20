@@ -19,7 +19,7 @@
  */
 
 #include "lib/util/math/Math.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/interface.h"
 #include "LinearFrameBuffer.h"
@@ -55,7 +55,7 @@ LinearFrameBuffer::LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX,
             drawFunction = &drawPixel32Bit;
         break;
         default:
-            Exception::throwException(Exception::INVALID_ARGUMENT, "PixelDrawer: Illegal color depth!");
+            Panic::fire(Panic::INVALID_ARGUMENT, "PixelDrawer: Illegal color depth!");
     }
 }
 
@@ -64,7 +64,7 @@ LinearFrameBuffer::LinearFrameBuffer(uint32_t physicalAddress, uint16_t resoluti
 
 LinearFrameBuffer LinearFrameBuffer::open(Io::File &file) {
     if (!file.exists()) {
-        Exception::throwException(Exception::INVALID_ARGUMENT, "LinearFrameBuffer: File does not exist!");
+        Panic::fire(Panic::INVALID_ARGUMENT, "LinearFrameBuffer: File does not exist!");
     }
 
     auto stream = Io::FileInputStream(file);
@@ -77,11 +77,11 @@ LinearFrameBuffer LinearFrameBuffer::open(Io::File &file) {
     const auto colorDepthSplit = resolutionString.split("@");
     const auto resolutionSplit = colorDepthSplit[0].split("x");
 
-    const auto address = Util::String::parseInt(static_cast<const char*>(addressString));
-    const auto resolutionX = Util::String::parseInt(static_cast<const char*>(resolutionSplit[0]));
-    const auto resolutionY = Util::String::parseInt(static_cast<const char*>(resolutionSplit[1]));
-    const auto colorDepth = Util::String::parseInt(static_cast<const char*>(colorDepthSplit[1]));
-    const auto pitch = Util::String::parseInt(static_cast<const char*>(pitchString));
+    const auto address = String::parseNumber<size_t>(addressString);
+    const auto resolutionX = String::parseNumber<uint16_t>(resolutionSplit[0]);
+    const auto resolutionY = String::parseNumber<uint16_t>(resolutionSplit[1]);
+    const auto colorDepth = String::parseNumber<uint8_t>(colorDepthSplit[1]);
+    const auto pitch = String::parseNumber<uint16_t>(pitchString);
     auto *buffer = mapBuffer(reinterpret_cast<void*>(address), resolutionY, pitch);
 
     return LinearFrameBuffer(buffer, resolutionX, resolutionY, colorDepth, pitch);
@@ -113,7 +113,7 @@ const Address &LinearFrameBuffer::getBuffer() const {
 
 Color LinearFrameBuffer::readPixel(uint16_t x, uint16_t y) const {
     if (x > resolutionX - 1 || y > resolutionY - 1) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "LinearFrameBuffer: Trying to read a pixel out of bounds!");
+        Panic::fire(Panic::OUT_OF_BOUNDS, "LinearFrameBuffer: Trying to read a pixel out of bounds!");
     }
 
     auto bpp = static_cast<uint8_t>(colorDepth == 15 ? 16 : colorDepth);
@@ -338,7 +338,7 @@ void LinearFrameBuffer::drawPixel32Bit(uint8_t *const buffer, const uint16_t pit
 
 void* LinearFrameBuffer::mapBuffer(void *physicalAddress, uint16_t resolutionY, uint16_t pitch) {
     if (reinterpret_cast<uint32_t>(physicalAddress) % Util::PAGESIZE != 0) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "LinearFrameBuffer: Physical address is not page aligned!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "LinearFrameBuffer: Physical address is not page aligned!");
     }
 
     const auto size = resolutionY * pitch;

@@ -24,7 +24,7 @@
 #include "lib/util/graphic/Font.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/async/Thread.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 
 namespace Util::Graphic {
 
@@ -102,7 +102,7 @@ void LinearFrameBufferTerminal::clear(const Util::Graphic::Color &foregroundColo
             }
         }
     } else {
-        Exception::throwException(Exception::INVALID_ARGUMENT, "Terminal: Invalid arguments for clear()!");
+        Panic::fire(Panic::INVALID_ARGUMENT, "Terminal: Invalid arguments for clear()!");
     }
 
     for (uint32_t i = startRow * getColumns() + startColumn; i < static_cast<uint32_t>(endRow * getColumns()) + endColumn + 1; i++) {

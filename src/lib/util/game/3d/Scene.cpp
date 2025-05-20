@@ -37,7 +37,7 @@
 #include "lib/util/game/3d/collider/SphereCollider.h"
 #include "lib/util/game/Entity.h"
 #include "lib/util/game/Graphics.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/game/3d/Light.h"
 
 namespace Util {
@@ -105,7 +105,7 @@ Light &Scene::addLight(Light::Type type, const Math::Vector3<double> &position, 
         }
     }
 
-    Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "Game: Maximum number of lights reached!");
+    Panic::fire(Util::Panic::OUT_OF_BOUNDS, "Game: Maximum number of lights reached!");
 }
 
 void Scene::removeLight(const Light &light) {
@@ -123,7 +123,7 @@ const Graphic::Color &Scene::getAmbientLight() const {
 
 D3::Light &Scene::getLight(uint32_t index) {
     if (lights[index] == nullptr) {
-        Exception::throwException(Util::Exception::NULL_POINTER, "Scene: Light does not exist!");
+        Panic::fire(Util::Panic::NULL_POINTER, "Scene: Light does not exist!");
     }
 
     return *lights[index];

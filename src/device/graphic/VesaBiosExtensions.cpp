@@ -23,7 +23,7 @@
 #include "kernel/service/MemoryService.h"
 #include "device/system/Bios.h"
 #include "kernel/service/Service.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/collection/ArrayList.h"
 #include "kernel/process/Thread.h"
 #include "kernel/log/Log.h"
@@ -118,7 +118,7 @@ VesaBiosExtensions::ModeInfo VesaBiosExtensions::getModeInfo(uint16_t mode) {
     // Perform the bios call and check if it was successful
     auto biosReturn = Bios::interrupt(0x10, biosContext);
     if (!checkReturnStatus(biosReturn)) {
-        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VesaBiosExtensions: Mode not supported!");
+        Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "VesaBiosExtensions: Mode not supported!");
     }
 
     // Create a copy of the VBE mode info struct and free the allocated space in lower memory
@@ -158,7 +158,7 @@ void VesaBiosExtensions::setMode(uint16_t mode) {
     // Perform the bios call and check if it was successful
     auto biosReturn = Bios::interrupt(0x10, biosContext);
     if (!checkReturnStatus(biosReturn)) {
-        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VesaBiosExtensions: Mode not supported!");
+        Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "VesaBiosExtensions: Mode not supported!");
     }
 }
 

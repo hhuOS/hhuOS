@@ -25,7 +25,7 @@
 
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/hardware/Acpi.h"
 #include "lib/util/io/file/elf/File.h"
 
@@ -300,7 +300,7 @@ const T& Multiboot::getTag(Multiboot::TagType type) const {
         currentTag = reinterpret_cast<const TagHeader*>(currentAddress);
     }
 
-    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Multiboot: Tag not found!");
+    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Multiboot: Tag not found!");
 }
 
 }

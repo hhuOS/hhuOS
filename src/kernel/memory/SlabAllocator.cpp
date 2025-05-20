@@ -113,11 +113,11 @@ uint32_t SlabAllocator::getFreeMemory() const {
     return pool4K.getFreeMemory() + pool8K.getFreeMemory() + pool16K.getFreeMemory() + pool32K.getFreeMemory() + pool64K.getFreeMemory() + pool128K.getFreeMemory();
 }
 
-uint8_t *SlabAllocator::getStartAddress() const {
+void* SlabAllocator::getStartAddress() const {
     return pool4K.getStartAddress();
 }
 
-uint8_t *SlabAllocator::getEndAddress() const {
+void* SlabAllocator::getEndAddress() const {
     return pool128K.getEndAddress();
 }
 

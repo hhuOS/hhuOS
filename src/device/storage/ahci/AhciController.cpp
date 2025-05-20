@@ -37,7 +37,7 @@
 #include "lib/util/base/Address.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 
 namespace Kernel {
 enum InterruptVector : uint8_t;
@@ -287,7 +287,7 @@ bool AhciController::readAtapiCapacity(uint32_t portNumber, DeviceInfo *info) {
 
 uint16_t AhciController::performAtaIO(uint32_t portNumber, const DeviceInfo &deviceInfo, AhciController::TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount) {
     if (startSector + sectorCount > deviceInfo.lbaCapacity) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "AHCI: Trying to read/write out of disk bounds!");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "AHCI: Trying to read/write out of disk bounds!");
     }
 
     uint8_t commandFis[64]{};
@@ -336,7 +336,7 @@ uint16_t AhciController::performAtaIO(uint32_t portNumber, const DeviceInfo &dev
 
 uint16_t AhciController::performAtapiIO(uint32_t portNumber, const AhciController::DeviceInfo &deviceInfo, AhciController::TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount) {
     if (startSector + sectorCount > deviceInfo.lbaCapacity) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "AHCI: Trying to read/write out of disk bounds!");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "AHCI: Trying to read/write out of disk bounds!");
     }
 
     if (mode == WRITE) {

@@ -20,7 +20,7 @@
 
 #include "Service.h"
 
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/async/Spinlock.h"
 
 namespace Kernel {
@@ -35,7 +35,7 @@ bool Service::isServiceRegistered(uint32_t serviceId) {
 void Service::registerService(uint32_t serviceId, Service *kernelService) {
     lock.acquire();
     if (isServiceRegistered(serviceId)) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Service is already registered!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Service is already registered!");
     }
 
     services[serviceId] = kernelService;

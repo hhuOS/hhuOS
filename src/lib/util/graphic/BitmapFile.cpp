@@ -22,7 +22,7 @@
 
 #include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/graphic/Color.h"
 
 namespace Util::Graphic {
@@ -44,7 +44,7 @@ BitmapFile* BitmapFile::open(const String &path) {
 
     auto pixelLength = bitmapBitsPerPixel / 8;
     if (pixelLength != 3 && pixelLength != 4) {
-        Exception::throwException(Exception::UNSUPPORTED_OPERATION, "BitmapFile: Unsupported color depth");
+        Panic::fire(Panic::UNSUPPORTED_OPERATION, "BitmapFile: Unsupported color depth");
     }
 
     auto padding = (4 - ((bitmapWidth * pixelLength) % 4)) % 4;

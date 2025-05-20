@@ -18,21 +18,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_OPERATORS_H
-#define HHUOS_OPERATORS_H
+#ifndef HHUOS_LIB_UTIL_BASE_OPERATORS_H
+#define HHUOS_LIB_UTIL_BASE_OPERATORS_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-void* operator new(uint32_t size);
-void* operator new[](uint32_t size);
+/// Basic `new` operator.
+[[nodiscard]] void* operator new(size_t size);
+
+/// Basic `new` operator for arrays.
+[[nodiscard]] void* operator new[](size_t size);
+
+/// Placement `new` operator.
+[[nodiscard]] void* operator new(size_t size, void *pointer);
+
+/// Placement `new` operator for arrays.
+[[nodiscard]] void* operator new[](size_t size, void *pointer);
+
+/// Basic `delete` operator.
 void operator delete(void*);
-void operator delete[](void*);
-void *operator new(uint32_t size, void *pointer);
-void *operator new[](uint32_t size, void *pointer);
-void operator delete(void*, void*);
-void operator delete[](void*, void*);
 
-void operator delete(void *pointer, uint32_t size);
-void operator delete[](void *pointer, uint32_t size);
+/// Basic `delete` operator for arrays.
+void operator delete[](void*);
+
+/// Placement `delete` operator.
+void operator delete(void *pointer, size_t size);
+
+/// Placement `delete` operator for arrays.
+void operator delete[](void *pointer, size_t size);
 
 #endif

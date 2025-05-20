@@ -21,7 +21,7 @@
 #include "MemoryDirectoryNode.h"
 
 #include "filesystem/memory/MemoryNode.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/collection/Array.h"
 
 namespace Filesystem::Memory {
@@ -46,11 +46,11 @@ Util::Array<Util::String> MemoryDirectoryNode::getChildren() {
 }
 
 uint64_t MemoryDirectoryNode::readData([[maybe_unused]] uint8_t *targetBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
-    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "MemoryDriver: Trying to read from a directory!");
+    Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "MemoryDriver: Trying to read from a directory!");
 }
 
 uint64_t MemoryDirectoryNode::writeData([[maybe_unused]] const uint8_t *sourceBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
-    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "MemoryDriver: Trying to write to a directory!");
+    Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "MemoryDriver: Trying to write to a directory!");
 }
 
 MemoryNode *MemoryDirectoryNode::getChildByName(const Util::String &childName) {

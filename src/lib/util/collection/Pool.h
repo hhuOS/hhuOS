@@ -77,7 +77,7 @@ template<typename T>
 T* Pool<T>::pop() {
     uint32_t index = writtenMap.findAndUnset();
     if (index == Async::AtomicBitmap::INVALID_INDEX) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Pool: Out of objects!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Pool: Out of objects!");
     }
 
     T *element = array[index];

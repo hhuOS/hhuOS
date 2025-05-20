@@ -341,7 +341,7 @@ Ansi::CursorPosition Ansi::getCursorPosition() {
     }
 
     auto split = positionString.substring(2).split(";");
-    return {static_cast<uint16_t>(String::parseInt(split[1])), static_cast<uint16_t>(String::parseInt(split[0]))};
+    return {String::parseNumber<uint16_t>(split[1]), String::parseNumber<uint16_t>(split[0])};
 }
 
 Ansi::CursorPosition Ansi::getCursorLimits() {

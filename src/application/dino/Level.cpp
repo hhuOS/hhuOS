@@ -41,14 +41,14 @@
 #include "application/dino/entity/Fruit.h"
 #include "application/dino/entity/EnemyFrog.h"
 #include "application/dino/entity/PlayerDino.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/collection/ArrayList.h"
 
 Level::Level(const Util::Io::File &levelFile, uint32_t points) : levelFile(levelFile), startPoints(points) {}
 
 void Level::initialize() {
     auto fileStream = Util::Io::FileInputStream(levelFile);
-    auto levelNumber = Util::String::parseInt(levelFile.getName().substring(5, 6));
+    auto levelNumber = Util::String::parseNumber<uint32_t>(levelFile.getName().substring(5, 6));
     auto nextLevelFile =  Util::Io::File(Util::String::format("/user/dino/level/level%u.txt", levelNumber + 1));
     if (!nextLevelFile.exists()) {
         nextLevelFile = Util::Io::File("/user/dino/level/level1.txt");
@@ -100,7 +100,7 @@ void Level::initialize() {
                 break;
             }
             default:
-                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Invalid character in level file!");
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Invalid character in level file!");
         }
 
         c = fileStream.read();

@@ -6,12 +6,12 @@
  * This project has been supported by several students.
  * A full list of integrated student theses can be found here: https://github.com/hhuOS/hhuOS/wiki/Student-theses
  *
- * uint32_this program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
  *
- * uint32_this program is distributed in the hope that it will be useful, but WIuint32_tHOUuint32_t ANY WARRANuint32_tY; without even the implied
- * warranty of MERCHANuint32_tABILIuint32_tY or FIuint32_tNESS FOR A PARuint32_tICULAR PURPOSE.  See the GNU General Public License for more
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
  * details.
  *
  * You should have received a copy of the GNU General Public License
@@ -22,99 +22,74 @@
 
 namespace Util {
 
-Address::Address(uint32_t address) : address(address) {}
+Address::Address(const size_t address) : address(address) {}
 
-Address::Address(void *pointer) : address(reinterpret_cast<uint32_t>(pointer)) {}
+Address::Address(void *pointer) : address(reinterpret_cast<size_t>(pointer)) {}
 
-Address::Address(const void *pointer) : address(reinterpret_cast<uint32_t>(pointer)) {}
+Address::Address(const void *pointer) : address(reinterpret_cast<size_t>(pointer)) {}
 
-bool Address::operator==(const Address &other) const {
-    return address == other.address;
-}
-
-bool Address::operator!=(const Address &other) const {
-    return address != other.address;
-}
-
-bool Address::operator==(uint32_t otherAddress) const {
-    return address == otherAddress;
-}
-
-bool Address::operator!=(uint32_t otherAddress) const {
-    return address != otherAddress;
-}
-
-Address::operator uint32_t() const {
+size_t Address::get() const {
     return address;
 }
 
-uint32_t Address::get() const {
-    return address;
+Address Address::add(const size_t value) const {
+    return Address(address + value);
 }
 
-Address Address::set(uint32_t newAddress) const {
-    return Address(newAddress);
+Address Address::subtract(const size_t value) const {
+    return Address(address - value);
 }
 
-Address Address::add(uint32_t value) const {
-    return set(address + value);
-}
-
-Address Address::subtract(uint32_t value) const {
-    return set(address - value);
-}
-
-Address Address::alignUp(uint32_t alignment) const {
+Address Address::alignUp(const size_t alignment) const {
     if (alignment == 0) {
-        return set(address);
+        return Address(address);
     }
 
-    alignment--;
-    return set((address + alignment) & ~alignment);
+    return Address((address + (alignment - 1)) & ~(alignment - 1));
 }
 
-uint8_t Address::getByte(uint32_t offset) const {
+uint8_t Address::read8(const size_t offset) const {
     return *reinterpret_cast<uint8_t*>(address + offset);
 }
 
-uint16_t Address::getShort(uint32_t offset) const {
+uint16_t Address::read16(const size_t offset) const {
     return *reinterpret_cast<uint16_t*>(address + offset);
 }
 
-uint32_t Address::getInt(uint32_t offset) const {
-    return *reinterpret_cast<uint32_t*>(address + offset);
+uint32_t Address::read32(const size_t offset) const {
+    return *reinterpret_cast<size_t*>(address + offset);
 }
 
-uint64_t Address::getLong(uint32_t offset) const {
+uint64_t Address::read64(const size_t offset) const {
     return *reinterpret_cast<uint64_t*>(address + offset);
 }
 
-void Address::setByte(uint8_t value, uint32_t offset) const {
+void Address::write8(const uint8_t value, const size_t offset) const {
     *reinterpret_cast<uint8_t*>(address + offset) = value;
 }
 
-void Address::setShort(uint16_t value, uint32_t offset) const {
+void Address::write16(const uint16_t value, const size_t offset) const {
    *reinterpret_cast<uint16_t*>(address + offset) = value;
 }
 
-void Address::setInt(uint32_t value, uint32_t offset) const {
-    *reinterpret_cast<uint32_t*>(address + offset) = value;
+void Address::write32(const size_t value, const size_t offset) const {
+    *reinterpret_cast<size_t*>(address + offset) = value;
 }
 
-void Address::setLong(uint64_t value, uint32_t offset) const {
+void Address::write64(const uint64_t value, const size_t offset) const {
     *reinterpret_cast<uint64_t*>(address + offset) = value;
 }
 
-uint32_t Address::stringLength() const {
-    auto *pointer = reinterpret_cast<uint8_t*>(address);
+size_t Address::stringLength() const {
+    const auto *pointer = reinterpret_cast<char*>(address);
 
-    uint32_t i;
-    for (i = 0; pointer[i] != 0; i++) {}
+    size_t i;
+    for (i = 0; pointer[i] != '\0'; i++) {}
 
     return i;
 }
 
-void Address::setRange(uint8_t value, uint32_t length) const {
+void Address::setRange(const uint8_t value, size_t length) const {
     // Just set very small memory blocks byte by byte
     if (length < 16) {
         auto target = reinterpret_cast<uint8_t*>(address);
@@ -126,22 +101,38 @@ void Address::setRange(uint8_t value, uint32_t length) const {
     }
 
     // Variables needed to fill the bytes up to the next 8-byte aligned address
-    auto alignDifference = address % 8; // Number of bytes to next 8-byte aligned address
-    auto beforeAlignuint32_target = reinterpret_cast<uint8_t*>(address); // Start of the memory block (used to fill the bytes before the 8-byte aligned address)
+
+    // Number of bytes to next 8-byte aligned address
+    auto alignDifference = address % 8;
+    // Start of the memory block (used to fill the bytes before the 8-byte aligned address)
+    auto beforeAlign = reinterpret_cast<uint8_t*>(address);
 
     // Variables needed to fill the 8-byte aligned memory blocks
-    auto remainingBlocks = (length - alignDifference) / 8; // Number of 8-byte blocks to fill
-    auto *target = reinterpret_cast<uint64_t*>(address + alignDifference); // Start of the 8-byte aligned memory block
-    auto longValue = static_cast<uint64_t>(value); // 8-byte value to fill the memory block
-    longValue = longValue | longValue << 8 | longValue << 16 | longValue << 24 | longValue << 32 | longValue << 40 | longValue << 48 | longValue << 56;
+
+    // Number of 8-byte blocks to fill
+    auto remainingBlocks = (length - alignDifference) / 8;
+    // Start of the 8-byte aligned memory block
+    auto *target = reinterpret_cast<uint64_t*>(address + alignDifference);
+    // 8-byte value to fill the memory block
+    const auto longValue = static_cast<uint64_t>(value) |
+                           static_cast<uint64_t>(value) << 8 |
+                           static_cast<uint64_t>(value) << 16 |
+                           static_cast<uint64_t>(value) << 24 |
+                           static_cast<uint64_t>(value) << 32 |
+                           static_cast<uint64_t>(value) << 40 |
+                           static_cast<uint64_t>(value) << 48 |
+                           static_cast<uint64_t>(value) << 56;
 
     // Variables needed to fill the remaining bytes
-    auto remainingBytes = (length - alignDifference) % 8; // Number of remaining bytes to fill
-    auto *restuint32_target = reinterpret_cast<uint8_t*>(target) + (remainingBlocks * 8); // Start of the remaining memory block (used to fill the remaining bytes)
+
+    // Number of remaining bytes to fill
+    auto remainingBytes = (length - alignDifference) % 8;
+    // Start of the remaining memory block (used to fill the remaining bytes)
+    auto *rest = reinterpret_cast<uint8_t*>(target) + remainingBlocks * 8;
 
     // First fill the bytes up to the next 8-byte aligned address
     while (alignDifference-- > 0) {
-        *beforeAlignuint32_target++ = value;
+        *beforeAlign++ = value;
     }
 
     // Now fill the 8-byte aligned memory blocks
@@ -151,11 +142,11 @@ void Address::setRange(uint8_t value, uint32_t length) const {
 
     // Finally fill the remaining bytes
     while (remainingBytes-- > 0) {
-        *restuint32_target++ = value;
+        *rest++ = value;
     }
 }
 
-void Address::copyRange(const Address &sourceAddress, uint32_t length) const {
+void Address::copyRange(const Address &sourceAddress, size_t length) const {
     // Just copy very small memory blocks byte by byte
     if (length < 16) {
         auto source = reinterpret_cast<uint8_t*>(sourceAddress.get());
@@ -168,23 +159,35 @@ void Address::copyRange(const Address &sourceAddress, uint32_t length) const {
     }
 
     // Variables needed to fill the bytes up to the next 8-byte aligned address
-    auto alignDifference = address % 8; // Number of bytes to next 8-byte aligned address
-    auto beforeAlignSource = reinterpret_cast<uint8_t*>(sourceAddress.get()); // Start of the source memory block (used to copy the bytes before the 8-byte aligned address)
-    auto beforeAlignuint32_target = reinterpret_cast<uint8_t*>(address); // Start of the target memory block (used to copy the bytes before the 8-byte aligned address)
+
+    // Number of bytes to next 8-byte aligned address
+    auto alignDifference = address % 8;
+    // Start of the source memory block (used to copy the bytes before the 8-byte aligned address)
+    auto beforeAlignSource = reinterpret_cast<uint8_t*>(sourceAddress.get());
+    // Start of the target memory block (used to copy the bytes before the 8-byte aligned address)
+    auto beforeAlign = reinterpret_cast<uint8_t*>(address);
 
     // Variables needed to fill the 8-byte aligned memory blocks
-    auto remainingBlocks = (length - alignDifference) / 8; // Number of 8-byte blocks to fill
-    auto *source = reinterpret_cast<uint64_t*>(sourceAddress.get() + alignDifference); // Start of the 8-byte aligned source memory block
-    auto *target = reinterpret_cast<uint64_t*>(address + alignDifference); // Start of the 8-byte aligned target memory block
+
+    // Number of 8-byte blocks to fill
+    auto remainingBlocks = (length - alignDifference) / 8;
+    // Start of the 8-byte aligned source memory block
+    auto *source = reinterpret_cast<uint64_t*>(sourceAddress.get() + alignDifference);
+    // Start of the 8-byte aligned target memory block
+    auto *target = reinterpret_cast<uint64_t*>(address + alignDifference);
 
     // Variables needed to fill the remaining bytes
-    auto remainingBytes = (length - alignDifference) % 8; // Number of remaining bytes to fill
-    auto *restSource = reinterpret_cast<uint8_t*>(source) + (remainingBlocks * 8); // Start of the remaining source memory block (used to copy the remaining bytes)
-    auto *restuint32_target = reinterpret_cast<uint8_t*>(target) + (remainingBlocks * 8); // Start of the remaining target memory block (used to copy the remaining bytes)
+
+    // Number of remaining bytes to fill
+    auto remainingBytes = (length - alignDifference) % 8;
+    // Start of the remaining source memory block (used to copy the remaining bytes)
+    const auto *restSource = reinterpret_cast<uint8_t*>(source) + remainingBlocks * 8;
+    // Start of the remaining target memory block (used to copy the remaining bytes)
+    auto *rest = reinterpret_cast<uint8_t*>(target) + remainingBlocks * 8;
 
     // First fill the bytes up to the next 8-byte aligned address
     while (alignDifference-- > 0) {
-        *beforeAlignuint32_target++ = *beforeAlignSource++;
+        *beforeAlign++ = *beforeAlignSource++;
     }
 
     // Now fill the 8-byte aligned memory blocks
@@ -194,26 +197,25 @@ void Address::copyRange(const Address &sourceAddress, uint32_t length) const {
 
     // Finally fill the remaining bytes
     while (remainingBytes-- > 0) {
-        *restuint32_target++ = *restSource++;
+        *rest++ = *restSource++;
     }
 }
 
 void Address::copyString(const Address &sourceAddress) const {
-    auto *target = reinterpret_cast<uint8_t*>(address);
-    auto *source = reinterpret_cast<uint8_t*>(sourceAddress.address);
+    auto *target = reinterpret_cast<char*>(address);
+    const auto *source = reinterpret_cast<char*>(sourceAddress.address);
 
-    uint32_t i;
-    for (i = 0; source[i] != 0; i++) {
-        target[i] = source[i];
+    while (*source != 0) {
+        *target++ = *source++;
     }
-    target[i] = 0;
+    *target = 0;
 }
 
-void Address::copyString(const Address &sourceAddress, uint32_t maxBytes) const {
-    auto *target = reinterpret_cast<uint8_t*>(address);
-    auto *source = reinterpret_cast<uint8_t*>(sourceAddress.address);
+void Address::copyString(const Address &sourceAddress, const size_t maxBytes) const {
+    auto *target = reinterpret_cast<char*>(address);
+    const auto *source = reinterpret_cast<char*>(sourceAddress.address);
 
-    uint32_t i;
+    size_t i;
     for (i = 0; source[i] != 0 && i < maxBytes; i++) {
         target[i] = source[i];
     }
@@ -224,34 +226,39 @@ void Address::copyString(const Address &sourceAddress, uint32_t maxBytes) const 
     }
 }
 
-int32_t Address::compareRange(const Address &otherAddress, uint32_t length) const {
-    auto *pointer = reinterpret_cast<uint8_t*>(address);
-    auto *other = reinterpret_cast<uint8_t*>(otherAddress.address);
+int32_t Address::compareRange(const Address &otherAddress, const size_t length) const {
+    const auto *pointer = reinterpret_cast<char*>(address);
+    const auto *other = reinterpret_cast<char*>(otherAddress.address);
 
-    uint32_t i;
-    for (i = 0; i < length && pointer[i] == other[i]; i++){}
+    size_t i = 0;
+    while (i < length && pointer[i] == other[i]) {
+        i++;
+    }
+
     return i == length ? 0 : pointer[i] - other[i];
 }
 
 int32_t Address::compareString(const Address &otherAddress) const {
-    auto *pointer = reinterpret_cast<uint8_t*>(address);
-    auto *other = reinterpret_cast<uint8_t*>(otherAddress.address);
+    const auto *pointer = reinterpret_cast<char*>(address);
+    const auto *other = reinterpret_cast<char*>(otherAddress.address);
 
-    uint32_t i;
-    for (i = 0; pointer[i] != 0 && other[i] != 0 && pointer[i] == other[i]; i++){}
+    size_t i = 0;
+    while (pointer[i] != 0 && other[i] != 0 && pointer[i] == other[i]) {
+        i++;
+    }
+
     return  pointer[i] - other[i];
 }
 
-int32_t Address::compareString(const char *otherString) const {
-    return compareString(Address(otherString));
-}
+Address Address::searchCharacter(const char character) const {
+    const auto *pointer = reinterpret_cast<char*>(address);
 
-Address Address::searchCharacter(uint8_t character) const {
-    auto *pointer = reinterpret_cast<uint8_t*>(address);
+    size_t i = 0;
+    while (pointer[i] != 0 && pointer[i] != character) {
+        i++;
+    }
 
-    uint32_t i;
-    for (i = 0; pointer[i] != 0 && pointer[i] != character; i++) {}
-    return pointer[i] == 0 ? set(0) : add(i);
+    return pointer[i] == 0 ? Address(static_cast<size_t>(0)) : add(i);
 }
 
 }

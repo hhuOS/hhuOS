@@ -33,7 +33,7 @@
 #include "lib/util/io/key/layout/DeLayout.h"
 #include "application/quake/quakegeneric/source/quakekeys.h"
 #include "lib/util/async/Thread.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/base/String.h"
 #include "lib/util/base/System.h"
 #include "lib/util/collection/Array.h"
@@ -78,9 +78,9 @@ int32_t main(int argc, char *argv[]) {
             auto split1 = Util::String(argv[i + 1]).split("x");
             auto split2 = split1[1].split("@");
 
-            uint32_t resolutionX = Util::String::parseInt(split1[0]);
-            uint32_t resolutionY = Util::String::parseInt(split2[0]);
-            uint32_t colorDepth = split2.length() > 1 ? Util::String::parseInt(split2[1]) : 32;
+            auto resolutionX = Util::String::parseNumber<uint16_t>(split2[0]);
+            auto resolutionY = Util::String::parseNumber<uint16_t>(split2[1]);
+            uint8_t colorDepth = split1.length() > 1 ? Util::String::parseNumber<uint8_t>(split1[1]) : 32;
 
             lfbFile->controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
             break;
@@ -352,7 +352,7 @@ void QG_Init(void) {
             drawFrame = &QG_DrawFrame16;
             break;
         default:
-            Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Unsupported color depth!");
+            Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "Unsupported color depth!");
     }
 }
 

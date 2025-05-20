@@ -26,7 +26,7 @@
 #include "MemoryFileNode.h"
 #include "MemoryWrapperNode.h"
 #include "filesystem/memory/MemoryNode.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/ArrayList.h"
 
@@ -66,7 +66,7 @@ Node *MemoryDriver::getNode(const Util::String &path) {
 
 bool MemoryDriver::createNode(const Util::String &path, Util::Io::File::Type type) {
     if (type != Util::Io::File::DIRECTORY && type != Util::Io::File::REGULAR) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "MemoryDriver: Invalid file type!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "MemoryDriver: Invalid file type!");
     }
 
     Util::Array<Util::String> tokens = path.split(Util::Io::File::SEPARATOR);

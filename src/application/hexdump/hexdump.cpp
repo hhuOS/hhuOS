@@ -93,12 +93,12 @@ int32_t main(int32_t argc, char *argv[]) {
     Util::System::out << Util::Io::PrintStream::hex << HEXDUMP_HEADER << Util::Io::PrintStream::endl;
     printSeparationLine();
 
-    int32_t length = argumentParser.hasArgument("length") ? Util::String::parseInt(argumentParser.getArgument("length")) : -1;
+    int32_t length = argumentParser.hasArgument("length") ? Util::String::parseNumber<int32_t>(argumentParser.getArgument("length")) : -1;
     int32_t readBytes = 0;
     uint32_t address = 0;
 
     if (argumentParser.hasArgument("skip")) {
-        address = Util::String::parseInt(argumentParser.getArgument("skip"));
+        address = Util::String::parseNumber<uint32_t>(argumentParser.getArgument("skip"));
         stream.skip(address);
     }
 

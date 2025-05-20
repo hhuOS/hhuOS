@@ -41,7 +41,7 @@
 #include "lib/util/network/ip4/Ip4PortAddress.h"
 #include "lib/util/network/udp/UdpDatagram.h"
 #include "kernel/network/udp/UdpSocket.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/network/ip4/Ip4Address.h"
 
 namespace Kernel::Network::Udp {
@@ -177,7 +177,7 @@ uint16_t UdpModule::generatePort(const Util::Network::Ip4::Ip4Address &address) 
         }
     }
 
-    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "UdpModule: Address already in use!");
+    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "UdpModule: Address already in use!");
 }
 
 }

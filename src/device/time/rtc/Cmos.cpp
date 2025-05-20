@@ -20,7 +20,7 @@
 
 #include "Cmos.h"
 #include "device/cpu/IoPort.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/async/Atomic.h"
 
 namespace Device {
@@ -31,7 +31,7 @@ IoPort Cmos::dataPort(0x71);
 
 uint8_t Cmos::read(uint8_t registerIndex) {
     if (registerIndex > 0x7f) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "CMOS: Register index out of bounds!");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "CMOS: Register index out of bounds!");
     }
 
     registerPort.writeByte(registerIndex | ((nmiCount == 0 ? 0 : 1) << 7));
@@ -40,7 +40,7 @@ uint8_t Cmos::read(uint8_t registerIndex) {
 
 void Cmos::write(uint8_t registerIndex, uint8_t value) {
     if (registerIndex > 0x7f) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "CMOS: Register index out of bounds!");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "CMOS: Register index out of bounds!");
     }
 
     registerPort.writeByte(registerIndex | ((nmiCount == 0 ? 0 : 1) << 7));
@@ -53,7 +53,7 @@ void Cmos::disableNmi() {
 
     if (count < 0) {
         // nmiCount is negative -> Illegal state
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "CPU: nmiCount is less than 0!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "CPU: nmiCount is less than 0!");
     }
 
     // Disable non-maskable interrupts
@@ -71,7 +71,7 @@ void Cmos::enableNmi() {
         registerPort.writeByte(value);
     } else if (count < 1) {
         // nmiCount has been decreased to a negative value -> Illegal state
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "CPU: nmiCount is less than 0!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "CPU: nmiCount is less than 0!");
     }
 }
 

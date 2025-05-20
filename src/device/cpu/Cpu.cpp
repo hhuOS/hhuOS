@@ -21,7 +21,7 @@
 
 #include "Cpu.h"
 #include "lib/util/async/Atomic.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 
 namespace Device {
 
@@ -36,7 +36,7 @@ void Cpu::enableInterrupts() {
         asm volatile ( "sti" );
     } else if (count < 1) {
         // count has been decreased to a negative value -> Illegal state
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "CPU: cliCount is less than 0!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "CPU: cliCount is less than 0!");
     }
 }
 
@@ -46,7 +46,7 @@ void Cpu::disableInterrupts() {
 
     if (count < 0) {
         // count is negative -> Illegal state
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "CPU: cliCount is less than 0!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "CPU: cliCount is less than 0!");
     }
 
     asm volatile ( "cli" );

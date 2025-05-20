@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 
 namespace Util {
 namespace Async {
@@ -69,7 +69,7 @@ public:
     template<class T>
     static inline T& getService() {
         if (!isServiceRegistered(T::SERVICE_ID)) {
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Invalid service!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Invalid service!");
         }
 
         return *reinterpret_cast<T*>(services[T::SERVICE_ID]);

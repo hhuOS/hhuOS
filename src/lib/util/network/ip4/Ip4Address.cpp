@@ -36,10 +36,10 @@ Ip4Address::Ip4Address(uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH,
 Ip4Address::Ip4Address(const Util::String &string) : NetworkAddress(ADDRESS_LENGTH, IP4) {
     auto split = string.split(".");
     uint8_t buffer[4] = {
-            static_cast<uint8_t>(Util::String::parseInt(split[0])),
-            static_cast<uint8_t>(Util::String::parseInt(split[1])),
-            static_cast<uint8_t>(Util::String::parseInt(split[2])),
-            static_cast<uint8_t>(Util::String::parseInt(split[3])),
+            String::parseNumber<uint8_t>(split[0]),
+            String::parseNumber<uint8_t>(split[1]),
+            String::parseNumber<uint8_t>(split[2]),
+            String::parseNumber<uint8_t>(split[3]),
     };
     NetworkAddress::setAddress(buffer);
 }

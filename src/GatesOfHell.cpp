@@ -94,7 +94,7 @@
 #include "kernel/process/Thread.h"
 #include "kernel/service/Service.h"
 #include "lib/util/base/Address.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/base/FreeListMemoryManager.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
@@ -161,7 +161,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     // Check multiboot magic number
     LOG_INFO("Welcome to hhuOS early boot environment!");
     if (multibootMagic != Kernel::Multiboot::MAGIC) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Multiboot2 magic number is invalid!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Multiboot2 magic number is invalid!");
     }
 
     // Needed later for mapping the multiboot header into virtual memory
@@ -251,8 +251,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
 
     // Initialize kernel heap
     LOG_INFO("Initializing kernel heap");
-    static Util::FreeListMemoryManager kernelHeapManager;
-    kernelHeapManager.initialize(reinterpret_cast<uint8_t*>(kernelHeapVirtual), reinterpret_cast<uint8_t*>(Kernel::MemoryLayout::KERNEL_HEAP_END_ADDRESS));
+    static Util::FreeListMemoryManager kernelHeapManager(reinterpret_cast<void*>(kernelHeapVirtual), reinterpret_cast<void*>(Kernel::MemoryLayout::KERNEL_HEAP_END_ADDRESS));
     kernelHeap = &kernelHeapManager;
     LOG_INFO("Kernel heap initialized (Bootstrap memory: [0x%08x])", bootstrapMemory);
 
@@ -376,7 +375,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
             LOG_INFO("Framebuffer info provided by bootloader (Type: [EGA_TEXT], Resolution: [%ux%u@%u], Address: [0x%08x])", tag.width, tag.height, tag.bpp, tag.address);
 
             if ((tag.width != 80 && tag.width != 40) && tag.height != 25) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Unsupported text mode resolution!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Unsupported text mode resolution!");
             }
 
             terminal = new Device::Graphic::ColorGraphicsAdapter(tag.width, tag.height);
@@ -386,10 +385,10 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
             lfb = new Util::Graphic::LinearFrameBuffer(tag.address, tag.width, tag.height, tag.bpp, tag.pitch);
             terminal = new Util::Graphic::LinearFrameBufferTerminal(lfb);
         } else {
-            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Unsupported frame buffer type!");
+            Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Unsupported frame buffer type!");
         }
     } else {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "No framebuffer information provided by bootloader!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "No framebuffer information provided by bootloader!");
     }
 
     Kernel::Log::addOutputStream(*terminal);
@@ -468,9 +467,9 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
             if (split2.length() < 2) {
                 LOG_WARN("Ignoring invalid 'resolution' parameter");
             } else {
-                auto resolutionX = Util::String::parseInt(split2[0]);
-                auto resolutionY = Util::String::parseInt(split2[1]);
-                auto colorDepth = split1.length() > 1 ? Util::String::parseInt(split1[1]) : 32;
+                auto resolutionX = Util::String::parseNumber<uint16_t>(split2[0]);
+                auto resolutionY = Util::String::parseNumber<uint16_t>(split2[1]);
+                uint8_t colorDepth = split1.length() > 1 ? Util::String::parseNumber<uint8_t>(split1[1]) : 32;
 
                 if (lfb == nullptr || (lfb->getResolutionX() != resolutionX || lfb->getResolutionY() != resolutionY || lfb->getColorDepth() != colorDepth)) {
                     Kernel::Log::removeOutputStream(*terminal);
@@ -535,9 +534,6 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     // Create thread to refill block pool of paging area manager
     auto &refillThread = Kernel::Thread::createKernelThread("Paging-Area-Pool-Refiller", processService->getKernelProcess(), new Kernel::PagingAreaManagerRefillRunnable(*pagingAreaManager));
     scheduler.ready(refillThread);
-
-    // Register memory manager
-    Util::Reflection::InstanceFactory::registerPrototype(new Util::FreeListMemoryManager());
 
     // Protect kernel code
     for (uint32_t address = WRITE_PROTECTED_START; address < WRITE_PROTECTED_END; address += Util::PAGESIZE) {
@@ -640,23 +636,23 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     Util::Reflection::InstanceFactory::registerPrototype(new Filesystem::Iso::IsoDriver());
 
     if (!multiboot->hasKernelOption("root")) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "No root filesystem specified!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "No root filesystem specified!");
     }
 
     auto rootOptions = multiboot->getKernelOption("root").split(",");
     if (rootOptions.length() < 2) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Invalid arguments for root filesystem!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Invalid arguments for root filesystem!");
     }
 
     const auto &rootDeviceName = rootOptions[0];
     const auto &rootDriverName = rootOptions[1];
     if (!storageService->isDeviceRegistered(rootDeviceName)) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Root device not found!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Root device not found!");
     }
 
     LOG_INFO("Mounting [%s] to root using driver [%s]", static_cast<const char*>(rootDeviceName), static_cast<const char*>(rootDriverName));
     if (!filesystemService->mount(rootDeviceName, "/", rootDriverName)) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Failed to mount root filesystem!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Failed to mount root filesystem!");
     }
 
     auto *deviceDriver = new Filesystem::Memory::MemoryDriver();
@@ -858,7 +854,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     LOG_INFO("Starting scheduler");
     processService->startScheduler();
 
-    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Once you entered the gates of hell, you are not allowed to leave!");
+    Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Once you entered the gates of hell, you are not allowed to leave!");
 }
 
 Util::HeapMemoryManager& GatesOfHell::getKernelHeap() {

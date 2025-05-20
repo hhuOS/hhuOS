@@ -29,7 +29,7 @@
 #include "device/port/serial/Serial.h"
 #include "device/port/serial/SimpleSerialPort.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/collection/HashMap.h"
@@ -207,7 +207,7 @@ const char* Log::getLevelAsString(const Level &level) {
         case ERROR:
             return LEVEL_ERROR;
         default:
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Logger: Invalid log level!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Logger: Invalid log level!");
     }
 }
 
@@ -241,7 +241,7 @@ void Log::setLevel(const Util::String &level) {
     } else if (logLevel == LEVEL_ERROR) {
         setLevel(Level::ERROR);
     } else {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Logger: Invalid log level!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Logger: Invalid log level!");
     }
 }
 

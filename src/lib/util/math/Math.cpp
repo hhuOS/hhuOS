@@ -19,7 +19,7 @@
  */
 
 #include "Math.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include <bit>
 #include <base/Address.h>
 
@@ -145,7 +145,7 @@ double exp2(double value) {
 
 float ln(float value) {
     if (value <= 0) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Math: Logarithm of non-positive value!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Math: Logarithm of non-positive value!");
     }
 
     float result;
@@ -156,7 +156,7 @@ float ln(float value) {
 
 double ln(double value) {
     if (value <= 0) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Math: Logarithm of non-positive value!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Math: Logarithm of non-positive value!");
     }
 
     double result;
@@ -177,7 +177,7 @@ double ln(double value) {
 
 float log10(float value) {
     if (value <= 0) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Math: Logarithm of non-positive value!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Math: Logarithm of non-positive value!");
     }
 
     float result;
@@ -188,7 +188,7 @@ float log10(float value) {
 
 double log10(double value) {
     if (value <= 0) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Math: Logarithm of non-positive value!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Math: Logarithm of non-positive value!");
     }
 
     double result;
@@ -220,7 +220,7 @@ float pow(float base, float exponent) {
         return result;
     } else {
         if (modulo(exponent, 1) != 0) {
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Math: Negative base with non-integer exponent!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Math: Negative base with non-integer exponent!");
         }
 
         bool baseOdd = static_cast<int64_t>(exponent) % 2 == 1;
@@ -242,7 +242,7 @@ double pow(double base, double exponent) {
         return result;
     } else {
         if (modulo(exponent, 1) != 0) {
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Math: Negative base with non-integer exponent!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Math: Negative base with non-integer exponent!");
         }
 
         bool baseOdd = static_cast<int64_t>(exponent) % 2 == 1;
@@ -404,7 +404,7 @@ double arctangent2(double y, double x) {
 
 float sqrt(float value) {
     if (value < 0) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Math: Square root of negative number!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Math: Square root of negative number!");
     }
 
     float result;
@@ -427,7 +427,7 @@ double sqrt(double value) {
 
 float arcsine(float value) {
     if (value > 1 || value < -1) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Math: Arcsine of value outside of [-1, 1]!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Math: Arcsine of value outside of [-1, 1]!");
     }
 
     auto divisor = sqrt(1 - value * value);
@@ -436,7 +436,7 @@ float arcsine(float value) {
 
 double arcsine(double value) {
     if (value > 1 || value < -1) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Math: Arcsine of value outside of [-1, 1]!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Math: Arcsine of value outside of [-1, 1]!");
     }
 
     auto divisor = sqrt(1 - value * value);
@@ -445,7 +445,7 @@ double arcsine(double value) {
 
 float arccosine(float value) {
     if (value > 1 || value < -1) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Math: Arccosine of value outside of [-1, 1]!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Math: Arccosine of value outside of [-1, 1]!");
     }
 
     return static_cast<float>(PI / 2.0) - arcsine(value);
@@ -453,7 +453,7 @@ float arccosine(float value) {
 
 double arccosine(double value) {
     if (value > 1 || value < -1) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Math: Arccosine of value outside of [-1, 1]!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Math: Arccosine of value outside of [-1, 1]!");
     }
 
     return (PI / 2.0) - arcsine(value);

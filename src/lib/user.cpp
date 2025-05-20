@@ -27,7 +27,7 @@
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/async/Process.h"
 #include "lib/util/async/Thread.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/hardware/Machine.h"
@@ -247,8 +247,8 @@ bool shutdown(Util::Hardware::Machine::ShutdownType type) {
     return false;
 }
 
-void throwError(Util::Exception::Error error, const char *message) {
-    Util::System::out << Util::Exception::getExceptionName(error) << " (" << message << ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+void throwError(Util::Panic::Error error, const char *message) {
+    Util::System::out << Util::Panic::getErrorAsString(error) << " (" << message << ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     Util::System::printStackTrace(Util::System::out, Util::USER_SPACE_MEMORY_START_ADDRESS);
     Util::System::call(Util::System::EXIT_PROCESS, 1, -1);
     __builtin_unreachable();

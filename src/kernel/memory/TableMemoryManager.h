@@ -25,7 +25,7 @@
 
 #include "lib/util/async/Atomic.h"
 #include "kernel/memory/BlockMemoryManager.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 
 namespace Kernel {
 class BitmapMemoryManager;
@@ -69,9 +69,9 @@ public:
 
     [[nodiscard]] uint32_t getFreeMemory() const override;
 
-    [[nodiscard]] uint8_t* getStartAddress() const override;
+    [[nodiscard]] void* getStartAddress() const override;
 
-    [[nodiscard]] uint8_t* getEndAddress() const override;
+    [[nodiscard]] void* getEndAddress() const override;
 
     void debugLog();
 
@@ -177,7 +177,7 @@ private:
             auto valueWrapper = Util::Async::Atomic<uint16_t>(value);
             uint16_t oldValue = valueWrapper.fetchAndAdd(0b0000000000000010);
             if (static_cast<uint16_t>(oldValue + 2) <= oldValue) {
-                Util::Exception::throwException(Util::Exception::Error::PAGING_ERROR, "Page frame has been mapped too often!");
+                Util::Panic::fire(Util::Panic::Error::PAGING_ERROR, "Page frame has been mapped too often!");
             }
         }
 
@@ -185,7 +185,7 @@ private:
             auto valueWrapper = Util::Async::Atomic<uint16_t>(value);
             uint16_t oldValue = valueWrapper.fetchAndSub(0b0000000000000010);
             if (static_cast<uint16_t>(oldValue - 2) >= oldValue) {
-                Util::Exception::throwException(Util::Exception::Error::PAGING_ERROR, "Page frame underflow!");
+                Util::Panic::fire(Util::Panic::Error::PAGING_ERROR, "Page frame underflow!");
             }
         }
 

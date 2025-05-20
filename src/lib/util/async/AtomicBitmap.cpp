@@ -22,7 +22,7 @@
 
 #include "async/Atomic.h"
 #include "base/Address.h"
-#include "base/Exception.h"
+#include "base/Panic.h"
 
 namespace Util::Async {
 
@@ -42,7 +42,7 @@ size_t AtomicBitmap::getSize() const {
 
 void AtomicBitmap::set(const size_t block) const {
     if (block >= blocks) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "AtomicBitmap: Block index out of bounds!");
+        Panic::fire(Panic::OUT_OF_BOUNDS, "AtomicBitmap: Block index out of bounds!");
     }
 
     const size_t index = block / SIZE_BITS;
@@ -54,7 +54,7 @@ void AtomicBitmap::set(const size_t block) const {
 
 void AtomicBitmap::unset(const size_t block) const {
     if (block >= blocks) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "AtomicBitmap: Block index out of bounds!");
+        Panic::fire(Panic::OUT_OF_BOUNDS, "AtomicBitmap: Block index out of bounds!");
     }
 
     const size_t index = block / SIZE_BITS;
@@ -66,7 +66,7 @@ void AtomicBitmap::unset(const size_t block) const {
 
 bool AtomicBitmap::check(const size_t block, const bool set) const {
     if (block >= blocks) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "AtomicBitmap: Block index out of bounds!");
+        Panic::fire(Panic::OUT_OF_BOUNDS, "AtomicBitmap: Block index out of bounds!");
     }
 
     const size_t index = block / SIZE_BITS;

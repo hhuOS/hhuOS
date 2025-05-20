@@ -59,9 +59,9 @@ public:
 
     [[nodiscard]] uint32_t getFreeMemory() const override;
 
-    [[nodiscard]] uint8_t* getStartAddress() const override;
+    [[nodiscard]] void* getStartAddress() const override;
 
-    [[nodiscard]] uint8_t* getEndAddress() const override;
+    [[nodiscard]] void* getEndAddress() const override;
 
     static const constexpr uint32_t MAX_SLAB_SIZE = 128 * 1024;
 

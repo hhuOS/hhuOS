@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "SystemCallDispatcher.h"
 #include "kernel/interrupt/SystemCallDispatcher.h"
 
@@ -26,7 +26,7 @@ namespace Kernel {
 
 void SystemCallDispatcher::assign(Util::System::Code code, bool(*func)(uint32_t, va_list)) {
     if (systemCalls[code] != nullptr) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "SystemCallDispatcher: Code is already assigned!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "SystemCallDispatcher: Code is already assigned!");
     }
 
     systemCalls[code] = func;
@@ -34,7 +34,7 @@ void SystemCallDispatcher::assign(Util::System::Code code, bool(*func)(uint32_t,
 
 void SystemCallDispatcher::dispatch(Util::System::Code code, uint16_t paramCount, va_list params, bool &result) const {
     if (systemCalls[code] == nullptr) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "SystemCallDispatcher: No handler registered!");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "SystemCallDispatcher: No handler registered!");
     }
 
     result = systemCalls[code](paramCount, params);

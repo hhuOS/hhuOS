@@ -36,7 +36,7 @@ uint64_t RandomNode::readData(uint8_t *targetBuffer, [[maybe_unused]] uint64_t p
     auto random = Util::Math::Random();
 
     for (uint32_t i = 0; i < numBytes; i++) {
-        target.setByte(static_cast<uint8_t>(random.nextRandomNumber() * UINT8_MAX), i);
+        target.write8(static_cast<uint8_t>(random.nextRandomNumber() * UINT8_MAX), i);
     }
 
     return numBytes;

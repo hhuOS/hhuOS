@@ -36,17 +36,17 @@ Ip4SubnetAddress::Ip4SubnetAddress(const String &string) : NetworkAddress(ADDRES
     uint8_t bitCount = 32;
 
     if (string.beginsWith("/")) {
-        bitCount = String::parseInt(string.substring(1));
+        bitCount = String::parseNumber<uint8_t>(string.substring(1));
     } else {
         auto split = string.split("/");
         ip4Address = Ip4Address(split[0]);
         if (split.length() > 1) {
-            bitCount = String::parseInt(split[1]);
+            bitCount = String::parseNumber<uint8_t>(split[1]);
         }
     }
 
     ip4Address.getAddress(buffer);
-    bufferAddress.setByte(bitCount, Ip4Address::ADDRESS_LENGTH);
+    bufferAddress.write8(bitCount, Ip4Address::ADDRESS_LENGTH);
 }
 
 Ip4SubnetAddress::Ip4SubnetAddress(const Ip4Address &address, uint8_t bitCount) : NetworkAddress(ADDRESS_LENGTH, IP4_SUBNET) {
@@ -55,7 +55,7 @@ Ip4SubnetAddress::Ip4SubnetAddress(const Ip4Address &address, uint8_t bitCount) 
 
     auto bufferAddress = Address(buffer);
     bufferAddress.copyRange(Address(addressBuffer), Ip4Address::ADDRESS_LENGTH);
-    bufferAddress.setByte(bitCount, Ip4Address::ADDRESS_LENGTH);
+    bufferAddress.write8(bitCount, Ip4Address::ADDRESS_LENGTH);
 }
 
 Ip4SubnetAddress::Ip4SubnetAddress(const Ip4Address &address) : Ip4SubnetAddress(address, 32) {}
@@ -67,7 +67,7 @@ Ip4Address Ip4SubnetAddress::getIp4Address() const {
 }
 
 uint8_t Ip4SubnetAddress::getBitCount() const {
-    return Util::Address(buffer).getByte(Ip4Address::ADDRESS_LENGTH);
+    return Util::Address(buffer).read8(Ip4Address::ADDRESS_LENGTH);
 }
 
 Ip4SubnetAddress Ip4SubnetAddress::getSubnetAddress() const {

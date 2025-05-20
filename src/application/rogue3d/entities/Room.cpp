@@ -30,7 +30,7 @@
 #include "lib/util/math/Random.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/game/Graphics.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/math/Vector3.h"
 
@@ -198,7 +198,7 @@ bool Room::hasRightRoom() const {
 
 Room& Room::getLeftRoom() const {
     if (leftRoom == nullptr) {
-        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Rogue3D: Room not found!");
+        Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "Rogue3D: Room not found!");
     }
 
     return *leftRoom;
@@ -206,7 +206,7 @@ Room& Room::getLeftRoom() const {
 
 Room& Room::getTopRoom() const {
     if (topRoom == nullptr) {
-        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Rogue3D: Room not found!");
+        Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "Rogue3D: Room not found!");
     }
 
     return *topRoom;
@@ -214,7 +214,7 @@ Room& Room::getTopRoom() const {
 
 Room& Room::getDownRoom() const {
     if (downRoom == nullptr) {
-        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Rogue3D: Room not found!");
+        Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "Rogue3D: Room not found!");
     }
 
     return *downRoom;
@@ -222,7 +222,7 @@ Room& Room::getDownRoom() const {
 
 Room& Room::getRightRoom() const {
     if (rightRoom == nullptr) {
-        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Rogue3D: Room not found!");
+        Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "Rogue3D: Room not found!");
     }
 
     return *rightRoom;

@@ -18,58 +18,58 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <stdarg.h>
+#include "String.h"
 
+#include "CharacterTypes.h"
 #include "lib/interface.h"
-#include "lib/util/io/stream/ByteArrayOutputStream.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/collection/ArrayList.h"
-#include "lib/util/base/Address.h"
-#include "lib/util/base/Exception.h"
-#include "lib/util/base/String.h"
-#include "lib/util/collection/Array.h"
+#include "base/Address.h"
+#include "base/Panic.h"
+#include "collection/Array.h"
+#include "collection/ArrayList.h"
+#include "io/stream/ByteArrayOutputStream.h"
+#include "io/stream/PrintStream.h"
 
 namespace Util {
 
-String::String() noexcept {
+String::String() {
     len = 0;
     buffer = new char[1];
+
     buffer[0] = '\0';
 }
 
-String::String(char character) noexcept {
+String::String(const char c) {
     len = 1;
     buffer = new char[2];
-    buffer[0] = character;
+
+    buffer[0] = c;
     buffer[1] = '\0';
 }
 
-String::String(const char *string) noexcept {
-    auto address = Address(string);
+String::String(const char *string) {
+    const auto address = Address(string);
 
-    if (string == nullptr) {
-        len = 0;
-    } else {
-        len = address.stringLength();
-    }
-
+    len = string == nullptr ? 0 : address.stringLength();
     buffer = new char[len + 1];
+
     Address(buffer).copyRange(address, len);
     buffer[len] = '\0';
 }
 
-String::String(const uint8_t *data, uint32_t length) noexcept {
-    auto address = Address(data);
+String::String(const uint8_t *data, const size_t length) {
+    const auto address = Address(data);
 
     len = length;
     buffer = new char[len + 1];
+
     Address(buffer).copyRange(address, len);
     buffer[len] = '\0';
 }
 
-String::String(const String &other) noexcept {
+String::String(const String &other) {
     len = other.len;
     buffer = new char[len + 1];
+
     Address(buffer).copyRange(Address(other.buffer), len);
     buffer[len] = '\0';
 }
@@ -78,52 +78,210 @@ String::~String() {
     delete[] buffer;
 }
 
-uint32_t String::hashCode() const {
-    uint32_t hash = 0;
+bool String::operator==(const String &other) const {
+    return Address(buffer).compareString(Address(other.buffer)) == 0;
+}
 
-    for (uint32_t i = 0; i < len; i++) {
+bool String::operator!=(const String &other) const {
+    return Address(buffer).compareString(Address(other.buffer)) != 0;
+}
+
+String &String::operator=(const String &other) {
+    if (&other == this) {
+        return *this;
+    }
+
+    delete buffer;
+    len = other.len;
+    buffer = new char[len + 1];
+
+    Address(buffer).copyRange(Address(other.buffer), len + 1);
+
+    return *this;
+}
+
+String& String::operator+=(const String &other) {
+    buffer = static_cast<char*>(reallocateMemory(buffer, len + other.len + 1));
+    Address(buffer + len).copyRange(Address(other.buffer), other.len + 1);
+    len += other.len;
+
+    return *this;
+}
+
+String operator+(const String &first, const String &second) {
+    String ret = first;
+    ret += second;
+
+    return ret;
+}
+
+String operator+(const String &first, const char second) {
+    String ret = first;
+    ret += String(second);
+
+    return ret;
+}
+
+String operator+(const String &first, const char *second) {
+    String ret = first;
+    ret += String(second);
+
+    return ret;
+}
+
+String operator+(const char first, const String &string) {
+    String ret(first);
+    ret += string;
+
+    return ret;
+}
+
+String operator+(const char *first, const String &second) {
+    String ret(first);
+    ret += second;
+
+    return ret;
+}
+
+String::operator const char*() const {
+    return buffer;
+}
+
+String::operator const uint8_t*() const {
+    return reinterpret_cast<const uint8_t*>(buffer);
+}
+
+char String::operator[](const size_t index) const {
+    return buffer[index];
+}
+
+char &String::operator[](const size_t index) {
+    return buffer[index];
+}
+
+String::operator size_t() const {
+    return hashCode();
+}
+
+size_t String::length() const {
+    return len;
+}
+
+bool String::isEmpty() const {
+    return len == 0;
+}
+
+size_t String::hashCode() const {
+    size_t hash = 0;
+
+    for (size_t i = 0; i < len; i++) {
         hash += buffer[i];
     }
 
     return hash;
 }
 
-String String::substring(uint32_t begin) const {
+size_t String::indexOf(const char character, const size_t start) const {
+    for (size_t i = start; i < len; i++) {
+        if (buffer[i] == character) {
+            return i;
+        }
+    }
+
+    return SIZE_MAX;
+}
+
+size_t String::indexOf(const String &other, const size_t start) const {
+    size_t j = 0;
+
+    for (size_t i = start; i < len; i++) {
+        if (buffer[i] == other.buffer[0]) {
+            for (j = 1; j < other.len; j++) {
+                if (i + j >= len) {
+                    return SIZE_MAX;
+                }
+
+                if (buffer[i + j] != other.buffer[j]) {
+                    break;
+                }
+            }
+        }
+
+        if (j == other.len) {
+            return i;
+        }
+    }
+
+    return SIZE_MAX;
+}
+
+String String::substring(const size_t begin) const {
     return substring(begin, length());
 }
 
-String String::substring(uint32_t begin, uint32_t end) const {
+String String::substring(const size_t begin, size_t end) const {
     if (begin > end || begin >= len) {
-        return "";
+        return {};
     }
 
     if (end > len) {
         end = len;
     }
 
-    uint32_t length = end - begin;
-    char *newBuffer = new char[length + 1];
-    Address(newBuffer).copyRange(Address(this->buffer + begin), length);
+    const size_t length = end - begin;
+    auto *newBuffer = new char[length + 1];
+    Address(newBuffer).copyRange(Address(buffer + begin), length);
     newBuffer[length] = '\0';
 
-    String ret(newBuffer);
+    const auto ret = String(newBuffer);
     delete[] newBuffer;
 
     return ret;
 }
 
-Util::Array<String> String::split(const String &delimiter, uint32_t limit) const {
-    Util::ArrayList<String> result;
+String String::strip() const {
+    size_t startIndex;
+    char element;
 
-    if (len == 0) {
-        return result.toArray();
+    for (startIndex = 0; startIndex < len; startIndex++) {
+        element = buffer[startIndex];
+
+        if (element != '\t' && element != '\n' && element != ' ') {
+            if (startIndex == len - 1) {
+                return {buffer[startIndex]};
+            }
+
+            break;
+        }
     }
 
-    uint32_t start = 0;
-    uint32_t end = indexOf(delimiter);
+    size_t endIndex;
+    for (endIndex = len - 1; endIndex > startIndex; endIndex--) {
+        element = buffer[endIndex];
+
+        if (element != '\t' && element != '\n' && element != ' ') {
+            break;
+        }
+    }
+
+    if (startIndex == endIndex && len > 1) {
+        return {};
+    }
+
+    return substring(startIndex, endIndex + 1);
+}
+
+Array<String> String::split(const String &delimiter) const {
+    if (len == 0) {
+        return Array<String>(0);
+    }
+
+    ArrayList<String> result;
+    size_t start = 0;
+    size_t end = indexOf(delimiter);
     String element;
 
-    while (end != UINT32_MAX && result.size() + 1 != limit) {
+    while (end != SIZE_MAX) {
         element = substring(start, end);
 
         if (!element.isEmpty()) {
@@ -143,268 +301,99 @@ Util::Array<String> String::split(const String &delimiter, uint32_t limit) const
     return result.toArray();
 }
 
-bool String::isEmpty() const {
-    return len == 0;
-}
-
-uint32_t String::indexOf(char character, uint32_t start) const {
-    for (uint32_t i = start; i < len; i++) {
-        if (buffer[i] == character) {
-            return i;
-        }
-    }
-
-    return UINT32_MAX;
-}
-
-uint32_t String::indexOf(const String &other, uint32_t start) const {
-    uint32_t i;
-    uint32_t j = 0;
-
-    for (i = start; i < len; i++) {
-        if (buffer[i] == other.buffer[0]) {
-            for (j = 1; j < other.len; j++) {
-                if (i + j >= len) {
-                    return UINT32_MAX;
-                }
-
-                if (buffer[i + j] != other.buffer[j]) {
-                    break;
-                }
-            }
-        }
-
-        if (j == other.len) {
-            return i;
-        }
-    }
-
-    return UINT32_MAX;
-
-}
-
 
 String String::remove(const String &string) const {
-    uint32_t index = indexOf(string);
+    const auto index = indexOf(string);
 
-    if (index == UINT32_MAX) {
-        return String(buffer);
+    if (index == SIZE_MAX) {
+        return {buffer};
     }
 
     return substring(0, index) + substring(index + string.len, len);
 }
 
 String String::removeAll(const String &string) const {
-    Util::Array<String> tokens = split(string);
-    String tmp;
-
-    for (const String &token : tokens) {
-        tmp += token;
-    }
-
-    return tmp;
+    return join("", split(string));
 }
 
 bool String::beginsWith(const String &string) const {
-    return substring(0, string.len) == string;
+    if (string.len > len) {
+        return false;
+    }
+
+    for (size_t i = 0; i < string.len; i++) {
+        if (buffer[i] != string.buffer[i]) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool String::endsWith(const String &string) const {
-    return substring(len - string.len, len) == string;
-}
-
-
-uint32_t String::length() const {
-    return len;
-}
-
-bool String::operator==(const String &other) const {
-    return Address(buffer).compareString(Address(other.buffer)) == 0;
-}
-
-bool String::operator!=(const String &other) const {
-    return Address(buffer).compareString(Address(other.buffer)) != 0;
-}
-
-String &String::operator=(const String &other) {
-    if (&other == this) {
-        return *this;
+    if (string.len > len) {
+        return false;
     }
 
-    delete buffer;
-    buffer = nullptr;
-    len = other.len;
-    buffer = new char[len + 1];
-
-    if (other.buffer != nullptr) {
-        Address(buffer).copyRange(Address(other.buffer), len + 1);
+    for (size_t i = 0; i < string.len; i++) {
+        if (buffer[len - string.len + i] != string.buffer[i]) {
+            return false;
+        }
     }
 
-    return *this;
+    return true;
 }
 
-String &String::operator+=(const String &other) {
-    buffer = static_cast<char*>(reallocateMemory(buffer, len + other.len + 1));
-    Address(buffer + len).copyRange(Address(other.buffer), other.len + 1);
-    len += other.len;
-
-    return *this;
+bool String::contains(const char c) const {
+    return indexOf(c) < SIZE_MAX;
 }
 
-String operator+(const String &first, const String &second) {
-    String tmp = first;
-    tmp += second;
+String String::join(const String &separator, const Array<String> &elements) {
+    String ret{};
+    const size_t size = elements.length();
 
-    return tmp;
-}
-
-String operator+(const String &first, char second) {
-    String tmp = first;
-    tmp += String(second);
-
-    return tmp;
-}
-
-String operator+(const String &first, const char *second) {
-    String tmp = first;
-    tmp += String(second);
-
-    return tmp;
-}
-
-String operator+(char first, const String &second) {
-    String tmp(first);
-    tmp += second;
-
-    return tmp;
-}
-
-String operator+(const char *first, const String &second) {
-    String tmp(first);
-    tmp += second;
-
-    return tmp;
-}
-
-String::operator char *() const {
-    return buffer;
-}
-
-String::operator const char *() const {
-    return buffer;
-}
-
-String::operator uint8_t *() const {
-    return reinterpret_cast<uint8_t*>(buffer);
-}
-
-String::operator const uint8_t *() const {
-    return reinterpret_cast<const uint8_t*>(buffer);
-}
-
-char String::operator[](uint32_t index) const {
-    return buffer[index];
-}
-
-char &String::operator[](uint32_t index) {
-    return buffer[index];
-}
-
-String::operator uint32_t() const {
-    return hashCode();
-}
-
-String String::join(const String &separator, const Util::Array<String> &elements) {
-    String tmp = "";
-    uint32_t size = elements.length();
-
-    for (uint32_t i = 0; i < size - 1; i++) {
-        tmp += elements[i] + separator;
+    for (size_t i = 0; i < size - 1; i++) {
+        ret += elements[i] + separator;
     }
 
-    tmp += elements[size - 1];
-    return tmp;
+    ret += elements[size - 1];
+    return ret;
 }
 
 String String::toUpperCase() const {
-    String tmp = *this;
-    char c;
+    String ret = *this;
 
-    for (uint32_t i = 0; i < len; i++) {
-        c = tmp[i];
+    for (size_t i = 0; i < len; i++) {
+        const char c = ret[i];
 
-        if (isAlpha(tmp[i])) {
+        if (CharacterTypes::isAlphabet(c)) {
             if (c <= 'Z') {
                 continue;
             }
 
-            tmp[i] = c - CASE_OFFSET;
+            ret[i] = static_cast<char>(c - CASE_OFFSET);
         }
     }
 
-    return tmp;
+    return ret;
 }
 
 String String::toLowerCase() const {
     String tmp = *this;
-    char c;
 
-    for (uint32_t i = 0; i < len; i++) {
-        c = tmp[i];
+    for (size_t i = 0; i < len; i++) {
+        const char c = tmp[i];
 
-        if (isAlpha(tmp[i])) {
+        if (CharacterTypes::isAlphabet(tmp[i])) {
             if (c >= 'a') {
                 continue;
             }
 
-            tmp[i] = c + CASE_OFFSET;
+            tmp[i] = static_cast<char>(c + CASE_OFFSET);
         }
     }
 
     return tmp;
-}
-
-bool String::isAlpha(const char c) {
-    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
-}
-
-bool String::isNumeric(const char c) {
-    return (c >= '0' && c <= '9');
-}
-
-bool String::contains(char c) const {
-    return indexOf(c) < UINT32_MAX;
-}
-
-String String::strip() const {
-    uint32_t startIndex;
-    char element;
-
-    for (startIndex = 0; startIndex < len; startIndex++) {
-        element = buffer[startIndex];
-
-        if (element != '\t' && element != '\n' && element != ' ') {
-            if (startIndex == len - 1) {
-                return buffer[startIndex];
-            }
-            break;
-        }
-    }
-
-    uint32_t endIndex;
-    for (endIndex = len - 1; endIndex > startIndex; endIndex--) {
-        element = buffer[endIndex];
-
-        if (element != '\t' && element != '\n' && element != ' ') {
-            break;
-        }
-    }
-
-    if (startIndex == endIndex && len > 1) {
-        return "";
-    }
-
-    return substring(startIndex, endIndex + 1);
 }
 
 String String::format(const char *format, ...) {
@@ -418,11 +407,11 @@ String String::format(const char *format, ...) {
 }
 
 String String::vformat(const char *format, va_list args) {
-    auto stream = Io::ByteArrayOutputStream();
-    auto printStream = Io::PrintStream(stream);
+    Io::ByteArrayOutputStream stream{};
+    Io::PrintStream printStream(stream);
 
-    for (uint32_t i = 0; format[i] != '\0'; i++) {
-        uint32_t j;
+    for (size_t i = 0; format[i] != '\0'; i++) {
+        size_t j;
         for (j = 0; format[i + j] != '%' && format[i + j] != '\0'; j++) {}
 
         printStream.write(reinterpret_cast<const uint8_t*>(format), i, j);
@@ -430,43 +419,44 @@ String String::vformat(const char *format, va_list args) {
         if (format[i + j] == '%') {
 			printStream.setIntegerPrecision(0);
             if (format[i + j + 1] == '0') {
-                uint8_t padding = format[i + j + 2] - '0';
+                const uint8_t padding = format[i + j + 2] - '0';
                 if (padding < 1 || padding > 9) {
-                    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "String: Format padding must be between 01 and 09");
+                    Util::Panic::fire(Panic::INVALID_ARGUMENT,
+                        "String: Format padding must be between 01 and 09");
                 }
 
                 printStream.setIntegerPrecision(padding);
                 j += 2;
             }
 
-            char specifier = format[i + ++j];
+            const char specifier = format[i + ++j];
             switch (specifier) {
                 case 'c' :
-                    printStream << static_cast<char>(va_arg(args, int32_t));
+                    printStream << static_cast<char>(va_arg(args, long));
                     break;
                 case 'd' :
-                    printStream << Io::PrintStream::dec << va_arg(args, int32_t);
+                    printStream << Io::PrintStream::dec << va_arg(args, long);
                     break;
                 case 'u' :
-                    printStream << Io::PrintStream::dec << va_arg(args, uint32_t);
+                    printStream << Io::PrintStream::dec << va_arg(args, size_t);
                     break;
                 case 'o':
-                    printStream << Io::PrintStream::oct << va_arg(args, uint32_t);
+                    printStream << Io::PrintStream::oct << va_arg(args, size_t);
                     break;
                 case 's':
                     printStream << va_arg(args, char*);
                     break;
                 case 'x':
-                    printStream << Io::PrintStream::hex << va_arg(args, uint32_t);
+                    printStream << Io::PrintStream::hex << va_arg(args, size_t);
                     break;
                 case 'b':
-                    printStream << Io::PrintStream::bin << va_arg(args, uint32_t);
+                    printStream << Io::PrintStream::bin << va_arg(args, size_t);
                     break;
                 case 'B':
-                    printStream << static_cast<bool>(va_arg(args, uint32_t));
+                    printStream << static_cast<bool>(va_arg(args, size_t));
                     break;
                 default:
-                    Exception::throwException(Exception::INVALID_ARGUMENT, "String: Invalid format specifier!");
+                    Panic::fire(Panic::INVALID_ARGUMENT, "String: Invalid format specifier!");
             }
         } else {
             break;
@@ -477,83 +467,6 @@ String String::vformat(const char *format, va_list args) {
     }
 
     return stream.getContent();
-}
-
-int32_t String::parseInt(const char *string) {
-    int32_t length;
-    for (length = 0; string[length] != '\0'; length ++) {}
-
-    int32_t limit = 0;
-    int32_t modifier = 1;
-    int32_t result = 0;
-
-    if (string[0] == '-') {
-        limit = 1;
-        modifier = -1;
-    }
-
-    int32_t j = 1;
-    for(int32_t i = length - 1; i >= limit; i--) {
-        if (isNumeric(string[i])) {
-            result += (string[i] - '0') * j;
-            j *= 10;
-        }
-    }
-
-    return result * modifier;
-}
-
-int32_t String::parseInt(const String &string) {
-    return parseInt(static_cast<const char*>(string));
-}
-
-int32_t String::parseHexInt(const char *string) {
-    int32_t length;
-    for (length = 0; string[length] != '\0'; length ++) {}
-
-    int32_t result = 0;
-    int32_t j = 1;
-    for(int32_t i = length - 1; i >= 0; i--) {
-        if (isNumeric(string[i])) {
-            result += (string[i] - '0') * j;
-            j *= 16;
-        } else if (string[i] >= 'A' && string[i] <= 'F') {
-            result += (10 + string[i] - 'A') * j;
-            j *= 16;
-        } else if (string[i] >= 'a' && string[i] <= 'f') {
-            result += (10 + string[i] - 'a') * j;
-            j *= 16;
-        }
-    }
-
-    return result;
-}
-
-int32_t String::parseHexInt(const String &string) {
-    return parseHexInt(static_cast<const char*>(string));
-}
-
-double String::parseDouble(const char *string) {
-    return parseDouble(String(string));
-}
-
-double String::parseDouble(const String &string) {
-    auto parts = string.split(".");
-    int32_t firstNumber = parseInt(parts[0]);
-    int32_t secondNumber = parts.length() > 1 ? parseInt(parts[1]) : 0;
-
-    double exp = 1;
-    if (parts.length() > 1) {
-        for (uint32_t i = 0; i < parts[1].length(); i++) {
-            exp *= 10;
-        }
-    }
-
-    if (firstNumber < 0 || (firstNumber < 1 && string[0] == '-')) {
-        return firstNumber - (secondNumber / exp);
-    } else {
-        return firstNumber + (secondNumber / exp);
-    }
 }
 
 }

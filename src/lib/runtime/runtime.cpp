@@ -21,8 +21,7 @@ void _exit(int32_t);
 extern "C" void _fini();
 
 void initMemoryManager(uint8_t *startAddress) {
-    auto *memoryManager = new (&Util::System::getAddressSpaceHeader().memoryManager) Util::FreeListMemoryManager();
-    memoryManager->initialize(startAddress, reinterpret_cast<uint8_t*>(Util::MAIN_STACK_START_ADDRESS - 1));
+    new (&Util::System::getAddressSpaceHeader().memoryManager) Util::FreeListMemoryManager(startAddress, reinterpret_cast<void*>(Util::MAIN_STACK_START_ADDRESS));
 }
 
 void _sysExit(int32_t exitCode) {

@@ -19,7 +19,7 @@
  */
 
 #include "VirtualDiskDrive.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 
 namespace Device::Storage {
 
@@ -45,7 +45,7 @@ uint64_t VirtualDiskDrive::getSectorCount() {
 
 uint32_t VirtualDiskDrive::read(uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
     if (startSector + sectorCount > VirtualDiskDrive::sectorCount) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "VirtualDiskDrive: Trying to read out of bounds!");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "VirtualDiskDrive: Trying to read out of bounds!");
     }
 
     auto byteCount = sectorSize * sectorCount;
@@ -61,7 +61,7 @@ uint32_t VirtualDiskDrive::read(uint8_t *buffer, uint32_t startSector, uint32_t 
 
 uint32_t VirtualDiskDrive::write(const uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
     if (startSector + sectorCount > VirtualDiskDrive::sectorCount) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "VirtualDiskDrive: Trying to write out of bounds!");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "VirtualDiskDrive: Trying to write out of bounds!");
     }
 
     auto byteCount = sectorSize * sectorCount;

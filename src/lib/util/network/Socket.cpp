@@ -24,7 +24,7 @@
 #include "Socket.h"
 
 #include "lib/interface.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/network/ip4/Ip4Route.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/network/NetworkAddress.h"
@@ -50,7 +50,7 @@ Socket::~Socket() {
 Socket Socket::createSocket(Socket::Type type) {
     auto fileDescriptor = ::createSocket(type);
     if (fileDescriptor == -1) {
-        Util::Exception::throwException(Exception::ILLEGAL_STATE, "Failed to open socket!");
+        Util::Panic::fire(Panic::ILLEGAL_STATE, "Failed to open socket!");
     }
 
     return Socket(fileDescriptor, type);

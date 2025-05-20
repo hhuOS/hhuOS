@@ -22,7 +22,7 @@
 
 #include "lib/util/graphic/Terminal.h"
 #include "lib/util/io/key/layout/UsLayout.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/io/key/layout/DeLayout.h"
 #include "lib/util/collection/Array.h"
 
@@ -40,28 +40,28 @@ bool TerminalNode::control(uint32_t request, const Util::Array<uint32_t> &parame
     switch (request) {
         case Util::Graphic::Terminal::Command::SET_ECHO:
             if (parameters.length() < 1) {
-                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring echo!");
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring echo!");
             }
 
             terminal->setEcho(parameters[0]);
             return true;
         case Util::Graphic::Terminal::Command::SET_LINE_AGGREGATION:
             if (parameters.length() < 1) {
-                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring line aggregation!");
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring line aggregation!");
             }
 
             terminal->setLineAggregation(parameters[0]);
             return true;
         case Util::Graphic::Terminal::Command::SET_CURSOR:
             if (parameters.length() < 1) {
-                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring cursor!");
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring cursor!");
             }
 
             terminal->setCursor(parameters[0]);
             return true;
         case Util::Graphic::Terminal::Command::SET_ANSI_PARSING:
             if (parameters.length() < 1) {
-                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring ANSI parsing!");
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring ANSI parsing!");
             }
 
             terminal->setAnsiParsing(parameters[0]);
@@ -86,7 +86,7 @@ bool TerminalNode::control(uint32_t request, const Util::Array<uint32_t> &parame
             return true;
         case Util::Graphic::Terminal::Command::SET_KEYBOARD_LAYOUT: {
             if (parameters.length() < 1) {
-                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring keyboard layout!");
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring keyboard layout!");
             }
 
             const auto layoutName = Util::String(reinterpret_cast<const char *>(parameters[0])).toLowerCase();
@@ -104,7 +104,7 @@ bool TerminalNode::control(uint32_t request, const Util::Array<uint32_t> &parame
             return true;
         }
         default:
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Terminal: Invalid control request!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Terminal: Invalid control request!");
     }
 }
 

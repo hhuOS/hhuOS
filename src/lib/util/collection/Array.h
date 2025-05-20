@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 #include <initializer_list>
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 
 namespace Util {
 
@@ -116,7 +116,7 @@ Array<T> &Array<T>::operator=(const Array<T> &other) {
 template <class T>
 T &Array<T>::operator[](uint32_t index) {
     if (index >= capacity) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "Array: Index out of bounds!");
+        Panic::fire(Panic::OUT_OF_BOUNDS, "Array: Index out of bounds!");
     }
 
     return array[index];
@@ -125,7 +125,7 @@ T &Array<T>::operator[](uint32_t index) {
 template <class T>
 const T &Array<T>::operator[](uint32_t index) const {
     if (index >= capacity) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "Array: Index out of bounds!");
+        Panic::fire(Panic::OUT_OF_BOUNDS, "Array: Index out of bounds!");
     }
 
     return array[index];

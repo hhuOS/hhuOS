@@ -77,14 +77,14 @@ int32_t main(int32_t argc, char *argv[]) {
         auto split1 = argumentParser.getArgument("resolution").split("x");
         auto split2 = split1[1].split("@");
 
-        uint32_t resolutionX = Util::String::parseInt(split1[0]);
-        uint32_t resolutionY = Util::String::parseInt(split2[0]);
-        uint32_t colorDepth = split2.length() > 1 ? Util::String::parseInt(split2[1]) : 32;
+        auto resolutionX = Util::String::parseNumber<uint16_t>(split1[0]);
+        auto resolutionY = Util::String::parseNumber<uint16_t>(split2[0]);
+        uint8_t colorDepth = split2.length() > 1 ? Util::String::parseNumber<uint8_t>(split2[1]) : 32;
 
         lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
     }
 
-    auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseDouble(argumentParser.getArgument("scale")) : 1.0;
+    auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseFloat<double>(argumentParser.getArgument("scale")) : 1.0;
     auto lfb = Util::Graphic::LinearFrameBuffer::open(lfbFile);
     auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(lfb, scaleFactor);
 
@@ -98,13 +98,13 @@ int32_t main(int32_t argc, char *argv[]) {
     auto charWidth = font.getCharWidth();
     auto charHeight = font.getCharHeight();
 
-    double fps = argumentParser.hasArgument("framesPerSecond") ? Util::String::parseInt(argumentParser.getArgument("framesPerSecond")) : DEFAULT_FPS;
-    uint16_t rows = Util::String::parseInt(frameInfo[0]);
-    uint16_t columns = Util::String::parseInt(frameInfo[1]);
-    uint16_t frameStartX = (((bufferedLfb.getResolutionX() / charWidth) - columns) / 2) * charWidth;
-    uint16_t frameStartY = (((bufferedLfb.getResolutionY() / charHeight) - rows) / 2) * charHeight;
-    uint16_t frameEndX = frameStartX + (columns * charWidth);
-    uint16_t frameEndY = frameStartY + (rows * charHeight);
+    double fps = argumentParser.hasArgument("framesPerSecond") ? Util::String::parseNumber<uint8_t>(argumentParser.getArgument("framesPerSecond")) : DEFAULT_FPS;
+    auto rows = Util::String::parseNumber<uint16_t>(frameInfo[0]);
+    auto columns = Util::String::parseNumber<uint16_t>(frameInfo[1]);
+    auto frameStartX = (((bufferedLfb.getResolutionX() / charWidth) - columns) / 2) * charWidth;
+    auto frameStartY = (((bufferedLfb.getResolutionY() / charHeight) - rows) / 2) * charHeight;
+    auto frameEndX = frameStartX + (columns * charWidth);
+    auto frameEndY = frameStartY + (rows * charHeight);
 
     Util::Graphic::Ansi::prepareGraphicalApplication(false);
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
@@ -119,7 +119,7 @@ int32_t main(int32_t argc, char *argv[]) {
             break;
         }
 
-        uint32_t delay = Util::String::parseInt(delayLine);
+        auto delay = Util::String::parseNumber<uint32_t>(delayLine);
         bufferedLfb.clear();
 
         bufferedLfb.drawLine(frameStartX - charWidth, frameStartY - charHeight, frameEndX + charWidth, frameStartY - charHeight, Util::Graphic::Colors::WHITE);

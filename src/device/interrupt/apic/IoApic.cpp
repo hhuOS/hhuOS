@@ -25,7 +25,7 @@
 
 #include "kernel/service/MemoryService.h"
 #include "LocalApic.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/collection/Iterator.h"
 #include "kernel/service/Service.h"
 
@@ -162,7 +162,7 @@ const IoApic::IrqOverride& IoApic::getOverride(Kernel::GlobalSystemInterrupt tar
         }
     }
 
-    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "IoApic: No override found for given target!");
+    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "IoApic: No override found for given target!");
 }
 
 const IoApic::IrqOverride& IoApic::getOverride(InterruptRequest source) {
@@ -172,7 +172,7 @@ const IoApic::IrqOverride& IoApic::getOverride(InterruptRequest source) {
         }
     }
 
-    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "IoApic: No override found for given source!");
+    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "IoApic: No override found for given source!");
 }
 
 uint32_t IoApic::readIndirectRegister(IoApic::IndirectRegister reg) {

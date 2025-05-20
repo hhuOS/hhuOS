@@ -19,7 +19,7 @@
  */
 
 #include "lib/util/base/Address.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "File.h"
 
 namespace Util::Io::Elf {
@@ -63,7 +63,7 @@ SymbolType SymbolEntry::getSymbolType() const {
 
 File::File(uint8_t *buffer) : buffer(buffer), fileHeader(*reinterpret_cast<FileHeader*>(buffer)) {
     if (!fileHeader.isValid()) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Elf: Invalid file!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Elf: Invalid file!");
     }
 
     const auto &sectionHeaderStringHeader = *reinterpret_cast<SectionHeader*>(buffer + fileHeader.sectionHeader + fileHeader.sectionHeaderStringIndex * fileHeader.sectionHeaderEntrySize);
@@ -115,7 +115,7 @@ const SectionHeader &File::getSectionHeader(SectionHeaderType headerType) const 
         }
     }
 
-    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "ELF: Section header not found!");
+    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "ELF: Section header not found!");
 }
 
 }

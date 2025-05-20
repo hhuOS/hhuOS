@@ -20,7 +20,7 @@
 
 #include <stdarg.h>
 
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "TimeService.h"
 #include "device/time/DateProvider.h"
 #include "device/time/TimeProvider.h"
@@ -92,14 +92,14 @@ Util::Time::Date TimeService::getCurrentDate() const {
         return dateProvider->getCurrentDate();
     }
 
-    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "TimeService: No date provider available!");
+    Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "TimeService: No date provider available!");
 }
 
 void TimeService::setCurrentDate(const Util::Time::Date &date) {
     if (dateProvider != nullptr) {
         return dateProvider->setCurrentDate(date);
     } else {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "TimeService: No date provider available!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "TimeService: No date provider available!");
     }
 }
 

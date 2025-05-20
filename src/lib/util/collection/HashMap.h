@@ -147,7 +147,7 @@ V HashMap<K, V>::get(const K &key) const {
         entry = entry->getNext();
     }
 
-    Exception::throwException(Exception::KEY_NOT_FOUND, "HashMap: Key does not exist!");
+    Panic::fire(Panic::KEY_NOT_FOUND, "HashMap: Key does not exist!");
 }
 
 template<class K, class V>
@@ -166,7 +166,7 @@ V HashMap<K, V>::remove(const K &key) {
     }
 
     if (entry == nullptr) {
-        Exception::throwException(Exception::KEY_NOT_FOUND, "HashMap: Key does not exist!");
+        Panic::fire(Panic::KEY_NOT_FOUND, "HashMap: Key does not exist!");
     }
 
     V tmp = entry->getValue();

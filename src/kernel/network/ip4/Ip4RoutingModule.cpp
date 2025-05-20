@@ -25,7 +25,7 @@
 
 #include "Ip4RoutingModule.h"
 #include "lib/util/network/ip4/Ip4Address.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "kernel/service/NetworkService.h"
 #include "kernel/network/NetworkStack.h"
@@ -125,7 +125,7 @@ const Util::Network::Ip4::Ip4Route& Ip4RoutingModule::findRoute(const Util::Netw
             return defaultRoute;
         }
 
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ip4RoutingModule: No route to host!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Ip4RoutingModule: No route to host!");
     }
 
     return *bestRoute;

@@ -20,7 +20,7 @@
 
 #include "MemoryLayout.h"
 #include "PagingAreaManager.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/base/Constants.h"
 
 namespace Kernel {
@@ -49,7 +49,7 @@ void PagingAreaManager::refillPool() {
     for (uint32_t i = 0; i < blockPool.getCapacity(); i++) {
         void *block = BitmapMemoryManager::allocateBlock();
         if (block == nullptr) {
-            Util::Exception::throwException(Util::Exception::OUT_OF_PAGING_MEMORY, "PagingAreaManager: Out of memory!");
+            Util::Panic::fire(Util::Panic::OUT_OF_MEMORY, "PagingAreaManager: Out of memory!");
         }
 
         if (!blockPool.push(block)) {

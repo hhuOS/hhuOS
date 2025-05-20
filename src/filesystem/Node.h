@@ -115,7 +115,7 @@ public:
             case Util::Io::File::DIRECTORY:
                 return false;
             default:
-                Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Node does not implement 'isReadyToRead()'!");
+                Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "Node does not implement 'isReadyToRead()'!");
         }
     }
 

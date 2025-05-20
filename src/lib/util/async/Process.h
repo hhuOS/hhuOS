@@ -55,7 +55,6 @@ public:
     /// @param arguments The arguments to pass to the program.
     ///
     /// ### Example
-    ///
     /// ```c++
     /// auto echoProcess = Util::Async::Process::execute(
     ///     "/bin/echo", "/dev/terminal", "/dev/terminal", "/dev/terminal", "echo", {"Hello", "World"});
@@ -66,12 +65,11 @@ public:
     /// Get access to the current process.
     ///
     /// ### Example
-    ///
     /// ```c++
     /// auto process = Util::Async::Process::getCurrentProcess();
     /// process.exit(0); // Exit the current process with exit code 0
     /// ```
-    static Process getCurrentProcess();
+    [[nodiscard]] static Process getCurrentProcess();
 
     /// Exit the current process.
     /// This function does not return.
@@ -80,7 +78,6 @@ public:
     /// Join the process by blocking until it has finished.
     ///
     /// ### Example
-    ///
     /// ```c++
     /// auto echoProcess = Util::Async::Process::execute(
     ///     "/bin/echo", "/dev/terminal", "/dev/terminal", "/dev/terminal", "echo", {"Hello", "World"});

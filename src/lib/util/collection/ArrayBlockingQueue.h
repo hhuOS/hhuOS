@@ -148,11 +148,11 @@ bool ArrayBlockingQueue<T>::addAll(const Collection<T> &other) {
 }
 template<class T>
 bool ArrayBlockingQueue<T>::remove([[maybe_unused]] const T &element) {
-    Exception::throwException(Exception::UNSUPPORTED_OPERATION, "ArrayBlockingQueue: Remove a specific element is not supported!");
+    Panic::fire(Panic::UNSUPPORTED_OPERATION, "ArrayBlockingQueue: Remove a specific element is not supported!");
 }
 template<class T>
 bool ArrayBlockingQueue<T>::removeAll([[maybe_unused]] const Collection<T> &other) {
-    Exception::throwException(Exception::UNSUPPORTED_OPERATION, "ArrayBlockingQueue: Remove a collection of specific elements is not supported!");
+    Panic::fire(Panic::UNSUPPORTED_OPERATION, "ArrayBlockingQueue: Remove a collection of specific elements is not supported!");
 }
 
 template<class T>

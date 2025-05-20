@@ -33,7 +33,7 @@ TableMemoryManager::TableMemoryManager(BitmapMemoryManager &bitmapMemoryManager,
     }
 
     if (bitmapMemoryManager.getBlockSize() < MIN_BITMAP_BLOCK_SIZE) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Bitmap block size is too small!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Bitmap block size is too small!");
     }
 
     allocationTableCount = (blockCount * sizeof(AllocationTableEntry)) / bitmapMemoryManager.getBlockSize();
@@ -236,11 +236,11 @@ uint32_t TableMemoryManager::getFreeMemory() const {
     return freeMemory;
 }
 
-uint8_t * TableMemoryManager::getStartAddress() const {
+void* TableMemoryManager::getStartAddress() const {
     return startAddress;
 }
 
-uint8_t * TableMemoryManager::getEndAddress() const {
+void* TableMemoryManager::getEndAddress() const {
     return endAddress;
 }
 

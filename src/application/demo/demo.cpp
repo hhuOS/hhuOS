@@ -76,9 +76,9 @@ int32_t main(int32_t argc, char *argv[]) {
         auto split1 = argumentParser.getArgument("resolution").split("x");
         auto split2 = split1[1].split("@");
 
-        uint32_t resolutionX = Util::String::parseInt(split1[0]);
-        uint32_t resolutionY = Util::String::parseInt(split2[0]);
-        uint32_t colorDepth = split2.length() > 1 ? Util::String::parseInt(split2[1]) : 32;
+        auto resolutionX = Util::String::parseNumber<uint16_t>(split1[0]);
+        auto resolutionY = Util::String::parseNumber<uint16_t>(split2[0]);
+        uint8_t colorDepth = split2.length() > 1 ? Util::String::parseNumber<uint8_t>(split2[1]) : 32;
 
         lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
     }
@@ -86,12 +86,12 @@ int32_t main(int32_t argc, char *argv[]) {
     auto lfb = Util::Graphic::LinearFrameBuffer::open(lfbFile);
 
     if (demo == "ant") {
-        auto sleepInterval = arguments.length() <= 1 ? 0 : Util::String::parseInt(arguments[0]);
+        auto sleepInterval = arguments.length() <= 1 ? 0 : Util::String::parseNumber<uint32_t>(arguments[0]);
         antDemo(lfb, sleepInterval);
     } else if (demo == "fonts") {
         fontDemo(lfb);
     } else {
-        auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseDouble(argumentParser.getArgument("scale")) : 1.0;
+        auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseFloat<double>(argumentParser.getArgument("scale")) : 1.0;
         auto engine = Util::Game::Engine(lfb, 60, scaleFactor);
 
         if (demo == "mouse") {
@@ -101,10 +101,10 @@ int32_t main(int32_t argc, char *argv[]) {
         } else if (demo == "particles") {
             Util::Game::GameManager::getGame().pushScene(new ParticleDemo());
         } else if (demo == "polygons") {
-            auto initialCount = arguments.length() > 1 ? Util::String::parseInt(arguments[1]) : 10;
+            auto initialCount = arguments.length() > 1 ? Util::String::parseNumber<uint32_t>(arguments[1]) : 10;
             Util::Game::GameManager::getGame().pushScene(new PolygonDemo(initialCount));
         } else if (demo == "sprites") {
-            auto initialCount = arguments.length() > 1 ? Util::String::parseInt(arguments[1]) : 10;
+            auto initialCount = arguments.length() > 1 ? Util::String::parseNumber<uint32_t>(arguments[1]) : 10;
             Util::Game::GameManager::getGame().pushScene(new SpriteDemo(initialCount));
         } else {
             Util::System::error << "demo: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;

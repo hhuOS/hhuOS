@@ -19,7 +19,7 @@
  */
 
 #include "FileOutputStream.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/FileStream.h"
 
@@ -27,19 +27,19 @@ namespace Util::Io {
 
 FileOutputStream::FileOutputStream(const Io::File &file) : fileStream(static_cast<const char*>(file.getCanonicalPath()), FileStream::FileMode::WRITE) {
     if (fileStream.isError()) {
-        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileOutputStream: Unable to open file!");
+        Util::Panic::fire(Panic::ILLEGAL_STATE, "FileOutputStream: Unable to open file!");
     }
 }
 
 FileOutputStream::FileOutputStream(const String &path) : fileStream(static_cast<const char*>(path), FileStream::FileMode::WRITE) {
     if (fileStream.isError()) {
-        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileOutputStream: Unable to open file!");
+        Util::Panic::fire(Panic::ILLEGAL_STATE, "FileOutputStream: Unable to open file!");
     }
 }
 
 FileOutputStream::FileOutputStream(int32_t fileDescriptor) : fileStream(fileDescriptor, false, true) {
     if (fileStream.isError()) {
-        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileOutputStream: Unable to open file!");
+        Util::Panic::fire(Panic::ILLEGAL_STATE, "FileOutputStream: Unable to open file!");
     }
 }
 

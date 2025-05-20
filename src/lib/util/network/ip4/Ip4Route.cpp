@@ -23,7 +23,7 @@
 
 #include "Ip4Route.h"
 
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "lib/util/network/ip4/Ip4SubnetAddress.h"
 
@@ -59,7 +59,7 @@ Ip4SubnetAddress Ip4Route::getTargetAddress() const {
 
 const Ip4::Ip4Address &Ip4Route::getNextHop() const {
     if (!nextHopValid) {
-        Util::Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Ip4Route: Route has no next hop!");
+        Util::Panic::fire(Panic::UNSUPPORTED_OPERATION, "Ip4Route: Route has no next hop!");
     }
 
     return nextHop;

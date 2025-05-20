@@ -29,7 +29,7 @@
 #include "device/cpu/Cpu.h"
 #include "device/interrupt/pic/Pic.h"
 #include "kernel/process/Process.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/base/Constants.h"
 
@@ -75,10 +75,10 @@ void InterruptService::handleException(const InterruptFrame &frame, uint32_t err
     auto &processService = Service::getService<ProcessService>();
     if (processService.getCurrentProcess().isKernelProcess()) {
         Device::Cpu::disableInterrupts();
-        Util::Exception::throwException(static_cast<Util::Exception::Error>(vector), "CPU exception!");
+        Util::Panic::fire(static_cast<Util::Panic::Error>(vector), "CPU exception!");
     }
 
-    Util::System::out << Util::Exception::getExceptionName(static_cast<Util::Exception::Error>(vector)) << " (CPU exception!)" << Util::Io::PrintStream::endl
+    Util::System::out << Util::Panic::getErrorAsString(static_cast<Util::Panic::Error>(vector)) << " (CPU exception!)" << Util::Io::PrintStream::endl
         << Util::Io::PrintStream::hex << "Error code: 0x" << errorCode
         << Util::Io::PrintStream::endl << " EIP: 0x" << frame.instructionPointer
         << Util::Io::PrintStream::endl << " CS: 0x" << frame.codeSegment

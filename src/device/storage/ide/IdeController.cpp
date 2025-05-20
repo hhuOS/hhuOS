@@ -35,7 +35,7 @@
 #include "device/bus/pci/PciDevice.h"
 #include "kernel/log/Log.h"
 #include "kernel/service/MemoryService.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/base/Constants.h"
@@ -489,7 +489,7 @@ uint16_t IdeController::determineSectorSize(const DeviceInfo &info) {
 uint16_t IdeController::performAtaIO(const DeviceInfo &info, TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount) {
     auto &registers = channels[info.channel];
     if (!checkBounds(info, startSector, sectorCount)) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "IDE: Trying to read/write out of disk bounds!");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "IDE: Trying to read/write out of disk bounds!");
     }
 
     ioLock.acquire();
@@ -572,7 +572,7 @@ void IdeController::prepareAtaIO(const DeviceInfo &info, uint64_t startSector, u
         registers.command.lbaMid.writeByte(startSector >> 8);
         registers.command.lbaHigh.writeByte(startSector >> 16);
     } else {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "IDE: Unsupported address type!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "IDE: Unsupported address type!");
     }
 }
 
@@ -586,7 +586,7 @@ uint16_t IdeController::performProgrammedAtaIO(const DeviceInfo &info, TransferM
     } else if (info.addressing == LBA48) {
         command = mode == WRITE ? WRITE_PIO_LBA48 : READ_PIO_LBA48;
     } else {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "IDE: Unsupported address type!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "IDE: Unsupported address type!");
     }
 
     registers.command.command.writeByte(command);
@@ -610,7 +610,7 @@ uint16_t IdeController::performProgrammedAtaIO(const DeviceInfo &info, TransferM
                 registers.command.data.writeWord(*buffer++);
             }
         } else {
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "IDE: Unsupported transfer mode!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "IDE: Unsupported transfer mode!");
         }
     }
 
@@ -627,7 +627,7 @@ uint16_t IdeController::performDmaAtaIO(const DeviceInfo &info, TransferMode mod
     } else if (info.addressing == LBA48) {
         command = mode == WRITE ? WRITE_DMA_LBA48 : READ_DMA_LBA48;
     } else {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "IDE: Unsupported address type!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "IDE: Unsupported address type!");
     }
 
     // Calculate the amount of pages needed for the operation
@@ -746,7 +746,7 @@ uint16_t IdeController::performAtapiIO(const IdeController::DeviceInfo &info, Id
     }
 
     if (startSector + sectorCount >= info.atapi.maxSectorsLba) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "IDE: Trying to read/write out of disk bounds!");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "IDE: Trying to read/write out of disk bounds!");
     }
 
     ioLock.acquire();
@@ -891,7 +891,7 @@ bool IdeController::checkBounds(const DeviceInfo &info, uint64_t startSector, ui
         case LBA48:
             return startSector + sectorCount < info.maxSectorsLba48;
         default:
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "IDE: Unsupported address type!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "IDE: Unsupported address type!");
     }
 }
 

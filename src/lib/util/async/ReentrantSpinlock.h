@@ -69,7 +69,7 @@ public:
 
     /// Try to acquire the lock once.
     /// If the lock is not available, the function does not block and returns false.
-    bool tryAcquire() override;
+    [[nodiscard]] bool tryAcquire() override;
 
     /// Release the lock.
     /// If the lock is not held, this function does nothing.

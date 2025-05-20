@@ -3,14 +3,14 @@
 
 namespace Util::Async {
 
-/// Interface for a lock, which can be used to synchronize access to shared resources.
+/// Base class for a lock, which can be used to synchronize access to shared resources.
 class Lock {
 
 protected:
-    /// The Lock interface has no state, so the default constructor is empty.
+    /// The Lock base class has no state, so the default constructor is sufficient.
     Lock() = default;
 
-    /// The Lock interface has no state, so the destructor is empty.
+    /// The Lock base class has no state, so the default destructor is sufficient.
     virtual ~Lock() = default;
 
 public:
@@ -26,7 +26,7 @@ public:
 
     /// Try to acquire the lock once.
     /// If the lock is not available, the function does not block and returns false.
-    virtual bool tryAcquire() = 0;
+    [[nodiscard]] virtual bool tryAcquire() = 0;
 
     /// Release the lock.
     /// If the lock is not held, this function does nothing.
@@ -39,7 +39,6 @@ public:
     /// This function is useful for returning a value from a function that also releases the lock.
     ///
     /// ### Example
-    ///
     /// ```c++
     /// int value = 0 // Global variable
     /// Util::Async::Spinlock lock; // Spinlock implementation

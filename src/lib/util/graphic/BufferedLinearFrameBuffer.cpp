@@ -21,7 +21,7 @@
 #include "lib/util/base/Address.h"
 #include "BufferedLinearFrameBuffer.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 
 namespace Util::Graphic {
 
@@ -39,7 +39,7 @@ BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(const LinearFrameBuffer &lf
         scale(lfb.getResolutionX() / resolutionX > lfb.getResolutionY() / resolutionY ? lfb.getResolutionY() / resolutionY : lfb.getResolutionX() / resolutionX),
         offsetX((lfb.getResolutionX() - resolutionX * scale) / 2), offsetY((lfb.getResolutionY() - resolutionY * scale) / 2), target(lfb) {
     if (getResolutionX() > target.getResolutionX() || getResolutionY() > target.getResolutionY()) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "BufferedLinearFrameBuffer: Buffered resolution must not be larger than target resolution!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "BufferedLinearFrameBuffer: Buffered resolution must not be larger than target resolution!");
     }
 
     clear();
@@ -76,7 +76,7 @@ void BufferedLinearFrameBuffer::flush() const {
                 scalingFlush16();
                 break;
             default:
-                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "BufferedLinearFrameBuffer: Unsupported color depth!");
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "BufferedLinearFrameBuffer: Unsupported color depth!");
         }
     }
 }

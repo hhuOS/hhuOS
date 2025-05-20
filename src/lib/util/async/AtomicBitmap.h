@@ -28,6 +28,17 @@ namespace Util::Async {
 
 /// A bitmap that can be used to manage a set of blocks (e.g. page frames).
 /// It uses atomic operations to ensure thread-safety.
+///
+/// ## Example
+/// ```c++
+/// auto bitmap = Util::Async::AtomicBitmap(8); // bitmap = 00000000
+/// bitmap.set(0); // Set first bit to 1 (bitmap = 10000000)
+/// const auto set1 = bitmap.findAndSet(); // (bitmap = 11000000, set1 = 1)
+/// bitmap.unset(0); // Unset first bit again (bitmap = 01000000)
+/// const auto set2 = bitmap.findAndSet(); // (bitmap = 11000000, set2 = 0)
+/// bitmap.unset(0); // Unset first bit again (bitmap = 01000000)
+/// const auto unset1 = bitmap.findAndUnset(); // (bitmap = 00000000, unset1 = 0)
+/// ```
 class AtomicBitmap {
 
 public:
@@ -55,15 +66,15 @@ public:
 
     /// Check if the bit at the given index is set/unset.
     /// The boolean value `set` indicates whether to check for set or unset.
-    bool check(size_t block, bool set) const;
+    [[nodiscard]] bool check(size_t block, bool set) const;
 
     /// Find the first unset bit and set it to 1.
     /// Return the index of the bit that was set or INVALID_INDEX if no unset bit was found.
-    size_t findAndSet() const;
+    [[nodiscard]] size_t findAndSet() const;
 
     /// Find the first set bit and set it to 0.
     /// Return the index of the bit that was unset or INVALID_INDEX if no set bit was found.
-    size_t findAndUnset() const;
+    [[nodiscard]] size_t findAndUnset() const;
 
     /// Indicates that no suitable bit was found.
     static constexpr size_t INVALID_INDEX = SIZE_MAX;

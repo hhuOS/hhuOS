@@ -7,7 +7,7 @@
 #include "lib/util/math/Math.h"
 #include "Rogue3D.h"
 #include "application/rogue3d/entities/Hud.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/game/3d/Light.h"
 #include "lib/util/graphic/Color.h"
 
@@ -131,7 +131,7 @@ Room& Rogue3D::getRoomByPos(uint32_t row, uint32_t column) const {
         i++;
     }
 
-    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Rogue3D: Room not found!");
+    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Rogue3D: Room not found!");
 }
 
 void Rogue3D::generateLevel() {

@@ -28,7 +28,7 @@
 #include "kernel/memory/Paging.h"
 #include "kernel/process/Process.h"
 #include "kernel/service/Service.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/base/FreeListMemoryManager.h"
 #include "lib/util/collection/ArrayList.h"
 
@@ -128,7 +128,7 @@ void VirtualAddressSpace::map(const void *physicalAddress, const void *virtualAd
     // Check if the requested page is already mapped
     if (!pageTable[pageTableIndex].isUnused()) {
         pageDirectoryLock.release();
-        Util::Exception::throwException(Util::Exception::PAGING_ERROR, "PageDirectory: Requested page is already mapped!");
+        Util::Panic::fire(Util::Panic::PAGING_ERROR, "PageDirectory: Requested page is already mapped!");
     }
 
     // Set entry in page table

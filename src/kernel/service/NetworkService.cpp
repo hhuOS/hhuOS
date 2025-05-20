@@ -26,7 +26,7 @@
 #include <stdarg.h>
 
 #include "device/network/NetworkDevice.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/network/MacAddress.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "lib/util/network/Socket.h"
@@ -86,7 +86,7 @@ NetworkService::NetworkService() {
 
         auto &socket = reinterpret_cast<Network::Socket&>(filesystemService.getFileDescriptor(fileDescriptor).getNode());
         if (!socket.isBound()) {
-            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
+            Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
         }
 
         return socket.send(datagram);
@@ -105,7 +105,7 @@ NetworkService::NetworkService() {
         auto &socketDescriptor = filesystemService.getFileDescriptor(fileDescriptor);
         auto &socket = reinterpret_cast<Network::Socket&>(socketDescriptor.getNode());
         if (!socket.isBound()) {
-            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
+            Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Socket: Not yet bound!");
         }
 
         if (socketDescriptor.getAccessMode() == Util::Io::File::BLOCKING || socket.isReadyToRead()) {
@@ -141,7 +141,7 @@ void NetworkService::initializeLoopback() {
 
     lock.acquire();
     deviceMap.put(loopback->getIdentifier(), loopback);
-    LOG_INFO("Registered device [%s]",static_cast<char*>(loopback->getIdentifier()));
+    LOG_INFO("Registered device [%s]",static_cast<const char*>(loopback->getIdentifier()));
     lock.release();
 
     Device::Network::NetworkFilesystemDriver::mount(*loopback);
@@ -159,11 +159,11 @@ Util::String NetworkService::registerNetworkDevice(Device::Network::NetworkDevic
     }
 
     auto value = nameMap.get(deviceClass);
-    device->setIdentifier(Util::String::format("%s%u", static_cast<char*>(deviceClass), value));
+    device->setIdentifier(Util::String::format("%s%u", static_cast<const char*>(deviceClass), value));
     deviceMap.put(device->getIdentifier(), device);
     nameMap.put(deviceClass, value + 1);
 
-    LOG_INFO("Registered device [%s]",static_cast<char*>(device->getIdentifier()));
+    LOG_INFO("Registered device [%s]",static_cast<const char*>(device->getIdentifier()));
     lock.release();
 
     Device::Network::NetworkFilesystemDriver::mount(*device);
@@ -174,7 +174,7 @@ Device::Network::NetworkDevice &NetworkService::getNetworkDevice(const Util::Str
     lock.acquire();
     if (!deviceMap.containsKey(identifier)) {
         lock.release();
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "NetworkService: Device not found!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "NetworkService: Device not found!");
     }
 
     auto &result = *deviceMap.get(identifier);
@@ -190,7 +190,7 @@ Device::Network::NetworkDevice &NetworkService::getNetworkDevice(const Util::Net
         }
     }
 
-    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "NetworkService: Device not found!");
+    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "NetworkService: Device not found!");
 }
 
 Network::NetworkStack &NetworkService::getNetworkStack() {

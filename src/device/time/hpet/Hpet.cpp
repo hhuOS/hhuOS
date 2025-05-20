@@ -32,7 +32,7 @@
 #include "device/interrupt/InterruptRequest.h"
 #include "device/time/hpet/SystemTimerInterruptHandler.h"
 #include "kernel/service/Service.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/hardware/Acpi.h"
 
@@ -41,7 +41,7 @@ namespace Device {
 Hpet::Hpet() {
     auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
     if (!acpi.hasTable("HPET")) {
-        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Trying to initializeScene non-existent HPET!");
+        Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "Trying to initializeScene non-existent HPET!");
     }
 
     const auto &hpetTable = acpi.getTable<Util::Hardware::Acpi::Hpet>("HPET");

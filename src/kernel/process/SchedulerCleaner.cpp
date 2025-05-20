@@ -23,7 +23,7 @@
 #include "lib/util/async/Thread.h"
 #include "kernel/process/Process.h"
 #include "kernel/process/Thread.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/time/Timestamp.h"
 #include "kernel/service/Service.h"
 #include "kernel/service/ProcessService.h"
@@ -39,13 +39,13 @@ SchedulerCleaner::~SchedulerCleaner() {
 
 void SchedulerCleaner::cleanup(Process *process) {
     if (!processQueue.offer(process)) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "Too many processes to cleanup!");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "Too many processes to cleanup!");
     }
 }
 
 void SchedulerCleaner::cleanup(Thread *thread) {
     if (!threadQueue.offer(thread)) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "Too many threads to cleanup!");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "Too many threads to cleanup!");
     }
 }
 

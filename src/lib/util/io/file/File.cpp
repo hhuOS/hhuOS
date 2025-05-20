@@ -22,7 +22,7 @@
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/io/file/File.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 
 namespace Util::Io {
 
@@ -63,7 +63,7 @@ bool File::exists() {
 File::Type File::getType() {
     ensureFileIsOpened();
     if (fileDescriptor < 0) {
-        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
+        Util::Panic::fire(Panic::INVALID_ARGUMENT, "File: Could not open file!");
     }
 
     return ::getFileType(fileDescriptor);
@@ -80,7 +80,7 @@ bool File::isDirectory() {
 uint32_t Io::File::getLength() {
     ensureFileIsOpened();
     if (fileDescriptor < 0) {
-        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
+        Util::Panic::fire(Panic::INVALID_ARGUMENT, "File: Could not open file!");
     }
 
     return ::getFileLength(fileDescriptor);
@@ -102,7 +102,7 @@ String File::getParent() const {
 Array<String> File::getChildren() {
     ensureFileIsOpened();
     if (fileDescriptor < 0) {
-        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
+        Util::Panic::fire(Panic::INVALID_ARGUMENT, "File: Could not open file!");
     }
 
     return ::getFileChildren(fileDescriptor);
@@ -129,7 +129,7 @@ bool File::remove() {
 bool File::controlFile(uint32_t request, const Util::Array<uint32_t> &parameters) {
     ensureFileIsOpened();
     if (fileDescriptor < 0) {
-        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
+        Util::Panic::fire(Panic::INVALID_ARGUMENT, "File: Could not open file!");
     }
 
     return ::controlFile(fileDescriptor, request, parameters);
@@ -138,7 +138,7 @@ bool File::controlFile(uint32_t request, const Util::Array<uint32_t> &parameters
 bool File::controlFileDescriptor(uint32_t request, const Array<uint32_t> &parameters) {
     ensureFileIsOpened();
     if (fileDescriptor < 0) {
-        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
+        Util::Panic::fire(Panic::INVALID_ARGUMENT, "File: Could not open file!");
     }
 
     return ::controlFileDescriptor(fileDescriptor, request, parameters);
@@ -147,7 +147,7 @@ bool File::controlFileDescriptor(uint32_t request, const Array<uint32_t> &parame
 bool File::setAccessMode(File::AccessMode accessMode) {
     ensureFileIsOpened();
     if (fileDescriptor < 0) {
-        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
+        Util::Panic::fire(Panic::INVALID_ARGUMENT, "File: Could not open file!");
     }
 
     return controlFileDescriptor(fileDescriptor, Util::Io::File::SET_ACCESS_MODE, Util::Array<uint32_t>({accessMode}));
@@ -156,7 +156,7 @@ bool File::setAccessMode(File::AccessMode accessMode) {
 bool File::isReadyToRead() {
     ensureFileIsOpened();
     if (fileDescriptor < 0) {
-        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
+        Util::Panic::fire(Panic::INVALID_ARGUMENT, "File: Could not open file!");
     }
 
     return isReadyToRead(fileDescriptor);
@@ -224,7 +224,7 @@ bool File::setAccessMode(int32_t fileDescriptor, File::AccessMode accessMode) {
 bool File::isReadyToRead(int32_t fileDescriptor) {
     bool readyToRead;
     if (!controlFileDescriptor(fileDescriptor, Util::Io::File::IS_READY_TO_READ, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&readyToRead)}))) {
-        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Failed to query readiness!");
+        Util::Panic::fire(Panic::INVALID_ARGUMENT, "File: Failed to query readiness!");
     }
 
     return readyToRead;

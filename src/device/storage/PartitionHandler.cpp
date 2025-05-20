@@ -24,13 +24,13 @@
 #include "lib/util/collection/ArrayList.h"
 #include "device/storage/StorageDevice.h"
 #include "kernel/log/Log.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 
 namespace Device::Storage {
 
 PartitionHandler::PartitionHandler(StorageDevice &device) : device(device) {
     if (device.getSectorSize() < 512) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "PartitionHandler: Sector size must be at least 512 bytes!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "PartitionHandler: Sector size must be at least 512 bytes!");
     }
 }
 
@@ -125,7 +125,7 @@ Util::Array<PartitionHandler::PartitionInfo> PartitionHandler::readPartitionTabl
 
 void PartitionHandler::writePartition(uint8_t partitionNumber, bool active, SystemId systemId, uint32_t startSector, uint32_t sectorCount) {
     if (partitionNumber < 1) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "PartitionHandler: Partition number must be larger than 0!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "PartitionHandler: Partition number must be larger than 0!");
     }
 
     // Read MBR
@@ -147,7 +147,7 @@ void PartitionHandler::writePartition(uint8_t partitionNumber, bool active, Syst
         uint32_t writtenSectors = device.write(mbr, 0, 1);
         delete[] mbr;
         if (writtenSectors < 1) {
-            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PartitionHandler: Unable to write boot record to disk!");
+            Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "PartitionHandler: Unable to write boot record to disk!");
         }
     } else {
         LOG_DEBUG("Writing logical partition");
@@ -167,7 +167,7 @@ void PartitionHandler::writePartition(uint8_t partitionNumber, bool active, Syst
         delete[] mbr;
 
         if (extendedPartition.systemId == EMPTY) {
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "PartitionHandler: Trying to add a logical partition, but there is no extended partition!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "PartitionHandler: Trying to add a logical partition, but there is no extended partition!");
         }
 
         // Iterate through logical partitions to the desired partition number or the end of the list
@@ -203,7 +203,7 @@ void PartitionHandler::writePartition(uint8_t partitionNumber, bool active, Syst
             uint32_t writtenSectors = device.write(ebr, ebrSector, 1);
             delete[] ebr;
             if (writtenSectors < 1) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PartitionHandler: Unable to write boot record to disk!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "PartitionHandler: Unable to write boot record to disk!");
             }
 
             // Let next entry of current boot record point to the boot record of the new partition
@@ -214,7 +214,7 @@ void PartitionHandler::writePartition(uint8_t partitionNumber, bool active, Syst
             newEbrAddress.setRange(0, device.getSectorSize());
 
             // Set boot record signature
-            newEbrAddress.setShort(BOOT_RECORD_SIGNATURE, 510);
+            newEbrAddress.write16(BOOT_RECORD_SIGNATURE, 510);
 
             // Set start sector and sector count
             entry.relativeSector = 1;
@@ -227,7 +227,7 @@ void PartitionHandler::writePartition(uint8_t partitionNumber, bool active, Syst
             writtenSectors = device.write(newEbr, startSector, 1) == device.getSectorSize();
             delete[] newEbr;
             if (writtenSectors < 1) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PartitionHandler: Unable to write boot record to disk!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "PartitionHandler: Unable to write boot record to disk!");
             }
         } else {
             // Update an existing logical partition
@@ -243,7 +243,7 @@ void PartitionHandler::writePartition(uint8_t partitionNumber, bool active, Syst
             auto writtenSectors = device.write(ebr, ebrSector, 1) == device.getSectorSize();
             delete[] ebr;
             if (writtenSectors < 1) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PartitionHandler: Unable to write boot record to disk!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "PartitionHandler: Unable to write boot record to disk!");
             }
         }
     }
@@ -251,7 +251,7 @@ void PartitionHandler::writePartition(uint8_t partitionNumber, bool active, Syst
 
 void PartitionHandler::deletePartition(uint8_t partitionNumber) {
     if (partitionNumber < 1) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "PartitionHandler: Partition number must be larger than 0!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "PartitionHandler: Partition number must be larger than 0!");
     }
 
     // Read MBR
@@ -269,7 +269,7 @@ void PartitionHandler::deletePartition(uint8_t partitionNumber) {
         uint32_t writtenSectors = device.write(mbr, 0, 1);
         delete[] mbr;
         if (writtenSectors < 1) {
-            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PartitionHandler: Unable to write boot record to disk!");
+            Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "PartitionHandler: Unable to write boot record to disk!");
         }
     } else {
         LOG_DEBUG("Deleting logical partition (Number: [%u]", partitionNumber);
@@ -313,7 +313,7 @@ void PartitionHandler::deletePartition(uint8_t partitionNumber) {
             auto writtenBytes = device.write(ebr, extendedPartition.relativeSector, 1);
             delete[] ebr;
             if (writtenBytes < 1) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PartitionHandler: Unable to write boot record to disk!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "PartitionHandler: Unable to write boot record to disk!");
             }
         } else {
             uint8_t *ebr;
@@ -329,7 +329,7 @@ void PartitionHandler::deletePartition(uint8_t partitionNumber) {
                 nextLogicalPartition = *reinterpret_cast<PartitionTableEntry*>(&ebr[PARTITION_TABLE_START + sizeof(PartitionTableEntry)]);
 
                 if (currentLogicalPartition.systemId == EMPTY || (nextLogicalPartition.systemId == EMPTY && i < partitionNumber)) {
-                    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "PartitionHandler: Trying to delete a non-existent partition!");
+                    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "PartitionHandler: Trying to delete a non-existent partition!");
                 }
 
                 if (i < partitionNumber) {
@@ -353,13 +353,13 @@ void PartitionHandler::deletePartition(uint8_t partitionNumber) {
             auto writtenSectors = device.write(ebr, currentEbrSector, 1);
             delete[] ebr;
             if (writtenSectors < 1) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PartitionHandler: Unable to write boot record to disk!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "PartitionHandler: Unable to write boot record to disk!");
             }
 
             writtenSectors = device.write(lastEbr, lastEbrSector, 1);
             delete[] lastEbr;
             if (writtenSectors < 1) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PartitionHandler: Unable to write boot record to disk!");
+                Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "PartitionHandler: Unable to write boot record to disk!");
             }
         }
     }
@@ -373,14 +373,14 @@ void PartitionHandler::createBootRecord(uint32_t sector) {
     mbrAddress.setRange(0, device.getSectorSize());
 
     // Set boot record signature
-    mbrAddress.setShort(BOOT_RECORD_SIGNATURE, 510);
+    mbrAddress.write16(BOOT_RECORD_SIGNATURE, 510);
 
     // Write fresh boot record to disk
     auto writtenSectors = device.write(mbr, sector, 1) == device.getSectorSize();
     delete[] mbr;
 
     if (writtenSectors < 1) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PartitionHandler: Unable to write boot record to disk!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "PartitionHandler: Unable to write boot record to disk!");
     }
 }
 

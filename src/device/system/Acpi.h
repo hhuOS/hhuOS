@@ -26,7 +26,7 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/hardware/Acpi.h"
 
 namespace Util {
@@ -96,7 +96,7 @@ const T& Acpi::getTable(const char *signature) const {
         }
     }
 
-    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Acpi: Table not found!");
+    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Acpi: Table not found!");
 }
 
 template<typename T>
@@ -117,7 +117,7 @@ Util::Array<const T*> Acpi::getMadtStructures(Util::Hardware::Acpi::ApicStructur
 
         if (header->length == 0) {
             // If this happens there is a bug in this function o_O
-            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Header length must not be 0!");
+            Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Header length must not be 0!");
         }
 
         if (header->type == type) {

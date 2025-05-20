@@ -124,7 +124,7 @@ ArrayList<T>::~ArrayList() {
 template <class T>
 T ArrayList<T>::get(uint32_t index) const {
     if (index >= length) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "ArrayList: Trying to access an element out of bounds!");
+        Panic::fire(Panic::OUT_OF_BOUNDS, "ArrayList: Trying to access an element out of bounds!");
     }
 
     return elements[index];
@@ -179,7 +179,7 @@ bool ArrayList<T>::remove(const T &element) {
 template <class T>
 T ArrayList<T>::removeIndex(uint32_t index) {
     if (index >= length) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "ArrayList: Trying to access an element out of bounds!");
+        Panic::fire(Panic::OUT_OF_BOUNDS, "ArrayList: Trying to access an element out of bounds!");
     }
 
     T tmp = elements[index];

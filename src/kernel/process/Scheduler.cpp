@@ -26,7 +26,7 @@
 #include "kernel/process/Process.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/MemoryService.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/time/Timestamp.h"
 #include "kernel/log/Log.h"
 #include "kernel/service/InterruptService.h"
@@ -73,7 +73,7 @@ bool Scheduler::isInitialized() const {
 Thread& Scheduler::getCurrentThread() {
     if (!initialized) {
         readyQueueLock.release();
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Scheduler: Trying to get current thread before initialization!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Scheduler: Trying to get current thread before initialization!");
     }
 
     return *currentThread;
@@ -87,7 +87,7 @@ void Scheduler::start() {
     readyQueueLock.acquire();
     if (readyQueue.isEmpty()) {
         readyQueueLock.release();
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Scheduler: No thread registered!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Scheduler: No thread registered!");
     }
 
     auto *thread = readyQueue.poll();
@@ -105,7 +105,7 @@ void Scheduler::ready(Thread &thread) {
     }
 
     if (readyQueue.contains(&thread)) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Scheduler: Thread is already running!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Scheduler: Thread is already running!");
     }
 
     readyQueue.offer(&thread);
@@ -145,7 +145,7 @@ void Scheduler::exit() {
 
 void Scheduler::kill(Thread &thread) {
     if (thread.getId() == currentThread->getId()) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT,"Scheduler: A thread cannot kill itself!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT,"Scheduler: A thread cannot kill itself!");
     }
 
     lockReadyQueue();
@@ -203,7 +203,7 @@ void Scheduler::yield(bool interrupt) {
 
 void Scheduler::switchFpuContext() {
     if (fpu == nullptr) {
-        Util::Exception::throwException(Util::Exception::DEVICE_NOT_AVAILABLE, "FPU not found!");
+        Util::Panic::fire(Util::Panic::DEVICE_NOT_AVAILABLE, "FPU not found!");
     }
 
     readyQueueLock.acquire();

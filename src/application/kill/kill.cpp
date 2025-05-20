@@ -45,7 +45,7 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto processId = Util::String::parseInt(arguments[0]);
+    auto processId = Util::String::parseNumber<uint32_t>(arguments[0]);
     auto process = Util::Async::Process(processId);
     process.kill();
 

@@ -24,7 +24,7 @@
 #include "Timer.h"
 
 #include "Hpet.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "kernel/service/InterruptService.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/async/Runnable.h"
@@ -44,7 +44,7 @@ Timer::Timer(Hpet &hpet, uint8_t id, InterruptRequest interrupt) : hpet(hpet), i
 
     auto config = hpet.readRegister(getRegisterOffset(Hpet::TIMER_CONFIGURATION_AND_CAPABILITIES));
     if (!(config & (1ull << (32 + Timer::interrupt)))) {
-        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "HPET timer does not support selected interrupt!");
+        Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "HPET timer does not support selected interrupt!");
     }
 }
 

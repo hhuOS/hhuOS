@@ -56,9 +56,9 @@ int32_t main(int32_t argc, char *argv[]) {
     uint32_t count = 10;
     if (argumentParser.hasArgument("bytes")) {
         byteMode = true;
-        count = Util::String::parseInt(argumentParser.getArgument("bytes"));
+        count = Util::String::parseNumber<uint32_t>(argumentParser.getArgument("bytes"));
     } else if (argumentParser.hasArgument("lines")) {
-        count = Util::String::parseInt(argumentParser.getArgument("lines"));
+        count = Util::String::parseNumber<uint32_t>(argumentParser.getArgument("lines"));
     }
 
     for (const auto &path : arguments) {

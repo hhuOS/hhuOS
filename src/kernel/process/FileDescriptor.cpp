@@ -21,7 +21,7 @@
 #include "FileDescriptor.h"
 
 #include "filesystem/Node.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 
 namespace Kernel {
 
@@ -52,7 +52,7 @@ bool FileDescriptor::isValid() const {
 
 Filesystem::Node& FileDescriptor::getNode() const {
     if (!isValid()) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Trying to access an invalid file descriptor!");
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Trying to access an invalid file descriptor!");
     }
 
     return *node;

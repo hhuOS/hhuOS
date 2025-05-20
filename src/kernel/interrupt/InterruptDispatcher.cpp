@@ -21,7 +21,7 @@
 #include "lib/util/collection/ArrayList.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/interrupt/InterruptHandler.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/collection/List.h"
 
 namespace Kernel {
@@ -31,7 +31,7 @@ void InterruptDispatcher::dispatch(const InterruptFrame &frame, InterruptVector 
     // Throw exception, if there is no handler registered
     auto *handlerList = handler[vector];
     if (handlerList == nullptr) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "InterruptDispatcher: No handler registered!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "InterruptDispatcher: No handler registered!");
     }
 
     // Call installed interrupt handlers

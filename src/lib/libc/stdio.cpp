@@ -223,7 +223,7 @@ void clearerr(FILE * stream) {
 }
 
 int feof(FILE * stream) {
-	return stream->isEOF() ? 1 : 0;
+	return stream->endOfFileReached() ? 1 : 0;
 }
 
 int ferror(FILE * stream) {

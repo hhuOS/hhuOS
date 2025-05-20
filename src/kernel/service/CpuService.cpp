@@ -219,7 +219,7 @@ void CpuService::prepareStacks() {
 
 void CpuService::prepareApplicationProcessorStartupCode() {
     if (boot_ap_size > Util::PAGESIZE) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Startup code does not fit into one page!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Startup code does not fit into one page!");
     }
 
     // Prepare the empty variables in the startup routine at their original location

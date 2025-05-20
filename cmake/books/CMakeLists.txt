@@ -16,8 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-cmake_minimum_required(VERSION 3.14)
-
 # CMake does not like it, if the project name is part of the target path.
 # So we cannot name the project 'books' while saving files to '${CMAKE_BINARY_DIR}/books/'.
 project(books-gutenberg)

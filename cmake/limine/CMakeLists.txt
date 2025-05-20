@@ -16,12 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-cmake_minimum_required(VERSION 3.14)
-
 project(limine)
 message(STATUS "Project " ${PROJECT_NAME})
 
-set(LIMINE_VERSION "9.3.1")
+set(LIMINE_VERSION "9.3.2")
 
 set(LIMINE_CONFIG "\
 default_entry: 1\\n\

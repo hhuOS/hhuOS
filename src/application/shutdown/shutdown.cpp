@@ -23,7 +23,7 @@
 #include "lib/util/hardware/Machine.h"
 #include "lib/util/base/System.h"
 #include "lib/util/base/ArgumentParser.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/io/stream/PrintStream.h"
 
 int32_t main(int32_t argc, char *argv[]) {
@@ -42,7 +42,7 @@ int32_t main(int32_t argc, char *argv[]) {
     Util::Hardware::Machine::ShutdownType type = argumentParser.checkSwitch("reboot") ? Util::Hardware::Machine::REBOOT : Util::Hardware::Machine::SHUTDOWN;
     auto success = Util::Hardware::Machine::shutdown(type);
     if (success) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Shutdown returned successfully!");
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Shutdown returned successfully!");
     }
 
     return -1;

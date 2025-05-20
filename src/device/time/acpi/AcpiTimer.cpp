@@ -24,13 +24,13 @@
 #include "kernel/service/Service.h"
 #include "kernel/service/InformationService.h"
 #include "kernel/log/Log.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/hardware/Acpi.h"
 #include "lib/util/time/Timestamp.h"
 
 Device::AcpiTimer::AcpiTimer() {
     if (!isAvailable()) {
-        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Trying to initializeScene unavailable ACPI timer!");
+        Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "Trying to initializeScene unavailable ACPI timer!");
     }
 
     auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();

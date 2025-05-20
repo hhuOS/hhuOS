@@ -30,7 +30,7 @@
 #include "lib/util/base/Address.h"
 #include "kernel/network/ethernet/EthernetModule.h"
 #include "kernel/service/Service.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "kernel/process/Scheduler.h"
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/Constants.h"
@@ -130,7 +130,7 @@ void NetworkDevice::freePacketBuffer(void *buffer) {
     if (buffer >= incomingPacketMemoryManager.getStartAddress() && buffer <= incomingPacketMemoryManager.getEndAddress()) {
         incomingPacketMemoryManager.freeBlock(buffer);
     } else {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "NetworkDevice: Trying to free an invalid packet buffer!");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "NetworkDevice: Trying to free an invalid packet buffer!");
     }
 }
 

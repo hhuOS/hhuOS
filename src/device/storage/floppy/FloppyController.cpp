@@ -27,7 +27,7 @@
 #include "kernel/service/StorageService.h"
 #include "lib/util/async/Thread.h"
 #include "kernel/log/Log.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/time/Timestamp.h"
 #include "device/interrupt/InterruptRequest.h"
@@ -354,15 +354,15 @@ void FloppyController::prepareDma(FloppyDevice &device, Isa::TransferMode transf
 
 bool FloppyController::performIO(FloppyDevice &device, FloppyController::TransferMode mode, uint8_t *buffer, uint8_t cylinder, uint8_t head, uint8_t startSector, uint8_t sectorCount) {
     if (cylinder >= device.getCylinders()) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "FloppyController: Trying to read/write out of cylinder bounds!");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "FloppyController: Trying to read/write out of cylinder bounds!");
     }
 
     if (head > 1) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "FloppyController: Trying to read/write out of head bounds!");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "FloppyController: Trying to read/write out of head bounds!");
     }
 
     if (startSector + sectorCount - 1 > device.getSectorsPerCylinder() * 2) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "FloppyController: Trying to read/write out of track bounds!");
+        Util::Panic::fire(Util::Panic::OUT_OF_BOUNDS, "FloppyController: Trying to read/write out of track bounds!");
     }
 
     ioLock.acquire();

@@ -18,53 +18,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MEMORYMANAGER_H
-#define HHUOS_MEMORYMANAGER_H
+#ifndef HHUOS_LIB_UTIL_MEMORYMANAGER_H
+#define HHUOS_LIB_UTIL_MEMORYMANAGER_H
+
+#include <stddef.h>
 
 namespace Util {
 
+/// Base class for memory managers.
 class MemoryManager {
 
 public:
-    /**
-     * Constructor.
-     */
+    /// The base memory manager class has no state, so the default constructor is sufficient.
     MemoryManager() = default;
 
-    /**
-     * Copy Constructor.
-     */
+    /// A memory manager should not be copyable, since copies would operate on the same memory.
     MemoryManager(const MemoryManager &copy) = delete;
 
-    /**
-     * Assignment operator.
-     */
-    MemoryManager &operator=(const MemoryManager &other) = delete;
+    /// A memory manager should not be copyable, since copies would operate on the same memory.
+    MemoryManager& operator=(const MemoryManager &other) = delete;
 
-    /**
-     * Destructor.
-     */
+    /// The base memory manager class has no state, so the default destructor is sufficient.
     virtual ~MemoryManager() = default;
 
-    /**
-     * Get the total amount of memory.
-     */
-    [[nodiscard]] virtual uint32_t getTotalMemory() const = 0;
+    /// Get the total amount of memory managed by this memory manager.
+    [[nodiscard]] virtual size_t getTotalMemory() const = 0;
 
-    /**
-     * Get the amount of free memory.
-     */
-    [[nodiscard]] virtual uint32_t getFreeMemory() const = 0;
+    /// Get the amount of free memory left in this memory manager.
+    [[nodiscard]] virtual size_t getFreeMemory() const = 0;
 
-    /**
-     * Get the start address of the managed memory.
-     */
-    [[nodiscard]] virtual uint8_t* getStartAddress() const = 0;
+    /// Get the start address of the managed memory.
+    [[nodiscard]] virtual void* getStartAddress() const = 0;
 
-    /**
-     * Get the end address of the managed memory.
-     */
-    [[nodiscard]] virtual uint8_t* getEndAddress() const = 0;
+    /// Get the end address of the managed memory.
+    [[nodiscard]] virtual void* getEndAddress() const = 0;
 };
 
 }

@@ -30,7 +30,7 @@
 #include "lib/util/game/Collider.h"
 #include "lib/util/math/Vector2.h"
 #include "application/dino/entity/Block.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/game/2d/Entity.h"
 
 BloodEmitter::BloodEmitter(const Util::Math::Vector2<double> &position, Type type) : Util::Game::D2::SingleTimeEmitter(TAG, PARTICLE_TAG, position), type(type) {}
@@ -81,6 +81,6 @@ const char* BloodEmitter::getParticleSpritePath(BloodEmitter::Type type) {
         case PLAYER:
             return "/user/dino/particle/player.bmp";
         default:
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Invalid particle type!");
+            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Invalid particle type!");
     }
 }

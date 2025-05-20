@@ -52,17 +52,15 @@ public:
     /// Get access to the current thread.
     ///
     /// ### Example
-    ///
     /// ```c++
     /// auto thread = Util::Async::Thread::getCurrentThread();
     /// printf("Current thread ID: %u\n", thread.getId());
     /// ```
-    static Thread getCurrentThread();
+    [[nodiscard]] static Thread getCurrentThread();
 
     /// Let the current thread sleep for the given time.
     ///
     /// ### Example
-    ///
     /// ```c++
     /// Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(100)); // Sleep for 100 ms
     /// ```
@@ -71,7 +69,6 @@ public:
     /// Switch to another thread.
     ///
     /// ### Example
-    ///
     /// ```c++
     /// Util::Async::Thread::yield();
     /// ```
@@ -80,7 +77,6 @@ public:
     /// Join the thread by blocking until it has finished.
     ///
     /// ### Example
-    ///
     /// ```c++
     /// // A basic runnable that prints a message.
     /// auto runnable = new Util::Async::BasicRunnable([]() {

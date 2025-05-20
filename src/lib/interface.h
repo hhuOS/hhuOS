@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/time/Date.h"
@@ -88,6 +88,6 @@ Util::Time::Date getCurrentDate();
 void setDate(const Util::Time::Date &date);
 
 bool shutdown(Util::Hardware::Machine::ShutdownType type);
-[[noreturn]] void throwError(Util::Exception::Error error, const char *message);
+[[noreturn]] void throwError(Util::Panic::Error error, const char *message);
 
 #endif

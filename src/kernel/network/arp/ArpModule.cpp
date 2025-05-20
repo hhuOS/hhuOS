@@ -26,7 +26,7 @@
 #include "lib/util/async/Thread.h"
 #include "device/network/NetworkDevice.h"
 #include "kernel/log/Log.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/io/stream/ByteArrayInputStream.h"
 #include "lib/util/io/stream/ByteArrayOutputStream.h"
 #include "lib/util/time/Timestamp.h"
@@ -146,7 +146,7 @@ Util::Network::MacAddress ArpModule::getHardwareAddress(const Util::Network::Ip4
     }
 
     lock.release();
-    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "ArpModule: Protocol address not found!");
+    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "ArpModule: Protocol address not found!");
 }
 
 bool ArpModule::hasHardwareAddress(const Util::Network::Ip4::Ip4Address &protocolAddress) {

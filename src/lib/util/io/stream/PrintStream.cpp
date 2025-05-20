@@ -125,8 +125,8 @@ void PrintStream::print(uint64_t number, char sign) {
     char digit;
     uint8_t currentBase = base;
 
-    auto numberStream = Io::ByteArrayOutputStream();
-    auto formatStream = Io::PrintStream(numberStream);
+    ByteArrayOutputStream numberStream{};
+    PrintStream formatStream(numberStream);
 
     for (div = 1; number / div >= currentBase; div *= currentBase);
 

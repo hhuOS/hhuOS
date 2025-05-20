@@ -18,10 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_USER_SYSTEMCALL_H
-#define HHUOS_USER_SYSTEMCALL_H
+#ifndef HHUOS_LIB_UTIL_SYSTEMCALL_H
+#define HHUOS_LIB_UTIL_SYSTEMCALL_H
 
-#include <stdint.h>
+#include <stddef.h>
 #include <stdarg.h>
 
 #include "lib/util/io/stream/InputStream.h" // IWYU pragma: keep
@@ -39,10 +39,23 @@ struct SymbolEntry;
 }  // namespace Elf
 }  // namespace Stream
 
+/// Provides system calls for user space applications and gives access to the standard input and output streams.
 class System {
 
 public:
+    /// This class has only static members and is not meant to be instantiated, so the constructor is deleted.
+    System() = delete;
 
+    /// This class has only static members and is not meant to be instantiated, so the copy constructor is deleted.
+    System(const System &other) = delete;
+
+    /// This class has only static members and is not meant to be instantiated, so the assignment operator is deleted.
+    System &operator=(const System &other) = delete;
+
+    /// This class has only static members and is not meant to be instantiated, so the destructor is deleted.
+    ~System() = delete;
+
+    /// System call codes
     enum Code : uint8_t {
         YIELD,
         EXIT_PROCESS,
@@ -82,63 +95,77 @@ public:
         SHUTDOWN
     };
 
+    /// Every address space has this struct placed at `Util::USER_SPACE_MEMORY_START_ADDRESS`.
+    /// It contains the heap memory manager for this user space and a pointer the symbol table of the loaded program.
     struct AddressSpaceHeader {
+        /// The heap memory manager for this user space.
         FreeListMemoryManager memoryManager;
-        uint32_t symbolTableSize;
-        const Util::Io::Elf::SymbolEntry *symbolTable;
+
+        /// The symbol table size (in bytes) of the loaded program.
+        size_t symbolTableSize;
+
+        /// A pointer to the symbol table of the loaded program.
+        const Io::Elf::SymbolEntry *symbolTable;
+
+        /// A pointer to the string table of the loaded program.
         const char *stringTable;
     };
 
-    /**
-     * Default Constructor.
-     * Deleted, as this class has only static members.
-     */
-    System() = delete;
+    /// Perform a system call.
+    /// The variables for each call may differ in size and type
+    /// and must be passed as a variadic list of size_t parameters.
+    /// There are high-level APIs for each system call, which should be used instead of this function.
+    ///
+    /// ### Example
+    /// ```c++
+    /// // Create the file "/user/test.txt". Usually, this would be done using the Util::Io::File class.
+    /// Util::System::call(Util::System::CREATE_FILE, 2, "/user/test.txt", Util::Io::File::Type::REGULAR);
+    /// ```
+    static bool call(Code code, size_t paramCount...);
 
-    /**
-     * Copy Constructor.
-     */
-    System(const System &other) = delete;
+    /// Print the current stack trace to a given stream.
+    /// This only works for user space applications, not for the kernel.
+    /// See 'lib/kernel.cpp' and 'kernel/service/InformationService' for kernel stack traces.
+    static void printStackTrace(Io::PrintStream &stream, size_t minEbp);
 
-    /**
-     * Assignment operator.
-     */
-    System &operator=(const System &other) = delete;
+    /// Get the address space header of the current process.
+    [[nodiscard]] static AddressSpaceHeader& getAddressSpaceHeader();
 
-    /**
-     * Destructor.
-     */
-    ~System() = default;
-
-    static bool call(Code code, uint32_t paramCount...);
-
-    /**
-     * Print application stack trace.
-     * This only works for user space applications, not for the kernel.
-     * See 'lib/kernel.cpp' and 'kernel/service/InformationService' for kernel stack traces.
-     */
-    static void printStackTrace(Io::PrintStream &stream, uint32_t minEbp);
-
-    static AddressSpaceHeader& getAddressSpaceHeader();
-
+    /// The standard input stream, used for reading user input.
+    ///
+    /// ### Example
+    /// ```c++
+    /// // Read a line from the standard input and print it to the standard output.
+    /// auto input = Util::System::in.readLine();
+    /// Util::System::out << "Input: " << input << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    /// ```
+    ///
+    /// ### Example
+    /// ```c++
+    /// // Read characters individually from the standard input.
+    /// auto c = Util::System::in.read();
+    /// while (c != Util::Io::FileStream::END_OF_FILE) {
+    ///     Util::System::out << c << Util::Io::PrintStream::flush;
+    ///     c = Util::System::in.read();
+    /// }
+    /// ```
     static Io::InputStream &in;
+
+    /// The standard output stream, used for printing to the terminal.
+    ///
+    /// ### Example
+    /// ```c++
+    /// Util::System::out << "Hello, World!" << Io::PrintStream::endl << Io::PrintStream::flush;
+    /// ```
     static Io::PrintStream out;
+
+    /// The standard error stream, used for printing error messages to the terminal.
+    ///
+    /// ### Example
+    /// ```c++
+    /// Util::System::error << "File not found!" << Io::PrintStream::endl << Io::PrintStream::flush;
+    /// ```
     static Io::PrintStream error;
-
-private:
-
-    static void call(Code code, bool &result, uint32_t paramCount, va_list args);
-
-    static const char* getSymbolName(uint32_t symbolAddress);
-
-    static Io::FileInputStream inStream;
-    static Io::BufferedInputStream bufferedInStream;
-
-    static Io::FileOutputStream outStream;
-    static Io::BufferedOutputStream bufferedOutStream;
-
-    static Io::FileOutputStream errorStream;
-    static Io::BufferedOutputStream bufferedErrorStream;
 };
 
 }

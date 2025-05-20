@@ -18,16 +18,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <stdint.h>
+#ifndef HHUOS_LIB_UTIL_CONSTANTS_H
+#define HHUOS_LIB_UTIL_CONSTANTS_H
 
-#ifndef HHUOS_CONSTANTS_H
-#define HHUOS_CONSTANTS_H
+#include <stddef.h>
 
 namespace Util {
 
-static const constexpr uint32_t PAGESIZE = 0x1000;
-static const constexpr uint32_t USER_SPACE_MEMORY_START_ADDRESS = 0x8000000;
-static const constexpr uint32_t MAIN_STACK_START_ADDRESS = 0xffff0000;
+/// The size of a page in bytes (4096 = 4 KiB).
+static constexpr size_t PAGESIZE = 0x1000;
+
+/// The start address of the user space memory (0x8000000 = 128 MiB).
+static constexpr size_t USER_SPACE_MEMORY_START_ADDRESS = 0x8000000;
+
+/// The start address of each application's main stack (0xffff0000 = 4 GiB - 4 KiB).
+static constexpr size_t MAIN_STACK_START_ADDRESS = 0xffff0000;
 
 }
 

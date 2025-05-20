@@ -18,158 +18,104 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __FREELISTMEMORYMANAGER_H__
-#define __FREELISTMEMORYMANAGER_H__
+#ifndef HHUOS_LIB_UTIL_FREELISTMEMORYMANAGER_H_
+#define HHUOS_LIB_UTIL_FREELISTMEMORYMANAGER_H_
 
 #include <stdint.h>
+#include <stddef.h>
 
-#include "lib/util/async/Spinlock.h"
-#include "HeapMemoryManager.h"
-#include "lib/util/base/String.h"
-#include "lib/util/reflection/Prototype.h"
+#include "async/Spinlock.h"
+#include "base/HeapMemoryManager.h"
+#include "base/String.h"
+#include "reflection/Prototype.h"
 
 namespace Util {
-
-/**
- * Memory manager, that uses a doubly linked list of free chunks of memory.
- *
- * This memory manager allows allocation and reallocation of memory with or without an alignment.
- *
- * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * @date 2018
- */
-class FreeListMemoryManager : public HeapMemoryManager {
-
+/// A memory manager that uses a doubly linked free list to manage a heap.
+/// It allocates memory blocks using a first-fit algorithm.
+/// Freed memory blocks are merged with adjacent free blocks to reduce fragmentation.
+/// This class uses a spinlock to ensure thread safety.
+class FreeListMemoryManager final : public HeapMemoryManager {
 public:
-    /**
-     * Constructor.
-     */
-    FreeListMemoryManager() = default;
+    /// Create a new heap with a given range of memory.
+    /// The start address is inclusive and the end address is exclusive.
+    FreeListMemoryManager(void *startAddress, void *endAddress);
 
-    /**
-     * Copy Constructor.
-     */
+    /// A memory manager should not be copyable, since copies would operate on the same memory.
     FreeListMemoryManager(const FreeListMemoryManager &copy) = delete;
 
-    /**
-     * Assignment operator.
-     */
+    /// A memory manager should not be copyable, since copies would operate on the same memory.
     FreeListMemoryManager& operator=(const FreeListMemoryManager &other) = delete;
 
-    /**
-     * Destructor.
-     */
+    /// The free list memory manager class has no state that needs to be cleaned up,
+    /// so the default destructor is sufficient.
     ~FreeListMemoryManager() override = default;
 
-    PROTOTYPE_IMPLEMENT_CLONE(FreeListMemoryManager);
+    /// Allocate a block of memory of a given size and alignment using the first-fit algorithm.
+    /// If no sufficient block of memory is available, nullptr is returned.
+    [[nodiscard]] void* allocateMemory(size_t size, size_t alignment) override;
 
-    PROTOTYPE_IMPLEMENT_GET_CLASS_NAME("Util::FreeListMemoryManager")
+    /// Reallocate a previously allocated block of memory to a new size and alignment.
+    /// If the current block can be extended, it is done in place.
+    /// Otherwise, a new block is allocated and the content of the old block is copied into the new one.
+    [[nodiscard]] void* reallocateMemory(void *ptr, size_t size, size_t alignment) override;
 
-    /**
-     * Overriding function from HeapMemoryManager.
-     */
-    void initialize(uint8_t *startAddress, uint8_t *endAddress) override;
+    /// Free a block of memory that was previously allocated by this memory manager.
+    /// If possible, the freed block is merged with adjacent free blocks to reduce fragmentation.
+    /// By default, the freed memory is unmapped to free up physical memory.
+    /// This can be disabled by calling `disableAutomaticUnmapping()`.
+    void freeMemory(void *ptr, size_t alignment) override;
 
-    /**
-     * Overriding function from HeapMemoryManager.
-     */
-    [[nodiscard]] void* allocateMemory(uint32_t size, uint32_t alignment) override;
+    /// Get the total amount of memory managed by this memory manager.
+    [[nodiscard]] size_t getTotalMemory() const override;
 
-    /**
-     * Overriding function from HeapMemoryManager.
-     */
-    [[nodiscard]] void* reallocateMemory(void *ptr, uint32_t size, uint32_t alignment) override;
+    /// Get the amount of free memory left in this memory manager.
+    [[nodiscard]] size_t getFreeMemory() const override;
 
-    /**
-     * Overriding function from HeapMemoryManager.
-     */
-    void freeMemory(void *ptr, uint32_t alignment) override;
+    /// Get the start address of the managed memory.
+    [[nodiscard]] void* getStartAddress() const override;
 
-    /**
-     * Overriding function from MemoryManager.
-     */
-    [[nodiscard]] uint32_t getTotalMemory() const override;
+    /// Get the end address of the managed memory.
+    [[nodiscard]] void* getEndAddress() const override;
 
-    /**
-     * Overriding function from MemoryManager.
-     */
-    [[nodiscard]] uint32_t getFreeMemory() const override;
-
-    /**
-     * Overriding function from MemoryManager.
-     */
-    [[nodiscard]] uint8_t* getStartAddress() const override;
-
-    /**
-     * Overriding function from MemoryManager.
-     */
-    [[nodiscard]] uint8_t* getEndAddress() const override;
-
-    /**
-     * Overriding function from MemoryManager.
-     */
+    /// Check if the spinlock is currently locked.
     [[nodiscard]] bool isLocked() const override;
 
+    /// Stop unmapping freed memory.
     void disableAutomaticUnmapping();
 
 private:
-    /**
-     * Header of an element in the doubly linked list, which is used to manage the free chunks of memory.
-     */
+    /// Header of a free chunk of memory.
+    /// It contains pointers to the previous and next chunk of memory, as well as the size of the chunk.
     struct FreeListHeader {
         FreeListHeader *prev;
         FreeListHeader *next;
-        uint32_t size;
+        size_t size;
     };
 
-    /**
-     * Implementation of the allocation algorithm, that is used in the alignedAlloc-functions.
-     *
-     * The first-fit algorithm is used to search for a fitting chunk of free memory.
-     *
-     * @param size Size of the chunk of memory to be allocated
-     * @param alignment Alignment, that chunk of memory should have
-     * @param startChunk The chunk of free memory from which to start searching for a fitting chunk
-     *
-     * @return Pointer to the allocated chunk of memory or nullptr if no chunk with the required size is available
-     */
-    void* allocAlgorithm(uint32_t size, uint32_t alignment, FreeListHeader *startChunk);
+    /// Implementation of the allocation algorithm, used in the `allocateMemory()` and `reallocateMemory()` functions.
+    [[nodiscard]] void* allocAlgorithm(size_t size, size_t alignment, FreeListHeader *startChunk);
 
-    /**
-     * Implementation of the free algorithm, that is used in the free-functions.
-     *
-     * @param ptr Pointer to the chunk of memory to be freed
-     */
+    /// Implementation of the free algorithm, that is used in the `freeMemory()` and `reallocateMemory()` functions.
     void freeAlgorithm(void *ptr);
 
-private:
+    /// Find the next free chunk of memory that is large enough to satisfy the allocation request.
+    /// The search starts at the given chunk and continues until the end of the free list.
+    /// If no suitable chunk is found, nullptr is returned.
+    [[nodiscard]] static FreeListHeader* findNext(FreeListHeader *start, size_t reqSize);
 
-    /**
-     * Find the next chunk of memory with a required size.
-     *
-     * @param start Pointer to the chunk of memory from where to start the search
-     * @param reqSize Minimal size that is required for the chunk
-     *
-     * @return Header of the free chunk with the required size or nullptr, if none is found
-     */
-    static FreeListHeader* findNext(FreeListHeader *start, uint32_t reqSize);
+    /// Merge the given block with adjacent free blocks if possible.
+    /// This method is called everytime a block is freed to reduce fragmentation.
+    [[nodiscard]] FreeListHeader* merge(FreeListHeader *block) const;
 
-    /**
-     * Merge a chunk of free memory with it's neighbours, if possible.
-     *
-     * @param origin Chunk of free memory to be merged
-     */
-    FreeListHeader* merge(FreeListHeader *origin);
+    void *startAddress = nullptr;
+    void *endAddress = nullptr;
 
-    uint8_t *startAddress{};
-    uint8_t *endAddress{};
-
-    Util::Async::Spinlock lock;
+    Async::Spinlock lock;
     FreeListHeader *firstChunk = nullptr;
     bool unmapFreedMemory = true;
 
-    static const constexpr uint32_t MIN_BLOCK_SIZE = 4;
-    static const constexpr uint32_t HEADER_SIZE = sizeof(FreeListHeader);
+    static constexpr size_t MIN_BLOCK_SIZE = 1;
+    static constexpr size_t HEADER_SIZE = sizeof(FreeListHeader);
 };
 
 }

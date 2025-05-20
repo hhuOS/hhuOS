@@ -19,7 +19,7 @@
 #include "application/classicube/ClassiCube/src/Platform.h"
 #include "application/classicube/ClassiCube/src/Window.h"
 #include "lib/util/base/Address.h"
-#include "lib/util/base/Exception.h"
+#include "lib/util/base/Panic.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/key/Key.h"
 
@@ -290,10 +290,10 @@ void Cursor_SetPosition(const int x, const int y) {
 
 void Window_PreInit() {
 	if (!keyboardInputStream.setAccessMode(Util::Io::File::NON_BLOCKING)) {
-		Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Failed to set keyboard input stream to non-blocking mode!");
+		Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Failed to set keyboard input stream to non-blocking mode!");
 	}
 	if (!mouseInputStream.setAccessMode(Util::Io::File::NON_BLOCKING)) {
-		Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Failed to set mouse input stream to non-blocking mode!");
+		Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Failed to set mouse input stream to non-blocking mode!");
 	}
 
 	Util::Graphic::Ansi::prepareGraphicalApplication(true);
@@ -416,7 +416,7 @@ void Window_DrawFramebuffer([[maybe_unused]] Rect2D r, [[maybe_unused]] Bitmap *
 
 void Window_FreeFramebuffer([[maybe_unused]] Bitmap *bmp) {
 	if (reinterpret_cast<uint32_t>(bmp->scan0) != bufferedLfb->getBuffer().get()) {
-		Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Trying to free another framebuffer than the current one!");
+		Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Trying to free another framebuffer than the current one!");
 	}
 
 	delete bufferedLfb;

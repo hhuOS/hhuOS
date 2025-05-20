@@ -1,6 +1,6 @@
 #include "Atomic.h"
 
-#include "base/Exception.h"
+#include "base/Panic.h"
 
 namespace Util::Async {
 
@@ -169,52 +169,52 @@ void Atomic<T>::dec() {
 }
 
 template<> bool Atomic<int8_t>::bitTest([[maybe_unused]] int8_t index) {
-    Exception::throwException(Exception::INVALID_ARGUMENT,
+    Panic::fire(Panic::INVALID_ARGUMENT,
         "Bitwise atomic operation are not supported with 8-bit values!");
 }
 
 template<> void Atomic<int8_t>::bitSet([[maybe_unused]] int8_t index) {
-    Exception::throwException(Exception::INVALID_ARGUMENT,
+    Panic::fire(Panic::INVALID_ARGUMENT,
         "Bitwise atomic operation are not supported with 8-bit values!");
 }
 
 template<> void Atomic<int8_t>::bitUnset([[maybe_unused]] int8_t index) {
-    Exception::throwException(Exception::INVALID_ARGUMENT,
+    Panic::fire(Panic::INVALID_ARGUMENT,
         "Bitwise atomic operation are not supported with 8-bit values!");
 }
 
 template<> bool Atomic<int8_t>::bitTestAndSet([[maybe_unused]] int8_t index) {
-    Exception::throwException(Exception::INVALID_ARGUMENT,
+    Panic::fire(Panic::INVALID_ARGUMENT,
         "Bitwise atomic operation are not supported with 8-bit values!");
 }
 
 template<> bool Atomic<int8_t>::bitTestAndUnset([[maybe_unused]] int8_t index) {
-    Exception::throwException(Exception::INVALID_ARGUMENT,
+    Panic::fire(Panic::INVALID_ARGUMENT,
         "Bitwise atomic operation are not supported with 8-bit values!");
 }
 
 template<> bool Atomic<uint8_t>::bitTest([[maybe_unused]] uint8_t index) {
-    Exception::throwException(Exception::INVALID_ARGUMENT,
+    Panic::fire(Panic::INVALID_ARGUMENT,
         "Bitwise atomic operation are not supported with 8-bit values!");
 }
 
 template<> void Atomic<uint8_t>::bitSet([[maybe_unused]] uint8_t index) {
-    Exception::throwException(Exception::INVALID_ARGUMENT,
+    Panic::fire(Panic::INVALID_ARGUMENT,
         "Bitwise atomic operation are not supported with 8-bit values!");
 }
 
 template<> void Atomic<uint8_t>::bitUnset([[maybe_unused]] uint8_t index) {
-    Exception::throwException(Exception::INVALID_ARGUMENT,
+    Panic::fire(Panic::INVALID_ARGUMENT,
         "Bitwise atomic operation are not supported with 8-bit values!");
 }
 
 template<> bool Atomic<uint8_t>::bitTestAndSet([[maybe_unused]] uint8_t index) {
-    Exception::throwException(Exception::INVALID_ARGUMENT,
+    Panic::fire(Panic::INVALID_ARGUMENT,
         "Bitwise atomic operation are not supported with 8-bit values!");
 }
 
 template<> bool Atomic<uint8_t>::bitTestAndUnset([[maybe_unused]] uint8_t index) {
-    Exception::throwException(Exception::INVALID_ARGUMENT,
+    Panic::fire(Panic::INVALID_ARGUMENT,
         "Bitwise atomic operation are not supported with 8-bit values!");
 }
 
