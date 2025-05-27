@@ -27,17 +27,14 @@
 #include "Game.h"
 
 #include "lib/util/game/Scene.h"
-#include "lib/util/collection/Iterator.h"
 #include "lib/util/game/Graphics.h"
 
 namespace Util::Game {
 
 Game::~Game() {
-    for (const auto *scene : scenes) {
-        delete scene;
+    while (!scenes.isEmpty()) {
+        delete scenes.poll();
     }
-
-    scenes.clear();
 }
 
 bool Game::isRunning() const {

@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <collection/ArrayListQueue.h>
 
 #include "lib/util/io/stream/InputStream.h"
 #include "lib/util/io/stream/OutputStream.h"

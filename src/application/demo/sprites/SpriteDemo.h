@@ -26,7 +26,7 @@
 #include "lib/util/game/2d/Scene.h"
 #include "lib/util/game/KeyListener.h"
 #include "DemoSpriteFactory.h"
-#include "lib/util/collection/ArrayListBlockingQueue.h"
+#include "lib/util/collection/ArrayListQueue.h"
 
 class DemoSprite;
 
@@ -67,7 +67,7 @@ private:
 
     uint32_t initialCount;
     DemoSpriteFactory factory;
-    Util::ArrayListBlockingQueue<DemoSprite*> entities;
+    Util::ArrayListQueue<DemoSprite*> entities;
 };
 
 #endif

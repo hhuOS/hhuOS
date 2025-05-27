@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/collection/ArrayListBlockingQueue.h"
+#include "lib/util/collection/ArrayListQueue.h"
 #include "DemoPolygonFactory.h"
 #include "lib/util/game/KeyListener.h"
 #include "lib/util/game/2d/Scene.h"
@@ -67,7 +67,7 @@ private:
 
     uint32_t initialCount;
     DemoPolygonFactory factory;
-    Util::ArrayListBlockingQueue<DemoPolygon*> polygons;
+    Util::ArrayListQueue<DemoPolygon*> polygons;
 };
 
 #endif

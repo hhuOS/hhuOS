@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/collection/ArrayListBlockingQueue.h"
+#include "lib/util/collection/ArrayListQueue.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/collection/HashMap.h"
@@ -148,7 +148,7 @@ private:
 
     InterruptVector timerInterrupt = Service::getService<InterruptService>().getTimerInterrupt();
 
-    Util::ArrayListBlockingQueue<Thread*> readyQueue;
+    Util::ArrayListQueue<Thread*> readyQueue;
     Util::Async::Spinlock readyQueueLock;
 
     Util::ArrayList<SleepEntry> sleepList;

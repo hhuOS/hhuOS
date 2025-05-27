@@ -28,7 +28,7 @@
 
 #include "Socket.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/collection/ArrayListBlockingQueue.h"
+#include "lib/util/collection/ArrayListQueue.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/network/Socket.h"
 
@@ -132,7 +132,7 @@ private:
     void handleIncomingDatagram(Util::Network::Datagram *datagram);
 
     Util::Async::Spinlock lock;
-    Util::ArrayListBlockingQueue<Util::Network::Datagram*> incomingDatagramQueue;
+    Util::ArrayListQueue<Util::Network::Datagram*> incomingDatagramQueue;
 };
 
 }

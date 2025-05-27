@@ -43,7 +43,7 @@ Collision PolygonCollider::isColliding(PolygonCollider &other) {
         auto rangeOther = projectPolygonOnAxis(other.polygon.getVertices(), axis);
 
 
-        if ((range.first - rangeOther.second > 0) || (rangeOther.first - range.second > 0)) {
+        if ((range.getFirst() - rangeOther.getSecond() > 0) || (rangeOther.getFirst() - range.getSecond() > 0)) {
             return { 0, Math::Vector2<double>() };
         }
 
@@ -81,7 +81,7 @@ Math::Vector2<double> PolygonCollider::getAxes(Util::Array<Math::Vector2<double>
 }
 
 double PolygonCollider::getOverlap(Util::Pair<double, double> range, Util::Pair<double, double> rangeOther) {
-    return Util::Math::min(range.second, rangeOther.second) - Util::Math::max(range.first, rangeOther.first);
+    return Util::Math::min(range.getSecond(), rangeOther.getSecond()) - Util::Math::max(range.getFirst(), rangeOther.getFirst());
 }
 
 }

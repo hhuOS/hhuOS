@@ -26,7 +26,6 @@
 
 #include "Scene.h"
 
-#include "lib/util/collection/Iterator.h"
 #include "lib/util/game/Entity.h"
 
 namespace Util {
@@ -61,7 +60,7 @@ void Scene::removeObject(Entity *object) {
 
 void Scene::applyChanges() {
     while (addList.size() > 0) {
-        for (auto *entity: addList) {
+        for (auto *entity: addList.toArray()) {
             entity->initialize();
             entities.add(entity);
             addList.remove(entity);
@@ -69,7 +68,7 @@ void Scene::applyChanges() {
     }
 
     while (removeList.size() > 0) {
-        for (auto *object: removeList) {
+        for (auto *object: removeList.toArray()) {
             bool removed;
             do {
                 removed = entities.remove(object);

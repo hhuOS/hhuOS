@@ -28,7 +28,6 @@
 #include "lib/util/base/Address.h"
 #include "device/storage/StorageDevice.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/collection/Iterator.h"
 
 namespace Filesystem::Iso {
 

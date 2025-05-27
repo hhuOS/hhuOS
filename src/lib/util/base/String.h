@@ -272,7 +272,7 @@ public:
     /// ```
     [[nodiscard]] String substring(size_t begin, size_t end) const;
 
-    /// Create a copy of the string with leading and trailing whitespaces ('\t', '\n', ' ') removed.
+    /// Create a copy of the string with leading and trailing whitespaces ('\\t', '\\n', ' ') removed.
     ///
     /// ### Example
     /// ```c++

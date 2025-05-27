@@ -29,7 +29,6 @@
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/base/Panic.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
-#include "lib/util/collection/Iterator.h"
 #include "lib/util/game/Collider.h"
 
 namespace Util::Game::D2 {

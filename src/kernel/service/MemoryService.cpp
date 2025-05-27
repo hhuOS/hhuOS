@@ -31,7 +31,6 @@
 #include "lib/util/base/Panic.h"
 #include "lib/util/base/HeapMemoryManager.h"
 #include "lib/util/base/System.h"
-#include "lib/util/collection/Iterator.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/service/Service.h"
 #include "lib/util/base/Address.h"

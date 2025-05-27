@@ -230,7 +230,7 @@ void cubes(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
                     cubes->add(new Cube(texture));
                 } else if (key.getScancode() == Util::Io::Key::MINUS) {
                     if (cubes->size() > 0) {
-                        delete cubes->pop();
+                        delete cubes->removeIndex(cubes->size() - 1);
                     }
                 }
             }
@@ -281,6 +281,6 @@ void cubes(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     }
 
     while (!cubes->isEmpty()) {
-        delete cubes->pop();
+        delete cubes->removeIndex(cubes->size() - 1);
     }
 }

@@ -31,7 +31,6 @@
 #include "kernel/interrupt/InterruptVector.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/collection/Iterator.h"
 #include "kernel/service/Service.h"
 #include "kernel/log/Log.h"
 

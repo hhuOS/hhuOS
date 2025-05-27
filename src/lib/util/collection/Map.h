@@ -18,35 +18,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __Map_include__
-#define __Map_include__
+#ifndef HHUOS_LIB_UTIL_MAP_H
+#define HHUOS_LIB_UTIL_MAP_H
+
+#include <stddef.h>
 
 namespace Util {
 
-/**
- * Base interface for all maps.
- *
- * @author Filip Krakowski
- */
+/// Base class for a Map (key-value pair) data structure.
 template<typename K, typename V>
 class Map {
 
 public:
+    /// The Map base class has no state, so the default constructor is sufficient.
+    Map() = default;
 
+    /// The Map base class has no state, so the default destructor is sufficient.
+    virtual ~Map() = default;
+
+    /// Put a key-value pair into the map.
     virtual void put(const K &key, const V &value) = 0;
 
+    /// Get the value associated with the key.
     [[nodiscard]] virtual V get(const K &key) const = 0;
 
+    /// Remove the key-value pair associated with the key and return the value.
     virtual V remove(const K &key) = 0;
 
+    /// Check if the map contains the specified key.
     [[nodiscard]] virtual bool containsKey(const K &key) const = 0;
 
-    [[nodiscard]] virtual uint32_t size() const = 0;
+    /// Get the number of key-value pairs in the map.
+    [[nodiscard]] virtual size_t size() const = 0;
 
+    /// Clear the map, removing all key-value pairs.
     virtual void clear() = 0;
 
+    /// Get an array of all keys in the map.
     [[nodiscard]] virtual Array<K> keys() const = 0;
 
+    /// Get an array of all values in the map.
     [[nodiscard]] virtual Array<V> values() const = 0;
 };
 

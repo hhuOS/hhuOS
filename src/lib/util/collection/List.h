@@ -18,64 +18,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __List_include__
-#define __List_include__
+#ifndef HHUOS_LIB_UTIL_LIST_H
+#define HHUOS_LIB_UTIL_LIST_H
 
-#include "Collection.h"
+#include <stddef.h>
+
+#include "collection/Collection.h"
 
 namespace Util {
 
-/**
- * Base interface for all lists.
- *
- * @author Filip Krakowski
- */
+/// Base class for all list implementations.
 template<typename T>
 class List : public Collection<T> {
 
 public:
-
+    /// The List base class has no state, so the default constructor is sufficient.
     List() = default;
 
-    virtual ~List() = default;
+    /// The List base class has no state, so the default destructor is sufficient.
+    ~List() override = default;
 
-    virtual bool add(const T &element) = 0;
+    /// Add an element at the specified index by copying it.
+    virtual void addIndex(size_t index, const T &element) = 0;
 
-    virtual void add(uint32_t index, const T &element) = 0;
+    /// Get the element at the specified index without removing it.
+    /// The element is copied from the list and returned by value.
+    [[nodiscard]] virtual T get(size_t index) const = 0;
 
-    virtual bool addAll(const Collection<T> &other) = 0;
+    /// Overwrite the element at the specified index with the given element by copying it.
+    virtual void set(size_t index, const T &element) = 0;
 
-    [[nodiscard]] virtual T get(uint32_t index) const = 0;
+    /// Remove the first occurrence of the specified element from the list and return a copy of it.
+    virtual T removeIndex(size_t index) = 0;
 
-    virtual void set(uint32_t index, const T &element) = 0;
+    /// Get the index of the first occurrence of the specified element in the list.
+    /// If the element is not found, `INVALID_INDEX` is returned.
+    [[nodiscard]] virtual size_t indexOf(const T &element) const = 0;
 
-    virtual bool remove(const T &element) = 0;
-
-    virtual bool removeAll(const Collection<T> &other) = 0;
-
-    virtual T removeIndex(uint32_t index) = 0;
-
-    [[nodiscard]] virtual bool contains(const T &element) const = 0;
-
-    [[nodiscard]] virtual bool containsAll(const Collection<T> &other) const = 0;
-
-    [[nodiscard]] virtual uint32_t indexOf(const T &element) const = 0;
-
-    [[nodiscard]] virtual bool isEmpty() const = 0;
-
-    virtual void clear() = 0;
-
-    virtual Iterator<T> begin() const = 0;
-
-    virtual Iterator<T> end() const = 0;
-
-    [[nodiscard]] virtual uint32_t size() const = 0;
-
-    [[nodiscard]] virtual Array<T> toArray() const = 0;
-
-protected:
-
-    virtual void ensureCapacity(uint32_t newCapacity) = 0;
+    /// Indicates that an element was not found in the list.
+    static constexpr size_t INVALID_INDEX = SIZE_MAX;
 };
 
 }

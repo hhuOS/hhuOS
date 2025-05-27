@@ -18,86 +18,95 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __Iterator_include__
-#define __Iterator_include__
+#ifndef HHUOS_LIB_UTIL_ITERATOR_H
+#define HHUOS_LIB_UTIL_ITERATOR_H
 
-#include "Array.h"
+#include <stddef.h>
 
 namespace Util {
 
-/**
- * An iterator over an array.
- *
- * @author Filip Krakowski
- */
+/// An element of an iterator, containing a pointer to the data and the index in the iterable.
+/// The iterator design assumes, that the next element can be accessed from the current element,
+/// either by incrementing the index or by using a pointer to the next element.
+template <typename T>
+struct IteratorElement {
+    /// Pointer to the data of the current element in the iterable collection.
+    T *data;
+    /// The index of the current element in the iterable collection.
+    size_t index;
+};
+
+template <typename T>
+class Iterator;
+
+/// Base class for iterable collections.
+template <typename T>
+class Iterable {
+
+public:
+    /// The Iterable base class has no state, so the default constructor is sufficient.
+    Iterable() = default;
+
+    /// The Iterable base class has no state, so the default destructor is sufficient.
+    virtual ~Iterable() = default;
+
+    /// Get an iterator for the collection, starting at the first element.
+    virtual Iterator<T> begin() const = 0;
+
+    /// Get an iterator for the collection, pointing to the end (one past the last element).
+    virtual Iterator<T> end() const = 0;
+
+    /// Get the next element in the iteration based on the current element.
+    virtual IteratorElement<T> next(const IteratorElement<T> &element) const = 0;
+};
+
+
+/// An iterator for iterable collections.
+/// The iterator works by wrapping elements of the collection in an `IteratorElement` struct.
+/// Each `IteratorElement` contains a pointer to the data and the index of the element in the collection.
+/// The iterator design assumes, that the next element can be accessed from the current element,
+/// either by incrementing the index or by using a pointer to the next element.
 template <typename T>
 class Iterator {
 
 public:
+    /// Create a new iterator for the given iterable collection and the initial element.
+    Iterator(const Iterable<T> &iterable, const IteratorElement<T> &element);
 
-    explicit Iterator(Array<T> array, uint32_t index);
+    /// Compare this iterator with another iterator for inequality.
+    /// This implementation checks if the indices of the elements are different.
+    bool operator!=(const Iterator &other);
 
-    Iterator(const Iterator<T> &other);
+    /// Advance the iterator to the next element in the iterable collection.
+    Iterator& operator++();
 
-    Iterator<T> &operator=(const Iterator<T> &other);
-
-    ~Iterator() = default;
-
-    bool operator!=(const Iterator<T> &other);
-
-    const Iterator<T> &operator++();
-
-    T &operator*();
-
-    [[nodiscard]] bool hasNext() const;
-
-    [[nodiscard]] T &next() const;
+    /// Get a reference to the current element in the iteration.
+    T& operator*();
 
 private:
 
-    Array<T> array;
-    mutable uint32_t index = 0;
+    const Iterable<T> &iterable;
+    IteratorElement<T> element;
 };
 
-template <class T>
-Iterator<T>::Iterator(Array<T> array, uint32_t index) : array(array), index(index) {}
+template<typename T>
+Iterator<T>::Iterator(const Iterable<T> &iterable, const IteratorElement<T> &element) :
+    iterable(iterable), element(element) {}
 
 template <class T>
-Iterator<T>::Iterator(const Iterator<T> &other) : array(other.array), index(other.index) {}
+T& Iterator<T>::operator*() {
+    return *element.data;
+}
 
 template <class T>
-Iterator<T> &Iterator<T>::operator=(const Iterator<T> &other) {
-    array = other.array;
-    index = other.index;
+bool Iterator<T>::operator!=(const Iterator &other) {
+    return element.index != other.element.index;
+}
 
+template <class T>
+Iterator<T>& Iterator<T>::operator++() {
+    element = iterable.next(element);
     return *this;
-}
-
-template <class T>
-T &Iterator<T>::operator*() {
-    return array[index];
-}
-
-template <class T>
-bool Iterator<T>::operator!=(const Iterator<T> &other) {
-    return index != other.index;
-}
-
-template <class T>
-const Iterator<T> &Iterator<T>::operator++() {
-    index++;
-    return *this;
-}
-
-template <class T>
-bool Iterator<T>::hasNext() const {
-    return index < array.length();
-}
-
-template <class T>
-T &Iterator<T>::next() const {
-    index++;
-    return array[index - 1];
 }
 
 }

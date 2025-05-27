@@ -26,7 +26,7 @@
 #include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/io/stream/FilterInputStream.h"
 #include "lib/util/io/stream/OutputStream.h"
-#include "lib/util/collection/ArrayBlockingQueue.h"
+#include "lib/util/collection/ArrayQueue.h"
 #include "lib/util/io/stream/QueueInputStream.h"
 #include "SimpleSerialPort.h"
 #include "device/port/serial/Serial.h"
@@ -96,7 +96,7 @@ private:
 
     static void initializePort(Serial::ComPort port);
 
-    Util::ArrayBlockingQueue<uint8_t> inputBuffer;
+    Util::ArrayQueue<uint8_t> inputBuffer;
     Util::Io::QueueInputStream inputStream;
 
     SimpleSerialPort port;

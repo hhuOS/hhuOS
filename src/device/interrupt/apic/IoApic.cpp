@@ -26,7 +26,6 @@
 #include "kernel/service/MemoryService.h"
 #include "LocalApic.h"
 #include "lib/util/base/Panic.h"
-#include "lib/util/collection/Iterator.h"
 #include "kernel/service/Service.h"
 
 namespace Kernel {

@@ -214,16 +214,16 @@ void Level::spawnMergedBlocks(Util::ArrayList<Util::Pair<int32_t, double>> &posi
     for (uint32_t i = 1; i < positions.size(); i++) {
         auto position = positions.get(i);
         lastPosition = positions.get(i - 1);
-        if (position.first - 1 != lastPosition.first) {
-            auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.first * Block::SIZE - (Util::Game::GameManager::getDimensions().getX()) / 2, rectangleStartPosition.second);
-            auto countX = lastPosition.first - rectangleStartPosition.first + 1;
+        if (position.getFirst() - 1 != lastPosition.getFirst()) {
+            auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.getFirst() * Block::SIZE - (Util::Game::GameManager::getDimensions().getX()) / 2, rectangleStartPosition.getSecond());
+            auto countX = lastPosition.getFirst() - rectangleStartPosition.getFirst() + 1;
             addObject(new Block(tag, mergedBlockStart, countX, 1));
 
             rectangleStartPosition = position;
         }
     }
 
-    auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.first * Block::SIZE - (Util::Game::GameManager::getDimensions().getX()) / 2, rectangleStartPosition.second);
-    auto countX = lastPosition.first - rectangleStartPosition.first + 1;
+    auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.getFirst() * Block::SIZE - (Util::Game::GameManager::getDimensions().getX()) / 2, rectangleStartPosition.getSecond());
+    auto countX = lastPosition.getFirst() - rectangleStartPosition.getFirst() + 1;
     addObject(new Block(tag, mergedBlockStart, countX, 1));
 }

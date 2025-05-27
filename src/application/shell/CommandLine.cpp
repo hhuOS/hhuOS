@@ -490,8 +490,12 @@ void CommandLine::handleTab() {
     }
 
     auto autoCompletionSuggestions = Util::ArrayList<Util::String>();
-    autoCompletionSuggestions.addAll(autoCompletionPathSuggestions);
-    autoCompletionSuggestions.addAll(autoCompletionCurrentWorkingDirectorySuggestions);
+    for (const auto &fileName : autoCompletionPathSuggestions) {
+        autoCompletionSuggestions.add(fileName);
+    }
+    for (const auto &fileName : autoCompletionCurrentWorkingDirectorySuggestions) {
+        autoCompletionSuggestions.add(fileName);
+    }
 
     for (uint32_t i = 0; i < autoCompletionSuggestions.size(); i++) {
         auto index = (autoCompletionIndex + i) % autoCompletionSuggestions.size();

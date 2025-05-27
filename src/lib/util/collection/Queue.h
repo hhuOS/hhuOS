@@ -1,6 +1,10 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2017-2025 Heinrich Heine University Düsseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Main developers: Christian Gesse <christian.gesse@hhu.de>, Fabian Ruhland <ruhland@hhu.de>
+ * Original development team: Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schöttner
+ * This project has been supported by several students.
+ * A full list of integrated student theses can be found here: https://github.com/hhuOS/hhuOS/wiki/Student-theses
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -14,54 +18,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __Queue_include__
-#define __Queue_include__
+#ifndef HHUOS_LIB_UTIL_QUEUE_H
+#define HHUOS_LIB_UTIL_QUEUE_H
 
-#include <stdint.h>
-#include "Collection.h"
+#include "collection/Collection.h"
 
 namespace Util {
 
-/**
- * Base interface for all queues.
- *
- * @author Filip Krakowski
- */
+/// Base class for all queue implementations.
+/// Queues are collections that follow the FIFO (First In, First Out) principle.
+/// The first element added to the queue will be the first one to be removed.
 template<typename T>
-class Queue : Collection<T> {
+class Queue : public Collection<T> {
 
 public:
+    /// The Queue base class has no state, so the default constructor is sufficient.
+    Queue() = default;
 
+    /// The Queue base class has no state, so the default destructor is sufficient.
+    ~Queue() override = default;
+
+    /// Offer an element to the queue.
+    /// If the there is space in the queue, the element is added by copying it and `true` is returned.
+    /// If the queue is full and cannot accept more elements, `false` is returned.
     virtual bool offer(const T &element) = 0;
 
+    /// Remove the first element from the queue and return a copy of it.
+    /// If the queue is empty, this method will block until an element is available.
     virtual T poll() = 0;
 
-    virtual T peek() = 0;
-
-    virtual bool add(const T &element) = 0;
-
-    virtual bool addAll(const Collection<T> &other) = 0;
-
-    virtual bool remove(const T &element) = 0;
-
-    virtual bool removeAll(const Collection<T> &other) = 0;
-
-    [[nodiscard]] virtual bool contains(const T &element) const = 0;
-
-    [[nodiscard]] virtual bool containsAll(const Collection<T> &other) const = 0;
-
-    [[nodiscard]] virtual bool isEmpty() const = 0;
-
-    virtual void clear() = 0;
-
-    virtual Iterator<T> begin() const = 0;
-
-    virtual Iterator<T> end() const = 0;
-
-    [[nodiscard]] virtual uint32_t size() const = 0;
-
-    [[nodiscard]] virtual Array<T> toArray() const = 0;
+    /// Peek at the first element in the queue and return a copy of it without removing it.
+    /// If the queue is empty, this method will block until an element is available.
+    virtual T peek() const = 0;
 };
+
 }
 
 #endif

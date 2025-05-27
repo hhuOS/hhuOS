@@ -31,7 +31,6 @@
 #include "lib/util/base/Panic.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/System.h"
-#include "lib/util/collection/Iterator.h"
 #include "InterruptService.h"
 #include "kernel/service/Service.h"
 #include "kernel/process/SchedulerCleaner.h"

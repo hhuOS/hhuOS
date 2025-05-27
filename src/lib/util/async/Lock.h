@@ -6,14 +6,13 @@ namespace Util::Async {
 /// Base class for a lock, which can be used to synchronize access to shared resources.
 class Lock {
 
-protected:
+public:
     /// The Lock base class has no state, so the default constructor is sufficient.
     Lock() = default;
 
     /// The Lock base class has no state, so the default destructor is sufficient.
     virtual ~Lock() = default;
 
-public:
     /// Locks should not be copied, since copies would not operate on the same value.
     Lock(const Lock &other) = delete;
 

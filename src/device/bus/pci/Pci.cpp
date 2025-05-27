@@ -23,7 +23,6 @@
 #include "device/cpu/IoPort.h"
 #include "kernel/log/Log.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/collection/Iterator.h"
 
 namespace Device {
 

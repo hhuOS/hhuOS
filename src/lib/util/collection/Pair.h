@@ -18,38 +18,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __Pair_include__
-#define __Pair_include__
+#ifndef HHUOS_LIB_UTIL_PAIR_H
+#define HHUOS_LIB_UTIL_PAIR_H
 
-#include <stdint.h>
+#include <stddef.h>
 
 namespace Util {
 
-/**
- * @author Filip Krakowski
- */
+/// A simple pair class that holds two values of potentially different types.
+/// This class is immutable, meaning that once a Pair is created, its values cannot be changed.
+/// However, it is copyable and assignable, allowing you to create copies of a Pair or assign one Pair to another.
 template<typename T, typename U>
 class Pair {
 
 public:
-
+    /// Create a new Pair instance with default values.
     Pair() = default;
 
+    /// Create a new Pair instance with the given values.
+    /// The values are copied into the Pair.
     Pair(T first, U second);
 
+    /// The Pair destructor is trivial, as this class only contains the two values.
     ~Pair() = default;
 
+    /// The Pair copy constructor is trivial, as this class only contains the two values.
     Pair(const Pair &other) = default;
 
+    /// The Pair assignment operator is trivial, as this class only contains the two values.
     Pair &operator=(const Pair &other) = default;
 
+    /// Compare this Pair with another Pair for inequality.
+    /// This is done by comparing both the first and second values.
     bool operator!=(const Pair &other) const;
 
+    /// Compare this Pair with another Pair for equality.
+    /// This is done by comparing both the first and second values.
     bool operator==(const Pair &other) const;
 
-    explicit operator uint32_t() const;
+    /// Access the first value of the Pair.
+    [[nodiscard]] const T& getFirst() const;
 
-public:
+    /// Access the second value of the Pair.
+    [[nodiscard]] const U& getSecond() const;
+
+private:
 
     T first;
     U second;
@@ -70,12 +83,14 @@ bool Pair<T, U>::operator==(const Pair &other) const {
 }
 
 template<typename T, typename U>
-Pair<T, U>::operator uint32_t() const {
-    auto k1 = static_cast<uint32_t>(first);
-    auto k2 = static_cast<uint32_t>(first);
+const T & Pair<T, U>::getFirst() const {
+    return first;
+}
 
-    return (((k1 + k2) * (k1 + k2 + 1)) / 2) + k2;
-};
+template<typename T, typename U>
+const U & Pair<T, U>::getSecond() const {
+    return second;
+}
 
 }
 

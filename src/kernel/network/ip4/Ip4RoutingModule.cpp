@@ -32,7 +32,6 @@
 #include "kernel/network/ip4/Ip4Module.h"
 #include "lib/util/network/ip4/Ip4SubnetAddress.h"
 #include "kernel/network/ip4/Ip4Interface.h"
-#include "lib/util/collection/Iterator.h"
 #include "kernel/service/Service.h"
 
 namespace Kernel::Network::Ip4 {
@@ -43,19 +42,16 @@ bool Ip4RoutingModule::addRoute(const Util::Network::Ip4::Ip4Route &route) {
         return false;
     }
 
-    bool ret = false;
     lock.acquire();
 
     if (route.getTargetAddress().getBitCount() == 0) {
         routes.remove(route);
         defaultRoute = route;
-        ret = true;
     } else if (!routes.contains(route)) {
-        ret = routes.add(route);
+        routes.add(route);
     }
 
-    lock.release();
-    return ret;
+    return lock.releaseAndReturn(true);
 }
 
 bool Ip4RoutingModule::removeRoute(const Util::Network::Ip4::Ip4Route &route) {

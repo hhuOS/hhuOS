@@ -32,7 +32,6 @@
 #include "kernel/log/Log.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/collection/Iterator.h"
 #include "lib/util/io/stream/ByteArrayInputStream.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "kernel/network/Socket.h"

@@ -21,7 +21,7 @@
 #ifndef HHUOS_SCHEDULERCLEANER_H
 #define HHUOS_SCHEDULERCLEANER_H
 
-#include "lib/util/collection/ArrayBlockingQueue.h"
+#include "lib/util/collection/ArrayQueue.h"
 #include "lib/util/async/Runnable.h"
 
 namespace Kernel {
@@ -63,8 +63,8 @@ private:
 
     void cleanupThreads();
 
-    Util::ArrayBlockingQueue<Process*> processQueue;
-    Util::ArrayBlockingQueue<Thread*> threadQueue;
+    Util::ArrayQueue<Process*> processQueue;
+    Util::ArrayQueue<Thread*> threadQueue;
 };
 
 }

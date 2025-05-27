@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/collection/ArrayBlockingQueue.h"
+#include "lib/util/collection/ArrayQueue.h"
 #include "lib/util/network/MacAddress.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/base/String.h"
@@ -110,8 +110,8 @@ private:
     Util::String identifier;
 
     Kernel::BitmapMemoryManager &incomingPacketMemoryManager;
-    Util::ArrayBlockingQueue<Packet> incomingPacketQueue;
-    Util::ArrayBlockingQueue<Packet> outgoingPacketQueue;
+    Util::ArrayQueue<Packet> incomingPacketQueue;
+    Util::ArrayQueue<Packet> outgoingPacketQueue;
     Util::Async::Spinlock outgoingPacketLock;
     uint32_t outgoingPacketsToFree = 0;
 

@@ -26,11 +26,10 @@ namespace Util::Async {
 /// Base class for a Runnable, which can be run in a thread.
 class Runnable {
 
-protected:
+public:
     /// The Runnable base class has no state, so the default constructor is sufficient.
     Runnable() = default;
 
-public:
     /// The Runnable base class has no state, so the default destructor is sufficient.
     virtual ~Runnable() = default;
 

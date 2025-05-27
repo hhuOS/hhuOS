@@ -27,7 +27,7 @@
 #ifndef HHUOS_GAME_H
 #define HHUOS_GAME_H
 
-#include "lib/util/collection/ArrayListBlockingQueue.h"
+#include "lib/util/collection/ArrayListQueue.h"
 
 namespace Util {
 namespace Game {
@@ -77,7 +77,7 @@ private:
 
     void initializeNextScene(Graphics &graphics);
 
-    ArrayListBlockingQueue<Scene*> scenes;
+    ArrayListQueue<Scene*> scenes;
     bool firstScene = true;
     bool sceneSwitched = true;
 

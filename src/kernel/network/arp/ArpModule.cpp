@@ -37,7 +37,6 @@
 #include "kernel/network/ethernet/EthernetModule.h"
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "kernel/network/ip4/Ip4Interface.h"
-#include "lib/util/collection/Iterator.h"
 
 namespace Util {
 namespace Io {

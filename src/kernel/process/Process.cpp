@@ -25,7 +25,6 @@
 #include "kernel/process/Thread.h"
 #include "kernel/service/MemoryService.h"
 #include "lib/util/async/IdGenerator.h"
-#include "lib/util/collection/Iterator.h"
 #include "kernel/service/Service.h"
 #include "kernel/service/ProcessService.h"
 #include "kernel/process/Scheduler.h"

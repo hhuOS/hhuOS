@@ -154,7 +154,7 @@ int16_t FileStream::read() {
     }
 	
 	if (!ungottenChars.isEmpty()) {
-		return ungottenChars.pop();
+		return ungottenChars.removeIndex(ungottenChars.size() - 1);
 	}
 	
 	int32_t len = readFile(fileDescriptor, &ret, pos++, 1);
@@ -188,7 +188,7 @@ int32_t FileStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length
 	if (!offset) {
 		uint32_t i = 0;
 		for (; i<length && !ungottenChars.isEmpty(); i++) {
-			targetBuffer[i] = ungottenChars.pop();
+			targetBuffer[i] = ungottenChars.removeIndex(ungottenChars.size() - 1);
 		}
 		targetBuffer += i;
 		length -= i;

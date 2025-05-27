@@ -30,7 +30,6 @@ namespace Util {
 class Address {
 
 public:
-
     /// Create a new Address object pointing to the address 0.
     Address() = default;
 

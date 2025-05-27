@@ -26,7 +26,7 @@
 #include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/io/stream/FilterInputStream.h"
 #include "Ps2Device.h"
-#include "lib/util/collection/ArrayBlockingQueue.h"
+#include "lib/util/collection/ArrayQueue.h"
 #include "lib/util/io/stream/QueueInputStream.h"
 
 namespace Kernel {
@@ -109,7 +109,7 @@ private:
 
     DeviceType type = STANDARD_MOUSE;
 
-    Util::ArrayBlockingQueue<uint8_t> inputBuffer;
+    Util::ArrayQueue<uint8_t> inputBuffer;
     Util::Io::QueueInputStream inputStream;
 
     static const constexpr uint32_t BUFFER_SIZE = 1024;

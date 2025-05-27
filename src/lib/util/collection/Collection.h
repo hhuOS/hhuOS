@@ -18,47 +18,58 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __Collection_include__
-#define __Collection_include__
+#ifndef HHUOS_LIB_UTIL_COLLECTION_H
+#define HHUOS_LIB_UTIL_COLLECTION_H
 
-#include <stdint.h>
-#include "Iterator.h"
-#include "Array.h"
+#include <stddef.h>
+
+#include "collection/Iterator.h"
+#include "collection/Array.h"
 
 namespace Util {
 
-/**
- * Base interface for all collections.
- *
- * @author Filip Krakowski
- */
+/// Base class for all collections.
 template <typename T>
-class Collection {
+class Collection : public Iterable<T> {
 
 public:
+    /// The Collection base class has no state, so the default constructor is sufficient.
+    Collection() = default;
 
-    virtual bool add(const T &element) = 0;
+    /// The Collection base class has no state, so the default destructor is sufficient.
+    ~Collection() override = default;
 
-    virtual bool addAll(const Collection<T> &other) = 0;
+    /// Add an element to the collection by copying it.
+    virtual void add(const T &element) = 0;
 
+    /// Add all elements from the given collection by copying them.
+    virtual void addAll(const Collection &collection) = 0;
+
+    /// Remove the first occurrence of the specified element from the collection.
     virtual bool remove(const T &element) = 0;
 
-    virtual bool removeAll(const Collection<T> &other) = 0;
+    /// Remove all occurrences of the given collection from this collection.
+    virtual bool removeAll(const Collection &collection) = 0;
 
+    /// Retain only the elements that are also contained in the given collection.
+    virtual bool retainAll(const Collection &collection) = 0;
+
+    /// Check if the collection contains the specified element.
     [[nodiscard]] virtual bool contains(const T &element) const = 0;
 
-    [[nodiscard]] virtual bool containsAll(const Collection<T> &other) const = 0;
+    /// Check if this collection contains all elements from the given collection.
+    [[nodiscard]] virtual bool containsAll(const Collection &collection) const = 0;
 
+    /// Check if the collection is empty.
     [[nodiscard]] virtual bool isEmpty() const = 0;
 
+    /// Clear the collection, removing all elements.
     virtual void clear() = 0;
 
-    virtual Iterator<T> begin() const = 0;
+    /// Get the number of elements in the collection.
+    [[nodiscard]] virtual size_t size() const = 0;
 
-    virtual Iterator<T> end() const = 0;
-
-    [[nodiscard]] virtual uint32_t size() const = 0;
-
+    /// Convert the collection to an array by copying its elements.
     [[nodiscard]] virtual Array<T> toArray() const = 0;
 };
 

@@ -45,7 +45,6 @@
 #include "kernel/network/ip4/Ip4Socket.h"
 #include "lib/util/network/ip4/Ip4Route.h"
 #include "lib/util/network/ip4/Ip4SubnetAddress.h"
-#include "lib/util/collection/Iterator.h"
 #include "kernel/service/Service.h"
 
 namespace Kernel::Network::Ip4 {
@@ -161,15 +160,13 @@ bool Ip4Module::registerInterface(const Util::Network::Ip4::Ip4SubnetAddress &ad
         return false;
     }
 
-    auto ret = interfaces.add(interface);
+    interfaces.add(interface);
     lock.release();
 
-    if (ret) {
-        auto &arpModule = Kernel::Service::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
-        arpModule.setEntry(address.getIp4Address(), device.getMacAddress());
-    }
+    auto &arpModule = Kernel::Service::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
+    arpModule.setEntry(address.getIp4Address(), device.getMacAddress());
 
-    return ret;
+    return true;
 }
 
 bool Ip4Module::removeInterface(const Util::Network::Ip4::Ip4SubnetAddress &address, const Util::String &deviceIdentifier) {

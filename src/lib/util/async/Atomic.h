@@ -97,7 +97,6 @@ private:
     static T fetchAndAdd(volatile void *ptr, T addend);
 
     T &value;
-
 };
 
 template class Atomic<int8_t>;

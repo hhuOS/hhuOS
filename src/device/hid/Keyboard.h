@@ -27,7 +27,7 @@
 #include "Ps2Device.h"
 #include "lib/util/io/stream/FilterInputStream.h"
 #include "lib/util/io/stream/QueueInputStream.h"
-#include "lib/util/collection/ArrayBlockingQueue.h"
+#include "lib/util/collection/ArrayQueue.h"
 
 namespace Kernel {
 enum InterruptVector : uint8_t;
@@ -135,7 +135,7 @@ private:
 
     uint8_t leds{};
 
-    Util::ArrayBlockingQueue<uint8_t> keyBuffer;
+    Util::ArrayQueue<uint8_t> keyBuffer;
     Util::Io::QueueInputStream inputStream;
 
     static const constexpr uint32_t BUFFER_SIZE = 1024;

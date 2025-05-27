@@ -18,81 +18,134 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __Array_include__
-#define __Array_include__
+#ifndef HHUOS_LIB_UTIL_ARRAY_H
+#define HHUOS_LIB_UTIL_ARRAY_H
 
-#include <stdint.h>
+#include <stddef.h>
 #include <initializer_list>
-#include "lib/util/base/Panic.h"
+
+#include "base/Address.h"
+#include "base/Panic.h"
 
 namespace Util {
 
-/**
- * A simple array implementation performing index checking.
- *
- * @author Filip Krakowski
- */
+/// A heap-allocated array that can hold a fixed number of elements.
+/// Bounds checking is performed when accessing elements.
+/// This class implements `begin()` and `end()`, allowing iteration over its elements.
+///
+/// ## Example
+/// ```c++
+/// auto array = Util::Array<int>({1, 2, 3, 4, 5});
+/// array[0] = 10; // Change the first element to 10
+///
+/// for (const auto &element : array) {
+///     printf("%d ", element); // Prints: 10 2 3 4 5
+/// }
+/// ```
 template <typename T>
 class Array {
 
 public:
+    /// Create a new array with the given capacity.
+    /// The elements of the array are not initialized, so they may contain garbage values.
+    ///
+    /// ### Example
+    /// ```c++
+    /// auto array = Util::Array<int>(10); // Create an array with a capacity of 10 elements
+    /// for (size_t i = 0; i < array.length(); i++) {
+    ///     array[i] = i; // Initialize the array with values 0 to 9
+    /// }
+    ///
+    /// for (const auto &element : array) {
+    ///     printf("%d ", element); // Prints: 0 1 2 3 4 5 6 7 8 9
+    /// }
+    /// ```
+    explicit Array(size_t capacity);
 
-    explicit Array(uint32_t capacity) noexcept;
+    /// Create a new array from an initializer list.
+    /// The elements of the list are copied to the array and the capacity is set to the size of the list.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto array = Util::Array<int>({1, 2, 3, 4, 5});
+    ///
+    /// for (const auto &element : array) {
+    ///     printf("%d ", element); // Prints: 1 2 3 4 5
+    /// }
+    /// ```
+    Array(std::initializer_list<T> list);
 
-    Array(std::initializer_list<T> list) noexcept;
+    /// Create a new array by copying the elements of another array.
+    Array(const Array &other);
 
-    virtual ~Array();
+    /// Assign the elements of another array to this array, overwriting the current contents.
+    Array& operator=(const Array &other);
 
-    Array(const Array<T> &other);
+    /// Delete the array and free the heap memory.
+    ~Array();
 
-    Array<T> &operator=(const Array<T> &other);
+    /// Access an element at the given index.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto array = Util::Array<int>({1, 2, 3, 4, 5});
+    /// printf("%d", array[0]); // Prints: 1
+    /// ```
+    const T& operator[](size_t index) const;
 
-    T &operator[](uint32_t index);
+    /// Access a reference to an element at the given index, allowing modification of the element.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto array = Util::Array<int>({1, 2, 3, 4, 5});
+    /// array[0] = 10; // Change the first element to 10
+    /// ```
+    T& operator[](size_t index);
 
-    const T &operator[](uint32_t index) const;
+    /// Get the number of elements in the array.
+    [[nodiscard]] size_t length() const;
 
-    void clear();
+    /// Check if the array contains the given element.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto array = Util::Array<int>({1, 2, 3, 4, 5});
+    /// bool containsTwo = array.contains(2); // true
+    /// bool containsSix = array.contains(6); // false
+    /// ```
+    [[nodiscard]] bool contains(const T &element);
 
-    [[nodiscard]] uint32_t length() const;
+    /// Get a pointer to the beginning of the array.
+    /// This allows iteration over the elements of the array using a range-based for loop.
+    [[nodiscard]] T* begin() const;
 
-    T *begin() const;
-
-    T *end() const;
-
-    [[nodiscard]] static Array<T> wrap(const T *source, uint32_t size);
-
-    static void sort(Array<T> &array);
-
-    bool contains(const T &element);
+    /// Get a pointer to the end of the array.
+    /// This allows iteration over the elements of the array using a range-based for loop.
+    [[nodiscard]] T* end() const;
 
 private:
 
     T* array;
-    uint32_t capacity;
+    size_t capacity;
 };
 
 template <class T>
-Array<T>::Array(uint32_t capacity) noexcept : capacity(capacity) {
-    this->array = new T[capacity];
-}
-
-template<typename T>
-Array<T>::~Array() {
-    delete[] array;
+Array<T>::Array(const size_t capacity) : capacity(capacity) {
+    array = new T[capacity];
 }
 
 template <class T>
-Array<T>::Array(std::initializer_list<T> list) noexcept : capacity(list.size()) {
-    this->array = new T[list.size()];
+Array<T>::Array(std::initializer_list<T> list) : capacity(list.size()) {
+    array = new T[list.size()];
+
     const T *source = list.begin();
-    for (uint32_t i = 0; i < capacity; i++) {
-        this->array[i] = source[i];
+    for (size_t i = 0; i < capacity; i++) {
+        array[i] = source[i];
     }
 }
 
 template <class T>
-Array<T>::Array(const Array<T> &other) {
-    capacity = other.capacity;
+Array<T>::Array(const Array &other) : capacity(other.capacity) {
     array = new T[capacity];
 
     for (uint32_t i = 0; i < capacity; i++) {
@@ -101,7 +154,11 @@ Array<T>::Array(const Array<T> &other) {
 }
 
 template <class T>
-Array<T> &Array<T>::operator=(const Array<T> &other) {
+Array<T>& Array<T>::operator=(const Array &other) {
+    if (&other == this) {
+        return *this;
+    }
+
     delete[] array;
     capacity = other.capacity;
     array = new T[capacity];
@@ -113,72 +170,32 @@ Array<T> &Array<T>::operator=(const Array<T> &other) {
     return *this;
 }
 
-template <class T>
-T &Array<T>::operator[](uint32_t index) {
-    if (index >= capacity) {
-        Panic::fire(Panic::OUT_OF_BOUNDS, "Array: Index out of bounds!");
-    }
-
-    return array[index];
-}
-
-template <class T>
-const T &Array<T>::operator[](uint32_t index) const {
-    if (index >= capacity) {
-        Panic::fire(Panic::OUT_OF_BOUNDS, "Array: Index out of bounds!");
-    }
-
-    return array[index];
-}
-
-template <class T>
-uint32_t Array<T>::length() const {
-    return capacity;
-}
-
-template <class T>
-T *Array<T>::begin() const {
-    return array;
-}
-
-template <class T>
-T *Array<T>::end() const {
-    return &array[capacity];
-}
-
-template <class T>
-void Array<T>::clear() {
-    delete[] array;
-    array = new T[capacity];
-}
-
-template <class T>
-Array<T> Array<T>::wrap(const T *source, uint32_t size) {
-    Array tmp(size);
-
-    for(uint32_t i = 0; i < size; i++) {
-        tmp[i] = source[i];
-    }
-
-    return tmp;
-}
-
 template<typename T>
-void Array<T>::sort(Array<T> &array) {
-    bool hasChanged = true;
-    uint32_t length = array.length();
+Array<T>::~Array() {
+    delete[] array;
+}
 
-    while(hasChanged) {
-        hasChanged = false;
-        for (uint32_t i = 0; i < length - 1; i++) {
-            if (array[i] > array[i + 1]) {
-                T tmp = array[i];
-                array[i] = array[i + 1];
-                array[i + 1] = tmp;
-                hasChanged = true;
-            }
-        }
+template <class T>
+T &Array<T>::operator[](size_t index) {
+    if (index >= capacity) {
+        Panic::fire(Panic::OUT_OF_BOUNDS, "Array: Index out of bounds!");
     }
+
+    return array[index];
+}
+
+template <class T>
+const T &Array<T>::operator[](size_t index) const {
+    if (index >= capacity) {
+        Panic::fire(Panic::OUT_OF_BOUNDS, "Array: Index out of bounds!");
+    }
+
+    return array[index];
+}
+
+template <class T>
+size_t Array<T>::length() const {
+    return capacity;
 }
 
 template<typename T>
@@ -190,6 +207,16 @@ bool Array<T>::contains(const T &element) {
     }
 
     return false;
+}
+
+template<typename T>
+T* Array<T>::begin() const {
+    return array;
+}
+
+template<typename T>
+T* Array<T>::end() const {
+    return array + capacity;
 }
 
 }
