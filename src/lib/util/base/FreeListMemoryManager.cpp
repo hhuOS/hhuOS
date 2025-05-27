@@ -410,6 +410,31 @@ void FreeListMemoryManager::disableAutomaticUnmapping() {
     unmapFreedMemory = false;
 }
 
+bool FreeListMemoryManager::checkIntegrity() const {
+    if (firstChunk->prev != nullptr) {
+        return false;
+    }
+
+    const auto *current = firstChunk;
+    while (current != nullptr) {
+        if (current < startAddress || current >= endAddress) {
+            return false;
+        }
+
+        if (current->next != nullptr && current->next < current->prev) {
+            return false;
+        }
+
+        if (current->next != nullptr && current->next < current) {
+            return false;
+        }
+
+        current = current->next;
+    }
+
+    return true;
+}
+
 bool FreeListMemoryManager::isLocked() const {
     return lock.isLocked();
 }

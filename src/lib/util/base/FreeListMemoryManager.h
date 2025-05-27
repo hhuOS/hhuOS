@@ -83,6 +83,9 @@ public:
     /// Stop unmapping freed memory.
     void disableAutomaticUnmapping();
 
+    /// Check the integrity of the free list.
+    [[nodiscard]] bool checkIntegrity() const;
+
 private:
     /// Header of a free chunk of memory.
     /// It contains pointers to the previous and next chunk of memory, as well as the size of the chunk.

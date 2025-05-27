@@ -172,14 +172,6 @@ uint8_t InterruptService::getCpuId() const {
     return usesApic() ? Device::LocalApic::getId() : 0;
 }
 
-bool InterruptService::isParallelComputingAllowed() const {
-    return parallelComputingAllowed;
-}
-
-void InterruptService::allowParallelComputing() {
-    InterruptService::parallelComputingAllowed = true;
-}
-
 Device::InterruptRequest InterruptService::getInterruptSource(GlobalSystemInterrupt gsi) {
     if (usesApic()) {
         return apic->getIrqSource(gsi);

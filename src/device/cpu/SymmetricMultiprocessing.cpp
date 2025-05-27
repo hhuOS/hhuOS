@@ -22,6 +22,8 @@
  */
 
 #include "SymmetricMultiprocessing.h"
+
+#include "async/Thread.h"
 #include "kernel/log/Log.h"
 #include "kernel/memory/MemoryLayout.h"
 #include "kernel/memory/VirtualAddressSpace.h"
@@ -29,23 +31,24 @@
 #include "device/interrupt/apic/Apic.h"
 #include "kernel/service/InterruptService.h"
 #include "kernel/service/Service.h"
+#include "kernel/service/TimeService.h"
+#include "math/Random.h"
 
 namespace Device {
 
 volatile bool runningApplicationProcessors[256]{}; // Once an AP is running it sets its corresponding entry to true
 
 [[noreturn]] void applicationProcessorEntry(uint8_t virtualCpuId) {
-    runningApplicationProcessors[virtualCpuId] = true; // Mark this AP as running
-
-    while (true) {}
-
     // Initialize this AP's APIC
     auto &interruptService = Kernel::Service::getService<Kernel::InterruptService>();
     auto &apic = interruptService.getApic();
     apic.initializeCurrentLocalApic();
     apic.enableCurrentErrorHandler();
 
-    while (!interruptService.isParallelComputingAllowed()) {}
+    // Mark this AP as running
+    runningApplicationProcessors[virtualCpuId] = true;
+
+    while (true) {}
 }
 
 }

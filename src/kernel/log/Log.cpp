@@ -68,8 +68,7 @@ void Log::addOutputStream(Util::Io::OutputStream &stream, bool append) {
 void Log::removeOutputStream(Util::Io::OutputStream &stream) {
     lock.acquire();
 
-    const auto *printStream = streamMap.get(&stream);
-    streamMap.remove(&stream);
+    const auto *printStream = streamMap.remove(&stream);
     delete printStream;
 
     lock.release();

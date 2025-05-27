@@ -114,10 +114,6 @@ public:
 
     [[nodiscard]] uint8_t getCpuId() const;
 
-    [[nodiscard]] bool isParallelComputingAllowed() const;
-
-    void allowParallelComputing();
-
     static const constexpr uint8_t SERVICE_ID = 1;
 
 private:
