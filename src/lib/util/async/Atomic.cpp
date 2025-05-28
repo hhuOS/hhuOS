@@ -95,7 +95,7 @@ bool Atomic<T>::bitTest(T index) {
     : "m"(value), "r"(index)
     );
 
-    return (flags & 0x0100) != 0;
+    return (flags & 0x01) != 0;
 }
 
 template<typename T>
