@@ -54,19 +54,19 @@ public:
 
     static BitmapFile* open(const String &path);
 
-private:
-
     struct Header {
         char signature[2];
-        uint8_t size[4];
-        uint8_t reserved[4];
-        uint8_t dataOffset[4];
-        uint8_t dibHeaderSize[4];
-        uint8_t bitmapWidth[4];
-        uint8_t bitmapHeight[4];
-        uint8_t bitmapCountColorPlanes[2];
-        uint8_t bitmapBitsPerPixel[2];
-    };
+        uint32_t size;
+        uint32_t reserved;
+        uint32_t dataOffset;
+        uint32_t dibHeaderSize;
+        uint32_t bitmapWidth;
+        uint32_t bitmapHeight;
+        uint16_t bitmapCountColorPlanes;
+        uint16_t bitmapBitsPerPixel;
+    } __attribute__((__packed__));
+
+private:
 
     BitmapFile(uint16_t width, uint16_t height, Color *pixelBuffer);
 };

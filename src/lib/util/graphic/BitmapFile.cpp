@@ -37,39 +37,34 @@ BitmapFile* BitmapFile::open(const String &path) {
 
     auto &header = *reinterpret_cast<const Header*>(buffer);
 
-    auto dataOffset = (*(header.dataOffset + 3) << 24) | (*(header.dataOffset + 2) << 16) | (*(header.dataOffset + 1) << 8) | *header.dataOffset;
-    auto bitmapWidth = (*(header.bitmapWidth + 3) << 24) | (*(header.bitmapWidth + 2) << 16) | (*(header.bitmapWidth + 1) << 8) | *header.bitmapWidth;
-    auto bitmapHeight = (*(header.bitmapHeight + 3) << 24) | (*(header.bitmapHeight + 2) << 16) | (*(header.bitmapHeight + 1) << 8) | *header.bitmapHeight;
-    auto bitmapBitsPerPixel = (*(header.bitmapBitsPerPixel + 1) << 8) | *header.bitmapBitsPerPixel;
-
-    auto pixelLength = bitmapBitsPerPixel / 8;
+    auto pixelLength = header.bitmapBitsPerPixel / 8;
     if (pixelLength != 3 && pixelLength != 4) {
         Panic::fire(Panic::UNSUPPORTED_OPERATION, "BitmapFile: Unsupported color depth");
     }
 
-    auto padding = (4 - ((bitmapWidth * pixelLength) % 4)) % 4;
-    auto bitmap = buffer + dataOffset;
-    auto *pixelBuffer = new Graphic::Color[bitmapWidth * bitmapHeight];
+    auto padding = (4 - ((header.bitmapWidth * pixelLength) % 4)) % 4;
+    auto bitmap = buffer + header.dataOffset;
+    auto *pixelBuffer = new Graphic::Color[header.bitmapWidth * header.bitmapHeight];
 
-    for (auto y = 0; y < bitmapHeight; y++) {
-        for (auto x = 0; x < bitmapWidth; x++) {
-            uint32_t pos = (y * bitmapWidth * pixelLength) + (pixelLength * x) + y * padding;
+    for (uint32_t y = 0; y < header.bitmapHeight; y++) {
+        for (uint32_t x = 0; x < header.bitmapWidth; x++) {
+            uint32_t pos = (y * header.bitmapWidth * pixelLength) + (pixelLength * x) + y * padding;
 
             auto blue = *(bitmap + pos);
             auto green = *(bitmap + pos + 1);
             auto red = *(bitmap + pos + 2);
-            auto alpha = 0;
+            auto alpha = 0xff;
             if (pixelLength == 4) {
                 alpha = *(bitmap + pos + 3);
             }
 
             auto color = Graphic::Color(red, green, blue, alpha);
-            pixelBuffer[(y * bitmapWidth) + x] = color;
+            pixelBuffer[(y * header.bitmapWidth) + x] = color;
         }
     }
 
     delete[] bitmap;
-    return new BitmapFile(bitmapWidth, bitmapHeight, pixelBuffer);
+    return new BitmapFile(header.bitmapWidth, header.bitmapHeight, pixelBuffer);
 }
 
 }
