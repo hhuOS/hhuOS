@@ -33,7 +33,8 @@ add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/classicube"
         COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/classicube")
 
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/classicube/options.txt"
-        COMMAND /bin/echo -e "'${CLASSICUBE_OPTIONS}'" | sed -r "s/[\\\\]+//g" > "${CMAKE_BINARY_DIR}/classicube/options.txt")
+        COMMAND /bin/echo -e "'${CLASSICUBE_OPTIONS}'" | sed -r "s/[\\\\]+//g" > "${CMAKE_BINARY_DIR}/classicube/options.txt"
+        DEPENDS "${CMAKE_BINARY_DIR}/classicube")
 
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/classicube/texpacks/classicube.zip"
         COMMAND wget "https://cdn.classicube.net/client/release/nix64/ClassiCube.tar.gz" -O "${CMAKE_BINARY_DIR}/classicube.tar.gz"
