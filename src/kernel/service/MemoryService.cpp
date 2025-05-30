@@ -312,6 +312,8 @@ void *Kernel::MemoryService::mapIO(void *physicalAddress, uint32_t pageCount, bo
         // If the virtual address is already mapped, we have to unmap it.
         // This can happen because the headers of the free list are mapped to arbitrary physical addresses, but the memory should be mapped to the given physical addresses.
         unmap(currentVirtualAddress, 1);
+        // Mark the physical page frame as used
+        currentPhysicalAddress = pageFrameAllocator.allocateBlockAtAddress(currentPhysicalAddress);
         // Map the page into the current address space
         currentAddressSpace->map(currentPhysicalAddress, currentVirtualAddress, flags);
     }
