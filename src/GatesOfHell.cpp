@@ -116,6 +116,8 @@
 #include "device/time/acpi/AcpiTimer.h"
 #include "lib/util/time/Timestamp.h"
 #include "device/time/hpet/Hpet.h"
+#include "filesystem/memory/BufferNode.h"
+#include "graphic/BitmapFile.h"
 #include "kernel/log/LogNode.h"
 #include "lib/util/graphic/font/Terminal8x8.h"
 #include "kernel/service/CpuService.h"
@@ -685,6 +687,23 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         auto *acpiDriver = new Filesystem::Acpi::AcpiDriver();
         filesystemService->createDirectory("/device/acpi");
         filesystemService->getFilesystem().mountVirtualDriver("/device/acpi", acpiDriver);
+
+        if (acpi->hasTable("BGRT")) {
+            const auto &bgrt = acpi->getTable<Util::Hardware::Acpi::Bgrt>("BGRT");
+            const auto imagePageOffset = bgrt.imageAddress % Util::PAGESIZE;
+            const auto *imagePage = static_cast<const uint8_t*>(memoryService->mapIO(const_cast<void*>(reinterpret_cast<const void*>(bgrt.imageAddress)), 1));
+            const auto *imageVirtual = imagePage + imagePageOffset;
+            const auto bitmapSize = reinterpret_cast<const Util::Graphic::BitmapFile::Header*>(imageVirtual)->size;
+            if (bitmapSize > Util::PAGESIZE) {
+                auto pageCount = bitmapSize % Util::PAGESIZE == 0 ? (bitmapSize / Util::PAGESIZE) : (bitmapSize / Util::PAGESIZE) + 1;
+                delete imagePage;
+                imagePage = static_cast<const uint8_t*>(memoryService->mapIO(const_cast<void*>(reinterpret_cast<const void*>(bgrt.imageAddress)), pageCount));
+                imageVirtual = imagePage + imagePageOffset;
+            }
+
+            auto *bootLogoNode = new Filesystem::Memory::BufferNode("bootlogo.bmp", imageVirtual, bitmapSize);
+            deviceDriver->addNode("/", bootLogoNode);
+        }
     }
 
     if (smBios->getAvailableTables().length() != 0) {

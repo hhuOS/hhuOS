@@ -215,6 +215,15 @@ public:
         uint8_t pageProtection;
     } __attribute__((packed));
 
+    struct Bgrt : public SdtHeader {
+        uint16_t version;
+        uint8_t status;
+        uint8_t imageType;
+        uint64_t imageAddress;
+        uint32_t imageOffsetX;
+        uint32_t imageOffsetY;
+    } __attribute__ ((packed));
+
     /**
      * Default Constructor.
      * Deleted, as this class has only static members.
