@@ -28,7 +28,7 @@ IoPort PcSpeaker::controlPort(0x43);
 IoPort PcSpeaker::dataPort2(0x42);
 IoPort PcSpeaker::ppi(0x61);
 
-void PcSpeaker::play(uint32_t frequency) {
+void PcSpeaker::play(uint16_t frequency) {
     if (frequency == 0) {
         off();
         return;

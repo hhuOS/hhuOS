@@ -20,17 +20,19 @@
 
 #include "SoundBlaster.h"
 
-#include "lib/util/collection/Array.h"
+#include "collection/Array.h"
 
 namespace Util::Sound {
 
-Sound::SoundBlaster::SoundBlaster(const Io::File &soundBlasterFile) : soundBlasterFile(soundBlasterFile), stream(soundBlasterFile) {}
+SoundBlaster::SoundBlaster(const Io::File &soundBlasterFile) :
+    soundBlasterFile(soundBlasterFile), stream(soundBlasterFile) {}
 
-bool SoundBlaster::setAudioParameters(uint32_t sampleRate, uint8_t channels, uint8_t bitsPerSample) {
-    return soundBlasterFile.controlFile(Util::Sound::SoundBlaster::SET_AUDIO_PARAMETERS, Util::Array<uint32_t>({sampleRate, channels, bitsPerSample}));
+bool SoundBlaster::setAudioParameters(const uint16_t sampleRate, const uint8_t channels, const uint8_t bitsPerSample) {
+    return soundBlasterFile.controlFile(SET_AUDIO_PARAMETERS,
+        Util::Array<uint32_t>({sampleRate, channels, bitsPerSample}));
 }
 
-void Sound::SoundBlaster::play(const uint8_t *data, uint32_t size) {
+void SoundBlaster::play(const uint8_t *data, const uint32_t size) {
     stream.write(data, 0, size);
 }
 

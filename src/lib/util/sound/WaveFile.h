@@ -18,26 +18,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_WAVEFILE_H
-#define HHUOS_WAVEFILE_H
+#ifndef HHUOS_LIB_UTIL_SOUND_WAVEFILE_H
+#define HHUOS_LIB_UTIL_SOUND_WAVEFILE_H
 
 #include <stdint.h>
 
-#include "lib/util/io/stream/FilterInputStream.h"
-#include "lib/util/io/stream/FileInputStream.h"
-
-namespace Util {
-namespace Io {
-class File;
-}  // namespace Io
-}  // namespace Util
+#include "io/file/File.h"
+#include "io/stream/FilterInputStream.h"
+#include "io/stream/FileInputStream.h"
 
 namespace Util::Sound {
 
-class WaveFile : public Io::FilterInputStream {
+/// This class provides functionality to read and parse WAVE audio files.
+/// It works by reading the RIFF and format chunks from the beginning of the WAVE file,
+/// and then searching for the 'data' chunk that contains the actual audio samples.
+/// Since it inherits from `Io::FilterInputStream`, it can be used to read the audio data directly.
+/// After finding the 'data' chunk, the stream is positioned at the start of the audio data,
+/// and the raw audio samples can be read using the `read()` method.
+/// It does not work with WAVE files that have multiple 'data' chunks.
+///
+/// ## Example
+/// ```c++
+/// const auto waveFile = Util::Sound::WaveFile("audio.wav"); // Create a new WaveFile instance
+///
+/// // Calculate and print the length of the audio data in seconds.
+/// const auto length = waveFile.getSampleCount() / waveFile.getSamplesPerSecond();
+/// printf("Audio length: %u seconds\n", length);
+/// ```
+class WaveFile final : public Io::FilterInputStream {
 
 public:
-
+    /// The different audio formats supported by WAVE files.
     enum AudioFormat : uint16_t {
         PCM = 0x0001,
         MS_ADPCM = 0x0002,
@@ -84,40 +95,41 @@ public:
         OLIOPR = 0x1004
     };
 
-    /**
-     * Constructor.
-     */
+    /// Create a new WaveFile instance from the specified file.
+    /// This will parse the RIFF and format chunks from the beginning of the file
+    /// and fire a panic if the file is not a valid WAVE file or does not contain a 'data' chunk.
     explicit WaveFile(const Io::File &file);
 
-    /**
-     * Copy Constructor.
-     */
+    /// WaveFile is not copyable, since it inherits from the not copyable class `FilterInputStream`,
+    /// so the copy constructor is deleted.
     WaveFile(const WaveFile &other) = delete;
 
-    /**
-     * Assignment operator.
-     */
-    WaveFile &operator=(const WaveFile &other) = delete;
+    /// WaveFile is not assignable, since it inherits from the not copyable class `FilterInputStream`,
+    /// so the assignment operator is deleted.
+    WaveFile& operator=(const WaveFile &other) = delete;
 
-    /**
-     * Destructor.
-     */
+    /// The WaveFile destructor is trivial, as it only contains simple data structures and a `FileInputStream`.
     ~WaveFile() override = default;
 
+    /// Return the audio format of the WAVE file (e.g. `PCM`).
     [[nodiscard]] AudioFormat getAudioFormat() const;
 
+    /// Return the number of channels in the audio data (e.g. 1 for mono, 2 for stereo).
     [[nodiscard]] uint16_t getNumChannels() const;
 
+    /// Return the sample rate in samples per second (e.g. 22050, 44100).
     [[nodiscard]] uint32_t getSamplesPerSecond() const;
 
+    /// Return the number of bytes per second for the audio data.
     [[nodiscard]] uint32_t getBytesPerSecond() const;
 
+    /// Return the number of bits per sample (e.g. 8, 16).
     [[nodiscard]] uint16_t getBitsPerSample() const;
 
-    [[nodiscard]] uint16_t getFrameSize() const;
-
+    /// Return the amount of samples in the audio data.
     [[nodiscard]] uint32_t getSampleCount() const;
 
+    /// Return the size of the audio data in bytes.
     [[nodiscard]] uint32_t getDataSize() const;
 
 private:

@@ -20,6 +20,8 @@
 
 #include "AlarmRunnable.h"
 
+#include <sound/PcSpeaker.h>
+
 #include "device/sound/speaker/PcSpeaker.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/time/Timestamp.h"
@@ -30,7 +32,7 @@ AlarmRunnable::AlarmRunnable(uint32_t beepCount) : beepCount(beepCount) {}
 
 void AlarmRunnable::run() {
     for (uint32_t i = 0; i < beepCount; i++) {
-        Sound::PcSpeaker::play(Sound::PcSpeaker::A1);
+        Sound::PcSpeaker::play(Util::Sound::PcSpeaker::A1);
         Util::Async::Thread::sleep(Util::Time::Timestamp(0, INTERVAL * 1000000));
         Sound::PcSpeaker::off();
         Util::Async::Thread::sleep(Util::Time::Timestamp(0, INTERVAL * 1000000));

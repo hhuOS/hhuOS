@@ -20,30 +20,21 @@
 
 #include "PcSpeaker.h"
 
-#include "lib/util/async/Thread.h"
-#include "lib/util/base/String.h"
-
-namespace Util {
-namespace Io {
-class File;
-}  // namespace Io
-namespace Time {
-class Timestamp;
-}  // namespace Time
-}  // namespace Util
+#include "async/Thread.h"
+#include "base/String.h"
 
 namespace Util::Sound {
 
 PcSpeaker::PcSpeaker(const Io::File &speakerFile) : stream(speakerFile) {}
 
-void PcSpeaker::play(uint32_t frequency) {
-    auto frequencyString = Util::String::format("%u", frequency);
+void PcSpeaker::play(const uint16_t frequency) {
+    const auto frequencyString = String::format("%u", frequency);
     stream.write(static_cast<const uint8_t*>(frequencyString), 0, frequencyString.length());
 }
 
-void PcSpeaker::play(uint32_t frequency, const Time::Timestamp &length) {
+void PcSpeaker::play(const uint16_t frequency, const Time::Timestamp &length) {
     play(frequency);
-    Util::Async::Thread::sleep(length);
+    Async::Thread::sleep(length);
 }
 
 void PcSpeaker::turnOff() {

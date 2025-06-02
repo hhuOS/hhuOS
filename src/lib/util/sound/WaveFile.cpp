@@ -20,33 +20,28 @@
 
 #include "WaveFile.h"
 
-#include "lib/util/base/Panic.h"
-
-namespace Util {
-namespace Io {
-class File;
-}  // namespace Io
-}  // namespace Util
+#include "base/Panic.h"
 
 namespace Util::Sound {
 
-WaveFile::WaveFile(const Io::File &file) : Io::FilterInputStream(stream), stream(file) {
-    read(reinterpret_cast<uint8_t*>(&riffChunk), 0, sizeof(RiffChunk));
-    read(reinterpret_cast<uint8_t*>(&formatChunk), 0, sizeof(formatChunk));
+WaveFile::WaveFile(const Io::File &file) : FilterInputStream(stream), stream(file) {
+    // Read the RIFF and format chunks from the beginning of the file.
+    FilterInputStream::read(reinterpret_cast<uint8_t*>(&riffChunk), 0, sizeof(RiffChunk));
+    FilterInputStream::read(reinterpret_cast<uint8_t*>(&formatChunk), 0, sizeof(FormatChunk));
 
-    auto readBytes = read(reinterpret_cast<uint8_t*>(&dataChunk), 0, sizeof(dataChunk));
-    while (dataChunk.dataSignature[0] != 'd' && dataChunk.dataSignature[1] != 'a' && dataChunk.dataSignature[2] != 't' && dataChunk.dataSignature[3] != 'a') {
-        if (readBytes <= 0) {
-            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "WaveFile: No 'data' chunk found!");
+    // Search for the 'data' chunk in the file, by reading chunks until we find one with the 'data' signature.
+    // Afterward, this stream will be positioned at the start of the 'data' chunk and is ready for reading audio data.
+    auto read = FilterInputStream::read(reinterpret_cast<uint8_t*>(&dataChunk), 0, sizeof(dataChunk));
+    while (dataChunk.dataSignature[0] != 'd' &&dataChunk.dataSignature[1] != 'a' &&
+        dataChunk.dataSignature[2] != 't' && dataChunk.dataSignature[3] != 'a')
+    {
+        if (read <= 0) {
+            Util::Panic::fire(Panic::INVALID_ARGUMENT, "WaveFile: No 'data' chunk found!");
         }
 
         skip(dataChunk.chunkSize);
-        readBytes = read(reinterpret_cast<uint8_t*>(&dataChunk), 0, sizeof(dataChunk));
+        read = FilterInputStream::read(reinterpret_cast<uint8_t*>(&dataChunk), 0, sizeof(dataChunk));
     }
-}
-
-uint32_t WaveFile::getDataSize() const {
-    return dataChunk.chunkSize;
 }
 
 WaveFile::AudioFormat WaveFile::getAudioFormat() const {
@@ -69,12 +64,12 @@ uint16_t WaveFile::getBitsPerSample() const {
     return formatChunk.bitsPerSample;
 }
 
-uint16_t WaveFile::getFrameSize() const {
-    return formatChunk.frameSize;
-}
-
 uint32_t WaveFile::getSampleCount() const {
     return dataChunk.chunkSize / formatChunk.frameSize;
+}
+
+uint32_t WaveFile::getDataSize() const {
+    return dataChunk.chunkSize;
 }
 
 }

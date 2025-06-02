@@ -19,10 +19,11 @@
 project(lib.sound)
 message(STATUS "Project " ${PROJECT_NAME})
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 90)
+
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
-
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/sound/PcSpeaker.cpp
         ${HHUOS_SRC_DIR}/lib/util/sound/SoundBlaster.cpp
@@ -31,7 +32,6 @@ target_sources(${PROJECT_NAME} PUBLIC
 # Kernel space version
 project(lib.kernel.sound)
 message(STATUS "Project " ${PROJECT_NAME})
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} lib.sound)
 target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/kernel.cpp)
@@ -39,7 +39,6 @@ target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/kernel.cpp)
 # User space sound
 project(lib.user.sound)
 message(STATUS "Project " ${PROJECT_NAME})
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} lib.sound)
 target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/user.cpp)
