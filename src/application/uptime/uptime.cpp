@@ -38,7 +38,7 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto systemTime = Util::Time::getSystemTime();
+    auto systemTime = Util::Time::Timestamp::getSystemTime();
     if (systemTime.toSeconds() < 60) {
         Util::System::out << Util::String::format("%d", systemTime.toSeconds());
     } else if (systemTime.toSeconds() < 3600) {

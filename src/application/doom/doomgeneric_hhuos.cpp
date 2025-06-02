@@ -161,9 +161,9 @@ int32_t main(int argc, char **argv) {
     lfb->clear();
 
     // Run game loop
-    auto oldTime = Util::Time::getSystemTime();
+    auto oldTime = Util::Time::Timestamp::getSystemTime();
     while (true) {
-        auto newTime = Util::Time::getSystemTime();
+        auto newTime = Util::Time::Timestamp::getSystemTime();
         if (oldTime == newTime) {
             Util::Async::Thread::yield();
         } else {
@@ -186,13 +186,13 @@ void DG_DrawFrame() {
     lfb->drawString(*fpsFont, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
 
     fpsCounter++;
-    fpsTimer += (Util::Time::getSystemTime() - lastFrameTime);
-    lastFrameTime = Util::Time::getSystemTime();
+    fpsTimer += (Util::Time::Timestamp::getSystemTime() - lastFrameTime);
+    lastFrameTime = Util::Time::Timestamp::getSystemTime();
 
     if (fpsTimer >= Util::Time::Timestamp::ofSeconds(1)) {
         fps = fpsCounter;
         fpsCounter = 0;
-        fpsTimer.reset();
+        fpsTimer = Util::Time::Timestamp();
     }
 }
 

@@ -38,15 +38,15 @@ Util::Math::Random random;
 Util::Time::Timestamp benchmarkMemset(const Util::Address &address, uint32_t length) {
     auto value = static_cast<uint32_t>(random.nextRandomNumber() * 0xff);
 
-    auto start = Util::Time::getSystemTime();
+    auto start = Util::Time::Timestamp::getSystemTime();
     address.setRange(value, length);
-    return Util::Time::getSystemTime() - start;
+    return Util::Time::Timestamp::getSystemTime() - start;
 }
 
 Util::Time::Timestamp benchmarkMemcpy(const Util::Address &source, const Util::Address &target, uint32_t length) {
-    auto start = Util::Time::getSystemTime();
+    auto start = Util::Time::Timestamp::getSystemTime();
     target.copyRange(source, length);
-    return Util::Time::getSystemTime() - start;
+    return Util::Time::Timestamp::getSystemTime() - start;
 }
 
 Util::String powerAsString(uint8_t power) {

@@ -684,7 +684,7 @@ uint16_t IdeController::performDmaAtaIO(const DeviceInfo &info, TransferMode mod
     registers.receivedInterrupt = false;
     registers.dma.command.writeByte(DmaCommand::ENABLE);
 
-    uint32_t timeout = Util::Time::getSystemTime().toMilliseconds() + DMA_TIMEOUT;
+    uint32_t timeout = Util::Time::Timestamp::getSystemTime().toMilliseconds() + DMA_TIMEOUT;
     do {
         if (registers.receivedInterrupt) {
             // Stop DMA transfer and check flags
@@ -703,9 +703,9 @@ uint16_t IdeController::performDmaAtaIO(const DeviceInfo &info, TransferMode mod
                 }
             }
         }
-    } while (Util::Time::getSystemTime().toMilliseconds() < timeout);
+    } while (Util::Time::Timestamp::getSystemTime().toMilliseconds() < timeout);
 
-    if (Util::Time::getSystemTime().toMilliseconds() >= timeout) {
+    if (Util::Time::Timestamp::getSystemTime().toMilliseconds() >= timeout) {
         delete prdVirtual;
         delete dmaMemoryVirtual;
         return 0;
@@ -844,7 +844,7 @@ uint16_t IdeController::performProgrammedAtapiIO(const IdeController::DeviceInfo
 }
 
 bool IdeController::waitStatus(const IoPort &port, Status status, uint16_t timeout) {
-    uint32_t endTime = Util::Time::getSystemTime().toMilliseconds() + timeout;
+    uint32_t endTime = Util::Time::Timestamp::getSystemTime().toMilliseconds() + timeout;
 
     do {
         auto currentStatus = port.readByte();
@@ -860,7 +860,7 @@ bool IdeController::waitStatus(const IoPort &port, Status status, uint16_t timeo
         if ((currentStatus & status) == status) {
             return true;
         }
-    } while (timeout == 0 || Util::Time::getSystemTime().toMilliseconds() < endTime);
+    } while (timeout == 0 || Util::Time::Timestamp::getSystemTime().toMilliseconds() < endTime);
 
     // Timeout occurred
     // Do not log an error, as this may be normal behavior (e.g. in 'determine_ata_sector_size()')

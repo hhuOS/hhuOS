@@ -218,7 +218,7 @@ void cubes(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
 
     // Draw scene
     while (true) {
-        auto startTime = Util::Time::getSystemTime();
+        auto startTime = Util::Time::Timestamp::getSystemTime();
 
         auto c = Util::System::in.read();
         if (c > 0 && keyDecoder->parseScancode(c)) {
@@ -264,19 +264,19 @@ void cubes(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
         lfb.drawString(font, 0, font.getCharHeight(), static_cast<const char*>(Util::String::format("Cubes: %u", cubes->size())), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
         lfb.flush(); // Flushes the buffered frame buffer to the screen
 
-        auto renderTime = Util::Time::getSystemTime() - startTime;
+        auto renderTime = Util::Time::Timestamp::getSystemTime() - startTime;
         if (renderTime < targetFrameTime) {
             Util::Async::Thread::sleep(targetFrameTime - renderTime);
         }
 
         fpsCounter++;
-        frameTime = Util::Time::getSystemTime() - startTime;
+        frameTime = Util::Time::Timestamp::getSystemTime() - startTime;
         fpsTimer += frameTime;
 
         if (fpsTimer >= Util::Time::Timestamp::ofSeconds(1)) {
             fps = fpsCounter;
             fpsCounter = 0;
-            fpsTimer.reset();
+            fpsTimer = Util::Time::Timestamp();
         }
     }
 

@@ -96,43 +96,46 @@ Util::Time::Date Rtc::getCurrentDate() {
 }
 
 void Rtc::setCurrentDate(const Util::Time::Date &date) {
-    Util::Time::Date outDate = date;
+    auto seconds = date.getSeconds();
+    auto minutes = date.getMinutes();
+    auto hours = date.getHours();
+    auto dayOfMonth = date.getDayOfMonth();
+    auto month = date.getMonth();
+    auto year = date.getYear();
     uint8_t century;
 
-    if (outDate.getYear() < 100) {
+    if (year < 100) {
         century = CURRENT_CENTURY;
     } else {
-        century = outDate.getYear() / 100;
-        uint8_t year = outDate.getYear() % 100;
-        outDate.setYear(year);
+        century = year / 100;
+        year %= 100;
     }
 
     if (useTwelveHours) {
-        uint8_t hours = outDate.getHours() % 12;
-        outDate.setHours(hours);
+        hours = hours % 12;
     }
 
     if (useBcd) {
-        outDate.setSeconds(binaryToBcd(outDate.getSeconds()));
-        outDate.setMinutes(binaryToBcd(outDate.getMinutes()));
-        outDate.setHours(binaryToBcd(outDate.getHours()));
-        outDate.setDayOfMonth(binaryToBcd(outDate.getDayOfMonth()));
-        outDate.setMonth(binaryToBcd(outDate.getMonth()));
-        outDate.setYear(binaryToBcd(outDate.getYear()));
+        seconds = binaryToBcd(seconds);
+        minutes = binaryToBcd(minutes);
+        hours = binaryToBcd(hours);
+        dayOfMonth = binaryToBcd(dayOfMonth);
+        month = binaryToBcd(month);
+        year = binaryToBcd(year);
         century = binaryToBcd(century);
     }
 
-    while (isUpdating());
+    while (isUpdating()) {}
 
     Cpu::disableInterrupts();
     Cmos::disableNmi();
 
-    Cmos::write(SECONDS_REGISTER, outDate.getSeconds());
-    Cmos::write(MINUTES_REGISTER, outDate.getMinutes());
-    Cmos::write(HOURS_REGISTER, outDate.getHours());
-    Cmos::write(DAY_OF_MONTH_REGISTER, outDate.getDayOfMonth());
-    Cmos::write(MONTH_REGISTER, outDate.getMonth());
-    Cmos::write(YEAR_REGISTER, outDate.getYear());
+    Cmos::write(SECONDS_REGISTER, seconds);
+    Cmos::write(MINUTES_REGISTER, minutes);
+    Cmos::write(HOURS_REGISTER, hours);
+    Cmos::write(DAY_OF_MONTH_REGISTER, dayOfMonth);
+    Cmos::write(MONTH_REGISTER, month);
+    Cmos::write(YEAR_REGISTER, year);
 
     if (centuryRegister != 0) {
         Cmos::write(centuryRegister, century);
@@ -145,22 +148,23 @@ void Rtc::setCurrentDate(const Util::Time::Date &date) {
 }
 
 void Rtc::setAlarm(const Util::Time::Date &date) const {
-    Util::Time::Date alarmDate = date;
+    auto seconds = date.getSeconds();
+    auto minutes = date.getMinutes();
+    auto hours = date.getHours();
 
     if (useTwelveHours) {
-        uint8_t hours = alarmDate.getHours() % 12;
-        alarmDate.setHours(hours);
+        hours = date.getHours() % 12;
     }
 
     if (useBcd) {
-        alarmDate.setSeconds(binaryToBcd(alarmDate.getSeconds()));
-        alarmDate.setMinutes(binaryToBcd(alarmDate.getMinutes()));
-        alarmDate.setHours(binaryToBcd(alarmDate.getHours()));
+        seconds = binaryToBcd(seconds);
+        minutes = binaryToBcd(minutes);
+        hours = binaryToBcd(hours);
     }
 
-    Cmos::write(ALARM_SECONDS_REGISTER, alarmDate.getSeconds());
-    Cmos::write(ALARM_MINUTES_REGISTER, alarmDate.getMinutes());
-    Cmos::write(ALARM_HOURS_REGISTER, alarmDate.getHours());
+    Cmos::write(ALARM_SECONDS_REGISTER, seconds);
+    Cmos::write(ALARM_MINUTES_REGISTER, minutes);
+    Cmos::write(ALARM_HOURS_REGISTER, hours);
 
     // Enable 'alarm interrupts': An Interrupt will be triggered every 24 hours at the set alarm time.
     uint8_t oldValue = Cmos::read(STATUS_REGISTER_B);
@@ -180,17 +184,16 @@ bool Rtc::isUpdating() {
 }
 
 Util::Time::Date Rtc::readDate() const {
-    while (isUpdating());
+    while (isUpdating()) {}
 
-    Util::Time::Date date;
-    date.setSeconds(Cmos::read(SECONDS_REGISTER));
-    date.setMinutes(Cmos::read(MINUTES_REGISTER));
-    date.setHours(Cmos::read(HOURS_REGISTER));
-    date.setDayOfMonth(Cmos::read(DAY_OF_MONTH_REGISTER));
-    date.setMonth(Cmos::read(MONTH_REGISTER));
-    date.setYear(Cmos::read(YEAR_REGISTER));
+    auto seconds = Cmos::read(SECONDS_REGISTER);
+    auto minutes = Cmos::read(MINUTES_REGISTER);
+    auto hours = Cmos::read(HOURS_REGISTER);
+    auto dayOfMonth = Cmos::read(DAY_OF_MONTH_REGISTER);
+    auto month = Cmos::read(MONTH_REGISTER);
+    auto year = Cmos::read(YEAR_REGISTER);
+    uint8_t century;
 
-    uint8_t  century;
     if (centuryRegister != 0) {
         century = Cmos::read(centuryRegister);
     } else {
@@ -198,21 +201,20 @@ Util::Time::Date Rtc::readDate() const {
     }
 
     if (useBcd) {
+        seconds = bcdToBinary(seconds);
+        minutes = bcdToBinary(minutes);
+        hours = bcdToBinary(hours | (hours & 0x80));
+        dayOfMonth = bcdToBinary(dayOfMonth);
+        month = bcdToBinary(month);
+        year = bcdToBinary(year);
         century = bcdToBinary(century);
-        date.setSeconds(bcdToBinary(date.getSeconds()));
-        date.setMinutes(bcdToBinary(date.getMinutes()));
-        date.setHours(bcdToBinary(date.getHours()) | (date.getHours() & 0x80));
-        date.setDayOfMonth(bcdToBinary(date.getDayOfMonth()));
-        date.setMonth(bcdToBinary(date.getMonth()));
-        date.setYear(bcdToBinary(date.getYear()) + (century * 100));
     }
 
-    if (useTwelveHours && (date.getHours() & 0x80)) {
-        uint8_t hours = ((date.getHours() & 0x7F) + 12) % 24;
-        date.setHours(hours);
+    if (useTwelveHours && (hours & 0x80)) {
+        hours = ((hours & 0x7F) + 12) % 24;
     }
 
-    return date;
+    return Util::Time::Date(seconds, minutes, hours, dayOfMonth, month, static_cast<int16_t>((century * 100) + year));
 }
 
 void Rtc::alarm() {

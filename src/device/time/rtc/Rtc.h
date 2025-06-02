@@ -173,8 +173,8 @@ private:
     void setInterruptRate(const Util::Time::Timestamp &interval);
 
     Util::Time::Timestamp time{};
-    Util::Time::Date currentDate{};
     Util::Time::Timestamp timerInterval{};
+    Util::Time::Date currentDate = Util::Time::Date(0);
 
     uint8_t centuryRegister = 0;
 

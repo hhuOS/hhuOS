@@ -89,7 +89,7 @@ bool SoundBlaster::checkPort(uint16_t baseAddress) {
     resetPort.writeByte(0x00);
 
     bool timeout = true;
-    uint32_t timeoutTime = Util::Time::getSystemTime().toMilliseconds() + TIMEOUT;
+    uint32_t timeoutTime = Util::Time::Timestamp::getSystemTime().toMilliseconds() + TIMEOUT;
 
     // Wait for read buffer to become ready
     do {
@@ -99,13 +99,13 @@ bool SoundBlaster::checkPort(uint16_t baseAddress) {
             timeout = false;
             break;
         }
-    } while (Util::Time::getSystemTime().toMilliseconds() < timeoutTime);
+    } while (Util::Time::Timestamp::getSystemTime().toMilliseconds() < timeoutTime);
 
     if (timeout) {
         return false;
     }
 
-    timeoutTime = Util::Time::getSystemTime().toMilliseconds() + TIMEOUT;
+    timeoutTime = Util::Time::Timestamp::getSystemTime().toMilliseconds() + TIMEOUT;
 
     // Wait for ready code (represented by 0xaa) to appear in the read buffer
     do {
@@ -114,7 +114,7 @@ bool SoundBlaster::checkPort(uint16_t baseAddress) {
         if(status == 0xaa) {
             return true;
         }
-    } while (Util::Time::getSystemTime().toMilliseconds() < timeoutTime);
+    } while (Util::Time::Timestamp::getSystemTime().toMilliseconds() < timeoutTime);
 
     return false;
 }
@@ -157,7 +157,7 @@ bool SoundBlaster::reset() {
     resetPort.writeByte(0x00);
 
     bool timeout = true;
-    uint32_t timeoutTime = Util::Time::getSystemTime().toMilliseconds() + TIMEOUT;
+    uint32_t timeoutTime = Util::Time::Timestamp::getSystemTime().toMilliseconds() + TIMEOUT;
 
     do {
         uint8_t status = readBufferStatusPort.readByte();
@@ -166,13 +166,13 @@ bool SoundBlaster::reset() {
             timeout = false;
             break;
         }
-    } while(Util::Time::getSystemTime().toMilliseconds() < timeoutTime);
+    } while(Util::Time::Timestamp::getSystemTime().toMilliseconds() < timeoutTime);
 
     if (timeout) {
         return false;
     }
 
-    timeoutTime = Util::Time::getSystemTime().toMilliseconds() + TIMEOUT;
+    timeoutTime = Util::Time::Timestamp::getSystemTime().toMilliseconds() + TIMEOUT;
 
     // Wait for ready code (represented by 0xaa) to appear in the read buffer
     do {
@@ -181,7 +181,7 @@ bool SoundBlaster::reset() {
         if(status == 0xaa) {
             return true;
         }
-    } while(Util::Time::getSystemTime().toMilliseconds() < timeoutTime);
+    } while(Util::Time::Timestamp::getSystemTime().toMilliseconds() < timeoutTime);
 
     return false;
 }

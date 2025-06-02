@@ -70,7 +70,7 @@ void triangle(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
 
     // Draw scene
     while (true) {
-        auto startTime = Util::Time::getSystemTime();
+        auto startTime = Util::Time::Timestamp::getSystemTime();
 
         if (Util::System::in.read() > 0) {
             break;
@@ -83,19 +83,19 @@ void triangle(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
         lfb.drawString(font, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
         lfb.flush(); // Flushes the buffered frame buffer to the screen
 
-        auto renderTime = Util::Time::getSystemTime() - startTime;
+        auto renderTime = Util::Time::Timestamp::getSystemTime() - startTime;
         if (renderTime < targetFrameTime) {
             Util::Async::Thread::sleep(targetFrameTime - renderTime);
         }
 
         fpsCounter++;
-        auto frameTime = Util::Time::getSystemTime() - startTime;
+        auto frameTime = Util::Time::Timestamp::getSystemTime() - startTime;
         fpsTimer += frameTime;
 
         if (fpsTimer >= Util::Time::Timestamp::ofSeconds(1)) {
             fps = fpsCounter;
             fpsCounter = 0;
-            fpsTimer.reset();
+            fpsTimer = Util::Time::Timestamp();
         }
 
         rotationAngle += (static_cast<GLfloat>(frameTime.toMicroseconds()) / 1000000) * 40;

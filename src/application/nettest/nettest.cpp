@@ -58,11 +58,11 @@ int32_t receiveTraffic(Util::Network::Socket &socket){
         return -1;
     }
 
-    Util::System::out   << "Start: " << Util::Time::getSystemTime().toSeconds() << "s" << Util::Io::PrintStream::endl
+    Util::System::out   << "Start: " << Util::Time::Timestamp::getSystemTime().toSeconds() << "s" << Util::Io::PrintStream::endl
                         << "----------------------------------------------" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 
     /** Start time with first received packet */
-    Util::Time::Timestamp secondsPassed = Util::Time::getSystemTime();
+    Util::Time::Timestamp secondsPassed = Util::Time::Timestamp::getSystemTime();
     secondsPassed += Util::Time::Timestamp::ofSeconds(1);
 
     Util::String receivedMessage = Util::String(firstReceivedDatagram.getData(), firstReceivedDatagram.getLength());
@@ -98,7 +98,7 @@ int32_t receiveTraffic(Util::Network::Socket &socket){
         bytesReceivedInInterval = bytesReceivedInInterval + receivedDatagram.getLength();
 
         /** if a second passed write current bytes per second into output */
-        if (secondsPassed < Util::Time::getSystemTime()) {
+        if (secondsPassed < Util::Time::Timestamp::getSystemTime()) {
             Util::System::out << intervalCounter << "-" << intervalCounter + 1 << ":    " << bytesReceivedInInterval / 1000 << " KB/s" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
             intervalCounter++;
             bytesReceived = bytesReceived + bytesReceivedInInterval;
@@ -143,16 +143,16 @@ int32_t sendTraffic(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4
     }
 
     /** Set Interval End */
-    Util::Time::Timestamp testFinishTime = Util::Time::getSystemTime();
-    Util::Time::Timestamp secondsPassed = Util::Time::getSystemTime();
+    Util::Time::Timestamp testFinishTime = Util::Time::Timestamp::getSystemTime();
+    Util::Time::Timestamp secondsPassed = Util::Time::Timestamp::getSystemTime();
     testFinishTime += Util::Time::Timestamp::ofSeconds(timingInterval);
     secondsPassed += Util::Time::Timestamp::ofSeconds(1);
 
-    Util::System::out   << "Start: " << Util::Time::getSystemTime().toSeconds() << "s - End: " << testFinishTime.toSeconds() << "s" << Util::Io::PrintStream::endl
+    Util::System::out   << "Start: " << Util::Time::Timestamp::getSystemTime().toSeconds() << "s - End: " << testFinishTime.toSeconds() << "s" << Util::Io::PrintStream::endl
                         << "----------------------------------------------" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 
     /** Send Packets until finish time's reached */
-    while (testFinishTime > Util::Time::getSystemTime()) {
+    while (testFinishTime > Util::Time::Timestamp::getSystemTime()) {
         /** Increment packet number */
         packetNumber++;
         /** Write current Packet number into first 4 Bytes of Buffer*/
@@ -173,7 +173,7 @@ int32_t sendTraffic(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4
         bytesSendInInterval = bytesSendInInterval + packetLength;
 
         /** if a second has passed write current Bytes per second into output */
-        if (secondsPassed < Util::Time::getSystemTime()) {
+        if (secondsPassed < Util::Time::Timestamp::getSystemTime()) {
             Util::System::out << intervalCounter << "-" << intervalCounter + 1 << ":    " << bytesSendInInterval / 1000 << " KB/s" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
             intervalCounter++;
             /** reset Bytes send */

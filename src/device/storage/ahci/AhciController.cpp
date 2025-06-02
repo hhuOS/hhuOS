@@ -495,9 +495,9 @@ void AhciController::HbaPort::stopCommandEngine() {
 
 bool AhciController::HbaPort::issueCommand(uint8_t slot) {
     // Wait while device is busy
-    uint32_t timeout = Util::Time::getSystemTime().toMilliseconds() + COMMAND_TIMEOUT;
+    uint32_t timeout = Util::Time::Timestamp::getSystemTime().toMilliseconds() + COMMAND_TIMEOUT;
     while (taskFileData & (BUSY | DATA_TRANSFER_REQUESTED)) {
-        if (Util::Time::getSystemTime().toMilliseconds() >= timeout) {
+        if (Util::Time::Timestamp::getSystemTime().toMilliseconds() >= timeout) {
             return false;
         }
 
@@ -508,7 +508,7 @@ bool AhciController::HbaPort::issueCommand(uint8_t slot) {
     commandIssue = 1 << slot;
 
     // Wait for command completion
-    timeout = Util::Time::getSystemTime().toMilliseconds() + COMMAND_TIMEOUT;
+    timeout = Util::Time::Timestamp::getSystemTime().toMilliseconds() + COMMAND_TIMEOUT;
     while (true) {
         if (!(commandIssue & (1 << slot))) {
             break;
@@ -518,7 +518,7 @@ bool AhciController::HbaPort::issueCommand(uint8_t slot) {
             return false;
         }
 
-        if (Util::Time::getSystemTime().toMilliseconds() >= timeout) {
+        if (Util::Time::Timestamp::getSystemTime().toMilliseconds() >= timeout) {
             return false;
         }
 

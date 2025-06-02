@@ -80,11 +80,11 @@ void Platform_Log(const char *msg, const int len) {
 }
 
 TimeMS DateTime_CurrentUTC() {
-	return Util::Time::getCurrentDate().getUnixTime();
+	return Util::Time::Date().getUnixTime();
 }
 
 void DateTime_CurrentLocal(cc_datetime* t) {
-	const auto date = Util::Time::getCurrentDate();
+	const auto date = Util::Time::Date();
 	t->year = date.getYear();
 	t->month = date.getMonth();
 	t->day = date.getDayOfMonth();
@@ -108,7 +108,7 @@ void Process_Abort2(const cc_result result, const char *raw_msg) {
 *#########################################################################################################################*/
 
 cc_uint64 Stopwatch_Measure() {
-	return Util::Time::getSystemTime().toMicroseconds();
+	return Util::Time::Timestamp::getSystemTime().toMicroseconds();
 }
 
 cc_uint64 Stopwatch_ElapsedMicroseconds(const cc_uint64 beg, const cc_uint64 end) {

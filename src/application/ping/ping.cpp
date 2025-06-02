@@ -75,7 +75,7 @@ int32_t main(int32_t argc, char *argv[]) {
         echoHeader.setIdentifier(0);
         echoHeader.setSequenceNumber(i);
         echoHeader.write(packet);
-        Util::Network::NumberUtil::writeUnsigned32BitValue(Util::Time::getSystemTime().toMilliseconds(), packet);
+        Util::Network::NumberUtil::writeUnsigned32BitValue(Util::Time::Timestamp::getSystemTime().toMilliseconds(), packet);
 
         auto datagram = Util::Network::Icmp::IcmpDatagram(packet, destinationAddress, Util::Network::Icmp::IcmpHeader::ECHO_REQUEST, 0);
         if (!socket.send(datagram)) {
@@ -96,7 +96,7 @@ int32_t main(int32_t argc, char *argv[]) {
                 if (echoHeader.getSequenceNumber() == i) {
                     validReply = true;
                     auto sourceTimestamp = Util::Network::NumberUtil::readUnsigned32BitValue(receivedPacket);
-                    auto currentTimestamp = Util::Time::getSystemTime().toMilliseconds();
+                    auto currentTimestamp = Util::Time::Timestamp::getSystemTime().toMilliseconds();
                     Util::System::out << receivedDatagram.getLength() << " bytes from " << static_cast<const char*>(receivedDatagram.getRemoteAddress().toString())
                                       << " (Sequence number: " << echoHeader.getSequenceNumber() << ", Time: " << currentTimestamp - sourceTimestamp << " ms)"
                                       << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;

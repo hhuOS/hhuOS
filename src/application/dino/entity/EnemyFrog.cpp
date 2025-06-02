@@ -86,7 +86,7 @@ void EnemyFrog::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
     }
 
     if (event.getCollidedWidth().getTag() == Block::GRASS && event.getSide() == Util::Game::D2::RectangleCollider::BOTTOM) {
-        auto currentTime = Util::Time::getSystemTime();
+        auto currentTime = Util::Time::Timestamp::getSystemTime();
         if ((currentTime - lastEmissionTime).toMilliseconds() > EMISSION_INTERVAL_MS) {
             lastEmissionTime = currentTime;
             grassEmitter->emitOnce();

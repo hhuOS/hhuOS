@@ -140,7 +140,7 @@ void Engine::updateStatus() {
     statusUpdateTimer += statistics.getLastFrameTime();
     if (statusUpdateTimer > Time::Timestamp::ofSeconds(1)) {
         status = statistics.gather();
-        statusUpdateTimer.reset();
+        statusUpdateTimer = Time::Timestamp();
     }
 }
 

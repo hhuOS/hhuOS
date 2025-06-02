@@ -231,7 +231,7 @@ Util::Time::Timestamp getSystemTime() {
 }
 
 Util::Time::Date getCurrentDate() {
-    Util::Time::Date date;
+    auto date = Util::Time::Date(0);
     Util::System::call(Util::System::GET_CURRENT_DATE, 1, &date);
     return date;
 }

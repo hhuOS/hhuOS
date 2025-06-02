@@ -99,7 +99,7 @@ void Log::log(const Record &record, const char *message...) {
 void Log::logDefault(const Log::Record &record, const char *message, va_list args) {
     lock.acquire();
 
-    uint32_t millis = Util::Time::getSystemTime().toMilliseconds();
+    uint32_t millis = Util::Time::Timestamp::getSystemTime().toMilliseconds();
     uint32_t seconds = millis / 1000;
     uint32_t fraction = millis % 1000;
 

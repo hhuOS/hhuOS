@@ -92,11 +92,11 @@ private:
         };
 
         void startFrameTime() {
-            frameTimeStart = Time::getSystemTime();
+            frameTimeStart = Time::Timestamp::getSystemTime();
         }
 
         void stopFrameTime() {
-            const auto frameTime = Time::getSystemTime() - frameTimeStart;
+            const auto frameTime = Time::Timestamp::getSystemTime() - frameTimeStart;
             frameTimes[frameTimesIndex++ % ARRAY_SIZE] = frameTime;
             frames++;
 
@@ -104,32 +104,32 @@ private:
             if (timeCounter >= Time::Timestamp::ofSeconds(1)) {
                 framesPerSecond = frames;
                 frames = 0;
-                timeCounter.reset();
+                timeCounter = Time::Timestamp();
             }
         }
 
         void startDrawTime() {
-            drawTimeStart = Time::getSystemTime();
+            drawTimeStart = Time::Timestamp::getSystemTime();
         }
 
         void stopDrawTime() {
-            drawTimes[drawTimesIndex++ % ARRAY_SIZE] = Time::getSystemTime() - drawTimeStart;
+            drawTimes[drawTimesIndex++ % ARRAY_SIZE] = Time::Timestamp::getSystemTime() - drawTimeStart;
         }
 
         void startUpdateTime() {
-            updateTimeStart = Time::getSystemTime();
+            updateTimeStart = Time::Timestamp::getSystemTime();
         }
 
         void stopUpdateTimeTime() {
-            updateTimes[updateTimesIndex++ % ARRAY_SIZE] = Time::getSystemTime() - updateTimeStart;
+            updateTimes[updateTimesIndex++ % ARRAY_SIZE] = Time::Timestamp::getSystemTime() - updateTimeStart;
         }
 
         void startIdleTime() {
-            idleTimeStart = Time::getSystemTime();
+            idleTimeStart = Time::Timestamp::getSystemTime();
         }
 
         void stopIdleTime() {
-            idleTimes[idleTimesIndex++ % ARRAY_SIZE] = Time::getSystemTime() - idleTimeStart;
+            idleTimes[idleTimesIndex++ % ARRAY_SIZE] = Time::Timestamp::getSystemTime() - idleTimeStart;
         }
 
         [[nodiscard]] const Time::Timestamp& getLastFrameTime() const {
@@ -172,17 +172,17 @@ private:
         void reset() {
             frames = 0;
             framesPerSecond = 0;
-            timeCounter.reset();
+            timeCounter = Time::Timestamp();
 
             frameTimesIndex = 0;
             drawTimesIndex = 0;
             updateTimesIndex = 0;
             idleTimesIndex = 0;
 
-            frameTimeStart.reset();
-            drawTimeStart.reset();
-            updateTimeStart.reset();
-            idleTimeStart.reset();
+            frameTimeStart = Time::Timestamp();
+            drawTimeStart = Time::Timestamp();
+            updateTimeStart = Time::Timestamp();
+            idleTimeStart = Time::Timestamp();
         }
 
     private:

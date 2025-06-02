@@ -76,7 +76,7 @@ void triangle(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 
     while (true) {
-        auto startTime = Util::Time::getSystemTime();
+        auto startTime = Util::Time::Timestamp::getSystemTime();
 
         // Check for keyboard input and exit if any key is pressed
         if (Util::System::in.read() > 0) {
@@ -104,20 +104,20 @@ void triangle(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
         lfb.flush();
 
         // Measure frame time and sleep to achieve target frame rate
-        auto renderTime = Util::Time::getSystemTime() - startTime;
+        auto renderTime = Util::Time::Timestamp::getSystemTime() - startTime;
         if (renderTime < targetFrameTime) {
             Util::Async::Thread::sleep(targetFrameTime - renderTime);
         }
 
         // Calculate FPS by incrementing fpsCounter and resetting it after one second
         fpsCounter++;
-        auto frameTime = Util::Time::getSystemTime() - startTime;
+        auto frameTime = Util::Time::Timestamp::getSystemTime() - startTime;
         fpsTimer += frameTime;
 
         if (fpsTimer >= Util::Time::Timestamp::ofSeconds(1)) {
             fps = fpsCounter;
             fpsCounter = 0;
-            fpsTimer.reset();
+            fpsTimer = Util::Time::Timestamp();
         }
 
         rotationAngle += (static_cast<GLfloat>(frameTime.toMicroseconds()) / 1000000) * 40;

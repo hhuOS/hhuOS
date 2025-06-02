@@ -12,7 +12,7 @@ clock_t startTime;
 
 //Called on program start
 void _time_initialize() {
-	startTime = Util::Time::getSystemTime().toMilliseconds();
+	startTime = Util::Time::Timestamp::getSystemTime().toMilliseconds();
 }
 
 //time manipulation
@@ -21,13 +21,13 @@ double difftime(time_t time_end, time_t time_beg) {
 }
 
 time_t time(time_t *arg) {
-	time_t ret = Util::Time::getCurrentDate().getUnixTime();
+	time_t ret = Util::Time::Date().getUnixTime();
 	if (arg) *arg = ret;
 	return ret;
 }
 
 clock_t clock() {
-	return Util::Time::getSystemTime().toMilliseconds() - startTime;
+	return Util::Time::Timestamp::getSystemTime().toMilliseconds() - startTime;
 }
 
 //format conversion

@@ -141,13 +141,13 @@ void QG_DrawFrame(void *pixels) {
     lfb->drawString(*fpsFont, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
 
     fpsCounter++;
-    fpsTimer += (Util::Time::getSystemTime() - lastFrameTime);
-    lastFrameTime = Util::Time::getSystemTime();
+    fpsTimer += (Util::Time::Timestamp::getSystemTime() - lastFrameTime);
+    lastFrameTime = Util::Time::Timestamp::getSystemTime();
 
     if (fpsTimer >= Util::Time::Timestamp::ofSeconds(1)) {
         fps = fpsCounter;
         fpsCounter = 0;
-        fpsTimer.reset();
+        fpsTimer = Util::Time::Timestamp();
     }
 }
 

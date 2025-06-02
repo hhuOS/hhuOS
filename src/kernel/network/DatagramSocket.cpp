@@ -47,12 +47,12 @@ namespace Kernel::Network {
 DatagramSocket::DatagramSocket(NetworkModule &networkModule, Util::Network::Socket::Type type) : Socket(networkModule, type) {}
 
 Util::Network::Datagram *DatagramSocket::receive() {
-    uint32_t startTime = Util::Time::getSystemTime().toMilliseconds();
+    uint32_t startTime = Util::Time::Timestamp::getSystemTime().toMilliseconds();
     while (incomingDatagramQueue.isEmpty()) {
         Util::Async::Thread::yield();
 
         if (timeout > 0) {
-            auto currentTime = Util::Time::getSystemTime().toMilliseconds();
+            auto currentTime = Util::Time::Timestamp::getSystemTime().toMilliseconds();
             if (currentTime - startTime >= timeout) {
                 return nullptr;
             }

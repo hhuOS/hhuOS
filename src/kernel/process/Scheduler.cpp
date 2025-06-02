@@ -266,7 +266,7 @@ void Scheduler::unblock(Thread &thread) {
 
 void Scheduler::sleep(const Util::Time::Timestamp &time) {
     sleepQueueLock.acquire();
-    auto wakeupTime = Util::Time::getSystemTime() + time;
+    auto wakeupTime = Util::Time::Timestamp::getSystemTime() + time;
     sleepList.add(SleepEntry{currentThread, wakeupTime});
     sleepQueueLock.release();
 

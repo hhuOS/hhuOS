@@ -32,7 +32,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Random(uint32_t seed = Util::Time::getSystemTime().toMilliseconds());
+    explicit Random(uint32_t seed = Util::Time::Timestamp::getSystemTime().toMilliseconds());
 
     /**
      * Copy Constructor.

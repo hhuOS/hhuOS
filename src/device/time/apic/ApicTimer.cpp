@@ -77,7 +77,7 @@ void ApicTimer::trigger([[maybe_unused]] const Kernel::InterruptFrame &frame, [[
 
     timeSinceLastYield += timerInterval;
     if (timeSinceLastYield >= yieldInterval) {
-        timeSinceLastYield.reset();
+        timeSinceLastYield = Util::Time::Timestamp();
         // Currently there is only one main scheduler, for SMP systems this should yield the core scheduler or something similar.
         Kernel::Service::getService<Kernel::ProcessService>().getScheduler().yield(true);
     }

@@ -80,7 +80,7 @@ void Pit::trigger([[maybe_unused]] const Kernel::InterruptFrame &frame, [[maybe_
     if (!Kernel::Service::getService<Kernel::InterruptService>().usesApic()) {
         timeSinceLastYield += timerInterval;
         if (timeSinceLastYield > yieldInterval) {
-            timeSinceLastYield.reset();
+            timeSinceLastYield = Util::Time::Timestamp();
             Kernel::Service::getService<Kernel::ProcessService>().getScheduler().yield(true);
         }
     }
