@@ -61,6 +61,7 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-Wno-missing-braces>
         $<$<COMPILE_LANGUAGE:C>:-Wno-dangling-pointer>
         $<$<COMPILE_LANGUAGE:C>:-Wno-strict-aliasing>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-stringop-overflow>
         $<$<COMPILE_LANGUAGE:C>:-DCC_BUILD_MANUAL>
         $<$<COMPILE_LANGUAGE:C>:-DCC_BUILD_COOPTHREADED>
         $<$<COMPILE_LANGUAGE:C>:-DCC_BUILD_NOMUSIC>

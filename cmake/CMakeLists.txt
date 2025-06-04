@@ -85,6 +85,7 @@ add_compile_options(
         # General compiler flags
         -m32
         -march=i386
+        -mtune=generic
         -mfpmath=387
         -mno-mmx
         -mno-sse
