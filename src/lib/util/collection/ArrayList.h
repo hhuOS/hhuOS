@@ -81,7 +81,7 @@ public:
     /// ArrayList is not copyable, so the copy constructor is deleted.
     ArrayList(const ArrayList &other) = delete;
 
-    /// ArrayList is not copyable, so the assignment operator is deleted.
+    /// ArrayList is not assignable, so the assignment operator is deleted.
     ArrayList &operator=(const ArrayList &other) = delete;
 
     /// Delete the list and free the heap memory.

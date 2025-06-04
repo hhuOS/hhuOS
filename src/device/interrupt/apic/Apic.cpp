@@ -58,7 +58,7 @@ Apic::Apic(const Util::Array<LocalApic*> &localApics, IoApic *ioApic) : localApi
 
 bool Apic::isAvailable() {
     const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
-    return LocalApic::supportsXApic() && acpi.hasTable("APIC");
+    return LocalApic::supportsXApic() && acpi.getTables().hasTable("APIC");
 }
 
 Apic* Apic::initialize() {
@@ -82,7 +82,7 @@ Apic* Apic::initialize() {
 
     // Initialize our local APIC, all others are only initialized when SMP is started up
     const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
-    const auto &madt = acpi.getTable<Util::Hardware::Acpi::Madt>("APIC");
+    const auto &madt = reinterpret_cast<const Util::Hardware::Acpi::Madt&>(acpi.getTables()["APIC"]);
     LOG_INFO("Enabling xAPIC mode");
     LocalApic::enableXApicMode(reinterpret_cast<void *>(madt.localApicAddress));
     LOG_INFO("Initializing local APIC [%u]", apic->getCurrentLocalApic().getCpuId());

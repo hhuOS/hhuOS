@@ -34,7 +34,7 @@ Device::AcpiTimer::AcpiTimer() {
     }
 
     auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
-    const auto &fadt = acpi.getTable<Util::Hardware::Acpi::Fadt>("FACP");
+    const auto &fadt = reinterpret_cast<const Util::Hardware::Acpi::Fadt&>(acpi.getTables()["FACP"]);
 
     timerPort = IoPort(fadt.pmTimerBlock);
 
@@ -48,12 +48,12 @@ Device::AcpiTimer::AcpiTimer() {
 }
 
 bool Device::AcpiTimer::isAvailable() {
-    auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
-    if (!acpi.hasTable("FACP")) {
+    auto &acpiTables = Kernel::Service::getService<Kernel::InformationService>().getAcpi().getTables();
+    if (!acpiTables.hasTable("FACP")) {
         return false;
     }
 
-    const auto &fadt = acpi.getTable<Util::Hardware::Acpi::Fadt>("FACP");
+    const auto &fadt = reinterpret_cast<const Util::Hardware::Acpi::Fadt&>(acpiTables["FACP"]);
     return fadt.pmTimerLength == 4; // See https://wiki.osdev.org/ACPI_Timer
 }
 

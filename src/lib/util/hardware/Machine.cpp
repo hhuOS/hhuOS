@@ -18,17 +18,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include "Machine.h"
+
 #include "lib/interface.h"
-#include "lib/util/hardware/Machine.h"
 
-namespace Util::Hardware {
+namespace Util::Hardware::Machine {
 
-bool Machine::shutdown(Machine::ShutdownType type) {
+bool shutdown(const ShutdownType type) {
     return ::shutdown(type);
-}
-
-bool Machine::reboot() {
-    return shutdown(REBOOT);
 }
 
 }

@@ -41,12 +41,12 @@ Fpu::Fpu(uint8_t *defaultFpuContext) {
         LOG_INFO("FXSR support detected -> Using FXSAVE/FXRSTR for FPU context switching");
         fxsrAvailable = true;
 
-        auto features = Util::Hardware::CpuId::getCpuFeatures();
-        if (features.contains(Util::Hardware::CpuId::MMX)) {
+        auto cpuInfo = Util::Hardware::CpuId::getCpuInfo();
+        if (cpuInfo.features & Util::Hardware::CpuId::MMX) {
             LOG_INFO("MMX support detected");
         }
 
-        if (features.contains(Util::Hardware::CpuId::SSE)) {
+        if (cpuInfo.features & Util::Hardware::CpuId::SSE) {
             LOG_INFO("SSE support detected -> Activating OSFXSR and OSXMMEXCPT");
             Device::Cpu::writeCr4(Device::Cpu::readCr4() | Device::Cpu::OS_FXSR | Device::Cpu::OS_XMM_EXCEPTIONS);
         }
@@ -67,7 +67,8 @@ Fpu::Fpu(uint8_t *defaultFpuContext) {
 }
 
 bool Fpu::isAvailable() {
-    if (Util::Hardware::CpuId::getCpuFeatures().contains(Util::Hardware::CpuId::FPU)) {
+    auto cpuInfo = Util::Hardware::CpuId::getCpuInfo();
+    if (cpuInfo.features & Util::Hardware::CpuId::FPU) {
         return true;
     }
 
@@ -84,7 +85,8 @@ bool Fpu::isAvailable() {
 }
 
 bool Fpu::isFxsrAvailable() {
-    return Util::Hardware::CpuId::getCpuFeatures().contains(Util::Hardware::CpuId::FXSR);
+    auto cpuInfo = Util::Hardware::CpuId::getCpuInfo();
+    return (cpuInfo.features & Util::Hardware::CpuId::FXSR) != 0;
 }
 
 bool Fpu::probeFpu() {

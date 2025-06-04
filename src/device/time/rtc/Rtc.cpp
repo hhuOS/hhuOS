@@ -41,9 +41,9 @@ struct InterruptFrame;
 namespace Device {
 
 Rtc::Rtc(const Util::Time::Timestamp &timerInterval) {
-    const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
-    if (acpi.hasTable("FADT")) {
-        const auto &fadt = acpi.getTable<Util::Hardware::Acpi::Fadt>("FADT");
+    const auto &acpiTables = Kernel::Service::getService<Kernel::InformationService>().getAcpi().getTables();
+    if (acpiTables.hasTable("FADT")) {
+        const auto &fadt = reinterpret_cast<const Util::Hardware::Acpi::Fadt&>(acpiTables["FADT"]);
         centuryRegister = fadt.century;
     }
 
