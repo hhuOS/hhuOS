@@ -18,62 +18,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_INSTANCEFACTORY_H
-#define HHUOS_INSTANCEFACTORY_H
+#ifndef HHUOS_LIB_UTIL_REFLECTION_INSTANCEFACTORY_H
+#define HHUOS_LIB_UTIL_REFLECTION_INSTANCEFACTORY_H
 
-#include "lib/util/base/String.h"
-
-namespace Util {
-
-template <typename K, typename V> class HashMap;
-
-namespace Reflection {
-class Prototype;
-}  // namespace Reflection
-}  // namespace Util
-
-#define INSTANCE_FACTORY_CREATE_INSTANCE(BASE_TYPE, TYPE) (BASE_TYPE*) Util::Reflection::InstanceFactory::createInstance(TYPE)
+#include "base/String.h"
+#include "collection/HashMap.h"
+#include "reflection/Prototype.h"
 
 namespace Util::Reflection {
 
-/**
- * Implementation of the prototype pattern, based on
- * http://www.cs.sjsu.edu/faculty/pearce/modules/lectures/oop/types/reflection/prototype.htm
- */
+/// Static class that holds prototypes for all available `Prototype` implementations
+/// and allows instantiation of these classes at runtime.
+/// See the `Prototype` class for a discrete example on how to use prototypes.
 class InstanceFactory {
 
 public:
-    /**
-     * Create a new instance of a given prototype.
-     * Returns nullptr, if the type is unknown.
-     *
-     * @param type The type
-     *
-     * @return A pointer to newly created instance
-     */
-    static Prototype* createInstance(const String &type);
+    /// Create a new instance of a prototype based on its class name.
+    /// If the prototype is not registered, a panic is fired.
+    /// Use `isPrototypeRegistered()` to check if a prototype is registered before calling this method.
+    template <typename T>
+    static T* createInstance(const String &className) {
+        return static_cast<T*>(prototypeTable.get(className)->clone());
+    }
 
-    /**
-     * Remove a prototype.
-     *
-     * @param type The type
-     */
-    static void deregisterPrototype(const String &type);
+    /// Check if a prototype is registered.
+    static bool isPrototypeRegistered(const String &className);
 
-    /**
-     * Add a prototype.
-     * Instances of this type can then be created by calling 'Prototype::createInstance(type)'.
-     *
-     * @param type The type
-     * @param prototype Instance, that will be used as a prototype for further instances
-     */
+    /// Remove a prototype from the factory.
+    /// Instances of this type can no longer be created after this call.
+    static void deregisterPrototype(const String &className);
+
+    /// Register a prototype.
+    /// Instances of this type can then be created by calling `createInstance()`.
     static void registerPrototype(Prototype *prototype);
 
 private:
 
-    /**
-     * Contains prototypes for all available implementations.
-     */
     static HashMap<String, Prototype*> prototypeTable;
 };
 

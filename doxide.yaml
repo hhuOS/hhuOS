@@ -8,5 +8,6 @@ files:
   - "src/lib/util/async/*.h"
   - "src/lib/util/base/*.h"
   - "src/lib/util/collection/*.h"
+  - "src/lib/util/reflection/*.h"
   - "src/lib/util/sound/*.h"
   - "src/lib/util/time/*.h"

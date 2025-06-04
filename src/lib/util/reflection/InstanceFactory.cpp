@@ -1,18 +1,14 @@
 #include "InstanceFactory.h"
 
-#include "lib/util/collection/HashMap.h"
-#include "lib/util/reflection/Prototype.h"
+#include "collection/HashMap.h"
+#include "reflection/Prototype.h"
 
 namespace Util::Reflection {
 
-Util::HashMap<String, Prototype*> InstanceFactory::prototypeTable;
+HashMap<String, Prototype*> InstanceFactory::prototypeTable;
 
-Prototype* InstanceFactory::createInstance(const String &type) {
-    if (prototypeTable.containsKey(type)) {
-        return prototypeTable.get(type)->clone();
-    }
-
-    return nullptr;
+bool InstanceFactory::isPrototypeRegistered(const String &className) {
+    return prototypeTable.containsKey(className);
 }
 
 void InstanceFactory::registerPrototype(Prototype *prototype) {
@@ -20,10 +16,10 @@ void InstanceFactory::registerPrototype(Prototype *prototype) {
     prototypeTable.put(key, prototype);
 }
 
-void InstanceFactory::deregisterPrototype(const String &type) {
-    if (prototypeTable.containsKey(type)) {
-        delete prototypeTable.get(type);
-        prototypeTable.remove(type);
+void InstanceFactory::deregisterPrototype(const String &className) {
+    if (prototypeTable.containsKey(className)) {
+        delete prototypeTable.get(className);
+        prototypeTable.remove(className);
     }
 }
 

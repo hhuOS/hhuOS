@@ -51,7 +51,7 @@ bool Filesystem::mount(const Util::String &deviceName, const Util::String &targe
     }
 
     auto &device = storageService.getDevice(deviceName);
-    auto *driver = INSTANCE_FACTORY_CREATE_INSTANCE(PhysicalDriver, driverName);
+    auto *driver = Util::Reflection::InstanceFactory::createInstance<PhysicalDriver>(driverName);
     if (driver == nullptr || !driver->mount(device)) {
         delete driver;
         return lock.releaseAndReturn(false);
@@ -137,7 +137,7 @@ bool Filesystem::createFilesystem(const Util::String &deviceName, const Util::St
     lock.acquire();
 
     auto &device = storageService.getDevice(deviceName);
-    auto *driver = INSTANCE_FACTORY_CREATE_INSTANCE(PhysicalDriver, driverName);
+    auto *driver = Util::Reflection::InstanceFactory::createInstance<PhysicalDriver>(driverName);
     auto result = driver->createFilesystem(device);
 
     delete driver;

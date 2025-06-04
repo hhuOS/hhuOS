@@ -18,45 +18,106 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PROTOTYPE_H
-#define HHUOS_PROTOTYPE_H
+#ifndef HHUOS_LIB_UTIL_REFLECTION_PROTOTYPE_H
+#define HHUOS_LIB_UTIL_REFLECTION_PROTOTYPE_H
 
 #define PROTOTYPE_IMPLEMENT_CLONE(TYPE) Prototype *clone() const override { return new TYPE(); }
 #define PROTOTYPE_IMPLEMENT_GET_CLASS_NAME(CLASS_NAME) Util::String getClassName() const override { return CLASS_NAME; }
 
-#include "lib/util/base/String.h"
+#include "base/String.h"
 
 namespace Util::Reflection {
 
-/**
- * Implementation of the prototype pattern, based on
- * http://www.cs.sjsu.edu/faculty/pearce/modules/lectures/oop/types/reflection/prototype.htm
- */
+/// Implementation of the prototype pattern, based on
+/// http://www.cs.sjsu.edu/faculty/pearce/modules/lectures/oop/types/reflection/prototype.htm.
+///
+/// It can be used to create new instances of a class without knowing the exact type at compile time.
+/// A class that implements `Prototype` must implement the `getClassName()` method to return a unique name
+/// and the `clone()` method to create a default instance of the class. Since `clone()` does not take any parameters,
+/// the implementing class must have a default constructor.
+/// The macros `PROTOTYPE_IMPLEMENT_CLONE` and `PROTOTYPE_IMPLEMENT_GET_CLASS_NAME`
+/// can be used to implement these methods easily.
+///
+/// ## Example
+/// ```c++
+/// // Base class for fruits with a virtual method to get the price.
+/// // It uses the prototype pattern to allow dynamic instantiation of fruit types based on user input.
+/// class Fruit : public Util::Reflection::Prototype {
+/// public:
+///     Fruit() = default;
+///     virtual float getPrice() const = 0;
+/// };
+///
+/// // Concrete fruit classes that implement the getPrice method.
+/// class Apple : public Fruit {
+/// public:
+///     Apple() = default;
+///     float getPrice() const override { return 0.8f; }
+///     PROTOTYPE_IMPLEMENT_CLONE(Apple)
+///     PROTOTYPE_IMPLEMENT_GET_CLASS_NAME("Apple")
+/// };
+///
+/// class Pear : public Fruit {
+/// public:
+///     Pear() = default;
+///     float getPrice() const override { return 1.0f; }
+///     PROTOTYPE_IMPLEMENT_CLONE(Pear)
+///     PROTOTYPE_IMPLEMENT_GET_CLASS_NAME("Pear")
+/// };
+///
+/// class Banana : public Fruit {
+/// public:
+///     Banana() = default;
+///     float getPrice() const override { return 1.2f; }
+///     PROTOTYPE_IMPLEMENT_CLONE(Banana)
+///     PROTOTYPE_IMPLEMENT_GET_CLASS_NAME("Banana")
+/// };
+///
+/// int main(int argc, char *argv[]) {
+///     // Register the fruit prototypes with the InstanceFactory so they can be created dynamically.
+///     Util::Reflection::InstanceFactory::registerPrototype(new Apple());
+///     Util::Reflection::InstanceFactory::registerPrototype(new Pear());
+///     Util::Reflection::InstanceFactory::registerPrototype(new Banana());
+///
+///     // Read fruit names from standard input and create instances dynamically.
+///     bool endOfFile = false;
+///     while (!endOfFile) {
+///         // Read a line from standard input.
+///         const auto &input = Util::System::in.readLine(endOfFile);
+///
+///         // Check if the input is a valid fruit type.
+///         if (!Util::Reflection::InstanceFactory::isPrototypeRegistered(input)) {
+///             printf("Unknown fruit type!\n");
+///             continue;
+///         }
+///
+///         // Create an instance of the fruit based on the input string.
+///         const auto *fruit = Util::Reflection::InstanceFactory::createInstance<Fruit>(input);
+///         printf("Price of %s: %.2f\n", static_cast<const char*>(input), fruit->getPrice());
+///         delete fruit;
+///     }
+///
+///     return 0;
+/// }
+/// ```
 class Prototype {
 
 public:
-    /**
-     * Constructor.
-     */
+    /// The base prototype class has no state, so the default constructor is sufficient.
     Prototype() = default;
 
-    /**
-     * Destructor.
-     */
+    /// The base prototype class has no state, so the default destructor is sufficient.
     virtual ~Prototype() = default;
 
-    /**
-     * Get the name, under which the prototype will be registered and usable for the user.
-     */
+    /// Get the class name of the prototype.
+    /// Can easily be implemented using the `PROTOTYPE_IMPLEMENT_GET_CLASS_NAME` macro.
     [[nodiscard]] virtual String getClassName() const = 0;
 
 private:
-    /**
-     * Create a copy of this instance.
-     *
-     * @return A pointer to the copy
-     */
-    [[nodiscard]] virtual Prototype *clone() const;
+    /// Create a new instance of the prototype.
+    /// Can easily be implemented using the `PROTOTYPE_IMPLEMENT_CLONE` macro.
+    /// This method is private to ensure that only the `InstanceFactory` can call it.
+    [[nodiscard]] virtual Prototype* clone() const = 0;
 
     friend class InstanceFactory;
 };
