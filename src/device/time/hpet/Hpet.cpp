@@ -39,12 +39,12 @@
 namespace Device {
 
 Hpet::Hpet() {
-    auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
-    if (!acpi.hasTable("HPET")) {
+    auto &acpiTables = Kernel::Service::getService<Kernel::InformationService>().getAcpi().getTables();
+    if (!acpiTables.hasTable("HPET")) {
         Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "Trying to initializeScene non-existent HPET!");
     }
 
-    const auto &hpetTable = acpi.getTable<Util::Hardware::Acpi::Hpet>("HPET");
+    const auto &hpetTable = reinterpret_cast<const Util::Hardware::Acpi::Hpet&>(acpiTables["HPET"]);
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     baseAddress = static_cast<uint8_t*>(memoryService.mapIO(reinterpret_cast<uint8_t*>(hpetTable.address.address), 1));
 
@@ -66,8 +66,8 @@ Hpet::Hpet() {
 }
 
 bool Hpet::isAvailable() {
-    auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
-    return acpi.hasTable("HPET");
+    auto &acpiTables = Kernel::Service::getService<Kernel::InformationService>().getAcpi().getTables();
+    return acpiTables.hasTable("HPET");
 }
 
 uint64_t Hpet::readRegister(uint16_t offset) {

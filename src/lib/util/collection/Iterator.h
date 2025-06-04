@@ -100,7 +100,7 @@ T& Iterator<T>::operator*() {
 
 template <class T>
 bool Iterator<T>::operator!=(const Iterator &other) {
-    return element.index != other.element.index;
+    return element.index != other.element.index || element.data != other.element.data;
 }
 
 template <class T>

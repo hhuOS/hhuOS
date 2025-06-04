@@ -60,15 +60,7 @@ public:
 
     [[nodiscard]] const Util::Hardware::Acpi::Rsdp& getRsdp() const;
 
-    [[nodiscard]] bool hasTable(const char *signature) const;
-
-    [[nodiscard]] Util::Array<Util::String> getAvailableTables() const;
-
-    template<typename T>
-    [[nodiscard]] const T& getTable(const char *signature) const;
-
-    template<typename T>
-    [[nodiscard]] Util::Array<const T*> getMadtStructures(Util::Hardware::Acpi::ApicStructureType type) const;
+    [[nodiscard]] const Util::Hardware::Acpi::Tables& getTables() const;
 
 private:
 
@@ -76,59 +68,9 @@ private:
 
     static const Util::Hardware::Acpi::Rsdp* searchRsdp(uint32_t startAddress, uint32_t endAddress);
 
-    static bool checkRsdp(const Util::Hardware::Acpi::Rsdp *rsdp);
-
-    static bool checkSdt(const Util::Hardware::Acpi::SdtHeader *sdtHeader);
-
-    const Util::Hardware::Acpi::SdtHeader* mapSdt(const Util::Hardware::Acpi::SdtHeader *sdtHeaderPhysical);
-
     const Util::Hardware::Acpi::Rsdp *rsdp = nullptr;
-    const Util::Hardware::Acpi::Rsdt *rsdt = nullptr;
+    const Util::Hardware::Acpi::Tables *tables = nullptr;
 };
-
-template<typename T>
-const T& Acpi::getTable(const char *signature) const {
-    auto numTables = (rsdt->header.length - sizeof(Util::Hardware::Acpi::SdtHeader)) / sizeof(uint32_t);
-
-    for (uint32_t i = 0; i < numTables; i++) {
-        if (Util::Address(rsdt->tables[i]->signature).compareRange(Util::Address(signature), sizeof(Util::Hardware::Acpi::SdtHeader::signature)) == 0) {
-            return *reinterpret_cast<const T*>(rsdt->tables[i]);
-        }
-    }
-
-    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Acpi: Table not found!");
-}
-
-template<typename T>
-Util::Array<const T*> Acpi::getMadtStructures(Util::Hardware::Acpi::ApicStructureType type) const {
-    auto structures = Util::ArrayList<const T*>();
-
-    if (!hasTable("APIC")) {
-        return structures.toArray();
-    }
-
-    const auto &madt = getTable<Util::Hardware::Acpi::Madt>("APIC");
-    const auto *madtEndAddress = reinterpret_cast<const uint8_t*>(&madt) + madt.header.length;
-
-    const auto *pos = reinterpret_cast<const uint8_t*>(&madt.apicStructure);
-    const Util::Hardware::Acpi::ApicStructureHeader *header;
-    while (pos < madtEndAddress) {
-        header = reinterpret_cast<const Util::Hardware::Acpi::ApicStructureHeader*>(pos);
-
-        if (header->length == 0) {
-            // If this happens there is a bug in this function o_O
-            Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Header length must not be 0!");
-        }
-
-        if (header->type == type) {
-            structures.add(reinterpret_cast<const T*>(header));
-        }
-
-        pos += header->length;
-    }
-
-    return structures.toArray();
-}
 
 }
 

@@ -58,7 +58,7 @@ Apic::Apic(const Util::Array<LocalApic*> &localApics, IoApic *ioApic) : localApi
 
 bool Apic::isAvailable() {
     const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
-    return LocalApic::supportsXApic() && acpi.hasTable("APIC");
+    return LocalApic::supportsXApic() && acpi.getTables().hasTable("APIC");
 }
 
 Apic* Apic::initialize() {
@@ -82,7 +82,7 @@ Apic* Apic::initialize() {
 
     // Initialize our local APIC, all others are only initialized when SMP is started up
     const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
-    const auto &madt = acpi.getTable<Util::Hardware::Acpi::Madt>("APIC");
+    const auto &madt = reinterpret_cast<const Util::Hardware::Acpi::Madt&>(acpi.getTables()["APIC"]);
     LOG_INFO("Enabling xAPIC mode");
     LocalApic::enableXApicMode(reinterpret_cast<void *>(madt.localApicAddress));
     LOG_INFO("Initializing local APIC [%u]", apic->getCurrentLocalApic().getCpuId());
@@ -168,9 +168,10 @@ bool Apic::isExternalInterrupt(Kernel::InterruptVector vector) const {
 
 Util::Array<LocalApic*> Apic::initializeLocalApics() {
     const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
+    const auto &madt = reinterpret_cast<const Util::Hardware::Acpi::Madt&>(acpi.getTables()["APIC"]);
     auto localApics = Util::ArrayList<LocalApic*>();
-    auto acpiLocalApics = acpi.getMadtStructures<Util::Hardware::Acpi::ProcessorLocalApic>(Util::Hardware::Acpi::PROCESSOR_LOCAL_APIC);
-    auto acpiLocalApicNmis = acpi.getMadtStructures<Util::Hardware::Acpi::LocalApicNmi>(Util::Hardware::Acpi::LOCAL_APIC_NMI);
+    auto acpiLocalApics = madt.findStructures<Util::Hardware::Acpi::ProcessorLocalApic>(Util::Hardware::Acpi::PROCESSOR_LOCAL_APIC);
+    auto acpiLocalApicNmis = madt.findStructures<Util::Hardware::Acpi::LocalApicNmi>(Util::Hardware::Acpi::LOCAL_APIC_NMI);
 
     if (acpiLocalApics.length() == 0) {
         LOG_ERROR("No local APIC detected");
@@ -235,9 +236,10 @@ Util::Array<LocalApic*> Apic::initializeLocalApics() {
 
 IoApic *Apic::initializeIoApic() {
     const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
-    auto acpiIoApics = acpi.getMadtStructures<Util::Hardware::Acpi::IoApic>(Util::Hardware::Acpi::IO_APIC);
-    auto acpiNmiSources = acpi.getMadtStructures<Util::Hardware::Acpi::NmiSource>(Util::Hardware::Acpi::NON_MASKABLE_INTERRUPT_SOURCE);
-    auto acpiInterruptSourceOverrides = acpi.getMadtStructures<Util::Hardware::Acpi::InterruptSourceOverride>(Util::Hardware::Acpi::INTERRUPT_SOURCE_OVERRIDE);
+    const auto &madt = reinterpret_cast<const Util::Hardware::Acpi::Madt&>(acpi.getTables()["APIC"]);
+    auto acpiIoApics = madt.findStructures<Util::Hardware::Acpi::IoApic>(Util::Hardware::Acpi::IO_APIC);
+    auto acpiNmiSources = madt.findStructures<Util::Hardware::Acpi::NmiSource>(Util::Hardware::Acpi::NON_MASKABLE_INTERRUPT_SOURCE);
+    auto acpiInterruptSourceOverrides = madt.findStructures<Util::Hardware::Acpi::InterruptSourceOverride>(Util::Hardware::Acpi::INTERRUPT_SOURCE_OVERRIDE);
 
     if (acpiIoApics.length() == 0) {
         // This is illegal, because this implementation does not support virtual wire mode

@@ -400,10 +400,9 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         const auto info = Util::Hardware::CpuId::getCpuInfo();
         LOG_INFO("CPU info: Vendor [%s], Family [%u], Model [%u], Stepping [%u], Type [%u]", static_cast<const char*>(Util::Hardware::CpuId::getVendorString()), info.family, info.model, info.stepping, info.type);
 
-        const auto features = Util::Hardware::CpuId::getCpuFeatures();
         Util::String featureString;
-        for (uint32_t i = 0; i < features.length(); i++) {
-            featureString += Util::Hardware::CpuId::getFeatureAsString(features[i]) + Util::String(" ");
+        for (const auto &feature : info.getFeaturesAsArray()) {
+            featureString += Util::Hardware::CpuId::getFeatureAsString(feature) + Util::String(" ");
         }
         LOG_INFO("CPU features: %s", static_cast<const char*>(featureString));
     } else {
@@ -433,7 +432,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     LOG_INFO("Initializing SMBIOS");
     auto *smBios = new Device::SmBios();
     informationService->setSmBios(smBios);
-    auto &biosInformation = smBios->getTable<Util::Hardware::SmBios::BiosInformation>(Util::Hardware::SmBios::BIOS_INFORMATION);
+    auto &biosInformation = reinterpret_cast<const Util::Hardware::SmBios::BiosInformation&>(smBios->getTables()[Util::Hardware::SmBios::BIOS_INFORMATION]);
     LOG_INFO("BIOS vendor: [%s], BIOS version: [%s (%s)]", biosInformation.getVendorName(), biosInformation.getVersion(), biosInformation.getReleaseDate());
 
     // Initialize BIOS calls
@@ -683,13 +682,14 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         filesystemService->getFilesystem().mountVirtualDriver("/device/qemu", qemuDriver);
     }
 
-    if (acpi->getAvailableTables().length() != 0) {
+    const auto &acpiTables = acpi->getTables();
+    if (acpiTables.getTableCount() != 0) {
         auto *acpiDriver = new Filesystem::Acpi::AcpiDriver();
         filesystemService->createDirectory("/device/acpi");
         filesystemService->getFilesystem().mountVirtualDriver("/device/acpi", acpiDriver);
 
-        if (acpi->hasTable("BGRT")) {
-            const auto &bgrt = acpi->getTable<Util::Hardware::Acpi::Bgrt>("BGRT");
+        if (acpiTables.hasTable("BGRT")) {
+            const auto &bgrt = reinterpret_cast<const Util::Hardware::Acpi::Bgrt&>(acpiTables["BGRT"]);
             const auto imagePageOffset = bgrt.imageAddress % Util::PAGESIZE;
             const auto *imagePage = static_cast<const uint8_t*>(memoryService->mapIO(const_cast<void*>(reinterpret_cast<const void*>(bgrt.imageAddress)), 1));
             const auto *imageVirtual = imagePage + imagePageOffset;
@@ -706,7 +706,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         }
     }
 
-    if (smBios->getAvailableTables().length() != 0) {
+    if (smBios->getTables().getTableCount() != 0) {
         auto *smBiosDriver = new Filesystem::SmBios::SmBiosDriver();
         filesystemService->createDirectory("/device/smbios");
         filesystemService->getFilesystem().mountVirtualDriver("/device/smbios", smBiosDriver);

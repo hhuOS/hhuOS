@@ -76,38 +76,22 @@ SmBios::SmBios() {
             LOG_ERROR("SMBIOS not available");
         }
     }
+
+    if (smBiosInformation.tableAddress != nullptr) {
+        tables = new Util::Hardware::SmBios::Tables(*smBiosInformation.tableAddress);
+    }
+}
+
+SmBios::~SmBios() {
+    delete tables;
 }
 
 const SmBios::Info &SmBios::getSmBiosInformation() const {
     return smBiosInformation;
 }
 
-bool SmBios::hasTable(Util::Hardware::SmBios::HeaderType headerType) const {
-    auto *currentTable = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(smBiosInformation.tableAddress);
-    while (currentTable->type != Util::Hardware::SmBios::END_OF_TABLE) {
-        if (currentTable->type == headerType) {
-            return true;
-        }
-
-        currentTable = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(reinterpret_cast<uint32_t>(currentTable) + currentTable->calculateFullLength());
-    }
-
-    return false;
-}
-
-Util::Array<Util::Hardware::SmBios::HeaderType> SmBios::getAvailableTables() const {
-    if (smBiosInformation.tableAddress == nullptr) {
-        return Util::Array<Util::Hardware::SmBios::HeaderType>(0);
-    }
-
-    auto typeList = Util::ArrayList<Util::Hardware::SmBios::HeaderType>();
-    auto *currentTable = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(smBiosInformation.tableAddress);
-    while (currentTable->type != Util::Hardware::SmBios::END_OF_TABLE) {
-        typeList.add(currentTable->type);
-        currentTable = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(reinterpret_cast<uint32_t>(currentTable) + currentTable->calculateFullLength());
-    }
-
-    return typeList.toArray();
+const Util::Hardware::SmBios::Tables& SmBios::getTables() const {
+    return *tables;
 }
 
 const SmBios::EntryPoint* SmBios::searchEntryPoint(uint32_t startAddress, uint32_t endAddress) {

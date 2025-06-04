@@ -34,11 +34,11 @@ Device::AcpiTimer::AcpiTimer() {
     }
 
     auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
-    const auto &fadt = acpi.getTable<Util::Hardware::Acpi::Fadt>("FACP");
+    const auto &fadt = reinterpret_cast<const Util::Hardware::Acpi::Fadt&>(acpi.getTables()["FACP"]);
 
     timerPort = IoPort(fadt.pmTimerBlock);
 
-    if (fadt.flags & 1 << 8) {
+    if (fadt.flags & Util::Hardware::Acpi::EXTENDED_TIMER_VALUE) {
         LOG_INFO("ACPI timer has a 32-bit counter");
         maxValue = UINT32_MAX;
     } else {
@@ -48,12 +48,12 @@ Device::AcpiTimer::AcpiTimer() {
 }
 
 bool Device::AcpiTimer::isAvailable() {
-    auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
-    if (!acpi.hasTable("FACP")) {
+    auto &acpiTables = Kernel::Service::getService<Kernel::InformationService>().getAcpi().getTables();
+    if (!acpiTables.hasTable("FACP")) {
         return false;
     }
 
-    const auto &fadt = acpi.getTable<Util::Hardware::Acpi::Fadt>("FACP");
+    const auto &fadt = reinterpret_cast<const Util::Hardware::Acpi::Fadt&>(acpiTables["FACP"]);
     return fadt.pmTimerLength == 4; // See https://wiki.osdev.org/ACPI_Timer
 }
 

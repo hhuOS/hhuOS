@@ -36,8 +36,7 @@ SmBiosDriver::SmBiosDriver() {
     addNode("/", new Memory::MemoryDirectoryNode("tables"));
 
     const auto &smBios = Kernel::Service::getService<Kernel::InformationService>().getSmBios();
-    for (const auto type : smBios.getAvailableTables()) {
-        const auto &table = smBios.getTable<Util::Hardware::SmBios::TableHeader>(type);
+    for (const auto &table : smBios.getTables()) {
         addNode("/tables", new SmBiosTableNode(table));
     }
 }

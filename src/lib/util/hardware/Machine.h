@@ -18,47 +18,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_USER_MACHINE_H
-#define HHUOS_USER_MACHINE_H
+#ifndef HHUOS_LIB_UTIL_HARDWARE_MACHINE_H
+#define HHUOS_LIB_UTIL_HARDWARE_MACHINE_H
 
 #include <stdint.h>
 
-namespace Util::Hardware {
+/// Provides functions to configure the machine, such as shutting it down or performing power management operations.
+/// For now, this only provides a `shutdown()` function.
+/// Currently, hhuOS only supports shutdown via QEMU isa-debug-exit or the Advanced Power Management (APM).
+/// When running on real hardware and APM is not available, the shutdown function will not work.
+/// Since most modern systems use ACPI for power management, a shutdown function using ACPI is planned for the future.
+namespace Util::Hardware::Machine {
 
-class Machine {
-
-public:
-
-    enum ShutdownType : uint8_t {
-        SHUTDOWN = 0x01,
-        REBOOT = 0x02
-    };
-
-    /**
-     * Default Constructor.
-     * Deleted, as this class has only static members.
-     */
-    Machine() = delete;
-
-    /**
-     * Copy Constructor.
-     */
-    Machine(const Machine &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Machine &operator=(const Machine &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Machine() = default;
-
-    static bool shutdown(ShutdownType type = SHUTDOWN);
-
-    static bool reboot();
+/// Type of shutdown operation to perform (either shutdown or reboot).
+enum ShutdownType : uint8_t {
+    SHUTDOWN = 0x01,
+    REBOOT = 0x02
 };
+
+/// Shut down or reboot the machine.
+bool shutdown(ShutdownType type = SHUTDOWN);
 
 }
 

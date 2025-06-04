@@ -58,16 +58,11 @@ public:
     /**
      * Destructor.
      */
-    ~SmBios() = default;
+    ~SmBios();
 
     [[nodiscard]] const Info& getSmBiosInformation() const;
 
-    [[nodiscard]] bool hasTable(Util::Hardware::SmBios::HeaderType headerType) const;
-
-    [[nodiscard]] Util::Array<Util::Hardware::SmBios::HeaderType> getAvailableTables() const;
-
-    template<typename T>
-    [[nodiscard]] const T& getTable(Util::Hardware::SmBios::HeaderType headerType) const;
+    [[nodiscard]] const Util::Hardware::SmBios::Tables& getTables() const;
 
 private:
 
@@ -110,21 +105,8 @@ private:
     static bool checkEntryPoint3(EntryPoint3 *entryPoint);
 
     Info smBiosInformation{};
+    Util::Hardware::SmBios::Tables *tables = new Util::Hardware::SmBios::Tables();
 };
-
-template<typename T>
-const T& SmBios::getTable(Util::Hardware::SmBios::HeaderType headerType) const {
-    auto *currentTable = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(smBiosInformation.tableAddress);
-    while (currentTable->type != Util::Hardware::SmBios::END_OF_TABLE) {
-        if (currentTable->type == headerType) {
-            return *reinterpret_cast<const T*>(currentTable);
-        }
-
-        currentTable = reinterpret_cast<const Util::Hardware::SmBios::TableHeader*>(reinterpret_cast<uint32_t>(currentTable) + currentTable->calculateFullLength());
-    }
-
-    Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "SmBios: Table not found!");
-}
 
 }
 

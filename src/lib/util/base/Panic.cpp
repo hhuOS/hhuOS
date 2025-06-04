@@ -36,9 +36,7 @@ constexpr const char *hardwareExceptions[] = {
 
 constexpr const char *softwareExceptions[]{
         "NullPointer Exception", "IndexOutOfBounds Exception", "InvalidArgument Exception", "KeyNotFound Exception",
-        "IllegalState Exception", "OutOfMemoryException", "OutOfPhysicalMemory Exception",
-        "OutOfPageTableMemory Exception", "IllegalPageAccess Exception", "UnknownType Exception",
-        "PagingError Exception", "UnsupportedOperation Exception"
+        "IllegalState Exception", "OutOfMemoryException", "PagingError Exception", "UnsupportedOperation Exception"
 };
 
 void fire(const Error error, const char *message) {

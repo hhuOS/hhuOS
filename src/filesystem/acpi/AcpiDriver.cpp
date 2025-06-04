@@ -36,9 +36,9 @@ AcpiDriver::AcpiDriver() {
     addNode("/", new RsdpNode());
     addNode("/", new Memory::MemoryDirectoryNode("tables"));
 
-    const auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
-    for (const auto &tableSignature : acpi.getAvailableTables()) {
-        const auto &table = acpi.getTable<Util::Hardware::Acpi::SdtHeader>(static_cast<const char*>(tableSignature));
+    const auto &acpiTables = Kernel::Service::getService<Kernel::InformationService>().getAcpi().getTables();
+    for (const auto &tableSignature : acpiTables.getSignatures()) {
+        const auto &table = acpiTables[tableSignature];
         addNode("/tables", new AcpiTableNode(table));
     }
 }

@@ -24,13 +24,35 @@
 
 extern "C" [[nodiscard]] int32_t is_cpuid_available();
 
-namespace Util::Hardware {
+namespace Util::Hardware::CpuId {
 
-bool CpuId::isAvailable() {
-    return is_cpuid_available() != 0;
+constexpr uint32_t STEPPING_BITMASK = 0x0000000f;
+constexpr uint32_t MODEL_BITMASK = 0x000000f0;
+constexpr uint32_t FAMILY_BITMASK = 0x00000f00;
+constexpr uint32_t TYPE_BITMASK = 0x00003000;
+constexpr uint32_t EXTENDED_MODEL_BITMASK = 0x000f0000;
+constexpr uint32_t EXTENDED_FAMILY_BITMASK = 0x0ff00000;
+
+bool isAvailable() {
+    uint32_t eax;
+
+    asm volatile(
+    "pushf;"                    // Save original EFLAGS
+    "pushf;"                    // Store EFLAGS
+    "xorl $0x00200000,(%%esp);" // Invert the ID bit in stored EFLAGS
+    "popf;"                     // Load stored EFLAGS (with ID bit inverted)
+    "pushf;"                    // Store EFLAGS again (ID bit may or may not be inverted)
+    "pop %%eax;"                // eax = modified EFLAGS (ID bit may or may not be inverted)
+    "xor (%%esp),%%eax;"        // eax = whichever bits were changed
+    "popf;"                     // Restore original EFLAGS
+    "and %%eax,0x00200000;"     // eax = zero if ID bit can't be changed, else non-zero
+    : "=a"(eax)
+    );
+
+    return eax == 0x00200000; // Check if the ID bit is set
 }
 
-Util::String CpuId::getVendorString() {
+String getVendorString() {
     if (!isAvailable()) {
         return "";
     }
@@ -39,73 +61,25 @@ Util::String CpuId::getVendorString() {
     asm volatile (
     "mov $0,%%eax;"
     "cpuid;"
-    "mov %%ebx,%0;"
-    "mov %%edx,%1;"
-    "mov %%ecx,%2;"
-    : "=r"(vendor[0]), "=r"(vendor[1]), "=r"(vendor[2])
+    : "=b"(vendor[0]), "=c"(vendor[1]), "=d"(vendor[2])
     :
-    : "%ebx", "%ecx", "%edx"
+    : "%eax"
     );
-
-    if (reinterpret_cast<uint8_t*>(vendor)[0] == 0) {
-        return "";
-    }
 
     return { reinterpret_cast<uint8_t*>(vendor), 12 };
 }
 
-uint64_t CpuId::getCpuFeatureBits() {
-    if (!isAvailable()) {
-        return 0;
-    }
 
-    ArrayList<CpuFeature> features{};
-
-    uint32_t ecx, edx;
-    asm volatile (
-            "mov $1,%%eax;"
-            "cpuid;"
-            "mov %%edx,%0;"
-            "mov %%ecx,%1;"
-            : "=r"(edx), "=r"(ecx)
-            :
-            : "%ecx", "%edx"
-            );
-
-    return static_cast<uint64_t>(ecx) << 32 | edx;
-}
-
-Util::Array<CpuId::CpuFeature> CpuId::getCpuFeatures() {
-    if (!isAvailable()) {
-        return Util::Array<CpuId::CpuFeature>(0);
-    }
-
-    ArrayList<CpuFeature> features{};
-    auto featureBits = getCpuFeatureBits();
-
-    uint64_t i;
-    for (i = 1; i <= CpuFeature::AVX; i *= 2) {
-        if ((featureBits & i) != 0) {
-            features.add(static_cast<CpuFeature>(i));
-        }
-    }
-
-    return features.toArray();
-}
-
-CpuId::CpuInfo CpuId::getCpuInfo() {
+CpuInfo getCpuInfo() {
     if (!isAvailable()) {
         return {};
     }
 
-    uint32_t eax;
+    uint32_t eax, ecx, edx;
     asm volatile (
     "mov $1,%%eax;"
     "cpuid;"
-    "mov %%eax,%0;"
-    : "=r"(eax)
-    :
-    : "%eax"
+    : "=a"(eax), "=c"(ecx), "=d"(edx)
     );
 
     uint8_t extendedModel = (eax & EXTENDED_MODEL_BITMASK) >> 16;
@@ -114,11 +88,27 @@ CpuId::CpuInfo CpuId::getCpuInfo() {
     uint8_t family = extendedFamily + ((eax & FAMILY_BITMASK) >> 8);
     uint8_t model = (extendedModel << 4) + ((eax & MODEL_BITMASK) >> 4);
     uint8_t stepping = eax & STEPPING_BITMASK;
+    uint64_t features = static_cast<uint64_t>(ecx) << 32 | edx;
 
-    return { family, model, stepping, static_cast<CpuType>(type) };
+    return { family, model, stepping, static_cast<CpuType>(type), features };
 }
 
-const char* CpuId::getFeatureAsString(CpuId::CpuFeature feature) {
+Array<CpuFeature> CpuInfo::getFeaturesAsArray() const {
+    if (!isAvailable()) {
+        return Util::Array<CpuFeature>(0);
+    }
+
+    ArrayList<CpuFeature> features{};
+    for (uint64_t i = 1; i <= AVX; i *= 2) {
+        if ((CpuInfo::features & i) != 0) {
+            features.add(static_cast<CpuFeature>(i));
+        }
+    }
+
+    return features.toArray();
+}
+
+const char* getFeatureAsString(const CpuFeature feature) {
     switch (feature) {
         case FPU:
             return "FPU";
@@ -241,7 +231,7 @@ const char* CpuId::getFeatureAsString(CpuId::CpuFeature feature) {
         case RDRAND:
             return "RDRAND";
         default:
-            return "UNKNOWN";
+            Panic::fire(Panic::INVALID_ARGUMENT, "CpuId: Invalid CPU feature!");
     }
 }
 

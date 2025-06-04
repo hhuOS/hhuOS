@@ -116,143 +116,145 @@ void decodeBiosInformation(const Util::Hardware::SmBios::BiosInformation &table)
     Util::System::out << "\tROM Size: " << table.calculateRomSize() / 1024 << " KiB" << Util::Io::PrintStream::endl;
     Util::System::out << "\tCharacteristics: " << Util::Io::PrintStream::endl;
 
-    if (!(table.characteristics & (1 << 2))) {
-        if (table.characteristics & (1 << 3)) {
+    if (!(table.characteristics & Util::Hardware::SmBios::CHARACTERISTICS_NOT_SUPPORTED)) {
+        if (table.characteristics & Util::Hardware::SmBios::ISA_SUPPORTED) {
             Util::System::out << "\t\tISA is supported" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 4)) {
+        if (table.characteristics & Util::Hardware::SmBios::MCA_SUPPORTED) {
             Util::System::out << "\t\tMCA is supported" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 5)) {
+        if (table.characteristics & Util::Hardware::SmBios::EISA_SUPPORTED) {
             Util::System::out << "\t\tEISA is supported" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 6)) {
+        if (table.characteristics & Util::Hardware::SmBios::PCI_SUPPORTED) {
             Util::System::out << "\t\tPCI is supported" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 7)) {
+        if (table.characteristics & Util::Hardware::SmBios::PCMCIA_SUPPORTED) {
             Util::System::out << "\t\tPC card (PCMCIA) is supported" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 8)) {
+        if (table.characteristics & Util::Hardware::SmBios::PLUG_AND_PLAY_SUPPORTED) {
             Util::System::out << "\t\tPlug and Play is supported" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 9)) {
+        if (table.characteristics & Util::Hardware::SmBios::APM_SUPPORTED) {
             Util::System::out << "\t\tAPM is supported" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 10)) {
-            Util::System::out << "\t\tBIOS is upgradeable" << Util::Io::PrintStream::endl;
+        if (table.characteristics & Util::Hardware::SmBios::FIRMWARE_UPGRADEABLE) {
+            Util::System::out << "\t\tBIOS firmware is upgradeable" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 11)) {
-            Util::System::out << "\t\tBIOS shadowing is allowed" << Util::Io::PrintStream::endl;
+        if (table.characteristics & Util::Hardware::SmBios::FIRMWARE_SHADOWING_ALLOWED) {
+            Util::System::out << "\t\tBIOS firmware shadowing is allowed" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 12)) {
+        if (table.characteristics & Util::Hardware::SmBios::VL_VESA_SUPPORTED) {
             Util::System::out << "\t\tVL-VESA is supported" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 13)) {
+        if (table.characteristics & Util::Hardware::SmBios::ESCD_SUPPORTED) {
             Util::System::out << "\t\tESCD support is available" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 14)) {
+        if (table.characteristics & Util::Hardware::SmBios::CD_BOOT_SUPPORTED) {
             Util::System::out << "\t\tBoot from CD is supported" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 15)) {
+        if (table.characteristics & Util::Hardware::SmBios::SELECTABLE_BOOT_SUPPORTED) {
             Util::System::out << "\t\tSelectable boot is supported" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 16)) {
-            Util::System::out << "\t\tBIOS ROM is socketed" << Util::Io::PrintStream::endl;
+        if (table.characteristics & Util::Hardware::SmBios::FIRMWARE_ROM_SOCKETED) {
+            Util::System::out << "\t\tBIOS firmware ROM is socketed" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 17)) {
+        if (table.characteristics & Util::Hardware::SmBios::PCMCIA_BOOT_SUPPORTED) {
             Util::System::out << "\t\tBoot from PC card (PCMCIA) is supported" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 18)) {
+        if (table.characteristics & Util::Hardware::SmBios::EDD_SUPPORTED) {
             Util::System::out << "\t\tEDD is supported" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 19)) {
+        if (table.characteristics & Util::Hardware::SmBios::INT13_NEC9800_FLOPPY_SUPPORTED) {
             Util::System::out << "\t\tJapanese floppy for NEC 9800 1.2 MB is supported (int 13h)" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 20)) {
+        if (table.characteristics & Util::Hardware::SmBios::INT13_TOSHIBA_FLOPPY_SUPPORTED) {
             Util::System::out << "\t\tJapanese floppy for Toshiba 1.2 MB is supported (int 13h)" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 21)) {
+        if (table.characteristics & Util::Hardware::SmBios::INT13_360K_FLOPPY_SUPPORTED) {
             Util::System::out << "\t\t5.25/360 kB floppy services are supported (int 13h)" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 22)) {
+        if (table.characteristics & Util::Hardware::SmBios::INT13_1_2M_FLOPPY_SUPPORTED) {
             Util::System::out << "\t\t5.25/1.2 MB floppy services are supported (int 13h)" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 23)) {
+        if (table.characteristics & Util::Hardware::SmBios::INT13_720K_FLOPPY_SUPPORTED) {
             Util::System::out << "\t\t3.5/720 kB floppy services are supported (int 13h)" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 24)) {
+        if (table.characteristics & Util::Hardware::SmBios::INT13_2_88M_FLOPPY_SUPPORTED) {
             Util::System::out << "\t\t3.5/2.88 MB floppy services are supported (int 13h)" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 25)) {
+        if (table.characteristics & Util::Hardware::SmBios::INT5_PRINT_SCREEN_SERVICE_SUPPORTED) {
             Util::System::out << "\t\tPrint screen service is supported (int 5h)" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 26)) {
+        if (table.characteristics & Util::Hardware::SmBios::INT9_KEYBOARD_SERVICE_SUPPORTED) {
             Util::System::out << "\t\t8042 keyboard services are supported (int 9h)" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 27)) {
+        if (table.characteristics & Util::Hardware::SmBios::INT14_SERIAL_SERVICE_SUPPORTED) {
             Util::System::out << "\t\tSerial services are supported (int 14h)" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 28)) {
+        if (table.characteristics & Util::Hardware::SmBios::INT17_PRINTER_SERVICE_SUPPORTED) {
             Util::System::out << "\t\tPrinter services are supported (int 17h)" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 29)) {
+        if (table.characteristics & Util::Hardware::SmBios::INT10_VIDEO_SERVICE_SUPPORTED) {
             Util::System::out << "\t\tCGA/Mono video services are supported (int 10h)" << Util::Io::PrintStream::endl;
         }
-        if (table.characteristics & (1 << 30)) {
+        if (table.characteristics & Util::Hardware::SmBios::NEC_PC98) {
             Util::System::out << "\t\tNEC PC-98" << Util::Io::PrintStream::endl;
         }
 
-        if (version >= 2.4) {
-            if (table.characteristicsExtension1 & (1 << 0)) {
+        if (table.header.length > 18) {
+            if (table.characteristicsExtension1 & Util::Hardware::SmBios::ACPI_SUPPORTED) {
                 Util::System::out << "\t\tACPI is supported" << Util::Io::PrintStream::endl;
             }
-            if (table.characteristicsExtension1 & (1 << 1)) {
+            if (table.characteristicsExtension1 & Util::Hardware::SmBios::USB_LEGACY_SUPPORTED) {
                 Util::System::out << "\t\tUSB Legacy is supported" << Util::Io::PrintStream::endl;
             }
-            if (table.characteristicsExtension1 & (1 << 2)) {
+            if (table.characteristicsExtension1 & Util::Hardware::SmBios::AGP_SUPPORTED) {
                 Util::System::out << "\t\tAGP is supported" << Util::Io::PrintStream::endl;
             }
-            if (table.characteristicsExtension1 & (1 << 3)) {
+            if (table.characteristicsExtension1 & Util::Hardware::SmBios::I2O_BOOT_SUPPORTED) {
                 Util::System::out << "\t\tI2O boot is supported" << Util::Io::PrintStream::endl;
             }
-            if (table.characteristicsExtension1 & (1 << 4)) {
+            if (table.characteristicsExtension1 & Util::Hardware::SmBios::LS120_BOOT_SUPPORTED) {
                 Util::System::out << "\t\tLS-120 SuperDisk boot is supported" << Util::Io::PrintStream::endl;
             }
-            if (table.characteristicsExtension1 & (1 << 5)) {
+            if (table.characteristicsExtension1 & Util::Hardware::SmBios::ATAPI_ZIP_DRIVE_BOOT_SUPPORTED) {
                 Util::System::out << "\t\tATAPI ZIP drive boot is supported" << Util::Io::PrintStream::endl;
             }
-            if (table.characteristicsExtension1 & (1 << 6)) {
+            if (table.characteristicsExtension1 & Util::Hardware::SmBios::FIREWIRE_BOOT_SUPPORTED) {
                 Util::System::out << "\t\t1394 boot is supported" << Util::Io::PrintStream::endl;
             }
-            if (table.characteristicsExtension1 & (1 << 7)) {
+            if (table.characteristicsExtension1 & Util::Hardware::SmBios::SMART_BATTERY_SUPPORTED) {
                 Util::System::out << "\t\tSmart battery is supported" << Util::Io::PrintStream::endl;
             }
+        }
 
-            if (table.characteristicsExtension2 & (1 << 0)) {
+        if (table.header.length > 19) {
+            if (table.characteristicsExtension2 & Util::Hardware::SmBios::BIOS_BOOT_SPECIFICATION_SUPPORTED) {
                 Util::System::out << "\t\tBIOS boot specification is supported" << Util::Io::PrintStream::endl;
             }
-            if (table.characteristicsExtension2 & (1 << 1)) {
+            if (table.characteristicsExtension2 & Util::Hardware::SmBios::FUNCTION_KEY_INITIATED_NETWORK_BOOT_SUPPORTED) {
                 Util::System::out << "\t\tFunction key-initiated network boot is supported" << Util::Io::PrintStream::endl;
             }
-            if (table.characteristicsExtension2 & (1 << 2)) {
+            if (table.characteristicsExtension2 & Util::Hardware::SmBios::TARGETED_CONTENT_DISTRIBUTION_ENABLED) {
                 Util::System::out << "\t\tTargeted content distribution is supported" << Util::Io::PrintStream::endl;
             }
-            if (table.characteristicsExtension2 & (1 << 3)) {
+            if (table.characteristicsExtension2 & Util::Hardware::SmBios::UEFI_SUPPORTED) {
                 Util::System::out << "\t\tUEFI is supported" << Util::Io::PrintStream::endl;
             }
-            if (table.characteristicsExtension2 & (1 << 4)) {
+            if (table.characteristicsExtension2 & Util::Hardware::SmBios::VIRTUAL_MACHINE) {
                 Util::System::out << "\t\tSystem is a virtual machine" << Util::Io::PrintStream::endl;
             }
-            if (table.characteristicsExtension2 & (1 << 5)) {
+            if (table.characteristicsExtension2 & Util::Hardware::SmBios::MANUFACTURING_MODE_SUPPORTED) {
                 Util::System::out << "\t\tManufacturing mode is supported" << Util::Io::PrintStream::endl;
             }
-            if (table.characteristicsExtension2 & (1 << 6)) {
+            if (table.characteristicsExtension2 & Util::Hardware::SmBios::MANUFACTURING_MODE_ENABLED) {
                 Util::System::out << "\t\tManufacturing mode is enabled" << Util::Io::PrintStream::endl;
             }
         }
     }
 
-    if (version >= 2.4) {
+    if (table.header.length > 20) {
         Util::System::out << "\tBIOS Revision: " << table.majorVersion << "." << table.minorVersion << Util::Io::PrintStream::endl;
     }
 }

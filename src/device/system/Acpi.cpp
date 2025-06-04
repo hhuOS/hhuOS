@@ -37,16 +37,24 @@ Acpi::Acpi() {
         auto vendor = Util::String(reinterpret_cast<const uint8_t*>(rsdp->oemId), sizeof(Util::Hardware::Acpi::Rsdp::oemId));
         LOG_INFO("ACPI vendor: [%s], ACPI version: [%s]", static_cast<const char*>(vendor.strip()), rsdp->revision == 0 ? "1.0" : ">=2.0");
 
-        auto *rsdt = const_cast<Util::Hardware::Acpi::Rsdt*>(reinterpret_cast<const Util::Hardware::Acpi::Rsdt*>(mapSdt(reinterpret_cast<Util::Hardware::Acpi::SdtHeader*>(rsdp->rsdtAddress))));
-
-        Util::String tableString;
-        auto numTables = (rsdt->header.length - sizeof(Util::Hardware::Acpi::SdtHeader)) / sizeof(uint32_t);
-        for (uint32_t i = 0; i < numTables; i++) {
-            rsdt->tables[i] = mapSdt(rsdt->tables[i]);
-            tableString += Util::String(reinterpret_cast<const uint8_t*>(rsdt->tables[i]->signature), sizeof(Util::Hardware::Acpi::SdtHeader::signature)) + " ";
+        auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+        auto rsdtPageOffset = reinterpret_cast<uint32_t>(rsdp->rsdtAddress) % Util::PAGESIZE;
+        auto *rsdtPage = memoryService.mapIO(const_cast<void*>(reinterpret_cast<const void*>(rsdp->rsdtAddress)), 1);
+        auto *rsdt = reinterpret_cast<Util::Hardware::Acpi::Rsdt*>(reinterpret_cast<uint8_t*>(rsdtPage) + rsdtPageOffset);
+        if (rsdtPageOffset + rsdt->header.length > Util::PAGESIZE) {
+            auto pages = (rsdtPageOffset + rsdt->header.length) % Util::PAGESIZE == 0 ? (rsdtPageOffset + rsdt->header.length) / Util::PAGESIZE : (rsdtPageOffset + rsdt->header.length) / Util::PAGESIZE + 1;
+            delete static_cast<uint8_t*>(rsdtPage);
+            rsdtPage = memoryService.mapIO(const_cast<void*>(reinterpret_cast<const void*>(rsdp->rsdtAddress)), pages);
+            rsdt = reinterpret_cast<Util::Hardware::Acpi::Rsdt*>(static_cast<uint8_t*>(rsdtPage) + rsdtPageOffset);
         }
 
-        Acpi::rsdt = rsdt;
+        tables = new Util::Hardware::Acpi::Tables(*rsdt);
+
+        Util::String tableString;
+        for (const auto &signature : tables->getSignatures()) {
+            tableString += signature + " ";
+        }
+
         LOG_INFO("ACPI tables: %s", static_cast<const char*>(tableString));
     }
 }
@@ -55,52 +63,8 @@ const Util::Hardware::Acpi::Rsdp& Acpi::getRsdp() const {
     return *rsdp;
 }
 
-bool Acpi::hasTable(const char *signature) const {
-    if (rsdt == nullptr) {
-        return false;
-    }
-
-    auto numTables = (rsdt->header.length - sizeof(Util::Hardware::Acpi::SdtHeader)) / sizeof(uint32_t);
-
-    for (uint32_t i = 0; i < numTables; i++) {
-        if (Util::Address(rsdt->tables[i]->signature).compareRange(Util::Address(signature), sizeof(Util::Hardware::Acpi::SdtHeader::signature)) == 0) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-Util::Array<Util::String> Acpi::getAvailableTables() const {
-    if (rsdt == nullptr) {
-        return Util::Array<Util::String>(0);
-    }
-
-    auto numTables = (rsdt->header.length - sizeof(Util::Hardware::Acpi::SdtHeader)) / sizeof(uint32_t);
-    Util::Array<Util::String> signatures(numTables);
-
-    for (uint32_t i = 0; i < numTables; i++) {
-        signatures[i] = Util::String(reinterpret_cast<const uint8_t*>(rsdt->tables[i]->signature), sizeof(Util::Hardware::Acpi::SdtHeader::signature));
-    }
-
-    return signatures;
-}
-
-const Util::Hardware::Acpi::SdtHeader* Acpi::mapSdt(const Util::Hardware::Acpi::SdtHeader *sdtHeaderPhysical) {
-    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    auto sdtPageOffset = reinterpret_cast<uint32_t>(sdtHeaderPhysical) % Util::PAGESIZE;
-    auto *sdtPage = memoryService.mapIO(const_cast<void*>(reinterpret_cast<const void*>(sdtHeaderPhysical)), 1);
-    auto *sdtHeaderVirtual = reinterpret_cast<Util::Hardware::Acpi::SdtHeader*>(reinterpret_cast<uint8_t*>(sdtPage) + sdtPageOffset);
-
-    if ((sdtPageOffset + sdtHeaderVirtual->length) > Util::PAGESIZE) {
-        auto pages = (sdtPageOffset + sdtHeaderVirtual->length) % Util::PAGESIZE == 0 ? (sdtPageOffset + sdtHeaderVirtual->length) / Util::PAGESIZE : ((sdtPageOffset + sdtHeaderVirtual->length) / Util::PAGESIZE) + 1;
-        delete static_cast<uint8_t*>(sdtPage);
-
-        sdtPage = memoryService.mapIO(const_cast<void*>(reinterpret_cast<const void*>(sdtHeaderPhysical)), pages);
-        sdtHeaderVirtual = reinterpret_cast<Util::Hardware::Acpi::SdtHeader*>(reinterpret_cast<uint8_t*>(sdtPage) + sdtPageOffset);
-    }
-
-    return sdtHeaderVirtual;
+const Util::Hardware::Acpi::Tables& Acpi::getTables() const {
+    return *tables;
 }
 
 const Util::Hardware::Acpi::Rsdp* Acpi::findRsdp() {
@@ -152,31 +116,14 @@ const Util::Hardware::Acpi::Rsdp* Acpi::searchRsdp(uint32_t startAddress, uint32
     for (uint32_t i = startAddress; i <= endAddress - sizeof(signature); i += 16) {
         auto address = Util::Address(i);
         if (address.compareRange(signatureAddress, sizeof(Util::Hardware::Acpi::Rsdp::signature)) == 0) {
-            if (checkRsdp(reinterpret_cast<const Util::Hardware::Acpi::Rsdp*>(i))) {
+            auto *rsdp = reinterpret_cast<const Util::Hardware::Acpi::Rsdp*>(i);
+            if (rsdp->verifyChecksum()) {
                 return reinterpret_cast<const Util::Hardware::Acpi::Rsdp*>(i);
             }
         }
     }
 
     return nullptr;
-}
-
-bool Acpi::checkRsdp(const Util::Hardware::Acpi::Rsdp *rsdp) {
-    uint32_t sum = 0;
-    for (uint32_t i = 0; i < sizeof(Util::Hardware::Acpi::Rsdp); i++) {
-        sum += reinterpret_cast<const uint8_t*>(rsdp)[i];
-    }
-
-    return static_cast<uint8_t>(sum) == 0;
-}
-
-bool Acpi::checkSdt(const Util::Hardware::Acpi::SdtHeader *sdtHeader) {
-    uint32_t sum = 0;
-    for (uint32_t i = 0; i < sdtHeader->length; i++) {
-        sum += reinterpret_cast<const uint8_t*>(sdtHeader)[i];
-    }
-
-    return static_cast<uint8_t>(sum) == 0;
 }
 
 }
