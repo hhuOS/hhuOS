@@ -400,10 +400,9 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         const auto info = Util::Hardware::CpuId::getCpuInfo();
         LOG_INFO("CPU info: Vendor [%s], Family [%u], Model [%u], Stepping [%u], Type [%u]", static_cast<const char*>(Util::Hardware::CpuId::getVendorString()), info.family, info.model, info.stepping, info.type);
 
-        const auto features = Util::Hardware::CpuId::getCpuFeatures();
         Util::String featureString;
-        for (uint32_t i = 0; i < features.length(); i++) {
-            featureString += Util::Hardware::CpuId::getFeatureAsString(features[i]) + Util::String(" ");
+        for (const auto &feature : info.getFeaturesAsArray()) {
+            featureString += Util::Hardware::CpuId::getFeatureAsString(feature) + Util::String(" ");
         }
         LOG_INFO("CPU features: %s", static_cast<const char*>(featureString));
     } else {

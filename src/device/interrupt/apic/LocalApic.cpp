@@ -51,11 +51,13 @@ Util::Async::Spinlock LocalApic::commandLock = Util::Async::Spinlock();
 LocalApic::LocalApic(uint8_t cpuId) : cpuId(cpuId) {}
 
 bool LocalApic::supportsXApic() {
-    return (Util::Hardware::CpuId::getCpuFeatureBits() & Util::Hardware::CpuId::APIC) != 0;
+    auto cpuInfo = Util::Hardware::CpuId::getCpuInfo();
+    return (cpuInfo.features & Util::Hardware::CpuId::APIC) != 0;
 }
 
 bool LocalApic::supportsX2Apic() {
-    return (Util::Hardware::CpuId::getCpuFeatureBits() & Util::Hardware::CpuId::X2APIC) != 0;
+    auto cpuInfo = Util::Hardware::CpuId::getCpuInfo();
+    return (cpuInfo.features & Util::Hardware::CpuId::X2APIC) != 0;
 }
 
 uint8_t LocalApic::getId() {
