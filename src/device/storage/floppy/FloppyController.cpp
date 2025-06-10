@@ -90,7 +90,7 @@ void FloppyController::initializeAvailableDrives() {
         if (success) {
             Kernel::Service::getService<Kernel::StorageService>().registerDevice(device, DEVICE_CLASS);
         } else {
-            LOG_ERROR("Unable to initializeScene primary floppy drive");
+            LOG_ERROR("Unable to initialize primary floppy drive");
             delete device;
         }
     }
@@ -104,7 +104,7 @@ void FloppyController::initializeAvailableDrives() {
         if (success) {
             Kernel::Service::getService<Kernel::StorageService>().registerDevice(device, DEVICE_CLASS);
         } else {
-            LOG_ERROR("Unable to initializeScene secondary floppy drive");
+            LOG_ERROR("Unable to initialize secondary floppy drive");
             delete device;
         }
     }

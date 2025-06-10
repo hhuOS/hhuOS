@@ -520,7 +520,7 @@ uint16_t IdeController::performAtaIO(const DeviceInfo &info, TransferMode mode, 
 
         // DMA transfers sometimes have issues on real hardware, and are actually slower than programmed I/O, because of the overhead of copying data to/from the DMA buffer.
         // Therefore, we use programmed I/O for now, until we hava a proper I/O management that can handle DMA transfers more efficiently.
-        uint16_t sectors = performDmaAtaIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
+        uint16_t sectors = performProgrammedAtaIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
 
         /*uint16_t sectors;
         if (supportsDma && info.supportsDma()) {
