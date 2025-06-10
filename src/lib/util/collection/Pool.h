@@ -191,7 +191,7 @@ template<typename T>
 size_t Pool<T>::getObjectCount() const {
     size_t objects = 0;
     for (size_t i = 0; i < allocatedMap.getSize(); i++) {
-        if (allocatedMap.check(i, true)) {
+        if (allocatedMap.check(i)) {
             objects++;
         }
     }

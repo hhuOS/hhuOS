@@ -24,19 +24,22 @@
 #include <stdint.h>
 
 #include "lib/util/async/Atomic.h"
-#include "kernel/memory/BlockMemoryManager.h"
+#include "lib/util/base/BlockMemoryManager.h"
 #include "lib/util/base/Panic.h"
 
-namespace Kernel {
+namespace Util {
 class BitmapMemoryManager;
+}
 
-class TableMemoryManager : public BlockMemoryManager {
+namespace Kernel {
+
+class TableMemoryManager : public Util::BlockMemoryManager {
 
 public:
     /**
      * Constructor.
      */
-    TableMemoryManager(BitmapMemoryManager &bitmapMemoryManager, uint8_t *startAddress, uint8_t *endAddress, uint32_t blockSize = 4096);
+    TableMemoryManager(Util::BitmapMemoryManager &bitmapMemoryManager, uint8_t *startAddress, uint8_t *endAddress, uint32_t blockSize = 4096);
 
     /**
      * Copy Constructor.
@@ -212,7 +215,7 @@ private:
 
 private:
 
-    BitmapMemoryManager &bitmapMemoryManager;
+    Util::BitmapMemoryManager &bitmapMemoryManager;
     uint8_t *startAddress;
     uint8_t *endAddress;
     uint32_t blockSize;

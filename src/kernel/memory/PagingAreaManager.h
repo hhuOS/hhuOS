@@ -24,7 +24,7 @@
 #include <stdint.h>
 
 #include "lib/util/collection/Pool.h"
-#include "kernel/memory/BitmapMemoryManager.h"
+#include "lib/util/base/BitmapMemoryManager.h"
 
 namespace Kernel {
 
@@ -35,7 +35,7 @@ namespace Kernel {
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date HHU, 2018
  */
-class PagingAreaManager : public BitmapMemoryManager {
+class PagingAreaManager : public Util::BitmapMemoryManager {
 
 public:
     /**

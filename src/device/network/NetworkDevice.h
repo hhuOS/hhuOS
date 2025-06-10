@@ -29,9 +29,9 @@
 #include "lib/util/base/String.h"
 #include "lib/util/base/Constants.h"
 
-namespace Kernel {
+namespace Util {
 class BitmapMemoryManager;
-}  // namespace Kernel
+}
 
 namespace Device {
 namespace Network {
@@ -103,13 +103,13 @@ protected:
 
 private:
 
-    static Kernel::BitmapMemoryManager* createPacketManager(uint32_t packetCount);
+    static Util::BitmapMemoryManager* createPacketManager(uint32_t packetCount);
 
     void freePacketBuffer(void *buffer);
 
     Util::String identifier;
 
-    Kernel::BitmapMemoryManager &incomingPacketMemoryManager;
+    Util::BitmapMemoryManager &incomingPacketMemoryManager;
     Util::ArrayQueue<Packet> incomingPacketQueue;
     Util::ArrayQueue<Packet> outgoingPacketQueue;
     Util::Async::Spinlock outgoingPacketLock;

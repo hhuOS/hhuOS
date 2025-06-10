@@ -59,14 +59,17 @@ public:
     [[nodiscard]] size_t getSize() const;
 
     /// Set the bit at the given index to 1.
+    /// If the index is out of bounds, a panic is fired.
     void set(size_t block) const;
 
     /// Set the bit at the given index to 0.
+    /// If the index is out of bounds, a panic is fired.
     void unset(size_t block) const;
 
     /// Check if the bit at the given index is set/unset.
     /// The boolean value `set` indicates whether to check for set or unset.
-    [[nodiscard]] bool check(size_t block, bool set) const;
+    /// If the index is out of bounds, a panic is fired.
+    [[nodiscard]] bool check(size_t block) const;
 
     /// Find the first unset bit and set it to 1.
     /// Return the index of the bit that was set or INVALID_INDEX if no unset bit was found.

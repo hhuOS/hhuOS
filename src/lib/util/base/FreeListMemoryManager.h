@@ -51,18 +51,21 @@ public:
     ~FreeListMemoryManager() override = default;
 
     /// Allocate a block of memory of a given size and alignment using the first-fit algorithm.
-    /// If no sufficient block of memory is available, nullptr is returned.
+    /// If no sufficient block of memory is available, a panic is fired.
     [[nodiscard]] void* allocateMemory(size_t size, size_t alignment) override;
 
     /// Reallocate a previously allocated block of memory to a new size and alignment.
     /// If the current block can be extended, it is done in place.
     /// Otherwise, a new block is allocated and the content of the old block is copied into the new one.
+    /// If no sufficient block of memory is available, a panic is fired.
     [[nodiscard]] void* reallocateMemory(void *ptr, size_t size, size_t alignment) override;
 
     /// Free a block of memory that was previously allocated by this memory manager.
     /// If possible, the freed block is merged with adjacent free blocks to reduce fragmentation.
     /// By default, the freed memory is unmapped to free up physical memory.
     /// This can be disabled by calling `disableAutomaticUnmapping()`.
+    /// If the given pointer is outside the managed memory range, a panic is fired.
+    /// However, if the pointer is nullptr, nothing happens.
     void freeMemory(void *ptr, size_t alignment) override;
 
     /// Get the total amount of memory managed by this memory manager.

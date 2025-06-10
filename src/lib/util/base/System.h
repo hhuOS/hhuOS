@@ -24,9 +24,10 @@
 #include <stddef.h>
 #include <stdarg.h>
 
+#include "base/BitmapMemoryManager.h"
+#include "base/FreeListMemoryManager.h"
 #include "lib/util/io/stream/InputStream.h" // IWYU pragma: keep
 #include "lib/util/io/stream/PrintStream.h" // IWYU pragma: keep
-#include "FreeListMemoryManager.h"
 
 namespace Util {
 namespace Io {
@@ -98,15 +99,17 @@ public:
     /// Every address space has this struct placed at `Util::USER_SPACE_MEMORY_START_ADDRESS`.
     /// It contains the heap memory manager for this user space and a pointer the symbol table of the loaded program.
     struct AddressSpaceHeader {
-        /// The heap memory manager for this user space.
-        FreeListMemoryManager memoryManager;
-
+        /// The heap memory manager for this user space, which is used
+        /// when a program allocates memory using `new` and `delete`.
+        /// It is initialized by the runtime library before the main function is called.
+        FreeListMemoryManager heapMemoryManager;
+        /// The stack memory manager for this user space, which is used when a program start a new thread.
+        /// It is initialized by the runtime library before the main function is called.
+        BitmapMemoryManager stackMemoryManager;
         /// The symbol table size (in bytes) of the loaded program.
         size_t symbolTableSize;
-
         /// A pointer to the symbol table of the loaded program.
         const Io::Elf::SymbolEntry *symbolTable;
-
         /// A pointer to the string table of the loaded program.
         const char *stringTable;
     };

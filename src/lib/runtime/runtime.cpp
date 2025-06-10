@@ -20,7 +20,9 @@ void _exit(int32_t);
 extern "C" void _fini();
 
 void initMemoryManager(uint8_t *startAddress) {
-    new (&Util::System::getAddressSpaceHeader().memoryManager) Util::FreeListMemoryManager(startAddress, reinterpret_cast<void*>(Util::MAIN_STACK_START_ADDRESS));
+    new (&Util::System::getAddressSpaceHeader().heapMemoryManager) Util::FreeListMemoryManager(startAddress, reinterpret_cast<void*>(Util::USER_SPACE_STACK_MEMORY_START_ADDRESS));
+	new (&Util::System::getAddressSpaceHeader().stackMemoryManager) Util::BitmapMemoryManager(reinterpret_cast<uint8_t*>(Util::USER_SPACE_STACK_MEMORY_START_ADDRESS), reinterpret_cast<uint8_t*>(Util::MEMORY_END_ADDRESS), Util::MAX_USER_STACK_SIZE);
+	Util::System::getAddressSpaceHeader().stackMemoryManager.markBlock(reinterpret_cast<uint8_t*>(Util::USER_SPACE_STACK_MEMORY_START_ADDRESS), true);
 }
 
 void _sysExit(int32_t exitCode) {

@@ -29,6 +29,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/base/operators.cpp
         ${HHUOS_SRC_DIR}/lib/util/base/Address.cpp
         ${HHUOS_SRC_DIR}/lib/util/base/ArgumentParser.cpp
+		${HHUOS_SRC_DIR}/lib/util/base/BitmapMemoryManager.cpp
 		${HHUOS_SRC_DIR}/lib/util/base/CharacterTypes.cpp
         ${HHUOS_SRC_DIR}/lib/util/base/FreeListMemoryManager.cpp
 		${HHUOS_SRC_DIR}/lib/util/base/Panic.cpp

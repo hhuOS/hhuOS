@@ -20,17 +20,17 @@
 
 #include "SlabAllocator.h"
 
-#include "kernel/memory/BitmapMemoryManager.h"
+#include "lib/util/base/BitmapMemoryManager.h"
 
 namespace Kernel {
 
 SlabAllocator::SlabAllocator(uint8_t *slabMemory) :
-        pool4K(slabMemory, slabMemory + POOL_SIZE - 1, 4 * 1024),
-        pool8K(slabMemory + 1 * POOL_SIZE, slabMemory + 2 * POOL_SIZE - 1, 8 * 1024),
-        pool16K(slabMemory + 2 * POOL_SIZE, slabMemory + 3 * POOL_SIZE - 1, 16 * 1024),
-        pool32K(slabMemory + 3 * POOL_SIZE, slabMemory + 4 * POOL_SIZE - 1, 32 * 1024),
-        pool64K(slabMemory + 4 * POOL_SIZE, slabMemory + 5 * POOL_SIZE - 1, 64 * 1024),
-        pool128K(slabMemory + 5 * POOL_SIZE, slabMemory + 6 * POOL_SIZE - 1, 128 * 1024) {}
+        pool4K(slabMemory, slabMemory + POOL_SIZE, 4 * 1024),
+        pool8K(slabMemory + 1 * POOL_SIZE, slabMemory + 2 * POOL_SIZE, 8 * 1024),
+        pool16K(slabMemory + 2 * POOL_SIZE, slabMemory + 3 * POOL_SIZE, 16 * 1024),
+        pool32K(slabMemory + 3 * POOL_SIZE, slabMemory + 4 * POOL_SIZE, 32 * 1024),
+        pool64K(slabMemory + 4 * POOL_SIZE, slabMemory + 5 * POOL_SIZE, 64 * 1024),
+        pool128K(slabMemory + 5 * POOL_SIZE, slabMemory + 6 * POOL_SIZE, 128 * 1024) {}
 
 void *SlabAllocator::allocateBlock(uint32_t frameCount) {
     switch (frameCount) {
@@ -82,22 +82,22 @@ bool SlabAllocator::freeBlock(void *pointer) {
         return false;
     }
 
-    if (pointer >= pool4K.getStartAddress() && pointer <= pool4K.getEndAddress()) {
+    if (pointer >= pool4K.getStartAddress() && pointer < pool4K.getEndAddress()) {
         pool4K.freeBlock(pointer);
         return true;
-    } else if (pointer >= pool8K.getStartAddress() && pointer <= pool8K.getEndAddress()) {
+    } else if (pointer >= pool8K.getStartAddress() && pointer < pool8K.getEndAddress()) {
         pool8K.freeBlock(pointer);
         return true;
-    } else if (pointer >= pool16K.getStartAddress() && pointer <= pool16K.getEndAddress()) {
+    } else if (pointer >= pool16K.getStartAddress() && pointer < pool16K.getEndAddress()) {
         pool16K.freeBlock(pointer);
         return true;
-    } else if (pointer >= pool32K.getStartAddress() && pointer <= pool32K.getEndAddress()) {
+    } else if (pointer >= pool32K.getStartAddress() && pointer < pool32K.getEndAddress()) {
         pool32K.freeBlock(pointer);
         return true;
-    } else if (pointer >= pool64K.getStartAddress() && pointer <= pool64K.getEndAddress()) {
+    } else if (pointer >= pool64K.getStartAddress() && pointer < pool64K.getEndAddress()) {
         pool64K.freeBlock(pointer);
         return true;
-    } else if (pointer >= pool128K.getStartAddress() && pointer <= pool128K.getEndAddress()) {
+    } else if (pointer >= pool128K.getStartAddress() && pointer < pool128K.getEndAddress()) {
         pool128K.freeBlock(pointer);
         return true;
     }

@@ -147,7 +147,7 @@ void Engine::updateStatus() {
 void Engine::drawStatus() {
     const auto color = graphics.getColor();
     const auto &camera = game.getCurrentScene().getCamera();
-    const auto &memoryManager = Util::System::getAddressSpaceHeader().memoryManager;
+    const auto &memoryManager = Util::System::getAddressSpaceHeader().heapMemoryManager;
     const auto heapUsed = (memoryManager.getTotalMemory() - memoryManager.getFreeMemory());
     const auto heapUsedM = heapUsed / 1000 / 1000;
     const auto heapUsedK = (heapUsed - heapUsedM * 1000 * 1000) / 1000;

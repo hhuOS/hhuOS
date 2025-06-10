@@ -60,7 +60,7 @@ Thread::~Thread() {
 }
 
 Thread& Thread::createKernelThread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable) {
-    auto *stack = createKernelStack(STACK_SIZE);
+    auto *stack = createKernelStack();
     auto *thread = new Thread(name, parent, runnable, 0, stack, nullptr);
 
     thread->prepareKernelStack();
@@ -69,16 +69,13 @@ Thread& Thread::createKernelThread(const Util::String &name, Process &parent, Ut
 }
 
 Thread& Thread::createUserThread(const Util::String &name, Process &parent, uint32_t eip, Util::Async::Runnable *runnable) {
-    auto *kernelStack = Thread::createKernelStack(STACK_SIZE);
-    auto *userStack = Thread::createUserStack(STACK_SIZE);
+    auto *kernelStack = Thread::createKernelStack();
+    auto *userStack = Thread::createUserStack();
     auto *thread = new Thread(name, parent, runnable, eip, kernelStack, userStack);
 
     thread->prepareKernelStack();
 
-    // Prepare user stack
-    Util::Address(thread->userStack).setRange(0, STACK_SIZE);
-
-    const auto capacity = STACK_SIZE / sizeof(uint32_t);
+    const auto capacity = Util::MAX_USER_STACK_SIZE / sizeof(uint32_t);
     thread->userStack[capacity - 1] = 0x00DEAD00; // Dummy return address
 
     // Parameters for 'kickoffUserThread' (empty space before is only used when creating a main thread)
@@ -88,16 +85,13 @@ Thread& Thread::createUserThread(const Util::String &name, Process &parent, uint
 }
 
 Thread& Thread::createMainUserThread(const Util::String &name, Process &parent, uint32_t eip, uint32_t argc, char **argv, void *envp, uint32_t heapStartAddress) {
-    auto *kernelStack = createKernelStack(STACK_SIZE);
+    auto *kernelStack = createKernelStack();
     auto *userStack = createMainUserStack();
     auto *thread = new Thread(name, parent, nullptr, eip, kernelStack, userStack);
 
     thread->prepareKernelStack();
 
-    // Prepare user stack
-    Util::Address(thread->userStack).setRange(0, STACK_SIZE);
-
-    const auto capacity = STACK_SIZE / sizeof(uint32_t);
+    const auto capacity = Util::MAX_USER_STACK_SIZE / sizeof(uint32_t);
     thread->userStack[capacity - 1] = 0x00DEAD00; // Dummy return address
 
     // Parameters for 'main()'
@@ -112,9 +106,9 @@ Thread& Thread::createMainUserThread(const Util::String &name, Process &parent, 
 }
 
 void Thread::prepareKernelStack() {
-    Util::Address(kernelStack).setRange(0, STACK_SIZE);
+    Util::Address(kernelStack).setRange(0, KERNEL_STACK_SIZE);
 
-    const auto capacity = STACK_SIZE / sizeof(uint32_t);
+    const auto capacity = KERNEL_STACK_SIZE / sizeof(uint32_t);
     kernelStack[capacity - 1] = 0x0000DEAD; // Dummy return address
     kernelStack[capacity - 2] = reinterpret_cast<uint32_t>(kickoffKernelThread); // Address of 'kickoff_kernel_thread()'
 
@@ -152,17 +146,19 @@ void Thread::kickoffKernelThread() {
 }
 
 void Thread::switchToUserMode() {
-    const auto capacity = STACK_SIZE / sizeof(uint32_t);
-    kernelStack[capacity - 1] = 0x00DEAD00; // Dummy return address;
+    const auto kernelStackCapacity = KERNEL_STACK_SIZE / sizeof(uint32_t);
+    const auto userStackCapacity = Util::MAX_USER_STACK_SIZE / sizeof(uint32_t);
 
-    kernelStack[capacity - 2] = static_cast<uint16_t>(Device::Cpu::SegmentSelector(Device::Cpu::Ring3, 4)); // ss = user data segment
-    kernelStack[capacity - 3] = reinterpret_cast<uint32_t>(userStack + (capacity - 5)); // esp for user stack (leave room for 'main()' arguments)
-    kernelStack[capacity - 4] = 0x202; // eflags (interrupts enabled)
-    kernelStack[capacity - 5] = static_cast<uint16_t>(Device::Cpu::SegmentSelector(Device::Cpu::Ring3, 3)); // cs = user code segment
+    kernelStack[kernelStackCapacity - 1] = 0x00DEAD00; // Dummy return address;
 
-    kernelStack[capacity - 6] = userInstructionPointer; // Address of user function to start
+    kernelStack[kernelStackCapacity - 2] = static_cast<uint16_t>(Device::Cpu::SegmentSelector(Device::Cpu::Ring3, 4)); // ss = user data segment
+    kernelStack[kernelStackCapacity - 3] = reinterpret_cast<uint32_t>(userStack + (userStackCapacity - 5)); // esp for user stack (leave room for 'main()' arguments)
+    kernelStack[kernelStackCapacity - 4] = 0x202; // eflags (interrupts enabled)
+    kernelStack[kernelStackCapacity - 5] = static_cast<uint16_t>(Device::Cpu::SegmentSelector(Device::Cpu::Ring3, 3)); // cs = user code segment
 
-    oldStackPointer = kernelStack + (capacity - 6);
+    kernelStack[kernelStackCapacity - 6] = userInstructionPointer; // Address of user function to start
+
+    oldStackPointer = kernelStack + (kernelStackCapacity - 6);
 
     asm volatile ( "cli" ); // Interrupts are enabled again by iret in start_user_thread -> Do not use Device::Cpu::disableInterrupts() here
     Device::Cpu::writeSegmentRegister(Device::Cpu::DS, Device::Cpu::SegmentSelector(Device::Cpu::Ring3, 4));
@@ -179,7 +175,7 @@ void Thread::startFirstThread(const Thread &thread) {
 
 void Thread::switchThread(Thread &current, const Thread &next) {
     Service::getService<MemoryService>().switchAddressSpace(next.parent.getAddressSpace());
-    switchThread(&current.oldStackPointer, next.oldStackPointer, next.kernelStack + (STACK_SIZE / sizeof(uint32_t)));
+    switchThread(&current.oldStackPointer, next.oldStackPointer, next.kernelStack + (KERNEL_STACK_SIZE / sizeof(uint32_t)));
 }
 
 uint32_t Thread::getId() const {
@@ -210,14 +206,14 @@ void Thread::join() {
     Service::getService<ProcessService>().getScheduler().join(*this);
 }
 
-uint32_t* Thread::createKernelStack(uint32_t size) {
+uint32_t* Thread::createKernelStack() {
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    return static_cast<uint32_t*>(memoryService.allocateKernelMemory(size, 16));
+    return static_cast<uint32_t*>(memoryService.allocateKernelMemory(KERNEL_STACK_SIZE, 16));
 }
 
-uint32_t* Thread::createUserStack(uint32_t size) {
-    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    return static_cast<uint32_t*>(memoryService.allocateUserMemory(size, 16));
+uint32_t* Thread::createUserStack() {
+    auto &stackMemoryManager = Util::System::getAddressSpaceHeader().stackMemoryManager;
+    return static_cast<uint32_t*>(stackMemoryManager.allocateBlock());
 }
 
 uint32_t* Thread::createMainUserStack() {

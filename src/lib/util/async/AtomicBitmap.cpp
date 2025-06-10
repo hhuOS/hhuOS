@@ -64,7 +64,7 @@ void AtomicBitmap::unset(const size_t block) const {
     bitmapWrapper.bitUnset(SIZE_BITS - 1 - bit);
 }
 
-bool AtomicBitmap::check(const size_t block, const bool set) const {
+bool AtomicBitmap::check(const size_t block) const {
     if (block >= blocks) {
         Panic::fire(Panic::OUT_OF_BOUNDS, "AtomicBitmap: Block index out of bounds!");
     }
@@ -73,7 +73,7 @@ bool AtomicBitmap::check(const size_t block, const bool set) const {
     const size_t bit = block % SIZE_BITS;
 
     Atomic<size_t> bitmapWrapper(bitmap[index]);
-    return bitmapWrapper.bitTest(SIZE_BITS - 1 - bit) == set;
+    return bitmapWrapper.bitTest(SIZE_BITS - 1 - bit);
 }
 
 size_t AtomicBitmap::findAndSet() const {

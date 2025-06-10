@@ -34,7 +34,7 @@
 #include "kernel/process/Scheduler.h"
 #include "kernel/service/MemoryService.h"
 #include "lib/util/base/Constants.h"
-#include "kernel/memory/BitmapMemoryManager.h"
+#include "lib/util/base/BitmapMemoryManager.h"
 
 namespace Device::Network {
 
@@ -147,12 +147,12 @@ void NetworkDevice::freeLastSendBuffer() {
     }
 }
 
-Kernel::BitmapMemoryManager* NetworkDevice::createPacketManager(uint32_t packetCount) {
+Util::BitmapMemoryManager* NetworkDevice::createPacketManager(uint32_t packetCount) {
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     auto *startAddress = static_cast<uint8_t*>(memoryService.mapIO(packetCount / PACKETS_PER_PAGE));
     auto *endAddress = startAddress + (packetCount / PACKETS_PER_PAGE) * Util::PAGESIZE - 1;
 
-    return new Kernel::BitmapMemoryManager(startAddress, endAddress);
+    return new Util::BitmapMemoryManager(startAddress, endAddress, Util::PAGESIZE);
 }
 
 bool NetworkDevice::Packet::operator==(const NetworkDevice::Packet &other) const {

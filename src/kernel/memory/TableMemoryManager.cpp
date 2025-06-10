@@ -20,11 +20,11 @@
 
 #include "TableMemoryManager.h"
 #include "kernel/log/Log.h"
-#include "kernel/memory/BitmapMemoryManager.h"
+#include "lib/util/base/BitmapMemoryManager.h"
 
 namespace Kernel {
 
-TableMemoryManager::TableMemoryManager(BitmapMemoryManager &bitmapMemoryManager, uint8_t *startAddress, uint8_t *endAddress, uint32_t blockSize) :
+TableMemoryManager::TableMemoryManager(Util::BitmapMemoryManager &bitmapMemoryManager, uint8_t *startAddress, uint8_t *endAddress, uint32_t blockSize) :
         bitmapMemoryManager(bitmapMemoryManager), startAddress(startAddress), endAddress(endAddress), blockSize(blockSize) {
     uint32_t memorySize = endAddress - startAddress + 1;
     uint32_t blockCount = memorySize / blockSize;

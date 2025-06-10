@@ -107,9 +107,9 @@ private:
 
     void switchToUserMode();
 
-    static uint32_t* createKernelStack(uint32_t size);
+    static uint32_t* createKernelStack();
 
-    static uint32_t* createUserStack(uint32_t size);
+    static uint32_t* createUserStack();
 
     static uint32_t* createMainUserStack();
 
@@ -132,7 +132,7 @@ private:
     uint8_t *fpuContext;
 
     static Util::Async::IdGenerator idGenerator;
-    static const constexpr uint32_t STACK_SIZE = 0x10000;
+    static const constexpr uint32_t KERNEL_STACK_SIZE = 0x10000;
     static const constexpr uint32_t PUSHAD_STACK_SPACE = 8 * 4;
     static const constexpr uint32_t PUSHF_STACK_SPACE = 1 * 4;
     static const constexpr uint32_t PUSH_SEGMENT_REGISTERS_SPACE = 4 * 4;

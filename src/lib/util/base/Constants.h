@@ -28,11 +28,20 @@ namespace Util {
 /// The size of a page in bytes (4096 = 4 KiB).
 static constexpr size_t PAGESIZE = 0x1000;
 
+/// The maximum size of a user space stack (0x40000 = 256 KiB).
+static constexpr size_t MAX_USER_STACK_SIZE = 0x40000;
+
 /// The start address of the user space memory (0x8000000 = 128 MiB).
 static constexpr size_t USER_SPACE_MEMORY_START_ADDRESS = 0x8000000;
 
-/// The start address of each application's main stack (0xffff0000 = 4 GiB - 4 KiB).
-static constexpr size_t MAIN_STACK_START_ADDRESS = 0xffff0000;
+/// The start address of the user space stack memory (0xf0000000 = 3.75 GiB).
+static constexpr size_t USER_SPACE_STACK_MEMORY_START_ADDRESS = 0xf0000000;
+
+/// The start address of each application's main stack.
+static constexpr size_t MAIN_STACK_START_ADDRESS = USER_SPACE_STACK_MEMORY_START_ADDRESS;
+
+/// The highest address of the user space memory (0xffffffff + 1 = 4 GiB).
+static constexpr size_t MEMORY_END_ADDRESS = 0xffffffff + 1;
 
 }
 

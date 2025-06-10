@@ -46,7 +46,6 @@ public:
     ~HeapMemoryManager() override = default;
 
     /// Allocate a block of memory of a given size and alignment.
-    /// If no sufficient block of memory is available, nullptr is returned.
     [[nodiscard]] virtual void* allocateMemory(size_t size, size_t alignment) = 0;
 
 	/// Reallocate a previously allocated block of memory to a new size and alignment.

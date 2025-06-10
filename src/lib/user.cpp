@@ -44,7 +44,7 @@ class Datagram;
 }  // namespace Util
 
 void* allocateMemory(uint32_t size, uint32_t alignment) {
-    return Util::System::getAddressSpaceHeader().memoryManager.allocateMemory(size, alignment);
+    return Util::System::getAddressSpaceHeader().heapMemoryManager.allocateMemory(size, alignment);
 }
 
 void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment) {
@@ -52,11 +52,11 @@ void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment) {
         return allocateMemory(size, alignment);
     }
 
-    return Util::System::getAddressSpaceHeader().memoryManager.reallocateMemory(pointer, size, alignment);
+    return Util::System::getAddressSpaceHeader().heapMemoryManager.reallocateMemory(pointer, size, alignment);
 }
 
 void freeMemory(void *pointer, uint32_t alignment) {
-    Util::System::getAddressSpaceHeader().memoryManager.freeMemory(pointer, alignment);
+    Util::System::getAddressSpaceHeader().heapMemoryManager.freeMemory(pointer, alignment);
 }
 
 bool isMemoryManagementInitialized() {
@@ -196,7 +196,7 @@ Util::Async::Thread createThread(const Util::String &name, Util::Async::Runnable
 
 Util::Async::Thread getCurrentThread() {
     uint32_t threadId;
-    Util::System::call(Util::System::GET_CURRENT_PROCESS, 1, &threadId);
+    Util::System::call(Util::System::GET_CURRENT_THREAD, 1, &threadId);
     return Util::Async::Thread(threadId);
 }
 

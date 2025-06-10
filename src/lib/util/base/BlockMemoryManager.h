@@ -18,41 +18,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_BLOCKMEMORYMANAGER_H
-#define HHUOS_BLOCKMEMORYMANAGER_H
+#ifndef HHUOS_LIB_UTIL_BLOCKMEMORYMANAGER_H
+#define HHUOS_LIB_UTIL_BLOCKMEMORYMANAGER_H
 
-#include "lib/util/base/MemoryManager.h"
+#include <stddef.h>
 
-namespace Kernel {
+#include "base/MemoryManager.h"
 
-class BlockMemoryManager : public Util::MemoryManager {
+namespace Util {
+
+/// Base class for memory managers that manage memory in fixed-size blocks.
+/// A block memory manager must support allocation and freeing of single blocks of memory.
+/// They are for example used to manage page frames or stack memory.
+class BlockMemoryManager : public MemoryManager {
 
 public:
-    /**
-     * Constructor.
-     */
+    /// The base block memory manager class has no state, so the default constructor is sufficient.
     BlockMemoryManager() = default;
 
-    /**
-     * Copy Constructor.
-     */
+    /// A memory manager should not be copyable, since copies would operate on the same memory.
     BlockMemoryManager(const BlockMemoryManager &copy) = delete;
 
-    /**
-     * Assignment operator.
-     */
+    /// A memory manager should not be copyable, since copies would operate on the same memory.
     BlockMemoryManager &operator=(const BlockMemoryManager &other) = delete;
 
-    /**
-     * Destructor.
-     */
+    /// The base block memory manager class has no state, so the default destructor is sufficient.
     ~BlockMemoryManager() override = default;
 
-    [[nodiscard]] virtual void *allocateBlock() = 0;
+    /// Allocate a block of memory of the size defined by the block size of this manager.
+    [[nodiscard]] virtual void* allocateBlock() = 0;
 
+    /// Free a block of memory that was previously allocated by this memory manager.
     virtual void freeBlock(void *pointer) = 0;
 
-    [[nodiscard]] virtual uint32_t getBlockSize() const = 0;
+    /// Return the size of a single block managed by this memory manager.
+    [[nodiscard]] virtual size_t getBlockSize() const = 0;
 };
 
 }

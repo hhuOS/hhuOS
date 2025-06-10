@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#include "BitmapMemoryManager.h"
+#include "lib/util/base/BitmapMemoryManager.h"
 #include "lib/util/base/MemoryManager.h"
 
 namespace Kernel {
@@ -67,12 +67,12 @@ public:
 
 private:
 
-    BitmapMemoryManager pool4K;
-    BitmapMemoryManager pool8K;
-    BitmapMemoryManager pool16K;
-    BitmapMemoryManager pool32K;
-    BitmapMemoryManager pool64K;
-    BitmapMemoryManager pool128K;
+    Util::BitmapMemoryManager pool4K;
+    Util::BitmapMemoryManager pool8K;
+    Util::BitmapMemoryManager pool16K;
+    Util::BitmapMemoryManager pool32K;
+    Util::BitmapMemoryManager pool64K;
+    Util::BitmapMemoryManager pool128K;
 
     static const constexpr uint32_t POOL_SIZE = 1 * 1024 * 1024;
 };
