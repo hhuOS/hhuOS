@@ -41,6 +41,9 @@ include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/
 add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-Wno-unused-but-set-variable>
         $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-parentheses>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-unused-variable>
+        $<$<COMPILE_LANGUAGE:C>:-Wno-unused-parameter>
         $<$<COMPILE_LANGUAGE:C>:-O0> # ClownMDEmu does not work with compiler optimizations
 )
 
@@ -63,10 +66,12 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/controller.c
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm.c
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm-channel.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm-lfo.c
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm-operator.c
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/fm-phase.c
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/io-port.c
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/log.c
+        ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/low-pass-filter.c
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/pcm.c
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/psg.c
         ${HHUOS_SRC_DIR}/application/clownmdemu/clownmdemu/vdp.c

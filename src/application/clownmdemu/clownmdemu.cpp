@@ -20,12 +20,14 @@
 
 #include <stdint.h>
 #include <stdarg.h>
-#include <cstddef>
 
 #include "lib/util/base/System.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "application/clownmdemu/clownmdemu/clowncommon/clowncommon.h"
 #include "application/clownmdemu/clownmdemu/clownmdemu.h"
+
+#include "io/file/elf/File.h"
+#include "io/stream/FileOutputStream.h"
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/FileInputStream.h"
@@ -62,6 +64,10 @@ Util::Graphic::LinearFrameBuffer *lfb = nullptr;
 uint32_t targetFrameRate = 0;
 auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(0);
 
+Util::Io::File *saveFile = nullptr;
+Util::Io::FileInputStream *saveFileInputStream = nullptr;
+Util::Io::FileOutputStream *saveFileOutputStream = nullptr;
+
 cc_u16f mdScreenWidth = 0;
 cc_u16f mdScreenHeight = 0;
 uint8_t maxScale = 0;
@@ -74,7 +80,7 @@ Util::Time::Timestamp fpsTimer;
 uint32_t fpsCounter = 0;
 uint32_t fps = 0;
 
-void calculateScreenVariables(cc_u16f screen_width, cc_u16f screen_height, bool recalculate = false) {
+void calculate_screen_variables(cc_u16f screen_width, cc_u16f screen_height, bool recalculate = false) {
     if (mdScreenWidth == screen_width && mdScreenHeight == screen_height && !recalculate) {
         return;
     }
@@ -97,15 +103,15 @@ void calculateScreenVariables(cc_u16f screen_width, cc_u16f screen_height, bool 
     lfb->clear();
 }
 
-void LogCallback([[maybe_unused]] void *user_data, [[maybe_unused]] const char *format, [[maybe_unused]] va_list args) {}
+void log([[maybe_unused]] void *user_data, [[maybe_unused]] const char *format, [[maybe_unused]] va_list args) {}
 
-cc_u8f CartridgeReadCallback([[maybe_unused]] void *user_data, cc_u32f address) {
+cc_u8f cartridge_read([[maybe_unused]] void *user_data, cc_u32f address) {
     return rom[address];
 }
 
-void CartridgeWrittenCallback([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u32f address, [[maybe_unused]] cc_u8f value) {}
+void cartridge_written([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u32f address, [[maybe_unused]] cc_u8f value) {}
 
-void ColourUpdatedCallback([[maybe_unused]] void *user_data, cc_u16f index, cc_u16f colour) {
+void colour_updated([[maybe_unused]] void *user_data, cc_u16f index, cc_u16f colour) {
     // Decompose XBGR4444 into individual colour channels
     auto red = (colour >> 4 * 0) & 0xf;
     auto green = (colour >> 4 * 1) & 0xf;
@@ -114,8 +120,8 @@ void ColourUpdatedCallback([[maybe_unused]] void *user_data, cc_u16f index, cc_u
     palette[index] = Util::Graphic::Color(red << 4 | red, green << 4 | green, blue << 4 | blue).getColorForDepth(lfb->getColorDepth());
 }
 
-void ScanlineRenderedCallback32([[maybe_unused]] void *user_data, cc_u16f scanline, const cc_u8l *pixels, cc_u16f screen_width, cc_u16f screen_height) {
-    calculateScreenVariables(screen_width, screen_height);
+void scanline_rendered_32([[maybe_unused]] void *user_data, cc_u16f scanline, const cc_u8l *pixels, [[maybe_unused]] cc_u16f left_boundary, [[maybe_unused]] cc_u16f right_boundary, cc_u16f screen_width, cc_u16f screen_height) {
+    calculate_screen_variables(screen_width, screen_height);
     auto *screenBuffer = reinterpret_cast<uint32_t*>(lfb->getBuffer().add(offsetX * 4 + (offsetY + scanline * scale) * lfb->getPitch()).get());
 
     for (uint16_t y = 0; y < scale; y++) {
@@ -130,8 +136,8 @@ void ScanlineRenderedCallback32([[maybe_unused]] void *user_data, cc_u16f scanli
     }
 }
 
-void ScanlineRenderedCallback24([[maybe_unused]] void *user_data, cc_u16f scanline, const cc_u8l *pixels, cc_u16f screen_width, cc_u16f screen_height) {
-    calculateScreenVariables(screen_width, screen_height);
+void scanline_rendered_24([[maybe_unused]] void *user_data, cc_u16f scanline, const cc_u8l *pixels, [[maybe_unused]] cc_u16f left_boundary, [[maybe_unused]] cc_u16f right_boundary, cc_u16f screen_width, cc_u16f screen_height) {
+    calculate_screen_variables(screen_width, screen_height);
     auto *screenBuffer = reinterpret_cast<uint8_t*>(lfb->getBuffer().add(offsetX * 3 + (offsetY + scanline * scale) * lfb->getPitch()).get());
 
     for (uint16_t y = 0; y < scale; y++) {
@@ -148,8 +154,8 @@ void ScanlineRenderedCallback24([[maybe_unused]] void *user_data, cc_u16f scanli
     }
 }
 
-void ScanlineRenderedCallback16([[maybe_unused]] void *user_data, cc_u16f scanline, const cc_u8l *pixels, cc_u16f screen_width, cc_u16f screen_height) {
-    calculateScreenVariables(screen_width, screen_height);
+void scanline_rendered_16([[maybe_unused]] void *user_data, cc_u16f scanline, const cc_u8l *pixels, [[maybe_unused]] cc_u16f left_boundary, [[maybe_unused]] cc_u16f right_boundary, cc_u16f screen_width, cc_u16f screen_height) {
+    calculate_screen_variables(screen_width, screen_height);
     auto *screenBuffer = reinterpret_cast<uint16_t*>(lfb->getBuffer().add(offsetX * 2 + (offsetY + scanline * scale) * lfb->getPitch()).get());
 
     for (uint16_t y = 0; y < scale; y++) {
@@ -164,28 +170,85 @@ void ScanlineRenderedCallback16([[maybe_unused]] void *user_data, cc_u16f scanli
     }
 }
 
-cc_bool ReadInputCallback([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u8f player_id, ClownMDEmu_Button button_id) {
+cc_bool input_requested([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u8f player_id, ClownMDEmu_Button button_id) {
     return buttons[button_id];
 }
 
-void FMAudioCallback([[maybe_unused]] void *user_data, [[maybe_unused]] const ClownMDEmu *clownmdemu, [[maybe_unused]] std::size_t total_frames, [[maybe_unused]] void (*generate_fm_audio)(const ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, std::size_t total_frames)) {}
+void fm_audio_to_be_generated([[maybe_unused]] void *user_data, [[maybe_unused]] const ClownMDEmu *clownmdemu, [[maybe_unused]] std::size_t total_frames, [[maybe_unused]] void (*generate_fm_audio)(const ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, std::size_t total_frames)) {}
 
-void PSGAudioCallback([[maybe_unused]] void *user_data, [[maybe_unused]] const ClownMDEmu *clownmdemu, [[maybe_unused]] std::size_t total_samples, [[maybe_unused]] void (*generate_psg_audio)(const ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, std::size_t total_samples)) {}
+void psg_audio_to_be_generated([[maybe_unused]] void *user_data, [[maybe_unused]] const ClownMDEmu *clownmdemu, [[maybe_unused]] std::size_t total_samples, [[maybe_unused]] void (*generate_psg_audio)(const ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, std::size_t total_samples)) {}
 
-void PCMAudioCallback([[maybe_unused]] void *user_data, [[maybe_unused]] const ClownMDEmu *clownmdemu, [[maybe_unused]] std::size_t total_frames, [[maybe_unused]] void (*generate_pcm_audio)(const ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, std::size_t total_frames)) {}
+void pcm_audio_to_be_generated([[maybe_unused]] void *user_data, [[maybe_unused]] const ClownMDEmu *clownmdemu, [[maybe_unused]] std::size_t total_frames, [[maybe_unused]] void (*generate_pcm_audio)(const ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, std::size_t total_frames)) {}
 
-void CDDAAudioCallback([[maybe_unused]] void *user_data, [[maybe_unused]] const ClownMDEmu *clownmdemu, [[maybe_unused]] std::size_t total_frames, [[maybe_unused]] void (*generate_cdda_audio)(const ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, std::size_t total_frames)) {}
+void cdda_audio_to_be_generated([[maybe_unused]] void *user_data, [[maybe_unused]] const ClownMDEmu *clownmdemu, [[maybe_unused]] std::size_t total_frames, [[maybe_unused]] void (*generate_cdda_audio)(const ClownMDEmu *clownmdemu, cc_s16l *sample_buffer, std::size_t total_frames)) {}
 
-void CDSeekCallback([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u32f sector_index) {}
+void cd_seeked([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u32f sector_index) {}
 
-void CDSectorReadCallback([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u16l *buffer) {}
+void cd_sector_read([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u16l *buffer) {}
 
-cc_bool CDSeekTrackCallback([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u16f track_index, [[maybe_unused]] ClownMDEmu_CDDAMode mode) {
+cc_bool cd_track_seeked([[maybe_unused]] void *user_data, [[maybe_unused]] cc_u16f track_index, [[maybe_unused]] ClownMDEmu_CDDAMode mode) {
     return false;
 }
 
-std::size_t CDAudioReadCallback([[maybe_unused]] void *user_data, [[maybe_unused]] cc_s16l *sample_buffer, [[maybe_unused]] std::size_t total_frames) {
+uint32_t cd_audio_read([[maybe_unused]] void *user_data, [[maybe_unused]] cc_s16l *sample_buffer, [[maybe_unused]] std::size_t total_frames) {
     return 0;
+}
+
+cc_bool save_file_opened_for_reading([[maybe_unused]] void *user_data, [[maybe_unused]] const char *filename) {
+    saveFile = new Util::Io::File(filename);
+    if (!saveFile->exists()) {
+        saveFile->create(Util::Io::File::REGULAR);
+    }
+
+    saveFileInputStream = new Util::Io::FileInputStream(*saveFile);
+    return true;
+}
+
+cc_s16f save_file_read([[maybe_unused]] void *user_data) {
+    return saveFileInputStream->read();
+}
+
+cc_bool save_file_opened_for_writing([[maybe_unused]] void *user_data, [[maybe_unused]] const char *filename) {
+    saveFile = new Util::Io::File(filename);
+    if (!saveFile->exists()) {
+        saveFile->create(Util::Io::File::REGULAR);
+    }
+
+    saveFileOutputStream = new Util::Io::FileOutputStream(*saveFile);
+    return true;
+}
+
+void save_file_written([[maybe_unused]] void *user_data, cc_u8f byte) {
+    saveFileOutputStream->write(byte);
+}
+
+void save_file_closed([[maybe_unused]] void *user_data) {
+    delete saveFileInputStream;
+    delete saveFileOutputStream;
+    delete saveFile;
+
+    saveFileInputStream = nullptr;
+    saveFileOutputStream = nullptr;
+    saveFile = nullptr;
+}
+
+cc_bool save_file_removed([[maybe_unused]] void *user_data, [[maybe_unused]] const char *filename) {
+    auto file = Util::Io::File(filename);
+    if (!file.exists()) {
+        return false;
+    }
+
+    return file.remove();
+}
+
+cc_bool save_file_size_obtained([[maybe_unused]] void *user_data, [[maybe_unused]] const char *filename, [[maybe_unused]] size_t *size) {
+    auto file = Util::Io::File(filename);
+    if (!file.exists()) {
+        return false;
+    }
+
+    *size = file.getLength();
+    return true;
 }
 
 ClownMDEmu_Callbacks callbacks{};
@@ -241,28 +304,35 @@ int32_t main(int32_t argc, char *argv[]) {
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
     auto keyDecoder = Util::Io::KeyDecoder(new Util::Io::DeLayout());
 
-    auto scanlineCallback = ScanlineRenderedCallback32;
+    auto scanlineCallback = scanline_rendered_32;
     if (lfb->getColorDepth() == 24) {
-        scanlineCallback = ScanlineRenderedCallback24;
+        scanlineCallback = scanline_rendered_24;
     } else if (lfb->getColorDepth() == 16) {
-        scanlineCallback = ScanlineRenderedCallback16;
+        scanlineCallback = scanline_rendered_16;
     }
 
     callbacks = {
-            nullptr,
-            CartridgeReadCallback,
-            CartridgeWrittenCallback,
-            ColourUpdatedCallback,
-            scanlineCallback,
-            ReadInputCallback,
-            FMAudioCallback,
-            PSGAudioCallback,
-            PCMAudioCallback,
-            CDDAAudioCallback,
-            CDSeekCallback,
-            CDSectorReadCallback,
-            CDSeekTrackCallback,
-            CDAudioReadCallback
+        nullptr,
+        cartridge_read,
+        cartridge_written,
+        colour_updated,
+        scanlineCallback,
+        input_requested,
+        fm_audio_to_be_generated,
+        psg_audio_to_be_generated,
+        pcm_audio_to_be_generated,
+        cdda_audio_to_be_generated,
+        cd_seeked,
+        cd_sector_read,
+        cd_track_seeked,
+        cd_audio_read,
+        save_file_opened_for_reading,
+        save_file_read,
+        save_file_opened_for_writing,
+        save_file_written,
+        save_file_closed,
+        save_file_removed,
+        save_file_size_obtained
     };
 
     configuration.general.region = CLOWNMDEMU_REGION_OVERSEAS;
@@ -271,10 +341,10 @@ int32_t main(int32_t argc, char *argv[]) {
     targetFrameRate = configuration.general.tv_standard == CLOWNMDEMU_TV_STANDARD_NTSC ? 60 : 50;
     targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / targetFrameRate));
 
-    ClownMDEmu_SetLogCallback(LogCallback, nullptr);
+    ClownMDEmu_SetLogCallback(log, nullptr);
     ClownMDEmu_State_Initialise(&state);
     ClownMDEmu_Parameters_Initialise(&emulator, &configuration, &constants, &state, &callbacks);
-    ClownMDEmu_Reset(&emulator, false);
+    ClownMDEmu_Reset(&emulator, false, romFile.getLength());
 
     while(true) {
         auto startTime = Util::Time::Timestamp::getSystemTime();
@@ -323,13 +393,13 @@ int32_t main(int32_t argc, char *argv[]) {
                 case Util::Io::Key::F1:
                     if (scale > 1) {
                         scale--;
-                        calculateScreenVariables(mdScreenWidth, mdScreenHeight, true);
+                        calculate_screen_variables(mdScreenWidth, mdScreenHeight, true);
                     }
                     break;
                 case Util::Io::Key::F2:
                     if (scale < maxScale) {
                         scale++;
-                        calculateScreenVariables(mdScreenWidth, mdScreenHeight, true);
+                        calculate_screen_variables(mdScreenWidth, mdScreenHeight, true);
                     }
                     break;
                 case Util::Io::Key::ESC:
