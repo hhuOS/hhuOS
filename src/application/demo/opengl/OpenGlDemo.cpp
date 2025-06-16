@@ -61,7 +61,7 @@ void OpenGlDemo::initialize() {
     auto *lantern = new DemoModel(DemoModel::LANTERN, Util::Math::Vector3<double>(3, -5, -2), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(7, 7, 7), Util::Graphic::Colors::BROWN);
     auto *icosphere = new DemoModel(DemoModel::ICOSPHERE, Util::Math::Vector3<double>(35, 20, -2), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(5, 5, 5));
 
-    auto *logo = new Rectangle(Util::Math::Vector3<double>(15, 5, -15), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector2<double>(10, 2.62), "/user/demo/hhu2.bmp");
+    auto *logo = new Rectangle(Util::Math::Vector3<double>(15, 5, -15), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector2<double>(10, 2.62), "/user/demo/hhu.bmp");
 
     addObject(floor1);
     addObject(floor2);

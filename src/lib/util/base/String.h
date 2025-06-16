@@ -579,7 +579,7 @@ T String::parseFloat(const String &string) {
         firstNumber = 0;
         secondNumber = parseNumber<int64_t>(parts[0]);
     } else {
-        firstNumber = parts[0][0] == '.' ? 0 : parseNumber<int64_t>(parts[0]);
+        firstNumber = parseNumber<int64_t>(parts[0]);
         secondNumber = parts.length() > 1 ? parseNumber<int64_t>(parts[1]) : 0;
     }
 
@@ -590,7 +590,11 @@ T String::parseFloat(const String &string) {
         }
     }
 
-    return firstNumber < 0 ? firstNumber - secondNumber / exp : firstNumber + secondNumber / exp;
+    if (string[0] == '-') {
+        return firstNumber - secondNumber / exp;
+    }
+
+    return firstNumber + secondNumber / exp;
 }
 
 }

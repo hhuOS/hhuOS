@@ -26,6 +26,7 @@ add_compile_options(
         -Wno-unknown-pragmas
         -Wno-unused-parameter
         -Wno-missing-field-initializers
+        -Wno-sign-compare
 )
 
 set(SOURCE_FILES
