@@ -18,45 +18,98 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_RANDOM_H
-#define HHUOS_RANDOM_H
+#ifndef HHUOS_LIB_UTIL_RANDOM_H
+#define HHUOS_LIB_UTIL_RANDOM_H
 
 #include <stdint.h>
-#include "lib/util/time/Timestamp.h"
+
+#include "time/Timestamp.h"
 
 namespace Util::Math {
 
+/// A simple random number generator based on the multiplicative linear congruential generator (LCG) algorithm.
+/// It can be initialized with a custom seed, multiplier, increment, and modulus or with default values
+/// corresponding to the minimal standard LCG (MINSTD).
+///
+/// It generates 32-bit pseudo-random numbers in the range of [0, modulus) using the formula:
+/// ```c++
+/// randomNumber = (multiplier * randomNumber + increment) % modulus
+/// ```
+///
+/// For the MINSTD generator, the default values are:
+/// multiplier = 48271, increment = 0, modulus = 2147483647 (see https://cplusplus.com/reference/random/minstd_rand/)
+///
+/// ## Example
+/// ```c++
+/// auto random = Util::Math::Random(); // Default generator with system time as seed
+/// auto minstd = Util::Math::Random(1); // MINSTD generator with starting seed 1
+/// auto custom = Util::Math::Random(5, 3, 3, 7); // Custom generator
+///
+/// const auto randomNumber = random.getRandomNumber(1, 10); // Get a random number in the range [1, 10]
+/// const auto randomDouble = random.getRandomNumber(); // Get a random floating point number in the range [0.0, 1.0)
+/// ```
 class Random {
 
 public:
-    /**
-     * Constructor.
-     */
-    explicit Random(uint32_t seed = Util::Time::Timestamp::getSystemTime().toMilliseconds());
+    /// Create a new random number generator with custom parameters for the LCG algorithm.
+    Random(uint32_t seed, uint32_t multiplier, uint32_t increment, uint32_t modulus);
 
-    /**
-     * Copy Constructor.
-     */
-    Random(const Random &copy) = delete;
+    /// Create a new random number generator with default parameters for the MINSTD LCG algorithm.
+    /// This constructor can be used without parameters, in which case the seed is set to the current system time.
+    explicit Random(uint32_t seed = Time::Timestamp::getSystemTime().toMilliseconds());
 
-    /**
-     * Assignment operator.
-     */
-    Random &operator=(const Random &other) = default;
-
-    /**
-     * Destructor.
-     */
+    /// The random number generator only stores primitive data types, so the default destructor is sufficient.
     ~Random() = default;
 
-    double nextRandomNumber();
+    /// Get a random number in the range [min, max].
+    ///
+    /// ### Example
+    /// ```c++
+    /// auto random = Util::Math::Random();
+    ///
+    /// // Roll a die with 6 sides
+    /// const auto d6Roll = random.getRandomNumber(1, 6);
+    ///
+    /// // Roll a die with 20 sides
+    /// const auto d20Roll = random.getRandomNumber(1, 20);
+    ///
+    /// // Get a random number in the range [10, 50]
+    /// const auto randomNumber = random.getRandomNumber(10, 50);
+    /// ```
+    uint32_t getRandomNumber(uint32_t min, uint32_t max);
+
+    /// Get a random floating point number in the range [0.0, 1.0).
+    ///
+    /// ### Example
+    /// ```c++
+    /// auto random = Util::Math::Random();
+    ///
+    /// // Get a random floating point number in the range [0.0, 1.0)
+    /// const auto randomDouble = random.getRandomNumber();
+    ///
+    /// // Get a random floating point number in the range [0.0, 0.5)
+    /// const auto randomHalf = random.getRandomNumber() * 0.5;
+    ///
+    /// // Get a random floating point number in the range [2.0, 10.0)
+    /// const auto randomRange = 2.0 + random.getRandomNumber() * (10.0 - 2.0);
+    /// ```
+    double getRandomNumber();
 
 private:
 
-    uint32_t seed;
+    /// Calculate the next random number using the LCG formula.
+    /// This method updates the internal state of the generator and returns the next random number.
+    /// It is called internally by the public methods to generate random numbers.
+    size_t nextRandomNumber();
 
-    static const constexpr uint32_t FACTOR = 13121797;
-    static const constexpr uint32_t ADDEND = 17021856;
+    size_t randomNumber;
+    const size_t multiplier;
+    const size_t increment;
+    const size_t modulus;
+
+    static constexpr size_t MINSTD_MULTIPLIER = 48271;
+    static constexpr size_t MINSTD_INCREMENT = 0;
+    static constexpr size_t MINSTD_MODULUS = 2147483647;
 };
 
 }

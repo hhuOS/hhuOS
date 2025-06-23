@@ -37,19 +37,19 @@ void EnemyDebris::initialize() {
 
     switch (modelId) {
         case 1: {
-            auto r = Util::Math::Random().nextRandomNumber();
+            auto r = Util::Math::Random().getRandomNumber();
             auto r2 = (r - 0.5) * 2.0;
             translateDirection = Util::Math::Vector3<double>(-0.05 - 0.1 * r, 0.05 * r2, 0.05 + 0.05 * r);
             break;
         }
         case 2: {
-            auto r = Util::Math::Random().nextRandomNumber();
+            auto r = Util::Math::Random().getRandomNumber();
             auto r2 = (r - 0.5) * 2.0;
             translateDirection = Util::Math::Vector3<double>(0.05 + 0.1 * r, 0.05 * r2, 0.05 + 0.05 * r);
             break;
         }
         case 3: {
-            auto r = Util::Math::Random().nextRandomNumber();
+            auto r = Util::Math::Random().getRandomNumber();
             auto r2 = (r - 0.5) * 2.0;
             translateDirection = Util::Math::Vector3<double>(-0.05 - 0.1 * r, 0.05 * r2, 0.05 + 0.05 * r);
             break;
@@ -58,7 +58,7 @@ void EnemyDebris::initialize() {
             break;
     }
 
-    auto r = Util::Math::Random().nextRandomNumber() * 35;;
+    auto r = Util::Math::Random().getRandomNumber() * 35;;
     rotationDirection = Util::Math::Vector3<double>(r, r, r);
 }
 

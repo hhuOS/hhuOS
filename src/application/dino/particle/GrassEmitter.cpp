@@ -47,7 +47,7 @@ void GrassEmitter::onTranslationEvent([[maybe_unused]] Util::Game::D2::Translati
 void GrassEmitter::onCollisionEvent([[maybe_unused]] Util::Game::D2::CollisionEvent &event) {}
 
 void GrassEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
-    auto angle = random.nextRandomNumber() * (Util::Math::PI / 4) + (Util::Math::PI / 8);
+    auto angle = random.getRandomNumber() * (Util::Math::PI_DOUBLE / 4) + (Util::Math::PI_DOUBLE / 8);
     auto velocityX = (Util::Math::cosine(angle) / 8) * (parent.getVelocity().getX() > 0 ? -1 : 1);
     auto velocityY = Util::Math::sine(angle);
 

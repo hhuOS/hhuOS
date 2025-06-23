@@ -43,34 +43,34 @@ void BattleSpaceGame::initialize() {
     addObject(new Astronomical("planet1", Util::Math::Vector3<double>(13, -15, -1000), 150, Util::Math::Vector3<double>(1, 0, 0), Util::Graphic::Colors::BLUE));
     addObject(new Astronomical("planet1", Util::Math::Vector3<double>(37, -8, 3000), 400, Util::Math::Vector3<double>(0.25, 0, 0), Util::Graphic::Colors::YELLOW));
 
-    auto modelId = static_cast<uint8_t>(random.nextRandomNumber() * 2 + 1);
-    auto scale = 5 + random.nextRandomNumber() * 10;
-    auto rotation = Util::Math::Vector3<double>(random.nextRandomNumber() * 5, random.nextRandomNumber() * 5, random.nextRandomNumber() * 5);
+    auto modelId = static_cast<uint8_t>(random.getRandomNumber() * 2 + 1);
+    auto scale = 5 + random.getRandomNumber() * 10;
+    auto rotation = Util::Math::Vector3<double>(random.getRandomNumber() * 5, random.getRandomNumber() * 5, random.getRandomNumber() * 5);
     addObject(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3<double>(-25, 12, -42), scale, rotation, Util::Graphic::Colors::BROWN));
 
-    modelId = static_cast<uint8_t>(random.nextRandomNumber() * 2 + 1);
-    scale = 5 + random.nextRandomNumber() * 10;
-    rotation = Util::Math::Vector3<double>(random.nextRandomNumber() * 5, random.nextRandomNumber() * 5, random.nextRandomNumber() * 5);
+    modelId = static_cast<uint8_t>(random.getRandomNumber() * 2 + 1);
+    scale = 5 + random.getRandomNumber() * 10;
+    rotation = Util::Math::Vector3<double>(random.getRandomNumber() * 5, random.getRandomNumber() * 5, random.getRandomNumber() * 5);
     addObject(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3<double>(40, 30, -55), scale, rotation, Util::Graphic::Colors::BROWN));
 
-    modelId = static_cast<uint8_t>(random.nextRandomNumber() * 2 + 1);
-    scale = 5 + random.nextRandomNumber() * 10;
-    rotation = Util::Math::Vector3<double>(random.nextRandomNumber() * 5, random.nextRandomNumber() * 5, random.nextRandomNumber() * 5);
+    modelId = static_cast<uint8_t>(random.getRandomNumber() * 2 + 1);
+    scale = 5 + random.getRandomNumber() * 10;
+    rotation = Util::Math::Vector3<double>(random.getRandomNumber() * 5, random.getRandomNumber() * 5, random.getRandomNumber() * 5);
     addObject(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3<double>(78, -24, 63), scale, rotation, Util::Graphic::Colors::BROWN));
 
-    modelId = static_cast<uint8_t>(random.nextRandomNumber() * 2 + 1);
-    scale = 5 + random.nextRandomNumber() * 10;
-    rotation = Util::Math::Vector3<double>(random.nextRandomNumber() * 5, random.nextRandomNumber() * 5, random.nextRandomNumber() * 5);
+    modelId = static_cast<uint8_t>(random.getRandomNumber() * 2 + 1);
+    scale = 5 + random.getRandomNumber() * 10;
+    rotation = Util::Math::Vector3<double>(random.getRandomNumber() * 5, random.getRandomNumber() * 5, random.getRandomNumber() * 5);
     addObject(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3<double>(-92, -74, 48), scale, rotation, Util::Graphic::Colors::BROWN));
 
-    modelId = static_cast<uint8_t>(random.nextRandomNumber() * 2 + 1);
-    scale = 5 + random.nextRandomNumber() * 10;
-    rotation = Util::Math::Vector3<double>(random.nextRandomNumber() * 5, random.nextRandomNumber() * 5, random.nextRandomNumber() * 5);
+    modelId = static_cast<uint8_t>(random.getRandomNumber() * 2 + 1);
+    scale = 5 + random.getRandomNumber() * 10;
+    rotation = Util::Math::Vector3<double>(random.getRandomNumber() * 5, random.getRandomNumber() * 5, random.getRandomNumber() * 5);
     addObject(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3<double>(-48, 30, 37), scale, rotation, Util::Graphic::Colors::BROWN));
 
-    modelId = static_cast<uint8_t>(random.nextRandomNumber() * 2 + 1);
-    scale = 5 + random.nextRandomNumber() * 10;
-    rotation = Util::Math::Vector3<double>(random.nextRandomNumber() * 5, random.nextRandomNumber() * 5, random.nextRandomNumber() * 5);
+    modelId = static_cast<uint8_t>(random.getRandomNumber() * 2 + 1);
+    scale = 5 + random.getRandomNumber() * 10;
+    rotation = Util::Math::Vector3<double>(random.getRandomNumber() * 5, random.getRandomNumber() * 5, random.getRandomNumber() * 5);
     addObject(new Astronomical(Util::String::format("asteroid%u", modelId), Util::Math::Vector3<double>(10, 23, 78), scale, rotation, Util::Graphic::Colors::BROWN));
 
     addObject(player);
@@ -109,13 +109,13 @@ void BattleSpaceGame::update(double delta) {
         if (enemies.isEmpty()) {
             difficulty++;
             double minEnemies = (difficulty / 3.0);
-            double enemyCount =  minEnemies + random.nextRandomNumber() * (difficulty - minEnemies);
+            double enemyCount =  minEnemies + random.getRandomNumber() * (difficulty - minEnemies);
 
             for (uint32_t i = 0; i < enemyCount; i++) {
-                auto x = (random.nextRandomNumber() * (ENEMY_SPAWN_RANGE * 2)) - ENEMY_SPAWN_RANGE / 2.0;
-                auto y = (random.nextRandomNumber() * (ENEMY_SPAWN_RANGE * 2)) - ENEMY_SPAWN_RANGE / 2.0;
-                auto z = (random.nextRandomNumber() * (ENEMY_SPAWN_RANGE * 2)) - ENEMY_SPAWN_RANGE / 2.0;
-                auto type = random.nextRandomNumber() * 5;
+                auto x = (random.getRandomNumber() * (ENEMY_SPAWN_RANGE * 2)) - ENEMY_SPAWN_RANGE / 2.0;
+                auto y = (random.getRandomNumber() * (ENEMY_SPAWN_RANGE * 2)) - ENEMY_SPAWN_RANGE / 2.0;
+                auto z = (random.getRandomNumber() * (ENEMY_SPAWN_RANGE * 2)) - ENEMY_SPAWN_RANGE / 2.0;
+                auto type = random.getRandomNumber() * 5;
 
                 auto *enemy = new Enemy(*player, enemies, Util::Math::Vector3<double>(x, y / 2, z), Util::Math::Vector3<double>(0, 0, 0), 1, static_cast<Enemy::Type>(type));
                 enemies.add(enemy);

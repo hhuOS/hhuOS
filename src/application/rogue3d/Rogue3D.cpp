@@ -141,10 +141,10 @@ void Rogue3D::generateLevel() {
     int32_t endColumn = 0;
 
     while (startRow == endRow && startColumn == endColumn) {
-        startRow = static_cast<int32_t>(random.nextRandomNumber() * 4);
-        startColumn = static_cast<int32_t>(random.nextRandomNumber() * 4);
-        endRow = static_cast<int32_t>(random.nextRandomNumber() * 4);
-        endColumn = static_cast<int32_t>(random.nextRandomNumber() * 4);
+        startRow = static_cast<int32_t>(random.getRandomNumber() * 4);
+        startColumn = static_cast<int32_t>(random.getRandomNumber() * 4);
+        endRow = static_cast<int32_t>(random.getRandomNumber() * 4);
+        endColumn = static_cast<int32_t>(random.getRandomNumber() * 4);
     }
 
     levelGen[startRow][startColumn] = Room::START;

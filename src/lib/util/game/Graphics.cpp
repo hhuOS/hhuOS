@@ -936,7 +936,7 @@ void Graphics::drawImageScaledAndRotated2D(const Math::Vector2<double> &position
  * Taken from https://stackoverflow.com/questions/12943164/replacement-for-gluperspective-with-glfrustrum
  */
 void Graphics::gluPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar) {
-    const GLdouble fH = Math::tangent(fovY / 360 * Math::PI) * zNear;
+    const GLdouble fH = Math::tangent(fovY / 360 * Math::PI_FLOAT) * zNear;
     const GLdouble fW = fH * aspect;
 
     glFrustum(-fW, fW, -fH, fH, zNear, zFar);

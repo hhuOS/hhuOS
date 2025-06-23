@@ -66,5 +66,5 @@ bool Fleet::isMovingDown() const {
 }
 
 double Fleet::getRandomNumber() {
-    return random.nextRandomNumber();
+    return random.getRandomNumber();
 }

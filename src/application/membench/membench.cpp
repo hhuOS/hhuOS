@@ -36,7 +36,7 @@ const constexpr uint8_t BENCHMARK_REPETITIONS = 10;
 Util::Math::Random random;
 
 Util::Time::Timestamp benchmarkMemset(const Util::Address &address, uint32_t length) {
-    auto value = static_cast<uint32_t>(random.nextRandomNumber() * 0xff);
+    auto value = static_cast<uint32_t>(random.getRandomNumber() * 0xff);
 
     auto start = Util::Time::Timestamp::getSystemTime();
     address.setRange(value, length);
@@ -110,7 +110,7 @@ int32_t main(int32_t argc, char *argv[]) {
                 auto targetAddress = Util::Address(target);
 
                 // Warmup round to make sure the memory is mapped
-                sourceAddress.setRange(static_cast<uint8_t>(random.nextRandomNumber() * 0xff), size);
+                sourceAddress.setRange(static_cast<uint8_t>(random.getRandomNumber() * 0xff), size);
                 benchmarkMemcpy(sourceAddress, targetAddress, size);
 
                 for (uint32_t j = 0; j < BENCHMARK_REPETITIONS; j++) {

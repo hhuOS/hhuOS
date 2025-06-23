@@ -27,7 +27,13 @@ namespace Util {
 
 /// A simple pair class that holds two values of potentially different types.
 /// This class is immutable, meaning that once a Pair is created, its values cannot be changed.
-/// However, it is copyable and assignable, allowing you to create copies of a Pair or assign one Pair to another.
+///
+/// ### Example
+/// ```c++
+/// const auto pair = Util::Pair<int, float>(42, 3.14f);
+/// cont auto first = pair.getFirst(); // 42
+/// const auto second = pair.getSecond(); // 3.14f
+/// ```
 template<typename T, typename U>
 class Pair {
 

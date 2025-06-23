@@ -68,7 +68,7 @@ void Emitter::removeParticle(Particle *particle) {
 }
 
 void Emitter::emitParticles() {
-    uint32_t emissionRate = minEmissionRate + static_cast<uint32_t>(random.nextRandomNumber() * ((maxEmissionRate + 1) - minEmissionRate));
+    uint32_t emissionRate = minEmissionRate + static_cast<uint32_t>(random.getRandomNumber() * ((maxEmissionRate + 1) - minEmissionRate));
 
     for (uint32_t i = 0; i < emissionRate; i++) {
         auto *particle = new Particle(particleTag, *this);

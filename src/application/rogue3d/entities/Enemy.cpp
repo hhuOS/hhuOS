@@ -133,7 +133,7 @@ void Enemy::onUpdate(double delta) {
         break;
     }
 
-    double zRotation = Util::Math::toDegrees(Util::Math::arccosine(getFrontVector().dot(Util::Math::Vector3<double>(0,0,1))));
+    double zRotation = Util::Math::toDegrees(Util::Math::arccosine(getFrontVector().dotProduct(Util::Math::Vector3<double>(0,0,1))));
     if (player.getPosition().getX() < getPosition().getX()) {
         zRotation = -zRotation;
     }

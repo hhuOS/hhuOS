@@ -19,21 +19,27 @@
  */
 
 #include "Vector2.h"
-#include "Math.h"
+
+#include "math/Math.h"
 
 namespace Util::Math {
 
 template <typename T>
-Vector2<T>::Vector2(T x, T y) : x(x), y(y) {}
+Vector2<T>::Vector2(const T x, const T y) : x(x), y(y) {}
 
 template <typename T>
-Vector2<T> Vector2<T>::operator*(T value) const {
+Vector2<T> Vector2<T>::operator*(const T value) const {
     return { x * value, y * value };
 }
 
 template <typename T>
-Vector2<T> Vector2<T>::operator/(T value) const {
+Vector2<T> Vector2<T>::operator/(const T value) const {
     return { x / value, y / value};
+}
+
+template<typename T>
+Vector2<T> Vector2<T>::operator%(const T value) const {
+    return { modulo(x, value), modulo(y, value) };
 }
 
 template <typename T>
@@ -57,19 +63,32 @@ bool Vector2<T>::operator!=(const Vector2 &other) const {
 }
 
 template <typename T>
+T Vector2<T>::length() const {
+    return sqrt(x * x + y * y);
+}
+
+template <typename T>
 Vector2<T> Vector2<T>::normalize() const {
-    auto len = length();
+    const auto len = length();
     return len == 0 ? *this : *this / len;
+}
+
+template<typename T>
+T Vector2<T>::distance(const Vector2 &other) const {
+    const auto pX = pow(other.getX() - getX(), 2);
+    const auto pY = pow(other.getY() - getY(), 2);
+
+    return sqrt(pX + pY);
 }
 
 template <typename T>
 T Vector2<T>::dotProduct(const Vector2 &other) const {
-    return (x * other.x) + (y * other.y);
+    return x * other.x + y * other.y;
 }
 
-template <typename T>
-T Vector2<T>::length() const {
-    return sqrt(x * x + y * y);
+template<typename T>
+Vector2<T> Vector2<T>::crossProduct(const Vector2 &other) const {
+    return { x * other.y - y * other.x, y * other.x - x * other.y };
 }
 
 template <typename T>

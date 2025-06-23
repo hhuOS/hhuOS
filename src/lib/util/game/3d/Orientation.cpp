@@ -51,8 +51,8 @@ void Orientation::setRotation(const Math::Vector3<double> &angle) {
             Math::sine(Math::toRadians(rotation.getZ())) * Math::cosine(Math::toRadians(rotation.getY())),
             Math::sine(Math::toRadians(rotation.getY())),
             -Math::cosine(Math::toRadians(rotation.getZ())) * Math::cosine(Math::toRadians(rotation.getY()))).normalize();
-    right = front.cross(WORLD_UP).normalize();
-    up = right.cross(front).normalize();
+    right = front.crossProduct(WORLD_UP).normalize();
+    up = right.crossProduct(front).normalize();
 }
 
 void Orientation::rotate(const Math::Vector3<double> &angle) {

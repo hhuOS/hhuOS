@@ -49,7 +49,7 @@ void BloodEmitter::onTranslationEvent([[maybe_unused]] Util::Game::D2::Translati
 void BloodEmitter::onCollisionEvent([[maybe_unused]] Util::Game::D2::CollisionEvent &event) {}
 
 void BloodEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
-    auto angle = random.nextRandomNumber() * Util::Math::PI;
+    auto angle = random.getRandomNumber() * Util::Math::PI_DOUBLE;
 
     particle.setSprite(Util::Game::D2::Sprite(getParticleSpritePath(type), PARTICLE_SIZE, PARTICLE_SIZE));
     particle.setPosition(getPosition());

@@ -24,11 +24,11 @@
 #include "lib/util/math/Vector2.h"
 
 DemoSprite *DemoSpriteFactory::createSprite() {
-    const auto size = random.nextRandomNumber() * 0.15 + 0.1;
-    const auto rotationSpeed = (random.nextRandomNumber() + 0.1) * (random.nextRandomNumber() < 0.5 ? -1 : 1);
-    const auto scaleSpeed = random.nextRandomNumber();
-    const auto position = Util::Math::Vector2<double>(random.nextRandomNumber() * 2 - 1 - size / 2, random.nextRandomNumber() * 2 - 1 - size / 2);
-    const auto flipX = random.nextRandomNumber() < 0.5;
+    const auto size = random.getRandomNumber() * 0.15 + 0.1;
+    const auto rotationSpeed = (random.getRandomNumber() + 0.1) * (random.getRandomNumber() < 0.5 ? -1 : 1);
+    const auto scaleSpeed = random.getRandomNumber();
+    const auto position = Util::Math::Vector2<double>(random.getRandomNumber() * 2 - 1 - size / 2, random.getRandomNumber() * 2 - 1 - size / 2);
+    const auto flipX = random.getRandomNumber() < 0.5;
 
     return new DemoSprite(position, size, rotationSpeed, scaleSpeed, flipX);
 }

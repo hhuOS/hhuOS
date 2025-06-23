@@ -208,7 +208,7 @@ double ScanStream::readDouble() {
 	c = peek();
 	if (c == 'e' || c == 'E') {
 		read();
-		ret *= Util::Math::powInt(10, readInt());
+		ret *= Util::Math::pow(10.0, readInt());
 	}
 	
 	return sign*ret;

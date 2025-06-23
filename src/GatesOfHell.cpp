@@ -121,6 +121,7 @@
 #include "kernel/log/LogNode.h"
 #include "lib/util/graphic/font/Terminal8x8.h"
 #include "kernel/service/CpuService.h"
+#include "math/Math.h"
 
 namespace Device {
 class WaitTimer;
@@ -869,6 +870,10 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     }
 
     memoryService->enableSlabAllocator();
+
+    const auto abs1 = Util::Math::absolute(-42.0f);
+    const auto abs2 = Util::Math::absolute(42.0f);
+    LOG_INFO("", abs1, abs2);
 
     LOG_INFO("Starting scheduler");
     processService->startScheduler();

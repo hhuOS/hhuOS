@@ -70,7 +70,7 @@ void RainEmitter::onCollisionEvent([[maybe_unused]] Util::Game::D2::CollisionEve
 
 void RainEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
     particle.setSprite(Util::Game::D2::Sprite("/user/dino/particle/water.bmp", 0.005, 0.03));
-    particle.setPosition(getPosition() + Util::Math::Vector2<double>(random.nextRandomNumber() * 0.5, 0));
+    particle.setPosition(getPosition() + Util::Math::Vector2<double>(random.getRandomNumber() * 0.5, 0));
     particle.setVelocity(Util::Math::Vector2<double>(0, -0.8));
     particle.setTimeToLive(-1);
     particle.setCollider(Util::Game::D2::RectangleCollider(particle.getPosition(), Util::Math::Vector2<double>(0.005, 0.03), Util::Game::Collider::STATIC));

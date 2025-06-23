@@ -104,7 +104,7 @@ void Room::leaveRoom(){
 void Room::clearAndRollItems() {
     cleared = true;
     auto random = Util::Math::Random();
-    const auto rand = static_cast<uint32_t>(random.nextRandomNumber() * 6);
+    const auto rand = static_cast<uint32_t>(random.getRandomNumber() * 6);
 
     if (type == END) {
         Util::Game::GameManager::getCurrentScene().addObject(new Item(getPosition() + Util::Math::Vector3<double>(3.0, 1.0, 0.0), Item::TAG_HEALTH_UP));
@@ -137,11 +137,11 @@ void Room::generateBoss(Player &player) {
 }
 
 void Room::generateEnemies(Util::Math::Random &random, Player &player) {
-    const auto rand = static_cast<uint32_t>(random.nextRandomNumber() * 4 + 1);
+    const auto rand = static_cast<uint32_t>(random.getRandomNumber() * 4 + 1);
 
     for (uint32_t i = 0; i < rand; i++) {
         auto *enemy = new Enemy(getPosition(), Util::Math::Vector3<double>(0, 0, 0), *this, player, 0.7);
-        auto typeRandomizer = static_cast<Enemy::Type>(random.nextRandomNumber() * 2);
+        auto typeRandomizer = static_cast<Enemy::Type>(random.getRandomNumber() * 2);
         enemy->setType(typeRandomizer);
         auto position = enemy->getPosition();
 

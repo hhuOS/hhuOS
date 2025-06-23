@@ -28,7 +28,7 @@
 #include "lib/util/io/stream/InputStream.h"
 #include "lib/util/time/Timestamp.h"
 
-Ant::Ant(int16_t limitX, int16_t limitY) : limitX(limitX), limitY(limitY), x(static_cast<int16_t>(Util::Math::Random().nextRandomNumber() * limitX)), y(static_cast<int16_t>(Util::Math::Random().nextRandomNumber() * limitY)) {}
+Ant::Ant(int16_t limitX, int16_t limitY) : limitX(limitX), limitY(limitY), x(static_cast<int16_t>(Util::Math::Random().getRandomNumber() * limitX)), y(static_cast<int16_t>(Util::Math::Random().getRandomNumber() * limitY)) {}
 
 void Ant::move() {
     switch (direction) {
@@ -66,7 +66,7 @@ void Ant::move() {
     }
 
     if (crossedBorder) {
-        color = Util::Graphic::Color(static_cast<uint8_t>(random.nextRandomNumber() * 256), static_cast<uint8_t>(random.nextRandomNumber() * 256), static_cast<uint8_t>(random.nextRandomNumber() * 256));
+        color = Util::Graphic::Color(static_cast<uint8_t>(random.getRandomNumber() * 256), static_cast<uint8_t>(random.getRandomNumber() * 256), static_cast<uint8_t>(random.getRandomNumber() * 256));
     }
 }
 

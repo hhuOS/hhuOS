@@ -75,8 +75,13 @@ void EnemyBug::onUpdate(double delta) {
 
     setVelocityX(fleet.getVelocity());
 
-    if (fleet.getRandomNumber() < delta * 0.01) {
-        fireMissile();
+    lastMissileRollTime += delta;
+    if (lastMissileRollTime > 0.2) {
+        if (fleet.getRandomNumber() < 0.01) {
+            fireMissile();
+        }
+
+        lastMissileRollTime = 0;
     }
 }
 

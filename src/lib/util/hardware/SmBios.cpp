@@ -156,7 +156,7 @@ uint32_t SmBios::BiosInformation::calculateRuntimeSize() const {
 }
 
 uint32_t SmBios::BiosInformation::calculateRomSize() const {
-    return static_cast<uint32_t>(Math::powInt(65536, romSize + 1));
+    return static_cast<uint32_t>(Math::pow(65536.0, romSize + 1));
 }
 
 }

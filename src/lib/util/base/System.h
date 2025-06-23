@@ -121,7 +121,7 @@ public:
     ///
     /// ### Example
     /// ```c++
-    /// // Create the file "/user/test.txt". Usually, this would be done using the Util::Io::File class.
+    /// // Create the file "/user/test.txt". Usually, this would be done using the `Util::Io::File` class.
     /// Util::System::call(Util::System::CREATE_FILE, 2, "/user/test.txt", Util::Io::File::Type::REGULAR);
     /// ```
     static bool call(Code code, size_t paramCount...);

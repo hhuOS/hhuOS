@@ -81,13 +81,14 @@ char * getenv([[maybe_unused]] const char* name) {
 
 //random 
 
-Util::Math::Random rng;
+Util::Math::Random *rng = new Util::Math::Random();
 int rand() {
-	return rng.nextRandomNumber() * RAND_MAX;
+	return rng->getRandomNumber() * RAND_MAX;
 }
 
 void srand( unsigned int seed ) {
-	rng = Util::Math::Random(seed);
+	delete rng;
+	rng = new Util::Math::Random(seed);
 }
 
 //algorithms

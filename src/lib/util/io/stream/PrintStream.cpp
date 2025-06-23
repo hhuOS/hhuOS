@@ -214,12 +214,12 @@ void PrintStream::print(double number) {
 		}
 		
 		long mul = 1;
-		while (Util::Math::powInt(10, mul) <= number) mul++;
+		while (Util::Math::pow(10.0, mul) <= number) mul++;
 		mul--;
 		
 		
 		while (mul >= 0) {
-			printOut.write( '0' + ((int)(number/Util::Math::powInt(10, mul)))%10);
+			printOut.write( '0' + ((int)(number/Util::Math::pow(10.0, mul)))%10);
 			mul--;
 		}
 		

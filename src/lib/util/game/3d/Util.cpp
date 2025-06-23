@@ -71,7 +71,7 @@ Math::Vector3<double> Util::findLookAt(const Math::Vector3<double> &from, const 
     if (a < -1) a = -1;
 
     auto yaw = Math::arcsine(a);
-    auto c = 180 / Math::PI;
+    auto c = 180 / Math::PI_DOUBLE;
 
     yaw *= c;
     pitch *= c;

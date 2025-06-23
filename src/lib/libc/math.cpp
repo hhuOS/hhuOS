@@ -255,7 +255,10 @@ float nearbyint(float arg) {
 
 
 double frexp(double arg, int * exp) {
-	return Util::Math::getDoubleInternals(arg, exp);
+	const auto internals = Util::Math::getInternals(arg);
+
+    *exp = internals.getSecond();
+    return internals.getFirst();
 }
 
 double ldexp(double arg, int exp) {

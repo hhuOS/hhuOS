@@ -18,15 +18,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <stdint.h>
+
 #include "Random.h"
 
 namespace Util::Math {
+Random::Random(const uint32_t seed, const uint32_t multiplier, const uint32_t increment, const uint32_t modulus) :
+    randomNumber(seed), multiplier(multiplier), increment(increment), modulus(modulus) {}
 
-Random::Random(uint32_t seed) : seed(seed) {}
+Random::Random(const uint32_t seed) : Random(seed, MINSTD_MULTIPLIER, MINSTD_INCREMENT, MINSTD_MODULUS) {}
 
-double Random::nextRandomNumber() {
-    seed = seed * FACTOR + ADDEND;
-    return ((seed / 65536) % 1000) / 1000.0;
+uint32_t Random::getRandomNumber(const uint32_t min, const uint32_t max) {
+    return nextRandomNumber() % (max - min) + min;
+}
+
+double Random::getRandomNumber() {
+    return nextRandomNumber() / static_cast<double>(modulus);
+}
+
+uint32_t Random::nextRandomNumber() {
+    randomNumber = (multiplier * randomNumber + increment) % modulus;
+    return randomNumber;
 }
 
 }

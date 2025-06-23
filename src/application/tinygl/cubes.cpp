@@ -49,12 +49,12 @@ static uint32_t fps = 0;
 static Util::Math::Random random;
 
 struct Cube {
-    GLfloat size = random.nextRandomNumber() * 10 + 1;
-    GLfloat coordinates[3] = { static_cast<GLfloat>(random.nextRandomNumber() * 50 - 25), static_cast<GLfloat>(random.nextRandomNumber() * 50 - 25), -(static_cast<GLfloat>(random.nextRandomNumber() * 100 + 20)) };
+    GLfloat size = random.getRandomNumber() * 10 + 1;
+    GLfloat coordinates[3] = { static_cast<GLfloat>(random.getRandomNumber() * 50 - 25), static_cast<GLfloat>(random.getRandomNumber() * 50 - 25), -(static_cast<GLfloat>(random.getRandomNumber() * 100 + 20)) };
 
     GLfloat rotationAngle = 0;
-    GLfloat rotationSpeed = random.nextRandomNumber() * 100 + 10;
-    GLfloat rotationAxes[3] = {static_cast<GLfloat>(random.nextRandomNumber() * 200) - 100, static_cast<GLfloat>(random.nextRandomNumber() * 200) - 100, static_cast<GLfloat>(random.nextRandomNumber() * 200) - 100 };
+    GLfloat rotationSpeed = random.getRandomNumber() * 100 + 10;
+    GLfloat rotationAxes[3] = {static_cast<GLfloat>(random.getRandomNumber() * 200) - 100, static_cast<GLfloat>(random.getRandomNumber() * 200) - 100, static_cast<GLfloat>(random.getRandomNumber() * 200) - 100 };
 
     GLuint texture = 0;
     GLuint displayList = 0;

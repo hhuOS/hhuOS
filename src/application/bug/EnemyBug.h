@@ -76,6 +76,8 @@ private:
 
     Util::Game::D2::SpriteAnimation animation;
     Fleet &fleet;
+
+    double lastMissileRollTime = 0;
 };
 
 #endif

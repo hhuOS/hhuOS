@@ -21,7 +21,7 @@
 const constexpr uint32_t TARGET_FRAME_RATE = 60;
 const constexpr GLfloat VIEW_ROTATION_X = 20.0;
 const constexpr GLfloat VIEW_ROTATION_Y = 30.0;
-const constexpr GLfloat PI = Util::Math::PI;
+const constexpr GLfloat PI = Util::Math::PI_FLOAT;
 
 static Util::Time::Timestamp fpsTimer;
 static uint32_t fpsCounter = 0;
