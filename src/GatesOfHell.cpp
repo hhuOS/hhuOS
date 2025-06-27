@@ -871,10 +871,6 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
 
     memoryService->enableSlabAllocator();
 
-    const auto abs1 = Util::Math::absolute(-42.0f);
-    const auto abs2 = Util::Math::absolute(42.0f);
-    LOG_INFO("", abs1, abs2);
-
     LOG_INFO("Starting scheduler");
     processService->startScheduler();
 

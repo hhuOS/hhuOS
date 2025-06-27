@@ -294,8 +294,24 @@ void Kernel::MemoryService::mapPhysical(void *physicalAddress, void *virtualAddr
 void *MemoryService::mapIO(uint32_t pageCount, bool mapToKernelHeap) {
     // Allocate block of physical memory
     void *physicalAddress = allocatePhysicalMemory(pageCount);
-    // Map physical memory into heap
-    return mapIO(physicalAddress, pageCount, mapToKernelHeap);
+    // Allocate a block of page aligned virtual memory in the heap
+    auto &manager = mapToKernelHeap ? kernelAddressSpace.getMemoryManager() : currentAddressSpace->getMemoryManager();
+    void *virtualAddress = manager.allocateMemory(pageCount * Util::PAGESIZE, Util::PAGESIZE);
+
+    // Create mapping
+    uint32_t flags = Paging::PRESENT | Paging::WRITABLE | Paging::CACHE_DISABLE | (reinterpret_cast<uint32_t>(virtualAddress) >= Kernel::MemoryLayout::KERNEL_END ? Paging::USER_ACCESSIBLE : Paging::NONE);
+    for (uint32_t i = 0; i < pageCount; i++) {
+        void *currentPhysicalAddress = reinterpret_cast<uint8_t*>(physicalAddress) + i * Util::PAGESIZE;
+        void *currentVirtualAddress = reinterpret_cast<uint8_t*>(virtualAddress) + i * Util::PAGESIZE;
+
+        // If the virtual address is already mapped, we have to unmap it.
+        // This can happen because the headers of the free list are mapped to arbitrary physical addresses, but the memory should be mapped to the given physical addresses.
+        unmap(currentVirtualAddress, 1);
+        // Map the page into the current address space
+        currentAddressSpace->map(currentPhysicalAddress, currentVirtualAddress, flags);
+    }
+
+    return virtualAddress;
 }
 
 void *Kernel::MemoryService::mapIO(void *physicalAddress, uint32_t pageCount, bool mapToKernelHeap) {
