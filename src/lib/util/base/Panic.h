@@ -71,6 +71,7 @@ namespace Util::Panic {
         ILLEGAL_STATE,
         OUT_OF_MEMORY,
         PAGING_ERROR,
+        STACK_OVERFLOW,
         UNSUPPORTED_OPERATION
     };
 

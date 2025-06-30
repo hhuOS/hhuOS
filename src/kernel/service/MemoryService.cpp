@@ -373,20 +373,30 @@ void MemoryService::removeAddressSpace(VirtualAddressSpace &addressSpace) {
 
 void MemoryService::handlePageFault(uint32_t errorCode) {
     // The faulted linear address is stored in the cr2 register
-    auto faultAddress = Device::Cpu::readCr2();
-
-    // Check for null pointer access
-    if (faultAddress == 0) {
-        Util::Panic::fire(Util::Panic::NULL_POINTER, "Page fault at address 0x00000000!");
-    }
+    const auto faultAddress = Device::Cpu::readCr2();
 
     // Check if page fault was caused by an illegal page access
     if ((errorCode & 0x00000001u) > 0) {
+        // Check for null pointer access in user space application
+        if (faultAddress == 0) {
+            Util::Panic::fire(Util::Panic::NULL_POINTER, "Page fault at address 0x00000000!");
+        }
+
         Util::Panic::fire(Util::Panic::PAGING_ERROR, "Privilege level not sufficient to access page!");
     }
 
+    // Page fault was caused by a non-present page
+    const auto alignedFaultAddress = Util::Address(faultAddress).alignDown(Util::PAGESIZE).get();
+
+    // Check if the faulted address is inside a user space stack
+    // If the fault occurs right at the start of a user space stack, a stack overflow happened
+    if (faultAddress >= Util::USER_SPACE_STACK_MEMORY_START_ADDRESS && alignedFaultAddress % Util::MAX_USER_STACK_SIZE == 0) {
+        Util::Panic::fire(Util::Panic::STACK_OVERFLOW, "Page fault below user space stack!");
+    }
+
     // Map the faulted Page
-    map(reinterpret_cast<void*>(faultAddress), 1, Paging::PRESENT | Paging::WRITABLE | (faultAddress >= Kernel::MemoryLayout::KERNEL_AREA.endAddress ? Paging::USER_ACCESSIBLE : Paging::NONE), true);
+    const auto userSpace = faultAddress >= MemoryLayout::KERNEL_AREA.endAddress;
+    map(reinterpret_cast<void*>(faultAddress), 1, Paging::PRESENT | Paging::WRITABLE | (userSpace ? Paging::USER_ACCESSIBLE : Paging::NONE), true);
 }
 
 MemoryService::MemoryStatus MemoryService::getMemoryStatus() {
