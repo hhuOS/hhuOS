@@ -143,7 +143,7 @@ const uint32_t KERNEL_DATA_END = reinterpret_cast<uint32_t>(&___KERNEL_DATA_END_
 const uint32_t WRITE_PROTECTED_START = reinterpret_cast<uint32_t>(&___WRITE_PROTECTED_START__);
 const uint32_t WRITE_PROTECTED_END = reinterpret_cast<uint32_t>(&___WRITE_PROTECTED_END__);
 
-const constexpr uint32_t INITIAL_PAGING_AREA_SIZE = 384 * 1024;
+const constexpr uint32_t INITIAL_PAGING_AREA_SIZE = 32 * 1024;
 const constexpr uint32_t INITIAL_KERNEL_HEAP_SIZE = 96 * 1024;
 
 extern "C" {
@@ -220,15 +220,6 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
 
     // Page tables will be allocated in bootstrap memory, directly after the page directory
     auto *pageTableMemory = reinterpret_cast<Kernel::Paging::Table*>(pagingAreaPhysical + sizeof(Kernel::Paging::Table));
-
-    // Allocate page tables for the whole kernel area
-    for (uint32_t i = 0; i < Kernel::MemoryLayout::KERNEL_END / (Util::PAGESIZE * 1024); i++) {
-        auto &pageTable = *pageTableMemory++;
-        pageTable.clear();
-
-        auto &directory= *pageDirectory;
-        directory[i].set(reinterpret_cast<uint32_t>(&pageTable), Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
-    }
 
     // Create identity mapping for kernel
     const auto kernelSize = Util::Address(KERNEL_DATA_END - KERNEL_DATA_START).alignUp(Util::PAGESIZE).get();
@@ -327,6 +318,18 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
 
     // The memory service and IDT are initialized and after registering the memory service, page faults can be handled, allowing us to fully use the kernel heap
     Kernel::Service::registerService(Kernel::MemoryService::SERVICE_ID, memoryService);
+
+    // Allocate page tables for the whole kernel area
+    for (uint32_t i = 0; i < Kernel::MemoryLayout::KERNEL_END / (Util::PAGESIZE * 1024); i++) {
+        if ((*pageDirectory)[i].isUnused()) {
+            pagingAreaManager->refillPool(); // Make sure the paging area manager does not run out of page tables
+            auto *virtualPageTable = memoryService->allocatePageTable();
+            auto *physicalPageTable = memoryService->getPhysicalAddress(virtualPageTable);
+
+            (*virtualPageDirectory)[i].set(reinterpret_cast<uint32_t>(virtualPageTable), Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
+            (*pageDirectory)[i].set(reinterpret_cast<uint32_t>(physicalPageTable), Kernel::Paging::PRESENT | Kernel::Paging::WRITABLE);
+        }
+    }
 
     // Map Multiboot2 tags
     const auto multibootStartPage = reinterpret_cast<uint32_t>(multiboot) & 0xfffff000;

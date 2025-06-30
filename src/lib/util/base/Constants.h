@@ -32,7 +32,7 @@ static constexpr size_t PAGESIZE = 0x1000;
 static constexpr size_t MAX_USER_STACK_SIZE = 0x40000;
 
 /// The start address of the user space memory (0x8000000 = 128 MiB).
-static constexpr size_t USER_SPACE_MEMORY_START_ADDRESS = 0x8000000;
+static constexpr size_t USER_SPACE_MEMORY_START_ADDRESS = 0x20000000;
 
 /// The start address of the user space stack memory (0xf0000000 = 3.75 GiB).
 static constexpr size_t USER_SPACE_STACK_MEMORY_START_ADDRESS = 0xf0000000;

@@ -67,7 +67,7 @@ public:
     static const constexpr uint32_t PAGING_AREA_SIZE = 16 * 1024 * 1024;
 
     // End of virtual kernel memory
-    static const constexpr uint32_t KERNEL_HEAP_END_ADDRESS = 0x8000000;
+    static const constexpr uint32_t KERNEL_HEAP_END_ADDRESS = 0x20000000;
     static const constexpr uint32_t KERNEL_END = KERNEL_HEAP_END_ADDRESS;
 
     // The whole virtual kernel area, including code, paging area and heap
