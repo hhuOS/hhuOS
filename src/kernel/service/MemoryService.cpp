@@ -241,13 +241,9 @@ void Kernel::MemoryService::map(void *virtualAddress, uint32_t pageCount, uint16
 }
 
 void* Kernel::MemoryService::unmap(void *virtualAddress, uint32_t pageCount, uint32_t breakCount) {
-    // Remark: if given addresses are not aligned on pages, we do not want to unmap data,
-    // that could be on the same page before virtualAddress or behind the end of the virtual memory block
-
-    // Align virtual address to page size
+    // Check if the virtual address is page aligned
     if (reinterpret_cast<uint32_t>(virtualAddress) % Util::PAGESIZE != 0) {
-        virtualAddress = reinterpret_cast<void *>(Util::Address(virtualAddress).alignUp(Util::PAGESIZE).get());
-        pageCount -= 1;
+        Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "MemoryService: unmap() called with unaligned virtual address!");
     }
 
     // Loop through pages and unmap them individually

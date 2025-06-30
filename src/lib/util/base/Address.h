@@ -62,6 +62,15 @@ public:
     /// ```
     [[nodiscard]] Address alignUp(size_t alignment) const;
 
+    /// Align the address this object points to down to the given alignment
+    /// and return a new `Address` object pointing to the result.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto aligned = Util::Address(0x1234).alignDown(0x1000); // aligned = 0x1000
+    /// ```
+    [[nodiscard]] Address alignDown(size_t alignment) const;
+
     /// Count the number of bytes until a null terminator (0) is reached.
     ///
     /// ### Example

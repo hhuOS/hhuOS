@@ -231,11 +231,17 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
     auto *mergedHeader = merge(header);
 
     // If the free memory block is larger than a page try to unmap it (freeing up physical memory)
-    if (unmapFreedMemory && mergedHeader->size >= PAGESIZE && isMemoryManagementInitialized()) {
-        const auto mergedAddress = reinterpret_cast<uint8_t*>(mergedHeader);
-        const auto size = HEADER_SIZE + mergedHeader->size;
+    if (unmapFreedMemory && isMemoryManagementInitialized()) {
+        const auto startAddress = reinterpret_cast<uint8_t*>(mergedHeader) + HEADER_SIZE;
+        const auto endAddress = startAddress + mergedHeader->size;
+        const auto alignedStartAddress= Address(startAddress).alignUp(PAGESIZE).get();
+        const auto alignedEndAddress = Address(endAddress).alignDown(PAGESIZE).get();
 
-        unmap(mergedAddress + HEADER_SIZE, size / PAGESIZE, 8);
+        // Only unmap if the block is at least one page large
+        if (alignedStartAddress < alignedEndAddress) {
+            const auto pageCount = (alignedEndAddress - alignedStartAddress) / PAGESIZE;
+            unmap(reinterpret_cast<uint8_t*>(alignedStartAddress), pageCount, 8);
+        }
     }
 }
 

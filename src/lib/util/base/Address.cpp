@@ -48,6 +48,14 @@ Address Address::alignUp(const size_t alignment) const {
     return Address((address + (alignment - 1)) & ~(alignment - 1));
 }
 
+Address Address::alignDown(const size_t alignment) const {
+    if (alignment == 0) {
+        return Address(address);
+    }
+
+    return Address(address & ~(alignment - 1));
+}
+
 uint8_t Address::read8(const size_t offset) const {
     return *reinterpret_cast<uint8_t*>(address + offset);
 }
