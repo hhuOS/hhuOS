@@ -35,6 +35,7 @@
 #include "lib/util/io/stream/PipedInputStream.h"
 #include "lib/util/io/key/layout/DeLayout.h"
 #include "lib/util/io/key/KeyDecoder.h"
+#include "lib/util/async/ReentrantSpinlock.h"
 
 namespace Util {
 namespace Io {
@@ -198,9 +199,13 @@ private:
 
     void parseGraphicRendition(uint8_t code);
 
-    Util::Io::PipedInputStream inputStream;
-    TerminalPipedOutputStream outputStream;
+    Util::Io::PipedInputStream keyInputStream;
+    TerminalPipedOutputStream keyOutputStream;
+    Util::Io::PipedInputStream ansiInputStream;
+    Util::Io::PipedOutputStream ansiOutputStream;
+
     Io::KeyDecoder keyDecoder = Io::KeyDecoder(new Io::DeLayout());
+    Async::ReentrantSpinlock writeLock;
 
     Util::String currentEscapeSequence;
     bool isEscapeActive = false;

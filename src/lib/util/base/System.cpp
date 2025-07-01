@@ -33,8 +33,7 @@
 namespace Util {
 
 Io::FileInputStream inStream(Io::STANDARD_INPUT);
-Io::BufferedInputStream bufferedInStream(inStream);
-Io::InputStream &System::in = bufferedInStream;
+Io::InputStream &System::in = inStream;
 
 Io::FileOutputStream outStream(Io::STANDARD_OUTPUT);
 Io::BufferedOutputStream bufferedOutStream(outStream);
