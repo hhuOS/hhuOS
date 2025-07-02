@@ -16,30 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-project(lib.sound)
-message(STATUS "Project " ${PROJECT_NAME})
-
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_C_STANDARD 90)
-
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-target_sources(${PROJECT_NAME} PUBLIC
-        ${HHUOS_SRC_DIR}/lib/util/sound/AudioChannel.cpp
-        ${HHUOS_SRC_DIR}/lib/util/sound/PcSpeaker.cpp
-        ${HHUOS_SRC_DIR}/lib/util/sound/SoundBlaster.cpp
-        ${HHUOS_SRC_DIR}/lib/util/sound/WaveFile.cpp)
-
-# Kernel space version
-project(lib.kernel.sound)
-message(STATUS "Project " ${PROJECT_NAME})
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} lib.sound)
-target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/kernel.cpp)
-
-# User space sound
-project(lib.user.sound)
-message(STATUS "Project " ${PROJECT_NAME})
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} lib.sound)
-target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/user.cpp)
+target_sources(kernel PUBLIC
+        ${HHUOS_SRC_DIR}/kernel/sound/AudioChannelNode.cpp
+        ${HHUOS_SRC_DIR}/kernel/sound/AudioMixer.cpp
+        ${HHUOS_SRC_DIR}/kernel/sound/AudioMixerNode.cpp
+        ${HHUOS_SRC_DIR}/kernel/sound/AudioMixerRunnable.cpp)

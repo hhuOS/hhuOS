@@ -28,10 +28,10 @@
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/InputStream.h"
 #include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/sound/SoundBlaster.h"
 #include "lib/util/sound/WaveFile.h"
+#include "lib/util/sound/AudioChannel.h"
 
-static const constexpr double AUDIO_BUFFER_SIZE = 1.0;
+static const constexpr uint32_t BUFFER_SIZE = 8192;
 static const constexpr uint8_t BAR_LENGTH = 25;
 
 void printStatusLine(const Util::Sound::WaveFile &waveFile, uint32_t remainingBytes) {
@@ -78,27 +78,16 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto soundBlasterFile = Util::Io::File("/device/soundblaster");
-    if (!soundBlasterFile.exists() || soundBlasterFile.isDirectory()) {
-        Util::System::error << "play: '/device/soundblaster' could not be opened!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-        return -1;
-    }
-
-    auto soundBlaster = Util::Sound::SoundBlaster(soundBlasterFile);
     auto waveFile = Util::Sound::WaveFile(inputFile);
-
-    if (!soundBlaster.setAudioParameters(waveFile.getSamplesPerSecond(), waveFile.getNumChannels(), waveFile.getBitsPerSample())) {
-        Util::System::error << "play: Failed to set sound card parameters!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
-        return -1;
-    }
+    auto audioChannel = Util::Sound::AudioChannel();
 
     Util::Graphic::Ansi::disableCursor();
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
     Util::System::out << "Playing '" << inputFile.getName() << "'... Press <ENTER> to stop." << Util::Io::PrintStream::endl;
+    audioChannel.play();
 
-    auto bufferSize = static_cast<uint32_t>(AUDIO_BUFFER_SIZE * waveFile.getSamplesPerSecond() * (waveFile.getBitsPerSample() / 8.0) * waveFile.getNumChannels());
-    auto *fileBuffer = new uint8_t[bufferSize];
+    auto *fileBuffer = new uint8_t[BUFFER_SIZE];
     uint32_t remaining = waveFile.getDataSize();
 
     while (remaining > 0) {
@@ -110,12 +99,14 @@ int32_t main(int32_t argc, char *argv[]) {
         printStatusLine(waveFile, remaining);
         Util::Graphic::Ansi::restoreCursorPosition();
 
-        uint32_t toWrite = remaining >= bufferSize ? bufferSize : remaining;
+        uint32_t toWrite = remaining >= BUFFER_SIZE ? BUFFER_SIZE : remaining;
         waveFile.read(fileBuffer, 0, toWrite);
-        soundBlaster.play(fileBuffer, toWrite);
+        audioChannel.write(fileBuffer, 0, toWrite);
 
         remaining -= toWrite;
     }
+
+    audioChannel.stop();
 
     Util::Graphic::Ansi::clearLine();
     Util::Graphic::Ansi::moveCursorToBeginningOfPreviousLine(0);

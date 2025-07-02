@@ -41,6 +41,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/io/stream/FilterOutputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/stream/InputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/stream/OutputStream.cpp
+		${HHUOS_SRC_DIR}/lib/util/io/stream/Pipe.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/stream/PipedInputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/stream/PipedOutputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/stream/PrintStream.cpp

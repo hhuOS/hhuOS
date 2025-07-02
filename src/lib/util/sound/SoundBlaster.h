@@ -53,7 +53,7 @@ namespace Util::Sound {
 /// sb.play(buffer, waveFile.getDataSize()); // Play the audio data through the Sound Blaster
 /// ```
 
-class SoundBlaster {
+class SoundBlaster : public Util::Io::OutputStream {
 
 public:
     /// Control file operations for the Sound Blaster device.
@@ -65,26 +65,23 @@ public:
     /// The file should point to the Sound Blaster device file, typically `/device/soundblaster`.
     explicit SoundBlaster(const Io::File &soundBlasterFile);
 
-    /// SoundBlaster is not copyable, since it contains a not copyable `FileOutputStream`,
-    /// so the copy constructor is deleted.
-    SoundBlaster(const SoundBlaster &other) = delete;
-
-    /// SoundBlaster is not assignable, since it contains a not copyable `FileOutputStream`,
-    /// so the assignment operator is deleted.
-    SoundBlaster& operator=(const SoundBlaster &other) = delete;
-
     /// The SoundBlaster destructor is trivial, as it only contains a `File` and a `FileOutputStream`.
-    ~SoundBlaster() = default;
+    ~SoundBlaster() override = default;
 
     /// Set the audio parameters for the Sound Blaster device.
     /// Not setting or using wrong audio parameters will likely result in playback issues,
     /// such as no sound, distorted audio or wrong playback speed.
     bool setAudioParameters(uint16_t sampleRate, uint8_t channels, uint8_t bitsPerSample);
 
+    /// Write a single byte of audio data to the Sound Blaster device.
+    /// Calling this method is not recommended, as it is more efficient to write larger buffers at once.
+    /// This is just here for compatibility with the `OutputStream` interface.
+    void write(uint8_t c) override;
+
     /// Play the given audio data through the Sound Blaster device.
     /// The data should be in the format specified by the audio parameters set with `setAudioParameters()`
-    /// and only contains raw audio samples without any headers.
-    void play(const uint8_t *data, size_t size);
+    /// and only contain raw audio samples without any headers.
+    void write(const uint8_t *sourceBuffer, size_t offset, size_t length) override;
 
 private:
 

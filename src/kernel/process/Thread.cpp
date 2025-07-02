@@ -68,6 +68,11 @@ Thread& Thread::createKernelThread(const Util::String &name, Process &parent, Ut
     return *thread;
 }
 
+Thread& Thread::createKernelProcessThread(const Util::String &name, Util::Async::Runnable *runnable) {
+    auto &processService = Service::getService<ProcessService>();
+    return createKernelThread(name, processService.getKernelProcess(), runnable);
+}
+
 Thread& Thread::createUserThread(const Util::String &name, Process &parent, uint32_t eip, Util::Async::Runnable *runnable) {
     auto *kernelStack = Thread::createKernelStack();
     auto *userStack = Thread::createUserStack();

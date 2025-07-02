@@ -24,9 +24,7 @@
 
 namespace Util::Io {
 
-PipedOutputStream::PipedOutputStream(PipedInputStream &inputStream) : sink(&inputStream) {
-
-}
+PipedOutputStream::PipedOutputStream(PipedInputStream &inputStream) : sink(&inputStream) {}
 
 void PipedOutputStream::connect(PipedInputStream &inputStream) {
     if (sink != nullptr) {

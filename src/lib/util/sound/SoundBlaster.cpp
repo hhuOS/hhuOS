@@ -32,8 +32,12 @@ bool SoundBlaster::setAudioParameters(const uint16_t sampleRate, const uint8_t c
         Util::Array<uint32_t>({sampleRate, channels, bitsPerSample}));
 }
 
-void SoundBlaster::play(const uint8_t *data, const uint32_t size) {
-    stream.write(data, 0, size);
+void SoundBlaster::write(const uint8_t c) {
+    write(&c, 0, 1);
+}
+
+void SoundBlaster::write(const uint8_t *sourceBuffer, const size_t offset, const size_t length) {
+    stream.write(sourceBuffer, offset, length);
 }
 
 }

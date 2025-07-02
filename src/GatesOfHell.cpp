@@ -121,6 +121,8 @@
 #include "kernel/log/LogNode.h"
 #include "lib/util/graphic/font/Terminal8x8.h"
 #include "kernel/service/CpuService.h"
+#include "kernel/service/SoundService.h"
+#include "kernel/sound/AudioMixer.h"
 #include "math/Math.h"
 
 namespace Device {
@@ -802,6 +804,9 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     if (Device::SoundBlaster::isAvailable()) {
         Device::SoundBlaster::initialize();
     }
+
+    auto *soundService = new Kernel::SoundService("/device/soundblaster");
+    Kernel::Service::registerService(Kernel::SoundService::SERVICE_ID, soundService);
 
     // Mount devices specified /system/mount_table
     auto mountFile = Util::Io::File("/system/mount_table");
