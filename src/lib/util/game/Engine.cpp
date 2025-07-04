@@ -27,6 +27,8 @@
 #include "lib/util/async/Thread.h"
 #include "MouseListener.h"
 #include "Engine.h"
+
+#include "AudioRunnable.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/KeyListener.h"
@@ -58,6 +60,8 @@ Engine::Engine(const Graphic::LinearFrameBuffer &lfb, uint8_t targetFrameRate, d
     if (mouseFile.exists()) {
         mouseInputStream = new Io::FileInputStream(mouseFile);
     }
+
+    Async::Thread::createThread("Game-Audio", new AudioRunnable(game.audioChannels));
 }
 
 Engine::~Engine() {
@@ -93,12 +97,6 @@ void Engine::run() {
         scene.updateEntities(frameTime);
         scene.checkCollisions();
         scene.applyChanges();
-
-        for (auto &audioChannel : game.audioChannels) {
-            if (audioChannel.isPlaying()) {
-                audioChannel.update(frameTime);
-            }
-        }
 
         updateStatus();
         statistics.stopUpdateTimeTime();

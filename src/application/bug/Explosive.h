@@ -45,7 +45,7 @@ public:
     /**
      * Constructor.
      */
-    Explosive(uint32_t tag, const Util::Math::Vector2<double> &position, const Util::Game::D2::RectangleCollider &collider);
+    Explosive(uint32_t tag, const Util::Math::Vector2<double> &position, const Util::Game::D2::RectangleCollider &collider, const Util::String &waveFilePath, double animationTime = 0.5);
 
     /**
      * Copy Constructor.
@@ -76,8 +76,11 @@ public:
 
 private:
 
-    Util::Game::D2::SpriteAnimation animation;
+    Util::String waveFilePath;
     Util::Game::Audio soundEffect;
+
+    double animationTime;
+    Util::Game::D2::SpriteAnimation animation;
 
     bool shouldExplode = false;
     bool exploding = false;

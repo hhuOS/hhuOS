@@ -40,7 +40,7 @@
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/base/String.h"
 
-EnemyBug::EnemyBug(const Util::Math::Vector2<double> &position, Fleet &fleet) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)), fleet(fleet) {
+EnemyBug::EnemyBug(const Util::Math::Vector2<double> &position, Fleet &fleet) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC), "/user/bug/bug_explosion.wav"), fleet(fleet) {
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
 }
 
@@ -65,12 +65,6 @@ void EnemyBug::onUpdate(double delta) {
 
     if (fleet.isMovingDown()) {
         translateY(-0.1);
-    }
-
-    if (getPosition().getY() < -0.8 + Ship::SIZE_Y) {
-        auto &game = Util::Game::GameManager::getGame();
-        game.pushScene(new GameOverScreen(false));
-        game.switchToNextScene();
     }
 
     setVelocityX(fleet.getVelocity());

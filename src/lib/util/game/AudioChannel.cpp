@@ -31,19 +31,15 @@ void AudioChannel::play(const AudioBuffer &audioBuffer, bool loop) {
     }
 }
 
-void AudioChannel::update(double delta) {
-    const auto deltaBytes = static_cast<uint32_t>(delta * buffer->getSamplesPerSecond() * (buffer->getBitsPerSample() / 8.0) * buffer->getNumChannels());
-
-    auto writableBytes = getWritableBytes();
+bool AudioChannel::update() {
+    const auto writableBytes = getWritableBytes();
     if (writableBytes == 0) {
-        return;
-    }
-    if (writableBytes > deltaBytes) {
-        writableBytes = deltaBytes;
+        return false;
     }
 
     const auto bytesLeft = buffer->getSize() - position;
     const auto toWrite = static_cast<int32_t>(writableBytes < bytesLeft ? writableBytes : bytesLeft);
+
     write(buffer->getSamples() + position, 0, toWrite);
     position += toWrite;
 
@@ -57,6 +53,8 @@ void AudioChannel::update(double delta) {
             stop(false);
         }
     }
+
+    return true;
 }
 
 String AudioChannel::getWaveFilePath() const {

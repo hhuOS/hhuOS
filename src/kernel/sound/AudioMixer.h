@@ -90,7 +90,7 @@ private:
     AudioMixerRunnable *runnable;
     Thread &thread;
 
-    static constexpr uint32_t AUDIO_BUFFER_SIZE_MS = 150;
+    static constexpr uint32_t AUDIO_BUFFER_SIZE_MS = 100;
     static constexpr uint32_t SAMPLES_PER_SECOND = 22050;
     static constexpr uint8_t BITS_PER_SAMPLE = 8;
     static constexpr uint8_t NUM_CHANNELS = 1;

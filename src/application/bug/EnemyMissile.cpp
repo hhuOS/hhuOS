@@ -37,7 +37,7 @@
 
 class EnemyBug;
 
-EnemyMissile::EnemyMissile(const Util::Math::Vector2<double> &position, EnemyBug &bug) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)), bug(bug) {
+EnemyMissile::EnemyMissile(const Util::Math::Vector2<double> &position, EnemyBug &bug) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC), "/user/bug/ship_hit.wav"), bug(bug) {
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
 }
 

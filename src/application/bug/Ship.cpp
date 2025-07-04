@@ -20,6 +20,7 @@
 
 #include "Ship.h"
 
+#include "EnemyBug.h"
 #include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "PlayerMissile.h"
@@ -36,7 +37,7 @@
 #include "lib/util/game/2d/Entity.h"
 #include "lib/util/base/String.h"
 
-Ship::Ship(const Util::Math::Vector2<double> &position) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)) {
+Ship::Ship(const Util::Math::Vector2<double> &position) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC), "/user/bug/ship_explosion.wav", 2.0) {
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
 }
 
@@ -76,17 +77,21 @@ void Ship::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
 }
 
 void Ship::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
-    if (event.getCollidedWidth().getTag() != EnemyMissile::TAG) {
+    if (isExploding()) {
         return;
     }
 
-    const auto &missile = event.getCollidedWidth<const EnemyMissile>();
-    if (missile.isExploding()) {
-        return;
-    }
+    if (event.getCollidedWidth().getTag() == EnemyMissile::TAG) {
+        const auto &missile = event.getCollidedWidth<const EnemyMissile>();
+        if (missile.isExploding()) {
+            return;
+        }
 
-    if (lives > 0) {
-        lives--;
+        if (lives > 0) {
+            lives--;
+        }
+    } else if (event.getCollidedWidth().getTag() == EnemyBug::TAG) {
+        lives = 0;
     }
 }
 

@@ -33,10 +33,10 @@ template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
-Explosive::Explosive(uint32_t tag, const Util::Math::Vector2<double> &position, const Util::Game::D2::RectangleCollider &collider) : Entity(tag, position, collider) {}
+Explosive::Explosive(uint32_t tag, const Util::Math::Vector2<double> &position, const Util::Game::D2::RectangleCollider &collider, const Util::String &waveFilePath, double animationTime) : Entity(tag, position, collider), waveFilePath(waveFilePath), animationTime(animationTime) {}
 
 void Explosive::initialize() {
-    soundEffect = Util::Game::Audio("/user/bug/explosion.wav");
+    soundEffect = Util::Game::Audio(waveFilePath);
 
     auto size = getCollider().getHeight() > getCollider().getWidth() ? getCollider().getHeight() : getCollider().getWidth();
     animation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
@@ -47,7 +47,7 @@ void Explosive::initialize() {
         Util::Game::D2::Sprite("/user/bug/explosion5.bmp", size, size),
         Util::Game::D2::Sprite("/user/bug/explosion6.bmp", size, size),
         Util::Game::D2::Sprite("/user/bug/explosion7.bmp", size, size),
-        Util::Game::D2::Sprite("/user/bug/explosion8.bmp", size, size)}), 0.5);
+        Util::Game::D2::Sprite("/user/bug/explosion8.bmp", size, size)}), animationTime);
 }
 
 void Explosive::onUpdate(double delta) {

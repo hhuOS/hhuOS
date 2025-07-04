@@ -132,10 +132,8 @@ int32_t AudioMixer::read(uint8_t *targetBuffer, [[maybe_unused]] uint32_t offset
     int32_t maxReadBytes = 0;
     // Iterate over list of active channel streams
     for (auto *channel : activeStreams) {
-        auto toRead = channel->getReadableBytes();
-        // Limit maximum read bytes by half the buffer size so the whole pipe can't be emptied in one go.
-        toRead = toRead > BUFFER_SIZE / 2 ? BUFFER_SIZE / 2 : toRead;
-        toRead = toRead > length ? length : toRead;
+        const auto readable = channel->getReadableBytes();
+        const auto toRead = readable > length ? length : readable;
 
         // Read from single channel pipe
         const auto readBytes = channel->read(streamBuffer, 0, toRead);

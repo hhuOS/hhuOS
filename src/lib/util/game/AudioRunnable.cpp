@@ -15,51 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef AUDIOCHANNEL_H
-#define AUDIOCHANNEL_H
+#include "AudioRunnable.h"
 
-#include "AudioBuffer.h"
-#include "sound/AudioChannel.h"
-#include "sound/WaveFile.h"
+Util::Game::AudioRunnable::AudioRunnable(Array<AudioChannel> &channels) : channels(channels) {}
 
-namespace Util::Game {
+void Util::Game::AudioRunnable::run() {
+    while (true) {
+        bool yield = false;
 
-class AudioChannel : public Sound::AudioChannel {
+        for (auto &audioChannel : channels) {
+            if (audioChannel.isPlaying()) {
+                if (!audioChannel.update()) {
+                    yield = true;
+                }
+            }
+        }
 
-public:
-    /**
-     * Default Constructor.
-     */
-    AudioChannel() = default;
-
-    /**
-     * Copy Constructor.
-     */
-    AudioChannel(const AudioChannel &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    AudioChannel &operator=(const AudioChannel &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~AudioChannel() override = default;
-
-    void play(const AudioBuffer &buffer, bool loop = false);
-
-    bool update();
-
-    [[nodiscard]] String getWaveFilePath() const;
-
-private:
-
-    const AudioBuffer *buffer = nullptr;
-    uint32_t position = 0;
-    bool loop = false;
-};
-
+        if (yield) {
+            Async::Thread::yield();
+        }
+    }
 }
-
-#endif
