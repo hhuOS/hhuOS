@@ -22,6 +22,8 @@
 
 #include <sound/PcSpeaker.h>
 
+#include "kernel/service/Service.h"
+#include "kernel/service/SoundService.h"
 #include "device/sound/speaker/PcSpeaker.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/time/Timestamp.h"
@@ -31,10 +33,12 @@ namespace Device {
 AlarmRunnable::AlarmRunnable(uint32_t beepCount) : beepCount(beepCount) {}
 
 void AlarmRunnable::run() {
+    auto &speaker = Kernel::Service::getService<Kernel::SoundService>().getSpeaker();
+
     for (uint32_t i = 0; i < beepCount; i++) {
-        Sound::PcSpeaker::play(Util::Sound::PcSpeaker::A1);
+        speaker.play(Util::Sound::PcSpeaker::A1);
         Util::Async::Thread::sleep(Util::Time::Timestamp(0, INTERVAL * 1000000));
-        Sound::PcSpeaker::off();
+        speaker.off();
         Util::Async::Thread::sleep(Util::Time::Timestamp(0, INTERVAL * 1000000));
     }
 }

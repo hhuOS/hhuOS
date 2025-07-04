@@ -18,10 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "PcSpeaker.h"
 #include "PcSpeakerNode.h"
 
-namespace Device::Sound {
+#include "PcSpeaker.h"
+#include "kernel/service/Service.h"
+#include "kernel/service/SoundService.h"
+
+namespace Device {
 
 PcSpeakerNode::PcSpeakerNode(const Util::String &name) : StringNode(name) {}
 
@@ -38,7 +41,8 @@ uint64_t PcSpeakerNode::writeData(const uint8_t *sourceBuffer, [[maybe_unused]] 
     currentFrequency = Util::String::parseNumber<uint32_t>(data);
     buffer = Util::String::format("%u\n", currentFrequency);
 
-    PcSpeaker::play(currentFrequency);
+    auto &speaker = Kernel::Service::getService<Kernel::SoundService>().getSpeaker();
+    speaker.play(currentFrequency);
     return numBytes;
 }
 

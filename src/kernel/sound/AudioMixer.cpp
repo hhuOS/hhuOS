@@ -32,8 +32,8 @@
 
 namespace Kernel {
 
-AudioMixer::AudioMixer(const Util::String &masterOutputPath) : idGenerator(256), streams(256),
-        masterOutputFile(masterOutputPath), masterOutputStream(masterOutputPath), runnable(new AudioMixerRunnable(*this, masterOutputStream, BUFFER_SIZE)),
+AudioMixer::AudioMixer() : idGenerator(256), streams(256),
+        runnable(new AudioMixerRunnable(*this, BUFFER_SIZE)),
         thread(Thread::createKernelProcessThread("Audio-Mixer", runnable)) {
     auto &processService = Service::getService<ProcessService>();
     processService.getScheduler().ready(thread);
@@ -41,10 +41,6 @@ AudioMixer::AudioMixer(const Util::String &masterOutputPath) : idGenerator(256),
     auto &filesystemService = Service::getService<FilesystemService>();
     auto &deviceFilesystem = filesystemService.getFilesystem().getVirtualDriver("/device");
     deviceFilesystem.addNode("/", new AudioMixerNode(*this, *runnable, thread));
-
-    masterOutputFile.controlFile(Util::Sound::SoundBlaster::SET_AUDIO_PARAMETERS, Util::Array<uint32_t>({
-        SAMPLES_PER_SECOND, NUM_CHANNELS, BITS_PER_SAMPLE
-    }));
 }
 
 AudioMixer::~AudioMixer() {
@@ -116,6 +112,11 @@ bool AudioMixer::controlPlayback(const uint32_t &request, const uint32_t &id) {
     }
     streamLock.release();
     return true;
+}
+
+void AudioMixer::setMasterOutputDevice(Device::PcmDevice &device) const {
+    device.setPlaybackParameters(SAMPLES_PER_SECOND, NUM_CHANNELS, BITS_PER_SAMPLE);
+    runnable->setMasterOutputDevice(device);
 }
 
 int16_t AudioMixer::read() {

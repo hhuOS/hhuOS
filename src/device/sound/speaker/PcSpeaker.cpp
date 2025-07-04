@@ -22,11 +22,7 @@
 #include "PcSpeaker.h"
 #include "device/cpu/IoPort.h"
 
-namespace Device::Sound {
-
-IoPort PcSpeaker::controlPort(0x43);
-IoPort PcSpeaker::dataPort2(0x42);
-IoPort PcSpeaker::ppi(0x61);
+namespace Device {
 
 void PcSpeaker::play(uint16_t frequency) {
     if (frequency == 0) {

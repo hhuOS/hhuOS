@@ -798,15 +798,13 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
 
     // Initialize sound
     LOG_INFO("Initializing sound");
-    auto &driver = filesystemService->getFilesystem().getVirtualDriver("/device");
-    driver.addNode("/", new Device::Sound::PcSpeakerNode("speaker"));
-
-    if (Device::SoundBlaster::isAvailable()) {
-        Device::SoundBlaster::initialize();
-    }
-
-    auto *soundService = new Kernel::SoundService("/device/soundblaster");
+    auto *soundService = new Kernel::SoundService();
     Kernel::Service::registerService(Kernel::SoundService::SERVICE_ID, soundService);
+
+    auto &driver = filesystemService->getFilesystem().getVirtualDriver("/device");
+    driver.addNode("/", new Device::PcSpeakerNode("speaker"));
+
+    Device::SoundBlaster::initialize();
 
     // Mount devices specified /system/mount_table
     auto mountFile = Util::Io::File("/system/mount_table");

@@ -23,8 +23,10 @@
 
 #include <stdint.h>
 
+#include "device/bus/isa/Isa.h"
 #include "kernel/interrupt/InterruptHandler.h"
 #include "device/cpu/IoPort.h"
+#include "device/sound/PcmDevice.h"
 
 namespace Kernel {
 enum InterruptVector : uint8_t;
@@ -45,7 +47,7 @@ class SoundBlasterRunnable;
  *      -Mono PCM, 23000-44100 Hz, 8-bit samples (only with DSP versions >= 2.01)
  *      -Stereo PCM, 11025 Hz or 22050 Hz, 8-bit samples (only with DSP version >= 3.00)
  */
-class SoundBlaster : public Kernel::InterruptHandler {
+class SoundBlaster : public Kernel::InterruptHandler, public PcmDevice {
 
 public:
     /**
@@ -71,49 +73,26 @@ public:
     /**
      * Search for a SoundBlaster card and create a new instance of the respective driver.
      */
-    static bool initialize();
+    static void initialize();
 
-    /**
-     * Turn the speaker on.
-     */
-    void turnSpeakerOn();
+    bool setPlaybackParameters(uint32_t sampleRate, uint8_t channels, uint8_t bitsPerSample) override;
 
-    /**
-     * Turn the speaker off.
-     */
-    void turnSpeakerOff();
+    [[nodiscard]] uint32_t getSampleRate() const override;
 
-    /**
-     * Block until an interrupt occurs.
-     */
-    void waitForInterrupt();
+    [[nodiscard]] uint8_t getChannels() const override;
 
-    /**
-     * Acknowledge an interrupt.
-     */
-    void ackInterrupt();
+    [[nodiscard]] uint8_t getBitsPerSample() const override;
+
+    void play(const uint8_t *samples, uint32_t size) override;
+
+    void sourceDrained() override;
+
+    void plugin() override;
 
     /**
      * Overriding function from InterruptHandler.
      */
     void trigger(const Kernel::InterruptFrame &frame, Kernel::InterruptVector slot) override;
-
-    /**
-     * Set the audio playback parameters.
-     *
-     * @param sampleRate The sample rate
-     * @param channels The amount of channels
-     * @param bitsPerSample The amount of bits per sample
-     */
-    bool setAudioParameters(uint16_t sampleRate, uint8_t channels, uint8_t bitsPerSample);
-
-    [[nodiscard]] uint32_t getDmaBufferSize() const;
-
-    [[nodiscard]] uint8_t* getDmaBuffer() const;
-
-    void play(uint32_t offset, uint32_t size);
-
-    void plugin() override;
 
 private:
 
@@ -141,6 +120,26 @@ private:
      * Constructor.
      */
     explicit SoundBlaster(uint16_t baseAddress, uint8_t irqNumber = 10, uint8_t dmaChannel = 1);
+
+    /**
+     * Turn the speaker on.
+     */
+    void turnSpeakerOn();
+
+    /**
+     * Turn the speaker off.
+     */
+    void turnSpeakerOff();
+
+    /**
+     * Block until an interrupt occurs.
+     */
+    void waitForInterrupt();
+
+    /**
+     * Acknowledge an interrupt.
+     */
+    void ackInterrupt();
 
     /**
      * Reset the device.
@@ -174,6 +173,8 @@ private:
      * @param size The size of the buffer to be transferred
      */
     void prepareDma(uint32_t offset, uint32_t size) const;
+
+    void startDmaTransfer(uint32_t offset, uint32_t size);
 
     /**
      * Enable the mixer's low-pass filter (Recommended for mono-samples, which are played at a rate of <= 23000 Hz).
@@ -243,23 +244,22 @@ private:
     uint16_t samplesPerSecond = 0;
     uint16_t timeConstant = 0;
     uint8_t numChannels = 1;
+    uint8_t bitsPerSample = 8;
 
     bool stereoEnabled = false;
     bool lowPassFilterEnabled = false;
 
-    uint32_t dmaBufferSize = 0;
+    uint32_t dmaOffset = 0;
     uint8_t *dmaBuffer = nullptr;
     uint8_t *physicalDmaAddress = nullptr;
 
+    bool isPlaying = false;
     bool receivedInterrupt = false;
-
-    SoundBlasterRunnable *runnable;
 
     static const constexpr uint16_t FIRST_BASE_ADDRESS = 0x220;
     static const constexpr uint16_t LAST_BASE_ADDRESS = 0x280;
     static const constexpr uint32_t TIMEOUT = 10;
-
-    static const constexpr uint32_t AUDIO_BUFFER_SIZE_MS = 200;
+    static const constexpr uint32_t DMA_BUFFER_SIZE = Isa::MAX_DMA_PAGESIZE;
 };
 
 }

@@ -23,9 +23,7 @@
 
 namespace Kernel {
 
-AudioMixerRunnable::AudioMixerRunnable(AudioMixer &audioMixer, Util::Io::OutputStream &masterOutputStream, uint32_t bufferSize)
-        : audioMixer(audioMixer), masterOutputStream(masterOutputStream), bufferSize(bufferSize), buffer(new uint8_t[bufferSize]) {
-}
+AudioMixerRunnable::AudioMixerRunnable(AudioMixer &audioMixer, uint32_t bufferSize) : audioMixer(audioMixer), bufferSize(bufferSize) {}
 
 void AudioMixerRunnable::run() {
     while (isRunning) {
@@ -34,11 +32,15 @@ void AudioMixerRunnable::run() {
         const auto toWrite = audioMixer.read(buffer, 0, bufferSize);
 
         // Write the mixed audio samples to the master output stream
-        if (toWrite > 0) {
-            masterOutputStream.write(buffer, 0, toWrite);
-        } else {
-            // No samples to write, yield to avoid busy waiting
+        if (masterOutputDevice == nullptr) {
             Util::Async::Thread::yield();
+        } else {
+            if (toWrite > 0) {
+                masterOutputDevice->play(buffer, toWrite);
+            } else {
+                masterOutputDevice->sourceDrained();
+                Util::Async::Thread::yield();
+            }
         }
     }
 
@@ -50,6 +52,10 @@ void AudioMixerRunnable::stop() {
     while (!isStopped) {
         Util::Async::Thread::yield();
     }
+}
+
+void AudioMixerRunnable::setMasterOutputDevice(Device::PcmDevice &device) {
+    masterOutputDevice = &device;
 }
 
 AudioMixerRunnable::~AudioMixerRunnable() {

@@ -35,4 +35,12 @@ void Pipe::reset() {
     inputStream.reset();
 }
 
+InputStream& Pipe::getInputStream() {
+    return inputStream;
+}
+
+OutputStream& Pipe::getOutputStream() {
+    return outputStream;
+}
+
 }

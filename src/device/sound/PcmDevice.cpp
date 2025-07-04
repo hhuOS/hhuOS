@@ -15,16 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SoundService.h"
+#include "PcmDevice.h"
 
-namespace Kernel {
+Device::PcmDevice::PcmDevice() : FilterOutputStream(pipe.getOutputStream()) {}
 
-void SoundService::setMasterOutputDevice(Device::PcmDevice &device) const {
-    mixer.setMasterOutputDevice(device);
-}
+void Device::PcmDevice::processWrittenSamples() {
+    const auto toProcess = pipe.getReadableBytes();
+    pipe.read(buffer, 0, toProcess);
 
-Device::PcSpeaker & SoundService::getSpeaker() {
-    return speaker;
-}
-
+    play(buffer, toProcess);
 }

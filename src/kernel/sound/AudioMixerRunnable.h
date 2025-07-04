@@ -26,49 +26,52 @@
 #include "AudioMixer.h"
 
 namespace Kernel {
-    class AudioMixer;
+
+class AudioMixer;
+
+/**
+ * Handles the transmission of data provided by @param &audioMixer
+ */
+class AudioMixerRunnable : public Util::Async::Runnable {
+
+public:
+    /**
+     * Constructor.
+     */
+    explicit AudioMixerRunnable(AudioMixer &audioMixer, uint32_t bufferSize);
 
     /**
-     * Handles the transmission of data provided by @param &audioMixer
+     * Copy Constructor.
      */
-    class AudioMixerRunnable : public Util::Async::Runnable {
+    AudioMixerRunnable(const AudioMixerRunnable &other) = delete;
 
-    public:
-        /**
-         * Constructor.
-         */
-        explicit AudioMixerRunnable(AudioMixer &audioMixer, Util::Io::OutputStream &masterOutputStream, uint32_t bufferSize);
+    /**
+     * Assignment operator.
+     */
+    AudioMixerRunnable &operator=(const AudioMixerRunnable &other) = delete;
 
-        /**
-         * Copy Constructor.
-         */
-        AudioMixerRunnable(const AudioMixerRunnable &other) = delete;
+    /**
+     * Destructor.
+     */
+    ~AudioMixerRunnable() override;
 
-        /**
-         * Assignment operator.
-         */
-        AudioMixerRunnable &operator=(const AudioMixerRunnable &other) = delete;
+    void run() override;
 
-        /**
-         * Destructor.
-         */
-        ~AudioMixerRunnable() override;
+    void stop();
 
-        void run() override;
+    void setMasterOutputDevice(Device::PcmDevice &device);
 
-        void stop();
+private:
 
-    private:
+    AudioMixer &audioMixer;
+    Device::PcmDevice *masterOutputDevice = nullptr;
 
-        AudioMixer &audioMixer;
-        Util::Io::OutputStream &masterOutputStream;
+    bool isRunning = true;
+    bool isStopped = false;
 
-        bool isRunning = true;
-        bool isStopped = false;
-
-        uint32_t bufferSize;
-        uint8_t *buffer;
-    };
+    uint32_t bufferSize;
+    uint8_t *buffer = new uint8_t[bufferSize];
+};
 
 }
 

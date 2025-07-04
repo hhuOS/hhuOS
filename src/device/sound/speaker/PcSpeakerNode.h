@@ -27,7 +27,7 @@
 #include "lib/util/base/String.h"
 #include "lib/util/io/file/File.h"
 
-namespace Device::Sound {
+namespace Device {
 
 class PcSpeakerNode : public Filesystem::Memory::StringNode {
 

@@ -19,6 +19,7 @@
 #define SOUNDSERVICE_H
 
 #include "Service.h"
+#include "device/sound/speaker/PcSpeaker.h"
 #include "kernel/sound/AudioMixer.h"
 
 namespace Kernel {
@@ -29,7 +30,7 @@ public:
     /**
      * Constructor.
      */
-    SoundService(const Util::String &masterOutputPath);
+    explicit SoundService() = default;
 
     /**
      * Copy Constructor.
@@ -46,11 +47,16 @@ public:
      */
     ~SoundService() override = default;
 
+    void setMasterOutputDevice(Device::PcmDevice &device) const;
+
+    Device::PcSpeaker& getSpeaker();
+
     static const constexpr uint8_t SERVICE_ID = 11;
 
 private:
 
-    AudioMixer *mixer = nullptr;
+    AudioMixer mixer;
+    Device::PcSpeaker speaker;
 };
 
 }

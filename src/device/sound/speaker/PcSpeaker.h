@@ -23,11 +23,13 @@
 
 #include <stdint.h>
 
+#include "device/cpu/IoPort.h"
+
 namespace Device {
 class IoPort;
 }  // namespace Device
 
-namespace Device::Sound {
+namespace Device {
 
 /**
  * Driver for the music producing PC speaker.
@@ -37,9 +39,8 @@ class PcSpeaker {
 public:
     /**
      * Default Constructor.
-     * Deleted, as this class has only static members.
      */
-    PcSpeaker() = delete;
+    PcSpeaker() = default;
 
     /**
      * Copy Constructor.
@@ -58,21 +59,19 @@ public:
 
     /**
      * Beep until Speaker::off() is called.
-     *
-     * @param f The frequency.
      */
-    static void play(uint16_t frequency);
+    void play(uint16_t frequency);
 
     /**
      * Turn the speaker off
      */
-    static void off();
+    void off();
 
 private:
 
-    static IoPort controlPort;
-    static IoPort dataPort2;
-    static IoPort ppi;
+    IoPort controlPort = IoPort(0x43);
+    IoPort dataPort2 = IoPort(0x42);
+    IoPort ppi = IoPort(0x61);
 
 };
 

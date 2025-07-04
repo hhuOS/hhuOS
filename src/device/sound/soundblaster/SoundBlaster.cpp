@@ -20,8 +20,6 @@
 
 #include "SoundBlaster.h"
 
-#include "SoundBlasterRunnable.h"
-#include "SoundBlasterNode.h"
 #include "kernel/service/MemoryService.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/time/Timestamp.h"
@@ -36,6 +34,7 @@
 #include "kernel/service/Service.h"
 #include "lib/util/base/Constants.h"
 #include "kernel/process/Scheduler.h"
+#include "kernel/service/SoundService.h"
 
 namespace Kernel {
 enum InterruptVector : uint8_t;
@@ -49,7 +48,7 @@ SoundBlaster::SoundBlaster(uint16_t baseAddress, uint8_t irqNumber, uint8_t dmaC
         resetPort(baseAddress + 0x06), readDataPort(baseAddress + 0x0a),
         writeDataPort(baseAddress + 0x0c), readBufferStatusPort(baseAddress + 0x0e),
         mixerAddressPort(baseAddress + 0x04), mixerDataPort(baseAddress + 0x05),
-        irqNumber(irqNumber), dmaChannel(dmaChannel), runnable(new SoundBlasterRunnable(*this)) {
+        irqNumber(irqNumber), dmaChannel(dmaChannel) {
     // Get version
     while((readBufferStatusPort.readByte() & 0x80) != 0x80);
     uint8_t majorVersion = readDataPort.readByte();
@@ -59,15 +58,9 @@ SoundBlaster::SoundBlaster(uint16_t baseAddress, uint8_t irqNumber, uint8_t dmaC
     dspVersion = (majorVersion << 8) | minorVersion;
     LOG_INFO("DSP version: [%u.%02u]", majorVersion, minorVersion);
 
-    // Create thread and filesystem node
-    auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
-    auto &filesystemService = Kernel::Service::getService<Kernel::FilesystemService>();
-
-    auto &thread = Kernel::Thread::createKernelThread("Sound-Blaster", processService.getKernelProcess(), runnable);
-    auto *soundBlasterNode = new SoundBlasterNode(this, *runnable, thread);
-
-    filesystemService.getFilesystem().getVirtualDriver("/device").addNode("/", soundBlasterNode);
-    processService.getScheduler().ready(thread);
+    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+    dmaBuffer = static_cast<uint8_t*>(memoryService.allocateIsaMemory(DMA_BUFFER_SIZE / Util::PAGESIZE));
+    physicalDmaAddress = static_cast<uint8_t*>(memoryService.getPhysicalAddress(dmaBuffer));
 }
 
 SoundBlaster::~SoundBlaster() {
@@ -129,10 +122,10 @@ uint16_t SoundBlaster::getBasePort() {
     return 0;
 }
 
-bool SoundBlaster::initialize() {
+void SoundBlaster::initialize() {
     uint16_t baseAddress = getBasePort();
     if (baseAddress == 0) {
-        return false;
+        return;
     }
 
     LOG_INFO("Found base port at address [0x%x]", baseAddress);
@@ -147,7 +140,8 @@ bool SoundBlaster::initialize() {
     auto *soundBlaster = new SoundBlaster(baseAddress);
     soundBlaster->plugin();
 
-    return true;
+    auto &soundService = Kernel::Service::getService<Kernel::SoundService>();
+    soundService.setMasterOutputDevice(*soundBlaster);
 }
 
 bool SoundBlaster::reset() {
@@ -230,69 +224,6 @@ void SoundBlaster::trigger([[maybe_unused]] const Kernel::InterruptFrame &frame,
     ackInterrupt();
 }
 
-uint8_t* SoundBlaster::getDmaBuffer() const {
-    return dmaBuffer;
-}
-
-bool SoundBlaster::setAudioParameters(uint16_t sampleRate, uint8_t channels, uint8_t bitsPerSample) {
-    if (dspVersion < 0x0201) {
-        if (channels > 1 || bitsPerSample != 8 || sampleRate < 4000 || sampleRate > 23000) {
-            return false;
-        }
-    } else if (dspVersion < 0x0300) {
-        if (channels > 1 || bitsPerSample != 8 || sampleRate < 4000 || sampleRate > 44100) {
-            return false;
-        }
-    } else if (channels == 1) {
-        if (bitsPerSample != 8 || sampleRate < 4000 || sampleRate > 44100) {
-            return false;
-        }
-    } else if (channels == 2) {
-        if (bitsPerSample != 8 || (sampleRate != 11025 && sampleRate != 22050)) {
-            return false;
-        }
-    }
-
-    samplesPerSecond = sampleRate;
-    timeConstant = static_cast<uint16_t>(65536 - (256000000 / (sampleRate * channels)));
-    numChannels = channels;
-
-    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    dmaBufferSize = (sampleRate * (bitsPerSample / 8) * channels) / (1000 / AUDIO_BUFFER_SIZE_MS);
-    if (dmaBufferSize % 2 == 1) {
-        dmaBufferSize++;
-    }
-    if (dmaBufferSize % Util::PAGESIZE != 0) {
-        dmaBufferSize = ((dmaBufferSize + Util::PAGESIZE) / Util::PAGESIZE) * Util::PAGESIZE;
-    }
-    if (dmaBufferSize > Isa::MAX_DMA_PAGESIZE) {
-        dmaBufferSize = Isa::MAX_DMA_PAGESIZE;
-    }
-
-    delete dmaBuffer;
-    dmaBuffer = static_cast<uint8_t*>(memoryService.allocateIsaMemory(dmaBufferSize / Util::PAGESIZE));
-    physicalDmaAddress = static_cast<uint8_t*>(memoryService.getPhysicalAddress(dmaBuffer));
-
-    runnable->adjustInputStreamBuffer(sampleRate, channels, bitsPerSample);
-
-    if (dspVersion >= 0x0300) {
-        if (numChannels == 1) {
-            disableStereo();
-            enableLowPassFilter();
-        } else if (numChannels == 2) {
-            enableStereo();
-            disableLowPassFilter();
-        }
-    }
-
-    writeTimeConstant();
-    return true;
-}
-
-uint32_t SoundBlaster::getDmaBufferSize() const {
-    return dmaBufferSize;
-}
-
 void SoundBlaster::prepareDma(uint32_t offset, uint32_t size) const {
     Isa::selectChannel(dmaChannel);
     Isa::setMode(dmaChannel, Isa::READ, false, false, Isa::SINGLE_TRANSFER);
@@ -345,7 +276,7 @@ void SoundBlaster::writeBufferSize(uint32_t size) {
     writeToDSP(static_cast<uint8_t>(((size - 1) & 0xff00) >> 8));
 }
 
-void SoundBlaster::play(uint32_t offset, uint32_t size) {
+void SoundBlaster::startDmaTransfer(uint32_t offset, uint32_t size) {
     prepareDma(offset, size);
 
     if (numChannels == 1 && samplesPerSecond <= 23000) {
@@ -355,6 +286,97 @@ void SoundBlaster::play(uint32_t offset, uint32_t size) {
         writeToDSP(SET_BLOCK_TRANSFER_SIZE);
         writeBufferSize(size);
         writeToDSP(EIGHT_BIT_SINGLE_CYCLE_HIGH_SPEED_DMA_OUTPUT);
+    }
+}
+
+bool SoundBlaster::setPlaybackParameters(uint32_t sampleRate, uint8_t channels, uint8_t bitsPerSample) {
+    if (dspVersion < 0x0201) {
+        if (channels > 1 || bitsPerSample != 8 || sampleRate < 4000 || sampleRate > 23000) {
+            return false;
+        }
+    } else if (dspVersion < 0x0300) {
+        if (channels > 1 || bitsPerSample != 8 || sampleRate < 4000 || sampleRate > 44100) {
+            return false;
+        }
+    } else if (channels == 1) {
+        if (bitsPerSample != 8 || sampleRate < 4000 || sampleRate > 44100) {
+            return false;
+        }
+    } else if (channels == 2) {
+        if (bitsPerSample != 8 || (sampleRate != 11025 && sampleRate != 22050)) {
+            return false;
+        }
+    }
+
+    samplesPerSecond = sampleRate;
+    timeConstant = static_cast<uint16_t>(65536 - (256000000 / (sampleRate * channels)));
+    numChannels = channels;
+    SoundBlaster::bitsPerSample = bitsPerSample;
+
+    if (dspVersion >= 0x0300) {
+        if (numChannels == 1) {
+            disableStereo();
+            enableLowPassFilter();
+        } else if (numChannels == 2) {
+            enableStereo();
+            disableLowPassFilter();
+        }
+    }
+
+    writeTimeConstant();
+    return true;
+}
+
+uint32_t SoundBlaster::getSampleRate() const {
+    return samplesPerSecond;
+}
+
+uint8_t SoundBlaster::getChannels() const {
+    return numChannels;
+}
+
+uint8_t SoundBlaster::getBitsPerSample() const {
+    return bitsPerSample;
+}
+
+void SoundBlaster::sourceDrained() {
+    if (isPlaying) {
+        waitForInterrupt();
+        turnSpeakerOff();
+        isPlaying = false;
+        dmaOffset = 0;
+    }
+}
+
+void SoundBlaster::play(const uint8_t *samples, uint32_t size) {
+    if (size == 0) {
+        return;
+    }
+
+    // Copy samples to the DMA buffer
+    const auto toCopy = DMA_BUFFER_SIZE - dmaOffset < size ? DMA_BUFFER_SIZE - dmaOffset : size;
+    Util::Address(dmaBuffer).add(dmaOffset).copyRange(Util::Address(samples), toCopy);
+
+    // Wait for current DMA transfer to finish (if one is in progress)
+    if (isPlaying) {
+        waitForInterrupt();
+    } else {
+        isPlaying = true;
+        turnSpeakerOn();
+    }
+
+    // Start the DMA transfer
+    startDmaTransfer(dmaOffset, toCopy);
+
+    // Increase offset for next write (wrap around if necessary)
+    if (dmaOffset + toCopy >= DMA_BUFFER_SIZE) {
+        dmaOffset = 0;
+    } else {
+        dmaOffset += toCopy;
+    }
+
+    if (toCopy < size) {
+        play(samples + toCopy, size - toCopy);
     }
 }
 

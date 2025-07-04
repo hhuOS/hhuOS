@@ -15,55 +15,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef AUDIOCHANNEL_H
-#define AUDIOCHANNEL_H
+#ifndef PCMDEVICE_H
+#define PCMDEVICE_H
 
-#include "io/stream/FilterInputStream.h"
 #include "io/stream/FilterOutputStream.h"
-#include "io/stream/PipedInputStream.h"
-#include "io/stream/PipedOutputStream.h"
+#include "io/stream/Pipe.h"
 
-namespace Util::Io {
+namespace Device {
 
-class Pipe : public FilterInputStream, public FilterOutputStream {
+class PcmDevice : public Util::Io::FilterOutputStream {
 
 public:
     /**
      * Default Constructor.
      */
-    Pipe(int32_t bufferSize = DEFAULT_BUFFER_SIZE);
+    PcmDevice();
 
     /**
      * Copy Constructor.
      */
-    Pipe(const Pipe &other) = delete;
+    PcmDevice(const PcmDevice &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Pipe &operator=(const Pipe &other) = delete;
+    PcmDevice &operator=(const PcmDevice &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Pipe() override = default;
+    ~PcmDevice() override = default;
 
-    uint32_t getReadableBytes();
+    virtual bool setPlaybackParameters(uint32_t sampleRate, uint8_t channels, uint8_t bitsPerSample) = 0;
 
-    uint32_t getWritableBytes();
+    [[nodiscard]] virtual uint32_t getSampleRate() const = 0;
 
-    void reset();
+    [[nodiscard]] virtual uint8_t getChannels() const = 0;
 
-    InputStream& getInputStream();
+    [[nodiscard]] virtual uint8_t getBitsPerSample() const = 0;
 
-    OutputStream& getOutputStream();
+    virtual void play(const uint8_t *samples, uint32_t size) = 0;
+
+    virtual void sourceDrained() = 0;
+
+    void processWrittenSamples();
 
 private:
 
-    PipedInputStream inputStream;
-    PipedOutputStream outputStream;
-
-    static const constexpr int32_t DEFAULT_BUFFER_SIZE = 1024;
+    Util::Io::Pipe pipe;
+    uint8_t *buffer = new uint8_t[4096];
 };
 
 }
