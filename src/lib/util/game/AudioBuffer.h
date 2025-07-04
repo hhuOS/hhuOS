@@ -15,51 +15,59 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef AUDIOCHANNEL_H
-#define AUDIOCHANNEL_H
+#ifndef AUDIOBUFFER_H
+#define AUDIOBUFFER_H
 
-#include "io/stream/FilterInputStream.h"
-#include "io/stream/FilterOutputStream.h"
-#include "io/stream/PipedInputStream.h"
-#include "io/stream/PipedOutputStream.h"
+#include "base/String.h"
 
-namespace Util::Io {
+namespace Util::Game {
 
-class Pipe : public FilterInputStream, public FilterOutputStream {
+class AudioBuffer {
 
 public:
     /**
      * Default Constructor.
      */
-    Pipe(int32_t bufferSize = DEFAULT_BUFFER_SIZE);
+    AudioBuffer() = default;
+
+    AudioBuffer(const String &waveFilePath);
 
     /**
      * Copy Constructor.
      */
-    Pipe(const Pipe &other) = delete;
+    AudioBuffer(const AudioBuffer &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Pipe &operator=(const Pipe &other) = delete;
+    AudioBuffer &operator=(const AudioBuffer &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Pipe() override = default;
+    ~AudioBuffer() = default;
 
-    uint32_t getReadableBytes();
+    [[nodiscard]] String getWaveFilePath() const;
 
-    uint32_t getWritableBytes();
+    [[nodiscard]] uint32_t getSamplesPerSecond() const;
 
-    void reset();
+    [[nodiscard]] uint16_t getBitsPerSample() const;
+
+    [[nodiscard]] uint16_t getNumChannels() const;
+
+    [[nodiscard]] uint32_t getSize() const;
+
+    [[nodiscard]] const uint8_t* getSamples() const;
 
 private:
 
-    PipedInputStream inputStream;
-    PipedOutputStream outputStream;
+    String waveFilePath = "";
+    uint32_t samplesPerSecond = 0;
+    uint16_t bitsPerSample = 0;
+    uint16_t numChannels = 0;
 
-    static const constexpr int32_t DEFAULT_BUFFER_SIZE = 1024;
+    uint32_t size = 0;
+    uint8_t *samples = nullptr;
 };
 
 }

@@ -15,51 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef AUDIOCHANNEL_H
-#define AUDIOCHANNEL_H
+#ifndef AUDIO_H
+#define AUDIO_H
 
-#include "io/stream/FilterInputStream.h"
-#include "io/stream/FilterOutputStream.h"
-#include "io/stream/PipedInputStream.h"
-#include "io/stream/PipedOutputStream.h"
+#include "AudioBuffer.h"
+#include "AudioHandle.h"
 
-namespace Util::Io {
-
-class Pipe : public FilterInputStream, public FilterOutputStream {
+namespace Util::Game {
+class Audio {
 
 public:
     /**
      * Default Constructor.
      */
-    Pipe(int32_t bufferSize = DEFAULT_BUFFER_SIZE);
+    Audio() = default;
 
     /**
-     * Copy Constructor.
+     * Constructor.
      */
-    Pipe(const Pipe &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Pipe &operator=(const Pipe &other) = delete;
+    Audio(const String &waveFilePath);
 
     /**
      * Destructor.
      */
-    ~Pipe() override = default;
+    ~Audio() = default;
 
-    uint32_t getReadableBytes();
-
-    uint32_t getWritableBytes();
-
-    void reset();
+    AudioHandle play(bool loop);
 
 private:
 
-    PipedInputStream inputStream;
-    PipedOutputStream outputStream;
-
-    static const constexpr int32_t DEFAULT_BUFFER_SIZE = 1024;
+    AudioBuffer *buffer = nullptr;
 };
 
 }

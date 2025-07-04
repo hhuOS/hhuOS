@@ -30,12 +30,14 @@
 #include "lib/util/collection/HashMap.h"
 #include "lib/util/graphic/Image.h"
 #include "lib/util/game/3d/ObjectFile.h"
+#include "sound/WaveFile.h"
 
 namespace Util::Game {
 
 HashMap<String, Graphic::Image*> ResourceManager::images;
 HashMap<String, D3::ObjectFile*> ResourceManager::objectFiles;
 HashMap<String, GLuint> ResourceManager::textures;
+HashMap<String, AudioBuffer*> ResourceManager::audioBuffers;
 
 void ResourceManager::addImage(const String &key, Graphic::Image *image) {
     images.put(key, image);
@@ -102,4 +104,21 @@ void ResourceManager::deleteTexture(const String &key) {
     }
 }
 
+void ResourceManager::addAudioBuffer(const String &key, AudioBuffer *buffer) {
+    audioBuffers.put(key, buffer);
+}
+
+bool ResourceManager::hasAudioBuffer(const String &key) {
+    return audioBuffers.containsKey(key);
+}
+
+AudioBuffer* ResourceManager::getAudioBuffer(const String &key) {
+    return audioBuffers.get(key);
+}
+
+void ResourceManager::deleteAudioBuffer(const String &key) {
+    if (audioBuffers.containsKey(key)) {
+        audioBuffers.remove(key);
+    }
+}
 }

@@ -64,18 +64,18 @@ bool AudioMixer::createChannel(uint8_t &id) {
     streamLock.acquire();
 
     // Generate pipe
-    streams[id] = new Util::Io::Pipe();
+    streams[id] = new Util::Io::Pipe(BUFFER_SIZE);
 
     // Create filesystem node for the channel
     auto &filesystemService = Service::getService<FilesystemService>();
     auto &deviceFilesystem = filesystemService.getFilesystem().getVirtualDriver("/device");
     auto *channelNode = new AudioChannelNode(id, *streams[id], *this);
-    deviceFilesystem.addNode("/", channelNode);
+    bool success = deviceFilesystem.addNode("/", channelNode);
 
-    return streamLock.releaseAndReturn(true);
+    return streamLock.releaseAndReturn(success);
 }
 
-bool AudioMixer::deleteChannel(const uint32_t &id) {
+bool AudioMixer::deleteChannel([[maybe_unused]] const uint32_t &id) {
     streamLock.acquire();
 
     auto *pipe = streams[id];
@@ -87,12 +87,13 @@ bool AudioMixer::deleteChannel(const uint32_t &id) {
     // Remove pipe
     activeStreams.remove(pipe);
     streams[id] = nullptr;
+    delete pipe;
 
     streamLock.release();
 
-    // Remove channel node from filesystem (also delete the pipe)
+    // Remove filesystem node for the channel
     auto &filesystemService = Service::getService<FilesystemService>();
-    filesystemService.deleteFile(Util::String::format("channel%u", id));
+    filesystemService.deleteFile(Util::String::format("/device/channel%u", id));
 
     idGenerator.unset(id);
     return true;
@@ -107,6 +108,7 @@ bool AudioMixer::controlPlayback(const uint32_t &request, const uint32_t &id) {
                 activeStreams.add(pipe);
             break;
         case Util::Sound::AudioChannel::STOP:
+            pipe->reset();
             activeStreams.remove(pipe);
             break;
         default:
@@ -190,10 +192,6 @@ void AudioMixer::clamp(uint8_t *targetBuffer, uint32_t numBytes) const {
         mixBuffer[i] = 0;
         playing[i] = 0;
     }
-}
-
-void AudioMixer::writeToOutput(const uint8_t *sourceBuffer, const uint32_t length) {
-    masterOutputStream.write(sourceBuffer, 0, length);
 }
 
 }

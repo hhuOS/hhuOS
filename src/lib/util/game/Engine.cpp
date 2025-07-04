@@ -93,6 +93,13 @@ void Engine::run() {
         scene.updateEntities(frameTime);
         scene.checkCollisions();
         scene.applyChanges();
+
+        for (auto &audioChannel : game.audioChannels) {
+            if (audioChannel.isPlaying()) {
+                audioChannel.update(frameTime);
+            }
+        }
+
         updateStatus();
         statistics.stopUpdateTimeTime();
 
@@ -116,6 +123,8 @@ void Engine::run() {
 }
 
 void Engine::initializeNextScene() {
+    game.stopAllAudioChannels();
+
     if (!game.firstScene) {
         graphics.disableGl();
         game.getCurrentScene().getCamera().reset();

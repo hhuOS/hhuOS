@@ -22,6 +22,7 @@
 
 #include "lib/util/async/Thread.h"
 #include "device/sound/soundblaster/SoundBlaster.h"
+#include "kernel/log/Log.h"
 #include "lib/util/base/Address.h"
 
 namespace Device {
@@ -38,7 +39,7 @@ SoundBlasterRunnable::~SoundBlasterRunnable() {
 void SoundBlasterRunnable::run() {
     while (isRunning) {
         inputStreamLock.acquire();
-        uint32_t available = inputStream->available();
+        uint32_t available = inputStream->getReadableBytes();
         inputStreamLock.release();
 
         while (available == 0) {
@@ -52,7 +53,7 @@ void SoundBlasterRunnable::run() {
             Util::Async::Thread::yield();
 
             inputStreamLock.acquire();
-            available = inputStream->available();
+            available = inputStream->getReadableBytes();
             inputStreamLock.release();
         }
 

@@ -27,6 +27,8 @@
 #ifndef HHUOS_RESOURCEMANAGER_H
 #define HHUOS_RESOURCEMANAGER_H
 
+#include "AudioChannel.h"
+#include "io/file/File.h"
 #include "lib/util/base/String.h"
 #include "lib/tinygl/include/GL/gl.h"
 
@@ -80,7 +82,7 @@ public:
 
     static bool hasObjectFile(const String &key);
 
-    static D3::ObjectFile * getObjectFile(const String &key);
+    static D3::ObjectFile* getObjectFile(const String &key);
 
     static void deleteObjectFile(const String &key);
 
@@ -92,6 +94,14 @@ public:
 
     static void deleteTexture(const String &key);
 
+    static void addAudioBuffer(const String &key, AudioBuffer *buffer);
+
+    static bool hasAudioBuffer(const String &key);
+
+    static AudioBuffer* getAudioBuffer(const String &key);
+
+    static void deleteAudioBuffer(const String &key);
+
     static void clear();
 
 private:
@@ -99,6 +109,7 @@ private:
     static HashMap<String, Graphic::Image*> images;
     static HashMap<String, D3::ObjectFile*> objectFiles;
     static HashMap<String, GLuint> textures;
+    static HashMap<String, AudioBuffer*> audioBuffers;
 };
 
 }

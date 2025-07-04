@@ -39,6 +39,11 @@ bool AudioChannelNode::control(uint32_t request, const Util::Array<uint32_t> &pa
             *remainingBytes = audioPipe.getReadableBytes();
             return true;
         }
+        case Util::Sound::AudioChannel::GET_WRITABLE_BYTES: {
+            auto *writableBytes = reinterpret_cast<uint32_t*>(parameters[0]);
+            *writableBytes = audioPipe.getWritableBytes();
+            return true;
+        }
         default:
             return mixer.controlPlayback(request, parameters[0]);
     }

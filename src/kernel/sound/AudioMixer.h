@@ -75,8 +75,6 @@ private:
 
     void sum(uint32_t numBytes) const;
 
-    void writeToOutput(const uint8_t *sourceBuffer, uint32_t length);
-
     uint8_t *streamBuffer = new uint8_t[BUFFER_SIZE]();
     uint16_t *mixBuffer = new uint16_t[BUFFER_SIZE]();
     uint8_t *playing = new uint8_t[BUFFER_SIZE]();
@@ -92,7 +90,7 @@ private:
     AudioMixerRunnable *runnable;
     Thread &thread;
 
-    static constexpr double AUDIO_BUFFER_SIZE = 1.0;
+    static constexpr double AUDIO_BUFFER_SIZE = 0.15;
     static constexpr uint16_t SAMPLES_PER_SECOND = 22050;
     static constexpr uint8_t BITS_PER_SAMPLE = 8;
     static constexpr uint8_t NUM_CHANNELS = 1;

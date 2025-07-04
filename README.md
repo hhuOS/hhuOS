@@ -127,6 +127,8 @@ Assets for the dino game have been taken from [itch.io](https://itch.io):
 Assets for the bug defender game have been taken from [itch.io](https://itch.io):
 - [Lunar Battle Pack](https://mattwalkden.itch.io/lunar-battle-pack) by [*MattWalkden*](https://mattwalkden.itch.io/) ([CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/legalcode))
 - [Pixel Heart Animation](https://nicolemariet.itch.io/pixel-heart-animation-32x32-16x16-freebie) by [*Nicole Marie T*](https://nicolemariet.itch.io/)
+- [Exploding Sun (Music)](https://kyrasvoice.itch.io/8-bit-space-music) by [*Kyra's Voice*](https://kyrasvoice.itch.io/) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode))
+- [Explosion (Sound Effect)](https://levivb.itch.io/heavy-8bit-explosions-sounds) by [*Levi V. B.*](https://levivb.itch.io/) ([License](https://levivb.itch.io/heavy-8bit-explosions-sounds))
 
 Assets for the battlespace game have been taken from [itch.io](https://itch.io):
 - [Lowpoly - 3D Space Assets Pack](https://ejgarner118.itch.io/spacepack) by [*ejgarner118*](https://ejgarner118.itch.io/)

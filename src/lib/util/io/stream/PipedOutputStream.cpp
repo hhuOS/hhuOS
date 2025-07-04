@@ -50,4 +50,8 @@ void PipedOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint
     sink->write(sourceBuffer, offset, length);
 }
 
+uint32_t PipedOutputStream::getWritableBytes() const {
+    return sink->getWritableBytes();
+}
+
 }

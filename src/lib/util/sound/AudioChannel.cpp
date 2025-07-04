@@ -39,16 +39,16 @@ uint8_t AudioChannel::createChannel() {
     return id;
 }
 
-bool AudioChannel::stop() {
+bool AudioChannel::stop(const bool flush) {
     // Flush any remaining audio data from the channel
-    while (getRemainingBytes() > 0) {
+    while (flush && getRemainingBytes() > 0) {
         Async::Thread::yield();
     }
 
     // Stop channel playback
     const auto success = audioMixerFile.controlFile(STOP, Util::Array<size_t>({id}));
     if (success) {
-        state = STOP;
+        playing = false;
     }
 
     return success;
@@ -57,18 +57,14 @@ bool AudioChannel::stop() {
 bool AudioChannel::play() {
     const auto success = audioMixerFile.controlFile(PLAY, Util::Array<size_t>({id}));
     if (success) {
-        state = PLAY;
+        playing = true;
     }
 
     return success;
 }
 
 bool AudioChannel::isPlaying() const {
-    return state == PLAY;
-}
-
-bool AudioChannel::isStopped() const {
-    return state == STOP;
+    return playing;
 }
 
 size_t AudioChannel::getRemainingBytes() {
@@ -76,6 +72,13 @@ size_t AudioChannel::getRemainingBytes() {
     audioChannelFile.controlFile(GET_REMAINING_BYTES, {reinterpret_cast<size_t>(&remainingBytes)});
 
     return remainingBytes;
+}
+
+size_t AudioChannel::getWritableBytes() {
+    size_t writableBytes = 0;
+    audioChannelFile.controlFile(GET_WRITABLE_BYTES, {reinterpret_cast<size_t>(&writableBytes)});
+
+    return writableBytes;
 }
 
 void AudioChannel::write(const uint8_t c) {

@@ -53,6 +53,8 @@ public:
 
     void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
 
+    [[nodiscard]] uint32_t getWritableBytes() const;
+
 private:
 
     PipedInputStream *sink = nullptr;

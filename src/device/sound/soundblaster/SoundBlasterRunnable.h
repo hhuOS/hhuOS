@@ -75,7 +75,7 @@ private:
     Util::Io::PipedInputStream *inputStream = new Util::Io::PipedInputStream();
     Util::Io::PipedOutputStream *outputStream = new Util::Io::PipedOutputStream();
 
-    static const constexpr double AUDIO_BUFFER_SIZE = 0.5;
+    static const constexpr double AUDIO_BUFFER_SIZE = 0.15;
 };
 
 }

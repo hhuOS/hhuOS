@@ -30,9 +30,13 @@ add_compile_options(
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} lib.graphic lib.user.tinygl lib.user.libc)
+target_link_libraries(${PROJECT_NAME} lib.graphic lib.sound lib.user.tinygl lib.user.libc)
 
 target_sources(${PROJECT_NAME} PUBLIC
+        ${HHUOS_SRC_DIR}/lib/util/game/Audio.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/AudioBuffer.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/AudioChannel.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/AudioHandle.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Camera.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/CancelableEvent.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Collider.cpp

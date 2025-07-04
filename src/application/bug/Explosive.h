@@ -23,6 +23,7 @@
 
 #include <stdint.h>
 
+#include "game/Audio.h"
 #include "lib/util/game/2d/SpriteAnimation.h"
 #include "lib/util/game/2d/Entity.h"
 
@@ -76,6 +77,7 @@ public:
 private:
 
     Util::Game::D2::SpriteAnimation animation;
+    Util::Game::Audio soundEffect;
 
     bool shouldExplode = false;
     bool exploding = false;

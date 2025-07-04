@@ -18,48 +18,46 @@
 #ifndef AUDIOCHANNEL_H
 #define AUDIOCHANNEL_H
 
-#include "io/stream/FilterInputStream.h"
-#include "io/stream/FilterOutputStream.h"
-#include "io/stream/PipedInputStream.h"
-#include "io/stream/PipedOutputStream.h"
+#include "AudioBuffer.h"
+#include "sound/AudioChannel.h"
+#include "sound/WaveFile.h"
 
-namespace Util::Io {
+namespace Util::Game {
 
-class Pipe : public FilterInputStream, public FilterOutputStream {
+class AudioChannel : public Sound::AudioChannel {
 
 public:
     /**
      * Default Constructor.
      */
-    Pipe(int32_t bufferSize = DEFAULT_BUFFER_SIZE);
+    AudioChannel() = default;
 
     /**
      * Copy Constructor.
      */
-    Pipe(const Pipe &other) = delete;
+    AudioChannel(const AudioChannel &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Pipe &operator=(const Pipe &other) = delete;
+    AudioChannel &operator=(const AudioChannel &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Pipe() override = default;
+    ~AudioChannel() override = default;
 
-    uint32_t getReadableBytes();
+    void play(const AudioBuffer &buffer, bool loop = false);
 
-    uint32_t getWritableBytes();
+    void update(double delta);
 
-    void reset();
+    [[nodiscard]] String getWaveFilePath() const;
 
 private:
 
-    PipedInputStream inputStream;
-    PipedOutputStream outputStream;
-
-    static const constexpr int32_t DEFAULT_BUFFER_SIZE = 1024;
+    const AudioBuffer *buffer = nullptr;
+    uint32_t position = 0;
+    bool loop = false;
 };
 
 }

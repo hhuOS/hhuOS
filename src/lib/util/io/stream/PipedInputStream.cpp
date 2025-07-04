@@ -167,24 +167,37 @@ void PipedInputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint3
     lock.release();
 }
 
-bool PipedInputStream::isReadyToRead() {
-    return available() > 0;
-}
-
-uint32_t PipedInputStream::available() {
-    uint32_t ret;
+void PipedInputStream::reset() {
     lock.acquire();
 
-    if (inPosition < 0) {
-        ret = 0;
-    } else if (outPosition < inPosition) {
-        ret = inPosition - outPosition;
-    } else {
-        ret = (bufferSize - outPosition) + inPosition;
-    }
+    inPosition = -1;
+    outPosition = 0;
+    peekedCharacter = -1;
 
     lock.release();
-    return ret;
+}
+
+bool PipedInputStream::isReadyToRead() {
+    return getReadableBytes() > 0;
+}
+
+uint32_t PipedInputStream::getReadableBytes() {
+    lock.acquire();
+
+    uint32_t readableBytes;
+    if (inPosition < 0) {
+        readableBytes = 0;
+    } else if (outPosition < inPosition) {
+        readableBytes = inPosition - outPosition;
+    } else {
+        readableBytes = (bufferSize - outPosition) + inPosition;
+    }
+
+    return lock.releaseAndReturn(readableBytes);
+}
+
+uint32_t PipedInputStream::getWritableBytes() {
+    return bufferSize - getReadableBytes();
 }
 
 }

@@ -52,9 +52,13 @@ public:
 
     int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
 
+	void reset();
+
     bool isReadyToRead() override;
 
-    uint32_t available();
+    uint32_t getReadableBytes();
+
+	uint32_t getWritableBytes();
 
 private:
 

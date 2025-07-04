@@ -15,24 +15,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Pipe.h"
+#include "AudioHandle.h"
 
-namespace Util::Io {
+namespace Util::Game {
 
-Pipe::Pipe(int32_t bufferSize) : FilterInputStream(inputStream), FilterOutputStream(outputStream), inputStream(bufferSize) {
-    outputStream.connect(inputStream);
+AudioHandle::AudioHandle(AudioChannel *channel) : channel(channel), waveFilePath(channel == nullptr ? "" : channel->getWaveFilePath()) {}
+
+bool AudioHandle::isPlaying() const {
+    return channel != nullptr && channel->getWaveFilePath() == waveFilePath && channel->isPlaying();
 }
 
-uint32_t Pipe::getReadableBytes() {
-    return inputStream.getReadableBytes();
-}
-
-uint32_t Pipe::getWritableBytes() {
-    return outputStream.getWritableBytes();
-}
-
-void Pipe::reset() {
-    inputStream.reset();
+void AudioHandle::stop() const {
+    if (channel != nullptr && channel->getWaveFilePath() == waveFilePath) {
+        channel->stop(false);
+    }
 }
 
 }

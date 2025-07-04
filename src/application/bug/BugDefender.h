@@ -27,6 +27,8 @@
 #include "lib/util/game/KeyListener.h"
 #include "Ship.h"
 #include "Fleet.h"
+#include "game/Audio.h"
+#include "game/AudioBuffer.h"
 #include "lib/util/math/Random.h"
 #include "lib/util/math/Vector2.h"
 
@@ -70,6 +72,9 @@ private:
 
     Fleet enemyFleet = Fleet(BUGS_PER_ROW * BUGS_PER_COLUMN, 0.25);
     Ship *ship = new Ship(Util::Math::Vector2<double>(-0.1414, -0.8));
+
+    Util::Game::Audio backgroundMusic;
+    Util::Game::AudioHandle backgroundMusicHandle;
 
     Util::Math::Random random;
 

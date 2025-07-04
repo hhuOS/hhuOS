@@ -27,6 +27,9 @@
 #ifndef HHUOS_GAME_H
 #define HHUOS_GAME_H
 
+#include "AudioChannel.h"
+#include "AudioHandle.h"
+#include "io/file/File.h"
 #include "lib/util/collection/ArrayListQueue.h"
 
 namespace Util {
@@ -46,7 +49,7 @@ public:
     /**
      * Default Constructor.
      */
-    Game() = default;
+    Game();
 
     /**
      * Copy Constructor.
@@ -73,6 +76,10 @@ public:
 
     void switchToNextScene();
 
+    AudioHandle playAudioBuffer(const AudioBuffer &buffer, bool loop);
+
+    void stopAllAudioChannels();
+
 private:
 
     void initializeNextScene(Graphics &graphics);
@@ -80,6 +87,8 @@ private:
     ArrayListQueue<Scene*> scenes;
     bool firstScene = true;
     bool sceneSwitched = true;
+
+    Array<AudioChannel> audioChannels;
 
     bool running = true;
 };

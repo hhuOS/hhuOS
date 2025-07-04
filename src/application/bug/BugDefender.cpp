@@ -33,6 +33,8 @@
 #include "lib/util/game/Graphics.h"
 
 void BugDefender::initialize() {
+    backgroundMusic = Util::Game::Audio("/user/bug/music.wav");
+
     addObject(ship);
 
     for (uint32_t i = 0; i < BUGS_PER_COLUMN; i++) {
@@ -45,6 +47,10 @@ void BugDefender::initialize() {
 }
 
 void BugDefender::update([[maybe_unused]] double delta) {
+    if (!backgroundMusicHandle.isPlaying()) {
+        backgroundMusicHandle = backgroundMusic.play(true);
+    }
+
     enemyFleet.applyChanges();
 }
 

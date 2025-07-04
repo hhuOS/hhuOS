@@ -66,7 +66,7 @@ namespace Util::Sound {
 /// // Stop playback of the audio channel (the channel is still valid, but the mixer will not play it for now)
 /// audioChannel.stop();
 /// ```
-class AudioChannel final : public Io::OutputStream {
+class AudioChannel : public Io::OutputStream {
 
 public:
     /// Requests that can be issued to the audio mixer/channel via file control operations.
@@ -80,7 +80,9 @@ public:
         /// Stop playback of the audio channel.
         STOP,
         /// Get the amount of audio data currently in the channel.
-        GET_REMAINING_BYTES
+        GET_REMAINING_BYTES,
+        /// Get the amount of bytes, that can be written to the channel without blocking.
+        GET_WRITABLE_BYTES
     };
 
     /// Create a new audio channel instance.
@@ -98,20 +100,23 @@ public:
     /// Before calling this, the mixer will not read any data from this channel.
     bool play();
 
-    /// Play any remaining audio data from the channel and then stop playback by sending a request to the audio mixer.
+    /// Stop playback by sending a request to the audio mixer.
     /// When the channel is stopped, data can still be written to it, but the mixer will not play it.
+    /// If the parameter `flush` is true, this method will first wait until any remaining audio data is played.
+    ///
     /// CAUTION: If the channel pipe is full, writing to it will block until the mixer reads some data,
     ///          which will only happen after the channel is started again by calling `play()`.
-    bool stop();
+    bool stop(bool flush = true);
 
     /// Check if the audio channel is currently playing.
     [[nodiscard]] bool isPlaying() const;
 
-    /// Check if the audio channel is currently stopped.
-    [[nodiscard]] bool isStopped() const;
-
     /// Get the amount of audio data currently in the channel, waiting to be played.
     [[nodiscard]] size_t getRemainingBytes();
+
+    /// Get the amount of bytes that can be written to the channel without blocking.
+    /// It is always possible to write more bytes, but the write operation will block until the mixer reads some data.
+    [[nodiscard]] size_t getWritableBytes();
 
     /// Write a single byte of audio data to the audio channel.
     /// The data must be in 8-bit mono PCM format at a sample rate of 22050 Hz.
@@ -125,7 +130,7 @@ private:
 
     uint8_t createChannel();
 
-    Request state = STOP;
+    bool playing = false;
     Io::File audioMixerFile;
 
     const uint8_t id;

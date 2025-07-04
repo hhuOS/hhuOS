@@ -20,6 +20,8 @@
 
 #include "Explosive.h"
 
+#include "game/Game.h"
+#include "game/GameManager.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/game/2d/Sprite.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
@@ -34,6 +36,8 @@ template <typename T> class Vector2;
 Explosive::Explosive(uint32_t tag, const Util::Math::Vector2<double> &position, const Util::Game::D2::RectangleCollider &collider) : Entity(tag, position, collider) {}
 
 void Explosive::initialize() {
+    soundEffect = Util::Game::Audio("/user/bug/explosion.wav");
+
     auto size = getCollider().getHeight() > getCollider().getWidth() ? getCollider().getHeight() : getCollider().getWidth();
     animation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
         Util::Game::D2::Sprite("/user/bug/explosion1.bmp", size, size),
@@ -50,6 +54,7 @@ void Explosive::onUpdate(double delta) {
     if (shouldExplode) {
         exploding = true;
         shouldExplode = false;
+        soundEffect.play(false);
     } else if (exploding) {
         explosionTimer += delta;
         if (explosionTimer <= animation.getAnimationTime()) {

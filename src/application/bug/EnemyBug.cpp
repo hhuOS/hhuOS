@@ -91,8 +91,15 @@ void EnemyBug::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
         return;
     }
 
+    // Workaround for weird bug, where enemy suddenly gets an x-position outside the screen range
+    const auto dimX = Util::Game::GameManager::getDimensions().getX();
+    if (event.getTargetPosition().getX() < -dimX || event.getTargetPosition().getX() > dimX) {
+        event.cancel();
+        return;
+    }
+
     const auto targetX = event.getTargetPosition().getX();
-    const auto maxX = Util::Game::GameManager::getDimensions().getX() - SIZE_X;
+    const auto maxX = dimX - SIZE_X;
 
     if ((fleet.getVelocity() > 0 && targetX > maxX - SIZE_X) || (fleet.getVelocity() < 0 && targetX < -maxX)) {
         fleet.moveDown();

@@ -26,10 +26,14 @@
 
 #include "Game.h"
 
+#include "AudioHandle.h"
+#include "ResourceManager.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/Graphics.h"
 
 namespace Util::Game {
+
+Game::Game() : audioChannels(Io::File("/device/audiomixer").exists() ? 8 : 0) {}
 
 Game::~Game() {
     while (!scenes.isEmpty()) {
@@ -55,6 +59,24 @@ void Game::pushScene(Scene *scene) {
 
 void Game::switchToNextScene() {
     sceneSwitched = true;
+}
+
+AudioHandle Game::playAudioBuffer(const AudioBuffer &buffer, bool loop = false) {
+    for (auto &channel : audioChannels) {
+        if (!channel.isPlaying()) {
+            channel.play(buffer, loop);
+
+            return AudioHandle(&channel);
+        }
+    }
+
+    return AudioHandle(nullptr);
+}
+
+void Game::stopAllAudioChannels() {
+    for (auto &channel : audioChannels) {
+        channel.stop(false);
+    }
 }
 
 void Game::initializeNextScene(Graphics &graphics) {

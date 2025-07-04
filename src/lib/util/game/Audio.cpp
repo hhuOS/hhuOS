@@ -15,24 +15,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Pipe.h"
+#include "Audio.h"
 
-namespace Util::Io {
+#include "Game.h"
+#include "GameManager.h"
+#include "ResourceManager.h"
 
-Pipe::Pipe(int32_t bufferSize) : FilterInputStream(inputStream), FilterOutputStream(outputStream), inputStream(bufferSize) {
-    outputStream.connect(inputStream);
+Util::Game::Audio::Audio(const String &waveFilePath) {
+    if (ResourceManager::hasAudioBuffer(waveFilePath)) {
+        buffer = ResourceManager::getAudioBuffer(waveFilePath);
+    } else {
+        buffer = new AudioBuffer(waveFilePath);
+        ResourceManager::addAudioBuffer(waveFilePath, buffer);
+    }
 }
 
-uint32_t Pipe::getReadableBytes() {
-    return inputStream.getReadableBytes();
-}
-
-uint32_t Pipe::getWritableBytes() {
-    return outputStream.getWritableBytes();
-}
-
-void Pipe::reset() {
-    inputStream.reset();
-}
-
+Util::Game::AudioHandle Util::Game::Audio::play(bool loop) {
+    return GameManager::getGame().playAudioBuffer(*buffer, loop);
 }
