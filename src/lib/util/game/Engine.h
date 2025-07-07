@@ -29,6 +29,7 @@
 
 #include <stdint.h>
 
+#include "AudioRunnable.h"
 #include "lib/util/async/Runnable.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/game/Graphics.h"

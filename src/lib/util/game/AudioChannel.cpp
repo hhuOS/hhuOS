@@ -26,7 +26,7 @@ void AudioChannel::play(const AudioBuffer &audioBuffer, bool loop) {
     position = 0;
     AudioChannel::loop = loop;
 
-    if (!isPlaying()) {
+    if (getState() != PLAYING) {
         Sound::AudioChannel::play();
     }
 }
@@ -50,7 +50,7 @@ bool AudioChannel::update() {
             position = 0;
         } else {
             // Stop playback if looping is not enabled
-            stop(false);
+            stop();
         }
     }
 

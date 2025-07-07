@@ -21,12 +21,12 @@
 #ifndef HHUOS_AUDIOMIXER_H
 #define HHUOS_AUDIOMIXER_H
 
+#include "AudioChannel.h"
 #include "async/AtomicBitmap.h"
 #include "device/sound/PcmDevice.h"
 #include "kernel/process/Thread.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/io/stream/FileOutputStream.h"
-#include "lib/util/io/stream/PipedInputStream.h"
+#include "io/file/File.h"
+#include "io/stream/FileOutputStream.h"
 #include "io/stream/Pipe.h"
 
 namespace Kernel {
@@ -58,9 +58,9 @@ public:
 
     bool createChannel(uint8_t &id);
 
-    bool deleteChannel(const uint32_t &id);
+    bool deleteChannel(uint32_t id);
 
-    bool controlPlayback(const uint32_t &request, const uint32_t &id);
+    void controlPlayback(Util::Sound::AudioChannel::Request request, uint32_t id);
 
     void setMasterOutputDevice(Device::PcmDevice &device) const;
 
@@ -71,6 +71,10 @@ public:
     int16_t peek() override;
 
     bool isReadyToRead() override;
+
+    static constexpr uint32_t SAMPLES_PER_SECOND = 22050;
+    static constexpr uint8_t BITS_PER_SAMPLE = 8;
+    static constexpr uint8_t NUM_CHANNELS = 1;
 
 private:
 
@@ -84,16 +88,14 @@ private:
 
     Util::Async::Spinlock streamLock;
     Util::Async::AtomicBitmap idGenerator;
-    Util::Array<Util::Io::Pipe*> streams;
-    Util::ArrayList<Util::Io::Pipe*> activeStreams;
+    Util::Array<AudioChannel*> streams;
+    Util::ArrayList<AudioChannel*> activeStreams;
+    Util::ArrayList<AudioChannel*> flushedStreams;
 
     AudioMixerRunnable *runnable;
     Thread &thread;
 
     static constexpr uint32_t AUDIO_BUFFER_SIZE_MS = 100;
-    static constexpr uint32_t SAMPLES_PER_SECOND = 22050;
-    static constexpr uint8_t BITS_PER_SAMPLE = 8;
-    static constexpr uint8_t NUM_CHANNELS = 1;
     static constexpr uint32_t BUFFER_SIZE = (AUDIO_BUFFER_SIZE_MS * SAMPLES_PER_SECOND * (BITS_PER_SAMPLE / 8) * NUM_CHANNELS) / 1000;
 };
 

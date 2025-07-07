@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 target_sources(kernel PUBLIC
+        ${HHUOS_SRC_DIR}/kernel/sound/AudioChannel.cpp
         ${HHUOS_SRC_DIR}/kernel/sound/AudioChannelNode.cpp
         ${HHUOS_SRC_DIR}/kernel/sound/AudioMixer.cpp
         ${HHUOS_SRC_DIR}/kernel/sound/AudioMixerNode.cpp

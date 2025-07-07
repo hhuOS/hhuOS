@@ -39,14 +39,8 @@ uint8_t AudioChannel::createChannel() {
     return id;
 }
 
-bool AudioChannel::stop(const bool flush) {
-    // Flush any remaining audio data from the channel
-    while (flush && getRemainingBytes() > 0) {
-        Async::Thread::yield();
-    }
-
-    // Stop channel playback
-    const auto success = audioMixerFile.controlFile(STOP, Util::Array<size_t>({id}));
+bool AudioChannel::stop() {
+    const auto success = audioChannelFile.controlFile(STOP, Util::Array<size_t>());
     if (success) {
         playing = false;
     }
@@ -55,7 +49,7 @@ bool AudioChannel::stop(const bool flush) {
 }
 
 bool AudioChannel::play() {
-    const auto success = audioMixerFile.controlFile(PLAY, Util::Array<size_t>({id}));
+    const auto success = audioChannelFile.controlFile(PLAY, Util::Array<size_t>());
     if (success) {
         playing = true;
     }
@@ -63,8 +57,17 @@ bool AudioChannel::play() {
     return success;
 }
 
-bool AudioChannel::isPlaying() const {
-    return playing;
+
+AudioChannel::State AudioChannel::getState() {
+    State state;
+    const auto success = audioChannelFile.controlFile(GET_PLAYBACK_STATE,
+        Util::Array<size_t>({reinterpret_cast<size_t>(&state)}));
+
+    if (!success) {
+        Panic::fire(Panic::ILLEGAL_STATE, "Failed to get audio channel state!");
+    }
+
+    return state;
 }
 
 size_t AudioChannel::getRemainingBytes() {

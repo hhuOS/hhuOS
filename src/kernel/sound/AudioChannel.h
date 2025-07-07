@@ -13,52 +13,51 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The audio mixer is based on a bachelor's thesis, written by Andreas Lüpertz.
- * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-ANLU89
  */
 
-#ifndef AUDIOCHANNELNODE_H
-#define AUDIOCHANNELNODE_H
+#ifndef KERNEL_AUDIOCHANNEL_H
+#define KERNEL_AUDIOCHANNEL_H
 
-#include "AudioMixer.h"
-#include "filesystem/memory/MemoryNode.h"
 #include "io/stream/Pipe.h"
+#include "sound/AudioChannel.h"
 
 namespace Kernel {
 
-class AudioChannelNode : public Filesystem::Memory::MemoryNode {
+class AudioChannel : public Util::Io::Pipe {
 
 public:
     /**
      * Default Constructor.
      */
-    explicit AudioChannelNode(uint8_t id, AudioChannel &channel, AudioMixer &mixer);
+    explicit AudioChannel(int32_t bufferSize);
 
     /**
      * Copy Constructor.
      */
-    AudioChannelNode(const AudioChannelNode &other) = delete;
+    AudioChannel(const AudioChannel &other) = delete;
 
     /**
      * Assignment operator.
      */
-    AudioChannelNode &operator=(const AudioChannelNode &other) = delete;
+    AudioChannel &operator=(const AudioChannel &other) = delete;
 
     /**
      * Destructor.
      */
-    ~AudioChannelNode() override = default;
+    ~AudioChannel() override = default;
 
-    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
+    void write(uint8_t c) override;
 
-    bool control(uint32_t request, const Util::Array<uint32_t> &parameters) override;
+    void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
+
+    void setState(Util::Sound::AudioChannel::State state);
+
+    [[nodiscard]] Util::Sound::AudioChannel::State getState() const;
 
 private:
 
-    const uint8_t id;
-    AudioChannel &channel;
-    AudioMixer &mixer;
+    Util::Sound::AudioChannel::State state = Util::Sound::AudioChannel::STOPPED;
+
 };
 
 }

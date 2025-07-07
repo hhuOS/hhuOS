@@ -60,7 +60,7 @@ public:
     ///     printf("%d ", element); // Prints: 0 1 2 3 4 5 6 7 8 9
     /// }
     /// ```
-    explicit Array(size_t capacity);
+    explicit Array(size_t capacity = 0);
 
     /// Create a new array from an initializer list.
     /// The elements of the list are copied to the array and the capacity is set to the size of the list.

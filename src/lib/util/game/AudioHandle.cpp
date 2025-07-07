@@ -22,12 +22,16 @@ namespace Util::Game {
 AudioHandle::AudioHandle(AudioChannel *channel) : channel(channel), waveFilePath(channel == nullptr ? "" : channel->getWaveFilePath()) {}
 
 bool AudioHandle::isPlaying() const {
-    return channel != nullptr && channel->getWaveFilePath() == waveFilePath && channel->isPlaying();
+    if (channel == nullptr || channel->getWaveFilePath() != waveFilePath) {
+        return false;
+    }
+
+    return channel->getState() != AudioChannel::STOPPED;
 }
 
 void AudioHandle::stop() const {
     if (channel != nullptr && channel->getWaveFilePath() == waveFilePath) {
-        channel->stop(false);
+        channel->stop();
     }
 }
 

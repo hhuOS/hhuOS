@@ -33,7 +33,7 @@
 
 namespace Util::Game {
 
-Game::Game() : audioChannels(Io::File("/device/audiomixer").exists() ? 8 : 0) {}
+Game::Game() : audioChannels(8) {}
 
 Game::~Game() {
     while (!scenes.isEmpty()) {
@@ -63,7 +63,7 @@ void Game::switchToNextScene() {
 
 AudioHandle Game::playAudioBuffer(const AudioBuffer &buffer, bool loop = false) {
     for (auto &channel : audioChannels) {
-        if (!channel.isPlaying()) {
+        if (channel.getState() == AudioChannel::STOPPED) {
             channel.play(buffer, loop);
 
             return AudioHandle(&channel);
@@ -75,7 +75,7 @@ AudioHandle Game::playAudioBuffer(const AudioBuffer &buffer, bool loop = false) 
 
 void Game::stopAllAudioChannels() {
     for (auto &channel : audioChannels) {
-        channel.stop(false);
+        channel.stop();
     }
 }
 

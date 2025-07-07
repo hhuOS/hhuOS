@@ -31,7 +31,7 @@ public:
     /**
      * Default Constructor.
      */
-    Pipe(int32_t bufferSize = DEFAULT_BUFFER_SIZE);
+    explicit Pipe(int32_t bufferSize = DEFAULT_BUFFER_SIZE);
 
     /**
      * Copy Constructor.

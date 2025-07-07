@@ -15,34 +15,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "AudioRunnable.h"
+#include "AudioChannel.h"
 
-namespace Util::Game {
+namespace Kernel {
 
-AudioRunnable::AudioRunnable(Array<AudioChannel> &channels) : channels(channels) {}
+AudioChannel::AudioChannel(int32_t bufferSize) : Pipe(bufferSize) {}
 
-void AudioRunnable::run() {
-    isRunning = true;
-
-    while (isRunning) {
-        bool yield = false;
-
-        for (auto &audioChannel : channels) {
-            if (audioChannel.getState() == AudioChannel::PLAYING) {
-                if (!audioChannel.update()) {
-                    yield = true;
-                }
-            }
-        }
-
-        if (yield) {
-            Async::Thread::yield();
-        }
+void AudioChannel::write(uint8_t c) {
+    while (state != Util::Sound::AudioChannel::PLAYING) {
+        Util::Async::Thread::yield();
     }
+
+    Pipe::write(c);
 }
 
-void AudioRunnable::stop() {
-    isRunning = false;
+void AudioChannel::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+    while (state != Util::Sound::AudioChannel::PLAYING) {
+        Util::Async::Thread::yield();
+    }
+
+    Pipe::write(sourceBuffer, offset, length);
+}
+
+void AudioChannel::setState(Util::Sound::AudioChannel::State state) {
+    AudioChannel::state = state;
+}
+
+Util::Sound::AudioChannel::State AudioChannel::getState() const {
+    return state;
 }
 
 }

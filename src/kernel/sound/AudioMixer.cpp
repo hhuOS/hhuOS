@@ -60,7 +60,7 @@ bool AudioMixer::createChannel(uint8_t &id) {
     streamLock.acquire();
 
     // Generate pipe
-    streams[id] = new Util::Io::Pipe(BUFFER_SIZE);
+    streams[id] = new AudioChannel(BUFFER_SIZE);
 
     // Create filesystem node for the channel
     auto &filesystemService = Service::getService<FilesystemService>();
@@ -71,7 +71,7 @@ bool AudioMixer::createChannel(uint8_t &id) {
     return streamLock.releaseAndReturn(success);
 }
 
-bool AudioMixer::deleteChannel([[maybe_unused]] const uint32_t &id) {
+bool AudioMixer::deleteChannel(const uint32_t id) {
     streamLock.acquire();
 
     auto *pipe = streams[id];
@@ -95,23 +95,28 @@ bool AudioMixer::deleteChannel([[maybe_unused]] const uint32_t &id) {
     return true;
 }
 
-bool AudioMixer::controlPlayback(const uint32_t &request, const uint32_t &id) {
+void AudioMixer::controlPlayback(const Util::Sound::AudioChannel::Request request, const uint32_t id) {
     streamLock.acquire();
     auto *pipe = streams[id];
+
     switch (request) {
         case Util::Sound::AudioChannel::PLAY:
-            if (!activeStreams.contains(pipe))
+            if (!activeStreams.contains(pipe)) {
                 activeStreams.add(pipe);
+            }
+
+            pipe->setState(Util::Sound::AudioChannel::PLAYING);
             break;
         case Util::Sound::AudioChannel::STOP:
-            pipe->reset();
-            activeStreams.remove(pipe);
+            if (activeStreams.contains(pipe)) {
+                pipe->setState(Util::Sound::AudioChannel::FLUSHING);
+            }
             break;
         default:
             break;
     }
+
     streamLock.release();
-    return true;
 }
 
 void AudioMixer::setMasterOutputDevice(Device::PcmDevice &device) const {
@@ -133,11 +138,19 @@ int32_t AudioMixer::read(uint8_t *targetBuffer, [[maybe_unused]] uint32_t offset
     // Iterate over list of active channel streams
     for (auto *channel : activeStreams) {
         const auto readable = channel->getReadableBytes();
-        const auto toRead = readable > length ? length : readable;
+        auto toRead = readable > length ? length : readable;
+        if (toRead > BUFFER_SIZE / 2) {
+            toRead = BUFFER_SIZE / 2;
+        }
 
         // Read from single channel pipe
         const auto readBytes = channel->read(streamBuffer, 0, toRead);
         if (readBytes == 0) {
+            // Nothing read from channel -> Check if channel was flushing
+            if (channel->getState() == Util::Sound::AudioChannel::FLUSHING) {
+                flushedStreams.add(channel);
+            }
+
             continue;
         }
 
@@ -146,6 +159,13 @@ int32_t AudioMixer::read(uint8_t *targetBuffer, [[maybe_unused]] uint32_t offset
         // Add channel data to mixed buffer
         sum(readBytes);
     }
+
+    // Remove any flushed streams from the active streams list
+    for (auto *channel : flushedStreams) {
+        activeStreams.remove(channel);
+        channel->setState(Util::Sound::AudioChannel::STOPPED);
+    }
+    flushedStreams.clear();
 
     streamLock.release();
 
@@ -160,13 +180,15 @@ int16_t AudioMixer::peek() {
 }
 
 bool AudioMixer::isReadyToRead() {
+    streamLock.acquire();
+
     for (auto *channel : activeStreams) {
         if (channel->getReadableBytes() > 0) {
             return true; // At least one channel has data to read
         }
     }
 
-    return false;
+    return streamLock.releaseAndReturn(false);
 }
 
 void AudioMixer::sum(uint32_t numBytes) const {

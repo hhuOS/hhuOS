@@ -24,28 +24,39 @@
 
 namespace Kernel {
 
-AudioChannelNode::AudioChannelNode(const uint8_t id, Util::Io::Pipe &audioPipe, AudioMixer &mixer) :
-    MemoryNode(Util::String::format("channel%u", id)), audioPipe(audioPipe), mixer(mixer) {}
+AudioChannelNode::AudioChannelNode(const uint8_t id, AudioChannel &channel, AudioMixer &mixer) :
+    MemoryNode(Util::String::format("channel%u", id)), id(id), channel(channel), mixer(mixer) {}
 
 uint64_t AudioChannelNode::writeData(const uint8_t *sourceBuffer, [[maybe_unused]] uint64_t pos, uint64_t numBytes) {
-    audioPipe.write(sourceBuffer, 0, numBytes);
+    channel.write(sourceBuffer, 0, numBytes);
     return numBytes;
 }
 
 bool AudioChannelNode::control(uint32_t request, const Util::Array<uint32_t> &parameters) {
     switch (request) {
+        case Util::Sound::AudioChannel::PLAY:
+            mixer.controlPlayback(Util::Sound::AudioChannel::PLAY, id);
+            return true;
+        case Util::Sound::AudioChannel::STOP:
+            mixer.controlPlayback(Util::Sound::AudioChannel::STOP, id);
+            return true;
+        case Util::Sound::AudioChannel::GET_PLAYBACK_STATE: {
+            auto *state = reinterpret_cast<Util::Sound::AudioChannel::State*>(parameters[0]);
+            *state = channel.getState();
+            return true;
+        }
         case Util::Sound::AudioChannel::GET_REMAINING_BYTES: {
             auto *remainingBytes = reinterpret_cast<uint32_t*>(parameters[0]);
-            *remainingBytes = audioPipe.getReadableBytes();
+            *remainingBytes = channel.getReadableBytes();
             return true;
         }
         case Util::Sound::AudioChannel::GET_WRITABLE_BYTES: {
             auto *writableBytes = reinterpret_cast<uint32_t*>(parameters[0]);
-            *writableBytes = audioPipe.getWritableBytes();
+            *writableBytes = channel.getWritableBytes();
             return true;
         }
         default:
-            return mixer.controlPlayback(request, parameters[0]);
+            return false;
     }
 
 }

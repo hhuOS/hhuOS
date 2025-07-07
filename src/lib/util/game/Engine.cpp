@@ -60,8 +60,6 @@ Engine::Engine(const Graphic::LinearFrameBuffer &lfb, uint8_t targetFrameRate, d
     if (mouseFile.exists()) {
         mouseInputStream = new Io::FileInputStream(mouseFile);
     }
-
-    Async::Thread::createThread("Game-Audio", new AudioRunnable(game.audioChannels));
 }
 
 Engine::~Engine() {
@@ -75,6 +73,10 @@ void Engine::run() {
     Graphic::Ansi::prepareGraphicalApplication(true);
     Io::File::setAccessMode(Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
     mouseInputStream->setAccessMode(Io::File::NON_BLOCKING);
+
+    // Start audio thread
+    auto *audioRunnable = new AudioRunnable(game.audioChannels);
+    auto audioThread = Async::Thread::createThread("Game-Audio", audioRunnable);
 
     initializeNextScene();
 
@@ -116,6 +118,9 @@ void Engine::run() {
 
         statistics.stopFrameTime();
     }
+
+    audioRunnable->stop();
+    audioThread.join();
 
     graphics.disableGl();
 }

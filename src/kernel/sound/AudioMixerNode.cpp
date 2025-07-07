@@ -47,10 +47,8 @@ bool AudioMixerNode::control(uint32_t request, const Util::Array<uint32_t> &para
                 const auto id = parameters[0];
                 return audioMixer.deleteChannel(id);
             }
-            default: {
-                const auto id = parameters[0];
-                return audioMixer.controlPlayback(request, id);
-            }
+            default:
+                break;
         }
     }
 

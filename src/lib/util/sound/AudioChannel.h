@@ -79,10 +79,25 @@ public:
         PLAY,
         /// Stop playback of the audio channel.
         STOP,
+        /// Get the current playback state of the audio channel (e.g. playing or stopped).
+        GET_PLAYBACK_STATE,
         /// Get the amount of audio data currently in the channel.
         GET_REMAINING_BYTES,
         /// Get the amount of bytes, that can be written to the channel without blocking.
         GET_WRITABLE_BYTES
+    };
+
+    /// Possible states of the audio channel (e.g. playing or stopped).
+    enum State {
+        /// The audio channel is currently playing and audio data is being read from it by the audio mixer.
+        /// Any data written to the channel will be played back as soon as possible.
+        PLAYING,
+        /// The audio channel has been stopped and the audio mixer is currently reading any remaining data.
+        /// Writing to the channel will block until `play()` is called again.
+        FLUSHING,
+        /// The audio channel is stopped and the audio mixer is not reading any data from it.
+        /// Writing to the channel will block until `play()` is called again.
+        STOPPED,
     };
 
     /// Create a new audio channel instance.
@@ -101,15 +116,12 @@ public:
     bool play();
 
     /// Stop playback by sending a request to the audio mixer.
-    /// When the channel is stopped, data can still be written to it, but the mixer will not play it.
-    /// If the parameter `flush` is true, this method will first wait until any remaining audio data is played.
-    ///
-    /// CAUTION: If the channel pipe is full, writing to it will block until the mixer reads some data,
-    ///          which will only happen after the channel is started again by calling `play()`.
-    bool stop(bool flush = true);
+    /// The mixer will then play any remaining data from the channel and stop playback afterward.
+    /// When the channel is stopped, all write operations will block until `play()` is called again.
+    bool stop();
 
-    /// Check if the audio channel is currently playing.
-    [[nodiscard]] bool isPlaying() const;
+    /// Get the current playback state of the audio channel.
+    [[nodiscard]] State getState();
 
     /// Get the amount of audio data currently in the channel, waiting to be played.
     [[nodiscard]] size_t getRemainingBytes();

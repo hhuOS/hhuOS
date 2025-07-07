@@ -50,8 +50,11 @@ public:
 
     void run() override;
 
+    void stop();
+
 private:
 
+    bool isRunning = false;
     Array<AudioChannel> &channels;
 };
 

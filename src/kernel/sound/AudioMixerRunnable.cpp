@@ -19,6 +19,9 @@
  */
 
 #include "AudioMixerRunnable.h"
+
+#include <time/Timestamp.h>
+
 #include "AudioMixer.h"
 
 namespace Kernel {
@@ -30,13 +33,16 @@ void AudioMixerRunnable::run() {
         // Read samples from the audio mixer
         // The audio mixer will mix the samples from all channels and return the number of processed bytes
         const auto toWrite = audioMixer.read(buffer, 0, bufferSize);
+        const auto durationMs = toWrite / (AudioMixer::BITS_PER_SAMPLE / 8) / AudioMixer::NUM_CHANNELS / (AudioMixer::SAMPLES_PER_SECOND / 1000);
 
         // Write the mixed audio samples to the master output stream
         if (masterOutputDevice == nullptr) {
-            Util::Async::Thread::yield();
+            // Simulate playback by sleeping for the duration of the mixed audio samples
+            Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(durationMs));
         } else {
             if (toWrite > 0) {
                 masterOutputDevice->play(buffer, toWrite);
+                Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(durationMs / 2));
             } else {
                 masterOutputDevice->sourceDrained();
                 Util::Async::Thread::yield();

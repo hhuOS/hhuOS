@@ -107,6 +107,9 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     audioChannel.stop();
+    while (audioChannel.getState() != Util::Sound::AudioChannel::STOPPED) {
+        Util::Async::Thread::yield();
+    }
 
     Util::Graphic::Ansi::clearLine();
     Util::Graphic::Ansi::moveCursorToBeginningOfPreviousLine(0);
