@@ -140,7 +140,7 @@ void* MemoryService::allocateBiosMemory(uint32_t pageCount) {
 
 void* MemoryService::allocateIsaMemory(uint32_t pageCount) {
     // Allocate memory below 16 MiB
-    void *physicalAddress = allocatePhysicalMemory(pageCount, nullptr);
+    void *physicalAddress = allocatePhysicalMemory(pageCount, reinterpret_cast<void*>(MemoryLayout::KERNEL_START));
     if (reinterpret_cast<uint32_t>(physicalAddress) >= Device::Isa::MAX_DMA_ADDRESS) {
         freePhysicalMemory(physicalAddress, pageCount);
         return nullptr;
@@ -168,7 +168,7 @@ void* MemoryService::allocateIsaMemory(uint32_t pageCount) {
 }
 
 void* MemoryService::allocatePhysicalMemory(uint32_t frameCount, void *startAddress) {
-    if (slabAllocatorEnabled) {
+    if (slabAllocatorEnabled && reinterpret_cast<uint32_t>(startAddress) >= Device::Isa::MAX_DMA_ADDRESS) {
         void *physicalStartAddress = pageFrameSlabAllocator.allocateBlock(frameCount);
         if (physicalStartAddress != nullptr) {
             return physicalStartAddress;
