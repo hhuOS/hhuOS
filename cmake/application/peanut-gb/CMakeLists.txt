@@ -40,11 +40,15 @@ include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/
 
 add_compile_options(
         -Wno-switch
+        -DAUDIO_SAMPLE_RATE=22050
+        -DMINIGB_APU_AUDIO_FORMAT_S16SYS
+        -DENABLE_SOUND
 )
 
 set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/peanut-gb/peanut_gb.cpp)
+        ${HHUOS_SRC_DIR}/application/peanut-gb/peanut_gb.cpp
+        ${HHUOS_SRC_DIR}/application/peanut-gb/Peanut-GB/examples/sdl2/minigb_apu/minigb_apu.c)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.libc)
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.libc lib.user.sound)

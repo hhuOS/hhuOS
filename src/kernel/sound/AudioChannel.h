@@ -1,7 +1,10 @@
 /*
- * Copyright (C) 2018-2025 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2017-2025 Heinrich Heine University Düsseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+ * Main developers: Christian Gesse <christian.gesse@hhu.de>, Fabian Ruhland <ruhland@hhu.de>
+ * Original development team: Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schöttner
+ * This project has been supported by several students.
+ * A full list of integrated student theses can be found here: https://github.com/hhuOS/hhuOS/wiki/Student-theses
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -13,6 +16,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The audio mixer is based on a bachelor's thesis, written by Andreas Lüpertz.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-ANLU89
  */
 
 #ifndef KERNEL_AUDIOCHANNEL_H

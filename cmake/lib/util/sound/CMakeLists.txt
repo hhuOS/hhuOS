@@ -27,7 +27,6 @@ add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/sound/AudioChannel.cpp
         ${HHUOS_SRC_DIR}/lib/util/sound/PcSpeaker.cpp
-        ${HHUOS_SRC_DIR}/lib/util/sound/SoundBlaster.cpp
         ${HHUOS_SRC_DIR}/lib/util/sound/WaveFile.cpp)
 
 # Kernel space version

@@ -18,10 +18,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <time.h>
+#include <stdio.h>
+
+#include "sound/AudioChannel.h"
+
+uint8_t audio_read(uint16_t addr);
+void audio_write(uint16_t addr, uint8_t val);
+
 #include "Peanut-GB/peanut_gb.h"
 
+extern "C" {
+#include "Peanut-GB/examples/sdl2/minigb_apu/minigb_apu.h"
+}
+
 #include "lib/util/base/Panic.h"
-#include "stdio.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/base/System.h"
@@ -42,8 +55,6 @@
 #include "lib/util/io/key/Key.h"
 #include "lib/util/io/stream/InputStream.h"
 #include "lib/util/io/stream/PrintStream.h"
-#include "stdlib.h"
-#include "time.h"
 
 const constexpr uint32_t TARGET_FRAME_RATE = 60;
 const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / TARGET_FRAME_RATE));
@@ -233,9 +244,14 @@ uint16_t offsetY = 0;
 Util::Graphic::LinearFrameBuffer *lfb = nullptr;
 Util::String saveFilePath;
 
+minigb_apu_ctx apu;
+audio_sample_t minigbAudioBuffer[AUDIO_SAMPLES_TOTAL];
+uint8_t mixedAudioBuffer[AUDIO_SAMPLES];
+
 Util::Time::Timestamp fpsTimer;
 uint32_t fpsCounter = 0;
 uint32_t fps = 0;
+
 
 uint32_t* get_palette(uint8_t index, uint8_t flags) {
     auto *pal = palettes[index];
@@ -628,6 +644,14 @@ void read_ram_from_file(gb_s *gb) {
     }
 }
 
+uint8_t audio_read(uint16_t addr) {
+    return minigb_apu_audio_read(&apu, addr);
+}
+
+void audio_write(uint16_t addr, uint8_t val) {
+    minigb_apu_audio_write(&apu, addr, val);
+}
+
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.setHelpText("GameBoy emulator by 'deltabeard' (https://github.com/deltabeard/Peanut-GB).\n"
@@ -726,6 +750,11 @@ int32_t main(int32_t argc, char *argv[]) {
     auto date = localtime(&timer);
     gb_set_rtc(&gb, date);
 
+    Util::Sound::AudioChannel audioChannel;
+    minigb_apu_audio_init(&apu);
+
+    audioChannel.play();
+
     while (true) {
         auto startTime = Util::Time::Timestamp::getSystemTime();
 
@@ -806,6 +835,24 @@ int32_t main(int32_t argc, char *argv[]) {
         }
 
         gb_run_frame(&gb);
+
+        // Get signed 16-bit stereo audio samples from the APU
+        minigb_apu_audio_callback(&apu, minigbAudioBuffer);
+
+        // Convert the samples to unsigned 8-bit mono samples
+        for (uint32_t i = 0; i < AUDIO_SAMPLES; i++) {
+            // Convert the signed 16-bit samples to unsigned 8-bit
+            auto sample1 = (minigbAudioBuffer[i * 2] >> 8) + INT8_MAX; // First channel
+            auto sample2 = (minigbAudioBuffer[i * 2 + 1] >> 8) + INT8_MAX; // Second channel
+
+            // Mix the two channels and clamp the value to the range of 0-255
+            auto mixed = (sample1 + sample2) / 2;
+            mixedAudioBuffer[i] = mixed > UINT8_MAX ? UINT8_MAX : mixed;
+        }
+
+        // Play the mixed audio samples
+        audioChannel.write(mixedAudioBuffer, 0, AUDIO_SAMPLES);
+
         lfb->drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
 
         auto renderTime = Util::Time::Timestamp::getSystemTime() - startTime;
