@@ -29,10 +29,27 @@ namespace Kernel {
 AudioMixerRunnable::AudioMixerRunnable(AudioMixer &audioMixer, uint32_t bufferSize) : audioMixer(audioMixer), bufferSize(bufferSize) {}
 
 void AudioMixerRunnable::run() {
+    isRunning = true;
+    isStopped = false;
+
     while (isRunning) {
         // Read samples from the audio mixer
         // The audio mixer will mix the samples from all channels and return the number of processed bytes
         const auto toWrite = audioMixer.read(buffer, 0, bufferSize);
+        if (toWrite == 0) {
+            if (lastSampleCount != 0 && masterOutputDevice != nullptr) {
+                // Signal to the master output device that the audio mixer is drained
+                // This allows the device to handle the end of playback by e.g. turning off the speaker
+                masterOutputDevice->sourceDrained();
+            }
+
+            // No samples to write, wait for more data
+            Util::Async::Thread::yield();
+            continue;
+        }
+        lastSampleCount = toWrite;
+
+        // Calculate playback duration in milliseconds
         const auto durationMs = toWrite / (AudioMixer::BITS_PER_SAMPLE / 8) / AudioMixer::NUM_CHANNELS / (AudioMixer::SAMPLES_PER_SECOND / 1000);
 
         // Write the mixed audio samples to the master output stream
@@ -40,13 +57,9 @@ void AudioMixerRunnable::run() {
             // Simulate playback by sleeping for the duration of the mixed audio samples
             Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(durationMs));
         } else {
-            if (toWrite > 0) {
-                masterOutputDevice->play(buffer, toWrite);
-                Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(durationMs / 2));
-            } else {
-                masterOutputDevice->sourceDrained();
-                Util::Async::Thread::yield();
-            }
+            // Play the mixed audio samples on the master output device
+            masterOutputDevice->play(buffer, toWrite);
+            Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(durationMs / 2));
         }
     }
 

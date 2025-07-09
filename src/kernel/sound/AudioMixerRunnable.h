@@ -66,8 +66,9 @@ private:
     AudioMixer &audioMixer;
     Device::PcmDevice *masterOutputDevice = nullptr;
 
-    bool isRunning = true;
+    bool isRunning = false;
     bool isStopped = false;
+    uint32_t lastSampleCount = 0;
 
     uint32_t bufferSize;
     uint8_t *buffer = new uint8_t[bufferSize];
