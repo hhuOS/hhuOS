@@ -26,6 +26,8 @@
 #include "lib/util/base/Constants.h"
 #include "kernel/process/Process.h"
 #include "device/cpu/Cpu.h"
+#include "filesystem/Filesystem.h"
+#include "kernel/memory/MemoryLayout.h"
 #include "kernel/service/Service.h"
 #include "kernel/service/ProcessService.h"
 #include "kernel/process/Scheduler.h"
@@ -51,7 +53,9 @@ Thread::Thread(const Util::String &name, Process &parent, Util::Async::Runnable 
 }
 
 Thread::~Thread() {
-    delete reinterpret_cast<uint8_t*>(kernelStack);
+    auto &memoryService = Service::getService<MemoryService>();
+    memoryService.freeKernelStack(kernelStack);
+
     delete fpuContext;
 
     if (isKernelThread()) {
@@ -123,9 +127,10 @@ void Thread::freeUserStack() {
 }
 
 void Thread::prepareKernelStack() {
-    Util::Address(kernelStack).setRange(0, KERNEL_STACK_SIZE);
+    const auto capacity = MemoryLayout::KERNEL_STACK_SIZE / sizeof(uint32_t);
 
-    const auto capacity = KERNEL_STACK_SIZE / sizeof(uint32_t);
+    Util::Address(kernelStack + (Util::PAGESIZE / sizeof(uint32_t))).setRange(0, MemoryLayout::KERNEL_STACK_SIZE - Util::PAGESIZE);
+
     kernelStack[capacity - 1] = 0x0000DEAD; // Dummy return address
     kernelStack[capacity - 2] = reinterpret_cast<uint32_t>(kickoffKernelThread); // Address of 'kickoff_kernel_thread()'
 
@@ -163,7 +168,7 @@ void Thread::kickoffKernelThread() {
 }
 
 void Thread::switchToUserMode() {
-    const auto kernelStackCapacity = KERNEL_STACK_SIZE / sizeof(uint32_t);
+    const auto kernelStackCapacity = MemoryLayout::KERNEL_STACK_SIZE / sizeof(uint32_t);
     const auto userStackCapacity = Util::MAX_USER_STACK_SIZE / sizeof(uint32_t);
 
     kernelStack[kernelStackCapacity - 1] = 0x00DEAD00; // Dummy return address;
@@ -192,7 +197,7 @@ void Thread::startFirstThread(const Thread &thread) {
 
 void Thread::switchThread(Thread &current, const Thread &next) {
     Service::getService<MemoryService>().switchAddressSpace(next.parent.getAddressSpace());
-    switchThread(&current.oldStackPointer, next.oldStackPointer, next.kernelStack + (KERNEL_STACK_SIZE / sizeof(uint32_t)));
+    switchThread(&current.oldStackPointer, next.oldStackPointer, next.kernelStack + (MemoryLayout::KERNEL_STACK_SIZE / sizeof(uint32_t)));
 }
 
 uint32_t Thread::getId() const {
@@ -224,8 +229,8 @@ void Thread::join() {
 }
 
 uint32_t* Thread::createKernelStack() {
-    auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-    return static_cast<uint32_t*>(memoryService.allocateKernelMemory(KERNEL_STACK_SIZE, 16));
+    auto &memoryService = Service::getService<MemoryService>();
+    return static_cast<uint32_t*>(memoryService.allocateKernelStack());
 }
 
 uint32_t* Thread::createUserStack() {

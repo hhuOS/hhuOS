@@ -78,6 +78,7 @@
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/base/System.h"
 #include "BuildConfig.h"
+#include "async/BasicRunnable.h"
 #include "kernel/memory/PagingAreaManagerRefillRunnable.h"
 #include "lib/util/async/Process.h"
 #include "device/hid/Ps2Controller.h"

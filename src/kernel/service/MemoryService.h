@@ -95,6 +95,10 @@ public:
 
     void freePhysicalMemory(void *pointer, uint32_t frameCount);
 
+    void* allocateKernelStack();
+
+    void freeKernelStack(void *pointer);
+
     /**
      * Allocate space in PageTableArea.
      *
@@ -216,6 +220,7 @@ private:
     PageFrameAllocator &pageFrameAllocator;
     PagingAreaManager &pagingAreaManager;
     SlabAllocator pageFrameSlabAllocator;
+    Util::BitmapMemoryManager kernelStackAllocator;
 
     Util::ArrayList<VirtualAddressSpace*> addressSpaces;
     VirtualAddressSpace *currentAddressSpace;

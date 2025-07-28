@@ -21,6 +21,7 @@
 #ifndef __MEMLAYOUT_include__
 #define __MEMLAYOUT_include__
 
+#include "base/Constants.h"
 #include "lib/util/base/Address.h"
 
 namespace Kernel {
@@ -66,11 +67,15 @@ public:
     // Size of virtual memory area for page tables and directories
     static const constexpr uint32_t PAGING_AREA_SIZE = 16 * 1024 * 1024;
 
-    // End of virtual kernel memory
+    // End of kernel heap
     static const constexpr uint32_t KERNEL_HEAP_END_ADDRESS = 0x18000000;
 
+    // Memory area dedicated to kernel stacks
     static const constexpr MemoryArea KERNEL_STACK_AREA = { KERNEL_HEAP_END_ADDRESS, 0x20000000, MemoryArea::VIRTUAL };
-    static const constexpr uint32_t KERNEL_END = KERNEL_HEAP_END_ADDRESS;
+    static const constexpr uint32_t KERNEL_STACK_SIZE = 2 * Util::PAGESIZE; // 8 KiB
+
+    // End of virtual kernel memory
+    static const constexpr uint32_t KERNEL_END = KERNEL_STACK_AREA.endAddress;
 
     // The whole virtual kernel area, including code, paging area and heap
     static const constexpr MemoryArea KERNEL_AREA = { KERNEL_START, KERNEL_END, MemoryArea::VIRTUAL };

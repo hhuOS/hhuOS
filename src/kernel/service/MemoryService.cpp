@@ -41,6 +41,7 @@ namespace Kernel {
 
 MemoryService::MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaManager *pagingAreaManager, VirtualAddressSpace *kernelAddressSpace) :
         pageFrameAllocator(*pageFrameAllocator), pagingAreaManager(*pagingAreaManager), pageFrameSlabAllocator(reinterpret_cast<uint8_t*>(allocatePhysicalMemory(SlabAllocator::MAX_SLAB_SIZE / Util::PAGESIZE))),
+        kernelStackAllocator(reinterpret_cast<uint8_t*>(MemoryLayout::KERNEL_STACK_AREA.startAddress), reinterpret_cast<uint8_t*>(MemoryLayout::KERNEL_STACK_AREA.endAddress), MemoryLayout::KERNEL_STACK_SIZE),
         currentAddressSpace(kernelAddressSpace), kernelAddressSpace(*kernelAddressSpace) {
     addressSpaces.add(kernelAddressSpace);
 
@@ -212,6 +213,15 @@ void MemoryService::freePhysicalMemory(void *pointer, uint32_t frameCount) {
     for (uint32_t i = 0; i < frameCount; i++) {
         pageFrameAllocator.freeBlock(static_cast<uint8_t*>(pointer) + i * Util::PAGESIZE);
     }
+}
+
+void* MemoryService::allocateKernelStack() {
+    return kernelStackAllocator.allocateBlock();
+}
+
+void MemoryService::freeKernelStack([[maybe_unused]] void *pointer) {
+    unmap(pointer, MemoryLayout::KERNEL_STACK_SIZE / Util::PAGESIZE, 0);
+    kernelStackAllocator.freeBlock(pointer);
 }
 
 Paging::Table* MemoryService::allocatePageTable() {
