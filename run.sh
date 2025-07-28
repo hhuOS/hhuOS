@@ -39,8 +39,8 @@ readonly CONST_QEMU_STORAGE_ARGS="\
 -device ide-cd,bus=ahci.0"
 
 readonly CONST_QEMU_NETWORK_ARGS="\
--nic model=ne2k_pci,id=ne2k,hostfwd=udp::1797-:1797 -object filter-dump,id=filter0,netdev=ne2k,file=ne2k.dump, \
--nic model=rtl8139,id=rtl8139,hostfwd=udp::1798-:1798 -object filter-dump,id=filter1,netdev=rtl8139,file=rtl8139.dump"
+-nic model=rtl8139,id=rtl8139,hostfwd=udp::1797-:1797 -object filter-dump,id=filter1,netdev=rtl8139,file=rtl8139.dump, \
+-nic model=ne2k_pci,id=ne2k,hostfwd=udp::1798-:1798 -object filter-dump,id=filter0,netdev=ne2k,file=ne2k.dump"
 
 readonly CONST_QEMU_OLD_AUDIO_ARGS="\
 -soundhw pcspk \

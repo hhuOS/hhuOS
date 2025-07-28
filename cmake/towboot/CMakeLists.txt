@@ -19,7 +19,7 @@
 project(towboot)
 message(STATUS "Project " ${PROJECT_NAME})
 
-set(TOWBOOT_VERSION "0.9.4")
+set(TOWBOOT_VERSION "0.9.5")
 
 set(TOWBOOT_CONFIG "\
 default = \"hhuOS\"\\n\

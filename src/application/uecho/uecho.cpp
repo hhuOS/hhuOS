@@ -94,7 +94,7 @@ int32_t client(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4PortA
             return -1;
         }
 
-        auto message = Util::String(receivedDatagram.getData(), receivedDatagram.getLength());
+        auto message = Util::String(receivedDatagram.getData(), receivedDatagram.getLength()).strip();
         Util::System::out << "Received: " << message << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 
         if (message == "exit") {
