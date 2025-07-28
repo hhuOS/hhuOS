@@ -81,6 +81,8 @@ public:
 
     static Thread& createMainUserThread(const Util::String &name, Process &parent, uint32_t eip, uint32_t argc, char **argv, void *envp, uint32_t heapStartAddress);
 
+    void freeUserStack();
+
     [[nodiscard]] uint32_t getId() const;
 
     [[nodiscard]] Util::String getName() const;

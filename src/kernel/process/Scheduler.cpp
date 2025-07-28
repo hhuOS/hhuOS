@@ -135,6 +135,7 @@ void Scheduler::exit() {
     delete joinMap.remove(threadId);
     joinLock.release();
 
+    currentThread->freeUserStack();
     currentThread->getParent().removeThread(*currentThread);
     resetLastFpuThread(*currentThread);
     Service::getService<ProcessService>().cleanup(currentThread);

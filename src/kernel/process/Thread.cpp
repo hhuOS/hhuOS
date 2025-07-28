@@ -110,6 +110,18 @@ Thread& Thread::createMainUserThread(const Util::String &name, Process &parent, 
     return *thread;
 }
 
+void Thread::freeUserStack() {
+    if (isKernelThread()) {
+        return;
+    }
+
+    auto &userStackMemoryManager = Util::System::getAddressSpaceHeader().stackMemoryManager;
+    auto &memoryService = Service::getService<MemoryService>();
+
+    memoryService.unmap(userStack, Util::MAX_USER_STACK_SIZE / Util::PAGESIZE, 1);
+    userStackMemoryManager.freeBlock(userStack);
+}
+
 void Thread::prepareKernelStack() {
     Util::Address(kernelStack).setRange(0, KERNEL_STACK_SIZE);
 
