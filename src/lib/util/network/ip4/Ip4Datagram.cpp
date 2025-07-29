@@ -21,11 +21,11 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "lib/util/network/ip4/Ip4Datagram.h"
+#include "Ip4Datagram.h"
 
-#include "lib/util/network/ip4/Ip4Address.h"
-#include "lib/util/network/ip4/Ip4Header.h"
-#include "lib/util/network/NetworkAddress.h"
+#include "network/ip4/Ip4Address.h"
+#include "network/ip4/Ip4Header.h"
+#include "network/NetworkAddress.h"
 
 namespace Util {
 namespace Io {
@@ -37,21 +37,18 @@ namespace Util::Network::Ip4 {
 
 Ip4Datagram::Ip4Datagram() : Datagram(NetworkAddress::IP4) {}
 
-Ip4Datagram::Ip4Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4Address &remoteAddress, Ip4Header::Protocol protocol) :
-        Datagram(buffer, length, remoteAddress), protocol(protocol) {}
+Ip4Datagram::Ip4Datagram(const uint8_t *buffer, const uint16_t length, const Ip4Address &remoteAddress,
+        const Ip4Header::Protocol protocol) : Datagram(buffer, length, remoteAddress), protocol(protocol) {}
 
-Ip4Datagram::Ip4Datagram(uint8_t *buffer, uint16_t length, const NetworkAddress &remoteAddress, Ip4Header::Protocol protocol) :
-        Datagram(buffer, length, remoteAddress), protocol(protocol) {}
-
-Ip4Datagram::Ip4Datagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress, Ip4Header::Protocol protocol) :
-        Datagram(stream, remoteAddress), protocol(protocol) {}
+Ip4Datagram::Ip4Datagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress,
+        const Ip4Header::Protocol protocol) : Datagram(stream, remoteAddress), protocol(protocol) {}
 
 Ip4Header::Protocol Ip4Datagram::getProtocol() const {
     return protocol;
 }
 
 void Ip4Datagram::setAttributes(const Datagram &datagram) {
-    auto &ip4Datagram = reinterpret_cast<const Ip4Datagram&>(datagram);
+    const auto &ip4Datagram = reinterpret_cast<const Ip4Datagram&>(datagram);
     protocol = ip4Datagram.getProtocol();
 }
 

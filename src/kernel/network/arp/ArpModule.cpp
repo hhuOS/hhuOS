@@ -94,7 +94,7 @@ bool ArpModule::resolveAddress(const Util::Network::Ip4::Ip4Address &protocolAdd
         auto &device = interface.getDevice();
         auto ipAddress = interface.getIp4Address();
         auto packet = Util::Io::ByteArrayOutputStream();
-        writeHeader(packet, ArpHeader::REQUEST, interface.getDevice(), Util::Network::MacAddress::createBroadcastAddress());
+        writeHeader(packet, ArpHeader::REQUEST, interface.getDevice(), Util::Network::MacAddress::BROADCAST);
 
         device.getMacAddress().write(packet);
         interface.getIp4Address().write(packet);

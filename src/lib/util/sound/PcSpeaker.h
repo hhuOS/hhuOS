@@ -50,6 +50,7 @@ namespace Util::Sound {
 /// }
 /// ```
 class PcSpeaker {
+
 public:
     /// Contains the frequencies of several musical notes in Hz.
     /// These values can be used directly with the `play()` method to produce the corresponding sound.
@@ -98,17 +99,6 @@ public:
     /// Create a new PcSpeaker instance using the specified file.
     /// The file should point to the PC speaker device file, typically `/device/speaker`.
     explicit PcSpeaker(const Io::File &speakerFile);
-
-    /// PcSpeaker is not copyable, since it contains a not copyable `FileOutputStream`,
-    /// so the copy constructor is deleted.
-    PcSpeaker(const PcSpeaker &other) = delete;
-
-    /// PcSpeaker is not assignable, since it contains a not copyable `FileOutputStream`,
-    /// so the assignment operator is deleted.
-    PcSpeaker& operator=(const PcSpeaker &other) = delete;
-
-    /// The PcSpeaker destructor is trivial, as it only contains a `FileOutputStream`.
-    ~PcSpeaker() = default;
 
     /// Play a sound at the specified frequency.
     /// This is done by writing the frequency to the PC speaker device file, given in the constructor.

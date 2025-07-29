@@ -23,60 +23,60 @@
 
 #include "NumberUtil.h"
 
-#include "lib/util/io/stream/InputStream.h"
-#include "lib/util/io/stream/OutputStream.h"
+#include "io/stream/InputStream.h"
+#include "io/stream/OutputStream.h"
 
-namespace Util::Network {
+namespace Util::Network::NumberUtil {
 
-int8_t Util::Network::NumberUtil::read8BitValue(Util::Io::InputStream &stream) {
+int8_t read8BitValue(Io::InputStream &stream) {
     return static_cast<int8_t>(stream.read());
 }
 
-uint8_t Util::Network::NumberUtil::readUnsigned8BitValue(Util::Io::InputStream &stream) {
+uint8_t readUnsigned8BitValue(Io::InputStream &stream) {
     return static_cast<uint8_t>(stream.read());
 }
 
-int16_t Util::Network::NumberUtil::read16BitValue(Util::Io::InputStream &stream) {
+int16_t read16BitValue(Io::InputStream &stream) {
     return static_cast<int16_t>((stream.read() << 8) | stream.read());
 }
 
-uint16_t Util::Network::NumberUtil::readUnsigned16BitValue(Util::Io::InputStream &stream) {
+uint16_t readUnsigned16BitValue(Io::InputStream &stream) {
     return static_cast<uint16_t>(read16BitValue(stream));
 }
 
-int32_t Util::Network::NumberUtil::read32BitValue(Util::Io::InputStream &stream) {
-    return static_cast<int32_t>((stream.read() << 24) | (stream.read() << 16) | (stream.read() << 8) | stream.read());
+int32_t read32BitValue(Io::InputStream &stream) {
+    return stream.read() << 24 | stream.read() << 16 | stream.read() << 8 | stream.read();
 }
 
-uint32_t Util::Network::NumberUtil::readUnsigned32BitValue(Util::Io::InputStream &stream) {
+uint32_t readUnsigned32BitValue(Io::InputStream &stream) {
     return static_cast<uint32_t>(read32BitValue(stream));
 }
 
-void Util::Network::NumberUtil::write8BitValue(int8_t value, Util::Io::OutputStream &stream) {
+void write8BitValue(const int8_t value, Io::OutputStream &stream) {
     stream.write(static_cast<uint8_t>(value));
 }
 
-void Util::Network::NumberUtil::writeUnsigned8BitValue(uint8_t value, Util::Io::OutputStream &stream) {
+void writeUnsigned8BitValue(const uint8_t value, Io::OutputStream &stream) {
     stream.write(value);
 }
 
-void Util::Network::NumberUtil::write16BitValue(int16_t value, Util::Io::OutputStream &stream) {
+void write16BitValue(const int16_t value, Io::OutputStream &stream) {
     stream.write(static_cast<uint8_t>(value >> 8));
     stream.write(static_cast<uint8_t>(value));
 }
 
-void Util::Network::NumberUtil::writeUnsigned16BitValue(uint16_t value, Util::Io::OutputStream &stream) {
+void writeUnsigned16BitValue(const uint16_t value, Io::OutputStream &stream) {
     write16BitValue(static_cast<int16_t>(value), stream);
 }
 
-void Util::Network::NumberUtil::write32BitValue(int32_t value, Util::Io::OutputStream &stream) {
+void write32BitValue(const int32_t value, Io::OutputStream &stream) {
     stream.write(static_cast<uint8_t>(value >> 24));
     stream.write(static_cast<uint8_t>(value >> 16));
     stream.write(static_cast<uint8_t>(value >> 8));
     stream.write(static_cast<uint8_t>(value));
 }
 
-void Util::Network::NumberUtil::writeUnsigned32BitValue(uint32_t value, Util::Io::OutputStream &stream) {
+void writeUnsigned32BitValue(const uint32_t value, Io::OutputStream &stream) {
     write32BitValue(static_cast<int32_t>(value), stream);
 }
 

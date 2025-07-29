@@ -21,60 +21,127 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#ifndef HHUOS_IP4ADDRESS_H
-#define HHUOS_IP4ADDRESS_H
+#ifndef HHUOS_LIB_UTIL_NETWORK_IP4ADDRESS_H
+#define HHUOS_LIB_UTIL_NETWORK_IP4ADDRESS_H
 
 #include <stdint.h>
 
-#include "lib/util/network/NetworkAddress.h"
-#include "lib/util/base/String.h"
+#include "base/String.h"
+#include "network/NetworkAddress.h"
 
 namespace Util::Network::Ip4 {
 
-class Ip4Address : public NetworkAddress {
+/// Represents an IPv4 address, which is 32-bit long and identifies a device on an IP network.
+/// An IP address is not tied to a specific hardware interface,
+/// but rather assigned to a network interface by the operating system.
+/// This is a subclass of `NetworkAddress` that provides specific functionality for IPv4 addresses,
+/// such as creating an instance from a string.
+class Ip4Address final : public NetworkAddress {
 
 public:
-    /**
-     * Constructor.
-     */
+    /// Create a new IPv4 address with a zeroed buffer.
+    /// This corresponds to the IP address `0.0.0.0`.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto ipAddress = Ip4Address();
+    ///
+    /// const auto length = ipAddress.getLength(); // 4
+    /// const auto string = ipAddress.toString(); // "0.0.0.0"
+    /// const auto isBroadcast = ipAddress.isBroadcastAddress(); // false
+    /// ```
     Ip4Address();
 
-    /**
-     * Constructor.
-     */
-    explicit Ip4Address(uint8_t *buffer);
+    /// Create a new IPv4 address from the given buffer.
+    /// The buffer must be at least four bytes long.
+    /// If the buffer is shorter, bytes will be read out of bounds, leading to undefined behavior.
+    /// If the buffer is longer, only the first four bytes are copied.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const uint8_t buffer1[4] = {1, 2, 3, 4};
+    /// const uint8_t buffer2[6] = {5, 6, 7, 8, 9, 10};
+    /// const uint8_t buffer3[3] = {11, 12, 13};
+    ///
+    /// const auto ipAddress1 = Ip4Address(buffer1); // 1.2.3.4
+    /// const auto ipAddress2 = Ip4Address(buffer2); // 5.6.7.8
+    /// const auto ipAddress3 = Ip4Address(buffer3); // Undefined behavior, buffer too short
+    /// ```
+    explicit Ip4Address(const uint8_t *buffer);
 
-    /**
-     * Constructor.
-     */
-    explicit Ip4Address(const Util::String &string);
+    /// Create a new IPv4 address from a string representation.
+    /// The string must be in the format "X.X.X.X", where each "X" is a decimal number between 0 and 255.
+    /// If the string is not in the correct format, a panic is fired.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto ipAddress1 = Ip4Address("1.2.3.4");
+    /// const auto ipAddress2 = Ip4Address("5.6.7.8");
+    /// const auto ipAddress3 = Ip4Address("9.10.11"); // Panic: index out of bounds, string too short
+    /// ```
+    explicit Ip4Address(const String &string);
 
-    /**
-     * Copy Constructor.
-     */
-    Ip4Address(const Ip4Address &other) = default;
-
-    /**
-     * Assignment operator.
-     */
-    Ip4Address &operator=(const Ip4Address &other) = default;
-
-    /**
-     * Destructor.
-     */
-    ~Ip4Address() override = default;
-
-    [[nodiscard]] static Ip4Address createBroadcastAddress();
-
+    /// Check if this IPv4 address is a broadcast address (`255.255.255.255`).
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto ipAddress1 = Ip4Address("1.2.3.4");
+    /// const auto ipAddress2 = Ip4Address::BROADCAST;
+    /// const auto ipAddress3 = Ip4Address("255.255.255.255");
+    ///
+    /// const auto isBroadcast1 = ipAddress1.isBroadcastAddress(); // false
+    /// const auto isBroadcast2 = ipAddress2.isBroadcastAddress(); // true
+    /// const auto isBroadcast3 = ipAddress3.isBroadcastAddress(); // true
+    /// ```
     [[nodiscard]] bool isBroadcastAddress() const;
 
+    /// Create a new on-heap instance as a copy of this address.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto ipAddress1 = Ip4Address("1.2.3.4");
+    /// const auto *ipAddress2 = ipAddress1.createCopy();
+    ///
+    /// const auto isEqual = (ipAddress1 == *ipAddress2); // true
+    /// ```
     [[nodiscard]] NetworkAddress* createCopy() const override;
 
-    [[nodiscard]] Util::String toString() const override;
+    /// Create a string representation of the IPv4 address in the format "X.X.X.X".
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto ipAddress1 = Ip4Address("1.2.3.4");
+    /// const auto string1 = mac1.toString(); // "1.2.3.4"
+    /// const auto ipAddress2 = Ip4Address(string1);
+    ///
+    /// const auto isEqual = (ipAddress1 == ipAddress2); // true
+    /// ```
+    [[nodiscard]] String toString() const override;
 
+    /// A constant storing the IPv4 address `0.0.0.0`, which can for example be used to listen on all interfaces.
+    ///
+    /// /// ### Example
+    /// ```c++
+    /// const auto length = Ip4Address::ANY.getLength(); // 4
+    /// const auto string = Ip4Address::ANY.toString(); // "0.0.0.0"
+    /// const auto isBroadcast = Ip4Address::ANY.isBroadcastAddress(); // false
+    /// ```
     static const Ip4Address ANY;
 
-    static const constexpr uint8_t ADDRESS_LENGTH = 4;
+    /// A constant storing the broadcast IPv4 address, which is always `255.255.255.255`.
+    /// The broadcast address is used to send packets to all devices on the local network segment.
+    /// It is a special address that cannot be assigned to a network interface.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto length = Ip4Address::BROADCAST.getLength(); // 4
+    /// const auto string = Ip4Address::BROADCAST.toString(); // "255.255.255.255"
+    /// const auto isBroadcast = Ip4Address::BROADCAST.isBroadcastAddress(); // true
+    /// ```
+    static const Ip4Address BROADCAST;
+
+    /// The length in bytes of an IPv4 address.
+    static constexpr uint8_t ADDRESS_LENGTH = 4;
 };
 
 }

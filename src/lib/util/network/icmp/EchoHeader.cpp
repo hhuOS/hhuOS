@@ -21,9 +21,9 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "lib/util/network/icmp/EchoHeader.h"
+#include "EchoHeader.h"
 
-#include "lib/util/network/NumberUtil.h"
+#include "network/NumberUtil.h"
 
 namespace Util {
 namespace Io {
@@ -38,26 +38,26 @@ uint16_t EchoHeader::getIdentifier() const {
     return identifier;
 }
 
-void EchoHeader::setIdentifier(uint16_t identifier) {
-    EchoHeader::identifier = identifier;
-}
-
 uint16_t EchoHeader::getSequenceNumber() const {
     return sequenceNumber;
 }
 
-void EchoHeader::setSequenceNumber(uint16_t sequenceNumber) {
+void EchoHeader::setIdentifier(const uint16_t identifier) {
+    EchoHeader::identifier = identifier;
+}
+
+void EchoHeader::setSequenceNumber(const uint16_t sequenceNumber) {
     EchoHeader::sequenceNumber = sequenceNumber;
 }
 
-void EchoHeader::read(Util::Io::InputStream &stream) {
-    identifier = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
-    sequenceNumber = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
+void EchoHeader::read(Io::InputStream &stream) {
+    identifier = NumberUtil::readUnsigned16BitValue(stream);
+    sequenceNumber = NumberUtil::readUnsigned16BitValue(stream);
 }
 
-void EchoHeader::write(Util::Io::OutputStream &stream) const {
-    Util::Network::NumberUtil::writeUnsigned16BitValue(identifier, stream);
-    Util::Network::NumberUtil::writeUnsigned16BitValue(sequenceNumber, stream);
+void EchoHeader::write(Io::OutputStream &stream) const {
+    NumberUtil::writeUnsigned16BitValue(identifier, stream);
+    NumberUtil::writeUnsigned16BitValue(sequenceNumber, stream);
 }
 
 }

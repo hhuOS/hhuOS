@@ -21,8 +21,8 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#ifndef HHUOS_UTIL_H
-#define HHUOS_UTIL_H
+#ifndef HHUOS_LIB_UTIL_NETWORK_NUMBERUTIL_H
+#define HHUOS_LIB_UTIL_NETWORK_NUMBERUTIL_H
 
 #include <stdint.h>
 
@@ -33,55 +33,45 @@ class OutputStream;
 }  // namespace Stream
 }  // namespace Util
 
-namespace Util::Network {
+/// Provides utility functions for reading numbers from input streams and writing numbers to output streams.
+/// These functions are used a lot in the network stack, to parse network headers and write network packets.
+namespace Util::Network::NumberUtil {
 
-class NumberUtil {
+/// Read a signed 8-bit value from the given input stream.
+[[nodiscard]] int8_t read8BitValue(Io::InputStream &stream);
 
-public:
-    /**
-     * Default Constructor.
-     */
-    NumberUtil() = default;
+/// Read an unsigned 8-bit value from the given input stream.
+[[nodiscard]] uint8_t readUnsigned8BitValue(Io::InputStream &stream);
 
-    /**
-     * Copy Constructor.
-     */
-    NumberUtil(const NumberUtil &other) = delete;
+/// Read a signed 16-bit value from the given input stream.
+[[nodiscard]] int16_t read16BitValue(Io::InputStream &stream);
 
-    /**
-     * Assignment operator.
-     */
-    NumberUtil &operator=(const NumberUtil &other) = delete;
+/// Read an unsigned 16-bit value from the given input stream.
+[[nodiscard]] uint16_t readUnsigned16BitValue(Io::InputStream &stream);
 
-    /**
-     * Destructor.
-     */
-    ~NumberUtil() = default;
+/// Read a signed 32-bit value from the given input stream.
+[[nodiscard]] int32_t read32BitValue(Io::InputStream &stream);
 
-    static int8_t read8BitValue(Util::Io::InputStream &stream);
+/// Read an unsigned 32-bit value from the given input stream.
+[[nodiscard]] uint32_t readUnsigned32BitValue(Io::InputStream &stream);
 
-    static uint8_t readUnsigned8BitValue(Util::Io::InputStream &stream);
+/// Write a signed 8-bit value to the given output stream.
+void write8BitValue(int8_t value, Io::OutputStream &stream);
 
-    static int16_t read16BitValue(Util::Io::InputStream &stream);
+/// Write an unsigned 8-bit value to the given output stream.
+void writeUnsigned8BitValue(uint8_t value, Io::OutputStream &stream);
 
-    static uint16_t readUnsigned16BitValue(Util::Io::InputStream &stream);
+/// Write a signed 16-bit value to the given output stream.
+void write16BitValue(int16_t value, Io::OutputStream &stream);
 
-    static int32_t read32BitValue(Util::Io::InputStream &stream);
+/// Write an unsigned 16-bit value to the given output stream.
+void writeUnsigned16BitValue(uint16_t value, Io::OutputStream &stream);
 
-    static uint32_t readUnsigned32BitValue(Util::Io::InputStream &stream);
+/// Write a signed 32-bit value to the given output stream.
+void write32BitValue(int32_t value, Io::OutputStream &stream);
 
-    static void write8BitValue(int8_t value, Util::Io::OutputStream &stream);
-
-    static void writeUnsigned8BitValue(uint8_t value, Util::Io::OutputStream &stream);
-
-    static void write16BitValue(int16_t value, Util::Io::OutputStream &stream);
-
-    static void writeUnsigned16BitValue(uint16_t value, Util::Io::OutputStream &stream);
-
-    static void write32BitValue(int32_t value, Util::Io::OutputStream &stream);
-
-    static void writeUnsigned32BitValue(uint32_t value, Util::Io::OutputStream &stream);
-};
+/// Write an unsigned 32-bit value to the given output stream.
+void writeUnsigned32BitValue(uint32_t value, Io::OutputStream &stream);
 
 }
 

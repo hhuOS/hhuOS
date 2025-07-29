@@ -23,7 +23,7 @@
 
 namespace Util::Io {
 
-ByteArrayInputStream::ByteArrayInputStream(uint8_t *buffer, uint32_t size) : buffer(buffer), size(size) {}
+ByteArrayInputStream::ByteArrayInputStream(const uint8_t *buffer, uint32_t size) : buffer(buffer), size(size) {}
 
 int16_t ByteArrayInputStream::read() {
     if (position >= size && enforceSizeLimit) {

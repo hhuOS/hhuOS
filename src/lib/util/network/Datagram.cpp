@@ -21,45 +21,42 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "lib/util/network/Datagram.h"
+#include "Datagram.h"
 
-#include "lib/util/base/Address.h"
-#include "lib/util/network/NetworkAddress.h"
-#include "MacAddress.h"
-#include "lib/util/network/ip4/Ip4Address.h"
-#include "lib/util/network/ip4/Ip4PortAddress.h"
-#include "lib/util/io/stream/ByteArrayOutputStream.h"
-#include "lib/util/base/Panic.h"
+#include "base/Panic.h"
+#include "base/Address.h"
+#include "io/stream/ByteArrayOutputStream.h"
+#include "network/NetworkAddress.h"
+#include "network/MacAddress.h"
+#include "network/ip4/Ip4Address.h"
+#include "network/ip4/Ip4PortAddress.h"
 
 namespace Util::Network {
 
-Datagram::Datagram(NetworkAddress::Type type) {
+Datagram::Datagram(const NetworkAddress::Type type) {
     switch (type) {
-        case Util::Network::NetworkAddress::MAC:
-            remoteAddress = new Util::Network::MacAddress();
+        case NetworkAddress::MAC:
+            remoteAddress = new MacAddress();
             break;
-        case Util::Network::NetworkAddress::IP4:
-            remoteAddress = new Util::Network::Ip4::Ip4Address();
+        case NetworkAddress::IP4:
+            remoteAddress = new Ip4::Ip4Address();
             break;
-        case Util::Network::NetworkAddress::IP4_PORT:
-            remoteAddress = new Util::Network::Ip4::Ip4PortAddress();
+        case NetworkAddress::IP4_PORT:
+            remoteAddress = new Ip4::Ip4PortAddress();
             break;
         default:
-            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Socket: Illegal address type for bind!");
+            Util::Panic::fire(Panic::INVALID_ARGUMENT, "Socket: Illegal address type for bind!");
     }
 }
 
-Datagram::Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::NetworkAddress &remoteAddress) :
+Datagram::Datagram(const uint8_t *buffer, const uint16_t length, const NetworkAddress &remoteAddress) :
         remoteAddress(remoteAddress.createCopy()), buffer(new uint8_t[length]), length(length) {
-    Util::Address(Datagram::buffer).copyRange(Util::Address(buffer), length);
+    Address(Datagram::buffer).copyRange(Address(buffer), length);
 }
-
-Datagram::Datagram(uint8_t *buffer, uint16_t length, const NetworkAddress &remoteAddress) :
-        remoteAddress(remoteAddress.createCopy()), buffer(buffer), length(length) {}
 
 Datagram::Datagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress) :
         remoteAddress(remoteAddress.createCopy()), buffer(new uint8_t[stream.getLength()]), length(stream.getLength()) {
-    Util::Address(Datagram::buffer).copyRange(Util::Address(stream.getBuffer()), stream.getLength());
+    Address(buffer).copyRange(Address(stream.getBuffer()), stream.getLength());
 }
 
 Datagram::~Datagram() {
@@ -67,17 +64,17 @@ Datagram::~Datagram() {
     delete[] buffer;
 }
 
-const NetworkAddress &Network::Datagram::getRemoteAddress() const {
+const NetworkAddress& Datagram::getRemoteAddress() const {
     return *remoteAddress;
 }
 
-void Datagram::setRemoteAddress(const NetworkAddress &address) {
-    auto addressStream = Util::Io::ByteArrayOutputStream();
+void Datagram::setRemoteAddress(const NetworkAddress &address) const {
+    Io::ByteArrayOutputStream addressStream;
     address.write(addressStream);
     remoteAddress->setAddress(addressStream.getBuffer());
 }
 
-uint8_t *Datagram::getData() const {
+const uint8_t *Datagram::getData() const {
     return buffer;
 }
 
@@ -85,7 +82,7 @@ uint32_t Datagram::getLength() const {
     return length;
 }
 
-void Datagram::setData(uint8_t *buffer, uint32_t length) {
+void Datagram::setData(uint8_t *buffer, const uint32_t length) {
     delete[] Datagram::buffer;
     Datagram::buffer = buffer;
     Datagram::length = length;

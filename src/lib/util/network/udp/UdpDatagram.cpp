@@ -23,8 +23,8 @@
 
 #include "UdpDatagram.h"
 
-#include "lib/util/network/ip4/Ip4PortAddress.h"
-#include "lib/util/network/NetworkAddress.h"
+#include "network/ip4/Ip4PortAddress.h"
+#include "network/NetworkAddress.h"
 
 namespace Util {
 namespace Io {
@@ -36,17 +36,14 @@ namespace Util::Network::Udp {
 
 UdpDatagram::UdpDatagram() : Datagram(NetworkAddress::IP4_PORT) {}
 
-UdpDatagram::UdpDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4PortAddress &remoteAddress)
-        : Datagram(buffer, length, remoteAddress) {}
-
-UdpDatagram::UdpDatagram(uint8_t *buffer, uint16_t length, const NetworkAddress &remoteAddress)
+UdpDatagram::UdpDatagram(const uint8_t *buffer, const uint16_t length, const Ip4::Ip4PortAddress &remoteAddress)
         : Datagram(buffer, length, remoteAddress) {}
 
 UdpDatagram::UdpDatagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress)
         : Datagram(stream, remoteAddress) {}
 
 uint16_t UdpDatagram::getRemotePort() const {
-    return reinterpret_cast<const Util::Network::Ip4::Ip4PortAddress*>(remoteAddress)->getPort();
+    return reinterpret_cast<const Ip4::Ip4PortAddress&>(getRemoteAddress()).getPort();
 }
 
 void UdpDatagram::setAttributes([[maybe_unused]] const Datagram &datagram) {}

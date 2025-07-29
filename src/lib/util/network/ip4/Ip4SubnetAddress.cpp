@@ -20,98 +20,113 @@
 
 #include "Ip4SubnetAddress.h"
 
-#include "lib/util/base/Address.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/network/ip4/Ip4Address.h"
+#include "base/Address.h"
+#include "collection/Array.h"
+#include "network/ip4/Ip4Address.h"
 
 namespace Util::Network::Ip4 {
 
 Ip4SubnetAddress::Ip4SubnetAddress() : Ip4SubnetAddress(32) {}
 
-Ip4SubnetAddress::Ip4SubnetAddress(uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, IP4_SUBNET) {}
+Ip4SubnetAddress::Ip4SubnetAddress(const uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, IP4_SUBNET) {}
 
 Ip4SubnetAddress::Ip4SubnetAddress(const String &string) : NetworkAddress(ADDRESS_LENGTH, IP4_SUBNET) {
-    auto bufferAddress = Util::Address(buffer);
-    auto ip4Address = Ip4Address();
-    uint8_t bitCount = 32;
+    const auto bufferAddress = Address(buffer);
 
     if (string.beginsWith("/")) {
-        bitCount = String::parseNumber<uint8_t>(string.substring(1));
-    } else {
-        auto split = string.split("/");
-        ip4Address = Ip4Address(split[0]);
-        if (split.length() > 1) {
-            bitCount = String::parseNumber<uint8_t>(split[1]);
+        const auto bitCount = String::parseNumber<uint8_t>(string.substring(1));
+        if (bitCount > 32) {
+            Panic::fire(Panic::INVALID_ARGUMENT, "Ip4SubnetAddress: Bit count must be between 0 and 32!");
         }
-    }
 
-    ip4Address.getAddress(buffer);
-    bufferAddress.write8(bitCount, Ip4Address::ADDRESS_LENGTH);
+        // Buffer is already initialized with "0.0.0.0/0" -> Just set the bit count
+        bufferAddress.write8(bitCount, Ip4Address::ADDRESS_LENGTH);
+    } else {
+        const auto split = string.split("/");
+        const auto ip4Address = Ip4Address(split[0]);
+        const auto bitCount = split.length() > 1 ? String::parseNumber<uint8_t>(split[1]) : 32;
+        if (bitCount > 32) {
+            Panic::fire(Panic::INVALID_ARGUMENT, "Ip4SubnetAddress: Bit count must be between 0 and 32!");
+        }
+
+        // Write the IP address and bit count to the buffer
+        ip4Address.getAddress(buffer);
+        bufferAddress.write8(bitCount, Ip4Address::ADDRESS_LENGTH);
+    }
 }
 
-Ip4SubnetAddress::Ip4SubnetAddress(const Ip4Address &address, uint8_t bitCount) : NetworkAddress(ADDRESS_LENGTH, IP4_SUBNET) {
-    uint8_t addressBuffer[Ip4Address::ADDRESS_LENGTH];
-    address.getAddress(addressBuffer);
+Ip4SubnetAddress::Ip4SubnetAddress(const Ip4Address &address, const uint8_t bitCount) :
+        NetworkAddress(ADDRESS_LENGTH, IP4_SUBNET) {
+    if (bitCount > 32) {
+        Panic::fire(Panic::INVALID_ARGUMENT, "Ip4SubnetAddress: Bit count must be between 0 and 32!");
+    }
 
-    auto bufferAddress = Address(buffer);
-    bufferAddress.copyRange(Address(addressBuffer), Ip4Address::ADDRESS_LENGTH);
-    bufferAddress.write8(bitCount, Ip4Address::ADDRESS_LENGTH);
+    // Copy the IP address to the buffer and write the bit count
+    address.getAddress(buffer);
+    Address(buffer).write8(bitCount, Ip4Address::ADDRESS_LENGTH);
 }
 
 Ip4SubnetAddress::Ip4SubnetAddress(const Ip4Address &address) : Ip4SubnetAddress(address, 32) {}
 
-Ip4SubnetAddress::Ip4SubnetAddress(uint8_t bitCount) : Ip4SubnetAddress(Ip4Address::ANY, bitCount) {}
+Ip4SubnetAddress::Ip4SubnetAddress(const uint8_t bitCount) : NetworkAddress(ADDRESS_LENGTH, IP4_SUBNET) {
+    if (bitCount > 32) {
+        Panic::fire(Panic::INVALID_ARGUMENT, "Ip4SubnetAddress: Bit count must be between 0 and 32!");
+    }
+
+    // Buffer is already initialized with "0.0.0.0/0" -> Just set the bit count
+    Address(buffer).write8(bitCount, Ip4Address::ADDRESS_LENGTH);
+}
 
 Ip4Address Ip4SubnetAddress::getIp4Address() const {
     return Ip4Address(buffer);
 }
 
 uint8_t Ip4SubnetAddress::getBitCount() const {
-    return Util::Address(buffer).read8(Ip4Address::ADDRESS_LENGTH);
+    return Address(buffer).read8(Ip4Address::ADDRESS_LENGTH);
 }
 
 Ip4SubnetAddress Ip4SubnetAddress::getSubnetAddress() const {
     // Create bitmask
-    auto bitCount = getBitCount();
-    uint32_t base = bitCount == 0 ? 0 : 0xffffffff >> (32 - bitCount);
-    auto *mask = reinterpret_cast<uint8_t*>(&base);
+    const auto bitCount = getBitCount();
+    const auto base = bitCount == 0 ? 0 : 0xffffffff >> (32 - bitCount);
+    const auto *mask = reinterpret_cast<const uint8_t*>(&base);
 
     // Get address for bitwise and with bitmask
-    uint8_t addressBuffer[Util::Network::Ip4::Ip4Address::ADDRESS_LENGTH + 1];
+    uint8_t addressBuffer[Ip4Address::ADDRESS_LENGTH + 1];
     getIp4Address().getAddress(addressBuffer);
 
-    for (uint8_t i = 0; i < Util::Network::Ip4::Ip4Address::ADDRESS_LENGTH; i++) {
+    for (uint8_t i = 0; i < Ip4Address::ADDRESS_LENGTH; i++) {
         addressBuffer[i] &= mask[i];
     }
 
     // Set bit count
-    addressBuffer[Util::Network::Ip4::Ip4Address::ADDRESS_LENGTH] = getBitCount();
+    addressBuffer[Ip4Address::ADDRESS_LENGTH] = getBitCount();
 
-    return Util::Network::Ip4::Ip4SubnetAddress(addressBuffer);
+    return Ip4SubnetAddress(addressBuffer);
 }
 
 Ip4Address Ip4SubnetAddress::getBroadcastAddress() const {
     // Create bitmask
-    uint32_t base = 0xffffffff >> (32 - getBitCount());
-    auto *mask = reinterpret_cast<uint8_t*>(&base);
+    const auto base = 0xffffffff >> (32 - getBitCount());
+    const auto *mask = reinterpret_cast<const uint8_t*>(&base);
 
-    // Get address for bitwise and with bitmask
-    uint8_t addressBuffer[Util::Network::Ip4::Ip4Address::ADDRESS_LENGTH];
+    // Get address for bitwise or with bitmask
+    uint8_t addressBuffer[Ip4Address::ADDRESS_LENGTH];
     getIp4Address().getAddress(addressBuffer);
 
-    for (uint8_t i = 0; i < Util::Network::Ip4::Ip4Address::ADDRESS_LENGTH; i++) {
+    for (uint8_t i = 0; i < Ip4Address::ADDRESS_LENGTH; i++) {
         addressBuffer[i] |= mask[i];
     }
 
-    return Util::Network::Ip4::Ip4Address(addressBuffer);
+    return Ip4Address(addressBuffer);
 }
 
-NetworkAddress *Ip4SubnetAddress::createCopy() const {
+NetworkAddress* Ip4SubnetAddress::createCopy() const {
     return new Ip4SubnetAddress(*this);
 }
 
-Util::String Ip4SubnetAddress::toString() const {
-    return Util::String::format("%u.%u.%u.%u/%u", buffer[0], buffer[1], buffer[2], buffer[3], getBitCount());
+String Ip4SubnetAddress::toString() const {
+    return String::format("%u.%u.%u.%u/%u", buffer[0], buffer[1], buffer[2], buffer[3], getBitCount());
 }
 
 }

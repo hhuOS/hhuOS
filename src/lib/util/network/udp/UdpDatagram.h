@@ -21,12 +21,12 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#ifndef HHUOS_UDPDATAGRAM_H
-#define HHUOS_UDPDATAGRAM_H
+#ifndef HHUOS_LIB_UTIL_NETWORK_UDPDATAGRAM_H
+#define HHUOS_LIB_UTIL_NETWORK_UDPDATAGRAM_H
 
 #include <stdint.h>
 
-#include "lib/util/network/Datagram.h"
+#include "network/Datagram.h"
 
 namespace Util {
 namespace Io {
@@ -44,46 +44,64 @@ class Ip4PortAddress;
 
 namespace Util::Network::Udp {
 
-class UdpDatagram : public Datagram {
-
+/// Specialization of the Datagram class for UDP datagrams.
+/// This can be used to send and receive UDP datagrams via a `Socket` of type `UDP`.
+///
+/// ## Example
+/// ```c++
+/// // Create a new UDP socket
+/// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::UDP);
+///
+/// // Bind the socket to a specific address
+/// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
+///     printf("Failed to bind socket!\n");
+///     return;
+/// }
+///
+/// // Create a datagram to send (Payload: "Hello, World!", Destination: "10.0.2.2:1856")
+/// const auto destinationAddress = Util::Network::Ip4::Ip4PortAddress("10.0.2.2:1856");
+/// const auto datagram = Util::Network::Udp::UdpDatagram(
+///     reinterpret_cast<const uint8_t*>("Hello, World!"), 13, destinationAddress);
+///
+/// // Send the datagram via the socket
+/// if (!socket.send(datagram)) {
+///     printf("Failed to send datagram!\n");
+///     return;
+/// }
+///
+/// // Wait for a response (e.g., an Echo Reply)
+/// auto receivedDatagram = Util::Network::Udp::UdpDatagram();
+/// if (!socket.receive(receivedDatagram)) {
+///     printf("Failed to receive datagram!\n");
+///     return;
+/// }
+///
+/// // Interprete the received datagram as string and print it
+/// const auto message = Util::String(receivedDatagram.getData(), receivedDatagram.getLength())
+/// printf("Received: %s\n", static_cast<const char*>(message));
+/// ```
+class UdpDatagram final : public Datagram {
 public:
-    /**
-     * Default Constructor.
-     */
+    /// Create a new UDP datagram with an uninitialized buffer.
+    /// This is typically used for receiving datagrams, because in this case the buffer is allocated
+    /// by the kernel during the receive system call.
     UdpDatagram();
 
-    /**
-     * Constructor.
-     */
-    UdpDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4PortAddress &remoteAddress);
+    /// Create a new UDP datagram with a given buffer and length, and a remote address.
+    /// The buffer's content is copied into the datagram's buffer.
+    UdpDatagram(const uint8_t *buffer, uint16_t length, const Ip4::Ip4PortAddress &remoteAddress);
 
-    /**
-     * Constructor.
-     */
-    UdpDatagram(uint8_t *buffer, uint16_t length, const Util::Network::NetworkAddress &remoteAddress);
+    /// Create a new UDP datagram from a byte array output stream and a remote address.
+    /// The stream's content is copied into the datagram's buffer by directly accessing the stream's buffer.
+    /// This way, the state of the stream remains unchanged.
+    UdpDatagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress);
 
-    /**
-     * Constructor.
-     */
-    UdpDatagram(const Io::ByteArrayOutputStream &stream, const Util::Network::NetworkAddress &remoteAddress);
-
-    /**
-     * Copy Constructor.
-     */
-    UdpDatagram(const UdpDatagram &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    UdpDatagram &operator=(const UdpDatagram &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~UdpDatagram() override = default;
-
+    /// Get the remote port of the application that sent or will receive this datagram.
     [[nodiscard]] uint16_t getRemotePort() const;
 
+    /// Set attributes of this datagram based on another datagram.
+    /// Since this class has no specific attributes, this method does nothing.
+    /// It is provided to fulfill the interface contract of the Datagram class.
     void setAttributes(const Datagram &datagram) override;
 };
 

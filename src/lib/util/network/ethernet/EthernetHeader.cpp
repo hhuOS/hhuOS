@@ -21,9 +21,9 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "lib/util/network/ethernet/EthernetHeader.h"
+#include "EthernetHeader.h"
 
-#include "lib/util/network/NumberUtil.h"
+#include "network/NumberUtil.h"
 
 namespace Util {
 namespace Io {
@@ -34,23 +34,23 @@ class OutputStream;
 
 namespace Util::Network::Ethernet {
 
-void EthernetHeader::read(Util::Io::InputStream &stream) {
+void EthernetHeader::read(Io::InputStream &stream) {
     destinationAddress.read(stream);
     sourceAddress.read(stream);
-    etherType = static_cast<EtherType>(Util::Network::NumberUtil::readUnsigned16BitValue(stream));
+    etherType = static_cast<EtherType>(NumberUtil::readUnsigned16BitValue(stream));
 }
 
-void EthernetHeader::write(Util::Io::OutputStream &stream) {
+void EthernetHeader::write(Io::OutputStream &stream) const {
     destinationAddress.write(stream);
     sourceAddress.write(stream);
-    Util::Network::NumberUtil::writeUnsigned16BitValue(etherType, stream);
+    NumberUtil::writeUnsigned16BitValue(etherType, stream);
 }
 
-const Util::Network::MacAddress& EthernetHeader::getDestinationAddress() const {
+const MacAddress& EthernetHeader::getDestinationAddress() const {
     return destinationAddress;
 }
 
-const Util::Network::MacAddress& EthernetHeader::getSourceAddress() const {
+const MacAddress& EthernetHeader::getSourceAddress() const {
     return sourceAddress;
 }
 
@@ -58,16 +58,16 @@ EthernetHeader::EtherType EthernetHeader::getEtherType() const {
     return etherType;
 }
 
-void EthernetHeader::setDestinationAddress(const Util::Network::MacAddress &address) {
-    EthernetHeader::destinationAddress = address;
+void EthernetHeader::setDestinationAddress(const MacAddress &address) {
+    destinationAddress = address;
 }
 
-void EthernetHeader::setSourceAddress(const Util::Network::MacAddress &address) {
-    EthernetHeader::sourceAddress = address;
+void EthernetHeader::setSourceAddress(const MacAddress &address) {
+    sourceAddress = address;
 }
 
-void EthernetHeader::setEtherType(EthernetHeader::EtherType type) {
-    EthernetHeader::etherType = type;
+void EthernetHeader::setEtherType(const EtherType type) {
+    etherType = type;
 }
 
 }

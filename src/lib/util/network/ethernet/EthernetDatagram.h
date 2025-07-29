@@ -21,13 +21,13 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#ifndef HHUOS_ETHERNETDATAGRAM_H
-#define HHUOS_ETHERNETDATAGRAM_H
+#ifndef HHUOS_LIB_UTIL_NETWORK_ETHERNETDATAGRAM_H
+#define HHUOS_LIB_UTIL_NETWORK_ETHERNETDATAGRAM_H
 
 #include <stdint.h>
 
-#include "lib/util/network/ethernet/EthernetHeader.h"
-#include "lib/util/network/Datagram.h"
+#include "network/Datagram.h"
+#include "network/ethernet/EthernetHeader.h"
 
 namespace Util {
 namespace Io {
@@ -42,51 +42,64 @@ class NetworkAddress;
 
 namespace Util::Network::Ethernet {
 
-class EthernetDatagram : public Datagram {
-
+/// Specialization of the `Datagram` class for Ethernet frames.
+/// This can be used to send and receive Ethernet frames via a `Socket` of type `ETHERNET`.
+///
+/// ## Example
+/// ```c++
+/// // Create a new Ethernet socket
+/// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::ETHERNET);
+///
+/// // Read MAC address of device "eth0" from file system
+/// auto macFile = Util::Io::FileInputStream("/device/eth0/mac");
+/// bool endOfFile = false;
+/// auto macAddress = Util::Network::MacAddress(macFile.readLine(endOfFile));
+///
+/// // Bind the socket to the read MAC address
+/// if (!socket.bind(macAddress)) {
+///     printf("Failed to bind socket!\n");
+///     return;
+/// }
+///
+/// // Send an Ethernet datagram containing the string "Hello, World!".
+/// // As this is no parseable content for any network protocol, we use the EtherType `INVALID`.
+/// const auto datagram = Util::Network::Ethernet::EthernetDatagram( reinterpret_cast<const uint8_t*>("Hello, World!"),
+///     13, destinationAddress, Util::Network::Ethernet::EthernetHeader::INVALID);
+///
+/// if (!socket.send(datagram)) {
+///     printf("Failed to send datagram!\n");
+///     return;
+/// }
+/// ```
+class EthernetDatagram final : public Datagram {
 public:
-    /**
-     * Default Constructor.
-     */
+    /// Create a new Ethernet datagram with an uninitialized buffer.
+    /// This is typically used for receiving datagrams, because in this case the buffer is allocated
+    /// by the kernel during the receive system call.
     EthernetDatagram();
 
-    /**
-     * Constructor.
-     */
-    EthernetDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::MacAddress &remoteAddress, EthernetHeader::EtherType type);
+    /// Create a new Ethernet datagram with a given buffer and length, and a remote MAC address.
+    /// The buffer's content is copied into the datagram's buffer.
+    EthernetDatagram(const uint8_t *buffer, uint16_t length,
+                     const MacAddress &remoteAddress, EthernetHeader::EtherType type);
 
-    /**
-     * Constructor.
-     */
-    EthernetDatagram(uint8_t *buffer, uint16_t length, const Util::Network::NetworkAddress &remoteAddress, EthernetHeader::EtherType type);
+    /// Create a new Ethernet datagram from a byte array output stream and a remote MAC address.
+    /// The stream's content is copied into the datagram's buffer by directly accessing the stream's buffer.
+    /// This way, the state of the stream remains unchanged.
+    EthernetDatagram(const Io::ByteArrayOutputStream &stream,
+        const NetworkAddress &remoteAddress, EthernetHeader::EtherType type);
 
-    /**
-     * Constructor.
-     */
-    EthernetDatagram(const Io::ByteArrayOutputStream &stream, const Util::Network::NetworkAddress &remoteAddress, EthernetHeader::EtherType type);
-
-    /**
-     * Copy Constructor.
-     */
-    EthernetDatagram(const EthernetDatagram &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    EthernetDatagram &operator=(const EthernetDatagram &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~EthernetDatagram() override = default;
-
+    /// Get the EtherType of the Ethernet datagram.
+    /// The EtherType indicates the protocol encapsulated in the Ethernet frame (e.g. IPv4, ARP, etc.).
     [[nodiscard]] EthernetHeader::EtherType getEtherType() const;
 
+    /// Set the EtherType of this Ethernet datagram to the one of the given datagram.
+    /// This is used by the kernel to copy attributes from a kernel space datagram to a user space datagram.
     void setAttributes(const Datagram &datagram) override;
 
 private:
 
-    EthernetHeader::EtherType type{};
+    EthernetHeader::EtherType type = EthernetHeader::INVALID;
 };
 
 }

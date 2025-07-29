@@ -21,18 +21,21 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "lib/util/base/Address.h"
 #include "NetworkAddress.h"
-#include "lib/util/io/stream/InputStream.h"
-#include "lib/util/io/stream/OutputStream.h"
+
+#include "base/Address.h"
+#include "io/stream/InputStream.h"
+#include "io/stream/OutputStream.h"
 
 namespace Util::Network {
 
-NetworkAddress::NetworkAddress(uint8_t length, NetworkAddress::Type type) : buffer(new uint8_t[length]), length(length), type(type) {
-    Util::Address(buffer).setRange(0, length);
+NetworkAddress::NetworkAddress(const uint8_t length, const Type type) :
+        buffer(new uint8_t[length]), length(length), type(type) {
+    Address(buffer).setRange(0, length);
 }
 
-NetworkAddress::NetworkAddress(const uint8_t *buffer, uint8_t length, NetworkAddress::Type type) : NetworkAddress(length, type) {
+NetworkAddress::NetworkAddress(const uint8_t *buffer, const uint8_t length, const Type type) :
+        NetworkAddress(length, type) {
     setAddress(buffer);
 }
 
@@ -40,7 +43,7 @@ NetworkAddress::NetworkAddress(const NetworkAddress &other) : NetworkAddress(oth
     setAddress(other.buffer);
 }
 
-NetworkAddress &NetworkAddress::operator=(const NetworkAddress &other) {
+NetworkAddress& NetworkAddress::operator=(const NetworkAddress &other) {
     if (&other == this) {
         return *this;
     }
@@ -57,38 +60,38 @@ NetworkAddress::~NetworkAddress() {
 }
 
 bool NetworkAddress::operator==(const NetworkAddress &other) const {
-    if (getLength() != other.getLength()) {
+    if (length != other.length) {
         return false;
     }
 
-    auto first = Util::Address(buffer);
-    auto second = Util::Address(other.buffer);
-    auto result = first.compareRange(second, getLength());
-
-    return result == 0;
+    return Address(buffer).compareRange(Address(other.buffer), length) == 0;
 }
 
 bool NetworkAddress::operator!=(const NetworkAddress &other) const {
-    return !(*this == other);
+    if (length != other.length) {
+        return true;
+    }
+
+    return Address(buffer).compareRange(Address(other.buffer), length) != 0;
 }
 
-void NetworkAddress::read(Util::Io::InputStream &stream) {
+void NetworkAddress::read(Io::InputStream &stream) const {
     stream.read(buffer, 0, length);
 }
 
-void NetworkAddress::write(Util::Io::OutputStream &stream) const {
+void NetworkAddress::write(Io::OutputStream &stream) const {
     stream.write(buffer, 0, length);
 }
 
-void NetworkAddress::setAddress(const uint8_t *buffer) {
-    auto source = Util::Address(buffer);
-    auto destination = Util::Address(NetworkAddress::buffer);
+void NetworkAddress::setAddress(const uint8_t *buffer) const {
+    const auto source = Address(buffer);
+    const auto destination = Address(NetworkAddress::buffer);
     destination.copyRange(source, length);
 }
 
 void NetworkAddress::getAddress(uint8_t *buffer) const {
-    auto source = Util::Address(NetworkAddress::buffer);
-    auto destination = Util::Address(buffer);
+    const auto source = Address(NetworkAddress::buffer);
+    const auto destination = Address(buffer);
     destination.copyRange(source, length);
 }
 
@@ -106,9 +109,10 @@ uint8_t NetworkAddress::compareTo(const NetworkAddress &other) const {
 
     for (i = 0; i < getLength() || i < other.getLength(); i++) {
         for (j = 0; j < 8; j++) {
-            auto first = (buffer[i] >> j) & 0x01;
-            auto second = (other.buffer[i] >> j) & 0x01;
-            if (first != second) {
+            const auto bit = (buffer[i] >> j) & 0x01;
+            const auto otherBit = (other.buffer[i] >> j) & 0x01;
+
+            if (bit != otherBit) {
                 return i * 8 + j;
             }
         }

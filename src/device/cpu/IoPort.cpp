@@ -35,7 +35,7 @@ void IoPort::writeByte(uint8_t value) const {
 }
 
 void IoPort::writeByte(uint16_t offset, uint8_t value) const {
-    asm volatile ("outb %0, %1" : : "a"(value), "d"(address + offset));
+    asm volatile ("outb %0, %1" : : "a"(value), "d"(static_cast<uint16_t>(address + offset)));
 }
 
 void IoPort::writeWord(uint16_t value) const {
@@ -51,7 +51,7 @@ void IoPort::writeDoubleWord(uint32_t value) const {
 }
 
 void IoPort::writeDoubleWord(uint16_t offset, uint32_t value) const {
-    asm volatile ("outl %0, %1" : : "a"(value), "d"(address + offset));
+    asm volatile ("outl %0, %1" : : "a"(value), "d"(static_cast<uint16_t>(address + offset)));
 }
 
 uint8_t IoPort::readByte() const {

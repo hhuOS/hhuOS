@@ -21,76 +21,149 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#ifndef HHUOS_IP4PORTADDRESS_H
-#define HHUOS_IP4PORTADDRESS_H
+#ifndef HHUOS_LIB_UTIL_NETWORK_IP4PORTADDRESS_H
+#define HHUOS_LIB_UTIL_NETWORK_IP4PORTADDRESS_H
 
 #include <stdint.h>
 
-#include "lib/util/network/NetworkAddress.h"
-#include "lib/util/network/ip4/Ip4Address.h"
-#include "lib/util/base/String.h"
+#include "base/String.h"
+#include "network/NetworkAddress.h"
+#include "network/ip4/Ip4Address.h"
 
 namespace Util::Network::Ip4 {
 
-class Ip4PortAddress : public NetworkAddress {
+/// Represents an IPv4 address with a port number, used to identify a specific service on a device within an IP network.
+/// The port number is a 16-bit unsigned integer value, that must be unique for each service running on the device.
+/// Two services on the same device cannot use the same port number.
+class Ip4PortAddress final : public NetworkAddress {
 
 public:
-    /**
-     * Default Constructor.
-     */
+    /// Create a new IPv4 port address with a zeroed buffer.
+    /// This corresponds to the IP address `0.0.0.0:0`.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto ipAddress = Ip4PortAddress();
+    ///
+    /// const auto length = ipAddress.getLength(); // 6
+    /// const auto string = ipAddress.toString(); // "0.0.0.0:0"
+    /// ```
     Ip4PortAddress();
 
-    /**
-     * Constructor.
-     */
-    explicit Ip4PortAddress(uint8_t *buffer);
+    /// Create a new IPv4 port address from the given buffer.
+    /// The buffer must be at least six bytes long.
+    /// If the buffer is shorter, bytes will be read out of bounds, leading to undefined behavior.
+    /// If the buffer is longer, only the first six bytes are copied.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const uint8_t buffer1[6] = {1, 2, 3, 4, 1797};
+    /// const uint8_t buffer2[8] = {5, 6, 7, 8, 1856, 9};
+    /// const uint8_t buffer3[3] = {10, 11, 12};
+    ///
+    /// const auto ipAddress1 = Ip4PortAddress(buffer1); // 1.2.3.4:1797
+    /// const auto ipAddress2 = Ip4PortAddress(buffer2); // 5.6.7.8:1856
+    /// const auto ipAddress3 = Ip4PortAddress(buffer3); // Undefined behavior, buffer too short
+    /// ```
+    explicit Ip4PortAddress(const uint8_t *buffer);
+    
+    /// Create a new IPv4 port address from a string representation.
+    /// The string must be in the format "X.X.X.X:Y", where each "X" is a decimal number between 0 and 255
+    /// and "Y" is a decimal number between 0 and 65535.
+    /// If the string is not in the correct format, a panic is fired.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto ipAddress1 = Ip4Address("1.2.3.4:1797");
+    /// const auto ipAddress2 = Ip4Address("5.6.7.8:1856");
+    /// const auto ipAddress3 = Ip4Address("9.10.11"); // Panic: index out of bounds, string too short
+    /// ```
+    explicit Ip4PortAddress(const String &string);
 
-    /**
-     * Constructor.
-     */
-    explicit Ip4PortAddress(const Util::String &string);
-
-    /**
-     * Constructor.
-     */
+    /// Create a new IPv4 port address from an IPv4 address and a port number
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto ipAddress = Ip4Address("1.2.3.4");
+    ///
+    /// const auto portAddress1 = Ip4PortAddress(ipAddress, 1797); // 1.2.3.4:1797
+    /// const auto portAddress2 = Ip4PortAddress(ipAddress, 1856); // 1.2.3.4:1856
+    /// ```
     Ip4PortAddress(const Ip4Address &address, uint16_t port);
 
-    /**
-     * Constructor.
-     */
+    /// Create a new IPv4 port address from an IPv4 address with a default port number of 0.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto ipAddress = Ip4Address("1.2.3.4");
+    /// const auto portAddress = Ip4PortAddress(ipAddress); // 1.2.3.4:0
+    /// ```
     explicit Ip4PortAddress(const Ip4Address &address);
 
-    /**
-     * Constructor.
-     */
+    /// Create a new IPv4 port address with the IPv4 address `0.0.0.0` and a port number.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto portAddress1 = Ip4PortAddress(1797); // 0.0.0.0:1797
+    /// const auto portAddress2 = Ip4PortAddress(1856); // 0.0.0.0:1856
+    /// ```
     explicit Ip4PortAddress(uint16_t port);
 
-    /**
-     * Copy Constructor.
-     */
-    Ip4PortAddress(const Ip4PortAddress &other) = default;
-
-    /**
-     * Assignment operator.
-     */
-    Ip4PortAddress &operator=(const Ip4PortAddress &other) = default;
-
-    /**
-     * Destructor.
-     */
-    ~Ip4PortAddress() override = default;
-
+    /// Get the IPv4 address without the port number.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto portAddress = Ip4PortAddress("1.2.3.4:1797");
+    /// const auto ipAddress = portAddress.getIp4Address(); // 1.2.3.4
+    /// ```
     [[nodiscard]] Ip4Address getIp4Address() const;
 
+    /// Get the port number of this address.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto portAddress = Ip4PortAddress("1.2.3.4:1797");
+    /// const auto port = portAddress.getPort(); // 1797
+    /// ```
     [[nodiscard]] uint16_t getPort() const;
 
-    void setPort(uint16_t port);
+    /// Set the port number of this address, overwriting the previous value.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto portAddress = Ip4PortAddress("1.2.3.4:1797");
+    /// auto port = portAddress.getPort(); // 1797
+    ///
+    /// portAddress.setPort(1856);
+    /// port = portAddress.getPort(); // 1856
+    /// ```
+    void setPort(uint16_t port) const;
 
+    /// Create a new on-heap instance as a copy of this address.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto ipAddress1 = Ip4Address("1.2.3.4:1797");
+    /// const auto *ipAddress2 = ipAddress1.createCopy();
+    ///
+    /// const auto isEqual = (ipAddress1 == *ipAddress2); // true
+    /// ```
     [[nodiscard]] NetworkAddress* createCopy() const override;
 
-    [[nodiscard]] Util::String toString() const override;
+    /// Create a string representation of the IPv4 port address in the format "X.X.X.X:Y".
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto ipAddress1 = Ip4Address("1.2.3.4:1797");
+    /// const auto string1 = mac1.toString(); // "1.2.3.4:1797"
+    /// const auto ipAddress2 = Ip4Address(string1);
+    ///
+    /// const auto isEqual = (ipAddress1 == ipAddress2); // true
+    /// ```
+    [[nodiscard]] String toString() const override;
 
-    static const uint32_t ADDRESS_LENGTH = Ip4Address::ADDRESS_LENGTH + sizeof(uint16_t);
+    /// The length in bytes of an IPv4 port address.
+    static constexpr uint32_t ADDRESS_LENGTH = Ip4Address::ADDRESS_LENGTH + sizeof(uint16_t);
 };
 
 }

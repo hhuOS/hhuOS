@@ -21,11 +21,11 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "lib/util/network/icmp/IcmpDatagram.h"
+#include "IcmpDatagram.h"
 
-#include "lib/util/network/icmp/IcmpHeader.h"
-#include "lib/util/network/ip4/Ip4Address.h"
-#include "lib/util/network/NetworkAddress.h"
+#include "network/icmp/IcmpHeader.h"
+#include "network/ip4/Ip4Address.h"
+#include "network/NetworkAddress.h"
 
 namespace Util {
 namespace Io {
@@ -37,14 +37,13 @@ namespace Util::Network::Icmp {
 
 IcmpDatagram::IcmpDatagram() : Datagram(NetworkAddress::IP4) {}
 
-IcmpDatagram::IcmpDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4Address &remoteAddress, IcmpHeader::Type type, uint8_t code) :
-        Datagram(buffer, length, remoteAddress), type(type), code(code) {}
+IcmpDatagram::IcmpDatagram(const uint8_t *buffer, const uint16_t length, const Ip4::Ip4Address &remoteAddress,
+    const IcmpHeader::Type type, const uint8_t code) :
+    Datagram(buffer, length, remoteAddress), type(type), code(code) {}
 
-IcmpDatagram::IcmpDatagram(uint8_t *buffer, uint16_t length, const NetworkAddress &remoteAddress, IcmpHeader::Type type, uint8_t code) :
-        Datagram(buffer, length, remoteAddress), type(type), code(code) {}
-
-IcmpDatagram::IcmpDatagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress, IcmpHeader::Type type, uint8_t code) :
-        Datagram(stream, remoteAddress), type(type), code(code) {}
+IcmpDatagram::IcmpDatagram(const Io::ByteArrayOutputStream &stream, const Ip4::Ip4Address &remoteAddress,
+    const IcmpHeader::Type type, const uint8_t code) :
+    Datagram(stream, remoteAddress), type(type), code(code) {}
 
 IcmpHeader::Type IcmpDatagram::getType() const {
     return type;

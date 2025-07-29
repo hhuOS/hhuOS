@@ -21,8 +21,8 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#ifndef HHUOS_ECHOHEADER_H
-#define HHUOS_ECHOHEADER_H
+#ifndef HHUOS_LIB_UTIL_NETWORK_ECHOHEADER_H
+#define HHUOS_LIB_UTIL_NETWORK_ECHOHEADER_H
 
 #include <stdint.h>
 
@@ -35,47 +35,50 @@ class OutputStream;
 
 namespace Util::Network::Icmp {
 
+/// Represents a header for an Echo Request or Echo Reply in the Internet Control Message Protocol (ICMP).
+/// The Echo message is contained in the payload of an ICMP packet
+/// and the header follows directly after the ICMP header.
+/// The header is 4 bytes long and consists of the following fields:
+///
+/// | 2 bytes    | 2 bytes         |
+/// |------------|-----------------|
+/// | Identifier | Sequence Number |
 class EchoHeader {
 
 public:
-    /**
-     * Default Constructor.
-     */
+    /// Create an empty Echo header.
+    /// The identifier and sequence number are initialized to 0.
     EchoHeader() = default;
 
-    /**
-     * Copy Constructor.
-     */
-    EchoHeader(const EchoHeader &other) = delete;
+    /// Read the header values from the given input stream.
+    /// The input stream must deliver the 4 bytes of data, that make up the header.
+    /// The identifier and sequence number are read in this exact order.
+    void read(Io::InputStream &stream);
 
-    /**
-     * Assignment operator.
-     */
-    EchoHeader &operator=(const EchoHeader &other) = delete;
+    /// Write the header values to the given output stream.
+    /// The output stream will receive the 4 bytes of data, that make up the header.
+    /// The identifier and sequence number are written in this exact order.
+    void write(Io::OutputStream &stream) const;
 
-    /**
-     * Destructor.
-     */
-    ~EchoHeader() = default;
-
-    void read(Util::Io::InputStream &stream);
-
-    void write(Util::Io::OutputStream &stream) const;
-
+    /// Get the identifier.
     [[nodiscard]] uint16_t getIdentifier() const;
 
-    void setIdentifier(uint16_t identifier);
-
+    /// Get the sequence number.
     [[nodiscard]] uint16_t getSequenceNumber() const;
 
+    /// Set the identifier.
+    void setIdentifier(uint16_t identifier);
+
+    /// Set the sequence number.
     void setSequenceNumber(uint16_t sequenceNumber);
 
-    static const constexpr uint32_t HEADER_LENGTH = 4;
+    /// The length of the Echo header in bytes.
+    static constexpr uint32_t HEADER_LENGTH = 4;
 
 private:
 
-    uint16_t identifier{};
-    uint16_t sequenceNumber{};
+    uint16_t identifier = 0;
+    uint16_t sequenceNumber = 0;
 };
 
 }

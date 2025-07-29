@@ -21,11 +21,11 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "lib/util/network/ethernet/EthernetDatagram.h"
+#include "EthernetDatagram.h"
 
-#include "lib/util/network/MacAddress.h"
-#include "lib/util/network/ethernet/EthernetHeader.h"
-#include "lib/util/network/NetworkAddress.h"
+#include "network/MacAddress.h"
+#include "network/NetworkAddress.h"
+#include "network/ethernet/EthernetHeader.h"
 
 namespace Util {
 namespace Io {
@@ -37,16 +37,13 @@ namespace Util::Network::Ethernet {
 
 EthernetDatagram::EthernetDatagram() : Datagram(NetworkAddress::MAC) {}
 
-EthernetDatagram::EthernetDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::MacAddress &remoteAddress, Network::Ethernet::EthernetHeader::EtherType type) :
-        Datagram(buffer, length, remoteAddress), type(type) {}
+EthernetDatagram::EthernetDatagram(const uint8_t *buffer, const uint16_t length, const MacAddress &remoteAddress,
+    const EthernetHeader::EtherType type) : Datagram(buffer, length, remoteAddress), type(type) {}
 
-EthernetDatagram::EthernetDatagram(uint8_t *buffer, uint16_t length, const NetworkAddress &remoteAddress, EthernetHeader::EtherType type) :
-        Datagram(buffer, length, remoteAddress), type(type) {}
+EthernetDatagram::EthernetDatagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress,
+    const EthernetHeader::EtherType type) : Datagram(stream, remoteAddress), type(type) {}
 
-EthernetDatagram::EthernetDatagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress, EthernetHeader::EtherType type) :
-        Datagram(stream, remoteAddress), type(type) {}
-
-EthernetHeader::EtherType Network::Ethernet::EthernetDatagram::getEtherType() const {
+EthernetHeader::EtherType EthernetDatagram::getEtherType() const {
     return type;
 }
 

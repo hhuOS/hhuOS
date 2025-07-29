@@ -58,9 +58,6 @@ public:
     /// This constructor can be used without parameters, in which case the seed is set to the current system time.
     explicit Random(uint32_t seed = Time::Timestamp::getSystemTime().toMilliseconds());
 
-    /// The random number generator only stores primitive data types, so the default destructor is sufficient.
-    ~Random() = default;
-
     /// Get a random number in the range [min, max].
     ///
     /// ### Example

@@ -21,8 +21,8 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#ifndef HHUOS_ICMPHEADER_H
-#define HHUOS_ICMPHEADER_H
+#ifndef HHUOS_LIB_UTIL_NETWORK_ICMPHEADER_H
+#define HHUOS_LIB_UTIL_NETWORK_ICMPHEADER_H
 
 #include <stdint.h>
 
@@ -35,75 +35,80 @@ class OutputStream;
 
 namespace Util::Network::Icmp {
 
+/// Represents an Internet Control Message Protocol (ICMP) header,
+/// which is used for error messages and operational information in network communication.
+/// For example, ICMP is used for ping requests and replies.
+/// The header is 4 bytes long and consists of the following fields:
+///
+/// | 1 byte | 1 byte | 2 bytes   |
+/// |--------|--------|-----------|
+/// | Type   | Code   | Checksum  |
 class IcmpHeader {
 
 public:
-
+    /// Different types of ICMP messages (full list is available in RFC792).
     enum Type : uint8_t {
+        /// Echo Reply, used in response to an Echo Request (ping).
         ECHO_REPLY = 0,
+        /// Destination Unreachable, sent when a destination cannot be reached.
         DESTINATION_UNREACHABLE = 3,
-        SOURCE_QUENCH = 4,
+        /// Redirect, used to inform a host of a better route to a destination.
         REDIRECT = 5,
-        ALTERNATE_HOST_ADDRESS = 6,
+        /// Echo Request, used to request an Echo Reply (ping).
         ECHO_REQUEST = 8,
+        /// Router Advertisement, used by routers to advertise their presence.
         ROUTER_ADVERTISEMENT = 9,
+        /// Router Solicitation, used by hosts to request router advertisements.
         ROUTER_SOLICITATION = 10,
+        /// Time Exceeded, sent when a packet's time-to-live (TTL) expires.
         TIME_EXCEEDED = 11,
+        /// Parameter Problem, sent when there is a problem with the IP header of a packet.
         BAD_IP_HEADER = 12,
+        /// Timestamp Request, used to request a timestamp reply.
         TIMESTAMP = 13,
-        TIMESTAMP_REPLY = 14,
-        INFORMATION_REQUEST = 15,
-        INFORMATION_REPLY = 16,
-        ADDRESS_MASK_REQUEST = 17,
-        ADDRESS_MASK_REPLY = 18,
-        TRACEROUTE = 30,
-        PHOTURIS = 40,
-        EXTENDED_ECHO_REQUEST = 42,
-        EXTENDED_ECHO_REPLY = 43,
+        /// Timestamp Reply, used in response to a Timestamp Request.
+        TIMESTAMP_REPLY = 14
     };
 
-    /**
-     * Default Constructor.
-     */
+    /// Create an empty ICMP header.
+    /// The type is set to `ECHO_REPLY`, code is set to `0`, and checksum is set to `0`.
     IcmpHeader() = default;
 
-    /**
-     * Copy Constructor.
-     */
-    IcmpHeader(const IcmpHeader &other) = delete;
+    /// Read the header values from the given input stream.
+    /// The input stream must deliver the 4 bytes of data, that make up the ICMP header.
+    /// The type, code, and checksum fields are read in this exact order.
+    void read(Io::InputStream &stream);
 
-    /**
-     * Assignment operator.
-     */
-    IcmpHeader &operator=(const IcmpHeader &other) = delete;
+    /// Write the header values to the given output stream.
+    /// The output stream will receive the 4 bytes of data, that make up the ICMP header.
+    /// The type, code, and checksum fields are written in this exact order.
+    void write(Io::OutputStream &stream) const;
 
-    /**
-     * Destructor.
-     */
-    ~IcmpHeader() = default;
-
-    void read(Util::Io::InputStream &stream);
-
-    void write(Util::Io::OutputStream &stream);
-
+    /// Get the ICMP type.
     [[nodiscard]] Type getType() const;
 
-    void setType(Type type);
-
+    /// Get the code.
     [[nodiscard]] uint8_t getCode() const;
 
-    void setCode(uint8_t code);
-
+    /// Get the checksum.
     [[nodiscard]] uint16_t getChecksum() const;
 
-    static const constexpr uint32_t CHECKSUM_OFFSET = 2;
-    static const constexpr uint32_t HEADER_LENGTH = 4;
+    /// Set the ICMP type.
+    void setType(Type type);
+
+    /// Set the code.
+    void setCode(uint8_t code);
+
+    /// The offset of the checksum field in the ICMP header.
+    static constexpr uint32_t CHECKSUM_OFFSET = 2;
+    /// The length of the ICMP header in bytes.
+    static constexpr uint32_t HEADER_LENGTH = 4;
 
 private:
 
-    Type type{};
-    uint8_t code{};
-    uint16_t checksum{};
+    Type type = ECHO_REPLY;
+    uint8_t code = 0;
+    uint16_t checksum = 0;
 };
 
 }

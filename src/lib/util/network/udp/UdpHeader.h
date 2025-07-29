@@ -21,8 +21,8 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#ifndef HHUOS_UDPHEADER_H
-#define HHUOS_UDPHEADER_H
+#ifndef HHUOS_LIB_UTIL_NETWORK_UDPHEADER_H
+#define HHUOS_LIB_UTIL_NETWORK_UDPHEADER_H
 
 #include <stdint.h>
 
@@ -35,55 +35,61 @@ class OutputStream;
 
 namespace Util::Network::Udp {
 
+/// Represents a User Datagram Protocol (UDP) header.
+/// A UDP header contains the source and destination ports, the length of the datagram, and a checksum.
+/// The ports are used to identify the sending and receiving applications on the hosts.
+/// The header is 8 bytes long and consists of the following fields:
+///
+/// | 2 bytes     | 2 bytes          | 2 bytes         | 2 bytes  |
+/// |-------------|------------------|-----------------|----------|
+/// | Source Port | Destination Port | Datagram Length | Checksum |
 class UdpHeader {
 
 public:
-    /**
-     * Default Constructor.
-     */
+    /// Create an empty UDP header.
+    /// All fields are initialized to 0.
     UdpHeader() = default;
 
-    /**
-     * Copy Constructor.
-     */
-    UdpHeader(const UdpHeader &other) = delete;
+    /// Read the header values from the given input stream.
+    /// The input stream must deliver the 8 bytes of data, that make up the header.
+    /// The source port, destination port, datagram length, and checksum are read in this exact order.
+    void read(Io::InputStream &stream);
 
-    /**
-     * Assignment operator.
-     */
-    UdpHeader &operator=(const UdpHeader &other) = delete;
+    /// Write the header values to the given output stream.
+    /// The output stream will receive the 8 bytes of data, that make up the header.
+    /// The source port, destination port, datagram length, and checksum are written in this exact order.
+    void write(Io::OutputStream &stream) const;
 
-    /**
-     * Destructor.
-     */
-    ~UdpHeader() = default;
-
-    void read(Util::Io::InputStream &stream);
-
-    void write(Util::Io::OutputStream &stream) const;
-
+    /// Get the source port.
     [[nodiscard]] uint16_t getSourcePort() const;
 
-    void setSourcePort(uint16_t sourcePort);
-
+    /// Get the destination port.
     [[nodiscard]] uint16_t getDestinationPort() const;
 
-    void setDestinationPort(uint16_t targetPort);
-
+    /// Get the datagram length in bytes (header + payload).
     [[nodiscard]] uint16_t getDatagramLength() const;
 
-    void setDatagramLength(uint16_t length);
-
+    /// Get the checksum.
     [[nodiscard]] uint16_t getChecksum() const;
 
-    static const constexpr uint32_t HEADER_SIZE = 8;
+    /// Set the source port.
+    void setSourcePort(uint16_t sourcePort);
+
+    /// Set the destination port.
+    void setDestinationPort(uint16_t destinationPort);
+
+    /// Set the datagram length in bytes (header + payload).
+    void setDatagramLength(uint16_t length);
+
+    /// The length of the UDP header in bytes.
+    static constexpr uint32_t HEADER_SIZE = 8;
 
 private:
 
-    uint16_t sourcePort{};
-    uint16_t destinationPort{};
-    uint16_t datagramLength{};
-    uint16_t checksum{};
+    uint16_t sourcePort = 0;
+    uint16_t destinationPort = 0;
+    uint16_t datagramLength = 0;
+    uint16_t checksum = 0;
 };
 
 }

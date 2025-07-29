@@ -21,48 +21,40 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "lib/util/network/ip4/Ip4Address.h"
-
-#include "lib/util/collection/Array.h"
+#include "collection/Array.h"
+#include "network/ip4/Ip4Address.h"
 
 namespace Util::Network::Ip4 {
 
 const Ip4Address Ip4Address::ANY = Ip4Address("0.0.0.0");
+const Ip4Address Ip4Address::BROADCAST = Ip4Address("255.255.255.255");
 
 Ip4Address::Ip4Address() : NetworkAddress(ADDRESS_LENGTH, IP4) {}
 
-Ip4Address::Ip4Address(uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, IP4) {}
+Ip4Address::Ip4Address(const uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, IP4) {}
 
 Ip4Address::Ip4Address(const Util::String &string) : NetworkAddress(ADDRESS_LENGTH, IP4) {
     auto split = string.split(".");
-    uint8_t buffer[4] = {
+    const uint8_t buffer[4] = {
             String::parseNumber<uint8_t>(split[0]),
             String::parseNumber<uint8_t>(split[1]),
             String::parseNumber<uint8_t>(split[2]),
             String::parseNumber<uint8_t>(split[3]),
     };
-    NetworkAddress::setAddress(buffer);
+
+    setAddress(buffer);
 }
 
 NetworkAddress* Ip4Address::createCopy() const {
     return new Ip4Address(*this);
 }
 
-Util::String Ip4Address::toString() const {
-    return Util::String::format("%u.%u.%u.%u", buffer[0], buffer[1], buffer[2], buffer[3]);
-}
-
-Ip4Address Ip4Address::createBroadcastAddress() {
-    uint8_t buffer[4] = {0xff, 0xff, 0xff, 0xff};
-    return Ip4Address(buffer);
+String Ip4Address::toString() const {
+    return String::format("%u.%u.%u.%u", buffer[0], buffer[1], buffer[2], buffer[3]);
 }
 
 bool Ip4Address::isBroadcastAddress() const {
-    for (uint8_t i = 0; i < ADDRESS_LENGTH; i++) {
-        if (buffer[i] != 0xff) return false;
-    }
-
-    return true;
+    return Address(buffer).compareRange(Address(BROADCAST.buffer), ADDRESS_LENGTH) == 0;
 }
 
 }

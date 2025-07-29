@@ -21,11 +21,11 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "lib/util/network/ip4/Ip4Header.h"
+#include "Ip4Header.h"
 
-#include "lib/util/network/NumberUtil.h"
-#include "lib/util/io/stream/InputStream.h"
-#include "lib/util/network/ip4/Ip4Address.h"
+#include "io/stream/InputStream.h"
+#include "network/NumberUtil.h"
+#include "network/ip4/Ip4Address.h"
 
 namespace Util {
 namespace Io {
@@ -35,16 +35,16 @@ class OutputStream;
 
 namespace Util::Network::Ip4 {
 
-void Ip4Header::read(Util::Io::InputStream &stream) {
+void Ip4Header::read(Io::InputStream &stream) {
     // Read IP version and header length
-    auto versionAndLength = Util::Network::NumberUtil::readUnsigned8BitValue(stream);
+    const auto versionAndLength = NumberUtil::readUnsigned8BitValue(stream);
     version = versionAndLength >> 4;
     headerLength = (versionAndLength & 0x0f) * sizeof(uint32_t);
 
     // Discard DSCP and ECN
     stream.read();
 
-    auto totalLength = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
+    const auto totalLength = NumberUtil::readUnsigned16BitValue(stream);
     payloadLength = totalLength - headerLength;
 
     // Discard Identification, Flags and Offset
@@ -53,8 +53,8 @@ void Ip4Header::read(Util::Io::InputStream &stream) {
     stream.read();
     stream.read();
 
-    timeToLive = Util::Network::NumberUtil::readUnsigned8BitValue(stream);
-    protocol = static_cast<Protocol>(Util::Network::NumberUtil::readUnsigned8BitValue(stream));
+    timeToLive = NumberUtil::readUnsigned8BitValue(stream);
+    protocol = static_cast<Protocol>(NumberUtil::readUnsigned8BitValue(stream));
 
     // Discard checksum
     stream.read();
@@ -69,23 +69,23 @@ void Ip4Header::read(Util::Io::InputStream &stream) {
     }
 }
 
-void Ip4Header::write(Util::Io::OutputStream &stream) const {
+void Ip4Header::write(Io::OutputStream &stream) const {
     // Write IP version and header length
-    Util::Network::NumberUtil::writeUnsigned8BitValue(version << 4 | (MIN_HEADER_LENGTH / sizeof(uint32_t)), stream);
+    NumberUtil::writeUnsigned8BitValue(version << 4 | (MIN_HEADER_LENGTH / sizeof(uint32_t)), stream);
 
     // Write empty DSCP and ECN
-    Util::Network::NumberUtil::writeUnsigned8BitValue(0, stream);
+    NumberUtil::writeUnsigned8BitValue(0, stream);
 
-    Util::Network::NumberUtil::writeUnsigned16BitValue(headerLength + payloadLength, stream);
+    NumberUtil::writeUnsigned16BitValue(headerLength + payloadLength, stream);
 
     // Write empty Identification, Flags and Offset
-    Util::Network::NumberUtil::writeUnsigned32BitValue(0, stream);
+    NumberUtil::writeUnsigned32BitValue(0, stream);
 
-    Util::Network::NumberUtil::writeUnsigned8BitValue(timeToLive, stream);
-    Util::Network::NumberUtil::writeUnsigned8BitValue(protocol, stream);
+    NumberUtil::writeUnsigned8BitValue(timeToLive, stream);
+    NumberUtil::writeUnsigned8BitValue(protocol, stream);
 
     // Write empty checksum
-    Util::Network::NumberUtil::writeUnsigned16BitValue(0, stream);
+    NumberUtil::writeUnsigned16BitValue(0, stream);
 
     sourceAddress.write(stream);
     destinationAddress.write(stream);
@@ -107,31 +107,31 @@ Ip4Header::Protocol Ip4Header::getProtocol() const {
     return protocol;
 }
 
-const Util::Network::Ip4::Ip4Address& Ip4Header::getSourceAddress() const {
+const Ip4Address& Ip4Header::getSourceAddress() const {
     return sourceAddress;
 }
 
-const Util::Network::Ip4::Ip4Address& Ip4Header::getDestinationAddress() const {
+const Ip4Address& Ip4Header::getDestinationAddress() const {
     return destinationAddress;
 }
 
-void Ip4Header::setPayloadLength(uint16_t payloadLength) {
+void Ip4Header::setPayloadLength(const uint16_t payloadLength) {
     Ip4Header::payloadLength = payloadLength;
 }
 
-void Ip4Header::setTimeToLive(uint8_t timeToLive) {
+void Ip4Header::setTimeToLive(const uint8_t timeToLive) {
     Ip4Header::timeToLive = timeToLive;
 }
 
-void Ip4Header::setProtocol(Ip4Header::Protocol aProtocol) {
-    protocol = aProtocol;
+void Ip4Header::setProtocol(const Protocol protocol) {
+    Ip4Header::protocol = protocol;
 }
 
-void Ip4Header::setSourceAddress(const Util::Network::Ip4::Ip4Address &sourceAddress) {
+void Ip4Header::setSourceAddress(const Ip4Address &sourceAddress) {
     Ip4Header::sourceAddress = sourceAddress;
 }
 
-void Ip4Header::setDestinationAddress(const Util::Network::Ip4::Ip4Address &destinationAddress) {
+void Ip4Header::setDestinationAddress(const Ip4Address &destinationAddress) {
     Ip4Header::destinationAddress = destinationAddress;
 }
 

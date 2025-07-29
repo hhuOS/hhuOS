@@ -214,7 +214,7 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
 
             auto routes = routingModule.getRoutes(*reinterpret_cast<Util::Network::Ip4::Ip4Address*>(bindAddress));
             for (uint32_t i = 0; i < routes.length() && i < targetAddresses.length(); i++) {
-                auto route = routes[i];
+                const auto &route = routes[i];
 
                 sourceAddresses[i] = route.getSourceAddress();
                 targetAddresses[i] = route.getTargetAddress();

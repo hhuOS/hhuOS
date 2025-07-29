@@ -21,12 +21,12 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#ifndef HHUOS_DATAGRAM_H
-#define HHUOS_DATAGRAM_H
+#ifndef HHUOS_LIB_UTIL_NETWORK_DATAGRAM_H
+#define HHUOS_LIB_UTIL_NETWORK_DATAGRAM_H
 
 #include <stdint.h>
 
-#include "NetworkAddress.h"
+#include "network/NetworkAddress.h"
 
 namespace Util {
 namespace Io {
@@ -36,62 +36,81 @@ class ByteArrayOutputStream;
 
 namespace Util::Network {
 
+/// Base class for network datagrams, which are used to send and receive data over a network.
+/// A datagram contains a buffer with the data, its length, and the remote address to
+/// which it is sent or from which it is received.
+/// Subclasses must implement the `setAttributes()` method to copy type dependent attributes
+/// from another datagram.
 class Datagram {
 
 public:
-    /**
-     * Constructor.
-     */
+    /// Create a new datagram with a specified address type.
+    /// The buffer remains uninitialized and must be set later using `setData()`.
+    /// This is typically used for receiving datagrams, because in this case the buffer is allocated
+    /// by the kernel during the receive system call.
+    /// This class cannot be instantiated directly, but the constructor must be called by subclasses.
     explicit Datagram(NetworkAddress::Type type);
 
-    /**
-     * Constructor.
-     */
-    Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::NetworkAddress &remoteAddress);
+    /// Create a new datagram with a given buffer and length, and a remote address.
+    /// The buffer's content is copied into the datagram's buffer.
+    /// This class cannot be instantiated directly, but the constructor must be called by subclasses.
+    Datagram(const uint8_t *buffer, uint16_t length, const NetworkAddress &remoteAddress);
 
-    /**
-     * Constructor.
-     */
-    Datagram(uint8_t *buffer, uint16_t length, const Util::Network::NetworkAddress &remoteAddress);
+    /// Create a new datagram from a byte array output stream and a remote address.
+    /// The stream's content is copied into the datagram's buffer by directly accessing the stream's buffer.
+    /// This way, the stream's state remains unchanged.
+    /// This class cannot be instantiated directly, but the constructor must be called by subclasses.
+    Datagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress);
 
-    /**
-     * Constructor.
-     */
-    Datagram(const Io::ByteArrayOutputStream &stream, const Util::Network::NetworkAddress &remoteAddress);
-
-    /**
-     * Copy Constructor.
-     */
+    /// Datagrams are not copyable, so the copy constructor is deleted.
     Datagram(const Datagram &other) = delete;
 
-    /**
-     * Assignment operator.
-     */
+    /// Datagrams are not copyable, so the assignment operator is deleted.
     Datagram &operator=(const Datagram &other) = delete;
 
-    /**
-     * Destructor.
-     */
+    /// Destroy the datagram, freeing the allocated buffer and remote address.
     virtual ~Datagram();
 
-    [[nodiscard]] const Util::Network::NetworkAddress& getRemoteAddress() const;
+    /// Get the remote address to which this datagram is sent or from which it is received.
+    [[nodiscard]] const NetworkAddress& getRemoteAddress() const;
 
-    void setRemoteAddress(const Util::Network::NetworkAddress& address);
+    /// Set the remote address for this datagram.
+    void setRemoteAddress(const NetworkAddress& address) const;
 
-    [[nodiscard]] uint8_t* getData() const;
+    /// Get access to the data buffer of this datagram.
+    [[nodiscard]] const uint8_t* getData() const;
 
+    /// Get the length of the data buffer in bytes.
+    /// When accessing the data buffer (using `getData()`),
+    /// make sure to not read more bytes than the length of the buffer.
+    /// Otherwise, this will lead to undefined behavior.
     [[nodiscard]] uint32_t getLength() const;
 
+    /// Set the data buffer for this datagram.
+    /// This method will NOT copy the data, but simply set the pointer to the given buffer
+    /// and free the previous buffer.
+    /// This should be used with care, as the datagram will take ownership of the buffer,
+    /// freeing it when the datagram is destroyed.
     void setData(uint8_t *buffer, uint32_t length);
 
+    /// Set type dependent attributes from another datagram.
+    /// This is used by the kernel to copy attributes from a kernel space datagram to a user space datagram.
+    ///
+    /// ### Example (from `EthernetDatagram`)
+    /// ```c++
+    /// void setAttributes(const Datagram &datagram) override {
+    ///     auto &ethernetDatagram = reinterpret_cast<const EthernetDatagram&>(datagram); // Cast to specific type
+    ///     type = ethernetDatagram.getEtherType(); // Set ether type (the only attribute for Ethernet datagrams)
+    /// }
+    /// ```
     virtual void setAttributes(const Datagram &datagram) = 0;
 
-protected:
+private:
 
-    Util::Network::NetworkAddress *remoteAddress{};
+    NetworkAddress *remoteAddress = nullptr;
 
-    uint8_t *buffer{};
-    uint32_t length{};
+    uint8_t *buffer = nullptr;
+    uint32_t length = 0;
 };
 
 }

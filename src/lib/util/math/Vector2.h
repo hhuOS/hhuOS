@@ -46,9 +46,6 @@ public:
     /// Create a new 2D vector with the given x and y values.
     Vector2(T x, T y);
 
-    /// The 2D vector only stores primitive data types, so the default destructor is sufficient.
-    ~Vector2() = default;
-
     /// Create a new 2D vector by multiplying this vector with a scalar value.
     /// The resulting vector is calculated as:
     /// ```c++

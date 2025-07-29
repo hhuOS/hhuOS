@@ -46,10 +46,6 @@ public:
     /// A memory manager should not be copyable, since copies would operate on the same memory.
     FreeListMemoryManager& operator=(const FreeListMemoryManager &other) = delete;
 
-    /// The free list memory manager class has no state that needs to be cleaned up,
-    /// so the default destructor is sufficient.
-    ~FreeListMemoryManager() override = default;
-
     /// Allocate a block of memory of a given size and alignment using the first-fit algorithm.
     /// If no sufficient block of memory is available, a panic is fired.
     [[nodiscard]] void* allocateMemory(size_t size, size_t alignment) override;

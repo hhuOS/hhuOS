@@ -48,9 +48,6 @@ public:
     /// Create a new 3D vector with the given x, y, and z values.
     Vector3(T x, T y, T z);
 
-    /// The 3D vector only stores primitive data types, so the default destructor is sufficient.
-    ~Vector3() = default;
-
     /// Create a new 3D vector by multiplying this vector with a scalar value.
     ///
     /// ### Example

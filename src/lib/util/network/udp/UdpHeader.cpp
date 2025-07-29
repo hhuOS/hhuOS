@@ -34,46 +34,46 @@ class OutputStream;
 
 namespace Util::Network::Udp {
 
-void UdpHeader::read(Util::Io::InputStream &stream) {
-    sourcePort = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
-    destinationPort = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
-    datagramLength = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
-    checksum = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
+void UdpHeader::read(Io::InputStream &stream) {
+    sourcePort = NumberUtil::readUnsigned16BitValue(stream);
+    destinationPort = NumberUtil::readUnsigned16BitValue(stream);
+    datagramLength = NumberUtil::readUnsigned16BitValue(stream);
+    checksum = NumberUtil::readUnsigned16BitValue(stream);
 }
 
-void UdpHeader::write(Util::Io::OutputStream &stream) const {
-    Util::Network::NumberUtil::writeUnsigned16BitValue(sourcePort, stream);
-    Util::Network::NumberUtil::writeUnsigned16BitValue(destinationPort, stream);
-    Util::Network::NumberUtil::writeUnsigned16BitValue(datagramLength, stream);
-    Util::Network::NumberUtil::writeUnsigned16BitValue(checksum, stream);
+void UdpHeader::write(Io::OutputStream &stream) const {
+    NumberUtil::writeUnsigned16BitValue(sourcePort, stream);
+    NumberUtil::writeUnsigned16BitValue(destinationPort, stream);
+    NumberUtil::writeUnsigned16BitValue(datagramLength, stream);
+    NumberUtil::writeUnsigned16BitValue(checksum, stream);
 }
 
 uint16_t UdpHeader::getSourcePort() const {
     return sourcePort;
 }
 
-void UdpHeader::setSourcePort(uint16_t sourcePort) {
-    UdpHeader::sourcePort = sourcePort;
-}
-
 uint16_t UdpHeader::getDestinationPort() const {
     return destinationPort;
-}
-
-void UdpHeader::setDestinationPort(uint16_t targetPort) {
-    UdpHeader::destinationPort = targetPort;
 }
 
 uint16_t UdpHeader::getDatagramLength() const {
     return datagramLength;
 }
 
-void UdpHeader::setDatagramLength(uint16_t length) {
-    UdpHeader::datagramLength = length;
-}
-
 uint16_t UdpHeader::getChecksum() const {
     return checksum;
+}
+
+void UdpHeader::setSourcePort(const uint16_t sourcePort) {
+    UdpHeader::sourcePort = sourcePort;
+}
+
+void UdpHeader::setDestinationPort(const uint16_t destinationPort) {
+    UdpHeader::destinationPort = destinationPort;
+}
+
+void UdpHeader::setDatagramLength(const uint16_t length) {
+    datagramLength = length;
 }
 
 }

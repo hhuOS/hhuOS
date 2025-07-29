@@ -100,17 +100,6 @@ public:
     /// and fire a panic if the file is not a valid WAVE file or does not contain a 'data' chunk.
     explicit WaveFile(const Io::File &file);
 
-    /// WaveFile is not copyable, since it inherits from the not copyable class `FilterInputStream`,
-    /// so the copy constructor is deleted.
-    WaveFile(const WaveFile &other) = delete;
-
-    /// WaveFile is not assignable, since it inherits from the not copyable class `FilterInputStream`,
-    /// so the assignment operator is deleted.
-    WaveFile& operator=(const WaveFile &other) = delete;
-
-    /// The WaveFile destructor is trivial, as it only contains simple data structures and a `FileInputStream`.
-    ~WaveFile() override = default;
-
     /// Return the audio format of the WAVE file (e.g. `PCM`).
     [[nodiscard]] AudioFormat getAudioFormat() const;
 

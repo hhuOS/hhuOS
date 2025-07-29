@@ -23,66 +23,69 @@
 
 #include "Ip4PortAddress.h"
 
-#include "lib/util/collection/Array.h"
-#include "lib/util/network/ip4/Ip4Address.h"
-#include "lib/util/base/Address.h"
+#include "base/Address.h"
+#include "collection/Array.h"
+#include "network/ip4/Ip4Address.h"
 
 namespace Util::Network::Ip4 {
 
 Ip4PortAddress::Ip4PortAddress() : NetworkAddress(ADDRESS_LENGTH, IP4_PORT) {}
 
-Ip4PortAddress::Ip4PortAddress(uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, IP4_PORT) {}
+Ip4PortAddress::Ip4PortAddress(const uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, IP4_PORT) {}
 
 Ip4PortAddress::Ip4PortAddress(const String &string) : NetworkAddress(ADDRESS_LENGTH, IP4_PORT) {
-    auto bufferAddress = Util::Address(buffer);
-    auto ip4Address = Ip4Address();
-    uint16_t port = 0;
+    const auto bufferAddress = Address(buffer);
 
     if (string.beginsWith(":")) {
-        port = String::parseNumber<uint16_t>(string.substring(1));
+        // Buffer is already initialized with "0.0.0.0:0" -> Just set the port number
+        const auto port = String::parseNumber<uint16_t>(string.substring(1));
+        bufferAddress.write16(port, Ip4Address::ADDRESS_LENGTH);
     } else {
-        auto split = string.split(":");
-        ip4Address = Ip4Address(split[0]);
-        if (split.length() > 1) {
-            port = String::parseNumber<uint16_t>(split[1]);
-        }
+        const auto split = string.split(":");
+        const auto ip4Address = Ip4Address(split[0]);
+        const auto port = split.length() > 1 ? String::parseNumber<uint16_t>(split[1]) : 0;
+
+        // Write the IP address and port number to the buffer
+        ip4Address.getAddress(buffer);
+        bufferAddress.write16(port, Ip4Address::ADDRESS_LENGTH);
     }
-
-    ip4Address.getAddress(buffer);
-    bufferAddress.write16(port, Ip4Address::ADDRESS_LENGTH);
 }
 
-Ip4PortAddress::Ip4PortAddress(const Ip4Address &address, uint16_t port) : NetworkAddress(Ip4Address::ADDRESS_LENGTH + 2, IP4_PORT) {
-    uint8_t addressBuffer[Ip4Address::ADDRESS_LENGTH];
-    address.getAddress(addressBuffer);
-
-    auto bufferAddress = Address(buffer);
-    bufferAddress.copyRange(Address(addressBuffer), Ip4Address::ADDRESS_LENGTH);
-    bufferAddress.write16(port, Ip4Address::ADDRESS_LENGTH);
+Ip4PortAddress::Ip4PortAddress(const Ip4Address &address, const uint16_t port) :
+        NetworkAddress(Ip4Address::ADDRESS_LENGTH + 2, IP4_PORT) {
+    // Copy the IP address to the buffer and write the port number
+    address.getAddress(buffer);
+    Address(buffer).write16(port, Ip4Address::ADDRESS_LENGTH);
 }
 
-Ip4PortAddress::Ip4PortAddress(const Ip4Address &address) : Ip4PortAddress(address, 0) {}
+Ip4PortAddress::Ip4PortAddress(const Ip4Address &address) : NetworkAddress(ADDRESS_LENGTH, IP4_PORT) {
+    // Copy the IP address to the buffer (port is already initialized to 0)
+    address.getAddress(buffer);
+}
 
-Ip4PortAddress::Ip4PortAddress(uint16_t port) : Ip4PortAddress(Ip4Address::ANY, port) {}
+Ip4PortAddress::Ip4PortAddress(const uint16_t port) : NetworkAddress(ADDRESS_LENGTH, IP4_PORT) {
+    // Buffer is already initialized with "0.0.0.0:0" -> Just set the port number
+    Address(buffer).write16(port, Ip4Address::ADDRESS_LENGTH);
+}
 
 Ip4Address Ip4PortAddress::getIp4Address() const {
     return Ip4Address(buffer);
 }
 
 uint16_t Ip4PortAddress::getPort() const {
-    return Util::Address(buffer).read16(Ip4Address::ADDRESS_LENGTH);
+    return Address(buffer).read16(Ip4Address::ADDRESS_LENGTH);
 }
 
-void Ip4PortAddress::setPort(uint16_t port) {
-    Util::Address(buffer).write16(port, Ip4Address::ADDRESS_LENGTH);
+void Ip4PortAddress::setPort(const uint16_t port) const {
+    Address(buffer).write16(port, Ip4Address::ADDRESS_LENGTH);
 }
 
 NetworkAddress* Ip4PortAddress::createCopy() const {
     return new Ip4PortAddress(*this);
 }
 
-Util::String Ip4PortAddress::toString() const {
-    return Util::String::format("%u.%u.%u.%u:%u", buffer[0], buffer[1], buffer[2], buffer[3], getPort());
+String Ip4PortAddress::toString() const {
+    return String::format("%u.%u.%u.%u:%u", buffer[0], buffer[1], buffer[2], buffer[3], getPort());
 }
 
 }

@@ -23,30 +23,38 @@
 
 #include "Ip4Route.h"
 
-#include "lib/util/base/Panic.h"
-#include "lib/util/network/NetworkAddress.h"
-#include "lib/util/network/ip4/Ip4SubnetAddress.h"
+#include "base/Panic.h"
+#include "network/NetworkAddress.h"
+#include "network/ip4/Ip4SubnetAddress.h"
 
 namespace Util::Network::Ip4 {
 
-Ip4Route::Ip4Route(const Util::Network::Ip4::Ip4SubnetAddress &targetAddress, const Util::Network::Ip4::Ip4Address &nextHop, const Util::String &deviceIdentifier) :
-        sourceAddress(targetAddress.getIp4Address()), targetAddress(targetAddress), nextHop(nextHop), deviceIdentifier(deviceIdentifier), nextHopValid(true) {}
+Ip4Route::Ip4Route(const Ip4SubnetAddress &targetAddress, const String &deviceIdentifier) :
+        sourceAddress(targetAddress.getIp4Address()), targetAddress(targetAddress),
+        deviceIdentifier(deviceIdentifier) {}
 
 Ip4Route::Ip4Route(const Ip4Address &sourceAddress, const Ip4SubnetAddress &targetAddress, const String &deviceIdentifier) :
-        sourceAddress(sourceAddress), targetAddress(targetAddress), deviceIdentifier(deviceIdentifier), nextHopValid(false) {}
+        sourceAddress(sourceAddress), targetAddress(targetAddress), deviceIdentifier(deviceIdentifier) {}
 
-Ip4Route::Ip4Route(const Util::Network::Ip4::Ip4SubnetAddress &targetAddress, const Util::String &deviceIdentifier) :
-        sourceAddress(targetAddress.getIp4Address()), targetAddress(targetAddress), nextHop(), deviceIdentifier(deviceIdentifier), nextHopValid(false) {}
+Ip4Route::Ip4Route(const Ip4SubnetAddress &targetAddress, const Ip4Address &nextHop, const String &deviceIdentifier) :
+        sourceAddress(targetAddress.getIp4Address()), targetAddress(targetAddress),
+        nextHop(nextHop), deviceIdentifier(deviceIdentifier), nextHopValid(true) {}
 
-Ip4Route::Ip4Route(const Ip4Address &sourceAddress, const Ip4SubnetAddress &targetAddress, const Ip4Address &nextHop, const String &deviceIdentifier) :
-        sourceAddress(sourceAddress), targetAddress(targetAddress), nextHop(nextHop), deviceIdentifier(deviceIdentifier), nextHopValid(true) {}
+Ip4Route::Ip4Route(const Ip4Address &sourceAddress, const Ip4SubnetAddress &targetAddress, const Ip4Address &nextHop,
+        const String &deviceIdentifier) :
+        sourceAddress(sourceAddress), targetAddress(targetAddress), nextHop(nextHop),
+        deviceIdentifier(deviceIdentifier), nextHopValid(true) {}
 
 bool Ip4Route::operator==(const Ip4Route &other) const {
-    return targetAddress == other.targetAddress && deviceIdentifier == other.deviceIdentifier && nextHop == other.nextHop;
+    return targetAddress == other.targetAddress &&
+        deviceIdentifier == other.deviceIdentifier &&
+        nextHop == other.nextHop;
 }
 
 bool Ip4Route::operator!=(const Ip4Route &other) const {
-    return targetAddress != other.targetAddress || deviceIdentifier != other.deviceIdentifier || nextHop != other.nextHop;
+    return targetAddress != other.targetAddress ||
+        deviceIdentifier != other.deviceIdentifier ||
+        nextHop != other.nextHop;
 }
 
 const Ip4Address& Ip4Route::getSourceAddress() const {
@@ -57,7 +65,7 @@ Ip4SubnetAddress Ip4Route::getTargetAddress() const {
     return targetAddress.getSubnetAddress();
 }
 
-const Ip4::Ip4Address &Ip4Route::getNextHop() const {
+const Ip4Address& Ip4Route::getNextHop() const {
     if (!nextHopValid) {
         Util::Panic::fire(Panic::UNSUPPORTED_OPERATION, "Ip4Route: Route has no next hop!");
     }
@@ -73,7 +81,7 @@ bool Ip4Route::hasNextHop() const {
     return nextHopValid;
 }
 
-bool Ip4Route::isValid() {
+bool Ip4Route::isValid() const {
     return !deviceIdentifier.isEmpty();
 }
 

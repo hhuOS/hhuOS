@@ -387,7 +387,7 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::UDP);
-    socket.setTimeout(5000);
+    socket.setTimeout(Util::Time::Timestamp::ofSeconds(5));
 
     if (!socket.bind(bindAddress)) {
         Util::System::error << "nettest: Failed to bind socket!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;

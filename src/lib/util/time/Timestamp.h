@@ -37,9 +37,6 @@ public:
     /// Create a new Timestamp instance with the specified seconds and fraction.
     explicit Timestamp(size_t seconds, uint32_t fraction = 0);
 
-    /// Timestamp only contains primitive types, so the default destructor is sufficient.
-    ~Timestamp() = default;
-
     /// Get the current system time (time since boot) as a Timestamp.
     ///
     /// ### Example

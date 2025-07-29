@@ -31,7 +31,7 @@ class ByteArrayInputStream : public InputStream {
 
 public:
 
-    ByteArrayInputStream(uint8_t *buffer, uint32_t size);
+    ByteArrayInputStream(const uint8_t *buffer, uint32_t size);
 
     ByteArrayInputStream(const ByteArrayInputStream &copy) = delete;
 
@@ -63,7 +63,7 @@ public:
 
 private:
 
-    uint8_t *buffer;
+    const uint8_t *buffer;
     uint32_t size;
     uint32_t position = 0;
 	

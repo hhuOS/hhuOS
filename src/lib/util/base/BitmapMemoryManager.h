@@ -45,10 +45,6 @@ public:
     /// A memory manager should not be copyable, since copies would operate on the same memory.
     BitmapMemoryManager& operator=(const BitmapMemoryManager &other) = delete;
 
-    /// The bitmap memory manager class has no state that needs to be cleaned up,
-    /// so the default destructor is sufficient.
-    ~BitmapMemoryManager() override = default;
-
     /// Allocate a block of memory of the size defined by the block size of this manager (given in the constructor).
     /// If no block is available, a panic is fired.
     [[nodiscard]] void* allocateBlock() override;

@@ -19,11 +19,11 @@
 project(lib.network)
 message(STATUS "Project " ${PROJECT_NAME})
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 90)
+
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
-
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-
-# Add subdirectories
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/network/Datagram.cpp
         ${HHUOS_SRC_DIR}/lib/util/network/MacAddress.cpp

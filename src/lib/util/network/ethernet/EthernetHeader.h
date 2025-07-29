@@ -21,12 +21,12 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#ifndef HHUOS_ETHERNETHEADER_H
-#define HHUOS_ETHERNETHEADER_H
+#ifndef HHUOS_LIB_UTIL_NETWORK_ETHERNETHEADER_H
+#define HHUOS_LIB_UTIL_NETWORK_ETHERNETHEADER_H
 
 #include <stdint.h>
 
-#include "lib/util/network/MacAddress.h"
+#include "network/MacAddress.h"
 
 namespace Util {
 namespace Io {
@@ -37,59 +37,69 @@ class OutputStream;
 
 namespace Util::Network::Ethernet {
 
+/// Represents the header of an Ethernet frame.
+/// An Ethernet header contains the destination and source MAC addresses, as well as the EtherType field.
+/// The header is 14 bytes long and consists of the following fields:
+///
+/// | 6 bytes         | 6 bytes    | 2 bytes   |
+/// |-----------------|------------|-----------|
+/// | Destination MAC | Source MAC | EtherType |
 class EthernetHeader {
 
 public:
-    //Relevant EtherTypes -> list available in RFC7042 Appendix B (pages 25,26)
+    /// Relevant EtherTypes (full list is available in RFC7042 Appendix B (pages 25,26))
     enum EtherType : uint16_t {
+        /// Used to indicate that the ether type field is invalid.
+        INVALID = 0x0000,
+        /// IPv4 (Internet Protocol version 4)
         IP4 = 0x0800,
+        /// ARP (Address Resolution Protocol)
         ARP = 0x0806,
+        /// IPv6 (Internet Protocol version 6)
         IP6 = 0x86dd
     };
 
-    /**
-     * Default Constructor.
-     */
+    /// Create an empty Ethernet header.
+    /// The destination and source MAC addresses are initialized to "00:00:00:00:00:00"
+    /// and the EtherType is set to `INVALID`.
     EthernetHeader() = default;
 
-    /**
-     * Copy Constructor.
-     */
-    EthernetHeader(const EthernetHeader &other) = delete;
+    /// Read the header values from the given input stream.
+    /// The input stream must deliver the 14 bytes of data, that make up the Ethernet header.
+    /// Destination and source MAC addresses and the EtherType field are read in this exact order.
+    void read(Io::InputStream &stream);
 
-    /**
-     * Assignment operator.
-     */
-    EthernetHeader &operator=(const EthernetHeader &other) = delete;
+    /// Write the header values to the given output stream.
+    /// The output stream will receive the 14 bytes of data, that make up the Ethernet header.
+    /// Destination and source MAC addresses and the EtherType field are written in this exact order.
+    void write(Io::OutputStream &stream) const;
 
-    /**
-     * Destructor.
-     */
-    ~EthernetHeader() = default;
+    /// Get the destination MAC address.
+    [[nodiscard]] const MacAddress& getDestinationAddress() const;
 
-    void read(Util::Io::InputStream &stream);
+    /// Get the source MAC address.
+    [[nodiscard]] const MacAddress& getSourceAddress() const;
 
-    void write(Util::Io::OutputStream &stream);
-
-    [[nodiscard]] const Util::Network::MacAddress& getDestinationAddress() const;
-
-    [[nodiscard]] const Util::Network::MacAddress& getSourceAddress() const;
-
+    /// Get the EtherType.
     [[nodiscard]] EtherType getEtherType() const;
 
-    void setDestinationAddress(const Util::Network::MacAddress &address);
+    /// Set the destination MAC address.
+    void setDestinationAddress(const MacAddress &address);
 
-    void setSourceAddress(const Util::Network::MacAddress &address);
+    /// Set the source MAC address.
+    void setSourceAddress(const MacAddress &address);
 
+    /// Set the EtherType.
     void setEtherType(EtherType type);
 
-    static const constexpr uint32_t HEADER_LENGTH = 14;
+    /// The length of the Ethernet header in bytes.
+    static constexpr uint32_t HEADER_LENGTH = 14;
 
 private:
 
-    Util::Network::MacAddress destinationAddress{};
-    Util::Network::MacAddress sourceAddress{};
-    EtherType etherType{};
+    MacAddress destinationAddress;
+    MacAddress sourceAddress;
+    EtherType etherType = INVALID;
 };
 
 }

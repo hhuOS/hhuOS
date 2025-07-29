@@ -21,13 +21,13 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#ifndef HHUOS_IP4DATAGRAM_H
-#define HHUOS_IP4DATAGRAM_H
+#ifndef HHUOS_LIB_UTIL_NETWORK_IP4DATAGRAM_H
+#define HHUOS_LIB_UTIL_NETWORK_IP4DATAGRAM_H
 
 #include <stdint.h>
 
-#include "lib/util/network/Datagram.h"
-#include "lib/util/network/ip4/Ip4Header.h"
+#include "network/Datagram.h"
+#include "network/ip4/Ip4Header.h"
 
 namespace Util {
 namespace Io {
@@ -45,51 +45,56 @@ class Ip4Address;
 
 namespace Util::Network::Ip4 {
 
-class Ip4Datagram : public Datagram {
-
+/// Specialization of the Datagram class for IPv4 datagrams.
+/// This can be used to send and receive IPv4 packets via a `Socket` of type `IP4`.
+///
+/// ## Example
+/// ```c++
+/// // Create a new IPv4 socket
+/// auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::IP4);
+///
+/// // Bind the socket to a specific IPv4 address
+/// if (!socket.bind(Util::Network::Ip4::Ip4Address("10.0.2.15"))) {
+///     printf("Failed to bind socket!\n");
+///     return;
+/// }
+///
+/// // Send an IPv4 datagram containing the string "Hello, World!".
+/// // As this is no parseable content for any transport layer protocol, we use the protocol `INVALID`.
+/// const auto datagram = Util::Network::Ip4::Ip4Datagram(reinterpret_cast<const uint8_t*>("Hello, World!"), 13,
+///     destinationAddress, Util::Network::Ip4::Ip4Header::INVALID);
+///
+/// if (!socket.send(datagram)) {
+///     printf("Failed to send datagram!\n");
+///     return;
+/// }
+/// ```
+class Ip4Datagram final : public Datagram {
 public:
-    /**
-     * Default Constructor.
-     */
-     Ip4Datagram();
+    /// Create a new IPv4 datagram with an uninitialized buffer. The protocol is set to `INVALID`.
+    /// This is typically used for receiving datagrams, because in this case the buffer is allocated
+    /// by the kernel during the receive system call.
+    Ip4Datagram();
 
-    /**
-     * Constructor.
-     */
-    Ip4Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4Address &remoteAddress, Ip4Header::Protocol protocol);
+    /// Create a new IPv4 datagram with a given buffer and length, remote IPv4 address and protocol.
+    /// The buffer's content is copied into the datagram's buffer.
+    Ip4Datagram(const uint8_t *buffer, uint16_t length, const Ip4Address &remoteAddress, Ip4Header::Protocol protocol);
 
-    /**
-     * Constructor.
-     */
-    Ip4Datagram(uint8_t *buffer, uint16_t length, const Util::Network::NetworkAddress &remoteAddress, Ip4Header::Protocol protocol);
+    /// Create a new Ethernet datagram from a byte array output stream, remote IPv4 address and protocol.
+    /// The stream's content is copied into the datagram's buffer by directly accessing the stream's buffer.
+    /// This way, the state of the stream remains unchanged.
+    Ip4Datagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress, Ip4Header::Protocol protocol);
 
-    /**
-     * Constructor.
-     */
-    Ip4Datagram(const Io::ByteArrayOutputStream &stream, const Util::Network::NetworkAddress &remoteAddress, Ip4Header::Protocol protocol);
-
-    /**
-     * Copy Constructor.
-     */
-    Ip4Datagram(const Ip4Datagram &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Ip4Datagram &operator=(const Ip4Datagram &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Ip4Datagram() override = default;
-
+    /// Get the protocol that this datagram is carrying (e.g. ICMP, TCP, UDP).
     [[nodiscard]] Ip4Header::Protocol getProtocol() const;
 
+    /// Set the protocol of this datagram to the one of the given datagram.
+    /// This is used by the kernel to copy attributes from a kernel space datagram to a user space datagram.
     void setAttributes(const Datagram &datagram) override;
 
 private:
 
-    Ip4Header::Protocol protocol{};
+    Ip4Header::Protocol protocol = Ip4Header::INVALID;
 };
 
 }

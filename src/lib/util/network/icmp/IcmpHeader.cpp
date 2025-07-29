@@ -21,9 +21,9 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "lib/util/network/icmp/IcmpHeader.h"
+#include "IcmpHeader.h"
 
-#include "lib/util/network/NumberUtil.h"
+#include "network/NumberUtil.h"
 
 namespace Util {
 namespace Io {
@@ -34,36 +34,36 @@ class OutputStream;
 
 namespace Util::Network::Icmp {
 
-void IcmpHeader::read(Util::Io::InputStream &stream) {
-    type = static_cast<Type>(Util::Network::NumberUtil::readUnsigned8BitValue(stream));
-    code = Util::Network::NumberUtil::readUnsigned8BitValue(stream);
-    checksum = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
+void IcmpHeader::read(Io::InputStream &stream) {
+    type = static_cast<Type>(NumberUtil::readUnsigned8BitValue(stream));
+    code = NumberUtil::readUnsigned8BitValue(stream);
+    checksum = NumberUtil::readUnsigned16BitValue(stream);
 }
 
-void IcmpHeader::write(Util::Io::OutputStream &stream) {
-    Util::Network::NumberUtil::writeUnsigned8BitValue(type, stream);
-    Util::Network::NumberUtil::writeUnsigned8BitValue(code, stream);
-    Util::Network::NumberUtil::writeUnsigned16BitValue(checksum, stream);
+void IcmpHeader::write(Io::OutputStream &stream) const {
+    NumberUtil::writeUnsigned8BitValue(type, stream);
+    NumberUtil::writeUnsigned8BitValue(code, stream);
+    NumberUtil::writeUnsigned16BitValue(checksum, stream);
 }
 
 IcmpHeader::Type IcmpHeader::getType() const {
     return type;
 }
 
-void IcmpHeader::setType(IcmpHeader::Type type) {
-    IcmpHeader::type = type;
-}
-
 uint8_t IcmpHeader::getCode() const {
     return code;
 }
 
-void IcmpHeader::setCode(uint8_t code) {
-    IcmpHeader::code = code;
-}
-
 uint16_t IcmpHeader::getChecksum() const {
     return checksum;
+}
+
+void IcmpHeader::setType(const Type type) {
+    IcmpHeader::type = type;
+}
+
+void IcmpHeader::setCode(const uint8_t code) {
+    IcmpHeader::code = code;
 }
 
 }

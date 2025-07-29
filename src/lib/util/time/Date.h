@@ -39,9 +39,6 @@ public:
 	/// Negative timestamps are not supported and will trigger a panic.
     explicit Date(int64_t unixTime);
 
-	/// Date only contains primitive types, so the default destructor is sufficient.
-    ~Date() = default;
-
 	/// Compare two Date instances for equality.
 	///
 	/// ### Example

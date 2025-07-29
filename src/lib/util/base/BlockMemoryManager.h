@@ -42,9 +42,6 @@ public:
     /// A memory manager should not be copyable, since copies would operate on the same memory.
     BlockMemoryManager &operator=(const BlockMemoryManager &other) = delete;
 
-    /// The base block memory manager class has no state, so the default destructor is sufficient.
-    ~BlockMemoryManager() override = default;
-
     /// Allocate a block of memory of the size defined by the block size of this manager.
     [[nodiscard]] virtual void* allocateBlock() = 0;
 
