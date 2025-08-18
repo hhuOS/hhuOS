@@ -163,6 +163,10 @@ Util::Io::File getCurrentWorkingDirectory() {
     return Kernel::Service::getService<Kernel::ProcessService>().getCurrentProcess().getWorkingDirectory();
 }
 
+bool createPipe(const Util::String &name) {
+    return Kernel::Service::getService<Kernel::ProcessService>().getCurrentProcess().createPipe(name);
+}
+
 int32_t createSocket(Util::Network::Socket::Type socketType) {
     return Kernel::Service::getService<Kernel::NetworkService>().createSocket(socketType);
 }

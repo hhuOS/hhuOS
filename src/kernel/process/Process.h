@@ -25,6 +25,8 @@
 
 #include "lib/util/io/file/File.h"
 #include "FileDescriptorManager.h"
+#include "Pipe.h"
+#include "collection/Pair.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/base/String.h"
@@ -80,6 +82,10 @@ public:
 
     [[nodiscard]] FileDescriptorManager& getFileDescriptorManager();
 
+    [[nodiscard]] bool createPipe(const Util::String &name);
+
+    [[nodiscard]] const Util::ArrayList<Util::Pair<Util::String, Pipe*>>& getPipes() const;
+
     [[nodiscard]] Util::Io::File getWorkingDirectory();
 
     [[nodiscard]] bool isFinished() const;
@@ -106,6 +112,7 @@ private:
     Util::String name;
     VirtualAddressSpace &addressSpace;
     FileDescriptorManager fileDescriptorManager;
+    Util::ArrayList<Util::Pair<Util::String, Pipe*>> pipes;
     Util::Io::File workingDirectory;
     Util::ArrayList<Thread*> threads;
     Thread *mainThread = nullptr;

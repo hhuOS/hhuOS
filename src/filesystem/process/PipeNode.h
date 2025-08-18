@@ -18,36 +18,57 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "ProcessDirectoryNode.h"
+#ifndef HHUOS_PIPENODE_H
+#define HHUOS_PIPENODE_H
 
-#include "lib/util/collection/Array.h"
+#include "filesystem/memory/MemoryNode.h"
+#include "kernel/process/Pipe.h"
 
 namespace Filesystem::Process {
 
-ProcessDirectoryNode::ProcessDirectoryNode(uint32_t processId) : name(Util::String::format("%u", processId)) {}
+class PipeNode : public Memory::MemoryNode {
 
-Util::String ProcessDirectoryNode::getName() {
-    return name;
+public:
+    /**
+     * Constructor.
+     */
+    PipeNode(const Util::String &name, Kernel::Pipe &pipe);
+
+    /**
+     * Copy Constructor.
+     */
+    PipeNode(const PipeNode &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    PipeNode &operator=(const PipeNode &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~PipeNode() override = default;
+
+    /**
+     * Overriding function from Node.
+     */
+    Util::Io::File::Type getType() override;
+
+    /**
+     * Overriding function from Node.
+     */
+    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
+
+    /**
+     * Overriding function from Node.
+     */
+    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
+
+private:
+
+    Kernel::Pipe &pipe;
+};
+
 }
 
-Util::Io::File::Type ProcessDirectoryNode::getType() {
-    return Util::Io::File::DIRECTORY;
-}
-
-uint64_t ProcessDirectoryNode::getLength() {
-    return 0;
-}
-
-Util::Array<Util::String> ProcessDirectoryNode::getChildren() {
-    return Util::Array<Util::String>({"name", "cwd", "thread_count", "pipes"});
-}
-
-uint64_t ProcessDirectoryNode::readData([[maybe_unused]] uint8_t *targetBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
-    return 0;
-}
-
-uint64_t ProcessDirectoryNode::writeData([[maybe_unused]] const uint8_t *sourceBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
-    return 0;
-}
-
-}
+#endif

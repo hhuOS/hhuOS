@@ -90,6 +90,7 @@ public:
         RECEIVE_DATAGRAM,
         CHANGE_DIRECTORY,
         GET_CURRENT_WORKING_DIRECTORY,
+        CREATE_PIPE,
         GET_SYSTEM_TIME,
         SET_DATE,
         GET_CURRENT_DATE,

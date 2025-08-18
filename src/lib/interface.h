@@ -67,6 +67,7 @@ bool controlFile(int32_t fileDescriptor, uint32_t request, const Util::Array<uin
 bool controlFileDescriptor(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters);
 bool changeDirectory(const Util::String &path);
 Util::Io::File getCurrentWorkingDirectory();
+bool createPipe(const Util::String &name);
 
 int32_t createSocket(Util::Network::Socket::Type socketType);
 bool sendDatagram(int32_t fileDescriptor, const Util::Network::Datagram &datagram);

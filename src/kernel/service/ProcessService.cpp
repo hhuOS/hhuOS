@@ -191,6 +191,18 @@ ProcessService::ProcessService(Process *kernelProcess) : kernelProcess(kernelPro
         processService.killProcess(*process);
         return true;
     });
+
+    Service::getService<InterruptService>().assignSystemCall(Util::System::CREATE_PIPE, [](uint32_t paramCount, va_list arguments) -> bool {
+        if (paramCount < 1) {
+            return false;
+        }
+
+        auto &processService = Service::getService<ProcessService>();
+        auto &currentProcess = processService.getCurrentProcess();
+
+        auto *name = va_arg(arguments, const char*);
+        return currentProcess.createPipe(name);
+    });
 }
 
 Process& ProcessService::createProcess(VirtualAddressSpace &addressSpace, const Util::String &name, const Util::Io::File &workingDirectory, const Util::Io::File &standardIn, const Util::Io::File &standardOut, const Util::Io::File &standardError) {

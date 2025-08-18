@@ -20,6 +20,8 @@
 
 #include "ProcessDriver.h"
 
+#include "PipeDirectoryNode.h"
+#include "PipeNode.h"
 #include "kernel/service/ProcessService.h"
 #include "ProcessDirectoryNode.h"
 #include "ProcessRootNode.h"
@@ -60,6 +62,16 @@ Node* ProcessDriver::getNode(const Util::String &path) {
             return new ProcessFileNode(name, process->getWorkingDirectory().getCanonicalPath());
         } else if (name == "thread_count") {
             return new ProcessFileNode(name, Util::String::format("%u", process->getThreadCount()));
+        } else if (name == "pipes") {
+            return new PipeDirectoryNode(id);
+        }
+    } else if (splitPath.length() == 3 && splitPath[1] == "pipes") {
+        const auto &pipeName = splitPath[2];
+        auto &pipes = process->getPipes();
+        for (const auto &pipe : pipes) {
+            if (pipe.getFirst() == pipeName) {
+                return new PipeNode(pipeName, *pipe.getSecond());
+            }
         }
     }
 

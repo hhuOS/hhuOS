@@ -21,6 +21,7 @@
 
 #include "Process.h"
 
+#include "filesystem/memory/StreamNode.h"
 #include "kernel/memory/VirtualAddressSpace.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/MemoryService.h"
@@ -55,6 +56,23 @@ VirtualAddressSpace &Process::getAddressSpace() {
 
 FileDescriptorManager &Process::getFileDescriptorManager() {
     return fileDescriptorManager;
+}
+
+bool Process::createPipe(const Util::String &name) {
+    for (const auto &pair : pipes) {
+        if (pair.getFirst() == name) {
+            return false;
+        }
+    }
+
+    auto *pipe = new Pipe(id);
+    pipes.add(Util::Pair(name, pipe));
+
+    return true;
+}
+
+const Util::ArrayList<Util::Pair<Util::String, Pipe *>>& Process::getPipes() const {
+    return pipes;
 }
 
 bool Process::isFinished() const {

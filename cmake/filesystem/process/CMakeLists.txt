@@ -17,6 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 target_sources(filesystem PUBLIC
+        ${HHUOS_SRC_DIR}/filesystem/process/PipeDirectoryNode.cpp
+        ${HHUOS_SRC_DIR}/filesystem/process/PipeNode.cpp
         ${HHUOS_SRC_DIR}/filesystem/process/ProcessDirectoryNode.cpp
         ${HHUOS_SRC_DIR}/filesystem/process/ProcessDriver.cpp
         ${HHUOS_SRC_DIR}/filesystem/process/ProcessFileNode.cpp

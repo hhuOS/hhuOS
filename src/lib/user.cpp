@@ -156,6 +156,10 @@ Util::Io::File getCurrentWorkingDirectory() {
     return Util::Io::File(path);
 }
 
+bool createPipe(const Util::String &name) {
+    return Util::System::call(Util::System::CREATE_PIPE, 1, static_cast<const char*>(name));
+}
+
 int32_t createSocket(Util::Network::Socket::Type socketType) {
     int32_t fileDescriptor;
     auto result = Util::System::call(Util::System::CREATE_SOCKET, 2, socketType, &fileDescriptor);

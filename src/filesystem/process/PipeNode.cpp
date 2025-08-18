@@ -18,36 +18,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "ProcessDirectoryNode.h"
-
-#include "lib/util/collection/Array.h"
+#include "PipeNode.h"
 
 namespace Filesystem::Process {
 
-ProcessDirectoryNode::ProcessDirectoryNode(uint32_t processId) : name(Util::String::format("%u", processId)) {}
+PipeNode::PipeNode(const Util::String &name, Kernel::Pipe &pipe) : MemoryNode(name), pipe(pipe) {}
 
-Util::String ProcessDirectoryNode::getName() {
-    return name;
+Util::Io::File::Type PipeNode::getType() {
+    return Util::Io::File::CHARACTER;
 }
 
-Util::Io::File::Type ProcessDirectoryNode::getType() {
-    return Util::Io::File::DIRECTORY;
+uint64_t PipeNode::readData(uint8_t *targetBuffer, [[maybe_unused]] uint64_t pos, uint64_t numBytes) {
+    return pipe.read(targetBuffer, 0, numBytes);
 }
 
-uint64_t ProcessDirectoryNode::getLength() {
-    return 0;
-}
-
-Util::Array<Util::String> ProcessDirectoryNode::getChildren() {
-    return Util::Array<Util::String>({"name", "cwd", "thread_count", "pipes"});
-}
-
-uint64_t ProcessDirectoryNode::readData([[maybe_unused]] uint8_t *targetBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
-    return 0;
-}
-
-uint64_t ProcessDirectoryNode::writeData([[maybe_unused]] const uint8_t *sourceBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
-    return 0;
+uint64_t PipeNode::writeData(const uint8_t *sourceBuffer, [[maybe_unused]] uint64_t pos, uint64_t numBytes) {
+    pipe.write(sourceBuffer, 0, numBytes);
+    return numBytes;
 }
 
 }

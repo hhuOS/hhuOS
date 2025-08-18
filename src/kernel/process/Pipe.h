@@ -18,36 +18,61 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "ProcessDirectoryNode.h"
+#ifndef HHUOS_PIPE_H
+#define HHUOS_PIPE_H
 
-#include "lib/util/collection/Array.h"
+#include "lib/util/io/stream/Pipe.h"
 
-namespace Filesystem::Process {
+namespace Kernel {
 
-ProcessDirectoryNode::ProcessDirectoryNode(uint32_t processId) : name(Util::String::format("%u", processId)) {}
+class Pipe : public Util::Io::FilterInputStream, public Util::Io::FilterOutputStream {
 
-Util::String ProcessDirectoryNode::getName() {
-    return name;
+public:
+    /**
+     * Constructor.
+     */
+    explicit Pipe(uint32_t readerId);
+
+    /**
+     * Copy Constructor.
+     */
+    Pipe(const Pipe &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    Pipe &operator=(const Pipe &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~Pipe() override = default;
+
+    int16_t read() override;
+
+    int16_t peek() override;
+
+    int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
+
+    bool isReadyToRead() override;
+
+    void write(uint8_t c) override;
+
+    void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
+
+    void flush() override;
+
+private:
+
+    bool checkWriteAccess(uint32_t processId);
+
+    Util::Io::PipedInputStream inputStream;
+    Util::Io::PipedOutputStream outputStream;
+
+    uint32_t readerId;
+    uint32_t writerId = 0;
+};
+
 }
 
-Util::Io::File::Type ProcessDirectoryNode::getType() {
-    return Util::Io::File::DIRECTORY;
-}
-
-uint64_t ProcessDirectoryNode::getLength() {
-    return 0;
-}
-
-Util::Array<Util::String> ProcessDirectoryNode::getChildren() {
-    return Util::Array<Util::String>({"name", "cwd", "thread_count", "pipes"});
-}
-
-uint64_t ProcessDirectoryNode::readData([[maybe_unused]] uint8_t *targetBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
-    return 0;
-}
-
-uint64_t ProcessDirectoryNode::writeData([[maybe_unused]] const uint8_t *sourceBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
-    return 0;
-}
-
-}
+#endif
