@@ -62,9 +62,9 @@ public:
 
 private:
 
-    virtual void write(uint8_t c);
+    virtual bool write(uint8_t c);
 
-    virtual void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length);
+    virtual uint32_t write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length);
 
     PipedOutputStream *source = nullptr;
 

@@ -33,8 +33,11 @@ uint64_t PipeNode::readData(uint8_t *targetBuffer, [[maybe_unused]] uint64_t pos
 }
 
 uint64_t PipeNode::writeData(const uint8_t *sourceBuffer, [[maybe_unused]] uint64_t pos, uint64_t numBytes) {
-    pipe.write(sourceBuffer, 0, numBytes);
-    return numBytes;
+    return pipe.write(sourceBuffer, 0, numBytes);
+}
+
+bool PipeNode::isReadyToRead() {
+    return pipe.isReadyToRead();
 }
 
 }

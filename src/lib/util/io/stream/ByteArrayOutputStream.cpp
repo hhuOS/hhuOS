@@ -65,19 +65,24 @@ void ByteArrayOutputStream::setEnforceSizeLimit(bool value) {
 	enforceSizeLimit = value;
 }
 
-void ByteArrayOutputStream::write(uint8_t c) {
+bool ByteArrayOutputStream::write(uint8_t c) {
     if (ensureRemainingCapacity(1)) {
         buffer[position++] = c;
+        return true;
     }
+
+    return false;
 }
 
-void ByteArrayOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+uint32_t ByteArrayOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
     length = ensureRemainingCapacity(length);
     auto sourceAddress = Address(sourceBuffer).add(offset);
     auto targetAddress = Address(buffer).add(position);
     targetAddress.copyRange(sourceAddress, length);
 
     position += length;
+
+    return length;
 }
 
 uint32_t ByteArrayOutputStream::ensureRemainingCapacity(uint32_t count) {

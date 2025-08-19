@@ -87,12 +87,12 @@ size_t AudioChannel::getWritableBytes() {
     return writableBytes;
 }
 
-void AudioChannel::write(const uint8_t c) {
-    outputStream.write(c);
+bool AudioChannel::write(const uint8_t c) {
+    return outputStream.write(c);
 }
 
-void AudioChannel::write(const uint8_t *sourceBuffer, [[maybe_unused]] size_t offset, const size_t length) {
-    outputStream.write(sourceBuffer, 0, length);
+uint32_t AudioChannel::write(const uint8_t *sourceBuffer, [[maybe_unused]] size_t offset, const size_t length) {
+    return outputStream.write(sourceBuffer, 0, length);
 }
 
 }

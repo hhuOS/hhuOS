@@ -27,20 +27,20 @@ namespace Kernel {
 
 AudioChannel::AudioChannel(int32_t bufferSize) : Pipe(bufferSize) {}
 
-void AudioChannel::write(uint8_t c) {
+bool AudioChannel::write(uint8_t c) {
     while (state != Util::Sound::AudioChannel::PLAYING) {
         Util::Async::Thread::yield();
     }
 
-    Pipe::write(c);
+    return Pipe::write(c);
 }
 
-void AudioChannel::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+uint32_t AudioChannel::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
     while (state != Util::Sound::AudioChannel::PLAYING) {
         Util::Async::Thread::yield();
     }
 
-    Pipe::write(sourceBuffer, offset, length);
+    return Pipe::write(sourceBuffer, offset, length);
 }
 
 void AudioChannel::setState(Util::Sound::AudioChannel::State state) {

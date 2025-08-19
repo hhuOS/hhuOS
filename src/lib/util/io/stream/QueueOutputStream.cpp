@@ -26,24 +26,27 @@ namespace Util::Io {
 
 QueueOutputStream::QueueOutputStream(Queue<uint8_t> &queue, bool discardIfFull) : queue(queue), discardIfFull(discardIfFull) {}
 
-void QueueOutputStream::write(uint8_t c) {
+bool QueueOutputStream::write(uint8_t c) {
     if (discardIfFull) {
-        queue.offer(c);
-    } else {
-        queue.add(c);
+        return queue.offer(c);
     }
+
+    queue.add(c);
+    return true;
 }
 
-void QueueOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+uint32_t QueueOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
     for (uint32_t i = 0; i < length; i++) {
         if (discardIfFull) {
             if (!queue.offer(sourceBuffer[offset + i])) {
-                return;
+                return i;
             }
         } else {
             queue.add(sourceBuffer[offset + i]);
         }
     }
+
+    return length;
 }
 
 }

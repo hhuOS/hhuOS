@@ -96,15 +96,16 @@ int FileStream::fflush() {
     }
 
     bufferChangeAllowed = false;
-	writeFile(fileDescriptor, (const uint8_t*)buffer, pos, bufferPos);
-	pos += bufferPos;
-	bufferPos = 0;
+	auto written = writeFile(fileDescriptor, buffer, pos, bufferPos);
+	pos += written;
+	bufferPos -= written;
 
-	return 0;
+	return static_cast<int>(written);
 }
 
-void FileStream::flush() {
-	fflush();
+uint32_t FileStream::flush() {
+	auto flushed = fflush();
+	return flushed > 0 ? static_cast<uint32_t>(flushed) : 0;
 }
 
 int FileStream::fputc(int c) {
@@ -112,11 +113,11 @@ int FileStream::fputc(int c) {
 	return error ? END_OF_FILE : c;
 }
 
-void FileStream::write(uint8_t c) {
-	write(&c, 0, 1);
+bool FileStream::write(uint8_t c) {
+	return write(&c, 0, 1) == 1;
 }
 
-void FileStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+uint32_t FileStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
     if (!isOpen() || !isWriteAllowed() || isError()) {
         error = true;
     }
@@ -131,6 +132,10 @@ void FileStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t le
         for (uint32_t i = 0; i < length; i++) {
             if (bufferPos >= bufferSize) {
                 flush(); // Flush if buffer is full
+
+            	if (bufferPos >= bufferSize) {
+            		return i;
+            	}
             }
 
             auto c = sourceBuffer[i];
@@ -140,9 +145,14 @@ void FileStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t le
                 flush(); // Flush if line mode and end of line
             }
         }
-    } else {
-        pos += writeFile(fileDescriptor, sourceBuffer, pos, length);
+
+    	return length;
     }
+
+    auto written = writeFile(fileDescriptor, sourceBuffer, pos, length);
+    pos += written;
+
+    return written;
 }
 
 int16_t FileStream::read() {

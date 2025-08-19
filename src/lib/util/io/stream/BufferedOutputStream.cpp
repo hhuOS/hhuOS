@@ -36,31 +36,38 @@ BufferedOutputStream::~BufferedOutputStream() {
     delete[] buffer;
 }
 
-void BufferedOutputStream::write(uint8_t c) {
+bool BufferedOutputStream::write(uint8_t c) {
     if (position == size) {
-        flush();
+        if (flush() == 0) {
+            return false;
+        }
     }
 
     buffer[position++] = c;
+    return true;
 }
 
-void BufferedOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+uint32_t BufferedOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
     if (length < (size - position)) {
         Address sourceAddress(sourceBuffer + offset);
         Address targetAddress(buffer + position);
 
         targetAddress.copyRange(sourceAddress, length);
         position += length;
+
+        return length;
     } else {
         flush();
-        FilterOutputStream::write(sourceBuffer, offset, length);
+        return FilterOutputStream::write(sourceBuffer, offset, length);
     }
 }
 
-void BufferedOutputStream::flush() {
-    FilterOutputStream::write(buffer, 0, position);
-    position = 0;
+uint32_t BufferedOutputStream::flush() {
+    auto flushed = FilterOutputStream::write(buffer, 0, position);
+    position -= flushed;
     FilterOutputStream::flush();
+
+    return flushed;
 }
 
 }

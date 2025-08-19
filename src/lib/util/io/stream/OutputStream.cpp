@@ -22,6 +22,8 @@
 
 namespace Util::Io  {
 
-void OutputStream::flush() {}
+uint32_t OutputStream::flush() {
+    return 0;
+}
 
 }

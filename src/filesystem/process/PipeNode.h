@@ -64,6 +64,8 @@ public:
      */
     uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
 
+    bool isReadyToRead() override;
+
 private:
 
     Kernel::Pipe &pipe;

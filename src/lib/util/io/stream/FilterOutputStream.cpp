@@ -26,16 +26,16 @@ namespace Util::Io {
 
 FilterOutputStream::FilterOutputStream(OutputStream &stream) : stream(stream) {}
 
-void FilterOutputStream::write(uint8_t c) {
-    stream.write(c);
+bool FilterOutputStream::write(uint8_t c) {
+    return stream.write(c);
 }
 
-void FilterOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    stream.write(sourceBuffer, offset, length);
+uint32_t FilterOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+    return stream.write(sourceBuffer, offset, length);
 }
 
-void FilterOutputStream::flush() {
-    stream.flush();
+uint32_t FilterOutputStream::flush() {
+    return stream.flush();
 }
 
 }

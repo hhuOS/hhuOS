@@ -135,11 +135,11 @@ public:
 
     /// Write a single byte of audio data to the audio channel.
     /// The data must be in 8-bit mono PCM format at a sample rate of 22050 Hz.
-    void write(uint8_t c) override;
+    bool write(uint8_t c) override;
 
     /// Write a buffer of audio data to the audio channel.
     /// The data must be in 8-bit mono PCM format at a sample rate of 22050 Hz.
-    void write(const uint8_t *sourceBuffer, size_t offset, size_t length) override;
+    uint32_t write(const uint8_t *sourceBuffer, size_t offset, size_t length) override;
 
 private:
 

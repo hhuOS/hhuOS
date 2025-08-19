@@ -29,18 +29,25 @@ namespace Util::Io {
 
 PrintStream::PrintStream(OutputStream &stream, bool autoFlush) : stream(stream), autoFlush(autoFlush) {}
 
-void PrintStream::flush() {
-    stream.flush();
+uint32_t PrintStream::flush() {
+    return stream.flush();
 }
 
-void PrintStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    stream.write(sourceBuffer, offset, length);
-	bytesWritten += length;
+uint32_t PrintStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+    auto written = stream.write(sourceBuffer, offset, length);
+	bytesWritten += written;
+
+	return written;
 }
 
-void PrintStream::write(uint8_t c) {
-    write(&c, 0, 1);
+bool PrintStream::write(uint8_t c) {
+    auto written = write(&c, 0, 1);
+	if (written == 0) {
+		return false;
+	}
+
 	bytesWritten++;
+	return true;
 }
 
 uint32_t PrintStream::getBytesWritten() {

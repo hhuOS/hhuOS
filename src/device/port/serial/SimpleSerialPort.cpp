@@ -65,19 +65,25 @@ Serial::ComPort SimpleSerialPort::getPort() const {
     return port;
 }
 
-void SimpleSerialPort::write(uint8_t c) {
+bool SimpleSerialPort::write(uint8_t c) {
     if (c == '\n') {
-        write(13);
+        return write(13);
     }
 
     while (!(lineStatusRegister.readByte() & 0x20)) {}
     dataRegister.writeByte(c);
+
+    return true;
 }
 
-void SimpleSerialPort::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+uint32_t SimpleSerialPort::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
     for (uint32_t i = 0; i < length; i++) {
-        write(sourceBuffer[offset + i]);
+        if (!write(sourceBuffer[offset + i])) {
+            return i;
+        }
     }
+
+    return length;
 }
 
 int16_t SimpleSerialPort::read() {

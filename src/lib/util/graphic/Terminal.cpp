@@ -44,7 +44,7 @@ Terminal::Terminal(uint16_t columns, uint16_t rows) : keyOutputStream(*this), co
     Async::Thread::createThread("Terminal", new KeyboardRunnable(*this));
 }
 
-void Terminal::write(uint8_t c) {
+bool Terminal::write(uint8_t c) {
     writeLock.acquire();
 
     if (!ansiParsing) {
@@ -56,7 +56,7 @@ void Terminal::write(uint8_t c) {
         }
 
         writeLock.release();
-        return;
+        return true;
     }
 
     if (c == Ansi::ESCAPE_SEQUENCE_START) {
@@ -100,13 +100,17 @@ void Terminal::write(uint8_t c) {
         }
     }
 
-    writeLock.release();
+    return writeLock.releaseAndReturn(true);
 }
 
-void Terminal::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+uint32_t Terminal::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
     for (uint32_t i = 0; i < length; i++) {
-        write(sourceBuffer[offset + i]);
+        if (!write(sourceBuffer[offset + i])) {
+            return i;
+        }
     }
+
+    return length;
 }
 
 int16_t Terminal::read() {
@@ -483,7 +487,7 @@ const Color& Terminal::getBackgroundColor() const {
 
 Terminal::TerminalPipedOutputStream::TerminalPipedOutputStream(Terminal &terminal) : terminal(terminal) {}
 
-void Terminal::TerminalPipedOutputStream::write(uint8_t c) {
+bool Terminal::TerminalPipedOutputStream::write(uint8_t c) {
     if (terminal.ansiParsing && c == '\b') {
         if (!lineBufferStream.isEmpty()) {
             auto column = terminal.getCurrentColumn();
@@ -506,32 +510,44 @@ void Terminal::TerminalPipedOutputStream::write(uint8_t c) {
             lineBufferStream.reset();
             lineBufferStream.write(static_cast<const uint8_t*>(line), 0, line.length());
         }
-    } else {
-        if (terminal.echo) {
-            terminal.write(c);
-        }
 
-        if (terminal.lineAggregation) {
-            lineBufferStream.write(c);
-
-            if (c == '\n') {
-                flush();
-            }
-        } else {
-            PipedOutputStream::write(c);
-        }
+        return true;
     }
+
+    if (terminal.echo) {
+        return terminal.write(c);
+    }
+
+    if (terminal.lineAggregation) {
+        if (!lineBufferStream.write(c)) {
+            return false;
+        }
+
+        if (c == '\n') {
+            flush();
+        }
+
+        return true;
+    }
+
+    return PipedOutputStream::write(c);
 }
 
-void Terminal::TerminalPipedOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+uint32_t Terminal::TerminalPipedOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
     for (uint32_t i = 0; i < length; i++) {
-        write(sourceBuffer[offset + i]);
+        if (!write(sourceBuffer[offset + i])) {
+            return i;
+        }
     }
+
+    return length;
 }
 
-void Terminal::TerminalPipedOutputStream::flush() {
-    PipedOutputStream::write(static_cast<const uint8_t*>(lineBufferStream.getContent()), 0, lineBufferStream.getLength());
+uint32_t Terminal::TerminalPipedOutputStream::flush() {
+    auto written = PipedOutputStream::write(static_cast<const uint8_t*>(lineBufferStream.getContent()), 0, lineBufferStream.getLength());
     lineBufferStream.reset();
+
+    return written;
 }
 
 Terminal::KeyboardRunnable::KeyboardRunnable(Terminal &terminal) : terminal(terminal) {}

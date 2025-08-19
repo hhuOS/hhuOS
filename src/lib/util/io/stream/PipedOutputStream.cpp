@@ -34,20 +34,20 @@ void PipedOutputStream::connect(PipedInputStream &inputStream) {
     inputStream.connect(*this);
 }
 
-void PipedOutputStream::write(uint8_t c) {
+bool PipedOutputStream::write(uint8_t c) {
     if (sink == nullptr) {
-        return;
+        return false;
     }
 
-    sink->write(c);
+    return sink->write(c);
 }
 
-void PipedOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+uint32_t PipedOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
     if (sink == nullptr) {
-        return;
+        return 0;
     }
 
-    sink->write(sourceBuffer, offset, length);
+    return sink->write(sourceBuffer, offset, length);
 }
 
 uint32_t PipedOutputStream::getWritableBytes() const {

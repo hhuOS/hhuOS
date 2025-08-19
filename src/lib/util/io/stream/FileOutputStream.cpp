@@ -43,12 +43,12 @@ FileOutputStream::FileOutputStream(int32_t fileDescriptor) : fileStream(fileDesc
     }
 }
 
-void FileOutputStream::write(uint8_t c) {
-    fileStream.write(c);
+bool FileOutputStream::write(uint8_t c) {
+    return fileStream.write(c);
 }
 
-void FileOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    fileStream.write(sourceBuffer, offset, length);
+uint32_t FileOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+    return fileStream.write(sourceBuffer, offset, length);
 }
 
 }

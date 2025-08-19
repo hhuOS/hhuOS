@@ -41,8 +41,7 @@ uint64_t StreamNode::readData(uint8_t *targetBuffer, [[maybe_unused]] uint64_t p
 }
 
 uint64_t StreamNode::writeData(const uint8_t *sourceBuffer, [[maybe_unused]] uint64_t pos, uint64_t numBytes) {
-    outputStream->write(sourceBuffer, 0, numBytes);
-    return numBytes;
+    return outputStream->write(sourceBuffer, 0, numBytes);
 }
 
 StreamNode::~StreamNode() {

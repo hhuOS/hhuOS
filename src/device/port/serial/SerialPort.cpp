@@ -102,12 +102,12 @@ Serial::BaudRate SerialPort::getDataRate() const {
     return port.getDataRate();
 }
 
-void SerialPort::write(uint8_t c) {
-    port.write(c);
+bool SerialPort::write(uint8_t c) {
+    return port.write(c);
 }
 
-void SerialPort::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    port.write(sourceBuffer, offset, length);
+uint32_t SerialPort::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+    return port.write(sourceBuffer, offset, length);
 }
 
 uint8_t SerialPort::readDirect() {

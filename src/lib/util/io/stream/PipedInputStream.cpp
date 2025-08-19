@@ -120,11 +120,11 @@ int32_t PipedInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t 
     }
 }
 
-void PipedInputStream::write(uint8_t c) {
-    write(&c, 0, 1);
+bool PipedInputStream::write(uint8_t c) {
+    return write(&c, 0, 1) == 1;
 }
 
-void PipedInputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+uint32_t PipedInputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
     uint32_t sourcePosition = offset;
     uint32_t remaining = length;
     lock.acquire();
@@ -164,7 +164,7 @@ void PipedInputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint3
         }
     }
 
-    lock.release();
+    return lock.releaseAndReturn(length);
 }
 
 void PipedInputStream::reset() {

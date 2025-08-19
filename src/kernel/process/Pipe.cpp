@@ -63,28 +63,34 @@ bool Kernel::Pipe::isReadyToRead() {
     return FilterInputStream::isReadyToRead();
 }
 
-void Kernel::Pipe::write(uint8_t c) {
+bool Kernel::Pipe::write(uint8_t c) {
     const auto &currentProcess = Service::getService<ProcessService>().getCurrentProcess();
 
     if (checkWriteAccess(currentProcess.getId())) {
-        FilterOutputStream::write(c);
+        return FilterOutputStream::write(c);
     }
+
+    return false;
 }
 
-void Kernel::Pipe::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+uint32_t Kernel::Pipe::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
     const auto &currentProcess = Service::getService<ProcessService>().getCurrentProcess();
 
     if (checkWriteAccess(currentProcess.getId())) {
-        FilterOutputStream::write(sourceBuffer, offset, length);
+        return FilterOutputStream::write(sourceBuffer, offset, length);
     }
+
+    return 0;
 }
 
-void Kernel::Pipe::flush() {
+uint32_t Kernel::Pipe::flush() {
     const auto &currentProcess = Service::getService<ProcessService>().getCurrentProcess();
 
     if (checkWriteAccess(currentProcess.getId())) {
-        FilterOutputStream::flush();
+        return FilterOutputStream::flush();
     }
+
+    return 0;
 }
 
 bool Kernel::Pipe::checkWriteAccess(uint32_t processId) {

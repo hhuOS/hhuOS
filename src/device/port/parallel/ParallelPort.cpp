@@ -117,9 +117,9 @@ bool ParallelPort::isBusy() {
     return (sppStatusPort.readByte() & STATUS_REGISTER_BUSY) == 0x00;
 }
 
-void ParallelPort::write(uint8_t c) {
+bool ParallelPort::write(uint8_t c) {
     if (c == '\n') {
-        write(13);
+        return write(13);
     }
 
     // Wait for the printer to be ready
@@ -136,12 +136,18 @@ void ParallelPort::write(uint8_t c) {
 
     // Wait for the printer to finish reading the data
     while (isBusy()) {}
+
+    return true;
 }
 
-void ParallelPort::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+uint32_t ParallelPort::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
     for (uint32_t i = 0; i < length; i++) {
-        write(sourceBuffer[offset + i]);
+        if (!write(sourceBuffer[offset + i])) {
+            return i;
+        }
     }
+
+    return length;
 }
 
 }

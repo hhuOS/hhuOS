@@ -54,9 +54,9 @@ public:
      */
     ~QueueOutputStream() override = default;
 
-    void write(uint8_t c) override;
+    bool write(uint8_t c) override;
 
-    void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
+    uint32_t write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
 
 private:
 
