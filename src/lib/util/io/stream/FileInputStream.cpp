@@ -19,48 +19,92 @@
  */
 
 #include "FileInputStream.h"
+
+#include <lib/interface.h>
+
 #include "FileStream.h"
 #include "lib/util/base/Panic.h"
 #include "lib/util/io/file/File.h"
 
 namespace Util::Io {
 
-FileInputStream::FileInputStream(const Io::File &file) : fileStream(static_cast<const char*>(file.getCanonicalPath()), FileStream::FileMode::READ) {
-    if (fileStream.isError()) {
-        Util::Panic::fire(Panic::INVALID_ARGUMENT, "FileInputStream: Unable to open file!");
+FileInputStream::FileInputStream(const File &file) : FileInputStream(file.getCanonicalPath()) {}
+
+FileInputStream::FileInputStream(const String &path) {
+    fileDescriptor = File::open(path);
+    if (fileDescriptor < 0) {
+        Util::Panic::fire(Panic::ILLEGAL_STATE, "FileOutputStream: Unable to open file!");
     }
 }
 
-FileInputStream::FileInputStream(const String &path) : fileStream(static_cast<const char*>(path), FileStream::FileMode::READ) {
-    if (fileStream.isError()) {
-        Util::Panic::fire(Panic::INVALID_ARGUMENT, "FileInputStream: Unable to open file!");
-    }
-}
-
-FileInputStream::FileInputStream(int32_t fileDescriptor) : fileStream(fileDescriptor, true, false) {
-    if (fileStream.isError()) {
-        Util::Panic::fire(Panic::INVALID_ARGUMENT, "FileInputStream: Unable to open file!");
-    }
-}
+FileInputStream::FileInputStream(int32_t fileDescriptor) : fileDescriptor(fileDescriptor) {}
 
 int16_t FileInputStream::read() {
-    return fileStream.read();
+    const auto pushedBack = Async::Atomic<int16_t>(pushedBackByte).getAndSet(-1);
+    if (pushedBack >= 0) {
+        return pushedBack;
+    }
+
+    uint8_t byte;
+    return read(&byte, 0, 1) == 1 ? byte : -1;
 }
 
 int16_t FileInputStream::peek() {
-	return fileStream.peek();
+    const int16_t byte = read();
+    if (byte >= 0) {
+        pushBack(byte);
+    }
+
+    return byte;
 }
 
 int32_t FileInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
-    return fileStream.read(targetBuffer, offset, length);
-}
+    bool readPushedBack = false;
 
-bool FileInputStream::setAccessMode(File::AccessMode accessMode) const {
-    return fileStream.setAccessMode(accessMode);
+    const auto pushedBack = Async::Atomic<int16_t>(pushedBackByte).getAndSet(-1);
+    if (pushedBack >= 0) {
+        targetBuffer[offset] = static_cast<uint8_t>(pushedBack);
+        readPushedBack = true;
+    }
+
+    const auto read = readFile(fileDescriptor, targetBuffer, pos, length - (readPushedBack ? 1 : 0));
+    pos += read;
+
+    return static_cast<int32_t>(read + (readPushedBack ? 1 : 0));
 }
 
 bool FileInputStream::isReadyToRead() {
-    return fileStream.isReadyToRead();
+    if (Async::Atomic<int16_t>(pushedBackByte).get() >= 0) {
+        return true;
+    }
+
+    return File::isReadyToRead(fileDescriptor);
+}
+
+void FileInputStream::setPosition(uint32_t offset, File::SeekMode mode) {
+    switch (mode) {
+        case File::SeekMode::SET:
+            pos = offset;
+            break;
+        case File::SeekMode::CURRENT:
+            pos += offset;
+            break;
+        case File::SeekMode::END:
+            pos = getFileLength(fileDescriptor) - offset;
+            break;
+    }
+}
+
+uint32_t FileInputStream::getPosition() const {
+    return pos;
+}
+
+bool FileInputStream::pushBack(uint8_t c) {
+    return Async::Atomic<int16_t>(pushedBackByte).compareAndSet(-1, c);
+}
+
+bool FileInputStream::setAccessMode(File::AccessMode mode) {
+    return File::setAccessMode(fileDescriptor, mode);
 }
 
 }

@@ -26,7 +26,7 @@ namespace Util::Io {
 ByteArrayInputStream::ByteArrayInputStream(const uint8_t *buffer, uint32_t size) : buffer(buffer), size(size) {}
 
 int16_t ByteArrayInputStream::read() {
-    if (position >= size && enforceSizeLimit) {
+    if (position >= size && checkSize) {
         return -1;
     }
 	
@@ -41,12 +41,12 @@ int16_t ByteArrayInputStream::peek() {
 	return buffer[position];
 }
 
-void ByteArrayInputStream::makeNullTerminated() {
+void ByteArrayInputStream::stopAtNullTerminator() {
 	nullTerminated = true;
 }
 
 int32_t ByteArrayInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
-    if (position >= size && enforceSizeLimit) {
+    if (position >= size && checkSize) {
         return -1;
     }
 
@@ -79,8 +79,8 @@ bool ByteArrayInputStream::isEmpty() const {
     return size == 0;
 }
 
-void ByteArrayInputStream::disableSizeLimit() {
-	enforceSizeLimit = false;
+void ByteArrayInputStream::disableSizeCheck() {
+	checkSize = false;
 }
 
   bool ByteArrayInputStream::isReadyToRead() {

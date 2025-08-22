@@ -73,14 +73,15 @@ time_t mktime(struct tm* arg) {
 
 
 Util::Io::ByteArrayOutputStream timeBuf(1024);
-Util::Io::PrintStream timeOut = Util::Io::PrintStream(timeBuf);
 
 
 char * asctime(const struct tm* time_ptr) {
 	timeBuf.reset();
-	timeOut.print(_tm_to_date(time_ptr));
+
+	Util::String::formatDate(_tm_to_date(time_ptr), timeBuf);
 	timeBuf.write('\n');
 	timeBuf.write('\0');
+
 	return (char*)timeBuf.getBuffer();
 }
 
@@ -92,16 +93,11 @@ char * ctime(const time_t* timer) {
 
 size_t strftime(char* str, size_t count, const char* format, const struct tm* tp) {
 	auto byteBuf = Util::Io::ByteArrayOutputStream((uint8_t*)str, count);
-	byteBuf.setEnforceSizeLimit(true);
-	
-	auto printStr = Util::Io::PrintStream(byteBuf);
-	
-	printStr.printFormatted(format,  _tm_to_date(tp));
-	printStr.flush();
-	
+	byteBuf.setSizeCheck(true);
+
+	Util::String::formatDate(_tm_to_date(tp), byteBuf, format);
 	byteBuf.write('\0');
 	
 	if (byteBuf.sizeLimitReached()) return 0;
-	
 	return byteBuf.getLength() - 1;
 }

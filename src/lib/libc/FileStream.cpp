@@ -1,15 +1,13 @@
-#include "lib/util/io/stream/FileStream.h"
-
 #include <stdio.h>
+
+#include "FileStream.h"
 
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/String.h"
 #include "lib/interface.h"
 
-namespace Util::Io {
-
 FileStream::FileStream(const char* filename, FileMode mode) {
-	auto file = File(Util::String(filename));
+	auto file = Util::Io::File(Util::String(filename));
 	
 	if (file.exists() && file.isDirectory()) {
 		// errno = EISDIR; // TODO errno
@@ -18,10 +16,10 @@ FileStream::FileStream(const char* filename, FileMode mode) {
 	}
 	
 	if (mode == FileMode::WRITE || mode == FileMode::WRITE_EXTEND) {
-		file.create(File::REGULAR);
+		file.create(Util::Io::File::REGULAR);
 	}
 	
-	fileDescriptor = File::open(file.getCanonicalPath());
+	fileDescriptor = Util::Io::File::open(file.getCanonicalPath());
 	
 	if (fileDescriptor < 0) {
         error = true;
@@ -59,7 +57,7 @@ FileStream::FileStream(int32_t fileDescriptor, bool allowRead, bool allowWrite) 
 
 FileStream::~FileStream() {
 	flush();
-	File::close(fileDescriptor);
+	Util::Io::File::close(fileDescriptor);
 
 	if (freeBufferOnDelete && buffer) {
         delete[] buffer;
@@ -122,11 +120,6 @@ uint32_t FileStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_
         error = true;
     }
 
-    if (offset > 0) {
-        flush();
-        pos += offset;
-    }
-
     bufferChangeAllowed = false;
     if (buffer) {
         for (uint32_t i = 0; i < length; i++) {
@@ -138,7 +131,7 @@ uint32_t FileStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_
             	}
             }
 
-            auto c = sourceBuffer[i];
+            auto c = sourceBuffer[offset + i];
             buffer[bufferPos++] = c;
 
             if (bufferMode == BufferMode::LINE && c == '\n') {
@@ -265,8 +258,6 @@ bool FileStream::isOpen() const {
 	return fileDescriptor >= 0;
 }
 
-bool FileStream::setAccessMode(File::AccessMode accessMode) const {
-    return File::setAccessMode(fileDescriptor, accessMode);
-}
-
+bool FileStream::setAccessMode(Util::Io::File::AccessMode accessMode) const {
+    return Util::Io::File::setAccessMode(fileDescriptor, accessMode);
 }

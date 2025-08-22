@@ -27,6 +27,8 @@
 #include "base/Address.h"
 #include "base/CharacterTypes.h"
 #include "collection/Array.h"
+#include "io/stream/OutputStream.h"
+#include "time/Date.h"
 
 namespace Util {
 
@@ -381,15 +383,7 @@ public:
     [[nodiscard]] static String join(const String &separator, const Array<String> &elements);
 
     /// Format a string using the given format string and arguments.
-    /// Supported format specifiers:
-    /// %c - character
-    /// %s - string
-    /// %B - boolean
-    /// %d - signed decimal integer
-    /// %u - unsigned decimal integer
-    /// %o - unsigned octal integer
-    /// %x - unsigned hexadecimal integer
-    /// %b - unsigned binary integer
+    /// Supports all format specifiers defined by `printf()` in the C89 standard plus '%B' for boolean values.
     ///
     /// ### Example
     /// ```c++
@@ -398,10 +392,39 @@ public:
     /// ```
     [[nodiscard]] static String format(const char *format, ...);
 
-    /// The same as `format()`, but takes a `va_list` instead of a variable number of arguments.
-    /// This is useful if the calling function itself is variadic and wants to pass the arguments to this function.
-    /// For example, `printf()` is implemented using this function.
-    [[nodiscard]] static String vformat(const char *format, va_list args);
+    /// Format a string using the given format string and arguments.
+    /// Supports all format specifiers defined by `printf()` in the C89 standard plus '%B' for boolean values.
+    /// The arguments are passed as a `va_list`, which is useful if the calling function itself is variadic
+    /// and wants to pass the arguments to this function. For example, `printf()` is implemented using this function.
+    [[nodiscard]] static String format(const char *format, va_list args);
+
+    /// Format a string using the given format string and arguments.
+    /// Supports all format specifiers defined by `printf()` in the C89 standard plus '%B' for boolean values.
+    /// Instead of returning a new string, the formatted output is written to the given `OutputStream`.
+    /// The return value is the number of bytes written to the `OutputStream` or -1 if an error occurred.
+    /// In case of an error, data may or may not have been written to the `OutputStream` (undefined behavior).
+    static int32_t format(const char *format, va_list args, Io::OutputStream &target);
+
+    /// Format a date using the given format string.
+    /// Supports all format specifiers defined by `strftime()` in the C89 standard.
+    /// The default format is "%c", which is the same as `asctime()`.
+    ///
+    /// ### Example
+    /// `c++
+    /// const auto date = Util::Time::Date(2025, 08, 25, 10, 47, 21);
+    ///
+    /// const auto str1 = Util::String::formatDate(date); // str1 = "Mon Aug 25 10:47:21 2025"
+    /// const auto str2 = Util::String::formatDate(date, "%Y-%m-%d %H:%M:%S"); // str2 = "2025-08-25 10:47:21"
+    /// const auto str3 = Util::String::formatDate(date, "%B %d, %Y"); // str3 = "August 25, 2025"
+    /// ```
+    [[nodiscard]] static String formatDate(const Time::Date &date, const char *format = "%c");
+
+    /// Format a date using the given format string.
+    /// Supports all format specifiers defined by `strftime()` in the C89 standard.
+    /// Instead of returning a new string, the formatted output is written to the given `OutputStream`.
+    /// The return value is the number of bytes written to the `OutputStream` or -1 if an error occurred.
+    /// In case of an error, data may or may not have been written to the `OutputStream` (undefined behavior).
+    static int32_t formatDate(const Time::Date &date, Io::OutputStream &target, const char *format = "%c");
 
     /// Parse a signed number from the given string.
     /// If the string is not a valid number, a `Panic` is fired.
@@ -495,11 +518,32 @@ private:
     char *buffer;
     size_t len;
 
+    static constexpr const char *WEEKDAY_NAMES[7] = {
+        "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+    };
+
+    static constexpr const char *WEEKDAY_ABBREVIATIONS[7] = {
+        "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
+    };
+
+    static constexpr const char *MONTH_NAMES[13] = {
+        "", "January", "February", "March", "April", "May", "June", "July",
+        "August", "September", "October", "November", "December"
+    };
+
+    static constexpr const char *MONTH_ABBREVIATIONS[13] = {
+        "", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    };
+
     static constexpr uint8_t CASE_OFFSET = 32;
 };
 
 template<typename T>
 T String::parseNumber(const char *string, const size_t length) {
+    if (length == 0) {
+        return 0;
+    }
+
     const size_t limit = string[0] == '-' ? 1 : 0;
     const auto sign = string[0] == '-' ? -1 : 1;
 
@@ -525,12 +569,17 @@ T String::parseNumber(const char *string, const size_t length) {
 
 template<typename T>
 T String::parseNumber(const char *string) {
-    return parseNumber<T>(string, Address(string).stringLength());
+    size_t len = 0;
+    while (CharacterTypes::isDigit(string[len]) && string[len] != '\0') {
+        len++;
+    }
+
+    return parseNumber<T>(string, len);
 }
 
 template<typename T>
 T String::parseNumber(const String &string) {
-    return parseNumber<T>(static_cast<const char*>(string), string.len);
+    return parseNumber<T>(static_cast<const char*>(string));
 }
 
 template<typename T>

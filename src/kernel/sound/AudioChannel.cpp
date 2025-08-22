@@ -23,6 +23,8 @@
 
 #include "AudioChannel.h"
 
+#include "async/Thread.h"
+
 namespace Kernel {
 
 AudioChannel::AudioChannel(int32_t bufferSize) : Pipe(bufferSize) {}

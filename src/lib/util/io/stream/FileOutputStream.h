@@ -24,8 +24,8 @@
 #include <stdint.h>
 
 #include "OutputStream.h"
-#include "FileStream.h"
 #include "lib/util/base/String.h"
+#include "io/file/File.h"
 
 namespace Util {
 namespace Io {
@@ -35,15 +35,11 @@ class File;
 
 namespace Util::Io {
 
-/**
- * A stream that writes data to a file.
- * It is essentially a wrapper for FileStream, that opens the file in write mode.
- */
 class FileOutputStream : public OutputStream {
 
 public:
 
-    explicit FileOutputStream(const Io::File &file);
+    explicit FileOutputStream(const File &file);
 
     explicit FileOutputStream(const String &path);
 
@@ -57,9 +53,14 @@ public:
 
     uint32_t write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
 
+    void setPosition(uint32_t offset, File::SeekMode mode = File::SeekMode::SET);
+
+    [[nodiscard]] uint32_t getPosition() const;
+
 private:
 
-    FileStream fileStream;
+    int32_t fileDescriptor = -1;
+    uint32_t pos = 0;
 };
 
 }

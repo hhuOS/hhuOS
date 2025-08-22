@@ -26,6 +26,7 @@ add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} lib.user.base lib.user.time lib.user.math lib.user.runtime)
 
 target_sources(${PROJECT_NAME} PUBLIC
+		${HHUOS_SRC_DIR}/lib/libc/FileStream.cpp
 		${HHUOS_SRC_DIR}/lib/libc/errno.cpp
 		${HHUOS_SRC_DIR}/lib/libc/ctype.cpp
         ${HHUOS_SRC_DIR}/lib/libc/stdlib.cpp

@@ -110,7 +110,7 @@ int32_t main() {
 	i5 = sscanf("1234 -0x13 100 ffAA -3.414e2\n", "%d %i %o %X %g\n", &i1, &i2, &i3, &i4, &f);
 	printf("%i %i %i %i %g Argument count: %i\n", i1, i2, i3, i4, f, i5);
 	
-	char c1[1024], c2[1024], c3[1024], c4[1024];
+	char c1[1024]{}, c2[1024], c3[1024], c4[1024];
 	i5 = sscanf("abc defghij\n 012563abcdef\n", "%3c %s %[0-9]%[^\n]%n\n", c1, c2, c3, c4, &i4);
 	c1[6] = '\0';
 	printf("%s ; %s ; %s ; %s Argument count: %i, Bytes read: %i\n", c1, c2, c3, c4, i5, i4);

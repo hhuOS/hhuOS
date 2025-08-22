@@ -23,7 +23,8 @@
 
 #include "AudioMixerRunnable.h"
 
-#include <time/Timestamp.h>
+#include "async/Thread.h"
+#include "time/Timestamp.h"
 
 #include "AudioMixer.h"
 

@@ -75,8 +75,6 @@ private:
 
     int32_t inPosition = -1;
     int32_t outPosition = 0;
-	
-	int16_t peekedCharacter = -1;
 
     static const constexpr uint32_t DEFAULT_BUFFER_SIZE = 1024;
 

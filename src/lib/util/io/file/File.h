@@ -58,6 +58,12 @@ public:
         IS_READY_TO_READ
     };
 
+    enum class SeekMode {
+        SET,
+        CURRENT,
+        END
+    };
+
     /**
      * Constructor.
      */

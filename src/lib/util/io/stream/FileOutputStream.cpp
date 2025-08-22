@@ -19,36 +19,51 @@
  */
 
 #include "FileOutputStream.h"
+
+#include "lib/interface.h"
 #include "lib/util/base/Panic.h"
 #include "lib/util/io/file/File.h"
-#include "lib/util/io/stream/FileStream.h"
 
 namespace Util::Io {
 
-FileOutputStream::FileOutputStream(const Io::File &file) : fileStream(static_cast<const char*>(file.getCanonicalPath()), FileStream::FileMode::WRITE) {
-    if (fileStream.isError()) {
+FileOutputStream::FileOutputStream(const File &file) : FileOutputStream(file.getCanonicalPath()) {}
+
+FileOutputStream::FileOutputStream(const String &path) {
+    fileDescriptor = File::open(path);
+    if (fileDescriptor < 0) {
         Util::Panic::fire(Panic::ILLEGAL_STATE, "FileOutputStream: Unable to open file!");
     }
 }
 
-FileOutputStream::FileOutputStream(const String &path) : fileStream(static_cast<const char*>(path), FileStream::FileMode::WRITE) {
-    if (fileStream.isError()) {
-        Util::Panic::fire(Panic::ILLEGAL_STATE, "FileOutputStream: Unable to open file!");
-    }
-}
-
-FileOutputStream::FileOutputStream(int32_t fileDescriptor) : fileStream(fileDescriptor, false, true) {
-    if (fileStream.isError()) {
-        Util::Panic::fire(Panic::ILLEGAL_STATE, "FileOutputStream: Unable to open file!");
-    }
-}
+FileOutputStream::FileOutputStream(int32_t fileDescriptor) : fileDescriptor(fileDescriptor) {}
 
 bool FileOutputStream::write(uint8_t c) {
-    return fileStream.write(c);
+    return write(&c, 0, 1) == 1;
 }
 
 uint32_t FileOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    return fileStream.write(sourceBuffer, offset, length);
+    const auto written = writeFile(fileDescriptor, sourceBuffer + offset, pos, length);
+    pos += written;
+
+    return written;
+}
+
+void FileOutputStream::setPosition(uint32_t offset, File::SeekMode mode) {
+    switch (mode) {
+        case File::SeekMode::SET:
+            pos = offset;
+            break;
+        case File::SeekMode::CURRENT:
+            pos += offset;
+            break;
+        case File::SeekMode::END:
+            pos = getFileLength(fileDescriptor) - offset;
+            break;
+    }
+}
+
+uint32_t FileOutputStream::getPosition() const {
+    return pos;
 }
 
 }

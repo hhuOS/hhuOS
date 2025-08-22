@@ -54,7 +54,7 @@ public:
 	
 	bool sizeLimitReached();
 	
-	void setEnforceSizeLimit(bool value);
+	void setSizeCheck(bool value);
 
     void getContent(uint8_t *target, uint32_t length) const;
 
@@ -75,7 +75,7 @@ private:
     uint32_t position = 0;
 	
 	bool allocatedBuffer = true; //has this object allocated its own buffer?
-	bool enforceSizeLimit = false; //should writes stop at size limit?
+	bool checkSize = false; //should writes stop at size limit?
 
     static const constexpr uint32_t DEFAULT_BUFFER_SIZE = 32;
 };

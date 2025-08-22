@@ -3,20 +3,17 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include <collection/ArrayListQueue.h>
 
 #include "lib/util/io/stream/InputStream.h"
 #include "lib/util/io/stream/OutputStream.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/collection/ArrayList.h"
 
-namespace Util::Io {
-
 /**
  * A stream that can read from and write to a file.
  * Exposes libc compatible functions (fflush, fputc, ungetc, etc.)
  */
-class FileStream : public InputStream, public OutputStream {
+class FileStream : public Util::Io::InputStream, public Util::Io::OutputStream {
 
 public:
 
@@ -89,7 +86,7 @@ public:
 	
 	void clearError();
 	
-	bool setAccessMode(File::AccessMode accessMode) const;
+	bool setAccessMode(Util::Io::File::AccessMode accessMode) const;
 
 	static constexpr int16_t END_OF_FILE = -1;
 	
@@ -112,9 +109,7 @@ private:
 	uint8_t *buffer = nullptr;
 	
 	Util::ArrayList<int> ungottenChars;
-	
-};
 
-}
+};
 
 #endif

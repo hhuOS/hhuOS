@@ -49,9 +49,9 @@ public:
 
     [[nodiscard]] const uint8_t* getBuffer() const;
 	
-	void disableSizeLimit();
+	void disableSizeCheck();
 	
-	void makeNullTerminated();
+	void stopAtNullTerminator();
 
     int16_t read() override;
 	
@@ -67,7 +67,7 @@ private:
     uint32_t size;
     uint32_t position = 0;
 	
-	bool enforceSizeLimit = true;
+	bool checkSize = true;
 	bool nullTerminated = false;
 };
 

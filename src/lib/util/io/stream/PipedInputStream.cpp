@@ -48,19 +48,16 @@ void PipedInputStream::connect(PipedOutputStream &outputStream) {
 int16_t PipedInputStream::read() {
     uint8_t ret;
 	
-	if (peekedCharacter != -1) {
-		int16_t ret = peekedCharacter;
-		peekedCharacter = -1;
-		return ret;
-	}
-	
     uint32_t count = read(&ret, 0, 1);
     return count == 0 ? 0 : ret;
 }
 
 int16_t PipedInputStream::peek() {
-	if (peekedCharacter == -1) peekedCharacter = read();
-	return peekedCharacter;
+	if (inPosition < 0) {
+	    return -1;
+	}
+
+    return outPosition < inPosition ? buffer[outPosition] : buffer[(outPosition + 1) % bufferSize];
 }
 
 int32_t PipedInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
@@ -172,7 +169,6 @@ void PipedInputStream::reset() {
 
     inPosition = -1;
     outPosition = 0;
-    peekedCharacter = -1;
 
     lock.release();
 }

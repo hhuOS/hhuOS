@@ -24,21 +24,18 @@
 #include <stdint.h>
 
 #include "InputStream.h"
-#include "FileStream.h"
+#include "async/Spinlock.h"
+#include "collection/ArrayQueue.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/file/File.h"
 
 namespace Util::Io {
 
-/**
- * A stream that reads data from a file.
- * It is essentially a wrapper for FileStream, that opens the file in read mode.
- */
 class FileInputStream : public InputStream {
 
 public:
 
-    explicit FileInputStream(const Io::File &file);
+    explicit FileInputStream(const File &file);
 
     explicit FileInputStream(const String &path);
 
@@ -54,13 +51,22 @@ public:
 
     int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
 
-    bool setAccessMode(File::AccessMode accessMode) const;
+	bool isReadyToRead() override;
 
-    bool isReadyToRead() override;
+	void setPosition(uint32_t offset, File::SeekMode mode = File::SeekMode::SET);
+
+	[[nodiscard]] uint32_t getPosition() const;
+
+	bool pushBack(uint8_t c);
+
+	bool setAccessMode(File::AccessMode mode);
 
 private:
-	FileStream fileStream;
 
+	int32_t fileDescriptor = -1;
+	uint32_t pos = 0;
+
+	int16_t pushedBackByte = -1;
 };
 
 }

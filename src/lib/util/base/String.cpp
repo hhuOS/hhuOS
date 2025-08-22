@@ -21,6 +21,7 @@
 #include "String.h"
 
 #include "CharacterTypes.h"
+#include "WideChar.h"
 #include "lib/interface.h"
 #include "base/Address.h"
 #include "base/Panic.h"
@@ -28,6 +29,7 @@
 #include "collection/ArrayList.h"
 #include "io/stream/ByteArrayOutputStream.h"
 #include "io/stream/PrintStream.h"
+#include "math/Math.h"
 
 namespace Util {
 
@@ -400,73 +402,438 @@ String String::format(const char *format, ...) {
     va_list args;
     va_start(args, format);
 
-    String tmp = vformat(format, args);
+    String string = String::format(format, args);
 
     va_end(args);
-    return tmp;
+    return string;
 }
 
-String String::vformat(const char *format, va_list args) {
-    Io::ByteArrayOutputStream stream{};
-    Io::PrintStream printStream(stream);
+String String::format(const char *format, va_list args) {
+    Io::ByteArrayOutputStream stream;
 
-    for (size_t i = 0; format[i] != '\0'; i++) {
-        size_t j;
-        for (j = 0; format[i + j] != '%' && format[i + j] != '\0'; j++) {}
-
-        printStream.write(reinterpret_cast<const uint8_t*>(format), i, j);
-
-        if (format[i + j] == '%') {
-			printStream.setIntegerPrecision(0);
-            if (format[i + j + 1] == '0') {
-                const uint8_t padding = format[i + j + 2] - '0';
-                if (padding < 1 || padding > 9) {
-                    Util::Panic::fire(Panic::INVALID_ARGUMENT,
-                        "String: Format padding must be between 01 and 09");
-                }
-
-                printStream.setIntegerPrecision(padding);
-                j += 2;
-            }
-
-            const char specifier = format[i + ++j];
-            switch (specifier) {
-                case 'c' :
-                    printStream << static_cast<char>(va_arg(args, long));
-                    break;
-                case 'd' :
-                    printStream << Io::PrintStream::dec << va_arg(args, long);
-                    break;
-                case 'u' :
-                    printStream << Io::PrintStream::dec << va_arg(args, size_t);
-                    break;
-                case 'o':
-                    printStream << Io::PrintStream::oct << va_arg(args, size_t);
-                    break;
-                case 's':
-                    printStream << va_arg(args, char*);
-                    break;
-                case 'x':
-                    printStream << Io::PrintStream::hex << va_arg(args, size_t);
-                    break;
-                case 'b':
-                    printStream << Io::PrintStream::bin << va_arg(args, size_t);
-                    break;
-                case 'B':
-                    printStream << static_cast<bool>(va_arg(args, size_t));
-                    break;
-                default:
-                    Panic::fire(Panic::INVALID_ARGUMENT, "String: Invalid format specifier!");
-            }
-        } else {
-            break;
-        }
-
-        printStream.setNumberPadding(0);
-        i += j;
+    const auto written = String::format(format, args, stream);
+    if (written < 0) {
+        Panic::fire(Panic::INVALID_ARGUMENT, "String: Invalid format string!");
     }
 
     return stream.getContent();
+}
+
+int32_t String::format(const char *format, va_list args, Io::OutputStream &target) {
+    Io::PrintStream printStream(target);
+
+    for (size_t i = 0; format[i] != '\0'; i++) {
+        // Skip until a format specifier (starting with '%') is found
+        while (format[i] != '%' && format[i] != '\0') {
+            printStream.write(format[i]);
+            i++;
+        }
+
+        if (format[i] == '\0') {
+            break;
+        }
+
+        if (format[i++] == '%') {
+            enum ParameterLength { SHORT, INT, LONG };
+
+            ParameterLength parameterLength = INT;
+            bool alternateConversion = false;
+            bool zeroPadding = false;
+            int32_t padding = -1;
+            int32_t precision = -1;
+
+            printStream.setBase(10);
+            printStream.setNumberPadding(0);
+            printStream.setIntegerPrecision(0);
+            printStream.setDecimalPrecision(-1);
+            printStream.setNumberJustification(false);
+            printStream.setPositiveSign('\0');
+            printStream.setNegativeSign('-');
+            printStream.setIntegerPrefix("");
+            printStream.setAlwaysPrintDecimalPoint(false);
+
+            // Parse flags, width and precision modifiers
+            while (true) {
+                const auto c = format[i];
+                if (c == '%') {
+                    break;
+                }
+
+                if (c == 'h') {
+                    parameterLength = SHORT;
+                } else if (c == 'l' || c == 'L') {
+                    parameterLength = LONG;
+                } else if (c == '-') {
+                    printStream.setNumberJustification(true);
+                } else if (c == '+') {
+                    printStream.setPositiveSign('+');
+                } else if (c == ' ') {
+                    printStream.setPositiveSign(' ');
+                } else if (c == '#') {
+                    alternateConversion = true;
+                } else if (c == '0') {
+                    zeroPadding = true;
+                } else if (CharacterTypes::isDigit(c)) {
+                    padding = parseNumber<int32_t>(format + i);
+                    while (CharacterTypes::isDigit(format[i])) {
+                        i++;
+                    }
+                    i--;
+                } else if (c == '*') {
+                    padding = va_arg(args, int32_t);
+                    i++;
+                } else if (c == '.') {
+                    i++;
+                    if (format[i] == '*') {
+                        precision = va_arg(args, int32_t);
+                    } else if (CharacterTypes::isDigit(format[i])) {
+                        precision = parseNumber<int32_t>(format + i);
+                        while (CharacterTypes::isDigit(format[i])) {
+                            i++;
+                        }
+                        i--;
+                    }
+                } else {
+                    break;
+                }
+
+                i++;
+            }
+
+            // Execute format specifier
+            const auto c = format[i];
+            switch (c) {
+                case '%':
+                    target.write('%');
+                    break;
+                case 'n': {
+                    void *ptr = va_arg(args, void*);
+                    switch (parameterLength) {
+                        case SHORT:
+                            *static_cast<short*>(ptr) = static_cast<short>(printStream.getBytesWritten());
+                            break;
+                        case LONG:
+                            *static_cast<long*>(ptr) = static_cast<long>(printStream.getBytesWritten());
+                            break;
+                        default:
+                            *static_cast<int*>(ptr) = static_cast<int>(printStream.getBytesWritten());
+                    }
+                    break;
+                }
+                case 'B': {
+                    const auto value = static_cast<bool>(va_arg(args, size_t));
+                    printStream.print(value ? "true" : "false", precision);
+                    break;
+                }
+                case 'c':
+                    if (parameterLength == LONG) {
+                        char mbBuffer[4];
+                        const auto mbLen = WideChar::wcharToUtf8(mbBuffer, static_cast<wchar_t>(va_arg(args, int)));
+                        target.write(reinterpret_cast<const uint8_t*>(mbBuffer), 0, mbLen);
+                    } else {
+                        target.write(va_arg(args, int));
+                    }
+                    break;
+                case 's':
+                    if (parameterLength == LONG) {
+                        wchar_t *wideString = va_arg(args, wchar_t*);
+
+                        while (true) {
+                            char mbBuffer[4];
+                            const auto mbLen = Util::WideChar::wcharToUtf8(mbBuffer, *wideString++);
+                            if (mbBuffer[0] == 0) {
+                                break;
+                            }
+
+                            target.write(reinterpret_cast<const uint8_t*>(mbBuffer), 0, mbLen);
+                        }
+                    } else {
+                        printStream.print(va_arg(args, char*), precision);
+                    }
+                    break;
+                case 'd':
+                case 'i':
+                case 'u':
+                case 'o':
+                case 'x':
+                case 'X':
+                case 'p': {
+                    if (c == 'p') {
+                        precision = 8;
+                    }
+
+                    if (zeroPadding) {
+                        precision = precision < 0 ? padding : precision + padding;
+                        padding = 0;
+                    }
+
+                    if (padding >= 0) {
+                        printStream.setNumberPadding(padding);
+                    }
+
+                    if (precision >= 0) {
+                        printStream.setIntegerPrecision(precision);
+                    }
+
+                    if (c == 'o') {
+                        printStream.setBase(8);
+                        if (alternateConversion) {
+                            printStream.setIntegerPrefix("0");
+                        }
+                    } else if (c == 'X') {
+                        printStream.setBase(16);
+                        printStream.setHexNumericBase('A');
+                        if (alternateConversion) {
+                            printStream.setIntegerPrefix("0X");
+                        }
+                    } else if (c == 'x' || c == 'p') {
+                        printStream.setBase(16);
+                        printStream.setHexNumericBase('a');
+                        if (alternateConversion) {
+                            printStream.setIntegerPrefix("0x");
+                        }
+                    } else {
+                        printStream.setBase(10);
+                    }
+
+                    auto value = va_arg(args, size_t);
+                    if (parameterLength == SHORT) {
+                        value &= 0xffff;
+                    }
+
+                    if (precision == 0 && value == 0) {
+                        if (c == 'o' && alternateConversion) {
+                            target.write('0');
+                        }
+
+                        break; // Do not print anything, if precision is 0 and value is 0
+                    }
+
+                    if (c == 'd' || c == 'i') {
+                        printStream.print(static_cast<int32_t>(value));
+                    } else {
+                        printStream.print(static_cast<uint32_t>(value));
+                    }
+
+                    break;
+                }
+                case 'f':
+                case 'F':
+                case 'e':
+                case 'E':
+                case 'g':
+                case 'G': {
+                    if (padding >= 0) {
+                        printStream.setNumberPadding(padding);
+                    }
+
+                    if (precision >= 0) {
+                        printStream.setDecimalPrecision(precision);
+                    } else {
+                        printStream.setDecimalPrecision(6);
+                    }
+
+                    if (alternateConversion) {
+                        printStream.setAlwaysPrintDecimalPoint(true);
+                    }
+
+                    const auto value = va_arg(args, double);
+
+                    if (Math::isNan(value)) {
+                        printStream.print(CharacterTypes::isUpper(c) ? "NAN" : "nan");
+                        break;
+                    }
+
+                    if (Math::isInfinity(value)) {
+                        if (value > 0) {
+                            printStream.print(CharacterTypes::isUpper(c) ? "INF" : "inf");
+                        } else {
+                            printStream.print(CharacterTypes::isUpper(c) ? "-INF" : "-inf");
+                        }
+                        break;
+                    }
+
+                    const auto exp = value == 0 ? 0 : static_cast<int32_t>(Math::floor(Math::log10(Math::absolute(value))));
+
+                    bool scientificNotation = false;
+                    if (c == 'e' || c == 'E') {
+                        scientificNotation = true;
+                    }
+
+                    if (c == 'g' || c == 'G') {
+                        if (precision == -1) {
+                            precision = 6;
+                        }
+                        if (precision == 0) {
+                            precision = 1;
+                        }
+
+                        if (precision > exp && exp >= -4) {
+                            printStream.setDecimalPrecision(precision - exp - 1);
+                            scientificNotation = false;
+                        } else {
+                            scientificNotation = true;
+                            printStream.setDecimalPrecision(precision - 1);
+                        }
+                    }
+
+                    if (!scientificNotation) {
+                        printStream.print(value);
+                    } else {
+                        printStream.print(value / Math::pow(10.0, exp));
+                        target.write(CharacterTypes::isLower(c) ? 'e' : 'E');
+                        printStream.print(exp);
+                    }
+
+                    break;
+                }
+                default:
+                    return -1;
+            }
+        }
+    }
+
+    return printStream.getBytesWritten();
+}
+
+String String::formatDate(const Time::Date &date, const char *format) {
+    Io::ByteArrayOutputStream stream;
+
+    const auto written = String::formatDate(date, stream, format);
+    if (written < 0) {
+        Panic::fire(Panic::INVALID_ARGUMENT, "String: Invalid format string!");
+    }
+
+    return stream.getContent();
+}
+
+int32_t String::formatDate(const Time::Date &date, Io::OutputStream &target, const char *format) {
+    Io::PrintStream printStream(target);
+
+    for (uint32_t i = 0; format[i] != 0; i++) {
+        // Skip until a format specifier (starting with '%') is found
+        size_t j = 0;
+        while (format[i + j] != '%' && format[i + j] != '\0') {
+            j++;
+        }
+
+        // Write the skipped part to the print stream
+        printStream.write(reinterpret_cast<const uint8_t*>(format), i, j);
+
+        i += j;
+        if (format[i + j] == '\0') {
+            break;
+        }
+
+        const auto c = format[++i];
+        printStream.setIntegerPrecision(0);
+
+        switch (c) {
+            case '%':
+                printStream.print('%');
+                break;
+            case 'Y':
+                printStream.print(date.getYear());
+                break;
+            case 'y':
+                printStream.print(date.getYear() % 100);
+                break;
+            case 'b':
+                printStream.print(MONTH_ABBREVIATIONS[date.getMonth()]);
+                break;
+            case 'B':
+                printStream.print(MONTH_NAMES[date.getMonth()]);
+                break;
+            case 'm':
+                printStream.setIntegerPrecision(2);
+                printStream.print(date.getMonth());
+                break;
+            case 'U':
+                printStream.setIntegerPrecision(2);
+                printStream.print(date.getWeekOfYearSunday());
+                break;
+            case 'W':
+                printStream.setIntegerPrecision(2);
+                printStream.print(date.getWeekOfYear());
+                break;
+            case 'j':
+                printStream.setIntegerPrecision(3);
+                printStream.print(date.getDayOfYear());
+                break;
+            case 'd':
+                printStream.setIntegerPrecision(2);
+                printStream.print(date.getDayOfMonth());
+                break;
+            case 'a':
+                printStream.print(WEEKDAY_ABBREVIATIONS[date.getWeekday()]);
+                break;
+            case 'A':
+                printStream.print(WEEKDAY_NAMES[date.getWeekday()]);
+                break;
+            case 'w':
+                printStream.print((date.getWeekday() + 1 % 7));
+                break;
+            case 'H':
+                printStream.setIntegerPrecision(2);
+                printStream.print(date.getHours());
+                break;
+            case 'I':
+                printStream.setIntegerPrecision(2);
+                printStream.print((date.getHours() - 1) % 12 + 1);
+                break;
+            case 'M':
+                printStream.setIntegerPrecision(2);
+                printStream.print(date.getMinutes());
+                break;
+            case 'c':
+                printStream.print(WEEKDAY_ABBREVIATIONS[date.getWeekday()]);
+                printStream.print(' ');
+                printStream.print(MONTH_ABBREVIATIONS[date.getMonth()]);
+                printStream.print(' ');
+                printStream.setIntegerPrecision(2);
+                printStream.print(date.getDayOfMonth());
+                printStream.print(' ');
+                printStream.print(date.getHours());
+                printStream.print(':');
+                printStream.print(date.getMinutes());
+                printStream.print(':');
+                printStream.print(date.getSeconds());
+                printStream.print(' ');
+                printStream.setIntegerPrecision(4);
+                printStream.print(date.getYear());
+                break;
+            case 'S':
+                printStream.setIntegerPrecision(2);
+                printStream.print(date.getSeconds());
+                break;
+            case 'x':
+                printStream.setIntegerPrecision(2);
+                printStream.print(date.getDayOfMonth());
+                printStream.print('.');
+                printStream.print(date.getMonth());
+                printStream.print('.');
+                printStream.print(date.getYear());
+                break;
+            case 'X':
+                printStream.setIntegerPrecision(2);
+                printStream.print(date.getHours());
+                printStream.print(':');
+                printStream.print(date.getMinutes());
+                printStream.print(':');
+                printStream.print(date.getSeconds());
+                break;
+            case 'p':
+                printStream.print(date.getHours() > 12 ? "p.m." : "a.m.");
+                break;
+            case 'Z':
+                printStream.print("UTC+0");
+                break;
+            default:
+                return -1;
+        }
+    }
+
+    return printStream.getBytesWritten();
 }
 
 }

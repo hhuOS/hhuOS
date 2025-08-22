@@ -26,6 +26,7 @@
 
 #include "AudioChannel.h"
 #include "async/AtomicBitmap.h"
+#include "collection/ArrayList.h"
 #include "device/sound/PcmDevice.h"
 #include "kernel/process/Thread.h"
 #include "io/file/File.h"

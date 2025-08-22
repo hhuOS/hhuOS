@@ -106,7 +106,7 @@ void Log::logDefault(const Log::Record &record, const char *message, va_list arg
     const auto logMessage = Util::String::format("%s[%u.%03u]%s[%s]%s[%s:%s] %s%s",
              Util::Graphic::Ansi::FOREGROUND_CYAN, seconds, fraction, getColor(record.level), getLevelAsString(record.level),
              Util::Graphic::Ansi::FOREGROUND_MAGENTA, extractFileName(record.file), record.line,
-             Util::Graphic::Ansi::FOREGROUND_DEFAULT, static_cast<const char*>(Util::String::vformat(message, args)));
+             Util::Graphic::Ansi::FOREGROUND_DEFAULT, static_cast<const char*>(Util::String::format(message, args)));
 
     buffer.add(logMessage);
 
@@ -127,7 +127,7 @@ void Log::logEarlyWithHeap(const Log::Record &record, const char *message, va_li
     const auto logMessage = Util::String::format("%s[%u.%03u]%s[%s]%s[%s:%s] %s%s\n",
              Util::Graphic::Ansi::FOREGROUND_CYAN, 0, 0, getColor(record.level), getLevelAsString(record.level),
              Util::Graphic::Ansi::FOREGROUND_MAGENTA, extractFileName(record.file), record.line,
-             Util::Graphic::Ansi::FOREGROUND_DEFAULT, static_cast<const char*>(Util::String::vformat(message, args)));
+             Util::Graphic::Ansi::FOREGROUND_DEFAULT, static_cast<const char*>(Util::String::format(message, args)));
 
     writeStringEarly(static_cast<const char*>(logMessage));
 }

@@ -26,7 +26,6 @@
 
 #include "OutputStream.h"
 #include "lib/util/base/String.h"
-#include "lib/util/time/Date.h"
 
 namespace Util::Io {
 
@@ -64,13 +63,13 @@ public:
 	
 	void setDecimalPrecision(int32_t v);
 	
-	void setIntegerPrefix(Util::String str);
+	void setIntegerPrefix(String str);
 	
 	void setHexNumericBase(char base);
 	
 	void setAlwaysPrintDecimalPoint(bool val);
 
-    void print(const Util::String &string);
+    void print(const String &string);
 
     void print(const char *string, uint32_t maxBytes=-1);
 
@@ -91,18 +90,16 @@ public:
     void print(int8_t number);
 
     void print(uint8_t number);
+
+	void print(char c);
 	
 	void print(double number);
 
     void print(void *pointer);
-	
-	void print(Util::Time::Date date);
-	
-	void printFormatted(const char* format, Util::Time::Date date);
 
     void println();
 
-    void println(const Util::String &string);
+    void println(const String &string);
 
     void println(const char *sourceBuffer);
 
@@ -125,12 +122,6 @@ public:
     void println(uint8_t number);
 
     void println(void *pointer);
-	
-	void println(Util::Time::Date date);
-	
-	int vprintf(const char* format, va_list args);
-	
-	int printf(const char * format, ...) ;
 
     PrintStream& operator<<(char c);
 
@@ -149,7 +140,6 @@ public:
     PrintStream& operator<<(int32_t value);
 
     PrintStream& operator<<(uint32_t value);
-	
 
     PrintStream& operator<<(int64_t value);
 
@@ -158,8 +148,6 @@ public:
     PrintStream& operator<<(void *ptr);
 	
 	PrintStream& operator<<(double value);
-	
-	PrintStream& operator<<(Util::Time::Date date);
 
     PrintStream& operator<<(PrintStream& (*f)(PrintStream&));
 
@@ -196,7 +184,7 @@ private:
 	
 	uint32_t bytesWritten = 0;
 	
-	Util::String integerPrefix = "";
+	String integerPrefix = "";
 };
 
 }

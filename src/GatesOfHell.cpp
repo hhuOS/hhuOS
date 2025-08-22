@@ -18,10 +18,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include "GatesOfHell.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/log/Log.h"
-#include "GatesOfHell.h"
-#include "device/cpu/SymmetricMultiprocessing.h"
 #include "kernel/memory/MemoryLayout.h"
 #include "kernel/memory/Paging.h"
 #include "kernel/memory/PagingAreaManager.h"
@@ -125,6 +124,8 @@
 #include "kernel/service/SoundService.h"
 #include "kernel/sound/AudioMixer.h"
 #include "math/Math.h"
+#include "io/stream/ByteArrayInputStream.h"
+#include "io/stream/ScanStream.h"
 
 namespace Device {
 class WaitTimer;
@@ -250,6 +251,16 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     LOG_INFO("Initializing kernel heap");
     static Util::FreeListMemoryManager kernelHeapManager(reinterpret_cast<void*>(kernelHeapVirtual), reinterpret_cast<void*>(Kernel::MemoryLayout::KERNEL_HEAP_END_ADDRESS));
     kernelHeap = &kernelHeapManager;
+
+
+    const auto testString = "-23.456e-2";
+    auto testBuffer = Util::Io::ByteArrayInputStream(reinterpret_cast<const uint8_t*>(testString), 10);
+    auto testStream = Util::Io::ScanStream(testBuffer);
+    int i1, i2, i3, i4;
+    double f = 0;
+    [[maybe_unused]] int i5 = testStream.scan("1234 -0x13 100 ffAA -3.414e2\n", "%d %i %o %X %g\n", &i1, &i2, &i3, &i4, &f);
+
+
     LOG_INFO("Kernel heap initialized (Bootstrap memory: [0x%08x])", bootstrapMemory);
 
     // Initialize GDT

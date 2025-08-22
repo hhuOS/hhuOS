@@ -5,11 +5,11 @@
 #include <stdint.h>
 #include <stdarg.h>
 
-#include "InputStream.h"
+#include "FilterInputStream.h"
 
 namespace Util::Io {
 
-class ScanStream : public InputStream {
+class ScanStream : public FilterInputStream {
 
 public:
 
@@ -31,25 +31,28 @@ public:
 	
 	[[nodiscard]] uint32_t getReadBytes() const;
 	
-	void setReadLimit(int64_t limit); //limit is compared to readBytes, -1 = no limit
+	long long readLong(int32_t base = 0);
 	
-	long long readLong(int base=0);
+	int readInt(int32_t base = 0);
 	
-	int32_t readInt(int base=0);
-	
-	uint32_t readUint(int base=0);
+	unsigned int readUnsignedint(int32_t base = 0);
 	
 	double readDouble();
+
+	wchar_t readWideChar();
+
+	int32_t scan(const char* format, ...);
 	
-	int vscanf(const char* format, va_list vlist);
-	int scanf(const char* format, ...);
+	int32_t scan(const char* format, va_list vlist);
 
 private:
 
-	uint32_t readChars = 0;
-	int64_t readLimit = -1; // -1 = no limit
-	
-    InputStream &stream;
+	void setReadLimit(int64_t limit);
+
+	static int32_t charToInt(int16_t c, uint32_t base);
+
+	uint32_t readBytes = 0;
+	int64_t readLimit = -1;
 };
 
 }

@@ -58,11 +58,11 @@ void ByteArrayOutputStream::reset() {
 }
 
 bool ByteArrayOutputStream::sizeLimitReached() {
-	return enforceSizeLimit && position == size;
+	return checkSize && position == size;
 }
 
-void ByteArrayOutputStream::setEnforceSizeLimit(bool value) {
-	enforceSizeLimit = value;
+void ByteArrayOutputStream::setSizeCheck(bool value) {
+	checkSize = value;
 }
 
 bool ByteArrayOutputStream::write(uint8_t c) {
@@ -90,9 +90,9 @@ uint32_t ByteArrayOutputStream::ensureRemainingCapacity(uint32_t count) {
         return count;
     }
 	
-	if (enforceSizeLimit) return size - position;
+	if (checkSize) return size - position;
 	
-	if (!enforceSizeLimit && !allocatedBuffer) return count; //if no size limits are enforced on remote buffer, writes beyond end are allowed
+	if (!checkSize && !allocatedBuffer) return count; //if no size limits are enforced on remote buffer, writes beyond end are allowed
 
     uint32_t newSize = size * 2;
     while (newSize < position + count) {

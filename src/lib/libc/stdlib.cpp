@@ -184,7 +184,7 @@ ldiv_t ldiv ( long x, long y) {
 
 long strtol(const char* str, char **str_end, int base) {
 	Util::Io::ByteArrayInputStream is((uint8_t*) str, 0);
-	is.disableSizeLimit();
+	is.disableSizeCheck();
 	Util::Io::ScanStream ss(is);
 	
 	long ret = ss.readInt(base);
@@ -196,10 +196,10 @@ long strtol(const char* str, char **str_end, int base) {
 
 unsigned long strtoul(const char* str, char **str_end, int base) {
 	Util::Io::ByteArrayInputStream is((uint8_t*) str, 0);
-	is.disableSizeLimit();
+	is.disableSizeCheck();
 	Util::Io::ScanStream ss(is);
 	
-	unsigned long ret = ss.readUint(base);
+	unsigned long ret = ss.readUnsignedint(base);
 	if (ret == ULONG_MAX) setErrno(ERANGE);
 	if (str_end) *str_end = (char*)(str + ss.getReadBytes());
 	
@@ -209,7 +209,7 @@ unsigned long strtoul(const char* str, char **str_end, int base) {
 
 double strtod(const char* str, char **str_end) {
 	Util::Io::ByteArrayInputStream is((uint8_t*) str, 0);
-	is.disableSizeLimit();
+	is.disableSizeCheck();
 	Util::Io::ScanStream ss(is);
 	
 	double ret = ss.readDouble();
@@ -249,9 +249,12 @@ int wctomb(char * s, wchar_t wc) {
 size_t mbstowcs(wchar_t * dst, const char * s, size_t len) {
 	size_t curr;
 	for (curr = 0; curr <len; curr++){
-		size_t charlen = mbtowc(dst + curr, s, MB_LEN_MAX);
+		int charlen = mbtowc(dst + curr, s, MB_LEN_MAX);
 		
-		if (charlen <= 0) return curr-1;
+		if (charlen<=0) {
+			*(dst + curr) = '\0';
+			return curr-1;
+		}
 		
 		s+=charlen;
 	}
@@ -261,9 +264,12 @@ size_t mbstowcs(wchar_t * dst, const char * s, size_t len) {
 size_t wcstombs(char* dst, const wchar_t * src, size_t len) {
 	size_t curr = 0;
 	while (curr < len) {
-		size_t charlen = wctomb(dst + curr, *src);
+		int charlen = wctomb(dst + curr, *src);
 		
-		if (charlen<=0) return curr-1;
+		if (charlen<=0) {
+			*(dst + curr) = '\0';
+			return curr-1;
+		}
 		
 		src++;
 		curr += charlen;

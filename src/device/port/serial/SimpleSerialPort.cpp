@@ -67,7 +67,7 @@ Serial::ComPort SimpleSerialPort::getPort() const {
 
 bool SimpleSerialPort::write(uint8_t c) {
     if (c == '\n') {
-        return write(13);
+        write(13);
     }
 
     while (!(lineStatusRegister.readByte() & 0x20)) {}

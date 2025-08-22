@@ -119,7 +119,7 @@ bool ParallelPort::isBusy() {
 
 bool ParallelPort::write(uint8_t c) {
     if (c == '\n') {
-        return write(13);
+        write(13);
     }
 
     // Wait for the printer to be ready

@@ -14,10 +14,9 @@
 
 
 int _stream_vprintf(Util::Io::OutputStream &os, const char* format, va_list args) {
-	Util::Io::PrintStream out(os);
-	return out.vprintf(format, args);
-	}
-	
+	return Util::String::format(format, args, os);
+}
+
 
 
 int vfprintf(FILE * stream, const char * format, va_list vlist) {
@@ -37,7 +36,7 @@ int vsprintf(char * buffer, const char * format, va_list vlist) {
 
 int vsnprintf(char * buffer, size_t bufsz, const char * format, va_list vlist) {
 	Util::Io::ByteArrayOutputStream os((uint8_t*)buffer, bufsz);
-	os.setEnforceSizeLimit(true);
+	os.setSizeCheck(true);
 	int ret = _stream_vprintf(os, format, vlist);
 	os.write('\0');
 	return ret;

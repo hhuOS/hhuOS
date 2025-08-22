@@ -12,7 +12,7 @@
 
 int _stream_vscanf(Util::Io::InputStream &is, const char* format, va_list vlist) {
 	auto ss = Util::Io::ScanStream(is);
-	return ss.vscanf(format, vlist);
+	return ss.scan(format, vlist);
 }
 
 
@@ -26,8 +26,8 @@ int vfscanf(FILE * stream, const char * format, va_list args) {
 
 int vsscanf(const char * s, const char * format, va_list args) {
 	Util::Io::ByteArrayInputStream bs((uint8_t*)s, 0);
-	bs.disableSizeLimit();
-	bs.makeNullTerminated();
+	bs.disableSizeCheck();
+	bs.stopAtNullTerminator();
 	return _stream_vscanf(bs, format, args);
 }
 

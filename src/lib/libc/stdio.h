@@ -8,11 +8,11 @@ typedef unsigned long fpos_t;
 
 #ifdef __cplusplus
 
-#include "lib/util/io/stream/FileStream.h"
+#include "FileStream.h"
 #include "lib/util/io/stream/OutputStream.h"
 #include "lib/util/io/stream/InputStream.h"
 
-typedef Util::Io::FileStream FILE;
+typedef FileStream FILE;
 
 int _stream_vprintf(Util::Io::OutputStream &os, const char* format, va_list vlist);
 int _stream_vscanf(Util::Io::InputStream &is, const char* format, va_list vlist);

@@ -515,7 +515,7 @@ bool Terminal::TerminalPipedOutputStream::write(uint8_t c) {
     }
 
     if (terminal.echo) {
-        return terminal.write(c);
+        terminal.write(c);
     }
 
     if (terminal.lineAggregation) {

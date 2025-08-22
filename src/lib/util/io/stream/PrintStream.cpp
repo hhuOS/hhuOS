@@ -197,12 +197,15 @@ void PrintStream::print(uint8_t number) {
     print(static_cast<uint64_t>(number));
 }
 
+void PrintStream::print(char c) {
+	write(reinterpret_cast<const uint8_t*>(&c), 0, 1);
+}
+
 void PrintStream::print(void *pointer) {
     print(reinterpret_cast<uint32_t>(pointer));
 }
 
 void PrintStream::print(double number) {
-	
 	ByteArrayOutputStream numberStream;
 	PrintStream printOut(numberStream);
 	
