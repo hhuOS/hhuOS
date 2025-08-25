@@ -21,11 +21,11 @@
 #ifndef HHUOS_PIPEDIRECTORYNODE_H
 #define HHUOS_PIPEDIRECTORYNODE_H
 
-#include <filesystem/Node.h>
+#include "filesystem/memory/MemoryNode.h"
 
 namespace Filesystem::Process {
 
-class PipeDirectoryNode : public Node {
+class PipeDirectoryNode : public Memory::MemoryNode {
 
 public:
     /**
@@ -51,32 +51,12 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::String getName() override;
-
-    /**
-     * Overriding function from Node.
-     */
     Util::Io::File::Type getType() override;
 
     /**
      * Overriding function from Node.
      */
-    uint64_t getLength() override;
-
-    /**
-     * Overriding function from Node.
-     */
     Util::Array<Util::String> getChildren() override;
-
-    /**
-     * Overriding function from Node.
-     */
-    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
-
-    /**
-     * Overriding function from Node.
-     */
-    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
 
 private:
 

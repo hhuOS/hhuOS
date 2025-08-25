@@ -250,6 +250,8 @@ const char* File::getTypeColor(File &file) {
             return Util::Graphic::Ansi::FOREGROUND_WHITE;
         case Util::Io::File::CHARACTER:
             return Util::Graphic::Ansi::FOREGROUND_BRIGHT_YELLOW;
+        case Util::Io::File::SYSTEM:
+            return Util::Graphic::Ansi::FOREGROUND_BRIGHT_GREEN;
     }
 
     return Util::Graphic::Ansi::FOREGROUND_WHITE;

@@ -57,7 +57,7 @@ Scheduler::~Scheduler() {
         delete readyQueue.poll();
     }
 
-    for (auto id : joinMap.keys()) {
+    for (auto id : joinMap.getKeys()) {
         delete joinMap.remove(id);
     }
 }

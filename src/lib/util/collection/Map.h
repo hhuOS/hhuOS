@@ -55,10 +55,10 @@ public:
     virtual void clear() = 0;
 
     /// Get an array of all keys in the map.
-    [[nodiscard]] virtual Array<K> keys() const = 0;
+    [[nodiscard]] virtual Array<K> getKeys() const = 0;
 
     /// Get an array of all values in the map.
-    [[nodiscard]] virtual Array<V> values() const = 0;
+    [[nodiscard]] virtual Array<V> getValues() const = 0;
 };
 
 }

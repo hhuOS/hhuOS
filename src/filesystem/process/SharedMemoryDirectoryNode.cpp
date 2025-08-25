@@ -16,48 +16,29 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The UDP/IP stack is based on a bachelor's thesis, written by Hannes Feil.
- * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "EchoHeader.h"
+#include "SharedMemoryDirectoryNode.h"
 
-#include "../../io/stream/NumberUtil.h"
+#include "kernel/process/Process.h"
+#include "kernel/service/ProcessService.h"
 
-namespace Util {
-namespace Io {
-class InputStream;
-class OutputStream;
-}  // namespace Stream
-}  // namespace Util
+namespace Filesystem::Process {
 
-namespace Util::Network::Icmp {
+SharedMemoryDirectoryNode::SharedMemoryDirectoryNode(uint32_t processId) : MemoryNode("shared"), processId(processId) {}
 
-uint16_t EchoHeader::getIdentifier() const {
-    return identifier;
+Util::Io::File::Type SharedMemoryDirectoryNode::getType() {
+    return Util::Io::File::DIRECTORY;
 }
 
-uint16_t EchoHeader::getSequenceNumber() const {
-    return sequenceNumber;
-}
+Util::Array<Util::String> SharedMemoryDirectoryNode::getChildren() {
+    auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
+    auto *process = processService.getProcess(processId);
+    if (process == nullptr) {
+        return Util::Array<Util::String>();
+    }
 
-void EchoHeader::setIdentifier(const uint16_t identifier) {
-    EchoHeader::identifier = identifier;
-}
-
-void EchoHeader::setSequenceNumber(const uint16_t sequenceNumber) {
-    EchoHeader::sequenceNumber = sequenceNumber;
-}
-
-void EchoHeader::read(Io::InputStream &stream) {
-    identifier = Io::NumberUtil::readUnsigned16BitValue(stream);
-    sequenceNumber = Io::NumberUtil::readUnsigned16BitValue(stream);
-}
-
-void EchoHeader::write(Io::OutputStream &stream) const {
-    Io::NumberUtil::writeUnsigned16BitValue(identifier, stream);
-    Io::NumberUtil::writeUnsigned16BitValue(sequenceNumber, stream);
+    return process->getSharedMemory().getKeys();
 }
 
 }

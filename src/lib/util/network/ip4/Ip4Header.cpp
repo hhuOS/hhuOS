@@ -24,7 +24,7 @@
 #include "Ip4Header.h"
 
 #include "io/stream/InputStream.h"
-#include "network/NumberUtil.h"
+#include "../../io/stream/NumberUtil.h"
 #include "network/ip4/Ip4Address.h"
 
 namespace Util {
@@ -37,14 +37,14 @@ namespace Util::Network::Ip4 {
 
 void Ip4Header::read(Io::InputStream &stream) {
     // Read IP version and header length
-    const auto versionAndLength = NumberUtil::readUnsigned8BitValue(stream);
+    const auto versionAndLength = Io::NumberUtil::readUnsigned8BitValue(stream);
     version = versionAndLength >> 4;
     headerLength = (versionAndLength & 0x0f) * sizeof(uint32_t);
 
     // Discard DSCP and ECN
     stream.read();
 
-    const auto totalLength = NumberUtil::readUnsigned16BitValue(stream);
+    const auto totalLength = Io::NumberUtil::readUnsigned16BitValue(stream);
     payloadLength = totalLength - headerLength;
 
     // Discard Identification, Flags and Offset
@@ -53,8 +53,8 @@ void Ip4Header::read(Io::InputStream &stream) {
     stream.read();
     stream.read();
 
-    timeToLive = NumberUtil::readUnsigned8BitValue(stream);
-    protocol = static_cast<Protocol>(NumberUtil::readUnsigned8BitValue(stream));
+    timeToLive = Io::NumberUtil::readUnsigned8BitValue(stream);
+    protocol = static_cast<Protocol>(Io::NumberUtil::readUnsigned8BitValue(stream));
 
     // Discard checksum
     stream.read();
@@ -71,21 +71,21 @@ void Ip4Header::read(Io::InputStream &stream) {
 
 void Ip4Header::write(Io::OutputStream &stream) const {
     // Write IP version and header length
-    NumberUtil::writeUnsigned8BitValue(version << 4 | (MIN_HEADER_LENGTH / sizeof(uint32_t)), stream);
+    Io::NumberUtil::writeUnsigned8BitValue(version << 4 | (MIN_HEADER_LENGTH / sizeof(uint32_t)), stream);
 
     // Write empty DSCP and ECN
-    NumberUtil::writeUnsigned8BitValue(0, stream);
+    Io::NumberUtil::writeUnsigned8BitValue(0, stream);
 
-    NumberUtil::writeUnsigned16BitValue(headerLength + payloadLength, stream);
+    Io::NumberUtil::writeUnsigned16BitValue(headerLength + payloadLength, stream);
 
     // Write empty Identification, Flags and Offset
-    NumberUtil::writeUnsigned32BitValue(0, stream);
+    Io::NumberUtil::writeUnsigned32BitValue(0, stream);
 
-    NumberUtil::writeUnsigned8BitValue(timeToLive, stream);
-    NumberUtil::writeUnsigned8BitValue(protocol, stream);
+    Io::NumberUtil::writeUnsigned8BitValue(timeToLive, stream);
+    Io::NumberUtil::writeUnsigned8BitValue(protocol, stream);
 
     // Write empty checksum
-    NumberUtil::writeUnsigned16BitValue(0, stream);
+    Io::NumberUtil::writeUnsigned16BitValue(0, stream);
 
     sourceAddress.write(stream);
     destinationAddress.write(stream);

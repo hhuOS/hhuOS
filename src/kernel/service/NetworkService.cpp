@@ -184,7 +184,7 @@ Device::Network::NetworkDevice &NetworkService::getNetworkDevice(const Util::Str
 }
 
 Device::Network::NetworkDevice &NetworkService::getNetworkDevice(const Util::Network::MacAddress &address) {
-    for (auto *device: deviceMap.values()) {
+    for (auto *device: deviceMap.getValues()) {
         if (device->getMacAddress() == address) {
             return *device;
         }

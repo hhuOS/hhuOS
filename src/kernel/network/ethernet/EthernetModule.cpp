@@ -24,7 +24,7 @@
 #include "EthernetModule.h"
 
 #include "lib/util/network/ethernet/EthernetHeader.h"
-#include "lib/util/network/NumberUtil.h"
+#include "../../../lib/util/io/stream/NumberUtil.h"
 #include "lib/util/network/ethernet/EthernetDatagram.h"
 #include "device/network/NetworkDevice.h"
 #include "kernel/log/Log.h"
@@ -94,7 +94,7 @@ void EthernetModule::writeHeader(Util::Io::OutputStream &stream, Device::Network
 
 void EthernetModule::finalizePacket(Util::Io::ByteArrayOutputStream &packet) {
     for (uint32_t i = packet.getLength(); i < MINIMUM_PACKET_SIZE - sizeof(uint32_t); i++) {
-        Util::Network::NumberUtil::writeUnsigned8BitValue(0, packet);
+        Util::Io::NumberUtil::writeUnsigned8BitValue(0, packet);
     }
 }
 

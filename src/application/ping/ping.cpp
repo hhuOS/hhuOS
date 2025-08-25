@@ -27,7 +27,7 @@
 #include "lib/util/network/NetworkAddress.h"
 #include "lib/util/network/icmp/EchoHeader.h"
 #include "lib/util/io/stream/ByteArrayOutputStream.h"
-#include "lib/util/network/NumberUtil.h"
+#include "../../lib/util/io/stream/NumberUtil.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/network/icmp/IcmpDatagram.h"
 #include "lib/util/base/ArgumentParser.h"
@@ -75,7 +75,7 @@ int32_t main(int32_t argc, char *argv[]) {
         echoHeader.setIdentifier(0);
         echoHeader.setSequenceNumber(i);
         echoHeader.write(packet);
-        Util::Network::NumberUtil::writeUnsigned32BitValue(Util::Time::Timestamp::getSystemTime().toMilliseconds(), packet);
+        Util::Io::NumberUtil::writeUnsigned32BitValue(Util::Time::Timestamp::getSystemTime().toMilliseconds(), packet);
 
         auto datagram = Util::Network::Icmp::IcmpDatagram(packet, destinationAddress, Util::Network::Icmp::IcmpHeader::ECHO_REQUEST, 0);
         if (!socket.send(datagram)) {
@@ -95,7 +95,7 @@ int32_t main(int32_t argc, char *argv[]) {
                 echoHeader.read(receivedPacket);
                 if (echoHeader.getSequenceNumber() == i) {
                     validReply = true;
-                    auto sourceTimestamp = Util::Network::NumberUtil::readUnsigned32BitValue(receivedPacket);
+                    auto sourceTimestamp = Util::Io::NumberUtil::readUnsigned32BitValue(receivedPacket);
                     auto currentTimestamp = Util::Time::Timestamp::getSystemTime().toMilliseconds();
                     Util::System::out << receivedDatagram.getLength() << " bytes from " << static_cast<const char*>(receivedDatagram.getRemoteAddress().toString())
                                       << " (Sequence number: " << echoHeader.getSequenceNumber() << ", Time: " << currentTimestamp - sourceTimestamp << " ms)"

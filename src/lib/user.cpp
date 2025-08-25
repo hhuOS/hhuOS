@@ -160,6 +160,10 @@ bool createPipe(const Util::String &name) {
     return Util::System::call(Util::System::CREATE_PIPE, 1, static_cast<const char*>(name));
 }
 
+bool createSharedMemory(const Util::String &name, void *startAddress, uint32_t pageCount) {
+    return Util::System::call(Util::System::CREATE_SHARED_MEMORY, 3, static_cast<const char*>(name), startAddress, pageCount);
+}
+
 int32_t createSocket(Util::Network::Socket::Type socketType) {
     int32_t fileDescriptor;
     auto result = Util::System::call(Util::System::CREATE_SOCKET, 2, socketType, &fileDescriptor);

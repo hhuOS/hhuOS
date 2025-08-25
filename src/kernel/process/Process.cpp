@@ -26,6 +26,7 @@
 #include "kernel/process/Thread.h"
 #include "kernel/service/MemoryService.h"
 #include "lib/util/async/IdGenerator.h"
+#include "lib/util/base/Constants.h"
 #include "kernel/service/Service.h"
 #include "kernel/service/ProcessService.h"
 #include "kernel/process/Scheduler.h"
@@ -59,20 +60,37 @@ FileDescriptorManager &Process::getFileDescriptorManager() {
 }
 
 bool Process::createPipe(const Util::String &name) {
-    for (const auto &pair : pipes) {
-        if (pair.getFirst() == name) {
-            return false;
-        }
+    if (pipes.containsKey(name)) {
+        return false;
     }
 
     auto *pipe = new Pipe(id);
-    pipes.add(Util::Pair(name, pipe));
+    pipes.put(name, pipe);
 
     return true;
 }
 
-const Util::ArrayList<Util::Pair<Util::String, Pipe *>>& Process::getPipes() const {
+const Util::HashMap<Util::String, Pipe*>& Process::getPipes() const {
     return pipes;
+}
+
+bool Process::createSharedMemory(const Util::String &name, void *startAddress, uint32_t pageCount) {
+    if (reinterpret_cast<uint32_t>(startAddress) % Util::PAGESIZE != 0 || pageCount == 0) {
+        return false;
+    }
+
+    if (sharedMemory.containsKey(name)) {
+        return false;
+    }
+
+    auto *memory = new SharedMemory(startAddress, pageCount);
+    sharedMemory.put(name, memory);
+
+    return true;
+}
+
+const Util::HashMap<Util::String, SharedMemory*>& Process::getSharedMemory() const {
+    return sharedMemory;
 }
 
 bool Process::isFinished() const {

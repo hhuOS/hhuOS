@@ -16,48 +16,48 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The UDP/IP stack is based on a bachelor's thesis, written by Hannes Feil.
- * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "EchoHeader.h"
+#ifndef HHUOS_SHAREDMEMORY_H
+#define HHUOS_SHAREDMEMORY_H
 
-#include "../../io/stream/NumberUtil.h"
+#include <stdint.h>
 
-namespace Util {
-namespace Io {
-class InputStream;
-class OutputStream;
-}  // namespace Stream
-}  // namespace Util
+namespace Kernel {
 
-namespace Util::Network::Icmp {
+class SharedMemory {
 
-uint16_t EchoHeader::getIdentifier() const {
-    return identifier;
+public:
+    /**
+     * Constructor.
+     */
+    SharedMemory(void *startAddress, uint32_t pageCount);
+
+    /**
+     * Copy Constructor.
+     */
+    SharedMemory(const SharedMemory &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    SharedMemory &operator=(const SharedMemory &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~SharedMemory() = default;
+
+    [[nodiscard]] void *getStartAddress() const;
+
+    [[nodiscard]] uint32_t getPageCount() const;
+
+private:
+
+    void *startAddress;
+    uint32_t pageCount;
+};
+
 }
 
-uint16_t EchoHeader::getSequenceNumber() const {
-    return sequenceNumber;
-}
-
-void EchoHeader::setIdentifier(const uint16_t identifier) {
-    EchoHeader::identifier = identifier;
-}
-
-void EchoHeader::setSequenceNumber(const uint16_t sequenceNumber) {
-    EchoHeader::sequenceNumber = sequenceNumber;
-}
-
-void EchoHeader::read(Io::InputStream &stream) {
-    identifier = Io::NumberUtil::readUnsigned16BitValue(stream);
-    sequenceNumber = Io::NumberUtil::readUnsigned16BitValue(stream);
-}
-
-void EchoHeader::write(Io::OutputStream &stream) const {
-    Io::NumberUtil::writeUnsigned16BitValue(identifier, stream);
-    Io::NumberUtil::writeUnsigned16BitValue(sequenceNumber, stream);
-}
-
-}
+#endif

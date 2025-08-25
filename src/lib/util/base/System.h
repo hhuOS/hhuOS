@@ -91,6 +91,7 @@ public:
         CHANGE_DIRECTORY,
         GET_CURRENT_WORKING_DIRECTORY,
         CREATE_PIPE,
+        CREATE_SHARED_MEMORY,
         GET_SYSTEM_TIME,
         SET_DATE,
         GET_CURRENT_DATE,

@@ -25,6 +25,8 @@
 #include "kernel/memory/MemoryLayout.h"
 #include "MemoryService.h"
 #include "kernel/service/MemoryService.h"
+
+#include "ProcessService.h"
 #include "kernel/memory/PageFrameAllocator.h"
 #include "kernel/memory/PagingAreaManager.h"
 #include "kernel/memory/VirtualAddressSpace.h"
@@ -36,6 +38,7 @@
 #include "lib/util/base/Address.h"
 #include "lib/util/base/Constants.h"
 #include "device/system/Bios.h"
+#include "kernel/process/Process.h"
 
 namespace Kernel {
 
@@ -318,6 +321,34 @@ void *MemoryService::mapIO(uint32_t pageCount, bool mapToKernelHeap) {
     }
 
     return virtualAddress;
+}
+
+bool MemoryService::mapSharedMemory(uint32_t sourceProcessId, const Util::String &name, void *virtualAddress) {
+    auto &processService = getService<ProcessService>();
+
+    auto *sourceProcess = processService.getProcess(sourceProcessId);
+    if (sourceProcess == nullptr || !sourceProcess->getSharedMemory().containsKey(name)) {
+        return false;
+    }
+
+    auto &sourceAddressSpace = sourceProcess->getAddressSpace();
+    const auto &sharedMemory = *sourceProcess->getSharedMemory().get(name);
+    for (uint32_t i = 0; i < sharedMemory.getPageCount(); i++) {
+        const auto virtualSharedAddress = static_cast<uint8_t*>(sharedMemory.getStartAddress()) + i * Util::PAGESIZE;
+        auto physicalSharedAddress = sourceAddressSpace.getPhysicalAddress(virtualSharedAddress);
+        if (physicalSharedAddress == nullptr) {
+            return false;
+        }
+
+        physicalSharedAddress = pageFrameAllocator.allocateBlockAtAddress(physicalSharedAddress);
+
+        const auto virtualTargetAddress = static_cast<uint8_t*>(virtualAddress) + i * Util::PAGESIZE;
+        unmap(virtualTargetAddress, 1);
+
+        currentAddressSpace->map(physicalSharedAddress, virtualTargetAddress, Paging::PRESENT | Paging::WRITABLE | Paging::USER_ACCESSIBLE);
+    }
+
+    return true;
 }
 
 void *Kernel::MemoryService::mapIO(void *physicalAddress, uint32_t pageCount, bool mapToKernelHeap) {

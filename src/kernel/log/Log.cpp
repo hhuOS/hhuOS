@@ -115,7 +115,7 @@ void Log::logDefault(const Log::Record &record, const char *message, va_list arg
         writeStringEarly("\n");
     }
 
-    for (auto *stream : streamMap.keys()) {
+    for (auto *stream : streamMap.getKeys()) {
         auto &printStream = *streamMap.get(stream);
         printStream << logMessage << Util::Io::PrintStream::endl;
     }

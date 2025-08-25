@@ -175,7 +175,7 @@ public:
     ///     printf("'%s': %d\n", static_cast<const char*>(key), map.get(key)); // Prints: 'One': 1, 'Two': 2, 'Three': 3
     /// }
     /// ```
-    [[nodiscard]] Array<K> keys() const override;
+    [[nodiscard]] Array<K> getKeys() const override;
 
     /// Get an array of all values in the map.
     /// The values are copied into the array, so modifying the array does not affect the map.
@@ -191,7 +191,7 @@ public:
     ///     printf("%d, ", value); // Prints: 1, 2, 3
     /// }
     /// ```
-    [[nodiscard]] Array<V> values() const override;
+    [[nodiscard]] Array<V> getValues() const override;
 
 private:
 
@@ -343,7 +343,7 @@ void HashMap<K, V>::clear() {
 }
 
 template<class K, class V>
-Array<K> HashMap<K, V>::keys() const {
+Array<K> HashMap<K, V>::getKeys() const {
     Array<K> keys(count);
     size_t index = 0;
 
@@ -360,7 +360,7 @@ Array<K> HashMap<K, V>::keys() const {
 }
 
 template<typename K, typename V>
-Array<V> HashMap<K, V>::values() const {
+Array<V> HashMap<K, V>::getValues() const {
     Array<V> values(count);
     size_t index = 0;
 

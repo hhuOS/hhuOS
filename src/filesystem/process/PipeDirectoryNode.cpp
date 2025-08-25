@@ -25,18 +25,10 @@
 #include "kernel/process/Process.h"
 #include "kernel/service/ProcessService.h"
 
-Filesystem::Process::PipeDirectoryNode::PipeDirectoryNode(uint32_t processId) : processId(processId) {}
-
-Util::String Filesystem::Process::PipeDirectoryNode::getName() {
-    return "pipes";
-}
+Filesystem::Process::PipeDirectoryNode::PipeDirectoryNode(uint32_t processId) : MemoryNode("pipes"), processId(processId) {}
 
 Util::Io::File::Type Filesystem::Process::PipeDirectoryNode::getType() {
     return Util::Io::File::DIRECTORY;
-}
-
-uint64_t Filesystem::Process::PipeDirectoryNode::getLength() {
-    return 0;
 }
 
 Util::Array<Util::String> Filesystem::Process::PipeDirectoryNode::getChildren() {
@@ -46,19 +38,5 @@ Util::Array<Util::String> Filesystem::Process::PipeDirectoryNode::getChildren() 
         return Util::Array<Util::String>();
     }
 
-    const auto &pipes = process->getPipes();
-    auto children = Util::Array<Util::String>(pipes.size());
-    for (uint32_t i = 0; i < pipes.size(); i++) {
-        children[i] = pipes.get(i).getFirst();
-    }
-
-    return children;
-}
-
-uint64_t Filesystem::Process::PipeDirectoryNode::readData([[maybe_unused]] uint8_t *targetBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
-    return 0;
-}
-
-uint64_t Filesystem::Process::PipeDirectoryNode::writeData([[maybe_unused]] const uint8_t *sourceBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {
-    return 0;
+    return process->getPipes().getKeys();
 }

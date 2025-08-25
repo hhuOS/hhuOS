@@ -99,14 +99,30 @@ public:
     /// Requests that can be issued to the socket via file control operations.
     /// This is typically not done directly by applications, since all requests are wrapped in methods of this class.
     enum Request {
+        /// Set the timeout for receiving data on the socket.
+        /// A blocking read request will return with no data read after the timeout expires.
         SET_TIMEOUT,
+        /// Bin the socket to a specific network address.
         BIND,
+        /// Get the network address the socket is bound to.
         GET_LOCAL_ADDRESS,
+        /// Get all IPv4 addresses that are assigned to the interface this socket is bound to.
+        /// This only works if the socket is of type `ETHERNET` and bound to a MAC address.
         GET_IP4_ADDRESSES,
+        /// Remove an IPv4 address from the interface this socket is bound to.
+        /// This only works if the socket is of type `ETHERNET` and bound to a MAC address.
         REMOVE_IP4_ADDRESS,
+        /// Add an IPv4 address to the interface this socket is bound to.
+        /// This only works if the socket is of type `ETHERNET` and bound to a MAC address.
         ADD_IP4_ADDRESS,
+        /// Get all IPv4 routes that deliver packets via the interface this socket is bound to.
+        /// This only works if the socket is of type `IP4` and bound to an IPv4 address.
         GET_ROUTES,
+        /// Remove an IPv4 route from the interface this socket is bound to.
+        /// This only works if the socket is of type `IP4` and bound to a IPv4 address.
         REMOVE_ROUTE,
+        /// Add an IPv4 route to the interface this socket is bound to.
+        /// This only works if the socket is of type `IP4` and bound to a IPv4 address.
         ADD_ROUTE
     };
 

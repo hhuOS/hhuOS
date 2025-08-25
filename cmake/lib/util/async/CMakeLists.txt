@@ -31,6 +31,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/async/IdGenerator.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/Process.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/ReentrantSpinlock.cpp
+        ${HHUOS_SRC_DIR}/lib/util/async/SharedMemory.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/Spinlock.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/Thread.cpp)
 

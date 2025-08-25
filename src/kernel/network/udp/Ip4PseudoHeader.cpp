@@ -23,7 +23,7 @@
 
 #include "Ip4PseudoHeader.h"
 
-#include "lib/util/network/NumberUtil.h"
+#include "../../../lib/util/io/stream/NumberUtil.h"
 #include "lib/util/network/ip4/Ip4Header.h"
 
 namespace Util {
@@ -47,8 +47,8 @@ Ip4PseudoHeader::Ip4PseudoHeader(const NetworkModule::LayerInformation &informat
 void Ip4PseudoHeader::write(Util::Io::OutputStream &stream) const {
     sourceAddress.write(stream);
     destinationAddress.write(stream);
-    Util::Network::NumberUtil::writeUnsigned16BitValue(Util::Network::Ip4::Ip4Header::UDP, stream);
-    Util::Network::NumberUtil::writeUnsigned16BitValue(datagramLength, stream);
+    Util::Io::NumberUtil::writeUnsigned16BitValue(Util::Network::Ip4::Ip4Header::UDP, stream);
+    Util::Io::NumberUtil::writeUnsigned16BitValue(datagramLength, stream);
 }
 
 const Util::Network::Ip4::Ip4Address& Ip4PseudoHeader::getSourceAddress() const {

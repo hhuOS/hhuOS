@@ -68,6 +68,7 @@ bool controlFileDescriptor(int32_t fileDescriptor, uint32_t request, const Util:
 bool changeDirectory(const Util::String &path);
 Util::Io::File getCurrentWorkingDirectory();
 bool createPipe(const Util::String &name);
+bool createSharedMemory(const Util::String &name, void *startAddress, uint32_t pageCount);
 
 int32_t createSocket(Util::Network::Socket::Type socketType);
 bool sendDatagram(int32_t fileDescriptor, const Util::Network::Datagram &datagram);

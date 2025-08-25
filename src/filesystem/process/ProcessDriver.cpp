@@ -22,10 +22,12 @@
 
 #include "PipeDirectoryNode.h"
 #include "PipeNode.h"
+#include "SharedMemoryDirectoryNode.h"
 #include "kernel/service/ProcessService.h"
 #include "ProcessDirectoryNode.h"
 #include "ProcessRootNode.h"
 #include "ProcessFileNode.h"
+#include "SharedMemoryNode.h"
 #include "kernel/process/Process.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/file/File.h"
@@ -64,13 +66,21 @@ Node* ProcessDriver::getNode(const Util::String &path) {
             return new ProcessFileNode(name, Util::String::format("%u", process->getThreadCount()));
         } else if (name == "pipes") {
             return new PipeDirectoryNode(id);
+        } else if (name == "shared") {
+            return new SharedMemoryDirectoryNode(id);
         }
-    } else if (splitPath.length() == 3 && splitPath[1] == "pipes") {
-        const auto &pipeName = splitPath[2];
-        auto &pipes = process->getPipes();
-        for (const auto &pipe : pipes) {
-            if (pipe.getFirst() == pipeName) {
-                return new PipeNode(pipeName, *pipe.getSecond());
+    } else if (splitPath.length() == 3) {
+        if (splitPath[1] == "pipes") {
+            const auto &name = splitPath[2];
+            auto &pipes = process->getPipes();
+            if (pipes.containsKey(name)) {
+                return new PipeNode(name, *pipes.get(name));
+            }
+        } else if (splitPath[1] == "shared") {
+            const auto &name = splitPath[2];
+            auto &sharedMemory = process->getSharedMemory();
+            if (sharedMemory.containsKey(name)) {
+                return new SharedMemoryNode(name, *sharedMemory.get(name), id);
             }
         }
     }

@@ -21,7 +21,7 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "lib/util/network/NumberUtil.h"
+#include "../../../lib/util/io/stream/NumberUtil.h"
 #include "ArpHeader.h"
 
 namespace Util {
@@ -34,19 +34,19 @@ class OutputStream;
 namespace Kernel::Network::Arp {
 
 void ArpHeader::read(Util::Io::InputStream &stream) {
-    hardwareAddressType = static_cast<HardwareAddressType>(Util::Network::NumberUtil::readUnsigned16BitValue(stream));
-    protocolAddressType = static_cast<ProtocolAddressType>(Util::Network::NumberUtil::readUnsigned16BitValue(stream));
-    hardwareAddressSize = Util::Network::NumberUtil::readUnsigned8BitValue(stream);
-    protocolAddressSize = Util::Network::NumberUtil::readUnsigned8BitValue(stream);
-    operation = static_cast<Operation>(Util::Network::NumberUtil::readUnsigned16BitValue(stream));
+    hardwareAddressType = static_cast<HardwareAddressType>(Util::Io::NumberUtil::readUnsigned16BitValue(stream));
+    protocolAddressType = static_cast<ProtocolAddressType>(Util::Io::NumberUtil::readUnsigned16BitValue(stream));
+    hardwareAddressSize = Util::Io::NumberUtil::readUnsigned8BitValue(stream);
+    protocolAddressSize = Util::Io::NumberUtil::readUnsigned8BitValue(stream);
+    operation = static_cast<Operation>(Util::Io::NumberUtil::readUnsigned16BitValue(stream));
 }
 
 void ArpHeader::write(Util::Io::OutputStream &stream) {
-    Util::Network::NumberUtil::writeUnsigned16BitValue(hardwareAddressType, stream);
-    Util::Network::NumberUtil::writeUnsigned16BitValue(protocolAddressType, stream);
-    Util::Network::NumberUtil::writeUnsigned8BitValue(hardwareAddressSize, stream);
-    Util::Network::NumberUtil::writeUnsigned8BitValue(protocolAddressSize, stream);
-    Util::Network::NumberUtil::writeUnsigned16BitValue(operation, stream);
+    Util::Io::NumberUtil::writeUnsigned16BitValue(hardwareAddressType, stream);
+    Util::Io::NumberUtil::writeUnsigned16BitValue(protocolAddressType, stream);
+    Util::Io::NumberUtil::writeUnsigned8BitValue(hardwareAddressSize, stream);
+    Util::Io::NumberUtil::writeUnsigned8BitValue(protocolAddressSize, stream);
+    Util::Io::NumberUtil::writeUnsigned16BitValue(operation, stream);
 }
 
 ArpHeader::HardwareAddressType ArpHeader::getHardwareAddressType() const {

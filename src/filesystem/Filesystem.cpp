@@ -111,7 +111,7 @@ bool Filesystem::unmount(const Util::String &path) {
 
     delete targetNode;
 
-    for(const Util::String &key : mountPoints.keys()) {
+    for(const Util::String &key : mountPoints.getKeys()) {
         if(key.beginsWith(parsedPath)) {
             if(key != parsedPath) {
                 return lock.releaseAndReturn(false);
@@ -187,7 +187,7 @@ bool Filesystem::deleteFile(const Util::String &path) {
     auto parsedPath = Util::Io::File::getCanonicalPath(path);
     lock.acquire();
 
-    for (const Util::String &key : mountPoints.keys()) {
+    for (const Util::String &key : mountPoints.getKeys()) {
         if (key.beginsWith(parsedPath)) {
             lock.release();
             return false;
@@ -212,7 +212,7 @@ Driver* Filesystem::getMountedDriver(Util::String &path) {
     lock.acquire();
 
     Util::String ret;
-    for (const Util::String &currentString: mountPoints.keys()) {
+    for (const Util::String &currentString: mountPoints.getKeys()) {
         if (path.beginsWith(currentString)) {
             if (currentString.length() > ret.length()) {
                 ret = currentString;
@@ -230,7 +230,7 @@ Driver* Filesystem::getMountedDriver(Util::String &path) {
 
 Util::Array<MountInformation> Filesystem::getMountInformation() {
     lock.acquire();
-    return lock.releaseAndReturn(mountInformation.values());
+    return lock.releaseAndReturn(mountInformation.getValues());
 }
 
 bool MountInformation::operator!=(const MountInformation &other) const {

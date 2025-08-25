@@ -32,7 +32,7 @@ namespace Kernel {
 Util::HashMap<Util::String, uint32_t> StorageService::nameMap;
 
 StorageService::~StorageService() {
-    for (const auto &key : deviceMap.keys()) {
+    for (const auto &key : deviceMap.getKeys()) {
         delete deviceMap.get(key);
     }
 }

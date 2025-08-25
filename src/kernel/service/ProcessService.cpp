@@ -203,6 +203,21 @@ ProcessService::ProcessService(Process *kernelProcess) : kernelProcess(kernelPro
         auto *name = va_arg(arguments, const char*);
         return currentProcess.createPipe(name);
     });
+
+    Service::getService<InterruptService>().assignSystemCall(Util::System::CREATE_SHARED_MEMORY, [](uint32_t paramCount, va_list arguments) -> bool {
+        if (paramCount < 3) {
+            return false;
+        }
+
+        auto &processService = Service::getService<ProcessService>();
+        auto &currentProcess = processService.getCurrentProcess();
+
+        auto *name = va_arg(arguments, const char*);
+        auto *startAddress = va_arg(arguments, void*);
+        auto pageCount = va_arg(arguments, uint32_t);
+
+        return currentProcess.createSharedMemory(name, startAddress, pageCount);
+    });
 }
 
 Process& ProcessService::createProcess(VirtualAddressSpace &addressSpace, const Util::String &name, const Util::Io::File &workingDirectory, const Util::Io::File &standardIn, const Util::Io::File &standardOut, const Util::Io::File &standardError) {

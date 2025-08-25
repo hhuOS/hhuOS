@@ -35,43 +35,43 @@ class OutputStream;
 
 /// Provides utility functions for reading numbers from input streams and writing numbers to output streams.
 /// These functions are used a lot in the network stack, to parse network headers and write network packets.
-namespace Util::Network::NumberUtil {
+namespace Util::Io::NumberUtil {
 
 /// Read a signed 8-bit value from the given input stream.
-[[nodiscard]] int8_t read8BitValue(Io::InputStream &stream);
+[[nodiscard]] int8_t read8BitValue(InputStream &stream);
 
 /// Read an unsigned 8-bit value from the given input stream.
-[[nodiscard]] uint8_t readUnsigned8BitValue(Io::InputStream &stream);
+[[nodiscard]] uint8_t readUnsigned8BitValue(InputStream &stream);
 
 /// Read a signed 16-bit value from the given input stream.
-[[nodiscard]] int16_t read16BitValue(Io::InputStream &stream);
+[[nodiscard]] int16_t read16BitValue(InputStream &stream);
 
 /// Read an unsigned 16-bit value from the given input stream.
-[[nodiscard]] uint16_t readUnsigned16BitValue(Io::InputStream &stream);
+[[nodiscard]] uint16_t readUnsigned16BitValue(InputStream &stream);
 
 /// Read a signed 32-bit value from the given input stream.
-[[nodiscard]] int32_t read32BitValue(Io::InputStream &stream);
+[[nodiscard]] int32_t read32BitValue(InputStream &stream);
 
 /// Read an unsigned 32-bit value from the given input stream.
-[[nodiscard]] uint32_t readUnsigned32BitValue(Io::InputStream &stream);
+[[nodiscard]] uint32_t readUnsigned32BitValue(InputStream &stream);
 
 /// Write a signed 8-bit value to the given output stream.
-void write8BitValue(int8_t value, Io::OutputStream &stream);
+void write8BitValue(int8_t value, OutputStream &stream);
 
 /// Write an unsigned 8-bit value to the given output stream.
-void writeUnsigned8BitValue(uint8_t value, Io::OutputStream &stream);
+void writeUnsigned8BitValue(uint8_t value, OutputStream &stream);
 
 /// Write a signed 16-bit value to the given output stream.
-void write16BitValue(int16_t value, Io::OutputStream &stream);
+void write16BitValue(int16_t value, OutputStream &stream);
 
 /// Write an unsigned 16-bit value to the given output stream.
-void writeUnsigned16BitValue(uint16_t value, Io::OutputStream &stream);
+void writeUnsigned16BitValue(uint16_t value, OutputStream &stream);
 
 /// Write a signed 32-bit value to the given output stream.
-void write32BitValue(int32_t value, Io::OutputStream &stream);
+void write32BitValue(int32_t value, OutputStream &stream);
 
 /// Write an unsigned 32-bit value to the given output stream.
-void writeUnsigned32BitValue(uint32_t value, Io::OutputStream &stream);
+void writeUnsigned32BitValue(uint32_t value, OutputStream &stream);
 
 }
 

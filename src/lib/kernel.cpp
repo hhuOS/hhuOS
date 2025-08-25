@@ -167,6 +167,10 @@ bool createPipe(const Util::String &name) {
     return Kernel::Service::getService<Kernel::ProcessService>().getCurrentProcess().createPipe(name);
 }
 
+bool createSharedMemory(const Util::String &name, void *startAddress, uint32_t pageCount) {
+    return Kernel::Service::getService<Kernel::ProcessService>().getCurrentProcess().createSharedMemory(name, startAddress, pageCount);
+}
+
 int32_t createSocket(Util::Network::Socket::Type socketType) {
     return Kernel::Service::getService<Kernel::NetworkService>().createSocket(socketType);
 }

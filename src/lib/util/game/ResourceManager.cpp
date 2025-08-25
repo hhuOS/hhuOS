@@ -58,13 +58,13 @@ void ResourceManager::deleteImage(const Util::String &key) {
 }
 
 void ResourceManager::clear() {
-    for (auto *image : images.values()) {
+    for (auto *image : images.getValues()) {
         delete image;
     }
     images.clear();
 
 
-    for (auto *objectFile : objectFiles.values()) {
+    for (auto *objectFile : objectFiles.getValues()) {
         delete objectFile;
     }
     objectFiles.clear();

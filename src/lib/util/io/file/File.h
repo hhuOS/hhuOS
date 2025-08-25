@@ -37,7 +37,8 @@ public:
     enum Type : uint8_t {
         REGULAR,
         DIRECTORY,
-        CHARACTER
+        CHARACTER,
+        SYSTEM
     };
 
     /**

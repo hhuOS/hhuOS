@@ -39,7 +39,7 @@ uint64_t ProcessDirectoryNode::getLength() {
 }
 
 Util::Array<Util::String> ProcessDirectoryNode::getChildren() {
-    return Util::Array<Util::String>({"name", "cwd", "thread_count", "pipes"});
+    return Util::Array<Util::String>({"name", "cwd", "thread_count", "pipes", "shared"});
 }
 
 uint64_t ProcessDirectoryNode::readData([[maybe_unused]] uint8_t *targetBuffer, [[maybe_unused]] uint64_t pos, [[maybe_unused]] uint64_t numBytes) {

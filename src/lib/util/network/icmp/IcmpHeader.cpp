@@ -23,7 +23,7 @@
 
 #include "IcmpHeader.h"
 
-#include "network/NumberUtil.h"
+#include "../../io/stream/NumberUtil.h"
 
 namespace Util {
 namespace Io {
@@ -35,15 +35,15 @@ class OutputStream;
 namespace Util::Network::Icmp {
 
 void IcmpHeader::read(Io::InputStream &stream) {
-    type = static_cast<Type>(NumberUtil::readUnsigned8BitValue(stream));
-    code = NumberUtil::readUnsigned8BitValue(stream);
-    checksum = NumberUtil::readUnsigned16BitValue(stream);
+    type = static_cast<Type>(Io::NumberUtil::readUnsigned8BitValue(stream));
+    code = Io::NumberUtil::readUnsigned8BitValue(stream);
+    checksum = Io::NumberUtil::readUnsigned16BitValue(stream);
 }
 
 void IcmpHeader::write(Io::OutputStream &stream) const {
-    NumberUtil::writeUnsigned8BitValue(type, stream);
-    NumberUtil::writeUnsigned8BitValue(code, stream);
-    NumberUtil::writeUnsigned16BitValue(checksum, stream);
+    Io::NumberUtil::writeUnsigned8BitValue(type, stream);
+    Io::NumberUtil::writeUnsigned8BitValue(code, stream);
+    Io::NumberUtil::writeUnsigned16BitValue(checksum, stream);
 }
 
 IcmpHeader::Type IcmpHeader::getType() const {

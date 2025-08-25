@@ -32,6 +32,10 @@ size_t Address::get() const {
     return address;
 }
 
+void* Address::getAsPointer() const {
+    return reinterpret_cast<void*>(address);
+}
+
 Address Address::add(const size_t value) const {
     return Address(address + value);
 }
@@ -217,6 +221,10 @@ void Address::copyString(const Address &sourceAddress) const {
         *target++ = *source++;
     }
     *target = 0;
+}
+
+void Address::copyString(const char *sourceString) const {
+    copyString(Address(sourceString));
 }
 
 void Address::copyString(const Address &sourceAddress, const size_t maxBytes) const {

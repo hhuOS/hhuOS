@@ -26,6 +26,8 @@
 #include "lib/util/io/file/File.h"
 #include "FileDescriptorManager.h"
 #include "Pipe.h"
+#include "SharedMemory.h"
+#include "collection/HashMap.h"
 #include "collection/Pair.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/ArrayList.h"
@@ -84,7 +86,11 @@ public:
 
     [[nodiscard]] bool createPipe(const Util::String &name);
 
-    [[nodiscard]] const Util::ArrayList<Util::Pair<Util::String, Pipe*>>& getPipes() const;
+    [[nodiscard]] const Util::HashMap<Util::String, Pipe*>& getPipes() const;
+
+    [[nodiscard]] bool createSharedMemory(const Util::String &name, void *startAddress, uint32_t pageCount);
+
+    [[nodiscard]] const Util::HashMap<Util::String, SharedMemory*>& getSharedMemory() const;
 
     [[nodiscard]] Util::Io::File getWorkingDirectory();
 
@@ -112,7 +118,8 @@ private:
     Util::String name;
     VirtualAddressSpace &addressSpace;
     FileDescriptorManager fileDescriptorManager;
-    Util::ArrayList<Util::Pair<Util::String, Pipe*>> pipes;
+    Util::HashMap<Util::String, Pipe*> pipes;
+    Util::HashMap<Util::String, SharedMemory*> sharedMemory;
     Util::Io::File workingDirectory;
     Util::ArrayList<Thread*> threads;
     Thread *mainThread = nullptr;

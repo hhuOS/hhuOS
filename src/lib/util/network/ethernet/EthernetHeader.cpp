@@ -23,7 +23,7 @@
 
 #include "EthernetHeader.h"
 
-#include "network/NumberUtil.h"
+#include "../../io/stream/NumberUtil.h"
 
 namespace Util {
 namespace Io {
@@ -37,13 +37,13 @@ namespace Util::Network::Ethernet {
 void EthernetHeader::read(Io::InputStream &stream) {
     destinationAddress.read(stream);
     sourceAddress.read(stream);
-    etherType = static_cast<EtherType>(NumberUtil::readUnsigned16BitValue(stream));
+    etherType = static_cast<EtherType>(Io::NumberUtil::readUnsigned16BitValue(stream));
 }
 
 void EthernetHeader::write(Io::OutputStream &stream) const {
     destinationAddress.write(stream);
     sourceAddress.write(stream);
-    NumberUtil::writeUnsigned16BitValue(etherType, stream);
+    Io::NumberUtil::writeUnsigned16BitValue(etherType, stream);
 }
 
 const MacAddress& EthernetHeader::getDestinationAddress() const {

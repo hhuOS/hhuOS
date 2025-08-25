@@ -16,48 +16,20 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The UDP/IP stack is based on a bachelor's thesis, written by Hannes Feil.
- * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "EchoHeader.h"
+#include "SharedMemory.h"
 
-#include "../../io/stream/NumberUtil.h"
+namespace Kernel {
 
-namespace Util {
-namespace Io {
-class InputStream;
-class OutputStream;
-}  // namespace Stream
-}  // namespace Util
+SharedMemory::SharedMemory(void *startAddress, uint32_t pageCount) : startAddress(startAddress), pageCount(pageCount) {}
 
-namespace Util::Network::Icmp {
-
-uint16_t EchoHeader::getIdentifier() const {
-    return identifier;
+void* SharedMemory::getStartAddress() const {
+    return startAddress;
 }
 
-uint16_t EchoHeader::getSequenceNumber() const {
-    return sequenceNumber;
-}
-
-void EchoHeader::setIdentifier(const uint16_t identifier) {
-    EchoHeader::identifier = identifier;
-}
-
-void EchoHeader::setSequenceNumber(const uint16_t sequenceNumber) {
-    EchoHeader::sequenceNumber = sequenceNumber;
-}
-
-void EchoHeader::read(Io::InputStream &stream) {
-    identifier = Io::NumberUtil::readUnsigned16BitValue(stream);
-    sequenceNumber = Io::NumberUtil::readUnsigned16BitValue(stream);
-}
-
-void EchoHeader::write(Io::OutputStream &stream) const {
-    Io::NumberUtil::writeUnsigned16BitValue(identifier, stream);
-    Io::NumberUtil::writeUnsigned16BitValue(sequenceNumber, stream);
+uint32_t SharedMemory::getPageCount() const {
+    return pageCount;
 }
 
 }

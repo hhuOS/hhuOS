@@ -16,48 +16,36 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The UDP/IP stack is based on a bachelor's thesis, written by Hannes Feil.
- * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "EchoHeader.h"
+#include "SharedMemoryNode.h"
 
-#include "../../io/stream/NumberUtil.h"
+#include "kernel/service/MemoryService.h"
+#include "kernel/service/Service.h"
+#include "async/SharedMemory.h"
+#include "lib/interface.h"
 
-namespace Util {
-namespace Io {
-class InputStream;
-class OutputStream;
-}  // namespace Stream
-}  // namespace Util
+namespace Filesystem::Process {
 
-namespace Util::Network::Icmp {
+SharedMemoryNode::SharedMemoryNode(const Util::String &name, Kernel::SharedMemory &sharedMemory, uint32_t processId) :
+    MemoryNode(name), sharedMemory(sharedMemory), processId(processId) {}
 
-uint16_t EchoHeader::getIdentifier() const {
-    return identifier;
+Util::Io::File::Type SharedMemoryNode::getType() {
+    return Util::Io::File::SYSTEM;
 }
 
-uint16_t EchoHeader::getSequenceNumber() const {
-    return sequenceNumber;
-}
+bool SharedMemoryNode::control(uint32_t request, const Util::Array<uint32_t> &parameters) {
+    switch (request) {
+        case Util::Async::SharedMemory::MAP: {
+            auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
+            const auto address = reinterpret_cast<void*>(parameters[0]);
 
-void EchoHeader::setIdentifier(const uint16_t identifier) {
-    EchoHeader::identifier = identifier;
-}
+            return memoryService.mapSharedMemory(processId, getName(), address);
+        }
+    }
 
-void EchoHeader::setSequenceNumber(const uint16_t sequenceNumber) {
-    EchoHeader::sequenceNumber = sequenceNumber;
-}
-
-void EchoHeader::read(Io::InputStream &stream) {
-    identifier = Io::NumberUtil::readUnsigned16BitValue(stream);
-    sequenceNumber = Io::NumberUtil::readUnsigned16BitValue(stream);
-}
-
-void EchoHeader::write(Io::OutputStream &stream) const {
-    Io::NumberUtil::writeUnsigned16BitValue(identifier, stream);
-    Io::NumberUtil::writeUnsigned16BitValue(sequenceNumber, stream);
+    return false;
 }
 
 }
+

@@ -24,6 +24,7 @@
 #include <stdint.h>
 
 #include "Service.h"
+#include "lib/util/base/String.h"
 #include "lib/util/collection/ArrayList.h"
 #include "device/bus/isa/Isa.h"
 #include "kernel/memory/GlobalDescriptorTable.h"
@@ -165,6 +166,8 @@ public:
      * @return Pointer to virtual memory block
      */
     void* mapIO(uint32_t pageCount, bool mapToKernelHeap = true);
+
+    bool mapSharedMemory(uint32_t sourceProcessId, const Util::String &name, void *virtualAddress);
 
     /**
      * Get the physical address of a given virtual address. The returned physical address is 4 KiB aligned, so sometimes

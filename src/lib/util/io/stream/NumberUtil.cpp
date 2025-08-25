@@ -26,7 +26,7 @@
 #include "io/stream/InputStream.h"
 #include "io/stream/OutputStream.h"
 
-namespace Util::Network::NumberUtil {
+namespace Util::Io::NumberUtil {
 
 int8_t read8BitValue(Io::InputStream &stream) {
     return static_cast<int8_t>(stream.read());

@@ -72,7 +72,7 @@ namespace Util::Network::Icmp {
 ///
 /// // Writ the Echo Header and timestamp to the packet.
 /// echoHeader.write(packet);
-/// Util::Network::NumberUtil::writeUnsigned32BitValue(timestamp, packet);
+/// Util::Io::NumberUtil::writeUnsigned32BitValue(timestamp, packet);
 ///
 /// // Create an ICMP datagram with the packet data, destination address, type, and code.
 /// auto request = Util::Network::Icmp::IcmpDatagram(packet, Util::Network::Ip4::Ip4Address("10.0.2.2"),
@@ -111,7 +111,7 @@ namespace Util::Network::Icmp {
 ///     }
 ///
 ///     // Read the timestamp from the received packet (this should be the same as the one we sent).
-///     const auto sourceTimestamp = Util::Network::NumberUtil::readUnsigned32BitValue(receivedPacket);
+///     const auto sourceTimestamp = Util::Io::NumberUtil::readUnsigned32BitValue(receivedPacket);
 ///
 ///     // Calculate the round-trip time by subtracting the source timestamp from the current system time.
 ///     const auto currentTimestamp = Util::Time::Timestamp::getSystemTime().toMilliseconds();

@@ -45,6 +45,9 @@ public:
     /// Get the address this object points to.
     [[nodiscard]] size_t get() const;
 
+    /// Get the address this object points to as a void pointer.
+    [[nodiscard]] void* getAsPointer() const;
+
     /// Add a value to the address this object points to
     /// and return a new `Address` object pointing to the result.
     [[nodiscard]] Address add(size_t value) const;
@@ -163,6 +166,19 @@ public:
     /// Util::Address(target).copyString(Util::Address(source));
     /// ```
     void copyString(const Address &sourceAddress) const;
+
+    /// Copy the memory from the given string to the memory this object points to.
+    /// Copying is done until a null terminator (0) is reached on the source. The null-terminator is also copied.
+    ///
+    /// ### Example
+    /// ```c++
+    /// auto source = "Hello, World!";
+    /// char target[14] = {};
+    ///
+    /// // Equivalent to strcpy((char*) target, (char*) source)
+    /// Util::Address(target).copyString(source);
+    /// ```
+    void copyString(const char *sourceString) const;
 
     /// Copy the memory from the given address to the memory this object points to.
     /// Copying is done until a null terminator (0) is reached on the source
