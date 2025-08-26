@@ -55,7 +55,8 @@ namespace Util::Network::Ip4 {
 ///
 /// // Bind the socket to a specific IPv4 address
 /// if (!socket.bind(Util::Network::Ip4::Ip4Address("10.0.2.15"))) {
-///     printf("Failed to bind socket!\n");
+///     Util::System::out << "Failed to bind socket!"
+///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 ///     return;
 /// }
 ///
@@ -65,7 +66,8 @@ namespace Util::Network::Ip4 {
 ///     destinationAddress, Util::Network::Ip4::Ip4Header::INVALID);
 ///
 /// if (!socket.send(datagram)) {
-///     printf("Failed to send datagram!\n");
+///     Util::System::out << "Failed to send datagram!"
+///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::
 ///     return;
 /// }
 /// ```
@@ -83,7 +85,8 @@ public:
     /// Create a new Ethernet datagram from a byte array output stream, remote IPv4 address and protocol.
     /// The stream's content is copied into the datagram's buffer by directly accessing the stream's buffer.
     /// This way, the state of the stream remains unchanged.
-    Ip4Datagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress, Ip4Header::Protocol protocol);
+    Ip4Datagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress,
+        Ip4Header::Protocol protocol);
 
     /// Get the protocol that this datagram is carrying (e.g. ICMP, TCP, UDP).
     [[nodiscard]] Ip4Header::Protocol getProtocol() const;

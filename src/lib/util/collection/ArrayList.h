@@ -40,8 +40,10 @@ namespace Util {
 /// list.remove(2); // Remove the first occurrence of 2 -> 1, 4, 3
 ///
 /// for (const auto &element : list) {
-///     printf("%d ", element); // Prints: 1 4 3
+///     Util::System::out << element << " "; // Prints: 1 4 3
 /// }
+///
+/// Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 /// ```
 template <typename T>
 class ArrayList final : public List<T> {
@@ -61,8 +63,10 @@ public:
     /// const auto list = Util::ArrayList<int>(array);
     ///
     /// for (const auto &element : list) {
-    ///     printf("%d ", element); // Prints: 1 2 3 4 5
+    ///     Util::System::out << element << " "; // Prints: 1 2 3 4 5
     /// }
+    ///
+    /// Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     /// ```
     explicit ArrayList(const Array<T> &elements);
 
@@ -73,8 +77,10 @@ public:
     /// const auto list = Util::ArrayList<int>({1, 2, 3, 4, 5});
     ///
     /// for (const auto &element : list) {
-    ///     printf("%d ", element); // Prints: 1 2 3 4 5
+    ///     Util::System::out << element << " "; // Prints: 1 2 3 4 5
     /// }
+    ///
+    /// Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     /// ```
     ArrayList(const std::initializer_list<T> &list);
 

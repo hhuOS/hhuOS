@@ -47,7 +47,8 @@ namespace Util::Async {
 ///         const auto oldValue = value++;
 ///         lock.release();
 ///
-///         printf("Incremented value from [%u] to [%u]: %u\n", oldValue, oldValue + 1);
+///         Util::System::out << "Incremented value from " << oldValue << " to " << (oldValue + 1)
+///             << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 ///     }
 /// }
 /// ```

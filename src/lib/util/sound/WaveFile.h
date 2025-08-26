@@ -43,7 +43,8 @@ namespace Util::Sound {
 ///
 /// // Calculate and print the length of the audio data in seconds.
 /// const auto length = waveFile.getSampleCount() / waveFile.getSamplesPerSecond();
-/// printf("Audio length: %u seconds\n", length);
+/// Util::System::out << "Audio length: " << length << " seconds"
+///     << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 /// ```
 class WaveFile final : public Io::FilterInputStream {
 

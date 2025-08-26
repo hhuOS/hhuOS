@@ -39,8 +39,10 @@ namespace Util {
 /// array[0] = 10; // Change the first element to 10
 ///
 /// for (const auto &element : array) {
-///     printf("%d ", element); // Prints: 10 2 3 4 5
+///     Util::System::out << element << " "; // Prints: 10 2 3 4 5
 /// }
+///
+/// Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 /// ```
 template <typename T>
 class Array {
@@ -57,8 +59,10 @@ public:
     /// }
     ///
     /// for (const auto &element : array) {
-    ///     printf("%d ", element); // Prints: 0 1 2 3 4 5 6 7 8 9
+    ///     Util::System::out << element << " "; // Prints: 0 1 2 3 4 5 6 7 8 9
     /// }
+    ///
+    /// Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     /// ```
     explicit Array(size_t capacity = 0);
 
@@ -70,8 +74,10 @@ public:
     /// const auto array = Util::Array<int>({1, 2, 3, 4, 5});
     ///
     /// for (const auto &element : array) {
-    ///     printf("%d ", element); // Prints: 1 2 3 4 5
+    ///     Util::System::out << element << " "; // Prints: 1 2 3 4 5
     /// }
+    ///
+    /// Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     /// ```
     Array(std::initializer_list<T> list);
 
@@ -89,7 +95,7 @@ public:
     /// ### Example
     /// ```c++
     /// const auto array = Util::Array<int>({1, 2, 3, 4, 5});
-    /// printf("%d", array[0]); // Prints: 1
+    /// Util::System::out << array[0] << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush; // Prints: 1
     /// ```
     const T& operator[](size_t index) const;
 

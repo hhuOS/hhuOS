@@ -87,13 +87,15 @@ namespace Util::Reflection {
 ///
 ///         // Check if the input is a valid fruit type.
 ///         if (!Util::Reflection::InstanceFactory::isPrototypeRegistered(input)) {
-///             printf("Unknown fruit type!\n");
+///             Util::System::out << "Unknown fruit type: " << input
+///                 << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 ///             continue;
 ///         }
 ///
 ///         // Create an instance of the fruit based on the input string.
 ///         const auto *fruit = Util::Reflection::InstanceFactory::createInstance<Fruit>(input);
-///         printf("Price of %s: %.2f\n", static_cast<const char*>(input), fruit->getPrice());
+///         Util::System::out << "Price of " << input << ": " << fruit->getPrice()
+///             << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 ///         delete fruit;
 ///     }
 ///

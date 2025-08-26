@@ -46,8 +46,10 @@ namespace Util {
 ///
 /// while (!queue.isEmpty()) {
 ///     auto element = queue.poll(); // Remove an element from the queue
-///     printf("%d ", element); // Prints: 2 3 4 1
+///     Util::System::out << element << " "; // Prints: 2 3 4 1
 /// }
+///
+/// Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 /// ```
 template <typename T>
 class ArrayQueue final : public Queue<T> {

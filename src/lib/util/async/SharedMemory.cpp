@@ -26,13 +26,14 @@
 
 namespace Util::Async {
 
-SharedMemory::SharedMemory(const String &name, size_t pageCount) : name(name), pageCount(pageCount) {
+SharedMemory::SharedMemory(const String &name, const size_t pageCount) : name(name), pageCount(pageCount) {
     auto &memoryManager = System::getAddressSpaceHeader().heapMemoryManager;
     address = memoryManager.allocateMemory(pageCount * PAGESIZE, PAGESIZE);
     Address(address).setRange(0, pageCount * PAGESIZE);
 }
 
-SharedMemory::SharedMemory(size_t processId, const String &name, size_t pageCount) : process(processId), name(name), pageCount(pageCount) {
+SharedMemory::SharedMemory(const size_t processId, const String &name, const size_t pageCount) :
+        process(processId), name(name), pageCount(pageCount) {
     auto &memoryManager = System::getAddressSpaceHeader().heapMemoryManager;
     address = memoryManager.allocateMemory(pageCount * PAGESIZE, PAGESIZE);
 }

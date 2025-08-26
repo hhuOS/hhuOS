@@ -34,7 +34,7 @@ namespace Util::Async {
 ///
 /// Typically, one process creates a new shared memory regions and then calls `publish()`
 /// to make it available to other processes. After that, the created region is visible in the file system
-/// under `/process/<pid>/shared/<name>`, where `<pid>` is the process id and `<name>` must be a unique identifer
+/// under `/process/<pid>/shared/<name>`, where `<pid>` is the process id and `<name>` must be a unique identifier
 /// given in the constructor of this class.
 /// Other processes can then open the file and issue a `controlFile()` request with `Request::MAP`
 /// to map the region into their address space. This is simplified by creating a `SharedMemory` object
@@ -52,7 +52,8 @@ namespace Util::Async {
 ///
 /// // Publish the region to make it available to other processes.
 /// if (!sharedMemory.publish()) {
-///     printf("Failed to publish shared memory region!\n");
+///     Util::System::out << "Failed to publish shared memory region!"
+///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 ///     return;
 /// }
 /// ```
@@ -66,13 +67,15 @@ namespace Util::Async {
 ///
 /// const auto sharedMemory = Util::Async::SharedMemory(id, "myregion", 1);
 /// if (!sharedMemory.map()) {
-///     printf("Failed to map shared memory region!\n");
+///     Util::System::out << "Failed to map shared memory region!"
+///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 ///     return;
 /// }
 ///
 /// const auto address = sharedMemory.getAddress();
 /// const auto message = static_cast<const char*>(address.getAsPointer());
-/// printf("Message from shared memory: %s\n", message); // Should print "Hello, Shared Memory!"
+/// Util::System::out << "Message from shared memory: " << message
+///     << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush; // Should print "Hello, Shared Memory!"
 /// ```
 class SharedMemory {
 

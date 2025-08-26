@@ -125,11 +125,11 @@ struct CpuInfo {
     ///     const auto cpuInfo = Util::Hardware::CpuId::getCpuInfo(); // Retrieve CPU information
     ///
     ///     // Iterate over the CPU features and print them
-    ///     printf("CPU Features:\n");
+    ///     Util::System::out << "CPU Features: ";
     ///     for (const auto &feature : cpuInfo.getFeaturesAsArray()) {
-    ///         printf("%s ", Util::Hardware::CpuId::getFeatureAsString(feature));
+    ///         Util::System::out << Util::Hardware::CpuId::getFeatureAsString(feature) << " ";
     ///     }
-    ///     printf("\n");
+    ///     Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     /// }
     /// ```
     [[nodiscard]] Array<CpuFeature> getFeaturesAsArray() const;
@@ -147,7 +147,7 @@ struct CpuInfo {
 /// ```c++
 /// if (Util::Hardware::CpuId::isAvailable()) {
 ///     const auto vendor = Util::Hardware::CpuId::getVendorString();
-///     printf("CPU Vendor: %s\n", static_cast<const char*>(vendor));
+///     Util::System::out << "CPU Vendor: " << vendor << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 /// }
 /// ```
 [[nodiscard]] String getVendorString();
@@ -158,13 +158,17 @@ struct CpuInfo {
 /// ```c++
 /// if (Util::Hardware::CpuId::isAvailable()) {
 ///     const auto cpuInfo = Util::Hardware::CpuId::getCpuInfo();
-///     printf("CPU Family: %u, Model: %u, Stepping: %u\n", cpuInfo.family, cpuInfo.model, cpuInfo.stepping);
+///     Util::System::out << "CPU Family: " << cpuInfo.family
+///         << ", Model: " << cpuInfo.model
+///         << ", Stepping: " << cpuInfo.stepping
+///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 /// }
 /// ```
 [[nodiscard]] CpuInfo getCpuInfo();
 
 /// Get a string representation of the specified CPU feature.
 [[nodiscard]] const char *getFeatureAsString(CpuFeature feature);
+
 };
 
 #endif

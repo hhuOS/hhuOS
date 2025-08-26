@@ -45,8 +45,10 @@ namespace Util {
 /// first = queue.peek(); // Peek at the first element without removing it -> first = 2
 ///
 /// for (const auto &element : queue) {
-///     printf("%d ", element); // Prints: 2 3 1
+///     Util::System::out << element << " "; // Prints: 2 3 1
 /// }
+///
+/// Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 /// ```
 template <typename T>
 class ArrayListQueue final : public Queue<T> {

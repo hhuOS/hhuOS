@@ -47,8 +47,11 @@ namespace Util {
 /// const auto containsTwo = map.containsKey("Two"); // Check if the key "Two" exists -> containsTwo = false
 ///
 /// for (const auto &key : map.keys()) {
-///     printf("'%s': %d\n", static_cast<const char*>(key), map.get(key)); // Prints: 'One': 1, 'Three': 3
+///      // Prints: One: 1, Three: 3
+///     Util::System::out << key << ": " << map.get(key) << Util::Io::PrintStream::endl;
 /// }
+///
+/// Util::System::out << Util::Io::PrintStream::flush;
 /// ```
 template<typename K, typename V>
 class HashMap final : public Map<K, V> {
@@ -125,7 +128,8 @@ public:
     /// const auto containsFour = map.containsKey("Four"); // Check if the key "Four" exists -> containsFour = false
     ///
     /// if (containsOne) {
-    ///     printf("Key 'One' exists with value: %d\n", map.get("One")); // Prints: Key 'One' exists with value: 1
+    ///     Util::System::out << "Key 'One' exists with value: " << map.get("One")
+    ///     << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush; // Prints: Key 'One' exists with value: 1
     /// }
     /// ```
     [[nodiscard]] bool containsKey(const K &key) const override;
@@ -171,9 +175,13 @@ public:
     /// map.put("Two", 2); // Add a key-value pair -> {"One": 1, "Two": 2}
     /// map.put("Three", 3); // Add a key-value pair -> {"One": 1, "Two": 2, "Three": 3}
     ///
+    ///
     /// for (const auto &key : map.keys()) {
-    ///     printf("'%s': %d\n", static_cast<const char*>(key), map.get(key)); // Prints: 'One': 1, 'Two': 2, 'Three': 3
+    ///      // Prints: One: 1, Two: 2, Three: 3
+    ///     Util::System::out << key << ": " << map.get(key) << Util::Io::PrintStream::endl;
     /// }
+    ///
+    /// Util::System::out << Util::Io::PrintStream::flush;
     /// ```
     [[nodiscard]] Array<K> getKeys() const override;
 
@@ -188,8 +196,10 @@ public:
     /// map.put("Three", 3); // Add a key-value pair -> {"One": 1, "Two": 2, "Three": 3}
     ///
     /// for (const auto &value : map.values()) {
-    ///     printf("%d, ", value); // Prints: 1, 2, 3
+    ///     Util::System::out << value << ", "; // Prints: 1, 2, 3
     /// }
+    ///
+    /// Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     /// ```
     [[nodiscard]] Array<V> getValues() const override;
 

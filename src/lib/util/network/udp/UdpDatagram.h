@@ -54,7 +54,8 @@ namespace Util::Network::Udp {
 ///
 /// // Bind the socket to a specific address
 /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
-///     printf("Failed to bind socket!\n");
+///     Util::System::out << "Failed to bind socket!"
+///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 ///     return;
 /// }
 ///
@@ -65,20 +66,22 @@ namespace Util::Network::Udp {
 ///
 /// // Send the datagram via the socket
 /// if (!socket.send(datagram)) {
-///     printf("Failed to send datagram!\n");
+///     Util::System::out << "Failed to send datagram!"
+///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 ///     return;
 /// }
 ///
 /// // Wait for a response (e.g., an Echo Reply)
 /// auto receivedDatagram = Util::Network::Udp::UdpDatagram();
 /// if (!socket.receive(receivedDatagram)) {
-///     printf("Failed to receive datagram!\n");
+///     Util::System::out << "Failed to receive datagram!"
+///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 ///     return;
 /// }
 ///
-/// // Interprete the received datagram as string and print it
+/// // Interpret the received datagram as string and print it
 /// const auto message = Util::String(receivedDatagram.getData(), receivedDatagram.getLength())
-/// printf("Received: %s\n", static_cast<const char*>(message));
+/// Util::System::out << "Received: " << message << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 /// ```
 class UdpDatagram final : public Datagram {
 public:

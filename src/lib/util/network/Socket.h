@@ -60,7 +60,8 @@ namespace Util::Network {
 ///
 /// // Bind the socket to a specific address
 /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
-///     printf("Failed to bind socket!\n");
+///     Util::System::out << "Failed to bind socket!"
+///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 ///     return;
 /// }
 ///
@@ -70,7 +71,8 @@ namespace Util::Network {
 /// // Try to receive a datagram
 /// auto receivedDatagram = Util::Network::Udp::UdpDatagram();
 /// if (!socket.receive(receivedDatagram)) {
-///     printf("Failed to receive datagram!\n");
+///     Util::System::out << "Failed to receive datagram!"
+///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 ///     return;
 /// }
 /// ```
@@ -170,7 +172,8 @@ public:
     ///
     /// // Bind the socket to a specific address
     /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
-    ///     printf("Failed to bind socket!\n");
+    ///     Util::System::out << "Failed to bind socket!"
+    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     /// ```
@@ -188,14 +191,16 @@ public:
     ///
     /// // Bind the socket to a specific address
     /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
-    ///     printf("Failed to bind socket!\n");
+    ///     Util::System::out << "Failed to bind socket!"
+    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
     /// // Get the local address of the socket
     /// auto localAddress = Util::Network::NetworkAddress();
     /// if (!socket.getLocalAddress(localAddress)) {
-    ///     printf("Failed to get local address!\n");
+    ///     Util::System::out << "Failed to get local address!"
+    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
@@ -214,7 +219,8 @@ public:
     ///
     /// // Bind the socket to a specific address
     /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
-    ///     printf("Failed to bind socket!\n");
+    ///     Util::System::out << "Failed to bind socket!"
+    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
@@ -225,7 +231,8 @@ public:
     ///
     /// // Send the datagram via the socket
     /// if (!socket.send(datagram)) {
-    ///     printf("Failed to send datagram!\n");
+    ///     Util::System::out << "Failed to send datagram!"
+    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     /// ```
@@ -246,7 +253,8 @@ public:
     ///
     /// // Bind the socket to a specific address
     /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
-    ///     printf("Failed to bind socket!\n");
+    ///     Util::System::out << "Failed to bind socket!"
+    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
@@ -256,7 +264,8 @@ public:
     /// // Try to receive a datagram
     /// auto receivedDatagram = Util::Network::Udp::UdpDatagram();
     /// if (!socket.receive(receivedDatagram)) {
-    ///     printf("Failed to receive datagram!\n");
+    ///     Util::System::out << "Failed to receive datagram!"
+    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     /// ```
@@ -279,15 +288,18 @@ public:
     ///
     /// // Bind the socket to the read MAC address
     /// if (!socket.bind(macAddress)) {
-    ///     printf("Failed to bind socket!\n");
+    ///     Util::System::out << "Failed to bind socket!"
+    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
     /// // Query the IPv4 addresses assigned to the interface and print them
     /// const auto ipAddresses = socket.getIp4Addresses();
     /// for (const auto &address : ipAddresses) {
-    ///     printf("IPv4 Address: %s\n", static_cast<const char*>(address.toString()));
+    ///     Util::System::out << "IPv4 Address: " << address.toString() << Util::Io::PrintStream::endl;
     /// }
+    ///
+    /// Util::System::out << Util::Io::PrintStream::flush;
     /// ```
     [[nodiscard]] Array<Ip4::Ip4SubnetAddress> getIp4Addresses() const;
 
@@ -308,14 +320,16 @@ public:
     ///
     /// // Bind the socket to the read MAC address
     /// if (!socket.bind(macAddress)) {
-    ///     printf("Failed to bind socket!\n");
+    ///     Util::System::out << "Failed to bind socket!"
+    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
     /// /// Remove an IPv4 address from the interface
     /// const auto addressToRemove = Util::Network::Ip4::Ip4SubnetAddress("10.0.2.15/24");
     /// if (!socket.removeIp4Address(addressToRemove)) {
-    ///     printf("Failed to remove IPv4 address!");
+    ///     Util::System::out << "Failed to remove IPv4 address!"
+    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     /// ```
@@ -338,14 +352,17 @@ public:
     ///
     /// // Bind the socket to the read MAC address
     /// if (!socket.bind(macAddress)) {
-    ///     printf("Failed to bind socket!\n");
+    ///     Util::System::out << "Failed to bind socket!"
+    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
     /// /// Add an IPv4 address to the interface
     /// const auto addressToAdd = Util::Network::Ip4::Ip4SubnetAddress("10.0.2.15/24");
     /// if (!socket.addIp4Address(addressToAdd)) {
-    ///     printf("Failed to add IPv4 address!");
+    ///     Util::System::out << "Failed to add IPv4 address!"
+    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///     return;
     /// }
     /// ```
     [[nodiscard]] bool addIp4Address(const Ip4::Ip4SubnetAddress &address) const;
@@ -362,18 +379,21 @@ public:
     ///
     /// // Bind the socket to a specific IPv4 address
     /// if (!socket.bind(Util::Network::Ip4::Ip4Address("10.0.2.15"))) {
-    ///     printf("Failed to bind socket!\n");
+    ///     Util::System::out << "Failed to bind socket!"
+    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
     /// // Query the IPv4 routes and print them
     /// const auto routes = socket.getRoutes();
     /// for (const auto &route : routes) {
-    ///     printf("Route: %s via %s on device %s\n",
-    ///         static_cast<const char*>(route.getTargetAddress().toString()),
-    ///         static_cast<const char*>(route.hasNextHop() ? route.getNextHop().toString() : "N/A"),
-    ///         static_cast<const char*>(route.getDeviceIdentifier()));
+    ///     Util::System::out << "Route: " << route.getTargetAddress().toString()
+    ///         << " via " << (route.hasNextHop() ? route.getNextHop().toString() : "N/A")
+    ///         << " on device " << route.getDeviceIdentifier()
+    ///         << Util::Io::PrintStream::endl;
     /// }
+    ///
+    /// Util::System::out << Util::Io::PrintStream::flush;
     /// ```
     [[nodiscard]] Array<Ip4::Ip4Route> getRoutes() const;
 
@@ -388,7 +408,8 @@ public:
     ///
     /// // Bind the socket to a specific IPv4 address
     /// if (!socket.bind(Util::Network::Ip4::Ip4Address("10.0.2.15"))) {
-    ///     printf("Failed to bind socket!\n");
+    ///     Util::System::out << "Failed to bind socket!"
+    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
@@ -398,7 +419,9 @@ public:
     ///         Util::Network::Ip4::Ip4SubnetAddress("10.0.2.15/24"), "eth0");
     ///
     /// if (!socket.removeRoute(routeToRemove)) {
-    ///     printf("Failed to remove route!\n");
+    ///     Util::System::out << "Failed to remove route!"
+    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///     return;
     /// }
     /// ```
     [[nodiscard]] bool removeRoute(const Ip4::Ip4Route &route) const;
@@ -414,7 +437,8 @@ public:
     ///
     /// // Bind the socket to a specific IPv4 address
     /// if (!socket.bind(Util::Network::Ip4::Ip4Address("10.0.2.15"))) {
-    ///     printf("Failed to bind socket!\n");
+    ///     Util::System::out << "Failed to bind socket!"
+    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
@@ -424,7 +448,9 @@ public:
     ///         Util::Network::Ip4::Ip4SubnetAddress("10.0.2.15/24"), "eth0");
     ///
     /// if (!socket.addRoute(routeToAdd)) {
-    ///     printf("Failed to add route!\n");
+    ///     Util::System::out << "Failed to add route!"
+    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///     return;
     /// }
     /// ```
     [[nodiscard]] bool addRoute(const Ip4::Ip4Route &route) const;

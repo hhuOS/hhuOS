@@ -83,7 +83,8 @@ public:
     ///     "/bin/echo", "/dev/terminal", "/dev/terminal", "/dev/terminal", "echo", {"Hello", "World"});
     ///
     /// echoProcess.join(); // Wait for the process to finish
-    /// printf("Process 'echo' has finished!");
+    /// Util::System::out << "Process 'echo' has finished!"
+    ///     << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     /// ```
     void join() const;
 

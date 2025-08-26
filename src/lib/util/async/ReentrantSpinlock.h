@@ -53,9 +53,11 @@ namespace Util::Async {
 ///     lock.acquire();
 ///
 ///     if (value % 2 == 0) {
-///         printf("Value is even: %u\n", value);
+///         Util::System::out << "Value is even: " << value
+///             << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 ///     } else {
-///         printf("Value is odd: %u\n",value);
+///         Util::System::out << "Value is odd: " << value
+///             << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 ///     }
 ///
 ///     lock.release();

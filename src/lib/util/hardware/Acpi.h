@@ -120,8 +120,10 @@ struct Rsdt {
 ///
 ///     // Iterate over all tables and print their signatures.
 ///     for (const auto &table : *tables) {
-///         printf("Found ACPI table: %s\n", table.signature);
+///         Util::System::out << "Found ACPI table: " << table.signature << Util::Io::PrintStream::endl;
 ///     }
+///
+///     Util::System::out << Util::Io::PrintStream::flush;
 ///
 ///     // Delete `tables`, unmapping all tables from virtual memory.
 ///     delete tables;

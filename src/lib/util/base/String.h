@@ -189,16 +189,12 @@ public:
 
     /// Convert the string to a C-style string.
     /// This is done by returning a pointer to the internal buffer.
-    ///
-    /// ### Example
-    /// ```c++
-    /// const auto string = Util::String("Hello, World!");
-    /// printf("String: '%s'", static_cast<const char*>(string)); // prints "String: 'Hello, World!'"
-    /// ```
+    /// The returned char pointer is only valid as long as the String object exists and is not modified.
     explicit operator const char*() const;
 
     /// Convert the string to a byte array.
     /// This is done by returning a pointer to the internal buffer.
+    /// The returned pointer is only valid as long as the String object exists and is not modified.
     explicit operator const uint8_t*() const;
 
     /// Get the hash code of the string (see `hashCode()`).
