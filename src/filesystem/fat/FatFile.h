@@ -35,7 +35,7 @@ public:
     /**
      * Constructor.
      */
-    FatFile(FIL *file, FILINFO *info);
+    FatFile(const FIL &file, const Util::String &path);
 
     /**
      * Copy Constructor.
@@ -50,7 +50,7 @@ public:
     /**
      * Destructor.
      */
-    ~FatFile() override;
+    ~FatFile() override = default;
 
     /**
      * Overriding function from Node.
@@ -74,7 +74,7 @@ public:
 
 private:
 
-    FIL *file;
+    FIL file;
 };
 
 }

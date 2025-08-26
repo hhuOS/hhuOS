@@ -21,7 +21,7 @@
 #ifndef HHUOS_ARCHIVENODE_H
 #define HHUOS_ARCHIVENODE_H
 
-#include "lib/util/io/file/tar/Archive.h"
+#include "lib/util/io/file/TarArchive.h"
 #include "lib/util/base/Address.h"
 #include "filesystem/Node.h"
 

@@ -4,15 +4,15 @@
 
 namespace Filesystem::Tar {
 
-ArchiveFileNode::ArchiveFileNode(Util::Io::Tar::Archive &archive, Util::Io::Tar::Archive::Header fileHeader) {
+ArchiveFileNode::ArchiveFileNode(Util::Io::TarArchive &archive, Util::Io::TarArchive::Header fileHeader) {
     auto path = Util::String(fileHeader.filename);
     if(!path.isEmpty()) {
         Util::Array<Util::String> tokens = path.split("/");
         name = tokens[tokens.length() - 1];
     }
 
-    length = Util::Io::Tar::Archive::calculateFileSize(fileHeader);
-    dataAddress = Util::Address(archive.getFile(path));
+    length = fileHeader.parseSize();
+    dataAddress = Util::Address(archive.getHeader(path)->getFile());
 }
 
 Util::String ArchiveFileNode::getName() {

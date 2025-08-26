@@ -128,7 +128,7 @@ struct TableHeader {
 ///
 ///     Util::System::out << Util::Io::PrintStream::flush;
 ///
-///     // Delete `tables` (does not affect `firstTable).
+///     // Delete `tables` (does not affect `firstTable`).
 ///     delete tables;
 /// ```
 class Tables final : public Iterable<const TableHeader> {

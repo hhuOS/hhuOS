@@ -35,7 +35,7 @@ public:
     /**
      * Constructor.
      */
-    FatDirectory(DIR *dir, FILINFO *info);
+    FatDirectory(const DIR &dir, const Util::String &path);
 
     /**
      * Copy Constructor.
@@ -50,7 +50,7 @@ public:
     /**
      * Destructor.
      */
-    ~FatDirectory() override;
+    ~FatDirectory() override = default;
 
     /**
      * Overriding function from Node.
@@ -74,7 +74,7 @@ public:
 
 private:
 
-    DIR *directory;
+    DIR directory;
 };
 
 }

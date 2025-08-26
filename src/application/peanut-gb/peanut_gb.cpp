@@ -717,7 +717,7 @@ int32_t main(int32_t argc, char *argv[]) {
         char title[16]{};
         gb_get_rom_name(&gb, title);
 
-        saveFilePath = romFile.getParent() + "/" + Util::String(title).strip() + ".sav";
+        saveFilePath = romFile.getParent().getCanonicalPath() + "/" + Util::String(title).strip() + ".sav";
     }
 
     read_ram_from_file(&gb);

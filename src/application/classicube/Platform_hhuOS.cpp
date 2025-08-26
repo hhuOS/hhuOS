@@ -150,8 +150,7 @@ cc_result Directory_Enum(const cc_string *path, void *obj, const Directory_EnumC
 	}
 
 	const auto basePath = file.getCanonicalPath();
-	for (const auto &childName : file.getChildren()) {
-		auto child = Util::Io::File(basePath + "/" + childName);
+	for (auto &child : file.getChildren()) {
 		callback(reinterpret_cast<const cc_string*>(static_cast<const char*>(child.getName())), obj, child.isDirectory() ? 1 : 0);
 	}
 

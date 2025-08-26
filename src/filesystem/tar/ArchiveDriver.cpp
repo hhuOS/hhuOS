@@ -26,14 +26,14 @@
 
 namespace Filesystem::Tar {
 
-ArchiveDriver::ArchiveDriver(Util::Io::Tar::Archive &archive) : archive(archive), fileHeaders(archive.getFileHeaders()) {}
+ArchiveDriver::ArchiveDriver(Util::Io::TarArchive &archive) : archive(archive), fileHeaders(archive.getFileHeaders()) {}
 
 Node *ArchiveDriver::getNode(const Util::String &path) {
-    for(const auto &header : fileHeaders) {
-        Util::String currentPath = header.filename;
+    for(const auto *header : fileHeaders) {
+        Util::String currentPath = header->filename;
 
         if(path == currentPath) {
-            return new ArchiveFileNode(archive, header);
+            return new ArchiveFileNode(archive, *header);
         }
 
         if((path == "") || (currentPath.beginsWith(path) && currentPath[path.length()] == '/')) {

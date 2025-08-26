@@ -24,13 +24,10 @@
 #include <stdint.h>
 
 #include "Service.h"
+#include "lib/util/io/file/ElfFile.h"
 
 namespace Util {
 namespace Io {
-namespace Elf {
-struct SectionHeader;
-struct SymbolEntry;
-}  // namespace Elf
 }  // namespace Io
 }  // namespace Util
 
@@ -81,14 +78,14 @@ public:
 
 private:
 
-    static void* mapElfSection(const Util::Io::Elf::SectionHeader &sectionHeader);
+    static void* mapElfSection(const Util::Io::ElfFile::SectionHeader &sectionHeader);
 
     const Multiboot *multiboot;
     const Device::Acpi *acpi = nullptr;
     const Device::SmBios *smBios = nullptr;
 
     uint32_t symbolTableSize = 0;
-    const Util::Io::Elf::SymbolEntry *symbolTable = nullptr;
+    const Util::Io::ElfFile::SymbolEntry *symbolTable = nullptr;
     const char *stringTable = nullptr;
 };
 

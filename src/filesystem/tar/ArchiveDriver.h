@@ -24,7 +24,7 @@
 #include <initializer_list>
 
 #include "filesystem/VirtualDriver.h"
-#include "lib/util/io/file/tar/Archive.h"
+#include "lib/util/io/file/TarArchive.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/file/File.h"
 
@@ -38,7 +38,7 @@ public:
      *
      * @param archive The tar archive to use.
      */
-    explicit ArchiveDriver(Util::Io::Tar::Archive &archive);
+    explicit ArchiveDriver(Util::Io::TarArchive &archive);
 
     /**
      * Copy Constructor.
@@ -72,8 +72,8 @@ public:
 
 private:
 
-    Util::Io::Tar::Archive &archive;
-    Util::Array<Util::Io::Tar::Archive::Header> fileHeaders{};
+    Util::Io::TarArchive &archive;
+    Util::Array<const Util::Io::TarArchive::Header*> fileHeaders{};
 
 };
 

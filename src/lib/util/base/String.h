@@ -59,7 +59,7 @@ public:
     /// The given byte array is copied to the heap.
     String(const uint8_t *data, size_t length);
 
-    /// Create a new string from an existing string.
+    /// Create a new string from an existing string (copy constructor).
     String(const String &other);
 
     /// Delete the string and free the heap memory.

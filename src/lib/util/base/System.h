@@ -26,6 +26,7 @@
 
 #include "base/BitmapMemoryManager.h"
 #include "base/FreeListMemoryManager.h"
+#include "io/file/ElfFile.h"
 #include "lib/util/io/stream/InputStream.h" // IWYU pragma: keep
 #include "lib/util/io/stream/PrintStream.h" // IWYU pragma: keep
 
@@ -35,9 +36,6 @@ class BufferedInputStream;
 class BufferedOutputStream;
 class FileInputStream;
 class FileOutputStream;
-namespace Elf {
-struct SymbolEntry;
-}  // namespace Elf
 }  // namespace Stream
 
 /// Provides system calls for user space applications and gives access to the standard input and output streams.
@@ -111,7 +109,7 @@ public:
         /// The symbol table size (in bytes) of the loaded program.
         size_t symbolTableSize;
         /// A pointer to the symbol table of the loaded program.
-        const Io::Elf::SymbolEntry *symbolTable;
+        const Io::ElfFile::SymbolEntry *symbolTable;
         /// A pointer to the string table of the loaded program.
         const char *stringTable;
     };

@@ -24,7 +24,7 @@
 #include "base/Constants.h"
 #include "base/String.h"
 #include "io/file/File.h"
-#include "io/file/elf/File.h"
+#include "io/file/ElfFile.h"
 #include "io/stream/BufferedInputStream.h"
 #include "io/stream/BufferedOutputStream.h"
 #include "io/stream/FileInputStream.h"
@@ -54,11 +54,11 @@ void systemCall(System::Code code, bool &result, size_t paramCount, va_list args
 const char* getSymbolName(const size_t symbolAddress) {
     const auto &addressSpaceHeader = System::getAddressSpaceHeader();
 
-    for (size_t i = 0; i < addressSpaceHeader.symbolTableSize / sizeof(Io::Elf::SymbolEntry); i++) {
+    for (size_t i = 0; i < addressSpaceHeader.symbolTableSize / sizeof(Io::ElfFile::SymbolEntry); i++) {
         const auto &symbol = *(addressSpaceHeader.symbolTable + i);
 
-        if (symbol.value == symbolAddress && symbol.getSymbolType() == Io::Elf::SymbolType::FUNC) {
-            if (symbol.getSymbolType() == Io::Elf::SymbolType::FUNC) {
+        if (symbol.value == symbolAddress && symbol.getSymbolType() == Io::ElfFile::SymbolType::FUNC) {
+            if (symbol.getSymbolType() == Io::ElfFile::SymbolType::FUNC) {
                 return addressSpaceHeader.stringTable + symbol.nameOffset;
             }
         }

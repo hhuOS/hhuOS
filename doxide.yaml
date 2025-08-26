@@ -9,6 +9,7 @@ files:
   - "src/lib/util/base/*.h"
   - "src/lib/util/collection/*.h"
   - "src/lib/util/hardware/*.h"
+  - "src/lib/util/io/file/*.h"
   - "src/lib/util/math/*.h"
   - "src/lib/util/network/*.h"
   - "src/lib/util/network/ethernet/*.h"

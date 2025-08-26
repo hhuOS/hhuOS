@@ -18,11 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include "File.h"
+
 #include "lib/interface.h"
-#include "lib/util/collection/ArrayList.h"
-#include "lib/util/graphic/Ansi.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/base/Panic.h"
+#include "collection/ArrayList.h"
+#include "base/Panic.h"
 
 namespace Util::Io {
 
@@ -45,45 +45,37 @@ File& File::operator=(const File &other) {
 
 File::~File() {
     if (fileDescriptor != -1) {
-        ::closeFile(fileDescriptor);
+        closeFile(fileDescriptor);
     }
 }
 
-bool File::exists() {
-    auto tempDescriptor = ::openFile(path);
+bool File::exists() const {
+    const auto tempDescriptor = openFile(path);
 
     if (tempDescriptor > 0) {
-        ::closeFile(tempDescriptor);
+        closeFile(tempDescriptor);
         return true;
     }
 
     return false;
 }
 
-File::Type File::getType() {
+File::Type File::getType() const {
     ensureFileIsOpened();
-    if (fileDescriptor < 0) {
-        Util::Panic::fire(Panic::INVALID_ARGUMENT, "File: Could not open file!");
-    }
-
-    return ::getFileType(fileDescriptor);
+    return getFileType(fileDescriptor);
 }
 
-bool File::isFile() {
+bool File::isFile() const {
     return getType() != DIRECTORY;
 }
 
-bool File::isDirectory() {
+bool File::isDirectory() const {
     return getType() == DIRECTORY;
 }
 
-uint32_t Io::File::getLength() {
+size_t File::getLength() const {
     ensureFileIsOpened();
-    if (fileDescriptor < 0) {
-        Util::Panic::fire(Panic::INVALID_ARGUMENT, "File: Could not open file!");
-    }
-
-    return ::getFileLength(fileDescriptor);
+    return getFileLength(fileDescriptor);
 }
 
 String File::getName() const {
@@ -95,86 +87,61 @@ String File::getCanonicalPath() const {
     return getCanonicalPath(path);
 }
 
-String File::getParent() const {
-    return getCanonicalPath(path + "/..");
+File File::getParent() const {
+    return File(getCanonicalPath(path + "/.."));
 }
 
-Array<String> File::getChildren() {
+Array<File> File::getChildren() const {
     ensureFileIsOpened();
-    if (fileDescriptor < 0) {
-        Util::Panic::fire(Panic::INVALID_ARGUMENT, "File: Could not open file!");
+
+    const auto childrenNames = getFileChildren(fileDescriptor);
+    auto children = Array<File>(childrenNames.length());
+
+    for (uint32_t i = 0; i < childrenNames.length(); i++) {
+        children[i] = File(getCanonicalPath() + '/' + childrenNames[i]);
     }
 
-    return ::getFileChildren(fileDescriptor);
+    return children;
 }
 
-File File::getParentFile() const {
-    return File(getParent());
-}
+bool File::create(const Type fileType) {
+    if (fileDescriptor >= 0) {
+        closeFile(fileDescriptor);
+        fileDescriptor = -1;
+    }
 
-bool File::create(Type fileType) {
-    auto ret = ::createFile(path, fileType);
-    fileDescriptor = -1;
-
-    return ret;
+    return createFile(path, fileType);
 }
 
 bool File::remove() {
-    auto ret = ::deleteFile(path);
-    fileDescriptor = -1;
-
-    return ret;
-}
-
-bool File::controlFile(uint32_t request, const Util::Array<uint32_t> &parameters) {
-    ensureFileIsOpened();
-    if (fileDescriptor < 0) {
-        Util::Panic::fire(Panic::INVALID_ARGUMENT, "File: Could not open file!");
+    if (fileDescriptor >= 0) {
+        closeFile(fileDescriptor);
+        fileDescriptor = -1;
     }
 
+    return deleteFile(path);
+}
+
+bool File::controlFile(const size_t request, const Array<size_t> &parameters) {
+    ensureFileIsOpened();
     return ::controlFile(fileDescriptor, request, parameters);
 }
 
-bool File::controlFileDescriptor(uint32_t request, const Array<uint32_t> &parameters) {
-    ensureFileIsOpened();
-    if (fileDescriptor < 0) {
-        Util::Panic::fire(Panic::INVALID_ARGUMENT, "File: Could not open file!");
-    }
-
-    return ::controlFileDescriptor(fileDescriptor, request, parameters);
-}
-
-bool File::setAccessMode(File::AccessMode accessMode) {
-    ensureFileIsOpened();
-    if (fileDescriptor < 0) {
-        Util::Panic::fire(Panic::INVALID_ARGUMENT, "File: Could not open file!");
-    }
-
-    return controlFileDescriptor(fileDescriptor, Util::Io::File::SET_ACCESS_MODE, Util::Array<uint32_t>({accessMode}));
-}
-
-bool File::isReadyToRead() {
-    ensureFileIsOpened();
-    if (fileDescriptor < 0) {
-        Util::Panic::fire(Panic::INVALID_ARGUMENT, "File: Could not open file!");
-    }
-
-    return isReadyToRead(fileDescriptor);
-}
-
-Util::String File::getCanonicalPath(const Util::String &path) {
+String File::getCanonicalPath(const String &path) {
     if (path.isEmpty()) {
         return "";
     }
 
-    auto absolutePath = path[0] == '/' ? path : getCurrentWorkingDirectory().getCanonicalPath() + SEPARATOR + path;
-    Util::Array<Util::String> token = absolutePath.split(Util::Io::File::SEPARATOR);
-    Util::ArrayList<Util::String> parsedToken;
+    const auto absolutePath = path[0] == '/' ?
+        path : getCurrentWorkingDirectory().getCanonicalPath() + '/' + path;
+    const Array<String> tokens = absolutePath.split('/');
+    ArrayList<String> parsedToken;
 
-    for (const Util::String &string : token) {
+    for (const String &string : tokens) {
         if (string == ".") {
             continue;
-        } else if (string == "..") {
+        }
+        if (string == "..") {
             if (!parsedToken.isEmpty()) {
                 parsedToken.removeIndex(parsedToken.size() - 1);
             }
@@ -187,74 +154,68 @@ Util::String File::getCanonicalPath(const Util::String &path) {
         return "";
     }
 
-    Util::String parsedPath = Util::Io::File::SEPARATOR + Util::String::join(Util::Io::File::SEPARATOR, parsedToken.toArray());
+    String parsedPath = '/' + String::join('/', parsedToken.toArray());
     return parsedPath;
 }
 
-void File::ensureFileIsOpened() {
+void File::ensureFileIsOpened() const {
     if (fileDescriptor < 0) {
-        fileDescriptor = ::openFile(path);
+        fileDescriptor = openFile(path);
+    }
+
+    if (fileDescriptor < 0) {
+        Util::Panic::fire(Panic::INVALID_ARGUMENT, "File: Could not open file!");
     }
 }
 
-bool File::mount(const Util::String &device, const Util::String &targetPath, const Util::String &driverName) {
+bool File::mount(const String &device, const String &targetPath, const String &driverName) {
     return ::mount(device, targetPath, driverName);
 }
 
-bool File::unmount(const Util::String &path) {
+bool File::unmount(const String &path) {
     return ::unmount(path);
 }
 
 int32_t File::open(const String &path) {
-    return ::openFile(path);
+    return openFile(path);
 }
 
-bool File::controlFile(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters) {
+bool File::controlFile(const int32_t fileDescriptor, const size_t request, const Array<size_t> &parameters) {
     return ::controlFile(fileDescriptor, request, parameters);
 }
 
-bool File::controlFileDescriptor(int32_t fileDescriptor, uint32_t request, const Array<uint32_t> &parameters) {
+bool File::controlFileDescriptor(const int32_t fileDescriptor, const FileDescriptorRequest request,
+        const Array<size_t> &parameters)
+{
     return ::controlFileDescriptor(fileDescriptor, request, parameters);
 }
 
-bool File::setAccessMode(int32_t fileDescriptor, File::AccessMode accessMode) {
-    return controlFileDescriptor(fileDescriptor, SET_ACCESS_MODE, Util::Array<uint32_t>({accessMode}));
+bool File::setAccessMode(const int32_t fileDescriptor, AccessMode accessMode) {
+    return controlFileDescriptor(fileDescriptor, SET_ACCESS_MODE, Util::Array<size_t>({accessMode}));
 }
 
-bool File::isReadyToRead(int32_t fileDescriptor) {
+bool File::isReadyToRead(const int32_t fileDescriptor) {
     bool readyToRead;
-    if (!controlFileDescriptor(fileDescriptor, Util::Io::File::IS_READY_TO_READ, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&readyToRead)}))) {
+    const auto success = controlFileDescriptor(fileDescriptor, IS_READY_TO_READ,
+        Util::Array<size_t>({reinterpret_cast<size_t>(&readyToRead)}));
+
+    if (!success) {
         Util::Panic::fire(Panic::INVALID_ARGUMENT, "File: Failed to query readiness!");
     }
 
     return readyToRead;
 }
 
-void File::close(int32_t fileDescriptor) {
-    return ::closeFile(fileDescriptor);
+void File::close(const int32_t fileDescriptor) {
+    return closeFile(fileDescriptor);
 }
 
-bool File::changeDirectory(const Util::String &path) {
+bool File::changeDirectory(const String &path) {
     return ::changeDirectory(path);
 }
 
 File File::getCurrentWorkingDirectory() {
     return ::getCurrentWorkingDirectory();
-}
-
-const char* File::getTypeColor(File &file) {
-    switch (file.getType()) {
-        case Util::Io::File::DIRECTORY:
-            return Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE;
-        case Util::Io::File::REGULAR:
-            return Util::Graphic::Ansi::FOREGROUND_WHITE;
-        case Util::Io::File::CHARACTER:
-            return Util::Graphic::Ansi::FOREGROUND_BRIGHT_YELLOW;
-        case Util::Io::File::SYSTEM:
-            return Util::Graphic::Ansi::FOREGROUND_BRIGHT_GREEN;
-    }
-
-    return Util::Graphic::Ansi::FOREGROUND_WHITE;
 }
 
 }

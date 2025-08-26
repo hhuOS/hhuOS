@@ -45,7 +45,7 @@ public:
     /**
      * Destructor.
      */
-    ~FatNode() override;
+    ~FatNode() override = default;
 
     static FatNode* open(const Util::String &path);
 
@@ -63,11 +63,13 @@ protected:
     /**
      * Constructor.
      */
-    explicit FatNode(FILINFO *info);
+    explicit FatNode(const Util::String &path);
 
 private:
 
-    FILINFO &info;
+    FILINFO stat();
+
+    Util::String path;
 };
 
 }

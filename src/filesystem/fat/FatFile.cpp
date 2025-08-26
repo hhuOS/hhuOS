@@ -26,11 +26,7 @@
 
 namespace Filesystem::Fat {
 
-FatFile::FatFile(FIL *file, FILINFO *info) : FatNode(info), file(file) {}
-
-FatFile::~FatFile() {
-    delete file;
-}
+FatFile::FatFile(const FIL &file, const Util::String &path) : FatNode(path), file(file) {}
 
 Util::Io::File::Type FatFile::getType() {
     return Util::Io::File::REGULAR;
@@ -41,13 +37,13 @@ Util::Array<Util::String> FatFile::getChildren() {
 }
 
 uint64_t FatFile::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
-    auto result = f_lseek(file, pos);
+    auto result = f_lseek(&file, pos);
     if (result != FR_OK) {
         return 0;
     }
 
     uint32_t readBytes;
-    result = f_read(file, targetBuffer, numBytes, &readBytes);
+    result = f_read(&file, targetBuffer, numBytes, &readBytes);
     if (result != FR_OK) {
         return 0;
     }
@@ -56,18 +52,18 @@ uint64_t FatFile::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numByte
 }
 
 uint64_t FatFile::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
-    auto result = f_lseek(file, pos);
+    auto result = f_lseek(&file, pos);
     if (result != FR_OK) {
         return 0;
     }
 
     uint32_t writtenBytes;
-    result = f_write(file, sourceBuffer, numBytes, &writtenBytes);
+    result = f_write(&file, sourceBuffer, numBytes, &writtenBytes);
     if (result != FR_OK) {
         return 0;
     }
 
-    f_sync(file);
+    f_sync(&file);
     return writtenBytes;
 }
 

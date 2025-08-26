@@ -52,7 +52,7 @@ bool IsoDriver::createFilesystem([[maybe_unused]] Device::Storage::StorageDevice
 Node* IsoDriver::getNode(const Util::String &path) {
     // Directories are linked in reverse order (child to parent) in the path table list.
     // To find the directory, holding the searched file, we split the path and search for deepest directory
-    auto pathSegments = path.split(Util::Io::File::SEPARATOR);
+    auto pathSegments = path.split('/');
     auto nodeName = pathSegments.length() == 0 ? "" : pathSegments[pathSegments.length() - 1];
 
     const auto *entry = pathTableEntryList.get(0); // Root directory is always at index 0

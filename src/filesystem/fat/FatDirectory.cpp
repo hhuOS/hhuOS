@@ -27,11 +27,7 @@
 
 namespace Filesystem::Fat {
 
-FatDirectory::FatDirectory(DIR *dir, FILINFO *info) : FatNode(info), directory(dir) {}
-
-FatDirectory::~FatDirectory() {
-    delete directory;
-}
+FatDirectory::FatDirectory(const DIR &dir, const Util::String &path) : FatNode(path), directory(dir) {}
 
 Util::Io::File::Type FatDirectory::getType() {
     return Util::Io::File::DIRECTORY;
@@ -46,7 +42,7 @@ Util::Array<Util::String> FatDirectory::getChildren() {
     auto *childInfo = new FILINFO{};
 
     while (true) {
-        auto result = f_readdir(directory, childInfo);
+        auto result = f_readdir(&directory, childInfo);
         if (result != FR_OK || childInfo->fname[0] == 0) {
             break;
         }
@@ -54,7 +50,7 @@ Util::Array<Util::String> FatDirectory::getChildren() {
         children.add(childInfo->fname);
     }
 
-    f_rewinddir(directory);
+    f_rewinddir(&directory);
     delete childInfo;
     return children.toArray();
 }

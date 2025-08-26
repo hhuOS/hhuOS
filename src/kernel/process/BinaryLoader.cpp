@@ -24,7 +24,7 @@
 
 #include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/io/file/elf/File.h"
+#include "lib/util/io/file/ElfFile.h"
 #include "kernel/service/ProcessService.h"
 #include "kernel/process/Process.h"
 #include "kernel/process/Thread.h"
@@ -55,7 +55,7 @@ void BinaryLoader::run() {
     binaryStream.read(buffer, 0, file.getLength());
 
     // Buffer is automatically deleted by file destructor
-    auto executable = Util::Io::Elf::File(buffer);
+    auto executable = Util::Io::ElfFile(buffer);
     executable.loadProgram();
 
     // Needed for allocating memory before user space heap
@@ -64,15 +64,15 @@ void BinaryLoader::run() {
     auto &addressSpaceHeader = *reinterpret_cast<Util::System::AddressSpaceHeader*>(Util::USER_SPACE_MEMORY_START_ADDRESS);
 
     // Copy symbol and string table to user space (needed for stack trace with symbol names)
-    auto &symbolTableHeader = executable.getSectionHeader(Util::Io::Elf::SectionHeaderType::SYMTAB);
-    auto &stringTableHeader = executable.getSectionHeader(Util::Io::Elf::SectionHeaderType::STRTAB);
+    auto &symbolTableHeader = executable.getSectionHeader(Util::Io::ElfFile::SectionType::SYMTAB);
+    auto &stringTableHeader = executable.getSectionHeader(Util::Io::ElfFile::SectionType::STRTAB);
     addressSpaceHeader.symbolTableSize = symbolTableHeader.size;
 
     auto symbolTableAddress = Util::Address(buffer + symbolTableHeader.offset);
     auto stringTableAddress = Util::Address(buffer + stringTableHeader.offset);
 
     Util::Address(currentAddress).copyRange(symbolTableAddress, symbolTableHeader.size);
-    addressSpaceHeader.symbolTable = reinterpret_cast<const Util::Io::Elf::SymbolEntry*>(currentAddress);
+    addressSpaceHeader.symbolTable = reinterpret_cast<const Util::Io::ElfFile::SymbolEntry*>(currentAddress);
     currentAddress += symbolTableHeader.size;
 
     Util::Address(currentAddress).copyRange(stringTableAddress, stringTableHeader.size);
@@ -96,7 +96,7 @@ void BinaryLoader::run() {
     auto &processService = Service::getService<ProcessService>();
     auto &process = processService.getCurrentProcess();
     auto heapAddress = Util::Address(currentAddress + 1).alignUp(Util::PAGESIZE).get();
-    auto &userThread = Thread::createMainUserThread(file.getName(), process, (uint32_t) executable.getEntryPoint(), argc, argv, nullptr, heapAddress);
+    auto &userThread = Thread::createMainUserThread(file.getName(), process, reinterpret_cast<uint32_t>(executable.getEntryPoint()), argc, argv, nullptr, heapAddress);
 
     processService.getCurrentProcess().setMainThread(userThread);
     processService.getScheduler().ready(userThread);

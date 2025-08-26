@@ -46,7 +46,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
     Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_YELLOW << "PID\tThreads\tName" << Util::Graphic::Ansi::FOREGROUND_DEFAULT << Util::Io::PrintStream::endl;
     for (const auto &child : processDirectory.getChildren()) {
-        auto processPath = processRootPath + "/" + child + "/";
+        auto processPath = child.getCanonicalPath();
 
         auto nameFile = Util::Io::File(processPath + "/name");
         auto nameStream = Util::Io::FileInputStream(nameFile);
@@ -54,7 +54,7 @@ int32_t main(int32_t argc, char *argv[]) {
         auto threadCountFile = Util::Io::File(processPath + "/thread_count");
         auto threadCountStream = Util::Io::FileInputStream(threadCountFile);
 
-        Util::System::out << child << "\t"
+        Util::System::out << child.getName() << "\t"
                           << threadCountStream.readString(threadCountFile.getLength() - 1) << "\t"
                           << nameStream.readString(nameFile.getLength() - 1) << Util::Io::PrintStream::endl;
     }

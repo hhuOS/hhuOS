@@ -28,6 +28,21 @@
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/PrintStream.h"
 
+const char* getTypeColor(Util::Io::File &file) {
+    switch (file.getType()) {
+        case Util::Io::File::DIRECTORY:
+            return Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE;
+        case Util::Io::File::REGULAR:
+            return Util::Graphic::Ansi::FOREGROUND_WHITE;
+        case Util::Io::File::CHARACTER:
+            return Util::Graphic::Ansi::FOREGROUND_BRIGHT_YELLOW;
+        case Util::Io::File::SYSTEM:
+            return Util::Graphic::Ansi::FOREGROUND_BRIGHT_GREEN;
+    }
+
+    return Util::Graphic::Ansi::FOREGROUND_WHITE;
+}
+
 void lsDirectory(const Util::String &path) {
     auto file = Util::Io::File(path);
     if (!file.exists()) {
@@ -37,9 +52,8 @@ void lsDirectory(const Util::String &path) {
 
     auto string = Util::String();
     if (file.isDirectory()) {
-        for (const auto &child : file.getChildren()) {
-            auto currentFile = Util::Io::File(file.getCanonicalPath() + "/" + child);
-            string += Util::Io::File::getTypeColor(currentFile) + currentFile.getName() + (currentFile.isDirectory() ? "/" : "") + Util::Graphic::Ansi::FOREGROUND_DEFAULT + " ";
+        for (auto &child : file.getChildren()) {
+            string += getTypeColor(child) + child.getName() + (child.isDirectory() ? "/" : "") + Util::Graphic::Ansi::FOREGROUND_DEFAULT + " ";
         }
 
         string = string.substring(0, string.length() - 1);

@@ -27,7 +27,7 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/Panic.h"
 #include "lib/util/hardware/Acpi.h"
-#include "lib/util/io/file/elf/File.h"
+#include "lib/util/io/file/ElfFile.h"
 
 namespace Kernel {
 
@@ -231,7 +231,7 @@ public:
         uint32_t entryCount;
         uint32_t entrySize;
         uint32_t stringSectionIndex;
-        Util::Io::Elf::SectionHeader sectionHeaders[];
+        Util::Io::ElfFile::SectionHeader sectionHeaders[];
     } __attribute__((packed));
 
     /**

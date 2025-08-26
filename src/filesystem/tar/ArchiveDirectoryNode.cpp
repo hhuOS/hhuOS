@@ -1,12 +1,12 @@
 #include "ArchiveDirectoryNode.h"
 
 #include "lib/util/base/Panic.h"
-#include "lib/util/io/file/tar/Archive.h"
+#include "lib/util/io/file/TarArchive.h"
 #include "lib/util/collection/Array.h"
 
 namespace Filesystem::Tar {
 
-ArchiveDirectoryNode::ArchiveDirectoryNode(Util::Io::Tar::Archive &archive, const Util::String &path) {
+ArchiveDirectoryNode::ArchiveDirectoryNode(Util::Io::TarArchive &archive, const Util::String &path) {
     if(path.isEmpty() || path == "/") {
         name = "/";
     } else {
@@ -14,8 +14,8 @@ ArchiveDirectoryNode::ArchiveDirectoryNode(Util::Io::Tar::Archive &archive, cons
         name = tokens[tokens.length() - 1];
     }
 
-    for(const auto &header : archive.getFileHeaders()) {
-        Util::String fullPath = header.filename;
+    for(const auto *header : archive.getFileHeaders()) {
+        Util::String fullPath = header->filename;
 
         if(fullPath.beginsWith(path) && fullPath != path) {
             Util::String subPath = fullPath.substring(path.length(), fullPath.length());

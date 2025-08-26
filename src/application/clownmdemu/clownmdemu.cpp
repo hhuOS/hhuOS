@@ -26,7 +26,6 @@
 #include "application/clownmdemu/clownmdemu/clowncommon/clowncommon.h"
 #include "application/clownmdemu/clownmdemu/clownmdemu.h"
 
-#include "io/file/elf/File.h"
 #include "io/stream/FileOutputStream.h"
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/io/file/File.h"

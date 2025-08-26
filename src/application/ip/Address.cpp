@@ -48,8 +48,9 @@ int32_t Address::show() {
         printDeviceInfo(arguments[1]);
     } else {
         for (const auto &file: Util::Io::File("/device").getChildren()) {
-            if (file.beginsWith("eth") || file.beginsWith("loopback")) {
-                printDeviceInfo(file);
+            const auto deviceName = file.getName();
+            if (deviceName.beginsWith("eth") || deviceName.beginsWith("loopback")) {
+                printDeviceInfo(deviceName);
             }
         }
     }

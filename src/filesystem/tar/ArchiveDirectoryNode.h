@@ -24,7 +24,7 @@ public:
     /**
      * Constructor.
      */
-    ArchiveDirectoryNode(Util::Io::Tar::Archive &archive, const Util::String &path);
+    ArchiveDirectoryNode(Util::Io::TarArchive &archive, const Util::String &path);
 
     /**
      * Copy Constructor.

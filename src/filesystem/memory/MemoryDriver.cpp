@@ -43,7 +43,7 @@ Node *MemoryDriver::getNode(const Util::String &path) {
         return new MemoryWrapperNode(*rootNode);
     }
 
-    Util::Array<Util::String> tokens = path.split(Util::Io::File::SEPARATOR);
+    Util::Array<Util::String> tokens = path.split('/');
     if(tokens.length() == 0) {
         return new MemoryWrapperNode(*rootNode);
     }
@@ -69,7 +69,7 @@ bool MemoryDriver::createNode(const Util::String &path, Util::Io::File::Type typ
         Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "MemoryDriver: Invalid file type!");
     }
 
-    Util::Array<Util::String> tokens = path.split(Util::Io::File::SEPARATOR);
+    Util::Array<Util::String> tokens = path.split('/');
     if(path.length() > 0 && tokens.length() == 0) {
         return false;
     }
@@ -94,7 +94,7 @@ bool MemoryDriver::createNode(const Util::String &path, Util::Io::File::Type typ
 }
 
 bool MemoryDriver::deleteNode(const Util::String &path) {
-    Util::Array<Util::String> tokens = path.split(Util::Io::File::SEPARATOR);
+    Util::Array<Util::String> tokens = path.split('/');
     if(path.length() > 0 && tokens.length() == 0) {
         return false;
     }
@@ -123,7 +123,7 @@ bool MemoryDriver::deleteNode(const Util::String &path) {
 }
 
 bool MemoryDriver::addNode(const Util::String &path, MemoryNode *node) {
-    Util::Array<Util::String> tokens = path.split(Util::Io::File::SEPARATOR);
+    Util::Array<Util::String> tokens = path.split('/');
 
     MemoryNode *currentDir = rootNode;
     for (const auto &token : tokens) {

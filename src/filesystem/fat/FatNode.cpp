@@ -25,40 +25,36 @@
 
 namespace Filesystem::Fat {
 
-FatNode::FatNode(FILINFO *info) : info(*info) {}
-
-FatNode::~FatNode() {
-    delete &info;
-}
+FatNode::FatNode(const Util::String &path) : path(path) {}
 
 FatNode *FatNode::open(const Util::String &path) {
     // Try to stat the file. If this fails, the file is either non-existent,
     // or it may be the root-directory (f_stat will fail, when executed on the root-directory).
-    auto *info = new FILINFO();
-    auto result = f_stat(static_cast<const char*>(path), info);
+    FILINFO info{};
+    auto result = f_stat(static_cast<const char*>(path), &info);
     if (result != FR_OK) {
         if (path.endsWith(":")) {
-            info->fname[0] = 0;
-            info->altname[0] = 0;
-            info->fattrib = AM_DIR;
+            info.fname[0] = 0;
+            info.altname[0] = 0;
+            info.fattrib = AM_DIR;
         } else {
             return nullptr;
         }
     }
 
-    if ((info->fattrib & AM_DIR) != 0) {
-        DIR *directory = new DIR();
-        result = f_opendir(directory, static_cast<const char*>(path));
+    if ((info.fattrib & AM_DIR) != 0) {
+        DIR directory{};
+        result = f_opendir(&directory, static_cast<const char*>(path));
 
         if (result == FR_OK) {
-            return new FatDirectory(directory, info);
+            return new FatDirectory(directory, path);
         }
     } else {
-        FIL *file = new FIL();
-        result = f_open(file, static_cast<const char*>(path), FA_READ | FA_WRITE);
+        FIL file{};
+        result = f_open(&file, static_cast<const char*>(path), FA_READ | FA_WRITE);
 
         if (result == FR_OK) {
-            return new FatFile(file, info);
+            return new FatFile(file, path);
         }
     }
 
@@ -66,11 +62,29 @@ FatNode *FatNode::open(const Util::String &path) {
 }
 
 Util::String FatNode::getName() {
+    const auto info = stat();
     return info.fname;
 }
 
 uint64_t FatNode::getLength() {
+    const auto info = stat();
     return info.fsize;
+}
+
+FILINFO FatNode::stat() {
+    FILINFO info{};
+    auto result = f_stat(static_cast<const char*>(path), &info);
+    if (result != FR_OK) {
+        if (path.endsWith(":")) {
+            info.fname[0] = 0;
+            info.altname[0] = 0;
+            info.fattrib = AM_DIR;
+        } else {
+            Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "FatNode: Could not update file info!");
+        }
+    }
+
+    return info;
 }
 
 }

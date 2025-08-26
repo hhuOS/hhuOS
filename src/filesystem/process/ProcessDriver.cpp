@@ -46,7 +46,7 @@ Node* ProcessDriver::getNode(const Util::String &path) {
 
     auto &processService = Kernel::Service::getService<Kernel::ProcessService>();
     auto ids = processService.getActiveProcessIds();
-    auto splitPath = path.split(Util::Io::File::SEPARATOR);
+    auto splitPath = path.split('/');
     auto id = Util::String::parseNumber<uint32_t>(splitPath[0]);
 
     auto *process = processService.getProcess(id);

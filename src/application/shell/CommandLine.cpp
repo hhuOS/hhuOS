@@ -264,8 +264,7 @@ Util::String CommandLine::checkDirectory(const Util::String &command, Util::Io::
         return "";
     }
 
-    for (const auto &child : directory.getChildren()) {
-        auto file = Util::Io::File(directory.getCanonicalPath() + "/" + child);
+    for (auto &file : directory.getChildren()) {
         if (file.isFile() && file.getName() == command) {
             return file.getCanonicalPath();
         }
@@ -575,20 +574,18 @@ void CommandLine::buildAutoCompletionLists() {
     for (const auto &path : Util::String(PATH).split(":")) {
         auto directory = Util::Io::File(path);
         if (directory.exists() && directory.isDirectory()) {
-            for (const auto &fileName : directory.getChildren()) {
-                auto file = Util::Io::File(directory.getCanonicalPath() + "/" + fileName);
+            for (auto &file : directory.getChildren()) {
                 if (file.isFile()) {
-                    autoCompletionPathSuggestions.add(fileName);
+                    autoCompletionPathSuggestions.add(file.getName());
                 }
             }
         }
     }
 
     auto workingDirectory = Util::Io::File::getCurrentWorkingDirectory();
-    for (const auto &fileName : workingDirectory.getChildren()) {
-        auto file = Util::Io::File(workingDirectory.getCanonicalPath() + "/" + fileName);
+    for (auto &file : workingDirectory.getChildren()) {
         if (file.isFile()) {
-            autoCompletionCurrentWorkingDirectorySuggestions.add(fileName);
+            autoCompletionCurrentWorkingDirectorySuggestions.add(file.getName());
         }
     }
 }

@@ -24,7 +24,7 @@
 #include "MemoryService.h"
 #include "lib/util/base/Constants.h"
 #include "kernel/service/Service.h"
-#include "lib/util/io/file/elf/File.h"
+#include "lib/util/io/file/ElfFile.h"
 
 namespace Device {
 class Acpi;
@@ -36,11 +36,11 @@ Kernel::InformationService::InformationService(const Kernel::Multiboot *multiboo
         auto &symbolsTag = multiboot->getTag<Kernel::Multiboot::ElfSymbols>(Kernel::Multiboot::ELF_SYMBOLS);
         for (uint32_t i = 0; i < symbolsTag.entryCount; i++) {
             const auto &header = symbolsTag.sectionHeaders[i];
-            if (header.type == Util::Io::Elf::SectionHeaderType::SYMTAB) {
+            if (header.type == Util::Io::ElfFile::SectionType::SYMTAB) {
                 symbolTableSize = header.size;
-                symbolTable = reinterpret_cast<const Util::Io::Elf::SymbolEntry*>(mapElfSection(header));
-            } else if (header.type == Util::Io::Elf::SectionHeaderType::STRTAB && i != symbolsTag.stringSectionIndex) {
-                stringTable = reinterpret_cast<const char*>(mapElfSection(header));
+                symbolTable = static_cast<const Util::Io::ElfFile::SymbolEntry*>(mapElfSection(header));
+            } else if (header.type == Util::Io::ElfFile::SectionType::STRTAB && i != symbolsTag.stringSectionIndex) {
+                stringTable = static_cast<const char*>(mapElfSection(header));
             }
         }
     }
@@ -67,9 +67,9 @@ const Device::SmBios& Kernel::InformationService::getSmBios() const {
 }
 
 const char* Kernel::InformationService::getSymbolName(uint32_t symbolAddress) {
-    for (uint32_t i = 0; i < symbolTableSize / sizeof(Util::Io::Elf::SymbolEntry); i++) {
+    for (uint32_t i = 0; i < symbolTableSize / sizeof(Util::Io::ElfFile::SymbolEntry); i++) {
         const auto &symbol = *(symbolTable + i);
-        if (symbol.value == symbolAddress && symbol.getSymbolType() == Util::Io::Elf::SymbolType::FUNC) {
+        if (symbol.value == symbolAddress && symbol.getSymbolType() == Util::Io::ElfFile::SymbolType::FUNC) {
                 return stringTable + symbol.nameOffset;
         }
     }
@@ -77,7 +77,7 @@ const char* Kernel::InformationService::getSymbolName(uint32_t symbolAddress) {
     return nullptr;
 }
 
-void *Kernel::InformationService::mapElfSection(const Util::Io::Elf::SectionHeader &sectionHeader) {
+void *Kernel::InformationService::mapElfSection(const Util::Io::ElfFile::SectionHeader &sectionHeader) {
     // Beware: 'sectionHeader.virtualAddress' refers to a physical address in this case, due to the bootloader using an identity mapping
     auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
     auto pageOffset = sectionHeader.virtualAddress % Util::PAGESIZE;

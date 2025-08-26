@@ -295,13 +295,12 @@ int32_t main(int32_t argc, char *argv[]) {
     Util::System::out << "SMBIOS " << majorVersion << "." << minorVersion << " present." << Util::Io::PrintStream::endl << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 
     auto tableDirectory = Util::Io::File("/device/smbios/tables");
-    for (const auto &tableId : tableDirectory.getChildren()) {
-        auto tableType = Util::String::parseNumber<uint32_t>(tableId.split("-")[0]);
+    for (auto &tableFile : tableDirectory.getChildren()) {
+        auto tableType = Util::String::parseNumber<uint32_t>(tableFile.getName().split("-")[0]);
         if (targetType != Util::Hardware::SmBios::END_OF_TABLE && targetType != tableType) {
             continue;
         }
 
-        auto tableFile = Util::Io::File(tableDirectory.getCanonicalPath() + "/" + tableId);
         auto tableStream = Util::Io::FileInputStream(tableFile);
 
         auto length = tableFile.getLength();
