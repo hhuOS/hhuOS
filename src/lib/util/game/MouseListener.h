@@ -56,13 +56,13 @@ public:
      */
     ~MouseListener() = default;
 
-    virtual void buttonPressed(Io::Mouse::Button button) = 0;
+    virtual void buttonPressed(Io::MouseDecoder::Button button) = 0;
 
-    virtual void buttonReleased(Io::Mouse::Button button) = 0;
+    virtual void buttonReleased(Io::MouseDecoder::Button button) = 0;
 
     virtual void mouseMoved(const Math::Vector2<double> &relativeMovement) = 0;
 
-    virtual void mouseScrolled(Io::Mouse::ScrollDirection direction) = 0;
+    virtual void mouseScrolled(Io::MouseDecoder::ScrollDirection direction) = 0;
 };
 
 }

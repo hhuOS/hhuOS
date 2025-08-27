@@ -148,11 +148,11 @@ public:
         [[nodiscard]] SymbolType getSymbolType() const;
     } __attribute__((packed));
 
-    /// Create an ElfFile instance from a buffer containing the ELF file data.
-    /// The ElfFile instance will not take ownership of the memory and will not free it on destruction.
+    /// Create an elf file instance from a buffer containing the ELF file data.
+    /// The elf file instance will not take ownership of the memory and will not free it on destruction.
     explicit ElfFile(uint8_t *buffer);
 
-    /// Create an ElfFile instance from a File object.
+    /// Create an elf file instance from a File object.
     /// The whole file is read into memory for parsing.
     explicit ElfFile(const File &file);
 
@@ -162,7 +162,7 @@ public:
     /// ElfFile is not copyable, since it manages a memory buffer.
     ElfFile& operator=(const ElfFile &other) = delete;
 
-    /// Destroy the ElfFile instance and free any allocated memory.
+    /// Destroy the elf file instance and free any allocated memory.
     ~ElfFile();
 
     /// Load all program sections marked for loading into memory at their specified virtual addresses.

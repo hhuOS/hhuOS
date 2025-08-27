@@ -214,7 +214,7 @@ void cubes(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
         cubes->add(new Cube(texture));
     }
 
-    auto keyDecoder = new Util::Io::KeyDecoder(new Util::Io::DeLayout());
+    auto keyDecoder = new Util::Io::KeyDecoder(Util::Io::DeLayout());
 
     // Draw scene
     while (true) {

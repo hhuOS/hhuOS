@@ -337,7 +337,7 @@ void QG_GetMouseMove(int *x, int *y) {
 }
 
 void QG_Init(void) {
-    kd = new Util::Io::KeyDecoder(new Util::Io::DeLayout());
+    kd = new Util::Io::KeyDecoder(Util::Io::DeLayout());
 
     // Set draw method based on color depth
     switch (lfb->getColorDepth()) {

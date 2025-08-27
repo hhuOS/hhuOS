@@ -18,76 +18,62 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MOUSEDECODER_H
-#define HHUOS_MOUSEDECODER_H
+#ifndef HHUOS_LIB_UTIL_IO_MOUSEDECODER_H
+#define HHUOS_LIB_UTIL_IO_MOUSEDECODER_H
 
 #include <stdint.h>
 
-namespace Util::Io {
+/// Provides functionality to decode mouse packets as per the standard PS/2 mouse protocol.
+namespace Util::Io::MouseDecoder {
 
-namespace Mouse {
-
+/// Mouse button values using bit flags.
 enum Button : uint8_t {
+    /// Bit flag for the left mouse button.
     LEFT_BUTTON = 0x01,
+    /// Bit flag for the right mouse button.
     RIGHT_BUTTON = 0x02,
+    /// Bit flag for the middle mouse button (usually the scroll wheel button).
     MIDDLE_BUTTON = 0x04,
+    /// Bit flag for the fourth mouse button (if present).
     BUTTON_4 = 0x10,
+    /// Bit flag for the fifth mouse button (if present).
     BUTTON_5 = 0x20
 };
 
+/// Values for vertical and horizontal scroll directions.
 enum ScrollDirection : uint8_t {
+    /// No scrolling action.
+    NONE = 0x00,
+    /// Scroll down action.
     DOWN = 0x01,
+    /// Scroll up action.
     UP = 0x0f,
+    /// Scroll left action.
     LEFT = 0x02,
+    /// Scroll right action.
     RIGHT = 0x0e
 };
 
+/// A decoded mouse update containing button states, movement deltas, and scroll direction.
 struct Update {
+    /// Bitwise combination of values from the `Button` enum, indicating which buttons are pressed.
     uint8_t buttons;
+    /// Movement in the X direction since the last update (ranges from -255 to 255).
+    /// Positive values indicate movement to the right, negative values indicate movement to the left.
     int16_t xMovement;
+    /// Movement in the Y direction since the last update (ranges from -255 to 255).
+    /// Positive values indicate movement upwards, negative values indicate movement downwards.
     int16_t yMovement;
+    /// Indicates the scroll direction using values from the `ScrollDirection` enum.
+    /// `NONE` means no scrolling, `UP` and `DOWN` indicate vertical scrolling,
+    /// while `LEFT` and `RIGHT` indicate horizontal scrolling.
     ScrollDirection scroll;
 };
 
-}
-
-class MouseDecoder {
-
-public:
-
-    /**
-     * Default Constructor.
-     * Deleted, as this class has only static members.
-     */
-    MouseDecoder() = delete;
-
-    /**
-     * Copy Constructor.
-     */
-    MouseDecoder(const MouseDecoder &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    MouseDecoder &operator=(const MouseDecoder &other) = delete;
-
-    /**
-     * Destructor.
-     * Deleted, as this class has only static members.
-     */
-    ~MouseDecoder() = delete;
-
-    static Mouse::Update decode(const uint8_t bytes[4]);
-
-private:
-
-    enum Flag : uint8_t {
-        X_SIGN = 0x10,
-        Y_SIGN = 0x20,
-        X_OVERFLOW = 0x40,
-        Y_OVERFLOW = 0x80
-    };
-};
+/// Decode a PS/2 mouse packet into an `Update` structure.
+/// An application using the mouse should read 4 bytes from the mouse device
+/// and pass them to this function to interpret the mouse actions.
+Update decode(const uint8_t bytes[4]);
 
 }
 

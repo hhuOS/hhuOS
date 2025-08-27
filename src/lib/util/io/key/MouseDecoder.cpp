@@ -20,10 +20,17 @@
 
 #include "MouseDecoder.h"
 
-namespace Util::Io {
+namespace Util::Io::MouseDecoder {
 
-Mouse::Update MouseDecoder::decode(const uint8_t bytes[4]) {
-    Mouse::Update update{};
+enum Flag : uint8_t {
+    X_SIGN = 0x10,
+    Y_SIGN = 0x20,
+    X_OVERFLOW = 0x40,
+    Y_OVERFLOW = 0x80
+};
+
+Update decode(const uint8_t bytes[4]) {
+    Update update{};
     update.buttons = (bytes[0] & 0x07) | (bytes[3] & 0x30);
 
     if (!(bytes[0] & X_OVERFLOW)) {
@@ -34,20 +41,22 @@ Mouse::Update MouseDecoder::decode(const uint8_t bytes[4]) {
         update.yMovement = static_cast<int16_t>(bytes[2] - ((bytes[0] & Y_SIGN) << 3));
     }
 
-    // TODO: Checking 0x40 for horizontal scrolling is not documented, but seems to work in QEMU.
-    //  This needs to be validated on real hardware
+    // TODO: Check 0x40 for horizontal scrolling is not documented, but seems to work in QEMU.
+    //       This needs to be validated on real hardware
     switch (bytes[3] & 0x0f) {
-        case Mouse::UP:
-            update.scroll = (bytes[3] & 0x40) ? Mouse::RIGHT : Mouse::UP;
+        case UP:
+            update.scroll = (bytes[3] & 0x40) ? RIGHT : UP;
             break;
-        case Mouse::DOWN:
-            update.scroll = (bytes[3] & 0x40) ? Mouse::LEFT : Mouse::DOWN;
+        case DOWN:
+            update.scroll = (bytes[3] & 0x40) ? LEFT : DOWN;
             break;
-        case Mouse::RIGHT:
-            update.scroll = Mouse::RIGHT;
+        case RIGHT:
+            update.scroll = RIGHT;
             break;
-        case Mouse::LEFT:
-            update.scroll = Mouse::LEFT;
+        case LEFT:
+            update.scroll = LEFT;
+            break;
+        default:
             break;
     }
 

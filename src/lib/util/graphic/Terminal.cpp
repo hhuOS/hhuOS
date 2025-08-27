@@ -468,8 +468,8 @@ void Terminal::setKeyboardScancodes(bool enabled) {
     keyboardScancodes = enabled;
 }
 
-void Terminal::setKeyboardLayout(Io::KeyboardLayout *layout) {
-    keyDecoder.setLayout(layout);
+void Terminal::setKeyboardLayout(const Io::KeyboardLayout &layout) {
+    keyDecoder = Io::KeyDecoder(layout);
 }
 
 void Terminal::clear() {

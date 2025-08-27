@@ -301,7 +301,7 @@ int32_t main(int32_t argc, char *argv[]) {
     lfb->clear();
 
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
-    auto keyDecoder = Util::Io::KeyDecoder(new Util::Io::DeLayout());
+    auto keyDecoder = Util::Io::KeyDecoder(Util::Io::DeLayout());
 
     auto scanlineCallback = scanline_rendered_32;
     if (lfb->getColorDepth() == 24) {

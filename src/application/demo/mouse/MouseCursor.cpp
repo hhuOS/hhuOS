@@ -58,21 +58,21 @@ void MouseCursor::draw(Util::Game::Graphics &graphics) {
     graphics.drawString2D(getPosition() + Util::Math::Vector2<double>(currentSprite->getSize().getX() / 2 - charWidth, currentSprite->getSize().getY() / 3), additionalButtons);
 }
 
-void MouseCursor::buttonPressed(Util::Io::Mouse::Button button) {
+void MouseCursor::buttonPressed(Util::Io::MouseDecoder::Button button) {
     switch (button) {
-        case Util::Io::Mouse::LEFT_BUTTON:
+        case Util::Io::MouseDecoder::LEFT_BUTTON:
             currentSprite = &leftClickSprite;
             break;
-        case Util::Io::Mouse::RIGHT_BUTTON:
+        case Util::Io::MouseDecoder::RIGHT_BUTTON:
             currentSprite = &rightClickSprite;
             break;
-        case Util::Io::Mouse::MIDDLE_BUTTON:
+        case Util::Io::MouseDecoder::MIDDLE_BUTTON:
             currentSprite = &middleClickSprite;
             break;
-        case Util::Io::Mouse::BUTTON_4:
+        case Util::Io::MouseDecoder::BUTTON_4:
             button4Pressed = true;
             break;
-        case Util::Io::Mouse::BUTTON_5:
+        case Util::Io::MouseDecoder::BUTTON_5:
             button5Pressed = true;
             break;
         default:
@@ -80,12 +80,12 @@ void MouseCursor::buttonPressed(Util::Io::Mouse::Button button) {
     }
 }
 
-void MouseCursor::buttonReleased(Util::Io::Mouse::Button button) {
+void MouseCursor::buttonReleased(Util::Io::MouseDecoder::Button button) {
     switch (button) {
-        case Util::Io::Mouse::BUTTON_4:
+        case Util::Io::MouseDecoder::BUTTON_4:
             button4Pressed = false;
             break;
-        case Util::Io::Mouse::BUTTON_5:
+        case Util::Io::MouseDecoder::BUTTON_5:
             button5Pressed = false;
             break;
         default:
@@ -98,18 +98,18 @@ void MouseCursor::mouseMoved(const Util::Math::Vector2<double> &relativeMovement
     translate(relativeMovement);
 }
 
-void MouseCursor::mouseScrolled(Util::Io::Mouse::ScrollDirection direction) {
+void MouseCursor::mouseScrolled(Util::Io::MouseDecoder::ScrollDirection direction) {
     switch (direction) {
-        case Util::Io::Mouse::UP:
+        case Util::Io::MouseDecoder::UP:
             logo.translateY(0.01);
             break;
-        case Util::Io::Mouse::DOWN:
+        case Util::Io::MouseDecoder::DOWN:
             logo.translateY(-0.01);
             break;
-        case Util::Io::Mouse::RIGHT:
+        case Util::Io::MouseDecoder::RIGHT:
             logo.translateX(0.01);
             break;
-        case Util::Io::Mouse::LEFT:
+        case Util::Io::MouseDecoder::LEFT:
             logo.translateX(-0.01);
             break;
         default:

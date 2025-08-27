@@ -173,7 +173,7 @@ int32_t main(int argc, char **argv) {
 }
 
 void DG_Init() {
-	kd = new Util::Io::KeyDecoder(new Util::Io::DeLayout());
+	kd = new Util::Io::KeyDecoder(Util::Io::DeLayout());
 }
 
 void DG_DrawFrame() {

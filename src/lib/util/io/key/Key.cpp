@@ -26,122 +26,94 @@ bool Key::isValid() const {
     return scancode != 0;
 }
 
-
 bool Key::isPressed() const {
     return pressed;
 }
 
-
-void Key::setPressed(bool value) {
-    pressed = value;
+void Key::setPressed(const bool pressed) {
+    Key::pressed = pressed;
 }
 
-
-void Key::invalidate() {
-    scancode = 0;
+void Key::setAscii(const uint8_t ascii) {
+    Key::ascii = ascii;
 }
 
-
-void Key::setAscii(uint8_t a) {
-    ascii = a;
+void Key::setScancode(const uint8_t scancode)  {
+    Key::scancode = scancode;
 }
-
-
-void Key::setScancode(uint8_t s)  {
-    scancode = s;
-}
-
 
 char Key::getAscii() const {
     return ascii;
 }
 
-
 uint8_t Key::getScancode() const {
     return scancode;
 }
 
-
-void Key::setShift(bool pressed) {
-    modifier = pressed ? modifier | Modifier::SHIFT : modifier & ~Modifier::SHIFT;
+void Key::setShift(const bool pressed) {
+    modifier = pressed ? modifier | SHIFT : modifier & ~SHIFT;
 }
 
-
-void Key::setAltLeft(bool pressed) {
-    modifier = pressed ? modifier | Modifier::ALT_LEFT : modifier & ~Modifier::ALT_LEFT;
+void Key::setAltLeft(const bool pressed) {
+    modifier = pressed ? modifier | ALT_LEFT : modifier & ~ALT_LEFT;
 }
 
-
-void Key::setAltRight(bool pressed) {
-    modifier = pressed ? modifier | Modifier::ALT_RIGHT : modifier & ~Modifier::ALT_RIGHT;
+void Key::setAltRight(const bool pressed) {
+    modifier = pressed ? modifier | ALT_RIGHT : modifier & ~ALT_RIGHT;
 }
 
-
-void Key::setCtrlLeft(bool pressed) {
-    modifier = pressed ? modifier | Modifier::CTRL_LEFT : modifier & ~Modifier::CTRL_LEFT;
+void Key::setCtrlLeft(const bool pressed) {
+    modifier = pressed ? modifier | CTRL_LEFT : modifier & ~CTRL_LEFT;
 }
 
-
-void Key::setCtrlRight(bool pressed) {
-    modifier = pressed ? modifier | Modifier::CTRL_RIGHT : modifier & ~Modifier::CTRL_RIGHT;
+void Key::setCtrlRight(const bool pressed) {
+    modifier = pressed ? modifier | CTRL_RIGHT : modifier & ~CTRL_RIGHT;
 }
 
-
-void Key::setCapsLock(bool pressed) {
-    modifier = pressed ? modifier | Modifier::CAPS_LOCK : modifier & ~Modifier::CAPS_LOCK;
+void Key::setCapsLock(const bool pressed) {
+    modifier = pressed ? modifier | CAPS_LOCK : modifier & ~CAPS_LOCK;
 }
 
-
-void Key::setNumLock(bool pressed) {
-    modifier = pressed ? modifier | Modifier::NUM_LOCK : modifier & ~Modifier::NUM_LOCK;
+void Key::setNumLock(const bool pressed) {
+    modifier = pressed ? modifier | NUM_LOCK : modifier & ~NUM_LOCK;
 }
 
-
-void Key::setScrollLock(bool pressed) {
-    modifier = pressed ? modifier | Modifier::SCROLL_LOCK : modifier & ~Modifier::SCROLL_LOCK;
+void Key::setScrollLock(const bool pressed) {
+    modifier = pressed ? modifier | SCROLL_LOCK : modifier & ~SCROLL_LOCK;
 }
-
 
 
 bool Key::getShift() const {
-    return modifier & Modifier::SHIFT;
+    return modifier & SHIFT;
 }
-
 
 bool Key::getAltLeft() const {
-    return modifier & Modifier::ALT_LEFT;
+    return modifier & ALT_LEFT;
 }
-
 
 bool Key::getAltRight() const {
-    return modifier & Modifier::ALT_RIGHT;
+    return modifier & ALT_RIGHT;
 }
-
 
 bool Key::getCtrlLeft() const {
-    return modifier & Modifier::CTRL_LEFT;
+    return modifier & CTRL_LEFT;
 }
-
 
 bool Key::getCtrlRight() const {
-    return modifier & Modifier::CTRL_RIGHT;
+    return modifier & CTRL_RIGHT;
 }
-
 
 bool Key::getCapsLock() const {
-    return modifier & Modifier::CAPS_LOCK;
+    return modifier & CAPS_LOCK;
 }
-
 
 bool Key::getNumLock() const {
-    return modifier & Modifier::NUM_LOCK;
+    return modifier & NUM_LOCK;
 }
-
 
 bool Key::getScrollLock() const {
-    return modifier & Modifier::SCROLL_LOCK;
+    return modifier & SCROLL_LOCK;
 }
-
 
 bool Key::getAlt() const {
     return getAltLeft() || getAltRight();
@@ -150,14 +122,6 @@ bool Key::getAlt() const {
 
 bool Key::getCtrl() const {
     return getCtrlLeft() || getCtrlRight();
-}
-
-Key::operator char() const {
-    return(char) ascii;
-}
-
-Key::operator uint8_t() const {
-    return(uint8_t) ascii;
 }
 
 bool Key::operator!=(const Key &other) const {

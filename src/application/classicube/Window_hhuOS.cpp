@@ -28,7 +28,7 @@ auto lfb = Util::Graphic::LinearFrameBuffer::open(lfbFile);
 Util::Graphic::BufferedLinearFrameBuffer *bufferedLfb = nullptr;
 
 auto keyboardInputStream = Util::Io::FileInputStream(1);
-auto keyDecoder = Util::Io::KeyDecoder(new Util::Io::DeLayout());
+auto keyDecoder = Util::Io::KeyDecoder(Util::Io::DeLayout());
 
 auto mouseInputStream = Util::Io::FileInputStream("/device/mouse");
 uint8_t mouseValues[4]{};
@@ -265,9 +265,9 @@ void pollMouse() {
 			Util::Address(mouseValues).setRange(0, 4);
 			mouseValueIndex = 0;
 
-			Input_SetNonRepeatable(CCMOUSE_L, mouseUpdate.buttons & Util::Io::Mouse::LEFT_BUTTON);
-			Input_SetNonRepeatable(CCMOUSE_R, mouseUpdate.buttons & Util::Io::Mouse::RIGHT_BUTTON);
-			Input_SetNonRepeatable(CCMOUSE_M, mouseUpdate.buttons & Util::Io::Mouse::MIDDLE_BUTTON);
+			Input_SetNonRepeatable(CCMOUSE_L, mouseUpdate.buttons & Util::Io::MouseDecoder::LEFT_BUTTON);
+			Input_SetNonRepeatable(CCMOUSE_R, mouseUpdate.buttons & Util::Io::MouseDecoder::RIGHT_BUTTON);
+			Input_SetNonRepeatable(CCMOUSE_M, mouseUpdate.buttons & Util::Io::MouseDecoder::MIDDLE_BUTTON);
 		}
 
 		value = mouseInputStream.read();

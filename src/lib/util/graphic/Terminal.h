@@ -108,7 +108,7 @@ public:
 
     void setKeyboardScancodes(bool enabled);
 
-    void setKeyboardLayout(Io::KeyboardLayout *layout);
+    void setKeyboardLayout(const Io::KeyboardLayout &layout);
 
     virtual void setCursor(bool enabled) = 0;
 
@@ -204,7 +204,7 @@ private:
     Util::Io::PipedInputStream ansiInputStream;
     Util::Io::PipedOutputStream ansiOutputStream;
 
-    Io::KeyDecoder keyDecoder = Io::KeyDecoder(new Io::DeLayout());
+    Io::KeyDecoder keyDecoder = Io::KeyDecoder(Io::DeLayout());
     Async::ReentrantSpinlock writeLock;
 
     Util::String currentEscapeSequence;

@@ -61,13 +61,13 @@ public:
 
     void draw(Util::Game::Graphics &graphics) override;
 
-    void buttonPressed(Util::Io::Mouse::Button button) override;
+    void buttonPressed(Util::Io::MouseDecoder::Button button) override;
 
-    void buttonReleased(Util::Io::Mouse::Button button) override;
+    void buttonReleased(Util::Io::MouseDecoder::Button button) override;
 
     void mouseMoved(const Util::Math::Vector2<double> &relativeMovement) override;
 
-    void mouseScrolled(Util::Io::Mouse::ScrollDirection direction) override;
+    void mouseScrolled(Util::Io::MouseDecoder::ScrollDirection direction) override;
 
 private:
 

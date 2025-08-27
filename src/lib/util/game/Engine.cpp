@@ -262,11 +262,11 @@ void Engine::checkMouse() {
                 continue;
             }
 
-            checkMouseKey(Io::Mouse::LEFT_BUTTON, lastMouseButtonState, mouseUpdate.buttons);
-            checkMouseKey(Io::Mouse::RIGHT_BUTTON, lastMouseButtonState, mouseUpdate.buttons);
-            checkMouseKey(Io::Mouse::MIDDLE_BUTTON, lastMouseButtonState, mouseUpdate.buttons);
-            checkMouseKey(Io::Mouse::BUTTON_4, lastMouseButtonState, mouseUpdate.buttons);
-            checkMouseKey(Io::Mouse::BUTTON_5, lastMouseButtonState, mouseUpdate.buttons);
+            checkMouseKey(Io::MouseDecoder::LEFT_BUTTON, lastMouseButtonState, mouseUpdate.buttons);
+            checkMouseKey(Io::MouseDecoder::RIGHT_BUTTON, lastMouseButtonState, mouseUpdate.buttons);
+            checkMouseKey(Io::MouseDecoder::MIDDLE_BUTTON, lastMouseButtonState, mouseUpdate.buttons);
+            checkMouseKey(Io::MouseDecoder::BUTTON_4, lastMouseButtonState, mouseUpdate.buttons);
+            checkMouseKey(Io::MouseDecoder::BUTTON_5, lastMouseButtonState, mouseUpdate.buttons);
             lastMouseButtonState = mouseUpdate.buttons;
 
             if (mouseUpdate.xMovement != 0 || mouseUpdate.yMovement != 0) {
@@ -285,7 +285,7 @@ void Engine::checkMouse() {
     }
 }
 
-void Engine::checkMouseKey(Io::Mouse::Button button, uint8_t lastButtonState, uint8_t currentButtonState) {
+void Engine::checkMouseKey(Io::MouseDecoder::Button button, uint8_t lastButtonState, uint8_t currentButtonState) {
     auto &scene = game.getCurrentScene();
     if (!(lastButtonState & button) && (currentButtonState & button)) {
         scene.mouseListener->buttonPressed(button);

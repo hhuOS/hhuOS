@@ -29,23 +29,20 @@
 
 #include <stdint.h>
 
+#include "Game.h"
 #include "AudioRunnable.h"
 #include "lib/util/async/Runnable.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/io/key/Key.h"
-#include "Game.h"
 #include "lib/util/io/key/KeyDecoder.h"
 #include "lib/util/io/key/layout/DeLayout.h"
+#include "lib/util/io/key/MouseDecoder.h"
 
 namespace Util {
 namespace Io {
 class FileInputStream;
-
-namespace Mouse {
-enum Button : uint8_t;
-}  // namespace Mouse
 }  // namespace Io
 
 namespace Graphic {
@@ -219,7 +216,7 @@ private:
 
     void checkMouse();
 
-    void checkMouseKey(Io::Mouse::Button button, uint8_t lastButtonState, uint8_t currentButtonState);
+    void checkMouseKey(Io::MouseDecoder::Button button, uint8_t lastButtonState, uint8_t currentButtonState);
 
     Game game;
     Graphics graphics;
@@ -234,7 +231,7 @@ private:
     uint32_t mouseValueIndex = 0;
     uint8_t lastMouseButtonState = 0;
 
-    Io::KeyDecoder keyDecoder = Io::KeyDecoder(new Io::DeLayout());
+    Io::KeyDecoder keyDecoder = Io::KeyDecoder(Io::DeLayout());
     ArrayList<Io::Key> pressedKeys;
 
     const uint8_t targetFrameRate;

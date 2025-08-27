@@ -90,17 +90,15 @@ bool TerminalNode::control(uint32_t request, const Util::Array<uint32_t> &parame
             }
 
             const auto layoutName = Util::String(reinterpret_cast<const char *>(parameters[0])).toLowerCase();
-            Util::Io::KeyboardLayout *layout = nullptr;
 
             if (layoutName == "de") {
-                layout = new Util::Io::DeLayout();
+                terminal->setKeyboardLayout(Util::Io::DeLayout());
             } else if (layoutName == "us") {
-                layout = new Util::Io::UsLayout();
+                terminal->setKeyboardLayout(Util::Io::UsLayout());
             } else {
                 return false;
-            };
+            }
 
-            terminal->setKeyboardLayout(layout);
             return true;
         }
         default:

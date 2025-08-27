@@ -75,11 +75,11 @@ public:
         [[nodiscard]] const uint8_t* getFile() const;
     } __attribute__((packed));
 
-    /// Create a TarArchive instance from a buffer containing the tar archive data.
-    /// The TarArchive instance will not take ownership of the memory and will not free it on destruction.
+    /// Create a tar archive instance from a buffer containing the tar archive data.
+    /// The tar archive instance will not take ownership of the memory and will not free it on destruction.
     explicit TarArchive(uint8_t *buffer);
 
-    /// Create a TarArchive instance from a File object.
+    /// Create a tar archive instance from a File object.
     /// The file must contain a valid uncompressed tar archive.
     /// The whole file is read into memory for parsing.
     explicit TarArchive(const File &file);
@@ -90,7 +90,7 @@ public:
     /// TarArchive is not copyable, since it manages a memory buffer.
     TarArchive& operator=(const TarArchive &other) = delete;
 
-    /// Destroy the TarArchive instance and free any allocated memory.
+    /// Destroy the tar archive instance and free any allocated memory.
     ~TarArchive();
 
     /// Get an array of all file headers in the archive.

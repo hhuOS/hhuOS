@@ -741,7 +741,7 @@ int32_t main(int32_t argc, char *argv[]) {
     lfb->clear();
 
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
-    auto keyDecoder = Util::Io::KeyDecoder(new Util::Io::DeLayout());
+    auto keyDecoder = Util::Io::KeyDecoder(Util::Io::DeLayout());
 
     uint8_t manualPaletteIndex = UINT8_MAX;
     palette = gb_get_palette(&gb);

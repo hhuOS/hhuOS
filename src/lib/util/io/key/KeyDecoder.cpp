@@ -19,18 +19,18 @@
  */
 
 #include "KeyDecoder.h"
+
+#include "base/Panic.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/io/key/KeyboardLayout.h"
 
 namespace Util::Io {
 
-KeyDecoder::KeyDecoder(KeyboardLayout *layout) {
-    KeyDecoder::layout = layout;
-}
+KeyDecoder::KeyDecoder(const KeyboardLayout &layout) : layout(layout) {}
 
-bool Util::Io::KeyDecoder::parseScancode(uint8_t code) {
+bool KeyDecoder::parseScancode(uint8_t code) {
     bool done = false;
-    bool isBreak = (code & BREAK_BIT);
+    const bool isBreak = code & BREAK_BIT;
 
     if (isBreak) {
         currentKey.setPressed(false);
@@ -100,7 +100,7 @@ bool Util::Io::KeyDecoder::parseScancode(uint8_t code) {
             break;
         case 69:
             if (currentKey.getCtrlLeft()) {
-                layout->parseAsciiCode(code, currentPrefix, currentKey);
+                layout.parseKey(code, currentPrefix, currentKey);
                 done = true;
             } else {
                 currentKey.setNumLock(!currentKey.getNumLock());
@@ -108,7 +108,7 @@ bool Util::Io::KeyDecoder::parseScancode(uint8_t code) {
             break;
 
         default:
-            layout->parseAsciiCode(code, currentPrefix, currentKey);
+            layout.parseKey(code, currentPrefix, currentKey);
             done = true;
     }
 
@@ -116,13 +116,12 @@ bool Util::Io::KeyDecoder::parseScancode(uint8_t code) {
     return done;
 }
 
-Util::Io::Key Util::Io::KeyDecoder::getCurrentKey() const {
-    return currentKey;
-}
+Key KeyDecoder::getCurrentKey() const {
+    if (!currentKey.isValid()) {
+        Panic::fire(Panic::ILLEGAL_STATE, "KeyDecoder: Current key not fully parsed!");
+    }
 
-void KeyDecoder::setLayout(KeyboardLayout *layout) {
-    delete KeyDecoder::layout;
-    KeyDecoder::layout = layout;
+    return currentKey;
 }
 
 }

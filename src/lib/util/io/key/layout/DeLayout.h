@@ -18,74 +18,52 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_DELAYOUT_H
-#define HHUOS_DELAYOUT_H
+#ifndef HHUOS_LIB_UTIL_IO_DELAYOUT_H
+#define HHUOS_LIB_UTIL_IO_DELAYOUT_H
 
-#include "lib/util/io/key/KeyboardLayout.h"
-#include "lib/util/base/Address.h"
+#include "io/key/KeyboardLayout.h"
 
 namespace Util::Io {
 
+/// Keyboard layout for German QWERTZ keyboards.
 class DeLayout : public KeyboardLayout {
 
 public:
-    /**
-     * Default Constructor.
-     */
-    DeLayout() : KeyboardLayout() {
-        uint8_t normalTab[89] = {
-                0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 225, 39, '\b',
-                '\t', 'q', 'w', 'e', 'r', 't', 'z', 'u', 'i', 'o', 'p', 129, '+', '\n',
-                0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 148, 132, '^', 0, '#',
-                'y', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '-', 0,
-                '*', 0, ' ', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '-',
-                0, 0, 0, '+', 0, 0, 0, 0, 0, 0, 0, '<', 0, 0
-        };
-
-        uint8_t shiftTab[89] = {
-                0, 0, '!', '"', 21, '$', '%', '&', '/', '(', ')', '=', '?', 96, 0,
-                0, 'Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P', 154, '*', 0,
-                0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 153, 142, 248, 0, 39,
-                'Y', 'X', 'C', 'V', 'B', 'N', 'M', ';', ':', '_', 0,
-                0, 0, ' ', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '>', 0, 0
-        };
-
-        uint8_t altTab[89] = {
-                0, 0, 0, 253, 0, 0, 0, 0, '{', '[', ']', '}', '\\', 0, 0,
-                0, '@', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '~', 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 230, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '|', 0, 0
-        };
-
-        uint8_t asciiNumTab[13] = {
-                '7', '8', '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', ','
-        };
-
-        Util::Address(KeyboardLayout::normalTab).copyRange(Util::Address(normalTab), sizeof(KeyboardLayout::normalTab));
-        Util::Address(KeyboardLayout::shiftTab).copyRange(Util::Address(shiftTab), sizeof(KeyboardLayout::shiftTab));
-        Util::Address(KeyboardLayout::altTab).copyRange(Util::Address(altTab), sizeof(KeyboardLayout::altTab));
-        Util::Address(KeyboardLayout::asciiNumTab).copyRange(Util::Address(asciiNumTab), sizeof(KeyboardLayout::asciiNumTab));
-    }
-
-    /**
-     * Copy Constructor.
-     */
-    DeLayout(const DeLayout &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    DeLayout &operator=(const DeLayout &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~DeLayout() = default;
+    /// Create a new German keyboard layout instance.
+    DeLayout() : KeyboardLayout(NORMAL_TABLE, SHIFT_TABLE, ALT_TABLE, NUMPAD_TABLE) {}
 
 private:
+
+    static constexpr uint8_t NORMAL_TABLE[89] = {
+        0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 225, 39, '\b',
+        '\t', 'q', 'w', 'e', 'r', 't', 'z', 'u', 'i', 'o', 'p', 129, '+', '\n',
+        0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 148, 132, '^', 0, '#',
+        'y', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '-', 0,
+        '*', 0, ' ', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '-',
+        0, 0, 0, '+', 0, 0, 0, 0, 0, 0, 0, '<', 0, 0
+    };
+
+    static constexpr uint8_t SHIFT_TABLE[89] = {
+        0, 0, '!', '"', 21, '$', '%', '&', '/', '(', ')', '=', '?', 96, 0,
+        0, 'Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P', 154, '*', 0,
+        0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 153, 142, 248, 0, 39,
+        'Y', 'X', 'C', 'V', 'B', 'N', 'M', ';', ':', '_', 0,
+        0, 0, ' ', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '>', 0, 0
+    };
+
+    static constexpr uint8_t ALT_TABLE[89] = {
+        0, 0, 0, 253, 0, 0, 0, 0, '{', '[', ']', '}', '\\', 0, 0,
+        0, '@', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '~', 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 230, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '|', 0, 0
+    };
+
+    static constexpr uint8_t NUMPAD_TABLE[13] = {
+        '7', '8', '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', ','
+    };
 };
 
 
