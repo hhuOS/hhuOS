@@ -27,14 +27,16 @@
 
 namespace Kernel {
 
-AudioChannel::AudioChannel(int32_t bufferSize) : Pipe(bufferSize) {}
+AudioChannel::AudioChannel(int32_t bufferSize) :
+    FilterInputStream(inputStream), FilterOutputStream(outputStream),
+    inputStream(bufferSize), outputStream(inputStream) {}
 
 bool AudioChannel::write(uint8_t c) {
     while (state != Util::Sound::AudioChannel::PLAYING) {
         Util::Async::Thread::yield();
     }
 
-    return Pipe::write(c);
+    return FilterOutputStream::write(c);
 }
 
 uint32_t AudioChannel::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
@@ -42,7 +44,7 @@ uint32_t AudioChannel::write(const uint8_t *sourceBuffer, uint32_t offset, uint3
         Util::Async::Thread::yield();
     }
 
-    return Pipe::write(sourceBuffer, offset, length);
+    return FilterOutputStream::write(sourceBuffer, offset, length);
 }
 
 void AudioChannel::setState(Util::Sound::AudioChannel::State state) {
@@ -51,6 +53,14 @@ void AudioChannel::setState(Util::Sound::AudioChannel::State state) {
 
 Util::Sound::AudioChannel::State AudioChannel::getState() const {
     return state;
+}
+
+uint32_t AudioChannel::getReadableBytes() {
+    return inputStream.getReadableBytes();
+}
+
+uint32_t AudioChannel::getWritableBytes() {
+    return outputStream.getWritableBytes();
 }
 
 }

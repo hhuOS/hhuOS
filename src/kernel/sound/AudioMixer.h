@@ -30,8 +30,6 @@
 #include "device/sound/PcmDevice.h"
 #include "kernel/process/Thread.h"
 #include "io/file/File.h"
-#include "io/stream/FileOutputStream.h"
-#include "io/stream/Pipe.h"
 
 namespace Kernel {
 

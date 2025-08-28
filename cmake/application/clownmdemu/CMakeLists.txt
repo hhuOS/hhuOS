@@ -19,22 +19,19 @@
 project(clownmdemu)
 message(STATUS "Project " ${PROJECT_NAME})
 
-add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/megadrive"
-        COMMAND /bin/mkdir -p "${CMAKE_BINARY_DIR}/megadrive")
+add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/roms/miniplanets.bin"
+        COMMAND wget "'https://github.com/sikthehedgehog/miniplanets/raw/refs/heads/master/Miniplanets%20REMIX%20Ver%20(REV04).bin'" -O "${CMAKE_BINARY_DIR}/roms/miniplanets.bin"
+        COMMAND /bin/touch -a -m "${CMAKE_BINARY_DIR}/roms/miniplanets.bin"
+        DEPENDS "${CMAKE_BINARY_DIR}/roms")
 
-add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/megadrive/miniplanets.bin"
-        COMMAND wget "'https://github.com/sikthehedgehog/miniplanets/raw/refs/heads/master/Miniplanets%20REMIX%20Ver%20(REV04).bin'" -O "${CMAKE_BINARY_DIR}/megadrive/miniplanets.bin"
-        COMMAND /bin/touch -a -m "${CMAKE_BINARY_DIR}/megadrive/miniplanets.bin"
-        DEPENDS "${CMAKE_BINARY_DIR}/megadrive")
-
-add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/megadrive/witch.bin"
-        COMMAND wget "https://github.com/sikthehedgehog/dragon/raw/refs/heads/master/witch.bin" -O "${CMAKE_BINARY_DIR}/megadrive/witch.bin"
-        COMMAND /bin/touch -a -m "${CMAKE_BINARY_DIR}/megadrive/witch.bin"
-        DEPENDS "${CMAKE_BINARY_DIR}/megadrive")
+add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/roms/witch.bin"
+        COMMAND wget "https://github.com/sikthehedgehog/dragon/raw/refs/heads/master/witch.bin" -O "${CMAKE_BINARY_DIR}/roms/witch.bin"
+        COMMAND /bin/touch -a -m "${CMAKE_BINARY_DIR}/roms/witch.bin"
+        DEPENDS "${CMAKE_BINARY_DIR}/roms")
 
 add_custom_target(megadrive-roms DEPENDS
-        "${CMAKE_BINARY_DIR}/megadrive/miniplanets.bin"
-        "${CMAKE_BINARY_DIR}/megadrive/witch.bin")
+        "${CMAKE_BINARY_DIR}/roms/miniplanets.bin"
+        "${CMAKE_BINARY_DIR}/roms/witch.bin")
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
 

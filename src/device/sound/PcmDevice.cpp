@@ -20,11 +20,11 @@
 
 #include "PcmDevice.h"
 
-Device::PcmDevice::PcmDevice() : FilterOutputStream(pipe.getOutputStream()) {}
+Device::PcmDevice::PcmDevice() : FilterOutputStream(outputStream), outputStream(inputStream) {}
 
 void Device::PcmDevice::processWrittenSamples() {
-    const auto toProcess = pipe.getReadableBytes();
-    pipe.read(buffer, 0, toProcess);
+    const auto toProcess = inputStream.getReadableBytes();
+    inputStream.read(buffer, 0, toProcess);
 
     play(buffer, toProcess);
 }

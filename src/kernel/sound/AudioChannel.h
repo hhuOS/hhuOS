@@ -24,12 +24,15 @@
 #ifndef KERNEL_AUDIOCHANNEL_H
 #define KERNEL_AUDIOCHANNEL_H
 
-#include "io/stream/Pipe.h"
+#include "lib/util/io/stream/FilterInputStream.h"
+#include "lib/util/io/stream/FilterOutputStream.h"
+#include "lib/util/io/stream/PipedInputStream.h"
+#include "lib/util/io/stream/PipedOutputStream.h"
 #include "sound/AudioChannel.h"
 
 namespace Kernel {
 
-class AudioChannel : public Util::Io::Pipe {
+class AudioChannel : public Util::Io::FilterInputStream, public Util::Io::FilterOutputStream {
 
 public:
     /**
@@ -60,7 +63,14 @@ public:
 
     [[nodiscard]] Util::Sound::AudioChannel::State getState() const;
 
+    [[nodiscard]] uint32_t getReadableBytes();
+
+    [[nodiscard]] uint32_t getWritableBytes();
+
 private:
+
+    Util::Io::PipedInputStream inputStream;
+    Util::Io::PipedOutputStream outputStream;
 
     Util::Sound::AudioChannel::State state = Util::Sound::AudioChannel::STOPPED;
 

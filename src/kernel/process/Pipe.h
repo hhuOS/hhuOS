@@ -21,7 +21,10 @@
 #ifndef HHUOS_PIPE_H
 #define HHUOS_PIPE_H
 
-#include "lib/util/io/stream/Pipe.h"
+#include "lib/util/io/stream/FilterInputStream.h"
+#include "lib/util/io/stream/FilterOutputStream.h"
+#include "lib/util/io/stream/PipedInputStream.h"
+#include "lib/util/io/stream/PipedOutputStream.h"
 
 namespace Kernel {
 

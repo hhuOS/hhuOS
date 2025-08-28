@@ -16,21 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-# Add doxide (if available)
-find_program(doxide_path NAMES doxide)
-find_program(mkdocs_path NAMES mkdocs)
-if (doxide_path)
-    project(docs-doxide)
-    message(STATUS "Project " ${PROJECT_NAME})
-
-    add_custom_target(${PROJECT_NAME} ALL
-            WORKING_DIRECTORY "${HHUOS_ROOT_DIR}/"
-            COMMAND /bin/rm -rf "docs/" "site/"
-            COMMAND "${doxide_path}" init
-            COMMAND "${doxide_path}" build
-            COMMAND "${mkdocs_path}" build)
-endif()
-
 # Add doxygen (if available)
 find_program(doxygen_path NAMES doxygen)
 if (doxygen_path)

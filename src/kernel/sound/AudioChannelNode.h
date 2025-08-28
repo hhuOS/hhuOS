@@ -26,7 +26,6 @@
 
 #include "AudioMixer.h"
 #include "filesystem/memory/MemoryNode.h"
-#include "io/stream/Pipe.h"
 
 namespace Kernel {
 

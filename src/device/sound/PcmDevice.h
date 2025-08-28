@@ -22,7 +22,8 @@
 #define PCMDEVICE_H
 
 #include "io/stream/FilterOutputStream.h"
-#include "io/stream/Pipe.h"
+#include "io/stream/PipedInputStream.h"
+#include "io/stream/PipedOutputStream.h"
 
 namespace Device {
 
@@ -65,7 +66,9 @@ public:
 
 private:
 
-    Util::Io::Pipe pipe;
+    Util::Io::PipedInputStream inputStream;
+    Util::Io::PipedOutputStream outputStream;
+
     uint8_t *buffer = new uint8_t[4096];
 };
 
