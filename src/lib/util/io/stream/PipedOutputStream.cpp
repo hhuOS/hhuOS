@@ -18,9 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/base/Panic.h"
 #include "PipedOutputStream.h"
-#include "lib/util/io/stream/PipedInputStream.h"
+
+#include "base/Panic.h"
+#include "io/stream/PipedInputStream.h"
 
 namespace Util::Io {
 
@@ -28,23 +29,23 @@ PipedOutputStream::PipedOutputStream(PipedInputStream &inputStream) {
     connect(inputStream);
 }
 
-void PipedOutputStream::connect(PipedInputStream &inputStream) {
-    if (sink != nullptr) {
+void PipedOutputStream::connect(PipedInputStream &sink) {
+    if (PipedOutputStream::sink != nullptr) {
         Panic::fire(Panic::ILLEGAL_STATE, "PipedOutputStream: Already connected!");
     }
 
-    inputStream.connect(*this);
+    sink.connect(*this);
 }
 
-bool PipedOutputStream::write(uint8_t c) {
+bool PipedOutputStream::write(const uint8_t byte) {
     if (sink == nullptr) {
         return false;
     }
 
-    return sink->write(c);
+    return sink->write(byte);
 }
 
-uint32_t PipedOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+size_t PipedOutputStream::write(const uint8_t *sourceBuffer, const size_t offset, const size_t length) {
     if (sink == nullptr) {
         return 0;
     }
@@ -52,7 +53,7 @@ uint32_t PipedOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, 
     return sink->write(sourceBuffer, offset, length);
 }
 
-uint32_t PipedOutputStream::getWritableBytes() const {
+size_t PipedOutputStream::getWritableBytes() const {
     return sink->getWritableBytes();
 }
 

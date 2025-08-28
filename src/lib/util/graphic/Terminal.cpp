@@ -38,8 +38,7 @@ class KeyboardLayout;
 
 namespace Util::Graphic {
 
-Terminal::Terminal(uint16_t columns, uint16_t rows) : keyOutputStream(*this), columns(columns), rows(rows) {
-    keyOutputStream.connect(keyInputStream);
+Terminal::Terminal(uint16_t columns, uint16_t rows) : terminalStream(*this), columns(columns), rows(rows) {
     ansiOutputStream.connect(ansiInputStream);
     Async::Thread::createThread("Terminal", new KeyboardRunnable(*this));
 }
@@ -127,7 +126,7 @@ int16_t Terminal::peek() {
     }
     writeLock.release();
 
-    return keyInputStream.peek();
+    return terminalStream.peek();
 }
 
 int32_t Terminal::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
@@ -141,8 +140,8 @@ int32_t Terminal::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) 
     writeLock.release();
 
     // Read from key input stream if ANSI input stream did not provide enough data
-    if (readBytes == 0 || (static_cast<uint32_t>(readBytes) < length && keyInputStream.isReadyToRead())) {
-        readBytes += keyInputStream.read(targetBuffer, offset + readBytes, length - readBytes);
+    if (readBytes == 0 || (static_cast<uint32_t>(readBytes) < length && terminalStream.isReadyToRead())) {
+        readBytes += terminalStream.read(targetBuffer, offset + readBytes, length - readBytes);
     }
 
     return readBytes;
@@ -150,7 +149,7 @@ int32_t Terminal::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) 
 
 bool Terminal::isReadyToRead() {
     writeLock.acquire();
-    bool ret = ansiInputStream.isReadyToRead() || keyInputStream.isReadyToRead();
+    bool ret = ansiInputStream.isReadyToRead() || terminalStream.isReadyToRead();
 
     return writeLock.releaseAndReturn(ret);
 }
@@ -457,7 +456,7 @@ void Terminal::setEcho(bool enabled) {
 
 void Terminal::setLineAggregation(bool enabled) {
     lineAggregation = enabled;
-    keyOutputStream.flush();
+    terminalStream.flush();
 }
 
 void Terminal::setAnsiParsing(bool enabled) {
@@ -485,9 +484,11 @@ const Color& Terminal::getBackgroundColor() const {
     return backgroundColor;
 }
 
-Terminal::TerminalPipedOutputStream::TerminalPipedOutputStream(Terminal &terminal) : terminal(terminal) {}
+Terminal::TerminalStream::TerminalStream(Terminal &terminal) : FilterInputStream(keyInputStream), FilterOutputStream(keyOutputStream), terminal(terminal) {
+    keyOutputStream.connect(keyInputStream);
+}
 
-bool Terminal::TerminalPipedOutputStream::write(uint8_t c) {
+bool Terminal::TerminalStream::write(uint8_t c) {
     if (terminal.ansiParsing && c == '\b') {
         if (!lineBufferStream.isEmpty()) {
             auto column = terminal.getCurrentColumn();
@@ -506,7 +507,7 @@ bool Terminal::TerminalPipedOutputStream::write(uint8_t c) {
                 terminal.setPosition(column, row);
             }
 
-            auto line = lineBufferStream.getContent().substring(0, lineBufferStream.getLength() - 1);
+            auto line = lineBufferStream.getContent().substring(0, lineBufferStream.getPosition() - 1);
             lineBufferStream.reset();
             lineBufferStream.write(static_cast<const uint8_t*>(line), 0, line.length());
         }
@@ -530,10 +531,10 @@ bool Terminal::TerminalPipedOutputStream::write(uint8_t c) {
         return true;
     }
 
-    return PipedOutputStream::write(c);
+    return FilterOutputStream::write(c);
 }
 
-uint32_t Terminal::TerminalPipedOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+uint32_t Terminal::TerminalStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
     for (uint32_t i = 0; i < length; i++) {
         if (!write(sourceBuffer[offset + i])) {
             return i;
@@ -543,8 +544,8 @@ uint32_t Terminal::TerminalPipedOutputStream::write(const uint8_t *sourceBuffer,
     return length;
 }
 
-uint32_t Terminal::TerminalPipedOutputStream::flush() {
-    auto written = PipedOutputStream::write(static_cast<const uint8_t*>(lineBufferStream.getContent()), 0, lineBufferStream.getLength());
+uint32_t Terminal::TerminalStream::flush() {
+    auto written = FilterOutputStream::write(static_cast<const uint8_t*>(lineBufferStream.getContent()), 0, lineBufferStream.getPosition());
     lineBufferStream.reset();
 
     return written;
@@ -565,7 +566,7 @@ void Terminal::KeyboardRunnable::run() {
         }
 
         if (terminal.keyboardScancodes) {
-            terminal.keyOutputStream.write(scancode);
+            terminal.terminalStream.write(scancode);
         } else if (terminal.keyDecoder.parseScancode(scancode)) {
             auto key = terminal.keyDecoder.getCurrentKey();
             if (key.isPressed()) {
@@ -573,32 +574,32 @@ void Terminal::KeyboardRunnable::run() {
                 if (c == 0) {
                     switch (key.getScancode()) {
                         case Io::Key::UP:
-                            terminal.keyOutputStream.write(reinterpret_cast<const uint8_t *>("\u001b[1A"), 0, 4);
+                            terminal.terminalStream.write(reinterpret_cast<const uint8_t *>("\u001b[1A"), 0, 4);
                             break;
                         case Io::Key::DOWN:
-                            terminal.keyOutputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1B"), 0, 4);
+                            terminal.terminalStream.write(reinterpret_cast<const uint8_t*>("\u001b[1B"), 0, 4);
                             break;
                         case Io::Key::RIGHT:
-                            terminal.keyOutputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1C"), 0, 4);
+                            terminal.terminalStream.write(reinterpret_cast<const uint8_t*>("\u001b[1C"), 0, 4);
                             break;
                         case Io::Key::LEFT:
-                            terminal.keyOutputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1D"), 0, 4);
+                            terminal.terminalStream.write(reinterpret_cast<const uint8_t*>("\u001b[1D"), 0, 4);
                             break;
                         case Io::Key::END:
-                            terminal.keyOutputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1F"), 0, 4);
+                            terminal.terminalStream.write(reinterpret_cast<const uint8_t*>("\u001b[1F"), 0, 4);
                             break;
                         case Io::Key::HOME:
-                            terminal.keyOutputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1H"), 0, 4);
+                            terminal.terminalStream.write(reinterpret_cast<const uint8_t*>("\u001b[1H"), 0, 4);
                             break;
                         case Io::Key::DEL:
-                            terminal.keyOutputStream.write(0x7f);
+                            terminal.terminalStream.write(0x7f);
                     }
                 } else {
                     if (key.getCtrl()) {
                         c &= 0x1f;
                     }
 
-                    terminal.keyOutputStream.write(c);
+                    terminal.terminalStream.write(c);
                 }
             }
         }

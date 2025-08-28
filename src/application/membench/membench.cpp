@@ -70,13 +70,13 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "membench: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "membench: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -130,10 +130,10 @@ int32_t main(int32_t argc, char *argv[]) {
             Util::System::out.setDecimalPrecision(9);
             Util::System::out << averageSeconds << "s (" << Util::Io::PrintStream::flush;
             Util::System::out.setDecimalPrecision(2);
-            Util::System::out << bandwidth << " MB/s)" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::out << bandwidth << " MB/s)" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         }
     } else {
-        Util::System::error << "membench: Invalid benchmark type!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "membench: Invalid benchmark type!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 

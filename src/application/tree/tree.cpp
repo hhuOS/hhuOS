@@ -46,7 +46,7 @@ const char* getTypeColor(Util::Io::File &file) {
 void treeDirectory(const Util::String &path, uint32_t level) {
     auto file = Util::Io::File(path);
     if (!file.exists()) {
-        Util::System::error << "tree: '" << path << "' not found!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "tree: '" << path << "' not found!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return;
     }
 
@@ -56,7 +56,7 @@ void treeDirectory(const Util::String &path, uint32_t level) {
     }
 
     string += getTypeColor(file) + file.getName() + (file.isDirectory() ? "/" : "") + Util::Graphic::Ansi::FOREGROUND_DEFAULT + " ";
-    Util::System::out << string << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    Util::System::out << string << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 
     if (file.isDirectory()) {
         for (const auto &child : file.getChildren()) {
@@ -73,7 +73,7 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -84,7 +84,7 @@ int32_t main(int32_t argc, char *argv[]) {
         for (uint32_t i = 0; i < arguments.length(); i++) {
             treeDirectory(arguments[i], 0);
             if (i < static_cast<uint32_t>(arguments.length() - 1)) {
-                Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+                Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
             }
         }
     }

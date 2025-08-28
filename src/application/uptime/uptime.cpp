@@ -34,7 +34,7 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -52,6 +52,6 @@ int32_t main(int32_t argc, char *argv[]) {
         Util::System::out << Util::String::format("%d %s, %d:%02d:%02d", systemTime.toDays() == 1 ? "day" : "days", systemTime.toDays(), systemTime.toHours() % 24, minutes, systemTime.toSeconds() % seconds);
     }
 
-    Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     return 0;
 }

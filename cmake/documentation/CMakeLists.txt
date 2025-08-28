@@ -19,11 +19,11 @@
 # Add doxygen (if available)
 find_program(doxygen_path NAMES doxygen)
 if (doxygen_path)
-    project(docs-doxygen)
+    project(docs)
     message(STATUS "Project " ${PROJECT_NAME})
 
     add_custom_target(${PROJECT_NAME} ALL
             WORKING_DIRECTORY "${HHUOS_ROOT_DIR}/"
-            COMMAND /bin/rm -rf "doxygen/"
+            COMMAND /bin/rm -rf "docs/"
             COMMAND "${doxygen_path}" doxygen.conf)
 endif()

@@ -123,7 +123,7 @@ struct TableHeader {
 ///     // Iterate over all tables and print their types.
 ///     for (const auto &table : *tables) {
 ///         Util::System::out << "Found SMBIOS table with type: "
-///             << static_cast<uint32_t>(table.header.type) << Util::Io::PrintStream::endl;
+///             << static_cast<uint32_t>(table.header.type) << Util::Io::PrintStream::ln;
 ///     }
 ///
 ///     Util::System::out << Util::Io::PrintStream::flush;

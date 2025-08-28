@@ -40,7 +40,7 @@ int32_t Route::parse() {
         return add(parseRoute(arguments));
     }
 
-    Util::System::error << "ip: Invalid argument '" << arguments[0] << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    Util::System::error << "ip: Invalid argument '" << arguments[0] << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     return -1;
 }
 
@@ -48,12 +48,12 @@ int32_t Route::remove(const Util::Network::Ip4::Ip4Route &route) {
     const auto &address = Util::Network::Ip4::Ip4Address::ANY;
     auto ipSocket = Util::Network::Socket::createSocket(Util::Network::Socket::IP4);
     if (!ipSocket.bind(address)) {
-        Util::System::error << "ip: Unable to bind IPv4 socket to address '" << address.toString() << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Unable to bind IPv4 socket to address '" << address.toString() << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     if (!ipSocket.removeRoute(route)) {
-        Util::System::error << "ip: Unable to remove route!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Unable to remove route!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -64,12 +64,12 @@ int32_t Route::add(const Util::Network::Ip4::Ip4Route &route) {
     const auto &address = Util::Network::Ip4::Ip4Address::ANY;
     auto ipSocket = Util::Network::Socket::createSocket(Util::Network::Socket::IP4);
     if (!ipSocket.bind(address)) {
-        Util::System::error << "ip: Unable to bind IPv4 socket to address '" << address.toString() << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Unable to bind IPv4 socket to address '" << address.toString() << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     if (!ipSocket.addRoute(route)) {
-        Util::System::error << "ip: Unable to add route!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Unable to add route!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -78,7 +78,7 @@ int32_t Route::add(const Util::Network::Ip4::Ip4Route &route) {
 
 Util::Network::Ip4::Ip4Route Route::parseRoute(const Util::Array<Util::String> &arguments) {
     if (arguments.length() < 2) {
-        Util::System::error << "ip: Missing arguments for 'route " << COMMAND_ADD << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Missing arguments for 'route " << COMMAND_ADD << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         Util::Async::Process::exit(-1);
     }
 
@@ -113,7 +113,7 @@ Util::Network::Ip4::Ip4Route Route::parseRoute(const Util::Array<Util::String> &
 int32_t Route::printRoutes(const Util::Network::Ip4::Ip4Address &address) {
     auto ipSocket = Util::Network::Socket::createSocket(Util::Network::Socket::IP4);
     if (!ipSocket.bind(address)) {
-        Util::System::error << "ip: Unable to bind IPv4 socket to address '" << address.toString() << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "ip: Unable to bind IPv4 socket to address '" << address.toString() << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -123,7 +123,7 @@ int32_t Route::printRoutes(const Util::Network::Ip4::Ip4Address &address) {
         Util::System::out << (route.getTargetAddress().getBitCount() == 0 ? "default" : route.getTargetAddress().toString());
         if (route.hasNextHop()) Util::System::out << " via " << route.getNextHop().toString();
         Util::System::out << " device " << route.getDeviceIdentifier()
-                          << " source " << route.getSourceAddress().toString() << Util::Io::PrintStream::endl;
+                          << " source " << route.getSourceAddress().toString() << Util::Io::PrintStream::ln;
     }
 
     Util::System::out << Util::Io::PrintStream::flush;

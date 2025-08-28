@@ -68,11 +68,10 @@ LinearFrameBuffer LinearFrameBuffer::open(Io::File &file) {
     }
 
     auto stream = Io::FileInputStream(file);
-    bool endOfFile;
 
-    const auto addressString = stream.readLine(endOfFile);
-    const auto resolutionString = stream.readLine(endOfFile);
-    const auto pitchString = stream.readLine(endOfFile);
+    const auto addressString = stream.readLine();
+    const auto resolutionString = stream.readLine();
+    const auto pitchString = stream.readLine();
 
     const auto colorDepthSplit = resolutionString.split("@");
     const auto resolutionSplit = colorDepthSplit[0].split("x");

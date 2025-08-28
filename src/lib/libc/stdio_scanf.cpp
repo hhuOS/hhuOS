@@ -25,9 +25,8 @@ int vfscanf(FILE * stream, const char * format, va_list args) {
 }
 
 int vsscanf(const char * s, const char * format, va_list args) {
-	Util::Io::ByteArrayInputStream bs((uint8_t*)s, 0);
-	bs.disableSizeCheck();
-	bs.stopAtNullTerminator();
+	Util::Io::ByteArrayInputStream bs((uint8_t*)s);
+	bs.stopAtNullTerminator(true);
 	return _stream_vscanf(bs, format, args);
 }
 

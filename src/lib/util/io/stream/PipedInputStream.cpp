@@ -18,17 +18,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/base/Address.h"
-#include "lib/util/base/Panic.h"
-#include "PipedOutputStream.h"
 #include "PipedInputStream.h"
-#include "lib/util/async/Thread.h"
+
+#include "async/Thread.h"
+#include "base/Address.h"
+#include "base/Panic.h"
+#include "io/stream/PipedOutputStream.h"
 
 namespace Util::Io {
 
-PipedInputStream::PipedInputStream(int32_t bufferSize) : buffer(new uint8_t[bufferSize]), bufferSize(bufferSize) {}
+PipedInputStream::PipedInputStream(const size_t bufferSize) :
+    buffer(new uint8_t[bufferSize]), bufferSize(bufferSize) {}
 
-PipedInputStream::PipedInputStream(PipedOutputStream &outputStream, int32_t bufferSize) : buffer(new uint8_t[bufferSize]), bufferSize(bufferSize) {
+PipedInputStream::PipedInputStream(PipedOutputStream &outputStream, const size_t bufferSize) :
+    buffer(new uint8_t[bufferSize]), bufferSize(bufferSize)
+{
     connect(outputStream);
 }
 
@@ -48,21 +52,20 @@ void PipedInputStream::connect(PipedOutputStream &outputStream) {
 int16_t PipedInputStream::read() {
     uint8_t ret;
 	
-    uint32_t count = read(&ret, 0, 1);
-    return count == 0 ? 0 : ret;
+    const auto count = read(&ret, 0, 1);
+    if (count == 0) {
+        return 0;
+    }
+    if (count < 0) {
+        return -1;
+    }
+
+    return ret;
 }
 
-int16_t PipedInputStream::peek() {
-	if (inPosition < 0) {
-	    return -1;
-	}
-
-    return outPosition < inPosition ? buffer[outPosition] : buffer[(outPosition + 1) % bufferSize];
-}
-
-int32_t PipedInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
+int32_t PipedInputStream::read(uint8_t *targetBuffer, const size_t offset, const size_t length) {
     if (source == nullptr) {
-        Panic::fire(Panic::ILLEGAL_STATE, "PipedOutputStream: Source is null!");
+        Panic::fire(Panic::ILLEGAL_STATE, "PipedOutputStream: Not connected to a source!");
     }
 
     if (length == 0) {
@@ -77,29 +80,30 @@ int32_t PipedInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t 
         lock.acquire();
     }
 
-    uint32_t remaining = length;
-    uint32_t ret = 0;
+    size_t targetOffset = offset;
+    size_t remaining = length;
+    size_t readBytes = 0;
 
     while (true) {
         // Calculate the amount of bytes we can copy at once
-        uint32_t toCopy;
+        size_t toCopy;
         if (outPosition < inPosition) {
-            toCopy = remaining < static_cast<uint32_t>(inPosition - outPosition) ? remaining : (inPosition - outPosition);
+            toCopy = remaining < static_cast<size_t>(inPosition - outPosition) ? remaining : inPosition - outPosition;
         } else {
-            toCopy = remaining < (static_cast<uint32_t>(bufferSize) - outPosition) ? remaining : (bufferSize - outPosition);
+            toCopy = remaining < bufferSize - outPosition ? remaining : bufferSize - outPosition;
         }
 
         // Copy bytes from internal buffer to targetBuffer buffer
         auto sourceAddress = Address(buffer).add(outPosition);
-        auto targetAddress = Address(targetBuffer).add(offset);
+        auto targetAddress = Address(targetBuffer).add(targetOffset);
         targetAddress.copyRange(sourceAddress, toCopy);
 
-        offset += toCopy;
+        targetOffset += toCopy;
         remaining -= toCopy;
-        outPosition += toCopy;
-        ret += toCopy;
+        outPosition += static_cast<int32_t>(toCopy);
+        readBytes += toCopy;
 
-        if (outPosition == bufferSize) {
+        if (static_cast<size_t>(outPosition) == bufferSize) {
             outPosition = 0;
         }
 
@@ -112,18 +116,53 @@ int32_t PipedInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t 
         // Check if we have copied the requested amount of bytes or if the internal buffer is empty
         if (remaining == 0 || inPosition == -1) {
             lock.release();
-            return ret;
+            return static_cast<int32_t>(readBytes);
         }
     }
 }
 
-bool PipedInputStream::write(uint8_t c) {
-    return write(&c, 0, 1) == 1;
+int16_t PipedInputStream::peek() {
+    if (source == nullptr) {
+        Panic::fire(Panic::ILLEGAL_STATE, "PipedOutputStream: Not connected to a source!");
+    }
+
+    // Block while buffer is empty
+    lock.acquire();
+    while (inPosition < 0) {
+        lock.release();
+        Async::Thread::yield();
+        lock.acquire();
+    }
+
+    return outPosition < inPosition ? buffer[outPosition] : buffer[(outPosition + 1) % bufferSize];
 }
 
-uint32_t PipedInputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    uint32_t sourcePosition = offset;
-    uint32_t remaining = length;
+bool PipedInputStream::isReadyToRead() {
+    return getReadableBytes() > 0;
+}
+
+size_t PipedInputStream::getReadableBytes() {
+    lock.acquire();
+
+    size_t readableBytes;
+    if (inPosition < 0) {
+        readableBytes = 0;
+    } else if (outPosition < inPosition) {
+        readableBytes = inPosition - outPosition;
+    } else {
+        readableBytes = bufferSize - outPosition + inPosition;
+    }
+
+    return lock.releaseAndReturn(readableBytes);
+}
+
+bool PipedInputStream::write(const uint8_t byte) {
+    return write(&byte, 0, 1) == 1;
+}
+
+size_t PipedInputStream::write(const uint8_t *sourceBuffer, const size_t offset, const size_t length) {
+    size_t sourcePosition = offset;
+    size_t remaining = length;
     lock.acquire();
 
     while (remaining > 0) {
@@ -139,11 +178,11 @@ uint32_t PipedInputStream::write(const uint8_t *sourceBuffer, uint32_t offset, u
         }
 
         // Calculate the amount of bytes we can copy at once
-        uint32_t toCopy;
+        size_t toCopy;
         if (inPosition < outPosition) {
-            toCopy = remaining < static_cast<uint32_t>(outPosition - inPosition) ? remaining : (outPosition - inPosition);
+            toCopy = remaining < static_cast<size_t>(outPosition - inPosition) ? remaining : outPosition - inPosition;
         } else {
-            toCopy = remaining < (static_cast<uint32_t>(bufferSize) - inPosition) ? remaining : (bufferSize - inPosition);
+            toCopy = remaining < bufferSize - inPosition ? remaining : bufferSize - inPosition;
         }
 
         // Copy bytes from sourceBuffer to internal buffer
@@ -153,10 +192,10 @@ uint32_t PipedInputStream::write(const uint8_t *sourceBuffer, uint32_t offset, u
 
         remaining -= toCopy;
         sourcePosition += toCopy;
-        inPosition += toCopy;
+        inPosition += static_cast<int32_t>(toCopy);
 
         // Wrap around, if we have reached the buffer's end
-        if (inPosition == bufferSize) {
+        if (static_cast<size_t>(inPosition) == bufferSize) {
             inPosition = 0;
         }
     }
@@ -164,35 +203,7 @@ uint32_t PipedInputStream::write(const uint8_t *sourceBuffer, uint32_t offset, u
     return lock.releaseAndReturn(length);
 }
 
-void PipedInputStream::reset() {
-    lock.acquire();
-
-    inPosition = -1;
-    outPosition = 0;
-
-    lock.release();
-}
-
-bool PipedInputStream::isReadyToRead() {
-    return getReadableBytes() > 0;
-}
-
-uint32_t PipedInputStream::getReadableBytes() {
-    lock.acquire();
-
-    uint32_t readableBytes;
-    if (inPosition < 0) {
-        readableBytes = 0;
-    } else if (outPosition < inPosition) {
-        readableBytes = inPosition - outPosition;
-    } else {
-        readableBytes = (bufferSize - outPosition) + inPosition;
-    }
-
-    return lock.releaseAndReturn(readableBytes);
-}
-
-uint32_t PipedInputStream::getWritableBytes() {
+size_t PipedInputStream::getWritableBytes() {
     return bufferSize - getReadableBytes();
 }
 

@@ -179,7 +179,7 @@ public:
 
     /// Get the section header of a specific type.
     /// If multiple sections of the same type exist, the first one is returned.
-    /// If no such section exists, a panic is triggered.
+    /// If no such section exists, a panic is fired.
     [[nodiscard]] const SectionHeader& getSectionHeader(SectionType headerType) const;
 
 private:

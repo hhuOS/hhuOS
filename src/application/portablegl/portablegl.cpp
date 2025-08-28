@@ -52,13 +52,13 @@ int32_t main(int32_t argc, char *argv[]) {
     argumentParser.addArgument("scale", false, "s");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "opengl: No arguments provided! Please specify a demo (info, triangle)." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "opengl: No arguments provided! Please specify a demo (info, triangle)." << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -90,7 +90,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto *screenBuffer = reinterpret_cast<uint32_t*>(bufferedLfb.getBuffer().get());
     auto success = init_glContext(&context, &screenBuffer, bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY(), bufferedLfb.getColorDepth(), 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
     if (!success) {
-        Util::System::error << "portablegl: Failed to initialize GL context!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "portablegl: Failed to initialize GL context!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         exit(-1);
     }
 
@@ -101,7 +101,7 @@ int32_t main(int32_t argc, char *argv[]) {
     } else if (demo == "gears") {
         gears(bufferedLfb);
     } else {
-        Util::System::error << "opengl: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "opengl: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 

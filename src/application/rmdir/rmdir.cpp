@@ -34,36 +34,36 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "rmdir: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "rmdir: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     for (const auto &path : arguments) {
         auto file = Util::Io::File(path);
         if (!file.exists()) {
-            Util::System::out << "rmdir: '" << path << "' not found!" << Util::Io::PrintStream::endl;
+            Util::System::out << "rmdir: '" << path << "' not found!" << Util::Io::PrintStream::ln;
             continue;
         }
 
         if (!file.isDirectory()) {
-            Util::System::out << "rmdir: '" << path << "' is not a directory!" << Util::Io::PrintStream::endl;
+            Util::System::out << "rmdir: '" << path << "' is not a directory!" << Util::Io::PrintStream::ln;
             continue;
         }
 
         if (file.getChildren().length() > 0) {
-            Util::System::out << "rmdir: '" << path << "' is not empty!" << Util::Io::PrintStream::endl;
+            Util::System::out << "rmdir: '" << path << "' is not empty!" << Util::Io::PrintStream::ln;
             continue;
         }
 
         auto success = file.remove();
         if (!success) {
-            Util::System::out << "rmdir: Failed to delete directory '" << path << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::out << "rmdir: Failed to delete directory '" << path << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         }
     }
 

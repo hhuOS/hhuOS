@@ -51,20 +51,20 @@ int32_t main(int32_t argc, char *argv[]) {
     argumentParser.addArgument("scale", false, "s");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto args = argumentParser.getUnnamedArguments();
 
     if (args.length() < 1) {
-        Util::System::error << "view3d: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "view3d: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto file = Util::Io::File(args[0]);
     if (!file.exists() || file.isDirectory()) {
-        Util::System::error << "view3d: '" << args[0] << "' could not be opened!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "view3d: '" << args[0] << "' could not be opened!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 

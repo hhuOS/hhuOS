@@ -36,7 +36,6 @@ int vsprintf(char * buffer, const char * format, va_list vlist) {
 
 int vsnprintf(char * buffer, size_t bufsz, const char * format, va_list vlist) {
 	Util::Io::ByteArrayOutputStream os((uint8_t*)buffer, bufsz);
-	os.setSizeCheck(true);
 	int ret = _stream_vprintf(os, format, vlist);
 	os.write('\0');
 	return ret;

@@ -46,7 +46,6 @@ ObjectFile::ObjectFile(const Array<Math::Vector3<double>> &vertices, const Array
 ObjectFile* ObjectFile::open(const String &path) {
     auto fileStream = Io::FileInputStream(path);
     auto stream = Io::BufferedInputStream(fileStream);
-    bool endOfFile = false;
 
     auto vertexList = ArrayList<Math::Vector3<double>>();
     auto normalList = ArrayList<Math::Vector3<double>>();
@@ -56,8 +55,8 @@ ObjectFile* ObjectFile::open(const String &path) {
     auto textureDrawOrder = ArrayList<uint32_t>();
 
     // Read the file line by line
-    auto currentLine = stream.readLine(endOfFile);
-    while (!endOfFile) {
+    auto currentLine = stream.readLine();
+    while (!currentLine.isEmpty()) {
         auto lineSplit = currentLine.substring(2).split(" ");
 
         if (currentLine.beginsWith("v ")) {
@@ -122,7 +121,7 @@ ObjectFile* ObjectFile::open(const String &path) {
             textureList.add(vertex);
         }
 
-        currentLine = stream.readLine(endOfFile);
+        currentLine = stream.readLine();
     }
 
     // Normalize model size

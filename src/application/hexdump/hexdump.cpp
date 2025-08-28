@@ -41,7 +41,7 @@ void printSeparationLine() {
         Util::System::out << LINE_SEPARATOR;
     }
 
-    Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 }
 
 char sanitize(char value) {
@@ -64,25 +64,25 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "hexdump: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "hexdump: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto path = Util::String(arguments[0]);
     auto file = Util::Io::File(path);
     if (!file.exists()) {
-        Util::System::error << "hexdump: '" << path << "' not found!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "hexdump: '" << path << "' not found!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     if (file.isDirectory()) {
-        Util::System::error << "hexdump: '" << path << "' is a directory!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "hexdump: '" << path << "' is a directory!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -90,7 +90,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto bufferedStream = Util::Io::BufferedInputStream(fileStream);
     auto &stream = (file.getType() == Util::Io::File::REGULAR) ? static_cast<Util::Io::InputStream&>(bufferedStream) : static_cast<Util::Io::InputStream&>(fileStream);
 
-    Util::System::out << Util::Io::PrintStream::hex << HEXDUMP_HEADER << Util::Io::PrintStream::endl;
+    Util::System::out << Util::Io::PrintStream::hex << HEXDUMP_HEADER << Util::Io::PrintStream::ln;
     printSeparationLine();
 
     int32_t length = argumentParser.hasArgument("length") ? Util::String::parseNumber<int32_t>(argumentParser.getArgument("length")) : -1;
@@ -130,7 +130,7 @@ int32_t main(int32_t argc, char *argv[]) {
         }
 
         address += LINE_LENGTH;
-        Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 
         if (i < LINE_LENGTH) {
             break;

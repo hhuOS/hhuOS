@@ -54,10 +54,10 @@ namespace Util::Async {
 ///
 ///     if (value % 2 == 0) {
 ///         Util::System::out << "Value is even: " << value
-///             << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+///             << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 ///     } else {
 ///         Util::System::out << "Value is odd: " << value
-///             << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+///             << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 ///     }
 ///
 ///     lock.release();

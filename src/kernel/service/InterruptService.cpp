@@ -78,12 +78,12 @@ void InterruptService::handleException(const InterruptFrame &frame, uint32_t err
         Util::Panic::fire(static_cast<Util::Panic::Error>(vector), "CPU exception!");
     }
 
-    Util::System::out << Util::Panic::getErrorAsString(static_cast<Util::Panic::Error>(vector)) << " (CPU exception!)" << Util::Io::PrintStream::endl
+    Util::System::out << Util::Panic::getErrorAsString(static_cast<Util::Panic::Error>(vector)) << " (CPU exception!)" << Util::Io::PrintStream::ln
         << Util::Io::PrintStream::hex << "Error code: 0x" << errorCode
-        << Util::Io::PrintStream::endl << " EIP: 0x" << frame.instructionPointer
-        << Util::Io::PrintStream::endl << " CS: 0x" << frame.codeSegment
-        << Util::Io::PrintStream::endl << " EFLAGS: 0x" << frame.flags
-        << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        << Util::Io::PrintStream::ln << " EIP: 0x" << frame.instructionPointer
+        << Util::Io::PrintStream::ln << " CS: 0x" << frame.codeSegment
+        << Util::Io::PrintStream::ln << " EFLAGS: 0x" << frame.flags
+        << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 
     Util::System::printStackTrace(Util::System::out, Util::USER_SPACE_MEMORY_START_ADDRESS);
     processService.exitCurrentProcess(-1);

@@ -76,7 +76,7 @@ void Platform_Log(const char *msg, const int len) {
 		Util::System::out << msg[i];
 	}
 
-	Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+	Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 }
 
 TimeMS DateTime_CurrentUTC() {

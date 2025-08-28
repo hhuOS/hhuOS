@@ -34,21 +34,21 @@ static const constexpr uint32_t DEFAULT_PORT = 1797;
 int32_t server(Util::Network::Socket &socket) {
     auto localAddress = Util::Network::Ip4::Ip4PortAddress();
     if (!socket.getLocalAddress(localAddress)) {
-        Util::System::error << "uecho: Failed to query socket address!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "uecho: Failed to query socket address!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
-    Util::System::out << "UDP echo sever running on " << localAddress.toString() << "! Send 'exit' to leave." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    Util::System::out << "UDP echo sever running on " << localAddress.toString() << "! Send 'exit' to leave." << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 
     while (true) {
         auto receivedDatagram = Util::Network::Udp::UdpDatagram();
         if (!socket.receive(receivedDatagram)) {
-            Util::System::error << "uecho: Failed to receive echo request!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::error << "uecho: Failed to receive echo request!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
             return -1;
         }
 
         if (!socket.send(receivedDatagram)) {
-            Util::System::error << "uecho: Failed to send echo reply!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::error << "uecho: Failed to send echo reply!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
             return -1;
         }
 
@@ -63,12 +63,12 @@ int32_t server(Util::Network::Socket &socket) {
 int32_t client(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4PortAddress &destinationAddress) {
     auto localAddress = Util::Network::Ip4::Ip4PortAddress();
     if (!socket.getLocalAddress(localAddress)) {
-        Util::System::error << "uecho: Failed to query socket address!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "uecho: Failed to query socket address!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     Util::System::out << "UDP echo client running on " << localAddress.toString() << " and sending to " << destinationAddress.toString()
-                      << "! Type 'exit' to leave." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+                      << "! Type 'exit' to leave." << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 
     while (true) {
         Util::String line;
@@ -84,18 +84,18 @@ int32_t client(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4PortA
 
         auto sendDatagram = Util::Network::Udp::UdpDatagram(static_cast<const uint8_t*>(line), line.length(), destinationAddress);
         if (!socket.send(sendDatagram)) {
-            Util::System::error << "uecho: Failed to send echo request!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::error << "uecho: Failed to send echo request!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
             return -1;
         }
 
         auto receivedDatagram = Util::Network::Udp::UdpDatagram();
         if (!socket.receive(receivedDatagram)) {
-            Util::System::error << "uecho: Failed to receive echo reply!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::error << "uecho: Failed to receive echo reply!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
             return -1;
         }
 
         auto message = Util::String(receivedDatagram.getData(), receivedDatagram.getLength()).strip();
-        Util::System::out << "Received: " << message << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::out << "Received: " << message << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 
         if (message == "exit") {
             break;
@@ -119,12 +119,12 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     if (!argumentParser.checkSwitch("server") && !argumentParser.hasArgument("remote")) {
-        Util::System::error << "uecho: Please specify server/client mode!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "uecho: Please specify server/client mode!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -139,7 +139,7 @@ int32_t main(int32_t argc, char *argv[]) {
     socket.setTimeout(Util::Time::Timestamp::ofSeconds(5));
 
     if (!socket.bind(bindAddress)) {
-        Util::System::error << "uecho: Failed to bind socket!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "uecho: Failed to bind socket!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     }
 
     if (argumentParser.checkSwitch("server")) {

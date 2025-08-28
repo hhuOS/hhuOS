@@ -256,7 +256,7 @@ bool shutdown(Util::Hardware::Machine::ShutdownType type) {
 }
 
 void throwError(Util::Panic::Error error, const char *message) {
-    Util::System::out << Util::Panic::getErrorAsString(error) << " (" << message << ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    Util::System::out << Util::Panic::getErrorAsString(error) << " (" << message << ")" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     Util::System::printStackTrace(Util::System::out, Util::USER_SPACE_MEMORY_START_ADDRESS);
     Util::System::call(Util::System::EXIT_PROCESS, 1, -1);
     __builtin_unreachable();

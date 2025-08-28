@@ -28,7 +28,7 @@ int32_t main(int32_t argc, char *argv[]) {
         Util::System::out << argv[i] << " ";
     }
 
-    Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 
     return 0;
 }

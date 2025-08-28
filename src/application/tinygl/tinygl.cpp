@@ -52,13 +52,13 @@ int32_t main(int32_t argc, char *argv[]) {
     argumentParser.addArgument("scale", false, "s");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "tinygl: No arguments provided! Please specify a demo (info, triangle, gears, cubes)." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "tinygl: No arguments provided! Please specify a demo (info, triangle, gears, cubes)." << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -84,7 +84,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto lfb = Util::Graphic::LinearFrameBuffer::open(lfbFile);
     if (lfb.getColorDepth() != TGL_FEATURE_RENDER_BITS) {
-        Util::System::error << "tinygl: Color depth not supported (Required: " << TGL_FEATURE_RENDER_BITS << ", Got: " << lfb.getColorDepth() << ")!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "tinygl: Color depth not supported (Required: " << TGL_FEATURE_RENDER_BITS << ", Got: " << lfb.getColorDepth() << ")!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -102,7 +102,7 @@ int32_t main(int32_t argc, char *argv[]) {
     } else if (demo == "cubes") {
         cubes(bufferedLfb);
     } else {
-        Util::System::error << "opengl: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "opengl: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 

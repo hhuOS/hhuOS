@@ -26,28 +26,28 @@
 #include "lib/util/base/System.h"
 
 void ansiColorDemo() {
-    Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << "4-bit colors:" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << "4-bit colors:" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 
     for (uint32_t i = 0; i < 16; i++) {
         Util::System::out << Util::Graphic::Ansi::background8BitColor(i) << " ";
     }
 
-    Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << Util::Io::PrintStream::endl << Util::Io::PrintStream::endl << "8-bit colors:";
+    Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << Util::Io::PrintStream::ln << Util::Io::PrintStream::ln << "8-bit colors:";
 
     for (uint32_t i = 0; i < 216; i++) {
         if (i % 36 == 0) {
-            Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << Util::Io::PrintStream::endl;
+            Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << Util::Io::PrintStream::ln;
         }
         Util::System::out << Util::Graphic::Ansi::background8BitColor(i + 16) << " ";
     }
 
-    Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << Util::Io::PrintStream::endl << Util::Io::PrintStream::endl << "Grayscale colors:" << Util::Io::PrintStream::endl;
+    Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << Util::Io::PrintStream::ln << Util::Io::PrintStream::ln << "Grayscale colors:" << Util::Io::PrintStream::ln;
 
     for (uint32_t i = 232; i < 256; i++) {
         Util::System::out << Util::Graphic::Ansi::background8BitColor(i) << " ";
     }
 
-    Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << Util::Io::PrintStream::endl << Util::Io::PrintStream::endl << "24-bit colors:" << Util::Io::PrintStream::endl;
+    Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << Util::Io::PrintStream::ln << Util::Io::PrintStream::ln << "24-bit colors:" << Util::Io::PrintStream::ln;
 
     for (uint32_t i = 0; i < 8; i++) {
         for (uint32_t j = 0; j < 8; j++) {
@@ -55,7 +55,7 @@ void ansiColorDemo() {
                 Util::System::out << Util::Graphic::Ansi::background24BitColor(Util::Graphic::Color(i * 32, j * 32, k * 32)) << " ";
             }
         }
-        Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << Util::Io::PrintStream::endl;
+        Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << Util::Io::PrintStream::ln;
     }
 
     Util::System::out << Util::Io::PrintStream::flush;

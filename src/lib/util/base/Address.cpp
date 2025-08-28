@@ -213,6 +213,10 @@ void Address::copyRange(const Address &sourceAddress, size_t length) const {
     }
 }
 
+void Address::copyRange(const void *sourceAddress, const size_t length) const {
+    copyRange(Address(sourceAddress), length);
+}
+
 void Address::copyString(const Address &sourceAddress) const {
     auto *target = reinterpret_cast<char*>(address);
     const auto *source = reinterpret_cast<char*>(sourceAddress.address);

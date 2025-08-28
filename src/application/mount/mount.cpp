@@ -37,20 +37,20 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto type = argumentParser.getArgument("type");
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() < 2) {
-        Util::System::error << "mount: Too few arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "mount: Too few arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto success = Util::Io::File::mount(arguments[0], arguments[1], type);
     if (!success) {
-        Util::System::error << "mount: Failed to mount '" << argv[1] << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "mount: Failed to mount '" << argv[1] << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     }
 
     return success ? 0 : -1;

@@ -36,19 +36,19 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "keyboard: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "keyboard: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     bool success = Util::Io::File::controlFile(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::Command::SET_KEYBOARD_LAYOUT, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(static_cast<const char*>(arguments[0]))}));
     if (!success) {
-        Util::System::error << "keyboard: Failed to set layout!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "keyboard: Failed to set layout!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 

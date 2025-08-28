@@ -20,6 +20,8 @@
 
 #include "AudioRunnable.h"
 
+#include "async/Thread.h"
+
 namespace Util::Game {
 
 AudioRunnable::AudioRunnable(Array<AudioChannel> &channels) : channels(channels) {}

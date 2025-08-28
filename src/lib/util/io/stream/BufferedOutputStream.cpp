@@ -18,52 +18,54 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/base/Address.h"
 #include "BufferedOutputStream.h"
-#include "lib/util/io/stream/FilterOutputStream.h"
 
-namespace Util {
-namespace Io {
-class OutputStream;
-}  // namespace Stream
-}  // namespace Util
+#include "base/Address.h"
+#include "io/stream/FilterOutputStream.h"
 
 namespace Util::Io {
 
-BufferedOutputStream::BufferedOutputStream(OutputStream &stream, uint32_t size): FilterOutputStream(stream), buffer(new uint8_t[size]), size(size) {}
+BufferedOutputStream::BufferedOutputStream(OutputStream &stream, const size_t size):
+    FilterOutputStream(stream), buffer(new uint8_t[size]), size(size) {}
 
 BufferedOutputStream::~BufferedOutputStream() {
+    flush();
     delete[] buffer;
 }
 
-bool BufferedOutputStream::write(uint8_t c) {
+bool BufferedOutputStream::write(const uint8_t byte) {
+    // Check if the buffer is full and flush it if necessary
     if (position == size) {
         if (flush() == 0) {
+            // Flushing failed, likely due to an error in the underlying stream
             return false;
         }
     }
 
-    buffer[position++] = c;
+    // Add the byte to the buffer
+    buffer[position++] = byte;
     return true;
 }
 
-uint32_t BufferedOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    if (length < (size - position)) {
-        Address sourceAddress(sourceBuffer + offset);
-        Address targetAddress(buffer + position);
+uint32_t BufferedOutputStream::write(const uint8_t *sourceBuffer, const size_t offset, const size_t length) {
+    // If the data fits into the remaining buffer space, copy it into the buffer
+    if (length < size - position) {
+        const auto sourceAddress = Address(sourceBuffer).add(offset);
+        const auto targetAddress = Address(buffer).add(position);
 
         targetAddress.copyRange(sourceAddress, length);
         position += length;
 
         return length;
-    } else {
-        flush();
-        return FilterOutputStream::write(sourceBuffer, offset, length);
     }
+
+    // If the data is larger than the buffer, flush the buffer and write directly to the underlying stream
+    flush();
+    return FilterOutputStream::write(sourceBuffer, offset, length);
 }
 
 uint32_t BufferedOutputStream::flush() {
-    auto flushed = FilterOutputStream::write(buffer, 0, position);
+    const auto flushed = FilterOutputStream::write(buffer, 0, position);
     position -= flushed;
     FilterOutputStream::flush();
 

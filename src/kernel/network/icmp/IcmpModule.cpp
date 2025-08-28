@@ -112,7 +112,7 @@ void IcmpModule::writePacket(Util::Network::Icmp::IcmpHeader::Type type, uint8_t
 
     // Finalize and send packet
     Ethernet::EthernetModule::finalizePacket(packet);
-    sourceInterface.getDevice().sendPacket(packet.getBuffer(), packet.getLength());
+    sourceInterface.getDevice().sendPacket(packet.getBuffer(), packet.getPosition());
 }
 
 void IcmpModule::sendEchoReply(const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &destinationAddress,
@@ -125,7 +125,7 @@ void IcmpModule::sendEchoReply(const Util::Network::Ip4::Ip4Address &sourceAddre
     replyHeader.write(packet);
     packet.write(buffer, 0, length);
 
-    writePacket(Util::Network::Icmp::IcmpHeader::ECHO_REPLY, 0, sourceAddress, destinationAddress, packet.getBuffer(), packet.getLength());
+    writePacket(Util::Network::Icmp::IcmpHeader::ECHO_REPLY, 0, sourceAddress, destinationAddress, packet.getBuffer(), packet.getPosition());
 }
 
 }

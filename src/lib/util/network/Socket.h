@@ -61,7 +61,7 @@ namespace Util::Network {
 /// // Bind the socket to a specific address
 /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
 ///     Util::System::out << "Failed to bind socket!"
-///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 ///     return;
 /// }
 ///
@@ -72,7 +72,7 @@ namespace Util::Network {
 /// auto receivedDatagram = Util::Network::Udp::UdpDatagram();
 /// if (!socket.receive(receivedDatagram)) {
 ///     Util::System::out << "Failed to receive datagram!"
-///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 ///     return;
 /// }
 /// ```
@@ -173,7 +173,7 @@ public:
     /// // Bind the socket to a specific address
     /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
     ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     /// ```
@@ -192,7 +192,7 @@ public:
     /// // Bind the socket to a specific address
     /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
     ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
@@ -200,7 +200,7 @@ public:
     /// auto localAddress = Util::Network::NetworkAddress();
     /// if (!socket.getLocalAddress(localAddress)) {
     ///     Util::System::out << "Failed to get local address!"
-    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
@@ -220,7 +220,7 @@ public:
     /// // Bind the socket to a specific address
     /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
     ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
@@ -232,7 +232,7 @@ public:
     /// // Send the datagram via the socket
     /// if (!socket.send(datagram)) {
     ///     Util::System::out << "Failed to send datagram!"
-    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     /// ```
@@ -254,7 +254,7 @@ public:
     /// // Bind the socket to a specific address
     /// if (!socket.bind(Util::Network::Ip4::Ip4PortAddress("10.0.2.15:1797"))) {
     ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
@@ -265,7 +265,7 @@ public:
     /// auto receivedDatagram = Util::Network::Udp::UdpDatagram();
     /// if (!socket.receive(receivedDatagram)) {
     ///     Util::System::out << "Failed to receive datagram!"
-    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     /// ```
@@ -283,20 +283,19 @@ public:
     ///
     /// // Read MAC address of device "eth0" from file system
     /// auto macFile = Util::Io::FileInputStream("/device/eth0/mac");
-    /// bool endOfFile = false;
-    /// auto macAddress = Util::Network::MacAddress(macFile.readLine(endOfFile));
+    /// auto macAddress = Util::Network::MacAddress(macFile.readLine());
     ///
     /// // Bind the socket to the read MAC address
     /// if (!socket.bind(macAddress)) {
     ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
     /// // Query the IPv4 addresses assigned to the interface and print them
     /// const auto ipAddresses = socket.getIp4Addresses();
     /// for (const auto &address : ipAddresses) {
-    ///     Util::System::out << "IPv4 Address: " << address.toString() << Util::Io::PrintStream::endl;
+    ///     Util::System::out << "IPv4 Address: " << address.toString() << Util::Io::PrintStream::ln;
     /// }
     ///
     /// Util::System::out << Util::Io::PrintStream::flush;
@@ -315,13 +314,12 @@ public:
     ///
     /// // Read MAC address of device "eth0" from file system
     /// auto macFile = Util::Io::FileInputStream("/device/eth0/mac");
-    /// bool endOfFile = false;
-    /// auto macAddress = Util::Network::MacAddress(macFile.readLine(endOfFile));
+    /// auto macAddress = Util::Network::MacAddress(macFile.readLine());
     ///
     /// // Bind the socket to the read MAC address
     /// if (!socket.bind(macAddress)) {
     ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
@@ -329,7 +327,7 @@ public:
     /// const auto addressToRemove = Util::Network::Ip4::Ip4SubnetAddress("10.0.2.15/24");
     /// if (!socket.removeIp4Address(addressToRemove)) {
     ///     Util::System::out << "Failed to remove IPv4 address!"
-    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     /// ```
@@ -347,13 +345,12 @@ public:
     ///
     /// // Read MAC address of device "eth0" from file system
     /// auto macFile = Util::Io::FileInputStream("/device/eth0/mac");
-    /// bool endOfFile = false;
-    /// auto macAddress = Util::Network::MacAddress(macFile.readLine(endOfFile));
+    /// auto macAddress = Util::Network::MacAddress(macFile.readLine());
     ///
     /// // Bind the socket to the read MAC address
     /// if (!socket.bind(macAddress)) {
     ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
@@ -361,7 +358,7 @@ public:
     /// const auto addressToAdd = Util::Network::Ip4::Ip4SubnetAddress("10.0.2.15/24");
     /// if (!socket.addIp4Address(addressToAdd)) {
     ///     Util::System::out << "Failed to add IPv4 address!"
-    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     /// ```
@@ -380,7 +377,7 @@ public:
     /// // Bind the socket to a specific IPv4 address
     /// if (!socket.bind(Util::Network::Ip4::Ip4Address("10.0.2.15"))) {
     ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
@@ -390,7 +387,7 @@ public:
     ///     Util::System::out << "Route: " << route.getTargetAddress().toString()
     ///         << " via " << (route.hasNextHop() ? route.getNextHop().toString() : "N/A")
     ///         << " on device " << route.getDeviceIdentifier()
-    ///         << Util::Io::PrintStream::endl;
+    ///         << Util::Io::PrintStream::ln;
     /// }
     ///
     /// Util::System::out << Util::Io::PrintStream::flush;
@@ -409,7 +406,7 @@ public:
     /// // Bind the socket to a specific IPv4 address
     /// if (!socket.bind(Util::Network::Ip4::Ip4Address("10.0.2.15"))) {
     ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
@@ -420,7 +417,7 @@ public:
     ///
     /// if (!socket.removeRoute(routeToRemove)) {
     ///     Util::System::out << "Failed to remove route!"
-    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     /// ```
@@ -438,7 +435,7 @@ public:
     /// // Bind the socket to a specific IPv4 address
     /// if (!socket.bind(Util::Network::Ip4::Ip4Address("10.0.2.15"))) {
     ///     Util::System::out << "Failed to bind socket!"
-    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     ///
@@ -449,7 +446,7 @@ public:
     ///
     /// if (!socket.addRoute(routeToAdd)) {
     ///     Util::System::out << "Failed to add route!"
-    ///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     ///     return;
     /// }
     /// ```

@@ -56,7 +56,7 @@ namespace Util::Network::Ip4 {
 /// // Bind the socket to a specific IPv4 address
 /// if (!socket.bind(Util::Network::Ip4::Ip4Address("10.0.2.15"))) {
 ///     Util::System::out << "Failed to bind socket!"
-///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 ///     return;
 /// }
 ///
@@ -67,7 +67,7 @@ namespace Util::Network::Ip4 {
 ///
 /// if (!socket.send(datagram)) {
 ///     Util::System::out << "Failed to send datagram!"
-///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::
+///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::
 ///     return;
 /// }
 /// ```

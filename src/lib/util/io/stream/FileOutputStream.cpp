@@ -21,12 +21,10 @@
 #include "FileOutputStream.h"
 
 #include "lib/interface.h"
-#include "lib/util/base/Panic.h"
-#include "lib/util/io/file/File.h"
+#include "base/Panic.h"
+#include "io/file/File.h"
 
 namespace Util::Io {
-
-FileOutputStream::FileOutputStream(const File &file) : FileOutputStream(file.getCanonicalPath()) {}
 
 FileOutputStream::FileOutputStream(const String &path) {
     fileDescriptor = File::open(path);
@@ -35,20 +33,29 @@ FileOutputStream::FileOutputStream(const String &path) {
     }
 }
 
-FileOutputStream::FileOutputStream(int32_t fileDescriptor) : fileDescriptor(fileDescriptor) {}
+FileOutputStream::FileOutputStream(const File &file) : FileOutputStream(file.getCanonicalPath()) {}
 
-bool FileOutputStream::write(uint8_t c) {
-    return write(&c, 0, 1) == 1;
+FileOutputStream::FileOutputStream(const int32_t fileDescriptor) :
+    closeFileDescriptor(false), fileDescriptor(fileDescriptor) {}
+
+FileOutputStream::~FileOutputStream() {
+    if (closeFileDescriptor) {
+        File::close(fileDescriptor);
+    }
 }
 
-uint32_t FileOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+bool FileOutputStream::write(const uint8_t byte) {
+    return write(&byte, 0, 1);
+}
+
+uint32_t FileOutputStream::write(const uint8_t *sourceBuffer, const size_t offset, const size_t length) {
     const auto written = writeFile(fileDescriptor, sourceBuffer + offset, pos, length);
     pos += written;
 
     return written;
 }
 
-void FileOutputStream::setPosition(uint32_t offset, File::SeekMode mode) {
+void FileOutputStream::setPosition(const size_t offset, const File::SeekMode mode) {
     switch (mode) {
         case File::SeekMode::SET:
             pos = offset;

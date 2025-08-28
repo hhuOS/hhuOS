@@ -34,26 +34,26 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "mkdir: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "mkdir: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     for (const auto &path : arguments) {
         auto file = Util::Io::File(path);
         if (file.exists()) {
-            Util::System::error << "mkdir: '" << path << "' already exists!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::error << "mkdir: '" << path << "' already exists!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
             continue;
         }
 
         auto success = file.create(Util::Io::File::DIRECTORY);
         if (!success) {
-            Util::System::error << "mkdir: Failed to create directory '" << path << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::error << "mkdir: Failed to create directory '" << path << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         }
     }
 

@@ -582,13 +582,13 @@ int32_t String::format(const char *format, va_list args, Io::OutputStream &targe
                         }
                     } else if (c == 'X') {
                         printStream.setBase(16);
-                        printStream.setHexNumericBase('A');
+                        printStream.setAlphaNumericBase('A');
                         if (alternateConversion) {
                             printStream.setIntegerPrefix("0X");
                         }
                     } else if (c == 'x' || c == 'p') {
                         printStream.setBase(16);
-                        printStream.setHexNumericBase('a');
+                        printStream.setAlphaNumericBase('a');
                         if (alternateConversion) {
                             printStream.setIntegerPrefix("0x");
                         }
@@ -612,7 +612,7 @@ int32_t String::format(const char *format, va_list args, Io::OutputStream &targe
                     if (c == 'd' || c == 'i') {
                         printStream.print(static_cast<int32_t>(value));
                     } else {
-                        printStream.print(static_cast<uint32_t>(value));
+                        printStream.print(value);
                     }
 
                     break;
@@ -699,7 +699,7 @@ int32_t String::format(const char *format, va_list args, Io::OutputStream &targe
 String String::formatDate(const Time::Date &date, const char *format) {
     Io::ByteArrayOutputStream stream;
 
-    const auto written = String::formatDate(date, stream, format);
+    const auto written = formatDate(date, stream, format);
     if (written < 0) {
         Panic::fire(Panic::INVALID_ARGUMENT, "String: Invalid format string!");
     }
@@ -833,7 +833,7 @@ int32_t String::formatDate(const Time::Date &date, Io::OutputStream &target, con
         }
     }
 
-    return printStream.getBytesWritten();
+    return static_cast<int32_t>(printStream.getBytesWritten());
 }
 
 }

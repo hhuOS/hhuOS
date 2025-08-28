@@ -36,7 +36,7 @@ namespace Util::Async {
 /// // A Runnable needs to be heap allocated for using it with the Util::Async::Thread class.
 /// // The Thread instance will take ownership of the runnable and delete it when the thread is done.
 /// auto runnable = new Util::Async::BasicRunnable([]() {
-///     Util::System::out << "Hello from a new thread!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+///     Util::System::out << "Hello from a new thread!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 /// });
 ///
 /// auto thread = Util::Async::Thread::createThread("Test", runnable);

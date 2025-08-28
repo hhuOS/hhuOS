@@ -53,13 +53,13 @@ int32_t main(int32_t argc, char *argv[]) {
     argumentParser.addArgument("scale", false, "s");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "demo: No arguments provided! Please specify a demo (ant, color, fonts, mouse, opengl, particles, polygons, sprites)." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "demo: No arguments provided! Please specify a demo (ant, color, fonts, mouse, opengl, particles, polygons, sprites)." << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -107,7 +107,7 @@ int32_t main(int32_t argc, char *argv[]) {
             auto initialCount = arguments.length() > 1 ? Util::String::parseNumber<uint32_t>(arguments[1]) : 10;
             Util::Game::GameManager::getGame().pushScene(new SpriteDemo(initialCount));
         } else {
-            Util::System::error << "demo: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::error << "demo: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
             return -1;
         }
 

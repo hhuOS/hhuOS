@@ -42,7 +42,7 @@ namespace Util {
 ///     Util::System::out << element << " "; // Prints: 10 2 3 4 5
 /// }
 ///
-/// Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+/// Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 /// ```
 template <typename T>
 class Array {
@@ -62,7 +62,7 @@ public:
     ///     Util::System::out << element << " "; // Prints: 0 1 2 3 4 5 6 7 8 9
     /// }
     ///
-    /// Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    /// Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     /// ```
     explicit Array(size_t capacity = 0);
 
@@ -77,7 +77,7 @@ public:
     ///     Util::System::out << element << " "; // Prints: 1 2 3 4 5
     /// }
     ///
-    /// Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    /// Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     /// ```
     Array(std::initializer_list<T> list);
 
@@ -95,7 +95,7 @@ public:
     /// ### Example
     /// ```c++
     /// const auto array = Util::Array<int>({1, 2, 3, 4, 5});
-    /// Util::System::out << array[0] << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush; // Prints: 1
+    /// Util::System::out << array[0] << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // Prints: 1
     /// ```
     const T& operator[](size_t index) const;
 

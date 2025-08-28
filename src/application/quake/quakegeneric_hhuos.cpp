@@ -64,7 +64,7 @@ void (*drawFrame)(void *pixels);
 
 int32_t main(int argc, char *argv[]) {
     if (!Util::Io::File::changeDirectory("/user/quake")) {
-        Util::System::error << "quake: '/user/quake' not found!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "quake: '/user/quake' not found!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 

@@ -55,19 +55,19 @@ int32_t main(int32_t argc, char *argv[]) {
     argumentParser.addArgument("scale", false, "s");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "asciimate: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "asciimate: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto file = Util::Io::File(arguments[0]);
     if (!file.exists() || file.isDirectory()) {
-        Util::System::error << "asciimate: '" << arguments[0] << "' could not be opened!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "asciimate: '" << arguments[0] << "' could not be opened!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -90,9 +90,8 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto inputStream = Util::Io::FileInputStream(file);
     auto bufferedStream = Util::Io::BufferedInputStream(inputStream);
-    bool endOfFile = false;
 
-    auto frameInfo = bufferedStream.readLine(endOfFile).split(",");
+    auto frameInfo = bufferedStream.readLine().split(",");
 
     const auto &font = Util::Graphic::Font::getFontForResolution(bufferedLfb.getResolutionY());
     auto charWidth = font.getCharWidth();
@@ -114,7 +113,7 @@ int32_t main(int32_t argc, char *argv[]) {
             break;
         }
 
-        auto delayLine = bufferedStream.readLine(endOfFile);
+        auto delayLine = bufferedStream.readLine();
         if (delayLine.length() == 0) {
             break;
         }
@@ -128,7 +127,7 @@ int32_t main(int32_t argc, char *argv[]) {
         bufferedLfb.drawLine(frameEndX + charWidth, frameStartY - charHeight, frameEndX + charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
 
         for (int16_t i = 0; i < rows - 1; i++) {
-            bufferedLfb.drawString(font, frameStartX, frameStartY + charHeight * i, static_cast<const char*>(bufferedStream.readLine(endOfFile)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+            bufferedLfb.drawString(font, frameStartX, frameStartY + charHeight * i, static_cast<const char*>(bufferedStream.readLine()), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
         }
 
         bufferedLfb.flush();

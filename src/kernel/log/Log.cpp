@@ -56,7 +56,7 @@ void Log::addOutputStream(Util::Io::OutputStream &stream, bool append) {
 
     if (append) {
         for (const auto &message: buffer) {
-            *printStream << message << Util::Io::PrintStream::endl;
+            *printStream << message << Util::Io::PrintStream::ln;
         }
     }
 
@@ -117,7 +117,7 @@ void Log::logDefault(const Log::Record &record, const char *message, va_list arg
 
     for (auto *stream : streamMap.getKeys()) {
         auto &printStream = *streamMap.get(stream);
-        printStream << logMessage << Util::Io::PrintStream::endl;
+        printStream << logMessage << Util::Io::PrintStream::ln;
     }
 
     lock.release();

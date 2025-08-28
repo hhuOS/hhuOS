@@ -56,7 +56,7 @@ namespace Util::Network::Icmp {
 /// // Bind the socket to the "0.0.0.0" address to listen for all ICMP messages.
 /// if (!socket.bind(Util::Network::Ip4::Ip4Address::ANY)) {
 ///     Util::System::out << "Failed to bind socket!"
-///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 ///     return;
 /// }
 ///
@@ -82,7 +82,7 @@ namespace Util::Network::Icmp {
 /// // Send the ICMP Echo Request via the socket.
 /// if (!socket.send(request)) {
 ///     Util::System::out << "Failed to send ICMP Echo Request!"
-///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 ///     return;
 /// }
 ///
@@ -92,7 +92,7 @@ namespace Util::Network::Icmp {
 /// while (true) {
 ///     if (!socket.receive(reply)) {
 ///     Util::System::out << "Failed to receive ICMP Echo Reply!"
-///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 ///         return;
 ///     }
 ///
@@ -121,7 +121,7 @@ namespace Util::Network::Icmp {
 ///     const uint32_t roundTripTime = currentTimestamp - sourceTimestamp;
 ///
 ///     Util::System::out << "Received ICMP Echo Reply (RTT: " << roundTripTime << " ms)"
-///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 ///     break; // Exit the loop after receiving a valid reply.
 /// }
 /// ```

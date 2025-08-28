@@ -140,7 +140,7 @@ public:
     /// ```c++
     /// // Read a line from the standard input and print it to the standard output.
     /// auto input = Util::System::in.readLine();
-    /// Util::System::out << "Input: " << input << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    /// Util::System::out << "Input: " << input << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     /// ```
     ///
     /// ### Example
@@ -158,7 +158,7 @@ public:
     ///
     /// ### Example
     /// ```c++
-    /// Util::System::out << "Hello, World!" << Io::PrintStream::endl << Io::PrintStream::flush;
+    /// Util::System::out << "Hello, World!" << Io::PrintStream::ln << Io::PrintStream::flush;
     /// ```
     static Io::PrintStream out;
 
@@ -166,7 +166,7 @@ public:
     ///
     /// ### Example
     /// ```c++
-    /// Util::System::error << "File not found!" << Io::PrintStream::endl << Io::PrintStream::flush;
+    /// Util::System::error << "File not found!" << Io::PrintStream::ln << Io::PrintStream::flush;
     /// ```
     static Io::PrintStream error;
 };

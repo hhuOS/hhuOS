@@ -123,9 +123,6 @@
 #include "kernel/service/CpuService.h"
 #include "kernel/service/SoundService.h"
 #include "kernel/sound/AudioMixer.h"
-#include "math/Math.h"
-#include "io/stream/ByteArrayInputStream.h"
-#include "io/stream/ScanStream.h"
 
 namespace Device {
 class WaitTimer;
@@ -251,15 +248,6 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     LOG_INFO("Initializing kernel heap");
     static Util::FreeListMemoryManager kernelHeapManager(reinterpret_cast<void*>(kernelHeapVirtual), reinterpret_cast<void*>(Kernel::MemoryLayout::KERNEL_HEAP_END_ADDRESS));
     kernelHeap = &kernelHeapManager;
-
-
-    const auto testString = "-23.456e-2";
-    auto testBuffer = Util::Io::ByteArrayInputStream(reinterpret_cast<const uint8_t*>(testString), 10);
-    auto testStream = Util::Io::ScanStream(testBuffer);
-    int i1, i2, i3, i4;
-    double f = 0;
-    [[maybe_unused]] int i5 = testStream.scan("1234 -0x13 100 ffAA -3.414e2\n", "%d %i %o %X %g\n", &i1, &i2, &i3, &i4, &f);
-
 
     LOG_INFO("Kernel heap initialized (Bootstrap memory: [0x%08x])", bootstrapMemory);
 
@@ -824,19 +812,18 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         LOG_INFO("Mounting devices requested by '/system/mount_table'");
         auto inputStream = Util::Io::FileInputStream(mountFile);
         auto bufferedStream = Util::Io::BufferedInputStream(inputStream);
-        bool endOfFile = false;
 
-        Util::String line = bufferedStream.readLine(endOfFile);
-        while (!endOfFile) {
+        Util::String line = bufferedStream.readLine();
+        while (!line.isEmpty()) {
             if (line.beginsWith("#")) {
-                line = bufferedStream.readLine(endOfFile);
+                line = bufferedStream.readLine();
                 continue;
             }
 
             auto split = line.split(" ");
             if (split.length() < 3) {
                 LOG_ERROR("Invalid line in /system/mount_table");
-                line = bufferedStream.readLine(endOfFile);
+                line = bufferedStream.readLine();
                 continue;
             }
 
@@ -848,7 +835,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
                 LOG_ERROR("Failed to mount [%s] to [%s]", static_cast<const char*>(split[0]), static_cast<const char*>(split[1]));
             }
 
-            line = bufferedStream.readLine(endOfFile);
+            line = bufferedStream.readLine();
         }
     }
 
@@ -869,22 +856,22 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         Util::System::out << Util::String::format(static_cast<const char*>(banner),
                           BuildConfig::getVersion(), BuildConfig::getCodename(), BuildConfig::getBuildDate(), BuildConfig::getBuildType(),
                           BuildConfig::getGitBranch(), BuildConfig::getGitRevision(), static_cast<const char*>(multiboot->getBootloaderName()))
-                          << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+                          << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     } else {
-        Util::System::out << "Welcome to hhuOS!" << Util::Io::PrintStream::endl
-                          << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getCodename() << ")" << Util::Io::PrintStream::endl
-                          << "Build Date: " << BuildConfig::getBuildDate() << " (" << BuildConfig::getBuildType() << ")" << Util::Io::PrintStream::endl
-                          << "Git Branch: " << BuildConfig::getGitBranch() << Util::Io::PrintStream::endl
-                          << "Git Commit: " << BuildConfig::getGitRevision() << Util::Io::PrintStream::endl
-                          << "Bootloader: " << multiboot->getBootloaderName() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::out << "Welcome to hhuOS!" << Util::Io::PrintStream::ln
+                          << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getCodename() << ")" << Util::Io::PrintStream::ln
+                          << "Build Date: " << BuildConfig::getBuildDate() << " (" << BuildConfig::getBuildType() << ")" << Util::Io::PrintStream::ln
+                          << "Git Branch: " << BuildConfig::getGitBranch() << Util::Io::PrintStream::ln
+                          << "Git Commit: " << BuildConfig::getGitRevision() << Util::Io::PrintStream::ln
+                          << "Bootloader: " << multiboot->getBootloaderName() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     }
 
     if (interruptService->usesApic() && Device::Bios::isAvailable() && !Device::FirmwareConfiguration::isAvailable()) {
         Util::System::out << Util::Graphic::Ansi::FOREGROUND_YELLOW
-            << "Warning: Both APIC and BIOS calls are enabled!" << Util::Io::PrintStream::endl
-            << "Changing display resolution on real hardware will probably cause the system to hang." << Util::Io::PrintStream::endl
-            << "Pass 'apic=false' as a boot parameter, if you need VBE support." << Util::Io::PrintStream::endl
-            << Util::Graphic::Ansi::RESET << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            << "Warning: Both APIC and BIOS calls are enabled!" << Util::Io::PrintStream::ln
+            << "Changing display resolution on real hardware will probably cause the system to hang." << Util::Io::PrintStream::ln
+            << "Pass 'apic=false' as a boot parameter, if you need VBE support." << Util::Io::PrintStream::ln
+            << Util::Graphic::Ansi::RESET << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     }
 
     memoryService->enableSlabAllocator();

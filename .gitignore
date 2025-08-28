@@ -119,8 +119,6 @@ fabric.properties
 
 # Documentation folders
 docs/
-doxygen/
-site/
 
 # Generated disk files
 disk/floppy0/bin

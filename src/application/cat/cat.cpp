@@ -37,25 +37,25 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "cat: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "cat: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     for (const auto &path : arguments) {
         auto file = Util::Io::File(path);
         if (!file.exists()) {
-            Util::System::error << "cat: '" << path << "' not found!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::error << "cat: '" << path << "' not found!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
             continue;
         }
 
         if (file.isDirectory()) {
-            Util::System::error << "cat: '" << path << "' is a directory!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::error << "cat: '" << path << "' is a directory!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
             continue;
         }
 

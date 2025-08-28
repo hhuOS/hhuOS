@@ -34,14 +34,14 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto date = Util::Time::Date();
     Util::System::out << Util::String::format("%u-%02u-%02u %02u:%02u:%02u",
           date.getYear(), date.getMonth(), date.getDayOfMonth(), date.getHours(), date.getMinutes(), date.getSeconds())
-                      << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+                      << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 
     return 0;
 }

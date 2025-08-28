@@ -23,6 +23,8 @@
 
 #include <stdint.h>
 
+#include "io/stream/FilterInputStream.h"
+#include "io/stream/FilterOutputStream.h"
 #include "lib/util/io/stream/OutputStream.h"
 #include "lib/util/io/stream/InputStream.h"
 #include "lib/util/base/String.h"
@@ -114,28 +116,28 @@ public:
 
 private:
 
-    class TerminalPipedOutputStream : public Io::PipedOutputStream {
+    class TerminalStream : public Io::FilterInputStream, public Io::FilterOutputStream {
 
     public:
         /**
          * Constructor.
          */
-        explicit TerminalPipedOutputStream(Terminal &terminal);
+        explicit TerminalStream(Terminal &terminal);
 
         /**
          * Copy Constructor.
          */
-        TerminalPipedOutputStream(const TerminalPipedOutputStream &copy) = delete;
+        TerminalStream(const TerminalStream &copy) = delete;
 
         /**
          * Assignment operator.
          */
-        TerminalPipedOutputStream& operator=(const TerminalPipedOutputStream & other) = delete;
+        TerminalStream& operator=(const TerminalStream & other) = delete;
 
         /**
          * Destructor.
          */
-        ~TerminalPipedOutputStream() override = default;
+        ~TerminalStream() override = default;
 
         bool write(uint8_t c) override;
 
@@ -147,6 +149,9 @@ private:
 
         Terminal &terminal;
         Io::ByteArrayOutputStream lineBufferStream;
+
+        Util::Io::PipedInputStream keyInputStream;
+        Util::Io::PipedOutputStream keyOutputStream;
     };
 
     class KeyboardRunnable : public Async::Runnable {
@@ -199,8 +204,7 @@ private:
 
     void parseGraphicRendition(uint8_t code);
 
-    Util::Io::PipedInputStream keyInputStream;
-    TerminalPipedOutputStream keyOutputStream;
+    TerminalStream terminalStream;
     Util::Io::PipedInputStream ansiInputStream;
     Util::Io::PipedOutputStream ansiOutputStream;
 

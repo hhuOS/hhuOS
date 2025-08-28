@@ -50,7 +50,7 @@ namespace Util {
 ///     // Parse the command line arguments.
 ///     if (!parser.parse(argc, argv)) {
 ///         // Parsing failed, print error message and exit.
-///         Util::System::out << parser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+///         Util::System::out << parser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 ///         return -1;
 ///     }
 ///

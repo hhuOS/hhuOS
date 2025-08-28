@@ -48,7 +48,7 @@ namespace Util::Async {
 ///         lock.release();
 ///
 ///         Util::System::out << "Incremented value from " << oldValue << " to " << (oldValue + 1)
-///             << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+///             << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 ///     }
 /// }
 /// ```

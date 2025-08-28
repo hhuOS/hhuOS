@@ -20,26 +20,26 @@
 
 #include "QueueInputStream.h"
 
-#include "lib/util/collection/Queue.h"
+#include "collection/Queue.h"
 
 namespace Util::Io {
 
-QueueInputStream::QueueInputStream(Queue<uint8_t> &queue, bool discardIfFull) : queue(queue), discardIfFull(discardIfFull) {}
+QueueInputStream::QueueInputStream(Queue<uint8_t> &queue) : queue(queue) {}
 
 int16_t QueueInputStream::read() {
     return queue.poll();
 }
 
-int16_t QueueInputStream::peek() {
-	return queue.peek();
-}
-
-int32_t QueueInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
-    for (uint32_t i = 0; i < length; i++) {
+int32_t QueueInputStream::read(uint8_t *targetBuffer, const size_t offset, const size_t length) {
+    for (size_t i = 0; i < length; i++) {
         targetBuffer[offset + i] = queue.poll();
     }
 
-    return length;
+    return static_cast<int32_t>(length);
+}
+
+int16_t QueueInputStream::peek() {
+    return queue.peek();
 }
 
 bool QueueInputStream::isReadyToRead() {

@@ -42,13 +42,13 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "head: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "head: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -64,17 +64,17 @@ int32_t main(int32_t argc, char *argv[]) {
     for (const auto &path : arguments) {
         auto file = Util::Io::File(path);
         if (!file.exists()) {
-            Util::System::error << "head: '" << path << "' not found!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::error << "head: '" << path << "' not found!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
             continue;
         }
 
         if (file.isDirectory()) {
-            Util::System::error << "head: '" << path << "' is a directory!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::error << "head: '" << path << "' is a directory!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
             continue;
         }
 
         if (arguments.length() > 1) {
-            Util::System::out << "==> " << file.getName() << " <==" << Util::Io::PrintStream::endl << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::out << "==> " << file.getName() << " <==" << Util::Io::PrintStream::ln << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         }
 
         auto fileStream = Util::Io::FileInputStream(file);

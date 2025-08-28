@@ -667,13 +667,13 @@ int32_t main(int32_t argc, char *argv[]) {
     argumentParser.addArgument("resolution", false, "r");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "peanut-gb: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "peanut-gb: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -707,7 +707,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto initResult = gb_init(&gb, &gb_rom_read, &gb_cart_ram_read, &gb_cart_ram_write, &gb_error, nullptr);
     if (initResult != GB_INIT_NO_ERROR) {
-        Util::System::error << "peanut-gb: Failed to initialize emulator!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "peanut-gb: Failed to initialize emulator!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 

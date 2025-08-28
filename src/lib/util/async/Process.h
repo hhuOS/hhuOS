@@ -84,7 +84,7 @@ public:
     ///
     /// echoProcess.join(); // Wait for the process to finish
     /// Util::System::out << "Process 'echo' has finished!"
-    ///     << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///     << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     /// ```
     void join() const;
 

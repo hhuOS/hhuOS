@@ -18,33 +18,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_OUTPUTSTREAM_H
-#define HHUOS_OUTPUTSTREAM_H
+#ifndef HHUOS_LIB_UTIL_IO_OUTPUTSTREAM_H
+#define HHUOS_LIB_UTIL_IO_OUTPUTSTREAM_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 namespace Util::Io {
 
-/**
- * Interface for classes, that write output as a stream of bytes.
- */
+/// Base class for output streams. An output stream is a destination for writing data.
+/// The actual destination can be a file, memory or any other data sink, depending on the subclass.
+/// Data is treated as a stream of raw bytes by the interface write methods.
 class OutputStream {
 
 public:
-
+    /// No state needs to be initialized in the base class, so the default constructor is sufficient.
     OutputStream() = default;
 
+    /// Streams are not copyable, as subclasses might manage resources that cannot be copied.
     OutputStream(const OutputStream &copy) = delete;
 
+    /// Streams are not copyable, as subclasses might manage resources that cannot be copied.
     OutputStream &operator=(const OutputStream &copy) = delete;
 
+    /// The output stream base class has no state, so the default destructor is sufficient.
     virtual ~OutputStream() = default;
 
-    virtual bool write(uint8_t c) = 0;
+    /// Write a single byte to the stream.
+    /// On success, true is returned.
+    /// If an error occurs, false is returned.
+    virtual bool write(uint8_t byte) = 0;
 
-    virtual uint32_t write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) = 0;
+    /// Write up to length bytes from the sourceBuffer, starting at the given offset, to the stream.
+    /// The number of bytes actually written is returned,
+    /// which may be less than length if the stream cannot accept more data.
+    virtual size_t write(const uint8_t *sourceBuffer, size_t offset, size_t length) = 0;
 
-    virtual uint32_t flush();
+    /// If the stream uses buffering, this method should flush any buffered data to the underlying destination.
+    /// The number of bytes flushed is returned.
+    /// The default implementation does nothing and returns 0.
+    virtual size_t flush();
 };
 
 }

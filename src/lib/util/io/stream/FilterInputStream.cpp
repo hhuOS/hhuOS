@@ -20,7 +20,7 @@
 
 #include "FilterInputStream.h"
 
-#include "lib/util/io/stream/InputStream.h"
+#include "io/stream/InputStream.h"
 
 namespace Util::Io {
 
@@ -34,7 +34,7 @@ int16_t FilterInputStream::peek() {
 	return stream.peek();
 }
 
-int32_t FilterInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
+int32_t FilterInputStream::read(uint8_t *targetBuffer, const size_t offset, const size_t length) {
     return stream.read(targetBuffer, offset, length);
 }
 

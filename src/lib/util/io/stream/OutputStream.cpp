@@ -22,7 +22,7 @@
 
 namespace Util::Io  {
 
-uint32_t OutputStream::flush() {
+size_t OutputStream::flush() {
     return 0;
 }
 

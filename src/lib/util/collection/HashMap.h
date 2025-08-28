@@ -48,7 +48,7 @@ namespace Util {
 ///
 /// for (const auto &key : map.keys()) {
 ///      // Prints: One: 1, Three: 3
-///     Util::System::out << key << ": " << map.get(key) << Util::Io::PrintStream::endl;
+///     Util::System::out << key << ": " << map.get(key) << Util::Io::PrintStream::ln;
 /// }
 ///
 /// Util::System::out << Util::Io::PrintStream::flush;
@@ -129,7 +129,7 @@ public:
     ///
     /// if (containsOne) {
     ///     Util::System::out << "Key 'One' exists with value: " << map.get("One")
-    ///     << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush; // Prints: Key 'One' exists with value: 1
+    ///     << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // Prints: Key 'One' exists with value: 1
     /// }
     /// ```
     [[nodiscard]] bool containsKey(const K &key) const override;
@@ -178,7 +178,7 @@ public:
     ///
     /// for (const auto &key : map.keys()) {
     ///      // Prints: One: 1, Two: 2, Three: 3
-    ///     Util::System::out << key << ": " << map.get(key) << Util::Io::PrintStream::endl;
+    ///     Util::System::out << key << ": " << map.get(key) << Util::Io::PrintStream::ln;
     /// }
     ///
     /// Util::System::out << Util::Io::PrintStream::flush;
@@ -199,7 +199,7 @@ public:
     ///     Util::System::out << value << ", "; // Prints: 1, 2, 3
     /// }
     ///
-    /// Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    /// Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     /// ```
     [[nodiscard]] Array<V> getValues() const override;
 

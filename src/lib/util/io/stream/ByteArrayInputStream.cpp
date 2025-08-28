@@ -18,15 +18,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/base/Address.h"
 #include "ByteArrayInputStream.h"
 
 namespace Util::Io {
 
-ByteArrayInputStream::ByteArrayInputStream(const uint8_t *buffer, uint32_t size) : buffer(buffer), size(size) {}
+ByteArrayInputStream::ByteArrayInputStream(const uint8_t *buffer, const size_t size) : buffer(buffer), size(size) {}
+
+ByteArrayInputStream::ByteArrayInputStream(const uint8_t *buffer) : buffer(buffer), checkBounds(false) {}
 
 int16_t ByteArrayInputStream::read() {
-    if (position >= size && checkSize) {
+    if (checkBounds && position >= size) {
+        // End of buffer reached
         return -1;
     }
 	
@@ -37,54 +39,59 @@ int16_t ByteArrayInputStream::read() {
     return buffer[position++];
 }
 
+int32_t ByteArrayInputStream::read(uint8_t *targetBuffer, const size_t offset, const size_t length) {
+    size_t readBytes = 0;
+    while (readBytes < length) {
+        const auto byte = read();
+        if (byte == -1) {
+            if (readBytes == 0) {
+                return -1;
+            }
+
+            break;
+        }
+
+        targetBuffer[offset + readBytes++] = byte;
+    }
+
+    return static_cast<int32_t>(readBytes);
+}
+
 int16_t ByteArrayInputStream::peek() {
-	return buffer[position];
-}
-
-void ByteArrayInputStream::stopAtNullTerminator() {
-	nullTerminated = true;
-}
-
-int32_t ByteArrayInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
-    if (position >= size && checkSize) {
+    if (checkBounds && position >= size) {
+        // End of buffer reached
         return -1;
     }
 
-    uint32_t count = size - position > length ? length : size - position;
-    auto sourceAddress = Address(buffer).add(position);
-    auto targetAddress = Address(targetBuffer).add(offset);
-    targetAddress.copyRange(sourceAddress, count);
+    return buffer[position];
+}
 
-    position += count;
-    return count;
+bool ByteArrayInputStream::isReadyToRead() {
+    return !isEmpty();
 }
 
 const uint8_t* ByteArrayInputStream::getBuffer() const {
     return buffer;
 }
 
-uint32_t ByteArrayInputStream::getLength() const {
+size_t ByteArrayInputStream::getLength() const {
     return size;
 }
 
-uint32_t ByteArrayInputStream::getPosition() const {
+size_t ByteArrayInputStream::getPosition() const {
     return position;
 }
 
-uint32_t ByteArrayInputStream::getRemaining() const {
-    return size - position;
+size_t ByteArrayInputStream::getRemaining() const {
+    return checkBounds ? size - position : 0;
 }
 
 bool ByteArrayInputStream::isEmpty() const {
-    return size == 0;
+    return getRemaining() == 0;
 }
 
-void ByteArrayInputStream::disableSizeCheck() {
-	checkSize = false;
-}
-
-  bool ByteArrayInputStream::isReadyToRead() {
-    return !isEmpty();
+void ByteArrayInputStream::stopAtNullTerminator(const bool stop) {
+    nullTerminated = stop;
 }
 
 }

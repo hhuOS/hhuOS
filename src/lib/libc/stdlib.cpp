@@ -183,11 +183,10 @@ ldiv_t ldiv ( long x, long y) {
 
 
 long strtol(const char* str, char **str_end, int base) {
-	Util::Io::ByteArrayInputStream is((uint8_t*) str, 0);
-	is.disableSizeCheck();
+	Util::Io::ByteArrayInputStream is((uint8_t*) str);
 	Util::Io::ScanStream ss(is);
 	
-	long ret = ss.readInt(base);
+	long ret = static_cast<long>(ss.readSigned64(base));
 	if (ret == LONG_MAX || ret == LONG_MIN) setErrno(ERANGE);
 	if (str_end) *str_end = (char*)(str + ss.getReadBytes());
 	
@@ -195,11 +194,10 @@ long strtol(const char* str, char **str_end, int base) {
 }
 
 unsigned long strtoul(const char* str, char **str_end, int base) {
-	Util::Io::ByteArrayInputStream is((uint8_t*) str, 0);
-	is.disableSizeCheck();
+	Util::Io::ByteArrayInputStream is((uint8_t*) str);
 	Util::Io::ScanStream ss(is);
 	
-	unsigned long ret = ss.readUnsignedint(base);
+	unsigned long ret = static_cast<unsigned long>(ss.readUnsigned64(base));
 	if (ret == ULONG_MAX) setErrno(ERANGE);
 	if (str_end) *str_end = (char*)(str + ss.getReadBytes());
 	
@@ -208,11 +206,10 @@ unsigned long strtoul(const char* str, char **str_end, int base) {
 
 
 double strtod(const char* str, char **str_end) {
-	Util::Io::ByteArrayInputStream is((uint8_t*) str, 0);
-	is.disableSizeCheck();
+	Util::Io::ByteArrayInputStream is((uint8_t*) str);
 	Util::Io::ScanStream ss(is);
 	
-	double ret = ss.readDouble();
+	auto ret = static_cast<double>(ss.readFloatingPointNumber());
 	if (str_end) *str_end = (char*)(str + ss.getReadBytes());
 	
 	return ret;

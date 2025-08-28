@@ -58,13 +58,12 @@ void printStatusLine(uint32_t passedTime, uint32_t songLength) {
 uint32_t calculateLength(const Util::Io::File &beepFile) {
     auto fileStream = Util::Io::FileInputStream(beepFile);
     auto stream = Util::Io::BufferedInputStream(fileStream);
-    bool endOfFile = false;
     uint32_t length = 0;
 
-    auto line = stream.readLine(endOfFile);
-    while (!endOfFile) {
+    auto line = stream.readLine();
+    while (!line.isEmpty()) {
         length += Util::String::parseNumber<uint32_t>(line.split(",")[1]);
-        line = stream.readLine(endOfFile);
+        line = stream.readLine();
     }
 
     return length;
@@ -78,19 +77,19 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "beep: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "beep: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto beepFile = Util::Io::File(arguments[0]);
     if (!beepFile.exists() || beepFile.isDirectory()) {
-        Util::System::error << "beep: '" << arguments[0] << "' could not be opened!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "beep: '" << arguments[0] << "' could not be opened!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -104,11 +103,10 @@ int32_t main(int32_t argc, char *argv[]) {
     Util::Graphic::Ansi::disableCursor();
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
-    Util::System::out << "Playing '" << beepFile.getName() << "'... Press <ENTER> to stop." << Util::Io::PrintStream::endl;
+    Util::System::out << "Playing '" << beepFile.getName() << "'... Press <ENTER> to stop." << Util::Io::PrintStream::ln;
 
-    bool endOfFile = false;
-    auto line = stream.readLine(endOfFile);
-    while (!endOfFile) {
+    auto line = stream.readLine();
+    while (!line.isEmpty()) {
         if (Util::System::in.read() > 0) {
             break;
         }
@@ -124,7 +122,7 @@ int32_t main(int32_t argc, char *argv[]) {
         speaker.play(frequency, Util::Time::Timestamp::ofMilliseconds(length));
         passedTime += length;
 
-        line = stream.readLine(endOfFile);
+        line = stream.readLine();
     }
 
     speaker.turnOff();

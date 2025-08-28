@@ -20,15 +20,11 @@
 
 #include "FileInputStream.h"
 
-#include <lib/interface.h>
-
-#include "FileStream.h"
-#include "lib/util/base/Panic.h"
-#include "lib/util/io/file/File.h"
+#include "lib/interface.h"
+#include "base/Panic.h"
+#include "io/file/File.h"
 
 namespace Util::Io {
-
-FileInputStream::FileInputStream(const File &file) : FileInputStream(file.getCanonicalPath()) {}
 
 FileInputStream::FileInputStream(const String &path) {
     fileDescriptor = File::open(path);
@@ -37,51 +33,76 @@ FileInputStream::FileInputStream(const String &path) {
     }
 }
 
-FileInputStream::FileInputStream(int32_t fileDescriptor) : fileDescriptor(fileDescriptor) {}
+FileInputStream::FileInputStream(const File &file) : FileInputStream(file.getCanonicalPath()) {}
+
+FileInputStream::FileInputStream(const int32_t fileDescriptor) :
+    closeFileDescriptor(false), fileDescriptor(fileDescriptor) {}
+
+FileInputStream::~FileInputStream() {
+    if (closeFileDescriptor) {
+        File::close(fileDescriptor);
+    }
+}
 
 int16_t FileInputStream::read() {
-    const auto pushedBack = Async::Atomic<int16_t>(pushedBackByte).getAndSet(-1);
-    if (pushedBack >= 0) {
-        return pushedBack;
+    if (peekedChar >= 0) {
+        // A previous peek operation has already read a byte -> Return it instead of reading a new one
+        peekedChar = -1;
+        return peekedChar;
     }
 
     uint8_t byte;
-    return read(&byte, 0, 1) == 1 ? byte : -1;
+    if (read(&byte, 0, 1)) {
+        return byte;
+    }
+
+    return -1;
+}
+
+int32_t FileInputStream::read(uint8_t *targetBuffer, const uint32_t offset, const uint32_t length) {
+    size_t peeked = 0;
+    if (peekedChar >= 0) {
+        // A previous peek operation has already read a byte -> Use it first before reading more bytes
+        targetBuffer[offset] = peekedChar;
+        peekedChar = -1;
+        pos++;
+        peeked = 1;
+
+        if (length == 1) {
+            // Only one byte was requested, which was already provided by the peeked character
+            return 1;
+        }
+    }
+
+    // Read the remaining bytes from the file
+    const auto read = readFile(fileDescriptor, targetBuffer + offset + peeked, pos, length - peeked);
+    pos += read;
+
+    return static_cast<int32_t>(read + peeked);
 }
 
 int16_t FileInputStream::peek() {
-    const int16_t byte = read();
-    if (byte >= 0) {
-        pushBack(byte);
+    if (peekedChar >= 0) {
+        // A previous peek operation has already read a byte -> Return it instead of reading a new one
+        return peekedChar;
     }
 
-    return byte;
-}
-
-int32_t FileInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
-    bool readPushedBack = false;
-
-    const auto pushedBack = Async::Atomic<int16_t>(pushedBackByte).getAndSet(-1);
-    if (pushedBack >= 0) {
-        targetBuffer[offset] = static_cast<uint8_t>(pushedBack);
-        readPushedBack = true;
-    }
-
-    const auto read = readFile(fileDescriptor, targetBuffer, pos, length - (readPushedBack ? 1 : 0));
-    pos += read;
-
-    return static_cast<int32_t>(read + (readPushedBack ? 1 : 0));
+    /// Read a byte from the file and store it for future peek() or read() calls
+    peekedChar = read();
+    return peekedChar;
 }
 
 bool FileInputStream::isReadyToRead() {
-    if (Async::Atomic<int16_t>(pushedBackByte).get() >= 0) {
+    if (peekedChar >= 0) {
+        // A previous peek operation has already read a byte -> We are ready to read at least that byte
         return true;
     }
 
+    // Check if the underlying file descriptor has data available to read
     return File::isReadyToRead(fileDescriptor);
 }
 
-void FileInputStream::setPosition(uint32_t offset, File::SeekMode mode) {
+void FileInputStream::setPosition(const int64_t offset, const File::SeekMode mode) {
     switch (mode) {
         case File::SeekMode::SET:
             pos = offset;
@@ -93,17 +114,15 @@ void FileInputStream::setPosition(uint32_t offset, File::SeekMode mode) {
             pos = getFileLength(fileDescriptor) - offset;
             break;
     }
+
+    peekedChar = -1;
 }
 
 uint32_t FileInputStream::getPosition() const {
     return pos;
 }
 
-bool FileInputStream::pushBack(uint8_t c) {
-    return Async::Atomic<int16_t>(pushedBackByte).compareAndSet(-1, c);
-}
-
-bool FileInputStream::setAccessMode(File::AccessMode mode) {
+bool FileInputStream::setAccessMode(const File::AccessMode mode) const {
     return File::setAccessMode(fileDescriptor, mode);
 }
 

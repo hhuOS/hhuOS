@@ -28,55 +28,55 @@
 
 namespace Util::Io::NumberUtil {
 
-int8_t read8BitValue(Io::InputStream &stream) {
+int8_t read8BitValue(InputStream &stream) {
     return static_cast<int8_t>(stream.read());
 }
 
-uint8_t readUnsigned8BitValue(Io::InputStream &stream) {
+uint8_t readUnsigned8BitValue(InputStream &stream) {
     return static_cast<uint8_t>(stream.read());
 }
 
-int16_t read16BitValue(Io::InputStream &stream) {
+int16_t read16BitValue(InputStream &stream) {
     return static_cast<int16_t>((stream.read() << 8) | stream.read());
 }
 
-uint16_t readUnsigned16BitValue(Io::InputStream &stream) {
+uint16_t readUnsigned16BitValue(InputStream &stream) {
     return static_cast<uint16_t>(read16BitValue(stream));
 }
 
-int32_t read32BitValue(Io::InputStream &stream) {
+int32_t read32BitValue(InputStream &stream) {
     return stream.read() << 24 | stream.read() << 16 | stream.read() << 8 | stream.read();
 }
 
-uint32_t readUnsigned32BitValue(Io::InputStream &stream) {
+uint32_t readUnsigned32BitValue(InputStream &stream) {
     return static_cast<uint32_t>(read32BitValue(stream));
 }
 
-void write8BitValue(const int8_t value, Io::OutputStream &stream) {
+void write8BitValue(const int8_t value, OutputStream &stream) {
     stream.write(static_cast<uint8_t>(value));
 }
 
-void writeUnsigned8BitValue(const uint8_t value, Io::OutputStream &stream) {
+void writeUnsigned8BitValue(const uint8_t value, OutputStream &stream) {
     stream.write(value);
 }
 
-void write16BitValue(const int16_t value, Io::OutputStream &stream) {
+void write16BitValue(const int16_t value, OutputStream &stream) {
     stream.write(static_cast<uint8_t>(value >> 8));
     stream.write(static_cast<uint8_t>(value));
 }
 
-void writeUnsigned16BitValue(const uint16_t value, Io::OutputStream &stream) {
+void writeUnsigned16BitValue(const uint16_t value, OutputStream &stream) {
     write16BitValue(static_cast<int16_t>(value), stream);
 }
 
-void write32BitValue(const int32_t value, Io::OutputStream &stream) {
+void write32BitValue(const int32_t value, OutputStream &stream) {
     stream.write(static_cast<uint8_t>(value >> 24));
     stream.write(static_cast<uint8_t>(value >> 16));
     stream.write(static_cast<uint8_t>(value >> 8));
     stream.write(static_cast<uint8_t>(value));
 }
 
-void writeUnsigned32BitValue(const uint32_t value, Io::OutputStream &stream) {
+void writeUnsigned32BitValue(const uint32_t value, OutputStream &stream) {
     write32BitValue(static_cast<int32_t>(value), stream);
 }
 

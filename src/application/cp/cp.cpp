@@ -37,13 +37,13 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() < 2) {
-        Util::System::error << "cp: Missing arguments!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "cp: Missing arguments!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -51,17 +51,17 @@ int32_t main(int32_t argc, char *argv[]) {
     auto targetFile = Util::Io::File(arguments[1]);
 
     if (!sourceFile.exists()) {
-        Util::System::error << "cp: '" << arguments[0] << "' not found!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "cp: '" << arguments[0] << "' not found!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     if (!sourceFile.isFile()) {
-        Util::System::error << "cp: '" << arguments[0] << "' is a directory!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "cp: '" << arguments[0] << "' is a directory!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     if (sourceFile.getType() != Util::Io::File::REGULAR) {
-        Util::System::error << "cp: '" << arguments[0] << "' is not a regular file!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "cp: '" << arguments[0] << "' is not a regular file!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -70,7 +70,7 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     if (!targetFile.exists() && !targetFile.create(Util::Io::File::REGULAR)) {
-        Util::System::error << "cp: Failed to create file '" << arguments[1] << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "cp: Failed to create file '" << arguments[1] << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 	

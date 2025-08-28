@@ -23,7 +23,7 @@ namespace Util::Async {
 ///     for (int i = 0; i < 1000; i++) {
 ///         const auto oldValue = atomicWrapper.inc();
 ///         Util::System::out << "Incremented value from " << oldValue << " to " << (oldValue + 1)
-///             << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+///             << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 ///     }
 /// }
 /// ```

@@ -313,7 +313,7 @@ void printKernelStackTrace(bool log) {
         if (log) {
             LOG_ERROR("0x%08x %s", eip, symbolName);
         } else {
-            Util::System::out << Util::String::format("0x%08x", eip) << " " << symbolName << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::out << Util::String::format("0x%08x", eip) << " " << symbolName << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         }
 
         ebp = reinterpret_cast<uint32_t*>(ebp[0]);
@@ -326,13 +326,13 @@ void throwError(Util::Panic::Error error, const char *message) {
         if (processService.getCurrentProcess().isKernelProcess()) {
             Device::Cpu::disableInterrupts();
 
-            Util::System::out << "Kernel Panic: " << Util::Panic::getErrorAsString(error) << " (" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::out << "Kernel Panic: " << Util::Panic::getErrorAsString(error) << " (" << message <<  ")" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
             printKernelStackTrace(false);
 
             Util::System::out << "System halt!" << Util::Io::PrintStream::flush;
             Device::Cpu::halt();
         } else {
-            Util::System::out << Util::Panic::getErrorAsString(error) << " (" << message <<  ")" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::out << Util::Panic::getErrorAsString(error) << " (" << message <<  ")" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
             printKernelStackTrace(false);
             processService.exitCurrentProcess(-1);
         }

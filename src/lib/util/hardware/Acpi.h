@@ -120,7 +120,7 @@ struct Rsdt {
 ///
 ///     // Iterate over all tables and print their signatures.
 ///     for (const auto &table : *tables) {
-///         Util::System::out << "Found ACPI table: " << table.signature << Util::Io::PrintStream::endl;
+///         Util::System::out << "Found ACPI table: " << table.signature << Util::Io::PrintStream::ln;
 ///     }
 ///
 ///     Util::System::out << Util::Io::PrintStream::flush;

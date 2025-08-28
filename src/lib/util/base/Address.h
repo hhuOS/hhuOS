@@ -155,6 +155,19 @@ public:
     void copyRange(const Address &sourceAddress, size_t length) const;
 
     /// Copy the memory from the given address to the memory this object points to.
+    /// The number of bytes to copy is given by the `length` parameter.
+    ///
+    /// ### Example
+    /// ```c++
+    /// auto source = reinterpret_cast<void*>(0x1234);
+    /// auto target = Util::Address(0x5678);
+    ///
+    /// // Copy 4 bytes from source to target (equivalent to memcpy((void*) 0x5678, (void*) 0x1234, 4))
+    /// target.copyRange(source, 4);
+    /// ```
+    void copyRange(const void *sourceAddress, size_t length) const;
+
+    /// Copy the memory from the given address to the memory this object points to.
     /// Copying is done until a null terminator (0) is reached on the source. The null-terminator is also copied.
     ///
     /// ### Example

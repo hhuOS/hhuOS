@@ -47,13 +47,13 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "ping: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "ping: No arguments provided!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -64,7 +64,7 @@ int32_t main(int32_t argc, char *argv[]) {
     socket.setTimeout(Util::Time::Timestamp::ofSeconds(5));
 
     if (!socket.bind(Util::Network::Ip4::Ip4Address::ANY)) {
-        Util::System::error << "ping: Failed to bind socket!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "ping: Failed to bind socket!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     }
 
     auto echoHeader = Util::Network::Icmp::EchoHeader();
@@ -79,14 +79,14 @@ int32_t main(int32_t argc, char *argv[]) {
 
         auto datagram = Util::Network::Icmp::IcmpDatagram(packet, destinationAddress, Util::Network::Icmp::IcmpHeader::ECHO_REQUEST, 0);
         if (!socket.send(datagram)) {
-            Util::System::error << "ping: Failed to send echo request!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            Util::System::error << "ping: Failed to send echo request!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
             return -1;
         }
 
         do {
             auto receivedDatagram = Util::Network::Icmp::IcmpDatagram();
             if (!socket.receive(receivedDatagram)) {
-                Util::System::error << "ping: Failed to receive echo reply!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+                Util::System::error << "ping: Failed to receive echo reply!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
                 return -1;
             }
 
@@ -99,7 +99,7 @@ int32_t main(int32_t argc, char *argv[]) {
                     auto currentTimestamp = Util::Time::Timestamp::getSystemTime().toMilliseconds();
                     Util::System::out << receivedDatagram.getLength() << " bytes from " << static_cast<const char*>(receivedDatagram.getRemoteAddress().toString())
                                       << " (Sequence number: " << echoHeader.getSequenceNumber() << ", Time: " << currentTimestamp - sourceTimestamp << " ms)"
-                                      << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+                                      << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
                 }
             }
         } while (!validReply);

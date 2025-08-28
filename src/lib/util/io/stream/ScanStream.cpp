@@ -2,56 +2,101 @@
 
 #include "ScanStream.h"
 
+#include "base/CharacterTypes.h"
 #include "base/WideChar.h"
-#include "lib/util/base/CharacterTypes.h"
-#include "lib/util/math/Math.h"
-#include "lib/util/io/stream/InputStream.h"
+#include "io/stream/InputStream.h"
+#include "math/Math.h"
 
 namespace Util::Io {
 
-ScanStream::ScanStream(InputStream &stream) : FilterInputStream(stream){
-}
+ScanStream::ScanStream(InputStream &stream) : FilterInputStream(stream) {}
 
 int16_t ScanStream::read() {
 	if (readLimit >= 0 && readBytes >= readLimit) {
         return -1;
     }
 
-	int16_t ret = FilterInputStream::read();
-
-	if (ret >= 0) {
+	const auto readByte = FilterInputStream::read();
+	if (readByte >= 0) {
         readBytes++;
     }
 
-	return ret;
+	return readByte;
+}
+
+int32_t ScanStream::read(uint8_t *targetBuffer, const size_t offset, const size_t length) {
+	const auto read = FilterInputStream::read(targetBuffer, offset, length);
+	readBytes += read;
+
+	return read;
 }
 
 int16_t ScanStream::peek() {
 	if (readLimit >= 0 && readBytes >= readLimit) {
-        return -1;
-    }
+		return -1;
+	}
 
 	return FilterInputStream::peek();
 }
 
 bool ScanStream::isReadyToRead() {
-	return FilterInputStream::isReadyToRead();
-}
+	if (readLimit >= 0 && readBytes >= readLimit) {
+		return false;
+	}
 
-int32_t ScanStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
-	readBytes += length;
-	return FilterInputStream::read(targetBuffer, offset, length);
+	return FilterInputStream::isReadyToRead();
 }
 
 uint32_t ScanStream::getReadBytes() const {
 	return readBytes;
 }
 
-void ScanStream::setReadLimit(int64_t limit) {
-	readLimit = limit;
+int8_t ScanStream::readSigned8(const uint8_t base) {
+	const auto value = readSigned64(base);
+	return static_cast<int8_t>(value);
 }
 
-long long ScanStream::readLong(int32_t base) {
+uint8_t ScanStream::readUnsigned8(const uint8_t base) {
+	const auto value = readSigned64(base);
+
+	if (value < 0) {
+		return 0;
+	}
+
+	return static_cast<uint8_t>(value);
+}
+
+int16_t ScanStream::readSigned16(const uint8_t base) {
+	const auto value = readSigned64(base);
+	return static_cast<int16_t>(value);
+}
+
+uint16_t ScanStream::readUnsigned16(const uint8_t base) {
+	const auto value = readSigned64(base);
+
+	if (value < 0) {
+		return 0;
+	}
+
+	return static_cast<uint16_t>(value);
+}
+
+int32_t ScanStream::readSigned32(const uint8_t base) {
+	const auto value = readSigned64(base);
+	return static_cast<int32_t>(value);
+}
+
+uint32_t ScanStream::readUnsigned32(const uint8_t base) {
+	const auto value = readSigned64(base);
+
+	if (value < 0) {
+		return 0;
+	}
+
+	return static_cast<uint32_t>(value);
+}
+
+int64_t ScanStream::readSigned64(uint8_t base) {
 	int16_t c;
 
 	// Skip leading whitespace
@@ -69,7 +114,7 @@ long long ScanStream::readLong(int32_t base) {
 	if (c <= 0) {
 		return 0;
 	}
-	
+
 	// Detect sign
 	int8_t sign = 1;
 	if (c == '-') {
@@ -78,7 +123,7 @@ long long ScanStream::readLong(int32_t base) {
 	} else if (c == '+') {
 		read();
 	}
-	
+
 	// Automatic base detection
 	c = peek();
 	if (base == 0) {
@@ -88,6 +133,9 @@ long long ScanStream::readLong(int32_t base) {
 			c = peek();
 			if (c == 'x' || c == 'X') {
 				base = 16;
+				read();
+			} else if (c == 'b' || c == 'B') {
+				base = 2;
 				read();
 			}
 		} else {
@@ -108,12 +156,12 @@ long long ScanStream::readLong(int32_t base) {
 			read();
 		}
 	}
-	
+
 	// Find end of number
-	constexpr int8_t BUFFER_SIZE = 32;
+	constexpr int8_t BUFFER_SIZE = 64;
 	char buf[BUFFER_SIZE];
 	int8_t len;
-	
+
 	for (len = 0; len < BUFFER_SIZE; len++) {
 		c = peek();
 
@@ -121,52 +169,35 @@ long long ScanStream::readLong(int32_t base) {
 			break;
 		}
 
-		if (charToInt(c, base) == -1) {
+		if (charToInt(static_cast<char>(c), base) == -1) {
 			break;
 		}
-		
+
 		buf[len] = static_cast<char>(c);
 		read();
 	}
-	
+
 	// Interpret number
-	long long ret = 0;
-	long long mul = 1;
+	int64_t number = 0;
+	int64_t mul = 1;
 
-	for (int8_t i = len - 1; i >= 0; i--, mul *= base) {
-		ret += charToInt(buf[i], base) * mul;
+	for (auto i = static_cast<int8_t>(len - 1); i >= 0; i--, mul *= base) {
+		number += charToInt(buf[i], base) * mul;
 	}
 
-	return sign * ret;
+	return sign * number;
 }
 
-int ScanStream::readInt(int32_t base) {
-	const auto value = readLong(base);
-	
-	if (value < LONG_MIN) {
-		return LONG_MIN;
-	}
-	if (value > LONG_MAX) {
-		return LONG_MAX;
-	}
-	
-	return static_cast<int>(value);
+uint64_t ScanStream::readUnsigned64(const uint8_t base) {
+	const auto value = readSigned64(base);
+	return static_cast<uint64_t>(value);
 }
 
-unsigned int ScanStream::readUnsignedint(int32_t base) {
-	const auto value = readLong(base);
-	
-	if (value > ULONG_MAX) {
-		return ULONG_MAX;
-	}
-	if (value < -ULONG_MAX) {
-		return ULONG_MAX;
-	}
-	
-	return static_cast<uint32_t>(value < 0 ? ULONG_MAX + value + 1 : value);
+void ScanStream::setReadLimit(int64_t limit) {
+	readLimit = limit;
 }
 
-double ScanStream::readDouble() {
+long double ScanStream::readFloatingPointNumber() {
 	int16_t c;
 
 	// Skip leading whitespace
@@ -196,11 +227,11 @@ double ScanStream::readDouble() {
 	
 	// Read integer part
 	c = peek();
-	double ret = 0;
+	long double number = 0;
 	while (CharacterTypes::isDigit(c)) {
 		read();
-		ret *= 10;
-		ret += charToInt(c, 10);
+		number *= 10;
+		number += charToInt(static_cast<char>(c), 10);
 		c = peek();
 	}
 	
@@ -211,7 +242,7 @@ double ScanStream::readDouble() {
 		double mul = 0.1;
 		while (CharacterTypes::isDigit(c)) {
 			read();
-			ret += mul * charToInt(c, 10);
+			number += mul * charToInt(static_cast<char>(c), 10);
 			mul /= 10;
 			c = peek();
 		}
@@ -220,13 +251,13 @@ double ScanStream::readDouble() {
 	c = peek();
 	if (c == 'e' || c == 'E') {
 		read();
-		ret *= Math::pow(10.0, readInt());
+		number *= Math::pow(10.0, readSigned32());
 	}
 	
-	return sign * ret;
+	return sign * number;
 }
 
-wchar_t ScanStream::readWideChar() {
+wchar_t ScanStream::readWideCharacter() {
 	uint8_t wc[4] = {0, 0, 0, 0};
 
 	wc[0] = static_cast<uint8_t>(read());
@@ -253,7 +284,7 @@ int32_t ScanStream::scan(const char *format, ...) {
 	return ret;
 }
 
-int32_t ScanStream::scan(const char *format, [[maybe_unused]] va_list args) {
+int32_t ScanStream::scan(const char *format, va_list args) {
 	int32_t scannedItems = 0;
 	auto streamChar = peek();
 
@@ -277,7 +308,7 @@ int32_t ScanStream::scan(const char *format, [[maybe_unused]] va_list args) {
 				read();
 			}
 		} else {
-			enum ParameterLength { SHORT, INT, LONG };
+			enum ParameterLength { SHORT, INT, LONG, LONG_DOUBLE };
 
 			bool suppressAssign = false;
 			int32_t maxFieldWidth = -1;
@@ -291,8 +322,10 @@ int32_t ScanStream::scan(const char *format, [[maybe_unused]] va_list args) {
 				}
 				if (formatChar == 'h') {
 					parameterLength = SHORT;
-				} else if (formatChar == 'l' || formatChar == 'L') {
+				} else if (formatChar == 'l') {
 					parameterLength = LONG;
+				} else if (formatChar == 'L') {
+					parameterLength = LONG_DOUBLE;
 				} else if (CharacterTypes::isDigit(formatChar)) {
 					maxFieldWidth = String::parseNumber<int32_t>(format + i);
 					while (CharacterTypes::isDigit(format[i])) {
@@ -324,7 +357,7 @@ int32_t ScanStream::scan(const char *format, [[maybe_unused]] va_list args) {
 					read();
 					break;
 				case 'd': {
-					const auto value = readInt(10);
+					const auto value = readSigned64(10);
 					if (suppressAssign) {
 						break;
 					}
@@ -333,7 +366,7 @@ int32_t ScanStream::scan(const char *format, [[maybe_unused]] va_list args) {
 							*va_arg(args, short int*) = static_cast<short int>(value);
 							break;
 						case LONG:
-							*va_arg(args, long int*) = value;
+							*va_arg(args, long int*) = static_cast<long int>(value);
 							break;
 						default:
 							*va_arg(args, int*) = static_cast<int>(value);
@@ -342,7 +375,7 @@ int32_t ScanStream::scan(const char *format, [[maybe_unused]] va_list args) {
 					break;
 				}
 				case 'i': {
-					const auto value = readInt();
+					const auto value = readSigned64();
 					if (suppressAssign) {
 						break;
 					}
@@ -351,7 +384,7 @@ int32_t ScanStream::scan(const char *format, [[maybe_unused]] va_list args) {
 							*va_arg(args, short int*) = static_cast<short int>(value);
 							break;
 						case LONG:
-							*va_arg(args, long int*) = value;
+							*va_arg(args, long int*) = static_cast<long int>(value);
 							break;
 						default:
 							*va_arg(args, int*) = static_cast<int>(value);
@@ -360,7 +393,7 @@ int32_t ScanStream::scan(const char *format, [[maybe_unused]] va_list args) {
 					break;
 				}
 				case 'u': {
-					const auto value = readUnsignedint(10);
+					const auto value = readUnsigned64(10);
 					if (suppressAssign) {
 						break;
 					}
@@ -378,7 +411,7 @@ int32_t ScanStream::scan(const char *format, [[maybe_unused]] va_list args) {
 					break;
 				}
 				case 'o': {
-					const auto value = readUnsignedint(8);
+					const auto value = readUnsigned64(8);
 					if (suppressAssign) {
 						break;
 					}
@@ -397,7 +430,7 @@ int32_t ScanStream::scan(const char *format, [[maybe_unused]] va_list args) {
 				}
 				case 'x':
 				case 'X': {
-					const auto value = readUnsignedint(16);
+					const auto value = readUnsigned64(16);
 					if (suppressAssign) {
 						break;
 					}
@@ -431,29 +464,31 @@ int32_t ScanStream::scan(const char *format, [[maybe_unused]] va_list args) {
 					}
 					break;
 				}
+				case 'f':
+				case 'F':
 				case 'e':
 				case 'E':
 				case 'g':
 				case 'G': {
-					const auto value = readDouble();
+					const auto value = readFloatingPointNumber();
 					if (suppressAssign) {
 						break;
 					}
 					switch (parameterLength) {
-						case SHORT:
-							*va_arg(args, float*) = static_cast<float>(value);
-							break;
 						case LONG:
-							*va_arg(args, long double*) = static_cast<long double>(value);
+							*va_arg(args, double*) = static_cast<double>(value);
+							break;
+						case LONG_DOUBLE:
+							*va_arg(args, long double*) = value;
 							break;
 						default:
-							*va_arg(args, double*) = static_cast<double>(value);
+							*va_arg(args, float*) = static_cast<float>(value);
 							break;
 					}
 					break;
 				}
 				case 'p': {
-					const auto value = readUnsignedint(16);
+					const auto value = readUnsigned64(16);
 					if (!suppressAssign) {
 						*va_arg(args, void**) = reinterpret_cast<void*>(value);
 					}
@@ -467,8 +502,8 @@ int32_t ScanStream::scan(const char *format, [[maybe_unused]] va_list args) {
 						case LONG: {
 							auto *s = suppressAssign ? nullptr : va_arg(args, wchar_t*);
 							for (int32_t j = 0; j < maxFieldWidth; j++) {
-								if (!suppressAssign) {
-									s[j] = readWideChar();
+								if (s != nullptr) {
+									s[j] = readWideCharacter();
 								}
 							}
 							break;
@@ -476,7 +511,7 @@ int32_t ScanStream::scan(const char *format, [[maybe_unused]] va_list args) {
 						default: {
 							auto *s = suppressAssign ? nullptr : va_arg(args, char*);
 							for (int32_t j = 0; j < maxFieldWidth; j++) {
-								if (!suppressAssign) {
+								if (s != nullptr) {
 									s[j] = static_cast<char>(read());
 								}
 							}
@@ -496,14 +531,14 @@ int32_t ScanStream::scan(const char *format, [[maybe_unused]] va_list args) {
 									break;
 								}
 
-								const auto w = readWideChar();
-								if (!suppressAssign) {
+								const auto w = readWideCharacter();
+								if (s != nullptr) {
 									s[j] = w;
 								}
 								c = peek();
 							}
 
-							if (!suppressAssign) {
+							if (s != nullptr) {
 								s[j] = '\0';
 							}
 							break;
@@ -517,14 +552,14 @@ int32_t ScanStream::scan(const char *format, [[maybe_unused]] va_list args) {
 									break;
 								}
 
-								if (!suppressAssign) {
+								if (s != nullptr) {
 									s[j] = static_cast<char>(c);
 								}
 								read();
 								c = peek();
 							}
 
-							if (!suppressAssign) {
+							if (s != nullptr) {
 								s[j] = '\0';
 							}
 							break;
@@ -537,7 +572,7 @@ int32_t ScanStream::scan(const char *format, [[maybe_unused]] va_list args) {
 					Panic::fire(Panic::UNSUPPORTED_OPERATION, "ScanStream: Wide chars not supported in scanset!");
 					}
 
-					const int32_t SET_SIZE = 1024;
+					constexpr int32_t SET_SIZE = 1024;
 					char set[SET_SIZE]{};
 					bool invert = false;
 
@@ -593,7 +628,7 @@ int32_t ScanStream::scan(const char *format, [[maybe_unused]] va_list args) {
 
 						if (matched) {
 							const auto r = read();
-							if (!suppressAssign) {
+							if (s != nullptr) {
 								*s++ = static_cast<char>(r);
 							}
 						} else {
@@ -601,12 +636,14 @@ int32_t ScanStream::scan(const char *format, [[maybe_unused]] va_list args) {
 						}
 					}
 
-					if (!suppressAssign) {
+					if (s != nullptr) {
 						*s = '\0';
 					}
 
 					break;
 				}
+				default:
+					break;
 			}
 
 			setReadLimit(-1);
@@ -617,7 +654,67 @@ int32_t ScanStream::scan(const char *format, [[maybe_unused]] va_list args) {
 	return scannedItems;
 }
 
-int32_t ScanStream::charToInt(int16_t c, uint32_t base) {
+ScanStream& ScanStream::operator>>(uint8_t &number) {
+	number = readUnsigned8();
+	return *this;
+}
+
+ScanStream& ScanStream::operator>>(int8_t &number) {
+	number = readSigned8();
+	return *this;
+}
+
+ScanStream& ScanStream::operator>>(uint16_t &number) {
+	number = readUnsigned16();
+	return *this;
+}
+
+ScanStream& ScanStream::operator>>(int16_t &number) {
+	number = readSigned16();
+	return *this;
+}
+
+ScanStream& ScanStream::operator>>(uint32_t &number) {
+	number = readUnsigned32();
+	return *this;
+}
+
+ScanStream& ScanStream::operator>>(int32_t &number) {
+	number = readSigned32();
+	return *this;
+}
+
+ScanStream& ScanStream::operator>>(uint64_t &number) {
+	number = readUnsigned64();
+	return *this;
+}
+
+ScanStream& ScanStream::operator>>(int64_t &number) {
+	number = readSigned64();
+	return *this;
+}
+
+ScanStream& ScanStream::operator>>(float &number) {
+	number = static_cast<float>(readFloatingPointNumber());
+	return *this;
+}
+
+ScanStream& ScanStream::operator>>(double &number) {
+	number = static_cast<double>(readFloatingPointNumber());
+	return *this;
+}
+
+ScanStream& ScanStream::operator>>(long double &number) {
+	number = readFloatingPointNumber();
+	return *this;
+}
+
+ScanStream& ScanStream::operator>>(wchar_t &character) {
+	character = readWideCharacter();
+	return *this;
+}
+
+int8_t ScanStream::charToInt(char c, const uint8_t base) {
 	if (CharacterTypes::isDigit(c)) {
 		c -= 48;
 	} else if (CharacterTypes::isUpper(c)) {

@@ -21,19 +21,16 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#ifndef HHUOS_LIB_UTIL_NETWORK_NUMBERUTIL_H
-#define HHUOS_LIB_UTIL_NETWORK_NUMBERUTIL_H
+#ifndef HHUOS_LIB_UTIL_STREAM_NUMBERUTIL_H
+#define HHUOS_LIB_UTIL_STREAM_NUMBERUTIL_H
 
 #include <stdint.h>
 
-namespace Util {
-namespace Io {
-class InputStream;
-class OutputStream;
-}  // namespace Stream
-}  // namespace Util
+#include "io/stream/InputStream.h"
+#include "io/stream/OutputStream.h"
 
 /// Provides utility functions for reading numbers from input streams and writing numbers to output streams.
+/// The streams are expected to provide raw bytes. For parsing numbers from text streams, use a `ScanStream`.
 /// These functions are used a lot in the network stack, to parse network headers and write network packets.
 namespace Util::Io::NumberUtil {
 

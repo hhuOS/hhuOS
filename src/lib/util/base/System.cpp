@@ -99,7 +99,7 @@ void System::printStackTrace(Io::PrintStream &stream, size_t minEbp) {
             symbolName = getSymbolName(--eip);
         }
 
-        stream << " " << symbolName << Io::PrintStream::endl << Io::PrintStream::flush;
+        stream << " " << symbolName << Io::PrintStream::ln << Io::PrintStream::flush;
 
         if (!Address(symbolName).compareString(Address("main"))) {
             break;

@@ -20,21 +20,21 @@
 
 #include "FilterOutputStream.h"
 
-#include "lib/util/io/stream/OutputStream.h"
+#include "io/stream/OutputStream.h"
 
 namespace Util::Io {
 
 FilterOutputStream::FilterOutputStream(OutputStream &stream) : stream(stream) {}
 
-bool FilterOutputStream::write(uint8_t c) {
-    return stream.write(c);
+bool FilterOutputStream::write(const uint8_t byte) {
+    return stream.write(byte);
 }
 
-uint32_t FilterOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+size_t FilterOutputStream::write(const uint8_t *sourceBuffer, const size_t offset, const size_t length) {
     return stream.write(sourceBuffer, offset, length);
 }
 
-uint32_t FilterOutputStream::flush() {
+size_t FilterOutputStream::flush() {
     return stream.flush();
 }
 

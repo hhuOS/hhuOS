@@ -22,47 +22,48 @@
 
 namespace Util::Io {
 
-String InputStream::readString(uint32_t length) {
-    auto *tmpBuffer = new uint8_t[length];
-    int32_t count = read(tmpBuffer, 0, length);
-
-    String ret = count <= 0 ? String() : String(tmpBuffer, length);
-
-    delete[] tmpBuffer;
-    return ret;
+InputStream::~InputStream() {
+    delete skipBuffer;
 }
 
-String InputStream::readLine(bool &endOfFile) {
-    Util::String line;
+String InputStream::readString(const size_t length) {
+    auto *stringBuffer = new uint8_t[length];
+    const auto count = read(stringBuffer, 0, length);
+
+    const auto string = count <= 0 ? String() : String(stringBuffer, length);
+
+    delete[] stringBuffer;
+    return string;
+}
+
+String InputStream::readLine() {
+    String line;
     auto currentChar = read();
     while (currentChar != -1 && currentChar != '\n') {
         line += static_cast<char>(currentChar);
         currentChar = read();
     }
 
-    endOfFile = line.isEmpty() && (currentChar == -1);
     return line;
 }
 
-uint32_t InputStream::skip(uint32_t amount) {
-    if (amount <= 0) {
-        return 0;
+size_t InputStream::skip(const size_t amount) {
+    if (skipBuffer == nullptr) {
+        skipBuffer = new uint8_t[SKIP_BUFFER_SIZE];
     }
 
-    uint32_t remaining = amount;
-    uint32_t bufferSize = amount > SKIP_BUFFER_SIZE ? SKIP_BUFFER_SIZE : amount;
-    auto *buffer = new uint8_t[bufferSize];
+    auto remaining = amount;
 
     while (remaining > 0) {
-        int32_t skipped = read(buffer, 0, bufferSize > remaining ? remaining : bufferSize);
-        if (skipped <= 0) {
+        const auto toRead = SKIP_BUFFER_SIZE > remaining ? remaining : SKIP_BUFFER_SIZE;
+        const auto skipped = read(skipBuffer, 0, toRead);
+        if (skipped < 0) {
             break;
         }
 
         remaining -= skipped;
     }
 
-    delete[] buffer;
     return amount - remaining;
 }
 

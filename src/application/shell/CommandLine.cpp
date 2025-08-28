@@ -33,7 +33,7 @@ CommandLine::CommandLine(const Util::String &path) : startDirectory(path) {}
 
 void CommandLine::run() {
     if (!Util::Io::File::changeDirectory(startDirectory)) {
-        Util::System::error << "Unable to start shell in '" << startDirectory << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "Unable to start shell in '" << startDirectory << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return;
     }
 
@@ -50,7 +50,7 @@ void CommandLine::run() {
 
 void CommandLine::runCommand(Util::String command) {
 	if (!Util::Io::File::changeDirectory(startDirectory)) {
-        Util::System::error << "Unable to start shell in '" << startDirectory << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << "Unable to start shell in '" << startDirectory << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return;
     }
 	
@@ -127,7 +127,7 @@ void CommandLine::readLine() {
                 uint16_t column = startPosition.column + (currentLine.length() % (cursorLimits.column + 1));
                 uint16_t row = startPosition.row + ((currentLine.length() + startPosition.column) / (cursorLimits.column + 1));
                 Util::Graphic::Ansi::setPosition({column, row});
-                Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+                Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 
                 currentLine = currentLine.strip();
                 return;
@@ -195,7 +195,7 @@ void CommandLine::parseInput() {
     const auto targetFile = pipeSplit.length() == 1 ? "/device/terminal" : pipeSplit[1].split(" ")[0];
 
     if (!valid) {
-        Util::System::out << "Invalid argument string!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::out << "Invalid argument string!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     } else if (command == "cd") {
         cd(arguments);
     } else if (command == "exit") {
@@ -286,18 +286,18 @@ void CommandLine::cd(const Util::Array<Util::String> &arguments) {
     auto file = Util::Io::File(path);
 
     if (!file.exists()) {
-        Util::System::out << "cd: '" << path << "' not found!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::out << "cd: '" << path << "' not found!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return;
     }
 
     if (file.isFile()) {
-        Util::System::out << "cd: '" << path << "' is not a directory!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::out << "cd: '" << path << "' is not a directory!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return;
     }
 
     auto result = Util::Io::File::changeDirectory(path);
     if (!result) {
-        Util::System::out << "cd: Failed to change directory!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::out << "cd: Failed to change directory!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return;
     }
 }
@@ -308,27 +308,26 @@ void CommandLine::executeBinary(const Util::String &path, const Util::String &co
     auto outputFile = Util::Io::File(outputPath);
 
     if (!binaryFile.exists()) {
-        Util::System::out << "'" << path << "' not found!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::out << "'" << path << "' not found!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return;
     }
 
     if (binaryFile.isDirectory()) {
-        Util::System::out << "'" << path << "' is a directory!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::out << "'" << path << "' is a directory!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return;
     }
 
     if (!outputFile.exists() && !outputFile.create(Util::Io::File::REGULAR)) {
-        Util::System::out << "Failed to execute file '" << path << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::out << "Failed to execute file '" << path << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return;
     }
 
     auto lfbSettingsString = Util::String();
     auto lfbFile = Util::Io::File("/device/lfb");
     if (lfbFile.exists()) {
-        bool endOfFile;
         auto lfbInputStream = Util::Io::FileInputStream(lfbFile);
-        lfbInputStream.readLine(endOfFile); // Skip address
-        lfbSettingsString = lfbInputStream.readLine(endOfFile);
+        lfbInputStream.readLine(); // Skip address
+        lfbSettingsString = lfbInputStream.readLine();
     }
 
     auto process = Util::Async::Process::execute(binaryFile, inputFile, outputFile, outputFile, command, arguments);
@@ -336,10 +335,9 @@ void CommandLine::executeBinary(const Util::String &path, const Util::String &co
         process.join();
 
         if (lfbFile.exists()) {
-            bool endOfFile;
             auto lfbInputStreamAfter = Util::Io::FileInputStream(lfbFile);
-            lfbInputStreamAfter.readLine(endOfFile); // Skip address
-            auto lfbSettingsStringAfter = lfbInputStreamAfter.readLine(endOfFile);
+            lfbInputStreamAfter.readLine(); // Skip address
+            auto lfbSettingsStringAfter = lfbInputStreamAfter.readLine();
             if (lfbSettingsString != lfbSettingsStringAfter) {
                 auto split1 = lfbSettingsString.split("x");
                 auto split2 = split1[1].split("@");

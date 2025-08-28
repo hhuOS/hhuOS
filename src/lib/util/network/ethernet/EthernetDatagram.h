@@ -52,12 +52,11 @@ namespace Util::Network::Ethernet {
 ///
 /// // Read MAC address of device "eth0" from file system
 /// auto macFile = Util::Io::FileInputStream("/device/eth0/mac");
-/// bool endOfFile = false;
-/// auto macAddress = Util::Network::MacAddress(macFile.readLine(endOfFile));
+/// auto macAddress = Util::Network::MacAddress(macFile.readLine());
 ///
 /// // Bind the socket to the read MAC address
 /// if (!socket.bind(macAddress)) {
-///     Util::System::out << "Failed to bind socket!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+///     Util::System::out << "Failed to bind socket!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 ///     return;
 /// }
 ///
@@ -67,7 +66,7 @@ namespace Util::Network::Ethernet {
 ///     13, destinationAddress, Util::Network::Ethernet::EthernetHeader::INVALID);
 ///
 /// if (!socket.send(datagram)) {
-///     Util::System::out << "Failed to send datagram!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+///     Util::System::out << "Failed to send datagram!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 ///     return;
 /// }
 /// ```

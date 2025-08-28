@@ -129,7 +129,7 @@ struct CpuInfo {
     ///     for (const auto &feature : cpuInfo.getFeaturesAsArray()) {
     ///         Util::System::out << Util::Hardware::CpuId::getFeatureAsString(feature) << " ";
     ///     }
-    ///     Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+    ///     Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     /// }
     /// ```
     [[nodiscard]] Array<CpuFeature> getFeaturesAsArray() const;
@@ -147,7 +147,7 @@ struct CpuInfo {
 /// ```c++
 /// if (Util::Hardware::CpuId::isAvailable()) {
 ///     const auto vendor = Util::Hardware::CpuId::getVendorString();
-///     Util::System::out << "CPU Vendor: " << vendor << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+///     Util::System::out << "CPU Vendor: " << vendor << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 /// }
 /// ```
 [[nodiscard]] String getVendorString();
@@ -161,7 +161,7 @@ struct CpuInfo {
 ///     Util::System::out << "CPU Family: " << cpuInfo.family
 ///         << ", Model: " << cpuInfo.model
 ///         << ", Stepping: " << cpuInfo.stepping
-///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 /// }
 /// ```
 [[nodiscard]] CpuInfo getCpuInfo();

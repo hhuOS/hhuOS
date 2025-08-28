@@ -18,54 +18,53 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_QUEUEINPUTSTREAM_H
-#define HHUOS_QUEUEINPUTSTREAM_H
+#ifndef HHUOS_LIB_UTIL_IO_QUEUEINPUTSTREAM_H
+#define HHUOS_LIB_UTIL_IO_QUEUEINPUTSTREAM_H
 
+#include <stddef.h>
 #include <stdint.h>
 
-#include "InputStream.h"
-
-namespace Util {
-template <typename T> class Queue;
-}  // namespace Util
+#include "collection/Queue.h"
+#include "io/stream/InputStream.h"
 
 namespace Util::Io {
 
-class QueueInputStream : public InputStream {
+/// An input stream that reads data from a queue.
+/// This is useful for scenarios where data is produced asynchronously and needs to be consumed in a streaming manner.
+/// The queue input stream reads bytes from the provided queue, blocking if necessary until data is available.
+class QueueInputStream final : public InputStream {
 
 public:
-    /**
-     * Constructor.
-     */
-    explicit QueueInputStream(Queue<uint8_t> &queue, bool discardIfFull = false);
+    /// Create a queue input stream instance that reads data from the given queue.
+    /// The instance does not take ownership of the queue. It is the caller's responsibility to ensure
+    /// that the queue remains valid for the lifetime of this filter input stream.
+    explicit QueueInputStream(Queue<uint8_t> &queue);
 
-    /**
-     * Copy Constructor.
-     */
-    QueueInputStream(const QueueInputStream &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    QueueInputStream &operator=(const QueueInputStream &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~QueueInputStream() override = default;
-
+    /// Read a single byte from the underlying queue.
+    /// If the queue is empty, this method will block until data is available.
+    /// As the queue has no failing mechanism, this method will never return -1.
     int16_t read() override;
-	
+
+    /// Read length bytes from the underlying queue into the target buffer, starting at the given offset.
+    /// If the queue has fewer than length bytes available, this method will block until enough data is available.
+    /// As the queue has no failing mechanism, this method will always return the amount of bytes requested.
+    /// It is the caller's responsibility to ensure that the target buffer has enough space for offset + length bytes.
+    /// If the buffer is too small, data is written out of bounds, leading to undefined behavior.
+    int32_t read(uint8_t *targetBuffer, size_t offset, size_t length) override;
+
+    /// Peek at the next byte in the queue without removing it.
+    /// If the queue is empty, this method will block until data is available.
+    /// As the queue has no failing mechanism, this method will never return -1.
 	int16_t peek() override;
 
-    int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
-
+    /// Check if there is data available to read from the queue.
+    /// This method returns true if the queue is not empty, false otherwise.
+    /// If this method returns true, a subsequent read call is guaranteed to succeed without blocking.
     bool isReadyToRead() override;
 
 private:
 
     Queue<uint8_t> &queue;
-    bool discardIfFull;
 };
 
 }

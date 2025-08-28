@@ -18,34 +18,59 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/base/Address.h"
 #include "ByteArrayOutputStream.h"
+
+#include "lib/util/base/Address.h"
 
 namespace Util::Io {
 
-ByteArrayOutputStream::ByteArrayOutputStream() : ByteArrayOutputStream(DEFAULT_BUFFER_SIZE) {}
+ByteArrayOutputStream::ByteArrayOutputStream(const size_t size) :
+    buffer(new uint8_t[size]), size(size) {}
 
-ByteArrayOutputStream::ByteArrayOutputStream(uint32_t size) : buffer(new uint8_t[size]), size(size) {}
+ByteArrayOutputStream::ByteArrayOutputStream(uint8_t *buffer) :
+    buffer(buffer), allocatedBuffer(false), checkBounds(false) {}
 
-ByteArrayOutputStream::ByteArrayOutputStream(uint8_t * buffer, uint32_t size) : buffer(buffer), size(size), allocatedBuffer(false) {
-}
+ByteArrayOutputStream::ByteArrayOutputStream(uint8_t *buffer, const size_t size) :
+    buffer(buffer), size(size), allocatedBuffer(false) {}
 
 ByteArrayOutputStream::~ByteArrayOutputStream() {
-    if (allocatedBuffer) delete[] buffer;
+    if (allocatedBuffer) {
+        delete[] buffer;
+    }
 }
 
-void ByteArrayOutputStream::getContent(uint8_t *target, uint32_t length) const {
-    auto sourceAddress = Address(buffer);
-    auto targetAddress = Address(target);
+bool ByteArrayOutputStream::write(const uint8_t byte) {
+    if (ensureRemainingCapacity(1)) {
+        buffer[position++] = byte;
+        return true;
+    }
 
-    targetAddress.copyRange(sourceAddress, size > length ? length : size);
+    return false;
+}
+
+size_t ByteArrayOutputStream::write(const uint8_t *sourceBuffer, const size_t offset, const size_t length) {
+    const auto toWrite = ensureRemainingCapacity(length);
+
+    const auto sourceAddress = Address(sourceBuffer).add(offset);
+    const auto targetAddress = Address(buffer).add(position);
+    targetAddress.copyRange(sourceAddress, toWrite);
+
+    position += toWrite;
+    return toWrite;
+}
+
+void ByteArrayOutputStream::getContent(uint8_t *target, const size_t length) const {
+    const auto sourceAddress = Address(buffer);
+    const auto targetAddress = Address(target);
+
+    targetAddress.copyRange(sourceAddress, position > length ? length : position);
 }
 
 String ByteArrayOutputStream::getContent() const {
-    return Util::String(buffer, position);
+    return String(buffer, position);
 }
 
-uint32_t ByteArrayOutputStream::getLength() const {
+size_t ByteArrayOutputStream::getPosition() const {
     return position;
 }
 
@@ -57,66 +82,40 @@ void ByteArrayOutputStream::reset() {
     position = 0;
 }
 
-bool ByteArrayOutputStream::sizeLimitReached() {
-	return checkSize && position == size;
-}
-
-void ByteArrayOutputStream::setSizeCheck(bool value) {
-	checkSize = value;
-}
-
-bool ByteArrayOutputStream::write(uint8_t c) {
-    if (ensureRemainingCapacity(1)) {
-        buffer[position++] = c;
-        return true;
-    }
-
-    return false;
-}
-
-uint32_t ByteArrayOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    length = ensureRemainingCapacity(length);
-    auto sourceAddress = Address(sourceBuffer).add(offset);
-    auto targetAddress = Address(buffer).add(position);
-    targetAddress.copyRange(sourceAddress, length);
-
-    position += length;
-
-    return length;
-}
-
-uint32_t ByteArrayOutputStream::ensureRemainingCapacity(uint32_t count) {
-    if (position + count < size) {
+size_t ByteArrayOutputStream::ensureRemainingCapacity(const size_t count) {
+    if (!checkBounds) {
+        // Bounds checking disabled -> Capacity is always sufficient
         return count;
     }
-	
-	if (checkSize) return size - position;
-	
-	if (!checkSize && !allocatedBuffer) return count; //if no size limits are enforced on remote buffer, writes beyond end are allowed
 
-    uint32_t newSize = size * 2;
+    if (position + count < size) {
+        // Enough space available -> Nothing to do
+        return count;
+    }
+
+    if (!allocatedBuffer) {
+        // We do not own the buffer and cannot resize it -> Return remaining space
+        return size - position;
+    }
+
+    // Allocate a new buffer, doubling the size until it is large enough
+    size_t newSize = size * 2;
     while (newSize < position + count) {
         newSize *= 2;
     }
 
-    auto newBuffer = new uint8_t[newSize];
-    Address source(buffer);
-    Address target(newBuffer);
-    target.copyRange(source, position);
+    const auto newBuffer = new uint8_t[newSize];
+    Address(newBuffer).copyRange(buffer, position);
 
     delete[] buffer;
     buffer = newBuffer;
     size = newSize;
-	
+
 	return count;
 }
 
 uint8_t* ByteArrayOutputStream::getBuffer() const {
     return buffer;
-}
-
-uint32_t ByteArrayOutputStream::getPosition() const {
-    return position;
 }
 
 }

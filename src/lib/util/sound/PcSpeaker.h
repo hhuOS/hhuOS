@@ -36,17 +36,17 @@ namespace Util::Sound {
 /// ## Example
 /// ```c++
 /// auto speaker = Util::Sound::PcSpeaker(Util::Io::File("/device/speaker")); // Create a new PcSpeaker instance
-/// bool endOfFile = false; // Indicates whether the input stream has reached EOF
 ///
 /// // Read frequencies from the input stream and play them using the speaker.
-/// while (!endOfFile) {
-///     // Read a line from the input stream; endOfFile will be set to true if EOF is reached
-///     const auto line = Util::System::in.readLine(endOfFile);
-///
+/// auto line = Util::System::in.readLine();
+/// while (!line.isEmpty()) {
 ///     // Parse the frequency from the line and play it
 ///     // (This example does not handle errors, so it assumes the line is always a valid number)
 ///     const auto frequency = Util::String::parseNumber<uint16_t>(line);
 ///     speaker.play(frequency);
+///
+///     // Read the next line from standard input
+///     line = Util::System::in.readLine();
 /// }
 /// ```
 class PcSpeaker {

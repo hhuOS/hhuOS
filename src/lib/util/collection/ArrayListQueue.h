@@ -48,7 +48,7 @@ namespace Util {
 ///     Util::System::out << element << " "; // Prints: 2 3 1
 /// }
 ///
-/// Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+/// Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 /// ```
 template <typename T>
 class ArrayListQueue final : public Queue<T> {

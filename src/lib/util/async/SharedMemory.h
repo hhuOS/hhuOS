@@ -53,7 +53,7 @@ namespace Util::Async {
 /// // Publish the region to make it available to other processes.
 /// if (!sharedMemory.publish()) {
 ///     Util::System::out << "Failed to publish shared memory region!"
-///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 ///     return;
 /// }
 /// ```
@@ -68,14 +68,14 @@ namespace Util::Async {
 /// const auto sharedMemory = Util::Async::SharedMemory(id, "myregion", 1);
 /// if (!sharedMemory.map()) {
 ///     Util::System::out << "Failed to map shared memory region!"
-///         << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 ///     return;
 /// }
 ///
 /// const auto address = sharedMemory.getAddress();
 /// const auto message = static_cast<const char*>(address.getAsPointer());
 /// Util::System::out << "Message from shared memory: " << message
-///     << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush; // Should print "Hello, Shared Memory!"
+///     << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // Should print "Hello, Shared Memory!"
 /// ```
 class SharedMemory {
 

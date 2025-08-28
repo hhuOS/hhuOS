@@ -40,7 +40,7 @@ namespace Util {
 /// ```
 /// // Create a string and print it.
 /// const auto string = Util::String("Hello, World!");
-/// Util::System::out << string << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+/// Util::System::out << string << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 /// ```
 class String {
 
@@ -390,12 +390,14 @@ public:
 
     /// Format a string using the given format string and arguments.
     /// Supports all format specifiers defined by `printf()` in the C89 standard plus '%B' for boolean values.
+    ///
     /// The arguments are passed as a `va_list`, which is useful if the calling function itself is variadic
     /// and wants to pass the arguments to this function. For example, `printf()` is implemented using this function.
     [[nodiscard]] static String format(const char *format, va_list args);
 
     /// Format a string using the given format string and arguments.
     /// Supports all format specifiers defined by `printf()` in the C89 standard plus '%B' for boolean values.
+    ///
     /// Instead of returning a new string, the formatted output is written to the given `OutputStream`.
     /// The return value is the number of bytes written to the `OutputStream` or -1 if an error occurred.
     /// In case of an error, data may or may not have been written to the `OutputStream` (undefined behavior).

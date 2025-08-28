@@ -18,21 +18,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/base/Address.h"
 #include "BufferedInputStream.h"
-#include "lib/util/io/stream/FilterInputStream.h"
 
-namespace Util {
-namespace Io {
-class InputStream;
-}  // namespace Stream
-}  // namespace Util
+#include "base/Address.h"
+#include "io/stream/FilterInputStream.h"
 
 namespace Util::Io {
 
-BufferedInputStream::BufferedInputStream(InputStream &stream) : BufferedInputStream(stream, DEFAULT_BUFFER_SIZE) {}
-
-BufferedInputStream::BufferedInputStream(InputStream &stream, uint32_t size) : FilterInputStream(stream), buffer(new uint8_t[size]), size(size) {}
+BufferedInputStream::BufferedInputStream(InputStream &stream, const size_t bufferSize) :
+    FilterInputStream(stream), buffer(new uint8_t[bufferSize]), size(bufferSize) {}
 
 BufferedInputStream::~BufferedInputStream() {
     delete[] buffer;
@@ -46,15 +40,7 @@ int16_t BufferedInputStream::read() {
     return buffer[position++];
 }
 
-int16_t BufferedInputStream::peek() {
-	if (position >= valid && !refill()) {
-        return -1;
-    }
-	
-	return buffer[position];
-}
-
-int32_t BufferedInputStream::read(uint8_t *target, uint32_t offset, uint32_t length) {
+int32_t BufferedInputStream::read(uint8_t *target, size_t offset, size_t length) {
     if (length == 0) {
         return 0;
     }
@@ -63,41 +49,58 @@ int32_t BufferedInputStream::read(uint8_t *target, uint32_t offset, uint32_t len
         return -1;
     }
 
-    uint32_t ret = 0;
+    size_t ret = 0;
 
+    // Keep reading until we have read the requested length or there is no more data available.
+    // If the internal buffer is exhausted, try to refill it with every iteration.
+    // If refilling fails, the underlying stream has reached the end or an error occurred,
+    // and we stop reading.
     do {
-        uint32_t readCount = valid - position > length ? length : valid - position;
-        Address sourceAddress(buffer + position);
-        Address targetAddress(target + offset);
+        // Copy as many bytes as possible from the internal buffer to the target buffer
+        const auto readCount = valid - position > length ? length : valid - position;
+        const auto sourceAddress = Address(buffer).add(position);
+        const auto targetAddress = Address(target).add(offset);
         targetAddress.copyRange(sourceAddress, readCount);
 
+        // Update positions and counters
         position += readCount;
         offset += readCount;
         ret += readCount;
         length -= readCount;
     } while (length > 0 && refill());
 
-    return ret;
+    return static_cast<int32_t>(ret);
+}
+
+int16_t BufferedInputStream::peek() {
+    if (position >= valid && !refill()) {
+        return -1;
+    }
+
+    return buffer[position];
+}
+
+bool BufferedInputStream::isReadyToRead() {
+    return valid > position || FilterInputStream::isReadyToRead();
+}
+
+void BufferedInputStream::clearBuffer() {
+    position = 0;
+    valid = 0;
 }
 
 bool BufferedInputStream::refill() {
+    // Check if the buffer is fully exhausted and reset the position and valid counters if so.
     if (position == valid) {
         position = 0;
         valid = 0;
     }
 
-    int readCount = FilterInputStream::read(buffer, valid, size - valid);
-
-    if (readCount <= 0) {
-        return false;
-    }
-
+    // Try to fill the internal buffer with data from the underlying stream.
+    const auto readCount = FilterInputStream::read(buffer, valid, size - valid);
     valid += readCount;
-    return true;
-}
 
-bool BufferedInputStream::isReadyToRead() {
-    return valid > position || refill();
+    return readCount > 0;
 }
 
 }

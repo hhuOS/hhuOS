@@ -37,14 +37,14 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto processDirectory = Util::Io::File("/process");
     auto processRootPath = processDirectory.getCanonicalPath();
 
-    Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_YELLOW << "PID\tThreads\tName" << Util::Graphic::Ansi::FOREGROUND_DEFAULT << Util::Io::PrintStream::endl;
+    Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_YELLOW << "PID\tThreads\tName" << Util::Graphic::Ansi::FOREGROUND_DEFAULT << Util::Io::PrintStream::ln;
     for (const auto &child : processDirectory.getChildren()) {
         auto processPath = child.getCanonicalPath();
 
@@ -56,7 +56,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
         Util::System::out << child.getName() << "\t"
                           << threadCountStream.readString(threadCountFile.getLength() - 1) << "\t"
-                          << nameStream.readString(nameFile.getLength() - 1) << Util::Io::PrintStream::endl;
+                          << nameStream.readString(nameFile.getLength() - 1) << Util::Io::PrintStream::ln;
     }
 
     Util::System::out << Util::Io::PrintStream::flush;

@@ -127,7 +127,7 @@ void UdpModule::writePacket(const Util::Network::Ip4::Ip4PortAddress &sourceAddr
 
     // Finalize and send packet
     Ethernet::EthernetModule::finalizePacket(packet);
-    sourceInterface.getDevice().sendPacket(packet.getBuffer(), packet.getLength());
+    sourceInterface.getDevice().sendPacket(packet.getBuffer(), packet.getPosition());
 }
 
 uint16_t UdpModule::calculateChecksum(const uint8_t *pseudoHeader, const uint8_t *datagram, uint16_t datagramLength) {
