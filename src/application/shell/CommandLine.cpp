@@ -344,9 +344,9 @@ void CommandLine::executeBinary(const Util::String &path, const Util::String &co
                 auto split1 = lfbSettingsString.split("x");
                 auto split2 = split1[1].split("@");
 
-                auto resolutionX = Util::String::parseNumber<uint16_t>(split2[0]);
-                auto resolutionY = Util::String::parseNumber<uint16_t>(split2[1]);
-                uint8_t colorDepth = split1.length() > 1 ? Util::String::parseNumber<uint8_t>(split1[1]) : 32;
+                auto resolutionX = Util::String::parseNumber<uint16_t>(split1[0]);
+                auto resolutionY = Util::String::parseNumber<uint16_t>(split2[0]);
+                uint8_t colorDepth = split1.length() > 1 ? Util::String::parseNumber<uint8_t>(split2[1]) : 32;
 
                 lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
             }
