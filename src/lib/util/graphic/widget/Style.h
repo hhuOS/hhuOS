@@ -50,6 +50,8 @@ Style label();
 
 Style button();
 
+Style checkbox();
+
 };
 
 }

@@ -49,7 +49,7 @@ bool Widget::requiresParentRedraw() const {
     return needsParentRedraw;
 }
 
-void Widget::draw([[maybe_unused]] LinearFrameBuffer &lfb) {
+void Widget::draw([[maybe_unused]] const LinearFrameBuffer &lfb) {
     needsRedraw = false;
     needsParentRedraw = false;
 }

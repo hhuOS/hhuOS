@@ -21,46 +21,63 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-mizuc100
  */
 
-#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_CONTAINER_H
-#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_CONTAINER_H
+#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_CHECKBOX_H
+#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_CHECKBOX_H
 
-#include <stddef.h>
-
-#include "collection/ArrayList.h"
-#include "graphic/LinearFrameBuffer.h"
-#include "graphic/widget/Style.h"
+#include "Style.h"
+#include "base/String.h"
+#include "graphic/font/Terminal8x8.h"
 #include "graphic/widget/Widget.h"
 
 namespace Util::Graphic {
 
-class Container final : public Widget {
+class CheckBox final : public Widget {
 
 public:
 
-    Container(size_t posX, size_t posY, size_t width, size_t height);
+    explicit CheckBox(const String &text, const Font &font = Fonts::TERMINAL_8x8);
 
-    Container(size_t posX, size_t posY, size_t width, size_t height, const Style& style);
+    void toggle();
 
-    void addChild(Widget& child, size_t relPosX, size_t relPosY);
+    void setText(const String &text);
 
-    [[nodiscard]] size_t getWidth()  const override;
+    [[nodiscard]] bool isChecked() const;
+
+    [[nodiscard]] size_t getWidth() const override;
 
     [[nodiscard]] size_t getHeight() const override;
-
-    [[nodiscard]] bool requiresRedraw() const override;
-
-    [[nodiscard]] Widget* getChildAtPoint(size_t posX, size_t posY) override;
 
     void draw(const LinearFrameBuffer &lfb) override;
 
 private:
 
-    ArrayList<Widget*> children;
+    class MouseListener final : public ActionListener {
 
-    size_t width;
-    size_t height;
+    public:
 
-    Style style;
+        explicit MouseListener(CheckBox &box);
+
+        void onMouseEnter() override;
+
+        void onMouseLeave() override;
+
+        void onMousePress() override;
+
+        void onMouseRelease() override;
+
+    private:
+
+        CheckBox &box;
+    };
+
+    String text;
+    const Font &font;
+    Style style = DefaultTheme::checkbox();
+
+    bool checked = false;
+
+    bool hovered = false;
+    bool pressed = false;
 };
 
 }

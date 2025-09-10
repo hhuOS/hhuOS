@@ -201,10 +201,10 @@ void LinearFrameBuffer::drawSquare(uint16_t x, uint16_t y, uint16_t size, const 
 }
 
 void LinearFrameBuffer::fillRectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const Color &color) const {
-    const uint16_t endX = x + width;
-    const uint16_t endY = y + height;
+    const uint16_t endX = x + width - 1;
+    const uint16_t endY = y + height -1;
 
-    for (uint16_t i = y; i < endY; i++) {
+    for (uint16_t i = y; i <= endY; i++) {
         drawLine(x, i, endX, i, color);
     }
 }

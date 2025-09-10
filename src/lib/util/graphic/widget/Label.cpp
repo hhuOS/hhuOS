@@ -11,6 +11,11 @@ Label::Label(const String &text, const size_t maxWidth, const Font &font,
     style.backgroundColor = backgroundColor;
 }
 
+void Label::setText(const String &text) {
+    Label::text = text;
+    requireParentRedraw();
+}
+
 size_t Label::getWidth() const {
     return maxWidth;
 }
@@ -23,12 +28,7 @@ size_t Label::getHeight() const {
     return lines * font.getCharHeight() + 2 * style.paddingY;
 }
 
-void Label::setText(const String &text) {
-    Label::text = text;
-    requireParentRedraw();
-}
-
-void Label::draw(LinearFrameBuffer &lfb) {
+void Label::draw(const LinearFrameBuffer &lfb) {
     const auto charWidth = font.getCharWidth();
     const auto lineHeight = font.getCharHeight();
     const auto innerWidth = maxWidth - 2 * style.paddingX;

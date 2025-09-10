@@ -42,13 +42,13 @@ public:
 
     Label(const String &text, size_t maxWidth, const Font &font, const Color &textColor, const Color &backgroundColor);
 
+    void setText(const String &text);
+
     [[nodiscard]] size_t getWidth() const override;
 
     [[nodiscard]] size_t getHeight() const override;
 
-    void setText(const String &text);
-
-    void draw(LinearFrameBuffer &lfb) override;
+    void draw(const LinearFrameBuffer &lfb) override;
 
 private:
 

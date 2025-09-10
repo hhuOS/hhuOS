@@ -39,21 +39,21 @@ public:
 
     explicit Button(const String &text, const Font &font = Fonts::TERMINAL_8x8);
 
+    void setText(const String &text);
+
     [[nodiscard]] size_t getWidth() const override;
 
     [[nodiscard]] size_t getHeight() const override;
 
-    void setText(const String &text);
-
-    void draw(LinearFrameBuffer &lfb) override;
+    void draw(const LinearFrameBuffer &lfb) override;
 
 private:
 
-    class MouseHoverListener final : public ActionListener {
+    class MouseListener final : public ActionListener {
 
     public:
 
-        explicit MouseHoverListener(Button &button);
+        explicit MouseListener(Button &button);
 
         void onMouseEnter() override;
 

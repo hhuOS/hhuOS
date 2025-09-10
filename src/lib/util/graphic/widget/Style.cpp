@@ -55,15 +55,29 @@ Style label() {
 
 Style button() {
     return Style {
-        .textColor = Colors::HHU_LIGHT_GRAY,
+        .textColor = Colors::HHU_LIGHT_GRAY.dim(),
         .backgroundColor = Colors::HHU_BLUE,
-        .textColorHighlighted = Colors::HHU_GRAY.dim(),
+        .textColorHighlighted = Colors::HHU_GRAY.dim().dim(),
         .backgroundColorHighlighted = Colors::HHU_DARK_BLUE,
         .borderColor = Colors::HHU_DARK_BLUE,
         .accentColor = Colors::HHU_BLUE,
         .paddingX = 8,
         .paddingY = 6,
         .gapX = 4
+    };
+}
+
+Style checkbox() {
+    return Style {
+        .textColor = Colors::HHU_GRAY.dim().dim(),
+        .backgroundColor = Colors::HHU_LIGHT_GRAY,
+        .textColorHighlighted = Colors::HHU_GRAY.dim().dim(),
+        .backgroundColorHighlighted = Colors::HHU_LIGHT_GRAY.dim(),
+        .borderColor = Colors::HHU_LIGHT_GRAY.dim(),
+        .accentColor = Colors::HHU_BLUE,
+        .paddingX = 4,
+        .paddingY = 2,
+        .gapX = 6
     };
 }
 

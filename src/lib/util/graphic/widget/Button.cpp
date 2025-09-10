@@ -26,7 +26,18 @@
 namespace Util::Graphic {
 
 Button::Button(const String &text, const Font &font) : text(text.split("\n")[0]), font(font) {
-    addActionListener(new MouseHoverListener(*this));
+    addActionListener(new MouseListener(*this));
+}
+
+void Button::setText(const String &text) {
+    const auto newText = text.split("\n")[0];
+    if (newText.length() == Button::text.length()) {
+        requireRedraw();
+    } else {
+        requireParentRedraw();
+    }
+
+    Button::text = newText;
 }
 
 size_t Button::getWidth() const {
@@ -37,12 +48,7 @@ size_t Button::getHeight() const {
     return font.getCharHeight() + 2 * style.paddingY;
 }
 
-void Button::setText(const String &text) {
-    Button::text = text;
-    requireParentRedraw();
-}
-
-void Button::draw(LinearFrameBuffer &lfb) {
+void Button::draw(const LinearFrameBuffer &lfb) {
     const auto &backgroundColor = pressed ? style.backgroundColorHighlighted : style.backgroundColor;
     const auto &textColor = hovered || pressed ? style.textColorHighlighted : style.textColor;
     const auto width = getWidth();
@@ -57,8 +63,8 @@ void Button::draw(LinearFrameBuffer &lfb) {
     // Calculate centered text position
     const auto textWidth = text.length() * font.getCharWidth();
     const auto innerWidth = width - style.paddingX * 2;
-    const auto textX = posX + style.paddingX + (innerWidth  - textWidth) / 2;
-    const auto textY = posY + style.paddingY + (height - style.paddingY - font.getCharHeight()) / 2;
+    const auto textX = posX + style.paddingX + (innerWidth - textWidth) / 2;
+    const auto textY = posY + (height - font.getCharHeight()) / 2;
 
     // Draw button
     lfb.drawString(font, textX, textY, static_cast<const char*>(text), textColor, backgroundColor);
@@ -66,24 +72,24 @@ void Button::draw(LinearFrameBuffer &lfb) {
     Widget::draw(lfb);
 }
 
-Button::MouseHoverListener::MouseHoverListener(Button &button) : button(button) {}
+Button::MouseListener::MouseListener(Button &button) : button(button) {}
 
-void Button::MouseHoverListener::onMouseEnter() {
+void Button::MouseListener::onMouseEnter() {
     button.hovered = true;
     button.requireRedraw();
 }
 
-void Button::MouseHoverListener::onMouseLeave() {
+void Button::MouseListener::onMouseLeave() {
     button.hovered = false;
     button.requireRedraw();
 }
 
-void Button::MouseHoverListener::onMousePress() {
+void Button::MouseListener::onMousePress() {
     button.pressed = true;
     button.requireRedraw();
 }
 
-void Button::MouseHoverListener::onMouseRelease() {
+void Button::MouseListener::onMouseRelease() {
     button.pressed = false;
     button.requireRedraw();
 }

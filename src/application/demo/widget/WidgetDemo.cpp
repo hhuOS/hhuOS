@@ -24,7 +24,9 @@
 #include "graphic/Ansi.h"
 #include "graphic/BufferedLinearFrameBuffer.h"
 #include "graphic/font/Terminal8x8.h"
+#include "graphic/font/Terminal8x16.h"
 #include "graphic/widget/Button.h"
+#include "graphic/widget/CheckBox.h"
 #include "graphic/widget/Container.h"
 #include "graphic/widget/Label.h"
 #include "io/key/MouseDecoder.h"
@@ -52,19 +54,26 @@ WidgetDemo::WidgetDemo(Util::Graphic::LinearFrameBuffer &lfb) :
 void WidgetDemo::run() {
     Util::Graphic::Ansi::prepareGraphicalApplication(false);
 
-    auto testLabel = Util::Graphic::Label("This is a test!", 200, Util::Graphic::Fonts::TERMINAL_8x8);
-    auto lineBreakTestLabel = Util::Graphic::Label("This\na test\nwith linebreaks!", 200, Util::Graphic::Fonts::TERMINAL_8x8);
-
-    auto button = Util::Graphic::Button("Button");
-    auto pressedLabel = Util::Graphic::Label("Pressed: 0", 200, Util::Graphic::Fonts::TERMINAL_8x8);
-
-    button.addActionListener(new ClickCountListener(pressedLabel));
+    // Test widgets
+    auto testLabel = Util::Graphic::Label("This is a test!", 200);
+    auto lineBreakTestLabel = Util::Graphic::Label("This\na test\nwith linebreaks!", 200);
 
     addWidget(testLabel, 10, 10);
     addWidget(lineBreakTestLabel, 10, 10 + testLabel.getHeight() + 10);
 
+    // Test button
+    auto button = Util::Graphic::Button("Button");
+    auto pressedLabel = Util::Graphic::Label("Pressed: 0", 200);
+
+    button.addActionListener(new ClickCountListener(pressedLabel));
+
     addWidget(button, 10, 100);
     addWidget(pressedLabel, 10, 100 + button.getHeight() + 10);
+
+    // Test checkbox
+    auto checkbox = Util::Graphic::CheckBox("Checkbox", Util::Graphic::Fonts::TERMINAL_8x16);
+
+    addWidget(checkbox, 10, 150);
 
     while (true) {
         update();

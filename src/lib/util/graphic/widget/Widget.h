@@ -74,7 +74,7 @@ public:
 
     [[nodiscard]] virtual Widget* getChildAtPoint(size_t posX, size_t posY);
 
-    virtual void draw(LinearFrameBuffer &lfb);
+    virtual void draw(const LinearFrameBuffer &lfb);
 
 protected:
 

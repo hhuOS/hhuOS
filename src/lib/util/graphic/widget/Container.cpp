@@ -62,7 +62,7 @@ bool Container::requiresRedraw() const {
     return Widget::requiresRedraw() || childNeedsRedraw;
 }
 
-void Container::draw(LinearFrameBuffer &lfb) {
+void Container::draw(const LinearFrameBuffer &lfb) {
     // Check if the whole container needs to be redrawn
     bool redraw = false;
     for (const auto *child : children) {
