@@ -38,6 +38,7 @@
 #include "application/demo/color/AnsiColorDemo.h"
 #include "application/demo/fonts/FontDemo.h"
 #include "opengl/OpenGlDemo.h"
+#include "widget/WidgetDemo.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -90,6 +91,9 @@ int32_t main(int32_t argc, char *argv[]) {
         antDemo(lfb, sleepInterval);
     } else if (demo == "fonts") {
         fontDemo(lfb);
+    } else if (demo == "widgets") {
+        auto widgetDemo = WidgetDemo(lfb);
+        widgetDemo.run();
     } else {
         auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseFloat<double>(argumentParser.getArgument("scale")) : 1.0;
         auto engine = Util::Game::Engine(lfb, 60, scaleFactor);

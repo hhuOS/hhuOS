@@ -190,10 +190,10 @@ void LinearFrameBuffer::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
 }
 
 void LinearFrameBuffer::drawRectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const Color &color) const {
-    drawLine(x, y, x + width, y, color);
-    drawLine(x, y + height, x + width, y + height, color);
-    drawLine(x, y, x, y + height, color);
-    drawLine(x + width, y, x + width, y + height, color);
+    drawLine(x, y, x + width - 1, y, color);
+    drawLine(x, y + height - 1, x + width - 1, y + height - 1, color);
+    drawLine(x, y, x, y + height - 1, color);
+    drawLine(x + width - 1, y, x + width - 1, y + height - 1, color);
 }
 
 void LinearFrameBuffer::drawSquare(uint16_t x, uint16_t y, uint16_t size, const Color &color) const {

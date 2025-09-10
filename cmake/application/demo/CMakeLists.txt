@@ -50,7 +50,9 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/demo/polygons/PolygonDemo.cpp
         ${HHUOS_SRC_DIR}/application/demo/sprites/SpriteDemo.cpp
         ${HHUOS_SRC_DIR}/application/demo/sprites/DemoSprite.cpp
-        ${HHUOS_SRC_DIR}/application/demo/sprites/DemoSpriteFactory.cpp)
+        ${HHUOS_SRC_DIR}/application/demo/sprites/DemoSpriteFactory.cpp
+        ${HHUOS_SRC_DIR}/application/demo/widget/WidgetApplication.cpp
+        ${HHUOS_SRC_DIR}/application/demo/widget/WidgetDemo.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 

@@ -35,7 +35,13 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/graphic/Image.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/LinearFrameBuffer.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/LinearFrameBufferTerminal.cpp
-        ${HHUOS_SRC_DIR}/lib/util/graphic/Terminal.cpp)
+        ${HHUOS_SRC_DIR}/lib/util/graphic/Terminal.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/widget/ActionListener.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/widget/Button.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/widget/Container.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/widget/Label.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/widget/Style.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/widget/Widget.cpp)
 
 # Kernel space version
 project(lib.kernel.graphic)
