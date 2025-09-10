@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Heinrich Heine University Düsseldorf,
+* Copyright (C) 2017-2025 Heinrich Heine University Düsseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Main developers: Christian Gesse <christian.gesse@hhu.de>, Fabian Ruhland <ruhland@hhu.de>
  * Original development team: Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schöttner
@@ -21,63 +21,20 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-mizuc100
  */
 
-#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_BUTTON_H
-#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_BUTTON_H
-
-#include <stddef.h>
-
-#include "base/String.h"
-#include "graphic/font/Terminal8x8.h"
-#include "graphic/widget/Style.h"
-#include "graphic/widget/Widget.h"
+#include "Layout.h"
 
 namespace Util::Graphic {
 
-class Button final : public Widget {
-
-public:
-
-    explicit Button(const String &text, const Font &font = Fonts::TERMINAL_8x8);
-
-    void setText(const String &text);
-
-    [[nodiscard]] const String& getText() const;
-
-    [[nodiscard]] size_t getWidth() const override;
-
-    [[nodiscard]] size_t getHeight() const override;
-
-    void draw(const LinearFrameBuffer &lfb) override;
-
-private:
-
-    class MouseListener final : public ActionListener {
-
-    public:
-
-        explicit MouseListener(Button &button);
-
-        void onMouseEntered() override;
-
-        void onMouseExited() override;
-
-        void onMousePressed() override;
-
-        void onMouseReleased() override;
-
-    private:
-
-        Button &button;
-    };
-
-    String text;
-    const Font &font;
-    const Style style = DefaultTheme::button();
-
-    bool hovered = false;
-    bool pressed = false;
-};
-
+bool Layout::WidgetEntry::operator!=(const WidgetEntry &other) const {
+    return widget != other.widget;
 }
 
-#endif
+const Container& Layout::getContainer() const {
+    if (container == nullptr) {
+        Panic::fire(Panic::ILLEGAL_STATE, "Layout: Not assigned to any container!");
+    }
+
+    return *container;
+}
+
+}

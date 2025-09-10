@@ -44,7 +44,7 @@ void RadioButton::setText(const String &text) {
     if (newText.length() == RadioButton::text.length()) {
         requireRedraw();
     } else {
-        requireParentRedraw();
+        reportSizeChange();
     }
 
     RadioButton::text = newText;

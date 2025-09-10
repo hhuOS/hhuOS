@@ -39,7 +39,7 @@ void CheckBox::setText(const String &text) {
     if (newText.length() == CheckBox::text.length()) {
         requireRedraw();
     } else {
-        requireParentRedraw();
+        reportSizeChange();
     }
 
     CheckBox::text = newText;

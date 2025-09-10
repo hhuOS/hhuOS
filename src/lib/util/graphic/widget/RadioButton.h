@@ -78,7 +78,7 @@ private:
 
     String text;
     const Font &font;
-    Style style = DefaultTheme::checkBox();
+    const Style style = DefaultTheme::checkBox();
 
     RadioButtonGroup *group = nullptr;
     int32_t groupIndex = -1;

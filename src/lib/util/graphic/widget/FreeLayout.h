@@ -21,61 +21,22 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-mizuc100
  */
 
-#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_BUTTON_H
-#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_BUTTON_H
+#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_FREELAYOUT_H
+#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_FREELAYOUT_H
 
 #include <stddef.h>
 
-#include "base/String.h"
-#include "graphic/font/Terminal8x8.h"
-#include "graphic/widget/Style.h"
-#include "graphic/widget/Widget.h"
+#include "graphic/widget/Layout.h"
 
 namespace Util::Graphic {
 
-class Button final : public Widget {
+class FreeLayout final : public Layout {
 
 public:
 
-    explicit Button(const String &text, const Font &font = Fonts::TERMINAL_8x8);
+    FreeLayout() = default;
 
-    void setText(const String &text);
-
-    [[nodiscard]] const String& getText() const;
-
-    [[nodiscard]] size_t getWidth() const override;
-
-    [[nodiscard]] size_t getHeight() const override;
-
-    void draw(const LinearFrameBuffer &lfb) override;
-
-private:
-
-    class MouseListener final : public ActionListener {
-
-    public:
-
-        explicit MouseListener(Button &button);
-
-        void onMouseEntered() override;
-
-        void onMouseExited() override;
-
-        void onMousePressed() override;
-
-        void onMouseReleased() override;
-
-    private:
-
-        Button &button;
-    };
-
-    String text;
-    const Font &font;
-    const Style style = DefaultTheme::button();
-
-    bool hovered = false;
-    bool pressed = false;
+    void arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const override;
 };
 
 }

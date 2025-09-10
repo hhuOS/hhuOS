@@ -21,61 +21,46 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-mizuc100
  */
 
-#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_BUTTON_H
-#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_BUTTON_H
+#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_LAYOUT_H
+#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_LAYOUT_H
 
-#include <stddef.h>
-
-#include "base/String.h"
-#include "graphic/font/Terminal8x8.h"
-#include "graphic/widget/Style.h"
+#include "collection/ArrayList.h"
 #include "graphic/widget/Widget.h"
 
 namespace Util::Graphic {
 
-class Button final : public Widget {
+class Container;
+
+class Layout {
 
 public:
 
-    explicit Button(const String &text, const Font &font = Fonts::TERMINAL_8x8);
+    struct WidgetEntry {
+        Widget *widget;
+        Array<size_t> args;
 
-    void setText(const String &text);
+        bool operator!=(const WidgetEntry &other) const;
+    };
 
-    [[nodiscard]] const String& getText() const;
+    Layout() = default;
 
-    [[nodiscard]] size_t getWidth() const override;
+    Layout(const Layout &other) = delete;
 
-    [[nodiscard]] size_t getHeight() const override;
+    Layout& operator=(const Layout &other) = delete;
 
-    void draw(const LinearFrameBuffer &lfb) override;
+    virtual ~Layout() = default;
+
+    virtual void arrangeWidgets(const ArrayList<WidgetEntry>& widgets) const = 0;
+
+protected:
+
+    [[nodiscard]] const Container& getContainer() const;
 
 private:
 
-    class MouseListener final : public ActionListener {
+    friend class Container;
 
-    public:
-
-        explicit MouseListener(Button &button);
-
-        void onMouseEntered() override;
-
-        void onMouseExited() override;
-
-        void onMousePressed() override;
-
-        void onMouseReleased() override;
-
-    private:
-
-        Button &button;
-    };
-
-    String text;
-    const Font &font;
-    const Style style = DefaultTheme::button();
-
-    bool hovered = false;
-    bool pressed = false;
+    const Container *container = nullptr;
 };
 
 }

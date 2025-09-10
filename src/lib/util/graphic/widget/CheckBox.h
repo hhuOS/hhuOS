@@ -74,7 +74,7 @@ private:
 
     String text;
     const Font &font;
-    Style style = DefaultTheme::checkBox();
+    const Style style = DefaultTheme::checkBox();
 
     bool checked = false;
 

@@ -62,10 +62,10 @@ private:
         InputField &inputField;
     };
 
-    size_t width;
-    const Font &font;
     String text;
-    Style style = DefaultTheme::inputField();
+    const size_t width;
+    const Font &font;
+    const Style style = DefaultTheme::inputField();
 };
 
 }

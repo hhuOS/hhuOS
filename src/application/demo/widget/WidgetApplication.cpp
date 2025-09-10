@@ -30,8 +30,12 @@ WidgetApplication::WidgetApplication(Util::Graphic::LinearFrameBuffer &lfb, cons
     mouseInputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
 }
 
-void WidgetApplication::addWidget(Util::Graphic::Widget &widget, const size_t posX, const size_t posY) {
-    root.addChild(widget, posX, posY);
+void WidgetApplication::setLayout(Util::Graphic::Layout *layout) {
+    root.setLayout(layout);
+}
+
+void WidgetApplication::addWidget(Util::Graphic::Widget &widget, const Util::Array<size_t> &layoutArgs) {
+    root.addChild(widget, layoutArgs);
 }
 
 void WidgetApplication::update() {

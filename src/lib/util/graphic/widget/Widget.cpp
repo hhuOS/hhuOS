@@ -23,6 +23,8 @@
 
 #include "Widget.h"
 
+#include "graphic/widget/Container.h"
+
 namespace Util::Graphic {
 
 Widget::Widget(const size_t posX, const size_t posY) : posX(posX), posY(posY) {}
@@ -45,22 +47,16 @@ bool Widget::requiresRedraw() const {
     return needsRedraw;
 }
 
-bool Widget::requiresParentRedraw() const {
-    return needsParentRedraw;
-}
-
 void Widget::draw([[maybe_unused]] const LinearFrameBuffer &lfb) {
     needsRedraw = false;
-    needsParentRedraw = false;
 }
 
 void Widget::requireRedraw() {
     needsRedraw = true;
 }
 
-void Widget::requireParentRedraw() {
-    needsRedraw = true;
-    needsParentRedraw = true;
+void Widget::reportSizeChange() const {
+    parent->rearrangeChildren();
 }
 
 void Widget::addActionListener(ActionListener *listener) {
@@ -144,6 +140,9 @@ Widget* Widget::getChildAtPoint(const size_t posX, const size_t posY) {
 void Widget::setPosition(const size_t x, const size_t y) {
     posX = x;
     posY = y;
+
+    requireRedraw();
+    parent->requireRedraw();
 }
 
 }

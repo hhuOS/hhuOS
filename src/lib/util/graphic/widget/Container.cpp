@@ -25,21 +25,33 @@
 
 namespace Util::Graphic {
 
-Container::Container(const size_t posX, const size_t posY, const size_t width, const size_t height,
-    const Style& style) : Widget(posX, posY), width(width), height(height), style(style) {}
-
 Container::Container(const size_t posX, const size_t posY, const size_t width, const size_t height) :
-    Container (posX, posY, width, height, DefaultTheme::container()) {}
+    Widget(posX, posY), width(width), height(height) {}
 
-void Container::addChild(Widget &child, const size_t relPosX, const size_t relPosY) {
-    if (relPosX >= width || relPosY >= height) {
-        Panic::fire(Panic::INVALID_ARGUMENT, "Container: Child position out of bounds");
+Container::~Container() {
+    delete layout;
+}
+
+void Container::setLayout(Layout *layout) {
+    delete Container::layout;
+    Container::layout = layout;
+
+    layout->container = this;
+}
+
+void Container::addChild(Widget &widget, const Array<size_t> &layoutArgs) {
+    children.add(Layout::WidgetEntry{&widget, layoutArgs});
+    widget.parent = this;
+
+    rearrangeChildren();
+}
+
+void Container::rearrangeChildren() {
+    if (layout == nullptr) {
+        Panic::fire(Panic::ILLEGAL_STATE, "Container: No layout assigned!" );
     }
 
-    child.setPosition(getPosX() + relPosX, getPosY() + relPosY);
-    children.add(&child);
-
-    requireRedraw();
+    layout->arrangeWidgets(children);
 }
 
 size_t Container::getWidth() const {
@@ -52,8 +64,8 @@ size_t Container::getHeight() const {
 
 bool Container::requiresRedraw() const {
     bool childNeedsRedraw = false;
-    for (const auto *child : children) {
-        if (child->requiresRedraw()) {
+    for (const auto &child : children) {
+        if (child.widget->requiresRedraw()) {
             childNeedsRedraw = true;
             break;
         }
@@ -63,16 +75,8 @@ bool Container::requiresRedraw() const {
 }
 
 void Container::draw(const LinearFrameBuffer &lfb) {
-    // Check if the whole container needs to be redrawn
-    bool redraw = false;
-    for (const auto *child : children) {
-        if (child->requiresParentRedraw()) {
-            redraw = true;
-            break;
-        }
-    }
-
-    if (redraw) {
+    if (Widget::requiresRedraw()) {
+        // Redraw whole container
         const auto posX = getPosX();
         const auto posY = getPosY();
 
@@ -83,14 +87,14 @@ void Container::draw(const LinearFrameBuffer &lfb) {
         lfb.fillRectangle(posX + 1, posY + 1, width - 2, height - 2, style.backgroundColor);
 
         // Draw children
-        for (auto *child : children) {
-            child->draw(lfb);
+        for (const auto &child : children) {
+            child.widget->draw(lfb);
         }
     } else {
         // Only draw children that need to be redrawn
-        for (auto *child : children) {
-            if (child->requiresRedraw()) {
-                child->draw(lfb);
+        for (const auto &child : children) {
+            if (child.widget->requiresRedraw()) {
+                child.widget->draw(lfb);
             }
         }
     }
@@ -99,8 +103,8 @@ void Container::draw(const LinearFrameBuffer &lfb) {
 }
 
 Widget* Container::getChildAtPoint(const size_t posX, const size_t posY) {
-    for (auto *child : children) {
-        auto *widget = child->getChildAtPoint(posX, posY);
+    for (auto &child : children) {
+        auto *widget = child.widget->getChildAtPoint(posX, posY);
         if (widget != nullptr) {
             return widget;
         }

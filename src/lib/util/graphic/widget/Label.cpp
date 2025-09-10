@@ -1,19 +1,13 @@
 #include "Label.h"
 
 namespace Util::Graphic {
+
 Label::Label(const String &text, const size_t maxWidth, const Font &font) :
     text(text), maxWidth(maxWidth), font(font) {}
 
-Label::Label(const String &text, const size_t maxWidth, const Font &font,
-    const Color &textColor, const Color &backgroundColor) : Label(text, maxWidth, font)
-{
-    style.textColor = textColor;
-    style.backgroundColor = backgroundColor;
-}
-
 void Label::setText(const String &text) {
     Label::text = text;
-    requireParentRedraw();
+    reportSizeChange();
 }
 
 const String& Label::getText() const {

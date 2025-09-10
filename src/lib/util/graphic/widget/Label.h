@@ -40,8 +40,6 @@ public:
 
     Label(const String &text, size_t maxWidth, const Font &font = Fonts::TERMINAL_8x8);
 
-    Label(const String &text, size_t maxWidth, const Font &font, const Color &textColor, const Color &backgroundColor);
-
     void setText(const String &text);
 
     [[nodiscard]] const String& getText() const;
@@ -57,7 +55,7 @@ private:
     String text;
     size_t maxWidth;
     const Font &font;
-    Style style = DefaultTheme::label();
+    const Style style = DefaultTheme::label();
 };
 
 } // namespace Util

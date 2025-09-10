@@ -32,6 +32,8 @@
 
 namespace Util::Graphic {
 
+    class Container;
+
 class Widget {
 
 public:
@@ -76,8 +78,6 @@ public:
 
     [[nodiscard]] virtual bool requiresRedraw() const;
 
-    [[nodiscard]] virtual bool requiresParentRedraw() const;
-
     [[nodiscard]] virtual size_t getWidth() const = 0;
 
     [[nodiscard]] virtual size_t getHeight() const = 0;
@@ -90,11 +90,12 @@ protected:
 
     void requireRedraw();
 
-    void requireParentRedraw();
+    void reportSizeChange() const;
 
 private:
 
     friend class Container;
+    friend class FreeLayout;
 
     void setPosition(size_t x, size_t y);
 
@@ -104,7 +105,8 @@ private:
     bool focused = false;
 
     bool needsRedraw = true;
-    bool needsParentRedraw = true;
+
+    Container *parent = nullptr;
 
     ArrayList<ActionListener*> actionListeners;
 };

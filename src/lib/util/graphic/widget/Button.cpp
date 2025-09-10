@@ -34,7 +34,7 @@ void Button::setText(const String &text) {
     if (newText.length() == Button::text.length()) {
         requireRedraw();
     } else {
-        requireParentRedraw();
+        reportSizeChange();
     }
 
     Button::text = newText;

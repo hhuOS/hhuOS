@@ -21,13 +21,12 @@
 #include "WidgetDemo.h"
 
 #include "graphic/Ansi.h"
-#include "graphic/Ansi.h"
 #include "graphic/BufferedLinearFrameBuffer.h"
-#include "graphic/font/Terminal8x8.h"
 #include "graphic/font/Terminal8x16.h"
 #include "graphic/widget/Button.h"
 #include "graphic/widget/CheckBox.h"
 #include "graphic/widget/Container.h"
+#include "graphic/widget/FreeLayout.h"
 #include "graphic/widget/InputField.h"
 #include "graphic/widget/Label.h"
 #include "graphic/widget/RadioButton.h"
@@ -74,12 +73,14 @@ WidgetDemo::WidgetDemo(Util::Graphic::LinearFrameBuffer &lfb) :
 void WidgetDemo::run() {
     Util::Graphic::Ansi::prepareGraphicalApplication(true);
 
-    // Test widgets
-    auto testLabel = Util::Graphic::Label("This is a test!", 200);
-    auto lineBreakTestLabel = Util::Graphic::Label("This\na test\nwith linebreaks!", 200);
+    setLayout(new Util::Graphic::FreeLayout());
 
-    addWidget(testLabel, 10, 10);
-    addWidget(lineBreakTestLabel, 10, 10 + testLabel.getHeight() + 10);
+    // Test widgets
+    auto testLabel = Util::Graphic::Label("This is a test!", 150);
+    auto lineBreakTestLabel = Util::Graphic::Label("This\na test\nwith linebreaks!", 150);
+
+    addWidget(testLabel, {10, 10});
+    addWidget(lineBreakTestLabel, {10, 10 + testLabel.getHeight() + 10});
 
     // Test button
     auto button = Util::Graphic::Button("Button");
@@ -88,12 +89,12 @@ void WidgetDemo::run() {
     auto *clickListener = new ClickCountListener(pressedLabel);
     button.addActionListener(clickListener);
 
-    addWidget(button, 10, 100);
-    addWidget(pressedLabel, 10, 100 + button.getHeight() + 10);
+    addWidget(button, {10, 100});
+    addWidget(pressedLabel, {10, 100 + button.getHeight() + 10});
 
     // Test checkbox
     auto checkbox = Util::Graphic::CheckBox("Checkbox", Util::Graphic::Fonts::TERMINAL_8x16);
-    addWidget(checkbox, 10, 170);
+    addWidget(checkbox, {10, 170});
 
     // Test radio buttons
     auto radioGroup = Util::Graphic::RadioButtonGroup();
@@ -105,20 +106,20 @@ void WidgetDemo::run() {
     radioGroup.add(radio2);
     radioGroup.add(radio3);
 
-    addWidget(radio1, 170, 10);
-    addWidget(radio2, 170, 40);
-    addWidget(radio3, 170, 70);
+    addWidget(radio1, {170, 10});
+    addWidget(radio2, {170, 40});
+    addWidget(radio3, {170, 70});
 
     // Test input field
     auto inputField = Util::Graphic::InputField(100, Util::Graphic::Fonts::TERMINAL_8x16);
-    addWidget(inputField, 170, 120);
+    addWidget(inputField, {170, 120});
 
     // Exit button
     bool isRunning = true;
     auto exitButton = Util::Graphic::Button("Exit");
     exitButton.addActionListener(new ExitListener(isRunning));
 
-    addWidget(exitButton, 10, 210);
+    addWidget(exitButton, {10, 210});
 
     while (isRunning) {
         update();

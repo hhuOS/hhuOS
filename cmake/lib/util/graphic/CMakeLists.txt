@@ -40,8 +40,10 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/Button.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/CheckBox.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/Container.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/widget/FreeLayout.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/InputField.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/Label.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/widget/Layout.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/RadioButton.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/RadioButtonGroup.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/Style.cpp

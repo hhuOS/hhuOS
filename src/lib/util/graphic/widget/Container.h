@@ -28,6 +28,7 @@
 
 #include "collection/ArrayList.h"
 #include "graphic/LinearFrameBuffer.h"
+#include "graphic/widget/Layout.h"
 #include "graphic/widget/Style.h"
 #include "graphic/widget/Widget.h"
 
@@ -39,9 +40,13 @@ public:
 
     Container(size_t posX, size_t posY, size_t width, size_t height);
 
-    Container(size_t posX, size_t posY, size_t width, size_t height, const Style& style);
+    ~Container() override;
 
-    void addChild(Widget& child, size_t relPosX, size_t relPosY);
+    void setLayout(Layout *layout);
+
+    void addChild(Widget &widget, const Array<size_t> &layoutArgs);
+
+    void rearrangeChildren();
 
     [[nodiscard]] size_t getWidth()  const override;
 
@@ -55,12 +60,13 @@ public:
 
 private:
 
-    ArrayList<Widget*> children;
+    Layout *layout = nullptr;
+    ArrayList<Layout::WidgetEntry> children;
 
-    size_t width;
-    size_t height;
+    const size_t width;
+    const size_t height;
 
-    Style style;
+    const Style style = DefaultTheme::container();
 };
 
 }

@@ -35,15 +35,11 @@ public:
 
     WidgetApplication(Util::Graphic::LinearFrameBuffer &lfb, size_t posX, size_t posY, size_t width, size_t height);
 
-    WidgetApplication(const WidgetApplication &other) = delete;
-
-    WidgetApplication& operator=(const WidgetApplication &other) = delete;
-
-    ~WidgetApplication() = default;
-
 protected:
 
-    void addWidget(Util::Graphic::Widget& widget, size_t posX, size_t posY);
+    void setLayout(Util::Graphic::Layout *layout);
+
+    void addWidget(Util::Graphic::Widget &widget, const Util::Array<size_t> &layoutArgs);
 
     void update();
 
