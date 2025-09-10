@@ -21,65 +21,37 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-mizuc100
  */
 
-#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_CHECKBOX_H
-#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_CHECKBOX_H
-
-#include "base/String.h"
-#include "graphic/font/Terminal8x8.h"
-#include "graphic/widget/Style.h"
-#include "graphic/widget/Widget.h"
+#include "RadioButtonGroup.h"
 
 namespace Util::Graphic {
 
-class CheckBox final : public Widget {
+void RadioButtonGroup::add(RadioButton &radioButton) {
+    buttons.add(&radioButton);
 
-public:
-
-    explicit CheckBox(const String &text, const Font &font = Fonts::TERMINAL_8x8);
-
-    void toggle();
-
-    void setText(const String &text);
-
-    [[nodiscard]] bool isChecked() const;
-
-    [[nodiscard]] size_t getWidth() const override;
-
-    [[nodiscard]] size_t getHeight() const override;
-
-    void draw(const LinearFrameBuffer &lfb) override;
-
-private:
-
-    class MouseListener final : public ActionListener {
-
-    public:
-
-        explicit MouseListener(CheckBox &box);
-
-        void onMouseEnter() override;
-
-        void onMouseLeave() override;
-
-        void onMousePress() override;
-
-        void onMouseRelease() override;
-
-    private:
-
-        CheckBox &box;
-    };
-
-    String text;
-    const Font &font;
-    Style style = DefaultTheme::checkBox();
-
-    bool checked = false;
-
-    bool hovered = false;
-    bool pressed = false;
-};
-
+    radioButton.group = this;
+    radioButton.groupIndex = static_cast<int32_t>(buttons.size() - 1);
 }
 
-#endif
+void RadioButtonGroup::select(const int32_t index) {
+    if (index < 0 || static_cast<size_t>(index) >= buttons.size()) {
+        Panic::fire(Panic::OUT_OF_BOUNDS, "RadioButtonGroup: Index out of bounds!");
+    }
+
+    if (index == selectedIndex) {
+        return;
+    }
+
+    if (selectedIndex >= 0) {
+        auto &oldButton = *buttons.get(selectedIndex);
+        oldButton.selected = false;
+        oldButton.requireRedraw();
+    }
+
+    selectedIndex = index;
+
+    auto &newButton = *buttons.get(selectedIndex);
+    newButton.selected = true;
+    newButton.requireRedraw();
+}
+
+}

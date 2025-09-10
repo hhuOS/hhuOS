@@ -213,6 +213,25 @@ void LinearFrameBuffer::fillSquare(uint16_t x, uint16_t y, uint16_t size, const 
     fillRectangle(x, y, size, size, color);
 }
 
+void LinearFrameBuffer::drawCircle(uint16_t x, uint16_t y, uint16_t radius, const Color &color) const {
+    for (int32_t dy = -radius; dy <= radius; dy++) {
+        auto dx = static_cast<int32_t>(Math::sqrt(static_cast<double>(radius * radius - dy * dy)));
+
+        drawPixel(x + dx, y + dy, color);
+        drawPixel(x - dx, y + dy, color);
+    }
+}
+
+void LinearFrameBuffer::fillCircle(uint16_t x, uint16_t y, uint16_t radius, const Color &color) const {
+    for (int32_t dy = -radius; dy <= radius; dy++) {
+        auto dxLimit = static_cast<int32_t>(Math::sqrt(static_cast<double>(radius * radius - dy * dy)));
+
+        for (int32_t dx = -dxLimit; dx <= dxLimit; dx++) {
+            drawPixel(x + dx, y + dy, color);
+        }
+    }
+}
+
 void LinearFrameBuffer::drawChar(const Font &font, uint16_t x, uint16_t y, char c, const Color &fgColor, const Color &bgColor) const {
     drawMonoBitmap(x, y, font.getCharWidth(), font.getCharHeight(), fgColor, bgColor, font.getChar(c));
 }

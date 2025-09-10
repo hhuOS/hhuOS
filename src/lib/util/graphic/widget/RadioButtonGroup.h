@@ -21,63 +21,28 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-mizuc100
  */
 
-#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_CHECKBOX_H
-#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_CHECKBOX_H
+#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_RADIOBUTTONGROUP_H
+#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_RADIOBUTTONGROUP_H
 
-#include "base/String.h"
-#include "graphic/font/Terminal8x8.h"
-#include "graphic/widget/Style.h"
-#include "graphic/widget/Widget.h"
+#include "collection/ArrayList.h"
+#include "graphic/widget/RadioButton.h"
 
 namespace Util::Graphic {
 
-class CheckBox final : public Widget {
+class RadioButtonGroup {
 
 public:
 
-    explicit CheckBox(const String &text, const Font &font = Fonts::TERMINAL_8x8);
+    RadioButtonGroup() = default;
 
-    void toggle();
+    void add(RadioButton &radioButton);
 
-    void setText(const String &text);
-
-    [[nodiscard]] bool isChecked() const;
-
-    [[nodiscard]] size_t getWidth() const override;
-
-    [[nodiscard]] size_t getHeight() const override;
-
-    void draw(const LinearFrameBuffer &lfb) override;
+    void select(int32_t index);
 
 private:
 
-    class MouseListener final : public ActionListener {
-
-    public:
-
-        explicit MouseListener(CheckBox &box);
-
-        void onMouseEnter() override;
-
-        void onMouseLeave() override;
-
-        void onMousePress() override;
-
-        void onMouseRelease() override;
-
-    private:
-
-        CheckBox &box;
-    };
-
-    String text;
-    const Font &font;
-    Style style = DefaultTheme::checkBox();
-
-    bool checked = false;
-
-    bool hovered = false;
-    bool pressed = false;
+    ArrayList<RadioButton*> buttons;
+    int32_t selectedIndex = -1;
 };
 
 }

@@ -50,7 +50,9 @@ Style label();
 
 Style button();
 
-Style checkbox();
+Style checkBox();
+
+Style radioButton();
 
 };
 

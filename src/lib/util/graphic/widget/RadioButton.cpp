@@ -21,96 +21,88 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-mizuc100
  */
 
-#include "CheckBox.h"
+#include "RadioButton.h"
+
+#include "graphic/widget/RadioButtonGroup.h"
 
 namespace Util::Graphic {
 
-CheckBox::CheckBox(const String &text, const Font &font) : text(text.split("\n")[0]), font(font) {
+RadioButton::RadioButton(const String &text, const Font &font) : text(text.split("\n")[0]), font(font) {
     addActionListener(new MouseListener(*this));
 }
 
-void CheckBox::toggle() {
-    checked = !checked;
-    requireRedraw();
+void RadioButton::select() const {
+    if (group == nullptr) {
+        Panic::fire(Panic::ILLEGAL_STATE, "RadioButton: Not assigned to any group!");
+    }
+
+    group->select(groupIndex);
 }
 
-void CheckBox::setText(const String &text) {
+void RadioButton::setText(const String &text) {
     const auto newText = text.split("\n")[0];
-    if (newText.length() == CheckBox::text.length()) {
+    if (newText.length() == RadioButton::text.length()) {
         requireRedraw();
     } else {
         requireParentRedraw();
     }
 
-    CheckBox::text = newText;
+    RadioButton::text = newText;
 }
 
-bool CheckBox::isChecked() const {
-    return checked;
+bool RadioButton::isSelected() const {
+    return selected;
 }
 
-size_t CheckBox::getWidth() const {
+size_t RadioButton::getWidth() const {
     return getHeight() + style.gapX + font.getCharWidth() * text.length();
 }
 
-size_t CheckBox::getHeight() const {
+size_t RadioButton::getHeight() const {
     return font.getCharHeight();
 }
 
-void CheckBox::draw(const LinearFrameBuffer &lfb) {
+void RadioButton::draw(const LinearFrameBuffer &lfb) {
     const auto &backgroundColor = hovered ? style.backgroundColorHighlighted : style.backgroundColor;
     const auto height = getHeight();
+    const auto radius = height / 2;
     const auto posX = getPosX();
     const auto posY = getPosY();
 
-    // Draw box
-    lfb.fillSquare(posX, posY, height, pressed ? backgroundColor.dim() : backgroundColor);
-    lfb.drawSquare(posX, posY, height, style.borderColor);
+    lfb.fillCircle(posX + radius, posY + radius, radius, pressed ? backgroundColor.dim() : backgroundColor);
+    lfb.drawCircle(posX + radius, posY + radius, radius, style.borderColor);
 
-    // Draw checkmark (if checked)
-    if (checked) {
-        const auto inset = height / 6;
-        const auto leftX = posX + inset;
-        const auto midY = posY + height / 2;
-        const auto midX = posX + height / 2;
-        const auto bottomY = posY + height - inset;
-        const auto rightX = posX + height - inset;
-        const auto topY = posY + inset;
-        lfb.drawLine(leftX, midY, midX, bottomY, style.accentColor);
-        lfb.drawLine(midX, bottomY, rightX, topY, style.accentColor);
+    if (selected) {
+        lfb.fillCircle(posX + radius, posY + radius, radius / 2, hovered ? style.borderColor.dim() : style.borderColor);
     }
 
-    // Calculate text position
-    const auto textX = posX + height + style.gapX;
-    const auto textY = posY + (height - font.getCharHeight()) / 2;
-
-    // Draw text
-    lfb.drawString(font, textX, textY, static_cast<const char*>(text),
+    lfb.drawString(font, posX + height + style.gapX, posY, static_cast<const char*>(text),
         style.textColor, Colors::INVISIBLE);
 
     Widget::draw(lfb);
 }
 
-CheckBox::MouseListener::MouseListener(CheckBox &box) : box(box) {}
+RadioButton::MouseListener::MouseListener(RadioButton &button) : button(button) {}
 
-void CheckBox::MouseListener::onMouseEnter() {
-    box.hovered = true;
-    box.requireRedraw();
+void RadioButton::MouseListener::onMouseEnter() {
+    button.hovered = true;
+    button.requireRedraw();
 }
 
-void CheckBox::MouseListener::onMouseLeave() {
-    box.hovered = false;
-    box.requireRedraw();
+void RadioButton::MouseListener::onMouseLeave() {
+    button.hovered = false;
+    button.requireRedraw();
 }
 
-void CheckBox::MouseListener::onMousePress() {
-    box.pressed = true;
-    box.requireRedraw();
+void RadioButton::MouseListener::onMousePress() {
+    button.pressed = true;
+    button.requireRedraw();
 }
 
-void CheckBox::MouseListener::onMouseRelease() {
-    box.pressed = false;
-    box.toggle();
+void RadioButton::MouseListener::onMouseRelease() {
+    button.pressed = false;
+    button.select();
+    button.requireRedraw();
 }
 
 }

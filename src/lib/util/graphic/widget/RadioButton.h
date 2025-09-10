@@ -21,8 +21,8 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-mizuc100
  */
 
-#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_CHECKBOX_H
-#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_CHECKBOX_H
+#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_RADIOBUTTON_H
+#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_RADIOBUTTON_H
 
 #include "base/String.h"
 #include "graphic/font/Terminal8x8.h"
@@ -31,17 +31,19 @@
 
 namespace Util::Graphic {
 
-class CheckBox final : public Widget {
+class RadioButtonGroup;
+
+class RadioButton final : public Widget {
 
 public:
 
-    explicit CheckBox(const String &text, const Font &font = Fonts::TERMINAL_8x8);
+    explicit RadioButton(const String &text, const Font &font = Fonts::TERMINAL_8x8);
 
-    void toggle();
+    void select() const;
 
     void setText(const String &text);
 
-    [[nodiscard]] bool isChecked() const;
+    [[nodiscard]] bool isSelected() const;
 
     [[nodiscard]] size_t getWidth() const override;
 
@@ -51,11 +53,13 @@ public:
 
 private:
 
+    friend class RadioButtonGroup;
+
     class MouseListener final : public ActionListener {
 
     public:
 
-        explicit MouseListener(CheckBox &box);
+        explicit MouseListener(RadioButton &button);
 
         void onMouseEnter() override;
 
@@ -67,14 +71,17 @@ private:
 
     private:
 
-        CheckBox &box;
+        RadioButton &button;
     };
 
     String text;
     const Font &font;
     Style style = DefaultTheme::checkBox();
 
-    bool checked = false;
+    RadioButtonGroup *group = nullptr;
+    int32_t groupIndex = -1;
+
+    bool selected = false;
 
     bool hovered = false;
     bool pressed = false;

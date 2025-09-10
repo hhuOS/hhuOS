@@ -29,6 +29,8 @@
 #include "graphic/widget/CheckBox.h"
 #include "graphic/widget/Container.h"
 #include "graphic/widget/Label.h"
+#include "graphic/widget/RadioButton.h"
+#include "graphic/widget/RadioButtonGroup.h"
 #include "io/key/MouseDecoder.h"
 #include "io/stream/FileInputStream.h"
 
@@ -72,8 +74,21 @@ void WidgetDemo::run() {
 
     // Test checkbox
     auto checkbox = Util::Graphic::CheckBox("Checkbox", Util::Graphic::Fonts::TERMINAL_8x16);
+    addWidget(checkbox, 10, 170);
 
-    addWidget(checkbox, 10, 150);
+    // Test radio buttons
+    auto radioGroup = Util::Graphic::RadioButtonGroup();
+    auto radio1 = Util::Graphic::RadioButton("Option 1", Util::Graphic::Fonts::TERMINAL_8x16);
+    auto radio2 = Util::Graphic::RadioButton("Option 2", Util::Graphic::Fonts::TERMINAL_8x16);
+    auto radio3 = Util::Graphic::RadioButton("Option 3", Util::Graphic::Fonts::TERMINAL_8x16);
+
+    radioGroup.add(radio1);
+    radioGroup.add(radio2);
+    radioGroup.add(radio3);
+
+    addWidget(radio1, 170, 10);
+    addWidget(radio2, 170, 40);
+    addWidget(radio3, 170, 70);
 
     while (true) {
         update();

@@ -143,6 +143,10 @@ public:
 
     void fillSquare(uint16_t x, uint16_t y, uint16_t size, const Color &color) const;
 
+    void drawCircle(uint16_t x, uint16_t y, uint16_t radius, const Color& color) const;
+
+    void fillCircle(uint16_t x, uint16_t y, uint16_t radius, const Color& color) const;
+
     /**
      * Draw a character at a given position.
      *
