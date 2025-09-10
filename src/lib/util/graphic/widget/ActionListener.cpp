@@ -25,14 +25,20 @@
 
 namespace Util::Graphic {
 
-void ActionListener::onMouseEnter() {}
+void ActionListener::onMouseEntered() {}
 
-void ActionListener::onMouseLeave() {}
+void ActionListener::onMouseExited() {}
 
-void ActionListener::onMousePress() {}
+void ActionListener::onMousePressed() {}
 
-void ActionListener::onMouseRelease() {}
+void ActionListener::onMouseReleased() {}
 
-void ActionListener::onMouseClick() {}
+void ActionListener::onMouseClicked() {}
+
+void ActionListener::onKeyPressed([[maybe_unused]] const Io::Key &key) {}
+
+void ActionListener::onKeyReleased([[maybe_unused]] const Io::Key &key) {}
+
+void ActionListener::onKeyTyped([[maybe_unused]] const Io::Key &key) {}
 
 }

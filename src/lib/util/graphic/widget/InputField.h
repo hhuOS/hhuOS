@@ -21,8 +21,10 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-mizuc100
  */
 
-#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_RADIOBUTTON_H
-#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_RADIOBUTTON_H
+#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_INPUTFIELD_H
+#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_INPUTFIELD_H
+
+#include <stddef.h>
 
 #include "base/String.h"
 #include "graphic/font/Terminal8x8.h"
@@ -31,21 +33,13 @@
 
 namespace Util::Graphic {
 
-class RadioButtonGroup;
-
-class RadioButton final : public Widget {
+class InputField final : public Widget {
 
 public:
 
-    explicit RadioButton(const String &text, const Font &font = Fonts::TERMINAL_8x8);
-
-    void select() const;
-
-    void setText(const String &text);
+    explicit InputField(size_t width, const Font &font = Fonts::TERMINAL_8x8);
 
     [[nodiscard]] const String& getText() const;
-
-    [[nodiscard]] bool isSelected() const;
 
     [[nodiscard]] size_t getWidth() const override;
 
@@ -55,38 +49,23 @@ public:
 
 private:
 
-    friend class RadioButtonGroup;
-
-    class MouseListener final : public ActionListener {
+    class KeyInputListener final : public ActionListener {
 
     public:
 
-        explicit MouseListener(RadioButton &button);
+        explicit KeyInputListener(InputField &inputField);
 
-        void onMouseEntered() override;
-
-        void onMouseExited() override;
-
-        void onMousePressed() override;
-
-        void onMouseReleased() override;
+        void onKeyTyped(const Io::Key &key) override;
 
     private:
 
-        RadioButton &button;
+        InputField &inputField;
     };
 
-    String text;
+    size_t width;
     const Font &font;
-    Style style = DefaultTheme::checkBox();
-
-    RadioButtonGroup *group = nullptr;
-    int32_t groupIndex = -1;
-
-    bool selected = false;
-
-    bool hovered = false;
-    bool pressed = false;
+    String text;
+    Style style = DefaultTheme::inputField();
 };
 
 }

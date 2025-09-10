@@ -44,6 +44,8 @@ public:
 
     void setText(const String &text);
 
+    [[nodiscard]] const String& getText() const;
+
     [[nodiscard]] size_t getWidth() const override;
 
     [[nodiscard]] size_t getHeight() const override;

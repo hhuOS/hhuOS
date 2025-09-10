@@ -40,6 +40,10 @@ void Button::setText(const String &text) {
     Button::text = newText;
 }
 
+const String& Button::getText() const {
+    return text;
+}
+
 size_t Button::getWidth() const {
     return font.getCharWidth() * text.length() + 2 * style.paddingX;
 }
@@ -74,22 +78,22 @@ void Button::draw(const LinearFrameBuffer &lfb) {
 
 Button::MouseListener::MouseListener(Button &button) : button(button) {}
 
-void Button::MouseListener::onMouseEnter() {
+void Button::MouseListener::onMouseEntered() {
     button.hovered = true;
     button.requireRedraw();
 }
 
-void Button::MouseListener::onMouseLeave() {
+void Button::MouseListener::onMouseExited() {
     button.hovered = false;
     button.requireRedraw();
 }
 
-void Button::MouseListener::onMousePress() {
+void Button::MouseListener::onMousePressed() {
     button.pressed = true;
     button.requireRedraw();
 }
 
-void Button::MouseListener::onMouseRelease() {
+void Button::MouseListener::onMouseReleased() {
     button.pressed = false;
     button.requireRedraw();
 }

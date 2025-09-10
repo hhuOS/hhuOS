@@ -52,17 +52,27 @@ public:
 
     [[nodiscard]] bool containsPoint(size_t px, size_t py) const;
 
+    [[nodiscard]] bool isFocused() const;
+
+    void setFocused(bool focused);
+
     void addActionListener(ActionListener *listener);
 
-    void mouseClick() const;
+    void mouseClicked() const;
 
-    void mousePress() const;
+    void mousePressed() const;
 
-    void mouseRelease() const;
+    void mouseReleased() const;
 
-    void mouseEnter() const;
+    void mouseEntered() const;
 
-    void mouseLeave() const;
+    void mouseExited() const;
+
+    virtual void keyPressed(const Io::Key &key);
+
+    virtual void keyReleased(const Io::Key &key);
+
+    virtual void keyTyped(const Io::Key &key);
 
     [[nodiscard]] virtual bool requiresRedraw() const;
 
@@ -90,6 +100,8 @@ private:
 
     size_t posX = 0;
     size_t posY = 0;
+
+    bool focused = false;
 
     bool needsRedraw = true;
     bool needsParentRedraw = true;

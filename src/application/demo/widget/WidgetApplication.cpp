@@ -20,11 +20,13 @@
 
 #include "WidgetApplication.h"
 
+#include "base/System.h"
 #include "io/key/MouseDecoder.h"
 
 WidgetApplication::WidgetApplication(Util::Graphic::LinearFrameBuffer &lfb, const size_t posX, const size_t posY, const size_t width, const size_t height) :
     lfb(lfb), bufferedLfb(lfb), root(posX, posY, width, height), mouseInputStream("/device/mouse")
 {
+    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
     mouseInputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
 }
 
@@ -33,6 +35,24 @@ void WidgetApplication::addWidget(Util::Graphic::Widget &widget, const size_t po
 }
 
 void WidgetApplication::update() {
+    auto scancode = Util::System::in.read();
+    while (scancode >= 0) {
+        if (keyDecoder.parseScancode(scancode)) {
+            auto key = keyDecoder.getCurrentKey();
+
+            if (lastPressedWidget != nullptr) {
+                if (key.isPressed()) {
+                    lastPressedWidget->keyPressed(key);
+                } else {
+                    lastPressedWidget->keyReleased(key);
+                    lastPressedWidget->keyTyped(key);
+                }
+            }
+        }
+
+        scancode = Util::System::in.read();
+    }
+
     bool mousePositionChanged = false;
     auto mouseByte = mouseInputStream.read();
     while (mouseByte >= 0) {
@@ -61,13 +81,13 @@ void WidgetApplication::update() {
             }
 
             // Handle mouse enter/leave events
-            const auto *hoveredWidget = root.getChildAtPoint(mouseX, mouseY);
+            auto *hoveredWidget = root.getChildAtPoint(mouseX, mouseY);
             if (hoveredWidget != lastHoveredWidget) {
                 if (lastHoveredWidget != nullptr) {
-                    lastHoveredWidget->mouseLeave();
+                    lastHoveredWidget->mouseExited();
                 }
                 if (hoveredWidget != nullptr) {
-                    hoveredWidget->mouseEnter();
+                    hoveredWidget->mouseEntered();
                 }
             }
             lastHoveredWidget = hoveredWidget;
@@ -75,17 +95,22 @@ void WidgetApplication::update() {
             // Handle mouse press/release events
             if (!mouseButtonLeft && mouseUpdate.buttons & Util::Io::MouseDecoder::LEFT_BUTTON) {
                 // Mouse pressed
+                if (lastPressedWidget != nullptr) {
+                    lastPressedWidget->setFocused(false);
+                }
+
                 lastPressedWidget = root.getChildAtPoint(mouseX, mouseY);
                 if (lastPressedWidget != nullptr) {
-                    lastPressedWidget->mousePress();
+                    lastPressedWidget->setFocused(true);
+                    lastPressedWidget->mousePressed();
                 }
             }
 
             if (mouseButtonLeft && !(mouseUpdate.buttons & Util::Io::MouseDecoder::LEFT_BUTTON)) {
                 // Mouse released
                 if (lastPressedWidget != nullptr) {
-                    lastPressedWidget->mouseRelease();
-                    lastPressedWidget->mouseClick();
+                    lastPressedWidget->mouseReleased();
+                    lastPressedWidget->mouseClicked();
                 }
             }
 

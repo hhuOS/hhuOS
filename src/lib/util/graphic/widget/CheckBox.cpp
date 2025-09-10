@@ -45,6 +45,10 @@ void CheckBox::setText(const String &text) {
     CheckBox::text = newText;
 }
 
+const String& CheckBox::getText() const {
+    return text;
+}
+
 bool CheckBox::isChecked() const {
     return checked;
 }
@@ -93,22 +97,22 @@ void CheckBox::draw(const LinearFrameBuffer &lfb) {
 
 CheckBox::MouseListener::MouseListener(CheckBox &box) : box(box) {}
 
-void CheckBox::MouseListener::onMouseEnter() {
+void CheckBox::MouseListener::onMouseEntered() {
     box.hovered = true;
     box.requireRedraw();
 }
 
-void CheckBox::MouseListener::onMouseLeave() {
+void CheckBox::MouseListener::onMouseExited() {
     box.hovered = false;
     box.requireRedraw();
 }
 
-void CheckBox::MouseListener::onMousePress() {
+void CheckBox::MouseListener::onMousePressed() {
     box.pressed = true;
     box.requireRedraw();
 }
 
-void CheckBox::MouseListener::onMouseRelease() {
+void CheckBox::MouseListener::onMouseReleased() {
     box.pressed = false;
     box.toggle();
 }

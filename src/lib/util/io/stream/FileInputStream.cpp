@@ -122,7 +122,7 @@ uint32_t FileInputStream::getPosition() const {
     return pos;
 }
 
-bool FileInputStream::setAccessMode(const File::AccessMode mode) const {
+bool FileInputStream::setAccessMode(const File::AccessMode mode) {
     return File::setAccessMode(fileDescriptor, mode);
 }
 

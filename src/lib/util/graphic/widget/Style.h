@@ -54,6 +54,8 @@ Style checkBox();
 
 Style radioButton();
 
+Style inputField();
+
 };
 
 }

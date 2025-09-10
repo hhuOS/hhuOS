@@ -41,6 +41,8 @@ public:
 
     void setText(const String &text);
 
+    [[nodiscard]] const String& getText() const;
+
     [[nodiscard]] bool isChecked() const;
 
     [[nodiscard]] size_t getWidth() const override;
@@ -57,13 +59,13 @@ private:
 
         explicit MouseListener(CheckBox &box);
 
-        void onMouseEnter() override;
+        void onMouseEntered() override;
 
-        void onMouseLeave() override;
+        void onMouseExited() override;
 
-        void onMousePress() override;
+        void onMousePressed() override;
 
-        void onMouseRelease() override;
+        void onMouseReleased() override;
 
     private:
 

@@ -16,6 +16,10 @@ void Label::setText(const String &text) {
     requireParentRedraw();
 }
 
+const String& Label::getText() const {
+    return text;
+}
+
 size_t Label::getWidth() const {
     return maxWidth;
 }

@@ -28,6 +28,7 @@
 #include "graphic/widget/Button.h"
 #include "graphic/widget/CheckBox.h"
 #include "graphic/widget/Container.h"
+#include "graphic/widget/InputField.h"
 #include "graphic/widget/Label.h"
 #include "graphic/widget/RadioButton.h"
 #include "graphic/widget/RadioButtonGroup.h"
@@ -40,9 +41,11 @@ public:
 
     explicit ClickCountListener(Util::Graphic::Label &label) : label(label) {}
 
-    void onMouseClick() override {
+    void onMouseClicked() override {
         label.setText(Util::String::format("Pressed: %u", ++count));
     }
+
+    [[nodiscard]] size_t getCount() const { return count; }
 
 private:
 
@@ -50,11 +53,26 @@ private:
     size_t count = 0;
 };
 
+class ExitListener final : public Util::Graphic::ActionListener {
+
+public:
+
+    explicit ExitListener(bool &isRunning) : isRunning(isRunning) {};
+
+    void onMouseClicked() override {
+        isRunning = false;
+    }
+
+private:
+
+    bool &isRunning;
+};
+
 WidgetDemo::WidgetDemo(Util::Graphic::LinearFrameBuffer &lfb) :
     WidgetApplication(lfb, 100, 100, 320, 240) {}
 
 void WidgetDemo::run() {
-    Util::Graphic::Ansi::prepareGraphicalApplication(false);
+    Util::Graphic::Ansi::prepareGraphicalApplication(true);
 
     // Test widgets
     auto testLabel = Util::Graphic::Label("This is a test!", 200);
@@ -65,9 +83,10 @@ void WidgetDemo::run() {
 
     // Test button
     auto button = Util::Graphic::Button("Button");
-    auto pressedLabel = Util::Graphic::Label("Pressed: 0", 200);
+    auto pressedLabel = Util::Graphic::Label("Pressed: 0", 150);
 
-    button.addActionListener(new ClickCountListener(pressedLabel));
+    auto *clickListener = new ClickCountListener(pressedLabel);
+    button.addActionListener(clickListener);
 
     addWidget(button, 10, 100);
     addWidget(pressedLabel, 10, 100 + button.getHeight() + 10);
@@ -90,7 +109,27 @@ void WidgetDemo::run() {
     addWidget(radio2, 170, 40);
     addWidget(radio3, 170, 70);
 
-    while (true) {
+    // Test input field
+    auto inputField = Util::Graphic::InputField(100, Util::Graphic::Fonts::TERMINAL_8x16);
+    addWidget(inputField, 170, 120);
+
+    // Exit button
+    bool isRunning = true;
+    auto exitButton = Util::Graphic::Button("Exit");
+    exitButton.addActionListener(new ExitListener(isRunning));
+
+    addWidget(exitButton, 10, 210);
+
+    while (isRunning) {
         update();
     }
+
+    Util::System::out << "Button pressed " << clickListener->getCount() << " times" << Util::Io::PrintStream::ln
+        << "Checkbox is " << (checkbox.isChecked() ? "checked" : "not checked") << Util::Io::PrintStream::ln
+        << "Selected radio button: " << (radioGroup.getSelectedButton() == nullptr ?
+            "None" : radioGroup.getSelectedButton()->getText()) << Util::Io::PrintStream::ln
+        << "Input field text: " << static_cast<const char*>(inputField.getText()) << Util::Io::PrintStream::ln
+        << Util::Io::PrintStream::flush;
+
+    Util::Graphic::Ansi::cleanupGraphicalApplication();
 }

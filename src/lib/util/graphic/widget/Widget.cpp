@@ -67,33 +67,51 @@ void Widget::addActionListener(ActionListener *listener) {
     actionListeners.add(listener);
 }
 
-void Widget::mouseClick() const {
+void Widget::mouseClicked() const {
     for (auto *listener : actionListeners) {
-        listener->onMouseClick();
+        listener->onMouseClicked();
     }
 }
 
-void Widget::mousePress() const {
+void Widget::mousePressed() const {
     for (auto *listener : actionListeners) {
-        listener->onMousePress();
+        listener->onMousePressed();
     }
 }
 
-void Widget::mouseRelease() const {
+void Widget::mouseReleased() const {
     for (auto *listener : actionListeners) {
-        listener->onMouseRelease();
+        listener->onMouseReleased();
     }
 }
 
-void Widget::mouseEnter() const {
+void Widget::mouseEntered() const {
     for (auto *listener : actionListeners) {
-        listener->onMouseEnter();
+        listener->onMouseEntered();
     }
 }
 
-void Widget::mouseLeave() const {
+void Widget::mouseExited() const {
     for (auto *listener : actionListeners) {
-        listener->onMouseLeave();
+        listener->onMouseExited();
+    }
+}
+
+void Widget::keyPressed(const Io::Key &key) {
+    for (auto *listener : actionListeners) {
+        listener->onKeyPressed(key);
+    }
+}
+
+void Widget::keyReleased(const Io::Key &key) {
+    for (auto *listener : actionListeners) {
+        listener->onKeyReleased(key);
+    }
+}
+
+void Widget::keyTyped(const Io::Key &key) {
+    for (auto *listener : actionListeners) {
+        listener->onKeyTyped(key);
     }
 }
 
@@ -104,6 +122,15 @@ bool Widget::containsPoint(const size_t px, const size_t py) const {
     const auto h = getHeight();
 
     return px >= x && px < x + w && py >= y && py < y + h;
+}
+
+bool Widget::isFocused() const {
+    return focused;
+}
+
+void Widget::setFocused(bool focused) {
+    Widget::focused = focused;
+    requireRedraw();
 }
 
 Widget* Widget::getChildAtPoint(const size_t posX, const size_t posY) {

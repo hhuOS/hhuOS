@@ -129,7 +129,7 @@ public:
 	/// In non-blocking mode, read operations will return immediately if no data is available.
 	/// By default, the stream operates in blocking mode.
 	/// On success, true is returned. If an error occurs, false is returned.
-	bool setAccessMode(File::AccessMode mode) const;
+	bool setAccessMode(File::AccessMode mode);
 
 private:
 

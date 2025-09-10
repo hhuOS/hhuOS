@@ -54,4 +54,12 @@ void RadioButtonGroup::select(const int32_t index) {
     newButton.requireRedraw();
 }
 
+const RadioButton* RadioButtonGroup::getSelectedButton() const {
+    return selectedIndex >= 0 ? buttons.get(selectedIndex) : nullptr;
+}
+
+int32_t RadioButtonGroup::getSelectedIndex() const {
+    return selectedIndex;
+}
+
 }

@@ -24,6 +24,8 @@
 #ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_ACTIONLISTENER_H
 #define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_ACTIONLISTENER_H
 
+#include "io/key/Key.h"
+
 namespace Util::Graphic {
 
 class ActionListener {
@@ -38,15 +40,21 @@ public:
 
     virtual ~ActionListener() = default;
 
-    virtual void onMouseEnter();
+    virtual void onMouseEntered();
 
-    virtual void onMouseLeave();
+    virtual void onMouseExited();
 
-    virtual void onMousePress();
+    virtual void onMousePressed();
 
-    virtual void onMouseRelease();
+    virtual void onMouseReleased();
 
-    virtual void onMouseClick();
+    virtual void onMouseClicked();
+
+    virtual void onKeyPressed(const Io::Key &key);
+
+    virtual void onKeyReleased(const Io::Key &key);
+
+    virtual void onKeyTyped(const Io::Key &key);
 };
 
 }

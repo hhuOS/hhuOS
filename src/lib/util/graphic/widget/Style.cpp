@@ -94,4 +94,19 @@ Style radioButton() {
         .gapX = 6
     };
 }
+
+Style inputField() {
+    return Style {
+        .textColor = Colors::HHU_GRAY.dim().dim(),
+        .backgroundColor = Colors::HHU_LIGHT_GRAY,
+        .textColorHighlighted = Colors::HHU_GRAY.dim().dim(),
+        .backgroundColorHighlighted = Colors::HHU_LIGHT_GRAY,
+        .borderColor = Colors::HHU_GRAY.dim().dim(),
+        .accentColor = Colors::HHU_GRAY.dim(),
+        .paddingX = 2,
+        .paddingY = 2,
+        .gapX = 4
+    };
+}
+
 }

@@ -50,6 +50,10 @@ void RadioButton::setText(const String &text) {
     RadioButton::text = newText;
 }
 
+const String& RadioButton::getText() const {
+    return text;
+}
+
 bool RadioButton::isSelected() const {
     return selected;
 }
@@ -84,22 +88,22 @@ void RadioButton::draw(const LinearFrameBuffer &lfb) {
 
 RadioButton::MouseListener::MouseListener(RadioButton &button) : button(button) {}
 
-void RadioButton::MouseListener::onMouseEnter() {
+void RadioButton::MouseListener::onMouseEntered() {
     button.hovered = true;
     button.requireRedraw();
 }
 
-void RadioButton::MouseListener::onMouseLeave() {
+void RadioButton::MouseListener::onMouseExited() {
     button.hovered = false;
     button.requireRedraw();
 }
 
-void RadioButton::MouseListener::onMousePress() {
+void RadioButton::MouseListener::onMousePressed() {
     button.pressed = true;
     button.requireRedraw();
 }
 
-void RadioButton::MouseListener::onMouseRelease() {
+void RadioButton::MouseListener::onMouseReleased() {
     button.pressed = false;
     button.select();
     button.requireRedraw();

@@ -25,6 +25,8 @@
 
 #include "graphic/BufferedLinearFrameBuffer.h"
 #include "graphic/widget/Container.h"
+#include "io/key/KeyDecoder.h"
+#include "io/key/layout/DeLayout.h"
 #include "io/stream/FileInputStream.h"
 
 class WidgetApplication {
@@ -51,10 +53,12 @@ private:
     Util::Graphic::BufferedLinearFrameBuffer bufferedLfb;
 
     Util::Graphic::Container root;
+
+    Util::Io::KeyDecoder keyDecoder = Util::Io::KeyDecoder(Util::Io::DeLayout());
     Util::Io::FileInputStream mouseInputStream;
 
-    const Util::Graphic::Widget *lastHoveredWidget = nullptr;
-    const Util::Graphic::Widget *lastPressedWidget = nullptr;
+    Util::Graphic::Widget *lastHoveredWidget = nullptr;
+    Util::Graphic::Widget *lastPressedWidget = nullptr;
 
     int32_t mouseX = static_cast<int32_t>(root.getPosX() + root.getWidth() / 2);
     int32_t mouseY = static_cast<int32_t>(root.getPosY() + root.getHeight() / 2);
