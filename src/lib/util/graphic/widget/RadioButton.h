@@ -26,7 +26,7 @@
 
 #include "base/String.h"
 #include "graphic/font/Terminal8x8.h"
-#include "graphic/widget/Style.h"
+#include "graphic/widget/Theme.h"
 #include "graphic/widget/Widget.h"
 
 namespace Util::Graphic {
@@ -57,19 +57,13 @@ private:
 
     friend class RadioButtonGroup;
 
-    class MouseListener final : public ActionListener {
+    class ClickListener final : public ActionListener {
 
     public:
 
-        explicit MouseListener(RadioButton &button);
+        explicit ClickListener(RadioButton &button);
 
-        void onMouseEntered() override;
-
-        void onMouseExited() override;
-
-        void onMousePressed() override;
-
-        void onMouseReleased() override;
+        void onMouseClicked() override;
 
     private:
 
@@ -78,15 +72,15 @@ private:
 
     String text;
     const Font &font;
-    const Style style = DefaultTheme::checkBox();
 
     RadioButtonGroup *group = nullptr;
     int32_t groupIndex = -1;
 
     bool selected = false;
 
-    bool hovered = false;
-    bool pressed = false;
+    static constexpr size_t PADDING_X = 2;
+    static constexpr size_t PADDING_Y = 2;
+    static constexpr size_t GAP_X = 6;
 };
 
 }

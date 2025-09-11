@@ -29,7 +29,6 @@
 #include "collection/ArrayList.h"
 #include "graphic/LinearFrameBuffer.h"
 #include "graphic/widget/Layout.h"
-#include "graphic/widget/Style.h"
 #include "graphic/widget/Widget.h"
 
 namespace Util::Graphic {
@@ -65,8 +64,6 @@ private:
 
     const size_t width;
     const size_t height;
-
-    const Style style = DefaultTheme::container();
 };
 
 }

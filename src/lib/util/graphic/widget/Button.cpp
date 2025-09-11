@@ -23,11 +23,11 @@
 
 #include "Button.h"
 
+#include "graphic/widget/Theme.h"
+
 namespace Util::Graphic {
 
-Button::Button(const String &text, const Font &font) : text(text.split("\n")[0]), font(font) {
-    addActionListener(new MouseListener(*this));
-}
+Button::Button(const String &text, const Font &font) : text(text.split("\n")[0]), font(font) {}
 
 void Button::setText(const String &text) {
     const auto newText = text.split("\n")[0];
@@ -45,57 +45,36 @@ const String& Button::getText() const {
 }
 
 size_t Button::getWidth() const {
-    return font.getCharWidth() * text.length() + 2 * style.paddingX;
+    return font.getCharWidth() * text.length() + 2 * PADDING_X;
 }
 
 size_t Button::getHeight() const {
-    return font.getCharHeight() + 2 * style.paddingY;
+    return font.getCharHeight() + 2 * PADDING_Y;
 }
 
 void Button::draw(const LinearFrameBuffer &lfb) {
-    const auto &backgroundColor = pressed ? style.backgroundColorHighlighted : style.backgroundColor;
-    const auto &textColor = hovered || pressed ? style.textColorHighlighted : style.textColor;
+    const auto &style = Theme::CURRENT_THEME.button().getStyle(*this);
+
     const auto width = getWidth();
     const auto height = getHeight();
     const auto posX = getPosX();
     const auto posY = getPosY();
 
     // Draw button area
-    lfb.fillRectangle(posX, posY, width, height, backgroundColor);
+    lfb.fillRectangle(posX, posY, width, height, style.widgetColor);
     lfb.drawRectangle(posX, posY, width, height, style.borderColor);
 
     // Calculate centered text position
     const auto textWidth = text.length() * font.getCharWidth();
-    const auto innerWidth = width - style.paddingX * 2;
-    const auto textX = posX + style.paddingX + (innerWidth - textWidth) / 2;
+    const auto innerWidth = width - PADDING_X * 2;
+    const auto textX = posX + PADDING_X + (innerWidth - textWidth) / 2;
     const auto textY = posY + (height - font.getCharHeight()) / 2;
 
     // Draw button
-    lfb.drawString(font, textX, textY, static_cast<const char*>(text), textColor, backgroundColor);
+    lfb.drawString(font, textX, textY, static_cast<const char*>(text),
+        style.textColor, style.textBackgroundColor);
 
     Widget::draw(lfb);
-}
-
-Button::MouseListener::MouseListener(Button &button) : button(button) {}
-
-void Button::MouseListener::onMouseEntered() {
-    button.hovered = true;
-    button.requireRedraw();
-}
-
-void Button::MouseListener::onMouseExited() {
-    button.hovered = false;
-    button.requireRedraw();
-}
-
-void Button::MouseListener::onMousePressed() {
-    button.pressed = true;
-    button.requireRedraw();
-}
-
-void Button::MouseListener::onMouseReleased() {
-    button.pressed = false;
-    button.requireRedraw();
 }
 
 }

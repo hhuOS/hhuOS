@@ -46,5 +46,5 @@ void MouseDemo::keyPressed(const Util::Io::Key &key) {
 void MouseDemo::keyReleased([[maybe_unused]] const Util::Io::Key &key) {}
 
 void MouseDemo::initializeBackground(Util::Game::Graphics &graphics) {
-    graphics.clear(Util::Graphic::Colors::HHU_BLUE_30);
+    graphics.clear(Util::Graphic::Colors::HHU_BLUE.withSaturation(35));
 }

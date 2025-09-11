@@ -205,6 +205,8 @@ public:
      */
     [[nodiscard]] Color dim() const;
 
+    [[nodiscard]] Color withSaturation(uint8_t percentage) const;
+
     /**
      * Blend this color with another color.
      *

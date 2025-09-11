@@ -21,43 +21,43 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-mizuc100
  */
 
-#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_STYLE_H
-#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_STYLE_H
-
-#include <stddef.h>
-
-#include "graphic/Colors.h"
+#include "Theme.h"
 
 namespace Util::Graphic {
 
-struct Style {
-    Color textColor;
-    Color backgroundColor;
-    Color textColorHighlighted;
-    Color backgroundColorHighlighted;
-    Color borderColor;
-    Color accentColor;
-    size_t paddingX;
-    size_t paddingY;
-    size_t gapX;
-};
+Theme &Theme::CURRENT_THEME = *new HhuTheme();
 
-namespace DefaultTheme {
-
-Style container();
-
-Style label();
-
-Style button();
-
-Style checkBox();
-
-Style radioButton();
-
-Style inputField();
-
-};
-
+const Theme::Style& Theme::WidgetStyle::getStyle(const Widget &widget) const {
+    return widget.isPressed() ? pressedStyle : widget.isHovered() ? hoveredStyle : normalStyle;
 }
 
-#endif
+void Theme::setTheme(const Theme *theme) {
+    delete &CURRENT_THEME;
+    CURRENT_THEME = *theme;
+}
+
+const Theme::WidgetStyle& HhuTheme::container() const {
+    return containerStyle;
+}
+
+const Theme::WidgetStyle& HhuTheme::label() const {
+    return labelStyle;
+}
+
+const Theme::WidgetStyle& HhuTheme::button() const {
+    return buttonStyle;
+}
+
+const Theme::WidgetStyle& HhuTheme::checkBox() const {
+    return checkBoxStyle;
+}
+
+const Theme::WidgetStyle& HhuTheme::radioButton() const {
+    return radioButtonStyle;
+}
+
+const Theme::WidgetStyle& HhuTheme::inputField() const {
+    return inputFieldStyle;
+}
+
+}

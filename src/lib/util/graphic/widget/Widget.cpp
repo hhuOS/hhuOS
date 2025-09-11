@@ -27,7 +27,11 @@
 
 namespace Util::Graphic {
 
-Widget::Widget(const size_t posX, const size_t posY) : posX(posX), posY(posY) {}
+Widget::Widget(const bool redrawOnMouseStatusChange, const bool redrawOnFocusChange) :
+    redrawOnMouseStatusChange(redrawOnMouseStatusChange), redrawOnFocusChange(redrawOnFocusChange)
+{
+    addActionListener(new MouseListener(*this));
+}
 
 Widget::~Widget() {
     for (const auto *listener : actionListeners) {
@@ -57,6 +61,14 @@ void Widget::requireRedraw() {
 
 void Widget::reportSizeChange() const {
     parent->rearrangeChildren();
+}
+
+bool Widget::isHovered() const {
+    return hovered;
+}
+
+bool Widget::isPressed() const {
+    return pressed;
 }
 
 void Widget::addActionListener(ActionListener *listener) {
@@ -143,6 +155,40 @@ void Widget::setPosition(const size_t x, const size_t y) {
 
     requireRedraw();
     parent->requireRedraw();
+}
+
+Widget::MouseListener::MouseListener(Widget &widget) : widget(widget) {}
+
+void Widget::MouseListener::onMouseEntered() {
+    widget.hovered = true;
+
+    if (widget.redrawOnMouseStatusChange) {
+        widget.requireRedraw();
+    }
+}
+
+void Widget::MouseListener::onMouseExited() {
+    widget.hovered = false;
+
+    if (widget.redrawOnMouseStatusChange) {
+        widget.requireRedraw();
+    }
+}
+
+void Widget::MouseListener::onMousePressed() {
+    widget.pressed = true;
+
+    if (widget.redrawOnMouseStatusChange) {
+        widget.requireRedraw();
+    }
+}
+
+void Widget::MouseListener::onMouseReleased() {
+    widget.pressed = false;
+
+    if (widget.redrawOnMouseStatusChange) {
+        widget.requireRedraw();
+    }
 }
 
 }

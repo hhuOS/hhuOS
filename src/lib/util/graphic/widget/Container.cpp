@@ -23,10 +23,16 @@
 
 #include "Container.h"
 
+#include "graphic/widget/Theme.h"
+
 namespace Util::Graphic {
 
 Container::Container(const size_t posX, const size_t posY, const size_t width, const size_t height) :
-    Widget(posX, posY), width(width), height(height) {}
+    Widget( false, false), width(width), height(height)
+{
+    Widget::posX = posX;
+    Widget::posY = posY;
+}
 
 Container::~Container() {
     delete layout;
@@ -75,6 +81,8 @@ bool Container::requiresRedraw() const {
 }
 
 void Container::draw(const LinearFrameBuffer &lfb) {
+    const auto &style = Theme::CURRENT_THEME.container().getStyle(*this);
+
     if (Widget::requiresRedraw()) {
         // Redraw whole container
         const auto posX = getPosX();
@@ -84,7 +92,7 @@ void Container::draw(const LinearFrameBuffer &lfb) {
         lfb.drawRectangle(posX, posY, width, height, style.borderColor);
 
         // Fill background
-        lfb.fillRectangle(posX + 1, posY + 1, width - 2, height - 2, style.backgroundColor);
+        lfb.fillRectangle(posX + 1, posY + 1, width - 2, height - 2, style.widgetColor);
 
         // Draw children
         for (const auto &child : children) {

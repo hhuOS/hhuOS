@@ -23,10 +23,12 @@
 
 #include "CheckBox.h"
 
+#include "graphic/widget/Theme.h"
+
 namespace Util::Graphic {
 
 CheckBox::CheckBox(const String &text, const Font &font) : text(text.split("\n")[0]), font(font) {
-    addActionListener(new MouseListener(*this));
+    addActionListener(new ClickListener(*this));
 }
 
 void CheckBox::toggle() {
@@ -54,39 +56,40 @@ bool CheckBox::isChecked() const {
 }
 
 size_t CheckBox::getWidth() const {
-    return getHeight() + style.gapX + font.getCharWidth() * text.length();
+    return getHeight() + 2 * PADDING_X + GAP_X + font.getCharWidth() * text.length();
 }
 
 size_t CheckBox::getHeight() const {
-    return font.getCharHeight();
+    return font.getCharHeight() + 2 * PADDING_Y;
 }
 
 void CheckBox::draw(const LinearFrameBuffer &lfb) {
-    const auto &backgroundColor = hovered ? style.backgroundColorHighlighted : style.backgroundColor;
-    const auto height = getHeight();
-    const auto posX = getPosX();
-    const auto posY = getPosY();
+    const auto &style = Theme::CURRENT_THEME.checkBox().getStyle(*this);
+
+    const auto boxSize = font.getCharHeight();
+    const auto posX = getPosX() + PADDING_X;
+    const auto posY = getPosY() + PADDING_Y;
 
     // Draw box
-    lfb.fillSquare(posX, posY, height, pressed ? backgroundColor.dim() : backgroundColor);
-    lfb.drawSquare(posX, posY, height, style.borderColor);
+    lfb.fillSquare(posX, posY, boxSize, style.widgetColor);
+    lfb.drawSquare(posX, posY, boxSize, style.borderColor);
 
     // Draw checkmark (if checked)
     if (checked) {
-        const auto inset = height / 6;
+        const auto inset = boxSize / 6;
         const auto leftX = posX + inset;
-        const auto midY = posY + height / 2;
-        const auto midX = posX + height / 2;
-        const auto bottomY = posY + height - inset;
-        const auto rightX = posX + height - inset;
+        const auto midY = posY + boxSize / 2;
+        const auto midX = posX + boxSize / 2;
+        const auto bottomY = posY + boxSize - inset;
+        const auto rightX = posX + boxSize - inset;
         const auto topY = posY + inset;
         lfb.drawLine(leftX, midY, midX, bottomY, style.accentColor);
         lfb.drawLine(midX, bottomY, rightX, topY, style.accentColor);
     }
 
     // Calculate text position
-    const auto textX = posX + height + style.gapX;
-    const auto textY = posY + (height - font.getCharHeight()) / 2;
+    const auto textX = posX + boxSize + GAP_X;
+    const auto textY = posY + (boxSize - font.getCharHeight()) / 2;
 
     // Draw text
     lfb.drawString(font, textX, textY, static_cast<const char*>(text),
@@ -95,25 +98,9 @@ void CheckBox::draw(const LinearFrameBuffer &lfb) {
     Widget::draw(lfb);
 }
 
-CheckBox::MouseListener::MouseListener(CheckBox &box) : box(box) {}
+CheckBox::ClickListener::ClickListener(CheckBox &box) : box(box) {}
 
-void CheckBox::MouseListener::onMouseEntered() {
-    box.hovered = true;
-    box.requireRedraw();
-}
-
-void CheckBox::MouseListener::onMouseExited() {
-    box.hovered = false;
-    box.requireRedraw();
-}
-
-void CheckBox::MouseListener::onMousePressed() {
-    box.pressed = true;
-    box.requireRedraw();
-}
-
-void CheckBox::MouseListener::onMouseReleased() {
-    box.pressed = false;
+void CheckBox::ClickListener::onMouseClicked() {
     box.toggle();
 }
 

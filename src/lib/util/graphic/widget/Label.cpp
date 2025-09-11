@@ -1,5 +1,7 @@
 #include "Label.h"
 
+#include "graphic/widget/Theme.h"
+
 namespace Util::Graphic {
 
 Label::Label(const String &text, const size_t maxWidth, const Font &font) : maxWidth(maxWidth), font(font) {
@@ -40,16 +42,19 @@ size_t Label::getWidth() const {
 }
 
 size_t Label::getHeight() const {
-    return lines.length() * font.getCharHeight() + 2 * style.paddingY;
+    return lines.length() * font.getCharHeight() + 2 * PADDING_Y;
 }
 
 void Label::draw(const LinearFrameBuffer &lfb) {
-    const auto startX = getPosX() + style.paddingX;
+    const auto &style = Theme::CURRENT_THEME.label().getStyle(*this);
+    
+    const auto startX = getPosX() + PADDING_X;
     auto currentYLine = getPosY();
 
     for (const auto &line : lines) {
         lfb.drawString(font, startX, currentYLine, static_cast<const char*>(line),
-            style.textColor, style.backgroundColor);
+            style.textColor, style.textBackgroundColor);
+
         currentYLine += font.getCharHeight();
     }
 
@@ -59,7 +64,7 @@ void Label::draw(const LinearFrameBuffer &lfb) {
 void Label::calculateLines(const String &text) {
     ArrayList<String> lines;
     const auto charWidth = font.getCharWidth();
-    const auto innerWidth = maxWidth - 2 * style.paddingX;
+    const auto innerWidth = maxWidth - 2 * PADDING_X;
     const auto maxChars = innerWidth >= charWidth ? innerWidth / charWidth : 1;
 
     const auto *lineStart = static_cast<const char*>(text);

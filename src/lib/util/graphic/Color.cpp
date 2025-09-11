@@ -274,6 +274,18 @@ Color Color::dim() const {
     return {r, g, b};
 }
 
+Color Color::withSaturation(uint8_t percentage) const {
+    if (percentage > 100) {
+        percentage = 100;
+    }
+
+    return {
+        static_cast<uint8_t>(255 - (255 - red) * percentage / 100),
+        static_cast<uint8_t>(255 - (255 - green) * percentage / 100),
+        static_cast<uint8_t>(255 - (255 - blue) * percentage / 100),
+    };
+}
+
 Color Color::blend(const Color &color) const {
     if (color.alpha == 0) {
         return {red, green, blue, alpha};

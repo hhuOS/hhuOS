@@ -28,7 +28,6 @@
 
 #include "base/String.h"
 #include "graphic/font/Terminal8x8.h"
-#include "graphic/widget/Style.h"
 #include "graphic/widget/Widget.h"
 
 namespace Util::Graphic {
@@ -51,31 +50,11 @@ public:
 
 private:
 
-    class MouseListener final : public ActionListener {
-
-    public:
-
-        explicit MouseListener(Button &button);
-
-        void onMouseEntered() override;
-
-        void onMouseExited() override;
-
-        void onMousePressed() override;
-
-        void onMouseReleased() override;
-
-    private:
-
-        Button &button;
-    };
-
     String text;
     const Font &font;
-    const Style style = DefaultTheme::button();
 
-    bool hovered = false;
-    bool pressed = false;
+    static constexpr size_t PADDING_X = 8;
+    static constexpr size_t PADDING_Y= 6;
 };
 
 }

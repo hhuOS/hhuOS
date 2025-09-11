@@ -29,7 +29,6 @@
 #include "base/String.h"
 #include "graphic/font/Terminal8x8.h"
 #include "graphic/LinearFrameBuffer.h"
-#include "graphic/widget/Style.h"
 #include "graphic/widget/Widget.h"
 
 namespace Util::Graphic {
@@ -57,7 +56,9 @@ private:
     Array<String> lines;
     size_t maxWidth;
     const Font &font;
-    const Style style = DefaultTheme::label();
+
+    static constexpr size_t PADDING_X = 2;
+    static constexpr size_t PADDING_Y = 2;
 };
 
 } // namespace Util

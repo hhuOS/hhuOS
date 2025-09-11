@@ -38,9 +38,7 @@ class Widget {
 
 public:
 
-    Widget() = default;
-
-    Widget(size_t posX, size_t posY);
+    Widget(bool redrawOnMouseStatusChange = true, bool redrawOnFocusChange = true);
 
     Widget(const Widget &other) = delete;
 
@@ -53,6 +51,10 @@ public:
     [[nodiscard]] size_t getPosY() const;
 
     [[nodiscard]] bool containsPoint(size_t px, size_t py) const;
+
+    [[nodiscard]] bool isHovered() const;
+
+    [[nodiscard]] bool isPressed() const;
 
     [[nodiscard]] bool isFocused() const;
 
@@ -97,12 +99,36 @@ private:
     friend class Container;
     friend class FreeLayout;
 
+    class MouseListener final : public ActionListener {
+
+    public:
+
+        explicit MouseListener(Widget &widget);
+
+        void onMouseEntered() override;
+
+        void onMouseExited() override;
+
+        void onMousePressed() override;
+
+        void onMouseReleased() override;
+
+    private:
+
+        Widget &widget;
+    };
+
     void setPosition(size_t x, size_t y);
 
     size_t posX = 0;
     size_t posY = 0;
 
+    bool hovered = false;
+    bool pressed = false;
     bool focused = false;
+
+    const bool redrawOnMouseStatusChange;
+    const bool redrawOnFocusChange;
 
     bool needsRedraw = true;
 

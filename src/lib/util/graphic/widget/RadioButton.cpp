@@ -28,7 +28,7 @@
 namespace Util::Graphic {
 
 RadioButton::RadioButton(const String &text, const Font &font) : text(text.split("\n")[0]), font(font) {
-    addActionListener(new MouseListener(*this));
+    addActionListener(new ClickListener(*this));
 }
 
 void RadioButton::select() const {
@@ -59,54 +59,38 @@ bool RadioButton::isSelected() const {
 }
 
 size_t RadioButton::getWidth() const {
-    return getHeight() + style.gapX + font.getCharWidth() * text.length();
+    return getHeight() + 2 * PADDING_X + GAP_X + font.getCharWidth() * text.length();
 }
 
 size_t RadioButton::getHeight() const {
-    return font.getCharHeight();
+    return font.getCharHeight() + 2 * PADDING_Y;
 }
 
 void RadioButton::draw(const LinearFrameBuffer &lfb) {
-    const auto &backgroundColor = hovered ? style.backgroundColorHighlighted : style.backgroundColor;
-    const auto height = getHeight();
-    const auto radius = height / 2;
-    const auto posX = getPosX();
-    const auto posY = getPosY();
+    const auto &style = Theme::CURRENT_THEME.radioButton().getStyle(*this);
 
-    lfb.fillCircle(posX + radius, posY + radius, radius, pressed ? backgroundColor.dim() : backgroundColor);
+    const auto diameter = font.getCharHeight();
+    const auto radius = diameter / 2;
+    const auto posX = getPosX() + PADDING_X;
+    const auto posY = getPosY() + PADDING_Y;
+
+    lfb.fillCircle(posX + radius, posY + radius, radius, style.widgetColor);
     lfb.drawCircle(posX + radius, posY + radius, radius, style.borderColor);
 
     if (selected) {
-        lfb.fillCircle(posX + radius, posY + radius, radius / 2, hovered ? style.borderColor.dim() : style.borderColor);
+        lfb.fillCircle(posX + radius, posY + radius, radius / 2, style.accentColor);
     }
 
-    lfb.drawString(font, posX + height + style.gapX, posY, static_cast<const char*>(text),
-        style.textColor, Colors::INVISIBLE);
+    lfb.drawString(font, posX + diameter + GAP_X, posY, static_cast<const char*>(text),
+        style.textColor, style.textBackgroundColor);
 
     Widget::draw(lfb);
 }
 
-RadioButton::MouseListener::MouseListener(RadioButton &button) : button(button) {}
+RadioButton::ClickListener::ClickListener(RadioButton &button) : button(button) {}
 
-void RadioButton::MouseListener::onMouseEntered() {
-    button.hovered = true;
-    button.requireRedraw();
-}
-
-void RadioButton::MouseListener::onMouseExited() {
-    button.hovered = false;
-    button.requireRedraw();
-}
-
-void RadioButton::MouseListener::onMousePressed() {
-    button.pressed = true;
-    button.requireRedraw();
-}
-
-void RadioButton::MouseListener::onMouseReleased() {
-    button.pressed = false;
+void RadioButton::ClickListener::onMouseClicked() {
     button.select();
-    button.requireRedraw();
 }
 
 }

@@ -28,7 +28,6 @@
 
 #include "base/String.h"
 #include "graphic/font/Terminal8x8.h"
-#include "graphic/widget/Style.h"
 #include "graphic/widget/Widget.h"
 
 namespace Util::Graphic {
@@ -65,7 +64,9 @@ private:
     String text;
     const size_t width;
     const Font &font;
-    const Style style = DefaultTheme::inputField();
+
+    static constexpr size_t PADDING_X = 2;
+    static constexpr size_t PADDING_Y = 2;
 };
 
 }

@@ -26,7 +26,6 @@
 
 #include "base/String.h"
 #include "graphic/font/Terminal8x8.h"
-#include "graphic/widget/Style.h"
 #include "graphic/widget/Widget.h"
 
 namespace Util::Graphic {
@@ -53,19 +52,13 @@ public:
 
 private:
 
-    class MouseListener final : public ActionListener {
+    class ClickListener final : public ActionListener {
 
     public:
 
-        explicit MouseListener(CheckBox &box);
+        explicit ClickListener(CheckBox &box);
 
-        void onMouseEntered() override;
-
-        void onMouseExited() override;
-
-        void onMousePressed() override;
-
-        void onMouseReleased() override;
+        void onMouseClicked() override;
 
     private:
 
@@ -74,12 +67,15 @@ private:
 
     String text;
     const Font &font;
-    const Style style = DefaultTheme::checkBox();
 
     bool checked = false;
 
     bool hovered = false;
     bool pressed = false;
+
+    static constexpr size_t PADDING_X = 2;
+    static constexpr size_t PADDING_Y = 2;
+    static constexpr size_t GAP_X = 6;
 };
 
 }

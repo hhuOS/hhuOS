@@ -23,6 +23,8 @@
 
 #include "InputField.h"
 
+#include "graphic/widget/Theme.h"
+
 namespace Util::Graphic {
 
 InputField::InputField(const size_t width, const Font &font) : width(width), font(font) {
@@ -38,27 +40,29 @@ size_t InputField::getWidth() const {
 }
 
 size_t InputField::getHeight() const {
-    return font.getCharHeight() + style.paddingY * 2;
+    return font.getCharHeight() + PADDING_Y * 2;
 }
 
 void InputField::draw(const LinearFrameBuffer &lfb) {
+    const auto &style = Theme::CURRENT_THEME.inputField().getStyle(*this);
+
     const auto height = getHeight();
     const auto posX = getPosX();
     const auto posY = getPosY();
 
-    lfb.fillRectangle(posX, posY, width, height, style.backgroundColor);
+    lfb.fillRectangle(posX, posY, width, height, style.widgetColor);
     lfb.drawRectangle(posX, posY, width, height, style.borderColor);
 
-    const auto maxChars = (width - style.paddingX * 2) / font.getCharWidth();
+    const auto maxChars = (width - PADDING_X * 2) / font.getCharWidth();
     const auto visibleText = text.substring(text.length() > maxChars ? text.length() - maxChars : 0,
         text.length());
 
-    lfb.drawString(font, posX + style.paddingX, posY + style.paddingY, static_cast<const char*>(visibleText),
-        style.textColor, Colors::INVISIBLE);
+    lfb.drawString(font, posX + PADDING_X, posY + PADDING_Y, static_cast<const char*>(visibleText),
+        style.textColor, style.textBackgroundColor);
 
     if (isFocused()) {
         const auto caretX = posX + 2 + visibleText.length() * font.getCharWidth();
-        lfb.drawLine(caretX, posY + style.paddingY, caretX, posY + font.getCharHeight(), style.textColor);
+        lfb.drawLine(caretX, posY + PADDING_Y, caretX, posY + font.getCharHeight(), style.accentColor);
     }
 
     Widget::draw(lfb);
