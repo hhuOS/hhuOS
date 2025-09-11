@@ -18,44 +18,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_WIDGET_APPLICATION_H
-#define HHUOS_WIDGET_APPLICATION_H
+#include "VerticalLayout.h"
 
-#include <stddef.h>
-
-#include "graphic/BufferedLinearFrameBuffer.h"
 #include "graphic/widget/Container.h"
-#include "io/key/KeyDecoder.h"
-#include "io/key/layout/DeLayout.h"
-#include "io/stream/FileInputStream.h"
 
-class WidgetApplication : public Util::Graphic::Container {
+namespace Util::Graphic {
 
-public:
+VerticalLayout::VerticalLayout(const size_t spacing) : spacing(spacing) {}
 
-    WidgetApplication(Util::Graphic::LinearFrameBuffer &lfb, size_t width, size_t height);
+void VerticalLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const {
+    const auto width = getContainer().getWidth();
+    const auto posX = getContainer().getPosX();
 
-protected:
+    size_t widgetHeightSum = 0;
+    for (auto &entry : widgets) {
+        widgetHeightSum += entry.widget->getHeight() + spacing;
+    }
+    widgetHeightSum -= spacing;
 
-    void update();
+    auto posY = getContainer().getPosY() + (getContainer().getHeight() - widgetHeightSum + spacing) / 2;
+    for (auto &entry : widgets) {
+        const auto widgetPosX = posX + (width - entry.widget->getWidth()) / 2;
+        entry.widget->setPosition(widgetPosX, posY);
 
-private:
+        posY += entry.widget->getHeight() + spacing;
+    }
+}
 
-    Util::Graphic::LinearFrameBuffer &lfb;
-    Util::Graphic::BufferedLinearFrameBuffer bufferedLfb;
-
-    Util::Io::KeyDecoder keyDecoder = Util::Io::KeyDecoder(Util::Io::DeLayout());
-    Util::Io::FileInputStream mouseInputStream;
-
-    Widget *lastHoveredWidget = nullptr;
-    Widget *lastPressedWidget = nullptr;
-
-    int32_t mouseX = static_cast<int32_t>(getPosX() + getWidth() / 2);
-    int32_t mouseY = static_cast<int32_t>(getPosY() + getHeight() / 2);
-    bool mouseButtonLeft = false;
-
-    uint8_t mouseInput[4]{};
-    size_t mouseInputIndex = 0;
-};
-
-#endif
+}

@@ -90,21 +90,21 @@ private:
     const WidgetStyle containerStyle = {
         .normalStyle = {
             .widgetColor = Colors::WHITE,
-            .borderColor = Colors::HHU_ICE_BLUE,
+            .borderColor = Colors::WHITE,
             .accentColor = Colors::INVISIBLE,
             .textColor = Colors::INVISIBLE,
             .textBackgroundColor = Colors::INVISIBLE
         },
         .hoveredStyle = {
             .widgetColor = Colors::WHITE,
-            .borderColor = Colors::HHU_ICE_BLUE,
+            .borderColor = Colors::WHITE,
             .accentColor = Colors::INVISIBLE,
             .textColor = Colors::INVISIBLE,
             .textBackgroundColor = Colors::INVISIBLE
         },
         .pressedStyle = {
             .widgetColor = Colors::WHITE,
-            .borderColor = Colors::HHU_ICE_BLUE,
+            .borderColor = Colors::WHITE,
             .accentColor = Colors::INVISIBLE,
             .textColor = Colors::INVISIBLE,
             .textBackgroundColor = Colors::INVISIBLE

@@ -27,12 +27,8 @@
 
 namespace Util::Graphic {
 
-Container::Container(const size_t posX, const size_t posY, const size_t width, const size_t height) :
-    Widget( false, false), width(width), height(height)
-{
-    Widget::posX = posX;
-    Widget::posY = posY;
-}
+Container::Container(const size_t width, const size_t height) :
+    Widget( false, false), width(width), height(height) {}
 
 Container::~Container() {
     delete layout;

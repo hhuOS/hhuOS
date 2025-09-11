@@ -18,44 +18,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_WIDGET_APPLICATION_H
-#define HHUOS_WIDGET_APPLICATION_H
+#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_VERTICALLAYOUT_H
+#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_VERTICALLAYOUT_H
 
-#include <stddef.h>
+#include "graphic/widget/Layout.h"
 
-#include "graphic/BufferedLinearFrameBuffer.h"
-#include "graphic/widget/Container.h"
-#include "io/key/KeyDecoder.h"
-#include "io/key/layout/DeLayout.h"
-#include "io/stream/FileInputStream.h"
+namespace Util::Graphic {
 
-class WidgetApplication : public Util::Graphic::Container {
+class VerticalLayout final : public Layout {
 
 public:
 
-    WidgetApplication(Util::Graphic::LinearFrameBuffer &lfb, size_t width, size_t height);
+    explicit VerticalLayout(size_t spacing);
 
-protected:
-
-    void update();
+    void arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const override;
 
 private:
 
-    Util::Graphic::LinearFrameBuffer &lfb;
-    Util::Graphic::BufferedLinearFrameBuffer bufferedLfb;
-
-    Util::Io::KeyDecoder keyDecoder = Util::Io::KeyDecoder(Util::Io::DeLayout());
-    Util::Io::FileInputStream mouseInputStream;
-
-    Widget *lastHoveredWidget = nullptr;
-    Widget *lastPressedWidget = nullptr;
-
-    int32_t mouseX = static_cast<int32_t>(getPosX() + getWidth() / 2);
-    int32_t mouseY = static_cast<int32_t>(getPosY() + getHeight() / 2);
-    bool mouseButtonLeft = false;
-
-    uint8_t mouseInput[4]{};
-    size_t mouseInputIndex = 0;
+    size_t spacing;
 };
+
+}
 
 #endif

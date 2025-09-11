@@ -33,11 +33,11 @@
 
 namespace Util::Graphic {
 
-class Container final : public Widget {
+class Container : public Widget {
 
 public:
 
-    Container(size_t posX, size_t posY, size_t width, size_t height);
+    Container(size_t width, size_t height);
 
     ~Container() override;
 

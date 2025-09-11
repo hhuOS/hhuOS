@@ -98,6 +98,8 @@ private:
 
     friend class Container;
     friend class FreeLayout;
+    friend class VerticalLayout;
+    friend class HorizontalLayout;
 
     class MouseListener final : public ActionListener {
 

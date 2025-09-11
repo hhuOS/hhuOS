@@ -49,13 +49,13 @@ void Label::draw(const LinearFrameBuffer &lfb) {
     const auto &style = Theme::CURRENT_THEME.label().getStyle(*this);
     
     const auto startX = getPosX() + PADDING_X;
-    auto currentYLine = getPosY();
+    auto posY = getPosY() + PADDING_Y;
 
     for (const auto &line : lines) {
-        lfb.drawString(font, startX, currentYLine, static_cast<const char*>(line),
+        lfb.drawString(font, startX, posY, static_cast<const char*>(line),
             style.textColor, style.textBackgroundColor);
 
-        currentYLine += font.getCharHeight();
+        posY += font.getCharHeight();
     }
 
     Widget::draw(lfb);

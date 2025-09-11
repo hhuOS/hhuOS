@@ -41,12 +41,14 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/CheckBox.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/Container.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/FreeLayout.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/widget/HorizontalLayout.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/InputField.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/Label.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/Layout.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/RadioButton.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/RadioButtonGroup.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/Theme.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/widget/VerticalLayout.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/Widget.cpp)
 
 # Kernel space version

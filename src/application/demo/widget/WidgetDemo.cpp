@@ -27,6 +27,8 @@
 #include "graphic/widget/CheckBox.h"
 #include "graphic/widget/Container.h"
 #include "graphic/widget/FreeLayout.h"
+#include "graphic/widget/HorizontalLayout.h"
+#include "graphic/widget/VerticalLayout.h"
 #include "graphic/widget/InputField.h"
 #include "graphic/widget/Label.h"
 #include "graphic/widget/RadioButton.h"
@@ -67,20 +69,45 @@ private:
     bool &isRunning;
 };
 
-WidgetDemo::WidgetDemo(Util::Graphic::LinearFrameBuffer &lfb) :
-    WidgetApplication(lfb, 100, 100, 320, 240) {}
+WidgetDemo::WidgetDemo(Util::Graphic::LinearFrameBuffer &lfb) : WidgetApplication(lfb, 320, 240) {}
 
 void WidgetDemo::run() {
     Util::Graphic::Ansi::prepareGraphicalApplication(true);
 
-    setLayout(new Util::Graphic::FreeLayout());
+    setLayout(new Util::Graphic::HorizontalLayout(0));
+
+    // Add two containers side by side
+    auto leftContainer = Container(getWidth() / 2, getHeight());
+    auto rightContainer = Container(getWidth() / 2, getHeight());
+
+    leftContainer.setLayout(new Util::Graphic::VerticalLayout(0));
+    rightContainer.setLayout(new Util::Graphic::VerticalLayout(0));
+
+    addChild(leftContainer, Util::Array<size_t>());
+    addChild(rightContainer, Util::Array<size_t>());
+
+    // Add nested containers, quartering the screen
+    auto topLeftContainer = Container(getWidth() / 2, getHeight() / 2);
+    auto bottomLeftContainer = Container(getWidth() / 2, getHeight() / 2);
+    auto topRightContainer = Container(getWidth() / 2, getHeight() / 2);
+    auto bottomRightContainer = Container(getWidth() / 2, getHeight() / 2);
+
+    topLeftContainer.setLayout(new Util::Graphic::VerticalLayout(10));
+    bottomLeftContainer.setLayout(new Util::Graphic::VerticalLayout(10));
+    topRightContainer.setLayout(new Util::Graphic::VerticalLayout(10));
+    bottomRightContainer.setLayout(new Util::Graphic::VerticalLayout(10));
+
+    leftContainer.addChild(topLeftContainer, Util::Array<size_t>());
+    leftContainer.addChild(bottomLeftContainer, Util::Array<size_t>());
+    rightContainer.addChild(topRightContainer, Util::Array<size_t>());
+    rightContainer.addChild(bottomRightContainer, Util::Array<size_t>());
 
     // Test widgets
     auto testLabel = Util::Graphic::Label("This is a test!", 150);
     auto lineBreakTestLabel = Util::Graphic::Label("This\na test\nwith linebreaks!", 150);
 
-    addWidget(testLabel, {10, 10});
-    addWidget(lineBreakTestLabel, {10, 10 + testLabel.getHeight() + 10});
+    topLeftContainer.addChild(testLabel, Util::Array<size_t>());
+    topLeftContainer.addChild(lineBreakTestLabel, Util::Array<size_t>());
 
     // Test button
     auto button = Util::Graphic::Button("Button");
@@ -89,12 +116,12 @@ void WidgetDemo::run() {
     auto *clickListener = new ClickCountListener(pressedLabel);
     button.addActionListener(clickListener);
 
-    addWidget(button, {10, 100});
-    addWidget(pressedLabel, {10, 100 + button.getHeight() + 10});
+    bottomLeftContainer.addChild(button, Util::Array<size_t>());
+    bottomLeftContainer.addChild(pressedLabel, Util::Array<size_t>());
 
     // Test checkbox
     auto checkbox = Util::Graphic::CheckBox("Checkbox", Util::Graphic::Fonts::TERMINAL_8x16);
-    addWidget(checkbox, {10, 170});
+    bottomLeftContainer.addChild(checkbox, Util::Array<size_t>());
 
     // Test radio buttons
     auto radioGroup = Util::Graphic::RadioButtonGroup();
@@ -106,20 +133,20 @@ void WidgetDemo::run() {
     radioGroup.add(radio2);
     radioGroup.add(radio3);
 
-    addWidget(radio1, {170, 10});
-    addWidget(radio2, {170, 40});
-    addWidget(radio3, {170, 70});
+    topRightContainer.addChild(radio1, Util::Array<size_t>());
+    topRightContainer.addChild(radio2, Util::Array<size_t>());
+    topRightContainer.addChild(radio3, Util::Array<size_t>());
 
     // Test input field
     auto inputField = Util::Graphic::InputField(100, Util::Graphic::Fonts::TERMINAL_8x16);
-    addWidget(inputField, {170, 120});
+    topRightContainer.addChild(inputField, Util::Array<size_t>());
 
     // Exit button
     bool isRunning = true;
     auto exitButton = Util::Graphic::Button("Exit");
     exitButton.addActionListener(new ExitListener(isRunning));
 
-    addWidget(exitButton, {10, 210});
+    bottomRightContainer.addChild(exitButton, Util::Array<size_t>());
 
     while (isRunning) {
         update();

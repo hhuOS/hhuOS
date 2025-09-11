@@ -24,19 +24,11 @@
 #include "io/key/MouseDecoder.h"
 #include "graphic/Colors.h"
 
-WidgetApplication::WidgetApplication(Util::Graphic::LinearFrameBuffer &lfb, const size_t posX, const size_t posY, const size_t width, const size_t height) :
-    lfb(lfb), bufferedLfb(lfb), root(posX, posY, width, height), mouseInputStream("/device/mouse")
+WidgetApplication::WidgetApplication(Util::Graphic::LinearFrameBuffer &lfb, const size_t width, const size_t height) :
+    Container(width, height), lfb(lfb), bufferedLfb(lfb), mouseInputStream("/device/mouse")
 {
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
     mouseInputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
-}
-
-void WidgetApplication::setLayout(Util::Graphic::Layout *layout) {
-    root.setLayout(layout);
-}
-
-void WidgetApplication::addWidget(Util::Graphic::Widget &widget, const Util::Array<size_t> &layoutArgs) {
-    root.addChild(widget, layoutArgs);
 }
 
 void WidgetApplication::update() {
@@ -66,6 +58,8 @@ void WidgetApplication::update() {
         if (mouseInputIndex == 4) {
             // Calculate new mouse position
             const auto mouseUpdate = Util::Io::MouseDecoder::decode(mouseInput);
+            const auto containerPosX = static_cast<int32_t>(getPosX());
+            const auto containerPosY = static_cast<int32_t>(getPosY());
 
             if (mouseUpdate.xMovement != 0 || mouseUpdate.yMovement != 0) {
                 mousePositionChanged = true;
@@ -73,20 +67,20 @@ void WidgetApplication::update() {
                 mouseY -= mouseUpdate.yMovement;
             }
 
-            if (mouseX < static_cast<int32_t>(root.getPosX())) {
-                mouseX = static_cast<int32_t>(root.getPosX());
-            } else if (mouseX >= static_cast<int32_t>(root.getPosX() + root.getWidth())) {
-                mouseX = static_cast<int32_t>(root.getPosX() + root.getWidth() - 1);
+            if (mouseX < containerPosX) {
+                mouseX = containerPosX;
+            } else if (mouseX >= static_cast<int32_t>(containerPosX + getWidth())) {
+                mouseX = static_cast<int32_t>(containerPosX + getWidth() - 1);
             }
 
-            if (mouseY < static_cast<int32_t>(root.getPosY())) {
-                mouseY = static_cast<int32_t>(root.getPosY());
-            } else if (mouseY >= static_cast<int32_t>(root.getPosY() + root.getHeight())) {
-                mouseY = static_cast<int32_t>(root.getPosY() + root.getHeight() - 1);
+            if (mouseY < containerPosY) {
+                mouseY = containerPosY;
+            } else if (mouseY >= static_cast<int32_t>(containerPosY + getHeight())) {
+                mouseY = static_cast<int32_t>(containerPosY + getHeight() - 1);
             }
 
             // Handle mouse enter/leave events
-            auto *hoveredWidget = root.getChildAtPoint(mouseX, mouseY);
+            auto *hoveredWidget = getChildAtPoint(mouseX, mouseY);
             if (hoveredWidget != lastHoveredWidget) {
                 if (lastHoveredWidget != nullptr) {
                     lastHoveredWidget->mouseExited();
@@ -104,7 +98,7 @@ void WidgetApplication::update() {
                     lastPressedWidget->setFocused(false);
                 }
 
-                lastPressedWidget = root.getChildAtPoint(mouseX, mouseY);
+                lastPressedWidget = getChildAtPoint(mouseX, mouseY);
                 if (lastPressedWidget != nullptr) {
                     lastPressedWidget->setFocused(true);
                     lastPressedWidget->mousePressed();
@@ -128,11 +122,11 @@ void WidgetApplication::update() {
     }
 
     // Draw screen
-    const auto redrawRootContainer = root.requiresRedraw();
+    const auto redrawRootContainer = requiresRedraw();
     if (redrawRootContainer || mousePositionChanged) {
         // Draw widgets
         if (redrawRootContainer) {
-            root.draw(bufferedLfb);
+            draw(bufferedLfb);
         }
         bufferedLfb.flush();
 
