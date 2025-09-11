@@ -42,7 +42,7 @@ public:
 
     void setText(const String &text);
 
-    [[nodiscard]] const String& getText() const;
+    [[nodiscard]] String getText() const;
 
     [[nodiscard]] size_t getWidth() const override;
 
@@ -52,7 +52,9 @@ public:
 
 private:
 
-    String text;
+    void calculateLines(const String &text);
+
+    Array<String> lines;
     size_t maxWidth;
     const Font &font;
     const Style style = DefaultTheme::label();
