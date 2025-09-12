@@ -16,33 +16,37 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The widget and layout system is based on a bachelor's thesis, written by Michael Zuchniewski.
- * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-mizuc100
  */
 
-#include "FreeLayout.h"
+#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_BORDERLAYOUT_H
+#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_BORDERLAYOUT_H
 
-#include "graphic/widget/Container.h"
+#include "graphic/widget/Layout.h"
 
 namespace Util::Graphic {
 
-void FreeLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const {
-    for (const auto &entry : widgets) {
-        if (entry.args.length() < 2) {
-            Panic::fire(Panic::INVALID_ARGUMENT,
-                "FreeLayout: Each widget needs two layout arguments (posX, posY)!");
-        }
+class BorderLayout final : public Layout {
 
-        if (entry.widget->isContainer()) {
-            Panic::fire(Panic::INVALID_ARGUMENT, "FreeLayout: Containers are not supported as widgets!");
-        }
+public:
 
-        const auto containerPosX = getContainer().getPosX();
-        const auto containerPosY = getContainer().getPosY();
+    enum Position {
+        NORTH,
+        SOUTH,
+        EAST,
+        WEST,
+        CENTER
+    };
 
-        entry.widget->setPosition(containerPosX + entry.args[0], containerPosY + entry.args[1]);
-    }
+    explicit BorderLayout();
+
+    void arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const override;
+
+private:
+
+    static constexpr size_t CENTER_WIDTH_PERCENTAGE = 70;
+    static constexpr size_t CENTER_HEIGHT_PERCENTAGE = 80;
+};
+
 }
 
-}
+#endif

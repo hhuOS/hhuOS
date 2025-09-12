@@ -103,6 +103,7 @@ private:
     friend class VerticalLayout;
     friend class HorizontalLayout;
     friend class GridLayout;
+    friend class BorderLayout;
 
     class MouseListener final : public ActionListener {
 

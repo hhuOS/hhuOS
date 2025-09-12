@@ -52,6 +52,7 @@ void GridLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const {
             auto &container = reinterpret_cast<Container&>(widget);
             container.width = cellWidth;
             container.height = cellHeight;
+            container.rearrangeChildren();
         }
 
         const auto widgetPosX = containerPosX + column * (cellWidth + horizontalGap)
@@ -60,6 +61,11 @@ void GridLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const {
             + (cellHeight - widget.getHeight()) / 2;
 
         widget.setPosition(widgetPosX, widgetPosY);
+
+        if (widget.isContainer()) {
+            auto &container = reinterpret_cast<Container&>(widget);
+            container.rearrangeChildren();
+        }
     }
 }
 

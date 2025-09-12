@@ -69,6 +69,7 @@ private:
     friend class VerticalLayout;
     friend class HorizontalLayout;
     friend class GridLayout;
+    friend class BorderLayout;
 
     Layout *layout = nullptr;
     ArrayList<Layout::WidgetEntry> children;

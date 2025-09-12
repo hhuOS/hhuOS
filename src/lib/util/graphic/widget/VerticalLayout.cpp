@@ -44,10 +44,16 @@ void VerticalLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const
             auto &container = reinterpret_cast<Container&>(widget);
             container.width = width;
             container.height = widgetHeightSum;
+            container.rearrangeChildren();
         }
 
         const auto widgetPosX = posX + (width - widget.getWidth()) / 2;
         widget.setPosition(widgetPosX, posY);
+
+        if (widget.isContainer()) {
+            auto &container = reinterpret_cast<Container&>(widget);
+            container.rearrangeChildren();
+        }
 
         posY += widget.getHeight() + spacing;
     }

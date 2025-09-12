@@ -90,11 +90,11 @@ void Container::draw(const LinearFrameBuffer &lfb) {
         const auto posX = getPosX();
         const auto posY = getPosY();
 
+        // Fill background
+        lfb.fillRectangle(posX, posY, width, height, style.widgetColor);
+
         // Draw frame
         lfb.drawRectangle(posX, posY, width, height, style.borderColor);
-
-        // Fill background
-        lfb.fillRectangle(posX + 1, posY + 1, width - 2, height - 2, style.widgetColor);
 
         // Draw children
         for (const auto &child : children) {

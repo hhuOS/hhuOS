@@ -36,6 +36,7 @@
 #include "graphic/widget/RadioButtonGroup.h"
 #include "io/key/MouseDecoder.h"
 #include "io/stream/FileInputStream.h"
+#include "graphic/widget/BorderLayout.h"
 
 class ClickCountListener final : public Util::Graphic::ActionListener {
 
@@ -75,9 +76,23 @@ WidgetDemo::WidgetDemo(Util::Graphic::LinearFrameBuffer &lfb) : WidgetApplicatio
 void WidgetDemo::run() {
     Util::Graphic::Ansi::prepareGraphicalApplication(true);
 
-    setLayout(new Util::Graphic::GridLayout(2, 2));
+    setLayout(new Util::Graphic::BorderLayout());
 
-    // Add nested containers, quartering the screen
+    // Add a label to the top
+    auto northLabel = Util::Graphic::Label("Widget Demo", 300, Util::Graphic::Fonts::TERMINAL_8x16);
+    addChild(northLabel, Util::Array<size_t>{Util::Graphic::BorderLayout::NORTH});
+
+    // Exit button
+    bool isRunning = true;
+    auto exitButton = Util::Graphic::Button("Exit");
+    exitButton.addActionListener(new ExitListener(isRunning));
+
+    addChild(exitButton, Util::Array<size_t>{Util::Graphic::BorderLayout::SOUTH});
+
+    // Add a container in the center with a grid layout
+    auto centerContainer = Container();
+    centerContainer.setLayout(new Util::Graphic::GridLayout(2, 2));
+
     auto topLeftContainer = Container();
     auto bottomLeftContainer = Container();
     auto topRightContainer = Container();
@@ -88,12 +103,14 @@ void WidgetDemo::run() {
     topRightContainer.setLayout(new Util::Graphic::VerticalLayout(10));
     bottomRightContainer.setLayout(new Util::Graphic::VerticalLayout(10));
 
-    addChild(topLeftContainer);
-    addChild(topRightContainer);
-    addChild(bottomLeftContainer);
-    addChild(bottomRightContainer);
+    centerContainer.addChild(topLeftContainer);
+    centerContainer.addChild(topRightContainer);
+    centerContainer.addChild(bottomLeftContainer);
+    centerContainer.addChild(bottomRightContainer);
 
-    // Test widgets
+    addChild(centerContainer, Util::Array<size_t>{Util::Graphic::BorderLayout::CENTER});
+
+    // Test labels
     auto testLabel = Util::Graphic::Label("This is a test!", 150);
     auto lineBreakTestLabel = Util::Graphic::Label("This\na test\nwith linebreaks!", 150);
 
@@ -129,15 +146,11 @@ void WidgetDemo::run() {
     topRightContainer.addChild(radio3);
 
     // Test input field
+    auto inputLabel = Util::Graphic::Label("Input Field:", 150);
     auto inputField = Util::Graphic::InputField(100, Util::Graphic::Fonts::TERMINAL_8x16);
-    topRightContainer.addChild(inputField);
 
-    // Exit button
-    bool isRunning = true;
-    auto exitButton = Util::Graphic::Button("Exit");
-    exitButton.addActionListener(new ExitListener(isRunning));
-
-    bottomRightContainer.addChild(exitButton);
+    bottomRightContainer.addChild(inputLabel);
+    bottomRightContainer.addChild(inputField);
 
     while (isRunning) {
         update();
