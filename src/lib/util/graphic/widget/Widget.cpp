@@ -105,22 +105,26 @@ void Widget::mouseExited() const {
     }
 }
 
-void Widget::keyPressed(const Io::Key &key) {
+void Widget::keyPressed(const Io::Key &key) const {
     for (auto *listener : actionListeners) {
         listener->onKeyPressed(key);
     }
 }
 
-void Widget::keyReleased(const Io::Key &key) {
+void Widget::keyReleased(const Io::Key &key) const {
     for (auto *listener : actionListeners) {
         listener->onKeyReleased(key);
     }
 }
 
-void Widget::keyTyped(const Io::Key &key) {
+void Widget::keyTyped(const Io::Key &key) const {
     for (auto *listener : actionListeners) {
         listener->onKeyTyped(key);
     }
+}
+
+bool Widget::isContainer() const {
+    return false;
 }
 
 bool Widget::containsPoint(const size_t px, const size_t py) const {

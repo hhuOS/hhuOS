@@ -36,8 +36,10 @@ void FreeLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const {
 
         const auto containerPosX = getContainer().getPosX();
         const auto containerPosY = getContainer().getPosY();
+        const auto widgetPosX = entry.args.length() > 0 ? entry.args[0] : 0;
+        const auto widgetPosY = entry.args.length() > 1 ? entry.args[1] : 0;
 
-        entry.widget->setPosition(containerPosX + entry.args[0], containerPosY + entry.args[1]);
+        entry.widget->setPosition(containerPosX + widgetPosX, containerPosY + widgetPosY);
     }
 }
 

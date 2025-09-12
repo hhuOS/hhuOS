@@ -38,10 +38,17 @@ void HorizontalLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) con
 
     auto posX = getContainer().getPosX() + (getContainer().getWidth() - widgetWidthSum) / 2;
     for (auto &entry : widgets) {
-        const auto widgetPosY = posY + (height - entry.widget->getHeight()) / 2;
-        entry.widget->setPosition(posX, widgetPosY);
+        auto &widget = *entry.widget;
+        if (widget.isContainer()) {
+            auto &container = reinterpret_cast<Container&>(widget);
+            container.width = widgetWidthSum;
+            container.height = height;
+        }
 
-        posX += entry.widget->getWidth() + spacing;
+        const auto widgetPosY = posY + (height - widget.getHeight()) / 2;
+        widget.setPosition(posX, widgetPosY);
+
+        posX += widget.getWidth() + spacing;
     }
 }
 

@@ -59,11 +59,11 @@ bool RadioButton::isSelected() const {
 }
 
 size_t RadioButton::getWidth() const {
-    return getHeight() + 2 * PADDING_X + GAP_X + font.getCharWidth() * text.length();
+    return getHeight() + GAP_X + font.getCharWidth() * text.length();
 }
 
 size_t RadioButton::getHeight() const {
-    return font.getCharHeight() + 2 * PADDING_Y;
+    return font.getCharHeight();
 }
 
 void RadioButton::draw(const LinearFrameBuffer &lfb) {
@@ -71,8 +71,8 @@ void RadioButton::draw(const LinearFrameBuffer &lfb) {
 
     const auto diameter = font.getCharHeight();
     const auto radius = diameter / 2;
-    const auto posX = getPosX() + PADDING_X;
-    const auto posY = getPosY() + PADDING_Y;
+    const auto posX = getPosX();
+    const auto posY = getPosY();
 
     lfb.fillCircle(posX + radius, posY + radius, radius, style.widgetColor);
     lfb.drawCircle(posX + radius, posY + radius, radius, style.borderColor);

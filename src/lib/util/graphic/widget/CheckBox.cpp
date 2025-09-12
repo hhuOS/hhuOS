@@ -56,19 +56,19 @@ bool CheckBox::isChecked() const {
 }
 
 size_t CheckBox::getWidth() const {
-    return getHeight() + 2 * PADDING_X + GAP_X + font.getCharWidth() * text.length();
+    return getHeight() + GAP_X + font.getCharWidth() * text.length();
 }
 
 size_t CheckBox::getHeight() const {
-    return font.getCharHeight() + 2 * PADDING_Y;
+    return font.getCharHeight();
 }
 
 void CheckBox::draw(const LinearFrameBuffer &lfb) {
     const auto &style = Theme::CURRENT_THEME.checkBox().getStyle(*this);
 
     const auto boxSize = font.getCharHeight();
-    const auto posX = getPosX() + PADDING_X;
-    const auto posY = getPosY() + PADDING_Y;
+    const auto posX = getPosX();
+    const auto posY = getPosY();
 
     // Draw box
     lfb.fillSquare(posX, posY, boxSize, style.widgetColor);

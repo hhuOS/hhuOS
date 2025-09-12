@@ -18,39 +18,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "VerticalLayout.h"
+#ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_GRIDLAYOUT_H
+#define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_GRIDLAYOUT_H
 
-#include "graphic/widget/Container.h"
+#include "graphic/widget/Layout.h"
 
 namespace Util::Graphic {
 
-VerticalLayout::VerticalLayout(const size_t spacing) : spacing(spacing) {}
+class GridLayout final : public Layout {
 
-void VerticalLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const {
-    const auto width = getContainer().getWidth();
-    const auto posX = getContainer().getPosX();
+public:
 
-    size_t widgetHeightSum = 0;
-    for (auto &entry : widgets) {
-        widgetHeightSum += entry.widget->getHeight() + spacing;
-    }
-    widgetHeightSum -= spacing;
+    explicit GridLayout(size_t rows, size_t columns, size_t verticalGap = 0, size_t horizontalGap = 0);
 
-    auto posY = getContainer().getPosY() + (getContainer().getHeight() - widgetHeightSum + spacing) / 2;
-    for (auto &entry : widgets) {
-        auto &widget = *entry.widget;
+    void arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const override;
 
-        if (widget.isContainer()) {
-            auto &container = reinterpret_cast<Container&>(widget);
-            container.width = width;
-            container.height = widgetHeightSum;
-        }
+private:
 
-        const auto widgetPosX = posX + (width - widget.getWidth()) / 2;
-        widget.setPosition(widgetPosX, posY);
+    const size_t rows;
+    const size_t columns;
 
-        posY += widget.getHeight() + spacing;
-    }
-}
+    const size_t verticalGap;
+    const size_t horizontalGap;
+};
 
 }
+
+#endif

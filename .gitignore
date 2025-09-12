@@ -117,6 +117,9 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/clion
 
+# GitHub Copilot files
+.idea/copilot*
+
 # Documentation folders
 docs/
 

@@ -37,15 +37,17 @@ class Container : public Widget {
 
 public:
 
-    Container(size_t width, size_t height);
+    Container();
 
     ~Container() override;
 
     void setLayout(Layout *layout);
 
-    void addChild(Widget &widget, const Array<size_t> &layoutArgs);
+    void addChild(Widget &widget, const Array<size_t> &layoutArgs = Array<size_t>());
 
     void rearrangeChildren();
+
+    [[nodiscard]] bool isContainer() const override;
 
     [[nodiscard]] size_t getWidth()  const override;
 
@@ -57,13 +59,22 @@ public:
 
     void draw(const LinearFrameBuffer &lfb) override;
 
+protected:
+
+    Container(size_t width, size_t height);
+
 private:
+
+    friend class FreeLayout;
+    friend class VerticalLayout;
+    friend class HorizontalLayout;
+    friend class GridLayout;
 
     Layout *layout = nullptr;
     ArrayList<Layout::WidgetEntry> children;
 
-    const size_t width;
-    const size_t height;
+    size_t width;
+    size_t height;
 };
 
 }

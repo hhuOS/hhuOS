@@ -78,8 +78,6 @@ private:
 
     bool selected = false;
 
-    static constexpr size_t PADDING_X = 2;
-    static constexpr size_t PADDING_Y = 2;
     static constexpr size_t GAP_X = 6;
 };
 

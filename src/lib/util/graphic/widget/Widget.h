@@ -38,7 +38,7 @@ class Widget {
 
 public:
 
-    Widget(bool redrawOnMouseStatusChange = true, bool redrawOnFocusChange = true);
+    explicit Widget(bool redrawOnMouseStatusChange = true, bool redrawOnFocusChange = true);
 
     Widget(const Widget &other) = delete;
 
@@ -72,11 +72,13 @@ public:
 
     void mouseExited() const;
 
-    virtual void keyPressed(const Io::Key &key);
+    void keyPressed(const Io::Key &key) const;
 
-    virtual void keyReleased(const Io::Key &key);
+    void keyReleased(const Io::Key &key) const;
 
-    virtual void keyTyped(const Io::Key &key);
+    void keyTyped(const Io::Key &key) const;
+
+    [[nodiscard]] virtual bool isContainer() const;
 
     [[nodiscard]] virtual bool requiresRedraw() const;
 
@@ -100,6 +102,7 @@ private:
     friend class FreeLayout;
     friend class VerticalLayout;
     friend class HorizontalLayout;
+    friend class GridLayout;
 
     class MouseListener final : public ActionListener {
 

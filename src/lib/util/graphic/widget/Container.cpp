@@ -27,6 +27,8 @@
 
 namespace Util::Graphic {
 
+Container::Container() : Container(0, 0) {}
+
 Container::Container(const size_t width, const size_t height) :
     Widget( false, false), width(width), height(height) {}
 
@@ -54,6 +56,10 @@ void Container::rearrangeChildren() {
     }
 
     layout->arrangeWidgets(children);
+}
+
+bool Container::isContainer() const {
+    return true;
 }
 
 size_t Container::getWidth() const {

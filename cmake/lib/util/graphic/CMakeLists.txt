@@ -41,6 +41,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/CheckBox.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/Container.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/FreeLayout.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/widget/GridLayout.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/HorizontalLayout.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/InputField.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/widget/Label.cpp

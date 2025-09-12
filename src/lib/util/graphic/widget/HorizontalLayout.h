@@ -35,7 +35,7 @@ public:
 
 private:
 
-    size_t spacing;
+    const size_t spacing;
 };
 
 }
