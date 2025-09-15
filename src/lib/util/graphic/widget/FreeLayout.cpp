@@ -38,8 +38,8 @@ void FreeLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const {
         const auto widgetPosY = containerPosY + entry.args[1];
 
         auto &widget = *entry.widget;
-        auto widgetWidth = entry.widget->getPreferredWidth();
-        auto widgetHeight = entry.widget->getPreferredHeight();
+        auto widgetWidth = widget.getPreferredWidth();
+        auto widgetHeight = widget.getPreferredHeight();
 
         if (widgetPosX + widgetWidth > containerPosX + containerWidth) {
             widgetWidth = containerPosX + containerWidth - widgetPosX;
@@ -51,6 +51,38 @@ void FreeLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const {
         widget.setSize(widgetWidth, widgetHeight);
         widget.setPosition(widgetPosX, widgetPosY);
     }
+}
+
+size_t FreeLayout::getPreferredWidth(const ArrayList<WidgetEntry> &widgets) const {
+    size_t maxPosX = 0;
+
+    for (const auto &entry : widgets) {
+        const auto containerPosX = getContainer().getPosX();
+        const auto widgetPosX = containerPosX + entry.args[0];
+        const auto widgetWidth = entry.widget->getPreferredWidth();
+
+        if (widgetPosX + widgetWidth > maxPosX) {
+            maxPosX = widgetPosX + widgetWidth;
+        }
+    }
+
+    return maxPosX;
+}
+
+size_t FreeLayout::getPreferredHeight(const ArrayList<WidgetEntry> &widgets) const {
+    size_t maxPosY = 0;
+
+    for (const auto &entry : widgets) {
+        const auto containerPosY = getContainer().getPosY();
+        const auto widgetPosY = containerPosY + entry.args[1];
+        const auto widgetHeight = entry.widget->getPreferredHeight();
+
+        if (widgetPosY + widgetHeight > maxPosY) {
+            maxPosY = widgetPosY + widgetHeight;
+        }
+    }
+
+    return maxPosY;
 }
 
 }

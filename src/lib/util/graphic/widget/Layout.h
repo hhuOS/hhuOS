@@ -52,6 +52,10 @@ public:
 
     virtual void arrangeWidgets(const ArrayList<WidgetEntry>& widgets) const = 0;
 
+    [[nodiscard]] virtual size_t getPreferredWidth(const ArrayList<WidgetEntry> &widgets) const = 0;
+
+    [[nodiscard]] virtual size_t getPreferredHeight(const ArrayList<WidgetEntry> &widgets) const = 0;
+
 protected:
 
     [[nodiscard]] const Container& getContainer() const;

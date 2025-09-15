@@ -37,6 +37,10 @@ public:
     FreeLayout() = default;
 
     void arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const override;
+
+    [[nodiscard]] size_t getPreferredWidth(const ArrayList<WidgetEntry> &widgets) const override;
+
+    [[nodiscard]] size_t getPreferredHeight(const ArrayList<WidgetEntry> &widgets) const override;
 };
 
 }

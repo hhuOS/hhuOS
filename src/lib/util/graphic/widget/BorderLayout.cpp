@@ -25,11 +25,11 @@
 namespace Util::Graphic {
 
 void BorderLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const {
-    size_t northWidgets = 0;
-    size_t southWidgets = 0;
-    size_t westWidgets = 0;
-    size_t eastWidgets = 0;
-    size_t centerWidgets = 0;
+    Widget *northWidget = nullptr;
+    Widget *southWidget = nullptr;
+    Widget *eastWidget = nullptr;
+    Widget *westWidget = nullptr;
+    Widget *centerWidget = nullptr;
 
     for (auto &entry : widgets) {
         if (entry.args.length() == 0) {
@@ -39,27 +39,38 @@ void BorderLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const {
         const auto position = static_cast<Position>(entry.args[0]);
         switch (position) {
             case NORTH:
-                northWidgets++;
+                if (northWidget != nullptr) {
+                    Panic::fire(Panic::INVALID_ARGUMENT, "BorderLayout: Multiple NORTH widgets given!");
+                }
+                northWidget = entry.widget;
                 break;
             case SOUTH:
-                southWidgets++;
+                if (southWidget != nullptr) {
+                    Panic::fire(Panic::INVALID_ARGUMENT, "BorderLayout: Multiple SOUTH widgets given!");
+                }
+                southWidget = entry.widget;
                 break;
             case EAST:
-                eastWidgets++;
+                if (eastWidget != nullptr) {
+                    Panic::fire(Panic::INVALID_ARGUMENT, "BorderLayout: Multiple EAST widgets given!");
+                }
+                eastWidget = entry.widget;
                 break;
             case WEST:
-                westWidgets++;
+                if (westWidget != nullptr) {
+                    Panic::fire(Panic::INVALID_ARGUMENT, "BorderLayout: Multiple WEST widgets given!");
+                }
+                westWidget = entry.widget;
                 break;
             case CENTER:
-                centerWidgets++;
+                if (centerWidget != nullptr) {
+                    Panic::fire(Panic::INVALID_ARGUMENT, "BorderLayout: Multiple CENTER widgets given!");
+                }
+                centerWidget = entry.widget;
                 break;
             default:
                 Panic::fire(Panic::INVALID_ARGUMENT, "BorderLayout: Invalid position argument!");
         }
-    }
-
-    if (northWidgets > 1 || southWidgets > 1 || westWidgets > 1 || eastWidgets > 1 || centerWidgets > 1) {
-        Panic::fire(Panic::INVALID_ARGUMENT, "BorderLayout: More than one widget assigned to a position!");
     }
 
     const auto containerPosX = getContainer().getPosX();
@@ -67,59 +78,107 @@ void BorderLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const {
     const auto containerWidth = getContainer().getWidth();
     const auto containerHeight = getContainer().getHeight();
 
-    const auto borderHeight = containerHeight * (100 - CENTER_HEIGHT_PERCENTAGE) / 200;
-    const auto borderWidth = containerWidth * (100 - CENTER_WIDTH_PERCENTAGE) / 200;
+    if (northWidget != nullptr) {
+        northWidget->setPosition(containerPosX, containerPosY);
+        northWidget->setSize(containerWidth, northWidget->getPreferredHeight());
+    }
+    if (southWidget != nullptr) {
+        const auto widgetHeight = southWidget->getPreferredHeight();
+        southWidget->setPosition(containerPosX, containerPosY + containerHeight - widgetHeight);
+        southWidget->setSize(containerWidth, widgetHeight);
+    }
+    if (eastWidget != nullptr) {
+        const auto widgetWidth = eastWidget->getPreferredWidth();
+        const auto widgetHeight = containerHeight
+            - (northWidget ? northWidget->getHeight() : 0)
+            - (southWidget ? southWidget->getHeight() : 0);
+        const auto widgetPosY = containerPosY + (northWidget ? northWidget->getHeight() : 0);
+        eastWidget->setPosition(containerPosX + containerWidth - widgetWidth, widgetPosY);
+        eastWidget->setSize(eastWidget->getPreferredWidth(), widgetHeight);
+    }
+    if (westWidget != nullptr) {
+        const auto widgetHeight = containerHeight
+            - (northWidget ? northWidget->getHeight() : 0)
+            - (southWidget ? southWidget->getHeight() : 0);
+        const auto widgetPosY = containerPosY + (northWidget ? northWidget->getHeight() : 0);
+        westWidget->setPosition(containerPosX, widgetPosY);
+        westWidget->setSize(westWidget->getPreferredWidth(), widgetHeight);
+    }
+    if (centerWidget != nullptr) {
+        const auto widgetWidth = containerWidth
+            - (eastWidget ? eastWidget->getWidth() : 0)
+            - (westWidget ? westWidget->getWidth() : 0);
+        const auto widgetHeight = containerHeight
+            - (northWidget ? northWidget->getHeight() : 0)
+            - (southWidget ? southWidget->getHeight() : 0);
+        const auto widgetPosX = containerPosX + (westWidget ? westWidget->getWidth() : 0);
+        const auto widgetPosY = containerPosY + (northWidget ? northWidget->getHeight() : 0);
+        centerWidget->setPosition(widgetPosX, widgetPosY);
+        centerWidget->setSize(widgetWidth, widgetHeight);
+    }
+}
 
-    const auto northHeight = northWidgets ? borderHeight : 0;
-    const auto southHeight = southWidgets ? borderHeight : 0;
-    const auto westWidth = westWidgets ? borderWidth : 0;
-    const auto westHeight = containerHeight - northHeight - southHeight;
-    const auto eastWidth = eastWidgets ? borderWidth : 0;
-    const auto eastHeight = containerHeight - northHeight - southHeight;
-    const auto centerHeight = containerHeight - northHeight - southHeight;
-    const auto centerWidth = containerWidth - westWidth - eastWidth;
+size_t BorderLayout::getPreferredWidth(const ArrayList<WidgetEntry> &widgets) const {
+    size_t northWidth = 0;
+    size_t southWidth = 0;
+    size_t centerWidth = 0;
 
-    for (auto &entry : widgets) {
-        auto &widget = *entry.widget;
+    for (const auto &entry : widgets) {
         const auto position = static_cast<Position>(entry.args[0]);
-
         switch (position) {
             case NORTH:
-                widget.setSize(containerWidth, northHeight);
-                widget.setPosition(containerPosX + (containerWidth - widget.getWidth()) / 2,
-                    containerPosY + (northHeight - widget.getHeight()) / 2);
-                widget.rearrangeChildren();
+                northWidth = entry.widget->getPreferredWidth();
                 break;
-            case SOUTH: {
-                widget.setSize(containerWidth, southHeight);
-                widget.setPosition(containerPosX + (containerWidth - widget.getWidth()) / 2,
-                    containerPosY + containerHeight - southHeight + (southHeight - widget.getHeight()) / 2);
-                widget.rearrangeChildren();
+            case SOUTH:
+                southWidth = entry.widget->getPreferredWidth();
                 break;
-            }
-            case EAST: {
-                widget.setSize(eastWidth, eastHeight);
-                widget.setPosition(containerPosX + containerWidth - eastWidth + (eastWidth - widget.getWidth()) / 2,
-                    containerPosY + northHeight + (eastHeight - widget.getHeight()) / 2);
-                widget.rearrangeChildren();
+            case EAST:
+            case WEST:
+            case CENTER:
+                centerWidth += entry.widget->getPreferredWidth();
                 break;
-            }
-            case WEST: {
-                widget.setSize(westWidth, westHeight);
-                widget.setPosition(containerPosX + (westWidth - widget.getWidth()) / 2,
-                    containerPosY + northHeight + (westHeight - widget.getHeight()) / 2);
-                widget.rearrangeChildren();
-                break;
-            }
-            case CENTER: {
-                widget.setSize(centerWidth, centerHeight);
-                widget.setPosition(containerPosX + westWidth + (centerWidth - widget.getWidth()) / 2,
-                    containerPosY + northHeight + (centerHeight - widget.getHeight()) / 2);
-                widget.rearrangeChildren();
-                break;
-            }
+            default:
+                Panic::fire(Panic::INVALID_ARGUMENT, "BorderLayout: Invalid position argument!");
         }
     }
+
+    return northWidth > southWidth ?
+        northWidth > centerWidth ? northWidth : centerWidth :
+        southWidth > centerWidth ? southWidth : centerWidth;
+}
+
+size_t BorderLayout::getPreferredHeight(const ArrayList<WidgetEntry> &widgets) const {
+    size_t northHeight = 0;
+    size_t southHeight = 0;
+    size_t westHeight = 0;
+    size_t eastHeight = 0;
+    size_t centerHeight = 0;
+
+    for (const auto &entry : widgets) {
+        const auto position = static_cast<Position>(entry.args[0]);
+        switch (position) {
+            case NORTH:
+                northHeight = entry.widget->getPreferredHeight();
+                break;
+            case SOUTH:
+                southHeight = entry.widget->getPreferredHeight();
+                break;
+            case EAST:
+                eastHeight = entry.widget->getPreferredHeight();
+                break;
+            case WEST:
+                westHeight = entry.widget->getPreferredHeight();
+                break;
+            case CENTER:
+                centerHeight += entry.widget->getPreferredHeight();
+                break;
+            default:
+                Panic::fire(Panic::INVALID_ARGUMENT, "BorderLayout: Invalid position argument!");
+        }
+    }
+
+    return northHeight + southHeight +
+        (centerHeight > westHeight ? centerHeight : westHeight > eastHeight ? westHeight : eastHeight);
 }
 
 }

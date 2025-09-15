@@ -59,14 +59,6 @@ bool Widget::requiresRedraw() const {
     return needsRedraw;
 }
 
-size_t Widget::getPreferredWidth() const {
-    return 0;
-}
-
-size_t Widget::getPreferredHeight() const {
-    return 0;
-}
-
 void Widget::draw([[maybe_unused]] const LinearFrameBuffer &lfb) {
     needsRedraw = false;
 }
@@ -76,7 +68,9 @@ void Widget::requireRedraw() {
 }
 
 void Widget::reportPreferredSizeChange() const {
-    parent->rearrangeChildren();
+    if (parent != nullptr) {
+        parent->rearrangeChildren();
+    }
 }
 
 bool Widget::isHovered() const {
@@ -140,8 +134,16 @@ void Widget::keyTyped(const Io::Key &key) const {
 }
 
 void Widget::setSize(const size_t width, const size_t height) {
+    const auto oldWidth = Widget::width;
+    const auto oldHeight = Widget::height;
+
     Widget::width = width;
     Widget::height = height;
+
+    if (oldWidth != width || oldHeight != height) {
+        rearrangeChildren();
+        requireRedraw();
+    }
 }
 
 bool Widget::containsPoint(const size_t px, const size_t py) const {
@@ -171,11 +173,16 @@ Widget* Widget::getChildAtPoint(const size_t posX, const size_t posY) {
 }
 
 void Widget::setPosition(const size_t x, const size_t y) {
+    const auto oldPosX = posX;
+    const auto oldPosY = posY;
+
     posX = x;
     posY = y;
 
-    requireRedraw();
-    parent->requireRedraw();
+    if (oldPosX != x || oldPosY != y) {
+        rearrangeChildren();
+        requireRedraw();
+    }
 }
 
 void Widget::rearrangeChildren() {}

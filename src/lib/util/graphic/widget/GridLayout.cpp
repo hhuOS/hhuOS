@@ -54,10 +54,37 @@ void GridLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const {
         const auto height = row == rows - 1 ? lastCellHeight : cellHeight;
 
         widget.setSize(width, height);
-        widget.setPosition(containerPosX + column * (cellWidth + horizontalGap) + (width - widget.getWidth()) / 2,
-            containerPosY + row * (cellHeight + verticalGap) + (height - widget.getHeight()) / 2);
-        widget.rearrangeChildren();
+        widget.setPosition(containerPosX + column * (cellWidth + horizontalGap),
+            containerPosY + row * (cellHeight + verticalGap));
     }
+}
+
+size_t GridLayout::getPreferredWidth(const ArrayList<WidgetEntry> &widgets) const {
+    const auto columns = GridLayout::columns == 0 ? widgets.size() : GridLayout::columns;
+
+    size_t maxWidth = 0;
+    for (const auto &entry : widgets) {
+        const auto widgetWidth = entry.widget->getPreferredWidth();
+        if (widgetWidth > maxWidth) {
+            maxWidth = widgetWidth;
+        }
+    }
+
+    return maxWidth * columns + horizontalGap * (columns - 1);
+}
+
+size_t GridLayout::getPreferredHeight(const ArrayList<WidgetEntry> &widgets) const {
+    const auto rows = GridLayout::rows == 0 ? widgets.size() : GridLayout::rows;
+
+    size_t maxHeight = 0;
+    for (const auto &entry : widgets) {
+        const auto widgetHeight = entry.widget->getPreferredHeight();
+        if (widgetHeight > maxHeight) {
+            maxHeight = widgetHeight;
+        }
+    }
+
+    return maxHeight * rows + verticalGap * (rows - 1);
 }
 
 }

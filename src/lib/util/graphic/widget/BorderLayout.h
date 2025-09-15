@@ -41,10 +41,9 @@ public:
 
     void arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const override;
 
-private:
+    [[nodiscard]] size_t getPreferredWidth(const ArrayList<WidgetEntry> &widgets) const override;
 
-    static constexpr size_t CENTER_WIDTH_PERCENTAGE = 70;
-    static constexpr size_t CENTER_HEIGHT_PERCENTAGE = 80;
+    [[nodiscard]] size_t getPreferredHeight(const ArrayList<WidgetEntry> &widgets) const override;
 };
 
 }

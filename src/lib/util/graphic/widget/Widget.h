@@ -86,9 +86,9 @@ public:
 
     [[nodiscard]] virtual bool requiresRedraw() const;
 
-    [[nodiscard]] virtual size_t getPreferredWidth() const;
+    [[nodiscard]] virtual size_t getPreferredWidth() const = 0;
 
-    [[nodiscard]] virtual size_t getPreferredHeight() const;
+    [[nodiscard]] virtual size_t getPreferredHeight() const = 0;
 
     [[nodiscard]] virtual Widget* getChildAtPoint(size_t posX, size_t posY);
 

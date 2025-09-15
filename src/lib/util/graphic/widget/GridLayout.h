@@ -33,6 +33,10 @@ public:
 
     void arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const override;
 
+    [[nodiscard]] size_t getPreferredWidth(const ArrayList<WidgetEntry> &widgets) const override;
+
+    [[nodiscard]] size_t getPreferredHeight(const ArrayList<WidgetEntry> &widgets) const override;
+
 private:
 
     const size_t rows;

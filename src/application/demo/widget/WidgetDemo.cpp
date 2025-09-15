@@ -48,7 +48,9 @@ public:
         label.setText(Util::String::format("Pressed: %u", ++count));
     }
 
-    [[nodiscard]] size_t getCount() const { return count; }
+    [[nodiscard]] size_t getCount() const {
+        return count;
+    }
 
 private:
 
@@ -60,7 +62,7 @@ class ExitListener final : public Util::Graphic::ActionListener {
 
 public:
 
-    explicit ExitListener(bool &isRunning) : isRunning(isRunning) {};
+    explicit ExitListener(bool &isRunning) : isRunning(isRunning) {}
 
     void onMouseClicked() override {
         isRunning = false;
@@ -71,6 +73,32 @@ private:
     bool &isRunning;
 };
 
+class PackListener final : public Util::Graphic::ActionListener {
+
+public:
+
+    explicit PackListener(WidgetApplication &rootContainer, Util::Graphic::Button &packButton) :
+        rootContainer(rootContainer), packButton(packButton) {}
+
+    void onMouseClicked() override {
+        if (packed) {
+            rootContainer.setSize(320, 240);
+            packButton.setText("Pack");
+            packed = false;
+        } else {
+            packButton.setText("Reset Size");
+            rootContainer.pack();
+            packed = true;
+        }
+    }
+
+private:
+
+    bool packed = false;
+    WidgetApplication &rootContainer;
+    Util::Graphic::Button &packButton;
+};
+
 WidgetDemo::WidgetDemo(Util::Graphic::LinearFrameBuffer &lfb) : WidgetApplication(lfb, 320, 240) {}
 
 void WidgetDemo::run() {
@@ -79,18 +107,28 @@ void WidgetDemo::run() {
     setLayout(new Util::Graphic::BorderLayout());
 
     // Add a label to the top
-    auto northLabel = Util::Graphic::Label("Widget Demo", Util::Graphic::Fonts::TERMINAL_8x16);
-    addChild(northLabel, Util::Array<size_t>{Util::Graphic::BorderLayout::NORTH});
+    auto northContainer = Container();
+    northContainer.setLayout(new Util::Graphic::HorizontalLayout());
 
-    // Add exit button to the south
+    auto northLabel = Util::Graphic::Label("Widget Demo", Util::Graphic::Fonts::TERMINAL_8x16);
+    northContainer.addChild(northLabel);
+
+    addChild(northContainer, Util::Array<size_t>{Util::Graphic::BorderLayout::NORTH});
+
+    // Add exit and pack buttons to the south
+    auto southContainer = Container();
+    southContainer.setLayout(new Util::Graphic::HorizontalLayout(10));
+
     bool isRunning = true;
     auto exitButton = Util::Graphic::Button("Exit");
     exitButton.addActionListener(new ExitListener(isRunning));
 
-    auto southContainer = Container();
-    southContainer.setLayout(new Util::Graphic::HorizontalLayout());
+    auto packButton = Util::Graphic::Button("Pack");
+    packButton.addActionListener(new PackListener(*this, packButton));
 
     southContainer.addChild(exitButton);
+    southContainer.addChild(packButton);
+
     addChild(southContainer, Util::Array<size_t>{Util::Graphic::BorderLayout::SOUTH});
 
     // Add a container in the center with a grid layout

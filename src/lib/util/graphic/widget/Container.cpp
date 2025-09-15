@@ -49,6 +49,15 @@ void Container::addChild(Widget &widget, const Array<size_t> &layoutArgs) {
     widget.parent = this;
 
     rearrangeChildren();
+    reportPreferredSizeChange();
+}
+
+size_t Container::getPreferredWidth() const {
+    return layout == nullptr ? 0 : layout->getPreferredWidth(children);
+}
+
+size_t Container::getPreferredHeight() const {
+    return layout == nullptr ? 0 : layout->getPreferredHeight(children);
 }
 
 bool Container::requiresRedraw() const {
@@ -72,10 +81,10 @@ void Container::draw(const LinearFrameBuffer &lfb) {
         const auto posY = getPosY();
 
         // Fill background
-        lfb.fillRectangle(posX, posY, width, height, style.widgetColor);
+        lfb.fillRectangle(posX, posY, getWidth(), getHeight(), style.widgetColor);
 
         // Draw frame
-        lfb.drawRectangle(posX, posY, width, height, style.borderColor);
+        lfb.drawRectangle(posX, posY, getWidth(), getHeight(), style.borderColor);
 
         // Draw children
         for (const auto &child : children) {

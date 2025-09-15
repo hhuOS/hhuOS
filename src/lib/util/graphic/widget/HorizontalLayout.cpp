@@ -42,7 +42,7 @@ void HorizontalLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) con
 
         widgetWidthSum += widget.getWidth() + spacing;
     }
-    widgetWidthSum = widgetWidthSum > spacing ? widgetWidthSum - spacing : 0;
+    widgetWidthSum = widgetWidthSum > 0 ? widgetWidthSum - spacing : 0;
 
     auto posX = getContainer().getPosX() + (getContainer().getWidth() - widgetWidthSum) / 2;
     for (auto &entry : widgets) {
@@ -50,6 +50,7 @@ void HorizontalLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) con
 
         // Not enough space to draw further widgets
         if (posX + widget.getWidth() > containerPosX + containerWidth) {
+            widget.setSize(0, 0);
             break;
         }
 
@@ -60,10 +61,30 @@ void HorizontalLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) con
 
         // Set widget position
         widget.setPosition(posX, containerPosY + (containerHeight - widget.getHeight()) / 2);
-        widget.rearrangeChildren();
 
         posX += widget.getWidth() + spacing;
     }
+}
+
+size_t HorizontalLayout::getPreferredWidth(const ArrayList<WidgetEntry> &widgets) const {
+    size_t widgetWidthSum = 0;
+    for (const auto &entry : widgets) {
+        widgetWidthSum += entry.widget->getPreferredWidth() + spacing;
+    }
+
+    return widgetWidthSum > 0 ? widgetWidthSum - spacing : 0;
+}
+
+size_t HorizontalLayout::getPreferredHeight(const ArrayList<WidgetEntry> &widgets) const {
+    size_t maxHeight = 0;
+    for (const auto &entry : widgets) {
+        const auto widgetHeight = entry.widget->getPreferredHeight();
+        if (widgetHeight > maxHeight) {
+            maxHeight = widgetHeight;
+        }
+    }
+
+    return maxHeight;
 }
 
 }

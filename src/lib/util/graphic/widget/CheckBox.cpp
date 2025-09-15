@@ -38,14 +38,14 @@ void CheckBox::toggle() {
 }
 
 void CheckBox::setText(const String &text) {
-    const auto newText = text.split("\n")[0];
-    if (newText.length() == CheckBox::text.length()) {
-        requireRedraw();
-    } else {
+    const auto oldText = CheckBox::text;
+    CheckBox::text = text.split("\n")[0];
+
+    requireRedraw();
+
+    if (oldText.length() != CheckBox::text.length()) {
         reportPreferredSizeChange();
     }
-
-    CheckBox::text = newText;
 }
 
 const String& CheckBox::getText() const {

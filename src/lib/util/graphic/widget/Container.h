@@ -45,6 +45,10 @@ public:
 
     void addChild(Widget &widget, const Array<size_t> &layoutArgs = Array<size_t>());
 
+    [[nodiscard]] size_t getPreferredWidth() const override;
+
+    [[nodiscard]] size_t getPreferredHeight() const override;
+
     [[nodiscard]] bool requiresRedraw() const override;
 
     [[nodiscard]] Widget* getChildAtPoint(size_t posX, size_t posY) override;
@@ -57,14 +61,9 @@ protected:
 
 private:
 
-    friend class Widget;
-    friend class FreeLayout;
-    friend class VerticalLayout;
-    friend class HorizontalLayout;
-    friend class GridLayout;
-    friend class BorderLayout;
-
     void rearrangeChildren() override;
+
+    friend class Widget;
 
     Layout *layout = nullptr;
     ArrayList<Layout::WidgetEntry> children;

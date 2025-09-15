@@ -35,6 +35,10 @@ public:
 
     WidgetApplication(Util::Graphic::LinearFrameBuffer &lfb, size_t width, size_t height);
 
+    void pack();
+
+    void setSize(size_t width, size_t height) override;
+
 protected:
 
     void update();

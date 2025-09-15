@@ -30,14 +30,14 @@ namespace Util::Graphic {
 Button::Button(const String &text, const Font &font) : text(text.split("\n")[0]), font(font) {}
 
 void Button::setText(const String &text) {
-    const auto newText = text.split("\n")[0];
-    if (newText.length() == Button::text.length()) {
-        requireRedraw();
-    } else {
+    const auto oldText = Button::text;
+    Button::text = text.split("\n")[0];
+
+    requireRedraw();
+
+    if (oldText.length() != Button::text.length()) {
         reportPreferredSizeChange();
     }
-
-    Button::text = newText;
 }
 
 const String& Button::getText() const {

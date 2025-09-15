@@ -31,6 +31,21 @@ WidgetApplication::WidgetApplication(Util::Graphic::LinearFrameBuffer &lfb, cons
     mouseInputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
 }
 
+void WidgetApplication::pack() {
+    const auto preferredWidth = getPreferredWidth();
+    const auto preferredHeight = getPreferredHeight();
+    const auto lfbWidth = lfb.getResolutionX();
+    const auto lfbHeight = lfb.getResolutionY();
+
+    setSize(preferredWidth > lfbWidth ? lfbWidth : preferredWidth,
+        preferredHeight > lfbHeight ? lfbHeight : preferredHeight);
+}
+
+void WidgetApplication::setSize(const size_t width, const size_t height) {
+    bufferedLfb.clear();
+    Container::setSize(width, height);
+}
+
 void WidgetApplication::update() {
     auto scancode = Util::System::in.read();
     while (scancode >= 0) {

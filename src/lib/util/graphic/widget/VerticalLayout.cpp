@@ -44,12 +44,13 @@ void VerticalLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const
     }
     widgetHeightSum = widgetHeightSum > spacing ? widgetHeightSum - spacing : 0;
 
-    auto posY = getContainer().getPosY() + (getContainer().getHeight() - widgetHeightSum + spacing) / 2;
+    auto posY = getContainer().getPosY() + (getContainer().getHeight() - widgetHeightSum) / 2;
     for (auto &entry : widgets) {
         auto &widget = *entry.widget;
 
         // Not enough space to draw further widgets
         if (posY + widget.getHeight() > containerPosY + containerHeight) {
+            widget.setSize(0, 0);
             break;
         }
 
@@ -60,10 +61,32 @@ void VerticalLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const
 
         // Set widget position
         widget.setPosition(containerPosX + (containerWidth - widget.getWidth()) / 2, posY);
-        widget.rearrangeChildren();
 
         posY += widget.getHeight() + spacing;
     }
+}
+
+size_t VerticalLayout::getPreferredWidth(const ArrayList<WidgetEntry> &widgets) const {
+    size_t maxWidth = 0;
+    for (const auto &entry : widgets) {
+        if (entry.widget) {
+            const auto widgetWidth = entry.widget->getPreferredWidth();
+            if (widgetWidth > maxWidth) {
+                maxWidth = widgetWidth;
+            }
+        }
+    }
+
+    return maxWidth;
+}
+
+size_t VerticalLayout::getPreferredHeight(const ArrayList<WidgetEntry> &widgets) const {
+    size_t widgetHeightSum = 0;
+    for (const auto &entry : widgets) {
+        widgetHeightSum += entry.widget->getPreferredHeight() + spacing;
+    }
+
+    return widgetHeightSum > 0 ? widgetHeightSum - spacing : 0;
 }
 
 }

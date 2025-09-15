@@ -40,14 +40,14 @@ void RadioButton::select() const {
 }
 
 void RadioButton::setText(const String &text) {
-    const auto newText = text.split("\n")[0];
-    if (newText.length() == RadioButton::text.length()) {
-        requireRedraw();
-    } else {
+    const auto oldText = RadioButton::text;
+    RadioButton::text = text.split("\n")[0];
+
+    requireRedraw();
+
+    if (oldText.length() != RadioButton::text.length()) {
         reportPreferredSizeChange();
     }
-
-    RadioButton::text = newText;
 }
 
 const String& RadioButton::getText() const {
