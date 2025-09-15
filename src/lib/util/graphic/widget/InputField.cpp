@@ -27,7 +27,7 @@
 
 namespace Util::Graphic {
 
-InputField::InputField(const size_t width, const Font &font) : width(width), font(font) {
+InputField::InputField(const size_t width, const Font &font) : preferredWidth(width), font(font) {
     addActionListener(new KeyInputListener(*this));
 }
 
@@ -35,25 +35,48 @@ const String& InputField::getText() const {
     return text;
 }
 
-size_t InputField::getWidth() const {
-    return width;
+size_t InputField::getPreferredWidth() const {
+    return preferredWidth;
 }
 
-size_t InputField::getHeight() const {
+size_t InputField::getPreferredHeight() const {
     return font.getCharHeight() + PADDING_Y * 2;
+}
+
+void InputField::setSize(size_t width, size_t height) {
+    const auto preferredHeight = getPreferredHeight();
+
+    if (width > preferredWidth) {
+        width = preferredWidth;
+    }
+    if (height > preferredHeight) {
+        height = preferredHeight;
+    }
+
+    if (width != getWidth() || height != getHeight()) {
+        Widget::setSize(width, height);
+    }
 }
 
 void InputField::draw(const LinearFrameBuffer &lfb) {
     const auto &style = Theme::CURRENT_THEME.inputField().getStyle(*this);
 
-    const auto height = getHeight();
     const auto posX = getPosX();
     const auto posY = getPosY();
+    const auto width = getWidth();
+    const auto height = getHeight();
 
+    // Draw input field area
     lfb.fillRectangle(posX, posY, width, height, style.widgetColor);
     lfb.drawRectangle(posX, posY, width, height, style.borderColor);
 
-    const auto maxChars = (width - PADDING_X * 2) / font.getCharWidth();
+    // Not enough space to draw text
+    if (width < font.getCharWidth() + 2 * PADDING_X || getHeight() < font.getCharHeight() + 2 * PADDING_Y) {
+        Widget::draw(lfb);
+        return;
+    }
+
+    const auto maxChars = (width - 2 * PADDING_X) / font.getCharWidth();
     const auto visibleText = text.substring(text.length() > maxChars ? text.length() - maxChars : 0,
         text.length());
 
@@ -61,7 +84,7 @@ void InputField::draw(const LinearFrameBuffer &lfb) {
         style.textColor, style.textBackgroundColor);
 
     if (isFocused()) {
-        const auto caretX = posX + 2 + visibleText.length() * font.getCharWidth();
+        const auto caretX = posX + PADDING_X + visibleText.length() * font.getCharWidth();
         lfb.drawLine(caretX, posY + PADDING_Y, caretX, posY + font.getCharHeight(), style.accentColor);
     }
 

@@ -23,6 +23,7 @@
 
 #include "CheckBox.h"
 
+#include "Button.h"
 #include "graphic/widget/Theme.h"
 
 namespace Util::Graphic {
@@ -41,7 +42,7 @@ void CheckBox::setText(const String &text) {
     if (newText.length() == CheckBox::text.length()) {
         requireRedraw();
     } else {
-        reportSizeChange();
+        reportPreferredSizeChange();
     }
 
     CheckBox::text = newText;
@@ -55,20 +56,40 @@ bool CheckBox::isChecked() const {
     return checked;
 }
 
-size_t CheckBox::getWidth() const {
-    return getHeight() + GAP_X + font.getCharWidth() * text.length();
+size_t CheckBox::getPreferredWidth() const {
+    return getPreferredHeight() + GAP_X + font.getCharWidth() * text.length();
 }
 
-size_t CheckBox::getHeight() const {
+size_t CheckBox::getPreferredHeight() const {
     return font.getCharHeight();
+}
+
+void CheckBox::setSize(size_t width, size_t height) {
+    const auto preferredWidth = getPreferredWidth();
+    const auto preferredHeight = getPreferredHeight();
+
+    if (width > preferredWidth) {
+        width = preferredWidth;
+    }
+    if (height > preferredHeight) {
+        height = preferredHeight;
+    }
+
+    if (width != getWidth() || height != getHeight()) {
+        Widget::setSize(width, height);
+    }
 }
 
 void CheckBox::draw(const LinearFrameBuffer &lfb) {
     const auto &style = Theme::CURRENT_THEME.checkBox().getStyle(*this);
 
-    const auto boxSize = font.getCharHeight();
     const auto posX = getPosX();
     const auto posY = getPosY();
+    const auto width = getWidth();
+    const auto height = getHeight();
+
+    const auto textHeight = font.getCharHeight();
+    const auto boxSize = textHeight > height ? height : textHeight;
 
     // Draw box
     lfb.fillSquare(posX, posY, boxSize, style.widgetColor);
@@ -76,15 +97,37 @@ void CheckBox::draw(const LinearFrameBuffer &lfb) {
 
     // Draw checkmark (if checked)
     if (checked) {
-        const auto inset = boxSize / 6;
+        const auto inset = boxSize / 6 > 0 ? boxSize / 6 : 1;
         const auto leftX = posX + inset;
         const auto midY = posY + boxSize / 2;
         const auto midX = posX + boxSize / 2;
-        const auto bottomY = posY + boxSize - inset;
-        const auto rightX = posX + boxSize - inset;
+        const auto bottomY = posY + boxSize - inset - 1;
+        const auto rightX = posX + boxSize - inset - 1;
         const auto topY = posY + inset;
         lfb.drawLine(leftX, midY, midX, bottomY, style.accentColor);
         lfb.drawLine(midX, bottomY, rightX, topY, style.accentColor);
+    }
+
+    if (height < textHeight) {
+        // Not enough space to draw text
+        Widget::draw(lfb);
+        return;
+    }
+
+    // Calculate maximum text length that fits into the remaining space
+    const auto maxTextWidth = width - boxSize - GAP_X;
+    const auto maxTextLength = maxTextWidth / font.getCharWidth();
+
+    auto text = CheckBox::text;
+    if (text.length() > maxTextLength) {
+        // Not enough space to draw full text, truncate it and add "..."
+        if (maxTextLength < 3) {
+            // Not enough space to even draw "..."
+            Widget::draw(lfb);
+            return;
+        }
+
+        text = text.substring(0, maxTextLength - 3) + "...";
     }
 
     // Calculate text position

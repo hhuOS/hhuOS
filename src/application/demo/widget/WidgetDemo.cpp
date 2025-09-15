@@ -79,15 +79,19 @@ void WidgetDemo::run() {
     setLayout(new Util::Graphic::BorderLayout());
 
     // Add a label to the top
-    auto northLabel = Util::Graphic::Label("Widget Demo", 300, Util::Graphic::Fonts::TERMINAL_8x16);
+    auto northLabel = Util::Graphic::Label("Widget Demo", Util::Graphic::Fonts::TERMINAL_8x16);
     addChild(northLabel, Util::Array<size_t>{Util::Graphic::BorderLayout::NORTH});
 
-    // Exit button
+    // Add exit button to the south
     bool isRunning = true;
     auto exitButton = Util::Graphic::Button("Exit");
     exitButton.addActionListener(new ExitListener(isRunning));
 
-    addChild(exitButton, Util::Array<size_t>{Util::Graphic::BorderLayout::SOUTH});
+    auto southContainer = Container();
+    southContainer.setLayout(new Util::Graphic::HorizontalLayout());
+
+    southContainer.addChild(exitButton);
+    addChild(southContainer, Util::Array<size_t>{Util::Graphic::BorderLayout::SOUTH});
 
     // Add a container in the center with a grid layout
     auto centerContainer = Container();
@@ -111,15 +115,15 @@ void WidgetDemo::run() {
     addChild(centerContainer, Util::Array<size_t>{Util::Graphic::BorderLayout::CENTER});
 
     // Test labels
-    auto testLabel = Util::Graphic::Label("This is a test!", 150);
-    auto lineBreakTestLabel = Util::Graphic::Label("This\na test\nwith linebreaks!", 150);
+    auto testLabel = Util::Graphic::Label("This is a test!");
+    auto lineBreakTestLabel = Util::Graphic::Label("This is\na test\nwith linebreaks!");
 
     topLeftContainer.addChild(testLabel);
     topLeftContainer.addChild(lineBreakTestLabel);
 
     // Test button
     auto button = Util::Graphic::Button("Button");
-    auto pressedLabel = Util::Graphic::Label("Pressed: 0", 150);
+    auto pressedLabel = Util::Graphic::Label("Pressed: 0");
 
     auto *clickListener = new ClickCountListener(pressedLabel);
     button.addActionListener(clickListener);

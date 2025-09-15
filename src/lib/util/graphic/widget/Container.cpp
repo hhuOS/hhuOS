@@ -27,10 +27,11 @@
 
 namespace Util::Graphic {
 
-Container::Container() : Container(0, 0) {}
+Container::Container() : Widget( false, false) {}
 
-Container::Container(const size_t width, const size_t height) :
-    Widget( false, false), width(width), height(height) {}
+Container::Container(const size_t width, const size_t height) : Container() {
+    Widget::setSize(width, height);
+}
 
 Container::~Container() {
     delete layout;
@@ -48,26 +49,6 @@ void Container::addChild(Widget &widget, const Array<size_t> &layoutArgs) {
     widget.parent = this;
 
     rearrangeChildren();
-}
-
-void Container::rearrangeChildren() {
-    if (layout == nullptr) {
-        Panic::fire(Panic::ILLEGAL_STATE, "Container: No layout assigned!" );
-    }
-
-    layout->arrangeWidgets(children);
-}
-
-bool Container::isContainer() const {
-    return true;
-}
-
-size_t Container::getWidth() const {
-    return width;
-}
-
-size_t Container::getHeight() const {
-    return height;
 }
 
 bool Container::requiresRedraw() const {
@@ -125,6 +106,12 @@ Widget* Container::getChildAtPoint(const size_t posX, const size_t posY) {
     }
 
     return nullptr;
+}
+
+void Container::rearrangeChildren() {
+    if (layout != nullptr) {
+        layout->arrangeWidgets(children);
+    }
 }
 
 }

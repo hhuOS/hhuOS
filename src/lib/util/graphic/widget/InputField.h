@@ -40,9 +40,11 @@ public:
 
     [[nodiscard]] const String& getText() const;
 
-    [[nodiscard]] size_t getWidth() const override;
+    [[nodiscard]] size_t getPreferredWidth() const override;
 
-    [[nodiscard]] size_t getHeight() const override;
+    [[nodiscard]] size_t getPreferredHeight() const override;
+
+    void setSize(size_t width, size_t height) override;
 
     void draw(const LinearFrameBuffer &lfb) override;
 
@@ -62,7 +64,7 @@ private:
     };
 
     String text;
-    const size_t width;
+    const size_t preferredWidth;
     const Font &font;
 
     static constexpr size_t PADDING_X = 2;

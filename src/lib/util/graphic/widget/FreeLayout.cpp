@@ -23,25 +23,33 @@
 
 #include "FreeLayout.h"
 
+#include "InputField.h"
 #include "graphic/widget/Container.h"
 
 namespace Util::Graphic {
 
 void FreeLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const {
     for (const auto &entry : widgets) {
-        if (entry.args.length() < 2) {
-            Panic::fire(Panic::INVALID_ARGUMENT,
-                "FreeLayout: Each widget needs two layout arguments (posX, posY)!");
-        }
-
-        if (entry.widget->isContainer()) {
-            Panic::fire(Panic::INVALID_ARGUMENT, "FreeLayout: Containers are not supported as widgets!");
-        }
-
         const auto containerPosX = getContainer().getPosX();
         const auto containerPosY = getContainer().getPosY();
+        const auto containerWidth = getContainer().getWidth();
+        const auto containerHeight = getContainer().getHeight();
+        const auto widgetPosX = containerPosX + entry.args[0];
+        const auto widgetPosY = containerPosY + entry.args[1];
 
-        entry.widget->setPosition(containerPosX + entry.args[0], containerPosY + entry.args[1]);
+        auto &widget = *entry.widget;
+        auto widgetWidth = entry.widget->getPreferredWidth();
+        auto widgetHeight = entry.widget->getPreferredHeight();
+
+        if (widgetPosX + widgetWidth > containerPosX + containerWidth) {
+            widgetWidth = containerPosX + containerWidth - widgetPosX;
+        }
+        if (widgetPosY + widgetHeight > containerPosY + containerHeight) {
+            widgetHeight = containerPosY + containerHeight - widgetPosY;
+        }
+
+        widget.setSize(widgetWidth, widgetHeight);
+        widget.setPosition(widgetPosX, widgetPosY);
     }
 }
 

@@ -27,32 +27,40 @@ namespace Util::Graphic {
 HorizontalLayout::HorizontalLayout(const size_t spacing) : spacing(spacing) {}
 
 void HorizontalLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const {
-    const auto height = getContainer().getHeight();
-    const auto posY = getContainer().getPosY();
+    const auto containerPosX = getContainer().getPosX();
+    const auto containerPosY = getContainer().getPosY();
+    const auto containerWidth = getContainer().getWidth();
+    const auto containerHeight = getContainer().getHeight();
 
     size_t widgetWidthSum = 0;
     for (auto &entry : widgets) {
-        widgetWidthSum += entry.widget->getWidth() + spacing;
+        auto &widget = *entry.widget;
+
+        const auto preferredWidth = widget.getPreferredWidth();
+        const auto preferredHeight = widget.getPreferredHeight();
+        widget.setSize(preferredWidth, preferredHeight > containerHeight ? containerHeight : preferredHeight);
+
+        widgetWidthSum += widget.getWidth() + spacing;
     }
-    widgetWidthSum -= spacing;
+    widgetWidthSum = widgetWidthSum > spacing ? widgetWidthSum - spacing : 0;
 
     auto posX = getContainer().getPosX() + (getContainer().getWidth() - widgetWidthSum) / 2;
     for (auto &entry : widgets) {
         auto &widget = *entry.widget;
-        if (widget.isContainer()) {
-            auto &container = reinterpret_cast<Container&>(widget);
-            container.width = widgetWidthSum;
-            container.height = height;
-            container.rearrangeChildren();
+
+        // Not enough space to draw further widgets
+        if (posX + widget.getWidth() > containerPosX + containerWidth) {
+            break;
         }
 
-        const auto widgetPosY = posY + (height - widget.getHeight()) / 2;
-        widget.setPosition(posX, widgetPosY);
-
-        if (widget.isContainer()) {
-            auto &container = reinterpret_cast<Container&>(widget);
-            container.rearrangeChildren();
+        // Adapt widget height if it is too high
+        if (widget.height > containerHeight) {
+            widget.setSize(widget.getWidth(), containerHeight);
         }
+
+        // Set widget position
+        widget.setPosition(posX, containerPosY + (containerHeight - widget.getHeight()) / 2);
+        widget.rearrangeChildren();
 
         posX += widget.getWidth() + spacing;
     }

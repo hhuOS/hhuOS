@@ -42,9 +42,9 @@ public:
 
     [[nodiscard]] const String& getText() const;
 
-    [[nodiscard]] size_t getWidth() const override;
+    [[nodiscard]] size_t getPreferredWidth() const override;
 
-    [[nodiscard]] size_t getHeight() const override;
+    [[nodiscard]] size_t getPreferredHeight() const override;
 
     void draw(const LinearFrameBuffer &lfb) override;
 

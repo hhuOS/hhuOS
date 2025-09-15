@@ -24,8 +24,6 @@
 
 namespace Util::Graphic {
 
-BorderLayout::BorderLayout() {}
-
 void BorderLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const {
     size_t northWidgets = 0;
     size_t southWidgets = 0;
@@ -64,111 +62,60 @@ void BorderLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const {
         Panic::fire(Panic::INVALID_ARGUMENT, "BorderLayout: More than one widget assigned to a position!");
     }
 
-    const auto width = getContainer().getWidth();
-    const auto height = getContainer().getHeight();
-    const auto posX = getContainer().getPosX();
-    const auto posY = getContainer().getPosY();
+    const auto containerPosX = getContainer().getPosX();
+    const auto containerPosY = getContainer().getPosY();
+    const auto containerWidth = getContainer().getWidth();
+    const auto containerHeight = getContainer().getHeight();
 
-    const auto borderHeight = width * (100 - CENTER_HEIGHT_PERCENTAGE) / 200;
-    const auto borderWidth = width * (100 - CENTER_WIDTH_PERCENTAGE) / 200;
+    const auto borderHeight = containerHeight * (100 - CENTER_HEIGHT_PERCENTAGE) / 200;
+    const auto borderWidth = containerWidth * (100 - CENTER_WIDTH_PERCENTAGE) / 200;
 
     const auto northHeight = northWidgets ? borderHeight : 0;
     const auto southHeight = southWidgets ? borderHeight : 0;
     const auto westWidth = westWidgets ? borderWidth : 0;
-    const auto westHeight = height - northHeight - southHeight;
+    const auto westHeight = containerHeight - northHeight - southHeight;
     const auto eastWidth = eastWidgets ? borderWidth : 0;
-    const auto eastHeight = height - northHeight - southHeight;
-    const auto centerHeight = height - northHeight - southHeight;
-    const auto centerWidth = width - westWidth - eastWidth;
+    const auto eastHeight = containerHeight - northHeight - southHeight;
+    const auto centerHeight = containerHeight - northHeight - southHeight;
+    const auto centerWidth = containerWidth - westWidth - eastWidth;
 
     for (auto &entry : widgets) {
         auto &widget = *entry.widget;
         const auto position = static_cast<Position>(entry.args[0]);
 
         switch (position) {
-            case NORTH: {
-                if (widget.isContainer()) {
-                    auto &container = reinterpret_cast<Container&>(widget);
-                    container.width = width;
-                    container.height = northHeight;
-                    container.rearrangeChildren();
-                }
-
-                widget.setPosition(posX + (width - widget.getWidth()) / 2,
-                    posY + (northHeight - widget.getHeight()) / 2);
-                
-                if (widget.isContainer()) {
-                    auto &container = reinterpret_cast<Container&>(widget);
-                    container.rearrangeChildren();
-                }
+            case NORTH:
+                widget.setSize(containerWidth, northHeight);
+                widget.setPosition(containerPosX + (containerWidth - widget.getWidth()) / 2,
+                    containerPosY + (northHeight - widget.getHeight()) / 2);
+                widget.rearrangeChildren();
                 break;
-            }
             case SOUTH: {
-                if (widget.isContainer()) {
-                    auto &container = reinterpret_cast<Container&>(widget);
-                    container.width = width;
-                    container.height = southHeight;
-                }
-
-                const auto southPosY = posY + height - southHeight;
-                widget.setPosition(posX + (width - widget.getWidth()) / 2,
-                    southPosY + (southHeight - widget.getHeight()) / 2);
-                
-                if (widget.isContainer()) {
-                    auto &container = reinterpret_cast<Container&>(widget);
-                    container.rearrangeChildren();
-                }
+                widget.setSize(containerWidth, southHeight);
+                widget.setPosition(containerPosX + (containerWidth - widget.getWidth()) / 2,
+                    containerPosY + containerHeight - southHeight + (southHeight - widget.getHeight()) / 2);
+                widget.rearrangeChildren();
                 break;
             }
             case EAST: {
-                if (widget.isContainer()) {
-                    auto &container = reinterpret_cast<Container&>(widget);
-                    container.width = eastWidth;
-                    container.height = eastHeight;
-                }
-
-                const auto eastPosX = posX + width - eastWidth;
-                widget.setPosition(eastPosX + (eastWidth - widget.getWidth()) / 2,
-                    posY + (height - widget.getHeight()) / 2);
-                
-                if (widget.isContainer()) {
-                    auto &container = reinterpret_cast<Container&>(widget);
-                    container.rearrangeChildren();
-                }
+                widget.setSize(eastWidth, eastHeight);
+                widget.setPosition(containerPosX + containerWidth - eastWidth + (eastWidth - widget.getWidth()) / 2,
+                    containerPosY + northHeight + (eastHeight - widget.getHeight()) / 2);
+                widget.rearrangeChildren();
                 break;
             }
             case WEST: {
-                if (widget.isContainer()) {
-                    auto &container = reinterpret_cast<Container&>(widget);
-                    container.width = westWidth;
-                    container.height = westHeight;
-                }
-
-                widget.setPosition(posX + (westWidth - widget.getWidth()) / 2,
-                    posY + (height - widget.getHeight()) / 2);
-                
-                if (widget.isContainer()) {
-                    auto &container = reinterpret_cast<Container&>(widget);
-                    container.rearrangeChildren();
-                }
+                widget.setSize(westWidth, westHeight);
+                widget.setPosition(containerPosX + (westWidth - widget.getWidth()) / 2,
+                    containerPosY + northHeight + (westHeight - widget.getHeight()) / 2);
+                widget.rearrangeChildren();
                 break;
             }
             case CENTER: {
-                if (widget.isContainer()) {
-                    auto &container = reinterpret_cast<Container&>(widget);
-                    container.width = centerWidth;
-                    container.height = centerHeight;
-                }
-
-                const auto centerPosX = posX + westWidth;
-                const auto centerPosY = posY + northHeight;
-                widget.setPosition(centerPosX + (centerWidth - widget.getWidth()) / 2,
-                    centerPosY + (centerHeight - widget.getHeight()) / 2);
-                
-                if (widget.isContainer()) {
-                    auto &container = reinterpret_cast<Container&>(widget);
-                    container.rearrangeChildren();
-                }
+                widget.setSize(centerWidth, centerHeight);
+                widget.setPosition(containerPosX + westWidth + (centerWidth - widget.getWidth()) / 2,
+                    containerPosY + northHeight + (centerHeight - widget.getHeight()) / 2);
+                widget.rearrangeChildren();
                 break;
             }
         }

@@ -37,7 +37,7 @@ public:
         CENTER
     };
 
-    explicit BorderLayout();
+    BorderLayout() = default;
 
     void arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const override;
 

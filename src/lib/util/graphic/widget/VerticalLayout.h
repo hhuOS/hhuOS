@@ -29,7 +29,7 @@ class VerticalLayout final : public Layout {
 
 public:
 
-    explicit VerticalLayout(size_t spacing);
+    explicit VerticalLayout(size_t spacing = 0);
 
     void arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const override;
 

@@ -29,7 +29,7 @@ class HorizontalLayout final : public Layout {
 
 public:
 
-    explicit HorizontalLayout(size_t spacing);
+    explicit HorizontalLayout(size_t spacing = 0);
 
     void arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const override;
 

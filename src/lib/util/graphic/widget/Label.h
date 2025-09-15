@@ -39,26 +39,30 @@ public:
 
     Label(const String &text, size_t maxWidth, const Font &font = Fonts::TERMINAL_8x8);
 
+    Label(const String &text, const Font &font = Fonts::TERMINAL_8x8);
+
     void setText(const String &text);
 
     [[nodiscard]] String getText() const;
 
-    [[nodiscard]] size_t getWidth() const override;
+    [[nodiscard]] size_t getPreferredWidth() const override;
 
-    [[nodiscard]] size_t getHeight() const override;
+    [[nodiscard]] size_t getPreferredHeight() const override;
+
+    void setSize(size_t width, size_t height) override;
 
     void draw(const LinearFrameBuffer &lfb) override;
 
 private:
 
-    void calculateLines(const String &text);
+    static Array<String> calculateLines(const String &text, size_t maxWidth, const Font &font);
 
-    Array<String> lines;
+    String text;
     size_t maxWidth;
     const Font &font;
 
-    static constexpr size_t PADDING_X = 2;
-    static constexpr size_t PADDING_Y = 2;
+    Array<String> lines;
+    Array<String> preferredLines;
 };
 
 } // namespace Util

@@ -222,8 +222,8 @@ String String::substring(const size_t begin) const {
 }
 
 String String::substring(const size_t begin, size_t end) const {
-    if (begin > end || begin >= len) {
-        return {};
+    if (begin >= end || begin >= len) {
+        return "";
     }
 
     if (end > len) {

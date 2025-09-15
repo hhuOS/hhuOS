@@ -34,7 +34,7 @@ void Button::setText(const String &text) {
     if (newText.length() == Button::text.length()) {
         requireRedraw();
     } else {
-        reportSizeChange();
+        reportPreferredSizeChange();
     }
 
     Button::text = newText;
@@ -44,11 +44,11 @@ const String& Button::getText() const {
     return text;
 }
 
-size_t Button::getWidth() const {
+size_t Button::getPreferredWidth() const {
     return font.getCharWidth() * text.length() + 2 * PADDING_X;
 }
 
-size_t Button::getHeight() const {
+size_t Button::getPreferredHeight() const {
     return font.getCharHeight() + 2 * PADDING_Y;
 }
 
@@ -64,10 +64,31 @@ void Button::draw(const LinearFrameBuffer &lfb) {
     lfb.fillRectangle(posX, posY, width, height, style.widgetColor);
     lfb.drawRectangle(posX, posY, width, height, style.borderColor);
 
+    const auto textHeight = font.getCharHeight();
+    if (height < textHeight) {
+        // Not enough space to draw text
+        return;
+    }
+
+    // Calculate maximum text length that fits into the button
+    const auto maxTextWidth = width - PADDING_X * 2;
+    const auto maxTextLength = maxTextWidth / font.getCharWidth();
+
+    auto text = Button::text;
+    if (text.length() > maxTextLength) {
+        // Not enough space to draw full text, truncate it and add "..."
+        if (maxTextLength < 3) {
+            // Not enough space to even draw "..."
+            Widget::draw(lfb);
+            return;
+        }
+
+        text = text.substring(0, maxTextLength - 3) + "...";
+    }
+
     // Calculate centered text position
     const auto textWidth = text.length() * font.getCharWidth();
-    const auto innerWidth = width - PADDING_X * 2;
-    const auto textX = posX + PADDING_X + (innerWidth - textWidth) / 2;
+    const auto textX = posX + (width - textWidth) / 2;
     const auto textY = posY + (height - font.getCharHeight()) / 2;
 
     // Draw button

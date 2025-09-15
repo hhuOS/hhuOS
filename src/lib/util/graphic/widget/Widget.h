@@ -50,6 +50,10 @@ public:
 
     [[nodiscard]] size_t getPosY() const;
 
+    [[nodiscard]] size_t getWidth() const;
+
+    [[nodiscard]] size_t getHeight() const;
+
     [[nodiscard]] bool containsPoint(size_t px, size_t py) const;
 
     [[nodiscard]] bool isHovered() const;
@@ -78,13 +82,13 @@ public:
 
     void keyTyped(const Io::Key &key) const;
 
-    [[nodiscard]] virtual bool isContainer() const;
+    virtual void setSize(size_t width, size_t height);
 
     [[nodiscard]] virtual bool requiresRedraw() const;
 
-    [[nodiscard]] virtual size_t getWidth() const = 0;
+    [[nodiscard]] virtual size_t getPreferredWidth() const;
 
-    [[nodiscard]] virtual size_t getHeight() const = 0;
+    [[nodiscard]] virtual size_t getPreferredHeight() const;
 
     [[nodiscard]] virtual Widget* getChildAtPoint(size_t posX, size_t posY);
 
@@ -94,7 +98,7 @@ protected:
 
     void requireRedraw();
 
-    void reportSizeChange() const;
+    void reportPreferredSizeChange() const;
 
 private:
 
@@ -126,8 +130,13 @@ private:
 
     void setPosition(size_t x, size_t y);
 
+    virtual void rearrangeChildren();
+
     size_t posX = 0;
     size_t posY = 0;
+
+    size_t width = 0;
+    size_t height = 0;
 
     bool hovered = false;
     bool pressed = false;

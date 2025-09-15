@@ -33,39 +33,30 @@ GridLayout::GridLayout(const size_t rows, const size_t columns, const size_t ver
 }
 
 void GridLayout::arrangeWidgets(const ArrayList<WidgetEntry> &widgets) const {
-    const auto width = getContainer().getWidth();
-    const auto height = getContainer().getHeight();
     const auto containerPosX = getContainer().getPosX();
     const auto containerPosY = getContainer().getPosY();
+    const auto containerWidth = getContainer().getWidth();
+    const auto containerHeight = getContainer().getHeight();
 
     const auto rows = GridLayout::rows == 0 ? widgets.size() : GridLayout::rows;
     const auto columns = GridLayout::columns == 0 ? widgets.size() : GridLayout::columns;
-    const auto cellWidth = width / rows - horizontalGap * (columns - 1) / 2;
-    const auto cellHeight = height / rows - verticalGap * (rows - 1) / 2;
+    const auto cellWidth = containerWidth / columns - horizontalGap * (columns - 1) / 2;
+    const auto cellHeight = containerHeight / rows - verticalGap * (rows - 1) / 2;
+    const auto lastCellWidth = cellWidth + containerWidth - columns * cellWidth;
+    const auto lastCellHeight = cellHeight + containerHeight - rows * cellHeight;
 
     for (size_t i = 0; i < widgets.size() && i < rows * columns; i++) {
         const auto row = i / columns;
         const auto column = i % columns;
 
         auto &widget = *widgets.get(i).widget;
-        if (widget.isContainer()) {
-            auto &container = reinterpret_cast<Container&>(widget);
-            container.width = cellWidth;
-            container.height = cellHeight;
-            container.rearrangeChildren();
-        }
+        const auto width = column == columns - 1 ? lastCellWidth : cellWidth;
+        const auto height = row == rows - 1 ? lastCellHeight : cellHeight;
 
-        const auto widgetPosX = containerPosX + column * (cellWidth + horizontalGap)
-            + (cellWidth - widget.getWidth()) / 2;
-        const auto widgetPosY = containerPosY + row * (cellHeight + verticalGap)
-            + (cellHeight - widget.getHeight()) / 2;
-
-        widget.setPosition(widgetPosX, widgetPosY);
-
-        if (widget.isContainer()) {
-            auto &container = reinterpret_cast<Container&>(widget);
-            container.rearrangeChildren();
-        }
+        widget.setSize(width, height);
+        widget.setPosition(containerPosX + column * (cellWidth + horizontalGap) + (width - widget.getWidth()) / 2,
+            containerPosY + row * (cellHeight + verticalGap) + (height - widget.getHeight()) / 2);
+        widget.rearrangeChildren();
     }
 }
 

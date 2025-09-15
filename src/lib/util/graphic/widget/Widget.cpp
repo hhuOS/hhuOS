@@ -47,8 +47,24 @@ size_t Widget::getPosY() const {
     return posY;
 }
 
+size_t Widget::getWidth() const {
+    return width;
+}
+
+size_t Widget::getHeight() const {
+    return height;
+}
+
 bool Widget::requiresRedraw() const {
     return needsRedraw;
+}
+
+size_t Widget::getPreferredWidth() const {
+    return 0;
+}
+
+size_t Widget::getPreferredHeight() const {
+    return 0;
 }
 
 void Widget::draw([[maybe_unused]] const LinearFrameBuffer &lfb) {
@@ -59,7 +75,7 @@ void Widget::requireRedraw() {
     needsRedraw = true;
 }
 
-void Widget::reportSizeChange() const {
+void Widget::reportPreferredSizeChange() const {
     parent->rearrangeChildren();
 }
 
@@ -123,8 +139,9 @@ void Widget::keyTyped(const Io::Key &key) const {
     }
 }
 
-bool Widget::isContainer() const {
-    return false;
+void Widget::setSize(const size_t width, const size_t height) {
+    Widget::width = width;
+    Widget::height = height;
 }
 
 bool Widget::containsPoint(const size_t px, const size_t py) const {
@@ -160,6 +177,8 @@ void Widget::setPosition(const size_t x, const size_t y) {
     requireRedraw();
     parent->requireRedraw();
 }
+
+void Widget::rearrangeChildren() {}
 
 Widget::MouseListener::MouseListener(Widget &widget) : widget(widget) {}
 
