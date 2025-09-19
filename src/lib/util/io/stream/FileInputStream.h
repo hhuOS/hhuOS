@@ -48,11 +48,11 @@ namespace Util::Io {
 /// Util::Io::FileInputStream fileStream(file);
 ///
 /// // Read a single byte from the file
-/// auto byte = fileStream.read();
+/// const auto byte = fileStream.read();
 ///
 ///	// Read a line from the file
 /// fileStream.setPosition(0); // Reset position to the beginning of the file
-/// auto line = fileStream.readLine();
+/// const auto line = fileStream.readLine();
 ///
 /// // Read the entire file content into a buffer
 /// uint8_t *buffer = new uint8_t[file.getSize()];

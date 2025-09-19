@@ -61,8 +61,8 @@ uint32_t calculateLength(const Util::Io::File &beepFile) {
     uint32_t length = 0;
 
     auto line = stream.readLine();
-    while (!line.isEmpty()) {
-        length += Util::String::parseNumber<uint32_t>(line.split(",")[1]);
+    while (!line.endOfFile) {
+        length += Util::String::parseNumber<uint32_t>(line.content.split(",")[1]);
         line = stream.readLine();
     }
 
@@ -106,12 +106,12 @@ int32_t main(int32_t argc, char *argv[]) {
     Util::System::out << "Playing '" << beepFile.getName() << "'... Press <ENTER> to stop." << Util::Io::PrintStream::ln;
 
     auto line = stream.readLine();
-    while (!line.isEmpty()) {
+    while (!line.endOfFile) {
         if (Util::System::in.read() > 0) {
             break;
         }
 
-        auto split = line.split(",");
+        auto split = line.content.split(",");
         auto frequency = Util::String::parseNumber<uint32_t>(split[0]);
         auto length = Util::String::parseNumber<uint32_t>(split[1]);
 

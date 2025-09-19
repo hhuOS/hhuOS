@@ -36,7 +36,7 @@ String InputStream::readString(const size_t length) {
     return string;
 }
 
-String InputStream::readLine() {
+InputStream::Line InputStream::readLine() {
     String line;
     auto currentChar = read();
     while (currentChar != -1 && currentChar != '\n') {
@@ -44,7 +44,7 @@ String InputStream::readLine() {
         currentChar = read();
     }
 
-    return line;
+    return Line{line, line.isEmpty() && currentChar == -1};
 }
 
 size_t InputStream::skip(const size_t amount) {

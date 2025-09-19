@@ -74,7 +74,7 @@ int32_t Address::remove() {
     }
 
     auto macStream = Util::Io::FileInputStream(macFile);
-    auto macAddress = Util::Network::MacAddress(macStream.readLine());
+    auto macAddress = Util::Network::MacAddress(macStream.readLine().content);
 
     auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::ETHERNET);
     if (!socket.bind(macAddress)) {
@@ -105,7 +105,7 @@ int32_t Address::add() {
     }
 
     auto macStream = Util::Io::FileInputStream(macFile);
-    auto macAddress = Util::Network::MacAddress(macStream.readLine());
+    auto macAddress = Util::Network::MacAddress(macStream.readLine().content);
 
     auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::ETHERNET);
     if (!socket.bind(macAddress)) {
@@ -128,7 +128,7 @@ void Address::printDeviceInfo(const Util::String &deviceName) {
     }
 
     auto macStream = Util::Io::FileInputStream(macFile);
-    auto macAddress = Util::Network::MacAddress(macStream.readLine());
+    auto macAddress = Util::Network::MacAddress(macStream.readLine().content);
 
     auto ethernetSocket = Util::Network::Socket::createSocket(Util::Network::Socket::ETHERNET);
     if (!ethernetSocket.bind(macAddress)) {

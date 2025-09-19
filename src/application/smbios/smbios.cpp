@@ -285,7 +285,7 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     auto versionStream = Util::Io::FileInputStream(versionFile);
-    auto versionString = versionStream.readLine();
+    auto versionString = versionStream.readLine().content;
     auto versionSplit = versionString.split(".");
     auto majorVersion = Util::String::parseNumber<uint8_t>(versionSplit[0]);
     auto minorVersion = Util::String::parseNumber<uint8_t>(versionSplit[1]);

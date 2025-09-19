@@ -34,6 +34,14 @@ namespace Util::Io {
 class InputStream {
 
 public:
+    /// Represents a line read from the stream, including its content and whether the end of the file was reached.
+    struct Line {
+        /// The content of the line, excluding the newline character.
+        String content;
+        /// True if the line is empty and the end of the file was reached, false otherwise.
+        bool endOfFile;
+    };
+
     /// No state needs to be initialized in the base class, so the default constructor is sufficient.
     InputStream() = default;
 
@@ -78,7 +86,7 @@ public:
 
     /// Read bytes from the stream until a newline character ('\n') is encountered or the end of the stream is reached.
     /// The read bytes are returned as a String, excluding the newline character.
-    String readLine();
+    Line readLine();
 
     /// Skip over and discard amount bytes from the stream.
     /// This is done by repeatedly reading into an internal buffer until amount bytes have been skipped

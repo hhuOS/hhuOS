@@ -39,10 +39,10 @@ namespace Util::Sound {
 ///
 /// // Read frequencies from the input stream and play them using the speaker.
 /// auto line = Util::System::in.readLine();
-/// while (!line.isEmpty()) {
+/// while (!line.endOfFile) {
 ///     // Parse the frequency from the line and play it
 ///     // (This example does not handle errors, so it assumes the line is always a valid number)
-///     const auto frequency = Util::String::parseNumber<uint16_t>(line);
+///     const auto frequency = Util::String::parseNumber<uint16_t>(line.content);
 ///     speaker.play(frequency);
 ///
 ///     // Read the next line from standard input

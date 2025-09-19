@@ -81,17 +81,19 @@ namespace Util::Reflection {
 ///
 ///     // Read fruit names from standard input and create instances dynamically.
 ///     auto input = Util::System::in.readLine();
-///     while (!input.isEmpty()) {
+///     while (!input.endOfFile) {
+///         const auto fruitName = input.content;
+///
 ///         // Check if the input is a valid fruit type.
-///         if (!Util::Reflection::InstanceFactory::isPrototypeRegistered(input)) {
-///             Util::System::out << "Unknown fruit type: " << input
+///         if (!Util::Reflection::InstanceFactory::isPrototypeRegistered(fruitName)) {
+///             Util::System::out << "Unknown fruit type: " << fruitName
 ///                 << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 ///             continue;
 ///         }
 ///
 ///         // Create an instance of the fruit based on the input string.
-///         const auto *fruit = Util::Reflection::InstanceFactory::createInstance<Fruit>(input);
-///         Util::System::out << "Price of " << input << ": " << fruit->getPrice()
+///         const auto *fruit = Util::Reflection::InstanceFactory::createInstance<Fruit>(fruitName);
+///         Util::System::out << "Price of " << fruitName << ": " << fruit->getPrice()
 ///             << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 ///         delete fruit;
 ///

@@ -283,7 +283,7 @@ public:
     ///
     /// // Read MAC address of device "eth0" from file system
     /// auto macFile = Util::Io::FileInputStream("/device/eth0/mac");
-    /// auto macAddress = Util::Network::MacAddress(macFile.readLine());
+    /// auto macAddress = Util::Network::MacAddress(macFile.readLine().content);
     ///
     /// // Bind the socket to the read MAC address
     /// if (!socket.bind(macAddress)) {
@@ -314,7 +314,7 @@ public:
     ///
     /// // Read MAC address of device "eth0" from file system
     /// auto macFile = Util::Io::FileInputStream("/device/eth0/mac");
-    /// auto macAddress = Util::Network::MacAddress(macFile.readLine());
+    /// auto macAddress = Util::Network::MacAddress(macFile.readLine().content);
     ///
     /// // Bind the socket to the read MAC address
     /// if (!socket.bind(macAddress)) {
@@ -345,7 +345,7 @@ public:
     ///
     /// // Read MAC address of device "eth0" from file system
     /// auto macFile = Util::Io::FileInputStream("/device/eth0/mac");
-    /// auto macAddress = Util::Network::MacAddress(macFile.readLine());
+    /// auto macAddress = Util::Network::MacAddress(macFile.readLine().content);
     ///
     /// // Bind the socket to the read MAC address
     /// if (!socket.bind(macAddress)) {

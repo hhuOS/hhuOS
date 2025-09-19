@@ -91,7 +91,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto inputStream = Util::Io::FileInputStream(file);
     auto bufferedStream = Util::Io::BufferedInputStream(inputStream);
 
-    auto frameInfo = bufferedStream.readLine().split(",");
+    auto frameInfo = bufferedStream.readLine().content.split(",");
 
     const auto &font = Util::Graphic::Font::getFontForResolution(bufferedLfb.getResolutionY());
     auto charWidth = font.getCharWidth();
@@ -114,11 +114,11 @@ int32_t main(int32_t argc, char *argv[]) {
         }
 
         auto delayLine = bufferedStream.readLine();
-        if (delayLine.length() == 0) {
+        if (delayLine.content.isEmpty()) {
             break;
         }
 
-        auto delay = Util::String::parseNumber<uint32_t>(delayLine);
+        auto delay = Util::String::parseNumber<uint32_t>(delayLine.content);
         bufferedLfb.clear();
 
         bufferedLfb.drawLine(frameStartX - charWidth, frameStartY - charHeight, frameEndX + charWidth, frameStartY - charHeight, Util::Graphic::Colors::WHITE);
@@ -127,7 +127,7 @@ int32_t main(int32_t argc, char *argv[]) {
         bufferedLfb.drawLine(frameEndX + charWidth, frameStartY - charHeight, frameEndX + charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
 
         for (int16_t i = 0; i < rows - 1; i++) {
-            bufferedLfb.drawString(font, frameStartX, frameStartY + charHeight * i, static_cast<const char*>(bufferedStream.readLine()), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+            bufferedLfb.drawString(font, frameStartX, frameStartY + charHeight * i, static_cast<const char*>(bufferedStream.readLine().content), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
         }
 
         bufferedLfb.flush();

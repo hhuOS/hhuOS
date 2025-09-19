@@ -813,14 +813,14 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         auto inputStream = Util::Io::FileInputStream(mountFile);
         auto bufferedStream = Util::Io::BufferedInputStream(inputStream);
 
-        Util::String line = bufferedStream.readLine();
-        while (!line.isEmpty()) {
-            if (line.beginsWith("#")) {
+        auto line = bufferedStream.readLine();
+        while (!line.endOfFile) {
+            if (line.content.beginsWith("#")) {
                 line = bufferedStream.readLine();
                 continue;
             }
 
-            auto split = line.split(" ");
+            auto split = line.content.split(" ");
             if (split.length() < 3) {
                 LOG_ERROR("Invalid line in /system/mount_table");
                 line = bufferedStream.readLine();

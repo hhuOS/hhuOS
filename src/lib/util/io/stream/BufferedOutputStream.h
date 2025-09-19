@@ -43,11 +43,12 @@ namespace Util::Io {
 /// Util::Io::FileOutputStream fileStream("/path/to/file.txt");
 /// Util::Io::BufferedOutputStream bufferedStream(fileStream);
 ///
-/// // Read 10 lines from standard input and write them to the file
-/// for (int i = 0; i < 10 && !line.isEmpty(); i++) {
-///     const auto line = Util::System::in.readLine();
-///     bufferedStream.write(static_cast<const uint8_t*>(line), 0, line.length());
+/// // Read up to 10 lines from standard input and write them to the file
+/// auto line = Util::System::in.readLine();
+/// for (int i = 1; i < 10 && !line.endOfFile; i++) {
+///     bufferedStream.write(static_cast<const uint8_t*>(line.content), 0, line.content.length());
 ///     bufferedStream.write(static_cast<const uint8_t*>("\n"), 0, 1);
+///     line = Util::System::in.readLine();
 /// }
 ///
 /// // Flush any remaining data in the buffer to the underlying stream

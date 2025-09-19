@@ -327,7 +327,7 @@ void CommandLine::executeBinary(const Util::String &path, const Util::String &co
     if (lfbFile.exists()) {
         auto lfbInputStream = Util::Io::FileInputStream(lfbFile);
         lfbInputStream.readLine(); // Skip address
-        lfbSettingsString = lfbInputStream.readLine();
+        lfbSettingsString = lfbInputStream.readLine().content;
     }
 
     auto process = Util::Async::Process::execute(binaryFile, inputFile, outputFile, outputFile, command, arguments);
@@ -337,7 +337,7 @@ void CommandLine::executeBinary(const Util::String &path, const Util::String &co
         if (lfbFile.exists()) {
             auto lfbInputStreamAfter = Util::Io::FileInputStream(lfbFile);
             lfbInputStreamAfter.readLine(); // Skip address
-            auto lfbSettingsStringAfter = lfbInputStreamAfter.readLine();
+            auto lfbSettingsStringAfter = lfbInputStreamAfter.readLine().content;
             if (lfbSettingsString != lfbSettingsStringAfter) {
                 auto split1 = lfbSettingsString.split("x");
                 auto split2 = split1[1].split("@");

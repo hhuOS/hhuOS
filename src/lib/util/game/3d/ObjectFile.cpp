@@ -56,13 +56,13 @@ ObjectFile* ObjectFile::open(const String &path) {
 
     // Read the file line by line
     auto currentLine = stream.readLine();
-    while (!currentLine.isEmpty()) {
-        auto lineSplit = currentLine.substring(2).split(" ");
+    while (!currentLine.endOfFile) {
+        auto lineSplit = currentLine.content.substring(2).split(" ");
 
-        if (currentLine.beginsWith("v ")) {
+        if (currentLine.content.beginsWith("v ")) {
             auto vertex = Math::Vector3<double>(String::parseFloat<double>(lineSplit[0]), String::parseFloat<double>(lineSplit[1]), String::parseFloat<double>(lineSplit[2]));
             vertexList.add(vertex);
-        } else if (currentLine.beginsWith("f ")) {
+        } else if (currentLine.content.beginsWith("f ")) {
             // Fill list with the correct order to draw triangles properly
             for (uint32_t i = 0; i < lineSplit.length(); i++) {
                 if(i > 2) {
@@ -113,10 +113,10 @@ ObjectFile* ObjectFile::open(const String &path) {
                     vertexDrawOrder.add(vertexIndex);
                 }
             }
-        } else if(currentLine.beginsWith("vn ")){
+        } else if(currentLine.content.beginsWith("vn ")){
             auto vertex = Math::Vector3<double>(String::parseFloat<double>(lineSplit[0]), String::parseFloat<double>(lineSplit[1]), String::parseFloat<double>(lineSplit[2]));
             normalList.add(vertex);
-        } else if(currentLine.beginsWith("vt ")){
+        } else if(currentLine.content.beginsWith("vt ")){
             auto vertex = Math::Vector3<double>(String::parseFloat<double>(lineSplit[0]), String::parseFloat<double>(lineSplit[1]), 0.0);
             textureList.add(vertex);
         }
