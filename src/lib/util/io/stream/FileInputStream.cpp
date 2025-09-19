@@ -47,8 +47,10 @@ FileInputStream::~FileInputStream() {
 int16_t FileInputStream::read() {
     if (peekedChar >= 0) {
         // A previous peek operation has already read a byte -> Return it instead of reading a new one
+        const auto byte = peekedChar;
         peekedChar = -1;
-        return peekedChar;
+
+        return byte;
     }
 
     uint8_t byte;
