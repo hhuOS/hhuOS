@@ -65,7 +65,6 @@ int32_t FileInputStream::read(uint8_t *targetBuffer, const uint32_t offset, cons
         // A previous peek operation has already read a byte -> Use it first before reading more bytes
         targetBuffer[offset] = peekedChar;
         peekedChar = -1;
-        pos++;
         peeked = 1;
 
         if (length == 1) {
