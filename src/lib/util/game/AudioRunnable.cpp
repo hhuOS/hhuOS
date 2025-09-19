@@ -30,17 +30,19 @@ void AudioRunnable::run() {
     isRunning = true;
 
     while (isRunning) {
-        bool yield = false;
+        bool yield = true;
 
         for (auto &audioChannel : channels) {
             if (audioChannel.getState() == AudioChannel::PLAYING) {
-                if (!audioChannel.update()) {
-                    yield = true;
+                if (audioChannel.update()) {
+                    // If at least one channel has written audio data, do not yield
+                    yield = false;
                 }
             }
         }
 
         if (yield) {
+            // No channel has played any audio data -> No audio is currently played -> Yield the thread
             Async::Thread::yield();
         }
     }
