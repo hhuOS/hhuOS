@@ -19,7 +19,7 @@
 project(limine)
 message(STATUS "Project " ${PROJECT_NAME})
 
-set(LIMINE_VERSION "9")
+set(LIMINE_VERSION "10")
 
 set(LIMINE_CONFIG "\
 default_entry: 1\\n\
