@@ -93,8 +93,8 @@ When you are done tinkering with the OS, why not try to build your own applicati
         <td><img src="media/screenshots/bug.png" width="450px"></br>
         <p align="center"><i>Bug Defender</i> is a Space Invaders clone</p>
         </td>
-        <td><img src="media/screenshots/battlespace.png" width="450px"></br>
-        <p align="center"><i>Battlespace</i> is a 3D space shooter</p>
+        <td><img src="media/screenshots/dino.png" width="450px"></br>
+        <p align="center"><i>Dino</i> is a 2D Jump'n'Run game</p>
         </td>
     </tr>
     <tr>
@@ -106,11 +106,19 @@ When you are done tinkering with the OS, why not try to build your own applicati
         </td>
     </tr>
     <tr>
-        <td><img src="media/screenshots/demo3d.png" width="450px"></br>
-        <p align="center">3D demo scene rendered with our game engine</p>
+        <td><img src="media/screenshots/battlespace.png" width="450px"></br>
+        <p align="center"><i>Battlespace</i> is a 3D space shooter</p>
         </td>
         <td><img src="media/screenshots/rogue3d.png" width="450px"></br>
         <p align="center"><i>Rogue3D</i> is a roguelike game</p>
+        </td>
+    </tr>
+    <tr>
+        <td><img src="media/screenshots/demo3d.png" width="450px"></br>
+        <p align="center">3D demo scene rendered with our game engine</p>
+        </td>
+        <td><img src="media/screenshots/widgets.png" width="450px"></br>
+        <p align="center">Demonstration of our widget library</p>
         </td>
     </tr>
 </table>
