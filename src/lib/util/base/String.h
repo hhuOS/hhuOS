@@ -568,6 +568,10 @@ T String::parseNumber(const char *string, const size_t length) {
 template<typename T>
 T String::parseNumber(const char *string) {
     size_t len = 0;
+    if (string[0] == '-' || string[0] == '+') {
+        len++;
+    }
+
     while (CharacterTypes::isDigit(string[len]) && string[len] != '\0') {
         len++;
     }
