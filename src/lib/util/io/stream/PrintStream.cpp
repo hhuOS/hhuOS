@@ -225,58 +225,53 @@ void PrintStream::print(double number) {
 
 	char sign = '\0';
 
-	if (number == 0) {
-		sign = positiveSign;
-		formatStream.print("0.0");
+	if (number < 0) {
+		sign = negativeSign;
+		number *= -1;
 	} else {
-		if (number < 0) {
-			sign = negativeSign;
-			number *= -1;
-		} else {
-			sign = positiveSign;
-		}
+		sign = positiveSign;
+	}
 
-		int32_t mul = 1;
-		while (Math::pow(10.0, mul) <= number) {
-			mul++;
-		}
+	int32_t mul = 1;
+	while (Math::pow(10.0, mul) <= number) {
+		mul++;
+	}
+	mul--;
+
+
+	while (mul >= 0) {
+		formatStream.write('0' + static_cast<size_t>(number / Math::pow(10.0, mul)) % 10);
 		mul--;
+	}
 
+	if (decimalPrecision != 0 || alwaysPrintDecimalPoint) {
+		formatStream.write('.');
+	}
+	number -= static_cast<int32_t>(number);
 
-		while (mul >= 0) {
-			formatStream.write('0' + static_cast<size_t>(number / Math::pow(10.0, mul)) % 10);
-			mul--;
-		}
+	size_t i = 0;
+	while (i < (decimalPrecision >= 0 ? decimalPrecision : DEFAULT_DECIMAL_PRECISION)) {
+		number *= 10;
 
-		if (decimalPrecision != 0 || alwaysPrintDecimalPoint) {
-			formatStream.write('.');
-		}
-		number -= static_cast<int32_t>(number);
-
-		size_t i = 0;
-		while (i < (decimalPrecision >= 0 ? decimalPrecision : DEFAULT_DECIMAL_PRECISION)) {
-			number *= 10;
-
-			if (1 - (number - static_cast<uint8_t>(number)) < 0.0001) {
-				formatStream.write('0' + static_cast<uint8_t>(number) + 1);
-				break;
-			}
-
-			formatStream.write('0' + static_cast<uint8_t>(number));
-			number -= static_cast<int32_t>(number);
-
-			if (number < 0.0000001) {
-				break;
-			}
-
+		if (1 - (number - static_cast<uint8_t>(number)) < 0.0001) {
+			formatStream.write('0' + static_cast<uint8_t>(number) + 1);
 			i++;
+			break;
 		}
 
-		if (decimalPrecision >= 0) {
-			while (i < static_cast<size_t>(decimalPrecision)) {
-				formatStream.write('0');
-				i++;
-			}
+		formatStream.write('0' + static_cast<uint8_t>(number));
+		number -= static_cast<int32_t>(number);
+		i++;
+
+		if (number < 0.0000001) {
+			break;
+		}
+	}
+
+	if (decimalPrecision >= 0) {
+		while (i < static_cast<size_t>(decimalPrecision)) {
+			formatStream.write('0');
+			i++;
 		}
 	}
 
