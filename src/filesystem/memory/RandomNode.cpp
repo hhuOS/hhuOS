@@ -42,4 +42,8 @@ uint64_t RandomNode::readData(uint8_t *targetBuffer, [[maybe_unused]] uint64_t p
     return numBytes;
 }
 
+bool RandomNode::isReadyToRead() {
+    return true;
+}
+
 }

@@ -36,4 +36,8 @@ uint64_t ZeroNode::readData(uint8_t *targetBuffer, [[maybe_unused]] uint64_t pos
     return numBytes;
 }
 
+bool ZeroNode::isReadyToRead() {
+    return true;
+}
+
 }

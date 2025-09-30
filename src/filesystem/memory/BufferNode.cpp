@@ -44,3 +44,7 @@ uint64_t Filesystem::Memory::BufferNode::readData(uint8_t *targetBuffer, uint64_
 
     return numBytes;
 }
+
+bool Filesystem::Memory::BufferNode::isReadyToRead() {
+    return false;
+}

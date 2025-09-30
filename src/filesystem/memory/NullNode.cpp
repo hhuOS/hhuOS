@@ -34,4 +34,8 @@ uint64_t NullNode::writeData([[maybe_unused]] const uint8_t *sourceBuffer, [[may
     return numBytes;
 }
 
+bool NullNode::isReadyToRead() {
+    return false;
+}
+
 }

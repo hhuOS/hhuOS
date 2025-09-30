@@ -61,6 +61,8 @@ public:
      */
     uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
 
+    bool isReadyToRead() override;
+
 private:
 
     const uint8_t *buffer;
