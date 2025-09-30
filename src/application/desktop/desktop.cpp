@@ -18,6 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <graphic/Colors.h>
+
 #include "Protocol.h"
 #include "async/IdGenerator.h"
 #include "async/SharedMemory.h"
@@ -71,8 +73,10 @@ void main() {
                 const auto command = static_cast<Command>(Util::Io::NumberUtil::readUnsigned8BitValue(*window.inputStream));
                 switch (command) {
                     case FLUSH: {
+                        lfb.drawRectangle(window.posX, window.posY, window.resX + 2, window.resY + 2, Util::Graphic::Colors::WHITE);
+
                         auto sourceAddress = window.buffer->getAddress();
-                        auto targetAddress = lfb.getBuffer().add(window.posY * lfb.getPitch() + window.posX * lfb.getBytesPerPixel());
+                        auto targetAddress = lfb.getBuffer().add((window.posY + 1) * lfb.getPitch() + (window.posX + 1) * lfb.getBytesPerPixel());
 
                         for (uint16_t y = 0; y < window.resY; y++) {
                             targetAddress.copyRange(sourceAddress, window.resX * lfb.getBytesPerPixel());
@@ -94,8 +98,8 @@ void main() {
             auto *sharedBuffer = new Util::Async::SharedMemory(Util::String::format("%u", nextId), bufferPages);
             sharedBuffer->publish();
 
-            uint16_t posX = nextId == 0 || nextId == 2 ? 0 : 400;
-            uint16_t posY = nextId == 0 || nextId == 1 ? 0 : 300;
+            uint16_t posX = nextId == 0 || nextId == 2 ? 10 : 400;
+            uint16_t posY = nextId == 0 || nextId == 1 ? 10 : 300;
 
             auto *outputPipe = new Util::Io::FileOutputStream(request.getPipePath());
             windows.put(nextId, Window{nextPipe, outputPipe, sharedBuffer, posX, posY, request.resX, request.resY});

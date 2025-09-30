@@ -843,10 +843,10 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
 
     // Ready 'shell' process
     Util::Async::Process::execute(Util::Io::File("/bin/desktop"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), "desktop", Util::Array<Util::String>(0));
-    Util::Async::Process::execute(Util::Io::File("/bin/wintest"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), "wintest", Util::Array<Util::String>(0));
-    Util::Async::Process::execute(Util::Io::File("/bin/wintest"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), "wintest", Util::Array<Util::String>(0));
-    Util::Async::Process::execute(Util::Io::File("/bin/wintest"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), "wintest", Util::Array<Util::String>(0));
-    Util::Async::Process::execute(Util::Io::File("/bin/wintest"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), "wintest", Util::Array<Util::String>(0));
+    Util::Async::Process::execute(Util::Io::File("/bin/doom"), Util::Io::File("/device/terminal"), Util::Io::File("/device/null"), Util::Io::File("/device/null"), "doom", Util::Array<Util::String>(0));
+    Util::Async::Process::execute(Util::Io::File("/bin/doom"), Util::Io::File("/device/terminal"), Util::Io::File("/device/null"), Util::Io::File("/device/null"), "doom", Util::Array<Util::String>(0));
+    Util::Async::Process::execute(Util::Io::File("/bin/doom"), Util::Io::File("/device/terminal"), Util::Io::File("/device/null"), Util::Io::File("/device/null"), "doom", Util::Array<Util::String>(0));
+    Util::Async::Process::execute(Util::Io::File("/bin/doom"), Util::Io::File("/device/terminal"), Util::Io::File("/device/null"), Util::Io::File("/device/null"), "doom", Util::Array<Util::String>(0));
 
     // Clear screen and print banner
     Kernel::Log::removeOutputStream(*terminal);
