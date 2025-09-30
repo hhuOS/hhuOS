@@ -4,12 +4,17 @@
 #include <ctype.h>
 #include <math.h>
 
+#include "application/desktop/Protocol.h"
+#include "async/Process.h"
+#include "async/SharedMemory.h"
 #include "doomgeneric/doomgeneric/doomtype.h"
 #include "doomgeneric/doomgeneric/i_video.h"
 #include "doomgeneric/doomgeneric/doomgeneric.h"
 #include "doomgeneric/doomgeneric/doomkeys.h"
 #include "doomgeneric/doomgeneric/doomtype.h"
 #include "doomgeneric/doomgeneric/i_sound.h"
+#include "io/stream/FileInputStream.h"
+#include "lib/interface.h"
 
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
@@ -97,7 +102,7 @@ int32_t main(int argc, char **argv) {
 	doomgeneric_Create(argc, argv);
 
     // Prepare graphics
-    Util::Graphic::Ansi::prepareGraphicalApplication(true);
+    /*Util::Graphic::Ansi::prepareGraphicalApplication(true);
     auto lfbFile = new Util::Io::File("/device/lfb");
 
     // If '-res' is given, try to change display resolution
@@ -116,7 +121,52 @@ int32_t main(int argc, char **argv) {
     }
 
     auto buffer = Util::Graphic::LinearFrameBuffer::open(*lfbFile);
-    lfb = &buffer;
+    lfb = &buffer;*/
+
+    Util::Async::Thread::sleep(Util::Time::Timestamp::ofSeconds(1));
+
+    auto desktopFile = Util::Io::File("/system/desktop");
+    if (!desktopFile.exists()) {
+        Util::System::error << "Window manager not available!"
+            << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
+
+        return -1;
+    }
+
+    auto desktopFileStream = Util::Io::FileInputStream(desktopFile);
+    auto line = desktopFileStream.readLine();
+    auto windowManagerId = Util::String::parseNumber<size_t>(line.content);
+    auto processId = Util::Async::Process::getCurrentProcess().getId();
+
+    createPipe("window-manager");
+    auto *windowManagerInputPipe = new Util::Io::FileInputStream(Util::String::format("/process/%u/pipes/window-manager", processId));
+    Util::Io::FileOutputStream *windowManagerOutputPipe = nullptr;
+
+    auto windowManagerPipeDirectory = Util::Io::File(Util::String::format("/process/%u/pipes", windowManagerId));
+    while (true) {
+        size_t maxId = 0;
+        for (const auto &child : windowManagerPipeDirectory.getChildren()) {
+            const auto currentId = Util::String::parseNumber<size_t>(child.getName());
+            if (currentId > maxId) {
+                maxId = currentId;
+            }
+        }
+
+        windowManagerOutputPipe = new Util::Io::FileOutputStream(Util::String::format("/process/%u/pipes/%u", windowManagerId, maxId));
+
+        auto request = CreateWindowRequest{320, 240, processId, "window-manager"};
+        if (request.writeToStream(*windowManagerOutputPipe)) {
+            break;
+        }
+    }
+
+    auto response = CreateWindowResponse::readFromStream(*windowManagerInputPipe);
+    auto sharedMemory = Util::Async::SharedMemory(windowManagerId, Util::String::format("%u", response.sharedBufferId), response.sharedBufferPageCount);
+    sharedMemory.map();
+
+    auto *windowBuffer = reinterpret_cast<void*>(sharedMemory.getAddress().get());
+    auto colorDepth = response.colorDepth == 15 ? 16 : response.colorDepth;
+    lfb = new Util::Graphic::LinearFrameBuffer(windowBuffer, response.resX, response.resY, response.colorDepth, response.resX * (colorDepth / 8));
     fpsFont = &Util::Graphic::Font::getFontForResolution(lfb->getResolutionY());
 
     // Calculate scale factor the game as large as possible
@@ -168,6 +218,7 @@ int32_t main(int argc, char **argv) {
             Util::Async::Thread::yield();
         } else {
             doomgeneric_Tick();
+            windowManagerOutputPipe->write(Command::FLUSH);
         }
     }
 }
