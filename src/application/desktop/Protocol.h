@@ -23,7 +23,7 @@
 
 #include <stddef.h>
 
-#include "io/stream/InputStream.h"
+#include "lib/util/io/stream/InputStream.h"
 
 enum Command : uint8_t {
     FLUSH
