@@ -22,3 +22,6 @@
 [submodule "src/application/classicube/ClassiCube"]
 	path = src/application/classicube/ClassiCube
 	url = https://github.com/hhu-bsinfo/ClassiCube.git
+[submodule "src/application/litenes/LiteNES"]
+	path = src/application/litenes/LiteNES
+	url = https://github.com/hhuOS/LiteNES.git

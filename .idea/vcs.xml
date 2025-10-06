@@ -8,6 +8,7 @@
     <mapping directory="$PROJECT_DIR$/src/application/clownmdemu/clownmdemu/clown68000/common/clowncommon" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/application/clownmdemu/clownmdemu/clowncommon" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/application/doom/doomgeneric" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/application/litenes/LiteNES" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/application/peanut-gb/Peanut-GB" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/application/quake/quakegeneric" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/filesystem/fat/ff" vcs="Git" />

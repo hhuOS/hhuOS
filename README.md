@@ -168,18 +168,25 @@ Quake has been ported to hhuOS using [quakegeneric](https://github.com/erysdren/
 [Peanut-GB](https://github.com/deltabeard/Peanut-GB) by [*deltabeard*](https://github.com/deltabeard) ([MIT](https://github.com/deltabeard/Peanut-GB/blob/master/peanut_gb.h)):
 - Available as `peanut-gb` command in hhuOS.
 - Joypad is mapped to WASD; A and B are mapped to K and J; Start is mapped to Space and Select is mapped to Enter. Use 'F1' and 'F2' to adjust screen scaling. Use 'F3' to cycle through color palettes and 'F4' to reset to default palette.
-- Place your own ROM files in `disk/hdd0/user/gameboy/` before building hhuOS to include them in the HDD image.
-- The following games are included in `/user/gameboy/`:
+- Place your own ROM files in `disk/hdd0/user/roms/` before building hhuOS to include them in the HDD image.
+- The following games are included in `/user/roms/`:
   - [2048-gb](https://github.com/Sanqui/2048-gb) by [*Sanqui*](https://github.com/Sanqui) ([zlib](https://github.com/Sanqui/2048-gb/blob/master/LICENSE))
   - [5 Mazes](https://github.com/godai78/5-Mazes/) by [*godai78*](https://github.com/godai78) ([MIT](https://github.com/godai78/5-Mazes/blob/main/LICENSE))
 
 [clownmdemu](https://github.com/Clownacy/clownmdemu) by [*Clownacy*](https://github.com/Clownacy) ([GNU AGPLv3](https://github.com/Clownacy/clownmdemu/blob/master/LICENCE.txt)):
 - Available as `clownmdemu` command in hhuOS.
 - Joypad is mapped to arrow keys; ABC and XYZ buttons are mapped to A, S, D and Y(Z), X, C respectively; Start is mapped to Space and Mode is mapped to Enter. Use 'F1' and 'F2' to adjust screen scaling. Use 'F3' to cycle through color palettes and 'F4' to reset to default palette.
-- Place your own ROM files in `disk/hdd0/user/megadrive/` before building hhuOS to include them in the HDD image.
-- The following games are included in `/user/megadrive/`:
+- Place your own ROM files in `disk/hdd0/user/roms/` before building hhuOS to include them in the HDD image.
+- The following games are included in `/user/roms/`:
   - [Dragon's Castle](https://github.com/sikthehedgehog/dragon) by [*sikthehedgehog*](https://github.com/sikthehedgehog/) ([zlib](https://github.com/sikthehedgehog/dragon/blob/master/LICENSE))
   - [Miniplanets](https://github.com/sikthehedgehog/miniplanets) by [*sikthehedgehog*](https://github.com/sikthehedgehog/) ([zlib](https://github.com/sikthehedgehog/miniplanets/blob/master/LICENSE.txt))
+
+[LiteNES](https://github.com/NJU-ProjectN/LiteNES) by [*jiangyy*](https://github.com/jiangyy) ([Apache 2.0](https://github.com/yaglo/mynes/blob/master/LICENSE)):
+- Available as `litenes` command in hhuOS.
+- Joypad is mapped to WASD; A and B are mapped to K and J; Start is mapped to Space and Select is mapped to Enter. Use 'F1' and 'F2' to adjust screen scaling. Use 'F3' to cycle through color palettes and 'F4' to reset to default palette.
+- Place your own ROM files in `disk/hdd0/user/roms/` before building hhuOS to include them in the HDD image.
+- The following games are included in `/user/roms/`:
+  - [nes15](https://github.com/christopherpow/nes-test-roms/tree/master/nes15-1.0.0) by *Mathew Brenaman* ([License](https://github.com/christopherpow/nes-test-roms/blob/master/nes15-1.0.0/LICENSE))
 
 [TinyGL](https://github.com/C-Chads/tinygl) by [*C-Chads*](https://github.com/C-Chads/) ([License](https://github.com/C-Chads/tinygl/blob/main/LICENSE))
 - Try out the `tinygl` command in hhuOS for some demos.

@@ -39,7 +39,9 @@ jobs:
           wget -O license/clownmdemu.txt https://raw.githubusercontent.com/Clownacy/clownmdemu/refs/heads/master/LICENCE.txt &&
           wget -O license/dragons-castle.txt https://raw.githubusercontent.com/sikthehedgehog/dragon/refs/heads/master/LICENSE &&
           wget -O license/miniplanets.txt https://raw.githubusercontent.com/sikthehedgehog/miniplanets/refs/heads/master/LICENSE.txt &&
-          wget -O license/classicube.txt https://raw.githubusercontent.com/ClassiCube/ClassiCube/refs/heads/master/license.txt
+          wget -O license/classicube.txt https://raw.githubusercontent.com/ClassiCube/ClassiCube/refs/heads/master/license.txt &&
+          wget -O license/litenes.txt https://raw.githubusercontent.com/yaglo/mynes/refs/heads/master/LICENSE &&
+          wget -O license/nes15.txt https://raw.githubusercontent.com/christopherpow/nes-test-roms/refs/heads/master/nes15-1.0.0/LICENSE
 
       - name: Create artifact
         run: mkdir -p hhuOS-${{ steps.commit.outputs.short }} && cp -r hhuOS-limine.iso hhuOS-towboot.img hdd0.img floppy0.img run.sh README.md license hhuOS-${{ steps.commit.outputs.short }}
