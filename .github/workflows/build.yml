@@ -41,7 +41,8 @@ jobs:
           wget -O license/miniplanets.txt https://raw.githubusercontent.com/sikthehedgehog/miniplanets/refs/heads/master/LICENSE.txt &&
           wget -O license/classicube.txt https://raw.githubusercontent.com/ClassiCube/ClassiCube/refs/heads/master/license.txt &&
           wget -O license/litenes.txt https://raw.githubusercontent.com/yaglo/mynes/refs/heads/master/LICENSE &&
-          wget -O license/nes15.txt https://raw.githubusercontent.com/christopherpow/nes-test-roms/refs/heads/master/nes15-1.0.0/LICENSE
+          wget -O license/nes15.txt https://raw.githubusercontent.com/christopherpow/nes-test-roms/refs/heads/master/nes15-1.0.0/LICENSE &&
+          wget -O license/falling.txt https://raw.githubusercontent.com/xram64/falling-nes/refs/heads/master/LICENSE
 
       - name: Create artifact
         run: mkdir -p hhuOS-${{ steps.commit.outputs.short }} && cp -r hhuOS-limine.iso hhuOS-towboot.img hdd0.img floppy0.img run.sh README.md license hhuOS-${{ steps.commit.outputs.short }}

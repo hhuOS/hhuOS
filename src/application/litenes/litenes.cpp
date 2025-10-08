@@ -55,10 +55,10 @@ uint16_t drawResX = SCREEN_WIDTH;
 uint16_t drawResY = SCREEN_HEIGHT;
 uint8_t scale = 1;
 Util::Graphic::BufferedLinearFrameBuffer *bufferedLfb = nullptr;
-uint32_t nesBuffer[SCREEN_WIDTH * SCREEN_HEIGHT];
 uint32_t colorPalette[64];
 
 KeyState keys;
+auto keyDecoder = Util::Io::KeyDecoder(Util::Io::DeLayout());
 
 constexpr uint32_t TARGET_FPS = 60;
 Util::Time::Timestamp targetFrameTime = Util::Time::Timestamp::ofMicroseconds(1000000 / TARGET_FPS);
@@ -68,8 +68,8 @@ Util::Time::Timestamp lastTime;
 uint32_t fpsCounter = 0;
 uint32_t fps = 0;
 
-void (*drawBackground)(uint32_t color);
-void (*flipDisplay)();
+void (*drawBackground)(uint32_t);
+void (*flushBuf)(const PixelBuf*);
 
 void nes_hal_init() {
     const auto colorDepth = bufferedLfb->getColorDepth();
@@ -120,75 +120,90 @@ void nes_set_bg_color16(const uint32_t color) {
     }
 }
 
-void nes_set_bg_color(const int c) {
+void nes_set_bg_color([[maybe_unused]] const int c) {
     const auto &color = colorPalette[c];
     drawBackground(color);
 }
 
 void nes_flush_buf(PixelBuf *buf) {
+    flushBuf(buf);
+}
+
+void nes_flush_buf32(const PixelBuf *buf) {
+    auto *screenBuffer = reinterpret_cast<uint32_t*>(bufferedLfb->getBuffer().add(offsetX * 4 + offsetY * bufferedLfb->getPitch()).get());
+    const auto width = bufferedLfb->getPitch() / 4;
+
     for (int32_t i = 0; i < buf->size; i++) {
         const auto &pixel = buf->buf[i];
-        const auto &color = colorPalette[pixel.c];
 
-        nesBuffer[pixel.y * SCREEN_WIDTH + pixel.x] = color;
-    }
-}
+        if (pixel.x >= 0 && pixel.y >= 0) {
+            const auto &color = colorPalette[pixel.c];
 
-void nes_flip_display32() {
-    auto *screenBuffer = reinterpret_cast<uint32_t*>(bufferedLfb->getBuffer().add(offsetX * 4 + offsetY * bufferedLfb->getPitch()).get());
+            for (uint8_t sy = 0; sy < scale; sy++) {
+                for (uint8_t sx = 0; sx < scale; sx++) {
+                    const auto px = pixel.x * scale + sx;
+                    const auto py = pixel.y * scale + sy;
 
-    for (uint32_t y = 0; y < drawResY; y++) {
-        for (uint32_t x = 0; x < drawResX; x++) {
-            const auto &color = nesBuffer[(y / scale) * SCREEN_WIDTH + (x / scale)];
-            if (color > 0) {
-                screenBuffer[x] = color;
+                    screenBuffer[py * width + px] = color;
+                }
             }
         }
-
-        screenBuffer += bufferedLfb->getPitch() / 4;
     }
 }
 
-void nes_flip_display24() {
+void nes_flush_buf24(const PixelBuf *buf) {
     auto *screenBuffer = reinterpret_cast<uint8_t*>(bufferedLfb->getBuffer().add(offsetX * 3 + offsetY * bufferedLfb->getPitch()).get());
+    const auto width = bufferedLfb->getPitch();
 
-    for (uint32_t y = 0; y < drawResY; y++) {
-        for (uint32_t x = 0; x < drawResX; x++) {
-            const auto &color = nesBuffer[(y / scale) * SCREEN_WIDTH + (x / scale)];
-            if (color > 0) {
-                screenBuffer[x * 3] = color & 0xff;
-                screenBuffer[x * 3 + 1] = (color >> 8) & 0xff;
-                screenBuffer[x * 3 + 2] = (color >> 16) & 0xff;
+    for (int32_t i = 0; i < buf->size; i++) {
+        const auto &pixel = buf->buf[i];
+
+        if (pixel.x >= 0 && pixel.y >= 0) {
+            const auto &color = colorPalette[pixel.c];
+
+            for (uint8_t sy = 0; sy < scale; sy++) {
+                for (uint8_t sx = 0; sx < scale; sx++) {
+                    const auto px = pixel.x * scale + sx;
+                    const auto py = pixel.y * scale + sy;
+                    const auto offset = py * width + px * 3;
+
+                    screenBuffer[offset]     = color & 0xff;
+                    screenBuffer[offset + 1] = (color >> 8) & 0xff;
+                    screenBuffer[offset + 2] = (color >> 16) & 0xff;
+                }
             }
         }
-
-        screenBuffer += bufferedLfb->getPitch();
     }
 }
 
-void nes_flip_display16() {
+void nes_flush_buf16(const PixelBuf *buf) {
     auto *screenBuffer = reinterpret_cast<uint16_t*>(bufferedLfb->getBuffer().add(offsetX * 2 + offsetY * bufferedLfb->getPitch()).get());
+    const auto width = bufferedLfb->getPitch() / 2;
 
-    for (uint32_t y = 0; y < drawResY; y++) {
-        for (uint32_t x = 0; x < drawResX; x++) {
-            const auto &color = nesBuffer[(y / scale) * SCREEN_WIDTH + (x / scale)];
-            if (color > 0) {
-                screenBuffer[x] = static_cast<uint16_t>(color);
+    for (int32_t i = 0; i < buf->size; i++) {
+        const auto &pixel = buf->buf[i];
+
+        if (pixel.x >= 0 && pixel.y >= 0) {
+            const auto &color = colorPalette[pixel.c];
+
+            for (uint8_t sy = 0; sy < scale; sy++) {
+                for (uint8_t sx = 0; sx < scale; sx++) {
+                    const auto px = pixel.x * scale + sx;
+                    const auto py = pixel.y * scale + sy;
+
+                    screenBuffer[py * width + px] = color;
+                }
             }
         }
-
-        screenBuffer += bufferedLfb->getPitch() / 2;
     }
 }
 
 void nes_flip_display() {
-    flipDisplay();
-
     const auto fpsString = Util::String::format("FPS: %u", fps);
     bufferedLfb->drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0, static_cast<const char*>(fpsString), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
 
     bufferedLfb->flush();
-    Util::Address(nesBuffer).setRange(0, sizeof(nesBuffer));
+    bufferedLfb->clear();
 }
 
 int nes_key_state(const int b) {
@@ -216,7 +231,55 @@ int nes_key_state(const int b) {
     }
 }
 
+void readKey() {
+    auto scancode = Util::System::in.read();
+
+    while (scancode != -1) {
+        if (keyDecoder.parseScancode(scancode)) {
+            const auto key = keyDecoder.getCurrentKey();
+
+            switch (key.getScancode()) {
+                case Util::Io::Key::W:
+                    keys.up = key.isPressed();
+                    break;
+                case Util::Io::Key::S:
+                    keys.down = key.isPressed();
+                    break;
+                case Util::Io::Key::A:
+                    keys.left = key.isPressed();
+                    break;
+                case Util::Io::Key::D:
+                    keys.right = key.isPressed();
+                    break;
+                case Util::Io::Key::K:
+                    keys.a = key.isPressed();
+                    break;
+                case Util::Io::Key::J:
+                    keys.b = key.isPressed();
+                    break;
+                case Util::Io::Key::ENTER:
+                    keys.select = key.isPressed();
+                    break;
+                case Util::Io::Key::SPACE:
+                    keys.start = key.isPressed();
+                    break;
+                case Util::Io::Key::ESC:
+                    exit(0);
+                    break;
+                default:
+                    break;
+            }
+
+            return;
+        }
+
+        scancode = Util::System::in.read();
+    }
+}
+
 void wait_for_frame() {
+    readKey();
+
     auto frameTime = Util::Time::Timestamp::getSystemTime() - lastTime;
 
     if (frameTime < targetFrameTime) {
@@ -292,16 +355,16 @@ int32_t main(int32_t argc, char *argv[]) {
     switch (lfb.getColorDepth()) {
         case 32:
             drawBackground = nes_set_bg_color32;
-            flipDisplay = nes_flip_display32;
+            flushBuf = nes_flush_buf32;
             break;
         case 24:
             drawBackground = nes_set_bg_color24;
-            flipDisplay = nes_flip_display24;
+            flushBuf = nes_flush_buf24;
             break;
         case 16:
         case 15:
             drawBackground = nes_set_bg_color16;
-            flipDisplay = nes_flip_display16;
+            flushBuf = nes_flush_buf16;
             break;
         default:
             Util::System::error << "litenes: Unsupported color depth!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
@@ -314,52 +377,7 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     Util::Graphic::Ansi::prepareGraphicalApplication(true);
-    Util::Address(nesBuffer).setRange(0, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Util::Graphic::Color));
-    lfb.clear();
-
-    Util::Async::Thread::createThread("NES-Keyboard", new Util::Async::BasicRunnable([](){
-        auto keyDecoder = Util::Io::KeyDecoder(Util::Io::DeLayout());
-        int16_t scancode = Util::System::in.read();
-
-        while (scancode != -1) {
-            if (keyDecoder.parseScancode(scancode)) {
-                const auto key = keyDecoder.getCurrentKey();
-                switch (key.getScancode()) {
-                    case Util::Io::Key::W:
-                        keys.up = key.isPressed();
-                        break;
-                    case Util::Io::Key::S:
-                        keys.down = key.isPressed();
-                        break;
-                    case Util::Io::Key::A:
-                        keys.left = key.isPressed();
-                        break;
-                    case Util::Io::Key::D:
-                        keys.right = key.isPressed();
-                        break;
-                    case Util::Io::Key::K:
-                        keys.a = key.isPressed();
-                        break;
-                    case Util::Io::Key::J:
-                        keys.b = key.isPressed();
-                        break;
-                    case Util::Io::Key::ENTER:
-                        keys.select = key.isPressed();
-                        break;
-                    case Util::Io::Key::SPACE:
-                        keys.start = key.isPressed();
-                        break;
-                    case Util::Io::Key::ESC:
-                        exit(0);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            scancode = Util::System::in.read();
-        }
-    }));
+    Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
     fce_init();
     fce_run();

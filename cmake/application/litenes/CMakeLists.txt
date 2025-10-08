@@ -19,13 +19,16 @@
 project(litenes)
 message(STATUS "Project " ${PROJECT_NAME})
 
-add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/roms/nes15.nes"
+add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/roms/nes15.nes" "${CMAKE_BINARY_DIR}/roms/falling.nes"
         COMMAND wget "https://github.com/christopherpow/nes-test-roms/raw/refs/heads/master/nes15-1.0.0/nes15-PAL.nes" -O "${CMAKE_BINARY_DIR}/roms/nes15.nes"
+        COMMAND wget "https://github.com/xram64/falling-nes/raw/refs/heads/master/falling.nes" -O "${CMAKE_BINARY_DIR}/roms/falling.nes"
         COMMAND /bin/touch -a -m "${CMAKE_BINARY_DIR}/roms/nes15.nes"
+        COMMAND /bin/touch -a -m "${CMAKE_BINARY_DIR}/roms/falling.nes"
         DEPENDS "${CMAKE_BINARY_DIR}/roms")
 
 add_custom_target(nes-roms DEPENDS
-        "${CMAKE_BINARY_DIR}/roms/nes15.nes")
+        "${CMAKE_BINARY_DIR}/roms/nes15.nes"
+        "${CMAKE_BINARY_DIR}/roms/falling.nes")
 
 include_directories(${HHUOS_SRC_DIR}
         ${HHUOS_SRC_DIR}/lib/libc

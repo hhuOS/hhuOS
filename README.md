@@ -187,6 +187,7 @@ Quake has been ported to hhuOS using [quakegeneric](https://github.com/erysdren/
 - Place your own ROM files in `disk/hdd0/user/roms/` before building hhuOS to include them in the HDD image.
 - The following games are included in `/user/roms/`:
   - [nes15](https://github.com/christopherpow/nes-test-roms/tree/master/nes15-1.0.0) by *Mathew Brenaman* ([License](https://github.com/christopherpow/nes-test-roms/blob/master/nes15-1.0.0/LICENSE))
+  - [Falling](https://github.com/xram64/falling-nes) by [*xram64*](https://github.com/xram64) ([MIT](https://github.com/xram64/falling-nes/blob/master/LICENSE))
 
 [TinyGL](https://github.com/C-Chads/tinygl) by [*C-Chads*](https://github.com/C-Chads/) ([License](https://github.com/C-Chads/tinygl/blob/main/LICENSE))
 - Try out the `tinygl` command in hhuOS for some demos.

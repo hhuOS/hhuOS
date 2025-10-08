@@ -136,14 +136,14 @@ if (Python3_Interpreter_FOUND AND iwyu_tool_path AND iwyu_fix_includes_path)
     ProcessorCount(ncpus)
     add_custom_target(include-what-you-use
             COMMAND "${Python3_EXECUTABLE}" "${iwyu_tool_path}" -j "${ncpus}" -p "${CMAKE_BINARY_DIR}" |
-                    "${Python3_EXECUTABLE}" "${iwyu_fix_includes_path}" --nocomments --no_fwd_decls --noupdate_comments --blank_lines --nosafe_headers --ignore_re "(.*/ff/source.*)|(.*/tinygl.*)|(.*/portablegl.*)|(.*/libc.*)|(.*/doomgeneric/doomgeneric.*)|(.*/quakegeneric/source.*)|(.*/Peanut-GB.*)|(.*/clownmdemu/clownmdemu.*)|(.*/classicube/ClassiCube.*)" -p "${HHUOS_SRC_DIR}"
+                    "${Python3_EXECUTABLE}" "${iwyu_fix_includes_path}" --nocomments --no_fwd_decls --noupdate_comments --blank_lines --nosafe_headers --ignore_re "(.*/ff/source.*)|(.*/tinygl.*)|(.*/portablegl.*)|(.*/libc.*)|(.*/doomgeneric/doomgeneric.*)|(.*/quakegeneric/source.*)|(.*/Peanut-GB.*)|(.*/clownmdemu/clownmdemu.*)|(.*/classicube/ClassiCube.*)|(.*/litenes/LiteNES.*)" -p "${HHUOS_SRC_DIR}"
             VERBATIM)
 endif()
 
 # Add cloc command (if available)
 find_program(cloc_path NAMES cloc)
 if (cloc_path)
-    add_custom_target(cloc COMMAND "${cloc_path}" "${HHUOS_SRC_DIR}" --exclude-dir=ff,tinygl,portablegl,doomgeneric,quakegeneric,Peanut-GB,clownmdemu,ClassiCube VERBATIM)
+    add_custom_target(cloc COMMAND "${cloc_path}" "${HHUOS_SRC_DIR}" --exclude-dir=ff,tinygl,portablegl,doomgeneric,quakegeneric,Peanut-GB,clownmdemu,ClassiCube,LiteNES VERBATIM)
 endif()
 
 # Add subdirectories
