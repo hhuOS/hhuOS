@@ -37,7 +37,7 @@ class FileDescriptorManager;
 Util::Async::IdGenerator Process::idGenerator;
 
 Process::Process(VirtualAddressSpace &addressSpace, const Util::String &name, const Util::Io::File &workingDirectory) :
-        id(idGenerator.next()), name(name), addressSpace(addressSpace), workingDirectory(workingDirectory) {}
+        id(idGenerator.getNextId()), name(name), addressSpace(addressSpace), workingDirectory(workingDirectory) {}
 
 Process::~Process() {
     Kernel::Service::getService<Kernel::MemoryService>().removeAddressSpace(addressSpace);

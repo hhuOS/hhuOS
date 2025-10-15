@@ -46,7 +46,7 @@ namespace Kernel {
 Util::Async::IdGenerator Thread::idGenerator;
 
 Thread::Thread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable, uint32_t userInstructionPointer, uint32_t *kernelStack, uint32_t *userStack) :
-        id(idGenerator.next()), name(name), parent(parent), runnable(runnable), userInstructionPointer(userInstructionPointer), kernelStack(kernelStack), userStack(userStack),
+        id(idGenerator.getNextId()), name(name), parent(parent), runnable(runnable), userInstructionPointer(userInstructionPointer), kernelStack(kernelStack), userStack(userStack),
         fpuContext(static_cast<uint8_t*>(Service::getService<MemoryService>().allocateKernelMemory(512, 16))) {
     auto defaultFpuContext = Util::Address(Service::getService<ProcessService>().getScheduler().getDefaultFpuContext());
     Util::Address(fpuContext).copyRange(defaultFpuContext, 512);

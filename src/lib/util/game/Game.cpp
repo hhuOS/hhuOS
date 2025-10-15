@@ -26,8 +26,7 @@
 
 #include "Game.h"
 
-#include "AudioHandle.h"
-#include "ResourceManager.h"
+#include "audio/AudioHandle.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/Graphics.h"
 
@@ -61,16 +60,16 @@ void Game::switchToNextScene() {
     sceneSwitched = true;
 }
 
-AudioHandle Game::playAudioBuffer(const AudioBuffer &buffer, bool loop = false) {
+AudioHandle Game::playAudioTrack(const AudioTrack &track, bool loop = false) {
     for (auto &channel : audioChannels) {
         if (channel.getState() == AudioChannel::STOPPED) {
-            channel.play(buffer, loop);
+            channel.play(track, loop);
 
-            return AudioHandle(&channel);
+            return AudioHandle(channel, track);
         }
     }
 
-    return AudioHandle(nullptr);
+    return AudioHandle();
 }
 
 void Game::stopAllAudioChannels() {

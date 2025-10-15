@@ -30,7 +30,7 @@
 #include <stdint.h>
 
 #include "Game.h"
-#include "AudioRunnable.h"
+#include "audio/AudioRunnable.h"
 #include "lib/util/async/Runnable.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/game/Graphics.h"

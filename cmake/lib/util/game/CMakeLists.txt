@@ -33,11 +33,6 @@ add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} lib.graphic lib.sound lib.user.tinygl lib.user.libc)
 
 target_sources(${PROJECT_NAME} PUBLIC
-        ${HHUOS_SRC_DIR}/lib/util/game/Audio.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/AudioBuffer.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/AudioChannel.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/AudioHandle.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/AudioRunnable.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Camera.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/CancelableEvent.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Collider.cpp
@@ -72,7 +67,12 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/game/3d/Texture.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/3d/Util.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/3d/collider/SphereCollider.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/3d/event/CollisionEvent.cpp)
+        ${HHUOS_SRC_DIR}/lib/util/game/3d/event/CollisionEvent.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/audio/AudioBuffer.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/audio/AudioChannel.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/audio/AudioHandle.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/audio/AudioTrack.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/audio/AudioRunnable.cpp)
 
 # Kernel space version
 project(lib.kernel.game)

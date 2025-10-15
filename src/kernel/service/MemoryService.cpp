@@ -423,7 +423,7 @@ void MemoryService::handlePageFault(uint32_t errorCode) {
             Util::Panic::fire(Util::Panic::NULL_POINTER, "Page fault at address 0x00000000!");
         }
 
-        Util::Panic::fire(Util::Panic::PAGING_ERROR, "Privilege level not sufficient to access page!");
+         Util::Panic::fire(Util::Panic::PAGING_ERROR, "Privilege level not sufficient to access page!");
     }
 
     // Page fault was caused by a non-present page

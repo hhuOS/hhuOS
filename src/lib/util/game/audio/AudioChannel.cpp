@@ -18,38 +18,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef AUDIO_H
-#define AUDIO_H
+#include "AudioChannel.h"
 
-#include "AudioBuffer.h"
-#include "AudioHandle.h"
+#include "sound/WaveFile.h"
 
 namespace Util::Game {
-class Audio {
 
-public:
-    /**
-     * Default Constructor.
-     */
-    Audio() = default;
+void AudioChannel::play(const AudioTrack &track, const bool loop) {
+    AudioChannel::track = track;
+    AudioChannel::loop = loop;
+    position = 0;
 
-    /**
-     * Constructor.
-     */
-    Audio(const String &waveFilePath);
-
-    /**
-     * Destructor.
-     */
-    ~Audio() = default;
-
-    AudioHandle play(bool loop);
-
-private:
-
-    AudioBuffer *buffer = nullptr;
-};
-
+    if (getState() != PLAYING) {
+        Sound::AudioChannel::play();
+    }
 }
 
-#endif
+bool AudioChannel::update() {
+    const auto writableBytes = getWritableBytes();
+    if (writableBytes == 0) {
+        return false;
+    }
+
+    const auto &buffer = track.getBuffer();
+    const auto bytesLeft = buffer.getSize() - position;
+    const auto toWrite = static_cast<int32_t>(writableBytes < bytesLeft ? writableBytes : bytesLeft);
+
+    write(buffer.getSamples() + position, 0, toWrite);
+    position += toWrite;
+
+    if (position >= buffer.getSize()) {
+        // End of sound buffer reached
+        if (loop) {
+            // Loop the sound buffer
+            position = 0;
+        } else {
+            // Stop playback if looping is not enabled
+            stop();
+        }
+    }
+
+    return true;
+}
+
+size_t AudioChannel::getCurrentTrackId() const {
+    return track.getId();
+}
+
+}

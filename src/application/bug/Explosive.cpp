@@ -22,6 +22,7 @@
 
 #include "game/Game.h"
 #include "game/GameManager.h"
+#include "game/audio/AudioHandle.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/game/2d/Sprite.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
@@ -36,7 +37,7 @@ template <typename T> class Vector2;
 Explosive::Explosive(uint32_t tag, const Util::Math::Vector2<double> &position, const Util::Game::D2::RectangleCollider &collider, const Util::String &waveFilePath, double animationTime) : Entity(tag, position, collider), waveFilePath(waveFilePath), animationTime(animationTime) {}
 
 void Explosive::initialize() {
-    soundEffect = Util::Game::Audio(waveFilePath);
+    soundEffect = Util::Game::AudioTrack(waveFilePath);
 
     auto size = getCollider().getHeight() > getCollider().getWidth() ? getCollider().getHeight() : getCollider().getWidth();
     animation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
@@ -54,7 +55,7 @@ void Explosive::onUpdate(double delta) {
     if (shouldExplode) {
         exploding = true;
         shouldExplode = false;
-        soundEffect.play(false);
+        soundEffectHandle = soundEffect.play(false);
     } else if (exploding) {
         explosionTimer += delta;
         if (explosionTimer <= animation.getAnimationTime()) {
@@ -78,5 +79,5 @@ bool Explosive::isExploding() const {
 }
 
 bool Explosive::hasExploded() const {
-    return explosionTimer >= animation.getAnimationTime();
+    return explosionTimer >= animation.getAnimationTime() && !soundEffectHandle.isPlaying();
 }

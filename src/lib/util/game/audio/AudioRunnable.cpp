@@ -18,41 +18,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef AUDIOCHANNELHANDLE_H
-#define AUDIOCHANNELHANDLE_H
+#include "AudioRunnable.h"
 
-#include "AudioChannel.h"
+#include "async/Thread.h"
 
 namespace Util::Game {
 
-class AudioHandle {
+AudioRunnable::AudioRunnable(Array<AudioChannel> &channels) : channels(channels) {}
 
-public:
-    /**
-     * Default Constructor.
-     */
-    AudioHandle() = default;
+void AudioRunnable::run() {
+    isRunning = true;
 
-    /**
-     * Constructor.
-     */
-    explicit AudioHandle(AudioChannel *channel);
+    while (isRunning) {
+        bool yield = true;
 
-    /**
-     * Destructor.
-     */
-    ~AudioHandle() = default;
+        for (auto &audioChannel : channels) {
+            if (audioChannel.getState() == AudioChannel::PLAYING && audioChannel.update()) {
+                // If at least one channel has written audio data, do not yield
+                yield = false;
+            }
+        }
 
-    [[nodiscard]] bool isPlaying() const;
-
-    void stop() const;
-
-private:
-
-    AudioChannel *channel = nullptr;
-    String waveFilePath;
-};
-
+        if (yield) {
+            // No channel has played any audio data -> No audio is currently played -> Yield the thread
+            Async::Thread::yield();
+        }
+    }
 }
 
-#endif
+void AudioRunnable::stop() {
+    isRunning = false;
+}
+
+}

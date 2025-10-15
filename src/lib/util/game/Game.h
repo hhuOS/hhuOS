@@ -27,8 +27,7 @@
 #ifndef HHUOS_GAME_H
 #define HHUOS_GAME_H
 
-#include "AudioChannel.h"
-#include "AudioHandle.h"
+#include "audio/AudioChannel.h"
 #include "io/file/File.h"
 #include "lib/util/collection/ArrayListQueue.h"
 
@@ -76,7 +75,7 @@ public:
 
     void switchToNextScene();
 
-    AudioHandle playAudioBuffer(const AudioBuffer &buffer, bool loop);
+    AudioHandle playAudioTrack(const AudioTrack &track, bool loop);
 
     void stopAllAudioChannels();
 

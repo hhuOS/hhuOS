@@ -18,46 +18,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef AUDIORUNNABLE_H
-#define AUDIORUNNABLE_H
+#ifndef HHUOS_LIB_UTIL_GAME_AUDIOBUFFER_H
+#define HHUOS_LIB_UTIL_GAME_AUDIOBUFFER_H
 
 #include "async/Runnable.h"
-#include "async/Spinlock.h"
 #include "collection/Array.h"
-#include "game/AudioChannel.h"
+#include "game/audio/AudioChannel.h"
 
 namespace Util::Game {
 
-class AudioRunnable : public Async::Runnable {
+/// Runnable that manages a set of audio channels for playback.
+/// The game engine creates a fixed pool of audio channels for playing sounds.
+/// This runnable iterates over all channels and calls their `update()` method,
+/// ensuring that they are continuously fed with audio data.
+class AudioRunnable final : public Async::Runnable {
 
 public:
-    /**
-     * Constructor.
-     */
+    /// Create a new audio runnable that manages the specified array of audio channels.
     explicit AudioRunnable(Array<AudioChannel> &channels);
 
-    /**
-     * Copy Constructor.
-     */
+    /// Audio runnable is not copyable, so the copy constructor is deleted.
     AudioRunnable(const AudioRunnable &other) = delete;
 
-    /**
-     * Assignment operator.
-     */
-    AudioRunnable &operator=(const AudioRunnable &other) = delete;
+    /// Audio runnable is not copyable, so the assignment operator is deleted.
+    AudioRunnable& operator=(const AudioRunnable &other) = delete;
 
-    /**
-     * Destructor.
-     */
-    ~AudioRunnable() override = default;
-
+    /// Main loop of the runnable that continuously updates all audio channels.
+    /// If all channels are idle or full, it yields the thread to save CPU resources.
     void run() override;
 
+    /// Stop the runnable's main loop.
+    /// This will cause the `run()` method to exit its loop and finish,
+    /// stopping all audio channel updates for the game engine.
     void stop();
 
 private:
 
-    bool isRunning = false;
+    volatile bool isRunning = false;
     Array<AudioChannel> &channels;
 };
 

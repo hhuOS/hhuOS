@@ -23,7 +23,8 @@
 
 #include <stdint.h>
 
-#include "game/Audio.h"
+#include "lib/util/game/audio/AudioHandle.h"
+#include "lib/util/game/audio/AudioTrack.h"
 #include "lib/util/game/2d/SpriteAnimation.h"
 #include "lib/util/game/2d/Entity.h"
 
@@ -77,7 +78,8 @@ public:
 private:
 
     Util::String waveFilePath;
-    Util::Game::Audio soundEffect;
+    Util::Game::AudioTrack soundEffect;
+    Util::Game::AudioHandle soundEffectHandle;
 
     double animationTime;
     Util::Game::D2::SpriteAnimation animation;

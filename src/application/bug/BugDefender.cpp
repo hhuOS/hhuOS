@@ -33,7 +33,7 @@
 #include "lib/util/game/Graphics.h"
 
 void BugDefender::initialize() {
-    backgroundMusic = Util::Game::Audio("/user/bug/music.wav");
+    backgroundMusic = Util::Game::AudioTrack("/user/bug/music.wav");
 
     addObject(ship);
 

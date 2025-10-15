@@ -24,7 +24,7 @@
 
 namespace Util::Async {
 
-size_t IdGenerator::next() {
+size_t IdGenerator::getNextId() {
     return Atomic<size_t>(idCounter).fetchAndInc();
 }
 

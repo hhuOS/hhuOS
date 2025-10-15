@@ -18,51 +18,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef AUDIOCHANNEL_H
-#define AUDIOCHANNEL_H
+#include "AudioTrack.h"
 
-#include "AudioBuffer.h"
-#include "sound/AudioChannel.h"
-#include "sound/WaveFile.h"
+#include "game/Game.h"
+#include "game/GameManager.h"
+#include "game/ResourceManager.h"
+#include "game/audio/AudioHandle.h"
 
 namespace Util::Game {
 
-class AudioChannel : public Sound::AudioChannel {
+Async::IdGenerator AudioTrack::idGenerator;
 
-public:
-    /**
-     * Default Constructor.
-     */
-    AudioChannel() = default;
-
-    /**
-     * Copy Constructor.
-     */
-    AudioChannel(const AudioChannel &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    AudioChannel &operator=(const AudioChannel &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~AudioChannel() override = default;
-
-    void play(const AudioBuffer &buffer, bool loop = false);
-
-    bool update();
-
-    [[nodiscard]] String getWaveFilePath() const;
-
-private:
-
-    const AudioBuffer *buffer = nullptr;
-    uint32_t position = 0;
-    bool loop = false;
-};
-
+AudioTrack::AudioTrack(const String &waveFilePath) : id(idGenerator.getNextId() ?: idGenerator.getNextId()) {
+    if (ResourceManager::hasAudioBuffer(waveFilePath)) {
+        buffer = ResourceManager::getAudioBuffer(waveFilePath);
+    } else {
+        buffer = new AudioBuffer(waveFilePath);
+        ResourceManager::addAudioBuffer(waveFilePath, buffer);
+    }
 }
 
-#endif
+AudioHandle AudioTrack::play(const bool loop) const {
+    if (buffer == nullptr) {
+        Panic::fire(Panic::INVALID_ARGUMENT, "AudioTrack: No audio buffer assigned!");
+    }
+
+    return GameManager::getGame().playAudioTrack(*this, loop);
+}
+
+const AudioBuffer& AudioTrack::getBuffer() const {
+    return *buffer;
+}
+
+size_t AudioTrack::getId() const {
+    return id;
+}
+
+}

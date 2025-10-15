@@ -28,7 +28,7 @@
 #include "MouseListener.h"
 #include "Engine.h"
 
-#include "AudioRunnable.h"
+#include "game/audio/AudioRunnable.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/KeyListener.h"

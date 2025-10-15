@@ -27,8 +27,7 @@
 #ifndef HHUOS_RESOURCEMANAGER_H
 #define HHUOS_RESOURCEMANAGER_H
 
-#include "AudioChannel.h"
-#include "io/file/File.h"
+#include "audio/AudioBuffer.h"
 #include "lib/util/base/String.h"
 #include "lib/tinygl/include/GL/gl.h"
 
