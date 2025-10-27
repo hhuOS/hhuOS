@@ -41,7 +41,7 @@ endif()
 
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic lib.user.sound lib.user.libc)
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic lib.user.sound lib.user.kepler lib.user.libc)
 target_compile_options(${PROJECT_NAME} PUBLIC
 		$<$<COMPILE_LANGUAGE:C>:-std=c17>
 		$<$<COMPILE_LANGUAGE:C>:-Wno-sign-compare>
@@ -86,7 +86,6 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 )
 
 target_sources(${PROJECT_NAME} PRIVATE
-		${HHUOS_SRC_DIR}/application/desktop/Protocol.cpp
 		${HHUOS_SRC_DIR}/application/doom/doomgeneric_hhuos.cpp
         ${HHUOS_SRC_DIR}/application/doom/doomgeneric/doomgeneric/am_map.c
         ${HHUOS_SRC_DIR}/application/doom/doomgeneric/doomgeneric/d_event.c

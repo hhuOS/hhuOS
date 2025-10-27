@@ -18,30 +18,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#ifndef HHUOS_LIB_KEPLER_WINDOWMANAGERPIPE_H
+#define HHUOS_LIB_KEPLER_WINDOWMANAGERPIPE_H
 
-#include "async/Thread.h"
-#include "kepler/WindowManagerPipe.h"
-#include "kepler/Protocol.h"
-#include "kepler/Window.h"
-#include "graphic/Colors.h"
-#include "time/Timestamp.h"
+#include "util/async/Streamable.h"
+#include "util/io/stream/FileInputStream.h"
+#include "util/io/stream/FileOutputStream.h"
 
-int32_t main([[maybe_unused]] int32_t argc, char *argv[]) {
-    auto pipe = Kepler::WindowManagerPipe();
-    const auto window = Kepler::Window(320, 240, argv[0], pipe);
-    const auto &lfb = window.getFrameBuffer();
+namespace Kepler {
 
-    while (true) {
-        lfb.fillSquare(10, 10, 100, Util::Graphic::Colors::HHU_BLUE);
-        window.flush();
+class WindowManagerPipe {
 
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofSeconds(1));
+public:
 
-        lfb.fillSquare(10, 10, 100, Util::Graphic::Colors::HHU_GREEN);
-        window.flush();
+    WindowManagerPipe();
 
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofSeconds(1));
-    }
+    WindowManagerPipe(const WindowManagerPipe &other) = delete;
 
-    return 0;
+    WindowManagerPipe& operator=(const WindowManagerPipe &other) = delete;
+
+    ~WindowManagerPipe();
+
+    [[nodiscard]] bool sendRequest(const Util::Async::Streamable &streamable) const;
+
+    [[nodiscard]] bool receiveResponse(Util::Async::Streamable &streamable) const;
+
+    [[nodiscard]] size_t getWindowManagerProcessId() const;
+
+private:
+
+    size_t windowManagerProcessId = 0;
+
+    Util::Io::FileInputStream *inputStream = nullptr;
+    Util::Io::FileOutputStream *outputStream = nullptr;
+};
+
 }
+
+#endif
