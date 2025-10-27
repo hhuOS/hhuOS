@@ -141,9 +141,8 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/doom/doomgeneric/doomgeneric/wi_stuff.c
         ${HHUOS_SRC_DIR}/application/doom/doomgeneric/doomgeneric/w_main.c
         ${HHUOS_SRC_DIR}/application/doom/doomgeneric/doomgeneric/w_wad.c
-        ${HHUOS_SRC_DIR}/application/doom/doomgeneric/doomgeneric/z_zone.c
-		${HHUOS_SRC_DIR}/application/desktop/Protocol.cpp)
+        ${HHUOS_SRC_DIR}/application/doom/doomgeneric/doomgeneric/z_zone.c)
 
 add_executable(doom ${SOURCE_FILES})
 
-target_link_libraries(doom lib.user.runtime lib.user.base lib.user.graphic lib.user.sound lib.user.libc)
+target_link_libraries(doom lib.user.runtime lib.user.base lib.user.graphic lib.user.sound lib.user.libc lib.user.kepler)

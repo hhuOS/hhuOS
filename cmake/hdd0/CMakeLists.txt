@@ -38,13 +38,13 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
 		COMMAND /bin/cp "$<TARGET_FILE:ctest>" "bin/ctest"
         COMMAND /bin/cp "$<TARGET_FILE:date>" "bin/date"
         COMMAND /bin/cp "$<TARGET_FILE:demo>" "bin/demo"
-		COMMAND /bin/cp "$<TARGET_FILE:desktop>" "bin/desktop"
         COMMAND /bin/cp "$<TARGET_FILE:dino>" "bin/dino"
 		COMMAND /bin/cp "$<TARGET_FILE:doom>" "bin/doom"
         COMMAND /bin/cp "$<TARGET_FILE:echo>" "bin/echo"
         COMMAND /bin/cp "$<TARGET_FILE:head>" "bin/head"
         COMMAND /bin/cp "$<TARGET_FILE:hexdump>" "bin/hexdump"
         COMMAND /bin/cp "$<TARGET_FILE:ip>" "bin/ip"
+		COMMAND /bin/cp "$<TARGET_FILE:kepler>" "bin/kepler"
         COMMAND /bin/cp "$<TARGET_FILE:keyboard>" "bin/keyboard"
         COMMAND /bin/cp "$<TARGET_FILE:kill>" "bin/kill"
 		COMMAND /bin/cp "$<TARGET_FILE:litenes>" "bin/litenes"
@@ -89,9 +89,9 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
 		COMMAND /bin/rm "${CMAKE_BINARY_DIR}/part.img" "${CMAKE_BINARY_DIR}/fill.img"
         COMMAND /bin/echo -e "'o\\nn\\np\\n1\\n2048\\n\\nt\\ne\\nw\\n'" | fdisk "${HHUOS_ROOT_DIR}/hdd0.img"
         DEPENDS asciimation-star-wars beep-files books-gutenberg classicube-resources doom-wad gameboy-roms megadrive-roms nes-roms quake-pak wav-files
-				shell asciimate battlespace beep bug cat classicube cp ctest date demo desktop dino doom echo head hexdump ip keyboard kill litenes ls membench mkdir mount nettest peanut-gb ping play portablegl ps pwd quake rm rmdir rogue3d shutdown smbios tinygl touch tree uecho unmount uptime view3d wintest)
+				shell asciimate battlespace beep bug cat classicube cp ctest date demo dino doom echo head hexdump ip kepler keyboard kill litenes ls membench mkdir mount nettest peanut-gb ping play portablegl ps pwd quake rm rmdir rogue3d shutdown smbios tinygl touch tree uecho unmount uptime view3d wintest)
 
 add_custom_target(${PROJECT_NAME}
 		DEPENDS asciimation-star-wars beep-files books-gutenberg classicube-resources doom-wad gameboy-roms megadrive-roms nes-roms quake-pak wav-files
-				shell asciimate battlespace beep bug cat classicube clownmdemu cp ctest date demo desktop dino doom echo head hexdump ip keyboard kill litenes ls membench mkdir mount nettest peanut-gb ping play portablegl ps pwd quake rm rmdir rogue3d shutdown smbios tinygl touch tree uecho unmount uptime view3d wintest
+				shell asciimate battlespace beep bug cat classicube clownmdemu cp ctest date demo dino doom echo head hexdump ip kepler keyboard kill litenes ls membench mkdir mount nettest peanut-gb ping play portablegl ps pwd quake rm rmdir rogue3d shutdown smbios tinygl touch tree uecho unmount uptime view3d wintest
 		"${HHUOS_ROOT_DIR}/hdd0.img")

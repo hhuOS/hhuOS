@@ -30,7 +30,7 @@ namespace Io {
 FileOutputStream::FileOutputStream(const String &path) {
     fileDescriptor = File::open(path);
     if (fileDescriptor < 0) {
-        Util::Panic::fire(Panic::ILLEGAL_STATE, "FileOutputStream: Unable to open file!");
+        Util::Panic::fire(Panic::ILLEGAL_STATE, "FileOutputStream: Failed to open file!");
     }
 }
 
