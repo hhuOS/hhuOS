@@ -22,19 +22,17 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #include "Scene.h"
 
-#include "lib/util/game/Entity.h"
-
-namespace Util {
-namespace Game {
-class Camera;
-class KeyListener;
-class MouseListener;
-}  // namespace Game
-}  // namespace Util
+#include "game/Entity.h"
 
 namespace Util::Game {
 
@@ -48,18 +46,23 @@ Scene::~Scene() {
     entities.clear();
 }
 
-void Scene::addObject(Entity *object) {
+void Scene::update([[maybe_unused]] double delta) {}
+
+void Scene::addEntity(Entity *object) {
+    object->scene = this;
     addList.add(object);
 }
 
-void Scene::removeObject(Entity *object) {
+void Scene::removeEntity(Entity *object) {
     if (!removeList.contains(object)) {
         removeList.add(object);
     }
 }
 
 void Scene::applyChanges() {
+    // An entity might add further entities during its initialization, so we need to loop until all are added.
     while (addList.size() > 0) {
+        // We copy the list to avoid issues with entities adding further entities during initialization.
         for (auto *entity: addList.toArray()) {
             entity->initialize();
             entities.add(entity);
@@ -67,39 +70,45 @@ void Scene::applyChanges() {
         }
     }
 
+    // An entity might remove further entities during its deletion, so we need to loop until all are removed.
     while (removeList.size() > 0) {
+        // We copy the list to avoid issues with entities removing further entities during deletion.
         for (auto *object: removeList.toArray()) {
-            bool removed;
-            do {
-                removed = entities.remove(object);
-                removeList.remove(object);
-            } while (removed);
-
+            entities.remove(object);
+            removeList.remove(object);
             delete object;
         }
     }
 }
 
-void Scene::draw(Graphics &graphics) {
+void Scene::draw(Graphics &graphics) const {
     for (auto *object : entities) {
         object->draw(graphics);
     }
 }
 
-uint32_t Scene::getObjectCount() const {
-    return entities.size();
-}
+void Scene::keyPressed([[maybe_unused]] const Io::Key &key) {}
 
-void Scene::setKeyListener(KeyListener &listener) {
-    keyListener = &listener;
-}
+void Scene::keyReleased([[maybe_unused]] const Io::Key &key) {}
 
-void Scene::setMouseListener(MouseListener &listener) {
-    mouseListener = &listener;
+void Scene::mouseButtonPressed([[maybe_unused]] Io::MouseDecoder::Button button) {}
+
+void Scene::mouseButtonReleased([[maybe_unused]] Io::MouseDecoder::Button button) {}
+
+void Scene::mouseMoved([[maybe_unused]] const Math::Vector2<double> &relativeMovement) {}
+
+void Scene::mouseScrolled([[maybe_unused]] Io::MouseDecoder::ScrollDirection direction) {}
+
+const ArrayList<Entity*>& Scene::getEntities() const {
+    return entities;
 }
 
 Camera& Scene::getCamera() {
     return camera;
+}
+
+uint32_t Scene::getObjectCount() const {
+    return entities.size();
 }
 
 }

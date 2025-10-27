@@ -22,37 +22,35 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
-#ifndef HHUOS_CANCELABLEEVENT_H
-#define HHUOS_CANCELABLEEVENT_H
+
+#ifndef HHUOS_LIB_UTIL_GAME_CANCELABLEEVENT_H
+#define HHUOS_LIB_UTIL_GAME_CANCELABLEEVENT_H
 
 namespace Util::Game {
 
+/// A subclass of `Event` that can be canceled.
+/// For example, `TranslationEvent` is a cancelable event. One example where a `TranslationEvent` occurs,
+/// is if an entity has a dynamic collider and collides with another entity. In this case, a `TranslationEvent` is
+/// created to move the entity away from the collision. This translation can then be canceled
+/// by the collision event handler, preventing the entity from being moved.
 class CancelableEvent {
 
 public:
-    /**
-    * Default Constructor.
-    */
+    /// Create a new cancelable event instance.
     CancelableEvent() = default;
 
-    /**
-     * Copy Constructor.
-     */
-    CancelableEvent(const CancelableEvent &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    CancelableEvent &operator=(const CancelableEvent &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~CancelableEvent() = default;
-
+    /// Cancel the event. This can be called by event handlers to prevent the action from being performed
+    /// (e.g. prevent an entity from being moved by a `TranslationEvent`).
     void cancel();
 
+    /// Check if the event has been canceled.
     [[nodiscard]] bool isCanceled() const;
 
 private:

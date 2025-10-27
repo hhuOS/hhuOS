@@ -22,9 +22,8 @@
 #define HHUOS_BUG_DEFENDER_INTROSCREEN_H
 
 #include "lib/util/game/2d/Scene.h"
-#include "lib/util/game/KeyListener.h"
 
-class IntroScreen : public Util::Game::D2::Scene, public Util::Game::KeyListener {
+class IntroScreen : public Util::Game::D2::Scene {
 
 public:
     /**

@@ -26,7 +26,6 @@
 
 #include <stdint.h>
 
-#include "lib/util/game/KeyListener.h"
 #include "lib/util/game/2d/Scene.h"
 #include "lib/util/io/file/File.h"
 #include "application/dino/entity/Block.h"
@@ -38,7 +37,7 @@ template <typename T, typename U> class Pair;
 template <typename T> class ArrayList;
 }  // namespace Util
 
-class Level : public Util::Game::D2::Scene, public Util::Game::KeyListener {
+class Level : public Util::Game::D2::Scene {
 
 public:
     /**

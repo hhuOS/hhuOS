@@ -23,10 +23,12 @@
 
 #include "RainEmitter.h"
 
+#include "Dino.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
 #include "lib/util/game/2d/component/LinearMovementComponent.h"
 #include "DropletEmitter.h"
-#include "lib/util/game/GameManager.h"
+#include "Ground.h"
+#include "game/2d/event/CollisionEvent.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/base/String.h"
 #include "lib/util/game/2d/collider/RectangleCollider.h"
@@ -52,7 +54,7 @@ void RainEmitter::onUpdate(double delta) {
     Emitter::onUpdate(delta);
 }
 
-void RainEmitter::draw(Util::Game::Graphics &graphics) {
+void RainEmitter::draw(Util::Game::Graphics &graphics) const {
     cloudSprite.draw(graphics, getPosition());
 }
 
@@ -81,10 +83,12 @@ void RainEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
 void RainEmitter::onParticleUpdate([[maybe_unused]] Util::Game::D2::Particle &particle, [[maybe_unused]] double delta) {}
 
 void RainEmitter::onParticleCollision(Util::Game::D2::Particle &particle, [[maybe_unused]] Util::Game::D2::CollisionEvent &event) {
-    removeParticle(&particle);
+    if (event.getCollidedWidth().getTag() == Ground::TAG || event.getCollidedWidth().getTag() == Dino::TAG) {
+        auto *dropletEmitter = new DropletEmitter(particle.getPosition());
+        getScene().addEntity(dropletEmitter);
+
+        removeParticle(&particle);
+    }
 }
 
-void RainEmitter::onParticleDestruction(Util::Game::D2::Particle &particle) {
-    auto *dropletEmitter = new BloodEmitter(particle.getPosition());
-    Util::Game::GameManager::getCurrentScene().addObject(dropletEmitter);
-}
+void RainEmitter::onParticleDestruction([[maybe_unused]] Util::Game::D2::Particle &particle) {}

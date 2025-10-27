@@ -68,7 +68,7 @@ public:
 
     void setPosition(const Math::Vector2<double> &newPosition);
 
-    void draw(Graphics &graphics) override;
+    void draw(Graphics &graphics) const override;
 
 private:
 

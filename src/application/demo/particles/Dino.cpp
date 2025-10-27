@@ -53,6 +53,6 @@ void Dino::onTranslationEvent([[maybe_unused]] Util::Game::D2::TranslationEvent 
 
 void Dino::onCollisionEvent([[maybe_unused]] Util::Game::D2::CollisionEvent &event) {}
 
-void Dino::draw(Util::Game::Graphics &graphics) {
+void Dino::draw(Util::Game::Graphics &graphics) const {
     animation.draw(graphics, getPosition());
 }

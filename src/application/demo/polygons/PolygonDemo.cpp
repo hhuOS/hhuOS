@@ -23,7 +23,6 @@
 #include "DemoPolygon.h"
 #include "DemoPolygonFactory.h"
 #include "lib/util/io/key/Key.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 
 PolygonDemo::PolygonDemo(uint32_t initialCount) : initialCount(initialCount) {}
@@ -32,10 +31,10 @@ void PolygonDemo::initialize() {
     for (uint32_t i = 0; i < initialCount; i++) {
         auto *polygon = factory.createPolygon();
         polygons.offer(polygon);
-        addObject(polygon);
+        addEntity(polygon);
     }
 
-    setKeyListener(*this);
+
 }
 
 void PolygonDemo::update([[maybe_unused]] double delta) {}
@@ -45,17 +44,17 @@ void PolygonDemo::keyPressed(const Util::Io::Key &key) {
         case Util::Io::Key::PLUS: {
             auto *polygon = factory.createPolygon();
             polygons.offer(polygon);
-            addObject(polygon);
+            addEntity(polygon);
             break;
         }
         case Util::Io::Key::MINUS: {
             if (polygons.size() > 0) {
-                removeObject(polygons.poll());
+                removeEntity(polygons.poll());
             }
             break;
         }
         case Util::Io::Key::ESC:
-            Util::Game::GameManager::getGame().stop();
+            Util::Game::Game::getInstance().stop();
             break;
         default:
             break;

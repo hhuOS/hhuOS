@@ -322,6 +322,19 @@ public:
     /// ```
     [[nodiscard]] size_t toYears() const;
 
+    /// Convert the timestamp to a double representing the total number of seconds.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto timestamp1 = Util::Time::Timestamp::ofMilliseconds(2500);
+    /// const auto timestamp2 = Util::Time::Timestamp::ofSeconds(2)
+    ///
+    /// const auto seconds1 = timestamp.toSecondsFloat<float>(); // seconds = 2.5
+    /// const auto seconds2 = timestamp.toSecondsFloat<double>(); // seconds = 2.0
+    /// ```
+    template <typename T>
+    [[nodiscard]] T toSecondsFloat() const;
+
 private:
 
     size_t seconds = 0;
@@ -329,6 +342,11 @@ private:
 
     static constexpr uint32_t NANOSECONDS_PER_SECOND = 1000000000;
 };
+
+template<typename T>
+T Timestamp::toSecondsFloat() const {
+    return seconds + static_cast<T>(fraction) / static_cast<T>(NANOSECONDS_PER_SECOND);
+}
 
 }
 

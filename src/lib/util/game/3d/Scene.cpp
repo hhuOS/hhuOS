@@ -53,13 +53,13 @@ void Scene::initializeScene(Graphics &graphics) {
 
     initialize();
 
-    for (auto *entity : entities) {
+    for (auto *entity : getEntities()) {
         entity->initialize();
     }
 }
 
 void Scene::updateEntities(double delta) {
-    for (auto *entity : entities) {
+    for (auto *entity : getEntities()) {
         reinterpret_cast<Util::Game::D3::Entity*>(entity)->update(delta);
     }
 }
@@ -67,11 +67,11 @@ void Scene::updateEntities(double delta) {
 void Scene::checkCollisions() {
     auto detectedCollisions = Util::ArrayList<Pair<Entity*, Entity*>>();
 
-    for (auto *entity : entities) {
+    for (auto *entity : getEntities()) {
         auto *entity3D = reinterpret_cast<D3::Entity*>(entity);
 
         if (entity3D->hasCollider()) {
-            for (auto *otherEntity : entities) {
+            for (auto *otherEntity : getEntities()) {
                 auto *otherEntity3D = reinterpret_cast<D3::Entity*>(otherEntity);
                 if (entity == otherEntity || !otherEntity3D->hasCollider() || detectedCollisions.contains(Util::Pair(entity3D, otherEntity3D)) || detectedCollisions.contains(Util::Pair(otherEntity3D, entity3D))) {
                     continue;
@@ -120,7 +120,7 @@ const Graphic::Color &Scene::getAmbientLight() const {
     return ambientLight;
 }
 
-D3::Light &Scene::getLight(uint32_t index) {
+const Light &Scene::getLight(uint32_t index) const {
     if (lights[index] == nullptr) {
         Panic::fire(Util::Panic::NULL_POINTER, "Scene: Light does not exist!");
     }

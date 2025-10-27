@@ -25,7 +25,6 @@
 
 #include "PlayerDino.h"
 #include "lib/util/game/2d/event/CollisionEvent.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "application/dino/Level.h"
 #include "lib/util/base/String.h"
@@ -63,7 +62,7 @@ void Fruit::onUpdate(double delta) {
     animation.update(delta);
 }
 
-void Fruit::draw(Util::Game::Graphics &graphics) {
+void Fruit::draw(Util::Game::Graphics &graphics) const {
     animation.draw(graphics, getPosition());
 }
 
@@ -72,7 +71,7 @@ void Fruit::onTranslationEvent([[maybe_unused]] Util::Game::D2::TranslationEvent
 void Fruit::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == PlayerDino::TAG) {
         auto &dino = reinterpret_cast<PlayerDino&>(event.getCollidedWidth());
-        auto &game = Util::Game::GameManager::getGame();
+        auto &game = Util::Game::Game::getInstance();
         game.pushScene(new Level(nextLevelFile, dino.getPoints() + 10));
         game.switchToNextScene();
     }

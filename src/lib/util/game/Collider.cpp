@@ -22,17 +22,25 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #include "Collider.h"
 
-#include "lib/util/math/Vector2.h"
+#include "math/Vector2.h"
 
 namespace Util::Game {
 
-Collider::Collider(const Math::Vector2<double> &position, Collider::Type type) : position(position.getX(), position.getY(), 0), type(type) {}
+Collider::Collider(const Math::Vector2<double> &position, const Type type) :
+    position(position.getX(), position.getY(), 0), type(type) {}
 
-Collider::Collider(const Math::Vector3<double> &position, Collider::Type type) : position(position), type(type) {}
+Collider::Collider(const Math::Vector3<double> &position, const Type type) :
+    position(position), type(type) {}
 
 const Math::Vector3<double> &Collider::getPosition() const {
     return position;

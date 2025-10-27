@@ -22,189 +22,53 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_ENGINE_H
-#define HHUOS_ENGINE_H
+#ifndef HHUOS_LIB_UTIL_ENGINE_H
+#define HHUOS_LIB_UTIL_ENGINE_H
 
+#include <stddef.h>
 #include <stdint.h>
 
-#include "Game.h"
-#include "audio/AudioRunnable.h"
-#include "lib/util/async/Runnable.h"
-#include "lib/util/time/Timestamp.h"
-#include "lib/util/game/Graphics.h"
-#include "lib/util/collection/ArrayList.h"
-#include "lib/util/io/key/Key.h"
-#include "lib/util/io/key/KeyDecoder.h"
-#include "lib/util/io/key/layout/DeLayout.h"
-#include "lib/util/io/key/MouseDecoder.h"
+#include "async/Runnable.h"
+#include "game/Game.h"
+#include "game/Graphics.h"
+#include "game/Statistics.h"
+#include "graphic/LinearFrameBuffer.h"
+#include "io/key/KeyDecoder.h"
+#include "io/key/MouseDecoder.h"
+#include "io/key/layout/DeLayout.h"
 
-namespace Util {
-namespace Io {
-class FileInputStream;
-}  // namespace Io
-
-namespace Graphic {
-class LinearFrameBuffer;
-}  // namespace Graphic
-}  // namespace Util
 
 namespace Util::Game {
 
-class Engine : public Async::Runnable {
+/// The main game engine class, which runs the game loop.
+/// It handles input, updates the game state, and triggers rendering.
+class Engine final : public Async::Runnable {
 
 public:
-    /**
-     * Constructor.
-     */
-    Engine(const Graphic::LinearFrameBuffer &lfb, uint8_t targetFrameRate, double scaleFactor);
+    /// Create a new game engine instance.
+    /// This is the first component that has to be created to run a game.
+    /// After creating the engine, the game instance can be accessed via Game::getInstance()
+    /// and scenes can be pushed to the game.
+    explicit Engine(const Graphic::LinearFrameBuffer &lfb, uint8_t targetFrameRate = 60, double scaleFactor = 1.0);
 
-    /**
-     * Copy Constructor.
-     */
+    /// There should only be one engine instance per game, so the copy constructor is deleted.
     Engine(const Engine &other) = delete;
 
-    /**
-     * Assignment operator.
-     */
+    /// There should only be one engine instance per game, so the assignment operator is deleted.
     Engine &operator=(const Engine &other) = delete;
 
-    /**
-     * Destructor.
-     */
-    ~Engine() override;
-
+    /// Run the main game loop.
     void run() override;
 
 private:
-
-    struct Statistics {
-
-        struct Gather {
-            uint32_t framesPerSecond = 0;
-            Time::Timestamp frameTime;
-            Time::Timestamp drawTime;
-            Time::Timestamp updateTime;
-            Time::Timestamp idleTime;
-        };
-
-        void startFrameTime() {
-            frameTimeStart = Time::Timestamp::getSystemTime();
-        }
-
-        void stopFrameTime() {
-            const auto frameTime = Time::Timestamp::getSystemTime() - frameTimeStart;
-            frameTimes[frameTimesIndex++ % ARRAY_SIZE] = frameTime;
-            frames++;
-
-            timeCounter += frameTime;
-            if (timeCounter >= Time::Timestamp::ofSeconds(1)) {
-                framesPerSecond = frames;
-                frames = 0;
-                timeCounter = Time::Timestamp();
-            }
-        }
-
-        void startDrawTime() {
-            drawTimeStart = Time::Timestamp::getSystemTime();
-        }
-
-        void stopDrawTime() {
-            drawTimes[drawTimesIndex++ % ARRAY_SIZE] = Time::Timestamp::getSystemTime() - drawTimeStart;
-        }
-
-        void startUpdateTime() {
-            updateTimeStart = Time::Timestamp::getSystemTime();
-        }
-
-        void stopUpdateTimeTime() {
-            updateTimes[updateTimesIndex++ % ARRAY_SIZE] = Time::Timestamp::getSystemTime() - updateTimeStart;
-        }
-
-        void startIdleTime() {
-            idleTimeStart = Time::Timestamp::getSystemTime();
-        }
-
-        void stopIdleTime() {
-            idleTimes[idleTimesIndex++ % ARRAY_SIZE] = Time::Timestamp::getSystemTime() - idleTimeStart;
-        }
-
-        [[nodiscard]] const Time::Timestamp& getLastFrameTime() const {
-            const auto index = frameTimesIndex % ARRAY_SIZE;
-            return frameTimes[index == 0 ? ARRAY_SIZE - 1 : index - 1];
-        }
-
-        [[nodiscard]] const Time::Timestamp& getLastDrawTime() const {
-            const auto index = drawTimesIndex % ARRAY_SIZE;
-            return drawTimes[index == 0 ? ARRAY_SIZE - 1 : index - 1];
-        }
-
-        [[nodiscard]] const Time::Timestamp& getLastUpdateTime() const {
-            const auto index = updateTimesIndex % ARRAY_SIZE;
-            return updateTimes[index == 0 ? ARRAY_SIZE - 1 : index - 1];
-        }
-
-        [[nodiscard]] Gather gather() const {
-            Gather gather{};
-            uint32_t count = frameTimesIndex < ARRAY_SIZE ? frameTimesIndex : ARRAY_SIZE;
-
-            if (count > 0) {
-                for (uint32_t i = 0; i < count; i++) {
-                    gather.frameTime += frameTimes[i];
-                    gather.drawTime += drawTimes[i];
-                    gather.updateTime += updateTimes[i];
-                    gather.idleTime += idleTimes[i];
-                }
-
-                gather.framesPerSecond = framesPerSecond;
-                gather.frameTime = Time::Timestamp::ofMicroseconds(gather.frameTime.toMicroseconds() / count);
-                gather.drawTime = Time::Timestamp::ofMicroseconds(gather.drawTime.toMicroseconds() / count);
-                gather.updateTime = Time::Timestamp::ofMicroseconds(gather.updateTime.toMicroseconds() / count);
-                gather.idleTime = Time::Timestamp::ofMicroseconds(gather.idleTime.toMicroseconds() / count);
-            }
-
-            return gather;
-        }
-
-        void reset() {
-            frames = 0;
-            framesPerSecond = 0;
-            timeCounter = Time::Timestamp();
-
-            frameTimesIndex = 0;
-            drawTimesIndex = 0;
-            updateTimesIndex = 0;
-            idleTimesIndex = 0;
-
-            frameTimeStart = Time::Timestamp();
-            drawTimeStart = Time::Timestamp();
-            updateTimeStart = Time::Timestamp();
-            idleTimeStart = Time::Timestamp();
-        }
-
-    private:
-        static const constexpr uint32_t ARRAY_SIZE = 100;
-
-        uint32_t frames = 0;
-        uint32_t framesPerSecond = 0;
-        Time::Timestamp timeCounter;
-
-        Time::Timestamp frameTimes[ARRAY_SIZE]{};
-        Time::Timestamp drawTimes[ARRAY_SIZE]{};
-        Time::Timestamp updateTimes[ARRAY_SIZE]{};
-        Time::Timestamp idleTimes[ARRAY_SIZE]{};
-
-        uint32_t frameTimesIndex = 0;
-        uint32_t drawTimesIndex = 0;
-        uint32_t updateTimesIndex = 0;
-        uint32_t idleTimesIndex = 0;
-
-        Time::Timestamp frameTimeStart;
-        Time::Timestamp drawTimeStart;
-        Time::Timestamp updateTimeStart;
-        Time::Timestamp idleTimeStart;
-    };
 
     void initializeNextScene();
 
@@ -214,29 +78,28 @@ private:
 
     void checkKeyboard();
 
-    void checkMouse();
+    void checkMouse(Io::FileInputStream &mouseInputStream);
 
-    void checkMouseKey(Io::MouseDecoder::Button button, uint8_t lastButtonState, uint8_t currentButtonState);
+    void checkMouseKey(Io::MouseDecoder::Button button, uint8_t lastButtonState, uint8_t currentButtonState) const;
 
-    Game game;
     Graphics graphics;
+    Game game;
     Statistics statistics;
 
     bool showStatus = false;
     Time::Timestamp statusUpdateTimer;
     Statistics::Gather status = statistics.gather();
 
-    Io::FileInputStream *mouseInputStream;
     uint8_t mouseValues[4]{};
-    uint32_t mouseValueIndex = 0;
-    uint8_t lastMouseButtonState = 0;
+    size_t mouseValueIndex = 0;
+    uint8_t lastMouseButtons = 0;
 
     Io::KeyDecoder keyDecoder = Io::KeyDecoder(Io::DeLayout());
     ArrayList<Io::Key> pressedKeys;
 
-    const uint8_t targetFrameRate;
+    const size_t targetFrameRate;
 
-    static const constexpr char *LOADING = "Loading...";
+    static constexpr const char *LOADING = "Loading...";
 };
 
 }

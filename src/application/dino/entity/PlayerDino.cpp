@@ -34,16 +34,13 @@
 #include "lib/util/base/String.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/game/Game.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Scene.h"
 #include "Block.h"
 #include "lib/util/game/2d/component/LinearMovementComponent.h"
 #include "lib/util/game/2d/component/GravityComponent.h"
 #include "application/dino/GameOverScreen.h"
 
-PlayerDino::PlayerDino(const Util::Math::Vector2<double> &position) : Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE * 1.133), Util::Game::Collider::DYNAMIC)) {
-    Util::Game::GameManager::getCurrentScene().addObject(grassEmitter);
-}
+PlayerDino::PlayerDino(const Util::Math::Vector2<double> &position) : Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE * 1.133), Util::Game::Collider::DYNAMIC)) {}
 
 void PlayerDino::initialize() {
     idleAnimation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
@@ -83,6 +80,8 @@ void PlayerDino::initialize() {
 
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
     addComponent(new Util::Game::D2::GravityComponent(*this, 1.25, 0));
+
+    getScene().addEntity(grassEmitter);
 }
 
 void PlayerDino::idle() {
@@ -109,7 +108,7 @@ void PlayerDino::hatch() {
 
 void PlayerDino::onUpdate(double delta) {
     if (dead) {
-        auto &game = Util::Game::GameManager::getGame();
+        auto &game = Util::Game::Game::getInstance();
         game.pushScene(new GameOverScreen(points));
         game.switchToNextScene();
 
@@ -167,7 +166,7 @@ void PlayerDino::onUpdate(double delta) {
     getCollider().setSize(currentAnimation->getOriginalSize());
 }
 
-void PlayerDino::draw(Util::Game::Graphics &graphics) {
+void PlayerDino::draw(Util::Game::Graphics &graphics) const {
     if (direction == LEFT) {
         currentAnimation->setXFlipped(true);
     } else {

@@ -24,72 +24,112 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
-#ifndef HHUOS_GAME_H
-#define HHUOS_GAME_H
+#ifndef HHUOS_LIB_UTIL_GAME_GAME_H
+#define HHUOS_LIB_UTIL_GAME_GAME_H
 
 #include "audio/AudioChannel.h"
-#include "io/file/File.h"
-#include "lib/util/collection/ArrayListQueue.h"
-
-namespace Util {
-namespace Game {
-class Graphics;
-class Scene;
-}  // namespace Game
-}  // namespace Util
+#include "collection/ArrayListQueue.h"
+#include "game/Scene.h"
 
 namespace Util::Game {
 
+/// The main game class, which holds the queue of scenes and manages audio playback.
+/// A global instance of this class is created when the `Engine` is initialized.
+/// It can be used to push new scenes, switch between scenes, and play audio tracks.
+///
+/// Scenes are managed in a first-in-last-out (FILO) queue, allowing for easy scene transitions.
+/// All scenes must be heaped-allocated and the game instance takes ownership of them,
+/// once they are pushed to the queue. This means that the game instance is responsible for deleting
+/// the scenes when they are no longer needed.
+///
+/// The game instance also manages audio playback through a set of audio channels.
+/// Audio tracks can be played on these channels, with support for looping playback.
+/// There are a fixed number of 8 audio channels available for simultaneous playback.
 class Game {
 
-friend class Engine;
-
 public:
-    /**
-     * Default Constructor.
-     */
-    Game();
-
-    /**
-     * Copy Constructor.
-     */
+    /// There should only be one instance of the Game class per game, so the copy constructor is deleted.
     Game(const Game &other) = delete;
 
-    /**
-     * Assignment operator.
-     */
+    /// There should only be one instance of the Game class per game, so the assignment operator is deleted.
     Game &operator=(const Game &other) = delete;
 
-    /**
-     * Destructor.
-     */
+    /// Destroy the game instance, cleaning up and deleting all scenes.
     ~Game();
 
+    /// Get the global instance of the Game class.
+    /// The global instance is created when the `Engine` is initialized.
+    /// Calling this function before creating an engine instance will fire a panic.
+    static Game& getInstance();
+
+    /// Stop the game loop, causing the engine to exit.
+    /// This method should be called to gracefully terminate the game.
     void stop();
 
+    /// Check if the game is currently running.
+    /// This method returns true while the game loop is active and false before it starts or after it has been stopped.
     [[nodiscard]] bool isRunning() const;
 
-    [[nodiscard]] Scene& getCurrentScene();
+    /// Get the currently active scene.
+    [[nodiscard]] Scene& getCurrentScene() const;
 
+    /// Push a new scene onto the scene stack.
+    /// The scene must be heaped-allocated and the game instance will take ownership of it.
+    /// This means that the game instance is responsible for deleting the scene when it is no longer needed.
     void pushScene(Scene *scene);
 
+    /// Switch to the next scene in the queue.
+    /// The current scene will be removed from the queue and deleted.
     void switchToNextScene();
 
-    AudioHandle playAudioTrack(const AudioTrack &track, bool loop);
+    /// Play an audio track on an available audio channel.
+    /// The returned audio handle can be used to control playback (e.g., stop the track).
+    /// If all audio channels are currently in use, the request will be ignored
+    /// and an invalid AudioHandle will be returned.
+    AudioHandle playAudioTrack(const AudioTrack &track, bool loop) const;
 
-    void stopAllAudioChannels();
+    /// Stop playback on all audio channels.
+    /// This will immediately stop all currently playing audio tracks.
+    /// The engine calls this method when switching scenes to ensure no audio from the previous scene continues playing.
+    void stopAllAudioChannels() const;
+
+    /// Get the screen transformation factor.
+    /// This factor is used to scale from the game coordinate system to the actual screen resolution.
+    /// The game uses a virtual coordinate system ranging from (-1, -1) to (1, 1) for the entire screen.
+    /// The transformation factor can be multiplied to any coordinate in this system
+    /// to get the corresponding pixel coordinate on the screen.
+    /// The engine calculates the transformation factor by taking the smaller axis of the target screen resolution
+    /// and dividing it by 2. For example, on a 800x600 screen, the transformation factor will be 300.
+    [[nodiscard]] uint16_t getScreenTransformation() const;
+
+    /// Get the dimensions of the game coordinate system.
+    /// The game uses a virtual coordinate system ranging from (-1, -1) to (1, 1) for the entire screen.
+    /// However, if the target screen resolution is not square,
+    /// one axis will have a larger range to maintain the aspect ratio.
+    /// For example, on a 800x600 screen, the coordinate system will range from (-1.33, -1) to (1.33, 1).
+    [[nodiscard]] const Math::Vector2<double>& getScreenDimensions() const;
 
 private:
 
+    friend class Engine;
+
+    Game(uint16_t screenTransformation, const Math::Vector2<double> &screenDimensions);
+
     void initializeNextScene(Graphics &graphics);
+
+    static Game *instance;
+
+    uint16_t screenTransformation;
+    Math::Vector2<double> screenDimensions;
 
     ArrayListQueue<Scene*> scenes;
     bool firstScene = true;
     bool sceneSwitched = true;
+    bool running = false;
 
     Array<AudioChannel> audioChannels;
 
-    bool running = true;
+    static constexpr size_t AUDIO_CHANNELS = 8;
 };
 
 }

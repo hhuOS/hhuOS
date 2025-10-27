@@ -26,16 +26,13 @@
 #include <stdint.h>
 
 #include "lib/util/game/Game.h"
-#include "lib/util/game/GameManager.h"
 #include "BattleSpaceGame.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/Key.h"
 
-void IntroScreen::initialize() {
-    setKeyListener(*this);
-}
+void IntroScreen::initialize() {}
 
 void IntroScreen::initializeBackground(Util::Game::Graphics &graphics) {
     auto lines = sizeof(INTRO_TEXT) / sizeof(char*);
@@ -56,11 +53,11 @@ void IntroScreen::update([[maybe_unused]] double delta) {}
 void IntroScreen::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC:
-            Util::Game::GameManager::getGame().stop();
+            Util::Game::Game::getInstance().stop();
             break;
         case Util::Io::Key::SPACE:
-            Util::Game::GameManager::getGame().pushScene(new BattleSpaceGame());
-            Util::Game::GameManager::getGame().switchToNextScene();
+            Util::Game::Game::getInstance().pushScene(new BattleSpaceGame());
+            Util::Game::Game::getInstance().switchToNextScene();
             break;
     }
 }

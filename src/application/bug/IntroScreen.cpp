@@ -24,14 +24,13 @@
 
 #include "BugDefender.h"
 #include "lib/util/game/Game.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/Key.h"
 
 void IntroScreen::initialize() {
-    setKeyListener(*this);
+
 }
 
 void IntroScreen::update([[maybe_unused]] double delta) {}
@@ -53,10 +52,10 @@ void IntroScreen::initializeBackground(Util::Game::Graphics &graphics) {
 void IntroScreen::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC:
-            Util::Game::GameManager::getGame().stop();
+            Util::Game::Game::getInstance().stop();
             break;
         case Util::Io::Key::SPACE:
-            auto &game = Util::Game::GameManager::getGame();
+            auto &game = Util::Game::Game::getInstance();
             game.pushScene(new BugDefender());
             game.switchToNextScene();
     }

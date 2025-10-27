@@ -23,7 +23,6 @@
 
 #include "Block.h"
 
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/2d/event/CollisionEvent.h"
@@ -43,7 +42,7 @@ void Block::initialize() {
 
 void Block::onUpdate([[maybe_unused]] double delta) {}
 
-void Block::draw(Util::Game::Graphics &graphics) {
+void Block::draw(Util::Game::Graphics &graphics) const {
     for (uint32_t x = 0; x < countX; x++) {
         for (uint32_t y = 0; y < countY; y++) {
             sprite.draw(graphics, getPosition() + Util::Math::Vector2<double>(x * SIZE, y * SIZE));
@@ -55,8 +54,8 @@ void Block::onTranslationEvent([[maybe_unused]] Util::Game::D2::TranslationEvent
 
 void Block::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
     if (getTag() == WATER && event.getCollidedWidth().getTag() == PlayerDino::TAG && event.getSide() == Util::Game::D2::RectangleCollider::TOP) {
-        auto &scene = Util::Game::GameManager::getGame().getCurrentScene();
-        scene.addObject(new BloodEmitter(event.getCollidedWidth().getPosition(), BloodEmitter::WATER));
+        getScene().addEntity(new BloodEmitter(event.getCollidedWidth().getPosition(), BloodEmitter::WATER));
+        removeFromScene();
     }
 }
 

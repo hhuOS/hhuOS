@@ -21,7 +21,6 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/Scene.h"
 #include "Room.h"
@@ -56,7 +55,7 @@ void Room::onUpdate([[maybe_unused]] double delta) {
     }
 }
 
-void Room::draw(Util::Game::Graphics &graphics) {
+void Room::draw(Util::Game::Graphics &graphics) const {
     if (!current) {
         return;
     }
@@ -107,16 +106,16 @@ void Room::clearAndRollItems() {
     const auto rand = static_cast<uint32_t>(random.getRandomNumber() * 6);
 
     if (type == END) {
-        Util::Game::GameManager::getCurrentScene().addObject(new Item(getPosition() + Util::Math::Vector3<double>(3.0, 1.0, 0.0), Item::TAG_HEALTH_UP));
-        Util::Game::GameManager::getCurrentScene().addObject(new Item(getPosition() + Util::Math::Vector3<double>(-3.0, 1.0, 0.0), Item::TAG_DMG_UP));
-        Util::Game::GameManager::getCurrentScene().addObject(new Item(getPosition() + Util::Math::Vector3<double>(8.5, 1.0, -7.0), Item::TAG_NEXT_LVL));
+        getScene().addEntity(new Item(getPosition() + Util::Math::Vector3<double>(3.0, 1.0, 0.0), Item::TAG_HEALTH_UP));
+        getScene().addEntity(new Item(getPosition() + Util::Math::Vector3<double>(-3.0, 1.0, 0.0), Item::TAG_DMG_UP));
+        getScene().addEntity(new Item(getPosition() + Util::Math::Vector3<double>(8.5, 1.0, -7.0), Item::TAG_NEXT_LVL));
     } else {
         switch (rand) {
             case 0: // Add health item
-                Util::Game::GameManager::getCurrentScene().addObject(new Item(getPosition() + Util::Math::Vector3<double>(0.0, 1.0, 0.0), Item::TAG_HEALTH_UP));
+                getScene().addEntity(new Item(getPosition() + Util::Math::Vector3<double>(0.0, 1.0, 0.0), Item::TAG_HEALTH_UP));
                 break;
             case 1: // Add damage item
-                Util::Game::GameManager::getCurrentScene().addObject(new Item(getPosition() + Util::Math::Vector3<double>(0.0, 1.0, 0.0), Item::TAG_DMG_UP));
+                getScene().addEntity(new Item(getPosition() + Util::Math::Vector3<double>(0.0, 1.0, 0.0), Item::TAG_DMG_UP));
                 break;
             default:
                 break;
@@ -126,7 +125,7 @@ void Room::clearAndRollItems() {
 
 void Room::addEnemiesToScene() const {
     for (uint32_t i = 0;i < enemies.size(); i++) {
-        Util::Game::GameManager::getGame().getCurrentScene().addObject(enemies.get(i));
+        Util::Game::Game::getInstance().getCurrentScene().addEntity(enemies.get(i));
     }
 }
 

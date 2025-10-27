@@ -21,7 +21,6 @@
 #include "SpriteDemo.h"
 
 #include "lib/util/game/Game.h"
-#include "lib/util/game/GameManager.h"
 #include "application/demo/sprites/DemoSprite.h"
 #include "application/demo/sprites/DemoSpriteFactory.h"
 #include "lib/util/io/key/Key.h"
@@ -33,10 +32,10 @@ void SpriteDemo::initialize() {
     for (uint32_t i = 0; i < initialCount; i++) {
         auto *sprite = factory.createSprite();
         entities.offer(sprite);
-        addObject(sprite);
+        addEntity(sprite);
     }
 
-    setKeyListener(*this);
+
 }
 
 void SpriteDemo::update([[maybe_unused]] double delta) {}
@@ -48,17 +47,17 @@ void SpriteDemo::keyPressed(const Util::Io::Key &key) {
         case Util::Io::Key::PLUS: {
             auto *sprite = factory.createSprite();
             entities.offer(sprite);
-            addObject(sprite);
+            addEntity(sprite);
             break;
         }
         case Util::Io::Key::MINUS: {
             if (entities.size() > 0) {
-                removeObject(entities.poll());
+                removeEntity(entities.poll());
             }
             break;
         }
         case Util::Io::Key::ESC:
-            Util::Game::GameManager::getGame().stop();
+            Util::Game::Game::getInstance().stop();
             break;
         default:
             break;

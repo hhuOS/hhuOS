@@ -21,7 +21,6 @@
 #include "Explosive.h"
 
 #include "game/Game.h"
-#include "game/GameManager.h"
 #include "game/audio/AudioHandle.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/game/2d/Sprite.h"
@@ -64,7 +63,7 @@ void Explosive::onUpdate(double delta) {
     }
 }
 
-void Explosive::draw(Util::Game::Graphics &graphics) {
+void Explosive::draw(Util::Game::Graphics &graphics) const {
     animation.draw(graphics, getPosition());
 }
 

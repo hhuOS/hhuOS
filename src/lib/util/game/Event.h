@@ -22,34 +22,28 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
-#ifndef HHUOS_EVENT_H
-#define HHUOS_EVENT_H
+
+#ifndef HHUOS_LIB_UTIL_GAME_EVENT_H
+#define HHUOS_LIB_UTIL_GAME_EVENT_H
 
 namespace Util::Game {
 
+/// Base class for all events in the game engine.
+/// Events are used to notify entities about changes or actions that have occurred (e.g. translation, collision, etc.).
+/// If an event inherits from `CancelableEvent`, it can be canceled to stop the action from being performed.
+/// All other events are non-cancelable, i.e. they will always be executed, regardless of the handling.
 class Event {
 
 public:
-    /**
-    * Default Constructor.
-    */
+    /// Create a new event instance.
     Event() = default;
-
-    /**
-     * Copy Constructor.
-     */
-    Event(const Event &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Event &operator=(const Event &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Event() = default;
 };
 
 }

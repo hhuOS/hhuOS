@@ -81,12 +81,6 @@ public:
      */
     ~Scene() override = default;
 
-    void initializeScene(Graphics &graphics) final;
-
-    void updateEntities(double delta) final;
-
-    void checkCollisions() final;
-
     void setAmbientLight(const Graphic::Color &ambientLight);
 
     Light& addLight(Light::Type type, const Math::Vector3<double> &position, const Graphic::Color &diffuseColor, const Graphic::Color &specularColor);
@@ -97,7 +91,7 @@ public:
 
     [[nodiscard]] const Graphic::Color &getAmbientLight() const;
 
-    Light& getLight(uint32_t index);
+    const Light& getLight(uint32_t index) const;
 
     [[nodiscard]] bool glEnabled() const;
 
@@ -118,6 +112,12 @@ public:
     void setBackgroundColor(const Graphic::Color &backgroundColor);
 
 private:
+
+    void initializeScene(Graphics &graphics) final;
+
+    void updateEntities(double delta) final;
+
+    void checkCollisions() final;
 
     Graphic::Color backgroundColor = Graphic::Colors::BLACK;
 

@@ -22,43 +22,35 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_DRAWABLE_H
-#define HHUOS_DRAWABLE_H
+#ifndef HHUOS_LIB_UTIL_GAME_DRAWABLE_H
+#define HHUOS_LIB_UTIL_GAME_DRAWABLE_H
 
-namespace Util {
-namespace Game {
-class Graphics;
-}
-}
+#include "game/Graphics.h"
 
 namespace Util::Game {
 
+/// Base class for all drawable objects in the game engine.
+/// Drawable objects can be rendered on the screen using the `draw()` method.
+/// All entities inherit from this class and `draw()` is called automatically by the game engine.
 class Drawable {
 
 public:
-    /**
-     * Default Constructor.
-     */
+    /// Create a new drawable instance.
     Drawable() = default;
 
-    /**
-     * Copy Constructor.
-     */
-    Drawable(const Drawable &other) = default;
-
-    /**
-     * Assignment operator.
-     */
-    Drawable &operator=(const Drawable &other) = default;
-
-    /**
-     * Destructor.
-     */
+    /// Since the base class has no state, the default destructor is sufficient.
     virtual ~Drawable() = default;
 
-    virtual void draw(Graphics &graphics) = 0;
+    /// Draw the object using the provided graphics context.
+    virtual void draw(Graphics &graphics) const = 0;
 };
 
 }

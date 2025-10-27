@@ -26,7 +26,6 @@
 #include "Missile.h"
 #include "Player.h"
 #include "lib/util/game/3d/event/CollisionEvent.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/math/Math.h"
 #include "lib/util/game/3d/Util.h"
@@ -129,7 +128,7 @@ void Enemy::onUpdate(double delta) {
     if (missileTimer <= 0 && relativeRotation.length() < 2) {
         missileTimer = 2 + random.getRandomNumber() * 2.5;
         auto offset = Util::Math::Vector3<double>(0, 0, 1.5).rotate(getRotation());
-        Util::Game::GameManager::getCurrentScene().addObject(new Missile(getPosition() + offset, (player.getPosition() - getPosition()).normalize(), player));
+        getScene().addEntity(new Missile(getPosition() + offset, (player.getPosition() - getPosition()).normalize(), player));
     }
 }
 
@@ -161,11 +160,11 @@ void Enemy::takeDamage(uint8_t damage) {
             auto offset2 = Util::Math::Vector3<double>(0.3, -0.02, 0.04).rotate(getRotation());
             auto offset3 = Util::Math::Vector3<double>(-0.01, 0.17, -0.4).rotate(getRotation());
 
-            auto &scene = Util::Game::GameManager::getCurrentScene();
-            scene.addObject(new EnemyDebris(getPosition() + offset1, getRotation(), 0.3, 1));
-            scene.addObject(new EnemyDebris(getPosition() + offset2, getRotation(), 0.3, 2));
-            scene.addObject(new EnemyDebris(getPosition() + offset3, getRotation(), 0.3, 3));
-            scene.removeObject(this);
+            auto &scene = getScene();
+            scene.addEntity(new EnemyDebris(getPosition() + offset1, getRotation(), 0.3, 1));
+            scene.addEntity(new EnemyDebris(getPosition() + offset2, getRotation(), 0.3, 2));
+            scene.addEntity(new EnemyDebris(getPosition() + offset3, getRotation(), 0.3, 3));
+            removeFromScene();
         }
     }
 }

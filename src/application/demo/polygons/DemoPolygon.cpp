@@ -49,7 +49,7 @@ void DemoPolygon::onUpdate(double delta) {
     polygon.scale(scaleFactor);
 }
 
-void DemoPolygon::draw(Util::Game::Graphics &graphics) {
+void DemoPolygon::draw(Util::Game::Graphics &graphics) const {
     graphics.setColor(color);
     polygon.draw(graphics);
 }

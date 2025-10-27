@@ -32,12 +32,25 @@
 
 namespace Util::Game {
 
-Game::Game() : audioChannels(8) {}
+Game* Game::instance = nullptr;
+
+Game::Game(const uint16_t screenTransformation, const Math::Vector2<double> &screenDimensions) :
+    screenTransformation(screenTransformation),
+    screenDimensions(screenDimensions),
+    audioChannels(AUDIO_CHANNELS) {}
 
 Game::~Game() {
     while (!scenes.isEmpty()) {
         delete scenes.poll();
     }
+}
+
+Game& Game::getInstance() {
+    if (instance == nullptr) {
+        Panic::fire(Panic::ILLEGAL_STATE, "Game engine not initialized!");
+    }
+
+    return *instance;
 }
 
 bool Game::isRunning() const {
@@ -48,7 +61,7 @@ void Game::stop() {
     running = false;
 }
 
-Scene &Game::getCurrentScene() {
+Scene &Game::getCurrentScene() const {
     return *scenes.peek();
 }
 
@@ -60,7 +73,7 @@ void Game::switchToNextScene() {
     sceneSwitched = true;
 }
 
-AudioHandle Game::playAudioTrack(const AudioTrack &track, bool loop = false) {
+AudioHandle Game::playAudioTrack(const AudioTrack &track, bool loop = false) const {
     for (auto &channel : audioChannels) {
         if (channel.getState() == AudioChannel::STOPPED) {
             channel.play(track, loop);
@@ -72,10 +85,18 @@ AudioHandle Game::playAudioTrack(const AudioTrack &track, bool loop = false) {
     return AudioHandle();
 }
 
-void Game::stopAllAudioChannels() {
+void Game::stopAllAudioChannels() const {
     for (auto &channel : audioChannels) {
         channel.stop();
     }
+}
+
+uint16_t Game::getScreenTransformation() const {
+    return screenTransformation;
+}
+
+const Math::Vector2<double>& Game::getScreenDimensions() const {
+    return screenDimensions;
 }
 
 void Game::initializeNextScene(Graphics &graphics) {

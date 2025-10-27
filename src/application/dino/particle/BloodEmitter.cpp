@@ -42,7 +42,7 @@ void BloodEmitter::initialize() {
     setMaxEmissionRate(50);
 }
 
-void BloodEmitter::draw([[maybe_unused]] Util::Game::Graphics &graphics) {}
+void BloodEmitter::draw([[maybe_unused]] Util::Game::Graphics &graphics) const {}
 
 void BloodEmitter::onTranslationEvent([[maybe_unused]] Util::Game::D2::TranslationEvent &event) {}
 

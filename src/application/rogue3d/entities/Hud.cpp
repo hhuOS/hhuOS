@@ -25,7 +25,6 @@
 #include "lib/util/game/Graphics.h"
 #include "lib/util/math/Vector2.h"
 #include "Hud.h"
-#include "lib/util/game/GameManager.h"
 #include "Player.h"
 #include "Room.h"
 #include "lib/util/graphic/Color.h"
@@ -42,8 +41,8 @@ Hud::Hud(Room::Type map[4][4], const Player &player) : Entity(TAG, Util::Math::V
 
 void Hud::initialize() {}
 
-void Hud::draw(Util::Game::Graphics &graphics) {
-    const auto charSize = Util::Game::Graphics::FONT_SIZE / static_cast<double>(Util::Game::GameManager::getTransformation());
+void Hud::draw(Util::Game::Graphics &graphics) const {
+    const auto charSize = Util::Game::Graphics::FONT_SIZE / static_cast<double>(graphics.getTransformation());
     const auto dimensions = graphics.getDimensions();
 
     graphics.setColor(Util::Graphic::Colors::WHITE);

@@ -43,7 +43,7 @@ void Cuboid::onUpdate(double delta) {
     rotate(rotationAngle * delta * 60);
 }
 
-void Cuboid::draw(Util::Game::Graphics &graphics) {
+void Cuboid::draw(Util::Game::Graphics &graphics) const {
     graphics.setColor(color);
     graphics.drawCuboid3D(getPosition(), getScale(), getOrientation().getRotation(), texture);
 }

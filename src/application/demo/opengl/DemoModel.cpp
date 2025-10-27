@@ -65,7 +65,7 @@ void DemoModel::initialize() {
     }
 }
 
-void DemoModel::draw(Util::Game::Graphics &graphics) {
+void DemoModel::draw(Util::Game::Graphics &graphics) const {
     graphics.setColor(color);
     graphics.drawList3D(getPosition(), getScale(), getRotation(), drawListID);
 }

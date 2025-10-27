@@ -27,39 +27,39 @@
 #include "Sprite.h"
 
 #include <stdint.h>
+#include <game/Game.h>
 
-#include "lib/util/game/GameManager.h"
 #include "lib/util/graphic/BitmapFile.h"
 #include "lib/util/graphic/Image.h"
 #include "lib/util/graphic/Color.h"
-#include "lib/util/game/ResourceManager.h"
+#include "lib/util/game/Resources.h"
 #include "lib/util/game/Graphics.h"
 
 namespace Util::Game::D2 {
 
 Sprite::Sprite() : size(0, 0) {
-    if (ResourceManager::hasImage("empty")) {
-        image = ResourceManager::getImage("empty");
+    if (Resources::hasImage("empty")) {
+        image = Resources::getImage("empty");
     } else {
         image = new Graphic::Image(0, 0, new Graphic::Color[0]);
-        ResourceManager::addImage("empty", image);
+        Resources::addImage("empty", image);
     }
 }
 
 Sprite::Sprite(const String &path, double width, double height) : size(width, height) {
-    auto transformation = GameManager::getTransformation();
+    auto transformation = Game::getInstance().getScreenTransformation();
     auto pixelWidth = static_cast<uint16_t>(width * transformation) + 1;
     auto pixelHeight = static_cast<uint16_t>(height * transformation) + 1;
     auto key = String::format("%s_%u_%u", static_cast<const char*>(path), pixelWidth, pixelHeight);
 
-    if (ResourceManager::hasImage(key)) {
-        image = ResourceManager::getImage(key);
+    if (Resources::hasImage(key)) {
+        image = Resources::getImage(key);
     } else {
         auto *file = Graphic::BitmapFile::open(path);
         image = file->scale(pixelWidth, pixelHeight);
         delete file;
 
-        ResourceManager::addImage(key, image);
+        Resources::addImage(key, image);
     }
 }
 

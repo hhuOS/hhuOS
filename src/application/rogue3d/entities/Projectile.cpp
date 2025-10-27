@@ -22,7 +22,6 @@
  */
 
 #include "lib/util/math/Math.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/game/3d/collider/SphereCollider.h"
@@ -48,13 +47,13 @@ void Projectile::initialize() {
 
 void Projectile::onUpdate(double delta) {
     if (range < Util::Math::absolute(origin.getX() - getPosition().getX()) || range < Util::Math::absolute(origin.getZ() - getPosition().getZ())) {
-        Util::Game::GameManager::getCurrentScene().removeObject(this);
+        removeFromScene();
     }
 
     setPosition(getPosition() + (direction * delta * 12));
 }
 
-void Projectile::draw(Util::Game::Graphics &graphics) {
+void Projectile::draw(Util::Game::Graphics &graphics) const {
     graphics.setColor(getTag() == TAG_PLAYER ? Util::Graphic::Color(68, 195, 212) : Util::Graphic::Color(255, 0, 0));
     graphics.drawList3D(getPosition(), getScale(), getRotation(), DRAW_LIST_ID);
 }
@@ -62,6 +61,6 @@ void Projectile::draw(Util::Game::Graphics &graphics) {
 void Projectile::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {
     const auto otherTag = event.getCollidedWidth().getTag();
     if ((getTag() == TAG_PLAYER && otherTag == Enemy::TAG) || (getTag() == TAG_ENEMY && otherTag == Player::TAG)) {
-        Util::Game::GameManager::getCurrentScene().removeObject(this);
+        removeFromScene();
     }
 }

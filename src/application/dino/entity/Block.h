@@ -71,7 +71,7 @@ public:
 
     void onUpdate(double delta) override;
 
-    void draw(Util::Game::Graphics &graphics) override;
+    void draw(Util::Game::Graphics &graphics) const override;
 
     void onTranslationEvent(Util::Game::D2::TranslationEvent &event) override;
 

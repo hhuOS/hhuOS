@@ -35,22 +35,22 @@
 #include "Ground.h"
 #include "lib/util/game/2d/Entity.h"
 
-BloodEmitter::BloodEmitter(const Util::Math::Vector2<double> &position) : Util::Game::D2::SingleTimeEmitter(TAG, PARTICLE_TAG, position) {}
+DropletEmitter::DropletEmitter(const Util::Math::Vector2<double> &position) : Util::Game::D2::SingleTimeEmitter(TAG, PARTICLE_TAG, position) {}
 
-void BloodEmitter::initialize() {
+void DropletEmitter::initialize() {
     SingleTimeEmitter::initialize();
 
     setMinEmissionRate(5);
     setMaxEmissionRate(5);
 }
 
-void BloodEmitter::draw([[maybe_unused]] Util::Game::Graphics &graphics) {}
+void DropletEmitter::draw([[maybe_unused]] Util::Game::Graphics &graphics) const {}
 
-void BloodEmitter::onTranslationEvent([[maybe_unused]] Util::Game::D2::TranslationEvent &event) {}
+void DropletEmitter::onTranslationEvent([[maybe_unused]] Util::Game::D2::TranslationEvent &event) {}
 
-void BloodEmitter::onCollisionEvent([[maybe_unused]] Util::Game::D2::CollisionEvent &event) {}
+void DropletEmitter::onCollisionEvent([[maybe_unused]] Util::Game::D2::CollisionEvent &event) {}
 
-void BloodEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
+void DropletEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
     auto angle = random.getRandomNumber() * Util::Math::PI_DOUBLE;
 
     particle.setSprite(Util::Game::D2::Sprite("/user/dino/particle/water.bmp", 0.005, 0.005));
@@ -62,14 +62,14 @@ void BloodEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) 
     particle.addComponent(new Util::Game::D2::GravityComponent(particle, 2.5, 0.0025));
 }
 
-void BloodEmitter::onParticleUpdate(Util::Game::D2::Particle &particle, double delta) {
+void DropletEmitter::onParticleUpdate(Util::Game::D2::Particle &particle, double delta) {
     particle.setAlpha(particle.getAlpha() - 1 * delta);
 }
 
-void BloodEmitter::onParticleCollision(Util::Game::D2::Particle &particle, Util::Game::D2::CollisionEvent &event) {
+void DropletEmitter::onParticleCollision(Util::Game::D2::Particle &particle, Util::Game::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == Ground::TAG) {
         removeParticle(&particle);
     }
 }
 
-void BloodEmitter::onParticleDestruction([[maybe_unused]] Util::Game::D2::Particle &particle) {}
+void DropletEmitter::onParticleDestruction([[maybe_unused]] Util::Game::D2::Particle &particle) {}

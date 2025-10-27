@@ -41,7 +41,7 @@ void Rectangle::onUpdate(double delta) {
     rotate(rotationAngle * delta * 60);
 }
 
-void Rectangle::draw(Util::Game::Graphics &graphics) {
+void Rectangle::draw(Util::Game::Graphics &graphics) const {
     graphics.setColor(color);
     graphics.drawRectangle3D(getPosition(), Util::Math::Vector2<double>(getScale().getX(), getScale().getY()), getOrientation().getRotation(), texture);
 }

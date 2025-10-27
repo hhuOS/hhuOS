@@ -1,7 +1,6 @@
 #include "application/rogue3d/entities/Player.h"
 #include "application/rogue3d/entities/Projectile.h"
 #include "lib/util/game/Game.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Camera.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/math/Math.h"
@@ -20,6 +19,7 @@ void Rogue3D::initialize() {
     generateRooms();
 
     // Setup camera
+    auto &camera = getCamera();
     camera.reset();
     camera.setPosition(Util::Math::Vector3<double>(player->getPosition().getX(), 34, player->getPosition().getZ() + 21));
     camera.setRotation(Util::Math::Vector3<double>(0, -60, 0));
@@ -32,9 +32,9 @@ void Rogue3D::initialize() {
     addLight(Util::Game::D3::Light::POINT, Util::Math::Vector3<double>(39, 20, 36), Util::Graphic::Color(102, 102, 255), Util::Graphic::Color(0, 0 ,0));
     setLightEnabled(true);
 
-    addObject(player);
-    addObject(hud);
-    setKeyListener(*this);
+    addEntity(player);
+    addEntity(hud);
+
 }
 
 void Rogue3D::generateRooms() {
@@ -47,7 +47,7 @@ void Rogue3D::generateRooms() {
                     rooms.add(room);
                     currentRoom = room;
                     room->enterRoom();
-                    addObject(room);
+                    addEntity(room);
                     room->addEnemiesToScene();
 
                     player->setPosition(room->getPosition() + Util::Math::Vector3<double>(0, 1.5, 0));
@@ -57,7 +57,7 @@ void Rogue3D::generateRooms() {
                     auto *room = new Room(Util::Math::Vector3<double>(26 * column, 0, 26 * row), Room::END, row, column);
                     room->generateBoss(*player);
                     rooms.add(room);
-                    addObject(room);
+                    addEntity(room);
                     room->addEnemiesToScene();
                 }
                 break;
@@ -65,7 +65,7 @@ void Rogue3D::generateRooms() {
                     auto *room = new Room(Util::Math::Vector3<double>(26 * column, 0, 26 * row), Room::ROOM, row, column);
                     room->generateEnemies(random, *player);
                     rooms.add(room);
-                    addObject(room);
+                    addEntity(room);
                     room->addEnemiesToScene();
                 }
                 default:
@@ -215,7 +215,7 @@ void Rogue3D::update(double delta) {
     }
 
     player->setPosition(newPosition);
-    camera.setPosition(Util::Math::Vector3<double>(currentRoom->getPosition().getX(), 34, currentRoom->getPosition().getZ() + 21));
+    getCamera().setPosition(Util::Math::Vector3<double>(currentRoom->getPosition().getX(), 34, currentRoom->getPosition().getZ() + 21));
 }
 
 void Rogue3D::swapRooms(Util::Math::Vector3<double> &newPosition, double &roomCenterX, double &roomCenterZ) {
@@ -280,26 +280,26 @@ void Rogue3D::swapRooms(Util::Math::Vector3<double> &newPosition, double &roomCe
 void Rogue3D::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC:
-            Util::Game::GameManager::getGame().stop();
+            Util::Game::Game::getInstance().stop();
             break;
         case Util::Io::Key::LEFT:
             if (player->shoot()){
-                addObject(new Projectile(player->getPosition(),Util::Math::Vector3<double>(-1,0,0), Projectile::TAG_PLAYER));
+                addEntity(new Projectile(player->getPosition(),Util::Math::Vector3<double>(-1,0,0), Projectile::TAG_PLAYER));
             }
             break;
         case Util::Io::Key::RIGHT:
             if (player->shoot()){
-                addObject(new Projectile(player->getPosition(),Util::Math::Vector3<double>(1,0,0), Projectile::TAG_PLAYER));
+                addEntity(new Projectile(player->getPosition(),Util::Math::Vector3<double>(1,0,0), Projectile::TAG_PLAYER));
             }
             break;
         case Util::Io::Key::UP:
             if (player->shoot()){
-                addObject(new Projectile(player->getPosition(),Util::Math::Vector3<double>(0,0,-1), Projectile::TAG_PLAYER));
+                addEntity(new Projectile(player->getPosition(),Util::Math::Vector3<double>(0,0,-1), Projectile::TAG_PLAYER));
             }
             break;
         case Util::Io::Key::DOWN:
             if (player->shoot()){
-                addObject(new Projectile(player->getPosition(),Util::Math::Vector3<double>(0,0,1), Projectile::TAG_PLAYER));
+                addEntity(new Projectile(player->getPosition(),Util::Math::Vector3<double>(0,0,1), Projectile::TAG_PLAYER));
             }
             break;
         case Util::Io::Key::W:

@@ -42,27 +42,27 @@ void Scene::initializeScene(Graphics &graphics) {
 
     initialize();
 
-    for (auto *entity : entities) {
+    for (auto *entity : getEntities()) {
         entity->initialize();
     }
 }
 
 void Scene::updateEntities(double delta) {
-    for (auto *entity : entities) {
+    for (auto *entity : getEntities()) {
         reinterpret_cast<Util::Game::D2::Entity*>(entity)->update(delta);
     }
 }
 
 void Scene::checkCollisions() {
     auto detectedCollisions = ArrayList<Pair<Util::Game::D2::Entity*, Util::Game::D2::Entity*>>();
-    for (auto *entity : entities) {
+    for (auto *entity : getEntities()) {
         auto *entity2D = reinterpret_cast<Util::Game::D2::Entity*>(entity);
         if (entity2D->hasCollider() && entity2D->positionChanged) {
             const auto &collider = entity2D->getCollider();
 
-            for (auto *otherEntity : entities) {
+            for (auto *otherEntity : getEntities()) {
                 auto *otherEntity2D = reinterpret_cast<Util::Game::D2::Entity*>(otherEntity);
-                if (entity == otherEntity || !otherEntity2D->hasCollider() || otherEntity2D->isParticle() || detectedCollisions.contains(Pair(entity2D, otherEntity2D)) || detectedCollisions.contains(Pair(otherEntity2D, entity2D))) {
+                if (entity == otherEntity || !otherEntity2D->hasCollider() || detectedCollisions.contains(Pair(entity2D, otherEntity2D)) || detectedCollisions.contains(Pair(otherEntity2D, entity2D))) {
                     continue;
                 }
 

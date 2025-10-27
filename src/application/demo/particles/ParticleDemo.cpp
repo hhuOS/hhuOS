@@ -25,7 +25,6 @@
 
 #include <stdint.h>
 
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "RainEmitter.h"
 #include "Ground.h"
@@ -37,17 +36,15 @@
 
 void ParticleDemo::initialize() {
     cloud = new RainEmitter(Util::Math::Vector2<double>(0, 0.8));
-    addObject(cloud);
+    addEntity(cloud);
 
     for (uint32_t i = 0; i < 3; i++) {
         auto *newGround = new Ground(Util::Math::Vector2<double>(-1.5 + i, -1));
-        addObject(newGround);
+        addEntity(newGround);
     }
 
-    addObject(new Dino(Util::Math::Vector2<double>(-0.7, -1 + Ground::SIZE), false));
-    addObject(new Dino(Util::Math::Vector2<double>(0.5, -1 + Ground::SIZE), true));
-
-    setKeyListener(*this);
+    addEntity(new Dino(Util::Math::Vector2<double>(-0.7, -1 + Ground::HEIGHT), false));
+    addEntity(new Dino(Util::Math::Vector2<double>(0.5, -1 + Ground::HEIGHT), true));
 }
 
 void ParticleDemo::update([[maybe_unused]] double delta) {}
@@ -59,7 +56,7 @@ void ParticleDemo::initializeBackground(Util::Game::Graphics &graphics) {
 void ParticleDemo::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC:
-            Util::Game::GameManager::getGame().stop();
+            Util::Game::Game::getInstance().stop();
             break;
         default:
             break;

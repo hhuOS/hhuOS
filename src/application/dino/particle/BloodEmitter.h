@@ -62,7 +62,7 @@ public:
 
     void initialize() override;
 
-    void draw(Util::Game::Graphics &graphics) override;
+    void draw(Util::Game::Graphics &graphics) const override;
 
     void onTranslationEvent(Util::Game::D2::TranslationEvent &event) override;
 

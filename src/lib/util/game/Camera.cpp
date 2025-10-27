@@ -25,12 +25,15 @@
  *
  * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #include "Camera.h"
 
-#include "lib/util/math/Vector2.h"
-#include "lib/util/game/3d/Orientation.h"
+#include "math/Vector2.h"
+#include "game/3d/Orientation.h"
 
 namespace Util::Game {
 
@@ -72,6 +75,10 @@ void Camera::setRotation(const Math::Vector3<double> &angle) {
 
 void Camera::translate(const Math::Vector3<double> &translation) {
     position = position + translation;
+}
+
+void Camera::translate(const Math::Vector2<double> &translation) {
+    position = position + Math::Vector3<double>(translation.getX(), translation.getY(), 0);
 }
 
 void Camera::rotate(const Math::Vector3<double> &angle) {

@@ -20,7 +20,6 @@
 
 #include "EnemyMissile.h"
 
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/2d/component/LinearMovementComponent.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
@@ -50,13 +49,13 @@ void EnemyMissile::onUpdate(double delta) {
     Explosive::onUpdate(delta);
 
     if (hasExploded()) {
-        Util::Game::GameManager::getCurrentScene().removeObject(this);
+        removeFromScene();
     }
 }
 
 void EnemyMissile::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     if (event.getTargetPosition().getY() < -1.0) {
-        Util::Game::GameManager::getGame().getCurrentScene().removeObject(this);
+        removeFromScene();
     }
 
     if (isExploding()) {
@@ -75,7 +74,7 @@ void EnemyMissile::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
     }
 }
 
-void EnemyMissile::draw(Util::Game::Graphics &graphics) {
+void EnemyMissile::draw(Util::Game::Graphics &graphics) const {
     if (isExploding()) {
         Explosive::draw(graphics);
     } else {

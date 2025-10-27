@@ -40,7 +40,7 @@ void GrassEmitter::initialize() {
     setEmissionTime(-1);
 }
 
-void GrassEmitter::draw([[maybe_unused]] Util::Game::Graphics &graphics) {}
+void GrassEmitter::draw([[maybe_unused]] Util::Game::Graphics &graphics) const {}
 
 void GrassEmitter::onTranslationEvent([[maybe_unused]] Util::Game::D2::TranslationEvent &event) {}
 

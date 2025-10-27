@@ -20,7 +20,6 @@
 
 #include "PlayerMissile.h"
 
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/2d/component/LinearMovementComponent.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
@@ -46,8 +45,8 @@ void PlayerMissile::onUpdate([[maybe_unused]] double delta) {}
 
 void PlayerMissile::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     if (event.getTargetPosition().getY() > 1.0) {
-        Util::Game::GameManager::getGame().getCurrentScene().removeObject(this);
         ship.allowFireMissile();
+        removeFromScene();
     }
 }
 
@@ -65,10 +64,10 @@ void PlayerMissile::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
         }
     }
 
-    Util::Game::GameManager::getGame().getCurrentScene().removeObject(this);
     ship.allowFireMissile();
+    removeFromScene();
 }
 
-void PlayerMissile::draw(Util::Game::Graphics &graphics) {
+void PlayerMissile::draw(Util::Game::Graphics &graphics) const {
     sprite.draw(graphics, getPosition());
 }

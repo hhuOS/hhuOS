@@ -23,7 +23,6 @@
 
 #include "Missile.h"
 
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/3d/event/CollisionEvent.h"
 #include "lib/util/math/Vector3.h"
@@ -44,7 +43,7 @@ Missile::Missile(const Util::Math::Vector3<double> &position, const Util::Math::
 
 void Missile::onUpdate(double delta) {
     if (lifetime > 5) {
-        Util::Game::GameManager::getCurrentScene().removeObject(this);
+        removeFromScene();
     } else {
         lifetime += delta;
 
@@ -58,5 +57,5 @@ void Missile::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {
         player->addScore(250);
     }
 
-    Util::Game::GameManager::getCurrentScene().removeObject(this);
+    removeFromScene();
 }

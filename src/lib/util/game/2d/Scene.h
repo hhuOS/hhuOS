@@ -60,13 +60,15 @@ public:
      */
     ~Scene() override = default;
 
+    virtual void initializeBackground(Graphics &graphics) = 0;
+
+private:
+
     void initializeScene(Graphics &graphics) final;
 
     void updateEntities(double delta) final;
 
     void checkCollisions() final;
-
-    virtual void initializeBackground(Graphics &graphics) = 0;
 };
 
 }

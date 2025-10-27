@@ -27,7 +27,6 @@
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/base/System.h"
 #include "lib/util/game/Engine.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/String.h"
@@ -69,7 +68,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto lfb = Util::Graphic::LinearFrameBuffer::open(lfbFile);
     auto engine = Util::Game::Engine(lfb, 60, scaleFactor);
 
-    Util::Game::GameManager::getGame().pushScene(new IntroScreen());
+    Util::Game::Game::getInstance().pushScene(new IntroScreen());
     engine.run();
 
     return 0;

@@ -28,13 +28,11 @@
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "application/demo/polygons/PolygonDemo.h"
 #include "application/demo/sprites/SpriteDemo.h"
 #include "application/demo/ant/Ant.h"
 #include "application/demo/particles/ParticleDemo.h"
-#include "application/demo/mouse/MouseDemo.h"
 #include "application/demo/color/AnsiColorDemo.h"
 #include "application/demo/fonts/FontDemo.h"
 #include "opengl/OpenGlDemo.h"
@@ -44,7 +42,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.setHelpText("Demo applications, showing off the systems graphical capabilities.\n"
                                "Usage: demo [DEMO] [OPTIONS]...\n"
-                               "Demos: ant, color, fonts, mouse, opengl, particles, polygons, sprites\n"
+                               "Demos: ant, color, fonts, opengl, particles, polygons, sprites\n"
                                "Options:\n"
                                "  -r, --resolution: Set display resolution\n"
                                "  -s, --scale: Set display scale factor (Must be <= 1; The application will be rendered at a lower internal resolution and scaled up/centered to fill the screen)\n"
@@ -98,18 +96,16 @@ int32_t main(int32_t argc, char *argv[]) {
         auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseFloat<double>(argumentParser.getArgument("scale")) : 1.0;
         auto engine = Util::Game::Engine(lfb, 60, scaleFactor);
 
-        if (demo == "mouse") {
-            Util::Game::GameManager::getGame().pushScene(new MouseDemo());
-        } else if (demo == "opengl") {
-            Util::Game::GameManager::getGame().pushScene(new OpenGlDemo());
+        if (demo == "opengl") {
+            Util::Game::Game::getInstance().pushScene(new OpenGlDemo());
         } else if (demo == "particles") {
-            Util::Game::GameManager::getGame().pushScene(new ParticleDemo());
+            Util::Game::Game::getInstance().pushScene(new ParticleDemo());
         } else if (demo == "polygons") {
             auto initialCount = arguments.length() > 1 ? Util::String::parseNumber<uint32_t>(arguments[1]) : 10;
-            Util::Game::GameManager::getGame().pushScene(new PolygonDemo(initialCount));
+            Util::Game::Game::getInstance().pushScene(new PolygonDemo(initialCount));
         } else if (demo == "sprites") {
             auto initialCount = arguments.length() > 1 ? Util::String::parseNumber<uint32_t>(arguments[1]) : 10;
-            Util::Game::GameManager::getGame().pushScene(new SpriteDemo(initialCount));
+            Util::Game::Game::getInstance().pushScene(new SpriteDemo(initialCount));
         } else {
             Util::System::error << "demo: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
             return -1;

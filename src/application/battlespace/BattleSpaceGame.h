@@ -27,7 +27,6 @@
 #include <stdint.h>
 
 #include "lib/util/game/3d/Scene.h"
-#include "lib/util/game/KeyListener.h"
 #include "lib/util/math/Random.h"
 #include "Player.h"
 #include "lib/util/collection/ArrayList.h"
@@ -35,7 +34,7 @@
 
 class Enemy;
 
-class BattleSpaceGame : public Util::Game::D3::Scene, public Util::Game::KeyListener {
+class BattleSpaceGame : public Util::Game::D3::Scene {
 
 public:
     /**

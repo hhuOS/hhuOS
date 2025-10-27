@@ -23,7 +23,6 @@
 
 #include "Emitter.h"
 
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Scene.h"
 #include "Particle.h"
 
@@ -45,7 +44,7 @@ void Emitter::onUpdate(double delta) {
         timeToLive -= delta;
         if (timeToLive <= 0) {
             if (activeParticles.size() == 0) {
-                GameManager::getCurrentScene().removeObject(this);
+                removeFromScene();
             }
 
             return;
@@ -63,8 +62,9 @@ void Emitter::onUpdate(double delta) {
 
 void Emitter::removeParticle(Particle *particle) {
     onParticleDestruction(*particle);
-    activeParticles.remove(particle);
-    GameManager::getCurrentScene().removeObject(particle);
+    if (activeParticles.remove(particle)) {
+        getScene().removeEntity(particle);
+    }
 }
 
 void Emitter::emitParticles() {
@@ -73,7 +73,7 @@ void Emitter::emitParticles() {
     for (uint32_t i = 0; i < emissionRate; i++) {
         auto *particle = new Particle(particleTag, *this);
         activeParticles.add(particle);
-        GameManager::getCurrentScene().addObject(particle);
+        getScene().addEntity(particle);
     }
 }
 

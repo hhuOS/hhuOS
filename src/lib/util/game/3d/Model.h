@@ -83,7 +83,7 @@ public:
 
     void initialize() override;
 
-    void draw(Graphics &graphics) override;
+    void draw(Graphics &graphics) const override;
 
     [[nodiscard]] const Array<Math::Vector3<double>>& getVertices() const;
 
@@ -111,7 +111,7 @@ private:
     Texture texture;
     const Graphic::Color color = Graphic::Color(255, 255, 255);
 
-    ObjectFile *objectFile = nullptr;
+    const ObjectFile *objectFile = nullptr;
 };
 
 }

@@ -24,7 +24,6 @@
 #include "EnemyDebris.h"
 
 #include "Enemy.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/base/String.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/graphic/Colors.h"
@@ -65,7 +64,7 @@ void EnemyDebris::initialize() {
 void EnemyDebris::onUpdate(double delta) {
     lifetime += delta;
     if (lifetime > 2) {
-        Util::Game::GameManager::getCurrentScene().removeObject(this);
+        removeFromScene();
     }
 
     translate(translateDirection);

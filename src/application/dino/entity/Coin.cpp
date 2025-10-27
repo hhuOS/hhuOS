@@ -26,7 +26,6 @@
 #include "Block.h"
 #include "PlayerDino.h"
 #include "lib/util/game/2d/event/CollisionEvent.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/base/String.h"
@@ -57,7 +56,7 @@ void Coin::onUpdate(double delta) {
     animation.update(delta);
 }
 
-void Coin::draw(Util::Game::Graphics &graphics) {
+void Coin::draw(Util::Game::Graphics &graphics) const {
     animation.draw(graphics, getPosition());
 }
 
@@ -68,6 +67,6 @@ void Coin::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
         auto &dino = reinterpret_cast<PlayerDino&>(event.getCollidedWidth());
         dino.setPoints(dino.getPoints() + 1);
 
-        Util::Game::GameManager::getGame().getCurrentScene().removeObject(this);
+        removeFromScene();
     }
 }

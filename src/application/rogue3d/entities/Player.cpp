@@ -22,7 +22,6 @@
  */
 
 #include "lib/util/game/3d/event/CollisionEvent.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/3d/collider/SphereCollider.h"
 #include "lib/util/game/Graphics.h"
@@ -51,8 +50,8 @@ void Player::initialize() {
 
 void Player::onUpdate(double delta) {
     if (health <= 0) {
-        Util::Game::GameManager::getGame().pushScene(new GameOverScreen(level));
-        Util::Game::GameManager::getGame().switchToNextScene();
+        Util::Game::Game::getInstance().pushScene(new GameOverScreen(level));
+        Util::Game::Game::getInstance().switchToNextScene();
     }
 
     if (shootTimer > 0) {
@@ -64,7 +63,7 @@ void Player::onUpdate(double delta) {
     }
 }
 
-void Player::draw(Util::Game::Graphics &graphics) {
+void Player::draw(Util::Game::Graphics &graphics) const {
     graphics.setColor(invulnerabilityTime > 0 ? Util::Graphic::Color(255, 102, 102) : Util::Graphic::Color(68, 195, 212));
     graphics.drawList3D(getPosition(), getScale(), getRotation(), DRAW_LIST_ID);
 }
@@ -82,8 +81,8 @@ void Player::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {
             dmgUp();
             break;
         case Item::TAG_NEXT_LVL:
-            Util::Game::GameManager::getGame().pushScene(new Rogue3D(new Player(damage, health, level + 1)));
-            Util::Game::GameManager::getGame().switchToNextScene();
+            Util::Game::Game::getInstance().pushScene(new Rogue3D(new Player(damage, health, level + 1)));
+            Util::Game::Game::getInstance().switchToNextScene();
         default:
             break;
     }

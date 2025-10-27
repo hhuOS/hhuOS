@@ -63,7 +63,7 @@ void DemoSprite::onUpdate(double delta) {
     setPosition(initialPosition + Util::Math::Vector2<double>(positionOffset, positionOffset));
 }
 
-void DemoSprite::draw(Util::Game::Graphics &graphics) {
+void DemoSprite::draw(Util::Game::Graphics &graphics) const {
     animation.draw(graphics, getPosition());
 }
 

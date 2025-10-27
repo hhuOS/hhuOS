@@ -30,14 +30,15 @@
 #include "Entity.h"
 
 #include "lib/util/game/3d/Orientation.h"
+#include "lib/util/game/Entity.h"
 
 namespace Util::Game::D3 {
 
-Entity::Entity(uint32_t tag, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale) : Game::Entity(tag), position(position), scale(scale), collider(Math::Vector3<double>(0, 0, 0), 0) {
+Entity::Entity(uint32_t tag, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale) : Util::Game::Entity(tag), position(position), scale(scale), collider(Math::Vector3<double>(0, 0, 0), 0) {
     setRotation(rotation);
 }
 
-Entity::Entity(uint32_t tag, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale, const SphereCollider &collider) : Game::Entity(tag), position(position), scale(scale), colliderPresent(true), collider(collider) {
+Entity::Entity(uint32_t tag, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale, const SphereCollider &collider) : Util::Game::Entity(tag), position(position), scale(scale), colliderPresent(true), collider(collider) {
     setRotation(rotation);
 }
 

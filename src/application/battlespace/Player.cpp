@@ -24,7 +24,6 @@
 #include "Player.h"
 
 #include "lib/util/game/3d/event/CollisionEvent.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/math/Math.h"
 #include "lib/util/game/3d/Util.h"
 #include "Missile.h"
@@ -48,12 +47,12 @@ void Player::onUpdate(double delta) {
     if (missileTimer > 0) missileTimer -= delta;
 }
 
-void Player::draw(Util::Game::Graphics &graphics) {
+void Player::draw(Util::Game::Graphics &graphics) const {
     const auto dimensions = graphics.getDimensions();
     graphics.setColor(Util::Graphic::Colors::GREEN);
 
     // Draw reticle
-    auto raytraceDirection = Util::Game::GameManager::getCurrentScene().getCamera().getFrontVector();
+    auto raytraceDirection = getScene().getCamera().getFrontVector();
     auto *aimTarget = Util::Game::D3::Util::findEntityUsingRaytrace(reinterpret_cast<const Util::ArrayList<Util::Game::D3::Entity*>&>(enemies), getPosition() + raytraceDirection, raytraceDirection, 20, 0.1);
 
     if (aimTarget != nullptr) {
@@ -72,7 +71,7 @@ void Player::draw(Util::Game::Graphics &graphics) {
     graphics.drawStringDirect(Util::Math::Vector2<double>(-dimensions.getX() + 0.05, 0.9), Util::String::format("Score   : %d", score));
     graphics.drawStringDirect(Util::Math::Vector2<double>(-dimensions.getX() + 0.05, 0.85), Util::String::format("Enemies : %d", enemies.size()));
 
-    const auto relativeCharWidth = static_cast<double>(Util::Game::Graphics::FONT_SIZE) / Util::Game::GameManager::getTransformation();
+    const auto relativeCharWidth = static_cast<double>(Util::Game::Graphics::FONT_SIZE) / graphics.getTransformation();
     const auto healthBarStart = -dimensions.getX() + 0.05 + 10 * relativeCharWidth;
     graphics.drawRectangleDirect(Util::Math::Vector2<double>(healthBarStart, 0.95), Util::Math::Vector2<double>(0.3, -0.025));
     graphics.fillRectangleDirect(Util::Math::Vector2<double>(healthBarStart, 0.95), Util::Math::Vector2<double>(0.3 * (getHealth() / 100.0), -0.025));

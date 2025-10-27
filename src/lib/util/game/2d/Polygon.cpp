@@ -43,7 +43,7 @@ const Util::Array<Math::Vector2<double>>& Polygon::getVertices() const {
     return vertices;
 }
 
-void Polygon::draw(Graphics &graphics) {
+void Polygon::draw(Graphics &graphics) const {
     graphics.drawPolygon2D(vertices);
 }
 

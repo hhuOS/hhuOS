@@ -60,13 +60,11 @@ public:
 
     void onUpdate(double delta) override;
 
-    void draw(Graphics &graphics) override;
+    void draw(Graphics &graphics) const override;
 
     void onTranslationEvent(TranslationEvent &event) override;
 
     void onCollisionEvent(CollisionEvent &event) override;
-
-    [[nodiscard]] bool isParticle() const override;
 
     [[nodiscard]] double getScale() const;
 

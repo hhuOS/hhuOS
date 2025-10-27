@@ -66,10 +66,11 @@ public:
 
     void onCollisionEvent(Util::Game::D2::CollisionEvent &event) override;
 
-    void draw(Util::Game::Graphics &graphics) override;
+    void draw(Util::Game::Graphics &graphics) const override;
 
-    static const constexpr uint32_t TAG = 1;
-    static const constexpr double SIZE = 0.1;
+    static const constexpr uint32_t TAG = 6;
+    static const constexpr double WIDTH = 1.0;
+    static const constexpr double HEIGHT = 0.1;
 
 private:
 

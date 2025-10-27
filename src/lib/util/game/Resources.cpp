@@ -22,103 +22,109 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#include "ResourceManager.h"
+#include "Resources.h"
 
-#include "lib/util/collection/Array.h"
-#include "lib/util/collection/HashMap.h"
-#include "lib/util/graphic/Image.h"
-#include "lib/util/game/3d/ObjectFile.h"
-#include "sound/WaveFile.h"
+#include "collection/Array.h"
+#include "collection/HashMap.h"
+#include "graphic/Image.h"
+#include "game/3d/ObjectFile.h"
 
-namespace Util::Game {
+namespace Util::Game::Resources {
 
-HashMap<String, Graphic::Image*> ResourceManager::images;
-HashMap<String, D3::ObjectFile*> ResourceManager::objectFiles;
-HashMap<String, GLuint> ResourceManager::textures;
-HashMap<String, AudioBuffer*> ResourceManager::audioBuffers;
+static HashMap<String, const Graphic::Image*> images;
+static HashMap<String, const D3::ObjectFile*> objectFiles;
+static HashMap<String, GLuint> textures;
+static HashMap<String, const AudioBuffer*> audioBuffers;
 
-void ResourceManager::addImage(const String &key, Graphic::Image *image) {
+void addImage(const String &key, const Graphic::Image *image) {
     images.put(key, image);
 }
 
-bool ResourceManager::hasImage(const String &key) {
+bool hasImage(const String &key) {
     return images.containsKey(key);
 }
 
-Graphic::Image* ResourceManager::getImage(const Util::String &key) {
+const Graphic::Image* getImage(const String &key) {
     return images.get(key);
 }
 
-void ResourceManager::deleteImage(const Util::String &key) {
+void deleteImage(const String &key) {
     if (images.containsKey(key)) {
         delete images.remove(key);
     }
 }
 
-void ResourceManager::clear() {
-    for (auto *image : images.getValues()) {
+void clear() {
+    for (const auto *image : images.getValues()) {
         delete image;
     }
     images.clear();
 
 
-    for (auto *objectFile : objectFiles.getValues()) {
+    for (const auto *objectFile : objectFiles.getValues()) {
         delete objectFile;
     }
     objectFiles.clear();
 }
 
-void ResourceManager::addObjectFile(const String &key, D3::ObjectFile *objectFile) {
+void addObjectFile(const String &key, const D3::ObjectFile *objectFile) {
     objectFiles.put(key, objectFile);
 }
 
-bool ResourceManager::hasObjectFile(const String &key) {
+bool hasObjectFile(const String &key) {
     return objectFiles.containsKey(key);
 }
 
-D3::ObjectFile * ResourceManager::getObjectFile(const String &key) {
+const D3::ObjectFile* getObjectFile(const String &key) {
     return objectFiles.get(key);
 }
 
-void ResourceManager::deleteObjectFile(const String &key) {
+void deleteObjectFile(const String &key) {
     objectFiles.remove(key);
 }
 
-void ResourceManager::addTexture(const String &key, GLuint texture) {
+void addTexture(const String &key, const GLuint texture) {
     textures.put(key, texture);
 }
 
-bool ResourceManager::hasTexture(const String &key) {
+bool hasTexture(const String &key) {
     return textures.containsKey(key);
 }
 
-GLuint ResourceManager::getTexture(const String &key) {
+GLuint getTexture(const String &key) {
     return textures.get(key);
 }
 
-void ResourceManager::deleteTexture(const String &key) {
+void deleteTexture(const String &key) {
     if (textures.containsKey(key)) {
-        glDisable(textures.remove(key));
+        glDisable(static_cast<GLint>(textures.remove(key)));
     }
 }
 
-void ResourceManager::addAudioBuffer(const String &key, AudioBuffer *buffer) {
+void addAudioBuffer(const String &key, const AudioBuffer *buffer) {
     audioBuffers.put(key, buffer);
 }
 
-bool ResourceManager::hasAudioBuffer(const String &key) {
+bool hasAudioBuffer(const String &key) {
     return audioBuffers.containsKey(key);
 }
 
-AudioBuffer* ResourceManager::getAudioBuffer(const String &key) {
+const AudioBuffer* getAudioBuffer(const String &key) {
     return audioBuffers.get(key);
 }
 
-void ResourceManager::deleteAudioBuffer(const String &key) {
+void deleteAudioBuffer(const String &key) {
     if (audioBuffers.containsKey(key)) {
         audioBuffers.remove(key);
     }
 }
+
 }

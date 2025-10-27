@@ -22,7 +22,6 @@
 
 #include "lib/util/game/2d/Sprite.h"
 #include "lib/util/math/Random.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "EnemyBug.h"
 #include "application/bug/Fleet.h"
@@ -35,15 +34,13 @@
 void BugDefender::initialize() {
     backgroundMusic = Util::Game::AudioTrack("/user/bug/music.wav");
 
-    addObject(ship);
+    addEntity(ship);
 
     for (uint32_t i = 0; i < BUGS_PER_COLUMN; i++) {
         for (uint32_t j = 0; j < BUGS_PER_ROW; j++) {
-            addObject(new EnemyBug(Util::Math::Vector2<double>(-1.0 + j * (EnemyBug::SIZE_X + 0.05), 0.8 - i * (EnemyBug::SIZE_Y + 0.05)), enemyFleet));
+            addEntity(new EnemyBug(Util::Math::Vector2<double>(-1.0 + j * (EnemyBug::SIZE_X + 0.05), 0.8 - i * (EnemyBug::SIZE_Y + 0.05)), enemyFleet));
         }
     }
-
-    setKeyListener(*this);
 }
 
 void BugDefender::update([[maybe_unused]] double delta) {
@@ -94,7 +91,7 @@ void BugDefender::initializeBackground(Util::Game::Graphics &graphics) {
 void BugDefender::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC :
-            Util::Game::GameManager::getGame().stop();
+            Util::Game::Game::getInstance().stop();
             break;
         case Util::Io::Key::LEFT :
             ship->setVelocityX(-1.0);

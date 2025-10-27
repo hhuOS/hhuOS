@@ -28,7 +28,6 @@
 
 #include "application/rogue3d/entities/Room.h"
 #include "lib/util/game/3d/Scene.h"
-#include "lib/util/game/KeyListener.h"
 #include "lib/util/math/Random.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/math/Vector3.h"
@@ -36,7 +35,7 @@
 class Hud;
 class Player;
 
-class Rogue3D : public Util::Game::D3::Scene, public Util::Game::KeyListener {
+class Rogue3D : public Util::Game::D3::Scene {
 
 public:
     /**

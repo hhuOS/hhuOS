@@ -25,65 +25,69 @@
  *
  * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_CAMERA_H
-#define HHUOS_CAMERA_H
+#ifndef HHUOS_LIB_UTIL_GAME_CAMERA_H
+#define HHUOS_LIB_UTIL_GAME_CAMERA_H
 
-#include "3d/Orientation.h"
-#include "lib/util/math/Vector3.h"
-
-namespace Util {
-namespace Math {
-template <typename T> class Vector2;
-}  // namespace Math
-}  // namespace Util
+#include "game/3d/Orientation.h"
+#include "math/Vector3.h"
 
 namespace Util::Game {
 
+/// The camera determines the viewport of the current scene.
+/// It has a position and orientation in 3D space, and provides methods to manipulate them.
+/// It also provides methods to get the front, up and right vectors based on its orientation.
+/// This class works for both 2D and 3D scenes, but in 2D scenes,
+/// only the position's X and Y components are relevant (rotation is ignored).
+/// Each scene has exactly one camera, which is automatically created when the scene is created
+/// and can be accessed via `Scene::getCamera()`.
 class Camera {
 
 public:
-    /**
-     * Default Constructor.
-     */
+    /// Create a new camera instance at the origin (0, 0), with no rotation.
     Camera();
 
-    /**
-     * Copy Constructor.
-     */
-    Camera(const Camera &other) = default;
-
-    /**
-     * Assignment operator.
-     */
-    Camera &operator=(const Camera &other) = default;
-
-    /**
-     * Destructor.
-     */
-    ~Camera() = default;
-
+    /// Get the current position of the camera.
     [[nodiscard]] const Math::Vector3<double>& getPosition() const;
 
+    /// Get the current rotation of the camera.
     [[nodiscard]] const Math::Vector3<double>& getRotation() const;
 
+    /// Get the front vector of the camera, based on its orientation.
+    /// This vector points in the direction the camera is facing in 3D space.
     [[nodiscard]] const Math::Vector3<double>& getFrontVector() const;
 
+    /// Get the up vector of the camera, based on its orientation.
+    /// This vector points upwards from the camera's perspective in 3D space.
     [[nodiscard]] const Math::Vector3<double>& getUpVector() const;
 
+    /// Get the right vector of the camera, based on its orientation.
+    /// This vector points to the right from the camera's perspective in 3D space.
     [[nodiscard]] const Math::Vector3<double>& getRightVector() const;
 
+    /// Set the position of the camera in 3D space.
     void setPosition(const Math::Vector3<double> &position);
 
+    /// Set the position of the camera in 2D space (Z component is set to 0).
     void setPosition(const Math::Vector2<double> &position);
 
+    /// Set the rotation of the camera in 3D space.
     void setRotation(const Math::Vector3<double> &angle);
 
+    /// Translate the camera by the given vector in 3D space.
     void translate(const Math::Vector3<double> &translation);
 
+    /// Translate the camera by the given vector in 2D space.
+    void translate(const Math::Vector2<double> &translation);
+
+    /// Rotate the camera by the given angles in 3D space.
     void rotate(const Math::Vector3<double> &angle);
 
+    /// Reset the camera to the origin (0, 0, 0) with no rotation.
     void reset();
 
 private:

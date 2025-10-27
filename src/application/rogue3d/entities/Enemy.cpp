@@ -27,7 +27,6 @@
 #include "Projectile.h"
 #include "lib/util/game/3d/Entity.h"
 #include "lib/util/game/3d/event/CollisionEvent.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/math/Math.h"
 #include "lib/util/game/Graphics.h"
@@ -56,7 +55,7 @@ void Enemy::initialize() {
     }
 }
 
-void Enemy::draw(Util::Game::Graphics &graphics) {
+void Enemy::draw(Util::Game::Graphics &graphics) const {
     if (!active) {
         return;
     }
@@ -143,16 +142,16 @@ void Enemy::onUpdate(double delta) {
 
 void Enemy::shoot() {
     if (cooldown <= 0) {
-        Util::Game::GameManager::getCurrentScene().addObject(new Projectile(getPosition(),getFrontVector(), Projectile::TAG_ENEMY));
+        getScene().addEntity(new Projectile(getPosition(),getFrontVector(), Projectile::TAG_ENEMY));
         cooldown = 0.9;
     }
 }
 
 void Enemy::shoot3() {
     if(cooldown<=0){
-        Util::Game::GameManager::getCurrentScene().addObject(new Projectile(getPosition(),getFrontVector(), Projectile::TAG_ENEMY));
-        Util::Game::GameManager::getCurrentScene().addObject(new Projectile(getPosition(),getFrontVector().rotate(Util::Math::Vector3<double>(0, 30, 0)), Projectile::TAG_ENEMY));
-        Util::Game::GameManager::getCurrentScene().addObject(new Projectile(getPosition(),getFrontVector().rotate(Util::Math::Vector3<double>(0, -30, 0)), Projectile::TAG_ENEMY));
+        getScene().addEntity(new Projectile(getPosition(),getFrontVector(), Projectile::TAG_ENEMY));
+        getScene().addEntity(new Projectile(getPosition(),getFrontVector().rotate(Util::Math::Vector3<double>(0, 30, 0)), Projectile::TAG_ENEMY));
+        getScene().addEntity(new Projectile(getPosition(),getFrontVector().rotate(Util::Math::Vector3<double>(0, -30, 0)), Projectile::TAG_ENEMY));
         cooldown = 1.5;
     }
 }
@@ -164,8 +163,7 @@ void Enemy::setActive() {
 void Enemy::takeDamage(uint8_t damage) {
     health -= damage;
     if (health <= 0) {
-        auto &scene = Util::Game::GameManager::getCurrentScene();
         room.removeEnemyFromList(this);
-        scene.removeObject(this);
+        removeFromScene();
     }
 }

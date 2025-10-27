@@ -23,7 +23,6 @@
 
 #include "SingleTimeEmitter.h"
 
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/2d/particle/Emitter.h"
 
@@ -49,7 +48,7 @@ void SingleTimeEmitter::onUpdate(double delta) {
         emitOnce();
         emitted = true;
     } else if (getActiveParticles() == 0) {
-        GameManager::getCurrentScene().removeObject(this);
+        removeFromScene();
     }
 }
 

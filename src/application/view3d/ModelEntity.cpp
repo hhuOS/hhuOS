@@ -39,7 +39,7 @@ void ModelEntity::initialize() {
     Util::Game::Graphics::endList3D();
 }
 
-void ModelEntity::draw(Util::Game::Graphics &graphics) {
+void ModelEntity::draw(Util::Game::Graphics &graphics) const {
     graphics.setColor(getColor());
     graphics.drawList3D(getPosition(), getScale(), getRotation(), drawListID);
 }

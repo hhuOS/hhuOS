@@ -21,7 +21,6 @@
 #include "Ship.h"
 
 #include "EnemyBug.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "PlayerMissile.h"
 #include "lib/util/game/2d/component/LinearMovementComponent.h"
@@ -56,7 +55,7 @@ void Ship::onUpdate(double delta) {
     }
 
     if (hasExploded()) {
-        auto &game = Util::Game::GameManager::getGame();
+        auto &game = Util::Game::Game::getInstance();
         game.pushScene(new GameOverScreen(false));
         game.switchToNextScene();
     }
@@ -69,7 +68,7 @@ void Ship::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     }
 
     const auto targetX = event.getTargetPosition().getX();
-    const auto maxX = Util::Game::GameManager::getDimensions().getX();
+    const auto maxX = Util::Game::Game::getInstance().getScreenDimensions().getX();
 
     if (targetX > maxX - SIZE_X || targetX < -maxX) {
         event.cancel();
@@ -95,7 +94,7 @@ void Ship::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
     }
 }
 
-void Ship::draw(Util::Game::Graphics &graphics) {
+void Ship::draw(Util::Game::Graphics &graphics) const {
     if (isExploding()) {
         Explosive::draw(graphics);
         return;
@@ -115,7 +114,7 @@ void Ship::fireMissile() {
 
     mayFireMissile = false;
     auto *missile = new PlayerMissile(getPosition() + Util::Math::Vector2<double>((SIZE_X / 2) - (PlayerMissile::SIZE_X / 2), SIZE_Y), *this);
-    Util::Game::GameManager::getCurrentScene().addObject(missile);
+    getScene().addEntity(missile);
     missile->setVelocityY(2);
 }
 

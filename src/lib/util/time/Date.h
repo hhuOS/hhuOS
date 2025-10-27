@@ -36,7 +36,7 @@ public:
     Date(uint8_t seconds, uint8_t minutes, uint8_t hours, uint8_t dayOfMonth, uint8_t month, int16_t year);
 
 	/// Create a new Date instance from a Unix timestamp (seconds since 1. January 1970).
-	/// Negative timestamps are not supported and will trigger a panic.
+	/// Negative timestamps are not supported and will fire a panic.
     explicit Date(int64_t unixTime);
 
 	/// Compare two Date instances for equality.
@@ -84,7 +84,7 @@ public:
     [[nodiscard]] int16_t getYear() const;
 
 	/// Convert the date to a Unix timestamp (seconds since 1. January 1970).
-	/// Dates before 1. January 1970 are not supported and will trigger a panic.
+	/// Dates before 1. January 1970 are not supported and will fire a panic.
 	///
 	/// ### Example
 	/// ```c++

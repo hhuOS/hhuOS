@@ -27,7 +27,6 @@
 
 #include "lib/util/io/key/Key.h"
 #include "lib/util/game/Camera.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/game/2d/Sprite.h"
@@ -55,7 +54,7 @@ void Level::initialize() {
     }
 
     int32_t x = -1;
-    double y = Util::Game::GameManager::getDimensions().getY() / 2;
+    double y = Util::Game::Game::getInstance().getScreenDimensions().getY() / 2;
 
     int32_t minX = x;
     double minY = y;
@@ -66,7 +65,7 @@ void Level::initialize() {
 
     auto c = fileStream.read();
     while (c != -1) {
-        auto position = Util::Math::Vector2<double>(x * Block::SIZE - (Util::Game::GameManager::getDimensions().getX() / 2), y);
+        auto position = Util::Math::Vector2<double>(x * Block::SIZE - (Util::Game::Game::getInstance().getScreenDimensions().getX() / 2), y);
         switch (c) {
             case '\n':
                 x = -1;
@@ -87,16 +86,16 @@ void Level::initialize() {
                 waterPositions.add(Util::Pair(x, y));
                 break;
             case '4':
-                addObject(new Block(Block::BOX, position, 1, 1));
+                addEntity(new Block(Block::BOX, position, 1, 1));
                 break;
             case '5':
-                addObject(new Coin(position));
+                addEntity(new Coin(position));
                 break;
             case '6':
-                addObject(new Fruit(position, nextLevelFile));
+                addEntity(new Fruit(position, nextLevelFile));
                 break;
             case '7': {
-                addObject(new EnemyFrog(position));
+                addEntity(new EnemyFrog(position));
                 break;
             }
             default:
@@ -116,9 +115,9 @@ void Level::initialize() {
 
     player = new PlayerDino(Util::Math::Vector2<double>(playerMinX, 0));
     player->setPoints(startPoints);
-    addObject(player);
+    addEntity(player);
 
-    setKeyListener(*this);
+
 }
 
 void Level::initializeBackground(Util::Game::Graphics &graphics) {
@@ -134,7 +133,7 @@ void Level::initializeBackground(Util::Game::Graphics &graphics) {
 
 void Level::update([[maybe_unused]] double delta) {
     if (player->isDead()) {
-        auto &game = Util::Game::GameManager::getGame();
+        auto &game = Util::Game::Game::getInstance();
         game.switchToNextScene();
 
         return;
@@ -175,7 +174,7 @@ void Level::update([[maybe_unused]] double delta) {
 void Level::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC:
-            Util::Game::GameManager::getGame().stop();
+            Util::Game::Game::getInstance().stop();
             break;
         case Util::Io::Key::SPACE:
             if (player->hasHatched()) {
@@ -215,15 +214,15 @@ void Level::spawnMergedBlocks(Util::ArrayList<Util::Pair<int32_t, double>> &posi
         auto position = positions.get(i);
         lastPosition = positions.get(i - 1);
         if (position.getFirst() - 1 != lastPosition.getFirst()) {
-            auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.getFirst() * Block::SIZE - (Util::Game::GameManager::getDimensions().getX()) / 2, rectangleStartPosition.getSecond());
+            auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.getFirst() * Block::SIZE - (Util::Game::Game::getInstance().getScreenDimensions().getX()) / 2, rectangleStartPosition.getSecond());
             auto countX = lastPosition.getFirst() - rectangleStartPosition.getFirst() + 1;
-            addObject(new Block(tag, mergedBlockStart, countX, 1));
+            addEntity(new Block(tag, mergedBlockStart, countX, 1));
 
             rectangleStartPosition = position;
         }
     }
 
-    auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.getFirst() * Block::SIZE - (Util::Game::GameManager::getDimensions().getX()) / 2, rectangleStartPosition.getSecond());
+    auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.getFirst() * Block::SIZE - (Util::Game::Game::getInstance().getScreenDimensions().getX()) / 2, rectangleStartPosition.getSecond());
     auto countX = lastPosition.getFirst() - rectangleStartPosition.getFirst() + 1;
-    addObject(new Block(tag, mergedBlockStart, countX, 1));
+    addEntity(new Block(tag, mergedBlockStart, countX, 1));
 }

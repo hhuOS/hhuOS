@@ -22,15 +22,15 @@
 
 #include <stdint.h>
 
-#include "lib/util/game/ResourceManager.h"
+#include "lib/util/game/Resources.h"
 #include "lib/util/graphic/BitmapFile.h"
 #include "lib/util/graphic/Color.h"
 
 namespace Util::Game::D3 {
 
 Texture::Texture(const String &path) {
-    if (ResourceManager::hasTexture(path)) {
-        textureId = ResourceManager::getTexture(path);
+    if (Resources::hasTexture(path)) {
+        textureId = Resources::getTexture(path);
     } else {
         const auto *image = Graphic::BitmapFile::open(path);
         const auto *imagePixels = image->getPixelBuffer();
@@ -62,8 +62,8 @@ Texture::Texture(const String &path) {
         delete image;
         delete[] textureData;
 
-        // Add texture to the ResourceManager
-        ResourceManager::addTexture(path, textureId);
+        // Add texture to the Resources
+        Resources::addTexture(path, textureId);
     }
 }
 

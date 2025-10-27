@@ -254,7 +254,7 @@ void PrintStream::print(double number) {
 		number *= 10;
 
 		if (1 - (number - static_cast<uint8_t>(number)) < 0.0001) {
-			formatStream.write('0' + static_cast<uint8_t>(number) + 1);
+			formatStream.write('0' + static_cast<uint8_t>(number));
 			i++;
 			break;
 		}

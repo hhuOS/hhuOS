@@ -30,7 +30,7 @@
 #include "Model.h"
 
 #include "lib/util/math/Math.h"
-#include "lib/util/game/ResourceManager.h"
+#include "lib/util/game/Resources.h"
 #include "lib/util/game/3d/Entity.h"
 #include "lib/util/game/3d/ObjectFile.h"
 #include "lib/util/game/3d/collider/SphereCollider.h"
@@ -49,18 +49,18 @@ Model::Model(uint32_t tag, const String &modelPath, const Math::Vector3<double> 
 Model::Model(uint32_t tag, const String &modelPath, const String &texturePath, const Math::Vector3<double> &position, const Math::Vector3<double> &rotation, const Math::Vector3<double> &scale) : Entity(tag, position, rotation, scale, SphereCollider(position, Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath), texturePath(texturePath) {}
 
 void Model::initialize() {
-    if (!ResourceManager::hasObjectFile(modelPath)) {
-        ResourceManager::addObjectFile(modelPath, ObjectFile::open(modelPath));
+    if (!Resources::hasObjectFile(modelPath)) {
+        Resources::addObjectFile(modelPath, ObjectFile::open(modelPath));
     }
 
-    objectFile = ResourceManager::getObjectFile(modelPath);
+    objectFile = Resources::getObjectFile(modelPath);
 
     if (!texturePath.isEmpty()) {
         texture = Texture(texturePath);
     }
 }
 
-void Model::draw(Graphics &graphics) {
+void Model::draw(Graphics &graphics) const {
     graphics.setColor(color);
     graphics.drawModel3D(*this);
 }

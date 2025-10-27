@@ -64,7 +64,7 @@ public:
 
     void onCollisionEvent(Util::Game::D2::CollisionEvent &event) override;
 
-    void draw(Util::Game::Graphics &graphics) override;
+    void draw(Util::Game::Graphics &graphics) const override;
 
     static const constexpr uint32_t TAG = 1;
     static const constexpr double SIZE_X = 0.03;

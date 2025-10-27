@@ -25,7 +25,6 @@
 
 #include "lib/util/io/file/File.h"
 #include "lib/util/game/Game.h"
-#include "lib/util/game/GameManager.h"
 #include "application/view3d/ModelEntity.h"
 #include "lib/util/game/Camera.h"
 #include "lib/util/io/key/Key.h"
@@ -45,16 +44,18 @@ void ModelViewer::initialize() {
         model = new ModelEntity(modelPath);
     }
 
+    auto &camera = getCamera();
     model->setPosition(camera.getFrontVector() * 5);
-    addObject(model);
+    addEntity(model);
 
     setAmbientLight(Util::Graphic::Colors::WHITE);
     light = &addLight(Util::Game::D3::Light::POINT, camera.getPosition(), Util::Graphic::Color(255, 255, 255), Util::Graphic::Color(255, 255, 255));
 
-    setKeyListener(*this);
+
 }
 
 void ModelViewer::update(double delta) {
+    auto &camera = getCamera();
     auto translation = Util::Math::Vector3<double>(0, 0, 0);
     if (cameraTranslation.getZ() != 0) {
         translation = translation + camera.getFrontVector() * cameraTranslation.getZ();
@@ -116,12 +117,12 @@ void ModelViewer::keyPressed(const Util::Io::Key &key) {
             modelRotation = Util::Math::Vector3<double>(modelRotation.getX(), modelRotation.getY(), 1);
             break;
         case Util::Io::Key::SPACE:
-            camera.reset();
-            model->setPosition(camera.getFrontVector() * 5);
+            getCamera().reset();
+            model->setPosition(getCamera().getFrontVector() * 5);
             model->setRotation(Util::Math::Vector3<double>(0, 0, 0));
             break;
         case Util::Io::Key::ESC:
-            Util::Game::GameManager::getGame().stop();
+            Util::Game::Game::getInstance().stop();
             break;
         default:
             break;

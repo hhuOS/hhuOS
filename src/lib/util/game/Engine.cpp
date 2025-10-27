@@ -24,91 +24,81 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
-#include "lib/util/async/Thread.h"
-#include "MouseListener.h"
 #include "Engine.h"
 
 #include "game/audio/AudioRunnable.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/game/Game.h"
-#include "lib/util/game/KeyListener.h"
-#include "lib/util/graphic/Ansi.h"
-#include "lib/util/graphic/Colors.h"
-#include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/io/key/KeyDecoder.h"
-#include "lib/util/base/System.h"
-#include "lib/util/io/stream/InputStream.h"
-#include "GameManager.h"
-#include "lib/util/math/Vector2.h"
-#include "lib/util/base/String.h"
-#include "lib/util/game/Camera.h"
-#include "lib/util/game/Scene.h"
-#include "lib/util/base/Address.h"
-#include "lib/util/io/key/MouseDecoder.h"
-#include "lib/util/math/Vector3.h"
-#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
-#include "lib/util/base/FreeListMemoryManager.h"
-#include "lib/util/game/3d/Scene.h"
+#include "game/3d/Scene.h"
+#include "graphic/Ansi.h"
 
 namespace Util::Game {
 
-Engine::Engine(const Graphic::LinearFrameBuffer &lfb, uint8_t targetFrameRate, double scaleFactor) : graphics(lfb, game, scaleFactor), targetFrameRate(targetFrameRate) {
-    GameManager::game = &game;
-    GameManager::graphics = &graphics;
-
-    auto mouseFile = Io::File("/device/mouse");
-    if (mouseFile.exists()) {
-        mouseInputStream = new Io::FileInputStream(mouseFile);
-    }
-}
-
-Engine::~Engine() {
-    delete mouseInputStream;
+Engine::Engine(const Graphic::LinearFrameBuffer &lfb, const uint8_t targetFrameRate, const double scaleFactor) :
+    graphics(lfb, scaleFactor),
+    game(graphics.getTransformation(), graphics.getDimensions()),
+    targetFrameRate(targetFrameRate)
+{
+    Game::instance = &game;
 }
 
 void Engine::run() {
-    const auto targetFrameTime = Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / targetFrameRate));
+    const auto targetFrameTime = Time::Timestamp::ofMicroseconds(
+        static_cast<uint64_t>(1000000.0 / targetFrameRate));
 
-    // Initialize screen and standard input
+    // Initialize screen and keyboard/mouse input streams
     Graphic::Ansi::prepareGraphicalApplication(true);
-    Io::File::setAccessMode(Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
-    mouseInputStream->setAccessMode(Io::File::NON_BLOCKING);
+    Io::File::setAccessMode(Io::STANDARD_INPUT, Io::File::NON_BLOCKING);
+
+    const auto mouseFile = Io::File("/device/mouse");
+    auto mouseInputStream = Io::FileInputStream(mouseFile.exists() ? mouseFile : Io::File("/device/null"));
+    mouseInputStream.setAccessMode(Io::File::NON_BLOCKING);
 
     // Start audio thread
     auto *audioRunnable = new AudioRunnable(game.audioChannels);
-    auto audioThread = Async::Thread::createThread("Game-Audio", audioRunnable);
+    const auto audioThread = Async::Thread::createThread("Game-Audio", audioRunnable);
 
+    // Initialize first scene
     initializeNextScene();
 
+    // Enter game loop
+    game.running = true;
     while (game.isRunning()) {
+        // Check if we need to switch to the next scene
         if (game.sceneSwitched) {
             initializeNextScene();
         }
 
         statistics.startFrameTime();
+
+        // Update game logic (input handling, entity updates, collision checks, etc.)
         statistics.startUpdateTime();
-        double frameTime = static_cast<double>(statistics.getLastFrameTime().toMicroseconds()) / 1000000;
 
         checkKeyboard();
-        checkMouse();
+        checkMouse(mouseInputStream);
 
         graphics.update();
 
         auto &scene = game.getCurrentScene();
-        scene.update(frameTime);
-        scene.updateEntities(frameTime);
+        const auto lastFrameTime = statistics.getLastFrameTime().toSecondsFloat<double>();
+        scene.update(lastFrameTime);
+        scene.updateEntities(lastFrameTime);
         scene.checkCollisions();
         scene.applyChanges();
 
         updateStatus();
         statistics.stopUpdateTimeTime();
 
+        // Render the current scene
         statistics.startDrawTime();
         scene.draw(graphics);
-        if (showStatus) drawStatus();
+
+        if (showStatus) {
+            drawStatus();
+        }
+
         graphics.show();
         statistics.stopDrawTime();
 
+        // If the frame was processed faster than the target frame time, idle for the remaining time
         statistics.startIdleTime();
         const auto renderTime = statistics.getLastDrawTime() + statistics.getLastUpdateTime();
         if (renderTime < targetFrameTime) {
@@ -119,6 +109,7 @@ void Engine::run() {
         statistics.stopFrameTime();
     }
 
+    // Cleanup after exiting the game loop
     audioRunnable->stop();
     audioThread.join();
 
@@ -126,24 +117,30 @@ void Engine::run() {
 }
 
 void Engine::initializeNextScene() {
+    // Stop audio playback
     game.stopAllAudioChannels();
 
+    // Reset graphics
     if (!game.firstScene) {
         graphics.disableGl();
         game.getCurrentScene().getCamera().reset();
         graphics.update();
     }
 
+    // Display loading message
     const double stringLength = Address(LOADING).stringLength();
-    const auto stringPos = Math::Vector2<double>(-stringLength * graphics.getRelativeFontSize() / 2, -graphics.getRelativeFontSize() / 2);
+    const auto stringPos = Math::Vector2<double>(
+        -stringLength * graphics.getRelativeFontSize() / 2, -graphics.getRelativeFontSize() / 2);
 
     graphics.clear();
     graphics.setColor(Graphic::Colors::WHITE);
     graphics.drawStringDirect(stringPos, LOADING);
     graphics.show();
 
-    statistics.reset();
+    // Reset statistics
+    statistics = Statistics();
 
+    // Initialize next scene
     game.initializeNextScene(graphics);
     game.getCurrentScene().applyChanges();
 }
@@ -159,51 +156,79 @@ void Engine::updateStatus() {
 void Engine::drawStatus() {
     const auto color = graphics.getColor();
     const auto &camera = game.getCurrentScene().getCamera();
-    const auto &memoryManager = Util::System::getAddressSpaceHeader().heapMemoryManager;
-    const auto heapUsed = (memoryManager.getTotalMemory() - memoryManager.getFreeMemory());
+    const auto &memoryManager = System::getAddressSpaceHeader().heapMemoryManager;
+    const auto heapUsed = memoryManager.getTotalMemory() - memoryManager.getFreeMemory();
     const auto heapUsedM = heapUsed / 1000 / 1000;
     const auto heapUsedK = (heapUsed - heapUsedM * 1000 * 1000) / 1000;
 
     graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawStringDirectAbsolute(10, 10, String::format("FPS: %u | Frame time: %u.%ums", status.framesPerSecond,
-            static_cast<uint32_t>(status.frameTime.toMilliseconds()), static_cast<uint32_t>((status.frameTime.toMicroseconds() - status.frameTime.toMilliseconds() * 1000) / 100)));
-    graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE, String::format("Draw: %u.%ums | Update: %u.%ums | Idle: %u.%ums",
-            static_cast<uint32_t>(status.drawTime.toMilliseconds()), static_cast<uint32_t>((status.drawTime.toMicroseconds() - status.drawTime.toMilliseconds() * 1000) / 100),
-            static_cast<uint32_t>(status.updateTime.toMilliseconds()), static_cast<uint32_t>((status.updateTime.toMicroseconds() - status.updateTime.toMilliseconds() * 1000) / 100),
-            static_cast<uint32_t>(status.idleTime.toMilliseconds()), static_cast<uint32_t>((status.idleTime.toMicroseconds() - status.idleTime.toMilliseconds() * 1000) / 100)));
-    graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 2, String::format("Objects: %u", game.getCurrentScene().getObjectCount()));
-    graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 3, String::format("Heap used: %u.%03u MB", heapUsedM, heapUsedK));
-    graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 4, String::format("Resolution: %ux%u@%u", graphics.bufferedLfb.getResolutionX(), graphics.bufferedLfb.getResolutionY(), graphics.bufferedLfb.getColorDepth()));
+
+    graphics.drawStringDirectAbsolute(10, 10,
+        String::format("FPS: %u | Frame time: %.1fms",
+            status.framesPerSecond,
+            status.frameTime.toSecondsFloat<float>() * 1000));
+
+    graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE,
+        String::format("Draw: %.1fms | Update: %.1fms | Idle: %.1fms",
+            status.drawTime.toSecondsFloat<float>() * 1000,
+            status.updateTime.toSecondsFloat<float>() * 1000,
+            status.idleTime.toSecondsFloat<float>() * 1000));
+
+    graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 2,
+        String::format("Objects: %u", game.getCurrentScene().getObjectCount()));
+
+    graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 3,
+        String::format("Heap used: %u.%03u MB", heapUsedM, heapUsedK));
+
+    graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 4,
+        String::format("Resolution: %ux%u@%u",
+            graphics.bufferedLfb.getResolutionX(),
+            graphics.bufferedLfb.getResolutionY(),
+            graphics.bufferedLfb.getColorDepth()));
 
     if (graphics.isGlEnabled()) {
-        graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 5, String::format("Camera: Position(%d, %d, %d), Rotation(%d, %d, %d)",
-                static_cast<int32_t>(camera.getPosition().getX()), static_cast<int32_t>(camera.getPosition().getY()), static_cast<int32_t>(camera.getPosition().getZ()),
-                static_cast<int32_t>(camera.getRotation().getX()), static_cast<int32_t>(camera.getRotation().getY()), static_cast<int32_t>(camera.getRotation().getZ())));
-        graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 6, String::format("Camera: Front(%d, %d, %d), Up(%d, %d, %d), Right(%d, %d, %d)",
-                static_cast<int32_t>(camera.getFrontVector().getX() * 100), static_cast<int32_t>(camera.getFrontVector().getY() * 100), static_cast<int32_t>(camera.getFrontVector().getZ() * 100),
-                static_cast<int32_t>(camera.getUpVector().getX() * 100), static_cast<int32_t>(camera.getUpVector().getY() * 100), static_cast<int32_t>(camera.getUpVector().getZ() * 100),
-                static_cast<int32_t>(camera.getRightVector().getX() * 100), static_cast<int32_t>(camera.getRightVector().getY() * 100), static_cast<int32_t>(camera.getRightVector().getZ() * 100)));
+        const auto &cameraPosition = camera.getPosition();
+        const auto &cameraRotation = camera.getRotation();
+        const auto &cameraFront = camera.getFrontVector();
+        const auto &cameraUp = camera.getUpVector();
+        const auto &cameraRight = camera.getRightVector();
+
+        graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 5,
+            String::format("Camera: Position(%.1f, %.1f, %.1f), Rotation(%.1f, %.1f, %.1f)",
+                cameraPosition.getX(), cameraPosition.getY(), cameraPosition.getZ(),
+                cameraRotation.getX(), cameraRotation.getY(), cameraRotation.getZ()));
+
+
+        graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 6,
+            String::format("        Front(%.1f, %.1f, %.1f), Up(%.1f, %.1f, %.1f), Right(%.1f, %.1f, %.1f)",
+                cameraFront.getX(), cameraFront.getY(), cameraFront.getZ(),
+                cameraUp.getX(), cameraUp.getY(), cameraUp.getZ(),
+                cameraRight.getX(), cameraRight.getY(), cameraRight.getZ()));
     } else {
-        graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 5, String::format("Camera: Position(%d, %d)",
-                static_cast<int32_t>(camera.getPosition().getX()), static_cast<int32_t>(camera.getPosition().getY())));
+        const auto &cameraPosition = camera.getPosition();
+
+        graphics.drawStringDirectAbsolute(10, 10 + Graphics::FONT_SIZE * 5,
+            String::format("Camera: Position(%.1f, %.1f)", cameraPosition.getX(), cameraPosition.getY()));
     }
 
     graphics.setColor(color);
 }
 
 void Engine::checkKeyboard() {
-    int16_t scancode = Util::System::in.read();
+    int16_t scancode = System::in.read();
     while (scancode >= 0) {
         if (keyDecoder.parseScancode(scancode)) {
             auto key = keyDecoder.getCurrentKey();
             auto &scene = game.getCurrentScene();
 
             switch (key.getScancode()) {
+                // Toggle status display
                 case Io::Key::F1:
                     if (key.isPressed()) {
                         showStatus = !showStatus;
                     }
                     break;
+                // Toggle OpenGL render style (3D scenes only)
                 case Io::Key::F2:
                     if (key.isPressed() && graphics.isGlEnabled()) {
                         auto &scene3d = reinterpret_cast<D3::Scene&>(scene);
@@ -220,12 +245,14 @@ void Engine::checkKeyboard() {
                         }
                     }
                     break;
+                // Toggle lighting (3D scenes only)
                 case Io::Key::F3:
                     if (key.isPressed() && graphics.isGlEnabled()) {
                         auto &scene3d = reinterpret_cast<D3::Scene&>(scene);
                         scene3d.setLightEnabled(!scene3d.isLightEnabled());
                     }
                 break;
+                // Toggle shading model (3D scenes only)
                 case Io::Key::F4:
                     if (key.isPressed() && graphics.isGlEnabled()) {
                         auto &scene3d = reinterpret_cast<D3::Scene&>(scene);
@@ -239,58 +266,57 @@ void Engine::checkKeyboard() {
                         }
                     }
                 break;
+                // Forward key event to the current scene
                 default:
-                    if (scene.keyListener != nullptr) {
-                        key.isPressed() ? scene.keyListener->keyPressed(key) : scene.keyListener->keyReleased(key);
-                    }
+                    key.isPressed() ? scene.keyPressed(key) : scene.keyReleased(key);
             }
         }
 
-        scancode = Util::System::in.read();
+        scancode = System::in.read();
     }
 }
 
-void Engine::checkMouse() {
-    int16_t value = mouseInputStream->read();
+void Engine::checkMouse(Io::FileInputStream &mouseInputStream) {
+    int16_t value = mouseInputStream.read();
     while (value >= 0) {
         mouseValues[mouseValueIndex++] = value;
         if (mouseValueIndex == 4) {
-            auto mouseUpdate = Io::MouseDecoder::decode(mouseValues);
+            const auto mouseUpdate = Io::MouseDecoder::decode(mouseValues);
 
-            auto &scene = game.getCurrentScene();
-            if (scene.mouseListener == nullptr) {
-                continue;
-            }
-
-            checkMouseKey(Io::MouseDecoder::LEFT_BUTTON, lastMouseButtonState, mouseUpdate.buttons);
-            checkMouseKey(Io::MouseDecoder::RIGHT_BUTTON, lastMouseButtonState, mouseUpdate.buttons);
-            checkMouseKey(Io::MouseDecoder::MIDDLE_BUTTON, lastMouseButtonState, mouseUpdate.buttons);
-            checkMouseKey(Io::MouseDecoder::BUTTON_4, lastMouseButtonState, mouseUpdate.buttons);
-            checkMouseKey(Io::MouseDecoder::BUTTON_5, lastMouseButtonState, mouseUpdate.buttons);
-            lastMouseButtonState = mouseUpdate.buttons;
+            checkMouseKey(Io::MouseDecoder::LEFT_BUTTON, lastMouseButtons, mouseUpdate.buttons);
+            checkMouseKey(Io::MouseDecoder::RIGHT_BUTTON, lastMouseButtons, mouseUpdate.buttons);
+            checkMouseKey(Io::MouseDecoder::MIDDLE_BUTTON, lastMouseButtons, mouseUpdate.buttons);
+            checkMouseKey(Io::MouseDecoder::BUTTON_4, lastMouseButtons, mouseUpdate.buttons);
+            checkMouseKey(Io::MouseDecoder::BUTTON_5, lastMouseButtons, mouseUpdate.buttons);
+            lastMouseButtons = mouseUpdate.buttons;
 
             if (mouseUpdate.xMovement != 0 || mouseUpdate.yMovement != 0) {
-                scene.mouseListener->mouseMoved(Util::Math::Vector2<double>(mouseUpdate.xMovement / static_cast<double>(UINT8_MAX), mouseUpdate.yMovement / static_cast<double>(UINT8_MAX)));
+                const auto movement = Util::Math::Vector2<double>(
+                    mouseUpdate.xMovement / static_cast<double>(UINT8_MAX),
+                    mouseUpdate.yMovement / static_cast<double>(UINT8_MAX));
+                game.getCurrentScene().mouseMoved(movement);
             }
 
             if (mouseUpdate.scroll != 0) {
-                scene.mouseListener->mouseScrolled(mouseUpdate.scroll);
+                game.getCurrentScene().mouseScrolled(mouseUpdate.scroll);
             }
 
-            Util::Address(mouseValues).setRange(0, 4);
+            Address(mouseValues).setRange(0, 4);
             mouseValueIndex = 0;
         }
 
-        value = mouseInputStream->read();
+        value = mouseInputStream.read();
     }
 }
 
-void Engine::checkMouseKey(Io::MouseDecoder::Button button, uint8_t lastButtonState, uint8_t currentButtonState) {
+void Engine::checkMouseKey(const Io::MouseDecoder::Button button,
+    const uint8_t lastButtonState, const uint8_t currentButtonState) const
+{
     auto &scene = game.getCurrentScene();
-    if (!(lastButtonState & button) && (currentButtonState & button)) {
-        scene.mouseListener->buttonPressed(button);
-    } else if ((lastButtonState & button) && !(currentButtonState & button)) {
-        scene.mouseListener->buttonReleased(button);
+    if (!(lastButtonState & button) && currentButtonState & button) {
+        scene.mouseButtonPressed(button);
+    } else if (lastButtonState & button && !(currentButtonState & button)) {
+        scene.mouseButtonReleased(button);
     }
 }
 

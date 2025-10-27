@@ -30,7 +30,6 @@
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/game/Engine.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
@@ -70,7 +69,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseFloat<double>(argumentParser.getArgument("scale")) : 1.0;
     auto lfb = Util::Graphic::LinearFrameBuffer::open(lfbFile);
     auto engine = Util::Game::Engine(lfb, 60, scaleFactor);
-    Util::Game::GameManager::getGame().pushScene(new IntroScreen());
+    Util::Game::Game::getInstance().pushScene(new IntroScreen());
     engine.run();
 
     return 0;

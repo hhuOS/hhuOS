@@ -26,7 +26,6 @@
 #include "GameOverScreen.h"
 #include "Rogue3D.h"
 #include "lib/util/game/Game.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/graphic/Colors.h"
@@ -36,7 +35,7 @@
 GameOverScreen::GameOverScreen(uint32_t level) : level(level) {}
 
 void GameOverScreen::initialize() {
-    setKeyListener(*this);
+
 }
 
 void GameOverScreen::update([[maybe_unused]] double delta) {}
@@ -58,10 +57,10 @@ void GameOverScreen::initializeBackground(Util::Game::Graphics &graphics) {
 void GameOverScreen::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC:
-            Util::Game::GameManager::getGame().stop();
+            Util::Game::Game::getInstance().stop();
             break;
         case Util::Io::Key::SPACE:
-            auto &game = Util::Game::GameManager::getGame();
+            auto &game = Util::Game::Game::getInstance();
             game.pushScene(new Rogue3D());
             game.switchToNextScene();
     }

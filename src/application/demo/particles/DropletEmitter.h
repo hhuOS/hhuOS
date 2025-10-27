@@ -35,32 +35,32 @@ template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
-class BloodEmitter : public Util::Game::D2::SingleTimeEmitter {
+class DropletEmitter : public Util::Game::D2::SingleTimeEmitter {
 
 public:
     /**
      * Default.
      */
-    explicit BloodEmitter(const Util::Math::Vector2<double> &position);
+    explicit DropletEmitter(const Util::Math::Vector2<double> &position);
 
     /**
      * Copy Constructor.
      */
-    BloodEmitter(const BloodEmitter &other) = delete;
+    DropletEmitter(const DropletEmitter &other) = delete;
 
     /**
      * Assignment operator.
      */
-    BloodEmitter &operator=(const BloodEmitter &other) = delete;
+    DropletEmitter &operator=(const DropletEmitter &other) = delete;
 
     /**
      * Destructor.
      */
-    ~BloodEmitter() override = default;
+    ~DropletEmitter() override = default;
 
     void initialize() override;
 
-    void draw(Util::Game::Graphics &graphics) override;
+    void draw(Util::Game::Graphics &graphics) const override;
 
     void onTranslationEvent(Util::Game::D2::TranslationEvent &event) override;
 

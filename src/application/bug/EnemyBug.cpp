@@ -23,7 +23,6 @@
 #include "lib/util/game/2d/component/LinearMovementComponent.h"
 #include "lib/util/game/2d/event/CollisionEvent.h"
 #include "lib/util/game/2d/event/TranslationEvent.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "EnemyMissile.h"
 #include "PlayerMissile.h"
@@ -56,8 +55,8 @@ void EnemyBug::onUpdate(double delta) {
     Explosive::onUpdate(delta);
 
     if (hasExploded()) {
-        Util::Game::GameManager::getCurrentScene().removeObject(this);
         fleet.decreaseSize();
+        removeFromScene();
         return;
     }
 
@@ -86,7 +85,7 @@ void EnemyBug::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     }
 
     // Workaround for weird bug, where enemy suddenly gets an x-position outside the screen range
-    const auto dimX = Util::Game::GameManager::getDimensions().getX();
+    const auto dimX = Util::Game::Game::getInstance().getScreenDimensions().getX();
     if (event.getTargetPosition().getX() < -dimX || event.getTargetPosition().getX() > dimX) {
         event.cancel();
         return;
@@ -108,7 +107,7 @@ void EnemyBug::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
     }
 }
 
-void EnemyBug::draw(Util::Game::Graphics &graphics) {
+void EnemyBug::draw(Util::Game::Graphics &graphics) const {
     if (isExploding()) {
         Explosive::draw(graphics);
     } else {
@@ -118,6 +117,6 @@ void EnemyBug::draw(Util::Game::Graphics &graphics) {
 
 void EnemyBug::fireMissile() {
     auto *missile = new EnemyMissile(getPosition() + Util::Math::Vector2<double>((SIZE_X / 2) - (EnemyMissile::SIZE_X / 2), -SIZE_Y), *this);
-    Util::Game::GameManager::getCurrentScene().addObject(missile);
+    getScene().addEntity(missile);
     missile->setVelocityY(-1);
 }

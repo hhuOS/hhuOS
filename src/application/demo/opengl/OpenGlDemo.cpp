@@ -26,7 +26,6 @@
 #include "Cuboid.h"
 #include "DemoModel.h"
 #include "Rectangle.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/math/Vector2.h"
 #include "lib/util/base/String.h"
@@ -37,14 +36,14 @@
 #include "lib/util/io/key/Key.h"
 
 void OpenGlDemo::initialize() {
-    setKeyListener(*this);
     setBackgroundColor(Util::Graphic::Color(176, 252, 255));
 
     setAmbientLight(Util::Graphic::Color(77, 77, 77));
     addLight(Util::Game::D3::Light::POINT, Util::Math::Vector3<double>(0, 1, 1), Util::Graphic::Color(255, 255, 255), Util::Graphic::Color(0, 0, 0));
     addLight(Util::Game::D3::Light::POINT, Util::Math::Vector3<double>(39, 20, 36), Util::Graphic::Color(102, 102, 255), Util::Graphic::Color(0, 0, 0));
 
-    camera.setPosition(Util::Math::Vector3<double>(0, 0, 5));
+
+    getCamera().setPosition(Util::Math::Vector3<double>(0, 0, 5));
 
     auto *floor1 = new Cuboid(Util::Math::Vector3<double>(0, -5.5, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(20, 1, 20), Util::Graphic::Color(0, 255, 0));
     auto *floor2 = new Cuboid(Util::Math::Vector3<double>(30, -5.5, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(20, 1, 20), Util::Graphic::Color(0, 255, 0));
@@ -63,21 +62,22 @@ void OpenGlDemo::initialize() {
 
     auto *logo = new Rectangle(Util::Math::Vector3<double>(15, 5, -15), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector2<double>(10, 2.62), "/user/demo/hhu.bmp");
 
-    addObject(floor1);
-    addObject(floor2);
-    addObject(cuboid1);
-    addObject(cuboid2);
-    addObject(cuboid3);
-    addObject(cuboid4);
-    addObject(cuboid5);
-    addObject(texturedCube);
-    addObject(tree);
-    addObject(lantern);
-    addObject(icosphere);
-    addObject(logo);
+    addEntity(floor1);
+    addEntity(floor2);
+    addEntity(cuboid1);
+    addEntity(cuboid2);
+    addEntity(cuboid3);
+    addEntity(cuboid4);
+    addEntity(cuboid5);
+    addEntity(texturedCube);
+    addEntity(tree);
+    addEntity(lantern);
+    addEntity(icosphere);
+    addEntity(logo);
 }
 
 void OpenGlDemo::update([[maybe_unused]] double delta) {
+    auto &camera = getCamera();
     auto translation = Util::Math::Vector3<double>(0, 0, 0);
     if (cameraTranslation.getZ() != 0) {
         translation = translation + camera.getFrontVector() * cameraTranslation.getZ();
@@ -117,11 +117,11 @@ void OpenGlDemo::keyPressed(const Util::Io::Key &key) {
             cameraTranslation = Util::Math::Vector3<double>(1, cameraTranslation.getY(), cameraTranslation.getZ());
             break;
         case Util::Io::Key::SPACE:
-            camera.reset();
-            camera.setPosition(Util::Math::Vector3<double>(0, 0, 5));
+            getCamera().reset();
+            getCamera().setPosition(Util::Math::Vector3<double>(0, 0, 5));
             break;
         case Util::Io::Key::ESC:
-            Util::Game::GameManager::getGame().stop();
+            Util::Game::Game::getInstance().stop();
             break;
         default:
             break;

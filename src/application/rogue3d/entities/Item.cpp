@@ -25,7 +25,6 @@
 
 #include "Player.h"
 #include "lib/util/game/3d/event/CollisionEvent.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/Graphics.h"
 #include "lib/util/graphic/Color.h"
@@ -101,7 +100,7 @@ void Item::onUpdate(double delta) {
     setScale(getScale() * (1 + delta));
 }
 
-void Item::draw(Util::Game::Graphics &graphics) {
+void Item::draw(Util::Game::Graphics &graphics) const {
     switch (getTag()) {
         case TAG_HEALTH_UP:
             graphics.setColor(Util::Graphic::Color(255, 0, 0));
@@ -122,7 +121,7 @@ void Item::draw(Util::Game::Graphics &graphics) {
 
 void Item::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == Player::TAG && getTag() != TAG_NEXT_LVL) {
-        Util::Game::GameManager::getCurrentScene().removeObject(this);
+        removeFromScene();
     }
 }
 

@@ -24,13 +24,12 @@
 #include <stdint.h>
 
 #include "lib/util/game/2d/Scene.h"
-#include "lib/util/game/KeyListener.h"
 #include "DemoSpriteFactory.h"
 #include "lib/util/collection/ArrayListQueue.h"
 
 class DemoSprite;
 
-class SpriteDemo : public Util::Game::D2::Scene, public Util::Game::KeyListener {
+class SpriteDemo : public Util::Game::D2::Scene {
 
 public:
     /**

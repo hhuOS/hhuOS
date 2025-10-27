@@ -47,7 +47,7 @@ void Particle::onUpdate(double delta) {
     sprite.rotate(rotationVelocity * delta);
 }
 
-void Particle::draw(Graphics &graphics) {
+void Particle::draw(Graphics &graphics) const {
     sprite.draw(graphics, getPosition());
 }
 
@@ -55,10 +55,6 @@ void Particle::onTranslationEvent([[maybe_unused]] TranslationEvent &event) {}
 
 void Particle::onCollisionEvent(CollisionEvent &event) {
     parent.onParticleCollision(*this, event);
-}
-
-bool Particle::isParticle() const {
-    return true;
 }
 
 double Particle::getScale() const {

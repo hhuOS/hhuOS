@@ -39,10 +39,10 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/game/Engine.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Entity.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Game.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/GameManager.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Graphics.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/ResourceManager.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/Resources.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Scene.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/Statistics.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/Entity.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/Polygon.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/2d/Scene.cpp

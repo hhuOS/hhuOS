@@ -27,9 +27,8 @@
 #include <stdint.h>
 
 #include "lib/util/game/2d/Scene.h"
-#include "lib/util/game/KeyListener.h"
 
-class GameOverScreen : public Util::Game::D2::Scene, public Util::Game::KeyListener {
+class GameOverScreen : public Util::Game::D2::Scene {
 
 public:
     /**

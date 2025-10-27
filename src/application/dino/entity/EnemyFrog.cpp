@@ -25,7 +25,6 @@
 
 #include "lib/util/game/2d/event/CollisionEvent.h"
 #include "PlayerDino.h"
-#include "lib/util/game/GameManager.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/Scene.h"
 #include "lib/util/game/2d/component/LinearMovementComponent.h"
@@ -38,9 +37,7 @@
 #include "lib/util/game/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2.h"
 
-EnemyFrog::EnemyFrog(const Util::Math::Vector2<double> &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE * 1.12), Util::Game::D2::RectangleCollider::DYNAMIC)) {
-    Util::Game::GameManager::getCurrentScene().addObject(grassEmitter);
-}
+EnemyFrog::EnemyFrog(const Util::Math::Vector2<double> &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE * 1.12), Util::Game::D2::RectangleCollider::DYNAMIC)) {}
 
 void EnemyFrog::initialize() {
     animation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
@@ -60,13 +57,15 @@ void EnemyFrog::initialize() {
     addComponent(new Util::Game::D2::LinearMovementComponent(*this));
     addComponent(new Util::Game::D2::GravityComponent(*this, 1.25, 0));
     setVelocityX(0.25);
+
+    getScene().addEntity(grassEmitter);
 }
 
 void EnemyFrog::onUpdate(double delta) {
     animation.update(delta);
 }
 
-void EnemyFrog::draw(Util::Game::Graphics &graphics) {
+void EnemyFrog::draw(Util::Game::Graphics &graphics) const {
     animation.draw(graphics, getPosition());
 }
 
@@ -95,7 +94,7 @@ void EnemyFrog::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
 
     if (event.getCollidedWidth().getTag() == PlayerDino::TAG) {
         auto &player = reinterpret_cast<PlayerDino &>(event.getCollidedWidth());
-        auto &scene = Util::Game::GameManager::getGame().getCurrentScene();
+        auto &scene = Util::Game::Game::getInstance().getCurrentScene();
 
         if (player.isDying() || player.isDead()) {
             return;
@@ -104,11 +103,11 @@ void EnemyFrog::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
         if (player.getPosition().getY() >= (getPosition().getY() + SIZE / 2)) {
             player.addPoints(5);
             player.setVelocityY(0.5);
-            scene.addObject(new BloodEmitter(getPosition(), BloodEmitter::ENEMY));
-            scene.removeObject(this);
+            scene.addEntity(new BloodEmitter(getPosition(), BloodEmitter::ENEMY));
+            removeFromScene();
         } else {
             player.die();
-            scene.addObject(new BloodEmitter(player.getPosition(), BloodEmitter::PLAYER));
+            scene.addEntity(new BloodEmitter(player.getPosition(), BloodEmitter::PLAYER));
         }
     }
 }

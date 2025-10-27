@@ -25,12 +25,11 @@
 
 #include "lib/util/collection/ArrayListQueue.h"
 #include "DemoPolygonFactory.h"
-#include "lib/util/game/KeyListener.h"
 #include "lib/util/game/2d/Scene.h"
 
 class DemoPolygon;
 
-class PolygonDemo : public Util::Game::D2::Scene, public Util::Game::KeyListener {
+class PolygonDemo : public Util::Game::D2::Scene {
 
 public:
     /**

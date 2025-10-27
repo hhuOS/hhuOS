@@ -25,7 +25,6 @@
 #define HHUOS_MODELVIEWER_H
 
 #include "lib/util/game/3d/Scene.h"
-#include "lib/util/game/KeyListener.h"
 #include "lib/util/base/String.h"
 #include "lib/util/math/Vector3.h"
 
@@ -39,7 +38,7 @@ class Light;
 }  // namespace Game
 }  // namespace Util
 
-class ModelViewer : public Util::Game::D3::Scene, public Util::Game::KeyListener {
+class ModelViewer : public Util::Game::D3::Scene {
 
 public:
     /**

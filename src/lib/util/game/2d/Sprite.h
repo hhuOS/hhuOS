@@ -98,7 +98,7 @@ public:
 
 private:
 
-    Graphic::Image *image;
+    const Graphic::Image *image;
 
     Math::Vector2<double> size;
     Math::Vector2<double> scale = Math::Vector2<double>(1, 1);
