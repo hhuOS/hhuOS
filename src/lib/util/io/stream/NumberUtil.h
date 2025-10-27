@@ -68,35 +68,37 @@ inline uint32_t readUnsigned32BitValue(InputStream &stream) {
 }
 
 /// Write a signed 8-bit value to the given output stream.
-inline void write8BitValue(int8_t value, OutputStream &stream);
+inline bool write8BitValue(int8_t value, OutputStream &stream) {
+    return stream.write(static_cast<uint8_t>(value)) == 1;
+}
 
 /// Write an unsigned 8-bit value to the given output stream.
-inline void writeUnsigned8BitValue(const uint8_t value, OutputStream &stream) {
-    stream.write(value);
+inline bool writeUnsigned8BitValue(const uint8_t value, OutputStream &stream) {
+    return stream.write(value) == 1;
 }
 
 /// Write a signed 16-bit value to the given output stream.
-inline void write16BitValue(const int16_t value, OutputStream &stream) {
-    stream.write(static_cast<uint8_t>(value >> 8));
-    stream.write(static_cast<uint8_t>(value));
+inline bool write16BitValue(const int16_t value, OutputStream &stream) {
+    return stream.write(static_cast<uint8_t>(value >> 8)) &&
+        stream.write(static_cast<uint8_t>(value));
 }
 
 /// Write an unsigned 16-bit value to the given output stream.
-inline void writeUnsigned16BitValue(const uint16_t value, OutputStream &stream) {
-    write16BitValue(static_cast<int16_t>(value), stream);
+inline bool writeUnsigned16BitValue(const uint16_t value, OutputStream &stream) {
+    return write16BitValue(static_cast<int16_t>(value), stream);
 }
 
 /// Write a signed 32-bit value to the given output stream.
-inline void write32BitValue(const int32_t value, OutputStream &stream) {
-    stream.write(static_cast<uint8_t>(value >> 24));
-    stream.write(static_cast<uint8_t>(value >> 16));
-    stream.write(static_cast<uint8_t>(value >> 8));
-    stream.write(static_cast<uint8_t>(value));
+inline bool write32BitValue(const int32_t value, OutputStream &stream) {
+    return stream.write(static_cast<uint8_t>(value >> 24)) &&
+        stream.write(static_cast<uint8_t>(value >> 16)) &&
+        stream.write(static_cast<uint8_t>(value >> 8)) &&
+        stream.write(static_cast<uint8_t>(value));
 }
 
 /// Write an unsigned 32-bit value to the given output stream.
-inline void writeUnsigned32BitValue(const uint32_t value, OutputStream &stream) {
-    write32BitValue(static_cast<int32_t>(value), stream);
+inline bool writeUnsigned32BitValue(const uint32_t value, OutputStream &stream) {
+    return write32BitValue(static_cast<int32_t>(value), stream);
 }
 
 }

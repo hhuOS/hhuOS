@@ -34,6 +34,7 @@
 #include "util/collection/ArrayList.h"
 #include "util/io/stream/ByteArrayOutputStream.h"
 #include "util/io/stream/PrintStream.h"
+#include "util/io/stream/NumberUtil.h"
 #include "util/math/Math.h"
 
 namespace Util {
@@ -54,6 +55,22 @@ static constexpr const char *MONTH_NAMES[13] = {
 static constexpr const char *MONTH_ABBREVIATIONS[13] = {
     "", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
+
+bool String::writeToStream(Io::OutputStream &stream) const {
+    return Io::NumberUtil::writeUnsigned32BitValue(len, stream) &&
+        stream.write(reinterpret_cast<const uint8_t *>(buffer), 0, len) == len;
+}
+
+bool String::readFromStream(Io::InputStream &stream) {
+    len = Io::NumberUtil::readUnsigned32BitValue(stream);
+
+    delete[] buffer;
+    buffer = new char[len + 1];
+    const auto readBytes = stream.read(reinterpret_cast<uint8_t *>(buffer), 0, len);
+    buffer[readBytes] = '\0';
+
+    return static_cast<size_t>(readBytes) == len;
+}
 
 size_t String::hashCode() const {
     size_t hash = 0;

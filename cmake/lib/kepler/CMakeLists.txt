@@ -16,15 +16,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-project(desktop)
+project(lib.user.kepler)
 message(STATUS "Project " ${PROJECT_NAME})
 
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_sources(${PROJECT_NAME} PUBLIC
+        ${HHUOS_SRC_DIR}/lib/kepler/Protocol.cpp
+        ${HHUOS_SRC_DIR}/lib/kepler/Window.cpp
+        ${HHUOS_SRC_DIR}/lib/kepler/WindowManagerPipe.cpp)
 
-set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/desktop/desktop.cpp
-        ${HHUOS_SRC_DIR}/application/desktop/Protocol.cpp)
-
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base)
+target_link_libraries(${PROJECT_NAME} lib.graphic)

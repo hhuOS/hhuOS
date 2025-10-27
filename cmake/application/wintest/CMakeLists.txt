@@ -22,9 +22,8 @@ message(STATUS "Project " ${PROJECT_NAME})
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
 
 set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/wintest/wintest.cpp
-        ${HHUOS_SRC_DIR}/application/desktop/Protocol.cpp)
+        ${HHUOS_SRC_DIR}/application/wintest/wintest.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base)
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.kepler)

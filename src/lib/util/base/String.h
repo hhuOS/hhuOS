@@ -32,6 +32,7 @@
 #include "util/collection/Array.h"
 #include "util/io/stream/OutputStream.h"
 #include "util/time/Date.h"
+#include "util/async/Streamable.h"
 
 extern void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment);
 
@@ -47,7 +48,7 @@ namespace Util {
 /// const auto string = Util::String("Hello, World!");
 /// Util::System::out << string << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 /// ```
-class String {
+class String final : public Async::Streamable {
 
 public:
     /// Create a new empty string, consisting only of the null terminator.
@@ -296,6 +297,29 @@ public:
     explicit operator size_t() const {
         return hashCode();
     }
+
+    /// Write the string to the given output stream.
+    /// This writes the length of the string (excluding the null terminator) as a 32-bit unsigned integer,
+    /// followed by the string data.
+    bool writeToStream(Io::OutputStream &stream) const override;
+
+    /// Read the string from the given input stream.
+    /// This reads the length of the string (excluding the null terminator) as a 32-bit unsigned integer,
+    /// followed by the string data and overwrites the existing string.
+    /// If the stream does not contain enough data, `false` is returned and only part of the string is read.
+    ///
+    /// ### Example
+    /// ```c++
+    /// auto inputStream = Util::Io::PipedInputStream();
+    /// auto outputStream = Util::Io::PipedOutputStream(inputStream);
+    ///
+    /// const Util::String inputString = "Hello, world!";
+    /// Util::String outputString;
+    ///
+    /// inputString.writeToStream(outputStream);
+    /// outputString.readFromStream(inputStream);
+    /// ```
+    bool readFromStream(Io::InputStream &stream) override;
 
     /// Get the length of the string (excluding the null terminator).
     ///
