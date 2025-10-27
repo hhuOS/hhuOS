@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Heinrich Heine University Düsseldorf,
+* Copyright (C) 2017-2025 Heinrich Heine University Düsseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Main developers: Christian Gesse <christian.gesse@hhu.de>, Fabian Ruhland <ruhland@hhu.de>
  * Original development team: Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schöttner
@@ -18,41 +18,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_WINDOW_MANAGER_PROTOCOL_H
-#define HHUOS_WINDOW_MANAGER_PROTOCOL_H
+#ifndef HHUOS_LIB_UTIL_ASYNC_STREAMABLE_H
+#define HHUOS_LIB_UTIL_ASYNC_STREAMABLE_H
 
-#include <stddef.h>
+namespace Util {
+namespace Io {
+class InputStream;
+class OutputStream;
+} // namespace Io
+} // namespace Util
 
-#include "io/stream/InputStream.h"
+namespace Util {
+namespace Async {
 
-enum Command : uint8_t {
-    FLUSH
+/// Interface class for objects, that can be serialized to and from streams.
+class Streamable {
+
+public:
+    /// The interface does not manage any resources, so the default destructor is sufficient.
+    virtual ~Streamable() = default;
+
+    /// Write the object to the given output stream.
+    /// The return value indicates whether the operation was successful.
+    virtual bool writeToStream(Io::OutputStream &stream) const = 0;
+
+    /// Read the object from the given input stream.
+    /// The return value indicates whether the operation was successful.
+    /// If the operation fails, the object may be in an inconsistent state.
+    virtual bool readFromStream(Io::InputStream &stream) = 0;
 };
 
-struct CreateWindowRequest {
-    uint16_t resX;
-    uint16_t resY;
-
-    size_t processId;
-    Util::String pipeName;
-
-    bool writeToStream(Util::Io::OutputStream &stream) const;
-
-    [[nodiscard]] Util::String getPipePath() const;
-
-    static CreateWindowRequest readFromStream(Util::Io::InputStream &stream);
-};
-
-struct CreateWindowResponse {
-    uint16_t resX;
-    uint16_t resY;
-    uint8_t colorDepth;
-    size_t sharedBufferId;
-    size_t sharedBufferPageCount;
-
-    void writeToStream(Util::Io::OutputStream &stream) const;
-
-    static CreateWindowResponse readFromStream(Util::Io::InputStream &stream);
-};
+}
+}
 
 #endif

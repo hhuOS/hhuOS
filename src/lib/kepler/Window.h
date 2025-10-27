@@ -18,30 +18,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#ifndef HHUOS_LIB_KEPLER_WINDOW_H
+#define HHUOS_LIB_KEPLER_WINDOW_H
 
-#include "async/Thread.h"
+#include <stdint.h>
+
+#include "util/async/SharedMemory.h"
+#include "util/graphic/LinearFrameBuffer.h"
 #include "kepler/WindowManagerPipe.h"
-#include "kepler/Protocol.h"
-#include "kepler/Window.h"
-#include "graphic/Colors.h"
-#include "time/Timestamp.h"
 
-int32_t main([[maybe_unused]] int32_t argc, char *argv[]) {
-    auto pipe = Kepler::WindowManagerPipe();
-    const auto window = Kepler::Window(320, 240, argv[0], pipe);
-    const auto &lfb = window.getFrameBuffer();
+namespace Kepler {
 
-    while (true) {
-        lfb.fillSquare(10, 10, 100, Util::Graphic::Colors::HHU_BLUE);
-        window.flush();
+class Window {
 
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofSeconds(1));
+public:
 
-        lfb.fillSquare(10, 10, 100, Util::Graphic::Colors::HHU_GREEN);
-        window.flush();
+    Window(uint16_t width, uint16_t height, const Util::String &title, WindowManagerPipe &pipe);
 
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofSeconds(1));
-    }
+    Window(const Window &other) = delete;
 
-    return 0;
+    Window& operator=(const Window &other) = delete;
+
+    ~Window();
+
+    [[nodiscard]] Util::Graphic::LinearFrameBuffer& getFrameBuffer() const;
+
+    void flush() const;
+
+private:
+
+    WindowManagerPipe &pipe;
+
+    Util::Async::SharedMemory *sharedMemory = nullptr;
+    Util::Graphic::LinearFrameBuffer *lfb = nullptr;
+};
+
 }
+
+#endif
