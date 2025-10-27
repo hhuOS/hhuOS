@@ -1,4 +1,4 @@
-# Copyright (C) 2017-2026 Heinrich Heine University Düsseldorf,
+# Copyright (C) 2017-2025 Heinrich Heine University Düsseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Main developers: Christian Gesse <christian.gesse@hhu.de>, Fabian Ruhland <ruhland@hhu.de>
 # Original development team: Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schöttner
@@ -16,14 +16,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-project(lib)
+project(kepler)
 message(STATUS "Project " ${PROJECT_NAME})
 
-# Add subdirectories
-add_subdirectory(runtime)
-add_subdirectory(util)
-add_subdirectory(pulsar)
-add_subdirectory(lunar)
-add_subdirectory(libc)
-add_subdirectory(kepler)
-add_subdirectory(tinygl)
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
+
+set(SOURCE_FILES
+        ${HHUOS_SRC_DIR}/application/kepler/desktop.cpp)
+
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.kepler)

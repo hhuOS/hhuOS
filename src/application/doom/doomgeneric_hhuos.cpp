@@ -27,7 +27,10 @@
 #include <ctype.h>
 #include <math.h>
 
-#include "application/desktop/Protocol.h"
+
+#include "lib/util/async/Process.h"
+#include "lib/util/async/SharedMemory.h"
+#include "kepler/Protocol.h"
 #include "lib/util/async/Process.h"
 #include "lib/util/async/SharedMemory.h"
 #include "doomgeneric/doomgeneric/doomtype.h"
@@ -37,6 +40,8 @@
 #include "doomgeneric/doomgeneric/doomtype.h"
 #include "doomgeneric/doomgeneric/i_sound.h"
 #include "lib/util/io/stream/FileInputStream.h"
+#include "kepler/Window.h"
+#include "kepler/WindowManagerPipe.h"
 #include "lib/interface.h"
 
 #include "lib/util/graphic/Ansi.h"
@@ -123,72 +128,9 @@ int32_t main(int argc, char **argv) {
 
 	doomgeneric_Create(argc, argv);
 
-    // Prepare graphics
-    /*Util::Graphic::Ansi::prepareGraphicalApplication(true);
-    auto lfbFile = new Util::Io::File("/device/lfb");
-
-    // If '-res' is given, try to change display resolution
-    for (int32_t i = 0; i < argc; i++) {
-        if (!strcmp(argv[i], "-res") && i < argc - 1) {
-            auto split1 = Util::String(argv[i + 1]).split("x");
-            auto split2 = split1[1].split("@");
-
-            auto resolutionX = Util::String::parseNumber<uint16_t>(split2[0]);
-            auto resolutionY = Util::String::parseNumber<uint16_t>(split2[1]);
-            uint8_t colorDepth = split1.length() > 1 ? Util::String::parseNumber<uint8_t>(split1[1]) : 32;
-
-            lfbFile->controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
-            break;
-        }
-    }
-
-    auto buffer = Util::Graphic::LinearFrameBuffer::open(*lfbFile);
-    lfb = &buffer;*/
-
-    Util::Async::Thread::sleep(Util::Time::Timestamp::ofSeconds(1));
-
-    auto desktopFile = Util::Io::File("/system/desktop");
-    if (!desktopFile.exists()) {
-        Util::System::error << "Window manager not available!"
-            << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
-
-        return -1;
-    }
-
-    auto desktopFileStream = Util::Io::FileInputStream(desktopFile);
-    auto line = desktopFileStream.readLine();
-    auto windowManagerId = Util::String::parseNumber<size_t>(line.content);
-    auto processId = Util::Async::Process::getCurrentProcess().getId();
-
-    createPipe("window-manager");
-    auto *windowManagerInputPipe = new Util::Io::FileInputStream(Util::String::format("/process/%u/pipes/window-manager", processId));
-    Util::Io::FileOutputStream *windowManagerOutputPipe = nullptr;
-
-    auto windowManagerPipeDirectory = Util::Io::File(Util::String::format("/process/%u/pipes", windowManagerId));
-    while (true) {
-        size_t maxId = 0;
-        for (const auto &child : windowManagerPipeDirectory.getChildren()) {
-            const auto currentId = Util::String::parseNumber<size_t>(child.getName());
-            if (currentId > maxId) {
-                maxId = currentId;
-            }
-        }
-
-        windowManagerOutputPipe = new Util::Io::FileOutputStream(Util::String::format("/process/%u/pipes/%u", windowManagerId, maxId));
-
-        auto request = CreateWindowRequest{320, 240, processId, "window-manager"};
-        if (request.writeToStream(*windowManagerOutputPipe)) {
-            break;
-        }
-    }
-
-    auto response = CreateWindowResponse::readFromStream(*windowManagerInputPipe);
-    auto sharedMemory = Util::Async::SharedMemory(windowManagerId, Util::String::format("%u", response.sharedBufferId), response.sharedBufferPageCount);
-    sharedMemory.map();
-
-    auto *windowBuffer = reinterpret_cast<void*>(sharedMemory.getAddress().get());
-    auto colorDepth = response.colorDepth == 15 ? 16 : response.colorDepth;
-    lfb = new Util::Graphic::LinearFrameBuffer(windowBuffer, response.resX, response.resY, response.colorDepth, response.resX * (colorDepth / 8));
+    auto windowManagerPipe = Kepler::WindowManagerPipe();
+    const auto window = Kepler::Window(DOOMGENERIC_RESX, DOOMGENERIC_RESY, "Doom", windowManagerPipe);
+    lfb = &window.getFrameBuffer();
 
     // Calculate scale factor the game as large as possible
     scaleFactor = lfb->getResolutionX() / DOOMGENERIC_RESX;
@@ -239,7 +181,7 @@ int32_t main(int argc, char **argv) {
             Util::Async::Thread::yield();
         } else {
             doomgeneric_Tick();
-            windowManagerOutputPipe->write(Command::FLUSH);
+            window.flush();
         }
     }
 }
