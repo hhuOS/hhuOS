@@ -5,6 +5,7 @@
 #include <math.h>
 #include <stdint.h>
 
+#include "kepler/Window.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/time/Timestamp.h"
@@ -158,7 +159,7 @@ void drawGears() {
     glPopMatrix();
 }
 
-void gears(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
+void gears(const Kepler::Window &window, const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     auto &font = Util::Graphic::Fonts::TERMINAL_8x8;
     const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / TARGET_FRAME_RATE));
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
@@ -235,7 +236,9 @@ void gears(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
 
         // Draw the FPS string on top of the rendered OpenGL scene
         lfb.drawString(font, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
-        lfb.flush(); // Flushes the buffered frame buffer to the screen
+
+        lfb.flush();
+        window.flush();
 
         auto renderTime = Util::Time::Timestamp::getSystemTime() - startTime;
         if (renderTime < targetFrameTime) {
