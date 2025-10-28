@@ -20,6 +20,8 @@
 
 #include <stdint.h>
 
+#include "kepler/Window.h"
+#include "kepler/WindowManagerPipe.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/base/System.h"
 #include "lib/util/base/ArgumentParser.h"
@@ -34,9 +36,9 @@
 #include "lib/tinygl/include/zbuffer.h"
 
 extern void info();
-extern void triangle(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
-extern void gears(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
-extern void cubes(const Util::Graphic::BufferedLinearFrameBuffer &lfb);
+extern void triangle(const Kepler::Window &window, const Util::Graphic::BufferedLinearFrameBuffer &lfb);
+extern void gears(const Kepler::Window &window, const Util::Graphic::BufferedLinearFrameBuffer &lfb);
+extern void cubes(const Kepler::Window &window, const Util::Graphic::BufferedLinearFrameBuffer &lfb);
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -68,21 +70,12 @@ int32_t main(int32_t argc, char *argv[]) {
         return 0;
     }
 
-    Util::Graphic::Ansi::prepareGraphicalApplication(true);
-    auto lfbFile = Util::Io::File("/device/lfb");
 
-    if (argumentParser.hasArgument("resolution")) {
-        auto split1 = argumentParser.getArgument("resolution").split("x");
-        auto split2 = split1[1].split("@");
 
-        auto resolutionX = Util::String::parseNumber<uint16_t>(split1[0]);
-        auto resolutionY = Util::String::parseNumber<uint16_t>(split2[0]);
-        uint8_t colorDepth = split2.length() > 1 ? Util::String::parseNumber<uint8_t>(split2[1]) : 32;
+    auto pipe = Kepler::WindowManagerPipe();
+    const auto window = Kepler::Window(320, 240, Util::String::format("TinyGL (%s)", static_cast<const char*>(demo)), pipe);
+    const auto &lfb = window.getFrameBuffer();
 
-        lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
-    }
-
-    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     if (lfb.getColorDepth() != TGL_FEATURE_RENDER_BITS) {
         Util::System::error << "tinygl: Color depth not supported (Required: " << TGL_FEATURE_RENDER_BITS << ", Got: " << lfb.getColorDepth() << ")!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;
@@ -96,11 +89,11 @@ int32_t main(int32_t argc, char *argv[]) {
     lfb.clear();
 
     if (demo == "triangle") {
-        triangle(bufferedLfb);
+        triangle(window, bufferedLfb);
     } else if (demo == "gears") {
-        gears(bufferedLfb);
+        gears(window, bufferedLfb);
     } else if (demo == "cubes") {
-        cubes(bufferedLfb);
+        cubes(window, bufferedLfb);
     } else {
         Util::System::error << "opengl: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;

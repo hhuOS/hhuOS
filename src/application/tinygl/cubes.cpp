@@ -22,6 +22,7 @@
 
 #include <stdint.h>
 
+#include "kepler/Window.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/time/Timestamp.h"
@@ -183,7 +184,7 @@ GLuint loadTexture(Util::Graphic::Image *image) {
     return textureId;
 }
 
-void cubes(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
+void cubes(const Kepler::Window &window, const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     auto &font = Util::Graphic::Fonts::TERMINAL_8x8;
     const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / TARGET_FRAME_RATE));
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
@@ -210,7 +211,7 @@ void cubes(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
     delete bitmap;
 
     auto *cubes = new Util::ArrayList<Cube*>();
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < 10; i++) {
         cubes->add(new Cube(texture));
     }
 
@@ -262,7 +263,9 @@ void cubes(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
         // Draw the FPS string on top of the rendered OpenGL scene
         lfb.drawString(font, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
         lfb.drawString(font, 0, font.getCharHeight(), static_cast<const char*>(Util::String::format("Cubes: %u", cubes->size())), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
-        lfb.flush(); // Flushes the buffered frame buffer to the screen
+
+        lfb.flush();
+        window.flush();
 
         auto renderTime = Util::Time::Timestamp::getSystemTime() - startTime;
         if (renderTime < targetFrameTime) {
