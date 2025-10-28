@@ -47,6 +47,8 @@
 #include <util/graphic/BufferedLinearFrameBuffer.h>
 #include <util/graphic/font/Terminal8x8.h>
 #include <pulsar/Statistics.h>
+#include <kepler/Window.h>
+#include <kepler/WindowManagerPipe.h>
 #include <tinygl/include/zbuffer.h>
 
 constexpr const char *HELP_TEXT =
@@ -131,27 +133,21 @@ int32_t main(const int32_t argc, char *argv[]) {
         demo = new Lesson7();
     } else {
         Util::System::error << "tinygl: Invalid demo '" << demoName << "'!" << Util::Io::PrintStream::lnFlush;
-        return -1;
     }
 
-    const Util::Io::File lfbFile("/device/lfb");
-
-    if (argumentParser.hasArgument("resolution")) {
-        const auto resolutionString = argumentParser.getArgument("resolution");
-        Util::Graphic::LinearFrameBuffer::setResolution(lfbFile, resolutionString);
-    }
+    Kepler::WindowManagerPipe pipe;
+    const Kepler::Window window(320, 240, Util::String::format("TinyGL (%s)",
+        static_cast<const char*>(demoName)), pipe);
+    const auto &lfb = window.getFrameBuffer();
 
     const auto scaleFactor = Util::String::parseFloat<float>(
         argumentParser.getArgument("scale", "1.0"));
 
-    const Util::Graphic::LinearFrameBuffer lfb(lfbFile);
     if (lfb.getColorDepth() != TGL_FEATURE_RENDER_BITS) {
         Util::System::error << "tinygl: Color depth not supported (Required: " << TGL_FEATURE_RENDER_BITS
             << ", Got: " << lfb.getColorDepth() << ")!" << Util::Io::PrintStream::lnFlush;
         return -1;
     }
-
-    Util::Graphic::Ansi::prepareGraphicalApplication(true);
 
     Util::Graphic::BufferedLinearFrameBuffer bufferedLfb(lfb, scaleFactor);
     auto *glBuffer = ZB_open(bufferedLfb.getResolutionX(), bufferedLfb.getResolutionY(),
@@ -214,6 +210,7 @@ int32_t main(const int32_t argc, char *argv[]) {
 
         // Flush frame to display
         bufferedLfb.flush();
+        window.flush();
         statistics.stopDrawTime();
 
         // Sleep to hit the target framerate
@@ -230,7 +227,6 @@ int32_t main(const int32_t argc, char *argv[]) {
     ZB_close(glBuffer);
     glClose();
 
-    Util::Graphic::Ansi::cleanupGraphicalApplication();
     return 0;
 }
 
