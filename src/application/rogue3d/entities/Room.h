@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/game/3d/Entity.h"
+#include "lib/util/pulsar/3d/Entity.h"
 #include "lib/util/collection/ArrayList.h"
 
 class Enemy;
@@ -38,7 +38,7 @@ template <typename T> class Vector3;
 }  // namespace Math
 }  // namespace Util
 
-class Room : public Util::Game::D3::Entity {
+class Room : public Util::Pulsar::D3::Entity {
 
 public:
     enum Type{
@@ -72,9 +72,9 @@ public:
 
     void onUpdate(double delta) override;
 
-    void draw(Util::Game::Graphics &graphics) const override;
+    void draw(Util::Pulsar::Graphics &graphics) const override;
 
-    void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
+    void onCollisionEvent(Util::Pulsar::D3::CollisionEvent &event) override;
 
     void enterRoom();
 

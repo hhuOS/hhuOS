@@ -19,12 +19,12 @@
 # Add subdirectories
 add_subdirectory(async)
 add_subdirectory(base)
-add_subdirectory(game)
 add_subdirectory(graphic)
 add_subdirectory(hardware)
 add_subdirectory(io)
 add_subdirectory(math)
 add_subdirectory(network)
+add_subdirectory(pulsar)
 add_subdirectory(reflection)
 add_subdirectory(sound)
 add_subdirectory(time)

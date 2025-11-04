@@ -26,9 +26,9 @@
 
 #include <stdint.h>
 
-#include "lib/util/game/2d/Scene.h"
+#include "lib/util/pulsar/2d/Scene.h"
 
-class GameOverScreen : public Util::Game::D2::Scene {
+class GameOverScreen : public Util::Pulsar::D2::Scene {
 
 public:
     /**
@@ -59,7 +59,7 @@ public:
 
     void keyReleased(const Util::Io::Key &key) override;
 
-    void initializeBackground(Util::Game::Graphics &graphics) override;
+    void initializeBackground(Util::Pulsar::Graphics &graphics) override;
 
 private:
 

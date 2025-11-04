@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/game/3d/Entity.h"
+#include "lib/util/pulsar/3d/Entity.h"
 
 namespace Util {
 namespace Math {
@@ -35,7 +35,7 @@ template <typename T> class Vector3;
 template <typename T> class Array;
 }  // namespace Util
 
-class Item : public Util::Game::D3::Entity {
+class Item : public Util::Pulsar::D3::Entity {
 
 public:
     /**
@@ -62,9 +62,9 @@ public:
 
     void onUpdate(double delta) override;
 
-    void draw(Util::Game::Graphics &graphics) const override;
+    void draw(Util::Pulsar::Graphics &graphics) const override;
 
-    void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
+    void onCollisionEvent(Util::Pulsar::D3::CollisionEvent &event) override;
 
     static const constexpr uint32_t TAG_DMG_UP = 4;
     static const constexpr uint32_t TAG_HEALTH_UP = 5;

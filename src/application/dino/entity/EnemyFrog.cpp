@@ -23,39 +23,39 @@
 
 #include "EnemyFrog.h"
 
-#include "lib/util/game/2d/event/CollisionEvent.h"
+#include "lib/util/pulsar/2d/event/CollisionEvent.h"
 #include "PlayerDino.h"
-#include "lib/util/game/Game.h"
-#include "lib/util/game/Scene.h"
-#include "lib/util/game/2d/component/LinearMovementComponent.h"
-#include "lib/util/game/2d/component/GravityComponent.h"
+#include "lib/util/pulsar/Game.h"
+#include "lib/util/pulsar/Scene.h"
+#include "lib/util/pulsar/2d/component/LinearMovementComponent.h"
+#include "lib/util/pulsar/2d/component/GravityComponent.h"
 #include "application/dino/particle/BloodEmitter.h"
 #include "Block.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/game/2d/Sprite.h"
-#include "lib/util/game/2d/collider/RectangleCollider.h"
+#include "lib/util/pulsar/2d/Sprite.h"
+#include "lib/util/pulsar/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2.h"
 
-EnemyFrog::EnemyFrog(const Util::Math::Vector2<double> &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE * 1.12), Util::Game::D2::RectangleCollider::DYNAMIC)) {}
+EnemyFrog::EnemyFrog(const Util::Math::Vector2<double> &position) : Util::Pulsar::D2::Entity(TAG, position, Util::Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE * 1.12), Util::Pulsar::D2::RectangleCollider::DYNAMIC)) {}
 
 void EnemyFrog::initialize() {
-    animation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
-        Util::Game::D2::Sprite("/user/dino/enemy/frog1.bmp", SIZE, SIZE * 1.12),
-        Util::Game::D2::Sprite("/user/dino/enemy/frog2.bmp", SIZE, SIZE * 1.12),
-        Util::Game::D2::Sprite("/user/dino/enemy/frog3.bmp", SIZE, SIZE * 1.12),
-        Util::Game::D2::Sprite("/user/dino/enemy/frog4.bmp", SIZE, SIZE * 1.12),
-        Util::Game::D2::Sprite("/user/dino/enemy/frog5.bmp", SIZE, SIZE * 1.12),
-        Util::Game::D2::Sprite("/user/dino/enemy/frog6.bmp", SIZE, SIZE * 1.12),
-        Util::Game::D2::Sprite("/user/dino/enemy/frog7.bmp", SIZE, SIZE * 1.12),
-        Util::Game::D2::Sprite("/user/dino/enemy/frog8.bmp", SIZE, SIZE * 1.12),
-        Util::Game::D2::Sprite("/user/dino/enemy/frog9.bmp", SIZE, SIZE * 1.12),
-        Util::Game::D2::Sprite("/user/dino/enemy/frog10.bmp", SIZE, SIZE * 1.12),
-        Util::Game::D2::Sprite("/user/dino/enemy/frog11.bmp", SIZE, SIZE * 1.12),
-        Util::Game::D2::Sprite("/user/dino/enemy/frog12.bmp", SIZE, SIZE * 1.12)}), 0.5);
+    animation = Util::Pulsar::D2::SpriteAnimation(Util::Array<Util::Pulsar::D2::Sprite>({
+        Util::Pulsar::D2::Sprite("/user/dino/enemy/frog1.bmp", SIZE, SIZE * 1.12),
+        Util::Pulsar::D2::Sprite("/user/dino/enemy/frog2.bmp", SIZE, SIZE * 1.12),
+        Util::Pulsar::D2::Sprite("/user/dino/enemy/frog3.bmp", SIZE, SIZE * 1.12),
+        Util::Pulsar::D2::Sprite("/user/dino/enemy/frog4.bmp", SIZE, SIZE * 1.12),
+        Util::Pulsar::D2::Sprite("/user/dino/enemy/frog5.bmp", SIZE, SIZE * 1.12),
+        Util::Pulsar::D2::Sprite("/user/dino/enemy/frog6.bmp", SIZE, SIZE * 1.12),
+        Util::Pulsar::D2::Sprite("/user/dino/enemy/frog7.bmp", SIZE, SIZE * 1.12),
+        Util::Pulsar::D2::Sprite("/user/dino/enemy/frog8.bmp", SIZE, SIZE * 1.12),
+        Util::Pulsar::D2::Sprite("/user/dino/enemy/frog9.bmp", SIZE, SIZE * 1.12),
+        Util::Pulsar::D2::Sprite("/user/dino/enemy/frog10.bmp", SIZE, SIZE * 1.12),
+        Util::Pulsar::D2::Sprite("/user/dino/enemy/frog11.bmp", SIZE, SIZE * 1.12),
+        Util::Pulsar::D2::Sprite("/user/dino/enemy/frog12.bmp", SIZE, SIZE * 1.12)}), 0.5);
 
-    addComponent(new Util::Game::D2::LinearMovementComponent(*this));
-    addComponent(new Util::Game::D2::GravityComponent(*this, 1.25, 0));
+    addComponent(new Util::Pulsar::D2::LinearMovementComponent(*this));
+    addComponent(new Util::Pulsar::D2::GravityComponent(*this, 1.25, 0));
     setVelocityX(0.25);
 
     getScene().addEntity(grassEmitter);
@@ -65,26 +65,26 @@ void EnemyFrog::onUpdate(double delta) {
     animation.update(delta);
 }
 
-void EnemyFrog::draw(Util::Game::Graphics &graphics) const {
+void EnemyFrog::draw(Util::Pulsar::Graphics &graphics) const {
     animation.draw(graphics, getPosition());
 }
 
-void EnemyFrog::onTranslationEvent([[maybe_unused]] Util::Game::D2::TranslationEvent &event) {}
+void EnemyFrog::onTranslationEvent([[maybe_unused]] Util::Pulsar::D2::TranslationEvent &event) {}
 
-void EnemyFrog::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
+void EnemyFrog::onCollisionEvent(Util::Pulsar::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == BloodEmitter::PARTICLE_TAG) {
         return;
     }
 
-    if (event.getSide() == Util::Game::D2::RectangleCollider::LEFT) {
+    if (event.getSide() == Util::Pulsar::D2::RectangleCollider::LEFT) {
         setVelocityX(VELOCITY);
         animation.setXFlipped(false);
-    } else if (event.getSide() == Util::Game::D2::RectangleCollider::RIGHT) {
+    } else if (event.getSide() == Util::Pulsar::D2::RectangleCollider::RIGHT) {
         setVelocityX(-VELOCITY);
         animation.setXFlipped(true);
     }
 
-    if (event.getCollidedWidth().getTag() == Block::GRASS && event.getSide() == Util::Game::D2::RectangleCollider::BOTTOM) {
+    if (event.getCollidedWidth().getTag() == Block::GRASS && event.getSide() == Util::Pulsar::D2::RectangleCollider::BOTTOM) {
         auto currentTime = Util::Time::Timestamp::getSystemTime();
         if ((currentTime - lastEmissionTime).toMilliseconds() > EMISSION_INTERVAL_MS) {
             lastEmissionTime = currentTime;
@@ -94,7 +94,7 @@ void EnemyFrog::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
 
     if (event.getCollidedWidth().getTag() == PlayerDino::TAG) {
         auto &player = reinterpret_cast<PlayerDino &>(event.getCollidedWidth());
-        auto &scene = Util::Game::Game::getInstance().getCurrentScene();
+        auto &scene = Util::Pulsar::Game::getInstance().getCurrentScene();
 
         if (player.isDying() || player.isDead()) {
             return;

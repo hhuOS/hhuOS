@@ -24,9 +24,7 @@ include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/boot.asm
         ${HHUOS_SRC_DIR}/BuildConfig.cpp
-        ${HHUOS_SRC_DIR}/GatesOfHell.cpp
-        ../../src/lib/util/game/Statistics.cpp
-        ../../src/lib/util/game/Statistics.h)
+        ${HHUOS_SRC_DIR}/GatesOfHell.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 

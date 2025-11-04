@@ -23,11 +23,11 @@
 
 #include "Missile.h"
 
-#include "lib/util/game/Scene.h"
-#include "lib/util/game/3d/event/CollisionEvent.h"
+#include "lib/util/pulsar/Scene.h"
+#include "lib/util/pulsar/3d/event/CollisionEvent.h"
 #include "lib/util/math/Vector3.h"
 #include "application/battlespace/Player.h"
-#include "lib/util/game/3d/Entity.h"
+#include "lib/util/pulsar/3d/Entity.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/base/String.h"
 
@@ -52,7 +52,7 @@ void Missile::onUpdate(double delta) {
     }
 }
 
-void Missile::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {
+void Missile::onCollisionEvent(Util::Pulsar::D3::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == TAG && player != nullptr) {
         player->addScore(250);
     }

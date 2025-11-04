@@ -26,8 +26,8 @@
 
 #include <stdint.h>
 
-#include "lib/util/game/2d/Entity.h"
-#include "lib/util/game/2d/SpriteAnimation.h"
+#include "lib/util/pulsar/2d/Entity.h"
+#include "lib/util/pulsar/2d/SpriteAnimation.h"
 #include "application/dino/particle/GrassEmitter.h"
 #include "lib/util/time/Timestamp.h"
 
@@ -37,7 +37,7 @@ template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
-class EnemyFrog : public Util::Game::D2::Entity {
+class EnemyFrog : public Util::Pulsar::D2::Entity {
 
 public:
     /**
@@ -64,11 +64,11 @@ public:
 
     void onUpdate(double delta) override;
 
-    void draw(Util::Game::Graphics &graphics) const override;
+    void draw(Util::Pulsar::Graphics &graphics) const override;
 
-    void onTranslationEvent(Util::Game::D2::TranslationEvent &event) override;
+    void onTranslationEvent(Util::Pulsar::D2::TranslationEvent &event) override;
 
-    void onCollisionEvent(Util::Game::D2::CollisionEvent &event) override;
+    void onCollisionEvent(Util::Pulsar::D2::CollisionEvent &event) override;
 
     static const constexpr uint32_t TAG = 7;
 
@@ -78,7 +78,7 @@ private:
         LEFT, RIGHT
     };
 
-    Util::Game::D2::SpriteAnimation animation;
+    Util::Pulsar::D2::SpriteAnimation animation;
     Direction direction = LEFT;
 
     GrassEmitter *grassEmitter = new GrassEmitter(*this);

@@ -20,37 +20,37 @@
 
 #include "PlayerMissile.h"
 
-#include "lib/util/game/Game.h"
-#include "lib/util/game/2d/component/LinearMovementComponent.h"
-#include "lib/util/game/2d/event/TranslationEvent.h"
-#include "lib/util/game/2d/event/CollisionEvent.h"
+#include "lib/util/pulsar/Game.h"
+#include "lib/util/pulsar/2d/component/LinearMovementComponent.h"
+#include "lib/util/pulsar/2d/event/TranslationEvent.h"
+#include "lib/util/pulsar/2d/event/CollisionEvent.h"
 #include "application/bug/Ship.h"
-#include "lib/util/game/Scene.h"
-#include "lib/util/game/Collider.h"
-#include "lib/util/game/2d/collider/RectangleCollider.h"
+#include "lib/util/pulsar/Scene.h"
+#include "lib/util/pulsar/Collider.h"
+#include "lib/util/pulsar/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2.h"
 #include "EnemyMissile.h"
 #include "EnemyBug.h"
 #include "lib/util/base/String.h"
 
-PlayerMissile::PlayerMissile(const Util::Math::Vector2<double> &position, Ship &ship) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC)), ship(ship) {
-    addComponent(new Util::Game::D2::LinearMovementComponent(*this));
+PlayerMissile::PlayerMissile(const Util::Math::Vector2<double> &position, Ship &ship) : Util::Pulsar::D2::Entity(TAG, position, Util::Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE_X, SIZE_Y), Util::Pulsar::Collider::STATIC)), ship(ship) {
+    addComponent(new Util::Pulsar::D2::LinearMovementComponent(*this));
 }
 
 void PlayerMissile::initialize() {
-    sprite = Util::Game::D2::Sprite("/user/bug/player_missile.bmp", SIZE_X, SIZE_Y);
+    sprite = Util::Pulsar::D2::Sprite("/user/bug/player_missile.bmp", SIZE_X, SIZE_Y);
 }
 
 void PlayerMissile::onUpdate([[maybe_unused]] double delta) {}
 
-void PlayerMissile::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
+void PlayerMissile::onTranslationEvent(Util::Pulsar::D2::TranslationEvent &event) {
     if (event.getTargetPosition().getY() > 1.0) {
         ship.allowFireMissile();
         removeFromScene();
     }
 }
 
-void PlayerMissile::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
+void PlayerMissile::onCollisionEvent(Util::Pulsar::D2::CollisionEvent &event) {
     auto tag = event.getCollidedWidth().getTag();
     if (tag == EnemyMissile::TAG) {
         const auto &missile = event.getCollidedWidth<const EnemyMissile&>();
@@ -68,6 +68,6 @@ void PlayerMissile::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
     removeFromScene();
 }
 
-void PlayerMissile::draw(Util::Game::Graphics &graphics) const {
+void PlayerMissile::draw(Util::Pulsar::Graphics &graphics) const {
     sprite.draw(graphics, getPosition());
 }

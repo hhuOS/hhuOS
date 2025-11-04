@@ -20,29 +20,29 @@
 
 #include "EnemyMissile.h"
 
-#include "lib/util/game/Game.h"
-#include "lib/util/game/2d/component/LinearMovementComponent.h"
-#include "lib/util/game/2d/event/TranslationEvent.h"
-#include "lib/util/game/2d/event/CollisionEvent.h"
+#include "lib/util/pulsar/Game.h"
+#include "lib/util/pulsar/2d/component/LinearMovementComponent.h"
+#include "lib/util/pulsar/2d/event/TranslationEvent.h"
+#include "lib/util/pulsar/2d/event/CollisionEvent.h"
 #include "PlayerMissile.h"
 #include "application/bug/Ship.h"
-#include "lib/util/game/Scene.h"
-#include "lib/util/game/Collider.h"
-#include "lib/util/game/2d/collider/RectangleCollider.h"
+#include "lib/util/pulsar/Scene.h"
+#include "lib/util/pulsar/Collider.h"
+#include "lib/util/pulsar/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2.h"
 #include "application/bug/Explosive.h"
-#include "lib/util/game/2d/Entity.h"
+#include "lib/util/pulsar/2d/Entity.h"
 #include "lib/util/base/String.h"
 
 class EnemyBug;
 
-EnemyMissile::EnemyMissile(const Util::Math::Vector2<double> &position, EnemyBug &bug) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC), "/user/bug/ship_hit.wav"), bug(bug) {
-    addComponent(new Util::Game::D2::LinearMovementComponent(*this));
+EnemyMissile::EnemyMissile(const Util::Math::Vector2<double> &position, EnemyBug &bug) : Explosive(TAG, position, Util::Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE_X, SIZE_Y), Util::Pulsar::Collider::STATIC), "/user/bug/ship_hit.wav"), bug(bug) {
+    addComponent(new Util::Pulsar::D2::LinearMovementComponent(*this));
 }
 
 void EnemyMissile::initialize() {
     Explosive::initialize();
-    sprite = Util::Game::D2::Sprite("/user/bug/enemy_missile.bmp", SIZE_X, SIZE_Y);
+    sprite = Util::Pulsar::D2::Sprite("/user/bug/enemy_missile.bmp", SIZE_X, SIZE_Y);
 }
 
 void EnemyMissile::onUpdate(double delta) {
@@ -53,7 +53,7 @@ void EnemyMissile::onUpdate(double delta) {
     }
 }
 
-void EnemyMissile::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
+void EnemyMissile::onTranslationEvent(Util::Pulsar::D2::TranslationEvent &event) {
     if (event.getTargetPosition().getY() < -1.0) {
         removeFromScene();
     }
@@ -63,7 +63,7 @@ void EnemyMissile::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     }
 }
 
-void EnemyMissile::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
+void EnemyMissile::onCollisionEvent(Util::Pulsar::D2::CollisionEvent &event) {
     if (isExploding()) {
         return;
     }
@@ -74,7 +74,7 @@ void EnemyMissile::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
     }
 }
 
-void EnemyMissile::draw(Util::Game::Graphics &graphics) const {
+void EnemyMissile::draw(Util::Pulsar::Graphics &graphics) const {
     if (isExploding()) {
         Explosive::draw(graphics);
     } else {

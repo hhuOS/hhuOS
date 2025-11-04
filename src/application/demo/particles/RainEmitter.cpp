@@ -24,41 +24,41 @@
 #include "RainEmitter.h"
 
 #include "Dino.h"
-#include "lib/util/game/2d/event/TranslationEvent.h"
-#include "lib/util/game/2d/component/LinearMovementComponent.h"
+#include "lib/util/pulsar/2d/event/TranslationEvent.h"
+#include "lib/util/pulsar/2d/component/LinearMovementComponent.h"
 #include "DropletEmitter.h"
 #include "Ground.h"
-#include "game/2d/event/CollisionEvent.h"
-#include "lib/util/game/Scene.h"
+#include "pulsar/2d/event/CollisionEvent.h"
+#include "lib/util/pulsar/Scene.h"
 #include "lib/util/base/String.h"
-#include "lib/util/game/2d/collider/RectangleCollider.h"
-#include "lib/util/game/2d/particle/Particle.h"
-#include "lib/util/game/Collider.h"
+#include "lib/util/pulsar/2d/collider/RectangleCollider.h"
+#include "lib/util/pulsar/2d/particle/Particle.h"
+#include "lib/util/pulsar/Collider.h"
 #include "lib/util/math/Vector2.h"
 
-RainEmitter::RainEmitter(const Util::Math::Vector2<double> &position) : Util::Game::D2::Emitter(TAG, PARTICLE_TAG, position, -1) {}
+RainEmitter::RainEmitter(const Util::Math::Vector2<double> &position) : Util::Pulsar::D2::Emitter(TAG, PARTICLE_TAG, position, -1) {}
 
 void RainEmitter::initialize() {
     Emitter::initialize();
-    cloudSprite = Util::Game::D2::Sprite("/user/dino/background/cloud3.bmp", 0.6, 0.15);
+    cloudSprite = Util::Pulsar::D2::Sprite("/user/dino/background/cloud3.bmp", 0.6, 0.15);
 
     setVelocityX(SPEED);
     setEmissionTime(0.2);
     setMinEmissionRate(2);
     setMaxEmissionRate(2);
 
-    addComponent(new Util::Game::D2::LinearMovementComponent(*this));
+    addComponent(new Util::Pulsar::D2::LinearMovementComponent(*this));
 }
 
 void RainEmitter::onUpdate(double delta) {
     Emitter::onUpdate(delta);
 }
 
-void RainEmitter::draw(Util::Game::Graphics &graphics) const {
+void RainEmitter::draw(Util::Pulsar::Graphics &graphics) const {
     cloudSprite.draw(graphics, getPosition());
 }
 
-void RainEmitter::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
+void RainEmitter::onTranslationEvent(Util::Pulsar::D2::TranslationEvent &event) {
     if (event.getTargetPosition().getX() < -1) {
         setPositionX(-1);
         setVelocityX(SPEED);
@@ -68,21 +68,21 @@ void RainEmitter::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     }
 }
 
-void RainEmitter::onCollisionEvent([[maybe_unused]] Util::Game::D2::CollisionEvent &event) {}
+void RainEmitter::onCollisionEvent([[maybe_unused]] Util::Pulsar::D2::CollisionEvent &event) {}
 
-void RainEmitter::onParticleInitialization(Util::Game::D2::Particle &particle) {
-    particle.setSprite(Util::Game::D2::Sprite("/user/dino/particle/water.bmp", 0.005, 0.03));
+void RainEmitter::onParticleInitialization(Util::Pulsar::D2::Particle &particle) {
+    particle.setSprite(Util::Pulsar::D2::Sprite("/user/dino/particle/water.bmp", 0.005, 0.03));
     particle.setPosition(getPosition() + Util::Math::Vector2<double>(random.getRandomNumber() * 0.5, 0));
     particle.setVelocity(Util::Math::Vector2<double>(0, -0.8));
     particle.setTimeToLive(-1);
-    particle.setCollider(Util::Game::D2::RectangleCollider(particle.getPosition(), Util::Math::Vector2<double>(0.005, 0.03), Util::Game::Collider::STATIC));
+    particle.setCollider(Util::Pulsar::D2::RectangleCollider(particle.getPosition(), Util::Math::Vector2<double>(0.005, 0.03), Util::Pulsar::Collider::STATIC));
 
-    particle.addComponent(new Util::Game::D2::LinearMovementComponent(particle));
+    particle.addComponent(new Util::Pulsar::D2::LinearMovementComponent(particle));
 }
 
-void RainEmitter::onParticleUpdate([[maybe_unused]] Util::Game::D2::Particle &particle, [[maybe_unused]] double delta) {}
+void RainEmitter::onParticleUpdate([[maybe_unused]] Util::Pulsar::D2::Particle &particle, [[maybe_unused]] double delta) {}
 
-void RainEmitter::onParticleCollision(Util::Game::D2::Particle &particle, [[maybe_unused]] Util::Game::D2::CollisionEvent &event) {
+void RainEmitter::onParticleCollision(Util::Pulsar::D2::Particle &particle, [[maybe_unused]] Util::Pulsar::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == Ground::TAG || event.getCollidedWidth().getTag() == Dino::TAG) {
         auto *dropletEmitter = new DropletEmitter(particle.getPosition());
         getScene().addEntity(dropletEmitter);
@@ -91,4 +91,4 @@ void RainEmitter::onParticleCollision(Util::Game::D2::Particle &particle, [[mayb
     }
 }
 
-void RainEmitter::onParticleDestruction([[maybe_unused]] Util::Game::D2::Particle &particle) {}
+void RainEmitter::onParticleDestruction([[maybe_unused]] Util::Pulsar::D2::Particle &particle) {}

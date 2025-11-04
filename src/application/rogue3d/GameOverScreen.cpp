@@ -25,9 +25,9 @@
 
 #include "GameOverScreen.h"
 #include "Rogue3D.h"
-#include "lib/util/game/Game.h"
+#include "lib/util/pulsar/Game.h"
 #include "lib/util/base/Address.h"
-#include "lib/util/game/Graphics.h"
+#include "lib/util/pulsar/Graphics.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/base/String.h"
@@ -40,27 +40,27 @@ void GameOverScreen::initialize() {
 
 void GameOverScreen::update([[maybe_unused]] double delta) {}
 
-void GameOverScreen::initializeBackground(Util::Game::Graphics &graphics) {
+void GameOverScreen::initializeBackground(Util::Pulsar::Graphics &graphics) {
     auto lines = sizeof(TEXT) / sizeof(char*);
     auto centerX = graphics.getAbsoluteResolutionX() / 2;
     auto centerY = graphics.getAbsoluteResolutionY() / 2;
-    auto y = static_cast<uint16_t>(centerY - ((lines * Util::Game::Graphics::FONT_SIZE) / 2.0));
+    auto y = static_cast<uint16_t>(centerY - ((lines * Util::Pulsar::Graphics::FONT_SIZE) / 2.0));
 
     graphics.clear();
     graphics.setColor(Util::Graphic::Colors::GREEN);
     for (uint32_t i = 0; i < lines; i++) {
-        auto x = static_cast<uint16_t>(centerX - (Util::Address(TEXT[i]).stringLength() * Util::Game::Graphics::FONT_SIZE) / 2.0);
-        graphics.drawStringDirectAbsolute(x, y + i * Util::Game::Graphics::FONT_SIZE, i == 4 ? Util::String::format("You died at level %u!", level) : TEXT[i]);
+        auto x = static_cast<uint16_t>(centerX - (Util::Address(TEXT[i]).stringLength() * Util::Pulsar::Graphics::FONT_SIZE) / 2.0);
+        graphics.drawStringDirectAbsolute(x, y + i * Util::Pulsar::Graphics::FONT_SIZE, i == 4 ? Util::String::format("You died at level %u!", level) : TEXT[i]);
     }
 }
 
 void GameOverScreen::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC:
-            Util::Game::Game::getInstance().stop();
+            Util::Pulsar::Game::getInstance().stop();
             break;
         case Util::Io::Key::SPACE:
-            auto &game = Util::Game::Game::getInstance();
+            auto &game = Util::Pulsar::Game::getInstance();
             game.pushScene(new Rogue3D());
             game.switchToNextScene();
     }

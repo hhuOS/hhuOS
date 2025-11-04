@@ -25,10 +25,10 @@
 
 #include <stdint.h>
 
-#include "lib/util/game/Game.h"
+#include "lib/util/pulsar/Game.h"
 #include "RainEmitter.h"
 #include "Ground.h"
-#include "lib/util/game/Graphics.h"
+#include "lib/util/pulsar/Graphics.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/math/Vector2.h"
@@ -49,14 +49,14 @@ void ParticleDemo::initialize() {
 
 void ParticleDemo::update([[maybe_unused]] double delta) {}
 
-void ParticleDemo::initializeBackground(Util::Game::Graphics &graphics) {
+void ParticleDemo::initializeBackground(Util::Pulsar::Graphics &graphics) {
     graphics.clear(Util::Graphic::Color(153, 221, 255));
 }
 
 void ParticleDemo::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC:
-            Util::Game::Game::getInstance().stop();
+            Util::Pulsar::Game::getInstance().stop();
             break;
         default:
             break;

@@ -25,20 +25,20 @@
 
 #include "Missile.h"
 #include "Player.h"
-#include "lib/util/game/3d/event/CollisionEvent.h"
-#include "lib/util/game/Scene.h"
+#include "lib/util/pulsar/3d/event/CollisionEvent.h"
+#include "lib/util/pulsar/Scene.h"
 #include "lib/util/math/Math.h"
-#include "lib/util/game/3d/Util.h"
+#include "lib/util/pulsar/3d/Util.h"
 #include "EnemyDebris.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/game/3d/Entity.h"
+#include "lib/util/pulsar/3d/Entity.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/math/Vector3.h"
 #include "lib/util/base/String.h"
 
 const Util::Math::Vector3<double> Enemy::MAX_ROTATION_DELTA = Util::Math::Vector3<double>(1, 1, 0);
 
-Enemy::Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, double scale, Enemy::Type type) : Util::Game::D3::Model(2, "/user/battlespace/enemy.obj", position, rotation, Util::Math::Vector3<double>(scale, scale, scale), Util::Graphic::Colors::RED), player(player), enemies(enemies), goalScale(scale), type(type) {}
+Enemy::Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, double scale, Enemy::Type type) : Util::Pulsar::D3::Model(2, "/user/battlespace/enemy.obj", position, rotation, Util::Math::Vector3<double>(scale, scale, scale), Util::Graphic::Colors::RED), player(player), enemies(enemies), goalScale(scale), type(type) {}
 
 void Enemy::initialize() {
     Model::initialize();
@@ -75,7 +75,7 @@ void Enemy::onUpdate(double delta) {
         goalTranslation = player.getPosition() + player.getCurrentMovementDirection() * (time / delta);
     }*/
 
-    auto goalRotation = Util::Game::D3::Util::findLookAt(getPosition(), player.getPosition()) % 360;
+    auto goalRotation = Util::Pulsar::D3::Util::findLookAt(getPosition(), player.getPosition()) % 360;
     auto relativeRotation = goalRotation - getRotation();
 
     if (relativeRotation.length() > 0.1) {
@@ -132,7 +132,7 @@ void Enemy::onUpdate(double delta) {
     }
 }
 
-void Enemy::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {
+void Enemy::onCollisionEvent(Util::Pulsar::D3::CollisionEvent &event) {
     switch (event.getCollidedWidth().getTag()) {
         case Missile::TAG:
         case Player::TAG:

@@ -25,11 +25,11 @@
 
 #include "Enemy.h"
 #include "lib/util/base/String.h"
-#include "lib/util/game/Scene.h"
+#include "lib/util/pulsar/Scene.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/math/Random.h"
 
-EnemyDebris::EnemyDebris(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, double scale, uint8_t modelId) : Util::Game::D3::Model(Enemy::TAG, Util::String::format("/user/battlespace/debris%u.obj", modelId), position, rotation, Util::Math::Vector3<double>(scale, scale, scale), Util::Graphic::Colors::RED), modelId(modelId) {}
+EnemyDebris::EnemyDebris(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, double scale, uint8_t modelId) : Util::Pulsar::D3::Model(Enemy::TAG, Util::String::format("/user/battlespace/debris%u.obj", modelId), position, rotation, Util::Math::Vector3<double>(scale, scale, scale), Util::Graphic::Colors::RED), modelId(modelId) {}
 
 void EnemyDebris::initialize() {
     Model::initialize();
@@ -71,4 +71,4 @@ void EnemyDebris::onUpdate(double delta) {
     rotate(rotationDirection);
 }
 
-void EnemyDebris::onCollisionEvent([[maybe_unused]] Util::Game::D3::CollisionEvent &event) {}
+void EnemyDebris::onCollisionEvent([[maybe_unused]] Util::Pulsar::D3::CollisionEvent &event) {}

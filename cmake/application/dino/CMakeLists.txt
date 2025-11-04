@@ -43,4 +43,4 @@ set(SOURCE_FILES
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.game)
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.pulsar)

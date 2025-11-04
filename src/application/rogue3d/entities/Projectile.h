@@ -26,10 +26,10 @@
 
 #include <stdint.h>
 
-#include "lib/util/game/3d/Entity.h"
+#include "lib/util/pulsar/3d/Entity.h"
 #include "lib/util/math/Vector3.h"
 
-class Projectile : public Util::Game::D3::Entity {
+class Projectile : public Util::Pulsar::D3::Entity {
 
 public:
     /**
@@ -61,9 +61,9 @@ public:
 
     void onUpdate(double delta) override;
 
-    void draw(Util::Game::Graphics &graphics) const override;
+    void draw(Util::Pulsar::Graphics &graphics) const override;
 
-    void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
+    void onCollisionEvent(Util::Pulsar::D3::CollisionEvent &event) override;
 
     static const constexpr uint32_t TAG_PLAYER = 10;
     static const constexpr uint32_t TAG_ENEMY = 11;

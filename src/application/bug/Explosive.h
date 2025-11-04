@@ -23,30 +23,30 @@
 
 #include <stdint.h>
 
-#include "lib/util/game/audio/AudioHandle.h"
-#include "lib/util/game/audio/AudioTrack.h"
-#include "lib/util/game/2d/SpriteAnimation.h"
-#include "lib/util/game/2d/Entity.h"
+#include "lib/util/pulsar/audio/AudioHandle.h"
+#include "lib/util/pulsar/audio/AudioTrack.h"
+#include "lib/util/pulsar/2d/SpriteAnimation.h"
+#include "lib/util/pulsar/2d/Entity.h"
 
 namespace Util {
 namespace Math {
 template <typename T> class Vector2;
 }  // namespace Math
 
-namespace Game {
+namespace Pulsar {
 namespace D2 {
 class RectangleCollider;
 }  // namespace D2
-}  // namespace Game
+}  // namespace Pulsar
 }  // namespace Util
 
-class Explosive : public Util::Game::D2::Entity {
+class Explosive : public Util::Pulsar::D2::Entity {
 
 public:
     /**
      * Constructor.
      */
-    Explosive(uint32_t tag, const Util::Math::Vector2<double> &position, const Util::Game::D2::RectangleCollider &collider, const Util::String &waveFilePath, double animationTime = 0.5);
+    Explosive(uint32_t tag, const Util::Math::Vector2<double> &position, const Util::Pulsar::D2::RectangleCollider &collider, const Util::String &waveFilePath, double animationTime = 0.5);
 
     /**
      * Copy Constructor.
@@ -67,7 +67,7 @@ public:
 
     void onUpdate(double delta) override;
 
-    void draw(Util::Game::Graphics &graphics) const override;
+    void draw(Util::Pulsar::Graphics &graphics) const override;
 
     void explode();
 
@@ -78,11 +78,11 @@ public:
 private:
 
     Util::String waveFilePath;
-    Util::Game::AudioTrack soundEffect;
-    Util::Game::AudioHandle soundEffectHandle;
+    Util::Pulsar::AudioTrack soundEffect;
+    Util::Pulsar::AudioHandle soundEffectHandle;
 
     double animationTime;
-    Util::Game::D2::SpriteAnimation animation;
+    Util::Pulsar::D2::SpriteAnimation animation;
 
     bool shouldExplode = false;
     bool exploding = false;

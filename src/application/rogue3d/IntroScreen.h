@@ -24,9 +24,9 @@
 #ifndef HHUOS_ROGUE_INTROSCREEN_H
 #define HHUOS_ROGUE_INTROSCREEN_H
 
-#include "lib/util/game/2d/Scene.h"
+#include "lib/util/pulsar/2d/Scene.h"
 
-class IntroScreen : public Util::Game::D2::Scene {
+class IntroScreen : public Util::Pulsar::D2::Scene {
 
 public:
     /**
@@ -53,7 +53,7 @@ public:
 
     void update(double delta) override;
 
-    void initializeBackground(Util::Game::Graphics &graphics) override;
+    void initializeBackground(Util::Pulsar::Graphics &graphics) override;
 
     void keyPressed(const Util::Io::Key &key) override;
 

@@ -23,9 +23,9 @@
 
 #include "Cuboid.h"
 
-#include "lib/util/game/Graphics.h"
-#include "lib/util/game/3d/Orientation.h"
-#include "lib/util/game/3d/Texture.h"
+#include "lib/util/pulsar/Graphics.h"
+#include "lib/util/pulsar/3d/Orientation.h"
+#include "lib/util/pulsar/3d/Texture.h"
 
 Cuboid::Cuboid(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &startRotation, const Util::Math::Vector3<double> &rotationAngle, const Util::Math::Vector3<double> &size, const Util::Graphic::Color &color) :
         Entity(0, position, startRotation, size), rotationAngle(rotationAngle), color(color) {}
@@ -35,7 +35,7 @@ Cuboid::Cuboid(const Util::Math::Vector3<double> &position, const Util::Math::Ve
 
 void Cuboid::initialize() {
     if (!texturePath.isEmpty()) {
-        texture = Util::Game::D3::Texture(texturePath);
+        texture = Util::Pulsar::D3::Texture(texturePath);
     }
 }
 
@@ -43,9 +43,9 @@ void Cuboid::onUpdate(double delta) {
     rotate(rotationAngle * delta * 60);
 }
 
-void Cuboid::draw(Util::Game::Graphics &graphics) const {
+void Cuboid::draw(Util::Pulsar::Graphics &graphics) const {
     graphics.setColor(color);
     graphics.drawCuboid3D(getPosition(), getScale(), getOrientation().getRotation(), texture);
 }
 
-void Cuboid::onCollisionEvent([[maybe_unused]] Util::Game::D3::CollisionEvent &event) {}
+void Cuboid::onCollisionEvent([[maybe_unused]] Util::Pulsar::D3::CollisionEvent &event) {}

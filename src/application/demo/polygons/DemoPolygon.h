@@ -21,13 +21,13 @@
 #ifndef HHUOS_DEMOPOLYGON_H
 #define HHUOS_DEMOPOLYGON_H
 
-#include "lib/util/game/2d/Polygon.h"
+#include "lib/util/pulsar/2d/Polygon.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Color.h"
-#include "lib/util/game/2d/Entity.h"
+#include "lib/util/pulsar/2d/Entity.h"
 #include "lib/util/math/Vector2.h"
 
-class DemoPolygon : public Util::Game::D2::Entity {
+class DemoPolygon : public Util::Pulsar::D2::Entity {
 
 public:
     /**
@@ -59,15 +59,15 @@ public:
 
     void onUpdate(double delta) override;
 
-    void onTranslationEvent(Util::Game::D2::TranslationEvent &event) override;
+    void onTranslationEvent(Util::Pulsar::D2::TranslationEvent &event) override;
 
-    void onCollisionEvent(Util::Game::D2::CollisionEvent &event) override;
+    void onCollisionEvent(Util::Pulsar::D2::CollisionEvent &event) override;
 
-    void draw(Util::Game::Graphics &graphics) const override;
+    void draw(Util::Pulsar::Graphics &graphics) const override;
 
 private:
 
-    Util::Game::D2::Polygon polygon;
+    Util::Pulsar::D2::Polygon polygon;
     Util::Graphic::Color color;
     double rotationSpeed;
     double scaleSpeed;

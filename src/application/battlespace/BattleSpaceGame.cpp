@@ -23,14 +23,14 @@
 
 #include "BattleSpaceGame.h"
 
-#include "lib/util/game/Game.h"
+#include "lib/util/pulsar/Game.h"
 #include "Astronomical.h"
 #include "Missile.h"
 #include "GameOverScreen.h"
 #include "Enemy.h"
 #include "application/battlespace/Player.h"
 #include "lib/util/base/String.h"
-#include "lib/util/game/Camera.h"
+#include "lib/util/pulsar/Camera.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/Key.h"
 
@@ -77,8 +77,8 @@ void BattleSpaceGame::initialize() {
 
 void BattleSpaceGame::update(double delta) {
     if (player->getHealth() <= 0) {
-        Util::Game::Game::getInstance().pushScene(new GameOverScreen(player->getScore()));
-        Util::Game::Game::getInstance().switchToNextScene();
+        Util::Pulsar::Game::getInstance().pushScene(new GameOverScreen(player->getScore()));
+        Util::Pulsar::Game::getInstance().switchToNextScene();
     } else {
         player->setSpeed(inputSpeed);
 
@@ -126,7 +126,7 @@ void BattleSpaceGame::update(double delta) {
 void BattleSpaceGame::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC:
-            Util::Game::Game::getInstance().stop();
+            Util::Pulsar::Game::getInstance().stop();
             break;
         case Util::Io::Key::LEFT:
             inputRotation = Util::Math::Vector3<double>(inputRotation.getX(), inputRotation.getY(), -1);

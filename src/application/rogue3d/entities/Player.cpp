@@ -21,10 +21,10 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
-#include "lib/util/game/3d/event/CollisionEvent.h"
-#include "lib/util/game/Game.h"
-#include "lib/util/game/3d/collider/SphereCollider.h"
-#include "lib/util/game/Graphics.h"
+#include "lib/util/pulsar/3d/event/CollisionEvent.h"
+#include "lib/util/pulsar/Game.h"
+#include "lib/util/pulsar/3d/collider/SphereCollider.h"
+#include "lib/util/pulsar/Graphics.h"
 #include "application/rogue3d/Rogue3D.h"
 #include "application/rogue3d/GameOverScreen.h"
 #include "Enemy.h"
@@ -36,22 +36,22 @@
 
 uint32_t Player::DRAW_LIST_ID = UINT32_MAX;
 
-Player::Player() : Entity(TAG, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1), Util::Game::D3::SphereCollider(Util::Math::Vector3<double>(0, 0, 0), 0.8)) {}
+Player::Player() : Entity(TAG, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1), Util::Pulsar::D3::SphereCollider(Util::Math::Vector3<double>(0, 0, 0), 0.8)) {}
 
-Player::Player(uint32_t damage, uint32_t health, uint32_t level) : Entity(TAG, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1), Util::Game::D3::SphereCollider(Util::Math::Vector3<double>(0, 0, 0), 0.8)), health(health), damage(damage), level(level) {}
+Player::Player(uint32_t damage, uint32_t health, uint32_t level) : Entity(TAG, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1), Util::Pulsar::D3::SphereCollider(Util::Math::Vector3<double>(0, 0, 0), 0.8)), health(health), damage(damage), level(level) {}
 
 void Player::initialize() {
     if (DRAW_LIST_ID == UINT32_MAX) {
-        DRAW_LIST_ID = Util::Game::Graphics::startList3D();
-        Util::Game::Graphics::listCuboid3D(Util::Math::Vector3<double>(1.5, 1.5, 1.5));
-        Util::Game::Graphics::endList3D();
+        DRAW_LIST_ID = Util::Pulsar::Graphics::startList3D();
+        Util::Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(1.5, 1.5, 1.5));
+        Util::Pulsar::Graphics::endList3D();
     }
 }
 
 void Player::onUpdate(double delta) {
     if (health <= 0) {
-        Util::Game::Game::getInstance().pushScene(new GameOverScreen(level));
-        Util::Game::Game::getInstance().switchToNextScene();
+        Util::Pulsar::Game::getInstance().pushScene(new GameOverScreen(level));
+        Util::Pulsar::Game::getInstance().switchToNextScene();
     }
 
     if (shootTimer > 0) {
@@ -63,12 +63,12 @@ void Player::onUpdate(double delta) {
     }
 }
 
-void Player::draw(Util::Game::Graphics &graphics) const {
+void Player::draw(Util::Pulsar::Graphics &graphics) const {
     graphics.setColor(invulnerabilityTime > 0 ? Util::Graphic::Color(255, 102, 102) : Util::Graphic::Color(68, 195, 212));
     graphics.drawList3D(getPosition(), getScale(), getRotation(), DRAW_LIST_ID);
 }
 
-void Player::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {
+void Player::onCollisionEvent(Util::Pulsar::D3::CollisionEvent &event) {
     switch (event.getCollidedWidth().getTag()) {
         case Projectile::TAG_ENEMY:
         case Enemy::TAG:
@@ -81,8 +81,8 @@ void Player::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {
             dmgUp();
             break;
         case Item::TAG_NEXT_LVL:
-            Util::Game::Game::getInstance().pushScene(new Rogue3D(new Player(damage, health, level + 1)));
-            Util::Game::Game::getInstance().switchToNextScene();
+            Util::Pulsar::Game::getInstance().pushScene(new Rogue3D(new Player(damage, health, level + 1)));
+            Util::Pulsar::Game::getInstance().switchToNextScene();
         default:
             break;
     }

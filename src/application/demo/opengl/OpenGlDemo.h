@@ -24,10 +24,10 @@
 #ifndef OPENGLDEMO_H
 #define OPENGLDEMO_H
 
-#include "lib/util/game/3d/Scene.h"
+#include "lib/util/pulsar/3d/Scene.h"
 #include "lib/util/math/Vector3.h"
 
-class OpenGlDemo : public Util::Game::D3::Scene {
+class OpenGlDemo : public Util::Pulsar::D3::Scene {
 
 public:
     /**

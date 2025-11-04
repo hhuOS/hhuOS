@@ -20,19 +20,19 @@
 
 #include "BugDefender.h"
 
-#include "lib/util/game/2d/Sprite.h"
+#include "lib/util/pulsar/2d/Sprite.h"
 #include "lib/util/math/Random.h"
-#include "lib/util/game/Game.h"
+#include "lib/util/pulsar/Game.h"
 #include "EnemyBug.h"
 #include "application/bug/Fleet.h"
 #include "application/bug/Ship.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/key/Key.h"
-#include "lib/util/game/Graphics.h"
+#include "lib/util/pulsar/Graphics.h"
 
 void BugDefender::initialize() {
-    backgroundMusic = Util::Game::AudioTrack("/user/bug/music.wav");
+    backgroundMusic = Util::Pulsar::AudioTrack("/user/bug/music.wav");
 
     addEntity(ship);
 
@@ -51,18 +51,18 @@ void BugDefender::update([[maybe_unused]] double delta) {
     enemyFleet.applyChanges();
 }
 
-void BugDefender::initializeBackground(Util::Game::Graphics &graphics) {
-    auto backgroundSprites = Util::Array<Util::Game::D2::Sprite>(BACKGROUND_TILE_COUNT);
+void BugDefender::initializeBackground(Util::Pulsar::Graphics &graphics) {
+    auto backgroundSprites = Util::Array<Util::Pulsar::D2::Sprite>(BACKGROUND_TILE_COUNT);
     for (uint32_t i = 0; i < BACKGROUND_TILE_COUNT; i++) {
-        backgroundSprites[i] = Util::Game::D2::Sprite(Util::String::format("/user/bug/background%u.bmp", i + 1), BACKGROUND_TILE_WIDTH, BACKGROUND_TILE_HEIGHT);
+        backgroundSprites[i] = Util::Pulsar::D2::Sprite(Util::String::format("/user/bug/background%u.bmp", i + 1), BACKGROUND_TILE_WIDTH, BACKGROUND_TILE_HEIGHT);
     }
 
-    auto planetSprites = Util::Array<Util::Game::D2::Sprite>(PLANET_TILE_COUNT);
+    auto planetSprites = Util::Array<Util::Pulsar::D2::Sprite>(PLANET_TILE_COUNT);
     for (uint32_t i = 0; i < PLANET_TILE_COUNT; i++) {
-        planetSprites[i] = Util::Game::D2::Sprite(Util::String::format("/user/bug/planet%u.bmp", i + 1), PLANET_TILE_WIDTH, PLANET_TILE_HEIGHT);
+        planetSprites[i] = Util::Pulsar::D2::Sprite(Util::String::format("/user/bug/planet%u.bmp", i + 1), PLANET_TILE_WIDTH, PLANET_TILE_HEIGHT);
     }
 
-    auto surfaceSprite = Util::Game::D2::Sprite(Util::String::format("/user/bug/surface.bmp"), PLANET_TILE_WIDTH, PLANET_TILE_HEIGHT);
+    auto surfaceSprite = Util::Pulsar::D2::Sprite(Util::String::format("/user/bug/surface.bmp"), PLANET_TILE_WIDTH, PLANET_TILE_HEIGHT);
 
     auto dimensions = graphics.getDimensions();
     auto defaultTilesPerRow = (1 / BACKGROUND_TILE_WIDTH) + 1;
@@ -91,7 +91,7 @@ void BugDefender::initializeBackground(Util::Game::Graphics &graphics) {
 void BugDefender::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC :
-            Util::Game::Game::getInstance().stop();
+            Util::Pulsar::Game::getInstance().stop();
             break;
         case Util::Io::Key::LEFT :
             ship->setVelocityX(-1.0);

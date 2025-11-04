@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/game/2d/Sprite.h"
+#include "lib/util/pulsar/2d/Sprite.h"
 #include "Explosive.h"
 
 namespace Util {
@@ -59,11 +59,11 @@ public:
 
     void onUpdate(double delta) override;
 
-    void onTranslationEvent(Util::Game::D2::TranslationEvent &event) override;
+    void onTranslationEvent(Util::Pulsar::D2::TranslationEvent &event) override;
 
-    void onCollisionEvent(Util::Game::D2::CollisionEvent &event) override;
+    void onCollisionEvent(Util::Pulsar::D2::CollisionEvent &event) override;
 
-    void draw(Util::Game::Graphics &graphics) const override;
+    void draw(Util::Pulsar::Graphics &graphics) const override;
 
     void fireMissile();
 
@@ -75,8 +75,8 @@ public:
 
 private:
 
-    Util::Game::D2::Sprite sprite;
-    Util::Game::D2::Sprite heart;
+    Util::Pulsar::D2::Sprite sprite;
+    Util::Pulsar::D2::Sprite heart;
 
     uint32_t lives = 3;
     bool mayFireMissile = true;

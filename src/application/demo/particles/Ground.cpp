@@ -23,27 +23,27 @@
 
 #include "Ground.h"
 
-#include "lib/util/game/Collider.h"
-#include "lib/util/game/2d/collider/RectangleCollider.h"
-#include "lib/util/game/2d/event/TranslationEvent.h"
+#include "lib/util/pulsar/Collider.h"
+#include "lib/util/pulsar/2d/collider/RectangleCollider.h"
+#include "lib/util/pulsar/2d/event/TranslationEvent.h"
 #include "lib/util/math/Vector2.h"
 #include "lib/util/base/String.h"
 
-Ground::Ground(const Util::Math::Vector2<double> &position) : Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(WIDTH, HEIGHT), Util::Game::Collider::STATIC)) {}
+Ground::Ground(const Util::Math::Vector2<double> &position) : Util::Pulsar::D2::Entity(TAG, position, Util::Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(WIDTH, HEIGHT), Util::Pulsar::Collider::STATIC)) {}
 
 void Ground::initialize() {
-    sprite = Util::Game::D2::Sprite("/user/dino/block/grass.bmp", HEIGHT, HEIGHT);
+    sprite = Util::Pulsar::D2::Sprite("/user/dino/block/grass.bmp", HEIGHT, HEIGHT);
 }
 
 void Ground::onUpdate([[maybe_unused]] double delta) {}
 
-void Ground::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
+void Ground::onTranslationEvent(Util::Pulsar::D2::TranslationEvent &event) {
     event.cancel();
 }
 
-void Ground::onCollisionEvent([[maybe_unused]] Util::Game::D2::CollisionEvent &event) {}
+void Ground::onCollisionEvent([[maybe_unused]] Util::Pulsar::D2::CollisionEvent &event) {}
 
-void Ground::draw(Util::Game::Graphics &graphics) const {
+void Ground::draw(Util::Pulsar::Graphics &graphics) const {
     auto startX = getPosition().getX() - (WIDTH - 1) / 2;
     for (uint32_t i = 0; i < WIDTH / sprite.getSize().getX(); i++) {
         sprite.draw(graphics, Util::Math::Vector2<double>(startX + i * sprite.getSize().getY(), getPosition().getY()));

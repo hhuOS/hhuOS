@@ -25,37 +25,37 @@
 
 #include "Player.h"
 #include "Projectile.h"
-#include "lib/util/game/3d/Entity.h"
-#include "lib/util/game/3d/event/CollisionEvent.h"
-#include "lib/util/game/Scene.h"
+#include "lib/util/pulsar/3d/Entity.h"
+#include "lib/util/pulsar/3d/event/CollisionEvent.h"
+#include "lib/util/pulsar/Scene.h"
 #include "lib/util/math/Math.h"
-#include "lib/util/game/Graphics.h"
+#include "lib/util/pulsar/Graphics.h"
 #include "lib/util/math/Vector3.h"
 #include "Room.h"
-#include "lib/util/game/3d/collider/SphereCollider.h"
+#include "lib/util/pulsar/3d/collider/SphereCollider.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/math/Vector2.h"
 
 uint32_t Enemy::ENEMY_LIST_ID = UINT32_MAX;
 uint32_t Enemy::BOSS_LIST_ID = UINT32_MAX;
 
-Enemy::Enemy(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, Room &pRoom, Player &curPlayer, double radius) : Entity(TAG, position, rotation, Util::Math::Vector3<double>(1,1,1), Util::Game::D3::SphereCollider(position, radius)), player(curPlayer), room(pRoom), health(ENEMY_INIT_HEALTH + (player.getLevel() - 1)), initHealth(health) {}
+Enemy::Enemy(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, Room &pRoom, Player &curPlayer, double radius) : Entity(TAG, position, rotation, Util::Math::Vector3<double>(1,1,1), Util::Pulsar::D3::SphereCollider(position, radius)), player(curPlayer), room(pRoom), health(ENEMY_INIT_HEALTH + (player.getLevel() - 1)), initHealth(health) {}
 
 void Enemy::initialize() {
     if (ENEMY_LIST_ID == UINT32_MAX) {
-        ENEMY_LIST_ID = Util::Game::Graphics::startList3D();
-        Util::Game::Graphics::listCuboid3D(Util::Math::Vector3<double>(1.5, 1.5, 1.5));
-        Util::Game::Graphics::endList3D();
+        ENEMY_LIST_ID = Util::Pulsar::Graphics::startList3D();
+        Util::Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(1.5, 1.5, 1.5));
+        Util::Pulsar::Graphics::endList3D();
     }
 
     if (BOSS_LIST_ID == UINT32_MAX) {
-        BOSS_LIST_ID = Util::Game::Graphics::startList3D();
-        Util::Game::Graphics::listCuboid3D(Util::Math::Vector3<double>(3, 3, 3));
-        Util::Game::Graphics::endList3D();
+        BOSS_LIST_ID = Util::Pulsar::Graphics::startList3D();
+        Util::Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(3, 3, 3));
+        Util::Pulsar::Graphics::endList3D();
     }
 }
 
-void Enemy::draw(Util::Game::Graphics &graphics) const {
+void Enemy::draw(Util::Pulsar::Graphics &graphics) const {
     if (!active) {
         return;
     }
@@ -85,7 +85,7 @@ void Enemy::setType(Type type) {
     }
 }
 
-void Enemy::onCollisionEvent(Util::Game::D3::CollisionEvent &event) {
+void Enemy::onCollisionEvent(Util::Pulsar::D3::CollisionEvent &event) {
     switch (event.getCollidedWidth().getTag()) {
         case Projectile::TAG_PLAYER:
             takeDamage(player.getDamage());

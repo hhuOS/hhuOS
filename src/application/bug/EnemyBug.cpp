@@ -20,35 +20,35 @@
 
 #include "EnemyBug.h"
 
-#include "lib/util/game/2d/component/LinearMovementComponent.h"
-#include "lib/util/game/2d/event/CollisionEvent.h"
-#include "lib/util/game/2d/event/TranslationEvent.h"
-#include "lib/util/game/Game.h"
+#include "lib/util/pulsar/2d/component/LinearMovementComponent.h"
+#include "lib/util/pulsar/2d/event/CollisionEvent.h"
+#include "lib/util/pulsar/2d/event/TranslationEvent.h"
+#include "lib/util/pulsar/Game.h"
 #include "EnemyMissile.h"
 #include "PlayerMissile.h"
 #include "GameOverScreen.h"
 #include "application/bug/Fleet.h"
 #include "application/bug/Ship.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/game/Scene.h"
-#include "lib/util/game/2d/Sprite.h"
-#include "lib/util/game/Collider.h"
-#include "lib/util/game/2d/collider/RectangleCollider.h"
+#include "lib/util/pulsar/Scene.h"
+#include "lib/util/pulsar/2d/Sprite.h"
+#include "lib/util/pulsar/Collider.h"
+#include "lib/util/pulsar/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2.h"
 #include "application/bug/Explosive.h"
-#include "lib/util/game/2d/Entity.h"
+#include "lib/util/pulsar/2d/Entity.h"
 #include "lib/util/base/String.h"
 
-EnemyBug::EnemyBug(const Util::Math::Vector2<double> &position, Fleet &fleet) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC), "/user/bug/bug_explosion.wav"), fleet(fleet) {
-    addComponent(new Util::Game::D2::LinearMovementComponent(*this));
+EnemyBug::EnemyBug(const Util::Math::Vector2<double> &position, Fleet &fleet) : Explosive(TAG, position, Util::Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE_X, SIZE_Y), Util::Pulsar::Collider::STATIC), "/user/bug/bug_explosion.wav"), fleet(fleet) {
+    addComponent(new Util::Pulsar::D2::LinearMovementComponent(*this));
 }
 
 void EnemyBug::initialize() {
     Explosive::initialize();
 
-    animation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
-        Util::Game::D2::Sprite("/user/bug/bug1.bmp", SIZE_X, SIZE_Y),
-        Util::Game::D2::Sprite("/user/bug/bug2.bmp", SIZE_X, SIZE_Y)}), 0.5);
+    animation = Util::Pulsar::D2::SpriteAnimation(Util::Array<Util::Pulsar::D2::Sprite>({
+        Util::Pulsar::D2::Sprite("/user/bug/bug1.bmp", SIZE_X, SIZE_Y),
+        Util::Pulsar::D2::Sprite("/user/bug/bug2.bmp", SIZE_X, SIZE_Y)}), 0.5);
 }
 
 void EnemyBug::onUpdate(double delta) {
@@ -78,14 +78,14 @@ void EnemyBug::onUpdate(double delta) {
     }
 }
 
-void EnemyBug::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
+void EnemyBug::onTranslationEvent(Util::Pulsar::D2::TranslationEvent &event) {
     if (isExploding()) {
         event.cancel();
         return;
     }
 
     // Workaround for weird bug, where enemy suddenly gets an x-position outside the screen range
-    const auto dimX = Util::Game::Game::getInstance().getScreenDimensions().getX();
+    const auto dimX = Util::Pulsar::Game::getInstance().getScreenDimensions().getX();
     if (event.getTargetPosition().getX() < -dimX || event.getTargetPosition().getX() > dimX) {
         event.cancel();
         return;
@@ -101,13 +101,13 @@ void EnemyBug::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
     }
 }
 
-void EnemyBug::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
+void EnemyBug::onCollisionEvent(Util::Pulsar::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == PlayerMissile::TAG) {
         explode();
     }
 }
 
-void EnemyBug::draw(Util::Game::Graphics &graphics) const {
+void EnemyBug::draw(Util::Pulsar::Graphics &graphics) const {
     if (isExploding()) {
         Explosive::draw(graphics);
     } else {

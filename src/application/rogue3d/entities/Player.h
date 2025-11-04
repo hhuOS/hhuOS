@@ -26,9 +26,9 @@
 
 #include <stdint.h>
 
-#include "lib/util/game/3d/Entity.h"
+#include "lib/util/pulsar/3d/Entity.h"
 
-class Player : public Util::Game::D3::Entity {
+class Player : public Util::Pulsar::D3::Entity {
 
 public:
     /**
@@ -57,9 +57,9 @@ public:
 
     void onUpdate(double delta) override;
 
-    void draw(Util::Game::Graphics &graphics) const override;
+    void draw(Util::Pulsar::Graphics &graphics) const override;
 
-    void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
+    void onCollisionEvent(Util::Pulsar::D3::CollisionEvent &event) override;
 
     void takeDamage(uint8_t damage);
 

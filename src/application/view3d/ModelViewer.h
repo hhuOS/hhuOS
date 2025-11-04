@@ -24,21 +24,21 @@
 #ifndef HHUOS_MODELVIEWER_H
 #define HHUOS_MODELVIEWER_H
 
-#include "lib/util/game/3d/Scene.h"
+#include "lib/util/pulsar/3d/Scene.h"
 #include "lib/util/base/String.h"
 #include "lib/util/math/Vector3.h"
 
 class ModelEntity;
 
 namespace Util {
-namespace Game {
+namespace Pulsar {
 namespace D3 {
 class Light;
 }  // namespace D3
-}  // namespace Game
+}  // namespace Pulsar
 }  // namespace Util
 
-class ModelViewer : public Util::Game::D3::Scene {
+class ModelViewer : public Util::Pulsar::D3::Scene {
 
 public:
     /**
@@ -73,7 +73,7 @@ private:
 
     Util::String modelPath;
     ModelEntity *model = nullptr;
-    Util::Game::D3::Light *light = nullptr;
+    Util::Pulsar::D3::Light *light = nullptr;
 
     Util::Math::Vector3<double> modelRotation = Util::Math::Vector3<double>(0, 0, 0);
     Util::Math::Vector3<double> cameraRotation = Util::Math::Vector3<double>(0, 0, 0);

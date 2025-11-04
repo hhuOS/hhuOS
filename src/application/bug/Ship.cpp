@@ -21,30 +21,30 @@
 #include "Ship.h"
 
 #include "EnemyBug.h"
-#include "lib/util/game/Game.h"
+#include "lib/util/pulsar/Game.h"
 #include "PlayerMissile.h"
-#include "lib/util/game/2d/component/LinearMovementComponent.h"
-#include "lib/util/game/2d/event/TranslationEvent.h"
-#include "lib/util/game/2d/event/CollisionEvent.h"
+#include "lib/util/pulsar/2d/component/LinearMovementComponent.h"
+#include "lib/util/pulsar/2d/event/TranslationEvent.h"
+#include "lib/util/pulsar/2d/event/CollisionEvent.h"
 #include "GameOverScreen.h"
 #include "EnemyMissile.h"
-#include "lib/util/game/Scene.h"
-#include "lib/util/game/Collider.h"
-#include "lib/util/game/2d/collider/RectangleCollider.h"
+#include "lib/util/pulsar/Scene.h"
+#include "lib/util/pulsar/Collider.h"
+#include "lib/util/pulsar/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2.h"
 #include "application/bug/Explosive.h"
-#include "lib/util/game/2d/Entity.h"
+#include "lib/util/pulsar/2d/Entity.h"
 #include "lib/util/base/String.h"
 
-Ship::Ship(const Util::Math::Vector2<double> &position) : Explosive(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE_X, SIZE_Y), Util::Game::Collider::STATIC), "/user/bug/ship_explosion.wav", 2.0) {
-    addComponent(new Util::Game::D2::LinearMovementComponent(*this));
+Ship::Ship(const Util::Math::Vector2<double> &position) : Explosive(TAG, position, Util::Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE_X, SIZE_Y), Util::Pulsar::Collider::STATIC), "/user/bug/ship_explosion.wav", 2.0) {
+    addComponent(new Util::Pulsar::D2::LinearMovementComponent(*this));
 }
 
 void Ship::initialize() {
     Explosive::initialize();
 
-    sprite = Util::Game::D2::Sprite("/user/bug/ship.bmp", SIZE_X, SIZE_Y);
-    heart = Util::Game::D2::Sprite("/user/bug/heart.bmp", 0.05, 0.05);
+    sprite = Util::Pulsar::D2::Sprite("/user/bug/ship.bmp", SIZE_X, SIZE_Y);
+    heart = Util::Pulsar::D2::Sprite("/user/bug/heart.bmp", 0.05, 0.05);
 }
 
 void Ship::onUpdate(double delta) {
@@ -55,27 +55,27 @@ void Ship::onUpdate(double delta) {
     }
 
     if (hasExploded()) {
-        auto &game = Util::Game::Game::getInstance();
+        auto &game = Util::Pulsar::Game::getInstance();
         game.pushScene(new GameOverScreen(false));
         game.switchToNextScene();
     }
 }
 
-void Ship::onTranslationEvent(Util::Game::D2::TranslationEvent &event) {
+void Ship::onTranslationEvent(Util::Pulsar::D2::TranslationEvent &event) {
     if (isExploding()) {
         event.cancel();
         return;
     }
 
     const auto targetX = event.getTargetPosition().getX();
-    const auto maxX = Util::Game::Game::getInstance().getScreenDimensions().getX();
+    const auto maxX = Util::Pulsar::Game::getInstance().getScreenDimensions().getX();
 
     if (targetX > maxX - SIZE_X || targetX < -maxX) {
         event.cancel();
     }
 }
 
-void Ship::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
+void Ship::onCollisionEvent(Util::Pulsar::D2::CollisionEvent &event) {
     if (isExploding()) {
         return;
     }
@@ -94,7 +94,7 @@ void Ship::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
     }
 }
 
-void Ship::draw(Util::Game::Graphics &graphics) const {
+void Ship::draw(Util::Pulsar::Graphics &graphics) const {
     if (isExploding()) {
         Explosive::draw(graphics);
         return;

@@ -21,9 +21,9 @@
 #ifndef HHUOS_BUG_DEFENDER_GAMEOVERSCREEN_H
 #define HHUOS_BUG_DEFENDER_GAMEOVERSCREEN_H
 
-#include "lib/util/game/2d/Scene.h"
+#include "lib/util/pulsar/2d/Scene.h"
 
-class GameOverScreen : public Util::Game::D2::Scene {
+class GameOverScreen : public Util::Pulsar::D2::Scene {
 
 public:
     /**
@@ -50,7 +50,7 @@ public:
 
     void update(double delta) override;
 
-    void initializeBackground(Util::Game::Graphics &graphics) override;
+    void initializeBackground(Util::Pulsar::Graphics &graphics) override;
 
     void keyPressed(const Util::Io::Key &key) override;
 

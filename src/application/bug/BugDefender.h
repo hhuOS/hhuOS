@@ -23,15 +23,15 @@
 
 #include <stdint.h>
 
-#include "lib/util/game/2d/Scene.h"
+#include "lib/util/pulsar/2d/Scene.h"
 #include "Ship.h"
 #include "Fleet.h"
-#include "lib/util/game/audio/AudioTrack.h"
-#include "lib/util/game/audio/AudioHandle.h"
+#include "lib/util/pulsar/audio/AudioTrack.h"
+#include "lib/util/pulsar/audio/AudioHandle.h"
 #include "lib/util/math/Random.h"
 #include "lib/util/math/Vector2.h"
 
-class BugDefender : public Util::Game::D2::Scene {
+class BugDefender : public Util::Pulsar::D2::Scene {
 
 public:
     /**
@@ -58,7 +58,7 @@ public:
 
     void update(double delta) override;
 
-    void initializeBackground(Util::Game::Graphics &graphics) override;
+    void initializeBackground(Util::Pulsar::Graphics &graphics) override;
 
     void keyPressed(const Util::Io::Key &key) override;
 
@@ -72,8 +72,8 @@ private:
     Fleet enemyFleet = Fleet(BUGS_PER_ROW * BUGS_PER_COLUMN, 0.25);
     Ship *ship = new Ship(Util::Math::Vector2<double>(-0.1414, -0.8));
 
-    Util::Game::AudioTrack backgroundMusic;
-    Util::Game::AudioHandle backgroundMusicHandle;
+    Util::Pulsar::AudioTrack backgroundMusic;
+    Util::Pulsar::AudioHandle backgroundMusicHandle;
 
     Util::Math::Random random;
 

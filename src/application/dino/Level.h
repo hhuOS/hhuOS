@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/game/2d/Scene.h"
+#include "lib/util/pulsar/2d/Scene.h"
 #include "lib/util/io/file/File.h"
 #include "application/dino/entity/Block.h"
 
@@ -37,7 +37,7 @@ template <typename T, typename U> class Pair;
 template <typename T> class ArrayList;
 }  // namespace Util
 
-class Level : public Util::Game::D2::Scene {
+class Level : public Util::Pulsar::D2::Scene {
 
 public:
     /**
@@ -64,7 +64,7 @@ public:
 
     void update(double delta) override;
 
-    void initializeBackground(Util::Game::Graphics &graphics) override;
+    void initializeBackground(Util::Pulsar::Graphics &graphics) override;
 
     void keyPressed(const Util::Io::Key &key) override;
 

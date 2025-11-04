@@ -20,7 +20,7 @@
 
 #include "SpriteDemo.h"
 
-#include "lib/util/game/Game.h"
+#include "lib/util/pulsar/Game.h"
 #include "application/demo/sprites/DemoSprite.h"
 #include "application/demo/sprites/DemoSpriteFactory.h"
 #include "lib/util/io/key/Key.h"
@@ -40,7 +40,7 @@ void SpriteDemo::initialize() {
 
 void SpriteDemo::update([[maybe_unused]] double delta) {}
 
-void SpriteDemo::initializeBackground([[maybe_unused]] Util::Game::Graphics &graphics) {}
+void SpriteDemo::initializeBackground([[maybe_unused]] Util::Pulsar::Graphics &graphics) {}
 
 void SpriteDemo::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
@@ -57,7 +57,7 @@ void SpriteDemo::keyPressed(const Util::Io::Key &key) {
             break;
         }
         case Util::Io::Key::ESC:
-            Util::Game::Game::getInstance().stop();
+            Util::Pulsar::Game::getInstance().stop();
             break;
         default:
             break;

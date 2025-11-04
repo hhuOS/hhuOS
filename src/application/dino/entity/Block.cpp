@@ -23,26 +23,26 @@
 
 #include "Block.h"
 
-#include "lib/util/game/Game.h"
-#include "lib/util/game/Scene.h"
-#include "lib/util/game/2d/event/CollisionEvent.h"
+#include "lib/util/pulsar/Game.h"
+#include "lib/util/pulsar/Scene.h"
+#include "lib/util/pulsar/2d/event/CollisionEvent.h"
 #include "PlayerDino.h"
 #include "application/dino/particle/BloodEmitter.h"
 #include "lib/util/base/Panic.h"
-#include "lib/util/game/2d/collider/RectangleCollider.h"
+#include "lib/util/pulsar/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2.h"
 
 Block::Block(Tag tag, const Util::Math::Vector2<double> &position, uint32_t countX, uint32_t countY) :
-        Util::Game::D2::Entity(tag, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE * countX, SIZE * countY), Util::Game::D2::RectangleCollider::STATIC)),
+        Util::Pulsar::D2::Entity(tag, position, Util::Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE * countX, SIZE * countY), Util::Pulsar::D2::RectangleCollider::STATIC)),
         countX(countX), countY(countY) {}
 
 void Block::initialize() {
-    sprite = Util::Game::D2::Sprite(getSpritePath(static_cast<Block::Tag>(getTag())), SIZE, SIZE);
+    sprite = Util::Pulsar::D2::Sprite(getSpritePath(static_cast<Block::Tag>(getTag())), SIZE, SIZE);
 }
 
 void Block::onUpdate([[maybe_unused]] double delta) {}
 
-void Block::draw(Util::Game::Graphics &graphics) const {
+void Block::draw(Util::Pulsar::Graphics &graphics) const {
     for (uint32_t x = 0; x < countX; x++) {
         for (uint32_t y = 0; y < countY; y++) {
             sprite.draw(graphics, getPosition() + Util::Math::Vector2<double>(x * SIZE, y * SIZE));
@@ -50,10 +50,10 @@ void Block::draw(Util::Game::Graphics &graphics) const {
     }
 }
 
-void Block::onTranslationEvent([[maybe_unused]] Util::Game::D2::TranslationEvent &event) {}
+void Block::onTranslationEvent([[maybe_unused]] Util::Pulsar::D2::TranslationEvent &event) {}
 
-void Block::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
-    if (getTag() == WATER && event.getCollidedWidth().getTag() == PlayerDino::TAG && event.getSide() == Util::Game::D2::RectangleCollider::TOP) {
+void Block::onCollisionEvent(Util::Pulsar::D2::CollisionEvent &event) {
+    if (getTag() == WATER && event.getCollidedWidth().getTag() == PlayerDino::TAG && event.getSide() == Util::Pulsar::D2::RectangleCollider::TOP) {
         getScene().addEntity(new BloodEmitter(event.getCollidedWidth().getPosition(), BloodEmitter::WATER));
         removeFromScene();
     }

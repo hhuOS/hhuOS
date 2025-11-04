@@ -1,13 +1,13 @@
 #include "application/rogue3d/entities/Player.h"
 #include "application/rogue3d/entities/Projectile.h"
-#include "lib/util/game/Game.h"
-#include "lib/util/game/Camera.h"
+#include "lib/util/pulsar/Game.h"
+#include "lib/util/pulsar/Camera.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/math/Math.h"
 #include "Rogue3D.h"
 #include "application/rogue3d/entities/Hud.h"
 #include "lib/util/base/Panic.h"
-#include "lib/util/game/3d/Light.h"
+#include "lib/util/pulsar/3d/Light.h"
 #include "lib/util/graphic/Color.h"
 
 Rogue3D::Rogue3D() : player(new Player) {}
@@ -29,7 +29,7 @@ void Rogue3D::initialize() {
 
     // Setup lighting
     setAmbientLight(Util::Graphic::Color(153, 153, 153));
-    addLight(Util::Game::D3::Light::POINT, Util::Math::Vector3<double>(39, 20, 36), Util::Graphic::Color(102, 102, 255), Util::Graphic::Color(0, 0 ,0));
+    addLight(Util::Pulsar::D3::Light::POINT, Util::Math::Vector3<double>(39, 20, 36), Util::Graphic::Color(102, 102, 255), Util::Graphic::Color(0, 0 ,0));
     setLightEnabled(true);
 
     addEntity(player);
@@ -280,7 +280,7 @@ void Rogue3D::swapRooms(Util::Math::Vector3<double> &newPosition, double &roomCe
 void Rogue3D::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC:
-            Util::Game::Game::getInstance().stop();
+            Util::Pulsar::Game::getInstance().stop();
             break;
         case Util::Io::Key::LEFT:
             if (player->shoot()){

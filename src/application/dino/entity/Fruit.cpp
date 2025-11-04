@@ -24,54 +24,54 @@
 #include "Fruit.h"
 
 #include "PlayerDino.h"
-#include "lib/util/game/2d/event/CollisionEvent.h"
-#include "lib/util/game/Game.h"
+#include "lib/util/pulsar/2d/event/CollisionEvent.h"
+#include "lib/util/pulsar/Game.h"
 #include "application/dino/Level.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/game/2d/Sprite.h"
-#include "lib/util/game/2d/collider/RectangleCollider.h"
+#include "lib/util/pulsar/2d/Sprite.h"
+#include "lib/util/pulsar/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2.h"
 
 Fruit::Fruit(const Util::Math::Vector2<double> &position, const Util::Io::File &nextLevelFile) :
-        Util::Game::D2::Entity(TAG, position, Util::Game::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE), Util::Game::D2::RectangleCollider::STATIC)),
+        Util::Pulsar::D2::Entity(TAG, position, Util::Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE), Util::Pulsar::D2::RectangleCollider::STATIC)),
         nextLevelFile(nextLevelFile) {}
 
 void Fruit::initialize() {
-    animation = Util::Game::D2::SpriteAnimation(Util::Array<Util::Game::D2::Sprite>({
-        Util::Game::D2::Sprite("/user/dino/item/apple1.bmp", SIZE, SIZE),
-        Util::Game::D2::Sprite("/user/dino/item/apple2.bmp", SIZE, SIZE),
-        Util::Game::D2::Sprite("/user/dino/item/apple3.bmp", SIZE, SIZE),
-        Util::Game::D2::Sprite("/user/dino/item/apple4.bmp", SIZE, SIZE),
-        Util::Game::D2::Sprite("/user/dino/item/apple5.bmp", SIZE, SIZE),
-        Util::Game::D2::Sprite("/user/dino/item/apple6.bmp", SIZE, SIZE),
-        Util::Game::D2::Sprite("/user/dino/item/apple7.bmp", SIZE, SIZE),
-        Util::Game::D2::Sprite("/user/dino/item/apple8.bmp", SIZE, SIZE),
-        Util::Game::D2::Sprite("/user/dino/item/apple9.bmp", SIZE, SIZE),
-        Util::Game::D2::Sprite("/user/dino/item/apple10.bmp", SIZE, SIZE),
-        Util::Game::D2::Sprite("/user/dino/item/apple11.bmp", SIZE, SIZE),
-        Util::Game::D2::Sprite("/user/dino/item/apple12.bmp", SIZE, SIZE),
-        Util::Game::D2::Sprite("/user/dino/item/apple13.bmp", SIZE, SIZE),
-        Util::Game::D2::Sprite("/user/dino/item/apple14.bmp", SIZE, SIZE),
-        Util::Game::D2::Sprite("/user/dino/item/apple15.bmp", SIZE, SIZE),
-        Util::Game::D2::Sprite("/user/dino/item/apple16.bmp", SIZE, SIZE),
-        Util::Game::D2::Sprite("/user/dino/item/apple17.bmp", SIZE, SIZE)}), 0.85);
+    animation = Util::Pulsar::D2::SpriteAnimation(Util::Array<Util::Pulsar::D2::Sprite>({
+        Util::Pulsar::D2::Sprite("/user/dino/item/apple1.bmp", SIZE, SIZE),
+        Util::Pulsar::D2::Sprite("/user/dino/item/apple2.bmp", SIZE, SIZE),
+        Util::Pulsar::D2::Sprite("/user/dino/item/apple3.bmp", SIZE, SIZE),
+        Util::Pulsar::D2::Sprite("/user/dino/item/apple4.bmp", SIZE, SIZE),
+        Util::Pulsar::D2::Sprite("/user/dino/item/apple5.bmp", SIZE, SIZE),
+        Util::Pulsar::D2::Sprite("/user/dino/item/apple6.bmp", SIZE, SIZE),
+        Util::Pulsar::D2::Sprite("/user/dino/item/apple7.bmp", SIZE, SIZE),
+        Util::Pulsar::D2::Sprite("/user/dino/item/apple8.bmp", SIZE, SIZE),
+        Util::Pulsar::D2::Sprite("/user/dino/item/apple9.bmp", SIZE, SIZE),
+        Util::Pulsar::D2::Sprite("/user/dino/item/apple10.bmp", SIZE, SIZE),
+        Util::Pulsar::D2::Sprite("/user/dino/item/apple11.bmp", SIZE, SIZE),
+        Util::Pulsar::D2::Sprite("/user/dino/item/apple12.bmp", SIZE, SIZE),
+        Util::Pulsar::D2::Sprite("/user/dino/item/apple13.bmp", SIZE, SIZE),
+        Util::Pulsar::D2::Sprite("/user/dino/item/apple14.bmp", SIZE, SIZE),
+        Util::Pulsar::D2::Sprite("/user/dino/item/apple15.bmp", SIZE, SIZE),
+        Util::Pulsar::D2::Sprite("/user/dino/item/apple16.bmp", SIZE, SIZE),
+        Util::Pulsar::D2::Sprite("/user/dino/item/apple17.bmp", SIZE, SIZE)}), 0.85);
 }
 
 void Fruit::onUpdate(double delta) {
     animation.update(delta);
 }
 
-void Fruit::draw(Util::Game::Graphics &graphics) const {
+void Fruit::draw(Util::Pulsar::Graphics &graphics) const {
     animation.draw(graphics, getPosition());
 }
 
-void Fruit::onTranslationEvent([[maybe_unused]] Util::Game::D2::TranslationEvent &event) {}
+void Fruit::onTranslationEvent([[maybe_unused]] Util::Pulsar::D2::TranslationEvent &event) {}
 
-void Fruit::onCollisionEvent(Util::Game::D2::CollisionEvent &event) {
+void Fruit::onCollisionEvent(Util::Pulsar::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == PlayerDino::TAG) {
         auto &dino = reinterpret_cast<PlayerDino&>(event.getCollidedWidth());
-        auto &game = Util::Game::Game::getInstance();
+        auto &game = Util::Pulsar::Game::getInstance();
         game.pushScene(new Level(nextLevelFile, dino.getPoints() + 10));
         game.switchToNextScene();
     }

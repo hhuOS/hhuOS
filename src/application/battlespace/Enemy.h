@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/game/3d/Model.h"
+#include "lib/util/pulsar/3d/Model.h"
 #include "lib/util/math/Random.h"
 
 class Player;
@@ -38,7 +38,7 @@ template <typename T> class Vector3;
 }  // namespace Math
 }  // namespace Util
 
-class Enemy : public Util::Game::D3::Model {
+class Enemy : public Util::Pulsar::D3::Model {
 
 public:
 
@@ -74,7 +74,7 @@ public:
 
     void onUpdate(double delta) override;
 
-    void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
+    void onCollisionEvent(Util::Pulsar::D3::CollisionEvent &event) override;
 
     [[nodiscard]] int16_t getHealth() const;
 

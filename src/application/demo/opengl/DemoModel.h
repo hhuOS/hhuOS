@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/game/3d/Model.h"
+#include "lib/util/pulsar/3d/Model.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/Colors.h"
 
@@ -33,7 +33,7 @@ template <typename T> class Vector3;
 }  // namespace Math
 }  // namespace Util
 
-class DemoModel : public Util::Game::D3::Model {
+class DemoModel : public Util::Pulsar::D3::Model {
 
 public:
     enum Type {
@@ -62,11 +62,11 @@ public:
 
     void initialize() override;
 
-    void draw(Util::Game::Graphics &graphics) const override;
+    void draw(Util::Pulsar::Graphics &graphics) const override;
 
     void onUpdate(double delta) override;
 
-    void onCollisionEvent(Util::Game::D3::CollisionEvent &event) override;
+    void onCollisionEvent(Util::Pulsar::D3::CollisionEvent &event) override;
 
 private:
 

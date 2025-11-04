@@ -28,11 +28,11 @@
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/game/Engine.h"
+#include "lib/util/pulsar/Engine.h"
 #include "ModelViewer.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/game/Game.h"
+#include "lib/util/pulsar/Game.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -83,8 +83,8 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseFloat<double>(argumentParser.getArgument("scale")) : 1.0;
     auto lfb = Util::Graphic::LinearFrameBuffer::open(lfbFile);
-    auto engine = Util::Game::Engine(lfb, 60, scaleFactor);
-    Util::Game::Game::getInstance().pushScene(new ModelViewer(file.getCanonicalPath()));
+    auto engine = Util::Pulsar::Engine(lfb, 60, scaleFactor);
+    Util::Pulsar::Game::getInstance().pushScene(new ModelViewer(file.getCanonicalPath()));
     engine.run();
 
     return 0;
