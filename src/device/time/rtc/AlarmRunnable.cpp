@@ -20,13 +20,12 @@
 
 #include "AlarmRunnable.h"
 
-#include <sound/PcSpeaker.h>
-
 #include "kernel/service/Service.h"
 #include "kernel/service/SoundService.h"
 #include "device/sound/speaker/PcSpeaker.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/time/Timestamp.h"
+#include "lib/util/sound/PcSpeaker.h"
 
 namespace Device {
 

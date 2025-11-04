@@ -23,8 +23,8 @@
 
 #include <stddef.h>
 
-#include "collection/Array.h"
-#include "collection/Map.h"
+#include "util/collection/Array.h"
+#include "util/collection/Map.h"
 
 namespace Util {
 

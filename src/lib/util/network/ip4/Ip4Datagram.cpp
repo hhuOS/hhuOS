@@ -23,9 +23,9 @@
 
 #include "Ip4Datagram.h"
 
-#include "network/ip4/Ip4Address.h"
-#include "network/ip4/Ip4Header.h"
-#include "network/NetworkAddress.h"
+#include "util/network/ip4/Ip4Address.h"
+#include "util/network/ip4/Ip4Header.h"
+#include "util/network/NetworkAddress.h"
 
 namespace Util {
 namespace Io {

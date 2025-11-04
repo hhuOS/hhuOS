@@ -22,8 +22,8 @@
 
 #include "SmBios.h"
 
-#include "collection/ArrayList.h"
-#include "math/Math.h"
+#include "util/collection/ArrayList.h"
+#include "util/math/Math.h"
 
 namespace Util::Hardware {
 

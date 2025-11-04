@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 
-#include "io/stream/FilterInputStream.h"
+#include "util/io/stream/FilterInputStream.h"
 
 namespace Util::Io {
 

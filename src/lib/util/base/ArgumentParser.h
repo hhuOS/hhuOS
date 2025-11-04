@@ -23,10 +23,10 @@
 
 #include <stdint.h>
 
-#include "base/String.h"
-#include "collection/ArrayList.h"
-#include "collection/HashMap.h"
-#include "collection/Array.h"
+#include "util/base/String.h"
+#include "util/collection/ArrayList.h"
+#include "util/collection/HashMap.h"
+#include "util/collection/Array.h"
 
 namespace Util {
 

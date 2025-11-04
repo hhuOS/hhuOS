@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#include "collection/Pair.h"
+#include "util/collection/Pair.h"
 
 /// Contains several mathematical functions and constants.
 /// Most floating point functions are implemented using x87 FPU instructions with inline assembly.

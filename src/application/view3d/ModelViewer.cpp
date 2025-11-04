@@ -24,11 +24,11 @@
 #include "ModelViewer.h"
 
 #include "lib/util/io/file/File.h"
-#include "lib/util/pulsar/Game.h"
+#include "lib/pulsar/Game.h"
 #include "application/view3d/ModelEntity.h"
-#include "lib/util/pulsar/Camera.h"
+#include "lib/pulsar/Camera.h"
 #include "lib/util/io/key/Key.h"
-#include "lib/util/pulsar/3d/Light.h"
+#include "lib/pulsar/3d/Light.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Color.h"
@@ -49,7 +49,7 @@ void ModelViewer::initialize() {
     addEntity(model);
 
     setAmbientLight(Util::Graphic::Colors::WHITE);
-    light = &addLight(Util::Pulsar::D3::Light::POINT, camera.getPosition(), Util::Graphic::Color(255, 255, 255), Util::Graphic::Color(255, 255, 255));
+    light = &addLight(Pulsar::D3::Light::POINT, camera.getPosition(), Util::Graphic::Color(255, 255, 255), Util::Graphic::Color(255, 255, 255));
 
 
 }
@@ -122,7 +122,7 @@ void ModelViewer::keyPressed(const Util::Io::Key &key) {
             model->setRotation(Util::Math::Vector3<double>(0, 0, 0));
             break;
         case Util::Io::Key::ESC:
-            Util::Pulsar::Game::getInstance().stop();
+            Pulsar::Game::getInstance().stop();
             break;
         default:
             break;

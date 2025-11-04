@@ -23,8 +23,8 @@
 
 #include <stddef.h>
 
-#include "async/Process.h"
-#include "base/String.h"
+#include "util/async/Process.h"
+#include "util/base/String.h"
 
 namespace Util::Async {
 

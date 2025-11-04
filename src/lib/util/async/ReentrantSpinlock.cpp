@@ -21,8 +21,8 @@
 #include "ReentrantSpinlock.h"
 
 #include "lib/interface.h"
-#include "async/Atomic.h"
-#include "async/Thread.h"
+#include "util/async/Atomic.h"
+#include "util/async/Thread.h"
 
 namespace Util::Async {
 

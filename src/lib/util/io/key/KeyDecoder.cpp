@@ -20,7 +20,7 @@
 
 #include "KeyDecoder.h"
 
-#include "base/Panic.h"
+#include "util/base/Panic.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/io/key/KeyboardLayout.h"
 

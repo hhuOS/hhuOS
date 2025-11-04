@@ -21,8 +21,8 @@
 #include "FileOutputStream.h"
 
 #include "lib/interface.h"
-#include "base/Panic.h"
-#include "io/file/File.h"
+#include "util/base/Panic.h"
+#include "util/io/file/File.h"
 
 namespace Util::Io {
 

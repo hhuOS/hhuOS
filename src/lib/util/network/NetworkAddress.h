@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#include "base/String.h"
+#include "util/base/String.h"
 
 namespace Util {
 namespace Io {

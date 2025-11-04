@@ -23,8 +23,8 @@
 #include "pulsar/Game.h"
 #include "pulsar/audio/AudioHandle.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/pulsar/2d/Sprite.h"
-#include "lib/util/pulsar/2d/collider/RectangleCollider.h"
+#include "lib/pulsar/2d/Sprite.h"
+#include "lib/pulsar/2d/collider/RectangleCollider.h"
 #include "lib/util/base/String.h"
 
 namespace Util {
@@ -33,21 +33,21 @@ template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
-Explosive::Explosive(uint32_t tag, const Util::Math::Vector2<double> &position, const Util::Pulsar::D2::RectangleCollider &collider, const Util::String &waveFilePath, double animationTime) : Entity(tag, position, collider), waveFilePath(waveFilePath), animationTime(animationTime) {}
+Explosive::Explosive(uint32_t tag, const Util::Math::Vector2<double> &position, const Pulsar::D2::RectangleCollider &collider, const Util::String &waveFilePath, double animationTime) : Entity(tag, position, collider), waveFilePath(waveFilePath), animationTime(animationTime) {}
 
 void Explosive::initialize() {
-    soundEffect = Util::Pulsar::AudioTrack(waveFilePath);
+    soundEffect = Pulsar::AudioTrack(waveFilePath);
 
     auto size = getCollider().getHeight() > getCollider().getWidth() ? getCollider().getHeight() : getCollider().getWidth();
-    animation = Util::Pulsar::D2::SpriteAnimation(Util::Array<Util::Pulsar::D2::Sprite>({
-        Util::Pulsar::D2::Sprite("/user/bug/explosion1.bmp", size, size),
-        Util::Pulsar::D2::Sprite("/user/bug/explosion2.bmp", size, size),
-        Util::Pulsar::D2::Sprite("/user/bug/explosion3.bmp", size, size),
-        Util::Pulsar::D2::Sprite("/user/bug/explosion4.bmp", size, size),
-        Util::Pulsar::D2::Sprite("/user/bug/explosion5.bmp", size, size),
-        Util::Pulsar::D2::Sprite("/user/bug/explosion6.bmp", size, size),
-        Util::Pulsar::D2::Sprite("/user/bug/explosion7.bmp", size, size),
-        Util::Pulsar::D2::Sprite("/user/bug/explosion8.bmp", size, size)}), animationTime);
+    animation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({
+        Pulsar::D2::Sprite("/user/bug/explosion1.bmp", size, size),
+        Pulsar::D2::Sprite("/user/bug/explosion2.bmp", size, size),
+        Pulsar::D2::Sprite("/user/bug/explosion3.bmp", size, size),
+        Pulsar::D2::Sprite("/user/bug/explosion4.bmp", size, size),
+        Pulsar::D2::Sprite("/user/bug/explosion5.bmp", size, size),
+        Pulsar::D2::Sprite("/user/bug/explosion6.bmp", size, size),
+        Pulsar::D2::Sprite("/user/bug/explosion7.bmp", size, size),
+        Pulsar::D2::Sprite("/user/bug/explosion8.bmp", size, size)}), animationTime);
 }
 
 void Explosive::onUpdate(double delta) {
@@ -63,7 +63,7 @@ void Explosive::onUpdate(double delta) {
     }
 }
 
-void Explosive::draw(Util::Pulsar::Graphics &graphics) const {
+void Explosive::draw(Pulsar::Graphics &graphics) const {
     animation.draw(graphics, getPosition());
 }
 

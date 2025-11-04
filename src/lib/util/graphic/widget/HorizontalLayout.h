@@ -21,7 +21,7 @@
 #ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_HORIZONTALLAYOUT_H
 #define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_HORIZONTALLAYOUT_H
 
-#include "graphic/widget/Layout.h"
+#include "util/graphic/widget/Layout.h"
 
 namespace Util::Graphic {
 

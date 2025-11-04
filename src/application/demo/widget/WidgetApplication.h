@@ -23,11 +23,11 @@
 
 #include <stddef.h>
 
-#include "graphic/BufferedLinearFrameBuffer.h"
-#include "graphic/widget/Container.h"
-#include "io/key/KeyDecoder.h"
-#include "io/key/layout/DeLayout.h"
-#include "io/stream/FileInputStream.h"
+#include "util/graphic/BufferedLinearFrameBuffer.h"
+#include "util/graphic/widget/Container.h"
+#include "util/io/key/KeyDecoder.h"
+#include "util/io/key/layout/DeLayout.h"
+#include "util/io/stream/FileInputStream.h"
 
 class WidgetApplication : public Util::Graphic::Container {
 

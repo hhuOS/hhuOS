@@ -23,9 +23,9 @@
 
 #include "EthernetDatagram.h"
 
-#include "network/MacAddress.h"
-#include "network/NetworkAddress.h"
-#include "network/ethernet/EthernetHeader.h"
+#include "util/network/MacAddress.h"
+#include "util/network/NetworkAddress.h"
+#include "util/network/ethernet/EthernetHeader.h"
 
 namespace Util {
 namespace Io {

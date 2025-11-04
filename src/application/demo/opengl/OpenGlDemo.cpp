@@ -26,11 +26,11 @@
 #include "Cuboid.h"
 #include "DemoModel.h"
 #include "Rectangle.h"
-#include "lib/util/pulsar/Game.h"
+#include "lib/pulsar/Game.h"
 #include "lib/util/math/Vector2.h"
 #include "lib/util/base/String.h"
-#include "lib/util/pulsar/3d/Light.h"
-#include "lib/util/pulsar/Camera.h"
+#include "lib/pulsar/3d/Light.h"
+#include "lib/pulsar/Camera.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/Key.h"
@@ -39,8 +39,8 @@ void OpenGlDemo::initialize() {
     setBackgroundColor(Util::Graphic::Color(176, 252, 255));
 
     setAmbientLight(Util::Graphic::Color(77, 77, 77));
-    addLight(Util::Pulsar::D3::Light::POINT, Util::Math::Vector3<double>(0, 1, 1), Util::Graphic::Color(255, 255, 255), Util::Graphic::Color(0, 0, 0));
-    addLight(Util::Pulsar::D3::Light::POINT, Util::Math::Vector3<double>(39, 20, 36), Util::Graphic::Color(102, 102, 255), Util::Graphic::Color(0, 0, 0));
+    addLight(Pulsar::D3::Light::POINT, Util::Math::Vector3<double>(0, 1, 1), Util::Graphic::Color(255, 255, 255), Util::Graphic::Color(0, 0, 0));
+    addLight(Pulsar::D3::Light::POINT, Util::Math::Vector3<double>(39, 20, 36), Util::Graphic::Color(102, 102, 255), Util::Graphic::Color(0, 0, 0));
 
 
     getCamera().setPosition(Util::Math::Vector3<double>(0, 0, 5));
@@ -121,7 +121,7 @@ void OpenGlDemo::keyPressed(const Util::Io::Key &key) {
             getCamera().setPosition(Util::Math::Vector3<double>(0, 0, 5));
             break;
         case Util::Io::Key::ESC:
-            Util::Pulsar::Game::getInstance().stop();
+            Pulsar::Game::getInstance().stop();
             break;
         default:
             break;

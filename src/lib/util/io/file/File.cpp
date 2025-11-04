@@ -21,8 +21,8 @@
 #include "File.h"
 
 #include "lib/interface.h"
-#include "collection/ArrayList.h"
-#include "base/Panic.h"
+#include "util/collection/ArrayList.h"
+#include "util/base/Panic.h"
 
 namespace Util::Io {
 

@@ -24,12 +24,12 @@
 #include "Item.h"
 
 #include "Player.h"
-#include "lib/util/pulsar/3d/event/CollisionEvent.h"
-#include "lib/util/pulsar/Scene.h"
-#include "lib/util/pulsar/Graphics.h"
+#include "lib/pulsar/3d/event/CollisionEvent.h"
+#include "lib/pulsar/Scene.h"
+#include "lib/pulsar/Graphics.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/pulsar/3d/collider/SphereCollider.h"
+#include "lib/pulsar/3d/collider/SphereCollider.h"
 #include "lib/util/math/Vector3.h"
 
 Util::Array<Util::Math::Vector3<double>> Item::HEART = {
@@ -64,27 +64,27 @@ uint32_t Item::HEALTH_LIST_ID = UINT32_MAX;
 uint32_t Item::DMG_UP_LIST_ID = UINT32_MAX;
 uint32_t Item::NEXT_LVL_LIST_ID = UINT32_MAX;
 
-Item::Item(const Util::Math::Vector3<double> &position, uint32_t tag)  : Entity(tag, position, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1), Util::Pulsar::D3::SphereCollider(position, 0.25)) {}
+Item::Item(const Util::Math::Vector3<double> &position, uint32_t tag)  : Entity(tag, position, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1), Pulsar::D3::SphereCollider(position, 0.25)) {}
 
 void Item::initialize() {
     if (HEALTH_LIST_ID == UINT32_MAX) {
-        HEALTH_LIST_ID = Util::Pulsar::Graphics::startList3D();
-        Util::Pulsar::Graphics::listCustomShape3D(HEART);
-        Util::Pulsar::Graphics::endList3D();
+        HEALTH_LIST_ID = Pulsar::Graphics::startList3D();
+        Pulsar::Graphics::listCustomShape3D(HEART);
+        Pulsar::Graphics::endList3D();
     }
 
     if (DMG_UP_LIST_ID == UINT32_MAX) {
-        DMG_UP_LIST_ID = Util::Pulsar::Graphics::startList3D();
-        Util::Pulsar::Graphics::listCustomShape3D(DMG_UP);
-        Util::Pulsar::Graphics::endList3D();
+        DMG_UP_LIST_ID = Pulsar::Graphics::startList3D();
+        Pulsar::Graphics::listCustomShape3D(DMG_UP);
+        Pulsar::Graphics::endList3D();
     }
 
     if (NEXT_LVL_LIST_ID == UINT32_MAX) {
-        NEXT_LVL_LIST_ID = Util::Pulsar::Graphics::startList3D();
-        Util::Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(3, 1, 2));
-        Util::Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(0.5, 1, 0), Util::Math::Vector3<double>(2, 1, 2));
-        Util::Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(1, 2, 0), Util::Math::Vector3<double>(1, 1, 2));
-        Util::Pulsar::Graphics::endList3D();
+        NEXT_LVL_LIST_ID = Pulsar::Graphics::startList3D();
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(3, 1, 2));
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(0.5, 1, 0), Util::Math::Vector3<double>(2, 1, 2));
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(1, 2, 0), Util::Math::Vector3<double>(1, 1, 2));
+        Pulsar::Graphics::endList3D();
     }
 }
 
@@ -100,7 +100,7 @@ void Item::onUpdate(double delta) {
     setScale(getScale() * (1 + delta));
 }
 
-void Item::draw(Util::Pulsar::Graphics &graphics) const {
+void Item::draw(Pulsar::Graphics &graphics) const {
     switch (getTag()) {
         case TAG_HEALTH_UP:
             graphics.setColor(Util::Graphic::Color(255, 0, 0));
@@ -119,7 +119,7 @@ void Item::draw(Util::Pulsar::Graphics &graphics) const {
     }
 }
 
-void Item::onCollisionEvent(Util::Pulsar::D3::CollisionEvent &event) {
+void Item::onCollisionEvent(Pulsar::D3::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == Player::TAG && getTag() != TAG_NEXT_LVL) {
         removeFromScene();
     }

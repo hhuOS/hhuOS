@@ -24,14 +24,14 @@
 #include "Socket.h"
 
 #include "lib/interface.h"
-#include "base/Panic.h"
-#include "base/String.h"
-#include "collection/Array.h"
-#include "collection/ArrayList.h"
-#include "network/NetworkAddress.h"
-#include "network/ip4/Ip4Route.h"
-#include "network/ip4/Ip4Address.h"
-#include "network/ip4/Ip4SubnetAddress.h"
+#include "util/base/Panic.h"
+#include "util/base/String.h"
+#include "util/collection/Array.h"
+#include "util/collection/ArrayList.h"
+#include "util/network/NetworkAddress.h"
+#include "util/network/ip4/Ip4Route.h"
+#include "util/network/ip4/Ip4Address.h"
+#include "util/network/ip4/Ip4SubnetAddress.h"
 
 namespace Util {
 namespace Network {

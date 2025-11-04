@@ -2,10 +2,10 @@
 
 #include "ScanStream.h"
 
-#include "base/CharacterTypes.h"
-#include "base/WideChar.h"
-#include "io/stream/InputStream.h"
-#include "math/Math.h"
+#include "util/base/CharacterTypes.h"
+#include "util/base/WideChar.h"
+#include "util/io/stream/InputStream.h"
+#include "util/math/Math.h"
 
 namespace Util::Io {
 

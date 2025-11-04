@@ -24,9 +24,9 @@
 #ifndef HHUOS_LIB_UTIL_NETWORK_IP4ROUTE_H
 #define HHUOS_LIB_UTIL_NETWORK_IP4ROUTE_H
 
-#include "base/String.h"
-#include "network/ip4/Ip4Address.h"
-#include "network/ip4/Ip4SubnetAddress.h"
+#include "util/base/String.h"
+#include "util/network/ip4/Ip4Address.h"
+#include "util/network/ip4/Ip4SubnetAddress.h"
 
 namespace Util::Network::Ip4 {
 

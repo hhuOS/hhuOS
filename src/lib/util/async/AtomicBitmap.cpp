@@ -20,9 +20,9 @@
 
 #include "AtomicBitmap.h"
 
-#include "async/Atomic.h"
-#include "base/Address.h"
-#include "base/Panic.h"
+#include "util/async/Atomic.h"
+#include "util/base/Address.h"
+#include "util/base/Panic.h"
 
 namespace Util::Async {
 

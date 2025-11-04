@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/pulsar/2d/particle/SingleTimeEmitter.h"
+#include "lib/pulsar/2d/particle/SingleTimeEmitter.h"
 #include "lib/util/math/Random.h"
 
 namespace Util {
@@ -32,7 +32,7 @@ template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
-class BloodEmitter : public Util::Pulsar::D2::SingleTimeEmitter {
+class BloodEmitter : public Pulsar::D2::SingleTimeEmitter {
 
 public:
 
@@ -62,19 +62,19 @@ public:
 
     void initialize() override;
 
-    void draw(Util::Pulsar::Graphics &graphics) const override;
+    void draw(Pulsar::Graphics &graphics) const override;
 
-    void onTranslationEvent(Util::Pulsar::D2::TranslationEvent &event) override;
+    void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
 
-    void onCollisionEvent(Util::Pulsar::D2::CollisionEvent &event) override;
+    void onCollisionEvent(Pulsar::D2::CollisionEvent &event) override;
 
-    void onParticleInitialization(Util::Pulsar::D2::Particle &particle) override;
+    void onParticleInitialization(Pulsar::D2::Particle &particle) override;
 
-    void onParticleUpdate(Util::Pulsar::D2::Particle &particle, double delta) override;
+    void onParticleUpdate(Pulsar::D2::Particle &particle, double delta) override;
 
-    void onParticleCollision(Util::Pulsar::D2::Particle &particle, Util::Pulsar::D2::CollisionEvent &event) override;
+    void onParticleCollision(Pulsar::D2::Particle &particle, Pulsar::D2::CollisionEvent &event) override;
 
-    void onParticleDestruction(Util::Pulsar::D2::Particle &particle) override;
+    void onParticleDestruction(Pulsar::D2::Particle &particle) override;
 
     static const constexpr uint32_t TAG = 8;
     static const constexpr uint32_t PARTICLE_TAG = 9;

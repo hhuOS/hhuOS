@@ -27,8 +27,8 @@
 
 #include <stdint.h>
 
-#include "lib/util/pulsar/2d/Entity.h"
-#include "lib/util/pulsar/2d/SpriteAnimation.h"
+#include "lib/pulsar/2d/Entity.h"
+#include "lib/pulsar/2d/SpriteAnimation.h"
 
 namespace Util {
 namespace Math {
@@ -36,7 +36,7 @@ template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
-class Coin : public Util::Pulsar::D2::Entity {
+class Coin : public Pulsar::D2::Entity {
 
 public:
     /**
@@ -63,17 +63,17 @@ public:
 
     void onUpdate(double delta) override;
 
-    void draw(Util::Pulsar::Graphics &graphics) const override;
+    void draw(Pulsar::Graphics &graphics) const override;
 
-    void onTranslationEvent(Util::Pulsar::D2::TranslationEvent &event) override;
+    void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
 
-    void onCollisionEvent(Util::Pulsar::D2::CollisionEvent &event) override;
+    void onCollisionEvent(Pulsar::D2::CollisionEvent &event) override;
 
     static const constexpr uint32_t TAG = 5;
 
 private:
 
-    Util::Pulsar::D2::SpriteAnimation animation;
+    Pulsar::D2::SpriteAnimation animation;
 };
 
 

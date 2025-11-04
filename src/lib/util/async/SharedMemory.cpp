@@ -20,8 +20,8 @@
 
 #include "SharedMemory.h"
 
-#include "base/Constants.h"
-#include "base/System.h"
+#include "util/base/Constants.h"
+#include "util/base/System.h"
 #include "lib/interface.h"
 
 namespace Util::Async {

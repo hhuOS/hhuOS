@@ -20,8 +20,8 @@
 
 #include "Spinlock.h"
 
-#include "async/Thread.h"
-#include "async/Atomic.h"
+#include "util/async/Thread.h"
+#include "util/async/Atomic.h"
 
 namespace Util::Async {
 

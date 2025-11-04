@@ -19,7 +19,7 @@
 project(uptime)
 message(STATUS "Project " ${PROJECT_NAME})
 
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/uptime/uptime.cpp)

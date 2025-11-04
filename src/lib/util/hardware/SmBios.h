@@ -24,8 +24,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "collection/Array.h"
-#include "collection/Iterator.h"
+#include "util/collection/Array.h"
+#include "util/collection/Iterator.h"
 
 /// Structures and definitions for the System Management BIOS (SMBIOS).
 /// In user space, the SMBIOS structures are accessible via the '/device/smbios' directory.

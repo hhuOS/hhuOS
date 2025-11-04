@@ -24,9 +24,9 @@
 #ifndef HHUOS_BATTLESPACEINTRO_H
 #define HHUOS_BATTLESPACEINTRO_H
 
-#include "lib/util/pulsar/2d/Scene.h"
+#include "lib/pulsar/2d/Scene.h"
 
-class IntroScreen : public Util::Pulsar::D2::Scene {
+class IntroScreen : public Pulsar::D2::Scene {
 
 public:
     /**
@@ -51,7 +51,7 @@ public:
 
     void initialize() override;
 
-    void initializeBackground(Util::Pulsar::Graphics &graphics) override;
+    void initializeBackground(Pulsar::Graphics &graphics) override;
 
     void update(double delta) override;
 

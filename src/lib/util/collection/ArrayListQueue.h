@@ -23,9 +23,9 @@
 
 #include <stddef.h>
 
-#include "async/Thread.h"
-#include "collection/ArrayList.h"
-#include "collection/Queue.h"
+#include "util/async/Thread.h"
+#include "util/collection/ArrayList.h"
+#include "util/collection/Queue.h"
 
 namespace Util {
 

@@ -23,8 +23,8 @@
 
 #include <stdint.h>
 
-#include "base/String.h"
-#include "collection/Array.h"
+#include "util/base/String.h"
+#include "util/collection/Array.h"
 
 /// Contains functions to retrieve information about the CPU using the CPUID instruction.
 namespace Util::Hardware::CpuId {

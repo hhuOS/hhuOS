@@ -21,7 +21,7 @@
 #ifndef __MEMLAYOUT_include__
 #define __MEMLAYOUT_include__
 
-#include "base/Constants.h"
+#include "util/base/Constants.h"
 #include "lib/util/base/Address.h"
 
 namespace Kernel {

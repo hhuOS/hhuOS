@@ -23,8 +23,8 @@
 
 #include <stddef.h>
 
-#include "base/MemoryManager.h"
-#include "reflection/Prototype.h"
+#include "util/base/MemoryManager.h"
+#include "util/reflection/Prototype.h"
 
 namespace Util {
 

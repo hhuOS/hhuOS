@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/pulsar/3d/Scene.h"
+#include "lib/pulsar/3d/Scene.h"
 #include "lib/util/math/Random.h"
 #include "Player.h"
 #include "lib/util/collection/ArrayList.h"
@@ -34,7 +34,7 @@
 
 class Enemy;
 
-class BattleSpaceGame : public Util::Pulsar::D3::Scene {
+class BattleSpaceGame : public Pulsar::D3::Scene {
 
 public:
     /**

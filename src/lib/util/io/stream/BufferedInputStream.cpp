@@ -20,8 +20,8 @@
 
 #include "BufferedInputStream.h"
 
-#include "base/Address.h"
-#include "io/stream/FilterInputStream.h"
+#include "util/base/Address.h"
+#include "util/io/stream/FilterInputStream.h"
 
 namespace Util::Io {
 

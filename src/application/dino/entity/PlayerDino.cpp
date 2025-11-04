@@ -24,62 +24,62 @@
 #include "PlayerDino.h"
 
 #include "lib/util/collection/Array.h"
-#include "lib/util/pulsar/Graphics.h"
-#include "lib/util/pulsar/2d/Sprite.h"
+#include "lib/pulsar/Graphics.h"
+#include "lib/pulsar/2d/Sprite.h"
 #include "lib/util/math/Vector2.h"
-#include "lib/util/pulsar/2d/event/CollisionEvent.h"
-#include "lib/util/pulsar/Collider.h"
-#include "lib/util/pulsar/2d/collider/RectangleCollider.h"
-#include "lib/util/pulsar/2d/event/TranslationEvent.h"
+#include "lib/pulsar/2d/event/CollisionEvent.h"
+#include "lib/pulsar/Collider.h"
+#include "lib/pulsar/2d/collider/RectangleCollider.h"
+#include "lib/pulsar/2d/event/TranslationEvent.h"
 #include "lib/util/base/String.h"
 #include "lib/util/graphic/Colors.h"
-#include "lib/util/pulsar/Game.h"
-#include "lib/util/pulsar/Scene.h"
+#include "lib/pulsar/Game.h"
+#include "lib/pulsar/Scene.h"
 #include "Block.h"
-#include "lib/util/pulsar/2d/component/LinearMovementComponent.h"
-#include "lib/util/pulsar/2d/component/GravityComponent.h"
+#include "lib/pulsar/2d/component/LinearMovementComponent.h"
+#include "lib/pulsar/2d/component/GravityComponent.h"
 #include "application/dino/GameOverScreen.h"
 
-PlayerDino::PlayerDino(const Util::Math::Vector2<double> &position) : Entity(TAG, position, Util::Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE * 1.133), Util::Pulsar::Collider::DYNAMIC)) {}
+PlayerDino::PlayerDino(const Util::Math::Vector2<double> &position) : Entity(TAG, position, Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE * 1.133), Pulsar::Collider::DYNAMIC)) {}
 
 void PlayerDino::initialize() {
-    idleAnimation = Util::Pulsar::D2::SpriteAnimation(Util::Array<Util::Pulsar::D2::Sprite>({
-       Util::Pulsar::D2::Sprite("/user/dino/player/idle1.bmp", SIZE, SIZE * 1.333),
-       Util::Pulsar::D2::Sprite("/user/dino/player/idle2.bmp", SIZE, SIZE * 1.333),
-       Util::Pulsar::D2::Sprite("/user/dino/player/idle3.bmp", SIZE, SIZE * 1.333)}), 0.5);
-    runAnimation = Util::Pulsar::D2::SpriteAnimation(Util::Array<Util::Pulsar::D2::Sprite>({
-        Util::Pulsar::D2::Sprite("/user/dino/player/run1.bmp", SIZE, SIZE * 1.133),
-        Util::Pulsar::D2::Sprite("/user/dino/player/run2.bmp", SIZE, SIZE * 1.133),
-        Util::Pulsar::D2::Sprite("/user/dino/player/run3.bmp", SIZE, SIZE * 1.133),
-        Util::Pulsar::D2::Sprite("/user/dino/player/run4.bmp", SIZE, SIZE * 1.133),
-        Util::Pulsar::D2::Sprite("/user/dino/player/run5.bmp", SIZE, SIZE * 1.133),
-        Util::Pulsar::D2::Sprite("/user/dino/player/run6.bmp", SIZE, SIZE * 1.133)}), 0.5);
-    eggAnimation = Util::Pulsar::D2::SpriteAnimation(Util::Array<Util::Pulsar::D2::Sprite>({
-        Util::Pulsar::D2::Sprite("/user/dino/player/egg1.bmp", SIZE, SIZE),
-        Util::Pulsar::D2::Sprite("/user/dino/player/egg2.bmp", SIZE, SIZE),
-        Util::Pulsar::D2::Sprite("/user/dino/player/egg3.bmp", SIZE, SIZE),
-        Util::Pulsar::D2::Sprite("/user/dino/player/egg4.bmp", SIZE, SIZE),
-        Util::Pulsar::D2::Sprite("/user/dino/player/egg5.bmp", SIZE, SIZE),
-        Util::Pulsar::D2::Sprite("/user/dino/player/egg6.bmp", SIZE, SIZE)}), 0.5);
-    crackAnimation = Util::Pulsar::D2::SpriteAnimation(Util::Array<Util::Pulsar::D2::Sprite>({
-        Util::Pulsar::D2::Sprite("/user/dino/player/crack1.bmp", SIZE, SIZE * 1.333),
-        Util::Pulsar::D2::Sprite("/user/dino/player/crack2.bmp", SIZE, SIZE * 1.333),
-        Util::Pulsar::D2::Sprite("/user/dino/player/crack3.bmp", SIZE, SIZE * 1.333),
-        Util::Pulsar::D2::Sprite("/user/dino/player/crack4.bmp", SIZE, SIZE * 1.333)}), 1.0);
-    hatchAnimation = Util::Pulsar::D2::SpriteAnimation(Util::Array<Util::Pulsar::D2::Sprite>({
-        Util::Pulsar::D2::Sprite("/user/dino/player/hatch1.bmp", SIZE, SIZE * 1.333),
-        Util::Pulsar::D2::Sprite("/user/dino/player/hatch2.bmp", SIZE, SIZE * 1.333),
-        Util::Pulsar::D2::Sprite("/user/dino/player/hatch3.bmp", SIZE, SIZE * 1.333),
-        Util::Pulsar::D2::Sprite("/user/dino/player/hatch4.bmp", SIZE, SIZE * 1.333)}), 0.5);
-    deathAnimation = Util::Pulsar::D2::SpriteAnimation(Util::Array<Util::Pulsar::D2::Sprite>({
-        Util::Pulsar::D2::Sprite("/user/dino/player/death1.bmp", SIZE, SIZE * 1.133),
-        Util::Pulsar::D2::Sprite("/user/dino/player/death2.bmp", SIZE, SIZE * 1.133),
-        Util::Pulsar::D2::Sprite("/user/dino/player/death3.bmp", SIZE, SIZE * 1.133),
-        Util::Pulsar::D2::Sprite("/user/dino/player/death4.bmp", SIZE, SIZE * 1.133),
-        Util::Pulsar::D2::Sprite("/user/dino/player/death5.bmp", SIZE, SIZE * 1.133)}), 0.5);
+    idleAnimation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({
+       Pulsar::D2::Sprite("/user/dino/player/idle1.bmp", SIZE, SIZE * 1.333),
+       Pulsar::D2::Sprite("/user/dino/player/idle2.bmp", SIZE, SIZE * 1.333),
+       Pulsar::D2::Sprite("/user/dino/player/idle3.bmp", SIZE, SIZE * 1.333)}), 0.5);
+    runAnimation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({
+        Pulsar::D2::Sprite("/user/dino/player/run1.bmp", SIZE, SIZE * 1.133),
+        Pulsar::D2::Sprite("/user/dino/player/run2.bmp", SIZE, SIZE * 1.133),
+        Pulsar::D2::Sprite("/user/dino/player/run3.bmp", SIZE, SIZE * 1.133),
+        Pulsar::D2::Sprite("/user/dino/player/run4.bmp", SIZE, SIZE * 1.133),
+        Pulsar::D2::Sprite("/user/dino/player/run5.bmp", SIZE, SIZE * 1.133),
+        Pulsar::D2::Sprite("/user/dino/player/run6.bmp", SIZE, SIZE * 1.133)}), 0.5);
+    eggAnimation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({
+        Pulsar::D2::Sprite("/user/dino/player/egg1.bmp", SIZE, SIZE),
+        Pulsar::D2::Sprite("/user/dino/player/egg2.bmp", SIZE, SIZE),
+        Pulsar::D2::Sprite("/user/dino/player/egg3.bmp", SIZE, SIZE),
+        Pulsar::D2::Sprite("/user/dino/player/egg4.bmp", SIZE, SIZE),
+        Pulsar::D2::Sprite("/user/dino/player/egg5.bmp", SIZE, SIZE),
+        Pulsar::D2::Sprite("/user/dino/player/egg6.bmp", SIZE, SIZE)}), 0.5);
+    crackAnimation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({
+        Pulsar::D2::Sprite("/user/dino/player/crack1.bmp", SIZE, SIZE * 1.333),
+        Pulsar::D2::Sprite("/user/dino/player/crack2.bmp", SIZE, SIZE * 1.333),
+        Pulsar::D2::Sprite("/user/dino/player/crack3.bmp", SIZE, SIZE * 1.333),
+        Pulsar::D2::Sprite("/user/dino/player/crack4.bmp", SIZE, SIZE * 1.333)}), 1.0);
+    hatchAnimation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({
+        Pulsar::D2::Sprite("/user/dino/player/hatch1.bmp", SIZE, SIZE * 1.333),
+        Pulsar::D2::Sprite("/user/dino/player/hatch2.bmp", SIZE, SIZE * 1.333),
+        Pulsar::D2::Sprite("/user/dino/player/hatch3.bmp", SIZE, SIZE * 1.333),
+        Pulsar::D2::Sprite("/user/dino/player/hatch4.bmp", SIZE, SIZE * 1.333)}), 0.5);
+    deathAnimation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({
+        Pulsar::D2::Sprite("/user/dino/player/death1.bmp", SIZE, SIZE * 1.133),
+        Pulsar::D2::Sprite("/user/dino/player/death2.bmp", SIZE, SIZE * 1.133),
+        Pulsar::D2::Sprite("/user/dino/player/death3.bmp", SIZE, SIZE * 1.133),
+        Pulsar::D2::Sprite("/user/dino/player/death4.bmp", SIZE, SIZE * 1.133),
+        Pulsar::D2::Sprite("/user/dino/player/death5.bmp", SIZE, SIZE * 1.133)}), 0.5);
 
-    addComponent(new Util::Pulsar::D2::LinearMovementComponent(*this));
-    addComponent(new Util::Pulsar::D2::GravityComponent(*this, 1.25, 0));
+    addComponent(new Pulsar::D2::LinearMovementComponent(*this));
+    addComponent(new Pulsar::D2::GravityComponent(*this, 1.25, 0));
 
     getScene().addEntity(grassEmitter);
 }
@@ -108,7 +108,7 @@ void PlayerDino::hatch() {
 
 void PlayerDino::onUpdate(double delta) {
     if (dead) {
-        auto &game = Util::Pulsar::Game::getInstance();
+        auto &game = Pulsar::Game::getInstance();
         game.pushScene(new GameOverScreen(points));
         game.switchToNextScene();
 
@@ -166,7 +166,7 @@ void PlayerDino::onUpdate(double delta) {
     getCollider().setSize(currentAnimation->getOriginalSize());
 }
 
-void PlayerDino::draw(Util::Pulsar::Graphics &graphics) const {
+void PlayerDino::draw(Pulsar::Graphics &graphics) const {
     if (direction == LEFT) {
         currentAnimation->setXFlipped(true);
     } else {
@@ -206,18 +206,18 @@ void PlayerDino::reset() {
     }
 }
 
-void PlayerDino::onTranslationEvent(Util::Pulsar::D2::TranslationEvent &event) {
+void PlayerDino::onTranslationEvent(Pulsar::D2::TranslationEvent &event) {
     if (dying || dead) {
         event.cancel();
     }
 }
 
-void PlayerDino::onCollisionEvent(Util::Pulsar::D2::CollisionEvent &event) {
-    if (event.getSide() == Util::Pulsar::D2::RectangleCollider::Side::BOTTOM) {
+void PlayerDino::onCollisionEvent(Pulsar::D2::CollisionEvent &event) {
+    if (event.getSide() == Pulsar::D2::RectangleCollider::Side::BOTTOM) {
         onGround = true;
     }
 
-    if (event.getCollidedWidth().getTag() == Block::GRASS && event.getSide() == Util::Pulsar::D2::RectangleCollider::BOTTOM && running) {
+    if (event.getCollidedWidth().getTag() == Block::GRASS && event.getSide() == Pulsar::D2::RectangleCollider::BOTTOM && running) {
         auto currentTime = Util::Time::Timestamp::getSystemTime();
         if ((currentTime - lastEmissionTime).toMilliseconds() > EMISSION_INTERVAL_MS) {
             lastEmissionTime = currentTime;

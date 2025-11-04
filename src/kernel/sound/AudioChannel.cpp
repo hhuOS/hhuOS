@@ -23,7 +23,7 @@
 
 #include "AudioChannel.h"
 
-#include "async/Thread.h"
+#include "util/async/Thread.h"
 
 namespace Kernel {
 

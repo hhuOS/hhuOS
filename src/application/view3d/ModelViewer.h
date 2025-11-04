@@ -24,7 +24,7 @@
 #ifndef HHUOS_MODELVIEWER_H
 #define HHUOS_MODELVIEWER_H
 
-#include "lib/util/pulsar/3d/Scene.h"
+#include "lib/pulsar/3d/Scene.h"
 #include "lib/util/base/String.h"
 #include "lib/util/math/Vector3.h"
 
@@ -38,7 +38,7 @@ class Light;
 }  // namespace Pulsar
 }  // namespace Util
 
-class ModelViewer : public Util::Pulsar::D3::Scene {
+class ModelViewer : public Pulsar::D3::Scene {
 
 public:
     /**
@@ -73,7 +73,7 @@ private:
 
     Util::String modelPath;
     ModelEntity *model = nullptr;
-    Util::Pulsar::D3::Light *light = nullptr;
+    Pulsar::D3::Light *light = nullptr;
 
     Util::Math::Vector3<double> modelRotation = Util::Math::Vector3<double>(0, 0, 0);
     Util::Math::Vector3<double> cameraRotation = Util::Math::Vector3<double>(0, 0, 0);

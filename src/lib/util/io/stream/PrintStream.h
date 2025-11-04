@@ -24,8 +24,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "base/String.h"
-#include "io/stream/FilterOutputStream.h"
+#include "util/base/String.h"
+#include "util/io/stream/FilterOutputStream.h"
 
 namespace Util::Io {
 

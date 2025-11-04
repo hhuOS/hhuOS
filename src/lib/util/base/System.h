@@ -24,9 +24,9 @@
 #include <stddef.h>
 #include <stdarg.h>
 
-#include "base/BitmapMemoryManager.h"
-#include "base/FreeListMemoryManager.h"
-#include "io/file/ElfFile.h"
+#include "util/base/BitmapMemoryManager.h"
+#include "util/base/FreeListMemoryManager.h"
+#include "util/io/file/ElfFile.h"
 #include "lib/util/io/stream/InputStream.h" // IWYU pragma: keep
 #include "lib/util/io/stream/PrintStream.h" // IWYU pragma: keep
 

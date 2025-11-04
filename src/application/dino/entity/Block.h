@@ -26,8 +26,8 @@
 
 #include <stdint.h>
 
-#include "lib/util/pulsar/2d/Entity.h"
-#include "lib/util/pulsar/2d/Sprite.h"
+#include "lib/pulsar/2d/Entity.h"
+#include "lib/pulsar/2d/Sprite.h"
 #include "lib/util/base/String.h"
 
 namespace Util {
@@ -36,7 +36,7 @@ template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
-class Block : public Util::Pulsar::D2::Entity {
+class Block : public Pulsar::D2::Entity {
 
 public:
 
@@ -71,11 +71,11 @@ public:
 
     void onUpdate(double delta) override;
 
-    void draw(Util::Pulsar::Graphics &graphics) const override;
+    void draw(Pulsar::Graphics &graphics) const override;
 
-    void onTranslationEvent(Util::Pulsar::D2::TranslationEvent &event) override;
+    void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
 
-    void onCollisionEvent(Util::Pulsar::D2::CollisionEvent &event) override;
+    void onCollisionEvent(Pulsar::D2::CollisionEvent &event) override;
 
     static const constexpr double SIZE = 0.08;
 
@@ -85,7 +85,7 @@ private:
 
     uint32_t countX;
     uint32_t countY;
-    Util::Pulsar::D2::Sprite sprite;
+    Pulsar::D2::Sprite sprite;
 };
 
 #endif

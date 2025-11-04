@@ -26,7 +26,7 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
 )
 
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/dino/dino.cpp

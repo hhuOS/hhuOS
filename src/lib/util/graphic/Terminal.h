@@ -23,8 +23,8 @@
 
 #include <stdint.h>
 
-#include "io/stream/FilterInputStream.h"
-#include "io/stream/FilterOutputStream.h"
+#include "util/io/stream/FilterInputStream.h"
+#include "util/io/stream/FilterOutputStream.h"
 #include "lib/util/io/stream/OutputStream.h"
 #include "lib/util/io/stream/InputStream.h"
 #include "lib/util/base/String.h"

@@ -20,7 +20,7 @@
 
 #include "Vector2.h"
 
-#include "math/Math.h"
+#include "util/math/Math.h"
 
 namespace Util::Math {
 

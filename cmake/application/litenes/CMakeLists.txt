@@ -31,8 +31,8 @@ add_custom_target(nes-roms DEPENDS
         "${CMAKE_BINARY_DIR}/roms/falling.nes")
 
 include_directories(${HHUOS_SRC_DIR}
+        ${HHUOS_SRC_DIR}/lib
         ${HHUOS_SRC_DIR}/lib/libc
-        ${HHUOS_SRC_DIR}/lib/util
         ${HHUOS_SRC_DIR}/application/litenes/LiteNES/include)
 
 set(SOURCE_FILES

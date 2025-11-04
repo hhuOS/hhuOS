@@ -23,7 +23,7 @@
 
 #include "Button.h"
 
-#include "graphic/widget/Theme.h"
+#include "util/graphic/widget/Theme.h"
 
 namespace Util::Graphic {
 

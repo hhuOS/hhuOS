@@ -24,10 +24,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "base/String.h"
-#include "collection/Array.h"
-#include "collection/ArrayList.h"
-#include "collection/Iterator.h"
+#include "util/base/String.h"
+#include "util/collection/Array.h"
+#include "util/collection/ArrayList.h"
+#include "util/collection/Iterator.h"
 
 /// Structures and definitions for the Advanced Configuration and Power Interface (ACPI)
 /// In user space, the ACPI structures are accessible via the '/device/acpi' directory.

@@ -23,9 +23,9 @@
 
 #include "Ip4Route.h"
 
-#include "base/Panic.h"
-#include "network/NetworkAddress.h"
-#include "network/ip4/Ip4SubnetAddress.h"
+#include "util/base/Panic.h"
+#include "util/network/NetworkAddress.h"
+#include "util/network/ip4/Ip4SubnetAddress.h"
 
 namespace Util::Network::Ip4 {
 

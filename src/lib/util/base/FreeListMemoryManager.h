@@ -24,10 +24,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "async/Spinlock.h"
-#include "base/HeapMemoryManager.h"
-#include "base/String.h"
-#include "reflection/Prototype.h"
+#include "util/async/Spinlock.h"
+#include "util/base/HeapMemoryManager.h"
+#include "util/base/String.h"
+#include "util/reflection/Prototype.h"
 
 namespace Util {
 /// A memory manager that uses a doubly linked free list to manage a heap.

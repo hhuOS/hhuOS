@@ -26,10 +26,10 @@
 #include <stdint.h>
 
 #include "lib/util/io/key/Key.h"
-#include "lib/util/pulsar/Camera.h"
-#include "lib/util/pulsar/Game.h"
-#include "lib/util/pulsar/Graphics.h"
-#include "lib/util/pulsar/2d/Sprite.h"
+#include "lib/pulsar/Camera.h"
+#include "lib/pulsar/Game.h"
+#include "lib/pulsar/Graphics.h"
+#include "lib/pulsar/2d/Sprite.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/math/Vector2.h"
 #include "lib/util/math/Vector3.h"
@@ -54,7 +54,7 @@ void Level::initialize() {
     }
 
     int32_t x = -1;
-    double y = Util::Pulsar::Game::getInstance().getScreenDimensions().getY() / 2;
+    double y = Pulsar::Game::getInstance().getScreenDimensions().getY() / 2;
 
     int32_t minX = x;
     double minY = y;
@@ -65,7 +65,7 @@ void Level::initialize() {
 
     auto c = fileStream.read();
     while (c != -1) {
-        auto position = Util::Math::Vector2<double>(x * Block::SIZE - (Util::Pulsar::Game::getInstance().getScreenDimensions().getX() / 2), y);
+        auto position = Util::Math::Vector2<double>(x * Block::SIZE - (Pulsar::Game::getInstance().getScreenDimensions().getX() / 2), y);
         switch (c) {
             case '\n':
                 x = -1;
@@ -120,10 +120,10 @@ void Level::initialize() {
 
 }
 
-void Level::initializeBackground(Util::Pulsar::Graphics &graphics) {
-    auto cloud1 = Util::Pulsar::D2::Sprite("/user/dino/background/cloud1.bmp", 0.45, 0.15);
-    auto cloud3 = Util::Pulsar::D2::Sprite("/user/dino/background/cloud3.bmp", 0.6, 0.15);
-    auto cloud4 = Util::Pulsar::D2::Sprite("/user/dino/background/cloud4.bmp", 0.45, 0.15);
+void Level::initializeBackground(Pulsar::Graphics &graphics) {
+    auto cloud1 = Pulsar::D2::Sprite("/user/dino/background/cloud1.bmp", 0.45, 0.15);
+    auto cloud3 = Pulsar::D2::Sprite("/user/dino/background/cloud3.bmp", 0.6, 0.15);
+    auto cloud4 = Pulsar::D2::Sprite("/user/dino/background/cloud4.bmp", 0.45, 0.15);
 
     graphics.clear(Util::Graphic::Color(57, 97, 255));
     cloud1.draw(graphics, Util::Math::Vector2<double>(-1, 0.65));
@@ -133,7 +133,7 @@ void Level::initializeBackground(Util::Pulsar::Graphics &graphics) {
 
 void Level::update([[maybe_unused]] double delta) {
     if (player->isDead()) {
-        auto &game = Util::Pulsar::Game::getInstance();
+        auto &game = Pulsar::Game::getInstance();
         game.switchToNextScene();
 
         return;
@@ -174,7 +174,7 @@ void Level::update([[maybe_unused]] double delta) {
 void Level::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC:
-            Util::Pulsar::Game::getInstance().stop();
+            Pulsar::Game::getInstance().stop();
             break;
         case Util::Io::Key::SPACE:
             if (player->hasHatched()) {
@@ -214,7 +214,7 @@ void Level::spawnMergedBlocks(Util::ArrayList<Util::Pair<int32_t, double>> &posi
         auto position = positions.get(i);
         lastPosition = positions.get(i - 1);
         if (position.getFirst() - 1 != lastPosition.getFirst()) {
-            auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.getFirst() * Block::SIZE - (Util::Pulsar::Game::getInstance().getScreenDimensions().getX()) / 2, rectangleStartPosition.getSecond());
+            auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.getFirst() * Block::SIZE - (Pulsar::Game::getInstance().getScreenDimensions().getX()) / 2, rectangleStartPosition.getSecond());
             auto countX = lastPosition.getFirst() - rectangleStartPosition.getFirst() + 1;
             addEntity(new Block(tag, mergedBlockStart, countX, 1));
 
@@ -222,7 +222,7 @@ void Level::spawnMergedBlocks(Util::ArrayList<Util::Pair<int32_t, double>> &posi
         }
     }
 
-    auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.getFirst() * Block::SIZE - (Util::Pulsar::Game::getInstance().getScreenDimensions().getX()) / 2, rectangleStartPosition.getSecond());
+    auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.getFirst() * Block::SIZE - (Pulsar::Game::getInstance().getScreenDimensions().getX()) / 2, rectangleStartPosition.getSecond());
     auto countX = lastPosition.getFirst() - rectangleStartPosition.getFirst() + 1;
     addEntity(new Block(tag, mergedBlockStart, countX, 1));
 }

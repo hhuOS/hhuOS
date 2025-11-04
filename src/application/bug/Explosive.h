@@ -23,10 +23,10 @@
 
 #include <stdint.h>
 
-#include "lib/util/pulsar/audio/AudioHandle.h"
-#include "lib/util/pulsar/audio/AudioTrack.h"
-#include "lib/util/pulsar/2d/SpriteAnimation.h"
-#include "lib/util/pulsar/2d/Entity.h"
+#include "lib/pulsar/audio/AudioHandle.h"
+#include "lib/pulsar/audio/AudioTrack.h"
+#include "lib/pulsar/2d/SpriteAnimation.h"
+#include "lib/pulsar/2d/Entity.h"
 
 namespace Util {
 namespace Math {
@@ -40,13 +40,13 @@ class RectangleCollider;
 }  // namespace Pulsar
 }  // namespace Util
 
-class Explosive : public Util::Pulsar::D2::Entity {
+class Explosive : public Pulsar::D2::Entity {
 
 public:
     /**
      * Constructor.
      */
-    Explosive(uint32_t tag, const Util::Math::Vector2<double> &position, const Util::Pulsar::D2::RectangleCollider &collider, const Util::String &waveFilePath, double animationTime = 0.5);
+    Explosive(uint32_t tag, const Util::Math::Vector2<double> &position, const Pulsar::D2::RectangleCollider &collider, const Util::String &waveFilePath, double animationTime = 0.5);
 
     /**
      * Copy Constructor.
@@ -67,7 +67,7 @@ public:
 
     void onUpdate(double delta) override;
 
-    void draw(Util::Pulsar::Graphics &graphics) const override;
+    void draw(Pulsar::Graphics &graphics) const override;
 
     void explode();
 
@@ -78,11 +78,11 @@ public:
 private:
 
     Util::String waveFilePath;
-    Util::Pulsar::AudioTrack soundEffect;
-    Util::Pulsar::AudioHandle soundEffectHandle;
+    Pulsar::AudioTrack soundEffect;
+    Pulsar::AudioHandle soundEffectHandle;
 
     double animationTime;
-    Util::Pulsar::D2::SpriteAnimation animation;
+    Pulsar::D2::SpriteAnimation animation;
 
     bool shouldExplode = false;
     bool exploding = false;

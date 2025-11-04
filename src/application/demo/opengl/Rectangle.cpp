@@ -20,9 +20,9 @@
 
 #include "Rectangle.h"
 
-#include "lib/util/pulsar/Graphics.h"
-#include "lib/util/pulsar/3d/Orientation.h"
-#include "lib/util/pulsar/3d/Texture.h"
+#include "lib/pulsar/Graphics.h"
+#include "lib/pulsar/3d/Orientation.h"
+#include "lib/pulsar/3d/Texture.h"
 #include "lib/util/math/Vector2.h"
 
 Rectangle::Rectangle(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &startRotation, const Util::Math::Vector3<double> &rotationAngle, const Util::Math::Vector2<double> &size, const Util::Graphic::Color &color)  :
@@ -33,7 +33,7 @@ Rectangle::Rectangle(const Util::Math::Vector3<double> &position, const Util::Ma
 
 void Rectangle::initialize() {
     if (!texturePath.isEmpty()) {
-        texture = Util::Pulsar::D3::Texture(texturePath);
+        texture = Pulsar::D3::Texture(texturePath);
     }
 }
 
@@ -41,10 +41,10 @@ void Rectangle::onUpdate(double delta) {
     rotate(rotationAngle * delta * 60);
 }
 
-void Rectangle::draw(Util::Pulsar::Graphics &graphics) const {
+void Rectangle::draw(Pulsar::Graphics &graphics) const {
     graphics.setColor(color);
     graphics.drawRectangle3D(getPosition(), Util::Math::Vector2<double>(getScale().getX(), getScale().getY()), getOrientation().getRotation(), texture);
 }
 
-void Rectangle::onCollisionEvent([[maybe_unused]] Util::Pulsar::D3::CollisionEvent &event) {
+void Rectangle::onCollisionEvent([[maybe_unused]] Pulsar::D3::CollisionEvent &event) {
 }

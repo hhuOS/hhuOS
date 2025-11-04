@@ -29,10 +29,10 @@ class Color;
 }  // namespace Graphic
 }  // namespace Util
 
-Astronomical::Astronomical(const Util::String &modelName, const Util::Math::Vector3<double> &position, double scale, const Util::Math::Vector3<double> &rotationVector, const Util::Graphic::Color &color) : Util::Pulsar::D3::Model(TAG, Util::String::format("/user/battlespace/%s.obj", static_cast<const char*>(modelName)), position, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(scale, scale, scale), color), rotationVector(rotationVector) {}
+Astronomical::Astronomical(const Util::String &modelName, const Util::Math::Vector3<double> &position, double scale, const Util::Math::Vector3<double> &rotationVector, const Util::Graphic::Color &color) : Pulsar::D3::Model(TAG, Util::String::format("/user/battlespace/%s.obj", static_cast<const char*>(modelName)), position, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(scale, scale, scale), color), rotationVector(rotationVector) {}
 
 void Astronomical::onUpdate(double delta) {
     rotate(rotationVector * delta);
 }
 
-void Astronomical::onCollisionEvent([[maybe_unused]] Util::Pulsar::D3::CollisionEvent &event) {}
+void Astronomical::onCollisionEvent([[maybe_unused]] Pulsar::D3::CollisionEvent &event) {}

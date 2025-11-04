@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/pulsar/3d/Entity.h"
+#include "lib/pulsar/3d/Entity.h"
 #include "lib/util/math/Vector3.h"
 
 namespace Util::Graphic {
@@ -36,7 +36,7 @@ class Color;
 class Room;
 class Player;
 
-class Enemy : public Util::Pulsar::D3::Entity {
+class Enemy : public Pulsar::D3::Entity {
 
 public:
     enum Type {
@@ -67,11 +67,11 @@ public:
 
     void initialize() override;
 
-    void draw(Util::Pulsar::Graphics &graphics) const override;
+    void draw(Pulsar::Graphics &graphics) const override;
 
     void setType(Type type);
 
-    void onCollisionEvent(Util::Pulsar::D3::CollisionEvent &event) override;
+    void onCollisionEvent(Pulsar::D3::CollisionEvent &event) override;
 
     void onUpdate(double delta) override;
 

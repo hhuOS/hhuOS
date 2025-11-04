@@ -24,7 +24,7 @@
 #define PROTOTYPE_IMPLEMENT_CLONE(TYPE) Prototype *clone() const override { return new TYPE(); }
 #define PROTOTYPE_IMPLEMENT_GET_CLASS_NAME(CLASS_NAME) Util::String getClassName() const override { return CLASS_NAME; }
 
-#include "base/String.h"
+#include "util/base/String.h"
 
 namespace Util::Reflection {
 

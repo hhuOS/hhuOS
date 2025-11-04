@@ -24,8 +24,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "base/String.h"
-#include "collection/Array.h"
+#include "util/base/String.h"
+#include "util/collection/Array.h"
 
 namespace Util::Io {
 

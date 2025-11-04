@@ -20,10 +20,10 @@
 
 #include "PipedInputStream.h"
 
-#include "async/Thread.h"
-#include "base/Address.h"
-#include "base/Panic.h"
-#include "io/stream/PipedOutputStream.h"
+#include "util/async/Thread.h"
+#include "util/base/Address.h"
+#include "util/base/Panic.h"
+#include "util/io/stream/PipedOutputStream.h"
 
 namespace Util::Io {
 

@@ -20,8 +20,8 @@
 
 #include "BufferedOutputStream.h"
 
-#include "base/Address.h"
-#include "io/stream/FilterOutputStream.h"
+#include "util/base/Address.h"
+#include "util/io/stream/FilterOutputStream.h"
 
 namespace Util::Io {
 

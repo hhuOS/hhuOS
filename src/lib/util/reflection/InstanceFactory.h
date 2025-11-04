@@ -21,9 +21,9 @@
 #ifndef HHUOS_LIB_UTIL_REFLECTION_INSTANCEFACTORY_H
 #define HHUOS_LIB_UTIL_REFLECTION_INSTANCEFACTORY_H
 
-#include "base/String.h"
-#include "collection/HashMap.h"
-#include "reflection/Prototype.h"
+#include "util/base/String.h"
+#include "util/collection/HashMap.h"
+#include "util/reflection/Prototype.h"
 
 namespace Util::Reflection {
 

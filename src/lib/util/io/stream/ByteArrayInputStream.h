@@ -24,7 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "io/stream/InputStream.h"
+#include "util/io/stream/InputStream.h"
 
 namespace Util::Io {
 

@@ -27,8 +27,8 @@
 #include <stddef.h>
 
 #include "ActionListener.h"
-#include "collection/ArrayList.h"
-#include "graphic/LinearFrameBuffer.h"
+#include "util/collection/ArrayList.h"
+#include "util/graphic/LinearFrameBuffer.h"
 
 namespace Util::Graphic {
 

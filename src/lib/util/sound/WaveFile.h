@@ -23,9 +23,9 @@
 
 #include <stdint.h>
 
-#include "io/file/File.h"
-#include "io/stream/FilterInputStream.h"
-#include "io/stream/FileInputStream.h"
+#include "util/io/file/File.h"
+#include "util/io/stream/FilterInputStream.h"
+#include "util/io/stream/FileInputStream.h"
 
 namespace Util::Sound {
 

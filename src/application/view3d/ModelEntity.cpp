@@ -23,7 +23,7 @@
 
 #include "ModelEntity.h"
 
-#include <lib/util/pulsar/Graphics.h>
+#include <lib/pulsar/Graphics.h>
 
 #include "lib/util/math/Vector3.h"
 
@@ -34,16 +34,16 @@ ModelEntity::ModelEntity(const Util::String &modelPath, const Util::String &text
 void ModelEntity::initialize() {
     Model::initialize();
 
-    drawListID = Util::Pulsar::Graphics::startList3D();
-    Util::Pulsar::Graphics::listModel3D(*this);
-    Util::Pulsar::Graphics::endList3D();
+    drawListID = Pulsar::Graphics::startList3D();
+    Pulsar::Graphics::listModel3D(*this);
+    Pulsar::Graphics::endList3D();
 }
 
-void ModelEntity::draw(Util::Pulsar::Graphics &graphics) const {
+void ModelEntity::draw(Pulsar::Graphics &graphics) const {
     graphics.setColor(getColor());
     graphics.drawList3D(getPosition(), getScale(), getRotation(), drawListID);
 }
 
 void ModelEntity::onUpdate([[maybe_unused]] double delta) {}
 
-void ModelEntity::onCollisionEvent([[maybe_unused]] Util::Pulsar::D3::CollisionEvent &event) {}
+void ModelEntity::onCollisionEvent([[maybe_unused]] Pulsar::D3::CollisionEvent &event) {}

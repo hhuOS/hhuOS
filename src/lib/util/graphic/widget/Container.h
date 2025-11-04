@@ -26,10 +26,10 @@
 
 #include <stddef.h>
 
-#include "collection/ArrayList.h"
-#include "graphic/LinearFrameBuffer.h"
-#include "graphic/widget/Layout.h"
-#include "graphic/widget/Widget.h"
+#include "util/collection/ArrayList.h"
+#include "util/graphic/LinearFrameBuffer.h"
+#include "util/graphic/widget/Layout.h"
+#include "util/graphic/widget/Widget.h"
 
 namespace Util::Graphic {
 

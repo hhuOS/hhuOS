@@ -23,7 +23,7 @@
 
 #include "SymmetricMultiprocessing.h"
 
-#include "async/Thread.h"
+#include "util/async/Thread.h"
 #include "kernel/log/Log.h"
 #include "kernel/memory/MemoryLayout.h"
 #include "kernel/memory/VirtualAddressSpace.h"
@@ -32,7 +32,7 @@
 #include "kernel/service/InterruptService.h"
 #include "kernel/service/Service.h"
 #include "kernel/service/TimeService.h"
-#include "math/Random.h"
+#include "util/math/Random.h"
 
 namespace Device {
 

@@ -23,8 +23,8 @@
 
 #include "WidgetApplication.h"
 
-#include "graphic/LinearFrameBuffer.h"
-#include "graphic/widget/Label.h"
+#include "util/graphic/LinearFrameBuffer.h"
+#include "util/graphic/widget/Label.h"
 
 class WidgetDemo : public WidgetApplication {
 

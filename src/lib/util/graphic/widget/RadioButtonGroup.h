@@ -24,8 +24,8 @@
 #ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_RADIOBUTTONGROUP_H
 #define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_RADIOBUTTONGROUP_H
 
-#include "collection/ArrayList.h"
-#include "graphic/widget/RadioButton.h"
+#include "util/collection/ArrayList.h"
+#include "util/graphic/widget/RadioButton.h"
 
 namespace Util::Graphic {
 

@@ -21,14 +21,14 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
-#include "lib/util/pulsar/Game.h"
-#include "lib/util/pulsar/Scene.h"
+#include "lib/pulsar/Game.h"
+#include "lib/pulsar/Scene.h"
 #include "Room.h"
 #include "Item.h"
 #include "Enemy.h"
 #include "lib/util/math/Random.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/pulsar/Graphics.h"
+#include "lib/pulsar/Graphics.h"
 #include "lib/util/base/Panic.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/math/Vector3.h"
@@ -39,13 +39,13 @@ Room::Room(const Util::Math::Vector3<double> &position, Type type, uint32_t pRow
 
 void Room::initialize() {
     if (DRAW_LIST_ID == UINT32_MAX) {
-        DRAW_LIST_ID = Util::Pulsar::Graphics::startList3D();
-        Util::Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(20, 1, 20), Util::Graphic::Color(156, 109, 55)); // Floor
-        Util::Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(0, 1.5, -11.5), Util::Math::Vector3<double>(20, 4, 3), Util::Graphic::Color(204, 124, 64)); // Northern wall
-        Util::Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(-11.5, 1.5, 0), Util::Math::Vector3<double>(3, 4, 26), Util::Graphic::Color(204, 124, 64)); // Western wall
-        Util::Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(11.5, 1.5, 0), Util::Math::Vector3<double>(3, 4, 26), Util::Graphic::Color(204, 124, 64)); // Eastern wall
-        Util::Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(0, 1.5, 11.5), Util::Math::Vector3<double>(20, 4, 3), Util::Graphic::Color(204, 124, 64)); // Southern wall
-        Util::Pulsar::Graphics::endList3D();
+        DRAW_LIST_ID = Pulsar::Graphics::startList3D();
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(20, 1, 20), Util::Graphic::Color(156, 109, 55)); // Floor
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(0, 1.5, -11.5), Util::Math::Vector3<double>(20, 4, 3), Util::Graphic::Color(204, 124, 64)); // Northern wall
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(-11.5, 1.5, 0), Util::Math::Vector3<double>(3, 4, 26), Util::Graphic::Color(204, 124, 64)); // Western wall
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(11.5, 1.5, 0), Util::Math::Vector3<double>(3, 4, 26), Util::Graphic::Color(204, 124, 64)); // Eastern wall
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(0, 1.5, 11.5), Util::Math::Vector3<double>(20, 4, 3), Util::Graphic::Color(204, 124, 64)); // Southern wall
+        Pulsar::Graphics::endList3D();
     }
 }
 
@@ -55,7 +55,7 @@ void Room::onUpdate([[maybe_unused]] double delta) {
     }
 }
 
-void Room::draw(Util::Pulsar::Graphics &graphics) const {
+void Room::draw(Pulsar::Graphics &graphics) const {
     if (!current) {
         return;
     }
@@ -83,7 +83,7 @@ void Room::draw(Util::Pulsar::Graphics &graphics) const {
     }
 }
 
-void Room::onCollisionEvent([[maybe_unused]] Util::Pulsar::D3::CollisionEvent &event) {}
+void Room::onCollisionEvent([[maybe_unused]] Pulsar::D3::CollisionEvent &event) {}
 
 void Room::enterRoom() {
     entered = true;
@@ -125,7 +125,7 @@ void Room::clearAndRollItems() {
 
 void Room::addEnemiesToScene() const {
     for (uint32_t i = 0;i < enemies.size(); i++) {
-        Util::Pulsar::Game::getInstance().getCurrentScene().addEntity(enemies.get(i));
+        Pulsar::Game::getInstance().getCurrentScene().addEntity(enemies.get(i));
     }
 }
 

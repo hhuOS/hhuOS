@@ -23,8 +23,8 @@
 
 #include <stdint.h>
 
-#include "async/AtomicBitmap.h"
-#include "base/BlockMemoryManager.h"
+#include "util/async/AtomicBitmap.h"
+#include "util/base/BlockMemoryManager.h"
 
 namespace Util {
 

@@ -26,8 +26,8 @@
 
 #include <stdint.h>
 
-#include "network/Datagram.h"
-#include "network/ip4/Ip4Header.h"
+#include "util/network/Datagram.h"
+#include "util/network/ip4/Ip4Header.h"
 
 namespace Util {
 namespace Io {

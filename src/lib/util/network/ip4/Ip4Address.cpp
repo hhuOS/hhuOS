@@ -21,8 +21,8 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "collection/Array.h"
-#include "network/ip4/Ip4Address.h"
+#include "util/collection/Array.h"
+#include "util/network/ip4/Ip4Address.h"
 
 namespace Util::Network::Ip4 {
 

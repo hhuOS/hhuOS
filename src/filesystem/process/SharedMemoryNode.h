@@ -21,7 +21,7 @@
 #ifndef HHUOS_SHAREDMEMORYNODE_H
 #define HHUOS_SHAREDMEMORYNODE_H
 
-#include "base/String.h"
+#include "util/base/String.h"
 #include "filesystem/memory/MemoryNode.h"
 #include "kernel/process/SharedMemory.h"
 

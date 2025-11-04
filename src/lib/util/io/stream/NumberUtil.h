@@ -26,8 +26,8 @@
 
 #include <stdint.h>
 
-#include "io/stream/InputStream.h"
-#include "io/stream/OutputStream.h"
+#include "util/io/stream/InputStream.h"
+#include "util/io/stream/OutputStream.h"
 
 /// Provides utility functions for reading numbers from input streams and writing numbers to output streams.
 /// The streams are expected to provide raw bytes. For parsing numbers from text streams, use a `ScanStream`.

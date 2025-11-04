@@ -24,14 +24,14 @@
 #ifndef CUBOID_H
 #define CUBOID_H
 
-#include <lib/util/pulsar/3d/Texture.h>
+#include <lib/pulsar/3d/Texture.h>
 
 #include "lib/util/base/String.h"
 #include "lib/util/graphic/Color.h"
-#include "lib/util/pulsar/3d/Entity.h"
+#include "lib/pulsar/3d/Entity.h"
 #include "lib/util/math/Vector3.h"
 
-class Cuboid : public Util::Pulsar::D3::Entity {
+class Cuboid : public Pulsar::D3::Entity {
 
 public:
     /**
@@ -63,9 +63,9 @@ public:
 
     void onUpdate(double delta) override;
 
-    void draw(Util::Pulsar::Graphics &graphics) const override;
+    void draw(Pulsar::Graphics &graphics) const override;
 
-    void onCollisionEvent(Util::Pulsar::D3::CollisionEvent &event) override;
+    void onCollisionEvent(Pulsar::D3::CollisionEvent &event) override;
 
 private:
 
@@ -73,7 +73,7 @@ private:
     Util::Graphic::Color color;
 
     const Util::String texturePath;
-    Util::Pulsar::D3::Texture texture;
+    Pulsar::D3::Texture texture;
 };
 
 #endif

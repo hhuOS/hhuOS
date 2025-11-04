@@ -21,7 +21,7 @@
 #ifndef HHUOS_LIB_UTIL_QUEUE_H
 #define HHUOS_LIB_UTIL_QUEUE_H
 
-#include "collection/Collection.h"
+#include "util/collection/Collection.h"
 
 namespace Util {
 

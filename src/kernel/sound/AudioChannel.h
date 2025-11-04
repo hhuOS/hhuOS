@@ -28,7 +28,7 @@
 #include "lib/util/io/stream/FilterOutputStream.h"
 #include "lib/util/io/stream/PipedInputStream.h"
 #include "lib/util/io/stream/PipedOutputStream.h"
-#include "sound/AudioChannel.h"
+#include "util/sound/AudioChannel.h"
 
 namespace Kernel {
 

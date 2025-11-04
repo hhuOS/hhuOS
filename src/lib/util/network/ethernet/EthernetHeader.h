@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#include "network/MacAddress.h"
+#include "util/network/MacAddress.h"
 
 namespace Util {
 namespace Io {

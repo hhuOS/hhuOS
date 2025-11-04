@@ -24,8 +24,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "async/Spinlock.h"
-#include "io/stream/InputStream.h"
+#include "util/async/Spinlock.h"
+#include "util/io/stream/InputStream.h"
 
 namespace Util::Io {
 

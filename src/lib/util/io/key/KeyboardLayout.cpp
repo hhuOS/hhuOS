@@ -20,9 +20,9 @@
 
 #include "KeyboardLayout.h"
 
-#include "base/Address.h"
-#include "io/key/Key.h"
-#include "io/key/KeyDecoder.h"
+#include "util/base/Address.h"
+#include "util/io/key/Key.h"
+#include "util/io/key/KeyDecoder.h"
 
 void Util::Io::KeyboardLayout::parseKey(const uint8_t scancode, const uint8_t prefix, Key &key) const {
     if (scancode == 53 && prefix == KeyDecoder::PREFIX1) {

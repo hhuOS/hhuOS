@@ -23,7 +23,7 @@
 #include "DemoPolygon.h"
 #include "DemoPolygonFactory.h"
 #include "lib/util/io/key/Key.h"
-#include "lib/util/pulsar/Game.h"
+#include "lib/pulsar/Game.h"
 
 PolygonDemo::PolygonDemo(uint32_t initialCount) : initialCount(initialCount) {}
 
@@ -54,7 +54,7 @@ void PolygonDemo::keyPressed(const Util::Io::Key &key) {
             break;
         }
         case Util::Io::Key::ESC:
-            Util::Pulsar::Game::getInstance().stop();
+            Pulsar::Game::getInstance().stop();
             break;
         default:
             break;
@@ -63,4 +63,4 @@ void PolygonDemo::keyPressed(const Util::Io::Key &key) {
 
 void PolygonDemo::keyReleased([[maybe_unused]] const Util::Io::Key &key) {}
 
-void PolygonDemo::initializeBackground([[maybe_unused]] Util::Pulsar::Graphics &graphics) {}
+void PolygonDemo::initializeBackground([[maybe_unused]] Pulsar::Graphics &graphics) {}

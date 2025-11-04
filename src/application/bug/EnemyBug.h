@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/pulsar/2d/SpriteAnimation.h"
+#include "lib/pulsar/2d/SpriteAnimation.h"
 #include "Explosive.h"
 
 class Fleet;
@@ -60,11 +60,11 @@ public:
 
     void onUpdate(double delta) override;
 
-    void onTranslationEvent(Util::Pulsar::D2::TranslationEvent &event) override;
+    void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
 
-    void onCollisionEvent(Util::Pulsar::D2::CollisionEvent &event) override;
+    void onCollisionEvent(Pulsar::D2::CollisionEvent &event) override;
 
-    void draw(Util::Pulsar::Graphics &graphics) const override;
+    void draw(Pulsar::Graphics &graphics) const override;
 
     void fireMissile();
 
@@ -74,7 +74,7 @@ public:
 
 private:
 
-    Util::Pulsar::D2::SpriteAnimation animation;
+    Pulsar::D2::SpriteAnimation animation;
     Fleet &fleet;
 
     double lastMissileRollTime = 0;

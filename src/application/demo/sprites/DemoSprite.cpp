@@ -21,26 +21,26 @@
 #include "DemoSprite.h"
 
 #include "lib/util/collection/Array.h"
-#include "lib/util/pulsar/2d/Sprite.h"
+#include "lib/pulsar/2d/Sprite.h"
 #include "lib/util/base/String.h"
 
 DemoSprite::DemoSprite(const Util::Math::Vector2<double> &position, double size, double rotationSpeed, double scaleSpeed, bool flipX)
-        : Util::Pulsar::D2::Entity(TAG, position), initialPosition(position), size(size), rotationSpeed(rotationSpeed), scaleSpeed(scaleSpeed), flipX(flipX) {}
+        : Pulsar::D2::Entity(TAG, position), initialPosition(position), size(size), rotationSpeed(rotationSpeed), scaleSpeed(scaleSpeed), flipX(flipX) {}
 
 void DemoSprite::initialize() {
-    animation = Util::Pulsar::D2::SpriteAnimation(Util::Array<Util::Pulsar::D2::Sprite>({
-        Util::Pulsar::D2::Sprite("/user/dino/player/run1.bmp", 0.2, 0.2267),
-        Util::Pulsar::D2::Sprite("/user/dino/player/run2.bmp", 0.2, 0.2267),
-        Util::Pulsar::D2::Sprite("/user/dino/player/run3.bmp", 0.2, 0.2267),
-        Util::Pulsar::D2::Sprite("/user/dino/player/run4.bmp", 0.2, 0.2267),
-        Util::Pulsar::D2::Sprite("/user/dino/player/run5.bmp", 0.2, 0.2267),
-        Util::Pulsar::D2::Sprite("/user/dino/player/run6.bmp", 0.2, 0.2267),
-        Util::Pulsar::D2::Sprite("/user/dino/player/dash1.bmp", 0.24, 0.2),
-        Util::Pulsar::D2::Sprite("/user/dino/player/dash2.bmp", 0.24, 0.2),
-        Util::Pulsar::D2::Sprite("/user/dino/player/dash3.bmp", 0.24, 0.2),
-        Util::Pulsar::D2::Sprite("/user/dino/player/dash4.bmp", 0.24, 0.2),
-        Util::Pulsar::D2::Sprite("/user/dino/player/dash5.bmp", 0.24, 0.2),
-        Util::Pulsar::D2::Sprite("/user/dino/player/dash6.bmp", 0.24, 0.2)}), 1.0);
+    animation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({
+        Pulsar::D2::Sprite("/user/dino/player/run1.bmp", 0.2, 0.2267),
+        Pulsar::D2::Sprite("/user/dino/player/run2.bmp", 0.2, 0.2267),
+        Pulsar::D2::Sprite("/user/dino/player/run3.bmp", 0.2, 0.2267),
+        Pulsar::D2::Sprite("/user/dino/player/run4.bmp", 0.2, 0.2267),
+        Pulsar::D2::Sprite("/user/dino/player/run5.bmp", 0.2, 0.2267),
+        Pulsar::D2::Sprite("/user/dino/player/run6.bmp", 0.2, 0.2267),
+        Pulsar::D2::Sprite("/user/dino/player/dash1.bmp", 0.24, 0.2),
+        Pulsar::D2::Sprite("/user/dino/player/dash2.bmp", 0.24, 0.2),
+        Pulsar::D2::Sprite("/user/dino/player/dash3.bmp", 0.24, 0.2),
+        Pulsar::D2::Sprite("/user/dino/player/dash4.bmp", 0.24, 0.2),
+        Pulsar::D2::Sprite("/user/dino/player/dash5.bmp", 0.24, 0.2),
+        Pulsar::D2::Sprite("/user/dino/player/dash6.bmp", 0.24, 0.2)}), 1.0);
 
     if (flipX) {
         animation.flipX();
@@ -63,10 +63,10 @@ void DemoSprite::onUpdate(double delta) {
     setPosition(initialPosition + Util::Math::Vector2<double>(positionOffset, positionOffset));
 }
 
-void DemoSprite::draw(Util::Pulsar::Graphics &graphics) const {
+void DemoSprite::draw(Pulsar::Graphics &graphics) const {
     animation.draw(graphics, getPosition());
 }
 
-void DemoSprite::onTranslationEvent([[maybe_unused]] Util::Pulsar::D2::TranslationEvent &event) {}
+void DemoSprite::onTranslationEvent([[maybe_unused]] Pulsar::D2::TranslationEvent &event) {}
 
-void DemoSprite::onCollisionEvent([[maybe_unused]] Util::Pulsar::D2::CollisionEvent &event) {}
+void DemoSprite::onCollisionEvent([[maybe_unused]] Pulsar::D2::CollisionEvent &event) {}

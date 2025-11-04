@@ -20,9 +20,9 @@
 
 #include "WidgetApplication.h"
 
-#include "base/System.h"
-#include "io/key/MouseDecoder.h"
-#include "graphic/Colors.h"
+#include "util/base/System.h"
+#include "util/io/key/MouseDecoder.h"
+#include "util/graphic/Colors.h"
 
 WidgetApplication::WidgetApplication(Util::Graphic::LinearFrameBuffer &lfb, const size_t width, const size_t height) :
     Container(width, height), lfb(lfb), bufferedLfb(lfb), mouseInputStream("/device/mouse")

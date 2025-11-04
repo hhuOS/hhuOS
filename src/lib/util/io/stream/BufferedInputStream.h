@@ -24,7 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "io/stream/FilterInputStream.h"
+#include "util/io/stream/FilterInputStream.h"
 
 namespace Util::Io {
 

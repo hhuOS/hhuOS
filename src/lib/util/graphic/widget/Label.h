@@ -26,10 +26,10 @@
 
 #include <stddef.h>
 
-#include "base/String.h"
-#include "graphic/font/Terminal8x8.h"
-#include "graphic/LinearFrameBuffer.h"
-#include "graphic/widget/Widget.h"
+#include "util/base/String.h"
+#include "util/graphic/font/Terminal8x8.h"
+#include "util/graphic/LinearFrameBuffer.h"
+#include "util/graphic/widget/Widget.h"
 
 namespace Util::Graphic {
 

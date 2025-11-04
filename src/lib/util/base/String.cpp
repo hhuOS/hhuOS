@@ -23,13 +23,13 @@
 #include "CharacterTypes.h"
 #include "WideChar.h"
 #include "lib/interface.h"
-#include "base/Address.h"
-#include "base/Panic.h"
-#include "collection/Array.h"
-#include "collection/ArrayList.h"
-#include "io/stream/ByteArrayOutputStream.h"
-#include "io/stream/PrintStream.h"
-#include "math/Math.h"
+#include "util/base/Address.h"
+#include "util/base/Panic.h"
+#include "util/collection/Array.h"
+#include "util/collection/ArrayList.h"
+#include "util/io/stream/ByteArrayOutputStream.h"
+#include "util/io/stream/PrintStream.h"
+#include "util/math/Math.h"
 
 namespace Util {
 

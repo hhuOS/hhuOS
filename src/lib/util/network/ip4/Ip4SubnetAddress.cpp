@@ -20,9 +20,9 @@
 
 #include "Ip4SubnetAddress.h"
 
-#include "base/Address.h"
-#include "collection/Array.h"
-#include "network/ip4/Ip4Address.h"
+#include "util/base/Address.h"
+#include "util/collection/Array.h"
+#include "util/network/ip4/Ip4Address.h"
 
 namespace Util::Network::Ip4 {
 

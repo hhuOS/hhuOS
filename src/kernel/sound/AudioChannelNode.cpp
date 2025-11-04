@@ -23,7 +23,7 @@
 
 #include "AudioChannelNode.h"
 
-#include "sound/AudioChannel.h"
+#include "util/sound/AudioChannel.h"
 
 namespace Kernel {
 

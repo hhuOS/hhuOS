@@ -23,8 +23,8 @@
 
 #include <stdint.h>
 
-#include "lib/util/pulsar/2d/Entity.h"
-#include "lib/util/pulsar/2d/Sprite.h"
+#include "lib/pulsar/2d/Entity.h"
+#include "lib/pulsar/2d/Sprite.h"
 
 class Ship;
 namespace Util {
@@ -33,7 +33,7 @@ template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
-class PlayerMissile : public Util::Pulsar::D2::Entity {
+class PlayerMissile : public Pulsar::D2::Entity {
 
 public:
     /**
@@ -60,11 +60,11 @@ public:
 
     void onUpdate(double delta) override;
 
-    void onTranslationEvent(Util::Pulsar::D2::TranslationEvent &event) override;
+    void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
 
-    void onCollisionEvent(Util::Pulsar::D2::CollisionEvent &event) override;
+    void onCollisionEvent(Pulsar::D2::CollisionEvent &event) override;
 
-    void draw(Util::Pulsar::Graphics &graphics) const override;
+    void draw(Pulsar::Graphics &graphics) const override;
 
     static const constexpr uint32_t TAG = 1;
     static const constexpr double SIZE_X = 0.03;
@@ -72,7 +72,7 @@ public:
 
 private:
 
-    Util::Pulsar::D2::Sprite sprite;
+    Pulsar::D2::Sprite sprite;
     Ship &ship;
 };
 

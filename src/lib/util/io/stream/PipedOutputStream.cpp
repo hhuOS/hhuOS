@@ -20,8 +20,8 @@
 
 #include "PipedOutputStream.h"
 
-#include "base/Panic.h"
-#include "io/stream/PipedInputStream.h"
+#include "util/base/Panic.h"
+#include "util/io/stream/PipedInputStream.h"
 
 namespace Util::Io {
 

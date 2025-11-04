@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#include "network/ip4/Ip4Address.h"
+#include "util/network/ip4/Ip4Address.h"
 
 namespace Util {
 namespace Io {

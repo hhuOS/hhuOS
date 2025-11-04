@@ -21,8 +21,8 @@
 #ifndef HHUOS_LIB_UTIL_POOL_H
 #define HHUOS_LIB_UTIL_POOL_H
 
-#include "async/AtomicBitmap.h"
-#include "collection/Array.h"
+#include "util/async/AtomicBitmap.h"
+#include "util/collection/Array.h"
 
 #include "Pair.h"
 

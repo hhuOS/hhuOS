@@ -23,22 +23,22 @@
 
 #include "Player.h"
 
-#include "lib/util/pulsar/3d/event/CollisionEvent.h"
+#include "lib/pulsar/3d/event/CollisionEvent.h"
 #include "lib/util/math/Math.h"
-#include "lib/util/pulsar/3d/Util.h"
+#include "lib/pulsar/3d/Utility.h"
 #include "Missile.h"
 #include "Astronomical.h"
 #include "application/battlespace/Enemy.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/ArrayList.h"
-#include "lib/util/pulsar/3d/collider/SphereCollider.h"
-#include "lib/util/pulsar/Graphics.h"
+#include "lib/pulsar/3d/collider/SphereCollider.h"
+#include "lib/pulsar/Graphics.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/math/Vector2.h"
-#include "lib/util/pulsar/Scene.h"
-#include "lib/util/pulsar/Camera.h"
+#include "lib/pulsar/Scene.h"
+#include "lib/pulsar/Camera.h"
 
-Player::Player(const Util::ArrayList<Enemy *> &enemies) : Util::Pulsar::D3::Entity(TAG, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Pulsar::D3::SphereCollider(Util::Math::Vector3<double>(0, 0, 0), 0.8)), enemies(enemies) {}
+Player::Player(const Util::ArrayList<Enemy *> &enemies) : Pulsar::D3::Entity(TAG, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Pulsar::D3::SphereCollider(Util::Math::Vector3<double>(0, 0, 0), 0.8)), enemies(enemies) {}
 
 void Player::initialize() {}
 
@@ -47,13 +47,13 @@ void Player::onUpdate(double delta) {
     if (missileTimer > 0) missileTimer -= delta;
 }
 
-void Player::draw(Util::Pulsar::Graphics &graphics) const {
+void Player::draw(Pulsar::Graphics &graphics) const {
     const auto dimensions = graphics.getDimensions();
     graphics.setColor(Util::Graphic::Colors::GREEN);
 
     // Draw reticle
     auto raytraceDirection = getScene().getCamera().getFrontVector();
-    auto *aimTarget = Util::Pulsar::D3::Util::findEntityUsingRaytrace(reinterpret_cast<const Util::ArrayList<Util::Pulsar::D3::Entity*>&>(enemies), getPosition() + raytraceDirection, raytraceDirection, 20, 0.1);
+    auto *aimTarget = Pulsar::D3::Utility::findEntityUsingRaytrace(reinterpret_cast<const Util::ArrayList<Pulsar::D3::Entity*>&>(enemies), getPosition() + raytraceDirection, raytraceDirection, 20, 0.1);
 
     if (aimTarget != nullptr) {
         graphics.setColor(Util::Graphic::Colors::RED);
@@ -71,7 +71,7 @@ void Player::draw(Util::Pulsar::Graphics &graphics) const {
     graphics.drawStringDirect(Util::Math::Vector2<double>(-dimensions.getX() + 0.05, 0.9), Util::String::format("Score   : %d", score));
     graphics.drawStringDirect(Util::Math::Vector2<double>(-dimensions.getX() + 0.05, 0.85), Util::String::format("Enemies : %d", enemies.size()));
 
-    const auto relativeCharWidth = static_cast<double>(Util::Pulsar::Graphics::FONT_SIZE) / graphics.getTransformation();
+    const auto relativeCharWidth = static_cast<double>(Pulsar::Graphics::FONT_SIZE) / graphics.getTransformation();
     const auto healthBarStart = -dimensions.getX() + 0.05 + 10 * relativeCharWidth;
     graphics.drawRectangleDirect(Util::Math::Vector2<double>(healthBarStart, 0.95), Util::Math::Vector2<double>(0.3, -0.025));
     graphics.fillRectangleDirect(Util::Math::Vector2<double>(healthBarStart, 0.95), Util::Math::Vector2<double>(0.3 * (getHealth() / 100.0), -0.025));
@@ -116,7 +116,7 @@ void Player::draw(Util::Pulsar::Graphics &graphics) const {
     }
 }
 
-void Player::onCollisionEvent(Util::Pulsar::D3::CollisionEvent &event) {
+void Player::onCollisionEvent(Pulsar::D3::CollisionEvent &event) {
     switch (event.getCollidedWidth().getTag()) {
         case Missile::TAG:
             takeDamage(10);

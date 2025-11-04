@@ -23,9 +23,9 @@
 
 #include <stdint.h>
 
-#include "io/file/File.h"
-#include "io/stream/FileOutputStream.h"
-#include "time/Timestamp.h"
+#include "util/io/file/File.h"
+#include "util/io/stream/FileOutputStream.h"
+#include "util/time/Timestamp.h"
 
 namespace Util::Sound {
 

@@ -26,8 +26,8 @@
 
 #include <stdint.h>
 
-#include "network/Datagram.h"
-#include "network/icmp/IcmpHeader.h"
+#include "util/network/Datagram.h"
+#include "util/network/icmp/IcmpHeader.h"
 
 namespace Util {
 namespace Io {

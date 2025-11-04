@@ -22,13 +22,13 @@
 
 #include "lib/util/base/System.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/pulsar/Engine.h"
+#include "lib/pulsar/Engine.h"
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/pulsar/Game.h"
+#include "lib/pulsar/Game.h"
 #include "application/demo/polygons/PolygonDemo.h"
 #include "application/demo/sprites/SpriteDemo.h"
 #include "application/demo/ant/Ant.h"
@@ -94,18 +94,18 @@ int32_t main(int32_t argc, char *argv[]) {
         widgetDemo.run();
     } else {
         auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseFloat<double>(argumentParser.getArgument("scale")) : 1.0;
-        auto engine = Util::Pulsar::Engine(lfb, 60, scaleFactor);
+        auto engine = Pulsar::Engine(lfb, 60, scaleFactor);
 
         if (demo == "opengl") {
-            Util::Pulsar::Game::getInstance().pushScene(new OpenGlDemo());
+            Pulsar::Game::getInstance().pushScene(new OpenGlDemo());
         } else if (demo == "particles") {
-            Util::Pulsar::Game::getInstance().pushScene(new ParticleDemo());
+            Pulsar::Game::getInstance().pushScene(new ParticleDemo());
         } else if (demo == "polygons") {
             auto initialCount = arguments.length() > 1 ? Util::String::parseNumber<uint32_t>(arguments[1]) : 10;
-            Util::Pulsar::Game::getInstance().pushScene(new PolygonDemo(initialCount));
+            Pulsar::Game::getInstance().pushScene(new PolygonDemo(initialCount));
         } else if (demo == "sprites") {
             auto initialCount = arguments.length() > 1 ? Util::String::parseNumber<uint32_t>(arguments[1]) : 10;
-            Util::Pulsar::Game::getInstance().pushScene(new SpriteDemo(initialCount));
+            Pulsar::Game::getInstance().pushScene(new SpriteDemo(initialCount));
         } else {
             Util::System::error << "demo: Invalid demo '" << demo << "'!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
             return -1;

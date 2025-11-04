@@ -21,8 +21,8 @@
 #ifndef HHUOS_LIB_UTIL_ARRAY_QUEUE_H
 #define HHUOS_LIB_UTIL_ARRAY_QUEUE_H
 
-#include "async/Thread.h"
-#include "collection/Queue.h"
+#include "util/async/Thread.h"
+#include "util/collection/Queue.h"
 
 namespace Util {
 

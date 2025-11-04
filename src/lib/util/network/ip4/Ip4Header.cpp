@@ -23,9 +23,9 @@
 
 #include "Ip4Header.h"
 
-#include "io/stream/InputStream.h"
+#include "util/io/stream/InputStream.h"
 #include "../../io/stream/NumberUtil.h"
-#include "network/ip4/Ip4Address.h"
+#include "util/network/ip4/Ip4Address.h"
 
 namespace Util {
 namespace Io {

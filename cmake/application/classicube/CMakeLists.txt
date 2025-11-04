@@ -158,7 +158,7 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/Widgets.c
         ${HHUOS_SRC_DIR}/application/classicube/ClassiCube/src/World.c)
 
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib/libc ${HHUOS_SRC_DIR}/lib/util)
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 

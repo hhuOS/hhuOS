@@ -21,7 +21,7 @@
 #ifndef HHUOS_LIB_UTIL_MATH_VECTOR3_H
 #define HHUOS_LIB_UTIL_MATH_VECTOR3_H
 
-#include "math/Vector2.h"
+#include "util/math/Vector2.h"
 
 namespace Util::Math {
 

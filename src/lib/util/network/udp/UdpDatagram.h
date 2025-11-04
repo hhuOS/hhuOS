@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#include "network/Datagram.h"
+#include "util/network/Datagram.h"
 
 namespace Util {
 namespace Io {

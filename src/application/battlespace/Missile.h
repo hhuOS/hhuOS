@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/pulsar/3d/Model.h"
+#include "lib/pulsar/3d/Model.h"
 
 class Player;
 namespace Util {
@@ -35,7 +35,7 @@ template <typename T> class Vector3;
 }  // namespace Math
 }  // namespace Util
 
-class Missile : public Util::Pulsar::D3::Model {
+class Missile : public Pulsar::D3::Model {
 
 public:
     /**
@@ -65,7 +65,7 @@ public:
 
     void onUpdate(double delta) override;
 
-    void onCollisionEvent(Util::Pulsar::D3::CollisionEvent &event) override;
+    void onCollisionEvent(Pulsar::D3::CollisionEvent &event) override;
 
     static const constexpr uint32_t TAG = 2;
 

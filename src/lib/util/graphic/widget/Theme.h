@@ -24,8 +24,8 @@
 #ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_THEME_H
 #define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_THEME_H
 
-#include "graphic/Colors.h"
-#include "graphic/widget/Widget.h"
+#include "util/graphic/Colors.h"
+#include "util/graphic/widget/Widget.h"
 
 namespace Util::Graphic {
 

@@ -20,8 +20,8 @@
 
 #include "PcSpeaker.h"
 
-#include "async/Thread.h"
-#include "base/String.h"
+#include "util/async/Thread.h"
+#include "util/base/String.h"
 
 namespace Util::Sound {
 

@@ -21,9 +21,9 @@
 #include "FreeListMemoryManager.h"
 
 #include "lib/interface.h"
-#include "base/Address.h"
-#include "base/Constants.h"
-#include "base/Panic.h"
+#include "util/base/Address.h"
+#include "util/base/Constants.h"
+#include "util/base/Panic.h"
 
 namespace Util {
 

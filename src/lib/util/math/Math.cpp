@@ -22,8 +22,8 @@
 
 #include "Math.h"
 
-#include "base/Address.h"
-#include "base/Panic.h"
+#include "util/base/Address.h"
+#include "util/base/Panic.h"
 
 namespace Util::Math {
 

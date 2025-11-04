@@ -25,11 +25,11 @@
 #define HHUOS_AUDIOMIXER_H
 
 #include "AudioChannel.h"
-#include "async/AtomicBitmap.h"
-#include "collection/ArrayList.h"
+#include "util/async/AtomicBitmap.h"
+#include "util/collection/ArrayList.h"
 #include "device/sound/PcmDevice.h"
 #include "kernel/process/Thread.h"
-#include "io/file/File.h"
+#include "util/io/file/File.h"
 
 namespace Kernel {
 

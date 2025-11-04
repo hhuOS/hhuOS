@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#include "network/NetworkAddress.h"
+#include "util/network/NetworkAddress.h"
 
 namespace Util {
 namespace Io {

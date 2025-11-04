@@ -27,11 +27,11 @@
 #include <stdint.h>
 
 #include "Room.h"
-#include "lib/util/pulsar/3d/Entity.h"
+#include "lib/pulsar/3d/Entity.h"
 
 class Player;
 
-class Hud : public Util::Pulsar::D3::Entity {
+class Hud : public Pulsar::D3::Entity {
 
 public:
     /**
@@ -56,9 +56,9 @@ public:
 
     void initialize() override;
 
-    void draw(Util::Pulsar::Graphics &graphics) const override;
+    void draw(Pulsar::Graphics &graphics) const override;
 
-    void onCollisionEvent(Util::Pulsar::D3::CollisionEvent &event) override;
+    void onCollisionEvent(Pulsar::D3::CollisionEvent &event) override;
 
     void onUpdate(double delta) override;
 

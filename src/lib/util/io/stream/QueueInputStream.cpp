@@ -20,7 +20,7 @@
 
 #include "QueueInputStream.h"
 
-#include "collection/Queue.h"
+#include "util/collection/Queue.h"
 
 namespace Util::Io {
 

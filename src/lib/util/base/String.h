@@ -24,11 +24,11 @@
 #include <stddef.h>
 #include <stdarg.h>
 
-#include "base/Address.h"
-#include "base/CharacterTypes.h"
-#include "collection/Array.h"
-#include "io/stream/OutputStream.h"
-#include "time/Date.h"
+#include "util/base/Address.h"
+#include "util/base/CharacterTypes.h"
+#include "util/collection/Array.h"
+#include "util/io/stream/OutputStream.h"
+#include "util/time/Date.h"
 
 namespace Util {
 

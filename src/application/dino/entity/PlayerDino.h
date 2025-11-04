@@ -26,8 +26,8 @@
 
 #include <stdint.h>
 
-#include "lib/util/pulsar/2d/SpriteAnimation.h"
-#include "lib/util/pulsar/2d/Entity.h"
+#include "lib/pulsar/2d/SpriteAnimation.h"
+#include "lib/pulsar/2d/Entity.h"
 #include "application/dino/particle/GrassEmitter.h"
 #include "lib/util/time/Timestamp.h"
 
@@ -37,7 +37,7 @@ template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
-class PlayerDino : public Util::Pulsar::D2::Entity {
+class PlayerDino : public Pulsar::D2::Entity {
 
 public:
 
@@ -98,11 +98,11 @@ public:
 
     void addPoints(uint32_t points);
 
-    void onTranslationEvent(Util::Pulsar::D2::TranslationEvent &event) override;
+    void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
 
-    void onCollisionEvent(Util::Pulsar::D2::CollisionEvent &event) override;
+    void onCollisionEvent(Pulsar::D2::CollisionEvent &event) override;
 
-    void draw(Util::Pulsar::Graphics &graphics) const override;
+    void draw(Pulsar::Graphics &graphics) const override;
 
     static const constexpr uint32_t TAG = 0;
     static const constexpr double SIZE = 0.1;
@@ -121,13 +121,13 @@ private:
     uint32_t points = 0;
 
     double time = 0;
-    Util::Pulsar::D2::SpriteAnimation *currentAnimation = &eggAnimation;
-    Util::Pulsar::D2::SpriteAnimation idleAnimation;
-    Util::Pulsar::D2::SpriteAnimation runAnimation;
-    Util::Pulsar::D2::SpriteAnimation eggAnimation;
-    Util::Pulsar::D2::SpriteAnimation crackAnimation;
-    Util::Pulsar::D2::SpriteAnimation hatchAnimation;
-    Util::Pulsar::D2::SpriteAnimation deathAnimation;
+    Pulsar::D2::SpriteAnimation *currentAnimation = &eggAnimation;
+    Pulsar::D2::SpriteAnimation idleAnimation;
+    Pulsar::D2::SpriteAnimation runAnimation;
+    Pulsar::D2::SpriteAnimation eggAnimation;
+    Pulsar::D2::SpriteAnimation crackAnimation;
+    Pulsar::D2::SpriteAnimation hatchAnimation;
+    Pulsar::D2::SpriteAnimation deathAnimation;
 
     GrassEmitter *grassEmitter = new GrassEmitter(*this);
     Util::Time::Timestamp lastEmissionTime;

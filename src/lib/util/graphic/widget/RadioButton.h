@@ -24,10 +24,10 @@
 #ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_RADIOBUTTON_H
 #define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_RADIOBUTTON_H
 
-#include "base/String.h"
-#include "graphic/font/Terminal8x8.h"
-#include "graphic/widget/Theme.h"
-#include "graphic/widget/Widget.h"
+#include "util/base/String.h"
+#include "util/graphic/font/Terminal8x8.h"
+#include "util/graphic/widget/Theme.h"
+#include "util/graphic/widget/Widget.h"
 
 namespace Util::Graphic {
 

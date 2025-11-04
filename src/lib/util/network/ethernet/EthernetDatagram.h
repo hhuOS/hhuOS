@@ -26,8 +26,8 @@
 
 #include <stdint.h>
 
-#include "network/Datagram.h"
-#include "network/ethernet/EthernetHeader.h"
+#include "util/network/Datagram.h"
+#include "util/network/ethernet/EthernetHeader.h"
 
 namespace Util {
 namespace Io {

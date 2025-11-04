@@ -21,18 +21,18 @@
 #include "GrassEmitter.h"
 
 #include "lib/util/math/Math.h"
-#include "lib/util/pulsar/2d/component/GravityComponent.h"
+#include "lib/pulsar/2d/component/GravityComponent.h"
 #include "lib/util/base/String.h"
-#include "lib/util/pulsar/2d/Sprite.h"
-#include "lib/util/pulsar/2d/collider/RectangleCollider.h"
-#include "lib/util/pulsar/2d/particle/Particle.h"
-#include "lib/util/pulsar/2d/event/CollisionEvent.h"
-#include "lib/util/pulsar/Collider.h"
+#include "lib/pulsar/2d/Sprite.h"
+#include "lib/pulsar/2d/collider/RectangleCollider.h"
+#include "lib/pulsar/2d/particle/Particle.h"
+#include "lib/pulsar/2d/event/CollisionEvent.h"
+#include "lib/pulsar/Collider.h"
 #include "lib/util/math/Vector2.h"
 #include "application/dino/entity/Block.h"
-#include "lib/util/pulsar/2d/Entity.h"
+#include "lib/pulsar/2d/Entity.h"
 
-GrassEmitter::GrassEmitter(const Entity &parent) : Util::Pulsar::D2::Emitter(TAG, PARTICLE_TAG, parent.getPosition(), -1), parent(parent) {}
+GrassEmitter::GrassEmitter(const Entity &parent) : Pulsar::D2::Emitter(TAG, PARTICLE_TAG, parent.getPosition(), -1), parent(parent) {}
 
 void GrassEmitter::initialize() {
     setMinEmissionRate(0);
@@ -40,34 +40,34 @@ void GrassEmitter::initialize() {
     setEmissionTime(-1);
 }
 
-void GrassEmitter::draw([[maybe_unused]] Util::Pulsar::Graphics &graphics) const {}
+void GrassEmitter::draw([[maybe_unused]] Pulsar::Graphics &graphics) const {}
 
-void GrassEmitter::onTranslationEvent([[maybe_unused]] Util::Pulsar::D2::TranslationEvent &event) {}
+void GrassEmitter::onTranslationEvent([[maybe_unused]] Pulsar::D2::TranslationEvent &event) {}
 
-void GrassEmitter::onCollisionEvent([[maybe_unused]] Util::Pulsar::D2::CollisionEvent &event) {}
+void GrassEmitter::onCollisionEvent([[maybe_unused]] Pulsar::D2::CollisionEvent &event) {}
 
-void GrassEmitter::onParticleInitialization(Util::Pulsar::D2::Particle &particle) {
+void GrassEmitter::onParticleInitialization(Pulsar::D2::Particle &particle) {
     auto angle = random.getRandomNumber() * (Util::Math::PI_DOUBLE / 4) + (Util::Math::PI_DOUBLE / 8);
     auto velocityX = (Util::Math::cosine(angle) / 8) * (parent.getVelocity().getX() > 0 ? -1 : 1);
     auto velocityY = Util::Math::sine(angle);
 
-    particle.setSprite(Util::Pulsar::D2::Sprite("/user/dino/particle/grass.bmp", PARTICLE_SIZE, PARTICLE_SIZE));
+    particle.setSprite(Pulsar::D2::Sprite("/user/dino/particle/grass.bmp", PARTICLE_SIZE, PARTICLE_SIZE));
     particle.setPosition(parent.getPosition());
     particle.setVelocity(Util::Math::Vector2<double>(velocityX, velocityY));
     particle.setTimeToLive(10);
-    particle.setCollider(Util::Pulsar::D2::RectangleCollider(particle.getPosition(), Util::Math::Vector2<double>(PARTICLE_SIZE, PARTICLE_SIZE), Util::Pulsar::Collider::PERMEABLE));
+    particle.setCollider(Pulsar::D2::RectangleCollider(particle.getPosition(), Util::Math::Vector2<double>(PARTICLE_SIZE, PARTICLE_SIZE), Pulsar::Collider::PERMEABLE));
 
-    particle.addComponent(new Util::Pulsar::D2::GravityComponent(particle, 2.5, 0.0025));
+    particle.addComponent(new Pulsar::D2::GravityComponent(particle, 2.5, 0.0025));
 }
 
-void GrassEmitter::onParticleUpdate(Util::Pulsar::D2::Particle &particle, double delta) {
+void GrassEmitter::onParticleUpdate(Pulsar::D2::Particle &particle, double delta) {
     particle.setAlpha(particle.getAlpha() - 1 * delta);
 }
 
-void GrassEmitter::onParticleCollision(Util::Pulsar::D2::Particle &particle, Util::Pulsar::D2::CollisionEvent &event) {
+void GrassEmitter::onParticleCollision(Pulsar::D2::Particle &particle, Pulsar::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == Block::GRASS || event.getCollidedWidth().getTag() == Block::DIRT || event.getCollidedWidth().getTag() == Block::WATER) {
         removeParticle(&particle);
     }
 }
 
-void GrassEmitter::onParticleDestruction([[maybe_unused]] Util::Pulsar::D2::Particle &particle) {}
+void GrassEmitter::onParticleDestruction([[maybe_unused]] Pulsar::D2::Particle &particle) {}

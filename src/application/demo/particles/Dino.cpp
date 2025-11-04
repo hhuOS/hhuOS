@@ -25,20 +25,20 @@
 
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/pulsar/2d/Sprite.h"
-#include "lib/util/pulsar/2d/collider/RectangleCollider.h"
-#include "lib/util/pulsar/Collider.h"
+#include "lib/pulsar/2d/Sprite.h"
+#include "lib/pulsar/2d/collider/RectangleCollider.h"
+#include "lib/pulsar/Collider.h"
 #include "lib/util/math/Vector2.h"
 
 Dino::Dino(const Util::Math::Vector2<double> &position, bool flipX) :
-        Util::Pulsar::D2::Entity(TAG, position, Util::Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE * 1.133), Util::Pulsar::Collider::STATIC)),
+        Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE * 1.133), Pulsar::Collider::STATIC)),
         flipX(flipX) {}
 
 void Dino::initialize() {
-    animation = Util::Pulsar::D2::SpriteAnimation(Util::Array<Util::Pulsar::D2::Sprite>({
-        Util::Pulsar::D2::Sprite("/user/dino/player/idle1.bmp", SIZE, SIZE * 1.333),
-        Util::Pulsar::D2::Sprite("/user/dino/player/idle2.bmp", SIZE, SIZE * 1.333),
-        Util::Pulsar::D2::Sprite("/user/dino/player/idle3.bmp", SIZE, SIZE * 1.333)}), 0.5);
+    animation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({
+        Pulsar::D2::Sprite("/user/dino/player/idle1.bmp", SIZE, SIZE * 1.333),
+        Pulsar::D2::Sprite("/user/dino/player/idle2.bmp", SIZE, SIZE * 1.333),
+        Pulsar::D2::Sprite("/user/dino/player/idle3.bmp", SIZE, SIZE * 1.333)}), 0.5);
 
     if (flipX) {
         animation.flipX();
@@ -49,10 +49,10 @@ void Dino::onUpdate(double delta) {
     animation.update(delta);
 }
 
-void Dino::onTranslationEvent([[maybe_unused]] Util::Pulsar::D2::TranslationEvent &event) {}
+void Dino::onTranslationEvent([[maybe_unused]] Pulsar::D2::TranslationEvent &event) {}
 
-void Dino::onCollisionEvent([[maybe_unused]] Util::Pulsar::D2::CollisionEvent &event) {}
+void Dino::onCollisionEvent([[maybe_unused]] Pulsar::D2::CollisionEvent &event) {}
 
-void Dino::draw(Util::Pulsar::Graphics &graphics) const {
+void Dino::draw(Pulsar::Graphics &graphics) const {
     animation.draw(graphics, getPosition());
 }

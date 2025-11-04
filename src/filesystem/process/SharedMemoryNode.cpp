@@ -22,7 +22,7 @@
 
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/Service.h"
-#include "async/SharedMemory.h"
+#include "util/async/SharedMemory.h"
 #include "lib/interface.h"
 
 namespace Filesystem::Process {

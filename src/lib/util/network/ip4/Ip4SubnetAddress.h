@@ -23,9 +23,9 @@
 
 #include <stdint.h>
 
-#include "base/String.h"
-#include "network/NetworkAddress.h"
-#include "network/ip4/Ip4Address.h"
+#include "util/base/String.h"
+#include "util/network/NetworkAddress.h"
+#include "util/network/ip4/Ip4Address.h"
 
 namespace Util::Network::Ip4 {
 

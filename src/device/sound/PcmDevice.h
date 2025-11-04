@@ -21,9 +21,9 @@
 #ifndef PCMDEVICE_H
 #define PCMDEVICE_H
 
-#include "io/stream/FilterOutputStream.h"
-#include "io/stream/PipedInputStream.h"
-#include "io/stream/PipedOutputStream.h"
+#include "util/io/stream/FilterOutputStream.h"
+#include "util/io/stream/PipedInputStream.h"
+#include "util/io/stream/PipedOutputStream.h"
 
 namespace Device {
 

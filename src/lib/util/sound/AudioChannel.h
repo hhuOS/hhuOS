@@ -26,8 +26,8 @@
 
 #include <stddef.h>
 
-#include "io/file/File.h"
-#include "io/stream/FileOutputStream.h"
+#include "util/io/file/File.h"
+#include "util/io/stream/FileOutputStream.h"
 
 namespace Util::Sound {
 

@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#include "lib/util/pulsar/3d/Model.h"
+#include "lib/pulsar/3d/Model.h"
 #include "lib/util/base/String.h"
 #include "lib/util/math/Vector3.h"
 
@@ -36,7 +36,7 @@ class Color;
 }  // namespace Graphic
 }  // namespace Util
 
-class Astronomical : public Util::Pulsar::D3::Model {
+class Astronomical : public Pulsar::D3::Model {
 
 public:
     /**
@@ -61,7 +61,7 @@ public:
 
     void onUpdate(double delta) override;
 
-    void onCollisionEvent(Util::Pulsar::D3::CollisionEvent &event) override;
+    void onCollisionEvent(Pulsar::D3::CollisionEvent &event) override;
 
     static const constexpr uint32_t TAG = 1;
 

@@ -22,7 +22,7 @@
  */
 
 #include "lib/util/base/String.h"
-#include "lib/util/pulsar/Graphics.h"
+#include "lib/pulsar/Graphics.h"
 #include "lib/util/math/Vector2.h"
 #include "Hud.h"
 #include "Player.h"
@@ -41,8 +41,8 @@ Hud::Hud(Room::Type map[4][4], const Player &player) : Entity(TAG, Util::Math::V
 
 void Hud::initialize() {}
 
-void Hud::draw(Util::Pulsar::Graphics &graphics) const {
-    const auto charSize = Util::Pulsar::Graphics::FONT_SIZE / static_cast<double>(graphics.getTransformation());
+void Hud::draw(Pulsar::Graphics &graphics) const {
+    const auto charSize = Pulsar::Graphics::FONT_SIZE / static_cast<double>(graphics.getTransformation());
     const auto dimensions = graphics.getDimensions();
 
     graphics.setColor(Util::Graphic::Colors::WHITE);
@@ -94,4 +94,4 @@ void Hud::setCurrentPosition(uint32_t newRow, uint32_t newColumn) {
 
 void Hud::onUpdate([[maybe_unused]] double delta) {}
 
-void Hud::onCollisionEvent([[maybe_unused]] Util::Pulsar::D3::CollisionEvent &event) {}
+void Hud::onCollisionEvent([[maybe_unused]] Pulsar::D3::CollisionEvent &event) {}

@@ -20,8 +20,8 @@
 
 #include "Acpi.h"
 
-#include "base/Address.h"
-#include "base/Constants.h"
+#include "util/base/Address.h"
+#include "util/base/Constants.h"
 #include "lib/interface.h"
 
 namespace Util::Hardware::Acpi {

@@ -23,8 +23,8 @@
 
 #include "UdpDatagram.h"
 
-#include "network/ip4/Ip4PortAddress.h"
-#include "network/NetworkAddress.h"
+#include "util/network/ip4/Ip4PortAddress.h"
+#include "util/network/NetworkAddress.h"
 
 namespace Util {
 namespace Io {

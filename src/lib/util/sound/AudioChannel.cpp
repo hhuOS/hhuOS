@@ -22,7 +22,7 @@
  */
 
 #include "AudioChannel.h"
-#include "io/stream/FileInputStream.h"
+#include "util/io/stream/FileInputStream.h"
 
 namespace Util::Sound {
 

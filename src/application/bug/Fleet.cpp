@@ -19,7 +19,7 @@
  */
 
 #include "Fleet.h"
-#include "lib/util/pulsar/Game.h"
+#include "lib/pulsar/Game.h"
 #include "GameOverScreen.h"
 
 Fleet::Fleet(uint32_t size, double initialSpeed) : size(size), velocity(initialSpeed) {}
@@ -44,7 +44,7 @@ void Fleet::decreaseSize() {
 
 void Fleet::applyChanges() {
     if (size == 0) {
-        auto &game = Util::Pulsar::Game::getInstance();
+        auto &game = Pulsar::Game::getInstance();
         game.pushScene(new GameOverScreen(true));
         game.switchToNextScene();
     }

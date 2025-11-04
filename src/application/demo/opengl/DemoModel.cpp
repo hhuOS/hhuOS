@@ -20,7 +20,7 @@
 
 #include "DemoModel.h"
 
-#include "lib/util/pulsar/Graphics.h"
+#include "lib/pulsar/Graphics.h"
 #include "lib/util/base/Panic.h"
 #include "lib/util/base/String.h"
 #include "lib/util/math/Vector3.h"
@@ -38,25 +38,25 @@ void DemoModel::initialize() {
     switch (type) {
         case TREE:
             if (TREE_DRAW_LIST_ID == UINT32_MAX) {
-                TREE_DRAW_LIST_ID = Util::Pulsar::Graphics::startList3D();
-                Util::Pulsar::Graphics::listModel3D(*this);
-                Util::Pulsar::Graphics::endList3D();
+                TREE_DRAW_LIST_ID = Pulsar::Graphics::startList3D();
+                Pulsar::Graphics::listModel3D(*this);
+                Pulsar::Graphics::endList3D();
             }
             drawListID = TREE_DRAW_LIST_ID;
             break;
         case LANTERN:
             if (LANTERN_DRAW_LIST_ID == UINT32_MAX) {
-                LANTERN_DRAW_LIST_ID = Util::Pulsar::Graphics::startList3D();
-                Util::Pulsar::Graphics::listModel3D(*this);
-                Util::Pulsar::Graphics::endList3D();
+                LANTERN_DRAW_LIST_ID = Pulsar::Graphics::startList3D();
+                Pulsar::Graphics::listModel3D(*this);
+                Pulsar::Graphics::endList3D();
             }
             drawListID = LANTERN_DRAW_LIST_ID;
             break;
         case ICOSPHERE:
             if (ICOSPHERE_DRAW_LIST_ID == UINT32_MAX) {
-                ICOSPHERE_DRAW_LIST_ID = Util::Pulsar::Graphics::startList3D();
-                Util::Pulsar::Graphics::listModel3D(*this);
-                Util::Pulsar::Graphics::endList3D();
+                ICOSPHERE_DRAW_LIST_ID = Pulsar::Graphics::startList3D();
+                Pulsar::Graphics::listModel3D(*this);
+                Pulsar::Graphics::endList3D();
             }
             drawListID = ICOSPHERE_DRAW_LIST_ID;
             break;
@@ -65,7 +65,7 @@ void DemoModel::initialize() {
     }
 }
 
-void DemoModel::draw(Util::Pulsar::Graphics &graphics) const {
+void DemoModel::draw(Pulsar::Graphics &graphics) const {
     graphics.setColor(color);
     graphics.drawList3D(getPosition(), getScale(), getRotation(), drawListID);
 }
@@ -77,7 +77,7 @@ void DemoModel::onUpdate([[maybe_unused]] double delta) {
     }
 }
 
-void DemoModel::onCollisionEvent([[maybe_unused]] Util::Pulsar::D3::CollisionEvent &event) {}
+void DemoModel::onCollisionEvent([[maybe_unused]] Pulsar::D3::CollisionEvent &event) {}
 
 const char* DemoModel::pathForType(Type type) {
     switch (type) {

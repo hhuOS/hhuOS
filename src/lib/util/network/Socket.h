@@ -26,8 +26,8 @@
 
 #include <stdint.h>
 
-#include "io/file/File.h"
-#include "time/Timestamp.h"
+#include "util/io/file/File.h"
+#include "util/time/Timestamp.h"
 
 namespace Util {
 template <typename T> class Array;

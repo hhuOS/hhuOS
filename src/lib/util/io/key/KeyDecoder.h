@@ -27,8 +27,8 @@
 
 #include <stdint.h>
 
-#include "io/key/Key.h"
-#include "io/key/KeyboardLayout.h"
+#include "util/io/key/Key.h"
+#include "util/io/key/KeyboardLayout.h"
 
 namespace Util::Io {
 

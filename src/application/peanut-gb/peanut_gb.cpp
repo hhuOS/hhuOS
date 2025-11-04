@@ -23,7 +23,7 @@
 #include <time.h>
 #include <stdio.h>
 
-#include "sound/AudioChannel.h"
+#include "util/sound/AudioChannel.h"
 
 uint8_t audio_read(uint16_t addr);
 void audio_write(uint16_t addr, uint8_t val);

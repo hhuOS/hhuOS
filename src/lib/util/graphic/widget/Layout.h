@@ -24,8 +24,8 @@
 #ifndef HHUOS_LIB_UTIL_GRAPHIC_WIDGET_LAYOUT_H
 #define HHUOS_LIB_UTIL_GRAPHIC_WIDGET_LAYOUT_H
 
-#include "collection/ArrayList.h"
-#include "graphic/widget/Widget.h"
+#include "util/collection/ArrayList.h"
+#include "util/graphic/widget/Widget.h"
 
 namespace Util::Graphic {
 

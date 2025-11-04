@@ -23,8 +23,8 @@
 
 #include <stdint.h>
 
-#include "async/Lock.h"
-#include "async/Atomic.h"
+#include "util/async/Lock.h"
+#include "util/async/Atomic.h"
 
 namespace Util::Async {
 
