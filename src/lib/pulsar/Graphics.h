@@ -30,8 +30,8 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
-#ifndef HHUOS_LIB_UTIL_GAME_GRAPHICS_H
-#define HHUOS_LIB_UTIL_GAME_GRAPHICS_H
+#ifndef HHUOS_LIB_PULSAR_GRAPHICS_H
+#define HHUOS_LIB_PULSAR_GRAPHICS_H
 
 #include <stdint.h>
 
@@ -150,7 +150,9 @@ public:
 
     /// Draw the outline of a polygon in 2D space. Works only in 2D scenes.
     /// The last vertex is automatically connected to the first vertex.
-    void drawPolygon2D(const Util::Array<Util::Math::Vector2<double>> &vertices) const;
+    /// The position is added to each vertex for drawing.
+    void drawPolygon2D(const Util::Math::Vector2<double> &position,
+        const Util::Array<Util::Math::Vector2<double>> &vertices) const;
 
     /// Draw the outline of a square in 2D space. Works only in 2D scenes.
     void drawSquare2D(const Util::Math::Vector2<double> &position, double size) const;

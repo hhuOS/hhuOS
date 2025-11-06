@@ -35,41 +35,35 @@
 #include "Ground.h"
 #include "lib/pulsar/2d/Entity.h"
 
-DropletEmitter::DropletEmitter(const Util::Math::Vector2<double> &position) : Pulsar::D2::SingleTimeEmitter(TAG, PARTICLE_TAG, position) {}
+DropletEmitter::DropletEmitter(const Util::Math::Vector2<double> &position) : Pulsar::D2::OnceEmitter(TAG, PARTICLE_TAG, position, 5, 5) {}
 
-void DropletEmitter::initialize() {
-    SingleTimeEmitter::initialize();
-
-    setMinEmissionRate(5);
-    setMaxEmissionRate(5);
-}
+void DropletEmitter::initialize() {}
 
 void DropletEmitter::draw([[maybe_unused]] Pulsar::Graphics &graphics) const {}
 
 void DropletEmitter::onTranslationEvent([[maybe_unused]] Pulsar::D2::TranslationEvent &event) {}
 
-void DropletEmitter::onCollisionEvent([[maybe_unused]] Pulsar::D2::CollisionEvent &event) {}
+void DropletEmitter::onCollisionEvent([[maybe_unused]] const Pulsar::D2::CollisionEvent &event) {}
 
 void DropletEmitter::onParticleInitialization(Pulsar::D2::Particle &particle) {
     auto angle = random.getRandomNumber() * Util::Math::PI_DOUBLE;
 
-    particle.setSprite(Pulsar::D2::Sprite("/user/dino/particle/water.bmp", 0.005, 0.005));
+    particle.setSprite(Pulsar::D2::Sprite(Util::Graphic::Color(44, 197, 246), 0.005, 0.005));
     particle.setPosition(getPosition());
     particle.setVelocity(Util::Math::Vector2<double>(Util::Math::cosine(angle), Util::Math::sine(angle)));
-    particle.setTimeToLive(-1);
-    particle.setCollider(Pulsar::D2::RectangleCollider(particle.getPosition(), Util::Math::Vector2<double>(0.005, 0.005), Pulsar::Collider::STATIC));
+    particle.setCollider(Pulsar::D2::RectangleCollider(particle.getPosition(), 0.005, 0.005, Pulsar::Collider::STATIC));
 
-    particle.addComponent(new Pulsar::D2::GravityComponent(particle, 2.5, 0.0025));
+    particle.addComponent(new Pulsar::D2::GravityComponent(2.5, 0.0025));
 }
 
 void DropletEmitter::onParticleUpdate(Pulsar::D2::Particle &particle, double delta) {
     particle.setAlpha(particle.getAlpha() - 1 * delta);
 }
 
-void DropletEmitter::onParticleCollision(Pulsar::D2::Particle &particle, Pulsar::D2::CollisionEvent &event) {
+void DropletEmitter::onParticleCollision(Pulsar::D2::Particle &particle, const Pulsar::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == Ground::TAG) {
         removeParticle(&particle);
     }
 }
 
-void DropletEmitter::onParticleDestruction([[maybe_unused]] Pulsar::D2::Particle &particle) {}
+void DropletEmitter::onParticleDestruction([[maybe_unused]] const Pulsar::D2::Particle &particle) {}

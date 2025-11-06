@@ -32,42 +32,38 @@
 #include "application/dino/entity/Block.h"
 #include "lib/pulsar/2d/Entity.h"
 
-GrassEmitter::GrassEmitter(const Entity &parent) : Pulsar::D2::Emitter(TAG, PARTICLE_TAG, parent.getPosition(), -1), parent(parent) {}
+GrassEmitter::GrassEmitter(const Entity &parent) : Pulsar::D2::Emitter(TAG, PARTICLE_TAG, parent.getPosition(), 0, 1), parent(parent) {}
 
-void GrassEmitter::initialize() {
-    setMinEmissionRate(0);
-    setMaxEmissionRate(1);
-    setEmissionTime(-1);
-}
+void GrassEmitter::initialize() {}
 
 void GrassEmitter::draw([[maybe_unused]] Pulsar::Graphics &graphics) const {}
 
 void GrassEmitter::onTranslationEvent([[maybe_unused]] Pulsar::D2::TranslationEvent &event) {}
 
-void GrassEmitter::onCollisionEvent([[maybe_unused]] Pulsar::D2::CollisionEvent &event) {}
+void GrassEmitter::onCollisionEvent([[maybe_unused]] const Pulsar::D2::CollisionEvent &event) {}
 
 void GrassEmitter::onParticleInitialization(Pulsar::D2::Particle &particle) {
     auto angle = random.getRandomNumber() * (Util::Math::PI_DOUBLE / 4) + (Util::Math::PI_DOUBLE / 8);
     auto velocityX = (Util::Math::cosine(angle) / 8) * (parent.getVelocity().getX() > 0 ? -1 : 1);
     auto velocityY = Util::Math::sine(angle);
 
-    particle.setSprite(Pulsar::D2::Sprite("/user/dino/particle/grass.bmp", PARTICLE_SIZE, PARTICLE_SIZE));
+    particle.setSprite(Pulsar::D2::Sprite(Util::Graphic::Color(54, 227, 119), PARTICLE_SIZE, PARTICLE_SIZE));
     particle.setPosition(parent.getPosition());
     particle.setVelocity(Util::Math::Vector2<double>(velocityX, velocityY));
-    particle.setTimeToLive(10);
-    particle.setCollider(Pulsar::D2::RectangleCollider(particle.getPosition(), Util::Math::Vector2<double>(PARTICLE_SIZE, PARTICLE_SIZE), Pulsar::Collider::PERMEABLE));
+    particle.setTimeToLive(Util::Time::Timestamp::ofSecondsFloat<double>(10));
+    particle.setCollider(Pulsar::D2::RectangleCollider(particle.getPosition(), PARTICLE_SIZE, PARTICLE_SIZE, Pulsar::Collider::PERMEABLE));
 
-    particle.addComponent(new Pulsar::D2::GravityComponent(particle, 2.5, 0.0025));
+    particle.addComponent(new Pulsar::D2::GravityComponent(2.5, 0.0025));
 }
 
 void GrassEmitter::onParticleUpdate(Pulsar::D2::Particle &particle, double delta) {
     particle.setAlpha(particle.getAlpha() - 1 * delta);
 }
 
-void GrassEmitter::onParticleCollision(Pulsar::D2::Particle &particle, Pulsar::D2::CollisionEvent &event) {
+void GrassEmitter::onParticleCollision(Pulsar::D2::Particle &particle, const Pulsar::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == Block::GRASS || event.getCollidedWidth().getTag() == Block::DIRT || event.getCollidedWidth().getTag() == Block::WATER) {
         removeParticle(&particle);
     }
 }
 
-void GrassEmitter::onParticleDestruction([[maybe_unused]] Pulsar::D2::Particle &particle) {}
+void GrassEmitter::onParticleDestruction([[maybe_unused]] const Pulsar::D2::Particle &particle) {}

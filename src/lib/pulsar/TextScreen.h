@@ -30,72 +30,45 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#include "Particle.h"
+#ifndef HHUOS_LIB_PULSAR_TEXTSCREEN_H
+#define HHUOS_LIB_PULSAR_TEXTSCREEN_H
 
+#include "2d/Scene.h"
 
-#include "util/math/Vector2.h"
-#include "pulsar/2d/particle/Emitter.h"
+namespace Pulsar {
 
-namespace Pulsar::D2 {
+/// A simple 2D scene that displays a static text centered on the screen.
+/// The text can have multiple lines, which are separated by newline characters ('\n').
+/// Key presses can be handled via a callback function.
+/// This class is useful for displaying intro and outro screens or instructions.
+class TextScreen final : public D2::Scene {
 
-Particle::Particle(const size_t tag, Emitter &parent) : Entity(tag, parent.getPosition()), parent(parent) {}
+public:
+    /// Creates a new TextScreen instance with the given text and optional parameters.
+    /// The callback function is invoked whenever a key is pressed.
+    explicit TextScreen(const Util::String &text,
+        void(*onKeyPressed)(const Util::Io::Key &key) = nullptr,
+        const Util::Graphic::Color &fontColor = Util::Graphic::Colors::WHITE,
+        const Util::Graphic::Color &backgroundColor = Util::Graphic::Colors::BLACK);
 
-void Particle::initialize() {
-    parent.onParticleInitialization(*this);
-}
+    /// Initialize the scene.
+    /// For this simple scene, this method does nothing.
+    void initialize() override;
 
-void Particle::onUpdate(const double delta) {
-    if (timeLimited) {
-        timeToLive -= delta;
-        if (timeToLive <= 0) {
-            parent.removeParticle(this);
-            return;
-        }
-    }
+    /// Initialize the background by rendering the text centered on the screen.
+    bool initializeBackground(Graphics &graphics) override;
 
-    parent.onParticleUpdate(*this, delta);
-    sprite.rotate(rotationVelocity * delta);
-}
+    /// Handle key press events by invoking the callback function if provided.
+    void keyPressed(const Util::Io::Key &key) override;
 
-void Particle::draw(Graphics &graphics) const {
-    sprite.draw(graphics, getPosition());
-}
+private:
 
-void Particle::onCollisionEvent(const CollisionEvent &event) {
-    parent.onParticleCollision(*this, event);
-}
-
-double Particle::getScale() const {
-    return sprite.getScale().getX();
-}
-
-void Particle::setScale(const double scale) {
-    sprite.setScale(scale);
-}
-
-double Particle::getAlpha() const {
-    return sprite.getAlpha();
-}
-
-void Particle::setAlpha(const double alpha) {
-    sprite.setAlpha(alpha);
-}
-
-double Particle::getRotationVelocity() const {
-    return rotationVelocity;
-}
-
-void Particle::setRotationVelocity(const double rotationVelocity) {
-    Particle::rotationVelocity = rotationVelocity;
-}
-
-void Particle::setTimeToLive(const Util::Time::Timestamp &timeToLive) {
-    Particle::timeToLive = timeToLive.toSecondsFloat<double>();
-    timeLimited = Particle::timeToLive > 0;
-}
-
-void Particle::setSprite(const Sprite &sprite) {
-    Particle::sprite = sprite;
-}
+    const Util::String text;
+    void(*onKeyPressed)(const Util::Io::Key &key);
+    const Util::Graphic::Color fontColor;
+    const Util::Graphic::Color backgroundColor;
+};
 
 }
+
+#endif

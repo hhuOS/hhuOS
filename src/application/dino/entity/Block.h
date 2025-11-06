@@ -75,7 +75,7 @@ public:
 
     void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
 
-    void onCollisionEvent(Pulsar::D2::CollisionEvent &event) override;
+    void onCollisionEvent(const Pulsar::D2::CollisionEvent &event) override;
 
     static const constexpr double SIZE = 0.08;
 

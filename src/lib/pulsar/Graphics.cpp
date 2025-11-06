@@ -251,12 +251,14 @@ void Graphics::drawLine2D(const Util::Math::Vector2<double> &from, const Util::M
         color);
 }
 
-void Graphics::drawPolygon2D(const Util::Array<Util::Math::Vector2<double>> &vertices) const {
+void Graphics::drawPolygon2D(const Util::Math::Vector2<double> &position,
+    const Util::Array<Util::Math::Vector2<double>> &vertices) const
+{
     for (uint32_t i = 0; i < vertices.length() - 1; i++) {
-        drawLine2D(vertices[i], vertices[i + 1]);
+        drawLine2D(vertices[i] + position, vertices[i + 1] + position);
     }
 
-    drawLine2D(vertices[vertices.length() - 1], vertices[0]);
+    drawLine2D(vertices[vertices.length() - 1] + position, vertices[0] + position);
 }
 
 void Graphics::drawRectangle2D(const Util::Math::Vector2<double> &position,
@@ -514,7 +516,7 @@ void Graphics::listModel3D(const D3::Model &model) {
 
     // Draw triangles
     glBegin(GL_TRIANGLES);
-    for (uint32_t i = 0; i < vertexDrawOrder.length(); i++) {
+    for (size_t i = 0; i < vertexDrawOrder.length(); i++) {
         if (normalDrawOrder.length() > i) {
             const auto &normal = normals[normalDrawOrder[i]];
             glNormal3f(normal.getX(), normal.getY(), normal.getZ());
@@ -703,7 +705,7 @@ void Graphics::listCustomShape3D(const Util::Array<Util::Math::Vector3<double>> 
     // Draw shape (consisting of triangles)
     glBegin(GL_TRIANGLES);
 
-    for (uint32_t i = 0; i < vertices.length(); i++) {
+    for (size_t i = 0; i < vertices.length(); i++) {
         const auto &vertex = vertices[i];
         glVertex3f(vertex.getX(), vertex.getY(), vertex.getZ());
     }
@@ -769,17 +771,20 @@ void Graphics::show() const {
     }
 
     if (backgroundBuffer == nullptr) {
+        // No background saved -> Start next frame with a clear screen
         bufferedLfb.clear();
     } else if (camera.getPosition().getX() == 0 && camera.getPosition().getY() == 0) {
+        // A background is saved and the camera is at the origin -> Just copy the background
         const auto source = Util::Address(backgroundBuffer);
         bufferedLfb.getBuffer().copyRange(source, bufferedLfb.getResolutionY() * bufferedLfb.getPitch());
     } else {
+        // A background is saved and the camera is not at the origin -> Scroll the background accordingly
         const auto pitch = bufferedLfb.getPitch();
         const auto colorDepthDivisor = (bufferedLfb.getColorDepth() == 15 ? 16 : bufferedLfb.getColorDepth()) / 8;
-        auto xOffset = static_cast<uint32_t>(camera.getPosition().getX() * pitch / colorDepthDivisor) % pitch;
+        auto xOffset = static_cast<size_t>(camera.getPosition().getX() * pitch / colorDepthDivisor) % pitch;
         xOffset -= xOffset % colorDepthDivisor;
 
-        for (uint32_t i = 0; i < bufferedLfb.getResolutionY(); i++) {
+        for (size_t i = 0; i < bufferedLfb.getResolutionY(); i++) {
             const auto yOffset = pitch * i;
 
             auto source = Util::Address(backgroundBuffer + yOffset + xOffset);
@@ -848,8 +853,8 @@ void Graphics::clear(const Util::Graphic::Color &color) const {
     if (color == Util::Graphic::Colors::BLACK) {
         bufferedLfb.clear();
     } else {
-        for (uint32_t i = 0; i < bufferedLfb.getResolutionX(); i++) {
-            for (uint32_t j = 0; j < bufferedLfb.getResolutionY(); j++) {
+        for (size_t i = 0; i < bufferedLfb.getResolutionX(); i++) {
+            for (size_t j = 0; j < bufferedLfb.getResolutionY(); j++) {
                 bufferedLfb.drawPixel(i, j, color);
             }
         }
@@ -933,8 +938,8 @@ void Graphics::drawImageDirect2D(const Util::Math::Vector2<double> &position, co
         return;
     }
 
-    for (uint32_t i = 0; i < image.getHeight(); i++) {
-        for (uint32_t j = 0; j < image.getWidth(); j++) {
+    for (size_t i = 0; i < image.getHeight(); i++) {
+        for (size_t j = 0; j < image.getWidth(); j++) {
             const auto &pixel = pixelBuffer[i * image.getWidth() + (flipX ? image.getWidth() - j : j)];
             bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i,
                 pixel.withAlpha(static_cast<uint8_t>(pixel.getAlpha() * alpha)));
@@ -962,8 +967,8 @@ void Graphics::drawImageScaled2D(const Util::Math::Vector2<double> &position, co
     const auto factorX = static_cast<double>(scaledWidth) / image.getWidth();
     const auto factorY = static_cast<double>(scaledHeight) / image.getHeight();
 
-    for (uint32_t i = 0; i < scaledHeight; i++) {
-        for (uint32_t j = 0; j < scaledWidth; j++) {
+    for (size_t i = 0; i < scaledHeight; i++) {
+        for (size_t j = 0; j < scaledWidth; j++) {
             const auto imageX = static_cast<uint16_t>(j / factorX);
             const auto imageY = static_cast<uint16_t>(i / factorY);
 

@@ -34,7 +34,7 @@
 #include "lib/util/math/Vector2.h"
 
 Fruit::Fruit(const Util::Math::Vector2<double> &position, const Util::Io::File &nextLevelFile) :
-        Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE), Pulsar::D2::RectangleCollider::STATIC)),
+        Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE, SIZE, Pulsar::D2::RectangleCollider::STATIC)),
         nextLevelFile(nextLevelFile) {}
 
 void Fruit::initialize() {
@@ -68,7 +68,7 @@ void Fruit::draw(Pulsar::Graphics &graphics) const {
 
 void Fruit::onTranslationEvent([[maybe_unused]] Pulsar::D2::TranslationEvent &event) {}
 
-void Fruit::onCollisionEvent(Pulsar::D2::CollisionEvent &event) {
+void Fruit::onCollisionEvent(const Pulsar::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == PlayerDino::TAG) {
         auto &dino = reinterpret_cast<PlayerDino&>(event.getCollidedWidth());
         auto &game = Pulsar::Game::getInstance();

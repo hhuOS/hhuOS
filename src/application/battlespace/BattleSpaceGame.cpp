@@ -23,16 +23,17 @@
 
 #include "BattleSpaceGame.h"
 
+#include "battlespace.h"
 #include "lib/pulsar/Game.h"
 #include "Astronomical.h"
 #include "Missile.h"
-#include "GameOverScreen.h"
 #include "Enemy.h"
 #include "application/battlespace/Player.h"
 #include "lib/util/base/String.h"
 #include "lib/pulsar/Camera.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/key/Key.h"
+#include "pulsar/TextScreen.h"
 
 void BattleSpaceGame::initialize() {
     setLightEnabled(false);
@@ -77,7 +78,7 @@ void BattleSpaceGame::initialize() {
 
 void BattleSpaceGame::update(double delta) {
     if (player->getHealth() <= 0) {
-        Pulsar::Game::getInstance().pushScene(new GameOverScreen(player->getScore()));
+        Pulsar::Game::getInstance().pushScene(new Pulsar::TextScreen(Util::String::format(GAME_OVER_TEXT, player->getScore()), handleKeyPressOnTextScreen, Util::Graphic::Colors::GREEN));
         Pulsar::Game::getInstance().switchToNextScene();
     } else {
         player->setSpeed(inputSpeed);

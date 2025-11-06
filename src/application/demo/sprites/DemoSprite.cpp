@@ -69,4 +69,4 @@ void DemoSprite::draw(Pulsar::Graphics &graphics) const {
 
 void DemoSprite::onTranslationEvent([[maybe_unused]] Pulsar::D2::TranslationEvent &event) {}
 
-void DemoSprite::onCollisionEvent([[maybe_unused]] Pulsar::D2::CollisionEvent &event) {}
+void DemoSprite::onCollisionEvent([[maybe_unused]] const Pulsar::D2::CollisionEvent &event) {}

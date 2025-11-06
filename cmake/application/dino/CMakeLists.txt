@@ -37,8 +37,6 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/dino/entity/PlayerDino.cpp
         ${HHUOS_SRC_DIR}/application/dino/particle/BloodEmitter.cpp
         ${HHUOS_SRC_DIR}/application/dino/particle/GrassEmitter.cpp
-        ${HHUOS_SRC_DIR}/application/dino/GameOverScreen.cpp
-        ${HHUOS_SRC_DIR}/application/dino/IntroScreen.cpp
         ${HHUOS_SRC_DIR}/application/dino/Level.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})

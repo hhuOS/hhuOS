@@ -25,14 +25,15 @@
 #include "lib/pulsar/Game.h"
 #include "lib/pulsar/3d/collider/SphereCollider.h"
 #include "lib/pulsar/Graphics.h"
+#include "application/rogue3d/rogue.h"
 #include "application/rogue3d/Rogue3D.h"
-#include "application/rogue3d/GameOverScreen.h"
 #include "Enemy.h"
 #include "Projectile.h"
 #include "Item.h"
 #include "Player.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/math/Vector3.h"
+#include "pulsar/TextScreen.h"
 
 uint32_t Player::DRAW_LIST_ID = UINT32_MAX;
 
@@ -50,7 +51,7 @@ void Player::initialize() {
 
 void Player::onUpdate(double delta) {
     if (health <= 0) {
-        Pulsar::Game::getInstance().pushScene(new GameOverScreen(level));
+        Pulsar::Game::getInstance().pushScene(new Pulsar::TextScreen(Util::String::format(GAME_OVER_TEXT, level), handleKeyPressOnTextScreen, Util::Graphic::Colors::GREEN));
         Pulsar::Game::getInstance().switchToNextScene();
     }
 

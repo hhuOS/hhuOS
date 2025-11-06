@@ -24,8 +24,8 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
  */
 
-#ifndef HHUOS_LIB_UTIL_GAME_GAME_H
-#define HHUOS_LIB_UTIL_GAME_GAME_H
+#ifndef HHUOS_LIB_PULSAR_GAME_H
+#define HHUOS_LIB_PULSAR_GAME_H
 
 #include "audio/AudioChannel.h"
 #include "util/collection/ArrayListQueue.h"

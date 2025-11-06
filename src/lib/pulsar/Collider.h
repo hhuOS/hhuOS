@@ -30,8 +30,8 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_LIB_UTIL_GAME_COLLIDER_H
-#define HHUOS_LIB_UTIL_GAME_COLLIDER_H
+#ifndef HHUOS_LIB_PULSAR_COLLIDER_H
+#define HHUOS_LIB_PULSAR_COLLIDER_H
 
 #include "util/math/Vector2.h"
 #include "util/math/Vector3.h"
@@ -60,8 +60,14 @@ public:
         /// However, if a dynamic collider collides with a permeable collider,
         /// the dynamic collider will not move away from the collision.
         /// This is typically used for objects that can be passed through, like collectibles or particles.
-        PERMEABLE
+        PERMEABLE,
+        /// No collider type. This indicates that the entity has no collider.
+        NONE
     };
+
+    /// Create a new collider of type NONE at the origin.
+    /// This is used for entities without a collider.
+    Collider() = default;
 
     /// Create a new collider instance at the given 2D position with the specified type.
     Collider(const Util::Math::Vector2<double> &position, Type type);
@@ -86,7 +92,7 @@ public:
 private:
 
     Util::Math::Vector3<double> position;
-    Type type;
+    Type type = NONE;
 };
 
 }

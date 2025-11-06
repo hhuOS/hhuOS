@@ -40,8 +40,6 @@ void SpriteDemo::initialize() {
 
 void SpriteDemo::update([[maybe_unused]] double delta) {}
 
-void SpriteDemo::initializeBackground([[maybe_unused]] Pulsar::Graphics &graphics) {}
-
 void SpriteDemo::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::PLUS: {

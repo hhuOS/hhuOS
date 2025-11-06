@@ -22,81 +22,92 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_SPRITEANIMATION_H
-#define HHUOS_SPRITEANIMATION_H
+#ifndef HHUOS_LIB_PULSAR_2D_SPRITEANIMATION_H
+#define HHUOS_LIB_PULSAR_2D_SPRITEANIMATION_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "lib/util/collection/Array.h"
-#include "lib/pulsar/2d/Sprite.h"
-#include "lib/util/math/Vector2.h"
-
-namespace Pulsar {
-class Graphics;
-}  // namespace Pulsar
+#include "util/collection/Array.h"
+#include "util/math/Vector2.h"
+#include "pulsar/2d/Sprite.h"
 
 namespace Pulsar::D2 {
 
+/// Represents a 2D sprite animation.
+/// A sprite animation is a sequence of sprites that are displayed one after another
+/// to create the illusion of motion. The animation calculates which sprite to display
+/// based on the elapsed time and the total animation duration. It supports the same transformations
+/// as the `Sprite` class, such as scaling, rotation, and alpha blending.
+/// Transformations applied directly to a sprite before adding it to the animation will NOT be preserved.
+/// The transformations must be applied to the `SpriteAnimation` instance itself.
 class SpriteAnimation {
 
 public:
-    /**
-     * Default Constructor.
-     */
+    /// Create a new sprite animation instance with no sprites and zero animation time (empty animation).
     SpriteAnimation();
 
-    /**
-     * Constructor.
-     */
+    /// Create a new sprite animation instance with the given sprites and total animation time.
+    /// The animation time specifies how long it takes to play the entire animation once.
     SpriteAnimation(const Util::Array<Sprite> &sprites, double time);
 
-    /**
-     * Copy Constructor.
-     */
-    SpriteAnimation(const SpriteAnimation &other) = default;
-
-    /**
-     * Assignment operator.
-     */
-    SpriteAnimation &operator=(const SpriteAnimation &other) = default;
-
-    /**
-     * Destructor.
-     */
-    ~SpriteAnimation() = default;
-
+    /// Reset the animation to the beginning (first sprite).
     void reset();
 
+    /// Update the animation state based on the elapsed time since the last update.
+    /// This method advances the animation according to the given delta time (in seconds).
+    /// An entity using this animation should call this method every frame, during its own update cycle.
     void update(double delta);
 
+    /// Get the total animation time (in seconds).
     [[nodiscard]] double getAnimationTime() const;
 
-    [[nodiscard]] const Util::Math::Vector2<double>& getScale() const;
-
+    /// Get the original size of the current sprite (before scaling).
     [[nodiscard]] const Util::Math::Vector2<double>& getOriginalSize() const;
 
+    /// Get the current size of the current sprite (after scaling).
     [[nodiscard]] Util::Math::Vector2<double> getSize() const;
 
-    [[nodiscard]] double getRotation() const;
-
-    [[nodiscard]] double getAlpha() const;
-
-    void setScale(const Util::Math::Vector2<double> &scale);
-
+    /// Set the scale of the animation uniformly in both dimensions.
     void setScale(double scale);
 
-    void setRotation(double angle);
+    /// Set the scale of the animation in both dimensions.
+    void setScale(const Util::Math::Vector2<double> &scale);
 
-    void setAlpha(double alpha);
+    /// Get the current scale of the animation.
+    [[nodiscard]] const Util::Math::Vector2<double>& getScale() const;
 
+    /// Rotate the animation by the given angle (in radians).
     void rotate(double angle);
 
+    /// Set the rotation angle of the animation (in radians).
+    void setRotation(double angle);
+
+    /// Get the current rotation angle of the animation (in radians).
+    [[nodiscard]] double getRotation() const;
+
+    /// Set the alpha transparency of the animation (0.0 = fully transparent, 1.0 = fully opaque).
+    void setAlpha(double alpha);
+
+    /// Get the current alpha transparency of the animation.
+    [[nodiscard]] double getAlpha() const;
+
+    /// Flip the animation horizontally.
+    /// This causes the animation to be mirrored along the vertical axis during rendering.
+    /// If the animation is already flipped, calling this method will un-flip it.
     void flipX();
 
+    /// Set whether the animation is flipped horizontally (i.e. mirrored along the vertical axis).
     void setXFlipped(bool flipped);
 
+    /// Draw the current sprite of the animation at the given position using the specified graphics context.
     void draw(const Graphics &graphics, const Util::Math::Vector2<double> &position) const;
 
 private:
@@ -109,7 +120,7 @@ private:
     double animationTime = 0;
     double timePerSprite = 0;
     double timeSinceLastChange = 0;
-    uint32_t currentSprite = 0;
+    size_t currentSprite = 0;
     Util::Array<Sprite> sprites;
 };
 

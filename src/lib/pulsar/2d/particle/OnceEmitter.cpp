@@ -17,57 +17,38 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
- * The particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
+ * The original source code can be found here: https://github.com/Malte2036/hhuOS
+ *
+ * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_SINGLETIMEEMITTER_H
-#define HHUOS_SINGLETIMEEMITTER_H
+#include "OnceEmitter.h"
 
-#include <stdint.h>
-
-#include "Emitter.h"
-
-namespace Util {
-namespace Math {
-template <typename T> class Vector2;
-}  // namespace Math
-}  // namespace Util
+#include "pulsar/2d/particle/Emitter.h"
 
 namespace Pulsar::D2 {
 
-class SingleTimeEmitter : public Emitter {
+OnceEmitter::OnceEmitter(const size_t tag, const size_t particleTag, const Util::Math::Vector2<double> &position,
+    const uint32_t minEmissionRate, const uint32_t maxEmissionRate) :
+    Emitter(tag, particleTag, position, minEmissionRate, maxEmissionRate) {}
 
-public:
-    /**
-     * Default Constructor.
-     */
-    SingleTimeEmitter(uint32_t tag, uint32_t particleTag, const Util::Math::Vector2<double> &position);
+void OnceEmitter::onUpdate(const double delta) {
+    Emitter::onUpdate(delta);
 
-    /**
-     * Copy Constructor.
-     */
-    SingleTimeEmitter(const SingleTimeEmitter &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    SingleTimeEmitter &operator=(const SingleTimeEmitter &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~SingleTimeEmitter() override = default;
-
-    void initialize() override;
-
-    void onUpdate(double delta) override;
-
-private:
-
-    bool emitted = false;
-};
-
+    if (!emitted) {
+        emitOnce();
+        emitted = true;
+    } else if (getActiveParticles() == 0) {
+        removeFromScene();
+    }
 }
 
-#endif
+}

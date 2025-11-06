@@ -18,9 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include "bug.h"
 #include "Fleet.h"
 #include "lib/pulsar/Game.h"
-#include "GameOverScreen.h"
+#include "pulsar/TextScreen.h"
 
 Fleet::Fleet(uint32_t size, double initialSpeed) : size(size), velocity(initialSpeed) {}
 
@@ -45,7 +46,7 @@ void Fleet::decreaseSize() {
 void Fleet::applyChanges() {
     if (size == 0) {
         auto &game = Pulsar::Game::getInstance();
-        game.pushScene(new GameOverScreen(true));
+        game.pushScene(new Pulsar::TextScreen(WIN_TEXT, handleKeyPressOnTextScreen, Util::Graphic::Colors::GREEN));
         game.switchToNextScene();
     }
 

@@ -22,21 +22,21 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #include "CollisionEvent.h"
 
-namespace Pulsar {
-namespace D2 {
-class Entity;
-}  // namespace D2
-}  // namespace Pulsar
-
 namespace Pulsar::D2 {
 
-CollisionEvent::CollisionEvent(Entity &other, RectangleCollider::Side side) : other(other), side(side) {}
+CollisionEvent::CollisionEvent(Entity &other, const RectangleCollider::Side side) : other(other), side(side) {}
 
-Entity& Pulsar::D2::CollisionEvent::getCollidedWidth() {
+Entity& CollisionEvent::getCollidedWidth() const {
     return other;
 }
 

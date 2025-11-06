@@ -22,45 +22,36 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
-#ifndef HHUOS_LINEARMOVEMENTCOMPONENT_H
-#define HHUOS_LINEARMOVEMENTCOMPONENT_H
 
-#include "Component.h"
+#ifndef HHUOS_LIB_PULSAR_2D_LINEARMOVEMENTCOMPONENT_H
+#define HHUOS_LIB_PULSAR_2D_LINEARMOVEMENTCOMPONENT_H
 
-namespace Pulsar {
-namespace D2 {
-class Entity;
-}  // namespace D2
-}  // namespace Pulsar
+#include "pulsar/2d/component/Component.h"
 
 namespace Pulsar::D2 {
 
-class LinearMovementComponent : public Component {
+/// A component that updates the entity's position based on its velocity every frame.
+/// Each 2D entity has a velocity vector that determines how much its position should change per second.
+/// However, if the entity does not have a linear movement component, its position will not be updated automatically.
+/// By adding this component to an entity, the entity's position will be updated every frame according to its velocity.
+/// This allows for simple linear movement of entities in the 2D world.
+class LinearMovementComponent final : public Component {
 
 public:
-    /**
-    * Constructor.
-    */
-    explicit LinearMovementComponent(Entity &entity);
-
-    /**
-     * Copy Constructor.
-     */
-    LinearMovementComponent(const LinearMovementComponent &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    LinearMovementComponent &operator=(const LinearMovementComponent &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~LinearMovementComponent() = default;
+    /// Create a new linear movement component instance.
+    /// Since the velocity is stored in the entity itself, no parameters are needed.
+    explicit LinearMovementComponent() = default;
 
 protected:
-
+    /// Update the entity's position based on its velocity and the elapsed time since the last update.
+    /// This method is called every frame by the entity that owns this component.
     void update(double delta) override;
 };
 

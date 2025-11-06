@@ -23,13 +23,18 @@
 #include "Random.h"
 
 namespace Util::Math {
+
 Random::Random(const uint32_t seed, const uint32_t multiplier, const uint32_t increment, const uint32_t modulus) :
     randomNumber(seed), multiplier(multiplier), increment(increment), modulus(modulus) {}
 
 Random::Random(const uint32_t seed) : Random(seed, MINSTD_MULTIPLIER, MINSTD_INCREMENT, MINSTD_MODULUS) {}
 
 uint32_t Random::getRandomNumber(const uint32_t min, const uint32_t max) {
-    return nextRandomNumber() % (max - min) + min;
+    if (min == max) {
+        return min;
+    }
+
+    return nextRandomNumber() % (max - min + 1) + min;
 }
 
 double Random::getRandomNumber() {

@@ -33,44 +33,49 @@
 #include "lib/util/base/Panic.h"
 #include "lib/pulsar/2d/Entity.h"
 
-BloodEmitter::BloodEmitter(const Util::Math::Vector2<double> &position, Type type) : Pulsar::D2::SingleTimeEmitter(TAG, PARTICLE_TAG, position), type(type) {}
+BloodEmitter::BloodEmitter(const Util::Math::Vector2<double> &position, Type type) : Pulsar::D2::OnceEmitter(TAG, PARTICLE_TAG, position, 25, 50), type(type) {}
 
-void BloodEmitter::initialize() {
-    SingleTimeEmitter::initialize();
-
-    setMinEmissionRate(25);
-    setMaxEmissionRate(50);
-}
+void BloodEmitter::initialize() {}
 
 void BloodEmitter::draw([[maybe_unused]] Pulsar::Graphics &graphics) const {}
 
 void BloodEmitter::onTranslationEvent([[maybe_unused]] Pulsar::D2::TranslationEvent &event) {}
 
-void BloodEmitter::onCollisionEvent([[maybe_unused]] Pulsar::D2::CollisionEvent &event) {}
+void BloodEmitter::onCollisionEvent([[maybe_unused]] const Pulsar::D2::CollisionEvent &event) {}
 
 void BloodEmitter::onParticleInitialization(Pulsar::D2::Particle &particle) {
     auto angle = random.getRandomNumber() * Util::Math::PI_DOUBLE;
 
-    particle.setSprite(Pulsar::D2::Sprite(getParticleSpritePath(type), PARTICLE_SIZE, PARTICLE_SIZE));
+    switch (type) {
+        case WATER:
+            particle.setSprite(Pulsar::D2::Sprite(Util::Graphic::Color(44, 197, 246), PARTICLE_SIZE, PARTICLE_SIZE));
+            break;
+        case ENEMY:
+            particle.setSprite(Pulsar::D2::Sprite(Util::Graphic::Color(114, 161, 29), PARTICLE_SIZE, PARTICLE_SIZE));
+            break;
+        case PLAYER:
+            particle.setSprite(Pulsar::D2::Sprite(Util::Graphic::Color(49, 217, 0), PARTICLE_SIZE, PARTICLE_SIZE));
+            break;
+    }
     particle.setPosition(getPosition());
     particle.setVelocity(Util::Math::Vector2<double>(Util::Math::cosine(angle), Util::Math::sine(angle)));
-    particle.setTimeToLive(10);
-    particle.setCollider(Pulsar::D2::RectangleCollider(particle.getPosition(), Util::Math::Vector2<double>(PARTICLE_SIZE, PARTICLE_SIZE), Pulsar::Collider::PERMEABLE));
+    particle.setTimeToLive(Util::Time::Timestamp::ofSecondsFloat<double>(10));
+    particle.setCollider(Pulsar::D2::RectangleCollider(particle.getPosition(), PARTICLE_SIZE, PARTICLE_SIZE, Pulsar::Collider::PERMEABLE));
 
-    particle.addComponent(new Pulsar::D2::GravityComponent(particle, 2.5, 0.0025));
+    particle.addComponent(new Pulsar::D2::GravityComponent(2.5, 0.0025));
 }
 
 void BloodEmitter::onParticleUpdate(Pulsar::D2::Particle &particle, double delta) {
     particle.setAlpha(particle.getAlpha() - 1 * delta);
 }
 
-void BloodEmitter::onParticleCollision(Pulsar::D2::Particle &particle, Pulsar::D2::CollisionEvent &event) {
+void BloodEmitter::onParticleCollision(Pulsar::D2::Particle &particle, const Pulsar::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == Block::GRASS || event.getCollidedWidth().getTag() == Block::DIRT || event.getCollidedWidth().getTag() == Block::WATER) {
         removeParticle(&particle);
     }
 }
 
-void BloodEmitter::onParticleDestruction([[maybe_unused]] Pulsar::D2::Particle &particle) {}
+void BloodEmitter::onParticleDestruction([[maybe_unused]] const Pulsar::D2::Particle &particle) {}
 
 const char* BloodEmitter::getParticleSpritePath(BloodEmitter::Type type) {
     switch (type) {

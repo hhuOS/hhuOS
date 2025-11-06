@@ -16,40 +16,34 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- *
- * The particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
- * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#include "SingleTimeEmitter.h"
+#ifndef HHUOS_BATTLESPACE_H
+#define HHUOS_BATTLESPACE_H
 
-#include "lib/pulsar/Scene.h"
-#include "lib/pulsar/2d/particle/Emitter.h"
+#include "util/io/key/Key.h"
 
-namespace Util {
-namespace Math {
-template <typename T> class Vector2;
-}  // namespace Math
-}  // namespace Util
+static constexpr const char *INTRO_TEXT =
+    "___  ____ ___ ___ _    ____ ____ ___  ____ ____ ____ \n"
+    "|__] |__|  |   |  |    |___ [__  |__] |__| |    |___ \n"
+    "|__] |  |  |   |  |___ |___ ___] |    |  | |___ |___ \n"
+    " \n"
+    " \n"
+    " \n"
+    "Turn using ARROW KEYS. Fire using SPACEBAR.\n"
+    "Strafe using WASD. Change speed using Q and E.\n"
+    " \n"
+    "Press SPACE to start or ESC to exit!\n";
 
-namespace Pulsar::D2 {
+static constexpr const char *GAME_OVER_TEXT =
+    "____ ____ _  _ ____    ____ _  _ ____ ____ \n"
+    "| __ |__| |\\/| |___    |  | |  | |___ |__/ \n"
+    "|__] |  | |  | |___    |__|  \\/  |___ |  \\ \n"
+    " \n"
+    "Score: %u\n"
+    " \n"
+    "Press SPACE to play again or ESC to exit!\n";
 
-SingleTimeEmitter::SingleTimeEmitter(uint32_t tag, uint32_t particleTag, const Util::Math::Vector2<double> &position) : Emitter(tag, particleTag, position, -1) {}
+void handleKeyPressOnTextScreen(const Util::Io::Key &key);
 
-void SingleTimeEmitter::initialize() {
-    Emitter::initialize();
-    setEmissionTime(-1);
-}
-
-void SingleTimeEmitter::onUpdate(double delta) {
-    Emitter::onUpdate(delta);
-
-    if (!emitted) {
-        emitOnce();
-        emitted = true;
-    } else if (getActiveParticles() == 0) {
-        removeFromScene();
-    }
-}
-
-}
+#endif

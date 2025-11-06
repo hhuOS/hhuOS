@@ -126,12 +126,12 @@ Timestamp &Timestamp::operator-=(const Timestamp &other) {
         seconds -= other.seconds;
         fraction -= other.fraction;
     } else {
-        // Handle fraction overflow
-        seconds -= other.seconds - 1;
+        // Handle fraction underflow
+        seconds -= other.seconds + 1;
         fraction = NANOSECONDS_PER_SECOND - (other.fraction - fraction);
     }
 
-    // Handle seconds overflow
+    // Handle seconds underflow
     if (seconds > oldSeconds) {
         seconds = 0;
         fraction = 0;
@@ -192,23 +192,23 @@ uint64_t Timestamp::toMilliseconds() const {
     return static_cast<uint64_t>(seconds) * 1000 + fraction / 1000000;
 }
 
-uint32_t Timestamp::toSeconds() const {
+size_t Timestamp::toSeconds() const {
     return seconds;
 }
 
-uint32_t Timestamp::toMinutes() const {
+size_t Timestamp::toMinutes() const {
     return seconds / 60;
 }
 
-uint32_t Timestamp::toHours() const {
+size_t Timestamp::toHours() const {
     return seconds / 3600;
 }
 
-uint32_t Timestamp::toDays() const {
+size_t Timestamp::toDays() const {
     return seconds / 86400;
 }
 
-uint32_t Timestamp::toYears() const {
+size_t Timestamp::toYears() const {
     return seconds / 31536000;
 }
 

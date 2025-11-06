@@ -22,53 +22,55 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #include "RectangleCollider.h"
 
-#include "lib/util/math/Math.h"
-#include "lib/pulsar/Collider.h"
-#include "lib/util/math/Vector2.h"
-#include "lib/util/math/Vector3.h"
+#include "util/math/Math.h"
+#include "util/math/Vector2.h"
+#include "util/math/Vector3.h"
+#include "pulsar/Collider.h"
 
 namespace Pulsar::D2 {
 
-RectangleCollider::RectangleCollider(const Util::Math::Vector2<double> &position, const Util::Math::Vector2<double> &size, Collider::Type type) :
-        Collider(position, type), size(size) {}
+RectangleCollider::RectangleCollider(const Util::Math::Vector2<double> &position, const double width,
+    const double height, const Type type) : Collider(position, type), width(width), height(height) {}
 
-RectangleCollider::Side RectangleCollider::getOpposite(RectangleCollider::Side side) {
-    switch (side) {
-        case RIGHT:
-            return LEFT;
-        case LEFT:
-            return RIGHT;
-        case TOP:
-            return BOTTOM;
-        case BOTTOM:
-            return TOP;
-        default:
-            return NONE;
+RectangleCollider::Side RectangleCollider::getOpposite(const Side side) {
+    if (side == NONE) {
+        return NONE;
     }
+
+    // Flipping the side by using XOR operation on the first bit
+    // LEFT (0) <-> RIGHT (1), TOP (2) <-> BOTTOM (3)
+    return static_cast<Side>(side ^ 1);
 }
 
 double RectangleCollider::getWidth() const {
-    return size.getX();
+    return width;
 }
 
 double RectangleCollider::getHeight() const {
-    return size.getY();
+    return height;
 }
 
-const Util::Math::Vector2<double> &RectangleCollider::getSize() const {
-    return size;
+void RectangleCollider::setWidth(const double width) {
+    RectangleCollider::width = width;
 }
 
-void RectangleCollider::setWidth(double width) {
-    size = Util::Math::Vector2<double>(width, size.getY());
+void RectangleCollider::setHeight(const double height) {
+    RectangleCollider::height = height;
 }
 
-void RectangleCollider::setHeight(double height) {
-    size = Util::Math::Vector2<double>(size.getX(), height);
+void RectangleCollider::setSize(const double width, const double height) {
+    RectangleCollider::width = width;
+    RectangleCollider::height = height;
 }
 
 RectangleCollider::Side RectangleCollider::isColliding(const RectangleCollider &other) const {
@@ -77,35 +79,33 @@ RectangleCollider::Side RectangleCollider::isColliding(const RectangleCollider &
         getPosition().getY() < other.getPosition().getY() + other.getHeight() &&
         getHeight() + getPosition().getY() > other.getPosition().getY()) {
 
-        auto lastCenter = getPosition() + Util::Math::Vector2<double>(getWidth() / 2, getHeight() / 2);
-        auto otherLastCenter = other.getPosition() + Util::Math::Vector2<double>(other.getWidth() / 2, other.getHeight() / 2);
+        const auto lastCenter = getPosition() +
+            Util::Math::Vector2<double>(getWidth() / 2, getHeight() / 2);
+        const auto otherLastCenter = other.getPosition() +
+            Util::Math::Vector2<double>(other.getWidth() / 2, other.getHeight() / 2);
 
-        auto centerXDistance = lastCenter.getX() - otherLastCenter.getX();
-        auto centerYDistance = lastCenter.getY() - otherLastCenter.getY();
+        const auto centerXDistance = lastCenter.getX() - otherLastCenter.getX();
+        const auto centerYDistance = lastCenter.getY() - otherLastCenter.getY();
 
-        auto absoluteXDistance = getWidth() / 2 + other.getWidth() / 2 - Util::Math::absolute(centerXDistance);
-        auto absoluteYDistance = getHeight() / 2 + other.getHeight() / 2 - Util::Math::absolute(centerYDistance);
+        const auto absoluteXDistance = getWidth() / 2 +
+            other.getWidth() / 2 - Util::Math::absolute(centerXDistance);
+        const auto absoluteYDistance = getHeight() / 2 +
+            other.getHeight() / 2 - Util::Math::absolute(centerYDistance);
 
         if (absoluteXDistance >= absoluteYDistance) {
             if (centerYDistance < 0) {
                 return TOP;
             }
-
             return BOTTOM;
         }
 
         if (centerXDistance > 0) {
             return LEFT;
         }
-
         return RIGHT;
     }
 
     return NONE;
-}
-
-void RectangleCollider::setSize(const Util::Math::Vector2<double> &size) {
-    RectangleCollider::size = size;
 }
 
 }

@@ -21,59 +21,32 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
  */
 
-#ifndef HHUOS_ROGUE_GAMEOVERSCREEN_H
-#define HHUOS_ROGUE_GAMEOVERSCREEN_H
+#ifndef HHUOS_ROGUE_H
+#define HHUOS_ROGUE_H
 
-#include <stdint.h>
+#include "util/io/key/Key.h"
 
-#include "lib/pulsar/2d/Scene.h"
+static constexpr const char *INTRO_TEXT =
+    "____ ____ ____ _  _ ____ \n"
+    "|__/ |  | | __ |  | |___ \n"
+    "|  \\ |__| |__] |__| |___ \n"
+    " \n"
+    " \n"
+    " \n"
+    "Use WASD to move and arrow keys to shoot in a specific direction.\n"
+    "Defeat all enemies to leave the current room.\n"
+    " \n"
+    "Press SPACE to start or ESC to exit!";
 
-class GameOverScreen : public Pulsar::D2::Scene {
+static constexpr const char* GAME_OVER_TEXT =
+    "____ ____ _  _ ____    ____ _  _ ____ ____ \n"
+    "| __ |__| |\\/| |___    |  | |  | |___ |__/ \n"
+    "|__] |  | |  | |___    |__|  \\/  |___ |  \\ \n"
+    " \n"
+    "You died at level %u!\n"
+    " \n"
+    "Press SPACE to enter the dungeon again, or ESC to run like a coward...";
 
-public:
-    /**
-     * Constructor.
-     */
-    explicit GameOverScreen(uint32_t level);
-
-    /**
-     * Copy Constructor.
-     */
-    GameOverScreen(const GameOverScreen &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    GameOverScreen &operator=(const GameOverScreen &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~GameOverScreen() override = default;
-
-    void initialize() override;
-
-    void update(double delta) override;
-
-    void initializeBackground(Pulsar::Graphics &graphics) override;
-
-    void keyPressed(const Util::Io::Key &key) override;
-
-    void keyReleased(const Util::Io::Key &key) override;
-
-private:
-
-    uint32_t level;
-
-    const char* TEXT[7] = {
-            "____ ____ _  _ ____    ____ _  _ ____ ____ ",
-            "| __ |__| |\\/| |___    |  | |  | |___ |__/ ",
-            "|__] |  | |  | |___    |__|  \\/  |___ |  \\ ",
-            "",
-            "You died at level %u!",
-            "",
-            "Press SPACE to enter the dungeon again, or ESC to run like a coward..."
-    };
-};
+void handleKeyPressOnTextScreen(const Util::Io::Key &key);
 
 #endif

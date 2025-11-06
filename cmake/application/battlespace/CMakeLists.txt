@@ -28,15 +28,12 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
 )
 
-
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/battlespace/battlespace.cpp
         ${HHUOS_SRC_DIR}/application/battlespace/Astronomical.cpp
         ${HHUOS_SRC_DIR}/application/battlespace/BattleSpaceGame.cpp
         ${HHUOS_SRC_DIR}/application/battlespace/Enemy.cpp
         ${HHUOS_SRC_DIR}/application/battlespace/EnemyDebris.cpp
-        ${HHUOS_SRC_DIR}/application/battlespace/GameOverScreen.cpp
-        ${HHUOS_SRC_DIR}/application/battlespace/IntroScreen.cpp
         ${HHUOS_SRC_DIR}/application/battlespace/Missile.cpp
         ${HHUOS_SRC_DIR}/application/battlespace/Player.cpp)
 

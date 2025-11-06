@@ -22,6 +22,12 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #include "GravityComponent.h"
@@ -34,21 +40,21 @@
 
 namespace Pulsar::D2 {
 
-GravityComponent::GravityComponent(Entity &entity, double gravityValue, double stopFactorX) :
-        Component(entity), gravityValue(gravityValue), stopFactorX(stopFactorX) {}
+GravityComponent::GravityComponent(const double gravityValue, const double stopFactorX) :
+    gravityValue(gravityValue), stopFactorX(stopFactorX) {}
 
-void GravityComponent::update(double delta) {
+void GravityComponent::update(const double delta) {
     auto &entity = getEntity();
-    auto velocity = entity.getVelocity() - Util::Math::Vector2<double>(0, Util::Math::absolute(gravityValue * delta));
-    auto newPosition = entity.getPosition() + Util::Math::Vector2<double>(velocity.getX() * delta, velocity.getY() * delta);
+    const auto gravityEffect = Util::Math::Vector2<double>(0, -Util::Math::absolute(gravityValue * delta));
+    const auto velocity = entity.getVelocity() + gravityEffect;
+    const auto newPosition = entity.getPosition() + velocity * delta;
 
     auto event = TranslationEvent(newPosition);
     entity.onTranslationEvent(event);
     
     if (!event.isCanceled()) {
-        velocity = Util::Math::Vector2<double>(velocity.getX() * (1 - stopFactorX), velocity.getY());
         entity.setPosition(newPosition);
-        entity.setVelocity(velocity);
+        entity.setVelocity(Util::Math::Vector2<double>(velocity.getX() * (1 - stopFactorX), velocity.getY()));
     }
 }
 

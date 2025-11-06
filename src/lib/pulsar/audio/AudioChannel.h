@@ -30,8 +30,8 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_LIB_UTIL_GAME_AUDIOCHANNEL_H
-#define HHUOS_LIB_UTIL_GAME_AUDIOCHANNEL_H
+#ifndef HHUOS_LIB_PULSAR_AUDIOCHANNEL_H
+#define HHUOS_LIB_PULSAR_AUDIOCHANNEL_H
 
 #include <stddef.h>
 

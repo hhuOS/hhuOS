@@ -22,6 +22,12 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #include "Scene.h"
@@ -36,9 +42,14 @@
 
 namespace Pulsar::D2 {
 
+bool Scene::initializeBackground([[maybe_unused]] Graphics &graphics) {
+    return false;
+}
+
 void Scene::initializeScene(Graphics &graphics) {
-    initializeBackground(graphics);
-    graphics.saveCurrentStateAsBackground();
+    if (initializeBackground(graphics)) {
+        graphics.saveCurrentStateAsBackground();
+    }
 
     initialize();
 
@@ -47,31 +58,41 @@ void Scene::initializeScene(Graphics &graphics) {
     }
 }
 
-void Scene::updateEntities(double delta) {
+void Scene::updateEntities(const double delta) {
     for (auto *entity : getEntities()) {
-        reinterpret_cast<Pulsar::D2::Entity*>(entity)->update(delta);
+        reinterpret_cast<Entity*>(entity)->update(delta);
     }
 }
 
 void Scene::checkCollisions() {
-    auto detectedCollisions = Util::ArrayList<Util::Pair<Pulsar::D2::Entity*, Pulsar::D2::Entity*>>();
+    auto detectedCollisions = Util::ArrayList<Util::Pair<Entity*, Entity*>>();
     for (auto *entity : getEntities()) {
-        auto *entity2D = reinterpret_cast<Pulsar::D2::Entity*>(entity);
-        if (entity2D->hasCollider() && entity2D->positionChanged) {
+        auto *entity2D = reinterpret_cast<Entity*>(entity);
+
+        // Only check for collisions if the entity has a collider and its position has changed since the last update
+        if (entity2D->hasCollider() && entity2D->hasPositionChanged()) {
             const auto &collider = entity2D->getCollider();
 
+            // Check the current entity against all other entities
             for (auto *otherEntity : getEntities()) {
-                auto *otherEntity2D = reinterpret_cast<Pulsar::D2::Entity*>(otherEntity);
-                if (entity == otherEntity || !otherEntity2D->hasCollider() || detectedCollisions.contains(Util::Pair(entity2D, otherEntity2D)) || detectedCollisions.contains(Util::Pair(otherEntity2D, entity2D))) {
+                auto *otherEntity2D = reinterpret_cast<Entity*>(otherEntity);
+
+                // Skip check if it's the same entity, if the other entity has no collider,
+                // or if the collision has already been detected in this update cycle
+                if (entity == otherEntity ||
+                    !otherEntity2D->hasCollider() ||
+                    detectedCollisions.contains(Util::Pair(entity2D, otherEntity2D)) ||
+                    detectedCollisions.contains(Util::Pair(otherEntity2D, entity2D)))
+                {
                     continue;
                 }
 
                 const auto &otherCollider = otherEntity2D->getCollider();
-                auto side = collider.isColliding(otherCollider);
+                const auto side = collider.isColliding(otherCollider);
 
                 if (side != RectangleCollider::NONE) {
-                    auto event = CollisionEvent(*otherEntity2D, side);
-                    auto otherEvent = CollisionEvent(*entity2D, RectangleCollider::getOpposite(side));
+                    const auto event = CollisionEvent(*otherEntity2D, side);
+                    const auto otherEvent = CollisionEvent(*entity2D, RectangleCollider::getOpposite(side));
 
                     entity2D->onCollision(event);
                     otherEntity2D->onCollision(otherEvent);

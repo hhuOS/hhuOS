@@ -22,20 +22,27 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_ENTITY_2D_H
-#define HHUOS_ENTITY_2D_H
+#ifndef HHUOS_LIB_PULSAR_2D_ENTITY_H
+#define HHUOS_LIB_PULSAR_2D_ENTITY_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "lib/util/math/Vector2.h"
-#include "lib/util/collection/ArrayList.h"
-#include "lib/pulsar/2d/collider/RectangleCollider.h"
-#include "lib/pulsar/Entity.h"
+#include "util/collection/ArrayList.h"
+#include "util/math/Vector2.h"
+#include "pulsar/Entity.h"
+#include "pulsar/2d/collider/RectangleCollider.h"
 
 namespace Pulsar {
 namespace D2 {
+class CollisionEvent;
 class TranslationEvent;
 class Component;
 }  // namespace D2
@@ -43,83 +50,122 @@ class Component;
 
 namespace Pulsar::D2 {
 
-class CollisionEvent;
-
+/// Base class for 2D entities for use in 2D scenes.
+/// It enhances the `Pulsar::Entity` class with 2D-specific properties like position, velocity and a rectangle collider.
+/// Furthermore, it introduces a component system, allowing to attach reusable components to entities
+/// that can modify their behavior (e.g. movement). For example, a `GravityComponent` can be added to an entity
+/// to simulate an acceleration due to gravity. If a `LinearMovementComponent` is added, the entity will move
+/// linearly based on its velocity. Without this component, the entity will remain stationary unless its position
+/// is modified directly, regardless of its velocity.
+/// To handle collisions, 2D entities can have a `RectangleCollider`. If an entity has a collider and collides
+/// with another entity that also has a collider, a `CollisionEvent` will be triggered,
+/// allowing to respond to the collision (e.g. by bouncing off or taking damage).
 class Entity : public Pulsar::Entity {
 
-friend class Scene;
-
 public:
-    /**
-     * Constructor.
-     */
-    explicit Entity(uint32_t tag, const Util::Math::Vector2<double> &position);
+    /// Create a new 2D entity with the given tag and position and no collider.
+    explicit Entity(size_t tag, const Util::Math::Vector2<double> &position);
 
-    /**
-     * Constructor.
-     */
-    Entity(uint32_t tag, const Util::Math::Vector2<double> &position, const RectangleCollider &collider);
+    /// Create a new 2D entity with the given tag, position and rectangle collider.
+    Entity(size_t tag, const Util::Math::Vector2<double> &position, const RectangleCollider &collider);
 
-    /**
-     * Copy Constructor.
-     */
-    Entity(const Entity &other) = delete;
+    /// 2D entities are not copyable, as they manage components on the heap, so the copy constructor is deleted.
+    Entity (const Entity &other) = delete;
 
-    /**
-     * Assignment operator.
-     */
-    Entity &operator=(const Entity &other) = delete;
+    /// 2D entities are not copyable, as they manage components on the heap, so the assignment operator is deleted.
+    Entity& operator=(const Entity &other) = delete;
 
-    /**
-     * Destructor.
-     */
+    /// Destroy the 2D entity and clean up all its components.
     ~Entity() override;
 
-    virtual void onTranslationEvent(TranslationEvent &event) = 0;
+    /// This method is called whenever the entity is moved by a component (e.g. `LinearMovementComponent`),
+    /// or via the `translate()` method. It is not called when the position is set directly via `setPosition()`.
+    /// The entity may cancel the translation by calling `event.cancel()`, preventing the movement.
+    /// The default implementation does nothing.
+    virtual void onTranslationEvent(TranslationEvent &event);
 
-    virtual void onCollisionEvent(CollisionEvent &event) = 0;
+    /// This method is called whenever the entity collides with another entity that has a collider.
+    /// The default implementation does nothing.
+    virtual void onCollisionEvent(const CollisionEvent &event);
 
-    void translate(const Util::Math::Vector2<double> &translation);
-
-    void translateX(double x);
-
-    void translateY(double y);
-
-    void setPosition(const Util::Math::Vector2<double> &position);
-
-    void setPositionX(double x);
-
-    void setPositionY(double y);
-
-    void setVelocity(const Util::Math::Vector2<double> &velocity);
-
-    void setVelocityX(double x);
-
-    void setVelocityY(double y);
-
-    void setCollider(const RectangleCollider &collider);
-
-    void addComponent(Component *component);
-
+    /// Get the current position of the entity.
     [[nodiscard]] const Util::Math::Vector2<double>& getPosition() const;
 
+    /// Set the absolute position of the entity.
+    /// This will NOT trigger a translation event, the entity will be moved directly.
+    void setPosition(const Util::Math::Vector2<double> &position);
+
+    /// Set the absolute x-coordinate of the entity.
+    /// This will NOT trigger a translation event, the entity will be moved directly.
+    void setPositionX(double x);
+
+    /// Set the absolute y-coordinate of the entity.
+    /// This will NOT trigger a translation event, the entity will be moved directly.
+    void setPositionY(double y);
+
+    /// Move the entity relative to its current position by the given translation vector.
+    /// This will trigger a translation event and the entity may cancel the movement.
+    void translate(const Util::Math::Vector2<double> &translation);
+
+    /// Move the entity relative to its current position by the given x offset.
+    /// This will trigger a translation event and the entity may cancel the movement.
+    void translateX(double x);
+
+    /// Move the entity relative to its current position by the given y offset.
+    /// This will trigger a translation event and the entity may cancel the movement.
+    void translateY(double y);
+
+    /// Get the current velocity of the entity.
     [[nodiscard]] const Util::Math::Vector2<double>& getVelocity() const;
 
+    /// Set the velocity of the entity.
+    /// The velocity only affects the entity if a movement component (e.g. `LinearMovementComponent`) is attached to it.
+    void setVelocity(const Util::Math::Vector2<double> &velocity);
+
+    /// Set the x-component of the entity's velocity.
+    /// The velocity only affects the entity if a movement component (e.g. `LinearMovementComponent`) is attached to it.
+    void setVelocityX(double x);
+
+    /// Set the y-component of the entity's velocity.
+    /// The velocity only affects the entity if a movement component (e.g. `LinearMovementComponent`) is attached to it.
+    void setVelocityY(double y);
+
+    /// Check if the entity has a rectangle collider.
     [[nodiscard]] bool hasCollider() const;
 
+    /// Get the rectangle collider of the entity for modification.
+    /// If the entity has no collider, a panic is fired.
     [[nodiscard]] RectangleCollider& getCollider();
 
-private:
+    /// Set the rectangle collider of the entity.
+    void setCollider(const RectangleCollider &collider);
 
+    /// Add a component to the entity.
+    /// The component must be heap-allocated and the entity will take ownership of it and delete it upon destruction.
+    void addComponent(Component *component);
+
+    /// Update the entity and all its components.
+    /// This method is called automatically every frame with the time delta since the last frame.
+    /// It updates the collider's position and then calls the `update()` method of all attached components.
+    /// Lastly, it calls the `onUpdate()` method for any additional custom update logic.
     void update(double delta);
 
-    void onCollision(CollisionEvent &event);
+    /// Handle a collision with another entity.
+    /// This method is called by the scene when a collision is detected between this entity and another entity.
+    /// If the entity has a dynamic collider, it will respond to the collision by adjusting its position and velocity.
+    /// Furthermore, it calls the `onCollisionEvent()` method to allow custom collision handling.
+    void onCollision(const CollisionEvent &event);
+
+    /// Check if the entity's position has changed since the last update.
+    /// This method is used by the scene to determine if the entity needs to be re-evaluated for collisions.
+    [[nodiscard]] bool hasPositionChanged() const;
+
+private:
 
     bool positionChanged = false;
     Util::Math::Vector2<double> position{};
     Util::Math::Vector2<double> velocity{};
 
-    bool colliderPresent;
     RectangleCollider collider;
 
     Util::ArrayList<Component*> components;

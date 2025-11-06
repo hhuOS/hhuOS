@@ -37,7 +37,7 @@
 #include "lib/pulsar/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2.h"
 
-EnemyFrog::EnemyFrog(const Util::Math::Vector2<double> &position) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE * 1.12), Pulsar::D2::RectangleCollider::DYNAMIC)) {}
+EnemyFrog::EnemyFrog(const Util::Math::Vector2<double> &position) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE, SIZE * 1.12, Pulsar::D2::RectangleCollider::DYNAMIC)) {}
 
 void EnemyFrog::initialize() {
     animation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({
@@ -54,8 +54,8 @@ void EnemyFrog::initialize() {
         Pulsar::D2::Sprite("/user/dino/enemy/frog11.bmp", SIZE, SIZE * 1.12),
         Pulsar::D2::Sprite("/user/dino/enemy/frog12.bmp", SIZE, SIZE * 1.12)}), 0.5);
 
-    addComponent(new Pulsar::D2::LinearMovementComponent(*this));
-    addComponent(new Pulsar::D2::GravityComponent(*this, 1.25, 0));
+    addComponent(new Pulsar::D2::LinearMovementComponent());
+    addComponent(new Pulsar::D2::GravityComponent(1.25, 0));
     setVelocityX(0.25);
 
     getScene().addEntity(grassEmitter);
@@ -71,7 +71,7 @@ void EnemyFrog::draw(Pulsar::Graphics &graphics) const {
 
 void EnemyFrog::onTranslationEvent([[maybe_unused]] Pulsar::D2::TranslationEvent &event) {}
 
-void EnemyFrog::onCollisionEvent(Pulsar::D2::CollisionEvent &event) {
+void EnemyFrog::onCollisionEvent(const Pulsar::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == BloodEmitter::PARTICLE_TAG) {
         return;
     }
@@ -104,6 +104,7 @@ void EnemyFrog::onCollisionEvent(Pulsar::D2::CollisionEvent &event) {
             player.addPoints(5);
             player.setVelocityY(0.5);
             scene.addEntity(new BloodEmitter(getPosition(), BloodEmitter::ENEMY));
+            grassEmitter->destroy();
             removeFromScene();
         } else {
             player.die();

@@ -22,22 +22,28 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #include "Sprite.h"
 
 #include <stdint.h>
-#include <pulsar/Game.h>
 
-#include "lib/util/graphic/BitmapFile.h"
-#include "lib/util/graphic/Image.h"
-#include "lib/util/graphic/Color.h"
-#include "lib/pulsar/Resources.h"
-#include "lib/pulsar/Graphics.h"
+#include "util/graphic/Color.h"
+#include "util/graphic/Image.h"
+#include "util/graphic/BitmapFile.h"
+#include "pulsar/Game.h"
+#include "pulsar/Graphics.h"
+#include "pulsar/Resources.h"
 
 namespace Pulsar::D2 {
 
-Sprite::Sprite() : size(0, 0) {
+Sprite::Sprite() {
     if (Resources::hasImage("empty")) {
         image = Resources::getImage("empty");
     } else {
@@ -46,11 +52,11 @@ Sprite::Sprite() : size(0, 0) {
     }
 }
 
-Sprite::Sprite(const Util::String &path, double width, double height) : size(width, height) {
-    auto transformation = Game::getInstance().getScreenTransformation();
-    auto pixelWidth = static_cast<uint16_t>(width * transformation) + 1;
-    auto pixelHeight = static_cast<uint16_t>(height * transformation) + 1;
-    auto key = Util::String::format("%s_%u_%u", static_cast<const char*>(path), pixelWidth, pixelHeight);
+Sprite::Sprite(const Util::String &path, const double width, const double height) : size(width, height) {
+    const auto transformation = Game::getInstance().getScreenTransformation();
+    const uint16_t pixelWidth = static_cast<uint16_t>(width * transformation) + 1;
+    const uint16_t pixelHeight = static_cast<uint16_t>(height * transformation) + 1;
+    const auto key = Util::String::format("%s_%u_%u", static_cast<const char*>(path), pixelWidth, pixelHeight);
 
     if (Resources::hasImage(key)) {
         image = Resources::getImage(key);
@@ -59,6 +65,27 @@ Sprite::Sprite(const Util::String &path, double width, double height) : size(wid
         image = file->scale(pixelWidth, pixelHeight);
         delete file;
 
+        Resources::addImage(key, image);
+    }
+}
+
+Sprite::Sprite(const Util::Graphic::Color &color, double width, double height) {
+    const auto transformation = Game::getInstance().getScreenTransformation();
+    const uint16_t pixelWidth = static_cast<uint16_t>(width * transformation) + 1;
+    const uint16_t pixelHeight = static_cast<uint16_t>(height * transformation) + 1;
+    const auto key = Util::String::format("color%x_%u_%u", color.getRGB32(), pixelWidth, pixelHeight);
+
+    if (Resources::hasImage(key)) {
+        image = Resources::getImage(key);
+    } else {
+        auto *pixelBuffer = new Util::Graphic::Color[pixelWidth * pixelHeight];
+        for (uint16_t y = 0; y < pixelHeight; y++) {
+            for (uint16_t x = 0; x < pixelWidth; x++) {
+                pixelBuffer[y * pixelWidth + x] = color;
+            }
+        }
+
+        image = new Util::Graphic::Image(pixelWidth, pixelHeight, pixelBuffer);
         Resources::addImage(key, image);
     }
 }
@@ -79,36 +106,40 @@ const Util::Math::Vector2<double> &Sprite::getScale() const {
     return scale;
 }
 
+void Sprite::rotate(const double angle) {
+    rotationAngle += angle;
+}
+
+void Sprite::setRotation(const double angle) {
+    rotationAngle = angle;
+}
+
 double Sprite::getRotation() const {
     return rotationAngle;
+}
+
+void Sprite::setAlpha(const double alpha) {
+    Sprite::alpha = alpha;
 }
 
 double Sprite::getAlpha() const {
     return alpha;
 }
 
+void Sprite::setScale(const double scale) {
+    setScale(Util::Math::Vector2<double>(scale, scale));
+}
+
 void Sprite::setScale(const Util::Math::Vector2<double> &scale) {
     Sprite::scale = scale;
 }
 
-void Sprite::setScale(double scale) {
-    Sprite::scale = Util::Math::Vector2<double>(scale, scale);
-}
-
-void Sprite::setRotation(double angle) {
-    rotationAngle = angle;
-}
-
-void Sprite::setAlpha(double alpha) {
-    Sprite::alpha = alpha;
-}
-
-void Sprite::rotate(double angle) {
-    rotationAngle += angle;
-}
-
 void Sprite::flipX() {
     xFlipped = !xFlipped;
+}
+
+void Sprite::setXFlipped(const bool flipped) {
+    xFlipped = flipped;
 }
 
 void Sprite::draw(const Graphics &graphics, const Util::Math::Vector2<double> &position) const {

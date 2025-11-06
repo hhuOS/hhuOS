@@ -22,21 +22,25 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #include "LinearMovementComponent.h"
 
-#include "lib/pulsar/2d/Entity.h"
-#include "lib/pulsar/2d/component/Component.h"
-#include "lib/pulsar/2d/event/TranslationEvent.h"
-#include "lib/util/math/Vector2.h"
+#include "util/math/Vector2.h"
+#include "pulsar/2d/Entity.h"
+#include "pulsar/2d/component/Component.h"
+#include "pulsar/2d/event/TranslationEvent.h"
 
 namespace Pulsar::D2 {
 
-LinearMovementComponent::LinearMovementComponent(Entity &entity) : Component(entity) {}
-
-void LinearMovementComponent::update(double delta) {
-    auto newPosition = getEntity().getPosition() + getEntity().getVelocity() * delta;
+void LinearMovementComponent::update(const double delta) {
+    const auto newPosition = getEntity().getPosition() + getEntity().getVelocity() * delta;
     auto event = TranslationEvent(newPosition);
     getEntity().onTranslationEvent(event);
 

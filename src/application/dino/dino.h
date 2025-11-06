@@ -21,59 +21,33 @@
  * The original source code can be found here: https://github.com/Malte2036/hhuOS
  */
 
-#ifndef HHUOS_DINO_INTROSCREEN_H
-#define HHUOS_DINO_INTROSCREEN_H
+#ifndef HHUOS_DINO_H
+#define HHUOS_DINO_H
 
-#include "lib/pulsar/2d/Scene.h"
+#include "util/io/key/Key.h"
 
-class IntroScreen : public Pulsar::D2::Scene {
+static constexpr const char *INTRO_TEXT =
+    "___  _ _  _ ____\n"
+    "|  \\ | |\\ | |  |\n"
+    "|__/ | | \\| |__|\n"
+    " \n"
+    " \n"
+    " \n"
+    "Let dino hatch by pressing SPACE.\n"
+    "Use ARROW KEYS to move and SPACE to jump.\n"
+    "Collect coins to earns points and fruit to finish a level!\n"
+    " \n"
+    "Press SPACE to start or ESC to exit!";
 
-public:
-    /**
-     * Default Constructor.
-     */
-    IntroScreen() = default;
+static constexpr const char *GAME_OVER_TEXT =
+    "____ ____ _  _ ____    ____ _  _ ____ ____ \n"
+    "| __ |__| |\\/| |___    |  | |  | |___ |__/ \n"
+    "|__] |  | |  | |___    |__|  \\/  |___ |  \\ \n"
+    " \n"
+    "Score : %u\n"
+    " \n"
+    "Press SPACE to play again or ESC to exit!";
 
-    /**
-     * Copy Constructor.
-     */
-    IntroScreen(const IntroScreen &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    IntroScreen &operator=(const IntroScreen &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~IntroScreen() override = default;
-
-    void initialize() override;
-
-    void update(double delta) override;
-
-    void initializeBackground(Pulsar::Graphics &graphics) override;
-
-    void keyPressed(const Util::Io::Key &key) override;
-
-    void keyReleased(const Util::Io::Key &key) override;
-
-private:
-
-    static const constexpr char *INTRO_TEXT[11] = {
-            "___  _ _  _ ____",
-            "|  \\ | |\\ | |  |",
-            "|__/ | | \\| |__|",
-            "",
-            "",
-            "",
-            "Let dino hatch by pressing SPACE.",
-            "Use ARROW KEYS to move and SPACE to jump.",
-            "Collect coins to earns points and fruit to finish a level!",
-            "",
-            "Press SPACE to start or ESC to exit!"
-    };
-};
+void handleKeyPressOnTextScreen(const Util::Io::Key &key);
 
 #endif

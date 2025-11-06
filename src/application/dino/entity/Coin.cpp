@@ -34,7 +34,7 @@
 #include "lib/pulsar/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2.h"
 
-Coin::Coin(const Util::Math::Vector2<double> &position) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(Block::SIZE, Block::SIZE), Pulsar::D2::RectangleCollider::PERMEABLE)) {}
+Coin::Coin(const Util::Math::Vector2<double> &position) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, Block::SIZE, Block::SIZE, Pulsar::D2::RectangleCollider::PERMEABLE)) {}
 
 void Coin::initialize() {
     animation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({
@@ -62,7 +62,7 @@ void Coin::draw(Pulsar::Graphics &graphics) const {
 
 void Coin::onTranslationEvent([[maybe_unused]] Pulsar::D2::TranslationEvent &event) {}
 
-void Coin::onCollisionEvent(Pulsar::D2::CollisionEvent &event) {
+void Coin::onCollisionEvent(const Pulsar::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == PlayerDino::TAG) {
         auto &dino = reinterpret_cast<PlayerDino&>(event.getCollidedWidth());
         dino.setPoints(dino.getPoints() + 1);

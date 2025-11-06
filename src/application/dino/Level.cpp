@@ -120,7 +120,7 @@ void Level::initialize() {
 
 }
 
-void Level::initializeBackground(Pulsar::Graphics &graphics) {
+bool Level::initializeBackground(Pulsar::Graphics &graphics) {
     auto cloud1 = Pulsar::D2::Sprite("/user/dino/background/cloud1.bmp", 0.45, 0.15);
     auto cloud3 = Pulsar::D2::Sprite("/user/dino/background/cloud3.bmp", 0.6, 0.15);
     auto cloud4 = Pulsar::D2::Sprite("/user/dino/background/cloud4.bmp", 0.45, 0.15);
@@ -129,6 +129,8 @@ void Level::initializeBackground(Pulsar::Graphics &graphics) {
     cloud1.draw(graphics, Util::Math::Vector2<double>(-1, 0.65));
     cloud3.draw(graphics, Util::Math::Vector2<double>(0.2, 0.3));
     cloud4.draw(graphics, Util::Math::Vector2<double>(0.65, 0.7));
+
+    return true;
 }
 
 void Level::update([[maybe_unused]] double delta) {

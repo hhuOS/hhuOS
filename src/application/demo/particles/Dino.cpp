@@ -31,7 +31,7 @@
 #include "lib/util/math/Vector2.h"
 
 Dino::Dino(const Util::Math::Vector2<double> &position, bool flipX) :
-        Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE * 1.133), Pulsar::Collider::STATIC)),
+        Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE, SIZE * 1.133, Pulsar::Collider::STATIC)),
         flipX(flipX) {}
 
 void Dino::initialize() {
@@ -51,7 +51,7 @@ void Dino::onUpdate(double delta) {
 
 void Dino::onTranslationEvent([[maybe_unused]] Pulsar::D2::TranslationEvent &event) {}
 
-void Dino::onCollisionEvent([[maybe_unused]] Pulsar::D2::CollisionEvent &event) {}
+void Dino::onCollisionEvent([[maybe_unused]] const Pulsar::D2::CollisionEvent &event) {}
 
 void Dino::draw(Pulsar::Graphics &graphics) const {
     animation.draw(graphics, getPosition());

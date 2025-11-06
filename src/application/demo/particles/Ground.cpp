@@ -29,7 +29,7 @@
 #include "lib/util/math/Vector2.h"
 #include "lib/util/base/String.h"
 
-Ground::Ground(const Util::Math::Vector2<double> &position) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(WIDTH, HEIGHT), Pulsar::Collider::STATIC)) {}
+Ground::Ground(const Util::Math::Vector2<double> &position) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, WIDTH, HEIGHT, Pulsar::Collider::STATIC)) {}
 
 void Ground::initialize() {
     sprite = Pulsar::D2::Sprite("/user/dino/block/grass.bmp", HEIGHT, HEIGHT);
@@ -41,7 +41,7 @@ void Ground::onTranslationEvent(Pulsar::D2::TranslationEvent &event) {
     event.cancel();
 }
 
-void Ground::onCollisionEvent([[maybe_unused]] Pulsar::D2::CollisionEvent &event) {}
+void Ground::onCollisionEvent([[maybe_unused]] const Pulsar::D2::CollisionEvent &event) {}
 
 void Ground::draw(Pulsar::Graphics &graphics) const {
     auto startX = getPosition().getX() - (WIDTH - 1) / 2;

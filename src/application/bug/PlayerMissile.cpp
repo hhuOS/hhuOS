@@ -33,8 +33,8 @@
 #include "EnemyBug.h"
 #include "lib/util/base/String.h"
 
-PlayerMissile::PlayerMissile(const Util::Math::Vector2<double> &position, Ship &ship) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE_X, SIZE_Y), Pulsar::Collider::STATIC)), ship(ship) {
-    addComponent(new Pulsar::D2::LinearMovementComponent(*this));
+PlayerMissile::PlayerMissile(const Util::Math::Vector2<double> &position, Ship &ship) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE_X, SIZE_Y, Pulsar::Collider::STATIC)), ship(ship) {
+    addComponent(new Pulsar::D2::LinearMovementComponent());
 }
 
 void PlayerMissile::initialize() {
@@ -50,18 +50,25 @@ void PlayerMissile::onTranslationEvent(Pulsar::D2::TranslationEvent &event) {
     }
 }
 
-void PlayerMissile::onCollisionEvent(Pulsar::D2::CollisionEvent &event) {
-    auto tag = event.getCollidedWidth().getTag();
-    if (tag == EnemyMissile::TAG) {
-        const auto &missile = event.getCollidedWidth<const EnemyMissile&>();
-        if (missile.isExploding()) {
-            return;
+void PlayerMissile::onCollisionEvent(const Pulsar::D2::CollisionEvent &event) {
+    const auto &otherEntity = event.getCollidedWidth();
+    switch (otherEntity.getTag()) {
+        case EnemyMissile::TAG: {
+            const auto &missile = reinterpret_cast<const EnemyMissile&>(otherEntity);
+            if (missile.isExploding()) {
+                return;
+            }
+            break;
         }
-    } else if (tag == EnemyBug::TAG) {
-        const auto &bug = event.getCollidedWidth<const EnemyBug&>();
-        if (bug.isExploding()) {
-            return;
+        case EnemyBug::TAG: {
+            const auto &bug = reinterpret_cast<const EnemyBug&>(otherEntity);
+            if (bug.isExploding()) {
+                return;
+            }
+            break;
         }
+        default:
+            break;
     }
 
     ship.allowFireMissile();

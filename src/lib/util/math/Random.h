@@ -97,16 +97,16 @@ private:
     /// Calculate the next random number using the LCG formula.
     /// This method updates the internal state of the generator and returns the next random number.
     /// It is called internally by the public methods to generate random numbers.
-    size_t nextRandomNumber();
+    uint32_t nextRandomNumber();
 
-    size_t randomNumber;
-    const size_t multiplier;
-    const size_t increment;
-    const size_t modulus;
+    uint32_t randomNumber;
+    const uint32_t multiplier;
+    const uint32_t increment;
+    const uint32_t modulus;
 
-    static constexpr size_t MINSTD_MULTIPLIER = 48271;
-    static constexpr size_t MINSTD_INCREMENT = 0;
-    static constexpr size_t MINSTD_MODULUS = 2147483647;
+    static constexpr uint32_t MINSTD_MULTIPLIER = 48271;
+    static constexpr uint32_t MINSTD_INCREMENT = 0;
+    static constexpr uint32_t MINSTD_MODULUS = 2147483647;
 };
 
 }

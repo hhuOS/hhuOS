@@ -22,84 +22,45 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #include "Polygon.h"
 
-#include "lib/util/math/Math.h"
-#include "lib/pulsar/Graphics.h"
+#include "util/math/Math.h"
 
 namespace Pulsar::D2 {
 
-Polygon::Polygon(const Util::Array<Util::Math::Vector2<double>> &vertices) : vertices(vertices) {
-    calculateCenter();
-}
+Polygon::Polygon(const size_t tag, const Util::Math::Vector2<double> &position,
+    const Util::Array<Util::Math::Vector2<double>> &vertices, const Util::Graphic::Color &color) :
+    Entity(tag, position), vertices(vertices), color(color) {}
 
-const Util::Math::Vector2<double> &Polygon::getCenter() const {
-    return center;
-}
-
-const Util::Array<Util::Math::Vector2<double>>& Polygon::getVertices() const {
-    return vertices;
-}
+void Polygon::initialize() {}
 
 void Polygon::draw(Graphics &graphics) const {
-    graphics.drawPolygon2D(vertices);
+    graphics.setColor(color);
+    graphics.drawPolygon2D(getPosition(), vertices);
 }
 
-void Polygon::scale(double factor) {
+void Polygon::scale([[maybe_unused]] const double factor) const {
     for (auto &vertex : vertices) {
-        vertex = Util::Math::Vector2<double>(center.getX() + factor * (vertex.getX() - center.getX()),
-                                center.getY() + factor * (vertex.getY() - center.getY()));
+        vertex = vertex * factor;
     }
 }
 
-void Polygon::rotate(double angle) {
-    double sine = Util::Math::sine(angle);
-    double cosine = Util::Math::cosine(angle);
+void Polygon::rotate([[maybe_unused]] const double angle) const {
+    const auto sine = Util::Math::sine(angle);
+    const auto cosine = Util::Math::cosine(angle);
 
     for (auto &vertex : vertices) {
-        auto d = vertex - center;
-        vertex = Util::Math::Vector2<double>(d.getX() * cosine - d.getY() * sine + center.getX(),
-                                d.getX() * sine + d.getY() * cosine + center.getY());
+        vertex = Util::Math::Vector2<double>(vertex.getX() * cosine - vertex.getY() * sine,
+            vertex.getX() * sine + vertex.getY() * cosine);
     }
-}
-
-void Polygon::translate(Util::Math::Vector2<double> translation) {
-    for (auto &vertex: vertices) {
-        vertex = vertex + translation;
-    }
-
-    center = center + translation;
-}
-
-void Polygon::setPosition(const Util::Math::Vector2<double> &newPosition) {
-    auto translation = newPosition - getTopLeft();
-    translate(translation);
-}
-
-void Polygon::calculateCenter() {
-    auto sum = Util::Math::Vector2<double>();
-    for (const auto &vertex: vertices) {
-        sum = sum + vertex;
-    }
-
-    center = sum / vertices.length();
-}
-
-Util::Math::Vector2<double> Polygon::getTopLeft() {
-    Util::Math::Vector2<double> topLeft = vertices[0];
-    for (auto &vertex: vertices) {
-        if (vertex.getX() < topLeft.getX()) {
-            topLeft = Util::Math::Vector2<double>(vertex.getX(), topLeft.getY());
-        }
-
-        if (vertex.getY() < topLeft.getY()) {
-            topLeft = Util::Math::Vector2<double>(topLeft.getX(), vertex.getY());
-        }
-    }
-
-    return topLeft;
 }
 
 }

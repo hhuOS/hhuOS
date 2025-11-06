@@ -23,6 +23,7 @@
 
 #include "PlayerDino.h"
 
+#include "application/dino/dino.h"
 #include "lib/util/collection/Array.h"
 #include "lib/pulsar/Graphics.h"
 #include "lib/pulsar/2d/Sprite.h"
@@ -38,9 +39,9 @@
 #include "Block.h"
 #include "lib/pulsar/2d/component/LinearMovementComponent.h"
 #include "lib/pulsar/2d/component/GravityComponent.h"
-#include "application/dino/GameOverScreen.h"
+#include "pulsar/TextScreen.h"
 
-PlayerDino::PlayerDino(const Util::Math::Vector2<double> &position) : Entity(TAG, position, Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE, SIZE * 1.133), Pulsar::Collider::DYNAMIC)) {}
+PlayerDino::PlayerDino(const Util::Math::Vector2<double> &position) : Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE, SIZE * 1.133, Pulsar::Collider::DYNAMIC)) {}
 
 void PlayerDino::initialize() {
     idleAnimation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({
@@ -78,8 +79,8 @@ void PlayerDino::initialize() {
         Pulsar::D2::Sprite("/user/dino/player/death4.bmp", SIZE, SIZE * 1.133),
         Pulsar::D2::Sprite("/user/dino/player/death5.bmp", SIZE, SIZE * 1.133)}), 0.5);
 
-    addComponent(new Pulsar::D2::LinearMovementComponent(*this));
-    addComponent(new Pulsar::D2::GravityComponent(*this, 1.25, 0));
+    addComponent(new Pulsar::D2::LinearMovementComponent());
+    addComponent(new Pulsar::D2::GravityComponent(1.25, 0));
 
     getScene().addEntity(grassEmitter);
 }
@@ -109,7 +110,7 @@ void PlayerDino::hatch() {
 void PlayerDino::onUpdate(double delta) {
     if (dead) {
         auto &game = Pulsar::Game::getInstance();
-        game.pushScene(new GameOverScreen(points));
+        game.pushScene(new Pulsar::TextScreen(Util::String::format(GAME_OVER_TEXT, points), handleKeyPressOnTextScreen, Util::Graphic::Colors::GREEN));
         game.switchToNextScene();
 
         return;
@@ -163,7 +164,8 @@ void PlayerDino::onUpdate(double delta) {
         currentAnimation->update(delta);
     }
 
-    getCollider().setSize(currentAnimation->getOriginalSize());
+    auto &size = currentAnimation->getOriginalSize();
+    getCollider().setSize(size.getX(), size.getY());
 }
 
 void PlayerDino::draw(Pulsar::Graphics &graphics) const {
@@ -212,8 +214,9 @@ void PlayerDino::onTranslationEvent(Pulsar::D2::TranslationEvent &event) {
     }
 }
 
-void PlayerDino::onCollisionEvent(Pulsar::D2::CollisionEvent &event) {
-    if (event.getSide() == Pulsar::D2::RectangleCollider::Side::BOTTOM) {
+void PlayerDino::onCollisionEvent(const Pulsar::D2::CollisionEvent &event) {
+    const auto otherTag = event.getCollidedWidth().getTag();
+    if (event.getSide() == Pulsar::D2::RectangleCollider::Side::BOTTOM && (otherTag == Block::BOX || otherTag == Block::GRASS || otherTag == Block::DIRT)) {
         onGround = true;
     }
 

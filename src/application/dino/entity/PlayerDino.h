@@ -100,7 +100,7 @@ public:
 
     void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
 
-    void onCollisionEvent(Pulsar::D2::CollisionEvent &event) override;
+    void onCollisionEvent(const Pulsar::D2::CollisionEvent &event) override;
 
     void draw(Pulsar::Graphics &graphics) const override;
 

@@ -30,72 +30,40 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#include "Particle.h"
+#include <stddef.h>
 
+#include "TextScreen.h"
 
-#include "util/math/Vector2.h"
-#include "pulsar/2d/particle/Emitter.h"
+namespace Pulsar {
 
-namespace Pulsar::D2 {
+TextScreen::TextScreen(const Util::String &text, void(*onKeyPressed)(const Util::Io::Key &key),
+    const Util::Graphic::Color &fontColor, const Util::Graphic::Color &backgroundColor) :
+    text(text), onKeyPressed(onKeyPressed), fontColor(fontColor), backgroundColor(backgroundColor) {}
 
-Particle::Particle(const size_t tag, Emitter &parent) : Entity(tag, parent.getPosition()), parent(parent) {}
+void TextScreen::initialize() {}
 
-void Particle::initialize() {
-    parent.onParticleInitialization(*this);
-}
+bool TextScreen::initializeBackground(Graphics &graphics) {
+    const auto lines = text.split("\n");
+    const auto centerX = graphics.getAbsoluteResolutionX() / 2;
+    const auto centerY = graphics.getAbsoluteResolutionY() / 2;
+    const auto y = static_cast<uint16_t>(centerY - lines.length() * Graphics::FONT_SIZE / 2.0);
 
-void Particle::onUpdate(const double delta) {
-    if (timeLimited) {
-        timeToLive -= delta;
-        if (timeToLive <= 0) {
-            parent.removeParticle(this);
-            return;
-        }
+    graphics.clear(backgroundColor);
+    graphics.setColor(fontColor);
+
+    for (size_t i = 0; i < lines.length(); ++i) {
+        const auto &line = lines[i];
+        const auto x = static_cast<uint16_t>(centerX - line.length() * Graphics::FONT_SIZE / 2.0);
+        graphics.drawStringDirectAbsolute(x, y + i * Graphics::FONT_SIZE, line);
     }
 
-    parent.onParticleUpdate(*this, delta);
-    sprite.rotate(rotationVelocity * delta);
+    return true;
 }
 
-void Particle::draw(Graphics &graphics) const {
-    sprite.draw(graphics, getPosition());
-}
-
-void Particle::onCollisionEvent(const CollisionEvent &event) {
-    parent.onParticleCollision(*this, event);
-}
-
-double Particle::getScale() const {
-    return sprite.getScale().getX();
-}
-
-void Particle::setScale(const double scale) {
-    sprite.setScale(scale);
-}
-
-double Particle::getAlpha() const {
-    return sprite.getAlpha();
-}
-
-void Particle::setAlpha(const double alpha) {
-    sprite.setAlpha(alpha);
-}
-
-double Particle::getRotationVelocity() const {
-    return rotationVelocity;
-}
-
-void Particle::setRotationVelocity(const double rotationVelocity) {
-    Particle::rotationVelocity = rotationVelocity;
-}
-
-void Particle::setTimeToLive(const Util::Time::Timestamp &timeToLive) {
-    Particle::timeToLive = timeToLive.toSecondsFloat<double>();
-    timeLimited = Particle::timeToLive > 0;
-}
-
-void Particle::setSprite(const Sprite &sprite) {
-    Particle::sprite = sprite;
+void TextScreen::keyPressed(const Util::Io::Key &key) {
+    if (onKeyPressed != nullptr) {
+        onKeyPressed(key);
+    }
 }
 
 }

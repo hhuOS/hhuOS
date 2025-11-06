@@ -96,6 +96,18 @@ public:
     /// ```
     static Timestamp ofNanoseconds(uint64_t nanoseconds);
 
+    /// Create a Timestamp from the given floating-point number of seconds.
+    ///
+    /// ### Example
+    /// ```c++
+    /// const auto timestamp = Util::Time::Timestamp::ofSecondsFloat<double>(5.75);
+    ///
+    /// const auto seconds = timestamp.toSeconds(); // seconds = 5
+    /// const auto nanoseconds = timestamp.toNanoseconds(); // nanoseconds = 5750000000
+    /// ```
+    template <typename T>
+    static Timestamp ofSecondsFloat(T seconds);
+
     /// Add two timestamps together.
     ///
     /// ### Example
@@ -322,7 +334,7 @@ public:
     /// ```
     [[nodiscard]] size_t toYears() const;
 
-    /// Convert the timestamp to a double representing the total number of seconds.
+    /// Convert the timestamp to a floating point value representing the total number of seconds.
     ///
     /// ### Example
     /// ```c++
@@ -342,6 +354,14 @@ private:
 
     static constexpr uint32_t NANOSECONDS_PER_SECOND = 1000000000;
 };
+
+template<typename T>
+Timestamp Timestamp::ofSecondsFloat(T seconds) {
+    const auto secondsInt = static_cast<size_t>(seconds);
+    const auto fraction = (seconds - secondsInt) * NANOSECONDS_PER_SECOND;
+
+    return Timestamp(seconds, fraction);
+}
 
 template<typename T>
 T Timestamp::toSecondsFloat() const {

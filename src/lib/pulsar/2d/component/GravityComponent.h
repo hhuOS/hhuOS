@@ -22,52 +22,48 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_GRAVITYCOMPONENT_H
-#define HHUOS_GRAVITYCOMPONENT_H
+#ifndef HHUOS_LIB_PULSAR_2D_GRAVITYCOMPONENT_H
+#define HHUOS_LIB_PULSAR_2D_GRAVITYCOMPONENT_H
 
 #include "Component.h"
 
-namespace Pulsar {
-namespace D2 {
-class Entity;
-}  // namespace D2
-}  // namespace Pulsar
-
 namespace Pulsar::D2 {
 
-class GravityComponent : public Component {
+/// A component that applies a gravity effect to the entity every frame.
+/// This component modifies the entity's velocity by adding a downward force each update cycle,
+/// simulating the effect of gravity. Additionally, it applies a horizontal stop factor to gradually
+/// reduce the entity's horizontal velocity over time, simulating friction or air resistance.
+/// By adding this component to an entity, the entity will experience a constant downward acceleration,
+/// making it fall towards the ground, while also slowing down its horizontal movement.
+class GravityComponent final : public Component {
 
 public:
-    /**
-    * Constructor.
-    */
-    explicit GravityComponent(Entity &entity, double gravityValue = 1.25, double stopFactorX = 0.15);
-
-    /**
-     * Copy Constructor.
-     */
-    GravityComponent(const GravityComponent &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    GravityComponent &operator=(const GravityComponent &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~GravityComponent() = default;
+    /// Create a new gravity component instance.
+    /// The `gravityValue` parameter defines the strength of the gravitational pull applied to the entity.
+    /// A higher value results in a stronger downward force.
+    /// The `stopFactorX` parameter defines the factor by which the entity's horizontal velocity
+    /// is reduced each update cycle. A value of 0 means no reduction, while a value of 1 means
+    /// the horizontal velocity is completely stopped immediately.
+    /// The default values are set to simulate a somewhat realistic gravity effect.
+    explicit GravityComponent(double gravityValue = 1.25, double stopFactorX = 0.15);
 
 protected:
-
+    /// Update the entity's velocity and position based on gravity and horizontal stop factor.
+    /// This method is called every frame by the entity that owns this component.
     void update(double delta) override;
 
 private:
 
-    double gravityValue;
-    double stopFactorX;
+    const double gravityValue;
+    const double stopFactorX;
 };
 
 }

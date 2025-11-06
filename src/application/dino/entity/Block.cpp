@@ -33,7 +33,7 @@
 #include "lib/util/math/Vector2.h"
 
 Block::Block(Tag tag, const Util::Math::Vector2<double> &position, uint32_t countX, uint32_t countY) :
-        Pulsar::D2::Entity(tag, position, Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE * countX, SIZE * countY), Pulsar::D2::RectangleCollider::STATIC)),
+        Pulsar::D2::Entity(tag, position, Pulsar::D2::RectangleCollider(position, SIZE * countX, SIZE * countY, Pulsar::D2::RectangleCollider::STATIC)),
         countX(countX), countY(countY) {}
 
 void Block::initialize() {
@@ -52,7 +52,7 @@ void Block::draw(Pulsar::Graphics &graphics) const {
 
 void Block::onTranslationEvent([[maybe_unused]] Pulsar::D2::TranslationEvent &event) {}
 
-void Block::onCollisionEvent(Pulsar::D2::CollisionEvent &event) {
+void Block::onCollisionEvent(const Pulsar::D2::CollisionEvent &event) {
     if (getTag() == WATER && event.getCollidedWidth().getTag() == PlayerDino::TAG && event.getSide() == Pulsar::D2::RectangleCollider::TOP) {
         getScene().addEntity(new BloodEmitter(event.getCollidedWidth().getPosition(), BloodEmitter::WATER));
         removeFromScene();

@@ -30,8 +30,8 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_LIB_UTIL_GAME_RESOURCES_H
-#define HHUOS_LIB_UTIL_GAME_RESOURCES_H
+#ifndef HHUOS_LIB_PULSAR_RESOURCES_H
+#define HHUOS_LIB_PULSAR_RESOURCES_H
 
 #include "pulsar/3d/ObjectFile.h"
 #include "audio/AudioBuffer.h"

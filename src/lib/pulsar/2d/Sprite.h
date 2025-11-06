@@ -22,78 +22,94 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_SPRITE_H
-#define HHUOS_SPRITE_H
+#ifndef HHUOS_LIB_PULSAR_2D_SPRITE_H
+#define HHUOS_LIB_PULSAR_2D_SPRITE_H
 
 #include "util/graphic/Image.h"
-#include "lib/util/base/String.h"
-#include "lib/util/math/Vector2.h"
-
-namespace Pulsar {
-class Graphics;
-}  // namespace Util
+#include "util/base/String.h"
+#include "util/math/Vector2.h"
+#include "pulsar/Graphics.h"
 
 namespace Pulsar::D2 {
 
+/// Represents a 2D sprite.
+/// A sprite is a 2D image that can be drawn on the screen with various transformations
+/// like scaling, rotation, and alpha blending. Usually, a bitmap image is used as the
+/// source for the sprite, but it is also possible to create a rectangular sprite filled
+/// with a single color (useful for debugging purposes or particles).
+/// Loaded images are cached in the `Pulsar::Resources` class to avoid loading the same image multiple times.
+/// Transformations like scaling and rotation are applied during rendering and do not modify
+/// the original image data. They are very compute expensive and should be used sparingly on small
+/// sprites only (e.g. particles).
 class Sprite {
 
 public:
-    /**
-     * Default Constructor.
-     */
+    /// Create a new sprite instance with an empty image and size of (0, 0).
     Sprite();
 
-    /**
-     * Constructor.
-     */
+    /// Create a new sprite instance from a bitmap image located at the given path.
+    /// The image will be scaled to the specified width and height (in game units).
     Sprite(const Util::String &path, double width, double height);
 
-    /**
-     * Copy Constructor.
-     */
-    Sprite(const Sprite &other) = default;
+    /// Create a new sprite instance filled with the given color.
+    /// The sprite will have the specified width and height with the image being a filled rectangle of that color.
+    Sprite(const Util::Graphic::Color &color, double width, double height);
 
-    /**
-     * Assignment operator.
-     */
-    Sprite &operator=(const Sprite &other) = default;
-
-    /**
-     * Destructor.
-     */
-    ~Sprite() = default;
-
+    /// Get the underlying image of the sprite.
     [[nodiscard]] const Util::Graphic::Image& getImage() const;
 
+    /// Get the original size of the sprite (before scaling).
     [[nodiscard]] const Util::Math::Vector2<double>& getOriginalSize() const;
 
+    /// Get the current size of the sprite (after scaling).
     [[nodiscard]] Util::Math::Vector2<double> getSize() const;
 
-    [[nodiscard]] const Util::Math::Vector2<double>& getScale() const;
-
-    [[nodiscard]] double getRotation() const;
-
-    [[nodiscard]] double getAlpha() const;
-
-    void setScale(const Util::Math::Vector2<double> &scale);
-
+    /// Set the scale of the sprite uniformly in both dimensions.
     void setScale(double scale);
 
-    void setRotation(double angle);
+    /// Set the scale of the sprite in both dimensions.
+    void setScale(const Util::Math::Vector2<double> &scale);
 
-    void setAlpha(double alpha);
+    /// Get the current scale of the sprite.
+    [[nodiscard]] const Util::Math::Vector2<double>& getScale() const;
 
+    /// Rotate the sprite by the given angle (in radians).
     void rotate(double angle);
 
+    /// Set the rotation angle of the sprite (in radians).
+    void setRotation(double angle);
+
+    /// Get the current rotation angle of the sprite (in radians).
+    [[nodiscard]] double getRotation() const;
+
+    /// Set the alpha transparency of the sprite (0.0 = fully transparent, 1.0 = fully opaque).
+    void setAlpha(double alpha);
+
+    /// Get the current alpha transparency of the sprite.
+    [[nodiscard]] double getAlpha() const;
+
+    /// Flip the sprite horizontally.
+    /// This causes the sprite to be mirrored along the vertical axis during rendering.
+    /// If the sprite is already flipped, calling this method will un-flip it.
     void flipX();
 
+    /// Set whether the sprite is flipped horizontally (i.e. mirrored along the vertical axis).
+    void setXFlipped(bool flipped);
+
+    /// Draw the sprite at the given position using the specified graphics context.
     void draw(const Graphics &graphics, const Util::Math::Vector2<double> &position) const;
 
 private:
 
-    const Util::Graphic::Image *image;
+    const Util::Graphic::Image *image = nullptr;
 
     Util::Math::Vector2<double> size;
     Util::Math::Vector2<double> scale = Util::Math::Vector2<double>(1, 1);

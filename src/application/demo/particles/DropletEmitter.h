@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#include "lib/pulsar/2d/particle/SingleTimeEmitter.h"
+#include "lib/pulsar/2d/particle/OnceEmitter.h"
 #include "lib/util/math/Random.h"
 
 namespace Util {
@@ -35,7 +35,7 @@ template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
-class DropletEmitter : public Pulsar::D2::SingleTimeEmitter {
+class DropletEmitter : public Pulsar::D2::OnceEmitter {
 
 public:
     /**
@@ -64,15 +64,15 @@ public:
 
     void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
 
-    void onCollisionEvent(Pulsar::D2::CollisionEvent &event) override;
+    void onCollisionEvent(const Pulsar::D2::CollisionEvent &event) override;
 
     void onParticleInitialization(Pulsar::D2::Particle &particle) override;
 
     void onParticleUpdate(Pulsar::D2::Particle &particle, double delta) override;
 
-    void onParticleCollision(Pulsar::D2::Particle &particle, Pulsar::D2::CollisionEvent &event) override;
+    void onParticleCollision(Pulsar::D2::Particle &particle, const Pulsar::D2::CollisionEvent &event) override;
 
-    void onParticleDestruction(Pulsar::D2::Particle &particle) override;
+    void onParticleDestruction(const Pulsar::D2::Particle &particle) override;
 
     static const constexpr uint32_t TAG = 2;
     static const constexpr uint32_t PARTICLE_TAG = 3;

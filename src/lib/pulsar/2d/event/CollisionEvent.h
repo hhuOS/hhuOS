@@ -22,50 +22,41 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_COLLISIONEVENT_2D_H
-#define HHUOS_COLLISIONEVENT_2D_H
+#ifndef HHUOS_LIB_PULSAR_2D_COLLISIONEVENT_H
+#define HHUOS_LIB_PULSAR_2D_COLLISIONEVENT_H
 
-#include "lib/pulsar/Event.h"
-#include "lib/pulsar/2d/collider/RectangleCollider.h"
-
-namespace Pulsar {
-namespace D2 {
-class Entity;
-}  // namespace D2
-}  // namespace Pulsar
+#include "pulsar/Event.h"
+#include "pulsar/2d/Entity.h"
+#include "pulsar/2d/collider/RectangleCollider.h"
 
 namespace Pulsar::D2 {
 
-class CollisionEvent : public Event {
+/// A collision event for 2D rectangle colliders.
+/// This event is triggered when two entities with rectangle colliders collide.
+/// It contains a reference to the other entity involved in the collision,
+/// as well as the side of the `RectangleCollider` that was hit.
+/// Collision events are not cancelable. They are created automatically by `D2::Scene`
+/// and propagated to the involved entities via `D2::Entity::handleCollisionEvent()`.
+class CollisionEvent final : public Event {
 
 public:
-    /**
-     * Constructor.
-     */
+    /// Create a new collision event instance.
+    /// Collision events are created automatically by the scene when two rectangle colliders collide.
+    /// Thus, this constructor is intended for internal use only.
     CollisionEvent(Entity &other, RectangleCollider::Side side);
 
-    /**
-     * Copy Constructor.
-     */
-    CollisionEvent(const CollisionEvent &other) = delete;
+    /// Get the other entity involved in the collision.
+    [[nodiscard]] Entity& getCollidedWidth() const;
 
-    /**
-     * Assignment operator.
-     */
-    CollisionEvent &operator=(const CollisionEvent &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~CollisionEvent() = default;
-
-    [[nodiscard]] Entity& getCollidedWidth();
-
-    template<typename T>
-    [[nodiscard]] T& getCollidedWidth();
-
+    /// Get the side of the rectangle collider that was hit during the collision.
     [[nodiscard]] RectangleCollider::Side getSide() const;
 
 private:
@@ -73,11 +64,6 @@ private:
     Entity &other;
     const RectangleCollider::Side side;
 };
-
-template<typename T>
-T& Pulsar::D2::CollisionEvent::getCollidedWidth() {
-    return reinterpret_cast<T&>(other);
-}
 
 }
 

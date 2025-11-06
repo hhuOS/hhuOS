@@ -72,17 +72,31 @@ public:
     /// Create a new scene instance.
     Scene() = default;
 
-    /// Scenes are not copyable, since they manage unique resources on the heap,
-    /// so the copy constructor is deleted.
+    /// Scenes are not copyable, since they manage unique resources on the heap, so the copy constructor is deleted.
     Scene(const Scene &other) = delete;
 
-    /// Scenes are not copyable, since they manage unique resources on the heap,
-    /// so the copy assignment operator is deleted.
+    /// Scenes are not copyable, since they manage unique resources on the heap, so the assignment operator is deleted.
     Scene &operator=(const Scene &other) = delete;
 
     /// Destroy the scene and all its entities.
     /// A scene is deleted automatically when the game switches to the next scene.
     virtual ~Scene();
+
+    /// Initialize the scene. This method is called by the engine once when the scene is first loaded.
+    /// It initializes the graphics context and entities and calls the user-defined `initialize()` method.
+    /// It is intended to be overridden by engine internal scene implementations (e.g. `D2::Scene` and `D3::Scene`),
+    /// and should not be called directly by game developers.
+    virtual void initializeScene(Graphics &graphics) = 0;
+
+    /// Update all entities in the scene. This method is called by the engine once per frame.
+    /// It is intended to be overridden by engine internal scene implementations (e.g. `D2::Scene` and `D3::Scene`),
+    /// and should not be called directly by game developers.
+    virtual void updateEntities(double delta) = 0;
+
+    /// Check for collisions between entities in the scene. This method is called by the engine once per frame.
+    /// It is intended to be overridden by engine internal scene implementations (e.g. `D2::Scene` and `D3::Scene`),
+    /// and should not be called directly by game developers.
+    virtual void checkCollisions() = 0;
 
     /// Initialize the scene. This method is called once when the scene is first loaded.
     /// Any scene-wide setup should be done here (e.g. loading resources, setting up the environment, etc.).
@@ -121,33 +135,10 @@ public:
 
     /// Remove an entity from the scene. The entity will be deleted automatically.
     /// Removing the same entity multiple times is not allowed and will cause undefined behavior.
-    void removeEntity(Entity *object);
+    void removeEntity(const Entity *object);
 
     /// Get the camera associated with the scene.
     [[nodiscard]] Camera& getCamera();
-
-protected:
-
-    /// Get const access to the list of entities in the scene. This is mainly used by the `D2::Scene` and `D3::Scene`
-    /// implementation to iterate over all entities for rendering and collision detection.
-    [[nodiscard]] const Util::ArrayList<Entity*>& getEntities() const;
-
-private:
-
-    friend class Engine;
-    friend class Game;
-
-    /// Initialize the scene. This method is called by the engine once when the scene is first loaded.
-    /// It initializes the graphics context and calls the user-defined `initialize()` method.
-    virtual void initializeScene(Graphics &graphics) = 0;
-
-    /// Update all entities in the scene.
-    /// This method is called by the engine once per frame.
-    virtual void updateEntities(double delta) = 0;
-
-    /// Check for collisions between entities in the scene.
-    /// This method is called by the engine once per frame.
-    virtual void checkCollisions() = 0;
 
     /// Get the current number of entities in the scene.
     /// This method is used by the engine for the statistics overlay.
@@ -161,10 +152,18 @@ private:
     /// This method is called by the engine once per frame.
     void draw(Graphics &graphics) const;
 
+protected:
+
+    /// Get const access to the list of entities in the scene. This is mainly used by the `D2::Scene` and `D3::Scene`
+    /// implementation to iterate over all entities for rendering and collision detection.
+    [[nodiscard]] const Util::ArrayList<Entity*>& getEntities() const;
+
+private:
+
     Camera camera;
     Util::ArrayList<Entity*> entities;
     Util::ArrayList<Entity*> addList;
-    Util::ArrayList<Entity*> removeList;
+    Util::ArrayList<const Entity*> removeList;
 };
 
 }

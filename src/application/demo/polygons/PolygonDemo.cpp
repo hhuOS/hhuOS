@@ -62,5 +62,3 @@ void PolygonDemo::keyPressed(const Util::Io::Key &key) {
 }
 
 void PolygonDemo::keyReleased([[maybe_unused]] const Util::Io::Key &key) {}
-
-void PolygonDemo::initializeBackground([[maybe_unused]] Pulsar::Graphics &graphics) {}

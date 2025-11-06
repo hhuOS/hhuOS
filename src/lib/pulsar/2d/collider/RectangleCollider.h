@@ -22,63 +22,79 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_RECTANGLECOLLIDER_H
-#define HHUOS_RECTANGLECOLLIDER_H
+#ifndef HHUOS_LIB_PULSAR_2D_RECTANGLECOLLIDER_H
+#define HHUOS_LIB_PULSAR_2D_RECTANGLECOLLIDER_H
 
-#include "lib/pulsar/Collider.h"
-#include "lib/util/math/Vector2.h"
+#include "util/math/Vector2.h"
+#include "pulsar/Collider.h"
 
 namespace Pulsar::D2 {
 
+/// A rectangular collider for 2D collision detection.
+/// Each collider has four sides: `LEFT`, `RIGHT`, `TOP` and `BOTTOM`.
+/// Collisions with other rectangle collider can be detected by calling `isColliding()`.
+/// If a collision is detected, the side of this collider that is colliding with the other collider is returned.
+/// This way, games can use this collider as an axis-aligned bounding box (AABB) for simple collision detection.
 class RectangleCollider : public Collider {
 
 public:
-
+    /// The sides of the rectangle collider.
     enum Side {
-        LEFT, RIGHT, TOP, BOTTOM, NONE
+        /// The left side of the rectangle collider.
+        LEFT = 0,
+        /// The right side of the rectangle collider.
+        RIGHT = 1,
+        /// The top side of the rectangle collider.
+        TOP = 2,
+        /// The bottom side of the rectangle collider.
+        BOTTOM = 3,
+        /// No collision.
+        NONE
     };
 
-    /**
-     * Constructor.
-     */
-    RectangleCollider(const Util::Math::Vector2<double> &position, const Util::Math::Vector2<double> &size, Collider::Type type);
+    /// Create a new rectangle collider of type `NONE` at the origin with zero size.
+    /// This is used for entities without a collider.
+    RectangleCollider() = default;
 
-    /**
-     * Copy Constructor.
-     */
-    RectangleCollider(const RectangleCollider &other) = default;
+    /// Create a new rectangle collider instance at the given position with the given size and type.
+    RectangleCollider(const Util::Math::Vector2<double> &position, double width, double height, Type type);
 
-    /**
-     * Assignment operator.
-     */
-    RectangleCollider &operator=(const RectangleCollider &other) = default;
-
-    /**
-     * Destructor.
-     */
-    ~RectangleCollider() = default;
-
+    /// Get the opposite side of the given side.
+    /// For example, the opposite side of `LEFT` is `RIGHT`.
     static Side getOpposite(Side side);
 
+    /// Get the width of the rectangle collider.
     [[nodiscard]] double getWidth() const;
 
+    /// Get the height of the rectangle collider.
     [[nodiscard]] double getHeight() const;
 
-    [[nodiscard]] const Util::Math::Vector2<double>& getSize() const;
-
+    /// Set the width of the rectangle collider.
     void setWidth(double width);
 
+    /// Set the height of the rectangle collider.
     void setHeight(double height);
 
-    void setSize(const Util::Math::Vector2<double> &size);
-
+    /// Set the width and height of the rectangle collider.
+    void setSize(double width, double height);
+    
+    /// Check if this rectangle collider is colliding with another rectangle collider (i.e., if the rectangles overlap).
+    /// If a collision is detected, the side of this collider that is colliding with the other collider is returned.
+    /// Otherwise, `NONE` is returned.
     [[nodiscard]] Side isColliding(const RectangleCollider &other) const;
 
 private:
 
-    Util::Math::Vector2<double> size;
+    double width = 0;
+    double height = 0;
 };
 
 }

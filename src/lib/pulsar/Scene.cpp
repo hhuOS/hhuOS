@@ -53,7 +53,7 @@ void Scene::addEntity(Entity *object) {
     addList.add(object);
 }
 
-void Scene::removeEntity(Entity *object) {
+void Scene::removeEntity(const Entity *object) {
     if (!removeList.contains(object)) {
         removeList.add(object);
     }
@@ -73,8 +73,8 @@ void Scene::applyChanges() {
     // An entity might remove further entities during its deletion, so we need to loop until all are removed.
     while (removeList.size() > 0) {
         // We copy the list to avoid issues with entities removing further entities during deletion.
-        for (auto *object: removeList.toArray()) {
-            entities.remove(object);
+        for (const auto *object: removeList.toArray()) {
+            entities.remove(const_cast<Entity*>(object));
             removeList.remove(object);
             delete object;
         }
@@ -82,7 +82,7 @@ void Scene::applyChanges() {
 }
 
 void Scene::draw(Graphics &graphics) const {
-    for (auto *object : entities) {
+    for (const auto *object : entities) {
         object->draw(graphics);
     }
 }

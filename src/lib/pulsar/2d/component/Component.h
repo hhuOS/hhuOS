@@ -22,10 +22,16 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_COMPONENT_H
-#define HHUOS_COMPONENT_H
+#ifndef HHUOS_LIB_PULSAR_2D_COMPONENT_H
+#define HHUOS_LIB_PULSAR_2D_COMPONENT_H
 
 namespace Pulsar {
 namespace D2 {
@@ -35,40 +41,40 @@ class Entity;
 
 namespace Pulsar::D2 {
 
+/// A component that can be attached to an entity to extend its functionality.
+/// Components are updated every frame by the entity they are attached to.
+/// They can access the entity they are attached to via `getEntity()` and modify its state.
+/// For example, a `LinearMovementComponent` updates the position of the entity based on its velocity.
+/// The entity takes ownership of the component and is responsible for its lifetime.
 class Component {
 
-friend class Entity;
-
 public:
-    /**
-    * Constructor.
-    */
-    explicit Component(Entity &entity);
+    /// Create a new component instance.
+    explicit Component() = default;
 
-    /**
-     * Copy Constructor.
-     */
+    /// Components are not copyable, since they are owned by a single entity, so the copy constructor is deleted.
     Component(const Component &other) = delete;
 
-    /**
-     * Assignment operator.
-     */
+    /// Components are not copyable, since they are owned by a single entity, so the assignment operator is deleted.
     Component &operator=(const Component &other) = delete;
 
-    /**
-     * Destructor.
-     */
+    /// Destroy the component. Since the base class does not manage any resources, the default destructor is sufficient.
     virtual ~Component() = default;
 
 protected:
-
+    /// This method is called every frame by the entity it is attached to.
+    /// Here, the component can modify the state of the entity.
     virtual void update(double delta) = 0;
 
-    [[nodiscard]] Entity& getEntity();
+    /// Get the entity this component is attached to.
+    /// This method allows subclasses to access the entity they are attached to.
+    [[nodiscard]] Entity& getEntity() const;
 
 private:
 
-    Entity &entity;
+    friend class Entity;
+
+    Entity *entity = nullptr;
 };
 
 }

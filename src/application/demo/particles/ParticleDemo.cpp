@@ -49,8 +49,9 @@ void ParticleDemo::initialize() {
 
 void ParticleDemo::update([[maybe_unused]] double delta) {}
 
-void ParticleDemo::initializeBackground(Pulsar::Graphics &graphics) {
+bool ParticleDemo::initializeBackground(Pulsar::Graphics &graphics) {
     graphics.clear(Util::Graphic::Color(153, 221, 255));
+    return true;
 }
 
 void ParticleDemo::keyPressed(const Util::Io::Key &key) {

@@ -22,62 +22,52 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_POLYGON_H
-#define HHUOS_POLYGON_H
+#ifndef HHUOS_LIB_PULSAR_2D_POLYGON_H
+#define HHUOS_LIB_PULSAR_2D_POLYGON_H
 
-#include "lib/util/collection/Array.h"
-#include "lib/util/math/Vector2.h"
-#include "lib/pulsar/Drawable.h"
+#include "util/collection/Array.h"
+#include "util/math/Vector2.h"
+#include "pulsar/2d/Entity.h"
 
 namespace Pulsar::D2 {
 
-class Polygon : public Drawable {
+/// A 2D polygon entity, defined by a set of vertices.
+/// The vertices are defined in local space (i.e. relative to the position of the polygon), with (0,0) being the center.
+/// The polygon is always closed, i.e. the last vertex is connected to the first vertex. It can be scaled and rotated.
+/// Only its outline is drawn, it can not be filled.
+class Polygon : public Entity {
 
 public:
-    /**
-     * Constructor.
-     */
-    explicit Polygon(const Util::Array<Util::Math::Vector2<double>> &vertices);
+    /// Create a new polygon instance with a set of vertices and a color (used to draw the outline of the polygon).
+    explicit Polygon(size_t tag, const Util::Math::Vector2<double> &position,
+        const Util::Array<Util::Math::Vector2<double>> &vertices,
+        const Util::Graphic::Color &color = Util::Graphic::Colors::WHITE);
 
-    /**
-     * Copy Constructor.
-     */
-    Polygon(const Polygon &other) = delete;
+    /// Initialize the polygon (does nothing, since polygons have no resource to load or initialize).
+    void initialize() final;
 
-    /**
-     * Assignment operator.
-     */
-    Polygon &operator=(const Polygon &other) = delete;
+    /// Scale the polygon by the given factor (scales all vertices).
+    void scale(double factor) const;
 
-    /**
-     * Destructor.
-     */
-    ~Polygon() override = default;
+    /// Rotate the polygon by the given angle in radians (rotates all vertices around the origin).
+    void rotate(double angle) const;
 
-    [[nodiscard]] const Util::Math::Vector2<double>& getCenter() const;
-
-    [[nodiscard]] const Util::Array<Util::Math::Vector2<double>>& getVertices() const;
-
-    void scale(double factor);
-
-    void rotate(double angle);
-
-    void translate(Util::Math::Vector2<double> translation);
-
-    void setPosition(const Util::Math::Vector2<double> &newPosition);
-
-    void draw(Graphics &graphics) const override;
+    /// Draw the polygon using the given graphics context (draws the outline of the polygon).
+    /// This method is called automatically once per frame.
+    void draw(Graphics &graphics) const final;
 
 private:
 
-    void calculateCenter();
-
-    Util::Math::Vector2<double> getTopLeft();
-
     Util::Array<Util::Math::Vector2<double>> vertices;
-    Util::Math::Vector2<double> center;
+    Util::Graphic::Color color;
 };
 
 }

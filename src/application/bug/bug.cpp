@@ -20,6 +20,9 @@
 
 #include <stdint.h>
 
+#include "bug.h"
+#include "BugDefender.h"
+#include "lib/pulsar/TextScreen.h"
 #include "lib/pulsar/Engine.h"
 #include "lib/util/base/System.h"
 #include "lib/util/base/ArgumentParser.h"
@@ -27,7 +30,6 @@
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/pulsar/Game.h"
-#include "IntroScreen.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
 
@@ -65,8 +67,23 @@ int32_t main(int32_t argc, char *argv[]) {
     auto lfb = Util::Graphic::LinearFrameBuffer::open(lfbFile);
     auto engine = Pulsar::Engine(lfb, 60, scaleFactor);
 
-    Pulsar::Game::getInstance().pushScene(new IntroScreen());
+    Pulsar::Game::getInstance().pushScene(new Pulsar::TextScreen(INTRO_TEXT, handleKeyPressOnTextScreen, Util::Graphic::Colors::GREEN));
+
     engine.run();
 
     return 0;
+}
+
+void handleKeyPressOnTextScreen(const Util::Io::Key &key) {switch (key.getScancode()) {
+    case Util::Io::Key::ESC:
+        Pulsar::Game::getInstance().stop();
+        break;
+    case Util::Io::Key::SPACE:
+        Pulsar::Game::getInstance().pushScene(new BugDefender());
+        Pulsar::Game::getInstance().switchToNextScene();
+        break;
+    default:
+        break;
+}
+
 }

@@ -22,20 +22,19 @@
 
 #include "lib/pulsar/Graphics.h"
 #include "lib/util/math/Vector2.h"
-#include "lib/pulsar/2d/event/TranslationEvent.h"
 
-DemoPolygon::DemoPolygon() : Pulsar::D2::Entity(0, Util::Math::Vector2<double>(0, 0)), polygon(Util::Array<Util::Math::Vector2<double>>(0)), color(0, 0, 0), rotationSpeed(0), scaleSpeed(0) {}
+DemoPolygon::DemoPolygon() : Polygon(0, Util::Math::Vector2<double>(0, 0),
+    Util::Array<Util::Math::Vector2<double>>(0)), rotationSpeed(0), scaleSpeed(0) {}
 
-DemoPolygon::DemoPolygon(const Util::Array<Util::Math::Vector2<double>> &vertices, const Util::Math::Vector2<double> &position, const Util::Graphic::Color &color, double initialScaleFactor, double scaleSpeed, double rotationSpeed) :
-        Pulsar::D2::Entity(0, Util::Math::Vector2<double>(0, 0)), polygon(vertices), color(color), rotationSpeed(rotationSpeed), scaleSpeed(scaleSpeed) {
-    setPosition(position);
-    polygon.setPosition(getPosition());
-    polygon.scale(initialScaleFactor);
+DemoPolygon::DemoPolygon(const Util::Array<Util::Math::Vector2<double>> &vertices,
+    const Util::Math::Vector2<double> &position, const Util::Graphic::Color &color,
+    double initialScaleFactor, double scaleSpeed, double rotationSpeed) :
+    Polygon(0, position, vertices, color), rotationSpeed(rotationSpeed), scaleSpeed(scaleSpeed)
+{
+    scale(initialScaleFactor);
 }
 
-void DemoPolygon::initialize() {}
-
-void DemoPolygon::onUpdate(double delta) {
+void DemoPolygon::onUpdate(const double delta) {
     const double rotationAngle = delta * rotationSpeed;
     const double scaleFactor = scaleUp ? 1 + (delta * scaleSpeed) : 1 - (delta * scaleSpeed);
     currentScale *= scaleFactor;
@@ -45,17 +44,6 @@ void DemoPolygon::onUpdate(double delta) {
         scaleUp = true;
     }
 
-    polygon.rotate(rotationAngle);
-    polygon.scale(scaleFactor);
+    rotate(rotationAngle);
+    scale(scaleFactor);
 }
-
-void DemoPolygon::draw(Pulsar::Graphics &graphics) const {
-    graphics.setColor(color);
-    polygon.draw(graphics);
-}
-
-void DemoPolygon::onTranslationEvent(Pulsar::D2::TranslationEvent &event) {
-    polygon.setPosition(event.getTargetPosition());
-}
-
-void DemoPolygon::onCollisionEvent([[maybe_unused]] Pulsar::D2::CollisionEvent &event) {}

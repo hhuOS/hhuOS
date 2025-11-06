@@ -30,8 +30,8 @@
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_LIB_UTIL_GAME_STATISTICS_H
-#define HHUOS_LIB_UTIL_GAME_STATISTICS_H
+#ifndef HHUOS_LIB_PULSAR_STATISTICS_H
+#define HHUOS_LIB_PULSAR_STATISTICS_H
 
 #include <stddef.h>
 

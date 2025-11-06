@@ -26,7 +26,6 @@
 #include "lib/pulsar/Game.h"
 #include "EnemyMissile.h"
 #include "PlayerMissile.h"
-#include "GameOverScreen.h"
 #include "application/bug/Fleet.h"
 #include "application/bug/Ship.h"
 #include "lib/util/collection/Array.h"
@@ -39,8 +38,8 @@
 #include "lib/pulsar/2d/Entity.h"
 #include "lib/util/base/String.h"
 
-EnemyBug::EnemyBug(const Util::Math::Vector2<double> &position, Fleet &fleet) : Explosive(TAG, position, Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE_X, SIZE_Y), Pulsar::Collider::STATIC), "/user/bug/bug_explosion.wav"), fleet(fleet) {
-    addComponent(new Pulsar::D2::LinearMovementComponent(*this));
+EnemyBug::EnemyBug(const Util::Math::Vector2<double> &position, Fleet &fleet) : Explosive(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE_X, SIZE_Y, Pulsar::Collider::STATIC), "/user/bug/bug_explosion.wav"), fleet(fleet) {
+    addComponent(new Pulsar::D2::LinearMovementComponent());
 }
 
 void EnemyBug::initialize() {
@@ -101,7 +100,7 @@ void EnemyBug::onTranslationEvent(Pulsar::D2::TranslationEvent &event) {
     }
 }
 
-void EnemyBug::onCollisionEvent(Pulsar::D2::CollisionEvent &event) {
+void EnemyBug::onCollisionEvent(const Pulsar::D2::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == PlayerMissile::TAG) {
         explode();
     }

@@ -17,58 +17,58 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
- * The particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
+ * The original source code can be found here: https://github.com/Malte2036/hhuOS
+ *
+ * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #include "Emitter.h"
 
-#include "lib/pulsar/Scene.h"
-#include "Particle.h"
-
-namespace Util {
-namespace Math {
-template <typename T> class Vector2;
-}  // namespace Math
-}  // namespace Util
+#include "pulsar/2d/particle/Particle.h"
 
 namespace Pulsar::D2 {
 
-Emitter::Emitter(uint32_t tag, uint32_t particleTag, const Util::Math::Vector2<double> &position, double timeToLive) :
-        Entity(tag, position), particleTag(particleTag), timeLimited(timeToLive > 0), timeToLive(timeToLive) {}
+Emitter::Emitter(const size_t tag, const size_t particleTag, const Util::Math::Vector2<double> &position,
+    const uint32_t minEmissionRate, const uint32_t maxEmissionRate, const Util::Time::Timestamp &emissionInterval,
+    const Util::Time::Timestamp &timeToLive) : Entity(tag, position), particleTag(particleTag),
+    timeLimited(timeToLive.toNanoseconds() > 0), timeToLive(timeToLive.toSecondsFloat<double>()),
+    minEmissionRate(minEmissionRate), maxEmissionRate(maxEmissionRate),
+    emissionInterval(emissionInterval.toSecondsFloat<double>()) {}
 
-void Emitter::initialize() {}
-
-void Emitter::onUpdate(double delta) {
+void Emitter::onUpdate(const double delta) {
     if (timeLimited) {
         timeToLive -= delta;
         if (timeToLive <= 0) {
             if (activeParticles.size() == 0) {
                 removeFromScene();
             }
-
-            return;
         }
-    }
-
-     if (emissionTime >= 0) {
+    } else if (emissionInterval > 0) {
         timeSinceLastEmission += delta;
-        if (timeSinceLastEmission >= emissionTime && (!timeLimited || timeToLive > 0)) {
+        if (timeSinceLastEmission >= emissionInterval && (!timeLimited || timeToLive > 0)) {
             emitParticles();
             timeSinceLastEmission = 0;
         }
     }
 }
 
-void Emitter::removeParticle(Particle *particle) {
+void Emitter::removeParticle(const Particle *particle) {
     onParticleDestruction(*particle);
-    if (activeParticles.remove(particle)) {
+    if (activeParticles.remove(const_cast<Particle*>(particle))) {
         getScene().removeEntity(particle);
     }
 }
 
 void Emitter::emitParticles() {
-    uint32_t emissionRate = minEmissionRate + static_cast<uint32_t>(random.getRandomNumber() * ((maxEmissionRate + 1) - minEmissionRate));
+    const auto emissionRate = random.getRandomNumber(minEmissionRate, maxEmissionRate);
 
     for (uint32_t i = 0; i < emissionRate; i++) {
         auto *particle = new Particle(particleTag, *this);
@@ -81,11 +81,24 @@ void Emitter::emitOnce() {
     emitParticles();
 }
 
+void Emitter::destroy(const bool immediate) {
+    timeToLive = 0;
+    timeLimited = true;
+
+    if (immediate) {
+        for (const auto *particle : activeParticles) {
+            getScene().removeEntity(particle);
+        }
+
+        removeFromScene();
+    }
+}
+
 uint32_t Emitter::getMinEmissionRate() const {
     return minEmissionRate;
 }
 
-void Emitter::setMinEmissionRate(uint32_t minEmissionRate) {
+void Emitter::setMinEmissionRate(const uint32_t minEmissionRate) {
     Emitter::minEmissionRate = minEmissionRate;
 }
 
@@ -93,19 +106,19 @@ uint32_t Emitter::getMaxEmissionRate() const {
     return maxEmissionRate;
 }
 
-void Emitter::setMaxEmissionRate(uint32_t maxEmissionRate) {
+void Emitter::setMaxEmissionRate(const uint32_t maxEmissionRate) {
     Emitter::maxEmissionRate = maxEmissionRate;
 }
 
-double Emitter::getEmissionTime() const {
-    return emissionTime;
+double Emitter::getEmissionInterval() const {
+    return emissionInterval;
 }
 
-void Emitter::setEmissionTime(double emissionTime) {
-    Emitter::emissionTime = emissionTime;
+void Emitter::setEmissionTime(const double emissionInterval) {
+    Emitter::emissionInterval = emissionInterval;
 }
 
-uint32_t Emitter::getActiveParticles() const {
+size_t Emitter::getActiveParticles() const {
     return activeParticles.size();
 }
 

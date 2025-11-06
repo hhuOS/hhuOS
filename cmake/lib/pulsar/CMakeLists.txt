@@ -43,12 +43,12 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/pulsar/Resources.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/Scene.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/Statistics.cpp
+        ${HHUOS_SRC_DIR}/lib/pulsar/TextScreen.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/2d/Entity.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/2d/Polygon.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/2d/Scene.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/2d/Sprite.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/2d/SpriteAnimation.cpp
-        ${HHUOS_SRC_DIR}/lib/pulsar/2d/collider/PolygonCollider.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/2d/collider/RectangleCollider.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/2d/component/Component.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/2d/component/GravityComponent.cpp
@@ -56,8 +56,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/pulsar/2d/event/CollisionEvent.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/2d/event/TranslationEvent.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/2d/particle/Emitter.cpp
+        ${HHUOS_SRC_DIR}/lib/pulsar/2d/particle/OnceEmitter.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/2d/particle/Particle.cpp
-        ${HHUOS_SRC_DIR}/lib/pulsar/2d/particle/SingleTimeEmitter.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/3d/Entity.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/3d/Light.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/3d/Model.cpp

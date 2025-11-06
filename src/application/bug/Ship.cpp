@@ -20,13 +20,13 @@
 
 #include "Ship.h"
 
+#include "bug.h"
 #include "EnemyBug.h"
 #include "lib/pulsar/Game.h"
 #include "PlayerMissile.h"
 #include "lib/pulsar/2d/component/LinearMovementComponent.h"
 #include "lib/pulsar/2d/event/TranslationEvent.h"
 #include "lib/pulsar/2d/event/CollisionEvent.h"
-#include "GameOverScreen.h"
 #include "EnemyMissile.h"
 #include "lib/pulsar/Scene.h"
 #include "lib/pulsar/Collider.h"
@@ -35,9 +35,10 @@
 #include "application/bug/Explosive.h"
 #include "lib/pulsar/2d/Entity.h"
 #include "lib/util/base/String.h"
+#include "lib/pulsar/TextScreen.h"
 
-Ship::Ship(const Util::Math::Vector2<double> &position) : Explosive(TAG, position, Pulsar::D2::RectangleCollider(position, Util::Math::Vector2<double>(SIZE_X, SIZE_Y), Pulsar::Collider::STATIC), "/user/bug/ship_explosion.wav", 2.0) {
-    addComponent(new Pulsar::D2::LinearMovementComponent(*this));
+Ship::Ship(const Util::Math::Vector2<double> &position) : Explosive(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE_X, SIZE_Y, Pulsar::Collider::STATIC), "/user/bug/ship_explosion.wav", 2.0) {
+    addComponent(new Pulsar::D2::LinearMovementComponent());
 }
 
 void Ship::initialize() {
@@ -56,7 +57,7 @@ void Ship::onUpdate(double delta) {
 
     if (hasExploded()) {
         auto &game = Pulsar::Game::getInstance();
-        game.pushScene(new GameOverScreen(false));
+        game.pushScene(new Pulsar::TextScreen(LOOSE_TEXT, handleKeyPressOnTextScreen, Util::Graphic::Colors::GREEN));
         game.switchToNextScene();
     }
 }
@@ -75,22 +76,29 @@ void Ship::onTranslationEvent(Pulsar::D2::TranslationEvent &event) {
     }
 }
 
-void Ship::onCollisionEvent(Pulsar::D2::CollisionEvent &event) {
+void Ship::onCollisionEvent(const Pulsar::D2::CollisionEvent &event) {
     if (isExploding()) {
         return;
     }
 
-    if (event.getCollidedWidth().getTag() == EnemyMissile::TAG) {
-        const auto &missile = event.getCollidedWidth<const EnemyMissile>();
-        if (missile.isExploding()) {
-            return;
-        }
+    const auto &otherEntity = event.getCollidedWidth();
+    switch (otherEntity.getTag()) {
+        case EnemyMissile::TAG: {
+            const auto &missile = reinterpret_cast<const EnemyMissile&>(otherEntity);
+            if (missile.isExploding()) {
+                return;
+            }
 
-        if (lives > 0) {
-            lives--;
+            if (lives > 0) {
+                lives--;
+            }
+            break;
         }
-    } else if (event.getCollidedWidth().getTag() == EnemyBug::TAG) {
-        lives = 0;
+        case EnemyBug::TAG:
+            lives = 0;
+            break;
+        default:
+            break;
     }
 }
 

@@ -22,38 +22,38 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
-#ifndef HHUOS_TRANSLATIONEVENT_H
-#define HHUOS_TRANSLATIONEVENT_H
 
-#include "lib/util/math/Vector2.h"
-#include "lib/pulsar/CancelableEvent.h"
+#ifndef HHUOS_LIB_PULSAR_2D_TRANSLATIONEVENT_H
+#define HHUOS_LIB_PULSAR_2D_TRANSLATIONEVENT_H
+
+#include "util/math/Vector2.h"
+#include "pulsar/CancelableEvent.h"
 
 namespace Pulsar::D2 {
 
-class TranslationEvent : public CancelableEvent {
+/// A translation event for 2D entities.
+/// This event is triggered when an entity is about to be moved to a new position by a component attached to it,
+/// or via the `Entity::translate()` method.
+/// If an entity is moved directly via `Entity::setPosition()`, no translation event is created.
+/// The event contains the target position the entity is being moved to.
+/// Translation events are cancelable and if translation event is canceled,
+/// the entity will not be moved to the target position.
+class TranslationEvent final : public CancelableEvent {
 
 public:
-    /**
-    * Constructor.
-    */
+    /// Create a new translation event instance.
+    /// Translation events are created automatically by components that move entities.
+    /// Thus, this constructor is intended for internal use only.
     explicit TranslationEvent(const Util::Math::Vector2<double> &targetPosition);
 
-    /**
-     * Copy Constructor.
-     */
-    TranslationEvent(const TranslationEvent &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    TranslationEvent &operator=(const TranslationEvent &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~TranslationEvent() = default;
-
+    /// Get the target position the entity is being moved to.
     [[nodiscard]] const Util::Math::Vector2<double>& getTargetPosition() const;
 
 private:

@@ -22,67 +22,43 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_POLYGONCOLLIDER_H
-#define HHUOS_POLYGONCOLLIDER_H
+#ifndef HHUOS_LIB_PULSAR_2D_ONCEEMITTER_H
+#define HHUOS_LIB_PULSAR_2D_ONCEEMITTER_H
 
+#include <stddef.h>
 #include <stdint.h>
 
-#include "lib/util/math/Vector2.h"
-#include "lib/util/collection/Pair.h"
-#include "lib/util/collection/Array.h"
-#include "lib/pulsar/Collider.h"
-
-namespace Pulsar {
-namespace D2 {
-class Polygon;
-}  // namespace D2
-}  // namespace Pulsar
+#include "pulsar/2d/particle/Emitter.h"
 
 namespace Pulsar::D2 {
 
-struct Collision {
-    double overlap;
-    Util::Math::Vector2<double> axis;
-};
-
-class PolygonCollider : public Collider {
+/// A particle emitter that emits particles only once upon creation.
+/// After emitting the particles, it waits until all particles have expired before removing itself from the scene.
+class OnceEmitter : public Emitter {
 
 public:
-    /**
-     * Constructor.
-     */
-    explicit PolygonCollider(Polygon &polygon, Collider::Type colliderType = Collider::DYNAMIC);
+    /// Create a new once emitter instance with its own tag and the tag for the particles it emits.
+    /// The minimum and maximum emission rates define how many particles are emitted in total.
+    /// The actual number of emitted particles is chosen randomly between these two values.
+    OnceEmitter(size_t tag, size_t particleTag, const Util::Math::Vector2<double> &position,
+		uint32_t minEmissionRate, uint32_t maxEmissionRate);
 
-    /**
-     * Copy Constructor.
-     */
-    PolygonCollider(const PolygonCollider &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    PolygonCollider &operator=(const PolygonCollider &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~PolygonCollider() = default;
-
-    Collision isColliding(PolygonCollider &other);
-
-    Polygon &getPolygon();
+    /// Update the emitter state. This method is called automatically during the scene update cycle.
+    /// On the first update, it emits the particles. Further updates just checks if all particles have expired
+    /// and remove the emitter from the scene if so.
+    void onUpdate(double delta) override;
 
 private:
 
-    static Util::Pair<double, double> projectPolygonOnAxis(Util::Array<Util::Math::Vector2<double>> vertices, const Util::Math::Vector2<double> &axis);
-
-    static Util::Math::Vector2<double> getAxes(Util::Array<Util::Math::Vector2<double>> vertices, uint32_t index);
-
-    static double getOverlap(Util::Pair<double, double> range, Util::Pair<double, double> rangeOther);
-
-    Polygon &polygon;
+    bool emitted = false;
 };
 
 }

@@ -51,7 +51,7 @@ void BugDefender::update([[maybe_unused]] double delta) {
     enemyFleet.applyChanges();
 }
 
-void BugDefender::initializeBackground(Pulsar::Graphics &graphics) {
+bool BugDefender::initializeBackground(Pulsar::Graphics &graphics) {
     auto backgroundSprites = Util::Array<Pulsar::D2::Sprite>(BACKGROUND_TILE_COUNT);
     for (uint32_t i = 0; i < BACKGROUND_TILE_COUNT; i++) {
         backgroundSprites[i] = Pulsar::D2::Sprite(Util::String::format("/user/bug/background%u.bmp", i + 1), BACKGROUND_TILE_WIDTH, BACKGROUND_TILE_HEIGHT);
@@ -86,6 +86,8 @@ void BugDefender::initializeBackground(Pulsar::Graphics &graphics) {
     for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
         planetSprites[static_cast<uint32_t>(random.getRandomNumber() * PLANET_TILE_COUNT)].draw(graphics, Util::Math::Vector2<double>(x * PLANET_TILE_WIDTH, -1));
     }
+
+    return true;
 }
 
 void BugDefender::keyPressed(const Util::Io::Key &key) {

@@ -18,14 +18,12 @@ const Util::Array<const Util::Array<Util::Math::Vector2<double>>*> DemoPolygonFa
 });
 
 DemoPolygon* DemoPolygonFactory::createPolygon() {
-    const auto shape = static_cast<uint32_t>(random.getRandomNumber() * shapes.length());
-    const auto initialScaleFactor = random.getRandomNumber() * 0.5 + 0.1;
-    const auto rotationSpeed = random.getRandomNumber() * 2 - 1.0;
+    const auto shape = 1; // random.getRandomNumber(0, shapes.length() - 1);
+    const auto initialScaleFactor = random.getRandomNumber() + 0.1;
+    const auto rotationSpeed = random.getRandomNumber() - 1.0;
     const auto scaleSpeed = random.getRandomNumber();
-    const auto position = Util::Math::Vector2<double>(random.getRandomNumber() * 2 - 1.0 - initialScaleFactor * 2, random.getRandomNumber() * 2 - 1.0 - initialScaleFactor * 2);
-    const auto color = Util::Graphic::Color(static_cast<uint8_t>(random.getRandomNumber() * 256),
-                                            static_cast<uint8_t>(random.getRandomNumber() * 256),
-                                            static_cast<uint8_t>(random.getRandomNumber() * 256));
+    const auto position = Util::Math::Vector2<double>(random.getRandomNumber() * 2 - 1.0, random.getRandomNumber() * 2 - 1.0);
+    const auto color = Util::Graphic::Color(random.getRandomNumber(0, 255), random.getRandomNumber(0, 255), random.getRandomNumber(0, 255));
 
     auto *polygon = new DemoPolygon(*shapes[shape], position, color, initialScaleFactor, scaleSpeed, rotationSpeed);
     return polygon;

@@ -28,10 +28,8 @@
 
 namespace Pulsar::D2 {
 
-Component::Component(Entity &entity) : entity(entity) {}
-
-Entity &Component::getEntity() {
-    return entity;
+Entity& Component::getEntity() const {
+    return *entity;
 }
 
 }

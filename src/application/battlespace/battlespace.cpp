@@ -23,7 +23,8 @@
 
 #include <stdint.h>
 
-#include "IntroScreen.h"
+#include "battlespace.h"
+#include "BattleSpaceGame.h"
 #include "lib/util/base/System.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/base/ArgumentParser.h"
@@ -33,6 +34,7 @@
 #include "lib/pulsar/Game.h"
 #include "lib/util/base/String.h"
 #include "lib/util/collection/Array.h"
+#include "pulsar/TextScreen.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -69,9 +71,22 @@ int32_t main(int32_t argc, char *argv[]) {
     auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseFloat<double>(argumentParser.getArgument("scale")) : 1.0;
     auto lfb = Util::Graphic::LinearFrameBuffer::open(lfbFile);
     auto engine = Pulsar::Engine(lfb, 60, scaleFactor);
-    Pulsar::Game::getInstance().pushScene(new IntroScreen());
+    Pulsar::Game::getInstance().pushScene(new Pulsar::TextScreen(INTRO_TEXT, handleKeyPressOnTextScreen, Util::Graphic::Colors::GREEN));
     engine.run();
 
     return 0;
+}
 
+void handleKeyPressOnTextScreen(const Util::Io::Key &key) {
+    switch (key.getScancode()) {
+        case Util::Io::Key::ESC:
+            Pulsar::Game::getInstance().stop();
+            break;
+        case Util::Io::Key::SPACE:
+            Pulsar::Game::getInstance().pushScene(new BattleSpaceGame());
+            Pulsar::Game::getInstance().switchToNextScene();
+            break;
+        default:
+            break;
+    }
 }

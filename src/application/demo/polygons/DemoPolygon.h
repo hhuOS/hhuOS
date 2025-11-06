@@ -27,48 +27,18 @@
 #include "lib/pulsar/2d/Entity.h"
 #include "lib/util/math/Vector2.h"
 
-class DemoPolygon : public Pulsar::D2::Entity {
+class DemoPolygon : public Pulsar::D2::Polygon {
 
 public:
-    /**
-     * Default Constructor.
-     */
+
     DemoPolygon();
 
-    /**
-     * Constructor.
-     */
     DemoPolygon(const Util::Array<Util::Math::Vector2<double>> &vertices, const Util::Math::Vector2<double> &position, const Util::Graphic::Color &color, double initialScaleFactor, double scaleSpeed, double rotationSpeed);
-
-    /**
-     * Copy Constructor.
-     */
-    DemoPolygon(const DemoPolygon &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    DemoPolygon &operator=(const DemoPolygon &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~DemoPolygon() override = default;
-
-    void initialize() override;
 
     void onUpdate(double delta) override;
 
-    void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
-
-    void onCollisionEvent(Pulsar::D2::CollisionEvent &event) override;
-
-    void draw(Pulsar::Graphics &graphics) const override;
-
 private:
 
-    Pulsar::D2::Polygon polygon;
-    Util::Graphic::Color color;
     double rotationSpeed;
     double scaleSpeed;
     double currentScale = 1;
