@@ -33,7 +33,10 @@ namespace Device {
 
 Acpi::Acpi() {
     rsdp = findRsdp();
-    if (rsdp != nullptr) {
+
+    if (rsdp == nullptr) {
+        tables = new Util::Hardware::Acpi::Tables();
+    } else {
         auto vendor = Util::String(reinterpret_cast<const uint8_t*>(rsdp->oemId), sizeof(Util::Hardware::Acpi::Rsdp::oemId));
         LOG_INFO("ACPI vendor: [%s], ACPI version: [%s]", static_cast<const char*>(vendor.strip()), rsdp->revision == 0 ? "1.0" : ">=2.0");
 

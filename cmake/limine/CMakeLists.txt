@@ -80,7 +80,7 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS-limine-vdd.iso"
         COMMAND /bin/cp "${HHUOS_ROOT_DIR}/hdd0.img" "iso/hhuOS/hdd0.img"
         COMMAND /bin/echo -e "'${LIMINE_VDD_CONFIG}'" | sed -r "s/[\\\\]+//g" > "iso/limine.conf"
         COMMAND xorriso -as mkisofs -b "limine-bios-cd.bin" -no-emul-boot -boot-load-size 4 -boot-info-table --efi-boot "limine-uefi-cd.bin" -efi-boot-part --efi-boot-image --protective-msdos-label "iso/" -o "${HHUOS_ROOT_DIR}/hhuOS-limine-vdd.iso"
-        COMMAND ./limine "bios-install" "${HHUOS_ROOT_DIR}/hhuOS-limine-vdd.iso"
+        COMMAND ./limine-executable "bios-install" "${HHUOS_ROOT_DIR}/hhuOS-limine-vdd.iso"
         DEPENDS system floppy0 hdd0 "${CMAKE_BINARY_DIR}/limine/limine-executable" "${CMAKE_BINARY_DIR}/limine/iso/limine-uefi-cd.bin" "${CMAKE_BINARY_DIR}/limine/iso/limine-bios-cd.bin" "${CMAKE_BINARY_DIR}/limine/iso/limine-bios.sys" "${CMAKE_BINARY_DIR}/limine/iso/EFI/BOOT/BOOTIA32.EFI" "${CMAKE_BINARY_DIR}/limine/iso/EFI/BOOT/BOOTX64.EFI")
 
 add_custom_target(${PROJECT_NAME} DEPENDS system floppy0 hdd0 "${HHUOS_ROOT_DIR}/hhuOS-limine.iso")

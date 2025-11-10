@@ -438,8 +438,10 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     LOG_INFO("Initializing SMBIOS");
     auto *smBios = new Device::SmBios();
     informationService->setSmBios(smBios);
-    auto &biosInformation = reinterpret_cast<const Util::Hardware::SmBios::BiosInformation&>(smBios->getTables()[Util::Hardware::SmBios::BIOS_INFORMATION]);
-    LOG_INFO("BIOS vendor: [%s], BIOS version: [%s (%s)]", biosInformation.getVendorName(), biosInformation.getVersion(), biosInformation.getReleaseDate());
+    if (smBios->getTables().hasTable(Util::Hardware::SmBios::BIOS_INFORMATION)) {
+        auto &biosInformation = reinterpret_cast<const Util::Hardware::SmBios::BiosInformation&>(smBios->getTables()[Util::Hardware::SmBios::BIOS_INFORMATION]);
+        LOG_INFO("BIOS vendor: [%s], BIOS version: [%s (%s)]", biosInformation.getVendorName(), biosInformation.getVersion(), biosInformation.getReleaseDate());
+    }
 
     // Initialize BIOS calls
     if (Device::Bios::isAvailable()) {
@@ -520,12 +522,12 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
     auto *pic = new Device::Pic();
     interruptService->usePic(pic);
 
-    // Check if APIC exists and initializeScene it
+    // Check if APIC exists and initialize it
     if (multiboot->getKernelOption("apic", "true") == "true" && Device::Apic::isAvailable()) {
         LOG_INFO("APIC detected");
         auto *apic = Device::Apic::initialize();
         if (apic == nullptr) {
-            LOG_WARN("Failed to initializeScene APIC -> Falling back to PIC");
+            LOG_WARN("Failed to initialize APIC -> Falling back to PIC");
         } else {
             interruptService->useApic(apic);
             apic->startCurrentTimer();
@@ -554,7 +556,7 @@ void GatesOfHell::enter(uint32_t multibootMagic, const Kernel::Multiboot *multib
         entry.set(entry.getAddress(), entry.getFlags() & (~Kernel::Paging::WRITABLE));
     }
 
-    // The base system is initialized -> We can now enable interrupts and initializeScene timer devices
+    // The base system is initialized -> We can now enable interrupts and initialize timer devices
     LOG_INFO("Enabling interrupts");
     Device::Cpu::enableInterrupts();
     Device::Cmos::enableNmi();

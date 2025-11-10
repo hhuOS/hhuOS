@@ -105,7 +105,7 @@ private:
     static bool checkEntryPoint3(EntryPoint3 *entryPoint);
 
     Info smBiosInformation{};
-    Util::Hardware::SmBios::Tables *tables = new Util::Hardware::SmBios::Tables();
+    Util::Hardware::SmBios::Tables *tables = nullptr;
 };
 
 }

@@ -77,7 +77,9 @@ SmBios::SmBios() {
         }
     }
 
-    if (smBiosInformation.tableAddress != nullptr) {
+    if (smBiosInformation.tableAddress == nullptr) {
+        tables = new Util::Hardware::SmBios::Tables();
+    } else {
         tables = new Util::Hardware::SmBios::Tables(*smBiosInformation.tableAddress);
     }
 }

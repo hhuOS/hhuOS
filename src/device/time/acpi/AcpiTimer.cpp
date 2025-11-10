@@ -30,7 +30,7 @@
 
 Device::AcpiTimer::AcpiTimer() {
     if (!isAvailable()) {
-        Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "Trying to initializeScene unavailable ACPI timer!");
+        Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION, "Trying to initialize unavailable ACPI timer!");
     }
 
     auto &acpi = Kernel::Service::getService<Kernel::InformationService>().getAcpi();
