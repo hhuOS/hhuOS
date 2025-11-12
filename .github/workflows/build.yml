@@ -22,6 +22,9 @@ jobs:
       - name: Build limine image
         run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target limine --build-type Release
 
+      - name: Build limine vdd image
+        run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target limine-vdd --build-type Release
+
       - name: Build grub image
         run: HHUOS_REDISTRIBUTABLE_BUILD=1 ./build.sh --target grub --build-type Release
 
@@ -64,7 +67,9 @@ jobs:
           prerelease: true
           name: nightly-${{ github.ref_name }}
           tag_name: nightly-${{ github.ref_name }}
-          files: hhuOS-${{ github.ref_name }}.tar.gz
+          files: |
+            hhuOS-${{ github.ref_name }}.tar.gz
+            hhuOS-limine-vdd.iso
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
