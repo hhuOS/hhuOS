@@ -37,13 +37,15 @@ Window::Window(const uint16_t width, const uint16_t height, const Util::String &
         Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Window: Pipe closed!");
     }
 
+    id = response.getId();
+
     const auto bytesPerPixel = (response.getColorDepth() == 15 ? 16 : response.getColorDepth()) / 8;
     const auto bufferSize = response.getSizeX() * response.getSizeY() * bytesPerPixel;
     const auto bufferPages = bufferSize % Util::PAGESIZE == 0 ?
         bufferSize / Util::PAGESIZE : bufferSize / Util::PAGESIZE + 1;
 
     sharedMemory = new Util::Async::SharedMemory(pipe.getWindowManagerProcessId(),
-        Util::String::format("%u", response.getSharedBufferId()), bufferPages);
+        Util::String::format("%u", id), bufferPages);
 
     if (!sharedMemory->map()) {
         Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Window: Failed to map frame buffer!");
@@ -63,10 +65,17 @@ Util::Graphic::LinearFrameBuffer& Window::getFrameBuffer() const {
     return *lfb;
 }
 
-void Window::flush() const {
-    if (!pipe.sendRequest(Request::Flush())) {
+bool Window::flush() const {
+    if (!pipe.sendRequest(Request::Flush(id))) {
         Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Window: Pipe closed!");
     }
+
+    auto response = Response::Flush();
+    if (!pipe.receiveResponse(response)) {
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Window: Pipe closed!");
+    }
+
+    return response.isSuccess();
 }
 
 }
