@@ -18,43 +18,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_LIB_KEPLER_WINDOW_H
-#define HHUOS_LIB_KEPLER_WINDOW_H
+#ifndef HHUOS_WINDOWMANAGER_H
+#define HHUOS_WINDOWMANAGER_H
 
-#include <stdint.h>
-
-#include "util/async/SharedMemory.h"
+#include "Client.h"
+#include "ClientWindow.h"
+#include "util/async/IdGenerator.h"
+#include "util/async/Runnable.h"
+#include "util/collection/ArrayList.h"
 #include "util/graphic/LinearFrameBuffer.h"
-#include "kepler/WindowManagerPipe.h"
 
-namespace Kepler {
-
-class Window {
+class WindowManager final : public Util::Async::Runnable {
 
 public:
 
-    Window(uint16_t width, uint16_t height, const Util::String &title, WindowManagerPipe &pipe);
+    WindowManager(Util::Graphic::LinearFrameBuffer &lfb);
 
-    Window(const Window &other) = delete;
-
-    Window& operator=(const Window &other) = delete;
-
-    ~Window();
-
-    [[nodiscard]] Util::Graphic::LinearFrameBuffer& getFrameBuffer() const;
-
-    bool flush() const;
+    void run() override;
 
 private:
 
-    size_t id = 0;
+    void createNextPipe();
 
-    WindowManagerPipe &pipe;
+    void createWindow(Client &client);
 
-    Util::Async::SharedMemory *sharedMemory = nullptr;
-    Util::Graphic::LinearFrameBuffer *lfb = nullptr;
+    void flushWindow(const Client &client) const;
+
+    size_t processId = Util::Async::Process::getCurrentProcess().getId();
+
+    Util::Graphic::LinearFrameBuffer &lfb;
+
+    Util::ArrayList<Client*> clients;
+    Util::Async::IdGenerator clientIdGenerator;
+    Util::Async::IdGenerator windowIdGenerator;
+
+    Util::Io::FileInputStream *nextPipe = nullptr;
+    size_t nextClientId = 0;
 };
-
-}
 
 #endif

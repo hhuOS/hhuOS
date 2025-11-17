@@ -18,43 +18,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_LIB_KEPLER_WINDOW_H
-#define HHUOS_LIB_KEPLER_WINDOW_H
+#ifndef HHUOS_CLIENT_H
+#define HHUOS_CLIENT_H
 
-#include <stdint.h>
+#include "util/collection/ArrayList.h"
+#include "util/io/stream/FileInputStream.h"
+#include "util/io/stream/FileOutputStream.h"
 
-#include "util/async/SharedMemory.h"
-#include "util/graphic/LinearFrameBuffer.h"
-#include "kepler/WindowManagerPipe.h"
+class ClientWindow;
 
-namespace Kepler {
-
-class Window {
+class Client {
 
 public:
 
-    Window(uint16_t width, uint16_t height, const Util::String &title, WindowManagerPipe &pipe);
+    Client(size_t id, Util::Io::FileInputStream *inputStream, Util::Io::FileOutputStream *outputStream);
 
-    Window(const Window &other) = delete;
+    ~Client();
 
-    Window& operator=(const Window &other) = delete;
+    [[nodiscard]] Util::Io::FileInputStream& getInputStream() const;
 
-    ~Window();
+    [[nodiscard]] Util::Io::FileOutputStream& getOutputStream() const;
 
-    [[nodiscard]] Util::Graphic::LinearFrameBuffer& getFrameBuffer() const;
+    void addWindow(ClientWindow *window);
 
-    bool flush() const;
+    [[nodiscard]] ClientWindow *getWindowById(size_t id) const;
 
 private:
 
-    size_t id = 0;
+    size_t id;
+    Util::ArrayList<ClientWindow*> windows;
 
-    WindowManagerPipe &pipe;
-
-    Util::Async::SharedMemory *sharedMemory = nullptr;
-    Util::Graphic::LinearFrameBuffer *lfb = nullptr;
+    Util::Io::FileInputStream *inputStream = nullptr;
+    Util::Io::FileOutputStream *outputStream = nullptr;
 };
-
-}
 
 #endif
