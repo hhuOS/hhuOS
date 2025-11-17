@@ -22,7 +22,10 @@ message(STATUS "Project " ${PROJECT_NAME})
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 
 set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/kepler/desktop.cpp)
+        ${HHUOS_SRC_DIR}/application/kepler/kepler.cpp
+        ${HHUOS_SRC_DIR}/application/kepler/Client.cpp
+        ${HHUOS_SRC_DIR}/application/kepler/ClientWindow.cpp
+        ${HHUOS_SRC_DIR}/application/kepler/WindowManager.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 

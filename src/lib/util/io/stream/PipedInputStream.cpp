@@ -60,6 +60,10 @@ int32_t PipedInputStream::read(uint8_t *targetBuffer, size_t offset, size_t leng
         return 0;
     }
 
+    size_t targetOffset = offset;
+    size_t remaining = length;
+    size_t readBytes = 0;
+
     // Block while buffer is empty
     lock.acquire();
     while (inPosition < 0) {
@@ -67,10 +71,6 @@ int32_t PipedInputStream::read(uint8_t *targetBuffer, size_t offset, size_t leng
         Async::Thread::yield();
         lock.acquire();
     }
-
-    size_t targetOffset = offset;
-    size_t remaining = length;
-    size_t readBytes = 0;
 
     while (true) {
         // Calculate the amount of bytes we can copy at once
@@ -122,7 +122,8 @@ int16_t PipedInputStream::peek() {
         lock.acquire();
     }
 
-    return outPosition < inPosition ? buffer[outPosition] : buffer[(outPosition + 1) % bufferSize];
+    const auto value = outPosition < inPosition ? buffer[outPosition] : buffer[(outPosition + 1) % bufferSize];
+    return lock.releaseAndReturn(value);
 }
 
 bool PipedInputStream::write(const uint8_t byte) {

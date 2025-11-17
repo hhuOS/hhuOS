@@ -44,79 +44,102 @@ Util::String Connect::getPipePath() const {
     return Util::String::format("/process/%u/pipes/%s", processId, static_cast<const char*>(pipeName));
 }
 
-CreateWindow::CreateWindow(const uint16_t sizeX, const uint16_t sizeY, const Util::String &title) :
-    sizeX(sizeX), sizeY(sizeY), title(title) {}
+CreateWindow::CreateWindow(const uint16_t width, const uint16_t height, const Util::String &title) :
+    width(width), height(height), title(title) {}
 
 bool CreateWindow::writeToStream(Util::Io::OutputStream &stream) const {
     return Util::Io::NumberUtil::writeUnsigned8BitValue(CREATE_WINDOW, stream) &&
-        Util::Io::NumberUtil::writeUnsigned16BitValue(sizeX, stream) &&
-        Util::Io::NumberUtil::writeUnsigned16BitValue(sizeY, stream) &&
+        Util::Io::NumberUtil::writeUnsigned16BitValue(width, stream) &&
+        Util::Io::NumberUtil::writeUnsigned16BitValue(height, stream) &&
         title.writeToStream(stream);
 }
 
 bool CreateWindow::readFromStream(Util::Io::InputStream &stream) {
-    sizeX = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
-    sizeY = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
+    width = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
+    height = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
     return title.readFromStream(stream);
 }
 
-uint16_t CreateWindow::getSizeX() const {
-    return sizeX;
+uint16_t CreateWindow::getWidth() const {
+    return width;
 }
 
-uint16_t CreateWindow::getSizeY() const {
-    return sizeY;
+uint16_t CreateWindow::getHeight() const {
+    return height;
 }
 
 Util::String CreateWindow::getTitle() const {
     return title;
 }
 
+Flush::Flush(const size_t windowId) : windowId(windowId) {}
+
 bool Flush::writeToStream(Util::Io::OutputStream &stream) const {
-    return Util::Io::NumberUtil::writeUnsigned8BitValue(FLUSH, stream);
+    return Util::Io::NumberUtil::writeUnsigned8BitValue(FLUSH, stream) &&
+        Util::Io::NumberUtil::writeUnsigned32BitValue(windowId, stream);
 }
 
-bool Flush::readFromStream([[maybe_unused]] Util::Io::InputStream &stream) {
+bool Flush::readFromStream(Util::Io::InputStream &stream) {
+    windowId = Util::Io::NumberUtil::readUnsigned32BitValue(stream);
     return true;
+}
+
+size_t Flush::getWindowId() const {
+    return windowId;
 }
 
 }
 
 namespace Response {
 
-CreateWindow::CreateWindow(const uint16_t sizeX, const uint16_t sizeY, const uint8_t colorDepth,
-    const size_t sharedBufferId) : sizeX(sizeX), sizeY(sizeY), colorDepth(colorDepth), sharedBufferId(sharedBufferId) {}
+CreateWindow::CreateWindow(const size_t id, const uint16_t width, const uint16_t height, const uint8_t colorDepth) :
+    id(id), width(width), height(height), colorDepth(colorDepth) {}
 
 bool CreateWindow::writeToStream(Util::Io::OutputStream &stream) const {
-    return Util::Io::NumberUtil::writeUnsigned16BitValue(sizeX, stream) &&
-        Util::Io::NumberUtil::writeUnsigned16BitValue(sizeY, stream) &&
-        Util::Io::NumberUtil::writeUnsigned8BitValue(colorDepth, stream) &&
-        Util::Io::NumberUtil::writeUnsigned32BitValue(sharedBufferId, stream);
+    return Util::Io::NumberUtil::writeUnsigned32BitValue(id, stream) &&
+        Util::Io::NumberUtil::writeUnsigned16BitValue(width, stream) &&
+        Util::Io::NumberUtil::writeUnsigned16BitValue(height, stream) &&
+        Util::Io::NumberUtil::writeUnsigned8BitValue(colorDepth, stream);
 }
 
 bool CreateWindow::readFromStream(Util::Io::InputStream &stream) {
-    sizeX = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
-    sizeY = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
+    id = Util::Io::NumberUtil::readUnsigned32BitValue(stream);
+    width = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
+    height = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
     colorDepth = Util::Io::NumberUtil::readUnsigned8BitValue(stream);
-    sharedBufferId = Util::Io::NumberUtil::readUnsigned32BitValue(stream);
 
     return true;
 }
 
+size_t CreateWindow::getId() const {
+    return id;
+}
+
 uint16_t CreateWindow::getSizeX() const {
-    return sizeX;
+    return width;
 }
 
 uint16_t CreateWindow::getSizeY() const {
-    return sizeY;
+    return height;
 }
 
 uint8_t CreateWindow::getColorDepth() const {
     return colorDepth;
 }
 
-size_t CreateWindow::getSharedBufferId() const {
-    return sharedBufferId;
+Flush::Flush(const bool success) : success(success) {}
+
+bool Flush::writeToStream(Util::Io::OutputStream &stream) const {
+    return Util::Io::NumberUtil::writeUnsigned8BitValue(success ? 1 : 0, stream);
+}
+
+bool Flush::readFromStream(Util::Io::InputStream &stream) {
+    success = Util::Io::NumberUtil::readUnsigned8BitValue(stream) != 0;
+    return true;
+}
+
+bool Flush::isSuccess() const {
+    return success;
 }
 
 }

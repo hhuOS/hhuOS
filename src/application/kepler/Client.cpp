@@ -18,43 +18,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_LIB_KEPLER_WINDOW_H
-#define HHUOS_LIB_KEPLER_WINDOW_H
+#include "Client.h"
 
-#include <stdint.h>
+#include "ClientWindow.h"
 
-#include "util/async/SharedMemory.h"
-#include "util/graphic/LinearFrameBuffer.h"
-#include "kepler/WindowManagerPipe.h"
+Client::Client(const size_t id, Util::Io::FileInputStream *inputStream, Util::Io::FileOutputStream *outputStream) :
+    id(id), inputStream(inputStream), outputStream(outputStream) {}
 
-namespace Kepler {
+Client::~Client() {
+    delete inputStream;
+    delete outputStream;
 
-class Window {
-
-public:
-
-    Window(uint16_t width, uint16_t height, const Util::String &title, WindowManagerPipe &pipe);
-
-    Window(const Window &other) = delete;
-
-    Window& operator=(const Window &other) = delete;
-
-    ~Window();
-
-    [[nodiscard]] Util::Graphic::LinearFrameBuffer& getFrameBuffer() const;
-
-    bool flush() const;
-
-private:
-
-    size_t id = 0;
-
-    WindowManagerPipe &pipe;
-
-    Util::Async::SharedMemory *sharedMemory = nullptr;
-    Util::Graphic::LinearFrameBuffer *lfb = nullptr;
-};
-
+    for (auto *window : windows) {
+        delete window;
+    }
 }
 
-#endif
+Util::Io::FileInputStream& Client::getInputStream() const {
+    return *inputStream;
+}
+
+Util::Io::FileOutputStream& Client::getOutputStream() const {
+    return *outputStream;
+}
+
+void Client::addWindow(ClientWindow *window) {
+    windows.add(window);
+}
+
+ClientWindow* Client::getWindowById(const size_t id) const {
+    for (auto *window : windows) {
+        if (window->getId() == id) {
+            return window;
+        }
+    }
+
+    return nullptr;
+}

@@ -18,43 +18,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_LIB_KEPLER_WINDOW_H
-#define HHUOS_LIB_KEPLER_WINDOW_H
+#include "WindowManager.h"
 
-#include <stdint.h>
+void main() {
+    auto lfb = Util::Graphic::LinearFrameBuffer::open(Util::Io::File("/device/lfb"));
+    lfb.clear();
 
-#include "util/async/SharedMemory.h"
-#include "util/graphic/LinearFrameBuffer.h"
-#include "kepler/WindowManagerPipe.h"
-
-namespace Kepler {
-
-class Window {
-
-public:
-
-    Window(uint16_t width, uint16_t height, const Util::String &title, WindowManagerPipe &pipe);
-
-    Window(const Window &other) = delete;
-
-    Window& operator=(const Window &other) = delete;
-
-    ~Window();
-
-    [[nodiscard]] Util::Graphic::LinearFrameBuffer& getFrameBuffer() const;
-
-    bool flush() const;
-
-private:
-
-    size_t id = 0;
-
-    WindowManagerPipe &pipe;
-
-    Util::Async::SharedMemory *sharedMemory = nullptr;
-    Util::Graphic::LinearFrameBuffer *lfb = nullptr;
-};
-
+    auto windowManager = WindowManager(lfb);
+    windowManager.run();
 }
-
-#endif
