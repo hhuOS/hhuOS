@@ -52,8 +52,13 @@ WindowManagerPipe::WindowManagerPipe() {
             }
         }
 
-        const auto outputPipePath = Util::String::format("/process/%u/pipes/%u", windowManagerProcessId, maxId);
-        outputStream = new Util::Io::FileOutputStream(outputPipePath);
+        const auto outputFile = Util::Io::File(Util::String::format("/process/%u/pipes/%u", windowManagerProcessId, maxId));
+        if (!outputFile.exists()) {
+            Util::Async::Thread::yield();
+            continue;
+        }
+
+        outputStream = new Util::Io::FileOutputStream(outputFile);
 
         const auto request = Request::Connect(processId, "window-manager");
         if (request.writeToStream(*outputStream)) {

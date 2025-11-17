@@ -18,43 +18,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_LIB_KEPLER_WINDOW_H
-#define HHUOS_LIB_KEPLER_WINDOW_H
+#ifndef HHUOS_CLIENTWINDOW_H
+#define HHUOS_CLIENTWINDOW_H
 
-#include <stdint.h>
+#include <stddef.h>
 
+#include "util/io/stream/FileOutputStream.h"
 #include "util/async/SharedMemory.h"
-#include "util/graphic/LinearFrameBuffer.h"
-#include "kepler/WindowManagerPipe.h"
 
-namespace Kepler {
-
-class Window {
+class ClientWindow {
 
 public:
 
-    Window(uint16_t width, uint16_t height, const Util::String &title, WindowManagerPipe &pipe);
+    ClientWindow(size_t id, Util::Async::SharedMemory *buffer, uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const Util::String &title);
 
-    Window(const Window &other) = delete;
+    ~ClientWindow();
 
-    Window& operator=(const Window &other) = delete;
+    [[nodiscard]] size_t getId() const;
 
-    ~Window();
+    [[nodiscard]] Util::Async::SharedMemory& getBuffer() const;
 
-    [[nodiscard]] Util::Graphic::LinearFrameBuffer& getFrameBuffer() const;
+    [[nodiscard]] uint16_t getPosX() const;
 
-    bool flush() const;
+    [[nodiscard]] uint16_t getPosY() const;
+
+    [[nodiscard]] uint16_t getWidth() const;
+
+    [[nodiscard]] uint16_t getHeight() const;
+
+    [[nodiscard]] Util::String getTitle() const;
 
 private:
 
-    size_t id = 0;
+    size_t id;
 
-    WindowManagerPipe &pipe;
-
-    Util::Async::SharedMemory *sharedMemory = nullptr;
-    Util::Graphic::LinearFrameBuffer *lfb = nullptr;
+    Util::Async::SharedMemory *buffer = nullptr;
+    uint16_t posX = 0;
+    uint16_t posY = 0;
+    uint16_t width = 0;
+    uint16_t height = 0;
+    Util::String title;
 };
-
-}
 
 #endif
