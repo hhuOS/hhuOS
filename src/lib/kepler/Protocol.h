@@ -62,22 +62,22 @@ public:
 
     CreateWindow() = default;
 
-    CreateWindow(uint16_t sizeX, uint16_t sizeY, const Util::String &title);
+    CreateWindow(uint16_t width, uint16_t height, const Util::String &title);
 
     bool writeToStream(Util::Io::OutputStream &stream) const override;
 
     bool readFromStream(Util::Io::InputStream &stream) override;
 
-    [[nodiscard]] uint16_t getSizeX() const;
+    [[nodiscard]] uint16_t getWidth() const;
 
-    [[nodiscard]] uint16_t getSizeY() const;
+    [[nodiscard]] uint16_t getHeight() const;
 
     [[nodiscard]] Util::String getTitle() const;
 
 private:
 
-    uint16_t sizeX = 0;
-    uint16_t sizeY = 0;
+    uint16_t width = 0;
+    uint16_t height = 0;
     Util::String title;
 };
 
@@ -87,9 +87,17 @@ public:
 
     Flush() = default;
 
+    explicit Flush(size_t windowId);
+
     bool writeToStream(Util::Io::OutputStream &stream) const override;
 
     bool readFromStream(Util::Io::InputStream &stream) override;
+
+    [[nodiscard]] size_t getWindowId() const;
+
+private:
+
+    size_t windowId = 0;
 };
 
 }
@@ -102,11 +110,13 @@ public:
 
     CreateWindow() = default;
 
-    CreateWindow(uint16_t sizeX, uint16_t sizeY, uint8_t colorDepth, size_t sharedBufferId);
+    CreateWindow(size_t id, uint16_t width, uint16_t height, uint8_t colorDepth);
 
     bool writeToStream(Util::Io::OutputStream &stream) const override;
 
     bool readFromStream(Util::Io::InputStream &stream) override;
+
+    [[nodiscard]] size_t getId() const;
 
     [[nodiscard]] uint16_t getSizeX() const;
 
@@ -114,14 +124,32 @@ public:
 
     [[nodiscard]] uint8_t getColorDepth() const;
 
-    [[nodiscard]] size_t getSharedBufferId() const;
+private:
+
+    size_t id = 0;
+    uint16_t width = 0;
+    uint16_t height = 0;
+    uint8_t colorDepth = 0;
+};
+
+class Flush final : public Util::Async::Streamable {
+
+public:
+
+    Flush() = default;
+
+    explicit Flush(bool success);
+
+    bool writeToStream(Util::Io::OutputStream &stream) const override;
+
+    bool readFromStream(Util::Io::InputStream &stream) override;
+
+    [[nodiscard]] bool isSuccess() const;
 
 private:
 
-    uint16_t sizeX = 0;
-    uint16_t sizeY = 0;
-    uint8_t colorDepth = 0;
-    size_t sharedBufferId = 0;
+    bool success = false;
+
 };
 
 }

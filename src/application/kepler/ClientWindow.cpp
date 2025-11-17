@@ -18,43 +18,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_LIB_KEPLER_WINDOW_H
-#define HHUOS_LIB_KEPLER_WINDOW_H
+#include "ClientWindow.h"
 
-#include <stdint.h>
+ClientWindow::ClientWindow(size_t id, Util::Async::SharedMemory *buffer, uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const Util::String &title) :
+    id(id), buffer(buffer), posX(posX), posY(posY), width(width), height(height), title(title) {}
 
-#include "util/async/SharedMemory.h"
-#include "util/graphic/LinearFrameBuffer.h"
-#include "kepler/WindowManagerPipe.h"
-
-namespace Kepler {
-
-class Window {
-
-public:
-
-    Window(uint16_t width, uint16_t height, const Util::String &title, WindowManagerPipe &pipe);
-
-    Window(const Window &other) = delete;
-
-    Window& operator=(const Window &other) = delete;
-
-    ~Window();
-
-    [[nodiscard]] Util::Graphic::LinearFrameBuffer& getFrameBuffer() const;
-
-    bool flush() const;
-
-private:
-
-    size_t id = 0;
-
-    WindowManagerPipe &pipe;
-
-    Util::Async::SharedMemory *sharedMemory = nullptr;
-    Util::Graphic::LinearFrameBuffer *lfb = nullptr;
-};
-
+ClientWindow::~ClientWindow() {
+    delete buffer;
 }
 
-#endif
+size_t ClientWindow::getId() const {
+    return id;
+}
+
+Util::Async::SharedMemory& ClientWindow::getBuffer() const {
+    return *buffer;
+}
+
+uint16_t ClientWindow::getPosX() const {
+    return posX;
+}
+
+uint16_t ClientWindow::getPosY() const {
+    return posY;
+}
+
+uint16_t ClientWindow::getWidth() const {
+    return width;
+}
+
+uint16_t ClientWindow::getHeight() const {
+    return height;
+}
+
+Util::String ClientWindow::getTitle() const {
+    return title;
+}
