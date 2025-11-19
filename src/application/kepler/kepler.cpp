@@ -19,8 +19,11 @@
  */
 
 #include "WindowManager.h"
+#include "util/graphic/Ansi.h"
 
 void main() {
+    Util::Graphic::Ansi::prepareGraphicalApplication(true);
+
     auto lfb = Util::Graphic::LinearFrameBuffer::open(Util::Io::File("/device/lfb"));
     lfb.clear();
 

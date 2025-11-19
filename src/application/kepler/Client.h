@@ -41,7 +41,9 @@ public:
 
     void addWindow(ClientWindow *window);
 
-    [[nodiscard]] ClientWindow *getWindowById(size_t id) const;
+    [[nodiscard]] ClientWindow* getWindowById(size_t id) const;
+
+    [[nodiscard]] const Util::ArrayList<ClientWindow*>& getWindows() const;
 
 private:
 
