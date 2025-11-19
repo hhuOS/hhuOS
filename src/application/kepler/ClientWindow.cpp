@@ -20,6 +20,8 @@
 
 #include "ClientWindow.h"
 
+#include "util/graphic/Colors.h"
+
 ClientWindow::ClientWindow(size_t id, Util::Async::SharedMemory *buffer, uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const Util::String &title) :
     id(id), buffer(buffer), posX(posX), posY(posY), width(width), height(height), title(title) {}
 
@@ -53,4 +55,35 @@ uint16_t ClientWindow::getHeight() const {
 
 Util::String ClientWindow::getTitle() const {
     return title;
+}
+
+bool ClientWindow::isDirty() const {
+    return dirty;
+}
+
+void ClientWindow::setDirty(const bool dirty) {
+    ClientWindow::dirty = dirty;
+}
+
+void ClientWindow::drawFrame(const Util::Graphic::LinearFrameBuffer &lfb) const {
+    lfb.drawRectangle(posX, posY, width + 2, height + TITLE_FONT.getCharHeight() + 5,
+        Util::Graphic::Colors::WHITE);
+    lfb.fillRectangle(posX, posY, width + 2, TITLE_FONT.getCharHeight() + 5, Util::Graphic::Colors::WHITE);
+
+    const auto titleWidth = static_cast<uint16_t>(title.length() * TITLE_FONT.getCharWidth());
+    const auto titlePosX = posX + (width + 2 - titleWidth) / 2;
+    lfb.drawString(TITLE_FONT, titlePosX, posY + 2, title,
+        Util::Graphic::Colors::BLACK, Util::Graphic::Colors::WHITE);
+}
+
+void ClientWindow::flush(const Util::Graphic::LinearFrameBuffer &lfb) const {
+    auto sourceAddress = buffer->getAddress();
+    auto targetAddress = lfb.getBuffer().add(
+        (posY + TITLE_FONT.getCharHeight() + 4) * lfb.getPitch() + (posX + 1) * lfb.getBytesPerPixel());
+
+    for (uint16_t y = 0; y < height; y++) {
+        targetAddress.copyRange(sourceAddress, width * lfb.getBytesPerPixel());
+        targetAddress = targetAddress.add(lfb.getPitch());
+        sourceAddress = sourceAddress.add(width * lfb.getBytesPerPixel());
+    }
 }

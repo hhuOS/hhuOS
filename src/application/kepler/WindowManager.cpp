@@ -41,6 +41,16 @@ WindowManager::WindowManager(Util::Graphic::LinearFrameBuffer &lfb) : lfb(lfb) {
 
 void WindowManager::run() {
     while (true) {
+        for (const auto *client : clients) {
+            for (auto *window : client->getWindows()) {
+                if (window->isDirty()) {
+                    window->drawFrame(lfb);
+                    window->flush(lfb);
+                    window->setDirty(false);
+                }
+            }
+        }
+
         for (auto *client : clients) {
             auto &inputStream = client->getInputStream();
             if (inputStream.isReadyToRead()) {
@@ -79,7 +89,7 @@ void WindowManager::run() {
 
 
 void WindowManager::createNextPipe() {
-    nextClientId = clientIdGenerator.next();
+    nextClientId = clientIdGenerator.getNextId();
     createPipe(Util::String::format("%u", nextClientId));
     nextPipe = new Util::Io::FileInputStream(Util::String::format("/process/%u/pipes/%u", processId, nextClientId));
     nextPipe->setAccessMode(Util::Io::File::NON_BLOCKING);
@@ -94,7 +104,7 @@ void WindowManager::createWindow(Client &client) {
     request.readFromStream(inputStream);
     inputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
 
-    const auto windowId = windowIdGenerator.next();
+    const auto windowId = windowIdGenerator.getNextId();
     const auto bufferSize = 320 * 240 * lfb.getBytesPerPixel();
     const auto bufferPages = bufferSize % Util::PAGESIZE == 0 ? bufferSize / Util::PAGESIZE : bufferSize / Util::PAGESIZE + 1;
     auto *sharedBuffer = new Util::Async::SharedMemory(Util::String::format("%u", windowId), bufferPages);
@@ -127,29 +137,7 @@ void WindowManager::flushWindow(const Client &client) const {
         return;
     }
 
-    const auto &font = Util::Graphic::Fonts::TERMINAL_8x8;
-    const auto &title = window->getTitle();
-    const auto &buffer = window->getBuffer();
-    const auto posX = window->getPosX();
-    const auto posY = window->getPosY();
-    const auto width = window->getWidth();
-    const auto height = window->getHeight();
-
-    lfb.drawRectangle(posX, posY, width + 2, height + font.getCharHeight() + 5, Util::Graphic::Colors::WHITE);
-    lfb.fillRectangle(posX, posY, width + 2, font.getCharHeight() + 5, Util::Graphic::Colors::WHITE);
-
-    const auto titleWidth = static_cast<uint16_t>(title.length() * font.getCharWidth());
-    const auto titlePosX = posX + (width + 2 - titleWidth) / 2;
-    lfb.drawString(font, titlePosX, posY + 2, title, Util::Graphic::Colors::BLACK, Util::Graphic::Colors::WHITE);
-
-    auto sourceAddress = buffer.getAddress();
-    auto targetAddress = lfb.getBuffer().add((posY + font.getCharHeight() + 4) * lfb.getPitch() + (posX + 1) * lfb.getBytesPerPixel());
-
-    for (uint16_t y = 0; y < height; y++) {
-        targetAddress.copyRange(sourceAddress, width * lfb.getBytesPerPixel());
-        targetAddress = targetAddress.add(lfb.getPitch());
-        sourceAddress = sourceAddress.add(width * lfb.getBytesPerPixel());
-    }
+    window->flush(lfb);
 
     const auto response = Kepler::Response::Flush(true);
     response.writeToStream(outputStream);

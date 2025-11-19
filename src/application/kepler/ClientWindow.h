@@ -23,7 +23,9 @@
 
 #include <stddef.h>
 
-#include "util/io/stream/FileOutputStream.h"
+#include "util/graphic/LinearFrameBuffer.h"
+#include "util/graphic/font/Terminal8x8.h"
+#include "util/io/stream/FileInputStream.h"
 #include "util/async/SharedMemory.h"
 
 class ClientWindow {
@@ -48,16 +50,27 @@ public:
 
     [[nodiscard]] Util::String getTitle() const;
 
+    [[nodiscard]] bool isDirty() const;
+
+    void setDirty(bool dirty);
+
+    void drawFrame(const Util::Graphic::LinearFrameBuffer &lfb) const;
+
+    void flush(const Util::Graphic::LinearFrameBuffer &lfb) const;
+
 private:
 
     size_t id;
-
     Util::Async::SharedMemory *buffer = nullptr;
     uint16_t posX = 0;
     uint16_t posY = 0;
     uint16_t width = 0;
     uint16_t height = 0;
     Util::String title;
+
+    bool dirty = true;
+
+    static constexpr Util::Graphic::Font &TITLE_FONT = Util::Graphic::Fonts::TERMINAL_8x8;
 };
 
 #endif
