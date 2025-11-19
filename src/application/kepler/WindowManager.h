@@ -32,7 +32,7 @@ class WindowManager final : public Util::Async::Runnable {
 
 public:
 
-    WindowManager(Util::Graphic::LinearFrameBuffer &lfb);
+    explicit WindowManager(Util::Graphic::LinearFrameBuffer &lfb);
 
     void run() override;
 

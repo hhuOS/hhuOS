@@ -55,3 +55,7 @@ ClientWindow* Client::getWindowById(const size_t id) const {
 
     return nullptr;
 }
+
+const Util::ArrayList<ClientWindow*>& Client::getWindows() const {
+    return windows;
+}

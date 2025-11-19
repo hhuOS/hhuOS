@@ -41,6 +41,16 @@ WindowManager::WindowManager(Util::Graphic::LinearFrameBuffer &lfb) : lfb(lfb) {
 
 void WindowManager::run() {
     while (true) {
+        for (const auto *client : clients) {
+            for (auto *window : client->getWindows()) {
+                if (window->isDirty()) {
+                    window->drawFrame(lfb);
+                    window->flush(lfb);
+                    window->setDirty(false);
+                }
+            }
+        }
+
         for (auto *client : clients) {
             auto &inputStream = client->getInputStream();
             if (inputStream.isReadyToRead()) {
@@ -127,29 +137,7 @@ void WindowManager::flushWindow(const Client &client) const {
         return;
     }
 
-    const auto &font = Util::Graphic::Fonts::TERMINAL_8x8;
-    const auto &title = window->getTitle();
-    const auto &buffer = window->getBuffer();
-    const auto posX = window->getPosX();
-    const auto posY = window->getPosY();
-    const auto width = window->getWidth();
-    const auto height = window->getHeight();
-
-    lfb.drawRectangle(posX, posY, width + 2, height + font.getCharHeight() + 5, Util::Graphic::Colors::WHITE);
-    lfb.fillRectangle(posX, posY, width + 2, font.getCharHeight() + 5, Util::Graphic::Colors::WHITE);
-
-    const auto titleWidth = static_cast<uint16_t>(title.length() * font.getCharWidth());
-    const auto titlePosX = posX + (width + 2 - titleWidth) / 2;
-    lfb.drawString(font, titlePosX, posY + 2, title, Util::Graphic::Colors::BLACK, Util::Graphic::Colors::WHITE);
-
-    auto sourceAddress = buffer.getAddress();
-    auto targetAddress = lfb.getBuffer().add((posY + font.getCharHeight() + 4) * lfb.getPitch() + (posX + 1) * ((lfb.getColorDepth() + 7) / 8));
-
-    for (uint16_t y = 0; y < height; y++) {
-        targetAddress.copyRange(sourceAddress, width * ((lfb.getColorDepth() + 7) / 8));
-        targetAddress = targetAddress.add(lfb.getPitch());
-        sourceAddress = sourceAddress.add(width * ((lfb.getColorDepth() + 7) / 8));
-    }
+    window->flush(lfb);
 
     const auto response = Kepler::Response::Flush(true);
     response.writeToStream(outputStream);
