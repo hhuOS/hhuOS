@@ -58,7 +58,7 @@ public:
 
     void draw(Pulsar::Graphics &graphics) const override;
 
-    void onCollisionEvent(Pulsar::D3::CollisionEvent &event) override;
+    void onCollisionEvent(const Pulsar::D3::CollisionEvent &event) override;
 
     void onUpdate(double delta) override;
 

@@ -166,6 +166,7 @@ public:
     /// ```
     ///
     /// ### Example
+    /// ```c++
     /// const auto vector1 = Util::Math::Vector3<float>(1.0f, 2.0f, 3.0f);
     /// const auto vector2 = Util::Math::Vector3<float>(4.0f, 6.0f, 8.0f);
     ///
@@ -213,6 +214,7 @@ public:
     ///
     /// // Rotate the vector by 30° around the x-axis, 45° around the y-axis, and 60° around the z-axis
     /// const auto rotatedVector = vector.rotate(rotation); // { 1.425f, 2.932f, 1.837f }
+    /// ```
     [[nodiscard]] Vector3 rotate(const Vector3 &rotation) const;
 
     /// Return the x component of this vector.

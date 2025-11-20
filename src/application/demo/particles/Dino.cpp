@@ -31,7 +31,7 @@
 #include "lib/util/math/Vector2.h"
 
 Dino::Dino(const Util::Math::Vector2<double> &position, bool flipX) :
-        Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE, SIZE * 1.133, Pulsar::Collider::STATIC)),
+        Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE, SIZE * 1.133, Pulsar::D2::RectangleCollider::STATIC)),
         flipX(flipX) {}
 
 void Dino::initialize() {

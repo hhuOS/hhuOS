@@ -35,4 +35,4 @@ void Astronomical::onUpdate(double delta) {
     rotate(rotationVector * delta);
 }
 
-void Astronomical::onCollisionEvent([[maybe_unused]] Pulsar::D3::CollisionEvent &event) {}
+void Astronomical::onCollisionEvent([[maybe_unused]] const Pulsar::D3::CollisionEvent &event) {}

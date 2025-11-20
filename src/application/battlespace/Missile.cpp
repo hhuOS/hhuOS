@@ -52,7 +52,7 @@ void Missile::onUpdate(double delta) {
     }
 }
 
-void Missile::onCollisionEvent(Pulsar::D3::CollisionEvent &event) {
+void Missile::onCollisionEvent(const Pulsar::D3::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == TAG && player != nullptr) {
         player->addScore(250);
     }

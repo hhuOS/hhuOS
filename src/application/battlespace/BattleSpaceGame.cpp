@@ -36,7 +36,7 @@
 #include "pulsar/TextScreen.h"
 
 void BattleSpaceGame::initialize() {
-    setLightEnabled(false);
+    setLightingEnabled(false);
     setGlRenderStyle(LINES);
     setGlShadeModel(FLAT);
 

@@ -22,51 +22,46 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_SPHERECOLLIDER_H
-#define HHUOS_SPHERECOLLIDER_H
+#ifndef HHUOS_LIB_PULSAR_3D_SPHERECOLLIDER_H
+#define HHUOS_LIB_PULSAR_3D_SPHERECOLLIDER_H
 
-#include "lib/pulsar/Collider.h"
-
-namespace Util {
-namespace Math {
-template <typename T> class Vector3;
-}  // namespace Math
-}  // namespace Util
+#include "pulsar/Collider.h"
+#include "util/math/Vector3.h"
 
 namespace Pulsar::D3 {
 
+/// A spherical collider for 3D collision detection.
+/// Collisions with other sphere colliders can be detected by calling `isColliding()`.
+/// The sphere collider is defined by its position and radius.
 class SphereCollider : public Collider {
 
 public:
-    /**
-     * Constructor.
-     */
+    /// Create a new sphere collider instance with radius 0 at the origin.
+    /// An entity with such a collider is considered to have no collider.
+    SphereCollider() = default;
+
+    /// Create a new sphere collider instance with a given radius at the specified position.
     SphereCollider(const Util::Math::Vector3<double> &position, double radius);
 
-    /**
-     * Copy Constructor.
-     */
-    SphereCollider(const SphereCollider &other) = default;
-
-    /**
-     * Assignment operator.
-     */
-    SphereCollider &operator=(const SphereCollider &other) = default;
-
-    /**
-     * Destructor.
-     */
-    ~SphereCollider() = default;
-
+    /// Check if this sphere collider is colliding with another sphere collider.
+    /// This is done by calculating the distance between the two sphere centers,
+    /// and comparing it to the sum of their radii.
     [[nodiscard]] bool isColliding(const SphereCollider &other) const;
 
+    /// Get the radius of the sphere collider.
     [[nodiscard]] double getRadius() const;
 
 private:
 
-    double radius;
+    double radius = 0;
 };
 
 }

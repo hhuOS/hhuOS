@@ -36,7 +36,7 @@
 
 class EnemyBug;
 
-EnemyMissile::EnemyMissile(const Util::Math::Vector2<double> &position, EnemyBug &bug) : Explosive(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE_X, SIZE_Y, Pulsar::Collider::STATIC), "/user/bug/ship_hit.wav"), bug(bug) {
+EnemyMissile::EnemyMissile(const Util::Math::Vector2<double> &position, EnemyBug &bug) : Explosive(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE_X, SIZE_Y, Pulsar::D2::RectangleCollider::STATIC), "/user/bug/ship_hit.wav"), bug(bug) {
     addComponent(new Pulsar::D2::LinearMovementComponent());
 }
 

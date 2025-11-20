@@ -28,7 +28,6 @@
 #include "lib/pulsar/3d/event/CollisionEvent.h"
 #include "lib/pulsar/Scene.h"
 #include "lib/util/math/Math.h"
-#include "lib/pulsar/3d/Utility.h"
 #include "EnemyDebris.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/pulsar/3d/Entity.h"
@@ -75,7 +74,7 @@ void Enemy::onUpdate(double delta) {
         goalTranslation = player.getPosition() + player.getCurrentMovementDirection() * (time / delta);
     }*/
 
-    auto goalRotation = Pulsar::D3::Utility::findLookAt(getPosition(), player.getPosition()) % 360;
+    auto goalRotation = findLookAt(getPosition(), player.getPosition()) % 360;
     auto relativeRotation = goalRotation - getRotation();
 
     if (relativeRotation.length() > 0.1) {
@@ -132,7 +131,7 @@ void Enemy::onUpdate(double delta) {
     }
 }
 
-void Enemy::onCollisionEvent(Pulsar::D3::CollisionEvent &event) {
+void Enemy::onCollisionEvent(const Pulsar::D3::CollisionEvent &event) {
     switch (event.getCollidedWidth().getTag()) {
         case Missile::TAG:
         case Player::TAG:
@@ -167,4 +166,31 @@ void Enemy::takeDamage(uint8_t damage) {
             removeFromScene();
         }
     }
+}
+
+Util::Math::Vector3<double> Enemy::findLookAt(const Util::Math::Vector3<double> &from, const Util::Math::Vector3<double> &to) {
+    Util::Math::Vector3<double> v = to - from;
+    Util::Math::Vector3<double> norm = v.normalize();
+
+    auto x = norm.getX();
+    auto y = norm.getY();
+    auto z = norm.getZ();
+
+    auto pitch = Util::Math::arcsine(y);
+    auto a = x / Util::Math::cosine(pitch);
+
+    // fix rounding errors (|a| shouldn't actually ever exceed 1)
+    if (a > 1) a = 1;
+    if (a < -1) a = -1;
+
+    auto yaw = Util::Math::arcsine(a);
+    auto c = 180 / Util::Math::PI_DOUBLE;
+
+    yaw *= c;
+    pitch *= c;
+
+    // fix mirroring issue when getting vectors behind you
+    if (z < 0) yaw = -180 - yaw;
+
+    return { -pitch, yaw, 0 };
 }

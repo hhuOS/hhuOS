@@ -34,10 +34,11 @@
 #define HHUOS_LIB_PULSAR_RESOURCES_H
 
 #include "pulsar/3d/ObjectFile.h"
+#include "pulsar/3d/Texture.h"
 #include "audio/AudioBuffer.h"
 #include "util/graphic/Image.h"
 #include "util/base/String.h"
-#include "lib/tinygl/include/GL/gl.h"
+#include "tinygl/include/GL/gl.h"
 
 /// Provides resource management for game assets like images, 3D object files, textures, and audio buffers.
 /// Resources can be added, retrieved, checked for existence, and deleted using string keys.
@@ -73,13 +74,13 @@ const D3::ObjectFile* getObjectFile(const Util::String &key);
 void deleteObjectFile(const Util::String &key);
 
 /// Add an OpenGL texture resource with the specified key.
-void addTexture(const Util::String &key, GLuint texture);
+void addTexture(const Util::String &key, const D3::Texture *texture);
 
 /// Check if an OpenGL texture resource with the specified key exists.
 bool hasTexture(const Util::String &key);
 
 /// Retrieve the OpenGL texture resource associated with the specified key.
-GLuint getTexture(const Util::String &key);
+const D3::Texture* getTexture(const Util::String &key);
 
 /// Delete the OpenGL texture resource associated with the specified key.
 void deleteTexture(const Util::String &key);

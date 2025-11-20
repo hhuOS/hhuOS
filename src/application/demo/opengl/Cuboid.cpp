@@ -48,4 +48,4 @@ void Cuboid::draw(Pulsar::Graphics &graphics) const {
     graphics.drawCuboid3D(getPosition(), getScale(), getOrientation().getRotation(), texture);
 }
 
-void Cuboid::onCollisionEvent([[maybe_unused]] Pulsar::D3::CollisionEvent &event) {}
+void Cuboid::onCollisionEvent([[maybe_unused]] const Pulsar::D3::CollisionEvent &event) {}

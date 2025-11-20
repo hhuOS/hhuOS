@@ -64,7 +64,7 @@ public:
 
     void draw(Pulsar::Graphics &graphics) const override;
 
-    void onCollisionEvent(Pulsar::D3::CollisionEvent &event) override;
+    void onCollisionEvent(const Pulsar::D3::CollisionEvent &event) override;
 
     static const constexpr uint32_t TAG_DMG_UP = 4;
     static const constexpr uint32_t TAG_HEALTH_UP = 5;

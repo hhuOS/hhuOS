@@ -77,7 +77,7 @@ void DemoModel::onUpdate([[maybe_unused]] double delta) {
     }
 }
 
-void DemoModel::onCollisionEvent([[maybe_unused]] Pulsar::D3::CollisionEvent &event) {}
+void DemoModel::onCollisionEvent([[maybe_unused]] const Pulsar::D3::CollisionEvent &event) {}
 
 const char* DemoModel::pathForType(Type type) {
     switch (type) {

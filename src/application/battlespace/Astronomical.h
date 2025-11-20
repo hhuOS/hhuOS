@@ -61,7 +61,7 @@ public:
 
     void onUpdate(double delta) override;
 
-    void onCollisionEvent(Pulsar::D3::CollisionEvent &event) override;
+    void onCollisionEvent(const Pulsar::D3::CollisionEvent &event) override;
 
     static const constexpr uint32_t TAG = 1;
 

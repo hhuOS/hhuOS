@@ -18,11 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <GL/gl.h>
-
 #include "lib/util/base/System.h"
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/io/stream/PrintStream.h"
+#include "lib/tinygl/include/GL/gl.h"
 
 void info() {
     Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE << "GL Vendor: " << Util::Graphic::Ansi::RESET << reinterpret_cast<const char*>(glGetString(GL_VENDOR)) << Util::Io::PrintStream::ln

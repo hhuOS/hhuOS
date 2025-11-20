@@ -41,7 +41,7 @@
 #include "lib/pulsar/2d/component/GravityComponent.h"
 #include "pulsar/TextScreen.h"
 
-PlayerDino::PlayerDino(const Util::Math::Vector2<double> &position) : Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE, SIZE * 1.133, Pulsar::Collider::DYNAMIC)) {}
+PlayerDino::PlayerDino(const Util::Math::Vector2<double> &position) : Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE, SIZE * 1.133, Pulsar::D2::RectangleCollider::DYNAMIC)) {}
 
 void PlayerDino::initialize() {
     idleAnimation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({

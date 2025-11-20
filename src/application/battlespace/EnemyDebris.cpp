@@ -71,4 +71,4 @@ void EnemyDebris::onUpdate(double delta) {
     rotate(rotationDirection);
 }
 
-void EnemyDebris::onCollisionEvent([[maybe_unused]] Pulsar::D3::CollisionEvent &event) {}
+void EnemyDebris::onCollisionEvent([[maybe_unused]] const Pulsar::D3::CollisionEvent &event) {}

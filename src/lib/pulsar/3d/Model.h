@@ -25,81 +25,83 @@
  *
  * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_MODEL_H
-#define HHUOS_MODEL_H
+#ifndef HHUOS_LIB_PULSAR_3D_MODEL_H
+#define HHUOS_LIB_PULSAR_3D_MODEL_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-#include "lib/util/graphic/Color.h"
-#include "Entity.h"
-#include "Texture.h"
-#include "lib/util/base/String.h"
-#include "lib/util/graphic/Colors.h"
-
-namespace Util {
-namespace Math {
-template <typename T> class Vector3;
-}  // namespace Math
-}  // namespace Util
-
-namespace Pulsar {
-namespace D3 {
-class ObjectFile;
-}  // namespace D3
-}  // namespace Pulsar
+#include "util/base/String.h"
+#include "util/graphic/Color.h"
+#include "util/graphic/Colors.h"
+#include "util/math/Vector3.h"
+#include "pulsar/3d/Entity.h"
+#include "pulsar/3d/Texture.h"
+#include "pulsar/3d/ObjectFile.h"
 
 namespace Pulsar::D3 {
 
+/// A 3D model entity that can be rendered in a 3D scene.
+/// The model is loaded from an object file (.obj) and can optionally have a texture applied.
+/// The texture is loaded from a Bitmap file (.bmp). If no texture is provided,
+/// the model will be rendered with a solid color. The object and texture files are cached
+/// via the `Resources` class to avoid redundant loading.
+/// All vertices are normalized to fit within a unit cube (1x1x1) centered at the origin (0,0,0).
+/// The size of the model can be adjusted using the scale parameter when creating the model instance.
+/// A sphere collider is automatically created, with the radius matching the largest scale dimension.
 class Model : public Entity {
 
 public:
-    /**
-     * Constructor.
-     */
-    Model(uint32_t tag, const Util::String &modelPath, const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, const Util::Math::Vector3<double> &scale, const Util::Graphic::Color &color = Util::Graphic::Colors::WHITE);
+    /// Create a new 3D model instance, loaded from the given object file path, with no texture, but a solid color.
+    Model(size_t tag, const Util::String &modelPath, const Util::Math::Vector3<double> &position,
+        const Util::Math::Vector3<double> &rotation, const Util::Math::Vector3<double> &scale,
+        const Util::Graphic::Color &color = Util::Graphic::Colors::WHITE);
 
-    /**
-     * Constructor.
-     */
-    Model(uint32_t tag, const Util::String &modelPath, const Util::String &texturePath, const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, const Util::Math::Vector3<double> &scale);
+    /// Create a new 3D model instance, loaded from the given object file path, with the specified texture (.bmp file).
+    Model(size_t tag, const Util::String &modelPath, const Util::String &texturePath,
+        const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation,
+        const Util::Math::Vector3<double> &scale);
 
-    /**
-     * Copy Constructor.
-     */
-    Model(const Model &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Model &operator=(const Model &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Model() override = default;
-
+    /// Initialize the model by loading the object file and texture (if provided).
+    /// This method is called automatically by the engine when the model is added to a scene.
     void initialize() override;
 
+    /// Draw the model using the provided graphics context.
+    /// This method is called automatically by the engine during the rendering process.
     void draw(Graphics &graphics) const override;
 
+    /// Get the vertices, that define the shape of the model.
+    /// These are the 3D points that define the shape of the model.
     [[nodiscard]] const Util::Array<Util::Math::Vector3<double>>& getVertices() const;
 
+    /// Get the vertex normals, that define the orientation of the model's surfaces.
+    /// These normals are used for lighting calculations to determine how light interacts with the model's surface.
     [[nodiscard]] const Util::Array<Util::Math::Vector3<double>>& getVertexNormals() const;
 
+    /// Get the vertex texture coordinates of the model.
+    /// These coordinates map the texture image onto the model's surface.
     [[nodiscard]] const Util::Array<Util::Math::Vector3<double>>& getVertexTextures() const;
 
-    [[nodiscard]] const Util::Array<uint32_t>& getVertexDrawOrder() const;
+    /// Get the draw order of the model's vertices.
+    /// Each entry in the returned array is an index into the vertices array.
+    [[nodiscard]] const Util::Array<size_t>& getVertexDrawOrder() const;
 
-    [[nodiscard]] const Util::Array<uint32_t>& getNormalDrawOrder() const;
+    /// Get the draw order of the model's vertex normals.
+    /// Each entry in the returned array is an index into the vertex normals array.
+    [[nodiscard]] const Util::Array<size_t>& getNormalDrawOrder() const;
 
-    [[nodiscard]] const Util::Array<uint32_t>& getTextureDrawOrder() const;
+    /// Get the draw order of the model's texture coordinates.
+    /// Each entry in the returned array is an index into the vertex textures array.
+    [[nodiscard]] const Util::Array<size_t>& getTextureDrawOrder() const;
 
+    /// Get the texture applied to the model.
     [[nodiscard]] const Texture& getTexture() const;
 
-protected:
-
+    /// Get the solid color of the model (used if no texture is applied).
     [[nodiscard]] const Util::Graphic::Color& getColor() const;
 
 private:
@@ -107,10 +109,10 @@ private:
     Util::String modelPath;
     Util::String texturePath;
 
-    Texture texture;
-    const Util::Graphic::Color color = Util::Graphic::Color(255, 255, 255);
-
     const ObjectFile *objectFile = nullptr;
+    const Texture *texture = nullptr;
+
+    Util::Graphic::Color color;
 };
 
 }

@@ -30,7 +30,7 @@ void Rogue3D::initialize() {
     // Setup lighting
     setAmbientLight(Util::Graphic::Color(153, 153, 153));
     addLight(Pulsar::D3::Light::POINT, Util::Math::Vector3<double>(39, 20, 36), Util::Graphic::Color(102, 102, 255), Util::Graphic::Color(0, 0 ,0));
-    setLightEnabled(true);
+    setLightingEnabled(true);
 
     addEntity(player);
     addEntity(hud);

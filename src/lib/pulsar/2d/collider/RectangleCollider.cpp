@@ -40,7 +40,7 @@
 namespace Pulsar::D2 {
 
 RectangleCollider::RectangleCollider(const Util::Math::Vector2<double> &position, const double width,
-    const double height, const Type type) : Collider(position, type), width(width), height(height) {}
+    const double height, const Type type) : Collider(position), width(width), height(height), type(type) {}
 
 RectangleCollider::Side RectangleCollider::getOpposite(const Side side) {
     if (side == NONE) {
@@ -71,6 +71,10 @@ void RectangleCollider::setHeight(const double height) {
 void RectangleCollider::setSize(const double width, const double height) {
     RectangleCollider::width = width;
     RectangleCollider::height = height;
+}
+
+RectangleCollider::Type RectangleCollider::getType() const {
+    return type;
 }
 
 RectangleCollider::Side RectangleCollider::isColliding(const RectangleCollider &other) const {

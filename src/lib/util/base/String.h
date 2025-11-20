@@ -408,7 +408,7 @@ public:
     /// The default format is "%c", which is the same as `asctime()`.
     ///
     /// ### Example
-    /// `c++
+    /// ```c++
     /// const auto date = Util::Time::Date(2025, 08, 25, 10, 47, 21);
     ///
     /// const auto str1 = Util::String::formatDate(date); // str1 = "Mon Aug 25 10:47:21 2025"

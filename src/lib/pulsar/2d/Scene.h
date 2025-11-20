@@ -67,9 +67,9 @@ public:
     virtual bool initializeBackground(Graphics &graphics);
 
     /// Initialize the scene. This method is called by the engine once when the scene is first loaded.
-    /// It initializes the graphics context and entities and calls the user-defined `initialize()` method.
-    /// This implementation calls `initializeBackground()` to set up the background,
-    /// then calls the user-defined `initialize()` method, and finally initializes all entities in the scene.
+    /// It initializes the graphics context, calls the user-defined `initialize()` method and
+    /// initializes all entities in the scene.
+    /// This implementation calls `initializeBackground()` to set up the background for 2D scenes.
     /// It is not intended to be called directly by game developers.
     void initializeScene(Graphics &graphics) final;
 

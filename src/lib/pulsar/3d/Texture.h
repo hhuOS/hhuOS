@@ -16,44 +16,44 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
+ * The original source code can be found here: https://github.com/Malte2036/hhuOS
+ *
+ * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#ifndef HHUOS_LIB_PULSAR_3D_TEXTURE_H
+#define HHUOS_LIB_PULSAR_3D_TEXTURE_H
 
-#include "lib/util/base/String.h"
-#include "lib/tinygl/include/GL/gl.h"
+#include "util/base/String.h"
+#include "tinygl/include/GL/gl.h"
 
 namespace Pulsar::D3 {
 
+/// Represents an OpenGL texture loaded from an image file for use in 3D rendering.
+/// The texture is loaded from the specified file path and assigned a unique OpenGL texture ID
+/// via glGenTextures()/glBindTexture(). This ID can be used with the `Graphics` class for rendering textured 3D models.
 class Texture {
 
 public:
-    /**
-     * Default Constructor.
-     */
+    /// Create a new invalid texture instance without loading any image (ID = 0).
     Texture() = default;
 
-    /**
-     * Constructor.
-     */
+    /// Create a new texture instance by loading the image from the given file path.
     explicit Texture(const Util::String &path);
 
-    /**
-     * Copy Constructor.
-     */
-    Texture(const Texture &other) = default;
+    /// Check if the texture is valid (i.e. has a non-zero OpenGL texture ID).
+    [[nodiscard]] bool isValid() const;
 
-    /**
-     * Assignment operator.
-     */
-    Texture &operator=(const Texture &other) = default;
-
-    /**
-     * Destructor.
-     */
-    ~Texture() = default;
-
+    /// Get the OpenGL texture ID assigned to this texture.
     [[nodiscard]] GLuint getTextureID() const;
 
 private:

@@ -94,4 +94,4 @@ void Hud::setCurrentPosition(uint32_t newRow, uint32_t newColumn) {
 
 void Hud::onUpdate([[maybe_unused]] double delta) {}
 
-void Hud::onCollisionEvent([[maybe_unused]] Pulsar::D3::CollisionEvent &event) {}
+void Hud::onCollisionEvent([[maybe_unused]] const Pulsar::D3::CollisionEvent &event) {}

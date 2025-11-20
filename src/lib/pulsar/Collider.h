@@ -47,33 +47,16 @@ namespace Pulsar {
 class Collider {
 
 public:
-    /// Different types of colliders.
-    enum Type {
-        /// A static collider just detects collisions and generates collision events but does not move.
-        /// This is typically used for immovable objects like walls or floors.
-        STATIC,
-        /// A dynamic collider detects collisions and responds to them by moving away from the collision.
-        /// The associated entity will receive translation events, that can be canceled to prevent the movement.
-        /// This is typically used for movable objects like players or enemies.
-        DYNAMIC,
-        /// A permeable collider detects collisions and generates collision, similar to a static collider.
-        /// However, if a dynamic collider collides with a permeable collider,
-        /// the dynamic collider will not move away from the collision.
-        /// This is typically used for objects that can be passed through, like collectibles or particles.
-        PERMEABLE,
-        /// No collider type. This indicates that the entity has no collider.
-        NONE
-    };
 
     /// Create a new collider of type NONE at the origin.
     /// This is used for entities without a collider.
     Collider() = default;
 
     /// Create a new collider instance at the given 2D position with the specified type.
-    Collider(const Util::Math::Vector2<double> &position, Type type);
+    explicit Collider(const Util::Math::Vector2<double> &position);
 
     /// Create a new collider instance at the given 3D position with the specified type.
-    Collider(const Util::Math::Vector3<double> &position, Type type);
+    explicit Collider(const Util::Math::Vector3<double> &position);
 
     /// Set the position of the collider using a 2D vector.
     /// The z-coordinate is set to 0.
@@ -86,13 +69,9 @@ public:
     /// For 2D colliders, the z-coordinate is typically 0.
     [[nodiscard]] const Util::Math::Vector3<double>& getPosition() const;
 
-    /// Get the type of the collider.
-    [[nodiscard]] Type getType() const;
-
 private:
 
     Util::Math::Vector3<double> position;
-    Type type = NONE;
 };
 
 }

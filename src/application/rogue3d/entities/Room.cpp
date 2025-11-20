@@ -83,7 +83,7 @@ void Room::draw(Pulsar::Graphics &graphics) const {
     }
 }
 
-void Room::onCollisionEvent([[maybe_unused]] Pulsar::D3::CollisionEvent &event) {}
+void Room::onCollisionEvent([[maybe_unused]] const Pulsar::D3::CollisionEvent &event) {}
 
 void Room::enterRoom() {
     entered = true;

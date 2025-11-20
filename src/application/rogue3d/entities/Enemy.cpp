@@ -85,7 +85,7 @@ void Enemy::setType(Type type) {
     }
 }
 
-void Enemy::onCollisionEvent(Pulsar::D3::CollisionEvent &event) {
+void Enemy::onCollisionEvent(const Pulsar::D3::CollisionEvent &event) {
     switch (event.getCollidedWidth().getTag()) {
         case Projectile::TAG_PLAYER:
             takeDamage(player.getDamage());

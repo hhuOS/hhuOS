@@ -25,105 +25,143 @@
  *
  * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_SCENE_3D_H
-#define HHUOS_SCENE_3D_H
+#ifndef HHUOS_LIB_PULSAR_3D_SCENE_H
+#define HHUOS_LIB_PULSAR_3D_SCENE_H
 
-#include <stdint.h>
-
-#include "lib/tinygl/include/GL/gl.h"
-#include "lib/pulsar/Scene.h"
-#include "Light.h"
-#include "lib/util/graphic/Colors.h"
-#include "lib/util/graphic/Color.h"
-
-namespace Util {
-namespace Math {
-template <typename T> class Vector3;
-}  // namespace Math
-}  // namespace Util
+#include "util/graphic/Color.h"
+#include "util/graphic/Colors.h"
+#include "util/math/Vector3.h"
+#include "pulsar/Scene.h"
+#include "pulsar/3d/Entity.h"
+#include "pulsar/3d/Light.h"
+#include "tinygl/include/GL/gl.h"
 
 namespace Pulsar::D3 {
 
+/// Base class for 3D scenes used in the game engine.
+/// It extends the base `Pulsar::Scene` class with 3D-specific behaviors (e.g. lighting).
+/// 3D scenes manage 3D entities with sphere colliders and check for collisions between them.
+/// They also manage OpenGL specific settings like render styles and shading models, which
+/// can be adjusted at runtime:
+/// - Press F2 to toggle between OpenGL render styles (points, lines, fill).
+/// - Press F3 to toggle lighting on and off.
+/// - Press F4 to toggle between flat and smooth shading models.
+///
+/// To create a new 3D scene for your game, derive from this class and implement the required methods:
+/// - `initialize()`: Initialize the scene (load resources, set up entities, etc.).
+/// - `update(double delta)`: Update the scene logic (optional).
+/// - `keyPressed(const Util::Io::Key &key)`: Handle key press events (optional).
+/// - `keyReleased(const Util::Io::Key &key)`: Handle key release events (optional).
+/// - `mouseButtonPressed(Util::Io::MouseDecoder::Button button)`: Handle mouse button press events (optional).
+/// - `mouseButtonReleased(Util::Io::MouseDecoder::Button button)`: Handle mouse button release events (optional).
+/// - `mouseMoved(const Util::Math::Vector2<double> &relativeMovement)`: Handle mouse movement events (optional).
+/// - `mouseScrolled(double scrollAmount)`: Handle mouse scroll events (optional).
 class Scene : public Pulsar::Scene {
 
 public:
-
+    /// OpenGL render styles for drawing polygons.
+    /// The default render style is `FILL`.
     enum GlRenderStyle : GLint {
+        /// Render polygons as points, with only the vertices drawn (no edges or faces).
         POINTS = GL_POINT,
+        /// Render polygons as wireframes, with only the edges drawn (no faces).
         LINES = GL_LINE,
+        /// Render filled polygons, with faces drawn solidly.
         FILL = GL_FILL
     };
 
+    /// OpenGL shading models for rendering polygons.
+    /// The default shading model is `SMOOTH`.
     enum GlShadeModel : GLint {
+        /// Render polygons with flat shading, where each polygon has a single color.
         FLAT = GL_FLAT,
+        /// Render polygons with smooth shading, where colors are interpolated across vertices.
         SMOOTH = GL_SMOOTH
     };
 
-    /**
-     * Default Constructor.
-     */
+    /// Create a new 3D scene instance.
     Scene() = default;
 
-    /**
-     * Copy Constructor.
-     */
-    Scene(const Scene &other) = delete;
+    /// Perform a raytrace and return the first entity hit by the ray.
+    /// The ray starts at the 'from' position and extends in the 'direction' for the given 'length'.
+    /// The 'precision' parameter defines the step size for the raytrace.
+    /// If no entity is hit, nullptr is returned.
+    Entity* findEntityUsingRaytrace(const Util::Math::Vector3<double> &from,
+        const Util::Math::Vector3<double> &direction, double length, double precision = 0.1) const;
 
-    /**
-     * Assignment operator.
-     */
-    Scene &operator=(const Scene &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Scene() override = default;
-
+    /// Set the ambient light color for the scene.
+    /// This color is applied globally to all objects in the scene.
     void setAmbientLight(const Util::Graphic::Color &ambientLight);
 
-    Light& addLight(Light::Type type, const Util::Math::Vector3<double> &position, const Util::Graphic::Color &diffuseColor, const Util::Graphic::Color &specularColor);
+    /// Add a new light to the scene and return a reference to it for later modification or removal.
+    /// A maximum of 16 lights can be added to the scene.
+    /// If the maximum number of lights is reached, a panic is fired.
+    Light& addLight(Light::Type type, const Util::Math::Vector3<double> &position,
+        const Util::Graphic::Color &diffuseColor, const Util::Graphic::Color &specularColor);
 
+    /// Remove the given light from the scene.
     void removeLight(const Light &light);
 
-    [[nodiscard]] bool hasLight(uint32_t index) const;
+    /// Access the array of lights in the scene.
+    /// This method is used by the `Graphics` class to manage OpenGL lights.
+    /// It probably has no practical use for game developers.
+    [[nodiscard]] const Util::Array<Light>& getLights() const;
 
-    [[nodiscard]] const Util::Graphic::Color &getAmbientLight() const;
+    /// Get the ambient light color of the scene.
+    [[nodiscard]] const Util::Graphic::Color& getAmbientLight() const;
 
-    const Light& getLight(uint32_t index) const;
-
-    [[nodiscard]] bool glEnabled() const;
-
+    /// Get the current OpenGL render style of the scene.
     [[nodiscard]] GlRenderStyle getGlRenderStyle() const;
 
+    /// Set the OpenGL render style of the scene.
     void setGlRenderStyle(GlRenderStyle renderStyle);
 
+    /// Get the current OpenGL shading model of the scene.
     [[nodiscard]] GlShadeModel getGlShadeModel() const;
 
+    /// Set the OpenGL shading model of the scene.
     void setGlShadeModel(GlShadeModel shadeModel);
 
-    [[nodiscard]] bool isLightEnabled() const;
+    /// Check if lighting is enabled in the scene.
+    [[nodiscard]] bool isLightingEnabled() const;
 
-    void setLightEnabled(bool enabled);
+    /// Enable or disable lighting in the scene.
+    void setLightingEnabled(bool enabled);
 
-    [[nodiscard]] const Util::Graphic::Color &getBackgroundColor() const;
+    /// Get the background color of the scene (OpenGL clear color).
+    [[nodiscard]] const Util::Graphic::Color& getBackgroundColor() const;
 
+    /// Set the background color of the scene (OpenGL clear color).
     void setBackgroundColor(const Util::Graphic::Color &backgroundColor);
 
-private:
-
+    /// Initialize the scene. This method is called by the engine once when the scene is first loaded.
+    /// It initializes the graphics context, calls the user-defined `initialize()` method
+    /// and initializes all entities in the scene.
+    /// It is not intended to be called directly by game developers.
     void initializeScene(Graphics &graphics) final;
 
+    /// Update all entities in the scene. This method is called by the engine once per frame.
+    /// It is not intended to be called directly by game developers.
     void updateEntities(double delta) final;
 
+    /// Check for collisions between entities in the scene. This method is called by the engine once per frame.
+    /// It checks for collisions between entities that have sphere colliders.
+    /// When a collision is detected, a `CollisionEvent` is created and dispatched to both entities involved in the
+    /// collision. It is not intended to be called directly by game developers.
     void checkCollisions() final;
+
+private:
 
     Util::Graphic::Color backgroundColor = Util::Graphic::Colors::BLACK;
 
     bool lightEnabled = true;
     Util::Graphic::Color ambientLight = Util::Graphic::Colors::WHITE.dim();
-    Light* lights[16]{};
+    Util::Array<Light> lights = Util::Array<Light>(16);
 
     GlRenderStyle renderStyle = FILL;
     GlShadeModel shadeModel = SMOOTH;

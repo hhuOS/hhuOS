@@ -36,18 +36,12 @@
 
 namespace Pulsar {
 
-Collider::Collider(const Util::Math::Vector2<double> &position, const Type type) :
-    position(position.getX(), position.getY(), 0), type(type) {}
+Collider::Collider(const Util::Math::Vector2<double> &position) : position(position.getX(), position.getY(), 0) {}
 
-Collider::Collider(const Util::Math::Vector3<double> &position, const Type type) :
-    position(position), type(type) {}
+Collider::Collider(const Util::Math::Vector3<double> &position) : position(position) {}
 
 const Util::Math::Vector3<double> &Collider::getPosition() const {
     return position;
-}
-
-Collider::Type Collider::getType() const {
-    return type;
 }
 
 void Collider::setPosition(const Util::Math::Vector2<double> &position) {

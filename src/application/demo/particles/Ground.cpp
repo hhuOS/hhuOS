@@ -29,7 +29,7 @@
 #include "lib/util/math/Vector2.h"
 #include "lib/util/base/String.h"
 
-Ground::Ground(const Util::Math::Vector2<double> &position) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, WIDTH, HEIGHT, Pulsar::Collider::STATIC)) {}
+Ground::Ground(const Util::Math::Vector2<double> &position) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, WIDTH, HEIGHT, Pulsar::D2::RectangleCollider::STATIC)) {}
 
 void Ground::initialize() {
     sprite = Pulsar::D2::Sprite("/user/dino/block/grass.bmp", HEIGHT, HEIGHT);

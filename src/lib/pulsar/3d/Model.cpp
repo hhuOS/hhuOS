@@ -25,38 +25,49 @@
  *
  * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #include "Model.h"
 
-#include "lib/util/math/Math.h"
-#include "lib/pulsar/Resources.h"
-#include "lib/pulsar/3d/Entity.h"
-#include "lib/pulsar/3d/ObjectFile.h"
-#include "lib/pulsar/3d/collider/SphereCollider.h"
-#include "lib/pulsar/Graphics.h"
-#include "lib/util/math/Vector3.h"
-#include "lib/pulsar/3d/Texture.h"
-
-namespace Util {
-template <typename T> class Array;
-}  // namespace Util
+#include "util/math/Math.h"
+#include "util/math/Vector3.h"
+#include "pulsar/Graphics.h"
+#include "pulsar/Resources.h"
+#include "pulsar/3d/Entity.h"
+#include "pulsar/3d/ObjectFile.h"
+#include "pulsar/3d/collider/SphereCollider.h"
+#include "pulsar/3d/Texture.h"
 
 namespace Pulsar::D3 {
 
-Model::Model(uint32_t tag, const Util::String &modelPath, const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, const Util::Math::Vector3<double> &scale, const Util::Graphic::Color &color) : Entity(tag, position, rotation, scale, SphereCollider(position, Util::Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath), color(color) {}
+Model::Model(const size_t tag, const Util::String &modelPath, const Util::Math::Vector3<double> &position,
+    const Util::Math::Vector3<double> &rotation, const Util::Math::Vector3<double> &scale,
+    const Util::Graphic::Color &color) : Entity(tag, position, rotation, scale,
+        SphereCollider(position, Util::Math::max(scale.getX(), scale.getY(), scale.getZ()))),
+    modelPath(modelPath), color(color) {}
 
-Model::Model(uint32_t tag, const Util::String &modelPath, const Util::String &texturePath, const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, const Util::Math::Vector3<double> &scale) : Entity(tag, position, rotation, scale, SphereCollider(position, Util::Math::max(scale.getX(), scale.getY(), scale.getZ()))), modelPath(modelPath), texturePath(texturePath) {}
+Model::Model(const size_t tag, const Util::String &modelPath, const Util::String &texturePath,
+    const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation,
+    const Util::Math::Vector3<double> &scale) : Entity(tag, position, rotation, scale,
+        SphereCollider(position, Util::Math::max(scale.getX(), scale.getY(), scale.getZ()))),
+    modelPath(modelPath), texturePath(texturePath) {}
 
 void Model::initialize() {
     if (!Resources::hasObjectFile(modelPath)) {
-        Resources::addObjectFile(modelPath, ObjectFile::open(modelPath));
+        Resources::addObjectFile(modelPath, new ObjectFile(modelPath));
     }
 
     objectFile = Resources::getObjectFile(modelPath);
 
     if (!texturePath.isEmpty()) {
-        texture = Texture(texturePath);
+        if (!Resources::hasTexture(texturePath)) {
+            Resources::addTexture(texturePath, new Texture(texturePath));
+        }
+
+        texture = Resources::getTexture(texturePath);
     }
 }
 
@@ -77,20 +88,20 @@ const Util::Array<Util::Math::Vector3<double>> &Model::getVertexTextures() const
     return objectFile->getVertexTextures();
 }
 
-const Util::Array<uint32_t> &Model::getVertexDrawOrder() const {
+const Util::Array<size_t> &Model::getVertexDrawOrder() const {
     return objectFile->getVertexDrawOrder();
 }
 
-const Util::Array<uint32_t> &Model::getNormalDrawOrder() const {
+const Util::Array<size_t> &Model::getNormalDrawOrder() const {
     return objectFile->getNormalDrawOrder();
 }
 
-const Util::Array<uint32_t> &Model::getTextureDrawOrder() const {
+const Util::Array<size_t> &Model::getTextureDrawOrder() const {
     return objectFile->getTextureDrawOrder();
 }
 
 const Texture& Model::getTexture() const {
-    return texture;
+    return *texture;
 }
 
 const Util::Graphic::Color& Model::getColor() const {

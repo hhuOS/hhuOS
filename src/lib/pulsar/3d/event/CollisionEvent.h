@@ -22,53 +22,42 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef HHUOS_COLLISIONEVENT_3D_H
-#define HHUOS_COLLISIONEVENT_3D_H
+#ifndef HHUOS_LIB_PULSAR_3D_COLLISIONEVENT_H
+#define HHUOS_LIB_PULSAR_3D_COLLISIONEVENT_H
 
-#include "lib/pulsar/Event.h"
-#include "lib/pulsar/3d/Entity.h"
+#include "pulsar/Event.h"
+#include "pulsar/3d/Entity.h"
 
 namespace Pulsar::D3 {
 
+/// A collision event for 3D sphere colliders.
+/// This event is triggered when two entities with sphere colliders collide.
+/// It contains a reference to the other entity involved in the collision.
+/// Collision events are not cancelable. They are created automatically by `D3::Scene`
+/// and propagated to the involved entities via `D3::Entity::handleCollisionEvent()`.
 class CollisionEvent : public Event {
 
 public:
-    /**
-     * Constructor.
-     */
+    /// Create a new collision event instance.
+    /// Collision events are created automatically by the scene when two sphere colliders collide.
+    /// Thus, this constructor is intended for internal use only.
     explicit CollisionEvent(Entity &other);
 
-    /**
-     * Copy Constructor.
-     */
-    CollisionEvent(const CollisionEvent &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    CollisionEvent &operator=(const CollisionEvent &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~CollisionEvent() = default;
-
-    [[nodiscard]] Entity& getCollidedWidth();
-
-    template<typename T>
-    [[nodiscard]] T& getCollidedWidth();
+    /// Get the other entity involved in the collision.
+    [[nodiscard]] Entity& getCollidedWidth() const;
 
 private:
 
     Entity &other;
 };
-
-template<typename T>
-T& Pulsar::D3::CollisionEvent::getCollidedWidth() {
-    return reinterpret_cast<T&>(other);
-}
 
 }
 

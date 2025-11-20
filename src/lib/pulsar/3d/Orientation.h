@@ -25,54 +25,55 @@
  *
  * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#ifndef ORIENTATION_H
-#define ORIENTATION_H
+#ifndef HHUOS_LIB_PULSAR_3D_ORIENTATION_H
+#define HHUOS_LIB_PULSAR_3D_ORIENTATION_H
 
-#include "lib/util/math/Vector3.h"
+#include "util/math/Vector3.h"
 
 namespace Pulsar::D3 {
 
+/// Represents the orientation of an object in 3D space,
+/// including its rotation angles around the x, y, and z axes,
+/// as well as its up, right, and front direction vectors.
 class Orientation {
 
 public:
-    /**
-     * Default Constructor.
-     */
+    /// Create a new orientation instance with default rotation (0, 0, 0)
     Orientation();
 
-    /**
-     * Copy Constructor.
-     */
-    Orientation(const Orientation &other) = default;
-
-    /**
-     * Assignment operator.
-     */
-    Orientation &operator=(const Orientation &other) = default;
-
-    /**
-     * Destructor.
-     */
-    ~Orientation() = default;
-
+    /// Set the rotation angles around the x, y, and z axes (in degrees).
+    /// The up, right, and front direction vectors are updated accordingly.
     void setRotation(const Util::Math::Vector3<double> &angle);
 
+    /// Rotate the orientation by the given angles around the x, y, and z axes (in degrees).
+    /// The up, right, and front direction vectors are updated accordingly.
     void rotate(const Util::Math::Vector3<double> &angle);
 
+    /// Reset the orientation to the default rotation (0, 0, 0).
     void reset();
 
+    /// Get the current rotation angles around the x, y, and z axes (in degrees).
     [[nodiscard]] const Util::Math::Vector3<double>& getRotation() const;
 
+    /// Get the up direction vector of the orientation.
     [[nodiscard]] const Util::Math::Vector3<double>& getUp() const;
 
+    /// Get the right direction vector of the orientation.
     [[nodiscard]] const Util::Math::Vector3<double>& getRight() const;
 
+    /// Get the front direction vector of the orientation.
     [[nodiscard]] const Util::Math::Vector3<double>& getFront() const;
 
+    /// Set the front direction vector of the orientation.
+    /// The rotation angles and other direction vectors are updated accordingly.
     void setFront(const Util::Math::Vector3<double> &front);
 
+    /// The world up vector, representing the global upward direction in 3D space (always {0, 1, 0}).
     static const Util::Math::Vector3<double> WORLD_UP;
 
 private:

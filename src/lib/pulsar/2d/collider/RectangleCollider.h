@@ -46,6 +46,24 @@ namespace Pulsar::D2 {
 class RectangleCollider : public Collider {
 
 public:
+    /// Different types of colliders.
+    enum Type {
+        /// A static collider just detects collisions and generates collision events but does not move.
+        /// This is typically used for immovable objects like walls or floors.
+        STATIC,
+        /// A dynamic collider detects collisions and responds to them by moving away from the collision.
+        /// The associated entity will receive translation events, that can be canceled to prevent the movement.
+        /// This is typically used for movable objects like players or enemies.
+        DYNAMIC,
+        /// A permeable collider detects collisions and generates collision, similar to a static collider.
+        /// However, if a dynamic collider collides with a permeable collider,
+        /// the dynamic collider will not move away from the collision.
+        /// This is typically used for objects that can be passed through, like collectibles or particles.
+        PERMEABLE,
+        /// No collider type. This indicates that the entity has no collider.
+        NON_EXISTENT
+    };
+
     /// The sides of the rectangle collider.
     enum Side {
         /// The left side of the rectangle collider.
@@ -85,6 +103,9 @@ public:
 
     /// Set the width and height of the rectangle collider.
     void setSize(double width, double height);
+
+    /// Get the type of the rectangle collider.
+    [[nodiscard]] Type getType() const;
     
     /// Check if this rectangle collider is colliding with another rectangle collider (i.e., if the rectangles overlap).
     /// If a collision is detected, the side of this collider that is colliding with the other collider is returned.
@@ -95,6 +116,8 @@ private:
 
     double width = 0;
     double height = 0;
+
+    Type type = NON_EXISTENT;
 };
 
 }

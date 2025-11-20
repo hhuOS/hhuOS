@@ -51,7 +51,7 @@ void DropletEmitter::onParticleInitialization(Pulsar::D2::Particle &particle) {
     particle.setSprite(Pulsar::D2::Sprite(Util::Graphic::Color(44, 197, 246), 0.005, 0.005));
     particle.setPosition(getPosition());
     particle.setVelocity(Util::Math::Vector2<double>(Util::Math::cosine(angle), Util::Math::sine(angle)));
-    particle.setCollider(Pulsar::D2::RectangleCollider(particle.getPosition(), 0.005, 0.005, Pulsar::Collider::STATIC));
+    particle.setCollider(Pulsar::D2::RectangleCollider(particle.getPosition(), 0.005, 0.005, Pulsar::D2::RectangleCollider::STATIC));
 
     particle.addComponent(new Pulsar::D2::GravityComponent(2.5, 0.0025));
 }

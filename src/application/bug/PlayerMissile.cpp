@@ -33,7 +33,7 @@
 #include "EnemyBug.h"
 #include "lib/util/base/String.h"
 
-PlayerMissile::PlayerMissile(const Util::Math::Vector2<double> &position, Ship &ship) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE_X, SIZE_Y, Pulsar::Collider::STATIC)), ship(ship) {
+PlayerMissile::PlayerMissile(const Util::Math::Vector2<double> &position, Ship &ship) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE_X, SIZE_Y, Pulsar::D2::RectangleCollider::STATIC)), ship(ship) {
     addComponent(new Pulsar::D2::LinearMovementComponent());
 }
 

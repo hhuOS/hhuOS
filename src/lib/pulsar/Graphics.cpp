@@ -892,9 +892,8 @@ void Graphics::update() {
             1.0f };
         glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientColor);
 
-        for (size_t i = 0; i < 16; i++) {
-            if (scene.hasLight(i)) {
-                const auto &light = scene.getLight(i);
+        for (const auto &light : scene.getLights()) {
+            if (light.isValid()) {
                 const auto &lightPosition = light.getPosition();
                 const auto &diffuseLight = light.getDiffuseColor();
                 const auto &specularLight = light.getSpecularColor();
@@ -915,7 +914,7 @@ void Graphics::update() {
                     static_cast<GLfloat>(specularLight.getBlue()) / 255, 1.0f
                 };
 
-                const auto glLightEnum = static_cast<GLint>(GL_LIGHT0 + i);
+                const auto glLightEnum = static_cast<GLint>(GL_LIGHT0 + light.getIndex());
                 glLightfv(glLightEnum, GL_POSITION, position);
                 glLightfv(glLightEnum, GL_DIFFUSE, diffuse);
                 glLightfv(glLightEnum, GL_SPECULAR, specular);
@@ -1119,7 +1118,7 @@ void Graphics::gluPrepareDirectDraw(const GLint renderStyle) const {
 
     glPolygonMode(GL_FRONT_AND_BACK, renderStyle);
     glDisable(GL_DEPTH_TEST);
-    if (scene.isLightEnabled()) {
+    if (scene.isLightingEnabled()) {
         glDisable(GL_LIGHTING);
     }
 
@@ -1146,7 +1145,7 @@ void Graphics::gluFinishDirectDraw() const {
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 
-    if (scene.isLightEnabled()) {
+    if (scene.isLightingEnabled()) {
         glEnable(GL_LIGHTING);
     }
     glEnable(GL_DEPTH_TEST);

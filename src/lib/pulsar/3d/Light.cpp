@@ -17,15 +17,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
- * The game engine has been enhanced with lighting capabilities during a bachelor's thesis by Kevin Weber
+ * The game engine is based on a bachelor's thesis, written by Malte Sehmer.
+ * The original source code can be found here: https://github.com/Malte2036/hhuOS
+ *
+ * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #include "Light.h"
 
 namespace Pulsar::D3 {
 
-Light::Light(uint8_t index, Type type, const Util::Math::Vector3<double> &position, const Util::Graphic::Color &diffuseColor, const Util::Graphic::Color &specularColor) : index(index), type(type), position(position), diffuseColor(diffuseColor), specularColor(specularColor) {}
+Light::Light(const uint8_t index, const Type type, const Util::Math::Vector3<double> &position,
+    const Util::Graphic::Color &diffuseColor, const Util::Graphic::Color &specularColor) :
+    index(index), type(type), position(position), diffuseColor(diffuseColor), specularColor(specularColor) {}
+
+bool Light::isValid() const {
+    return index != INVALID_INDEX;
+}
 
 uint8_t Light::getIndex() const {
     return index;
@@ -39,20 +54,20 @@ const Util::Math::Vector3<double> &Light::getPosition() const {
     return position;
 }
 
-const Util::Graphic::Color &Light::getDiffuseColor() const {
-    return diffuseColor;
-}
-
-const Util::Graphic::Color &Light::getSpecularColor() const {
-    return specularColor;
-}
-
 void Light::setPosition(const Util::Math::Vector3<double> &position) {
     Light::position = position;
 }
 
+const Util::Graphic::Color &Light::getDiffuseColor() const {
+    return diffuseColor;
+}
+
 void Light::setDiffuseColor(const Util::Graphic::Color &diffuseColor) {
     Light::diffuseColor = diffuseColor;
+}
+
+const Util::Graphic::Color &Light::getSpecularColor() const {
+    return specularColor;
 }
 
 void Light::setSpecularColor(const Util::Graphic::Color &specularColor) {

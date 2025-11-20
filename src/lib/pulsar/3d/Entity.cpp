@@ -25,22 +25,26 @@
  *
  * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #include "Entity.h"
 
-#include "lib/pulsar/3d/Orientation.h"
-#include "lib/pulsar/Entity.h"
+#include "pulsar/Entity.h"
+#include "pulsar/3d/Orientation.h"
 
 namespace Pulsar::D3 {
 
-Entity::Entity(uint32_t tag, const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, const Util::Math::Vector3<double> &scale) : Pulsar::Entity(tag), position(position), scale(scale), collider(Util::Math::Vector3<double>(0, 0, 0), 0) {
+Entity::Entity(const size_t tag, const Util::Math::Vector3<double> &position,
+    const Util::Math::Vector3<double> &rotation, const Util::Math::Vector3<double> &scale,
+    const SphereCollider &collider) : Pulsar::Entity(tag), position(position), scale(scale), collider(collider)
+{
     setRotation(rotation);
 }
 
-Entity::Entity(uint32_t tag, const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, const Util::Math::Vector3<double> &scale, const SphereCollider &collider) : Pulsar::Entity(tag), position(position), scale(scale), colliderPresent(true), collider(collider) {
-    setRotation(rotation);
-}
+void Entity::onCollisionEvent([[maybe_unused]] const CollisionEvent &event) {}
 
 const Util::Math::Vector3<double> &Entity::getPosition() const {
     return position;
@@ -52,7 +56,8 @@ void Entity::setPosition(const Util::Math::Vector3<double> &position) {
 
 void Entity::translate(const Util::Math::Vector3<double> &translation) {
     setPosition(position + translation);
-    if (colliderPresent) {
+
+    if (hasCollider()) {
         collider.setPosition(position);
     }
 }
@@ -101,8 +106,8 @@ void Entity::setScale(const Util::Math::Vector3<double> &scale) {
     Entity::scale = scale;
 }
 
-void Entity::update(double delta) {
-    if (colliderPresent) {
+void Entity::update(const double delta) {
+    if (hasCollider()) {
         collider.setPosition(position);
     }
 
@@ -110,7 +115,7 @@ void Entity::update(double delta) {
 }
 
 bool Entity::hasCollider() const {
-    return colliderPresent;
+    return collider.getRadius() != 0;
 }
 
 SphereCollider &Entity::getCollider() {

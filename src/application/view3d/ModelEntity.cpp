@@ -46,4 +46,4 @@ void ModelEntity::draw(Pulsar::Graphics &graphics) const {
 
 void ModelEntity::onUpdate([[maybe_unused]] double delta) {}
 
-void ModelEntity::onCollisionEvent([[maybe_unused]] Pulsar::D3::CollisionEvent &event) {}
+void ModelEntity::onCollisionEvent([[maybe_unused]] const Pulsar::D3::CollisionEvent &event) {}

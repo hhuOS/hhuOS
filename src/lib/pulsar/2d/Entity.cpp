@@ -31,16 +31,12 @@
  */
 
 #include "util/base/Panic.h"
-#include "pulsar/Collider.h"
 #include "pulsar/2d/Entity.h"
 #include "pulsar/2d/component/Component.h"
 #include "pulsar/2d/event/CollisionEvent.h"
 #include "pulsar/2d/event/TranslationEvent.h"
 
 namespace Pulsar::D2 {
-
-Entity::Entity(const size_t tag, const Util::Math::Vector2<double> &position) : Entity(tag, position,
-    RectangleCollider(Util::Math::Vector2<double>(0, 0), 0, 0, Collider::PERMEABLE)) {}
 
 Entity::Entity(const size_t tag, const Util::Math::Vector2<double> &position, const RectangleCollider &collider) :
     Pulsar::Entity(tag), position(position), collider(collider) {}
@@ -128,7 +124,7 @@ RectangleCollider& Entity::getCollider() {
 }
 
 bool Entity::hasCollider() const {
-    return collider.getType() != Collider::NONE;
+    return collider.getType() != RectangleCollider::NON_EXISTENT;
 }
 
 void Entity::update(const double delta) {
@@ -157,7 +153,7 @@ void Entity::onCollision(const CollisionEvent &event) {
     const auto otherHeight = otherCollider.getHeight();
     const auto otherWidth = otherCollider.getWidth();
     
-    if (collider.getType() == Collider::DYNAMIC && otherCollider.getType() != Collider::PERMEABLE) {
+    if (collider.getType() == RectangleCollider::DYNAMIC && otherCollider.getType() != RectangleCollider::PERMEABLE) {
         switch (event.getSide()) {
             case RectangleCollider::BOTTOM:
                 setPosition(Util::Math::Vector2<double>(posX, otherPosY + otherHeight));

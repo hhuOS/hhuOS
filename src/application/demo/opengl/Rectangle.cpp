@@ -46,5 +46,5 @@ void Rectangle::draw(Pulsar::Graphics &graphics) const {
     graphics.drawRectangle3D(getPosition(), Util::Math::Vector2<double>(getScale().getX(), getScale().getY()), getOrientation().getRotation(), texture);
 }
 
-void Rectangle::onCollisionEvent([[maybe_unused]] Pulsar::D3::CollisionEvent &event) {
+void Rectangle::onCollisionEvent([[maybe_unused]] const Pulsar::D3::CollisionEvent &event) {
 }

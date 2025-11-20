@@ -22,15 +22,22 @@
  *
  * It has been enhanced with 3D-capabilities during a bachelor's thesis by Richard Josef Schweitzer
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-risch114
+ *
+ * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #include "SphereCollider.h"
 
-#include "lib/util/math/Vector3.h"
+#include "util/math/Vector3.h"
 
 namespace Pulsar::D3 {
 
-SphereCollider::SphereCollider(const Util::Math::Vector3<double> &position, double radius) : Collider(position, STATIC), radius(radius) {}
+SphereCollider::SphereCollider(const Util::Math::Vector3<double> &position, const double radius) :
+    Collider(position), radius(radius) {}
 
 bool SphereCollider::isColliding(const SphereCollider &other) const {
     return getPosition().distance(other.getPosition()) - (radius + other.radius) <= 0;

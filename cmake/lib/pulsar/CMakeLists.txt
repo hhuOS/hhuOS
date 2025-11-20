@@ -65,7 +65,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/pulsar/3d/Orientation.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/3d/Scene.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/3d/Texture.cpp
-        ${HHUOS_SRC_DIR}/lib/pulsar/3d/Utility.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/3d/collider/SphereCollider.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/3d/event/CollisionEvent.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/audio/AudioBuffer.cpp

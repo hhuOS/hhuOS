@@ -45,8 +45,8 @@
 #include "util/math/Vector2.h"
 #include "pulsar/Camera.h"
 #include "pulsar/3d/Texture.h"
-#include "lib/tinygl/include/GL/gl.h"
-#include "lib/tinygl/include/zbuffer.h"
+#include "tinygl/include/GL/gl.h"
+#include "tinygl/include/zbuffer.h"
 
 namespace Pulsar {
 namespace D3 {

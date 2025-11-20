@@ -41,7 +41,7 @@ namespace Pulsar::Resources {
 
 static Util::HashMap<Util::String, const Util::Graphic::Image*> images;
 static Util::HashMap<Util::String, const D3::ObjectFile*> objectFiles;
-static Util::HashMap<Util::String, GLuint> textures;
+static Util::HashMap<Util::String, const D3::Texture*> textures;
 static Util::HashMap<Util::String, const AudioBuffer*> audioBuffers;
 
 void addImage(const Util::String &key, const Util::Graphic::Image *image) {
@@ -91,7 +91,7 @@ void deleteObjectFile(const Util::String &key) {
     objectFiles.remove(key);
 }
 
-void addTexture(const Util::String &key, const GLuint texture) {
+void addTexture(const Util::String &key, const D3::Texture *texture) {
     textures.put(key, texture);
 }
 
@@ -99,13 +99,15 @@ bool hasTexture(const Util::String &key) {
     return textures.containsKey(key);
 }
 
-GLuint getTexture(const Util::String &key) {
+const D3::Texture* getTexture(const Util::String &key) {
     return textures.get(key);
 }
 
 void deleteTexture(const Util::String &key) {
     if (textures.containsKey(key)) {
-        glDisable(static_cast<GLint>(textures.remove(key)));
+        const auto *texture = textures.remove(key);
+        glDisable(static_cast<GLint>(texture->getTextureID()));
+        delete texture;
     }
 }
 

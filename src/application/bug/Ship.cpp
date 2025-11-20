@@ -37,7 +37,7 @@
 #include "lib/util/base/String.h"
 #include "lib/pulsar/TextScreen.h"
 
-Ship::Ship(const Util::Math::Vector2<double> &position) : Explosive(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE_X, SIZE_Y, Pulsar::Collider::STATIC), "/user/bug/ship_explosion.wav", 2.0) {
+Ship::Ship(const Util::Math::Vector2<double> &position) : Explosive(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE_X, SIZE_Y, Pulsar::D2::RectangleCollider::STATIC), "/user/bug/ship_explosion.wav", 2.0) {
     addComponent(new Pulsar::D2::LinearMovementComponent());
 }
 

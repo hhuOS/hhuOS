@@ -23,9 +23,9 @@
 
 #include "Player.h"
 
+#include "lib/pulsar/3d/Scene.h"
 #include "lib/pulsar/3d/event/CollisionEvent.h"
 #include "lib/util/math/Math.h"
-#include "lib/pulsar/3d/Utility.h"
 #include "Missile.h"
 #include "Astronomical.h"
 #include "application/battlespace/Enemy.h"
@@ -49,11 +49,12 @@ void Player::onUpdate(double delta) {
 
 void Player::draw(Pulsar::Graphics &graphics) const {
     const auto dimensions = graphics.getDimensions();
+    const auto &scene = reinterpret_cast<Pulsar::D3::Scene&>(getScene());
     graphics.setColor(Util::Graphic::Colors::GREEN);
 
     // Draw reticle
     auto raytraceDirection = getScene().getCamera().getFrontVector();
-    auto *aimTarget = Pulsar::D3::Utility::findEntityUsingRaytrace(reinterpret_cast<const Util::ArrayList<Pulsar::D3::Entity*>&>(enemies), getPosition() + raytraceDirection, raytraceDirection, 20, 0.1);
+    auto *aimTarget = scene.findEntityUsingRaytrace(getPosition() + raytraceDirection, raytraceDirection, 20, 0.1);
 
     if (aimTarget != nullptr) {
         graphics.setColor(Util::Graphic::Colors::RED);
@@ -116,7 +117,7 @@ void Player::draw(Pulsar::Graphics &graphics) const {
     }
 }
 
-void Player::onCollisionEvent(Pulsar::D3::CollisionEvent &event) {
+void Player::onCollisionEvent(const Pulsar::D3::CollisionEvent &event) {
     switch (event.getCollidedWidth().getTag()) {
         case Missile::TAG:
             takeDamage(10);

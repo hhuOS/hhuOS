@@ -51,23 +51,23 @@ class Component;
 namespace Pulsar::D2 {
 
 /// Base class for 2D entities for use in 2D scenes.
-/// It enhances the `Pulsar::Entity` class with 2D-specific properties like position, velocity and a rectangle collider.
+/// It enhances the `Pulsar::Entity` class with 2D-specific properties like position, velocity and a collider.
 /// Furthermore, it introduces a component system, allowing to attach reusable components to entities
 /// that can modify their behavior (e.g. movement). For example, a `GravityComponent` can be added to an entity
 /// to simulate an acceleration due to gravity. If a `LinearMovementComponent` is added, the entity will move
 /// linearly based on its velocity. Without this component, the entity will remain stationary unless its position
 /// is modified directly, regardless of its velocity.
 /// To handle collisions, 2D entities can have a `RectangleCollider`. If an entity has a collider and collides
-/// with another entity that also has a collider, a `CollisionEvent` will be triggered,
+/// with another entity that also has a collider, a `CollisionEvent` is triggered,
 /// allowing to respond to the collision (e.g. by bouncing off or taking damage).
 class Entity : public Pulsar::Entity {
 
 public:
-    /// Create a new 2D entity with the given tag and position and no collider.
-    explicit Entity(size_t tag, const Util::Math::Vector2<double> &position);
 
     /// Create a new 2D entity with the given tag, position and rectangle collider.
-    Entity(size_t tag, const Util::Math::Vector2<double> &position, const RectangleCollider &collider);
+    /// The collider is optional and defaults to a collider of type `NONE`.
+    Entity(size_t tag, const Util::Math::Vector2<double> &position,
+        const RectangleCollider &collider = RectangleCollider());
 
     /// 2D entities are not copyable, as they manage components on the heap, so the copy constructor is deleted.
     Entity (const Entity &other) = delete;

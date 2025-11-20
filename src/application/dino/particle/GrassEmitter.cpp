@@ -51,7 +51,7 @@ void GrassEmitter::onParticleInitialization(Pulsar::D2::Particle &particle) {
     particle.setPosition(parent.getPosition());
     particle.setVelocity(Util::Math::Vector2<double>(velocityX, velocityY));
     particle.setTimeToLive(Util::Time::Timestamp::ofSecondsFloat<double>(10));
-    particle.setCollider(Pulsar::D2::RectangleCollider(particle.getPosition(), PARTICLE_SIZE, PARTICLE_SIZE, Pulsar::Collider::PERMEABLE));
+    particle.setCollider(Pulsar::D2::RectangleCollider(particle.getPosition(), PARTICLE_SIZE, PARTICLE_SIZE, Pulsar::D2::RectangleCollider::PERMEABLE));
 
     particle.addComponent(new Pulsar::D2::GravityComponent(2.5, 0.0025));
 }

@@ -250,7 +250,7 @@ void Engine::checkKeyboard() {
                 case Util::Io::Key::F3:
                     if (key.isPressed() && graphics.isGlEnabled()) {
                         auto &scene3d = reinterpret_cast<D3::Scene&>(scene);
-                        scene3d.setLightEnabled(!scene3d.isLightEnabled());
+                        scene3d.setLightingEnabled(!scene3d.isLightingEnabled());
                     }
                 break;
                 // Toggle shading model (3D scenes only)

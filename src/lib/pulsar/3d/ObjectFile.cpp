@@ -25,12 +25,14 @@
  *
  * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
-#include "ObjectFile.h"
-
-#include <stdint.h>
 #include <stddef.h>
+
+#include "ObjectFile.h"
 
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/stream/BufferedInputStream.h"
@@ -39,85 +41,109 @@
 
 namespace Pulsar::D3 {
 
-ObjectFile::ObjectFile(const Util::Array<Util::Math::Vector3<double>> &vertices, const Util::Array<Util::Math::Vector3<double>> &vertexNormals, const Util::Array<Util::Math::Vector3<double>> &vertexTextures,
-                       const Util::Array<uint32_t> &vertexDrawOrder, const Util::Array<uint32_t> &normalDrawOrder, const Util::Array<uint32_t> &textureDrawOrder) :
-        vertices(vertices), vertexNormals(vertexNormals), vertexTextures(vertexTextures), vertexDrawOrder(vertexDrawOrder), normalDrawOrder(normalDrawOrder), textureDrawOrder(textureDrawOrder) {}
-
-ObjectFile* ObjectFile::open(const Util::String &path) {
+ObjectFile::ObjectFile(const Util::String &path) {
     auto fileStream = Util::Io::FileInputStream(path);
     auto stream = Util::Io::BufferedInputStream(fileStream);
 
     auto vertexList = Util::ArrayList<Util::Math::Vector3<double>>();
     auto normalList = Util::ArrayList<Util::Math::Vector3<double>>();
     auto textureList = Util::ArrayList<Util::Math::Vector3<double>>();
-    auto vertexDrawOrder = Util::ArrayList<uint32_t>();
-    auto normalDrawOrder = Util::ArrayList<uint32_t>();
-    auto textureDrawOrder = Util::ArrayList<uint32_t>();
+    auto vertexDrawOrderList = Util::ArrayList<size_t>();
+    auto normalDrawOrderList = Util::ArrayList<size_t>();
+    auto textureDrawOrderList = Util::ArrayList<size_t>();
 
     // Read the file line by line
     auto currentLine = stream.readLine();
     while (!currentLine.endOfFile) {
-        auto lineSplit = currentLine.content.substring(2).split(" ");
+        const auto lineSplit = currentLine.content.substring(2).split(" ");
 
         if (currentLine.content.beginsWith("v ")) {
-            auto vertex = Util::Math::Vector3<double>(Util::String::parseFloat<double>(lineSplit[0]), Util::String::parseFloat<double>(lineSplit[1]), Util::String::parseFloat<double>(lineSplit[2]));
+            const auto vertex = Util::Math::Vector3<double>(
+                Util::String::parseFloat<double>(lineSplit[0]),
+                Util::String::parseFloat<double>(lineSplit[1]),
+                Util::String::parseFloat<double>(lineSplit[2]));
+
             vertexList.add(vertex);
         } else if (currentLine.content.beginsWith("f ")) {
             // Fill list with the correct order to draw triangles properly
-            for (uint32_t i = 0; i < lineSplit.length(); i++) {
-                if(i > 2) {
+            for (size_t i = 0; i < lineSplit.length(); i++) {
+                if (i > 2) {
                     // Vertex normals order
-                    if(lineSplit[i].split("/").length() == 3){
-                        if(lineSplit[i].split("/")[1] != ""){
-                            auto textureIndex0 = Util::String::parseNumber<size_t>(lineSplit[0].split("/")[1]) - 1;
-                            auto textureIndex1 = Util::String::parseNumber<size_t>(lineSplit[i - 1].split("/")[1]) - 1;
-                            auto textureIndex2 = Util::String::parseNumber<size_t>(lineSplit[i].split("/")[1]) - 1;
-                            // Add entries into the texture order
-                            textureDrawOrder.add(textureIndex0);
-                            textureDrawOrder.add(textureIndex1);
-                            textureDrawOrder.add(textureIndex2);
+                    if (lineSplit[i].split("/").length() == 3) {
+                        if (lineSplit[i].split("/")[1] != "") {
+                            const auto textureIndex0 =
+                                Util::String::parseNumber<size_t>(lineSplit[0].split("/")[1]) - 1;
+                            const auto textureIndex1 =
+                                Util::String::parseNumber<size_t>(lineSplit[i - 1].split("/")[1]) - 1;
+                            const auto textureIndex2 =
+                                Util::String::parseNumber<size_t>(lineSplit[i].split("/")[1]) - 1;
+
+                            textureDrawOrderList.add(textureIndex0);
+                            textureDrawOrderList.add(textureIndex1);
+                            textureDrawOrderList.add(textureIndex2);
                         }
 
-                        auto normalIndex0 = Util::String::parseNumber<size_t>(lineSplit[0].split("/")[2]) - 1;
-                        auto normalIndex1 = Util::String::parseNumber<size_t>(lineSplit[i-1].split("/")[2]) - 1;
-                        auto normalIndex2 = Util::String::parseNumber<size_t>(lineSplit[i].split("/")[2]) - 1;
-                        normalDrawOrder.add(normalIndex0);
-                        normalDrawOrder.add(normalIndex1);
-                        normalDrawOrder.add(normalIndex2);
+                        const auto normalIndex0 =
+                            Util::String::parseNumber<size_t>(lineSplit[0].split("/")[2]) - 1;
+                        const auto normalIndex1 =
+                            Util::String::parseNumber<size_t>(lineSplit[i - 1].split("/")[2]) - 1;
+                        const auto normalIndex2 =
+                            Util::String::parseNumber<size_t>(lineSplit[i].split("/")[2]) - 1;
+
+                        normalDrawOrderList.add(normalIndex0);
+                        normalDrawOrderList.add(normalIndex1);
+                        normalDrawOrderList.add(normalIndex2);
                     }
 
-                    auto firstVertex = Util::String::parseNumber<size_t>(lineSplit[0].split("/")[0]) - 1;
-                    auto lastParsedVertex = Util::String::parseNumber<size_t>(lineSplit[i-1].split("/")[0]) - 1;
-                    auto currentVertex = Util::String::parseNumber<size_t>(lineSplit[i].split("/")[0]) - 1;
+                    const auto firstVertex =
+                        Util::String::parseNumber<size_t>(lineSplit[0].split("/")[0]) - 1;
+                    const auto lastParsedVertex =
+                        Util::String::parseNumber<size_t>(lineSplit[i - 1].split("/")[0]) - 1;
+                    const auto currentVertex =
+                        Util::String::parseNumber<size_t>(lineSplit[i].split("/")[0]) - 1;
 
-                    vertexDrawOrder.add(firstVertex);
-                    vertexDrawOrder.add(lastParsedVertex);
-                    vertexDrawOrder.add(currentVertex);
+                    vertexDrawOrderList.add(firstVertex);
+                    vertexDrawOrderList.add(lastParsedVertex);
+                    vertexDrawOrderList.add(currentVertex);
                 } else {
                     // Check if the face data has at least 2 entries
                     if (lineSplit[i].split("/").length() >= 2){
                         // Check if the vt entry is empty
                         if(lineSplit[i].split("/")[1] != ""){
-                            auto textureIndex = Util::String::parseNumber<size_t>(lineSplit[i].split("/")[1]) - 1;
-                            textureDrawOrder.add(textureIndex); // Add entry into the texture Order
+                            const auto textureIndex =
+                                Util::String::parseNumber<size_t>(lineSplit[i].split("/")[1]) - 1;
+
+                            textureDrawOrderList.add(textureIndex);
                         }
                     }
 
                     // Vertex normals order
                     if (lineSplit[i].split("/").length() == 3){
-                        auto normalIndex = Util::String::parseNumber<size_t>(lineSplit[i].split("/")[2]) - 1;
-                        normalDrawOrder.add(normalIndex);
+                        const auto normalIndex =
+                            Util::String::parseNumber<size_t>(lineSplit[i].split("/")[2]) - 1;
+
+                        normalDrawOrderList.add(normalIndex);
                     }
 
-                    auto vertexIndex = Util::String::parseNumber<size_t>(lineSplit[i].split("/")[0]) - 1;
-                    vertexDrawOrder.add(vertexIndex);
+                    const auto vertexIndex =
+                        Util::String::parseNumber<size_t>(lineSplit[i].split("/")[0]) - 1;
+
+                    vertexDrawOrderList.add(vertexIndex);
                 }
             }
-        } else if(currentLine.content.beginsWith("vn ")){
-            auto vertex = Util::Math::Vector3<double>(Util::String::parseFloat<double>(lineSplit[0]), Util::String::parseFloat<double>(lineSplit[1]), Util::String::parseFloat<double>(lineSplit[2]));
+        } else if (currentLine.content.beginsWith("vn ")){
+            auto vertex = Util::Math::Vector3<double>(
+                Util::String::parseFloat<double>(lineSplit[0]),
+                Util::String::parseFloat<double>(lineSplit[1]),
+                Util::String::parseFloat<double>(lineSplit[2]));
+
             normalList.add(vertex);
-        } else if(currentLine.content.beginsWith("vt ")){
-            auto vertex = Util::Math::Vector3<double>(Util::String::parseFloat<double>(lineSplit[0]), Util::String::parseFloat<double>(lineSplit[1]), 0.0);
+        } else if (currentLine.content.beginsWith("vt ")){
+            auto vertex = Util::Math::Vector3<double>(
+                Util::String::parseFloat<double>(lineSplit[0]),
+                Util::String::parseFloat<double>(lineSplit[1]),
+                0.0);
+
             textureList.add(vertex);
         }
 
@@ -127,21 +153,35 @@ ObjectFile* ObjectFile::open(const Util::String &path) {
     // Normalize model size
     double maxCoordinate = 0;
     for (const auto &vertex : vertexList) {
-        auto absX = Util::Math::absolute(vertex.getX());
-        auto absY = Util::Math::absolute(vertex.getY());
-        auto absZ = Util::Math::absolute(vertex.getZ());
+        const auto absX = Util::Math::absolute(vertex.getX());
+        const auto absY = Util::Math::absolute(vertex.getY());
+        const auto absZ = Util::Math::absolute(vertex.getZ());
 
-        if (absX > maxCoordinate) maxCoordinate = absX;
-        if (absY > maxCoordinate) maxCoordinate = absY;
-        if (absZ > maxCoordinate) maxCoordinate = absZ;
+        if (absX > maxCoordinate) {
+            maxCoordinate = absX;
+        }
+        if (absY > maxCoordinate) {
+            maxCoordinate = absY;
+        }
+        if (absZ > maxCoordinate) {
+            maxCoordinate = absZ;
+        }
     }
 
-    for (uint32_t i = 0; i < vertexList.size(); i++) {
+    for (size_t i = 0; i < vertexList.size(); i++) {
         auto vertex = vertexList.get(i);
-        vertexList.set(i, Util::Math::Vector3<double>(vertex.getX() / maxCoordinate, vertex.getY() / maxCoordinate, vertex.getZ() / maxCoordinate));
+        vertexList.set(i, Util::Math::Vector3<double>(
+            vertex.getX() / maxCoordinate,
+            vertex.getY() / maxCoordinate,
+            vertex.getZ() / maxCoordinate));
     }
 
-    return new ObjectFile(vertexList.toArray(), normalList.toArray(), textureList.toArray(), vertexDrawOrder.toArray(), normalDrawOrder.toArray(), textureDrawOrder.toArray());
+    vertices = vertexList.toArray();
+    vertexNormals = normalList.toArray();
+    vertexTextures = textureList.toArray();
+    vertexDrawOrder = vertexDrawOrderList.toArray();
+    normalDrawOrder = normalDrawOrderList.toArray();
+    textureDrawOrder = textureDrawOrderList.toArray();
 }
 
 const Util::Array<Util::Math::Vector3<double>>& ObjectFile::getVertices() const {
@@ -156,15 +196,15 @@ const Util::Array<Util::Math::Vector3<double>> &ObjectFile::getVertexTextures() 
     return vertexTextures;
 }
 
-const Util::Array<uint32_t> &ObjectFile::getVertexDrawOrder() const {
+const Util::Array<size_t> &ObjectFile::getVertexDrawOrder() const {
     return vertexDrawOrder;
 }
 
-const Util::Array<uint32_t> &ObjectFile::getNormalDrawOrder() const {
+const Util::Array<size_t> &ObjectFile::getNormalDrawOrder() const {
     return normalDrawOrder;
 }
 
-const Util::Array<uint32_t> &ObjectFile::getTextureDrawOrder() const {
+const Util::Array<size_t> &ObjectFile::getTextureDrawOrder() const {
     return textureDrawOrder;
 }
 

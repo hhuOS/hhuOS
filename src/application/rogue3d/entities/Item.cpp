@@ -119,7 +119,7 @@ void Item::draw(Pulsar::Graphics &graphics) const {
     }
 }
 
-void Item::onCollisionEvent(Pulsar::D3::CollisionEvent &event) {
+void Item::onCollisionEvent(const Pulsar::D3::CollisionEvent &event) {
     if (event.getCollidedWidth().getTag() == Player::TAG && getTag() != TAG_NEXT_LVL) {
         removeFromScene();
     }

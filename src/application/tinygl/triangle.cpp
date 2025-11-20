@@ -19,7 +19,6 @@
  */
 
 #include <stdint.h>
-#include <GL/gl.h>
 
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/async/Thread.h"
@@ -31,6 +30,7 @@
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/InputStream.h"
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
+#include "lib/tinygl/include/GL/gl.h"
 
 const constexpr uint32_t TARGET_FRAME_RATE = 60;
 

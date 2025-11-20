@@ -46,7 +46,7 @@ If QEMU hangs on a black screen, try executing `./run.sh --bios true --file hhuO
 GCC (compatible with C++20), CMake (>=3.13) and some other dependencies are required to compile hhuOS. To install them, you can run the following command (on Ubuntu 24.04):
 
 ```shell
-sudo apt install build-essential nasm gcc-multilib g++-multilib cmake libgl-dev python3 python3-setuptools xorriso dosfstools mtools unzip wget ffmpeg git recode
+sudo apt install build-essential nasm gcc-multilib g++-multilib cmake python3 python3-setuptools xorriso dosfstools mtools unzip wget ffmpeg git recode
 ```
 
 Afterward, clone this repository and execute the included build-script:

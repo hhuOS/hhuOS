@@ -25,6 +25,9 @@
  *
  * The 3D-rendering has been rewritten using OpenGL (TinyGL) during a bachelor's thesis by Kevin Weber
  * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-keweb100
+ *
+ * The 2D particle system is based on a bachelor's thesis, written by Abdulbasir Gümüs.
+ * The original source code can be found here: https://git.hhu.de/bsinfo/thesis/ba-abgue101
  */
 
 #include "Scene.h"
@@ -46,6 +49,29 @@ template <typename T> class Vector3;
 }  // namespace Util
 
 namespace Pulsar::D3 {
+
+Entity* Scene::findEntityUsingRaytrace(const Util::Math::Vector3<double> &from,
+    const Util::Math::Vector3<double> &direction, double length, double precision) const {
+    auto collider = SphereCollider(Util::Math::Vector3<double>(0, 0, 0), precision);
+    const auto normalizedDirection = direction.normalize();
+
+    for (double x = 0; x < length; x += precision) {
+        auto position = from + (normalizedDirection * x);
+        collider.setPosition(position);
+
+        for (auto *entity : getEntities()) {
+            auto *entity3d = reinterpret_cast<Entity*>(entity);
+            if (entity3d->hasCollider()) {
+                auto entityCollider = entity3d->getCollider();
+                if (collider.isColliding(entityCollider)) {
+                    return entity3d;
+                }
+            }
+        }
+    }
+
+    return nullptr;
+}
 
 void Scene::initializeScene(Graphics &graphics) {
     graphics.initializeGl();
@@ -95,12 +121,12 @@ void Scene::setAmbientLight(const Util::Graphic::Color &ambientLight) {
     Scene::ambientLight = ambientLight;
 }
 
-Light &Scene::addLight(Light::Type type, const Util::Math::Vector3<double> &position, const Util::Graphic::Color &diffuseColor, const Util::Graphic::Color &specularColor) {
+Light& Scene::addLight(Light::Type type, const Util::Math::Vector3<double> &position, const Util::Graphic::Color &diffuseColor, const Util::Graphic::Color &specularColor) {
     for (uint32_t i = 0; i < 16; i++) {
-        if (lights[i] == nullptr) {
+        if (!lights[i].isValid()) {
             glEnable(GL_LIGHT0 + i);
-            lights[i] = new Light(i, type, position, diffuseColor, specularColor);
-            return *lights[i];
+            lights[i] = Light(i, type, position, diffuseColor, specularColor);
+            return lights[i];
         }
     }
 
@@ -109,23 +135,15 @@ Light &Scene::addLight(Light::Type type, const Util::Math::Vector3<double> &posi
 
 void Scene::removeLight(const Light &light) {
     glDisable(GL_LIGHT0 + light.getIndex());
-    delete lights[light.getIndex()];
-}
-
-bool Scene::hasLight(uint32_t index) const {
-    return lights[index] != nullptr;
+    lights[light.getIndex()] = Light();
 }
 
 const Util::Graphic::Color &Scene::getAmbientLight() const {
     return ambientLight;
 }
 
-const Light &Scene::getLight(uint32_t index) const {
-    if (lights[index] == nullptr) {
-        Util::Panic::fire(Util::Panic::NULL_POINTER, "Scene: Light does not exist!");
-    }
-
-    return *lights[index];
+const Util::Array<Light>& Scene::getLights() const {
+    return lights;
 }
 
 Scene::GlRenderStyle Scene::getGlRenderStyle() const {
@@ -146,11 +164,11 @@ void Scene::setGlShadeModel(GlShadeModel shadeModel) {
     glShadeModel(shadeModel);
 }
 
-bool Scene::isLightEnabled() const {
+bool Scene::isLightingEnabled() const {
     return lightEnabled;
 }
 
-void Scene::setLightEnabled(bool enabled) {
+void Scene::setLightingEnabled(bool enabled) {
     lightEnabled = enabled;
     if (lightEnabled) {
         glEnable(GL_LIGHTING);

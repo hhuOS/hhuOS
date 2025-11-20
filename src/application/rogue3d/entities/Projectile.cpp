@@ -58,7 +58,7 @@ void Projectile::draw(Pulsar::Graphics &graphics) const {
     graphics.drawList3D(getPosition(), getScale(), getRotation(), DRAW_LIST_ID);
 }
 
-void Projectile::onCollisionEvent(Pulsar::D3::CollisionEvent &event) {
+void Projectile::onCollisionEvent(const Pulsar::D3::CollisionEvent &event) {
     const auto otherTag = event.getCollidedWidth().getTag();
     if ((getTag() == TAG_PLAYER && otherTag == Enemy::TAG) || (getTag() == TAG_ENEMY && otherTag == Player::TAG)) {
         removeFromScene();

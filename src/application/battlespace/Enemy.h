@@ -74,7 +74,7 @@ public:
 
     void onUpdate(double delta) override;
 
-    void onCollisionEvent(Pulsar::D3::CollisionEvent &event) override;
+    void onCollisionEvent(const Pulsar::D3::CollisionEvent &event) override;
 
     [[nodiscard]] int16_t getHealth() const;
 
@@ -83,6 +83,8 @@ public:
     static const constexpr uint32_t TAG = 3;
 
 private:
+
+    static Util::Math::Vector3<double> findLookAt(const Util::Math::Vector3<double> &from, const Util::Math::Vector3<double> &to);
 
     Player &player;
     Util::ArrayList<Enemy*> &enemies;

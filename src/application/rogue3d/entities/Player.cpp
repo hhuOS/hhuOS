@@ -69,7 +69,7 @@ void Player::draw(Pulsar::Graphics &graphics) const {
     graphics.drawList3D(getPosition(), getScale(), getRotation(), DRAW_LIST_ID);
 }
 
-void Player::onCollisionEvent(Pulsar::D3::CollisionEvent &event) {
+void Player::onCollisionEvent(const Pulsar::D3::CollisionEvent &event) {
     switch (event.getCollidedWidth().getTag()) {
         case Projectile::TAG_ENEMY:
         case Enemy::TAG:
