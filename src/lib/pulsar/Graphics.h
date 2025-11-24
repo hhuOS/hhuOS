@@ -175,7 +175,7 @@ public:
     /// Draw an image in 2D space. Works only in 2D scenes.
     /// The image can be mirrored horizontally at no additional cost by setting `flipX` to true.
     /// The image can be drawn with transparency by setting `alpha` to a value between 0 (fully transparent)
-    /// and 1 (fully opaque). It can also be scaled and rotated.
+    /// and 1 (fully opaque). It can also be scaled and rotated (in degrees) around its center.
     /// However, transparency, scaling and rotation are very expensive operations, with significant performance impact.
     void drawImage2D(const Util::Math::Vector2<double> &position, const Util::Graphic::Image &image, bool flipX = false,
         double alpha = 1, const Util::Math::Vector2<double> &scale = Util::Math::Vector2<double>(1, 1),

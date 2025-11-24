@@ -7,7 +7,7 @@
 #include "lib/util/math/Vector2.h"
 #include "DemoPolygon.h"
 
-const Util::Array<Util::Math::Vector2<double>> DemoPolygonFactory::shape1 = {{0,   0}, {0.5, 1}, {1,   0}};
+const Util::Array<Util::Math::Vector2<double>> DemoPolygonFactory::shape1 = {{-1, -1}, {0, 1.0}, {1,   -1}};
 const Util::Array<Util::Math::Vector2<double>> DemoPolygonFactory::shape2 = {{0,  1}, {1,  0}, {0,  -1}, {-1, 0}};
 const Util::Array<Util::Math::Vector2<double>> DemoPolygonFactory::shape3 = {{0,     1}, {1,     0.25}, {0.75,  -1}, {-0.75, -1}, {-1,    0.25}};
 const Util::Array<Util::Math::Vector2<double>> DemoPolygonFactory::shape4 = {{-0.5, 1}, {0.5,  1}, {1,    0}, {0.5,  -1}, {-0.5, -1}, {-1,   0}};
@@ -18,9 +18,9 @@ const Util::Array<const Util::Array<Util::Math::Vector2<double>>*> DemoPolygonFa
 });
 
 DemoPolygon* DemoPolygonFactory::createPolygon() {
-    const auto shape = 1; // random.getRandomNumber(0, shapes.length() - 1);
+    const auto shape = random.getRandomNumber(0, shapes.length() - 1);
     const auto initialScaleFactor = random.getRandomNumber() + 0.1;
-    const auto rotationSpeed = random.getRandomNumber() - 1.0;
+    const auto rotationSpeed = static_cast<int32_t>(random.getRandomNumber(0, 360)) - 180;
     const auto scaleSpeed = random.getRandomNumber();
     const auto position = Util::Math::Vector2<double>(random.getRandomNumber() * 2 - 1.0, random.getRandomNumber() * 2 - 1.0);
     const auto color = Util::Graphic::Color(random.getRandomNumber(0, 255), random.getRandomNumber(0, 255), random.getRandomNumber(0, 255));

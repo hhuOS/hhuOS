@@ -57,7 +57,7 @@ public:
     /// Scale the polygon by the given factor (scales all vertices).
     void scale(double factor) const;
 
-    /// Rotate the polygon by the given angle in radians (rotates all vertices around the origin).
+    /// Rotate the polygon by the given angle in degrees (rotates all vertices around the origin).
     void rotate(double angle) const;
 
     /// Draw the polygon using the given graphics context (draws the outline of the polygon).

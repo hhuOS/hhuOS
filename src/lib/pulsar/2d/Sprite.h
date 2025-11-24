@@ -81,13 +81,13 @@ public:
     /// Get the current scale of the sprite.
     [[nodiscard]] const Util::Math::Vector2<double>& getScale() const;
 
-    /// Rotate the sprite by the given angle (in radians).
+    /// Rotate the sprite by the given angle (in degrees).
     void rotate(double angle);
 
-    /// Set the rotation angle of the sprite (in radians).
+    /// Set the rotation angle of the sprite (in degrees).
     void setRotation(double angle);
 
-    /// Get the current rotation angle of the sprite (in radians).
+    /// Get the current rotation angle of the sprite (in degrees).
     [[nodiscard]] double getRotation() const;
 
     /// Set the alpha transparency of the sprite (0.0 = fully transparent, 1.0 = fully opaque).

@@ -84,13 +84,13 @@ public:
     /// Get the current scale of the animation.
     [[nodiscard]] const Util::Math::Vector2<double>& getScale() const;
 
-    /// Rotate the animation by the given angle (in radians).
+    /// Rotate the animation by the given angle (in degrees).
     void rotate(double angle);
 
-    /// Set the rotation angle of the animation (in radians).
+    /// Set the rotation angle of the animation (in degrees).
     void setRotation(double angle);
 
-    /// Get the current rotation angle of the animation (in radians).
+    /// Get the current rotation angle of the animation (in degrees).
     [[nodiscard]] double getRotation() const;
 
     /// Set the alpha transparency of the animation (0.0 = fully transparent, 1.0 = fully opaque).

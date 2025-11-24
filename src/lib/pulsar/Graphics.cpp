@@ -346,9 +346,9 @@ void Graphics::drawImage2D(const Util::Math::Vector2<double> &position, const Ut
     } else if (notRotated) {
         drawImageScaled2D(position, image, flipX, alpha, scale);
     } else if (notScaled) {
-        drawImageRotated2D(position, image, flipX, alpha, rotationAngle);
+        drawImageRotated2D(position, image, flipX, alpha, Util::Math::toRadians(rotationAngle));
     } else {
-        drawImageScaledAndRotated2D(position, image, flipX, alpha, scale, rotationAngle);
+        drawImageScaledAndRotated2D(position, image, flipX, alpha, scale, Util::Math::toRadians(rotationAngle));
     }
 }
 

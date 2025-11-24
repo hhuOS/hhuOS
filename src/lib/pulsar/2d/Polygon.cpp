@@ -54,8 +54,8 @@ void Polygon::scale([[maybe_unused]] const double factor) const {
 }
 
 void Polygon::rotate([[maybe_unused]] const double angle) const {
-    const auto sine = Util::Math::sine(angle);
-    const auto cosine = Util::Math::cosine(angle);
+    const auto sine = Util::Math::sine(Util::Math::toRadians(angle));
+    const auto cosine = Util::Math::cosine(Util::Math::toRadians(angle));
 
     for (auto &vertex : vertices) {
         vertex = Util::Math::Vector2<double>(vertex.getX() * cosine - vertex.getY() * sine,
