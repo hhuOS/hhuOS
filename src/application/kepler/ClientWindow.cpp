@@ -65,15 +65,13 @@ void ClientWindow::setDirty(const bool dirty) {
     ClientWindow::dirty = dirty;
 }
 
-void ClientWindow::drawFrame(const Util::Graphic::LinearFrameBuffer &lfb) const {
-    lfb.drawRectangle(posX, posY, width + 2, height + TITLE_FONT.getCharHeight() + 5,
-        Util::Graphic::Colors::WHITE);
-    lfb.fillRectangle(posX, posY, width + 2, TITLE_FONT.getCharHeight() + 5, Util::Graphic::Colors::WHITE);
+void ClientWindow::drawFrame(const Util::Graphic::LinearFrameBuffer &lfb, const Util::Graphic::Color &color) const {
+    lfb.drawRectangle(posX, posY, width + 2, height + TITLE_FONT.getCharHeight() + 5, color);
+    lfb.fillRectangle(posX, posY, width + 2, TITLE_FONT.getCharHeight() + 5, color);
 
     const auto titleWidth = static_cast<uint16_t>(title.length() * TITLE_FONT.getCharWidth());
     const auto titlePosX = posX + (width + 2 - titleWidth) / 2;
-    lfb.drawString(TITLE_FONT, titlePosX, posY + 2, title,
-        Util::Graphic::Colors::BLACK, Util::Graphic::Colors::WHITE);
+    lfb.drawString(TITLE_FONT, titlePosX, posY + 2, title, Util::Graphic::Colors::BLACK, color);
 }
 
 void ClientWindow::flush(const Util::Graphic::LinearFrameBuffer &lfb) const {

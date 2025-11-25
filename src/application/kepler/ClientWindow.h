@@ -54,7 +54,7 @@ public:
 
     void setDirty(bool dirty);
 
-    void drawFrame(const Util::Graphic::LinearFrameBuffer &lfb) const;
+    void drawFrame(const Util::Graphic::LinearFrameBuffer &lfb, const Util::Graphic::Color &color) const;
 
     void flush(const Util::Graphic::LinearFrameBuffer &lfb) const;
 
