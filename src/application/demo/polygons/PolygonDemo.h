@@ -54,7 +54,7 @@ public:
 
     void initialize() override;
 
-    void update(double delta) override;
+    void update(float delta) override;
 
     void keyPressed(const Util::Io::Key &key) override;
 

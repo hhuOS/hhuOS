@@ -48,13 +48,13 @@ public:
     /// Create a new once emitter instance with its own tag and the tag for the particles it emits.
     /// The minimum and maximum emission rates define how many particles are emitted in total.
     /// The actual number of emitted particles is chosen randomly between these two values.
-    OnceEmitter(size_t tag, size_t particleTag, const Util::Math::Vector2<double> &position,
+    OnceEmitter(size_t tag, size_t particleTag, const Util::Math::Vector2<float> &position,
 		uint32_t minEmissionRate, uint32_t maxEmissionRate);
 
     /// Update the emitter state. This method is called automatically during the scene update cycle.
     /// On the first update, it emits the particles. Further updates just checks if all particles have expired
     /// and remove the emitter from the scene if so.
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
 private:
 

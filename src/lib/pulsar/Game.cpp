@@ -34,7 +34,7 @@ namespace Pulsar {
 
 Game* Game::instance = nullptr;
 
-Game::Game(const uint16_t screenTransformation, const Util::Math::Vector2<double> &screenDimensions) :
+Game::Game(const uint16_t screenTransformation, const Util::Math::Vector2<float> &screenDimensions) :
     screenTransformation(screenTransformation),
     screenDimensions(screenDimensions),
     audioChannels(AUDIO_CHANNELS) {}
@@ -95,7 +95,7 @@ uint16_t Game::getScreenTransformation() const {
     return screenTransformation;
 }
 
-const Util::Math::Vector2<double>& Game::getScreenDimensions() const {
+const Util::Math::Vector2<float>& Game::getScreenDimensions() const {
     return screenDimensions;
 }
 

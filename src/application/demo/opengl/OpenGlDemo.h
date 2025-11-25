@@ -52,7 +52,7 @@ public:
 
     void initialize() override;
 
-    void update(double delta) override;
+    void update(float delta) override;
 
     void keyPressed(const Util::Io::Key &key) override;
 
@@ -60,8 +60,8 @@ public:
 
 private:
 
-    Util::Math::Vector3<double> cameraRotation = Util::Math::Vector3<double>(0, 0, 0);
-    Util::Math::Vector3<double> cameraTranslation = Util::Math::Vector3<double>(0, 0, 0);
+    Util::Math::Vector3<float> cameraRotation = Util::Math::Vector3<float>(0, 0, 0);
+    Util::Math::Vector3<float> cameraTranslation = Util::Math::Vector3<float>(0, 0, 0);
 };
 
 #endif

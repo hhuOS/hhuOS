@@ -33,7 +33,7 @@ template <typename T> class Vector2;
 }  // namespace Math
 }  // namespace Util
 
-Explosive::Explosive(uint32_t tag, const Util::Math::Vector2<double> &position, const Pulsar::D2::RectangleCollider &collider, const Util::String &waveFilePath, double animationTime) : Entity(tag, position, collider), waveFilePath(waveFilePath), animationTime(animationTime) {}
+Explosive::Explosive(uint32_t tag, const Util::Math::Vector2<float> &position, const Pulsar::D2::RectangleCollider &collider, const Util::String &waveFilePath, float animationTime) : Entity(tag, position, collider), waveFilePath(waveFilePath), animationTime(animationTime) {}
 
 void Explosive::initialize() {
     soundEffect = Pulsar::AudioTrack(waveFilePath);
@@ -50,7 +50,7 @@ void Explosive::initialize() {
         Pulsar::D2::Sprite("/user/bug/explosion8.bmp", size, size)}), animationTime);
 }
 
-void Explosive::onUpdate(double delta) {
+void Explosive::onUpdate(float delta) {
     if (shouldExplode) {
         exploding = true;
         shouldExplode = false;

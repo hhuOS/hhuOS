@@ -54,18 +54,18 @@ void Level::initialize() {
     }
 
     int32_t x = -1;
-    double y = Pulsar::Game::getInstance().getScreenDimensions().getY() / 2;
+    float y = Pulsar::Game::getInstance().getScreenDimensions().getY() / 2;
 
     int32_t minX = x;
-    double minY = y;
+    float minY = y;
 
-    auto grassPositions = Util::ArrayList<Util::Pair<int32_t, double>>();
-    auto dirtPositions = Util::ArrayList<Util::Pair<int32_t, double>>();
-    auto waterPositions = Util::ArrayList<Util::Pair<int32_t, double>>();
+    auto grassPositions = Util::ArrayList<Util::Pair<int32_t, float>>();
+    auto dirtPositions = Util::ArrayList<Util::Pair<int32_t, float>>();
+    auto waterPositions = Util::ArrayList<Util::Pair<int32_t, float>>();
 
     auto c = fileStream.read();
     while (c != -1) {
-        auto position = Util::Math::Vector2<double>(x * Block::SIZE - (Pulsar::Game::getInstance().getScreenDimensions().getX() / 2), y);
+        auto position = Util::Math::Vector2<float>(x * Block::SIZE - (Pulsar::Game::getInstance().getScreenDimensions().getX() / 2), y);
         switch (c) {
             case '\n':
                 x = -1;
@@ -113,7 +113,7 @@ void Level::initialize() {
     playerMinX = minX * Block::SIZE;
     playerMinY = minY;
 
-    player = new PlayerDino(Util::Math::Vector2<double>(playerMinX, 0));
+    player = new PlayerDino(Util::Math::Vector2<float>(playerMinX, 0));
     player->setPoints(startPoints);
     addEntity(player);
 
@@ -126,14 +126,14 @@ bool Level::initializeBackground(Pulsar::Graphics &graphics) {
     auto cloud4 = Pulsar::D2::Sprite("/user/dino/background/cloud4.bmp", 0.45, 0.15);
 
     graphics.clear(Util::Graphic::Color(57, 97, 255));
-    cloud1.draw(graphics, Util::Math::Vector2<double>(-1, 0.65));
-    cloud3.draw(graphics, Util::Math::Vector2<double>(0.2, 0.3));
-    cloud4.draw(graphics, Util::Math::Vector2<double>(0.65, 0.7));
+    cloud1.draw(graphics, Util::Math::Vector2<float>(-1, 0.65));
+    cloud3.draw(graphics, Util::Math::Vector2<float>(0.2, 0.3));
+    cloud4.draw(graphics, Util::Math::Vector2<float>(0.65, 0.7));
 
     return true;
 }
 
-void Level::update([[maybe_unused]] double delta) {
+void Level::update([[maybe_unused]] float delta) {
     if (player->isDead()) {
         auto &game = Pulsar::Game::getInstance();
         game.switchToNextScene();
@@ -152,7 +152,7 @@ void Level::update([[maybe_unused]] double delta) {
     }
 
     if (player->getPosition().getX() < playerMinX) {
-        player->setPosition(Util::Math::Vector2<double>(playerMinX, player->getPosition().getY()));
+        player->setPosition(Util::Math::Vector2<float>(playerMinX, player->getPosition().getY()));
     }
 
     if (player->getPosition().getY() < playerMinY) {
@@ -170,7 +170,7 @@ void Level::update([[maybe_unused]] double delta) {
         cameraPosY = playerMinY + 1;
     }
 
-    getCamera().setPosition(Util::Math::Vector2<double>(player->getPosition().getX() + 0.8, cameraPosY));
+    getCamera().setPosition(Util::Math::Vector2<float>(player->getPosition().getX() + 0.8, cameraPosY));
 }
 
 void Level::keyPressed(const Util::Io::Key &key) {
@@ -205,7 +205,7 @@ void Level::keyReleased(const Util::Io::Key &key) {
     }
 }
 
-void Level::spawnMergedBlocks(Util::ArrayList<Util::Pair<int32_t, double>> &positions, Block::Tag tag) {
+void Level::spawnMergedBlocks(Util::ArrayList<Util::Pair<int32_t, float>> &positions, Block::Tag tag) {
     if (positions.isEmpty()) {
         return;
     }
@@ -216,7 +216,7 @@ void Level::spawnMergedBlocks(Util::ArrayList<Util::Pair<int32_t, double>> &posi
         auto position = positions.get(i);
         lastPosition = positions.get(i - 1);
         if (position.getFirst() - 1 != lastPosition.getFirst()) {
-            auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.getFirst() * Block::SIZE - (Pulsar::Game::getInstance().getScreenDimensions().getX()) / 2, rectangleStartPosition.getSecond());
+            auto mergedBlockStart = Util::Math::Vector2<float>(rectangleStartPosition.getFirst() * Block::SIZE - (Pulsar::Game::getInstance().getScreenDimensions().getX()) / 2, rectangleStartPosition.getSecond());
             auto countX = lastPosition.getFirst() - rectangleStartPosition.getFirst() + 1;
             addEntity(new Block(tag, mergedBlockStart, countX, 1));
 
@@ -224,7 +224,7 @@ void Level::spawnMergedBlocks(Util::ArrayList<Util::Pair<int32_t, double>> &posi
         }
     }
 
-    auto mergedBlockStart = Util::Math::Vector2<double>(rectangleStartPosition.getFirst() * Block::SIZE - (Pulsar::Game::getInstance().getScreenDimensions().getX()) / 2, rectangleStartPosition.getSecond());
+    auto mergedBlockStart = Util::Math::Vector2<float>(rectangleStartPosition.getFirst() * Block::SIZE - (Pulsar::Game::getInstance().getScreenDimensions().getX()) / 2, rectangleStartPosition.getSecond());
     auto countX = lastPosition.getFirst() - rectangleStartPosition.getFirst() + 1;
     addEntity(new Block(tag, mergedBlockStart, countX, 1));
 }

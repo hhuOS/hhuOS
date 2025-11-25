@@ -36,14 +36,14 @@
 
 namespace Pulsar::D3 {
 
-SphereCollider::SphereCollider(const Util::Math::Vector3<double> &position, const double radius) :
+SphereCollider::SphereCollider(const Util::Math::Vector3<float> &position, const float radius) :
     Collider(position), radius(radius) {}
 
 bool SphereCollider::isColliding(const SphereCollider &other) const {
     return getPosition().distance(other.getPosition()) - (radius + other.radius) <= 0;
 }
 
-double SphereCollider::getRadius() const {
+float SphereCollider::getRadius() const {
     return radius;
 }
 

@@ -57,44 +57,44 @@ public:
 
     /// Create a new sprite instance from a bitmap image located at the given path.
     /// The image will be scaled to the specified width and height (in game units).
-    Sprite(const Util::String &path, double width, double height);
+    Sprite(const Util::String &path, float width, float height);
 
     /// Create a new sprite instance filled with the given color.
     /// The sprite will have the specified width and height with the image being a filled rectangle of that color.
-    Sprite(const Util::Graphic::Color &color, double width, double height);
+    Sprite(const Util::Graphic::Color &color, float width, float height);
 
     /// Get the underlying image of the sprite.
     [[nodiscard]] const Util::Graphic::Image& getImage() const;
 
     /// Get the original size of the sprite (before scaling).
-    [[nodiscard]] const Util::Math::Vector2<double>& getOriginalSize() const;
+    [[nodiscard]] const Util::Math::Vector2<float>& getOriginalSize() const;
 
     /// Get the current size of the sprite (after scaling).
-    [[nodiscard]] Util::Math::Vector2<double> getSize() const;
+    [[nodiscard]] Util::Math::Vector2<float> getSize() const;
 
     /// Set the scale of the sprite uniformly in both dimensions.
-    void setScale(double scale);
+    void setScale(float scale);
 
     /// Set the scale of the sprite in both dimensions.
-    void setScale(const Util::Math::Vector2<double> &scale);
+    void setScale(const Util::Math::Vector2<float> &scale);
 
     /// Get the current scale of the sprite.
-    [[nodiscard]] const Util::Math::Vector2<double>& getScale() const;
+    [[nodiscard]] const Util::Math::Vector2<float>& getScale() const;
 
     /// Rotate the sprite by the given angle (in degrees).
-    void rotate(double angle);
+    void rotate(float angle);
 
     /// Set the rotation angle of the sprite (in degrees).
-    void setRotation(double angle);
+    void setRotation(float angle);
 
     /// Get the current rotation angle of the sprite (in degrees).
-    [[nodiscard]] double getRotation() const;
+    [[nodiscard]] float getRotation() const;
 
     /// Set the alpha transparency of the sprite (0.0 = fully transparent, 1.0 = fully opaque).
-    void setAlpha(double alpha);
+    void setAlpha(float alpha);
 
     /// Get the current alpha transparency of the sprite.
-    [[nodiscard]] double getAlpha() const;
+    [[nodiscard]] float getAlpha() const;
 
     /// Flip the sprite horizontally.
     /// This causes the sprite to be mirrored along the vertical axis during rendering.
@@ -105,16 +105,16 @@ public:
     void setXFlipped(bool flipped);
 
     /// Draw the sprite at the given position using the specified graphics context.
-    void draw(const Graphics &graphics, const Util::Math::Vector2<double> &position) const;
+    void draw(const Graphics &graphics, const Util::Math::Vector2<float> &position) const;
 
 private:
 
     const Util::Graphic::Image *image = nullptr;
 
-    Util::Math::Vector2<double> size;
-    Util::Math::Vector2<double> scale = Util::Math::Vector2<double>(1, 1);
-    double rotationAngle = 0;
-    double alpha = 1;
+    Util::Math::Vector2<float> size;
+    Util::Math::Vector2<float> scale = Util::Math::Vector2<float>(1, 1);
+    float rotationAngle = 0;
+    float alpha = 1;
     bool xFlipped = false;
 };
 

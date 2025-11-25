@@ -60,7 +60,7 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void draw(Pulsar::Graphics &graphics) const override;
 
@@ -76,13 +76,13 @@ public:
 
     [[nodiscard]] uint32_t getScore() const;
 
-    Util::Math::Vector3<double> getCurrentMovementDirection();
+    Util::Math::Vector3<float> getCurrentMovementDirection();
 
-    void setMovementDirection(Util::Math::Vector3<double> direction);
+    void setMovementDirection(Util::Math::Vector3<float> direction);
 
-    void setSpeed(double speed);
+    void setSpeed(float speed);
 
-    [[nodiscard]] double getSpeed() const;
+    [[nodiscard]] float getSpeed() const;
 
     static const constexpr uint32_t TAG = 0;
 
@@ -92,10 +92,10 @@ private:
 
     int16_t health = 100;
     uint32_t score = 0;
-    double speed = 0.0;
-    double invulnerabilityTimer = 0;
-    double missileTimer = 0;
-    Util::Math::Vector3<double> currentMovementDirection;
+    float speed = 0.0;
+    float invulnerabilityTimer = 0;
+    float missileTimer = 0;
+    Util::Math::Vector3<float> currentMovementDirection;
 };
 
 #endif

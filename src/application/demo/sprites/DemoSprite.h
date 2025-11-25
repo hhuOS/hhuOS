@@ -33,7 +33,7 @@ public:
     /**
      * Default Constructor.
      */
-    DemoSprite(const Util::Math::Vector2<double> &position, double size, double rotationSpeed, double scaleSpeed, bool flipX);
+    DemoSprite(const Util::Math::Vector2<float> &position, float size, float rotationSpeed, float scaleSpeed, bool flipX);
 
     /**
      * Copy Constructor.
@@ -52,7 +52,7 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void draw(Pulsar::Graphics &graphics) const override;
 
@@ -66,10 +66,10 @@ private:
 
     Pulsar::D2::SpriteAnimation animation;
 
-    Util::Math::Vector2<double> initialPosition;
-    double size;
-    double rotationSpeed;
-    double scaleSpeed;
+    Util::Math::Vector2<float> initialPosition;
+    float size;
+    float rotationSpeed;
+    float scaleSpeed;
     bool flipX;
     bool scaleUp = true;
 };

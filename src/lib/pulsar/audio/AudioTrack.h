@@ -65,7 +65,7 @@ class AudioHandle;
 ///
 /// // This method is called periodically to update the scene.
 /// // Here we start playing the background music if not already playing, and stop it after 60 seconds.
-/// void update(const double delta) override {
+/// void update(const float delta) override {
 ///     // Start playing background music if not already playing
 ///     if (!backgroundMusicHandle.isPlaying()) {
 ///         backgroundMusicHandle = backgroundMusic.play(true);
@@ -85,7 +85,7 @@ class AudioHandle;
 ///
 /// private:
 ///
-/// double backgroundMusicTimer = 0.0;
+/// float backgroundMusicTimer = 0.0;
 /// Pulsar::AudioTrack backgroundMusic;
 /// Pulsar::AudioHandle backgroundMusicHandle;
 ///

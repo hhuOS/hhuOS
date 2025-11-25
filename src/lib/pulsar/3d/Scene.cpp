@@ -50,12 +50,12 @@ template <typename T> class Vector3;
 
 namespace Pulsar::D3 {
 
-Entity* Scene::findEntityUsingRaytrace(const Util::Math::Vector3<double> &from,
-    const Util::Math::Vector3<double> &direction, double length, double precision) const {
-    auto collider = SphereCollider(Util::Math::Vector3<double>(0, 0, 0), precision);
+Entity* Scene::findEntityUsingRaytrace(const Util::Math::Vector3<float> &from,
+    const Util::Math::Vector3<float> &direction, float length, float precision) const {
+    auto collider = SphereCollider(Util::Math::Vector3<float>(0, 0, 0), precision);
     const auto normalizedDirection = direction.normalize();
 
-    for (double x = 0; x < length; x += precision) {
+    for (float x = 0; x < length; x += precision) {
         auto position = from + (normalizedDirection * x);
         collider.setPosition(position);
 
@@ -84,7 +84,7 @@ void Scene::initializeScene(Graphics &graphics) {
     }
 }
 
-void Scene::updateEntities(double delta) {
+void Scene::updateEntities(float delta) {
     for (auto *entity : getEntities()) {
         reinterpret_cast<Pulsar::D3::Entity*>(entity)->update(delta);
     }
@@ -99,7 +99,10 @@ void Scene::checkCollisions() {
         if (entity3D->hasCollider()) {
             for (auto *otherEntity : getEntities()) {
                 auto *otherEntity3D = reinterpret_cast<D3::Entity*>(otherEntity);
-                if (entity == otherEntity || !otherEntity3D->hasCollider() || detectedCollisions.contains(Util::Pair(entity3D, otherEntity3D)) || detectedCollisions.contains(Util::Pair(otherEntity3D, entity3D))) {
+                if (entity == otherEntity ||
+                    !otherEntity3D->hasCollider() ||
+                    detectedCollisions.contains(Util::Pair(entity3D, otherEntity3D)) ||
+                    detectedCollisions.contains(Util::Pair(otherEntity3D, entity3D))) {
                     continue;
                 }
 
@@ -121,7 +124,9 @@ void Scene::setAmbientLight(const Util::Graphic::Color &ambientLight) {
     Scene::ambientLight = ambientLight;
 }
 
-Light& Scene::addLight(Light::Type type, const Util::Math::Vector3<double> &position, const Util::Graphic::Color &diffuseColor, const Util::Graphic::Color &specularColor) {
+Light& Scene::addLight(Light::Type type, const Util::Math::Vector3<float> &position,
+    const Util::Graphic::Color &diffuseColor, const Util::Graphic::Color &specularColor)
+{
     for (uint32_t i = 0; i < 16; i++) {
         if (!lights[i].isValid()) {
             glEnable(GL_LIGHT0 + i);
@@ -183,7 +188,9 @@ const Util::Graphic::Color& Scene::getBackgroundColor() const {
 
 void Scene::setBackgroundColor(const Util::Graphic::Color &backgroundColor) {
     Scene::backgroundColor = backgroundColor;
-    glClearColor(backgroundColor.getRed() / 255.0f, backgroundColor.getGreen() / 255.0f, backgroundColor.getBlue() / 255.0f, 1.0f);
+    glClearColor(backgroundColor.getRed() / 255.0f,
+        backgroundColor.getGreen() / 255.0f,
+        backgroundColor.getBlue() / 255.0f, 1.0f);
 }
 
 }

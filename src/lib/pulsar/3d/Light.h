@@ -66,7 +66,7 @@ public:
     /// Create a new light instance with the given parameters.
     /// The index must be between 0 and 15 (inclusive) and is determined by the `D3::Scene` class,
     /// depending on how many lights are already present in the scene.
-    Light(uint8_t index, Type type, const Util::Math::Vector3<double> &position,
+    Light(uint8_t index, Type type, const Util::Math::Vector3<float> &position,
         const Util::Graphic::Color &diffuseColor, const Util::Graphic::Color &specularColor);
 
     /// Check if the light is valid (i.e., has a valid index).
@@ -81,10 +81,10 @@ public:
     [[nodiscard]] Type getType() const;
 
     /// Get the position of the light source in 3D space, or its direction if it is a directional light.
-    [[nodiscard]] const Util::Math::Vector3<double>& getPosition() const;
+    [[nodiscard]] const Util::Math::Vector3<float>& getPosition() const;
 
     /// Set the position of the light source in 3D space, or its direction if it is a directional light.
-    void setPosition(const Util::Math::Vector3<double> &position);
+    void setPosition(const Util::Math::Vector3<float> &position);
 
     /// Get the diffuse color of the light source.
     [[nodiscard]] const Util::Graphic::Color& getDiffuseColor() const;
@@ -105,7 +105,7 @@ private:
     uint8_t index = INVALID_INDEX;
     Type type = POINT;
 
-    Util::Math::Vector3<double> position;
+    Util::Math::Vector3<float> position;
     Util::Graphic::Color diffuseColor = Util::Graphic::Colors::WHITE;
     Util::Graphic::Color specularColor = Util::Graphic::Colors::WHITE;
 };

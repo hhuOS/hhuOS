@@ -37,19 +37,19 @@
 
 uint32_t Player::DRAW_LIST_ID = UINT32_MAX;
 
-Player::Player() : Entity(TAG, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1), Pulsar::D3::SphereCollider(Util::Math::Vector3<double>(0, 0, 0), 0.8)) {}
+Player::Player() : Entity(TAG, Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(1, 1, 1), Pulsar::D3::SphereCollider(Util::Math::Vector3<float>(0, 0, 0), 0.8)) {}
 
-Player::Player(uint32_t damage, uint32_t health, uint32_t level) : Entity(TAG, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1), Pulsar::D3::SphereCollider(Util::Math::Vector3<double>(0, 0, 0), 0.8)), health(health), damage(damage), level(level) {}
+Player::Player(uint32_t damage, uint32_t health, uint32_t level) : Entity(TAG, Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(1, 1, 1), Pulsar::D3::SphereCollider(Util::Math::Vector3<float>(0, 0, 0), 0.8)), health(health), damage(damage), level(level) {}
 
 void Player::initialize() {
     if (DRAW_LIST_ID == UINT32_MAX) {
         DRAW_LIST_ID = Pulsar::Graphics::startList3D();
-        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(1.5, 1.5, 1.5));
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<float>(1.5, 1.5, 1.5));
         Pulsar::Graphics::endList3D();
     }
 }
 
-void Player::onUpdate(double delta) {
+void Player::onUpdate(float delta) {
     if (health <= 0) {
         Pulsar::Game::getInstance().pushScene(new Pulsar::TextScreen(Util::String::format(GAME_OVER_TEXT, level), handleKeyPressOnTextScreen, Util::Graphic::Colors::GREEN));
         Pulsar::Game::getInstance().switchToNextScene();

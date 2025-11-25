@@ -43,7 +43,7 @@ public:
     /**
      * Constructor.
      */
-    explicit EnemyFrog(const Util::Math::Vector2<double> &position);
+    explicit EnemyFrog(const Util::Math::Vector2<float> &position);
 
     /**
      * Copy Constructor.
@@ -62,7 +62,7 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void draw(Pulsar::Graphics &graphics) const override;
 
@@ -84,8 +84,8 @@ private:
     GrassEmitter *grassEmitter = new GrassEmitter(*this);
     Util::Time::Timestamp lastEmissionTime;
 
-    static const constexpr double SIZE = 0.08;
-    static const constexpr double VELOCITY = 0.25;
+    static const constexpr float SIZE = 0.08;
+    static const constexpr float VELOCITY = 0.25;
     static const constexpr uint32_t EMISSION_INTERVAL_MS = 500;
 };
 

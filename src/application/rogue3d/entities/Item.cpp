@@ -32,39 +32,39 @@
 #include "lib/pulsar/3d/collider/SphereCollider.h"
 #include "lib/util/math/Vector3.h"
 
-Util::Array<Util::Math::Vector3<double>> Item::HEART = {
-    Util::Math::Vector3<double>(0.0f, 0.0f, 0.0f),
-    Util::Math::Vector3<double>(-0.5f, 1.0f, 0.0f),
-    Util::Math::Vector3<double>(0.5f, 1.0f, 0.0f),
+Util::Array<Util::Math::Vector3<float>> Item::HEART = {
+    Util::Math::Vector3<float>(0.0f, 0.0f, 0.0f),
+    Util::Math::Vector3<float>(-0.5f, 1.0f, 0.0f),
+    Util::Math::Vector3<float>(0.5f, 1.0f, 0.0f),
 
-    Util::Math::Vector3<double>(0.0f, 1.0f, 0.0f),
-    Util::Math::Vector3<double>(-0.5f, 1.0f, 0.0f),
-    Util::Math::Vector3<double>(-0.25, 1.33f, 0.0f),
+    Util::Math::Vector3<float>(0.0f, 1.0f, 0.0f),
+    Util::Math::Vector3<float>(-0.5f, 1.0f, 0.0f),
+    Util::Math::Vector3<float>(-0.25, 1.33f, 0.0f),
 
-    Util::Math::Vector3<double>(0.0f, 1.0f, 0.0f),
-    Util::Math::Vector3<double>(0.50f, 1.0f, 0.0f),
-    Util::Math::Vector3<double>(0.25, 1.33f, 0.0f)
+    Util::Math::Vector3<float>(0.0f, 1.0f, 0.0f),
+    Util::Math::Vector3<float>(0.50f, 1.0f, 0.0f),
+    Util::Math::Vector3<float>(0.25, 1.33f, 0.0f)
 };
 
-Util::Array<Util::Math::Vector3<double>> Item::DMG_UP = {
-    Util::Math::Vector3<double>(-0.5f, 0.0f, 0.0f),
-    Util::Math::Vector3<double>(-0.5f, 1.0f, 0.0f),
-    Util::Math::Vector3<double>(0.5f, 1.0f, 0.0f),
+Util::Array<Util::Math::Vector3<float>> Item::DMG_UP = {
+    Util::Math::Vector3<float>(-0.5f, 0.0f, 0.0f),
+    Util::Math::Vector3<float>(-0.5f, 1.0f, 0.0f),
+    Util::Math::Vector3<float>(0.5f, 1.0f, 0.0f),
 
-    Util::Math::Vector3<double>(0.5f, 0.0f, 0.0f),
-    Util::Math::Vector3<double>(0.5f, 1.0f, 0.0f),
-    Util::Math::Vector3<double>(-0.5f, 1.0f, 0.0f),
+    Util::Math::Vector3<float>(0.5f, 0.0f, 0.0f),
+    Util::Math::Vector3<float>(0.5f, 1.0f, 0.0f),
+    Util::Math::Vector3<float>(-0.5f, 1.0f, 0.0f),
 
-    Util::Math::Vector3<double>(0.5f, 1.0f, 0.0f),
-    Util::Math::Vector3<double>(0.0f, 1.5f, 0.0f),
-    Util::Math::Vector3<double>(-0.5f, 1.0f, 0.0f)
+    Util::Math::Vector3<float>(0.5f, 1.0f, 0.0f),
+    Util::Math::Vector3<float>(0.0f, 1.5f, 0.0f),
+    Util::Math::Vector3<float>(-0.5f, 1.0f, 0.0f)
 };
 
 uint32_t Item::HEALTH_LIST_ID = UINT32_MAX;
 uint32_t Item::DMG_UP_LIST_ID = UINT32_MAX;
 uint32_t Item::NEXT_LVL_LIST_ID = UINT32_MAX;
 
-Item::Item(const Util::Math::Vector3<double> &position, uint32_t tag)  : Entity(tag, position, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1), Pulsar::D3::SphereCollider(position, 0.25)) {}
+Item::Item(const Util::Math::Vector3<float> &position, uint32_t tag)  : Entity(tag, position, Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(1, 1, 1), Pulsar::D3::SphereCollider(position, 0.25)) {}
 
 void Item::initialize() {
     if (HEALTH_LIST_ID == UINT32_MAX) {
@@ -81,20 +81,20 @@ void Item::initialize() {
 
     if (NEXT_LVL_LIST_ID == UINT32_MAX) {
         NEXT_LVL_LIST_ID = Pulsar::Graphics::startList3D();
-        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(3, 1, 2));
-        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(0.5, 1, 0), Util::Math::Vector3<double>(2, 1, 2));
-        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(1, 2, 0), Util::Math::Vector3<double>(1, 1, 2));
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<float>(3, 1, 2));
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<float>(0.5, 1, 0), Util::Math::Vector3<float>(2, 1, 2));
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<float>(1, 2, 0), Util::Math::Vector3<float>(1, 1, 2));
         Pulsar::Graphics::endList3D();
     }
 }
 
-void Item::onUpdate(double delta) {
+void Item::onUpdate(float delta) {
     if (getTag() == TAG_NEXT_LVL) {
         return;
     }
 
     if (getScale().getX() >= 2) {
-        setScale(Util::Math::Vector3<double>(1.0,1.0,1.0));
+        setScale(Util::Math::Vector3<float>(1.0,1.0,1.0));
     }
 
     setScale(getScale() * (1 + delta));

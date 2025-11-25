@@ -51,7 +51,7 @@ public:
     /**
      * Constructor.
      */
-    Room(const Util::Math::Vector3<double> &position, Type type, uint32_t row, uint32_t column);
+    Room(const Util::Math::Vector3<float> &position, Type type, uint32_t row, uint32_t column);
 
     /**
      * Copy Constructor.
@@ -70,7 +70,7 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void draw(Pulsar::Graphics &graphics) const override;
 

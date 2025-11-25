@@ -38,7 +38,7 @@
 
 namespace Pulsar::D2 {
 
-Entity::Entity(const size_t tag, const Util::Math::Vector2<double> &position, const RectangleCollider &collider) :
+Entity::Entity(const size_t tag, const Util::Math::Vector2<float> &position, const RectangleCollider &collider) :
     Pulsar::Entity(tag), position(position), collider(collider) {}
 
 Entity::~Entity() {
@@ -51,7 +51,7 @@ void Entity::onTranslationEvent([[maybe_unused]] TranslationEvent &event) {}
 
 void Entity::onCollisionEvent([[maybe_unused]] const CollisionEvent &event) {}
 
-void Entity::translate(const Util::Math::Vector2<double> &translation) {
+void Entity::translate(const Util::Math::Vector2<float> &translation) {
     const auto newPosition = position + translation;
     auto event = TranslationEvent(newPosition);
     onTranslationEvent(event);
@@ -61,15 +61,15 @@ void Entity::translate(const Util::Math::Vector2<double> &translation) {
     }
 }
 
-void Entity::translateX(const double x) {
-    translate(Util::Math::Vector2<double>(x, 0));
+void Entity::translateX(const float x) {
+    translate(Util::Math::Vector2<float>(x, 0));
 }
 
-void Entity::translateY(const double y) {
-    translate(Util::Math::Vector2<double>(0, y));
+void Entity::translateY(const float y) {
+    translate(Util::Math::Vector2<float>(0, y));
 }
 
-void Entity::setPosition(const Util::Math::Vector2<double> &position) {
+void Entity::setPosition(const Util::Math::Vector2<float> &position) {
     Entity::position = position;
     if (hasCollider()) {
         collider.setPosition(position);
@@ -78,24 +78,24 @@ void Entity::setPosition(const Util::Math::Vector2<double> &position) {
     positionChanged = true;
 }
 
-void Entity::setPositionX(const double x) {
-    position = Util::Math::Vector2<double>(x, position.getY());
+void Entity::setPositionX(const float x) {
+    position = Util::Math::Vector2<float>(x, position.getY());
 }
 
-void Entity::setPositionY(const double y) {
-    position = Util::Math::Vector2<double>(position.getX(), y);
+void Entity::setPositionY(const float y) {
+    position = Util::Math::Vector2<float>(position.getX(), y);
 }
 
-void Entity::setVelocity(const Util::Math::Vector2<double> &velocity) {
+void Entity::setVelocity(const Util::Math::Vector2<float> &velocity) {
     Entity::velocity = velocity;
 }
 
-void Entity::setVelocityX(const double x) {
-    velocity = Util::Math::Vector2<double>(x, velocity.getY());
+void Entity::setVelocityX(const float x) {
+    velocity = Util::Math::Vector2<float>(x, velocity.getY());
 }
 
-void Entity::setVelocityY(const double y) {
-    velocity = Util::Math::Vector2<double>(velocity.getX(), y);
+void Entity::setVelocityY(const float y) {
+    velocity = Util::Math::Vector2<float>(velocity.getX(), y);
 }
 
 void Entity::setCollider(const RectangleCollider &collider) {
@@ -107,11 +107,11 @@ void Entity::addComponent(Component *component) {
     components.add(component);
 }
 
-const Util::Math::Vector2<double>& Entity::getPosition() const {
+const Util::Math::Vector2<float>& Entity::getPosition() const {
     return position;
 }
 
-const Util::Math::Vector2<double>& Entity::getVelocity() const {
+const Util::Math::Vector2<float>& Entity::getVelocity() const {
     return velocity;
 }
 
@@ -127,8 +127,8 @@ bool Entity::hasCollider() const {
     return collider.getType() != RectangleCollider::NON_EXISTENT;
 }
 
-void Entity::update(const double delta) {
-    collider.setPosition(Util::Math::Vector2<double>(position.getX(), position.getY()));
+void Entity::update(const float delta) {
+    collider.setPosition(Util::Math::Vector2<float>(position.getX(), position.getY()));
     positionChanged = false;
 
     for (auto *component : components) {
@@ -156,25 +156,25 @@ void Entity::onCollision(const CollisionEvent &event) {
     if (collider.getType() == RectangleCollider::DYNAMIC && otherCollider.getType() != RectangleCollider::PERMEABLE) {
         switch (event.getSide()) {
             case RectangleCollider::BOTTOM:
-                setPosition(Util::Math::Vector2<double>(posX, otherPosY + otherHeight));
+                setPosition(Util::Math::Vector2<float>(posX, otherPosY + otherHeight));
                 if (velY < 0) {
                     setVelocityY(0);
                 }
                 break;
             case RectangleCollider::TOP:
-                setPosition(Util::Math::Vector2<double>(posX, otherPosY - height));
+                setPosition(Util::Math::Vector2<float>(posX, otherPosY - height));
                 if (velY > 0) {
                     setVelocityY(0);
                 }
                 break;
             case RectangleCollider::LEFT:
-                setPosition(Util::Math::Vector2<double>(otherPosX + otherWidth, posY));
+                setPosition(Util::Math::Vector2<float>(otherPosX + otherWidth, posY));
                 if (velX < 0) {
                     setVelocityX(0);
                 }
                 break;
             case RectangleCollider::RIGHT:
-                setPosition(Util::Math::Vector2<double>(otherPosX - width, posY));
+                setPosition(Util::Math::Vector2<float>(otherPosX - width, posY));
                 if (velX > 0) {
                     setVelocityX(0);
                 }

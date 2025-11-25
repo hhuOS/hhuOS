@@ -33,7 +33,7 @@
 #include "EnemyBug.h"
 #include "lib/util/base/String.h"
 
-PlayerMissile::PlayerMissile(const Util::Math::Vector2<double> &position, Ship &ship) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE_X, SIZE_Y, Pulsar::D2::RectangleCollider::STATIC)), ship(ship) {
+PlayerMissile::PlayerMissile(const Util::Math::Vector2<float> &position, Ship &ship) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE_X, SIZE_Y, Pulsar::D2::RectangleCollider::STATIC)), ship(ship) {
     addComponent(new Pulsar::D2::LinearMovementComponent());
 }
 
@@ -41,7 +41,7 @@ void PlayerMissile::initialize() {
     sprite = Pulsar::D2::Sprite("/user/bug/player_missile.bmp", SIZE_X, SIZE_Y);
 }
 
-void PlayerMissile::onUpdate([[maybe_unused]] double delta) {}
+void PlayerMissile::onUpdate([[maybe_unused]] float delta) {}
 
 void PlayerMissile::onTranslationEvent(Pulsar::D2::TranslationEvent &event) {
     if (event.getTargetPosition().getY() > 1.0) {

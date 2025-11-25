@@ -60,7 +60,7 @@ public:
 
     void onCollisionEvent(const Pulsar::D3::CollisionEvent &event) override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void setCurrentPosition(uint32_t newRow,uint32_t newColumn);
 

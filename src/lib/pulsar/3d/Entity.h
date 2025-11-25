@@ -58,58 +58,58 @@ class Entity : public Pulsar::Entity {
 public:
     /// Create a new 3D entity with the given tag, position, rotation, scale and sphere collider.
     /// The collider is optional and defaults to a collider with radius 0 (no collider).
-    Entity(size_t tag, const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation,
-        const Util::Math::Vector3<double> &scale, const SphereCollider &collider = SphereCollider());
+    Entity(size_t tag, const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation,
+        const Util::Math::Vector3<float> &scale, const SphereCollider &collider = SphereCollider());
 
     /// This method is called whenever the entity collides with another entity that has a collider.
     /// The default implementation does nothing.
     virtual void onCollisionEvent(const CollisionEvent &event);
 
     /// Get the current position of the entity in 3D space.
-    [[nodiscard]] const Util::Math::Vector3<double>& getPosition() const;
+    [[nodiscard]] const Util::Math::Vector3<float>& getPosition() const;
 
     /// Set the position of the entity in 3D space.
-    void setPosition(const Util::Math::Vector3<double> &position);
+    void setPosition(const Util::Math::Vector3<float> &position);
 
     /// Translate the entity by the given translation vector in world space,
     /// regardless of the entity's current orientation.
-    void translate(const Util::Math::Vector3<double> &translation);
+    void translate(const Util::Math::Vector3<float> &translation);
 
     /// Translate the entity by the given translation vector in local space,
     /// taking into account the entity's current orientation.
     /// The given translation vector is rotated by the entity's rotation before applying it.
-    void translateLocal(const Util::Math::Vector3<double> &translation);
+    void translateLocal(const Util::Math::Vector3<float> &translation);
 
     /// Get the current orientation of the entity.
     [[nodiscard]] const Orientation& getOrientation() const;
 
     /// Get the current upward pointing vector of the entity.
-    [[nodiscard]] const Util::Math::Vector3<double>& getUpVector() const;
+    [[nodiscard]] const Util::Math::Vector3<float>& getUpVector() const;
 
     /// Get the current right pointing vector of the entity.
-    [[nodiscard]] const Util::Math::Vector3<double>& getRightVector() const;
+    [[nodiscard]] const Util::Math::Vector3<float>& getRightVector() const;
 
     /// Get the current front pointing vector of the entity.
-    [[nodiscard]] const Util::Math::Vector3<double>& getFrontVector() const;
+    [[nodiscard]] const Util::Math::Vector3<float>& getFrontVector() const;
 
     /// Set the front vector of the entity, adjusting its orientation accordingly.
     /// This rotates the entity so that its front vector matches the given vector.
-    void setFrontVector(const Util::Math::Vector3<double> &front);
+    void setFrontVector(const Util::Math::Vector3<float> &front);
 
     /// Get the current rotation of the entity in degrees.
-    [[nodiscard]] const Util::Math::Vector3<double>& getRotation() const;
+    [[nodiscard]] const Util::Math::Vector3<float>& getRotation() const;
 
     /// Set the rotation of the entity in degrees.
-    void setRotation(const Util::Math::Vector3<double> &angle);
+    void setRotation(const Util::Math::Vector3<float> &angle);
 
     /// Rotate the entity by the given angle in degrees.
-    void rotate(const Util::Math::Vector3<double> &angle);
+    void rotate(const Util::Math::Vector3<float> &angle);
 
     /// Get the current scale of the entity.
-    [[nodiscard]] const Util::Math::Vector3<double>& getScale() const;
+    [[nodiscard]] const Util::Math::Vector3<float>& getScale() const;
 
     /// Set the scale of the entity.
-    void setScale(const Util::Math::Vector3<double> &scale);
+    void setScale(const Util::Math::Vector3<float> &scale);
 
     /// Check if the entity has a collider.
     [[nodiscard]] bool hasCollider() const;
@@ -122,12 +122,12 @@ public:
     /// This method is called automatically every frame with the time delta since the last frame.
     /// It updates the collider's position and then calls the `update()` method of all attached components.
     /// Lastly, it calls the `onUpdate()` method for any additional custom update logic.
-    void update(double delta);
+    void update(float delta);
 
 private:
 
-    Util::Math::Vector3<double> position;
-    Util::Math::Vector3<double> scale = Util::Math::Vector3<double>(1, 1, 1);
+    Util::Math::Vector3<float> position;
+    Util::Math::Vector3<float> scale = Util::Math::Vector3<float>(1, 1, 1);
     Orientation orientation;
 
     SphereCollider collider;

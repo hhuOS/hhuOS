@@ -71,7 +71,7 @@ public:
     /// The entity should update its state based on the elapsed time (e.g. position, animation, behavior, etc.).
     /// Ignoring the delta time can lead to inconsistent behavior with varying frame rates.
     /// The elapsed time is given in seconds.
-    virtual void onUpdate(double delta) = 0;
+    virtual void onUpdate(float delta) = 0;
 
     /// Draw the entity using the given graphics context.
     /// This method is called once per frame after all entities have been updated.
@@ -89,7 +89,7 @@ public:
     /// Remove the entity from its scene.
     /// The entity will be deleted automatically, when the scene is next updated.
     /// If the entity is not part of a scene, this method will fire a panic.
-    void removeFromScene();
+    void removeFromScene() const;
 
 private:
 

@@ -32,20 +32,20 @@
 #include "lib/pulsar/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2.h"
 
-Block::Block(Tag tag, const Util::Math::Vector2<double> &position, uint32_t countX, uint32_t countY) :
+Block::Block(Tag tag, const Util::Math::Vector2<float> &position, uint32_t countX, uint32_t countY) :
         Pulsar::D2::Entity(tag, position, Pulsar::D2::RectangleCollider(position, SIZE * countX, SIZE * countY, Pulsar::D2::RectangleCollider::STATIC)),
         countX(countX), countY(countY) {}
 
 void Block::initialize() {
-    sprite = Pulsar::D2::Sprite(getSpritePath(static_cast<Block::Tag>(getTag())), SIZE, SIZE);
+    sprite = Pulsar::D2::Sprite(getSpritePath(static_cast<Block::Tag>(getTag())), SIZE + 0.001f, SIZE + 0.001f);
 }
 
-void Block::onUpdate([[maybe_unused]] double delta) {}
+void Block::onUpdate([[maybe_unused]] float delta) {}
 
 void Block::draw(Pulsar::Graphics &graphics) const {
     for (uint32_t x = 0; x < countX; x++) {
         for (uint32_t y = 0; y < countY; y++) {
-            sprite.draw(graphics, getPosition() + Util::Math::Vector2<double>(x * SIZE, y * SIZE));
+            sprite.draw(graphics, getPosition() + Util::Math::Vector2<float>(x * SIZE, y * SIZE));
         }
     }
 }

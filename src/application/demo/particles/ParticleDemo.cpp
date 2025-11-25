@@ -35,19 +35,19 @@
 #include "Dino.h"
 
 void ParticleDemo::initialize() {
-    cloud = new RainEmitter(Util::Math::Vector2<double>(0, 0.8));
+    cloud = new RainEmitter(Util::Math::Vector2<float>(0, 0.8));
     addEntity(cloud);
 
     for (uint32_t i = 0; i < 3; i++) {
-        auto *newGround = new Ground(Util::Math::Vector2<double>(-1.5 + i, -1));
+        auto *newGround = new Ground(Util::Math::Vector2<float>(-1.5 + i, -1));
         addEntity(newGround);
     }
 
-    addEntity(new Dino(Util::Math::Vector2<double>(-0.7, -1 + Ground::HEIGHT), false));
-    addEntity(new Dino(Util::Math::Vector2<double>(0.5, -1 + Ground::HEIGHT), true));
+    addEntity(new Dino(Util::Math::Vector2<float>(-0.7, -1 + Ground::HEIGHT), false));
+    addEntity(new Dino(Util::Math::Vector2<float>(0.5, -1 + Ground::HEIGHT), true));
 }
 
-void ParticleDemo::update([[maybe_unused]] double delta) {}
+void ParticleDemo::update([[maybe_unused]] float delta) {}
 
 bool ParticleDemo::initializeBackground(Pulsar::Graphics &graphics) {
     graphics.clear(Util::Graphic::Color(153, 221, 255));

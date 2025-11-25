@@ -39,7 +39,7 @@ namespace Pulsar::D2 {
 
 SpriteAnimation::SpriteAnimation() : sprites(0) {}
 
-SpriteAnimation::SpriteAnimation(const Util::Array<Sprite> &sprites, const double time) :
+SpriteAnimation::SpriteAnimation(const Util::Array<Sprite> &sprites, const float time) :
     animationTime(time), timePerSprite(time / sprites.length()), sprites(sprites) {}
 
 void SpriteAnimation::reset() {
@@ -47,7 +47,7 @@ void SpriteAnimation::reset() {
     timeSinceLastChange = 0;
 }
 
-void SpriteAnimation::update(const double delta) {
+void SpriteAnimation::update(const float delta) {
     timeSinceLastChange += delta;
 
     const auto advancedFrames = static_cast<size_t>(timeSinceLastChange / timePerSprite);
@@ -57,48 +57,48 @@ void SpriteAnimation::update(const double delta) {
     }
 }
 
-double SpriteAnimation::getAnimationTime() const {
+float SpriteAnimation::getAnimationTime() const {
     return animationTime;
 }
 
-const Util::Math::Vector2<double>& SpriteAnimation::getOriginalSize() const {
+const Util::Math::Vector2<float>& SpriteAnimation::getOriginalSize() const {
     return sprites[currentSprite].getOriginalSize();
 }
 
-Util::Math::Vector2<double> SpriteAnimation::getSize() const {
+Util::Math::Vector2<float> SpriteAnimation::getSize() const {
     const auto size = sprites[currentSprite].getOriginalSize();
-    return Util::Math::Vector2<double>(size.getX() * scale.getX(), size.getY() * scale.getY());
+    return Util::Math::Vector2<float>(size.getX() * scale.getX(), size.getY() * scale.getY());
 }
 
-void SpriteAnimation::setScale(double scale) {
-    setScale(Util::Math::Vector2<double>(scale, scale));
+void SpriteAnimation::setScale(float scale) {
+    setScale(Util::Math::Vector2<float>(scale, scale));
 }
 
-void SpriteAnimation::setScale(const Util::Math::Vector2<double> &scale) {
+void SpriteAnimation::setScale(const Util::Math::Vector2<float> &scale) {
     SpriteAnimation::scale = scale;
 }
 
-const Util::Math::Vector2<double> &SpriteAnimation::getScale() const {
+const Util::Math::Vector2<float> &SpriteAnimation::getScale() const {
     return scale;
 }
 
-void SpriteAnimation::setRotation(double angle) {
+void SpriteAnimation::setRotation(float angle) {
     rotationAngle = angle;
 }
 
-double SpriteAnimation::getRotation() const {
+float SpriteAnimation::getRotation() const {
     return rotationAngle;
 }
 
-void SpriteAnimation::setAlpha(const double alpha) {
+void SpriteAnimation::setAlpha(const float alpha) {
     SpriteAnimation::alpha = alpha;
 }
 
-double SpriteAnimation::getAlpha() const {
+float SpriteAnimation::getAlpha() const {
     return alpha;
 }
 
-void SpriteAnimation::rotate(const double angle) {
+void SpriteAnimation::rotate(const float angle) {
     rotationAngle += angle;
 }
 
@@ -110,7 +110,7 @@ void SpriteAnimation::setXFlipped(const bool flipped) {
     xFlipped = flipped;
 }
 
-void SpriteAnimation::draw(const Graphics &graphics, const Util::Math::Vector2<double> &position) const {
+void SpriteAnimation::draw(const Graphics &graphics, const Util::Math::Vector2<float> &position) const {
     graphics.drawImage2D(position, sprites[currentSprite].getImage(), xFlipped, alpha, scale, rotationAngle);
 }
 

@@ -53,7 +53,7 @@ public:
     /**
      * Constructor.
      */
-    Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, double scale, Type type);
+    Enemy(Player &player, Util::ArrayList<Enemy*> &enemies, const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation, float scale, Type type);
 
     /**
      * Copy Constructor.
@@ -72,7 +72,7 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void onCollisionEvent(const Pulsar::D3::CollisionEvent &event) override;
 
@@ -84,20 +84,20 @@ public:
 
 private:
 
-    static Util::Math::Vector3<double> findLookAt(const Util::Math::Vector3<double> &from, const Util::Math::Vector3<double> &to);
+    static Util::Math::Vector3<float> findLookAt(const Util::Math::Vector3<float> &from, const Util::Math::Vector3<float> &to);
 
     Player &player;
     Util::ArrayList<Enemy*> &enemies;
-    double goalScale;
+    float goalScale;
     Type type;
 
     Util::Math::Random random;
     int16_t health = 50;
-    double invulnerabilityTimer = 0;
-    double missileTimer = 0;
-    double spawnTimer = 0.5;
+    float invulnerabilityTimer = 0;
+    float missileTimer = 0;
+    float spawnTimer = 0.5;
 
-    static const Util::Math::Vector3<double> MAX_ROTATION_DELTA;
+    static const Util::Math::Vector3<float> MAX_ROTATION_DELTA;
 };
 
 #endif

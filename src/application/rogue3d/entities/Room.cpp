@@ -35,21 +35,21 @@
 
 uint32_t Room::DRAW_LIST_ID = UINT32_MAX;
 
-Room::Room(const Util::Math::Vector3<double> &position, Type type, uint32_t pRow, uint32_t pColumn) : Entity(TAG, position, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1)), type(type), row(pRow), column(pColumn) {}
+Room::Room(const Util::Math::Vector3<float> &position, Type type, uint32_t pRow, uint32_t pColumn) : Entity(TAG, position, Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(1, 1, 1)), type(type), row(pRow), column(pColumn) {}
 
 void Room::initialize() {
     if (DRAW_LIST_ID == UINT32_MAX) {
         DRAW_LIST_ID = Pulsar::Graphics::startList3D();
-        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(20, 1, 20), Util::Graphic::Color(156, 109, 55)); // Floor
-        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(0, 1.5, -11.5), Util::Math::Vector3<double>(20, 4, 3), Util::Graphic::Color(204, 124, 64)); // Northern wall
-        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(-11.5, 1.5, 0), Util::Math::Vector3<double>(3, 4, 26), Util::Graphic::Color(204, 124, 64)); // Western wall
-        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(11.5, 1.5, 0), Util::Math::Vector3<double>(3, 4, 26), Util::Graphic::Color(204, 124, 64)); // Eastern wall
-        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(0, 1.5, 11.5), Util::Math::Vector3<double>(20, 4, 3), Util::Graphic::Color(204, 124, 64)); // Southern wall
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<float>(20, 1, 20), Util::Graphic::Color(156, 109, 55)); // Floor
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<float>(0, 1.5, -11.5), Util::Math::Vector3<float>(20, 4, 3), Util::Graphic::Color(204, 124, 64)); // Northern wall
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<float>(-11.5, 1.5, 0), Util::Math::Vector3<float>(3, 4, 26), Util::Graphic::Color(204, 124, 64)); // Western wall
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<float>(11.5, 1.5, 0), Util::Math::Vector3<float>(3, 4, 26), Util::Graphic::Color(204, 124, 64)); // Eastern wall
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<float>(0, 1.5, 11.5), Util::Math::Vector3<float>(20, 4, 3), Util::Graphic::Color(204, 124, 64)); // Southern wall
         Pulsar::Graphics::endList3D();
     }
 }
 
-void Room::onUpdate([[maybe_unused]] double delta) {
+void Room::onUpdate([[maybe_unused]] float delta) {
     if (enemies.isEmpty() && cleared == false){
         clearAndRollItems();
     }
@@ -66,19 +66,19 @@ void Room::draw(Pulsar::Graphics &graphics) const {
         graphics.setColor(Util::Graphic::Color(0, 255, 0));
 
         if (rightRoom != nullptr) {
-            graphics.drawCuboid3D(getPosition() + Util::Math::Vector3<double>(9.5, 0.5, 0.0), Util::Math::Vector3<double>(1, 0.1, 1), Util::Math::Vector3<double>(0, 0, 0));
+            graphics.drawCuboid3D(getPosition() + Util::Math::Vector3<float>(9.5, 0.5, 0.0), Util::Math::Vector3<float>(1, 0.1, 1), Util::Math::Vector3<float>(0, 0, 0));
         }
 
         if (leftRoom != nullptr) {
-            graphics.drawCuboid3D(getPosition() + Util::Math::Vector3<double>(-9.5, 0.5, 0.0), Util::Math::Vector3<double>(1, 0.1, 1), Util::Math::Vector3<double>(0, 0, 0));
+            graphics.drawCuboid3D(getPosition() + Util::Math::Vector3<float>(-9.5, 0.5, 0.0), Util::Math::Vector3<float>(1, 0.1, 1), Util::Math::Vector3<float>(0, 0, 0));
         }
 
         if (topRoom != nullptr) {
-            graphics.drawCuboid3D(getPosition() + Util::Math::Vector3<double>(0, 0.5, -9.5), Util::Math::Vector3<double>(1, 0.1, 1), Util::Math::Vector3<double>(0, 0, 0));
+            graphics.drawCuboid3D(getPosition() + Util::Math::Vector3<float>(0, 0.5, -9.5), Util::Math::Vector3<float>(1, 0.1, 1), Util::Math::Vector3<float>(0, 0, 0));
         }
 
         if (downRoom != nullptr) {
-            graphics.drawCuboid3D(getPosition() + Util::Math::Vector3<double>(0, 0.50, 8.5), Util::Math::Vector3<double>(1, 0.1, 1), Util::Math::Vector3<double>(0, 0, 0));
+            graphics.drawCuboid3D(getPosition() + Util::Math::Vector3<float>(0, 0.50, 8.5), Util::Math::Vector3<float>(1, 0.1, 1), Util::Math::Vector3<float>(0, 0, 0));
         }
     }
 }
@@ -106,16 +106,16 @@ void Room::clearAndRollItems() {
     const auto rand = static_cast<uint32_t>(random.getRandomNumber() * 6);
 
     if (type == END) {
-        getScene().addEntity(new Item(getPosition() + Util::Math::Vector3<double>(3.0, 1.0, 0.0), Item::TAG_HEALTH_UP));
-        getScene().addEntity(new Item(getPosition() + Util::Math::Vector3<double>(-3.0, 1.0, 0.0), Item::TAG_DMG_UP));
-        getScene().addEntity(new Item(getPosition() + Util::Math::Vector3<double>(8.5, 1.0, -7.0), Item::TAG_NEXT_LVL));
+        getScene().addEntity(new Item(getPosition() + Util::Math::Vector3<float>(3.0, 1.0, 0.0), Item::TAG_HEALTH_UP));
+        getScene().addEntity(new Item(getPosition() + Util::Math::Vector3<float>(-3.0, 1.0, 0.0), Item::TAG_DMG_UP));
+        getScene().addEntity(new Item(getPosition() + Util::Math::Vector3<float>(8.5, 1.0, -7.0), Item::TAG_NEXT_LVL));
     } else {
         switch (rand) {
             case 0: // Add health item
-                getScene().addEntity(new Item(getPosition() + Util::Math::Vector3<double>(0.0, 1.0, 0.0), Item::TAG_HEALTH_UP));
+                getScene().addEntity(new Item(getPosition() + Util::Math::Vector3<float>(0.0, 1.0, 0.0), Item::TAG_HEALTH_UP));
                 break;
             case 1: // Add damage item
-                getScene().addEntity(new Item(getPosition() + Util::Math::Vector3<double>(0.0, 1.0, 0.0), Item::TAG_DMG_UP));
+                getScene().addEntity(new Item(getPosition() + Util::Math::Vector3<float>(0.0, 1.0, 0.0), Item::TAG_DMG_UP));
                 break;
             default:
                 break;
@@ -130,7 +130,7 @@ void Room::addEnemiesToScene() const {
 }
 
 void Room::generateBoss(Player &player) {
-    auto *enemy = new Enemy(getPosition() - Util::Math::Vector3<double>(0, 0, 7), Util::Math::Vector3<double>(0, 0, 0), *this, player, 2);
+    auto *enemy = new Enemy(getPosition() - Util::Math::Vector3<float>(0, 0, 7), Util::Math::Vector3<float>(0, 0, 0), *this, player, 2);
     enemy->setType(Enemy::BOSS);
     enemies.add(enemy);
 }
@@ -139,23 +139,23 @@ void Room::generateEnemies(Util::Math::Random &random, Player &player) {
     const auto rand = static_cast<uint32_t>(random.getRandomNumber() * 4 + 1);
 
     for (uint32_t i = 0; i < rand; i++) {
-        auto *enemy = new Enemy(getPosition(), Util::Math::Vector3<double>(0, 0, 0), *this, player, 0.7);
+        auto *enemy = new Enemy(getPosition(), Util::Math::Vector3<float>(0, 0, 0), *this, player, 0.7);
         auto typeRandomizer = static_cast<Enemy::Type>(random.getRandomNumber() * 2);
         enemy->setType(typeRandomizer);
         auto position = enemy->getPosition();
 
         switch (i) {
             case 0:
-            enemy->setPosition(position + Util::Math::Vector3<double>(-7, 1.5, -7));
+            enemy->setPosition(position + Util::Math::Vector3<float>(-7, 1.5, -7));
             break;
         case 1:
-            enemy->setPosition(position + Util::Math::Vector3<double>(7, 1.5, -7));
+            enemy->setPosition(position + Util::Math::Vector3<float>(7, 1.5, -7));
             break;
         case 2:
-            enemy->setPosition(position + Util::Math::Vector3<double>(7, 1.5, 7));
+            enemy->setPosition(position + Util::Math::Vector3<float>(7, 1.5, 7));
             break;
         case 3:
-            enemy->setPosition(position + Util::Math::Vector3<double>(-7, 1.5, 7));
+            enemy->setPosition(position + Util::Math::Vector3<float>(-7, 1.5, 7));
             break;
         default:
             break;

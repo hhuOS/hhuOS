@@ -52,7 +52,7 @@ Sprite::Sprite() {
     }
 }
 
-Sprite::Sprite(const Util::String &path, const double width, const double height) : size(width, height) {
+Sprite::Sprite(const Util::String &path, const float width, const float height) : size(width, height) {
     const auto transformation = Game::getInstance().getScreenTransformation();
     const uint16_t pixelWidth = static_cast<uint16_t>(width * transformation) + 1;
     const uint16_t pixelHeight = static_cast<uint16_t>(height * transformation) + 1;
@@ -69,7 +69,7 @@ Sprite::Sprite(const Util::String &path, const double width, const double height
     }
 }
 
-Sprite::Sprite(const Util::Graphic::Color &color, double width, double height) {
+Sprite::Sprite(const Util::Graphic::Color &color, float width, float height) {
     const auto transformation = Game::getInstance().getScreenTransformation();
     const uint16_t pixelWidth = static_cast<uint16_t>(width * transformation) + 1;
     const uint16_t pixelHeight = static_cast<uint16_t>(height * transformation) + 1;
@@ -94,43 +94,43 @@ const Util::Graphic::Image& Sprite::getImage() const {
     return *image;
 }
 
-const Util::Math::Vector2<double> &Sprite::getOriginalSize() const {
+const Util::Math::Vector2<float> &Sprite::getOriginalSize() const {
     return size;
 }
 
-Util::Math::Vector2<double> Sprite::getSize() const {
-    return Util::Math::Vector2<double>(size.getX() * scale.getX(), size.getY() * scale.getY());
+Util::Math::Vector2<float> Sprite::getSize() const {
+    return Util::Math::Vector2<float>(size.getX() * scale.getX(), size.getY() * scale.getY());
 }
 
-const Util::Math::Vector2<double> &Sprite::getScale() const {
+const Util::Math::Vector2<float> &Sprite::getScale() const {
     return scale;
 }
 
-void Sprite::rotate(const double angle) {
+void Sprite::rotate(const float angle) {
     rotationAngle += angle;
 }
 
-void Sprite::setRotation(const double angle) {
+void Sprite::setRotation(const float angle) {
     rotationAngle = angle;
 }
 
-double Sprite::getRotation() const {
+float Sprite::getRotation() const {
     return rotationAngle;
 }
 
-void Sprite::setAlpha(const double alpha) {
+void Sprite::setAlpha(const float alpha) {
     Sprite::alpha = alpha;
 }
 
-double Sprite::getAlpha() const {
+float Sprite::getAlpha() const {
     return alpha;
 }
 
-void Sprite::setScale(const double scale) {
-    setScale(Util::Math::Vector2<double>(scale, scale));
+void Sprite::setScale(const float scale) {
+    setScale(Util::Math::Vector2<float>(scale, scale));
 }
 
-void Sprite::setScale(const Util::Math::Vector2<double> &scale) {
+void Sprite::setScale(const Util::Math::Vector2<float> &scale) {
     Sprite::scale = scale;
 }
 
@@ -142,7 +142,7 @@ void Sprite::setXFlipped(const bool flipped) {
     xFlipped = flipped;
 }
 
-void Sprite::draw(const Graphics &graphics, const Util::Math::Vector2<double> &position) const {
+void Sprite::draw(const Graphics &graphics, const Util::Math::Vector2<float> &position) const {
     graphics.drawImage2D(position, *image, xFlipped, alpha, scale, rotationAngle);
 }
 

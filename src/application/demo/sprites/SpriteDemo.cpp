@@ -38,7 +38,7 @@ void SpriteDemo::initialize() {
 
 }
 
-void SpriteDemo::update([[maybe_unused]] double delta) {}
+void SpriteDemo::update([[maybe_unused]] float delta) {}
 
 void SpriteDemo::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {

@@ -42,7 +42,7 @@ public:
     /**
      * Default.
      */
-    explicit RainEmitter(const Util::Math::Vector2<double> &position);
+    explicit RainEmitter(const Util::Math::Vector2<float> &position);
 
     /**
      * Copy Constructor.
@@ -61,7 +61,7 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void draw(Pulsar::Graphics &graphics) const override;
 
@@ -71,7 +71,7 @@ public:
 
     void onParticleInitialization(Pulsar::D2::Particle &particle) override;
 
-    void onParticleUpdate(Pulsar::D2::Particle &particle, double delta) override;
+    void onParticleUpdate(Pulsar::D2::Particle &particle, float delta) override;
 
     void onParticleCollision(Pulsar::D2::Particle &particle, const Pulsar::D2::CollisionEvent &event) override;
 
@@ -85,7 +85,7 @@ private:
     Util::Math::Random random;
     Pulsar::D2::Sprite cloudSprite;
 
-    static const constexpr double SPEED = 0.25;
+    static const constexpr float SPEED = 0.25;
 };
 
 #endif

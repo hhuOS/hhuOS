@@ -35,7 +35,7 @@
 #include "Ground.h"
 #include "lib/pulsar/2d/Entity.h"
 
-DropletEmitter::DropletEmitter(const Util::Math::Vector2<double> &position) : Pulsar::D2::OnceEmitter(TAG, PARTICLE_TAG, position, 5, 5) {}
+DropletEmitter::DropletEmitter(const Util::Math::Vector2<float> &position) : Pulsar::D2::OnceEmitter(TAG, PARTICLE_TAG, position, 5, 5) {}
 
 void DropletEmitter::initialize() {}
 
@@ -46,17 +46,17 @@ void DropletEmitter::onTranslationEvent([[maybe_unused]] Pulsar::D2::Translation
 void DropletEmitter::onCollisionEvent([[maybe_unused]] const Pulsar::D2::CollisionEvent &event) {}
 
 void DropletEmitter::onParticleInitialization(Pulsar::D2::Particle &particle) {
-    auto angle = random.getRandomNumber() * Util::Math::PI_DOUBLE;
+    auto angle = random.getRandomNumber() * Util::Math::PI_FLOAT;
 
     particle.setSprite(Pulsar::D2::Sprite(Util::Graphic::Color(44, 197, 246), 0.005, 0.005));
     particle.setPosition(getPosition());
-    particle.setVelocity(Util::Math::Vector2<double>(Util::Math::cosine(angle), Util::Math::sine(angle)));
+    particle.setVelocity(Util::Math::Vector2<float>(Util::Math::cosine(angle), Util::Math::sine(angle)));
     particle.setCollider(Pulsar::D2::RectangleCollider(particle.getPosition(), 0.005, 0.005, Pulsar::D2::RectangleCollider::STATIC));
 
     particle.addComponent(new Pulsar::D2::GravityComponent(2.5, 0.0025));
 }
 
-void DropletEmitter::onParticleUpdate(Pulsar::D2::Particle &particle, double delta) {
+void DropletEmitter::onParticleUpdate(Pulsar::D2::Particle &particle, float delta) {
     particle.setAlpha(particle.getAlpha() - 1 * delta);
 }
 

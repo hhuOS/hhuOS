@@ -23,7 +23,7 @@
 #include "lib/pulsar/Game.h"
 #include "pulsar/TextScreen.h"
 
-Fleet::Fleet(uint32_t size, double initialSpeed) : size(size), velocity(initialSpeed) {}
+Fleet::Fleet(uint32_t size, float initialSpeed) : size(size), velocity(initialSpeed) {}
 
 void Fleet::changeDirection() {
     nextVelocity = -velocity;
@@ -57,7 +57,7 @@ void Fleet::applyChanges() {
     velocity = nextVelocity;
 }
 
-double Fleet::getVelocity() const {
+float Fleet::getVelocity() const {
     return velocity;
 }
 
@@ -65,6 +65,6 @@ bool Fleet::isMovingDown() const {
     return moveDownCounter == 1;
 }
 
-double Fleet::getRandomNumber() {
+float Fleet::getRandomNumber() {
     return random.getRandomNumber();
 }

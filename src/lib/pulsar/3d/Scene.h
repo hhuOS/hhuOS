@@ -54,13 +54,13 @@ namespace Pulsar::D3 {
 ///
 /// To create a new 3D scene for your game, derive from this class and implement the required methods:
 /// - `initialize()`: Initialize the scene (load resources, set up entities, etc.).
-/// - `update(double delta)`: Update the scene logic (optional).
+/// - `update(float delta)`: Update the scene logic (optional).
 /// - `keyPressed(const Util::Io::Key &key)`: Handle key press events (optional).
 /// - `keyReleased(const Util::Io::Key &key)`: Handle key release events (optional).
 /// - `mouseButtonPressed(Util::Io::MouseDecoder::Button button)`: Handle mouse button press events (optional).
 /// - `mouseButtonReleased(Util::Io::MouseDecoder::Button button)`: Handle mouse button release events (optional).
-/// - `mouseMoved(const Util::Math::Vector2<double> &relativeMovement)`: Handle mouse movement events (optional).
-/// - `mouseScrolled(double scrollAmount)`: Handle mouse scroll events (optional).
+/// - `mouseMoved(const Util::Math::Vector2<float> &relativeMovement)`: Handle mouse movement events (optional).
+/// - `mouseScrolled(float scrollAmount)`: Handle mouse scroll events (optional).
 class Scene : public Pulsar::Scene {
 
 public:
@@ -91,8 +91,8 @@ public:
     /// The ray starts at the 'from' position and extends in the 'direction' for the given 'length'.
     /// The 'precision' parameter defines the step size for the raytrace.
     /// If no entity is hit, nullptr is returned.
-    Entity* findEntityUsingRaytrace(const Util::Math::Vector3<double> &from,
-        const Util::Math::Vector3<double> &direction, double length, double precision = 0.1) const;
+    Entity* findEntityUsingRaytrace(const Util::Math::Vector3<float> &from,
+        const Util::Math::Vector3<float> &direction, float length, float precision = 0.1) const;
 
     /// Set the ambient light color for the scene.
     /// This color is applied globally to all objects in the scene.
@@ -101,7 +101,7 @@ public:
     /// Add a new light to the scene and return a reference to it for later modification or removal.
     /// A maximum of 16 lights can be added to the scene.
     /// If the maximum number of lights is reached, a panic is fired.
-    Light& addLight(Light::Type type, const Util::Math::Vector3<double> &position,
+    Light& addLight(Light::Type type, const Util::Math::Vector3<float> &position,
         const Util::Graphic::Color &diffuseColor, const Util::Graphic::Color &specularColor);
 
     /// Remove the given light from the scene.
@@ -147,7 +147,7 @@ public:
 
     /// Update all entities in the scene. This method is called by the engine once per frame.
     /// It is not intended to be called directly by game developers.
-    void updateEntities(double delta) final;
+    void updateEntities(float delta) final;
 
     /// Check for collisions between entities in the scene. This method is called by the engine once per frame.
     /// It checks for collisions between entities that have sphere colliders.

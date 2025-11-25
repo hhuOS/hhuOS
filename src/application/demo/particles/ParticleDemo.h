@@ -53,7 +53,7 @@ public:
 
     void initialize() override;
 
-    void update(double delta) override;
+    void update(float delta) override;
 
     bool initializeBackground(Pulsar::Graphics &graphics) override;
 

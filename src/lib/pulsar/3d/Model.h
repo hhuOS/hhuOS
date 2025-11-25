@@ -57,14 +57,14 @@ class Model : public Entity {
 
 public:
     /// Create a new 3D model instance, loaded from the given object file path, with no texture, but a solid color.
-    Model(size_t tag, const Util::String &modelPath, const Util::Math::Vector3<double> &position,
-        const Util::Math::Vector3<double> &rotation, const Util::Math::Vector3<double> &scale,
+    Model(size_t tag, const Util::String &modelPath, const Util::Math::Vector3<float> &position,
+        const Util::Math::Vector3<float> &rotation, const Util::Math::Vector3<float> &scale,
         const Util::Graphic::Color &color = Util::Graphic::Colors::WHITE);
 
     /// Create a new 3D model instance, loaded from the given object file path, with the specified texture (.bmp file).
     Model(size_t tag, const Util::String &modelPath, const Util::String &texturePath,
-        const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation,
-        const Util::Math::Vector3<double> &scale);
+        const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation,
+        const Util::Math::Vector3<float> &scale);
 
     /// Initialize the model by loading the object file and texture (if provided).
     /// This method is called automatically by the engine when the model is added to a scene.
@@ -76,15 +76,15 @@ public:
 
     /// Get the vertices, that define the shape of the model.
     /// These are the 3D points that define the shape of the model.
-    [[nodiscard]] const Util::Array<Util::Math::Vector3<double>>& getVertices() const;
+    [[nodiscard]] const Util::Array<Util::Math::Vector3<float>>& getVertices() const;
 
     /// Get the vertex normals, that define the orientation of the model's surfaces.
     /// These normals are used for lighting calculations to determine how light interacts with the model's surface.
-    [[nodiscard]] const Util::Array<Util::Math::Vector3<double>>& getVertexNormals() const;
+    [[nodiscard]] const Util::Array<Util::Math::Vector3<float>>& getVertexNormals() const;
 
     /// Get the vertex texture coordinates of the model.
     /// These coordinates map the texture image onto the model's surface.
-    [[nodiscard]] const Util::Array<Util::Math::Vector3<double>>& getVertexTextures() const;
+    [[nodiscard]] const Util::Array<Util::Math::Vector3<float>>& getVertexTextures() const;
 
     /// Get the draw order of the model's vertices.
     /// Each entry in the returned array is an index into the vertices array.

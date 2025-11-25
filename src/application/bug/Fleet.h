@@ -31,7 +31,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Fleet(uint32_t size, double initialSpeed);
+    explicit Fleet(uint32_t size, float initialSpeed);
 
     /**
      * Copy Constructor.
@@ -58,20 +58,20 @@ public:
 
     void applyChanges();
 
-    [[nodiscard]] double getVelocity() const;
+    [[nodiscard]] float getVelocity() const;
 
     [[nodiscard]] bool isMovingDown() const;
 
-    [[nodiscard]] double getRandomNumber();
+    [[nodiscard]] float getRandomNumber();
 
 private:
 
     uint32_t size;
-    double velocity = 1.0;
-    double moveDownCounter = 0;
+    float velocity = 1.0;
+    float moveDownCounter = 0;
     Util::Math::Random random;
 
-    double nextVelocity = velocity;
+    float nextVelocity = velocity;
 };
 
 #endif

@@ -50,7 +50,7 @@ Scene& Entity::getScene() const {
     return *scene;
 }
 
-void Entity::removeFromScene() {
+void Entity::removeFromScene() const {
     if (scene == nullptr) {
         Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Entity: Not added to a scene yet!");
     }

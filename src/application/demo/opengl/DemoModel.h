@@ -43,7 +43,7 @@ public:
     /**
      * Constructor.
      */
-    DemoModel(Type type, const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, const Util::Math::Vector3<double> &scale, const Util::Graphic::Color &color = Util::Graphic::Colors::WHITE);
+    DemoModel(Type type, const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation, const Util::Math::Vector3<float> &scale, const Util::Graphic::Color &color = Util::Graphic::Colors::WHITE);
 
     /**
      * Copy Constructor.
@@ -64,7 +64,7 @@ public:
 
     void draw(Pulsar::Graphics &graphics) const override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void onCollisionEvent(const Pulsar::D3::CollisionEvent &event) override;
 

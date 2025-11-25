@@ -35,12 +35,12 @@ public:
     /**
      * Constructor.
      */
-    explicit Projectile(const Util::Math::Vector3<double> &position,const Util::Math::Vector3<double> &direction,uint32_t tag);
+    explicit Projectile(const Util::Math::Vector3<float> &position,const Util::Math::Vector3<float> &direction,uint32_t tag);
 
     /**
      * Constructor.
      */
-    Projectile(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &direction, uint32_t tag, double range);
+    Projectile(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &direction, uint32_t tag, float range);
 
     /**
      * Copy Constructor.
@@ -59,7 +59,7 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void draw(Pulsar::Graphics &graphics) const override;
 
@@ -70,10 +70,10 @@ public:
 
 private:
 
-    double range = 10;
+    float range = 10;
 
-    Util::Math::Vector3<double> direction;
-    Util::Math::Vector3<double> origin;
+    Util::Math::Vector3<float> direction;
+    Util::Math::Vector3<float> origin;
 
     static uint32_t DRAW_LIST_ID;
 };

@@ -56,6 +56,9 @@ public:
     /// Get the OpenGL texture ID assigned to this texture.
     [[nodiscard]] GLuint getTextureID() const;
 
+    /// A static invalid texture instance with ID = 0.
+    static const Texture INVALID_TEXTURE;
+
 private:
 
     GLuint textureId = 0;

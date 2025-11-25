@@ -33,15 +33,15 @@ public:
 
     DemoPolygon();
 
-    DemoPolygon(const Util::Array<Util::Math::Vector2<double>> &vertices, const Util::Math::Vector2<double> &position, const Util::Graphic::Color &color, double initialScaleFactor, double scaleSpeed, double rotationSpeed);
+    DemoPolygon(const Util::Array<Util::Math::Vector2<float>> &vertices, const Util::Math::Vector2<float> &position, const Util::Graphic::Color &color, float initialScaleFactor, float scaleSpeed, float rotationSpeed);
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
 private:
 
-    double rotationSpeed;
-    double scaleSpeed;
-    double currentScale = 1;
+    float rotationSpeed;
+    float scaleSpeed;
+    float currentScale = 1;
     bool scaleUp = true;
 };
 

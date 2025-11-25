@@ -41,7 +41,7 @@
 #include "lib/pulsar/2d/component/GravityComponent.h"
 #include "pulsar/TextScreen.h"
 
-PlayerDino::PlayerDino(const Util::Math::Vector2<double> &position) : Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE, SIZE * 1.133, Pulsar::D2::RectangleCollider::DYNAMIC)) {}
+PlayerDino::PlayerDino(const Util::Math::Vector2<float> &position) : Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE, SIZE * 1.133, Pulsar::D2::RectangleCollider::DYNAMIC)) {}
 
 void PlayerDino::initialize() {
     idleAnimation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({
@@ -107,7 +107,7 @@ void PlayerDino::hatch() {
     }
 }
 
-void PlayerDino::onUpdate(double delta) {
+void PlayerDino::onUpdate(float delta) {
     if (dead) {
         auto &game = Pulsar::Game::getInstance();
         game.pushScene(new Pulsar::TextScreen(Util::String::format(GAME_OVER_TEXT, points), handleKeyPressOnTextScreen, Util::Graphic::Colors::GREEN));
@@ -185,7 +185,7 @@ void PlayerDino::die() {
     if (hatched && !dying && !dead) {
         time = 0;
         dying = true;
-        setVelocity(Util::Math::Vector2<double>(0, 0));
+        setVelocity(Util::Math::Vector2<float>(0, 0));
         currentAnimation = &deathAnimation;
     }
 }
@@ -204,7 +204,7 @@ void PlayerDino::reset() {
         hatchAnimation.reset();
         deathAnimation.reset();
         currentAnimation = &eggAnimation;
-        setVelocity(Util::Math::Vector2<double>(0, 0));
+        setVelocity(Util::Math::Vector2<float>(0, 0));
     }
 }
 

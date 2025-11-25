@@ -62,7 +62,7 @@ public:
 
     void initialize() override;
 
-    void update(double delta) override;
+    void update(float delta) override;
 
     bool initializeBackground(Pulsar::Graphics &graphics) override;
 
@@ -72,7 +72,7 @@ public:
 
 private:
 
-    void spawnMergedBlocks(Util::ArrayList<Util::Pair<int32_t, double>> &positions, Block::Tag tag);
+    void spawnMergedBlocks(Util::ArrayList<Util::Pair<int32_t, float>> &positions, Block::Tag tag);
 
     Util::Io::File levelFile;
     uint32_t startPoints;
@@ -82,8 +82,8 @@ private:
     bool leftPressed = false;
     bool rightPressed = false;
 
-    double playerMinX = 0.0;
-    double playerMinY = 0.0;
+    float playerMinX = 0.0;
+    float playerMinY = 0.0;
 };
 
 #endif

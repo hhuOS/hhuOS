@@ -36,19 +36,19 @@
 
 namespace Pulsar {
 
-Collider::Collider(const Util::Math::Vector2<double> &position) : position(position.getX(), position.getY(), 0) {}
+Collider::Collider(const Util::Math::Vector2<float> &position) : position(position.getX(), position.getY(), 0) {}
 
-Collider::Collider(const Util::Math::Vector3<double> &position) : position(position) {}
+Collider::Collider(const Util::Math::Vector3<float> &position) : position(position) {}
 
-const Util::Math::Vector3<double> &Collider::getPosition() const {
+const Util::Math::Vector3<float> &Collider::getPosition() const {
     return position;
 }
 
-void Collider::setPosition(const Util::Math::Vector2<double> &position) {
-    Collider::position = Util::Math::Vector3<double>(position.getX(), position.getY(), 0);
+void Collider::setPosition(const Util::Math::Vector2<float> &position) {
+    Collider::position = Util::Math::Vector3<float>(position.getX(), position.getY(), 0);
 }
 
-void Collider::setPosition(const Util::Math::Vector3<double> &position) {
+void Collider::setPosition(const Util::Math::Vector3<float> &position) {
     Collider::position = position;
 }
 

@@ -43,20 +43,20 @@ void GrassEmitter::onTranslationEvent([[maybe_unused]] Pulsar::D2::TranslationEv
 void GrassEmitter::onCollisionEvent([[maybe_unused]] const Pulsar::D2::CollisionEvent &event) {}
 
 void GrassEmitter::onParticleInitialization(Pulsar::D2::Particle &particle) {
-    auto angle = random.getRandomNumber() * (Util::Math::PI_DOUBLE / 4) + (Util::Math::PI_DOUBLE / 8);
+    auto angle = random.getRandomNumber() * (Util::Math::PI_FLOAT / 4) + (Util::Math::PI_FLOAT / 8);
     auto velocityX = (Util::Math::cosine(angle) / 8) * (parent.getVelocity().getX() > 0 ? -1 : 1);
     auto velocityY = Util::Math::sine(angle);
 
     particle.setSprite(Pulsar::D2::Sprite(Util::Graphic::Color(54, 227, 119), PARTICLE_SIZE, PARTICLE_SIZE));
     particle.setPosition(parent.getPosition());
-    particle.setVelocity(Util::Math::Vector2<double>(velocityX, velocityY));
-    particle.setTimeToLive(Util::Time::Timestamp::ofSecondsFloat<double>(10));
+    particle.setVelocity(Util::Math::Vector2<float>(velocityX, velocityY));
+    particle.setTimeToLive(Util::Time::Timestamp::ofSecondsFloat<float>(10));
     particle.setCollider(Pulsar::D2::RectangleCollider(particle.getPosition(), PARTICLE_SIZE, PARTICLE_SIZE, Pulsar::D2::RectangleCollider::PERMEABLE));
 
     particle.addComponent(new Pulsar::D2::GravityComponent(2.5, 0.0025));
 }
 
-void GrassEmitter::onParticleUpdate(Pulsar::D2::Particle &particle, double delta) {
+void GrassEmitter::onParticleUpdate(Pulsar::D2::Particle &particle, float delta) {
     particle.setAlpha(particle.getAlpha() - 1 * delta);
 }
 

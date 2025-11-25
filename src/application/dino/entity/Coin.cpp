@@ -34,7 +34,7 @@
 #include "lib/pulsar/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2.h"
 
-Coin::Coin(const Util::Math::Vector2<double> &position) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, Block::SIZE, Block::SIZE, Pulsar::D2::RectangleCollider::PERMEABLE)) {}
+Coin::Coin(const Util::Math::Vector2<float> &position) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, Block::SIZE, Block::SIZE, Pulsar::D2::RectangleCollider::PERMEABLE)) {}
 
 void Coin::initialize() {
     animation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({
@@ -52,7 +52,7 @@ void Coin::initialize() {
         Pulsar::D2::Sprite("/user/dino/item/coin12.bmp", Block::SIZE, Block::SIZE)}), 1);
 }
 
-void Coin::onUpdate(double delta) {
+void Coin::onUpdate(float delta) {
     animation.update(delta);
 }
 

@@ -41,12 +41,12 @@ public:
     /**
      * Constructor.
      */
-    Missile(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &direction, Player &player);
+    Missile(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &direction, Player &player);
 
     /**
      * Constructor.
      */
-    Missile(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &direction);
+    Missile(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &direction);
 
     /**
      * Copy Constructor.
@@ -63,20 +63,20 @@ public:
      */
     ~Missile() override = default;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void onCollisionEvent(const Pulsar::D3::CollisionEvent &event) override;
 
     static const constexpr uint32_t TAG = 2;
 
-    static const constexpr double START_SPEED = 0.04;
-    static const constexpr double FULL_SPEED = 0.2;
-    static const constexpr double START_SPEED_TIME = 0.5;
+    static const constexpr float START_SPEED = 0.04;
+    static const constexpr float FULL_SPEED = 0.2;
+    static const constexpr float START_SPEED_TIME = 0.5;
 
 private:
 
     Player *player = nullptr;
-    double lifetime = 0;
+    float lifetime = 0;
 };
 
 #endif

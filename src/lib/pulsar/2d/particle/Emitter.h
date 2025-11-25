@@ -60,7 +60,7 @@ public:
     /// A value of 0 means particles are not emitted automatically and must be triggered manually via `emitOnce()`.
     /// The time to live parameter defines how long the emitter will emit particles.
     /// A time to live of 0 means the emitter will emit particles indefinitely.
-    Emitter(size_t tag, size_t particleTag, const Util::Math::Vector2<double> &position,
+    Emitter(size_t tag, size_t particleTag, const Util::Math::Vector2<float> &position,
         uint32_t minEmissionRate, uint32_t maxEmissionRate,
         const Util::Time::Timestamp &emissionInterval = Util::Time::Timestamp::ofSeconds(0),
         const Util::Time::Timestamp &timeToLive = Util::Time::Timestamp::ofSeconds(0));
@@ -69,7 +69,7 @@ public:
     /// It handles particle emission and updates all active particles.
     /// If a subclass needs to perform additional update logic, it should override this method
     /// and call the base class implementation.
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     /// Remove a particle from the emitter's active particle list.
     /// This method is intended to be called by subclasses when a particle needs to be removed.
@@ -96,7 +96,7 @@ public:
     /// Called during each update cycle for every active particle. Subclasses should override this method to update
     /// the particle's properties over time (e.g. position, velocity, size, etc.)
     /// based on the elapsed time since the last update.
-    virtual void onParticleUpdate(Particle &particle, double delta) = 0;
+    virtual void onParticleUpdate(Particle &particle, float delta) = 0;
 
     /// Called when a particle collides with another entity. Subclasses should override this method to define
     /// custom collision behavior (e.g. bounce, destroy, etc.).
@@ -119,10 +119,10 @@ public:
     void setMaxEmissionRate(uint32_t maxEmissionRate);
 
     /// Get the emission interval (time between emission cycles in seconds).
-    [[nodiscard]] double getEmissionInterval() const;
+    [[nodiscard]] float getEmissionInterval() const;
 
     /// Set the emission interval (time between emission cycles in seconds).
-    void setEmissionTime(double emissionInterval);
+    void setEmissionTime(float emissionInterval);
 
     /// Get the number of currently active particles emitted by this emitter.
     [[nodiscard]] size_t getActiveParticles() const;
@@ -136,13 +136,13 @@ private:
 
     uint32_t particleTag;
     bool timeLimited;
-    double timeToLive;
+    float timeToLive;
 
     uint32_t minEmissionRate;
     uint32_t maxEmissionRate;
 
-    double emissionInterval;
-    double timeSinceLastEmission = 0;
+    float emissionInterval;
+    float timeSinceLastEmission = 0;
 };
 
 }

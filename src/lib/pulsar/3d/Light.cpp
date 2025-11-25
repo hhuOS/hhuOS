@@ -34,7 +34,7 @@
 
 namespace Pulsar::D3 {
 
-Light::Light(const uint8_t index, const Type type, const Util::Math::Vector3<double> &position,
+Light::Light(const uint8_t index, const Type type, const Util::Math::Vector3<float> &position,
     const Util::Graphic::Color &diffuseColor, const Util::Graphic::Color &specularColor) :
     index(index), type(type), position(position), diffuseColor(diffuseColor), specularColor(specularColor) {}
 
@@ -50,11 +50,11 @@ Light::Type Light::getType() const {
     return type;
 }
 
-const Util::Math::Vector3<double> &Light::getPosition() const {
+const Util::Math::Vector3<float> &Light::getPosition() const {
     return position;
 }
 
-void Light::setPosition(const Util::Math::Vector3<double> &position) {
+void Light::setPosition(const Util::Math::Vector3<float> &position) {
     Light::position = position;
 }
 

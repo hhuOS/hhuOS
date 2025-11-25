@@ -42,7 +42,7 @@ public:
     /**
      * Constructor.
      */
-    Astronomical(const Util::String &modelName, const Util::Math::Vector3<double> &position, double scale, const Util::Math::Vector3<double> &rotationVector, const Util::Graphic::Color &color);
+    Astronomical(const Util::String &modelName, const Util::Math::Vector3<float> &position, float scale, const Util::Math::Vector3<float> &rotationVector, const Util::Graphic::Color &color);
 
     /**
      * Copy Constructor.
@@ -59,7 +59,7 @@ public:
      */
     ~Astronomical() override = default;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void onCollisionEvent(const Pulsar::D3::CollisionEvent &event) override;
 
@@ -67,7 +67,7 @@ public:
 
 private:
 
-    Util::Math::Vector3<double> rotationVector;
+    Util::Math::Vector3<float> rotationVector;
 };
 
 #endif

@@ -47,18 +47,18 @@ class Polygon : public Entity {
 
 public:
     /// Create a new polygon instance with a set of vertices and a color (used to draw the outline of the polygon).
-    explicit Polygon(size_t tag, const Util::Math::Vector2<double> &position,
-        const Util::Array<Util::Math::Vector2<double>> &vertices,
+    explicit Polygon(size_t tag, const Util::Math::Vector2<float> &position,
+        const Util::Array<Util::Math::Vector2<float>> &vertices,
         const Util::Graphic::Color &color = Util::Graphic::Colors::WHITE);
 
     /// Initialize the polygon (does nothing, since polygons have no resource to load or initialize).
     void initialize() final;
 
     /// Scale the polygon by the given factor (scales all vertices).
-    void scale(double factor) const;
+    void scale(float factor) const;
 
     /// Rotate the polygon by the given angle in degrees (rotates all vertices around the origin).
-    void rotate(double angle) const;
+    void rotate(float angle) const;
 
     /// Draw the polygon using the given graphics context (draws the outline of the polygon).
     /// This method is called automatically once per frame.
@@ -66,7 +66,7 @@ public:
 
 private:
 
-    Util::Array<Util::Math::Vector2<double>> vertices;
+    Util::Array<Util::Math::Vector2<float>> vertices;
     Util::Graphic::Color color;
 };
 

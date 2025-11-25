@@ -41,7 +41,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Dino(const Util::Math::Vector2<double> &position, bool flipX);
+    explicit Dino(const Util::Math::Vector2<float> &position, bool flipX);
 
     /**
      * Copy Constructor.
@@ -60,7 +60,7 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
 
@@ -69,7 +69,7 @@ public:
     void draw(Pulsar::Graphics &graphics) const override;
 
     static const constexpr uint32_t TAG = 5;
-    static const constexpr double SIZE = 0.15;
+    static const constexpr float SIZE = 0.15;
 
 private:
 

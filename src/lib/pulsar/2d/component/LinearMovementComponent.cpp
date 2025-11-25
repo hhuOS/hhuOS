@@ -39,7 +39,7 @@
 
 namespace Pulsar::D2 {
 
-void LinearMovementComponent::update(const double delta) {
+void LinearMovementComponent::update(const float delta) {
     const auto newPosition = getEntity().getPosition() + getEntity().getVelocity() * delta;
     auto event = TranslationEvent(newPosition);
     getEntity().onTranslationEvent(event);

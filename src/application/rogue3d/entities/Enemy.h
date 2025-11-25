@@ -48,7 +48,7 @@ public:
     /**
      * Constructor.
      */
-    Enemy(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, Room &room, Player &curPlayer, double radius);
+    Enemy(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation, Room &room, Player &curPlayer, float radius);
 
     /**
      * Copy Constructor.
@@ -73,19 +73,19 @@ public:
 
     void onCollisionEvent(const Pulsar::D3::CollisionEvent &event) override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void shoot();
 
     void shoot3();
     
-    void setRightVector(const Util::Math::Vector3<double> &newRight);
+    void setRightVector(const Util::Math::Vector3<float> &newRight);
 
-    void setUpVector(const Util::Math::Vector3<double> &newUp);
+    void setUpVector(const Util::Math::Vector3<float> &newUp);
 
     void setColor(const Util::Graphic::Color &color);
 
-    void setColor(const Util::Math::Vector3<double> &newColor);
+    void setColor(const Util::Math::Vector3<float> &newColor);
 
     void setActive();
 
@@ -100,7 +100,7 @@ private:
 
     Type type = CHASING;
     bool active = false;
-    double damage = 1;
+    float damage = 1;
 
     Player &player;
     Room &room;
@@ -108,9 +108,9 @@ private:
     int32_t health = ENEMY_INIT_HEALTH;
     int32_t initHealth = ENEMY_INIT_HEALTH;
 
-    double cooldown = 0.9;
+    float cooldown = 0.9;
 
-    Util::Math::Vector3<double> bossMovement = Util::Math::Vector3<double>(1, 0, 0);
+    Util::Math::Vector3<float> bossMovement = Util::Math::Vector3<float>(1, 0, 0);
 
     static uint32_t ENEMY_LIST_ID;
     static uint32_t BOSS_LIST_ID;

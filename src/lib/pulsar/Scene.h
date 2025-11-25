@@ -91,7 +91,7 @@ public:
     /// Update all entities in the scene. This method is called by the engine once per frame.
     /// It is intended to be overridden by engine internal scene implementations (e.g. `D2::Scene` and `D3::Scene`),
     /// and should not be called directly by game developers.
-    virtual void updateEntities(double delta) = 0;
+    virtual void updateEntities(float delta) = 0;
 
     /// Check for collisions between entities in the scene. This method is called by the engine once per frame.
     /// It is intended to be overridden by engine internal scene implementations (e.g. `D2::Scene` and `D3::Scene`),
@@ -107,7 +107,7 @@ public:
     /// Update the scene. This method is called once per frame with the time delta since the last frame.
     /// All scene-wide logic should be done here. However, entities are updated separately.
     /// Thus, implementing this method is optional, if all logic is handled by entities.
-    virtual void update(double delta);
+    virtual void update(float delta);
 
     /// Handle a key press event. Implementing this method is optional.
     virtual void keyPressed(const Util::Io::Key &key);
@@ -122,7 +122,7 @@ public:
     virtual void mouseButtonReleased(Util::Io::MouseDecoder::Button button);
 
     /// Handle mouse movement events. Implementing this method is optional.
-    virtual void mouseMoved(const Util::Math::Vector2<double> &relativeMovement);
+    virtual void mouseMoved(const Util::Math::Vector2<float> &relativeMovement);
 
     /// Handle mouse scroll events. Implementing this method is optional.
     virtual void mouseScrolled(Util::Io::MouseDecoder::ScrollDirection direction);

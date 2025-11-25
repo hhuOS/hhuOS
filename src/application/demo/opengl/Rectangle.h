@@ -40,12 +40,12 @@ public:
     /**
      * Constructor.
      */
-    Rectangle(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &startRotation, const Util::Math::Vector3<double> &rotationAngle, const Util::Math::Vector2<double> &size, const Util::Graphic::Color &color);
+    Rectangle(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &startRotation, const Util::Math::Vector3<float> &rotationAngle, const Util::Math::Vector2<float> &size, const Util::Graphic::Color &color);
 
     /**
      * Constructor.
      */
-    Rectangle(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &startRotation, const Util::Math::Vector3<double> &rotationAngle, const Util::Math::Vector2<double> &size, const Util::String &texturePath);
+    Rectangle(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &startRotation, const Util::Math::Vector3<float> &rotationAngle, const Util::Math::Vector2<float> &size, const Util::String &texturePath);
 
     /**
      * Copy Constructor.
@@ -64,7 +64,7 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void draw(Pulsar::Graphics &graphics) const override;
 
@@ -72,7 +72,7 @@ public:
 
 private:
 
-    Util::Math::Vector3<double> rotationAngle;
+    Util::Math::Vector3<float> rotationAngle;
     Util::Graphic::Color color;
 
     const Util::String texturePath;

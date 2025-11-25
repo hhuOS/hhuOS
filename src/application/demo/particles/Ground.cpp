@@ -29,13 +29,13 @@
 #include "lib/util/math/Vector2.h"
 #include "lib/util/base/String.h"
 
-Ground::Ground(const Util::Math::Vector2<double> &position) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, WIDTH, HEIGHT, Pulsar::D2::RectangleCollider::STATIC)) {}
+Ground::Ground(const Util::Math::Vector2<float> &position) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, WIDTH, HEIGHT, Pulsar::D2::RectangleCollider::STATIC)) {}
 
 void Ground::initialize() {
     sprite = Pulsar::D2::Sprite("/user/dino/block/grass.bmp", HEIGHT, HEIGHT);
 }
 
-void Ground::onUpdate([[maybe_unused]] double delta) {}
+void Ground::onUpdate([[maybe_unused]] float delta) {}
 
 void Ground::onTranslationEvent(Pulsar::D2::TranslationEvent &event) {
     event.cancel();
@@ -46,6 +46,6 @@ void Ground::onCollisionEvent([[maybe_unused]] const Pulsar::D2::CollisionEvent 
 void Ground::draw(Pulsar::Graphics &graphics) const {
     auto startX = getPosition().getX() - (WIDTH - 1) / 2;
     for (uint32_t i = 0; i < WIDTH / sprite.getSize().getX(); i++) {
-        sprite.draw(graphics, Util::Math::Vector2<double>(startX + i * sprite.getSize().getY(), getPosition().getY()));
+        sprite.draw(graphics, Util::Math::Vector2<float>(startX + i * sprite.getSize().getY(), getPosition().getY()));
     }
 }

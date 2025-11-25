@@ -65,9 +65,9 @@ public:
 
     void initialize() override;
 
-    void swapRooms(Util::Math::Vector3<double> &newPosition, double &roomCenterX, double &roomCenterZ);
+    void swapRooms(Util::Math::Vector3<float> &newPosition, float &roomCenterX, float &roomCenterZ);
 
-    void update(double delta) override;
+    void update(float delta) override;
 
     void keyPressed(const Util::Io::Key &key) override;
 
@@ -91,7 +91,7 @@ private:
     Room::Type levelGen[4][4]{};
     Util::ArrayList<Room*> rooms;
 
-    Util::Math::Vector3<double> inputTranslate = Util::Math::Vector3<double>(0, 0, 0);
+    Util::Math::Vector3<float> inputTranslate = Util::Math::Vector3<float>(0, 0, 0);
 };
 
 #endif

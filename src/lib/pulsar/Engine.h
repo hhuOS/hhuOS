@@ -56,7 +56,7 @@ public:
     /// This is the first component that has to be created to run a game.
     /// After creating the engine, the game instance can be accessed via Game::getInstance()
     /// and scenes can be pushed to the game.
-    explicit Engine(const Util::Graphic::LinearFrameBuffer &lfb, uint8_t targetFrameRate = 60, double scaleFactor = 1.0);
+    explicit Engine(const Util::Graphic::LinearFrameBuffer &lfb, uint8_t targetFrameRate = 60, float scaleFactor = 1.0);
 
     /// There should only be one engine instance per game, so the copy constructor is deleted.
     Engine(const Engine &other) = delete;

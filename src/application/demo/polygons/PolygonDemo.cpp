@@ -37,7 +37,7 @@ void PolygonDemo::initialize() {
 
 }
 
-void PolygonDemo::update([[maybe_unused]] double delta) {}
+void PolygonDemo::update([[maybe_unused]] float delta) {}
 
 void PolygonDemo::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {

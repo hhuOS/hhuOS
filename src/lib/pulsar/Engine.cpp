@@ -32,7 +32,7 @@
 
 namespace Pulsar {
 
-Engine::Engine(const Util::Graphic::LinearFrameBuffer &lfb, const uint8_t targetFrameRate, const double scaleFactor) :
+Engine::Engine(const Util::Graphic::LinearFrameBuffer &lfb, const uint8_t targetFrameRate, const float scaleFactor) :
     graphics(lfb, scaleFactor),
     game(graphics.getTransformation(), graphics.getDimensions()),
     targetFrameRate(targetFrameRate)
@@ -79,7 +79,7 @@ void Engine::run() {
         graphics.update();
 
         auto &scene = game.getCurrentScene();
-        const auto lastFrameTime = statistics.getLastFrameTime().toSecondsFloat<double>();
+        const auto lastFrameTime = statistics.getLastFrameTime().toSecondsFloat<float>();
         scene.update(lastFrameTime);
         scene.updateEntities(lastFrameTime);
         scene.checkCollisions();
@@ -129,8 +129,8 @@ void Engine::initializeNextScene() {
     }
 
     // Display loading message
-    const double stringLength = Util::Address(LOADING).stringLength();
-    const auto stringPos = Util::Math::Vector2<double>(
+    const float stringLength = Util::Address(LOADING).stringLength();
+    const auto stringPos = Util::Math::Vector2<float>(
         -stringLength * graphics.getRelativeFontSize() / 2, -graphics.getRelativeFontSize() / 2);
 
     graphics.clear();
@@ -298,9 +298,9 @@ void Engine::checkMouse(Util::Io::FileInputStream &mouseInputStream) {
             lastMouseButtons = mouseUpdate.buttons;
 
             if (mouseUpdate.xMovement != 0 || mouseUpdate.yMovement != 0) {
-                const auto movement = Util::Math::Vector2<double>(
-                    mouseUpdate.xMovement / static_cast<double>(UINT8_MAX),
-                    mouseUpdate.yMovement / static_cast<double>(UINT8_MAX));
+                const auto movement = Util::Math::Vector2<float>(
+                    mouseUpdate.xMovement / static_cast<float>(UINT8_MAX),
+                    mouseUpdate.yMovement / static_cast<float>(UINT8_MAX));
                 game.getCurrentScene().mouseMoved(movement);
             }
 

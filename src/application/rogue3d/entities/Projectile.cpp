@@ -33,19 +33,19 @@
 
 uint32_t Projectile::DRAW_LIST_ID = UINT32_MAX;
 
-Projectile::Projectile(const Util::Math::Vector3<double> &position,const Util::Math::Vector3<double> &direction, uint32_t tag) : Entity(tag, position, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1), Pulsar::D3::SphereCollider(position, 0.25)), direction(direction), origin(position) {}
+Projectile::Projectile(const Util::Math::Vector3<float> &position,const Util::Math::Vector3<float> &direction, uint32_t tag) : Entity(tag, position, Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(1, 1, 1), Pulsar::D3::SphereCollider(position, 0.25)), direction(direction), origin(position) {}
 
-Projectile::Projectile(const Util::Math::Vector3<double> &position,const Util::Math::Vector3<double> &direction, uint32_t tag, double range) : Pulsar::D3::Entity(tag, position, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(1, 1, 1), Pulsar::D3::SphereCollider(position, 0.25)), range(range), direction(direction), origin(position) {}
+Projectile::Projectile(const Util::Math::Vector3<float> &position,const Util::Math::Vector3<float> &direction, uint32_t tag, float range) : Pulsar::D3::Entity(tag, position, Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(1, 1, 1), Pulsar::D3::SphereCollider(position, 0.25)), range(range), direction(direction), origin(position) {}
 
 void Projectile::initialize() {
     if (DRAW_LIST_ID == UINT32_MAX) {
         DRAW_LIST_ID = Pulsar::Graphics::startList3D();
-        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(0.5, 0.5, 0.5));
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<float>(0.5, 0.5, 0.5));
         Pulsar::Graphics::endList3D();
     }
 }
 
-void Projectile::onUpdate(double delta) {
+void Projectile::onUpdate(float delta) {
     if (range < Util::Math::absolute(origin.getX() - getPosition().getX()) || range < Util::Math::absolute(origin.getZ() - getPosition().getZ())) {
         removeFromScene();
     }

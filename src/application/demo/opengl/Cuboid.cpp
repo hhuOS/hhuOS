@@ -27,10 +27,10 @@
 #include "lib/pulsar/3d/Orientation.h"
 #include "lib/pulsar/3d/Texture.h"
 
-Cuboid::Cuboid(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &startRotation, const Util::Math::Vector3<double> &rotationAngle, const Util::Math::Vector3<double> &size, const Util::Graphic::Color &color) :
+Cuboid::Cuboid(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &startRotation, const Util::Math::Vector3<float> &rotationAngle, const Util::Math::Vector3<float> &size, const Util::Graphic::Color &color) :
         Entity(0, position, startRotation, size), rotationAngle(rotationAngle), color(color) {}
 
-Cuboid::Cuboid(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &startRotation, const Util::Math::Vector3<double> &rotationAngle, const Util::Math::Vector3<double> &size, const Util::String &texturePath) :
+Cuboid::Cuboid(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &startRotation, const Util::Math::Vector3<float> &rotationAngle, const Util::Math::Vector3<float> &size, const Util::String &texturePath) :
         Entity(0, position, startRotation, size), rotationAngle(rotationAngle), texturePath(texturePath) {}
 
 void Cuboid::initialize() {
@@ -39,7 +39,7 @@ void Cuboid::initialize() {
     }
 }
 
-void Cuboid::onUpdate(double delta) {
+void Cuboid::onUpdate(float delta) {
     rotate(rotationAngle * delta * 60);
 }
 

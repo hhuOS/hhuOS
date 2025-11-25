@@ -58,7 +58,7 @@ void Scene::initializeScene(Graphics &graphics) {
     }
 }
 
-void Scene::updateEntities(const double delta) {
+void Scene::updateEntities(const float delta) {
     for (auto *entity : getEntities()) {
         reinterpret_cast<Entity*>(entity)->update(delta);
     }

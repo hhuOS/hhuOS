@@ -36,8 +36,8 @@
 
 namespace Pulsar::D2 {
 
-Polygon::Polygon(const size_t tag, const Util::Math::Vector2<double> &position,
-    const Util::Array<Util::Math::Vector2<double>> &vertices, const Util::Graphic::Color &color) :
+Polygon::Polygon(const size_t tag, const Util::Math::Vector2<float> &position,
+    const Util::Array<Util::Math::Vector2<float>> &vertices, const Util::Graphic::Color &color) :
     Entity(tag, position), vertices(vertices), color(color) {}
 
 void Polygon::initialize() {}
@@ -47,18 +47,18 @@ void Polygon::draw(Graphics &graphics) const {
     graphics.drawPolygon2D(getPosition(), vertices);
 }
 
-void Polygon::scale([[maybe_unused]] const double factor) const {
+void Polygon::scale([[maybe_unused]] const float factor) const {
     for (auto &vertex : vertices) {
         vertex = vertex * factor;
     }
 }
 
-void Polygon::rotate([[maybe_unused]] const double angle) const {
+void Polygon::rotate([[maybe_unused]] const float angle) const {
     const auto sine = Util::Math::sine(Util::Math::toRadians(angle));
     const auto cosine = Util::Math::cosine(Util::Math::toRadians(angle));
 
     for (auto &vertex : vertices) {
-        vertex = Util::Math::Vector2<double>(vertex.getX() * cosine - vertex.getY() * sine,
+        vertex = Util::Math::Vector2<float>(vertex.getX() * cosine - vertex.getY() * sine,
             vertex.getX() * sine + vertex.getY() * cosine);
     }
 }

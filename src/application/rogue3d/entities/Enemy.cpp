@@ -39,18 +39,18 @@
 uint32_t Enemy::ENEMY_LIST_ID = UINT32_MAX;
 uint32_t Enemy::BOSS_LIST_ID = UINT32_MAX;
 
-Enemy::Enemy(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, Room &pRoom, Player &curPlayer, double radius) : Entity(TAG, position, rotation, Util::Math::Vector3<double>(1,1,1), Pulsar::D3::SphereCollider(position, radius)), player(curPlayer), room(pRoom), health(ENEMY_INIT_HEALTH + (player.getLevel() - 1)), initHealth(health) {}
+Enemy::Enemy(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation, Room &pRoom, Player &curPlayer, float radius) : Entity(TAG, position, rotation, Util::Math::Vector3<float>(1,1,1), Pulsar::D3::SphereCollider(position, radius)), player(curPlayer), room(pRoom), health(ENEMY_INIT_HEALTH + (player.getLevel() - 1)), initHealth(health) {}
 
 void Enemy::initialize() {
     if (ENEMY_LIST_ID == UINT32_MAX) {
         ENEMY_LIST_ID = Pulsar::Graphics::startList3D();
-        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(1.5, 1.5, 1.5));
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<float>(1.5, 1.5, 1.5));
         Pulsar::Graphics::endList3D();
     }
 
     if (BOSS_LIST_ID == UINT32_MAX) {
         BOSS_LIST_ID = Pulsar::Graphics::startList3D();
-        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<double>(3, 3, 3));
+        Pulsar::Graphics::listCuboid3D(Util::Math::Vector3<float>(3, 3, 3));
         Pulsar::Graphics::endList3D();
     }
 }
@@ -62,14 +62,14 @@ void Enemy::draw(Pulsar::Graphics &graphics) const {
 
     if (type == BOSS) {
         graphics.setColor(Util::Graphic::Color(153, 0, 0));
-        graphics.drawList3D(getPosition() + Util::Math::Vector3<double>(0, 1.5, 0), getScale(), getRotation(), BOSS_LIST_ID);
+        graphics.drawList3D(getPosition() + Util::Math::Vector3<float>(0, 1.5, 0), getScale(), getRotation(), BOSS_LIST_ID);
 
         // Boss health bar
         graphics.setColor(Util::Graphic::Color(1, 117, 0));
-        graphics.drawRectangleDirect(Util::Math::Vector2<double>(-0.50, 0.85), Util::Math::Vector2<double>(1.0, 0.1));
+        graphics.drawRectangleDirect(Util::Math::Vector2<float>(-0.50, 0.85), Util::Math::Vector2<float>(1.0, 0.1));
 
         graphics.setColor(Util::Graphic::Color(255,0,0));
-        graphics.fillRectangleDirect(Util::Math::Vector2<double>(-0.475, 0.875), Util::Math::Vector2<double>(0.95 * (static_cast<double>(health) / initHealth), 0.05));
+        graphics.fillRectangleDirect(Util::Math::Vector2<float>(-0.475, 0.875), Util::Math::Vector2<float>(0.95 * (static_cast<float>(health) / initHealth), 0.05));
     } else {
         graphics.setColor(Util::Graphic::Color(255, 0, 0));
         graphics.drawList3D(getPosition(), getScale(), getRotation(), ENEMY_LIST_ID);
@@ -95,7 +95,7 @@ void Enemy::onCollisionEvent(const Pulsar::D3::CollisionEvent &event) {
     }
 }
 
-void Enemy::onUpdate(double delta) {
+void Enemy::onUpdate(float delta) {
     if (!active) {
         return;
     }
@@ -132,12 +132,12 @@ void Enemy::onUpdate(double delta) {
         break;
     }
 
-    double zRotation = Util::Math::toDegrees(Util::Math::arccosine(getFrontVector().dotProduct(Util::Math::Vector3<double>(0,0,1))));
+    float zRotation = Util::Math::toDegrees(Util::Math::arccosine(getFrontVector().dotProduct(Util::Math::Vector3<float>(0,0,1))));
     if (player.getPosition().getX() < getPosition().getX()) {
         zRotation = -zRotation;
     }
 
-    setRotation(Util::Math::Vector3<double>(0, 0, zRotation));
+    setRotation(Util::Math::Vector3<float>(0, 0, zRotation));
 }
 
 void Enemy::shoot() {
@@ -150,8 +150,8 @@ void Enemy::shoot() {
 void Enemy::shoot3() {
     if(cooldown<=0){
         getScene().addEntity(new Projectile(getPosition(),getFrontVector(), Projectile::TAG_ENEMY));
-        getScene().addEntity(new Projectile(getPosition(),getFrontVector().rotate(Util::Math::Vector3<double>(0, 30, 0)), Projectile::TAG_ENEMY));
-        getScene().addEntity(new Projectile(getPosition(),getFrontVector().rotate(Util::Math::Vector3<double>(0, -30, 0)), Projectile::TAG_ENEMY));
+        getScene().addEntity(new Projectile(getPosition(),getFrontVector().rotate(Util::Math::Vector3<float>(0, 30, 0)), Projectile::TAG_ENEMY));
+        getScene().addEntity(new Projectile(getPosition(),getFrontVector().rotate(Util::Math::Vector3<float>(0, -30, 0)), Projectile::TAG_ENEMY));
         cooldown = 1.5;
     }
 }

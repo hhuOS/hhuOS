@@ -69,7 +69,7 @@ public:
 
     void onParticleInitialization(Pulsar::D2::Particle &particle) override;
 
-    void onParticleUpdate(Pulsar::D2::Particle &particle, double delta) override;
+    void onParticleUpdate(Pulsar::D2::Particle &particle, float delta) override;
 
     void onParticleCollision(Pulsar::D2::Particle &particle, const Pulsar::D2::CollisionEvent &event) override;
 
@@ -83,7 +83,7 @@ private:
     const Entity &parent;
     Util::Math::Random random;
 
-    static const constexpr double PARTICLE_SIZE = 0.01;
+    static const constexpr float PARTICLE_SIZE = 0.01;
 };
 
 #endif

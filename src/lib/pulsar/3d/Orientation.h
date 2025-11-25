@@ -48,40 +48,40 @@ public:
 
     /// Set the rotation angles around the x, y, and z axes (in degrees).
     /// The up, right, and front direction vectors are updated accordingly.
-    void setRotation(const Util::Math::Vector3<double> &angle);
+    void setRotation(const Util::Math::Vector3<float> &angle);
 
     /// Rotate the orientation by the given angles around the x, y, and z axes (in degrees).
     /// The up, right, and front direction vectors are updated accordingly.
-    void rotate(const Util::Math::Vector3<double> &angle);
+    void rotate(const Util::Math::Vector3<float> &angle);
 
     /// Reset the orientation to the default rotation (0, 0, 0).
     void reset();
 
     /// Get the current rotation angles around the x, y, and z axes (in degrees).
-    [[nodiscard]] const Util::Math::Vector3<double>& getRotation() const;
+    [[nodiscard]] const Util::Math::Vector3<float>& getRotation() const;
 
     /// Get the up direction vector of the orientation.
-    [[nodiscard]] const Util::Math::Vector3<double>& getUp() const;
+    [[nodiscard]] const Util::Math::Vector3<float>& getUp() const;
 
     /// Get the right direction vector of the orientation.
-    [[nodiscard]] const Util::Math::Vector3<double>& getRight() const;
+    [[nodiscard]] const Util::Math::Vector3<float>& getRight() const;
 
     /// Get the front direction vector of the orientation.
-    [[nodiscard]] const Util::Math::Vector3<double>& getFront() const;
+    [[nodiscard]] const Util::Math::Vector3<float>& getFront() const;
 
     /// Set the front direction vector of the orientation.
     /// The rotation angles and other direction vectors are updated accordingly.
-    void setFront(const Util::Math::Vector3<double> &front);
+    void setFront(const Util::Math::Vector3<float> &front);
 
     /// The world up vector, representing the global upward direction in 3D space (always {0, 1, 0}).
-    static const Util::Math::Vector3<double> WORLD_UP;
+    static const Util::Math::Vector3<float> WORLD_UP;
 
 private:
 
-    Util::Math::Vector3<double> rotation;
-    Util::Math::Vector3<double> up;
-    Util::Math::Vector3<double> right;
-    Util::Math::Vector3<double> front;
+    Util::Math::Vector3<float> rotation;
+    Util::Math::Vector3<float> up;
+    Util::Math::Vector3<float> right;
+    Util::Math::Vector3<float> front;
 };
 
 }

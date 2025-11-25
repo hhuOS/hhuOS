@@ -44,13 +44,13 @@ namespace Pulsar::D2 {
 /// To create a new 2D scene for your game, derive from this class and implement the required methods:
 /// - `initializeBackground(Graphics &graphics)`: Set up the background for the scene.
 /// - `initialize()`: Initialize the scene (load resources, set up entities, etc.).
-/// - `update(double delta)`: Update the scene logic (optional).
+/// - `update(float delta)`: Update the scene logic (optional).
 /// - `keyPressed(const Util::Io::Key &key)`: Handle key press events (optional).
 /// - `keyReleased(const Util::Io::Key &key)`: Handle key release events (optional).
 /// - `mouseButtonPressed(Util::Io::MouseDecoder::Button button)`: Handle mouse button press events (optional).
 /// - `mouseButtonReleased(Util::Io::MouseDecoder::Button button)`: Handle mouse button release events (optional).
-/// - `mouseMoved(const Util::Math::Vector2<double> &relativeMovement)`: Handle mouse movement events (optional).
-/// - `mouseScrolled(double scrollAmount)`: Handle mouse scroll events (optional).
+/// - `mouseMoved(const Util::Math::Vector2<float> &relativeMovement)`: Handle mouse movement events (optional).
+/// - `mouseScrolled(float scrollAmount)`: Handle mouse scroll events (optional).
 class Scene : public Pulsar::Scene {
 
 public:
@@ -75,7 +75,7 @@ public:
 
     /// Update all entities in the scene. This method is called by the engine once per frame.
     /// It is not intended to be called directly by game developers.
-    void updateEntities(double delta) final;
+    void updateEntities(float delta) final;
 
     /// Check for collisions between entities in the scene. This method is called by the engine once per frame.
     /// It checks for collisions between entities that have rectangle colliders and have moved since the last update.

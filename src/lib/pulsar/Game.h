@@ -107,20 +107,20 @@ public:
     /// However, if the target screen resolution is not square,
     /// one axis will have a larger range to maintain the aspect ratio.
     /// For example, on a 800x600 screen, the coordinate system will range from (-1.33, -1) to (1.33, 1).
-    [[nodiscard]] const Util::Math::Vector2<double>& getScreenDimensions() const;
+    [[nodiscard]] const Util::Math::Vector2<float>& getScreenDimensions() const;
 
 private:
 
     friend class Engine;
 
-    Game(uint16_t screenTransformation, const Util::Math::Vector2<double> &screenDimensions);
+    Game(uint16_t screenTransformation, const Util::Math::Vector2<float> &screenDimensions);
 
     void initializeNextScene(Graphics &graphics);
 
     static Game *instance;
 
     uint16_t screenTransformation;
-    Util::Math::Vector2<double> screenDimensions;
+    Util::Math::Vector2<float> screenDimensions;
 
     Util::ArrayListQueue<Scene*> scenes;
     bool firstScene = true;

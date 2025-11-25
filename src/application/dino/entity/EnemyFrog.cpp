@@ -37,7 +37,7 @@
 #include "lib/pulsar/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2.h"
 
-EnemyFrog::EnemyFrog(const Util::Math::Vector2<double> &position) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE, SIZE * 1.12, Pulsar::D2::RectangleCollider::DYNAMIC)) {}
+EnemyFrog::EnemyFrog(const Util::Math::Vector2<float> &position) : Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE, SIZE * 1.12, Pulsar::D2::RectangleCollider::DYNAMIC)) {}
 
 void EnemyFrog::initialize() {
     animation = Pulsar::D2::SpriteAnimation(Util::Array<Pulsar::D2::Sprite>({
@@ -61,7 +61,7 @@ void EnemyFrog::initialize() {
     getScene().addEntity(grassEmitter);
 }
 
-void EnemyFrog::onUpdate(double delta) {
+void EnemyFrog::onUpdate(float delta) {
     animation.update(delta);
 }
 

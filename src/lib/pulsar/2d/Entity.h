@@ -66,7 +66,7 @@ public:
 
     /// Create a new 2D entity with the given tag, position and rectangle collider.
     /// The collider is optional and defaults to a collider of type `NONE`.
-    Entity(size_t tag, const Util::Math::Vector2<double> &position,
+    Entity(size_t tag, const Util::Math::Vector2<float> &position,
         const RectangleCollider &collider = RectangleCollider());
 
     /// 2D entities are not copyable, as they manage components on the heap, so the copy constructor is deleted.
@@ -89,46 +89,46 @@ public:
     virtual void onCollisionEvent(const CollisionEvent &event);
 
     /// Get the current position of the entity.
-    [[nodiscard]] const Util::Math::Vector2<double>& getPosition() const;
+    [[nodiscard]] const Util::Math::Vector2<float>& getPosition() const;
 
     /// Set the absolute position of the entity.
     /// This will NOT trigger a translation event, the entity will be moved directly.
-    void setPosition(const Util::Math::Vector2<double> &position);
+    void setPosition(const Util::Math::Vector2<float> &position);
 
     /// Set the absolute x-coordinate of the entity.
     /// This will NOT trigger a translation event, the entity will be moved directly.
-    void setPositionX(double x);
+    void setPositionX(float x);
 
     /// Set the absolute y-coordinate of the entity.
     /// This will NOT trigger a translation event, the entity will be moved directly.
-    void setPositionY(double y);
+    void setPositionY(float y);
 
     /// Move the entity relative to its current position by the given translation vector.
     /// This will trigger a translation event and the entity may cancel the movement.
-    void translate(const Util::Math::Vector2<double> &translation);
+    void translate(const Util::Math::Vector2<float> &translation);
 
     /// Move the entity relative to its current position by the given x offset.
     /// This will trigger a translation event and the entity may cancel the movement.
-    void translateX(double x);
+    void translateX(float x);
 
     /// Move the entity relative to its current position by the given y offset.
     /// This will trigger a translation event and the entity may cancel the movement.
-    void translateY(double y);
+    void translateY(float y);
 
     /// Get the current velocity of the entity.
-    [[nodiscard]] const Util::Math::Vector2<double>& getVelocity() const;
+    [[nodiscard]] const Util::Math::Vector2<float>& getVelocity() const;
 
     /// Set the velocity of the entity.
     /// The velocity only affects the entity if a movement component (e.g. `LinearMovementComponent`) is attached to it.
-    void setVelocity(const Util::Math::Vector2<double> &velocity);
+    void setVelocity(const Util::Math::Vector2<float> &velocity);
 
     /// Set the x-component of the entity's velocity.
     /// The velocity only affects the entity if a movement component (e.g. `LinearMovementComponent`) is attached to it.
-    void setVelocityX(double x);
+    void setVelocityX(float x);
 
     /// Set the y-component of the entity's velocity.
     /// The velocity only affects the entity if a movement component (e.g. `LinearMovementComponent`) is attached to it.
-    void setVelocityY(double y);
+    void setVelocityY(float y);
 
     /// Check if the entity has a rectangle collider.
     [[nodiscard]] bool hasCollider() const;
@@ -148,7 +148,7 @@ public:
     /// This method is called automatically every frame with the time delta since the last frame.
     /// It updates the collider's position and then calls the `update()` method of all attached components.
     /// Lastly, it calls the `onUpdate()` method for any additional custom update logic.
-    void update(double delta);
+    void update(float delta);
 
     /// Handle a collision with another entity.
     /// This method is called by the scene when a collision is detected between this entity and another entity.
@@ -163,8 +163,8 @@ public:
 private:
 
     bool positionChanged = false;
-    Util::Math::Vector2<double> position{};
-    Util::Math::Vector2<double> velocity{};
+    Util::Math::Vector2<float> position{};
+    Util::Math::Vector2<float> velocity{};
 
     RectangleCollider collider;
 

@@ -42,7 +42,7 @@ public:
     /**
      * Constructor.
      */
-    Fruit(const Util::Math::Vector2<double> &position, const Util::Io::File &nextLevelFile);
+    Fruit(const Util::Math::Vector2<float> &position, const Util::Io::File &nextLevelFile);
 
     /**
      * Copy Constructor.
@@ -61,7 +61,7 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void draw(Pulsar::Graphics &graphics) const override;
 
@@ -76,7 +76,7 @@ private:
     Pulsar::D2::SpriteAnimation animation;
     Util::Io::File nextLevelFile;
 
-    static const constexpr double SIZE = 0.08;
+    static const constexpr float SIZE = 0.08;
 };
 
 #endif

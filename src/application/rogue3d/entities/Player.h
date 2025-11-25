@@ -55,7 +55,7 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void draw(Pulsar::Graphics &graphics) const override;
 
@@ -81,7 +81,7 @@ private:
 
     uint32_t projectileMax = 5;
     uint32_t projectileCounter = 0;
-    double shootTimer = 0;
+    float shootTimer = 0;
 
     int32_t health = 3;
     int32_t maxHealth = 10;
@@ -90,7 +90,7 @@ private:
     uint32_t maxDmg = 10;
 
     uint32_t level = 1;
-    double invulnerabilityTime = 0;
+    float invulnerabilityTime = 0;
 
     static uint32_t DRAW_LIST_ID;
 };

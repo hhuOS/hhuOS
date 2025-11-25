@@ -25,11 +25,11 @@
 #include "lib/pulsar/3d/Texture.h"
 #include "lib/util/math/Vector2.h"
 
-Rectangle::Rectangle(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &startRotation, const Util::Math::Vector3<double> &rotationAngle, const Util::Math::Vector2<double> &size, const Util::Graphic::Color &color)  :
-        Entity(0, position, startRotation, Util::Math::Vector3<double>(size.getX(), size.getY(), 0)), rotationAngle(rotationAngle), color(color) {}
+Rectangle::Rectangle(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &startRotation, const Util::Math::Vector3<float> &rotationAngle, const Util::Math::Vector2<float> &size, const Util::Graphic::Color &color)  :
+        Entity(0, position, startRotation, Util::Math::Vector3<float>(size.getX(), size.getY(), 0)), rotationAngle(rotationAngle), color(color) {}
 
-Rectangle::Rectangle(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &startRotation, const Util::Math::Vector3<double> &rotationAngle, const Util::Math::Vector2<double> &size, const Util::String &texturePath) :
-        Entity(0, position, startRotation, Util::Math::Vector3<double>(size.getX(), size.getY(), 0)), rotationAngle(rotationAngle), texturePath(texturePath) {}
+Rectangle::Rectangle(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &startRotation, const Util::Math::Vector3<float> &rotationAngle, const Util::Math::Vector2<float> &size, const Util::String &texturePath) :
+        Entity(0, position, startRotation, Util::Math::Vector3<float>(size.getX(), size.getY(), 0)), rotationAngle(rotationAngle), texturePath(texturePath) {}
 
 void Rectangle::initialize() {
     if (!texturePath.isEmpty()) {
@@ -37,13 +37,13 @@ void Rectangle::initialize() {
     }
 }
 
-void Rectangle::onUpdate(double delta) {
+void Rectangle::onUpdate(float delta) {
     rotate(rotationAngle * delta * 60);
 }
 
 void Rectangle::draw(Pulsar::Graphics &graphics) const {
     graphics.setColor(color);
-    graphics.drawRectangle3D(getPosition(), Util::Math::Vector2<double>(getScale().getX(), getScale().getY()), getOrientation().getRotation(), texture);
+    graphics.drawRectangle3D(getPosition(), Util::Math::Vector2<float>(getScale().getX(), getScale().getY()), getOrientation().getRotation(), texture);
 }
 
 void Rectangle::onCollisionEvent([[maybe_unused]] const Pulsar::D3::CollisionEvent &event) {

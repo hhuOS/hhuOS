@@ -43,7 +43,7 @@
 
 namespace Pulsar {
 
-Graphics::Graphics(const Util::Graphic::LinearFrameBuffer &lfb, const double scaleFactor) :
+Graphics::Graphics(const Util::Graphic::LinearFrameBuffer &lfb, const float scaleFactor) :
         bufferedLfb(lfb, scaleFactor),
         transformation((bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ?
             bufferedLfb.getResolutionY() : bufferedLfb.getResolutionX()) / 2),
@@ -52,9 +52,9 @@ Graphics::Graphics(const Util::Graphic::LinearFrameBuffer &lfb, const double sca
         offsetY(transformation + (bufferedLfb.getResolutionY() > bufferedLfb.getResolutionX() ?
             (bufferedLfb.getResolutionY() - bufferedLfb.getResolutionX()) / 2 : 0)),
         dimensions(bufferedLfb.getResolutionX() > bufferedLfb.getResolutionY() ?
-            static_cast<double>(bufferedLfb.getResolutionX()) / bufferedLfb.getResolutionY() : 1,
+            static_cast<float>(bufferedLfb.getResolutionX()) / bufferedLfb.getResolutionY() : 1,
             bufferedLfb.getResolutionY() > bufferedLfb.getResolutionX() ?
-            static_cast<double>(bufferedLfb.getResolutionY()) / bufferedLfb.getResolutionX() : 1) {}
+            static_cast<float>(bufferedLfb.getResolutionY()) / bufferedLfb.getResolutionX() : 1) {}
 
 Graphics::~Graphics() {
     delete backgroundBuffer;
@@ -114,7 +114,7 @@ void Graphics::drawStringDirectAbsolute(const uint16_t posX, const uint16_t posY
     drawStringDirectAbsolute(posX, posY, static_cast<const char*>(string));
 }
 
-void Graphics::drawLineDirect(const Util::Math::Vector2<double> &from, const Util::Math::Vector2<double> &to) const {
+void Graphics::drawLineDirect(const Util::Math::Vector2<float> &from, const Util::Math::Vector2<float> &to) const {
     if (isGlEnabled()) {
         gluPrepareDirectDraw(D3::Scene::LINES);
 
@@ -135,8 +135,8 @@ void Graphics::drawLineDirect(const Util::Math::Vector2<double> &from, const Uti
     }
 }
 
-void Graphics::drawRectangleDirect(const Util::Math::Vector2<double> &position,
-    const Util::Math::Vector2<double> &size) const
+void Graphics::drawRectangleDirect(const Util::Math::Vector2<float> &position,
+    const Util::Math::Vector2<float> &size) const
 {
     const auto x = position.getX();
     const auto y = position.getY();
@@ -160,21 +160,21 @@ void Graphics::drawRectangleDirect(const Util::Math::Vector2<double> &position,
 
         gluFinishDirectDraw();
     } else {
-        drawLineDirect(position, Util::Math::Vector2<double>(x + width, y));
-        drawLineDirect(Util::Math::Vector2<double>(x, y + height),
-            Util::Math::Vector2<double>(x + width, y + height));
-        drawLineDirect(position, Util::Math::Vector2<double>(x, y + height));
-        drawLineDirect(Util::Math::Vector2<double>(x + width, y),
-            Util::Math::Vector2<double>(x + width, y + height));
+        drawLineDirect(position, Util::Math::Vector2<float>(x + width, y));
+        drawLineDirect(Util::Math::Vector2<float>(x, y + height),
+            Util::Math::Vector2<float>(x + width, y + height));
+        drawLineDirect(position, Util::Math::Vector2<float>(x, y + height));
+        drawLineDirect(Util::Math::Vector2<float>(x + width, y),
+            Util::Math::Vector2<float>(x + width, y + height));
     }
 }
 
-void Graphics::drawSquareDirect(const Util::Math::Vector2<double> &position, const double size) const {
-    drawRectangleDirect(position, Util::Math::Vector2<double>(size, size));
+void Graphics::drawSquareDirect(const Util::Math::Vector2<float> &position, const float size) const {
+    drawRectangleDirect(position, Util::Math::Vector2<float>(size, size));
 }
 
-void Graphics::fillRectangleDirect(const Util::Math::Vector2<double> &position,
-    const Util::Math::Vector2<double> &size) const
+void Graphics::fillRectangleDirect(const Util::Math::Vector2<float> &position,
+    const Util::Math::Vector2<float> &size) const
 {
     const auto x = position.getX();
     const auto y = position.getY();
@@ -214,11 +214,11 @@ void Graphics::fillRectangleDirect(const Util::Math::Vector2<double> &position,
     }
 }
 
-void Graphics::fillSquareDirect(const Util::Math::Vector2<double> &position, const double size) const {
-    fillRectangleDirect(position, Util::Math::Vector2<double>(size, size));
+void Graphics::fillSquareDirect(const Util::Math::Vector2<float> &position, const float size) const {
+    fillRectangleDirect(position, Util::Math::Vector2<float>(size, size));
 }
 
-void Graphics::drawStringDirect(const Util::Math::Vector2<double> &position, const char *string) const {
+void Graphics::drawStringDirect(const Util::Math::Vector2<float> &position, const char *string) const {
     if (isGlEnabled()) {
         glDrawText(reinterpret_cast<const GLubyte*>(string),
                  static_cast<uint16_t>(position.getX() * transformation + offsetX),
@@ -231,13 +231,13 @@ void Graphics::drawStringDirect(const Util::Math::Vector2<double> &position, con
     }
 }
 
-void Graphics::drawStringDirect(const Util::Math::Vector2<double> &position, const Util::String &string) const {
+void Graphics::drawStringDirect(const Util::Math::Vector2<float> &position, const Util::String &string) const {
     drawStringDirect(position, static_cast<const char*>(string));
 }
 
 /***** 2D drawing functions, respecting the camera position *****/
 
-void Graphics::drawLine2D(const Util::Math::Vector2<double> &from, const Util::Math::Vector2<double> &to) const {
+void Graphics::drawLine2D(const Util::Math::Vector2<float> &from, const Util::Math::Vector2<float> &to) const {
     if (isGlEnabled()) {
         Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION,
             "Graphics: 2D drawing functions are not supported in OpenGL mode!");
@@ -251,8 +251,8 @@ void Graphics::drawLine2D(const Util::Math::Vector2<double> &from, const Util::M
         color);
 }
 
-void Graphics::drawPolygon2D(const Util::Math::Vector2<double> &position,
-    const Util::Array<Util::Math::Vector2<double>> &vertices) const
+void Graphics::drawPolygon2D(const Util::Math::Vector2<float> &position,
+    const Util::Array<Util::Math::Vector2<float>> &vertices) const
 {
     for (uint32_t i = 0; i < vertices.length() - 1; i++) {
         drawLine2D(vertices[i] + position, vertices[i + 1] + position);
@@ -261,26 +261,26 @@ void Graphics::drawPolygon2D(const Util::Math::Vector2<double> &position,
     drawLine2D(vertices[vertices.length() - 1] + position, vertices[0] + position);
 }
 
-void Graphics::drawRectangle2D(const Util::Math::Vector2<double> &position,
-    const Util::Math::Vector2<double> &size) const
+void Graphics::drawRectangle2D(const Util::Math::Vector2<float> &position,
+    const Util::Math::Vector2<float> &size) const
 {
     const auto x = position.getX();
     const auto y = position.getY();
     const auto width = size.getX();
     const auto height = size.getY();
 
-    drawLine2D(position, Util::Math::Vector2<double>(x + width, y));
-    drawLine2D(Util::Math::Vector2<double>(x, y - height), Util::Math::Vector2<double>(x + width, y - height));
-    drawLine2D(position, Util::Math::Vector2<double>(x, y - height));
-    drawLine2D(Util::Math::Vector2<double>(x + width, y), Util::Math::Vector2<double>(x + width, y - height));
+    drawLine2D(position, Util::Math::Vector2<float>(x + width, y));
+    drawLine2D(Util::Math::Vector2<float>(x, y - height), Util::Math::Vector2<float>(x + width, y - height));
+    drawLine2D(position, Util::Math::Vector2<float>(x, y - height));
+    drawLine2D(Util::Math::Vector2<float>(x + width, y), Util::Math::Vector2<float>(x + width, y - height));
 }
 
-void Graphics::drawSquare2D(const Util::Math::Vector2<double> &position, const double size) const {
-    drawRectangle2D(position, Util::Math::Vector2<double>(size, size));
+void Graphics::drawSquare2D(const Util::Math::Vector2<float> &position, const float size) const {
+    drawRectangle2D(position, Util::Math::Vector2<float>(size, size));
 }
 
-void Graphics::fillRectangle2D(const Util::Math::Vector2<double> &position,
-    const Util::Math::Vector2<double> &size) const
+void Graphics::fillRectangle2D(const Util::Math::Vector2<float> &position,
+    const Util::Math::Vector2<float> &size) const
 {
     if (isGlEnabled()) {
         Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION,
@@ -309,11 +309,11 @@ void Graphics::fillRectangle2D(const Util::Math::Vector2<double> &position,
     }
 }
 
-void Graphics::fillSquare2D(const Util::Math::Vector2<double> &position, const double size) const {
-    fillRectangle2D(position, Util::Math::Vector2<double>(size, size));
+void Graphics::fillSquare2D(const Util::Math::Vector2<float> &position, const float size) const {
+    fillRectangle2D(position, Util::Math::Vector2<float>(size, size));
 }
 
-void Graphics::drawString2D(const Util::Math::Vector2<double> &position, const char *string) const {
+void Graphics::drawString2D(const Util::Math::Vector2<float> &position, const char *string) const {
     if (isGlEnabled()) {
         Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION,
             "Graphics: 2D drawing functions are not supported in OpenGL mode!");
@@ -325,21 +325,21 @@ void Graphics::drawString2D(const Util::Math::Vector2<double> &position, const c
         string, color, Util::Graphic::Colors::INVISIBLE);
 }
 
-void Graphics::drawString2D(const Util::Math::Vector2<double> &position, const Util::String &string) const {
+void Graphics::drawString2D(const Util::Math::Vector2<float> &position, const Util::String &string) const {
     drawString2D(position, static_cast<const char*>(string));
 }
 
-void Graphics::drawImage2D(const Util::Math::Vector2<double> &position, const Util::Graphic::Image &image,
-    const bool flipX, const double alpha, const Util::Math::Vector2<double> &scale, const double rotationAngle) const
+void Graphics::drawImage2D(const Util::Math::Vector2<float> &position, const Util::Graphic::Image &image,
+    const bool flipX, const float alpha, const Util::Math::Vector2<float> &scale, const float rotationAngle) const
 {
     if (isGlEnabled()) {
         Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION,
             "Graphics: 2D drawing functions are not supported in OpenGL mode!");
     }
 
-    const auto notScaled = Util::Math::equals(scale.getX(), 1, 0.00001) &&
-        Util::Math::equals(scale.getY(), 1, 0.00001);
-    const auto notRotated = Util::Math::equals(rotationAngle, 0, 0.00001);
+    const auto notScaled = Util::Math::equals(scale.getX(), 1, 0.00001f) &&
+        Util::Math::equals(scale.getY(), 1, 0.00001f);
+    const auto notRotated = Util::Math::equals(rotationAngle, 0, 0.00001f);
 
     if (notScaled && notRotated) {
         drawImageDirect2D(position, image, flipX, alpha);
@@ -383,8 +383,8 @@ void Graphics::drawModel3D(const D3::Model &model) const {
     glPopMatrix();
 }
 
-void Graphics::drawRectangle3D(const Util::Math::Vector3<double> &position, const Util::Math::Vector2<double> &size,
-    const Util::Math::Vector3<double> &rotation, const D3::Texture &texture) const
+void Graphics::drawRectangle3D(const Util::Math::Vector3<float> &position, const Util::Math::Vector2<float> &size,
+    const Util::Math::Vector3<float> &rotation, const D3::Texture &texture) const
 {
     if (!isGlEnabled()) {
         Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION,
@@ -409,8 +409,8 @@ void Graphics::drawRectangle3D(const Util::Math::Vector3<double> &position, cons
     glPopMatrix();
 }
 
-void Graphics::drawCustomShape3D(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &scale,
-    const Util::Math::Vector3<double> &rotation, const Util::Array<Util::Math::Vector3<double>> &vertices) const
+void Graphics::drawCustomShape3D(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &scale,
+    const Util::Math::Vector3<float> &rotation, const Util::Array<Util::Math::Vector3<float>> &vertices) const
 {
     if (!isGlEnabled()) {
         Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION,
@@ -437,8 +437,8 @@ void Graphics::drawCustomShape3D(const Util::Math::Vector3<double> &position, co
     glPopMatrix();
 }
 
-void Graphics::drawCuboid3D(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &size,
-    const Util::Math::Vector3<double> &rotation, const D3::Texture &texture) const
+void Graphics::drawCuboid3D(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &size,
+    const Util::Math::Vector3<float> &rotation, const D3::Texture &texture) const
 {
     if (!isGlEnabled()) {
         Util::Panic::fire(Util::Panic::UNSUPPORTED_OPERATION,
@@ -463,8 +463,8 @@ void Graphics::drawCuboid3D(const Util::Math::Vector3<double> &position, const U
     glPopMatrix();
 }
 
-void Graphics::drawList3D(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &scale,
-    const Util::Math::Vector3<double> &rotation, const GLuint list) const
+void Graphics::drawList3D(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &scale,
+    const Util::Math::Vector3<float> &rotation, const GLuint list) const
 {
     glPushMatrix();
 
@@ -538,15 +538,15 @@ void Graphics::listModel3D(const D3::Model &model) {
     }
 }
 
-void Graphics::listCuboid3D(const Util::Math::Vector3<double> &size, const Util::Graphic::Color &color) {
+void Graphics::listCuboid3D(const Util::Math::Vector3<float> &size, const Util::Graphic::Color &color) {
     glColor3f(static_cast<float>(color.getRed()) / 255,
         static_cast<float>(color.getGreen()) / 255,
         static_cast<float>(color.getBlue()) / 255);
     listCuboid3D(size, D3::Texture());
 }
 
-void Graphics::listCuboid3D(const Util::Math::Vector3<double> &translation,
-    const Util::Math::Vector3<double> &size, const Util::Graphic::Color &color)
+void Graphics::listCuboid3D(const Util::Math::Vector3<float> &translation,
+    const Util::Math::Vector3<float> &size, const Util::Graphic::Color &color)
 {
     glColor3f(static_cast<float>(color.getRed()) / 255,
         static_cast<float>(color.getGreen()) / 255,
@@ -554,7 +554,7 @@ void Graphics::listCuboid3D(const Util::Math::Vector3<double> &translation,
     listCuboid3D(translation, size, D3::Texture());
 }
 
-void Graphics::listCuboid3D(const Util::Math::Vector3<double> &size, const D3::Texture &texture) {
+void Graphics::listCuboid3D(const Util::Math::Vector3<float> &size, const D3::Texture &texture) {
     const auto width = size.getX();
     const auto height = size.getY();
     const auto depth = size.getZ();
@@ -649,7 +649,7 @@ void Graphics::listCuboid3D(const Util::Math::Vector3<double> &size, const D3::T
     }
 }
 
-void Graphics::listCuboid3D(const Util::Math::Vector3<double> &translation, const Util::Math::Vector3<double> &size,
+void Graphics::listCuboid3D(const Util::Math::Vector3<float> &translation, const Util::Math::Vector3<float> &size,
     const D3::Texture &texture)
 {
     glPushMatrix();
@@ -660,14 +660,14 @@ void Graphics::listCuboid3D(const Util::Math::Vector3<double> &translation, cons
     glPopMatrix();
 }
 
-void Graphics::listRectangle3D(const Util::Math::Vector2<double> &size, const Util::Graphic::Color &color) {
+void Graphics::listRectangle3D(const Util::Math::Vector2<float> &size, const Util::Graphic::Color &color) {
     glColor3f(static_cast<float>(color.getRed()) / 255,
         static_cast<float>(color.getGreen()) / 255,
         static_cast<float>(color.getBlue()) / 255);
     listRectangle3D(size, D3::Texture());
 }
 
-void Graphics::listRectangle3D(const Util::Math::Vector2<double> &size, const D3::Texture &texture) {
+void Graphics::listRectangle3D(const Util::Math::Vector2<float> &size, const D3::Texture &texture) {
     const auto xLeft = -size.getX() / 2;
     const auto yLeft = -size.getY() / 2;
     const auto width = size.getX();
@@ -701,7 +701,7 @@ void Graphics::listRectangle3D(const Util::Math::Vector2<double> &size, const D3
     }
 }
 
-void Graphics::listCustomShape3D(const Util::Array<Util::Math::Vector3<double>> &vertices) {
+void Graphics::listCustomShape3D(const Util::Array<Util::Math::Vector3<float>> &vertices) {
     // Draw shape (consisting of triangles)
     glBegin(GL_TRIANGLES);
 
@@ -721,8 +721,8 @@ void Graphics::initializeGl() {
     }
 
     const auto &scene = reinterpret_cast<D3::Scene&>(Game::getInstance().getCurrentScene());
-    const auto width = static_cast<GLdouble>(bufferedLfb.getResolutionX());
-    const auto height = static_cast<GLdouble>(bufferedLfb.getResolutionY());
+    const auto width = static_cast<GLfloat>(bufferedLfb.getResolutionX());
+    const auto height = static_cast<GLfloat>(bufferedLfb.getResolutionY());
 
     // Set clear color
     auto &clearColor = scene.getBackgroundColor();
@@ -832,7 +832,7 @@ uint16_t Graphics::getAbsoluteResolutionY() const {
     return bufferedLfb.getResolutionY();
 }
 
-const Util::Math::Vector2<double>& Graphics::getDimensions() const {
+const Util::Math::Vector2<float>& Graphics::getDimensions() const {
     return dimensions;
 }
 
@@ -840,8 +840,8 @@ uint16_t Graphics::getTransformation() const {
     return transformation;
 }
 
-double Graphics::getRelativeFontSize() const {
-    return FONT_SIZE / static_cast<double>(transformation);
+float Graphics::getRelativeFontSize() const {
+    return FONT_SIZE / static_cast<float>(transformation);
 }
 
 void Graphics::clear(const Util::Graphic::Color &color) const {
@@ -923,8 +923,8 @@ void Graphics::update() {
     }
 }
 
-void Graphics::drawImageDirect2D(const Util::Math::Vector2<double> &position, const Util::Graphic::Image &image,
-    const bool flipX, const double alpha) const
+void Graphics::drawImageDirect2D(const Util::Math::Vector2<float> &position, const Util::Graphic::Image &image,
+    const bool flipX, const float alpha) const
 {
     const auto *pixelBuffer = image.getPixelBuffer();
     const auto xPixelOffset = static_cast<int32_t>(
@@ -946,8 +946,8 @@ void Graphics::drawImageDirect2D(const Util::Math::Vector2<double> &position, co
     }
 }
 
-void Graphics::drawImageScaled2D(const Util::Math::Vector2<double> &position, const Util::Graphic::Image &image,
-    const bool flipX, const double alpha, const Util::Math::Vector2<double> &scale) const
+void Graphics::drawImageScaled2D(const Util::Math::Vector2<float> &position, const Util::Graphic::Image &image,
+    const bool flipX, const float alpha, const Util::Math::Vector2<float> &scale) const
 {
     const auto *pixelBuffer = image.getPixelBuffer();
     const auto xPixelOffset = static_cast<int16_t>(
@@ -963,8 +963,8 @@ void Graphics::drawImageScaled2D(const Util::Math::Vector2<double> &position, co
         return;
     }
 
-    const auto factorX = static_cast<double>(scaledWidth) / image.getWidth();
-    const auto factorY = static_cast<double>(scaledHeight) / image.getHeight();
+    const auto factorX = static_cast<float>(scaledWidth) / image.getWidth();
+    const auto factorY = static_cast<float>(scaledHeight) / image.getHeight();
 
     for (size_t i = 0; i < scaledHeight; i++) {
         for (size_t j = 0; j < scaledWidth; j++) {
@@ -979,8 +979,8 @@ void Graphics::drawImageScaled2D(const Util::Math::Vector2<double> &position, co
     }
 }
 
-void Graphics::drawImageRotated2D(const Util::Math::Vector2<double> &position, const Util::Graphic::Image &image,
-    const bool flipX, const double alpha, const double rotationAngle) const
+void Graphics::drawImageRotated2D(const Util::Math::Vector2<float> &position, const Util::Graphic::Image &image,
+    const bool flipX, const float alpha, const float rotationAngle) const
 {
     const auto *pixelBuffer = image.getPixelBuffer();
     const auto xPixelOffset = static_cast<int32_t>(
@@ -1024,9 +1024,9 @@ void Graphics::drawImageRotated2D(const Util::Math::Vector2<double> &position, c
     }
 }
 
-void Graphics::drawImageScaledAndRotated2D(const Util::Math::Vector2<double> &position,
-    const Util::Graphic::Image &image, const bool flipX, const double alpha, const Util::Math::Vector2<double> &scale,
-    const double rotationAngle) const
+void Graphics::drawImageScaledAndRotated2D(const Util::Math::Vector2<float> &position,
+    const Util::Graphic::Image &image, const bool flipX, const float alpha, const Util::Math::Vector2<float> &scale,
+    const float rotationAngle) const
 {
     const auto *pixelBuffer = image.getPixelBuffer();
     const auto xPixelOffset = static_cast<int32_t>(
@@ -1053,8 +1053,8 @@ void Graphics::drawImageScaledAndRotated2D(const Util::Math::Vector2<double> &po
 
     // Scale image into new buffer
     auto *scaledPixelBuffer = new Util::Graphic::Color[scaledWidth * scaledHeight];
-    const auto factorX = static_cast<double>(scaledWidth) / image.getWidth();
-    const auto factorY = static_cast<double>(scaledHeight) / image.getHeight();
+    const auto factorX = static_cast<float>(scaledWidth) / image.getWidth();
+    const auto factorY = static_cast<float>(scaledHeight) / image.getHeight();
 
     for (int i = 0; i < scaledHeight; i++) {
         for (int j = 0; j < scaledWidth; j++) {
@@ -1089,9 +1089,9 @@ void Graphics::drawImageScaledAndRotated2D(const Util::Math::Vector2<double> &po
     delete[] scaledPixelBuffer;
 }
 
-void Graphics::gluPerspective(const GLdouble fovY, const GLdouble aspect, const GLdouble zNear, const GLdouble zFar) {
-    const GLdouble fH = Util::Math::tangent(fovY / 360 * Util::Math::PI_FLOAT) * zNear;
-    const GLdouble fW = fH * aspect;
+void Graphics::gluPerspective(const GLfloat fovY, const GLfloat aspect, const GLfloat zNear, const GLfloat zFar) {
+    const GLfloat fH = Util::Math::tangent(fovY / 360 * Util::Math::PI_FLOAT) * zNear;
+    const GLfloat fW = fH * aspect;
 
     glFrustum(-fW, fW, -fH, fH, zNear, zFar);
 }

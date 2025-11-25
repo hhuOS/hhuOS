@@ -49,7 +49,7 @@ public:
     /**
      * Constructor.
      */
-    explicit PlayerDino(const Util::Math::Vector2<double> &position);
+    explicit PlayerDino(const Util::Math::Vector2<float> &position);
 
     /**
      * Copy Constructor.
@@ -68,7 +68,7 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void idle();
 
@@ -105,7 +105,7 @@ public:
     void draw(Pulsar::Graphics &graphics) const override;
 
     static const constexpr uint32_t TAG = 0;
-    static const constexpr double SIZE = 0.1;
+    static const constexpr float SIZE = 0.1;
 
 private:
 
@@ -120,7 +120,7 @@ private:
 
     uint32_t points = 0;
 
-    double time = 0;
+    float time = 0;
     Pulsar::D2::SpriteAnimation *currentAnimation = &eggAnimation;
     Pulsar::D2::SpriteAnimation idleAnimation;
     Pulsar::D2::SpriteAnimation runAnimation;
@@ -132,8 +132,8 @@ private:
     GrassEmitter *grassEmitter = new GrassEmitter(*this);
     Util::Time::Timestamp lastEmissionTime;
 
-    static const constexpr double MAX_VELOCITY = 0.3;
-    static const constexpr double JUMP_VELOCITY = 0.75;
+    static const constexpr float MAX_VELOCITY = 0.3;
+    static const constexpr float JUMP_VELOCITY = 0.75;
     static const constexpr uint32_t EMISSION_INTERVAL_MS = 500;
 };
 

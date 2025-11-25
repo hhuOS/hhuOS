@@ -41,7 +41,7 @@ public:
     /**
      * Default.
      */
-    explicit DropletEmitter(const Util::Math::Vector2<double> &position);
+    explicit DropletEmitter(const Util::Math::Vector2<float> &position);
 
     /**
      * Copy Constructor.
@@ -68,7 +68,7 @@ public:
 
     void onParticleInitialization(Pulsar::D2::Particle &particle) override;
 
-    void onParticleUpdate(Pulsar::D2::Particle &particle, double delta) override;
+    void onParticleUpdate(Pulsar::D2::Particle &particle, float delta) override;
 
     void onParticleCollision(Pulsar::D2::Particle &particle, const Pulsar::D2::CollisionEvent &event) override;
 

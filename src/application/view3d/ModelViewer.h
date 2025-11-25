@@ -63,7 +63,7 @@ public:
 
     void initialize() override;
 
-    void update(double delta) override;
+    void update(float delta) override;
 
     void keyPressed(const Util::Io::Key &key) override;
 
@@ -75,9 +75,9 @@ private:
     ModelEntity *model = nullptr;
     Pulsar::D3::Light *light = nullptr;
 
-    Util::Math::Vector3<double> modelRotation = Util::Math::Vector3<double>(0, 0, 0);
-    Util::Math::Vector3<double> cameraRotation = Util::Math::Vector3<double>(0, 0, 0);
-    Util::Math::Vector3<double> cameraTranslation = Util::Math::Vector3<double>(0, 0, 0);
+    Util::Math::Vector3<float> modelRotation = Util::Math::Vector3<float>(0, 0, 0);
+    Util::Math::Vector3<float> cameraRotation = Util::Math::Vector3<float>(0, 0, 0);
+    Util::Math::Vector3<float> cameraTranslation = Util::Math::Vector3<float>(0, 0, 0);
 };
 
 

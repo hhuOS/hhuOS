@@ -50,7 +50,7 @@ public:
     /**
      * Constructor.
      */
-    Block(Tag tag, const Util::Math::Vector2<double> &position, uint32_t countX, uint32_t countY);
+    Block(Tag tag, const Util::Math::Vector2<float> &position, uint32_t countX, uint32_t countY);
 
     /**
      * Copy Constructor.
@@ -69,7 +69,7 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void draw(Pulsar::Graphics &graphics) const override;
 
@@ -77,7 +77,7 @@ public:
 
     void onCollisionEvent(const Pulsar::D2::CollisionEvent &event) override;
 
-    static const constexpr double SIZE = 0.08;
+    static const constexpr float SIZE = 0.08;
 
 private:
 

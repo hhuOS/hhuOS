@@ -29,7 +29,7 @@ uint32_t DemoModel::TREE_DRAW_LIST_ID = UINT32_MAX;
 uint32_t DemoModel::LANTERN_DRAW_LIST_ID = UINT32_MAX;
 uint32_t DemoModel::ICOSPHERE_DRAW_LIST_ID = UINT32_MAX;
 
-DemoModel::DemoModel(Type type, const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, const Util::Math::Vector3<double> &scale, const Util::Graphic::Color &color) :
+DemoModel::DemoModel(Type type, const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation, const Util::Math::Vector3<float> &scale, const Util::Graphic::Color &color) :
         Model(0, Util::String::format("%s.obj", pathForType(type)), type == ICOSPHERE ? Util::String::format("%s.bmp", pathForType(type)) : Util::String(), position, rotation, scale), type(type), color(color) {}
 
 void DemoModel::initialize() {
@@ -70,9 +70,9 @@ void DemoModel::draw(Pulsar::Graphics &graphics) const {
     graphics.drawList3D(getPosition(), getScale(), getRotation(), drawListID);
 }
 
-void DemoModel::onUpdate([[maybe_unused]] double delta) {
+void DemoModel::onUpdate([[maybe_unused]] float delta) {
     if (type == ICOSPHERE) {
-        rotate(Util::Math::Vector3<double>(0, 0, 1) * delta * 30);
+        rotate(Util::Math::Vector3<float>(0, 0, 1) * delta * 30);
         translate(getFrontVector() * delta * 10);
     }
 }

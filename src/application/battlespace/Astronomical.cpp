@@ -29,9 +29,9 @@ class Color;
 }  // namespace Graphic
 }  // namespace Util
 
-Astronomical::Astronomical(const Util::String &modelName, const Util::Math::Vector3<double> &position, double scale, const Util::Math::Vector3<double> &rotationVector, const Util::Graphic::Color &color) : Pulsar::D3::Model(TAG, Util::String::format("/user/battlespace/%s.obj", static_cast<const char*>(modelName)), position, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(scale, scale, scale), color), rotationVector(rotationVector) {}
+Astronomical::Astronomical(const Util::String &modelName, const Util::Math::Vector3<float> &position, float scale, const Util::Math::Vector3<float> &rotationVector, const Util::Graphic::Color &color) : Pulsar::D3::Model(TAG, Util::String::format("/user/battlespace/%s.obj", static_cast<const char*>(modelName)), position, Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(scale, scale, scale), color), rotationVector(rotationVector) {}
 
-void Astronomical::onUpdate(double delta) {
+void Astronomical::onUpdate(float delta) {
     rotate(rotationVector * delta);
 }
 

@@ -38,7 +38,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Ship(const Util::Math::Vector2<double> &position);
+    explicit Ship(const Util::Math::Vector2<float> &position);
 
     /**
      * Copy Constructor.
@@ -57,7 +57,7 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
 
@@ -70,8 +70,8 @@ public:
     void allowFireMissile();
 
     static const constexpr uint32_t TAG = 0;
-    static const constexpr double SIZE_X = 0.2828;
-    static const constexpr double SIZE_Y = 0.2;
+    static const constexpr float SIZE_X = 0.2828;
+    static const constexpr float SIZE_Y = 0.2;
 
 private:
 

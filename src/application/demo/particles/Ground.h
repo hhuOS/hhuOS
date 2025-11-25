@@ -41,7 +41,7 @@ public:
     /**
      * Default Constructor.
      */
-    explicit Ground(const Util::Math::Vector2<double> &position);
+    explicit Ground(const Util::Math::Vector2<float> &position);
 
     /**
      * Copy Constructor.
@@ -60,7 +60,7 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
 
@@ -69,8 +69,8 @@ public:
     void draw(Pulsar::Graphics &graphics) const override;
 
     static const constexpr uint32_t TAG = 6;
-    static const constexpr double WIDTH = 1.0;
-    static const constexpr double HEIGHT = 0.1;
+    static const constexpr float WIDTH = 1.0;
+    static const constexpr float HEIGHT = 0.1;
 
 private:
 

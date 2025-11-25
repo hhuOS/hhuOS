@@ -39,7 +39,7 @@ public:
     /**
      * Constructor.
      */
-    explicit EnemyMissile(const Util::Math::Vector2<double> &position, EnemyBug &bug);
+    explicit EnemyMissile(const Util::Math::Vector2<float> &position, EnemyBug &bug);
 
     /**
      * Copy Constructor.
@@ -58,7 +58,7 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void onTranslationEvent(Pulsar::D2::TranslationEvent &event) override;
 
@@ -67,8 +67,8 @@ public:
     void draw(Pulsar::Graphics &graphics) const override;
 
     static const constexpr uint32_t TAG = 2;
-    static const constexpr double SIZE_X = 0.02;
-    static const constexpr double SIZE_Y = 0.065;
+    static const constexpr float SIZE_X = 0.02;
+    static const constexpr float SIZE_Y = 0.065;
 
 private:
 

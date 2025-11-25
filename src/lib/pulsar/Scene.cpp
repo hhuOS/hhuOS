@@ -46,7 +46,7 @@ Scene::~Scene() {
     entities.clear();
 }
 
-void Scene::update([[maybe_unused]] double delta) {}
+void Scene::update([[maybe_unused]] float delta) {}
 
 void Scene::addEntity(Entity *object) {
     object->scene = this;
@@ -95,7 +95,7 @@ void Scene::mouseButtonPressed([[maybe_unused]] Util::Io::MouseDecoder::Button b
 
 void Scene::mouseButtonReleased([[maybe_unused]] Util::Io::MouseDecoder::Button button) {}
 
-void Scene::mouseMoved([[maybe_unused]] const Util::Math::Vector2<double> &relativeMovement) {}
+void Scene::mouseMoved([[maybe_unused]] const Util::Math::Vector2<float> &relativeMovement) {}
 
 void Scene::mouseScrolled([[maybe_unused]] Util::Io::MouseDecoder::ScrollDirection direction) {}
 

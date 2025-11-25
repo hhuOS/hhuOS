@@ -40,12 +40,12 @@
 
 namespace Pulsar::D2 {
 
-GravityComponent::GravityComponent(const double gravityValue, const double stopFactorX) :
+GravityComponent::GravityComponent(const float gravityValue, const float stopFactorX) :
     gravityValue(gravityValue), stopFactorX(stopFactorX) {}
 
-void GravityComponent::update(const double delta) {
+void GravityComponent::update(const float delta) {
     auto &entity = getEntity();
-    const auto gravityEffect = Util::Math::Vector2<double>(0, -Util::Math::absolute(gravityValue * delta));
+    const auto gravityEffect = Util::Math::Vector2<float>(0, -Util::Math::absolute(gravityValue * delta));
     const auto velocity = entity.getVelocity() + gravityEffect;
     const auto newPosition = entity.getPosition() + velocity * delta;
 
@@ -54,7 +54,7 @@ void GravityComponent::update(const double delta) {
     
     if (!event.isCanceled()) {
         entity.setPosition(newPosition);
-        entity.setVelocity(Util::Math::Vector2<double>(velocity.getX() * (1 - stopFactorX), velocity.getY()));
+        entity.setVelocity(Util::Math::Vector2<float>(velocity.getX() * (1 - stopFactorX), velocity.getY()));
     }
 }
 

@@ -46,7 +46,7 @@ public:
     /**
      * Constructor.
      */
-    Explosive(uint32_t tag, const Util::Math::Vector2<double> &position, const Pulsar::D2::RectangleCollider &collider, const Util::String &waveFilePath, double animationTime = 0.5);
+    Explosive(uint32_t tag, const Util::Math::Vector2<float> &position, const Pulsar::D2::RectangleCollider &collider, const Util::String &waveFilePath, float animationTime = 0.5);
 
     /**
      * Copy Constructor.
@@ -65,7 +65,7 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void draw(Pulsar::Graphics &graphics) const override;
 
@@ -81,13 +81,13 @@ private:
     Pulsar::AudioTrack soundEffect;
     Pulsar::AudioHandle soundEffectHandle;
 
-    double animationTime;
+    float animationTime;
     Pulsar::D2::SpriteAnimation animation;
 
     bool shouldExplode = false;
     bool exploding = false;
 
-    double explosionTimer = 0;
+    float explosionTimer = 0;
 };
 
 #endif

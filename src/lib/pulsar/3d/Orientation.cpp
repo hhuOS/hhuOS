@@ -35,22 +35,22 @@
 
 namespace Pulsar::D3 {
 
-const Util::Math::Vector3<double> Orientation::WORLD_UP = Util::Math::Vector3<double>(0, 1, 0);
+const Util::Math::Vector3<float> Orientation::WORLD_UP = Util::Math::Vector3<float>(0, 1, 0);
 
 Orientation::Orientation() {
     reset();
 }
 
-void Orientation::setRotation(const Util::Math::Vector3<double> &angle) {
+void Orientation::setRotation(const Util::Math::Vector3<float> &angle) {
     rotation = angle % 360;
 
     // If z is exactly 0, rotation behavior is weird (z-axis inverted) and I don't know why.
     // A dirty workaround is to set z to a very small value instead of 0.
     if (rotation.getZ() == 0) {
-        rotation = Util::Math::Vector3<double>(rotation.getX(), rotation.getY(), 0.000001);
+        rotation = Util::Math::Vector3<float>(rotation.getX(), rotation.getY(), 0.000001);
     }
 
-    front = Util::Math::Vector3<double>(
+    front = Util::Math::Vector3<float>(
             Util::Math::sine(Util::Math::toRadians(rotation.getZ())) * Util::Math::cosine(Util::Math::toRadians(rotation.getY())),
             Util::Math::sine(Util::Math::toRadians(rotation.getY())),
             -Util::Math::cosine(Util::Math::toRadians(rotation.getZ())) * Util::Math::cosine(Util::Math::toRadians(rotation.getY()))).normalize();
@@ -58,33 +58,33 @@ void Orientation::setRotation(const Util::Math::Vector3<double> &angle) {
     up = right.crossProduct(front).normalize();
 }
 
-void Orientation::rotate(const Util::Math::Vector3<double> &angle) {
+void Orientation::rotate(const Util::Math::Vector3<float> &angle) {
     setRotation(rotation + angle);
 }
 
 void Orientation::reset() {
-    setRotation(Util::Math::Vector3<double>(0, 0, 0));
+    setRotation(Util::Math::Vector3<float>(0, 0, 0));
 }
 
-const Util::Math::Vector3<double>& Orientation::getRotation() const {
+const Util::Math::Vector3<float>& Orientation::getRotation() const {
     return rotation;
 }
 
-const Util::Math::Vector3<double>& Orientation::getUp() const {
+const Util::Math::Vector3<float>& Orientation::getUp() const {
     return up;
 }
 
-const Util::Math::Vector3<double>& Orientation::getRight() const {
+const Util::Math::Vector3<float>& Orientation::getRight() const {
     return right;
 }
 
-const Util::Math::Vector3<double>& Orientation::getFront() const {
+const Util::Math::Vector3<float>& Orientation::getFront() const {
     return front;
 }
 
-void Orientation::setFront(const Util::Math::Vector3<double> &front) {
+void Orientation::setFront(const Util::Math::Vector3<float> &front) {
     const auto normalizedFront = front.normalize();
-    const auto rotation = Util::Math::Vector3<double>(Orientation::rotation.getX(),
+    const auto rotation = Util::Math::Vector3<float>(Orientation::rotation.getX(),
         Util::Math::toDegrees(Util::Math::arcsine(normalizedFront.getY())),
         Util::Math::toDegrees(Util::Math::arctangent2(normalizedFront.getX(), -normalizedFront.getZ())));
 

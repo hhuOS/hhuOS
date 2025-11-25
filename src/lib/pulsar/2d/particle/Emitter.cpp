@@ -36,14 +36,14 @@
 
 namespace Pulsar::D2 {
 
-Emitter::Emitter(const size_t tag, const size_t particleTag, const Util::Math::Vector2<double> &position,
+Emitter::Emitter(const size_t tag, const size_t particleTag, const Util::Math::Vector2<float> &position,
     const uint32_t minEmissionRate, const uint32_t maxEmissionRate, const Util::Time::Timestamp &emissionInterval,
     const Util::Time::Timestamp &timeToLive) : Entity(tag, position), particleTag(particleTag),
-    timeLimited(timeToLive.toNanoseconds() > 0), timeToLive(timeToLive.toSecondsFloat<double>()),
+    timeLimited(timeToLive.toNanoseconds() > 0), timeToLive(timeToLive.toSecondsFloat<float>()),
     minEmissionRate(minEmissionRate), maxEmissionRate(maxEmissionRate),
-    emissionInterval(emissionInterval.toSecondsFloat<double>()) {}
+    emissionInterval(emissionInterval.toSecondsFloat<float>()) {}
 
-void Emitter::onUpdate(const double delta) {
+void Emitter::onUpdate(const float delta) {
     if (timeLimited) {
         timeToLive -= delta;
         if (timeToLive <= 0) {
@@ -110,11 +110,11 @@ void Emitter::setMaxEmissionRate(const uint32_t maxEmissionRate) {
     Emitter::maxEmissionRate = maxEmissionRate;
 }
 
-double Emitter::getEmissionInterval() const {
+float Emitter::getEmissionInterval() const {
     return emissionInterval;
 }
 
-void Emitter::setEmissionTime(const double emissionInterval) {
+void Emitter::setEmissionTime(const float emissionInterval) {
     Emitter::emissionInterval = emissionInterval;
 }
 

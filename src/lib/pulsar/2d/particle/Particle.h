@@ -69,7 +69,7 @@ public:
     /// Update the particle's state. This method is called automatically each frame.
     /// It decreases the particle's time to live (if applicable) and calls the emitter's
     /// `onParticleUpdate()` method to allow custom behavior.
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     /// Draw the particle using its sprite at its current position.
     /// The particle's current rotation angle and alpha transparency are applied during rendering.
@@ -80,23 +80,23 @@ public:
     void onCollisionEvent(const CollisionEvent &event) override;
 
     /// Get the current scale of the particle's sprite.
-    [[nodiscard]] double getScale() const;
+    [[nodiscard]] float getScale() const;
 
     /// Set the scale of the particle's sprite.
-    void setScale(double scale);
+    void setScale(float scale);
 
     /// Get the current alpha transparency of the particle's sprite.
-    [[nodiscard]] double getAlpha() const;
+    [[nodiscard]] float getAlpha() const;
 
     /// Set the alpha transparency of the particle's sprite.
-    void setAlpha(double alpha);
+    void setAlpha(float alpha);
 
     /// Get the rotation velocity of the particle (in degrees per second).
-    [[nodiscard]] double getRotationVelocity() const;
+    [[nodiscard]] float getRotationVelocity() const;
 
     /// Set the rotation velocity of the particle (in degrees per second).
     /// A negative value will rotate the particle counter-clockwise.
-    void setRotationVelocity(double rotationVelocity);
+    void setRotationVelocity(float rotationVelocity);
 
     /// Set the time to live for the particle.
     /// If the time is greater than zero, the particle will be removed from the scene after that duration.
@@ -110,9 +110,9 @@ public:
 
 private:
 
-    double rotationVelocity = 0;
+    float rotationVelocity = 0;
     bool timeLimited = false;
-    double timeToLive = 0;
+    float timeToLive = 0;
 
     Sprite sprite;
     Emitter &parent;

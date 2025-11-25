@@ -83,26 +83,26 @@ public:
     RectangleCollider() = default;
 
     /// Create a new rectangle collider instance at the given position with the given size and type.
-    RectangleCollider(const Util::Math::Vector2<double> &position, double width, double height, Type type);
+    RectangleCollider(const Util::Math::Vector2<float> &position, float width, float height, Type type);
 
     /// Get the opposite side of the given side.
     /// For example, the opposite side of `LEFT` is `RIGHT`.
     static Side getOpposite(Side side);
 
     /// Get the width of the rectangle collider.
-    [[nodiscard]] double getWidth() const;
+    [[nodiscard]] float getWidth() const;
 
     /// Get the height of the rectangle collider.
-    [[nodiscard]] double getHeight() const;
+    [[nodiscard]] float getHeight() const;
 
     /// Set the width of the rectangle collider.
-    void setWidth(double width);
+    void setWidth(float width);
 
     /// Set the height of the rectangle collider.
-    void setHeight(double height);
+    void setHeight(float height);
 
     /// Set the width and height of the rectangle collider.
-    void setSize(double width, double height);
+    void setSize(float width, float height);
 
     /// Get the type of the rectangle collider.
     [[nodiscard]] Type getType() const;
@@ -114,8 +114,8 @@ public:
 
 private:
 
-    double width = 0;
-    double height = 0;
+    float width = 0;
+    float height = 0;
 
     Type type = NON_EXISTENT;
 };

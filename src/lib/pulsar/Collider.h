@@ -53,25 +53,25 @@ public:
     Collider() = default;
 
     /// Create a new collider instance at the given 2D position with the specified type.
-    explicit Collider(const Util::Math::Vector2<double> &position);
+    explicit Collider(const Util::Math::Vector2<float> &position);
 
     /// Create a new collider instance at the given 3D position with the specified type.
-    explicit Collider(const Util::Math::Vector3<double> &position);
+    explicit Collider(const Util::Math::Vector3<float> &position);
 
     /// Set the position of the collider using a 2D vector.
     /// The z-coordinate is set to 0.
-    void setPosition(const Util::Math::Vector2<double> &position);
+    void setPosition(const Util::Math::Vector2<float> &position);
 
     /// Set the position of the collider using a 3D vector.
-    void setPosition(const Util::Math::Vector3<double> &position);
+    void setPosition(const Util::Math::Vector3<float> &position);
 
     /// Get the position of the collider as a 3D vector.
     /// For 2D colliders, the z-coordinate is typically 0.
-    [[nodiscard]] const Util::Math::Vector3<double>& getPosition() const;
+    [[nodiscard]] const Util::Math::Vector3<float>& getPosition() const;
 
 private:
 
-    Util::Math::Vector3<double> position;
+    Util::Math::Vector3<float> position;
 };
 
 }

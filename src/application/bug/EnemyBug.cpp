@@ -38,7 +38,7 @@
 #include "lib/pulsar/2d/Entity.h"
 #include "lib/util/base/String.h"
 
-EnemyBug::EnemyBug(const Util::Math::Vector2<double> &position, Fleet &fleet) : Explosive(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE_X, SIZE_Y, Pulsar::D2::RectangleCollider::STATIC), "/user/bug/bug_explosion.wav"), fleet(fleet) {
+EnemyBug::EnemyBug(const Util::Math::Vector2<float> &position, Fleet &fleet) : Explosive(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE_X, SIZE_Y, Pulsar::D2::RectangleCollider::STATIC), "/user/bug/bug_explosion.wav"), fleet(fleet) {
     addComponent(new Pulsar::D2::LinearMovementComponent());
 }
 
@@ -50,7 +50,7 @@ void EnemyBug::initialize() {
         Pulsar::D2::Sprite("/user/bug/bug2.bmp", SIZE_X, SIZE_Y)}), 0.5);
 }
 
-void EnemyBug::onUpdate(double delta) {
+void EnemyBug::onUpdate(float delta) {
     Explosive::onUpdate(delta);
 
     if (hasExploded()) {
@@ -115,7 +115,7 @@ void EnemyBug::draw(Pulsar::Graphics &graphics) const {
 }
 
 void EnemyBug::fireMissile() {
-    auto *missile = new EnemyMissile(getPosition() + Util::Math::Vector2<double>((SIZE_X / 2) - (EnemyMissile::SIZE_X / 2), -SIZE_Y), *this);
+    auto *missile = new EnemyMissile(getPosition() + Util::Math::Vector2<float>((SIZE_X / 2) - (EnemyMissile::SIZE_X / 2), -SIZE_Y), *this);
     getScene().addEntity(missile);
     missile->setVelocityY(-1);
 }

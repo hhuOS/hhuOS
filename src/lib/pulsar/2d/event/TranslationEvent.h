@@ -51,14 +51,14 @@ public:
     /// Create a new translation event instance.
     /// Translation events are created automatically by components that move entities.
     /// Thus, this constructor is intended for internal use only.
-    explicit TranslationEvent(const Util::Math::Vector2<double> &targetPosition);
+    explicit TranslationEvent(const Util::Math::Vector2<float> &targetPosition);
 
     /// Get the target position the entity is being moved to.
-    [[nodiscard]] const Util::Math::Vector2<double>& getTargetPosition() const;
+    [[nodiscard]] const Util::Math::Vector2<float>& getTargetPosition() const;
 
 private:
 
-    Util::Math::Vector2<double> targetPosition;
+    Util::Math::Vector2<float> targetPosition;
 };
 
 }

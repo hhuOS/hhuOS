@@ -52,47 +52,47 @@ public:
     Camera();
 
     /// Get the current position of the camera.
-    [[nodiscard]] const Util::Math::Vector3<double>& getPosition() const;
+    [[nodiscard]] const Util::Math::Vector3<float>& getPosition() const;
 
     /// Get the current rotation of the camera.
-    [[nodiscard]] const Util::Math::Vector3<double>& getRotation() const;
+    [[nodiscard]] const Util::Math::Vector3<float>& getRotation() const;
 
     /// Get the front vector of the camera, based on its orientation.
     /// This vector points in the direction the camera is facing in 3D space.
-    [[nodiscard]] const Util::Math::Vector3<double>& getFrontVector() const;
+    [[nodiscard]] const Util::Math::Vector3<float>& getFrontVector() const;
 
     /// Get the up vector of the camera, based on its orientation.
     /// This vector points upwards from the camera's perspective in 3D space.
-    [[nodiscard]] const Util::Math::Vector3<double>& getUpVector() const;
+    [[nodiscard]] const Util::Math::Vector3<float>& getUpVector() const;
 
     /// Get the right vector of the camera, based on its orientation.
     /// This vector points to the right from the camera's perspective in 3D space.
-    [[nodiscard]] const Util::Math::Vector3<double>& getRightVector() const;
+    [[nodiscard]] const Util::Math::Vector3<float>& getRightVector() const;
 
     /// Set the position of the camera in 3D space.
-    void setPosition(const Util::Math::Vector3<double> &position);
+    void setPosition(const Util::Math::Vector3<float> &position);
 
     /// Set the position of the camera in 2D space (Z component is set to 0).
-    void setPosition(const Util::Math::Vector2<double> &position);
+    void setPosition(const Util::Math::Vector2<float> &position);
 
     /// Set the rotation of the camera in 3D space.
-    void setRotation(const Util::Math::Vector3<double> &angle);
+    void setRotation(const Util::Math::Vector3<float> &angle);
 
     /// Translate the camera by the given vector in 3D space.
-    void translate(const Util::Math::Vector3<double> &translation);
+    void translate(const Util::Math::Vector3<float> &translation);
 
     /// Translate the camera by the given vector in 2D space.
-    void translate(const Util::Math::Vector2<double> &translation);
+    void translate(const Util::Math::Vector2<float> &translation);
 
     /// Rotate the camera by the given angles in 3D space.
-    void rotate(const Util::Math::Vector3<double> &angle);
+    void rotate(const Util::Math::Vector3<float> &angle);
 
     /// Reset the camera to the origin (0, 0, 0) with no rotation.
     void reset();
 
 private:
 
-    Util::Math::Vector3<double> position;
+    Util::Math::Vector3<float> position;
     D3::Orientation orientation;
 };
 

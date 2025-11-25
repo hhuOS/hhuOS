@@ -43,15 +43,15 @@
 
 namespace Pulsar::D3 {
 
-Model::Model(const size_t tag, const Util::String &modelPath, const Util::Math::Vector3<double> &position,
-    const Util::Math::Vector3<double> &rotation, const Util::Math::Vector3<double> &scale,
+Model::Model(const size_t tag, const Util::String &modelPath, const Util::Math::Vector3<float> &position,
+    const Util::Math::Vector3<float> &rotation, const Util::Math::Vector3<float> &scale,
     const Util::Graphic::Color &color) : Entity(tag, position, rotation, scale,
         SphereCollider(position, Util::Math::max(scale.getX(), scale.getY(), scale.getZ()))),
     modelPath(modelPath), color(color) {}
 
 Model::Model(const size_t tag, const Util::String &modelPath, const Util::String &texturePath,
-    const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation,
-    const Util::Math::Vector3<double> &scale) : Entity(tag, position, rotation, scale,
+    const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation,
+    const Util::Math::Vector3<float> &scale) : Entity(tag, position, rotation, scale,
         SphereCollider(position, Util::Math::max(scale.getX(), scale.getY(), scale.getZ()))),
     modelPath(modelPath), texturePath(texturePath) {}
 
@@ -76,15 +76,15 @@ void Model::draw(Graphics &graphics) const {
     graphics.drawModel3D(*this);
 }
 
-const Util::Array<Util::Math::Vector3<double>> &Model::getVertices() const {
+const Util::Array<Util::Math::Vector3<float>> &Model::getVertices() const {
     return objectFile->getVertices();
 }
 
-const Util::Array<Util::Math::Vector3<double>> &Model::getVertexNormals() const {
+const Util::Array<Util::Math::Vector3<float>> &Model::getVertexNormals() const {
     return objectFile->getVertexNormals();
 }
 
-const Util::Array<Util::Math::Vector3<double>> &Model::getVertexTextures() const {
+const Util::Array<Util::Math::Vector3<float>> &Model::getVertexTextures() const {
     return objectFile->getVertexTextures();
 }
 
@@ -101,6 +101,10 @@ const Util::Array<size_t> &Model::getTextureDrawOrder() const {
 }
 
 const Texture& Model::getTexture() const {
+    if (texture ==  nullptr) {
+        return Texture::INVALID_TEXTURE;
+    }
+
     return *texture;
 }
 

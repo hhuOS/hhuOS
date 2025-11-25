@@ -52,7 +52,7 @@ public:
 protected:
     /// Update the entity's position based on its velocity and the elapsed time since the last update.
     /// This method is called every frame by the entity that owns this component.
-    void update(double delta) override;
+    void update(float delta) override;
 };
 
 }

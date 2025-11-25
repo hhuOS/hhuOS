@@ -64,7 +64,7 @@ public:
 protected:
     /// This method is called every frame by the entity it is attached to.
     /// Here, the component can modify the state of the entity.
-    virtual void update(double delta) = 0;
+    virtual void update(float delta) = 0;
 
     /// Get the entity this component is attached to.
     /// This method allows subclasses to access the entity they are attached to.

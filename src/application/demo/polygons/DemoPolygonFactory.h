@@ -63,13 +63,13 @@ private:
 
     Util::Math::Random random = Util::Math::Random();
 
-    static const Util::Array<Util::Math::Vector2<double>> shape1;
-    static const Util::Array<Util::Math::Vector2<double>> shape2;
-    static const Util::Array<Util::Math::Vector2<double>> shape3;
-    static const Util::Array<Util::Math::Vector2<double>> shape4;
-    static const Util::Array<Util::Math::Vector2<double>> shape5;
+    static const Util::Array<Util::Math::Vector2<float>> shape1;
+    static const Util::Array<Util::Math::Vector2<float>> shape2;
+    static const Util::Array<Util::Math::Vector2<float>> shape3;
+    static const Util::Array<Util::Math::Vector2<float>> shape4;
+    static const Util::Array<Util::Math::Vector2<float>> shape5;
 
-    static const Util::Array<const Util::Array<Util::Math::Vector2<double>>*> shapes;
+    static const Util::Array<const Util::Array<Util::Math::Vector2<float>>*> shapes;
 };
 
 #endif

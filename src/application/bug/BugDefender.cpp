@@ -38,12 +38,12 @@ void BugDefender::initialize() {
 
     for (uint32_t i = 0; i < BUGS_PER_COLUMN; i++) {
         for (uint32_t j = 0; j < BUGS_PER_ROW; j++) {
-            addEntity(new EnemyBug(Util::Math::Vector2<double>(-1.0 + j * (EnemyBug::SIZE_X + 0.05), 0.8 - i * (EnemyBug::SIZE_Y + 0.05)), enemyFleet));
+            addEntity(new EnemyBug(Util::Math::Vector2<float>(-1.0 + j * (EnemyBug::SIZE_X + 0.05), 0.8 - i * (EnemyBug::SIZE_Y + 0.05)), enemyFleet));
         }
     }
 }
 
-void BugDefender::update([[maybe_unused]] double delta) {
+void BugDefender::update([[maybe_unused]] float delta) {
     if (!backgroundMusicHandle.isPlaying()) {
         backgroundMusicHandle = backgroundMusic.play(true);
     }
@@ -72,7 +72,7 @@ bool BugDefender::initializeBackground(Pulsar::Graphics &graphics) {
 
     for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
         for (int32_t y = -tilesPerColumn; y < tilesPerColumn; y++) {
-            backgroundSprites[static_cast<uint32_t>(random.getRandomNumber() * BACKGROUND_TILE_COUNT)].draw(graphics, Util::Math::Vector2<double>(x * BACKGROUND_TILE_WIDTH, y * BACKGROUND_TILE_HEIGHT));
+            backgroundSprites[static_cast<uint32_t>(random.getRandomNumber() * BACKGROUND_TILE_COUNT)].draw(graphics, Util::Math::Vector2<float>(x * BACKGROUND_TILE_WIDTH, y * BACKGROUND_TILE_HEIGHT));
         }
     }
 
@@ -80,11 +80,11 @@ bool BugDefender::initializeBackground(Pulsar::Graphics &graphics) {
     tilesPerRow = static_cast<int32_t>(dimensions.getX() > dimensions.getY() ? dimensions.getX() * defaultTilesPerRow : defaultTilesPerRow);
 
     for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
-        surfaceSprite.draw(graphics, Util::Math::Vector2<double>(x * PLANET_TILE_WIDTH, -1 + PLANET_TILE_HEIGHT));
+        surfaceSprite.draw(graphics, Util::Math::Vector2<float>(x * PLANET_TILE_WIDTH, -1 + PLANET_TILE_HEIGHT));
     }
 
     for (int32_t x = -tilesPerRow; x < tilesPerRow; x++) {
-        planetSprites[static_cast<uint32_t>(random.getRandomNumber() * PLANET_TILE_COUNT)].draw(graphics, Util::Math::Vector2<double>(x * PLANET_TILE_WIDTH, -1));
+        planetSprites[static_cast<uint32_t>(random.getRandomNumber() * PLANET_TILE_COUNT)].draw(graphics, Util::Math::Vector2<float>(x * PLANET_TILE_WIDTH, -1));
     }
 
     return true;

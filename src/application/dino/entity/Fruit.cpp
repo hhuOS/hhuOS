@@ -33,7 +33,7 @@
 #include "lib/pulsar/2d/collider/RectangleCollider.h"
 #include "lib/util/math/Vector2.h"
 
-Fruit::Fruit(const Util::Math::Vector2<double> &position, const Util::Io::File &nextLevelFile) :
+Fruit::Fruit(const Util::Math::Vector2<float> &position, const Util::Io::File &nextLevelFile) :
         Pulsar::D2::Entity(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE, SIZE, Pulsar::D2::RectangleCollider::STATIC)),
         nextLevelFile(nextLevelFile) {}
 
@@ -58,7 +58,7 @@ void Fruit::initialize() {
         Pulsar::D2::Sprite("/user/dino/item/apple17.bmp", SIZE, SIZE)}), 0.85);
 }
 
-void Fruit::onUpdate(double delta) {
+void Fruit::onUpdate(float delta) {
     animation.update(delta);
 }
 

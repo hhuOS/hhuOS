@@ -33,7 +33,7 @@
 #include "lib/util/base/Panic.h"
 #include "lib/pulsar/2d/Entity.h"
 
-BloodEmitter::BloodEmitter(const Util::Math::Vector2<double> &position, Type type) : Pulsar::D2::OnceEmitter(TAG, PARTICLE_TAG, position, 25, 50), type(type) {}
+BloodEmitter::BloodEmitter(const Util::Math::Vector2<float> &position, Type type) : Pulsar::D2::OnceEmitter(TAG, PARTICLE_TAG, position, 25, 50), type(type) {}
 
 void BloodEmitter::initialize() {}
 
@@ -44,7 +44,7 @@ void BloodEmitter::onTranslationEvent([[maybe_unused]] Pulsar::D2::TranslationEv
 void BloodEmitter::onCollisionEvent([[maybe_unused]] const Pulsar::D2::CollisionEvent &event) {}
 
 void BloodEmitter::onParticleInitialization(Pulsar::D2::Particle &particle) {
-    auto angle = random.getRandomNumber() * Util::Math::PI_DOUBLE;
+    auto angle = random.getRandomNumber() * Util::Math::PI_FLOAT;
 
     switch (type) {
         case WATER:
@@ -58,14 +58,14 @@ void BloodEmitter::onParticleInitialization(Pulsar::D2::Particle &particle) {
             break;
     }
     particle.setPosition(getPosition());
-    particle.setVelocity(Util::Math::Vector2<double>(Util::Math::cosine(angle), Util::Math::sine(angle)));
-    particle.setTimeToLive(Util::Time::Timestamp::ofSecondsFloat<double>(10));
+    particle.setVelocity(Util::Math::Vector2<float>(Util::Math::cosine(angle), Util::Math::sine(angle)));
+    particle.setTimeToLive(Util::Time::Timestamp::ofSecondsFloat<float>(10));
     particle.setCollider(Pulsar::D2::RectangleCollider(particle.getPosition(), PARTICLE_SIZE, PARTICLE_SIZE, Pulsar::D2::RectangleCollider::PERMEABLE));
 
     particle.addComponent(new Pulsar::D2::GravityComponent(2.5, 0.0025));
 }
 
-void BloodEmitter::onParticleUpdate(Pulsar::D2::Particle &particle, double delta) {
+void BloodEmitter::onParticleUpdate(Pulsar::D2::Particle &particle, float delta) {
     particle.setAlpha(particle.getAlpha() - 1 * delta);
 }
 

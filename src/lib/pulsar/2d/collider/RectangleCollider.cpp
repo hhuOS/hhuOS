@@ -39,8 +39,8 @@
 
 namespace Pulsar::D2 {
 
-RectangleCollider::RectangleCollider(const Util::Math::Vector2<double> &position, const double width,
-    const double height, const Type type) : Collider(position), width(width), height(height), type(type) {}
+RectangleCollider::RectangleCollider(const Util::Math::Vector2<float> &position, const float width,
+    const float height, const Type type) : Collider(position), width(width), height(height), type(type) {}
 
 RectangleCollider::Side RectangleCollider::getOpposite(const Side side) {
     if (side == NONE) {
@@ -52,23 +52,23 @@ RectangleCollider::Side RectangleCollider::getOpposite(const Side side) {
     return static_cast<Side>(side ^ 1);
 }
 
-double RectangleCollider::getWidth() const {
+float RectangleCollider::getWidth() const {
     return width;
 }
 
-double RectangleCollider::getHeight() const {
+float RectangleCollider::getHeight() const {
     return height;
 }
 
-void RectangleCollider::setWidth(const double width) {
+void RectangleCollider::setWidth(const float width) {
     RectangleCollider::width = width;
 }
 
-void RectangleCollider::setHeight(const double height) {
+void RectangleCollider::setHeight(const float height) {
     RectangleCollider::height = height;
 }
 
-void RectangleCollider::setSize(const double width, const double height) {
+void RectangleCollider::setSize(const float width, const float height) {
     RectangleCollider::width = width;
     RectangleCollider::height = height;
 }
@@ -84,9 +84,9 @@ RectangleCollider::Side RectangleCollider::isColliding(const RectangleCollider &
         getHeight() + getPosition().getY() > other.getPosition().getY()) {
 
         const auto lastCenter = getPosition() +
-            Util::Math::Vector2<double>(getWidth() / 2, getHeight() / 2);
+            Util::Math::Vector2<float>(getWidth() / 2, getHeight() / 2);
         const auto otherLastCenter = other.getPosition() +
-            Util::Math::Vector2<double>(other.getWidth() / 2, other.getHeight() / 2);
+            Util::Math::Vector2<float>(other.getWidth() / 2, other.getHeight() / 2);
 
         const auto centerXDistance = lastCenter.getX() - otherLastCenter.getX();
         const auto centerYDistance = lastCenter.getY() - otherLastCenter.getY();

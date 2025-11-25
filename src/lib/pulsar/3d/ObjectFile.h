@@ -50,14 +50,14 @@ public:
     explicit ObjectFile(const Util::String &path);
 
     /// Get the array of vertices, that define the shape of the 3D object.
-    [[nodiscard]] const Util::Array<Util::Math::Vector3<double>>& getVertices() const;
+    [[nodiscard]] const Util::Array<Util::Math::Vector3<float>>& getVertices() const;
 
     /// Get the array of vertex normals, that define the orientation of the 3D object's surfaces.
     /// These are used for lighting calculations during rendering.
-    [[nodiscard]] const Util::Array<Util::Math::Vector3<double>>& getVertexNormals() const;
+    [[nodiscard]] const Util::Array<Util::Math::Vector3<float>>& getVertexNormals() const;
 
     /// Get the array of texture coordinates, that map 2D textures onto the 3D object's surfaces.
-    [[nodiscard]] const Util::Array<Util::Math::Vector3<double>>& getVertexTextures() const;
+    [[nodiscard]] const Util::Array<Util::Math::Vector3<float>>& getVertexTextures() const;
 
     /// Get the draw order for the vertices, defining how the vertices are connected to form faces.
     /// Each entry in the returned array is an index into the vertices array.
@@ -73,9 +73,9 @@ public:
 
 private:
 
-    Util::Array<Util::Math::Vector3<double>> vertices;
-    Util::Array<Util::Math::Vector3<double>> vertexNormals;
-    Util::Array<Util::Math::Vector3<double>> vertexTextures;
+    Util::Array<Util::Math::Vector3<float>> vertices;
+    Util::Array<Util::Math::Vector3<float>> vertexNormals;
+    Util::Array<Util::Math::Vector3<float>> vertexTextures;
     Util::Array<uint32_t> vertexDrawOrder;
     Util::Array<uint32_t> normalDrawOrder;
     Util::Array<uint32_t> textureDrawOrder;

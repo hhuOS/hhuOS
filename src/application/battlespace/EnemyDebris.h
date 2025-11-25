@@ -35,7 +35,7 @@ public:
     /**
      * Constructor.
      */
-    EnemyDebris(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &rotation, double scale, uint8_t modelId);
+    EnemyDebris(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &rotation, float scale, uint8_t modelId);
 
     /**
      * Copy Constructor.
@@ -54,17 +54,17 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void onCollisionEvent(const Pulsar::D3::CollisionEvent &event) override;
 
 private:
 
     uint8_t modelId;
-    double lifetime = 0;
+    float lifetime = 0;
 
-    Util::Math::Vector3<double> translateDirection;
-    Util::Math::Vector3<double> rotationDirection;
+    Util::Math::Vector3<float> translateDirection;
+    Util::Math::Vector3<float> rotationDirection;
 };
 
 #endif

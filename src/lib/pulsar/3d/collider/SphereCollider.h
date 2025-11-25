@@ -49,7 +49,7 @@ public:
     SphereCollider() = default;
 
     /// Create a new sphere collider instance with a given radius at the specified position.
-    SphereCollider(const Util::Math::Vector3<double> &position, double radius);
+    SphereCollider(const Util::Math::Vector3<float> &position, float radius);
 
     /// Check if this sphere collider is colliding with another sphere collider.
     /// This is done by calculating the distance between the two sphere centers,
@@ -57,11 +57,11 @@ public:
     [[nodiscard]] bool isColliding(const SphereCollider &other) const;
 
     /// Get the radius of the sphere collider.
-    [[nodiscard]] double getRadius() const;
+    [[nodiscard]] float getRadius() const;
 
 private:
 
-    double radius = 0;
+    float radius = 0;
 };
 
 }

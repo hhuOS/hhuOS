@@ -27,7 +27,7 @@ DemoSprite *DemoSpriteFactory::createSprite() {
     const auto size = random.getRandomNumber() * 0.15 + 0.1;
     const auto rotationSpeed = static_cast<int32_t>(random.getRandomNumber(0, 60)) - 30;
     const auto scaleSpeed = random.getRandomNumber();
-    const auto position = Util::Math::Vector2<double>(random.getRandomNumber() * 2 - 1 - size / 2, random.getRandomNumber() * 2 - 1 - size / 2);
+    const auto position = Util::Math::Vector2<float>(random.getRandomNumber() * 2 - 1 - size / 2, random.getRandomNumber() * 2 - 1 - size / 2);
     const auto flipX = random.getRandomNumber() < 0.5;
 
     return new DemoSprite(position, size, rotationSpeed, scaleSpeed, flipX);

@@ -45,9 +45,9 @@ ObjectFile::ObjectFile(const Util::String &path) {
     auto fileStream = Util::Io::FileInputStream(path);
     auto stream = Util::Io::BufferedInputStream(fileStream);
 
-    auto vertexList = Util::ArrayList<Util::Math::Vector3<double>>();
-    auto normalList = Util::ArrayList<Util::Math::Vector3<double>>();
-    auto textureList = Util::ArrayList<Util::Math::Vector3<double>>();
+    auto vertexList = Util::ArrayList<Util::Math::Vector3<float>>();
+    auto normalList = Util::ArrayList<Util::Math::Vector3<float>>();
+    auto textureList = Util::ArrayList<Util::Math::Vector3<float>>();
     auto vertexDrawOrderList = Util::ArrayList<size_t>();
     auto normalDrawOrderList = Util::ArrayList<size_t>();
     auto textureDrawOrderList = Util::ArrayList<size_t>();
@@ -58,10 +58,10 @@ ObjectFile::ObjectFile(const Util::String &path) {
         const auto lineSplit = currentLine.content.substring(2).split(" ");
 
         if (currentLine.content.beginsWith("v ")) {
-            const auto vertex = Util::Math::Vector3<double>(
-                Util::String::parseFloat<double>(lineSplit[0]),
-                Util::String::parseFloat<double>(lineSplit[1]),
-                Util::String::parseFloat<double>(lineSplit[2]));
+            const auto vertex = Util::Math::Vector3<float>(
+                Util::String::parseFloat<float>(lineSplit[0]),
+                Util::String::parseFloat<float>(lineSplit[1]),
+                Util::String::parseFloat<float>(lineSplit[2]));
 
             vertexList.add(vertex);
         } else if (currentLine.content.beginsWith("f ")) {
@@ -132,16 +132,16 @@ ObjectFile::ObjectFile(const Util::String &path) {
                 }
             }
         } else if (currentLine.content.beginsWith("vn ")){
-            auto vertex = Util::Math::Vector3<double>(
-                Util::String::parseFloat<double>(lineSplit[0]),
-                Util::String::parseFloat<double>(lineSplit[1]),
-                Util::String::parseFloat<double>(lineSplit[2]));
+            auto vertex = Util::Math::Vector3<float>(
+                Util::String::parseFloat<float>(lineSplit[0]),
+                Util::String::parseFloat<float>(lineSplit[1]),
+                Util::String::parseFloat<float>(lineSplit[2]));
 
             normalList.add(vertex);
         } else if (currentLine.content.beginsWith("vt ")){
-            auto vertex = Util::Math::Vector3<double>(
-                Util::String::parseFloat<double>(lineSplit[0]),
-                Util::String::parseFloat<double>(lineSplit[1]),
+            auto vertex = Util::Math::Vector3<float>(
+                Util::String::parseFloat<float>(lineSplit[0]),
+                Util::String::parseFloat<float>(lineSplit[1]),
                 0.0);
 
             textureList.add(vertex);
@@ -151,7 +151,7 @@ ObjectFile::ObjectFile(const Util::String &path) {
     }
 
     // Normalize model size
-    double maxCoordinate = 0;
+    float maxCoordinate = 0;
     for (const auto &vertex : vertexList) {
         const auto absX = Util::Math::absolute(vertex.getX());
         const auto absY = Util::Math::absolute(vertex.getY());
@@ -170,7 +170,7 @@ ObjectFile::ObjectFile(const Util::String &path) {
 
     for (size_t i = 0; i < vertexList.size(); i++) {
         auto vertex = vertexList.get(i);
-        vertexList.set(i, Util::Math::Vector3<double>(
+        vertexList.set(i, Util::Math::Vector3<float>(
             vertex.getX() / maxCoordinate,
             vertex.getY() / maxCoordinate,
             vertex.getZ() / maxCoordinate));
@@ -184,15 +184,15 @@ ObjectFile::ObjectFile(const Util::String &path) {
     textureDrawOrder = textureDrawOrderList.toArray();
 }
 
-const Util::Array<Util::Math::Vector3<double>>& ObjectFile::getVertices() const {
+const Util::Array<Util::Math::Vector3<float>>& ObjectFile::getVertices() const {
     return vertices;
 }
 
-const Util::Array<Util::Math::Vector3<double>> &ObjectFile::getVertexNormals() const {
+const Util::Array<Util::Math::Vector3<float>> &ObjectFile::getVertexNormals() const {
     return vertexNormals;
 }
 
-const Util::Array<Util::Math::Vector3<double>> &ObjectFile::getVertexTextures() const {
+const Util::Array<Util::Math::Vector3<float>> &ObjectFile::getVertexTextures() const {
     return vertexTextures;
 }
 

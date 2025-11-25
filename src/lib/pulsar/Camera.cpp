@@ -41,47 +41,47 @@ Camera::Camera() {
     reset();
 }
 
-const Util::Math::Vector3<double>& Camera::getPosition() const {
+const Util::Math::Vector3<float>& Camera::getPosition() const {
     return position;
 }
 
-const Util::Math::Vector3<double>& Camera::getRotation() const {
+const Util::Math::Vector3<float>& Camera::getRotation() const {
     return orientation.getRotation();
 }
 
-const Util::Math::Vector3<double>& Camera::getFrontVector() const {
+const Util::Math::Vector3<float>& Camera::getFrontVector() const {
     return orientation.getFront();
 }
 
-const Util::Math::Vector3<double> & Camera::getUpVector() const {
+const Util::Math::Vector3<float> & Camera::getUpVector() const {
     return orientation.getUp();
 }
 
-const Util::Math::Vector3<double>& Camera::getRightVector() const {
+const Util::Math::Vector3<float>& Camera::getRightVector() const {
     return orientation.getRight();
 }
 
-void Camera::setPosition(const Util::Math::Vector3<double> &position) {
+void Camera::setPosition(const Util::Math::Vector3<float> &position) {
     Camera::position = position;
 }
 
-void Camera::setPosition(const Util::Math::Vector2<double> &position) {
-    Camera::position = Util::Math::Vector3<double>(position.getX(), position.getY(), 0);
+void Camera::setPosition(const Util::Math::Vector2<float> &position) {
+    Camera::position = Util::Math::Vector3<float>(position.getX(), position.getY(), 0);
 }
 
-void Camera::setRotation(const Util::Math::Vector3<double> &angle) {
+void Camera::setRotation(const Util::Math::Vector3<float> &angle) {
     orientation.setRotation(angle);
 }
 
-void Camera::translate(const Util::Math::Vector3<double> &translation) {
+void Camera::translate(const Util::Math::Vector3<float> &translation) {
     position = position + translation;
 }
 
-void Camera::translate(const Util::Math::Vector2<double> &translation) {
-    position = position + Util::Math::Vector3<double>(translation.getX(), translation.getY(), 0);
+void Camera::translate(const Util::Math::Vector2<float> &translation) {
+    position = position + Util::Math::Vector3<float>(translation.getX(), translation.getY(), 0);
 }
 
-void Camera::rotate(const Util::Math::Vector3<double> &angle) {
+void Camera::rotate(const Util::Math::Vector3<float> &angle) {
     orientation.rotate(angle);
 }
 

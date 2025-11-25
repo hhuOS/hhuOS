@@ -31,17 +31,17 @@
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/base/String.h"
 
-Missile::Missile(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &direction, Player &player) :
-    Model(TAG, "/user/battlespace/missile.obj", position, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0.2, 0.2, 0.2), Util::Graphic::Colors::RED), player(&player) {
+Missile::Missile(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &direction, Player &player) :
+    Model(TAG, "/user/battlespace/missile.obj", position, Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(0.2, 0.2, 0.2), Util::Graphic::Colors::RED), player(&player) {
     setFrontVector(direction);
 }
 
-Missile::Missile(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &direction) :
-    Model(TAG, "/user/battlespace/missile.obj", position, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0.2, 0.2, 0.2), Util::Graphic::Colors::GREEN) {
+Missile::Missile(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &direction) :
+    Model(TAG, "/user/battlespace/missile.obj", position, Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(0.2, 0.2, 0.2), Util::Graphic::Colors::GREEN) {
     setFrontVector(direction);
 }
 
-void Missile::onUpdate(double delta) {
+void Missile::onUpdate(float delta) {
     if (lifetime > 5) {
         removeFromScene();
     } else {

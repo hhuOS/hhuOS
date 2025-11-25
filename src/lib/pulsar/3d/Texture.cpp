@@ -40,6 +40,8 @@
 
 namespace Pulsar::D3 {
 
+const Texture Texture::INVALID_TEXTURE = Texture();
+
 Texture::Texture(const Util::String &path) {
     const auto *image = Util::Graphic::BitmapFile::open(path);
     const auto *imagePixels = image->getPixelBuffer();

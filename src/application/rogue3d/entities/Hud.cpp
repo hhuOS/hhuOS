@@ -31,7 +31,7 @@
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/math/Vector3.h"
 
-Hud::Hud(Room::Type map[4][4], const Player &player) : Entity(TAG, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0)), player(player) {
+Hud::Hud(Room::Type map[4][4], const Player &player) : Entity(TAG, Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(0, 0, 0)), player(player) {
     for (uint32_t row = 0; row < 4; row++) {
         for (uint32_t column = 0; column < 4; column++) {
            Hud::map[row][column] = map[row][column];
@@ -42,28 +42,28 @@ Hud::Hud(Room::Type map[4][4], const Player &player) : Entity(TAG, Util::Math::V
 void Hud::initialize() {}
 
 void Hud::draw(Pulsar::Graphics &graphics) const {
-    const auto charSize = Pulsar::Graphics::FONT_SIZE / static_cast<double>(graphics.getTransformation());
+    const auto charSize = Pulsar::Graphics::FONT_SIZE / static_cast<float>(graphics.getTransformation());
     const auto dimensions = graphics.getDimensions();
 
     graphics.setColor(Util::Graphic::Colors::WHITE);
-    graphics.drawStringDirect(Util::Math::Vector2<double>(-0.9, -0.875 + (charSize / 2)), "HP:");
-    graphics.drawStringDirect(Util::Math::Vector2<double>(0, -0.875 + (charSize / 2)), Util::String::format("DMG: %u", player.getDamage()));
+    graphics.drawStringDirect(Util::Math::Vector2<float>(-0.9, -0.875 + (charSize / 2)), "HP:");
+    graphics.drawStringDirect(Util::Math::Vector2<float>(0, -0.875 + (charSize / 2)), Util::String::format("DMG: %u", player.getDamage()));
 
     // Health
     graphics.setColor(Util::Graphic::Color(255, 117, 0));
-    graphics.drawRectangleDirect(Util::Math::Vector2<double>(-0.95, -0.95), Util::Math::Vector2<double>(1.9, 0.15));
+    graphics.drawRectangleDirect(Util::Math::Vector2<float>(-0.95, -0.95), Util::Math::Vector2<float>(1.9, 0.15));
 
     graphics.setColor(Util::Graphic::Color(255, 0, 0));
     for (uint32_t i = 0; i < player.getHealth(); i++) {
-        graphics.fillRectangleDirect(Util::Math::Vector2<double>(-0.75 + (0.075 * i), -0.9), Util::Math::Vector2<double>(0.05, 0.05));
+        graphics.fillRectangleDirect(Util::Math::Vector2<float>(-0.75 + (0.075 * i), -0.9), Util::Math::Vector2<float>(0.05, 0.05));
     }
 
     // Minimap Background
     graphics.setColor(Util::Graphic::Color(255, 117, 0));
-    graphics.drawRectangleDirect(Util::Math::Vector2<double>(dimensions.getX() - 0.425, 0.575), Util::Math::Vector2<double>(0.4, 0.4));
+    graphics.drawRectangleDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.425, 0.575), Util::Math::Vector2<float>(0.4, 0.4));
 
     graphics.setColor(Util::Graphic::Colors::WHITE);
-    graphics.drawStringDirect(Util::Math::Vector2<double>(dimensions.getX() - 0.425, 0.575 - charSize), Util::String::format("Level: %u", player.getLevel()));
+    graphics.drawStringDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.425, 0.575 - charSize), Util::String::format("Level: %u", player.getLevel()));
 
     // Rooms
     for (uint32_t i = 0; i < 4; i++) {
@@ -82,7 +82,7 @@ void Hud::draw(Pulsar::Graphics &graphics) const {
                 graphics.setColor(Util::Graphic::Color(68, 195, 212));
             }
 
-            graphics.fillRectangleDirect(Util::Math::Vector2<double>(dimensions.getX() - 0.4 + (0.1 * j), 0.9 - (0.1 * i)), Util::Math::Vector2<double>(0.05, 0.05));
+            graphics.fillRectangleDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.4 + (0.1 * j), 0.9 - (0.1 * i)), Util::Math::Vector2<float>(0.05, 0.05));
         }
     }
 }
@@ -92,6 +92,6 @@ void Hud::setCurrentPosition(uint32_t newRow, uint32_t newColumn) {
     currentColumn = newColumn;
 }
 
-void Hud::onUpdate([[maybe_unused]] double delta) {}
+void Hud::onUpdate([[maybe_unused]] float delta) {}
 
 void Hud::onCollisionEvent([[maybe_unused]] const Pulsar::D3::CollisionEvent &event) {}

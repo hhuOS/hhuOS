@@ -41,7 +41,7 @@ public:
     /**
      * Constructor.
      */
-    Item(const Util::Math::Vector3<double> &position, uint32_t tag);
+    Item(const Util::Math::Vector3<float> &position, uint32_t tag);
 
     /**
      * Copy Constructor.
@@ -60,7 +60,7 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void draw(Pulsar::Graphics &graphics) const override;
 
@@ -72,8 +72,8 @@ public:
 
 private:
 
-    static Util::Array<Util::Math::Vector3<double>> HEART;
-    static Util::Array<Util::Math::Vector3<double>> DMG_UP;
+    static Util::Array<Util::Math::Vector3<float>> HEART;
+    static Util::Array<Util::Math::Vector3<float>> DMG_UP;
 
     static uint32_t HEALTH_LIST_ID;
     static uint32_t DMG_UP_LIST_ID;

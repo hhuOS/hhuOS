@@ -54,9 +54,9 @@ void ModelViewer::initialize() {
 
 }
 
-void ModelViewer::update(double delta) {
+void ModelViewer::update(float delta) {
     auto &camera = getCamera();
-    auto translation = Util::Math::Vector3<double>(0, 0, 0);
+    auto translation = Util::Math::Vector3<float>(0, 0, 0);
     if (cameraTranslation.getZ() != 0) {
         translation = translation + camera.getFrontVector() * cameraTranslation.getZ();
     }
@@ -75,51 +75,51 @@ void ModelViewer::update(double delta) {
 void ModelViewer::keyPressed(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::LEFT:
-            cameraRotation = Util::Math::Vector3<double>(cameraRotation.getX(), cameraRotation.getY(), -1);
+            cameraRotation = Util::Math::Vector3<float>(cameraRotation.getX(), cameraRotation.getY(), -1);
         break;
         case Util::Io::Key::RIGHT:
-            cameraRotation = Util::Math::Vector3<double>(cameraRotation.getX(), cameraRotation.getY(), 1);
+            cameraRotation = Util::Math::Vector3<float>(cameraRotation.getX(), cameraRotation.getY(), 1);
         break;
         case Util::Io::Key::UP:
-            cameraRotation = Util::Math::Vector3<double>(cameraRotation.getX(), 1, cameraRotation.getZ());
+            cameraRotation = Util::Math::Vector3<float>(cameraRotation.getX(), 1, cameraRotation.getZ());
         break;
         case Util::Io::Key::DOWN:
-            cameraRotation = Util::Math::Vector3<double>(cameraRotation.getX(), -1, cameraRotation.getZ());
+            cameraRotation = Util::Math::Vector3<float>(cameraRotation.getX(), -1, cameraRotation.getZ());
         break;
         case Util::Io::Key::W:
-            cameraTranslation = Util::Math::Vector3<double>(cameraTranslation.getX(), cameraTranslation.getY(), 1);
+            cameraTranslation = Util::Math::Vector3<float>(cameraTranslation.getX(), cameraTranslation.getY(), 1);
         break;
         case Util::Io::Key::S:
-            cameraTranslation = Util::Math::Vector3<double>(cameraTranslation.getX(), cameraTranslation.getY(), -1);
+            cameraTranslation = Util::Math::Vector3<float>(cameraTranslation.getX(), cameraTranslation.getY(), -1);
         break;
         case Util::Io::Key::A:
-            cameraTranslation = Util::Math::Vector3<double>(-1, cameraTranslation.getY(), cameraTranslation.getZ());
+            cameraTranslation = Util::Math::Vector3<float>(-1, cameraTranslation.getY(), cameraTranslation.getZ());
         break;
         case Util::Io::Key::D:
-            cameraTranslation = Util::Math::Vector3<double>(1, cameraTranslation.getY(), cameraTranslation.getZ());
+            cameraTranslation = Util::Math::Vector3<float>(1, cameraTranslation.getY(), cameraTranslation.getZ());
         break;
         case Util::Io::Key::O:
-            modelRotation = Util::Math::Vector3<double>(-1, modelRotation.getY(), modelRotation.getZ());
+            modelRotation = Util::Math::Vector3<float>(-1, modelRotation.getY(), modelRotation.getZ());
             break;
         case Util::Io::Key::U:
-            modelRotation = Util::Math::Vector3<double>(1, modelRotation.getY(), modelRotation.getZ());
+            modelRotation = Util::Math::Vector3<float>(1, modelRotation.getY(), modelRotation.getZ());
             break;
         case Util::Io::Key::I:
-            modelRotation = Util::Math::Vector3<double>(modelRotation.getX(), -1, modelRotation.getZ());
+            modelRotation = Util::Math::Vector3<float>(modelRotation.getX(), -1, modelRotation.getZ());
             break;
         case Util::Io::Key::K:
-            modelRotation = Util::Math::Vector3<double>(modelRotation.getX(), 1, modelRotation.getZ());
+            modelRotation = Util::Math::Vector3<float>(modelRotation.getX(), 1, modelRotation.getZ());
             break;
         case Util::Io::Key::J:
-            modelRotation = Util::Math::Vector3<double>(modelRotation.getX(), modelRotation.getY(), -1);
+            modelRotation = Util::Math::Vector3<float>(modelRotation.getX(), modelRotation.getY(), -1);
             break;
         case Util::Io::Key::L:
-            modelRotation = Util::Math::Vector3<double>(modelRotation.getX(), modelRotation.getY(), 1);
+            modelRotation = Util::Math::Vector3<float>(modelRotation.getX(), modelRotation.getY(), 1);
             break;
         case Util::Io::Key::SPACE:
             getCamera().reset();
             model->setPosition(getCamera().getFrontVector() * 5);
-            model->setRotation(Util::Math::Vector3<double>(0, 0, 0));
+            model->setRotation(Util::Math::Vector3<float>(0, 0, 0));
             break;
         case Util::Io::Key::ESC:
             Pulsar::Game::getInstance().stop();
@@ -133,31 +133,31 @@ void ModelViewer::keyReleased(const Util::Io::Key &key) {
     switch (key.getScancode()) {
         case Util::Io::Key::LEFT:
         case Util::Io::Key::RIGHT:
-            cameraRotation = Util::Math::Vector3<double>(cameraRotation.getX(), cameraRotation.getY(), 0);
+            cameraRotation = Util::Math::Vector3<float>(cameraRotation.getX(), cameraRotation.getY(), 0);
         break;
         case Util::Io::Key::UP:
         case Util::Io::Key::DOWN:
-            cameraRotation = Util::Math::Vector3<double>(cameraRotation.getX(), 0, cameraRotation.getZ());
+            cameraRotation = Util::Math::Vector3<float>(cameraRotation.getX(), 0, cameraRotation.getZ());
         break;
         case Util::Io::Key::W:
         case Util::Io::Key::S:
-            cameraTranslation = Util::Math::Vector3<double>(cameraTranslation.getX(), cameraTranslation.getY(), 0);
+            cameraTranslation = Util::Math::Vector3<float>(cameraTranslation.getX(), cameraTranslation.getY(), 0);
         break;
         case Util::Io::Key::A:
         case Util::Io::Key::D:
-            cameraTranslation = Util::Math::Vector3<double>(0, cameraTranslation.getY(), cameraTranslation.getZ());
+            cameraTranslation = Util::Math::Vector3<float>(0, cameraTranslation.getY(), cameraTranslation.getZ());
         break;
         case Util::Io::Key::O:
         case Util::Io::Key::U:
-            modelRotation = Util::Math::Vector3<double>(0, modelRotation.getY(), modelRotation.getZ());
+            modelRotation = Util::Math::Vector3<float>(0, modelRotation.getY(), modelRotation.getZ());
             break;
         case Util::Io::Key::I:
         case Util::Io::Key::K:
-            modelRotation = Util::Math::Vector3<double>(modelRotation.getX(), 0, modelRotation.getZ());
+            modelRotation = Util::Math::Vector3<float>(modelRotation.getX(), 0, modelRotation.getZ());
             break;
         case Util::Io::Key::J:
         case Util::Io::Key::L:
-            modelRotation = Util::Math::Vector3<double>(modelRotation.getX(), modelRotation.getY(), 0);
+            modelRotation = Util::Math::Vector3<float>(modelRotation.getX(), modelRotation.getY(), 0);
             break;
         default:
             break;

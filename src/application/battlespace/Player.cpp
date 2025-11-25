@@ -38,11 +38,11 @@
 #include "lib/pulsar/Scene.h"
 #include "lib/pulsar/Camera.h"
 
-Player::Player(const Util::ArrayList<Enemy *> &enemies) : Pulsar::D3::Entity(TAG, Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Util::Math::Vector3<double>(0, 0, 0), Pulsar::D3::SphereCollider(Util::Math::Vector3<double>(0, 0, 0), 0.8)), enemies(enemies) {}
+Player::Player(const Util::ArrayList<Enemy *> &enemies) : Pulsar::D3::Entity(TAG, Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(0, 0, 0), Util::Math::Vector3<float>(0, 0, 0), Pulsar::D3::SphereCollider(Util::Math::Vector3<float>(0, 0, 0), 0.8)), enemies(enemies) {}
 
 void Player::initialize() {}
 
-void Player::onUpdate(double delta) {
+void Player::onUpdate(float delta) {
     if (invulnerabilityTimer > 0) invulnerabilityTimer -= delta;
     if (missileTimer > 0) missileTimer -= delta;
 }
@@ -60,58 +60,58 @@ void Player::draw(Pulsar::Graphics &graphics) const {
         graphics.setColor(Util::Graphic::Colors::RED);
     }
 
-    graphics.drawLineDirect(Util::Math::Vector2<double>(-0.025, 0), Util::Math::Vector2<double>(-0.1, 0));
-    graphics.drawLineDirect(Util::Math::Vector2<double>(0.025, 0), Util::Math::Vector2<double>(0.1, 0));
-    graphics.drawLineDirect(Util::Math::Vector2<double>(0, 0.025), Util::Math::Vector2<double>(0, 0.1));
-    graphics.drawLineDirect(Util::Math::Vector2<double>(0, -0.025), Util::Math::Vector2<double>(0, -0.1));
+    graphics.drawLineDirect(Util::Math::Vector2<float>(-0.025, 0), Util::Math::Vector2<float>(-0.1, 0));
+    graphics.drawLineDirect(Util::Math::Vector2<float>(0.025, 0), Util::Math::Vector2<float>(0.1, 0));
+    graphics.drawLineDirect(Util::Math::Vector2<float>(0, 0.025), Util::Math::Vector2<float>(0, 0.1));
+    graphics.drawLineDirect(Util::Math::Vector2<float>(0, -0.025), Util::Math::Vector2<float>(0, -0.1));
 
     graphics.setColor(invulnerabilityTimer > 0 ? Util::Graphic::Colors::RED : Util::Graphic::Colors::GREEN);
 
     // Draw player stats
-    graphics.drawStringDirect(Util::Math::Vector2<double>(-dimensions.getX() + 0.05, 0.95), Util::String("Health  : "));
-    graphics.drawStringDirect(Util::Math::Vector2<double>(-dimensions.getX() + 0.05, 0.9), Util::String::format("Score   : %d", score));
-    graphics.drawStringDirect(Util::Math::Vector2<double>(-dimensions.getX() + 0.05, 0.85), Util::String::format("Enemies : %d", enemies.size()));
+    graphics.drawStringDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.05, 0.95), Util::String("Health  : "));
+    graphics.drawStringDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.05, 0.9), Util::String::format("Score   : %d", score));
+    graphics.drawStringDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.05, 0.85), Util::String::format("Enemies : %d", enemies.size()));
 
-    const auto relativeCharWidth = static_cast<double>(Pulsar::Graphics::FONT_SIZE) / graphics.getTransformation();
+    const auto relativeCharWidth = static_cast<float>(Pulsar::Graphics::FONT_SIZE) / graphics.getTransformation();
     const auto healthBarStart = -dimensions.getX() + 0.05 + 10 * relativeCharWidth;
-    graphics.drawRectangleDirect(Util::Math::Vector2<double>(healthBarStart, 0.95), Util::Math::Vector2<double>(0.3, -0.025));
-    graphics.fillRectangleDirect(Util::Math::Vector2<double>(healthBarStart, 0.95), Util::Math::Vector2<double>(0.3 * (getHealth() / 100.0), -0.025));
+    graphics.drawRectangleDirect(Util::Math::Vector2<float>(healthBarStart, 0.95), Util::Math::Vector2<float>(0.3, -0.025));
+    graphics.fillRectangleDirect(Util::Math::Vector2<float>(healthBarStart, 0.95), Util::Math::Vector2<float>(0.3 * (getHealth() / 100.0), -0.025));
 
     // Draw speedometer
-    graphics.fillRectangleDirect(Util::Math::Vector2<double>(dimensions.getX() - 0.0625, 0), Util::Math::Vector2<double>(0.025, speed * 0.95));
+    graphics.fillRectangleDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.0625, 0), Util::Math::Vector2<float>(0.025, speed * 0.95));
 
-    graphics.drawLineDirect(Util::Math::Vector2<double>(dimensions.getX() - 0.075, 0.95), Util::Math::Vector2<double>(dimensions.getX() - 0.025, 0.95));
-    graphics.drawLineDirect(Util::Math::Vector2<double>(dimensions.getX() - 0.075, 0.5), Util::Math::Vector2<double>(dimensions.getX() - 0.025, 0.5));
-    graphics.drawLineDirect(Util::Math::Vector2<double>(dimensions.getX() - 0.075, 0), Util::Math::Vector2<double>(dimensions.getX() - 0.025, 0));
-    graphics.drawLineDirect(Util::Math::Vector2<double>(dimensions.getX() - 0.075, -0.5), Util::Math::Vector2<double>(dimensions.getX() - 0.025, -0.5));
-    graphics.drawLineDirect(Util::Math::Vector2<double>(dimensions.getX() - 0.075, -0.95), Util::Math::Vector2<double>(dimensions.getX() - 0.025, -0.95));
+    graphics.drawLineDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.075, 0.95), Util::Math::Vector2<float>(dimensions.getX() - 0.025, 0.95));
+    graphics.drawLineDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.075, 0.5), Util::Math::Vector2<float>(dimensions.getX() - 0.025, 0.5));
+    graphics.drawLineDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.075, 0), Util::Math::Vector2<float>(dimensions.getX() - 0.025, 0));
+    graphics.drawLineDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.075, -0.5), Util::Math::Vector2<float>(dimensions.getX() - 0.025, -0.5));
+    graphics.drawLineDirect(Util::Math::Vector2<float>(dimensions.getX() - 0.075, -0.95), Util::Math::Vector2<float>(dimensions.getX() - 0.025, -0.95));
 
     // Draw radar
     auto headerSting = Util::String::format("P: %d  Y: %d", static_cast<int32_t>(getRotation().getY()), static_cast<int32_t>(getRotation().getZ()));
-    graphics.drawStringDirect(Util::Math::Vector2<double>(-dimensions.getX() + 0.05, -0.96), headerSting);
+    graphics.drawStringDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.05, -0.96), headerSting);
 
-    graphics.drawSquareDirect(Util::Math::Vector2<double>(-dimensions.getX() + 0.05, -0.95), 0.3);
+    graphics.drawSquareDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.05, -0.95), 0.3);
 
-    graphics.fillSquareDirect(Util::Math::Vector2<double>(-dimensions.getX() + 0.2, -0.8), 0.003);
+    graphics.fillSquareDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.2, -0.8), 0.003);
     graphics.setColor(Util::Graphic::Colors::RED);
 
     for (uint32_t i = 0; i < enemies.size(); i++) {
         auto enemyTargetVector = enemies.get(i)->getPosition() - getPosition();
-        auto relativeOnPlane = Util::Math::Vector3<double>(enemyTargetVector.getX(), 0, -enemyTargetVector.getZ()).rotate(Util::Math::Vector3<double>(0, -getRotation().getZ(), 0));
+        auto relativeOnPlane = Util::Math::Vector3<float>(enemyTargetVector.getX(), 0, -enemyTargetVector.getZ()).rotate(Util::Math::Vector3<float>(0, -getRotation().getZ(), 0));
         auto drawX = relativeOnPlane.getX() / 20 * 0.15;
         auto drawY = relativeOnPlane.getZ() / 20 * 0.15;
 
         if (Util::Math::absolute(drawX) < 0.13 && Util::Math::absolute(drawY) < 0.13) {
             auto cutoffWhenOnSameHeight = 3;
             if (enemyTargetVector.getY() > cutoffWhenOnSameHeight) {
-                graphics.drawLineDirect(Util::Math::Vector2<double>(-dimensions.getX() + 0.2 + drawX + 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<double>(-dimensions.getX() + 0.2 + drawX, -0.8 + drawY));
-                graphics.drawLineDirect(Util::Math::Vector2<double>(-dimensions.getX() + 0.2 + drawX - 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<double>(-dimensions.getX() + 0.2 + drawX, -0.8 + drawY));
+                graphics.drawLineDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX + 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX, -0.8 + drawY));
+                graphics.drawLineDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX - 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX, -0.8 + drawY));
             } else if (enemyTargetVector.getY() < -cutoffWhenOnSameHeight) {
-                graphics.drawLineDirect(Util::Math::Vector2<double>(-dimensions.getX() + 0.2 + drawX - 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<double>(-dimensions.getX() + 0.2 + drawX, -0.8 + drawY));
-                graphics.drawLineDirect(Util::Math::Vector2<double>(-dimensions.getX() + 0.2 + drawX + 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<double>(-dimensions.getX() + 0.2 + drawX, -0.8 + drawY));
+                graphics.drawLineDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX - 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX, -0.8 + drawY));
+                graphics.drawLineDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX + 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX, -0.8 + drawY));
             } else {
-                graphics.drawLineDirect(Util::Math::Vector2<double>(-dimensions.getX() + 0.2 + drawX - 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<double>(-dimensions.getX() + 0.2 + drawX + 0.02, -0.8 + drawY + 0.02));
-                graphics.drawLineDirect(Util::Math::Vector2<double>(-dimensions.getX() + 0.2 + drawX + 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<double>(-dimensions.getX() + 0.2 + drawX - 0.02, -0.8 + drawY + 0.02));
+                graphics.drawLineDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX - 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX + 0.02, -0.8 + drawY + 0.02));
+                graphics.drawLineDirect(Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX + 0.02, -0.8 + drawY - 0.02) , Util::Math::Vector2<float>(-dimensions.getX() + 0.2 + drawX - 0.02, -0.8 + drawY + 0.02));
             }
         }
     }
@@ -159,18 +159,18 @@ uint32_t Player::getScore() const {
     return score;
 }
 
-Util::Math::Vector3<double> Player::getCurrentMovementDirection() {
+Util::Math::Vector3<float> Player::getCurrentMovementDirection() {
     return currentMovementDirection;
 }
 
-void Player::setMovementDirection(Util::Math::Vector3<double> direction) {
+void Player::setMovementDirection(Util::Math::Vector3<float> direction) {
     currentMovementDirection = direction;
 }
 
-void Player::setSpeed(double speed) {
+void Player::setSpeed(float speed) {
     Player::speed = speed;
 }
 
-double Player::getSpeed() const {
+float Player::getSpeed() const {
     return speed;
 }

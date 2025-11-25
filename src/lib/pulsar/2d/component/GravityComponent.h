@@ -53,17 +53,17 @@ public:
     /// is reduced each update cycle. A value of 0 means no reduction, while a value of 1 means
     /// the horizontal velocity is completely stopped immediately.
     /// The default values are set to simulate a somewhat realistic gravity effect.
-    explicit GravityComponent(double gravityValue = 1.25, double stopFactorX = 0.15);
+    explicit GravityComponent(float gravityValue = 1.25, float stopFactorX = 0.15);
 
 protected:
     /// Update the entity's velocity and position based on gravity and horizontal stop factor.
     /// This method is called every frame by the entity that owns this component.
-    void update(double delta) override;
+    void update(float delta) override;
 
 private:
 
-    const double gravityValue;
-    const double stopFactorX;
+    const float gravityValue;
+    const float stopFactorX;
 };
 
 }

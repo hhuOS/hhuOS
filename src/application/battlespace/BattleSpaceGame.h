@@ -59,7 +59,7 @@ public:
 
     void initialize() override;
 
-    void update(double delta) override;
+    void update(float delta) override;
 
     void keyPressed(const Util::Io::Key &key) override;
 
@@ -72,12 +72,12 @@ private:
     Player *player = new Player(enemies);
     Util::ArrayList<Enemy*> enemies;
 
-    Util::Math::Vector3<double> inputRotation = Util::Math::Vector3<double>(0, 0, 0);
-    Util::Math::Vector3<double> inputTranslation = Util::Math::Vector3<double>(0, 0, 0);
-    double inputSpeed = 1.0;
+    Util::Math::Vector3<float> inputRotation = Util::Math::Vector3<float>(0, 0, 0);
+    Util::Math::Vector3<float> inputTranslation = Util::Math::Vector3<float>(0, 0, 0);
+    float inputSpeed = 1.0;
     uint16_t difficulty = 0;
 
-    static const constexpr double ENEMY_SPAWN_RANGE = 10.0;
+    static const constexpr float ENEMY_SPAWN_RANGE = 10.0;
 };
 
 #endif

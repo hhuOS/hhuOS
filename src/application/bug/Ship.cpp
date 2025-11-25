@@ -37,7 +37,7 @@
 #include "lib/util/base/String.h"
 #include "lib/pulsar/TextScreen.h"
 
-Ship::Ship(const Util::Math::Vector2<double> &position) : Explosive(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE_X, SIZE_Y, Pulsar::D2::RectangleCollider::STATIC), "/user/bug/ship_explosion.wav", 2.0) {
+Ship::Ship(const Util::Math::Vector2<float> &position) : Explosive(TAG, position, Pulsar::D2::RectangleCollider(position, SIZE_X, SIZE_Y, Pulsar::D2::RectangleCollider::STATIC), "/user/bug/ship_explosion.wav", 2.0) {
     addComponent(new Pulsar::D2::LinearMovementComponent());
 }
 
@@ -48,7 +48,7 @@ void Ship::initialize() {
     heart = Pulsar::D2::Sprite("/user/bug/heart.bmp", 0.05, 0.05);
 }
 
-void Ship::onUpdate(double delta) {
+void Ship::onUpdate(float delta) {
     Explosive::onUpdate(delta);
 
     if (lives == 0) {
@@ -111,7 +111,7 @@ void Ship::draw(Pulsar::Graphics &graphics) const {
     sprite.draw(graphics, getPosition());
 
     for (uint32_t i = 0; i < lives; i++) {
-        heart.draw(graphics, Util::Math::Vector2<double>(-0.9 + i * 1.5 * heart.getSize().getX(), -0.9));
+        heart.draw(graphics, Util::Math::Vector2<float>(-0.9 + i * 1.5 * heart.getSize().getX(), -0.9));
     }
 }
 
@@ -121,7 +121,7 @@ void Ship::fireMissile() {
     }
 
     mayFireMissile = false;
-    auto *missile = new PlayerMissile(getPosition() + Util::Math::Vector2<double>((SIZE_X / 2) - (PlayerMissile::SIZE_X / 2), SIZE_Y), *this);
+    auto *missile = new PlayerMissile(getPosition() + Util::Math::Vector2<float>((SIZE_X / 2) - (PlayerMissile::SIZE_X / 2), SIZE_Y), *this);
     getScene().addEntity(missile);
     missile->setVelocityY(2);
 }

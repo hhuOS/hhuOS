@@ -42,7 +42,7 @@ public:
     /**
      * Constructor.
      */
-    Coin(const Util::Math::Vector2<double> &position);
+    Coin(const Util::Math::Vector2<float> &position);
 
     /**
      * Copy Constructor.
@@ -61,7 +61,7 @@ public:
 
     void initialize() override;
 
-    void onUpdate(double delta) override;
+    void onUpdate(float delta) override;
 
     void draw(Pulsar::Graphics &graphics) const override;
 

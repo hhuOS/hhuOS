@@ -44,7 +44,7 @@ void Particle::initialize() {
     parent.onParticleInitialization(*this);
 }
 
-void Particle::onUpdate(const double delta) {
+void Particle::onUpdate(const float delta) {
     if (timeLimited) {
         timeToLive -= delta;
         if (timeToLive <= 0) {
@@ -65,32 +65,32 @@ void Particle::onCollisionEvent(const CollisionEvent &event) {
     parent.onParticleCollision(*this, event);
 }
 
-double Particle::getScale() const {
+float Particle::getScale() const {
     return sprite.getScale().getX();
 }
 
-void Particle::setScale(const double scale) {
+void Particle::setScale(const float scale) {
     sprite.setScale(scale);
 }
 
-double Particle::getAlpha() const {
+float Particle::getAlpha() const {
     return sprite.getAlpha();
 }
 
-void Particle::setAlpha(const double alpha) {
+void Particle::setAlpha(const float alpha) {
     sprite.setAlpha(alpha);
 }
 
-double Particle::getRotationVelocity() const {
+float Particle::getRotationVelocity() const {
     return rotationVelocity;
 }
 
-void Particle::setRotationVelocity(const double rotationVelocity) {
+void Particle::setRotationVelocity(const float rotationVelocity) {
     Particle::rotationVelocity = rotationVelocity;
 }
 
 void Particle::setTimeToLive(const Util::Time::Timestamp &timeToLive) {
-    Particle::timeToLive = timeToLive.toSecondsFloat<double>();
+    Particle::timeToLive = timeToLive.toSecondsFloat<float>();
     timeLimited = Particle::timeToLive > 0;
 }
 

@@ -37,8 +37,8 @@
 
 namespace Pulsar::D3 {
 
-Entity::Entity(const size_t tag, const Util::Math::Vector3<double> &position,
-    const Util::Math::Vector3<double> &rotation, const Util::Math::Vector3<double> &scale,
+Entity::Entity(const size_t tag, const Util::Math::Vector3<float> &position,
+    const Util::Math::Vector3<float> &rotation, const Util::Math::Vector3<float> &scale,
     const SphereCollider &collider) : Pulsar::Entity(tag), position(position), scale(scale), collider(collider)
 {
     setRotation(rotation);
@@ -46,15 +46,15 @@ Entity::Entity(const size_t tag, const Util::Math::Vector3<double> &position,
 
 void Entity::onCollisionEvent([[maybe_unused]] const CollisionEvent &event) {}
 
-const Util::Math::Vector3<double> &Entity::getPosition() const {
+const Util::Math::Vector3<float> &Entity::getPosition() const {
     return position;
 }
 
-void Entity::setPosition(const Util::Math::Vector3<double> &position) {
+void Entity::setPosition(const Util::Math::Vector3<float> &position) {
     Entity::position = position;
 }
 
-void Entity::translate(const Util::Math::Vector3<double> &translation) {
+void Entity::translate(const Util::Math::Vector3<float> &translation) {
     setPosition(position + translation);
 
     if (hasCollider()) {
@@ -62,19 +62,19 @@ void Entity::translate(const Util::Math::Vector3<double> &translation) {
     }
 }
 
-const Util::Math::Vector3<double>& Entity::getUpVector() const {
+const Util::Math::Vector3<float>& Entity::getUpVector() const {
     return orientation.getUp();
 }
 
-const Util::Math::Vector3<double>& Entity::getRightVector() const {
+const Util::Math::Vector3<float>& Entity::getRightVector() const {
     return orientation.getRight();
 }
 
-const Util::Math::Vector3<double>& Entity::getFrontVector() const {
+const Util::Math::Vector3<float>& Entity::getFrontVector() const {
     return orientation.getFront();
 }
 
-void Entity::translateLocal(const Util::Math::Vector3<double> &translation) {
+void Entity::translateLocal(const Util::Math::Vector3<float> &translation) {
     translate(translation.rotate(getRotation()));
 }
 
@@ -82,31 +82,31 @@ const Orientation& Entity::getOrientation() const {
     return orientation;
 }
 
-const Util::Math::Vector3<double> &Entity::getRotation() const {
+const Util::Math::Vector3<float> &Entity::getRotation() const {
     return orientation.getRotation();
 }
 
-void Entity::setFrontVector(const Util::Math::Vector3<double> &front) {
+void Entity::setFrontVector(const Util::Math::Vector3<float> &front) {
     orientation.setFront(front);
 }
 
-void Entity::setRotation(const Util::Math::Vector3<double> &angle) {
+void Entity::setRotation(const Util::Math::Vector3<float> &angle) {
     orientation.setRotation(angle);
 }
 
-void Entity::rotate(const Util::Math::Vector3<double> &angle) {
+void Entity::rotate(const Util::Math::Vector3<float> &angle) {
     orientation.rotate(angle);
 }
 
-const Util::Math::Vector3<double> &Entity::getScale() const {
+const Util::Math::Vector3<float> &Entity::getScale() const {
     return scale;
 }
 
-void Entity::setScale(const Util::Math::Vector3<double> &scale) {
+void Entity::setScale(const Util::Math::Vector3<float> &scale) {
     Entity::scale = scale;
 }
 
-void Entity::update(const double delta) {
+void Entity::update(const float delta) {
     if (hasCollider()) {
         collider.setPosition(position);
     }

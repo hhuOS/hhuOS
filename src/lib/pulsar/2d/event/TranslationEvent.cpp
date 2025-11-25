@@ -34,10 +34,10 @@
 
 namespace Pulsar::D2 {
 
-TranslationEvent::TranslationEvent(const Util::Math::Vector2<double> &targetPosition) :
+TranslationEvent::TranslationEvent(const Util::Math::Vector2<float> &targetPosition) :
     targetPosition(targetPosition) {}
 
-const Util::Math::Vector2<double>& TranslationEvent::getTargetPosition() const {
+const Util::Math::Vector2<float>& TranslationEvent::getTargetPosition() const {
     return targetPosition;
 }
 

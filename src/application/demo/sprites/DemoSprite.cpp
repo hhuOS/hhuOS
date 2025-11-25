@@ -24,7 +24,7 @@
 #include "lib/pulsar/2d/Sprite.h"
 #include "lib/util/base/String.h"
 
-DemoSprite::DemoSprite(const Util::Math::Vector2<double> &position, double size, double rotationSpeed, double scaleSpeed, bool flipX)
+DemoSprite::DemoSprite(const Util::Math::Vector2<float> &position, float size, float rotationSpeed, float scaleSpeed, bool flipX)
         : Pulsar::D2::Entity(TAG, position), initialPosition(position), size(size), rotationSpeed(rotationSpeed), scaleSpeed(scaleSpeed), flipX(flipX) {}
 
 void DemoSprite::initialize() {
@@ -47,7 +47,7 @@ void DemoSprite::initialize() {
     }
 }
 
-void DemoSprite::onUpdate(double delta) {
+void DemoSprite::onUpdate(float delta) {
     animation.update(delta);
 
     if (animation.getScale().getX() >= 2) {
@@ -60,7 +60,7 @@ void DemoSprite::onUpdate(double delta) {
     animation.rotate(delta * rotationSpeed);
 
     auto positionOffset = (animation.getOriginalSize().getX() - animation.getSize().getX()) / 2;
-    setPosition(initialPosition + Util::Math::Vector2<double>(positionOffset, positionOffset));
+    setPosition(initialPosition + Util::Math::Vector2<float>(positionOffset, positionOffset));
 }
 
 void DemoSprite::draw(Pulsar::Graphics &graphics) const {

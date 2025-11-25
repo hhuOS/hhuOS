@@ -56,7 +56,7 @@ public:
 
     void initialize() override;
 
-    void update(double delta) override;
+    void update(float delta) override;
 
     bool initializeBackground(Pulsar::Graphics &graphics) override;
 
@@ -70,19 +70,19 @@ public:
 private:
 
     Fleet enemyFleet = Fleet(BUGS_PER_ROW * BUGS_PER_COLUMN, 0.25);
-    Ship *ship = new Ship(Util::Math::Vector2<double>(-0.1414, -0.8));
+    Ship *ship = new Ship(Util::Math::Vector2<float>(-0.1414, -0.8));
 
     Pulsar::AudioTrack backgroundMusic;
     Pulsar::AudioHandle backgroundMusicHandle;
 
     Util::Math::Random random;
 
-    static const constexpr double BACKGROUND_TILE_WIDTH = 0.1;
-    static const constexpr double BACKGROUND_TILE_HEIGHT = 0.1;
+    static const constexpr float BACKGROUND_TILE_WIDTH = 0.1;
+    static const constexpr float BACKGROUND_TILE_HEIGHT = 0.1;
     static const constexpr uint32_t BACKGROUND_TILE_COUNT = 7;
 
-    static const constexpr double PLANET_TILE_WIDTH = 0.8;
-    static const constexpr double PLANET_TILE_HEIGHT = 0.2;
+    static const constexpr float PLANET_TILE_WIDTH = 0.8;
+    static const constexpr float PLANET_TILE_HEIGHT = 0.2;
     static const constexpr uint32_t PLANET_TILE_COUNT = 2;
 };
 

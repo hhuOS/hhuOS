@@ -68,7 +68,7 @@ class Graphics {
 public:
     /// Create a new graphics instance with the given linear frame buffer and scale factor.
     /// The scale factor determines the internal render resolution, which is scaled to the actual screen resolution.
-    explicit Graphics(const Util::Graphic::LinearFrameBuffer &lfb, double scaleFactor);
+    explicit Graphics(const Util::Graphic::LinearFrameBuffer &lfb, float scaleFactor);
 
     /// The graphics class is not copyable, so the copy constructor is deleted.
     Graphics(const Graphics &other) = delete;
@@ -113,73 +113,71 @@ public:
 
     /// Draw a line directly on the screen using relative coordinates (-1 to 1).
     /// Works for both 2D and 3D games.
-    void drawLineDirect(const Util::Math::Vector2<double> &from, const Util::Math::Vector2<double> &to) const;
+    void drawLineDirect(const Util::Math::Vector2<float> &from, const Util::Math::Vector2<float> &to) const;
 
     /// Draw the outline of a rectangle directly on the screen using relative coordinates (-1 to 1).
     /// Works for both 2D and 3D games.
-    void drawRectangleDirect(const Util::Math::Vector2<double> &position,
-        const Util::Math::Vector2<double> &size) const;
+    void drawRectangleDirect(const Util::Math::Vector2<float> &position, const Util::Math::Vector2<float> &size) const;
 
     /// Draw the outline of a square directly on the screen using relative coordinates (-1 to 1).
     /// Works for both 2D and 3D games.
-    void drawSquareDirect(const Util::Math::Vector2<double> &position, double size) const;
+    void drawSquareDirect(const Util::Math::Vector2<float> &position, float size) const;
 
     /// Draw a filled rectangle directly on the screen using relative coordinates (-1 to 1).
     /// Works for both 2D and 3D games.
-    void fillRectangleDirect(const Util::Math::Vector2<double> &position,
-        const Util::Math::Vector2<double> &size) const;
+    void fillRectangleDirect(const Util::Math::Vector2<float> &position, const Util::Math::Vector2<float> &size) const;
 
     /// Draw a filled square directly on the screen using relative coordinates (-1 to 1).
     /// Works for both 2D and 3D games.
-    void fillSquareDirect(const Util::Math::Vector2<double> &position, double size) const;
+    void fillSquareDirect(const Util::Math::Vector2<float> &position, float size) const;
 
     /// Draw a string directly on the screen using relative coordinates (-1 to 1).
     /// The used font size can be retrieved via `FONT_SIZE`.
     /// Works for both 2D and 3D games.
-    void drawStringDirect(const Util::Math::Vector2<double> &position, const char *string) const;
+    void drawStringDirect(const Util::Math::Vector2<float> &position, const char *string) const;
 
     /// Draw a string directly on the screen using relative coordinates (-1 to 1).
     /// The used font size can be retrieved via `FONT_SIZE`.
     /// Works for both 2D and 3D games.
-    void drawStringDirect(const Util::Math::Vector2<double> &position, const Util::String &string) const;
+    void drawStringDirect(const Util::Math::Vector2<float> &position, const Util::String &string) const;
 
     /***** 2D drawing functions, respecting the camera position *****/
 
     /// Draw a line in 2D space. Works only in 2D scenes.
-    void drawLine2D(const Util::Math::Vector2<double> &from, const Util::Math::Vector2<double> &to) const;
+    void drawLine2D(const Util::Math::Vector2<float> &from, const Util::Math::Vector2<float> &to) const;
 
     /// Draw the outline of a polygon in 2D space. Works only in 2D scenes.
     /// The last vertex is automatically connected to the first vertex.
     /// The position is added to each vertex for drawing.
-    void drawPolygon2D(const Util::Math::Vector2<double> &position,
-        const Util::Array<Util::Math::Vector2<double>> &vertices) const;
+    void drawPolygon2D(const Util::Math::Vector2<float> &position,
+        const Util::Array<Util::Math::Vector2<float>> &vertices) const;
 
     /// Draw the outline of a square in 2D space. Works only in 2D scenes.
-    void drawSquare2D(const Util::Math::Vector2<double> &position, double size) const;
+    void drawSquare2D(const Util::Math::Vector2<float> &position, float size) const;
 
     /// Draw the outline of a rectangle in 2D space. Works only in 2D scenes.
-    void drawRectangle2D(const Util::Math::Vector2<double> &position, const Util::Math::Vector2<double> &size) const;
+    void drawRectangle2D(const Util::Math::Vector2<float> &position, const Util::Math::Vector2<float> &size) const;
 
     /// Draw a filled square in 2D space. Works only in 2D scenes.
-    void fillSquare2D(const Util::Math::Vector2<double> &position, double size) const;
+    void fillSquare2D(const Util::Math::Vector2<float> &position, float size) const;
 
     /// Draw a filled rectangle in 2D space. Works only in 2D scenes.
-    void fillRectangle2D(const Util::Math::Vector2<double> &position, const Util::Math::Vector2<double> &size) const;
+    void fillRectangle2D(const Util::Math::Vector2<float> &position, const Util::Math::Vector2<float> &size) const;
 
     /// Draw a string in 2D space. Works only in 2D scenes.
-    void drawString2D(const Util::Math::Vector2<double> &position, const char *string) const;
+    void drawString2D(const Util::Math::Vector2<float> &position, const char *string) const;
 
     /// Draw a string in 2D space. Works only in 2D scenes.
-    void drawString2D(const Util::Math::Vector2<double> &position, const Util::String &string) const;
+    void drawString2D(const Util::Math::Vector2<float> &position, const Util::String &string) const;
 
     /// Draw an image in 2D space. Works only in 2D scenes.
     /// The image can be mirrored horizontally at no additional cost by setting `flipX` to true.
     /// The image can be drawn with transparency by setting `alpha` to a value between 0 (fully transparent)
     /// and 1 (fully opaque). It can also be scaled and rotated (in degrees) around its center.
     /// However, transparency, scaling and rotation are very expensive operations, with significant performance impact.
-    void drawImage2D(const Util::Math::Vector2<double> &position, const Util::Graphic::Image &image, bool flipX = false,
-        double alpha = 1, const Util::Math::Vector2<double> &scale = Util::Math::Vector2<double>(1, 1),
-        double rotationAngle = 0) const;
+    void drawImage2D(const Util::Math::Vector2<float> &position, const Util::Graphic::Image &image, bool flipX = false,
+        float alpha = 1, const Util::Math::Vector2<float> &scale = Util::Math::Vector2<float>(1, 1),
+        float rotationAngle = 0) const;
 
     /***** 3D drawing functions *****/
 
@@ -187,20 +185,20 @@ public:
     void drawModel3D(const D3::Model &model) const;
 
     /// Draw a colored cuboid in 3D space. Works only in 3D scenes.
-    void drawCuboid3D(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &size,
-        const Util::Math::Vector3<double> &rotation, const D3::Texture &texture = D3::Texture()) const;
+    void drawCuboid3D(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &size,
+        const Util::Math::Vector3<float> &rotation, const D3::Texture &texture = D3::Texture()) const;
 
     /// Draw a colored 2D rectangle in 3D space. Works only in 3D scenes.
-    void drawRectangle3D(const Util::Math::Vector3<double> &position, const Util::Math::Vector2<double> &size,
-        const Util::Math::Vector3<double> &rotation, const D3::Texture &texture = D3::Texture()) const;
+    void drawRectangle3D(const Util::Math::Vector3<float> &position, const Util::Math::Vector2<float> &size,
+        const Util::Math::Vector3<float> &rotation, const D3::Texture &texture = D3::Texture()) const;
 
     /// Draw a custom shape defined by vertices in 3D space. Works only in 3D scenes.
-    void drawCustomShape3D(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &scale,
-        const Util::Math::Vector3<double> &rotation, const Util::Array<Util::Math::Vector3<double>> &vertices) const;
+    void drawCustomShape3D(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &scale,
+        const Util::Math::Vector3<float> &rotation, const Util::Array<Util::Math::Vector3<float>> &vertices) const;
 
     /// Draw a precompiled display list in 3D space.
-    void drawList3D(const Util::Math::Vector3<double> &position, const Util::Math::Vector3<double> &scale,
-        const Util::Math::Vector3<double> &rotation, GLuint list) const;
+    void drawList3D(const Util::Math::Vector3<float> &position, const Util::Math::Vector3<float> &scale,
+        const Util::Math::Vector3<float> &rotation, GLuint list) const;
 
     /// Start compiling a new display list for 3D objects.
     /// After calling this function, all subsequent 3D drawing commands are recorded into the display list
@@ -218,27 +216,27 @@ public:
     static void listModel3D(const D3::Model &model);
 
     /// List a colored cuboid for inclusion in a display list.
-    static void listCuboid3D(const Util::Math::Vector3<double> &size, const Util::Graphic::Color &color);
+    static void listCuboid3D(const Util::Math::Vector3<float> &size, const Util::Graphic::Color &color);
 
     /// List a colored cuboid for inclusion in a display list.
-    static void listCuboid3D(const Util::Math::Vector3<double> &translation, const Util::Math::Vector3<double> &size,
+    static void listCuboid3D(const Util::Math::Vector3<float> &translation, const Util::Math::Vector3<float> &size,
         const Util::Graphic::Color &color);
 
     /// List a textured cuboid for inclusion in a display list.
-    static void listCuboid3D(const Util::Math::Vector3<double> &size, const D3::Texture &texture = D3::Texture());
+    static void listCuboid3D(const Util::Math::Vector3<float> &size, const D3::Texture &texture = D3::Texture());
 
     /// List a textured cuboid for inclusion in a display list.
-    static void listCuboid3D(const Util::Math::Vector3<double> &translation, const Util::Math::Vector3<double> &size,
+    static void listCuboid3D(const Util::Math::Vector3<float> &translation, const Util::Math::Vector3<float> &size,
         const D3::Texture &texture = D3::Texture());
 
     /// List a colored 2D rectangle for inclusion in a display list.
-    static void listRectangle3D(const Util::Math::Vector2<double> &size, const Util::Graphic::Color &color);
+    static void listRectangle3D(const Util::Math::Vector2<float> &size, const Util::Graphic::Color &color);
 
     /// List a colored 2D rectangle for inclusion in a display list.
-    static void listRectangle3D(const Util::Math::Vector2<double> &size, const D3::Texture &texture = D3::Texture());
+    static void listRectangle3D(const Util::Math::Vector2<float> &size, const D3::Texture &texture = D3::Texture());
 
     /// List a colored 2D rectangle for inclusion in a display list.
-    static void listCustomShape3D(const Util::Array<Util::Math::Vector3<double>> &vertices);
+    static void listCustomShape3D(const Util::Array<Util::Math::Vector3<float>> &vertices);
 
     /***** Miscellaneous *****/
 
@@ -295,7 +293,7 @@ public:
     /// However, if the target screen resolution is not square,
     /// one axis will have a larger range to maintain the aspect ratio.
     /// For example, on a 800x600 screen, the coordinate system will range from (-1.33, -1) to (1.33, 1).
-    [[nodiscard]] const Util::Math::Vector2<double>& getDimensions() const;
+    [[nodiscard]] const Util::Math::Vector2<float>& getDimensions() const;
 
     /// Get the screen transformation factor.
     /// This factor is used to scale from the game coordinate system to the actual screen resolution.
@@ -307,7 +305,7 @@ public:
     [[nodiscard]] uint16_t getTransformation() const;
 
     /// Get the font size in game coordinates.
-    [[nodiscard]] double getRelativeFontSize() const;
+    [[nodiscard]] float getRelativeFontSize() const;
 
     /// The font size in absolute pixels.
     static constexpr uint8_t FONT_SIZE = 8;
@@ -316,24 +314,24 @@ private:
 
     friend class Engine;
 
-    void drawImageDirect2D(const Util::Math::Vector2<double> &position, const Util::Graphic::Image &image,
-        bool flipX, double alpha) const;
+    void drawImageDirect2D(const Util::Math::Vector2<float> &position, const Util::Graphic::Image &image,
+        bool flipX, float alpha) const;
 
-    void drawImageScaled2D(const Util::Math::Vector2<double> &position, const Util::Graphic::Image &image,
-        bool flipX, double alpha, const Util::Math::Vector2<double> &scale) const;
+    void drawImageScaled2D(const Util::Math::Vector2<float> &position, const Util::Graphic::Image &image,
+        bool flipX, float alpha, const Util::Math::Vector2<float> &scale) const;
 
-    void drawImageRotated2D(const Util::Math::Vector2<double> &position, const Util::Graphic::Image &image,
-        bool flipX, double alpha, double rotationAngle) const;
+    void drawImageRotated2D(const Util::Math::Vector2<float> &position, const Util::Graphic::Image &image,
+        bool flipX, float alpha, float rotationAngle) const;
 
-    void drawImageScaledAndRotated2D(const Util::Math::Vector2<double> &position, const Util::Graphic::Image &image,
-        bool flipX, double alpha, const Util::Math::Vector2<double> &scale, double rotationAngle) const;
+    void drawImageScaledAndRotated2D(const Util::Math::Vector2<float> &position, const Util::Graphic::Image &image,
+        bool flipX, float alpha, const Util::Math::Vector2<float> &scale, float rotationAngle) const;
 
     void gluPrepareDirectDraw(GLint renderStyle) const;
 
     void gluFinishDirectDraw() const;
 
     /// Taken from https://stackoverflow.com/questions/12943164/replacement-for-gluperspective-with-glfrustrum
-    static void gluPerspective(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar);
+    static void gluPerspective(GLfloat fovY, GLfloat aspect, GLfloat zNear, GLfloat zFar);
 
     static void gluMultOrthoMatrix(float left, float right, float bottom, float top, float near, float far);
 
@@ -345,7 +343,7 @@ private:
     const uint16_t transformation;
     const uint16_t offsetX;
     const uint16_t offsetY;
-    const Util::Math::Vector2<double> dimensions;
+    const Util::Math::Vector2<float> dimensions;
 
     Util::Graphic::Color color = Util::Graphic::Colors::WHITE;
 
