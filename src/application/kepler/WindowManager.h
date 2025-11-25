@@ -21,12 +21,16 @@
 #ifndef HHUOS_WINDOWMANAGER_H
 #define HHUOS_WINDOWMANAGER_H
 
+
+
 #include "Client.h"
 #include "ClientWindow.h"
 #include "util/async/IdGenerator.h"
 #include "util/async/Runnable.h"
 #include "util/collection/ArrayList.h"
 #include "util/graphic/LinearFrameBuffer.h"
+#include "util/graphic/BufferedLinearFrameBuffer.h"
+#include "util/time/Timestamp.h"
 
 class WindowManager final : public Util::Async::Runnable {
 
@@ -47,6 +51,12 @@ private:
     size_t processId = Util::Async::Process::getCurrentProcess().getId();
 
     Util::Graphic::LinearFrameBuffer &lfb;
+    Util::Graphic::BufferedLinearFrameBuffer doubleLfb;
+    Util::Graphic::BufferedLinearFrameBuffer tripleLfb;
+    bool needRedraw = false;
+
+    int32_t mouseX = 0;
+    int32_t mouseY = 0;
 
     Util::ArrayList<Client*> clients;
     Util::Async::IdGenerator clientIdGenerator;
@@ -54,6 +64,9 @@ private:
 
     Util::Io::FileInputStream *nextPipe = nullptr;
     size_t nextClientId = 0;
+
+    static constexpr size_t TARGET_FPS = 60;
+    static const Util::Time::Timestamp TARGET_FRAMETIME;
 };
 
 #endif
