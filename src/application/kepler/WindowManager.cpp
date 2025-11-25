@@ -20,14 +20,19 @@
 
 #include "WindowManager.h"
 
-#include "util/graphic/Colors.h"
-#include "util/graphic/font/Terminal8x8.h"
 #include "util/io/stream/NumberUtil.h"
 #include "util/base/Constants.h"
+#include "util/graphic/Colors.h"
 #include "kepler/Protocol.h"
 #include "lib/interface.h"
+#include "util/io/key/MouseDecoder.h"
 
-WindowManager::WindowManager(Util::Graphic::LinearFrameBuffer &lfb) : lfb(lfb) {
+const Util::Time::Timestamp WindowManager::TARGET_FRAMETIME =
+    Util::Time::Timestamp::ofNanoseconds(1000000000 / TARGET_FPS);
+
+WindowManager::WindowManager(Util::Graphic::LinearFrameBuffer &lfb) : lfb(lfb), doubleLfb(lfb),
+    tripleLfb(reinterpret_cast<Util::Graphic::LinearFrameBuffer&>(doubleLfb))
+{
     const auto idString = Util::String::format("%u", processId);
 
     auto desktopFile = Util::Io::File("/system/kepler");
@@ -40,13 +45,60 @@ WindowManager::WindowManager(Util::Graphic::LinearFrameBuffer &lfb) : lfb(lfb) {
 }
 
 void WindowManager::run() {
+    auto lastFlushTime = Util::Time::Timestamp::getSystemTime();
+    auto lastTimestamp = Util::Time::Timestamp::getSystemTime();
+    auto fpsTimer = Util::Time::Timestamp();
+    size_t fpsCounter = 0;
+
+    auto mouseInputStream = Util::Io::FileInputStream("/device/mouse");
+    uint8_t mouseInputBuffer[4] = {0, 0, 0, 0};
+    size_t mouseInputIndex = 0;
+
+    mouseInputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
+
     while (true) {
-        for (const auto *client : clients) {
-            for (auto *window : client->getWindows()) {
+        const auto mouseByte = mouseInputStream.read();
+        if (mouseByte >= 0) {
+            mouseInputBuffer[mouseInputIndex++] = static_cast<uint8_t>(mouseByte);
+            if (mouseInputIndex == 4) {
+                const auto mouseUpdate = Util::Io::MouseDecoder::decode(mouseInputBuffer);
+
+                if (mouseUpdate.xMovement != 0 || mouseUpdate.yMovement != 0) {
+                    mouseX += mouseUpdate.xMovement;
+                    mouseY -= mouseUpdate.yMovement;
+
+                    if (mouseX < 0) {
+                        mouseX = 0;
+                    } else if (mouseX >= static_cast<int32_t>(lfb.getResolutionX())) {
+                        mouseX = lfb.getResolutionX() - 1;
+                    }
+
+                    if (mouseY < 0) {
+                        mouseY = 0;
+                    } else if (mouseY >= static_cast<int32_t>(lfb.getResolutionY())) {
+                        mouseY = lfb.getResolutionY() - 1;
+                    }
+
+                    needRedraw = true;
+                }
+
+                mouseInputIndex = 0;
+            }
+        }
+
+        for (size_t i = 0; i < clients.size(); i++) {
+            const auto &client = *clients.get(i);
+            const auto &windows = client.getWindows();
+
+            for (size_t j = 0; j < windows.size(); j++) {
+                const auto &window = windows.get(j);
+
                 if (window->isDirty()) {
-                    window->drawFrame(lfb);
-                    window->flush(lfb);
+                    window->drawFrame(tripleLfb, i == 0 && j == 0 ?
+                        Util::Graphic::Colors::HHU_BLUE : Util::Graphic::Colors::HHU_ICE_BLUE);
+                    window->flush(tripleLfb);
                     window->setDirty(false);
+                    needRedraw = true;
                 }
             }
         }
@@ -54,13 +106,17 @@ void WindowManager::run() {
         for (auto *client : clients) {
             auto &inputStream = client->getInputStream();
             if (inputStream.isReadyToRead()) {
-                const auto command = static_cast<Kepler::Command>(Util::Io::NumberUtil::readUnsigned8BitValue(inputStream));
+                const auto command = static_cast<Kepler::Command>(
+                    Util::Io::NumberUtil::readUnsigned8BitValue(inputStream));
+
                 switch (command) {
                     case Kepler::CREATE_WINDOW:
                         createWindow(*client);
+                        needRedraw = true;
                         break;
                     case Kepler::FLUSH:
                         flushWindow(*client);
+                        needRedraw = true;
                         break;
                     default:
                         break;
@@ -84,6 +140,39 @@ void WindowManager::run() {
 
             createNextPipe();
         }
+
+        const auto now = Util::Time::Timestamp::getSystemTime();
+        fpsTimer += now - lastTimestamp;
+        lastTimestamp = now;
+
+        if (now - lastFlushTime >= TARGET_FRAMETIME) {
+            fpsCounter++;
+
+            if (fpsTimer >= Util::Time::Timestamp::ofSeconds(1)) {
+                tripleLfb.drawString(Util::Graphic::Fonts::TERMINAL_8x8, 0, 0,
+                    static_cast<const char*>(Util::String::format("FPS: %u", fpsCounter)),
+                    Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+
+                needRedraw = true;
+                fpsTimer = Util::Time::Timestamp();
+                fpsCounter = 0;
+            }
+
+            if (needRedraw) {
+                // Flush windows into double buffer
+                tripleLfb.flush();
+
+                // Draw mouse cursor into double buffer (on top of windows)
+                doubleLfb.drawLine(mouseX - 10, mouseY, mouseX + 10, mouseY, Util::Graphic::Colors::RED);
+                doubleLfb.drawLine(mouseX, mouseY - 10, mouseX, mouseY + 10, Util::Graphic::Colors::RED);
+
+                // Flush double buffer to screen
+                doubleLfb.flush();
+                needRedraw = false;
+            }
+
+            lastFlushTime = now;
+        }
     }
 }
 
@@ -91,7 +180,8 @@ void WindowManager::run() {
 void WindowManager::createNextPipe() {
     nextClientId = clientIdGenerator.getNextId();
     createPipe(Util::String::format("%u", nextClientId));
-    nextPipe = new Util::Io::FileInputStream(Util::String::format("/process/%u/pipes/%u", processId, nextClientId));
+    nextPipe = new Util::Io::FileInputStream(
+        Util::String::format("/process/%u/pipes/%u", processId, nextClientId));
     nextPipe->setAccessMode(Util::Io::File::NON_BLOCKING);
 }
 
@@ -105,15 +195,16 @@ void WindowManager::createWindow(Client &client) {
     inputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
 
     const auto windowId = windowIdGenerator.getNextId();
-    const auto bufferSize = 320 * 240 * lfb.getBytesPerPixel();
-    const auto bufferPages = bufferSize % Util::PAGESIZE == 0 ? bufferSize / Util::PAGESIZE : bufferSize / Util::PAGESIZE + 1;
+    const auto bufferSize = 320 * 240 * tripleLfb.getBytesPerPixel();
+    const auto bufferPages = bufferSize % Util::PAGESIZE == 0 ?
+        bufferSize / Util::PAGESIZE : bufferSize / Util::PAGESIZE + 1;
     auto *sharedBuffer = new Util::Async::SharedMemory(Util::String::format("%u", windowId), bufferPages);
     sharedBuffer->publish();
 
-    const auto width = 320;
-    const auto height = 240;
-    const auto posX = windowId == 0 || windowId == 2 ? 10 : 400;
-    const auto posY = windowId == 0 || windowId == 1 ? 10 : 300;
+    constexpr auto width = 320;
+    constexpr auto height = 240;
+    const auto posX = windowId == 0 || windowId == 2 ? 32 : 400;
+    const auto posY = windowId == 0 || windowId == 1 ? 32 : 320;
 
     client.addWindow(new ClientWindow(windowId, sharedBuffer, posX, posY, width, height, request.getTitle()));
 
@@ -130,14 +221,14 @@ void WindowManager::flushWindow(const Client &client) const {
     request.readFromStream(inputStream);
     inputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
 
-    auto *window = client.getWindowById(request.getWindowId());
+    const auto *window = client.getWindowById(request.getWindowId());
     if (window == nullptr) {
         const auto response = Kepler::Response::Flush(false);
         response.writeToStream(outputStream);
         return;
     }
 
-    window->flush(lfb);
+    window->flush(tripleLfb);
 
     const auto response = Kepler::Response::Flush(true);
     response.writeToStream(outputStream);
