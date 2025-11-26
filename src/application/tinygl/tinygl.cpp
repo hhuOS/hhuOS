@@ -70,8 +70,6 @@ int32_t main(int32_t argc, char *argv[]) {
         return 0;
     }
 
-
-
     auto pipe = Kepler::WindowManagerPipe();
     const auto window = Kepler::Window(320, 240, Util::String::format("TinyGL (%s)", static_cast<const char*>(demo)), pipe);
     const auto &lfb = window.getFrameBuffer();
