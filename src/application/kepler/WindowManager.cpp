@@ -24,8 +24,8 @@
 #include "util/base/Constants.h"
 #include "util/graphic/Colors.h"
 #include "kepler/Protocol.h"
-#include "lib/interface.h"
 #include "util/io/key/MouseDecoder.h"
+#include "lib/interface.h"
 
 const Util::Time::Timestamp WindowManager::TARGET_FRAMETIME =
     Util::Time::Timestamp::ofNanoseconds(1000000000 / TARGET_FPS);
@@ -57,6 +57,9 @@ void WindowManager::run() {
     mouseInputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
 
     while (true) {
+        bool yield = true; // Yield to another process if no work has been done in this iteration
+
+        // Handle mouse input
         const auto mouseByte = mouseInputStream.read();
         if (mouseByte >= 0) {
             mouseInputBuffer[mouseInputIndex++] = static_cast<uint8_t>(mouseByte);
@@ -84,25 +87,30 @@ void WindowManager::run() {
 
                 mouseInputIndex = 0;
             }
+
+            yield = false; // Work has been done, do not yield
         }
 
-        for (size_t i = 0; i < clients.size(); i++) {
-            const auto &client = *clients.get(i);
-            const auto &windows = client.getWindows();
-
-            for (size_t j = 0; j < windows.size(); j++) {
-                const auto &window = windows.get(j);
-
-                if (window->isDirty()) {
-                    window->drawFrame(tripleLfb, i == 0 && j == 0 ?
-                        Util::Graphic::Colors::HHU_BLUE : Util::Graphic::Colors::HHU_ICE_BLUE);
-                    window->flush(tripleLfb);
-                    window->setDirty(false);
-                    needRedraw = true;
-                }
+        // Handle new client connections
+        if (nextPipe->isReadyToRead()) {
+            nextPipe->setAccessMode(Util::Io::File::BLOCKING);
+            auto command = static_cast<Kepler::Command>(Util::Io::NumberUtil::readUnsigned8BitValue(*nextPipe));
+            if (command != Kepler::CONNECT) {
+                continue;
             }
+
+            auto request = Kepler::Request::Connect();
+            request.readFromStream(*nextPipe);
+            nextPipe->setAccessMode(Util::Io::File::NON_BLOCKING);
+
+            auto *outputPipe = new Util::Io::FileOutputStream(request.getPipePath());
+            clients.add(new Client(nextClientId, nextPipe, outputPipe));
+
+            createNextPipe();
+            yield = false; // Work has been done, do not yield
         }
 
+        // Handle client commands
         for (auto *client : clients) {
             auto &inputStream = client->getInputStream();
             if (inputStream.isReadyToRead()) {
@@ -121,26 +129,31 @@ void WindowManager::run() {
                     default:
                         break;
                 }
+
+                yield = false; // Work has been done, do not yield
             }
         }
 
-        if (nextPipe->isReadyToRead()) {
-            nextPipe->setAccessMode(Util::Io::File::BLOCKING);
-            auto command = static_cast<Kepler::Command>(Util::Io::NumberUtil::readUnsigned8BitValue(*nextPipe));
-            if (command != Kepler::CONNECT) {
-                continue;
+        // Draw dirty windows
+        for (size_t i = 0; i < clients.size(); i++) {
+            const auto &client = *clients.get(i);
+            const auto &windows = client.getWindows();
+
+            for (size_t j = 0; j < windows.size(); j++) {
+                const auto &window = windows.get(j);
+
+                if (window->isDirty()) {
+                    window->drawFrame(tripleLfb, i == 0 && j == 0 ?
+                        Util::Graphic::Colors::HHU_BLUE : Util::Graphic::Colors::HHU_ICE_BLUE);
+                    window->flush(tripleLfb);
+                    window->setDirty(false);
+                    needRedraw = true;
+                    yield = false; // Work has been done, do not yield
+                }
             }
-
-            auto request = Kepler::Request::Connect();
-            request.readFromStream(*nextPipe);
-            nextPipe->setAccessMode(Util::Io::File::NON_BLOCKING);
-
-            auto *outputPipe = new Util::Io::FileOutputStream(request.getPipePath());
-            clients.add(new Client(nextClientId, nextPipe, outputPipe));
-
-            createNextPipe();
         }
 
+        // Flush frame buffer at target framerate
         const auto now = Util::Time::Timestamp::getSystemTime();
         fpsTimer += now - lastTimestamp;
         lastTimestamp = now;
@@ -172,6 +185,12 @@ void WindowManager::run() {
             }
 
             lastFlushTime = now;
+            yield = false; // Work has been done, do not yield
+        }
+
+        // Yield if no work has been done (i.e. no input, no commands, no redraw)
+        if (yield) {
+            Util::Async::Thread::yield();
         }
     }
 }
