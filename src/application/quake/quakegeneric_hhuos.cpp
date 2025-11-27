@@ -43,6 +43,7 @@
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/graphic/Font.h"
+#include "util/graphic/font/Terminal8x8.h"
 
 uint32_t palette[256];
 Util::Graphic::LinearFrameBuffer *lfb;
@@ -89,7 +90,7 @@ int32_t main(int argc, char *argv[]) {
 
     auto buffer = Util::Graphic::LinearFrameBuffer::open(*lfbFile);
     lfb = &buffer;
-    fpsFont = &Util::Graphic::Font::getFontForResolution(lfb->getResolutionY());
+    fpsFont = &Util::Graphic::Fonts::TERMINAL_8x8;
 
     // Calculate scale factor the game as large as possible
     scaleFactor = lfb->getResolutionX() / QUAKEGENERIC_RES_X;

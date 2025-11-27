@@ -59,7 +59,7 @@ extern "C" {
 const constexpr uint32_t TARGET_FRAME_RATE = 60;
 const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / TARGET_FRAME_RATE));
 
-const auto palettes = new Util::Graphic::Color[31][3][4] {
+const auto palettes = new Util::Graphic::Color[32][3][4] {
         {
                 { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0xFF7300), Util::Graphic::Color::fromRGB32(0x944200), Util::Graphic::Color::fromRGB32(0x000000) }, // OBJ0
                 { Util::Graphic::Color::fromRGB32(0xFFFFFF), Util::Graphic::Color::fromRGB32(0x5ABDFF), Util::Graphic::Color::fromRGB32(0xFF0000), Util::Graphic::Color::fromRGB32(0x0000FF) }, // OBJ1

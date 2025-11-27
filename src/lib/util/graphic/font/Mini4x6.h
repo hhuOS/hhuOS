@@ -18,19 +18,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MINI4x6_H
-#define HHUOS_MINI4x6_H
+#ifndef HHUOS_LIB_UTIL_GRAPHIC_FONTS_MINI4x6_H
+#define HHUOS_LIB_UTIL_GRAPHIC_FONTS_MINI4x6_H
 
 #include <stdint.h>
-#include "lib/util/graphic/Font.h"
+
+#include "util/graphic/Font.h"
 
 namespace Util::Graphic::Fonts {
 
-/**
-* Based on https://github.com/torvalds/linux/blob/master/lib/fonts/font_mini_4x6.c
-* Hand composed "Minuscule" 4x6 font, with binary data generated using Perl stub.
-*/
-static uint8_t MINI_4x6_FONT_DATA[8 * 6 * 256] = {
+/// Binary data for the Mini 4x6 font.
+static constexpr uint8_t MINI_4x6_FONT_DATA[8 * 6 * 256] = {
     /*{*/
     /*   Char 0: ' '  */
     0x00,	/*=  [    ]       */
@@ -2133,6 +2131,8 @@ static uint8_t MINI_4x6_FONT_DATA[8 * 6 * 256] = {
     /*}*/
 };
 
+/// Hand composed "Minuscule" 4x6 font, with binary data generated using Perl stub.
+/// Based on https://github.com/torvalds/linux/blob/master/lib/fonts/font_mini_4x6.c
 static Font MINI_4x6(4, 6, MINI_4x6_FONT_DATA);
 
 }

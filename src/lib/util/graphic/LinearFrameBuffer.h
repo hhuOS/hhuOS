@@ -182,14 +182,6 @@ private:
 
     static void* mapBuffer(void *physicalAddress, uint16_t resolutionY, uint16_t pitch);
 
-    static void drawPixel15Bit(uint8_t *buffer, uint16_t pitch, uint16_t x, uint16_t y, const Color &color);
-
-    static void drawPixel16Bit(uint8_t *buffer, uint16_t pitch, uint16_t x, uint16_t y, const Color &color);
-
-    static void drawPixel24Bit(uint8_t *buffer, uint16_t pitch, uint16_t x, uint16_t y, const Color &color);
-
-    static void drawPixel32Bit(uint8_t *buffer, uint16_t pitch, uint16_t x, uint16_t y, const Color &color);
-
     void drawLineMajorAxis(int32_t x, int32_t y, int8_t xMovement, int8_t yMovement, int32_t dx, int32_t dy, bool majorAxisX, const Color &color) const;
 
     void drawLineSingleAxis(int32_t x, int32_t y, int8_t movement, int32_t dx, bool majorAxisX, const Color &color) const;
@@ -206,7 +198,7 @@ private:
      * @param bgColor The background color
      * @param bitmap The bitmap's data.
      */
-    void drawMonoBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const Color &fgColor, const Color &bgColor, uint8_t *bitmap) const;
+    void drawMonoBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const Color &fgColor, const Color &bgColor, const uint8_t *bitmap) const;
 
     Address buffer;
 
@@ -214,8 +206,6 @@ private:
     uint16_t resolutionY = 0;
     uint8_t colorDepth = 0;
     uint16_t pitch = 0;
-
-    void (*drawFunction)(uint8_t *buffer, uint16_t width, uint16_t x, uint16_t y, const Color &color);
 };
 
 }

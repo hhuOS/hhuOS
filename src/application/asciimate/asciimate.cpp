@@ -36,6 +36,9 @@
 #include "lib/util/graphic/Font.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/InputStream.h"
+#include "util/graphic/font/Mini4x6.h"
+#include "util/graphic/font/Terminal8x16.h"
+#include "util/graphic/font/Terminal8x8.h"
 
 static const constexpr uint16_t DEFAULT_FPS = 15;
 
@@ -93,9 +96,17 @@ int32_t main(int32_t argc, char *argv[]) {
 
     auto frameInfo = bufferedStream.readLine().content.split(",");
 
-    const auto &font = Util::Graphic::Font::getFontForResolution(bufferedLfb.getResolutionY());
-    auto charWidth = font.getCharWidth();
-    auto charHeight = font.getCharHeight();
+    const Util::Graphic::Font *font;
+    if (bufferedLfb.getResolutionY() < 350) {
+        font = &Util::Graphic::Fonts::MINI_4x6;
+    } else if (bufferedLfb.getResolutionY() < 500) {
+        font = &Util::Graphic::Fonts::TERMINAL_8x8;
+    } else {
+        font = &Util::Graphic::Fonts::TERMINAL_8x16;
+    }
+
+    auto charWidth = font->getCharWidth();
+    auto charHeight = font->getCharHeight();
 
     double fps = argumentParser.hasArgument("framesPerSecond") ? Util::String::parseNumber<uint8_t>(argumentParser.getArgument("framesPerSecond")) : DEFAULT_FPS;
     auto rows = Util::String::parseNumber<uint16_t>(frameInfo[0]);
@@ -127,7 +138,7 @@ int32_t main(int32_t argc, char *argv[]) {
         bufferedLfb.drawLine(frameEndX + charWidth, frameStartY - charHeight, frameEndX + charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
 
         for (int16_t i = 0; i < rows - 1; i++) {
-            bufferedLfb.drawString(font, frameStartX, frameStartY + charHeight * i, static_cast<const char*>(bufferedStream.readLine().content), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+            bufferedLfb.drawString(*font, frameStartX, frameStartY + charHeight * i, static_cast<const char*>(bufferedStream.readLine().content), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
         }
 
         bufferedLfb.flush();

@@ -18,101 +18,82 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __Color_include__
-#define __Color_include__
+#ifndef HHUOS_LIB_UTIL_GRAPHIC_COLOR_H
+#define HHUOS_LIB_UTIL_GRAPHIC_COLOR_H
 
 #include <stdint.h>
 
 namespace Util::Graphic {
 
-/**
- * Convert RGB-colors into their 1-, 2-, 4-, 8-, 15-, 16-, 24-, and 32-Bit representations.
- * Provides the possibility to blend to transparent colors.
- *
- * 32-Bit:
- *  Alpha     Red     Green     Blue
- * XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
- *
- * 24-Bit:
- *   Red     Green     Blue
- * XXXXXXXX XXXXXXXX XXXXXXXX
- *
- * 16-Bit:
- *  Red  Green  Blue
- * XXXXX XXXXXX XXXXX
- *
- * 15-Bit:
- *  Red  Green Blue
- * XXXXX XXXXX XXXXX
- *
- * 8-Bit:
- * Red Green Blue
- * XX  XXX   XXX
- *
- * 4-Bit:
- * Brightness Red Green Blue
- *     X       X    X     X
- *
- * 2-Bit:
- * Blue/Green Red
- *     X       X
- *
- * 1-Bit:
- * Black/White
- *      X
- *
- *
- * Once an RGB-value has been calculated, it will be cached, e.g. the first call to RGB32() will calculate and the
- * 32-bit value and store it in a variable. Every subsequent call to RGB32() will just return the cached value (if the
- * color attributes have not been changed since the last call).
- */
+/// Represents a 32-bit color with red, green, blue, and alpha components (8 bits each).
+/// Colors can be brightened, dimmed and blended with other colors.
+/// Furthermore, they can be converted into their 1-, 2-, 4-, 8-, 15-, 16-, 24-, and 32-bit binary forms:
+///
+///     32-bit:
+///      Alpha     Red     Green     Blue
+///     XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
+///
+///     24-bit:
+///       Red     Green     Blue
+///     XXXXXXXX XXXXXXXX XXXXXXXX
+///
+///     16-bit:
+///      Red  Green  Blue
+///     XXXXX XXXXXX XXXXX
+///
+///     15-bit:
+///      Red  Green Blue
+///     XXXXX XXXXX XXXXX
+///
+///     8-bit:
+///     Red Green Blue
+///     XX  XXX   XXX
+///
+///     4-bit:
+///     Brightness Red Green Blue
+///         X       X    X     X
+///
+///     2-bit:
+///     Blue/Green Red
+///         X       X
+///
+///     1-bit:
+///     Black/White
+///          X
+///
+/// The class stores colors in RGBA order (red first, blue last) in memory and is packed,
+/// which means it already has the correct layout for direct usage in 32-bit RGBA frame buffers.
+///
+/// ### Example
+/// ```c++
+/// const auto red = Util::Graphic::Color(255, 0, 0);
+/// const auto green = Util::Graphic::Color::fromRGB24(0x00FF00);
+/// const auto dimmed = green.dim(); // dimmed = (170, 170, 0)
+/// const auto rgb16 = red.getRGB16(); // rgb16 = 0xF800
+/// ```
 class Color {
 
 public:
-    /**
-     * Default-Constructor. Initializes the color as black.
-     */
-    Color();
 
-    /**
-     * RGB-constuctor.
-     *
-     * @param red The value for red
-     * @param green The value green
-     * @param blue The value for blue
-     */
-    Color(uint8_t red, uint8_t green, uint8_t blue);
+    Color() = default;
 
-    /**
-     * RGBA-Constructor.
-     *
-     * @param red The value for red
-     * @param green The value green
-     * @param blue The value for blue
-     * @param alpha The value fpr alpha
-     */
-    Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
+    Color(const uint8_t red, const uint8_t green, const uint8_t blue) :
+        blue(blue), green(green), red(red) {}
 
-    /**
-     * Copy Constructor.
-     */
-    Color(const Color &other) = default;
+    Color(const uint8_t red, const uint8_t green, const uint8_t blue, const uint8_t alpha) :
+        blue(blue), green(green), red(red), alpha(alpha) {}
 
-    /**
-     * Assignment operator.
-     */
-    Color &operator=(const Color &other) = default;
+    bool operator==(const Color &other) const {
+        return red == other.red && green == other.green && blue == other.blue &&  alpha == other.alpha;
+    }
 
-    /**
-     * Destructor.
-     */
-    ~Color() = default;
-
-    bool operator==(const Color &other) const;
+    bool operator!=(const Color &other) const {
+        return red != other.red || green != other.green || blue != other.blue || alpha != other.alpha;
+    }
 
     [[nodiscard]] static Color fromRGB(uint32_t rgb, uint8_t depth);
 
-    [[nodiscard]] static Color fromRGB32(uint32_t rgb);
+    [[nodiscard]] static Color fromRGB32(uint32_t rgba);
 
     [[nodiscard]] static Color fromRGB24(uint32_t rgb);
 
@@ -128,101 +109,140 @@ public:
 
     [[nodiscard]] static Color fromRGB1(uint8_t rgb);
 
-    /**
-     * Get the red-value.
-     */
-    [[nodiscard]] uint8_t getRed() const;
-
-    /**
-     * Get the green-value.
-     */
-    [[nodiscard]] uint8_t getGreen() const;
-
-    /**
-     * Get the blue-value.
-     */
-    [[nodiscard]] uint8_t getBlue() const;
-
-    /**
-     * Get the alpha-value.
-     */
-    [[nodiscard]] uint8_t getAlpha() const;
-
-    /**
-     * Get the RGB32-value.
-     */
-    [[nodiscard]] uint32_t getRGB32() const;
-
-    /**
-     * Get the RGB24-value.
-     */
-    [[nodiscard]] uint32_t getRGB24() const;
-
-    /**
-     * Get the RGB16-value.
-     */
-    [[nodiscard]] uint16_t getRGB16() const;
-
-    /**
-     * Get the RGB15-value.
-     */
-    [[nodiscard]] uint16_t getRGB15() const;
-
-    /**
-     * Get the RGB8-value.
-     */
-    [[nodiscard]] uint8_t getRGB8() const;
-
-    /**
-     * Get the RB4-value.
-     */
-    [[nodiscard]] uint8_t getRGB4() const;
-
-    /**
-     * Get the RGB2-value.
-     */
-    [[nodiscard]] uint8_t getRGB2() const;
-
-    /**
-     * Get the RGB1-value.
-     */
-    [[nodiscard]] uint8_t getRGB1() const;
-
-    /**
-     * Get the RGB-value for a given color-colorDepth.
-     *
-     * @param depth The color-colorDepth
-     */
-    [[nodiscard]] uint32_t getColorForDepth(uint8_t depth) const;
-
-    /**
-     * Get a brighter version of the color.
-     */
     [[nodiscard]] Color bright() const;
 
-    /**
-     * Get a dimmer version of the color
-     */
     [[nodiscard]] Color dim() const;
 
     [[nodiscard]] Color withSaturation(uint8_t percentage) const;
 
-    /**
-     * Blend this color with another color.
-     *
-     * @param color The color to blend with.
-     */
     [[nodiscard]] Color blend(const Color &color) const;
 
-    [[nodiscard]] Color withAlpha(uint8_t alpha) const;
+    [[nodiscard]] Color withAlpha(const uint8_t alpha) const {
+        return Color(red, green, blue, alpha);
+    }
+
+    [[nodiscard]] uint32_t getRGB32() const {
+        return *reinterpret_cast<const uint32_t*>(this);
+    }
+
+    [[nodiscard]] uint32_t getRGB24() const {
+        return *reinterpret_cast<const uint32_t*>(this) & 0x00ffffff;
+    }
+
+    [[nodiscard]] uint16_t getRGB16() const {
+        return blue >> 3 | (green >> 2) << 5 | (red >> 3) << 11;
+    }
+
+    [[nodiscard]] uint16_t getRGB15() const {
+        return blue >> 3 | (green >> 3) << 5 | (red >> 3) << 10;
+    }
+
+    [[nodiscard]] uint8_t getRGB8() const {
+        return blue >> 6 | (green >> 5) << 2 | (red >> 5) << 5;
+    }
+
+    [[nodiscard]] uint8_t getRGB4() const {
+        const uint8_t ret = blue >> 7 | (green >> 7) << 1 | (red >> 7) << 2;
+        const auto brightness = (red + green + blue) / 3;
+
+        // Special case for grey
+        if (ret == 0 && brightness > 42) {
+            return ret + 8;
+        }
+
+        // Special case for light grey
+        if (ret == 7 && brightness < 212) {
+            return ret;
+        }
+
+        if (brightness > 127) {
+            return ret + 8;
+        }
+
+        return ret;
+    }
+
+    [[nodiscard]] uint8_t getRGB2() const {
+        const uint8_t r = this->red >> 7;
+        const uint8_t g = this->green >> 7;
+        const uint8_t b = this->blue >> 7;
+
+        // Black
+        if (!b && !g && !r) {
+            return 0;
+        }
+
+        // Cyan or Green
+        if ((b || g) && !r) {
+            return 1;
+        }
+
+        // Magenta or Green
+        if ((b || r) && !g) {
+            return 2;
+        }
+
+        // White or Yellow
+        return 3;
+    }
+
+    [[nodiscard]] uint8_t getRGB1() const {
+        if (red >> 7 || green >> 7 || blue >> 7) {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    [[nodiscard]] uint32_t getColorForDepth(const uint8_t depth) const {
+        switch (depth) {
+            case 32:
+                return getRGB32();
+            case 24:
+                return getRGB24();
+            case 16:
+                return getRGB16();
+            case 15:
+                return getRGB15();
+            case 8:
+                return getRGB8();
+            case 4:
+                return getRGB4();
+            case 2:
+                return getRGB2();
+            case 1:
+                return getRGB1();
+            default:
+                return getRGB32();
+        }
+    }
+
+    [[nodiscard]] uint8_t getRed() const {
+        return red;
+    }
+
+    [[nodiscard]] uint8_t getGreen() const {
+        return green;
+    }
+
+    [[nodiscard]] uint8_t getBlue() const {
+        return blue;
+    }
+
+    [[nodiscard]] uint8_t getAlpha() const {
+        return alpha;
+    }
 
 private:
 
-    uint8_t red, green, blue, alpha;
+    uint8_t blue = 0;
+    uint8_t green = 0;
+    uint8_t red = 0;
+    uint8_t alpha = 255;
 
-    static const constexpr uint8_t BRIGHTNESS_SHIFT = 85;
+    static constexpr uint8_t BRIGHTNESS_SHIFT = 85;
 
-};
+} __attribute__((packed));
 
 }
 

@@ -29,8 +29,8 @@
 namespace Util::Graphic {
 
 LinearFrameBufferTerminal::LinearFrameBufferTerminal(LinearFrameBuffer *lfb, char cursor) :
-        Terminal(lfb->getResolutionX() / Font::getFontForResolution(lfb->getResolutionY()).getCharWidth(), lfb->getResolutionY() / Font::getFontForResolution(lfb->getResolutionY()).getCharHeight()),
-        characterBuffer(new Character[getColumns() * getRows()]), lfb(*lfb), shadowLfb(*lfb), font(Font::getFontForResolution(lfb->getResolutionY())), cursor(cursor) {
+        Terminal(lfb->getResolutionX() / Fonts::TERMINAL_8x16.getCharWidth(), lfb->getResolutionY() / Fonts::TERMINAL_8x16.getCharHeight()),
+        characterBuffer(new Character[getColumns() * getRows()]), lfb(*lfb), shadowLfb(*lfb), cursor(cursor) {
     Terminal::clear();
     LinearFrameBufferTerminal::setCursor(true);
 }

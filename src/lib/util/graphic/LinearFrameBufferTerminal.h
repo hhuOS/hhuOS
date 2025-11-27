@@ -23,6 +23,7 @@
 
 #include <stdint.h>
 
+#include "font/Terminal8x16.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
@@ -86,13 +87,13 @@ private:
     LinearFrameBuffer &lfb;
     BufferedLinearFrameBuffer shadowLfb;
 
-    const Font &font;
+    const Font &font = Fonts::TERMINAL_8x16;
     uint16_t currentColumn = 0;
     uint16_t currentRow = 0;
 
     char cursor;
     CursorRunnable *cursorRunnable = nullptr;
-    Util::Async::Spinlock cursorLock;
+    Async::Spinlock cursorLock;
 };
 
 }

@@ -795,7 +795,7 @@ void setup_context()
 }
 
 void gears(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
-    auto &font = Util::Graphic::Font::getFontForResolution(lfb.getResolutionY());
+    auto &font = Util::Graphic::Fonts::TERMINAL_8x8;
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
     bufferedLfb = &lfb;
 

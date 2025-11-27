@@ -60,7 +60,7 @@ void drawTriangle() {
 }
 
 void triangle(const Util::Graphic::BufferedLinearFrameBuffer &lfb) {
-    auto &font = Util::Graphic::Font::getFontForResolution(lfb.getResolutionY());
+    auto &font = Util::Graphic::Fonts::TERMINAL_8x8;
     const auto targetFrameTime = Util::Time::Timestamp::ofMicroseconds(static_cast<uint64_t>(1000000.0 / TARGET_FRAME_RATE));
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 

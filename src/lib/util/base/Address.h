@@ -34,27 +34,35 @@ public:
     Address() = default;
 
     /// Create a new Address object pointing to the given address.
-	explicit Address(void *pointer);
+	explicit Address(void *pointer) : address(reinterpret_cast<size_t>(pointer)) {}
 
     /// Create a new Address object pointing to the given address.
-    explicit Address(const void *pointer);
+    explicit Address(const void *pointer) : address(reinterpret_cast<size_t>(pointer)) {};
 
     /// Create a new Address object pointing to the given address.
-    explicit Address(size_t address);
+    explicit Address(const size_t address) : address(address) {}
 
     /// Get the address this object points to.
-    [[nodiscard]] size_t get() const;
+    [[nodiscard]] size_t get() const {
+        return address;
+    }
 
     /// Get the address this object points to as a void pointer.
-    [[nodiscard]] void* getAsPointer() const;
+    [[nodiscard]] void* getAsPointer() const {
+        return reinterpret_cast<void*>(address);
+    }
 
     /// Add a value to the address this object points to
     /// and return a new `Address` object pointing to the result.
-    [[nodiscard]] Address add(size_t value) const;
+    [[nodiscard]] Address add(const size_t value) const {
+        return Address(address + value);
+    }
 
     /// Subtract a value from the address this object points to
     /// and return a new `Address` object pointing to the result.
-    [[nodiscard]] Address subtract(size_t value) const;
+    [[nodiscard]] Address subtract(const size_t value) const {
+        return Address(address - value);
+    }
 
     /// Align the address this object points to up to the given alignment
     /// and return a new `Address` object pointing to the result.
@@ -63,7 +71,13 @@ public:
     /// ```c++
     /// const auto aligned = Util::Address(0x1234).alignUp(0x1000); // aligned = 0x2000
     /// ```
-    [[nodiscard]] Address alignUp(size_t alignment) const;
+    [[nodiscard]] Address alignUp(const size_t alignment) const {
+        if (alignment == 0) {
+            return *this;
+        }
+
+        return Address((address + (alignment - 1)) & ~(alignment - 1));
+    }
 
     /// Align the address this object points to down to the given alignment
     /// and return a new `Address` object pointing to the result.
@@ -72,7 +86,53 @@ public:
     /// ```c++
     /// const auto aligned = Util::Address(0x1234).alignDown(0x1000); // aligned = 0x1000
     /// ```
-    [[nodiscard]] Address alignDown(size_t alignment) const;
+    [[nodiscard]] Address alignDown(const size_t alignment) const {
+        if (alignment == 0) {
+            return *this;
+        }
+
+        return Address(address & ~(alignment - 1));
+    }
+
+    /// Read a byte from the address this object points to plus the given offset.
+    [[nodiscard]] uint8_t read8(const size_t offset = 0) const {
+        return *reinterpret_cast<uint8_t*>(address + offset);
+    }
+
+    /// Read a 16-bit value from the address this object points to plus the given offset.
+    [[nodiscard]] uint16_t read16(const size_t offset = 0) const {
+        return *reinterpret_cast<uint16_t*>(address + offset);
+    }
+
+    /// Read a 32-bit value from the address this object points to plus the given offset.
+    [[nodiscard]] uint32_t read32(const size_t offset = 0) const {
+        return *reinterpret_cast<size_t*>(address + offset);
+    }
+
+    /// Read a 64-bit value from the address this object points to plus the given offset.
+    [[nodiscard]] uint64_t read64(const size_t offset = 0) const {
+        return *reinterpret_cast<uint64_t*>(address + offset);
+    }
+
+    /// Write a byte to the address this object points to plus the given offset.
+    void write8(const uint8_t value, const size_t offset = 0) const {
+        *reinterpret_cast<uint8_t*>(address + offset) = value;
+    }
+
+    /// Write a 16-bit value to the address this object points to plus the given offset.
+    void write16(const uint16_t value, const size_t offset = 0) const {
+        *reinterpret_cast<uint16_t*>(address + offset) = value;
+    }
+
+    /// Write a 32-bit value to the address this object points to plus the given offset.
+    void write32(const uint32_t value, const size_t offset = 0) const {
+        *reinterpret_cast<uint32_t*>(address + offset) = value;
+    }
+
+    /// Write a 64-bit value to the address this object points to plus the given offset.
+    void write64(const uint64_t value, const size_t offset = 0) const {
+        *reinterpret_cast<uint64_t*>(address + offset) = value;
+    }
 
     /// Count the number of bytes until a null terminator (0) is reached.
     ///
@@ -106,30 +166,6 @@ public:
     /// const auto equal = Util::Address(a).compareString(Util::Address(b)); // equal != 0
     /// ```
     [[nodiscard]] int32_t compareString(const Address &otherAddress) const;
-
-    /// Read a byte from the address this object points to plus the given offset.
-    [[nodiscard]] uint8_t read8(size_t offset = 0) const;
-
-    /// Read a 16-bit value from the address this object points to plus the given offset.
-    [[nodiscard]] uint16_t read16(size_t offset = 0) const;
-
-    /// Read a 32-bit value from the address this object points to plus the given offset.
-    [[nodiscard]] uint32_t read32(size_t offset = 0) const;
-
-    /// Read a 64-bit value from the address this object points to plus the given offset.
-    [[nodiscard]] uint64_t read64(size_t offset = 0) const;
-
-    /// Write a byte to the address this object points to plus the given offset.
-    void write8(uint8_t value, size_t offset = 0) const;
-
-    /// Write a 16-bit value to the address this object points to plus the given offset.
-    void write16(uint16_t value, size_t offset = 0) const;
-
-    /// Write a 32-bit value to the address this object points to plus the given offset.
-    void write32(uint32_t value, size_t offset = 0) const;
-
-    /// Write a 64-bit value to the address this object points to plus the given offset.
-    void write64(uint64_t value, size_t offset = 0) const;
 
     /// Set the memory this object points to to the given value.
     /// The number of bytes to set is given by the `length` parameter.

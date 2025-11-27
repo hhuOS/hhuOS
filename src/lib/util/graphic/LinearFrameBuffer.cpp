@@ -23,6 +23,9 @@
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/interface.h"
 #include "LinearFrameBuffer.h"
+
+#include <unistd.h>
+
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/base/String.h"
@@ -40,24 +43,7 @@ void swap(int32_t *a, int32_t *b) {
 namespace Util::Graphic {
 
 LinearFrameBuffer::LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch) :
-        buffer(virtualAddress), resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {
-    switch (colorDepth) {
-        case 15:
-            drawFunction = &drawPixel15Bit;
-        break;
-        case 16:
-            drawFunction = &drawPixel16Bit;
-        break;
-        case 24:
-            drawFunction = &drawPixel24Bit;
-        break;
-        case 32:
-            drawFunction = &drawPixel32Bit;
-        break;
-        default:
-            Panic::fire(Panic::INVALID_ARGUMENT, "PixelDrawer: Illegal color depth!");
-    }
-}
+        buffer(virtualAddress), resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
 
 LinearFrameBuffer::LinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch) :
         LinearFrameBuffer(mapBuffer(reinterpret_cast<void*>(physicalAddress), resolutionY, pitch), resolutionX, resolutionY, colorDepth, pitch) {}
@@ -126,6 +112,13 @@ void LinearFrameBuffer::clear() const {
 }
 
 void LinearFrameBuffer::drawPixel(uint16_t x, uint16_t y, const Color &color) const {
+    static constexpr void *DRAW_PIXEL_LABELS[] = {
+        &&DRAW_PIXEL_15,
+        &&DRAW_PIXEL_16,
+        &&DRAW_PIXEL_24,
+        &&DRAW_PIXEL_32,
+    };
+
     // Pixels outside the visible area won't be drawn
     if (x >= resolutionX || y >= resolutionY) {
         return;
@@ -136,11 +129,53 @@ void LinearFrameBuffer::drawPixel(uint16_t x, uint16_t y, const Color &color) co
         return;
     }
 
-    // Blend if necessary and draw pixel
-    if (color.getAlpha() < 255) {
-        drawFunction(reinterpret_cast<uint8_t*>(buffer.get()), pitch, x, y, readPixel(x, y).blend(color));
-    } else {
-        drawFunction(reinterpret_cast<uint8_t*>(buffer.get()), pitch, x, y, color);
+    // Blend if necessary
+    const Color toWrite = color.getAlpha() < 255 ? readPixel(x, y).blend(color) : color;
+
+    // Draw the pixel
+    goto *DRAW_PIXEL_LABELS[(colorDepth == 15 ? 16 : colorDepth) / 8 - 1];
+
+    DRAW_PIXEL_32:
+    {
+        const auto offset = x + y * (pitch / 4);
+        auto *pixelBuffer = reinterpret_cast<uint32_t*>(buffer.get());
+
+        pixelBuffer[offset] = toWrite.getRGB32();
+
+        return;
+    }
+
+    DRAW_PIXEL_24:
+    {
+        const auto rgbColor = toWrite.getRGB24();
+        const auto offset = x * 3 + y * pitch;
+        auto *pixelBuffer = reinterpret_cast<uint8_t*>(buffer.get());
+
+        pixelBuffer[offset] = rgbColor & 0xff;
+        pixelBuffer[offset + 1] = (rgbColor >> 8) & 0xff;
+        pixelBuffer[offset + 2] = (rgbColor >> 16) & 0xff;
+
+        return;
+    }
+
+    DRAW_PIXEL_16:
+    {
+        const auto offset = x + y * (pitch / 2);
+        auto *pixelBuffer = reinterpret_cast<uint16_t*>(buffer.get());
+
+        pixelBuffer[offset] = toWrite.getRGB15();
+
+        return;
+    }
+
+    DRAW_PIXEL_15:
+    {
+        const auto offset = x + y * (pitch / 2);
+        auto *pixelBuffer = reinterpret_cast<uint16_t*>(buffer.get());
+
+        pixelBuffer[offset] = toWrite.getRGB16();
+
+        return;
     }
 }
 
@@ -306,7 +341,7 @@ void LinearFrameBuffer::drawLineSingleAxis(int32_t x, int32_t y, int8_t movement
     }
 }
 
-void LinearFrameBuffer::drawMonoBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const Color &fgColor, const Color &bgColor, uint8_t *bitmap) const {
+void LinearFrameBuffer::drawMonoBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const Color &fgColor, const Color &bgColor, const uint8_t *bitmap) const {
     const uint32_t widthInBytes = width / 8 + ((width % 8 != 0) ? 1 : 0);
 
     for (uint32_t offsetY = 0; offsetY < height; ++offsetY) {
@@ -328,30 +363,6 @@ void LinearFrameBuffer::drawMonoBitmap(uint16_t x, uint16_t y, uint16_t width, u
             bitmap++;
         }
     }
-}
-
-void LinearFrameBuffer::drawPixel15Bit(uint8_t *const buffer, const uint16_t pitch, const uint16_t x, const uint16_t y, const Color &color) {
-    const auto offset = x + y * (pitch / 2);
-    reinterpret_cast<uint16_t*>(buffer)[offset] = color.getRGB15();
-}
-
-void LinearFrameBuffer::drawPixel16Bit(uint8_t *const buffer, const uint16_t pitch, const uint16_t x, const uint16_t y, const Color &color) {
-    const auto offset = x + y * (pitch / 2);
-    reinterpret_cast<uint16_t*>(buffer)[offset] = color.getRGB16();
-}
-
-void LinearFrameBuffer::drawPixel24Bit(uint8_t *const buffer, const uint16_t pitch, const uint16_t x, const uint16_t y, const Color &color) {
-    uint32_t rgbColor = color.getRGB24();
-    const auto offset = x * 3 + y * pitch;
-
-    buffer[offset] = rgbColor & 0xff;
-    buffer[offset + 1] = (rgbColor >> 8) & 0xff;
-    buffer[offset + 2] = (rgbColor >> 16) & 0xff;
-}
-
-void LinearFrameBuffer::drawPixel32Bit(uint8_t *const buffer, const uint16_t pitch, const uint16_t x, const uint16_t y, const Color &color) {
-    const auto offset = x + y * (pitch / 4);
-    reinterpret_cast<uint32_t*>(buffer)[offset] = color.getRGB32();
 }
 
 void* LinearFrameBuffer::mapBuffer(void *physicalAddress, uint16_t resolutionY, uint16_t pitch) {

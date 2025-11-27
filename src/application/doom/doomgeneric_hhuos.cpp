@@ -26,7 +26,7 @@
 uint32_t palette[256];
 Util::Graphic::LinearFrameBuffer *lfb;
 Util::Io::KeyDecoder *kd;
-const Util::Graphic::Font *fpsFont;
+const Util::Graphic::Font &fpsFont = Util::Graphic::Fonts::TERMINAL_8x8;
 
 uint8_t scaleFactor = 0;
 uint16_t offsetX = 0;
@@ -117,7 +117,6 @@ int32_t main(int argc, char **argv) {
 
     auto buffer = Util::Graphic::LinearFrameBuffer::open(*lfbFile);
     lfb = &buffer;
-    fpsFont = &Util::Graphic::Font::getFontForResolution(lfb->getResolutionY());
 
     // Calculate scale factor the game as large as possible
     scaleFactor = lfb->getResolutionX() / DOOMGENERIC_RESX;
@@ -183,7 +182,7 @@ void DG_DrawFrame() {
 
     drawFrame();
 
-    lfb->drawString(*fpsFont, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+    lfb->drawString(fpsFont, 0, 0, static_cast<const char*>(Util::String::format("FPS: %u", fps)), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
 
     fpsCounter++;
     fpsTimer += (Util::Time::Timestamp::getSystemTime() - lastFrameTime);

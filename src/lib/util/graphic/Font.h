@@ -18,81 +18,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_FONT_H
-#define HHUOS_FONT_H
+#ifndef HHUOS_LIB_UTIL_GRAPHIC_FONT_H
+#define HHUOS_LIB_UTIL_GRAPHIC_FONT_H
 
 #include <stdint.h>
 
 namespace Util::Graphic {
 
-/**
- * Represents a monochrome font, consisting of binary data. Each bit represents a pixel. The whole font data is stored in a single array.
- * The starting index of a character sprite can be calculated with ('character width' / 8) * 'character height' * 'character'
- *
- * Based on work by Jakob Falke, oostubs (https://gitlab.cs.fau.de/um15ebek/oostubs)
- */
+/// Represents a monochrome font, consisting of binary data.
+/// Each bit represents a pixel. The whole font data is stored in a single array.
+/// The starting index of a character sprite can be calculated with
+/// ('character width' / 8) * 'character height' * 'character'.
+/// Fonts based on this class can be found in the "fonts" directory.
+///
+/// Based on work by Jakob Falke, oostubs (https://gitlab.cs.fau.de/um15ebek/oostubs)
 class Font {
 
 public:
-    /**
-     * Constructor.
-     *
-     * @param charWidth The width (in pixel) of each character
-     * @param charHeight The height (in pixel) of each character
-     * @param fontData The binary data
-     */
-    Font(uint8_t charWidth, uint8_t charHeight, uint8_t *fontData);
+    /// Create a new font instance based on the given binary data.
+    /// The instance does not take ownership of the font data, so it must
+    /// remain valid for the lifetime of the Font instance.
+    /// Usually, font data is stored in a static array.
+    Font(uint8_t charWidth, uint8_t charHeight, const uint8_t *fontData);
 
-    /**
-     * Assignment operator.
-     */
-    Font& operator=(const Font &other) = delete;
+    /// Get a pointer to the binary data of a given character.
+    [[nodiscard]] const uint8_t* getChar(uint8_t c) const;
 
-    /**
-     * Copy Constructor.
-     */
-    Font(const Font &copy) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Font() = default;
-
-    /**
-     * Get a pointer into the binary, that points at the start of a given character.
-     *
-     * @param c The character
-     * @return The pointer
-     */
-    [[nodiscard]] uint8_t *getChar(uint8_t c) const;
-
-    /**
-     * Get the character width.
-     *
-     * @return The character width
-     */
+    /// Get the character width in pixels.
     [[nodiscard]] uint8_t getCharWidth() const;
 
-    /**
-     * Get the character height.
-     *
-     * @return The character height
-     */
+    /// Get the character height in pixels.
     [[nodiscard]] uint8_t getCharHeight() const;
-
-    /**
-     * Get a font that is suitable for a given vertical display resolution.
-     *
-     * @return A reference to the font
-     */
-    [[nodiscard]] static const Font& getFontForResolution(uint16_t resolutionY);
 
 private:
 
     const uint8_t charWidth;
     const uint8_t charHeight;
     const uint8_t charMemSize;
-    uint8_t *fontData;
+    const uint8_t *fontData;
 };
 
 }

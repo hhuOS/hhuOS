@@ -18,19 +18,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_ACORN8X8_H
-#define HHUOS_ACORN8X8_H
+#ifndef HHUOS_LIB_UTIL_GRAPHIC_FONTS_ACORN8X8_H
+#define HHUOS_LIB_UTIL_GRAPHIC_FONTS_ACORN8X8_H
 
 #include <stdint.h>
-#include "lib/util/graphic/Font.h"
+
+#include "util/graphic/Font.h"
 
 namespace Util::Graphic::Fonts {
 
-/**
-* Based on work by Jakob Falke, oostubs (https://gitlab.cs.fau.de/um15ebek/oostubs).
-* Acorn-like font definition, with PC graphics characters.
-*/
-static uint8_t ACORN_8x8_FONT_DATA[8 * 8 * 256] = {
+/// Binary data for the Acorn 8x8 font.
+static constexpr uint8_t ACORN_8x8_FONT_DATA[8 * 8 * 256] = {
     /* 00 */  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* ^@ */
     /* 01 */  0x7e, 0x81, 0xa5, 0x81, 0xbd, 0x99, 0x81, 0x7e, /* ^A */
     /* 02 */  0x7e, 0xff, 0xbd, 0xff, 0xc3, 0xe7, 0xff, 0x7e, /* ^B */
@@ -289,7 +287,9 @@ static uint8_t ACORN_8x8_FONT_DATA[8 * 8 * 256] = {
     /* FF */  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-static Font ACORN_8x8(8, 8, ACORN_8x8_FONT_DATA);
+/// Acorn-like 8x8 font with PC graphics characters.
+/// Based on work by Jakob Falke, oostubs (https://gitlab.cs.fau.de/um15ebek/oostubs).
+static const Font ACORN_8x8(8, 8, ACORN_8x8_FONT_DATA);
 
 }
 
