@@ -24,7 +24,7 @@
 void main() {
     Util::Graphic::Ansi::prepareGraphicalApplication(true);
 
-    auto lfb = Util::Graphic::LinearFrameBuffer::open(Util::Io::File("/device/lfb"));
+    auto lfb = Util::Graphic::LinearFrameBuffer(Util::Io::File("/device/lfb"));
     lfb.clear();
 
     auto windowManager = WindowManager(lfb);

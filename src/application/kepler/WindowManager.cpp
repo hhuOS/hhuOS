@@ -35,7 +35,7 @@ WindowManager::WindowManager(Util::Graphic::LinearFrameBuffer &lfb) : lfb(lfb), 
 {
     const auto idString = Util::String::format("%u", processId);
 
-    auto desktopFile = Util::Io::File("/system/kepler");
+    const auto desktopFile = Util::Io::File("/system/kepler");
     desktopFile.create(Util::Io::File::REGULAR);
 
     auto desktopFileStream = Util::Io::FileOutputStream(desktopFile);
@@ -94,7 +94,9 @@ void WindowManager::run() {
         // Handle new client connections
         if (nextPipe->isReadyToRead()) {
             nextPipe->setAccessMode(Util::Io::File::BLOCKING);
-            auto command = static_cast<Kepler::Command>(Util::Io::NumberUtil::readUnsigned8BitValue(*nextPipe));
+            const auto command = static_cast<Kepler::Command>(
+                Util::Io::NumberUtil::readUnsigned8BitValue(*nextPipe));
+
             if (command != Kepler::CONNECT) {
                 continue;
             }
@@ -111,7 +113,7 @@ void WindowManager::run() {
         }
 
         // Handle client commands
-        for (auto *client : clients) {
+        for (const auto *client : clients) {
             auto &inputStream = client->getInputStream();
             if (inputStream.isReadyToRead()) {
                 const auto command = static_cast<Kepler::Command>(
@@ -135,21 +137,16 @@ void WindowManager::run() {
         }
 
         // Draw dirty windows
-        for (size_t i = 0; i < clients.size(); i++) {
-            const auto &client = *clients.get(i);
-            const auto &windows = client.getWindows();
+        for (size_t i = 0; i < windows.size(); i++) {
+            const auto &window = windows.get(i);
 
-            for (size_t j = 0; j < windows.size(); j++) {
-                const auto &window = windows.get(j);
-
-                if (window->isDirty()) {
-                    window->drawFrame(tripleLfb, i == 0 && j == 0 ?
-                        Util::Graphic::Colors::HHU_BLUE : Util::Graphic::Colors::HHU_ICE_BLUE);
-                    window->flush(tripleLfb);
-                    window->setDirty(false);
-                    needRedraw = true;
-                    yield = false; // Work has been done, do not yield
-                }
+            if (window->isDirty()) {
+                window->drawFrame(tripleLfb, i == windows.size() - 1 ?
+                    Util::Graphic::Colors::HHU_BLUE : Util::Graphic::Colors::HHU_ICE_BLUE);
+                window->flush(tripleLfb);
+                window->setDirty(false);
+                needRedraw = true;
+                yield = false; // Work has been done, do not yield
             }
         }
 
@@ -176,8 +173,10 @@ void WindowManager::run() {
                 tripleLfb.flush();
 
                 // Draw mouse cursor into double buffer (on top of windows)
-                doubleLfb.drawLine(mouseX - 10, mouseY, mouseX + 10, mouseY, Util::Graphic::Colors::RED);
-                doubleLfb.drawLine(mouseX, mouseY - 10, mouseX, mouseY + 10, Util::Graphic::Colors::RED);
+                const auto xStart = mouseX - 10 < 0 ? 0 : mouseX - 10;
+                const auto yStart = mouseY - 10 < 0 ? 0 : mouseY - 10;
+                doubleLfb.drawLine(xStart, mouseY, mouseX + 10, mouseY, Util::Graphic::Colors::RED);
+                doubleLfb.drawLine(mouseX, yStart, mouseX, mouseY + 10, Util::Graphic::Colors::RED);
 
                 // Flush double buffer to screen
                 doubleLfb.flush();
@@ -204,7 +203,7 @@ void WindowManager::createNextPipe() {
     nextPipe->setAccessMode(Util::Io::File::NON_BLOCKING);
 }
 
-void WindowManager::createWindow(Client &client) {
+void WindowManager::createWindow(const Client &client) {
     auto &inputStream = client.getInputStream();
     auto &outputStream = client.getOutputStream();
 
@@ -214,7 +213,7 @@ void WindowManager::createWindow(Client &client) {
     inputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
 
     const auto windowId = windowIdGenerator.getNextId();
-    const auto bufferSize = 320 * 240 * tripleLfb.getBytesPerPixel();
+    const auto bufferSize = 320 * 240 * ((tripleLfb.getColorDepth() + 7) / 8);
     const auto bufferPages = bufferSize % Util::PAGESIZE == 0 ?
         bufferSize / Util::PAGESIZE : bufferSize / Util::PAGESIZE + 1;
     auto *sharedBuffer = new Util::Async::SharedMemory(Util::String::format("%u", windowId), bufferPages);
@@ -225,7 +224,10 @@ void WindowManager::createWindow(Client &client) {
     const auto posX = windowId == 0 || windowId == 2 ? 32 : 400;
     const auto posY = windowId == 0 || windowId == 1 ? 32 : 320;
 
-    client.addWindow(new ClientWindow(windowId, sharedBuffer, posX, posY, width, height, request.getTitle()));
+    windows.add(new ClientWindow(windowId, sharedBuffer, posX, posY, width, height, request.getTitle()));
+    for (auto *window : windows) {
+        window->setDirty(true);
+    }
 
     const auto response = Kepler::Response::CreateWindow(windowId, width, height, lfb.getColorDepth());
     response.writeToStream(outputStream);
@@ -240,7 +242,7 @@ void WindowManager::flushWindow(const Client &client) const {
     request.readFromStream(inputStream);
     inputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
 
-    const auto *window = client.getWindowById(request.getWindowId());
+    const auto *window = getWindowById(request.getWindowId());
     if (window == nullptr) {
         const auto response = Kepler::Response::Flush(false);
         response.writeToStream(outputStream);
@@ -251,4 +253,14 @@ void WindowManager::flushWindow(const Client &client) const {
 
     const auto response = Kepler::Response::Flush(true);
     response.writeToStream(outputStream);
+}
+
+ClientWindow* WindowManager::getWindowById(const size_t id) const {
+    for (auto *window : windows) {
+        if (window->getId() == id) {
+            return window;
+        }
+    }
+
+    return nullptr;
 }

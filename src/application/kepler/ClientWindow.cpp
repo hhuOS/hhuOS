@@ -22,6 +22,8 @@
 
 #include "util/graphic/Colors.h"
 
+const Util::Graphic::Font &ClientWindow::TITLE_FONT = Util::Graphic::Fonts::TERMINAL_8x8;
+
 ClientWindow::ClientWindow(size_t id, Util::Async::SharedMemory *buffer, uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const Util::String &title) :
     id(id), buffer(buffer), posX(posX), posY(posY), width(width), height(height), title(title) {}
 
@@ -71,17 +73,19 @@ void ClientWindow::drawFrame(const Util::Graphic::LinearFrameBuffer &lfb, const 
 
     const auto titleWidth = static_cast<uint16_t>(title.length() * TITLE_FONT.getCharWidth());
     const auto titlePosX = posX + (width + 2 - titleWidth) / 2;
-    lfb.drawString(TITLE_FONT, titlePosX, posY + 2, title, Util::Graphic::Colors::BLACK, color);
+    lfb.drawString(TITLE_FONT, titlePosX, posY + 2, static_cast<const char*>(title),
+        Util::Graphic::Colors::BLACK, color);
 }
 
 void ClientWindow::flush(const Util::Graphic::LinearFrameBuffer &lfb) const {
+    const auto bytesPerPixel = (lfb.getColorDepth() + 7) / 8;
     auto sourceAddress = buffer->getAddress();
     auto targetAddress = lfb.getBuffer().add(
-        (posY + TITLE_FONT.getCharHeight() + 4) * lfb.getPitch() + (posX + 1) * lfb.getBytesPerPixel());
+        (posY + TITLE_FONT.getCharHeight() + 4) * lfb.getPitch() + (posX + 1) * bytesPerPixel);
 
     for (uint16_t y = 0; y < height; y++) {
-        targetAddress.copyRange(sourceAddress, width * lfb.getBytesPerPixel());
+        targetAddress.copyRange(sourceAddress, width * bytesPerPixel);
         targetAddress = targetAddress.add(lfb.getPitch());
-        sourceAddress = sourceAddress.add(width * lfb.getBytesPerPixel());
+        sourceAddress = sourceAddress.add(width * bytesPerPixel);
     }
 }
