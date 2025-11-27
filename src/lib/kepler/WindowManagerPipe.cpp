@@ -29,7 +29,7 @@ namespace Kepler {
 WindowManagerPipe::WindowManagerPipe() {
     const auto desktopFile = Util::Io::File("/system/kepler");
     while (!desktopFile.exists()) {
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(100));
+        Util::Async::Thread::sleep(Util::Time::Timestamp::ofSeconds(1));
     }
 
     auto desktopFileStream = Util::Io::FileInputStream(desktopFile);

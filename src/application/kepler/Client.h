@@ -39,16 +39,9 @@ public:
 
     [[nodiscard]] Util::Io::FileOutputStream& getOutputStream() const;
 
-    void addWindow(ClientWindow *window);
-
-    [[nodiscard]] ClientWindow* getWindowById(size_t id) const;
-
-    [[nodiscard]] const Util::ArrayList<ClientWindow*>& getWindows() const;
-
 private:
 
     size_t id;
-    Util::ArrayList<ClientWindow*> windows;
 
     Util::Io::FileInputStream *inputStream = nullptr;
     Util::Io::FileOutputStream *outputStream = nullptr;

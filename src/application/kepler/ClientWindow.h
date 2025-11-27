@@ -70,7 +70,7 @@ private:
 
     bool dirty = true;
 
-    static constexpr Util::Graphic::Font &TITLE_FONT = Util::Graphic::Fonts::TERMINAL_8x8;
+    static const Util::Graphic::Font &TITLE_FONT;
 };
 
 #endif
