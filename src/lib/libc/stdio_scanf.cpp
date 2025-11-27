@@ -11,7 +11,7 @@
 
 
 int _stream_vscanf(Util::Io::InputStream &is, const char* format, va_list vlist) {
-	auto ss = Util::Io::ScanStream(is);
+	Util::Io::ScanStream ss(is);
 	return ss.scan(format, vlist);
 }
 

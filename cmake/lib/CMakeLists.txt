@@ -25,5 +25,6 @@ include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/l
 add_subdirectory(runtime)
 add_subdirectory(util)
 add_subdirectory(pulsar)
+add_subdirectory(lunar)
 add_subdirectory(libc)
 add_subdirectory(tinygl)

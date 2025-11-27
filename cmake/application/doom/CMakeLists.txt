@@ -145,4 +145,4 @@ set(SOURCE_FILES
 
 add_executable(doom ${SOURCE_FILES})
 
-target_link_libraries(doom lib.user.runtime lib.user.base lib.user.sound lib.user.libc)
+target_link_libraries(doom lib.user.runtime lib.user.base lib.user.graphic lib.user.sound lib.user.libc)

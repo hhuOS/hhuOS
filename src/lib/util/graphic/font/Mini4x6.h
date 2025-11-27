@@ -2133,7 +2133,7 @@ static uint8_t MINI_4x6_FONT_DATA[8 * 6 * 256] = {
     /*}*/
 };
 
-static Font MINI_4x6 = Font(4, 6, MINI_4x6_FONT_DATA);
+static Font MINI_4x6(4, 6, MINI_4x6_FONT_DATA);
 
 }
 

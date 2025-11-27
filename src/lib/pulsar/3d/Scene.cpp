@@ -91,7 +91,7 @@ void Scene::updateEntities(float delta) {
 }
 
 void Scene::checkCollisions() {
-    auto detectedCollisions = Util::ArrayList<Util::Pair<Entity*, Entity*>>();
+    Util::ArrayList<Util::Pair<Entity*, Entity*>> detectedCollisions;
 
     for (auto *entity : getEntities()) {
         auto *entity3D = reinterpret_cast<D3::Entity*>(entity);
@@ -101,8 +101,8 @@ void Scene::checkCollisions() {
                 auto *otherEntity3D = reinterpret_cast<D3::Entity*>(otherEntity);
                 if (entity == otherEntity ||
                     !otherEntity3D->hasCollider() ||
-                    detectedCollisions.contains(Util::Pair(entity3D, otherEntity3D)) ||
-                    detectedCollisions.contains(Util::Pair(otherEntity3D, entity3D))) {
+                    detectedCollisions.contains(Util::Pair<Entity*, Entity*>(entity3D, otherEntity3D)) ||
+                    detectedCollisions.contains(Util::Pair<Entity*, Entity*>(otherEntity3D, entity3D))) {
                     continue;
                 }
 
@@ -113,7 +113,7 @@ void Scene::checkCollisions() {
                     entity3D->onCollisionEvent(event);
                     otherEntity3D->onCollisionEvent(otherEvent);
 
-                    detectedCollisions.add(Util::Pair(entity3D, otherEntity3D));
+                    detectedCollisions.add(Util::Pair<Entity*, Entity*>(entity3D, otherEntity3D));
                 }
             }
         }

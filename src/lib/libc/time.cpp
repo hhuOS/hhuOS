@@ -92,7 +92,7 @@ char * ctime(const time_t* timer) {
 
 
 size_t strftime(char* str, size_t count, const char* format, const struct tm* tp) {
-	auto byteBuf = Util::Io::ByteArrayOutputStream((uint8_t*)str, count);
+	Util::Io::ByteArrayOutputStream byteBuf((uint8_t*)str, count);
 
 	auto written = Util::String::formatDate(_tm_to_date(tp), byteBuf, format);
 	if (byteBuf.write('\0')) {

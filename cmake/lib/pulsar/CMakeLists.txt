@@ -16,10 +16,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-project(lib.pulsar)
+project(lib.user.pulsar)
 message(STATUS "Project " ${PROJECT_NAME})
 
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 99) # C99 required by TinyGL
 
 add_compile_options(
         -Wno-unused-function
@@ -28,10 +29,9 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-fallthrough>
 )
 
+include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-
-target_link_libraries(${PROJECT_NAME} lib.graphic lib.sound lib.user.tinygl lib.user.libc)
-
+target_link_libraries(${PROJECT_NAME} lib.user.runtime lib.user.base lib.user.graphic lib.user.sound lib.user.math lib.user.time lib.user.tinygl)
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/pulsar/Camera.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/CancelableEvent.cpp
@@ -72,10 +72,3 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/pulsar/audio/AudioHandle.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/audio/AudioTrack.cpp
         ${HHUOS_SRC_DIR}/lib/pulsar/audio/AudioRunnable.cpp)
-
-project(lib.user.pulsar)
-message(STATUS "Project " ${PROJECT_NAME})
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} lib.pulsar)
-target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/user.cpp)

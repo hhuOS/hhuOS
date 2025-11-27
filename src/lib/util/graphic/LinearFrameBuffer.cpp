@@ -67,7 +67,7 @@ LinearFrameBuffer LinearFrameBuffer::open(Io::File &file) {
         Panic::fire(Panic::INVALID_ARGUMENT, "LinearFrameBuffer: File does not exist!");
     }
 
-    auto stream = Io::FileInputStream(file);
+    Io::FileInputStream stream(file);
 
     const auto addressString = stream.readLine().content;
     const auto resolutionString = stream.readLine().content;

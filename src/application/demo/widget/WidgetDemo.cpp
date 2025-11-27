@@ -23,26 +23,26 @@
 #include "util/graphic/Ansi.h"
 #include "util/graphic/BufferedLinearFrameBuffer.h"
 #include "util/graphic/font/Terminal8x16.h"
-#include "util/graphic/widget/Button.h"
-#include "util/graphic/widget/CheckBox.h"
-#include "util/graphic/widget/Container.h"
-#include "util/graphic/widget/FreeLayout.h"
-#include "util/graphic/widget/GridLayout.h"
-#include "util/graphic/widget/HorizontalLayout.h"
-#include "util/graphic/widget/VerticalLayout.h"
-#include "util/graphic/widget/InputField.h"
-#include "util/graphic/widget/Label.h"
-#include "util/graphic/widget/RadioButton.h"
-#include "util/graphic/widget/RadioButtonGroup.h"
+#include "lunar/Button.h"
+#include "lunar/CheckBox.h"
+#include "lunar/Container.h"
+#include "lunar/FreeLayout.h"
+#include "lunar/GridLayout.h"
+#include "lunar/HorizontalLayout.h"
+#include "lunar/VerticalLayout.h"
+#include "lunar/InputField.h"
+#include "lunar/Label.h"
+#include "lunar/RadioButton.h"
+#include "lunar/RadioButtonGroup.h"
 #include "util/io/key/MouseDecoder.h"
 #include "util/io/stream/FileInputStream.h"
-#include "util/graphic/widget/BorderLayout.h"
+#include "lunar/BorderLayout.h"
 
-class ClickCountListener final : public Util::Graphic::ActionListener {
+class ClickCountListener final : public Lunar::ActionListener {
 
 public:
 
-    explicit ClickCountListener(Util::Graphic::Label &label) : label(label) {}
+    explicit ClickCountListener(Lunar::Label &label) : label(label) {}
 
     void onMouseClicked() override {
         label.setText(Util::String::format("Pressed: %u", ++count));
@@ -54,11 +54,11 @@ public:
 
 private:
 
-    Util::Graphic::Label &label;
+    Lunar::Label &label;
     size_t count = 0;
 };
 
-class ExitListener final : public Util::Graphic::ActionListener {
+class ExitListener final : public Lunar::ActionListener {
 
 public:
 
@@ -73,11 +73,11 @@ private:
     bool &isRunning;
 };
 
-class PackListener final : public Util::Graphic::ActionListener {
+class PackListener final : public Lunar::ActionListener {
 
 public:
 
-    explicit PackListener(WidgetApplication &rootContainer, Util::Graphic::Button &packButton) :
+    explicit PackListener(WidgetApplication &rootContainer, Lunar::Button &packButton) :
         rootContainer(rootContainer), packButton(packButton) {}
 
     void onMouseClicked() override {
@@ -96,7 +96,7 @@ private:
 
     bool packed = false;
     WidgetApplication &rootContainer;
-    Util::Graphic::Button &packButton;
+    Lunar::Button &packButton;
 };
 
 WidgetDemo::WidgetDemo(Util::Graphic::LinearFrameBuffer &lfb) : WidgetApplication(lfb, 320, 240) {}
@@ -104,64 +104,64 @@ WidgetDemo::WidgetDemo(Util::Graphic::LinearFrameBuffer &lfb) : WidgetApplicatio
 void WidgetDemo::run() {
     Util::Graphic::Ansi::prepareGraphicalApplication(true);
 
-    setLayout(new Util::Graphic::BorderLayout());
+    setLayout(new Lunar::BorderLayout());
 
     // Add a label to the top
     auto northContainer = Container();
-    northContainer.setLayout(new Util::Graphic::HorizontalLayout());
+    northContainer.setLayout(new Lunar::HorizontalLayout());
 
-    auto northLabel = Util::Graphic::Label("Widget Demo", Util::Graphic::Fonts::TERMINAL_8x16);
+    auto northLabel = Lunar::Label("Widget Demo", Util::Graphic::Fonts::TERMINAL_8x16);
     northContainer.addChild(northLabel);
 
-    addChild(northContainer, Util::Array<size_t>{Util::Graphic::BorderLayout::NORTH});
+    addChild(northContainer, Util::Array<size_t>{Lunar::BorderLayout::NORTH});
 
     // Add exit and pack buttons to the south
     auto southContainer = Container();
-    southContainer.setLayout(new Util::Graphic::HorizontalLayout(10));
+    southContainer.setLayout(new Lunar::HorizontalLayout(10));
 
     bool isRunning = true;
-    auto exitButton = Util::Graphic::Button("Exit");
+    auto exitButton = Lunar::Button("Exit");
     exitButton.addActionListener(new ExitListener(isRunning));
 
-    auto packButton = Util::Graphic::Button("Pack");
+    auto packButton = Lunar::Button("Pack");
     packButton.addActionListener(new PackListener(*this, packButton));
 
     southContainer.addChild(exitButton);
     southContainer.addChild(packButton);
 
-    addChild(southContainer, Util::Array<size_t>{Util::Graphic::BorderLayout::SOUTH});
+    addChild(southContainer, Util::Array<size_t>{Lunar::BorderLayout::SOUTH});
 
     // Add a container in the center with a grid layout
     auto centerContainer = Container();
-    centerContainer.setLayout(new Util::Graphic::GridLayout(2, 2));
+    centerContainer.setLayout(new Lunar::GridLayout(2, 2));
 
     auto topLeftContainer = Container();
     auto bottomLeftContainer = Container();
     auto topRightContainer = Container();
     auto bottomRightContainer = Container();
 
-    topLeftContainer.setLayout(new Util::Graphic::VerticalLayout(10));
-    bottomLeftContainer.setLayout(new Util::Graphic::VerticalLayout(10));
-    topRightContainer.setLayout(new Util::Graphic::VerticalLayout(10));
-    bottomRightContainer.setLayout(new Util::Graphic::VerticalLayout(10));
+    topLeftContainer.setLayout(new Lunar::VerticalLayout(10));
+    bottomLeftContainer.setLayout(new Lunar::VerticalLayout(10));
+    topRightContainer.setLayout(new Lunar::VerticalLayout(10));
+    bottomRightContainer.setLayout(new Lunar::VerticalLayout(10));
 
     centerContainer.addChild(topLeftContainer);
     centerContainer.addChild(topRightContainer);
     centerContainer.addChild(bottomLeftContainer);
     centerContainer.addChild(bottomRightContainer);
 
-    addChild(centerContainer, Util::Array<size_t>{Util::Graphic::BorderLayout::CENTER});
+    addChild(centerContainer, Util::Array<size_t>{Lunar::BorderLayout::CENTER});
 
     // Test labels
-    auto testLabel = Util::Graphic::Label("This is a test!");
-    auto lineBreakTestLabel = Util::Graphic::Label("This is\na test\nwith linebreaks!");
+    auto testLabel = Lunar::Label("This is a test!");
+    auto lineBreakTestLabel = Lunar::Label("This is\na test\nwith linebreaks!");
 
     topLeftContainer.addChild(testLabel);
     topLeftContainer.addChild(lineBreakTestLabel);
 
     // Test button
-    auto button = Util::Graphic::Button("Button");
-    auto pressedLabel = Util::Graphic::Label("Pressed: 0");
+    auto button = Lunar::Button("Button");
+    auto pressedLabel = Lunar::Label("Pressed: 0");
 
     auto *clickListener = new ClickCountListener(pressedLabel);
     button.addActionListener(clickListener);
@@ -170,14 +170,14 @@ void WidgetDemo::run() {
     bottomLeftContainer.addChild(pressedLabel);
 
     // Test checkbox
-    auto checkbox = Util::Graphic::CheckBox("Checkbox", Util::Graphic::Fonts::TERMINAL_8x16);
+    auto checkbox = Lunar::CheckBox("Checkbox", Util::Graphic::Fonts::TERMINAL_8x16);
     bottomLeftContainer.addChild(checkbox);
 
     // Test radio buttons
-    auto radioGroup = Util::Graphic::RadioButtonGroup();
-    auto radio1 = Util::Graphic::RadioButton("Option 1", Util::Graphic::Fonts::TERMINAL_8x16);
-    auto radio2 = Util::Graphic::RadioButton("Option 2", Util::Graphic::Fonts::TERMINAL_8x16);
-    auto radio3 = Util::Graphic::RadioButton("Option 3", Util::Graphic::Fonts::TERMINAL_8x16);
+    auto radioGroup = Lunar::RadioButtonGroup();
+    auto radio1 = Lunar::RadioButton("Option 1", Util::Graphic::Fonts::TERMINAL_8x16);
+    auto radio2 = Lunar::RadioButton("Option 2", Util::Graphic::Fonts::TERMINAL_8x16);
+    auto radio3 = Lunar::RadioButton("Option 3", Util::Graphic::Fonts::TERMINAL_8x16);
 
     radioGroup.add(radio1);
     radioGroup.add(radio2);
@@ -188,8 +188,8 @@ void WidgetDemo::run() {
     topRightContainer.addChild(radio3);
 
     // Test input field
-    auto inputLabel = Util::Graphic::Label("Input Field:", 150);
-    auto inputField = Util::Graphic::InputField(100, Util::Graphic::Fonts::TERMINAL_8x16);
+    auto inputLabel = Lunar::Label("Input Field:", 150);
+    auto inputField = Lunar::InputField(100, Util::Graphic::Fonts::TERMINAL_8x16);
 
     bottomRightContainer.addChild(inputLabel);
     bottomRightContainer.addChild(inputField);

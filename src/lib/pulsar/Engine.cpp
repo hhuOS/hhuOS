@@ -48,9 +48,9 @@ void Engine::run() {
     Util::Graphic::Ansi::prepareGraphicalApplication(true);
     Util::Io::File::setAccessMode(Util::Io::STANDARD_INPUT, Util::Io::File::NON_BLOCKING);
 
-    const auto mouseFile = Util::Io::File("/device/mouse");
-    auto mouseInputStream = Util::Io::FileInputStream(mouseFile.exists() ?
-        mouseFile : Util::Io::File("/device/null"));
+    const Util::Io::File mouseFile("/device/mouse");
+    Util::Io::FileInputStream mouseInputStream(
+        mouseFile.exists() ? mouseFile : Util::Io::File("/device/null"));
     mouseInputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
 
     // Start audio thread

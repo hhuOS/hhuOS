@@ -24,7 +24,7 @@
 #include "WidgetApplication.h"
 
 #include "util/graphic/LinearFrameBuffer.h"
-#include "util/graphic/widget/Label.h"
+#include "lunar/Label.h"
 
 class WidgetDemo : public WidgetApplication {
 

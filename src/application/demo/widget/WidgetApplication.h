@@ -24,12 +24,12 @@
 #include <stddef.h>
 
 #include "util/graphic/BufferedLinearFrameBuffer.h"
-#include "util/graphic/widget/Container.h"
+#include "lunar/Container.h"
 #include "util/io/key/KeyDecoder.h"
 #include "util/io/key/layout/DeLayout.h"
 #include "util/io/stream/FileInputStream.h"
 
-class WidgetApplication : public Util::Graphic::Container {
+class WidgetApplication : public Lunar::Container {
 
 public:
 

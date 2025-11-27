@@ -289,7 +289,7 @@ static uint8_t ACORN_8x8_FONT_DATA[8 * 8 * 256] = {
     /* FF */  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-static Font ACORN_8x8 = Font(8, 8, ACORN_8x8_FONT_DATA);
+static Font ACORN_8x8(8, 8, ACORN_8x8_FONT_DATA);
 
 }
 

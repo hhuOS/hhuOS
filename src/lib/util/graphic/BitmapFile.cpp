@@ -30,8 +30,8 @@ namespace Util::Graphic {
 BitmapFile::BitmapFile(uint16_t width, uint16_t height, Color *pixelBuffer) : Graphic::Image(width, height, pixelBuffer) {}
 
 BitmapFile* BitmapFile::open(const String &path) {
-    auto file = Io::File(path);
-    auto stream = Io::FileInputStream(file);
+    const Io::File file(path);
+    Io::FileInputStream stream(file);
     auto *buffer = new uint8_t[file.getLength()];
     stream.read(buffer, 0, file.getLength());
 

@@ -38,7 +38,8 @@
 namespace Pulsar {
 
 AudioBuffer::AudioBuffer(const Util::String &waveFilePath) : waveFilePath(waveFilePath) {
-    auto waveFile = Util::Sound::WaveFile(Util::Io::File(waveFilePath));
+    const Util::Io::File file(waveFilePath);
+    Util::Sound::WaveFile waveFile(file);
 
     samples = new uint8_t[waveFile.getDataSize()];
     waveFile.read(samples, 0, waveFile.getDataSize());

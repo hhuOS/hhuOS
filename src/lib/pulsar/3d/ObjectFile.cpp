@@ -42,15 +42,15 @@
 namespace Pulsar::D3 {
 
 ObjectFile::ObjectFile(const Util::String &path) {
-    auto fileStream = Util::Io::FileInputStream(path);
-    auto stream = Util::Io::BufferedInputStream(fileStream);
+    Util::Io::FileInputStream fileStream(path);
+    Util::Io::BufferedInputStream stream(fileStream);
 
-    auto vertexList = Util::ArrayList<Util::Math::Vector3<float>>();
-    auto normalList = Util::ArrayList<Util::Math::Vector3<float>>();
-    auto textureList = Util::ArrayList<Util::Math::Vector3<float>>();
-    auto vertexDrawOrderList = Util::ArrayList<size_t>();
-    auto normalDrawOrderList = Util::ArrayList<size_t>();
-    auto textureDrawOrderList = Util::ArrayList<size_t>();
+    Util::ArrayList<Util::Math::Vector3<float>> vertexList;
+    Util::ArrayList<Util::Math::Vector3<float>> normalList;
+    Util::ArrayList<Util::Math::Vector3<float>> textureList;
+    Util::ArrayList<size_t> vertexDrawOrderList;
+    Util::ArrayList<size_t> normalDrawOrderList;
+    Util::ArrayList<size_t> textureDrawOrderList;
 
     // Read the file line by line
     auto currentLine = stream.readLine();

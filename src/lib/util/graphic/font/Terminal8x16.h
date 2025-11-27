@@ -4642,7 +4642,7 @@ static uint8_t TERMINAL_8x16_DATA[8 * 16 * 256] = {
 
 };
 
-static Font TERMINAL_8x16 = Font(8, 16, TERMINAL_8x16_DATA);
+static Font TERMINAL_8x16(8, 16, TERMINAL_8x16_DATA);
 
 }
 

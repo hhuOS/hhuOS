@@ -156,8 +156,8 @@ bool Terminal::isReadyToRead() {
 
 void Terminal::handleBell() {
     Async::Thread::createThread("Terminal-Bell", new Async::BasicRunnable([](){
-        auto stream = Io::FileOutputStream("/device/speaker");
-        auto printStream = Io::PrintStream(stream);
+        Io::FileOutputStream stream("/device/speaker");
+        Io::PrintStream printStream(stream);
 
         printStream << "440" << Util::Io::PrintStream::flush;
         Async::Thread::sleep(Time::Timestamp::ofMilliseconds(250));
@@ -554,7 +554,7 @@ uint32_t Terminal::TerminalStream::flush() {
 Terminal::KeyboardRunnable::KeyboardRunnable(Terminal &terminal) : terminal(terminal) {}
 
 void Terminal::KeyboardRunnable::run() {
-    auto keyboardStream = Io::FileInputStream("/device/keyboard");
+    Io::FileInputStream keyboardStream("/device/keyboard");
     int16_t scancode = keyboardStream.read();
 
     while (scancode != -1) {

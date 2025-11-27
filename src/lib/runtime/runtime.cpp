@@ -26,7 +26,6 @@ void initMemoryManager(uint8_t *startAddress) {
 }
 
 void _sysExit(int32_t exitCode) {
-	Util::Graphic::Ansi::cleanupGraphicalApplication();
 	_fini(); //call deconstructors
     Util::System::call(Util::System::EXIT_PROCESS, 1, exitCode);
 }

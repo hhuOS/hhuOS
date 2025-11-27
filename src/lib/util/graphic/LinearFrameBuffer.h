@@ -67,11 +67,6 @@ public:
      LinearFrameBuffer& operator=(const LinearFrameBuffer &other) = delete;
 
     /**
-     * Copy Constructor.
-     */
-    LinearFrameBuffer(const LinearFrameBuffer &copy) = delete;
-
-    /**
      * Destructor.
      */
     virtual ~LinearFrameBuffer();
@@ -179,6 +174,11 @@ public:
     void scrollUp(uint16_t lineCount, bool clearBelow) const;
 
 private:
+
+    /**
+     * Copy Constructor.
+     */
+    LinearFrameBuffer(const LinearFrameBuffer &copy) = default;
 
     static void* mapBuffer(void *physicalAddress, uint16_t resolutionY, uint16_t pitch);
 

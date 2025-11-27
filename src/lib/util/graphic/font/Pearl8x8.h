@@ -2595,7 +2595,7 @@ static uint8_t PEARL_8x8_FONT_DATA[8 * 8 * 256] = {
 
 };
 
-static Font PEARL_8x8 = Font(8, 8, PEARL_8x8_FONT_DATA);
+static Font PEARL_8x8(8, 8, PEARL_8x8_FONT_DATA);
 
 }
 

@@ -6232,7 +6232,7 @@ static uint8_t SUN_12x22_DATA[16 * 22 * 256] = {
 
 };
 
-static Font SUN_12x22 = Font(12, 22, SUN_12x22_DATA);
+static Font SUN_12x22(12, 22, SUN_12x22_DATA);
 
 }
 

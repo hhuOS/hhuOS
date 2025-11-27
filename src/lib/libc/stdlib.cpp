@@ -54,7 +54,7 @@ int atexit(void (*func)(void)) {
 
 //program utility
 int system(const char* command) {
-	Util::ArrayList<Util::String> args = Util::ArrayList<Util::String>();
+	Util::ArrayList<Util::String> args{};
 	args.add("/");
 	args.add("-c");
 	
