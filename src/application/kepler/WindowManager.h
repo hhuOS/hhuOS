@@ -44,9 +44,11 @@ private:
 
     void createNextPipe();
 
-    void createWindow(Client &client);
+    void createWindow(const Client &client);
 
     void flushWindow(const Client &client) const;
+
+    [[nodiscard]] ClientWindow* getWindowById(size_t id) const;
 
     size_t processId = Util::Async::Process::getCurrentProcess().getId();
 
@@ -59,6 +61,7 @@ private:
     int32_t mouseY = 0;
 
     Util::ArrayList<Client*> clients;
+    Util::ArrayList<ClientWindow*> windows;
     Util::Async::IdGenerator clientIdGenerator;
     Util::Async::IdGenerator windowIdGenerator;
 
