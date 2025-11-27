@@ -28,10 +28,6 @@ Client::Client(const size_t id, Util::Io::FileInputStream *inputStream, Util::Io
 Client::~Client() {
     delete inputStream;
     delete outputStream;
-
-    for (auto *window : windows) {
-        delete window;
-    }
 }
 
 Util::Io::FileInputStream& Client::getInputStream() const {
@@ -40,22 +36,4 @@ Util::Io::FileInputStream& Client::getInputStream() const {
 
 Util::Io::FileOutputStream& Client::getOutputStream() const {
     return *outputStream;
-}
-
-void Client::addWindow(ClientWindow *window) {
-    windows.add(window);
-}
-
-ClientWindow* Client::getWindowById(const size_t id) const {
-    for (auto *window : windows) {
-        if (window->getId() == id) {
-            return window;
-        }
-    }
-
-    return nullptr;
-}
-
-const Util::ArrayList<ClientWindow*>& Client::getWindows() const {
-    return windows;
 }
