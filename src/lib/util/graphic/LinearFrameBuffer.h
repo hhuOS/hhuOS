@@ -104,7 +104,9 @@ public:
      *
      * @return The amount of bytes per pixel
      */
-    [[nodiscard]] uint8_t getBytesPerPixel() const;
+    [[nodiscard]] uint8_t getBytesPerPixel() const {
+        return (colorDepth + 7) / 8;
+    }
 
     /**
      * Get the buffer address.

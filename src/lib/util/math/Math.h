@@ -477,6 +477,13 @@ float toDegrees(float radians);
 /// ```
 double toDegrees(double radians);
 
+#define SINE(VALUE, RESULT) \
+    asm volatile ( \
+    "fsin;" \
+    : "=t"(RESULT) \
+    : "0"(VALUE) \
+    );
+
 /// Calculate the sine of a single precision float.
 /// The value must be given in radians.
 ///
@@ -488,7 +495,12 @@ double toDegrees(double radians);
 /// const float sine4 = Util::Math::sine(Util::Math::PI_FLOAT * 3.0f / 2.0f); // -1.0f
 /// const float sine5 = Util::Math::sine(Util::Math::PI_FLOAT * 2.0f); // 0.0f
 /// ```
-float sine(float value);
+inline float sine(const float value) {
+    float result;
+    SINE(value, result);
+
+    return result;
+}
 
 /// Calculate the sine of a double precision float.
 /// The value must be given in radians.
@@ -501,7 +513,19 @@ float sine(float value);
 /// const double sine4 = Util::Math::sine(Util::Math::PI_DOUBLE * 3.0 / 2.0); // -1.0
 /// const double sine5 = Util::Math::sine(Util::Math::PI_DOUBLE * 2.0); // 0.0
 /// ```
-double sine(double value);
+inline double sine(const double value) {
+    double result;
+    SINE(value, result);
+
+    return result;
+}
+
+#define COSINE(VALUE, RESULT) \
+    asm volatile ( \
+    "fcos;" \
+    : "=t"(RESULT) \
+    : "0"(VALUE) \
+    );
 
 /// Calculate the cosine of a single precision float.
 /// The value must be given in radians.
@@ -514,7 +538,12 @@ double sine(double value);
 /// const float cosine4 = Util::Math::cosine(Util::Math::PI_FLOAT * 3.0f / 2.0f); // 0.0f
 /// const float cosine5 = Util::Math::cosine(Util::Math::PI_FLOAT * 2.0f); // 1.0f
 /// ```
-float cosine(float value);
+inline float cosine(const float value) {
+    float result;
+    COSINE(value, result);
+
+    return result;
+}
 
 /// Calculate the cosine of a double precision float.
 /// The value must be given in radians.
@@ -527,7 +556,12 @@ float cosine(float value);
 /// const double cosine4 = Util::Math::cosine(Util::Math::PI_DOUBLE * 3.0 / 2.0); // 0.0
 /// const double cosine5 = Util::Math::cosine(Util::Math::PI_DOUBLE * 2.0); // 1.0
 /// ```
-double cosine(double value);
+inline double cosine(const double value) {
+    double result;
+    COSINE(value, result);
+
+    return result;
+}
 
 /// Calculate the tangent of a single precision float.
 /// The value must be given in radians.

@@ -423,48 +423,6 @@ double sqrt(double value) {
     return result;
 }
 
-#define SINE(VALUE, RESULT) \
-    asm volatile ( \
-    "fsin;" \
-    : "=t"(RESULT) \
-    : "0"(VALUE) \
-    );
-
-float sine(const float value) {
-    float result;
-    SINE(value, result);
-
-    return result;
-}
-
-double sine(const double value) {
-    double result;
-    SINE(value, result);
-
-    return result;
-}
-
-#define COSINE(VALUE, RESULT) \
-    asm volatile ( \
-    "fcos;" \
-    : "=t"(RESULT) \
-    : "0"(VALUE) \
-    );
-
-float cosine(const float value) {
-    float result;
-    COSINE(value, result);
-
-    return result;
-}
-
-double cosine(const double value) {
-    double result;
-    COSINE(value, result);
-
-    return result;
-}
-
 #define TANGENT(VALUE, RESULT) \
     asm volatile ( \
     "fptan;" \

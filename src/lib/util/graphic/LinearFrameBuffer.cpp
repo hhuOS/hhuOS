@@ -133,7 +133,7 @@ void LinearFrameBuffer::drawPixel(uint16_t x, uint16_t y, const Color &color) co
     const Color toWrite = color.getAlpha() < 255 ? readPixel(x, y).blend(color) : color;
 
     // Draw the pixel
-    goto *DRAW_PIXEL_LABELS[(colorDepth == 15 ? 16 : colorDepth) / 8 - 1];
+    goto *DRAW_PIXEL_LABELS[getBytesPerPixel() - 1];
 
     DRAW_PIXEL_32:
     {
@@ -375,10 +375,6 @@ void* LinearFrameBuffer::mapBuffer(void *physicalAddress, uint16_t resolutionY, 
     auto *virtualAddress = mapIO(physicalAddress, pageCount);
 
     return virtualAddress;
-}
-
-uint8_t LinearFrameBuffer::getBytesPerPixel() const {
-    return (colorDepth == 15 ? 16 : colorDepth) / 8;
 }
 
 bool LinearFrameBuffer::isCompatibleWith(const LinearFrameBuffer &other) const {

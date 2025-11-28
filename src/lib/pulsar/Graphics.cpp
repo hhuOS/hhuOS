@@ -346,9 +346,11 @@ void Graphics::drawImage2D(const Util::Math::Vector2<float> &position, const Uti
     } else if (notRotated) {
         drawImageScaled2D(position, image, flipX, alpha, scale);
     } else if (notScaled) {
-        drawImageRotated2D(position, image, flipX, alpha, Util::Math::toRadians(rotationAngle));
+        drawImageRotated2D(position, image, flipX, alpha,
+            Util::Math::toRadians(rotationAngle));
     } else {
-        drawImageScaledAndRotated2D(position, image, flipX, alpha, scale, Util::Math::toRadians(rotationAngle));
+        drawImageScaledAndRotated2D(position, image, flipX, alpha, scale,
+            Util::Math::toRadians(rotationAngle));
     }
 }
 
@@ -926,22 +928,53 @@ void Graphics::update() {
 void Graphics::drawImageDirect2D(const Util::Math::Vector2<float> &position, const Util::Graphic::Image &image,
     const bool flipX, const float alpha) const
 {
+    const auto imageWidth = image.getWidth();
+    const auto imageHeight = image.getHeight();
     const auto *pixelBuffer = image.getPixelBuffer();
     const auto xPixelOffset = static_cast<int32_t>(
         (position.getX() - camera.getPosition().getX()) * transformation + offsetX);
     const auto yPixelOffset = static_cast<int32_t>(
         -(position.getY() - camera.getPosition().getY()) * transformation + offsetY);
 
-    if (xPixelOffset + image.getWidth() < 0 || xPixelOffset > bufferedLfb.getResolutionX() ||
-        yPixelOffset - image.getHeight() > bufferedLfb.getResolutionY() || yPixelOffset < 0) {
+
+    if (xPixelOffset + imageWidth < 0 || xPixelOffset > bufferedLfb.getResolutionX() ||
+        yPixelOffset - imageHeight > bufferedLfb.getResolutionY() || yPixelOffset < 0) {
         return;
     }
 
-    for (size_t i = 0; i < image.getHeight(); i++) {
-        for (size_t j = 0; j < image.getWidth(); j++) {
-            const auto &pixel = pixelBuffer[i * image.getWidth() + (flipX ? image.getWidth() - j : j)];
-            bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i,
-                pixel.withAlpha(static_cast<uint8_t>(pixel.getAlpha() * alpha)));
+    if (alpha == 1.0f) {
+        if (flipX) {
+            for (size_t i = 0; i < imageHeight; i++) {
+                for (size_t j = 0; j < imageWidth; j++) {
+                    const auto &pixel = pixelBuffer[i * imageWidth + imageWidth - j];
+                    bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel);
+                }
+            }
+        } else {
+            for (size_t i = 0; i < imageHeight; i++) {
+                for (size_t j = 0; j < imageWidth; j++) {
+                    const auto &pixel = pixelBuffer[i * imageWidth + j];
+                    bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel);
+                }
+            }
+        }
+    } else {
+        if (flipX) {
+            for (size_t i = 0; i < imageHeight; i++) {
+                for (size_t j = 0; j < imageWidth; j++) {
+                    const auto &pixel = pixelBuffer[i * imageWidth + imageWidth - j];
+                    const auto pixelAlpha = static_cast<uint8_t>(pixel.getAlpha() * alpha);
+                    bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(pixelAlpha));
+                }
+            }
+        } else {
+            for (size_t i = 0; i < imageHeight; i++) {
+                for (size_t j = 0; j < imageWidth; j++) {
+                    const auto &pixel = pixelBuffer[i * imageWidth + j];
+                    const auto pixelAlpha = static_cast<uint8_t>(pixel.getAlpha() * alpha);
+                    bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(pixelAlpha));
+                }
+            }
         }
     }
 }
@@ -949,32 +982,66 @@ void Graphics::drawImageDirect2D(const Util::Math::Vector2<float> &position, con
 void Graphics::drawImageScaled2D(const Util::Math::Vector2<float> &position, const Util::Graphic::Image &image,
     const bool flipX, const float alpha, const Util::Math::Vector2<float> &scale) const
 {
+    const auto imageWidth = image.getWidth();
+    const auto imageHeight = image.getHeight();
     const auto *pixelBuffer = image.getPixelBuffer();
     const auto xPixelOffset = static_cast<int16_t>(
         (position.getX() - camera.getPosition().getX()) * transformation + offsetX);
     const auto yPixelOffset = static_cast<int16_t>(
         -(position.getY() - camera.getPosition().getY()) * transformation + offsetY);
 
-    const auto scaledWidth = static_cast<uint16_t>(image.getWidth() * scale.getX());
-    const auto scaledHeight = static_cast<uint16_t>(image.getHeight() * scale.getY());
+    const auto scaledWidth = static_cast<uint16_t>(imageWidth * scale.getX());
+    const auto scaledHeight = static_cast<uint16_t>(imageHeight * scale.getY());
 
     if (xPixelOffset + scaledWidth < 0 || xPixelOffset > bufferedLfb.getResolutionX() ||
         yPixelOffset - scaledHeight > bufferedLfb.getResolutionY() || yPixelOffset < 0) {
         return;
     }
 
-    const auto factorX = static_cast<float>(scaledWidth) / image.getWidth();
-    const auto factorY = static_cast<float>(scaledHeight) / image.getHeight();
+    const auto factorX = static_cast<float>(scaledWidth) / imageWidth;
+    const auto factorY = static_cast<float>(scaledHeight) / imageHeight;
 
-    for (size_t i = 0; i < scaledHeight; i++) {
-        for (size_t j = 0; j < scaledWidth; j++) {
-            const auto imageX = static_cast<uint16_t>(j / factorX);
-            const auto imageY = static_cast<uint16_t>(i / factorY);
-
-            const auto &pixel = pixelBuffer[imageY * image.getWidth() +
-                (flipX ? image.getWidth() - imageX : imageX)];
-            bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i,
-                pixel.withAlpha(static_cast<uint8_t>(pixel.getAlpha() * alpha)));
+    if (alpha == 1.0f) {
+        if (flipX) {
+            for (size_t i = 0; i < scaledHeight; i++) {
+                for (size_t j = 0; j < scaledWidth; j++) {
+                    const auto imageX = static_cast<uint16_t>(j / factorX);
+                    const auto imageY = static_cast<uint16_t>(i / factorY);
+                    const auto &pixel = pixelBuffer[imageY * imageWidth + imageWidth - imageX];
+                    bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel);
+                }
+            }
+        } else {
+            for (size_t i = 0; i < scaledHeight; i++) {
+                for (size_t j = 0; j < scaledWidth; j++) {
+                    const auto imageX = static_cast<uint16_t>(j / factorX);
+                    const auto imageY = static_cast<uint16_t>(i / factorY);
+                    const auto &pixel = pixelBuffer[imageY * imageWidth + imageX];
+                    bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel);
+                }
+            }
+        }
+    } else {
+        if (flipX) {
+            for (size_t i = 0; i < scaledHeight; i++) {
+                for (size_t j = 0; j < scaledWidth; j++) {
+                    const auto imageX = static_cast<uint16_t>(j / factorX);
+                    const auto imageY = static_cast<uint16_t>(i / factorY);
+                    const auto &pixel = pixelBuffer[imageY * imageWidth + imageX];
+                    const auto pixelAlpha = static_cast<uint8_t>(pixel.getAlpha() * alpha);
+                    bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(pixelAlpha));
+                }
+            }
+        } else {
+            for (size_t i = 0; i < scaledHeight; i++) {
+                for (size_t j = 0; j < scaledWidth; j++) {
+                    const auto imageX = static_cast<uint16_t>(j / factorX);
+                    const auto imageY = static_cast<uint16_t>(i / factorY);
+                    const auto &pixel = pixelBuffer[imageY * imageWidth + imageWidth - imageX];
+                    const auto pixelAlpha = static_cast<uint8_t>(pixel.getAlpha() * alpha);
+                    bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(pixelAlpha));
+                }
+            }
         }
     }
 }
@@ -982,19 +1049,21 @@ void Graphics::drawImageScaled2D(const Util::Math::Vector2<float> &position, con
 void Graphics::drawImageRotated2D(const Util::Math::Vector2<float> &position, const Util::Graphic::Image &image,
     const bool flipX, const float alpha, const float rotationAngle) const
 {
+    const auto imageWidth = image.getWidth();
+    const auto imageHeight = image.getHeight();
     const auto *pixelBuffer = image.getPixelBuffer();
     const auto xPixelOffset = static_cast<int32_t>(
         (position.getX() - camera.getPosition().getX()) * transformation + offsetX);
     const auto yPixelOffset = static_cast<int32_t>(
         -(position.getY() - camera.getPosition().getY()) * transformation + offsetY);
 
-    const auto centerX = image.getWidth() / 2.0;
-    const auto centerY = image.getHeight() / 2.0;
-    const auto rotatedHeight = static_cast<uint16_t>(image.getWidth() *
-        Util::Math::absolute(Util::Math::sine(rotationAngle)) + image.getHeight() *
+    const auto centerX = imageWidth / 2.0;
+    const auto centerY = imageHeight / 2.0;
+    const auto rotatedHeight = static_cast<uint16_t>(imageWidth *
+        Util::Math::absolute(Util::Math::sine(rotationAngle)) + imageHeight *
         Util::Math::absolute(Util::Math::cosine(rotationAngle)));
-    const auto rotatedWidth = static_cast<uint16_t>(image.getWidth() *
-        Util::Math::absolute(Util::Math::cosine(rotationAngle)) + image.getHeight() *
+    const auto rotatedWidth = static_cast<uint16_t>(imageWidth *
+        Util::Math::absolute(Util::Math::cosine(rotationAngle)) + imageHeight *
         Util::Math::absolute(Util::Math::sine(rotationAngle)));
 
     if (xPixelOffset + rotatedWidth < 0 || xPixelOffset > bufferedLfb.getResolutionX() ||
@@ -1002,24 +1071,86 @@ void Graphics::drawImageRotated2D(const Util::Math::Vector2<float> &position, co
         return;
     }
 
-    const auto yOffset = rotatedHeight - image.getHeight();
-    const auto xOffset = rotatedWidth - image.getWidth();
+    const auto yOffset = rotatedHeight - imageHeight;
+    const auto xOffset = rotatedWidth - imageWidth;
 
-    for (int32_t i = -yOffset; i < rotatedHeight; i++) {
-        for (int32_t j = -xOffset; j < rotatedWidth; j++) {
-            const auto imageX = static_cast<uint16_t>(centerX + (j - centerX) * Util::Math::cosine(rotationAngle) +
-                (i - centerY) * Util::Math::sine(rotationAngle));
-            const auto imageY = static_cast<uint16_t>(centerY - (j - centerX) * Util::Math::sine(rotationAngle) +
-                (i - centerY) * Util::Math::cosine(rotationAngle));
+    if (alpha == 1.0f) {
+        if (flipX) {
+            for (int32_t i = -yOffset; i < rotatedHeight; i++) {
+                for (int32_t j = -xOffset; j < rotatedWidth; j++) {
+                    const auto imageX = static_cast<uint16_t>(
+                        centerX + (j - centerX) * Util::Math::cosine(rotationAngle) +
+                        (i - centerY) * Util::Math::sine(rotationAngle));
+                    const auto imageY = static_cast<uint16_t>(
+                        centerY - (j - centerX) * Util::Math::sine(rotationAngle) +
+                        (i - centerY) * Util::Math::cosine(rotationAngle));
 
-            if (imageX >= image.getWidth() || imageY >= image.getHeight()) {
-                continue;
+                    if (imageX >= imageWidth || imageY >= imageHeight) {
+                        continue;
+                    }
+
+                    const auto &pixel = pixelBuffer[imageY * imageWidth + imageX];
+                    bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel);
+                }
             }
+        } else {
+            for (int32_t i = -yOffset; i < rotatedHeight; i++) {
+                for (int32_t j = -xOffset; j < rotatedWidth; j++) {
+                    const auto imageX = static_cast<uint16_t>(
+                        centerX + (j - centerX) * Util::Math::cosine(rotationAngle) +
+                        (i - centerY) * Util::Math::sine(rotationAngle));
+                    const auto imageY = static_cast<uint16_t>(
+                        centerY - (j - centerX) * Util::Math::sine(rotationAngle) +
+                        (i - centerY) * Util::Math::cosine(rotationAngle));
 
-            const auto &pixel = pixelBuffer[imageY * image.getWidth() +
-                (flipX ? image.getWidth() - imageX : imageX)];
-            bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i,
-                pixel.withAlpha(static_cast<uint8_t>(pixel.getAlpha() * alpha)));
+                    if (imageX >= imageWidth || imageY >= imageHeight) {
+                        continue;
+                    }
+
+                    const auto &pixel = pixelBuffer[imageY * imageWidth + imageWidth - imageX];
+                    bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel);
+                }
+            }
+        }
+    } else {
+        if (flipX) {
+            for (int32_t i = -yOffset; i < rotatedHeight; i++) {
+                for (int32_t j = -xOffset; j < rotatedWidth; j++) {
+                    const auto imageX = static_cast<uint16_t>(
+                        centerX + (j - centerX) * Util::Math::cosine(rotationAngle) +
+                        (i - centerY) * Util::Math::sine(rotationAngle));
+                    const auto imageY = static_cast<uint16_t>(
+                        centerY - (j - centerX) * Util::Math::sine(rotationAngle) +
+                        (i - centerY) * Util::Math::cosine(rotationAngle));
+
+                    if (imageX >= imageWidth || imageY >= imageHeight) {
+                        continue;
+                    }
+
+                    const auto &pixel = pixelBuffer[imageY * imageWidth + imageX];
+                    const auto pixelAlpha = static_cast<uint8_t>(pixel.getAlpha() * alpha);
+                    bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(pixelAlpha));
+                }
+            }
+        } else {
+            for (int32_t i = -yOffset; i < rotatedHeight; i++) {
+                for (int32_t j = -xOffset; j < rotatedWidth; j++) {
+                    const auto imageX = static_cast<uint16_t>(
+                        centerX + (j - centerX) * Util::Math::cosine(rotationAngle) +
+                        (i - centerY) * Util::Math::sine(rotationAngle));
+                    const auto imageY = static_cast<uint16_t>(
+                        centerY - (j - centerX) * Util::Math::sine(rotationAngle) +
+                        (i - centerY) * Util::Math::cosine(rotationAngle));
+
+                    if (imageX >= imageWidth || imageY >= imageHeight) {
+                        continue;
+                    }
+
+                    const auto &pixel = pixelBuffer[imageY * imageWidth + imageWidth - imageX];
+                    const auto pixelAlpha = static_cast<uint8_t>(pixel.getAlpha() * alpha);
+                    bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(pixelAlpha));
+                }
+            }
         }
     }
 }
@@ -1028,14 +1159,16 @@ void Graphics::drawImageScaledAndRotated2D(const Util::Math::Vector2<float> &pos
     const Util::Graphic::Image &image, const bool flipX, const float alpha, const Util::Math::Vector2<float> &scale,
     const float rotationAngle) const
 {
+    const auto imageWidth = image.getWidth();
+    const auto imageHeight = image.getHeight();
     const auto *pixelBuffer = image.getPixelBuffer();
     const auto xPixelOffset = static_cast<int32_t>(
         (position.getX() - camera.getPosition().getX()) * transformation + offsetX);
     const auto yPixelOffset = static_cast<int32_t>(
         -(position.getY() - camera.getPosition().getY()) * transformation + offsetY);
 
-    const auto scaledWidth = static_cast<uint16_t>(image.getWidth() * scale.getX());
-    const auto scaledHeight = static_cast<uint16_t>(image.getHeight() * scale.getY());
+    const auto scaledWidth = static_cast<uint16_t>(imageWidth * scale.getX());
+    const auto scaledHeight = static_cast<uint16_t>(imageHeight * scale.getY());
 
     const auto centerX = scaledWidth / 2.0;
     const auto centerY = scaledHeight / 2.0;
@@ -1053,14 +1186,14 @@ void Graphics::drawImageScaledAndRotated2D(const Util::Math::Vector2<float> &pos
 
     // Scale image into new buffer
     auto *scaledPixelBuffer = new Util::Graphic::Color[scaledWidth * scaledHeight];
-    const auto factorX = static_cast<float>(scaledWidth) / image.getWidth();
-    const auto factorY = static_cast<float>(scaledHeight) / image.getHeight();
+    const auto factorX = static_cast<float>(scaledWidth) / imageWidth;
+    const auto factorY = static_cast<float>(scaledHeight) / imageHeight;
 
     for (int i = 0; i < scaledHeight; i++) {
         for (int j = 0; j < scaledWidth; j++) {
             const auto imageX = static_cast<uint16_t>(j / factorX);
             const auto imageY = static_cast<uint16_t>(i / factorY);
-            scaledPixelBuffer[scaledWidth * i + j] = pixelBuffer[image.getWidth() * imageY + imageX];
+            scaledPixelBuffer[scaledWidth * i + j] = pixelBuffer[imageWidth * imageY + imageX];
         }
     }
 
@@ -1068,21 +1201,83 @@ void Graphics::drawImageScaledAndRotated2D(const Util::Math::Vector2<float> &pos
     const auto yOffset = rotatedHeight - scaledHeight;
     const auto xOffset = rotatedWidth - scaledWidth;
 
-    for (int32_t i = -yOffset; i < scaledHeight + yOffset; i++) {
-        for (int32_t j = -xOffset; j < scaledWidth + xOffset; j++) {
-            const auto imageX = static_cast<uint16_t>(centerX + (j - centerX) * Util::Math::cosine(rotationAngle) +
-                (i - centerY) * Util::Math::sine(rotationAngle));
-            const auto imageY = static_cast<uint16_t>(centerY - (j - centerX) * Util::Math::sine(rotationAngle) +
-                (i - centerY) * Util::Math::cosine(rotationAngle));
+    if (alpha == 1.0f) {
+        if (flipX) {
+            for (int32_t i = -yOffset; i < scaledHeight + yOffset; i++) {
+                for (int32_t j = -xOffset; j < scaledWidth + xOffset; j++) {
+                    const auto imageX = static_cast<uint16_t>(
+                        centerX + (j - centerX) * Util::Math::cosine(rotationAngle) +
+                        (i - centerY) * Util::Math::sine(rotationAngle));
+                    const auto imageY = static_cast<uint16_t>(
+                        centerY - (j - centerX) * Util::Math::sine(rotationAngle) +
+                        (i - centerY) * Util::Math::cosine(rotationAngle));
 
-            if (imageX >= scaledWidth || imageY >= scaledHeight) {
-                continue;
+                    if (imageX >= scaledWidth || imageY >= scaledHeight) {
+                        continue;
+                    }
+
+                    const auto &pixel = scaledPixelBuffer[imageY * scaledWidth + scaledWidth - imageX];
+                    bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel);
+                }
             }
+        } else {
+            for (int32_t i = -yOffset; i < scaledHeight + yOffset; i++) {
+                for (int32_t j = -xOffset; j < scaledWidth + xOffset; j++) {
+                    const auto imageX = static_cast<uint16_t>(
+                        centerX + (j - centerX) * Util::Math::cosine(rotationAngle) +
+                        (i - centerY) * Util::Math::sine(rotationAngle));
+                    const auto imageY = static_cast<uint16_t>(
+                        centerY - (j - centerX) * Util::Math::sine(rotationAngle) +
+                        (i - centerY) * Util::Math::cosine(rotationAngle));
 
-            const auto &pixel = scaledPixelBuffer[imageY * scaledWidth +
-                (flipX ? scaledWidth - imageX : imageX)];
-            bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i,
-                pixel.withAlpha(static_cast<uint8_t>(pixel.getAlpha() * alpha)));
+                    if (imageX >= scaledWidth || imageY >= scaledHeight) {
+                        continue;
+                    }
+
+                    const auto &pixel = scaledPixelBuffer[imageY * scaledWidth + imageX];
+                    bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel);
+                }
+            }
+        }
+    } else {
+        if (flipX) {
+            for (int32_t i = -yOffset; i < scaledHeight + yOffset; i++) {
+                for (int32_t j = -xOffset; j < scaledWidth + xOffset; j++) {
+                    const auto imageX = static_cast<uint16_t>(
+                        centerX + (j - centerX) * Util::Math::cosine(rotationAngle) +
+                        (i - centerY) * Util::Math::sine(rotationAngle));
+                    const auto imageY = static_cast<uint16_t>(
+                        centerY - (j - centerX) * Util::Math::sine(rotationAngle) +
+                        (i - centerY) * Util::Math::cosine(rotationAngle));
+
+                    if (imageX >= scaledWidth || imageY >= scaledHeight) {
+                        continue;
+                    }
+
+                    const auto &pixel = scaledPixelBuffer[imageY * scaledWidth + scaledWidth - imageX];
+                    const auto pixelAlpha = static_cast<uint8_t>(pixel.getAlpha() * alpha);
+                    bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(pixelAlpha));
+                }
+            }
+        } else {
+            for (int32_t i = -yOffset; i < scaledHeight + yOffset; i++) {
+                for (int32_t j = -xOffset; j < scaledWidth + xOffset; j++) {
+                    const auto imageX = static_cast<uint16_t>(
+                        centerX + (j - centerX) * Util::Math::cosine(rotationAngle) +
+                        (i - centerY) * Util::Math::sine(rotationAngle));
+                    const auto imageY = static_cast<uint16_t>(
+                        centerY - (j - centerX) * Util::Math::sine(rotationAngle) +
+                        (i - centerY) * Util::Math::cosine(rotationAngle));
+
+                    if (imageX >= scaledWidth || imageY >= scaledHeight) {
+                        continue;
+                    }
+
+                    const auto &pixel = scaledPixelBuffer[imageY * scaledWidth + imageX];
+                    const auto pixelAlpha = static_cast<uint8_t>(pixel.getAlpha() * alpha);
+                    bufferedLfb.drawPixel(xPixelOffset + j, yPixelOffset - i, pixel.withAlpha(pixelAlpha));
+                }
+            }
         }
     }
 
