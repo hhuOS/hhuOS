@@ -63,10 +63,10 @@ public:
     bool operator==(const Pair &other) const;
 
     /// Access the first value of the Pair.
-    [[nodiscard]] const T& getFirst() const;
+    const T& getFirst() const;
 
     /// Access the second value of the Pair.
-    [[nodiscard]] const U& getSecond() const;
+    const U& getSecond() const;
 
 private:
 

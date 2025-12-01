@@ -58,11 +58,11 @@ public:
 
     void applyChanges();
 
-    [[nodiscard]] float getVelocity() const;
+    float getVelocity() const;
 
-    [[nodiscard]] bool isMovingDown() const;
+    bool isMovingDown() const;
 
-    [[nodiscard]] float getRandomNumber();
+    float getRandomNumber();
 
 private:
 

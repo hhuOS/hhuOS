@@ -63,7 +63,7 @@ int16_t PipedInputStream::read() {
     return ret;
 }
 
-int32_t PipedInputStream::read(uint8_t *targetBuffer, const size_t offset, const size_t length) {
+int32_t PipedInputStream::read(uint8_t *targetBuffer, size_t offset, size_t length) {
     if (source == nullptr) {
         Panic::fire(Panic::ILLEGAL_STATE, "PipedOutputStream: Not connected to a source!");
     }

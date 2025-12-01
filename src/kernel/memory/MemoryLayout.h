@@ -40,11 +40,11 @@ public:
         const uint32_t endAddress;
         const Type type;
 
-        [[nodiscard]] uint32_t getSize() const {
+        uint32_t getSize() const {
             return endAddress - startAddress + 1;
         }
 
-        [[nodiscard]] Util::Address toAddress() const {
+        Util::Address toAddress() const {
             return Util::Address(startAddress);
         }
     };

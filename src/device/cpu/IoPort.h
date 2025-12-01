@@ -58,7 +58,7 @@ public:
      *
      * @return The address of this port
      */
-    [[nodiscard]] uint16_t getAddress() const;
+    uint16_t getAddress() const;
 
     /**
      * Write a byte to this TransferMode-port.

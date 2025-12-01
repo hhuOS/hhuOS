@@ -48,21 +48,21 @@ public:
 
     virtual ~Widget();
 
-    [[nodiscard]] size_t getPosX() const;
+    size_t getPosX() const;
 
-    [[nodiscard]] size_t getPosY() const;
+    size_t getPosY() const;
 
-    [[nodiscard]] size_t getWidth() const;
+    size_t getWidth() const;
 
-    [[nodiscard]] size_t getHeight() const;
+    size_t getHeight() const;
 
-    [[nodiscard]] bool containsPoint(size_t px, size_t py) const;
+    bool containsPoint(size_t px, size_t py) const;
 
-    [[nodiscard]] bool isHovered() const;
+    bool isHovered() const;
 
-    [[nodiscard]] bool isPressed() const;
+    bool isPressed() const;
 
-    [[nodiscard]] bool isFocused() const;
+    bool isFocused() const;
 
     void setFocused(bool focused);
 
@@ -86,13 +86,13 @@ public:
 
     virtual void setSize(size_t width, size_t height);
 
-    [[nodiscard]] virtual bool requiresRedraw() const;
+    virtual bool requiresRedraw() const;
 
-    [[nodiscard]] virtual size_t getPreferredWidth() const = 0;
+    virtual size_t getPreferredWidth() const = 0;
 
-    [[nodiscard]] virtual size_t getPreferredHeight() const = 0;
+    virtual size_t getPreferredHeight() const = 0;
 
-    [[nodiscard]] virtual Widget* getChildAtPoint(size_t posX, size_t posY);
+    virtual Widget* getChildAtPoint(size_t posX, size_t posY);
 
     virtual void draw(const Util::Graphic::LinearFrameBuffer &lfb);
 

@@ -43,7 +43,7 @@ public:
 
     /// Get the element at the specified index without removing it.
     /// The element is copied from the list and returned by value.
-    [[nodiscard]] virtual T get(size_t index) const = 0;
+    virtual T get(size_t index) const = 0;
 
     /// Overwrite the element at the specified index with the given element by copying it.
     virtual void set(size_t index, const T &element) = 0;
@@ -53,7 +53,7 @@ public:
 
     /// Get the index of the first occurrence of the specified element in the list.
     /// If the element is not found, `INVALID_INDEX` is returned.
-    [[nodiscard]] virtual size_t indexOf(const T &element) const = 0;
+    virtual size_t indexOf(const T &element) const = 0;
 
     /// Indicates that an element was not found in the list.
     static constexpr size_t INVALID_INDEX = SIZE_MAX;

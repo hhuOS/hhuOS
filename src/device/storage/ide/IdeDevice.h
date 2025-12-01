@@ -77,7 +77,7 @@ public:
      */
     uint32_t write(const uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) override;
 
-    [[nodiscard]] const IdeController::DeviceInfo& getDeviceInfo() const;
+    const IdeController::DeviceInfo& getDeviceInfo() const;
 
 private:
 

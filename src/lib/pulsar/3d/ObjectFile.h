@@ -50,26 +50,26 @@ public:
     explicit ObjectFile(const Util::String &path);
 
     /// Get the array of vertices, that define the shape of the 3D object.
-    [[nodiscard]] const Util::Array<Util::Math::Vector3<float>>& getVertices() const;
+    const Util::Array<Util::Math::Vector3<float>>& getVertices() const;
 
     /// Get the array of vertex normals, that define the orientation of the 3D object's surfaces.
     /// These are used for lighting calculations during rendering.
-    [[nodiscard]] const Util::Array<Util::Math::Vector3<float>>& getVertexNormals() const;
+    const Util::Array<Util::Math::Vector3<float>>& getVertexNormals() const;
 
     /// Get the array of texture coordinates, that map 2D textures onto the 3D object's surfaces.
-    [[nodiscard]] const Util::Array<Util::Math::Vector3<float>>& getVertexTextures() const;
+    const Util::Array<Util::Math::Vector3<float>>& getVertexTextures() const;
 
     /// Get the draw order for the vertices, defining how the vertices are connected to form faces.
     /// Each entry in the returned array is an index into the vertices array.
-    [[nodiscard]] const Util::Array<size_t>& getVertexDrawOrder() const;
+    const Util::Array<size_t>& getVertexDrawOrder() const;
 
     /// Get the draw order for the vertex normals.
     /// Each entry in the returned array is an index into the vertex normals array.
-    [[nodiscard]] const Util::Array<size_t>& getNormalDrawOrder() const;
+    const Util::Array<size_t>& getNormalDrawOrder() const;
 
     /// Get the draw order for the texture coordinates.
     /// Each entry in the returned array is an index into the vertex textures array.
-    [[nodiscard]] const Util::Array<size_t>& getTextureDrawOrder() const;
+    const Util::Array<size_t>& getTextureDrawOrder() const;
 
 private:
 

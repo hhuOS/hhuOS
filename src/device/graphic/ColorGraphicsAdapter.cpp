@@ -9,9 +9,9 @@
 
 namespace Device::Graphic {
 
-ColorGraphicsAdapter::ColorGraphicsAdapter(uint16_t columns, uint16_t rows) : Terminal(columns, rows), cgaMemory(mapBuffer(reinterpret_cast<void*>(CGA_START_ADDRESS), columns, rows)) {
+ColorGraphicsAdapter::ColorGraphicsAdapter(uint16_t columns, uint16_t rows) : Terminal(columns, rows), cgaMemory(mapBuffer(CGA_START_ADDRESS, columns, rows)) {
     Terminal::clear();
-    ColorGraphicsAdapter::setCursor(true);
+    ColorGraphicsAdapter::setCursorEnabled(true);
 }
 
 ColorGraphicsAdapter::~ColorGraphicsAdapter() {
@@ -40,7 +40,7 @@ void ColorGraphicsAdapter::putChar(char c, const Util::Graphic::Color &foregroun
     updateCursorPosition();
 }
 
-void ColorGraphicsAdapter::clear(const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor, uint16_t startColumn, uint32_t startRow, uint16_t endColumn, uint16_t endRow) {
+void ColorGraphicsAdapter::clear(const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor, uint16_t startColumn, uint16_t startRow, uint16_t endColumn, uint16_t endRow) {
     uint8_t colorAttribute = (backgroundColor.getRGB4() << 4) | foregroundColor.getRGB4();
     uint16_t startPosition = (startRow * getColumns() + startColumn) * BYTES_PER_CHARACTER;
     uint16_t endPosition = (endRow * getColumns() + endColumn + 1) * BYTES_PER_CHARACTER;
@@ -63,7 +63,7 @@ void ColorGraphicsAdapter::setPosition(uint16_t column, uint16_t row) {
     updateCursorPosition();
 }
 
-void ColorGraphicsAdapter::setCursor(bool enabled) {
+void ColorGraphicsAdapter::setCursorEnabled(bool enabled) {
     if (enabled) {
         indexPort.writeByte(CURSOR_START_INDEX);
         dataPort.writeByte(0x00);
@@ -113,8 +113,8 @@ Util::Address ColorGraphicsAdapter::getAddress() {
     return cgaMemory;
 }
 
-Util::Address ColorGraphicsAdapter::mapBuffer(void *physicalAddress, uint16_t columns, uint16_t rows) {
-    if (reinterpret_cast<uint32_t>(physicalAddress) % Util::PAGESIZE != 0) {
+Util::Address ColorGraphicsAdapter::mapBuffer(uint32_t physicalAddress, uint16_t columns, uint16_t rows) {
+    if (physicalAddress % Util::PAGESIZE != 0) {
         Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "ColorGraphicsAdapter: Physical address is not page aligned!");
     }
 

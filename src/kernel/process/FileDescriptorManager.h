@@ -41,7 +41,7 @@ public:
 
     void closeFile(int32_t fileDescriptor) const;
 
-    [[nodiscard]] FileDescriptor& getDescriptor(int32_t fileDescriptor) const;
+    FileDescriptor& getDescriptor(int32_t fileDescriptor) const;
 
     int32_t size;
     FileDescriptor *descriptorTable;

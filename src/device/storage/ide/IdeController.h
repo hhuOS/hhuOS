@@ -217,7 +217,7 @@ public:
         uint16_t sectorSize;                          // Sector size
         AtapiValues atapi;                            // In case of ATAPI, more information about the drive
 
-        [[nodiscard]] bool supportsDma() const;
+        bool supportsDma() const;
     };
 
     uint16_t performAtaIO(const DeviceInfo &info, TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount);

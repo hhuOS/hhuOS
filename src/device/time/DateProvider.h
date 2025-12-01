@@ -51,7 +51,7 @@ public:
     /**
      * Get the current date.
      */
-    [[nodiscard]] virtual Util::Time::Date getCurrentDate() = 0;
+    virtual Util::Time::Date getCurrentDate() = 0;
 
     /**
      * Set the current date.

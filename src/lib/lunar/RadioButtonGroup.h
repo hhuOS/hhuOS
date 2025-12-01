@@ -39,9 +39,9 @@ public:
 
     void select(int32_t index);
 
-    [[nodiscard]] const RadioButton* getSelectedButton() const;
+    const RadioButton* getSelectedButton() const;
 
-    [[nodiscard]] int32_t getSelectedIndex() const;
+    int32_t getSelectedIndex() const;
 
 private:
 

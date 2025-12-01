@@ -83,17 +83,17 @@ public:
 
     uint32_t performIO(FloppyController::TransferMode mode, uint8_t *buffer, uint32_t startSector, uint32_t sectorCount);
 
-    [[nodiscard]] uint8_t getDriveNumber() const;
+    uint8_t getDriveNumber() const;
 
-    [[nodiscard]] FloppyController::MotorState getMotorState() const;
+    FloppyController::MotorState getMotorState() const;
 
-    [[nodiscard]] FloppyController::DriveType getDriveType() const;
+    FloppyController::DriveType getDriveType() const;
 
-    [[nodiscard]] uint8_t getGapLength() const;
+    uint8_t getGapLength() const;
 
-    [[nodiscard]] uint8_t getCylinders() const;
+    uint8_t getCylinders() const;
 
-    [[nodiscard]] uint8_t getSectorsPerCylinder() const;
+    uint8_t getSectorsPerCylinder() const;
 
     void setMotorState(FloppyController::MotorState state);
 

@@ -138,11 +138,11 @@ public:
     void removeEntity(const Entity *object);
 
     /// Get the camera associated with the scene.
-    [[nodiscard]] Camera& getCamera();
+    Camera& getCamera();
 
     /// Get the current number of entities in the scene.
     /// This method is used by the engine for the statistics overlay.
-    [[nodiscard]] uint32_t getObjectCount() const;
+    uint32_t getObjectCount() const;
 
     /// Apply any pending additions or removals of entities.
     /// This method is called by the engine at the beginning of each frame.
@@ -156,7 +156,7 @@ protected:
 
     /// Get const access to the list of entities in the scene. This is mainly used by the `D2::Scene` and `D3::Scene`
     /// implementation to iterate over all entities for rendering and collision detection.
-    [[nodiscard]] const Util::ArrayList<Entity*>& getEntities() const;
+    const Util::ArrayList<Entity*>& getEntities() const;
 
 private:
 

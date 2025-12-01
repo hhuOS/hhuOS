@@ -31,7 +31,7 @@
 namespace Util::WideChar {
 
 /// Calculate the length of a UTF-8 encoded character (equivalent to `mblen()` in C).
-[[nodiscard]] int utf8Length(const char *bytes, size_t maxLength);
+int utf8Length(const char *bytes, size_t maxLength);
 
 /// Convert a UTF-8 character to a wide character (equivalent to `mbtowc()` in C).
 int utf8ToWchar(wchar_t *wideChar, const char *bytes, size_t maxLength);

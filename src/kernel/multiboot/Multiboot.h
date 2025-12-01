@@ -256,28 +256,28 @@ public:
      */
     ~Multiboot() = delete;
 
-    [[nodiscard]] Util::String getBootloaderName() const;
+    Util::String getBootloaderName() const;
 
-    [[nodiscard]] bool hasKernelOption(const Util::String &key) const;
+    bool hasKernelOption(const Util::String &key) const;
 
-    [[nodiscard]] Util::String getKernelOption(const Util::String &key) const;
+    Util::String getKernelOption(const Util::String &key) const;
 
-    [[nodiscard]] Util::String getKernelOption(const Util::String &key, const Util::String &defaultValue) const;
+    Util::String getKernelOption(const Util::String &key, const Util::String &defaultValue) const;
 
-    [[nodiscard]] Util::Array<Util::String> getModuleNames() const;
+    Util::Array<Util::String> getModuleNames() const;
 
-    [[nodiscard]] bool isModuleLoaded(const Util::String &moduleName) const;
+    bool isModuleLoaded(const Util::String &moduleName) const;
 
-    [[nodiscard]] const Module& getModule(const Util::String &moduleName) const;
+    const Module& getModule(const Util::String &moduleName) const;
 
-    [[nodiscard]] bool hasTag(TagType type) const;
+    bool hasTag(TagType type) const;
 
     template<typename T>
     const T& getTag(TagType type) const;
 
-    [[nodiscard]] Util::Array<TagType> getAvailableTagTypes() const;
+    Util::Array<TagType> getAvailableTagTypes() const;
 
-    [[nodiscard]] uint32_t getSize() const;
+    uint32_t getSize() const;
 
 private:
 

@@ -227,48 +227,48 @@ public:
     Key() = default;
 
     /// Check if the key is valid (scancode != 0).
-    [[nodiscard]] bool isValid() const;
+    bool isValid() const;
 
     /// Get the scancode.
-    [[nodiscard]] uint8_t getScancode() const;
+    uint8_t getScancode() const;
 
     /// Get the ASCII code corresponding to the key,
     /// taking into account the current keyboard layout and modifier states.
     /// If no ASCII code is associated with the key, 0 is returned.
-    [[nodiscard]] char getAscii() const;
+    char getAscii() const;
 
     /// Check if the key is currently pressed (true) or released (false).
-    [[nodiscard]] bool isPressed() const;
+    bool isPressed() const;
 
     /// Check if the Shift key is pressed.
-    [[nodiscard]] bool getShift() const;
+    bool getShift() const;
 
     /// Check if the left Alk key is pressed.
-    [[nodiscard]] bool getAltLeft() const;
+    bool getAltLeft() const;
 
     /// Check if the right Alk key is pressed.
-    [[nodiscard]] bool getAltRight() const;
+    bool getAltRight() const;
 
     /// Check if either of the Alt keys is pressed.
-    [[nodiscard]] bool getAlt() const;
+    bool getAlt() const;
 
     /// Check if the left Ctrl key is pressed.
-    [[nodiscard]] bool getCtrlLeft() const;
+    bool getCtrlLeft() const;
 
     /// Check if the right Ctrl key is pressed.
-    [[nodiscard]] bool getCtrlRight() const;
+    bool getCtrlRight() const;
 
     /// Check if either of the Ctrl keys is pressed.
-    [[nodiscard]] bool getCtrl() const;
+    bool getCtrl() const;
 
     /// Check if caps lock is active.
-    [[nodiscard]] bool getCapsLock() const;
+    bool getCapsLock() const;
 
     /// Check if num lock is active.
-    [[nodiscard]] bool getNumLock() const;
+    bool getNumLock() const;
 
     /// Check if scroll lock is active.
-    [[nodiscard]] bool getScrollLock() const;
+    bool getScrollLock() const;
 
     /// Compare this key with another key for inequality.
     bool operator!=(const Key &other) const;

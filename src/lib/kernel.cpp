@@ -81,8 +81,8 @@ bool isMemoryManagementInitialized() {
     return Kernel::Service::isServiceRegistered(Kernel::MemoryService::SERVICE_ID);
 }
 
-void* mapIO(void *physicalAddress, uint32_t pageCount) {
-    return Kernel::Service::getService<Kernel::MemoryService>().mapIO(physicalAddress, pageCount, false);
+void* mapIO(uint32_t physicalAddress, uint32_t pageCount) {
+    return Kernel::Service::getService<Kernel::MemoryService>().mapIO(reinterpret_cast<void*>(physicalAddress), pageCount, false);
 }
 
 void unmap(void *virtualAddress, uint32_t pageCount, uint32_t breakCount) {

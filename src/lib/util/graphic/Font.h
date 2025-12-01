@@ -39,16 +39,24 @@ public:
     /// The instance does not take ownership of the font data, so it must
     /// remain valid for the lifetime of the Font instance.
     /// Usually, font data is stored in a static array.
-    Font(uint8_t charWidth, uint8_t charHeight, const uint8_t *fontData);
+    Font(const uint8_t charWidth, const uint8_t charHeight, const uint8_t *fontData) :
+        charWidth(charWidth), charHeight(charHeight), charMemSize((charWidth + 8 - 1) / 8 * charHeight),
+        fontData(fontData) {}
 
     /// Get a pointer to the binary data of a given character.
-    [[nodiscard]] const uint8_t* getChar(uint8_t c) const;
+    const uint8_t* getChar(uint8_t c) const {
+        return &fontData[charMemSize * c];
+    }
 
     /// Get the character width in pixels.
-    [[nodiscard]] uint8_t getCharWidth() const;
+    uint8_t getCharWidth() const {
+        return charWidth;
+    }
 
     /// Get the character height in pixels.
-    [[nodiscard]] uint8_t getCharHeight() const;
+    uint8_t getCharHeight() const {
+        return charHeight;
+    }
 
 private:
 

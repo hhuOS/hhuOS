@@ -105,7 +105,7 @@ public:
     /**
      * Overriding function from TimeProvider.
      */
-    [[nodiscard]] Util::Time::Timestamp getTime() override;
+    Util::Time::Timestamp getTime() override;
 
     /**
      * Calibrate the APIC timer using the PIT.
@@ -115,7 +115,7 @@ public:
      */
     static void calibrate();
 
-    [[nodiscard]] uint8_t getCpuId() const;
+    uint8_t getCpuId() const;
 
 private:
     uint8_t cpuId;          // The id of the CPU that uses this timer.

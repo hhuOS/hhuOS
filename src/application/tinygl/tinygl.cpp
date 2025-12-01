@@ -82,7 +82,7 @@ int32_t main(int32_t argc, char *argv[]) {
         lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
     }
 
-    auto lfb = Util::Graphic::LinearFrameBuffer::open(lfbFile);
+    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     if (lfb.getColorDepth() != TGL_FEATURE_RENDER_BITS) {
         Util::System::error << "tinygl: Color depth not supported (Required: " << TGL_FEATURE_RENDER_BITS << ", Got: " << lfb.getColorDepth() << ")!" << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
         return -1;

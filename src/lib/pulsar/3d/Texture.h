@@ -51,10 +51,10 @@ public:
     explicit Texture(const Util::String &path);
 
     /// Check if the texture is valid (i.e. has a non-zero OpenGL texture ID).
-    [[nodiscard]] bool isValid() const;
+    bool isValid() const;
 
     /// Get the OpenGL texture ID assigned to this texture.
-    [[nodiscard]] GLuint getTextureID() const;
+    GLuint getTextureID() const;
 
     /// A static invalid texture instance with ID = 0.
     static const Texture INVALID_TEXTURE;

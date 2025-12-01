@@ -61,10 +61,10 @@ public:
     void write(Io::OutputStream &stream) const;
 
     /// Get the identifier.
-    [[nodiscard]] uint16_t getIdentifier() const;
+    uint16_t getIdentifier() const;
 
     /// Get the sequence number.
-    [[nodiscard]] uint16_t getSequenceNumber() const;
+    uint16_t getSequenceNumber() const;
 
     /// Set the identifier.
     void setIdentifier(uint16_t identifier);

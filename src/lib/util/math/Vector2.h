@@ -143,7 +143,7 @@ public:
     /// const auto vector = Util::Math::Vector2<float>(3.0f, 4.0f);
     /// const auto length = vector.length(); // 5.0f (3.0f^2 + 4.0f^2 = 25, sqrt(25) = 5)
     /// ```
-    [[nodiscard]] T length() const;
+    T length() const;
 
     /// Normalize this vector to have a length of 1.
     /// This is done by dividing each component by the vector's length.
@@ -153,7 +153,7 @@ public:
     /// const auto vector = Util::Math::Vector2<float>(3.0f, 4.0f); // Length is 5.0f
     /// const auto normalizedVector = vector.normalize(); // { 0.6f, 0.8f }
     /// ```
-    [[nodiscard]] Vector2 normalize() const;
+    Vector2 normalize() const;
 
     /// Calculate the distance between this vector and another vector.
     /// This is done using the Euclidean distance formula:
@@ -168,7 +168,7 @@ public:
     ///
     /// const auto distance = vector1.distance(vector2); // 5.0f (sqrt((4.0f - 1.0f)^2 + (6.0f - 2.0f)^2))
     /// ```
-    [[nodiscard]] T distance(const Vector2 &other) const;
+    T distance(const Vector2 &other) const;
 
     /// Calculate the dot product of this vector and another vector.
     /// The result is a scalar value calculated as:
@@ -183,7 +183,7 @@ public:
     ///
     /// const auto dotProduct = vector1.dotProduct(vector2); // 11.0f (1.0f * 3.0f + 2.0f * 4.0f)
     /// ```
-    [[nodiscard]] T dotProduct(const Vector2 &other) const;
+    T dotProduct(const Vector2 &other) const;
 
     /// Calculate the cross product of this vector and another vector.
     /// The result is a new vector that is perpendicular to both vectors in 2D space.
@@ -199,13 +199,13 @@ public:
     ///
     /// const auto crossProduct = vector1.cross(vector2); // { -2.0f, 2.0f }
     /// ```
-    [[nodiscard]] Vector2 crossProduct(const Vector2 &other) const;
+    Vector2 crossProduct(const Vector2 &other) const;
 
     /// Return the x component of this vector.
-    [[nodiscard]] T getX() const;
+    T getX() const;
 
     /// Return the y component of this vector.
-    [[nodiscard]] T getY() const;
+    T getY() const;
 
 private:
 

@@ -93,7 +93,7 @@ public:
     /// const auto isBroadcast2 = ipAddress2.isBroadcastAddress(); // true
     /// const auto isBroadcast3 = ipAddress3.isBroadcastAddress(); // true
     /// ```
-    [[nodiscard]] bool isBroadcastAddress() const;
+    bool isBroadcastAddress() const;
 
     /// Create a new on-heap instance as a copy of this address.
     ///
@@ -104,7 +104,7 @@ public:
     ///
     /// const auto isEqual = (ipAddress1 == *ipAddress2); // true
     /// ```
-    [[nodiscard]] NetworkAddress* createCopy() const override;
+    NetworkAddress* createCopy() const override;
 
     /// Create a string representation of the IPv4 address in the format "X.X.X.X".
     ///
@@ -116,7 +116,7 @@ public:
     ///
     /// const auto isEqual = (ipAddress1 == ipAddress2); // true
     /// ```
-    [[nodiscard]] String toString() const override;
+    String toString() const override;
 
     /// A constant storing the IPv4 address `0.0.0.0`, which can for example be used to listen on all interfaces.
     ///

@@ -116,7 +116,7 @@ public:
     /// const auto portAddress = Ip4PortAddress("1.2.3.4:1797");
     /// const auto ipAddress = portAddress.getIp4Address(); // 1.2.3.4
     /// ```
-    [[nodiscard]] Ip4Address getIp4Address() const;
+    Ip4Address getIp4Address() const;
 
     /// Get the port number of this address.
     ///
@@ -125,7 +125,7 @@ public:
     /// const auto portAddress = Ip4PortAddress("1.2.3.4:1797");
     /// const auto port = portAddress.getPort(); // 1797
     /// ```
-    [[nodiscard]] uint16_t getPort() const;
+    uint16_t getPort() const;
 
     /// Set the port number of this address, overwriting the previous value.
     ///
@@ -148,7 +148,7 @@ public:
     ///
     /// const auto isEqual = (ipAddress1 == *ipAddress2); // true
     /// ```
-    [[nodiscard]] NetworkAddress* createCopy() const override;
+    NetworkAddress* createCopy() const override;
 
     /// Create a string representation of the IPv4 port address in the format "X.X.X.X:Y".
     ///
@@ -160,7 +160,7 @@ public:
     ///
     /// const auto isEqual = (ipAddress1 == ipAddress2); // true
     /// ```
-    [[nodiscard]] String toString() const override;
+    String toString() const override;
 
     /// The length in bytes of an IPv4 port address.
     static constexpr uint32_t ADDRESS_LENGTH = Ip4Address::ADDRESS_LENGTH + sizeof(uint16_t);

@@ -25,14 +25,14 @@ public:
 
     /// Try to acquire the lock once.
     /// If the lock is not available, the function does not block and returns false.
-    [[nodiscard]] virtual bool tryAcquire() = 0;
+    virtual bool tryAcquire() = 0;
 
     /// Release the lock.
     /// If the lock is not held, this function does nothing.
     virtual void release() = 0;
 
     /// Check if the lock is currently held.
-    [[nodiscard]] virtual bool isLocked() const = 0;
+    virtual bool isLocked() const = 0;
 
     /// Release the lock and return a given value.
     /// This function is useful for returning a value from a function that also releases the lock.

@@ -101,27 +101,27 @@ public:
 
     /// When `parse()` fails, it returns false and stores an error message in a private variable.
     /// This method returns the error message, so it can be displayed to the user.
-    [[nodiscard]] const String& getErrorString() const;
+    const String& getErrorString() const;
 
     /// Parse the command line arguments.
     /// If an error occurs (e.g. unknown argument), false is returned and an error message
     /// is stored in a private variable (can be retrieved with `getErrorString()`).
     /// The argument --help or -h causes this function to set the error message to the help text and return false.
-    [[nodiscard]] bool parse(uint32_t argc, char *argv[]);
+    bool parse(uint32_t argc, char *argv[]);
 
     /// Get all unnamed arguments that were passed to the program.
     /// An unnamed argument is an argument that does not start with `-` or `--`.
-    [[nodiscard]] Array<String> getUnnamedArguments() const;
+    Array<String> getUnnamedArguments() const;
 
     /// Check if the given argument was passed to the program.
-    [[nodiscard]] bool hasArgument(const String &name) const;
+    bool hasArgument(const String &name) const;
 
     /// Get the value of the given argument.
     /// If the argument was not passed, an empty string is returned.
-    [[nodiscard]] String getArgument(const String &name) const;
+    String getArgument(const String &name) const;
 
     /// Check if the given switch was passed to the program.
-    [[nodiscard]] bool checkSwitch(const String &name) const;
+    bool checkSwitch(const String &name) const;
 
 private:
 

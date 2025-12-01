@@ -45,13 +45,13 @@ public:
 
     void addChild(Widget &widget, const Util::Array<size_t> &layoutArgs = Util::Array<size_t>());
 
-    [[nodiscard]] size_t getPreferredWidth() const override;
+    size_t getPreferredWidth() const override;
 
-    [[nodiscard]] size_t getPreferredHeight() const override;
+    size_t getPreferredHeight() const override;
 
-    [[nodiscard]] bool requiresRedraw() const override;
+    bool requiresRedraw() const override;
 
-    [[nodiscard]] Widget* getChildAtPoint(size_t posX, size_t posY) override;
+    Widget* getChildAtPoint(size_t posX, size_t posY) override;
 
     void draw(const Util::Graphic::LinearFrameBuffer &lfb) override;
 

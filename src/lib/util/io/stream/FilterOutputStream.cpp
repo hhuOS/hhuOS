@@ -30,7 +30,7 @@ bool FilterOutputStream::write(const uint8_t byte) {
     return stream.write(byte);
 }
 
-size_t FilterOutputStream::write(const uint8_t *sourceBuffer, const size_t offset, const size_t length) {
+size_t FilterOutputStream::write(const uint8_t *sourceBuffer, size_t offset, size_t length) {
     return stream.write(sourceBuffer, offset, length);
 }
 

@@ -40,25 +40,25 @@ public:
     virtual void put(const K &key, const V &value) = 0;
 
     /// Get the value associated with the key.
-    [[nodiscard]] virtual V get(const K &key) const = 0;
+    virtual V get(const K &key) const = 0;
 
     /// Remove the key-value pair associated with the key and return the value.
     virtual V remove(const K &key) = 0;
 
     /// Check if the map contains the specified key.
-    [[nodiscard]] virtual bool containsKey(const K &key) const = 0;
+    virtual bool containsKey(const K &key) const = 0;
 
     /// Get the number of key-value pairs in the map.
-    [[nodiscard]] virtual size_t size() const = 0;
+    virtual size_t size() const = 0;
 
     /// Clear the map, removing all key-value pairs.
     virtual void clear() = 0;
 
     /// Get an array of all keys in the map.
-    [[nodiscard]] virtual Array<K> getKeys() const = 0;
+    virtual Array<K> getKeys() const = 0;
 
     /// Get an array of all values in the map.
-    [[nodiscard]] virtual Array<V> getValues() const = 0;
+    virtual Array<V> getValues() const = 0;
 };
 
 }

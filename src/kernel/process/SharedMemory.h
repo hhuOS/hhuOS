@@ -48,9 +48,9 @@ public:
      */
     ~SharedMemory() = default;
 
-    [[nodiscard]] void *getStartAddress() const;
+    void *getStartAddress() const;
 
-    [[nodiscard]] uint32_t getPageCount() const;
+    uint32_t getPageCount() const;
 
 private:
 

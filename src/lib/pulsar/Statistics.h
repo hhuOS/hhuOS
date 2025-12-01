@@ -96,19 +96,19 @@ public:
 
     /// Get the last recorded frame time.
     /// If no frame time has been recorded yet, returns a zero timestamp.
-    [[nodiscard]] const Util::Time::Timestamp& getLastFrameTime() const;
+    const Util::Time::Timestamp& getLastFrameTime() const;
 
     /// Get the last recorded draw time.
     /// If no draw time has been recorded yet, returns a zero timestamp.
-    [[nodiscard]] const Util::Time::Timestamp& getLastDrawTime() const;
+    const Util::Time::Timestamp& getLastDrawTime() const;
 
     /// Get the last recorded update time.
     /// If no update time has been recorded yet, returns a zero timestamp.
-    [[nodiscard]] const Util::Time::Timestamp& getLastUpdateTime() const;
+    const Util::Time::Timestamp& getLastUpdateTime() const;
 
     /// Gather the measured times and calculate average values.
     /// The maximum number of samples considered is 100 (the size of the internal arrays).
-    [[nodiscard]] Gather gather() const;
+    Gather gather() const;
 
 private:
 

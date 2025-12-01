@@ -48,7 +48,7 @@ bool ByteArrayOutputStream::write(const uint8_t byte) {
     return false;
 }
 
-size_t ByteArrayOutputStream::write(const uint8_t *sourceBuffer, const size_t offset, const size_t length) {
+size_t ByteArrayOutputStream::write(const uint8_t *sourceBuffer, size_t offset, size_t length) {
     const auto toWrite = ensureRemainingCapacity(length);
 
     const auto sourceAddress = Address(sourceBuffer).add(offset);

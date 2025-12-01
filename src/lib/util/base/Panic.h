@@ -89,7 +89,7 @@ namespace Util::Panic {
     [[noreturn]] void fire(Error error, const char *message = "");
 
     /// Return the string representation of the given error.
-    [[nodiscard]] const char* getErrorAsString(Error error);
+    const char* getErrorAsString(Error error);
 
 }
 

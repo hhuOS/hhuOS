@@ -91,13 +91,13 @@ private:
 
     Util::Array<Util::String> parseArguments(const Util::String &argumentString, bool &valid);
 
-    [[nodiscard]] uint32_t getScrolledLines() const;
+    uint32_t getScrolledLines() const;
 
-    [[nodiscard]] Util::Graphic::Ansi::CursorPosition getStartPosition() const;
+    Util::Graphic::Ansi::CursorPosition getStartPosition() const;
 
-    [[nodiscard]] Util::Graphic::Ansi::CursorPosition getEndPosition() const;
+    Util::Graphic::Ansi::CursorPosition getEndPosition() const;
 
-    [[nodiscard]] Util::String checkPath(const Util::String &command) const;
+    Util::String checkPath(const Util::String &command) const;
 
     Util::String checkDirectory(const Util::String &command, Util::Io::File &directory) const;
 

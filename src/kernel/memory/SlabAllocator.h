@@ -55,13 +55,13 @@ public:
 
     bool freeBlock(void *pointer);
 
-    [[nodiscard]] uint32_t getTotalMemory() const override;
+    uint32_t getTotalMemory() const override;
 
-    [[nodiscard]] uint32_t getFreeMemory() const override;
+    uint32_t getFreeMemory() const override;
 
-    [[nodiscard]] void* getStartAddress() const override;
+    void* getStartAddress() const override;
 
-    [[nodiscard]] void* getEndAddress() const override;
+    void* getEndAddress() const override;
 
     static const constexpr uint32_t MAX_SLAB_SIZE = 128 * 1024;
 

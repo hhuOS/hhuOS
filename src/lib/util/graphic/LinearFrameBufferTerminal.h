@@ -18,55 +18,76 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_LINEARFRAMEBUFFERTERMINAL_H
-#define HHUOS_LINEARFRAMEBUFFERTERMINAL_H
+#ifndef HHUOS_LIB_UTIL_GRAPHIC_LINEARFRAMEBUFFERTERMINAL_H
+#define HHUOS_LIB_UTIL_GRAPHIC_LINEARFRAMEBUFFERTERMINAL_H
 
 #include <stdint.h>
 
-#include "font/Terminal8x16.h"
-#include "lib/util/graphic/Colors.h"
-#include "lib/util/async/Spinlock.h"
-#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
-#include "lib/util/graphic/Terminal.h"
-#include "lib/util/graphic/Color.h"
-
-namespace Util {
-namespace Graphic {
-class CursorRunnable;
-class Font;
-class LinearFrameBuffer;
-}  // namespace Graphic
-}  // namespace Util
+#include "util/async/Spinlock.h"
+#include "util/graphic/BufferedLinearFrameBuffer.h"
+#include "util/graphic/Color.h"
+#include "util/graphic/Colors.h"
+#include "util/graphic/Terminal.h"
+#include "util/graphic/font/Terminal8x16.h"
 
 namespace Util::Graphic {
 
-class LinearFrameBufferTerminal : public Terminal {
+/// A terminal implementation that uses a linear frame buffer for output.
+class LinearFrameBufferTerminal final : public Terminal {
 
 public:
+    /// Create a new linear frame buffer terminal instance.
+    explicit LinearFrameBufferTerminal(const LinearFrameBuffer &lfb, char cursor = static_cast<char>(219));
 
-    friend class CursorRunnable;
-
-    explicit LinearFrameBufferTerminal(LinearFrameBuffer *lfb, char cursor = static_cast<char>(219));
-
-    LinearFrameBufferTerminal(const LinearFrameBufferTerminal &copy) = delete;
-
-    LinearFrameBufferTerminal &operator=(const LinearFrameBufferTerminal &other) = delete;
-
+    /// Destroy the linear frame buffer terminal instance.
     ~LinearFrameBufferTerminal() override;
 
+    /// Draw a character at the current cursor position.
     void putChar(char c, const Color &foregroundColor, const Color &backgroundColor) override;
 
-    void clear(const Color &foregroundColor, const Color &backgroundColor, uint16_t startColumn, uint32_t startRow, uint16_t endColumn, uint16_t endRow) override;
+    /// Clear a rectangular area of the terminal with the specified colors.
+    void clear(const Color &foregroundColor, const Color &backgroundColor, uint16_t startColumn, uint16_t startRow,
+        uint16_t endColumn, uint16_t endRow) override;
 
+    /// Set the cursor position to the specified column and row.
     void setPosition(uint16_t column, uint16_t row) override;
 
-    void setCursor(bool enabled) override;
+    /// Enable or disable the terminal cursor.
+    void setCursorEnabled(bool enabled) override;
 
-    [[nodiscard]] uint16_t getCurrentColumn() const override;
+    /// Get the current cursor column.
+    uint16_t getCurrentColumn() const override {
+        return currentColumn;
+    }
 
-    [[nodiscard]] uint16_t getCurrentRow() const override;
+    /// Get the current cursor row.
+    uint16_t getCurrentRow() const override {
+        return currentRow;
+    }
 
 private:
+
+    class CursorRunnable final : public Async::Runnable {
+
+    public:
+
+        explicit CursorRunnable(LinearFrameBufferTerminal &terminal, const char cursor) :
+            terminal(terminal), cursor(cursor) {}
+
+        void run() override;
+
+        void stop();
+
+        void draw() const;
+
+    private:
+
+        LinearFrameBufferTerminal &terminal;
+        char cursor;
+
+        bool visible = true;
+        bool isRunning = true;
+    };
 
     struct Character {
         char value;
@@ -84,7 +105,7 @@ private:
 
     Character *characterBuffer;
 
-    LinearFrameBuffer &lfb;
+    const LinearFrameBuffer &lfb;
     BufferedLinearFrameBuffer shadowLfb;
 
     const Font &font = Fonts::TERMINAL_8x16;

@@ -67,13 +67,13 @@ public:
     void update(float delta);
 
     /// Get the total animation time (in seconds).
-    [[nodiscard]] float getAnimationTime() const;
+    float getAnimationTime() const;
 
     /// Get the original size of the current sprite (before scaling).
-    [[nodiscard]] const Util::Math::Vector2<float>& getOriginalSize() const;
+    const Util::Math::Vector2<float>& getOriginalSize() const;
 
     /// Get the current size of the current sprite (after scaling).
-    [[nodiscard]] Util::Math::Vector2<float> getSize() const;
+    Util::Math::Vector2<float> getSize() const;
 
     /// Set the scale of the animation uniformly in both dimensions.
     void setScale(float scale);
@@ -82,7 +82,7 @@ public:
     void setScale(const Util::Math::Vector2<float> &scale);
 
     /// Get the current scale of the animation.
-    [[nodiscard]] const Util::Math::Vector2<float>& getScale() const;
+    const Util::Math::Vector2<float>& getScale() const;
 
     /// Rotate the animation by the given angle (in degrees).
     void rotate(float angle);
@@ -91,13 +91,13 @@ public:
     void setRotation(float angle);
 
     /// Get the current rotation angle of the animation (in degrees).
-    [[nodiscard]] float getRotation() const;
+    float getRotation() const;
 
     /// Set the alpha transparency of the animation (0.0 = fully transparent, 1.0 = fully opaque).
     void setAlpha(float alpha);
 
     /// Get the current alpha transparency of the animation.
-    [[nodiscard]] float getAlpha() const;
+    float getAlpha() const;
 
     /// Flip the animation horizontally.
     /// This causes the animation to be mirrored along the vertical axis during rendering.

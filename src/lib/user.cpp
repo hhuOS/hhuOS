@@ -63,7 +63,7 @@ bool isMemoryManagementInitialized() {
     return true;
 }
 
-void* mapIO(void *physicalAddress, uint32_t pageCount) {
+void* mapIO(uint32_t physicalAddress, uint32_t pageCount) {
     void *mappedAddress;
     Util::System::call(Util::System::MAP_IO, 3, physicalAddress, pageCount, &mappedAddress);
     return mappedAddress;

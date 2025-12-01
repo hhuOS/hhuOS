@@ -48,22 +48,22 @@ public:
         Style hoveredStyle;
         Style pressedStyle;
 
-        [[nodiscard]] const Style& getStyle(const Widget &widget) const;
+        const Style& getStyle(const Widget &widget) const;
     };
 
     static void setTheme(const Theme *theme);
 
-    [[nodiscard]] virtual const WidgetStyle& container() const = 0;
+    virtual const WidgetStyle& container() const = 0;
 
-    [[nodiscard]] virtual const WidgetStyle& label() const = 0;
+    virtual const WidgetStyle& label() const = 0;
 
-    [[nodiscard]] virtual const WidgetStyle& button() const = 0;
+    virtual const WidgetStyle& button() const = 0;
 
-    [[nodiscard]] virtual const WidgetStyle& checkBox() const = 0;
+    virtual const WidgetStyle& checkBox() const = 0;
 
-    [[nodiscard]] virtual const WidgetStyle& radioButton() const = 0;
+    virtual const WidgetStyle& radioButton() const = 0;
 
-    [[nodiscard]] virtual const WidgetStyle& inputField() const = 0;
+    virtual const WidgetStyle& inputField() const = 0;
 
     static Theme &CURRENT_THEME;
 
@@ -73,17 +73,17 @@ class HhuTheme final : public Theme {
 
 public:
 
-    [[nodiscard]] const WidgetStyle& container() const override;
+    const WidgetStyle& container() const override;
 
-    [[nodiscard]] const WidgetStyle& label() const override;
+    const WidgetStyle& label() const override;
 
-    [[nodiscard]] const WidgetStyle& button() const override;
+    const WidgetStyle& button() const override;
 
-    [[nodiscard]] const WidgetStyle& checkBox() const override;
+    const WidgetStyle& checkBox() const override;
 
-    [[nodiscard]] const WidgetStyle& radioButton() const override;
+    const WidgetStyle& radioButton() const override;
 
-    [[nodiscard]] const WidgetStyle& inputField() const override;
+    const WidgetStyle& inputField() const override;
 
 private:
 

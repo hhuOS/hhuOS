@@ -69,7 +69,7 @@ public:
     /// auto process = Util::Async::Process::getCurrentProcess();
     /// process.exit(0); // Exit the current process with exit code 0
     /// ```
-    [[nodiscard]] static Process getCurrentProcess();
+    static Process getCurrentProcess();
 
     /// Exit the current process.
     /// This function does not return.
@@ -93,7 +93,7 @@ public:
     void kill() const;
 
     /// Get the ID of the process.
-    [[nodiscard]] size_t getId() const;
+    size_t getId() const;
 
 private:
 

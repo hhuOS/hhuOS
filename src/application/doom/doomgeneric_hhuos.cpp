@@ -115,7 +115,7 @@ int32_t main(int argc, char **argv) {
         }
     }
 
-    auto buffer = Util::Graphic::LinearFrameBuffer::open(*lfbFile);
+    auto buffer = Util::Graphic::LinearFrameBuffer(*lfbFile);
     lfb = &buffer;
 
     // Calculate scale factor the game as large as possible

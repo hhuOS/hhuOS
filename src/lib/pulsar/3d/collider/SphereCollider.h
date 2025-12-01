@@ -54,10 +54,10 @@ public:
     /// Check if this sphere collider is colliding with another sphere collider.
     /// This is done by calculating the distance between the two sphere centers,
     /// and comparing it to the sum of their radii.
-    [[nodiscard]] bool isColliding(const SphereCollider &other) const;
+    bool isColliding(const SphereCollider &other) const;
 
     /// Get the radius of the sphere collider.
-    [[nodiscard]] float getRadius() const;
+    float getRadius() const;
 
 private:
 

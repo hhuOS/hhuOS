@@ -43,13 +43,13 @@ public:
     BlockMemoryManager &operator=(const BlockMemoryManager &other) = delete;
 
     /// Allocate a block of memory of the size defined by the block size of this manager.
-    [[nodiscard]] virtual void* allocateBlock() = 0;
+    virtual void* allocateBlock() = 0;
 
     /// Free a block of memory that was previously allocated by this memory manager.
     virtual void freeBlock(void *pointer) = 0;
 
     /// Return the size of a single block managed by this memory manager.
-    [[nodiscard]] virtual size_t getBlockSize() const = 0;
+    virtual size_t getBlockSize() const = 0;
 };
 
 }

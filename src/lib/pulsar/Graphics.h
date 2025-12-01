@@ -249,7 +249,7 @@ public:
     void disableGl();
 
     /// Check if OpenGL rendering is enabled (i.e., if the current scene is a 3D scene).
-    [[nodiscard]] bool isGlEnabled() const;
+    bool isGlEnabled() const;
 
     /// Clear the screen with the given color.
     /// For 2D scenes, using `Colors::BLACK` as the clear color is much faster than other colors.
@@ -269,7 +269,7 @@ public:
     void setColor(const Util::Graphic::Color &color);
 
     /// Get the current drawing color.
-    [[nodiscard]] const Util::Graphic::Color& getColor() const;
+    const Util::Graphic::Color& getColor() const;
 
     /// Save the current frame buffer state as the background.
     /// This is used by 2D scenes to optimize redrawing static backgrounds.
@@ -280,20 +280,20 @@ public:
     void clearBackground();
 
     /// Get the camera associated with the current scene.
-    [[nodiscard]] const Camera& getCamera() const;
+    const Camera& getCamera() const;
 
     /// Get the absolute horizontal screen resolution.
-    [[nodiscard]] uint16_t getAbsoluteResolutionX() const;
+    uint16_t getAbsoluteResolutionX() const;
 
     /// Get the absolute vertical screen resolution.
-    [[nodiscard]] uint16_t getAbsoluteResolutionY() const;
+    uint16_t getAbsoluteResolutionY() const;
 
     /// Get the dimensions of the game coordinate system.
     /// The game uses a virtual coordinate system ranging from (-1, -1) to (1, 1) for the entire screen.
     /// However, if the target screen resolution is not square,
     /// one axis will have a larger range to maintain the aspect ratio.
     /// For example, on a 800x600 screen, the coordinate system will range from (-1.33, -1) to (1.33, 1).
-    [[nodiscard]] const Util::Math::Vector2<float>& getDimensions() const;
+    const Util::Math::Vector2<float>& getDimensions() const;
 
     /// Get the screen transformation factor.
     /// This factor is used to scale from the game coordinate system to the actual screen resolution.
@@ -302,10 +302,10 @@ public:
     /// to get the corresponding pixel coordinate on the screen.
     /// The engine calculates the transformation factor by taking the smaller axis of the target screen resolution
     /// and dividing it by 2. For example, on a 800x600 screen, the transformation factor will be 300.
-    [[nodiscard]] uint16_t getTransformation() const;
+    uint16_t getTransformation() const;
 
     /// Get the font size in game coordinates.
-    [[nodiscard]] float getRelativeFontSize() const;
+    float getRelativeFontSize() const;
 
     /// The font size in absolute pixels.
     static constexpr uint8_t FONT_SIZE = 8;

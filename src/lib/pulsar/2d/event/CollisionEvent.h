@@ -54,10 +54,10 @@ public:
     CollisionEvent(Entity &other, RectangleCollider::Side side);
 
     /// Get the other entity involved in the collision.
-    [[nodiscard]] Entity& getCollidedWidth() const;
+    Entity& getCollidedWidth() const;
 
     /// Get the side of the rectangle collider that was hit during the collision.
-    [[nodiscard]] RectangleCollider::Side getSide() const;
+    RectangleCollider::Side getSide() const;
 
 private:
 

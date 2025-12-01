@@ -89,7 +89,7 @@ public:
     virtual void onCollisionEvent(const CollisionEvent &event);
 
     /// Get the current position of the entity.
-    [[nodiscard]] const Util::Math::Vector2<float>& getPosition() const;
+    const Util::Math::Vector2<float>& getPosition() const;
 
     /// Set the absolute position of the entity.
     /// This will NOT trigger a translation event, the entity will be moved directly.
@@ -116,7 +116,7 @@ public:
     void translateY(float y);
 
     /// Get the current velocity of the entity.
-    [[nodiscard]] const Util::Math::Vector2<float>& getVelocity() const;
+    const Util::Math::Vector2<float>& getVelocity() const;
 
     /// Set the velocity of the entity.
     /// The velocity only affects the entity if a movement component (e.g. `LinearMovementComponent`) is attached to it.
@@ -131,11 +131,11 @@ public:
     void setVelocityY(float y);
 
     /// Check if the entity has a rectangle collider.
-    [[nodiscard]] bool hasCollider() const;
+    bool hasCollider() const;
 
     /// Get the rectangle collider of the entity for modification.
     /// If the entity has no collider, a panic is fired.
-    [[nodiscard]] RectangleCollider& getCollider();
+    RectangleCollider& getCollider();
 
     /// Set the rectangle collider of the entity.
     void setCollider(const RectangleCollider &collider);
@@ -158,7 +158,7 @@ public:
 
     /// Check if the entity's position has changed since the last update.
     /// This method is used by the scene to determine if the entity needs to be re-evaluated for collisions.
-    [[nodiscard]] bool hasPositionChanged() const;
+    bool hasPositionChanged() const;
 
 private:
 

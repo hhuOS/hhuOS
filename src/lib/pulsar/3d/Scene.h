@@ -110,31 +110,31 @@ public:
     /// Access the array of lights in the scene.
     /// This method is used by the `Graphics` class to manage OpenGL lights.
     /// It probably has no practical use for game developers.
-    [[nodiscard]] const Util::Array<Light>& getLights() const;
+    const Util::Array<Light>& getLights() const;
 
     /// Get the ambient light color of the scene.
-    [[nodiscard]] const Util::Graphic::Color& getAmbientLight() const;
+    const Util::Graphic::Color& getAmbientLight() const;
 
     /// Get the current OpenGL render style of the scene.
-    [[nodiscard]] GlRenderStyle getGlRenderStyle() const;
+    GlRenderStyle getGlRenderStyle() const;
 
     /// Set the OpenGL render style of the scene.
     void setGlRenderStyle(GlRenderStyle renderStyle);
 
     /// Get the current OpenGL shading model of the scene.
-    [[nodiscard]] GlShadeModel getGlShadeModel() const;
+    GlShadeModel getGlShadeModel() const;
 
     /// Set the OpenGL shading model of the scene.
     void setGlShadeModel(GlShadeModel shadeModel);
 
     /// Check if lighting is enabled in the scene.
-    [[nodiscard]] bool isLightingEnabled() const;
+    bool isLightingEnabled() const;
 
     /// Enable or disable lighting in the scene.
     void setLightingEnabled(bool enabled);
 
     /// Get the background color of the scene (OpenGL clear color).
-    [[nodiscard]] const Util::Graphic::Color& getBackgroundColor() const;
+    const Util::Graphic::Color& getBackgroundColor() const;
 
     /// Set the background color of the scene (OpenGL clear color).
     void setBackgroundColor(const Util::Graphic::Color &backgroundColor);

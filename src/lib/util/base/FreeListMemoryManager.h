@@ -48,13 +48,13 @@ public:
 
     /// Allocate a block of memory of a given size and alignment using the first-fit algorithm.
     /// If no sufficient block of memory is available, a panic is fired.
-    [[nodiscard]] void* allocateMemory(size_t size, size_t alignment) override;
+    void* allocateMemory(size_t size, size_t alignment) override;
 
     /// Reallocate a previously allocated block of memory to a new size and alignment.
     /// If the current block can be extended, it is done in place.
     /// Otherwise, a new block is allocated and the content of the old block is copied into the new one.
     /// If no sufficient block of memory is available, a panic is fired.
-    [[nodiscard]] void* reallocateMemory(void *ptr, size_t size, size_t alignment) override;
+    void* reallocateMemory(void *ptr, size_t size, size_t alignment) override;
 
     /// Free a block of memory that was previously allocated by this memory manager.
     /// If possible, the freed block is merged with adjacent free blocks to reduce fragmentation.
@@ -65,25 +65,25 @@ public:
     void freeMemory(void *ptr, size_t alignment) override;
 
     /// Get the total amount of memory managed by this memory manager.
-    [[nodiscard]] size_t getTotalMemory() const override;
+    size_t getTotalMemory() const override;
 
     /// Get the amount of free memory left in this memory manager.
-    [[nodiscard]] size_t getFreeMemory() const override;
+    size_t getFreeMemory() const override;
 
     /// Get the start address of the managed memory.
-    [[nodiscard]] void* getStartAddress() const override;
+    void* getStartAddress() const override;
 
     /// Get the end address of the managed memory.
-    [[nodiscard]] void* getEndAddress() const override;
+    void* getEndAddress() const override;
 
     /// Check if the spinlock is currently locked.
-    [[nodiscard]] bool isLocked() const override;
+    bool isLocked() const override;
 
     /// Stop unmapping freed memory.
     void disableAutomaticUnmapping();
 
     /// Check the integrity of the free list.
-    [[nodiscard]] bool checkIntegrity() const;
+    bool checkIntegrity() const;
 
 private:
     /// Header of a free chunk of memory.
@@ -95,7 +95,7 @@ private:
     };
 
     /// Implementation of the allocation algorithm, used in the `allocateMemory()` and `reallocateMemory()` functions.
-    [[nodiscard]] void* allocAlgorithm(size_t size, size_t alignment, FreeListHeader *startChunk);
+    void* allocAlgorithm(size_t size, size_t alignment, FreeListHeader *startChunk);
 
     /// Implementation of the free algorithm, that is used in the `freeMemory()` and `reallocateMemory()` functions.
     void freeAlgorithm(void *ptr);
@@ -103,11 +103,11 @@ private:
     /// Find the next free chunk of memory that is large enough to satisfy the allocation request.
     /// The search starts at the given chunk and continues until the end of the free list.
     /// If no suitable chunk is found, nullptr is returned.
-    [[nodiscard]] static FreeListHeader* findNext(FreeListHeader *start, size_t reqSize);
+    static FreeListHeader* findNext(FreeListHeader *start, size_t reqSize);
 
     /// Merge the given block with adjacent free blocks if possible.
     /// This method is called everytime a block is freed to reduce fragmentation.
-    [[nodiscard]] FreeListHeader* merge(FreeListHeader *block) const;
+    FreeListHeader* merge(FreeListHeader *block) const;
 
     void *startAddress = nullptr;
     void *endAddress = nullptr;

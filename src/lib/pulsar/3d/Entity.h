@@ -66,7 +66,7 @@ public:
     virtual void onCollisionEvent(const CollisionEvent &event);
 
     /// Get the current position of the entity in 3D space.
-    [[nodiscard]] const Util::Math::Vector3<float>& getPosition() const;
+    const Util::Math::Vector3<float>& getPosition() const;
 
     /// Set the position of the entity in 3D space.
     void setPosition(const Util::Math::Vector3<float> &position);
@@ -81,23 +81,23 @@ public:
     void translateLocal(const Util::Math::Vector3<float> &translation);
 
     /// Get the current orientation of the entity.
-    [[nodiscard]] const Orientation& getOrientation() const;
+    const Orientation& getOrientation() const;
 
     /// Get the current upward pointing vector of the entity.
-    [[nodiscard]] const Util::Math::Vector3<float>& getUpVector() const;
+    const Util::Math::Vector3<float>& getUpVector() const;
 
     /// Get the current right pointing vector of the entity.
-    [[nodiscard]] const Util::Math::Vector3<float>& getRightVector() const;
+    const Util::Math::Vector3<float>& getRightVector() const;
 
     /// Get the current front pointing vector of the entity.
-    [[nodiscard]] const Util::Math::Vector3<float>& getFrontVector() const;
+    const Util::Math::Vector3<float>& getFrontVector() const;
 
     /// Set the front vector of the entity, adjusting its orientation accordingly.
     /// This rotates the entity so that its front vector matches the given vector.
     void setFrontVector(const Util::Math::Vector3<float> &front);
 
     /// Get the current rotation of the entity in degrees.
-    [[nodiscard]] const Util::Math::Vector3<float>& getRotation() const;
+    const Util::Math::Vector3<float>& getRotation() const;
 
     /// Set the rotation of the entity in degrees.
     void setRotation(const Util::Math::Vector3<float> &angle);
@@ -106,17 +106,17 @@ public:
     void rotate(const Util::Math::Vector3<float> &angle);
 
     /// Get the current scale of the entity.
-    [[nodiscard]] const Util::Math::Vector3<float>& getScale() const;
+    const Util::Math::Vector3<float>& getScale() const;
 
     /// Set the scale of the entity.
     void setScale(const Util::Math::Vector3<float> &scale);
 
     /// Check if the entity has a collider.
-    [[nodiscard]] bool hasCollider() const;
+    bool hasCollider() const;
 
     /// Get the sphere collider of the entity.
     /// If the entity has no collider, a sphere collider with radius 0 is returned.
-    [[nodiscard]] SphereCollider& getCollider();
+    SphereCollider& getCollider();
 
     /// Update the entity.
     /// This method is called automatically every frame with the time delta since the last frame.

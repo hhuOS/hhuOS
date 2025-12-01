@@ -54,9 +54,9 @@ public:
     struct Entry {
         void set(uint32_t address, uint16_t flags);
         void clear();
-        [[nodiscard]] uint32_t getAddress() const;
-        [[nodiscard]] uint16_t getFlags() const;
-        [[nodiscard]] bool isUnused() const;
+        uint32_t getAddress() const;
+        uint16_t getFlags() const;
+        bool isUnused() const;
 
     private:
         uint32_t flags : 12;

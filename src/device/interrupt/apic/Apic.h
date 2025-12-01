@@ -131,9 +131,9 @@ public:
      */
     ApicTimer& getCurrentTimer();
 
-    [[nodiscard]] bool isSymmetricMultiprocessingSupported() const;
+    bool isSymmetricMultiprocessingSupported() const;
 
-    [[nodiscard]] uint8_t getCoreCount() const;
+    uint8_t getCoreCount() const;
     
     void startupApplicationProcessors();
 
@@ -143,7 +143,7 @@ public:
 
     Kernel::GlobalSystemInterrupt getMaxInterruptTarget();
 
-    [[nodiscard]] const Util::Array<LocalApic*>& getLocalApics() const;
+    const Util::Array<LocalApic*>& getLocalApics() const;
     
 private:
 

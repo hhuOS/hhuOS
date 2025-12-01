@@ -109,17 +109,17 @@ public:
     ~SharedMemory();
 
     /// Get the address of the shared memory region.
-    [[nodiscard]] Address getAddress() const;
+    Address getAddress() const;
 
     /// Publish the shared memory region to make it available to other processes.
     /// This can only be called by the process that created the region.
     /// Returns true on success, false on failure.
-    [[nodiscard]] bool publish() const;
+    bool publish() const;
 
     /// Map the shared memory region into the address space of the current process.
     /// This can only be called by processes other than the one that created the region.
     /// Returns true on success, false on failure.
-    [[nodiscard]] bool map() const;
+    bool map() const;
 
 private:
 

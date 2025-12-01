@@ -20,51 +20,51 @@
 
 #include "BitmapFile.h"
 
-#include "lib/util/io/file/File.h"
-#include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/base/Panic.h"
-#include "lib/util/graphic/Color.h"
+#include "util/io/file/File.h"
+#include "util/io/stream/FileInputStream.h"
+#include "util/base/Panic.h"
 
 namespace Util::Graphic {
 
-BitmapFile::BitmapFile(uint16_t width, uint16_t height, Color *pixelBuffer) : Graphic::Image(width, height, pixelBuffer) {}
-
 BitmapFile* BitmapFile::open(const String &path) {
+    // Read bitmap file into memory
     const Io::File file(path);
     Io::FileInputStream stream(file);
     auto *buffer = new uint8_t[file.getLength()];
     stream.read(buffer, 0, file.getLength());
 
-    auto &header = *reinterpret_cast<const Header*>(buffer);
+    // Get reference to header
+    const auto &header = *reinterpret_cast<const Header*>(buffer);
 
-    auto pixelLength = header.bitmapBitsPerPixel / 8;
-    if (pixelLength != 3 && pixelLength != 4) {
+    // Check signature
+    if (header.signature[0] != 'B' || header.signature[1] != 'M') {
+        Panic::fire(Panic::UNSUPPORTED_OPERATION, "BitmapFile: Invalid bitmap signature");
+    }
+
+    // Check if color depth is supported
+    if (header.bitmapBitsPerPixel != 16 && header.bitmapBitsPerPixel != 24 && header.bitmapBitsPerPixel != 32) {
         Panic::fire(Panic::UNSUPPORTED_OPERATION, "BitmapFile: Unsupported color depth");
     }
 
-    auto padding = (4 - ((header.bitmapWidth * pixelLength) % 4)) % 4;
-    auto bitmap = buffer + header.dataOffset;
-    auto *pixelBuffer = new Graphic::Color[header.bitmapWidth * header.bitmapHeight];
+    // Parse bitmap data
+    const auto bytesPerPixel = (header.bitmapBitsPerPixel + 7) / 8;
+    const auto padding = (4 - ((header.bitmapWidth * bytesPerPixel) % 4)) % 4;
+    const auto bitmap = buffer + header.dataOffset;
+    auto *pixelBuffer = new Color[header.bitmapWidth * header.bitmapHeight];
 
-    for (uint32_t y = 0; y < header.bitmapHeight; y++) {
-        for (uint32_t x = 0; x < header.bitmapWidth; x++) {
-            uint32_t pos = (y * header.bitmapWidth * pixelLength) + (pixelLength * x) + y * padding;
+    for (int32_t y = 0; y < header.bitmapHeight; y++) {
+        for (int32_t x = 0; x < header.bitmapWidth; x++) {
+            const auto pos = y * header.bitmapWidth * bytesPerPixel + bytesPerPixel * x + y * padding;
+            const auto colorValue = *reinterpret_cast<uint32_t*>(bitmap + pos);
 
-            auto blue = *(bitmap + pos);
-            auto green = *(bitmap + pos + 1);
-            auto red = *(bitmap + pos + 2);
-            auto alpha = 0xff;
-            if (pixelLength == 4) {
-                alpha = *(bitmap + pos + 3);
-            }
-
-            auto color = Graphic::Color(red, green, blue, alpha);
-            pixelBuffer[(y * header.bitmapWidth) + x] = color;
+            pixelBuffer[y * header.bitmapWidth + x] = Color::fromRGB(colorValue, header.bitmapBitsPerPixel);
         }
     }
 
-    delete[] bitmap;
-    return new BitmapFile(header.bitmapWidth, header.bitmapHeight, pixelBuffer);
+    auto *bitmapFile = new BitmapFile(header.bitmapWidth, header.bitmapHeight, pixelBuffer);
+    delete[] buffer;
+
+    return bitmapFile;
 }
 
 }

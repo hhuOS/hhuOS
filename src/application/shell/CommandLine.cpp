@@ -99,7 +99,7 @@ void CommandLine::readLine() {
                 handleLeftKey();
                 Util::Graphic::Ansi::enableRawMode();
                 break;
-            case Util::Graphic::Ansi::POS1:
+            case Util::Graphic::Ansi::HOME:
                 Util::Graphic::Ansi::enableCanonicalMode();
                 handlePos1();
                 Util::Graphic::Ansi::enableRawMode();

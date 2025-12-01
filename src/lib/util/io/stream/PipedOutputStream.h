@@ -98,7 +98,7 @@ public:
 
     /// Get the number of bytes that can be written to the connected piped input stream without blocking.
     /// If no input stream is connected, 0 is returned.
-    [[nodiscard]] size_t getWritableBytes() const;
+    size_t getWritableBytes() const;
 
 private:
 

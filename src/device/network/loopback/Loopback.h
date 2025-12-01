@@ -57,7 +57,7 @@ public:
     /**
      * Overriding function from NetworkDevice.
      */
-    [[nodiscard]] Util::Network::MacAddress getMacAddress() const override;
+    Util::Network::MacAddress getMacAddress() const override;
 
 protected:
 

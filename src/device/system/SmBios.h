@@ -60,9 +60,9 @@ public:
      */
     ~SmBios();
 
-    [[nodiscard]] const Info& getSmBiosInformation() const;
+    const Info& getSmBiosInformation() const;
 
-    [[nodiscard]] const Util::Hardware::SmBios::Tables& getTables() const;
+    const Util::Hardware::SmBios::Tables& getTables() const;
 
 private:
 

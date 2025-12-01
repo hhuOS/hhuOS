@@ -78,9 +78,9 @@ public:
 
     FileDescriptor& getFileDescriptor(int32_t fileDescriptor);
 
-    [[nodiscard]] Filesystem::Filesystem& getFilesystem();
+    Filesystem::Filesystem& getFilesystem();
 
-    [[nodiscard]] Util::Array<Filesystem::MountInformation> getMountInformation();
+    Util::Array<Filesystem::MountInformation> getMountInformation();
 
     static const constexpr uint8_t SERVICE_ID = 0;
 

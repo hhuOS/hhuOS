@@ -68,13 +68,13 @@ public:
 
     bool mayFireMissile();
 
-    [[nodiscard]] int16_t getHealth() const;
+    int16_t getHealth() const;
 
     void takeDamage(uint8_t damage);
 
     void addScore(uint32_t points);
 
-    [[nodiscard]] uint32_t getScore() const;
+    uint32_t getScore() const;
 
     Util::Math::Vector3<float> getCurrentMovementDirection();
 
@@ -82,7 +82,7 @@ public:
 
     void setSpeed(float speed);
 
-    [[nodiscard]] float getSpeed() const;
+    float getSpeed() const;
 
     static const constexpr uint32_t TAG = 0;
 

@@ -80,9 +80,9 @@ public:
 
     void setIdentifier(const Util::String &identifier);
 
-    [[nodiscard]] const Util::String& getIdentifier() const;
+    const Util::String& getIdentifier() const;
 
-    [[nodiscard]] virtual Util::Network::MacAddress getMacAddress() const = 0;
+    virtual Util::Network::MacAddress getMacAddress() const = 0;
 
     void sendPacket(const uint8_t *packet, uint32_t length);
 

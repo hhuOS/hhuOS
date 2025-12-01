@@ -76,11 +76,11 @@ public:
 
     void* unmap(const void *virtualAddress);
 
-    [[nodiscard]] Util::HeapMemoryManager& getMemoryManager() const;
+    Util::HeapMemoryManager& getMemoryManager() const;
 
-    [[nodiscard]] const Paging::Table& getPageDirectoryPhysical() const;
+    const Paging::Table& getPageDirectoryPhysical() const;
 
-    [[nodiscard]] bool isKernelAddressSpace() const;
+    bool isKernelAddressSpace() const;
 
 private:
 

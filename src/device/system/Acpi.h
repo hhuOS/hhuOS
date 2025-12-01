@@ -58,9 +58,9 @@ public:
      */
     ~Acpi() = default;
 
-    [[nodiscard]] const Util::Hardware::Acpi::Rsdp& getRsdp() const;
+    const Util::Hardware::Acpi::Rsdp& getRsdp() const;
 
-    [[nodiscard]] const Util::Hardware::Acpi::Tables& getTables() const;
+    const Util::Hardware::Acpi::Tables& getTables() const;
 
 private:
 

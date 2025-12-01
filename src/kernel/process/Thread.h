@@ -83,15 +83,15 @@ public:
 
     void freeUserStack();
 
-    [[nodiscard]] uint32_t getId() const;
+    uint32_t getId() const;
 
-    [[nodiscard]] Util::String getName() const;
+    Util::String getName() const;
 
-    [[nodiscard]] Process& getParent() const;
+    Process& getParent() const;
 
-    [[nodiscard]] uint8_t* getFpuContext() const;
+    uint8_t* getFpuContext() const;
 
-    [[nodiscard]] bool isKernelThread() const;
+    bool isKernelThread() const;
 
     void join();
 

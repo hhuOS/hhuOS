@@ -22,7 +22,7 @@
 #include "lib/util/collection/ArrayList.h"
 #include "CpuId.h"
 
-extern "C" [[nodiscard]] int32_t is_cpuid_available();
+extern "C" int32_t is_cpuid_available();
 
 namespace Util::Hardware::CpuId {
 

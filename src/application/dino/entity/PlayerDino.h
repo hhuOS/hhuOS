@@ -84,15 +84,15 @@ public:
 
     void setDirection(Direction direction);
 
-    [[nodiscard]] Direction getDirection() const;
+    Direction getDirection() const;
 
-    [[nodiscard]] bool hasHatched() const;
+    bool hasHatched() const;
 
-    [[nodiscard]] bool isDying() const;
+    bool isDying() const;
 
-    [[nodiscard]] bool isDead() const;
+    bool isDead() const;
 
-    [[nodiscard]] uint32_t getPoints() const;
+    uint32_t getPoints() const;
 
     void setPoints(uint32_t points);
 

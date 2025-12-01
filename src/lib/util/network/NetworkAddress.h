@@ -106,16 +106,16 @@ public:
     void getAddress(uint8_t *buffer) const;
 
     /// Return the address length in bytes.
-    [[nodiscard]] uint8_t getLength() const;
+    uint8_t getLength() const;
 
     /// Return the address type.
-    [[nodiscard]] Type getType() const;
+    Type getType() const;
 
     /// Compare the address with another address bit by bit.
     /// If the addresses are equal, 0 is returned.
     /// Otherwise, the index of the first differing bit is returned.
     /// This is for example useful to calculate a subnet prefix length.
-    [[nodiscard]] uint8_t compareTo(const NetworkAddress &other) const;
+    uint8_t compareTo(const NetworkAddress &other) const;
 
     /// Create a new on-heap instance of the address as a copy of this address.
     /// This method is trivial, but must be implemented by subclasses.
@@ -127,11 +127,11 @@ public:
     ///     return new MacAddress(*this);
     /// }
     /// ```
-    [[nodiscard]] virtual NetworkAddress* createCopy() const = 0;
+    virtual NetworkAddress* createCopy() const = 0;
 
     /// Create a string representation of the address.
     /// This may look different depending on the address type.
-    [[nodiscard]] virtual String toString() const = 0;
+    virtual String toString() const = 0;
 
 protected:
 

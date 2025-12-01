@@ -54,7 +54,7 @@ public:
     explicit TranslationEvent(const Util::Math::Vector2<float> &targetPosition);
 
     /// Get the target position the entity is being moved to.
-    [[nodiscard]] const Util::Math::Vector2<float>& getTargetPosition() const;
+    const Util::Math::Vector2<float>& getTargetPosition() const;
 
 private:
 

@@ -52,19 +52,18 @@ size_t Rsdt::getTableCount() const {
 
 Tables::Tables(const Rsdt &rsdt) : tables(rsdt.getTableCount()) {
     for (size_t i = 0; i < tables.length(); i++) {
-        const auto *sdtHeaderPhysical = rsdt.tables[i];
-        const auto sdtPageOffset = reinterpret_cast<uint32_t>(sdtHeaderPhysical) % PAGESIZE;
-        auto *sdtPage = mapIO(const_cast<void*>(reinterpret_cast<const void*>(sdtHeaderPhysical)), 1);
-        auto *sdtHeaderVirtual = reinterpret_cast<SdtHeader*>(static_cast<uint8_t*>(sdtPage) + sdtPageOffset);
+        const auto sdtHeaderPhysical = reinterpret_cast<size_t>(rsdt.tables[i]);
+        const auto sdtPageOffset = sdtHeaderPhysical % PAGESIZE;
+        auto *sdtPage = static_cast<uint8_t*>(mapIO(sdtHeaderPhysical, 1));
+        auto *sdtHeaderVirtual = reinterpret_cast<SdtHeader*>(sdtPage + sdtPageOffset);
 
         if (sdtPageOffset + sdtHeaderVirtual->length > PAGESIZE) {
-            const auto pages = (sdtPageOffset + sdtHeaderVirtual->length) % PAGESIZE == 0 ?
-                (sdtPageOffset + sdtHeaderVirtual->length) / PAGESIZE :
-                (sdtPageOffset + sdtHeaderVirtual->length) / PAGESIZE + 1;
+            const auto sizeWithOffset = sdtPageOffset + sdtHeaderVirtual->length;
+            const auto pages = (sizeWithOffset + PAGESIZE - 1) / PAGESIZE;
 
             delete static_cast<const uint8_t*>(sdtPage);
-            sdtPage = mapIO(const_cast<void*>(reinterpret_cast<const void*>(sdtHeaderPhysical)), pages);
-            sdtHeaderVirtual = reinterpret_cast<SdtHeader*>(static_cast<uint8_t*>(sdtPage) + sdtPageOffset);
+            sdtPage = static_cast<uint8_t*>(mapIO(sdtHeaderPhysical, pages));
+            sdtHeaderVirtual = reinterpret_cast<SdtHeader*>(sdtPage + sdtPageOffset);
         }
 
         tables[i] = sdtHeaderVirtual;

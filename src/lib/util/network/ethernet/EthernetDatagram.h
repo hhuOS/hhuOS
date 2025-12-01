@@ -90,7 +90,7 @@ public:
 
     /// Get the EtherType of the Ethernet datagram.
     /// The EtherType indicates the protocol encapsulated in the Ethernet frame (e.g. IPv4, ARP, etc.).
-    [[nodiscard]] EthernetHeader::EtherType getEtherType() const;
+    EthernetHeader::EtherType getEtherType() const;
 
     /// Set the EtherType of this Ethernet datagram to the one of the given datagram.
     /// This is used by the kernel to copy attributes from a kernel space datagram to a user space datagram.

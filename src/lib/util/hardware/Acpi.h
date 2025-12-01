@@ -53,7 +53,7 @@ struct Rsdp {
     uint32_t rsdtAddress;
 
     /// Verify the checksum of this RSDP structure.
-    [[nodiscard]] bool verifyChecksum() const;
+    bool verifyChecksum() const;
 } __attribute__ ((packed));
 
 /// The system description table (SDT) header is the common header for all ACPI tables.
@@ -80,7 +80,7 @@ struct SdtHeader {
     uint32_t creatorRevision;
 
     /// Verify the checksum of this table.
-    [[nodiscard]] bool verifyChecksum() const;
+    bool verifyChecksum() const;
 } __attribute__ ((packed));
 
 /// The root system description table (`Rsdt`) is the first ACPI table and is pointed to by the `Rsdp`.
@@ -101,7 +101,7 @@ struct Rsdt {
     SdtHeader* tables[];
 
     /// Get the number of tables in this `Rsdt`.
-    [[nodiscard]] size_t getTableCount() const;
+    size_t getTableCount() const;
 } __attribute__ ((packed));
 
 /// Provides convenient access to the ACPI tables listed in the `Rsdt`.
@@ -162,24 +162,24 @@ public:
     const SdtHeader& operator[](const String &signature) const;
 
     /// Get the number of tables.
-    [[nodiscard]] size_t getTableCount() const;
+    size_t getTableCount() const;
 
     /// Check if a table with the given signature exists.
-    [[nodiscard]] bool hasTable(const char *signature) const;
+    bool hasTable(const char *signature) const;
 
     /// Get an array of all table signatures.
-    [[nodiscard]] Array<String> getSignatures() const;
+    Array<String> getSignatures() const;
 
     /// Get an iterator to the beginning of the table pointers.
     /// This allows iteration over the tables using a range-based for loop.
-    [[nodiscard]] Iterator<SdtHeader> begin() const override;
+    Iterator<SdtHeader> begin() const override;
 
     /// Get an iterator to the end of the table pointers.
     /// This allows iteration over the tables using a range-based for loop.
-    [[nodiscard]] Iterator<SdtHeader> end() const override;
+    Iterator<SdtHeader> end() const override;
 
     /// Get the next table in the iteration based on the current table.
-    [[nodiscard]] IteratorElement<SdtHeader> next(const IteratorElement<SdtHeader> &element) const override;
+    IteratorElement<SdtHeader> next(const IteratorElement<SdtHeader> &element) const override;
 
 private:
 

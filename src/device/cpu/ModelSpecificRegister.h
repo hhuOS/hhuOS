@@ -55,7 +55,7 @@ public:
      *
      * @return The read 64 bit value
      */
-    [[nodiscard]] uint64_t readQuadWord() const;
+    uint64_t readQuadWord() const;
 
     /**
      * Write to a model specific register.

@@ -98,22 +98,22 @@ public:
 
 	/// Return the total length of the buffer in bytes.
     /// If no buffer size was specified at construction time, this method always returns 0.
-    [[nodiscard]] size_t getLength() const;
+    size_t getLength() const;
 
 	/// Return the current position within the buffer.
-    [[nodiscard]] size_t getPosition() const;
+    size_t getPosition() const;
 
 	/// Return the number of bytes remaining to be read from the buffer.
 	/// If no buffer size was specified at construction time, this method always returns 0.
-    [[nodiscard]] size_t getRemaining() const;
+    size_t getRemaining() const;
 
 	/// Check if the buffer has been completely read.
 	/// If no buffer size was specified at construction time, this method always returns false.
-    [[nodiscard]] bool isEmpty() const;
+    bool isEmpty() const;
 
 	/// Return a pointer to the underlying buffer.
     /// The returned pointer is the same as the one provided at construction time.
-    [[nodiscard]] const uint8_t* getBuffer() const;
+    const uint8_t* getBuffer() const;
 
 	/// Enable or disable stopping at null terminators (`'\0'`).
     /// When enabled, reading will stop when a null terminator is encountered, returning 0.

@@ -148,7 +148,7 @@ public:
     /// const auto file2 = Util::Io::File("/device/nonexistent");
     /// const auto exists2 = file2.exists(); // false, because "/device/nonexistent" does not exist
     /// ```
-    [[nodiscard]] bool exists() const;
+    bool exists() const;
 
     /// Get the type of the file (regular, directory, character, or system).
     /// If the file does not exist, a panic is fired.
@@ -167,7 +167,7 @@ public:
     /// const auto file4 = Util::Io::File("/device/nonexistent");
     /// const auto type4 = file4.getType(); // Panic: Could not open file!
     /// ```
-    [[nodiscard]] Type getType() const;
+    Type getType() const;
 
     /// Check if the file is a file (not a directory).
     /// If the file does not exist, a panic is fired.
@@ -183,7 +183,7 @@ public:
     /// const auto file3 = Util::Io::File("/device/nonexistent");
     /// const auto isFile3 = file3.getType(); // Panic: Could not open file!
     /// ```
-    [[nodiscard]] bool isFile() const;
+    bool isFile() const;
 
     /// Check if the file is a directory.
     /// If the file does not exist, a panic is fired.
@@ -199,7 +199,7 @@ public:
     /// const auto file3 = Util::Io::File("/device/nonexistent");
     /// const auto isDirectory3 = file3.getType(); // Panic: Could not open file!
     /// ```
-    [[nodiscard]] bool isDirectory() const;
+    bool isDirectory() const;
 
     /// Get the length of the file in bytes.
     /// Only files of type `REGULAR` have a valid length.
@@ -229,7 +229,7 @@ public:
     ///
     /// length = file.getLength(); // 13, because we wrote 13 bytes to the file
     /// ```
-    [[nodiscard]] size_t getLength() const;
+    size_t getLength() const;
 
     /// Get the name of the file (the last component of the path).
     /// This method does not check if the file exists. In fact, it does not even access the file system.
@@ -243,7 +243,7 @@ public:
     /// const auto file2 = Util::Io::File("/user/documents/");
     /// const auto name2 = file2.getName(); // documents
     /// ```
-    [[nodiscard]] String getName() const;
+    String getName() const;
 
     /// Get the absolute path that points to this file.
     /// If the File object was created with a relative path, the current working directory is used to resolve it.
@@ -264,7 +264,7 @@ public:
     /// const auto file4 = Util::Io::File("/user/./documents/../pictures/./image.png");
     /// const auto path4 = file4.getCanonicalPath(); // /user/pictures/image.png
     /// ```
-    [[nodiscard]] String getCanonicalPath() const;
+    String getCanonicalPath() const;
 
     /// Get the parent directory of this file.
     /// If the file is the root directory ("/"), the parent is itself.
@@ -285,7 +285,7 @@ public:
     /// const auto grandParent3 = parent3.getParent(); // /user/documents
     /// const auto greatGrandParent3 = grandParent3.getParent(); // /user
     /// ```
-    [[nodiscard]] File getParent() const;
+    File getParent() const;
 
     /// Get the files and directories contained in this directory.
     /// If the file is not a directory, an empty array is returned.
@@ -303,7 +303,7 @@ public:
     ///
     /// Util::System::out << Util::Io::PrintStream::flush;
     /// ```
-    [[nodiscard]] Array<File> getChildren() const;
+    Array<File> getChildren() const;
 
     /// Create the file or directory represented by this `File` object.
     /// On success, true is returned.
@@ -398,7 +398,7 @@ public:
     ///  // /user/pictures/image.png
     /// const auto path4 = Util::Io::File::getCanonicalPath("/user/./documents/../pictures/./image.png");
     /// ```
-    [[nodiscard]] static String getCanonicalPath(const String &path);
+    static String getCanonicalPath(const String &path);
 
     /// Get the current working directory as a `File` object.
     /// The current working directory is a property of the process and is used to resolve relative paths.
@@ -416,7 +416,7 @@ public:
     /// auto cwd = Util::Io::File::getCurrentWorkingDirectory();
     /// auto cwdPath = cwd.getCanonicalPath(); // /user
     /// ```
-    [[nodiscard]] static File getCurrentWorkingDirectory();
+    static File getCurrentWorkingDirectory();
 
     /// Change the current working directory of the process to the given path.
     /// On success, true is returned.
@@ -526,7 +526,7 @@ public:
     /// // Print the read data
     /// Util::System::out << "Read: " << buffer << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     /// ```
-    [[nodiscard]] static bool isReadyToRead(int32_t fileDescriptor);
+    static bool isReadyToRead(int32_t fileDescriptor);
 
     /// Close the given file descriptor.
     /// This method is intended to be used internally by the `File` class

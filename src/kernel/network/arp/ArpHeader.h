@@ -79,15 +79,15 @@ public:
 
     void write(Util::Io::OutputStream &stream);
 
-    [[nodiscard]] HardwareAddressType getHardwareAddressType() const;
+    HardwareAddressType getHardwareAddressType() const;
 
-    [[nodiscard]] uint8_t getHardwareAddressSize() const;
+    uint8_t getHardwareAddressSize() const;
 
-    [[nodiscard]] ProtocolAddressType getProtocolAddressType() const;
+    ProtocolAddressType getProtocolAddressType() const;
 
-    [[nodiscard]] uint8_t getProtocolAddressSize() const;
+    uint8_t getProtocolAddressSize() const;
 
-    [[nodiscard]] Operation getOperation() const;
+    Operation getOperation() const;
 
     void setOperation(Operation operation);
 

@@ -63,7 +63,7 @@ public:
     /// Get the currently parsed key.
     /// This method should be called only after `parseScancode()` has returned true.
     /// If the key is not fully parsed yet, a panic is fired.
-    [[nodiscard]] Key getCurrentKey() const;
+    Key getCurrentKey() const;
 
 private:
 

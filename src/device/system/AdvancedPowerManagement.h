@@ -73,7 +73,7 @@ public:
 
     void shutdown() override;
 
-    [[nodiscard]] PowerManagementEvent getLastPowerManagementEvent() const;
+    PowerManagementEvent getLastPowerManagementEvent() const;
 
 private:
 
@@ -128,7 +128,7 @@ private:
      */
     AdvancedPowerManagement(uint8_t apmMajorVersion, uint8_t apmMinorVersion, ConnectionType connectionType);
 
-    [[nodiscard]] bool enablePowerManagement() const;
+    bool enablePowerManagement() const;
 
     static Kernel::Thread::Context callApmFunction(ConnectionType connectionType, AdvancedPowerManagement::ApmFunction function, AdvancedPowerManagement::DeviceClass deviceClass, uint8_t deviceId, uint8_t cl = 0, uint8_t ch = 0);
 

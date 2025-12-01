@@ -132,7 +132,7 @@ public:
     static void printStackTrace(Io::PrintStream &stream, size_t minEbp);
 
     /// Get the address space header of the current process.
-    [[nodiscard]] static AddressSpaceHeader& getAddressSpaceHeader();
+    static AddressSpaceHeader& getAddressSpaceHeader();
 
     /// The standard input stream, used for reading user input.
     ///

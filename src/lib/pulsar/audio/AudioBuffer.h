@@ -55,22 +55,22 @@ public:
     AudioBuffer& operator=(const AudioBuffer &other) = delete;
 
     /// Get the path of the WAV file from which this audio buffer was loaded.
-    [[nodiscard]] Util::String getWaveFilePath() const;
+    Util::String getWaveFilePath() const;
 
     /// Get the sample rate (samples per second) of the audio data in this buffer.
-    [[nodiscard]] uint32_t getSamplesPerSecond() const;
+    uint32_t getSamplesPerSecond() const;
 
     /// Get the bit depth (bits per sample) of the audio data in this buffer.
-    [[nodiscard]] uint16_t getBitsPerSample() const;
+    uint16_t getBitsPerSample() const;
 
     /// Get the number of audio channels (1 for mono, 2 for stereo, etc.) in this buffer.
-    [[nodiscard]] uint16_t getNumChannels() const;
+    uint16_t getNumChannels() const;
 
     /// Get the total size in bytes of the raw PCM audio data stored in this buffer.
-    [[nodiscard]] uint32_t getSize() const;
+    uint32_t getSize() const;
 
     /// Get a pointer to the raw PCM audio samples stored in this buffer.
-    [[nodiscard]] const uint8_t* getSamples() const;
+    const uint8_t* getSamples() const;
 
 private:
 

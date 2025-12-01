@@ -64,7 +64,7 @@ public:
 
     bool isDmaSupported() const;
 
-    [[nodiscard]] Util::Array<File> getFiles() const;
+    Util::Array<File> getFiles() const;
 
     uint64_t readFile(File &file, uint8_t *targetBuffer, uint32_t pos, uint32_t numBytes);
 

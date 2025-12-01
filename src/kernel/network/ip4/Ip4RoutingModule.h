@@ -70,11 +70,11 @@ public:
 
     void removeRoute(const Util::Network::Ip4::Ip4SubnetAddress &localAddress, const Util::String &device);
 
-    [[nodiscard]] const Util::Network::Ip4::Ip4Route& getDefaultRoute() const;
+    const Util::Network::Ip4::Ip4Route& getDefaultRoute() const;
 
-    [[nodiscard]] Util::Array<Util::Network::Ip4::Ip4Route> getRoutes(const Util::Network::Ip4::Ip4Address &sourceAddress);
+    Util::Array<Util::Network::Ip4::Ip4Route> getRoutes(const Util::Network::Ip4::Ip4Address &sourceAddress);
 
-    [[nodiscard]] const Util::Network::Ip4::Ip4Route& findRoute(const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &address);
+    const Util::Network::Ip4::Ip4Route& findRoute(const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &address);
 
 private:
 

@@ -147,7 +147,7 @@ public:
     /// const auto vector = Util::Math::Vector3<float>(3.0f, 4.0f, 5.0f);
     /// const auto length = vector.length(); // 7.071f (sqrt(3.0f^2 + 4.0f^2 + 5.0f^2))
     /// ```
-    [[nodiscard]] T length() const;
+    T length() const;
 
     /// Normalize this vector to have a length of 1.
     /// This is done by dividing each component by the vector's length.
@@ -157,7 +157,7 @@ public:
     /// const auto vector = Util::Math::Vector3<float>(3.0f, 4.0f, 5.0f); // Length is 7.071f
     /// const auto normalizedVector = vector.normalize(); // { 0.424f, 0.566f, 0.707f }
     /// ```
-    [[nodiscard]] Vector3 normalize() const;
+    Vector3 normalize() const;
 
     /// Calculate the distance between this vector and another vector.
     /// This is done using the Euclidean distance formula:
@@ -172,7 +172,7 @@ public:
     ///
     /// const auto distance = vector1.distance(vector2); // 6.403f (sqrt(3.0f^2 + 4.0f^2 + 5.0f^2))
     /// ```
-    [[nodiscard]] T distance(const Vector3 &other) const;
+    T distance(const Vector3 &other) const;
 
     /// Calculate the dot product of this vector and another vector.
     /// The result is a scalar value calculated as:
@@ -187,7 +187,7 @@ public:
     ///
     /// const auto dotProduct = vector1.dotProduct(vector2); // 32.0f (1.0f * 4.0f + 2.0f * 5.0f + 3.0f * 6.0f)
     /// ```
-    [[nodiscard]] T dotProduct(const Vector3 &other) const;
+    T dotProduct(const Vector3 &other) const;
 
     /// Calculate the cross product of this vector and another vector.
     /// The result is a new vector that is perpendicular to both vectors in 2D space.
@@ -203,7 +203,7 @@ public:
     ///
     /// const auto crossProduct = vector1.crossProduct(vector2); // { -3.0f, 6.0f, -3.0f }
     /// ```
-    [[nodiscard]] Vector3 crossProduct(const Vector3 &other) const;
+    Vector3 crossProduct(const Vector3 &other) const;
 
     /// Rotate this vector around the x, y, and z axes by the specified angles in degrees.
     ///
@@ -215,16 +215,16 @@ public:
     /// // Rotate the vector by 30° around the x-axis, 45° around the y-axis, and 60° around the z-axis
     /// const auto rotatedVector = vector.rotate(rotation); // { 1.425f, 2.932f, 1.837f }
     /// ```
-    [[nodiscard]] Vector3 rotate(const Vector3 &rotation) const;
+    Vector3 rotate(const Vector3 &rotation) const;
 
     /// Return the x component of this vector.
-    [[nodiscard]] T getX() const;
+    T getX() const;
 
     /// Return the y component of this vector.
-    [[nodiscard]] T getY() const;
+    T getY() const;
 
     /// Return the z component of this vector.
-    [[nodiscard]] T getZ() const;
+    T getZ() const;
 
 private:
     /// A 3x3 matrix class used exclusively for rotation operations in Vector3.

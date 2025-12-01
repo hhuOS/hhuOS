@@ -79,11 +79,11 @@ public:
         uint8_t identifierLength;
         char identifier[];
 
-        [[nodiscard]] bool isDirectory() const;
+        bool isDirectory() const;
 
-        [[nodiscard]] Util::String getName() const;
+        Util::String getName() const;
 
-        [[nodiscard]] DirectoryRecord* createCopy() const;
+        DirectoryRecord* createCopy() const;
     } __attribute__((packed));
 
     /**
@@ -209,11 +209,11 @@ private:
         uint16_t parentDirectoryIndex;                  // Path Table entry index for parent directory
         char directoryIdentifier[];                     // Directory identifier
 
-        [[nodiscard]] uint32_t getLength() const;
+        uint32_t getLength() const;
 
-        [[nodiscard]] Util::String getName() const;
+        Util::String getName() const;
 
-        [[nodiscard]] PathTableEntry* createCopy() const;
+        PathTableEntry* createCopy() const;
 
         bool operator!=(const PathTableEntry &other) const;
     } __attribute__((packed));

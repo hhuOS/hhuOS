@@ -71,14 +71,14 @@ public:
 
     /// Try to acquire the lock once.
     /// If the lock is not available, the function does not block and returns false.
-    [[nodiscard]] bool tryAcquire() override;
+    bool tryAcquire() override;
 
     /// Release the lock.
     /// If the lock is not held, this function does nothing.
     void release() override;
 
     /// Get the amount of times the lock has been acquired by the current thread.
-    [[nodiscard]] size_t getDepth() const;
+    size_t getDepth() const;
 
 private:
 

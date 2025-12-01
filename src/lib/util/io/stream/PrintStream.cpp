@@ -40,7 +40,7 @@ bool PrintStream::write(const uint8_t byte) {
 	return true;
 }
 
-uint32_t PrintStream::write(const uint8_t *sourceBuffer, const size_t offset, const size_t length) {
+size_t PrintStream::write(const uint8_t *sourceBuffer, size_t offset, size_t length) {
     const auto written = FilterOutputStream::write(sourceBuffer, offset, length);
 	bytesWritten += written;
 

@@ -177,7 +177,7 @@ public:
     ///     return;
     /// }
     /// ```
-    [[nodiscard]] bool bind(const NetworkAddress &address) const;
+    bool bind(const NetworkAddress &address) const;
 
     /// Get the local address of the socket, which is the address it is bound to.
     /// The address is not returned, but written to the given `NetworkAddress` object.
@@ -206,7 +206,7 @@ public:
     ///
     /// const auto addressString = localAddress.toString(); // "10.0.2.15:1797"
     /// ```
-    [[nodiscard]] bool getLocalAddress(NetworkAddress &address) const;
+    bool getLocalAddress(NetworkAddress &address) const;
 
     /// Send a datagram via the socket.
     /// The datagram must be of the type that the socket was created with (e.g `Udp::UdpDatagram` for a UDP socket).
@@ -236,7 +236,7 @@ public:
     ///     return;
     /// }
     /// ```
-    [[nodiscard]] bool send(const Datagram &datagram) const;
+    bool send(const Datagram &datagram) const;
 
     /// Receive a datagram from the socket.
     /// The received data is not returned, but written to the given `Datagram` object.
@@ -269,7 +269,7 @@ public:
     ///     return;
     /// }
     /// ```
-    [[nodiscard]] bool receive(Datagram &datagram) const;
+    bool receive(Datagram &datagram) const;
 
     /// Get all IPv4 addresses that are assigned to the interface this socket is bound to.
     /// This only works if the socket is of type `ETHERNET` and bound to a MAC address.
@@ -300,7 +300,7 @@ public:
     ///
     /// Util::System::out << Util::Io::PrintStream::flush;
     /// ```
-    [[nodiscard]] Array<Ip4::Ip4SubnetAddress> getIp4Addresses() const;
+    Array<Ip4::Ip4SubnetAddress> getIp4Addresses() const;
 
     /// Remove an IPv4 address from the interface this socket is bound to.
     /// This only works if the socket is of type `ETHERNET` and bound to a MAC address.
@@ -331,7 +331,7 @@ public:
     ///     return;
     /// }
     /// ```
-    [[nodiscard]] bool removeIp4Address(const Ip4::Ip4SubnetAddress &address) const;
+    bool removeIp4Address(const Ip4::Ip4SubnetAddress &address) const;
 
     /// Add an IPv4 address to the interface this socket is bound to.
     /// This only works if the socket is of type `ETHERNET` and bound to a MAC address.
@@ -362,7 +362,7 @@ public:
     ///     return;
     /// }
     /// ```
-    [[nodiscard]] bool addIp4Address(const Ip4::Ip4SubnetAddress &address) const;
+    bool addIp4Address(const Ip4::Ip4SubnetAddress &address) const;
 
     /// Get all IPv4 routes that deliver packets via the interface this socket is bound to.
     /// This only works if the socket is of type `IP4` and bound to an IPv4 address.
@@ -392,7 +392,7 @@ public:
     ///
     /// Util::System::out << Util::Io::PrintStream::flush;
     /// ```
-    [[nodiscard]] Array<Ip4::Ip4Route> getRoutes() const;
+    Array<Ip4::Ip4Route> getRoutes() const;
 
     /// Remove a specific IPv4 route from the interface this socket is bound to.
     /// This only works if the socket is of type `IP4` and bound to an IPv4 address.
@@ -421,7 +421,7 @@ public:
     ///     return;
     /// }
     /// ```
-    [[nodiscard]] bool removeRoute(const Ip4::Ip4Route &route) const;
+    bool removeRoute(const Ip4::Ip4Route &route) const;
 
     /// Add a new IPv4 route to the interface this socket is bound to.
     /// This only works if the socket is of type `IP4` and bound to an IPv4 address.
@@ -450,17 +450,17 @@ public:
     ///     return;
     /// }
     /// ```
-    [[nodiscard]] bool addRoute(const Ip4::Ip4Route &route) const;
+    bool addRoute(const Ip4::Ip4Route &route) const;
 
     /// Set the access mode of the socket to block or non-blocking.
     /// This affects how the socket behaves when receiving data.
     /// If the access mode is set to non-blocking, the `receive()` method will
     /// return immediately if no data is available, instead of blocking until data is received.
-    [[nodiscard]] bool setAccessMode(Io::File::AccessMode accessMode) const;
+    bool setAccessMode(Io::File::AccessMode accessMode) const;
 
     /// Check if the socket is ready to read data.
     /// This method returns true if the socket has at least one datagram available to read.
-    [[nodiscard]] bool isReadyToRead() const;
+    bool isReadyToRead() const;
 
 private:
 

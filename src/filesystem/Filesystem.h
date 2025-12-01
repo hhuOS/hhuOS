@@ -160,14 +160,14 @@ public:
      *
      * @return The driver
      */
-    [[nodiscard]] Memory::MemoryDriver& getVirtualDriver(const Util::String &path);
+    Memory::MemoryDriver& getVirtualDriver(const Util::String &path);
 
     /**
      * Get information about all mount points
      *
      * @return
      */
-    [[nodiscard]] Util::Array<MountInformation> getMountInformation();
+    Util::Array<MountInformation> getMountInformation();
     
 private:
     /**
@@ -181,7 +181,7 @@ private:
      *
      * @return The driver (or nullptr on failure)
      */
-    [[nodiscard]] Driver* getMountedDriver(Util::String &path);
+    Driver* getMountedDriver(Util::String &path);
 
     Util::HashMap<Util::String, Driver*> mountPoints;
     Util::HashMap<Util::String, MountInformation> mountInformation;

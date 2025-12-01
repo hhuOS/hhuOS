@@ -86,11 +86,11 @@ public:
 
     void generateBoss(Player &player);
 
-    [[nodiscard]] uint32_t getRow() const;
+    uint32_t getRow() const;
 
-    [[nodiscard]] uint32_t getColumn() const;
+    uint32_t getColumn() const;
 
-    [[nodiscard]] bool isCleared() const;
+    bool isCleared() const;
 
     void generateEnemies(Util::Math::Random &random);
 
@@ -100,23 +100,23 @@ public:
 
     void enterRightRoom() const;
 
-    [[nodiscard]] Type getType() const;
+    Type getType() const;
 
-    [[nodiscard]] bool hasTopRoom() const;
+    bool hasTopRoom() const;
 
-    [[nodiscard]] bool hasDownRoom() const;
+    bool hasDownRoom() const;
 
-    [[nodiscard]] bool hasLeftRoom() const;
+    bool hasLeftRoom() const;
 
-    [[nodiscard]] bool hasRightRoom() const;
+    bool hasRightRoom() const;
 
-    [[nodiscard]] Room& getTopRoom() const;
+    Room& getTopRoom() const;
 
-    [[nodiscard]] Room& getDownRoom() const;
+    Room& getDownRoom() const;
 
-    [[nodiscard]] Room& getLeftRoom() const;
+    Room& getLeftRoom() const;
 
-    [[nodiscard]] Room& getRightRoom() const;
+    Room& getRightRoom() const;
 
     void setRightRoom(Room &rightRoom);
 

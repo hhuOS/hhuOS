@@ -76,7 +76,7 @@ public:
 
     void onCollisionEvent(const Pulsar::D3::CollisionEvent &event) override;
 
-    [[nodiscard]] int16_t getHealth() const;
+    int16_t getHealth() const;
 
     void takeDamage(uint8_t damage);
 

@@ -116,7 +116,7 @@ public:
 
     Thread* getThread(uint32_t id);
 
-    [[nodiscard]] uint32_t getThreadCount() const;
+    uint32_t getThreadCount() const;
 
     uint8_t* getDefaultFpuContext();
 

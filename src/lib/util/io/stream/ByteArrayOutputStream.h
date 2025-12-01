@@ -72,15 +72,15 @@ public:
 	size_t write(const uint8_t *sourceBuffer, size_t offset, size_t length) override;
 
 	/// Get the current position in the buffer, i.e., how many bytes have been written so far.
-    [[nodiscard]] size_t getPosition() const;
+    size_t getPosition() const;
 
 	/// Check if the buffer is empty, i.e., no data has been written yet.
-    [[nodiscard]] bool isEmpty() const;
+    bool isEmpty() const;
 
 	/// Get a pointer to the internal buffer.
 	/// If the buffer was not allocated internally, this will return the buffer provided at construction time.
 	/// Otherwise, the pointer might become invalid if the buffer has grown due to writes.
-    [[nodiscard]] uint8_t* getBuffer() const;
+    uint8_t* getBuffer() const;
 
 	/// Write the contents of the buffer to the provided target buffer, up to the specified length.
 	/// If length is less than the amount of data written, only length bytes will be copied.
@@ -91,7 +91,7 @@ public:
 	/// Get the contents of the buffer as a String.
 	/// The returned String contains all bytes written so far.
 	/// If the buffer contains null bytes or invalid characters, they will be included in the String as-is.
-    [[nodiscard]] String getContent() const;
+    String getContent() const;
 
 	/// Reset the stream to the beginning of the buffer.
 	/// Any previously written data will be discarded and overwritten by subsequent writes.

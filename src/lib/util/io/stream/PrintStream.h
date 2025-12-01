@@ -47,13 +47,13 @@ public:
     bool write(uint8_t byte) override;
 
 	/// Write a buffer of bytes directly to the underlying output stream with no formatting applied.
-    size_t write(const uint8_t *sourceBuffer, size_t offset, size_t length) override;
+	size_t write(const uint8_t *sourceBuffer, size_t offset, size_t length) override;
 
 	/// Flush the underlying output stream.
     size_t flush() override;
 
 	/// Get the total number of bytes written to the underlying output stream so far.
-	[[nodiscard]] size_t getBytesWritten() const;
+	size_t getBytesWritten() const;
 
 	/// Set the numeric base for integer printing (e.g. 2 for binary, 8 for octal, 10 for decimal, 16 for hexadecimal).
 	/// The default base is 10 (decimal).

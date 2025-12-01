@@ -35,28 +35,28 @@ public:
     explicit Atomic(T &value);
 
     /// Get the value.
-    [[nodiscard]] T get() const;
+    T get() const;
 
     /// Compare the value with the expected value and set it to the new value if they are equal.
     bool compareAndSet(T expectedValue, T newValue);
 
     /// Set the value to the new value and return the old value.
-    [[nodiscard]] T getAndSet(T newValue);
+    T getAndSet(T newValue);
 
     /// Set the value to the new value.
     void set(T newValue);
 
     /// Add the addend to the value and return the old value.
-    [[nodiscard]] T fetchAndAdd(T addend);
+    T fetchAndAdd(T addend);
 
     /// Subtract the subtrahend from the value and return the old value.
-    [[nodiscard]] T fetchAndSub(T subtrahend);
+    T fetchAndSub(T subtrahend);
 
     /// Increment the value and return the old value.
-    [[nodiscard]] T fetchAndInc();
+    T fetchAndInc();
 
     /// Decrement the value and return the old value.
-    [[nodiscard]] T fetchAndDec();
+    T fetchAndDec();
 
     /// Add the addend to the value.
     void add(T addend);
@@ -73,7 +73,7 @@ public:
     /// Check if the bit at the given index is set. Returns true if the bit is set, false otherwise.
     /// The index must be within the valid range of the value type, otherwise behavior is undefined.
     /// Only 16 and 32-bit values are supported.
-    [[nodiscard]] bool bitTest(T index);
+    bool bitTest(T index);
 
     /// Set the bit at the given index to 1.
     /// Only 16 and 32-bit values are supported.
@@ -85,11 +85,11 @@ public:
 
     /// Set the bit at the given index to 1 and return the old value of the bit (true if it was set, false otherwise).
     /// Only 16 and 32-bit values are supported.
-    [[nodiscard]] bool bitTestAndSet(T index);
+    bool bitTestAndSet(T index);
 
     /// Set the bit at the given index to 0 and return the old value of the bit (true if it was set, false otherwise).
     /// Only 16 and 32-bit values are supported.
-    [[nodiscard]] bool bitTestAndUnset(T index);
+    bool bitTestAndUnset(T index);
 
 private:
 

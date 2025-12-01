@@ -80,19 +80,19 @@ public:
     void onCollisionEvent(const CollisionEvent &event) override;
 
     /// Get the current scale of the particle's sprite.
-    [[nodiscard]] float getScale() const;
+    float getScale() const;
 
     /// Set the scale of the particle's sprite.
     void setScale(float scale);
 
     /// Get the current alpha transparency of the particle's sprite.
-    [[nodiscard]] float getAlpha() const;
+    float getAlpha() const;
 
     /// Set the alpha transparency of the particle's sprite.
     void setAlpha(float alpha);
 
     /// Get the rotation velocity of the particle (in degrees per second).
-    [[nodiscard]] float getRotationVelocity() const;
+    float getRotationVelocity() const;
 
     /// Set the rotation velocity of the particle (in degrees per second).
     /// A negative value will rotate the particle counter-clockwise.

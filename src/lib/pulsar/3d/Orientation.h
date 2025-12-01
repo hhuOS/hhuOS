@@ -58,16 +58,16 @@ public:
     void reset();
 
     /// Get the current rotation angles around the x, y, and z axes (in degrees).
-    [[nodiscard]] const Util::Math::Vector3<float>& getRotation() const;
+    const Util::Math::Vector3<float>& getRotation() const;
 
     /// Get the up direction vector of the orientation.
-    [[nodiscard]] const Util::Math::Vector3<float>& getUp() const;
+    const Util::Math::Vector3<float>& getUp() const;
 
     /// Get the right direction vector of the orientation.
-    [[nodiscard]] const Util::Math::Vector3<float>& getRight() const;
+    const Util::Math::Vector3<float>& getRight() const;
 
     /// Get the front direction vector of the orientation.
-    [[nodiscard]] const Util::Math::Vector3<float>& getFront() const;
+    const Util::Math::Vector3<float>& getFront() const;
 
     /// Set the front direction vector of the orientation.
     /// The rotation angles and other direction vectors are updated accordingly.

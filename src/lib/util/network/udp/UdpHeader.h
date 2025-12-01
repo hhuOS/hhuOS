@@ -61,16 +61,16 @@ public:
     void write(Io::OutputStream &stream) const;
 
     /// Get the source port.
-    [[nodiscard]] uint16_t getSourcePort() const;
+    uint16_t getSourcePort() const;
 
     /// Get the destination port.
-    [[nodiscard]] uint16_t getDestinationPort() const;
+    uint16_t getDestinationPort() const;
 
     /// Get the datagram length in bytes (header + payload).
-    [[nodiscard]] uint16_t getDatagramLength() const;
+    uint16_t getDatagramLength() const;
 
     /// Get the checksum.
-    [[nodiscard]] uint16_t getChecksum() const;
+    uint16_t getChecksum() const;
 
     /// Set the source port.
     void setSourcePort(uint16_t sourcePort);

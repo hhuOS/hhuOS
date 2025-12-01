@@ -296,7 +296,7 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     Util::Graphic::Ansi::prepareGraphicalApplication(true);
-    auto buffer = Util::Graphic::LinearFrameBuffer::open(lfbFile);
+    auto buffer = Util::Graphic::LinearFrameBuffer(lfbFile);
     lfb = &buffer;
     lfb->clear();
 

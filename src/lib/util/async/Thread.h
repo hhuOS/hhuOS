@@ -57,7 +57,7 @@ public:
     /// Util::System::out << "Current thread ID: " << thread.getId()
     ///     << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     /// ```
-    [[nodiscard]] static Thread getCurrentThread();
+    static Thread getCurrentThread();
 
     /// Let the current thread sleep for the given time.
     ///
@@ -94,7 +94,7 @@ public:
     void join() const;
 
     /// Get the ID of the thread.
-    [[nodiscard]] size_t getId() const;
+    size_t getId() const;
 
 private:
 

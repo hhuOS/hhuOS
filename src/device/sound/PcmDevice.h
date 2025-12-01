@@ -52,11 +52,11 @@ public:
 
     virtual bool setPlaybackParameters(uint32_t sampleRate, uint8_t channels, uint8_t bitsPerSample) = 0;
 
-    [[nodiscard]] virtual uint32_t getSampleRate() const = 0;
+    virtual uint32_t getSampleRate() const = 0;
 
-    [[nodiscard]] virtual uint8_t getChannels() const = 0;
+    virtual uint8_t getChannels() const = 0;
 
-    [[nodiscard]] virtual uint8_t getBitsPerSample() const = 0;
+    virtual uint8_t getBitsPerSample() const = 0;
 
     virtual void play(const uint8_t *samples, uint32_t size) = 0;
 

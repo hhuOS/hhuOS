@@ -69,7 +69,7 @@ public:
      *
      * @return true, if an RTC is available
      */
-    [[nodiscard]] static bool isAvailable();
+    static bool isAvailable();
 
     /**
      * Enable periodic interrupts for the RTC.
@@ -86,12 +86,12 @@ public:
      *
      * @return true, if CMOS data is valid
      */
-    [[nodiscard]] static bool isValid();
+    static bool isValid();
 
     /**
      * Overriding function from DateProvider
      */
-    [[nodiscard]] Util::Time::Date getCurrentDate() override;
+    Util::Time::Date getCurrentDate() override;
 
     /**
      * Overriding function from DateProvider
@@ -108,7 +108,7 @@ public:
     /**
      * Overriding function from TimeProvider.
      */
-    [[nodiscard]] Util::Time::Timestamp getTime() override;
+    Util::Time::Timestamp getTime() override;
 
 private:
     /**
@@ -137,7 +137,7 @@ private:
      * @param bcd The bcd formatted number
      * @return The converted number
      */
-    [[nodiscard]] static uint8_t bcdToBinary(uint8_t bcd);
+    static uint8_t bcdToBinary(uint8_t bcd);
 
     /**
      * Converts a number from binary format to bcd format.
@@ -145,20 +145,20 @@ private:
      * @param binary The binary formatted number
      * @return The converted number
      */
-    [[nodiscard]] static uint8_t binaryToBcd(uint8_t binary);
+    static uint8_t binaryToBcd(uint8_t binary);
 
     /**
      * Checks, if the RTC is currently updating.
      * Read/Write operations should not be performed, while an update is in progress.
      */
-    [[nodiscard]] static bool isUpdating();
+    static bool isUpdating();
 
     /**
      * Read the current date from the RTC.
      *
      * @return The date
      */
-    [[nodiscard]] Util::Time::Date readDate() const;
+    Util::Time::Date readDate() const;
 
     /**
      * Notify the user about an alarm.

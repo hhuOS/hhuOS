@@ -58,23 +58,23 @@ public:
 
     void setMemory(uint8_t *start, uint8_t *end, uint16_t useCount, bool reserved);
 
-    [[nodiscard]] void* allocateBlock() override;
+    void* allocateBlock() override;
 
-    [[nodiscard]] void* allocateBlockAtAddress(void *address);
+    void* allocateBlockAtAddress(void *address);
 
-    [[nodiscard]] void* allocateBlockAfterAddress(void *address);
+    void* allocateBlockAfterAddress(void *address);
 
     void freeBlock(void *pointer) override;
 
-    [[nodiscard]] uint32_t getTotalMemory() const override;
+    uint32_t getTotalMemory() const override;
 
-    [[nodiscard]] uint32_t getBlockSize() const override;
+    uint32_t getBlockSize() const override;
 
-    [[nodiscard]] uint32_t getFreeMemory() const override;
+    uint32_t getFreeMemory() const override;
 
-    [[nodiscard]] void* getStartAddress() const override;
+    void* getStartAddress() const override;
 
-    [[nodiscard]] void* getEndAddress() const override;
+    void* getEndAddress() const override;
 
     void debugLog();
 
@@ -129,17 +129,17 @@ private:
             valueWrapper.bitUnset(2);
         }
 
-        [[nodiscard]] uint32_t getAddress() {
+        uint32_t getAddress() {
             auto valueWrapper = Util::Async::Atomic<uint32_t>(value);
             return valueWrapper.get() & 0xfffffff0;
         }
 
-        [[nodiscard]] bool isInstalled() {
+        bool isInstalled() {
             auto valueWrapper = Util::Async::Atomic<uint32_t>(value);
             return valueWrapper.bitTest(3);
         }
 
-        [[nodiscard]] bool isLocked() {
+        bool isLocked() {
             auto valueWrapper = Util::Async::Atomic<uint32_t>(value);
             return valueWrapper.bitTest(2);
         }
@@ -192,12 +192,12 @@ private:
             }
         }
 
-        [[nodiscard]] uint16_t getUseCount() {
+        uint16_t getUseCount() {
             auto valueWrapper = Util::Async::Atomic<uint16_t>(value);
             return valueWrapper.get() >> 1;
         }
 
-        [[nodiscard]] bool isReserved() {
+        bool isReserved() {
             auto valueWrapper = Util::Async::Atomic<uint16_t>(value);
             return valueWrapper.bitTest(0);
         }
@@ -209,9 +209,9 @@ private:
         uint32_t allocationTableIndex;
     };
 
-    [[nodiscard]] TableIndex calculateIndex(uint8_t *address) const;
+    TableIndex calculateIndex(uint8_t *address) const;
 
-    [[nodiscard]] uint32_t calculateAddress(const TableIndex &index) const;
+    uint32_t calculateAddress(const TableIndex &index) const;
 
 private:
 

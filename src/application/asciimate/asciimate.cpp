@@ -88,7 +88,7 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseFloat<double>(argumentParser.getArgument("scale")) : 1.0;
-    auto lfb = Util::Graphic::LinearFrameBuffer::open(lfbFile);
+    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(lfb, scaleFactor);
 
     auto inputStream = Util::Io::FileInputStream(file);

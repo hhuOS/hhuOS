@@ -77,11 +77,11 @@ public:
 
     bool setPlaybackParameters(uint32_t sampleRate, uint8_t channels, uint8_t bitsPerSample) override;
 
-    [[nodiscard]] uint32_t getSampleRate() const override;
+    uint32_t getSampleRate() const override;
 
-    [[nodiscard]] uint8_t getChannels() const override;
+    uint8_t getChannels() const override;
 
-    [[nodiscard]] uint8_t getBitsPerSample() const override;
+    uint8_t getBitsPerSample() const override;
 
     void play(const uint8_t *samples, uint32_t size) override;
 

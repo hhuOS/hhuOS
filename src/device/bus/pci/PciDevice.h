@@ -59,11 +59,11 @@ public:
 
     bool operator!=(const PciDevice &other) const;
 
-    [[nodiscard]] uint8_t readByte(uint8_t reg) const;
+    uint8_t readByte(uint8_t reg) const;
 
-    [[nodiscard]] uint16_t readWord(uint8_t reg) const;
+    uint16_t readWord(uint8_t reg) const;
 
-    [[nodiscard]] uint32_t readDoubleWord(uint8_t reg) const;
+    uint32_t readDoubleWord(uint8_t reg) const;
 
     void writeByte(uint8_t reg, uint8_t value) const;
 
@@ -71,33 +71,33 @@ public:
 
     void writeDoubleWord(uint8_t reg, uint32_t value) const;
 
-    [[nodiscard]] Util::Array<Pci::Command> readCommand() const;
+    Util::Array<Pci::Command> readCommand() const;
 
-    [[nodiscard]] Util::Array<Pci::Status> readStatus() const;
+    Util::Array<Pci::Status> readStatus() const;
 
-    [[nodiscard]] Util::Array<uint8_t> readCapabilities() const;
+    Util::Array<uint8_t> readCapabilities() const;
 
     void writeCommand(const Util::Array<Pci::Command> &commands) const;
 
     void overwriteCommand(const Util::Array<Pci::Command> &commands) const;
 
-    [[nodiscard]] uint16_t getVendorId() const;
+    uint16_t getVendorId() const;
 
-    [[nodiscard]] uint16_t getDeviceId() const;
+    uint16_t getDeviceId() const;
 
-    [[nodiscard]] uint8_t getRevision() const;
+    uint8_t getRevision() const;
 
-    [[nodiscard]] uint8_t getProgrammingInterface() const;
+    uint8_t getProgrammingInterface() const;
 
-    [[nodiscard]] uint8_t getBaseClass() const;
+    uint8_t getBaseClass() const;
 
-    [[nodiscard]] uint8_t getSubclass() const;
+    uint8_t getSubclass() const;
 
-    [[nodiscard]] uint16_t getSubsystemVendorId() const;
+    uint16_t getSubsystemVendorId() const;
 
-    [[nodiscard]] uint16_t getSubsystemId() const;
+    uint16_t getSubsystemId() const;
 
-    [[nodiscard]] Device::InterruptRequest getInterruptLine() const;
+    Device::InterruptRequest getInterruptLine() const;
 
 private:
 

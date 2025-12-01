@@ -72,19 +72,19 @@ public:
     virtual ~Datagram();
 
     /// Get the remote address to which this datagram is sent or from which it is received.
-    [[nodiscard]] const NetworkAddress& getRemoteAddress() const;
+    const NetworkAddress& getRemoteAddress() const;
 
     /// Set the remote address for this datagram.
     void setRemoteAddress(const NetworkAddress& address) const;
 
     /// Get access to the data buffer of this datagram.
-    [[nodiscard]] const uint8_t* getData() const;
+    const uint8_t* getData() const;
 
     /// Get the length of the data buffer in bytes.
     /// When accessing the data buffer (using `getData()`),
     /// make sure to not read more bytes than the length of the buffer.
     /// Otherwise, this will lead to undefined behavior.
-    [[nodiscard]] uint32_t getLength() const;
+    uint32_t getLength() const;
 
     /// Set the data buffer for this datagram.
     /// This method will NOT copy the data, but simply set the pointer to the given buffer

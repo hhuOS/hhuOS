@@ -18,130 +18,164 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_TERMINAL_H
-#define HHUOS_TERMINAL_H
+#ifndef HHUOS_LIB_UTIL_GRAPHIC_TERMINAL_H
+#define HHUOS_LIB_UTIL_GRAPHIC_TERMINAL_H
 
 #include <stdint.h>
+#include <stddef.h>
 
+#include "util/async/ReentrantSpinlock.h"
+#include "util/async/Runnable.h"
+#include "util/base/String.h"
+#include "util/collection/Array.h"
+#include "util/graphic/Color.h"
+#include "util/graphic/Colors.h"
 #include "util/io/stream/FilterInputStream.h"
 #include "util/io/stream/FilterOutputStream.h"
-#include "lib/util/io/stream/OutputStream.h"
-#include "lib/util/io/stream/InputStream.h"
-#include "lib/util/base/String.h"
-#include "lib/util/graphic/Color.h"
-#include "lib/util/graphic/Colors.h"
-#include "lib/util/io/stream/PipedOutputStream.h"
-#include "lib/util/io/stream/ByteArrayOutputStream.h"
-#include "lib/util/async/Runnable.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/io/stream/PipedInputStream.h"
-#include "lib/util/io/key/layout/DeLayout.h"
-#include "lib/util/io/key/KeyDecoder.h"
-#include "lib/util/async/ReentrantSpinlock.h"
-
-namespace Util {
-namespace Io {
-class KeyboardLayout;
-}  // namespace Io
-}  // namespace Util
+#include "util/io/stream/OutputStream.h"
+#include "util/io/stream/InputStream.h"
+#include "util/io/stream/PipedOutputStream.h"
+#include "util/io/stream/ByteArrayOutputStream.h"
+#include "util/io/stream/PipedInputStream.h"
+#include "util/io/key/layout/DeLayout.h"
+#include "util/io/key/KeyDecoder.h"
 
 namespace Util::Graphic {
 
-class Terminal : public Util::Io::OutputStream, public Util::Io::InputStream {
+/// Base class for terminal emulators.
+/// It reads input from the keyboard stream ("/device/keyboard") and writes output via virtual methods.
+/// It supports ANSI escape sequences for text formatting and cursor control.
+/// Implementation must only handle the actual rendering of characters and screen manipulation.
+class Terminal : public Io::OutputStream, public Io::InputStream {
 
 public:
-
+    /// Requests that can be issued to the terminal via `Util::Io::File::controlFile()` calls.
+    /// These can be used to manipulate the terminal from user space.
     enum Command {
+        /// Enable or disable echoing of typed characters.
         SET_ECHO,
+        /// Enable or disable line aggregation (i.e. buffering until newline).
         SET_LINE_AGGREGATION,
+        /// Enable or disable ANSI escape sequence parsing.
         SET_ANSI_PARSING,
+        /// Enable or disable the terminal cursor.
         SET_CURSOR,
+        /// Enable or disable raw mode (i.e. no line aggregation and no echo).
         ENABLE_RAW_MODE,
+        /// Enable or disable canonical mode (i.e. line aggregation and echo).
         ENABLE_CANONICAL_MODE,
+        /// Enable or disable keyboard scancodes instead of ascii characters.
         ENABLE_KEYBOARD_SCANCODES,
+        /// Set the keyboard layout for decoding keyboard input.
         SET_KEYBOARD_LAYOUT
     };
 
+    /// Create a new terminal instance with the given dimensions.
     Terminal(uint16_t columns, uint16_t rows);
 
-    Terminal(const Terminal &copy) = delete;
+    /// Print a character at the current cursor position with the specified colors.
+    virtual void putChar(char c, const Color &foregroundColor, const Color &backgroundColor) = 0;
 
-    Terminal &operator=(const Terminal &other) = delete;
+    /// Clear a rectangular area of the terminal with the specified colors.
+    virtual void clear(const Color &foregroundColor, const Color &backgroundColor,
+        uint16_t startColumn, uint16_t startRow, uint16_t endColumn, uint16_t endRow) = 0;
 
-    ~Terminal() override = default;
-
-    bool write(uint8_t c) override;
-
-    uint32_t write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
-
-    int16_t read() override;
-	
-	int16_t peek() override;
-
-    int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
-
-    bool isReadyToRead() override;
-
-    virtual void putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) = 0;
-
-    virtual void clear(const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor, uint16_t startColumn, uint32_t startRow, uint16_t endColumn, uint16_t endRow) = 0;
-
+    /// Set the cursor position to the specified column and row.
     virtual void setPosition(uint16_t column, uint16_t row) = 0;
 
-    [[nodiscard]] virtual uint16_t getCurrentColumn() const = 0;
+    /// Get the current cursor column.
+    virtual uint16_t getCurrentColumn() const = 0;
 
-    [[nodiscard]] virtual uint16_t getCurrentRow() const = 0;
+    /// Get the current cursor row.
+    virtual uint16_t getCurrentRow() const = 0;
 
-    [[nodiscard]] uint16_t getColumns() const;
+    /// Enable or disable the terminal cursor.
+    virtual void setCursorEnabled(bool enabled) = 0;
 
-    [[nodiscard]] uint16_t getRows() const;
+    /// Write a single byte to the terminal.
+    bool write(uint8_t c) override;
 
-    [[nodiscard]] const Color& getForegroundColor() const;
+    /// Write a buffer of bytes to the terminal.
+    size_t write(const uint8_t *sourceBuffer, size_t offset, size_t length) override;
 
-    [[nodiscard]] const Color& getBackgroundColor() const;
+    /// Read a single byte from the terminal.
+    int16_t read() override;
 
+    /// Peek at the next byte from the terminal without removing it from the input stream.
+	int16_t peek() override;
+
+    /// Read a buffer of bytes from the terminal.
+    int32_t read(uint8_t *targetBuffer, size_t offset, size_t length) override;
+
+    /// Check if there is data available to read from the terminal.
+    bool isReadyToRead() override;
+    
+    /// Clear the entire terminal screen.
     void clear();
 
-    void setEcho(bool enabled);
+    /// Get the number of columns of the terminal.
+    uint16_t getColumns() const {
+        return columns;
+    }
 
-    void setLineAggregation(bool enabled);
+    /// Get the number of rows of the terminal.
+    uint16_t getRows() const {
+        return rows;
+    }
 
-    void setAnsiParsing(bool enabled);
+    /// Get the current foreground color used for text rendering.
+    const Color& getForegroundColor() const {
+        return foregroundColor;
+    }
 
-    void setKeyboardScancodes(bool enabled);
+    /// Get the current background color used for text rendering.
+    const Color& getBackgroundColor() const {
+        return backgroundColor;
+    }
 
-    void setKeyboardLayout(const Io::KeyboardLayout &layout);
+    /// Enable or disable echoing of typed characters.
+    void setEcho(const bool enabled) {
+        echo = enabled;
+    }
 
-    virtual void setCursor(bool enabled) = 0;
+    /// Enable or disable line aggregation (i.e. buffering until newline).
+    void setLineAggregation(const bool enabled) {
+        lineAggregation = enabled;
+        terminalStream.flush();
+    }
+
+    /// Enable or disable ANSI escape sequence parsing.
+    void setAnsiParsing(const bool enabled) {
+        ansiParsing = enabled;
+    }
+
+    /// Enable or disable keyboard scancodes instead of ascii characters.
+    void setKeyboardScancodes(const bool enabled) {
+        keyboardScancodes = enabled;
+    }
+
+    /// Set the keyboard layout for decoding keyboard input.
+    void setKeyboardLayout(const Io::KeyboardLayout &layout) {
+        keyDecoder = Io::KeyDecoder(layout);
+    }
 
 private:
 
-    class TerminalStream : public Io::FilterInputStream, public Io::FilterOutputStream {
+    class TerminalStream final : public Io::FilterInputStream, public Io::FilterOutputStream {
 
     public:
-        /**
-         * Constructor.
-         */
+
         explicit TerminalStream(Terminal &terminal);
 
-        /**
-         * Copy Constructor.
-         */
         TerminalStream(const TerminalStream &copy) = delete;
 
-        /**
-         * Assignment operator.
-         */
         TerminalStream& operator=(const TerminalStream & other) = delete;
 
-        /**
-         * Destructor.
-         */
         ~TerminalStream() override = default;
 
         bool write(uint8_t c) override;
 
-        uint32_t write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
+        size_t write(const uint8_t *sourceBuffer, size_t offset, size_t length) override;
 
         uint32_t flush() override;
 
@@ -150,31 +184,20 @@ private:
         Terminal &terminal;
         Io::ByteArrayOutputStream lineBufferStream;
 
-        Util::Io::PipedInputStream keyInputStream;
-        Util::Io::PipedOutputStream keyOutputStream;
+        Io::PipedInputStream keyInputStream;
+        Io::PipedOutputStream keyOutputStream;
     };
 
-    class KeyboardRunnable : public Async::Runnable {
+    class KeyboardRunnable final : public Async::Runnable {
 
     public:
-        /**
-         * Constructor.
-         */
+
         explicit KeyboardRunnable(Terminal &terminal);
 
-        /**
-         * Copy Constructor.
-         */
         KeyboardRunnable(const KeyboardRunnable &copy) = delete;
 
-        /**
-         * Assignment operator.
-         */
         KeyboardRunnable& operator=(const KeyboardRunnable &other) = delete;
 
-        /**
-         * Destructor.
-         */
         ~KeyboardRunnable() override = default;
 
         void run() override;
@@ -188,36 +211,37 @@ private:
 
     void handleTab();
 
-    void parseColorEscapeSequence(const Util::String &escapeSequence);
+    void parseColorEscapeSequence(const String &escapeSequence);
 
-    void parseCursorEscapeSequence(const Util::String &escapeSequence, char endCode);
+    void parseCursorEscapeSequence(const String &escapeSequence, char endCode);
 
-    void parseEraseSequence(const Util::String &escapeSequence, char endCode);
+    void parseEraseSequence(const String &escapeSequence, char endCode);
 
-    [[nodiscard]] static Util::Graphic::Color getColor(uint8_t colorCode, const Util::Graphic::Color &defaultColor, const Util::Array<Util::String> &codes, uint32_t &index);
+    static Color getColor(uint8_t colorCode, const Color &defaultColor, const Array<String> &codes,
+        size_t &index);
 
-    [[nodiscard]] static Util::Graphic::Color parseComplexColor(const Util::Array<Util::String> &codes, uint32_t &index);
+    static Color parseComplexColor(const Array<String> &codes, size_t &index);
 
-    [[nodiscard]] static Util::Graphic::Color parse256Color(const Util::Array<Util::String> &codes, uint32_t &index);
+    static Color parse256Color(const Array<String> &codes, size_t &index);
 
-    [[nodiscard]] static Util::Graphic::Color parseTrueColor(const Util::Array<Util::String> &codes, uint32_t &index);
+    static Color parseTrueColor(const Array<String> &codes, size_t &index);
 
     void parseGraphicRendition(uint8_t code);
 
     TerminalStream terminalStream;
-    Util::Io::PipedInputStream ansiInputStream;
-    Util::Io::PipedOutputStream ansiOutputStream;
+    Io::PipedInputStream ansiInputStream;
+    Io::PipedOutputStream ansiOutputStream;
 
     Io::KeyDecoder keyDecoder = Io::KeyDecoder(Io::DeLayout());
     Async::ReentrantSpinlock writeLock;
 
-    Util::String currentEscapeSequence;
+    String currentEscapeSequence;
     bool isEscapeActive = false;
 
-    Util::Graphic::Color foregroundBaseColor = Util::Graphic::Colors::WHITE;
-    Util::Graphic::Color backgroundBaseColor = Util::Graphic::Colors::BLACK;
-    Util::Graphic::Color foregroundColor = Util::Graphic::Colors::WHITE;
-    Util::Graphic::Color backgroundColor = Util::Graphic::Colors::BLACK;
+    Color foregroundBaseColor = Colors::WHITE;
+    Color backgroundBaseColor = Colors::BLACK;
+    Color foregroundColor = Colors::WHITE;
+    Color backgroundColor = Colors::BLACK;
     bool brightForeground = false;
     bool brightBackground = false;
 
@@ -236,9 +260,9 @@ private:
     uint16_t savedColumn = 0;
     uint16_t savedRow = 0;
 
-    const Util::String escapeEndCodes = Util::String::format("ABCDEFGHJKmnsu");
+    const String escapeEndCodes = "ABCDEFGHJKmnsu";
 
-    static const constexpr uint8_t TABULATOR_SPACES = 8;
+    static constexpr uint8_t TABULATOR_SPACES = 8;
 };
 
 }

@@ -43,11 +43,11 @@ public:
 
     void setText(const Util::String &text);
 
-    [[nodiscard]] Util::String getText() const;
+    Util::String getText() const;
 
-    [[nodiscard]] size_t getPreferredWidth() const override;
+    size_t getPreferredWidth() const override;
 
-    [[nodiscard]] size_t getPreferredHeight() const override;
+    size_t getPreferredHeight() const override;
 
     void setSize(size_t width, size_t height) override;
 

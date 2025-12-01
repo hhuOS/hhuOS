@@ -67,7 +67,7 @@ public:
 
     void enableKeyboardTranslation();
 
-    [[nodiscard]] bool isPortAvailable(Port port) const;
+    bool isPortAvailable(Port port) const;
 
 private:
 

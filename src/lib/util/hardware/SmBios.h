@@ -100,13 +100,13 @@ struct TableHeader {
     uint16_t handle;
 
     /// Calculate the full length of the table, including the strings.
-    [[nodiscard]] size_t calculateFullLength() const;
+    size_t calculateFullLength() const;
 
     /// Calculate the number of strings in the table.
-    [[nodiscard]] size_t calculateStringCount() const;
+    size_t calculateStringCount() const;
 
     /// Get the string at the given index from the string table.
-    [[nodiscard]] const char* getString(size_t number) const;
+    const char* getString(size_t number) const;
 } __attribute__ ((packed));
 
 /// Provides convenient access to the SMBIOS tables from a reference to the first table.
@@ -151,28 +151,28 @@ public:
 
     /// Access a table by its type via the `[]` operator.
     /// If no table with the given type exists, a panic is fired.
-    [[nodiscard]] const TableHeader& operator[](HeaderType type) const;
+    const TableHeader& operator[](HeaderType type) const;
 
     /// Get the number of tables.
-    [[nodiscard]] size_t getTableCount() const;
+    size_t getTableCount() const;
 
     /// Check if a table with the given type exists.
-    [[nodiscard]] bool hasTable(HeaderType type) const;
+    bool hasTable(HeaderType type) const;
 
     /// Get an array of all available table types.
-    [[nodiscard]] Array<HeaderType> getTypes() const;
+    Array<HeaderType> getTypes() const;
 
     /// Get an iterator to the first table.
     /// This allows iteration over the tables using a range-based for loop.
-    [[nodiscard]] Iterator<const TableHeader> begin() const override;
+    Iterator<const TableHeader> begin() const override;
 
     /// Get an iterator to the end of the tables.
     /// This allows iteration over the tables using a range-based for loop.
     /// The end iterator actually points to NULL, indicating the end of the iteration.
-    [[nodiscard]] Iterator<const TableHeader> end() const override;
+    Iterator<const TableHeader> end() const override;
 
     /// Get the next table in the iteration based on the current table.
-    [[nodiscard]] IteratorElement<const TableHeader>
+    IteratorElement<const TableHeader>
         next(const IteratorElement<const TableHeader> &element) const override;
 
 private:
@@ -270,20 +270,20 @@ struct BiosInformation {
     uint16_t extendedRomSize;
 
     /// Get the vendor name of the BIOS.
-    [[nodiscard]] const char* getVendorName() const;
+    const char* getVendorName() const;
 
     /// Get the version string of the BIOS.
-    [[nodiscard]] const char* getVersion() const;
+    const char* getVersion() const;
 
     /// Get the release date string of the BIOS.
-    [[nodiscard]] const char* getReleaseDate() const;
+    const char* getReleaseDate() const;
 
     /// Calculate the size of the runtime BIOS image in bytes.
     /// That is the amount of bytes that the BIOS occupies in the system memory.
-    [[nodiscard]] size_t calculateRuntimeSize() const;
+    size_t calculateRuntimeSize() const;
 
     /// Calculate the size of the ROM image in bytes.
-    [[nodiscard]] size_t calculateRomSize() const;
+    size_t calculateRomSize() const;
 } __attribute__ ((packed));
 
 }

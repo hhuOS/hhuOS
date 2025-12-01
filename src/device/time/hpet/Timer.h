@@ -96,7 +96,7 @@ private:
         FSB_INTERRUPT_CAPABLE = 1 << 9,
     };
 
-    [[nodiscard]] uint16_t getRegisterOffset(uint16_t offset) const;
+    uint16_t getRegisterOffset(uint16_t offset) const;
 
     Hpet &hpet;
     uint8_t id;

@@ -73,17 +73,17 @@ public:
 
     [[noreturn]] void exitCurrentProcess(int32_t exitCode);
 
-    [[nodiscard]] bool isProcessActive(uint32_t id);
+    bool isProcessActive(uint32_t id);
 
-    [[nodiscard]] Process& getCurrentProcess();
+    Process& getCurrentProcess();
 
-    [[nodiscard]] Process* getProcess(uint32_t id);
+    Process* getProcess(uint32_t id);
 
-    [[nodiscard]] Process& getKernelProcess() const;
+    Process& getKernelProcess() const;
 
-    [[nodiscard]] Util::Array<uint32_t> getActiveProcessIds() const;
+    Util::Array<uint32_t> getActiveProcessIds() const;
 
-    [[nodiscard]] Scheduler& getScheduler();
+    Scheduler& getScheduler();
 
     void cleanup(Thread *thread);
 

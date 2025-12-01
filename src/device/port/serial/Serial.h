@@ -131,16 +131,16 @@ enum class BaudRate : uint16_t {
     BAUD_2 = 57600
 };
 
-[[nodiscard]] ComPort portFromString(const Util::String &portName);
+ComPort portFromString(const Util::String &portName);
 
-[[nodiscard]] const char* portToString(Serial::ComPort port);
+const char* portToString(Serial::ComPort port);
 
 /**
  * Check if a COM-port exists.
  * Always check if the COM-port exists before creating an instance of this class!
  *
  */
-[[nodiscard]] bool checkPort(Serial::ComPort port);
+bool checkPort(Serial::ComPort port);
 
 }
 

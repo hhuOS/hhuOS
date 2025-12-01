@@ -48,7 +48,7 @@ public:
         label.setText(Util::String::format("Pressed: %u", ++count));
     }
 
-    [[nodiscard]] size_t getCount() const {
+    size_t getCount() const {
         return count;
     }
 

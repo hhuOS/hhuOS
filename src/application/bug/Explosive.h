@@ -71,9 +71,9 @@ public:
 
     void explode();
 
-    [[nodiscard]] bool isExploding() const;
+    bool isExploding() const;
 
-    [[nodiscard]] bool hasExploded() const;
+    bool hasExploded() const;
 
 private:
 

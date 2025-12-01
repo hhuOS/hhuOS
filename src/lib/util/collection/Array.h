@@ -109,7 +109,7 @@ public:
     T& operator[](size_t index);
 
     /// Get the number of elements in the array.
-    [[nodiscard]] size_t length() const;
+    size_t length() const;
 
     /// Check if the array contains the given element.
     ///
@@ -119,15 +119,15 @@ public:
     /// bool containsTwo = array.contains(2); // true
     /// bool containsSix = array.contains(6); // false
     /// ```
-    [[nodiscard]] bool contains(const T &element);
+    bool contains(const T &element);
 
     /// Get a pointer to the beginning of the array.
     /// This allows iteration over the elements of the array using a range-based for loop.
-    [[nodiscard]] T* begin() const;
+    T* begin() const;
 
     /// Get a pointer to the end of the array.
     /// This allows iteration over the elements of the array using a range-based for loop.
-    [[nodiscard]] T* end() const;
+    T* end() const;
 
 private:
 

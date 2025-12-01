@@ -50,9 +50,9 @@ public:
      */
     virtual ~TimeProvider() = default;
 
-    [[nodiscard]] virtual Util::Time::Timestamp getTime() = 0;
+    virtual Util::Time::Timestamp getTime() = 0;
 
-    [[nodiscard]] virtual bool isLocked() const {
+    virtual bool isLocked() const {
         return false;
     }
 

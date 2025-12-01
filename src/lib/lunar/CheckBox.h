@@ -40,13 +40,13 @@ public:
 
     void setText(const Util::String &text);
 
-    [[nodiscard]] const Util::String& getText() const;
+    const Util::String& getText() const;
 
-    [[nodiscard]] bool isChecked() const;
+    bool isChecked() const;
 
-    [[nodiscard]] size_t getPreferredWidth() const override;
+    size_t getPreferredWidth() const override;
 
-    [[nodiscard]] size_t getPreferredHeight() const override;
+    size_t getPreferredHeight() const override;
 
     void setSize(size_t width, size_t height) override;
 

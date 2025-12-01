@@ -51,7 +51,7 @@ public:
     void cancel();
 
     /// Check if the event has been canceled.
-    [[nodiscard]] bool isCanceled() const;
+    bool isCanceled() const;
 
 private:
 

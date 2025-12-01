@@ -68,10 +68,10 @@ public:
 
     /// Check if the game is currently running.
     /// This method returns true while the game loop is active and false before it starts or after it has been stopped.
-    [[nodiscard]] bool isRunning() const;
+    bool isRunning() const;
 
     /// Get the currently active scene.
-    [[nodiscard]] Scene& getCurrentScene() const;
+    Scene& getCurrentScene() const;
 
     /// Push a new scene onto the scene stack.
     /// The scene must be heaped-allocated and the game instance will take ownership of it.
@@ -100,14 +100,14 @@ public:
     /// to get the corresponding pixel coordinate on the screen.
     /// The engine calculates the transformation factor by taking the smaller axis of the target screen resolution
     /// and dividing it by 2. For example, on a 800x600 screen, the transformation factor will be 300.
-    [[nodiscard]] uint16_t getScreenTransformation() const;
+    uint16_t getScreenTransformation() const;
 
     /// Get the dimensions of the game coordinate system.
     /// The game uses a virtual coordinate system ranging from (-1, -1) to (1, 1) for the entire screen.
     /// However, if the target screen resolution is not square,
     /// one axis will have a larger range to maintain the aspect ratio.
     /// For example, on a 800x600 screen, the coordinate system will range from (-1.33, -1) to (1.33, 1).
-    [[nodiscard]] const Util::Math::Vector2<float>& getScreenDimensions() const;
+    const Util::Math::Vector2<float>& getScreenDimensions() const;
 
 private:
 

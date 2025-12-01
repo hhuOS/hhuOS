@@ -18,71 +18,57 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_BUFFEREDLINEARFRAMEBUFFER_H
-#define HHUOS_BUFFEREDLINEARFRAMEBUFFER_H
+#ifndef HHUOS_LIB_UTIL_GRAPHIC_BUFFEREDLINEARFRAMEBUFFER_H
+#define HHUOS_LIB_UTIL_GRAPHIC_BUFFEREDLINEARFRAMEBUFFER_H
 
 #include <stdint.h>
 
-#include "LinearFrameBuffer.h"
+#include "util/graphic/LinearFrameBuffer.h"
 
 namespace Util::Graphic {
 
-class BufferedLinearFrameBuffer : public LinearFrameBuffer {
+/// A double buffered linear frame buffer implementation.
+/// All drawing operations are performed on a software buffer which can be flushed to the target frame buffer on demand.
+/// It can be initialized with a lower resolution than the target frame buffer and will scale the content accordingly
+/// on flush. However, it uses integer scaling factors only and if the scaled resolution is smaller than the target
+/// resolution, the content will be centered.
+/// For example, a 400x300 buffered frame buffer on a 800x600 target frame buffer will use a scaling factor of 2
+/// and fit perfectly, while a 300x200 buffered frame buffer on the same target will use a scaling factor of 2 as well,
+/// resulting in a 600x400 output that is centered within the 800x600 target.
+class BufferedLinearFrameBuffer final : public LinearFrameBuffer {
 
 public:
-    /**
-     * Constructor.
-     *
-     * @param lfb The linear frame buffer, that shall be double buffered.
-     */
-    explicit BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb);
+    /// Create a new buffered linear frame buffer instance that matches the resolution of the target frame buffer.
+    explicit BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb) :
+        BufferedLinearFrameBuffer(lfb, lfb.getResolutionX(), lfb.getResolutionY(), lfb.getPitch()) {}
 
-    /**
-     * Constructor using a different resolution (must be smaller) than the target lfb.
-     * The picture will be centered and scaled to the target resolution.
-     */
-    BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, uint16_t resolutionX, uint16_t resolutionY);
+    /// Create a new buffered linear frame buffer instance with the given resolution.
+    /// The resolution must not be larger than the target frame buffer's resolution.
+    /// The content is scaled on flush to fit into the target frame buffer.
+    /// If the given resolution is larger than the target frame buffer's resolution, a panic is fired.
+    BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, const uint16_t resolutionX, const uint16_t resolutionY) :
+        BufferedLinearFrameBuffer(lfb, resolutionX, resolutionY, lfb.getColorDepth() < 8 ?
+            resolutionX / (8 / lfb.getColorDepth()) : resolutionX * ((lfb.getColorDepth() + 7) / 8)) {}
 
-    /**
-     * Constructor using a scaled down resolution.
-     * The picture will be centered and scaled to the target resolution.
-     */
-    BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, double scaleFactor);
+    /// Create a new buffered linear frame buffer instance with the given scale (> 0 and <= 1).
+    /// The scale is applied to the target frame buffer's resolution to determine the buffered resolution.
+    /// The content is scaled on flush to fit into the target frame buffer.
+    BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, const float scaleFactor) :
+        BufferedLinearFrameBuffer(lfb,static_cast<uint16_t>(lfb.getResolutionX() * scaleFactor),
+            static_cast<uint16_t>(lfb.getResolutionY() * scaleFactor)) {}
 
-    /**
-     * Assignment operator.
-     */
-    BufferedLinearFrameBuffer& operator=(const BufferedLinearFrameBuffer &other) = delete;
-
-    /**
-     * Copy Constructor.
-     */
-    BufferedLinearFrameBuffer(const BufferedLinearFrameBuffer &copy) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~BufferedLinearFrameBuffer() override = default;
-
+    /// Flush the content of the buffered frame buffer to the target frame buffer.
     void flush() const;
 
 private:
-    /**
-     * Private constructor with all possible parameters to avoid duplicate code.
-     */
+
     BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, uint16_t resolutionX, uint16_t resolutionY, uint16_t pitch);
 
-    void scalingFlush32() const;
+    uint8_t scale = 0;
+    uint16_t offsetX = 0;
+    uint16_t offsetY = 0;
 
-    void scalingFlush24() const;
-
-    void scalingFlush16() const;
-
-    const uint8_t scale;
-    const uint16_t offsetX;
-    const uint16_t offsetY;
-
-    const LinearFrameBuffer &target;
+    const LinearFrameBuffer &lfb;
 };
 
 }

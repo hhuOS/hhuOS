@@ -63,16 +63,16 @@ public:
         uint8_t unused[355];
 
         /// Parse the size field and return it as a number.
-        [[nodiscard]] size_t parseSize() const;
+        size_t parseSize() const;
 
         /// Parse the checksum field and return it as a number.
-        [[nodiscard]] size_t parseChecksum() const;
+        size_t parseChecksum() const;
 
         /// Calculate the checksum of this header.
-        [[nodiscard]] size_t calculateChecksum() const;
+        size_t calculateChecksum() const;
 
         /// Get a pointer to the file's data.
-        [[nodiscard]] const uint8_t* getFile() const;
+        const uint8_t* getFile() const;
     } __attribute__((packed));
 
     /// Create a tar archive instance from a buffer containing the tar archive data.
@@ -95,11 +95,11 @@ public:
 
     /// Get an array of all file headers in the archive.
     /// The array contains pointers to the headers within the archive buffer.
-    [[nodiscard]] const Array<const Header*>& getFileHeaders() const;
+    const Array<const Header*>& getFileHeaders() const;
 
     /// Get a specific file header by its path inside the archive.
     /// Returns nullptr if no such file exists.
-    [[nodiscard]] const Header* getHeader(const String &path) const;
+    const Header* getHeader(const String &path) const;
 
 private:
 

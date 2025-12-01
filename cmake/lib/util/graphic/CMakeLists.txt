@@ -19,19 +19,17 @@
 project(lib.graphic)
 message(STATUS "Project " ${PROJECT_NAME})
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 90)
+
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
-
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-
 target_link_libraries(${PROJECT_NAME} lib.math lib.time)
-
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/graphic/Ansi.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/BitmapFile.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/BufferedLinearFrameBuffer.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/Color.cpp
-        ${HHUOS_SRC_DIR}/lib/util/graphic/CursorRunnable.cpp
-        ${HHUOS_SRC_DIR}/lib/util/graphic/Font.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/Image.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/LinearFrameBuffer.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/LinearFrameBufferTerminal.cpp

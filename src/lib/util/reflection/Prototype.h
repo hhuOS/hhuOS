@@ -115,13 +115,13 @@ public:
 
     /// Get the class name of the prototype.
     /// Can easily be implemented using the `PROTOTYPE_IMPLEMENT_GET_CLASS_NAME` macro.
-    [[nodiscard]] virtual String getClassName() const = 0;
+    virtual String getClassName() const = 0;
 
 private:
     /// Create a new instance of the prototype.
     /// Can easily be implemented using the `PROTOTYPE_IMPLEMENT_CLONE` macro.
     /// This method is private to ensure that only the `InstanceFactory` can call it.
-    [[nodiscard]] virtual Prototype* clone() const = 0;
+    virtual Prototype* clone() const = 0;
 
     friend class InstanceFactory;
 };

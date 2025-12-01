@@ -52,13 +52,13 @@ public:
 
     virtual void arrangeWidgets(const Util::ArrayList<WidgetEntry>& widgets) const = 0;
 
-    [[nodiscard]] virtual size_t getPreferredWidth(const Util::ArrayList<WidgetEntry> &widgets) const = 0;
+    virtual size_t getPreferredWidth(const Util::ArrayList<WidgetEntry> &widgets) const = 0;
 
-    [[nodiscard]] virtual size_t getPreferredHeight(const Util::ArrayList<WidgetEntry> &widgets) const = 0;
+    virtual size_t getPreferredHeight(const Util::ArrayList<WidgetEntry> &widgets) const = 0;
 
 protected:
 
-    [[nodiscard]] const Container& getContainer() const;
+    const Container& getContainer() const;
 
 private:
 

@@ -69,9 +69,9 @@ public:
 
     void bind(const Util::Network::NetworkAddress &address);
 
-    [[nodiscard]] const Util::Network::NetworkAddress& getAddress() const;
+    const Util::Network::NetworkAddress& getAddress() const;
 
-    [[nodiscard]] bool isBound() const;
+    bool isBound() const;
 
     void setTimeout(uint32_t timeout);
 

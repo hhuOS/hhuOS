@@ -47,26 +47,26 @@ public:
 
     /// Allocate a block of memory of the size defined by the block size of this manager (given in the constructor).
     /// If no block is available, a panic is fired.
-    [[nodiscard]] void* allocateBlock() override;
+    void* allocateBlock() override;
 
     /// Free a block of memory that was previously allocated by this memory manager.
     /// If the given pointer is outside the managed memory range, a panic is fired.
     void freeBlock(void *pointer) override;
 
     /// Return the total amount of memory managed by this memory manager.
-    [[nodiscard]] size_t getTotalMemory() const override;
+    size_t getTotalMemory() const override;
 
     /// Calculate the amount of free memory left in this memory manager.
-    [[nodiscard]] size_t getFreeMemory() const override;
+    size_t getFreeMemory() const override;
 
     /// Return the size of a single block managed by this memory manager.
-    [[nodiscard]] size_t getBlockSize() const override;
+    size_t getBlockSize() const override;
 
     /// Return the start address of the managed memory range.
-    [[nodiscard]] void* getStartAddress() const override;
+    void* getStartAddress() const override;
 
     /// Return the end address of the managed memory range.
-    [[nodiscard]] void* getEndAddress() const override;
+    void* getEndAddress() const override;
 
     /// Manually mark a block of memory as used or free.
     /// If the given pointer is outside the managed memory range, a panic is fired.

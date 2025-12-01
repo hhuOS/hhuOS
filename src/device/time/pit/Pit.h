@@ -82,12 +82,12 @@ public:
     /**
      * Overriding function from TimeProvider.
      */
-    [[nodiscard]] Util::Time::Timestamp getTime() override;
+    Util::Time::Timestamp getTime() override;
 
     /**
      * Overriding function from TimeProvider.
      */
-    [[nodiscard]] bool isLocked() const override;
+    bool isLocked() const override;
 
     /**
      * Wait for a specified amount of time.

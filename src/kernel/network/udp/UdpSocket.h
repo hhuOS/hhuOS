@@ -55,7 +55,7 @@ public:
 
     bool send(const Util::Network::Datagram &datagram) override;
 
-    [[nodiscard]] uint16_t getPort() const;
+    uint16_t getPort() const;
 };
 
 }

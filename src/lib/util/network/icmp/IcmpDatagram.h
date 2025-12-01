@@ -145,10 +145,10 @@ public:
         IcmpHeader::Type type, uint8_t code);
 
     /// Get the ICMP type.
-    [[nodiscard]] IcmpHeader::Type getType() const;
+    IcmpHeader::Type getType() const;
 
     /// Get the ICMP code.
-    [[nodiscard]] uint8_t getCode() const;
+    uint8_t getCode() const;
 
     /// Set the ICMP type and code of this datagram to the one of the given datagram.
     /// This is used by the kernel to copy attributes from a kernel space datagram to a user space datagram.

@@ -41,9 +41,9 @@ public:
 
     void arrangeWidgets(const Util::ArrayList<WidgetEntry> &widgets) const override;
 
-    [[nodiscard]] size_t getPreferredWidth(const Util::ArrayList<WidgetEntry> &widgets) const override;
+    size_t getPreferredWidth(const Util::ArrayList<WidgetEntry> &widgets) const override;
 
-    [[nodiscard]] size_t getPreferredHeight(const Util::ArrayList<WidgetEntry> &widgets) const override;
+    size_t getPreferredHeight(const Util::ArrayList<WidgetEntry> &widgets) const override;
 };
 
 }

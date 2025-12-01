@@ -82,7 +82,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
 
     auto scaleFactor = argumentParser.hasArgument("scale") ? Util::String::parseFloat<float>(argumentParser.getArgument("scale")) : 1.0;
-    auto lfb = Util::Graphic::LinearFrameBuffer::open(lfbFile);
+    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto engine = Pulsar::Engine(lfb, 60, scaleFactor);
     Pulsar::Game::getInstance().pushScene(new ModelViewer(file.getCanonicalPath()));
     engine.run();

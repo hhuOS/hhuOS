@@ -205,11 +205,11 @@ public:
      */
     void switchAddressSpace(VirtualAddressSpace &addressSpace);
 
-    [[nodiscard]] VirtualAddressSpace& getKernelAddressSpace() const;
+    VirtualAddressSpace& getKernelAddressSpace() const;
 
-    [[nodiscard]] VirtualAddressSpace& getCurrentAddressSpace() const;
+    VirtualAddressSpace& getCurrentAddressSpace() const;
 
-    [[nodiscard]] const Util::ArrayList<VirtualAddressSpace*>& getAllAddressSpaces() const;
+    const Util::ArrayList<VirtualAddressSpace*>& getAllAddressSpaces() const;
 
     MemoryStatus getMemoryStatus();
 

@@ -161,23 +161,23 @@ public:
     bool operator!=(const Ip4Route &other) const;
 
     /// Get the source address.
-    [[nodiscard]] const Ip4Address& getSourceAddress() const;
+    const Ip4Address& getSourceAddress() const;
 
     /// Get the target address.
-    [[nodiscard]] Ip4SubnetAddress getTargetAddress() const;
+    Ip4SubnetAddress getTargetAddress() const;
 
     /// Get the device identifier.
-    [[nodiscard]] const String& getDeviceIdentifier() const;
+    const String& getDeviceIdentifier() const;
 
     /// Check if this route has a next hop address.
-    [[nodiscard]] bool hasNextHop() const;
+    bool hasNextHop() const;
 
     /// Get the next hop address.
-    [[nodiscard]] const Ip4Address& getNextHop() const;
+    const Ip4Address& getNextHop() const;
 
     /// Check if this route is valid.
     /// A route is considered valid if it has a non-empty device identifier.
-    [[nodiscard]] bool isValid() const;
+    bool isValid() const;
 
 private:
 

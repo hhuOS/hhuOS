@@ -80,11 +80,11 @@ public:
     void draw(Graphics &graphics) const override;
 
     /// Get the tag of the entity.
-    [[nodiscard]] size_t getTag() const;
+    size_t getTag() const;
 
     /// Get the scene the entity belongs to.
     /// If the entity has not been added to a scene yet, this method will fire a panic.
-    [[nodiscard]] Scene& getScene() const;
+    Scene& getScene() const;
 
     /// Remove the entity from its scene.
     /// The entity will be deleted automatically, when the scene is next updated.

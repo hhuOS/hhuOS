@@ -53,7 +53,7 @@ public:
     /// Check if the audio track associated with this handle is currently playing.
     /// If the audio has finished playing or was stopped, this will return false.
     /// If the handle is empty (i.e. not associated with any playback), this will also return false.
-    [[nodiscard]] bool isPlaying() const;
+    bool isPlaying() const;
 
     /// Stop playback of the audio track associated with this handle.
     /// If the audio is not currently playing or the handle is empty, this does nothing.

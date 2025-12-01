@@ -49,15 +49,15 @@ public:
         char reserved[222]; // reserved for future expansion
         char oemData[256]; // OEM BIOSes store their strings in this area
 
-        [[nodiscard]] bool isValid() const;
-        [[nodiscard]] const char* getOemString() const;
-        [[nodiscard]] const char* getVendorName() const;
-        [[nodiscard]] const char* getProductName() const;
-        [[nodiscard]] const char* getProductRevision() const;
-        [[nodiscard]] const uint16_t* getVideoModeArray() const;
+        bool isValid() const;
+        const char* getOemString() const;
+        const char* getVendorName() const;
+        const char* getProductName() const;
+        const char* getProductRevision() const;
+        const uint16_t* getVideoModeArray() const;
 
     private:
-        [[nodiscard]] const void* calculateVirtualAddress(uint16_t segment, uint16_t offset) const;
+        const void* calculateVirtualAddress(uint16_t segment, uint16_t offset) const;
     } __attribute__((packed));
 
     struct UsableMode {
@@ -90,11 +90,11 @@ public:
      */
     ~VesaBiosExtensions();
 
-    [[nodiscard]] const DeviceInfo& getDeviceInfo() const;
+    const DeviceInfo& getDeviceInfo() const;
 
-    [[nodiscard]] const Util::Array<UsableMode>& getSupportedModes() const;
+    const Util::Array<UsableMode>& getSupportedModes() const;
 
-    [[nodiscard]] const UsableMode& findMode(uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth) const;
+    const UsableMode& findMode(uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth) const;
 
     static void setMode(uint16_t mode);
 

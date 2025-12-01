@@ -18,37 +18,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/base/Panic.h"
-#include "lib/util/async/Thread.h"
-#include "lib/util/async/BasicRunnable.h"
 #include "Terminal.h"
-#include "lib/util/graphic/Ansi.h"
-#include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/time/Timestamp.h"
-#include "lib/util/io/key/KeyDecoder.h"
-#include "lib/util/io/key/Key.h"
-#include "lib/util/io/stream/FileOutputStream.h"
-#include "lib/util/io/stream/PrintStream.h"
 
-namespace Util {
-namespace Io {
-class KeyboardLayout;
-}  // namespace Io
-}  // namespace Util
+#include "util/base/Panic.h"
+#include "util/async/Thread.h"
+#include "util/async/BasicRunnable.h"
+#include "util/graphic/Ansi.h"
+#include "util/io/key/Key.h"
+#include "util/io/key/KeyDecoder.h"
+#include "util/io/stream/FileInputStream.h"
+#include "util/io/stream/FileOutputStream.h"
+#include "util/io/stream/PrintStream.h"
+#include "util/time/Timestamp.h"
 
 namespace Util::Graphic {
 
-Terminal::Terminal(uint16_t columns, uint16_t rows) : terminalStream(*this), columns(columns), rows(rows) {
+Terminal::Terminal(const uint16_t columns, const uint16_t rows) :
+    terminalStream(*this), columns(columns), rows(rows)
+{
     ansiOutputStream.connect(ansiInputStream);
     Async::Thread::createThread("Terminal", new KeyboardRunnable(*this));
 }
 
-bool Terminal::write(uint8_t c) {
+bool Terminal::write(const uint8_t c) {
     writeLock.acquire();
 
     if (!ansiParsing) {
         if (c == '\n') {
-            clear(foregroundColor, backgroundColor, getCurrentColumn(), getCurrentRow(), columns, getCurrentRow());
+            clear(foregroundColor, backgroundColor, getCurrentColumn(), getCurrentRow(),
+                columns, getCurrentRow());
             setPosition(0, getCurrentRow() + 1);
         } else {
             putChar(c, foregroundColor, backgroundColor);
@@ -64,12 +62,26 @@ bool Terminal::write(uint8_t c) {
 
     if (isEscapeActive) {
         if (escapeEndCodes.contains(c)) {
-            auto escapeSequence = currentEscapeSequence.substring(2, currentEscapeSequence.length());
+            const auto escapeSequence = currentEscapeSequence.substring(
+                2, currentEscapeSequence.length());
+
             switch (c) {
-            case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': case 'H': case 'f': case 'n': case 's': case 'u':
+                case 'A':
+                case 'B':
+                case 'C':
+                case 'D':
+                case 'E':
+                case 'F':
+                case 'G':
+                case 'H':
+                case 'f':
+                case 'n':
+                case 's':
+                case 'u':
                     parseCursorEscapeSequence(escapeSequence, c);
                     break;
-                case 'J': case 'K':
+                case 'J':
+                case 'K':
                     parseEraseSequence(escapeSequence, c);
                     break;
                 case 'm':
@@ -90,7 +102,8 @@ bool Terminal::write(uint8_t c) {
         } else if (c == 0x09) {
             handleTab();
         } else if (c == '\n') {
-            clear(foregroundColor, backgroundColor, getCurrentColumn(), getCurrentRow(), columns, getCurrentRow());
+            clear(foregroundColor, backgroundColor, getCurrentColumn(), getCurrentRow(),
+                columns, getCurrentRow());
             setPosition(0, getCurrentRow() + 1);
         } else if (c <= 0x06 || c == 0x08 || (c >= 0x0b && c <= 0x1a) || (c >= 0x1c && c <= 0x1f)) {
             // Unimplemented control characters
@@ -102,7 +115,7 @@ bool Terminal::write(uint8_t c) {
     return writeLock.releaseAndReturn(true);
 }
 
-uint32_t Terminal::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+size_t Terminal::write(const uint8_t *sourceBuffer, const size_t offset, const size_t length) {
     for (uint32_t i = 0; i < length; i++) {
         if (!write(sourceBuffer[offset + i])) {
             return i;
@@ -129,7 +142,7 @@ int16_t Terminal::peek() {
     return terminalStream.peek();
 }
 
-int32_t Terminal::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
+int32_t Terminal::read(uint8_t *targetBuffer, const size_t offset, const size_t length) {
     int32_t readBytes = 0;
 
     // Try to read from ANSI input stream first
@@ -149,19 +162,19 @@ int32_t Terminal::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) 
 
 bool Terminal::isReadyToRead() {
     writeLock.acquire();
-    bool ret = ansiInputStream.isReadyToRead() || terminalStream.isReadyToRead();
+    const auto ret = ansiInputStream.isReadyToRead() || terminalStream.isReadyToRead();
 
     return writeLock.releaseAndReturn(ret);
 }
 
 void Terminal::handleBell() {
-    Async::Thread::createThread("Terminal-Bell", new Async::BasicRunnable([](){
+    Async::Thread::createThread("Terminal-Bell", new Async::BasicRunnable([]{
         Io::FileOutputStream stream("/device/speaker");
         Io::PrintStream printStream(stream);
 
-        printStream << "440" << Util::Io::PrintStream::flush;
+        printStream << "440" << Io::PrintStream::flush;
         Async::Thread::sleep(Time::Timestamp::ofMilliseconds(250));
-        printStream << "0" << Util::Io::PrintStream::flush;
+        printStream << "0" << Io::PrintStream::flush;
     }));
 }
 
@@ -169,15 +182,16 @@ void Terminal::handleTab() {
     if (getCurrentColumn() + TABULATOR_SPACES >= getColumns()) {
         setPosition(0, getCurrentRow() + 1);
     } else {
-        setPosition(((getCurrentColumn() + TABULATOR_SPACES) / TABULATOR_SPACES) * TABULATOR_SPACES, getCurrentRow());
+        setPosition((getCurrentColumn() + TABULATOR_SPACES) / TABULATOR_SPACES * TABULATOR_SPACES,
+            getCurrentRow());
     }
 }
 
-void Terminal::parseColorEscapeSequence(const Util::String &escapeSequence) {
+void Terminal::parseColorEscapeSequence(const String &escapeSequence) {
     const auto codes = escapeSequence.split(';');
 
     for (uint32_t i = 0; i < codes.length(); i++) {
-        auto code = String::parseNumber<size_t>(codes[i]);
+        const auto code = String::parseNumber<size_t>(codes[i]);
 
         if (code < 30) {
             parseGraphicRendition(code);
@@ -196,11 +210,11 @@ void Terminal::parseColorEscapeSequence(const Util::String &escapeSequence) {
         }
     }
 
-    Util::Graphic::Color foreground = foregroundBaseColor;
-    Util::Graphic::Color background = backgroundBaseColor;
+    Color foreground = foregroundBaseColor;
+    Color background = backgroundBaseColor;
 
     if (invert) {
-        Util::Graphic::Color tmp = foreground;
+        const auto tmp = foreground;
         foreground = background;
         background = tmp;
     }
@@ -221,40 +235,40 @@ void Terminal::parseColorEscapeSequence(const Util::String &escapeSequence) {
     backgroundColor = background;
 }
 
-void Terminal::parseCursorEscapeSequence(const Util::String &escapeSequence, char endCode) {
+void Terminal::parseCursorEscapeSequence(const String &escapeSequence, const char endCode) {
     switch (endCode) {
         case 'A': {
-            const auto row = getCurrentRow() - Util::String::parseNumber<uint16_t>(escapeSequence);
+            const auto row = getCurrentRow() - String::parseNumber<uint16_t>(escapeSequence);
             setPosition(getCurrentColumn(), row > 0 ? row : 0);
             break;
         }
         case 'B': {
-            const auto row = getCurrentRow() + Util::String::parseNumber<uint16_t>(escapeSequence);
+            const auto row = getCurrentRow() + String::parseNumber<uint16_t>(escapeSequence);
             setPosition(getCurrentColumn(), row < getRows() ? row : getRows() - 1);
             break;
         }
         case 'C': {
-            const auto column = getCurrentColumn() + Util::String::parseNumber<uint16_t>(escapeSequence);
+            const auto column = getCurrentColumn() + String::parseNumber<uint16_t>(escapeSequence);
             setPosition(column < getColumns() ? column : getColumns() - 1, getCurrentRow());
             break;
         }
         case 'D': {
-            const auto column = getCurrentColumn() - Util::String::parseNumber<uint16_t>(escapeSequence);
+            const auto column = getCurrentColumn() - String::parseNumber<uint16_t>(escapeSequence);
             setPosition(column > 0 ? column : 0, getCurrentRow());
             break;
         }
         case 'E': {
-            const auto row = getCurrentRow() + Util::String::parseNumber<uint16_t>(escapeSequence) + 1;
+            const auto row = getCurrentRow() + String::parseNumber<uint16_t>(escapeSequence) + 1;
             setPosition(0, row < getRows() ? row : getRows() - 1);
             break;
         }
         case 'F': {
-            const auto row = getCurrentRow() - Util::String::parseNumber<uint16_t>(escapeSequence) - 1;
+            const auto row = getCurrentRow() - String::parseNumber<uint16_t>(escapeSequence) - 1;
             setPosition(0, row > 0 ? row : 0);
             break;
         }
         case 'G': {
-            auto column = Util::String::parseNumber<uint16_t>(escapeSequence);
+            auto column = String::parseNumber<uint16_t>(escapeSequence);
             if (column > getColumns()) {
                 column = getColumns() - 1;
             }
@@ -273,8 +287,8 @@ void Terminal::parseCursorEscapeSequence(const Util::String &escapeSequence, cha
                 return;
             }
 
-            auto column = Util::String::parseNumber<uint16_t>(codes[1]);
-            auto row = Util::String::parseNumber<uint16_t>(codes[0]);
+            auto column = String::parseNumber<uint16_t>(codes[1]);
+            auto row = String::parseNumber<uint16_t>(codes[0]);
 
             if (column > getColumns()) {
                 column = getColumns() - 1;
@@ -288,9 +302,10 @@ void Terminal::parseCursorEscapeSequence(const Util::String &escapeSequence, cha
             break;
         }
         case 'n': {
-            if (Util::String::parseNumber<size_t>(escapeSequence) == 6) {
-                auto positionString = Util::String::format("\u001b[%u;%uR", getCurrentRow(), getCurrentColumn());
-                ansiOutputStream.write(reinterpret_cast<const uint8_t*>(static_cast<const char*>(positionString)), 0, positionString.length());
+            if (String::parseNumber<size_t>(escapeSequence) == 6) {
+                const auto positionString = String::format("\u001b[%u;%uR", getCurrentRow(), getCurrentColumn());
+                ansiOutputStream.write(reinterpret_cast<const uint8_t*>(static_cast<const char*>(positionString)),
+                    0, positionString.length());
                 ansiOutputStream.flush();
             }
             break;
@@ -309,19 +324,21 @@ void Terminal::parseCursorEscapeSequence(const Util::String &escapeSequence, cha
     }
 }
 
-void Terminal::parseEraseSequence(const Util::String &escapeSequence, char endCode) {
-    const auto code = escapeSequence.isEmpty() ? 0 : Util::String::parseNumber<size_t>(escapeSequence);
+void Terminal::parseEraseSequence(const String &escapeSequence, const char endCode) {
+    const auto code = escapeSequence.isEmpty() ? 0 : String::parseNumber<size_t>(escapeSequence);
 
     switch (endCode) {
         case 'J': {
             switch (code) {
                 case 0:
                     // Clear screen from cursor
-                    clear(foregroundColor, backgroundColor, getCurrentColumn(), getCurrentRow(), columns - 1, rows - 1);
+                    clear(foregroundColor, backgroundColor, getCurrentColumn(), getCurrentRow(),
+                        columns - 1, rows - 1);
                     break;
                 case 1:
                     // Clear screen to cursor
-                    clear(foregroundColor, backgroundColor, 0, 0, getCurrentColumn(), getCurrentRow());
+                    clear(foregroundColor, backgroundColor, 0, 0,
+                        getCurrentColumn(), getCurrentRow());
                     break;
                 case 2:
                     // Clear screen
@@ -336,15 +353,18 @@ void Terminal::parseEraseSequence(const Util::String &escapeSequence, char endCo
             switch (code) {
                 case 0:
                     // Clear line from cursor
-                    clear(foregroundColor, backgroundColor, getCurrentColumn(), getCurrentRow(), columns - 1, getCurrentRow());
+                    clear(foregroundColor, backgroundColor, getCurrentColumn(), getCurrentRow(),
+                        columns - 1, getCurrentRow());
                     break;
                 case 1:
                     // Clear line to cursor
-                    clear(foregroundColor, backgroundColor, 0, getCurrentRow(), getCurrentColumn(), getCurrentRow());
+                    clear(foregroundColor, backgroundColor, 0, getCurrentRow(),
+                        getCurrentColumn(), getCurrentRow());
                     break;
                 case 2:
                     // Clear line
-                    clear(foregroundColor, backgroundColor, 0, getCurrentRow(), columns - 1, getCurrentRow());
+                    clear(foregroundColor, backgroundColor, 0, getCurrentRow(),
+                        columns - 1, getCurrentRow());
                     break;
                 default:
                     break;
@@ -356,119 +376,92 @@ void Terminal::parseEraseSequence(const Util::String &escapeSequence, char endCo
     }
 }
 
-uint16_t Terminal::getColumns() const {
-    return columns;
-}
-
-uint16_t Terminal::getRows() const {
-    return rows;
-}
-
-Util::Graphic::Color Terminal::getColor(uint8_t colorCode, const Util::Graphic::Color &defaultColor, const Util::Array<Util::String> &codes, uint32_t &index) {
+Color Terminal::getColor(const uint8_t colorCode, const Color &defaultColor, const Array<String> &codes,
+    uint32_t &index)
+{
     switch (colorCode) {
         case 0:
-            return Util::Graphic::Colors::BLACK;
+            return Colors::BLACK;
         case 1:
-            return Util::Graphic::Colors::RED;
+            return Colors::RED;
         case 2:
-            return Util::Graphic::Colors::GREEN;
+            return Colors::GREEN;
         case 3:
-            return Util::Graphic::Colors::YELLOW;
+            return Colors::YELLOW;
         case 4:
-            return Util::Graphic::Colors::BLUE;
+            return Colors::BLUE;
         case 5:
-            return Util::Graphic::Colors::MAGENTA;
+            return Colors::MAGENTA;
         case 6:
-            return Util::Graphic::Colors::CYAN;
+            return Colors::CYAN;
         case 7:
-            return Util::Graphic::Colors::WHITE;
+            return Colors::WHITE;
         case 8:
             return parseComplexColor(codes, ++index);
         case 9:
             return defaultColor;
         default:
-            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Ansi: Invalid color!");
+            Util::Panic::fire(Panic::INVALID_ARGUMENT, "Ansi: Invalid color!");
     }
 }
 
-Util::Graphic::Color Terminal::parseComplexColor(const Util::Array<Util::String> &codes, uint32_t &index) {
-    auto mode = Util::String::parseNumber<size_t>(codes[index++]);
+Color Terminal::parseComplexColor(const Array<String> &codes, uint32_t &index) {
+    const auto mode = String::parseNumber<size_t>(codes[index++]);
     switch (mode) {
         case 2:
             return parseTrueColor(codes, index);
         case 5:
             return parse256Color(codes, index);
         default:
-            Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Ansi: Invalid color mode!");
+            Util::Panic::fire(Panic::INVALID_ARGUMENT, "Ansi: Invalid color mode!");
     }
 }
 
-Util::Graphic::Color Terminal::parse256Color(const Util::Array<Util::String> &codes, uint32_t &index) {
-    auto colorIndex = Util::String::parseNumber<uint8_t>(codes[index++]);
-    return Util::Graphic::Ansi::colorTable256[colorIndex];
+Color Terminal::parse256Color(const Array<String> &codes, uint32_t &index) {
+    const auto colorIndex = String::parseNumber<uint8_t>(codes[index++]);
+    return Ansi::COLOR_TABLE_256[colorIndex];
 }
 
-Util::Graphic::Color Terminal::parseTrueColor(const Util::Array<Util::String> &codes, uint32_t &index) {
-    auto red = Util::String::parseNumber<uint8_t>(codes[index++]);;
-    auto green = Util::String::parseNumber<uint8_t>(codes[index++]);
-    auto blue = Util::String::parseNumber<uint8_t>(codes[index++]);
+Color Terminal::parseTrueColor(const Array<String> &codes, uint32_t &index) {
+    const auto red = String::parseNumber<uint8_t>(codes[index++]);;
+    const auto green = String::parseNumber<uint8_t>(codes[index++]);
+    const auto blue = String::parseNumber<uint8_t>(codes[index++]);
 
-    return {static_cast<uint8_t>(red), static_cast<uint8_t>(green), static_cast<uint8_t>(blue)};
+    return Color(red, green, blue);
 }
 
-void Terminal::parseGraphicRendition(uint8_t code) {
+void Terminal::parseGraphicRendition(const uint8_t code) {
     switch (code) {
-        case Util::Graphic::Ansi::GraphicRendition::NORMAL:
-            foregroundBaseColor = Util::Graphic::Colors::WHITE;
-            backgroundBaseColor = Util::Graphic::Colors::BLACK;
-            foregroundColor = Util::Graphic::Colors::WHITE;
-            backgroundColor = Util::Graphic::Colors::BLACK;
+        case Ansi::GraphicRendition::NORMAL:
+            foregroundBaseColor = Colors::WHITE;
+            backgroundBaseColor = Colors::BLACK;
+            foregroundColor = Colors::WHITE;
+            backgroundColor = Colors::BLACK;
             brightForeground = false;
             brightBackground = false;
             invert = false;
             bright = false;
             dim = false;
             break;
-        case Util::Graphic::Ansi::GraphicRendition::BRIGHT:
+        case Ansi::GraphicRendition::BRIGHT:
             bright = true;
             break;
-        case Util::Graphic::Ansi::GraphicRendition::DIM:
+        case Ansi::GraphicRendition::DIM:
             dim = true;
             break;
-        case Util::Graphic::Ansi::GraphicRendition::INVERT:
+        case Ansi::GraphicRendition::INVERT:
             invert = true;
             break;
-        case Util::Graphic::Ansi::GraphicRendition::RESET_BRIGHT_DIM:
+        case Ansi::GraphicRendition::RESET_BRIGHT_DIM:
             bright = false;
             dim = false;
             break;
-        case Util::Graphic::Ansi::GraphicRendition::RESET_INVERT:
+        case Ansi::GraphicRendition::RESET_INVERT:
             invert = false;
             break;
         default:
             break;
     }
-}
-
-void Terminal::setEcho(bool enabled) {
-    echo = enabled;
-}
-
-void Terminal::setLineAggregation(bool enabled) {
-    lineAggregation = enabled;
-    terminalStream.flush();
-}
-
-void Terminal::setAnsiParsing(bool enabled) {
-    ansiParsing = enabled;
-}
-
-void Terminal::setKeyboardScancodes(bool enabled) {
-    keyboardScancodes = enabled;
-}
-
-void Terminal::setKeyboardLayout(const Io::KeyboardLayout &layout) {
-    keyDecoder = Io::KeyDecoder(layout);
 }
 
 void Terminal::clear() {
@@ -476,19 +469,13 @@ void Terminal::clear() {
     setPosition(0, 0);
 }
 
-const Color& Terminal::getForegroundColor() const {
-    return foregroundColor;
-}
-
-const Color& Terminal::getBackgroundColor() const {
-    return backgroundColor;
-}
-
-Terminal::TerminalStream::TerminalStream(Terminal &terminal) : FilterInputStream(keyInputStream), FilterOutputStream(keyOutputStream), terminal(terminal) {
+Terminal::TerminalStream::TerminalStream(Terminal &terminal) :
+    FilterInputStream(keyInputStream), FilterOutputStream(keyOutputStream), terminal(terminal)
+{
     keyOutputStream.connect(keyInputStream);
 }
 
-bool Terminal::TerminalStream::write(uint8_t c) {
+bool Terminal::TerminalStream::write(const uint8_t c) {
     if (terminal.ansiParsing && c == '\b') {
         if (!lineBufferStream.isEmpty()) {
             auto column = terminal.getCurrentColumn();
@@ -507,7 +494,9 @@ bool Terminal::TerminalStream::write(uint8_t c) {
                 terminal.setPosition(column, row);
             }
 
-            auto line = lineBufferStream.getContent().substring(0, lineBufferStream.getPosition() - 1);
+            const auto line = lineBufferStream.getContent().substring(
+                0, lineBufferStream.getPosition() - 1);
+
             lineBufferStream.reset();
             lineBufferStream.write(static_cast<const uint8_t*>(line), 0, line.length());
         }
@@ -534,7 +523,7 @@ bool Terminal::TerminalStream::write(uint8_t c) {
     return FilterOutputStream::write(c);
 }
 
-uint32_t Terminal::TerminalStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+size_t Terminal::TerminalStream::write(const uint8_t *sourceBuffer, size_t offset, size_t length) {
     for (uint32_t i = 0; i < length; i++) {
         if (!write(sourceBuffer[offset + i])) {
             return i;
@@ -545,9 +534,10 @@ uint32_t Terminal::TerminalStream::write(const uint8_t *sourceBuffer, uint32_t o
 }
 
 uint32_t Terminal::TerminalStream::flush() {
-    auto written = FilterOutputStream::write(static_cast<const uint8_t*>(lineBufferStream.getContent()), 0, lineBufferStream.getPosition());
-    lineBufferStream.reset();
+    const auto written = FilterOutputStream::write(
+        static_cast<const uint8_t*>(lineBufferStream.getContent()), 0, lineBufferStream.getPosition());
 
+    lineBufferStream.reset();
     return written;
 }
 
@@ -561,38 +551,46 @@ void Terminal::KeyboardRunnable::run() {
         terminal.writeLock.acquire();
         while (terminal.isEscapeActive) {
             terminal.writeLock.release();
-            Util::Async::Thread::yield();
+            Async::Thread::yield();
             terminal.writeLock.acquire();
         }
 
         if (terminal.keyboardScancodes) {
             terminal.terminalStream.write(scancode);
         } else if (terminal.keyDecoder.parseScancode(scancode)) {
-            auto key = terminal.keyDecoder.getCurrentKey();
+            const auto key = terminal.keyDecoder.getCurrentKey();
             if (key.isPressed()) {
                 auto c = key.getAscii();
                 if (c == 0) {
                     switch (key.getScancode()) {
                         case Io::Key::UP:
-                            terminal.terminalStream.write(reinterpret_cast<const uint8_t *>("\u001b[1A"), 0, 4);
+                            terminal.terminalStream.write(
+                                reinterpret_cast<const uint8_t*>("\u001b[1A"), 0, 4);
                             break;
                         case Io::Key::DOWN:
-                            terminal.terminalStream.write(reinterpret_cast<const uint8_t*>("\u001b[1B"), 0, 4);
+                            terminal.terminalStream.write(
+                                reinterpret_cast<const uint8_t*>("\u001b[1B"), 0, 4);
                             break;
                         case Io::Key::RIGHT:
-                            terminal.terminalStream.write(reinterpret_cast<const uint8_t*>("\u001b[1C"), 0, 4);
+                            terminal.terminalStream.write(
+                                reinterpret_cast<const uint8_t*>("\u001b[1C"), 0, 4);
                             break;
                         case Io::Key::LEFT:
-                            terminal.terminalStream.write(reinterpret_cast<const uint8_t*>("\u001b[1D"), 0, 4);
+                            terminal.terminalStream.write(
+                                reinterpret_cast<const uint8_t*>("\u001b[1D"), 0, 4);
                             break;
                         case Io::Key::END:
-                            terminal.terminalStream.write(reinterpret_cast<const uint8_t*>("\u001b[1F"), 0, 4);
+                            terminal.terminalStream.write(
+                                reinterpret_cast<const uint8_t*>("\u001b[1F"), 0, 4);
                             break;
                         case Io::Key::HOME:
-                            terminal.terminalStream.write(reinterpret_cast<const uint8_t*>("\u001b[1H"), 0, 4);
+                            terminal.terminalStream.write(
+                                reinterpret_cast<const uint8_t*>("\u001b[1H"), 0, 4);
                             break;
                         case Io::Key::DEL:
                             terminal.terminalStream.write(0x7f);
+                        default:
+                            break;
                     }
                 } else {
                     if (key.getCtrl()) {

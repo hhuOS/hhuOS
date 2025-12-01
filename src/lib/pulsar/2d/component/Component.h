@@ -68,7 +68,7 @@ protected:
 
     /// Get the entity this component is attached to.
     /// This method allows subclasses to access the entity they are attached to.
-    [[nodiscard]] Entity& getEntity() const;
+    Entity& getEntity() const;
 
 private:
 

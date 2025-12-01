@@ -72,7 +72,7 @@ public:
     bool update();
 
     /// Get the ID of the currently playing audio track, or 0 if no track is assigned.
-    [[nodiscard]] size_t getCurrentTrackId() const;
+    size_t getCurrentTrackId() const;
 
 private:
 

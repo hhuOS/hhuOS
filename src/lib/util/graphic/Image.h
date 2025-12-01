@@ -18,55 +18,68 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_IMAGE_H
-#define HHUOS_IMAGE_H
+#ifndef HHUOS_LIB_UTIL_GRAPHIC_IMAGE_H
+#define HHUOS_LIB_UTIL_GRAPHIC_IMAGE_H
 
 #include <stdint.h>
 
-namespace Util {
-namespace Graphic {
-class Color;
-}  // namespace Graphic
-}  // namespace Util
+#include "util/graphic/Color.h"
 
 namespace Util::Graphic {
 
+/// Represents a 2D image with a specified width, height, and pixel buffer.
+/// The pixel buffer is an array of Color objects representing the colors of each pixel in the image.
+/// Thus, this class is essentially just a simple wrapper around a pixel buffer with width and height information.
+/// It is used as a base class for more specific image formats, such as `BitmapFile`.
+/// Furthermore, it allows scaling the image to a new width and height.
 class Image {
 
 public:
-    /**
-     * Constructor.
-     */
-    Image(uint16_t width, uint16_t height, Color *pixelBuffer);
+    /// Create a new image instance, wrapping a pixel buffer with the specified width, and height.
+    /// The pixel buffer must be heap allocated and the image instance will take ownership of it.
+    /// This means that the pixel buffer will be deleted when the image instance is destroyed.
+    Image(const uint16_t width, const uint16_t height, const Color *pixelBuffer) :
+        width(width), height(height), pixelBuffer(pixelBuffer) {}
 
-    /**
-     * Copy Constructor.
-     */
+    /// Image is not copyable, since it manages the heap-allocated pixel buffer, so the copy constructor is deleted.
     Image(const Image &other) = delete;
 
-    /**
-     * Assignment operator.
-     */
+    /// Image is not copyable, since it manages the heap-allocated pixel buffer, so the assignment operator is deleted.
     Image &operator=(const Image &other) = delete;
 
-    /**
-     * Destructor.
-     */
-    ~Image();
+    /// Destroy the image instance and free the pixel buffer.
+    ~Image() {
+        delete[] pixelBuffer;
+    }
 
-    [[nodiscard]] Graphic::Color *getPixelBuffer() const;
+    /// Get the pixel buffer of the image.
+    /// The returned pointer is const, so the pixel buffer cannot be modified directly.
+    /// The image instance keeps ownership of the pixel buffer, so it must not be deleted manually.
+    const Color* getPixelBuffer() const {
+        return pixelBuffer;
+    }
 
-    [[nodiscard]] uint16_t getWidth() const;
+    /// Get the width of the image in pixels.
+    uint16_t getWidth() const {
+        return width;
+    }
 
-    [[nodiscard]] uint16_t getHeight() const;
+    /// Get the height of the image in pixels.
+    uint16_t getHeight() const {
+        return height;
+    }
 
-    [[nodiscard]] Image* scale(uint16_t newWidth, uint16_t newHeight);
+    /// Scale the image to the specified new width and height.
+    /// This method returns a new image instance with the scaled pixel buffer.
+    /// The scaling is done using nearest-neighbor interpolation.
+    /// The returned image instance is allocated on the heap and must be deleted manually.
+    Image* scale(uint16_t newWidth, uint16_t newHeight) const;
 
 private:
 
     const uint16_t width;
     const uint16_t height;
-    Graphic::Color *pixelBuffer;
+    const Color *pixelBuffer;
 };
 
 }

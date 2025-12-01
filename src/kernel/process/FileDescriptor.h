@@ -62,11 +62,11 @@ public:
 
     bool control(uint32_t request, const Util::Array<uint32_t> &parameters);
 
-    [[nodiscard]] bool isValid() const;
+    bool isValid() const;
 
-    [[nodiscard]] Filesystem::Node& getNode() const;
+    Filesystem::Node& getNode() const;
 
-    [[nodiscard]] Util::Io::File::AccessMode getAccessMode() const;
+    Util::Io::File::AccessMode getAccessMode() const;
 
     void setNode(Filesystem::Node *node);
 

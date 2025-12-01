@@ -60,7 +60,7 @@ public:
 
     void armTimer();
 
-    [[nodiscard]] Util::Time::Timestamp getTime();
+    Util::Time::Timestamp getTime();
 
 private:
 

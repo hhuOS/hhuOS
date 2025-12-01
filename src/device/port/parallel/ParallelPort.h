@@ -70,9 +70,9 @@ public:
 
     static void initializeAvailablePorts();
 
-    [[nodiscard]] static LptPort portFromString(const Util::String &portName);
+    static LptPort portFromString(const Util::String &portName);
 
-    [[nodiscard]] static const char* portToString(LptPort port);
+    static const char* portToString(LptPort port);
 
     bool write(uint8_t c) override;
 

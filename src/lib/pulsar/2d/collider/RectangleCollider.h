@@ -90,10 +90,10 @@ public:
     static Side getOpposite(Side side);
 
     /// Get the width of the rectangle collider.
-    [[nodiscard]] float getWidth() const;
+    float getWidth() const;
 
     /// Get the height of the rectangle collider.
-    [[nodiscard]] float getHeight() const;
+    float getHeight() const;
 
     /// Set the width of the rectangle collider.
     void setWidth(float width);
@@ -105,12 +105,12 @@ public:
     void setSize(float width, float height);
 
     /// Get the type of the rectangle collider.
-    [[nodiscard]] Type getType() const;
+    Type getType() const;
     
     /// Check if this rectangle collider is colliding with another rectangle collider (i.e., if the rectangles overlap).
     /// If a collision is detected, the side of this collider that is colliding with the other collider is returned.
     /// Otherwise, `NONE` is returned.
-    [[nodiscard]] Side isColliding(const RectangleCollider &other) const;
+    Side isColliding(const RectangleCollider &other) const;
 
 private:
 

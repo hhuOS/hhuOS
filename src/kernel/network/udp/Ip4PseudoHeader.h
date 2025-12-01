@@ -67,11 +67,11 @@ public:
 
     void write(Util::Io::OutputStream &stream) const;
 
-    [[nodiscard]] const Util::Network::Ip4::Ip4Address& getSourceAddress() const;
+    const Util::Network::Ip4::Ip4Address& getSourceAddress() const;
 
-    [[nodiscard]] const Util::Network::Ip4::Ip4Address& getDestinationAddress() const;
+    const Util::Network::Ip4::Ip4Address& getDestinationAddress() const;
 
-    [[nodiscard]] uint16_t getDatagramLength() const;
+    uint16_t getDatagramLength() const;
 
     static const constexpr uint32_t HEADER_SIZE = 12;
 

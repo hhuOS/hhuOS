@@ -346,9 +346,9 @@ private:
 
         bool issueCommand(uint8_t slot);
 
-        [[nodiscard]] bool isActive() const;
+        bool isActive() const;
 
-        [[nodiscard]] DeviceSignature checkType() const;
+        DeviceSignature checkType() const;
     } __attribute__((packed));
 
     struct HbaRegisters {

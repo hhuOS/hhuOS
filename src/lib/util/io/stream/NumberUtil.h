@@ -35,22 +35,22 @@
 namespace Util::Io::NumberUtil {
 
 /// Read a signed 8-bit value from the given input stream.
-[[nodiscard]] int8_t read8BitValue(InputStream &stream);
+int8_t read8BitValue(InputStream &stream);
 
 /// Read an unsigned 8-bit value from the given input stream.
-[[nodiscard]] uint8_t readUnsigned8BitValue(InputStream &stream);
+uint8_t readUnsigned8BitValue(InputStream &stream);
 
 /// Read a signed 16-bit value from the given input stream.
-[[nodiscard]] int16_t read16BitValue(InputStream &stream);
+int16_t read16BitValue(InputStream &stream);
 
 /// Read an unsigned 16-bit value from the given input stream.
-[[nodiscard]] uint16_t readUnsigned16BitValue(InputStream &stream);
+uint16_t readUnsigned16BitValue(InputStream &stream);
 
 /// Read a signed 32-bit value from the given input stream.
-[[nodiscard]] int32_t read32BitValue(InputStream &stream);
+int32_t read32BitValue(InputStream &stream);
 
 /// Read an unsigned 32-bit value from the given input stream.
-[[nodiscard]] uint32_t readUnsigned32BitValue(InputStream &stream);
+uint32_t readUnsigned32BitValue(InputStream &stream);
 
 /// Write a signed 8-bit value to the given output stream.
 void write8BitValue(int8_t value, OutputStream &stream);

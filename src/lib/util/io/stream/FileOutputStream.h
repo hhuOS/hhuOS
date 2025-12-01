@@ -89,7 +89,7 @@ public:
     /// The number of bytes actually written is returned, which may be less than length if an error occurs.
     /// If the file is a regular file and the current position is at the end of the file,
     /// the file is extended to accommodate the new data.
-    uint32_t write(const uint8_t *sourceBuffer, size_t offset, size_t length) override;
+    size_t write(const uint8_t *sourceBuffer, size_t offset, size_t length) override;
 
     /// Move the current position in the file to the given offset, based on the specified seek mode.
     /// The seek mode can be one of the following:
@@ -99,7 +99,7 @@ public:
     void setPosition(size_t offset, File::SeekMode mode = File::SeekMode::SET);
 
     /// Get the current position in the file, i.e., the offset in bytes from the beginning of the file.
-    [[nodiscard]] size_t getPosition() const;
+    size_t getPosition() const;
 
 private:
 

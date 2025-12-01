@@ -97,7 +97,7 @@ public:
     /// value = map.get("Two"); // Get the value for key "Two" -> value = 2
     /// value = map.get("Three"); // Panic! (key "Three" does not exist)
     /// ```
-    [[nodiscard]] V get(const K &key) const override;
+    V get(const K &key) const override;
 
     /// Remove the key-value pair associated with the key and return the value by copying it.
     /// If the key does not exist, a panic is fired.
@@ -132,7 +132,7 @@ public:
     ///     << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // Prints: Key 'One' exists with value: 1
     /// }
     /// ```
-    [[nodiscard]] bool containsKey(const K &key) const override;
+    bool containsKey(const K &key) const override;
 
     /// Get the number of key-value pairs in the map.
     ///
@@ -148,7 +148,7 @@ public:
     /// map.remove("Three"); // Remove the key-value pair with key "Three" -> {"One": 1}
     /// size = map.size(); // Get the number of key-value pairs -> size = 1
     /// ```
-    [[nodiscard]] size_t size() const override;
+    size_t size() const override;
 
     /// Clear the map, removing all key-value pairs.
     ///
@@ -183,7 +183,7 @@ public:
     ///
     /// Util::System::out << Util::Io::PrintStream::flush;
     /// ```
-    [[nodiscard]] Array<K> getKeys() const override;
+    Array<K> getKeys() const override;
 
     /// Get an array of all values in the map.
     /// The values are copied into the array, so modifying the array does not affect the map.
@@ -201,7 +201,7 @@ public:
     ///
     /// Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     /// ```
-    [[nodiscard]] Array<V> getValues() const override;
+    Array<V> getValues() const override;
 
 private:
 

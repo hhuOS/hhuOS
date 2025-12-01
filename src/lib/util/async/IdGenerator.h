@@ -49,7 +49,7 @@ public:
     IdGenerator& operator=(const IdGenerator &other) = delete;
 
     /// Generate the next unique ID.
-    [[nodiscard]] size_t getNextId();
+    size_t getNextId();
 
 private:
 

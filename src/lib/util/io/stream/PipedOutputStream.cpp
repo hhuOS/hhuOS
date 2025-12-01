@@ -45,7 +45,7 @@ bool PipedOutputStream::write(const uint8_t byte) {
     return sink->write(byte);
 }
 
-size_t PipedOutputStream::write(const uint8_t *sourceBuffer, const size_t offset, const size_t length) {
+size_t PipedOutputStream::write(const uint8_t *sourceBuffer, size_t offset, size_t length) {
     if (sink == nullptr) {
         return 0;
     }

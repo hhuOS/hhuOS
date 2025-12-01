@@ -42,16 +42,16 @@ public:
     virtual ~MemoryManager() = default;
 
     /// Get the total amount of memory managed by this memory manager.
-    [[nodiscard]] virtual size_t getTotalMemory() const = 0;
+    virtual size_t getTotalMemory() const = 0;
 
     /// Get the amount of free memory left in this memory manager.
-    [[nodiscard]] virtual size_t getFreeMemory() const = 0;
+    virtual size_t getFreeMemory() const = 0;
 
     /// Get the start address of the managed memory.
-    [[nodiscard]] virtual void* getStartAddress() const = 0;
+    virtual void* getStartAddress() const = 0;
 
     /// Get the end address of the managed memory.
-    [[nodiscard]] virtual void* getEndAddress() const = 0;
+    virtual void* getEndAddress() const = 0;
 };
 
 }

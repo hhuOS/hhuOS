@@ -124,14 +124,14 @@ public:
     bool stop();
 
     /// Get the current playback state of the audio channel.
-    [[nodiscard]] State getState();
+    State getState();
 
     /// Get the amount of audio data currently in the channel, waiting to be played.
-    [[nodiscard]] size_t getRemainingBytes();
+    size_t getRemainingBytes();
 
     /// Get the amount of bytes that can be written to the channel without blocking.
     /// It is always possible to write more bytes, but the write operation will block until the mixer reads some data.
-    [[nodiscard]] size_t getWritableBytes();
+    size_t getWritableBytes();
 
     /// Write a single byte of audio data to the audio channel.
     /// The data must be in 8-bit mono PCM format at a sample rate of 22050 Hz.

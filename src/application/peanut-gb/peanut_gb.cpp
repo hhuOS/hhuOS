@@ -696,7 +696,7 @@ int32_t main(int32_t argc, char *argv[]) {
         lfbFile.controlFile(Util::Graphic::LinearFrameBuffer::SET_RESOLUTION, Util::Array<uint32_t>({resolutionX, resolutionY, colorDepth}));
     }
 
-    auto buffer = Util::Graphic::LinearFrameBuffer::open(lfbFile);
+    auto buffer = Util::Graphic::LinearFrameBuffer(lfbFile);
     lfb = &buffer;
     maxScale = lfb->getResolutionX() / LCD_WIDTH > lfb->getResolutionY() / LCD_HEIGHT ? lfb->getResolutionY() / LCD_HEIGHT : lfb->getResolutionX() / LCD_WIDTH;
     scale = maxScale;

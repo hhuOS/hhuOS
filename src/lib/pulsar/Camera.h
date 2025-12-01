@@ -52,22 +52,22 @@ public:
     Camera();
 
     /// Get the current position of the camera.
-    [[nodiscard]] const Util::Math::Vector3<float>& getPosition() const;
+    const Util::Math::Vector3<float>& getPosition() const;
 
     /// Get the current rotation of the camera.
-    [[nodiscard]] const Util::Math::Vector3<float>& getRotation() const;
+    const Util::Math::Vector3<float>& getRotation() const;
 
     /// Get the front vector of the camera, based on its orientation.
     /// This vector points in the direction the camera is facing in 3D space.
-    [[nodiscard]] const Util::Math::Vector3<float>& getFrontVector() const;
+    const Util::Math::Vector3<float>& getFrontVector() const;
 
     /// Get the up vector of the camera, based on its orientation.
     /// This vector points upwards from the camera's perspective in 3D space.
-    [[nodiscard]] const Util::Math::Vector3<float>& getUpVector() const;
+    const Util::Math::Vector3<float>& getUpVector() const;
 
     /// Get the right vector of the camera, based on its orientation.
     /// This vector points to the right from the camera's perspective in 3D space.
-    [[nodiscard]] const Util::Math::Vector3<float>& getRightVector() const;
+    const Util::Math::Vector3<float>& getRightVector() const;
 
     /// Set the position of the camera in 3D space.
     void setPosition(const Util::Math::Vector3<float> &position);

@@ -100,7 +100,7 @@ public:
     UdpDatagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress);
 
     /// Get the remote port of the application that sent or will receive this datagram.
-    [[nodiscard]] uint16_t getRemotePort() const;
+    uint16_t getRemotePort() const;
 
     /// Set attributes of this datagram based on another datagram.
     /// Since this class has no specific attributes, this method does nothing.

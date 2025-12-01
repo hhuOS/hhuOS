@@ -75,13 +75,13 @@ public:
     void write(Io::OutputStream &stream) const;
 
     /// Get the destination MAC address.
-    [[nodiscard]] const MacAddress& getDestinationAddress() const;
+    const MacAddress& getDestinationAddress() const;
 
     /// Get the source MAC address.
-    [[nodiscard]] const MacAddress& getSourceAddress() const;
+    const MacAddress& getSourceAddress() const;
 
     /// Get the EtherType.
-    [[nodiscard]] EtherType getEtherType() const;
+    EtherType getEtherType() const;
 
     /// Set the destination MAC address.
     void setDestinationAddress(const MacAddress &address);

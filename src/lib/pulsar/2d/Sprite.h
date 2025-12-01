@@ -64,13 +64,13 @@ public:
     Sprite(const Util::Graphic::Color &color, float width, float height);
 
     /// Get the underlying image of the sprite.
-    [[nodiscard]] const Util::Graphic::Image& getImage() const;
+    const Util::Graphic::Image& getImage() const;
 
     /// Get the original size of the sprite (before scaling).
-    [[nodiscard]] const Util::Math::Vector2<float>& getOriginalSize() const;
+    const Util::Math::Vector2<float>& getOriginalSize() const;
 
     /// Get the current size of the sprite (after scaling).
-    [[nodiscard]] Util::Math::Vector2<float> getSize() const;
+    Util::Math::Vector2<float> getSize() const;
 
     /// Set the scale of the sprite uniformly in both dimensions.
     void setScale(float scale);
@@ -79,7 +79,7 @@ public:
     void setScale(const Util::Math::Vector2<float> &scale);
 
     /// Get the current scale of the sprite.
-    [[nodiscard]] const Util::Math::Vector2<float>& getScale() const;
+    const Util::Math::Vector2<float>& getScale() const;
 
     /// Rotate the sprite by the given angle (in degrees).
     void rotate(float angle);
@@ -88,13 +88,13 @@ public:
     void setRotation(float angle);
 
     /// Get the current rotation angle of the sprite (in degrees).
-    [[nodiscard]] float getRotation() const;
+    float getRotation() const;
 
     /// Set the alpha transparency of the sprite (0.0 = fully transparent, 1.0 = fully opaque).
     void setAlpha(float alpha);
 
     /// Get the current alpha transparency of the sprite.
-    [[nodiscard]] float getAlpha() const;
+    float getAlpha() const;
 
     /// Flip the sprite horizontally.
     /// This causes the sprite to be mirrored along the vertical axis during rendering.

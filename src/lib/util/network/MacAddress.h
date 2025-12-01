@@ -92,7 +92,7 @@ public:
     /// const auto isBroadcast2 = mac2.isBroadcastAddress(); // true
     /// const auto isBroadcast3 = mac3.isBroadcastAddress(); // true
     /// ```
-    [[nodiscard]] bool isBroadcastAddress() const;
+    bool isBroadcastAddress() const;
 
     /// Create a new on-heap instance as a copy of this address.
     ///
@@ -103,7 +103,7 @@ public:
     ///
     /// const auto isEqual = (mac1 == *mac2); // true
     /// ```
-    [[nodiscard]] NetworkAddress* createCopy() const override;
+    NetworkAddress* createCopy() const override;
 
     /// Create a string representation of the MAC address in the format "XX:XX:XX:XX:XX:XX".
     ///
@@ -115,7 +115,7 @@ public:
     ///
     /// const auto isEqual = (mac1 == mac2); // true
     /// ```
-    [[nodiscard]] String toString() const override;
+    String toString() const override;
 
     /// A constant storing the broadcast MAC address, which is always `ff:ff:ff:ff:ff:ff`.
     /// The broadcast address is used to send packets to all devices on the local network segment.

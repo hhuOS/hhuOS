@@ -20,39 +20,17 @@
 
 #include "Image.h"
 
-#include "lib/util/graphic/Color.h"
-
 namespace Util::Graphic {
 
-Image::Image(uint16_t width, uint16_t height, Color *pixelBuffer) : width(width), height(height), pixelBuffer(pixelBuffer) {
-
-}
-
-Image::~Image() {
-    delete[] pixelBuffer;
-}
-
-Graphic::Color* Image::getPixelBuffer() const {
-    return pixelBuffer;
-}
-
-uint16_t Image::getWidth() const {
-    return width;
-}
-
-uint16_t Image::getHeight() const {
-    return height;
-}
-
-Image* Image::scale(uint16_t newWidth, uint16_t newHeight) {
-    auto *newPixelBuffer = new Graphic::Color[newWidth * newHeight];
-    double factorX = static_cast<double>(newWidth) / width;
-    double factorY = static_cast<double>(newHeight) / height;
+Image* Image::scale(const uint16_t newWidth, const uint16_t newHeight) const {
+    auto *newPixelBuffer = new Color[newWidth * newHeight];
+    const auto factorX = static_cast<float>(newWidth) / width;
+    const auto factorY = static_cast<float>(newHeight) / height;
 
     for (int32_t y = 0; y < newHeight; y++) {
         for (int32_t x = 0; x < newWidth; x++) {
-            auto oldX = static_cast<uint16_t>(x / factorX);
-            auto oldY = static_cast<uint16_t>(y / factorY);
+            const auto oldX = static_cast<uint16_t>(x / factorX);
+            const auto oldY = static_cast<uint16_t>(y / factorY);
             newPixelBuffer[newWidth * y + x] = pixelBuffer[width * oldY + oldX];
         }
     }

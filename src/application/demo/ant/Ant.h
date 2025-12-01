@@ -69,11 +69,11 @@ public:
 
     void turnCounterClockWise();
 
-    [[nodiscard]] int16_t getX() const;
+    int16_t getX() const;
 
-    [[nodiscard]] int16_t getY() const;
+    int16_t getY() const;
 
-    [[nodiscard]] const Util::Graphic::Color &getColor() const;
+    const Util::Graphic::Color &getColor() const;
 
 private:
 

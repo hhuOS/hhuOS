@@ -34,7 +34,7 @@ public:
 	bool isReadyToRead() override;
 
 	/// Get the total number of bytes read from the underlying input stream so far.
-	[[nodiscard]] size_t getReadBytes() const;
+	size_t getReadBytes() const;
 
 	/// Read a signed 8-bit integer from the stream, interpreting the input according to the specified base.
 	/// The default base is 0, which means the base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal).

@@ -107,25 +107,25 @@ public:
     virtual void onParticleDestruction(const Particle &particle) = 0;
 
     /// Get the minimum emission rate (particles per emission cycle).
-    [[nodiscard]] uint32_t getMinEmissionRate() const;
+    uint32_t getMinEmissionRate() const;
 
     /// Set the minimum emission rate (particles per emission cycle).
     void setMinEmissionRate(uint32_t minEmissionRate);
 
     /// Get the maximum emission rate (particles per emission cycle).
-    [[nodiscard]] uint32_t getMaxEmissionRate() const;
+    uint32_t getMaxEmissionRate() const;
 
     /// Set the maximum emission rate (particles per emission cycle).
     void setMaxEmissionRate(uint32_t maxEmissionRate);
 
     /// Get the emission interval (time between emission cycles in seconds).
-    [[nodiscard]] float getEmissionInterval() const;
+    float getEmissionInterval() const;
 
     /// Set the emission interval (time between emission cycles in seconds).
     void setEmissionTime(float emissionInterval);
 
     /// Get the number of currently active particles emitted by this emitter.
-    [[nodiscard]] size_t getActiveParticles() const;
+    size_t getActiveParticles() const;
 
 private:
 

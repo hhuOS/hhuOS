@@ -46,18 +46,18 @@ public:
     ~HeapMemoryManager() override = default;
 
     /// Allocate a block of memory of a given size and alignment.
-    [[nodiscard]] virtual void* allocateMemory(size_t size, size_t alignment) = 0;
+    virtual void* allocateMemory(size_t size, size_t alignment) = 0;
 
 	/// Reallocate a previously allocated block of memory to a new size and alignment.
 	/// If a new chunk needs to be allocated for the reallocation, the old chunk is freed and
 	/// the content of the old chunk is copied into the new one up to the lesser of the new and old sizes.
-    [[nodiscard]] virtual void* reallocateMemory(void *pointer, size_t size, size_t alignment) = 0;
+    virtual void* reallocateMemory(void *pointer, size_t size, size_t alignment) = 0;
 
     /// Free a block of memory that was previously allocated by this memory manager.
     virtual void freeMemory(void *pointer, size_t alignment) = 0;
 
     /// If the manager uses a locking mechanism, this method returns the lock state.
-    [[nodiscard]] virtual bool isLocked() const = 0;
+    virtual bool isLocked() const = 0;
 };
 
 }

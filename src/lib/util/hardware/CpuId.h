@@ -132,14 +132,14 @@ struct CpuInfo {
     ///     Util::System::out << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     /// }
     /// ```
-    [[nodiscard]] Array<CpuFeature> getFeaturesAsArray() const;
+    Array<CpuFeature> getFeaturesAsArray() const;
 };
 
 /// Check if the CPUID instruction is available on the current CPU.
 /// This is done by checking if the ID bit (bit 21) in the EFLAGS register can be changed.
 ///
 /// The code for this function is based on a code snippet from https://wiki.osdev.org/CPUID
-[[nodiscard]] bool isAvailable();
+bool isAvailable();
 
 /// Get the 12 byte vendor string of the CPU by executing the CPUID instruction with EAX = 0.
 ///
@@ -150,7 +150,7 @@ struct CpuInfo {
 ///     Util::System::out << "CPU Vendor: " << vendor << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 /// }
 /// ```
-[[nodiscard]] String getVendorString();
+String getVendorString();
 
 /// Get CPU information by executing the CPUID instruction with EAX = 1.
 ///
@@ -164,10 +164,10 @@ struct CpuInfo {
 ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
 /// }
 /// ```
-[[nodiscard]] CpuInfo getCpuInfo();
+CpuInfo getCpuInfo();
 
 /// Get a string representation of the specified CPU feature.
-[[nodiscard]] const char *getFeatureAsString(CpuFeature feature);
+const char *getFeatureAsString(CpuFeature feature);
 
 };
 

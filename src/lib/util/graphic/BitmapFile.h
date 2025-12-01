@@ -18,57 +18,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_BITMAPFILE_H
-#define HHUOS_BITMAPFILE_H
+#ifndef HHUOS_LIB_UTIL_GRAPHIC_BITMAPFILE_H
+#define HHUOS_LIB_UTIL_GRAPHIC_BITMAPFILE_H
 
 #include <stdint.h>
 
-#include "lib/util/base/String.h"
-#include "lib/util/graphic/Image.h"
-
-namespace Util {
-namespace Graphic {
-class Color;
-}  // namespace Graphic
-}  // namespace Util
+#include "util/base/String.h"
+#include "util/graphic/Image.h"
 
 namespace Util::Graphic {
 
+/// Can be used to load bitmap files (BMP) from disk.
+/// Only uncompressed bitmaps with 16, 24, or 32 bits per pixel are supported.
+/// Files are expected to have the "Windows BITMAPINFOHEADER" DIB header format.
+/// This class extends the `Image` class, so it can be used wherever an `Image` is expected.
+/// Use the static `open()` method to load a bitmap file from disk.
 class BitmapFile : public Image {
 
 public:
-    /**
-     * Copy Constructor.
-     */
-    BitmapFile(const BitmapFile &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    BitmapFile &operator=(const BitmapFile &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~BitmapFile() = default;
-
+    /// Open a bitmap file from the specified path and return a pointer to a `BitmapFile` instance.
+    /// The returned instance must be deleted after use to free the allocated memory.
+    /// An invalid path or bitmap file (e.g., unsupported format) will fire a panic.
     static BitmapFile* open(const String &path);
 
+    /// Bitmap file header structure as defined by the "Windows BITMAPINFOHEADER" format.
     struct Header {
+        /// Bitmap file signature (must be 'B' and 'M').
         char signature[2];
+        /// Size of the bitmap file in bytes.
         uint32_t size;
+        /// Reserved field (ignored for parsing).
         uint32_t reserved;
+        /// Offset to the start of the bitmap data in bytes.
         uint32_t dataOffset;
+        /// DIB header size in bytes (must be 40 for "Windows BITMAPINFOHEADER").
         uint32_t dibHeaderSize;
-        uint32_t bitmapWidth;
-        uint32_t bitmapHeight;
+        /// Width of the bitmap in pixels.
+        int32_t bitmapWidth;
+        /// Height of the bitmap in pixels.
+        int32_t bitmapHeight;
+        /// Number of color planes (must be 1).
         uint16_t bitmapCountColorPlanes;
+        /// Bits per pixel (color depth).
         uint16_t bitmapBitsPerPixel;
-    } __attribute__((__packed__));
+    } __attribute__((packed));
 
 private:
 
-    BitmapFile(uint16_t width, uint16_t height, Color *pixelBuffer);
+    BitmapFile(const uint16_t width, const uint16_t height, const Color *pixelBuffer) :
+        Image(width, height, pixelBuffer) {}
 };
 
 }

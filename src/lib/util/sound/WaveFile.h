@@ -102,25 +102,25 @@ public:
     explicit WaveFile(const Io::File &file);
 
     /// Return the audio format of the WAVE file (e.g. `PCM`).
-    [[nodiscard]] AudioFormat getAudioFormat() const;
+    AudioFormat getAudioFormat() const;
 
     /// Return the number of channels in the audio data (e.g. 1 for mono, 2 for stereo).
-    [[nodiscard]] uint16_t getNumChannels() const;
+    uint16_t getNumChannels() const;
 
     /// Return the sample rate in samples per second (e.g. 22050, 44100).
-    [[nodiscard]] uint32_t getSamplesPerSecond() const;
+    uint32_t getSamplesPerSecond() const;
 
     /// Return the number of bytes per second for the audio data.
-    [[nodiscard]] uint32_t getBytesPerSecond() const;
+    uint32_t getBytesPerSecond() const;
 
     /// Return the number of bits per sample (e.g. 8, 16).
-    [[nodiscard]] uint16_t getBitsPerSample() const;
+    uint16_t getBitsPerSample() const;
 
     /// Return the amount of samples in the audio data.
-    [[nodiscard]] uint32_t getSampleCount() const;
+    uint32_t getSampleCount() const;
 
     /// Return the size of the audio data in bytes.
-    [[nodiscard]] uint32_t getDataSize() const;
+    uint32_t getDataSize() const;
 
 private:
 

@@ -39,7 +39,7 @@ public:
 	/// Negative timestamps are not supported and will fire a panic.
     explicit Date(int64_t unixTime);
 
-	/// Compare two Date instances for equality.
+	/// Compare the Date with another one for equality.
 	///
 	/// ### Example
 	/// ```c++
@@ -52,7 +52,7 @@ public:
 	/// ```
     bool operator==(const Date &other) const;
 
-	/// Compare two Date instances for inequality.
+	/// Compare the Date with another one for inequality.
 	///
 	/// ### Example
 	/// ```c++
@@ -66,22 +66,22 @@ public:
     bool operator!=(const Date &other) const;
 
 	/// Return the seconds (0-59) of the date.
-    [[nodiscard]] uint8_t getSeconds() const;
+    uint8_t getSeconds() const;
 
 	/// Return the minutes (0-59) of the date.
-    [[nodiscard]] uint8_t getMinutes() const;
+    uint8_t getMinutes() const;
 
 	/// Return the hours (0-23) of the date.
-    [[nodiscard]] uint8_t getHours() const;
+    uint8_t getHours() const;
 
 	/// Return the day of the month (1-31) of the date.
-    [[nodiscard]] uint8_t getDayOfMonth() const;
+    uint8_t getDayOfMonth() const;
 
 	/// Return the month (1-12) of the date.
-    [[nodiscard]] uint8_t getMonth() const;
+    uint8_t getMonth() const;
 
 	/// Return the year of the date.
-    [[nodiscard]] int16_t getYear() const;
+    int16_t getYear() const;
 
 	/// Convert the date to a Unix timestamp (seconds since 1. January 1970).
 	/// Dates before 1. January 1970 are not supported and will fire a panic.
@@ -96,7 +96,7 @@ public:
 	/// const auto unixTime2 = date2.getUnixTime(); // 946684800
 	/// const auto unixTime3 = date3.getUnixTime(); // Panic! (date before 1970)
 	/// ```
-	[[nodiscard]] int64_t getUnixTime() const;
+	int64_t getUnixTime() const;
 
 	/// Calculate the day of the week (0 = Monday, 6 = Sunday).
 	///
@@ -108,7 +108,7 @@ public:
 	/// const auto weekday1 = date1.getWeekday(); // 3 (Thursday)
 	/// const auto weekday2 = date2.getWeekday(); // 5 (Saturday)
 	/// ```
-	[[nodiscard]] uint8_t getWeekday() const;
+	uint8_t getWeekday() const;
 
 	/// Calculate the day of the year (1-366).
 	///
@@ -120,7 +120,7 @@ public:
 	/// const auto dayOfYear1 = date1.getDayOfYear(); // 1
 	/// const auto dayOfYear2 = date2.getDayOfYear(); // 366 (2000 was a leap year)
 	/// ```
-	[[nodiscard]] uint16_t getDayOfYear() const;
+	uint16_t getDayOfYear() const;
 
 	/// Calculate the week of the year (1-54).
 	/// This calculation uses Monday as the first day of the week.
@@ -138,7 +138,7 @@ public:
 	/// const auto weekOfYear2 = date2.getWeekOfYear(); // 1
 	/// const auto weekOfYear3 = date3.getWeekOfYear(); // 53
 	/// ```
-	[[nodiscard]] uint8_t getWeekOfYear() const;
+	uint8_t getWeekOfYear() const;
 
 	/// Calculate the week of the year (1-54) with Sunday as the first day of the week.
 	/// This calculation is not ISO 8601 compliant, as it considers the first week of the year to be
@@ -154,7 +154,7 @@ public:
 	/// const auto weekOfYearSunday2 = date2.getWeekOfYearSunday(); // 1
 	/// const auto weekOfYearSunday3 = date3.getWeekOfYearSunday(); // 54 (31. December 2000 was a Sunday)
 	/// ```
-	[[nodiscard]] uint8_t getWeekOfYearSunday() const;
+	uint8_t getWeekOfYearSunday() const;
 
 	/// Set the hardware clock to this date.
 	///

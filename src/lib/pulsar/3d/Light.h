@@ -70,30 +70,30 @@ public:
         const Util::Graphic::Color &diffuseColor, const Util::Graphic::Color &specularColor);
 
     /// Check if the light is valid (i.e., has a valid index).
-    [[nodiscard]] bool isValid() const;
+    bool isValid() const;
 
     /// Get the index of the light source (0-15).
     /// This index corresponds to the OpenGL light enums (GL_LIGHT0 to GL_LIGHT15)
     /// and is used by the `Graphics` class to set up the light in OpenGL.
-    [[nodiscard]] uint8_t getIndex() const;
+    uint8_t getIndex() const;
 
     /// Get the type of the light source (directional or point light).
-    [[nodiscard]] Type getType() const;
+    Type getType() const;
 
     /// Get the position of the light source in 3D space, or its direction if it is a directional light.
-    [[nodiscard]] const Util::Math::Vector3<float>& getPosition() const;
+    const Util::Math::Vector3<float>& getPosition() const;
 
     /// Set the position of the light source in 3D space, or its direction if it is a directional light.
     void setPosition(const Util::Math::Vector3<float> &position);
 
     /// Get the diffuse color of the light source.
-    [[nodiscard]] const Util::Graphic::Color& getDiffuseColor() const;
+    const Util::Graphic::Color& getDiffuseColor() const;
 
     /// Set the diffuse color of the light source.
     void setDiffuseColor(const Util::Graphic::Color &diffuseColor);
 
     /// Get the specular color of the light source.
-    [[nodiscard]] const Util::Graphic::Color& getSpecularColor() const;
+    const Util::Graphic::Color& getSpecularColor() const;
 
     /// Set the specular color of the light source.
     void setSpecularColor(const Util::Graphic::Color &specularColor);

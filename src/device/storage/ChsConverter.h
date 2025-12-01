@@ -54,7 +54,7 @@ public:
      */
     ~ChsConverter() = default;
 
-    [[nodiscard]] CylinderHeadSector lbaToChs(uint32_t lbaSector) const;
+    CylinderHeadSector lbaToChs(uint32_t lbaSector) const;
 
 private:
 

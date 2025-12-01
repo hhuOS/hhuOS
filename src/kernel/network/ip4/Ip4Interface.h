@@ -71,15 +71,15 @@ public:
 
     bool operator!=(const Ip4Interface &other);
 
-    [[nodiscard]] const Util::String& getDeviceIdentifier() const;
+    const Util::String& getDeviceIdentifier() const;
 
-    [[nodiscard]] const Util::Network::Ip4::Ip4SubnetAddress& getSubnetAddress() const;
+    const Util::Network::Ip4::Ip4SubnetAddress& getSubnetAddress() const;
 
-    [[nodiscard]] Util::Network::Ip4::Ip4Address getIp4Address() const;
+    Util::Network::Ip4::Ip4Address getIp4Address() const;
 
-    [[nodiscard]] Device::Network::NetworkDevice& getDevice() const;
+    Device::Network::NetworkDevice& getDevice() const;
 
-    [[nodiscard]] bool isTargetOf(const Util::Network::Ip4::Ip4Address &targetAddress) const;
+    bool isTargetOf(const Util::Network::Ip4::Ip4Address &targetAddress) const;
 
 private:
 

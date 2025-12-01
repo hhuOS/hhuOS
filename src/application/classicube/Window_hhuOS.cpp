@@ -24,7 +24,7 @@
 #include "lib/util/io/key/Key.h"
 
 auto lfbFile = Util::Io::File("/device/lfb");
-auto lfb = Util::Graphic::LinearFrameBuffer::open(lfbFile);
+auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
 Util::Graphic::BufferedLinearFrameBuffer *bufferedLfb = nullptr;
 
 auto keyboardInputStream = Util::Io::FileInputStream(1);

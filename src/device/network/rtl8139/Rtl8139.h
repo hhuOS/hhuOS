@@ -65,7 +65,7 @@ public:
 
     static void initializeAvailableCards();
 
-    [[nodiscard]] Util::Network::MacAddress getMacAddress() const override;
+    Util::Network::MacAddress getMacAddress() const override;
 
     void plugin() override;
 

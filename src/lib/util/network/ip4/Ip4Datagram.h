@@ -89,7 +89,7 @@ public:
         Ip4Header::Protocol protocol);
 
     /// Get the protocol that this datagram is carrying (e.g. ICMP, TCP, UDP).
-    [[nodiscard]] Ip4Header::Protocol getProtocol() const;
+    Ip4Header::Protocol getProtocol() const;
 
     /// Set the protocol of this datagram to the one of the given datagram.
     /// This is used by the kernel to copy attributes from a kernel space datagram to a user space datagram.

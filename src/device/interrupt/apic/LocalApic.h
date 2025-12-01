@@ -254,14 +254,14 @@ public:
      *
      * Determined using CPUID.
      */
-    [[nodiscard]] static bool supportsXApic() ;
+    static bool supportsXApic() ;
 
     /**
      * Check if the local APIC supports x2Apic mode (x2Apic uses MSR-based register access)
      *
      * Determined using CPUID.
      */
-    [[nodiscard]] static bool supportsX2Apic() ;
+    static bool supportsX2Apic() ;
 
     /**
      * Get the id of the local APIC belonging to the current CPU.
@@ -269,12 +269,12 @@ public:
      * Can be used to determine what CPU is currently executing the calling code in SMP systems.
      * To get the id of a LocalApic instance, use the "cpuId" field.
      */
-    [[nodiscard]] static uint8_t getId();
+    static uint8_t getId();
 
     /**
      * Determine the local APIC version
      */
-    [[nodiscard]] static uint8_t getVersion();
+    static uint8_t getVersion();
 
     /**
      * Initialize LVT, SVR and TPR of the executing core's local APIC.
@@ -372,7 +372,7 @@ public:
      *
      * IA-32 manual, sec. 3.11.12.1 and 4.1
      */
-    [[nodiscard]] static BaseModelSpecificRegisterEntry readBaseModelSpecificRegister();
+    static BaseModelSpecificRegisterEntry readBaseModelSpecificRegister();
 
     /**
      * Write the IA32_APIC_BASE_MSR.
@@ -386,7 +386,7 @@ public:
      *
      * IA-32 manual, sec. 3.11.9
      */
-    [[nodiscard]] static SpuriousVectorRegisterEntry readSpuriousVectorRegister();
+    static SpuriousVectorRegisterEntry readSpuriousVectorRegister();
 
     /**
      * Write the spurious interrupt vector register.
@@ -400,7 +400,7 @@ public:
      *
      * IA-32 manual, sec. 3.11.5.1
      */
-    [[nodiscard]] static LocalVectorTableEntry readLocalVectorTable(LocalInterrupt lint);
+    static LocalVectorTableEntry readLocalVectorTable(LocalInterrupt lint);
 
     /**
      * Write a local vector table register, identified by the local interrupt.
@@ -414,7 +414,7 @@ public:
      *
      * IA-32 manual, sec. 3.11.6.1
      */
-    [[nodiscard]] static InterruptCommandRegisterEntry readInterruptCommandRegister(); // Obtain delivery status of IPI
+    static InterruptCommandRegisterEntry readInterruptCommandRegister(); // Obtain delivery status of IPI
 
     /**
      * Write the interrupt command register.
@@ -437,14 +437,14 @@ public:
     /**
      * Read a 32-bit register identified by a memory offset relative to the APIC base address.
      */
-    [[nodiscard]] static uint32_t readDoubleWord(Register reg);
+    static uint32_t readDoubleWord(Register reg);
 
     /**
      * Write a 32-bit register identified by a memory offset relative to the APIC base address.
      */
     static void writeDoubleWord(Register reg, uint32_t value);
 
-    [[nodiscard]] uint8_t getCpuId() const;
+    uint8_t getCpuId() const;
 
     void startTimer();
 

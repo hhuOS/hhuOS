@@ -142,10 +142,10 @@ public:
         uint16_t section;
 
         /// Extract the symbol binding from the `info` field.
-        [[nodiscard]] SymbolBinding getSymbolBinding() const;
+        SymbolBinding getSymbolBinding() const;
 
         /// Extract the symbol type from the `info` field.
-        [[nodiscard]] SymbolType getSymbolType() const;
+        SymbolType getSymbolType() const;
     } __attribute__((packed));
 
     /// Create an elf file instance from a buffer containing the ELF file data.
@@ -171,16 +171,16 @@ public:
     void loadProgram() const;
 
     /// Calculate the highest virtual address used by any loadable program section.
-    [[nodiscard]] uintptr_t getEndAddress() const;
+    uintptr_t getEndAddress() const;
 
     /// Get the entry point of the ELF file, i.e. the virtual address where execution should start.
     /// This is typically the address of the `_start` function.
-    [[nodiscard]] int (*getEntryPoint() const)(int, char**);
+    int (*getEntryPoint() const)(int, char**);
 
     /// Get the section header of a specific type.
     /// If multiple sections of the same type exist, the first one is returned.
     /// If no such section exists, a panic is fired.
-    [[nodiscard]] const SectionHeader& getSectionHeader(SectionType headerType) const;
+    const SectionHeader& getSectionHeader(SectionType headerType) const;
 
 private:
 
@@ -278,9 +278,9 @@ private:
         uint16_t sectionHeaderEntries;
         uint16_t sectionHeaderStringIndex;
 
-        [[nodiscard]] bool isValid() const;
+        bool isValid() const;
 
-        [[nodiscard]] bool hasProgramEntries() const;
+        bool hasProgramEntries() const;
 
     } __attribute__((packed));
 
@@ -299,8 +299,8 @@ private:
         uint32_t offset;
         uint32_t info;
 
-        [[nodiscard]] size_t getSymbolIndex() const;
-        [[nodiscard]] RelocationType getType() const;
+        size_t getSymbolIndex() const;
+        RelocationType getType() const;
     } __attribute__((packed));
 
     struct DynamicEntry {

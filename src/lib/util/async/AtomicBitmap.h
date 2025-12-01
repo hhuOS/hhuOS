@@ -56,7 +56,7 @@ public:
     ~AtomicBitmap();
 
     /// Get the number of blocks (bits) in the bitmap.
-    [[nodiscard]] size_t getSize() const;
+    size_t getSize() const;
 
     /// Set the bit at the given index to 1.
     /// If the index is out of bounds, a panic is fired.
@@ -69,15 +69,15 @@ public:
     /// Check if the bit at the given index is set/unset.
     /// The boolean value `set` indicates whether to check for set or unset.
     /// If the index is out of bounds, a panic is fired.
-    [[nodiscard]] bool check(size_t block) const;
+    bool check(size_t block) const;
 
     /// Find the first unset bit and set it to 1.
     /// Return the index of the bit that was set or INVALID_INDEX if no unset bit was found.
-    [[nodiscard]] size_t findAndSet() const;
+    size_t findAndSet() const;
 
     /// Find the first set bit and set it to 0.
     /// Return the index of the bit that was unset or INVALID_INDEX if no set bit was found.
-    [[nodiscard]] size_t findAndUnset() const;
+    size_t findAndUnset() const;
 
     /// Indicates that no suitable bit was found.
     static constexpr size_t INVALID_INDEX = SIZE_MAX;

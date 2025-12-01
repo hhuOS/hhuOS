@@ -207,7 +207,7 @@ public:
     /// const auto string = Util::String("Hello, World!");
     /// const auto length = string.length(); // length = 13
     /// ```
-    [[nodiscard]] size_t length() const;
+    size_t length() const;
 
     /// Check if the string is empty (length == 0).
     ///
@@ -219,11 +219,11 @@ public:
     /// const auto empty1 = string1.isEmpty(); // empty1 = false
     /// const auto empty2 = string2.isEmpty(); // empty2 = true
     /// ```
-    [[nodiscard]] bool isEmpty() const;
+    bool isEmpty() const;
 
     /// Calculate a simple hash sum of the string.
     /// This is used to implement the `size_t()` operator, which is for example used by `Util::HashMap`.
-    [[nodiscard]] size_t hashCode() const;
+    size_t hashCode() const;
 
     /// Get the index of the first occurrence of the given character in the string.
     ///
@@ -232,7 +232,7 @@ public:
     /// const auto string = Util::String("Hello, World!");
     /// const auto index = string.indexOf('o'); // index = 4
     /// ```
-    [[nodiscard]] size_t indexOf(char character, size_t start = 0) const;
+    size_t indexOf(char character, size_t start = 0) const;
 
     /// Get the index of the first occurrence of the given other string in the string.
     ///
@@ -241,7 +241,7 @@ public:
     /// const auto string = Util::String("Hello, World!");
     /// const auto index = string.indexOf("World"); // index = 7
     /// ```
-    [[nodiscard]] size_t indexOf(const String &other, size_t start = 0) const;
+    size_t indexOf(const String &other, size_t start = 0) const;
 
     /// Get a substring of the string, beginning at the given index and ending at the end of the string.
     /// The character at the given index is included in the substring.
@@ -252,7 +252,7 @@ public:
     /// const auto string = Util::String("Hello, World!");
     /// const auto substring = string.substring(7); // substring = "World!"
     /// ```
-    [[nodiscard]] String substring(size_t begin) const;
+    String substring(size_t begin) const;
 
 
     /// Get a substring of the string, beginning and ending at the given indices.
@@ -268,7 +268,7 @@ public:
     /// const auto substring2 = string.substring(7, 15); // substring2 = "World"
     /// const auto substring3 = string.substring(2, 9); // substring3 = "llo, Wo"
     /// ```
-    [[nodiscard]] String substring(size_t begin, size_t end) const;
+    String substring(size_t begin, size_t end) const;
 
     /// Create a copy of the string with leading and trailing whitespaces ('\\t', '\\n', ' ') removed.
     ///
@@ -277,7 +277,7 @@ public:
     /// const auto string = Util::String("   Hello, World!   ");
     /// const auto stripped = string.strip(); // stripped = "Hello, World!"
     /// ```
-    [[nodiscard]] String strip() const;
+    String strip() const;
 
     /// Split the string into an array of strings using the given delimiter.
     /// The delimiter itself is not included in the resulting strings.
@@ -289,7 +289,7 @@ public:
     /// const auto string = Util::String("abc,def,ghi");
     /// const auto tokens = string.split(","); // tokens = { "abc", "def", "ghi" }
     /// ```
-    [[nodiscard]] Array<String> split(const String &delimiter) const;
+    Array<String> split(const String &delimiter) const;
 
     /// Create a copy of the string with the first occurrence of the given string removed.
     /// If the given string is not found, a copy the original string is returned.
@@ -299,7 +299,7 @@ public:
     /// const auto string = Util::String("Hello, World!");
     /// const auto removed = string.remove(", World"); // removed = "Hello!"
     /// ```
-    [[nodiscard]] String remove(const String &string) const;
+    String remove(const String &string) const;
 
     /// Create a copy of the string with all occurrences of the given string removed.
     /// This is effectively the same as calling `split()` with the given string as the delimiter
@@ -311,7 +311,7 @@ public:
     /// const auto string = Util::String("TestHello, TestWorldTest!");
     /// const auto removed = string.removeAll("Test"); // removed = "Hello, World!"
     /// ```
-    [[nodiscard]] String removeAll(const String &string) const;
+    String removeAll(const String &string) const;
 
     /// Check if the string begins with the given string.
     ///
@@ -321,7 +321,7 @@ public:
     /// const auto beginsWith1 = string.beginsWith("Hello"); // beginsWith1 = true
     /// const auto beginsWith2 = string.beginsWith("hello"); // beginsWith2 = false
     /// ```
-    [[nodiscard]] bool beginsWith(const String &string) const;
+    bool beginsWith(const String &string) const;
 
     /// Check if the string ends with the given string.
     ///
@@ -331,7 +331,7 @@ public:
     /// const auto endsWith1 = string.endsWith("World"); // endsWith1 = true
     /// const auto endsWith2 = string.endsWith("world"); // endsWith2 = false
     /// ```
-    [[nodiscard]] bool endsWith(const String &string) const;
+    bool endsWith(const String &string) const;
 
     /// Check if the string contains the given character.
     ///
@@ -341,7 +341,7 @@ public:
     /// const auto contains1 = string.contains('o'); // contains1 = true
     /// const auto contains2 = string.contains('x'); // contains2 = false
     /// ```
-    [[nodiscard]] bool contains(char c) const;
+    bool contains(char c) const;
 
     /// Create a copy of the string with all characters converted to uppercase.
     ///
@@ -350,7 +350,7 @@ public:
     /// const auto string = Util::String("Hello, World!");
     /// const auto upper = string.toUpperCase(); // upper = "HELLO, WORLD!"
     /// ```
-    [[nodiscard]] String toUpperCase() const;
+    String toUpperCase() const;
 
     /// Create a copy of the string with all characters converted to lowercase.
     ///
@@ -359,7 +359,7 @@ public:
     /// const auto string = Util::String("Hello, World!");
     /// const auto lower = string.toLowerCase(); // lower = "hello, world!"
     /// ```
-    [[nodiscard]] String toLowerCase() const;
+    String toLowerCase() const;
 
     /// Concatenate a given array of strings with the given separator between them.
     /// The separator is not included at the beginning or end of the resulting string.
@@ -376,7 +376,7 @@ public:
     /// const auto strings = Util::Array<String>({ "Hello, ", "World", "!" });
     /// const auto joined = Util::String::join("", strings); // joined = "Hello, World!"
     /// ```
-    [[nodiscard]] static String join(const String &separator, const Array<String> &elements);
+    static String join(const String &separator, const Array<String> &elements);
 
     /// Format a string using the given format string and arguments.
     /// Supports all format specifiers defined by `printf()` in the C89 standard plus '%B' for boolean values.
@@ -386,14 +386,14 @@ public:
     /// // string = "Hello, World! You are 42 years old."
     /// const auto string = Util::String::format("Hello, %s! You are %u years old.", "World", 42);
     /// ```
-    [[nodiscard]] static String format(const char *format, ...);
+    static String format(const char *format, ...);
 
     /// Format a string using the given format string and arguments.
     /// Supports all format specifiers defined by `printf()` in the C89 standard plus '%B' for boolean values.
     ///
     /// The arguments are passed as a `va_list`, which is useful if the calling function itself is variadic
     /// and wants to pass the arguments to this function. For example, `printf()` is implemented using this function.
-    [[nodiscard]] static String format(const char *format, va_list args);
+    static String format(const char *format, va_list args);
 
     /// Format a string using the given format string and arguments.
     /// Supports all format specifiers defined by `printf()` in the C89 standard plus '%B' for boolean values.
@@ -415,7 +415,7 @@ public:
     /// const auto str2 = Util::String::formatDate(date, "%Y-%m-%d %H:%M:%S"); // str2 = "2025-08-25 10:47:21"
     /// const auto str3 = Util::String::formatDate(date, "%B %d, %Y"); // str3 = "August 25, 2025"
     /// ```
-    [[nodiscard]] static String formatDate(const Time::Date &date, const char *format = "%c");
+    static String formatDate(const Time::Date &date, const char *format = "%c");
 
     /// Format a date using the given format string.
     /// Supports all format specifiers defined by `strftime()` in the C89 standard.
@@ -434,7 +434,7 @@ public:
     /// const auto number3 = Util::String::parseNumber<int32_t>("Hello, World!"); // Panic fired
     /// ```
     template<typename T>
-    [[nodiscard]] static T parseNumber(const char *string);
+    static T parseNumber(const char *string);
 
     /// Parse a signed number from the given string.
     /// If the string is not a valid number, a `Panic` is fired.
@@ -450,7 +450,7 @@ public:
     /// const auto number3 = Util::String::parseNumber<int32_t>(string3); // Panic fired
     /// ```
     template<typename T>
-    [[nodiscard]] static T parseNumber(const String &string);
+    static T parseNumber(const String &string);
 
     /// Parse an unsigned hexadecimal number from the given string.
     /// If the string is not a valid hexadecimal number, a `Panic` is fired.
@@ -461,7 +461,7 @@ public:
     /// const auto number2 = Util::String::parseHexNumber<uint32_t>("Hello, World"); // Panic fired
     /// ```
     template<typename T>
-    [[nodiscard]] static T parseHexNumber(const char *string);
+    static T parseHexNumber(const char *string);
 
     /// Parse an unsigned hexadecimal number from the given string.
     /// If the string is not a valid hexadecimal number, a `Panic` is fired.
@@ -475,7 +475,7 @@ public:
     /// const auto number2 = Util::String::parseHexNumber<uint32_t>(string2); // Panic fired
     /// ```
     template<typename T>
-    [[nodiscard]] static T parseHexNumber(const String &string);
+    static T parseHexNumber(const String &string);
 
     /// Parse a signed floating point number from the given string.
     /// If the string is not a valid floating point number, a `Panic` is fired.
@@ -487,7 +487,7 @@ public:
     /// const auto number3 = Util::String::parseFloat<double>("Hello, World!"); // Panic fired
     /// ```
     template<typename T>
-    [[nodiscard]] static T parseFloat(const char *string);
+    static T parseFloat(const char *string);
 
     /// Parse a signed floating point number from the given string.
     /// If the string is not a valid floating point number, a `Panic` is fired.
@@ -503,15 +503,15 @@ public:
     /// const auto number3 = Util::String::parseFloat<double>(string3); // Panic fired
     /// ```
     template<typename T>
-    [[nodiscard]] static T parseFloat(const String &string);
+    static T parseFloat(const String &string);
 
 private:
 
     template<typename T>
-    [[nodiscard]] static T parseNumber(const char *string, size_t length);
+    static T parseNumber(const char *string, size_t length);
 
     template<typename T>
-    [[nodiscard]] static T parseHexNumber(const char *string, size_t length);
+    static T parseHexNumber(const char *string, size_t length);
 
     char *buffer;
     size_t len;

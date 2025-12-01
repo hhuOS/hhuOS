@@ -94,7 +94,7 @@ class AudioHandle;
 /// void main() {
 ///     /// Open frame buffer and create game engine instance
 ///     auto lfbFile = Util::Io::File("/device/lfb");
-///     auto lfb = Util::Graphic::LinearFrameBuffer::open(lfbFile);
+///     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
 ///     auto engine = Pulsar::Engine(lfb, 60, scaleFactor);
 ///
 ///     /// Instantiate our test scene and start the game engine
@@ -116,13 +116,13 @@ public:
     /// Start playback of the audio track.
     /// If `loop` is true, the audio track will loop continuously until stopped.
     /// The returned `AudioHandle` can be used to control playback (e.g. stop).
-    [[nodiscard]] AudioHandle play(bool loop) const;
+    AudioHandle play(bool loop) const;
 
     /// Get the audio buffer associated with this track.
-    [[nodiscard]] const AudioBuffer& getBuffer() const;
+    const AudioBuffer& getBuffer() const;
 
     /// Get the unique ID of this audio track instance.
-    [[nodiscard]] size_t getId() const;
+    size_t getId() const;
 
 private:
 

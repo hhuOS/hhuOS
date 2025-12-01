@@ -71,11 +71,11 @@ MemoryService::MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaM
         }
 
         auto &memoryService = Kernel::Service::getService<Kernel::MemoryService>();
-        auto *physicalAddress = va_arg(arguments, void*);
+        auto physicalAddress = va_arg(arguments, uint32_t);
         auto pageCount = va_arg(arguments, uint32_t);
         void *&mappedAddress = *va_arg(arguments, void**);
 
-        mappedAddress = memoryService.mapIO(physicalAddress, pageCount, false);
+        mappedAddress = memoryService.mapIO(reinterpret_cast<void*>(physicalAddress), pageCount, false);
         return true;
     });
 }

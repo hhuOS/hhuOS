@@ -122,7 +122,7 @@ public:
 	void setPosition(int64_t offset, File::SeekMode mode = File::SeekMode::SET);
 
 	/// Get the current position in the file, i.e., the offset in bytes from the beginning of the file.
-	[[nodiscard]] size_t getPosition() const;
+	size_t getPosition() const;
 
 	/// Set the access mode of the underlying file.
 	/// In blocking mode, read operations will wait until data is available.

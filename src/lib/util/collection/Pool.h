@@ -96,7 +96,7 @@ public:
     /// element = pool.pop(); // Returns the third element added to the pool.
     /// element = pool.pop(); // Panic! (pool is empty)
     /// ```
-    [[nodiscard]] T* pop();
+    T* pop();
 
     /// Get the capacity of the pool, i.e. the number of elements it can hold.
     ///
@@ -105,7 +105,7 @@ public:
     /// auto pool = Util::Pool<Util::Pair<int, int>>(3);
     /// const auto capacity = pool.getCapacity(); // 3
     /// ```
-    [[nodiscard]] size_t getCapacity() const;
+    size_t getCapacity() const;
 
     /// Get the amount of objects currently in the pool.
     ///
@@ -126,7 +126,7 @@ public:
     /// auto *element = pool.pop();
     /// count = pool.getObjectCount(); // 2
     /// ```
-    [[nodiscard]] size_t getObjectCount() const;
+    size_t getObjectCount() const;
 
     /// Check if the pool is full, i.e. if it contains as many objects as its capacity.
     ///
@@ -143,7 +143,7 @@ public:
     /// auto *element = pool.pop();
     /// isFull = pool.isFull(); // false
     /// ```
-    [[nodiscard]] bool isFull() const;
+    bool isFull() const;
 
 private:
 

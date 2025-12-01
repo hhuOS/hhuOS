@@ -18,39 +18,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "CursorRunnable.h"
-#include "lib/util/base/Address.h"
 #include "LinearFrameBufferTerminal.h"
-#include "lib/util/graphic/Font.h"
-#include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/async/Thread.h"
-#include "lib/util/base/Panic.h"
+
+#include "util/async/Thread.h"
+#include "util/base/Address.h"
+#include "util/base/Panic.h"
+#include "util/graphic/Font.h"
+#include "util/graphic/LinearFrameBuffer.h"
+#include "util/time/Timestamp.h"
 
 namespace Util::Graphic {
 
-LinearFrameBufferTerminal::LinearFrameBufferTerminal(LinearFrameBuffer *lfb, char cursor) :
-        Terminal(lfb->getResolutionX() / Fonts::TERMINAL_8x16.getCharWidth(), lfb->getResolutionY() / Fonts::TERMINAL_8x16.getCharHeight()),
-        characterBuffer(new Character[getColumns() * getRows()]), lfb(*lfb), shadowLfb(*lfb), cursor(cursor) {
+LinearFrameBufferTerminal::LinearFrameBufferTerminal(const LinearFrameBuffer &lfb, const char cursor) :
+    Terminal(lfb.getResolutionX() / Fonts::TERMINAL_8x16.getCharWidth(),
+             lfb.getResolutionY() / Fonts::TERMINAL_8x16.getCharHeight()),
+    characterBuffer(new Character[getColumns() * getRows()]), lfb(lfb), shadowLfb(lfb), cursor(cursor)
+{
     Terminal::clear();
-    LinearFrameBufferTerminal::setCursor(true);
+    setCursorEnabled(true);
 }
 
 LinearFrameBufferTerminal::~LinearFrameBufferTerminal() {
-    LinearFrameBufferTerminal::setCursor(false);
-    delete &lfb;
+    setCursorEnabled(false);
     delete[] characterBuffer;
 }
 
-void LinearFrameBufferTerminal::putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) {
+void LinearFrameBufferTerminal::putChar(const char c, const Color &foregroundColor, const Color &backgroundColor) {
     while (!cursorLock.tryAcquire()) {
         cursorLock.release();
-        Util::Async::Thread::yield();
+        Async::Thread::yield();
     }
 
-    characterBuffer[currentRow * getColumns() + currentColumn] = {c, foregroundColor, backgroundColor};
+    characterBuffer[currentRow * getColumns() + currentColumn] = Character{c, foregroundColor, backgroundColor};
 
-    lfb.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), c, foregroundColor, backgroundColor);
-    shadowLfb.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), c, foregroundColor, backgroundColor);
+    lfb.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), c,
+                 foregroundColor, backgroundColor);
+    shadowLfb.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), c,
+                       foregroundColor, backgroundColor);
+
     currentColumn++;
 
     if (currentColumn >= getColumns()) {
@@ -67,60 +72,65 @@ void LinearFrameBufferTerminal::putChar(char c, const Util::Graphic::Color &fore
     cursorLock.release();
 }
 
-void LinearFrameBufferTerminal::clear(const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor, uint16_t startColumn, uint32_t startRow, uint16_t endColumn, uint16_t endRow) {
+void LinearFrameBufferTerminal::clear(const Color &foregroundColor, const Color &backgroundColor,
+    const uint16_t startColumn, const uint16_t startRow, const uint16_t endColumn, const uint16_t endRow)
+{
     while (!cursorLock.tryAcquire()) {
         cursorLock.release();
-        Util::Async::Thread::yield();
+        Async::Thread::yield();
     }
 
     if (startRow == endRow) {
         // Clear from start column to end column
-        for (uint32_t i = 0; i < static_cast<uint32_t>(endColumn - startColumn + 1) * font.getCharWidth(); i++) {
-            for (uint32_t j = 0; j < font.getCharHeight(); j++) {
-                shadowLfb.drawPixel((startColumn * font.getCharWidth()) + i, (startRow * font.getCharHeight()) + j, backgroundColor);
+        for (int32_t i = 0; i < (endColumn - startColumn + 1) * font.getCharWidth(); i++) {
+            for (int32_t j = 0; j < font.getCharHeight(); j++) {
+                shadowLfb.drawPixel(startColumn * font.getCharWidth() + i,
+                    startRow * font.getCharHeight() + j, backgroundColor);
             }
         }
     } else if (startRow < endRow) {
         // Clear from start position to end of line
-        for (uint32_t y = 0; y < font.getCharHeight(); y++) {
-            for (uint32_t x = 0; x < static_cast<uint32_t>(getColumns() - startColumn) * font.getCharWidth(); x++) {
-                shadowLfb.drawPixel((startColumn * font.getCharWidth()) + x, (startRow * font.getCharHeight()) + y, backgroundColor);
+        for (int32_t y = 0; y < font.getCharHeight(); y++) {
+            for (int32_t x = 0; x < getColumns() - startColumn * font.getCharWidth(); x++) {
+                shadowLfb.drawPixel(startColumn * font.getCharWidth() + x,
+                    startRow * font.getCharHeight() + y, backgroundColor);
             }
         }
 
         // Clear from next line to before last line
-        for (uint32_t y = 0; y < (endRow - startRow - 1) * font.getCharHeight(); y++) {
-            for (uint32_t x = 0; x < getColumns() * font.getCharWidth(); x++) {
-                shadowLfb.drawPixel(x, ((startRow + 1) * font.getCharHeight()) + y, backgroundColor);
+        for (int32_t y = 0; y < (endRow - startRow - 1) * font.getCharHeight(); y++) {
+            for (int32_t x = 0; x < getColumns() * font.getCharWidth(); x++) {
+                shadowLfb.drawPixel(x, (startRow + 1) * font.getCharHeight() + y, backgroundColor);
             }
         }
 
         // Clear from beginning of last line to end position
-        for (uint32_t y = 0; y < font.getCharHeight(); y++) {
-            for (uint32_t x = 0; x < endColumn * font.getCharWidth(); x++) {
-                shadowLfb.drawPixel(x, (endRow * font.getCharHeight()) + y, backgroundColor);
+        for (int32_t y = 0; y < font.getCharHeight(); y++) {
+            for (int32_t x = 0; x < endColumn * font.getCharWidth(); x++) {
+                shadowLfb.drawPixel(x, endRow * font.getCharHeight() + y, backgroundColor);
             }
         }
     } else {
         Panic::fire(Panic::INVALID_ARGUMENT, "Terminal: Invalid arguments for clear()!");
     }
 
-    for (uint32_t i = startRow * getColumns() + startColumn; i < static_cast<uint32_t>(endRow * getColumns()) + endColumn + 1; i++) {
-        characterBuffer[i] = {'\0', foregroundColor, backgroundColor};
+    for (int32_t i = startRow * getColumns() + startColumn; i < endRow * getColumns() + endColumn + 1; i++) {
+        characterBuffer[i] = Character{'\0', foregroundColor, backgroundColor};
     }
 
     shadowLfb.flush();
     cursorLock.release();
 }
 
-void LinearFrameBufferTerminal::setPosition(uint16_t column, uint16_t row) {
+void LinearFrameBufferTerminal::setPosition(const uint16_t column, const uint16_t row) {
     while (!cursorLock.tryAcquire()) {
         cursorLock.release();
-        Util::Async::Thread::yield();
+        Async::Thread::yield();
     }
 
-    auto character = characterBuffer[currentRow * getColumns() + currentColumn];
-    lfb.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), character.value, character.foregroundColor, character.backgroundColor);
+    const auto character = characterBuffer[currentRow * getColumns() + currentColumn];
+    lfb.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), character.value,
+        character.foregroundColor, character.backgroundColor);
 
     currentColumn = column;
     currentRow = row;
@@ -133,7 +143,7 @@ void LinearFrameBufferTerminal::setPosition(uint16_t column, uint16_t row) {
     cursorLock.release();
 }
 
-void LinearFrameBufferTerminal::setCursor(bool enabled) {
+void LinearFrameBufferTerminal::setCursorEnabled(const bool enabled) {
     cursorLock.acquire();
 
     if (enabled) {
@@ -154,24 +164,48 @@ void LinearFrameBufferTerminal::setCursor(bool enabled) {
     cursorLock.release();
 }
 
+void LinearFrameBufferTerminal::CursorRunnable::run() {
+    while (isRunning) {
+        terminal.cursorLock.acquire();
+        draw();
+        visible = !visible;
+        terminal.cursorLock.release();
+
+        Async::Thread::sleep(Time::Timestamp::ofMilliseconds(250));
+    }
+
+    visible = false;
+    draw();
+}
+
+void LinearFrameBufferTerminal::CursorRunnable::stop() {
+    isRunning = false;
+}
+
+void LinearFrameBufferTerminal::CursorRunnable::draw() const {
+    const auto character = terminal.characterBuffer[
+        terminal.currentRow * terminal.getColumns() + terminal.currentColumn];
+
+    terminal.lfb.drawChar(terminal.font,
+        terminal.currentColumn * terminal.font.getCharWidth(),
+        terminal.currentRow * terminal.font.getCharHeight(),
+        visible ? cursor : character.value,
+        character.foregroundColor,
+        character.backgroundColor);
+}
+
 void LinearFrameBufferTerminal::scrollUp() {
     // Scroll character buffer
-    auto characterAddress = Util::Address(characterBuffer);
-    characterAddress.copyRange(characterAddress.add(getColumns() * sizeof(Character)), getColumns() * (getRows() - 1) * sizeof(Character));
+    const auto characterAddress = Address(characterBuffer);
+    characterAddress.copyRange(characterAddress.add(getColumns() * sizeof(Character)),
+        getColumns() * (getRows() - 1) * sizeof(Character));
 
     // Scroll shadow LFB
     shadowLfb.scrollUp(font.getCharHeight(), false);
 
     // Clear last line (Also flushes shadow buffer)
-    clear(getForegroundColor(), getBackgroundColor(), 0, getRows() - 1, getColumns() - 1, getRows() - 1);
-}
-
-uint16_t LinearFrameBufferTerminal::getCurrentColumn() const {
-    return currentColumn;
-}
-
-uint16_t LinearFrameBufferTerminal::getCurrentRow() const {
-    return currentRow;
+    clear(getForegroundColor(), getBackgroundColor(), 0, getRows() - 1,
+        getColumns() - 1, getRows() - 1);
 }
 
 }

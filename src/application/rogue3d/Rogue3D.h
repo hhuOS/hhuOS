@@ -81,7 +81,7 @@ private:
 
     void generateLevel();
 
-    [[nodiscard]] Room& getRoomByPos(uint32_t row, uint32_t column) const;
+    Room& getRoomByPos(uint32_t row, uint32_t column) const;
     
     Player *player = nullptr;
     Hud *hud = nullptr;

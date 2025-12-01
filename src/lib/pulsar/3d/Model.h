@@ -76,33 +76,33 @@ public:
 
     /// Get the vertices, that define the shape of the model.
     /// These are the 3D points that define the shape of the model.
-    [[nodiscard]] const Util::Array<Util::Math::Vector3<float>>& getVertices() const;
+    const Util::Array<Util::Math::Vector3<float>>& getVertices() const;
 
     /// Get the vertex normals, that define the orientation of the model's surfaces.
     /// These normals are used for lighting calculations to determine how light interacts with the model's surface.
-    [[nodiscard]] const Util::Array<Util::Math::Vector3<float>>& getVertexNormals() const;
+    const Util::Array<Util::Math::Vector3<float>>& getVertexNormals() const;
 
     /// Get the vertex texture coordinates of the model.
     /// These coordinates map the texture image onto the model's surface.
-    [[nodiscard]] const Util::Array<Util::Math::Vector3<float>>& getVertexTextures() const;
+    const Util::Array<Util::Math::Vector3<float>>& getVertexTextures() const;
 
     /// Get the draw order of the model's vertices.
     /// Each entry in the returned array is an index into the vertices array.
-    [[nodiscard]] const Util::Array<size_t>& getVertexDrawOrder() const;
+    const Util::Array<size_t>& getVertexDrawOrder() const;
 
     /// Get the draw order of the model's vertex normals.
     /// Each entry in the returned array is an index into the vertex normals array.
-    [[nodiscard]] const Util::Array<size_t>& getNormalDrawOrder() const;
+    const Util::Array<size_t>& getNormalDrawOrder() const;
 
     /// Get the draw order of the model's texture coordinates.
     /// Each entry in the returned array is an index into the vertex textures array.
-    [[nodiscard]] const Util::Array<size_t>& getTextureDrawOrder() const;
+    const Util::Array<size_t>& getTextureDrawOrder() const;
 
     /// Get the texture applied to the model.
-    [[nodiscard]] const Texture& getTexture() const;
+    const Texture& getTexture() const;
 
     /// Get the solid color of the model (used if no texture is applied).
-    [[nodiscard]] const Util::Graphic::Color& getColor() const;
+    const Util::Graphic::Color& getColor() const;
 
 private:
 

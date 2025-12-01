@@ -67,7 +67,7 @@ public:
 
     /// Get the position of the collider as a 3D vector.
     /// For 2D colliders, the z-coordinate is typically 0.
-    [[nodiscard]] const Util::Math::Vector3<float>& getPosition() const;
+    const Util::Math::Vector3<float>& getPosition() const;
 
 private:
 

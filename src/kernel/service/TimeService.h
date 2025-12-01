@@ -62,9 +62,9 @@ public:
 
     void setDateProvider(Device::DateProvider *dateProvider);
 
-    [[nodiscard]] Util::Time::Timestamp getSystemTime() const;
+    Util::Time::Timestamp getSystemTime() const;
 
-    [[nodiscard]] Util::Time::Date getCurrentDate() const;
+    Util::Time::Date getCurrentDate() const;
 
     void setCurrentDate(const Util::Time::Date &date);
 

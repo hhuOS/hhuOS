@@ -48,7 +48,7 @@ bool FileOutputStream::write(const uint8_t byte) {
     return write(&byte, 0, 1);
 }
 
-uint32_t FileOutputStream::write(const uint8_t *sourceBuffer, const size_t offset, const size_t length) {
+size_t FileOutputStream::write(const uint8_t *sourceBuffer, size_t offset, size_t length) {
     const auto written = writeFile(fileDescriptor, sourceBuffer + offset, pos, length);
     pos += written;
 

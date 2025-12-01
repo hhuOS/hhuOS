@@ -61,11 +61,11 @@ public:
 
     void setState(Util::Sound::AudioChannel::State state);
 
-    [[nodiscard]] Util::Sound::AudioChannel::State getState() const;
+    Util::Sound::AudioChannel::State getState() const;
 
-    [[nodiscard]] uint32_t getReadableBytes();
+    uint32_t getReadableBytes();
 
-    [[nodiscard]] uint32_t getWritableBytes();
+    uint32_t getWritableBytes();
 
 private:
 

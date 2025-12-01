@@ -57,9 +57,9 @@ public:
      */
     ~ArpEntry() = default;
 
-    [[nodiscard]] const Util::Network::Ip4::Ip4Address& getProtocolAddress() const;
+    const Util::Network::Ip4::Ip4Address& getProtocolAddress() const;
 
-    [[nodiscard]] const Util::Network::MacAddress& getHardwareAddress() const;
+    const Util::Network::MacAddress& getHardwareAddress() const;
 
     void setProtocolAddress(const Util::Network::Ip4::Ip4Address &protocolAddress);
 

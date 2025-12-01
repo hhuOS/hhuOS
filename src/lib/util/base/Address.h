@@ -43,24 +43,24 @@ public:
     explicit Address(const size_t address) : address(address) {}
 
     /// Get the address this object points to.
-    [[nodiscard]] size_t get() const {
+    size_t get() const {
         return address;
     }
 
     /// Get the address this object points to as a void pointer.
-    [[nodiscard]] void* getAsPointer() const {
+    void* getAsPointer() const {
         return reinterpret_cast<void*>(address);
     }
 
     /// Add a value to the address this object points to
     /// and return a new `Address` object pointing to the result.
-    [[nodiscard]] Address add(const size_t value) const {
+    Address add(const size_t value) const {
         return Address(address + value);
     }
 
     /// Subtract a value from the address this object points to
     /// and return a new `Address` object pointing to the result.
-    [[nodiscard]] Address subtract(const size_t value) const {
+    Address subtract(const size_t value) const {
         return Address(address - value);
     }
 
@@ -71,7 +71,7 @@ public:
     /// ```c++
     /// const auto aligned = Util::Address(0x1234).alignUp(0x1000); // aligned = 0x2000
     /// ```
-    [[nodiscard]] Address alignUp(const size_t alignment) const {
+    Address alignUp(const size_t alignment) const {
         if (alignment == 0) {
             return *this;
         }
@@ -86,7 +86,7 @@ public:
     /// ```c++
     /// const auto aligned = Util::Address(0x1234).alignDown(0x1000); // aligned = 0x1000
     /// ```
-    [[nodiscard]] Address alignDown(const size_t alignment) const {
+    Address alignDown(const size_t alignment) const {
         if (alignment == 0) {
             return *this;
         }
@@ -95,22 +95,22 @@ public:
     }
 
     /// Read a byte from the address this object points to plus the given offset.
-    [[nodiscard]] uint8_t read8(const size_t offset = 0) const {
+    uint8_t read8(const size_t offset = 0) const {
         return *reinterpret_cast<uint8_t*>(address + offset);
     }
 
     /// Read a 16-bit value from the address this object points to plus the given offset.
-    [[nodiscard]] uint16_t read16(const size_t offset = 0) const {
+    uint16_t read16(const size_t offset = 0) const {
         return *reinterpret_cast<uint16_t*>(address + offset);
     }
 
     /// Read a 32-bit value from the address this object points to plus the given offset.
-    [[nodiscard]] uint32_t read32(const size_t offset = 0) const {
+    uint32_t read32(const size_t offset = 0) const {
         return *reinterpret_cast<size_t*>(address + offset);
     }
 
     /// Read a 64-bit value from the address this object points to plus the given offset.
-    [[nodiscard]] uint64_t read64(const size_t offset = 0) const {
+    uint64_t read64(const size_t offset = 0) const {
         return *reinterpret_cast<uint64_t*>(address + offset);
     }
 
@@ -141,7 +141,7 @@ public:
     /// const char *str = "Hello, World!";
     /// const auto len = Util::Address(str).stringLength(); // len = 13
     /// ```
-    [[nodiscard]] size_t stringLength() const;
+    size_t stringLength() const;
 
     /// Compare the memory this object points to with the memory the given address points to.
     /// The number of bytes to compare is given by the `length` parameter.
@@ -153,7 +153,7 @@ public:
     /// const uint8_t b[4] = { 5, 6, 7, 8 };
     /// const auto equal = Util::Address(a).compareRange(Util::Address(b), 4); // equal != 0
     /// ```
-    [[nodiscard]] int32_t compareRange(const Address &otherAddress, size_t length) const;
+    int32_t compareRange(const Address &otherAddress, size_t length) const;
 
     /// Compare the memory this object points to with the memory the given address points to.
     /// The comparison is done byte by byte until a null terminator (0) is reached on either side.
@@ -165,7 +165,7 @@ public:
     /// const char *b = "World!";
     /// const auto equal = Util::Address(a).compareString(Util::Address(b)); // equal != 0
     /// ```
-    [[nodiscard]] int32_t compareString(const Address &otherAddress) const;
+    int32_t compareString(const Address &otherAddress) const;
 
     /// Set the memory this object points to to the given value.
     /// The number of bytes to set is given by the `length` parameter.
@@ -249,7 +249,7 @@ public:
     /// Search for the given character in the memory this object points to.
     /// If the character is found, the address of the first occurrence is returned.
     /// Otherwise, an Address object pointing to 0 is returned.
-    [[nodiscard]] Address searchCharacter(char character) const;
+    Address searchCharacter(char character) const;
 
 private:
 

@@ -178,7 +178,7 @@ public:
     /// const auto containsTwo = list.contains(2); // true
     /// const auto containsSix = list.contains(6); // false
     /// ```
-    [[nodiscard]] bool contains(const T &element) const override;
+    bool contains(const T &element) const override;
 
     /// Check if the list contains all elements from the given collection.
     ///
@@ -188,7 +188,7 @@ public:
     /// const auto containsTwoThreeFour = list.containsAll(Util::ArrayList<int>({2, 3, 4})); // true
     /// const auto containsTwoThreeSix = list.containsAll(Util::ArrayList<int>({2, 3, 6})); // false
     /// ```
-    [[nodiscard]] bool containsAll(const Collection<T> &collection) const override;
+    bool containsAll(const Collection<T> &collection) const override;
 
     /// Get the index of the first occurrence of the specified element in the list.
     /// If the element is not found, `SIZE_MAX` is returned.
@@ -199,7 +199,7 @@ public:
     /// const auto indexOfTwo = list.indexOf(2); // 1
     /// const auto indexOfFive = list.indexOf(5); // SIZE_MAX (not found)
     /// ```
-    [[nodiscard]] size_t indexOf(const T &element) const override;
+    size_t indexOf(const T &element) const override;
 
     /// Get the element at the specified index without removing it.
     /// The element is copied from the list and returned by value.
@@ -211,7 +211,7 @@ public:
     /// const auto element = list.get(2); // Get the element at index 2 -> 3
     /// const auto outOfBounds = list.get(5); // Panic! (index out of bounds)
     /// ```
-    [[nodiscard]] T get(size_t index) const override;
+    T get(size_t index) const override;
 
     /// Overwrite the element at the specified index with the given element by copying it.
     /// If the index is greater than or equal to the current length of the list, a panic is fired.
@@ -234,7 +234,7 @@ public:
     /// list.add(1);
     /// isEmpty = list.isEmpty(); // false
     /// ```
-    [[nodiscard]] bool isEmpty() const override;
+    bool isEmpty() const override;
 
     /// Clear the list by removing all elements.
     ///
@@ -259,7 +259,7 @@ public:
     /// list.clear();
     /// size = list.size(); // 0
     /// ```
-    [[nodiscard]] size_t size() const override;
+    size_t size() const override;
 
     /// Convert the list to an array and return it.
     /// All elements are copied to the new array.
@@ -270,7 +270,7 @@ public:
     /// auto array = list.toArray(); // Convert the list to an array
     /// array[0] = 10; // Modify the first element of the array; The list remains unchanged
     /// ```
-    [[nodiscard]] Array<T> toArray() const override;
+    Array<T> toArray() const override;
 
     /// Create an iterator for the list, starting at the first element.
     /// This allows iteration over the elements of the list using a range-based for loop.

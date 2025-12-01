@@ -57,7 +57,7 @@ bool TerminalNode::control(uint32_t request, const Util::Array<uint32_t> &parame
                 Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "Terminal: Missing parameter for configuring cursor!");
             }
 
-            terminal->setCursor(parameters[0]);
+            terminal->setCursorEnabled(parameters[0]);
             return true;
         case Util::Graphic::Terminal::Command::SET_ANSI_PARSING:
             if (parameters.length() < 1) {

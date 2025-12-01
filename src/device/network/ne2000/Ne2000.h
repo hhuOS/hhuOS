@@ -74,7 +74,7 @@ public:
      * Read MacAddress form PAR0 - PAR5 registers
      */
 
-    [[nodiscard]] Util::Network::MacAddress getMacAddress() const override;
+    Util::Network::MacAddress getMacAddress() const override;
 
     void plugin() override;
 

@@ -88,7 +88,7 @@ int32_t main(int argc, char *argv[]) {
         }
     }
 
-    auto buffer = Util::Graphic::LinearFrameBuffer::open(*lfbFile);
+    auto buffer = Util::Graphic::LinearFrameBuffer(*lfbFile);
     lfb = &buffer;
     fpsFont = &Util::Graphic::Fonts::TERMINAL_8x8;
 

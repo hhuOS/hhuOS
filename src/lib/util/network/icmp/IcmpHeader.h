@@ -85,13 +85,13 @@ public:
     void write(Io::OutputStream &stream) const;
 
     /// Get the ICMP type.
-    [[nodiscard]] Type getType() const;
+    Type getType() const;
 
     /// Get the code.
-    [[nodiscard]] uint8_t getCode() const;
+    uint8_t getCode() const;
 
     /// Get the checksum.
-    [[nodiscard]] uint16_t getChecksum() const;
+    uint16_t getChecksum() const;
 
     /// Set the ICMP type.
     void setType(Type type);

@@ -125,7 +125,7 @@ public:
     /// const auto subnetAddress = Ip4SubnetAddress("1.2.3.4/24");
     /// const auto ipAddress = subnetAddress.getIp4Address(); // 1.2.3.4
     /// ```
-    [[nodiscard]] Ip4Address getIp4Address() const;
+    Ip4Address getIp4Address() const;
 
     /// Get the bit count of this subnet address.
     ///
@@ -134,7 +134,7 @@ public:
     /// const auto subnetAddress = Ip4SubnetAddress("1.2.3.4/24");
     /// const auto bitCount = subnetAddress.getBitCount(); // 24
     /// ```
-    [[nodiscard]] uint8_t getBitCount() const;
+    uint8_t getBitCount() const;
 
     /// Create a new IPv4 subnet address that represents the subnet portion of this address.
     /// For example, if the address is `10.0.2.15/24`, the subnet address will be `10.0.2.0/24`.
@@ -147,7 +147,7 @@ public:
     /// const auto subnetAddress1 = ipAddress1.getSubnetAddress(); // 1.2.3.0/24
     /// const auto subnetAddress2 = ipAddress2.getSubnetAddress(); // 5.6.0.0/16
     /// ```
-    [[nodiscard]] Ip4SubnetAddress getSubnetAddress() const;
+    Ip4SubnetAddress getSubnetAddress() const;
 
     /// Create a new IPv4 address that represents the broadcast address of this subnet.
     /// That is the highest address in the subnet, and is used to send packets to all hosts in the subnet.
@@ -163,7 +163,7 @@ public:
     /// const auto broadcastAddress2 = ipAddress2.getBroadcastAddress(); // 5.6.255.255
     /// const auto broadcastAddress3 = ipAddress3.getBroadcastAddress(); // 9.10.11.12 -> Only one host in the subnet
     /// ```
-    [[nodiscard]] Ip4Address getBroadcastAddress() const;
+    Ip4Address getBroadcastAddress() const;
 
     /// Create a new on-heap instance as a copy of this address.
     ///
@@ -174,7 +174,7 @@ public:
     ///
     /// const auto isEqual = (ipAddress1 == *ipAddress2); // true
     /// ```
-    [[nodiscard]] NetworkAddress *createCopy() const override;
+    NetworkAddress *createCopy() const override;
 
     /// Create a string representation of the IPv4 subnet address in the format "X.X.X.X/Y".
     ///
@@ -186,7 +186,7 @@ public:
     ///
     /// const auto isEqual = (ipAddress1 == ipAddress2); // true
     /// ```
-    [[nodiscard]] String toString() const override;
+    String toString() const override;
 
     /// The length in bytes of an IPv4 subnet address.
     static constexpr uint32_t ADDRESS_LENGTH = Ip4Address::ADDRESS_LENGTH + sizeof(uint8_t);

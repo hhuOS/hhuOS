@@ -58,7 +58,7 @@ public:
      */
      ~PagingAreaManager() override = default;
 
-    [[nodiscard]] void* allocateBlock() override;
+    void* allocateBlock() override;
 
      void freeBlock(void *pointer) override;
 

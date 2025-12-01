@@ -84,7 +84,7 @@ public:
     /**
      * Get the baud-rate.
      */
-    [[nodiscard]] Serial::BaudRate getDataRate() const;
+    Serial::BaudRate getDataRate() const;
 
     bool write(uint8_t c) override;
 

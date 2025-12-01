@@ -66,13 +66,13 @@ public:
 
     void setSmBios(const Device::SmBios *smBios);
 
-    [[nodiscard]] const Multiboot& getMultibootInformation() const;
+    const Multiboot& getMultibootInformation() const;
 
-    [[nodiscard]] const Device::Acpi& getAcpi() const;
+    const Device::Acpi& getAcpi() const;
 
-    [[nodiscard]] const Device::SmBios& getSmBios() const;
+    const Device::SmBios& getSmBios() const;
 
-    [[nodiscard]] const char* getSymbolName(uint32_t symbolAddress);
+    const char* getSymbolName(uint32_t symbolAddress);
 
     static const constexpr uint8_t SERVICE_ID = 9;
 

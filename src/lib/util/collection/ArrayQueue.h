@@ -158,7 +158,7 @@ public:
 
     /// Not supported in ArrayQueue.
     /// Calling this method will fire a panic.
-    [[nodiscard]] bool containsAll(const Collection<T> &collection) const override;
+    bool containsAll(const Collection<T> &collection) const override;
 
     /// Check if the queue is empty.
     ///
@@ -170,7 +170,7 @@ public:
     /// queue.offer(1); // Add 1 to the queue -> 1
     /// isEmpty = queue.isEmpty(); // false
     /// ```
-    [[nodiscard]] bool isEmpty() const override;
+    bool isEmpty() const override;
 
     /// Clear the queue, removing all elements.
     ///
@@ -201,11 +201,11 @@ public:
     /// queue.clear(); // Remove all elements from the queue
     /// size = queue.size(); // 0
     /// ```
-    [[nodiscard]] size_t size() const override;
+    size_t size() const override;
 
     /// Not supported in ArrayQueue.
     /// Calling this method will fire a panic.
-    [[nodiscard]] Array<T> toArray() const override;
+    Array<T> toArray() const override;
 
     /// Not supported in ArrayQueue.
     /// Calling this method will fire a panic.

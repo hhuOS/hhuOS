@@ -181,7 +181,7 @@ public:
     /// const auto containsTwoThreeFour = queue.containsAll(Util::ArrayList<int>({2, 3, 4})); // true
     /// const auto containsTwoThreeSix = queue.containsAll(Util::ArrayList<int>({2, 3, 6})); // false
     /// ```
-    [[nodiscard]] bool containsAll(const Collection<T> &collection) const override;
+    bool containsAll(const Collection<T> &collection) const override;
 
     /// Remove the first occurrence of the specified element from the list.
     /// Return `true` if the element was found and removed, `false` otherwise.
@@ -241,7 +241,7 @@ public:
     /// queue.offer(1); // Add 1 to the queue -> 1
     /// isEmpty = queue.isEmpty(); // false
     /// ```
-    [[nodiscard]] bool isEmpty() const override;
+    bool isEmpty() const override;
 
     /// Clear the queue, removing all elements.
     ///
@@ -272,7 +272,7 @@ public:
     /// queue.clear(); // Remove all elements from the queue
     /// size = queue.size(); // 0
     /// ```
-    [[nodiscard]] size_t size() const override;
+    size_t size() const override;
 
     /// Convert the queue to an array and return it.
     /// All elements are copied to the new array.
@@ -287,7 +287,7 @@ public:
     /// auto array = queue.toArray(); // Convert the queue to an array
     /// array[0] = 10; // Modify the first element of the array; The queue remains unchanged
     /// ```
-    [[nodiscard]] Array<T> toArray() const override;
+    Array<T> toArray() const override;
 
     /// Create an iterator for the queue, starting at the first element.
     /// This allows iteration over the elements of the queue using a range-based for loop.

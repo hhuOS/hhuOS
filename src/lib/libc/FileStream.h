@@ -68,17 +68,17 @@ public:
 	
 	int ungetChar(int ch);
 	
-	[[nodiscard]] bool isReadAllowed() const;
+	bool isReadAllowed() const;
 
-	[[nodiscard]] bool isWriteAllowed() const;
+	bool isWriteAllowed() const;
 
-	[[nodiscard]] bool isError() const;
+	bool isError() const;
 
-	[[nodiscard]] bool endOfFileReached() const;
+	bool endOfFileReached() const;
 
-	[[nodiscard]] bool isOpen() const;
+	bool isOpen() const;
 	
-	[[nodiscard]] uint32_t getPos() const;
+	uint32_t getPos() const;
 
 	void setPos(uint32_t newPos, SeekMode mode);
 	

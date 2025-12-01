@@ -40,11 +40,11 @@ public:
 
     void setText(const Util::String &text);
 
-    [[nodiscard]] const Util::String& getText() const;
+    const Util::String& getText() const;
 
-    [[nodiscard]] size_t getPreferredWidth() const override;
+    size_t getPreferredWidth() const override;
 
-    [[nodiscard]] size_t getPreferredHeight() const override;
+    size_t getPreferredHeight() const override;
 
     void draw(const Util::Graphic::LinearFrameBuffer &lfb) override;
 

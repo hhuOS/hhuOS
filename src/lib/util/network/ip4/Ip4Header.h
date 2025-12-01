@@ -82,26 +82,26 @@ public:
     void write(Io::OutputStream &stream) const;
 
     /// Get the IP version (should always be 4 for IPv4).
-    [[nodiscard]] uint8_t getVersion() const;
+    uint8_t getVersion() const;
 
     /// Get the header length in bytes.
-    [[nodiscard]] uint8_t getHeaderLength() const;
+    uint8_t getHeaderLength() const;
 
     /// Get the payload length in bytes.
     /// That is the length of the data following the header (total length minus header length).
-    [[nodiscard]] uint16_t getPayloadLength() const;
+    uint16_t getPayloadLength() const;
 
     /// Get the time to live (TTL) value.
-    [[nodiscard]] uint8_t getTimeToLive() const;
+    uint8_t getTimeToLive() const;
 
     /// Get the protocol carried in this IPv4 packet (e.g., ICMP, TCP, UDP).
-    [[nodiscard]] Protocol getProtocol() const;
+    Protocol getProtocol() const;
 
     /// Get the IP address of the sender (source address).
-    [[nodiscard]] const Ip4Address& getSourceAddress() const;
+    const Ip4Address& getSourceAddress() const;
 
     /// Get the IP address of the receiver (destination address).
-    [[nodiscard]] const Ip4Address& getDestinationAddress() const;
+    const Ip4Address& getDestinationAddress() const;
 
     /// Set the header length in bytes.
     void setPayloadLength(uint16_t payloadLength);

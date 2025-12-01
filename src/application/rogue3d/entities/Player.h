@@ -65,11 +65,11 @@ public:
 
     bool shoot();
 
-    [[nodiscard]] uint32_t getHealth() const;
+    uint32_t getHealth() const;
 
-    [[nodiscard]] uint32_t getDamage() const;
+    uint32_t getDamage() const;
 
-    [[nodiscard]] uint32_t getLevel() const;
+    uint32_t getLevel() const;
 
     void healthUp();
 

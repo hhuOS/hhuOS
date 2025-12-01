@@ -20,237 +20,116 @@
 
 #include "Ansi.h"
 
-#include "lib/util/base/System.h"
-#include "Terminal.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/io/file/File.h"
-#include "lib/util/graphic/Color.h"
-#include "lib/util/graphic/Colors.h"
-#include "lib/util/io/stream/PrintStream.h"
-#include "lib/util/io/stream/InputStream.h"
+#include "util/base/System.h"
+#include "util/collection/Array.h"
+#include "util/graphic/Color.h"
+#include "util/graphic/Terminal.h"
+#include "util/io/file/File.h"
+#include "util/io/stream/PrintStream.h"
+#include "util/io/stream/InputStream.h"
 
 namespace Util::Graphic {
 
-const String Ansi::escapeEndCodes = Util::String::format("ABCDEFGHJKmnsu");
-
-const Graphic::Color Ansi::colorTable256[256] = {
-        // 16 predefined colors, matching the 4-bit ANSI colors
-        Colors::BLACK, Colors::RED, Colors::GREEN, Colors::YELLOW,
-        Colors::BLUE, Colors::MAGENTA, Colors::CYAN, Colors::WHITE,
-        Colors::BLACK.bright(), Colors::RED.bright(), Colors::GREEN.bright(), Colors::YELLOW.bright(),
-        Colors::BLUE.bright(), Colors::MAGENTA.bright(), Colors::CYAN.bright(), Colors::WHITE.bright(),
-
-        // 216 colors
-        Graphic::Color(0, 0, 0), Graphic::Color(0, 0, 95), Graphic::Color(0, 0, 135),
-        Graphic::Color(0, 0, 175), Graphic::Color(0, 0, 215), Graphic::Color(0, 0, 255),
-
-        Graphic::Color(0, 95, 0), Graphic::Color(0, 95, 95), Graphic::Color(0, 95, 135),
-        Graphic::Color(0, 95, 175), Graphic::Color(0, 95, 215), Graphic::Color(0, 95, 255),
-
-        Graphic::Color(0, 135, 0), Graphic::Color(0, 135, 95), Graphic::Color(0, 135, 135),
-        Graphic::Color(0, 135, 175), Graphic::Color(0, 135, 215), Graphic::Color(0, 135, 255),
-
-        Graphic::Color(0, 175, 0), Graphic::Color(0, 175, 95), Graphic::Color(0, 175, 135),
-        Graphic::Color(0, 175, 175), Graphic::Color(0, 175, 215), Graphic::Color(0, 175, 255),
-
-        Graphic::Color(0, 215, 0), Graphic::Color(0, 215, 95), Graphic::Color(0, 215, 135),
-        Graphic::Color(0, 215, 175), Graphic::Color(0, 215, 215), Graphic::Color(0, 215, 255),
-
-        Graphic::Color(0, 255, 0), Graphic::Color(0, 255, 95), Graphic::Color(0, 255, 135),
-        Graphic::Color(0, 255, 175), Graphic::Color(0, 255, 215), Graphic::Color(0, 255, 255),
-
-        Graphic::Color(95, 0, 0), Graphic::Color(95, 0, 95), Graphic::Color(95, 0, 135),
-        Graphic::Color(95, 0, 175), Graphic::Color(95, 0, 215), Graphic::Color(95, 0, 255),
-
-        Graphic::Color(95, 95, 0), Graphic::Color(95, 95, 95), Graphic::Color(95, 95, 135),
-        Graphic::Color(95, 95, 175), Graphic::Color(95, 95, 215), Graphic::Color(95, 95, 255),
-
-        Graphic::Color(95, 135, 0), Graphic::Color(95, 135, 95), Graphic::Color(95, 135, 135),
-        Graphic::Color(95, 135, 175), Graphic::Color(95, 135, 215), Graphic::Color(95, 135, 255),
-
-        Graphic::Color(95, 175, 0), Graphic::Color(95, 175, 95), Graphic::Color(95, 175, 135),
-        Graphic::Color(95, 175, 175), Graphic::Color(95, 175, 215), Graphic::Color(95, 175, 255),
-
-        Graphic::Color(95, 215, 0), Graphic::Color(95, 215, 95), Graphic::Color(95, 215, 135),
-        Graphic::Color(95, 215, 175), Graphic::Color(95, 215, 215), Graphic::Color(95, 215, 255),
-
-        Graphic::Color(95, 255, 0), Graphic::Color(95, 255, 95), Graphic::Color(95, 255, 135),
-        Graphic::Color(95, 255, 175), Graphic::Color(95, 255, 215), Graphic::Color(95, 255, 255),
-
-        Graphic::Color(135, 0, 0), Graphic::Color(135, 0, 95), Graphic::Color(135, 0, 135),
-        Graphic::Color(135, 0, 175), Graphic::Color(135, 0, 215), Graphic::Color(135, 0, 255),
-
-        Graphic::Color(135, 95, 0), Graphic::Color(135, 95, 95), Graphic::Color(135, 95, 135),
-        Graphic::Color(135, 95, 175), Graphic::Color(135, 95, 215), Graphic::Color(135, 95, 255),
-
-        Graphic::Color(135, 135, 0), Graphic::Color(135, 135, 95), Graphic::Color(135, 135, 135),
-        Graphic::Color(135, 135, 175), Graphic::Color(135, 135, 215), Graphic::Color(135, 135, 255),
-
-        Graphic::Color(135, 175, 0), Graphic::Color(135, 175, 95), Graphic::Color(135, 175, 135),
-        Graphic::Color(135, 175, 175), Graphic::Color(135, 175, 215), Graphic::Color(135, 175, 255),
-
-        Graphic::Color(135, 215, 0), Graphic::Color(135, 215, 95), Graphic::Color(135, 215, 135),
-        Graphic::Color(135, 215, 175), Graphic::Color(135, 215, 215), Graphic::Color(135, 215, 255),
-
-        Graphic::Color(135, 255, 0), Graphic::Color(135, 255, 95), Graphic::Color(135, 255, 135),
-        Graphic::Color(135, 255, 175), Graphic::Color(135, 255, 215), Graphic::Color(135, 255, 255),
-
-        Graphic::Color(175, 0, 0), Graphic::Color(175, 0, 95), Graphic::Color(175, 0, 135),
-        Graphic::Color(175, 0, 175), Graphic::Color(175, 0, 215), Graphic::Color(175, 0, 255),
-
-        Graphic::Color(175, 95, 0), Graphic::Color(175, 95, 95), Graphic::Color(175, 95, 135),
-        Graphic::Color(175, 95, 175), Graphic::Color(175, 95, 215), Graphic::Color(175, 95, 255),
-
-        Graphic::Color(175, 135, 0), Graphic::Color(175, 135, 95), Graphic::Color(175, 135, 135),
-        Graphic::Color(175, 135, 175), Graphic::Color(175, 135, 215), Graphic::Color(175, 135, 255),
-
-        Graphic::Color(175, 175, 0), Graphic::Color(175, 175, 95), Graphic::Color(175, 175, 135),
-        Graphic::Color(175, 175, 175), Graphic::Color(175, 175, 215), Graphic::Color(175, 175, 255),
-
-        Graphic::Color(175, 215, 0), Graphic::Color(175, 215, 95), Graphic::Color(175, 215, 135),
-        Graphic::Color(175, 215, 175), Graphic::Color(175, 215, 215), Graphic::Color(175, 215, 255),
-
-        Graphic::Color(175, 255, 0), Graphic::Color(175, 255, 95), Graphic::Color(175, 255, 135),
-        Graphic::Color(175, 255, 175), Graphic::Color(175, 255, 215), Graphic::Color(175, 255, 255),
-
-        Graphic::Color(215, 0, 0), Graphic::Color(215, 0, 95), Graphic::Color(215, 0, 135),
-        Graphic::Color(215, 0, 175), Graphic::Color(215, 0, 215), Graphic::Color(215, 0, 255),
-
-        Graphic::Color(215, 95, 0), Graphic::Color(215, 95, 95), Graphic::Color(215, 95, 135),
-        Graphic::Color(215, 95, 175), Graphic::Color(215, 95, 215), Graphic::Color(215, 95, 255),
-
-        Graphic::Color(215, 135, 0), Graphic::Color(215, 135, 95), Graphic::Color(215, 135, 135),
-        Graphic::Color(215, 135, 175), Graphic::Color(215, 135, 215), Graphic::Color(215, 135, 255),
-
-        Graphic::Color(215, 175, 0), Graphic::Color(215, 175, 95), Graphic::Color(215, 175, 135),
-        Graphic::Color(215, 175, 175), Graphic::Color(215, 175, 215), Graphic::Color(215, 175, 255),
-
-        Graphic::Color(215, 215, 0), Graphic::Color(215, 215, 95), Graphic::Color(215, 215, 135),
-        Graphic::Color(215, 215, 175), Graphic::Color(215, 215, 215), Graphic::Color(215, 215, 255),
-
-        Graphic::Color(215, 255, 0), Graphic::Color(215, 255, 95), Graphic::Color(215, 255, 135),
-        Graphic::Color(215, 255, 175), Graphic::Color(215, 255, 215), Graphic::Color(215, 255, 255),
-
-        Graphic::Color(255, 0, 0), Graphic::Color(255, 0, 95), Graphic::Color(255, 0, 135),
-        Graphic::Color(255, 0, 175), Graphic::Color(255, 0, 215), Graphic::Color(255, 0, 255),
-
-        Graphic::Color(255, 95, 0), Graphic::Color(255, 95, 95), Graphic::Color(255, 95, 135),
-        Graphic::Color(255, 95, 175), Graphic::Color(255, 95, 215), Graphic::Color(255, 95, 255),
-
-        Graphic::Color(255, 135, 0), Graphic::Color(255, 135, 95), Graphic::Color(255, 135, 135),
-        Graphic::Color(255, 135, 175), Graphic::Color(255, 135, 215), Graphic::Color(255, 135, 255),
-
-        Graphic::Color(255, 175, 0), Graphic::Color(255, 175, 95), Graphic::Color(255, 175, 135),
-        Graphic::Color(255, 175, 175), Graphic::Color(255, 175, 215), Graphic::Color(255, 175, 255),
-
-        Graphic::Color(255, 215, 0), Graphic::Color(255, 215, 95), Graphic::Color(255, 215, 135),
-        Graphic::Color(255, 215, 175), Graphic::Color(255, 215, 215), Graphic::Color(255, 215, 255),
-
-        Graphic::Color(255, 255, 0), Graphic::Color(255, 255, 95), Graphic::Color(255, 255, 135),
-        Graphic::Color(255, 255, 175), Graphic::Color(255, 255, 215), Graphic::Color(255, 255, 255),
-
-        // 24 grayscale Graphic::Colors
-        Graphic::Color(8, 8, 8), Graphic::Color(18, 18, 18), Graphic::Color(28, 28, 28),
-        Graphic::Color(38, 38, 38), Graphic::Color(48, 48, 48), Graphic::Color(58, 58, 58),
-        Graphic::Color(68, 68, 68), Graphic::Color(78, 78, 78), Graphic::Color(88, 88, 88),
-        Graphic::Color(98, 98, 98), Graphic::Color(108, 108, 108), Graphic::Color(118, 118, 118),
-        Graphic::Color(128, 128, 128), Graphic::Color(138, 138, 138), Graphic::Color(148, 148, 148),
-        Graphic::Color(158, 158, 158), Graphic::Color(168, 168, 168), Graphic::Color(178, 178, 178),
-        Graphic::Color(188, 188, 188), Graphic::Color(198, 198, 198), Graphic::Color(208, 208, 208),
-        Graphic::Color(218, 218, 218), Graphic::Color(228, 228, 228), Graphic::Color(238, 238, 238)
-};
+const String ESCAPE_END_CODES = String::format("ABCDEFGHJKmnsu");
 
 void Ansi::enableEcho() {
-    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::SET_ECHO, {true});
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ECHO, {true});
 }
 
 void Ansi::disableEcho() {
-    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::SET_ECHO, {false});
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ECHO, {false});
 }
 
 void Ansi::enableLineAggregation() {
-    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::SET_LINE_AGGREGATION, {true});
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_LINE_AGGREGATION, {true});
 }
 
 void Ansi::disableLineAggregation() {
-    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::SET_LINE_AGGREGATION, {false});
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_LINE_AGGREGATION, {false});
 }
 
 void Ansi::enableCursor() {
-    Io::File::controlFile(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_CURSOR, {true});
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_CURSOR, {true});
 }
 
 void Ansi::disableCursor() {
-    Io::File::controlFile(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_CURSOR, {false});
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_CURSOR, {false});
 }
 
 void Ansi::enableAnsiParsing() {
-    Io::File::controlFile(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_ANSI_PARSING, {true});
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ANSI_PARSING, {true});
 }
 
 void Ansi::disableAnsiParsing() {
-    Io::File::controlFile(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_ANSI_PARSING, {false});
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ANSI_PARSING, {false});
 }
 
-void Ansi::prepareGraphicalApplication(bool enableScancodes) {
+void Ansi::prepareGraphicalApplication(const bool enableScancodes) {
     if (enableScancodes) {
-        Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_KEYBOARD_SCANCODES, Util::Array<uint32_t>(0));
+        Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_KEYBOARD_SCANCODES,
+            Util::Array<uint32_t>(0));
     } else {
-        Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_RAW_MODE, Util::Array<uint32_t>(0));
+        Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_RAW_MODE,
+            Util::Array<uint32_t>(0));
     }
+
     disableCursor();
 }
 
 void Ansi::cleanupGraphicalApplication() {
-    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_CANONICAL_MODE, Util::Array<uint32_t>(0));
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_CANONICAL_MODE,
+        Util::Array<uint32_t>(0));
+
     enableCursor();
 }
 
 void Ansi::enableRawMode() {
-    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_RAW_MODE, Util::Array<uint32_t>(0));
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_RAW_MODE,
+        Util::Array<uint32_t>(0));
 }
 
 void Ansi::enableCanonicalMode() {
-    Io::File::controlFile(Io::STANDARD_INPUT, Graphic::Terminal::ENABLE_CANONICAL_MODE, Util::Array<uint32_t>(0));
+    Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_CANONICAL_MODE,
+        Util::Array<uint32_t>(0));
 }
 
-String Ansi::foreground8BitColor(uint8_t colorIndex) {
+String Ansi::foreground8BitColor(const uint8_t colorIndex) {
     return String::format("\u001b[38;5;%um", colorIndex);
 }
 
-String Ansi::background8BitColor(uint8_t colorIndex) {
+String Ansi::background8BitColor(const uint8_t colorIndex) {
     return String::format("\u001b[48;5;%um", colorIndex);
 }
 
-String Ansi::foreground24BitColor(const Graphic::Color &color) {
+String Ansi::foreground24BitColor(const Color &color) {
     return String::format("\u001b[38;2;%u;%u;%um", color.getRed(), color.getGreen(), color.getBlue());
 }
 
-String Ansi::background24BitColor(const Graphic::Color &color) {
+String Ansi::background24BitColor(const Color &color) {
     return String::format("\u001b[48;2;%u;%u;%um", color.getRed(), color.getGreen(), color.getBlue());
 }
 
-void Ansi::setForegroundColor(Color color, bool bright) {
+void Ansi::setForegroundColor(const AnsiColor color, const bool bright) {
     System::out << "\u001b[" << Io::PrintStream::dec << color + (bright ? 90 : 30) << "m" << Io::PrintStream::flush;
 }
 
-void Ansi::setBackgroundColor(Color color, bool bright) {
+void Ansi::setBackgroundColor(const AnsiColor color, const bool bright) {
     System::out << "\u001b[" << Io::PrintStream::dec << color + (bright ? 100 : 40) << "m" << Io::PrintStream::flush;
 }
 
-void Ansi::setForegroundColor(uint8_t colorIndex) {
+void Ansi::setForegroundColor(const uint8_t colorIndex) {
     System::out << "\u001b[38;5;" << Io::PrintStream::dec << colorIndex << "m" << Io::PrintStream::flush;
 }
 
-void Ansi::setBackgroundColor(uint8_t colorIndex) {
+void Ansi::setBackgroundColor(const uint8_t colorIndex) {
     System::out << "\u001b[48;5;" << Io::PrintStream::dec << colorIndex << "m" << Io::PrintStream::flush;
 }
 
-void Ansi::setForegroundColor(const Graphic::Color &color) {
+void Ansi::setForegroundColor(const Color &color) {
     System::out << "\u001b[38;2;" << Io::PrintStream::dec << color.getRed() << ";" << color.getGreen() << ";" << color.getBlue() << "m" << Io::PrintStream::flush;
 }
 
-void Ansi::setBackgroundColor(const Graphic::Color &color) {
+void Ansi::setBackgroundColor(const Color &color) {
     System::out << "\u001b[48;2;" << Io::PrintStream::dec << color.getRed() << ";" << color.getGreen() << ";" << color.getBlue() << "m" << Io::PrintStream::flush;
 }
 
@@ -267,34 +146,35 @@ void Ansi::resetColorsAndEffects() {
 }
 
 void Ansi::setPosition(const CursorPosition &position) {
-    System::out << "\u001b[" << Io::PrintStream::dec << position.row << ";" << position.column << "H" << Io::PrintStream::flush;
+    System::out << "\u001b[" << Io::PrintStream::dec << position.row << ";" << position.column << "H" <<
+        Io::PrintStream::flush;
 }
 
-void Ansi::moveCursorUp(uint16_t lines) {
+void Ansi::moveCursorUp(const uint16_t lines) {
     System::out << "\u001b[" << Io::PrintStream::dec << lines << "A" << Io::PrintStream::flush;
 }
 
-void Ansi::moveCursorDown(uint16_t lines) {
+void Ansi::moveCursorDown(const uint16_t lines) {
     System::out << "\u001b[" << Io::PrintStream::dec << lines << "B" << Io::PrintStream::flush;
 }
 
-void Ansi::moveCursorRight(uint16_t columns) {
+void Ansi::moveCursorRight(const uint16_t columns) {
     System::out << "\u001b[" << Io::PrintStream::dec << columns << "C" << Io::PrintStream::flush;
 }
 
-void Ansi::moveCursorLeft(uint16_t columns) {
+void Ansi::moveCursorLeft(const uint16_t columns) {
     System::out << "\u001b[" << Io::PrintStream::dec << columns << "D" << Io::PrintStream::flush;
 }
 
-void Ansi::moveCursorToBeginningOfNextLine(uint16_t offset) {
+void Ansi::moveCursorToBeginningOfNextLine(const uint16_t offset) {
     System::out << "\u001b[" << Io::PrintStream::dec << offset << "E" << Io::PrintStream::flush;
 }
 
-void Ansi::moveCursorToBeginningOfPreviousLine(uint16_t offset) {
+void Ansi::moveCursorToBeginningOfPreviousLine(const uint16_t offset) {
     System::out << "\u001b[" << Io::PrintStream::dec << offset << "F" << Io::PrintStream::flush;
 }
 
-void Ansi::setColumn(uint16_t column) {
+void Ansi::setColumn(const uint16_t column) {
     System::out << "\u001b[" << Io::PrintStream::dec << column << "G" << Io::PrintStream::flush;
 }
 
@@ -341,20 +221,20 @@ Ansi::CursorPosition Ansi::getCursorPosition() {
     }
 
     auto split = positionString.substring(2).split(";");
-    return {String::parseNumber<uint16_t>(split[1]), String::parseNumber<uint16_t>(split[0])};
+    return CursorPosition{String::parseNumber<uint16_t>(split[1]), String::parseNumber<uint16_t>(split[0])};
 }
 
 Ansi::CursorPosition Ansi::getCursorLimits() {
-    auto position = getCursorPosition();
+    const auto position = getCursorPosition();
     setPosition(CursorPosition{UINT16_MAX, UINT16_MAX});
 
-    auto size = getCursorPosition();
+    const auto size = getCursorPosition();
     setPosition(position);
 
     return size;
 }
 
-int16_t Ansi::readChar(Util::Io::InputStream &stream) {
+int16_t Ansi::readChar(Io::InputStream &stream) {
     char input = stream.read();
     if (input == ESCAPE_SEQUENCE_START) {
         String escapeSequence = input;
@@ -362,7 +242,7 @@ int16_t Ansi::readChar(Util::Io::InputStream &stream) {
         do {
             input = stream.read();
             escapeSequence += input;
-        } while (!escapeEndCodes.contains(input));
+        } while (!ESCAPE_END_CODES.contains(input));
 
         switch (input) {
             case 'A':
@@ -374,7 +254,7 @@ int16_t Ansi::readChar(Util::Io::InputStream &stream) {
             case 'D':
                 return LEFT;
             case 'H':
-                return POS1;
+                return HOME;
             case 'F':
                 return END;
             default:
@@ -386,10 +266,6 @@ int16_t Ansi::readChar(Util::Io::InputStream &stream) {
     }
 
     return input;
-}
-
-bool Ansi::CursorPosition::operator==(const Ansi::CursorPosition &other) const {
-    return column == other.column && row == other.row;
 }
 
 }

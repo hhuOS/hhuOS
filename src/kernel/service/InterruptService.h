@@ -71,9 +71,9 @@ public:
 
     void useApic(Device::Apic *apic);
 
-    [[nodiscard]] bool usesApic() const;
+    bool usesApic() const;
 
-    [[nodiscard]] InterruptVector getTimerInterrupt() const;
+    InterruptVector getTimerInterrupt() const;
 
     void assignInterrupt(InterruptVector slot, InterruptHandler &handler);
 
@@ -108,11 +108,11 @@ public:
 
     void sendEndOfInterrupt(InterruptVector interrupt);
 
-    [[nodiscard]] bool checkSpuriousInterrupt(InterruptVector interrupt);
+    bool checkSpuriousInterrupt(InterruptVector interrupt);
 
-    [[nodiscard]] Device::Apic& getApic();
+    Device::Apic& getApic();
 
-    [[nodiscard]] uint8_t getCpuId() const;
+    uint8_t getCpuId() const;
 
     static const constexpr uint8_t SERVICE_ID = 1;
 

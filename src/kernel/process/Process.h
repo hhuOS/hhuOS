@@ -76,33 +76,33 @@ public:
 
     void join();
 
-    [[nodiscard]] uint32_t getId() const;
+    uint32_t getId() const;
 
-    [[nodiscard]] uint32_t getThreadCount() const;
+    uint32_t getThreadCount() const;
 
-    [[nodiscard]] VirtualAddressSpace& getAddressSpace();
+    VirtualAddressSpace& getAddressSpace();
 
-    [[nodiscard]] FileDescriptorManager& getFileDescriptorManager();
+    FileDescriptorManager& getFileDescriptorManager();
 
-    [[nodiscard]] bool createPipe(const Util::String &name);
+    bool createPipe(const Util::String &name);
 
-    [[nodiscard]] const Util::HashMap<Util::String, Pipe*>& getPipes() const;
+    const Util::HashMap<Util::String, Pipe*>& getPipes() const;
 
-    [[nodiscard]] bool createSharedMemory(const Util::String &name, void *startAddress, uint32_t pageCount);
+    bool createSharedMemory(const Util::String &name, void *startAddress, uint32_t pageCount);
 
-    [[nodiscard]] const Util::HashMap<Util::String, SharedMemory*>& getSharedMemory() const;
+    const Util::HashMap<Util::String, SharedMemory*>& getSharedMemory() const;
 
-    [[nodiscard]] Util::Io::File getWorkingDirectory();
+    Util::Io::File getWorkingDirectory();
 
-    [[nodiscard]] bool isFinished() const;
+    bool isFinished() const;
 
-    [[nodiscard]] int32_t getExitCode() const;
+    int32_t getExitCode() const;
 
-    [[nodiscard]] bool isKernelProcess() const;
+    bool isKernelProcess() const;
 
-    [[nodiscard]] Util::String getName() const;
+    Util::String getName() const;
 
-    [[nodiscard]] Util::Array<Thread*> getThreads() const;
+    Util::Array<Thread*> getThreads() const;
 
     void addThread(Thread &thread);
 
@@ -112,7 +112,7 @@ public:
 
 private:
 
-    [[nodiscard]] Util::Io::File getFileFromPath(const Util::String &path);
+    Util::Io::File getFileFromPath(const Util::String &path);
 
     uint32_t id;
     Util::String name;

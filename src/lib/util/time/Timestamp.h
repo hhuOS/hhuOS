@@ -156,7 +156,7 @@ public:
     /// ```
     Timestamp& operator-=(const Timestamp &other);
 
-    /// Compare two timestamps for equality.
+    /// Compare the timestamp with another one for equality.
     ///
     /// ### Example
     /// ```c++
@@ -169,7 +169,7 @@ public:
     /// ```
     bool operator==(const Timestamp &other) const;
 
-    /// Compare two timestamps for inequality.
+    /// Compare the timestamp with another one for inequality.
     ///
     /// ### Example
     /// ```c++
@@ -248,7 +248,7 @@ public:
     /// const auto nanoseconds1 = timestamp1.toNanoseconds(); // nanoseconds1 = 5000000000
     /// const auto nanoseconds2 = timestamp2.toNanoseconds(); // nanoseconds2 = 3000000
     /// ```
-    [[nodiscard]] uint64_t toNanoseconds() const;
+    uint64_t toNanoseconds() const;
     
     /// Convert the timestamp to microseconds.
     ///
@@ -260,7 +260,7 @@ public:
     /// const auto microseconds1 = timestamp1.toMicroseconds(); // microseconds1 = 5000000
     /// const auto microseconds2 = timestamp2.toMicroseconds(); // microseconds2 = 3000
     /// ```
-    [[nodiscard]] uint64_t toMicroseconds() const;
+    uint64_t toMicroseconds() const;
     
     /// Convert the timestamp to milliseconds.
     ///
@@ -272,7 +272,7 @@ public:
     /// const auto milliseconds1 = timestamp1.toMilliseconds(); // milliseconds1 = 5000
     /// const auto milliseconds2 = timestamp2.toMilliseconds(); // milliseconds2 = 3
     /// ```
-    [[nodiscard]] uint64_t toMilliseconds() const;
+    uint64_t toMilliseconds() const;
     
     /// Convert the timestamp to seconds.
     ///
@@ -284,7 +284,7 @@ public:
     /// const auto seconds1 = timestamp1.toMilliseconds(); // seconds1 = 5
     /// const auto seconds2 = timestamp2.toMilliseconds(); // seconds2 = 0
     /// ```
-    [[nodiscard]] size_t toSeconds() const;
+    size_t toSeconds() const;
 
     /// Convert the timestamp to minutes.
     ///
@@ -296,7 +296,7 @@ public:
     /// const auto minutes1 = timestamp1.toMinutes(); // minutes1 = 5
     /// const auto minutes2 = timestamp2.toMinutes(); // minutes2 = 0
     /// ```
-    [[nodiscard]] size_t toMinutes() const;
+    size_t toMinutes() const;
 
     /// Convert the timestamp to hours.
     ///
@@ -308,7 +308,7 @@ public:
     /// const auto hours1 = timestamp1.toHours(); // hours1 = 2
     /// const auto hours2 = timestamp2.toHours(); // hours2 = 0
     /// ```
-    [[nodiscard]] size_t toHours() const;
+    size_t toHours() const;
 
     /// Convert the timestamp to days.
     ///
@@ -320,7 +320,7 @@ public:
     /// const auto days1 = timestamp1.toDays(); // days1 = 1
     /// const auto days2 = timestamp2.toDays(); // days2 = 0
     /// ```
-    [[nodiscard]] size_t toDays() const;
+    size_t toDays() const;
 
     /// Convert the timestamp to years.
     ///
@@ -332,7 +332,7 @@ public:
     /// const auto years1 = timestamp1.toYears(); // years1 = 1
     /// const auto years2 = timestamp2.toYears(); // years2 = 0
     /// ```
-    [[nodiscard]] size_t toYears() const;
+    size_t toYears() const;
 
     /// Convert the timestamp to a floating point value representing the total number of seconds.
     ///
@@ -345,7 +345,7 @@ public:
     /// const auto seconds2 = timestamp.toSecondsFloat<double>(); // seconds = 2.0
     /// ```
     template <typename T>
-    [[nodiscard]] T toSecondsFloat() const;
+    T toSecondsFloat() const;
 
 private:
 

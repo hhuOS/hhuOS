@@ -52,7 +52,7 @@ public:
     explicit CollisionEvent(Entity &other);
 
     /// Get the other entity involved in the collision.
-    [[nodiscard]] Entity& getCollidedWidth() const;
+    Entity& getCollidedWidth() const;
 
 private:
 

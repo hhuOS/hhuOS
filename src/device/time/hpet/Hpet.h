@@ -76,9 +76,9 @@ public:
 
     uint64_t readCounter();
 
-    [[nodiscard]] uint64_t getFemtosecondsPerTick() const;
+    uint64_t getFemtosecondsPerTick() const;
 
-    [[nodiscard]] uint64_t getMaxValue() const;
+    uint64_t getMaxValue() const;
 
     void pluginSystemTimer();
 

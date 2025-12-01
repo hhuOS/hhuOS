@@ -57,6 +57,8 @@ public:
     enum Mode : uint8_t {
         TEXT_40_COLUMNS = 0x01,
         TEXT_80_COLUMNS = 0x03,
+        GRAPHICS_320_200 = 0x04,
+        GRAPHICS_640_200 = 0x06,
     };
 
     ColorGraphicsAdapter(uint16_t columns, uint16_t rows);
@@ -67,23 +69,23 @@ public:
 
     ~ColorGraphicsAdapter() override;
 
-    [[nodiscard]] static VideoCardType getVideoCardType();
+    static VideoCardType getVideoCardType();
 
     static void setMode(Mode mode);
 
     void putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) override;
 
-    void clear(const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor, uint16_t startColumn, uint32_t startRow, uint16_t endColumn, uint16_t endRow) override;
+    void clear(const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor, uint16_t startColumn, uint16_t startRow, uint16_t endColumn, uint16_t endRow) override;
 
     void setPosition(uint16_t column, uint16_t row) override;
 
-    void setCursor(bool enabled) override;
+    void setCursorEnabled(bool enabled) override;
 
-    [[nodiscard]] uint16_t getCurrentColumn() const override;
+    uint16_t getCurrentColumn() const override;
 
-    [[nodiscard]] uint16_t getCurrentRow() const override;
+    uint16_t getCurrentRow() const override;
 
-    [[nodiscard]] Util::Address getAddress();
+    Util::Address getAddress();
 
 private:
 
@@ -91,7 +93,7 @@ private:
 
     void scrollUp();
 
-    static Util::Address mapBuffer(void *physicalAddress, uint16_t columns, uint16_t rows);
+    static Util::Address mapBuffer(uint32_t physicalAddress, uint16_t columns, uint16_t rows);
 
     uint16_t currentColumn = 0;
     uint16_t currentRow = 0;

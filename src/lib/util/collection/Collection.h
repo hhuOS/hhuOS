@@ -55,22 +55,22 @@ public:
     virtual bool retainAll(const Collection &collection) = 0;
 
     /// Check if the collection contains the specified element.
-    [[nodiscard]] virtual bool contains(const T &element) const = 0;
+    virtual bool contains(const T &element) const = 0;
 
     /// Check if this collection contains all elements from the given collection.
-    [[nodiscard]] virtual bool containsAll(const Collection &collection) const = 0;
+    virtual bool containsAll(const Collection &collection) const = 0;
 
     /// Check if the collection is empty.
-    [[nodiscard]] virtual bool isEmpty() const = 0;
+    virtual bool isEmpty() const = 0;
 
     /// Clear the collection, removing all elements.
     virtual void clear() = 0;
 
     /// Get the number of elements in the collection.
-    [[nodiscard]] virtual size_t size() const = 0;
+    virtual size_t size() const = 0;
 
     /// Convert the collection to an array by copying its elements.
-    [[nodiscard]] virtual Array<T> toArray() const = 0;
+    virtual Array<T> toArray() const = 0;
 };
 
 }

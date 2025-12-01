@@ -24,16 +24,16 @@
 #include <stddef.h>
 
 /// Basic `new` operator.
-[[nodiscard]] void* operator new(size_t size);
+void* operator new(size_t size);
 
 /// Basic `new` operator for arrays.
-[[nodiscard]] void* operator new[](size_t size);
+void* operator new[](size_t size);
 
 /// Placement `new` operator.
-[[nodiscard]] void* operator new(size_t size, void *pointer);
+void* operator new(size_t size, void *pointer);
 
 /// Placement `new` operator for arrays.
-[[nodiscard]] void* operator new[](size_t size, void *pointer);
+void* operator new[](size_t size, void *pointer);
 
 /// Basic `delete` operator.
 void operator delete(void*);

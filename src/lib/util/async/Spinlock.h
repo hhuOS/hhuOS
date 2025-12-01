@@ -65,14 +65,14 @@ public:
 
     /// Try to acquire the lock once.
     /// If the lock is not available, the function does not block and returns false.
-    [[nodiscard]] bool tryAcquire() override;
+    bool tryAcquire() override;
 
     /// Release the lock.
     /// If the lock is not held, this function does nothing.
     void release() override;
 
     /// Check if the lock is currently held.
-    [[nodiscard]] bool isLocked() const final;
+    bool isLocked() const final;
 
 protected:
 

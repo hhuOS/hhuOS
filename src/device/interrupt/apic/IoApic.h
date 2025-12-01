@@ -230,7 +230,7 @@ public:
      * @tparam T The type of the register data, e.g. uint32_t
      */
     template<typename T>
-    [[nodiscard]] T readMMIORegister(Register reg);
+    T readMMIORegister(Register reg);
 
     /**
      * Write a MMIO register, identified by the offset to the I/O APIC base address.
@@ -243,7 +243,7 @@ public:
     /**
      * Read an indirect register, identified by the address written to the indirection register.
      */
-    [[nodiscard]] uint32_t readIndirectRegister(IndirectRegister reg);
+    uint32_t readIndirectRegister(IndirectRegister reg);
 
     /**
      * Write an indirect register, identified by the address written to the indirection register.
@@ -253,7 +253,7 @@ public:
     /**
      * Write a redirection table entry, identified by the corresponding GSI.
      */
-    [[nodiscard]] RedirectionTableEntry readRedirectionTableEntry(Kernel::GlobalSystemInterrupt gsi);
+    RedirectionTableEntry readRedirectionTableEntry(Kernel::GlobalSystemInterrupt gsi);
 
     /**
      * Read a redirection table entry, identified by the corresponding GSI.
