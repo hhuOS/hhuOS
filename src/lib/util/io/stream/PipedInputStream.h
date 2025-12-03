@@ -27,9 +27,14 @@
 #include "util/async/Spinlock.h"
 #include "util/io/stream/InputStream.h"
 
-namespace Util::Io {
-
+namespace Util {
+namespace Io {
 class PipedOutputStream;
+} // namespace Io
+} // namespace Util
+
+namespace Util {
+namespace Io {
 
 /// A piped input stream must be connected to a piped output stream to create a communication pipe.
 /// Data written to the piped output stream can then be read from the piped input stream.
@@ -72,23 +77,30 @@ public:
 	/// The stream is not yet connected to a piped output stream.
 	/// Any read operation performed before connecting to an output stream will fire a panic.
 	/// To connect to an output stream, use the `connect()` method.
-    explicit PipedInputStream(size_t bufferSize = DEFAULT_BUFFER_SIZE);
+	explicit PipedInputStream(const size_t bufferSize = DEFAULT_BUFFER_SIZE) :
+		buffer(new uint8_t[bufferSize]), bufferSize(bufferSize) {}
 
 	/// Create a piped input stream instance and connect it to the given piped output stream.
 	/// The given buffer size is used for the internal buffer.
-    explicit PipedInputStream(PipedOutputStream &outputStream, size_t bufferSize = DEFAULT_BUFFER_SIZE);
+	explicit PipedInputStream(PipedOutputStream &outputStream, size_t bufferSize = DEFAULT_BUFFER_SIZE) :
+		PipedInputStream(bufferSize)
+	{
+		connect(outputStream);
+	}
 
 	/// Destroy the piped input stream and free the internal buffer.
-    ~PipedInputStream() override;
+	~PipedInputStream() override {
+		delete[] buffer;
+	}
 
 	/// Connect this piped input stream to the given piped output stream.
 	/// If this stream is already connected to an output stream, a panic is fired.
-    void connect(PipedOutputStream &outputStream);
+	void connect(PipedOutputStream &outputStream);
 
 	/// Read a single byte from the stream and return it as an integer in the range 0 to 255.
 	/// If no byte is currently available, the call will block until data is available.
 	/// If the stream is not yet connected to an output stream, a panic is fired.
-    int16_t read() override;
+	int16_t read() override;
 
 	/// Read `length` bytes from the stream into the given target buffer, starting at the given offset
 	/// and return the number of bytes read. As there are no error cases, this should always return `length`.
@@ -104,36 +116,54 @@ public:
 	/// Check if there is data available to read from the stream.
 	/// This method returns immediately and does not block.
 	/// If the stream is not yet connected to an output stream, a panic is fired.
-    bool isReadyToRead() override;
+	bool isReadyToRead() override {
+		return getReadableBytes() > 0;
+	}
 
 	/// Return the number of bytes that can be read from the stream without blocking
 	/// (i.e. the number of bytes currently stored in the internal buffer).
-    size_t getReadableBytes();
+	size_t getReadableBytes() {
+		lock.acquire();
+
+		size_t readableBytes;
+		if (inPosition < 0) {
+			readableBytes = 0;
+		} else if (outPosition < inPosition) {
+			readableBytes = inPosition - outPosition;
+		} else {
+			readableBytes = bufferSize - outPosition + inPosition;
+		}
+
+		return lock.releaseAndReturn(readableBytes);
+	}
 
 private:
 
-    friend class PipedOutputStream;
+	friend class PipedOutputStream;
 
 	bool write(uint8_t byte);
 
-    size_t write(const uint8_t *sourceBuffer, size_t offset, size_t length);
+	size_t write(const uint8_t *sourceBuffer, size_t offset, size_t length);
 
-	size_t getWritableBytes();
+	size_t getWritableBytes() {
+		return bufferSize - getReadableBytes();
+	}
 
-    PipedOutputStream *source = nullptr;
+	PipedOutputStream *source = nullptr;
 
-    Async::Spinlock lock;
+	Async::Spinlock lock;
 
-    uint8_t *buffer;
-    size_t bufferSize;
+	uint8_t *buffer;
+	size_t bufferSize;
 
-    int32_t inPosition = -1;
-    int32_t outPosition = 0;
+	int32_t inPosition = -1;
+	int32_t outPosition = 0;
 
-    static constexpr size_t DEFAULT_BUFFER_SIZE = 1024;
+	static constexpr size_t DEFAULT_BUFFER_SIZE = 1024;
 
 };
 
+}
 }
 
 #endif

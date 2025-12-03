@@ -24,7 +24,9 @@
 #include "util/base/Constants.h"
 #include "lib/interface.h"
 
-namespace Util::Hardware::Acpi {
+namespace Util {
+namespace Hardware {
+namespace Acpi {
 
 bool Rsdp::verifyChecksum() const {
     const auto *data = reinterpret_cast<const uint8_t*>(this);
@@ -44,10 +46,6 @@ bool SdtHeader::verifyChecksum() const {
     }
 
     return sum == 0;
-}
-
-size_t Rsdt::getTableCount() const {
-    return (header.length - sizeof(SdtHeader)) / sizeof(SdtHeader*);
 }
 
 Tables::Tables(const Rsdt &rsdt) : tables(rsdt.getTableCount()) {
@@ -77,10 +75,6 @@ Tables::~Tables() {
     }
 }
 
-size_t Tables::getTableCount() const {
-    return tables.length();
-}
-
 bool Tables::hasTable(const char *signature) const {
     for (const auto *table : tables) {
         if (Address(table->signature).compareRange(Address(signature), sizeof(SdtHeader::signature)) == 0) {
@@ -101,10 +95,6 @@ Array<String> Tables::getSignatures() const {
     return signatures;
 }
 
-const SdtHeader& Tables::operator[](const size_t index) const {
-    return *tables[index];
-}
-
 const SdtHeader& Tables::operator[](const char *signature) const {
     for (const auto *table : tables) {
         if (Address(table->signature).compareRange(Address(signature), sizeof(SdtHeader::signature)) == 0) {
@@ -119,20 +109,6 @@ const SdtHeader& Tables::operator[](const String &signature) const {
     return operator[](static_cast<const char*>(signature));
 }
 
-Iterator<SdtHeader> Tables::begin() const {
-    const auto element = IteratorElement<SdtHeader>{ tables.length() == 0 ? nullptr : tables[0], 0 };
-    return Iterator<SdtHeader>(*this, element);
 }
-
-Iterator<SdtHeader> Tables::end() const {
-    const auto length = tables.length();
-    const auto element = IteratorElement<SdtHeader>{ length == 0 ? nullptr : tables[length], length };
-
-    return Iterator<SdtHeader>(*this, element);
 }
-
-IteratorElement<SdtHeader> Tables::next(const IteratorElement<SdtHeader> &element) const {
-    return IteratorElement<SdtHeader>{ tables[element.index + 1], element.index + 1 };
-}
-
 }

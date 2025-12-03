@@ -22,14 +22,10 @@
 
 #include "lib/interface.h"
 
-namespace Util::Time {
+namespace Util {
+namespace Time {
 
-Date::Date() : Date(getCurrentDate()) {}
-
-Date::Date(const uint8_t seconds, const uint8_t minutes, const uint8_t hours,
-           const uint8_t dayOfMonth, const uint8_t month, const int16_t year) :
-	seconds(seconds), minutes(minutes), hours(hours),
-	dayOfMonth(dayOfMonth), month(month), year(year) {}
+Date::Date() : Date(::getCurrentDate()) {}
 
 Date::Date(int64_t unixTime) {
 	if (unixTime < 0) {
@@ -69,41 +65,6 @@ Date::Date(int64_t unixTime) {
 	seconds = unixTime;
 }
 
-
-bool Date::operator==(const Date &other) const {
-	return seconds == other.seconds && minutes == other.minutes && hours == other.hours &&
-		dayOfMonth == other.dayOfMonth && month == other.month && year == other.year;
-}
-
-bool Date::operator!=(const Date &other) const {
-	return seconds != other.seconds || minutes != other.minutes || hours != other.hours ||
-		dayOfMonth != other.dayOfMonth || month != other.month || year != other.year;
-}
-
-uint8_t Date::getSeconds() const {
-    return seconds;
-}
-
-uint8_t Date::getMinutes() const {
-    return minutes;
-}
-
-uint8_t Date::getHours() const {
-    return hours;
-}
-
-uint8_t Date::getDayOfMonth() const {
-    return dayOfMonth;
-}
-
-uint8_t Date::getMonth() const {
-    return month;
-}
-
-int16_t Date::getYear() const {
-    return year;
-}
-
 int64_t Date::getUnixTime() const {
 	if (year < 1970) {
 		Panic::fire(Panic::UNSUPPORTED_OPERATION, "Date: Unix time before 1970 is not supported.");
@@ -122,7 +83,7 @@ int64_t Date::getUnixTime() const {
 	ret += hours * 3600;
 	ret += minutes * 60;
 	ret += seconds;
-	
+
 	return ret;
 }
 
@@ -152,7 +113,7 @@ uint8_t Date::getWeekOfYearSunday() const {
 }
 
 void Date::setHardwareClock() const {
-    ::setDate(*this);
+	::setDate(*this);
 }
 
 uint16_t Date::getLengthOfYear(const int16_t year) {
@@ -176,4 +137,5 @@ uint8_t Date::getLengthOfMonth(const uint8_t month, const int16_t year) {
 	return monthLength[month - 1];
 }
 
+}
 }

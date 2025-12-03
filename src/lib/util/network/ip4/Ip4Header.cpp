@@ -28,12 +28,8 @@
 #include "util/network/ip4/Ip4Address.h"
 
 namespace Util {
-namespace Io {
-class OutputStream;
-}  // namespace Stream
-}  // namespace Util
-
-namespace Util::Network::Ip4 {
+namespace Network {
+namespace Ip4 {
 
 void Ip4Header::read(Io::InputStream &stream) {
     // Read IP version and header length
@@ -91,52 +87,6 @@ void Ip4Header::write(Io::OutputStream &stream) const {
     destinationAddress.write(stream);
 }
 
-uint8_t Ip4Header::getVersion() const {
-    return version;
 }
-
-uint16_t Ip4Header::getPayloadLength() const {
-    return payloadLength;
 }
-
-uint8_t Ip4Header::getTimeToLive() const {
-    return timeToLive;
-}
-
-Ip4Header::Protocol Ip4Header::getProtocol() const {
-    return protocol;
-}
-
-const Ip4Address& Ip4Header::getSourceAddress() const {
-    return sourceAddress;
-}
-
-const Ip4Address& Ip4Header::getDestinationAddress() const {
-    return destinationAddress;
-}
-
-void Ip4Header::setPayloadLength(const uint16_t payloadLength) {
-    Ip4Header::payloadLength = payloadLength;
-}
-
-void Ip4Header::setTimeToLive(const uint8_t timeToLive) {
-    Ip4Header::timeToLive = timeToLive;
-}
-
-void Ip4Header::setProtocol(const Protocol protocol) {
-    Ip4Header::protocol = protocol;
-}
-
-void Ip4Header::setSourceAddress(const Ip4Address &sourceAddress) {
-    Ip4Header::sourceAddress = sourceAddress;
-}
-
-void Ip4Header::setDestinationAddress(const Ip4Address &destinationAddress) {
-    Ip4Header::destinationAddress = destinationAddress;
-}
-
-uint8_t Ip4Header::getHeaderLength() const {
-    return headerLength;
-}
-
 }

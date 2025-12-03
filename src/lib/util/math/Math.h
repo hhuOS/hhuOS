@@ -23,11 +23,173 @@
 
 #include <stdint.h>
 
+#include "util/base/Address.h"
+#include "util/base/Panic.h"
 #include "util/collection/Pair.h"
 
 /// Contains several mathematical functions and constants.
 /// Most floating point functions are implemented using x87 FPU instructions with inline assembly.
-namespace Util::Math {
+namespace Util {
+namespace Math {
+
+/// Disassemble a single precision float into its internal representation (mantissa and exponent).
+/// The return value is a pair containing the mantissa as first element and the exponent as second element.
+/// The original value can be reconstructed using the formula `value = mantissa * 2^exponent`.
+///
+/// ### Example
+/// ```c++
+/// const auto internals = Util::Math::getInternals(3.14f);
+/// const auto mantissa = internals.getFirst(); // 0.785000026f
+/// const auto exponent = internals.getSecond(); // 2
+/// const auto reconstructed = mantissa * Util::Math::pow(2.0f, exponent); // 0.785f * 2^2 = 3.14f
+/// ```
+inline Pair<float, int8_t> getInternals(float value);
+
+/// Disassemble a double precision float into its internal representation (mantissa and exponent).
+/// The return value is a pair containing the mantissa as first element and the exponent as second element.
+/// The original value can be reconstructed using the formula `value = mantissa * 2^exponent`.
+///
+/// ### Example
+/// ```c++
+/// const auto internals = Util::Math::getInternals(3.14);
+/// const auto mantissa = internals.getFirst(); // 0.78500000000000003
+/// const auto exponent = internals.getSecond(); // 2
+/// const auto reconstructed = mantissa * Util::Math::pow(2.0, exponent); // 0.785 * 2^2 = 3.14
+/// ```
+inline Pair<double, int16_t> getInternals(double value);
+
+/// Check if a single precision float is infinity.
+/// This is done by comparing the value 1.0f / 0.0f and -1.0f / 0.0f, which yield positive and negative infinity.
+/// If the value is equal to either of these, it is considered infinity.
+///
+/// ### Example
+/// ```c++
+/// const bool isInf1 = Util::Math::isInfinity(1.0f / 0.0f); // true
+/// const bool isInf2 = Util::Math::isInfinity(-1.0f / 0.0f); // true
+/// const bool isInf3 = Util::Math::isInfinity(0.0f / 0.0f); // false
+/// const bool isInf4 = Util::Math::isInfinity(0.0f); // false
+/// ```
+inline bool isInfinity(float value);
+
+/// Check if a double precision float is infinity.
+/// This is done by comparing the value 1.0 / 0.0 and -1.0 / 0.0, which yield positive and negative infinity.
+/// If the value is equal to either of these, it is considered infinity.
+///
+/// ### Example
+/// ```c++
+/// const bool isInf1 = Util::Math::isInfinity(1.0 / 0.0); // true
+/// const bool isInf2 = Util::Math::isInfinity(-1.0 / 0.0); // true
+/// const bool isInf3 = Util::Math::isInfinity(0.0 / 0.0); // false
+/// const bool isInf4 = Util::Math::isInfinity(0.0); // false
+/// ```
+inline bool isInfinity(double value);
+
+/// Check if a single precision float is NaN (Not a Number).
+/// This is done by comparing the value to itself (NaN is the only value that is not equal to itself).
+///
+/// ### Example
+/// ```c++
+/// const bool isNan1 = Util::Math::isNan(0.0f / 0.0f); // true
+/// const bool isNan2 = Util::Math::isNan(1.0f / 0.0f); // false
+/// const bool isNan3 = Util::Math::isNan(-1.0f / 0.0f); // false
+/// const bool isNan4 = Util::Math::isNan(0.0f); // false
+/// ```
+inline bool isNan(float value);
+
+/// Check if a double precision float is NaN (Not a Number).
+/// This is done by comparing the value to itself (NaN is the only value that is not equal to itself).
+///
+/// ### Example
+/// ```c++
+/// const bool isNan1 = Util::Math::isNan(0.0 / 0.0); // true
+/// const bool isNan2 = Util::Math::isNan(1.0 / 0.0); // false
+/// const bool isNan3 = Util::Math::isNan(-1.0 / 0.0); // false
+/// const bool isNan4 = Util::Math::isNan(0.0); // false
+/// ```
+inline bool isNan(double value);
+
+/// Calculate the minimum of two single precision floats.
+///
+/// ### Example
+/// ```c++
+/// const float min1 = Util::Math::min(3.14f, 2.71f); // 2.71f
+/// const float min2 = Util::Math::min(1.0f, 1.0f); // 1.0f
+/// ```
+inline float min(float first, float second);
+
+/// Calculate the maximum of two single precision floats.
+///
+/// ### Example
+/// ```c++
+/// const float max1 = Util::Math::max(3.14f, 2.71f); // 3.14f
+/// const float max2 = Util::Math::max(1.0f, 1.0f); // 1.0f
+/// ```
+inline float max(float first, float second);
+
+/// Calculate the minimum of two double precision floats.
+///
+/// ### Example
+/// ```c++
+/// const double min1 = Util::Math::min(3.14, 2.71); // 2.71
+/// const double min2 = Util::Math::min(1.0, 1.0); // 1.0
+/// ```
+inline double min(double first, double second);
+
+/// Calculate the maximum of two double precision floats.
+///
+/// ### Example
+/// ```c++
+/// const double max1 = Util::Math::max(3.14, 2.71); // 3.14
+/// const double max2 = Util::Math::max(1.0, 1.0); // 1.0
+/// ```
+inline double max(double first, double second);
+
+/// Calculate the maximum of two double precision floats.
+///
+/// ### Example
+/// ```c++
+/// const double max1 = Util::Math::max(3.14, 2.71); // 3.14
+/// const double max2 = Util::Math::max(1.0, 1.0); // 1.0
+/// ```
+inline float max(float first, float second, float third);
+
+/// Calculate the minimum of three double precision floats.
+///
+/// ### Example
+/// ```c++
+/// const double min1 = Util::Math::min(3.14, 2.71, 1.41); // 1.41
+/// const double min2 = Util::Math::min(1.0, 1.0, 1.0); // 1.0
+/// ```
+inline double min(double first, double second, double third);
+
+/// Calculate the maximum of three double precision floats.
+///
+/// ### Example
+/// ```c++
+/// const double max1 = Util::Math::max(3.14, 2.71, 1.41); // 3.14
+/// const double max2 = Util::Math::max(1.0, 1.0, 1.0); // 1.0
+/// ```
+inline double max(double first, double second, double third);
+
+/// Check if two single precision floats are equal within a given epsilon.
+/// If the absolute difference between the two values is less than the epsilon, they are considered equal.
+///
+/// ### Example
+/// ```c++
+/// const float equals1 = Util::Math::equals(3.14f, 3.149f, 0.01f); // true
+/// const float equals2 = Util::Math::equals(3.14f, 3.15f, 0.01f); // false
+/// ```
+inline bool equals(float first, float second, float epsilon);
+
+/// Check if two double precision floats are equal within a given epsilon.
+/// If the absolute difference between the two values is less than the epsilon, they are considered equal.
+///
+/// ### Example
+/// ```c++
+/// const double equals1 = Util::Math::equals(3.14, 3.149, 0.01); // true
+/// const double equals2 = Util::Math::equals(3.14, 3.15, 0.01); // false
+/// ```
+inline bool equals(double first, double second, double epsilon);
 
 /// Calculate the absolute value (the value without its sign) of a 32-bit integer.
 ///
@@ -39,7 +201,7 @@ namespace Util::Math {
 /// const auto absolute1 = Util::Math::absolute(value1); // 42
 /// const auto absolute2 = Util::Math::absolute(value2); // 42
 /// ```
-uint32_t absolute(int32_t value);
+inline uint32_t absolute(int32_t value);
 
 /// Calculate the absolute value (the value without its sign) of a 64-bit integer.
 ///
@@ -51,7 +213,7 @@ uint32_t absolute(int32_t value);
 /// const auto absolute1 = Util::Math::absolute(value1); // 42
 /// const auto absolute2 = Util::Math::absolute(value2); // 42
 /// ```
-uint64_t absolute(int64_t value);
+inline uint64_t absolute(int64_t value);
 
 /// Calculate the absolute value (the value without its sign) of a single precision float.
 ///
@@ -63,7 +225,7 @@ uint64_t absolute(int64_t value);
 /// const auto absolute1 = Util::Math::absolute(value1); // 42.0f
 /// const auto absolute2 = Util::Math::absolute(value2); // 42.0f
 /// ```
-float absolute(float value);
+inline float absolute(float value);
 
 /// Calculate the absolute value (the value without its sign) of a double precision float.
 ///
@@ -75,99 +237,7 @@ float absolute(float value);
 /// const auto absolute1 = Util::Math::absolute(value1); // 42.0
 /// const auto absolute2 = Util::Math::absolute(value2); // 42.0
 /// ```
-double absolute(double value);
-
-/// Calculate the minimum of two single precision floats.
-///
-/// ### Example
-/// ```c++
-/// const float min1 = Util::Math::min(3.14f, 2.71f); // 2.71f
-/// const float min2 = Util::Math::min(1.0f, 1.0f); // 1.0f
-/// ```
-float min(float first, float second);
-
-/// Calculate the maximum of two single precision floats.
-///
-/// ### Example
-/// ```c++
-/// const float max1 = Util::Math::max(3.14f, 2.71f); // 3.14f
-/// const float max2 = Util::Math::max(1.0f, 1.0f); // 1.0f
-/// ```
-float max(float first, float second);
-
-/// Calculate the minimum of two double precision floats.
-///
-/// ### Example
-/// ```c++
-/// const double min1 = Util::Math::min(3.14, 2.71); // 2.71
-/// const double min2 = Util::Math::min(1.0, 1.0); // 1.0
-/// ```
-double min(double first, double second);
-
-/// Calculate the maximum of two double precision floats.
-///
-/// ### Example
-/// ```c++
-/// const double max1 = Util::Math::max(3.14, 2.71); // 3.14
-/// const double max2 = Util::Math::max(1.0, 1.0); // 1.0
-/// ```
-double max(double first, double second);
-
-/// Calculate the minimum of three single precision floats.
-///
-/// ### Example
-/// ```c++
-/// const float min1 = Util::Math::min(3.14f, 2.71f, 1.41f); // 1.41f
-/// const float min2 = Util::Math::min(1.0f, 1.0f, 1.0f); // 1.0f
-/// ```
-float min(float first, float second, float third);
-
-/// Calculate the maximum of three single precision floats.
-///
-/// ### Example
-/// ```c++
-/// const float max1 = Util::Math::max(3.14f, 2.71f, 1.41f); // 3.14f
-/// const float max2 = Util::Math::max(1.0f, 1.0f, 1.0f); // 1.0f
-/// ```
-float max(float first, float second, float third);
-
-/// Calculate the minimum of three double precision floats.
-///
-/// ### Example
-/// ```c++
-/// const double min1 = Util::Math::min(3.14, 2.71, 1.41); // 1.41
-/// const double min2 = Util::Math::min(1.0, 1.0, 1.0); // 1.0
-/// ```
-double min(double first, double second, double third);
-
-/// Calculate the maximum of three double precision floats.
-///
-/// ### Example
-/// ```c++
-/// const double max1 = Util::Math::max(3.14, 2.71, 1.41); // 3.14
-/// const double max2 = Util::Math::max(1.0, 1.0, 1.0); // 1.0
-/// ```
-double max(double first, double second, double third);
-
-/// Check if two single precision floats are equal within a given epsilon.
-/// If the absolute difference between the two values is less than the epsilon, they are considered equal.
-///
-/// ### Example
-/// ```c++
-/// const float equals1 = Util::Math::equals(3.14f, 3.149f, 0.01f); // true
-/// const float equals2 = Util::Math::equals(3.14f, 3.15f, 0.01f); // false
-/// ```
-bool equals(float first, float second, float epsilon);
-
-/// Check if two double precision floats are equal within a given epsilon.
-/// If the absolute difference between the two values is less than the epsilon, they are considered equal.
-///
-/// ### Example
-/// ```c++
-/// const double equals1 = Util::Math::equals(3.14, 3.149, 0.01); // true
-/// const double equals2 = Util::Math::equals(3.14, 3.15, 0.01); // false
-/// ```
-bool equals(double first, double second, double epsilon);
+inline double absolute(double value);
 
 /// Calculate the modulo of two single precision floats.
 /// This works with negative dividends and divisors as well.
@@ -179,7 +249,7 @@ bool equals(double first, double second, double epsilon);
 /// const float mod3 = Util::Math::modulo(8.0f, -3.0f); // -1.0f
 /// const float mod4 = Util::Math::modulo(-8.0f, -3.0f); // -2.0f
 /// ```
-float modulo(float dividend, float divisor);
+inline float modulo(float dividend, float divisor);
 
 /// Calculate the modulo of two double precision floats.
 /// This works with negative dividends and divisors as well.
@@ -191,7 +261,59 @@ float modulo(float dividend, float divisor);
 /// const double mod3 = Util::Math::modulo(8.0, -3.0); // -1.0
 /// const double mod4 = Util::Math::modulo(-8.0, -3.0); // -2.0
 /// ```
-double modulo(double dividend, double divisor);
+inline double modulo(double dividend, double divisor);
+
+/// Convert degrees to radians for a single precision float.
+///
+/// ### Example
+/// ```c++
+/// const float radians1 = Util::Math::toRadians(180.0f); // 3.141592653589793f (Util::Math::PI_FLOAT)
+/// const float radians2 = Util::Math::toRadians(90.0f); // 1.5707963267948966f (Util::Math::PI_FLOAT / 2.0f)
+/// const float radians3 = Util::Math::toRadians(0.0f); // 0.0f
+/// const float radians4 = Util::Math::toRadians(-180.0f); // -3.141592653589793f (-Util::Math::PI_FLOAT)
+/// const float radians5 = Util::Math::toRadians(360.0f); // 6.283185307179586f (Util::Math::PI_FLOAT * 2)
+/// const float radians6 = Util::Math::toRadians(-360.0f); // -6.283185307179586f (-Util::Math::PI_FLOAT * 2)
+/// ```
+inline float toRadians(float degrees);
+
+/// Convert degrees to radians for a double precision float.
+///
+/// ### Example
+/// ```c++
+/// const double radians1 = Util::Math::toRadians(180.0); // 3.141592653589793 (Util::Math::PI_DOUBLE)
+/// const double radians2 = Util::Math::toRadians(90.0); // 1.5707963267948966 (Util::Math::PI_DOUBLE / 2.0)
+/// const double radians3 = Util::Math::toRadians(0.0); // 0.0
+/// const double radians4 = Util::Math::toRadians(-180.0); // -3.141592653589793 (-Util::Math::PI_DOUBLE)
+/// const double radians5 = Util::Math::toRadians(360.0); // 6.283185307179586 (Util::Math::PI_DOUBLE * 2)
+/// const double radians6 = Util::Math::toRadians(-360.0); // -6.283185307179586 (-Util::Math::PI_DOUBLE * 2)
+/// ```
+inline double toRadians(double degrees);
+
+/// Convert radians to degrees for a single precision float.
+///
+/// ### Example
+/// ```c++
+/// const float degrees1 = Util::Math::toDegrees(Util::Math::PI_FLOAT); // 180.0f
+/// const float degrees2 = Util::Math::toDegrees(Util::Math::PI_FLOAT / 2.0f); // 90.0f
+/// const float degrees3 = Util::Math::toDegrees(0.0f); // 0.0f
+/// const float degrees4 = Util::Math::toDegrees(-Util::Math::PI_FLOAT); // -180.0f
+/// const float degrees5 = Util::Math::toDegrees(Util::Math::PI_FLOAT * 2.0f); // 360.0f
+/// const float degrees6 = Util::Math::toDegrees(-Util::Math::PI_FLOAT * 2.0f); // -360.0f
+/// ```
+inline float toDegrees(float radians);
+
+/// Convert radians to degrees for a double precision float.
+///
+/// ### Example
+/// ```c++
+/// const double degrees1 = Util::Math::toDegrees(Util::Math::PI_DOUBLE); // 180.0
+/// const double degrees2 = Util::Math::toDegrees(Util::Math::PI_DOUBLE / 2.0); // 90.0
+/// const double degrees3 = Util::Math::toDegrees(0.0); // 0.0
+/// const double degrees4 = Util::Math::toDegrees(-Util::Math::PI_DOUBLE); // -180.0
+/// const double degrees5 = Util::Math::toDegrees(Util::Math::PI_DOUBLE * 2.0); // 360.0
+/// const double degrees6 = Util::Math::toDegrees(-Util::Math::PI_DOUBLE * 2.0); // -360.0
+/// ```
+inline double toDegrees(double radians);
 
 /// Round a single precision float to the nearest integer value.
 ///
@@ -202,7 +324,7 @@ double modulo(double dividend, double divisor);
 /// const float rounded3 = Util::Math::round(-2.7f); // -3.0f
 /// const float rounded4 = Util::Math::round(-2.5f); // -2.0f
 /// ```
-float round(float value);
+inline float round(float value);
 
 /// Round a double precision float to the nearest integer value.
 ///
@@ -213,7 +335,7 @@ float round(float value);
 /// const double rounded3 = Util::Math::round(-2.7); // -3.0
 /// const double rounded4 = Util::Math::round(-2.5); // -2.0
 /// ```
-double round(double value);
+inline double round(double value);
 
 /// Truncate a single precision float (round towards zero).
 ///
@@ -224,7 +346,7 @@ double round(double value);
 /// const float truncated3 = Util::Math::truncate(-2.7f); // -2.0f
 /// const float truncated4 = Util::Math::truncate(-2.5f); // -2.0f
 /// ```
-float truncate(float value);
+inline float truncate(float value);
 
 /// Truncate a double precision float, rounding to the nearest integer value towards zero.
 ///
@@ -235,7 +357,7 @@ float truncate(float value);
 /// const double truncated3 = Util::Math::truncate(-2.7); // -2.0
 /// const double truncated4 = Util::Math::truncate(-2.5); // -2.0
 /// ```
-double truncate(double value);
+inline double truncate(double value);
 
 /// Round a single precision float down to the nearest integer value.
 ///
@@ -246,7 +368,7 @@ double truncate(double value);
 /// const float floored3 = Util::Math::floor(-2.7f); // -3.0f
 /// const float floored4 = Util::Math::floor(-2.5f); // -3.0f
 /// ```
-float floor(float value);
+inline float floor(float value);
 
 /// Round a double precision float down to the nearest integer value.
 ///
@@ -257,7 +379,7 @@ float floor(float value);
 /// const double floored3 = Util::Math::floor(-2.7); // -3.0
 /// const double floored4 = Util::Math::floor(-2.5); // -3.0
 /// ```
-double floor(double value);
+inline double floor(double value);
 
 /// Round a single precision float up to the nearest integer value.
 ///
@@ -268,7 +390,7 @@ double floor(double value);
 /// const float ceiled3 = Util::Math::ceil(-2.7f); // -2.0f
 /// const float ceiled4 = Util::Math::ceil(-2.5f); // -2.0f
 /// ```
-float ceil(float value);
+inline float ceil(float value);
 
 /// Round a double precision float up to the nearest integer value.
 ///
@@ -279,7 +401,7 @@ float ceil(float value);
 /// const double ceiled3 = Util::Math::ceil(-2.7); // -2.0
 /// const double ceiled4 = Util::Math::ceil(-2.5); // -2.0
 /// ```
-double ceil(double value);
+inline double ceil(double value);
 
 /// Calculate the exponential function (e^x) for a single precision float.
 ///
@@ -290,7 +412,7 @@ double ceil(double value);
 /// const float exp3 = Util::Math::exp(-1.0f); // 0.36787944117144233f
 /// const float exp4 = Util::Math::exp(10.0f); // 22026.465794806718f
 /// ```
-float exp(float value);
+inline float exp(float value);
 
 /// Calculate the exponential function (e^x) for a double precision float.
 ///
@@ -301,7 +423,7 @@ float exp(float value);
 /// const double exp3 = Util::Math::exp(-1.0); // 0.36787944117144233
 /// const double exp4 = Util::Math::exp(10.0); // 22026.465794806718
 /// ```
-double exp(double value);
+inline double exp(double value);
 
 /// Calculate the base-2 exponential function (2^x) for a single precision float.
 ///
@@ -312,7 +434,7 @@ double exp(double value);
 /// const float exp3 = Util::Math::exp2(-1.0f); // 0.5f
 /// const float exp4 = Util::Math::exp2(10.0f); // 1024.0f
 /// ```
-float exp2(float value);
+inline float exp2(float value);
 
 /// Calculate the base-2 exponential function (2^x) for a double precision float.
 ///
@@ -323,7 +445,7 @@ float exp2(float value);
 /// const double exp3 = Util::Math::exp2(-1.0); // 0.5
 /// const double exp4 = Util::Math::exp2(10.0); // 1024.0
 /// ```
-double exp2(double value);
+inline double exp2(double value);
 
 /// Calculate the natural logarithm (base e) of a single precision float.
 /// The logarithm is only defined for positive values. If the value is less than or equal to zero, a panic is fired.
@@ -335,7 +457,7 @@ double exp2(double value);
 /// const float ln3 = Util::Math::ln(10.0f); // 2.302585092994046f
 /// const float ln4 = Util::Math::ln(-1.0f); // Panic: Logarithm of non-positive value
 /// ```
-float ln(float value);
+inline float ln(float value);
 
 /// Calculate the natural logarithm (base e) of a double precision float.
 /// The logarithm is only defined for positive values. If the value is less than or equal to zero, a panic is fired.
@@ -347,7 +469,7 @@ float ln(float value);
 /// const double ln3 = Util::Math::ln(10.0); // 2.302585092994046
 /// const double ln4 = Util::Math::ln(-1.0); // Panic: Logarithm of non-positive value
 /// ```
-double ln(double value);
+inline double ln(double value);
 
 /// Calculate the base-10 logarithm of a single precision float.
 /// The logarithm is only defined for positive values. If the value is less than or equal to zero, a panic is fired.
@@ -359,7 +481,7 @@ double ln(double value);
 /// const float log3 = Util::Math::log10(1.0f); // 0.0f
 /// const float log4 = Util::Math::log10(-1.0f); // Panic: Logarithm of non-positive value
 /// ```
-float log10(float value);
+inline float log10(float value);
 
 /// Calculate the base-10 logarithm of a double precision float.
 /// The logarithm is only defined for positive values. If the value is less than or equal to zero, a panic is fired.
@@ -371,7 +493,7 @@ float log10(float value);
 /// const double log3 = Util::Math::log10(1.0); // 0.0
 /// const double log4 = Util::Math::log10(-1.0); // Panic: Logarithm of non-positive value
 /// ```
-double log10(double value);
+inline double log10(double value);
 
 /// Calculate the power of a single precision float raised to an exponent.
 /// If the base is negative, the exponent must be an integer. Otherwise, a panic is fired.
@@ -385,7 +507,7 @@ double log10(double value);
 /// const float pow4 = Util::Math::pow(2.0f, -2.0f); // 0.25f
 /// const float pow6 = Util::Math::pow(-2.0f, 2.5f); // Panic: Negative base with non-integer exponent
 /// ```
-float pow(float base, float exponent);
+inline float pow(float base, float exponent);
 
 /// Calculate the power of a double precision float raised to an exponent.
 /// If the base is negative, the exponent must be an integer. Otherwise, a panic is fired.
@@ -399,7 +521,7 @@ float pow(float base, float exponent);
 /// const double pow5 = Util::Math::pow(2.0, -2.0); // 0.25
 /// const double pow6 = Util::Math::pow(-2.0, 2.5); // Panic: Negative base with non-integer exponent
 /// ```
-double pow(double base, double exponent);
+inline double pow(double base, double exponent);
 
 /// Calculate the square root of a single precision float.
 /// The value must be non-negative. If the value is negative, a panic is fired.
@@ -411,7 +533,7 @@ double pow(double base, double exponent);
 /// const float sqrt3 = Util::Math::sqrt(0.0f); // 0.0f
 /// const float sqrt4 = Util::Math::sqrt(-1.0f); // Panic: Negative value
 /// ```
-float sqrt(float value);
+inline float sqrt(float value);
 
 /// Calculate the square root of a double precision float.
 /// The value must be non-negative. If the value is negative, a panic is fired.
@@ -423,66 +545,7 @@ float sqrt(float value);
 /// const double sqrt3 = Util::Math::sqrt(0.0); // 0.0
 /// const double sqrt4 = Util::Math::sqrt(-1.0); // Panic: Negative value
 /// ```
-double sqrt(double value);
-
-/// Convert degrees to radians for a single precision float.
-///
-/// ### Example
-/// ```c++
-/// const float radians1 = Util::Math::toRadians(180.0f); // 3.141592653589793f (Util::Math::PI_FLOAT)
-/// const float radians2 = Util::Math::toRadians(90.0f); // 1.5707963267948966f (Util::Math::PI_FLOAT / 2.0f)
-/// const float radians3 = Util::Math::toRadians(0.0f); // 0.0f
-/// const float radians4 = Util::Math::toRadians(-180.0f); // -3.141592653589793f (-Util::Math::PI_FLOAT)
-/// const float radians5 = Util::Math::toRadians(360.0f); // 6.283185307179586f (Util::Math::PI_FLOAT * 2)
-/// const float radians6 = Util::Math::toRadians(-360.0f); // -6.283185307179586f (-Util::Math::PI_FLOAT * 2)
-/// ```
-float toRadians(float degrees);
-
-/// Convert degrees to radians for a double precision float.
-///
-/// ### Example
-/// ```c++
-/// const double radians1 = Util::Math::toRadians(180.0); // 3.141592653589793 (Util::Math::PI_DOUBLE)
-/// const double radians2 = Util::Math::toRadians(90.0); // 1.5707963267948966 (Util::Math::PI_DOUBLE / 2.0)
-/// const double radians3 = Util::Math::toRadians(0.0); // 0.0
-/// const double radians4 = Util::Math::toRadians(-180.0); // -3.141592653589793 (-Util::Math::PI_DOUBLE)
-/// const double radians5 = Util::Math::toRadians(360.0); // 6.283185307179586 (Util::Math::PI_DOUBLE * 2)
-/// const double radians6 = Util::Math::toRadians(-360.0); // -6.283185307179586 (-Util::Math::PI_DOUBLE * 2)
-/// ```
-double toRadians(double degrees);
-
-/// Convert radians to degrees for a single precision float.
-///
-/// ### Example
-/// ```c++
-/// const float degrees1 = Util::Math::toDegrees(Util::Math::PI_FLOAT); // 180.0f
-/// const float degrees2 = Util::Math::toDegrees(Util::Math::PI_FLOAT / 2.0f); // 90.0f
-/// const float degrees3 = Util::Math::toDegrees(0.0f); // 0.0f
-/// const float degrees4 = Util::Math::toDegrees(-Util::Math::PI_FLOAT); // -180.0f
-/// const float degrees5 = Util::Math::toDegrees(Util::Math::PI_FLOAT * 2.0f); // 360.0f
-/// const float degrees6 = Util::Math::toDegrees(-Util::Math::PI_FLOAT * 2.0f); // -360.0f
-/// ```
-float toDegrees(float radians);
-
-/// Convert radians to degrees for a double precision float.
-///
-/// ### Example
-/// ```c++
-/// const double degrees1 = Util::Math::toDegrees(Util::Math::PI_DOUBLE); // 180.0
-/// const double degrees2 = Util::Math::toDegrees(Util::Math::PI_DOUBLE / 2.0); // 90.0
-/// const double degrees3 = Util::Math::toDegrees(0.0); // 0.0
-/// const double degrees4 = Util::Math::toDegrees(-Util::Math::PI_DOUBLE); // -180.0
-/// const double degrees5 = Util::Math::toDegrees(Util::Math::PI_DOUBLE * 2.0); // 360.0
-/// const double degrees6 = Util::Math::toDegrees(-Util::Math::PI_DOUBLE * 2.0); // -360.0
-/// ```
-double toDegrees(double radians);
-
-#define SINE(VALUE, RESULT) \
-    asm volatile ( \
-    "fsin;" \
-    : "=t"(RESULT) \
-    : "0"(VALUE) \
-    );
+inline double sqrt(double value);
 
 /// Calculate the sine of a single precision float.
 /// The value must be given in radians.
@@ -495,12 +558,7 @@ double toDegrees(double radians);
 /// const float sine4 = Util::Math::sine(Util::Math::PI_FLOAT * 3.0f / 2.0f); // -1.0f
 /// const float sine5 = Util::Math::sine(Util::Math::PI_FLOAT * 2.0f); // 0.0f
 /// ```
-inline float sine(const float value) {
-    float result;
-    SINE(value, result);
-
-    return result;
-}
+inline float sine(float value);
 
 /// Calculate the sine of a double precision float.
 /// The value must be given in radians.
@@ -513,19 +571,7 @@ inline float sine(const float value) {
 /// const double sine4 = Util::Math::sine(Util::Math::PI_DOUBLE * 3.0 / 2.0); // -1.0
 /// const double sine5 = Util::Math::sine(Util::Math::PI_DOUBLE * 2.0); // 0.0
 /// ```
-inline double sine(const double value) {
-    double result;
-    SINE(value, result);
-
-    return result;
-}
-
-#define COSINE(VALUE, RESULT) \
-    asm volatile ( \
-    "fcos;" \
-    : "=t"(RESULT) \
-    : "0"(VALUE) \
-    );
+inline double sine(double value);
 
 /// Calculate the cosine of a single precision float.
 /// The value must be given in radians.
@@ -538,12 +584,7 @@ inline double sine(const double value) {
 /// const float cosine4 = Util::Math::cosine(Util::Math::PI_FLOAT * 3.0f / 2.0f); // 0.0f
 /// const float cosine5 = Util::Math::cosine(Util::Math::PI_FLOAT * 2.0f); // 1.0f
 /// ```
-inline float cosine(const float value) {
-    float result;
-    COSINE(value, result);
-
-    return result;
-}
+inline float cosine(float value);
 
 /// Calculate the cosine of a double precision float.
 /// The value must be given in radians.
@@ -556,12 +597,7 @@ inline float cosine(const float value) {
 /// const double cosine4 = Util::Math::cosine(Util::Math::PI_DOUBLE * 3.0 / 2.0); // 0.0
 /// const double cosine5 = Util::Math::cosine(Util::Math::PI_DOUBLE * 2.0); // 1.0
 /// ```
-inline double cosine(const double value) {
-    double result;
-    COSINE(value, result);
-
-    return result;
-}
+inline double cosine(double value);
 
 /// Calculate the tangent of a single precision float.
 /// The value must be given in radians.
@@ -574,7 +610,7 @@ inline double cosine(const double value) {
 /// const float tangent4 = Util::Math::tangent(Util::Math::PI_FLOAT * 3.0f / 4.0f); // -1.0f
 /// const float tangent5 = Util::Math::tangent(Util::Math::PI_FLOAT); // 0.0f
 /// ```
-float tangent(float value);
+inline float tangent(float value);
 
 /// Calculate the tangent of a double precision float.
 /// The value must be given in radians.
@@ -587,7 +623,7 @@ float tangent(float value);
 /// const double tangent4 = Util::Math::tangent(Util::Math::PI_DOUBLE * 3.0 / 4.0); // -1.0
 /// const double tangent5 = Util::Math::tangent(Util::Math::PI_DOUBLE); // 0.0
 /// ```
-double tangent(double value);
+inline double tangent(double value);
 
 /// Calculate the cotangent of a single precision float.
 /// The value must be given in radians.
@@ -600,7 +636,7 @@ double tangent(double value);
 /// const float cotangent4 = Util::Math::cotangent(Util::Math::PI_FLOAT * 3.0f / 4.0f); // -1.0f
 /// const float cotangent5 = Util::Math::cotangent(Util::Math::PI_FLOAT); // Infinity
 /// ```
-float cotangent(float value);
+inline float cotangent(float value);
 
 /// Calculate the cotangent of a double precision float.
 /// The value must be given in radians.
@@ -613,7 +649,7 @@ float cotangent(float value);
 /// const double cotangent4 = Util::Math::cotangent(Util::Math::PI_DOUBLE * 3.0 / 4.0); // -1.0
 /// const double cotangent5 = Util::Math::cotangent(Util::Math::PI_DOUBLE); // Infinity
 /// ```
-double cotangent(double value);
+inline double cotangent(double value);
 
 /// Calculate the arctangent of a single precision float.
 /// The value must be given in radians.
@@ -628,7 +664,7 @@ double cotangent(double value);
 /// const float atan3 = Util::Math::arctangent(-1.0f); // -0.7853981633974483f (-PI_FLOAT / 4.0f)
 /// const float atan4 = Util::Math::arctangent(1.0f, 2.0f); // 0.4636476090008061f
 /// ```
-float arctangent(float value, float divisor = 1);
+inline float arctangent(float value, float divisor = 1);
 
 /// Calculate the arctangent of a double precision float.
 /// The value must be given in radians.
@@ -643,7 +679,7 @@ float arctangent(float value, float divisor = 1);
 /// const double atan3 = Util::Math::arctangent(-1.0); // -0.7853981633974483 (-PI_DOUBLE / 4.0)
 /// const double atan4 = Util::Math::arctangent(1.0, 2.0); // 0.4636476090008061
 /// ```
-double arctangent(double value, double divisor = 1);
+inline double arctangent(double value, double divisor = 1);
 
 /// Calculate the arctangent2 of two single precision floats.
 /// The function calculates the arctangent of (y / x) using the signs of both values to determine the correct quadrant.
@@ -656,7 +692,7 @@ double arctangent(double value, double divisor = 1);
 /// const float atan4 = Util::Math::arctangent2(1.0f, -1.0f); // 2.356194490192345f (3 * PI_FLOAT / 4.0f)
 /// const float atan5 = Util::Math::arctangent2(-1.0f, -1.0f); // -2.356194490192345f (-3 * PI_FLOAT / 4.0f)
 /// ```
-float arctangent2(float y, float x);
+inline float arctangent2(float y, float x);
 
 /// Calculate the arctangent2 of two double precision floats.
 /// The function calculates the arctangent of (y / x) using the signs of both values to determine the correct quadrant.
@@ -669,7 +705,7 @@ float arctangent2(float y, float x);
 /// const double atan4 = Util::Math::arctangent2(1.0, -1.0); // 2.356194490192345 (3 * PI_DOUBLE / 4.0)
 /// const double atan5 = Util::Math::arctangent2(-1.0, -1.0); // -2.356194490192345 (-3 * PI_DOUBLE / 4.0)
 /// ```
-double arctangent2(double y, double x);
+inline double arctangent2(double y, double x);
 
 /// Calculate the arcsine of a single precision float.
 /// The value must be in the range [-1, 1]. Other values will fire a panic.
@@ -683,7 +719,7 @@ double arctangent2(double y, double x);
 /// const float asin5 = Util::Math::arcsine(-0.5f); // -0.5235987755982989f (-PI_FLOAT / 6.0f)
 /// const float asin5 = Util::Math::arcsine(1.5f); // Panic: Value out of range [-1, 1]
 /// ```
-float arcsine(float value);
+inline float arcsine(float value);
 
 /// Calculate the arcsine of a double precision float.
 /// The value must be in the range [-1, 1]. Other values will fire a panic.
@@ -697,7 +733,7 @@ float arcsine(float value);
 /// const double asin5 = Util::Math::arcsine(-0.5); // -0.5235987755982989 (-PI_DOUBLE / 6.0)
 /// const double asin6 = Util::Math::arcsine(1.5); // Panic: Value out of range [-1, 1]
 /// ```
-double arcsine(double value);
+inline double arcsine(double value);
 
 /// Calculate the arccosine of a single precision float.
 /// The value must be in the range [-1, 1]. Other values will fire a panic.
@@ -711,7 +747,7 @@ double arcsine(double value);
 /// const float acos5 = Util::Math::arccosine(-0.5f); // 2.0943951023931957f (2 * PI_FLOAT / 3.0f)
 /// const float acos6 = Util::Math::arccosine(1.5f); // Panic: Value out of range [-1, 1]
 /// ```
-float arccosine(float value);
+inline float arccosine(float value);
 
 /// Calculate the arccosine of a double precision float.
 /// The value must be in the range [-1, 1]. Other values will fire a panic.
@@ -725,83 +761,7 @@ float arccosine(float value);
 /// const double acos5 = Util::Math::arccosine(-0.5); // 2.0943951023931957 (2 * PI_DOUBLE / 3.0)
 /// const double acos6 = Util::Math::arccosine(1.5); // Panic: Value out of range [-1, 1]
 /// ```
-double arccosine(double value);
-
-/// Disassemble a single precision float into its internal representation (mantissa and exponent).
-/// The return value is a pair containing the mantissa as first element and the exponent as second element.
-/// The original value can be reconstructed using the formula `value = mantissa * 2^exponent`.
-///
-/// ### Example
-/// ```c++
-/// const auto internals = Util::Math::getInternals(3.14f);
-/// const auto mantissa = internals.getFirst(); // 0.785000026f
-/// const auto exponent = internals.getSecond(); // 2
-/// const auto reconstructed = mantissa * Util::Math::pow(2.0f, exponent); // 0.785f * 2^2 = 3.14f
-/// ```
-Pair<float, int8_t> getInternals(float value);
-
-/// Disassemble a double precision float into its internal representation (mantissa and exponent).
-/// The return value is a pair containing the mantissa as first element and the exponent as second element.
-/// The original value can be reconstructed using the formula `value = mantissa * 2^exponent`.
-///
-/// ### Example
-/// ```c++
-/// const auto internals = Util::Math::getInternals(3.14);
-/// const auto mantissa = internals.getFirst(); // 0.78500000000000003
-/// const auto exponent = internals.getSecond(); // 2
-/// const auto reconstructed = mantissa * Util::Math::pow(2.0, exponent); // 0.785 * 2^2 = 3.14
-/// ```
-Pair<double, int16_t> getInternals(double value);
-
-/// Check if a single precision float is infinity.
-/// This is done by comparing the value 1.0f / 0.0f and -1.0f / 0.0f, which yield positive and negative infinity.
-/// If the value is equal to either of these, it is considered infinity.
-///
-/// ### Example
-/// ```c++
-/// const bool isInf1 = Util::Math::isInfinity(1.0f / 0.0f); // true
-/// const bool isInf2 = Util::Math::isInfinity(-1.0f / 0.0f); // true
-/// const bool isInf3 = Util::Math::isInfinity(0.0f / 0.0f); // false
-/// const bool isInf4 = Util::Math::isInfinity(0.0f); // false
-/// ```
-bool isInfinity(float value);
-
-/// Check if a double precision float is infinity.
-/// This is done by comparing the value 1.0 / 0.0 and -1.0 / 0.0, which yield positive and negative infinity.
-/// If the value is equal to either of these, it is considered infinity.
-///
-/// ### Example
-/// ```c++
-/// const bool isInf1 = Util::Math::isInfinity(1.0 / 0.0); // true
-/// const bool isInf2 = Util::Math::isInfinity(-1.0 / 0.0); // true
-/// const bool isInf3 = Util::Math::isInfinity(0.0 / 0.0); // false
-/// const bool isInf4 = Util::Math::isInfinity(0.0); // false
-/// ```
-bool isInfinity(double value);
-
-/// Check if a single precision float is NaN (Not a Number).
-/// This is done by comparing the value to itself (NaN is the only value that is not equal to itself).
-///
-/// ### Example
-/// ```c++
-/// const bool isNan1 = Util::Math::isNan(0.0f / 0.0f); // true
-/// const bool isNan2 = Util::Math::isNan(1.0f / 0.0f); // false
-/// const bool isNan3 = Util::Math::isNan(-1.0f / 0.0f); // false
-/// const bool isNan4 = Util::Math::isNan(0.0f); // false
-/// ```
-bool isNan(float value);
-
-/// Check if a double precision float is NaN (Not a Number).
-/// This is done by comparing the value to itself (NaN is the only value that is not equal to itself).
-///
-/// ### Example
-/// ```c++
-/// const bool isNan1 = Util::Math::isNan(0.0 / 0.0); // true
-/// const bool isNan2 = Util::Math::isNan(1.0 / 0.0); // false
-/// const bool isNan3 = Util::Math::isNan(-1.0 / 0.0); // false
-/// const bool isNan4 = Util::Math::isNan(0.0); // false
-/// ```
-bool isNan(double value);
+inline double arccosine(double value);
 
 /// The constant PI as a double precision float.
 static constexpr double PI_DOUBLE = 3.14159265358979323846;
@@ -815,7 +775,653 @@ static constexpr double E_DOUBLE = 2.718281828459045235360;
 /// The constant E (Euler's number) as a single precision float.
 static constexpr float E_FLOAT = E_DOUBLE;
 
+inline Pair<float, int8_t> getInternals(const float value) {
+    uint32_t bits;
+    Address(&bits).copyRange(Address(&value), sizeof(value));
+
+    const auto exponent = static_cast<int8_t>(((bits >> 23) & 0xff) - 126); // Get exponent bits
+
+    bits &= ~(static_cast<uint32_t>(0xff) << 23); // Clear exponent bits
+    bits |= static_cast<uint32_t>(126) << 23; // Set exponent to -1
+
+    float mantissa;
+    Address(&mantissa).copyRange(Address(&bits), sizeof(bits));
+
+    return Pair<float, int8_t>(mantissa, exponent);
 }
 
+inline Pair<double, int16_t> getInternals(const double value) {
+    uint64_t bits;
+    Address(&bits).copyRange(Address(&value), sizeof(value));
+
+    const auto exponent = static_cast<int16_t>(((bits >> 52) & 0x7ff) - 1022); // Get exponent bits
+
+    bits &= ~(static_cast<uint64_t>(0x7ff) << 52); // Clear exponent bits
+    bits |= static_cast<uint64_t>(1022) << 52; // Set exponent to -1
+
+    double mantissa;
+    Address(&mantissa).copyRange(Address(&bits), sizeof(bits));
+
+    return Pair<double, int16_t>(mantissa, exponent);
+}
+
+inline bool isInfinity(const float value) {
+    return value == 1.0f / 0.0f || value == -1.0f / 0.0f;
+}
+
+inline bool isInfinity(const double value) {
+    return value == 1.0 / 0.0 || value == -1.0 / 0.0;
+}
+
+inline bool isNan(const float value) {
+    return value != value; // NaN is not equal to itself
+}
+
+inline bool isNan(const double value) {
+    return value != value; // NaN is not equal to itself
+}
+
+inline float min(const float first, const float second) {
+    return first < second ? first : second;
+}
+
+inline float max(const float first, const float second) {
+    return first > second ? first : second;
+}
+
+inline double min(const double first, const double second) {
+    return first < second ? first : second;
+}
+
+inline double max(const double first, const double second) {
+    return first > second ? first : second;
+}
+
+inline float min(const float first, const float second, const float third) {
+    return min(min(first, second), third);
+}
+
+inline float max(const float first, const float second, const float third) {
+    return max(max(first, second), third);
+}
+
+inline double min(const double first, const double second, const double third) {
+    return min(min(first, second), third);
+}
+
+inline double max(const double first, const double second, const double third) {
+    return max(max(first, second), third);
+}
+
+inline bool equals(const float first, const float second, const float epsilon) {
+    return absolute(first - second) < epsilon;
+}
+
+inline bool equals(const double first, const double second, const double epsilon) {
+    return absolute(first - second) < epsilon;
+}
+
+inline uint32_t absolute(const int32_t value) {
+    return value < 0 ? -value : value;
+}
+
+inline uint64_t absolute(const int64_t value) {
+    return value < 0 ? -value : value;
+}
+
+inline float modulo(const float dividend, const float divisor) {
+    return dividend - floor(dividend / divisor) * divisor;
+}
+
+inline double modulo(const double dividend, const double divisor) {
+    return dividend - floor(dividend / divisor) * divisor;
+}
+
+inline float toRadians(const float degrees) {
+    return degrees * (PI_FLOAT / 180.0f);
+}
+
+inline double toRadians(const double degrees) {
+    return degrees * (PI_DOUBLE / 180.0);
+}
+
+inline float toDegrees(const float radians) {
+    return radians * (180.0f / PI_FLOAT);
+}
+
+inline double toDegrees(const double radians) {
+    return radians * (180.0f / PI_DOUBLE);
+}
+
+#define ABSOLUTE(VALUE, RESULT) \
+asm volatile ( \
+"fabs;" \
+: "=t"(RESULT) \
+: "0"(VALUE) \
+);
+
+inline float absolute(float value) {
+    float result;
+    ABSOLUTE(value, result);
+
+    return result;
+}
+
+inline double absolute(double value) {
+    double result;
+    ABSOLUTE(value, result);
+
+    return result;
+}
+
+#define ROUND(VALUE, RESULT) \
+asm volatile ( \
+"frndint;" \
+: "=t"(RESULT) \
+: "0"(VALUE) \
+);
+
+inline float round(const float value) {
+    float result;
+    ROUND(value, result);
+
+    return result;
+}
+
+inline double round(const double value) {
+    double result;
+    ROUND(value, result);
+
+    return result;
+}
+
+#define TRUNCATE(VALUE, RESULT) \
+uint16_t fpuControlWordBackup; \
+uint16_t fpuControlWord; \
+asm volatile ( \
+"fstcw %1;" /* Store FPU control word */ \
+"mov %1, %%ax;" /* Move control word to AX */ \
+"or $0x0c00, %%ax;" /* Set rounding mode bits (11 -> Round towards zero/Truncate) */ \
+"mov %%ax, %2;" /* Store modified control word */ \
+"fldcw %2;" /* Load modified control word */ \
+"frndint;" /* Perform rounding operations */ \
+"fldcw %1;" /* Restore original FPU control word */ \
+: "=t"(RESULT), "+m"(fpuControlWordBackup), "+m"(fpuControlWord) \
+: "0"(VALUE) \
+: "ax" \
+);
+
+inline float truncate(const float value) {
+    float result;
+    TRUNCATE(value, result);
+
+    return result;
+}
+
+inline double truncate(const double value) {
+    double result;
+    TRUNCATE(value, result);
+
+    return result;
+}
+
+#define FLOOR(VALUE, RESULT) \
+uint16_t fpuControlWordBackup; \
+uint16_t fpuControlWord; \
+asm volatile ( \
+"fnstcw %1;" /* Store FPU control word */ \
+"mov %1, %%ax;" /* Move control word to AX */ \
+"and $0xf3ff, %%ax;" /* Clear rounding mode bits */ \
+"or $0x0400, %%ax;" /* Set rounding mode bits (01 -> Round down) */ \
+"mov %%ax, %2;" /* Store modified control word */ \
+"fldcw %2;" /* Load modified control word */ \
+"frndint;" /* Perform rounding operations */ \
+"fldcw %1;" /* Restore original FPU control word */ \
+: "=t"(RESULT), "+m"(fpuControlWordBackup), "+m"(fpuControlWord) \
+: "0"(VALUE) \
+: "ax" \
+);
+
+inline float floor(const float value) {
+    float result;
+    FLOOR(value, result);
+
+    return result;
+}
+
+inline double floor(const double value) {
+    double result;
+    FLOOR(value, result);
+
+    return result;
+}
+
+#define CEIL(VALUE, RESULT) \
+uint16_t fpuControlWordBackup; \
+uint16_t fpuControlWord; \
+asm volatile ( \
+"fnstcw %1;" /* Store FPU control word */ \
+"mov %1, %%ax;" /* Move control word to AX */ \
+"and $0xf3ff, %%ax;" /* Clear rounding mode bits */ \
+"or $0x0800, %%ax;" /* Set rounding mode bits (10 -> Round up) */ \
+"mov %%ax, %2;" /* Store modified control word */ \
+"fldcw %2;" /* Load modified control word */ \
+"frndint;" /* Perform rounding operation */ \
+"fldcw %1;" /* Restore original FPU control word */ \
+: "=t"(RESULT), "+m"(fpuControlWordBackup), "+m"(fpuControlWord) \
+: "0"(VALUE) \
+: "ax" \
+);
+
+inline float ceil(const float value) {
+    float result;
+    CEIL(value, result);
+
+    return result;
+}
+
+inline double ceil(const double value) {
+    double result;
+    CEIL(value, result);
+
+    return result;
+}
+
+#define EXP(VALUE, RESULT) \
+asm volatile ( \
+"fldl2e;" /* st0: log2(e), st1: value*/ \
+"fmulp;" /* st0: ex * log2(e) */ \
+"fld1;" /* st0: 1, st1: ex * log2(e) */ \
+"fld %%st(1);" /* st0: ex * log2(e), st1: 1, st2: ex * log2(e) */ \
+"fprem;" /* st0: rem(ex * log2(e)), st: 1, st2: ex * log2(e) */ \
+"f2xm1;" /* st0: 2 ^ rem(exponent * log2(base)) - 1, st1: 1, st2: ex * log2(e) */ \
+"faddp;" /* st0: 2 ^ rem(exponent * log2(base)), st1: ex * log2(e) */ \
+"fscale;" /* st0 *= 2^ int (ex * log2(e)), st1: ex * log2(e) */ \
+"fstp %%st(1);" /* clear st1 -> result in st0 */ \
+: "=t"(RESULT) \
+: "0"(VALUE)  \
+);
+
+inline float exp(const float value) {
+    float result;
+    EXP(value, result);
+
+    return result;
+}
+
+inline double exp(const double value) {
+    float result;
+    EXP(value, result);
+
+    return result;
+}
+
+#define EXP2(VALUE, RESULT) \
+asm volatile ( \
+"fld1;" /* st0 = 1, st1 = value */ \
+"fscale;" /* st0 = 2 ^ int(ex), st1 = ex */ \
+"fld1;" /* st0 = 1, st1 = 2 ^ int(ex), st2 = ex */ \
+"fld %%st(2);" /* st0 = ex, st1 = 1, st2 = 2 ^ int(ex), st3 = ex */ \
+"fprem;" /* st0 = rem(ex), st1 = 1, st2 = 2 ^ int(ex), st3 = ex */ \
+"f2xm1;" /* st0 = 2 ^ rem(ex) - 1, st1 = 1, st2 = 2 ^ int(ex), st3 = ex */ \
+"faddp;" /* st0 = 2 ^ rem(ex), st1 = 2 ^ int(ex), st2 = ex */ \
+"fmulp;" /* st0 = 2 ^ ex; st1 = ex */ \
+"fstp %%st(1);" /* clear st1 -> result in st0 */ \
+: "=t"(RESULT) \
+: "0"(VALUE) \
+);
+
+inline float exp2(const float value) {
+    float result;
+    EXP2(value, result);
+
+    return result;
+}
+
+inline double exp2(const double value) {
+    double result;
+    EXP2(value, result);
+
+    return result;
+}
+
+#define LN(VALUE, RESULT) \
+asm volatile ( \
+"fld1;" /* st0 = 1, st1 = value */ \
+"fldl2e;" /* st0 = log2(e), st1 = 1, st2 = value */ \
+"fdivrp;" /* st0 = 1 / log2(e), st1 = value */ \
+"fxch %%st(1);" /* st0 = value, st1 = 1 / log2(e) */ \
+"fyl2x;" /* st0 = log(value) */ \
+: "=t"(RESULT) \
+: "0"(VALUE) \
+);
+
+inline float ln(const float value) {
+    if (value <= 0) {
+        Panic::fire(Panic::INVALID_ARGUMENT, "Math: Logarithm of non-positive value!");
+    }
+
+    float result;
+    LN(value, result);
+
+    return result;
+}
+
+inline double ln(const double value) {
+    if (value <= 0) {
+        Panic::fire(Panic::INVALID_ARGUMENT, "Math: Logarithm of non-positive value!");
+    }
+
+    double result;
+    LN(value, result);
+
+    return result;
+}
+
+#define LOG10(VALUE, RESULT) \
+asm volatile ( \
+"fld1;" /* st0 = 1, st1 = value */ \
+"fldl2t;" /* st0 = log2(10), st1 = 1, st2 = value */ \
+"fdivrp;" /* st0 = 1 / log2(10), st1 = value */ \
+"fxch %%st(1);" /* st0 = value, st1 = 1 / log2(10) */ \
+"fyl2x;" /* st0 = log10(value) */ \
+: "=t"(RESULT) \
+: "0"(VALUE) \
+);
+
+inline float log10(const float value) {
+    if (value <= 0) {
+        Panic::fire(Panic::INVALID_ARGUMENT, "Math: Logarithm of non-positive value!");
+    }
+
+    float result;
+    LOG10(value, result);
+
+    return result;
+}
+
+inline double log10(const double value) {
+    if (value <= 0) {
+        Panic::fire(Panic::INVALID_ARGUMENT, "Math: Logarithm of non-positive value!");
+    }
+
+    double result;
+    LOG10(value, result);
+
+    return result;
+}
+
+#define POW(BASE, EXPONENT, RESULT) \
+asm volatile ( \
+"fyl2x;" /* st0: ex * log2(b) */ \
+"fld1;" /* st0: 1, st1: ex * log2(b) */ \
+"fld %%st(1);" /* st0: ex * log2(b)  st1: 1, st2: ex * log2(b) */ \
+"fprem;" /* st0: rem(ex * log2(b) ), st: 1, st2: ex * log2(b) */ \
+"f2xm1;" /* st0: 2 ^ rem(exponent * log2(base)) - 1, s1: 1, s2: ex * log2(b) */ \
+"faddp;" /* st0: 2 ^ rem(exponent * log2(base)), st1: ex * log2(b) */ \
+"fscale;" /* st0 *= 2^ int (ex * log2(b) ) */ \
+"fstp %%st(1);" /* clear st1 -> result in st0 */ \
+: "=t"(RESULT) \
+: "0"(BASE),"u"(EXPONENT) \
+: "st(1)" \
+);
+
+inline float pow(const float base, const float exponent) {
+    if (base == 0) {
+        return 0;
+    } else if (base > 0) {
+        float result;
+        POW(base, exponent, result);
+
+        return result;
+    } else {
+        if (modulo(exponent, 1) != 0) {
+            Panic::fire(Panic::INVALID_ARGUMENT, "Math: Negative base with non-integer exponent!");
+        }
+
+        bool baseOdd = static_cast<int64_t>(exponent) % 2 == 1;
+        auto baseAbs = absolute(base);
+        float result;
+        POW(baseAbs, exponent, result);
+
+        return baseOdd ? -result : result;
+    }
+}
+
+inline double pow(const double base, const double exponent) {
+    if (base == 0) {
+        return 0;
+    } else if (base > 0) {
+        double result;
+        POW(base, exponent, result);
+
+        return result;
+    } else {
+        if (modulo(exponent, 1) != 0) {
+            Panic::fire(Panic::INVALID_ARGUMENT, "Math: Negative base with non-integer exponent!");
+        }
+
+        bool baseOdd = static_cast<int64_t>(exponent) % 2 == 1;
+        auto baseAbs = absolute(base);
+        double result;
+        POW(baseAbs, exponent, result);
+
+        return baseOdd ? -result : result;
+    }
+}
+
+#define SQRT(VALUE, RESULT) \
+asm volatile ( \
+"fsqrt;" \
+: "=t"(RESULT) \
+: "0"(VALUE) \
+);
+
+inline float sqrt(const float value) {
+    if (value < 0) {
+        Util::Panic::fire(Panic::INVALID_ARGUMENT, "Math: Square root of negative number!");
+    }
+
+    float result;
+    SQRT(value, result);
+
+    return result;
+}
+
+inline double sqrt(const double value) {
+    if (value < 0) {
+        Util::Panic::fire(Panic::INVALID_ARGUMENT, "Math: Square root of negative number!");
+    }
+
+    double result;
+    SQRT(value, result);
+
+    return result;
+}
+
+#define SINE(VALUE, RESULT) \
+asm volatile ( \
+"fsin;" \
+: "=t"(RESULT) \
+: "0"(VALUE) \
+);
+
+inline float sine(const float value) {
+    float result;
+    SINE(value, result);
+
+    return result;
+}
+
+inline double sine(const double value) {
+    double result;
+    SINE(value, result);
+
+    return result;
+}
+
+#define COSINE(VALUE, RESULT) \
+asm volatile ( \
+"fcos;" \
+: "=t"(RESULT) \
+: "0"(VALUE) \
+);
+
+inline float cosine(const float value) {
+    float result;
+    COSINE(value, result);
+
+    return result;
+}
+
+inline double cosine(const double value) {
+    double result;
+    COSINE(value, result);
+
+    return result;
+}
+
+#define TANGENT(VALUE, RESULT) \
+asm volatile ( \
+"fptan;" \
+"fstp %%st(0);" /* Pop 1.0 that was pushed by fptan */ \
+: "=t"(RESULT) \
+: "0"(VALUE) \
+);
+
+inline float tangent(const float value) {
+    float result;
+    TANGENT(value, result);
+
+    return result;
+}
+
+inline double tangent(const double value) {
+    double result;
+    TANGENT(value, result);
+
+    return result;
+}
+
+#define COTANGENT(VALUE, RESULT) \
+asm volatile ( \
+"fptan;" \
+"fdivp;" /* fptan pushes the result and 1.0 onto the stack */ \
+: "=t"(RESULT) \
+: "0"(VALUE) \
+);
+
+inline float cotangent(const float value) {
+    float result;
+    COTANGENT(value, result);
+
+    return result;
+}
+
+inline double cotangent(const double value) {
+    double result;
+    COTANGENT(value, result);
+
+    return result;
+}
+
+#define ARCTANGENT(VALUE, DIVISOR, RESULT) \
+asm volatile ( \
+"fpatan;" \
+: "=t"(RESULT) \
+: "u"(VALUE), "0"(DIVISOR) \
+: "st(1)" \
+);
+
+inline float arctangent(const float value, const float divisor) {
+    float result;
+    ARCTANGENT(value, divisor, result);
+
+    return result;
+}
+
+inline double arctangent(const double value, const double divisor) {
+    double result;
+    ARCTANGENT(value, divisor, result);
+
+    return result;
+}
+
+inline float arctangent2(const float y, const float x) {
+    if (x > 0) {
+        return arctangent(y / x);
+    }
+    if (x < 0 && y >= 0) {
+        return arctangent(y / x) + PI_FLOAT;
+    }
+    if (x < 0 && y < 0) {
+        return arctangent(y / x) - PI_FLOAT;
+    }
+    if (x == 0 && y > 0) {
+        return PI_DOUBLE / 2;
+    }
+    if (x == 0 && y < 0) {
+        return -PI_DOUBLE / 2;
+    }
+
+    return 0; // x == 0 && y == 0
+}
+
+inline double arctangent2(const double y, const double x) {
+    if (x > 0) {
+        return arctangent(y / x);
+    }
+    if (x < 0 && y >= 0) {
+        return arctangent(y / x) + PI_DOUBLE;
+    }
+    if (x < 0 && y < 0) {
+        return arctangent(y / x) - PI_DOUBLE;
+    }
+    if (x == 0 && y > 0) {
+        return PI_DOUBLE / 2;
+    }
+    if (x == 0 && y < 0) {
+        return -PI_DOUBLE / 2;
+    }
+
+    return 0; // x == 0 && y == 0
+}
+
+inline float arcsine(const float value) {
+    if (value > 1 || value < -1) {
+        Panic::fire(Panic::INVALID_ARGUMENT, "Math: Arcsine of value outside of [-1, 1]!");
+    }
+
+    const auto divisor = sqrt(1 - value * value);
+    return arctangent(value, divisor);
+}
+
+inline double arcsine(const double value) {
+    if (value > 1 || value < -1) {
+        Panic::fire(Panic::INVALID_ARGUMENT, "Math: Arcsine of value outside of [-1, 1]!");
+    }
+
+    const auto divisor = sqrt(1 - value * value);
+    return arctangent(value, divisor);
+}
+
+inline float arccosine(const float value) {
+    if (value > 1 || value < -1) {
+        Panic::fire(Panic::INVALID_ARGUMENT, "Math: Arccosine of value outside of [-1, 1]!");
+    }
+
+    return PI_FLOAT / 2.0f - arcsine(value);
+}
+
+inline double arccosine(const double value) {
+    if (value > 1 || value < -1) {
+        Panic::fire(Panic::INVALID_ARGUMENT, "Math: Arccosine of value outside of [-1, 1]!");
+    }
+
+    return PI_DOUBLE / 2.0 - arcsine(value);
+}
+
+}
+}
 
 #endif

@@ -26,7 +26,8 @@
 
 #include "lib/util/base/String.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// Base class for input streams. An input stream is a source for reading data.
 /// The actual source can be a file, memory or any other data source, depending on the subclass.
@@ -52,7 +53,9 @@ public:
     InputStream& operator=(const InputStream &copy) = delete;
 
     /// Destroy the input stream and free the skipping buffer, if allocated.
-    virtual ~InputStream();
+    virtual ~InputStream() {
+        delete skipBuffer;
+    }
 
     /// Read a single byte from the stream.
     /// On success, the byte is returned as an integer in the range 0 to 255.
@@ -75,7 +78,7 @@ public:
     /// If an error occurs or the end of the stream is reached, -1 is returned.
     /// If no byte is currently available, but the end of the stream has not been reached,
     /// implementations may block until data is available.
-	virtual int16_t peek() = 0;
+    virtual int16_t peek() = 0;
 
     /// Check if there is data available to read from the stream.
     /// If this method returns true, a subsequent read call is guaranteed to succeed without blocking.
@@ -100,6 +103,7 @@ private:
     static constexpr size_t SKIP_BUFFER_SIZE = 1024;
 };
 
+}
 }
 
 #endif

@@ -79,29 +79,36 @@ public:
     /// Create a new argument parser.
     ArgumentParser() = default;
 
-    /// This class uses other non-copyable classes, so the copy constructor and assignment operator are deleted.
-    ArgumentParser(const ArgumentParser &other) = delete;
-
-    /// This class uses other non-copyable classes, so the copy constructor and assignment operator are deleted.
-    ArgumentParser &operator=(const ArgumentParser &other) = delete;
-
     /// Set the help text that is displayed when the argument `-h` or `--help` is given.
-    void setHelpText(const String &text);
+    void setHelpText(const String &text) {
+        helpText = text;
+    }
 
     /// Add a new argument to the parser.
     /// Each argument must have a unique name. It may also have an abbreviation.
     /// Parameters to this method must not include the leading `-` or `--`.
     /// If `required` is set to true, the argument must be given. Otherwise, `parse()` will return false.
-    void addArgument(const String &name, bool required = false, const String &abbreviation = "");
+    void addArgument(const String &name, bool required = false, const String &abbreviation = "") {
+        parameters.add(name);
+        abbreviationMap.put(abbreviation, name);
+        if (required) {
+            requiredParameters.add(name);
+        }
+    }
 
     /// Add a new switch to the parser.
     /// A switch is a boolean argument that can be either on or off.
     /// Each switch must have a unique name. It may also have an abbreviation.
-    void addSwitch(const String &name, const String &abbreviation = "");
+    void addSwitch(const String &name, const String &abbreviation = "") {
+        switches.add(name);
+        abbreviationMap.put(abbreviation, name);
+    }
 
     /// When `parse()` fails, it returns false and stores an error message in a private variable.
     /// This method returns the error message, so it can be displayed to the user.
-    const String& getErrorString() const;
+    const String& getErrorString() const {
+        return errorString;
+    }
 
     /// Parse the command line arguments.
     /// If an error occurs (e.g. unknown argument), false is returned and an error message
@@ -111,17 +118,25 @@ public:
 
     /// Get all unnamed arguments that were passed to the program.
     /// An unnamed argument is an argument that does not start with `-` or `--`.
-    Array<String> getUnnamedArguments() const;
+    const Array<String>& getUnnamedArguments() const {
+        return unnamedArguments;
+    }
 
     /// Check if the given argument was passed to the program.
-    bool hasArgument(const String &name) const;
+    bool hasArgument(const String &name) const {
+        return namedArguments.containsKey(name);
+    }
 
     /// Get the value of the given argument.
     /// If the argument was not passed, an empty string is returned.
-    String getArgument(const String &name) const;
+    String getArgument(const String &name) const {
+        return namedArguments.containsKey(name) ? namedArguments.get(name) : "";
+    }
 
     /// Check if the given switch was passed to the program.
-    bool checkSwitch(const String &name) const;
+    bool checkSwitch(const String &name) const {
+        return parsedSwitches.contains(name);
+    }
 
 private:
 
@@ -135,7 +150,7 @@ private:
 
     HashMap<String, String> namedArguments;
     ArrayList<String> parsedSwitches;
-    ArrayList<String> unnamedArguments;
+    Array<String> unnamedArguments;
 };
 
 }

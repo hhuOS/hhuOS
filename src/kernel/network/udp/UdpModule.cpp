@@ -42,6 +42,7 @@
 #include "kernel/network/udp/UdpSocket.h"
 #include "lib/util/base/Panic.h"
 #include "lib/util/network/ip4/Ip4Address.h"
+#include "lib/util/network/udp/UdpHeader.h"
 
 namespace Kernel::Network::Udp {
 

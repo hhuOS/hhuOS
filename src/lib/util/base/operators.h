@@ -41,10 +41,10 @@ void operator delete(void*);
 /// Basic `delete` operator for arrays.
 void operator delete[](void*);
 
-/// Placement `delete` operator.
+/// Sized `delete` operator.
 void operator delete(void *pointer, size_t size);
 
-/// Placement `delete` operator for arrays.
+/// Sized `delete` operator for arrays.
 void operator delete[](void *pointer, size_t size);
 
 #endif

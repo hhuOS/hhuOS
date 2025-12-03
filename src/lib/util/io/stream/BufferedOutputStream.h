@@ -26,7 +26,8 @@
 
 #include "util/io/stream/FilterOutputStream.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// A buffered output stream adds buffering to another output stream.
 /// It maintains an internal buffer to reduce the number of write operations on the underlying stream.
@@ -61,11 +62,15 @@ public:
     /// The buffer size is specified in bytes and defaults to 512 bytes if not provided.
     /// The instance does not take ownership of the underlying stream. It is the caller's responsibility to ensure
     /// that the underlying stream remains valid for the lifetime of this buffered input stream.
-    explicit BufferedOutputStream(OutputStream &stream, size_t size = DEFAULT_BUFFER_SIZE);
+    explicit BufferedOutputStream(OutputStream &stream, const size_t size = DEFAULT_BUFFER_SIZE) :
+        FilterOutputStream(stream), buffer(new uint8_t[size]), size(size) {}
 
     /// Destroy the buffered output stream instance and free the internal buffer.
     /// This will also flush any remaining data in the buffer to the underlying stream.
-    ~BufferedOutputStream() override;
+    ~BufferedOutputStream() override {
+        flush();
+        delete[] buffer;
+    }
 
     /// Write a single byte to the stream.
     /// This method adds the byte to the internal buffer.
@@ -96,6 +101,7 @@ private:
     static constexpr size_t DEFAULT_BUFFER_SIZE = 512;
 };
 
+}
 }
 
 #endif

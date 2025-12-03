@@ -23,11 +23,8 @@
 #include "util/base/Panic.h"
 #include "util/io/stream/PipedInputStream.h"
 
-namespace Util::Io {
-
-PipedOutputStream::PipedOutputStream(PipedInputStream &inputStream) {
-    connect(inputStream);
-}
+namespace Util {
+namespace Io {
 
 void PipedOutputStream::connect(PipedInputStream &sink) {
     if (PipedOutputStream::sink != nullptr) {
@@ -57,4 +54,5 @@ size_t PipedOutputStream::getWritableBytes() const {
     return sink->getWritableBytes();
 }
 
+}
 }

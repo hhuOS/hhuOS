@@ -26,13 +26,8 @@
 #include "../../io/stream/NumberUtil.h"
 
 namespace Util {
-namespace Io {
-class InputStream;
-class OutputStream;
-}  // namespace Stream
-}  // namespace Util
-
-namespace Util::Network::Ethernet {
+namespace Network {
+namespace Ethernet {
 
 void EthernetHeader::read(Io::InputStream &stream) {
     destinationAddress.read(stream);
@@ -46,28 +41,6 @@ void EthernetHeader::write(Io::OutputStream &stream) const {
     Io::NumberUtil::writeUnsigned16BitValue(etherType, stream);
 }
 
-const MacAddress& EthernetHeader::getDestinationAddress() const {
-    return destinationAddress;
 }
-
-const MacAddress& EthernetHeader::getSourceAddress() const {
-    return sourceAddress;
 }
-
-EthernetHeader::EtherType EthernetHeader::getEtherType() const {
-    return etherType;
-}
-
-void EthernetHeader::setDestinationAddress(const MacAddress &address) {
-    destinationAddress = address;
-}
-
-void EthernetHeader::setSourceAddress(const MacAddress &address) {
-    sourceAddress = address;
-}
-
-void EthernetHeader::setEtherType(const EtherType type) {
-    etherType = type;
-}
-
 }

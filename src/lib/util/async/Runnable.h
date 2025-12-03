@@ -21,7 +21,8 @@
 #ifndef HHUOS_LIB_UTIL_ASYNC_RUNNABLE_H
 #define HHUOS_LIB_UTIL_ASYNC_RUNNABLE_H
 
-namespace Util::Async {
+namespace Util {
+namespace Async {
 
 /// Base class for a Runnable, which can be run in a thread.
 class Runnable {
@@ -38,6 +39,7 @@ public:
     virtual void run() = 0;
 };
 
+}
 }
 
 #endif

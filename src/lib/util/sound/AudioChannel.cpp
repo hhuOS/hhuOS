@@ -24,10 +24,8 @@
 #include "AudioChannel.h"
 #include "util/io/stream/FileInputStream.h"
 
-namespace Util::Sound {
-
-AudioChannel::AudioChannel() : audioMixerFile(AUDIO_MIXER_PATH), id(createChannel()),
-        audioChannelFile(String::format("/device/channel%u", id)), outputStream(audioChannelFile) {}
+namespace Util {
+namespace Sound {
 
 AudioChannel::~AudioChannel() {
     audioMixerFile.controlFile(DELETE, Util::Array<size_t>({id}));
@@ -61,7 +59,7 @@ bool AudioChannel::play() {
 }
 
 
-AudioChannel::State AudioChannel::getState() {
+AudioChannel::State AudioChannel::getState() const {
     State state;
     const auto success = audioChannelFile.controlFile(GET_PLAYBACK_STATE,
         Util::Array<size_t>({reinterpret_cast<size_t>(&state)}));
@@ -73,26 +71,19 @@ AudioChannel::State AudioChannel::getState() {
     return state;
 }
 
-size_t AudioChannel::getRemainingBytes() {
+size_t AudioChannel::getRemainingBytes() const {
     size_t remainingBytes = 0;
     audioChannelFile.controlFile(GET_REMAINING_BYTES, {reinterpret_cast<size_t>(&remainingBytes)});
 
     return remainingBytes;
 }
 
-size_t AudioChannel::getWritableBytes() {
+size_t AudioChannel::getWritableBytes() const {
     size_t writableBytes = 0;
     audioChannelFile.controlFile(GET_WRITABLE_BYTES, {reinterpret_cast<size_t>(&writableBytes)});
 
     return writableBytes;
 }
 
-bool AudioChannel::write(const uint8_t c) {
-    return outputStream.write(c);
 }
-
-uint32_t AudioChannel::write(const uint8_t *sourceBuffer, [[maybe_unused]] size_t offset, const size_t length) {
-    return outputStream.write(sourceBuffer, 0, length);
-}
-
 }

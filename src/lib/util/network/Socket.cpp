@@ -35,11 +35,6 @@
 
 namespace Util {
 namespace Network {
-class Datagram;
-}  // namespace Network
-}  // namespace Util
-
-namespace Util::Network {
 
 Socket::Socket(const int32_t fileDescriptor, const Type type) : fileDescriptor(fileDescriptor), type(type) {}
 
@@ -194,4 +189,5 @@ bool Socket::isReadyToRead() const {
     return Io::File::isReadyToRead(fileDescriptor);
 }
 
+}
 }

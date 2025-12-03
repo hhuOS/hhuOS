@@ -22,7 +22,8 @@
 
 #include "util/base/Panic.h"
 
-namespace Util::Sound {
+namespace Util {
+namespace Sound {
 
 WaveFile::WaveFile(const Io::File &file) : FilterInputStream(stream), stream(file) {
     // Read the RIFF and format chunks from the beginning of the file.
@@ -44,32 +45,5 @@ WaveFile::WaveFile(const Io::File &file) : FilterInputStream(stream), stream(fil
     }
 }
 
-WaveFile::AudioFormat WaveFile::getAudioFormat() const {
-    return formatChunk.audioFormat;
 }
-
-uint16_t WaveFile::getNumChannels() const {
-    return formatChunk.numChannels;
-}
-
-uint32_t WaveFile::getSamplesPerSecond() const {
-    return formatChunk.samplesPerSecond;
-}
-
-uint32_t WaveFile::getBytesPerSecond() const {
-    return formatChunk.bytesPerSecond;
-}
-
-uint16_t WaveFile::getBitsPerSample() const {
-    return formatChunk.bitsPerSample;
-}
-
-uint32_t WaveFile::getSampleCount() const {
-    return dataChunk.chunkSize / formatChunk.frameSize;
-}
-
-uint32_t WaveFile::getDataSize() const {
-    return dataChunk.chunkSize;
-}
-
 }

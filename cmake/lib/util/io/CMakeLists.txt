@@ -19,16 +19,12 @@
 project(lib.io)
 message(STATUS "Project " ${PROJECT_NAME})
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_C_STANDARD 90)
-
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/io/file/File.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/file/ElfFile.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/file/TarArchive.cpp
-        ${HHUOS_SRC_DIR}/lib/util/io/key/Key.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/key/KeyDecoder.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/key/KeyboardLayout.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/key/MouseDecoder.cpp
@@ -38,16 +34,11 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/io/stream/ByteArrayInputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/stream/FileInputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/stream/FileOutputStream.cpp
-        ${HHUOS_SRC_DIR}/lib/util/io/stream/FilterInputStream.cpp
-        ${HHUOS_SRC_DIR}/lib/util/io/stream/FilterOutputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/stream/InputStream.cpp
-        ${HHUOS_SRC_DIR}/lib/util/io/stream/OutputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/stream/PipedInputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/stream/PipedOutputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/io/stream/PrintStream.cpp
-		${HHUOS_SRC_DIR}/lib/util/io/stream/ScanStream.cpp
-        ${HHUOS_SRC_DIR}/lib/util/io/stream/QueueInputStream.cpp
-		${HHUOS_SRC_DIR}/lib/util/io/stream/NumberUtil.cpp)
+		${HHUOS_SRC_DIR}/lib/util/io/stream/ScanStream.cpp)
 
 # Kernel space version
 project(lib.kernel.io)

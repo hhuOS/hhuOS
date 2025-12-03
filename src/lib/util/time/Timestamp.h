@@ -24,7 +24,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
-namespace Util::Time {
+namespace Util {
+namespace Time {
 
 /// Represents a timestamp with a resolution of nanoseconds.
 /// The timestamp is composed of a number of seconds and a fraction in nanoseconds.
@@ -35,7 +36,7 @@ public:
     Timestamp() = default;
 
     /// Create a new Timestamp instance with the specified seconds and fraction.
-    explicit Timestamp(size_t seconds, uint32_t fraction = 0);
+    explicit Timestamp(const size_t seconds, const uint32_t fraction = 0) : seconds(seconds), fraction(fraction) {}
 
     /// Get the current system time (time since boot) as a Timestamp.
     ///
@@ -61,7 +62,9 @@ public:
     /// const auto seconds = timestamp.toSeconds(); // seconds = 5
     /// const auto nanoseconds = timestamp.toNanoseconds(); // nanoseconds = 5000000000
     /// ```
-    static Timestamp ofSeconds(size_t seconds);
+    static Timestamp ofSeconds(const size_t seconds) {
+        return Timestamp(seconds, 0);
+    }
 
     /// Create a Timestamp from the given number of milliseconds.
     ///
@@ -72,7 +75,12 @@ public:
     /// const auto seconds = timestamp.toSeconds(); // seconds = 1
     /// const auto nanoseconds = timestamp.toNanoseconds(); // nanoseconds = 1797000000
     /// ```
-    static Timestamp ofMilliseconds(uint64_t milliseconds);
+    static Timestamp ofMilliseconds(const uint64_t milliseconds) {
+        const auto seconds = milliseconds / 1000;
+        const auto fraction = (milliseconds % 1000) * 1000000;
+
+        return Timestamp(seconds, fraction);
+    }
 
     /// Create a Timestamp from the given number of microseconds.
     ///
@@ -83,7 +91,12 @@ public:
     /// const auto seconds = timestamp.toSeconds(); // seconds = 123
     /// const auto nanoseconds = timestamp.toNanoseconds(); // nanoseconds = 123456789000
     /// ```
-    static Timestamp ofMicroseconds(uint64_t microseconds);
+    static Timestamp ofMicroseconds(const uint64_t microseconds) {
+        const auto seconds = microseconds / 1000000;
+        const auto fraction = (microseconds % 1000000) * 1000;
+
+        return Timestamp(seconds, fraction);
+    }
 
     /// Create a Timestamp from the given number of nanoseconds.
     ///
@@ -94,7 +107,12 @@ public:
     /// const auto seconds = timestamp.toSeconds(); // seconds = 9
     /// const auto nanoseconds = timestamp.toNanoseconds(); // nanoseconds = 9876543210
     /// ```
-    static Timestamp ofNanoseconds(uint64_t nanoseconds);
+    static Timestamp ofNanoseconds(const uint64_t nanoseconds) {
+        const auto seconds = nanoseconds / 1000000000;
+        const auto fraction = nanoseconds % 1000000000;
+
+        return Timestamp(seconds, fraction);
+    }
 
     /// Create a Timestamp from the given floating-point number of seconds.
     ///
@@ -106,7 +124,12 @@ public:
     /// const auto nanoseconds = timestamp.toNanoseconds(); // nanoseconds = 5750000000
     /// ```
     template <typename T>
-    static Timestamp ofSecondsFloat(T seconds);
+    static Timestamp ofSecondsFloat(T seconds) {
+        const auto secondsInt = static_cast<size_t>(seconds);
+        const auto fraction = (seconds - secondsInt) * NANOSECONDS_PER_SECOND;
+
+        return Timestamp(seconds, fraction);
+    }
 
     /// Add two timestamps together.
     ///
@@ -167,7 +190,9 @@ public:
     /// const auto isEqual1 = (timestamp1 == timestamp2); // isEqual1 = true
     /// const auto isEqual2 = (timestamp1 == timestamp3); // isEqual2 = false
     /// ```
-    bool operator==(const Timestamp &other) const;
+    bool operator==(const Timestamp &other) const {
+        return seconds == other.seconds && fraction == other.fraction;
+    }
 
     /// Compare the timestamp with another one for inequality.
     ///
@@ -180,7 +205,9 @@ public:
     /// const auto isNotEqual1 = (timestamp1 != timestamp2); // isNotEqual1 = false
     /// const auto isNotEqual2 = (timestamp1 != timestamp3); // isNotEqual2 = true
     /// ```
-    bool operator!=(const Timestamp &other) const;
+    bool operator!=(const Timestamp &other) const {
+        return seconds != other.seconds || fraction != other.fraction;
+    }
 
     /// Check if this timestamp is greater than another.
     ///
@@ -194,7 +221,9 @@ public:
     /// const auto isGreater2 = (timestamp1 > timestamp3); // isGreater2 = false
     /// const auto isGreater3 = (timestamp3 > timestamp1); // isGreater3 = true
     /// ```
-    bool operator>(const Timestamp &other) const;
+    bool operator>(const Timestamp &other) const {
+        return seconds > other.seconds || (seconds == other.seconds && fraction > other.fraction);
+    }
     
     /// Check if this timestamp is greater than or equal to another.
     ///
@@ -208,7 +237,9 @@ public:
     /// const auto isGreaterOrEqual2 = (timestamp1 >= timestamp3); // isGreaterOrEqual2 = false
     /// const auto isGreaterOrEqual3 = (timestamp3 >= timestamp1); // isGreaterOrEqual3 = true
     /// ```
-    bool operator>=(const Timestamp &other) const;
+    bool operator>=(const Timestamp &other) const {
+        return seconds > other.seconds || (seconds == other.seconds && fraction >= other.fraction);
+    }
 
     /// Check if this timestamp is less than another.
     ///
@@ -222,7 +253,9 @@ public:
     /// const auto isLess2 = (timestamp1 < timestamp3); // isLess2 = true
     /// const auto isLess3 = (timestamp3 < timestamp1); // isLess3 = false
     /// ```
-    bool operator<(const Timestamp &other) const;
+    bool operator<(const Timestamp &other) const {
+        return seconds < other.seconds || (seconds == other.seconds && fraction < other.fraction);
+    }
     
     /// Check if this timestamp is less than or equal another.
     ///
@@ -236,7 +269,9 @@ public:
     /// const auto isLessOrEqual2 = (timestamp1 <= timestamp3); // isLessOrEqual2 = true
     /// const auto isLessOrEqual3 = (timestamp3 <= timestamp1); // isLessOrEqual3 = false
     /// ```
-    bool operator<=(const Timestamp &other) const;
+    bool operator<=(const Timestamp &other) const {
+        return seconds < other.seconds || (seconds == other.seconds && fraction <= other.fraction);
+    }
 
     /// Convert the timestamp to nanoseconds.
     ///
@@ -248,7 +283,9 @@ public:
     /// const auto nanoseconds1 = timestamp1.toNanoseconds(); // nanoseconds1 = 5000000000
     /// const auto nanoseconds2 = timestamp2.toNanoseconds(); // nanoseconds2 = 3000000
     /// ```
-    uint64_t toNanoseconds() const;
+    uint64_t toNanoseconds() const {
+        return static_cast<uint64_t>(seconds) * 1000000000 + fraction;
+    }
     
     /// Convert the timestamp to microseconds.
     ///
@@ -260,7 +297,9 @@ public:
     /// const auto microseconds1 = timestamp1.toMicroseconds(); // microseconds1 = 5000000
     /// const auto microseconds2 = timestamp2.toMicroseconds(); // microseconds2 = 3000
     /// ```
-    uint64_t toMicroseconds() const;
+    uint64_t toMicroseconds() const {
+        return static_cast<uint64_t>(seconds) * 1000000 + fraction / 1000;
+    }
     
     /// Convert the timestamp to milliseconds.
     ///
@@ -272,7 +311,9 @@ public:
     /// const auto milliseconds1 = timestamp1.toMilliseconds(); // milliseconds1 = 5000
     /// const auto milliseconds2 = timestamp2.toMilliseconds(); // milliseconds2 = 3
     /// ```
-    uint64_t toMilliseconds() const;
+    uint64_t toMilliseconds() const {
+        return static_cast<uint64_t>(seconds) * 1000 + fraction / 1000000;
+    }
     
     /// Convert the timestamp to seconds.
     ///
@@ -284,7 +325,9 @@ public:
     /// const auto seconds1 = timestamp1.toMilliseconds(); // seconds1 = 5
     /// const auto seconds2 = timestamp2.toMilliseconds(); // seconds2 = 0
     /// ```
-    size_t toSeconds() const;
+    size_t toSeconds() const {
+        return seconds;
+    }
 
     /// Convert the timestamp to minutes.
     ///
@@ -296,7 +339,9 @@ public:
     /// const auto minutes1 = timestamp1.toMinutes(); // minutes1 = 5
     /// const auto minutes2 = timestamp2.toMinutes(); // minutes2 = 0
     /// ```
-    size_t toMinutes() const;
+    size_t toMinutes() const {
+        return seconds / 60;
+    }
 
     /// Convert the timestamp to hours.
     ///
@@ -308,7 +353,9 @@ public:
     /// const auto hours1 = timestamp1.toHours(); // hours1 = 2
     /// const auto hours2 = timestamp2.toHours(); // hours2 = 0
     /// ```
-    size_t toHours() const;
+    size_t toHours() const {
+        return seconds / 3600;
+    }
 
     /// Convert the timestamp to days.
     ///
@@ -320,7 +367,9 @@ public:
     /// const auto days1 = timestamp1.toDays(); // days1 = 1
     /// const auto days2 = timestamp2.toDays(); // days2 = 0
     /// ```
-    size_t toDays() const;
+    size_t toDays() const {
+        return seconds / 86400;
+    }
 
     /// Convert the timestamp to years.
     ///
@@ -332,7 +381,9 @@ public:
     /// const auto years1 = timestamp1.toYears(); // years1 = 1
     /// const auto years2 = timestamp2.toYears(); // years2 = 0
     /// ```
-    size_t toYears() const;
+    size_t toYears() const {
+        return seconds / 31536000;
+    }
 
     /// Convert the timestamp to a floating point value representing the total number of seconds.
     ///
@@ -345,7 +396,9 @@ public:
     /// const auto seconds2 = timestamp.toSecondsFloat<double>(); // seconds = 2.0
     /// ```
     template <typename T>
-    T toSecondsFloat() const;
+    T toSecondsFloat() const {
+        return seconds + static_cast<T>(fraction) / static_cast<T>(NANOSECONDS_PER_SECOND);
+    }
 
 private:
 
@@ -355,19 +408,7 @@ private:
     static constexpr uint32_t NANOSECONDS_PER_SECOND = 1000000000;
 };
 
-template<typename T>
-Timestamp Timestamp::ofSecondsFloat(T seconds) {
-    const auto secondsInt = static_cast<size_t>(seconds);
-    const auto fraction = (seconds - secondsInt) * NANOSECONDS_PER_SECOND;
-
-    return Timestamp(seconds, fraction);
 }
-
-template<typename T>
-T Timestamp::toSecondsFloat() const {
-    return seconds + static_cast<T>(fraction) / static_cast<T>(NANOSECONDS_PER_SECOND);
-}
-
 }
 
 #endif

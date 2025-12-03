@@ -27,7 +27,8 @@
 #include "util/base/String.h"
 #include "util/io/stream/FilterOutputStream.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// An output stream that provides convenient methods for printing various data types as text.
 /// It supports strings, characters, integers (in various bases), booleans, pointers, and floating-point numbers.
@@ -41,19 +42,24 @@ class PrintStream final : public FilterOutputStream {
 
 public:
 	/// Create a print stream instance that writes to the given output stream.
-    explicit PrintStream(OutputStream &stream, bool flushOnNewLine = false);
+	explicit PrintStream(OutputStream &stream, bool flushOnNewLine = false) :
+		FilterOutputStream(stream), flushOnNewLine(flushOnNewLine) {}
 
 	/// Write a single byte directly to the underlying output stream with no formatting applied.
-    bool write(uint8_t byte) override;
+	bool write(uint8_t byte) override;
 
 	/// Write a buffer of bytes directly to the underlying output stream with no formatting applied.
 	size_t write(const uint8_t *sourceBuffer, size_t offset, size_t length) override;
 
 	/// Flush the underlying output stream.
-    size_t flush() override;
+	size_t flush() override {
+		return FilterOutputStream::flush();
+	}
 
 	/// Get the total number of bytes written to the underlying output stream so far.
-	size_t getBytesWritten() const;
+	size_t getBytesWritten() const {
+		return bytesWritten;
+	}
 
 	/// Set the numeric base for integer printing (e.g. 2 for binary, 8 for octal, 10 for decimal, 16 for hexadecimal).
 	/// The default base is 10 (decimal).
@@ -70,7 +76,9 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void setBase(uint8_t newBase);
+	void setBase(const uint8_t newBase) {
+		base = newBase;
+	}
 
 	/// Set the minimum number of characters to use for printing numbers.
 	/// If the number has fewer digits, it will be padded with spaces.
@@ -83,7 +91,14 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void setNumberPadding(int32_t padding);
+	void setNumberPadding(int32_t padding) {
+		if (padding < 0) {
+			padding *= -1;
+			setNumberJustification(true);
+		}
+
+		numberPadding = padding;
+	}
 
 	/// Set whether numbers should be left-justified (true) or right-justified (false) within the padding.
 	/// The default is right-justified (false).
@@ -98,7 +113,9 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-	void setNumberJustification(bool leftJustified);
+	void setNumberJustification(const bool leftJustified) {
+		rightPadding = leftJustified;
+	}
 
 	/// Set the sign character to use for positive numbers.
 	/// The default is no sign character ('\0').
@@ -118,7 +135,9 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-	void setPositiveSign(char sign);
+	void setPositiveSign(const char sign) {
+		positiveSign = sign;
+	}
 
 	/// Set the sign character to use for negative numbers.
 	/// The default is '-' (minus sign).
@@ -141,7 +160,9 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-	void setNegativeSign(char sign);
+	void setNegativeSign(const char sign) {
+		negativeSign = sign;
+	}
 
 	/// Set the minimum number of digits to print for integer numbers.
 	/// If the number to print has fewer digits, it will be padded with leading zeros.
@@ -160,7 +181,9 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-	void setIntegerPrecision(int32_t precision);
+	void setIntegerPrecision(const int32_t precision) {
+		minimumIntegerPrecision = precision;
+	}
 
 	/// Set the number of digits to print after the decimal point for floating-point numbers.
 	/// If the number has more decimal places, it will be rounded.
@@ -181,7 +204,9 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-	void setDecimalPrecision(int32_t precision);
+	void setDecimalPrecision(const int32_t precision) {
+		decimalPrecision = precision;
+	}
 
 	/// Set a prefix string to print before integer numbers (e.g. "0x" for hexadecimal).
 	/// The default is an empty string (no prefix).
@@ -202,7 +227,9 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-	void setIntegerPrefix(const String &prefix);
+	void setIntegerPrefix(const String &prefix) {
+		integerPrefix = prefix;
+	}
 
 	/// Set the base character to use for digits above 9 when printing in bases greater than 10 (e.g. hexadecimal).
 	/// This method accepts any character, although the only sensible choices are 'A' and 'a'.
@@ -223,7 +250,9 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-	void setAlphaNumericBase(char hexBase);
+	void setAlphaNumericBase(const char hexBase) {
+		hexNumericBase = hexBase;
+	}
 
 	/// Set whether to always print a decimal point for floating-point numbers,
 	/// even if there are no decimal digits to print (e.g. "3." instead of "3").
@@ -238,7 +267,9 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-	void setAlwaysPrintDecimalPoint(bool value);
+	void setAlwaysPrintDecimalPoint(const bool value) {
+		alwaysPrintDecimalPoint = value;
+	}
 
 	/// Print a single character.
 	///
@@ -250,7 +281,9 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-	void print(char c);
+	void print(const char c) {
+		write(reinterpret_cast<const uint8_t*>(&c), 0, 1);
+	}
 
 	/// Print a null-terminated C string.
 	/// If `maxBytes` is specified and non-negative, at most `maxBytes` characters will be printed.
@@ -275,7 +308,9 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void print(const String &string);
+	void print(const String &string) {
+		write(static_cast<const uint8_t*>(string), 0, string.length());
+	}
 
 	/// Print a boolean value as "true" or "false".
 	///
@@ -295,7 +330,9 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void print(bool boolean);
+	void print(const bool boolean) {
+		print(boolean ? "true" : "false");
+	}
 
 	/// Print a signed 8-bit integer.
 	/// This method is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -329,7 +366,9 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void print(int8_t number);
+	void print(const int8_t number) {
+		print(static_cast<int64_t>(number));
+	}
 
 	/// Print an unsigned 8-bit integer.
 	/// This method is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -360,7 +399,9 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void print(uint8_t number);
+	void print(const uint8_t number) {
+		print(static_cast<uint64_t>(number));
+	}
 
 	/// Print a signed 16-bit integer.
 	/// This method is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -394,7 +435,9 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void print(int16_t number);
+	void print(const int16_t number) {
+		print(static_cast<int64_t>(number));
+	}
 
 	/// Print an unsigned 16-bit integer.
 	/// This method is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -425,7 +468,9 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void print(uint16_t number);
+	void print(const uint16_t number) {
+		print(static_cast<uint64_t>(number));
+	}
 
 	/// Print a signed 32-bit integer.
 	/// This method is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -459,7 +504,9 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void print(int32_t number);
+	void print(const int32_t number) {
+		print(static_cast<int64_t>(number));
+	}
 
 	/// Print an unsigned 32-bit integer.
 	/// This method is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -490,7 +537,9 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void print(uint32_t number);
+	void print(const uint32_t number) {
+		print(static_cast<uint64_t>(number));
+	}
 
 	/// Print a signed 64-bit integer.
 	/// This method is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -524,7 +573,17 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void print(int64_t number);
+	void print(int64_t number) {
+		char sign = '\0';
+		if (number < 0) {
+			sign = negativeSign;
+			number = -number;
+		} else {
+			sign = positiveSign;
+		}
+
+		print(static_cast<uint64_t>(number), sign);
+	}
 
 	/// Print an unsigned 64-bit integer.
 	/// This method is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -555,7 +614,7 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void print(uint64_t number, char sign = '\0');
+	void print(uint64_t number, char sign = '\0');
 
 	/// Print a pointer (memory address) as an unsigned integer.
 	/// The address is cast to `uintptr_t` and printed according to the current base and formatting settings.
@@ -577,7 +636,9 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void print(void *pointer);
+	void print(const void *pointer) {
+		print(reinterpret_cast<uintptr_t>(pointer));
+	}
 
 	/// Print a floating-point number.
 	/// The number of decimal places printed is controlled by the current decimal precision setting.
@@ -617,7 +678,13 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void println();
+	void println() {
+		write('\n');
+
+		if (flushOnNewLine) {
+			FilterOutputStream::flush();
+		}
+	}
 
 	/// Print a single character followed by a new line.
 	/// If the stream is configured to flush on new lines, it will also flush the underlying output stream.
@@ -629,7 +696,10 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-	void println(char c);
+	void println(char c) {
+		print(c);
+		println();
+	}
 
 	/// Print a null-terminated C string followed by a new line.
 	/// If the stream is configured to flush on new lines, it will also flush the underlying output stream.
@@ -644,7 +714,10 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void println(const char *string, int32_t maxBytes = -1);
+	void println(const char *string, const int32_t maxBytes = -1) {
+		print(string, maxBytes);
+		println();
+	}
 
 	/// Print a string followed by a new line.
 	/// If the stream is configured to flush on new lines, it will also flush the underlying output stream.
@@ -656,7 +729,10 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void println(const String &string);
+	void println(const String &string) {
+		print(string);
+		println();
+	}
 
 	/// Print a boolean value as "true" or "false" followed by a new line.
 	/// If the stream is configured to flush on new lines, it will also flush the underlying output stream.
@@ -670,7 +746,10 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void println(bool boolean);
+	void println(const bool boolean) {
+		print(boolean);
+		println();
+	}
 
 	/// Print a signed 8-bit integer followed by a new line.
 	/// If the stream is configured to flush on new lines, it will also flush the underlying output stream.
@@ -698,7 +777,10 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void println(int8_t number);
+	void println(const int8_t number) {
+		print(number);
+		println();
+	}
 
 	/// Print an unsigned 8-bit integer followed by a new line.
 	/// If the stream is configured to flush on new lines, it will also flush the underlying output stream.
@@ -725,7 +807,10 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void println(uint8_t number);
+	void println(const uint8_t number) {
+		print(number);
+		println();
+	}
 
 	/// Print a signed 16-bit integer followed by a new line.
 	/// If the stream is configured to flush on new lines, it will also flush the underlying output stream.
@@ -753,7 +838,10 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void println(int16_t number);
+	void println(const int16_t number) {
+		print(number);
+		println();
+	}
 
 	/// Print an unsigned 16-bit integer followed by a new line.
 	/// If the stream is configured to flush on new lines, it will also flush the underlying output stream.
@@ -780,7 +868,10 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void println(uint16_t number);
+	void println(const uint16_t number) {
+		print(number);
+		println();
+	}
 
 	/// Print a signed 32-bit integer followed by a new line.
 	/// If the stream is configured to flush on new lines, it will also flush the underlying output stream.
@@ -808,7 +899,10 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void println(int32_t number);
+	void println(const int32_t number) {
+		print(number);
+		println();
+	}
 
 	/// Print an unsigned 32-bit integer followed by a new line.
 	/// If the stream is configured to flush on new lines, it will also flush the underlying output stream.
@@ -835,7 +929,10 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void println(uint32_t number);
+	void println(const uint32_t number) {
+		print(number);
+		println();
+	}
 
 	/// Print a signed 64-bit integer followed by a new line.
 	/// If the stream is configured to flush on new lines, it will also flush the underlying output stream.
@@ -863,7 +960,10 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void println(int64_t number);
+	void println(const int64_t number) {
+		print(number);
+		println();
+	}
 
 	/// Print an unsigned 64-bit integer followed by a new line.
 	/// If the stream is configured to flush on new lines, it will also flush the underlying output stream.
@@ -890,7 +990,10 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void println(uint64_t number);
+	void println(const uint64_t number) {
+		print(number);
+		println();
+	}
 
 	/// Print a pointer (memory address) as an unsigned integer followed by a new line.
 	/// If the stream is configured to flush on new lines, it will also flush the underlying output stream.
@@ -912,7 +1015,10 @@ public:
 	///
 	/// Util::System::out.flush();
 	/// ```
-    void println(void *pointer);
+	void println(const void *pointer) {
+		print(pointer);
+		println();
+	}
 
 	/// Print a single character via the stream insertion operator.
 	///
@@ -924,7 +1030,10 @@ public:
 	///		<< 'a' // prints "a"
 	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
 	/// ```
-    PrintStream& operator<<(char c);
+	PrintStream& operator<<(const char c) {
+		write(c);
+		return *this;
+	}
 
 	/// Print a null-terminated C string via the stream insertion operator.
 	///
@@ -934,7 +1043,10 @@ public:
 	///		<< "Hello, World!" // prints "Hello, World!"
 	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
 	/// ```
-    PrintStream& operator<<(const char *string);
+	PrintStream& operator<<(const char *string) {
+		print(string);
+		return *this;
+	}
 
 	/// Print a string via the stream insertion operator.
 	///
@@ -946,7 +1058,10 @@ public:
 	///		<< string // prints "Hello, World!"
 	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
 	/// ```
-    PrintStream& operator<<(const String &string);
+	PrintStream& operator<<(const String &string) {
+		print(string);
+		return *this;
+	}
 
 	/// Print a boolean value as "true" or "false" via the stream insertion operator.
 	///
@@ -959,7 +1074,10 @@ public:
 	///		<< (1 == 2) << Util::Io::PrintStream::ln // prints "false\n"
 	///		<< Util::Io::PrintStream::flush; // flushes the stream
 	/// ```
-    PrintStream& operator<<(bool boolean);
+	PrintStream& operator<<(const bool boolean) {
+		print(boolean);
+		return *this;
+	}
 
 	/// Print a signed 8-bit integer via the stream insertion operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -985,7 +1103,10 @@ public:
 	/// Util::System::out << Util::Io::PrintStream::hex << 255 // prints "+0x000FF"
 	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
 	/// ```
-	PrintStream& operator<<(int8_t number);
+	PrintStream& operator<<(const int8_t number) {
+		print(number);
+		return *this;
+	}
 
 	/// Print an unsigned 8-bit integer via the stream insertion operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -1009,7 +1130,10 @@ public:
 	/// Util::System::out << Util::Io::PrintStream::hex << 255 // prints "+0x000FF"
 	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
 	/// ```
-	PrintStream& operator<<(uint8_t number);
+	PrintStream& operator<<(const uint8_t number) {
+		print(number);
+		return *this;
+	}
 
 	/// Print a signed 16-bit integer via the stream insertion operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -1035,7 +1159,10 @@ public:
 	/// Util::System::out << Util::Io::PrintStream::hex << 255 // prints "+0x000FF"
 	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
 	/// ```
-    PrintStream& operator<<(int16_t number);
+	PrintStream& operator<<(const int16_t number) {
+		print(number);
+		return *this;
+	}
 
 	/// Print an unsigned 16-bit integer via the stream insertion operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -1059,8 +1186,10 @@ public:
 	/// Util::System::out << Util::Io::PrintStream::hex << 255 // prints "+0x000FF"
 	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
 	/// ```
-    PrintStream& operator<<(uint16_t number);
-
+	PrintStream& operator<<(const uint16_t number) {
+		print(number);
+		return *this;
+	}
 	/// Print a signed 32-bit integer via the stream insertion operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
 	/// Formatting is affected by the current base, number padding, justification,
@@ -1085,7 +1214,10 @@ public:
 	/// Util::System::out << Util::Io::PrintStream::hex << 255 // prints "+0x000FF"
 	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
 	/// ```
-    PrintStream& operator<<(int32_t number);
+	PrintStream& operator<<(const int32_t number) {
+		print(number);
+		return *this;
+	}
 
 	/// Print an unsigned 32-bit integer via the stream insertion operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -1109,7 +1241,10 @@ public:
 	/// Util::System::out << Util::Io::PrintStream::hex << 255 // prints "+0x000FF"
 	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
 	/// ```
-    PrintStream& operator<<(uint32_t number);
+	PrintStream& operator<<(const uint32_t number) {
+		print(number);
+		return *this;
+	}
 
 	/// Print a signed 64-bit integer via the stream insertion operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -1135,7 +1270,10 @@ public:
 	/// Util::System::out << Util::Io::PrintStream::hex << 255 // prints "+0x000FF"
 	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
 	/// ```
-    PrintStream& operator<<(int64_t number);
+	PrintStream& operator<<(const int64_t number) {
+		print(number);
+		return *this;
+	}
 
 	/// Print an unsigned 64-bit integer via the stream insertion operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -1159,7 +1297,10 @@ public:
 	/// Util::System::out << Util::Io::PrintStream::hex << 255 // prints "+0x000FF"
 	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
 	/// ```
-    PrintStream& operator<<(uint64_t number);
+	PrintStream& operator<<(const uint64_t number) {
+		print(number);
+		return *this;
+	}
 
 	/// Print a pointer (memory address) as an unsigned integer via the stream insertion operator.
 	/// The address is cast to `uintptr_t` and printed according to the current base and formatting settings.
@@ -1178,7 +1319,10 @@ public:
 	/// Util::System::out << Util::Io::PrintStream::hex << &variable
 	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
 	/// ```
-    PrintStream& operator<<(void *pointer);
+	PrintStream& operator<<(const void *pointer) {
+		print(pointer);
+		return *this;
+	}
 
 	/// Print a floating-point number via the stream insertion operator.
 	/// The number of decimal places printed is controlled by the current decimal precision setting.
@@ -1198,7 +1342,10 @@ public:
 	///	Util::System::out << 3.141592653589793 // prints "3"
 	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
 	/// ```
-	PrintStream& operator<<(double number);
+	PrintStream& operator<<(const double number) {
+		print(number);
+		return *this;
+	}
 
 	/// Call a manipulator function via the stream insertion operator.
 	/// Manipulator functions can be used to modify the state of the `PrintStream` or
@@ -1215,7 +1362,9 @@ public:
 	///		<< Util::Io::PrintStream::ln // prints a new line
 	///		<< Util::Io::PrintStream::flush; // flushes the stream
 	/// ```
-    PrintStream& operator<<(PrintStream& (*f)(PrintStream&));
+	PrintStream& operator<<(PrintStream& (*f)(PrintStream&)) {
+		return f(*this);
+	}
 
 	/// Flush the underlying stream via the stream insertion operator.
 	///
@@ -1226,7 +1375,10 @@ public:
 	///		<< Util::Io::PrintStream::ln // prints a new line
 	///		<< Util::Io::PrintStream::flush; // flushes the stream
 	/// ```
-    static PrintStream& flush(PrintStream& stream);
+	static PrintStream& flush(PrintStream& stream) {
+		stream.flush();
+		return stream;
+	}
 
 	/// Print a new line character ('\n') via the stream insertion operator.
 	///
@@ -1237,7 +1389,10 @@ public:
 	///		<< Util::Io::PrintStream::ln // prints a new line
 	///		<< Util::Io::PrintStream::flush; // flushes the stream
 	/// ```
-    static PrintStream& ln(PrintStream& stream);
+	static PrintStream& ln(PrintStream& stream) {
+		stream.println();
+		return stream;
+	}
 
 	/// Set the integer base to binary (base 2) via the stream insertion operator.
 	///
@@ -1249,7 +1404,10 @@ public:
 	///		<< 255 // prints "11111111"
 	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
 	/// ```
-	static PrintStream& bin(PrintStream& stream);
+	static PrintStream& bin(PrintStream& stream) {
+		stream.setBase(2);
+		return stream;
+	}
 
 	/// Set the integer base to octal (base 8) via the stream insertion operator.
 	///
@@ -1261,7 +1419,10 @@ public:
 	///		<< 255 // prints "377"
 	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
 	/// ```
-    static PrintStream& oct(PrintStream& stream);
+	static PrintStream& oct(PrintStream& stream) {
+		stream.setBase(8);
+		return stream;
+	}
 
 	/// Set the integer base to dec (base 10) via the stream insertion operator.
 	///
@@ -1275,7 +1436,10 @@ public:
 	///		<< 255 // prints "255"
 	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
 	/// ```
-	static PrintStream& dec(PrintStream& stream);
+	static PrintStream& dec(PrintStream& stream) {
+		stream.setBase(10);
+		return stream;
+	}
 
 	/// Set the integer base to hexadecimal (base 16) via the stream insertion operator.
 	///
@@ -1287,13 +1451,16 @@ public:
 	///		<< 255 // prints "FF"
 	///		<< Util::Io::PrintStream::ln << Util::Io::PrintStream::flush; // prints a new line and flushes the stream
 	/// ```
-    static PrintStream& hex(PrintStream& stream);
+	static PrintStream& hex(PrintStream& stream) {
+		stream.setBase(16);
+		return stream;
+	}
 
 private:
 
-    bool flushOnNewLine;
-    uint8_t base = 10;
-    size_t numberPadding = 0;
+	bool flushOnNewLine;
+	uint8_t base = 10;
+	size_t numberPadding = 0;
 	
 	bool rightPadding = false;
 	
@@ -1313,6 +1480,7 @@ private:
 	static constexpr size_t DEFAULT_DECIMAL_PRECISION = 20;
 };
 
+}
 }
 
 #endif

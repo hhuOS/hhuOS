@@ -103,7 +103,6 @@ add_compile_options(
         $<$<COMPILE_LANGUAGE:CXX>:-fno-threadsafe-statics>
         $<$<COMPILE_LANGUAGE:CXX>:-fno-use-cxa-atexit>
         $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
-        # $<$<COMPILE_LANGUAGE:CXX>:-std=gnu++20>
         $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<VERSION_GREATER_EQUAL:${CMAKE_C_COMPILER_VERSION},15>>:-fno-assume-sane-operators-new-delete>
 
         # Macro definitions

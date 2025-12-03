@@ -20,11 +20,8 @@
 
 #include "InputStream.h"
 
-namespace Util::Io {
-
-InputStream::~InputStream() {
-    delete skipBuffer;
-}
+namespace Util {
+namespace Io {
 
 String InputStream::readString(const size_t length) {
     auto *stringBuffer = new uint8_t[length];
@@ -67,4 +64,5 @@ size_t InputStream::skip(const size_t amount) {
     return amount - remaining;
 }
 
+}
 }

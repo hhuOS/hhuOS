@@ -24,9 +24,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "File.h"
+#include "util/io/file/File.h"
+#include "util/io/stream/FileInputStream.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// Class to parse ELF files and load the contained program sections into memory.
 /// This implementation only supports 32-bit x86 ELF files.
@@ -142,19 +144,30 @@ public:
         uint16_t section;
 
         /// Extract the symbol binding from the `info` field.
-        SymbolBinding getSymbolBinding() const;
+        SymbolBinding getSymbolBinding() const {
+            return static_cast<SymbolBinding>(info >> 4);
+        }
 
         /// Extract the symbol type from the `info` field.
-        SymbolType getSymbolType() const;
+        SymbolType getSymbolType() const {
+            return static_cast<SymbolType>(info & 0x0f);
+        }
     } __attribute__((packed));
 
     /// Create an elf file instance from a buffer containing the ELF file data.
     /// The elf file instance will not take ownership of the memory and will not free it on destruction.
-    explicit ElfFile(uint8_t *buffer);
+    explicit ElfFile(uint8_t *buffer) : deleteBuffer(false), buffer(buffer) {
+        parseFileHeader();
+    }
 
     /// Create an elf file instance from a File object.
     /// The whole file is read into memory for parsing.
-    explicit ElfFile(const File &file);
+    explicit ElfFile(const File &file) : deleteBuffer(true), buffer(new uint8_t[file.getLength()]) {
+        FileInputStream inputStream(file);
+        inputStream.read(buffer, 0, file.getLength());
+
+        parseFileHeader();
+    }
 
     /// ElfFile is not copyable, since it manages a memory buffer.
     ElfFile(const ElfFile &other) = delete;
@@ -163,7 +176,11 @@ public:
     ElfFile& operator=(const ElfFile &other) = delete;
 
     /// Destroy the elf file instance and free any allocated memory.
-    ~ElfFile();
+    ~ElfFile() {
+        if (deleteBuffer) {
+            delete[] buffer;
+        }
+    }
 
     /// Load all program sections marked for loading into memory at their specified virtual addresses.
     /// CAUTION: This will overwrite any existing data at the target addresses!
@@ -175,7 +192,9 @@ public:
 
     /// Get the entry point of the ELF file, i.e. the virtual address where execution should start.
     /// This is typically the address of the `_start` function.
-    int (*getEntryPoint() const)(int, char**);
+    int (*getEntryPoint() const)(int, char**) {
+        return reinterpret_cast<int(*)(int, char**)>(fileHeader.entry);
+    }
 
     /// Get the section header of a specific type.
     /// If multiple sections of the same type exist, the first one is returned.
@@ -278,9 +297,25 @@ private:
         uint16_t sectionHeaderEntries;
         uint16_t sectionHeaderStringIndex;
 
-        bool isValid() const;
+        bool isValid() const {
+            if (magic[0] != 0x7F || magic[1] != 'E' || magic[2] != 'L' || magic[3] != 'F') {
+                return false;
+            }
 
-        bool hasProgramEntries() const;
+            if (architecture != Architecture::BIT_32) {
+                return false;
+            }
+
+            if (byteOrder != ByteOrder::LITTLE_END) {
+                return false;
+            }
+
+            return machine == MachineType::X86;
+        }
+
+        bool hasProgramEntries() const {
+            return programHeaderEntries != 0;
+        }
 
     } __attribute__((packed));
 
@@ -299,8 +334,13 @@ private:
         uint32_t offset;
         uint32_t info;
 
-        size_t getSymbolIndex() const;
-        RelocationType getType() const;
+        size_t getSymbolIndex() const {
+            return info >> 8;
+        }
+
+        RelocationType getType() const {
+            return static_cast<RelocationType>(info & 0xff);
+        }
     } __attribute__((packed));
 
     struct DynamicEntry {
@@ -333,6 +373,7 @@ private:
     static constexpr auto SECTION_NAME_STRTAB = ".strtab";
 };
 
+}
 }
 
 #endif

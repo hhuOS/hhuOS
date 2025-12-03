@@ -25,7 +25,8 @@
 
 #include "util/graphic/LinearFrameBuffer.h"
 
-namespace Util::Graphic {
+namespace Util {
+namespace Graphic {
 
 /// A double buffered linear frame buffer implementation.
 /// All drawing operations are performed on a software buffer which can be flushed to the target frame buffer on demand.
@@ -71,6 +72,7 @@ private:
     const LinearFrameBuffer &lfb;
 };
 
+}
 }
 
 #endif

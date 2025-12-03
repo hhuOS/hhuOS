@@ -61,7 +61,7 @@ void* FreeListMemoryManager::allocateMemory(const size_t size, const size_t alig
     return ret;
 }
 
-void FreeListMemoryManager::freeMemory(void *ptr, [[maybe_unused]] const size_t alignment) {
+void FreeListMemoryManager::freeMemory(void *ptr, const size_t) {
     lock.acquire();
     freeAlgorithm(ptr);
     lock.release();
@@ -387,14 +387,6 @@ void* FreeListMemoryManager::reallocateMemory(void *ptr, const size_t size, cons
     return ret;
 }
 
-void* FreeListMemoryManager::getStartAddress() const {
-    return startAddress;
-}
-
-size_t FreeListMemoryManager::getTotalMemory() const {
-    return reinterpret_cast<uint32_t>(endAddress) - reinterpret_cast<uint32_t>(startAddress);
-}
-
 size_t FreeListMemoryManager::getFreeMemory() const {
      size_t freeMemory = 0;
 
@@ -406,14 +398,6 @@ size_t FreeListMemoryManager::getFreeMemory() const {
     }
 
     return freeMemory;
-}
-
-void* FreeListMemoryManager::getEndAddress() const {
-    return endAddress;
-}
-
-void FreeListMemoryManager::disableAutomaticUnmapping() {
-    unmapFreedMemory = false;
 }
 
 bool FreeListMemoryManager::checkIntegrity() const {
@@ -439,10 +423,6 @@ bool FreeListMemoryManager::checkIntegrity() const {
     }
 
     return true;
-}
-
-bool FreeListMemoryManager::isLocked() const {
-    return lock.isLocked();
 }
 
 }

@@ -24,7 +24,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
-namespace Util::Async {
+namespace Util {
+namespace Async {
 
 /// A bitmap that can be used to manage a set of blocks (e.g. page frames).
 /// It uses atomic operations to ensure thread-safety.
@@ -56,7 +57,9 @@ public:
     ~AtomicBitmap();
 
     /// Get the number of blocks (bits) in the bitmap.
-    size_t getSize() const;
+    size_t getSize() const {
+        return blocks;
+    }
 
     /// Set the bit at the given index to 1.
     /// If the index is out of bounds, a panic is fired.
@@ -91,6 +94,7 @@ private:
     static constexpr size_t SIZE_BITS = sizeof(size_t) * 8;
 };
 
+}
 }
 
 #endif

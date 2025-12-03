@@ -33,9 +33,8 @@ class File;
 }  // namespace File
 }  // namespace Util
 
-namespace Util::Async {
-
-Process::Process(const size_t id) : id(id) {}
+namespace Util {
+namespace Async {
 
 Process Process::execute(const Io::File &binaryFile, const Io::File &inputFile, const Io::File &outputFile,
     const Io::File &errorFile, const String &command, const Array<String> &arguments)
@@ -63,4 +62,5 @@ size_t Process::getId() const {
     return id;
 }
 
+}
 }

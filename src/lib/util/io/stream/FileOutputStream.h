@@ -28,7 +28,8 @@
 #include "util/io/file/File.h"
 #include "util/io/stream/OutputStream.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// An output stream that writes data to a file.
 /// The file is specified by its path, or a `File` instance.
@@ -68,13 +69,14 @@ public:
 
     /// Create a file output stream instance that writes to the given file.
     /// If the file does not exist, a panic is fired.
-    explicit FileOutputStream(const File &file);
+    explicit FileOutputStream(const File &file) : FileOutputStream(file.getCanonicalPath()) {}
 
     /// Create a file output stream instance that writes to the file associated with the given file descriptor.
     /// The instance does not take ownership of the file descriptor and will not close it upon destruction.
     /// It is the caller's responsibility to ensure that the file descriptor remains valid
     /// for the lifetime of this output stream to close it when no longer needed.
-    explicit FileOutputStream(int32_t fileDescriptor);
+    explicit FileOutputStream(const int32_t fileDescriptor) :
+        closeFileDescriptor(false), fileDescriptor(fileDescriptor) {}
 
     /// Destroy the file output stream and close the file descriptor if it was opened by this instance.
     ~FileOutputStream() override;
@@ -99,7 +101,9 @@ public:
     void setPosition(size_t offset, File::SeekMode mode = File::SeekMode::SET);
 
     /// Get the current position in the file, i.e., the offset in bytes from the beginning of the file.
-    size_t getPosition() const;
+    size_t getPosition() const {
+        return pos;
+    }
 
 private:
 
@@ -108,6 +112,7 @@ private:
     size_t pos = 0;
 };
 
+}
 }
 
 #endif

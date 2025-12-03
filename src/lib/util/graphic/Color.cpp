@@ -20,7 +20,10 @@
 
 #include "Color.h"
 
-Util::Graphic::Color Util::Graphic::Color::fromRGB(const uint32_t rgb, const uint8_t depth) {
+namespace Util {
+namespace Graphic {
+
+Color Color::fromRGB(const uint32_t rgb, const uint8_t depth) {
     static constexpr void *LABELS[] = {
         &&INVALID_DEPTH,
         &&FROM_RGB1,
@@ -90,7 +93,7 @@ Util::Graphic::Color Util::Graphic::Color::fromRGB(const uint32_t rgb, const uin
     Util::Panic::fire(Panic::INVALID_ARGUMENT, "Unsupported color depth!");
 }
 
-uint32_t Util::Graphic::Color::getColorForDepth(const uint8_t depth) const {
+uint32_t Color::getColorForDepth(const uint8_t depth) const {
     static constexpr void *LABELS[] = {
         &&INVALID_DEPTH,
         &&GET_RGB1,
@@ -158,4 +161,7 @@ uint32_t Util::Graphic::Color::getColorForDepth(const uint8_t depth) const {
 
     INVALID_DEPTH:
     Util::Panic::fire(Panic::INVALID_ARGUMENT, "Unsupported color depth!");
+}
+
+}
 }

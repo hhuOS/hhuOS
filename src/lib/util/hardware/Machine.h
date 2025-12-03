@@ -23,12 +23,15 @@
 
 #include <stdint.h>
 
+namespace Util {
+namespace Hardware {
+
 /// Provides functions to configure the machine, such as shutting it down or performing power management operations.
 /// For now, this only provides a `shutdown()` function.
 /// Currently, hhuOS only supports shutdown via QEMU isa-debug-exit or the Advanced Power Management (APM).
 /// When running on real hardware and APM is not available, the shutdown function will not work.
 /// Since most modern systems use ACPI for power management, a shutdown function using ACPI is planned for the future.
-namespace Util::Hardware::Machine {
+namespace Machine {
 
 /// Type of shutdown operation to perform (either shutdown or reboot).
 enum ShutdownType : uint8_t {
@@ -39,6 +42,9 @@ enum ShutdownType : uint8_t {
 /// Shut down or reboot the machine.
 bool shutdown(ShutdownType type = SHUTDOWN);
 
+}
+
+}
 }
 
 #endif

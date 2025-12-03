@@ -24,7 +24,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// Base class for output streams. An output stream is a destination for writing data.
 /// The actual destination can be a file, memory or any other data sink, depending on the subclass.
@@ -57,9 +58,12 @@ public:
     /// If the stream uses buffering, this method should flush any buffered data to the underlying destination.
     /// The number of bytes flushed is returned.
     /// The default implementation does nothing and returns 0.
-    virtual size_t flush();
+    virtual size_t flush() {
+        return 0;
+    }
 };
 
+}
 }
 
 #endif

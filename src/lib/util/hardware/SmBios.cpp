@@ -25,9 +25,11 @@
 #include "util/collection/ArrayList.h"
 #include "util/math/Math.h"
 
-namespace Util::Hardware {
+namespace Util {
+namespace Hardware {
+namespace SmBios {
 
-size_t SmBios::TableHeader::calculateFullLength() const {
+size_t TableHeader::calculateFullLength() const {
     const char *stringTable = reinterpret_cast<const char*>(this) + length;
 
     // Search the string table for two consecutive null characters, indicating the end of the string table.
@@ -39,7 +41,7 @@ size_t SmBios::TableHeader::calculateFullLength() const {
     return length + i + 1;
 }
 
-size_t SmBios::TableHeader::calculateStringCount() const {
+size_t TableHeader::calculateStringCount() const {
     const char *stringTable = reinterpret_cast<const char*>(this) + length;
 
     size_t index = 0;
@@ -62,7 +64,7 @@ size_t SmBios::TableHeader::calculateStringCount() const {
     return strings;
 }
 
-const char* SmBios::TableHeader::getString(const size_t number) const {
+const char* TableHeader::getString(const size_t number) const {
     const char *stringTable = reinterpret_cast<const char*>(this) + length;
 
     size_t index = 0;
@@ -76,9 +78,7 @@ const char* SmBios::TableHeader::getString(const size_t number) const {
     return &stringTable[index];
 }
 
-SmBios::Tables::Tables(const TableHeader &firstTable) : firstTable(&firstTable) {}
-
-const SmBios::TableHeader& SmBios::Tables::operator[](const HeaderType type) const {
+const TableHeader& Tables::operator[](const HeaderType type) const {
     for (const auto &table : *this) {
         if (table.type == type) {
             return table;
@@ -88,16 +88,16 @@ const SmBios::TableHeader& SmBios::Tables::operator[](const HeaderType type) con
     Panic::fire(Panic::INVALID_ARGUMENT, "SmBios: Table not found!");
 }
 
-size_t SmBios::Tables::getTableCount() const {
+size_t Tables::getTableCount() const {
     size_t count = 0;
-    for ([[maybe_unused]] const auto &table : *this) {
+    for (const auto &_ : *this) {
         count++;
     }
 
     return count;
 }
 
-bool SmBios::Tables::hasTable(const HeaderType type) const {
+bool Tables::hasTable(const HeaderType type) const {
     for (const auto &table : *this) {
         if (table.type == type) {
             return true;
@@ -107,7 +107,7 @@ bool SmBios::Tables::hasTable(const HeaderType type) const {
     return false;
 }
 
-Array<SmBios::HeaderType> SmBios::Tables::getTypes() const {
+Array<HeaderType> Tables::getTypes() const {
     ArrayList<HeaderType> typeList;
     for (const auto &table : *this) {
         typeList.add(table.type);
@@ -116,47 +116,26 @@ Array<SmBios::HeaderType> SmBios::Tables::getTypes() const {
     return typeList.toArray();
 }
 
-Iterator<const SmBios::TableHeader> SmBios::Tables::begin() const {
-    const auto element = IteratorElement<const TableHeader>{ firstTable, 0 };
-    return Iterator<const TableHeader>(*this, element);
-}
-
-Iterator<const SmBios::TableHeader> SmBios::Tables::end() const {
-    constexpr auto element = IteratorElement<const TableHeader>{ nullptr, 0 };
-    return Iterator<const TableHeader>(*this, element);
-}
-
-IteratorElement<const SmBios::TableHeader>
-    SmBios::Tables::next(const IteratorElement<const TableHeader> &element) const
-{
-    const auto length = element.data->calculateFullLength();
-    const auto *nextTable = reinterpret_cast<TableHeader*>(reinterpret_cast<uintptr_t>(element.data) + length);
-
-    if (nextTable->type == END_OF_TABLE) {
-        return IteratorElement<const TableHeader>{ nullptr, 0 };
-    }
-
-    return IteratorElement<const TableHeader>{ nextTable, element.index + 1 };
-}
-
-const char* SmBios::BiosInformation::getVendorName() const {
+const char* BiosInformation::getVendorName() const {
     return header.getString(vendorString);
 }
 
-const char* SmBios::BiosInformation::getVersion() const {
+const char* BiosInformation::getVersion() const {
     return header.getString(versionString);
 }
 
-const char* SmBios::BiosInformation::getReleaseDate() const {
+const char* BiosInformation::getReleaseDate() const {
     return header.getString(releaseDateString);
 }
 
-uint32_t SmBios::BiosInformation::calculateRuntimeSize() const {
+uint32_t BiosInformation::calculateRuntimeSize() const {
     return (0x10000 - startAddressSegment) * 16;
 }
 
-uint32_t SmBios::BiosInformation::calculateRomSize() const {
+uint32_t BiosInformation::calculateRomSize() const {
     return static_cast<uint32_t>(Math::pow(65536.0, romSize + 1));
 }
 
+}
+}
 }

@@ -23,7 +23,8 @@
 
 #include <stdint.h>
 
-namespace Util::Graphic {
+namespace Util {
+namespace Graphic {
 
 /// Represents a monochrome font, consisting of binary data.
 /// Each bit represents a pixel. The whole font data is stored in a single array.
@@ -66,6 +67,7 @@ private:
     const uint8_t *fontData;
 };
 
+}
 }
 
 #endif

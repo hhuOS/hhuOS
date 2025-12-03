@@ -28,7 +28,9 @@
 #include "util/network/ip4/Ip4Address.h"
 #include "util/network/ip4/Ip4SubnetAddress.h"
 
-namespace Util::Network::Ip4 {
+namespace Util {
+namespace Network {
+namespace Ip4 {
 
 /// Represents a route in the IPv4 routing table.
 /// A route defines how packets should be forwarded to reach a specific destination.
@@ -80,7 +82,9 @@ public:
     /// const auto hasNextHop = route.hasNextHop(); // false
     /// const auto nextHop = route.getNextHop(); // Panic: Route has no next hop!
     /// ```
-    Ip4Route(const Ip4SubnetAddress &targetAddress, const String &deviceIdentifier);
+    Ip4Route(const Ip4SubnetAddress &targetAddress, const String &deviceIdentifier) :
+        sourceAddress(targetAddress.getIp4Address()), targetAddress(targetAddress),
+        deviceIdentifier(deviceIdentifier) {}
 
     /// Create a new IPv4 route with the given source and target addresses and no next hop.
     ///
@@ -94,7 +98,8 @@ public:
     /// const auto hasNextHop = route.hasNextHop(); // false
     /// const auto nextHop = route.getNextHop(); // Panic: Route has no next hop!
     /// ```
-    Ip4Route(const Ip4Address &sourceAddress, const Ip4SubnetAddress &targetAddress, const String &deviceIdentifier);
+    Ip4Route(const Ip4Address &sourceAddress, const Ip4SubnetAddress &targetAddress, const String &deviceIdentifier) :
+        sourceAddress(sourceAddress), targetAddress(targetAddress), deviceIdentifier(deviceIdentifier) {}
 
     /// Create a new IPv4 route with the given target address, next hop address and device identifier.
     /// The source address is extracted from the target address.
@@ -111,7 +116,9 @@ public:
     /// const auto hasNextHop = route.hasNextHop(); // true
     /// const auto nextHop = route.getNextHop(); // 10.0.2.2
     /// ```
-    Ip4Route(const Ip4SubnetAddress &targetAddress, const Ip4Address &nextHop, const String &deviceIdentifier);
+    Ip4Route(const Ip4SubnetAddress &targetAddress, const Ip4Address &nextHop, const String &deviceIdentifier) :
+        sourceAddress(targetAddress.getIp4Address()), targetAddress(targetAddress),
+        nextHop(nextHop), deviceIdentifier(deviceIdentifier), nextHopValid(true) {}
 
     /// Create a new IPv4 route with the given source address, target address, next hop address and device identifier.
     /// Every packet that matches the target address will be sent to the next hop address
@@ -128,8 +135,9 @@ public:
     /// const auto hasNextHop = route.hasNextHop(); // true
     /// const auto nextHop = route.getNextHop(); // 10.0.2.2
     /// ```
-    Ip4Route(const Ip4Address &sourceAddress, const Ip4SubnetAddress &targetAddress,
-        const Ip4Address &nextHop, const String &deviceIdentifier);
+    Ip4Route(const Ip4Address &sourceAddress, const Ip4SubnetAddress &targetAddress, const Ip4Address &nextHop,
+        const String &deviceIdentifier) : sourceAddress(sourceAddress), targetAddress(targetAddress),
+        nextHop(nextHop), deviceIdentifier(deviceIdentifier), nextHopValid(true) {}
 
     /// Compare this route with another route for equality.
     /// Two routes are considered equal if they have the same target address, device identifier and next hop address.
@@ -143,7 +151,11 @@ public:
     /// const auto isEqual1 = (route1 == route2); // true, same target address and device identifier and no next hop
     /// const auto isEqual2 = (route1 == route3); // false, route3 has a next hop
     /// ```
-    bool operator==(const Ip4Route &other) const;
+    bool operator==(const Ip4Route &other) const {
+        return targetAddress == other.targetAddress &&
+            deviceIdentifier == other.deviceIdentifier &&
+            nextHop == other.nextHop;
+    }
 
     /// Compare this route with another route for inequality.
     /// Two routes are considered unequal if they have different target addresses,
@@ -158,26 +170,46 @@ public:
     /// const auto isNotEqual1 = (route1 != route2); // false, same target address and device identifier and no next hop
     /// const auto isNotEqual2 = (route1 != route3); // true, route3 has a next hop
     /// ```
-    bool operator!=(const Ip4Route &other) const;
+    bool operator!=(const Ip4Route &other) const {
+        return targetAddress != other.targetAddress ||
+            deviceIdentifier != other.deviceIdentifier ||
+            nextHop != other.nextHop;
+    }
 
     /// Get the source address.
-    const Ip4Address& getSourceAddress() const;
+    const Ip4Address& getSourceAddress() const {
+        return sourceAddress;
+    }
 
     /// Get the target address.
-    Ip4SubnetAddress getTargetAddress() const;
+    Ip4SubnetAddress getTargetAddress() const {
+        return targetAddress;
+    }
 
     /// Get the device identifier.
-    const String& getDeviceIdentifier() const;
+    const String& getDeviceIdentifier() const {
+        return deviceIdentifier;
+    }
 
     /// Check if this route has a next hop address.
-    bool hasNextHop() const;
+    bool hasNextHop() const {
+        return nextHopValid;
+    }
 
     /// Get the next hop address.
-    const Ip4Address& getNextHop() const;
+    const Ip4Address& getNextHop() const {
+        if (!nextHopValid) {
+            Util::Panic::fire(Panic::UNSUPPORTED_OPERATION, "Ip4Route: Route has no next hop!");
+        }
+
+        return nextHop;
+    }
 
     /// Check if this route is valid.
     /// A route is considered valid if it has a non-empty device identifier.
-    bool isValid() const;
+    bool isValid() const {
+        return !deviceIdentifier.isEmpty();
+    }
 
 private:
 
@@ -189,6 +221,8 @@ private:
     bool nextHopValid = false;
 };
 
+}
+}
 }
 
 #endif

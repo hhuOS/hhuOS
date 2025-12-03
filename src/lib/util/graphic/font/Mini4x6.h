@@ -25,7 +25,9 @@
 
 #include "util/graphic/Font.h"
 
-namespace Util::Graphic::Fonts {
+namespace Util {
+namespace Graphic {
+namespace Fonts {
 
 /// Binary data for the Mini 4x6 font.
 static constexpr uint8_t MINI_4x6_FONT_DATA[8 * 6 * 256] = {
@@ -2135,6 +2137,8 @@ static constexpr uint8_t MINI_4x6_FONT_DATA[8 * 6 * 256] = {
 /// Based on https://github.com/torvalds/linux/blob/master/lib/fonts/font_mini_4x6.c
 static Font MINI_4x6(4, 6, MINI_4x6_FONT_DATA);
 
+}
+}
 }
 
 #endif

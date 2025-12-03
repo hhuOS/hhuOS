@@ -23,7 +23,8 @@
 
 #include "Runnable.h"
 
-namespace Util::Async {
+namespace Util {
+namespace Async {
 
 /// A Runnable that wraps a function pointer.
 /// The function does not take any arguments and does not return anything.
@@ -45,17 +46,20 @@ class BasicRunnable final : public Runnable {
 
 public:
     /// Create a new Runnable with the given function pointer.
-    explicit BasicRunnable(void (*function)());
+    explicit BasicRunnable(void (*function)()) : function(function) {}
 
     /// Run the Runnable.
     /// This is called by a thread when it starts.
-    void run() override;
+    void run() override {
+        function();
+    }
 
 private:
 
     void (*function)();
 };
 
+}
 }
 
 #endif

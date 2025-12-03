@@ -23,7 +23,8 @@
 
 #include "util/math/Vector2.h"
 
-namespace Util::Math {
+namespace Util {
+namespace Math {
 
 /// A 3D vector class that supports basic vector operations such as addition, subtraction, scaling, and normalization.
 /// It is templated to support float and double types.
@@ -46,7 +47,7 @@ public:
     Vector3() = default;
 
     /// Create a new 3D vector with the given x, y, and z values.
-    Vector3(T x, T y, T z);
+    Vector3(T x, T y, T z) : x(x), y(y), z(z) {}
 
     /// Create a new 3D vector by multiplying this vector with a scalar value.
     ///
@@ -55,7 +56,9 @@ public:
     /// const auto vector = Util::Math::Vector3<float>(1.0f, 2.0f, 3.0f);
     /// const auto scaledVector = vector * 2.0f; // { 2.0f, 4.0f, 6.0f }
     /// ```
-    Vector3 operator*(T value) const;
+    Vector3 operator*(T value) const {
+        return {x * value, y * value, z * value};
+    }
 
     /// Create a new 3D vector by dividing this vector by a scalar value.
     ///
@@ -64,7 +67,9 @@ public:
     /// const auto vector = Util::Math::Vector3<float>(2.0f, 4.0f, 6.0f);
     /// const auto dividedVector = vector / 2.0f; // { 1.0f, 2.0f, 3.0f }
     /// ```
-    Vector3 operator/(T value) const;
+    Vector3 operator/(T value) const {
+        return {x / value, y / value, z / value};
+    }
 
     /// Create a new 3D vector by applying the modulo operation to each component of this vector with a scalar value.
     ///
@@ -76,7 +81,9 @@ public:
     /// const auto negativeVector = Util::Math::Vector3<float>(-5.0f, -10.0f, -15.0f);
     /// const auto modNegativeVector = negativeVector % 6.0f; // { 1.0f, 2.0f, 3.0f }
     /// ```
-    Vector3 operator%(T value) const;
+    Vector3 operator%(T value) const {
+        return { modulo(x, value), modulo(y, value), modulo(z, value) };
+    }
 
     /// Create a new 3D vector from the sum of this vector and another 3D vector.
     ///
@@ -87,7 +94,9 @@ public:
     ///
     /// const auto sumVector = vector1 + vector2; // { 5.0f, 7.0f, 9.0f }
     /// ```
-    Vector3 operator+(const Vector3 &other) const;
+    Vector3 operator+(const Vector3 &other) const {
+        return {x + other.x, y + other.y, z + other.z};
+    }
 
     /// Create a new 3D vector from the sum of this vector and a 2D vector.
     /// The z component is ignored in the 2D vector, and the resulting vector will have the z component of this vector.
@@ -99,7 +108,9 @@ public:
     ///
     /// const auto sumVector = vector3 + vector2; // { 5.0f, 7.0f, 3.0f }
     /// ```
-    Vector3 operator+(const Vector2<T> &other) const;
+    Vector3 operator+(const Vector2<T> &other) const {
+        return {x + other.getX(), y + other.getY(), z};
+    }
 
     /// Create a new 3D vector from the difference of this vector and another 3D vector.
     ///
@@ -110,7 +121,9 @@ public:
     ///
     /// const auto diffVector = vector1 - vector2; // { 2.0f, 2.0f, 2.0f }
     /// ```
-    Vector3 operator-(const Vector3 &other) const;
+    Vector3 operator-(const Vector3 &other) const {
+        return {x - other.x, y - other.y, z - other.z};
+    }
 
     /// Compare this vector with another vector for equality.
     /// ```c++
@@ -121,7 +134,9 @@ public:
     /// bool areEqual = (vector1 == vector2); // true
     /// areEqual = (vector1 == vector3); // false
     /// ```
-    bool operator==(const Vector3 &other) const;
+    bool operator==(const Vector3 &other) const {
+        return x == other.x && y == other.y && z == other.z;
+    }
 
     /// Compare this vector with another vector for inequality.
     ///
@@ -134,7 +149,9 @@ public:
     /// bool areNotEqual = (vector1 != vector2); // false
     /// areNotEqual = (vector1 != vector3); // true
     /// ```
-    bool operator!=(const Vector3 &other) const;
+    bool operator!=(const Vector3 &other) const {
+        return x != other.x || y != other.y || z != other.z;
+    }
 
     /// Calculate the length (magnitude) of this vector.
     /// The length is calculated by taking the square root of the sum of the squares of its components:
@@ -147,7 +164,9 @@ public:
     /// const auto vector = Util::Math::Vector3<float>(3.0f, 4.0f, 5.0f);
     /// const auto length = vector.length(); // 7.071f (sqrt(3.0f^2 + 4.0f^2 + 5.0f^2))
     /// ```
-    T length() const;
+    T length() const {
+        return sqrt(x * x + y * y + z * z);
+    }
 
     /// Normalize this vector to have a length of 1.
     /// This is done by dividing each component by the vector's length.
@@ -157,7 +176,14 @@ public:
     /// const auto vector = Util::Math::Vector3<float>(3.0f, 4.0f, 5.0f); // Length is 7.071f
     /// const auto normalizedVector = vector.normalize(); // { 0.424f, 0.566f, 0.707f }
     /// ```
-    Vector3 normalize() const;
+    Vector3 normalize() const {
+        const auto len = length();
+        if (len == 0) {
+            return *this;
+        }
+
+        return *this * (1 / len);
+    }
 
     /// Calculate the distance between this vector and another vector.
     /// This is done using the Euclidean distance formula:
@@ -172,7 +198,13 @@ public:
     ///
     /// const auto distance = vector1.distance(vector2); // 6.403f (sqrt(3.0f^2 + 4.0f^2 + 5.0f^2))
     /// ```
-    T distance(const Vector3 &other) const;
+    T distance(const Vector3 &other) const {
+        const auto pX = pow(other.getX() - getX(), 2);
+        const auto pY = pow(other.getY() - getY(), 2);
+        const auto pZ = pow(other.getZ() - getZ(), 2);
+
+        return sqrt(pX + pY + pZ);
+    }
 
     /// Calculate the dot product of this vector and another vector.
     /// The result is a scalar value calculated as:
@@ -187,7 +219,9 @@ public:
     ///
     /// const auto dotProduct = vector1.dotProduct(vector2); // 32.0f (1.0f * 4.0f + 2.0f * 5.0f + 3.0f * 6.0f)
     /// ```
-    T dotProduct(const Vector3 &other) const;
+    T dotProduct(const Vector3 &other) const {
+        return x * other.x + y * other.y + z * other.z;
+    }
 
     /// Calculate the cross product of this vector and another vector.
     /// The result is a new vector that is perpendicular to both vectors in 2D space.
@@ -203,9 +237,12 @@ public:
     ///
     /// const auto crossProduct = vector1.crossProduct(vector2); // { -3.0f, 6.0f, -3.0f }
     /// ```
-    Vector3 crossProduct(const Vector3 &other) const;
+    Vector3 crossProduct(const Vector3 &other) const {
+        return { y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x };
+    }
 
     /// Rotate this vector around the x, y, and z axes by the specified angles in degrees.
+    /// Based on https://en.wikipedia.org/wiki/Rotation_matrix#In_three_dimensions.
     ///
     /// ### Example
     /// ```c++
@@ -215,25 +252,60 @@ public:
     /// // Rotate the vector by 30° around the x-axis, 45° around the y-axis, and 60° around the z-axis
     /// const auto rotatedVector = vector.rotate(rotation); // { 1.425f, 2.932f, 1.837f }
     /// ```
-    Vector3 rotate(const Vector3 &rotation) const;
+    Vector3 rotate(const Vector3 &rotation) const {
+        const auto a = toRadians(rotation.getX());
+        const auto b = toRadians(rotation.getY());
+        const auto c = toRadians(rotation.getZ());
+
+        const auto sinA = sine(a);
+        const auto cosA = cosine(a);
+        const auto sinB = sine(b);
+        const auto cosB = cosine(b);
+        const auto sinC = sine(c);
+        const auto cosC = cosine(c);
+
+        const auto rotationMatrix = Matrix3x3 {
+            cosB * cosC, sinA * sinB * cosC - cosA * sinC, cosA * sinB * cosC + sinA * sinC,
+            cosB * sinC, sinA * sinB * sinC + cosA * cosC, cosA * sinB * sinC - sinA * cosC,
+            -sinB, sinA * cosB, cosA * cosB
+        };
+
+        return rotationMatrix * *this;
+    }
 
     /// Return the x component of this vector.
-    T getX() const;
+    T getX() const {
+        return x;
+    }
 
     /// Return the y component of this vector.
-    T getY() const;
+    T getY() const {
+        return y;
+    }
 
     /// Return the z component of this vector.
-    T getZ() const;
+    T getZ() const {
+        return z;
+    }
 
 private:
     /// A 3x3 matrix class used exclusively for rotation operations in Vector3.
     struct Matrix3x3 {
         /// Create a new 3x3 matrix with the given values.
-        Matrix3x3(T x1, T y1, T z1, T x2, T y2, T z2, T x3, T y3, T z3);
+        Matrix3x3(T x1, T y1, T z1, T x2, T y2, T z2, T x3, T y3, T z3) :
+            d11(x1), d12(y1), d13(z1), d21(x2), d22(y2), d23(z2), d31(x3), d32(y3), d33(z3) {}
 
         /// Multiply this matrix with a 3D vector and return the resulting vector.
-        Vector3 operator*(const Vector3 &vector) const;
+        Vector3 operator*(const Vector3 &vector) const {
+            const Matrix3x3 &a = *this;
+            const Vector3 &v = vector;
+
+            return {
+                a.d11 * v.getX() + a.d12 * v.getY() + a.d13 * v.getZ(),
+                a.d21 * v.getX() + a.d22 * v.getY() + a.d23 * v.getZ(),
+                a.d31 * v.getX() + a.d32 * v.getY() + a.d33 * v.getZ()
+            };
+        }
 
         T d11, d12, d13;
         T d21, d22, d23;
@@ -248,6 +320,7 @@ private:
 template class Vector3<float>;
 template class Vector3<double>;
 
+}
 }
 
 #endif

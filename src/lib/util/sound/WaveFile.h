@@ -27,7 +27,8 @@
 #include "util/io/stream/FilterInputStream.h"
 #include "util/io/stream/FileInputStream.h"
 
-namespace Util::Sound {
+namespace Util {
+namespace Sound {
 
 /// This class provides functionality to read and parse WAVE audio files.
 /// It works by reading the RIFF and format chunks from the beginning of the WAVE file,
@@ -102,25 +103,39 @@ public:
     explicit WaveFile(const Io::File &file);
 
     /// Return the audio format of the WAVE file (e.g. `PCM`).
-    AudioFormat getAudioFormat() const;
+    AudioFormat getAudioFormat() const {
+        return formatChunk.audioFormat;
+    }
 
     /// Return the number of channels in the audio data (e.g. 1 for mono, 2 for stereo).
-    uint16_t getNumChannels() const;
+    uint16_t getNumChannels() const {
+        return formatChunk.numChannels;
+    }
 
     /// Return the sample rate in samples per second (e.g. 22050, 44100).
-    uint32_t getSamplesPerSecond() const;
+    uint32_t getSamplesPerSecond() const {
+        return formatChunk.samplesPerSecond;
+    }
 
     /// Return the number of bytes per second for the audio data.
-    uint32_t getBytesPerSecond() const;
+    uint32_t getBytesPerSecond() const {
+        return formatChunk.bytesPerSecond;
+    }
 
     /// Return the number of bits per sample (e.g. 8, 16).
-    uint16_t getBitsPerSample() const;
+    uint16_t getBitsPerSample() const {
+        return formatChunk.bitsPerSample;
+    }
 
     /// Return the amount of samples in the audio data.
-    uint32_t getSampleCount() const;
+    uint32_t getSampleCount() const {
+        return dataChunk.chunkSize / formatChunk.frameSize;
+    }
 
     /// Return the size of the audio data in bytes.
-    uint32_t getDataSize() const;
+    uint32_t getDataSize() const {
+        return dataChunk.chunkSize;
+    }
 
 private:
 
@@ -153,6 +168,7 @@ private:
     DataChunk dataChunk{};
 };
 
+}
 }
 
 #endif

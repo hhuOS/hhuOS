@@ -27,7 +27,8 @@
 #include "util/graphic/LinearFrameBuffer.h"
 #include "util/time/Timestamp.h"
 
-namespace Util::Graphic {
+namespace Util {
+namespace Graphic {
 
 LinearFrameBufferTerminal::LinearFrameBufferTerminal(const LinearFrameBuffer &lfb, const char cursor) :
     Terminal(lfb.getResolutionX() / Fonts::TERMINAL_8x16.getCharWidth(),
@@ -208,4 +209,5 @@ void LinearFrameBufferTerminal::scrollUp() {
         getColumns() - 1, getRows() - 1);
 }
 
+}
 }

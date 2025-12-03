@@ -26,7 +26,8 @@
 
 #include "util/io/stream/InputStream.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// A filter input stream is a wrapper around another input stream.
 /// In its base implementation, it simply forwards all calls to the underlying stream without any modification.
@@ -94,7 +95,7 @@ public:
     /// Create a new filter input stream instance that wraps the given underlying stream.
     /// The instance does not take ownership of the underlying stream. It is the caller's responsibility to ensure
     /// that the underlying stream remains valid for the lifetime of this filter input stream.
-    explicit FilterInputStream(InputStream &stream);
+    explicit FilterInputStream(InputStream &stream) : stream(stream) {}
 
     /// Read a single byte from the stream by forwarding the call to the underlying stream.
     /// Subclasses can override this method to modify the behavior.
@@ -102,7 +103,9 @@ public:
     /// If an error occurs or the end of the stream is reached, -1 is returned.
     /// If no byte is currently available, but the end of the stream has not been reached,
     /// implementations may block until data is available.
-    int16_t read() override;
+    int16_t read() override {
+        return stream.read();
+    }
 
     /// Read up to length bytes from the stream into the target buffer, starting at the given offset,
     /// by forwarding the call to the underlying stream. Subclasses can override this method to modify the behavior.
@@ -112,7 +115,9 @@ public:
     /// If the buffer is too small, data is written out of bounds, leading to undefined behavior.
     /// Implementations should read as many bytes as possible. If no bytes are available currently,
     /// but the end of the stream has not been reached, implementations may block until data is available.
-    int32_t read(uint8_t *targetBuffer, size_t offset, size_t length) override;
+    int32_t read(uint8_t *targetBuffer, const size_t offset, const size_t length) override {
+        return stream.read(targetBuffer, offset, length);
+    }
 
     /// Peek at the next byte in the stream without removing it from the stream
     /// by forwarding the call to the underlying stream. Subclasses can override this method to modify the behavior.
@@ -120,18 +125,23 @@ public:
     /// If an error occurs or the end of the stream is reached, -1 is returned.
     /// If no byte is currently available, but the end of the stream has not been reached,
     /// implementations may block until data is available.
-	int16_t peek() override;
+    int16_t peek() override {
+        return stream.peek();
+    }
 
     /// Check if there is data available to read from the stream by forwarding the call to the underlying stream.
     /// Subclasses can override this method to modify the behavior.
     /// If this method returns true, a subsequent read call is guaranteed to succeed without blocking.
-    bool isReadyToRead() override;
+    bool isReadyToRead() override {
+        return stream.isReadyToRead();
+    }
 
 private:
 
     InputStream &stream;
 };
 
+}
 }
 
 #endif

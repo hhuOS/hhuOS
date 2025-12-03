@@ -22,22 +22,9 @@
 
 #include "lib/util/base/Address.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
-ByteArrayOutputStream::ByteArrayOutputStream(const size_t size) :
-    buffer(new uint8_t[size]), size(size) {}
-
-ByteArrayOutputStream::ByteArrayOutputStream(uint8_t *buffer) :
-    buffer(buffer), allocatedBuffer(false), checkBounds(false) {}
-
-ByteArrayOutputStream::ByteArrayOutputStream(uint8_t *buffer, const size_t size) :
-    buffer(buffer), size(size), allocatedBuffer(false) {}
-
-ByteArrayOutputStream::~ByteArrayOutputStream() {
-    if (allocatedBuffer) {
-        delete[] buffer;
-    }
-}
 
 bool ByteArrayOutputStream::write(const uint8_t byte) {
     if (ensureRemainingCapacity(1)) {
@@ -57,29 +44,6 @@ size_t ByteArrayOutputStream::write(const uint8_t *sourceBuffer, size_t offset, 
 
     position += toWrite;
     return toWrite;
-}
-
-void ByteArrayOutputStream::getContent(uint8_t *target, const size_t length) const {
-    const auto sourceAddress = Address(buffer);
-    const auto targetAddress = Address(target);
-
-    targetAddress.copyRange(sourceAddress, position > length ? length : position);
-}
-
-String ByteArrayOutputStream::getContent() const {
-    return String(buffer, position);
-}
-
-size_t ByteArrayOutputStream::getPosition() const {
-    return position;
-}
-
-bool ByteArrayOutputStream::isEmpty() const {
-    return position == 0;
-}
-
-void ByteArrayOutputStream::reset() {
-    position = 0;
 }
 
 size_t ByteArrayOutputStream::ensureRemainingCapacity(const size_t count) {
@@ -111,11 +75,8 @@ size_t ByteArrayOutputStream::ensureRemainingCapacity(const size_t count) {
     buffer = newBuffer;
     size = newSize;
 
-	return count;
+    return count;
 }
 
-uint8_t* ByteArrayOutputStream::getBuffer() const {
-    return buffer;
 }
-
 }

@@ -26,14 +26,12 @@
 
 #include <stdint.h>
 
-namespace Util {
-namespace Io {
-class InputStream;
-class OutputStream;
-}  // namespace Stream
-}  // namespace Util
+#include "util/io/stream/InputStream.h"
+#include "util/io/stream/OutputStream.h"
 
-namespace Util::Network::Udp {
+namespace Util {
+namespace Network {
+namespace Udp {
 
 /// Represents a User Datagram Protocol (UDP) header.
 /// A UDP header contains the source and destination ports, the length of the datagram, and a checksum.
@@ -61,25 +59,39 @@ public:
     void write(Io::OutputStream &stream) const;
 
     /// Get the source port.
-    uint16_t getSourcePort() const;
+    uint16_t getSourcePort() const {
+        return sourcePort;
+    }
 
     /// Get the destination port.
-    uint16_t getDestinationPort() const;
+    uint16_t getDestinationPort() const {
+        return destinationPort;
+    }
 
     /// Get the datagram length in bytes (header + payload).
-    uint16_t getDatagramLength() const;
+    uint16_t getDatagramLength() const {
+        return datagramLength;
+    }
 
     /// Get the checksum.
-    uint16_t getChecksum() const;
+    uint16_t getChecksum() const {
+        return checksum;
+    }
 
     /// Set the source port.
-    void setSourcePort(uint16_t sourcePort);
+    void setSourcePort(uint16_t sourcePort) {
+        UdpHeader::sourcePort = sourcePort;
+    }
 
     /// Set the destination port.
-    void setDestinationPort(uint16_t destinationPort);
+    void setDestinationPort(uint16_t destinationPort) {
+        UdpHeader::destinationPort = destinationPort;
+    }
 
     /// Set the datagram length in bytes (header + payload).
-    void setDatagramLength(uint16_t length);
+    void setDatagramLength(uint16_t length) {
+        UdpHeader::datagramLength = length;
+    }
 
     /// The length of the UDP header in bytes.
     static constexpr uint32_t HEADER_SIZE = 8;
@@ -92,6 +104,8 @@ private:
     uint16_t checksum = 0;
 };
 
+}
+}
 }
 
 #endif

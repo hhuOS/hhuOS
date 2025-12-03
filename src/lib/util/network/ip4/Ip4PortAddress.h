@@ -30,7 +30,9 @@
 #include "util/network/NetworkAddress.h"
 #include "util/network/ip4/Ip4Address.h"
 
-namespace Util::Network::Ip4 {
+namespace Util {
+namespace Network {
+namespace Ip4 {
 
 /// Represents an IPv4 address with a port number, used to identify a specific service on a device within an IP network.
 /// The port number is a 16-bit unsigned integer value, that must be unique for each service running on the device.
@@ -48,7 +50,7 @@ public:
     /// const auto length = ipAddress.getLength(); // 6
     /// const auto string = ipAddress.toString(); // "0.0.0.0:0"
     /// ```
-    Ip4PortAddress();
+    Ip4PortAddress() : NetworkAddress(ADDRESS_LENGTH, IP4_PORT) {}
 
     /// Create a new IPv4 port address from the given buffer.
     /// The buffer must be at least six bytes long.
@@ -65,7 +67,7 @@ public:
     /// const auto ipAddress2 = Ip4PortAddress(buffer2); // 5.6.7.8:1856
     /// const auto ipAddress3 = Ip4PortAddress(buffer3); // Undefined behavior, buffer too short
     /// ```
-    explicit Ip4PortAddress(const uint8_t *buffer);
+    explicit Ip4PortAddress(const uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, IP4_PORT) {}
     
     /// Create a new IPv4 port address from a string representation.
     /// The string must be in the format "X.X.X.X:Y", where each "X" is a decimal number between 0 and 255
@@ -78,7 +80,23 @@ public:
     /// const auto ipAddress2 = Ip4Address("5.6.7.8:1856");
     /// const auto ipAddress3 = Ip4Address("9.10.11"); // Panic: index out of bounds, string too short
     /// ```
-    explicit Ip4PortAddress(const String &string);
+    explicit Ip4PortAddress(const String &string) : NetworkAddress(ADDRESS_LENGTH, IP4_PORT) {
+        const auto bufferAddress = Address(buffer);
+
+        if (string.beginsWith(":")) {
+            // Buffer is already initialized with "0.0.0.0:0" -> Just set the port number
+            const auto port = String::parseNumber<uint16_t>(string.substring(1));
+            bufferAddress.write16(port, Ip4Address::ADDRESS_LENGTH);
+        } else {
+            const auto split = string.split(":");
+            const auto ip4Address = Ip4Address(split[0]);
+            const auto port = split.length() > 1 ? String::parseNumber<uint16_t>(split[1]) : 0;
+
+            // Write the IP address and port number to the buffer
+            ip4Address.getAddress(buffer);
+            bufferAddress.write16(port, Ip4Address::ADDRESS_LENGTH);
+        }
+    }
 
     /// Create a new IPv4 port address from an IPv4 address and a port number
     ///
@@ -89,7 +107,13 @@ public:
     /// const auto portAddress1 = Ip4PortAddress(ipAddress, 1797); // 1.2.3.4:1797
     /// const auto portAddress2 = Ip4PortAddress(ipAddress, 1856); // 1.2.3.4:1856
     /// ```
-    Ip4PortAddress(const Ip4Address &address, uint16_t port);
+    Ip4PortAddress(const Ip4Address &address, const uint16_t port) :
+        NetworkAddress(Ip4Address::ADDRESS_LENGTH + 2, IP4_PORT)
+    {
+        // Copy the IP address to the buffer and write the port number
+        address.getAddress(buffer);
+        Address(buffer).write16(port, Ip4Address::ADDRESS_LENGTH);
+    }
 
     /// Create a new IPv4 port address from an IPv4 address with a default port number of 0.
     ///
@@ -98,7 +122,10 @@ public:
     /// const auto ipAddress = Ip4Address("1.2.3.4");
     /// const auto portAddress = Ip4PortAddress(ipAddress); // 1.2.3.4:0
     /// ```
-    explicit Ip4PortAddress(const Ip4Address &address);
+    explicit Ip4PortAddress(const Ip4Address &address) : NetworkAddress(ADDRESS_LENGTH, IP4_PORT) {
+        // Copy the IP address to the buffer (port is already initialized to 0)
+        address.getAddress(buffer);
+    }
 
     /// Create a new IPv4 port address with the IPv4 address `0.0.0.0` and a port number.
     ///
@@ -107,7 +134,10 @@ public:
     /// const auto portAddress1 = Ip4PortAddress(1797); // 0.0.0.0:1797
     /// const auto portAddress2 = Ip4PortAddress(1856); // 0.0.0.0:1856
     /// ```
-    explicit Ip4PortAddress(uint16_t port);
+    explicit Ip4PortAddress(const uint16_t port) : NetworkAddress(ADDRESS_LENGTH, IP4_PORT) {
+        // Buffer is already initialized with "0.0.0.0:0" -> Just set the port number
+        Address(buffer).write16(port, Ip4Address::ADDRESS_LENGTH);
+    }
 
     /// Get the IPv4 address without the port number.
     ///
@@ -116,7 +146,9 @@ public:
     /// const auto portAddress = Ip4PortAddress("1.2.3.4:1797");
     /// const auto ipAddress = portAddress.getIp4Address(); // 1.2.3.4
     /// ```
-    Ip4Address getIp4Address() const;
+    Ip4Address getIp4Address() const {
+        return Ip4Address(buffer);
+    }
 
     /// Get the port number of this address.
     ///
@@ -125,7 +157,9 @@ public:
     /// const auto portAddress = Ip4PortAddress("1.2.3.4:1797");
     /// const auto port = portAddress.getPort(); // 1797
     /// ```
-    uint16_t getPort() const;
+    uint16_t getPort() const {
+        return Address(buffer).read16(Ip4Address::ADDRESS_LENGTH);
+    }
 
     /// Set the port number of this address, overwriting the previous value.
     ///
@@ -137,7 +171,9 @@ public:
     /// portAddress.setPort(1856);
     /// port = portAddress.getPort(); // 1856
     /// ```
-    void setPort(uint16_t port) const;
+    void setPort(uint16_t port) const {
+        Address(buffer).write16(port, Ip4Address::ADDRESS_LENGTH);
+    }
 
     /// Create a new on-heap instance as a copy of this address.
     ///
@@ -148,7 +184,9 @@ public:
     ///
     /// const auto isEqual = (ipAddress1 == *ipAddress2); // true
     /// ```
-    NetworkAddress* createCopy() const override;
+    NetworkAddress* createCopy() const override {
+        return new Ip4PortAddress(*this);
+    }
 
     /// Create a string representation of the IPv4 port address in the format "X.X.X.X:Y".
     ///
@@ -160,12 +198,16 @@ public:
     ///
     /// const auto isEqual = (ipAddress1 == ipAddress2); // true
     /// ```
-    String toString() const override;
+    String toString() const override {
+        return String::format("%u.%u.%u.%u:%u", buffer[0], buffer[1], buffer[2], buffer[3], getPort());
+    }
 
     /// The length in bytes of an IPv4 port address.
     static constexpr uint32_t ADDRESS_LENGTH = Ip4Address::ADDRESS_LENGTH + sizeof(uint16_t);
 };
 
+}
+}
 }
 
 #endif

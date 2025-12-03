@@ -36,12 +36,6 @@ public:
     /// The base block memory manager class has no state, so the default constructor is sufficient.
     BlockMemoryManager() = default;
 
-    /// A memory manager should not be copyable, since copies would operate on the same memory.
-    BlockMemoryManager(const BlockMemoryManager &copy) = delete;
-
-    /// A memory manager should not be copyable, since copies would operate on the same memory.
-    BlockMemoryManager &operator=(const BlockMemoryManager &other) = delete;
-
     /// Allocate a block of memory of the size defined by the block size of this manager.
     virtual void* allocateBlock() = 0;
 

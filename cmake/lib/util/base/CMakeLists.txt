@@ -19,9 +19,6 @@
 project(lib.base)
 message(STATUS "Project " ${PROJECT_NAME})
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_C_STANDARD 90)
-
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} lib.async lib.hardware lib.io lib.reflection)
@@ -30,7 +27,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/base/Address.cpp
         ${HHUOS_SRC_DIR}/lib/util/base/ArgumentParser.cpp
 		${HHUOS_SRC_DIR}/lib/util/base/BitmapMemoryManager.cpp
-		${HHUOS_SRC_DIR}/lib/util/base/CharacterTypes.cpp
         ${HHUOS_SRC_DIR}/lib/util/base/FreeListMemoryManager.cpp
 		${HHUOS_SRC_DIR}/lib/util/base/Panic.cpp
         ${HHUOS_SRC_DIR}/lib/util/base/String.cpp

@@ -40,7 +40,8 @@
 #include "util/io/key/layout/DeLayout.h"
 #include "util/io/key/KeyDecoder.h"
 
-namespace Util::Graphic {
+namespace Util {
+namespace Graphic {
 
 /// Base class for terminal emulators.
 /// It reads input from the keyboard stream ("/device/keyboard") and writes output via virtual methods.
@@ -102,7 +103,7 @@ public:
     int16_t read() override;
 
     /// Peek at the next byte from the terminal without removing it from the input stream.
-	int16_t peek() override;
+    int16_t peek() override;
 
     /// Read a buffer of bytes from the terminal.
     int32_t read(uint8_t *targetBuffer, size_t offset, size_t length) override;
@@ -265,6 +266,7 @@ private:
     static constexpr uint8_t TABULATOR_SPACES = 8;
 };
 
+}
 }
 
 #endif

@@ -23,21 +23,25 @@
 
 #include <stdint.h>
 
-namespace Util::Time {
+namespace Util {
+namespace Time {
 
 /// Represents a date and time in the Gregorian calendar.
 class Date {
 
 public:
 	/// Create a new Date instance with the current date and time.
-    Date();
+	Date();
 
 	/// Create a new Date instance with the specified values.
-    Date(uint8_t seconds, uint8_t minutes, uint8_t hours, uint8_t dayOfMonth, uint8_t month, int16_t year);
+	Date(const uint8_t seconds, const uint8_t minutes, const uint8_t hours,
+		const uint8_t dayOfMonth, const uint8_t month, const int16_t year) :
+	seconds(seconds), minutes(minutes), hours(hours),
+	dayOfMonth(dayOfMonth), month(month), year(year) {}
 
 	/// Create a new Date instance from a Unix timestamp (seconds since 1. January 1970).
 	/// Negative timestamps are not supported and will fire a panic.
-    explicit Date(int64_t unixTime);
+	explicit Date(int64_t unixTime);
 
 	/// Compare the Date with another one for equality.
 	///
@@ -50,7 +54,10 @@ public:
 	/// const auto equal1 = (date1 == date2); // true
 	/// const auto equal2 = (date1 == date3); // false
 	/// ```
-    bool operator==(const Date &other) const;
+	bool operator==(const Date &other) const {
+		return seconds == other.seconds && minutes == other.minutes && hours == other.hours &&
+			dayOfMonth == other.dayOfMonth && month == other.month && year == other.year;
+	}
 
 	/// Compare the Date with another one for inequality.
 	///
@@ -63,25 +70,40 @@ public:
 	/// const auto notEqual1 = (date1 != date2); // false
 	/// const auto notEqual2 = (date1 != date3); // true
 	/// ```
-    bool operator!=(const Date &other) const;
+	bool operator!=(const Date &other) const {
+		return seconds != other.seconds || minutes != other.minutes || hours != other.hours ||
+			dayOfMonth != other.dayOfMonth || month != other.month || year != other.year;
+	}
 
 	/// Return the seconds (0-59) of the date.
-    uint8_t getSeconds() const;
+	uint8_t getSeconds() const {
+		return seconds;
+	}
 
 	/// Return the minutes (0-59) of the date.
-    uint8_t getMinutes() const;
+	uint8_t getMinutes() const {
+		return minutes;
+	}
 
 	/// Return the hours (0-23) of the date.
-    uint8_t getHours() const;
+	uint8_t getHours() const {
+		return hours;
+	}
 
 	/// Return the day of the month (1-31) of the date.
-    uint8_t getDayOfMonth() const;
+	uint8_t getDayOfMonth() const {
+		return dayOfMonth;
+	}
 
 	/// Return the month (1-12) of the date.
-    uint8_t getMonth() const;
+	uint8_t getMonth() const {
+		return month;
+	}
 
 	/// Return the year of the date.
-    int16_t getYear() const;
+	int16_t getYear() const {
+		return year;
+	}
 
 	/// Convert the date to a Unix timestamp (seconds since 1. January 1970).
 	/// Dates before 1. January 1970 are not supported and will fire a panic.
@@ -175,17 +197,18 @@ private:
 	/// Calculate the number of days in the specified month, taking leap years into account.
 	static uint8_t getLengthOfMonth(uint8_t month, int16_t year);
 
-    uint8_t seconds = 0;
-    uint8_t minutes = 0;
-    uint8_t hours = 0;
-    uint8_t dayOfMonth = 1;
-    uint8_t month = 1;
-    int16_t year = 1970;
+	uint8_t seconds = 0;
+	uint8_t minutes = 0;
+	uint8_t hours = 0;
+	uint8_t dayOfMonth = 1;
+	uint8_t month = 1;
+	int16_t year = 1970;
 
 	static constexpr uint32_t secondsPerDay = 86400;
 	static constexpr uint8_t monthLength[12] = {31,0,31,30,31,30,31,31,30,31,30,31};
 };
 
+}
 }
 
 #endif

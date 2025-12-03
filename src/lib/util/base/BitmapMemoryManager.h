@@ -37,13 +37,9 @@ public:
     /// The start address in inclusive and the end address is exclusive.
     /// An end address of 0 actually points to the highest possible address.
     /// The boolean flag `zeroMemory` indicates whether the allocated memory blocks should be zeroed out.
-    BitmapMemoryManager(uint8_t *startAddress, uint8_t *endAddress, size_t blockSize, bool zeroMemory = false);
-
-    /// A memory manager should not be copyable, since copies would operate on the same memory.
-    BitmapMemoryManager(const BitmapMemoryManager &copy) = delete;
-
-    /// A memory manager should not be copyable, since copies would operate on the same memory.
-    BitmapMemoryManager& operator=(const BitmapMemoryManager &other) = delete;
+    BitmapMemoryManager(uint8_t *startAddress, uint8_t *endAddress, const size_t blockSize,
+        const bool zeroMemory = false) : startAddress(startAddress), endAddress(endAddress),
+        blockSize(blockSize), zeroMemory(zeroMemory), bitmap((endAddress - startAddress) / blockSize) {}
 
     /// Allocate a block of memory of the size defined by the block size of this manager (given in the constructor).
     /// If no block is available, a panic is fired.
@@ -54,19 +50,27 @@ public:
     void freeBlock(void *pointer) override;
 
     /// Return the total amount of memory managed by this memory manager.
-    size_t getTotalMemory() const override;
+    size_t getTotalMemory() const override {
+        return (endAddress - startAddress);
+    }
 
     /// Calculate the amount of free memory left in this memory manager.
     size_t getFreeMemory() const override;
 
     /// Return the size of a single block managed by this memory manager.
-    size_t getBlockSize() const override;
+    size_t getBlockSize() const override {
+        return blockSize;
+    }
 
     /// Return the start address of the managed memory range.
-    void* getStartAddress() const override;
+    void* getStartAddress() const override {
+        return startAddress;
+    }
 
     /// Return the end address of the managed memory range.
-    void* getEndAddress() const override;
+    void* getEndAddress() const override {
+        return endAddress;
+    }
 
     /// Manually mark a block of memory as used or free.
     /// If the given pointer is outside the managed memory range, a panic is fired.

@@ -7,19 +7,18 @@
 #include "util/io/stream/InputStream.h"
 #include "util/math/Math.h"
 
-namespace Util::Io {
-
-ScanStream::ScanStream(InputStream &stream) : FilterInputStream(stream) {}
+namespace Util {
+namespace Io {
 
 int16_t ScanStream::read() {
 	if (readLimit >= 0 && readBytes >= readLimit) {
-        return -1;
-    }
+		return -1;
+	}
 
 	const auto readByte = FilterInputStream::read();
 	if (readByte >= 0) {
-        readBytes++;
-    }
+		readBytes++;
+	}
 
 	return readByte;
 }
@@ -45,55 +44,6 @@ bool ScanStream::isReadyToRead() {
 	}
 
 	return FilterInputStream::isReadyToRead();
-}
-
-uint32_t ScanStream::getReadBytes() const {
-	return readBytes;
-}
-
-int8_t ScanStream::readSigned8(const uint8_t base) {
-	const auto value = readSigned64(base);
-	return static_cast<int8_t>(value);
-}
-
-uint8_t ScanStream::readUnsigned8(const uint8_t base) {
-	const auto value = readSigned64(base);
-
-	if (value < 0) {
-		return 0;
-	}
-
-	return static_cast<uint8_t>(value);
-}
-
-int16_t ScanStream::readSigned16(const uint8_t base) {
-	const auto value = readSigned64(base);
-	return static_cast<int16_t>(value);
-}
-
-uint16_t ScanStream::readUnsigned16(const uint8_t base) {
-	const auto value = readSigned64(base);
-
-	if (value < 0) {
-		return 0;
-	}
-
-	return static_cast<uint16_t>(value);
-}
-
-int32_t ScanStream::readSigned32(const uint8_t base) {
-	const auto value = readSigned64(base);
-	return static_cast<int32_t>(value);
-}
-
-uint32_t ScanStream::readUnsigned32(const uint8_t base) {
-	const auto value = readSigned64(base);
-
-	if (value < 0) {
-		return 0;
-	}
-
-	return static_cast<uint32_t>(value);
 }
 
 int64_t ScanStream::readSigned64(uint8_t base) {
@@ -188,15 +138,6 @@ int64_t ScanStream::readSigned64(uint8_t base) {
 	return sign * number;
 }
 
-uint64_t ScanStream::readUnsigned64(const uint8_t base) {
-	const auto value = readSigned64(base);
-	return static_cast<uint64_t>(value);
-}
-
-void ScanStream::setReadLimit(int64_t limit) {
-	readLimit = limit;
-}
-
 long double ScanStream::readFloatingPointNumber() {
 	int16_t c;
 
@@ -224,7 +165,7 @@ long double ScanStream::readFloatingPointNumber() {
 	} else if (c == '+') {
 		read();
 	}
-	
+
 	// Read integer part
 	c = peek();
 	long double number = 0;
@@ -234,7 +175,7 @@ long double ScanStream::readFloatingPointNumber() {
 		number += charToInt(static_cast<char>(c), 10);
 		c = peek();
 	}
-	
+
 	// Read decimal part
 	if (c == '.') {
 		read();
@@ -253,7 +194,7 @@ long double ScanStream::readFloatingPointNumber() {
 		read();
 		number *= Math::pow(10.0, readSigned32());
 	}
-	
+
 	return sign * number;
 }
 
@@ -569,7 +510,7 @@ int32_t ScanStream::scan(const char *format, va_list args) {
 				}
 				case '[': {
 					if (parameterLength == LONG) {
-					Panic::fire(Panic::UNSUPPORTED_OPERATION, "ScanStream: Wide chars not supported in scanset!");
+						Panic::fire(Panic::UNSUPPORTED_OPERATION, "ScanStream: Wide chars not supported in scanset!");
 					}
 
 					constexpr int32_t SET_SIZE = 1024;
@@ -654,66 +595,6 @@ int32_t ScanStream::scan(const char *format, va_list args) {
 	return scannedItems;
 }
 
-ScanStream& ScanStream::operator>>(uint8_t &number) {
-	number = readUnsigned8();
-	return *this;
-}
-
-ScanStream& ScanStream::operator>>(int8_t &number) {
-	number = readSigned8();
-	return *this;
-}
-
-ScanStream& ScanStream::operator>>(uint16_t &number) {
-	number = readUnsigned16();
-	return *this;
-}
-
-ScanStream& ScanStream::operator>>(int16_t &number) {
-	number = readSigned16();
-	return *this;
-}
-
-ScanStream& ScanStream::operator>>(uint32_t &number) {
-	number = readUnsigned32();
-	return *this;
-}
-
-ScanStream& ScanStream::operator>>(int32_t &number) {
-	number = readSigned32();
-	return *this;
-}
-
-ScanStream& ScanStream::operator>>(uint64_t &number) {
-	number = readUnsigned64();
-	return *this;
-}
-
-ScanStream& ScanStream::operator>>(int64_t &number) {
-	number = readSigned64();
-	return *this;
-}
-
-ScanStream& ScanStream::operator>>(float &number) {
-	number = static_cast<float>(readFloatingPointNumber());
-	return *this;
-}
-
-ScanStream& ScanStream::operator>>(double &number) {
-	number = static_cast<double>(readFloatingPointNumber());
-	return *this;
-}
-
-ScanStream& ScanStream::operator>>(long double &number) {
-	number = readFloatingPointNumber();
-	return *this;
-}
-
-ScanStream& ScanStream::operator>>(wchar_t &character) {
-	character = readWideCharacter();
-	return *this;
-}
-
 int8_t ScanStream::charToInt(char c, const uint8_t base) {
 	if (CharacterTypes::isDigit(c)) {
 		c -= 48;
@@ -732,4 +613,5 @@ int8_t ScanStream::charToInt(char c, const uint8_t base) {
 	return c;
 }
 
+}
 }

@@ -22,10 +22,14 @@
 
 #include "lib/interface.h"
 
-namespace Util::Hardware::Machine {
+namespace Util {
+namespace Hardware {
+namespace Machine {
 
 bool shutdown(const ShutdownType type) {
     return ::shutdown(type);
 }
 
+}
+}
 }

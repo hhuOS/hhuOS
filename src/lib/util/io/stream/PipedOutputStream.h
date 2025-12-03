@@ -26,9 +26,14 @@
 
 #include "util/io/stream/OutputStream.h"
 
-namespace Util::Io {
-
+namespace Util {
+namespace Io {
 class PipedInputStream;
+} // namespace Io
+} // namespace Util
+
+namespace Util {
+namespace Io {
 
 /// A piped output stream must be connected to a piped input stream to create a communication pipe.
 /// Data written to the piped output stream can then be read from the piped input stream.
@@ -74,7 +79,9 @@ public:
     /// Create a piped output stream instance and connect it to the given piped input stream.
     /// The given input stream must not be already connected to another output stream.
     /// If it is already connected, a panic is fired.
-    explicit PipedOutputStream(PipedInputStream &inputStream);
+    explicit PipedOutputStream(PipedInputStream &inputStream) {
+        connect(inputStream);
+    }
 
     /// Destroy the piped output stream instance.
     ~PipedOutputStream() override = default;
@@ -107,6 +114,7 @@ private:
     PipedInputStream *sink = nullptr;
 };
 
+}
 }
 
 #endif

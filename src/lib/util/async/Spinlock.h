@@ -23,10 +23,12 @@
 
 #include <stdint.h>
 
-#include "util/async/Lock.h"
 #include "util/async/Atomic.h"
+#include "util/async/Lock.h"
+#include "util/async/Thread.h"
 
-namespace Util::Async {
+namespace Util {
+namespace Async {
 
 /// A simple spinlock implementation.
 /// It is implemented using Util::Async::Atomic on an 8-bit integer.
@@ -61,34 +63,45 @@ public:
     /// Acquire the lock.
     /// This function calls `tryAcquire()` in a loop until the lock is acquired.
     /// Every time `tryAcquire()` fails, `Thread::yield()` is called to allow other threads to run.
-    void acquire() final;
+    void acquire() final {
+        while (!tryAcquire()) {
+            Thread::yield();
+        }
+    }
 
     /// Try to acquire the lock once.
     /// If the lock is not available, the function does not block and returns false.
-    bool tryAcquire() override;
+    bool tryAcquire() override {
+        return lockVarWrapper.compareAndSet(SPINLOCK_UNLOCK, SPINLOCK_LOCK);
+    }
 
     /// Release the lock.
     /// If the lock is not held, this function does nothing.
-    void release() override;
+    void release() override {
+        lockVarWrapper.set(SPINLOCK_UNLOCK);
+    }
 
     /// Check if the lock is currently held.
-    bool isLocked() const final;
+    bool isLocked() const final {
+        return lockVarWrapper.get() != SPINLOCK_UNLOCK;
+    }
 
 protected:
 
     /// Grant access to the lock variable for subclasses.
-    Atomic<uint8_t> lockVarWrapper = Atomic<uint8_t>(lockVar);
+    Atomic<uint16_t> lockVarWrapper = Atomic<uint16_t>(lockVar);
 
-    /// The unlocked state is represented by the value `UINT8_MAX`.
-    static constexpr uint8_t SPINLOCK_UNLOCK = UINT8_MAX;
+    /// The unlocked state is represented by the value `UINT16_MAX`.
+    static constexpr uint16_t SPINLOCK_UNLOCK = UINT16_MAX;
 
 private:
 
-    uint8_t lockVar = SPINLOCK_UNLOCK;
+    uint16_t lockVar = SPINLOCK_UNLOCK;
 
-    static constexpr uint8_t SPINLOCK_LOCK = 0x01;
+    static constexpr uint16_t SPINLOCK_LOCK = 0x01;
 };
 
+}
 }
 
 #endif

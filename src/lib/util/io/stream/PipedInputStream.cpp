@@ -25,20 +25,8 @@
 #include "util/base/Panic.h"
 #include "util/io/stream/PipedOutputStream.h"
 
-namespace Util::Io {
-
-PipedInputStream::PipedInputStream(const size_t bufferSize) :
-    buffer(new uint8_t[bufferSize]), bufferSize(bufferSize) {}
-
-PipedInputStream::PipedInputStream(PipedOutputStream &outputStream, const size_t bufferSize) :
-    buffer(new uint8_t[bufferSize]), bufferSize(bufferSize)
-{
-    connect(outputStream);
-}
-
-PipedInputStream::~PipedInputStream() {
-    delete[] buffer;
-}
+namespace Util {
+namespace Io {
 
 void PipedInputStream::connect(PipedOutputStream &outputStream) {
     if (source != nullptr) {
@@ -137,25 +125,6 @@ int16_t PipedInputStream::peek() {
     return outPosition < inPosition ? buffer[outPosition] : buffer[(outPosition + 1) % bufferSize];
 }
 
-bool PipedInputStream::isReadyToRead() {
-    return getReadableBytes() > 0;
-}
-
-size_t PipedInputStream::getReadableBytes() {
-    lock.acquire();
-
-    size_t readableBytes;
-    if (inPosition < 0) {
-        readableBytes = 0;
-    } else if (outPosition < inPosition) {
-        readableBytes = inPosition - outPosition;
-    } else {
-        readableBytes = bufferSize - outPosition + inPosition;
-    }
-
-    return lock.releaseAndReturn(readableBytes);
-}
-
 bool PipedInputStream::write(const uint8_t byte) {
     return write(&byte, 0, 1) == 1;
 }
@@ -203,8 +172,5 @@ size_t PipedInputStream::write(const uint8_t *sourceBuffer, const size_t offset,
     return lock.releaseAndReturn(length);
 }
 
-size_t PipedInputStream::getWritableBytes() {
-    return bufferSize - getReadableBytes();
 }
-
 }

@@ -24,7 +24,8 @@
 #include "util/collection/ArrayList.h"
 #include "util/io/stream/FileInputStream.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 TarArchive::TarArchive(uint8_t *buffer) : deleteArchiveBuffer(false), archiveBuffer(buffer) {
     parseArchive();
@@ -41,10 +42,6 @@ TarArchive::~TarArchive() {
     if (deleteArchiveBuffer) {
         delete[] archiveBuffer;
     }
-}
-
-const Array<const TarArchive::Header*>& TarArchive::getFileHeaders() const {
-    return headers;
 }
 
 const TarArchive::Header* TarArchive::getHeader(const String &path) const {
@@ -111,34 +108,6 @@ size_t TarArchive::parseNumber(const char *string, const size_t length) {
     return ret;
 }
 
-size_t TarArchive::Header::parseSize() const {
-    return parseNumber(size, sizeof(size));
-}
-
-size_t TarArchive::Header::parseChecksum() const {
-    return parseNumber(checkSum, sizeof(checkSum));
-}
-
-size_t TarArchive::Header::calculateChecksum() const {
-    size_t sum = 0;
-    const auto *data = reinterpret_cast<const uint8_t*>(this);
-
-    for (size_t i = 0; i < sizeof(Header); i++) {
-        if (i >= 148 && i < 156) { // Checksum field is treated as if it was filled with spaces
-            sum += ' ';
-        } else {
-            sum += data[i];
-        }
-    }
-
-    return sum;
-}
-
-const uint8_t* TarArchive::Header::getFile() const {
-    return reinterpret_cast<const uint8_t*>(this) + sizeof(Header);
 }
 
 }
-
-
-

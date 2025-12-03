@@ -26,7 +26,8 @@
 
 #include "util/base/String.h"
 
-namespace Util::Reflection {
+namespace Util {
+namespace Reflection {
 
 /// Implementation of the prototype pattern, based on
 /// http://www.cs.sjsu.edu/faculty/pearce/modules/lectures/oop/types/reflection/prototype.htm.
@@ -126,6 +127,7 @@ private:
     friend class InstanceFactory;
 };
 
+}
 }
 
 #endif

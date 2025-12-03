@@ -27,23 +27,14 @@
 #include <stdint.h>
 
 #include "util/io/file/File.h"
+#include "util/network/Datagram.h"
+#include "util/network/NetworkAddress.h"
+#include "util/network/ip4/Ip4SubnetAddress.h"
+#include "util/network/ip4/Ip4Route.h"
 #include "util/time/Timestamp.h"
 
 namespace Util {
-template <typename T> class Array;
-
 namespace Network {
-class NetworkAddress;
-class Datagram;
-
-namespace Ip4 {
-class Ip4Route;
-class Ip4SubnetAddress;
-}  // namespace Ip4
-}  // namespace Network
-}  // namespace Util
-
-namespace Util::Network {
 
 /// Represents a network socket, which is used to send and receive data over a network.
 /// A socket can be bound to a specific network address and can send and receive
@@ -470,6 +461,7 @@ private:
     Type type;
 };
 
+}
 }
 
 #endif

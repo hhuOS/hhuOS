@@ -27,7 +27,9 @@
 #include "util/network/NetworkAddress.h"
 #include "util/network/ip4/Ip4Address.h"
 
-namespace Util::Network::Ip4 {
+namespace Util {
+namespace Network {
+namespace Ip4 {
 
 /// Represents an IPv4 address with a subnet mask, which is used to identify a range of IP addresses within a network.
 /// It is implemented as a combination of a 32-bit IPv4 address and a bit count (0-32),
@@ -51,7 +53,7 @@ public:
     /// const auto length = ipAddress.getLength(); // 5
     /// const auto string = ipAddress.toString(); // "0.0.0.0/0"
     /// ```
-    Ip4SubnetAddress();
+    Ip4SubnetAddress() : Ip4SubnetAddress(32) {}
 
     /// Create a new IPv4 subnet address from the given buffer.
     /// The buffer must be at least five bytes long.
@@ -70,7 +72,7 @@ public:
     /// const auto ipAddress3 = Ip4Address(buffer3); // Undefined behavior, buffer too short
     /// const auto ipAddress4 = Ip4Address(buffer4); // Panic: bit count must be between 0 and 32
     /// ```
-    explicit Ip4SubnetAddress(const uint8_t *buffer);
+    explicit Ip4SubnetAddress(const uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, IP4_SUBNET) {}
 
     /// Create a new IPv4 subnet address from a string representation.
     /// The string must be in the format "X.X.X.X/Y", where each "X" is a decimal number between 0 and 255
@@ -96,7 +98,17 @@ public:
     /// const auto subnetAddress2 = Ip4SubnetAddress(ipAddress, 16); // 1.2.3.4/16
     /// const auto subnetAddress3 = Ip4SubnetAddress(ipAddress, 48); // Panic: bit count must be between 0 and 32
     /// ```
-    Ip4SubnetAddress(const Ip4Address &address, uint8_t bitCount);
+    Ip4SubnetAddress(const Ip4Address &address, const uint8_t bitCount) :
+        NetworkAddress(ADDRESS_LENGTH, IP4_SUBNET)
+    {
+        if (bitCount > 32) {
+            Panic::fire(Panic::INVALID_ARGUMENT, "Ip4SubnetAddress: Bit count must be between 0 and 32!");
+        }
+
+        // Copy the IP address to the buffer and write the bit count
+        address.getAddress(buffer);
+        Address(buffer).write8(bitCount, Ip4Address::ADDRESS_LENGTH);
+    }
 
     /// Create a new IPv4 subnet address from an IPv4 address with a default bit count of 32.
     /// Such a subnet address identifies a single host in the network, as it uses all 32 bits for the address.
@@ -106,7 +118,7 @@ public:
     /// const auto ipAddress = Ip4Address("1.2.3.4");
     /// const auto subnetAddress = Ip4SubnetAddress(ipAddress); // 1.2.3.4/32
     /// ```
-    explicit Ip4SubnetAddress(const Ip4Address &address);
+    explicit Ip4SubnetAddress(const Ip4Address &address) : Ip4SubnetAddress(address, 32) {}
 
     /// Create a new IPv4 subnet address with the IPv4 address `0.0.0.0` and a given bit count (0-32).
     ///
@@ -116,7 +128,14 @@ public:
     /// const auto subnetAddress2 = Ip4SubnetAddress(16); // 0.0.0.0/16
     /// const auto subnetAddress3 = Ip4SubnetAddress(48); // Panic: bit count must be between 0 and 32
     /// ```
-    explicit Ip4SubnetAddress(uint8_t bitCount);
+    explicit Ip4SubnetAddress(const uint8_t bitCount) : NetworkAddress(ADDRESS_LENGTH, IP4_SUBNET) {
+        if (bitCount > 32) {
+            Panic::fire(Panic::INVALID_ARGUMENT, "Ip4SubnetAddress: Bit count must be between 0 and 32!");
+        }
+
+        // Buffer is already initialized with "0.0.0.0/0" -> Just set the bit count
+        Address(buffer).write8(bitCount, Ip4Address::ADDRESS_LENGTH);
+    }
 
     /// Get the IPv4 address of this subnet address. That is the IP address without the subnet mask.
     ///
@@ -125,7 +144,9 @@ public:
     /// const auto subnetAddress = Ip4SubnetAddress("1.2.3.4/24");
     /// const auto ipAddress = subnetAddress.getIp4Address(); // 1.2.3.4
     /// ```
-    Ip4Address getIp4Address() const;
+    Ip4Address getIp4Address() const {
+        return Ip4Address(buffer);
+    }
 
     /// Get the bit count of this subnet address.
     ///
@@ -134,7 +155,9 @@ public:
     /// const auto subnetAddress = Ip4SubnetAddress("1.2.3.4/24");
     /// const auto bitCount = subnetAddress.getBitCount(); // 24
     /// ```
-    uint8_t getBitCount() const;
+    uint8_t getBitCount() const {
+        return Address(buffer).read8(Ip4Address::ADDRESS_LENGTH);
+    }
 
     /// Create a new IPv4 subnet address that represents the subnet portion of this address.
     /// For example, if the address is `10.0.2.15/24`, the subnet address will be `10.0.2.0/24`.
@@ -174,7 +197,9 @@ public:
     ///
     /// const auto isEqual = (ipAddress1 == *ipAddress2); // true
     /// ```
-    NetworkAddress *createCopy() const override;
+    NetworkAddress *createCopy() const override {
+        return new Ip4SubnetAddress(*this);
+    }
 
     /// Create a string representation of the IPv4 subnet address in the format "X.X.X.X/Y".
     ///
@@ -186,12 +211,16 @@ public:
     ///
     /// const auto isEqual = (ipAddress1 == ipAddress2); // true
     /// ```
-    String toString() const override;
+    String toString() const override {
+        return String::format("%u.%u.%u.%u/%u", buffer[0], buffer[1], buffer[2], buffer[3], getBitCount());
+    }
 
     /// The length in bytes of an IPv4 subnet address.
     static constexpr uint32_t ADDRESS_LENGTH = Ip4Address::ADDRESS_LENGTH + sizeof(uint8_t);
 };
 
+}
+}
 }
 
 #endif

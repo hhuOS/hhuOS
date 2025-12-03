@@ -28,22 +28,11 @@
 
 #include "util/network/Datagram.h"
 #include "util/network/icmp/IcmpHeader.h"
+#include "util/network/ip4/Ip4Address.h"
 
 namespace Util {
-namespace Io {
-class ByteArrayOutputStream;
-}  // namespace Io
-
 namespace Network {
-class NetworkAddress;
-
-namespace Ip4 {
-class Ip4Address;
-}  // namespace Ip4
-}  // namespace Network
-}  // namespace Util
-
-namespace Util::Network::Icmp {
+namespace Icmp {
 
 /// Specialization of the `Datagram` class for ICMP datagrams.
 /// This can be used to send and receive ICMP messages via a `Socket` of type `ICMP`.
@@ -131,28 +120,37 @@ public:
     /// Create a new ICMP datagram with an uninitialized buffer.
     /// This is typically used for receiving datagrams, because in this case the buffer is allocated
     /// by the kernel during the receive system call.
-    IcmpDatagram();
+    IcmpDatagram() : Datagram(NetworkAddress::IP4) {}
 
     /// Create a new ICMP datagram with a given buffer and length, and a remote IPv4 address.
     /// The buffer's content is copied into the datagram's buffer.
-    IcmpDatagram(const uint8_t *buffer, uint16_t length, const Ip4::Ip4Address &remoteAddress,
-        IcmpHeader::Type type, uint8_t code);
+    IcmpDatagram(const uint8_t *buffer, const uint16_t length, const Ip4::Ip4Address &remoteAddress,
+        const IcmpHeader::Type type, const uint8_t code) : Datagram(buffer, length, remoteAddress),
+        type(type), code(code) {}
 
     /// Create a new ICMP datagram from a byte array output stream and a remote IPv4 address.
     /// The stream's content is copied into the datagram's buffer by directly accessing the stream's buffer.
     /// This way, the state of the stream remains unchanged.
     IcmpDatagram(const Io::ByteArrayOutputStream &stream, const Ip4::Ip4Address &remoteAddress,
-        IcmpHeader::Type type, uint8_t code);
+        const IcmpHeader::Type type, const uint8_t code) : Datagram(stream, remoteAddress), type(type), code(code) {}
 
     /// Get the ICMP type.
-    IcmpHeader::Type getType() const;
+    IcmpHeader::Type getType() const {
+        return type;
+    }
 
     /// Get the ICMP code.
-    uint8_t getCode() const;
+    uint8_t getCode() const {
+        return code;
+    }
 
     /// Set the ICMP type and code of this datagram to the one of the given datagram.
     /// This is used by the kernel to copy attributes from a kernel space datagram to a user space datagram.
-    void setAttributes(const Datagram &datagram) override;
+    void setAttributes(const Datagram &datagram) override {
+        auto &icmpDatagram = reinterpret_cast<const IcmpDatagram&>(datagram);
+        type = icmpDatagram.getType();
+        code = icmpDatagram.getCode();
+    }
 
 private:
 
@@ -160,6 +158,8 @@ private:
     uint8_t code = 0;
 };
 
+}
+}
 }
 
 #endif

@@ -24,39 +24,20 @@
 
 namespace Util {
 
-void ArgumentParser::setHelpText(const String &text) {
-    helpText = text;
-}
-
-void ArgumentParser::addArgument(const String &name, const bool required, const String &abbreviation) {
-    parameters.add(name);
-    abbreviationMap.put(abbreviation, name);
-    if (required) {
-        requiredParameters.add(name);
-    }
-}
-
-void ArgumentParser::addSwitch(const String &name, const String &abbreviation) {
-    switches.add(name);
-    abbreviationMap.put(abbreviation, name);
-}
-
-const String& ArgumentParser::getErrorString() const {
-    return errorString;
-}
-
 bool ArgumentParser::parse(const uint32_t argc, char *argv[]) {
+    ArrayList<String> unnamedArgumentsList;
     namedArguments.clear();
     parsedSwitches.clear();
-    unnamedArguments.clear();
 
     for (size_t i = 1; i < argc; i++){
         String currentArg = argv[i];
 
         if (!currentArg.beginsWith("-") || currentArg == "-") {
-            unnamedArguments.add(currentArg);
+            unnamedArgumentsList.add(currentArg);
         } else if (currentArg == "-h" || currentArg == "--help") {
             errorString = helpText;
+            namedArguments.clear();
+            parsedSwitches.clear();
             return false;
         } else {
             if (abbreviationMap.containsKey(currentArg.substring(1, currentArg.length()))) {
@@ -78,14 +59,16 @@ bool ArgumentParser::parse(const uint32_t argc, char *argv[]) {
                     namedArguments.put(currentArg, argv[++i]);
                 } else {
                     errorString = "No value given for parameter '" + currentArg + "'!";
-
+                    namedArguments.clear();
+                    parsedSwitches.clear();
                     return false;
                 }
             } else if (switches.contains(currentArg)) {
                 parsedSwitches.add(currentArg);
             } else {
                 errorString = "Unknown parameter '" + currentArg + "'!";
-
+                namedArguments.clear();
+                parsedSwitches.clear();
                 return false;
             }
         }
@@ -98,26 +81,13 @@ bool ArgumentParser::parse(const uint32_t argc, char *argv[]) {
             errorString += "'" + name + "' ";
         }
 
+        namedArguments.clear();
+        parsedSwitches.clear();
         return false;
     }
 
+    unnamedArguments = unnamedArgumentsList.toArray();
     return true;
-}
-
-Array<String> ArgumentParser::getUnnamedArguments() const {
-    return unnamedArguments.toArray();
-}
-
-bool ArgumentParser::hasArgument(const String &name) const {
-    return namedArguments.containsKey(name);
-}
-
-String ArgumentParser::getArgument(const String &name) const {
-    return namedArguments.containsKey(name) ? namedArguments.get(name) : "";
-}
-
-bool ArgumentParser::checkSwitch(const String &name) const {
-    return parsedSwitches.contains(name);
 }
 
 }

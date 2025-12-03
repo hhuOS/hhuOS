@@ -26,14 +26,12 @@
 
 #include <stdint.h>
 
-namespace Util {
-namespace Io {
-class InputStream;
-class OutputStream;
-}  // namespace Stream
-}  // namespace Util
+#include "util/io/stream/InputStream.h"
+#include "util/io/stream/OutputStream.h"
 
-namespace Util::Network::Icmp {
+namespace Util {
+namespace Network {
+namespace Icmp {
 
 /// Represents an Internet Control Message Protocol (ICMP) header,
 /// which is used for error messages and operational information in network communication.
@@ -85,19 +83,29 @@ public:
     void write(Io::OutputStream &stream) const;
 
     /// Get the ICMP type.
-    Type getType() const;
+    Type getType() const {
+        return type;
+    }
 
     /// Get the code.
-    uint8_t getCode() const;
+    uint8_t getCode() const {
+        return code;
+    }
 
     /// Get the checksum.
-    uint16_t getChecksum() const;
+    uint16_t getChecksum() const {
+        return checksum;
+    }
 
     /// Set the ICMP type.
-    void setType(Type type);
+    void setType(Type type) {
+        IcmpHeader::type = type;
+    }
 
     /// Set the code.
-    void setCode(uint8_t code);
+    void setCode(uint8_t code) {
+        IcmpHeader::code = code;
+    }
 
     /// The offset of the checksum field in the ICMP header.
     static constexpr uint32_t CHECKSUM_OFFSET = 2;
@@ -111,6 +119,8 @@ private:
     uint16_t checksum = 0;
 };
 
+}
+}
 }
 
 #endif

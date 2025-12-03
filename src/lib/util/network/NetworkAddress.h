@@ -27,15 +27,11 @@
 #include <stdint.h>
 
 #include "util/base/String.h"
+#include "util/io/stream/InputStream.h"
+#include "util/io/stream/OutputStream.h"
 
 namespace Util {
-namespace Io {
-class InputStream;
-class OutputStream;
-}  // namespace Stream
-}  // namespace Util
-
-namespace Util::Network {
+namespace Network {
 
 /// Base class for network addresses, providing a common interface for different types of network addresses,
 /// such as MAC or IP addresses.
@@ -62,60 +58,123 @@ public:
     /// Create a new network address with a specified length and type.
     /// The buffer is zeroed out after allocation.
     /// This class cannot be instantiated directly, but the constructor must be called by subclasses.
-    NetworkAddress(uint8_t length, Type type);
+    NetworkAddress(const uint8_t length, const Type type) : buffer(new uint8_t[length]), length(length), type(type) {
+        Address(buffer).setRange(0, length);
+    }
 
     /// Create a new network address from a given buffer.
     /// The buffer's content is copied into the address buffer.
     /// This class cannot be instantiated directly, but the constructor must be called by subclasses.
-    NetworkAddress(const uint8_t *buffer, uint8_t length, Type type);
+    NetworkAddress(const uint8_t *buffer, const uint8_t length, const Type type) : NetworkAddress(length, type) {
+        setAddress(buffer);
+    }
 
     /// Create a new network address from an existing one.
     /// The content of the existing address is copied into the new address buffer.
-    NetworkAddress(const NetworkAddress &other);
+    NetworkAddress(const NetworkAddress &other) : NetworkAddress(other.length, other.type) {
+        setAddress(other.buffer);
+    }
 
     /// Copy the content of one network address to another.
     /// The content of the source address is copied into the destination address buffer.
-    NetworkAddress &operator=(const NetworkAddress &other);
+    NetworkAddress &operator=(const NetworkAddress &other) {
+        if (&other == this) {
+            return *this;
+        }
+
+        length = other.length;
+        type = other.type;
+        setAddress(other.buffer);
+
+        return *this;
+    }
 
     /// Destroy the network address, freeing the allocated buffer.
-    virtual ~NetworkAddress();
+    virtual ~NetworkAddress() {
+        delete[] buffer;
+    }
 
     /// Compare the network address with another address for equality.
-    bool operator==(const NetworkAddress &other) const;
+    bool operator==(const NetworkAddress &other) const {
+        if (length != other.length) {
+            return false;
+        }
+
+        return Address(buffer).compareRange(Address(other.buffer), length) == 0;
+    }
 
     /// Compare the network address with another address for inequality.
-    bool operator!=(const NetworkAddress &other) const;
+    bool operator!=(const NetworkAddress &other) const {
+        if (length != other.length) {
+            return true;
+        }
+
+        return Address(buffer).compareRange(Address(other.buffer), length) != 0;
+    }
 
     /// Read the address from an input stream, overwriting the existing address data.
     /// This method will block until enough data is available to fill the address buffer.
-    void read(Io::InputStream &stream) const;
+    void read(Io::InputStream &stream) const {
+        stream.read(buffer, 0, length);
+    }
 
     /// Write the address data to an output stream.
-    void write(Io::OutputStream &stream) const;
+    void write(Io::OutputStream &stream) const {
+        stream.write(buffer, 0, length);
+    }
 
     /// Overwrite the address data with the content of the given buffer.
     /// The buffer must be at least as long as the address length.
     /// If the buffer is shorter, bytes will be read out of bounds, leading to undefined behavior.
     /// If the buffer is longer, only the first `length` bytes are copied.
-    void setAddress(const uint8_t *buffer) const;
+    void setAddress(const uint8_t *buffer) const {
+        const auto source = Address(buffer);
+        const auto destination = Address(NetworkAddress::buffer);
+        destination.copyRange(source, length);
+    }
 
     /// Copy the address data into the given buffer.
     /// The buffer must be at least as long as the address length.
     /// If the buffer is shorter, bytes will be written out of bounds, leading to a buffer overflow.
     /// If the buffer is longer, only the first `length` bytes are copied.
-    void getAddress(uint8_t *buffer) const;
+    void getAddress(uint8_t *buffer) const {
+        const auto source = Address(NetworkAddress::buffer);
+        const auto destination = Address(buffer);
+        destination.copyRange(source, length);
+    }
 
     /// Return the address length in bytes.
-    uint8_t getLength() const;
+    uint8_t getLength() const {
+        return length;
+    }
 
     /// Return the address type.
-    Type getType() const;
+    Type getType() const {
+        return type;;
+    }
 
     /// Compare the address with another address bit by bit.
     /// If the addresses are equal, 0 is returned.
     /// Otherwise, the index of the first differing bit is returned.
     /// This is for example useful to calculate a subnet prefix length.
-    uint8_t compareTo(const NetworkAddress &other) const;
+    uint8_t compareTo(const NetworkAddress &other) const {
+        const auto len = getLength() < other.getLength() ? getLength() : other.getLength();
+        uint8_t i = 0;
+        uint8_t j = 0;
+
+        for (i = 0; i < len; i++) {
+            for (j = 0; j < 8; j++) {
+                const auto bit = (buffer[i] >> j) & 0x01;
+                const auto otherBit = (other.buffer[i] >> j) & 0x01;
+
+                if (bit != otherBit) {
+                    return i * 8 + j;
+                }
+            }
+        }
+
+        return i * 8 + j;
+    }
 
     /// Create a new on-heap instance of the address as a copy of this address.
     /// This method is trivial, but must be implemented by subclasses.
@@ -145,6 +204,7 @@ private:
     Type type;
 };
 
+}
 }
 
 #endif

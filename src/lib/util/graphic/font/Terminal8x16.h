@@ -25,7 +25,9 @@
 
 #include "util/graphic/Font.h"
 
-namespace Util::Graphic::Fonts {
+namespace Util {
+namespace Graphic {
+namespace Fonts {
 
 /// Binary data for the Terminal 8x16 font.
 static constexpr uint8_t TERMINAL_8x16_DATA[8 * 16 * 256] = {
@@ -4644,6 +4646,8 @@ static constexpr uint8_t TERMINAL_8x16_DATA[8 * 16 * 256] = {
 /// Based on work by Jakob Falke, oostubs (https://gitlab.cs.fau.de/um15ebek/oostubs).
 static const Font TERMINAL_8x16(8, 16, TERMINAL_8x16_DATA);
 
+}
+}
 }
 
 #endif

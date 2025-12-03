@@ -24,7 +24,8 @@
 #include <stdint.h>
 
 /// Provides functions to indicate critical errors.
-namespace Util::Panic {
+namespace Util {
+namespace Panic {
 
     /// Contains the error codes that can be used to indicate a critical error.
     /// The first 32 error codes are reserved for CPU exceptions.
@@ -91,6 +92,7 @@ namespace Util::Panic {
     /// Return the string representation of the given error.
     const char* getErrorAsString(Error error);
 
+}
 }
 
 #endif

@@ -24,7 +24,8 @@
 #include "util/io/stream/FileInputStream.h"
 #include "util/base/Panic.h"
 
-namespace Util::Graphic {
+namespace Util {
+namespace Graphic {
 
 BitmapFile* BitmapFile::open(const String &path) {
     // Read bitmap file into memory
@@ -67,4 +68,5 @@ BitmapFile* BitmapFile::open(const String &path) {
     return bitmapFile;
 }
 
+}
 }

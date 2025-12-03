@@ -26,13 +26,8 @@
 #include "../../io/stream/NumberUtil.h"
 
 namespace Util {
-namespace Io {
-class InputStream;
-class OutputStream;
-}  // namespace Stream
-}  // namespace Util
-
-namespace Util::Network::Udp {
+namespace Network {
+namespace Udp {
 
 void UdpHeader::read(Io::InputStream &stream) {
     sourcePort = Io::NumberUtil::readUnsigned16BitValue(stream);
@@ -48,32 +43,6 @@ void UdpHeader::write(Io::OutputStream &stream) const {
     Io::NumberUtil::writeUnsigned16BitValue(checksum, stream);
 }
 
-uint16_t UdpHeader::getSourcePort() const {
-    return sourcePort;
 }
-
-uint16_t UdpHeader::getDestinationPort() const {
-    return destinationPort;
 }
-
-uint16_t UdpHeader::getDatagramLength() const {
-    return datagramLength;
-}
-
-uint16_t UdpHeader::getChecksum() const {
-    return checksum;
-}
-
-void UdpHeader::setSourcePort(const uint16_t sourcePort) {
-    UdpHeader::sourcePort = sourcePort;
-}
-
-void UdpHeader::setDestinationPort(const uint16_t destinationPort) {
-    UdpHeader::destinationPort = destinationPort;
-}
-
-void UdpHeader::setDatagramLength(const uint16_t length) {
-    datagramLength = length;
-}
-
 }

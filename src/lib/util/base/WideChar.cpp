@@ -25,7 +25,8 @@
 
 #include "util/base/Panic.h"
 
- namespace Util::WideChar {
+namespace Util {
+namespace WideChar {
 
 int utf8Length(const char *bytes, const size_t maxLength) {
 	if (bytes == nullptr) {
@@ -41,23 +42,23 @@ int utf8Length(const char *bytes, const size_t maxLength) {
 	}
 	
 	size_t length = 0;
-	
-	if ((*bytes & 0b10000000) == 0b00000000) {
+
+	if ((*bytes & 0x80) == 0x00) {
 		length = 1; // Type 0b0xxxxxxx
-	} else if ((*bytes & 0b11100000) == 0b11000000) {
+	} else if ((*bytes & 0xE0) == 0xC0) {
 		length = 2; // Type 0b110xxxxx
-	} else if ((*bytes & 0b11110000) == 0b11100000) {
+	} else if ((*bytes & 0xF0) == 0xE0) {
 		length = 3; // Type 0b1110xxxx
-	} else if ((*bytes & 0b11111000) == 0b11110000) {
+	} else if ((*bytes & 0xF8) == 0xF0) {
 		length = 4; // Type 0b11110xxx
 	}
-	
+
 	if (length > maxLength) {
 		return -1;
 	}
-	
+
 	for (size_t i = 1; i < length; i++) {
-		if ((*(bytes + i) & 0b11000000) != 0b10000000) {
+		if ((*(bytes + i) & 0xC0) != 0x80) {
 			return -1; // Check that following bytes have 0x10xxxxxx form
 		}
 	}
@@ -101,7 +102,7 @@ int utf8ToWchar(wchar_t *wideChar, const char *bytes, const size_t maxLength) {
 	size_t offset = 0;
 	for (int i = static_cast<int>(length) - 1; i > 0; i--, offset += 6) {
 		// Assemble the values of the following bytes
-		*wideChar |= (static_cast<wchar_t>(*(bytes + i)) & 0b00111111) << offset;
+		*wideChar |= (static_cast<wchar_t>(*(bytes + i)) & 0x3f) << offset;
 	}
 
 	*wideChar |= (static_cast<wchar_t>(*bytes) & ((1 << firstByteLength) - 1)) << offset; // Add first byte value
@@ -109,7 +110,7 @@ int utf8ToWchar(wchar_t *wideChar, const char *bytes, const size_t maxLength) {
 	return static_cast<int>(length);
 }
 
-int wcharToUtf8(char * bytes, const wchar_t wideChar) {
+int wcharToUtf8(char *bytes, const wchar_t wideChar) {
 	if (wideChar >= 0x110000) {
 		return -1;
 	}
@@ -132,21 +133,21 @@ int wcharToUtf8(char * bytes, const wchar_t wideChar) {
 			*bytes = static_cast<char>(wideChar);
 			return static_cast<int>(len);
 		case 2:
-			*bytes = static_cast<char>(0b11000000 | ((wideChar >> 6) & 0b00011111));
-			*(bytes+1) = static_cast<char>(0b10000000 | (wideChar & 0b00111111));
+			*bytes = static_cast<char>(0xc0 | ((wideChar >> 6) & 0x1f));
+			*(bytes + 1) = static_cast<char>(0x80 | (wideChar & 0x3f));
 
 			return 2;
 		case 3:
-			*bytes = static_cast<char>(0b11100000 | ((wideChar >> 12) & 0b1111));
-			*(bytes+1) = static_cast<char>(0b10000000 | ((wideChar >> 6) & 0b111111));
-			*(bytes+2) = static_cast<char>(0b10000000 | (wideChar & 0b111111));
+			*bytes = static_cast<char>(0xe0 | ((wideChar >> 12) & 0x0f));
+			*(bytes + 1) = static_cast<char>(0x80 | ((wideChar >> 6) & 0x3f));
+			*(bytes + 2) = static_cast<char>(0x80 | (wideChar & 0x3f));
 
 			return 3;
 		case 4:
-			*bytes = static_cast<char>(0b11110000 | ((wideChar >> 18) & 0b111));
-			*(bytes+1) = static_cast<char>(0b10000000 | ((wideChar >> 12) & 0b111111));
-			*(bytes+2) = static_cast<char>(0b10000000 | ((wideChar >> 6) & 0b111111));
-			*(bytes+3) = static_cast<char>(0b10000000 | (wideChar & 0b111111));
+			*bytes = static_cast<char>(0xf0 | ((wideChar >> 18) & 0x07));
+			*(bytes + 1) = static_cast<char>(0x80 | ((wideChar >> 12) & 0x3f));
+			*(bytes + 2) = static_cast<char>(0x80 | ((wideChar >> 6) & 0x3f));
+			*(bytes + 3) = static_cast<char>(0x80 | (wideChar & 0x3f));
 
 			return 4;
 		default:
@@ -154,4 +155,5 @@ int wcharToUtf8(char * bytes, const wchar_t wideChar) {
 	}
 }
 
+}
 }

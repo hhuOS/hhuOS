@@ -30,20 +30,8 @@
 #include "util/network/ip4/Ip4Header.h"
 
 namespace Util {
-namespace Io {
-class ByteArrayOutputStream;
-}  // namespace Io
-
 namespace Network {
-class NetworkAddress;
-
 namespace Ip4 {
-class Ip4Address;
-}  // namespace Ip4
-}  // namespace Network
-}  // namespace Util
-
-namespace Util::Network::Ip4 {
 
 /// Specialization of the Datagram class for IPv4 datagrams.
 /// This can be used to send and receive IPv4 packets via a `Socket` of type `IP4`.
@@ -72,34 +60,43 @@ namespace Util::Network::Ip4 {
 /// }
 /// ```
 class Ip4Datagram final : public Datagram {
+
 public:
     /// Create a new IPv4 datagram with an uninitialized buffer. The protocol is set to `INVALID`.
     /// This is typically used for receiving datagrams, because in this case the buffer is allocated
     /// by the kernel during the receive system call.
-    Ip4Datagram();
+    Ip4Datagram() : Datagram(NetworkAddress::IP4) {}
 
     /// Create a new IPv4 datagram with a given buffer and length, remote IPv4 address and protocol.
     /// The buffer's content is copied into the datagram's buffer.
-    Ip4Datagram(const uint8_t *buffer, uint16_t length, const Ip4Address &remoteAddress, Ip4Header::Protocol protocol);
+    Ip4Datagram(const uint8_t *buffer, const uint16_t length, const Ip4Address &remoteAddress,
+        const Ip4Header::Protocol protocol) : Datagram(buffer, length, remoteAddress), protocol(protocol) {}
 
     /// Create a new Ethernet datagram from a byte array output stream, remote IPv4 address and protocol.
     /// The stream's content is copied into the datagram's buffer by directly accessing the stream's buffer.
     /// This way, the state of the stream remains unchanged.
     Ip4Datagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress,
-        Ip4Header::Protocol protocol);
+        const Ip4Header::Protocol protocol) : Datagram(stream, remoteAddress), protocol(protocol) {}
 
     /// Get the protocol that this datagram is carrying (e.g. ICMP, TCP, UDP).
-    Ip4Header::Protocol getProtocol() const;
+    Ip4Header::Protocol getProtocol() const {
+        return protocol;
+    }
 
     /// Set the protocol of this datagram to the one of the given datagram.
     /// This is used by the kernel to copy attributes from a kernel space datagram to a user space datagram.
-    void setAttributes(const Datagram &datagram) override;
+    void setAttributes(const Datagram &datagram) override {
+        const auto &ip4Datagram = reinterpret_cast<const Ip4Datagram&>(datagram);
+        protocol = ip4Datagram.getProtocol();
+    }
 
 private:
 
     Ip4Header::Protocol protocol = Ip4Header::INVALID;
 };
 
+}
+}
 }
 
 #endif

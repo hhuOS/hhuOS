@@ -32,7 +32,9 @@
 /// Most function use ANSI escape sequences to control text formatting, colors and cursor movement.
 /// Some special function use a control system call on the standard input/output file descriptors
 /// to change terminal settings (e.g. enabling/disabling echoing of input characters).
-namespace Util::Graphic::Ansi {
+namespace Util {
+namespace Graphic {
+namespace Ansi {
 
 /// The standard 8 ANSI colors.
 enum AnsiColor : uint8_t {
@@ -546,6 +548,8 @@ static const Color COLOR_TABLE_256[256] = {
     Color(218, 218, 218), Color(228, 228, 228), Color(238, 238, 238)
 };
 
+}
+}
 }
 
 #endif

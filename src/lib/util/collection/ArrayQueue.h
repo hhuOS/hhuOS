@@ -287,27 +287,27 @@ void ArrayQueue<T>::addAll(const Collection<T> &collection) {
 }
 
 template<typename T>
-bool ArrayQueue<T>::remove([[maybe_unused]] const T &element) {
+bool ArrayQueue<T>::remove(const T&) {
     Panic::fire(Panic::UNSUPPORTED_OPERATION,"BoundedBlockingQueue: remove() is not supported!");
 }
 
 template<typename T>
-bool ArrayQueue<T>::removeAll([[maybe_unused]] const Collection<T> &collection) {
+bool ArrayQueue<T>::removeAll(const Collection<T>&) {
     Panic::fire(Panic::UNSUPPORTED_OPERATION,"BoundedBlockingQueue: removeAll() is not supported!");
 }
 
 template<typename T>
-bool ArrayQueue<T>::retainAll([[maybe_unused]] const Collection<T> &collection) {
+bool ArrayQueue<T>::retainAll(const Collection<T>&) {
     Panic::fire(Panic::UNSUPPORTED_OPERATION,"BoundedBlockingQueue: retainAll() is not supported!");
 }
 
 template<typename T>
-bool ArrayQueue<T>::contains([[maybe_unused]] const T &element) const {
+bool ArrayQueue<T>::contains(const T&) const {
     Panic::fire(Panic::UNSUPPORTED_OPERATION,"BoundedBlockingQueue: contains() is not supported!");
 }
 
 template<typename T>
-bool ArrayQueue<T>::containsAll([[maybe_unused]] const Collection<T> &collection) const {
+bool ArrayQueue<T>::containsAll(const Collection<T>&) const {
     Panic::fire(Panic::UNSUPPORTED_OPERATION,"BoundedBlockingQueue: containsAll() is not supported!");
 }
 
@@ -344,7 +344,7 @@ Iterator<T> ArrayQueue<T>::end() const {
 }
 
 template<typename T>
-IteratorElement<T> ArrayQueue<T>::next([[maybe_unused]] const IteratorElement<T> &element) const {
+IteratorElement<T> ArrayQueue<T>::next(const IteratorElement<T>&) const {
     Panic::fire(Panic::UNSUPPORTED_OPERATION,"BoundedBlockingQueue: Iterating is not supported!");
 }
 

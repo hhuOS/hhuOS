@@ -26,7 +26,8 @@
 #include "util/async/Process.h"
 #include "util/base/String.h"
 
-namespace Util::Async {
+namespace Util {
+namespace Async {
 
 /// Allows the creation and mapping of shared memory regions.
 /// Such regions are created by one process and can be mapped into the address space of other processes.
@@ -109,7 +110,9 @@ public:
     ~SharedMemory();
 
     /// Get the address of the shared memory region.
-    Address getAddress() const;
+    const Address& getAddress() const {
+        return address;
+    }
 
     /// Publish the shared memory region to make it available to other processes.
     /// This can only be called by the process that created the region.
@@ -123,12 +126,13 @@ public:
 
 private:
 
-    Process process = Process::getCurrentProcess();
+    Process process;
     String name;
-    void *address;
-    size_t pageCount = 0;
+    Address address;
+    size_t pageCount;
 };
 
+}
 }
 
 #endif

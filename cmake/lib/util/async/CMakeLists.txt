@@ -19,20 +19,12 @@
 project(lib.async)
 message(STATUS "Project " ${PROJECT_NAME})
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_C_STANDARD 90)
-
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_sources(${PROJECT_NAME} PUBLIC
-        ${HHUOS_SRC_DIR}/lib/util/async/Atomic.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/AtomicBitmap.cpp
-        ${HHUOS_SRC_DIR}/lib/util/async/BasicRunnable.cpp
-        ${HHUOS_SRC_DIR}/lib/util/async/IdGenerator.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/Process.cpp
-        ${HHUOS_SRC_DIR}/lib/util/async/ReentrantSpinlock.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/SharedMemory.cpp
-        ${HHUOS_SRC_DIR}/lib/util/async/Spinlock.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/Thread.cpp)
 
 # Kernel space version

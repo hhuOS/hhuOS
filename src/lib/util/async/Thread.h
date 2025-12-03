@@ -23,18 +23,12 @@
 
 #include <stddef.h>
 
+#include "util/async/Runnable.h"
 #include "util/base/String.h"
+#include "util/time/Timestamp.h"
 
 namespace Util {
 namespace Async {
-class Runnable;
-}  // namespace Async
-namespace Time {
-class Timestamp;
-}  // namespace Time
-}  // namespace Util
-
-namespace Util::Async {
 
 /// Create and manipulate threads from the user space.
 /// This class just wraps a thread ID and uses systems calls to manipulate the thread referenced by the ID.
@@ -43,7 +37,7 @@ class Thread {
 public:
     /// Create an instance with the given ID.
     /// This constructor does not create a new thread, it just wraps the given ID.
-    explicit Thread(size_t id);
+    explicit Thread(const size_t id) : id(id) {}
 
     /// Start a new thread with the given name and runnable.
     /// The runnable must be heap allocated and will be deleted by the thread when it is done.
@@ -94,13 +88,16 @@ public:
     void join() const;
 
     /// Get the ID of the thread.
-    size_t getId() const;
+    size_t getId() const {
+        return id;
+    }
 
 private:
 
     const size_t id;
 };
 
+}
 }
 
 #endif

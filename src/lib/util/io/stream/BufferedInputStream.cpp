@@ -23,14 +23,8 @@
 #include "util/base/Address.h"
 #include "util/io/stream/FilterInputStream.h"
 
-namespace Util::Io {
-
-BufferedInputStream::BufferedInputStream(InputStream &stream, const size_t bufferSize) :
-    FilterInputStream(stream), buffer(new uint8_t[bufferSize]), size(bufferSize) {}
-
-BufferedInputStream::~BufferedInputStream() {
-    delete[] buffer;
-}
+namespace Util {
+namespace Io {
 
 int16_t BufferedInputStream::read() {
     if (position >= valid && !refill()) {
@@ -80,15 +74,6 @@ int16_t BufferedInputStream::peek() {
     return buffer[position];
 }
 
-bool BufferedInputStream::isReadyToRead() {
-    return valid > position || FilterInputStream::isReadyToRead();
-}
-
-void BufferedInputStream::clearBuffer() {
-    position = 0;
-    valid = 0;
-}
-
 bool BufferedInputStream::refill() {
     // Check if the buffer is fully exhausted and reset the position and valid counters if so.
     if (position == valid) {
@@ -103,4 +88,5 @@ bool BufferedInputStream::refill() {
     return readCount > 0;
 }
 
+}
 }

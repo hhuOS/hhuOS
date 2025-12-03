@@ -28,7 +28,8 @@
 #include "util/collection/Array.h"
 #include "util/io/file/File.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// Class to parse tar archives and extract files from it.
 /// This implementation only supports the most basic features of the tar format.
@@ -63,16 +64,35 @@ public:
         uint8_t unused[355];
 
         /// Parse the size field and return it as a number.
-        size_t parseSize() const;
+        size_t parseSize() const {
+            return parseNumber(size, sizeof(size));
+        }
 
         /// Parse the checksum field and return it as a number.
-        size_t parseChecksum() const;
+        size_t parseChecksum() const {
+            return parseNumber(checkSum, sizeof(checkSum));
+        }
 
         /// Calculate the checksum of this header.
-        size_t calculateChecksum() const;
+        size_t calculateChecksum() const {
+            size_t sum = 0;
+            const auto *data = reinterpret_cast<const uint8_t*>(this);
+
+            for (size_t i = 0; i < sizeof(Header); i++) {
+                if (i >= 148 && i < 156) { // Checksum field is treated as if it was filled with spaces
+                    sum += ' ';
+                } else {
+                    sum += data[i];
+                }
+            }
+
+            return sum;
+        }
 
         /// Get a pointer to the file's data.
-        const uint8_t* getFile() const;
+        const uint8_t* getFile() const {
+            return reinterpret_cast<const uint8_t*>(this) + sizeof(Header);
+        }
     } __attribute__((packed));
 
     /// Create a tar archive instance from a buffer containing the tar archive data.
@@ -95,7 +115,9 @@ public:
 
     /// Get an array of all file headers in the archive.
     /// The array contains pointers to the headers within the archive buffer.
-    const Array<const Header*>& getFileHeaders() const;
+    const Array<const Header*>& getFileHeaders() const {
+        return headers;
+    }
 
     /// Get a specific file header by its path inside the archive.
     /// Returns nullptr if no such file exists.
@@ -125,6 +147,6 @@ private:
 };
 
 }
-
+}
 
 #endif

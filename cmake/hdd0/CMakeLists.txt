@@ -80,7 +80,7 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
 		COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/roms" "user"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/wav" "user"
 		COMMAND /bin/rm -f "${CMAKE_BINARY_DIR}/part.img"
-        COMMAND mkfs.fat -C "${CMAKE_BINARY_DIR}/part.img" $<IF:$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>,129024,96256>
+        COMMAND mkfs.fat -C "${CMAKE_BINARY_DIR}/part.img" $<IF:$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>,200704,96256>
         COMMAND mcopy -s -o -i "${CMAKE_BINARY_DIR}/part.img" * ::/
         COMMAND fallocate -l 1M "${CMAKE_BINARY_DIR}/fill.img"
         COMMAND /bin/cat "${CMAKE_BINARY_DIR}/fill.img" "${CMAKE_BINARY_DIR}/part.img" "${CMAKE_BINARY_DIR}/fill.img" > "${HHUOS_ROOT_DIR}/hdd0.img"

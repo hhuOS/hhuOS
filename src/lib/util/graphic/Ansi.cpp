@@ -28,43 +28,45 @@
 #include "util/io/stream/PrintStream.h"
 #include "util/io/stream/InputStream.h"
 
-namespace Util::Graphic {
+namespace Util {
+namespace Graphic {
+namespace Ansi {
 
 const String ESCAPE_END_CODES = String::format("ABCDEFGHJKmnsu");
 
-void Ansi::enableEcho() {
+void enableEcho() {
     Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ECHO, {true});
 }
 
-void Ansi::disableEcho() {
+void disableEcho() {
     Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ECHO, {false});
 }
 
-void Ansi::enableLineAggregation() {
+void enableLineAggregation() {
     Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_LINE_AGGREGATION, {true});
 }
 
-void Ansi::disableLineAggregation() {
+void disableLineAggregation() {
     Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_LINE_AGGREGATION, {false});
 }
 
-void Ansi::enableCursor() {
+void enableCursor() {
     Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_CURSOR, {true});
 }
 
-void Ansi::disableCursor() {
+void disableCursor() {
     Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_CURSOR, {false});
 }
 
-void Ansi::enableAnsiParsing() {
+void enableAnsiParsing() {
     Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ANSI_PARSING, {true});
 }
 
-void Ansi::disableAnsiParsing() {
+void disableAnsiParsing() {
     Io::File::controlFile(Io::STANDARD_INPUT, Terminal::SET_ANSI_PARSING, {false});
 }
 
-void Ansi::prepareGraphicalApplication(const bool enableScancodes) {
+void prepareGraphicalApplication(const bool enableScancodes) {
     if (enableScancodes) {
         Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_KEYBOARD_SCANCODES,
             Util::Array<uint32_t>(0));
@@ -76,141 +78,141 @@ void Ansi::prepareGraphicalApplication(const bool enableScancodes) {
     disableCursor();
 }
 
-void Ansi::cleanupGraphicalApplication() {
+void cleanupGraphicalApplication() {
     Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_CANONICAL_MODE,
         Util::Array<uint32_t>(0));
 
     enableCursor();
 }
 
-void Ansi::enableRawMode() {
+void enableRawMode() {
     Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_RAW_MODE,
         Util::Array<uint32_t>(0));
 }
 
-void Ansi::enableCanonicalMode() {
+void enableCanonicalMode() {
     Io::File::controlFile(Io::STANDARD_INPUT, Terminal::ENABLE_CANONICAL_MODE,
         Util::Array<uint32_t>(0));
 }
 
-String Ansi::foreground8BitColor(const uint8_t colorIndex) {
+String foreground8BitColor(const uint8_t colorIndex) {
     return String::format("\u001b[38;5;%um", colorIndex);
 }
 
-String Ansi::background8BitColor(const uint8_t colorIndex) {
+String background8BitColor(const uint8_t colorIndex) {
     return String::format("\u001b[48;5;%um", colorIndex);
 }
 
-String Ansi::foreground24BitColor(const Color &color) {
+String foreground24BitColor(const Color &color) {
     return String::format("\u001b[38;2;%u;%u;%um", color.getRed(), color.getGreen(), color.getBlue());
 }
 
-String Ansi::background24BitColor(const Color &color) {
+String background24BitColor(const Color &color) {
     return String::format("\u001b[48;2;%u;%u;%um", color.getRed(), color.getGreen(), color.getBlue());
 }
 
-void Ansi::setForegroundColor(const AnsiColor color, const bool bright) {
+void setForegroundColor(const AnsiColor color, const bool bright) {
     System::out << "\u001b[" << Io::PrintStream::dec << color + (bright ? 90 : 30) << "m" << Io::PrintStream::flush;
 }
 
-void Ansi::setBackgroundColor(const AnsiColor color, const bool bright) {
+void setBackgroundColor(const AnsiColor color, const bool bright) {
     System::out << "\u001b[" << Io::PrintStream::dec << color + (bright ? 100 : 40) << "m" << Io::PrintStream::flush;
 }
 
-void Ansi::setForegroundColor(const uint8_t colorIndex) {
+void setForegroundColor(const uint8_t colorIndex) {
     System::out << "\u001b[38;5;" << Io::PrintStream::dec << colorIndex << "m" << Io::PrintStream::flush;
 }
 
-void Ansi::setBackgroundColor(const uint8_t colorIndex) {
+void setBackgroundColor(const uint8_t colorIndex) {
     System::out << "\u001b[48;5;" << Io::PrintStream::dec << colorIndex << "m" << Io::PrintStream::flush;
 }
 
-void Ansi::setForegroundColor(const Color &color) {
+void setForegroundColor(const Color &color) {
     System::out << "\u001b[38;2;" << Io::PrintStream::dec << color.getRed() << ";" << color.getGreen() << ";" << color.getBlue() << "m" << Io::PrintStream::flush;
 }
 
-void Ansi::setBackgroundColor(const Color &color) {
+void setBackgroundColor(const Color &color) {
     System::out << "\u001b[48;2;" << Io::PrintStream::dec << color.getRed() << ";" << color.getGreen() << ";" << color.getBlue() << "m" << Io::PrintStream::flush;
 }
 
-void Ansi::resetForegroundColor() {
+void resetForegroundColor() {
     System::out << "\u001b[39m" << Io::PrintStream::flush;
 }
 
-void Ansi::resetBackgroundColor() {
+void resetBackgroundColor() {
     System::out << "\u001b[49m" << Io::PrintStream::flush;
 }
 
-void Ansi::resetColorsAndEffects() {
+void resetColorsAndEffects() {
     System::out << "\u001b[0m" << Io::PrintStream::flush;
 }
 
-void Ansi::setPosition(const CursorPosition &position) {
+void setPosition(const CursorPosition &position) {
     System::out << "\u001b[" << Io::PrintStream::dec << position.row << ";" << position.column << "H" <<
         Io::PrintStream::flush;
 }
 
-void Ansi::moveCursorUp(const uint16_t lines) {
+void moveCursorUp(const uint16_t lines) {
     System::out << "\u001b[" << Io::PrintStream::dec << lines << "A" << Io::PrintStream::flush;
 }
 
-void Ansi::moveCursorDown(const uint16_t lines) {
+void moveCursorDown(const uint16_t lines) {
     System::out << "\u001b[" << Io::PrintStream::dec << lines << "B" << Io::PrintStream::flush;
 }
 
-void Ansi::moveCursorRight(const uint16_t columns) {
+void moveCursorRight(const uint16_t columns) {
     System::out << "\u001b[" << Io::PrintStream::dec << columns << "C" << Io::PrintStream::flush;
 }
 
-void Ansi::moveCursorLeft(const uint16_t columns) {
+void moveCursorLeft(const uint16_t columns) {
     System::out << "\u001b[" << Io::PrintStream::dec << columns << "D" << Io::PrintStream::flush;
 }
 
-void Ansi::moveCursorToBeginningOfNextLine(const uint16_t offset) {
+void moveCursorToBeginningOfNextLine(const uint16_t offset) {
     System::out << "\u001b[" << Io::PrintStream::dec << offset << "E" << Io::PrintStream::flush;
 }
 
-void Ansi::moveCursorToBeginningOfPreviousLine(const uint16_t offset) {
+void moveCursorToBeginningOfPreviousLine(const uint16_t offset) {
     System::out << "\u001b[" << Io::PrintStream::dec << offset << "F" << Io::PrintStream::flush;
 }
 
-void Ansi::setColumn(const uint16_t column) {
+void setColumn(const uint16_t column) {
     System::out << "\u001b[" << Io::PrintStream::dec << column << "G" << Io::PrintStream::flush;
 }
 
-void Ansi::saveCursorPosition() {
+void saveCursorPosition() {
     System::out << "\u001b[s" << Io::PrintStream::flush;
 }
 
-void Ansi::restoreCursorPosition() {
+void restoreCursorPosition() {
     System::out << "\u001b[u" << Io::PrintStream::flush;
 }
 
-void Ansi::clearScreen() {
+void clearScreen() {
     System::out << "\u001b[2J" << Io::PrintStream::flush;
 }
 
-void Ansi::clearScreenFromCursor() {
+void clearScreenFromCursor() {
     System::out << "\u001b[0J" << Io::PrintStream::flush;
 }
 
-void Ansi::clearScreenToCursor() {
+void clearScreenToCursor() {
     System::out << "\u001b[1J" << Io::PrintStream::flush;
 }
 
-void Ansi::clearLine() {
+void clearLine() {
     System::out << "\u001b[2K" << Io::PrintStream::flush;
 }
 
-void Ansi::clearLineFromCursor() {
+void clearLineFromCursor() {
     System::out << "\u001b[0K" << Io::PrintStream::flush;
 }
 
-void Ansi::clearLineToCursor() {
+void clearLineToCursor() {
     System::out << "\u001b[1K" << Io::PrintStream::flush;
 }
 
-Ansi::CursorPosition Ansi::getCursorPosition() {
+CursorPosition getCursorPosition() {
     System::out << "\u001b[6n" << Io::PrintStream::flush;
 
     String positionString;
@@ -224,7 +226,7 @@ Ansi::CursorPosition Ansi::getCursorPosition() {
     return CursorPosition{String::parseNumber<uint16_t>(split[1]), String::parseNumber<uint16_t>(split[0])};
 }
 
-Ansi::CursorPosition Ansi::getCursorLimits() {
+CursorPosition getCursorLimits() {
     const auto position = getCursorPosition();
     setPosition(CursorPosition{UINT16_MAX, UINT16_MAX});
 
@@ -234,7 +236,7 @@ Ansi::CursorPosition Ansi::getCursorLimits() {
     return size;
 }
 
-int16_t Ansi::readChar(Io::InputStream &stream) {
+int16_t readChar(Io::InputStream &stream) {
     char input = stream.read();
     if (input == ESCAPE_SEQUENCE_START) {
         String escapeSequence = input;
@@ -268,4 +270,6 @@ int16_t Ansi::readChar(Io::InputStream &stream) {
     return input;
 }
 
+}
+}
 }

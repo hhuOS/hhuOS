@@ -29,7 +29,8 @@
 #include "util/base/String.h"
 #include "util/network/NetworkAddress.h"
 
-namespace Util::Network {
+namespace Util {
+namespace Network {
 
 /// Represents a MAC address, which is a unique identifier for network interfaces.
 /// A MAC address is typically six bytes long and tied to a hardware interface.
@@ -49,7 +50,7 @@ public:
     /// const auto string = mac.toString(); // "00:00:00:00:00:00"
     /// const auto isBroadcast = mac.isBroadcastAddress(); // false
     /// ```
-    MacAddress();
+    MacAddress() : NetworkAddress(ADDRESS_LENGTH, MAC) {}
 
     /// Create a new MAC address from the given buffer.
     /// The buffer must be at least six bytes long.
@@ -66,7 +67,7 @@ public:
     /// const auto mac2 = MacAddress(buffer2); // 07:08:09:0A:0B:0C
     /// const auto mac3 = MacAddress(buffer3); // Undefined behavior, buffer too short
     /// ```
-    explicit MacAddress(const uint8_t *buffer);
+    explicit MacAddress(const uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, MAC) {}
 
     /// Create a new MAC address from a string representation.
     /// The string must be in the format "XX:XX:XX:XX:XX:XX", where each "XX" is a two-digit hexadecimal number.
@@ -78,7 +79,19 @@ public:
     /// const auto mac2 = MacAddress("07:08:09:0A:0B:0C");
     /// const auto mac3 = MacAddress("0F:10:11:12"); // Panic: index out of bounds, string too short
     /// ```
-    explicit MacAddress(const String &string);
+    explicit MacAddress(const String &string) : NetworkAddress(ADDRESS_LENGTH, MAC) {
+        auto split = string.split(":");
+        const uint8_t buffer[6] = {
+            String::parseHexNumber<uint8_t>(split[0]),
+            String::parseHexNumber<uint8_t>(split[1]),
+            String::parseHexNumber<uint8_t>(split[2]),
+            String::parseHexNumber<uint8_t>(split[3]),
+            String::parseHexNumber<uint8_t>(split[4]),
+            String::parseHexNumber<uint8_t>(split[5])
+        };
+
+        setAddress(buffer);
+    }
 
     /// Check if this MAC address is a broadcast address (`ff:ff:ff:ff:ff:ff`).
     ///
@@ -92,7 +105,9 @@ public:
     /// const auto isBroadcast2 = mac2.isBroadcastAddress(); // true
     /// const auto isBroadcast3 = mac3.isBroadcastAddress(); // true
     /// ```
-    bool isBroadcastAddress() const;
+    bool isBroadcastAddress() const {
+        return Address(buffer).compareRange(Address(BROADCAST.buffer), ADDRESS_LENGTH) == 0;
+    }
 
     /// Create a new on-heap instance as a copy of this address.
     ///
@@ -103,7 +118,9 @@ public:
     ///
     /// const auto isEqual = (mac1 == *mac2); // true
     /// ```
-    NetworkAddress* createCopy() const override;
+    NetworkAddress* createCopy() const override {
+        return new MacAddress(*this);
+    }
 
     /// Create a string representation of the MAC address in the format "XX:XX:XX:XX:XX:XX".
     ///
@@ -115,7 +132,10 @@ public:
     ///
     /// const auto isEqual = (mac1 == mac2); // true
     /// ```
-    String toString() const override;
+    String toString() const override {
+        return String::format("%02x:%02x:%02x:%02x:%02x:%02x",
+            buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
+    }
 
     /// A constant storing the broadcast MAC address, which is always `ff:ff:ff:ff:ff:ff`.
     /// The broadcast address is used to send packets to all devices on the local network segment.
@@ -133,6 +153,7 @@ public:
     static constexpr uint8_t ADDRESS_LENGTH = 6;
 };
 
+}
 }
 
 #endif

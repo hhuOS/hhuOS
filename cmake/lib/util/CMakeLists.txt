@@ -16,6 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
+
 # Add subdirectories
 add_subdirectory(async)
 add_subdirectory(base)

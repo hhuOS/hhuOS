@@ -24,26 +24,24 @@
 #include "util/base/System.h"
 #include "lib/interface.h"
 
-namespace Util::Async {
+namespace Util {
+namespace Async {
 
-SharedMemory::SharedMemory(const String &name, const size_t pageCount) : name(name), pageCount(pageCount) {
-    auto &memoryManager = System::getAddressSpaceHeader().heapMemoryManager;
-    address = memoryManager.allocateMemory(pageCount * PAGESIZE, PAGESIZE);
-    Address(address).setRange(0, pageCount * PAGESIZE);
+SharedMemory::SharedMemory(const String &name, const size_t pageCount) :
+    SharedMemory(Process::getCurrentProcess().getId(), name, pageCount)
+{
+    address.setRange(0, pageCount * PAGESIZE);
 }
 
 SharedMemory::SharedMemory(const size_t processId, const String &name, const size_t pageCount) :
-        process(processId), name(name), pageCount(pageCount) {
+        process(processId), name(name), pageCount(pageCount)
+{
     auto &memoryManager = System::getAddressSpaceHeader().heapMemoryManager;
-    address = memoryManager.allocateMemory(pageCount * PAGESIZE, PAGESIZE);
+    address = Address(memoryManager.allocateMemory(pageCount * PAGESIZE, PAGESIZE));
 }
 
 SharedMemory::~SharedMemory() {
-    delete static_cast<uint8_t*>(address);
-}
-
-Address SharedMemory::getAddress() const {
-    return Address(address);
+    delete reinterpret_cast<uint8_t*>(address.get());
 }
 
 bool SharedMemory::publish() const {
@@ -51,7 +49,7 @@ bool SharedMemory::publish() const {
         return false;
     }
 
-    return createSharedMemory(name, address, pageCount);
+    return createSharedMemory(name, reinterpret_cast<void*>(address.get()), pageCount);
 }
 
 bool SharedMemory::map() const {
@@ -60,7 +58,8 @@ bool SharedMemory::map() const {
     }
 
     auto file = Io::File(String::format("/process/%u/shared/%s", process, static_cast<const char*>(name)));
-    return file.controlFile(MAP, {reinterpret_cast<size_t>(address)});
+    return file.controlFile(MAP, Util::Array<size_t>({address.get()}));
 }
 
+}
 }

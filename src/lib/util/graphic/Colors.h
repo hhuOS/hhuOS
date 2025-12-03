@@ -23,7 +23,9 @@
 
 #include "Color.h"
 
-namespace Util::Graphic::Colors {
+namespace Util {
+namespace Graphic {
+namespace Colors {
 
 /// An invisible color (alpha = 0)
 /// This may be useful for transparent areas in images or graphics.
@@ -69,6 +71,8 @@ static Color HHU_DARK_BLUE(0, 57, 100);
 /// HHU ice blue color (181, 203, 214).
 static Color HHU_ICE_BLUE(181, 203, 214);
 
+}
+}
 }
 
 #endif

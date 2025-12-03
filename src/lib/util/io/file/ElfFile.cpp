@@ -24,24 +24,8 @@
 #include "util/base/Address.h"
 #include "util/base/Panic.h"
 
-namespace Util::Io {
-
-ElfFile::ElfFile(uint8_t *buffer) : deleteBuffer(false), buffer(buffer) {
-    parseFileHeader();
-}
-
-ElfFile::ElfFile(const File &file) : deleteBuffer(true), buffer(new uint8_t[file.getLength()]) {
-    FileInputStream inputStream(file);
-    inputStream.read(buffer, 0, file.getLength());
-
-    parseFileHeader();
-}
-
-ElfFile::~ElfFile() {
-    if (deleteBuffer) {
-        delete[] buffer;
-    }
-}
+namespace Util {
+namespace Io {
 
 void ElfFile::loadProgram() const {
     for (int i = 0; i < fileHeader.programHeaderEntries; i++) {
@@ -74,10 +58,6 @@ uintptr_t ElfFile::getEndAddress() const {
     return ret;
 }
 
-int (*ElfFile::getEntryPoint() const)(int, char**) {
-    return reinterpret_cast<int(*)(int, char**)>(fileHeader.entry);
-}
-
 const ElfFile::SectionHeader& ElfFile::getSectionHeader(const SectionType headerType) const {
     for (int i = 0; i < fileHeader.sectionHeaderEntries; i++) {
         const auto &header = sectionHeaders[i];
@@ -102,41 +82,5 @@ void ElfFile::parseFileHeader() {
     sectionHeaders = reinterpret_cast<SectionHeader*>(buffer + fileHeader.sectionHeader);
 }
 
-bool ElfFile::FileHeader::isValid() const {
-    if (magic[0] != 0x7F || magic[1] != 'E' || magic[2] != 'L' || magic[3] != 'F') {
-        return false;
-    }
-
-    if (architecture != Architecture::BIT_32) {
-        return false;
-    }
-
-    if (byteOrder != ByteOrder::LITTLE_END) {
-        return false;
-    }
-
-    return machine == MachineType::X86;
-
 }
-
-bool ElfFile::FileHeader::hasProgramEntries() const {
-    return programHeaderEntries != 0;
-}
-
-size_t ElfFile::RelocationEntry::getSymbolIndex() const {
-    return info >> 8;
-}
-
-ElfFile::RelocationType ElfFile::RelocationEntry::getType() const {
-    return static_cast<RelocationType>(info & 0xff);
-}
-
-ElfFile::SymbolBinding ElfFile::SymbolEntry::getSymbolBinding() const {
-    return static_cast<SymbolBinding>(info >> 4);
-}
-
-ElfFile::SymbolType ElfFile::SymbolEntry::getSymbolType() const {
-    return static_cast<SymbolType>(info & 0x0f);
-}
-
 }

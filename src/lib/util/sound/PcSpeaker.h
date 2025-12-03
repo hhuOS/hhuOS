@@ -23,11 +23,13 @@
 
 #include <stdint.h>
 
+#include "util/async/Thread.h"
 #include "util/io/file/File.h"
 #include "util/io/stream/FileOutputStream.h"
 #include "util/time/Timestamp.h"
 
-namespace Util::Sound {
+namespace Util {
+namespace Sound {
 
 /// This class provides a user space interface to the PC speaker, allowing it to play sounds at various frequencies.
 /// The kernel driver for the PC speaker exposes a file interface, which sets the frequency when written to.
@@ -98,27 +100,36 @@ public:
 
     /// Create a new PcSpeaker instance using the specified file.
     /// The file should point to the PC speaker device file, typically `/device/speaker`.
-    explicit PcSpeaker(const Io::File &speakerFile);
+    explicit PcSpeaker(const Io::File &speakerFile) : stream(speakerFile) {}
 
     /// Play a sound at the specified frequency.
     /// This is done by writing the frequency to the PC speaker device file, given in the constructor.
     /// This method returns immediately after writing the frequency. The sound will continue to play until
     /// a new frequency is written or the speaker is turned off using `turnOff()`.
-    void play(uint16_t frequency);
+    void play(uint16_t frequency) {
+        const auto frequencyString = String::format("%u", frequency);
+        stream.write(static_cast<const uint8_t*>(frequencyString), 0, frequencyString.length());
+    }
 
     /// Play a sound at the specified frequency for a given length of time.
     /// This method writes the frequency to the PC speaker device file and then sleeps for the specified length of time.
-    void play(uint16_t frequency, const Time::Timestamp &length);
+    void play(uint16_t frequency, const Time::Timestamp &length) {
+        play(frequency);
+        Async::Thread::sleep(length);
+    }
 
     /// Turn off the PC speaker.
     /// This method writes a frequency of 0 to the PC speaker device file, which stops any sound currently playing.
-    void turnOff();
+    void turnOff() {
+        play(0);
+    }
 
 private:
 
     Io::FileOutputStream stream;
 };
 
+}
 }
 
 #endif

@@ -26,8 +26,11 @@
 #include "util/base/String.h"
 #include "util/collection/Array.h"
 
+namespace Util {
+namespace Hardware {
+
 /// Contains functions to retrieve information about the CPU using the CPUID instruction.
-namespace Util::Hardware::CpuId {
+namespace CpuId {
 
 /// Enumeration of CPU types, used in the `CpuInfo` structure.
 enum CpuType : uint8_t {
@@ -169,6 +172,9 @@ CpuInfo getCpuInfo();
 /// Get a string representation of the specified CPU feature.
 const char *getFeatureAsString(CpuFeature feature);
 
-};
+}
+
+}
+}
 
 #endif

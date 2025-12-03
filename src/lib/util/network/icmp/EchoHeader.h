@@ -26,14 +26,12 @@
 
 #include <stdint.h>
 
-namespace Util {
-namespace Io {
-class InputStream;
-class OutputStream;
-}  // namespace Stream
-}  // namespace Util
+#include "util/io/stream/InputStream.h"
+#include "util/io/stream/OutputStream.h"
 
-namespace Util::Network::Icmp {
+namespace Util {
+namespace Network {
+namespace Icmp {
 
 /// Represents a header for an Echo Request or Echo Reply in the Internet Control Message Protocol (ICMP).
 /// The Echo message is contained in the payload of an ICMP packet
@@ -61,16 +59,24 @@ public:
     void write(Io::OutputStream &stream) const;
 
     /// Get the identifier.
-    uint16_t getIdentifier() const;
+    uint16_t getIdentifier() const {
+        return identifier;
+    }
 
     /// Get the sequence number.
-    uint16_t getSequenceNumber() const;
+    uint16_t getSequenceNumber() const {
+        return sequenceNumber;
+    }
 
     /// Set the identifier.
-    void setIdentifier(uint16_t identifier);
+    void setIdentifier(uint16_t identifier) {
+        EchoHeader::identifier = identifier;
+    }
 
     /// Set the sequence number.
-    void setSequenceNumber(uint16_t sequenceNumber);
+    void setSequenceNumber(uint16_t sequenceNumber) {
+        EchoHeader::sequenceNumber = sequenceNumber;
+    }
 
     /// The length of the Echo header in bytes.
     static constexpr uint32_t HEADER_LENGTH = 4;
@@ -81,6 +87,8 @@ private:
     uint16_t sequenceNumber = 0;
 };
 
+}
+}
 }
 
 #endif

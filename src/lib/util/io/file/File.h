@@ -27,7 +27,8 @@
 #include "util/base/String.h"
 #include "util/collection/Array.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// The standard output file descriptor.
 static constexpr int32_t STANDARD_INPUT = 0;
@@ -123,16 +124,27 @@ public:
     /// const auto parentType = parent.getType(); // Util::Io::File::DIRECTORY
     /// const auto parentLength = parent.getLength(); // 0, because directories have no valid length
     /// ```
-    explicit File(const String &path);
+    explicit File(const String &path) : path(path) {}
 
     /// Create a new file instance from an existing one (copy constructor).
     /// The new instance will refer to the same path as the original one,
     /// but will have its own file descriptor, which is opened when needed.
-    File(const File &copy);
+    File(const File &copy) {
+        path = copy.path;
+        fileDescriptor = -1;
+    }
 
     /// Assign the given file to this file, overwriting the existing path.
     /// The file descriptor is not copied, but will be opened when needed.
-    File& operator=(const File &other);
+    File& operator=(const File &other) {
+        if (&other == this) {
+            return *this;
+        }
+
+        path = other.path;
+        fileDescriptor = -1;
+        return *this;
+    }
 
     /// Destroy the file instance and close the file descriptor if it is open.
     ~File();
@@ -183,7 +195,9 @@ public:
     /// const auto file3 = Util::Io::File("/device/nonexistent");
     /// const auto isFile3 = file3.getType(); // Panic: Could not open file!
     /// ```
-    bool isFile() const;
+    bool isFile() const {
+        return getType() != DIRECTORY;
+    }
 
     /// Check if the file is a directory.
     /// If the file does not exist, a panic is fired.
@@ -199,7 +213,9 @@ public:
     /// const auto file3 = Util::Io::File("/device/nonexistent");
     /// const auto isDirectory3 = file3.getType(); // Panic: Could not open file!
     /// ```
-    bool isDirectory() const;
+    bool isDirectory() const {
+        return getType() == DIRECTORY;
+    }
 
     /// Get the length of the file in bytes.
     /// Only files of type `REGULAR` have a valid length.
@@ -243,7 +259,10 @@ public:
     /// const auto file2 = Util::Io::File("/user/documents/");
     /// const auto name2 = file2.getName(); // documents
     /// ```
-    String getName() const;
+    String getName() const {
+        const auto splitPath = getCanonicalPath(path).split("/");
+        return splitPath.length() == 0 ? "" : splitPath[splitPath.length() - 1];
+    }
 
     /// Get the absolute path that points to this file.
     /// If the File object was created with a relative path, the current working directory is used to resolve it.
@@ -264,7 +283,9 @@ public:
     /// const auto file4 = Util::Io::File("/user/./documents/../pictures/./image.png");
     /// const auto path4 = file4.getCanonicalPath(); // /user/pictures/image.png
     /// ```
-    String getCanonicalPath() const;
+    String getCanonicalPath() const {
+        return getCanonicalPath(path);
+    }
 
     /// Get the parent directory of this file.
     /// If the file is the root directory ("/"), the parent is itself.
@@ -285,7 +306,9 @@ public:
     /// const auto grandParent3 = parent3.getParent(); // /user/documents
     /// const auto greatGrandParent3 = grandParent3.getParent(); // /user
     /// ```
-    File getParent() const;
+    File getParent() const {
+        return File(getCanonicalPath(path + "/.."));
+    }
 
     /// Get the files and directories contained in this directory.
     /// If the file is not a directory, an empty array is returned.
@@ -327,7 +350,7 @@ public:
     ///     return;
     /// }
     /// ```
-    bool create(Type fileType);
+    bool create(Type fileType) const;
 
     /// Remove the file or directory represented by this `File` object.
     /// On success, true is returned.
@@ -360,7 +383,7 @@ public:
     ///     return;
     /// }
     /// ```
-    bool remove();
+    bool remove() const;
 
     /// Issue a control request to the file.
     /// Control requests are used to manipulate special files, such as character devices or system files.
@@ -377,7 +400,7 @@ public:
     ///         << Util::Io::PrintStream::ln << Util::Io::PrintStream::flush;
     /// }
     /// ```
-    bool controlFile(size_t request, const Array<size_t> &parameters);
+    bool controlFile(size_t request, const Array<size_t> &parameters) const;
 
     /// Resolve the given path to its canonical absolute form.
     /// If the path is relative, it is resolved against the current working directory.
@@ -575,6 +598,7 @@ private:
     mutable int32_t fileDescriptor = -1;
 };
 
+}
 }
 
 #endif

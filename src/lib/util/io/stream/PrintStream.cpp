@@ -25,11 +25,8 @@
 #include "lib/util/base/Address.h"
 #include "lib/util/math/Math.h"
 
-namespace Util::Io {
-
-PrintStream::PrintStream(OutputStream &stream, const bool flushOnNewLine) :
-FilterOutputStream(stream), flushOnNewLine(flushOnNewLine) {}
-
+namespace Util {
+namespace Io {
 bool PrintStream::write(const uint8_t byte) {
 	const auto written = write(&byte, 0, 1);
 	if (written == 0) {
@@ -41,121 +38,24 @@ bool PrintStream::write(const uint8_t byte) {
 }
 
 size_t PrintStream::write(const uint8_t *sourceBuffer, size_t offset, size_t length) {
-    const auto written = FilterOutputStream::write(sourceBuffer, offset, length);
+	const auto written = FilterOutputStream::write(sourceBuffer, offset, length);
 	bytesWritten += written;
 
 	return written;
 }
 
-size_t PrintStream::flush() {
-	return FilterOutputStream::flush();
-}
-
-size_t PrintStream::getBytesWritten() const {
-	return bytesWritten;
-}
-
-void PrintStream::setBase(const uint8_t newBase) {
-    base = newBase;
-}
-
-void PrintStream::setNumberPadding(int32_t padding) {
-	if (padding < 0) {
-		padding *= -1;
-		setNumberJustification(true);
-	}
-
-    numberPadding = padding;
-}
-
-void PrintStream::setNumberJustification(const bool leftJustified) {
-	rightPadding = leftJustified;
-}
-
-void PrintStream::setPositiveSign(const char sign) {
-	positiveSign = sign;
-}
-
-void PrintStream::setNegativeSign(const char sign) {
-	negativeSign = sign;
-}
-
-void PrintStream::setIntegerPrecision(const int32_t precision) {
-	minimumIntegerPrecision = precision;
-}
-
-void PrintStream::setDecimalPrecision(const int32_t precision) {
-	decimalPrecision = precision;
-}
-
-void PrintStream::setIntegerPrefix(const String &prefix) {
-	integerPrefix = prefix;
-}
-
-void PrintStream::setAlphaNumericBase(const char hexBase) {
-	hexNumericBase = hexBase;
-}
-
-void PrintStream::setAlwaysPrintDecimalPoint(const bool value) {
-	alwaysPrintDecimalPoint = value;
-}
-
 void PrintStream::print(const char *string, const int32_t maxBytes) {
 	auto len = Address(string).stringLength();
 	if (maxBytes >= 0 && len > static_cast<size_t>(maxBytes)) {
-        len = maxBytes;
-    }
-
-    write(reinterpret_cast<const uint8_t*>(string), 0, len);
-}
-
-void PrintStream::print(const String &string) {
-    write(static_cast<const uint8_t*>(string), 0, string.length());
-}
-
-void PrintStream::print(const bool boolean) {
-    print(boolean ? "true" : "false");
-}
-
-void PrintStream::print(const int8_t number) {
-	print(static_cast<int64_t>(number));
-}
-
-void PrintStream::print(const uint8_t number) {
-	print(static_cast<uint64_t>(number));
-}
-
-void PrintStream::print(const int16_t number) {
-	print(static_cast<int64_t>(number));
-}
-
-void PrintStream::print(const uint16_t number) {
-	print(static_cast<uint64_t>(number));
-}
-
-void PrintStream::print(const int32_t number) {
-	print(static_cast<int64_t>(number));
-}
-
-void PrintStream::print(const uint32_t number) {
-	print(static_cast<uint64_t>(number));
-}
-
-void PrintStream::print(int64_t number) {
-  char sign = '\0';
-    if (number < 0) {
-        sign = negativeSign;
-        number = -number;
-    } else {
-		sign = positiveSign;
+		len = maxBytes;
 	}
 
-    print(static_cast<uint32_t>(number), sign);
+	write(reinterpret_cast<const uint8_t*>(string), 0, len);
 }
 
 void PrintStream::print(uint64_t number, const char sign) {
-    ByteArrayOutputStream numberStream{};
-    PrintStream formatStream(numberStream);
+	ByteArrayOutputStream numberStream{};
+	PrintStream formatStream(numberStream);
 
 	size_t div = 1;
 	while (number / div >= base) {
@@ -209,14 +109,6 @@ void PrintStream::print(uint64_t number, const char sign) {
 			write(' ');
 		}
 	}
-}
-
-void PrintStream::print(const char c) {
-	write(reinterpret_cast<const uint8_t*>(&c), 0, 1);
-}
-
-void PrintStream::print(void *pointer) {
-    print(reinterpret_cast<uintptr_t>(pointer));
 }
 
 void PrintStream::print(double number) {
@@ -298,181 +190,5 @@ void PrintStream::print(double number) {
 	}
 }
 
-void PrintStream::println() {
-    write('\n');
-
-    if (flushOnNewLine) {
-        FilterOutputStream::flush();
-    }
 }
-
-void PrintStream::println(const char c) {
-	print(c);
-	println();
-}
-
-void PrintStream::println(const char *string, const int32_t maxBytes) {
-    print(string, maxBytes);
-    println();
-}
-
-void PrintStream::println(const String &string) {
-    print(string);
-    println();
-}
-
-void PrintStream::println(const bool boolean) {
-    print(boolean);
-    println();
-}
-
-void PrintStream::println(const int8_t number) {
-	print(number);
-	println();
-}
-
-void PrintStream::println(const uint8_t number) {
-	print(number);
-	println();
-}
-
-void PrintStream::println(const int16_t number) {
-	print(number);
-	println();
-}
-
-void PrintStream::println(const uint16_t number) {
-	print(number);
-	println();
-}
-
-void PrintStream::println(const int32_t number) {
-	print(number);
-	println();
-}
-
-void PrintStream::println(const uint32_t number) {
-	print(number);
-	println();
-}
-
-void PrintStream::println(const int64_t number) {
-    print(number);
-    println();
-}
-
-void PrintStream::println(const uint64_t number) {
-    print(number);
-    println();
-}
-
-void PrintStream::println(void *pointer) {
-    print(pointer);
-    println();
-}
-
-PrintStream& PrintStream::operator<<(const char c) {
-    write(c);
-    return *this;
-}
-
-PrintStream& PrintStream::operator<<(const char *string) {
-    print(string);
-    return *this;
-}
-
-PrintStream& PrintStream::operator<<(const String &string) {
-    print(string);
-    return *this;
-}
-
-PrintStream& PrintStream::operator<<(const bool boolean) {
-    print(boolean);
-    return *this;
-}
-
-PrintStream& PrintStream::operator<<(const int8_t number) {
-	print(number);
-	return *this;
-}
-
-PrintStream& PrintStream::operator<<(const uint8_t number) {
-	print(number);
-	return *this;
-}
-
-PrintStream& PrintStream::operator<<(const int16_t number) {
-    print(number);
-    return *this;
-}
-
-PrintStream& PrintStream::operator<<(const uint16_t number) {
-    print(number);
-    return *this;
-}
-
-PrintStream& PrintStream::operator<<(const int32_t number) {
-    print(number);
-    return *this;
-}
-
-PrintStream& PrintStream::operator<<(const uint32_t number) {
-    print(number);
-    return *this;
-}
-
-PrintStream& PrintStream::operator<<(const int64_t number) {
-    print(number);
-    return *this;
-}
-
-PrintStream &PrintStream::operator<<(const uint64_t number) {
-    print(number);
-    return *this;
-}
-
-PrintStream& PrintStream::operator<<(void *pointer) {
-    print(pointer);
-    return *this;
-}
-
-PrintStream& PrintStream::operator<<(const double number) {
-	print(number);
-    return *this;
-}
-
-PrintStream& PrintStream::operator<<(PrintStream &(*f)(PrintStream &)) {
-	return f(*this);
-}
-
-PrintStream& PrintStream::flush(PrintStream &stream) {
-    stream.flush();
-    return stream;
-}
-
-PrintStream& PrintStream::ln(PrintStream &stream) {
-    stream.println();
-    return stream;
-}
-
-PrintStream& PrintStream::bin(PrintStream &stream) {
-    stream.setBase(2);
-    return stream;
-}
-
-PrintStream& PrintStream::oct(PrintStream &stream) {
-    stream.setBase(8);
-    return stream;
-}
-
-PrintStream& PrintStream::dec(PrintStream &stream) {
-    stream.setBase(10);
-    return stream;
-}
-
-PrintStream& PrintStream::hex(PrintStream &stream) {
-    stream.setBase(16);
-    return stream;
-}
-
 }

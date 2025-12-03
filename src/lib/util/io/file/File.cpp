@@ -24,24 +24,8 @@
 #include "util/collection/ArrayList.h"
 #include "util/base/Panic.h"
 
-namespace Util::Io {
-
-File::File(const String &path) : path(path) {}
-
-File::File(const File &copy) {
-    path = copy.path;
-    fileDescriptor = -1;
-}
-
-File& File::operator=(const File &other) {
-    if (&other == this) {
-        return *this;
-    }
-
-    path = other.path;
-    fileDescriptor = -1;
-    return *this;
-}
+namespace Util {
+namespace Io {
 
 File::~File() {
     if (fileDescriptor != -1) {
@@ -65,30 +49,9 @@ File::Type File::getType() const {
     return getFileType(fileDescriptor);
 }
 
-bool File::isFile() const {
-    return getType() != DIRECTORY;
-}
-
-bool File::isDirectory() const {
-    return getType() == DIRECTORY;
-}
-
 size_t File::getLength() const {
     ensureFileIsOpened();
     return getFileLength(fileDescriptor);
-}
-
-String File::getName() const {
-    const auto splitPath = getCanonicalPath(path).split("/");
-    return splitPath.length() == 0 ? "" : splitPath[splitPath.length() - 1];
-}
-
-String File::getCanonicalPath() const {
-    return getCanonicalPath(path);
-}
-
-File File::getParent() const {
-    return File(getCanonicalPath(path + "/.."));
 }
 
 Array<File> File::getChildren() const {
@@ -104,7 +67,7 @@ Array<File> File::getChildren() const {
     return children;
 }
 
-bool File::create(const Type fileType) {
+bool File::create(const Type fileType) const {
     if (fileDescriptor >= 0) {
         closeFile(fileDescriptor);
         fileDescriptor = -1;
@@ -113,7 +76,7 @@ bool File::create(const Type fileType) {
     return createFile(path, fileType);
 }
 
-bool File::remove() {
+bool File::remove() const {
     if (fileDescriptor >= 0) {
         closeFile(fileDescriptor);
         fileDescriptor = -1;
@@ -122,7 +85,7 @@ bool File::remove() {
     return deleteFile(path);
 }
 
-bool File::controlFile(const size_t request, const Array<size_t> &parameters) {
+bool File::controlFile(const size_t request, const Array<size_t> &parameters) const {
     ensureFileIsOpened();
     return ::controlFile(fileDescriptor, request, parameters);
 }
@@ -218,4 +181,5 @@ File File::getCurrentWorkingDirectory() {
     return ::getCurrentWorkingDirectory();
 }
 
+}
 }

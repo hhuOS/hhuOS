@@ -27,7 +27,8 @@
 #include "util/base/String.h"
 #include "util/io/stream/OutputStream.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// An output stream that writes data to a byte array in memory.
 /// The byte array can be provided at construction time or allocated internally.
@@ -41,23 +42,30 @@ public:
 	/// Create a byte array output stream instance with an internally allocated buffer of the specified initial size.
 	/// The buffer will grow as needed when more data is written.
 	/// If no size is specified, a default initial size of 32 bytes will be used.
-    explicit ByteArrayOutputStream(size_t size = DEFAULT_BUFFER_SIZE);
+	explicit ByteArrayOutputStream(const size_t size = DEFAULT_BUFFER_SIZE) :
+		buffer(new uint8_t[size]), size(size) {}
 
 	/// Create a byte array output stream instance that writes to the given buffer.
 	/// As no buffer size is specified, this stream might write out of bounds if too much data is written.
 	/// It is the caller's responsibility to ensure that the buffer is large enough for the intended writes.
 	/// The instance does not take ownership of the buffer. It is the caller's responsibility to ensure
 	/// that the buffer remains valid for the lifetime of this output stream.
-	explicit ByteArrayOutputStream(uint8_t *buffer);
+	explicit ByteArrayOutputStream(uint8_t *buffer) :
+		buffer(buffer), allocatedBuffer(false), checkBounds(false) {}
 
 	/// Create a byte array output stream instance that writes to the given buffer of specified size.
 	/// If more data is written than the buffer can hold, the write operations will fail.
 	/// The instance does not take ownership of the buffer. It is the caller's responsibility to ensure
 	/// that the buffer remains valid for the lifetime of this output stream.
-	ByteArrayOutputStream(uint8_t *buffer, size_t size);
+	ByteArrayOutputStream(uint8_t *buffer, size_t size) :
+		buffer(buffer), size(size), allocatedBuffer(false) {}
 
 	/// Destroy the byte array output stream and free the internal buffer if it was allocated.
-	~ByteArrayOutputStream() override;
+	~ByteArrayOutputStream() override {
+		if (allocatedBuffer) {
+			delete[] buffer;
+		}
+	}
 
 	/// Write a single byte to the buffer.
 	/// If the buffer is full and was not allocated internally, the operation will fail and false is returned.
@@ -72,46 +80,62 @@ public:
 	size_t write(const uint8_t *sourceBuffer, size_t offset, size_t length) override;
 
 	/// Get the current position in the buffer, i.e., how many bytes have been written so far.
-    size_t getPosition() const;
+	size_t getPosition() const {
+		return position;
+	}
 
 	/// Check if the buffer is empty, i.e., no data has been written yet.
-    bool isEmpty() const;
+	bool isEmpty() const {
+		return position == 0;
+	}
 
 	/// Get a pointer to the internal buffer.
 	/// If the buffer was not allocated internally, this will return the buffer provided at construction time.
 	/// Otherwise, the pointer might become invalid if the buffer has grown due to writes.
-    uint8_t* getBuffer() const;
+	uint8_t* getBuffer() const {
+		return buffer;
+	}
 
 	/// Write the contents of the buffer to the provided target buffer, up to the specified length.
 	/// If length is less than the amount of data written, only length bytes will be copied.
 	/// It is the caller's responsibility to ensure that the target buffer has enough space for length bytes.
 	/// If the target buffer is too small, data will be written out of bounds, leading to undefined behavior.
-    void getContent(uint8_t *target, size_t length) const;
+	void getContent(uint8_t *target, const size_t length) const {
+		const auto sourceAddress = Address(buffer);
+		const auto targetAddress = Address(target);
+
+		targetAddress.copyRange(sourceAddress, position > length ? length : position);
+	}
 
 	/// Get the contents of the buffer as a String.
 	/// The returned String contains all bytes written so far.
 	/// If the buffer contains null bytes or invalid characters, they will be included in the String as-is.
-    String getContent() const;
+	String getContent()  const {
+		return String(buffer, position);
+	}
 
 	/// Reset the stream to the beginning of the buffer.
 	/// Any previously written data will be discarded and overwritten by subsequent writes.
 	/// The buffer itself is not cleared or modified; only the current position is reset.
-    void reset();
+	void reset() {
+		position = 0;
+	}
 
 private:
 
-    size_t ensureRemainingCapacity(size_t);
+	size_t ensureRemainingCapacity(size_t);
 
-    uint8_t *buffer;
-    size_t size = 0;
-    size_t position = 0;
-	
+	uint8_t *buffer;
+	size_t size = 0;
+	size_t position = 0;
+
 	bool allocatedBuffer = true;
 	bool checkBounds = true;
 
-    static constexpr uint32_t DEFAULT_BUFFER_SIZE = 32;
+	static constexpr uint32_t DEFAULT_BUFFER_SIZE = 32;
 };
 
+}
 }
 
 #endif

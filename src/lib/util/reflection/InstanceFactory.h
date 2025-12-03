@@ -25,7 +25,8 @@
 #include "util/collection/HashMap.h"
 #include "util/reflection/Prototype.h"
 
-namespace Util::Reflection {
+namespace Util {
+namespace Reflection {
 
 /// Static class that holds prototypes for all available `Prototype` implementations
 /// and allows instantiation of these classes at runtime.
@@ -42,21 +43,32 @@ public:
     }
 
     /// Check if a prototype is registered.
-    static bool isPrototypeRegistered(const String &className);
+    static bool isPrototypeRegistered(const String &className) {
+        return prototypeTable.containsKey(className);
+    }
 
     /// Remove a prototype from the factory.
     /// Instances of this type can no longer be created after this call.
-    static void deregisterPrototype(const String &className);
+    static void deregisterPrototype(const String &className) {
+        if (prototypeTable.containsKey(className)) {
+            delete prototypeTable.get(className);
+            prototypeTable.remove(className);
+        }
+    }
 
     /// Register a prototype.
     /// Instances of this type can then be created by calling `createInstance()`.
-    static void registerPrototype(Prototype *prototype);
+    static void registerPrototype(Prototype *prototype) {
+        const auto key = prototype->getClassName();
+        prototypeTable.put(key, prototype);
+    }
 
 private:
 
     static HashMap<String, Prototype*> prototypeTable;
 };
 
+}
 }
 
 #endif

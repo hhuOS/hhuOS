@@ -19,22 +19,19 @@
 project(lib.network)
 message(STATUS "Project " ${PROJECT_NAME})
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_C_STANDARD 90)
-
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/network/Datagram.cpp
         ${HHUOS_SRC_DIR}/lib/util/network/MacAddress.cpp
-        ${HHUOS_SRC_DIR}/lib/util/network/NetworkAddress.cpp
-        ${HHUOS_SRC_DIR}/lib/util/network/Socket.cpp)
-
-# Add subdirectories
-add_subdirectory(ethernet)
-add_subdirectory(icmp)
-add_subdirectory(ip4)
-add_subdirectory(udp)
+        ${HHUOS_SRC_DIR}/lib/util/network/Socket.cpp
+        ${HHUOS_SRC_DIR}/lib/util/network/ethernet/EthernetHeader.cpp
+        ${HHUOS_SRC_DIR}/lib/util/network/icmp/IcmpHeader.cpp
+        ${HHUOS_SRC_DIR}/lib/util/network/icmp/EchoHeader.cpp
+        ${HHUOS_SRC_DIR}/lib/util/network/ip4/Ip4Address.cpp
+        ${HHUOS_SRC_DIR}/lib/util/network/ip4/Ip4Header.cpp
+        ${HHUOS_SRC_DIR}/lib/util/network/ip4/Ip4SubnetAddress.cpp
+        ${HHUOS_SRC_DIR}/lib/util/network/udp/UdpHeader.cpp)
 
 # Kernel space version
 project(lib.kernel.network)

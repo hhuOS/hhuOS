@@ -20,11 +20,8 @@
 
 #include "ByteArrayInputStream.h"
 
-namespace Util::Io {
-
-ByteArrayInputStream::ByteArrayInputStream(const uint8_t *buffer, const size_t size) : buffer(buffer), size(size) {}
-
-ByteArrayInputStream::ByteArrayInputStream(const uint8_t *buffer) : buffer(buffer), checkBounds(false) {}
+namespace Util {
+namespace Io {
 
 int16_t ByteArrayInputStream::read() {
     if (checkBounds && position >= size) {
@@ -32,7 +29,7 @@ int16_t ByteArrayInputStream::read() {
         return -1;
     }
 	
-	if (nullTerminated && buffer[position] == '\0') {
+    if (nullTerminated && buffer[position] == '\0') {
         return 0;
     }
 
@@ -66,32 +63,5 @@ int16_t ByteArrayInputStream::peek() {
     return buffer[position];
 }
 
-bool ByteArrayInputStream::isReadyToRead() {
-    return !isEmpty();
 }
-
-const uint8_t* ByteArrayInputStream::getBuffer() const {
-    return buffer;
-}
-
-size_t ByteArrayInputStream::getLength() const {
-    return size;
-}
-
-size_t ByteArrayInputStream::getPosition() const {
-    return position;
-}
-
-size_t ByteArrayInputStream::getRemaining() const {
-    return checkBounds ? size - position : 0;
-}
-
-bool ByteArrayInputStream::isEmpty() const {
-    return getRemaining() == 0;
-}
-
-void ByteArrayInputStream::stopAtNullTerminator(const bool stop) {
-    nullTerminated = stop;
-}
-
 }

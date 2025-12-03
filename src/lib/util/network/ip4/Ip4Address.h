@@ -29,7 +29,9 @@
 #include "util/base/String.h"
 #include "util/network/NetworkAddress.h"
 
-namespace Util::Network::Ip4 {
+namespace Util {
+namespace Network {
+namespace Ip4 {
 
 /// Represents an IPv4 address, which is 32-bit long and identifies a device on an IP network.
 /// An IP address is not tied to a specific hardware interface,
@@ -50,7 +52,7 @@ public:
     /// const auto string = ipAddress.toString(); // "0.0.0.0"
     /// const auto isBroadcast = ipAddress.isBroadcastAddress(); // false
     /// ```
-    Ip4Address();
+    Ip4Address() : NetworkAddress(ADDRESS_LENGTH, IP4) {}
 
     /// Create a new IPv4 address from the given buffer.
     /// The buffer must be at least four bytes long.
@@ -67,7 +69,7 @@ public:
     /// const auto ipAddress2 = Ip4Address(buffer2); // 5.6.7.8
     /// const auto ipAddress3 = Ip4Address(buffer3); // Undefined behavior, buffer too short
     /// ```
-    explicit Ip4Address(const uint8_t *buffer);
+    explicit Ip4Address(const uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, IP4) {}
 
     /// Create a new IPv4 address from a string representation.
     /// The string must be in the format "X.X.X.X", where each "X" is a decimal number between 0 and 255.
@@ -79,7 +81,17 @@ public:
     /// const auto ipAddress2 = Ip4Address("5.6.7.8");
     /// const auto ipAddress3 = Ip4Address("9.10.11"); // Panic: index out of bounds, string too short
     /// ```
-    explicit Ip4Address(const String &string);
+    explicit Ip4Address(const String &string) : NetworkAddress(ADDRESS_LENGTH, IP4) {
+        auto split = string.split(".");
+        const uint8_t buffer[4] = {
+            String::parseNumber<uint8_t>(split[0]),
+            String::parseNumber<uint8_t>(split[1]),
+            String::parseNumber<uint8_t>(split[2]),
+            String::parseNumber<uint8_t>(split[3]),
+        };
+
+        setAddress(buffer);
+    }
 
     /// Check if this IPv4 address is a broadcast address (`255.255.255.255`).
     ///
@@ -93,7 +105,9 @@ public:
     /// const auto isBroadcast2 = ipAddress2.isBroadcastAddress(); // true
     /// const auto isBroadcast3 = ipAddress3.isBroadcastAddress(); // true
     /// ```
-    bool isBroadcastAddress() const;
+    bool isBroadcastAddress() const {
+        return Address(buffer).compareRange(Address(BROADCAST.buffer), ADDRESS_LENGTH) == 0;
+    }
 
     /// Create a new on-heap instance as a copy of this address.
     ///
@@ -104,7 +118,9 @@ public:
     ///
     /// const auto isEqual = (ipAddress1 == *ipAddress2); // true
     /// ```
-    NetworkAddress* createCopy() const override;
+    NetworkAddress* createCopy() const override {
+        return new Ip4Address(*this);
+    }
 
     /// Create a string representation of the IPv4 address in the format "X.X.X.X".
     ///
@@ -116,7 +132,9 @@ public:
     ///
     /// const auto isEqual = (ipAddress1 == ipAddress2); // true
     /// ```
-    String toString() const override;
+    String toString() const override {
+        return String::format("%u.%u.%u.%u", buffer[0], buffer[1], buffer[2], buffer[3]);
+    }
 
     /// A constant storing the IPv4 address `0.0.0.0`, which can for example be used to listen on all interfaces.
     ///
@@ -144,6 +162,8 @@ public:
     static constexpr uint8_t ADDRESS_LENGTH = 4;
 };
 
+}
+}
 }
 
 #endif

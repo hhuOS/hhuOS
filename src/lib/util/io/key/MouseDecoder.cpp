@@ -20,7 +20,9 @@
 
 #include "MouseDecoder.h"
 
-namespace Util::Io::MouseDecoder {
+namespace Util {
+namespace Io {
+namespace MouseDecoder {
 
 enum Flag : uint8_t {
     X_SIGN = 0x10,
@@ -63,4 +65,6 @@ Update decode(const uint8_t bytes[4]) {
     return update;
 }
 
+}
+}
 }

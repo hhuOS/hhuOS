@@ -26,11 +26,6 @@
 
 namespace Util {
 
-BitmapMemoryManager::BitmapMemoryManager(uint8_t *startAddress, uint8_t *endAddress,
-    const size_t blockSize, const bool zeroMemory) :
-    startAddress(startAddress), endAddress(endAddress), blockSize(blockSize), zeroMemory(zeroMemory),
-    bitmap((endAddress - startAddress) / blockSize) {}
-
 void *BitmapMemoryManager::allocateBlock() {
     const auto block = bitmap.findAndSet();
     if (block == Async::AtomicBitmap::INVALID_INDEX) {
@@ -60,10 +55,6 @@ void BitmapMemoryManager::freeBlock(void *pointer) {
     bitmap.unset(blockNumber);
 }
 
-size_t BitmapMemoryManager::getTotalMemory() const {
-    return endAddress - startAddress;
-}
-
 size_t BitmapMemoryManager::getFreeMemory() const {
     size_t freeMemory = 0;
     for (size_t i = 0; i < bitmap.getSize(); i++) {
@@ -73,18 +64,6 @@ size_t BitmapMemoryManager::getFreeMemory() const {
     }
 
     return freeMemory;
-}
-
-size_t BitmapMemoryManager::getBlockSize() const {
-    return blockSize;
-}
-
-void* BitmapMemoryManager::getStartAddress() const {
-    return startAddress;
-}
-
-void* BitmapMemoryManager::getEndAddress() const {
-    return endAddress;
 }
 
 void BitmapMemoryManager::markBlock(const void *pointer, const bool used) const {

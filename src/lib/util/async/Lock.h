@@ -1,7 +1,8 @@
 #ifndef HHUOS_LIB_UTIL_ASYNC_LOCK_H
 #define HHUOS_LIB_UTIL_ASYNC_LOCK_H
 
-namespace Util::Async {
+namespace Util {
+namespace Async {
 
 /// Base class for a lock, which can be used to synchronize access to shared resources.
 class Lock {
@@ -65,6 +66,7 @@ public:
     }
 };
 
+}
 }
 
 #endif

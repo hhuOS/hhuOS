@@ -26,7 +26,8 @@
 
 #include "util/io/stream/FilterInputStream.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// A buffered input stream adds buffering to another input stream.
 /// It maintains an internal buffer to reduce the number of read operations on the underlying stream.
@@ -60,10 +61,13 @@ public:
     /// The buffer size is specified in bytes and defaults to 512 bytes if not provided.
     /// The instance does not take ownership of the underlying stream. It is the caller's responsibility to ensure
     /// that the underlying stream remains valid for the lifetime of this buffered input stream.
-    explicit BufferedInputStream(InputStream &stream, size_t bufferSize = DEFAULT_BUFFER_SIZE);
+    explicit BufferedInputStream(InputStream &stream, size_t bufferSize = DEFAULT_BUFFER_SIZE) :
+        FilterInputStream(stream), buffer(new uint8_t[bufferSize]), size(bufferSize) {}
 
     /// Destroy the buffered input stream instance and free the internal buffer.
-    ~BufferedInputStream() override;
+    ~BufferedInputStream() override {
+        delete[] buffer;
+    }
 
     /// Read a single byte from the stream.
     /// This method first checks if there is data available in the internal buffer.
@@ -97,14 +101,19 @@ public:
     /// This method first checks if there is data available in the internal buffer.
     /// If the buffer is exhausted, it checks if the underlying stream has data available.
     /// If this method returns true, a subsequent read call is guaranteed to succeed without blocking.
-    bool isReadyToRead() override;
+    bool isReadyToRead() override {
+        return valid > position || FilterInputStream::isReadyToRead();
+    }
 
     /// Clear the internal buffer.
     /// This method can be used to discard any buffered data and ensure that subsequent read operations
     /// reflect the current position of the underlying stream.
     /// It is useful if the position of the underlying stream has been changed directly
     /// (e.g. by calling FileInputStream::setPosition()), as the internal buffer may become inconsistent in such cases.
-    void clearBuffer();
+    void clearBuffer() {
+        position = 0;
+        valid = 0;
+    }
 
 private:
 
@@ -118,6 +127,7 @@ private:
     static constexpr size_t DEFAULT_BUFFER_SIZE = 512;
 };
 
+}
 }
 
 #endif

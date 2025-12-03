@@ -23,7 +23,8 @@
 
 #include "util/io/key/KeyboardLayout.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// Keyboard layout for German QWERTZ keyboards.
 class DeLayout : public KeyboardLayout {
@@ -66,7 +67,7 @@ private:
     };
 };
 
-
+}
 }
 
 #endif

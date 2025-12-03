@@ -4,13 +4,13 @@
  * Main developers: Christian Gesse <christian.gesse@hhu.de>, Fabian Ruhland <ruhland@hhu.de>
  * Original development team: Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schöttner
  * This project has been supported by several students.
- * A full list of integrated student theses can be found here: https://github.com/hhuOS/hhuOS/wiki/Student-theses; Olaf Spinczyk, TU Dortmund
+ * A full list of integrated student theses can be found here: https://github.com/hhuOS/hhuOS/wiki/Student-theses {} Olaf Spinczyk, TU Dortmund
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY {} without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
  * details.
  *
@@ -27,15 +27,13 @@
 
 #include <stdint.h>
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// Represents a keyboard key, including its scancode, ASCII code, modifier states, and pressed state.
 /// Instances of this class are created and managed by the `KeyDecoder`.
 /// Once a key has been decoded, it is immutable.
 class Key {
-
-friend class KeyDecoder;
-friend class KeyboardLayout;
 
 public:
     /// Key modifiers as bit flags.
@@ -226,76 +224,131 @@ public:
     /// The key remains invalid until a valid scancode is set by the `KeyDecoder`.
     Key() = default;
 
+    /// Compare this key with another key for inequality.
+    bool operator!=(const Key &other) const  {
+        return scancode != other.scancode || modifier != other.modifier || pressed != other.pressed;
+    }
+
     /// Check if the key is valid (scancode != 0).
-    bool isValid() const;
+    bool isValid() const {
+        return scancode != 0;
+    }
 
     /// Get the scancode.
-    uint8_t getScancode() const;
+    uint8_t getScancode() const {
+        return scancode;
+    }
 
     /// Get the ASCII code corresponding to the key,
     /// taking into account the current keyboard layout and modifier states.
     /// If no ASCII code is associated with the key, 0 is returned.
-    char getAscii() const;
+    char getAscii() const {
+        return ascii;
+    }
 
     /// Check if the key is currently pressed (true) or released (false).
-    bool isPressed() const;
+    bool isPressed() const {
+        return pressed;
+    }
 
     /// Check if the Shift key is pressed.
-    bool getShift() const;
+    bool getShift() const {
+        return modifier & SHIFT;
+    }
 
     /// Check if the left Alk key is pressed.
-    bool getAltLeft() const;
+    bool getAltLeft() const {
+        return modifier & ALT_LEFT;
+    }
 
     /// Check if the right Alk key is pressed.
-    bool getAltRight() const;
+    bool getAltRight() const {
+        return modifier & ALT_RIGHT;
+    }
 
     /// Check if either of the Alt keys is pressed.
-    bool getAlt() const;
+    bool getAlt() const {
+        return modifier & (ALT_LEFT | ALT_RIGHT);
+    }
 
     /// Check if the left Ctrl key is pressed.
-    bool getCtrlLeft() const;
+    bool getCtrlLeft() const {
+        return modifier & CTRL_LEFT;
+    }
 
     /// Check if the right Ctrl key is pressed.
-    bool getCtrlRight() const;
+    bool getCtrlRight() const {
+        return modifier & CTRL_RIGHT;
+    }
 
     /// Check if either of the Ctrl keys is pressed.
-    bool getCtrl() const;
+    bool getCtrl() const {
+        return modifier & (CTRL_LEFT | CTRL_RIGHT);
+    }
 
     /// Check if caps lock is active.
-    bool getCapsLock() const;
+    bool getCapsLock() const {
+        return modifier & CAPS_LOCK;
+    }
 
     /// Check if num lock is active.
-    bool getNumLock() const;
+    bool getNumLock() const {
+        return modifier & NUM_LOCK;
+    }
 
     /// Check if scroll lock is active.
-    bool getScrollLock() const;
-
-    /// Compare this key with another key for inequality.
-    bool operator!=(const Key &other) const;
+    bool getScrollLock() const {
+        return modifier & SCROLL_LOCK;
+    }
 
 private:
 
-    void setPressed(bool pressed);
+    friend class KeyDecoder;
+    friend class KeyboardLayout;
 
-    void setAscii(uint8_t ascii);
+    void setPressed(const bool pressed) {
+        Key::pressed = pressed;
+    }
 
-    void setScancode(uint8_t scancode);
+    void setAscii(const uint8_t ascii) {
+        Key::ascii = ascii;
+    }
 
-    void setShift(bool pressed);
+    void setScancode(const uint8_t scancode) {
+        Key::scancode = scancode;
+    }
 
-    void setAltLeft(bool pressed);
+    void setShift(const bool pressed) {
+        modifier = pressed ? modifier | SHIFT : modifier & ~SHIFT;
+    }
 
-    void setAltRight(bool pressed);
+    void setAltLeft(const bool pressed) {
+        modifier = pressed ? modifier | ALT_LEFT : modifier & ~ALT_LEFT;
+    }
 
-    void setCtrlLeft(bool pressed);
+    void setAltRight(const bool pressed) {
+        modifier = pressed ? modifier | ALT_RIGHT : modifier & ~ALT_RIGHT;
+    }
 
-    void setCtrlRight(bool pressed);
+    void setCtrlLeft(const bool pressed) {
+        modifier = pressed ? modifier | CTRL_LEFT : modifier & ~CTRL_LEFT;
+    }
 
-    void setCapsLock(bool pressed);
+    void setCtrlRight(const bool pressed) {
+        modifier = pressed ? modifier | CTRL_RIGHT : modifier & ~CTRL_RIGHT;
+    }
 
-    void setNumLock(bool pressed);
+    void setCapsLock(const bool pressed) {
+        modifier = pressed ? modifier | CAPS_LOCK : modifier & ~CAPS_LOCK;
+    }
 
-    void setScrollLock(bool pressed);
+    void setNumLock(const bool pressed) {
+        modifier = pressed ? modifier | NUM_LOCK : modifier & ~NUM_LOCK;
+    }
+
+    void setScrollLock(const bool pressed) {
+        modifier = pressed ? modifier | SCROLL_LOCK : modifier & ~SCROLL_LOCK;
+    }
 
     uint8_t ascii = 0;
     uint8_t scancode = 0;
@@ -303,6 +356,7 @@ private:
     bool pressed = false;
 };
 
+}
 }
 
 #endif

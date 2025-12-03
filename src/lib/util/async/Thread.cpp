@@ -23,19 +23,7 @@
 #include "lib/interface.h"
 
 namespace Util {
-class String;
-
 namespace Async {
-class Runnable;
-}  // namespace Async
-namespace Time {
-class Timestamp;
-}  // namespace Time
-}  // namespace Util
-
-namespace Util::Async {
-
-Thread::Thread(const size_t id) : id(id) {}
 
 Thread Thread::createThread(const String &name, Runnable *runnable) {
     return ::createThread(name, runnable);
@@ -57,8 +45,5 @@ void Thread::join() const {
     joinThread(id);
 }
 
-size_t Thread::getId() const {
-    return id;
 }
-
 }

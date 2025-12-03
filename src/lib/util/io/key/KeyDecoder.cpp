@@ -20,13 +20,11 @@
 
 #include "KeyDecoder.h"
 
-#include "util/base/Panic.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/io/key/KeyboardLayout.h"
 
-namespace Util::Io {
-
-KeyDecoder::KeyDecoder(const KeyboardLayout &layout) : layout(layout) {}
+namespace Util {
+namespace Io {
 
 bool KeyDecoder::parseScancode(uint8_t code) {
     bool done = false;
@@ -116,12 +114,5 @@ bool KeyDecoder::parseScancode(uint8_t code) {
     return done;
 }
 
-Key KeyDecoder::getCurrentKey() const {
-    if (!currentKey.isValid()) {
-        Panic::fire(Panic::ILLEGAL_STATE, "KeyDecoder: Current key not fully parsed!");
-    }
-
-    return currentKey;
 }
-
 }

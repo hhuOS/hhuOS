@@ -23,7 +23,10 @@
 
 #include <stddef.h>
 
-namespace Util::Async {
+#include "util/async/Atomic.h"
+
+namespace Util {
+namespace Async {
 
 /// A simple thread-safe ID generator that generates unique identifiers.
 /// It works by incrementing a counter atomically.
@@ -49,13 +52,16 @@ public:
     IdGenerator& operator=(const IdGenerator &other) = delete;
 
     /// Generate the next unique ID.
-    size_t getNextId();
+    size_t getNextId() {
+        return Atomic<size_t>(idCounter).fetchAndInc();
+    }
 
 private:
 
     size_t idCounter = 0;
 };
 
+}
 }
 
 #endif

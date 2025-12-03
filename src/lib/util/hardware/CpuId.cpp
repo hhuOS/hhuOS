@@ -22,9 +22,9 @@
 #include "lib/util/collection/ArrayList.h"
 #include "CpuId.h"
 
-extern "C" int32_t is_cpuid_available();
-
-namespace Util::Hardware::CpuId {
+namespace Util {
+namespace Hardware {
+namespace CpuId {
 
 constexpr uint32_t STEPPING_BITMASK = 0x0000000f;
 constexpr uint32_t MODEL_BITMASK = 0x000000f0;
@@ -235,4 +235,6 @@ const char* getFeatureAsString(const CpuFeature feature) {
     }
 }
 
+}
+}
 }

@@ -32,13 +32,14 @@
 #include "util/math/Math.h"
 #include "lib/interface.h"
 
+namespace Util {
+namespace Graphic {
+
 void swap(uint16_t *a, uint16_t *b) {
     const auto h = *a;
     *a = *b;
     *b = h;
 }
-
-namespace Util::Graphic {
 
 LinearFrameBuffer::LinearFrameBuffer(const Io::File &file) {
     if (!file.exists()) {
@@ -423,4 +424,5 @@ uint8_t* LinearFrameBuffer::mapBuffer(const uint32_t physicalAddress, const uint
     return static_cast<uint8_t*>(virtualAddress) + pageOffset;
 }
 
+}
 }

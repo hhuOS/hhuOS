@@ -36,12 +36,6 @@ public:
     /// The base heap memory manager class has no state, so the default constructor is sufficient.
     HeapMemoryManager() = default;
 
-    /// A memory manager should not be copyable, since copies would operate on the same memory.
-    HeapMemoryManager(const HeapMemoryManager &copy) = delete;
-
-	/// A memory manager should not be copyable, since copies would operate on the same memory.
-    HeapMemoryManager &operator=(const HeapMemoryManager &other) = delete;
-
     /// The base heap memory manager class has no state, so the default destructor is sufficient.
     ~HeapMemoryManager() override = default;
 

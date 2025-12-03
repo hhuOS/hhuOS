@@ -7,7 +7,8 @@
 
 #include "util/io/stream/FilterInputStream.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// An input stream that provides formatted input functions similar to scanf.
 /// It supports reading various data types such as integers (in various bases), floating-point numbers,
@@ -19,13 +20,13 @@ class ScanStream final : public FilterInputStream {
 
 public:
 	/// Create a scan stream instance that reads from the given input stream.
-    explicit ScanStream(InputStream &stream);
+	explicit ScanStream(InputStream &stream) : FilterInputStream(stream) {}
 
 	/// Read a single byte directly from the underlying input stream.
-    int16_t read() override;
+	int16_t read() override;
 
 	/// Read multiple bytes directly from the underlying input stream into the provided buffer.
-    int32_t read(uint8_t *targetBuffer, size_t offset, size_t length) override;
+	int32_t read(uint8_t *targetBuffer, size_t offset, size_t length) override;
 
 	/// Peek at the next byte in the underlying input stream without consuming it.
 	int16_t peek() override;
@@ -34,7 +35,9 @@ public:
 	bool isReadyToRead() override;
 
 	/// Get the total number of bytes read from the underlying input stream so far.
-	size_t getReadBytes() const;
+	size_t getReadBytes() const {
+		return readBytes;
+	}
 
 	/// Read a signed 8-bit integer from the stream, interpreting the input according to the specified base.
 	/// The default base is 0, which means the base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal).
@@ -57,7 +60,10 @@ public:
 	/// const auto number5 = scanStream.readSigned8(); // number5 = 3 (reads integer part of 3.14)
 	/// const auto number6 = scanStream.readSigned8(); // number6 = 0 (stream stops reading at illegal character '.')
 	/// ```
-	int8_t readSigned8(uint8_t base = 0);
+	int8_t readSigned8(const uint8_t base = 0) {
+		const auto value = readSigned64(base);
+		return static_cast<int8_t>(value);
+	}
 
 	/// Read an unsigned 8-bit integer from the stream, interpreting the input according to the specified base.
 	/// The default base is 0, which means the base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal).
@@ -81,7 +87,10 @@ public:
 	/// const auto number5 = scanStream.readUnsigned8(); // number5 = 3 (reads integer part of 3.14)
 	/// const auto number6 = scanStream.readUnsigned8(); // number6 = 0 (stream stops reading at illegal character '.')
 	/// ```
-	uint8_t readUnsigned8(uint8_t base = 0);
+	uint8_t readUnsigned8(const uint8_t base = 0) {
+		const auto value = readSigned64(base);
+		return static_cast<uint8_t>(value) * (value > 0);
+	}
 
 	/// Read a signed 16-bit integer from the stream, interpreting the input according to the specified base.
 	/// The default base is 0, which means the base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal).
@@ -104,7 +113,10 @@ public:
 	/// const auto number5 = scanStream.readSigned16(); // number5 = 3 (reads integer part of 3.14)
 	/// const auto number6 = scanStream.readSigned16(); // number6 = 0 (stream stops reading at illegal character '.')
 	/// ```
-	int16_t readSigned16(uint8_t base = 0);
+	int16_t readSigned16(const uint8_t base = 0) {
+		const auto value = readSigned64(base);
+		return static_cast<int16_t>(value);
+	}
 
 	/// Read an unsigned 16-bit integer from the stream, interpreting the input according to the specified base.
 	/// The default base is 0, which means the base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal).
@@ -128,7 +140,10 @@ public:
 	/// const auto number5 = scanStream.readUnsigned16(); // number5 = 3 (reads integer part of 3.14)
 	/// const auto number6 = scanStream.readUnsigned16(); // number6 = 0 (stream stops reading at illegal character '.')
 	/// ```
-	uint16_t readUnsigned16(uint8_t base = 0);
+	uint16_t readUnsigned16(const uint8_t base = 0) {
+		const auto value = readSigned64(base);
+		return static_cast<uint16_t>(value) * (value > 0);
+	}
 
 	/// Read a signed 32-bit integer from the stream, interpreting the input according to the specified base.
 	/// The default base is 0, which means the base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal).
@@ -151,7 +166,10 @@ public:
 	/// const auto number5 = scanStream.readSigned32(); // number5 = 3 (reads integer part of 3.14)
 	/// const auto number6 = scanStream.readSigned32(); // number6 = 0 (stream stops reading at illegal character '.')
 	/// ```
-	int32_t readSigned32(uint8_t base = 0);
+	int32_t readSigned32(const uint8_t base = 0) {
+		const auto value = readSigned64(base);
+		return static_cast<int32_t>(value);
+	}
 
 	/// Read an unsigned 32-bit integer from the stream, interpreting the input according to the specified base.
 	/// The default base is 0, which means the base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal).
@@ -175,7 +193,10 @@ public:
 	/// const auto number5 = scanStream.readUnsigned32(); // number5 = 3 (reads integer part of 3.14)
 	/// const auto number6 = scanStream.readUnsigned32(); // number6 = 0 (stream stops reading at illegal character '.')
 	/// ```
-	uint32_t readUnsigned32(uint8_t base = 0);
+	uint32_t readUnsigned32(const uint8_t base = 0) {
+		const auto value = readSigned64(base);
+		return static_cast<uint32_t>(value) * (value > 0);
+	}
 
 	/// Read a signed 64-bit integer from the stream, interpreting the input according to the specified base.
 	/// The default base is 0, which means the base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal).
@@ -222,7 +243,10 @@ public:
 	/// const auto number5 = scanStream.readUnsigned32(); // number5 = 3 (reads integer part of 3.14)
 	/// const auto number6 = scanStream.readUnsigned32(); // number6 = 0 (stream stops reading at illegal character '.')
 	/// ```
-	uint64_t readUnsigned64(uint8_t base = 0);
+	uint64_t readUnsigned64(const uint8_t base = 0) {
+		const auto value = readSigned64(base);
+		return static_cast<uint64_t>(value) * (value > 0);
+	}
 
 	/// Read a floating point number from the stream.
 	/// The number can be in standard decimal notation (e.g. "3.14") or scientific notation (e.g. "1.5e10").
@@ -323,7 +347,10 @@ public:
 	/// // number5 = 3 (reads integer part of 3.14), number6 = 0 (stream stops reading at illegal character '.')
 	///	scanStream >> number1 >> number2 >> number3 >> number4 >> number5 >> number6;
 	/// ```
-	ScanStream& operator>>(int8_t &number);
+	ScanStream& operator>>(int8_t &number) {
+		number = readSigned8();
+		return *this;
+	}
 
 	/// Read an unsigned 8-bit integer from the stream via the stream extraction operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -347,7 +374,10 @@ public:
 	/// // number5 = 3 (reads integer part of 3.14), number6 = 0 (stream stops reading at illegal character '.')
 	///	scanStream >> number1 >> number2 >> number3 >> number4 >> number5 >> number6;
 	/// ```
-	ScanStream& operator>>(uint8_t &number);
+	ScanStream& operator>>(uint8_t &number) {
+		number = readUnsigned8();
+		return *this;
+	}
 
 	/// Read a signed 16-bit integer from the stream via the stream extraction operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -370,7 +400,10 @@ public:
 	/// // number5 = 3 (reads integer part of 3.14), number6 = 0 (stream stops reading at illegal character '.')
 	///	scanStream >> number1 >> number2 >> number3 >> number4 >> number5 >> number6;
 	/// ```
-	ScanStream& operator>>(int16_t &number);
+	ScanStream& operator>>(int16_t &number) {
+		number = readSigned16();
+		return *this;
+	}
 
 	/// Read an unsigned 16-bit integer from the stream via the stream extraction operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -394,9 +427,12 @@ public:
 	/// // number5 = 3 (reads integer part of 3.14), number6 = 0 (stream stops reading at illegal character '.')
 	///	scanStream >> number1 >> number2 >> number3 >> number4 >> number5 >> number6;
 	/// ```
-	ScanStream& operator>>(uint16_t &number);
+	ScanStream& operator>>(uint16_t &number) {
+		number = readUnsigned16();
+		return *this;
+	}
 
-	/// Read a signed 132-bit integer from the stream via the stream extraction operator.
+	/// Read a signed 32-bit integer from the stream via the stream extraction operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
 	/// The base is auto-detected (e.g. "0x" prefix for hex, "0" prefix for octal) and defaults to 10 (decimal).
 	/// Whitespaces are skipped before reading the number.
@@ -417,7 +453,10 @@ public:
 	/// // number5 = 3 (reads integer part of 3.14), number6 = 0 (stream stops reading at illegal character '.')
 	///	scanStream >> number1 >> number2 >> number3 >> number4 >> number5 >> number6;
 	/// ```
-	ScanStream& operator>>(int32_t &number);
+	ScanStream& operator>>(int32_t &number) {
+		number = readSigned32();
+		return *this;
+	}
 
 	/// Read an unsigned 32-bit integer from the stream via the stream extraction operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -441,7 +480,10 @@ public:
 	/// // number5 = 3 (reads integer part of 3.14), number6 = 0 (stream stops reading at illegal character '.')
 	///	scanStream >> number1 >> number2 >> number3 >> number4 >> number5 >> number6;
 	/// ```
-	ScanStream& operator>>(uint32_t &number);
+	ScanStream& operator>>(uint32_t &number) {
+		number = readUnsigned32();
+		return *this;
+	}
 
 	/// Read a signed 64-bit integer from the stream via the stream extraction operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -464,7 +506,10 @@ public:
 	/// // number5 = 3 (reads integer part of 3.14), number6 = 0 (stream stops reading at illegal character '.')
 	///	scanStream >> number1 >> number2 >> number3 >> number4 >> number5 >> number6;
 	/// ```
-	ScanStream& operator>>(int64_t &number);
+	ScanStream& operator>>(int64_t &number) {
+		number = readSigned64();
+		return *this;
+	}
 
 	/// Read an unsigned 64-bit integer from the stream via the stream extraction operator.
 	/// This operator is overloaded to support signed and unsigned 8-bit, 16-bit, 32-bit, and 64-bit integers.
@@ -488,7 +533,10 @@ public:
 	/// // number5 = 3 (reads integer part of 3.14), number6 = 0 (stream stops reading at illegal character '.')
 	///	scanStream >> number1 >> number2 >> number3 >> number4 >> number5 >> number6;
 	/// ```
-	ScanStream& operator>>(uint64_t &number);
+	ScanStream& operator>>(uint64_t &number) {
+		number = readUnsigned64();
+		return *this;
+	}
 
 	/// Read a floating point number from the stream via the stream extraction operator.
 	/// This operator is overloaded to support `float`, `double`, and `long double` types.
@@ -510,7 +558,10 @@ public:
 	/// // number1 = 42.0, number2 = -42.5, number3 = 314.0, number4 = -0.0015
 	/// scanStream >> number1 >> number2 >> number3 >> number4;
 	/// ```
-	ScanStream& operator>>(float &number);
+	ScanStream& operator>>(float &number) {
+		number = static_cast<float>(readFloatingPointNumber());
+		return *this;
+	}
 
 	/// Read a floating point number from the stream via the stream extraction operator.
 	/// This operator is overloaded to support `float`, `double`, and `long double` types.
@@ -532,7 +583,10 @@ public:
 	/// // number1 = 42.0, number2 = -42.5, number3 = 314.0, number4 = -0.0015
 	/// scanStream >> number1 >> number2 >> number3 >> number4;
 	/// ```
-	ScanStream& operator>>(double &number);
+	ScanStream& operator>>(double &number) {
+		number = static_cast<double>(readFloatingPointNumber());
+		return *this;
+	}
 
 	/// Read a floating point number from the stream via the stream extraction operator.
 	/// This operator is overloaded to support `float`, `double`, and `long double` types.
@@ -554,7 +608,10 @@ public:
 	/// // number1 = 42.0, number2 = -42.5, number3 = 314.0, number4 = -0.0015
 	/// scanStream >> number1 >> number2 >> number3 >> number4;
 	/// ```
-	ScanStream& operator>>(long double &number);
+	ScanStream& operator>>(long double &number) {
+		number = readFloatingPointNumber();
+		return *this;
+	}
 
 	/// Read a single wide character (`wchar_t`) from the stream via the stream extraction operator.
 	///
@@ -570,7 +627,10 @@ public:
 	/// // char1 = 'a', char2 = 'b', char3 = 'c', char4 = ' ', char5 = '€', char6 = 'ä', char7 = 'ö', char8 = 'ü'
 	///	scanStream >> char1 >> char2 >> char3 >> char4 >> char5 >> char6 >> char7 >> char8;
 	/// ```
-	ScanStream& operator>>(wchar_t &character);
+	ScanStream& operator>>(wchar_t &character) {
+		character = readWideCharacter();
+		return *this;
+	}
 
 private:
 
@@ -580,7 +640,9 @@ private:
 	///
 	/// This method is used by `scan()` method to enforce the limit on the number of bytes read,
 	/// if the format string contains a maximum field width specifier (e.g. `%10s`).
-	void setReadLimit(int64_t limit);
+	void setReadLimit(const int64_t limit) {
+		readLimit = limit;
+	}
 
 	/// Parse an integer from a single character according to the specified base.
 	/// Returns the integer value of the character, or -1 if the character is not valid for the base.
@@ -594,6 +656,6 @@ private:
 };
 
 }
-
+}
 
 #endif

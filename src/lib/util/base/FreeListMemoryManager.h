@@ -40,12 +40,6 @@ public:
     /// The start address is inclusive and the end address is exclusive.
     FreeListMemoryManager(void *startAddress, void *endAddress);
 
-    /// A memory manager should not be copyable, since copies would operate on the same memory.
-    FreeListMemoryManager(const FreeListMemoryManager &copy) = delete;
-
-    /// A memory manager should not be copyable, since copies would operate on the same memory.
-    FreeListMemoryManager& operator=(const FreeListMemoryManager &other) = delete;
-
     /// Allocate a block of memory of a given size and alignment using the first-fit algorithm.
     /// If no sufficient block of memory is available, a panic is fired.
     void* allocateMemory(size_t size, size_t alignment) override;
@@ -65,22 +59,32 @@ public:
     void freeMemory(void *ptr, size_t alignment) override;
 
     /// Get the total amount of memory managed by this memory manager.
-    size_t getTotalMemory() const override;
+    size_t getTotalMemory() const override {
+        return reinterpret_cast<uintptr_t>(endAddress) - reinterpret_cast<uintptr_t>(startAddress);
+    }
 
     /// Get the amount of free memory left in this memory manager.
     size_t getFreeMemory() const override;
 
     /// Get the start address of the managed memory.
-    void* getStartAddress() const override;
+    void* getStartAddress() const override {
+        return startAddress;
+    }
 
     /// Get the end address of the managed memory.
-    void* getEndAddress() const override;
+    void* getEndAddress() const override {
+        return endAddress;
+    }
 
     /// Check if the spinlock is currently locked.
-    bool isLocked() const override;
+    bool isLocked() const override {
+        return lock.isLocked();
+    }
 
     /// Stop unmapping freed memory.
-    void disableAutomaticUnmapping();
+    void disableAutomaticUnmapping() {
+        unmapFreedMemory = false;
+    }
 
     /// Check the integrity of the free list.
     bool checkIntegrity() const;

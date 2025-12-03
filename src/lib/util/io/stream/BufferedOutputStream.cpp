@@ -23,15 +23,8 @@
 #include "util/base/Address.h"
 #include "util/io/stream/FilterOutputStream.h"
 
-namespace Util::Io {
-
-BufferedOutputStream::BufferedOutputStream(OutputStream &stream, const size_t size):
-    FilterOutputStream(stream), buffer(new uint8_t[size]), size(size) {}
-
-BufferedOutputStream::~BufferedOutputStream() {
-    flush();
-    delete[] buffer;
-}
+namespace Util {
+namespace Io {
 
 bool BufferedOutputStream::write(const uint8_t byte) {
     // Check if the buffer is full and flush it if necessary
@@ -72,4 +65,5 @@ uint32_t BufferedOutputStream::flush() {
     return flushed;
 }
 
+}
 }

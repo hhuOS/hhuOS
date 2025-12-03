@@ -24,44 +24,71 @@
 #ifndef HHUOS_LIB_UTIL_CHARACTERTYPES_H
 #define HHUOS_LIB_UTIL_CHARACTERTYPES_H
 
+namespace Util {
 /// Provides functions to check the type of a character, equivalent to the C standard library functions in <ctype.h>.
-namespace Util::CharacterTypes {
+namespace CharacterTypes {
 
 /// Check if the given character is alphanumeric (a-z, A-Z, 0-9).
-bool isAlphaNumeric(int c);
+inline bool isAlphaNumeric(const int c) {
+    return (c >= 48 && c <= 57) || (c >= 65 && c <= 90) || (c >= 97 && c <= 122);
+}
 
 /// Check if the given character is an alphabetic character (a-z, A-Z).
-bool isAlphabet(int c);
+inline bool isAlphabet(const int c) {
+    return (c >= 65 && c <= 90) || (c >= 97 && c <= 122);
+}
 
 /// Check if the given character is a lowercase letter (a-z).
-bool isLower(int c);
+inline bool isLower(const int c) {
+    return c >= 97 && c <= 122;
+}
 
 /// Check if the given character is an uppercase letter (A-Z).
-bool isUpper(int c);
+inline bool isUpper(const int c) {
+    return c >= 65 && c <= 90;
+}
 
 /// Check if the given character is a digit (0-9).
-bool isDigit(int c);
+inline bool isDigit(const int c) {
+    return c >= 48 && c <= 57;
+}
 
 /// Check if the given character is a hexadecimal digit (0-9, A-F, a-f).
-bool isHexDigit(int c);
+inline bool isHexDigit(const int c) {
+    return (c >= 48 && c <= 57) || (c >= 65 && c <= 70) || (c >= 97 && c <= 102);
+}
 
 /// Check if the given character is a control character (0-31, 127).
-bool isControl(int c);
+inline bool isControl(const int c) {
+    return (c >= 0 && c <= 31) || c == 127;
+}
 
 /// Check if the given character has a graphical representation (33-126).
-bool isGraphical(int c);
+inline bool isGraphical(const int c) {
+    return c >= 33 && c <= 126;
+}
 
 /// Check if the given character is a whitespace character (9-13, 32).
-bool isWhitespace(int c);
+inline bool isWhitespace(const int c) {
+    return (c >= 9 && c <= 13) || c == 32;
+}
 
 /// Check if the given character is a blank character (9, 32).
-bool isBlank(int c);
+inline bool isBlank(const int c) {
+    return c == 9 || c == 32;
+}
 
 /// Check if the given character is a printable character (32-126).
-bool isPrintable(int c);
+inline bool isPrintable(const int c) {
+    return c >= 32 && c <= 126;
+}
 
 /// Check if the given character is a punctuation character (33-47, 58-64, 91-96, 123-126).
-bool isPunctuation(int c);
+inline bool isPunctuation(const int c) {
+    return (c >= 33 && c <= 47) || (c >= 58 && c <= 64) || (c >= 91 && c <= 96) || (c >= 123 && c <= 126);
+}
+
+}
 
 }
 

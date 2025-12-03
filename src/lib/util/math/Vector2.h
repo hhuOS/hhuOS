@@ -21,7 +21,10 @@
 #ifndef HHUOS_LIB_UTIL_MATH_VECTOR2_H
 #define HHUOS_LIB_UTIL_MATH_VECTOR2_H
 
-namespace Util::Math {
+#include "util/math/Math.h"
+
+namespace Util {
+namespace Math {
 
 /// A 2D vector class that supports basic vector operations such as addition, subtraction or normalization.
 /// It is templated to support float and double types.
@@ -44,7 +47,7 @@ public:
     Vector2() = default;
 
     /// Create a new 2D vector with the given x and y values.
-    Vector2(T x, T y);
+    Vector2(T x, T y) : x(x), y(y) {}
 
     /// Create a new 2D vector by multiplying this vector with a scalar value.
     /// The resulting vector is calculated as:
@@ -57,7 +60,9 @@ public:
     /// const auto vector = Util::Math::Vector2<float>(1.0f, 2.0f);
     /// const auto scaledVector = vector * 2.0f; // { 2.0f, 4.0f }
     /// ```
-    Vector2 operator*(T value) const;
+    Vector2 operator*(const T value) const {
+        return { x * value, y * value };
+    }
 
     /// Create a new 2D vector by dividing this vector by a scalar value.
     /// The resulting vector is calculated as:
@@ -70,7 +75,9 @@ public:
     /// const auto vector = Util::Math::Vector2<float>(4.0f, 8.0f);
     /// const auto dividedVector = vector / 2.0f; // { 2.0f, 4.0f }
     /// ```
-    Vector2 operator/(T value) const;
+    Vector2 operator/(const T value) const {
+        return { x / value, y / value};
+    }
 
     /// Create a new 2D vector by applying the modulo operation to each component of this vector with a scalar value.
     ///
@@ -82,7 +89,9 @@ public:
     /// const auto negativeVector = Util::Math::Vector2<float>(-5.0f, -10.0f);
     /// const auto modNegativeVector = negativeVector % 6.0f; // { 1.0f, 2.0f }
     /// ```
-    Vector2 operator%(T value) const;
+    Vector2 operator%(const T value) const {
+        return { modulo(x, value), modulo(y, value) };
+    }
 
     /// Create a new 2D vector from the sum of this vector and another vector.
     ///
@@ -93,7 +102,9 @@ public:
     ///
     /// const auto sumVector = vector1 + vector2; // { 4.0f, 6.0f }
     /// ```
-    Vector2 operator+(const Vector2 &other) const;
+    Vector2 operator+(const Vector2 &other) const {
+        return { x + other.x, y + other.y };
+    }
 
     /// Create a new 2D vector from the difference of this vector and another vector.
     ///
@@ -104,7 +115,9 @@ public:
     ///
     /// const auto diffVector = vector1 - vector2; // { 2.0f, 2.0f }
     /// ```
-    Vector2 operator-(const Vector2 &other) const;
+    Vector2 operator-(const Vector2 &other) const {
+        return { x - other.x, y - other.y };
+    }
 
     /// Compare this vector with another vector for equality.
     ///
@@ -117,7 +130,9 @@ public:
     /// bool areEqual = (vector1 == vector2); // true
     /// areEqual = (vector1 == vector3); // false
     /// ```
-    bool operator==(const Vector2 &other) const;
+    bool operator==(const Vector2 &other) const {
+        return x == other.x && y == other.y;
+    }
 
     /// Compare this vector with another vector for inequality.
     ///
@@ -130,7 +145,9 @@ public:
     /// bool areNotEqual = (vector1 != vector2); // false
     /// areNotEqual = (vector1 != vector3); // true
     /// ```
-    bool operator!=(const Vector2 &other) const;
+    bool operator!=(const Vector2 &other) const {
+        return x != other.x || y != other.y;
+    }
 
     /// Calculate the length (magnitude) of this vector.
     /// The length is calculated by taking the square root of the sum of the squares of its components:
@@ -143,7 +160,9 @@ public:
     /// const auto vector = Util::Math::Vector2<float>(3.0f, 4.0f);
     /// const auto length = vector.length(); // 5.0f (3.0f^2 + 4.0f^2 = 25, sqrt(25) = 5)
     /// ```
-    T length() const;
+    T length() const {
+        return sqrt(x * x + y * y);
+    }
 
     /// Normalize this vector to have a length of 1.
     /// This is done by dividing each component by the vector's length.
@@ -153,7 +172,10 @@ public:
     /// const auto vector = Util::Math::Vector2<float>(3.0f, 4.0f); // Length is 5.0f
     /// const auto normalizedVector = vector.normalize(); // { 0.6f, 0.8f }
     /// ```
-    Vector2 normalize() const;
+    Vector2 normalize() const {
+        const auto len = length();
+        return len == 0 ? *this : *this / len;
+    }
 
     /// Calculate the distance between this vector and another vector.
     /// This is done using the Euclidean distance formula:
@@ -168,7 +190,12 @@ public:
     ///
     /// const auto distance = vector1.distance(vector2); // 5.0f (sqrt((4.0f - 1.0f)^2 + (6.0f - 2.0f)^2))
     /// ```
-    T distance(const Vector2 &other) const;
+    T distance(const Vector2 &other) const {
+        const auto pX = pow(other.getX() - getX(), 2);
+        const auto pY = pow(other.getY() - getY(), 2);
+
+        return sqrt(pX + pY);
+    }
 
     /// Calculate the dot product of this vector and another vector.
     /// The result is a scalar value calculated as:
@@ -183,7 +210,9 @@ public:
     ///
     /// const auto dotProduct = vector1.dotProduct(vector2); // 11.0f (1.0f * 3.0f + 2.0f * 4.0f)
     /// ```
-    T dotProduct(const Vector2 &other) const;
+    T dotProduct(const Vector2 &other) const {
+        return x * other.x + y * other.y;
+    }
 
     /// Calculate the cross product of this vector and another vector.
     /// The result is a new vector that is perpendicular to both vectors in 2D space.
@@ -199,13 +228,19 @@ public:
     ///
     /// const auto crossProduct = vector1.cross(vector2); // { -2.0f, 2.0f }
     /// ```
-    Vector2 crossProduct(const Vector2 &other) const;
+    Vector2 crossProduct(const Vector2 &other) const {
+        return { x * other.y - y * other.x, y * other.x - x * other.y };
+    }
 
     /// Return the x component of this vector.
-    T getX() const;
+    T getX() const {
+        return x;
+    }
 
     /// Return the y component of this vector.
-    T getY() const;
+    T getY() const {
+        return y;
+    }
 
 private:
 
@@ -216,6 +251,7 @@ private:
 template class Vector2<float>;
 template class Vector2<double>;
 
+}
 }
 
 #endif

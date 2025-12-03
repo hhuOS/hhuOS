@@ -26,7 +26,8 @@
 #include "util/base/Address.h"
 #include "util/base/Panic.h"
 
-namespace Util::Graphic {
+namespace Util {
+namespace Graphic {
 
 /// Represents a 32-bit color with red, green, blue, and alpha components (8 bits each).
 /// Colors can be brightened, dimmed and blended with other colors.
@@ -574,6 +575,7 @@ private:
 
 } __attribute__((packed));
 
+}
 }
 
 #endif

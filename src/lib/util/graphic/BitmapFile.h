@@ -26,7 +26,8 @@
 #include "util/base/String.h"
 #include "util/graphic/Image.h"
 
-namespace Util::Graphic {
+namespace Util {
+namespace Graphic {
 
 /// Can be used to load bitmap files (BMP) from disk.
 /// Only uncompressed bitmaps with 16, 24, or 32 bits per pixel are supported.
@@ -69,6 +70,7 @@ private:
         Image(width, height, pixelBuffer) {}
 };
 
+}
 }
 
 #endif

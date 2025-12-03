@@ -24,7 +24,8 @@
 #include "util/base/Address.h"
 #include "util/base/Panic.h"
 
-namespace Util::Async {
+namespace Util {
+namespace Async {
 
 AtomicBitmap::AtomicBitmap(const size_t blockCount) : blocks(blockCount) {
     arraySize = blockCount % SIZE_BITS == 0 ? blockCount / SIZE_BITS : blockCount / SIZE_BITS + 1;
@@ -34,10 +35,6 @@ AtomicBitmap::AtomicBitmap(const size_t blockCount) : blocks(blockCount) {
 
 AtomicBitmap::~AtomicBitmap() {
     delete[] bitmap;
-}
-
-size_t AtomicBitmap::getSize() const {
-    return blocks;
 }
 
 void AtomicBitmap::set(const size_t block) const {
@@ -108,4 +105,5 @@ size_t AtomicBitmap::findAndUnset() const {
     return i == blocks ? INVALID_INDEX : i;
 }
 
+}
 }

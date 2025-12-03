@@ -23,32 +23,11 @@
 
 #include "EchoHeader.h"
 
-#include "../../io/stream/NumberUtil.h"
+#include "util/io/stream/NumberUtil.h"
 
 namespace Util {
-namespace Io {
-class InputStream;
-class OutputStream;
-}  // namespace Stream
-}  // namespace Util
-
-namespace Util::Network::Icmp {
-
-uint16_t EchoHeader::getIdentifier() const {
-    return identifier;
-}
-
-uint16_t EchoHeader::getSequenceNumber() const {
-    return sequenceNumber;
-}
-
-void EchoHeader::setIdentifier(const uint16_t identifier) {
-    EchoHeader::identifier = identifier;
-}
-
-void EchoHeader::setSequenceNumber(const uint16_t sequenceNumber) {
-    EchoHeader::sequenceNumber = sequenceNumber;
-}
+namespace Network {
+namespace Icmp {
 
 void EchoHeader::read(Io::InputStream &stream) {
     identifier = Io::NumberUtil::readUnsigned16BitValue(stream);
@@ -60,4 +39,6 @@ void EchoHeader::write(Io::OutputStream &stream) const {
     Io::NumberUtil::writeUnsigned16BitValue(sequenceNumber, stream);
 }
 
+}
+}
 }

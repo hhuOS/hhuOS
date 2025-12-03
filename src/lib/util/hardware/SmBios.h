@@ -27,9 +27,12 @@
 #include "util/collection/Array.h"
 #include "util/collection/Iterator.h"
 
+namespace Util {
+namespace Hardware {
+
 /// Structures and definitions for the System Management BIOS (SMBIOS).
 /// In user space, the SMBIOS structures are accessible via the '/device/smbios' directory.
-namespace Util::Hardware::SmBios {
+namespace SmBios {
 
 /// Different types SMBIOS table headers can have.
 enum HeaderType : uint8_t {
@@ -138,7 +141,7 @@ public:
     Tables() = default;
 
     /// Create a `Tables` instance from a reference to the first table.
-    explicit Tables(const TableHeader &firstTable);
+    explicit Tables(const TableHeader &firstTable) : firstTable(&firstTable) {}
 
     /// Tables is not copyable, since all copies would reference the same memory.
     Tables(const Tables &other) = delete;
@@ -164,16 +167,30 @@ public:
 
     /// Get an iterator to the first table.
     /// This allows iteration over the tables using a range-based for loop.
-    Iterator<const TableHeader> begin() const override;
+    Iterator<const TableHeader> begin() const override {
+        const auto element = IteratorElement<const TableHeader>{ firstTable, 0 };
+        return Iterator<const TableHeader>(*this, element);
+    }
 
     /// Get an iterator to the end of the tables.
     /// This allows iteration over the tables using a range-based for loop.
     /// The end iterator actually points to NULL, indicating the end of the iteration.
-    Iterator<const TableHeader> end() const override;
+    Iterator<const TableHeader> end() const override {
+        constexpr auto element = IteratorElement<const TableHeader>{ nullptr, 0 };
+        return Iterator<const TableHeader>(*this, element);
+    }
 
     /// Get the next table in the iteration based on the current table.
-    IteratorElement<const TableHeader>
-        next(const IteratorElement<const TableHeader> &element) const override;
+    IteratorElement<const TableHeader> next(const IteratorElement<const TableHeader> &element) const override {
+        const auto length = element.data->calculateFullLength();
+        const auto *nextTable = reinterpret_cast<TableHeader*>(reinterpret_cast<uintptr_t>(element.data) + length);
+
+        if (nextTable->type == END_OF_TABLE) {
+            return IteratorElement<const TableHeader>{ nullptr, 0 };
+        }
+
+        return IteratorElement<const TableHeader>{ nextTable, element.index + 1 };
+    }
 
 private:
 
@@ -286,6 +303,9 @@ struct BiosInformation {
     size_t calculateRomSize() const;
 } __attribute__ ((packed));
 
+}
+
+}
 }
 
 #endif

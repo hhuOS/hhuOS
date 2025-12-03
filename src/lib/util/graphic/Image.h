@@ -25,7 +25,8 @@
 
 #include "util/graphic/Color.h"
 
-namespace Util::Graphic {
+namespace Util {
+namespace Graphic {
 
 /// Represents a 2D image with a specified width, height, and pixel buffer.
 /// The pixel buffer is an array of Color objects representing the colors of each pixel in the image.
@@ -82,6 +83,7 @@ private:
     const Color *pixelBuffer;
 };
 
+}
 }
 
 #endif

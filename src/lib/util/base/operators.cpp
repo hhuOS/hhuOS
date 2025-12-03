@@ -30,11 +30,11 @@ void* operator new[](const size_t size) {
     return allocateMemory(size);
 }
 
-void *operator new([[maybe_unused]] const size_t size, void *pointer) {
+void *operator new(const size_t, void *pointer) {
     return pointer;
 }
 
-void *operator new[]([[maybe_unused]] const size_t size, void *pointer) {
+void *operator new[](const size_t, void *pointer) {
     return pointer;
 }
 
@@ -46,10 +46,10 @@ void operator delete[](void *pointer) {
     freeMemory(pointer);
 }
 
-void operator delete(void *pointer, [[maybe_unused]] const size_t size) {
+void operator delete(void *pointer, const size_t) {
     freeMemory(pointer);
 }
 
-void operator delete[](void *pointer, [[maybe_unused]] const size_t size) {
+void operator delete[](void *pointer, const size_t) {
     freeMemory(pointer);
 }

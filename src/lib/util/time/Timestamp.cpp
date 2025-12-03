@@ -19,39 +19,14 @@
  */
 
 #include "Timestamp.h"
+
 #include "lib/interface.h"
 
-namespace Util::Time {
-
-Timestamp::Timestamp(const size_t seconds, const uint32_t fraction) : seconds(seconds), fraction(fraction) {}
+namespace Util {
+namespace Time {
 
 Timestamp Timestamp::getSystemTime() {
     return ::getSystemTime();
-}
-
-Timestamp Timestamp::ofSeconds(const size_t seconds) {
-    return Timestamp(seconds, 0);
-}
-
-Timestamp Timestamp::ofMilliseconds(const uint64_t milliseconds) {
-    const auto seconds = milliseconds / 1000;
-    const auto fraction = (milliseconds % 1000) * 1000000;
-
-    return Timestamp(seconds, fraction);
-}
-
-Timestamp Timestamp::ofMicroseconds(const uint64_t microseconds) {
-    const auto seconds = microseconds / 1000000;
-    const auto fraction = (microseconds % 1000000) * 1000;
-
-    return Timestamp(seconds, fraction);
-}
-
-Timestamp Timestamp::ofNanoseconds(const uint64_t nanoseconds) {
-    const auto seconds = nanoseconds / 1000000000;
-    const auto fraction = nanoseconds % 1000000000;
-
-    return Timestamp(seconds, fraction);
 }
 
 Timestamp Timestamp::operator+(const Timestamp &other) const {
@@ -140,76 +115,5 @@ Timestamp &Timestamp::operator-=(const Timestamp &other) {
     return *this;
 }
 
-bool Timestamp::operator==(const Timestamp &other) const {
-    return seconds == other.seconds && fraction == other.fraction;
 }
-
-bool Timestamp::operator!=(const Timestamp &other) const {
-    return seconds != other.seconds || fraction != other.fraction;
-}
-
-bool Timestamp::operator>(const Timestamp &other) const {
-    if (seconds > other.seconds) {
-        return true;
-    }
-
-    return seconds == other.seconds && fraction > other.fraction;
-}
-
-bool Timestamp::operator>=(const Timestamp &other) const {
-    if (seconds > other.seconds) {
-        return true;
-    }
-
-    return seconds == other.seconds && fraction >= other.fraction;
-}
-
-bool Timestamp::operator<(const Timestamp &other) const {
-    if (seconds < other.seconds) {
-        return true;
-    }
-
-    return seconds == other.seconds && fraction < other.fraction;
-}
-
-bool Timestamp::operator<=(const Timestamp &other) const {
-    if (seconds < other.seconds) {
-        return true;
-    }
-
-    return seconds == other.seconds && fraction <= other.fraction;
-}
-
-uint64_t Timestamp::toNanoseconds() const {
-    return static_cast<uint64_t>(seconds) * 1000000000 + fraction;
-}
-
-uint64_t Timestamp::toMicroseconds() const {
-    return static_cast<uint64_t>(seconds) * 1000000 + fraction / 1000;
-}
-
-uint64_t Timestamp::toMilliseconds() const {
-    return static_cast<uint64_t>(seconds) * 1000 + fraction / 1000000;
-}
-
-size_t Timestamp::toSeconds() const {
-    return seconds;
-}
-
-size_t Timestamp::toMinutes() const {
-    return seconds / 60;
-}
-
-size_t Timestamp::toHours() const {
-    return seconds / 3600;
-}
-
-size_t Timestamp::toDays() const {
-    return seconds / 86400;
-}
-
-size_t Timestamp::toYears() const {
-    return seconds / 31536000;
-}
-
 }

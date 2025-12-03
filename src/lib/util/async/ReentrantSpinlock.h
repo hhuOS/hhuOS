@@ -24,8 +24,10 @@
 #include <stddef.h>
 
 #include "util/async/Spinlock.h"
+#include "lib/interface.h"
 
-namespace Util::Async {
+namespace Util {
+namespace Async {
 
 /// Variation of the Spinlock class that allows reentrant locking.
 /// If a thread tries to acquire a lock that it already holds, it will not block.
@@ -71,20 +73,43 @@ public:
 
     /// Try to acquire the lock once.
     /// If the lock is not available, the function does not block and returns false.
-    bool tryAcquire() override;
+    bool tryAcquire() override {
+        const auto threadId = isSchedulerInitialized() ? Thread::getCurrentThread().getId() : 0;
+        const auto success = lockVarWrapper.compareAndSet(SPINLOCK_UNLOCK, threadId) ||
+            lockVarWrapper.compareAndSet(threadId, threadId);
+
+        if (success) {
+            depth++;
+        }
+
+        return success;
+    }
 
     /// Release the lock.
     /// If the lock is not held, this function does nothing.
-    void release() override;
+    void release() override {
+        const auto threadId = isSchedulerInitialized() ? Thread::getCurrentThread().getId() : 0;
+
+        if (lockVarWrapper.get() == threadId) {
+            depth--;
+        }
+
+        if (depth == 0) {
+            lockVarWrapper.compareAndSet(threadId, SPINLOCK_UNLOCK);
+        }
+    }
 
     /// Get the amount of times the lock has been acquired by the current thread.
-    size_t getDepth() const;
+    size_t getDepth() const {
+        return depth;
+    }
 
 private:
 
     size_t depth = 0;
 };
 
+}
 }
 
 #endif

@@ -30,6 +30,8 @@
 #include "util/io/stream/OutputStream.h"
 #include "util/time/Date.h"
 
+extern void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment);
+
 namespace Util {
 
 /// This class wraps a string on the heap and provides methods to manipulate it.
@@ -46,24 +48,59 @@ class String {
 
 public:
     /// Create a new empty string, consisting only of the null terminator.
-    String();
+    String() {
+        len = 0;
+        buffer = new char[1];
+
+        buffer[0] = '\0';
+    }
 
     /// Create a new string containing only the given character.
-    String(char c);
+    String(char c) {
+        len = 1;
+        buffer = new char[2];
+
+        buffer[0] = c;
+        buffer[1] = '\0';
+    }
 
     /// Create a new string from the given C-style string.
     /// The given string is copied to the heap.
-    String(const char *string);
+    String(const char *string) {
+        const auto address = Address(string);
+
+        len = string == nullptr ? 0 : address.stringLength();
+        buffer = new char[len + 1];
+
+        Address(buffer).copyRange(address, len);
+        buffer[len] = '\0';
+    }
 
     /// Create a new string from the given byte array.
     /// The given byte array is copied to the heap.
-    String(const uint8_t *data, size_t length);
+    String(const uint8_t *data, size_t length) {
+        const auto address = Address(data);
+
+        len = length;
+        buffer = new char[len + 1];
+
+        Address(buffer).copyRange(address, len);
+        buffer[len] = '\0';
+    }
 
     /// Create a new string from an existing string (copy constructor).
-    String(const String &other);
+    String(const String &other) {
+        len = other.len;
+        buffer = new char[len + 1];
+
+        Address(buffer).copyRange(Address(other.buffer), len);
+        buffer[len] = '\0';
+    }
 
     /// Delete the string and free the heap memory.
-    ~String();
+    ~String() {
+        delete[] buffer;
+    }
 
     /// Assign the given string to this string, overwriting the existing string.
     ///
@@ -74,7 +111,19 @@ public:
     ///
     /// string1 = string2; // string1 = "World"
     /// ```
-    String& operator=(const String &other);
+    String& operator=(const String &other) {
+        if (&other == this) {
+            return *this;
+        }
+
+        delete[] buffer;
+        len = other.len;
+        buffer = new char[len + 1];
+
+        Address(buffer).copyRange(Address(other.buffer), len + 1);
+
+        return *this;
+    }
 
     /// Append the given string to this string.
     ///
@@ -85,7 +134,13 @@ public:
     ///
     /// const auto string3 = string1 + string2; // string3 = "HelloWorld"
     /// ```
-    String& operator+=(const String &other);
+    String& operator+=(const String &other) {
+        buffer = static_cast<char*>(reallocateMemory(buffer, len + other.len + 1, 0));
+        Address(buffer + len).copyRange(Address(other.buffer), other.len + 1);
+        len += other.len;
+
+        return *this;
+    }
 
     /// Compare the string with another string for equality.
     ///
@@ -98,7 +153,9 @@ public:
     /// const auto equal1 = string1 == string2; // equal1 = true
     /// const auto equal2 = string1 == string3; // equal2 = false
     /// ```
-    bool operator==(const String &other) const;
+    bool operator==(const String &other) const {
+        return Address(buffer).compareString(Address(other.buffer)) == 0;
+    }
 
     /// Compare the string with another string for inequality.
     ///
@@ -111,7 +168,9 @@ public:
     /// const auto equal1 = string1 != string2; // equal1 = false
     /// const auto equal2 = string1 != string3; // equal2 = true
     /// ```
-    bool operator!=(const String &other) const;
+    bool operator!=(const String &other) const {
+        return Address(buffer).compareString(Address(other.buffer)) != 0;
+    }
 
     /// Create a new string by concatenating two strings.
     ///
@@ -122,7 +181,12 @@ public:
     ///
     /// const auto string3 = string1 + string2; // string3 = "HelloWorld"
     /// ```
-    friend String operator+(const String &first, const String &second);
+    friend String operator+(const String &first, const String &second) {
+        String ret(first);
+        ret += second;
+
+        return ret;
+    }
 
     /// Create a new string by concatenating a string with a character.
     ///
@@ -133,7 +197,12 @@ public:
     ///
     /// const auto string2 = string1 + character; // string2 = "Hello!"
     /// ```
-    friend String operator+(const String &first, char second);
+    friend String operator+(const String &first, const char second) {
+        String ret(first);
+        ret += String(second);
+
+        return ret;
+    }
 
     /// Create a new string by concatenating a string with a C-style string.
     ///
@@ -144,7 +213,12 @@ public:
     ///
     /// const auto string3 = string1 + string2; // string3 = "HelloWorld"
     /// ```
-    friend String operator+(const String &first, const char *second);
+    friend String operator+(const String &first, const char *second) {
+        String ret(first);
+        ret += String(second);
+
+        return ret;
+    }
 
     /// Create a new string by concatenating a character with a string.
     ///
@@ -155,7 +229,12 @@ public:
     ///
     /// const auto string2 = character + string1; // string2 = "Hello"
     /// ```
-    friend String operator+(char first, const String &string);
+    friend String operator+(const char first, const String &string) {
+        String ret(first);
+        ret += string;
+
+        return ret;
+    }
 
     /// Create a new string by concatenating a C-style string with a string.
     ///
@@ -166,7 +245,12 @@ public:
     ///
     /// const auto string3 = string1 + string2; // string3 = "HelloWorld"
     /// ```
-    friend String operator+(const char *first, const String &second);
+    friend String operator+(const char *first, const String &second) {
+        String ret(first);
+        ret += second;
+
+        return ret;
+    }
 
     /// Get the character at the given index.
     ///
@@ -175,7 +259,9 @@ public:
     /// const auto string = Util::String("Hello, World!");
     /// const auto character = string[0]; // character = 'H'
     /// ```
-    char operator[](size_t index) const;
+    char operator[](const size_t index) const {
+        return buffer[index];
+    }
 
     /// Get a reference to the character at the given index.
     /// This allows modifying the character at the given index.
@@ -185,20 +271,28 @@ public:
     /// auto string = Util::String("Hello, World!");
     /// string[1] = 'A'; // string = "HAllo, World!"
     /// ```
-    char& operator[](size_t index);
+    char& operator[](size_t index) {
+        return buffer[index];
+    }
 
     /// Convert the string to a C-style string.
     /// This is done by returning a pointer to the internal buffer.
     /// The returned char pointer is only valid as long as the String object exists and is not modified.
-    explicit operator const char*() const;
+    explicit operator const char*() const {
+        return buffer;
+    }
 
     /// Convert the string to a byte array.
     /// This is done by returning a pointer to the internal buffer.
     /// The returned pointer is only valid as long as the String object exists and is not modified.
-    explicit operator const uint8_t*() const;
+    explicit operator const uint8_t*() const {
+        return reinterpret_cast<const uint8_t*>(buffer);
+    }
 
     /// Get the hash code of the string (see `hashCode()`).
-    explicit operator size_t() const;
+    explicit operator size_t() const {
+        return hashCode();
+    }
 
     /// Get the length of the string (excluding the null terminator).
     ///
@@ -207,7 +301,9 @@ public:
     /// const auto string = Util::String("Hello, World!");
     /// const auto length = string.length(); // length = 13
     /// ```
-    size_t length() const;
+    size_t length() const {
+        return len;
+    }
 
     /// Check if the string is empty (length == 0).
     ///
@@ -219,7 +315,9 @@ public:
     /// const auto empty1 = string1.isEmpty(); // empty1 = false
     /// const auto empty2 = string2.isEmpty(); // empty2 = true
     /// ```
-    bool isEmpty() const;
+    bool isEmpty() const {
+        return len == 0;
+    }
 
     /// Calculate a simple hash sum of the string.
     /// This is used to implement the `size_t()` operator, which is for example used by `Util::HashMap`.

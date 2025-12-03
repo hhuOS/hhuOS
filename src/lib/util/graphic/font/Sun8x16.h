@@ -25,7 +25,9 @@
 
 #include "util/graphic/Font.h"
 
-namespace Util::Graphic::Fonts {
+namespace Util {
+namespace Graphic {
+namespace Fonts {
 
 /// Binary data for the Sun 8x16 font.
 static constexpr uint8_t SUN_8x16_DATA[8 * 16 * 256] = {
@@ -290,6 +292,8 @@ static constexpr uint8_t SUN_8x16_DATA[8 * 16 * 256] = {
 /// Based on work by Jakob Falke, oostubs (https://gitlab.cs.fau.de/um15ebek/oostubs).
 static const Font SUN_8x16(8, 16, SUN_8x16_DATA);
 
+}
+}
 }
 
 #endif

@@ -26,9 +26,11 @@
 
 #include <stddef.h>
 
+namespace Util {
+
 /// Provides functions to multibyte characters, equivalent to the C standard library functions in <stdlib.h>.
 /// We use UTF-8 encoding for multibyte characters.
-namespace Util::WideChar {
+namespace WideChar {
 
 /// Calculate the length of a UTF-8 encoded character (equivalent to `mblen()` in C).
 int utf8Length(const char *bytes, size_t maxLength);
@@ -38,6 +40,8 @@ int utf8ToWchar(wchar_t *wideChar, const char *bytes, size_t maxLength);
 
 /// Convert a wide character to a UTF-8 character (equivalent to `wctomb()` in C).
 int wcharToUtf8(char * bytes, wchar_t wideChar);
+
+}
 
 }
 

@@ -26,15 +26,14 @@
 
 #include <stdint.h>
 
+#include "util/io/stream/ByteArrayOutputStream.h"
 #include "util/network/NetworkAddress.h"
+#include "util/network/MacAddress.h"
+#include "util/network/ip4/Ip4Address.h"
+#include "util/network/ip4/Ip4PortAddress.h"
 
 namespace Util {
-namespace Io {
-class ByteArrayOutputStream;
-}  // namespace Io
-}  // namespace Util
-
-namespace Util::Network {
+namespace Network {
 
 /// Base class for network datagrams, which are used to send and receive data over a network.
 /// A datagram contains a buffer with the data, its length, and the remote address to
@@ -49,18 +48,41 @@ public:
     /// This is typically used for receiving datagrams, because in this case the buffer is allocated
     /// by the kernel during the receive system call.
     /// This class cannot be instantiated directly, but the constructor must be called by subclasses.
-    explicit Datagram(NetworkAddress::Type type);
+    explicit Datagram(const NetworkAddress::Type type) {
+        switch (type) {
+            case NetworkAddress::MAC:
+                remoteAddress = new MacAddress();
+                break;
+            case NetworkAddress::IP4:
+                remoteAddress = new Ip4::Ip4Address();
+                break;
+            case NetworkAddress::IP4_PORT:
+                remoteAddress = new Ip4::Ip4PortAddress();
+                break;
+            default:
+                Util::Panic::fire(Panic::INVALID_ARGUMENT, "Socket: Illegal address type for bind!");
+        }
+    }
 
     /// Create a new datagram with a given buffer and length, and a remote address.
     /// The buffer's content is copied into the datagram's buffer.
     /// This class cannot be instantiated directly, but the constructor must be called by subclasses.
-    Datagram(const uint8_t *buffer, uint16_t length, const NetworkAddress &remoteAddress);
+    Datagram(const uint8_t *buffer, const uint16_t length, const NetworkAddress &remoteAddress) :
+        remoteAddress(remoteAddress.createCopy()), buffer(new uint8_t[length]), length(length)
+    {
+        Address(Datagram::buffer).copyRange(Address(buffer), length);
+    }
 
     /// Create a new datagram from a byte array output stream and a remote address.
     /// The stream's content is copied into the datagram's buffer by directly accessing the stream's buffer.
     /// This way, the stream's state remains unchanged.
     /// This class cannot be instantiated directly, but the constructor must be called by subclasses.
-    Datagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress);
+    Datagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress) :
+        remoteAddress(remoteAddress.createCopy()), buffer(new uint8_t[stream.getPosition()]),
+        length(stream.getPosition())
+    {
+        Address(buffer).copyRange(Address(stream.getBuffer()), stream.getPosition());
+    }
 
     /// Datagrams are not copyable, so the copy constructor is deleted.
     Datagram(const Datagram &other) = delete;
@@ -69,22 +91,31 @@ public:
     Datagram &operator=(const Datagram &other) = delete;
 
     /// Destroy the datagram, freeing the allocated buffer and remote address.
-    virtual ~Datagram();
+    virtual ~Datagram() {
+        delete remoteAddress;
+        delete[] buffer;
+    }
 
     /// Get the remote address to which this datagram is sent or from which it is received.
-    const NetworkAddress& getRemoteAddress() const;
+    const NetworkAddress& getRemoteAddress() const {
+        return *remoteAddress;
+    }
 
     /// Set the remote address for this datagram.
     void setRemoteAddress(const NetworkAddress& address) const;
 
     /// Get access to the data buffer of this datagram.
-    const uint8_t* getData() const;
+    const uint8_t* getData() const {
+        return buffer;
+    }
 
     /// Get the length of the data buffer in bytes.
     /// When accessing the data buffer (using `getData()`),
     /// make sure to not read more bytes than the length of the buffer.
     /// Otherwise, this will lead to undefined behavior.
-    uint32_t getLength() const;
+    uint32_t getLength() const {
+        return length;
+    }
 
     /// Set the data buffer for this datagram.
     /// This method will NOT copy the data, but simply set the pointer to the given buffer
@@ -113,6 +144,7 @@ private:
     uint32_t length = 0;
 };
 
+}
 }
 
 #endif

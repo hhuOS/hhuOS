@@ -24,7 +24,8 @@
 #include "util/base/Panic.h"
 #include "util/io/file/File.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 FileInputStream::FileInputStream(const String &path) {
     fileDescriptor = File::open(path);
@@ -32,11 +33,6 @@ FileInputStream::FileInputStream(const String &path) {
         Util::Panic::fire(Panic::ILLEGAL_STATE, "FileOutputStream: Unable to open file!");
     }
 }
-
-FileInputStream::FileInputStream(const File &file) : FileInputStream(file.getCanonicalPath()) {}
-
-FileInputStream::FileInputStream(const int32_t fileDescriptor) :
-    closeFileDescriptor(false), fileDescriptor(fileDescriptor) {}
 
 FileInputStream::~FileInputStream() {
     if (closeFileDescriptor) {
@@ -119,12 +115,5 @@ void FileInputStream::setPosition(const int64_t offset, const File::SeekMode mod
     peekedChar = -1;
 }
 
-uint32_t FileInputStream::getPosition() const {
-    return pos;
 }
-
-bool FileInputStream::setAccessMode(const File::AccessMode mode) {
-    return File::setAccessMode(fileDescriptor, mode);
-}
-
 }

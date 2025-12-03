@@ -28,7 +28,8 @@
 #include "util/io/file/File.h"
 #include "util/io/stream/InputStream.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// An input stream that reads data from a file.
 /// The file is specified by its path or a `File` instance.
@@ -64,20 +65,21 @@ class FileInputStream final : public InputStream {
 public:
 	/// Create a file input stream instance that reads from the file at the given path.
 	/// If the file does not exist or cannot be opened, a panic is fired.
-    explicit FileInputStream(const String &path);
+	explicit FileInputStream(const String &path);
 
 	/// Create a file input stream instance that reads from the given file.
 	/// If the file does not exist or cannot be opened, a panic is fired.
-    explicit FileInputStream(const File &file);
+	explicit FileInputStream(const File &file) : FileInputStream(file.getCanonicalPath()) {}
 
 	/// Create a file input stream instance that reads from the file associated with the given file descriptor.
 	/// The instance does not take ownership of the file descriptor and will not close it upon destruction.
 	/// It is the caller's responsibility to ensure that the file descriptor remains valid
 	/// for the lifetime of this input stream and to close it when no longer needed.
-    explicit FileInputStream(int32_t fileDescriptor);
+	explicit FileInputStream(const int32_t fileDescriptor) :
+		closeFileDescriptor(false), fileDescriptor(fileDescriptor) {}
 
 	/// Destroy the file input stream instance and close the file descriptor if it was opened by this instance.
-    ~FileInputStream() override;
+	~FileInputStream() override;
 
 	/// Read a single byte from the file.
 	/// On success, the byte is returned as an integer in the range 0 to 255.
@@ -87,7 +89,7 @@ public:
 	/// In blocking mode, the call will block until data is available.
 	/// In non-blocking mode, -1 is returned immediately. In this case, the stream is not at the end of the file,
 	/// but there is currently no data available to read.
-    int16_t read() override;
+	int16_t read() override;
 
 	/// Peek at the next byte in the file without removing it from the stream.
 	/// If an error occurs or the end of the file is reached, -1 is returned.
@@ -108,7 +110,7 @@ public:
 	/// In blocking mode, the call will block until data is available.
 	/// In non-blocking mode, 0 is returned immediately. In this case, the stream is not at the end of the file,
 	/// but there is currently no data available to read.
-    int32_t read(uint8_t *targetBuffer, size_t offset, size_t length) override;
+	int32_t read(uint8_t *targetBuffer, size_t offset, size_t length) override;
 
 	/// Check if there is data available to read from the file.
 	/// If this method returns true, a subsequent read call is guaranteed to succeed without blocking.
@@ -122,14 +124,18 @@ public:
 	void setPosition(int64_t offset, File::SeekMode mode = File::SeekMode::SET);
 
 	/// Get the current position in the file, i.e., the offset in bytes from the beginning of the file.
-	size_t getPosition() const;
+	size_t getPosition() const {
+		return pos;
+	}
 
 	/// Set the access mode of the underlying file.
 	/// In blocking mode, read operations will wait until data is available.
 	/// In non-blocking mode, read operations will return immediately if no data is available.
 	/// By default, the stream operates in blocking mode.
 	/// On success, true is returned. If an error occurs, false is returned.
-	bool setAccessMode(File::AccessMode mode);
+	bool setAccessMode(const File::AccessMode mode) const {
+		return File::setAccessMode(fileDescriptor, mode);
+	}
 
 private:
 
@@ -140,6 +146,7 @@ private:
 	int16_t peekedChar = -1;
 };
 
+}
 }
 
 #endif

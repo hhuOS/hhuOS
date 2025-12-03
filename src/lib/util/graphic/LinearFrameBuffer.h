@@ -28,7 +28,8 @@
 #include "util/graphic/Color.h"
 #include "util/graphic/Font.h"
 
-namespace Util::Graphic {
+namespace Util {
+namespace Graphic {
 
 /// Represents a linear frame buffer that can be used to draw graphics on the screen.
 class LinearFrameBuffer {
@@ -67,7 +68,7 @@ public:
     LinearFrameBuffer(const LinearFrameBuffer &copy) = delete;
 
     /// LinearFrameBuffer is not copyable, since it manages a buffer on the heap, so the assignment operator is deleted.
-     LinearFrameBuffer& operator=(const LinearFrameBuffer &other) = delete;
+    LinearFrameBuffer& operator=(const LinearFrameBuffer &other) = delete;
 
     /// Destroy the linear frame buffer instance and delete the mapped buffer.
     virtual ~LinearFrameBuffer() {
@@ -183,6 +184,7 @@ private:
     uint16_t pitch = 0;
 };
 
+}
 }
 
 #endif

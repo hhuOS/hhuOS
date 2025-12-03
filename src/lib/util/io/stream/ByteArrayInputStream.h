@@ -26,7 +26,8 @@
 
 #include "util/io/stream/InputStream.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// An input stream that reads data from a byte array in memory.
 /// The byte array is provided at construction time and is not modified by the stream.
@@ -59,31 +60,31 @@ class ByteArrayInputStream final : public InputStream {
 public:
 	/// Create a byte array input stream instance that reads from the given buffer of specified size.
 	/// The instance does not take ownership of the buffer. It is the caller's responsibility to ensure
-    /// that the buffer remains valid for the lifetime of the stream.
-	ByteArrayInputStream(const uint8_t *buffer, size_t size);
+	/// that the buffer remains valid for the lifetime of the stream.
+	ByteArrayInputStream(const uint8_t *buffer, const size_t size) : buffer(buffer), size(size), checkBounds(true) {}
 
 	/// Create a byte array input stream instance that reads from the given buffer.
 	/// Since no buffer size is specified, this instance will not perform bounds checking
 	/// and continues to read bytes beyond the provided buffer. This may lead to undefined behavior.
 	/// It is the caller's responsibility to ensure that the buffer is large enough for the intended reads.
-    /// The instance does not take ownership of the buffer. It is the caller's responsibility to ensure
-    /// that the buffer remains valid for the lifetime of the stream.
-	explicit ByteArrayInputStream(const uint8_t *buffer);
+	/// The instance does not take ownership of the buffer. It is the caller's responsibility to ensure
+	/// that the buffer remains valid for the lifetime of the stream.
+	explicit ByteArrayInputStream(const uint8_t *buffer) : buffer(buffer), size(0), checkBounds(false) {}
 
 	/// Read a single byte from the stream.
 	/// This will return the next byte in the buffer and advance the position by one.
 	/// If the end of the buffer is reached, -1 is returned.
-    /// If null-termination checking is enabled (by calling `stopAtNullTerminator(true)`),
-    /// reading will stop when a null terminator (`'\0'`) is encountered, returning 0.
-    /// Subsequent reads will continue to return 0 until `stopAtNullTerminator(false)` is called.
-    /// This is useful for reading null-terminated strings from the buffer.
+	/// If null-termination checking is enabled (by calling `stopAtNullTerminator(true)`),
+	/// reading will stop when a null terminator (`'\0'`) is encountered, returning 0.
+	/// Subsequent reads will continue to return 0 until `stopAtNullTerminator(false)` is called.
+	/// This is useful for reading null-terminated strings from the buffer.
 	int16_t read() override;
 
 	/// Read up to length bytes from the stream into the target buffer, starting at the given offset.
-    /// The number of bytes actually read is returned.
+	/// The number of bytes actually read is returned.
 	/// It is the caller's responsibility to ensure that the target buffer has enough space for offset + length bytes.
 	/// If the buffer is too small, data is written out of bounds, leading to undefined behavior.
-    /// If the end of the buffer is reached before reading length bytes, fewer bytes may be returned.
+	/// If the end of the buffer is reached before reading length bytes, fewer bytes may be returned.
 	/// If the end of the buffer is reached before reading any bytes, -1 is returned.
 	int32_t read(uint8_t *targetBuffer, size_t offset, size_t length) override;
 
@@ -93,45 +94,60 @@ public:
 
 	/// Check if there is data available to read from the buffer.
 	/// If no buffer size was specified at construction time, this method always returns true.
-    /// Otherwise, it checks if the current position is less than the buffer size.
-	bool isReadyToRead() override;
+	/// Otherwise, it checks if the current position is less than the buffer size.
+	bool isReadyToRead() override {
+		return !isEmpty();
+	}
 
 	/// Return the total length of the buffer in bytes.
-    /// If no buffer size was specified at construction time, this method always returns 0.
-    size_t getLength() const;
+	/// If no buffer size was specified at construction time, this method always returns 0.
+	size_t getLength() const {
+		return size;
+	}
 
 	/// Return the current position within the buffer.
-    size_t getPosition() const;
+	size_t getPosition() const {
+		return position;
+	}
 
 	/// Return the number of bytes remaining to be read from the buffer.
 	/// If no buffer size was specified at construction time, this method always returns 0.
-    size_t getRemaining() const;
+	size_t getRemaining() const {
+		return checkBounds ? size - position : 0;
+	}
 
 	/// Check if the buffer has been completely read.
 	/// If no buffer size was specified at construction time, this method always returns false.
-    bool isEmpty() const;
+	bool isEmpty() const {
+		return getRemaining() == 0;
+	}
 
 	/// Return a pointer to the underlying buffer.
-    /// The returned pointer is the same as the one provided at construction time.
-    const uint8_t* getBuffer() const;
+	/// The returned pointer is the same as the one provided at construction time.
+	const uint8_t* getBuffer() const {
+		return buffer;
+	}
 
 	/// Enable or disable stopping at null terminators (`'\0'`).
-    /// When enabled, reading will stop when a null terminator is encountered, returning 0.
-    /// Subsequent reads will continue to return 0 until this feature is disabled.
-    /// By default, this feature is disabled.
-	void stopAtNullTerminator(bool stop);
+	/// When enabled, reading will stop when a null terminator is encountered, returning 0.
+	/// Subsequent reads will continue to return 0 until this feature is disabled.
+	/// By default, this feature is disabled.
+	void stopAtNullTerminator(const bool stop) {
+		nullTerminated = stop;
+	}
 
 private:
 
-    const uint8_t *buffer;
-    const size_t size = 0;
+	const uint8_t *buffer;
+	const size_t size;
 
-    size_t position = 0;
-	
-	bool checkBounds = true;
+	size_t position = 0;
+
+	bool checkBounds;
 	bool nullTerminated = false;
 };
 
+}
 }
 
 #endif

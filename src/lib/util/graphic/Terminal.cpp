@@ -31,7 +31,8 @@
 #include "util/io/stream/PrintStream.h"
 #include "util/time/Timestamp.h"
 
-namespace Util::Graphic {
+namespace Util {
+namespace Graphic {
 
 Terminal::Terminal(const uint16_t columns, const uint16_t rows) :
     terminalStream(*this), columns(columns), rows(rows)
@@ -607,4 +608,5 @@ void Terminal::KeyboardRunnable::run() {
     }
 }
 
+}
 }

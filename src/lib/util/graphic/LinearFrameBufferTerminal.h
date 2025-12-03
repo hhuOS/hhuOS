@@ -30,7 +30,8 @@
 #include "util/graphic/Terminal.h"
 #include "util/graphic/font/Terminal8x16.h"
 
-namespace Util::Graphic {
+namespace Util {
+namespace Graphic {
 
 /// A terminal implementation that uses a linear frame buffer for output.
 class LinearFrameBufferTerminal final : public Terminal {
@@ -117,6 +118,7 @@ private:
     Async::Spinlock cursorLock;
 };
 
+}
 }
 
 #endif

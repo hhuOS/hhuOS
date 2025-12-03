@@ -24,17 +24,11 @@
 #include <stddef.h>
 
 #include "util/base/String.h"
+#include "util/collection/Array.h"
+#include "util/io/file/File.h"
 
 namespace Util {
-
-template <typename T> class Array;
-
-namespace Io {
-class File;
-}  // namespace File
-}  // namespace Util
-
-namespace Util::Async {
+namespace Async {
 
 /// Create and manipulate processes from the user space.
 /// This class just wraps a process ID and uses systems calls to manipulate the process referenced by the ID.
@@ -43,7 +37,7 @@ class Process {
 public:
     /// Create an instance with the given ID.
     /// This constructor does not create a new process, it just wraps the given ID.
-    explicit Process(size_t id);
+    explicit Process(const size_t id) : id(id) {}
 
     /// Load a program from an executable file and run it as a new process.
     ///
@@ -100,6 +94,7 @@ private:
     const size_t id;
 };
 
+}
 }
 
 #endif

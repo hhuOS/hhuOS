@@ -29,7 +29,8 @@
 
 #include "util/io/key/Key.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// Base class for keyboard layouts, defining how scancodes are mapped to ASCII characters.
 /// This class provides the `parseAsciiCode()` method to translate a scancode into a `Key` object,
@@ -71,6 +72,7 @@ private:
     };
 };
 
+}
 }
 
 #endif

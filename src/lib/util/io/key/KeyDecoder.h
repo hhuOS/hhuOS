@@ -27,10 +27,12 @@
 
 #include <stdint.h>
 
+#include "util/base/Panic.h"
 #include "util/io/key/Key.h"
 #include "util/io/key/KeyboardLayout.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// Decodes keyboard scancodes into `Key` objects, using a specified `KeyboardLayout`.
 /// The layout defines how scancodes are mapped to ASCII characters, taking into account
@@ -53,7 +55,7 @@ public:
 
     /// Create a key decoder instance with the given keyboard layout.
     /// The layout defines how scancodes are translated into ASCII characters.
-    explicit KeyDecoder(const KeyboardLayout &layout);
+    explicit KeyDecoder(const KeyboardLayout &layout) : layout(layout) {}
 
     /// Parse a single scancode byte and update the current key state.
     /// If the key is fully parsed, true is returned. The key can then be retrieved using `getCurrentKey()`.
@@ -63,7 +65,13 @@ public:
     /// Get the currently parsed key.
     /// This method should be called only after `parseScancode()` has returned true.
     /// If the key is not fully parsed yet, a panic is fired.
-    Key getCurrentKey() const;
+    Key getCurrentKey() const {
+        if (!currentKey.isValid()) {
+            Panic::fire(Panic::ILLEGAL_STATE, "KeyDecoder: Current key not fully parsed!");
+        }
+
+        return currentKey;
+    }
 
 private:
 
@@ -73,6 +81,7 @@ private:
     KeyboardLayout layout;
 };
 
+}
 }
 
 #endif

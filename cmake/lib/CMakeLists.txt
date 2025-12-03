@@ -19,8 +19,6 @@
 project(lib)
 message(STATUS "Project " ${PROJECT_NAME})
 
-include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
-
 # Add subdirectories
 add_subdirectory(runtime)
 add_subdirectory(util)

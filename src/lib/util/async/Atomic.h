@@ -3,9 +3,12 @@
 
 #include <stdint.h>
 
-namespace Util::Async {
+#include "util/base/Panic.h"
 
-/// Atomic operations for 8, 16, and 32-bit integers.
+namespace Util {
+namespace Async {
+
+/// Atomic operations for 16 and 32-bit integers.
 /// This class does not own the value, it rather provides atomic operations on a reference to an existing value.
 ///
 /// ## Example
@@ -32,81 +35,178 @@ class Atomic {
 
 public:
     /// Create a new Atomic object with a reference to the value, which shall be accessed atomically.
-    explicit Atomic(T &value);
+    explicit Atomic(T &value) : value(value) {}
 
     /// Get the value.
-    T get() const;
+    T get() const {
+        return value;
+    }
 
     /// Compare the value with the expected value and set it to the new value if they are equal.
-    bool compareAndSet(T expectedValue, T newValue);
+    bool compareAndSet(T expectedValue, T newValue) {
+        return compareAndExchange(&value, expectedValue, newValue) == expectedValue;
+    }
 
     /// Set the value to the new value and return the old value.
-    T getAndSet(T newValue);
+    T getAndSet(T newValue) {
+        T oldValue;
+        do {
+            oldValue = get();
+        } while (!compareAndSet(oldValue, newValue));
+
+        return oldValue;
+    }
 
     /// Set the value to the new value.
-    void set(T newValue);
+    void set(T newValue) {
+        exchange(&value, newValue);
+    }
 
     /// Add the addend to the value and return the old value.
-    T fetchAndAdd(T addend);
+    T fetchAndAdd(T addend) {
+        return fetchAndAdd(&value, addend);
+    }
 
     /// Subtract the subtrahend from the value and return the old value.
-    T fetchAndSub(T subtrahend);
+    T fetchAndSub(T subtrahend) {
+        return fetchAndAdd(&value, -subtrahend);
+    }
 
     /// Increment the value and return the old value.
-    T fetchAndInc();
+    T fetchAndInc() {
+        return fetchAndAdd(&value, 1);
+    }
 
     /// Decrement the value and return the old value.
-    T fetchAndDec();
+    T fetchAndDec() {
+        return fetchAndAdd(&value, -1);
+    }
 
     /// Add the addend to the value.
-    void add(T addend);
+    void add(T addend) {
+        fetchAndAdd(&value, addend);
+    }
 
     /// Subtract the subtrahend from the value.
-    void sub(T subtrahend);
+    void sub(T subtrahend) {
+        fetchAndAdd(&value, -subtrahend);
+    }
 
     /// Increment the value.
-    void inc();
+    void inc() {
+        fetchAndAdd(&value, 1);
+    }
 
     /// Decrement the value.
-    void dec();
+    void dec() {
+        fetchAndAdd(&value, -1);
+    }
 
     /// Check if the bit at the given index is set. Returns true if the bit is set, false otherwise.
     /// The index must be within the valid range of the value type, otherwise behavior is undefined.
-    /// Only 16 and 32-bit values are supported.
-    bool bitTest(T index);
+    bool bitTest(T index) {
+        uint8_t flags = 0;
+
+        asm volatile (
+        "bt %2, %1;"
+        "lahf;"
+        "shr $8, %%eax;"
+        : "=a"(flags)
+        : "m"(value), "r"(index)
+        );
+
+        return flags & 0x01;
+    }
 
     /// Set the bit at the given index to 1.
-    /// Only 16 and 32-bit values are supported.
-    void bitSet(T index);
+    void bitSet(T index) {
+        asm volatile (
+        "lock bts %1, %0"
+        : "+m"(value)
+        : "r"(index)
+        );
+    }
 
     /// Set the bit at the given index to 0.
-    /// Only 16 and 32-bit values are supported.
-    void bitUnset(T index);
+    void bitUnset(T index) {
+        asm volatile (
+        "lock btr %1, %0"
+        : "+m"(value)
+        : "r"(index)
+        );
+    }
 
     /// Set the bit at the given index to 1 and return the old value of the bit (true if it was set, false otherwise).
-    /// Only 16 and 32-bit values are supported.
-    bool bitTestAndSet(T index);
+    bool bitTestAndSet(T index) {
+        uint8_t flags = 0;
+
+        asm volatile (
+        "lock bts %2, %0;"
+        "lahf;"
+        "shr $8, %%eax;"
+        : "+m"(value), "=a"(flags)
+        : "r"(index)
+        );
+
+        // Old bit value is stored in the carry flag
+        return flags & 0x01;
+    }
 
     /// Set the bit at the given index to 0 and return the old value of the bit (true if it was set, false otherwise).
-    /// Only 16 and 32-bit values are supported.
-    bool bitTestAndUnset(T index);
+    bool bitTestAndUnset(T index) {
+        uint8_t flags = 0;
+
+        asm volatile (
+        "lock btr %2, %0;"
+        "lahf;"
+        "shr $8, %%eax;"
+        : "+m"(value), "=a"(flags)
+        : "r"(index)
+        );
+
+        // Old bit value is stored in the carry flag
+        return flags & 0x01;
+    }
 
 private:
 
-    static void exchange(volatile void *ptr, T newValue);
-    static T compareAndExchange(volatile void *ptr, T oldValue, T newValue);
-    static T fetchAndAdd(volatile void *ptr, T addend);
+    static void exchange(volatile void *ptr, T newValue) {
+        asm volatile (
+        "lock xchg %0, %1"
+        : "+r"(newValue), "+m"(*static_cast<volatile T*>(ptr))
+        );
+    }
+
+    static T compareAndExchange(volatile void *ptr, T oldValue, T newValue) {
+        T ret;
+
+        asm volatile (
+        "lock cmpxchg %2, %1"
+        : "=a"(ret), "+m"(*static_cast<volatile T*>(ptr))
+        : "r"(newValue), "0"(oldValue)
+        );
+
+        return ret;
+    }
+
+    static T fetchAndAdd(volatile void *ptr, T addend) {
+        asm volatile (
+        "lock xadd %0, %1"
+        : "+r" (addend), "+m"(*static_cast<volatile T*>(ptr))
+        );
+
+        return addend;
+    }
 
     T &value;
 };
 
-template class Atomic<int8_t>;
-template class Atomic<uint8_t>;
 template class Atomic<int16_t>;
 template class Atomic<uint16_t>;
 template class Atomic<int32_t>;
 template class Atomic<uint32_t>;
 
+}
 }
 
 #endif

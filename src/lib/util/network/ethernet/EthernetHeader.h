@@ -29,13 +29,8 @@
 #include "util/network/MacAddress.h"
 
 namespace Util {
-namespace Io {
-class InputStream;
-class OutputStream;
-}  // namespace Stream
-}  // namespace Util
-
-namespace Util::Network::Ethernet {
+namespace Network {
+namespace Ethernet {
 
 /// Represents the header of an Ethernet frame.
 /// An Ethernet header contains the destination and source MAC addresses, as well as the EtherType field.
@@ -75,22 +70,34 @@ public:
     void write(Io::OutputStream &stream) const;
 
     /// Get the destination MAC address.
-    const MacAddress& getDestinationAddress() const;
+    const MacAddress& getDestinationAddress() const {
+        return destinationAddress;
+    }
 
     /// Get the source MAC address.
-    const MacAddress& getSourceAddress() const;
+    const MacAddress& getSourceAddress() const {
+        return sourceAddress;
+    }
 
     /// Get the EtherType.
-    EtherType getEtherType() const;
+    EtherType getEtherType() const {
+        return etherType;
+    }
 
     /// Set the destination MAC address.
-    void setDestinationAddress(const MacAddress &address);
+    void setDestinationAddress(const MacAddress &address) {
+        destinationAddress = address;
+    }
 
     /// Set the source MAC address.
-    void setSourceAddress(const MacAddress &address);
+    void setSourceAddress(const MacAddress &address) {
+        sourceAddress = address;
+    }
 
     /// Set the EtherType.
-    void setEtherType(EtherType type);
+    void setEtherType(const EtherType type) {
+        etherType = type;
+    }
 
     /// The length of the Ethernet header in bytes.
     static constexpr uint32_t HEADER_LENGTH = 14;
@@ -102,6 +109,8 @@ private:
     EtherType etherType = INVALID;
 };
 
+}
+}
 }
 
 #endif

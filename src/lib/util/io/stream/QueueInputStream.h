@@ -27,7 +27,8 @@
 #include "util/collection/Queue.h"
 #include "util/io/stream/InputStream.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// An input stream that reads data from a queue.
 /// This is useful for scenarios where data is produced asynchronously and needs to be consumed in a streaming manner.
@@ -35,38 +36,51 @@ namespace Util::Io {
 class QueueInputStream final : public InputStream {
 
 public:
-    /// Create a queue input stream instance that reads data from the given queue.
-    /// The instance does not take ownership of the queue. It is the caller's responsibility to ensure
-    /// that the queue remains valid for the lifetime of this filter input stream.
-    explicit QueueInputStream(Queue<uint8_t> &queue);
+	/// Create a queue input stream instance that reads data from the given queue.
+	/// The instance does not take ownership of the queue. It is the caller's responsibility to ensure
+	/// that the queue remains valid for the lifetime of this filter input stream.
+	explicit QueueInputStream(Queue<uint8_t> &queue) : queue(queue) {}
 
-    /// Read a single byte from the underlying queue.
-    /// If the queue is empty, this method will block until data is available.
-    /// As the queue has no failing mechanism, this method will never return -1.
-    int16_t read() override;
+	/// Read a single byte from the underlying queue.
+	/// If the queue is empty, this method will block until data is available.
+	/// As the queue has no failing mechanism, this method will never return -1.
+	int16_t read() override {
+		return queue.poll();
+	}
 
-    /// Read length bytes from the underlying queue into the target buffer, starting at the given offset.
-    /// If the queue has fewer than length bytes available, this method will block until enough data is available.
-    /// As the queue has no failing mechanism, this method will always return the amount of bytes requested.
-    /// It is the caller's responsibility to ensure that the target buffer has enough space for offset + length bytes.
-    /// If the buffer is too small, data is written out of bounds, leading to undefined behavior.
-    int32_t read(uint8_t *targetBuffer, size_t offset, size_t length) override;
+	/// Read length bytes from the underlying queue into the target buffer, starting at the given offset.
+	/// If the queue has fewer than length bytes available, this method will block until enough data is available.
+	/// As the queue has no failing mechanism, this method will always return the amount of bytes requested.
+	/// It is the caller's responsibility to ensure that the target buffer has enough space for offset + length bytes.
+	/// If the buffer is too small, data is written out of bounds, leading to undefined behavior.
+	int32_t read(uint8_t *targetBuffer, const size_t offset, const size_t length) override {
+		for (size_t i = 0; i < length; i++) {
+			targetBuffer[offset + i] = queue.poll();
+		}
 
-    /// Peek at the next byte in the queue without removing it.
-    /// If the queue is empty, this method will block until data is available.
-    /// As the queue has no failing mechanism, this method will never return -1.
-	int16_t peek() override;
+		return static_cast<int32_t>(length);
+	}
 
-    /// Check if there is data available to read from the queue.
-    /// This method returns true if the queue is not empty, false otherwise.
-    /// If this method returns true, a subsequent read call is guaranteed to succeed without blocking.
-    bool isReadyToRead() override;
+	/// Peek at the next byte in the queue without removing it.
+	/// If the queue is empty, this method will block until data is available.
+	/// As the queue has no failing mechanism, this method will never return -1.
+	int16_t peek() override {
+		return queue.peek();
+	}
+
+	/// Check if there is data available to read from the queue.
+	/// This method returns true if the queue is not empty, false otherwise.
+	/// If this method returns true, a subsequent read call is guaranteed to succeed without blocking.
+	bool isReadyToRead() override {
+		return !queue.isEmpty();
+	}
 
 private:
 
-    Queue<uint8_t> &queue;
+	Queue<uint8_t> &queue;
 };
 
+}
 }
 
 #endif

@@ -25,7 +25,8 @@
 
 #include "util/time/Timestamp.h"
 
-namespace Util::Math {
+namespace Util {
+namespace Math {
 
 /// A simple random number generator based on the multiplicative linear congruential generator (LCG) algorithm.
 /// It can be initialized with a custom seed, multiplier, increment, and modulus or with default values
@@ -52,11 +53,13 @@ class Random {
 
 public:
     /// Create a new random number generator with custom parameters for the LCG algorithm.
-    Random(uint32_t seed, uint32_t multiplier, uint32_t increment, uint32_t modulus);
+    Random(const uint32_t seed, const uint32_t multiplier, const uint32_t increment, const uint32_t modulus) :
+        randomNumber(seed), multiplier(multiplier), increment(increment), modulus(modulus) {}
 
     /// Create a new random number generator with default parameters for the MINSTD LCG algorithm.
     /// This constructor can be used without parameters, in which case the seed is set to the current system time.
-    explicit Random(uint32_t seed = Time::Timestamp::getSystemTime().toMilliseconds());
+    explicit Random(const uint32_t seed = Time::Timestamp::getSystemTime().toMilliseconds()) :
+        Random(seed, MINSTD_MULTIPLIER, MINSTD_INCREMENT, MINSTD_MODULUS) {}
 
     /// Get a random number in the range [min, max].
     ///
@@ -73,7 +76,13 @@ public:
     /// // Get a random number in the range [10, 50]
     /// const auto randomNumber = random.getRandomNumber(10, 50);
     /// ```
-    uint32_t getRandomNumber(uint32_t min, uint32_t max);
+    uint32_t getRandomNumber(const uint32_t min, const uint32_t max) {
+        if (min == max) {
+            return min;
+        }
+
+        return nextRandomNumber() % (max - min + 1) + min;
+    }
 
     /// Get a random floating point number in the range [0.0, 1.0).
     ///
@@ -90,14 +99,19 @@ public:
     /// // Get a random floating point number in the range [2.0, 10.0)
     /// const auto randomRange = 2.0 + random.getRandomNumber() * (10.0 - 2.0);
     /// ```
-    double getRandomNumber();
+    double getRandomNumber() {
+        return nextRandomNumber() / static_cast<double>(modulus);
+    }
 
 private:
 
     /// Calculate the next random number using the LCG formula.
     /// This method updates the internal state of the generator and returns the next random number.
     /// It is called internally by the public methods to generate random numbers.
-    uint32_t nextRandomNumber();
+    uint32_t nextRandomNumber() {
+        randomNumber = (multiplier * randomNumber + increment) % modulus;
+        return randomNumber;
+    }
 
     uint32_t randomNumber;
     const uint32_t multiplier;
@@ -109,6 +123,7 @@ private:
     static constexpr uint32_t MINSTD_MODULUS = 2147483647;
 };
 
+}
 }
 
 #endif

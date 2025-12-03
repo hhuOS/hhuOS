@@ -31,55 +31,13 @@
 #include "util/network/ip4/Ip4Address.h"
 #include "util/network/ip4/Ip4PortAddress.h"
 
-namespace Util::Network {
-
-Datagram::Datagram(const NetworkAddress::Type type) {
-    switch (type) {
-        case NetworkAddress::MAC:
-            remoteAddress = new MacAddress();
-            break;
-        case NetworkAddress::IP4:
-            remoteAddress = new Ip4::Ip4Address();
-            break;
-        case NetworkAddress::IP4_PORT:
-            remoteAddress = new Ip4::Ip4PortAddress();
-            break;
-        default:
-            Util::Panic::fire(Panic::INVALID_ARGUMENT, "Socket: Illegal address type for bind!");
-    }
-}
-
-Datagram::Datagram(const uint8_t *buffer, const uint16_t length, const NetworkAddress &remoteAddress) :
-        remoteAddress(remoteAddress.createCopy()), buffer(new uint8_t[length]), length(length) {
-    Address(Datagram::buffer).copyRange(Address(buffer), length);
-}
-
-Datagram::Datagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress) :
-        remoteAddress(remoteAddress.createCopy()), buffer(new uint8_t[stream.getPosition()]), length(stream.getPosition()) {
-    Address(buffer).copyRange(Address(stream.getBuffer()), stream.getPosition());
-}
-
-Datagram::~Datagram() {
-    delete remoteAddress;
-    delete[] buffer;
-}
-
-const NetworkAddress& Datagram::getRemoteAddress() const {
-    return *remoteAddress;
-}
+namespace Util {
+namespace Network {
 
 void Datagram::setRemoteAddress(const NetworkAddress &address) const {
     Io::ByteArrayOutputStream addressStream;
     address.write(addressStream);
     remoteAddress->setAddress(addressStream.getBuffer());
-}
-
-const uint8_t *Datagram::getData() const {
-    return buffer;
-}
-
-uint32_t Datagram::getLength() const {
-    return length;
 }
 
 void Datagram::setData(uint8_t *buffer, const uint32_t length) {
@@ -88,4 +46,5 @@ void Datagram::setData(uint8_t *buffer, const uint32_t length) {
     Datagram::length = length;
 }
 
+}
 }

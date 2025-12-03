@@ -29,13 +29,8 @@
 #include "util/network/ip4/Ip4Address.h"
 
 namespace Util {
-namespace Io {
-class InputStream;
-class OutputStream;
-}  // namespace Stream
-}  // namespace Util
-
-namespace Util::Network::Ip4 {
+namespace Network {
+namespace Ip4 {
 
 /// Represents the header of an IPv4 packet.
 /// An IPv4 header contains, among other things, the version, header length, total packet length
@@ -82,41 +77,65 @@ public:
     void write(Io::OutputStream &stream) const;
 
     /// Get the IP version (should always be 4 for IPv4).
-    uint8_t getVersion() const;
+    uint8_t getVersion() const {
+        return version;
+    }
 
     /// Get the header length in bytes.
-    uint8_t getHeaderLength() const;
+    uint8_t getHeaderLength() const {
+        return headerLength;
+    }
 
     /// Get the payload length in bytes.
     /// That is the length of the data following the header (total length minus header length).
-    uint16_t getPayloadLength() const;
+    uint16_t getPayloadLength() const {
+        return payloadLength;
+    }
 
     /// Get the time to live (TTL) value.
-    uint8_t getTimeToLive() const;
+    uint8_t getTimeToLive() const {
+        return timeToLive;
+    }
 
     /// Get the protocol carried in this IPv4 packet (e.g., ICMP, TCP, UDP).
-    Protocol getProtocol() const;
+    Protocol getProtocol() const {
+        return protocol;
+    }
 
     /// Get the IP address of the sender (source address).
-    const Ip4Address& getSourceAddress() const;
+    const Ip4Address& getSourceAddress() const {
+        return sourceAddress;
+    }
 
     /// Get the IP address of the receiver (destination address).
-    const Ip4Address& getDestinationAddress() const;
+    const Ip4Address& getDestinationAddress() const {
+        return destinationAddress;
+    }
 
     /// Set the header length in bytes.
-    void setPayloadLength(uint16_t payloadLength);
+    void setPayloadLength(uint16_t payloadLength) {
+        Ip4Header::payloadLength = payloadLength;
+    }
 
     /// Set the time to live (TTL) value.
-    void setTimeToLive(uint8_t timeToLive);
+    void setTimeToLive(uint8_t timeToLive) {
+        Ip4Header::timeToLive = timeToLive;
+    }
 
     /// Set the protocol carried in this IPv4 packet.
-    void setProtocol(Protocol protocol);
+    void setProtocol(Protocol protocol) {
+        Ip4Header::protocol = protocol;
+    }
 
     /// Set the source IP address.
-    void setSourceAddress(const Ip4Address &sourceAddress);
+    void setSourceAddress(const Ip4Address &sourceAddress) {
+        Ip4Header::sourceAddress = sourceAddress;
+    }
 
     /// Set the destination IP address.
-    void setDestinationAddress(const Ip4Address &destinationAddress);
+    void setDestinationAddress(const Ip4Address &destinationAddress) {
+        Ip4Header::destinationAddress = destinationAddress;
+    }
 
     /// The offset of the checksum field in the IPv4 header.
     static constexpr uint32_t CHECKSUM_OFFSET = 10;
@@ -134,6 +153,8 @@ private:
     Ip4Address destinationAddress;
 };
 
+}
+}
 }
 
 #endif

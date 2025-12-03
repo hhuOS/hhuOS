@@ -27,22 +27,11 @@
 #include <stdint.h>
 
 #include "util/network/Datagram.h"
+#include "util/network/ip4/Ip4PortAddress.h"
 
 namespace Util {
-namespace Io {
-class ByteArrayOutputStream;
-}  // namespace Io
-
 namespace Network {
-class NetworkAddress;
-
-namespace Ip4 {
-class Ip4PortAddress;
-}  // namespace Ip4
-}  // namespace Network
-}  // namespace Util
-
-namespace Util::Network::Udp {
+namespace Udp {
 
 /// Specialization of the Datagram class for UDP datagrams.
 /// This can be used to send and receive UDP datagrams via a `Socket` of type `UDP`.
@@ -88,26 +77,32 @@ public:
     /// Create a new UDP datagram with an uninitialized buffer.
     /// This is typically used for receiving datagrams, because in this case the buffer is allocated
     /// by the kernel during the receive system call.
-    UdpDatagram();
+    UdpDatagram() : Datagram(NetworkAddress::IP4_PORT) {}
 
     /// Create a new UDP datagram with a given buffer and length, and a remote address.
     /// The buffer's content is copied into the datagram's buffer.
-    UdpDatagram(const uint8_t *buffer, uint16_t length, const Ip4::Ip4PortAddress &remoteAddress);
+    UdpDatagram(const uint8_t *buffer, const uint16_t length, const Ip4::Ip4PortAddress &remoteAddress) :
+        Datagram(buffer, length, remoteAddress) {}
 
     /// Create a new UDP datagram from a byte array output stream and a remote address.
     /// The stream's content is copied into the datagram's buffer by directly accessing the stream's buffer.
     /// This way, the state of the stream remains unchanged.
-    UdpDatagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress);
+    UdpDatagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress) :
+        Datagram(stream, remoteAddress) {}
 
     /// Get the remote port of the application that sent or will receive this datagram.
-    uint16_t getRemotePort() const;
+    uint16_t getRemotePort() const {
+        return reinterpret_cast<const Ip4::Ip4PortAddress&>(getRemoteAddress()).getPort();
+    }
 
     /// Set attributes of this datagram based on another datagram.
     /// Since this class has no specific attributes, this method does nothing.
     /// It is provided to fulfill the interface contract of the Datagram class.
-    void setAttributes(const Datagram &datagram) override;
+    void setAttributes(const Datagram&) override {}
 };
 
+}
+}
 }
 
 #endif

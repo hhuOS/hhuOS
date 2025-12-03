@@ -29,7 +29,8 @@
 #include "util/io/file/File.h"
 #include "util/io/stream/FileOutputStream.h"
 
-namespace Util::Sound {
+namespace Util {
+namespace Sound {
 
 /// Creates and manages an audio channel for playback of audio data.
 /// Audio samples can be written to the channel, which will then be played back through the audio mixer.
@@ -107,7 +108,8 @@ public:
     /// This will automatically request a new audio channel from the audio mixer.
     /// The mixer will assign a unique ID to the channel and create a corresponding file in the `/device` directory.
     /// This is file is later used to write audio data to the channel for playback.
-    AudioChannel();
+    AudioChannel() : audioMixerFile(AUDIO_MIXER_PATH), id(createChannel()),
+        audioChannelFile(String::format("/device/channel%u", id)), outputStream(audioChannelFile) {}
 
     /// Destroy this audio channel instance.
     /// This will automatically stop any ongoing playback and delete the audio channel from the audio mixer.
@@ -124,22 +126,26 @@ public:
     bool stop();
 
     /// Get the current playback state of the audio channel.
-    State getState();
+    State getState() const;
 
     /// Get the amount of audio data currently in the channel, waiting to be played.
-    size_t getRemainingBytes();
+    size_t getRemainingBytes() const;
 
     /// Get the amount of bytes that can be written to the channel without blocking.
     /// It is always possible to write more bytes, but the write operation will block until the mixer reads some data.
-    size_t getWritableBytes();
+    size_t getWritableBytes() const;
 
     /// Write a single byte of audio data to the audio channel.
     /// The data must be in 8-bit mono PCM format at a sample rate of 22050 Hz.
-    bool write(uint8_t c) override;
+    bool write(const uint8_t c) override {
+        return outputStream.write(c);
+    }
 
     /// Write a buffer of audio data to the audio channel.
     /// The data must be in 8-bit mono PCM format at a sample rate of 22050 Hz.
-    uint32_t write(const uint8_t *sourceBuffer, size_t offset, size_t length) override;
+    uint32_t write(const uint8_t *sourceBuffer, const size_t offset, const size_t length) override {
+        return outputStream.write(sourceBuffer, offset, length);
+    }
 
 private:
 
@@ -155,6 +161,7 @@ private:
     static constexpr auto *AUDIO_MIXER_PATH = "/device/audiomixer";
 };
 
+}
 }
 
 #endif

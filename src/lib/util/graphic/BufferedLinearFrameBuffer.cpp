@@ -24,7 +24,8 @@
 #include "util/base/Panic.h"
 #include "util/graphic/LinearFrameBuffer.h"
 
-namespace Util::Graphic {
+namespace Util {
+namespace Graphic {
 
 BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, const uint16_t resolutionX,
     const uint16_t resolutionY, const uint16_t pitch) :
@@ -171,4 +172,5 @@ void BufferedLinearFrameBuffer::flush() const {
     }
 }
 
+}
 }

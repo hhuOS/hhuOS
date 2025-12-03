@@ -23,8 +23,11 @@
 
 #include <stdint.h>
 
+namespace Util {
+namespace Io {
+
 /// Provides functionality to decode mouse packets as per the standard PS/2 mouse protocol.
-namespace Util::Io::MouseDecoder {
+namespace MouseDecoder {
 
 /// Mouse button values using bit flags.
 enum Button : uint8_t {
@@ -75,6 +78,9 @@ struct Update {
 /// and pass them to this function to interpret the mouse actions.
 Update decode(const uint8_t bytes[4]);
 
+}
+
+}
 }
 
 #endif

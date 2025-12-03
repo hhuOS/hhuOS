@@ -29,9 +29,12 @@
 #include "util/collection/ArrayList.h"
 #include "util/collection/Iterator.h"
 
+namespace Util {
+namespace Hardware {
+
 /// Structures and definitions for the Advanced Configuration and Power Interface (ACPI)
 /// In user space, the ACPI structures are accessible via the '/device/acpi' directory.
-namespace Util::Hardware::Acpi {
+namespace Acpi {
 
 /// The root system description pointer (`Rsdp`) is the entry point for the ACPI tables.
 /// On boot, the operating system searches for the RSDP in memory or gets it from the bootloader.
@@ -101,7 +104,9 @@ struct Rsdt {
     SdtHeader* tables[];
 
     /// Get the number of tables in this `Rsdt`.
-    size_t getTableCount() const;
+    size_t getTableCount() const {
+        return (header.length - sizeof(SdtHeader)) / sizeof(SdtHeader*);
+    }
 } __attribute__ ((packed));
 
 /// Provides convenient access to the ACPI tables listed in the `Rsdt`.
@@ -151,7 +156,9 @@ public:
 
     /// Access a table by its index via the `[]` operator.
     /// If the index is out of bounds, a panic is fired by the underlying `Array` class.
-    const SdtHeader& operator[](size_t index) const;
+    const SdtHeader& operator[](size_t index) const {
+        return *tables[index];
+    }
 
     /// Access a table by its signature via the `[]` operator.
     /// If the signature is not found, a panic is fired. Use `hasTable()` to check if a table exists.
@@ -162,7 +169,9 @@ public:
     const SdtHeader& operator[](const String &signature) const;
 
     /// Get the number of tables.
-    size_t getTableCount() const;
+    size_t getTableCount() const {
+        return tables.length();
+    }
 
     /// Check if a table with the given signature exists.
     bool hasTable(const char *signature) const;
@@ -172,14 +181,24 @@ public:
 
     /// Get an iterator to the beginning of the table pointers.
     /// This allows iteration over the tables using a range-based for loop.
-    Iterator<SdtHeader> begin() const override;
+    Iterator<SdtHeader> begin() const override {
+        const auto element = IteratorElement<SdtHeader>{ tables.length() == 0 ? nullptr : tables[0], 0 };
+        return Iterator<SdtHeader>(*this, element);
+    }
 
     /// Get an iterator to the end of the table pointers.
     /// This allows iteration over the tables using a range-based for loop.
-    Iterator<SdtHeader> end() const override;
+    Iterator<SdtHeader> end() const override {
+        const auto length = tables.length();
+        const auto element = IteratorElement<SdtHeader>{ length == 0 ? nullptr : tables[length], length };
+
+        return Iterator<SdtHeader>(*this, element);
+    }
 
     /// Get the next table in the iteration based on the current table.
-    IteratorElement<SdtHeader> next(const IteratorElement<SdtHeader> &element) const override;
+    IteratorElement<SdtHeader> next(const IteratorElement<SdtHeader> &element) const override {
+        return IteratorElement<SdtHeader>{ tables[element.index + 1], element.index + 1 };
+    }
 
 private:
 
@@ -573,6 +592,9 @@ struct Bgrt {
     uint32_t imageOffsetY;
 } __attribute__ ((packed));
 
-};
+}
+
+}
+}
 
 #endif

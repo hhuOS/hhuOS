@@ -26,7 +26,8 @@
 
 #include "util/io/stream/OutputStream.h"
 
-namespace Util::Io {
+namespace Util {
+namespace Io {
 
 /// A filter output stream is a wrapper around another output stream.
 /// In its base implementation, it simply forwards all calls to the underlying stream without any modification.
@@ -77,31 +78,38 @@ public:
     /// Create a new filter output stream instance that wraps the given underlying stream.
     /// The instance does not take ownership of the underlying stream. It is the caller's responsibility to ensure
     /// that the underlying stream remains valid for the lifetime of this filter output stream.
-    explicit FilterOutputStream(OutputStream &stream);
+    explicit FilterOutputStream(OutputStream &stream) : stream(stream) {}
 
     /// Write a single byte to the stream by forwarding the call to the underlying stream.
     /// Subclasses can override this method to modify the behavior.
     /// On success, true is returned.
     /// If an error occurs, false is returned.
-    bool write(uint8_t byte) override;
+    bool write(const uint8_t byte) override {
+        return stream.write(byte);
+    }
 
     /// Write up to length bytes from the sourceBuffer, starting at the given offset, to the stream
     /// by forwarding the call to the underlying stream. Subclasses can override this method to modify the behavior.
     /// The number of bytes actually written is returned,
     /// which may be less than length if the stream cannot accept more data.
-    size_t write(const uint8_t *sourceBuffer, size_t offset, size_t length) override;
+    size_t write(const uint8_t *sourceBuffer, const size_t offset, const size_t length) override {
+        return stream.write(sourceBuffer, offset, length);
+    }
 
     /// If the stream uses buffering, this method should flush any buffered data to the underlying destination.
     /// This implementation forwards the call to the underlying stream.
     /// Subclasses can override this method to modify the behavior.
     /// The number of bytes flushed is returned.
-    size_t flush() override;
+    size_t flush() override {
+        return stream.flush();
+    }
 
 private:
 
     OutputStream &stream;
 };
 
+}
 }
 
 #endif

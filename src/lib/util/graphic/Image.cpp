@@ -20,7 +20,8 @@
 
 #include "Image.h"
 
-namespace Util::Graphic {
+namespace Util {
+namespace Graphic {
 
 Image* Image::scale(const uint16_t newWidth, const uint16_t newHeight) const {
     auto *newPixelBuffer = new Color[newWidth * newHeight];
@@ -38,4 +39,5 @@ Image* Image::scale(const uint16_t newWidth, const uint16_t newHeight) const {
     return new Image(newWidth, newHeight, newPixelBuffer);
 }
 
+}
 }

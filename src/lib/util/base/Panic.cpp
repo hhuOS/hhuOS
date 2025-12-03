@@ -22,22 +22,23 @@
 
 #include "lib/interface.h"
 
-namespace Util::Panic {
+namespace Util {
+namespace Panic {
 
 constexpr const char *hardwareExceptions[] = {
-        "Divide-by-zero Error", "Debug", "Non-maskable Interrupt", "Breakpoint",
-        "Overflow", "Bound Range Exceeded", "Invalid Opcode", "Device not available",
-        "Double Fault", "Coprocessor Segment Overrun", "Invalid TSS", "Segment Not Present",
-        "Stack-Segment Fault", "General Protection Fault", "Page Fault", "Reserved",
-        "x87 Floating-Point Exception", "Alignment Check", "Machine Check", "SIMD Floating-Point Exception",
-        "Virtualization Exception", "Reserved", "Reserved", "Reserved", "Reserved", "Reserved", "Reserved",
-        "Reserved", "Reserved", "Reserved", "Security Exception", "Reserved"
+    "Divide-by-zero Error", "Debug", "Non-maskable Interrupt", "Breakpoint",
+    "Overflow", "Bound Range Exceeded", "Invalid Opcode", "Device not available",
+    "Double Fault", "Coprocessor Segment Overrun", "Invalid TSS", "Segment Not Present",
+    "Stack-Segment Fault", "General Protection Fault", "Page Fault", "Reserved",
+    "x87 Floating-Point Exception", "Alignment Check", "Machine Check", "SIMD Floating-Point Exception",
+    "Virtualization Exception", "Reserved", "Reserved", "Reserved", "Reserved", "Reserved", "Reserved",
+    "Reserved", "Reserved", "Reserved", "Security Exception", "Reserved"
 };
 
 constexpr const char *softwareExceptions[]{
-        "NullPointer Exception", "IndexOutOfBounds Exception", "InvalidArgument Exception", "KeyNotFound Exception",
-        "IllegalState Exception", "OutOfMemoryException", "PagingError Exception", "StackOverflow Exception",
-        "UnsupportedOperation Exception"
+    "NullPointer Exception", "IndexOutOfBounds Exception", "InvalidArgument Exception", "KeyNotFound Exception",
+    "IllegalState Exception", "OutOfMemoryException", "PagingError Exception", "StackOverflow Exception",
+    "UnsupportedOperation Exception"
 };
 
 void fire(const Error error, const char *message) {
@@ -56,4 +57,5 @@ const char* getErrorAsString(const Error error) {
     fire(INVALID_ARGUMENT, "Trying to throw an invalid exception!");
 }
 
+}
 }
