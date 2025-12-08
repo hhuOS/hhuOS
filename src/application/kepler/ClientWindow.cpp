@@ -24,8 +24,8 @@
 
 const Util::Graphic::Font &ClientWindow::TITLE_FONT = Util::Graphic::Fonts::TERMINAL_8x8;
 
-ClientWindow::ClientWindow(size_t id, Util::Async::SharedMemory *buffer, uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const Util::String &title) :
-    id(id), buffer(buffer), posX(posX), posY(posY), width(width), height(height), title(title) {}
+ClientWindow::ClientWindow(size_t id, size_t processId, uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const Util::String &title, Util::Async::SharedMemory *buffer) :
+    id(id), posX(posX), posY(posY), width(width), height(height), title(title), buffer(buffer), mouseOutputStream(Util::String::format("/process/%u/pipes/mouse-%u", processId, id)) {}
 
 ClientWindow::~ClientWindow() {
     delete buffer;
@@ -65,6 +65,25 @@ bool ClientWindow::isDirty() const {
 
 void ClientWindow::setDirty(const bool dirty) {
     ClientWindow::dirty = dirty;
+}
+
+ClientWindow::MouseCoordinates ClientWindow::containsPoint(const uint16_t x, const uint16_t y) const {
+    const auto mouseX = x - (posX + 1);
+    const auto mouseY = y - (posY + TITLE_FONT.getCharHeight() + 5);
+
+    if (mouseX >= 0 && mouseX < width && mouseY >= 0 && mouseY < height) {
+        return MouseCoordinates{static_cast<uint16_t>(mouseX), static_cast<uint16_t>(mouseY), true};
+    }
+
+    return MouseCoordinates{0, 0, false};
+}
+
+void ClientWindow::sendMouseHoverEvent(const Kepler::Event::MouseHover &event) {
+    event.writeToStream(mouseOutputStream);
+}
+
+void ClientWindow::sendMouseClickEvent(const Kepler::Event::MouseClick &event) {
+    event.writeToStream(mouseOutputStream);
 }
 
 void ClientWindow::drawFrame(const Util::Graphic::LinearFrameBuffer &lfb, const Util::Graphic::Color &color) const {

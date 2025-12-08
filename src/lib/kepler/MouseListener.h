@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Heinrich Heine University Düsseldorf,
+* Copyright (C) 2017-2025 Heinrich Heine University Düsseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Main developers: Christian Gesse <christian.gesse@hhu.de>, Fabian Ruhland <ruhland@hhu.de>
  * Original development team: Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schöttner
@@ -18,22 +18,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Client.h"
+#ifndef HHUOS_MOUSELISTENER_H
+#define HHUOS_MOUSELISTENER_H
 
-#include "ClientWindow.h"
+#include <stdint.h>
 
-Client::Client(const size_t id, size_t processId, Util::Io::FileInputStream *inputStream, Util::Io::FileOutputStream *outputStream) :
-    id(id), processId(processId), inputStream(inputStream), outputStream(outputStream) {}
+#include "kepler/Protocol.h"
 
-Client::~Client() {
-    delete inputStream;
-    delete outputStream;
+namespace Kepler {
+
+class MouseListener {
+
+public:
+
+    virtual ~MouseListener() = default;
+
+    virtual void onMouseHover(uint16_t x, uint16_t y) = 0;
+
+    virtual void onMouseClick(uint16_t x, uint16_t y, Event::MouseClick::Button button, Event::MouseClick::Action action) = 0;
+};
+
 }
 
-Util::Io::FileInputStream& Client::getInputStream() const {
-    return *inputStream;
-}
-
-Util::Io::FileOutputStream& Client::getOutputStream() const {
-    return *outputStream;
-}
+#endif

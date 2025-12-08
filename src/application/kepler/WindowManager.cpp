@@ -53,6 +53,9 @@ void WindowManager::run() {
     auto mouseInputStream = Util::Io::FileInputStream("/device/mouse");
     uint8_t mouseInputBuffer[4] = {0, 0, 0, 0};
     size_t mouseInputIndex = 0;
+    uint8_t lastMouseButtonState = 0;
+    uint8_t currentMouseButtonState = 0;
+    bool mousePositionChanged = false;
 
     mouseInputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
 
@@ -66,6 +69,7 @@ void WindowManager::run() {
             if (mouseInputIndex == 4) {
                 const auto mouseUpdate = Util::Io::MouseDecoder::decode(mouseInputBuffer);
 
+                mousePositionChanged = mouseUpdate.xMovement != 0 || mouseUpdate.yMovement != 0;
                 if (mouseUpdate.xMovement != 0 || mouseUpdate.yMovement != 0) {
                     mouseX += mouseUpdate.xMovement;
                     mouseY -= mouseUpdate.yMovement;
@@ -85,6 +89,7 @@ void WindowManager::run() {
                     needRedraw = true;
                 }
 
+                currentMouseButtonState = mouseUpdate.buttons;
                 mouseInputIndex = 0;
             }
 
@@ -106,7 +111,7 @@ void WindowManager::run() {
             nextPipe->setAccessMode(Util::Io::File::NON_BLOCKING);
 
             auto *outputPipe = new Util::Io::FileOutputStream(request.getPipePath());
-            clients.add(new Client(nextClientId, nextPipe, outputPipe));
+            clients.add(new Client(nextClientId, request.getProcessId(), nextPipe, outputPipe));
 
             createNextPipe();
             yield = false; // Work has been done, do not yield
@@ -136,18 +141,88 @@ void WindowManager::run() {
             }
         }
 
-        // Draw dirty windows
+        // Check windows against mouse position and draw dirty windows
+        size_t focusedWindowIndex = windows.size() - 1;
         for (size_t i = 0; i < windows.size(); i++) {
             const auto &window = windows.get(i);
 
+            const auto windowMouseCoords = window->containsPoint(mouseX, mouseY);
+            if (mousePositionChanged) {
+                if (windowMouseCoords.valid) {
+                    window->sendMouseHoverEvent(Kepler::Event::MouseHover(windowMouseCoords.x, windowMouseCoords.y));
+                    yield = false;
+                }
+            }
+
+            if (currentMouseButtonState != lastMouseButtonState) {
+                if (currentMouseButtonState & Util::Io::MouseDecoder::LEFT_BUTTON && !(lastMouseButtonState & Util::Io::MouseDecoder::LEFT_BUTTON)) {
+                    // Left mouse button pressed
+                    if (windowMouseCoords.valid) {
+                        focusedWindowIndex = i; // Focus this window
+                        window->setDirty(true);
+                        windows.get(windows.size() - 1)->setDirty(true);
+                    }
+
+                    window->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                        Kepler::Event::MouseClick::LEFT, Kepler::Event::MouseClick::PRESS));
+                    yield = false;
+                } else if (!(currentMouseButtonState & Util::Io::MouseDecoder::LEFT_BUTTON) && lastMouseButtonState & Util::Io::MouseDecoder::LEFT_BUTTON) {
+                    // Left mouse button released
+                    window->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                        Kepler::Event::MouseClick::LEFT, Kepler::Event::MouseClick::RELEASE));
+                    yield = false;
+                }
+
+                if (currentMouseButtonState & Util::Io::MouseDecoder::RIGHT_BUTTON && !(lastMouseButtonState & Util::Io::MouseDecoder::RIGHT_BUTTON)) {
+                    // Right mouse button pressed
+                    if (windowMouseCoords.valid) {
+                        focusedWindowIndex = i; // Focus this window
+                        window->setDirty(true);
+                        windows.get(windows.size() - 1)->setDirty(true);
+                    }
+
+                    window->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                        Kepler::Event::MouseClick::RIGHT, Kepler::Event::MouseClick::PRESS));
+                    yield = false;
+                } else if (!(currentMouseButtonState & Util::Io::MouseDecoder::RIGHT_BUTTON) && lastMouseButtonState & Util::Io::MouseDecoder::RIGHT_BUTTON) {
+                    // Right mouse button released
+                    window->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                        Kepler::Event::MouseClick::RIGHT, Kepler::Event::MouseClick::RELEASE));
+                    yield = false;
+                }
+
+                if (currentMouseButtonState & Util::Io::MouseDecoder::MIDDLE_BUTTON && !(lastMouseButtonState & Util::Io::MouseDecoder::MIDDLE_BUTTON)) {
+                    // Middle mouse button pressed
+                    if (windowMouseCoords.valid) {
+                        focusedWindowIndex = i; // Focus this window
+                        window->setDirty(true);
+                        windows.get(windows.size() - 1)->setDirty(true);
+                    }
+
+                    window->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                        Kepler::Event::MouseClick::MIDDLE, Kepler::Event::MouseClick::PRESS));
+                    yield = false;
+                } else if (!(currentMouseButtonState & Util::Io::MouseDecoder::MIDDLE_BUTTON) && lastMouseButtonState & Util::Io::MouseDecoder::MIDDLE_BUTTON) {
+                    // Middle mouse button released
+                    window->sendMouseClickEvent(Kepler::Event::MouseClick(windowMouseCoords.x, windowMouseCoords.y,
+                        Kepler::Event::MouseClick::MIDDLE, Kepler::Event::MouseClick::RELEASE));
+                    yield = false;
+                }
+            }
+
             if (window->isDirty()) {
-                window->drawFrame(tripleLfb, i == windows.size() - 1 ?
+                window->drawFrame(tripleLfb, i == focusedWindowIndex ?
                     Util::Graphic::Colors::HHU_BLUE : Util::Graphic::Colors::HHU_ICE_BLUE);
                 window->flush(tripleLfb);
                 window->setDirty(false);
                 needRedraw = true;
                 yield = false; // Work has been done, do not yield
             }
+        }
+
+        // Bring newly focused window to front
+        if (focusedWindowIndex != windows.size() - 1) {
+            windows.add(windows.removeIndex(focusedWindowIndex));
         }
 
         // Flush frame buffer at target framerate
@@ -187,6 +262,8 @@ void WindowManager::run() {
             yield = false; // Work has been done, do not yield
         }
 
+        lastMouseButtonState = currentMouseButtonState;
+
         // Yield if no work has been done (i.e. no input, no commands, no redraw)
         if (yield) {
             Util::Async::Thread::yield();
@@ -210,7 +287,6 @@ void WindowManager::createWindow(const Client &client) {
     inputStream.setAccessMode(Util::Io::File::BLOCKING);
     auto request = Kepler::Request::CreateWindow();
     request.readFromStream(inputStream);
-    inputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
 
     const auto windowId = windowIdGenerator.getNextId();
     const auto bufferSize = 320 * 240 * ((tripleLfb.getColorDepth() + 7) / 8);
@@ -224,13 +300,18 @@ void WindowManager::createWindow(const Client &client) {
     const auto posX = windowId == 0 || windowId == 2 ? 32 : 400;
     const auto posY = windowId == 0 || windowId == 1 ? 32 : 320;
 
-    windows.add(new ClientWindow(windowId, sharedBuffer, posX, posY, width, height, request.getTitle()));
-    for (auto *window : windows) {
-        window->setDirty(true);
-    }
-
     const auto response = Kepler::Response::CreateWindow(windowId, width, height, lfb.getColorDepth());
     response.writeToStream(outputStream);
+
+    const auto signal = static_cast<Kepler::Signal>(inputStream.read());
+    inputStream.setAccessMode(Util::Io::File::NON_BLOCKING);
+
+    if (signal == Kepler::CLIENT_WINDOW_INITIALIZED) {
+        windows.add(new ClientWindow(windowId, client.getProcessId(), posX, posY, width, height, request.getTitle(), sharedBuffer));
+        for (auto *window : windows) {
+            window->setDirty(true);
+        }
+    }
 }
 
 void WindowManager::flushWindow(const Client &client) const {

@@ -18,22 +18,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Client.h"
+#include "MouseRunnable.h"
 
-#include "ClientWindow.h"
+#include "Protocol.h"
+#include "util/io/stream/NumberUtil.h"
 
-Client::Client(const size_t id, size_t processId, Util::Io::FileInputStream *inputStream, Util::Io::FileOutputStream *outputStream) :
-    id(id), processId(processId), inputStream(inputStream), outputStream(outputStream) {}
+void Kepler::MouseRunnable::run() {
+    while (isRunning) {
+        const auto eventType = static_cast<Event::Type>(Util::Io::NumberUtil::readUnsigned8BitValue(mouseInputStream));
+        switch (eventType) {
+            case Event::MOUSE_HOVER: {
+                auto event = Event::MouseHover();
+                event.readFromStream(mouseInputStream);
 
-Client::~Client() {
-    delete inputStream;
-    delete outputStream;
-}
+                if (listener != nullptr) {
+                    listener->onMouseHover(event.getPosX(), event.getPosY());
+                }
 
-Util::Io::FileInputStream& Client::getInputStream() const {
-    return *inputStream;
-}
+                break;
+            }
+            case Event::MOUSE_CLICK: {
+                auto event = Event::MouseClick();
+                event.readFromStream(mouseInputStream);
 
-Util::Io::FileOutputStream& Client::getOutputStream() const {
-    return *outputStream;
+                if (listener != nullptr) {
+                    listener->onMouseClick(event.getPosX(), event.getPosY(), event.getButton(), event.getAction());
+                }
+
+                break;
+            }
+            default:
+                Util::Panic::fire(Util::Panic::INVALID_ARGUMENT, "MouseRunnable: Unknown mouse event type received");
+        }
+    }
 }

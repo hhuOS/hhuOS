@@ -19,7 +19,7 @@
  */
 
 
-
+#include "graphic/BufferedLinearFrameBuffer.h"
 #include "util/async/Thread.h"
 #include "util/graphic/Colors.h"
 #include "util/graphic/font/Terminal8x16.h"
@@ -102,13 +102,68 @@ private:
     Lunar::Button &packButton;
 };
 
+class MouseEventListener final : public Kepler::MouseListener {
+
+public:
+
+    explicit MouseEventListener(Lunar::Container &rootContainer) : rootContainer(rootContainer) {}
+
+    void onMouseHover(const uint16_t x, const uint16_t y) override {
+        auto *hoveredChild = rootContainer.getChildAtPoint(x, y);
+
+        if (hoveredChild != lastHoveredChild) {
+            if (lastHoveredChild != nullptr) {
+                lastHoveredChild->mouseExited();
+            }
+            if (hoveredChild != nullptr) {
+                hoveredChild->mouseEntered();
+            }
+        }
+
+        lastHoveredChild = hoveredChild;
+    }
+
+    void onMouseClick(const uint16_t x, const uint16_t y, const Kepler::Event::MouseClick::Button button, Kepler::Event::MouseClick::Action action) override {
+        if (button == Kepler::Event::MouseClick::LEFT) {
+            if (action == Kepler::Event::MouseClick::PRESS) {
+                auto *clickedChild = rootContainer.getChildAtPoint(x, y);
+                if (clickedChild != lastPressedChild && lastPressedChild != nullptr) {
+                    lastPressedChild->setFocused(false);
+                }
+
+                if (clickedChild != nullptr) {
+                    clickedChild->setFocused(true);
+                    clickedChild->mousePressed();
+                }
+
+                lastPressedChild = clickedChild;
+            } else if (action == Kepler::Event::MouseClick::RELEASE) {
+                if (lastPressedChild != nullptr) {
+                    lastPressedChild->mouseReleased();
+                    lastPressedChild->mouseClicked();
+                }
+            }
+        }
+    }
+
+private:
+
+    Lunar::Container &rootContainer;
+    Lunar::Widget *lastHoveredChild = nullptr;
+    Lunar::Widget *lastPressedChild = nullptr;
+};
+
 int32_t main([[maybe_unused]] int32_t argc, char *argv[]) {
     auto pipe = Kepler::WindowManagerPipe();
     const auto window = Kepler::Window(320, 240, argv[0], pipe);
+    auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(window.getFrameBuffer());
 
     auto rootContainer = Lunar::Container();
     rootContainer.setSize(320, 240);
     rootContainer.setLayout(new Lunar::BorderLayout());
+
+    auto mouseListener = MouseEventListener(rootContainer);
+    window.registerMouseListener(mouseListener);
 
     // Add a label to the top
     auto *northContainer = new Lunar::Container();
@@ -198,11 +253,14 @@ int32_t main([[maybe_unused]] int32_t argc, char *argv[]) {
     bottomRightContainer->addChild(inputLabel);
     bottomRightContainer->addChild(inputField);
 
-    rootContainer.draw(window.getFrameBuffer());
-    window.flush();
-
     while (true) {
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofSeconds(1));
+        if (rootContainer.requiresRedraw()) {
+            rootContainer.draw(bufferedLfb);
+            bufferedLfb.flush();
+            window.flush();
+        } else {
+            Util::Async::Thread::yield();
+        }
     }
 
     return 0;
