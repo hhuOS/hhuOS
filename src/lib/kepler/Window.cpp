@@ -20,6 +20,7 @@
 
 #include "Window.h"
 
+#include "interface.h"
 #include "kepler/Protocol.h"
 #include "util/base/Constants.h"
 
@@ -54,6 +55,15 @@ Window::Window(const uint16_t width, const uint16_t height, const Util::String &
     auto *windowBuffer = reinterpret_cast<void*>(sharedMemory->getAddress().get());
     lfb = new Util::Graphic::LinearFrameBuffer(windowBuffer, response.getSizeX(), response.getSizeY(),
         response.getColorDepth(), response.getSizeX() * bytesPerPixel);
+
+    const auto processId = Util::Async::Process::getCurrentProcess().getId();
+    createPipe(Util::String::format("mouse-%u", id));
+    mouseRunnable = new MouseRunnable(Util::String::format("/process/%u/pipes/mouse-%u", processId, id));
+    Util::Async::Thread::createThread("Kepler-Mouse-Runnable", mouseRunnable);
+
+    if (!pipe.sendSignal(CLIENT_WINDOW_INITIALIZED)) {
+        Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "Window: Pipe closed!");
+    }
 }
 
 Window::~Window() {
