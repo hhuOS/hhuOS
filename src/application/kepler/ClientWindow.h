@@ -25,14 +25,21 @@
 
 #include "util/graphic/LinearFrameBuffer.h"
 #include "util/graphic/font/Terminal8x8.h"
-#include "util/io/stream/FileInputStream.h"
+#include "util/io/stream/FileOutputStream.h"
 #include "util/async/SharedMemory.h"
+#include "kepler/Protocol.h"
 
 class ClientWindow {
 
 public:
 
-    ClientWindow(size_t id, Util::Async::SharedMemory *buffer, uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const Util::String &title);
+    struct MouseCoordinates {
+        uint16_t x = 0;
+        uint16_t y = 0;
+        bool valid = false;;
+    };
+
+    ClientWindow(size_t id, size_t processId, uint16_t posX, uint16_t posY, uint16_t width, uint16_t height, const Util::String &title, Util::Async::SharedMemory *buffer);
 
     ~ClientWindow();
 
@@ -54,6 +61,12 @@ public:
 
     void setDirty(bool dirty);
 
+    MouseCoordinates containsPoint(uint16_t x, uint16_t y) const;
+
+    void sendMouseHoverEvent(const Kepler::Event::MouseHover &event);
+
+    void sendMouseClickEvent(const Kepler::Event::MouseClick &event);
+
     void drawFrame(const Util::Graphic::LinearFrameBuffer &lfb, const Util::Graphic::Color &color) const;
 
     void flush(const Util::Graphic::LinearFrameBuffer &lfb) const;
@@ -61,12 +74,16 @@ public:
 private:
 
     size_t id;
-    Util::Async::SharedMemory *buffer = nullptr;
+
     uint16_t posX = 0;
     uint16_t posY = 0;
     uint16_t width = 0;
     uint16_t height = 0;
+
     Util::String title;
+
+    Util::Async::SharedMemory *buffer = nullptr;
+    Util::Io::FileOutputStream mouseOutputStream;
 
     bool dirty = true;
 
