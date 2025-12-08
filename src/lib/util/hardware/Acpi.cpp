@@ -50,7 +50,7 @@ bool SdtHeader::verifyChecksum() const {
 
 Tables::Tables(const Rsdt &rsdt) : tables(rsdt.getTableCount()) {
     for (size_t i = 0; i < tables.length(); i++) {
-        const auto sdtHeaderPhysical = reinterpret_cast<size_t>(rsdt.tables[i]);
+        const auto sdtHeaderPhysical = reinterpret_cast<size_t>(rsdt.getTables()[i]);
         const auto sdtPageOffset = sdtHeaderPhysical % PAGESIZE;
         auto *sdtPage = static_cast<uint8_t*>(mapIO(sdtHeaderPhysical, 1));
         auto *sdtHeaderVirtual = reinterpret_cast<SdtHeader*>(sdtPage + sdtPageOffset);

@@ -30,7 +30,8 @@
 #include "kernel/network/icmp/IcmpModule.h"
 #include "kernel/network/udp/UdpModule.h"
 
-namespace Kernel::Network {
+namespace Kernel {
+namespace Network {
 
 class NetworkStack {
 
@@ -74,6 +75,7 @@ private:
     Udp::UdpModule udpModule;
 };
 
+}
 }
 
 #endif

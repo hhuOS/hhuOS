@@ -114,15 +114,113 @@ public:
     }
 
     /// Clear the frame buffer by setting all pixels to black.
-    void clear() const;
+    void clear() const {
+        buffer.setRange(0, getPitch() * getResolutionY());
+    }
 
     /// Read the color of a pixel at the given coordinates.
     /// CAUTION: This operation is slow on hardware frame buffers, since it requires reading from the video memory.
     /// It is recommended to use double buffering if pixel reads are required.
-    Color readPixel(uint16_t x, uint16_t y) const;
+    Color readPixel(const uint16_t x, const uint16_t y) const {
+        if (x > resolutionX - 1 || y > resolutionY - 1) {
+            Panic::fire(Panic::OUT_OF_BOUNDS, "LinearFrameBuffer: Trying to read a pixel out of bounds!");
+        }
+
+        const auto *address = reinterpret_cast<const uint32_t*>(buffer.add(x * ((colorDepth + 7) / 8) + y * pitch).get());
+        return Color::fromRGB(*address, colorDepth);
+    }
 
     /// Set the pixel at the given coordinates to the specified color.
-    void drawPixel(uint16_t x, uint16_t y, const Color &color) const;
+    __attribute__((always_inline)) void drawPixel(const uint16_t x, const uint16_t y, const Color &color) const {
+        // Pixels outside the visible area won't be drawn
+        if (x >= resolutionX || y >= resolutionY) {
+            return;
+        }
+
+        // Invisible pixels won't be drawn
+        if (color.getAlpha() == 0) {
+            return;
+        }
+
+        // Blend if necessary
+        const Color toWrite = color.getAlpha() < 255 ? readPixel(x, y).blend(color) : color;
+
+        switch (colorDepth) {
+            case 32:
+            {
+                const auto offset = x + y * (pitch / 4);
+                auto *pixelBuffer = reinterpret_cast<uint32_t*>(buffer.get());
+
+                pixelBuffer[offset] = toWrite.getRGB32();
+
+                return;
+            }
+
+            case 24:
+            {
+                const auto rgbColor = toWrite.getRGB24();
+                const auto offset = x * 3 + y * pitch;
+                auto *pixelBuffer = reinterpret_cast<uint8_t*>(buffer.get());
+
+                pixelBuffer[offset] = rgbColor & 0xff;
+                pixelBuffer[offset + 1] = (rgbColor >> 8) & 0xff;
+                pixelBuffer[offset + 2] = (rgbColor >> 16) & 0xff;
+
+                return;
+            }
+
+            case 16:
+            {
+                const auto offset = x + y * (pitch / 2);
+                auto *pixelBuffer = reinterpret_cast<uint16_t*>(buffer.get());
+
+                pixelBuffer[offset] = toWrite.getRGB16();
+
+                return;
+            }
+
+            case 15:
+            {
+                const auto offset = x + y * (pitch / 2);
+                auto *pixelBuffer = reinterpret_cast<uint16_t*>(buffer.get());
+
+                pixelBuffer[offset] = toWrite.getRGB15();
+
+                return;
+            }
+
+            case 2: // CGA 4-color mode
+            {
+                const auto offset = x / (8 / colorDepth) + y / (4 / colorDepth) * pitch + (y % 2) * 0x2000;
+                const auto pixelValue = toWrite.getRGB2();
+                auto *pixelBuffer = reinterpret_cast<uint8_t*>(buffer.add(offset).get());
+
+                const auto pos = x & 3;
+                const auto shift = (3 - pos) * 2;
+                const auto mask = static_cast<uint8_t>(0x3u << shift);
+                *pixelBuffer = static_cast<uint8_t>((*pixelBuffer & ~mask) | ((pixelValue & 0x3u) << shift));
+
+                return;
+            }
+
+            case 1: // CGA 2-color mode
+            {
+                const auto offset = x / (8 / colorDepth) + y / (4 / colorDepth) * pitch + (y % 2) * 0x2000;
+                const auto pixelValue = toWrite.getRGB1();
+                auto *pixelBuffer = reinterpret_cast<uint8_t*>(buffer.add(offset).get());
+
+                const auto pos = x & 7;
+                const auto shift = 7 - pos;
+                const auto mask = static_cast<uint8_t>(1u << shift);
+                *pixelBuffer = static_cast<uint8_t>((*pixelBuffer & ~mask) | ((pixelValue & 0x1u) << shift));
+
+                return;
+            }
+
+            default:
+                Panic::fire(Panic::UNSUPPORTED_OPERATION, "LinearFrameBuffer: Unsupported color depth!");
+        }
+    }
 
     /// Draw a line from (x1, y1) to (x2, y2) with the specified color using Bresenham's line algorithm.
     void drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const Color &color) const;

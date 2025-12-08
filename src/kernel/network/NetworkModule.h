@@ -45,7 +45,9 @@ class ByteArrayInputStream;
 }  // namespace Stream
 }  // namespace Util
 
-namespace Kernel::Network {
+namespace Kernel {
+namespace Network {
+
 class Socket;
 
 class NetworkModule {
@@ -100,6 +102,7 @@ private:
     Util::HashMap<uint32_t, NetworkModule*> nextLayerModules;
 };
 
+}
 }
 
 #endif

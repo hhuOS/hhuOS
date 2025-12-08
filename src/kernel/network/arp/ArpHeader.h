@@ -36,7 +36,9 @@ class OutputStream;
 }  // namespace Stream
 }  // namespace Util
 
-namespace Kernel::Network::Arp {
+namespace Kernel {
+namespace Network {
+namespace Arp {
 
 class ArpHeader {
 
@@ -102,6 +104,8 @@ private:
     Operation operation{};
 };
 
+}
+}
 }
 
 #endif

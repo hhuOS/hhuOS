@@ -26,7 +26,9 @@
 
 #include "kernel/network/DatagramSocket.h"
 
-namespace Kernel::Network::Ip4 {
+namespace Kernel {
+namespace Network {
+namespace Ip4 {
 
 class Ip4Socket : public DatagramSocket {
 
@@ -54,6 +56,8 @@ public:
     bool send(const Util::Network::Datagram &datagram) override;
 };
 
+}
+}
 }
 
 #endif

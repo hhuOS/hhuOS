@@ -101,11 +101,14 @@ struct Rsdt {
     /// header.length - sizeof(SdtHeader) / sizeof(SdtHeader*).
     /// ```
     /// This is already implemented in the `getTableCount()` method.
-    SdtHeader* tables[];
 
     /// Get the number of tables in this `Rsdt`.
     size_t getTableCount() const {
         return (header.length - sizeof(SdtHeader)) / sizeof(SdtHeader*);
+    }
+
+    const SdtHeader* const* getTables() const {
+        return reinterpret_cast<const SdtHeader* const*>(this + 1);
     }
 } __attribute__ ((packed));
 

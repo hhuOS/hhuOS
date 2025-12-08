@@ -37,7 +37,9 @@ class NetworkDevice;
 }  // namespace Network
 }  // namespace Device
 
-namespace Kernel::Network::Ip4 {
+namespace Kernel {
+namespace Network {
+namespace Ip4 {
 
 class Ip4Interface {
 
@@ -87,6 +89,8 @@ private:
     Device::Network::NetworkDevice *device{};
 };
 
+}
+}
 }
 
 #endif

@@ -67,107 +67,70 @@ void BufferedLinearFrameBuffer::flush() const {
             targetAddress = targetAddress.add(targetPitch);
         }
     } else {
-        static constexpr void *SCALING_FLUSH_LABELS[] = {
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&SCALING_FLUSH_16,
-            &&SCALING_FLUSH_16,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&SCALING_FLUSH_24,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&INVALID_COLOR_DEPTH,
-            &&SCALING_FLUSH_32,
-        };
-
         const uint16_t targetWidth = getResolutionX() * scale;
         const uint16_t targetHeight = getResolutionY() * scale;
+        const auto colorDepth = getColorDepth();
 
-        goto *SCALING_FLUSH_LABELS[getColorDepth()];
+        switch (colorDepth) {
+            case 32:
+            {
+                const auto *sourceAddress = reinterpret_cast<uint32_t*>(getBuffer().get());
+                auto *targetAddress = reinterpret_cast<uint32_t*>(lfb.getBuffer().add(offsetX * 4 + offsetY * lfb.getPitch()).get());
 
-        SCALING_FLUSH_32:
-        {
-            const auto *sourceAddress = reinterpret_cast<uint32_t*>(getBuffer().get());
-            auto *targetAddress = reinterpret_cast<uint32_t*>(lfb.getBuffer().add(offsetX * 4 + offsetY * lfb.getPitch()).get());
+                for (uint16_t y = 0; y < targetHeight; y++) {
+                    for (uint16_t x = 0; x < targetWidth; x++) {
+                        targetAddress[x] = sourceAddress[x / scale];
+                    }
 
-            for (uint16_t y = 0; y < targetHeight; y++) {
-                for (uint16_t x = 0; x < targetWidth; x++) {
-                    targetAddress[x] = sourceAddress[x / scale];
+                    sourceAddress += (y % scale == 0 && y != 0) * (getPitch() / 4);
+                    targetAddress += lfb.getPitch() / 4;
                 }
 
-                sourceAddress += (y % scale == 0 && y != 0) * (getPitch() / 4);
-                targetAddress += lfb.getPitch() / 4;
+                return;
             }
 
-            return;
-        }
+            case 24:
+            {
+                const auto *sourceAddress = reinterpret_cast<uint8_t*>(getBuffer().get());
+                auto *targetAddress = reinterpret_cast<uint8_t*>(lfb.getBuffer().add(offsetX * 3 + offsetY * lfb.getPitch()).get());
 
-        SCALING_FLUSH_24:
-        {
-            const auto *sourceAddress = reinterpret_cast<uint8_t*>(getBuffer().get());
-            auto *targetAddress = reinterpret_cast<uint8_t*>(lfb.getBuffer().add(offsetX * 3 + offsetY * lfb.getPitch()).get());
+                for (uint16_t y = 0; y < targetHeight; y++) {
+                    for (uint16_t x = 0; x < targetWidth; x++) {
+                        const auto sourceIndex = x / scale * 3;
+                        const auto targetIndex = x * 3;
 
-            for (uint16_t y = 0; y < targetHeight; y++) {
-                for (uint16_t x = 0; x < targetWidth; x++) {
-                    const auto sourceIndex = x / scale * 3;
-                    const auto targetIndex = x * 3;
+                        targetAddress[targetIndex] = sourceAddress[sourceIndex];
+                        targetAddress[targetIndex + 1] = sourceAddress[sourceIndex + 1];
+                        targetAddress[targetIndex + 2] = sourceAddress[sourceIndex + 2];
+                    }
 
-                    targetAddress[targetIndex] = sourceAddress[sourceIndex];
-                    targetAddress[targetIndex + 1] = sourceAddress[sourceIndex + 1];
-                    targetAddress[targetIndex + 2] = sourceAddress[sourceIndex + 2];
+                    sourceAddress += (y % scale == 0 && y != 0) * getPitch();
+                    targetAddress += (lfb.getPitch());
                 }
 
-                sourceAddress += (y % scale == 0 && y != 0) * getPitch();
-                targetAddress += (lfb.getPitch());
+                return;
             }
 
-            return;
-        }
+            case 16:
+            {
+                const auto *sourceAddress = reinterpret_cast<uint16_t*>(getBuffer().get());
+                auto *targetAddress = reinterpret_cast<uint16_t*>(lfb.getBuffer().add(offsetX * 2 + offsetY * lfb.getPitch()).get());
 
-        SCALING_FLUSH_16:
-        {
-            const auto *sourceAddress = reinterpret_cast<uint16_t*>(getBuffer().get());
-            auto *targetAddress = reinterpret_cast<uint16_t*>(lfb.getBuffer().add(offsetX * 2 + offsetY * lfb.getPitch()).get());
+                for (uint16_t y = 0; y < targetHeight; y++) {
+                    for (uint16_t x = 0; x < targetWidth; x++) {
+                        targetAddress[x] = sourceAddress[x / scale];
+                    }
 
-            for (uint16_t y = 0; y < targetHeight; y++) {
-                for (uint16_t x = 0; x < targetWidth; x++) {
-                    targetAddress[x] = sourceAddress[x / scale];
+                    sourceAddress += (y % scale == 0 && y != 0) * (getPitch() / 2);
+                    targetAddress += lfb.getPitch() / 2;
                 }
 
-                sourceAddress += (y % scale == 0 && y != 0) * (getPitch() / 2);
-                targetAddress += lfb.getPitch() / 2;
+                return;
             }
 
-            return;
-        }
-
-        INVALID_COLOR_DEPTH:
-        {
-            Util::Panic::fire(Panic::UNSUPPORTED_OPERATION,
-                "BufferedLinearFrameBuffer: Unsupported color depth for scaling flush!");
+            default:
+                Util::Panic::fire(Panic::UNSUPPORTED_OPERATION,
+                    "BufferedLinearFrameBuffer: Unsupported color depth for scaling flush!");
         }
     }
 }

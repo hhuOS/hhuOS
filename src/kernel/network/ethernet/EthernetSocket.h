@@ -26,7 +26,9 @@
 
 #include "kernel/network/DatagramSocket.h"
 
-namespace Kernel::Network::Ethernet {
+namespace Kernel {
+namespace Network {
+namespace Ethernet {
 
 class EthernetSocket : public DatagramSocket {
 
@@ -55,5 +57,8 @@ public:
 };
 
 }
+}
+}
+
 
 #endif

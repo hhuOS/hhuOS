@@ -28,7 +28,9 @@
 
 #include "kernel/network/DatagramSocket.h"
 
-namespace Kernel::Network::Udp {
+namespace Kernel {
+namespace Network {
+namespace Udp {
 
 class UdpSocket : public DatagramSocket {
 
@@ -58,6 +60,8 @@ public:
     uint16_t getPort() const;
 };
 
+}
+}
 }
 
 #endif

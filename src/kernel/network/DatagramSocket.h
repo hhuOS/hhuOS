@@ -44,7 +44,8 @@ class NetworkModule;
 }  // namespace Network
 }  // namespace Kernel
 
-namespace Kernel::Network {
+namespace Kernel {
+namespace Network {
 
 namespace Udp {
 class UdpModule;
@@ -64,10 +65,10 @@ class EthernetModule;
 
 class DatagramSocket : public Socket {
 
-friend class Udp::UdpModule;
-friend class Ip4::Ip4Module;
-friend class Icmp::IcmpModule;
-friend class Ethernet::EthernetModule;
+    friend class Udp::UdpModule;
+    friend class Ip4::Ip4Module;
+    friend class Icmp::IcmpModule;
+    friend class Ethernet::EthernetModule;
 
 public:
     /**
@@ -135,6 +136,7 @@ private:
     Util::ArrayListQueue<Util::Network::Datagram*> incomingDatagramQueue;
 };
 
+}
 }
 
 #endif

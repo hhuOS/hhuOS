@@ -39,7 +39,9 @@ class Ip4SubnetAddress;
 }  // namespace Network
 }  // namespace Util
 
-namespace Kernel::Network::Ip4 {
+namespace Kernel {
+namespace Network {
+namespace Ip4 {
 
 class Ip4RoutingModule {
 
@@ -83,6 +85,8 @@ private:
     Util::Async::ReentrantSpinlock lock;
 };
 
+}
+}
 }
 
 #endif

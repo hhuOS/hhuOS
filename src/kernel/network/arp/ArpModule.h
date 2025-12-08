@@ -58,7 +58,9 @@ class OutputStream;
 }  // namespace Stream
 }  // namespace Util
 
-namespace Kernel::Network::Arp {
+namespace Kernel {
+namespace Network {
+namespace Arp {
 
 class ArpModule : public NetworkModule {
 
@@ -110,6 +112,8 @@ private:
     static const constexpr uint32_t MAX_REQUEST_RETRIES = 10;
 };
 
+}
+}
 }
 
 #endif

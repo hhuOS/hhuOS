@@ -42,7 +42,8 @@ class Datagram;
 }  // namespace Network
 }  // namespace Util
 
-namespace Kernel::Network {
+namespace Kernel {
+namespace Network {
 
 class Socket : public Filesystem::Node {
 
@@ -92,6 +93,7 @@ private:
     Util::Network::Socket::Type type;
 };
 
+}
 }
 
 #endif

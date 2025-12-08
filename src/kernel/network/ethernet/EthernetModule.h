@@ -45,7 +45,9 @@ class OutputStream;
 }  // namespace Stream
 }  // namespace Util
 
-namespace Kernel::Network::Ethernet {
+namespace Kernel {
+namespace Network {
+namespace Ethernet {
 
 class EthernetModule : public NetworkModule{
 
@@ -85,6 +87,8 @@ private:
     static const constexpr uint32_t MINIMUM_PACKET_SIZE = 64;
 };
 
+}
+}
 }
 
 #endif

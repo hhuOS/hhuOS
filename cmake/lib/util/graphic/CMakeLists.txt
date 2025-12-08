@@ -26,7 +26,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/graphic/Ansi.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/BitmapFile.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/BufferedLinearFrameBuffer.cpp
-        ${HHUOS_SRC_DIR}/lib/util/graphic/Color.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/Image.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/LinearFrameBuffer.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/LinearFrameBufferTerminal.cpp

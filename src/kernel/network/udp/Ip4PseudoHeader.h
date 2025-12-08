@@ -35,7 +35,9 @@ class OutputStream;
 }  // namespace Stream
 }  // namespace Util
 
-namespace Kernel::Network::Udp {
+namespace Kernel {
+namespace Network {
+namespace Udp {
 
 class Ip4PseudoHeader {
 
@@ -82,6 +84,8 @@ private:
     const uint16_t datagramLength;
 };
 
+}
+}
 }
 
 #endif

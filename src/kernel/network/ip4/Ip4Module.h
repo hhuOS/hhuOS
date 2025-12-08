@@ -53,7 +53,9 @@ class ByteArrayOutputStream;
 }  // namespace Stream
 }  // namespace Util
 
-namespace Kernel::Network::Ip4 {
+namespace Kernel {
+namespace Network {
+namespace Ip4 {
 
 class Ip4Module : public NetworkModule {
 
@@ -101,6 +103,8 @@ private:
     Util::Async::ReentrantSpinlock lock;
 };
 
+}
+}
 }
 
 #endif

@@ -90,7 +90,8 @@ const TableHeader& Tables::operator[](const HeaderType type) const {
 
 size_t Tables::getTableCount() const {
     size_t count = 0;
-    for (const auto &_ : *this) {
+    for (const auto &table : *this) {
+        (void) table; // Avoid compiler warnings about unused variable
         count++;
     }
 

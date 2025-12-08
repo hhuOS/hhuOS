@@ -41,7 +41,9 @@ class Ip4Address;
 }  // namespace Network
 }  // namespace Util
 
-namespace Kernel::Network::Icmp {
+namespace Kernel {
+namespace Network {
+namespace Icmp {
 
 class IcmpModule : public NetworkModule {
 
@@ -75,6 +77,8 @@ public:
                   const Util::Network::Icmp::EchoHeader &requestHeader, const uint8_t *buffer, uint16_t length);
 };
 
+}
+}
 }
 
 #endif

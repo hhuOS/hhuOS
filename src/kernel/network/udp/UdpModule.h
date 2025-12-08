@@ -37,7 +37,9 @@ class Ip4PortAddress;
 }  // namespace Network
 }  // namespace Util
 
-namespace Kernel::Network::Udp {
+namespace Kernel {
+namespace Network {
+namespace Udp {
 
 class UdpModule : public NetworkModule {
 
@@ -75,6 +77,8 @@ private:
     uint16_t generatePort(const Util::Network::Ip4::Ip4Address &address);
 };
 
+}
+}
 }
 
 #endif

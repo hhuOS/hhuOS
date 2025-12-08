@@ -157,7 +157,28 @@ public:
     ///
     /// const auto invalid = Util::Graphic::Color::fromRGB(0x00ff00, 12); // Panic due to unsupported depth
     /// ```
-    static Color fromRGB(uint32_t rgb, uint8_t depth);
+    static Color fromRGB(const uint32_t rgb, const uint8_t depth) {
+        switch (depth) {
+            case 32:
+                return fromRGB32(rgb);
+            case 24:
+                return fromRGB24(rgb);
+            case 16:
+                return fromRGB16(rgb);
+            case 15:
+                return fromRGB15(rgb);
+            case 8:
+                return fromRGB8(rgb);
+            case 4:
+                return fromRGB4(rgb);
+            case 2:
+                return fromRGB2(rgb);
+            case 1:
+                return fromRGB1(rgb);
+            default:
+                Util::Panic::fire(Panic::INVALID_ARGUMENT, "Unsupported color depth!");
+        }
+    }
 
     /// Create a Color instance from a packed 32-bit RGBA value.
     ///
@@ -433,7 +454,28 @@ public:
     /// const auto blue24 = blue.getColorForDepth(24); // blue24 = 0x0000ff
     /// const auto blue32 = blue.getColorForDepth(32); // blue32 = 0xff0000ff
     /// ```
-    uint32_t getColorForDepth(uint8_t depth) const;
+    uint32_t getColorForDepth(const uint8_t depth) const {
+        switch (depth) {
+            case 32:
+                return getRGB32();
+            case 24:
+                return getRGB24();
+            case 16:
+                return getRGB16();
+            case 15:
+                return getRGB15();
+            case 8:
+                return getRGB8();
+            case 4:
+                return getRGB4();
+            case 2:
+                return getRGB2();
+            case 1:
+                return getRGB1();
+            default:
+                Util::Panic::fire(Panic::INVALID_ARGUMENT, "Unsupported color depth!");
+        }
+    }
 
     /// Get the red component of this color (0-255).
     uint8_t getRed() const {

@@ -27,7 +27,9 @@
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/network/MacAddress.h"
 
-namespace Kernel::Network::Arp {
+namespace Kernel {
+namespace Network {
+namespace Arp {
 
 class ArpEntry {
 
@@ -75,6 +77,8 @@ private:
     Util::Network::MacAddress hardwareAddress{};
 };
 
+}
+}
 }
 
 #endif
