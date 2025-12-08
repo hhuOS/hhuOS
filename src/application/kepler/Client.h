@@ -31,7 +31,7 @@ class Client {
 
 public:
 
-    Client(size_t id, Util::Io::FileInputStream *inputStream, Util::Io::FileOutputStream *outputStream);
+    Client(size_t id, size_t processId, Util::Io::FileInputStream *inputStream, Util::Io::FileOutputStream *outputStream);
 
     ~Client();
 
@@ -39,9 +39,14 @@ public:
 
     [[nodiscard]] Util::Io::FileOutputStream& getOutputStream() const;
 
+    size_t getProcessId() const {
+        return processId;
+    }
+
 private:
 
     size_t id;
+    size_t processId;
 
     Util::Io::FileInputStream *inputStream = nullptr;
     Util::Io::FileOutputStream *outputStream = nullptr;

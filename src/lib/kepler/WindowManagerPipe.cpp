@@ -23,6 +23,7 @@
 #include "lib/interface.h"
 #include "kepler/Protocol.h"
 #include "util/async/Process.h"
+#include "util/io/stream/NumberUtil.h"
 
 namespace Kepler {
 
@@ -78,6 +79,10 @@ bool WindowManagerPipe::sendRequest(const Util::Async::Streamable &streamable) c
 
 bool WindowManagerPipe::receiveResponse(Util::Async::Streamable &streamable) const {
     return streamable.readFromStream(*inputStream);
+}
+
+bool WindowManagerPipe::sendSignal(const Signal signal) const {
+    return Util::Io::NumberUtil::writeUnsigned8BitValue(signal, *outputStream);
 }
 
 size_t WindowManagerPipe::getWindowManagerProcessId() const {

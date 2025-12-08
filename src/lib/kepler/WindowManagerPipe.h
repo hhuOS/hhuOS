@@ -24,6 +24,7 @@
 #include "util/async/Streamable.h"
 #include "util/io/stream/FileInputStream.h"
 #include "util/io/stream/FileOutputStream.h"
+#include "kepler/Protocol.h"
 
 namespace Kepler {
 
@@ -42,6 +43,8 @@ public:
     [[nodiscard]] bool sendRequest(const Util::Async::Streamable &streamable) const;
 
     [[nodiscard]] bool receiveResponse(Util::Async::Streamable &streamable) const;
+
+    bool sendSignal(Signal signal) const;
 
     [[nodiscard]] size_t getWindowManagerProcessId() const;
 

@@ -144,4 +144,34 @@ bool Flush::isSuccess() const {
 
 }
 
+bool Event::MouseHover::writeToStream(Util::Io::OutputStream &stream) const {
+    return Util::Io::NumberUtil::writeUnsigned8BitValue(MOUSE_HOVER, stream) &&
+        Util::Io::NumberUtil::writeUnsigned16BitValue(posX, stream) &&
+        Util::Io::NumberUtil::writeUnsigned16BitValue(posY, stream);
+}
+
+bool Event::MouseHover::readFromStream(Util::Io::InputStream &stream) {
+    posX = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
+    posY = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
+
+    return true;
+}
+
+bool Event::MouseClick::writeToStream(Util::Io::OutputStream &stream) const {
+    return Util::Io::NumberUtil::writeUnsigned8BitValue(MOUSE_CLICK, stream) &&
+        Util::Io::NumberUtil::writeUnsigned16BitValue(posX, stream) &&
+        Util::Io::NumberUtil::writeUnsigned16BitValue(posY, stream) &&
+        Util::Io::NumberUtil::writeUnsigned8BitValue(button, stream) &&
+        Util::Io::NumberUtil::writeUnsigned8BitValue(action, stream);
+}
+
+bool Event::MouseClick::readFromStream(Util::Io::InputStream &stream) {
+    posX = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
+    posY = Util::Io::NumberUtil::readUnsigned16BitValue(stream);
+    button = static_cast<Button>(Util::Io::NumberUtil::readUnsigned8BitValue(stream));
+    action = static_cast<Action>(Util::Io::NumberUtil::readUnsigned8BitValue(stream));
+
+    return true;
+}
+
 }

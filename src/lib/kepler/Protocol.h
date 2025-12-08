@@ -34,6 +34,10 @@ enum Command : uint8_t {
     FLUSH
 };
 
+enum Signal : uint8_t {
+    CLIENT_WINDOW_INITIALIZED = 0xab
+};
+
 namespace Request {
 
 class Connect final : public Util::Async::Streamable {
@@ -49,6 +53,10 @@ public:
     bool readFromStream(Util::Io::InputStream &stream) override;
 
     [[nodiscard]] Util::String getPipePath() const;
+
+    size_t getProcessId() const {
+        return processId;
+    }
 
 private:
 
@@ -149,7 +157,89 @@ public:
 private:
 
     bool success = false;
+};
 
+}
+
+namespace Event {
+
+enum Type : uint8_t {
+    MOUSE_HOVER,
+    MOUSE_CLICK
+};
+
+class MouseHover final : public Util::Async::Streamable {
+
+public:
+
+    MouseHover() = default;
+
+    MouseHover(const uint16_t posX, const uint16_t posY) : posX(posX), posY(posY) {}
+
+    bool writeToStream(Util::Io::OutputStream &stream) const override;
+
+    bool readFromStream(Util::Io::InputStream &stream) override;
+
+    [[nodiscard]] uint16_t getPosX() const {
+        return posX;
+    }
+
+    [[nodiscard]] uint16_t getPosY() const {
+        return posY;
+    }
+
+private:
+
+    uint16_t posX = 0;
+    uint16_t posY = 0;
+};
+
+class MouseClick final : public Util::Async::Streamable {
+
+public:
+
+    enum Button : uint8_t {
+        LEFT,
+        RIGHT,
+        MIDDLE
+    };
+
+    enum Action : uint8_t {
+        PRESS,
+        RELEASE
+    };
+
+    MouseClick() = default;
+
+    MouseClick(const uint16_t posX, const uint16_t posY, const Button button, const Action action) :
+        posX(posX), posY(posY), button(button), action(action) {}
+
+    bool writeToStream(Util::Io::OutputStream &stream) const override;
+
+    bool readFromStream(Util::Io::InputStream &stream) override;
+
+    uint16_t getPosX() const {
+        return posX;
+    }
+
+    uint16_t getPosY() const {
+        return posY;
+    }
+
+    Button getButton() const {
+        return button;
+    }
+
+    Action getAction() const {
+        return action;
+    }
+
+private:
+
+    uint16_t posX = 0;
+    uint16_t posY = 0;
+    Button button = LEFT;
+    Action action = PRESS;
 };
 
 }
