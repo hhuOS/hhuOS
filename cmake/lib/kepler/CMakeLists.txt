@@ -22,6 +22,7 @@ message(STATUS "Project " ${PROJECT_NAME})
 include_directories(${HHUOS_SRC_DIR} ${HHUOS_SRC_DIR}/lib ${HHUOS_SRC_DIR}/lib/libc)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_sources(${PROJECT_NAME} PUBLIC
+        ${HHUOS_SRC_DIR}/lib/kepler/MouseRunnable.cpp
         ${HHUOS_SRC_DIR}/lib/kepler/Protocol.cpp
         ${HHUOS_SRC_DIR}/lib/kepler/Window.cpp
         ${HHUOS_SRC_DIR}/lib/kepler/WindowManagerPipe.cpp)

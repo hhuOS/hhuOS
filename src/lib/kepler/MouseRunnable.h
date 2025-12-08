@@ -18,22 +18,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Client.h"
+#ifndef HHUOS_MOUSERUNNABLE_H
+#define HHUOS_MOUSERUNNABLE_H
 
-#include "ClientWindow.h"
+#include "MouseListener.h"
+#include "util/async/Runnable.h"
+#include "util/base/String.h"
+#include "util/io/stream/FileInputStream.h"
 
-Client::Client(const size_t id, size_t processId, Util::Io::FileInputStream *inputStream, Util::Io::FileOutputStream *outputStream) :
-    id(id), processId(processId), inputStream(inputStream), outputStream(outputStream) {}
+namespace Kepler {
 
-Client::~Client() {
-    delete inputStream;
-    delete outputStream;
+class MouseRunnable final : public Util::Async::Runnable {
+
+public:
+
+    explicit MouseRunnable(const Util::String &pipePath) : mouseInputStream(pipePath) {}
+
+    void run() override;
+
+    void stop() {
+        isRunning = false;
+    }
+
+    void registerListener(MouseListener &listener) {
+        if (MouseRunnable::listener != nullptr) {
+            Util::Panic::fire(Util::Panic::ILLEGAL_STATE, "MouseRunnable: Listener already registered");
+        }
+
+        MouseRunnable::listener = &listener;
+    }
+
+private:
+
+    Util::Io::FileInputStream mouseInputStream;
+    MouseListener *listener = nullptr;
+    bool isRunning = true;
+};
+
 }
 
-Util::Io::FileInputStream& Client::getInputStream() const {
-    return *inputStream;
-}
-
-Util::Io::FileOutputStream& Client::getOutputStream() const {
-    return *outputStream;
-}
+#endif
